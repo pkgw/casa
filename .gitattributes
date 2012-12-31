@@ -2441,6 +2441,10 @@ casacore/ms/MeasurementSets/MSMainColumns.h -text
 casacore/ms/MeasurementSets/MSMainEnums.h -text
 casacore/ms/MeasurementSets/MSMetaData.cc -text
 casacore/ms/MeasurementSets/MSMetaData.h -text
+casacore/ms/MeasurementSets/MSMetaDataOnDemand.cc -text
+casacore/ms/MeasurementSets/MSMetaDataOnDemand.h -text
+casacore/ms/MeasurementSets/MSMetaDataPreload.cc -text
+casacore/ms/MeasurementSets/MSMetaDataPreload.h -text
 casacore/ms/MeasurementSets/MSObsColumns.cc -text
 casacore/ms/MeasurementSets/MSObsColumns.h -text
 casacore/ms/MeasurementSets/MSObsEnums.h -text
