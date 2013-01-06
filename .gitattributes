@@ -5995,6 +5995,8 @@ code/display/DisplayShapes/DisplayShapeInterface.cc -text
 code/display/DisplayShapes/DisplayShapeInterface.h -text
 code/display/DisplayShapes/DisplayShapeWithCoords.cc -text
 code/display/DisplayShapes/DisplayShapeWithCoords.h -text
+code/display/Fit/ColorComboDelegate.cc -text
+code/display/Fit/ColorComboDelegate.h -text
 code/display/Fit/ComponentListWrapper.cc -text
 code/display/Fit/ComponentListWrapper.h -text
 code/display/Fit/FindSourcesDialog.cc -text
@@ -6011,6 +6013,9 @@ code/display/Fit/Gaussian2DFitter.h -text
 code/display/Fit/PixelRangeDialog.cc -text
 code/display/Fit/PixelRangeDialog.qo.h -text
 code/display/Fit/PixelRangeDialog.ui -text
+code/display/Fit/ResidualHistogramDialog.cc -text
+code/display/Fit/ResidualHistogramDialog.qo.h -text
+code/display/Fit/ResidualHistogramDialog.ui -text
 code/display/QtAutoGui/QtAutoGui.cc -text
 code/display/QtAutoGui/QtAutoGui.qo.h -text
 code/display/QtAutoGui/QtAutoGui.qrc -text
