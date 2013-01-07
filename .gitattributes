@@ -8664,10 +8664,10 @@ code/synthesis/MeasurementEquations/SIIterBot.cc -text
 code/synthesis/MeasurementEquations/SIIterBot.h -text
 code/synthesis/MeasurementEquations/SIMapper.cc -text
 code/synthesis/MeasurementEquations/SIMapper.h -text
+code/synthesis/MeasurementEquations/SIMapperBase.cc -text
+code/synthesis/MeasurementEquations/SIMapperBase.h -text
 code/synthesis/MeasurementEquations/SIMapperCollection.cc -text
 code/synthesis/MeasurementEquations/SIMapperCollection.h -text
-code/synthesis/MeasurementEquations/SISkyEquation.cc -text
-code/synthesis/MeasurementEquations/SISkyEquation.h -text
 code/synthesis/MeasurementEquations/SISubIterBot.cc -text
 code/synthesis/MeasurementEquations/SISubIterBot.h -text
 code/synthesis/MeasurementEquations/Simulator.cc -text
