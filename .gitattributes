@@ -8668,8 +8668,8 @@ code/synthesis/MeasurementEquations/SIMapperBase.cc -text
 code/synthesis/MeasurementEquations/SIMapperBase.h -text
 code/synthesis/MeasurementEquations/SIMapperCollection.cc -text
 code/synthesis/MeasurementEquations/SIMapperCollection.h -text
-code/synthesis/MeasurementEquations/SISubIterBot.cc -text
-code/synthesis/MeasurementEquations/SISubIterBot.h -text
+code/synthesis/MeasurementEquations/SIMinorCycleController.cc -text
+code/synthesis/MeasurementEquations/SIMinorCycleController.h -text
 code/synthesis/MeasurementEquations/Simulator.cc -text
 code/synthesis/MeasurementEquations/Simulator.h -text
 code/synthesis/MeasurementEquations/SkyEquation.cc -text
