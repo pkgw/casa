@@ -9098,6 +9098,7 @@ gcwrap/python/scripts/pybot/casa/042_wproject_regression.html -text
 gcwrap/python/scripts/pybot/casa/043_widebandmosaic.html -text
 gcwrap/python/scripts/pybot/casa/__init__.html -text
 gcwrap/python/scripts/pybot/casa/bin/casapy-version -text
+gcwrap/python/scripts/pybot/casa/bin/cbtdistro -text
 gcwrap/python/scripts/pybot/casa/bin/postprocess-report -text
 gcwrap/python/scripts/pybot/casa/bin/publish-current-html -text
 gcwrap/python/scripts/pybot/casa/bin/xvfb-casapy -text
