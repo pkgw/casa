@@ -8660,6 +8660,8 @@ code/synthesis/MeasurementEquations/SDAlgorithmBase.cc -text
 code/synthesis/MeasurementEquations/SDAlgorithmBase.h -text
 code/synthesis/MeasurementEquations/SDMaskHandler.cc -text
 code/synthesis/MeasurementEquations/SDMaskHandler.h -text
+code/synthesis/MeasurementEquations/SIImageStore.cc -text
+code/synthesis/MeasurementEquations/SIImageStore.h -text
 code/synthesis/MeasurementEquations/SIIterBot.cc -text
 code/synthesis/MeasurementEquations/SIIterBot.h -text
 code/synthesis/MeasurementEquations/SIMapper.cc -text
