@@ -6013,6 +6013,8 @@ code/display/Fit/Gaussian2DFitter.h -text
 code/display/Fit/PixelRangeDialog.cc -text
 code/display/Fit/PixelRangeDialog.qo.h -text
 code/display/Fit/PixelRangeDialog.ui -text
+code/display/Fit/RegionBox.cc -text
+code/display/Fit/RegionBox.h -text
 code/display/Fit/ResidualHistogramDialog.cc -text
 code/display/Fit/ResidualHistogramDialog.qo.h -text
 code/display/Fit/ResidualHistogramDialog.ui -text
