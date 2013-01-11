@@ -4241,6 +4241,8 @@ code/alma/Enumtcl/ProcessorSubType.cc -text
 code/alma/Enumtcl/ProcessorSubType.h -text
 code/alma/Enumtcl/ProcessorType.cc -text
 code/alma/Enumtcl/ProcessorType.h -text
+code/alma/Enumtcl/RadialVelocityReferenceCode.cc -text
+code/alma/Enumtcl/RadialVelocityReferenceCode.h -text
 code/alma/Enumtcl/ReceiverBand.cc -text
 code/alma/Enumtcl/ReceiverBand.h -text
 code/alma/Enumtcl/ReceiverSideband.cc -text
