@@ -7296,9 +7296,15 @@ code/guitools/Feather/images/featherFlipped.png -text
 code/guitools/Feather/images/fileFolder.png -text
 code/guitools/Feather/images/settings.png -text
 code/guitools/Feather/images/zoom.png -text
+code/guitools/Histogram/BinCountWidget.cc -text
+code/guitools/Histogram/BinCountWidget.qo.h -text
+code/guitools/Histogram/BinCountWidget.ui -text
 code/guitools/Histogram/BinPlotWidget.cc -text
 code/guitools/Histogram/BinPlotWidget.qo.h -text
 code/guitools/Histogram/BinPlotWidget.ui -text
+code/guitools/Histogram/ChannelRangeWidget.cc -text
+code/guitools/Histogram/ChannelRangeWidget.qo.h -text
+code/guitools/Histogram/ChannelRangeWidget.ui -text
 code/guitools/Histogram/ColorDelegate.cc -text
 code/guitools/Histogram/ColorDelegate.h -text
 code/guitools/Histogram/ColorPreferences.cc -text
@@ -7337,6 +7343,9 @@ code/guitools/Histogram/SaveHistogramWidget.qo.h -text
 code/guitools/Histogram/SaveHistogramWidget.ui -text
 code/guitools/Histogram/ToolTipPicker.cc -text
 code/guitools/Histogram/ToolTipPicker.h -text
+code/guitools/Histogram/ZoomWidget.cc -text
+code/guitools/Histogram/ZoomWidget.qo.h -text
+code/guitools/Histogram/ZoomWidget.ui -text
 code/guitools/Histogram/images/colorWheel.png -text
 code/guitools/Histogram/images/fileFolder.png -text
 code/guitools/Histogram/images/save.png -text
