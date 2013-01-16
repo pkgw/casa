@@ -5838,6 +5838,8 @@ code/display/DisplayEvents/MWCPolyTool.cc -text
 code/display/DisplayEvents/MWCPolyTool.h -text
 code/display/DisplayEvents/MWCPolylineTool.cc -text
 code/display/DisplayEvents/MWCPolylineTool.h -text
+code/display/DisplayEvents/MWCPositionVelocityTool.cc -text
+code/display/DisplayEvents/MWCPositionVelocityTool.h -text
 code/display/DisplayEvents/MWCRTRegion.cc -text
 code/display/DisplayEvents/MWCRTRegion.h -text
 code/display/DisplayEvents/MWCRTZoomer.cc -text
@@ -6436,6 +6438,10 @@ code/display/QtViewer/icons/polyregionb3.png -text
 code/display/QtViewer/icons/poweroff.png -text
 code/display/QtViewer/icons/prevtrk.png -text
 code/display/QtViewer/icons/profileMomentCollapse.png -text
+code/display/QtViewer/icons/pvtoolb0.png -text
+code/display/QtViewer/icons/pvtoolb1.png -text
+code/display/QtViewer/icons/pvtoolb2.png -text
+code/display/QtViewer/icons/pvtoolb3.png -text
 code/display/QtViewer/icons/rectregion.png -text
 code/display/QtViewer/icons/rectregionb0.png -text
 code/display/QtViewer/icons/rectregionb1.png -text
@@ -6623,8 +6629,10 @@ code/display/region/Rectangle.cc -text
 code/display/region/Rectangle.h -text
 code/display/region/Region.cc -text
 code/display/region/Region.h -text
+code/display/region/Region.qo.h -text
 code/display/region/RegionCreator.cc -text
 code/display/region/RegionCreator.h -text
+code/display/region/RegionEnums.h -text
 code/display/region/RegionInfo.h -text
 code/display/region/RegionSource.cc -text
 code/display/region/RegionSource.h -text
