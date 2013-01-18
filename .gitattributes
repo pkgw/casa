@@ -6600,18 +6600,8 @@ code/display/region/Point.cc -text
 code/display/region/Point.h -text
 code/display/region/Polygon.cc -text
 code/display/region/Polygon.h -text
-code/display/region/QtEllipse.cc -text
-code/display/region/QtEllipse.qo.h -text
 code/display/region/QtImageRegionStats.ui -text
 code/display/region/QtMsRegionStats.ui -text
-code/display/region/QtPoint.cc -text
-code/display/region/QtPoint.qo.h -text
-code/display/region/QtPolygon.cc -text
-code/display/region/QtPolygon.qo.h -text
-code/display/region/QtRectangle.cc -text
-code/display/region/QtRectangle.qo.h -text
-code/display/region/QtRegion.cc -text
-code/display/region/QtRegion.qo.h -text
 code/display/region/QtRegionDock.cc -text
 code/display/region/QtRegionDock.qo.h -text
 code/display/region/QtRegionDock.ui -text
@@ -6628,7 +6618,6 @@ code/display/region/QtRegionStats.ui -text
 code/display/region/Rectangle.cc -text
 code/display/region/Rectangle.h -text
 code/display/region/Region.cc -text
-code/display/region/Region.h -text
 code/display/region/Region.qo.h -text
 code/display/region/RegionCreator.cc -text
 code/display/region/RegionCreator.h -text
