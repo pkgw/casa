@@ -8884,6 +8884,7 @@ code/synthesis/Utilities/SigHandler.h -text
 code/synthesis/Utilities/ThreadCoordinator.cc -text
 code/synthesis/Utilities/ThreadCoordinator.h -text
 code/synthesis/apps/casasplit/casasplit.cc -text
+code/synthesis/apps/utils/imageconcat.cc -text
 code/synthesis/fortran/faccumulateFromGrid.f -text
 code/synthesis/fortran/faccumulateToGrid.f -text
 code/synthesis/fortran/fgridft.f -text
