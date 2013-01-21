@@ -6555,6 +6555,11 @@ code/display/RegionShapes/RegionShapes.cc -text
 code/display/RegionShapes/RegionShapes.h -text
 code/display/RegionShapes/XMLFileReaderWriter.cc -text
 code/display/RegionShapes/XMLFileReaderWriter.h -text
+code/display/Slicer/SliceWorker.cc -text
+code/display/Slicer/SliceWorker.h -text
+code/display/Slicer/SlicerMainWindow.cc -text
+code/display/Slicer/SlicerMainWindow.qo.h -text
+code/display/Slicer/SlicerMainWindow.ui -text
 code/display/Utilities/DisplayOptions.cc -text
 code/display/Utilities/DisplayOptions.h -text
 code/display/Utilities/DisplayOptionsTemplate.tcc -text
