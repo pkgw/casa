@@ -8461,6 +8461,7 @@ code/synthesis/MSVis/VisibilityIteratorImplAsync2.h -text
 code/synthesis/MSVis/VisibilityProcessing.cc -text
 code/synthesis/MSVis/VisibilityProcessing.h -text
 code/synthesis/MSVis/changelog -text
+code/synthesis/MSVis/test/AveragingTvi2_Test.cc -text
 code/synthesis/MSVis/test/VisibilityIterator_Test.cc -text
 code/synthesis/MSVis/test/VisibilityIterator_Test.h -text
 code/synthesis/MSVis/test/VisibilityProcessing_Test.cc -text
