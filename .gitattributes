@@ -9414,6 +9414,7 @@ gcwrap/python/scripts/task_predictcomp.py -text
 gcwrap/python/scripts/task_rmtables.py -text
 gcwrap/python/scripts/task_sdbaseline.py -text
 gcwrap/python/scripts/task_sdcal.py -text
+gcwrap/python/scripts/task_sdcal2.py -text
 gcwrap/python/scripts/task_sdcoadd.py -text
 gcwrap/python/scripts/task_sdfit.py -text
 gcwrap/python/scripts/task_sdflag.py -text
@@ -9570,6 +9571,7 @@ gcwrap/python/scripts/tests/test_rg_frombcs.py -text
 gcwrap/python/scripts/tests/test_rg_fromtextfile.py -text
 gcwrap/python/scripts/tests/test_sdbaseline.py -text
 gcwrap/python/scripts/tests/test_sdcal.py -text
+gcwrap/python/scripts/tests/test_sdcal2.py -text
 gcwrap/python/scripts/tests/test_sdcoadd.py -text
 gcwrap/python/scripts/tests/test_sdfit.py -text
 gcwrap/python/scripts/tests/test_sdflag.py -text
@@ -9709,6 +9711,7 @@ gcwrap/tasks/predictcomp.xml -text
 gcwrap/tasks/rmtables.xml -text
 gcwrap/tasks/sdbaseline.xml -text
 gcwrap/tasks/sdcal.xml -text
+gcwrap/tasks/sdcal2.xml -text
 gcwrap/tasks/sdcoadd.xml -text
 gcwrap/tasks/sdfit.xml -text
 gcwrap/tasks/sdflag.xml -text
