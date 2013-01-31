@@ -5108,6 +5108,8 @@ code/casadbus/utilities/DBusBase.cc -text
 code/casadbus/utilities/DBusBase.h -text
 code/casadbus/utilities/Diagnostic.cc -text
 code/casadbus/utilities/Diagnostic.h -text
+code/casadbus/utilities/io.cc -text
+code/casadbus/utilities/io.h -text
 code/casadbus/viewer/ViewerProxy.cc -text
 code/casadbus/viewer/ViewerProxy.h -text
 code/casadbus/viewer/test/dDBusViewerProxy.cc -text
