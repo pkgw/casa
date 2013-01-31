@@ -5539,6 +5539,9 @@ code/dish/SDIterators/test/tSDTableIterator.cc -text
 code/dish/SDIterators/test/tSDTableIterator.exec -text
 code/dish/dish.dox -text
 code/display/CMakeLists.txt -text
+code/display/Clean/CleanGui.cc -text
+code/display/Clean/CleanGui.qo.h -text
+code/display/Clean/CleanGui.ui -text
 code/display/Display.h -text
 code/display/Display/AttBufferTemplates.tcc -text
 code/display/Display/AttVal.h -text
