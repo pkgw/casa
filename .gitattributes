@@ -5091,6 +5091,8 @@ code/casadbus/session/DBusSession.h -text
 code/casadbus/session/Dispatcher.cc -text
 code/casadbus/session/Dispatcher.h -text
 code/casadbus/session/test/dDBusSession.cc -text
+code/casadbus/synthesis/ImagerControl.cc -text
+code/casadbus/synthesis/ImagerControl.h -text
 code/casadbus/types/functor.h -text
 code/casadbus/types/nullptr.cc -text
 code/casadbus/types/nullptr.h -text
