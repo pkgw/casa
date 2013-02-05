@@ -1249,8 +1249,6 @@ casacore/images/Images/ImageConcat.h -text
 casacore/images/Images/ImageConcat.tcc -text
 casacore/images/Images/ImageConvolver.h -text
 casacore/images/Images/ImageConvolver.tcc -text
-casacore/images/Images/ImageDecomposer.h -text
-casacore/images/Images/ImageDecomposer.tcc -text
 casacore/images/Images/ImageExpr.h -text
 casacore/images/Images/ImageExpr.tcc -text
 casacore/images/Images/ImageExprGram.cc -text
@@ -1274,8 +1272,6 @@ casacore/images/Images/ImageInterface.h -text
 casacore/images/Images/ImageInterface.tcc -text
 casacore/images/Images/ImageMetaData.cc -text
 casacore/images/Images/ImageMetaData.h -text
-casacore/images/Images/ImageMoments.h -text
-casacore/images/Images/ImageMoments.tcc -text
 casacore/images/Images/ImageMomentsProgress.cc -text
 casacore/images/Images/ImageMomentsProgress.h -text
 casacore/images/Images/ImageMomentsProgressMonitor.cc -text
@@ -1290,8 +1286,6 @@ casacore/images/Images/ImageProxy.cc -text
 casacore/images/Images/ImageProxy.h -text
 casacore/images/Images/ImageRegrid.h -text
 casacore/images/Images/ImageRegrid.tcc -text
-casacore/images/Images/ImageSourceFinder.h -text
-casacore/images/Images/ImageSourceFinder.tcc -text
 casacore/images/Images/ImageStatistics.h -text
 casacore/images/Images/ImageStatistics.tcc -text
 casacore/images/Images/ImageSummary.h -text
@@ -1309,8 +1303,6 @@ casacore/images/Images/MIRIADImage.h -text
 casacore/images/Images/Makefile.am -text
 casacore/images/Images/MaskSpecifier.cc -text
 casacore/images/Images/MaskSpecifier.h -text
-casacore/images/Images/MomentCalculator.h -text
-casacore/images/Images/MomentCalculator.tcc -text
 casacore/images/Images/MomentsBase.h -text
 casacore/images/Images/MomentsBase.tcc -text
 casacore/images/Images/PagedImage.h -text
@@ -1318,8 +1310,6 @@ casacore/images/Images/PagedImage.tcc -text
 casacore/images/Images/PagedImage2.cc -text
 casacore/images/Images/RebinImage.h -text
 casacore/images/Images/RebinImage.tcc -text
-casacore/images/Images/SepImageConvolver.h -text
-casacore/images/Images/SepImageConvolver.tcc -text
 casacore/images/Images/SubImage.h -text
 casacore/images/Images/SubImage.tcc -text
 casacore/images/Images/TempImage.h -text
@@ -1330,7 +1320,6 @@ casacore/images/Images/makefile -text
 casacore/images/Images/test/CMakeLists.txt -text
 casacore/images/Images/test/dImageHistograms.cc -text
 casacore/images/Images/test/dImageInterface.cc -text
-casacore/images/Images/test/dImageMoments.cc -text
 casacore/images/Images/test/dImageStatistics.cc -text
 casacore/images/Images/test/dImageSummary.cc -text
 casacore/images/Images/test/dPagedImage.cc -text
@@ -1361,7 +1350,6 @@ casacore/images/Images/test/tImage2DConvolver.cc -text
 casacore/images/Images/test/tImageBeamSet.cc -text
 casacore/images/Images/test/tImageConcat.cc -text
 casacore/images/Images/test/tImageConvolver.cc -text
-casacore/images/Images/test/tImageDecomposer.cc -text
 casacore/images/Images/test/tImageEmpty.cc -text
 casacore/images/Images/test/tImageExpr2Gram.cc -text
 casacore/images/Images/test/tImageExpr3Gram.cc -text
@@ -1372,10 +1360,8 @@ casacore/images/Images/test/tImageFFT.cc -text
 casacore/images/Images/test/tImageFit1D.cc -text
 casacore/images/Images/test/tImageInfo.cc -text
 casacore/images/Images/test/tImageMetaData.cc -text
-casacore/images/Images/test/tImageMoments.cc -text
 casacore/images/Images/test/tImagePolarimetry.cc -text
 casacore/images/Images/test/tImageRegrid.cc -text
-casacore/images/Images/test/tImageSourceFinder.cc -text
 casacore/images/Images/test/tImageStatistics.cc -text
 casacore/images/Images/test/tImageTiledCache.in -text
 casacore/images/Images/test/tImageUtilities.cc -text
@@ -1385,7 +1371,6 @@ casacore/images/Images/test/tMIRIADImage.run -text
 casacore/images/Images/test/tPagedImage.cc -text
 casacore/images/Images/test/tPagedImage2.cc -text
 casacore/images/Images/test/tRebinImage.cc -text
-casacore/images/Images/test/tSepImConvolver.cc -text
 casacore/images/Images/test/tSubImage.cc -text
 casacore/images/Images/test/tTempImage.cc -text
 casacore/images/Images/test/templates -text
