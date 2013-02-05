@@ -6306,6 +6306,7 @@ code/display/QtViewer/icons/Anim3_Stop.png -text
 code/display/QtViewer/icons/Anim4_Play.png -text
 code/display/QtViewer/icons/Anim5_FwdStep.png -text
 code/display/QtViewer/icons/Anim6_ToEnd.png -text
+code/display/QtViewer/icons/Anim7_Pause.png -text
 code/display/QtViewer/icons/DD_Adjust.png -text
 code/display/QtViewer/icons/DD_Register.png -text
 code/display/QtViewer/icons/DP_New.png -text
