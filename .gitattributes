@@ -7426,6 +7426,8 @@ code/imageanalysis/ImageAnalysis/ImageMoments.h -text
 code/imageanalysis/ImageAnalysis/ImageMoments.tcc -text
 code/imageanalysis/ImageAnalysis/ImagePadder.cc -text
 code/imageanalysis/ImageAnalysis/ImagePadder.h -text
+code/imageanalysis/ImageAnalysis/ImagePolProxy.cc -text
+code/imageanalysis/ImageAnalysis/ImagePolProxy.h -text
 code/imageanalysis/ImageAnalysis/ImagePrimaryBeamCorrector.cc -text
 code/imageanalysis/ImageAnalysis/ImagePrimaryBeamCorrector.h -text
 code/imageanalysis/ImageAnalysis/ImageProfileFitter.cc -text
