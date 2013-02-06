@@ -1276,8 +1276,6 @@ casacore/images/Images/ImageMomentsProgressMonitor.cc -text
 casacore/images/Images/ImageMomentsProgressMonitor.h -text
 casacore/images/Images/ImageOpener.cc -text
 casacore/images/Images/ImageOpener.h -text
-casacore/images/Images/ImagePolProxy.cc -text
-casacore/images/Images/ImagePolProxy.h -text
 casacore/images/Images/ImagePolarimetry.cc -text
 casacore/images/Images/ImagePolarimetry.h -text
 casacore/images/Images/ImageProxy.cc -text
