@@ -7398,6 +7398,8 @@ code/imageanalysis/IO/test/tFitterEstimatesFileParser.cc -text
 code/imageanalysis/IO/test/tProfileFitterEstimatesFileParser.cc -text
 code/imageanalysis/IO/test/tRegionTextParser.cc -text
 code/imageanalysis/ImageAnalysis.h -text
+code/imageanalysis/ImageAnalysis/ComponentImager.cc -text
+code/imageanalysis/ImageAnalysis/ComponentImager.h -text
 code/imageanalysis/ImageAnalysis/ImageAnalysis.cc -text
 code/imageanalysis/ImageAnalysis/ImageAnalysis.h -text
 code/imageanalysis/ImageAnalysis/ImageCollapser.cc -text
@@ -7435,6 +7437,7 @@ code/imageanalysis/ImageAnalysis/SpectralCollapser.h -text
 code/imageanalysis/ImageAnalysis/SpectralFitter.cc -text
 code/imageanalysis/ImageAnalysis/SpectralFitter.h -text
 code/imageanalysis/ImageAnalysis/test/dImageMoments.cc -text
+code/imageanalysis/ImageAnalysis/test/tComponentImager.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageAnalysis.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageAnalysis2.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageCollapser.cc -text
