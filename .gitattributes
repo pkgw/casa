@@ -1239,8 +1239,6 @@ casacore/images/Images/FITSQualityMask.h -text
 casacore/images/Images/HDF5Image.h -text
 casacore/images/Images/HDF5Image.tcc -text
 casacore/images/Images/HDF5Image2.cc -text
-casacore/images/Images/Image2DConvolver.h -text
-casacore/images/Images/Image2DConvolver.tcc -text
 casacore/images/Images/ImageBeamSet.cc -text
 casacore/images/Images/ImageBeamSet.h -text
 casacore/images/Images/ImageConcat.h -text
@@ -1341,7 +1339,6 @@ casacore/images/Images/test/tFITSImage.cc -text
 casacore/images/Images/test/tFITSImgParser.cc -text
 casacore/images/Images/test/tFITSQualityImage.cc -text
 casacore/images/Images/test/tHDF5Image.cc -text
-casacore/images/Images/test/tImage2DConvolver.cc -text
 casacore/images/Images/test/tImageBeamSet.cc -text
 casacore/images/Images/test/tImageConcat.cc -text
 casacore/images/Images/test/tImageConvolver.cc -text
@@ -1379,17 +1376,6 @@ casacore/images/Images/test/test_image.im/table.f0 -text
 casacore/images/Images/test/test_image.im/table.f0_TSM0 -text
 casacore/images/Images/test/test_image.im/table.info -text
 casacore/images/Images/test/test_image.im/table.lock -text
-casacore/images/Images/test/test_image2dconvolver.fits -text svneol=unset#unset
-casacore/images/Images/test/test_image2dconvolver_convolved.fits -text svneol=unset#unset
-casacore/images/Images/test/test_image2dconvolver_multibeam.im/logtable/table.dat -text
-casacore/images/Images/test/test_image2dconvolver_multibeam.im/logtable/table.f0 -text
-casacore/images/Images/test/test_image2dconvolver_multibeam.im/logtable/table.info -text
-casacore/images/Images/test/test_image2dconvolver_multibeam.im/logtable/table.lock -text
-casacore/images/Images/test/test_image2dconvolver_multibeam.im/table.dat -text
-casacore/images/Images/test/test_image2dconvolver_multibeam.im/table.f0 -text
-casacore/images/Images/test/test_image2dconvolver_multibeam.im/table.f0_TSM0 -text
-casacore/images/Images/test/test_image2dconvolver_multibeam.im/table.info -text
-casacore/images/Images/test/test_image2dconvolver_multibeam.im/table.lock -text
 casacore/images/Images/test/two_gaussian_model.fits -text svneol=unset#unset
 casacore/images/Makefile.am -text
 casacore/images/Regions.h -text
