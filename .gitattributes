@@ -1284,8 +1284,6 @@ casacore/images/Images/ImageStatistics.h -text
 casacore/images/Images/ImageStatistics.tcc -text
 casacore/images/Images/ImageSummary.h -text
 casacore/images/Images/ImageSummary.tcc -text
-casacore/images/Images/ImageTwoPtCorr.h -text
-casacore/images/Images/ImageTwoPtCorr.tcc -text
 casacore/images/Images/ImageUtilities.cc -text
 casacore/images/Images/ImageUtilities.h -text
 casacore/images/Images/ImageUtilities2.tcc -text
