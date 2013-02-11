@@ -7426,6 +7426,8 @@ code/imageanalysis/ImageAnalysis/ImageTask.cc -text
 code/imageanalysis/ImageAnalysis/ImageTask.h -text
 code/imageanalysis/ImageAnalysis/ImageTransposer.cc -text
 code/imageanalysis/ImageAnalysis/ImageTransposer.h -text
+code/imageanalysis/ImageAnalysis/ImageTwoPtCorr.h -text
+code/imageanalysis/ImageAnalysis/ImageTwoPtCorr.tcc -text
 code/imageanalysis/ImageAnalysis/MomentCalculator.h -text
 code/imageanalysis/ImageAnalysis/MomentCalculator.tcc -text
 code/imageanalysis/ImageAnalysis/PVGenerator.cc -text
