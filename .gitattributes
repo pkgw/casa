@@ -5511,6 +5511,7 @@ code/display/CMakeLists.txt -text
 code/display/Clean/CleanGui.cc -text
 code/display/Clean/CleanGui.qo.h -text
 code/display/Clean/CleanGui.ui -text
+code/display/Clean/ConfirmStop.ui -text
 code/display/Display.h -text
 code/display/Display/AttBufferTemplates.tcc -text
 code/display/Display/AttVal.h -text
