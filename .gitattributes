@@ -8702,6 +8702,8 @@ code/synthesis/MeasurementEquations/ResidualEquation.h -text
 code/synthesis/MeasurementEquations/ResidualEquation.tcc -text
 code/synthesis/MeasurementEquations/SDAlgorithmBase.cc -text
 code/synthesis/MeasurementEquations/SDAlgorithmBase.h -text
+code/synthesis/MeasurementEquations/SDAlgorithmHogbomClean.cc -text
+code/synthesis/MeasurementEquations/SDAlgorithmHogbomClean.h -text
 code/synthesis/MeasurementEquations/SDMaskHandler.cc -text
 code/synthesis/MeasurementEquations/SDMaskHandler.h -text
 code/synthesis/MeasurementEquations/SIImageStore.cc -text
