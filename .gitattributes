@@ -1260,8 +1260,6 @@ casacore/images/Images/ImageFITSConverter.h -text
 casacore/images/Images/ImageFITSConverter.tcc -text
 casacore/images/Images/ImageFit1D.h -text
 casacore/images/Images/ImageFit1D.tcc -text
-casacore/images/Images/ImageHistograms.h -text
-casacore/images/Images/ImageHistograms.tcc -text
 casacore/images/Images/ImageInfo.cc -text
 casacore/images/Images/ImageInfo.h -text
 casacore/images/Images/ImageInterface.h -text
@@ -1310,7 +1308,6 @@ casacore/images/Images/WCBox.h -text
 casacore/images/Images/changelog -text
 casacore/images/Images/makefile -text
 casacore/images/Images/test/CMakeLists.txt -text
-casacore/images/Images/test/dImageHistograms.cc -text
 casacore/images/Images/test/dImageInterface.cc -text
 casacore/images/Images/test/dImageStatistics.cc -text
 casacore/images/Images/test/dImageSummary.cc -text
