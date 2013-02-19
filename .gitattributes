@@ -7421,6 +7421,10 @@ code/imageanalysis/ImageAnalysis/ImageInputProcessor.cc -text
 code/imageanalysis/ImageAnalysis/ImageInputProcessor.h -text
 code/imageanalysis/ImageAnalysis/ImageMoments.h -text
 code/imageanalysis/ImageAnalysis/ImageMoments.tcc -text
+code/imageanalysis/ImageAnalysis/ImageMomentsProgress.cc -text
+code/imageanalysis/ImageAnalysis/ImageMomentsProgress.h -text
+code/imageanalysis/ImageAnalysis/ImageMomentsProgressMonitor.cc -text
+code/imageanalysis/ImageAnalysis/ImageMomentsProgressMonitor.h -text
 code/imageanalysis/ImageAnalysis/ImagePadder.cc -text
 code/imageanalysis/ImageAnalysis/ImagePadder.h -text
 code/imageanalysis/ImageAnalysis/ImagePolProxy.cc -text
