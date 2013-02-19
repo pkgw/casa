@@ -8406,6 +8406,8 @@ code/synthesis/MSVis/SelectAverageSpw.cc -text
 code/synthesis/MSVis/SelectAverageSpw.h -text
 code/synthesis/MSVis/SimpleSubMS.cc -text
 code/synthesis/MSVis/SimpleSubMS.h -text
+code/synthesis/MSVis/SpectralWindow.cc -text
+code/synthesis/MSVis/SpectralWindow.h -text
 code/synthesis/MSVis/StatWT.cc -text
 code/synthesis/MSVis/StatWT.h -text
 code/synthesis/MSVis/StokesVector.cc -text
@@ -8490,6 +8492,8 @@ code/synthesis/MSVis/VisibilityProcessing.cc -text
 code/synthesis/MSVis/VisibilityProcessing.h -text
 code/synthesis/MSVis/changelog -text
 code/synthesis/MSVis/test/AveragingTvi2_Test.cc -text
+code/synthesis/MSVis/test/MsFactory.cc -text
+code/synthesis/MSVis/test/MsFactory.h -text
 code/synthesis/MSVis/test/VisibilityIterator_Test.cc -text
 code/synthesis/MSVis/test/VisibilityIterator_Test.h -text
 code/synthesis/MSVis/test/VisibilityProcessing_Test.cc -text
