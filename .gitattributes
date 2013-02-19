@@ -1266,10 +1266,6 @@ casacore/images/Images/ImageInterface.h -text
 casacore/images/Images/ImageInterface.tcc -text
 casacore/images/Images/ImageMetaData.cc -text
 casacore/images/Images/ImageMetaData.h -text
-casacore/images/Images/ImageMomentsProgress.cc -text
-casacore/images/Images/ImageMomentsProgress.h -text
-casacore/images/Images/ImageMomentsProgressMonitor.cc -text
-casacore/images/Images/ImageMomentsProgressMonitor.h -text
 casacore/images/Images/ImageOpener.cc -text
 casacore/images/Images/ImageOpener.h -text
 casacore/images/Images/ImagePolarimetry.cc -text
