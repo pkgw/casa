@@ -1219,8 +1219,6 @@ casacore/fits/fits.dox -text
 casacore/fits/makefile -text
 casacore/images/CMakeLists.txt -text
 casacore/images/Images.h -text
-casacore/images/Images/AntennaResponses.cc -text
-casacore/images/Images/AntennaResponses.h -text
 casacore/images/Images/CurvedImage2D.h -text
 casacore/images/Images/CurvedImage2D.tcc -text
 casacore/images/Images/ExtendImage.h -text
@@ -1313,7 +1311,6 @@ casacore/images/Images/test/mexinputtest.fits -text svneol=unset#unset
 casacore/images/Images/test/ngc5921.clean.fits -text
 casacore/images/Images/test/ngc5921.clean.no_freq.no_stokes.fits -text svneol=unset#unset
 casacore/images/Images/test/qualityimage.fits -text
-casacore/images/Images/test/tAntennaResponses.cc -text
 casacore/images/Images/test/tExtendImage.cc -text
 casacore/images/Images/test/tFITSErrorImage.cc -text
 casacore/images/Images/test/tFITSExtImage.cc -text
