@@ -1243,8 +1243,6 @@ casacore/images/Images/ImageBeamSet.cc -text
 casacore/images/Images/ImageBeamSet.h -text
 casacore/images/Images/ImageConcat.h -text
 casacore/images/Images/ImageConcat.tcc -text
-casacore/images/Images/ImageConvolver.h -text
-casacore/images/Images/ImageConvolver.tcc -text
 casacore/images/Images/ImageExpr.h -text
 casacore/images/Images/ImageExpr.tcc -text
 casacore/images/Images/ImageExprGram.cc -text
@@ -1330,7 +1328,6 @@ casacore/images/Images/test/tFITSQualityImage.cc -text
 casacore/images/Images/test/tHDF5Image.cc -text
 casacore/images/Images/test/tImageBeamSet.cc -text
 casacore/images/Images/test/tImageConcat.cc -text
-casacore/images/Images/test/tImageConvolver.cc -text
 casacore/images/Images/test/tImageEmpty.cc -text
 casacore/images/Images/test/tImageExpr2Gram.cc -text
 casacore/images/Images/test/tImageExpr3Gram.cc -text
