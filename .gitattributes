@@ -7438,6 +7438,8 @@ code/imageanalysis/ImageAnalysis/ImageTwoPtCorr.h -text
 code/imageanalysis/ImageAnalysis/ImageTwoPtCorr.tcc -text
 code/imageanalysis/ImageAnalysis/MomentCalculator.h -text
 code/imageanalysis/ImageAnalysis/MomentCalculator.tcc -text
+code/imageanalysis/ImageAnalysis/MomentsBase.h -text
+code/imageanalysis/ImageAnalysis/MomentsBase.tcc -text
 code/imageanalysis/ImageAnalysis/PVGenerator.cc -text
 code/imageanalysis/ImageAnalysis/PVGenerator.h -text
 code/imageanalysis/ImageAnalysis/SepImageConvolver.h -text
