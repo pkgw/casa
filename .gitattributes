@@ -7410,6 +7410,8 @@ code/imageanalysis/ImageAnalysis/ImageCollapser.cc -text
 code/imageanalysis/ImageAnalysis/ImageCollapser.h -text
 code/imageanalysis/ImageAnalysis/ImageDecomposer.h -text
 code/imageanalysis/ImageAnalysis/ImageDecomposer.tcc -text
+code/imageanalysis/ImageAnalysis/ImageFit1D.h -text
+code/imageanalysis/ImageAnalysis/ImageFit1D.tcc -text
 code/imageanalysis/ImageAnalysis/ImageFitter.cc -text
 code/imageanalysis/ImageAnalysis/ImageFitter.h -text
 code/imageanalysis/ImageAnalysis/ImageHistograms.h -text
@@ -7458,6 +7460,7 @@ code/imageanalysis/ImageAnalysis/test/tImageAnalysis.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageAnalysis2.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageCollapser.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageDecomposer.cc -text
+code/imageanalysis/ImageAnalysis/test/tImageFit1D.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageFitter.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageInputProcessor.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageMoments.cc -text
