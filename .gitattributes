@@ -7424,6 +7424,8 @@ code/imageanalysis/ImageAnalysis/ImagePadder.cc -text
 code/imageanalysis/ImageAnalysis/ImagePadder.h -text
 code/imageanalysis/ImageAnalysis/ImagePolProxy.cc -text
 code/imageanalysis/ImageAnalysis/ImagePolProxy.h -text
+code/imageanalysis/ImageAnalysis/ImagePolarimetry.cc -text
+code/imageanalysis/ImageAnalysis/ImagePolarimetry.h -text
 code/imageanalysis/ImageAnalysis/ImagePrimaryBeamCorrector.cc -text
 code/imageanalysis/ImageAnalysis/ImagePrimaryBeamCorrector.h -text
 code/imageanalysis/ImageAnalysis/ImageProfileFitter.cc -text
@@ -7461,6 +7463,7 @@ code/imageanalysis/ImageAnalysis/test/tImageFit1D.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageFitter.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageInputProcessor.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageMoments.cc -text
+code/imageanalysis/ImageAnalysis/test/tImagePolarimetry.cc -text
 code/imageanalysis/ImageAnalysis/test/tImagePrimaryBeamCorrector.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageProfileFitter.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageSourceFinder.cc -text
