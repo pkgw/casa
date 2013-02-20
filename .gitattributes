@@ -1258,8 +1258,6 @@ casacore/images/Images/ImageFFT.h -text
 casacore/images/Images/ImageFITS2Converter.cc -text
 casacore/images/Images/ImageFITSConverter.h -text
 casacore/images/Images/ImageFITSConverter.tcc -text
-casacore/images/Images/ImageFit1D.h -text
-casacore/images/Images/ImageFit1D.tcc -text
 casacore/images/Images/ImageInfo.cc -text
 casacore/images/Images/ImageInfo.h -text
 casacore/images/Images/ImageInterface.h -text
@@ -1340,7 +1338,6 @@ casacore/images/Images/test/tImageExprGram.cc -text
 casacore/images/Images/test/tImageExprGram.out -text
 casacore/images/Images/test/tImageExprParse_addDir.cc -text
 casacore/images/Images/test/tImageFFT.cc -text
-casacore/images/Images/test/tImageFit1D.cc -text
 casacore/images/Images/test/tImageInfo.cc -text
 casacore/images/Images/test/tImageMetaData.cc -text
 casacore/images/Images/test/tImagePolarimetry.cc -text
