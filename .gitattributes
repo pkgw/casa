@@ -7405,6 +7405,8 @@ code/imageanalysis/ImageAnalysis/ImageAnalysis.cc -text
 code/imageanalysis/ImageAnalysis/ImageAnalysis.h -text
 code/imageanalysis/ImageAnalysis/ImageCollapser.cc -text
 code/imageanalysis/ImageAnalysis/ImageCollapser.h -text
+code/imageanalysis/ImageAnalysis/ImageConvolver.h -text
+code/imageanalysis/ImageAnalysis/ImageConvolver.tcc -text
 code/imageanalysis/ImageAnalysis/ImageDecomposer.h -text
 code/imageanalysis/ImageAnalysis/ImageDecomposer.tcc -text
 code/imageanalysis/ImageAnalysis/ImageFit1D.h -text
@@ -7456,6 +7458,7 @@ code/imageanalysis/ImageAnalysis/test/tImage2DConvolver.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageAnalysis.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageAnalysis2.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageCollapser.cc -text
+code/imageanalysis/ImageAnalysis/test/tImageConvolver.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageDecomposer.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageFit1D.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageFitter.cc -text
