@@ -1279,8 +1279,6 @@ casacore/images/Images/MIRIADImage.h -text
 casacore/images/Images/Makefile.am -text
 casacore/images/Images/MaskSpecifier.cc -text
 casacore/images/Images/MaskSpecifier.h -text
-casacore/images/Images/MomentsBase.h -text
-casacore/images/Images/MomentsBase.tcc -text
 casacore/images/Images/PagedImage.h -text
 casacore/images/Images/PagedImage.tcc -text
 casacore/images/Images/PagedImage2.cc -text
