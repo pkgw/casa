@@ -1264,8 +1264,6 @@ casacore/images/Images/ImageMetaData.cc -text
 casacore/images/Images/ImageMetaData.h -text
 casacore/images/Images/ImageOpener.cc -text
 casacore/images/Images/ImageOpener.h -text
-casacore/images/Images/ImagePolarimetry.cc -text
-casacore/images/Images/ImagePolarimetry.h -text
 casacore/images/Images/ImageProxy.cc -text
 casacore/images/Images/ImageProxy.h -text
 casacore/images/Images/ImageRegrid.h -text
@@ -1337,7 +1335,6 @@ casacore/images/Images/test/tImageExprParse_addDir.cc -text
 casacore/images/Images/test/tImageFFT.cc -text
 casacore/images/Images/test/tImageInfo.cc -text
 casacore/images/Images/test/tImageMetaData.cc -text
-casacore/images/Images/test/tImagePolarimetry.cc -text
 casacore/images/Images/test/tImageRegrid.cc -text
 casacore/images/Images/test/tImageStatistics.cc -text
 casacore/images/Images/test/tImageTiledCache.in -text
