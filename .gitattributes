@@ -7450,6 +7450,8 @@ code/imageanalysis/ImageAnalysis/SpectralCollapser.cc -text
 code/imageanalysis/ImageAnalysis/SpectralCollapser.h -text
 code/imageanalysis/ImageAnalysis/SpectralFitter.cc -text
 code/imageanalysis/ImageAnalysis/SpectralFitter.h -text
+code/imageanalysis/ImageAnalysis/SubImageFactory.h -text
+code/imageanalysis/ImageAnalysis/SubImageFactory.tcc -text
 code/imageanalysis/ImageAnalysis/test/dImageHistograms.cc -text
 code/imageanalysis/ImageAnalysis/test/dImageMoments.cc -text
 code/imageanalysis/ImageAnalysis/test/tAntennaResponses.cc -text
@@ -7472,6 +7474,7 @@ code/imageanalysis/ImageAnalysis/test/tImageSourceFinder.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageTransposer.cc -text
 code/imageanalysis/ImageAnalysis/test/tSepImageConvolver.cc -text
 code/imageanalysis/ImageAnalysis/test/tSpectralFitter.cc -text
+code/imageanalysis/ImageAnalysis/test/tSubImageFactory.cc -text
 code/imageanalysis/Regions/CasacRegionManager.cc -text
 code/imageanalysis/Regions/CasacRegionManager.h -text
 code/imageanalysis/Regions/test/tCasacRegionManager.cc -text
