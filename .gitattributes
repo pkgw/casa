@@ -968,6 +968,8 @@ casacore/components/ComponentModels/GaussianBeam.cc -text
 casacore/components/ComponentModels/GaussianBeam.h -text
 casacore/components/ComponentModels/GaussianShape.cc -text
 casacore/components/ComponentModels/GaussianShape.h -text
+casacore/components/ComponentModels/LimbDarkenDiskShape.cc -text
+casacore/components/ComponentModels/LimbDarkenDiskShape.h -text
 casacore/components/ComponentModels/PointShape.cc -text
 casacore/components/ComponentModels/PointShape.h -text
 casacore/components/ComponentModels/SkyCompBase.cc -text
