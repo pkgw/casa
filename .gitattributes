@@ -9605,6 +9605,7 @@ gcwrap/python/scripts/tests/test_measures.py -text
 gcwrap/python/scripts/tests/test_msmd.py -text
 gcwrap/python/scripts/tests/test_msmoments.py -text
 gcwrap/python/scripts/tests/test_mst_cvel.py -text
+gcwrap/python/scripts/tests/test_mst_cvelB.py -text
 gcwrap/python/scripts/tests/test_mst_split.py -text
 gcwrap/python/scripts/tests/test_mstransform.py -text
 gcwrap/python/scripts/tests/test_oldflagcmd.py -text
