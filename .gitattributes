@@ -9910,6 +9910,10 @@ gcwrap/tools/images/image.xml -text
 gcwrap/tools/images/image_cmpt.cc -text
 gcwrap/tools/images/image_forward.h -text
 gcwrap/tools/images/image_private.h -text
+gcwrap/tools/images/imagemetadata.xml -text
+gcwrap/tools/images/imagemetadata_cmpt.cc -text
+gcwrap/tools/images/imagemetadata_forward.h -text
+gcwrap/tools/images/imagemetadata_private.h -text
 gcwrap/tools/images/imagepol.xml -text
 gcwrap/tools/images/imagepol_cmpt.cc -text
 gcwrap/tools/images/imagepol_forward.h -text
