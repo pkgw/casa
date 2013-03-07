@@ -1258,8 +1258,6 @@ casacore/images/Images/ImageInfo.cc -text
 casacore/images/Images/ImageInfo.h -text
 casacore/images/Images/ImageInterface.h -text
 casacore/images/Images/ImageInterface.tcc -text
-casacore/images/Images/ImageMetaData.cc -text
-casacore/images/Images/ImageMetaData.h -text
 casacore/images/Images/ImageOpener.cc -text
 casacore/images/Images/ImageOpener.h -text
 casacore/images/Images/ImageProxy.cc -text
@@ -1308,8 +1306,6 @@ casacore/images/Images/test/imfit_stokes.fits -text
 casacore/images/Images/test/jyperpixelimage.fits -text svneol=unset#unset
 casacore/images/Images/test/makefile -text
 casacore/images/Images/test/mexinputtest.fits -text svneol=unset#unset
-casacore/images/Images/test/ngc5921.clean.fits -text
-casacore/images/Images/test/ngc5921.clean.no_freq.no_stokes.fits -text svneol=unset#unset
 casacore/images/Images/test/qualityimage.fits -text
 casacore/images/Images/test/tExtendImage.cc -text
 casacore/images/Images/test/tFITSErrorImage.cc -text
@@ -1328,7 +1324,6 @@ casacore/images/Images/test/tImageExprGram.cc -text
 casacore/images/Images/test/tImageExprGram.out -text
 casacore/images/Images/test/tImageExprParse_addDir.cc -text
 casacore/images/Images/test/tImageInfo.cc -text
-casacore/images/Images/test/tImageMetaData.cc -text
 casacore/images/Images/test/tImageRegrid.cc -text
 casacore/images/Images/test/tImageStatistics.cc -text
 casacore/images/Images/test/tImageTiledCache.in -text
