@@ -7434,6 +7434,8 @@ code/imageanalysis/ImageAnalysis/ImageHistograms.h -text
 code/imageanalysis/ImageAnalysis/ImageHistograms.tcc -text
 code/imageanalysis/ImageAnalysis/ImageInputProcessor.cc -text
 code/imageanalysis/ImageAnalysis/ImageInputProcessor.h -text
+code/imageanalysis/ImageAnalysis/ImageMetaData.cc -text
+code/imageanalysis/ImageAnalysis/ImageMetaData.h -text
 code/imageanalysis/ImageAnalysis/ImageMoments.h -text
 code/imageanalysis/ImageAnalysis/ImageMoments.tcc -text
 code/imageanalysis/ImageAnalysis/ImageMomentsProgress.cc -text
@@ -7489,6 +7491,7 @@ code/imageanalysis/ImageAnalysis/test/tImageFit1D.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageFitter.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageHeader.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageInputProcessor.cc -text
+code/imageanalysis/ImageAnalysis/test/tImageMetaData.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageMoments.cc -text
 code/imageanalysis/ImageAnalysis/test/tImagePolarimetry.cc -text
 code/imageanalysis/ImageAnalysis/test/tImagePrimaryBeamCorrector.cc -text
