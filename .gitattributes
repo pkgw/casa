@@ -7435,8 +7435,8 @@ code/imageanalysis/ImageAnalysis/ImageHistograms.h -text
 code/imageanalysis/ImageAnalysis/ImageHistograms.tcc -text
 code/imageanalysis/ImageAnalysis/ImageInputProcessor.cc -text
 code/imageanalysis/ImageAnalysis/ImageInputProcessor.h -text
-code/imageanalysis/ImageAnalysis/ImageMetaData.cc -text
 code/imageanalysis/ImageAnalysis/ImageMetaData.h -text
+code/imageanalysis/ImageAnalysis/ImageMetaData.tcc -text
 code/imageanalysis/ImageAnalysis/ImageMoments.h -text
 code/imageanalysis/ImageAnalysis/ImageMoments.tcc -text
 code/imageanalysis/ImageAnalysis/ImageMomentsProgress.cc -text
@@ -7469,6 +7469,8 @@ code/imageanalysis/ImageAnalysis/MomentsBase.h -text
 code/imageanalysis/ImageAnalysis/MomentsBase.tcc -text
 code/imageanalysis/ImageAnalysis/PVGenerator.cc -text
 code/imageanalysis/ImageAnalysis/PVGenerator.h -text
+code/imageanalysis/ImageAnalysis/PeakIntensityFluxDensityConverter.cc -text
+code/imageanalysis/ImageAnalysis/PeakIntensityFluxDensityConverter.h -text
 code/imageanalysis/ImageAnalysis/SepImageConvolver.h -text
 code/imageanalysis/ImageAnalysis/SepImageConvolver.tcc -text
 code/imageanalysis/ImageAnalysis/SpectralCollapser.cc -text
@@ -7498,6 +7500,7 @@ code/imageanalysis/ImageAnalysis/test/tImagePolarimetry.cc -text
 code/imageanalysis/ImageAnalysis/test/tImagePrimaryBeamCorrector.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageProfileFitter.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageSourceFinder.cc -text
+code/imageanalysis/ImageAnalysis/test/tImageStatsCalculator.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageTransposer.cc -text
 code/imageanalysis/ImageAnalysis/test/tSepImageConvolver.cc -text
 code/imageanalysis/ImageAnalysis/test/tSpectralFitter.cc -text
