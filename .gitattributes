@@ -969,8 +969,8 @@ casacore/components/ComponentModels/GaussianBeam.cc -text
 casacore/components/ComponentModels/GaussianBeam.h -text
 casacore/components/ComponentModels/GaussianShape.cc -text
 casacore/components/ComponentModels/GaussianShape.h -text
-casacore/components/ComponentModels/LimbDarkenDiskShape.cc -text
-casacore/components/ComponentModels/LimbDarkenDiskShape.h -text
+casacore/components/ComponentModels/LimbDarkenedDiskShape.cc -text
+casacore/components/ComponentModels/LimbDarkenedDiskShape.h -text
 casacore/components/ComponentModels/PointShape.cc -text
 casacore/components/ComponentModels/PointShape.h -text
 casacore/components/ComponentModels/SkyCompBase.cc -text
@@ -1006,7 +1006,7 @@ casacore/components/ComponentModels/test/tFluxStandard3.cc -text
 casacore/components/ComponentModels/test/tGaussianBeam.cc -text
 casacore/components/ComponentModels/test/tGaussianComponent.cc -text
 casacore/components/ComponentModels/test/tGaussianShape.cc -text
-casacore/components/ComponentModels/test/tLimbDarkenDiskShape.cc -text
+casacore/components/ComponentModels/test/tLimbDarkenedDiskShape.cc -text
 casacore/components/ComponentModels/test/tPointComponent.cc -text
 casacore/components/ComponentModels/test/tPointShape.cc -text
 casacore/components/ComponentModels/test/tSkyCompRep.cc -text
