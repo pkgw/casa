@@ -7438,6 +7438,8 @@ code/imageanalysis/ImageAnalysis/ImageHistograms.h -text
 code/imageanalysis/ImageAnalysis/ImageHistograms.tcc -text
 code/imageanalysis/ImageAnalysis/ImageInputProcessor.cc -text
 code/imageanalysis/ImageAnalysis/ImageInputProcessor.h -text
+code/imageanalysis/ImageAnalysis/ImageMaskAttacher.h -text
+code/imageanalysis/ImageAnalysis/ImageMaskAttacher.tcc -text
 code/imageanalysis/ImageAnalysis/ImageMetaData.h -text
 code/imageanalysis/ImageAnalysis/ImageMetaData.tcc -text
 code/imageanalysis/ImageAnalysis/ImageMoments.h -text
