@@ -7328,6 +7328,9 @@ code/guitools/Histogram/FitterGaussian.cc -text
 code/guitools/Histogram/FitterGaussian.h -text
 code/guitools/Histogram/FitterPoisson.cc -text
 code/guitools/Histogram/FitterPoisson.h -text
+code/guitools/Histogram/FootPrintWidget.cc -text
+code/guitools/Histogram/FootPrintWidget.qo.h -text
+code/guitools/Histogram/FootPrintWidget.ui -text
 code/guitools/Histogram/HeightSource.h -text
 code/guitools/Histogram/Histogram.cc -text
 code/guitools/Histogram/Histogram.h -text
