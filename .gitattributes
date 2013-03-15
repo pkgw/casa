@@ -5806,6 +5806,10 @@ code/display/DisplayEvents/MultiEllipseTool.cc -text
 code/display/DisplayEvents/MultiEllipseTool.h -text
 code/display/DisplayEvents/MultiEllipseToolImpl.cc -text
 code/display/DisplayEvents/MultiEllipseToolImpl.h -text
+code/display/DisplayEvents/MultiPVTool.cc -text
+code/display/DisplayEvents/MultiPVTool.h -text
+code/display/DisplayEvents/MultiPVToolImpl.cc -text
+code/display/DisplayEvents/MultiPVToolImpl.h -text
 code/display/DisplayEvents/MultiPointTool.cc -text
 code/display/DisplayEvents/MultiPointTool.h -text
 code/display/DisplayEvents/MultiPointToolImpl.cc -text
@@ -6600,6 +6604,9 @@ code/display/ds9/readme.txt -text
 code/display/ds9/stack.hh -text
 code/display/region/Ellipse.cc -text
 code/display/region/Ellipse.h -text
+code/display/region/PVLine.cc -text
+code/display/region/PVLine.qo.h -text
+code/display/region/PVLineStats.ui -text
 code/display/region/Point.cc -text
 code/display/region/Point.h -text
 code/display/region/Polygon.cc -text
