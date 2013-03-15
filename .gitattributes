@@ -2788,6 +2788,11 @@ casacore/scimath/Functionals/OddPolynomial.tcc -text
 casacore/scimath/Functionals/OddPolynomial2.tcc -text
 casacore/scimath/Functionals/OddPolynomialParam.h -text
 casacore/scimath/Functionals/OddPolynomialParam.tcc -text
+casacore/scimath/Functionals/PoissonFunction.h -text
+casacore/scimath/Functionals/PoissonFunction.tcc -text
+casacore/scimath/Functionals/PoissonFunction2.tcc -text
+casacore/scimath/Functionals/PoissonParam.h -text
+casacore/scimath/Functionals/PoissonParam.tcc -text
 casacore/scimath/Functionals/Polynomial.h -text
 casacore/scimath/Functionals/Polynomial.tcc -text
 casacore/scimath/Functionals/Polynomial2.tcc -text
@@ -2845,6 +2850,7 @@ casacore/scimath/Functionals/test/tGaussian3D.cc -text
 casacore/scimath/Functionals/test/tGaussianND.cc -text
 casacore/scimath/Functionals/test/tHyperPlane.cc -text
 casacore/scimath/Functionals/test/tInterpolate1D.cc -text
+casacore/scimath/Functionals/test/tPoisson.cc -text
 casacore/scimath/Functionals/test/tPolynomial.cc -text
 casacore/scimath/Functionals/test/tSPolynomial.cc -text
 casacore/scimath/Functionals/test/tSampledFunctional.cc -text
