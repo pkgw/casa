@@ -2556,6 +2556,7 @@ casacore/ms/MeasurementSets/test/tMSDataDescBuffer.cc -text
 casacore/ms/MeasurementSets/test/tMSDerivedValues.cc -text
 casacore/ms/MeasurementSets/test/tMSFieldBuffer.cc -text
 casacore/ms/MeasurementSets/test/tMSFieldBuffer.run -text
+casacore/ms/MeasurementSets/test/tMSFieldEphem.cc -text
 casacore/ms/MeasurementSets/test/tMSFieldGram.cc -text
 casacore/ms/MeasurementSets/test/tMSFieldGram.run -text
 casacore/ms/MeasurementSets/test/tMSMainBuffer.cc -text
