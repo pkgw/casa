@@ -2436,6 +2436,7 @@ casacore/ms/MeasurementSets/MSSelUtil.h -text
 casacore/ms/MeasurementSets/MSSelUtil.tcc -text
 casacore/ms/MeasurementSets/MSSelUtil2.h -text
 casacore/ms/MeasurementSets/MSSelUtil2.tcc -text
+casacore/ms/MeasurementSets/MSSelectableMainColumn.h -text
 casacore/ms/MeasurementSets/MSSelectableTable.cc -text
 casacore/ms/MeasurementSets/MSSelectableTable.h -text
 casacore/ms/MeasurementSets/MSSelection.cc -text
