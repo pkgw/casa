@@ -8261,6 +8261,7 @@ code/synthesis/CalTables/CTInterface.cc -text
 code/synthesis/CalTables/CTInterface.h -text
 code/synthesis/CalTables/CTIter.cc -text
 code/synthesis/CalTables/CTIter.h -text
+code/synthesis/CalTables/CTMainColInterface.h -text
 code/synthesis/CalTables/CTMainColumns.cc -text
 code/synthesis/CalTables/CTMainColumns.h -text
 code/synthesis/CalTables/CTMainRecord.cc -text
