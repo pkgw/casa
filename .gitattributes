@@ -6538,6 +6538,9 @@ code/display/Slicer/SliceColorPreferences.qo.h -text
 code/display/Slicer/SliceColorPreferences.ui -text
 code/display/Slicer/SlicePlot.cc -text
 code/display/Slicer/SlicePlot.qo.h -text
+code/display/Slicer/SlicePlotPreferences.cc -text
+code/display/Slicer/SlicePlotPreferences.qo.h -text
+code/display/Slicer/SlicePlotPreferences.ui -text
 code/display/Slicer/SliceSegment.cc -text
 code/display/Slicer/SliceSegment.qo.h -text
 code/display/Slicer/SliceSegment.ui -text
@@ -6559,6 +6562,7 @@ code/display/Slicer/SlicerMainWindow.qo.h -text
 code/display/Slicer/SlicerMainWindow.ui -text
 code/display/Slicer/images/colorWheel.png -text
 code/display/Slicer/images/save.png -text
+code/display/Slicer/images/settings.png -text
 code/display/Slicer/images/statsMaximize.png -text
 code/display/Slicer/images/statsMinimize.png -text
 code/display/Slicer/images/zoomCursor.png -text
