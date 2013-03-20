@@ -9547,7 +9547,6 @@ gcwrap/python/scripts/task_statwt.py -text
 gcwrap/python/scripts/task_tclean.py -text
 gcwrap/python/scripts/task_testconcat.py -text
 gcwrap/python/scripts/task_uvcontsub.py -text
-gcwrap/python/scripts/task_uvcontsub2.py -text
 gcwrap/python/scripts/task_uvcontsub3.py -text
 gcwrap/python/scripts/task_uvmodelfit.py -text
 gcwrap/python/scripts/task_uvsub.py -text
@@ -9851,7 +9850,6 @@ gcwrap/tasks/statwt.xml -text
 gcwrap/tasks/tclean.xml -text
 gcwrap/tasks/testconcat.xml -text
 gcwrap/tasks/uvcontsub.xml -text
-gcwrap/tasks/uvcontsub2.xml -text
 gcwrap/tasks/uvcontsub3.xml -text
 gcwrap/tasks/uvmodelfit.xml -text
 gcwrap/tasks/uvsub.xml -text
