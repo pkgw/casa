@@ -6207,9 +6207,14 @@ code/display/QtViewer/ColorHistogram.cc -text
 code/display/QtViewer/ColorHistogram.qo.h -text
 code/display/QtViewer/ColorHistogram.ui -text
 code/display/QtViewer/ColorHistogramScale.cc -text
-code/display/QtViewer/ColorHistogramScale.h -text
+code/display/QtViewer/ColorHistogramScale.qo.h -text
+code/display/QtViewer/ColorTransferWidget.cc -text
+code/display/QtViewer/ColorTransferWidget.qo.h -text
+code/display/QtViewer/ColorTransferWidget.ui -text
 code/display/QtViewer/FileBox.cc -text
 code/display/QtViewer/FileBox.qo.h -text
+code/display/QtViewer/InvisibleAxis.cc -text
+code/display/QtViewer/InvisibleAxis.h -text
 code/display/QtViewer/MakeMask.cc -text
 code/display/QtViewer/MakeMask.qo.h -text
 code/display/QtViewer/MakeRegion.cc -text
@@ -7358,8 +7363,6 @@ code/guitools/Histogram/HistogramMarkerPoisson.h -text
 code/guitools/Histogram/ImageLoader.cc -text
 code/guitools/Histogram/ImageLoader.qo.h -text
 code/guitools/Histogram/ImageLoader.ui -text
-code/guitools/Histogram/InvisibleAxis.cc -text
-code/guitools/Histogram/InvisibleAxis.h -text
 code/guitools/Histogram/RangeControlsWidget.cc -text
 code/guitools/Histogram/RangeControlsWidget.qo.h -text
 code/guitools/Histogram/RangeControlsWidget.ui -text
