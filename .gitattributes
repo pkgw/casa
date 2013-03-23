@@ -1843,6 +1843,8 @@ casacore/lattices/Lattices/SubLattice.h -text
 casacore/lattices/Lattices/SubLattice.tcc -text
 casacore/lattices/Lattices/TempLattice.h -text
 casacore/lattices/Lattices/TempLattice.tcc -text
+casacore/lattices/Lattices/TempLatticeImpl.h -text
+casacore/lattices/Lattices/TempLatticeImpl.tcc -text
 casacore/lattices/Lattices/TileStepper.cc -text
 casacore/lattices/Lattices/TileStepper.h -text
 casacore/lattices/Lattices/TiledCollapser.h -text
