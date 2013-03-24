@@ -6538,6 +6538,8 @@ code/display/Slicer/ImageSlice.qo.h -text
 code/display/Slicer/ImageSlice.ui -text
 code/display/Slicer/ImageSliceColorBar.cc -text
 code/display/Slicer/ImageSliceColorBar.h -text
+code/display/Slicer/SegmentTracer.cc -text
+code/display/Slicer/SegmentTracer.h -text
 code/display/Slicer/SliceAxisDraw.cc -text
 code/display/Slicer/SliceAxisDraw.h -text
 code/display/Slicer/SliceColorPreferences.cc -text
