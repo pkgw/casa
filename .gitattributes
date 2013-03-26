@@ -9683,6 +9683,7 @@ gcwrap/python/scripts/tests/test_po_totpolint.py -text
 gcwrap/python/scripts/tests/test_report.py -text
 gcwrap/python/scripts/tests/test_rg_frombcs.py -text
 gcwrap/python/scripts/tests/test_rg_fromtextfile.py -text
+gcwrap/python/scripts/tests/test_rg_selectedchannels.py -text
 gcwrap/python/scripts/tests/test_sdbaseline.py -text
 gcwrap/python/scripts/tests/test_sdcal.py -text
 gcwrap/python/scripts/tests/test_sdcal2.py -text
