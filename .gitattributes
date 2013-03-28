@@ -6215,6 +6215,15 @@ code/display/QtViewer/ColorTransferWidget.qo.h -text
 code/display/QtViewer/ColorTransferWidget.ui -text
 code/display/QtViewer/FileBox.cc -text
 code/display/QtViewer/FileBox.qo.h -text
+code/display/QtViewer/ImageManagerDialog.cc -text
+code/display/QtViewer/ImageManagerDialog.qo.h -text
+code/display/QtViewer/ImageManagerDialog.ui -text
+code/display/QtViewer/ImageScroll.cc -text
+code/display/QtViewer/ImageScroll.qo.h -text
+code/display/QtViewer/ImageScroll.ui -text
+code/display/QtViewer/ImageView.cc -text
+code/display/QtViewer/ImageView.qo.h -text
+code/display/QtViewer/ImageView.ui -text
 code/display/QtViewer/InvisibleAxis.cc -text
 code/display/QtViewer/InvisibleAxis.h -text
 code/display/QtViewer/MakeMask.cc -text
@@ -6363,6 +6372,8 @@ code/display/QtViewer/icons/home_folder.png -text
 code/display/QtViewer/icons/hsplit.png -text
 code/display/QtViewer/icons/ibeam.png -text
 code/display/QtViewer/icons/idx.png -text
+code/display/QtViewer/icons/imageMaximize.png -text
+code/display/QtViewer/icons/imageMinimize.png -text
 code/display/QtViewer/icons/info.png -text
 code/display/QtViewer/icons/kde2.png -text
 code/display/QtViewer/icons/leftarrow.png -text
