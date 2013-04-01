@@ -9104,6 +9104,7 @@ gcwrap/install/casa2tlatex.xsl -text
 gcwrap/install/casa2toolxml.xsl -text
 gcwrap/install/casa2tsum.xsl -text
 gcwrap/install/casa2tsum2.xsl -text
+gcwrap/install/casa2tsum3.xsl -text
 gcwrap/install/casadef.cmake -text
 gcwrap/install/casatlist.xsl -text
 gcwrap/install/config.cmake -text
