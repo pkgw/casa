@@ -6289,6 +6289,9 @@ code/display/QtViewer/QtWCBox.cc -text
 code/display/QtViewer/QtWCBox.h -text
 code/display/QtViewer/RegionToolManager.cc -text
 code/display/QtViewer/RegionToolManager.qo.h -text
+code/display/QtViewer/SlicerGen.cc -text
+code/display/QtViewer/SlicerGen.qo.h -text
+code/display/QtViewer/SlicerGen.ui -text
 code/display/QtViewer/icons/Anim0_ToStart.png -text
 code/display/QtViewer/icons/Anim1_RevStep.png -text
 code/display/QtViewer/icons/Anim2_Rev.png -text
