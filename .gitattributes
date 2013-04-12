@@ -9521,6 +9521,7 @@ gcwrap/python/scripts/task_msview.py -text
 gcwrap/python/scripts/task_oldflagcmd.py -text
 gcwrap/python/scripts/task_oldflagdata.py -text
 gcwrap/python/scripts/task_oldmakemask.py -text
+gcwrap/python/scripts/task_oldpartition.py -text
 gcwrap/python/scripts/task_partition.py -text
 gcwrap/python/scripts/task_pclean.py -text
 gcwrap/python/scripts/task_peel.py -text
@@ -9671,6 +9672,7 @@ gcwrap/python/scripts/tests/test_mst_split.py -text
 gcwrap/python/scripts/tests/test_mstransform.py -text
 gcwrap/python/scripts/tests/test_oldflagcmd.py -text
 gcwrap/python/scripts/tests/test_oldflagdata.py -text
+gcwrap/python/scripts/tests/test_oldpartition.py -text
 gcwrap/python/scripts/tests/test_partition.py -text
 gcwrap/python/scripts/tests/test_partitionHelper.py -text
 gcwrap/python/scripts/tests/test_pcasa.py -text
@@ -9825,6 +9827,7 @@ gcwrap/tasks/mstransform.xml -text
 gcwrap/tasks/msview.xml -text
 gcwrap/tasks/oldflagcmd.xml -text
 gcwrap/tasks/oldflagdata.xml -text
+gcwrap/tasks/oldpartition.xml -text
 gcwrap/tasks/partition.xml -text
 gcwrap/tasks/pclean.xml -text
 gcwrap/tasks/peel.xml -text
