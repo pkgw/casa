@@ -9530,7 +9530,6 @@ gcwrap/python/scripts/task_oldmakemask.py -text
 gcwrap/python/scripts/task_oldpartition.py -text
 gcwrap/python/scripts/task_partition.py -text
 gcwrap/python/scripts/task_pclean.py -text
-gcwrap/python/scripts/task_peel.py -text
 gcwrap/python/scripts/task_plotants.py -text
 gcwrap/python/scripts/task_plotbandpass.py -text
 gcwrap/python/scripts/task_plotcal.py -text
@@ -9836,7 +9835,6 @@ gcwrap/tasks/oldflagdata.xml -text
 gcwrap/tasks/oldpartition.xml -text
 gcwrap/tasks/partition.xml -text
 gcwrap/tasks/pclean.xml -text
-gcwrap/tasks/peel.xml -text
 gcwrap/tasks/plotants.xml -text
 gcwrap/tasks/plotbandpass.xml -text
 gcwrap/tasks/plotcal.xml -text
