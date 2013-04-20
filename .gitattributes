@@ -6637,6 +6637,12 @@ code/display/ds9/readme.txt -text
 code/display/ds9/stack.hh -text
 code/display/region/Ellipse.cc -text
 code/display/region/Ellipse.h -text
+code/display/region/HistogramGraph.cc -text
+code/display/region/HistogramGraph.qo.h -text
+code/display/region/HistogramGraph.ui -text
+code/display/region/HistogramTab.cc -text
+code/display/region/HistogramTab.qo.h -text
+code/display/region/HistogramTab.ui -text
 code/display/region/PVLine.cc -text
 code/display/region/PVLine.qo.h -text
 code/display/region/PVLineStats.ui -text
