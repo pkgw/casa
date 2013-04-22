@@ -7485,8 +7485,6 @@ code/imageanalysis/ImageAnalysis/ImageFit1D.h -text
 code/imageanalysis/ImageAnalysis/ImageFit1D.tcc -text
 code/imageanalysis/ImageAnalysis/ImageFitter.cc -text
 code/imageanalysis/ImageAnalysis/ImageFitter.h -text
-code/imageanalysis/ImageAnalysis/ImageHeader.h -text
-code/imageanalysis/ImageAnalysis/ImageHeader.tcc -text
 code/imageanalysis/ImageAnalysis/ImageHistograms.h -text
 code/imageanalysis/ImageAnalysis/ImageHistograms.tcc -text
 code/imageanalysis/ImageAnalysis/ImageInputProcessor.cc -text
