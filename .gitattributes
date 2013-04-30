@@ -6607,6 +6607,7 @@ code/display/Utilities/ImageProperties.cc -text
 code/display/Utilities/ImageProperties.h -text
 code/display/Utilities/Lowlevel.cc -text
 code/display/Utilities/Lowlevel.h -text
+code/display/Utilities/StatusSink.h -text
 code/display/Utilities/StringUtil.h -text
 code/display/Utilities/VOID.h -text
 code/display/Utilities/changelog -text
