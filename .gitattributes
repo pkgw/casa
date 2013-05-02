@@ -5578,6 +5578,8 @@ code/display/Display/PixelCanvas.cc -text
 code/display/Display/PixelCanvas.h -text
 code/display/Display/PixelCanvasColorTable.cc -text
 code/display/Display/PixelCanvasColorTable.h -text
+code/display/Display/Position.cc -text
+code/display/Display/Position.h -text
 code/display/Display/SlicePanelDisplay.cc -text
 code/display/Display/SlicePanelDisplay.h -text
 code/display/Display/StandAloneDisplayApp.h -text
