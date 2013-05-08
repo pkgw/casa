@@ -9547,8 +9547,8 @@ gcwrap/python/scripts/task_plotuv.py -text
 gcwrap/python/scripts/task_plotweather.py -text
 gcwrap/python/scripts/task_plotxy.py -text
 gcwrap/python/scripts/task_polcal.py -text
-gcwrap/python/scripts/task_porm.py -text
 gcwrap/python/scripts/task_predictcomp.py -text
+gcwrap/python/scripts/task_rmfit.py -text
 gcwrap/python/scripts/task_rmtables.py -text
 gcwrap/python/scripts/task_sdbaseline.py -text
 gcwrap/python/scripts/task_sdcal.py -text
@@ -9854,8 +9854,8 @@ gcwrap/tasks/plotuv.xml -text
 gcwrap/tasks/plotweather.xml -text
 gcwrap/tasks/plotxy.xml -text
 gcwrap/tasks/polcal.xml -text
-gcwrap/tasks/porm.xml -text
 gcwrap/tasks/predictcomp.xml -text
+gcwrap/tasks/rmfit.xml -text
 gcwrap/tasks/rmtables.xml -text
 gcwrap/tasks/sdbaseline.xml -text
 gcwrap/tasks/sdcal.xml -text
