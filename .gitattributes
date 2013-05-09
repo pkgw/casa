@@ -6213,6 +6213,7 @@ code/display/QtViewer/ColorHistogramScale.qo.h -text
 code/display/QtViewer/ColorTransferWidget.cc -text
 code/display/QtViewer/ColorTransferWidget.qo.h -text
 code/display/QtViewer/ColorTransferWidget.ui -text
+code/display/QtViewer/CursorLink.ui -text
 code/display/QtViewer/DisplayDataHolder.cc -text
 code/display/QtViewer/DisplayDataHolder.h -text
 code/display/QtViewer/FileBox.cc -text
@@ -6243,7 +6244,9 @@ code/display/QtViewer/QtAnnotatorGui.cc -text
 code/display/QtViewer/QtAnnotatorGui.qo.h -text
 code/display/QtViewer/QtAnnotatorGui.ui -text
 code/display/QtViewer/QtApp.h -text
+code/display/QtViewer/QtCanvasManager.cc -text
 code/display/QtViewer/QtCanvasManager.qo.h -text
+code/display/QtViewer/QtCanvasManager.ui -text
 code/display/QtViewer/QtCleanPanelGui.cc -text
 code/display/QtViewer/QtCleanPanelGui.qo.h -text
 code/display/QtViewer/QtDBusViewerAdaptor.cc -text
