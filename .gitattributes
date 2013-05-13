@@ -7350,6 +7350,9 @@ code/guitools/Feather/Preferences.ui -text
 code/guitools/Feather/PreferencesColor.cc -text
 code/guitools/Feather/PreferencesColor.qo.h -text
 code/guitools/Feather/PreferencesColor.ui -text
+code/guitools/Feather/PreferencesFunction.cc -text
+code/guitools/Feather/PreferencesFunction.qo.h -text
+code/guitools/Feather/PreferencesFunction.ui -text
 code/guitools/Feather/images/colorWheel.png -text
 code/guitools/Feather/images/diameterSelector.png -text
 code/guitools/Feather/images/feather.png -text
