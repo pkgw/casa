@@ -1028,6 +1028,8 @@ casacore/components/SpectralComponents/GaussianMultipletSpectralElement.cc -text
 casacore/components/SpectralComponents/GaussianMultipletSpectralElement.h -text
 casacore/components/SpectralComponents/GaussianSpectralElement.cc -text
 casacore/components/SpectralComponents/GaussianSpectralElement.h -text
+casacore/components/SpectralComponents/LogTransformedPolynomialSpectralElement.cc -text
+casacore/components/SpectralComponents/LogTransformedPolynomialSpectralElement.h -text
 casacore/components/SpectralComponents/LorentzianSpectralElement.cc -text
 casacore/components/SpectralComponents/LorentzianSpectralElement.h -text
 casacore/components/SpectralComponents/PCFSpectralElement.cc -text
@@ -1056,6 +1058,7 @@ casacore/components/SpectralComponents/makefile -text
 casacore/components/SpectralComponents/test/CMakeLists.txt -text
 casacore/components/SpectralComponents/test/makefile -text
 casacore/components/SpectralComponents/test/tGaussianMultipletSpectralElement.cc -text
+casacore/components/SpectralComponents/test/tLogTransformedPolynomialSpectralElement.cc -text
 casacore/components/SpectralComponents/test/tLorentzianSpectralElement.cc -text
 casacore/components/SpectralComponents/test/tPowerLogPolynomialSpectralElement.cc -text
 casacore/components/SpectralComponents/test/tProfileFit1D.cc -text
