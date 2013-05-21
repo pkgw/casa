@@ -8497,6 +8497,8 @@ code/synthesis/MSVis/AsynchronousTools.cc -text
 code/synthesis/MSVis/AsynchronousTools.h -text
 code/synthesis/MSVis/AveragingTvi2.cc -text
 code/synthesis/MSVis/AveragingTvi2.h -text
+code/synthesis/MSVis/AveragingVi2Factory.cc -text
+code/synthesis/MSVis/AveragingVi2Factory.h -text
 code/synthesis/MSVis/CalVisBuffer.cc -text
 code/synthesis/MSVis/CalVisBuffer.h -text
 code/synthesis/MSVis/FinalTvi2.cc -text
@@ -8521,6 +8523,8 @@ code/synthesis/MSVis/MeasurementSet2.cc -text
 code/synthesis/MSVis/MeasurementSet2.h -text
 code/synthesis/MSVis/MsAverager.cc -text
 code/synthesis/MSVis/MsAverager.h -text
+code/synthesis/MSVis/MsRows.cc -text
+code/synthesis/MSVis/MsRows.h -text
 code/synthesis/MSVis/Partition.cc -text
 code/synthesis/MSVis/Partition.h -text
 code/synthesis/MSVis/Reweighter.cc -text
