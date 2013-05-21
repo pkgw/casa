@@ -2812,6 +2812,11 @@ casacore/scimath/Functionals/Polynomial.tcc -text
 casacore/scimath/Functionals/Polynomial2.tcc -text
 casacore/scimath/Functionals/PolynomialParam.h -text
 casacore/scimath/Functionals/PolynomialParam.tcc -text
+casacore/scimath/Functionals/PowerLogarithmicPolynomial.h -text
+casacore/scimath/Functionals/PowerLogarithmicPolynomial.tcc -text
+casacore/scimath/Functionals/PowerLogarithmicPolynomial2.tcc -text
+casacore/scimath/Functionals/PowerLogarithmicPolynomialParam.h -text
+casacore/scimath/Functionals/PowerLogarithmicPolynomialParam.tcc -text
 casacore/scimath/Functionals/SPolynomial.h -text
 casacore/scimath/Functionals/SPolynomial.tcc -text
 casacore/scimath/Functionals/SPolynomialParam.h -text
@@ -2866,6 +2871,7 @@ casacore/scimath/Functionals/test/tHyperPlane.cc -text
 casacore/scimath/Functionals/test/tInterpolate1D.cc -text
 casacore/scimath/Functionals/test/tPoisson.cc -text
 casacore/scimath/Functionals/test/tPolynomial.cc -text
+casacore/scimath/Functionals/test/tPowerLogarithmicPolynomial.cc -text
 casacore/scimath/Functionals/test/tSPolynomial.cc -text
 casacore/scimath/Functionals/test/tSampledFunctional.cc -text
 casacore/scimath/Functionals/test/tSimButterworthBandpass.cc -text
