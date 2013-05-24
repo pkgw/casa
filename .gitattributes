@@ -7335,6 +7335,8 @@ code/graphics/X11/X_exit.h -text
 code/graphics/X11/changelog -text
 code/graphics/graphics.dox -text
 code/guitools/CMakeLists.txt -text
+code/guitools/Feather/CurveDisplay.cc -text
+code/guitools/Feather/CurveDisplay.h -text
 code/guitools/Feather/ExternalAxis.cc -text
 code/guitools/Feather/ExternalAxis.h -text
 code/guitools/Feather/ExternalAxisWidget.cc -text
@@ -7348,6 +7350,8 @@ code/guitools/Feather/ExternalAxisWidgetRight.h -text
 code/guitools/Feather/Feather.qrc -text
 code/guitools/Feather/FeatherCurve.cc -text
 code/guitools/Feather/FeatherCurve.h -text
+code/guitools/Feather/FeatherCurveType.h -text
+code/guitools/Feather/FeatherDataType.h -text
 code/guitools/Feather/FeatherMain.cc -text
 code/guitools/Feather/FeatherMain.qo.h -text
 code/guitools/Feather/FeatherMain.ui -text
@@ -7356,6 +7360,10 @@ code/guitools/Feather/FeatherPlot.h -text
 code/guitools/Feather/FeatherPlotWidget.cc -text
 code/guitools/Feather/FeatherPlotWidget.qo.h -text
 code/guitools/Feather/FeatherPlotWidget.ui -text
+code/guitools/Feather/FeatherPlotWidgetScatter.cc -text
+code/guitools/Feather/FeatherPlotWidgetScatter.h -text
+code/guitools/Feather/FeatherPlotWidgetSlice.cc -text
+code/guitools/Feather/FeatherPlotWidgetSlice.h -text
 code/guitools/Feather/FileLoader.cc -text
 code/guitools/Feather/FileLoader.qo.h -text
 code/guitools/Feather/FileLoader.ui -text
