@@ -8862,6 +8862,8 @@ code/synthesis/MeasurementEquations/SynthesisImager.cc -text
 code/synthesis/MeasurementEquations/SynthesisImager.h -text
 code/synthesis/MeasurementEquations/SynthesisIterBot.cc -text
 code/synthesis/MeasurementEquations/SynthesisIterBot.h -text
+code/synthesis/MeasurementEquations/SynthesisParSync.cc -text
+code/synthesis/MeasurementEquations/SynthesisParSync.h -text
 code/synthesis/MeasurementEquations/VPManager.cc -text
 code/synthesis/MeasurementEquations/VPManager.h -text
 code/synthesis/MeasurementEquations/VisEquation.cc -text
@@ -10165,6 +10167,10 @@ gcwrap/tools/synthesis/synthesisiterbot.xml -text
 gcwrap/tools/synthesis/synthesisiterbot_cmpt.cc -text
 gcwrap/tools/synthesis/synthesisiterbot_forward.h -text
 gcwrap/tools/synthesis/synthesisiterbot_private.h -text
+gcwrap/tools/synthesis/synthesisparsync.xml -text
+gcwrap/tools/synthesis/synthesisparsync_cmpt.cc -text
+gcwrap/tools/synthesis/synthesisparsync_forward.h -text
+gcwrap/tools/synthesis/synthesisparsync_private.h -text
 gcwrap/tools/synthesis/test/tcal_cmpt.cc -text
 gcwrap/tools/synthesis/test/tcal_cmpt2.cc -text
 gcwrap/tools/synthesis/vpmanager.xml -text
