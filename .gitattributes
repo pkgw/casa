@@ -9748,6 +9748,7 @@ gcwrap/python/scripts/tests/test_po_sigmafractotpol.py -text
 gcwrap/python/scripts/tests/test_po_sigmalinpolint.py -text
 gcwrap/python/scripts/tests/test_po_sigmalinpolposang.py -text
 gcwrap/python/scripts/tests/test_po_totpolint.py -text
+gcwrap/python/scripts/tests/test_refimager.py -text
 gcwrap/python/scripts/tests/test_report.py -text
 gcwrap/python/scripts/tests/test_rg_frombcs.py -text
 gcwrap/python/scripts/tests/test_rg_fromtextfile.py -text
