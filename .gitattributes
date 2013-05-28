@@ -7492,6 +7492,8 @@ code/imageanalysis/IO/AsciiAnnotationFileLine.cc -text
 code/imageanalysis/IO/AsciiAnnotationFileLine.h -text
 code/imageanalysis/IO/FitterEstimatesFileParser.cc -text
 code/imageanalysis/IO/FitterEstimatesFileParser.h -text
+code/imageanalysis/IO/LogFile.cc -text
+code/imageanalysis/IO/LogFile.h -text
 code/imageanalysis/IO/OutputDestinationChecker.cc -text
 code/imageanalysis/IO/OutputDestinationChecker.h -text
 code/imageanalysis/IO/ProfileFitterEstimatesFileParser.cc -text
