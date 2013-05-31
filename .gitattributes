@@ -6659,6 +6659,7 @@ code/display/ds9/location.hh -text
 code/display/ds9/position.hh -text
 code/display/ds9/readme.txt -text
 code/display/ds9/stack.hh -text
+code/display/functional/elements.h -text
 code/display/region/Ellipse.cc -text
 code/display/region/Ellipse.h -text
 code/display/region/HistogramGraph.cc -text
