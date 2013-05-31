@@ -9674,6 +9674,7 @@ gcwrap/python/scripts/task_smoothcal.py -text
 gcwrap/python/scripts/task_specfit.py -text
 gcwrap/python/scripts/task_splattotable.py -text
 gcwrap/python/scripts/task_split.py -text
+gcwrap/python/scripts/task_spxfit.py -text
 gcwrap/python/scripts/task_ssoflux.py -text
 gcwrap/python/scripts/task_statwt.py -text
 gcwrap/python/scripts/task_tclean.py -text
@@ -9982,6 +9983,7 @@ gcwrap/tasks/smoothcal.xml -text
 gcwrap/tasks/specfit.xml -text
 gcwrap/tasks/splattotable.xml -text
 gcwrap/tasks/split.xml -text
+gcwrap/tasks/spxfit.xml -text
 gcwrap/tasks/ssoflux.xml -text
 gcwrap/tasks/statwt.xml -text
 gcwrap/tasks/tclean.xml -text
