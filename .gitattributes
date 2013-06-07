@@ -7381,6 +7381,8 @@ code/guitools/Feather/FeatherDataType.h -text
 code/guitools/Feather/FeatherMain.cc -text
 code/guitools/Feather/FeatherMain.qo.h -text
 code/guitools/Feather/FeatherMain.ui -text
+code/guitools/Feather/FeatherManager.cc -text
+code/guitools/Feather/FeatherManager.qo.h -text
 code/guitools/Feather/FeatherPlot.cc -text
 code/guitools/Feather/FeatherPlot.h -text
 code/guitools/Feather/FeatherPlotWidget.cc -text
@@ -7390,6 +7392,10 @@ code/guitools/Feather/FeatherPlotWidgetScatter.cc -text
 code/guitools/Feather/FeatherPlotWidgetScatter.h -text
 code/guitools/Feather/FeatherPlotWidgetSlice.cc -text
 code/guitools/Feather/FeatherPlotWidgetSlice.h -text
+code/guitools/Feather/FeatherThread.cc -text
+code/guitools/Feather/FeatherThread.h -text
+code/guitools/Feather/FeatheredData.cc -text
+code/guitools/Feather/FeatheredData.h -text
 code/guitools/Feather/FileLoader.cc -text
 code/guitools/Feather/FileLoader.qo.h -text
 code/guitools/Feather/FileLoader.ui -text
