@@ -10091,6 +10091,7 @@ gcwrap/tools/images/coordsys_private.h -text
 gcwrap/tools/images/debug-filesystemcopy-image.xml -text
 gcwrap/tools/images/debug-original-image.xml -text
 gcwrap/tools/images/debug-svncopy-image.xml -text
+gcwrap/tools/images/image.xml -text
 gcwrap/tools/images/image_cmpt.cc -text
 gcwrap/tools/images/image_forward.h -text
 gcwrap/tools/images/image_private.h -text
