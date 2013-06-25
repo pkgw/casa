@@ -7624,7 +7624,6 @@ code/imageanalysis/ImageAnalysis/test/tImageDecomposer.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageFFT.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageFit1D.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageFitter.cc -text
-code/imageanalysis/ImageAnalysis/test/tImageHeader.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageInputProcessor.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageMetaData.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageMoments.cc -text
