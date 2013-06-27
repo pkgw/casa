@@ -6954,6 +6954,7 @@ code/imageanalysis/ImageAnalysis/test/tImageTransposer.cc -text
 code/imageanalysis/ImageAnalysis/test/tSepImageConvolver.cc -text
 code/imageanalysis/ImageAnalysis/test/tSpectralFitter.cc -text
 code/imageanalysis/ImageAnalysis/test/tSubImageFactory.cc -text
+code/imageanalysis/ImageAnalysis/test/tSubImageFactory2.sh -text
 code/imageanalysis/Regions/CasacRegionManager.cc -text
 code/imageanalysis/Regions/CasacRegionManager.h -text
 code/imageanalysis/Regions/test/tCasacRegionManager.cc -text
