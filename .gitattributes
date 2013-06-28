@@ -5550,6 +5550,9 @@ code/display/QtViewer/ColorTransferWidget.cc -text
 code/display/QtViewer/ColorTransferWidget.qo.h -text
 code/display/QtViewer/ColorTransferWidget.ui -text
 code/display/QtViewer/CursorLink.ui -text
+code/display/QtViewer/CursorTrackingHolder.cc -text
+code/display/QtViewer/CursorTrackingHolder.qo.h -text
+code/display/QtViewer/CursorTrackingHolder.ui -text
 code/display/QtViewer/DisplayDataHolder.cc -text
 code/display/QtViewer/DisplayDataHolder.h -text
 code/display/QtViewer/FileBox.cc -text
@@ -5639,6 +5642,8 @@ code/display/QtViewer/RegionToolManager.qo.h -text
 code/display/QtViewer/SlicerGen.cc -text
 code/display/QtViewer/SlicerGen.qo.h -text
 code/display/QtViewer/SlicerGen.ui -text
+code/display/QtViewer/TrackBox.cc -text
+code/display/QtViewer/TrackBox.qo.h -text
 code/display/QtViewer/icons/Anim0_ToStart.png -text
 code/display/QtViewer/icons/Anim1_RevStep.png -text
 code/display/QtViewer/icons/Anim2_Rev.png -text
