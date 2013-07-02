@@ -8701,6 +8701,7 @@ gcwrap/python/scripts/recipes/cmpmses.py -text
 gcwrap/python/scripts/recipes/drawmaskinimage.py -text
 gcwrap/python/scripts/recipes/ephemerides/CMakeLists.txt -text
 gcwrap/python/scripts/recipes/ephemerides/JPLephem_reader.py -text
+gcwrap/python/scripts/recipes/ephemerides/JPLephem_reader2.py -text
 gcwrap/python/scripts/recipes/ephemerides/JPLephem_reader_oldformat.py -text
 gcwrap/python/scripts/recipes/ephemerides/__init__.py -text
 gcwrap/python/scripts/recipes/ephemerides/request.py -text
