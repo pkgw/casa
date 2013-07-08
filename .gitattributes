@@ -6950,6 +6950,7 @@ code/imageanalysis/ImageAnalysis/test/tImageInputProcessor.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageMetaData.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageMetaData2.sh -text
 code/imageanalysis/ImageAnalysis/test/tImageMoments.cc -text
+code/imageanalysis/ImageAnalysis/test/tImageMoments2.sh -text
 code/imageanalysis/ImageAnalysis/test/tImagePolarimetry.cc -text
 code/imageanalysis/ImageAnalysis/test/tImagePrimaryBeamCorrector.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageProfileFitter.cc -text
