@@ -8721,6 +8721,7 @@ gcwrap/python/scripts/recipes/plotazel.py -text
 gcwrap/python/scripts/recipes/psplit.py -text
 gcwrap/python/scripts/recipes/setOrder.py -text
 gcwrap/python/scripts/recipes/taskutil.py -text
+gcwrap/python/scripts/refimagerhelper.py -text
 gcwrap/python/scripts/regressframe.py -text
 gcwrap/python/scripts/regression.py -text
 gcwrap/python/scripts/regression_utility.py -text
