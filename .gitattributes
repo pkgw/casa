@@ -6957,6 +6957,7 @@ code/imageanalysis/ImageAnalysis/test/tImageProfileFitter.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageSourceFinder.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageStatsCalculator.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageTransposer.cc -text
+code/imageanalysis/ImageAnalysis/test/tPrimaryBeamCorrector.sh -text
 code/imageanalysis/ImageAnalysis/test/tSepImageConvolver.cc -text
 code/imageanalysis/ImageAnalysis/test/tSpectralFitter.cc -text
 code/imageanalysis/ImageAnalysis/test/tSubImageFactory.cc -text
