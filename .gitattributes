@@ -9130,6 +9130,7 @@ gcwrap/python/scripts/tests/test_sdcal2.py -text
 gcwrap/python/scripts/tests/test_sdcoadd.py -text
 gcwrap/python/scripts/tests/test_sdfit.py -text
 gcwrap/python/scripts/tests/test_sdflag.py -text
+gcwrap/python/scripts/tests/test_sdflag2.py -text
 gcwrap/python/scripts/tests/test_sdflagmanager.py -text
 gcwrap/python/scripts/tests/test_sdgrid.py -text
 gcwrap/python/scripts/tests/test_sdimaging.py -text
