@@ -1010,6 +1010,8 @@ casacore/components/ComponentModels/test/tFluxStandard2.cc -text
 casacore/components/ComponentModels/test/tFluxStandard2.run -text
 casacore/components/ComponentModels/test/tFluxStandard3.cc -text
 casacore/components/ComponentModels/test/tFluxStandard3.run -text
+casacore/components/ComponentModels/test/tFluxStandard4.cc -text
+casacore/components/ComponentModels/test/tFluxStandard4.run -text
 casacore/components/ComponentModels/test/tGaussianBeam.cc -text
 casacore/components/ComponentModels/test/tGaussianComponent.cc -text
 casacore/components/ComponentModels/test/tGaussianShape.cc -text
