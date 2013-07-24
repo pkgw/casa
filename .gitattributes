@@ -9548,6 +9548,10 @@ gcwrap/tools/synthesis/synthesisimager.xml -text
 gcwrap/tools/synthesis/synthesisimager_cmpt.cc -text
 gcwrap/tools/synthesis/synthesisimager_forward.h -text
 gcwrap/tools/synthesis/synthesisimager_private.h -text
+gcwrap/tools/synthesis/synthesisimstore.xml -text
+gcwrap/tools/synthesis/synthesisimstore_cmpt.cc -text
+gcwrap/tools/synthesis/synthesisimstore_forward.h -text
+gcwrap/tools/synthesis/synthesisimstore_private.h -text
 gcwrap/tools/synthesis/synthesisiterbot.xml -text
 gcwrap/tools/synthesis/synthesisiterbot_cmpt.cc -text
 gcwrap/tools/synthesis/synthesisiterbot_forward.h -text
