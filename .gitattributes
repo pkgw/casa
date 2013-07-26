@@ -7235,6 +7235,8 @@ code/mstransform/MSTransform/MSTransform.cc -text
 code/mstransform/MSTransform/MSTransform.h -text
 code/mstransform/MSTransform/MSTransformDataHandler.cc -text
 code/mstransform/MSTransform/MSTransformDataHandler.h -text
+code/mstransform/MSTransform/MSTransformManager.cc -text
+code/mstransform/MSTransform/MSTransformManager.h -text
 code/mstransform/MSTransform/test/tMSTransformDataHandler.cc -text
 code/nrao/CMakeLists.txt -text
 code/nrao/FITS/GBTACSTable.cc -text
