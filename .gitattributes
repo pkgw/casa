@@ -6893,6 +6893,8 @@ code/imageanalysis/ImageAnalysis/ImageMaskAttacher.h -text
 code/imageanalysis/ImageAnalysis/ImageMaskAttacher.tcc -text
 code/imageanalysis/ImageAnalysis/ImageMetaData.h -text
 code/imageanalysis/ImageAnalysis/ImageMetaData.tcc -text
+code/imageanalysis/ImageAnalysis/ImageMetaDataRW.h -text
+code/imageanalysis/ImageAnalysis/ImageMetaDataRW.tcc -text
 code/imageanalysis/ImageAnalysis/ImageMoments.h -text
 code/imageanalysis/ImageAnalysis/ImageMoments.tcc -text
 code/imageanalysis/ImageAnalysis/ImageMomentsProgress.cc -text
@@ -6951,6 +6953,7 @@ code/imageanalysis/ImageAnalysis/test/tImageFitter.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageInputProcessor.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageMetaData.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageMetaData2.sh -text
+code/imageanalysis/ImageAnalysis/test/tImageMetaDataRW2.sh -text
 code/imageanalysis/ImageAnalysis/test/tImageMoments.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageMoments2.sh -text
 code/imageanalysis/ImageAnalysis/test/tImagePolarimetry.cc -text
