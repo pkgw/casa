@@ -7895,6 +7895,7 @@ code/synthesis/ImagerObjects/SynthesisIterBot.cc -text
 code/synthesis/ImagerObjects/SynthesisIterBot.h -text
 code/synthesis/ImagerObjects/SynthesisParSync.cc -text
 code/synthesis/ImagerObjects/SynthesisParSync.h -text
+code/synthesis/ImagerObjects/test/tSIIterBot.cc -text
 code/synthesis/ImagerObjects/test/tSynthesisImager.cc -text
 code/synthesis/MSVis/AsynchronousInterface.cc -text
 code/synthesis/MSVis/AsynchronousInterface.h -text
@@ -8262,7 +8263,6 @@ code/synthesis/MeasurementEquations/test/tFeather.cc -text
 code/synthesis/MeasurementEquations/test/tImager.cc -text
 code/synthesis/MeasurementEquations/test/tIncCEMemModel.cc -text
 code/synthesis/MeasurementEquations/test/tLatConvEquation.cc -text
-code/synthesis/MeasurementEquations/test/tSIIterBot.cc -text
 code/synthesis/MeasurementEquations/test/tStokesUtil.cc -text
 code/synthesis/Parallel.h -text
 code/synthesis/Parallel/Algorithm.h -text
