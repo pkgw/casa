@@ -4263,6 +4263,7 @@ code/alma/apps/asdm2MS/ASDMTables.cc -text
 code/alma/apps/asdm2MS/ASDMTables.h -text
 code/alma/apps/asdm2MS/ASDMVerbatimFiller.cc -text
 code/alma/apps/asdm2MS/ASDMVerbatimFiller.h -text
+code/alma/apps/asdm2MS/AnyValueMap.hpp -text
 code/alma/apps/asdm2MS/BDF2AsdmStManIndex.cc -text
 code/alma/apps/asdm2MS/BDF2AsdmStManIndex.h -text
 code/alma/apps/asdm2MS/Name2Table.cc -text
