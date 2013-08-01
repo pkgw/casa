@@ -8681,6 +8681,7 @@ gcwrap/python/scripts/recipes/automask.py -text
 gcwrap/python/scripts/recipes/benchmark.py -text
 gcwrap/python/scripts/recipes/checkdataformat.py -text
 gcwrap/python/scripts/recipes/checknan.py -text
+gcwrap/python/scripts/recipes/checkpimagersetup.py -text
 gcwrap/python/scripts/recipes/cl2skycat.py -text
 gcwrap/python/scripts/recipes/cluster.py -text
 gcwrap/python/scripts/recipes/cmpmses.py -text
