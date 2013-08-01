@@ -4272,6 +4272,7 @@ code/alma/apps/asdm2MS/UvwCoords.h -text
 code/alma/apps/asdm2MS/asdm2MS.cc -text
 code/alma/apps/asdm2MS/asdm2MSGeneric.h -text
 code/alma/apps/asdm2MS/bdflags2MS.cc -text
+code/alma/apps/asdm2MS/parasdm2MS.cc -text
 code/alma/apps/asdmSummary/asdmSummary.cc -text
 code/asdmstman/AsdmColumn.cc -text
 code/asdmstman/AsdmColumn.h -text
