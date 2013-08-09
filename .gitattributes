@@ -8379,6 +8379,8 @@ code/synthesis/TransformMachines/PSTerm.cc -text
 code/synthesis/TransformMachines/PSTerm.h -text
 code/synthesis/TransformMachines/PolOuterProduct.cc -text
 code/synthesis/TransformMachines/PolOuterProduct.h -text
+code/synthesis/TransformMachines/ProtoVR.cc -text
+code/synthesis/TransformMachines/ProtoVR.h -text
 code/synthesis/TransformMachines/SetJyGridFT.cc -text
 code/synthesis/TransformMachines/SetJyGridFT.h -text
 code/synthesis/TransformMachines/SimpCompGridMachine.cc -text
