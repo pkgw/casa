@@ -7850,6 +7850,7 @@ code/synthesis/CalTables/VisJonesMRec.h -text
 code/synthesis/CalTables/VisJonesTable.cc -text
 code/synthesis/CalTables/VisJonesTable.h -text
 code/synthesis/CalTables/ipython_log.py -text
+code/synthesis/CalTables/test/tCLPatchPanel.cc -text
 code/synthesis/CalTables/test/tCTGenericFill.cc -text
 code/synthesis/CalTables/test/tCTIter.cc -text
 code/synthesis/CalTables/test/tCTPatchedInterp.cc -text
