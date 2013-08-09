@@ -7694,6 +7694,8 @@ code/synthesis/CalTables/BJonesMRec.cc -text
 code/synthesis/CalTables/BJonesMRec.h -text
 code/synthesis/CalTables/BJonesTable.cc -text
 code/synthesis/CalTables/BJonesTable.h -text
+code/synthesis/CalTables/CLPatchPanel.cc -text
+code/synthesis/CalTables/CLPatchPanel.h -text
 code/synthesis/CalTables/CTColumns.cc -text
 code/synthesis/CalTables/CTColumns.h -text
 code/synthesis/CalTables/CTDesc.cc -text
