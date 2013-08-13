@@ -7879,6 +7879,8 @@ code/synthesis/ImagerObjects/SDAlgorithmBase.cc -text
 code/synthesis/ImagerObjects/SDAlgorithmBase.h -text
 code/synthesis/ImagerObjects/SDAlgorithmHogbomClean.cc -text
 code/synthesis/ImagerObjects/SDAlgorithmHogbomClean.h -text
+code/synthesis/ImagerObjects/SDAlgorithmTest.cc -text
+code/synthesis/ImagerObjects/SDAlgorithmTest.h -text
 code/synthesis/ImagerObjects/SDMaskHandler.cc -text
 code/synthesis/ImagerObjects/SDMaskHandler.h -text
 code/synthesis/ImagerObjects/SIImageStore.cc -text
