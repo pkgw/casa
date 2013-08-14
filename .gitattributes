@@ -8585,6 +8585,7 @@ gcwrap/python/scripts/TablePlotTkAgg.py -text
 gcwrap/python/scripts/TerminalController.py -text
 gcwrap/python/scripts/asap_init.py -text
 gcwrap/python/scripts/assignmentFilter.py -text
+gcwrap/python/scripts/callibrary.py -text
 gcwrap/python/scripts/caltab_convert2.py -text
 gcwrap/python/scripts/casa.py -text
 gcwrap/python/scripts/casa_in_py.py -text
