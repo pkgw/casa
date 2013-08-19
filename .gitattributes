@@ -6915,6 +6915,8 @@ code/imageanalysis/ImageAnalysis/ImagePrimaryBeamCorrector.cc -text
 code/imageanalysis/ImageAnalysis/ImagePrimaryBeamCorrector.h -text
 code/imageanalysis/ImageAnalysis/ImageProfileFitter.cc -text
 code/imageanalysis/ImageAnalysis/ImageProfileFitter.h -text
+code/imageanalysis/ImageAnalysis/ImageRegridder.cc -text
+code/imageanalysis/ImageAnalysis/ImageRegridder.h -text
 code/imageanalysis/ImageAnalysis/ImageSourceFinder.h -text
 code/imageanalysis/ImageAnalysis/ImageSourceFinder.tcc -text
 code/imageanalysis/ImageAnalysis/ImageStatsCalculator.cc -text
