@@ -3636,6 +3636,10 @@ code/alma/ASDM/CalAmpliRow.cc -text
 code/alma/ASDM/CalAmpliRow.h -text
 code/alma/ASDM/CalAmpliTable.cc -text
 code/alma/ASDM/CalAmpliTable.h -text
+code/alma/ASDM/CalAppPhaseRow.cc -text
+code/alma/ASDM/CalAppPhaseRow.h -text
+code/alma/ASDM/CalAppPhaseTable.cc -text
+code/alma/ASDM/CalAppPhaseTable.h -text
 code/alma/ASDM/CalAtmosphereRow.cc -text
 code/alma/ASDM/CalAtmosphereRow.h -text
 code/alma/ASDM/CalAtmosphereTable.cc -text
