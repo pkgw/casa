@@ -8408,6 +8408,7 @@ code/synthesis/TransformMachines/StokesImageUtil.cc -text
 code/synthesis/TransformMachines/StokesImageUtil.h -text
 code/synthesis/TransformMachines/SynthesisError.cc -text
 code/synthesis/TransformMachines/SynthesisError.h -text
+code/synthesis/TransformMachines/SynthesisMath.h -text
 code/synthesis/TransformMachines/Utils.cc -text
 code/synthesis/TransformMachines/Utils.h -text
 code/synthesis/TransformMachines/VBStore.h -text
