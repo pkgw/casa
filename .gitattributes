@@ -3576,6 +3576,8 @@ code/admin/system/scanhtml -text
 code/admin/system/scanpick -text
 code/admin/system/scanregister -text
 code/air_casawvr/CMakeLists.txt -text
+code/air_casawvr/apps/arraygains2.cpp -text
+code/air_casawvr/apps/arraygains2.hpp -text
 code/air_casawvr/casawvr/casawvr_errs.cpp -text
 code/air_casawvr/casawvr/casawvr_errs.hpp -text
 code/air_casawvr/casawvr/casawvr_main.cpp -text
