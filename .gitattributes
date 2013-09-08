@@ -2979,6 +2979,7 @@ casacore/scimath/Mathematics/test/tSmooth.cc -text
 casacore/scimath/Mathematics/test/tSparseDiff.cc -text
 casacore/scimath/Mathematics/test/tStatAcc.cc -text
 casacore/scimath/Mathematics/test/tVanVleck.cc -text
+casacore/scimath/Mathematics/test/tVectorKernel.cc -text
 casacore/scimath/Mathematics/test/templates -text
 casacore/scimath/SConscript -text
 casacore/scimath/_ReposFiller/makefile -text
