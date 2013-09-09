@@ -5440,6 +5440,9 @@ code/display/QtPlotter/SearchRedshiftDialog.ui -text
 code/display/QtPlotter/SettingsWidget.cc -text
 code/display/QtPlotter/SettingsWidget.qo.h -text
 code/display/QtPlotter/SettingsWidget.ui -text
+code/display/QtPlotter/SmoothPreferences.cc -text
+code/display/QtPlotter/SmoothPreferences.qo.h -text
+code/display/QtPlotter/SmoothPreferences.ui -text
 code/display/QtPlotter/SpecFit.cc -text
 code/display/QtPlotter/SpecFit.h -text
 code/display/QtPlotter/SpecFitGaussian.cc -text
@@ -5539,6 +5542,7 @@ code/display/QtPlotter/images/saveGraphic.png -text
 code/display/QtPlotter/images/settings.png -text
 code/display/QtPlotter/images/tick.png -text
 code/display/QtPlotter/images/uparrow.png -text
+code/display/QtPlotter/images/windowing.png -text
 code/display/QtPlotter/images/write.png -text
 code/display/QtPlotter/images/zoomi.png -text
 code/display/QtPlotter/images/zoomin.png -text
