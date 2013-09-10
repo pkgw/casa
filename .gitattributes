@@ -2907,6 +2907,8 @@ casacore/scimath/Mathematics/FFTServer.h -text
 casacore/scimath/Mathematics/FFTServer.hcc -text
 casacore/scimath/Mathematics/FFTW.cc -text
 casacore/scimath/Mathematics/FFTW.h -text
+casacore/scimath/Mathematics/Geometry.cc -text
+casacore/scimath/Mathematics/Geometry.h -text
 casacore/scimath/Mathematics/Gridder.h -text
 casacore/scimath/Mathematics/Gridder.tcc -text
 casacore/scimath/Mathematics/HistAcc.h -text
@@ -2969,6 +2971,7 @@ casacore/scimath/Mathematics/test/tCombinatorics.cc -text
 casacore/scimath/Mathematics/test/tConvolver.cc -text
 casacore/scimath/Mathematics/test/tFFTServer.cc -text
 casacore/scimath/Mathematics/test/tFFTServer2.cc -text
+casacore/scimath/Mathematics/test/tGeometry.cc -text
 casacore/scimath/Mathematics/test/tHistAcc.cc -text
 casacore/scimath/Mathematics/test/tHistAcc.out -text
 casacore/scimath/Mathematics/test/tInterpolateArray1D.cc -text
