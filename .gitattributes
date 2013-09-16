@@ -102,6 +102,7 @@ casacore/casa/Arrays/ArrayError.cc -text
 casacore/casa/Arrays/ArrayError.h -text
 casacore/casa/Arrays/ArrayIO.h -text
 casacore/casa/Arrays/ArrayIO.tcc -text
+casacore/casa/Arrays/ArrayIO2.cc -text
 casacore/casa/Arrays/ArrayIter.h -text
 casacore/casa/Arrays/ArrayIter.tcc -text
 casacore/casa/Arrays/ArrayLogical.h -text
