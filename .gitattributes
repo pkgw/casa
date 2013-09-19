@@ -6706,6 +6706,7 @@ code/graphics/X11/X_exit.h -text
 code/graphics/X11/changelog -text
 code/graphics/graphics.dox -text
 code/guitools/CMakeLists.txt -text
+code/guitools/Feather/ColorProvider.h -text
 code/guitools/Feather/CurveDisplay.cc -text
 code/guitools/Feather/CurveDisplay.h -text
 code/guitools/Feather/ExternalAxis.cc -text
@@ -6744,6 +6745,13 @@ code/guitools/Feather/FeatheredData.h -text
 code/guitools/Feather/FileLoader.cc -text
 code/guitools/Feather/FileLoader.qo.h -text
 code/guitools/Feather/FileLoader.ui -text
+code/guitools/Feather/LegendCurve.cc -text
+code/guitools/Feather/LegendCurve.h -text
+code/guitools/Feather/LegendItemRect.cc -text
+code/guitools/Feather/LegendItemRect.h -text
+code/guitools/Feather/OverWriteFileDialog.cc -text
+code/guitools/Feather/OverWriteFileDialog.qo.h -text
+code/guitools/Feather/OverWriteFileDialog.ui -text
 code/guitools/Feather/PlotHolder.cc -text
 code/guitools/Feather/PlotHolder.qo.h -text
 code/guitools/Feather/PlotHolder.ui -text
