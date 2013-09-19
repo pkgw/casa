@@ -8295,6 +8295,7 @@ code/synthesis/MeasurementComponents/test/tAlgoPClark.run -text
 code/synthesis/MeasurementComponents/test/tBeamSquint.cc -text
 code/synthesis/MeasurementComponents/test/tCalibrater.cc -text
 code/synthesis/MeasurementComponents/test/tEVLAAperture.cc -text
+code/synthesis/MeasurementComponents/test/tKJones.cc -text
 code/synthesis/MeasurementComponents/test/tPBMath.cc -text
 code/synthesis/MeasurementComponents/test/tPBMath2D.cc -text
 code/synthesis/MeasurementComponents/test/tPBTable.cc -text
