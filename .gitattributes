@@ -8882,6 +8882,7 @@ gcwrap/python/scripts/regressions/alma-24ant-calibration-regression.py -text
 gcwrap/python/scripts/regressions/alma-m100-analysis-hpc-regression.py -text
 gcwrap/python/scripts/regressions/alma-m100-analysis-regression.py -text
 gcwrap/python/scripts/regressions/alma-ngc3256-analysis-regression.py -text
+gcwrap/python/scripts/regressions/alma-titan-ephemeris-regression.py -text
 gcwrap/python/scripts/regressions/alma_asdm+reimported-asdm_sf.py -text
 gcwrap/python/scripts/regressions/async-segfault_regression.py -text
 gcwrap/python/scripts/regressions/b0319_regression.py -text
@@ -8946,6 +8947,7 @@ gcwrap/python/scripts/regressions/tests/accum_test.py -text
 gcwrap/python/scripts/regressions/tests/alma-m100-analysis-hpc.py -text
 gcwrap/python/scripts/regressions/tests/alma-m100-analysis.py -text
 gcwrap/python/scripts/regressions/tests/alma-ngc3256-analysis.py -text
+gcwrap/python/scripts/regressions/tests/alma-titan-ephemeris.py -text
 gcwrap/python/scripts/regressions/tests/asdm-imexport+analysis.py -text
 gcwrap/python/scripts/regressions/tests/async-segfault.py -text
 gcwrap/python/scripts/regressions/tests/calstat_test.py -text
