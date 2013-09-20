@@ -5590,6 +5590,8 @@ code/display/QtViewer/ImageManager/ImageTracker.h -text
 code/display/QtViewer/ImageManager/ImageView.cc -text
 code/display/QtViewer/ImageManager/ImageView.qo.h -text
 code/display/QtViewer/ImageManager/ImageView.ui -text
+code/display/QtViewer/InActiveDock.cc -text
+code/display/QtViewer/InActiveDock.qo.h -text
 code/display/QtViewer/InvisibleAxis.cc -text
 code/display/QtViewer/InvisibleAxis.h -text
 code/display/QtViewer/MakeMask.cc -text
