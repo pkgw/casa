@@ -8095,6 +8095,8 @@ code/synthesis/MSVis/VLAT2.cc -text
 code/synthesis/MSVis/VLAT2.h -text
 code/synthesis/MSVis/VWBT.cc -text
 code/synthesis/MSVis/VWBT.h -text
+code/synthesis/MSVis/Vbi2MsRow.cc -text
+code/synthesis/MSVis/Vbi2MsRow.h -text
 code/synthesis/MSVis/ViColumns2.cc -text
 code/synthesis/MSVis/ViColumns2.h -text
 code/synthesis/MSVis/ViFrequencySelection.cc -text
@@ -8126,6 +8128,7 @@ code/synthesis/MSVis/VisBufferImpl.cc -text
 code/synthesis/MSVis/VisBufferImpl.h -text
 code/synthesis/MSVis/VisBufferImpl2.cc -text
 code/synthesis/MSVis/VisBufferImpl2.h -text
+code/synthesis/MSVis/VisBufferImpl2Internal.h -text
 code/synthesis/MSVis/VisBufferImplAsync2.cc -text
 code/synthesis/MSVis/VisBufferImplAsync2.h -text
 code/synthesis/MSVis/VisBufferUtil.cc -text
