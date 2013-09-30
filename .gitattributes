@@ -4382,6 +4382,7 @@ code/calanalysis/CalAnalysis/test/tCalStatsTab.cc -text
 code/calanalysis/CalAnalysis/test/tNewCalTableIterNick.cc -text
 code/casadbus/CMakeLists.txt -text
 code/casadbus/casadbus.dox -text
+code/casadbus/etc/casa.conf -text
 code/casadbus/plotserver/PlotServerProxy.cc -text
 code/casadbus/plotserver/PlotServerProxy.h -text
 code/casadbus/session/DBusSession.cc -text
