@@ -5447,6 +5447,8 @@ code/display/QtPlotter/SettingsWidget.ui -text
 code/display/QtPlotter/SmoothPreferences.cc -text
 code/display/QtPlotter/SmoothPreferences.qo.h -text
 code/display/QtPlotter/SmoothPreferences.ui -text
+code/display/QtPlotter/SmoothSpinBox.cc -text
+code/display/QtPlotter/SmoothSpinBox.h -text
 code/display/QtPlotter/SpecFit.cc -text
 code/display/QtPlotter/SpecFit.h -text
 code/display/QtPlotter/SpecFitGaussian.cc -text
