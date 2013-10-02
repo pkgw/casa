@@ -4893,6 +4893,8 @@ code/display/Display/DParameterString.cc -text
 code/display/Display/DParameterString.h -text
 code/display/Display/DParameterSwitch.cc -text
 code/display/Display/DParameterSwitch.h -text
+code/display/Display/DisplayCoordinateSystem.cc -text
+code/display/Display/DisplayCoordinateSystem.h -text
 code/display/Display/DisplayEnums.cc -text
 code/display/Display/DisplayEnums.h -text
 code/display/Display/DisplayMarkerDefinitions.cc -text
