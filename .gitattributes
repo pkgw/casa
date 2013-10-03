@@ -8820,6 +8820,7 @@ gcwrap/python/scripts/pybot/casa/lib/failure_msg.txt -text
 gcwrap/python/scripts/recipes/CMakeLists.txt -text
 gcwrap/python/scripts/recipes/__init__.py -text
 gcwrap/python/scripts/recipes/almahelpers.py -text
+gcwrap/python/scripts/recipes/almapolhelpers.py -text
 gcwrap/python/scripts/recipes/astro_stations2simdata.py -text
 gcwrap/python/scripts/recipes/automask.py -text
 gcwrap/python/scripts/recipes/benchmark.py -text
