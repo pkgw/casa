@@ -4764,6 +4764,8 @@ code/casaqt/QtUtilities/QtUtilities.cc -text
 code/casaqt/QtUtilities/QtUtilities.h -text
 code/casaqt/QwtPlotter/QPAnnotation.cc -text
 code/casaqt/QwtPlotter/QPAnnotation.h -text
+code/casaqt/QwtPlotter/QPAxis.cc -text
+code/casaqt/QwtPlotter/QPAxis.qo.h -text
 code/casaqt/QwtPlotter/QPBarPlot.cc -text
 code/casaqt/QwtPlotter/QPBarPlot.h -text
 code/casaqt/QwtPlotter/QPCanvas.cc -text
