@@ -9055,10 +9055,8 @@ gcwrap/python/scripts/task_feather.py -text
 gcwrap/python/scripts/task_find.py -text
 gcwrap/python/scripts/task_fixplanets.py -text
 gcwrap/python/scripts/task_fixvis.py -text
-gcwrap/python/scripts/task_flagautocorr.py -text
 gcwrap/python/scripts/task_flagcmd.py -text
 gcwrap/python/scripts/task_flagdata.py -text
-gcwrap/python/scripts/task_flagdata2.py -text
 gcwrap/python/scripts/task_flagmanager.py -text
 gcwrap/python/scripts/task_fluxscale.py -text
 gcwrap/python/scripts/task_ft.py -text
@@ -9101,8 +9099,6 @@ gcwrap/python/scripts/task_mosaic.py -text
 gcwrap/python/scripts/task_msmoments.py -text
 gcwrap/python/scripts/task_mstransform.py -text
 gcwrap/python/scripts/task_msview.py -text
-gcwrap/python/scripts/task_oldflagcmd.py -text
-gcwrap/python/scripts/task_oldflagdata.py -text
 gcwrap/python/scripts/task_oldmakemask.py -text
 gcwrap/python/scripts/task_oldpartition.py -text
 gcwrap/python/scripts/task_partition.py -text
@@ -9190,7 +9186,6 @@ gcwrap/python/scripts/tests/test_fixplanets.py -text
 gcwrap/python/scripts/tests/test_fixvis.py -text
 gcwrap/python/scripts/tests/test_flagcmd.py -text
 gcwrap/python/scripts/tests/test_flagdata.py -text
-gcwrap/python/scripts/tests/test_flagdata2.py -text
 gcwrap/python/scripts/tests/test_fluxscale.py -text
 gcwrap/python/scripts/tests/test_gaincal.py -text
 gcwrap/python/scripts/tests/test_gencal.py -text
@@ -9255,8 +9250,6 @@ gcwrap/python/scripts/tests/test_mst_cvel.py -text
 gcwrap/python/scripts/tests/test_mst_cvelB.py -text
 gcwrap/python/scripts/tests/test_mst_split.py -text
 gcwrap/python/scripts/tests/test_mstransform.py -text
-gcwrap/python/scripts/tests/test_oldflagcmd.py -text
-gcwrap/python/scripts/tests/test_oldflagdata.py -text
 gcwrap/python/scripts/tests/test_oldpartition.py -text
 gcwrap/python/scripts/tests/test_partition.py -text
 gcwrap/python/scripts/tests/test_partitionHelper.py -text
@@ -9367,10 +9360,8 @@ gcwrap/tasks/feather.xml -text
 gcwrap/tasks/find.xml -text
 gcwrap/tasks/fixplanets.xml -text
 gcwrap/tasks/fixvis.xml -text
-gcwrap/tasks/flagautocorr.xml -text
 gcwrap/tasks/flagcmd.xml -text
 gcwrap/tasks/flagdata.xml -text
-gcwrap/tasks/flagdata2.xml -text
 gcwrap/tasks/flagmanager.xml -text
 gcwrap/tasks/fluxscale.xml -text
 gcwrap/tasks/ft.xml -text
@@ -9413,8 +9404,6 @@ gcwrap/tasks/mosaic.xml -text
 gcwrap/tasks/msmoments.xml -text
 gcwrap/tasks/mstransform.xml -text
 gcwrap/tasks/msview.xml -text
-gcwrap/tasks/oldflagcmd.xml -text
-gcwrap/tasks/oldflagdata.xml -text
 gcwrap/tasks/oldpartition.xml -text
 gcwrap/tasks/partition.xml -text
 gcwrap/tasks/pclean.xml -text
