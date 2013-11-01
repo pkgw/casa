@@ -7709,10 +7709,6 @@ code/plotms/PlotMS/PlotMSTransformations.h -text
 code/plotms/PlotMS/PlotMSWatchedParameters.cc -text
 code/plotms/PlotMS/PlotMSWatchedParameters.h -text
 code/plotms/Plots/PlotInformationManager.h -text
-code/plotms/Plots/PlotMSIterPlot.cc -text
-code/plotms/Plots/PlotMSIterPlot.h -text
-code/plotms/Plots/PlotMSMultiPlot.cc -text
-code/plotms/Plots/PlotMSMultiPlot.h -text
 code/plotms/Plots/PlotMSOverPlot.cc -text
 code/plotms/Plots/PlotMSOverPlot.h -text
 code/plotms/Plots/PlotMSPage.cc -text
@@ -7725,8 +7721,6 @@ code/plotms/Plots/PlotMSPlotParameterGroups.cc -text
 code/plotms/Plots/PlotMSPlotParameterGroups.h -text
 code/plotms/Plots/PlotMSPlotParameters.cc -text
 code/plotms/Plots/PlotMSPlotParameters.h -text
-code/plotms/Plots/PlotMSSinglePlot.cc -text
-code/plotms/Plots/PlotMSSinglePlot.h -text
 code/plotms/Threads/BackgroundThread.cc -text
 code/plotms/Threads/BackgroundThread.h -text
 code/plotms/Threads/CacheThread.cc -text
