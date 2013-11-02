@@ -4722,6 +4722,16 @@ code/casaqt/QtProgressMeter/progresstimer.cc -text
 code/casaqt/QtProgressMeter/progresstimer.qo.h -text
 code/casaqt/QtProgressMeter/test/progressmeter.py -text
 code/casaqt/QtProgressMeter/test/tProgressMeter.cc -text
+code/casaqt/QtUtilities/Axis/ExternalAxisWidget.cc -text
+code/casaqt/QtUtilities/Axis/ExternalAxisWidget.h -text
+code/casaqt/QtUtilities/Axis/ExternalAxisWidgetBottom.cc -text
+code/casaqt/QtUtilities/Axis/ExternalAxisWidgetBottom.h -text
+code/casaqt/QtUtilities/Axis/ExternalAxisWidgetLeft.cc -text
+code/casaqt/QtUtilities/Axis/ExternalAxisWidgetLeft.h -text
+code/casaqt/QtUtilities/Axis/ExternalAxisWidgetRight.cc -text
+code/casaqt/QtUtilities/Axis/ExternalAxisWidgetRight.h -text
+code/casaqt/QtUtilities/Axis/ExternalAxisWidgetTop.cc -text
+code/casaqt/QtUtilities/Axis/ExternalAxisWidgetTop.h -text
 code/casaqt/QtUtilities/PlotColorWidget.ui -text
 code/casaqt/QtUtilities/PlotFileWidget.ui -text
 code/casaqt/QtUtilities/PlotFillWidget.ui -text
@@ -4762,6 +4772,7 @@ code/casaqt/QtUtilities/QtProgressWidget.qo.h -text
 code/casaqt/QtUtilities/QtProgressWidget.ui -text
 code/casaqt/QtUtilities/QtUtilities.cc -text
 code/casaqt/QtUtilities/QtUtilities.h -text
+code/casaqt/QwtPlotter/AxisListener.h -text
 code/casaqt/QwtPlotter/QPAnnotation.cc -text
 code/casaqt/QwtPlotter/QPAnnotation.h -text
 code/casaqt/QwtPlotter/QPAxis.cc -text
