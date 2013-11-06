@@ -8833,6 +8833,7 @@ gcwrap/python/scripts/pybot/casa/130_Componentlist.html -text
 gcwrap/python/scripts/pybot/casa/135_Concat.html -text
 gcwrap/python/scripts/pybot/casa/140_Conjugatevis.html -text
 gcwrap/python/scripts/pybot/casa/145_Coordsys.html -text
+gcwrap/python/scripts/pybot/casa/150_Csvclean.html -text
 gcwrap/python/scripts/pybot/casa/155_Cvel.html -text
 gcwrap/python/scripts/pybot/casa/160_Cvelfreqs.html -text
 gcwrap/python/scripts/pybot/casa/165_Exportasdm.html -text
