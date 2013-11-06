@@ -9237,6 +9237,7 @@ gcwrap/python/scripts/tests/test_getchunk.py -text
 gcwrap/python/scripts/tests/test_hanningsmooth.py -text
 gcwrap/python/scripts/tests/test_ia_adddegaxes.py -text
 gcwrap/python/scripts/tests/test_ia_commonbeam.py -text
+gcwrap/python/scripts/tests/test_ia_constructors.py -text
 gcwrap/python/scripts/tests/test_ia_continuumsub.py -text
 gcwrap/python/scripts/tests/test_ia_convertflux.py -text
 gcwrap/python/scripts/tests/test_ia_convolve.py -text
