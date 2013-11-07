@@ -8840,6 +8840,7 @@ gcwrap/python/scripts/pybot/casa/165_Exportasdm.html -text
 gcwrap/python/scripts/pybot/casa/170_Fixplanets.html -text
 gcwrap/python/scripts/pybot/casa/175_Fixvis.html -text
 gcwrap/python/scripts/pybot/casa/180_Flagcmd.html -text
+gcwrap/python/scripts/pybot/casa/185_Flagdata.html -text
 gcwrap/python/scripts/pybot/casa/190_Fluxscale.html -text
 gcwrap/python/scripts/pybot/casa/195_Gencal.html -text
 gcwrap/python/scripts/pybot/casa/200_Getchunk.html -text
@@ -8893,6 +8894,8 @@ gcwrap/python/scripts/pybot/casa/455_Makemask.html -text
 gcwrap/python/scripts/pybot/casa/460_Measures.html -text
 gcwrap/python/scripts/pybot/casa/465_Msmd.html -text
 gcwrap/python/scripts/pybot/casa/470_Msmoments.html -text
+gcwrap/python/scripts/pybot/casa/475_Mstransform.html -text
+gcwrap/python/scripts/pybot/casa/480_Partition.html -text
 gcwrap/python/scripts/pybot/casa/485_Pcasa.html -text
 gcwrap/python/scripts/pybot/casa/490_Plotants.html -text
 gcwrap/python/scripts/pybot/casa/495_Plotuv.html -text
