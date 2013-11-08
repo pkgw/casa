@@ -6603,6 +6603,7 @@ code/flagging/Flagging/FlagDataHandler.cc -text
 code/flagging/Flagging/FlagDataHandler.h -text
 code/flagging/Flagging/FlagMSHandler.cc -text
 code/flagging/Flagging/FlagMSHandler.h -text
+code/flagging/Flagging/FlagPlotServerProxy.h -text
 code/flagging/Flagging/FlagReport.cc -text
 code/flagging/Flagging/FlagReport.h -text
 code/flagging/Flagging/FlagVersion.cc -text
@@ -6616,7 +6617,6 @@ code/flagging/Flagging/LFExamineFlags.cc -text
 code/flagging/Flagging/LFExamineFlags.h -text
 code/flagging/Flagging/LFExtendFlags.cc -text
 code/flagging/Flagging/LFExtendFlags.h -text
-code/flagging/Flagging/LFPlotServerProxy.h -text
 code/flagging/Flagging/LFTimeFreqCrop.cc -text
 code/flagging/Flagging/LFTimeFreqCrop.h -text
 code/flagging/Flagging/LightFlagger.cc -text
