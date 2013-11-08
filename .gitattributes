@@ -7576,6 +7576,7 @@ code/plotms/Client/ClientFactory.cc -text
 code/plotms/Client/ClientFactory.h -text
 code/plotms/Client/ClientScript.cc -text
 code/plotms/Client/ClientScript.h -text
+code/plotms/Data/CacheFactory.h -text
 code/plotms/Data/CalCache.cc -text
 code/plotms/Data/CalCache.h -text
 code/plotms/Data/MSCache.cc -text
