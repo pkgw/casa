@@ -8717,6 +8717,7 @@ gcwrap/python/implement/QtParamGui/ValuePanel.qo.h -text
 gcwrap/python/implement/QtParamGui/ValuePanel.ui -text
 gcwrap/python/modules/interrupt/interrupt_python.cc -text
 gcwrap/python/modules/interrupt/setup.py -text
+gcwrap/python/scripts/OrderedDictionary.py -text
 gcwrap/python/scripts/README.regression -text
 gcwrap/python/scripts/TablePlotQt4Agg.py -text
 gcwrap/python/scripts/TablePlotTkAgg.py -text
