@@ -8566,6 +8566,7 @@ code/synthesis/TransformMachines/WTerm.h -text
 code/synthesis/TransformMachines/accumulateFromGrid.cc -text
 code/synthesis/TransformMachines/rGridFT.cc -text
 code/synthesis/TransformMachines/rGridFT.h -text
+code/synthesis/TransformMachines/test/tCFCache.cc -text
 code/synthesis/TransformMachines/test/tStokesImageUtil.cc -text
 code/synthesis/TransformMachines/test/tVisModelData.cc -text
 code/synthesis/Utilities/AppRC.cc -text
