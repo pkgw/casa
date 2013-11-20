@@ -9213,6 +9213,7 @@ gcwrap/python/scripts/task_importgmrt.py -text
 gcwrap/python/scripts/task_importuvfits.py -text
 gcwrap/python/scripts/task_importvla.py -text
 gcwrap/python/scripts/task_impv.py -text
+gcwrap/python/scripts/task_imrebin.py -text
 gcwrap/python/scripts/task_imreframe.py -text
 gcwrap/python/scripts/task_imregrid.py -text
 gcwrap/python/scripts/task_imsmooth.py -text
@@ -9519,6 +9520,7 @@ gcwrap/tasks/importoldasdm.xml -text
 gcwrap/tasks/importuvfits.xml -text
 gcwrap/tasks/importvla.xml -text
 gcwrap/tasks/impv.xml -text
+gcwrap/tasks/imrebin.xml -text
 gcwrap/tasks/imreframe.xml -text
 gcwrap/tasks/imregrid.xml -text
 gcwrap/tasks/imsmooth.xml -text
