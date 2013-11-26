@@ -8813,6 +8813,7 @@ gcwrap/python/scripts/pybot/casa/040_time_then_chan_avg.html -text
 gcwrap/python/scripts/pybot/casa/041_wideband.html -text
 gcwrap/python/scripts/pybot/casa/042_wproject_regression.html -text
 gcwrap/python/scripts/pybot/casa/043_widebandmosaic.html -text
+gcwrap/python/scripts/pybot/casa/099_Bandpass.html -text
 gcwrap/python/scripts/pybot/casa/100_Boxit.html -text
 gcwrap/python/scripts/pybot/casa/105_Calanalysis.html -text
 gcwrap/python/scripts/pybot/casa/110_Caltabconvert.html -text
@@ -8832,6 +8833,7 @@ gcwrap/python/scripts/pybot/casa/175_Fixvis.html -text
 gcwrap/python/scripts/pybot/casa/180_Flagcmd.html -text
 gcwrap/python/scripts/pybot/casa/185_Flagdata.html -text
 gcwrap/python/scripts/pybot/casa/190_Fluxscale.html -text
+gcwrap/python/scripts/pybot/casa/193_Gaincal.html -text
 gcwrap/python/scripts/pybot/casa/195_Gencal.html -text
 gcwrap/python/scripts/pybot/casa/200_Getchunk.html -text
 gcwrap/python/scripts/pybot/casa/205_Hanningsmooth.html -text
