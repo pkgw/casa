@@ -1306,7 +1306,6 @@ casacore/images/Images/SubImage.h -text
 casacore/images/Images/SubImage.tcc -text
 casacore/images/Images/TempImage.h -text
 casacore/images/Images/TempImage.tcc -text
-casacore/images/Images/WCBox.h -text
 casacore/images/Images/changelog -text
 casacore/images/Images/makefile -text
 casacore/images/Images/test/CMakeLists.txt -text
