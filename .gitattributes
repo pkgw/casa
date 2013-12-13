@@ -8997,6 +8997,7 @@ gcwrap/python/scripts/recipes/psplit.py -text
 gcwrap/python/scripts/recipes/setOrder.py -text
 gcwrap/python/scripts/recipes/specframeconvert.py -text
 gcwrap/python/scripts/recipes/taskutil.py -text
+gcwrap/python/scripts/recipes/weights.py -text
 gcwrap/python/scripts/refimagerhelper.py -text
 gcwrap/python/scripts/regressframe.py -text
 gcwrap/python/scripts/regression.py -text
