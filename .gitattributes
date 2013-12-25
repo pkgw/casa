@@ -9462,6 +9462,7 @@ gcwrap/python/scripts/tests/test_spxfit.py -text
 gcwrap/python/scripts/tests/test_statwt.py -text
 gcwrap/python/scripts/tests/test_testconcat.py -text
 gcwrap/python/scripts/tests/test_tsdaverage.py -text
+gcwrap/python/scripts/tests/test_tsdbaseline.py -text
 gcwrap/python/scripts/tests/test_tsdcal.py -text
 gcwrap/python/scripts/tests/test_tsdfit.py -text
 gcwrap/python/scripts/tests/test_tsdflag2.py -text
