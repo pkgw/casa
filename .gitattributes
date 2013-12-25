@@ -9296,6 +9296,7 @@ gcwrap/python/scripts/task_tsdaverage.py -text
 gcwrap/python/scripts/task_tsdbaseline.py -text
 gcwrap/python/scripts/task_tsdcal.py -text
 gcwrap/python/scripts/task_tsdfit.py -text
+gcwrap/python/scripts/task_tsdflag2.py -text
 gcwrap/python/scripts/task_tsdsave.py -text
 gcwrap/python/scripts/task_tsdstat.py -text
 gcwrap/python/scripts/task_uvcontsub.py -text
@@ -9463,6 +9464,7 @@ gcwrap/python/scripts/tests/test_testconcat.py -text
 gcwrap/python/scripts/tests/test_tsdaverage.py -text
 gcwrap/python/scripts/tests/test_tsdcal.py -text
 gcwrap/python/scripts/tests/test_tsdfit.py -text
+gcwrap/python/scripts/tests/test_tsdflag2.py -text
 gcwrap/python/scripts/tests/test_tsdsave.py -text
 gcwrap/python/scripts/tests/test_tsdstat.py -text
 gcwrap/python/scripts/tests/test_uvcontsub.py -text
@@ -9613,6 +9615,7 @@ gcwrap/tasks/tsdaverage.xml -text
 gcwrap/tasks/tsdbaseline.xml -text
 gcwrap/tasks/tsdcal.xml -text
 gcwrap/tasks/tsdfit.xml -text
+gcwrap/tasks/tsdflag2.xml -text
 gcwrap/tasks/tsdsave.xml -text
 gcwrap/tasks/tsdstat.xml -text
 gcwrap/tasks/uvcontsub.xml -text
