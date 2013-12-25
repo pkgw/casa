@@ -9293,6 +9293,7 @@ gcwrap/python/scripts/task_statwt.py -text
 gcwrap/python/scripts/task_tclean.py -text
 gcwrap/python/scripts/task_testconcat.py -text
 gcwrap/python/scripts/task_tsdaverage.py -text
+gcwrap/python/scripts/task_tsdbaseline.py -text
 gcwrap/python/scripts/task_tsdcal.py -text
 gcwrap/python/scripts/task_tsdfit.py -text
 gcwrap/python/scripts/task_tsdsave.py -text
@@ -9609,6 +9610,7 @@ gcwrap/tasks/statwt.xml -text
 gcwrap/tasks/tclean.xml -text
 gcwrap/tasks/testconcat.xml -text
 gcwrap/tasks/tsdaverage.xml -text
+gcwrap/tasks/tsdbaseline.xml -text
 gcwrap/tasks/tsdcal.xml -text
 gcwrap/tasks/tsdfit.xml -text
 gcwrap/tasks/tsdsave.xml -text
