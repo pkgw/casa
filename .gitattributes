@@ -3562,6 +3562,13 @@ casacore/tables/makefile -text
 casacore/tables/tables.dox -text
 code/CHANGELOG.LAST -text
 code/CMakeLists.txt -text
+code/CasaDataObjects/Subtables/Antenna.h -text
+code/CasaDataObjects/Subtables/Antennas.cc -text
+code/CasaDataObjects/Subtables/Antennas.h -text
+code/CasaDataObjects/Subtables/CasaTableRow.h -text
+code/CasaDataObjects/Subtables/Subtable.h -text
+code/CasaDataObjects/Subtables/SubtableFiller.h -text
+code/CasaDataObjects/Subtables/Subtables.h -text
 code/VERSION -text
 code/admin/system/aipsmail -text
 code/admin/system/aipsregister -text
