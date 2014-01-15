@@ -9632,6 +9632,8 @@ gcwrap/tasks/tsdfit.xml -text
 gcwrap/tasks/tsdflag2.xml -text
 gcwrap/tasks/tsdgrid.xml -text
 gcwrap/tasks/tsdimaging.xml -text
+gcwrap/tasks/tsdmath.xml -text
+gcwrap/tasks/tsdplot.xml -text
 gcwrap/tasks/tsdsave.xml -text
 gcwrap/tasks/tsdstat.xml -text
 gcwrap/tasks/uvcontsub.xml -text
