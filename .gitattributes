@@ -9305,6 +9305,8 @@ gcwrap/python/scripts/task_tsdfit.py -text
 gcwrap/python/scripts/task_tsdflag2.py -text
 gcwrap/python/scripts/task_tsdgrid.py -text
 gcwrap/python/scripts/task_tsdimaging.py -text
+gcwrap/python/scripts/task_tsdmath.py -text
+gcwrap/python/scripts/task_tsdplot.py -text
 gcwrap/python/scripts/task_tsdsave.py -text
 gcwrap/python/scripts/task_tsdstat.py -text
 gcwrap/python/scripts/task_uvcontsub.py -text
