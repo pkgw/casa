@@ -6915,6 +6915,7 @@ code/imageanalysis/ImageAnalysis/Image2DConvolver.h -text
 code/imageanalysis/ImageAnalysis/Image2DConvolver.tcc -text
 code/imageanalysis/ImageAnalysis/ImageAnalysis.cc -text
 code/imageanalysis/ImageAnalysis/ImageAnalysis.h -text
+code/imageanalysis/ImageAnalysis/ImageAnalysis2.tcc -text
 code/imageanalysis/ImageAnalysis/ImageCollapser.cc -text
 code/imageanalysis/ImageAnalysis/ImageCollapser.h -text
 code/imageanalysis/ImageAnalysis/ImageConvolver.h -text
