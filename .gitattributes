@@ -9365,6 +9365,7 @@ gcwrap/python/scripts/tests/test_ia_decompose.py -text
 gcwrap/python/scripts/tests/test_ia_deconvolvecomponentlist.py -text
 gcwrap/python/scripts/tests/test_ia_deconvolvefrombeam.py -text
 gcwrap/python/scripts/tests/test_ia_fft.py -text
+gcwrap/python/scripts/tests/test_ia_fromshape.py -text
 gcwrap/python/scripts/tests/test_ia_getregion.py -text
 gcwrap/python/scripts/tests/test_ia_hanning.py -text
 gcwrap/python/scripts/tests/test_ia_histograms.py -text
@@ -9373,6 +9374,7 @@ gcwrap/python/scripts/tests/test_ia_insert.py -text
 gcwrap/python/scripts/tests/test_ia_isconform.py -text
 gcwrap/python/scripts/tests/test_ia_modify.py -text
 gcwrap/python/scripts/tests/test_ia_pad.py -text
+gcwrap/python/scripts/tests/test_ia_putchunk.py -text
 gcwrap/python/scripts/tests/test_ia_pv.py -text
 gcwrap/python/scripts/tests/test_ia_rebin.py -text
 gcwrap/python/scripts/tests/test_ia_replacemaskedpixels.py -text
