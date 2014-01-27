@@ -6220,6 +6220,7 @@ code/doc/memos/FlaggerDocFiles/tohtml -text
 code/doc/memos/MSTransformDocFiles/MSTransformDocs.tex -text svneol=unset#text/plain
 code/doc/memos/MSTransformDocFiles/UsingMSTransform.tex -text svneol=unset#text/plain
 code/doc/memos/MSTransformDocFiles/tohtml -text
+code/doc/memos/latex2html.cmd -text
 code/doc/memos/msselection.latex -text
 code/doc/memos/vpmanager.tex -text
 code/doc/notes/128.tex -text
