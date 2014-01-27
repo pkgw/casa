@@ -9481,6 +9481,7 @@ gcwrap/python/scripts/tests/test_tsdcal2.py -text
 gcwrap/python/scripts/tests/test_tsdfit.py -text
 gcwrap/python/scripts/tests/test_tsdflag2.py -text
 gcwrap/python/scripts/tests/test_tsdgrid.py -text
+gcwrap/python/scripts/tests/test_tsdimaging.py -text
 gcwrap/python/scripts/tests/test_tsdmath.py -text
 gcwrap/python/scripts/tests/test_tsdplot.py -text
 gcwrap/python/scripts/tests/test_tsdsave.py -text
