@@ -8052,6 +8052,8 @@ code/synthesis/ImagerObjects/SynthesisIterBot.cc -text
 code/synthesis/ImagerObjects/SynthesisIterBot.h -text
 code/synthesis/ImagerObjects/SynthesisParSync.cc -text
 code/synthesis/ImagerObjects/SynthesisParSync.h -text
+code/synthesis/ImagerObjects/SynthesisUtils.cc -text
+code/synthesis/ImagerObjects/SynthesisUtils.h -text
 code/synthesis/ImagerObjects/test/tSIIterBot.cc -text
 code/synthesis/ImagerObjects/test/tSynthesisImager.cc -text
 code/synthesis/MSVis/AsynchronousInterface.cc -text
@@ -9897,6 +9899,10 @@ gcwrap/tools/synthesis/synthesisparsync.xml -text
 gcwrap/tools/synthesis/synthesisparsync_cmpt.cc -text
 gcwrap/tools/synthesis/synthesisparsync_forward.h -text
 gcwrap/tools/synthesis/synthesisparsync_private.h -text
+gcwrap/tools/synthesis/synthesisutils.xml -text
+gcwrap/tools/synthesis/synthesisutils_cmpt.cc -text
+gcwrap/tools/synthesis/synthesisutils_forward.h -text
+gcwrap/tools/synthesis/synthesisutils_private.h -text
 gcwrap/tools/synthesis/test/tcal_cmpt.cc -text
 gcwrap/tools/synthesis/test/tcal_cmpt2.cc -text
 gcwrap/tools/synthesis/vpmanager.xml -text
