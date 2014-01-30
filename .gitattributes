@@ -6937,12 +6937,12 @@ code/imageanalysis/ImageAnalysis/ImageInputProcessor.cc -text
 code/imageanalysis/ImageAnalysis/ImageInputProcessor.h -text
 code/imageanalysis/ImageAnalysis/ImageMaskAttacher.h -text
 code/imageanalysis/ImageAnalysis/ImageMaskAttacher.tcc -text
+code/imageanalysis/ImageAnalysis/ImageMetaData.cc -text
 code/imageanalysis/ImageAnalysis/ImageMetaData.h -text
-code/imageanalysis/ImageAnalysis/ImageMetaData.tcc -text
+code/imageanalysis/ImageAnalysis/ImageMetaDataBase.cc -text
 code/imageanalysis/ImageAnalysis/ImageMetaDataBase.h -text
-code/imageanalysis/ImageAnalysis/ImageMetaDataBase.tcc -text
+code/imageanalysis/ImageAnalysis/ImageMetaDataRW.cc -text
 code/imageanalysis/ImageAnalysis/ImageMetaDataRW.h -text
-code/imageanalysis/ImageAnalysis/ImageMetaDataRW.tcc -text
 code/imageanalysis/ImageAnalysis/ImageMoments.h -text
 code/imageanalysis/ImageAnalysis/ImageMoments.tcc -text
 code/imageanalysis/ImageAnalysis/ImageMomentsProgress.cc -text
