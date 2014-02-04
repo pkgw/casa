@@ -6917,8 +6917,10 @@ code/imageanalysis/ImageAnalysis/Image2DConvolver.tcc -text
 code/imageanalysis/ImageAnalysis/ImageAnalysis.cc -text
 code/imageanalysis/ImageAnalysis/ImageAnalysis.h -text
 code/imageanalysis/ImageAnalysis/ImageAnalysis2.tcc -text
-code/imageanalysis/ImageAnalysis/ImageCollapser.cc -text
 code/imageanalysis/ImageAnalysis/ImageCollapser.h -text
+code/imageanalysis/ImageAnalysis/ImageCollapser.tcc -text
+code/imageanalysis/ImageAnalysis/ImageCollapserData.cc -text
+code/imageanalysis/ImageAnalysis/ImageCollapserData.h -text
 code/imageanalysis/ImageAnalysis/ImageConvolver.h -text
 code/imageanalysis/ImageAnalysis/ImageConvolver.tcc -text
 code/imageanalysis/ImageAnalysis/ImageCropper.h -text
@@ -6935,6 +6937,7 @@ code/imageanalysis/ImageAnalysis/ImageHistograms.h -text
 code/imageanalysis/ImageAnalysis/ImageHistograms.tcc -text
 code/imageanalysis/ImageAnalysis/ImageInputProcessor.cc -text
 code/imageanalysis/ImageAnalysis/ImageInputProcessor.h -text
+code/imageanalysis/ImageAnalysis/ImageInputProcessor2.tcc -text
 code/imageanalysis/ImageAnalysis/ImageMaskAttacher.h -text
 code/imageanalysis/ImageAnalysis/ImageMaskAttacher.tcc -text
 code/imageanalysis/ImageAnalysis/ImageMetaData.cc -text
@@ -6965,8 +6968,8 @@ code/imageanalysis/ImageAnalysis/ImageSourceFinder.h -text
 code/imageanalysis/ImageAnalysis/ImageSourceFinder.tcc -text
 code/imageanalysis/ImageAnalysis/ImageStatsCalculator.cc -text
 code/imageanalysis/ImageAnalysis/ImageStatsCalculator.h -text
-code/imageanalysis/ImageAnalysis/ImageTask.cc -text
 code/imageanalysis/ImageAnalysis/ImageTask.h -text
+code/imageanalysis/ImageAnalysis/ImageTask.tcc -text
 code/imageanalysis/ImageAnalysis/ImageTransposer.cc -text
 code/imageanalysis/ImageAnalysis/ImageTransposer.h -text
 code/imageanalysis/ImageAnalysis/ImageTwoPtCorr.h -text
@@ -7019,6 +7022,7 @@ code/imageanalysis/ImageAnalysis/test/tSepImageConvolver.cc -text
 code/imageanalysis/ImageAnalysis/test/tSpectralFitter.cc -text
 code/imageanalysis/ImageAnalysis/test/tSubImageFactory.cc -text
 code/imageanalysis/ImageAnalysis/test/tSubImageFactory2.sh -text
+code/imageanalysis/ImageTypedefs.h -text
 code/imageanalysis/Regions/CasacRegionManager.cc -text
 code/imageanalysis/Regions/CasacRegionManager.h -text
 code/imageanalysis/Regions/test/tCasacRegionManager.cc -text
