@@ -7530,6 +7530,8 @@ code/plotms/Actions/ActionClearRegions.cc -text
 code/plotms/Actions/ActionClearRegions.h -text
 code/plotms/Actions/ActionExport.cc -text
 code/plotms/Actions/ActionExport.h -text
+code/plotms/Actions/ActionExportDialog.cc -text
+code/plotms/Actions/ActionExportDialog.h -text
 code/plotms/Actions/ActionFactory.cc -text
 code/plotms/Actions/ActionFactory.h -text
 code/plotms/Actions/ActionHoldReleaseDrawing.cc -text
@@ -7572,6 +7574,8 @@ code/plotms/Actions/ActionSubtractRegions.cc -text
 code/plotms/Actions/ActionSubtractRegions.h -text
 code/plotms/Actions/ActionSummary.cc -text
 code/plotms/Actions/ActionSummary.h -text
+code/plotms/Actions/ActionSummaryDialog.cc -text
+code/plotms/Actions/ActionSummaryDialog.h -text
 code/plotms/Actions/ActionTool.cc -text
 code/plotms/Actions/ActionTool.h -text
 code/plotms/Actions/ActionTracker.cc -text
@@ -7623,6 +7627,9 @@ code/plotms/Gui/PlotMSPlotter.qrc -text
 code/plotms/Gui/PlotMSPlotter.ui -text
 code/plotms/Gui/PlotMSSelectionWidget.cc -text
 code/plotms/Gui/PlotMSSelectionWidget.qo.h -text
+code/plotms/Gui/PlotMSSummaryDialog.cc -text
+code/plotms/Gui/PlotMSSummaryDialog.qo.h -text
+code/plotms/Gui/PlotMSSummaryDialog.ui -text
 code/plotms/Gui/PlotMSTransformationsWidget.cc -text
 code/plotms/Gui/PlotMSTransformationsWidget.qo.h -text
 code/plotms/Gui/PlotMSTransformationsWidget.ui -text
@@ -7668,6 +7675,13 @@ code/plotms/GuiTabs/PlotMSCacheTab.ui -text
 code/plotms/GuiTabs/PlotMSCanvasTab.cc -text
 code/plotms/GuiTabs/PlotMSCanvasTab.qo.h -text
 code/plotms/GuiTabs/PlotMSCanvasTab.ui -text
+code/plotms/GuiTabs/PlotMSDataCollapsible.cc -text
+code/plotms/GuiTabs/PlotMSDataCollapsible.qo.h -text
+code/plotms/GuiTabs/PlotMSDataCollapsible.ui -text
+code/plotms/GuiTabs/PlotMSDataIdentifier.ui -text
+code/plotms/GuiTabs/PlotMSDataSummaryTab.cc -text
+code/plotms/GuiTabs/PlotMSDataSummaryTab.qo.h -text
+code/plotms/GuiTabs/PlotMSDataSummaryTab.ui -text
 code/plotms/GuiTabs/PlotMSDataTab.cc -text
 code/plotms/GuiTabs/PlotMSDataTab.qo.h -text
 code/plotms/GuiTabs/PlotMSDataTab.ui -text
@@ -7726,7 +7740,6 @@ code/plotms/PlotMS/PlotMSTransformations.cc -text
 code/plotms/PlotMS/PlotMSTransformations.h -text
 code/plotms/PlotMS/PlotMSWatchedParameters.cc -text
 code/plotms/PlotMS/PlotMSWatchedParameters.h -text
-code/plotms/Plots/PlotInformationManager.h -text
 code/plotms/Plots/PlotMSOverPlot.cc -text
 code/plotms/Plots/PlotMSOverPlot.h -text
 code/plotms/Plots/PlotMSPage.cc -text
@@ -7763,6 +7776,9 @@ code/plotms/plotms.dox -text
 code/plotms/test/tDataSelection.cc -text
 code/plotms/test/tExportPlot.cc -text
 code/plotms/test/tExportRange.cc -text
+code/plotms/test/tGridPlacement.cc -text
+code/plotms/test/tGridPlacementMultiplePlots.cc -text
+code/plotms/test/tGridPlacementMultipleRuns.cc -text
 code/plotms/test/tSymbol.cc -text
 code/plotms/test/tUtil.h -text
 code/singledish/MathUtils.cc -text
