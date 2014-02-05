@@ -6929,6 +6929,8 @@ code/imageanalysis/ImageAnalysis/ImageDecomposer.h -text
 code/imageanalysis/ImageAnalysis/ImageDecomposer.tcc -text
 code/imageanalysis/ImageAnalysis/ImageFFT.cc -text
 code/imageanalysis/ImageAnalysis/ImageFFT.h -text
+code/imageanalysis/ImageAnalysis/ImageFFTer.h -text
+code/imageanalysis/ImageAnalysis/ImageFFTer.tcc -text
 code/imageanalysis/ImageAnalysis/ImageFit1D.h -text
 code/imageanalysis/ImageAnalysis/ImageFit1D.tcc -text
 code/imageanalysis/ImageAnalysis/ImageFitter.cc -text
