@@ -9335,6 +9335,7 @@ gcwrap/python/scripts/task_tsdgrid.py -text
 gcwrap/python/scripts/task_tsdimaging.py -text
 gcwrap/python/scripts/task_tsdmath.py -text
 gcwrap/python/scripts/task_tsdplot.py -text
+gcwrap/python/scripts/task_tsdreduce.py -text
 gcwrap/python/scripts/task_tsdsave.py -text
 gcwrap/python/scripts/task_tsdstat.py -text
 gcwrap/python/scripts/task_uvcontsub.py -text
@@ -9512,6 +9513,7 @@ gcwrap/python/scripts/tests/test_tsdgrid.py -text
 gcwrap/python/scripts/tests/test_tsdimaging.py -text
 gcwrap/python/scripts/tests/test_tsdmath.py -text
 gcwrap/python/scripts/tests/test_tsdplot.py -text
+gcwrap/python/scripts/tests/test_tsdreduce.py -text
 gcwrap/python/scripts/tests/test_tsdsave.py -text
 gcwrap/python/scripts/tests/test_tsdstat.py -text
 gcwrap/python/scripts/tests/test_uvcontsub.py -text
@@ -9668,6 +9670,7 @@ gcwrap/tasks/tsdgrid.xml -text
 gcwrap/tasks/tsdimaging.xml -text
 gcwrap/tasks/tsdmath.xml -text
 gcwrap/tasks/tsdplot.xml -text
+gcwrap/tasks/tsdreduce.xml -text
 gcwrap/tasks/tsdsave.xml -text
 gcwrap/tasks/tsdstat.xml -text
 gcwrap/tasks/uvcontsub.xml -text
