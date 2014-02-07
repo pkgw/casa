@@ -8732,6 +8732,7 @@ gcwrap/install/mkinitpy.sh -text
 gcwrap/install/mksetupdotpy.sh -text
 gcwrap/install/newappscript -text
 gcwrap/install/origappscript -text
+gcwrap/install/plaintext.sed -text
 gcwrap/install/saxon8.jar -text
 gcwrap/install/setsvneditor.csh -text
 gcwrap/install/setsvneditor.sh -text
