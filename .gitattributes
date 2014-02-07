@@ -6319,6 +6319,7 @@ code/doc/texinputs.dir/ahrecipe.tex -text
 code/doc/texinputs.dir/aips2defs.tex -text
 code/doc/texinputs.dir/aips2defs.txt -text
 code/doc/texinputs.dir/aips2help.sty -text
+code/doc/texinputs.dir/article.cls -text
 code/doc/texinputs.dir/epsf.sty -text
 code/doc/texinputs.dir/htcasa.cfg -text
 code/doc/texinputs.dir/nraoheader.4ht -text
