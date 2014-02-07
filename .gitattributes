@@ -6325,6 +6325,7 @@ code/doc/texinputs.dir/htcasa.cfg -text
 code/doc/texinputs.dir/nraoheader.4ht -text
 code/doc/texinputs.dir/nraojavascript.js -text
 code/doc/texinputs.dir/nraotrailer.4ht -text
+code/doc/texinputs.dir/size10.clo -text
 code/doc/texinputs.dir/timrecipe.tex -text
 code/doc/user/ALMA.latex -text
 code/doc/user/ATNF.latex -text
