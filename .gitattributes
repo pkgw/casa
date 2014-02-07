@@ -6927,6 +6927,8 @@ code/imageanalysis/ImageAnalysis/ImageConvolver.h -text
 code/imageanalysis/ImageAnalysis/ImageConvolver.tcc -text
 code/imageanalysis/ImageAnalysis/ImageCropper.h -text
 code/imageanalysis/ImageAnalysis/ImageCropper.tcc -text
+code/imageanalysis/ImageAnalysis/ImageDecimator.h -text
+code/imageanalysis/ImageAnalysis/ImageDecimator.tcc -text
 code/imageanalysis/ImageAnalysis/ImageDecomposer.h -text
 code/imageanalysis/ImageAnalysis/ImageDecomposer.tcc -text
 code/imageanalysis/ImageAnalysis/ImageFFT.cc -text
