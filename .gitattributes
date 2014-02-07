@@ -6533,6 +6533,7 @@ code/doc/userman/FIG/PNG/viewer_specproffit.png -text
 code/doc/userman/FIG/PNG/viewer_specproftool_41.png -text
 code/doc/userman/FIG/PNG/viewer_spectoolbar.png -text
 code/doc/userman/FIG/PNG/viewer_twodfit_41.png -text
+code/doc/userman/UserMan.dir/aips2help.sty -text
 code/doc/userman/UserMan.dir/casa_cook_analysis.tex -text
 code/doc/userman/UserMan.dir/casa_cook_authors.tex -text
 code/doc/userman/UserMan.dir/casa_cook_cal.tex -text
@@ -6572,6 +6573,7 @@ code/doc/userman/UserMan.dir/casa_urm_tasks.tex -text
 code/doc/userman/UserMan.dir/casa_urm_title.tex -text
 code/doc/userman/UserMan.dir/casa_urm_tools.tex -text
 code/doc/userman/UserMan.dir/casa_userman.tex -text
+code/doc/userman/UserMan.dir/morefloats.sty -text
 code/doc/userman/UserMan.dir/preamble.tex -text
 code/doc/userman/UserMan.dir/writeyourown.tex -text
 code/doc/userman/UserMan.latex -text
