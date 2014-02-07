@@ -6330,6 +6330,7 @@ code/doc/texinputs.dir/nraotrailer.4ht -text
 code/doc/texinputs.dir/pd1enc.def -text
 code/doc/texinputs.dir/size10.clo -text
 code/doc/texinputs.dir/timrecipe.tex -text
+code/doc/texinputs.dir/url.sty -text
 code/doc/user/ALMA.latex -text
 code/doc/user/ATNF.latex -text
 code/doc/user/BIMA.latex -text
