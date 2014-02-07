@@ -6322,6 +6322,7 @@ code/doc/texinputs.dir/aips2help.sty -text
 code/doc/texinputs.dir/article.cls -text
 code/doc/texinputs.dir/epsf.sty -text
 code/doc/texinputs.dir/htcasa.cfg -text
+code/doc/texinputs.dir/hyperref.sty -text
 code/doc/texinputs.dir/nraoheader.4ht -text
 code/doc/texinputs.dir/nraojavascript.js -text
 code/doc/texinputs.dir/nraotrailer.4ht -text
