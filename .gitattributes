@@ -6324,6 +6324,7 @@ code/doc/texinputs.dir/epsf.sty -text
 code/doc/texinputs.dir/htcasa.cfg -text
 code/doc/texinputs.dir/hyperref.sty -text
 code/doc/texinputs.dir/hypertex.def -text
+code/doc/texinputs.dir/ifthen.sty -text
 code/doc/texinputs.dir/keyval.sty -text
 code/doc/texinputs.dir/longtable.sty -text
 code/doc/texinputs.dir/nraoheader.4ht -text
