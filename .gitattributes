@@ -9395,6 +9395,7 @@ gcwrap/python/scripts/tests/test_ia_convertflux.py -text
 gcwrap/python/scripts/tests/test_ia_convolve.py -text
 gcwrap/python/scripts/tests/test_ia_convolve2d.py -text
 gcwrap/python/scripts/tests/test_ia_crop.py -text
+gcwrap/python/scripts/tests/test_ia_decimate.py -text
 gcwrap/python/scripts/tests/test_ia_decompose.py -text
 gcwrap/python/scripts/tests/test_ia_deconvolvecomponentlist.py -text
 gcwrap/python/scripts/tests/test_ia_deconvolvefrombeam.py -text
