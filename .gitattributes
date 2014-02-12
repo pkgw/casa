@@ -6914,6 +6914,8 @@ code/imageanalysis/ImageAnalysis/AntennaResponses.cc -text
 code/imageanalysis/ImageAnalysis/AntennaResponses.h -text
 code/imageanalysis/ImageAnalysis/ComponentImager.cc -text
 code/imageanalysis/ImageAnalysis/ComponentImager.h -text
+code/imageanalysis/ImageAnalysis/Image1DSmoother.h -text
+code/imageanalysis/ImageAnalysis/Image1DSmoother.tcc -text
 code/imageanalysis/ImageAnalysis/Image2DConvolver.h -text
 code/imageanalysis/ImageAnalysis/Image2DConvolver.tcc -text
 code/imageanalysis/ImageAnalysis/ImageAnalysis.cc -text
@@ -6929,6 +6931,7 @@ code/imageanalysis/ImageAnalysis/ImageCropper.h -text
 code/imageanalysis/ImageAnalysis/ImageCropper.tcc -text
 code/imageanalysis/ImageAnalysis/ImageDecimator.h -text
 code/imageanalysis/ImageAnalysis/ImageDecimator.tcc -text
+code/imageanalysis/ImageAnalysis/ImageDecimatorData.h -text
 code/imageanalysis/ImageAnalysis/ImageDecomposer.h -text
 code/imageanalysis/ImageAnalysis/ImageDecomposer.tcc -text
 code/imageanalysis/ImageAnalysis/ImageFFT.cc -text
@@ -6939,8 +6942,12 @@ code/imageanalysis/ImageAnalysis/ImageFit1D.h -text
 code/imageanalysis/ImageAnalysis/ImageFit1D.tcc -text
 code/imageanalysis/ImageAnalysis/ImageFitter.cc -text
 code/imageanalysis/ImageAnalysis/ImageFitter.h -text
+code/imageanalysis/ImageAnalysis/ImageHanningSmoother.h -text
+code/imageanalysis/ImageAnalysis/ImageHanningSmoother.tcc -text
 code/imageanalysis/ImageAnalysis/ImageHistograms.h -text
 code/imageanalysis/ImageAnalysis/ImageHistograms.tcc -text
+code/imageanalysis/ImageAnalysis/ImageHistory.h -text
+code/imageanalysis/ImageAnalysis/ImageHistory.tcc -text
 code/imageanalysis/ImageAnalysis/ImageInputProcessor.cc -text
 code/imageanalysis/ImageAnalysis/ImageInputProcessor.h -text
 code/imageanalysis/ImageAnalysis/ImageInputProcessor2.tcc -text
