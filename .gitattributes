@@ -9342,7 +9342,7 @@ gcwrap/python/scripts/task_tsdbaseline.py -text
 gcwrap/python/scripts/task_tsdcal.py -text
 gcwrap/python/scripts/task_tsdcal2.py -text
 gcwrap/python/scripts/task_tsdfit.py -text
-gcwrap/python/scripts/task_tsdflag2.py -text
+gcwrap/python/scripts/task_tsdflag.py -text
 gcwrap/python/scripts/task_tsdgrid.py -text
 gcwrap/python/scripts/task_tsdimaging.py -text
 gcwrap/python/scripts/task_tsdmath.py -text
@@ -9521,7 +9521,7 @@ gcwrap/python/scripts/tests/test_tsdbaseline.py -text
 gcwrap/python/scripts/tests/test_tsdcal.py -text
 gcwrap/python/scripts/tests/test_tsdcal2.py -text
 gcwrap/python/scripts/tests/test_tsdfit.py -text
-gcwrap/python/scripts/tests/test_tsdflag2.py -text
+gcwrap/python/scripts/tests/test_tsdflag.py -text
 gcwrap/python/scripts/tests/test_tsdgrid.py -text
 gcwrap/python/scripts/tests/test_tsdimaging.py -text
 gcwrap/python/scripts/tests/test_tsdmath.py -text
@@ -9678,7 +9678,7 @@ gcwrap/tasks/tsdbaseline.xml -text
 gcwrap/tasks/tsdcal.xml -text
 gcwrap/tasks/tsdcal2.xml -text
 gcwrap/tasks/tsdfit.xml -text
-gcwrap/tasks/tsdflag2.xml -text
+gcwrap/tasks/tsdflag.xml -text
 gcwrap/tasks/tsdgrid.xml -text
 gcwrap/tasks/tsdimaging.xml -text
 gcwrap/tasks/tsdmath.xml -text
