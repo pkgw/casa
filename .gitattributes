@@ -14760,7 +14760,7 @@ pypackages/scons/script/scons.bat -text
 pypackages/scons/script/sconsign -text
 pypackages/scons/setup.cfg -text
 pypackages/scons/setup.py -text
-sysTest/README -text
+system_test/README -text
 wcslib/C/CHANGES -text
 wcslib/C/GNUmakefile -text
 wcslib/C/cel.c -text
