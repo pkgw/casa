@@ -9403,6 +9403,7 @@ gcwrap/python/scripts/tests/test_getchunk.py -text
 gcwrap/python/scripts/tests/test_hanningsmooth.py -text
 gcwrap/python/scripts/tests/test_hanningsmooth2.py -text
 gcwrap/python/scripts/tests/test_ia_adddegaxes.py -text
+gcwrap/python/scripts/tests/test_ia_boxcar.py -text
 gcwrap/python/scripts/tests/test_ia_calcmask.py -text
 gcwrap/python/scripts/tests/test_ia_commonbeam.py -text
 gcwrap/python/scripts/tests/test_ia_constructors.py -text
