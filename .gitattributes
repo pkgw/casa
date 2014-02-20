@@ -6921,6 +6921,8 @@ code/imageanalysis/ImageAnalysis/Image2DConvolver.tcc -text
 code/imageanalysis/ImageAnalysis/ImageAnalysis.cc -text
 code/imageanalysis/ImageAnalysis/ImageAnalysis.h -text
 code/imageanalysis/ImageAnalysis/ImageAnalysis2.tcc -text
+code/imageanalysis/ImageAnalysis/ImageBoxcarSmoother.h -text
+code/imageanalysis/ImageAnalysis/ImageBoxcarSmoother.tcc -text
 code/imageanalysis/ImageAnalysis/ImageCollapser.h -text
 code/imageanalysis/ImageAnalysis/ImageCollapser.tcc -text
 code/imageanalysis/ImageAnalysis/ImageCollapserData.cc -text
@@ -6956,6 +6958,8 @@ code/imageanalysis/ImageAnalysis/ImageInputProcessor.h -text
 code/imageanalysis/ImageAnalysis/ImageInputProcessor2.tcc -text
 code/imageanalysis/ImageAnalysis/ImageMaskAttacher.h -text
 code/imageanalysis/ImageAnalysis/ImageMaskAttacher.tcc -text
+code/imageanalysis/ImageAnalysis/ImageMaskedPixelReplacer.h -text
+code/imageanalysis/ImageAnalysis/ImageMaskedPixelReplacer.tcc -text
 code/imageanalysis/ImageAnalysis/ImageMetaData.cc -text
 code/imageanalysis/ImageAnalysis/ImageMetaData.h -text
 code/imageanalysis/ImageAnalysis/ImageMetaDataBase.cc -text
