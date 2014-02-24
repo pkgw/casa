@@ -9472,6 +9472,7 @@ gcwrap/python/scripts/tests/test_listobs.py -text
 gcwrap/python/scripts/tests/test_listpartition.py -text
 gcwrap/python/scripts/tests/test_listvis.py -text
 gcwrap/python/scripts/tests/test_makemask.py -text
+gcwrap/python/scripts/tests/test_me_shift.py -text
 gcwrap/python/scripts/tests/test_measures.py -text
 gcwrap/python/scripts/tests/test_msmd.py -text
 gcwrap/python/scripts/tests/test_msmoments.py -text
