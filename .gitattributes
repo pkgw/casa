@@ -7702,6 +7702,9 @@ code/plotms/GuiTabs/PlotMSDataIdentifier.ui -text
 code/plotms/GuiTabs/PlotMSDataSummaryTab.cc -text
 code/plotms/GuiTabs/PlotMSDataSummaryTab.qo.h -text
 code/plotms/GuiTabs/PlotMSDataSummaryTab.ui -text
+code/plotms/GuiTabs/PlotMSDataSymbolWidget.cc -text
+code/plotms/GuiTabs/PlotMSDataSymbolWidget.qo.h -text
+code/plotms/GuiTabs/PlotMSDataSymbolWidget.ui -text
 code/plotms/GuiTabs/PlotMSDataTab.cc -text
 code/plotms/GuiTabs/PlotMSDataTab.qo.h -text
 code/plotms/GuiTabs/PlotMSDataTab.ui -text
@@ -7717,8 +7720,6 @@ code/plotms/GuiTabs/PlotMSFlaggingTab.ui -text
 code/plotms/GuiTabs/PlotMSIterateTab.cc -text
 code/plotms/GuiTabs/PlotMSIterateTab.qo.h -text
 code/plotms/GuiTabs/PlotMSIterateTab.ui -text
-code/plotms/GuiTabs/PlotMSMultiAxesTab.qo.h -text
-code/plotms/GuiTabs/PlotMSMultiAxesTab.ui -text
 code/plotms/GuiTabs/PlotMSOptionsTab.cc -text
 code/plotms/GuiTabs/PlotMSOptionsTab.qo.h -text
 code/plotms/GuiTabs/PlotMSOptionsTab.ui -text
@@ -7799,7 +7800,15 @@ code/plotms/test/tExportRange.cc -text
 code/plotms/test/tGridPlacement.cc -text
 code/plotms/test/tGridPlacementMultiplePlots.cc -text
 code/plotms/test/tGridPlacementMultipleRuns.cc -text
+code/plotms/test/tLegend.cc -text
+code/plotms/test/tOverIterationPlot.cc -text
+code/plotms/test/tOverLeftRightPlot.cc -text
+code/plotms/test/tOverPlot.cc -text
 code/plotms/test/tSymbol.cc -text
+code/plotms/test/tTimeAveragingIteration.cc -text
+code/plotms/test/tTimeColorization.cc -text
+code/plotms/test/tTimeColorizationAveraging.cc -text
+code/plotms/test/tTimeIteration.cc -text
 code/plotms/test/tUtil.h -text
 code/singledish/MathUtils.cc -text
 code/singledish/MathUtils.h -text
