@@ -8500,6 +8500,8 @@ code/synthesis/TransformMachines/ATerm.cc -text
 code/synthesis/TransformMachines/ATerm.h -text
 code/synthesis/TransformMachines/AWConvFunc.cc -text
 code/synthesis/TransformMachines/AWConvFunc.h -text
+code/synthesis/TransformMachines/AWConvFunc2.cc -text
+code/synthesis/TransformMachines/AWConvFunc2.h -text
 code/synthesis/TransformMachines/AWConvFuncEPJones.cc -text
 code/synthesis/TransformMachines/AWConvFuncEPJones.h -text
 code/synthesis/TransformMachines/AWProjectFT.FORTRANSTUFF -text
