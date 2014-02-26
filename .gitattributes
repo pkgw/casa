@@ -8907,6 +8907,7 @@ gcwrap/python/scripts/pybot/casa/193_Gaincal.html -text
 gcwrap/python/scripts/pybot/casa/195_Gencal.html -text
 gcwrap/python/scripts/pybot/casa/200_Getchunk.html -text
 gcwrap/python/scripts/pybot/casa/205_Hanningsmooth.html -text
+gcwrap/python/scripts/pybot/casa/206_Hanningsmooth2.html -text
 gcwrap/python/scripts/pybot/casa/210_Ia_adddegaxes.html -text
 gcwrap/python/scripts/pybot/casa/215_Ia_commonbeam.html -text
 gcwrap/python/scripts/pybot/casa/220_Ia_continuumsub.html -text
