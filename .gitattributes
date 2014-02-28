@@ -8077,12 +8077,16 @@ code/synthesis/ImagerObjects/SDAlgorithmBase.cc -text
 code/synthesis/ImagerObjects/SDAlgorithmBase.h -text
 code/synthesis/ImagerObjects/SDAlgorithmHogbomClean.cc -text
 code/synthesis/ImagerObjects/SDAlgorithmHogbomClean.h -text
+code/synthesis/ImagerObjects/SDAlgorithmMSMFS.cc -text
+code/synthesis/ImagerObjects/SDAlgorithmMSMFS.h -text
 code/synthesis/ImagerObjects/SDAlgorithmTest.cc -text
 code/synthesis/ImagerObjects/SDAlgorithmTest.h -text
 code/synthesis/ImagerObjects/SDMaskHandler.cc -text
 code/synthesis/ImagerObjects/SDMaskHandler.h -text
 code/synthesis/ImagerObjects/SIImageStore.cc -text
 code/synthesis/ImagerObjects/SIImageStore.h -text
+code/synthesis/ImagerObjects/SIImageStoreMultiTerm.cc -text
+code/synthesis/ImagerObjects/SIImageStoreMultiTerm.h -text
 code/synthesis/ImagerObjects/SIIterBot.cc -text
 code/synthesis/ImagerObjects/SIIterBot.h -text
 code/synthesis/ImagerObjects/SIMapper.cc -text
@@ -8091,6 +8095,10 @@ code/synthesis/ImagerObjects/SIMapperBase.cc -text
 code/synthesis/ImagerObjects/SIMapperBase.h -text
 code/synthesis/ImagerObjects/SIMapperCollection.cc -text
 code/synthesis/ImagerObjects/SIMapperCollection.h -text
+code/synthesis/ImagerObjects/SIMapperMultiTerm.cc -text
+code/synthesis/ImagerObjects/SIMapperMultiTerm.h -text
+code/synthesis/ImagerObjects/SIMapperSingle.cc -text
+code/synthesis/ImagerObjects/SIMapperSingle.h -text
 code/synthesis/ImagerObjects/SIMinorCycleController.cc -text
 code/synthesis/ImagerObjects/SIMinorCycleController.h -text
 code/synthesis/ImagerObjects/SynthesisDeconvolver.cc -text
