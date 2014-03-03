@@ -8294,6 +8294,8 @@ code/synthesis/MeasurementComponents/EPJones.h -text
 code/synthesis/MeasurementComponents/EVLASwPow.cc -text
 code/synthesis/MeasurementComponents/EVLASwPow.h -text
 code/synthesis/MeasurementComponents/ExpCache.h -text
+code/synthesis/MeasurementComponents/FJones.cc -text
+code/synthesis/MeasurementComponents/FJones.h -text
 code/synthesis/MeasurementComponents/GSpline.cc -text
 code/synthesis/MeasurementComponents/GSpline.h -text
 code/synthesis/MeasurementComponents/GlobalFTMachineCallbacks.cc -text
@@ -8394,6 +8396,7 @@ code/synthesis/MeasurementComponents/test/tAlgoPClark.run -text
 code/synthesis/MeasurementComponents/test/tBeamSquint.cc -text
 code/synthesis/MeasurementComponents/test/tCalibrater.cc -text
 code/synthesis/MeasurementComponents/test/tEVLAAperture.cc -text
+code/synthesis/MeasurementComponents/test/tFJones.cc -text
 code/synthesis/MeasurementComponents/test/tKJones.cc -text
 code/synthesis/MeasurementComponents/test/tPBMath.cc -text
 code/synthesis/MeasurementComponents/test/tPBMath2D.cc -text
