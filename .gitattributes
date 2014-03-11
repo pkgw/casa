@@ -8525,6 +8525,8 @@ code/synthesis/TransformMachines/AWProjectFT.cc -text
 code/synthesis/TransformMachines/AWProjectFT.h -text
 code/synthesis/TransformMachines/AWProjectWBFT.cc -text
 code/synthesis/TransformMachines/AWProjectWBFT.h -text
+code/synthesis/TransformMachines/AWProjectWBFTNew.cc -text
+code/synthesis/TransformMachines/AWProjectWBFTNew.h -text
 code/synthesis/TransformMachines/AWVisResampler.cc -text
 code/synthesis/TransformMachines/AWVisResampler.h -text
 code/synthesis/TransformMachines/AzElAperture.cc -text
