@@ -9425,6 +9425,7 @@ gcwrap/python/scripts/tests/test_fixplanets.py -text
 gcwrap/python/scripts/tests/test_fixvis.py -text
 gcwrap/python/scripts/tests/test_flagcmd.py -text
 gcwrap/python/scripts/tests/test_flagdata.py -text
+gcwrap/python/scripts/tests/test_flaghelper.py -text
 gcwrap/python/scripts/tests/test_fluxscale.py -text
 gcwrap/python/scripts/tests/test_gaincal.py -text
 gcwrap/python/scripts/tests/test_gencal.py -text
