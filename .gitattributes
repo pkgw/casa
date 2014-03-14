@@ -6898,6 +6898,8 @@ code/imageanalysis/IO/AsciiAnnotationFileLine.cc -text
 code/imageanalysis/IO/AsciiAnnotationFileLine.h -text
 code/imageanalysis/IO/FitterEstimatesFileParser.cc -text
 code/imageanalysis/IO/FitterEstimatesFileParser.h -text
+code/imageanalysis/IO/ImageFitterResults.cc -text
+code/imageanalysis/IO/ImageFitterResults.h -text
 code/imageanalysis/IO/ImageProfileFitterResults.cc -text
 code/imageanalysis/IO/ImageProfileFitterResults.h -text
 code/imageanalysis/IO/LogFile.cc -text
