@@ -5581,6 +5581,9 @@ code/display/QtPlotter/images/zoomn.png -text
 code/display/QtPlotter/images/zoomo.png -text
 code/display/QtPlotter/images/zoomout.png -text
 code/display/QtPlotter/test/dQtPlotter.cc -text
+code/display/QtViewer/AboutDialog.cc -text
+code/display/QtViewer/AboutDialog.qo.h -text
+code/display/QtViewer/AboutDialog.ui -text
 code/display/QtViewer/AnimatorHolder.cc -text
 code/display/QtViewer/AnimatorHolder.qo.h -text
 code/display/QtViewer/AnimatorHolder.ui -text
@@ -5722,6 +5725,7 @@ code/display/QtViewer/icons/Spec_Prof.png -text
 code/display/QtViewer/icons/Zoom0_OutExt.png -text
 code/display/QtViewer/icons/Zoom1_In.png -text
 code/display/QtViewer/icons/Zoom2_Out.png -text
+code/display/QtViewer/icons/about.png -text
 code/display/QtViewer/icons/arrow.png -text
 code/display/QtViewer/icons/arrowcross.png -text
 code/display/QtViewer/icons/arrowcrossb0.png -text
@@ -6727,6 +6731,9 @@ code/graphics/X11/X_exit.h -text
 code/graphics/X11/changelog -text
 code/graphics/graphics.dox -text
 code/guitools/CMakeLists.txt -text
+code/guitools/Feather/AboutDialog.cc -text
+code/guitools/Feather/AboutDialog.qo.h -text
+code/guitools/Feather/AboutDialog.ui -text
 code/guitools/Feather/ColorProvider.h -text
 code/guitools/Feather/CurveDisplay.cc -text
 code/guitools/Feather/CurveDisplay.h -text
@@ -6789,7 +6796,9 @@ code/guitools/Feather/images/colorWheel.png -text
 code/guitools/Feather/images/diameterSelector.png -text
 code/guitools/Feather/images/feather.png -text
 code/guitools/Feather/images/featherFlipped.png -text
+code/guitools/Feather/images/featherRotated.png -text
 code/guitools/Feather/images/fileFolder.png -text
+code/guitools/Feather/images/help.png -text
 code/guitools/Feather/images/settings.png -text
 code/guitools/Feather/images/zoom.png -text
 code/guitools/Histogram/BinCountWidget.cc -text
