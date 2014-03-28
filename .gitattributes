@@ -7336,6 +7336,9 @@ code/mstransform/MSTransform/MSTransformManager.cc -text
 code/mstransform/MSTransform/MSTransformManager.h -text
 code/mstransform/MSTransform/MSTransformRegridder.cc -text
 code/mstransform/MSTransform/MSTransformRegridder.h -text
+code/mstransform/MSTransform/MSUVBin.cc -text
+code/mstransform/MSTransform/MSUVBin.h -text
+code/mstransform/MSTransform/test/tMSBin.cc -text
 code/mstransform/MSTransform/test/tMSTransformDataHandler.cc -text
 code/mstransform/MSTransform/test/tMSTransformIterator.cc -text
 code/nrao/CMakeLists.txt -text
