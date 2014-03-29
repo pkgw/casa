@@ -7905,6 +7905,7 @@ code/stdcasa/variant.h -text
 code/stdcasa/version.h -text
 code/stdcasa/version.template -text
 code/stdcasa/version2.cc -text
+code/stdcasa/xerces.h -text
 code/synthesis/CMakeLists.txt -text
 code/synthesis/CalTables.h -text
 code/synthesis/CalTables/BJonesDesc.cc -text
