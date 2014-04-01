@@ -8121,6 +8121,8 @@ code/synthesis/ImagerObjects/SIMapperBase.cc -text
 code/synthesis/ImagerObjects/SIMapperBase.h -text
 code/synthesis/ImagerObjects/SIMapperCollection.cc -text
 code/synthesis/ImagerObjects/SIMapperCollection.h -text
+code/synthesis/ImagerObjects/SIMapperImageMosaic.cc -text
+code/synthesis/ImagerObjects/SIMapperImageMosaic.h -text
 code/synthesis/ImagerObjects/SIMapperMultiTerm.cc -text
 code/synthesis/ImagerObjects/SIMapperMultiTerm.h -text
 code/synthesis/ImagerObjects/SIMapperSingle.cc -text
@@ -8602,6 +8604,8 @@ code/synthesis/TransformMachines/MosaicFT.h -text
 code/synthesis/TransformMachines/MultiTermAWProjectWBFT.h -text
 code/synthesis/TransformMachines/MultiTermFT.cc -text
 code/synthesis/TransformMachines/MultiTermFT.h -text
+code/synthesis/TransformMachines/MultiTermFTNew.cc -text
+code/synthesis/TransformMachines/MultiTermFTNew.h -text
 code/synthesis/TransformMachines/NewMultiTermFT.cc -text
 code/synthesis/TransformMachines/NewMultiTermFT.h -text
 code/synthesis/TransformMachines/NoOpATerm.h -text
