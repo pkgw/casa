@@ -7345,6 +7345,7 @@ code/mstransform/MSTransform/MSUVBin.h -text
 code/mstransform/MSTransform/test/tMSBin.cc -text
 code/mstransform/MSTransform/test/tMSTransformDataHandler.cc -text
 code/mstransform/MSTransform/test/tMSTransformIterator.cc -text
+code/mstransform/apps/msuvbin/msuvbin.cc -text
 code/nrao/CMakeLists.txt -text
 code/nrao/FITS/GBTACSTable.cc -text
 code/nrao/FITS/GBTACSTable.h -text
