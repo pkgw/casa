@@ -8148,6 +8148,7 @@ code/synthesis/ImagerObjects/SynthesisUtilMethods.cc -text
 code/synthesis/ImagerObjects/SynthesisUtilMethods.h -text
 code/synthesis/ImagerObjects/test/tSIIterBot.cc -text
 code/synthesis/ImagerObjects/test/tSynthesisImager.cc -text
+code/synthesis/ImagerObjects/test/tSynthesisUtils.cc -text
 code/synthesis/MSVis/AsynchronousInterface.cc -text
 code/synthesis/MSVis/AsynchronousInterface.h -text
 code/synthesis/MSVis/AsynchronousInterface2.cc -text
