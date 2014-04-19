@@ -7834,6 +7834,7 @@ code/plotms/test/tLegend.cc -text
 code/plotms/test/tOverIterationPlot.cc -text
 code/plotms/test/tOverLeftRightPlot.cc -text
 code/plotms/test/tOverPlot.cc -text
+code/plotms/test/tOverPlot2Files.cc -text
 code/plotms/test/tSymbol.cc -text
 code/plotms/test/tTimeAveragingIteration.cc -text
 code/plotms/test/tTimeColorization.cc -text
