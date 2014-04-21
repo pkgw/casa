@@ -6929,6 +6929,8 @@ code/imageanalysis/IO/test/tRegionTextParser.cc -text
 code/imageanalysis/ImageAnalysis.h -text
 code/imageanalysis/ImageAnalysis/AntennaResponses.cc -text
 code/imageanalysis/ImageAnalysis/AntennaResponses.h -text
+code/imageanalysis/ImageAnalysis/BeamManipulator.h -text
+code/imageanalysis/ImageAnalysis/BeamManipulator.tcc -text
 code/imageanalysis/ImageAnalysis/ComponentImager.cc -text
 code/imageanalysis/ImageAnalysis/ComponentImager.h -text
 code/imageanalysis/ImageAnalysis/Image1DSmoother.h -text
