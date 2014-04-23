@@ -7833,6 +7833,7 @@ code/plotms/test/tGridPlacement.cc -text
 code/plotms/test/tGridPlacementMultiplePlots.cc -text
 code/plotms/test/tGridPlacementMultipleRuns.cc -text
 code/plotms/test/tLegend.cc -text
+code/plotms/test/tMultiplePlotTypes.cc -text
 code/plotms/test/tOverIterationPlot.cc -text
 code/plotms/test/tOverLeftRightPlot.cc -text
 code/plotms/test/tOverPlot.cc -text
