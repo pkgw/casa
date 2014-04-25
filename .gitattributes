@@ -7023,6 +7023,8 @@ code/imageanalysis/ImageAnalysis/PVGenerator.cc -text
 code/imageanalysis/ImageAnalysis/PVGenerator.h -text
 code/imageanalysis/ImageAnalysis/PeakIntensityFluxDensityConverter.cc -text
 code/imageanalysis/ImageAnalysis/PeakIntensityFluxDensityConverter.h -text
+code/imageanalysis/ImageAnalysis/PixelValueManipulator.h -text
+code/imageanalysis/ImageAnalysis/PixelValueManipulator.tcc -text
 code/imageanalysis/ImageAnalysis/ProfileFitResults.cc -text
 code/imageanalysis/ImageAnalysis/ProfileFitResults.h -text
 code/imageanalysis/ImageAnalysis/SepImageConvolver.h -text
