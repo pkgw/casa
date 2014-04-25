@@ -9178,10 +9178,13 @@ gcwrap/python/scripts/regressions/imagetest_regression.py -text
 gcwrap/python/scripts/regressions/importevla_regression.py -text
 gcwrap/python/scripts/regressions/irc_cs_regression.py -text
 gcwrap/python/scripts/regressions/irc_cs_task_regression.py -text
+gcwrap/python/scripts/regressions/irc_cs_task_regression_old.py -text
 gcwrap/python/scripts/regressions/irc_hc3n_regression.py -text
 gcwrap/python/scripts/regressions/irc_hc3n_task_regression.py -text
+gcwrap/python/scripts/regressions/irc_hc3n_task_regression_old.py -text
 gcwrap/python/scripts/regressions/irc_sio_regression.py -text
 gcwrap/python/scripts/regressions/irc_sio_task_regression.py -text
+gcwrap/python/scripts/regressions/irc_sio_task_regression_old.py -text
 gcwrap/python/scripts/regressions/l02d_regression.py -text
 gcwrap/python/scripts/regressions/leo2pt_regression.py -text
 gcwrap/python/scripts/regressions/listcal_regression.py -text
@@ -9200,10 +9203,13 @@ gcwrap/python/scripts/regressions/ngc5921_regression.py -text
 gcwrap/python/scripts/regressions/ngc7538_regression.py -text
 gcwrap/python/scripts/regressions/ori_ch3oh_regression.py -text
 gcwrap/python/scripts/regressions/ori_ch3oh_task_regression.py -text
+gcwrap/python/scripts/regressions/ori_ch3oh_task_regression_old.py -text
 gcwrap/python/scripts/regressions/ori_hc3n_regression.py -text
 gcwrap/python/scripts/regressions/ori_hc3n_task_regression.py -text
+gcwrap/python/scripts/regressions/ori_hc3n_task_regression_old.py -text
 gcwrap/python/scripts/regressions/ori_sio_regression.py -text
 gcwrap/python/scripts/regressions/ori_sio_task_regression.py -text
+gcwrap/python/scripts/regressions/ori_sio_task_regression_old.py -text
 gcwrap/python/scripts/regressions/orion_regression.py -text
 gcwrap/python/scripts/regressions/plotxy_regression.py -text
 gcwrap/python/scripts/regressions/pointing_regression.py -text
