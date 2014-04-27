@@ -6227,6 +6227,10 @@ code/doc/memos/FlaggerDocFiles/FlaggerDocs.tex -text
 code/doc/memos/FlaggerDocFiles/UsingTheFlagger.tex -text
 code/doc/memos/FlaggerDocFiles/algorithm2e.sty -text
 code/doc/memos/FlaggerDocFiles/tohtml -text
+code/doc/memos/MSSelectionDoc/FreqSettingExample.odg -text
+code/doc/memos/MSSelectionDoc/FreqSettingExample.png -text
+code/doc/memos/MSSelectionDoc/msselection.latex -text
+code/doc/memos/MSSelectionDoc/tohtml -text
 code/doc/memos/MSTransformDocFiles/MSTransformDocs.tex -text svneol=unset#text/plain
 code/doc/memos/MSTransformDocFiles/UsingMSTransform.tex -text svneol=unset#text/plain
 code/doc/memos/MSTransformDocFiles/tohtml -text
