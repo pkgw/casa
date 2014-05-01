@@ -6229,6 +6229,12 @@ code/doc/memos/FlaggerDocFiles/algorithm2e.sty -text
 code/doc/memos/FlaggerDocFiles/tohtml -text
 code/doc/memos/MSSelectionDoc/FreqSettingExample.odg -text
 code/doc/memos/MSSelectionDoc/FreqSettingExample.png -text
+code/doc/memos/MSSelectionDoc/MSSError.dia -text
+code/doc/memos/MSSelectionDoc/MSSError.png -text
+code/doc/memos/MSSelectionDoc/MSSelectableTable.dia -text
+code/doc/memos/MSSelectionDoc/MSSelectableTable.png -text
+code/doc/memos/MSSelectionDoc/MSSelectableTable.tex -text
+code/doc/memos/MSSelectionDoc/MSSelectableTable.tex.aux -text
 code/doc/memos/MSSelectionDoc/msselection.latex -text
 code/doc/memos/MSSelectionDoc/tohtml -text
 code/doc/memos/MSTransformDocFiles/MSTransformDocs.tex -text svneol=unset#text/plain
