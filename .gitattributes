@@ -8156,8 +8156,6 @@ code/synthesis/ImagerObjects/SynthesisIterBot.cc -text
 code/synthesis/ImagerObjects/SynthesisIterBot.h -text
 code/synthesis/ImagerObjects/SynthesisNormalizer.cc -text
 code/synthesis/ImagerObjects/SynthesisNormalizer.h -text
-code/synthesis/ImagerObjects/SynthesisParSync.cc -text
-code/synthesis/ImagerObjects/SynthesisParSync.h -text
 code/synthesis/ImagerObjects/SynthesisUtilMethods.cc -text
 code/synthesis/ImagerObjects/SynthesisUtilMethods.h -text
 code/synthesis/ImagerObjects/test/tSIIterBot.cc -text
