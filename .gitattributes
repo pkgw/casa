@@ -9354,6 +9354,7 @@ gcwrap/python/scripts/task_importevla.py -text
 gcwrap/python/scripts/task_importfits.py -text
 gcwrap/python/scripts/task_importfitsidi.py -text
 gcwrap/python/scripts/task_importgmrt.py -text
+gcwrap/python/scripts/task_importmiriad.py -text
 gcwrap/python/scripts/task_importuvfits.py -text
 gcwrap/python/scripts/task_importvla.py -text
 gcwrap/python/scripts/task_impv.py -text
@@ -9700,6 +9701,7 @@ gcwrap/tasks/importevla.xml -text
 gcwrap/tasks/importfits.xml -text
 gcwrap/tasks/importfitsidi.xml -text
 gcwrap/tasks/importgmrt.xml -text
+gcwrap/tasks/importmiriad.xml -text
 gcwrap/tasks/importoldasdm.xml -text
 gcwrap/tasks/importuvfits.xml -text
 gcwrap/tasks/importvla.xml -text
