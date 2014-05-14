@@ -4424,6 +4424,7 @@ code/casadbus/xml/DBusSession.interface.xml -text
 code/casadbus/xml/PlotServerProxy.interface.xml -text
 code/casadbus/xml/SynthImager.interface.xml -text
 code/casadbus/xml/ViewerProxy.interface.xml -text
+code/casadbus/xml/dVO.interface.xml -text
 code/casaqt/CMakeLists.txt -text
 code/casaqt/PlotterImplementations/PlotterImplementations.cc -text
 code/casaqt/PlotterImplementations/PlotterImplementations.h -text
@@ -4757,6 +4758,8 @@ code/casaqt/QtUtilities/QtComboCheckBox.cc -text
 code/casaqt/QtUtilities/QtComboCheckBox.qo.h -text
 code/casaqt/QtUtilities/QtDBusApp.cc -text
 code/casaqt/QtUtilities/QtDBusApp.h -text
+code/casaqt/QtUtilities/QtDBusMeta.cc -text
+code/casaqt/QtUtilities/QtDBusMeta.h -text
 code/casaqt/QtUtilities/QtDBusXML.cc -text
 code/casaqt/QtUtilities/QtDBusXML.h -text
 code/casaqt/QtUtilities/QtDBusXmlApp.cc -text
