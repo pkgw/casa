@@ -5703,6 +5703,7 @@ code/display/QtViewer/SlicerGen.qo.h -text
 code/display/QtViewer/SlicerGen.ui -text
 code/display/QtViewer/TrackBox.cc -text
 code/display/QtViewer/TrackBox.qo.h -text
+code/display/QtViewer/VOParam.ui -text
 code/display/QtViewer/icons/Anim0_ToStart.png -text
 code/display/QtViewer/icons/Anim1_RevStep.png -text
 code/display/QtViewer/icons/Anim2_Rev.png -text
