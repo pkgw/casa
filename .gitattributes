@@ -7101,6 +7101,7 @@ code/install/amkdir -text
 code/install/assay -text
 code/install/avers -text
 code/install/build.py -text
+code/install/casa-config.in -text
 code/install/casadef.cmake -text
 code/install/casainit.csh -text
 code/install/casainit.es -text
