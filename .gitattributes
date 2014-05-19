@@ -709,6 +709,8 @@ casacore/casa/Quanta/QLogical2.cc -text
 casacore/casa/Quanta/QMath.h -text
 casacore/casa/Quanta/QMath.tcc -text
 casacore/casa/Quanta/QMath2.cc -text
+casacore/casa/Quanta/QVector.h -text
+casacore/casa/Quanta/QVector.tcc -text
 casacore/casa/Quanta/Quantum.h -text
 casacore/casa/Quanta/Quantum.tcc -text
 casacore/casa/Quanta/Quantum2.cc -text
@@ -737,6 +739,7 @@ casacore/casa/Quanta/changelog -text
 casacore/casa/Quanta/makefile -text
 casacore/casa/Quanta/test/CMakeLists.txt -text
 casacore/casa/Quanta/test/makefile -text
+casacore/casa/Quanta/test/tQVector.cc -text
 casacore/casa/Quanta/test/tQuantum.cc -text
 casacore/casa/Quanta/test/tQuantum.out -text
 casacore/casa/Quanta/test/tQuantumHolder.cc -text
