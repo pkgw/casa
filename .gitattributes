@@ -484,8 +484,6 @@ casacore/casa/IO/RawIO.cc -text
 casacore/casa/IO/RawIO.h -text
 casacore/casa/IO/RegularFileIO.cc -text
 casacore/casa/IO/RegularFileIO.h -text
-casacore/casa/IO/STLIO.h -text
-casacore/casa/IO/STLIO.tcc -text
 casacore/casa/IO/StreamIO.cc -text
 casacore/casa/IO/StreamIO.h -text
 casacore/casa/IO/TapeIO.cc -text
