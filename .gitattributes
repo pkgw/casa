@@ -6959,6 +6959,8 @@ code/imageanalysis/ImageAnalysis/ImageCollapser.h -text
 code/imageanalysis/ImageAnalysis/ImageCollapser.tcc -text
 code/imageanalysis/ImageAnalysis/ImageCollapserData.cc -text
 code/imageanalysis/ImageAnalysis/ImageCollapserData.h -text
+code/imageanalysis/ImageAnalysis/ImageConcatenator.h -text
+code/imageanalysis/ImageAnalysis/ImageConcatenator.tcc -text
 code/imageanalysis/ImageAnalysis/ImageConvolver.h -text
 code/imageanalysis/ImageAnalysis/ImageConvolver.tcc -text
 code/imageanalysis/ImageAnalysis/ImageCropper.h -text
