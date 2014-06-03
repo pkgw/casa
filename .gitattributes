@@ -8902,6 +8902,7 @@ gcwrap/python/scripts/get_user.py -text
 gcwrap/python/scripts/importarchive.py -text
 gcwrap/python/scripts/listing.py -text
 gcwrap/python/scripts/mindpipes.py -text
+gcwrap/python/scripts/mpi4casa/CASA-4.3-MPI-Parallel-Processing-Framework-Installation-and-advance-user-guide.pdf -text
 gcwrap/python/scripts/mpi4casa/CMakeLists.txt -text
 gcwrap/python/scripts/mpi4casa/MPICommandClient.py -text
 gcwrap/python/scripts/mpi4casa/MPICommandServer.py -text
