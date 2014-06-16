@@ -8134,6 +8134,8 @@ code/synthesis/ImagerObjects/SDAlgorithmClarkClean.cc -text
 code/synthesis/ImagerObjects/SDAlgorithmClarkClean.h -text
 code/synthesis/ImagerObjects/SDAlgorithmHogbomClean.cc -text
 code/synthesis/ImagerObjects/SDAlgorithmHogbomClean.h -text
+code/synthesis/ImagerObjects/SDAlgorithmMEM.cc -text
+code/synthesis/ImagerObjects/SDAlgorithmMEM.h -text
 code/synthesis/ImagerObjects/SDAlgorithmMSClean.cc -text
 code/synthesis/ImagerObjects/SDAlgorithmMSClean.h -text
 code/synthesis/ImagerObjects/SDAlgorithmMSMFS.cc -text
