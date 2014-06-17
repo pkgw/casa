@@ -1412,6 +1412,7 @@ casacore/images/Regions/WCRegion2.cc -text
 casacore/images/Regions/WCUnion.cc -text
 casacore/images/Regions/WCUnion.h -text
 casacore/images/Regions/test/CMakeLists.txt -text
+casacore/images/Regions/test/tImageRegion.cc -text
 casacore/images/Regions/test/tRegionHandler.cc -text
 casacore/images/Regions/test/tWCBox.cc -text
 casacore/images/Regions/test/tWCEllipsoid.cc -text
