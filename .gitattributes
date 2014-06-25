@@ -8924,6 +8924,7 @@ gcwrap/python/scripts/pCASA.py -text
 gcwrap/python/scripts/parallel/CMakeLists.txt -text
 gcwrap/python/scripts/parallel/__init__.py -text
 gcwrap/python/scripts/parallel/parallel_cont.py -text
+gcwrap/python/scripts/parallel/parallel_data_helper.py -text
 gcwrap/python/scripts/parallel/parallel_task_helper.py -text
 gcwrap/python/scripts/parallel/pimager.py -text
 gcwrap/python/scripts/parallelSplit.py -text
