@@ -975,8 +975,6 @@ casacore/components/ComponentModels/FluxStdsQS.cc -text
 casacore/components/ComponentModels/FluxStdsQS.h -text
 casacore/components/ComponentModels/FluxStdsQS2.cc -text
 casacore/components/ComponentModels/FluxStdsQS2.h -text
-casacore/components/ComponentModels/GaussianBeam.cc -text
-casacore/components/ComponentModels/GaussianBeam.h -text
 casacore/components/ComponentModels/GaussianShape.cc -text
 casacore/components/ComponentModels/GaussianShape.h -text
 casacore/components/ComponentModels/LimbDarkenedDiskShape.cc -text
@@ -1016,7 +1014,6 @@ casacore/components/ComponentModels/test/tFluxStandard3.cc -text
 casacore/components/ComponentModels/test/tFluxStandard3.run -text
 casacore/components/ComponentModels/test/tFluxStandard4.cc -text
 casacore/components/ComponentModels/test/tFluxStandard4.run -text
-casacore/components/ComponentModels/test/tGaussianBeam.cc -text
 casacore/components/ComponentModels/test/tGaussianComponent.cc -text
 casacore/components/ComponentModels/test/tGaussianShape.cc -text
 casacore/components/ComponentModels/test/tLimbDarkenedDiskShape.cc -text
@@ -2909,6 +2906,8 @@ casacore/scimath/Mathematics/FFTServer.h -text
 casacore/scimath/Mathematics/FFTServer.hcc -text
 casacore/scimath/Mathematics/FFTW.cc -text
 casacore/scimath/Mathematics/FFTW.h -text
+casacore/scimath/Mathematics/GaussianBeam.cc -text
+casacore/scimath/Mathematics/GaussianBeam.h -text
 casacore/scimath/Mathematics/Geometry.cc -text
 casacore/scimath/Mathematics/Geometry.h -text
 casacore/scimath/Mathematics/Gridder.h -text
@@ -2973,6 +2972,7 @@ casacore/scimath/Mathematics/test/tCombinatorics.cc -text
 casacore/scimath/Mathematics/test/tConvolver.cc -text
 casacore/scimath/Mathematics/test/tFFTServer.cc -text
 casacore/scimath/Mathematics/test/tFFTServer2.cc -text
+casacore/scimath/Mathematics/test/tGaussianBeam.cc -text
 casacore/scimath/Mathematics/test/tGeometry.cc -text
 casacore/scimath/Mathematics/test/tHistAcc.cc -text
 casacore/scimath/Mathematics/test/tHistAcc.out -text
