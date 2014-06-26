@@ -4836,6 +4836,12 @@ code/casaqt/apps/qcasabrowser/qcasabrowser.cc -text
 code/casaqt/apps/qwtplottertest/qwtplottertest.cc -text
 code/casaqt/casaqt.dox -text
 code/components/CMakeLists.txt -text
+code/components/ComponentModels/GaussianDeconvolver.cc -text
+code/components/ComponentModels/GaussianDeconvolver.h -text
+code/components/ComponentModels/SkyComponentFactory.cc -text
+code/components/ComponentModels/SkyComponentFactory.h -text
+code/components/ComponentModels/test/tGaussianDeconvolver.cc -text
+code/components/ComponentModels/test/tSkyComponentFactory.cc -text
 code/components/SpectralComponents.h -text
 code/components/SpectralComponents/SpectralListFactory.cc -text
 code/components/SpectralComponents/SpectralListFactory.h -text
@@ -6945,6 +6951,8 @@ code/imageanalysis/ImageAnalysis/AntennaResponses.cc -text
 code/imageanalysis/ImageAnalysis/AntennaResponses.h -text
 code/imageanalysis/ImageAnalysis/BeamManipulator.h -text
 code/imageanalysis/ImageAnalysis/BeamManipulator.tcc -text
+code/imageanalysis/ImageAnalysis/CasaImageBeamSet.cc -text
+code/imageanalysis/ImageAnalysis/CasaImageBeamSet.h -text
 code/imageanalysis/ImageAnalysis/ComponentImager.cc -text
 code/imageanalysis/ImageAnalysis/ComponentImager.h -text
 code/imageanalysis/ImageAnalysis/Image1DSmoother.h -text
@@ -7056,6 +7064,7 @@ code/imageanalysis/ImageAnalysis/SubImageFactory.tcc -text
 code/imageanalysis/ImageAnalysis/test/dImageHistograms.cc -text
 code/imageanalysis/ImageAnalysis/test/dImageMoments.cc -text
 code/imageanalysis/ImageAnalysis/test/tAntennaResponses.cc -text
+code/imageanalysis/ImageAnalysis/test/tCasaImageBeamSet.cc -text
 code/imageanalysis/ImageAnalysis/test/tComponentImager.cc -text
 code/imageanalysis/ImageAnalysis/test/tImage2DConvolver.cc -text
 code/imageanalysis/ImageAnalysis/test/tImageAnalysis.cc -text
