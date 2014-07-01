@@ -6953,6 +6953,8 @@ code/imageanalysis/ImageAnalysis/BeamManipulator.h -text
 code/imageanalysis/ImageAnalysis/BeamManipulator.tcc -text
 code/imageanalysis/ImageAnalysis/CasaImageBeamSet.cc -text
 code/imageanalysis/ImageAnalysis/CasaImageBeamSet.h -text
+code/imageanalysis/ImageAnalysis/ComplexImageRegridder.cc -text
+code/imageanalysis/ImageAnalysis/ComplexImageRegridder.h -text
 code/imageanalysis/ImageAnalysis/ComponentImager.cc -text
 code/imageanalysis/ImageAnalysis/ComponentImager.h -text
 code/imageanalysis/ImageAnalysis/Image1DSmoother.h -text
@@ -7029,6 +7031,8 @@ code/imageanalysis/ImageAnalysis/ImageRebinner.h -text
 code/imageanalysis/ImageAnalysis/ImageRebinner.tcc -text
 code/imageanalysis/ImageAnalysis/ImageRegridder.cc -text
 code/imageanalysis/ImageAnalysis/ImageRegridder.h -text
+code/imageanalysis/ImageAnalysis/ImageRegridderBase.h -text
+code/imageanalysis/ImageAnalysis/ImageRegridderBase.tcc -text
 code/imageanalysis/ImageAnalysis/ImageSourceFinder.h -text
 code/imageanalysis/ImageAnalysis/ImageSourceFinder.tcc -text
 code/imageanalysis/ImageAnalysis/ImageStatsCalculator.cc -text
