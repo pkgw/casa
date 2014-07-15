@@ -9601,6 +9601,7 @@ gcwrap/python/scripts/tests/test_mst_cvel.py -text
 gcwrap/python/scripts/tests/test_mst_cvelB.py -text
 gcwrap/python/scripts/tests/test_mst_split.py -text
 gcwrap/python/scripts/tests/test_mstransform.py -text
+gcwrap/python/scripts/tests/test_mstransform_mms.py -text
 gcwrap/python/scripts/tests/test_oldpartition.py -text
 gcwrap/python/scripts/tests/test_partition.py -text
 gcwrap/python/scripts/tests/test_partitionHelper.py -text
