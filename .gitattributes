@@ -9068,6 +9068,7 @@ gcwrap/python/scripts/pybot/casa/460_Measures.html -text
 gcwrap/python/scripts/pybot/casa/465_Msmd.html -text
 gcwrap/python/scripts/pybot/casa/470_Msmoments.html -text
 gcwrap/python/scripts/pybot/casa/475_Mstransform.html -text
+gcwrap/python/scripts/pybot/casa/476_Mstransform_mms.html -text
 gcwrap/python/scripts/pybot/casa/480_Partition.html -text
 gcwrap/python/scripts/pybot/casa/485_Pcasa.html -text
 gcwrap/python/scripts/pybot/casa/490_Plotants.html -text
