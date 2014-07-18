@@ -8742,8 +8742,6 @@ code/synthesis/Utilities/FixVis.cc -text
 code/synthesis/Utilities/FixVis.h -text
 code/synthesis/Utilities/SigHandler.cc -text
 code/synthesis/Utilities/SigHandler.h -text
-code/synthesis/Utilities/SpectralImageUtil.cc -text
-code/synthesis/Utilities/SpectralImageUtil.h -text
 code/synthesis/Utilities/ThreadCoordinator.cc -text
 code/synthesis/Utilities/ThreadCoordinator.h -text
 code/synthesis/apps/casasplit/casasplit.cc -text
