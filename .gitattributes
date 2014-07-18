@@ -7100,6 +7100,8 @@ code/imageanalysis/ImageTypedefs.h -text
 code/imageanalysis/Regions/CasacRegionManager.cc -text
 code/imageanalysis/Regions/CasacRegionManager.h -text
 code/imageanalysis/Regions/test/tCasacRegionManager.cc -text
+code/imageanalysis/Utilities/SpectralImageUtil.cc -text
+code/imageanalysis/Utilities/SpectralImageUtil.h -text
 code/imageanalysis/apps/imcollapse.cc -text
 code/imageanalysis/apps/imfit.cc -text
 code/install/CASA.cmake -text
