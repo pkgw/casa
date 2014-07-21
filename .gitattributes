@@ -10092,4 +10092,3 @@ gcwrap/tools/xerces/test/tXMLToRecord.run -text
 gcwrap/xml/casa.xsd -text
 gcwrap/xml/conversions.xml -text
 /mainpage.dox -text
-system-test/README -text
