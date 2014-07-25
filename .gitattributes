@@ -9605,6 +9605,7 @@ gcwrap/python/scripts/tests/test_vishead.py -text
 gcwrap/python/scripts/tests/test_visstat.py -text
 gcwrap/python/scripts/tests/test_vpmanager.py -text
 gcwrap/python/scripts/tests/test_wvrgcal.py -text
+gcwrap/python/scripts/tests/testutils.py -text
 gcwrap/python/scripts/tests/unittests_list.txt -text
 gcwrap/python/scripts/tget.py -text
 gcwrap/python/scripts/update_spw.py -text
