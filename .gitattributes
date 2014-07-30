@@ -2001,6 +2001,7 @@ casacore/measures/Measures/test/tMBaseline.out -text
 casacore/measures/Measures/test/tMDirection.cc -text
 casacore/measures/Measures/test/tMEarthMagnetic.cc -text
 casacore/measures/Measures/test/tMEarthMagnetic.out -text
+casacore/measures/Measures/test/tMFrequency.cc -text
 casacore/measures/Measures/test/tMeasComet.cc -text
 casacore/measures/Measures/test/tMeasComet.out -text
 casacore/measures/Measures/test/tMeasJPL.cc -text
