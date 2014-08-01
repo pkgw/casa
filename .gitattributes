@@ -8677,6 +8677,7 @@ code/synthesis/TransformMachines2/WPConvFunc.cc -text
 code/synthesis/TransformMachines2/WPConvFunc.h -text
 code/synthesis/TransformMachines2/WProjectFT.cc -text
 code/synthesis/TransformMachines2/WProjectFT.h -text
+code/synthesis/TransformMachines2/test/tVisModelDataRefim.cc -text
 code/synthesis/Utilities/AppRC.cc -text
 code/synthesis/Utilities/AppRC.h -text
 code/synthesis/Utilities/FixVis.cc -text
