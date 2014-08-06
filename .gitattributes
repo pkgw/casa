@@ -7025,6 +7025,7 @@ code/imageanalysis/Utilities/SpectralImageUtil.cc -text
 code/imageanalysis/Utilities/SpectralImageUtil.h -text
 code/imageanalysis/apps/imcollapse.cc -text
 code/imageanalysis/apps/imfit.cc -text
+code/imageanalysis/doc/robustNoiseEstimators/CASA-Robust-Noise-Estimators-2014-07-30.pdf -text
 code/install/CASA.cmake -text
 code/install/COPYING -text
 code/install/FindSQLITE.cmake -text
