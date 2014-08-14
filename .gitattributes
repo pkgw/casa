@@ -9386,6 +9386,7 @@ gcwrap/python/scripts/task_rmfit.py -text
 gcwrap/python/scripts/task_rmtables.py -text
 gcwrap/python/scripts/task_sdaverage.py -text
 gcwrap/python/scripts/task_sdbaseline.py -text
+gcwrap/python/scripts/task_sdbaseline2.py -text
 gcwrap/python/scripts/task_sdbaselineold.py -text
 gcwrap/python/scripts/task_sdcal.py -text
 gcwrap/python/scripts/task_sdcal2.py -text
@@ -9577,6 +9578,7 @@ gcwrap/python/scripts/tests/test_rg_fromtextfile.py -text
 gcwrap/python/scripts/tests/test_rg_selectedchannels.py -text
 gcwrap/python/scripts/tests/test_sdaverage.py -text
 gcwrap/python/scripts/tests/test_sdbaseline.py -text
+gcwrap/python/scripts/tests/test_sdbaseline2.py -text
 gcwrap/python/scripts/tests/test_sdbaselineold.py -text
 gcwrap/python/scripts/tests/test_sdcal.py -text
 gcwrap/python/scripts/tests/test_sdcal2.py -text
@@ -9735,6 +9737,7 @@ gcwrap/tasks/rmfit.xml -text
 gcwrap/tasks/rmtables.xml -text
 gcwrap/tasks/sdaverage.xml -text
 gcwrap/tasks/sdbaseline.xml -text
+gcwrap/tasks/sdbaseline2.xml -text
 gcwrap/tasks/sdbaselineold.xml -text
 gcwrap/tasks/sdcal.xml -text
 gcwrap/tasks/sdcal2.xml -text
