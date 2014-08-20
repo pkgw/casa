@@ -8217,6 +8217,8 @@ code/synthesis/DataSampling/test/tPixonProcessor.cc -text
 code/synthesis/IDL/IDL.cc -text
 code/synthesis/IDL/IDL.h -text
 code/synthesis/IDL/test/tIDL.cc -text
+code/synthesis/ImagerObjects/InteractiveMasking.cc -text
+code/synthesis/ImagerObjects/InteractiveMasking.h -text
 code/synthesis/ImagerObjects/SDAlgorithmBase.cc -text
 code/synthesis/ImagerObjects/SDAlgorithmBase.h -text
 code/synthesis/ImagerObjects/SDAlgorithmClarkClean.cc -text
