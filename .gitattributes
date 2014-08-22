@@ -8268,6 +8268,14 @@ code/synthesis/ImagerObjects/SynthesisUtilMethods.h -text
 code/synthesis/ImagerObjects/test/tSIIterBot.cc -text
 code/synthesis/ImagerObjects/test/tSynthesisImager.cc -text
 code/synthesis/ImagerObjects/test/tSynthesisUtils.cc -text
+code/synthesis/ImagerObjects2/SIMapper.cc -text
+code/synthesis/ImagerObjects2/SIMapper.h -text
+code/synthesis/ImagerObjects2/SIMapperCollection.cc -text
+code/synthesis/ImagerObjects2/SIMapperCollection.h -text
+code/synthesis/ImagerObjects2/SIMapperImageMosaic.cc -text
+code/synthesis/ImagerObjects2/SIMapperImageMosaic.h -text
+code/synthesis/ImagerObjects2/SynthesisImager.cc -text
+code/synthesis/ImagerObjects2/SynthesisImager.h -text
 code/synthesis/MeasurementComponents.h -text
 code/synthesis/MeasurementComponents/ACoh.h -text
 code/synthesis/MeasurementComponents/AMueller.cc -text
