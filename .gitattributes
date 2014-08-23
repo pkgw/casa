@@ -6863,6 +6863,7 @@ code/imageanalysis/IO/ProfileFitterEstimatesFileParser.cc -text
 code/imageanalysis/IO/ProfileFitterEstimatesFileParser.h -text
 code/imageanalysis/IO/RegionTextParser.cc -text
 code/imageanalysis/IO/RegionTextParser.h -text
+code/imageanalysis/IO/test/tFitter5689.cc -text
 code/imageanalysis/IO/test/tFitterEstimatesFileParser.cc -text
 code/imageanalysis/IO/test/tProfileFitterEstimatesFileParser.cc -text
 code/imageanalysis/IO/test/tRegionTextParser.cc -text
