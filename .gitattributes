@@ -7041,7 +7041,6 @@ code/install/assay -text
 code/install/avers -text
 code/install/build.py -text
 code/install/casa-config.in -text
-code/install/casadef.cmake -text
 code/install/casainit.csh -text
 code/install/casainit.es -text
 code/install/casainit.rc -text
@@ -7203,6 +7202,7 @@ code/install/docutils/xml2latex.awk -text
 code/install/doover -text
 code/install/exrc -text
 code/install/floatcheck.sh -text
+code/install/generate-svninfo -text
 code/install/getrc.c -text
 code/install/getuinfo.c -text
 code/install/hpux_gnu/aipsrc.template -text
@@ -8809,6 +8809,7 @@ gcwrap/install/casadef.cmake -text
 gcwrap/install/casatlist.xsl -text
 gcwrap/install/config.cmake -text
 gcwrap/install/dosymlinks -text
+gcwrap/install/generate-svninfo -text
 gcwrap/install/mkcasacpy.sh -text
 gcwrap/install/mkinitpy.sh -text
 gcwrap/install/mksetupdotpy.sh -text
