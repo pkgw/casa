@@ -5575,6 +5575,8 @@ code/display/QtViewer/QtCanvasManager.qo.h -text
 code/display/QtViewer/QtCanvasManager.ui -text
 code/display/QtViewer/QtCleanPanelGui.cc -text
 code/display/QtViewer/QtCleanPanelGui.qo.h -text
+code/display/QtViewer/QtCleanPanelGui2.cc -text
+code/display/QtViewer/QtCleanPanelGui2.qo.h -text
 code/display/QtViewer/QtDBusViewerAdaptor.cc -text
 code/display/QtViewer/QtDBusViewerAdaptor.qo.h -text
 code/display/QtViewer/QtDataManager.cc -text
