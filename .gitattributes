@@ -5995,6 +5995,7 @@ code/display/region/QtImageRegionStats.ui -text
 code/display/region/QtMsRegionStats.ui -text
 code/display/region/QtRegionDock.cc -text
 code/display/region/QtRegionDock.qo.h -text
+code/display/region/QtRegionDock.qrc -text
 code/display/region/QtRegionDock.ui -text
 code/display/region/QtRegionSource.cc -text
 code/display/region/QtRegionSource.qo.h -text
@@ -6018,6 +6019,7 @@ code/display/region/RegionSource.cc -text
 code/display/region/RegionSource.h -text
 code/display/region/RegionSourceFactory.h -text
 code/display/region/SlicerStats.ui -text
+code/display/region/images/hist.png -text
 code/display3d/3DViewer/3DController.cc -text
 code/display3d/3DViewer/3DController.qo.h -text
 code/display3d/3DViewer/3DDisplayData.cc -text
