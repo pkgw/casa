@@ -7900,8 +7900,6 @@ code/plotms/PlotMS/PlotMSTransformations.cc -text
 code/plotms/PlotMS/PlotMSTransformations.h -text
 code/plotms/PlotMS/PlotMSWatchedParameters.cc -text
 code/plotms/PlotMS/PlotMSWatchedParameters.h -text
-code/plotms/Plots/PlotMSOverPlot.cc -text
-code/plotms/Plots/PlotMSOverPlot.h -text
 code/plotms/Plots/PlotMSPage.cc -text
 code/plotms/Plots/PlotMSPage.h -text
 code/plotms/Plots/PlotMSPages.cc -text
