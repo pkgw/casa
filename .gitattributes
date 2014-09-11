@@ -9330,6 +9330,7 @@ gcwrap/python/scripts/task_concat.py -text
 gcwrap/python/scripts/task_conjugatevis.py -text
 gcwrap/python/scripts/task_csvclean.py -text
 gcwrap/python/scripts/task_cvel.py -text
+gcwrap/python/scripts/task_cvel2.py -text
 gcwrap/python/scripts/task_deconvolve.py -text
 gcwrap/python/scripts/task_delmod.py -text
 gcwrap/python/scripts/task_exportasdm.py -text
@@ -9484,6 +9485,7 @@ gcwrap/python/scripts/tests/test_createmultims.py -text
 gcwrap/python/scripts/tests/test_csvclean.py -text
 gcwrap/python/scripts/tests/test_cvel-B.py -text
 gcwrap/python/scripts/tests/test_cvel.py -text
+gcwrap/python/scripts/tests/test_cvel2.py -text
 gcwrap/python/scripts/tests/test_cvelfreqs.py -text
 gcwrap/python/scripts/tests/test_exportasdm.py -text
 gcwrap/python/scripts/tests/test_fixplanets.py -text
@@ -9682,6 +9684,7 @@ gcwrap/tasks/concat.xml -text
 gcwrap/tasks/conjugatevis.xml -text
 gcwrap/tasks/csvclean.xml -text
 gcwrap/tasks/cvel.xml -text
+gcwrap/tasks/cvel2.xml -text
 gcwrap/tasks/deconvolve.xml -text
 gcwrap/tasks/delmod.xml -text
 gcwrap/tasks/exportasdm.xml -text
