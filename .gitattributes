@@ -7932,6 +7932,7 @@ code/plotms/Threads/ThreadController.h -text
 code/plotms/apps/casaplotms/casaplotms.cc -text
 code/plotms/plotms.dox -text
 code/plotms/test/tAveraging.cc -text
+code/plotms/test/tAveragingChannel.cc -text
 code/plotms/test/tDataSelection.cc -text
 code/plotms/test/tExportPlot.cc -text
 code/plotms/test/tExportRange.cc -text
