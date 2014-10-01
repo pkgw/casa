@@ -9377,6 +9377,7 @@ gcwrap/python/scripts/task_imsubimage.py -text
 gcwrap/python/scripts/task_imtrans.py -text
 gcwrap/python/scripts/task_imval.py -text
 gcwrap/python/scripts/task_imview.py -text
+gcwrap/python/scripts/task_initweights.py -text
 gcwrap/python/scripts/task_listcal.py -text
 gcwrap/python/scripts/task_listfits.py -text
 gcwrap/python/scripts/task_listhistory.py -text
@@ -9731,6 +9732,7 @@ gcwrap/tasks/imsubimage.xml -text
 gcwrap/tasks/imtrans.xml -text
 gcwrap/tasks/imval.xml -text
 gcwrap/tasks/imview.xml -text
+gcwrap/tasks/initweights.xml -text
 gcwrap/tasks/listcal.xml -text
 gcwrap/tasks/listfits.xml -text
 gcwrap/tasks/listhistory.xml -text
