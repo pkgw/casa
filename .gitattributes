@@ -7310,6 +7310,7 @@ code/mstransform/MSTransform/MSUVBin.h -text
 code/mstransform/MSTransform/test/tMSBin.cc -text
 code/mstransform/MSTransform/test/tMSTransformDataHandler.cc -text
 code/mstransform/MSTransform/test/tMSTransformIterator.cc -text
+code/mstransform/apps/fixspwbackport/fixspwbackport.cc -text
 code/mstransform/apps/msuvbin/msuvbin.cc -text
 code/msvis/CMakeLists.txt -text
 code/msvis/MSVis/AsynchronousInterface.cc -text
