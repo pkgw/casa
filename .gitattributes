@@ -9320,6 +9320,7 @@ gcwrap/python/scripts/regressions/tests/CMakeLists.txt -text
 gcwrap/python/scripts/regressions/tests/accum_test.py -text
 gcwrap/python/scripts/regressions/tests/alma-m100-analysis-hpc.py -text
 gcwrap/python/scripts/regressions/tests/alma-m100-analysis.py -text
+gcwrap/python/scripts/regressions/tests/alma-m100-sd.py -text
 gcwrap/python/scripts/regressions/tests/alma-ngc3256-analysis.py -text
 gcwrap/python/scripts/regressions/tests/alma-titan-ephemeris.py -text
 gcwrap/python/scripts/regressions/tests/asdm-imexport+analysis.py -text
