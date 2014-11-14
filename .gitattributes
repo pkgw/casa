@@ -9254,6 +9254,7 @@ gcwrap/python/scripts/regressions/admin/visTest.py -text
 gcwrap/python/scripts/regressions/alma-24ant-calibration-regression.py -text
 gcwrap/python/scripts/regressions/alma-m100-analysis-hpc-regression.py -text
 gcwrap/python/scripts/regressions/alma-m100-analysis-regression.py -text
+gcwrap/python/scripts/regressions/alma-m100-sd-regression.py -text
 gcwrap/python/scripts/regressions/alma-ngc3256-analysis-regression.py -text
 gcwrap/python/scripts/regressions/alma-titan-ephemeris-regression.py -text
 gcwrap/python/scripts/regressions/alma_asdm+reimported-asdm_sf.py -text
