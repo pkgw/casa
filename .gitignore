@@ -20,9 +20,6 @@ casacore/casa/Quanta/linux_gnu
 casacore/casa/System/linux_gnu
 casacore/casa/Utilities/linux_gnu
 casacore/casa/libcasa_casa.so
-casacore/components/.sconf_temp
-casacore/components/ComponentModels/linux_gnu
-casacore/components/SpectralComponents/linux_gnu
 casacore/coordinates/.sconf_temp
 casacore/coordinates/Coordinates/linux_gnu
 casacore/fits/.sconf_temp
