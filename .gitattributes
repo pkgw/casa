@@ -854,7 +854,6 @@ casacore/cmake/FindDL.cmake -text
 casacore/cmake/FindFFTW3.cmake -text
 casacore/cmake/FindFFTW3.cmake-old -text
 casacore/cmake/FindFLEX.cmake -text
-casacore/cmake/FindGSL.cmake -text
 casacore/cmake/FindHDF5.cmake -text
 casacore/cmake/FindPthreads.cmake -text
 casacore/cmake/FindReadline.cmake -text
@@ -1222,12 +1221,6 @@ casacore/images/Regions/test/tWCLELMask.cc -text
 casacore/images/Regions/test/tWCLELMask.out -text
 casacore/images/Regions/test/tWCUnion.cc -text
 casacore/images/SConscript -text
-casacore/images/Wnbt/ComponentUpdate.cc -text
-casacore/images/Wnbt/ComponentUpdate.h -text
-casacore/images/Wnbt/makefile -text
-casacore/images/Wnbt/test/CMakeLists.txt -text
-casacore/images/Wnbt/test/makefile -text
-casacore/images/Wnbt/test/tComponentUpdate.cc -text
 casacore/images/_ReposFiller/makefile -text
 casacore/images/_ReposFiller/templates -text
 casacore/images/apps/CMakeLists.txt -text
