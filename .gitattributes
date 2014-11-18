@@ -7101,6 +7101,7 @@ code/imageanalysis/apps/imfit.cc -text
 code/imageanalysis/doc/robustNoiseEstimators/CASA-Robust-Noise-Estimators-2014-07-30.pdf -text
 code/install/CASA.cmake -text
 code/install/COPYING -text
+code/install/FindGSL.cmake -text
 code/install/FindSQLITE.cmake -text
 code/install/UsePrivatePath.cmake -text
 code/install/adate -text
