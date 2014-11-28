@@ -4052,6 +4052,8 @@ code/alma/Enumtcl/DataScale.cc -text
 code/alma/Enumtcl/DataScale.h -text
 code/alma/Enumtcl/DetectorBandType.cc -text
 code/alma/Enumtcl/DetectorBandType.h -text
+code/alma/Enumtcl/DifferenceType.cc -text
+code/alma/Enumtcl/DifferenceType.h -text
 code/alma/Enumtcl/DirectionReferenceCode.cc -text
 code/alma/Enumtcl/DirectionReferenceCode.h -text
 code/alma/Enumtcl/DopplerReferenceCode.cc -text
@@ -4119,6 +4121,8 @@ code/alma/Enumtcl/SubscanIntent.cc -text
 code/alma/Enumtcl/SubscanIntent.h -text
 code/alma/Enumtcl/SwitchingMode.cc -text
 code/alma/Enumtcl/SwitchingMode.h -text
+code/alma/Enumtcl/SynthProf.cc -text
+code/alma/Enumtcl/SynthProf.h -text
 code/alma/Enumtcl/SyscalMethod.cc -text
 code/alma/Enumtcl/SyscalMethod.h -text
 code/alma/Enumtcl/TimeSampling.cc -text
