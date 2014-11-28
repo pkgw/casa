@@ -3918,6 +3918,8 @@ code/alma/Enumerations/CDataScale.cc -text
 code/alma/Enumerations/CDataScale.h -text
 code/alma/Enumerations/CDetectorBandType.cc -text
 code/alma/Enumerations/CDetectorBandType.h -text
+code/alma/Enumerations/CDifferenceType.cc -text
+code/alma/Enumerations/CDifferenceType.h -text
 code/alma/Enumerations/CDirectionReferenceCode.cc -text
 code/alma/Enumerations/CDirectionReferenceCode.h -text
 code/alma/Enumerations/CDopplerReferenceCode.cc -text
@@ -3984,6 +3986,8 @@ code/alma/Enumerations/CSubscanIntent.cc -text
 code/alma/Enumerations/CSubscanIntent.h -text
 code/alma/Enumerations/CSwitchingMode.cc -text
 code/alma/Enumerations/CSwitchingMode.h -text
+code/alma/Enumerations/CSynthProf.cc -text
+code/alma/Enumerations/CSynthProf.h -text
 code/alma/Enumerations/CSyscalMethod.cc -text
 code/alma/Enumerations/CSyscalMethod.h -text
 code/alma/Enumerations/CTimeSampling.cc -text
