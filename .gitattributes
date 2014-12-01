@@ -3619,6 +3619,10 @@ code/alma/ASDM/DelayModelRow.cc -text
 code/alma/ASDM/DelayModelRow.h -text
 code/alma/ASDM/DelayModelTable.cc -text
 code/alma/ASDM/DelayModelTable.h -text
+code/alma/ASDM/DelayModelVariableParametersRow.cc -text
+code/alma/ASDM/DelayModelVariableParametersRow.h -text
+code/alma/ASDM/DelayModelVariableParametersTable.cc -text
+code/alma/ASDM/DelayModelVariableParametersTable.h -text
 code/alma/ASDM/DopplerRow.cc -text
 code/alma/ASDM/DopplerRow.h -text
 code/alma/ASDM/DopplerTable.cc -text
