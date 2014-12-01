@@ -3611,6 +3611,10 @@ code/alma/ASDM/DataDescriptionRow.cc -text
 code/alma/ASDM/DataDescriptionRow.h -text
 code/alma/ASDM/DataDescriptionTable.cc -text
 code/alma/ASDM/DataDescriptionTable.h -text
+code/alma/ASDM/DelayModelFixedParametersRow.cc -text
+code/alma/ASDM/DelayModelFixedParametersRow.h -text
+code/alma/ASDM/DelayModelFixedParametersTable.cc -text
+code/alma/ASDM/DelayModelFixedParametersTable.h -text
 code/alma/ASDM/DelayModelRow.cc -text
 code/alma/ASDM/DelayModelRow.h -text
 code/alma/ASDM/DelayModelTable.cc -text
