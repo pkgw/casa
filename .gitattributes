@@ -8134,6 +8134,8 @@ code/synthesis/CalTables/CTMainRecord.cc -text
 code/synthesis/CalTables/CTMainRecord.h -text
 code/synthesis/CalTables/CTPatchedInterp.cc -text
 code/synthesis/CalTables/CTPatchedInterp.h -text
+code/synthesis/CalTables/CTSelection.cc -text
+code/synthesis/CalTables/CTSelection.h -text
 code/synthesis/CalTables/CTTimeInterp1.cc -text
 code/synthesis/CalTables/CTTimeInterp1.h -text
 code/synthesis/CalTables/CalBuffer.cc -text
