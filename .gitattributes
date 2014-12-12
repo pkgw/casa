@@ -2675,6 +2675,8 @@ casacore/scimath/Mathematics/AutoDiffMath.tcc -text
 casacore/scimath/Mathematics/AutoDiffRep.h -text
 casacore/scimath/Mathematics/AutoDiffRep.tcc -text
 casacore/scimath/Mathematics/AutoDiffX.h -text
+casacore/scimath/Mathematics/ClassicalStatistics.h -text
+casacore/scimath/Mathematics/ClassicalStatistics.tcc -text
 casacore/scimath/Mathematics/Combinatorics.cc -text
 casacore/scimath/Mathematics/Combinatorics.h -text
 casacore/scimath/Mathematics/ConvolveGridder.h -text
@@ -2741,6 +2743,15 @@ casacore/scimath/Mathematics/SquareMatrix.tcc -text
 casacore/scimath/Mathematics/SquareMatrix2.cc -text
 casacore/scimath/Mathematics/StatAcc.h -text
 casacore/scimath/Mathematics/StatAcc.tcc -text
+casacore/scimath/Mathematics/StatisticsAlgorithm.h -text
+casacore/scimath/Mathematics/StatisticsAlgorithm.tcc -text
+casacore/scimath/Mathematics/StatisticsData.cc -text
+casacore/scimath/Mathematics/StatisticsData.h -text
+casacore/scimath/Mathematics/StatisticsTypes.h -text
+casacore/scimath/Mathematics/StatisticsUtilities.h -text
+casacore/scimath/Mathematics/StatisticsUtilities.tcc -text
+casacore/scimath/Mathematics/StatsDataProvider.h -text
+casacore/scimath/Mathematics/StatsDataProvider.tcc -text
 casacore/scimath/Mathematics/VanVleck.cc -text
 casacore/scimath/Mathematics/VanVleck.h -text
 casacore/scimath/Mathematics/VectorKernel.cc -text
@@ -2752,6 +2763,7 @@ casacore/scimath/Mathematics/test/dAutoDiff.cc -text
 casacore/scimath/Mathematics/test/dSparseDiff.cc -text
 casacore/scimath/Mathematics/test/makefile -text
 casacore/scimath/Mathematics/test/tAutoDiff.cc -text
+casacore/scimath/Mathematics/test/tClassicalStatistics.cc -text
 casacore/scimath/Mathematics/test/tCombinatorics.cc -text
 casacore/scimath/Mathematics/test/tConvolver.cc -text
 casacore/scimath/Mathematics/test/tFFTServer.cc -text
@@ -2767,6 +2779,7 @@ casacore/scimath/Mathematics/test/tMedianSlider.cc -text
 casacore/scimath/Mathematics/test/tSmooth.cc -text
 casacore/scimath/Mathematics/test/tSparseDiff.cc -text
 casacore/scimath/Mathematics/test/tStatAcc.cc -text
+casacore/scimath/Mathematics/test/tStatisticsUtilities.cc -text
 casacore/scimath/Mathematics/test/tVanVleck.cc -text
 casacore/scimath/Mathematics/test/tVectorKernel.cc -text
 casacore/scimath/Mathematics/test/templates -text
