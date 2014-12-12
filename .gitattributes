@@ -1606,6 +1606,10 @@ casacore/lattices/Lattices/LatticeStatistics.h -text
 casacore/lattices/Lattices/LatticeStatistics.tcc -text
 casacore/lattices/Lattices/LatticeStatsBase.cc -text
 casacore/lattices/Lattices/LatticeStatsBase.h -text
+casacore/lattices/Lattices/LatticeStatsDataProvider.h -text
+casacore/lattices/Lattices/LatticeStatsDataProvider.tcc -text
+casacore/lattices/Lattices/LatticeStatsDataProviderBase.h -text
+casacore/lattices/Lattices/LatticeStatsDataProviderBase.tcc -text
 casacore/lattices/Lattices/LatticeStepper.cc -text
 casacore/lattices/Lattices/LatticeStepper.h -text
 casacore/lattices/Lattices/LatticeTwoPtCorr.h -text
@@ -1626,6 +1630,8 @@ casacore/lattices/Lattices/MaskedLattice.h -text
 casacore/lattices/Lattices/MaskedLattice.tcc -text
 casacore/lattices/Lattices/MaskedLatticeIterator.h -text
 casacore/lattices/Lattices/MaskedLatticeIterator.tcc -text
+casacore/lattices/Lattices/MaskedLatticeStatsDataProvider.h -text
+casacore/lattices/Lattices/MaskedLatticeStatsDataProvider.tcc -text
 casacore/lattices/Lattices/MultiTermLatticeCleaner.h -text
 casacore/lattices/Lattices/MultiTermLatticeCleaner.tcc -text
 casacore/lattices/Lattices/PagedArrIter.h -text
@@ -1726,6 +1732,7 @@ casacore/lattices/Lattices/test/tLatticeRegion.cc -text
 casacore/lattices/Lattices/test/tLatticeRegion.out -text
 casacore/lattices/Lattices/test/tLatticeSlice1D.cc -text
 casacore/lattices/Lattices/test/tLatticeStatistics.cc -text
+casacore/lattices/Lattices/test/tLatticeStatsDataProvider.cc -text
 casacore/lattices/Lattices/test/tLatticeStepper.cc -text
 casacore/lattices/Lattices/test/tLatticeTwoPtCorr.cc -text
 casacore/lattices/Lattices/test/tLatticeUtilities.cc -text
