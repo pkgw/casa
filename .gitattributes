@@ -1132,6 +1132,7 @@ casacore/images/Images/test/tImageExprParse_addDir.cc -text
 casacore/images/Images/test/tImageInfo.cc -text
 casacore/images/Images/test/tImageRegrid.cc -text
 casacore/images/Images/test/tImageStatistics.cc -text
+casacore/images/Images/test/tImageStatistics2.cc -text
 casacore/images/Images/test/tImageTiledCache.in -text
 casacore/images/Images/test/tImageUtilities.cc -text
 casacore/images/Images/test/tLELSpectralIndex.cc -text
