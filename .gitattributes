@@ -2706,6 +2706,8 @@ casacore/scimath/Mathematics/Geometry.cc -text
 casacore/scimath/Mathematics/Geometry.h -text
 casacore/scimath/Mathematics/Gridder.h -text
 casacore/scimath/Mathematics/Gridder.tcc -text
+casacore/scimath/Mathematics/HingesFencesStatistics.h -text
+casacore/scimath/Mathematics/HingesFencesStatistics.tcc -text
 casacore/scimath/Mathematics/HistAcc.h -text
 casacore/scimath/Mathematics/HistAcc.tcc -text
 casacore/scimath/Mathematics/Interpolate2D.cc -text
@@ -2778,6 +2780,7 @@ casacore/scimath/Mathematics/test/tFFTServer.cc -text
 casacore/scimath/Mathematics/test/tFFTServer2.cc -text
 casacore/scimath/Mathematics/test/tGaussianBeam.cc -text
 casacore/scimath/Mathematics/test/tGeometry.cc -text
+casacore/scimath/Mathematics/test/tHingesFencesStatistics.cc -text
 casacore/scimath/Mathematics/test/tHistAcc.cc -text
 casacore/scimath/Mathematics/test/tHistAcc.out -text
 casacore/scimath/Mathematics/test/tInterpolateArray1D.cc -text
