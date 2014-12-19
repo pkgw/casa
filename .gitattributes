@@ -8470,6 +8470,8 @@ code/synthesis/MeasurementComponents/SimACoh.cc -text
 code/synthesis/MeasurementComponents/SimACoh.h -text
 code/synthesis/MeasurementComponents/SimACohCalc.cc -text
 code/synthesis/MeasurementComponents/SimACohCalc.h -text
+code/synthesis/MeasurementComponents/SingleDishSkyCal.cc -text
+code/synthesis/MeasurementComponents/SingleDishSkyCal.h -text
 code/synthesis/MeasurementComponents/SkyModel.h -text
 code/synthesis/MeasurementComponents/SolvableVisCal.cc -text
 code/synthesis/MeasurementComponents/SolvableVisCal.h -text
