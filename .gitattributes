@@ -9539,6 +9539,7 @@ gcwrap/python/scripts/task_ssoflux.py -text
 gcwrap/python/scripts/task_statwt.py -text
 gcwrap/python/scripts/task_tclean.py -text
 gcwrap/python/scripts/task_testconcat.py -text
+gcwrap/python/scripts/task_tsdcal.py -text
 gcwrap/python/scripts/task_uvcontsub.py -text
 gcwrap/python/scripts/task_uvcontsub3.py -text
 gcwrap/python/scripts/task_uvmodelfit.py -text
@@ -9865,6 +9866,7 @@ gcwrap/tasks/ssoflux.xml -text
 gcwrap/tasks/statwt.xml -text
 gcwrap/tasks/tclean.xml -text
 gcwrap/tasks/testconcat.xml -text
+gcwrap/tasks/tsdcal.xml -text
 gcwrap/tasks/uvcontsub.xml -text
 gcwrap/tasks/uvcontsub3.xml -text
 gcwrap/tasks/uvmodelfit.xml -text
