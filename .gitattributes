@@ -6264,6 +6264,8 @@ code/doc/memos/MSSelectionDoc/MSSError.dia -text
 code/doc/memos/MSSelectionDoc/MSSError.png -text
 code/doc/memos/MSSelectionDoc/MSSelectableTable.dia -text
 code/doc/memos/MSSelectionDoc/MSSelectableTable.png -text
+code/doc/memos/MSSelectionDoc/bubble-generator-MSS.tcl -text
+code/doc/memos/MSSelectionDoc/bubble-generator.tcl -text
 code/doc/memos/MSSelectionDoc/msselection.latex -text
 code/doc/memos/MSSelectionDoc/tohtml -text
 code/doc/memos/MSTransformDocFiles/MSTransformDocs.tex -text svneol=unset#text/plain
