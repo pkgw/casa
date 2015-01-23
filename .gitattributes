@@ -9718,6 +9718,7 @@ gcwrap/python/scripts/tests/test_split2.py -text
 gcwrap/python/scripts/tests/test_spxfit.py -text
 gcwrap/python/scripts/tests/test_statwt.py -text
 gcwrap/python/scripts/tests/test_testconcat.py -text
+gcwrap/python/scripts/tests/test_tsdcal.py -text
 gcwrap/python/scripts/tests/test_uvcontsub.py -text
 gcwrap/python/scripts/tests/test_uvcontsub3.py -text
 gcwrap/python/scripts/tests/test_uvfits.py -text
