@@ -2687,6 +2687,8 @@ casacore/scimath/Mathematics/ClassicalStatistics.h -text
 casacore/scimath/Mathematics/ClassicalStatistics.tcc -text
 casacore/scimath/Mathematics/Combinatorics.cc -text
 casacore/scimath/Mathematics/Combinatorics.h -text
+casacore/scimath/Mathematics/ConstrainedRangeStatistics.h -text
+casacore/scimath/Mathematics/ConstrainedRangeStatistics.tcc -text
 casacore/scimath/Mathematics/ConvolveGridder.h -text
 casacore/scimath/Mathematics/ConvolveGridder.tcc -text
 casacore/scimath/Mathematics/Convolver.h -text
@@ -2757,6 +2759,8 @@ casacore/scimath/Mathematics/StatisticsAlgorithm.h -text
 casacore/scimath/Mathematics/StatisticsAlgorithm.tcc -text
 casacore/scimath/Mathematics/StatisticsData.cc -text
 casacore/scimath/Mathematics/StatisticsData.h -text
+casacore/scimath/Mathematics/StatisticsIncrementer.h -text
+casacore/scimath/Mathematics/StatisticsIncrementer.tcc -text
 casacore/scimath/Mathematics/StatisticsTypes.h -text
 casacore/scimath/Mathematics/StatisticsUtilities.h -text
 casacore/scimath/Mathematics/StatisticsUtilities.tcc -text
