@@ -2762,6 +2762,7 @@ casacore/scimath/Mathematics/StatisticsData.h -text
 casacore/scimath/Mathematics/StatisticsIncrementer.h -text
 casacore/scimath/Mathematics/StatisticsIncrementer.tcc -text
 casacore/scimath/Mathematics/StatisticsTypes.h -text
+casacore/scimath/Mathematics/StatisticsTypes.tcc -text
 casacore/scimath/Mathematics/StatisticsUtilities.h -text
 casacore/scimath/Mathematics/StatisticsUtilities.tcc -text
 casacore/scimath/Mathematics/StatsDataProvider.h -text
