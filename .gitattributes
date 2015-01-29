@@ -2702,6 +2702,9 @@ casacore/scimath/Mathematics/FFTServer.h -text
 casacore/scimath/Mathematics/FFTServer.hcc -text
 casacore/scimath/Mathematics/FFTW.cc -text
 casacore/scimath/Mathematics/FFTW.h -text
+casacore/scimath/Mathematics/FitToHalfStatistics.h -text
+casacore/scimath/Mathematics/FitToHalfStatistics.tcc -text
+casacore/scimath/Mathematics/FitToHalfStatisticsData.h -text
 casacore/scimath/Mathematics/GaussianBeam.cc -text
 casacore/scimath/Mathematics/GaussianBeam.h -text
 casacore/scimath/Mathematics/Geometry.cc -text
@@ -2783,6 +2786,7 @@ casacore/scimath/Mathematics/test/tCombinatorics.cc -text
 casacore/scimath/Mathematics/test/tConvolver.cc -text
 casacore/scimath/Mathematics/test/tFFTServer.cc -text
 casacore/scimath/Mathematics/test/tFFTServer2.cc -text
+casacore/scimath/Mathematics/test/tFitToHalfStatistics.cc -text
 casacore/scimath/Mathematics/test/tGaussianBeam.cc -text
 casacore/scimath/Mathematics/test/tGeometry.cc -text
 casacore/scimath/Mathematics/test/tHingesFencesStatistics.cc -text
