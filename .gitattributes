@@ -2683,6 +2683,8 @@ casacore/scimath/Mathematics/AutoDiffMath.tcc -text
 casacore/scimath/Mathematics/AutoDiffRep.h -text
 casacore/scimath/Mathematics/AutoDiffRep.tcc -text
 casacore/scimath/Mathematics/AutoDiffX.h -text
+casacore/scimath/Mathematics/ChauvenetCriterionStatistics.h -text
+casacore/scimath/Mathematics/ChauvenetCriterionStatistics.tcc -text
 casacore/scimath/Mathematics/ClassicalStatistics.h -text
 casacore/scimath/Mathematics/ClassicalStatistics.tcc -text
 casacore/scimath/Mathematics/Combinatorics.cc -text
@@ -2774,6 +2776,8 @@ casacore/scimath/Mathematics/VanVleck.cc -text
 casacore/scimath/Mathematics/VanVleck.h -text
 casacore/scimath/Mathematics/VectorKernel.cc -text
 casacore/scimath/Mathematics/VectorKernel.h -text
+casacore/scimath/Mathematics/ZScoreCalculator.cc -text
+casacore/scimath/Mathematics/ZScoreCalculator.h -text
 casacore/scimath/Mathematics/changelog -text
 casacore/scimath/Mathematics/makefile -text
 casacore/scimath/Mathematics/test/CMakeLists.txt -text
@@ -2781,6 +2785,7 @@ casacore/scimath/Mathematics/test/dAutoDiff.cc -text
 casacore/scimath/Mathematics/test/dSparseDiff.cc -text
 casacore/scimath/Mathematics/test/makefile -text
 casacore/scimath/Mathematics/test/tAutoDiff.cc -text
+casacore/scimath/Mathematics/test/tChauvenetCriterionStatistics.cc -text
 casacore/scimath/Mathematics/test/tClassicalStatistics.cc -text
 casacore/scimath/Mathematics/test/tCombinatorics.cc -text
 casacore/scimath/Mathematics/test/tConvolver.cc -text
@@ -2802,6 +2807,7 @@ casacore/scimath/Mathematics/test/tStatAcc.cc -text
 casacore/scimath/Mathematics/test/tStatisticsUtilities.cc -text
 casacore/scimath/Mathematics/test/tVanVleck.cc -text
 casacore/scimath/Mathematics/test/tVectorKernel.cc -text
+casacore/scimath/Mathematics/test/tZScoreCalculator.cc -text
 casacore/scimath/Mathematics/test/templates -text
 casacore/scimath/SConscript -text
 casacore/scimath/_ReposFiller/makefile -text
