@@ -9014,6 +9014,7 @@ gcwrap/python/scripts/mpi4casa/MPICommandClient.py -text
 gcwrap/python/scripts/mpi4casa/MPICommandServer.py -text
 gcwrap/python/scripts/mpi4casa/MPICommunicator.py -text
 gcwrap/python/scripts/mpi4casa/MPIEnvironment.py -text
+gcwrap/python/scripts/mpi4casa/MPIInterface.py -text
 gcwrap/python/scripts/mpi4casa/MPIMonitorClient.py -text
 gcwrap/python/scripts/mpi4casa/MPIMonitorServer.py -text
 gcwrap/python/scripts/mpi4casa/__init__.py -text
