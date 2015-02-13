@@ -4304,6 +4304,17 @@ code/calanalysis/CalAnalysis/test/tCalStats6.cc -text
 code/calanalysis/CalAnalysis/test/tCalStats7.cc -text
 code/calanalysis/CalAnalysis/test/tCalStatsTab.cc -text
 code/calanalysis/CalAnalysis/test/tNewCalTableIterNick.cc -text
+code/casa_sakura/CMakeLists.txt -text
+code/casa_sakura/SakuraAlignedArray.cc -text
+code/casa_sakura/SakuraAlignedArray.h -text
+code/casa_sakura/SakuraAlignedArray.tcc -text
+code/casa_sakura/SakuraArrayConverter.cc -text
+code/casa_sakura/SakuraArrayConverter.h -text
+code/casa_sakura/SakuraUtils.cc -text
+code/casa_sakura/SakuraUtils.h -text
+code/casa_sakura/test/tSakuraAlignedArray.cc -text
+code/casa_sakura/test/tSakuraArrayConverter.cc -text
+code/casa_sakura/test/tSakuraUtils.cc -text
 code/casadbus/CMakeLists.txt -text
 code/casadbus/casadbus.dox -text
 code/casadbus/etc/casa.conf -text
@@ -7153,6 +7164,7 @@ code/imageanalysis/doc/robustNoiseEstimators/CASA-Robust-Noise-Estimators-2014-0
 code/install/CASA.cmake -text
 code/install/COPYING -text
 code/install/FindGSL.cmake -text
+code/install/FindLIBSAKURA.cmake -text
 code/install/FindSQLITE.cmake -text
 code/install/UsePrivatePath.cmake -text
 code/install/adate -text
@@ -8078,6 +8090,7 @@ code/plotms/test/tTimeColorization.cc -text
 code/plotms/test/tTimeColorizationAveraging.cc -text
 code/plotms/test/tTimeIteration.cc -text
 code/plotms/test/tUtil.h -text
+code/singledish/CMakeLists.txt -text
 code/singledish/MathUtils.cc -text
 code/singledish/MathUtils.h -text
 code/singledish/MathUtils2.cc -text
@@ -8115,6 +8128,13 @@ code/singledish/SDTemplates.cc -text
 code/singledish/SDWriter.cc -text
 code/singledish/SDWriter.h -text
 code/singledish/SDWriterWrapper.h -text
+code/singledish/SingleDish/SDMSManager.cc -text
+code/singledish/SingleDish/SDMSManager.h -text
+code/singledish/SingleDish/SingleDishMS.cc -text
+code/singledish/SingleDish/SingleDishMS.h -text
+code/singledish/SingleDish/SingleDishMS_old.cc -text
+code/singledish/SingleDish/SingleDishMS_old.h -text
+code/singledish/SingleDish/test/tSingleDishMS.cc -text
 code/spectrallines/CMakeLists.txt -text
 code/spectrallines/Splatalogue.h -text
 code/spectrallines/Splatalogue/ListConverter.cc -text
