@@ -9585,6 +9585,7 @@ gcwrap/python/scripts/task_ssoflux.py -text
 gcwrap/python/scripts/task_statwt.py -text
 gcwrap/python/scripts/task_tclean.py -text
 gcwrap/python/scripts/task_testconcat.py -text
+gcwrap/python/scripts/task_tsdbaseline.py -text
 gcwrap/python/scripts/task_tsdcal.py -text
 gcwrap/python/scripts/task_uvcontsub.py -text
 gcwrap/python/scripts/task_uvcontsub3.py -text
@@ -9913,6 +9914,7 @@ gcwrap/tasks/ssoflux.xml -text
 gcwrap/tasks/statwt.xml -text
 gcwrap/tasks/tclean.xml -text
 gcwrap/tasks/testconcat.xml -text
+gcwrap/tasks/tsdbaseline.xml -text
 gcwrap/tasks/tsdcal.xml -text
 gcwrap/tasks/uvcontsub.xml -text
 gcwrap/tasks/uvcontsub3.xml -text
@@ -10092,6 +10094,10 @@ gcwrap/tools/scimath/functional.xml -text
 gcwrap/tools/scimath/functional_cmpt.cc -text
 gcwrap/tools/scimath/functional_forward.h -text
 gcwrap/tools/scimath/functional_private.h -text
+gcwrap/tools/singledish/sakura.xml -text
+gcwrap/tools/singledish/sakura_cmpt.cc -text
+gcwrap/tools/singledish/sakura_forward.h -text
+gcwrap/tools/singledish/sakura_private.h -text
 gcwrap/tools/singledish/sdfit.xml -text
 gcwrap/tools/singledish/sdfit_cmpt.cc -text
 gcwrap/tools/singledish/sdfit_forward.h -text
@@ -10120,6 +10126,10 @@ gcwrap/tools/singledish/sdwriter.xml -text
 gcwrap/tools/singledish/sdwriter_cmpt.cc -text
 gcwrap/tools/singledish/sdwriter_forward.h -text
 gcwrap/tools/singledish/sdwriter_private.h -text
+gcwrap/tools/singledish/singledishms.xml -text
+gcwrap/tools/singledish/singledishms_cmpt.cc -text
+gcwrap/tools/singledish/singledishms_forward.h -text
+gcwrap/tools/singledish/singledishms_private.h -text
 gcwrap/tools/spectralline/spectralline.xml -text
 gcwrap/tools/spectralline/spectralline_cmpt.cc -text
 gcwrap/tools/spectralline/spectralline_forward.h -text
