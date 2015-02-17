@@ -4275,6 +4275,7 @@ code/atmosphere/test/absorption.cpp -text
 code/atmosphere/test/atmincludes.hpp -text
 code/atmosphere/test/cmdlineiface.cpp -text
 code/atmosphere/test/cmdlineiface.hpp -text
+code/atmosphere/test/data/SMA_17JUL2006_skydip1.dat -text
 code/atmosphere/test/dispersive.cpp -text
 code/atnf/Atoms/Servo_clnt.cc -text
 code/atnf/Atoms/Servo_xdr.cc -text
