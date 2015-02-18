@@ -4269,6 +4269,7 @@ code/atmosphere/ATM/ATMWVRMeasurement.h -text
 code/atmosphere/ATM/ATMWaterVaporRadiometer.cpp -text
 code/atmosphere/ATM/ATMWaterVaporRadiometer.h -text
 code/atmosphere/ATM/mainpage.h -text
+code/atmosphere/CMakeLists.txt -text
 code/atmosphere/doc/developer.doxy.in -text
 code/atmosphere/test/SMATest.cpp -text
 code/atmosphere/test/absorption.cpp -text
