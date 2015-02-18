@@ -1645,6 +1645,8 @@ casacore/lattices/Lattices/RebinLattice.h -text
 casacore/lattices/Lattices/RebinLattice.tcc -text
 casacore/lattices/Lattices/RegionType.cc -text
 casacore/lattices/Lattices/RegionType.h -text
+casacore/lattices/Lattices/StatsTiledCollapser.h -text
+casacore/lattices/Lattices/StatsTiledCollapser.tcc -text
 casacore/lattices/Lattices/SubLattice.h -text
 casacore/lattices/Lattices/SubLattice.tcc -text
 casacore/lattices/Lattices/TempLattice.h -text
