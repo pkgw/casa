@@ -9510,6 +9510,7 @@ gcwrap/python/scripts/regressions/wproj3ddat_regression.py -text
 gcwrap/python/scripts/run_sdregress_fls3hi.py -text
 gcwrap/python/scripts/run_sdregress_irc.py -text
 gcwrap/python/scripts/run_sdregress_orions.py -text
+gcwrap/python/scripts/sdbeamutil.py -text
 gcwrap/python/scripts/sdutil.py -text
 gcwrap/python/scripts/setjy_helper.py -text
 gcwrap/python/scripts/simple_cluster.py -text
