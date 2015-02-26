@@ -7866,6 +7866,9 @@ code/nrao/data/calibratorBand.data/table.info -text
 code/nrao/data/calibratorBand.data/table.lock -text
 code/nrao/data/vlacalsmaster.dat -text
 code/nrao/nrao.dox -text
+code/parallel/CMakeLists.txt -text
+code/parallel/Logging/LogFilterParallel.cc -text
+code/parallel/Logging/LogFilterParallel.h -text
 code/plotms/Actions/ActionAnnotate.cc -text
 code/plotms/Actions/ActionAnnotate.h -text
 code/plotms/Actions/ActionAnnotateRectangle.cc -text
