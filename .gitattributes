@@ -2761,6 +2761,8 @@ casacore/ms/MeasurementSets/MSHistoryHandler.cc -text
 casacore/ms/MeasurementSets/MSHistoryHandler.h -text
 casacore/ms/MeasurementSets/MSIter.cc -text
 casacore/ms/MeasurementSets/MSIter.h -text
+casacore/ms/MeasurementSets/MSKeys.cc -text
+casacore/ms/MeasurementSets/MSKeys.h -text
 casacore/ms/MeasurementSets/MSLister.cc -text
 casacore/ms/MeasurementSets/MSLister.h -text
 casacore/ms/MeasurementSets/MSMainColumns.cc -text
