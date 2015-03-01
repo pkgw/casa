@@ -10846,6 +10846,10 @@ gcwrap/tools/synthesis/imager_forward.h -text
 gcwrap/tools/synthesis/imager_private.h -text
 gcwrap/tools/synthesis/imagertask.xml -text
 gcwrap/tools/synthesis/imagertask_cmpt.cc -text
+gcwrap/tools/synthesis/linearmosaic.xml -text
+gcwrap/tools/synthesis/linearmosaic_cmpt.cc -text
+gcwrap/tools/synthesis/linearmosaic_forward.h -text
+gcwrap/tools/synthesis/linearmosaic_private.h -text
 gcwrap/tools/synthesis/simulator.xml -text
 gcwrap/tools/synthesis/simulator_cmpt.cc -text
 gcwrap/tools/synthesis/simulator_forward.h -text
