@@ -9310,6 +9310,8 @@ code/synthesis/MeasurementEquations/LinearEquation.h -text
 code/synthesis/MeasurementEquations/LinearEquation.tcc -text
 code/synthesis/MeasurementEquations/LinearModel.h -text
 code/synthesis/MeasurementEquations/LinearModel.tcc -text
+code/synthesis/MeasurementEquations/LinearMosaic.cc -text
+code/synthesis/MeasurementEquations/LinearMosaic.h -text
 code/synthesis/MeasurementEquations/MaskedArrayModel.h -text
 code/synthesis/MeasurementEquations/MaskedArrayModel.tcc -text
 code/synthesis/MeasurementEquations/MaskedHogbomCleanModel.h -text
