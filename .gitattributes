@@ -4523,8 +4523,6 @@ code/casadbus/session/test/dDBusSession.cc -text
 code/casadbus/synthesis/ImagerControl.cc -text
 code/casadbus/synthesis/ImagerControl.h -text
 code/casadbus/types/functor.h -text
-code/casadbus/types/nullptr.cc -text
-code/casadbus/types/nullptr.h -text
 code/casadbus/types/ptr.h -text
 code/casadbus/types/record.cc -text
 code/casadbus/types/record.h -text
