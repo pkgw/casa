@@ -9474,6 +9474,7 @@ gcwrap/python/scripts/recipes/checkpimagersetup.py -text
 gcwrap/python/scripts/recipes/cl2skycat.py -text
 gcwrap/python/scripts/recipes/cluster.py -text
 gcwrap/python/scripts/recipes/cmpmses.py -text
+gcwrap/python/scripts/recipes/commongrid.py -text
 gcwrap/python/scripts/recipes/drawmaskinimage.py -text
 gcwrap/python/scripts/recipes/ephemerides/CMakeLists.txt -text
 gcwrap/python/scripts/recipes/ephemerides/JPLephem_reader.py -text
