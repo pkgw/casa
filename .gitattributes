@@ -415,6 +415,10 @@ casacore/casa/IO/MemoryIO.cc -text
 casacore/casa/IO/MemoryIO.h -text
 casacore/casa/IO/MultiFile.cc -text
 casacore/casa/IO/MultiFile.h -text
+casacore/casa/IO/MultiFileBase.cc -text
+casacore/casa/IO/MultiFileBase.h -text
+casacore/casa/IO/MultiHDF5.cc -text
+casacore/casa/IO/MultiHDF5.h -text
 casacore/casa/IO/RawIO.cc -text
 casacore/casa/IO/RawIO.h -text
 casacore/casa/IO/RegularFileIO.cc -text
@@ -455,6 +459,7 @@ casacore/casa/IO/test/tMFFileIO.cc -text
 casacore/casa/IO/test/tMMapIO.cc -text
 casacore/casa/IO/test/tMappedIO.cc -text
 casacore/casa/IO/test/tMultiFile.cc -text
+casacore/casa/IO/test/tMultiHDF5.cc -text
 casacore/casa/IO/test/tTapeIO.cc -text
 casacore/casa/IO/test/tTapeIO.run -text
 casacore/casa/IO/test/tTypeIO.cc -text
