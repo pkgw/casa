@@ -8120,6 +8120,9 @@ code/plotms/Gui/PlotMSAveragingWidget.ui -text
 code/plotms/Gui/PlotMSAxisWidget.cc -text
 code/plotms/Gui/PlotMSAxisWidget.qo.h -text
 code/plotms/Gui/PlotMSAxisWidget.ui -text
+code/plotms/Gui/PlotMSCalibrationWidget.cc -text
+code/plotms/Gui/PlotMSCalibrationWidget.qo.h -text
+code/plotms/Gui/PlotMSCalibrationWidget.ui -text
 code/plotms/Gui/PlotMSFlaggingWidget.cc -text
 code/plotms/Gui/PlotMSFlaggingWidget.qo.h -text
 code/plotms/Gui/PlotMSFlaggingWidget.ui -text
@@ -8176,6 +8179,9 @@ code/plotms/GuiTabs/PlotMSAxesTab.ui -text
 code/plotms/GuiTabs/PlotMSCacheTab.cc -text
 code/plotms/GuiTabs/PlotMSCacheTab.qo.h -text
 code/plotms/GuiTabs/PlotMSCacheTab.ui -text
+code/plotms/GuiTabs/PlotMSCalibrationTab.cc -text
+code/plotms/GuiTabs/PlotMSCalibrationTab.qo.h -text
+code/plotms/GuiTabs/PlotMSCalibrationTab.ui -text
 code/plotms/GuiTabs/PlotMSCanvasTab.cc -text
 code/plotms/GuiTabs/PlotMSCanvasTab.qo.h -text
 code/plotms/GuiTabs/PlotMSCanvasTab.ui -text
@@ -8223,6 +8229,8 @@ code/plotms/PlotMS/PlotMS.cc -text
 code/plotms/PlotMS/PlotMS.h -text
 code/plotms/PlotMS/PlotMSAveraging.cc -text
 code/plotms/PlotMS/PlotMSAveraging.h -text
+code/plotms/PlotMS/PlotMSCalibration.cc -text
+code/plotms/PlotMS/PlotMSCalibration.h -text
 code/plotms/PlotMS/PlotMSConstants.cc -text
 code/plotms/PlotMS/PlotMSConstants.h -text
 code/plotms/PlotMS/PlotMSDBusApp.cc -text
