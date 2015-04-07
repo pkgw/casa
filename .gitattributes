@@ -5839,9 +5839,9 @@ code/display/QtPlotter/images/zoomn.png -text
 code/display/QtPlotter/images/zoomo.png -text
 code/display/QtPlotter/images/zoomout.png -text
 code/display/QtPlotter/test/dQtPlotter.cc -text
-code/display/QtViewer/AboutDialog.cc -text
-code/display/QtViewer/AboutDialog.qo.h -text
-code/display/QtViewer/AboutDialog.ui -text
+code/display/QtViewer/AboutDialogViewer.cc -text
+code/display/QtViewer/AboutDialogViewer.qo.h -text
+code/display/QtViewer/AboutDialogViewer.ui -text
 code/display/QtViewer/AnimatorHolder.cc -text
 code/display/QtViewer/AnimatorHolder.qo.h -text
 code/display/QtViewer/AnimatorHolder.ui -text
