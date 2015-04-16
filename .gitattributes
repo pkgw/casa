@@ -3568,7 +3568,6 @@ code/air_casawvr/casawvr/casawvr_main.cpp -text
 code/air_casawvr/casawvr/casawvr_main.hpp -text
 code/air_casawvr/casawvr/msantdata.cpp -text
 code/air_casawvr/casawvr/msantdata.hpp -text
-code/air_casawvr/casawvr/msfwds.hpp -text
 code/air_casawvr/casawvr/msgaintable.cpp -text
 code/air_casawvr/casawvr/msgaintable.hpp -text
 code/air_casawvr/casawvr/msspec.cpp -text
