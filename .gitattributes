@@ -1153,6 +1153,15 @@ casacore/images/Images/test/dImageStatistics.cc -text
 casacore/images/Images/test/dImageSummary.cc -text
 casacore/images/Images/test/dPagedImage.cc -text
 casacore/images/Images/test/dPagedImage.run -text
+casacore/images/Images/test/decon_test.im/logtable/table.dat -text
+casacore/images/Images/test/decon_test.im/logtable/table.f0 -text
+casacore/images/Images/test/decon_test.im/logtable/table.info -text
+casacore/images/Images/test/decon_test.im/logtable/table.lock -text
+casacore/images/Images/test/decon_test.im/table.dat -text
+casacore/images/Images/test/decon_test.im/table.f0 -text
+casacore/images/Images/test/decon_test.im/table.f0_TSM0 -text
+casacore/images/Images/test/decon_test.im/table.info -text
+casacore/images/Images/test/decon_test.im/table.lock -text
 casacore/images/Images/test/imageStats.fits -text svneol=unset#unset
 casacore/images/Images/test/imagetestimage.fits -text svneol=unset#unset
 casacore/images/Images/test/input_image_processor_dont_replace_me -text
