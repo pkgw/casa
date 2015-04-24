@@ -4501,6 +4501,10 @@ code/bnmin1/config.h -text
 code/bnmin1/doc/Doxyfile.in -text
 code/bnmin1/src/Makefile.am -text
 code/bnmin1/src/Makefile.in -text
+code/bnmin1/src/apps/bayesline.cxx -text
+code/bnmin1/src/apps/bayesline.hxx -text
+code/bnmin1/src/apps/gaussmodel.cxx -text
+code/bnmin1/src/apps/gaussmodel.hxx -text
 code/bnmin1/src/bnmin_main.cxx -text
 code/bnmin1/src/bnmin_main.hxx -text
 code/bnmin1/src/f77/Makefile.am -text
@@ -4557,10 +4561,15 @@ code/bnmin1/src/priors.cxx -text
 code/bnmin1/src/priors.hxx -text
 code/bnmin1/src/robustline.cxx -text
 code/bnmin1/src/robustline.hxx -text
+code/bnmin1/src/tests/nestedgauss.cpp -text
+code/bnmin1/src/tests/nestedgauss.hpp -text
+code/bnmin1/src/tests/quadmodel.hpp -text
 code/bnmin1/src/twoerrline.cxx -text
 code/bnmin1/src/twoerrline.hxx -text
 code/bnmin1/src/twoerrline_ml.cxx -text
 code/bnmin1/src/twoerrline_ml.hxx -text
+code/bnmin1/test/CMakeLists.txt -text
+code/bnmin1/test/t_minim.cpp -text
 code/calanalysis/CMakeLists.txt -text
 code/calanalysis/CalAnalysis.h -text
 code/calanalysis/CalAnalysis/CalAnalysis.cc -text
