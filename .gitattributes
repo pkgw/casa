@@ -9585,6 +9585,7 @@ gcwrap/python/scripts/recipes/ephemerides/JPLephem_reader.py -text
 gcwrap/python/scripts/recipes/ephemerides/JPLephem_reader2.py -text
 gcwrap/python/scripts/recipes/ephemerides/JPLephem_reader_oldformat.py -text
 gcwrap/python/scripts/recipes/ephemerides/__init__.py -text
+gcwrap/python/scripts/recipes/ephemerides/convertephem.py -text
 gcwrap/python/scripts/recipes/ephemerides/request.py -text
 gcwrap/python/scripts/recipes/ephemerides/request_oldformat.py -text
 gcwrap/python/scripts/recipes/field2skycat.py -text
