@@ -9588,6 +9588,7 @@ gcwrap/python/scripts/recipes/ephemerides/__init__.py -text
 gcwrap/python/scripts/recipes/ephemerides/convertephem.py -text
 gcwrap/python/scripts/recipes/ephemerides/request.py -text
 gcwrap/python/scripts/recipes/ephemerides/request_oldformat.py -text
+gcwrap/python/scripts/recipes/ephemerides/test_convertephem.py -text
 gcwrap/python/scripts/recipes/field2skycat.py -text
 gcwrap/python/scripts/recipes/find_autocorr.py -text
 gcwrap/python/scripts/recipes/free_disk_space.py -text
