@@ -7781,6 +7781,8 @@ code/msvis/MSVis/MsRows.cc -text
 code/msvis/MSVis/MsRows.h -text
 code/msvis/MSVis/Partition.cc -text
 code/msvis/MSVis/Partition.h -text
+code/msvis/MSVis/PhaseShiftTvi.cc -text
+code/msvis/MSVis/PhaseShiftTvi.h -text
 code/msvis/MSVis/Reweighter.cc -text
 code/msvis/MSVis/Reweighter.h -text
 code/msvis/MSVis/SelectAverageSpw.cc -text
