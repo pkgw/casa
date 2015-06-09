@@ -9062,6 +9062,8 @@ code/synthesis/TransformMachines/IlluminationConvFunc.cc -text
 code/synthesis/TransformMachines/IlluminationConvFunc.h -text
 code/synthesis/TransformMachines/MosaicFT.cc -text
 code/synthesis/TransformMachines/MosaicFT.h -text
+code/synthesis/TransformMachines/MosaicFTNew.cc -text
+code/synthesis/TransformMachines/MosaicFTNew.h -text
 code/synthesis/TransformMachines/MultiTermAWProjectWBFT.h -text
 code/synthesis/TransformMachines/MultiTermFT.cc -text
 code/synthesis/TransformMachines/MultiTermFT.h -text
