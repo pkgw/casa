@@ -9705,6 +9705,7 @@ gcwrap/python/scripts/regressions/ori_hc3n_task_regression.py -text
 gcwrap/python/scripts/regressions/ori_sio_regression.py -text
 gcwrap/python/scripts/regressions/ori_sio_task_regression.py -text
 gcwrap/python/scripts/regressions/orion_regression.py -text
+gcwrap/python/scripts/regressions/pipelineTest_regression.py -text
 gcwrap/python/scripts/regressions/plotxy_regression.py -text
 gcwrap/python/scripts/regressions/pointing_regression.py -text
 gcwrap/python/scripts/regressions/polcal_20080224_cband_regression.py -text
