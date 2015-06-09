@@ -9758,6 +9758,7 @@ gcwrap/python/scripts/regressions/tests/ori_hc3n.py -text
 gcwrap/python/scripts/regressions/tests/ori_sio.py -text
 gcwrap/python/scripts/regressions/tests/orionmos4sim.py -text
 gcwrap/python/scripts/regressions/tests/orionmosaic.py -text
+gcwrap/python/scripts/regressions/tests/pipelineTest.py -text
 gcwrap/python/scripts/regressions/tests/plotxy_test.py -text
 gcwrap/python/scripts/regressions/tests/pointing_test.py -text
 gcwrap/python/scripts/regressions/tests/polcal_20080224_cband.py -text
