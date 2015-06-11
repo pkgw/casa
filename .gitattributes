@@ -9156,6 +9156,8 @@ code/synthesis/TransformMachines2/GridFT.cc -text
 code/synthesis/TransformMachines2/GridFT.h -text
 code/synthesis/TransformMachines2/MultiTermFTNew.cc -text
 code/synthesis/TransformMachines2/MultiTermFTNew.h -text
+code/synthesis/TransformMachines2/SetJyGridFT.cc -text
+code/synthesis/TransformMachines2/SetJyGridFT.h -text
 code/synthesis/TransformMachines2/SimpleComponentFTMachine.cc -text
 code/synthesis/TransformMachines2/SimpleComponentFTMachine.h -text
 code/synthesis/TransformMachines2/SkyJones.cc -text
