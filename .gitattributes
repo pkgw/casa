@@ -9924,6 +9924,7 @@ gcwrap/python/scripts/task_tclean.py -text
 gcwrap/python/scripts/task_testconcat.py -text
 gcwrap/python/scripts/task_tsdbaseline.py -text
 gcwrap/python/scripts/task_tsdcal.py -text
+gcwrap/python/scripts/task_tsdsmooth.py -text svneol=unset#text/plain
 gcwrap/python/scripts/task_uvcontsub.py -text
 gcwrap/python/scripts/task_uvcontsub3.py -text
 gcwrap/python/scripts/task_uvmodelfit.py -text
@@ -10254,6 +10255,7 @@ gcwrap/tasks/tclean.xml -text
 gcwrap/tasks/testconcat.xml -text
 gcwrap/tasks/tsdbaseline.xml -text
 gcwrap/tasks/tsdcal.xml -text
+gcwrap/tasks/tsdsmooth.xml -text svneol=unset#text/plain
 gcwrap/tasks/uvcontsub.xml -text
 gcwrap/tasks/uvcontsub3.xml -text
 gcwrap/tasks/uvmodelfit.xml -text
