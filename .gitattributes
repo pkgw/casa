@@ -8485,6 +8485,12 @@ code/stdcasa/version.template -text
 code/stdcasa/version2.cc -text
 code/stdcasa/xerces.h -text
 code/synthesis/CMakeLists.txt -text
+code/synthesis/CalLibrary/CalLibraryGram.ll -text
+code/synthesis/CalLibrary/CalLibraryGram.yy -text
+code/synthesis/CalLibrary/CalLibraryParse.cc -text
+code/synthesis/CalLibrary/CalLibraryParse.h -text
+code/synthesis/CalLibrary/CalLibraryTools.cc -text
+code/synthesis/CalLibrary/CalLibraryTools.h -text
 code/synthesis/CalTables.h -text
 code/synthesis/CalTables/BJonesDesc.cc -text
 code/synthesis/CalTables/BJonesDesc.h -text
