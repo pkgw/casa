@@ -8491,6 +8491,7 @@ code/synthesis/CalLibrary/CalLibraryParse.cc -text
 code/synthesis/CalLibrary/CalLibraryParse.h -text
 code/synthesis/CalLibrary/CalLibraryTools.cc -text
 code/synthesis/CalLibrary/CalLibraryTools.h -text
+code/synthesis/CalLibrary/test/tCalLibraryParse.cc -text
 code/synthesis/CalTables.h -text
 code/synthesis/CalTables/BJonesDesc.cc -text
 code/synthesis/CalTables/BJonesDesc.h -text
