@@ -4562,6 +4562,16 @@ code/bnmin1/src/prior_sampler.cxx -text
 code/bnmin1/src/prior_sampler.hxx -text
 code/bnmin1/src/priors.cxx -text
 code/bnmin1/src/priors.hxx -text
+code/bnmin1/src/random_detail_pass_through_engine.hxx -text
+code/bnmin1/src/random_detail_ptr_helper.hxx -text
+code/bnmin1/src/random_detail_seed.hxx -text
+code/bnmin1/src/random_detail_uniform_int_float.hxx -text
+code/bnmin1/src/random_mersenne_twister.hxx -text
+code/bnmin1/src/random_normal_distribution.hxx -text
+code/bnmin1/src/random_uniform_01.hxx -text
+code/bnmin1/src/random_uniform_int.hxx -text
+code/bnmin1/src/random_uniform_real.hxx -text
+code/bnmin1/src/random_variate_generator.hxx -text
 code/bnmin1/src/robustline.cxx -text
 code/bnmin1/src/robustline.hxx -text
 code/bnmin1/src/tests/nestedgauss.cpp -text
