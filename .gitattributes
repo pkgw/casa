@@ -10284,6 +10284,7 @@ gcwrap/tasks/viewer.xml -text
 gcwrap/tasks/virtualconcat.xml -text
 gcwrap/tasks/vishead.xml -text
 gcwrap/tasks/visstat.xml -text
+gcwrap/tasks/visstat2.xml -text
 gcwrap/tasks/widebandpbcor.xml -text
 gcwrap/tasks/widefield.xml -text
 gcwrap/tasks/wvrgcal.xml -text
