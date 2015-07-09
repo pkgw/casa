@@ -9950,6 +9950,7 @@ gcwrap/python/scripts/task_viewer.py -text
 gcwrap/python/scripts/task_virtualconcat.py -text
 gcwrap/python/scripts/task_vishead.py -text
 gcwrap/python/scripts/task_visstat.py -text
+gcwrap/python/scripts/task_visstat2.py -text
 gcwrap/python/scripts/task_widebandpbcor.py -text
 gcwrap/python/scripts/task_widefield.py -text
 gcwrap/python/scripts/task_wvrgcal.py -text
