@@ -8702,6 +8702,8 @@ code/synthesis/ImagerObjects/SDAlgorithmBase.cc -text
 code/synthesis/ImagerObjects/SDAlgorithmBase.h -text
 code/synthesis/ImagerObjects/SDAlgorithmClarkClean.cc -text
 code/synthesis/ImagerObjects/SDAlgorithmClarkClean.h -text
+code/synthesis/ImagerObjects/SDAlgorithmClarkClean2.cc -text
+code/synthesis/ImagerObjects/SDAlgorithmClarkClean2.h -text
 code/synthesis/ImagerObjects/SDAlgorithmHogbomClean.cc -text
 code/synthesis/ImagerObjects/SDAlgorithmHogbomClean.h -text
 code/synthesis/ImagerObjects/SDAlgorithmMEM.cc -text
