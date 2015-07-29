@@ -7285,6 +7285,7 @@ code/imageanalysis/Annotations/test/tRegionTextList.cc -text
 code/imageanalysis/CMakeLists.txt -text
 code/imageanalysis/IO/AsciiAnnotationFileLine.cc -text
 code/imageanalysis/IO/AsciiAnnotationFileLine.h -text
+code/imageanalysis/IO/CasaImageOpener.h -text
 code/imageanalysis/IO/FitterEstimatesFileParser.cc -text
 code/imageanalysis/IO/FitterEstimatesFileParser.h -text
 code/imageanalysis/IO/ImageFitterResults.cc -text
@@ -7299,6 +7300,7 @@ code/imageanalysis/IO/ProfileFitterEstimatesFileParser.cc -text
 code/imageanalysis/IO/ProfileFitterEstimatesFileParser.h -text
 code/imageanalysis/IO/RegionTextParser.cc -text
 code/imageanalysis/IO/RegionTextParser.h -text
+code/imageanalysis/IO/test/tCasaImageOpener.cc -text
 code/imageanalysis/IO/test/tFitter5689.cc -text
 code/imageanalysis/IO/test/tFitterEstimatesFileParser.cc -text
 code/imageanalysis/IO/test/tProfileFitterEstimatesFileParser.cc -text
