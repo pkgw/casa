@@ -8456,6 +8456,8 @@ code/singledish/SingleDish/BLParameterParser.cc -text
 code/singledish/SingleDish/BLParameterParser.h -text
 code/singledish/SingleDish/BaselineTable.cc -text
 code/singledish/SingleDish/BaselineTable.h -text
+code/singledish/SingleDish/LineFindingUtils.cc -text
+code/singledish/SingleDish/LineFindingUtils.h -text
 code/singledish/SingleDish/SDMSManager.cc -text
 code/singledish/SingleDish/SDMSManager.h -text
 code/singledish/SingleDish/SingleDishMS.cc -text
