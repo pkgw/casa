@@ -10134,6 +10134,7 @@ gcwrap/python/scripts/tests/test_statwt.py -text
 gcwrap/python/scripts/tests/test_testconcat.py -text
 gcwrap/python/scripts/tests/test_tsdbaseline.py -text
 gcwrap/python/scripts/tests/test_tsdcal.py -text
+gcwrap/python/scripts/tests/test_tsdfit.py -text
 gcwrap/python/scripts/tests/test_tsdsmooth.py -text svneol=unset#text/plain
 gcwrap/python/scripts/tests/test_uvcontsub.py -text
 gcwrap/python/scripts/tests/test_uvcontsub3.py -text
