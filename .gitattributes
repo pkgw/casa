@@ -9077,6 +9077,7 @@ code/synthesis/TransformMachines/EVLAConvFunc.cc -text
 code/synthesis/TransformMachines/EVLAConvFunc.h -text
 code/synthesis/TransformMachines/FTMachine.cc -text
 code/synthesis/TransformMachines/FTMachine.h -text
+code/synthesis/TransformMachines/FTMachine.tcc -text
 code/synthesis/TransformMachines/FortranizedLoops.h -text
 code/synthesis/TransformMachines/FortranizedLoopsFromGrid.cc -text
 code/synthesis/TransformMachines/FortranizedLoopsToGrid.cc -text
@@ -9169,6 +9170,7 @@ code/synthesis/TransformMachines/WTerm.h -text
 code/synthesis/TransformMachines/accumulateFromGrid.cc -text
 code/synthesis/TransformMachines/rGridFT.cc -text
 code/synthesis/TransformMachines/rGridFT.h -text
+code/synthesis/TransformMachines/test/dImagingWeightViaGridFT.cc -text
 code/synthesis/TransformMachines/test/tCFCache.cc -text
 code/synthesis/TransformMachines/test/tStokesImageUtil.cc -text
 code/synthesis/TransformMachines/test/tVisModelData.cc -text
