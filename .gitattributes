@@ -8732,16 +8732,10 @@ code/synthesis/ImagerObjects/SIIterBot.cc -text
 code/synthesis/ImagerObjects/SIIterBot.h -text
 code/synthesis/ImagerObjects/SIMapper.cc -text
 code/synthesis/ImagerObjects/SIMapper.h -text
-code/synthesis/ImagerObjects/SIMapperBase.cc -text
-code/synthesis/ImagerObjects/SIMapperBase.h -text
 code/synthesis/ImagerObjects/SIMapperCollection.cc -text
 code/synthesis/ImagerObjects/SIMapperCollection.h -text
 code/synthesis/ImagerObjects/SIMapperImageMosaic.cc -text
 code/synthesis/ImagerObjects/SIMapperImageMosaic.h -text
-code/synthesis/ImagerObjects/SIMapperMultiTerm.cc -text
-code/synthesis/ImagerObjects/SIMapperMultiTerm.h -text
-code/synthesis/ImagerObjects/SIMapperSingle.cc -text
-code/synthesis/ImagerObjects/SIMapperSingle.h -text
 code/synthesis/ImagerObjects/SIMinorCycleController.cc -text
 code/synthesis/ImagerObjects/SIMinorCycleController.h -text
 code/synthesis/ImagerObjects/SynthesisDeconvolver.cc -text
