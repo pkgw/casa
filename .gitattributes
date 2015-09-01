@@ -7377,6 +7377,8 @@ code/imageanalysis/ImageAnalysis/ImageMomentsProgress.cc -text
 code/imageanalysis/ImageAnalysis/ImageMomentsProgress.h -text
 code/imageanalysis/ImageAnalysis/ImageMomentsProgressMonitor.cc -text
 code/imageanalysis/ImageAnalysis/ImageMomentsProgressMonitor.h -text
+code/imageanalysis/ImageAnalysis/ImageMomentsTask.h -text
+code/imageanalysis/ImageAnalysis/ImageMomentsTask.tcc -text
 code/imageanalysis/ImageAnalysis/ImagePadder.cc -text
 code/imageanalysis/ImageAnalysis/ImagePadder.h -text
 code/imageanalysis/ImageAnalysis/ImagePolProxy.cc -text
