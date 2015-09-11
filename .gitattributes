@@ -7341,6 +7341,8 @@ code/imageanalysis/ImageAnalysis/ImageDecimator.tcc -text
 code/imageanalysis/ImageAnalysis/ImageDecimatorData.h -text
 code/imageanalysis/ImageAnalysis/ImageDecomposer.h -text
 code/imageanalysis/ImageAnalysis/ImageDecomposer.tcc -text
+code/imageanalysis/ImageAnalysis/ImageExprCalculator.h -text
+code/imageanalysis/ImageAnalysis/ImageExprCalculator.tcc -text
 code/imageanalysis/ImageAnalysis/ImageFFT.cc -text
 code/imageanalysis/ImageAnalysis/ImageFFT.h -text
 code/imageanalysis/ImageAnalysis/ImageFFTer.h -text
