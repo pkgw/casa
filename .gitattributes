@@ -7899,6 +7899,8 @@ code/msvis/MSVis/changelog -text
 code/msvis/MSVis/test/AveragingTvi2_Test.cc -text
 code/msvis/MSVis/test/MsFactory.cc -text
 code/msvis/MSVis/test/MsFactory.h -text
+code/msvis/MSVis/test/VisibilityIterator_Gtest.cc -text
+code/msvis/MSVis/test/VisibilityIterator_Gtest.h -text
 code/msvis/MSVis/test/VisibilityIterator_Test.cc -text
 code/msvis/MSVis/test/VisibilityIterator_Test.h -text
 code/msvis/MSVis/test/VisibilityProcessing_Test.cc -text
