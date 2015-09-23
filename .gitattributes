@@ -7649,6 +7649,7 @@ code/install/login -text
 code/install/makedefs -text
 code/install/mkcasainfo.sh -text
 code/install/mkinst -text
+code/install/newfile -text
 code/install/printer/lwf_a.1 -text
 code/install/printer/lwf_a.c -text
 code/install/printer/pra -text
