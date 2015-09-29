@@ -9797,6 +9797,7 @@ gcwrap/python/scripts/task_immath.py -text
 gcwrap/python/scripts/task_immoments.py -text
 gcwrap/python/scripts/task_impbcor.py -text
 gcwrap/python/scripts/task_importasdm.py -text
+gcwrap/python/scripts/task_importatca.py -text
 gcwrap/python/scripts/task_importevla.py -text
 gcwrap/python/scripts/task_importfits.py -text
 gcwrap/python/scripts/task_importfitsidi.py -text
@@ -10136,6 +10137,7 @@ gcwrap/tasks/immath.xml -text
 gcwrap/tasks/immoments.xml -text
 gcwrap/tasks/impbcor.xml -text
 gcwrap/tasks/importasdm.xml -text
+gcwrap/tasks/importatca.xml -text
 gcwrap/tasks/importevla.xml -text
 gcwrap/tasks/importfits.xml -text
 gcwrap/tasks/importfitsidi.xml -text
@@ -10266,6 +10268,10 @@ gcwrap/tools/atmosphere/scripts/ref/AtmosphereTypeTest.ref -text
 gcwrap/tools/atmosphere/scripts/ref/RefractiveIndexProfileTest.ref -text
 gcwrap/tools/atmosphere/scripts/ref/SkyStatusTest.ref -text
 gcwrap/tools/atmosphere/scripts/ref/SpectralGridTest.ref -text
+gcwrap/tools/atnf/atcafiller.xml -text
+gcwrap/tools/atnf/atcafiller_cmpt.cc -text
+gcwrap/tools/atnf/atcafiller_forward.h -text
+gcwrap/tools/atnf/atcafiller_private.h -text
 gcwrap/tools/calanalysis/calanalysis.xml -text
 gcwrap/tools/calanalysis/calanalysis_cmpt.cc -text
 gcwrap/tools/calanalysis/calanalysis_forward.h -text
