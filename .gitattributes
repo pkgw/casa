@@ -5065,6 +5065,8 @@ code/casaqt/apps/qwtplottertest/qwtplottertest.cc -text
 code/casaqt/casaqt.dox -text
 code/components/CMakeLists.txt -text
 code/components/ComponentModels.h -text
+code/components/ComponentModels/C11Timer.cc -text
+code/components/ComponentModels/C11Timer.h -text
 code/components/ComponentModels/ComponentList.cc -text
 code/components/ComponentModels/ComponentList.h -text
 code/components/ComponentModels/ComponentShape.cc -text
