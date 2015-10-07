@@ -3736,6 +3736,8 @@ code/imageanalysis/ImageAnalysis/ImageHanningSmoother.h -text
 code/imageanalysis/ImageAnalysis/ImageHanningSmoother.tcc -text
 code/imageanalysis/ImageAnalysis/ImageHistograms.h -text
 code/imageanalysis/ImageAnalysis/ImageHistograms.tcc -text
+code/imageanalysis/ImageAnalysis/ImageHistogramsCalculator.cc -text
+code/imageanalysis/ImageAnalysis/ImageHistogramsCalculator.h -text
 code/imageanalysis/ImageAnalysis/ImageHistory.h -text
 code/imageanalysis/ImageAnalysis/ImageHistory.tcc -text
 code/imageanalysis/ImageAnalysis/ImageInputProcessor.cc -text
