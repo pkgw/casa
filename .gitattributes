@@ -3855,6 +3855,8 @@ code/install/COPYING -text
 code/install/FindGSL.cmake -text
 code/install/FindLIBSAKURA.cmake -text
 code/install/FindSQLITE.cmake -text
+code/install/GoogleTestInstall.cmake -text
+code/install/GoogleTestInstall.in -text
 code/install/UsePrivatePath.cmake -text
 code/install/adate -text
 code/install/affirm -text
