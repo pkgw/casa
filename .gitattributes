@@ -3675,6 +3675,8 @@ code/imageanalysis/IO/LogFile.cc -text
 code/imageanalysis/IO/LogFile.h -text
 code/imageanalysis/IO/OutputDestinationChecker.cc -text
 code/imageanalysis/IO/OutputDestinationChecker.h -text
+code/imageanalysis/IO/ParameterParser.cc -text
+code/imageanalysis/IO/ParameterParser.h -text
 code/imageanalysis/IO/ProfileFitterEstimatesFileParser.cc -text
 code/imageanalysis/IO/ProfileFitterEstimatesFileParser.h -text
 code/imageanalysis/IO/RegionTextParser.cc -text
