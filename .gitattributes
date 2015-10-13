@@ -4885,6 +4885,7 @@ code/stdcasa/StdCasa/variant.cc -text
 code/stdcasa/array.h -text
 code/stdcasa/casac.h -text
 code/stdcasa/record.h -text
+code/stdcasa/thread/Barrier.h -text
 code/stdcasa/variant.h -text
 code/stdcasa/version.h -text
 code/stdcasa/version.template -text
