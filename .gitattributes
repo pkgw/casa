@@ -494,6 +494,7 @@ code/alma/ASDM/WeatherRow.h -text
 code/alma/ASDM/WeatherTable.cc -text
 code/alma/ASDM/WeatherTable.h -text
 code/alma/ASDM/XMLConversionException.h -text
+code/alma/ASDM/test/t2xReadASDM.cc -text
 code/alma/ASDM/test/tTableStreamReader.cc -text
 code/alma/ASDMBinaries/BaselineMetadata.cc -text
 code/alma/ASDMBinaries/BaselineMetadata.h -text
