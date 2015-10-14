@@ -549,6 +549,8 @@ code/alma/Enumerations/CBasebandName.cc -text
 code/alma/Enumerations/CBasebandName.h -text
 code/alma/Enumerations/CBaselineReferenceCode.cc -text
 code/alma/Enumerations/CBaselineReferenceCode.h -text
+code/alma/Enumerations/CBinaryDataFlags.cc -text
+code/alma/Enumerations/CBinaryDataFlags.h -text
 code/alma/Enumerations/CCalCurveType.cc -text
 code/alma/Enumerations/CCalCurveType.h -text
 code/alma/Enumerations/CCalDataOrigin.cc -text
@@ -683,6 +685,8 @@ code/alma/Enumtcl/BasebandName.cc -text
 code/alma/Enumtcl/BasebandName.h -text
 code/alma/Enumtcl/BaselineReferenceCode.cc -text
 code/alma/Enumtcl/BaselineReferenceCode.h -text
+code/alma/Enumtcl/BinaryDataFlags.cc -text
+code/alma/Enumtcl/BinaryDataFlags.h -text
 code/alma/Enumtcl/CalCurveType.cc -text
 code/alma/Enumtcl/CalCurveType.h -text
 code/alma/Enumtcl/CalDataOrigin.cc -text
