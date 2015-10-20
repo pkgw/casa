@@ -4038,6 +4038,7 @@ code/install/docutils/xml2latex.awk -text
 code/install/doover -text
 code/install/exrc -text
 code/install/floatcheck.sh -text
+code/install/generate-gitinfo -text
 code/install/generate-svninfo -text
 code/install/getrc.c -text
 code/install/getuinfo.c -text
