@@ -5761,6 +5761,7 @@ gcwrap/install/casadef.cmake -text
 gcwrap/install/casatlist.xsl -text
 gcwrap/install/config.cmake -text
 gcwrap/install/dosymlinks -text
+gcwrap/install/generate-gitinfo -text
 gcwrap/install/generate-svninfo -text
 gcwrap/install/mkcasacpy.sh -text
 gcwrap/install/mkinitpy.sh -text
