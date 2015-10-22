@@ -3502,8 +3502,8 @@ code/guitools/Feather/CurveDisplay.cc -text
 code/guitools/Feather/CurveDisplay.h -text
 code/guitools/Feather/ExternalAxis.cc -text
 code/guitools/Feather/ExternalAxis.h -text
-code/guitools/Feather/ExternalAxisWidget.cc -text
-code/guitools/Feather/ExternalAxisWidget.h -text
+code/guitools/Feather/ExternalAxisControl.cc -text
+code/guitools/Feather/ExternalAxisControl.h -text
 code/guitools/Feather/ExternalAxisWidgetBottom.cc -text
 code/guitools/Feather/ExternalAxisWidgetBottom.h -text
 code/guitools/Feather/ExternalAxisWidgetLeft.cc -text
