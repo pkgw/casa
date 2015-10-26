@@ -6503,7 +6503,6 @@ gcwrap/python/scripts/tests/test_immoments.py -text
 gcwrap/python/scripts/tests/test_impbcor.py -text
 gcwrap/python/scripts/tests/test_importasdm.py -text
 gcwrap/python/scripts/tests/test_importasdm_mms.py -text
-gcwrap/python/scripts/tests/test_importasdm_sd.py -text
 gcwrap/python/scripts/tests/test_importevla.py -text
 gcwrap/python/scripts/tests/test_importfitsidi.py -text
 gcwrap/python/scripts/tests/test_imregrid.py -text
