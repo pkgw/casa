@@ -5848,6 +5848,7 @@ gcwrap/python/scripts/mpi4casa/mpi4casapy.py -text
 gcwrap/python/scripts/mpi4casa/task_macros.py -text
 gcwrap/python/scripts/mpi4casa/task_wrappers.py -text
 gcwrap/python/scripts/mpi4casa/test_mpi4casa.py -text
+gcwrap/python/scripts/muellerAsteroidModel_reader.py -text
 gcwrap/python/scripts/ngc5921_usecase.py -text
 gcwrap/python/scripts/odict.py -text
 gcwrap/python/scripts/pCASA.py -text
