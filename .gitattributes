@@ -4176,6 +4176,8 @@ code/msvis/MSVis/MSAnalysis.cc -text
 code/msvis/MSVis/MSAnalysis.h -text
 code/msvis/MSVis/MSCalEnums.cc -text
 code/msvis/MSVis/MSCalEnums.h -text
+code/msvis/MSVis/MSChecker.cc -text
+code/msvis/MSVis/MSChecker.h -text
 code/msvis/MSVis/MSContinuumSubtractor.cc -text
 code/msvis/MSVis/MSContinuumSubtractor.h -text
 code/msvis/MSVis/MSMoments.h -text
