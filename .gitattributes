@@ -4346,6 +4346,9 @@ code/msvis/MSVis/statistics/Vi2StatsUVRangeIterator.h -text
 code/msvis/MSVis/statistics/Vi2StatsWeightsIterator.cc -text
 code/msvis/MSVis/statistics/Vi2StatsWeightsIterator.h -text
 code/msvis/MSVis/test/AveragingTvi2_Test.cc -text
+code/msvis/MSVis/test/MSCheckerTest.cc -text
+code/msvis/MSVis/test/MSCheckerTest.h -text
+code/msvis/MSVis/test/MSChecker_Gtest.cc -text
 code/msvis/MSVis/test/MsFactory.cc -text
 code/msvis/MSVis/test/MsFactory.h -text
 code/msvis/MSVis/test/VisibilityIterator_Gtest.cc -text
