@@ -3719,6 +3719,8 @@ code/imageanalysis/ImageAnalysis/ImageConcatenator.h -text
 code/imageanalysis/ImageAnalysis/ImageConcatenator.tcc -text
 code/imageanalysis/ImageAnalysis/ImageConvolver.h -text
 code/imageanalysis/ImageAnalysis/ImageConvolver.tcc -text
+code/imageanalysis/ImageAnalysis/ImageConvolverTask.h -text
+code/imageanalysis/ImageAnalysis/ImageConvolverTask.tcc -text
 code/imageanalysis/ImageAnalysis/ImageCropper.h -text
 code/imageanalysis/ImageAnalysis/ImageCropper.tcc -text
 code/imageanalysis/ImageAnalysis/ImageDecimator.h -text
