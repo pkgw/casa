@@ -3815,6 +3815,8 @@ code/imageanalysis/ImageAnalysis/ProfileFitResults.cc -text
 code/imageanalysis/ImageAnalysis/ProfileFitResults.h -text
 code/imageanalysis/ImageAnalysis/SepImageConvolver.h -text
 code/imageanalysis/ImageAnalysis/SepImageConvolver.tcc -text
+code/imageanalysis/ImageAnalysis/SepImageConvolverTask.h -text
+code/imageanalysis/ImageAnalysis/SepImageConvolverTask.tcc -text
 code/imageanalysis/ImageAnalysis/SpectralCollapser.cc -text
 code/imageanalysis/ImageAnalysis/SpectralCollapser.h -text
 code/imageanalysis/ImageAnalysis/SpectralFitter.cc -text
