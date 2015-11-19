@@ -1726,6 +1726,8 @@ code/display/Display/test/dRGBWCRaster.exec -text
 code/display/Display/test/tAttVal.cc -text
 code/display/Display/test/tAttValPoi.cc -text
 code/display/Display/test/tAttribute.cc -text
+code/display/Display/test/tAttribute_Gtest.cc -text
+code/display/Display/test/tAttribute_Gtest.h -text
 code/display/DisplayCanvas/DefaultWCCoordinateHandler.cc -text
 code/display/DisplayCanvas/DefaultWCCoordinateHandler.h -text
 code/display/DisplayCanvas/DefaultWCSizeControlHandler.cc -text
