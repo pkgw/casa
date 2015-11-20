@@ -6168,7 +6168,6 @@ gcwrap/python/scripts/regressions/polcal_20080224_cband_regression.py -text
 gcwrap/python/scripts/regressions/ppdisk2_regression.py -text
 gcwrap/python/scripts/regressions/regress_template.0py -text
 gcwrap/python/scripts/regressions/run_orionmos4sim.py -text
-gcwrap/python/scripts/regressions/sdtpimaging_regression.py -text
 gcwrap/python/scripts/regressions/stokesimagingtest_regression.py -text
 gcwrap/python/scripts/regressions/testcompsim.py -text
 gcwrap/python/scripts/regressions/testcube2_regression.py -text
@@ -6361,7 +6360,6 @@ gcwrap/python/scripts/task_sdreduce.py -text
 gcwrap/python/scripts/task_sdsave.py -text
 gcwrap/python/scripts/task_sdscale.py -text
 gcwrap/python/scripts/task_sdstat.py -text
-gcwrap/python/scripts/task_sdtpimaging.py -text
 gcwrap/python/scripts/task_setjy.py -text
 gcwrap/python/scripts/task_simalma.py -text
 gcwrap/python/scripts/task_simanalyze.py -text
@@ -6548,7 +6546,6 @@ gcwrap/python/scripts/tests/test_sdreduce.py -text
 gcwrap/python/scripts/tests/test_sdsave.py -text
 gcwrap/python/scripts/tests/test_sdscale.py -text
 gcwrap/python/scripts/tests/test_sdstat.py -text
-gcwrap/python/scripts/tests/test_sdtpimaging.py -text
 gcwrap/python/scripts/tests/test_setjy.py -text
 gcwrap/python/scripts/tests/test_simobserve.py -text
 gcwrap/python/scripts/tests/test_simplecluster.py -text
@@ -6701,7 +6698,6 @@ gcwrap/tasks/sdreduce.xml -text
 gcwrap/tasks/sdsave.xml -text
 gcwrap/tasks/sdscale.xml -text
 gcwrap/tasks/sdstat.xml -text
-gcwrap/tasks/sdtpimaging.xml -text
 gcwrap/tasks/setjy.xml -text
 gcwrap/tasks/simalma.xml -text
 gcwrap/tasks/simanalyze.xml -text
