@@ -6322,7 +6322,6 @@ gcwrap/python/scripts/task_listsdm.py -text
 gcwrap/python/scripts/task_listvis.py -text
 gcwrap/python/scripts/task_makemask.py -text
 gcwrap/python/scripts/task_mosaic.py -text
-gcwrap/python/scripts/task_msmoments.py -text
 gcwrap/python/scripts/task_mstransform.py -text
 gcwrap/python/scripts/task_msuvbin.py -text
 gcwrap/python/scripts/task_msview.py -text
@@ -6492,7 +6491,6 @@ gcwrap/python/scripts/tests/test_makemask.py -text
 gcwrap/python/scripts/tests/test_me_shift.py -text
 gcwrap/python/scripts/tests/test_measures.py -text
 gcwrap/python/scripts/tests/test_msmd.py -text
-gcwrap/python/scripts/tests/test_msmoments.py -text
 gcwrap/python/scripts/tests/test_mst_cvel.py -text
 gcwrap/python/scripts/tests/test_mst_cvelB.py -text
 gcwrap/python/scripts/tests/test_mst_split.py -text
@@ -6661,7 +6659,6 @@ gcwrap/tasks/listsdm.xml -text
 gcwrap/tasks/listvis.xml -text
 gcwrap/tasks/makemask.xml -text
 gcwrap/tasks/mosaic.xml -text
-gcwrap/tasks/msmoments.xml -text
 gcwrap/tasks/mstransform.xml -text
 gcwrap/tasks/msuvbin.xml -text
 gcwrap/tasks/msview.xml -text
