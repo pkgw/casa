@@ -3758,6 +3758,8 @@ code/imageanalysis/ImageAnalysis/ImageMaskAttacher.h -text
 code/imageanalysis/ImageAnalysis/ImageMaskAttacher.tcc -text
 code/imageanalysis/ImageAnalysis/ImageMaskedPixelReplacer.h -text
 code/imageanalysis/ImageAnalysis/ImageMaskedPixelReplacer.tcc -text
+code/imageanalysis/ImageAnalysis/ImageMaxFitter.h -text
+code/imageanalysis/ImageAnalysis/ImageMaxFitter.tcc -text
 code/imageanalysis/ImageAnalysis/ImageMetaData.cc -text
 code/imageanalysis/ImageAnalysis/ImageMetaData.h -text
 code/imageanalysis/ImageAnalysis/ImageMetaData.tcc -text
