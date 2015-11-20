@@ -4178,8 +4178,6 @@ code/msvis/MSVis/IteratingParameters.cc -text
 code/msvis/MSVis/IteratingParameters.h -text
 code/msvis/MSVis/LayeredVi2Factory.cc -text
 code/msvis/MSVis/LayeredVi2Factory.h -text
-code/msvis/MSVis/MSAnalysis.cc -text
-code/msvis/MSVis/MSAnalysis.h -text
 code/msvis/MSVis/MSCalEnums.cc -text
 code/msvis/MSVis/MSCalEnums.h -text
 code/msvis/MSVis/MSChecker.cc -text
