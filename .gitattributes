@@ -5370,6 +5370,8 @@ code/synthesis/MeasurementEquations/IPLatConvEquation.cc -text
 code/synthesis/MeasurementEquations/IPLatConvEquation.h -text
 code/synthesis/MeasurementEquations/ImageMSCleaner.cc -text
 code/synthesis/MeasurementEquations/ImageMSCleaner.h -text
+code/synthesis/MeasurementEquations/ImageNACleaner.cc -text
+code/synthesis/MeasurementEquations/ImageNACleaner.h -text
 code/synthesis/MeasurementEquations/Imager.cc -text
 code/synthesis/MeasurementEquations/Imager.h -text
 code/synthesis/MeasurementEquations/Imager2.cc -text
@@ -5396,6 +5398,8 @@ code/synthesis/MeasurementEquations/MaskedHogbomCleanModel.h -text
 code/synthesis/MeasurementEquations/MaskedHogbomCleanModel.tcc -text
 code/synthesis/MeasurementEquations/MatrixCleaner.cc -text
 code/synthesis/MeasurementEquations/MatrixCleaner.h -text
+code/synthesis/MeasurementEquations/MatrixNACleaner.cc -text
+code/synthesis/MeasurementEquations/MatrixNACleaner.h -text
 code/synthesis/MeasurementEquations/MultiTermMatrixCleaner.cc -text
 code/synthesis/MeasurementEquations/MultiTermMatrixCleaner.h -text
 code/synthesis/MeasurementEquations/ResidualEquation.h -text
