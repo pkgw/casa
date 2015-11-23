@@ -3654,7 +3654,6 @@ code/imageanalysis/Annotations/AnnotationBase.cc -text
 code/imageanalysis/Annotations/AnnotationBase.h -text
 code/imageanalysis/Annotations/RegionTextList.cc -text
 code/imageanalysis/Annotations/RegionTextList.h -text
-code/imageanalysis/Annotations/test/CMakeLists.txt -text
 code/imageanalysis/Annotations/test/tAnnAnnulus.cc -text
 code/imageanalysis/Annotations/test/tAnnCenterBox.cc -text
 code/imageanalysis/Annotations/test/tAnnCircle.cc -text
