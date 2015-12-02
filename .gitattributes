@@ -3755,6 +3755,8 @@ code/imageanalysis/ImageAnalysis/ImageInputProcessor.h -text
 code/imageanalysis/ImageAnalysis/ImageInputProcessor2.tcc -text
 code/imageanalysis/ImageAnalysis/ImageMaskAttacher.h -text
 code/imageanalysis/ImageAnalysis/ImageMaskAttacher.tcc -text
+code/imageanalysis/ImageAnalysis/ImageMaskHandler.h -text
+code/imageanalysis/ImageAnalysis/ImageMaskHandler.tcc -text
 code/imageanalysis/ImageAnalysis/ImageMaskedPixelReplacer.h -text
 code/imageanalysis/ImageAnalysis/ImageMaskedPixelReplacer.tcc -text
 code/imageanalysis/ImageAnalysis/ImageMaxFitter.h -text
