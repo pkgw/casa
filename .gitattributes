@@ -1363,8 +1363,8 @@ code/casaqt/QtProgressMeter/progress.cc -text
 code/casaqt/QtProgressMeter/progress.qo.h -text
 code/casaqt/QtProgressMeter/progresstimer.cc -text
 code/casaqt/QtProgressMeter/progresstimer.qo.h -text
+code/casaqt/QtProgressMeter/test/dProgressMeter.cc -text
 code/casaqt/QtProgressMeter/test/progressmeter.py -text
-code/casaqt/QtProgressMeter/test/tProgressMeter.cc -text
 code/casaqt/QtUtilities/Axis/ExternalAxisWidget.cc -text
 code/casaqt/QtUtilities/Axis/ExternalAxisWidget.h -text
 code/casaqt/QtUtilities/Axis/ExternalAxisWidgetBottom.cc -text
@@ -4730,6 +4730,7 @@ code/plotms/apps/casaplotms/casaplotms.cc -text
 code/plotms/plotms.dox -text
 code/plotms/test/tAveraging.cc -text
 code/plotms/test/tAveragingChannel.cc -text
+code/plotms/test/tAveragingTime.cc -text
 code/plotms/test/tDataSelection.cc -text
 code/plotms/test/tExportPlot.cc -text
 code/plotms/test/tExportRange.cc -text
