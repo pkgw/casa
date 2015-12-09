@@ -3703,6 +3703,8 @@ code/imageanalysis/ImageAnalysis/ComplexImageRegridder.cc -text
 code/imageanalysis/ImageAnalysis/ComplexImageRegridder.h -text
 code/imageanalysis/ImageAnalysis/ComponentImager.cc -text
 code/imageanalysis/ImageAnalysis/ComponentImager.h -text
+code/imageanalysis/ImageAnalysis/ComponentListDeconvolver.h -text
+code/imageanalysis/ImageAnalysis/ComponentListDeconvolver.tcc -text
 code/imageanalysis/ImageAnalysis/Image1DSmoother.h -text
 code/imageanalysis/ImageAnalysis/Image1DSmoother.tcc -text
 code/imageanalysis/ImageAnalysis/Image2DConvolver.h -text
