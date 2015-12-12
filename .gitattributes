@@ -1528,6 +1528,12 @@ code/components/ComponentModels/TabularSpectrum.h -text
 code/components/ComponentModels/TwoSidedShape.cc -text
 code/components/ComponentModels/TwoSidedShape.h -text
 code/components/ComponentModels/changelog -text
+code/components/ComponentModels/test/EphemObjFluxStandard_GTest.cc -text
+code/components/ComponentModels/test/EphemObjFluxStandard_GTest.h -text
+code/components/ComponentModels/test/FluxStandardTest.cc -text
+code/components/ComponentModels/test/FluxStandardTest.h -text
+code/components/ComponentModels/test/FluxStandard_GTest.cc -text
+code/components/ComponentModels/test/FluxStandard_GTest.h -text
 code/components/ComponentModels/test/dPointShape.cc -text
 code/components/ComponentModels/test/dSkyCompBase.cc -text
 code/components/ComponentModels/test/dSpectralModel.cc -text
