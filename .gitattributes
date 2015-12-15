@@ -4778,6 +4778,8 @@ code/singledish/SingleDish/SDMSManager.cc -text
 code/singledish/SingleDish/SDMSManager.h -text
 code/singledish/SingleDish/SingleDishMS.cc -text
 code/singledish/SingleDish/SingleDishMS.h -text
+code/singledish/SingleDish/test/LineFindingUtils_GTest.cc -text
+code/singledish/SingleDish/test/SingleDishTestUtil.h -text
 code/singledish/SingleDish/test/tLineFinder.cc -text
 code/singledish/SingleDish/test/tSingleDishMS.cc -text
 code/spectrallines/CMakeLists.txt -text
