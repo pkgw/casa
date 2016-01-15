@@ -6237,6 +6237,7 @@ gcwrap/python/scripts/task_msuvbin.py -text
 gcwrap/python/scripts/task_msview.py -text
 gcwrap/python/scripts/task_oldmakemask.py -text
 gcwrap/python/scripts/task_oldpartition.py -text
+gcwrap/python/scripts/task_oldsplit.py -text
 gcwrap/python/scripts/task_partition.py -text
 gcwrap/python/scripts/task_pclean.py -text
 gcwrap/python/scripts/task_plotants.py -text
@@ -6279,7 +6280,6 @@ gcwrap/python/scripts/task_specfit.py -text
 gcwrap/python/scripts/task_specsmooth.py -text
 gcwrap/python/scripts/task_splattotable.py -text
 gcwrap/python/scripts/task_split.py -text
-gcwrap/python/scripts/task_split2.py -text
 gcwrap/python/scripts/task_spxfit.py -text
 gcwrap/python/scripts/task_ssoflux.py -text
 gcwrap/python/scripts/task_statwt.py -text
@@ -6407,6 +6407,7 @@ gcwrap/python/scripts/tests/test_mst_split.py -text
 gcwrap/python/scripts/tests/test_mstransform.py -text
 gcwrap/python/scripts/tests/test_mstransform_mms.py -text
 gcwrap/python/scripts/tests/test_oldpartition.py -text
+gcwrap/python/scripts/tests/test_oldsplit.py -text
 gcwrap/python/scripts/tests/test_partition.py -text
 gcwrap/python/scripts/tests/test_partitionHelper.py -text
 gcwrap/python/scripts/tests/test_pcasa.py -text
@@ -6573,6 +6574,7 @@ gcwrap/tasks/mstransform.xml -text
 gcwrap/tasks/msuvbin.xml -text
 gcwrap/tasks/msview.xml -text
 gcwrap/tasks/oldpartition.xml -text
+gcwrap/tasks/oldsplit.xml -text
 gcwrap/tasks/partition.xml -text
 gcwrap/tasks/pclean.xml -text
 gcwrap/tasks/plotants.xml -text
@@ -6615,7 +6617,6 @@ gcwrap/tasks/specfit.xml -text
 gcwrap/tasks/specsmooth.xml -text
 gcwrap/tasks/splattotable.xml -text
 gcwrap/tasks/split.xml -text
-gcwrap/tasks/split2.xml -text
 gcwrap/tasks/spxfit.xml -text
 gcwrap/tasks/ssoflux.xml -text
 gcwrap/tasks/statwt.xml -text
