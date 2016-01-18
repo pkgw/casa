@@ -6234,6 +6234,7 @@ gcwrap/python/scripts/task_mosaic.py -text
 gcwrap/python/scripts/task_mstransform.py -text
 gcwrap/python/scripts/task_msuvbin.py -text
 gcwrap/python/scripts/task_msview.py -text
+gcwrap/python/scripts/task_oldhanningsmooth.py -text
 gcwrap/python/scripts/task_oldmakemask.py -text
 gcwrap/python/scripts/task_oldpartition.py -text
 gcwrap/python/scripts/task_oldsplit.py -text
@@ -6572,6 +6573,7 @@ gcwrap/tasks/mosaic.xml -text
 gcwrap/tasks/mstransform.xml -text
 gcwrap/tasks/msuvbin.xml -text
 gcwrap/tasks/msview.xml -text
+gcwrap/tasks/oldhanningsmooth.xml -text
 gcwrap/tasks/oldpartition.xml -text
 gcwrap/tasks/oldsplit.xml -text
 gcwrap/tasks/partition.xml -text
