@@ -6194,7 +6194,6 @@ gcwrap/python/scripts/task_ft.py -text
 gcwrap/python/scripts/task_gaincal.py -text
 gcwrap/python/scripts/task_gencal.py -text
 gcwrap/python/scripts/task_hanningsmooth.py -text
-gcwrap/python/scripts/task_hanningsmooth2.py -text
 gcwrap/python/scripts/task_help.py -text
 gcwrap/python/scripts/task_imcollapse.py -text
 gcwrap/python/scripts/task_imcontsub.py -text
@@ -6406,6 +6405,7 @@ gcwrap/python/scripts/tests/test_mst_cvelB.py -text
 gcwrap/python/scripts/tests/test_mst_split.py -text
 gcwrap/python/scripts/tests/test_mstransform.py -text
 gcwrap/python/scripts/tests/test_mstransform_mms.py -text
+gcwrap/python/scripts/tests/test_oldhanningsmooth.py -text
 gcwrap/python/scripts/tests/test_oldpartition.py -text
 gcwrap/python/scripts/tests/test_oldsplit.py -text
 gcwrap/python/scripts/tests/test_partition.py -text
@@ -6532,7 +6532,6 @@ gcwrap/tasks/ft.xml -text
 gcwrap/tasks/gaincal.xml -text
 gcwrap/tasks/gencal.xml -text
 gcwrap/tasks/hanningsmooth.xml -text
-gcwrap/tasks/hanningsmooth2.xml -text
 gcwrap/tasks/imcollapse.xml -text
 gcwrap/tasks/imcontsub.xml -text
 gcwrap/tasks/imfit.xml -text
