@@ -6403,6 +6403,7 @@ gcwrap/python/scripts/tests/test_imsmooth.py -text
 gcwrap/python/scripts/tests/test_imstat.py -text
 gcwrap/python/scripts/tests/test_imtrans.py -text
 gcwrap/python/scripts/tests/test_imval.py -text
+gcwrap/python/scripts/tests/test_initweights.py -text
 gcwrap/python/scripts/tests/test_listfits.py -text
 gcwrap/python/scripts/tests/test_listhistory.py -text
 gcwrap/python/scripts/tests/test_listobs.py -text
