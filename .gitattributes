@@ -5757,11 +5757,8 @@ gcwrap/python/scripts/odict.py -text
 gcwrap/python/scripts/pCASA.py -text
 gcwrap/python/scripts/parallel/CMakeLists.txt -text
 gcwrap/python/scripts/parallel/__init__.py -text
-gcwrap/python/scripts/parallel/parallel_cont.py -text
 gcwrap/python/scripts/parallel/parallel_data_helper.py -text
 gcwrap/python/scripts/parallel/parallel_task_helper.py -text
-gcwrap/python/scripts/parallel/pimager.py -text
-gcwrap/python/scripts/parallelSplit.py -text
 gcwrap/python/scripts/parallel_go.py -text
 gcwrap/python/scripts/parameter_check.py -text
 gcwrap/python/scripts/parameter_dictionary.py -text
@@ -5965,7 +5962,6 @@ gcwrap/python/scripts/recipes/benchmark.py -text
 gcwrap/python/scripts/recipes/calc_calibratorflux.py -text
 gcwrap/python/scripts/recipes/checkdataformat.py -text
 gcwrap/python/scripts/recipes/checknan.py -text
-gcwrap/python/scripts/recipes/checkpimagersetup.py -text
 gcwrap/python/scripts/recipes/cl2skycat.py -text
 gcwrap/python/scripts/recipes/cluster.py -text
 gcwrap/python/scripts/recipes/cmpmses.py -text
@@ -6258,7 +6254,6 @@ gcwrap/python/scripts/task_oldmakemask.py -text
 gcwrap/python/scripts/task_oldpartition.py -text
 gcwrap/python/scripts/task_oldsplit.py -text
 gcwrap/python/scripts/task_partition.py -text
-gcwrap/python/scripts/task_pclean.py -text
 gcwrap/python/scripts/task_plotants.py -text
 gcwrap/python/scripts/task_plotbandpass.py -text
 gcwrap/python/scripts/task_plotcal.py -text
@@ -6597,7 +6592,6 @@ gcwrap/tasks/oldhanningsmooth.xml -text
 gcwrap/tasks/oldpartition.xml -text
 gcwrap/tasks/oldsplit.xml -text
 gcwrap/tasks/partition.xml -text
-gcwrap/tasks/pclean.xml -text
 gcwrap/tasks/plotants.xml -text
 gcwrap/tasks/plotbandpass.xml -text
 gcwrap/tasks/plotcal.xml -text
