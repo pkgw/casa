@@ -4782,13 +4782,21 @@ code/plotms/test/dTimeColorizationAveraging.cc -text
 code/plotms/test/dTimeIteration.cc -text
 code/plotms/test/tUtil.h -text
 code/singledish/CMakeLists.txt -text
+code/singledish/Filler/AntennaRecord.h -text svneol=unset#text/plain
 code/singledish/Filler/DataAccumulator.h -text svneol=unset#text/plain
+code/singledish/Filler/FieldRecord.h -text svneol=unset#text/plain
+code/singledish/Filler/ObservationRecord.h -text svneol=unset#text/plain
+code/singledish/Filler/ProcessorRecord.h -text svneol=unset#text/plain
 code/singledish/Filler/ReaderInterface.h -text svneol=unset#text/plain
 code/singledish/Filler/Scantable2MSReader.cc -text svneol=unset#text/plain
 code/singledish/Filler/Scantable2MSReader.h -text svneol=unset#text/plain
 code/singledish/Filler/SingleDishMSFiller.cc -text svneol=unset#text/plain
 code/singledish/Filler/SingleDishMSFiller.h -text svneol=unset#text/plain
 code/singledish/Filler/SingleDishMSFiller.tcc -text
+code/singledish/Filler/SourceRecord.h -text svneol=unset#text/plain
+code/singledish/Filler/SpectralWindowRecord.h -text svneol=unset#text/plain
+code/singledish/Filler/SysCalRecord.h -text svneol=unset#text/plain
+code/singledish/Filler/WeatherRecord.h -text svneol=unset#text/plain
 code/singledish/Filler/test/SingleDishMSFiller_GTest.cc -text svneol=unset#text/plain
 code/singledish/Filler/test/TestReader.h -text svneol=unset#text/plain
 code/singledish/SingleDish/BLParameterParser.cc -text
