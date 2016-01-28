@@ -4790,6 +4790,7 @@ code/singledish/Filler/ProcessorRecord.h -text svneol=unset#text/plain
 code/singledish/Filler/ReaderInterface.h -text svneol=unset#text/plain
 code/singledish/Filler/Scantable2MSReader.cc -text svneol=unset#text/plain
 code/singledish/Filler/Scantable2MSReader.h -text svneol=unset#text/plain
+code/singledish/Filler/ScantableIterator.h -text svneol=unset#text/plain
 code/singledish/Filler/SingleDishMSFiller.cc -text svneol=unset#text/plain
 code/singledish/Filler/SingleDishMSFiller.h -text svneol=unset#text/plain
 code/singledish/Filler/SingleDishMSFiller.tcc -text
