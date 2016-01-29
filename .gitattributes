@@ -6497,6 +6497,7 @@ gcwrap/python/scripts/tests/test_viewer.py -text
 gcwrap/python/scripts/tests/test_virtualconcat.py -text
 gcwrap/python/scripts/tests/test_vishead.py -text
 gcwrap/python/scripts/tests/test_visstat.py -text
+gcwrap/python/scripts/tests/test_visstat2.py -text
 gcwrap/python/scripts/tests/test_vpmanager.py -text
 gcwrap/python/scripts/tests/test_wvrgcal.py -text
 gcwrap/python/scripts/tests/testutils.py -text
