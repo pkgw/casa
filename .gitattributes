@@ -6560,6 +6560,7 @@ gcwrap/tasks/imhead.xml -text
 gcwrap/tasks/immath.xml -text
 gcwrap/tasks/immoments.xml -text
 gcwrap/tasks/impbcor.xml -text
+gcwrap/tasks/importasap.xml -text
 gcwrap/tasks/importasdm.xml -text
 gcwrap/tasks/importatca.xml -text
 gcwrap/tasks/importevla.xml -text
