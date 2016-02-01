@@ -6218,6 +6218,7 @@ gcwrap/python/scripts/task_imhead.py -text
 gcwrap/python/scripts/task_immath.py -text
 gcwrap/python/scripts/task_immoments.py -text
 gcwrap/python/scripts/task_impbcor.py -text
+gcwrap/python/scripts/task_importasap.py -text svneol=unset#text/plain
 gcwrap/python/scripts/task_importasdm.py -text
 gcwrap/python/scripts/task_importatca.py -text
 gcwrap/python/scripts/task_importevla.py -text
@@ -6398,6 +6399,7 @@ gcwrap/python/scripts/tests/test_imhead.py -text
 gcwrap/python/scripts/tests/test_immath.py -text
 gcwrap/python/scripts/tests/test_immoments.py -text
 gcwrap/python/scripts/tests/test_impbcor.py -text
+gcwrap/python/scripts/tests/test_importasap.py -text svneol=unset#text/plain
 gcwrap/python/scripts/tests/test_importasdm.py -text
 gcwrap/python/scripts/tests/test_importasdm_mms.py -text
 gcwrap/python/scripts/tests/test_importevla.py -text
