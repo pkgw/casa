@@ -4786,6 +4786,7 @@ code/singledish/Filler/AntennaRecord.h -text svneol=unset#text/plain
 code/singledish/Filler/DataAccumulator.h -text svneol=unset#text/plain
 code/singledish/Filler/DataRecord.h -text svneol=unset#text/plain
 code/singledish/Filler/FieldRecord.h -text svneol=unset#text/plain
+code/singledish/Filler/FillerUtil.h -text svneol=unset#text/plain
 code/singledish/Filler/MSDataRecord.h -text svneol=unset#text/plain
 code/singledish/Filler/ObservationRecord.h -text svneol=unset#text/plain
 code/singledish/Filler/ProcessorRecord.h -text svneol=unset#text/plain
