@@ -3845,6 +3845,9 @@ code/imageanalysis/ImageAnalysis/SubImageFactory.h -text
 code/imageanalysis/ImageAnalysis/SubImageFactory.tcc -text
 code/imageanalysis/ImageAnalysis/TwoPointCorrelator.h -text
 code/imageanalysis/ImageAnalysis/TwoPointCorrelator.tcc -text
+code/imageanalysis/ImageAnalysis/test/ImageMaskHandlerTest.cc -text
+code/imageanalysis/ImageAnalysis/test/ImageMaskHandlerTest.h -text
+code/imageanalysis/ImageAnalysis/test/ImageMaskHandler_Gtest.cc -text
 code/imageanalysis/ImageAnalysis/test/dImageHistograms.cc -text
 code/imageanalysis/ImageAnalysis/test/dImageMoments.cc -text
 code/imageanalysis/ImageAnalysis/test/tAntennaResponses.cc -text
