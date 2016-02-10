@@ -4403,6 +4403,7 @@ code/msvis/MSVis/test/tHanningSmooth.cc -text
 code/msvis/MSVis/test/tMSCalEnums.cc -text
 code/msvis/MSVis/test/tSimpleSimVi2_GT.cc -text
 code/msvis/MSVis/test/tUVSub.cc -text
+code/msvis/MSVis/test/tViiLayerFactory_GT.cc -text
 code/msvis/MSVis/test/tVisIter.cc -text
 code/msvis/MSVis/test/tVisModelData.cc -text
 code/msvis/MSVis/test/tVisibilityIterator.cc -text
