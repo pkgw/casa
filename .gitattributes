@@ -4174,6 +4174,7 @@ code/mstransform/MSTransform/MSUVBin.h -text
 code/mstransform/MSTransform/test/tMSBin.cc -text
 code/mstransform/MSTransform/test/tMSTransformDataHandler.cc -text
 code/mstransform/MSTransform/test/tMSTransformIterator.cc -text
+code/mstransform/MSTransform/test/tMSTransformIterator.h -text
 code/mstransform/TVI/ChannelAverageTVI.cc -text
 code/mstransform/TVI/ChannelAverageTVI.h -text
 code/mstransform/TVI/FreqAxisTVI.cc -text
