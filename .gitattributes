@@ -4177,6 +4177,8 @@ code/mstransform/MSTransform/test/tMSTransformIterator.cc -text
 code/mstransform/MSTransform/test/tMSTransformIterator.h -text
 code/mstransform/TVI/ChannelAverageTVI.cc -text
 code/mstransform/TVI/ChannelAverageTVI.h -text
+code/mstransform/TVI/ConvolutionTVI.cc -text
+code/mstransform/TVI/ConvolutionTVI.h -text
 code/mstransform/TVI/FreqAxisTVI.cc -text
 code/mstransform/TVI/FreqAxisTVI.h -text
 code/mstransform/TVI/UtilsTVI.cc -text
