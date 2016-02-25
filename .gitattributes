@@ -4178,6 +4178,8 @@ code/mstransform/TVI/ChannelAverageTVI.cc -text
 code/mstransform/TVI/ChannelAverageTVI.h -text
 code/mstransform/TVI/ConvolutionTVI.cc -text
 code/mstransform/TVI/ConvolutionTVI.h -text
+code/mstransform/TVI/DecimationTVI.cc -text
+code/mstransform/TVI/DecimationTVI.h -text
 code/mstransform/TVI/FreqAxisTVI.cc -text
 code/mstransform/TVI/FreqAxisTVI.h -text
 code/mstransform/TVI/HanningSmoothTVI.cc -text
