@@ -6233,6 +6233,7 @@ gcwrap/python/scripts/task_imcollapse.py -text
 gcwrap/python/scripts/task_imcontsub.py -text
 gcwrap/python/scripts/task_imfit.py -text
 gcwrap/python/scripts/task_imhead.py -text
+gcwrap/python/scripts/task_imhistory.py -text
 gcwrap/python/scripts/task_immath.py -text
 gcwrap/python/scripts/task_immoments.py -text
 gcwrap/python/scripts/task_impbcor.py -text
@@ -6416,6 +6417,7 @@ gcwrap/python/scripts/tests/test_imcollapse.py -text
 gcwrap/python/scripts/tests/test_imcontsub.py -text
 gcwrap/python/scripts/tests/test_imfit.py -text
 gcwrap/python/scripts/tests/test_imhead.py -text
+gcwrap/python/scripts/tests/test_imhistory.py -text
 gcwrap/python/scripts/tests/test_immath.py -text
 gcwrap/python/scripts/tests/test_immoments.py -text
 gcwrap/python/scripts/tests/test_impbcor.py -text
@@ -6577,6 +6579,7 @@ gcwrap/tasks/imcollapse.xml -text
 gcwrap/tasks/imcontsub.xml -text
 gcwrap/tasks/imfit.xml -text
 gcwrap/tasks/imhead.xml -text
+gcwrap/tasks/imhistory.xml -text
 gcwrap/tasks/immath.xml -text
 gcwrap/tasks/immoments.xml -text
 gcwrap/tasks/impbcor.xml -text
