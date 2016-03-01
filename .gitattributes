@@ -5541,6 +5541,7 @@ code/synthesis/TransformMachines/rGridFT.cc -text
 code/synthesis/TransformMachines/rGridFT.h -text
 code/synthesis/TransformMachines/test/dImagingWeightViaGridFT.cc -text
 code/synthesis/TransformMachines/test/tCFCache.cc -text
+code/synthesis/TransformMachines/test/tGridFT.cc -text
 code/synthesis/TransformMachines/test/tStokesImageUtil.cc -text
 code/synthesis/TransformMachines/test/tVisModelData.cc -text
 code/synthesis/TransformMachines2/BeamSkyJones.cc -text
@@ -5565,6 +5566,9 @@ code/synthesis/TransformMachines2/WPConvFunc.cc -text
 code/synthesis/TransformMachines2/WPConvFunc.h -text
 code/synthesis/TransformMachines2/WProjectFT.cc -text
 code/synthesis/TransformMachines2/WProjectFT.h -text
+code/synthesis/TransformMachines2/test/MakeMS.cc -text
+code/synthesis/TransformMachines2/test/MakeMS.h -text
+code/synthesis/TransformMachines2/test/tGridFT2.cc -text
 code/synthesis/TransformMachines2/test/tVisModelDataRefim.cc -text
 code/synthesis/Utilities/AppRC.cc -text
 code/synthesis/Utilities/AppRC.h -text
