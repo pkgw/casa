@@ -5568,6 +5568,7 @@ code/synthesis/TransformMachines2/WProjectFT.cc -text
 code/synthesis/TransformMachines2/WProjectFT.h -text
 code/synthesis/TransformMachines2/test/MakeMS.cc -text
 code/synthesis/TransformMachines2/test/MakeMS.h -text
+code/synthesis/TransformMachines2/test/tFTMachine.cc -text
 code/synthesis/TransformMachines2/test/tGridFT2.cc -text
 code/synthesis/TransformMachines2/test/tVisModelDataRefim.cc -text
 code/synthesis/Utilities/AppRC.cc -text
