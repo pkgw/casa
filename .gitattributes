@@ -6399,6 +6399,7 @@ gcwrap/python/scripts/tests/test_ia_deconvolvecomponentlist.py -text
 gcwrap/python/scripts/tests/test_ia_deconvolvefrombeam.py -text
 gcwrap/python/scripts/tests/test_ia_fft.py -text
 gcwrap/python/scripts/tests/test_ia_fromarray.py -text
+gcwrap/python/scripts/tests/test_ia_fromascii.py -text
 gcwrap/python/scripts/tests/test_ia_fromrecord.py -text
 gcwrap/python/scripts/tests/test_ia_fromshape.py -text
 gcwrap/python/scripts/tests/test_ia_getregion.py -text
