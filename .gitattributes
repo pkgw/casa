@@ -5227,6 +5227,8 @@ code/synthesis/MeasurementComponents/ResidualAlgorithm.cc -text
 code/synthesis/MeasurementComponents/ResidualAlgorithm.h -text
 code/synthesis/MeasurementComponents/SDGrid.cc -text
 code/synthesis/MeasurementComponents/SDGrid.h -text
+code/synthesis/MeasurementComponents/SDPosInterpolator.cc -text
+code/synthesis/MeasurementComponents/SDPosInterpolator.h -text
 code/synthesis/MeasurementComponents/SimACoh.cc -text
 code/synthesis/MeasurementComponents/SimACoh.h -text
 code/synthesis/MeasurementComponents/SimACohCalc.cc -text
@@ -5271,6 +5273,7 @@ code/synthesis/MeasurementComponents/rGridFT.cc -text
 code/synthesis/MeasurementComponents/rGridFT.h -text
 code/synthesis/MeasurementComponents/test/AtmosphereTest.cc -text
 code/synthesis/MeasurementComponents/test/ES.250m.20100902.cfg -text
+code/synthesis/MeasurementComponents/test/SDPosInterpolator_GTest.cc -text
 code/synthesis/MeasurementComponents/test/TelCalTrace.h -text
 code/synthesis/MeasurementComponents/test/smquick.py -text
 code/synthesis/MeasurementComponents/test/tALMAAperture.cc -text
