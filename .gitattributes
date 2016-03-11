@@ -4185,6 +4185,8 @@ code/mstransform/TVI/HanningSmoothTVI.cc -text
 code/mstransform/TVI/HanningSmoothTVI.h -text
 code/mstransform/TVI/PhaseShiftingTVI.cc -text
 code/mstransform/TVI/PhaseShiftingTVI.h -text
+code/mstransform/TVI/RegriddingTVI.cc -text
+code/mstransform/TVI/RegriddingTVI.h -text
 code/mstransform/TVI/UtilsTVI.cc -text
 code/mstransform/TVI/UtilsTVI.h -text
 code/mstransform/TVI/test/TestUtilsTVI.cc -text
@@ -4195,6 +4197,8 @@ code/mstransform/TVI/test/tHanningSmoothTVI.cc -text
 code/mstransform/TVI/test/tHanningSmoothTVI.h -text
 code/mstransform/TVI/test/tPhaseShiftingTVI.cc -text
 code/mstransform/TVI/test/tPhaseShiftingTVI.h -text
+code/mstransform/TVI/test/tRegriddingTVI.cc -text
+code/mstransform/TVI/test/tRegriddingTVI.h -text
 code/mstransform/apps/fixspwbackport/fixspwbackport.cc -text
 code/mstransform/apps/msuvbin/msuvbin.cc -text
 code/msvis/CMakeLists.txt -text
