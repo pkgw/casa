@@ -4882,6 +4882,8 @@ code/stdcasa/CMakeLists.txt -text
 code/stdcasa/Quantity.h -text
 code/stdcasa/StdCasa/CasacSupport.cc -text
 code/stdcasa/StdCasa/CasacSupport.h -text
+code/stdcasa/StdCasa/CrashReporter.cc -text
+code/stdcasa/StdCasa/CrashReporter.h -text
 code/stdcasa/StdCasa/record.cc -text
 code/stdcasa/StdCasa/string_conversions -text
 code/stdcasa/StdCasa/variant.cc -text
