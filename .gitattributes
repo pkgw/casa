@@ -6445,6 +6445,7 @@ gcwrap/python/scripts/tests/test_ia_imageconcat.py -text
 gcwrap/python/scripts/tests/test_ia_insert.py -text
 gcwrap/python/scripts/tests/test_ia_isconform.py -text
 gcwrap/python/scripts/tests/test_ia_makecomplex.py -text
+gcwrap/python/scripts/tests/test_ia_maskhandler.py -text
 gcwrap/python/scripts/tests/test_ia_modify.py -text
 gcwrap/python/scripts/tests/test_ia_pad.py -text
 gcwrap/python/scripts/tests/test_ia_putchunk.py -text
