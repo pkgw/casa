@@ -5609,6 +5609,8 @@ code/synthesis/TransformMachines2/test/tFTMachine.cc -text
 code/synthesis/TransformMachines2/test/tVisModelDataRefim.cc -text
 code/synthesis/Utilities/AppRC.cc -text
 code/synthesis/Utilities/AppRC.h -text
+code/synthesis/Utilities/FFT2D.cc -text
+code/synthesis/Utilities/FFT2D.h -text
 code/synthesis/Utilities/FixVis.cc -text
 code/synthesis/Utilities/FixVis.h -text
 code/synthesis/Utilities/PointingDirectionCalculator.cc -text
@@ -5617,6 +5619,7 @@ code/synthesis/Utilities/SigHandler.cc -text
 code/synthesis/Utilities/SigHandler.h -text
 code/synthesis/Utilities/ThreadCoordinator.cc -text
 code/synthesis/Utilities/ThreadCoordinator.h -text
+code/synthesis/Utilities/test/tFFT2D.cc -text
 code/synthesis/apps/casasplit/casasplit.cc -text
 code/synthesis/apps/utils/imageconcat.cc -text
 code/synthesis/fortran/faccumulateFromGrid.f -text
