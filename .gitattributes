@@ -6383,6 +6383,7 @@ gcwrap/python/scripts/task_spxfit.py -text
 gcwrap/python/scripts/task_ssoflux.py -text
 gcwrap/python/scripts/task_statwt.py -text
 gcwrap/python/scripts/task_tclean.py -text
+gcwrap/python/scripts/task_tclean2.py -text
 gcwrap/python/scripts/task_testconcat.py -text
 gcwrap/python/scripts/task_tsdbaseline.py -text
 gcwrap/python/scripts/task_tsdcal.py -text
@@ -6736,6 +6737,7 @@ gcwrap/tasks/spxfit.xml -text
 gcwrap/tasks/ssoflux.xml -text
 gcwrap/tasks/statwt.xml -text
 gcwrap/tasks/tclean.xml -text
+gcwrap/tasks/tclean2.xml -text
 gcwrap/tasks/testconcat.xml -text
 gcwrap/tasks/tsdbaseline.xml -text
 gcwrap/tasks/tsdcal.xml -text
@@ -6958,6 +6960,9 @@ gcwrap/tools/synthesis/linearmosaic.xml -text
 gcwrap/tools/synthesis/linearmosaic_cmpt.cc -text
 gcwrap/tools/synthesis/linearmosaic_forward.h -text
 gcwrap/tools/synthesis/linearmosaic_private.h -text
+gcwrap/tools/synthesis/parallelimager.xml -text
+gcwrap/tools/synthesis/parallelimager_cmpt.cc -text
+gcwrap/tools/synthesis/parallelimager_forward.h -text
 gcwrap/tools/synthesis/simulator.xml -text
 gcwrap/tools/synthesis/simulator_cmpt.cc -text
 gcwrap/tools/synthesis/simulator_forward.h -text
