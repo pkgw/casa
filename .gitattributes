@@ -5707,6 +5707,7 @@ code/synthesis/apps/utils/imageconcat.cc -text
 code/synthesis/fortran/faccumulateFromGrid.f -text
 code/synthesis/fortran/faccumulateToGrid.f -text
 code/synthesis/fortran/fgridft.f -text
+code/synthesis/fortran/fgridsdclip.f -text
 code/synthesis/fortran/fmosaic.f -text
 code/synthesis/fortran/fpbmos.f -text
 code/synthesis/fortran/fpbwproj.f -text
