@@ -6539,6 +6539,7 @@ gcwrap/python/scripts/tests/test_ia_putchunk.py -text
 gcwrap/python/scripts/tests/test_ia_putregion.py -text
 gcwrap/python/scripts/tests/test_ia_pv.py -text
 gcwrap/python/scripts/tests/test_ia_rebin.py -text
+gcwrap/python/scripts/tests/test_ia_rename.py -text
 gcwrap/python/scripts/tests/test_ia_replacemaskedpixels.py -text
 gcwrap/python/scripts/tests/test_ia_restoringbeam.py -text
 gcwrap/python/scripts/tests/test_ia_rotate.py -text
