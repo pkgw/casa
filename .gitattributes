@@ -6544,6 +6544,7 @@ gcwrap/python/scripts/tests/test_ia_replacemaskedpixels.py -text
 gcwrap/python/scripts/tests/test_ia_restoringbeam.py -text
 gcwrap/python/scripts/tests/test_ia_rotate.py -text
 gcwrap/python/scripts/tests/test_ia_sepconvolve.py -text
+gcwrap/python/scripts/tests/test_ia_set.py -text
 gcwrap/python/scripts/tests/test_ia_subimage.py -text
 gcwrap/python/scripts/tests/test_ia_summary.py -text
 gcwrap/python/scripts/tests/test_ia_toascii.py -text
