@@ -5617,8 +5617,6 @@ code/synthesis/TransformMachines2/CFBuffer.cc -text
 code/synthesis/TransformMachines2/CFBuffer.h -text
 code/synthesis/TransformMachines2/CFCache.cc -text
 code/synthesis/TransformMachines2/CFCache.h -text
-code/synthesis/TransformMachines2/CFCell.cc -text
-code/synthesis/TransformMachines2/CFCell.h -text
 code/synthesis/TransformMachines2/CFDefs.h -text
 code/synthesis/TransformMachines2/CFStore.cc -text
 code/synthesis/TransformMachines2/CFStore.h -text
