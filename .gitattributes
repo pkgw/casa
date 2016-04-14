@@ -5157,6 +5157,8 @@ code/synthesis/ImagerObjects/SynthesisDeconvolverMixin.h -text
 code/synthesis/ImagerObjects/SynthesisImager.cc -text
 code/synthesis/ImagerObjects/SynthesisImager.h -text
 code/synthesis/ImagerObjects/SynthesisImagerMixin.h -text
+code/synthesis/ImagerObjects/SynthesisImagerVi2.cc -text
+code/synthesis/ImagerObjects/SynthesisImagerVi2.h -text
 code/synthesis/ImagerObjects/SynthesisIterBot.cc -text
 code/synthesis/ImagerObjects/SynthesisIterBot.h -text
 code/synthesis/ImagerObjects/SynthesisNormalizer.cc -text
@@ -5644,6 +5646,8 @@ code/synthesis/TransformMachines2/IlluminationConvFunc.cc -text
 code/synthesis/TransformMachines2/IlluminationConvFunc.h -text
 code/synthesis/TransformMachines2/MosaicFT.cc -text
 code/synthesis/TransformMachines2/MosaicFT.h -text
+code/synthesis/TransformMachines2/MosaicFTNew.cc -text
+code/synthesis/TransformMachines2/MosaicFTNew.h -text
 code/synthesis/TransformMachines2/MultiTermFTNew.cc -text
 code/synthesis/TransformMachines2/MultiTermFTNew.h -text
 code/synthesis/TransformMachines2/NoOpATerm.h -text
