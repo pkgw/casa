@@ -6404,6 +6404,7 @@ gcwrap/python/scripts/task_plotants.py -text
 gcwrap/python/scripts/task_plotbandpass.py -text
 gcwrap/python/scripts/task_plotcal.py -text
 gcwrap/python/scripts/task_plotms.py -text
+gcwrap/python/scripts/task_plotprofilemap.py -text svneol=unset#text/plain
 gcwrap/python/scripts/task_plotuv.py -text
 gcwrap/python/scripts/task_plotweather.py -text
 gcwrap/python/scripts/task_plotxy.py -text
@@ -6761,6 +6762,7 @@ gcwrap/tasks/plotants.xml -text
 gcwrap/tasks/plotbandpass.xml -text
 gcwrap/tasks/plotcal.xml -text
 gcwrap/tasks/plotms.xml -text
+gcwrap/tasks/plotprofilemap.xml -text svneol=unset#text/plain
 gcwrap/tasks/plotuv.xml -text
 gcwrap/tasks/plotweather.xml -text
 gcwrap/tasks/plotxy.xml -text
