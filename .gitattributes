@@ -5170,6 +5170,7 @@ code/synthesis/ImagerObjects/test/SDMaskHandler_GTest.cc -text
 code/synthesis/ImagerObjects/test/SDMaskHandler_GTest.h -text
 code/synthesis/ImagerObjects/test/tSIIterBot.cc -text
 code/synthesis/ImagerObjects/test/tSynthesisImager.cc -text
+code/synthesis/ImagerObjects/test/tSynthesisImagerVi2.cc -text
 code/synthesis/ImagerObjects/test/tSynthesisUtils.cc -text
 code/synthesis/ImagerObjects2/SIMapper.cc -text
 code/synthesis/ImagerObjects2/SIMapper.h -text
