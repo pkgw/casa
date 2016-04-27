@@ -6184,6 +6184,7 @@ gcwrap/python/scripts/regressions/admin/tw_plotmem.py -text
 gcwrap/python/scripts/regressions/admin/tw_utils.py -text
 gcwrap/python/scripts/regressions/admin/visTest.py -text
 gcwrap/python/scripts/regressions/alma-24ant-calibration-regression.py -text
+gcwrap/python/scripts/regressions/alma-m100-analysis-hpc-regression-tclean.py -text
 gcwrap/python/scripts/regressions/alma-m100-analysis-hpc-regression.py -text
 gcwrap/python/scripts/regressions/alma-m100-analysis-regression.py -text
 gcwrap/python/scripts/regressions/alma-m100-sd-regression.py -text
