@@ -6941,6 +6941,8 @@ gcwrap/tools/measures/scripts/tMeasures3.py -text
 gcwrap/tools/measures/scripts/testexamples.sh -text
 gcwrap/tools/measures/scripts/tmeasures.py -text
 gcwrap/tools/measures/scripts/triplequote -text
+gcwrap/tools/miriad/miriadfiller.xml -text
+gcwrap/tools/miriad/miriadfiller_cmpt.cc -text
 gcwrap/tools/ms/MSPlot/MsPlot.cc -text
 gcwrap/tools/ms/MSPlot/MsPlot.h -text
 gcwrap/tools/ms/MSPlot/MsPlotConvert.h -text
