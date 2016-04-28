@@ -6138,6 +6138,7 @@ gcwrap/python/scripts/recipes/listshapes.py -text
 gcwrap/python/scripts/recipes/lsms.py -text
 gcwrap/python/scripts/recipes/make_labelled_ms.py -text
 gcwrap/python/scripts/recipes/makepb.py -text
+gcwrap/python/scripts/recipes/opacity.py -text
 gcwrap/python/scripts/recipes/pixelmask2cleanmask.py -text
 gcwrap/python/scripts/recipes/plotazel.py -text
 gcwrap/python/scripts/recipes/psplit.py -text
