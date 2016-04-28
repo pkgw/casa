@@ -4154,6 +4154,8 @@ code/miriad/Filling/FillMetadata.cc -text
 code/miriad/Filling/FillMetadata.h -text
 code/miriad/Filling/IDIndex.cc -text
 code/miriad/Filling/IDIndex.h -text
+code/miriad/Filling/Importmiriad.cc -text
+code/miriad/Filling/Importmiriad.h -text
 code/miriad/Filling/MirDataBuffer.h -text
 code/miriad/Filling/MirExceptions.cc -text
 code/miriad/Filling/MirExceptions.h -text
