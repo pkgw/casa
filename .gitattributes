@@ -4084,6 +4084,7 @@ code/install/docutils/tmptail4tex -text
 code/install/docutils/xml2latex.awk -text
 code/install/doover -text
 code/install/exrc -text
+code/install/fixbreakpadframeworkrefs.pl -text
 code/install/floatcheck.sh -text
 code/install/generate-gitinfo -text
 code/install/generate-svninfo -text
