@@ -4251,8 +4251,6 @@ code/msvis/MSVis/MSChecker.cc -text
 code/msvis/MSVis/MSChecker.h -text
 code/msvis/MSVis/MSContinuumSubtractor.cc -text
 code/msvis/MSVis/MSContinuumSubtractor.h -text
-code/msvis/MSVis/MSMoments.h -text
-code/msvis/MSVis/MSMoments.tcc -text
 code/msvis/MSVis/MSUVWGenerator.cc -text
 code/msvis/MSVis/MSUVWGenerator.h -text
 code/msvis/MSVis/MSUtil.cc -text
