@@ -3835,6 +3835,8 @@ code/imageanalysis/ImageAnalysis/ImageTransposer.cc -text
 code/imageanalysis/ImageAnalysis/ImageTransposer.h -text
 code/imageanalysis/ImageAnalysis/ImageTwoPtCorr.h -text
 code/imageanalysis/ImageAnalysis/ImageTwoPtCorr.tcc -text
+code/imageanalysis/ImageAnalysis/MomentCalcBase.h -text
+code/imageanalysis/ImageAnalysis/MomentCalcBase.tcc -text
 code/imageanalysis/ImageAnalysis/MomentCalculator.h -text
 code/imageanalysis/ImageAnalysis/MomentCalculator.tcc -text
 code/imageanalysis/ImageAnalysis/MomentClip.h -text
