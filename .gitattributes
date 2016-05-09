@@ -5336,6 +5336,7 @@ code/synthesis/MeasurementComponents/test/tPBTable.cc -text
 code/synthesis/MeasurementComponents/test/tTrVI2.cc -text
 code/synthesis/MeasurementComponents/test/tVPSkyJones.cc -text
 code/synthesis/MeasurementComponents/test/tVisVectorJonesMueller.cc -text
+code/synthesis/MeasurementComponents/test/tVisVectorJonesMueller_GT.cc -text
 code/synthesis/MeasurementComponents/test/templates -text
 code/synthesis/MeasurementEquations.h -text
 code/synthesis/MeasurementEquations/ArrayModel.h -text
