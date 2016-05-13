@@ -6563,6 +6563,7 @@ gcwrap/python/scripts/tests/test_ia_sepconvolve.py -text
 gcwrap/python/scripts/tests/test_ia_set.py -text
 gcwrap/python/scripts/tests/test_ia_setbrightnessunit.py -text
 gcwrap/python/scripts/tests/test_ia_setcoordsys.py -text
+gcwrap/python/scripts/tests/test_ia_setmiscinfo.py -text
 gcwrap/python/scripts/tests/test_ia_subimage.py -text
 gcwrap/python/scripts/tests/test_ia_summary.py -text
 gcwrap/python/scripts/tests/test_ia_toascii.py -text
