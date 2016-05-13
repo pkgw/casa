@@ -3837,10 +3837,10 @@ code/imageanalysis/ImageAnalysis/ImageTwoPtCorr.h -text
 code/imageanalysis/ImageAnalysis/ImageTwoPtCorr.tcc -text
 code/imageanalysis/ImageAnalysis/MomentCalcBase.h -text
 code/imageanalysis/ImageAnalysis/MomentCalcBase.tcc -text
-code/imageanalysis/ImageAnalysis/MomentCalculator.h -text
-code/imageanalysis/ImageAnalysis/MomentCalculator.tcc -text
 code/imageanalysis/ImageAnalysis/MomentClip.h -text
 code/imageanalysis/ImageAnalysis/MomentClip.tcc -text
+code/imageanalysis/ImageAnalysis/MomentFit.h -text
+code/imageanalysis/ImageAnalysis/MomentFit.tcc -text
 code/imageanalysis/ImageAnalysis/MomentWindow.h -text
 code/imageanalysis/ImageAnalysis/MomentWindow.tcc -text
 code/imageanalysis/ImageAnalysis/MomentsBase.h -text
