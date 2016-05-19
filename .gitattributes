@@ -6455,6 +6455,7 @@ gcwrap/python/scripts/task_simobserve.py -text
 gcwrap/python/scripts/task_slsearch.py -text
 gcwrap/python/scripts/task_smoothcal.py -text
 gcwrap/python/scripts/task_specfit.py -text
+gcwrap/python/scripts/task_specflux.py -text
 gcwrap/python/scripts/task_specsmooth.py -text
 gcwrap/python/scripts/task_splattotable.py -text
 gcwrap/python/scripts/task_split.py -text
@@ -6661,6 +6662,7 @@ gcwrap/python/scripts/tests/test_simplecluster.py -text
 gcwrap/python/scripts/tests/test_slsearch.py -text
 gcwrap/python/scripts/tests/test_smoothcal.py -text
 gcwrap/python/scripts/tests/test_specfit.py -text
+gcwrap/python/scripts/tests/test_specflux.py -text
 gcwrap/python/scripts/tests/test_splattotable.py -text
 gcwrap/python/scripts/tests/test_split.py -text
 gcwrap/python/scripts/tests/test_split2.py -text
@@ -6817,6 +6819,7 @@ gcwrap/tasks/simobserve.xml -text
 gcwrap/tasks/slsearch.xml -text
 gcwrap/tasks/smoothcal.xml -text
 gcwrap/tasks/specfit.xml -text
+gcwrap/tasks/specflux.xml -text
 gcwrap/tasks/specsmooth.xml -text
 gcwrap/tasks/splattotable.xml -text
 gcwrap/tasks/split.xml -text
