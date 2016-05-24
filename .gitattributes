@@ -5280,6 +5280,8 @@ code/synthesis/MeasurementComponents/SkyCal.h -text
 code/synthesis/MeasurementComponents/SkyModel.h -text
 code/synthesis/MeasurementComponents/SolvableVisCal.cc -text
 code/synthesis/MeasurementComponents/SolvableVisCal.h -text
+code/synthesis/MeasurementComponents/SolveDataBuffer.cc -text
+code/synthesis/MeasurementComponents/SolveDataBuffer.h -text
 code/synthesis/MeasurementComponents/StandardVisCal.cc -text
 code/synthesis/MeasurementComponents/StandardVisCal.h -text
 code/synthesis/MeasurementComponents/SteepestDescentSolver.cc -text
@@ -5327,6 +5329,7 @@ code/synthesis/MeasurementComponents/test/tKJones.cc -text
 code/synthesis/MeasurementComponents/test/tPBMath.cc -text
 code/synthesis/MeasurementComponents/test/tPBMath2D.cc -text
 code/synthesis/MeasurementComponents/test/tPBTable.cc -text
+code/synthesis/MeasurementComponents/test/tSolveDataBuffer_GT.cc -text
 code/synthesis/MeasurementComponents/test/tTrVI2.cc -text
 code/synthesis/MeasurementComponents/test/tVPSkyJones.cc -text
 code/synthesis/MeasurementComponents/test/tVisVectorJonesMueller.cc -text
