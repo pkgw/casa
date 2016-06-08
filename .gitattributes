@@ -5265,6 +5265,8 @@ code/synthesis/MeasurementComponents/ResamplerWorklet.cc -text
 code/synthesis/MeasurementComponents/ResamplerWorklet.h -text
 code/synthesis/MeasurementComponents/ResidualAlgorithm.cc -text
 code/synthesis/MeasurementComponents/ResidualAlgorithm.h -text
+code/synthesis/MeasurementComponents/SDDoubleCircleGainCal.cc -text svneol=unset#text/plain
+code/synthesis/MeasurementComponents/SDDoubleCircleGainCal.h -text svneol=unset#text/plain
 code/synthesis/MeasurementComponents/SDDoubleCircleGainCalImpl.cc -text svneol=unset#text/plain
 code/synthesis/MeasurementComponents/SDDoubleCircleGainCalImpl.h -text svneol=unset#text/plain
 code/synthesis/MeasurementComponents/SDGrid.cc -text
