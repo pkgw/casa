@@ -6489,6 +6489,7 @@ gcwrap/python/scripts/testhelper.py -text
 gcwrap/python/scripts/tests/CMakeLists.txt -text
 gcwrap/python/scripts/tests/__init__.py -text
 gcwrap/python/scripts/tests/selection_syntax.py -text
+gcwrap/python/scripts/tests/test_admit.py -text
 gcwrap/python/scripts/tests/test_agentflagger.py -text
 gcwrap/python/scripts/tests/test_applycal.py -text
 gcwrap/python/scripts/tests/test_bandpass.py -text
