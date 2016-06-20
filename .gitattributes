@@ -4822,6 +4822,9 @@ code/singledish/Filler/DataAccumulator.h -text svneol=unset#text/plain
 code/singledish/Filler/DataRecord.h -text svneol=unset#text/plain
 code/singledish/Filler/FieldRecord.h -text svneol=unset#text/plain
 code/singledish/Filler/FillerUtil.h -text svneol=unset#text/plain
+code/singledish/Filler/NRO2MSReader.cc -text
+code/singledish/Filler/NRO2MSReader.h -text
+code/singledish/Filler/NROData.h -text
 code/singledish/Filler/ObservationRecord.h -text svneol=unset#text/plain
 code/singledish/Filler/PThreadUtil.cc -text svneol=unset#text/plain
 code/singledish/Filler/PThreadUtil.h -text svneol=unset#text/plain
