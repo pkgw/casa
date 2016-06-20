@@ -6392,6 +6392,7 @@ gcwrap/python/scripts/task_importfits.py -text
 gcwrap/python/scripts/task_importfitsidi.py -text
 gcwrap/python/scripts/task_importgmrt.py -text
 gcwrap/python/scripts/task_importmiriad.py -text
+gcwrap/python/scripts/task_importnro.py -text
 gcwrap/python/scripts/task_importuvfits.py -text
 gcwrap/python/scripts/task_importvla.py -text
 gcwrap/python/scripts/task_impv.py -text
@@ -6591,6 +6592,7 @@ gcwrap/python/scripts/tests/test_importasdm.py -text
 gcwrap/python/scripts/tests/test_importasdm_mms.py -text
 gcwrap/python/scripts/tests/test_importevla.py -text
 gcwrap/python/scripts/tests/test_importfitsidi.py -text
+gcwrap/python/scripts/tests/test_importnro.py -text
 gcwrap/python/scripts/tests/test_imregrid.py -text
 gcwrap/python/scripts/tests/test_imsmooth.py -text
 gcwrap/python/scripts/tests/test_imstat.py -text
@@ -6758,6 +6760,7 @@ gcwrap/tasks/importfits.xml -text
 gcwrap/tasks/importfitsidi.xml -text
 gcwrap/tasks/importgmrt.xml -text
 gcwrap/tasks/importmiriad.xml -text
+gcwrap/tasks/importnro.xml -text
 gcwrap/tasks/importoldasdm.xml -text
 gcwrap/tasks/importuvfits.xml -text
 gcwrap/tasks/importvla.xml -text
