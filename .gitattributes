@@ -1607,7 +1607,6 @@ code/components/SpectralComponents/test/tSpectralFit.out -text
 code/crash/CMakeLists.txt -text
 code/crash/apps/reporter/COPYING -text
 code/crash/apps/reporter/CrashReportPoster.cc -text
-code/create.py -text
 code/demo/DBus/EditlineGuiProxy.h -text
 code/demo/DBus/EditlineGuiProxy.interface.xml -text
 code/demo/DBus/dDBus.cc -text
@@ -4891,8 +4890,8 @@ code/stdcasa/casac.h -text
 code/stdcasa/record.h -text
 code/stdcasa/thread/Barrier.h -text
 code/stdcasa/variant.h -text
+code/stdcasa/version.cc.cmake -text
 code/stdcasa/version.h -text
-code/stdcasa/version.template -text
 code/stdcasa/version2.cc -text
 code/stdcasa/xerces.h -text
 code/synthesis/CMakeLists.txt -text
