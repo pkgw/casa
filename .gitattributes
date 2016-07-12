@@ -6447,6 +6447,7 @@ gcwrap/python/scripts/task_sdcoadd.py -text
 gcwrap/python/scripts/task_sdfit.py -text
 gcwrap/python/scripts/task_sdflag.py -text
 gcwrap/python/scripts/task_sdflagmanager.py -text
+gcwrap/python/scripts/task_sdgaincal.py -text svneol=unset#text/plain
 gcwrap/python/scripts/task_sdgrid.py -text
 gcwrap/python/scripts/task_sdimaging.py -text
 gcwrap/python/scripts/task_sdimprocess.py -text
@@ -6815,6 +6816,7 @@ gcwrap/tasks/sdcoadd.xml -text
 gcwrap/tasks/sdfit.xml -text
 gcwrap/tasks/sdflag.xml -text
 gcwrap/tasks/sdflagmanager.xml -text
+gcwrap/tasks/sdgaincal.xml -text svneol=unset#text/plain
 gcwrap/tasks/sdgrid.xml -text
 gcwrap/tasks/sdimaging.xml -text
 gcwrap/tasks/sdimprocess.xml -text
