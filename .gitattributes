@@ -4211,6 +4211,7 @@ code/mstransform/TVI/test/tHanningSmoothTVI.cc -text
 code/mstransform/TVI/test/tHanningSmoothTVI.h -text
 code/mstransform/TVI/test/tPhaseShiftingTVI.cc -text
 code/mstransform/TVI/test/tPhaseShiftingTVI.h -text
+code/mstransform/TVI/test/tRecursiveVi2Layers_GT.cc -text
 code/mstransform/TVI/test/tRegriddingTVI.cc -text
 code/mstransform/TVI/test/tRegriddingTVI.h -text
 code/mstransform/TVI/test/tUVContSubTVI.cc -text
