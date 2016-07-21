@@ -5249,6 +5249,8 @@ code/synthesis/MeasurementComponents/MFMSCleanImageSkyModel.cc -text
 code/synthesis/MeasurementComponents/MFMSCleanImageSkyModel.h -text
 code/synthesis/MeasurementComponents/MSCleanImageSkyModel.cc -text
 code/synthesis/MeasurementComponents/MSCleanImageSkyModel.h -text
+code/synthesis/MeasurementComponents/MSMetaInfoForCal.cc -text
+code/synthesis/MeasurementComponents/MSMetaInfoForCal.h -text
 code/synthesis/MeasurementComponents/MThWorkIDEnum.h -text
 code/synthesis/MeasurementComponents/MakeApproxPSFAlgorithm.cc -text
 code/synthesis/MeasurementComponents/MakeApproxPSFAlgorithm.h -text
@@ -5341,6 +5343,7 @@ code/synthesis/MeasurementComponents/test/tEVLAAperture.cc -text
 code/synthesis/MeasurementComponents/test/tFJones.cc -text
 code/synthesis/MeasurementComponents/test/tFringeJones_GT.cc -text
 code/synthesis/MeasurementComponents/test/tKJones.cc -text
+code/synthesis/MeasurementComponents/test/tMSMetaInfoForCal_GT.cc -text
 code/synthesis/MeasurementComponents/test/tPBMath.cc -text
 code/synthesis/MeasurementComponents/test/tPBMath2D.cc -text
 code/synthesis/MeasurementComponents/test/tPBTable.cc -text
