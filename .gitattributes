@@ -5347,6 +5347,7 @@ code/synthesis/MeasurementComponents/test/tMSMetaInfoForCal_GT.cc -text
 code/synthesis/MeasurementComponents/test/tPBMath.cc -text
 code/synthesis/MeasurementComponents/test/tPBMath2D.cc -text
 code/synthesis/MeasurementComponents/test/tPBTable.cc -text
+code/synthesis/MeasurementComponents/test/tRecursiveVi2LayersWithCal_GT.cc -text
 code/synthesis/MeasurementComponents/test/tSolveDataBuffer_GT.cc -text
 code/synthesis/MeasurementComponents/test/tTrVI2.cc -text
 code/synthesis/MeasurementComponents/test/tVPSkyJones.cc -text
