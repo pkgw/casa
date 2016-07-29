@@ -6665,6 +6665,7 @@ gcwrap/python/scripts/tests/test_sdcoadd.py -text
 gcwrap/python/scripts/tests/test_sdfit.py -text
 gcwrap/python/scripts/tests/test_sdflag.py -text
 gcwrap/python/scripts/tests/test_sdflagmanager.py -text
+gcwrap/python/scripts/tests/test_sdgaincal.py -text
 gcwrap/python/scripts/tests/test_sdgrid.py -text
 gcwrap/python/scripts/tests/test_sdimaging.py -text
 gcwrap/python/scripts/tests/test_sdimprocess.py -text
