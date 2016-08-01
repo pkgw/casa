@@ -5313,6 +5313,8 @@ code/synthesis/MeasurementComponents/VisCalGlobals.cc -text
 code/synthesis/MeasurementComponents/VisCalGlobals.h -text
 code/synthesis/MeasurementComponents/VisCalSolver.cc -text
 code/synthesis/MeasurementComponents/VisCalSolver.h -text
+code/synthesis/MeasurementComponents/VisCalSolver2.cc -text
+code/synthesis/MeasurementComponents/VisCalSolver2.h -text
 code/synthesis/MeasurementComponents/VisVector.cc -text
 code/synthesis/MeasurementComponents/VisVector.h -text
 code/synthesis/MeasurementComponents/WBCleanImageSkyModel.cc -text
