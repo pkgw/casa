@@ -6131,6 +6131,7 @@ gcwrap/python/scripts/recipes/__init__.py -text
 gcwrap/python/scripts/recipes/almahelpers.py -text
 gcwrap/python/scripts/recipes/almapolhelpers.py -text
 gcwrap/python/scripts/recipes/astro_stations2simdata.py -text
+gcwrap/python/scripts/recipes/atcapolhelpers.py -text
 gcwrap/python/scripts/recipes/automask.py -text
 gcwrap/python/scripts/recipes/benchmark.py -text
 gcwrap/python/scripts/recipes/calc_calibratorflux.py -text
