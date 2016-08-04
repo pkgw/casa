@@ -5197,6 +5197,8 @@ code/synthesis/MeasurementComponents/CSCleanImageSkyModel.cc -text
 code/synthesis/MeasurementComponents/CSCleanImageSkyModel.h -text
 code/synthesis/MeasurementComponents/CalCorruptor.cc -text
 code/synthesis/MeasurementComponents/CalCorruptor.h -text
+code/synthesis/MeasurementComponents/CalSolVi2Organizer.cc -text
+code/synthesis/MeasurementComponents/CalSolVi2Organizer.h -text
 code/synthesis/MeasurementComponents/Calibrater.cc -text
 code/synthesis/MeasurementComponents/Calibrater.h -text
 code/synthesis/MeasurementComponents/CalibratingVi2.cc -text
@@ -5340,7 +5342,9 @@ code/synthesis/MeasurementComponents/test/tALMAAperture.cc -text
 code/synthesis/MeasurementComponents/test/tAlgoPClark.cc -text
 code/synthesis/MeasurementComponents/test/tAlgoPClark.run -text
 code/synthesis/MeasurementComponents/test/tBeamSquint.cc -text
+code/synthesis/MeasurementComponents/test/tCalSolVi2Organizer_GT.cc -text
 code/synthesis/MeasurementComponents/test/tCalibrater.cc -text
+code/synthesis/MeasurementComponents/test/tCalibraterSolve_GT.cc -text
 code/synthesis/MeasurementComponents/test/tEVLAAperture.cc -text
 code/synthesis/MeasurementComponents/test/tFJones.cc -text
 code/synthesis/MeasurementComponents/test/tFringeJones_GT.cc -text
