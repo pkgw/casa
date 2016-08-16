@@ -5555,6 +5555,8 @@ code/synthesis/TransformMachines/PBMath1DAiry.cc -text
 code/synthesis/TransformMachines/PBMath1DAiry.h -text
 code/synthesis/TransformMachines/PBMath1DCosPoly.cc -text
 code/synthesis/TransformMachines/PBMath1DCosPoly.h -text
+code/synthesis/TransformMachines/PBMath1DEVLA.cc -text
+code/synthesis/TransformMachines/PBMath1DEVLA.h -text
 code/synthesis/TransformMachines/PBMath1DGauss.cc -text
 code/synthesis/TransformMachines/PBMath1DGauss.h -text
 code/synthesis/TransformMachines/PBMath1DIPoly.cc -text
@@ -5621,6 +5623,7 @@ code/synthesis/TransformMachines/rGridFT.h -text
 code/synthesis/TransformMachines/test/dImagingWeightViaGridFT.cc -text
 code/synthesis/TransformMachines/test/tCFCache.cc -text
 code/synthesis/TransformMachines/test/tGridFT.cc -text
+code/synthesis/TransformMachines/test/tPBMath1DEVLA.cc -text
 code/synthesis/TransformMachines/test/tStokesImageUtil.cc -text
 code/synthesis/TransformMachines/test/tVisModelData.cc -text
 code/synthesis/TransformMachines2/ATerm.cc -text
