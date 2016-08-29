@@ -5348,6 +5348,7 @@ code/synthesis/MeasurementComponents/test/tCalibraterSolve_GT.cc -text
 code/synthesis/MeasurementComponents/test/tEVLAAperture.cc -text
 code/synthesis/MeasurementComponents/test/tFJones.cc -text
 code/synthesis/MeasurementComponents/test/tFringeJones_GT.cc -text
+code/synthesis/MeasurementComponents/test/tGlinXphJones_GT.cc -text
 code/synthesis/MeasurementComponents/test/tKJones.cc -text
 code/synthesis/MeasurementComponents/test/tMSMetaInfoForCal_GT.cc -text
 code/synthesis/MeasurementComponents/test/tPBMath.cc -text
