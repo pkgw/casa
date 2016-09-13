@@ -4081,6 +4081,7 @@ code/install/fixbreakpadframeworkrefs.pl -text
 code/install/floatcheck.sh -text
 code/install/generate-gitinfo -text
 code/install/generate-svninfo -text
+code/install/generateBreakpadSymbols.sh -text
 code/install/getrc.c -text
 code/install/getuinfo.c -text
 code/install/hpux_gnu/aipsrc.template -text
