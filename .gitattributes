@@ -5939,12 +5939,10 @@ gcwrap/python/scripts/mpi4casa/test_mpi4casa.py -text
 gcwrap/python/scripts/muellerAsteroidModel_reader.py -text
 gcwrap/python/scripts/ngc5921_usecase.py -text
 gcwrap/python/scripts/odict.py -text
-gcwrap/python/scripts/pCASA.py -text
 gcwrap/python/scripts/parallel/CMakeLists.txt -text
 gcwrap/python/scripts/parallel/__init__.py -text
 gcwrap/python/scripts/parallel/parallel_data_helper.py -text
 gcwrap/python/scripts/parallel/parallel_task_helper.py -text
-gcwrap/python/scripts/parallel_go.py -text
 gcwrap/python/scripts/parameter_check.py -text
 gcwrap/python/scripts/parameter_dictionary.py -text
 gcwrap/python/scripts/partitionhelper.py -text
@@ -6071,7 +6069,6 @@ gcwrap/python/scripts/pybot/casa/470_Msmoments.html -text
 gcwrap/python/scripts/pybot/casa/475_Mstransform.html -text
 gcwrap/python/scripts/pybot/casa/476_Mstransform_mms.html -text
 gcwrap/python/scripts/pybot/casa/480_Partition.html -text
-gcwrap/python/scripts/pybot/casa/485_Pcasa.html -text
 gcwrap/python/scripts/pybot/casa/490_Plotants.html -text
 gcwrap/python/scripts/pybot/casa/495_Plotuv.html -text
 gcwrap/python/scripts/pybot/casa/500_Po_complexfraclinpol.html -text
@@ -6113,7 +6110,6 @@ gcwrap/python/scripts/pybot/casa/680_Sdstat.html -text
 gcwrap/python/scripts/pybot/casa/685_Sdtpimaging.html -text
 gcwrap/python/scripts/pybot/casa/690_Setjy.html -text
 gcwrap/python/scripts/pybot/casa/695_Simobserve.html -text
-gcwrap/python/scripts/pybot/casa/700_Simplecluster.html -text
 gcwrap/python/scripts/pybot/casa/705_Slsearch.html -text
 gcwrap/python/scripts/pybot/casa/710_Smoothcal.html -text
 gcwrap/python/scripts/pybot/casa/715_Specfit.html -text
@@ -6358,7 +6354,6 @@ gcwrap/python/scripts/run_sdregress_orions.py -text
 gcwrap/python/scripts/sdbeamutil.py -text
 gcwrap/python/scripts/sdutil.py -text
 gcwrap/python/scripts/setjy_helper.py -text
-gcwrap/python/scripts/simple_cluster.py -text
 gcwrap/python/scripts/simutil.py -text
 gcwrap/python/scripts/solar_system_setjy.py -text
 gcwrap/python/scripts/task_accum.py -text
@@ -6643,7 +6638,6 @@ gcwrap/python/scripts/tests/test_oldpartition.py -text
 gcwrap/python/scripts/tests/test_oldsplit.py -text
 gcwrap/python/scripts/tests/test_partition.py -text
 gcwrap/python/scripts/tests/test_partitionHelper.py -text
-gcwrap/python/scripts/tests/test_pcasa.py -text
 gcwrap/python/scripts/tests/test_plotants.py -text
 gcwrap/python/scripts/tests/test_plotms.py -text
 gcwrap/python/scripts/tests/test_plotuv.py -text
@@ -6692,7 +6686,6 @@ gcwrap/python/scripts/tests/test_sdscale.py -text
 gcwrap/python/scripts/tests/test_sdstat.py -text
 gcwrap/python/scripts/tests/test_setjy.py -text
 gcwrap/python/scripts/tests/test_simobserve.py -text
-gcwrap/python/scripts/tests/test_simplecluster.py -text
 gcwrap/python/scripts/tests/test_slsearch.py -text
 gcwrap/python/scripts/tests/test_smoothcal.py -text
 gcwrap/python/scripts/tests/test_specfit.py -text
