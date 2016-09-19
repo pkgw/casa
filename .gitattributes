@@ -4122,6 +4122,7 @@ code/install/releaseutils/patch_chkpoint -text
 code/install/releaseutils/patch_diff -text
 code/install/releaseutils/patch_dump -text
 code/install/releaseutils/patch_findbin -text
+code/install/resolvegitrevision.sh -text
 code/install/rshexec -text
 code/install/sgi_64b/aipsrc.template -text
 code/install/sgi_64b/makedefs.template -text
