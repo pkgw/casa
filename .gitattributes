@@ -5788,7 +5788,6 @@ doc/taskref/TaskRef.latex -text
 doc/taskref/makefile -text
 /doxygen.cfg -text
 gcwrap/CMakeLists.txt -text
-gcwrap/VERSION -text
 gcwrap/apps/casaparamgui/casaparamgui.cc -text
 gcwrap/apps/casapy/casa -text
 gcwrap/apps/casapy/casapy -text
