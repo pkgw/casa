@@ -5786,7 +5786,7 @@ doc/taskref/CMakeLists.txt -text
 doc/taskref/TaskRef.dir/Tasks.tex -text
 doc/taskref/TaskRef.latex -text
 doc/taskref/makefile -text
-/doxygen.cfg -text
+/doxy -text
 gcwrap/CMakeLists.txt -text
 gcwrap/apps/casaparamgui/casaparamgui.cc -text
 gcwrap/apps/casapy/casa -text
