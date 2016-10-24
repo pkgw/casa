@@ -6278,6 +6278,7 @@ gcwrap/python/scripts/regressions/tests/3C219D_test.py -text
 gcwrap/python/scripts/regressions/tests/3C391polim.py -text
 gcwrap/python/scripts/regressions/tests/CMakeLists.txt -text
 gcwrap/python/scripts/regressions/tests/accum_test.py -text
+gcwrap/python/scripts/regressions/tests/alma-m100-analysis-hpc-tclean.py -text
 gcwrap/python/scripts/regressions/tests/alma-m100-analysis-hpc.py -text
 gcwrap/python/scripts/regressions/tests/alma-m100-analysis.py -text
 gcwrap/python/scripts/regressions/tests/alma-m100-sd.py -text
