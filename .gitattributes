@@ -5738,6 +5738,8 @@ code/synthesis/Utilities/PointingDirectionProjector.cc -text svneol=unset#text/p
 code/synthesis/Utilities/PointingDirectionProjector.h -text svneol=unset#text/plain
 code/synthesis/Utilities/SigHandler.cc -text
 code/synthesis/Utilities/SigHandler.h -text
+code/synthesis/Utilities/SingleDishBeamUtil.cc -text
+code/synthesis/Utilities/SingleDishBeamUtil.h -text
 code/synthesis/Utilities/ThreadCoordinator.cc -text
 code/synthesis/Utilities/ThreadCoordinator.h -text
 code/synthesis/Utilities/test/tFFT2D.cc -text
