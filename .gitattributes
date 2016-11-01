@@ -4200,12 +4200,15 @@ code/mstransform/TVI/HanningSmoothTVI.cc -text
 code/mstransform/TVI/HanningSmoothTVI.h -text
 code/mstransform/TVI/PhaseShiftingTVI.cc -text
 code/mstransform/TVI/PhaseShiftingTVI.h -text
+code/mstransform/TVI/PolAverageTVI.cc -text svneol=unset#text/plain
+code/mstransform/TVI/PolAverageTVI.h -text svneol=unset#text/plain
 code/mstransform/TVI/RegriddingTVI.cc -text
 code/mstransform/TVI/RegriddingTVI.h -text
 code/mstransform/TVI/UVContSubTVI.cc -text
 code/mstransform/TVI/UVContSubTVI.h -text
 code/mstransform/TVI/UtilsTVI.cc -text
 code/mstransform/TVI/UtilsTVI.h -text
+code/mstransform/TVI/test/PolAverageTVI_GTest.cc -text svneol=unset#text/plain
 code/mstransform/TVI/test/TestUtilsTVI.cc -text
 code/mstransform/TVI/test/TestUtilsTVI.h -text
 code/mstransform/TVI/test/tChannelAverageTVI.cc -text
