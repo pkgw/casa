@@ -5922,6 +5922,16 @@ gcwrap/python/scripts/fixvis_util.py -text
 gcwrap/python/scripts/flaghelper.py -text
 gcwrap/python/scripts/get_user.py -text
 gcwrap/python/scripts/importarchive.py -text
+gcwrap/python/scripts/init_asap.py -text
+gcwrap/python/scripts/init_funcs.py -text
+gcwrap/python/scripts/init_logger.py -text
+gcwrap/python/scripts/init_system.py -text
+gcwrap/python/scripts/init_tasks.py -text
+gcwrap/python/scripts/init_testing.py -text
+gcwrap/python/scripts/init_tools.py -text
+gcwrap/python/scripts/init_user_post.py -text
+gcwrap/python/scripts/init_user_pre.py -text
+gcwrap/python/scripts/init_welcome.py -text
 gcwrap/python/scripts/listing.py -text
 gcwrap/python/scripts/mindpipes.py -text
 gcwrap/python/scripts/mpi4casa/CASA-4.3-MPI-Parallel-Processing-Framework-Installation-and-advance-user-guide.pdf -text
@@ -6349,6 +6359,7 @@ gcwrap/python/scripts/sdutil.py -text
 gcwrap/python/scripts/setjy_helper.py -text
 gcwrap/python/scripts/simutil.py -text
 gcwrap/python/scripts/solar_system_setjy.py -text
+gcwrap/python/scripts/start_casa.py -text
 gcwrap/python/scripts/task_accum.py -text
 gcwrap/python/scripts/task_applycal.py -text
 gcwrap/python/scripts/task_asdmsummary.py -text
