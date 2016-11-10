@@ -5898,6 +5898,8 @@ gcwrap/python/scripts/caltab_convert2.py -text
 gcwrap/python/scripts/carta.py -text
 gcwrap/python/scripts/casa.py -text
 gcwrap/python/scripts/casa_in_py.py -text
+gcwrap/python/scripts/casa_shutdown.py -text
+gcwrap/python/scripts/casa_stack_manip.py -text
 gcwrap/python/scripts/casapy.py -text
 gcwrap/python/scripts/casapy_engine.py -text
 gcwrap/python/scripts/check_exceptionhandling.py -text
@@ -5964,6 +5966,7 @@ gcwrap/python/scripts/partitionhelper.py -text
 gcwrap/python/scripts/plotcomp.py -text
 gcwrap/python/scripts/pointcal.py -text
 gcwrap/python/scripts/predictcomp_helper.py -text
+gcwrap/python/scripts/procmgr.py -text
 gcwrap/python/scripts/pybot/casa/001_3C391polim.html -text
 gcwrap/python/scripts/pybot/casa/002_3C129.html -text
 gcwrap/python/scripts/pybot/casa/003_3C219D_test.html -text
