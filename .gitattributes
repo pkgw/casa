@@ -5923,8 +5923,10 @@ gcwrap/python/scripts/flaghelper.py -text
 gcwrap/python/scripts/get_user.py -text
 gcwrap/python/scripts/importarchive.py -text
 gcwrap/python/scripts/init_asap.py -text
+gcwrap/python/scripts/init_dbus.py -text
 gcwrap/python/scripts/init_funcs.py -text
 gcwrap/python/scripts/init_logger.py -text
+gcwrap/python/scripts/init_mpi.py -text
 gcwrap/python/scripts/init_system.py -text
 gcwrap/python/scripts/init_tasks.py -text
 gcwrap/python/scripts/init_testing.py -text
