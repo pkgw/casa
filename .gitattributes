@@ -5793,7 +5793,6 @@ doc/taskref/makefile -text
 gcwrap/CMakeLists.txt -text
 gcwrap/apps/casaparamgui/casaparamgui.cc -text
 gcwrap/apps/casapy/casa -text
-gcwrap/apps/casapy/casapy -text
 gcwrap/apps/harvestrn/harvestrn.cc -text
 gcwrap/apps/harvestrr/harvestrr.cc -text
 gcwrap/apps/module_paramgui/mksetupdotpy.sh -text
