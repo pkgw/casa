@@ -5896,6 +5896,7 @@ gcwrap/python/scripts/callibrary.py -text
 gcwrap/python/scripts/caltab_convert2.py -text
 gcwrap/python/scripts/carta.py -text
 gcwrap/python/scripts/casa.py -text
+gcwrap/python/scripts/casa_builtin.py -text
 gcwrap/python/scripts/casa_in_py.py -text
 gcwrap/python/scripts/casa_shutdown.py -text
 gcwrap/python/scripts/casa_stack_manip.py -text
