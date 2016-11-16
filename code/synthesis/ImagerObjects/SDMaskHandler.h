@@ -134,7 +134,7 @@ public:
                            const casacore::Int nmask=0);
 
   // implementation of Amanda's autoboxing algorithm
-  void autoMaskByThreshold3(casacore::ImageInterface<float>& mask,
+  void autoMaskByMultiThreshold(casacore::ImageInterface<float>& mask,
                                           const casacore::ImageInterface<casacore::Float>& res, 
                                           const casacore::ImageInterface<casacore::Float>& psf, 
                                           const casacore::Record& stats, 
@@ -142,6 +142,7 @@ public:
                                           const casacore::Float& sidelobeLevel=0.0,
                                           const casacore::Float& sidelobeThresholdFactor=3.0,
                                           const casacore::Float& noiseThresholdFactor=3.0,
+                                          const casacore::Float& lowNoiseThresholdFactor=2.0,
                                           const casacore::Float& cutThreshold=0.01,
                                           const casacore::Float& smoothFactor=1.0,
                                           const casacore::Float& minBeamFrac=-1); 
@@ -170,10 +171,25 @@ public:
                                                    double& thresh,
                                                    int nmask=0,
                                                    int npix=0);
-
-  void maskWithPerPlaneThreshold(casacore::ImageInterface<casacore::Float>& image, 
+  // create a mask image (1/0 image) applying a different threshold for each channel plane
+  void makeMaskByPerChanThreshold(const casacore::ImageInterface<casacore::Float>& image, 
                                  casacore::ImageInterface<casacore::Float>& mask, 
                                  casacore::Vector<casacore::Float>& thresholds); 
+
+  // A core method for binary dilation of the input lattice   
+  void binaryDilationCore(casacore::Lattice<casacore::Float>& inlattice,
+                      casacore::Array<casacore::Float>& structure,
+                      casacore::Lattice<casacore::Bool>& mask,
+                      casacore::Array<casacore::Bool>& chanmask,
+                      casacore::Lattice<casacore::Float>& outlattice);
+
+  // Binary dilation with imageinterface and multiple iterations
+  void binaryDilation(casacore::ImageInterface<casacore::Float>& inImage,
+                      casacore::Array<casacore::Float>& structure,
+                      casacore::Int niteration,
+                      casacore::Lattice<casacore::Bool>& mask,
+                      casacore::Array<casacore::Bool>& chanmask,
+                      casacore::ImageInterface<casacore::Float>& outImage);
 
   void makePBMask(SHARED_PTR<SIImageStore> imstore, casacore::Float pblimit=0.1);
 

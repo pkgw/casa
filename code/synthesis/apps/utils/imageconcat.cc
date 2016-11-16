@@ -37,12 +37,11 @@
 #include <lattices/Lattices/LatticeConcat.h>
 #include <images/Images/PagedImage.h>
 #include <images/Images/ImageConcat.h>
-#include <imageanalysis/IO/CasaImageOpener.h>
+#include <images/Images/ImageOpener.h>
 #include <casa/Inputs/Input.h>
 #include <casa/namespace.h>
 using namespace std;
 using namespace casacore;
-using namespace casa;
 
 Bool moveImages(const String& dirname, Vector<String>& images){
   
@@ -100,7 +99,7 @@ int main(int argc, char **argv)
 
     
     Input inp;
-    inp.version("2015/07/15 by CM (MLLN; CASA-BCST) ");
+    inp.version("2016/11/02 by CM (MLLN; CASA-BCST) ");
     // Title of CM  i.e Code Monkey is
     //Master Lead Lion Ninja: CASA-Big Cheese Synthesis Team
     inp.create("outimage", "Out.image", "Output concatenatedimage");
@@ -126,12 +125,12 @@ int main(int argc, char **argv)
     if(conctype=="virtualmove"){
       if(!moveImages(outname, images))
 	return -1;
-      outname=outname+"/concat.aipsio";
+      //outname=outname+"/concat.aipsio";
     }
     if(conctype=="virtualcopy"){
-      if(!copyImages(outname, images))
-	return -1;
-      outname=outname+"/concat.aipsio";
+         if(!copyImages(outname, images))
+	   return -1;
+      //outname=outname+"/concat.aipsio";
     }
     Block<SHARED_PTR<PagedImage<Float> > > vim(nimages);
     for (Int k=0; k < nimages; ++k){
@@ -175,7 +174,7 @@ int main(int argc, char **argv)
       }
     }
 
-    cerr << "TYPE " << CasaImageOpener::imageType(outname) << endl;
+    cerr << "TYPE " << ImageOpener::imageType(outname) << endl;
     //tim.show("Time taken to concatenate via image: ");
     /* for(Int k=0; k < nimages; ++k){
       //vim[k]->tempClose();

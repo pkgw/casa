@@ -29,37 +29,58 @@
 #include <casacore/casa/Exceptions/Error.h>
 #include <casacore/casa/Arrays/ArrayIter.h>
 #include <casacore/measures/Measures/Stokes.h>
+#include <casacore/ms/MeasurementSets/MSDataDescColumns.h>
+#include <casacore/ms/MeasurementSets/MSPolColumns.h>
+
+#include <msvis/MSVis/VisBufferComponents2.h>
 
 using namespace casacore;
 
 namespace {
-struct GeometricTransformation {
+template<class T>
+inline T replaceFlaggedDataWithZero(T v, Bool b) {
+  return ((b) ? T(0) : v);
+}
+
+struct StokesTransformation {
 public:
   template<class T>
   inline static void transformData(Cube<T> const &dataIn,
-      Cube<Bool> const &flagIn, Cube<T> &dataOut) {
+      Cube<Bool> const &flagIn, Int pid0, Int pid1, Cube<T> &dataOut) {
+    if (dataIn.empty()) {
+      dataOut.resize();
+      return;
+    }
     auto const cubeShape = dataIn.shape();
     IPosition const newShape(3, 1, cubeShape[1], cubeShape[2]);
-    size_t const npol = cubeShape[0];
+//    size_t const npol = cubeShape[0];
+    size_t const nchan = cubeShape[1];
+    size_t const nrow = cubeShape[2];
     size_t const nelem = cubeShape[1] * cubeShape[2];
     Cube<T> transformedData(newShape, T(0));
     Cube<Float> weightSum(newShape, 0.0f);
+
+    Int pols[] = { pid0, pid1 };
+    for (size_t i = 0; i < 2; ++i) {
+      Int ipol = pols[i];
+      IPosition start(3, ipol, 0, 0);
+      IPosition end(3, ipol, nchan - 1, nrow - 1);
+      auto dslice = dataIn(start, end);
+      auto fslice = flagIn(start, end);
+      Array<Float> weight(dslice.shape());
+      Array<T> weightedData(dslice.shape());
+      arrayContTransform(dslice, fslice, weightedData,
+          replaceFlaggedDataWithZero<T>);
+      arrayContTransform(fslice, weight, [](Bool b) {
+        return ((b) ? 0.0f : 1.0f);
+      });
+      transformedData += weightedData;
+      weightSum += weight;
+    }
+
     // transformedData, transformedFlag and nAccumulated should be contiguous array
     auto p_tdata = transformedData.data();
     auto p_wsum = weightSum.data();
-    Bool b0, b1;
-    T const *p_data = dataIn.getStorage(b0);
-    Bool const *p_flag = flagIn.getStorage(b1);
-
-    for (size_t ipol = 0; ipol < npol; ++ipol) {
-      for (size_t i = 0; i < nelem; ++i) {
-        auto offsetIndex = nelem * ipol + i;
-        if (!p_flag[offsetIndex]) {
-          p_tdata[i] += p_data[offsetIndex];
-          p_wsum[i] += 1.0f;
-        }
-      }
-    }
 
     for (size_t i = 0; i < nelem; ++i) {
       if (p_wsum[i] > 0.0) {
@@ -67,88 +88,109 @@ public:
       }
     }
 
-    dataIn.freeStorage(p_data, b0);
-    flagIn.freeStorage(p_flag, b1);
-
     dataOut.reference(transformedData);
+  }
+
+  static inline void AccumulateWeight(Float const wt, Double &wtsum) {
+    wtsum += 1.0 / wt;
+  }
+
+  static inline void NormalizeWeight(Double const wtsum, Float &wt) {
+    wt = 4.0 / wtsum;
   }
 };
 
-struct StokesTransformation {
+struct GeometricTransformation {
   template<class T>
   inline static void transformData(Cube<T> const &dataIn,
-      Cube<Bool> const &flagIn, Cube<Float> const &weightIn, Cube<T> &dataOut) {
+      Cube<Bool> const &flagIn, Cube<Float> const &weightIn, Int pid0, Int pid1,
+      Cube<T> &dataOut) {
+    if (dataIn.empty()) {
+      dataOut.resize();
+      return;
+    }
     auto const cubeShape = dataIn.shape();
     IPosition const newShape(3, 1, cubeShape[1], cubeShape[2]);
     Cube<T> transformedData(newShape, T(0));
     Cube<Bool> transformedFlag(newShape, True);
     Cube<Float> weightSum(newShape, 0.0f);
-    size_t const npol = cubeShape[0];
+//    size_t const npol = cubeShape[0];
+    size_t const nchan = cubeShape[1];
+    size_t const nrow = cubeShape[2];
     size_t const nelem = cubeShape[1] * cubeShape[2];
+
+    Int pols[] = { pid0, pid1 };
+    for (size_t i = 0; i < 2; ++i) {
+      Int ipol = pols[i];
+      IPosition start(3, ipol, 0, 0);
+      IPosition end(3, ipol, nchan - 1, nrow - 1);
+      auto const dslice = dataIn(start, end);
+      auto const wslice = weightIn(start, end);
+      auto const fslice = flagIn(start, end);
+      Array<Float> weight(dslice.shape());
+      Array<T> weightedData(dslice.shape());
+      arrayContTransform(dslice * wslice, fslice, weightedData,
+          replaceFlaggedDataWithZero<T>);
+      arrayContTransform(wslice, fslice, weight,
+          replaceFlaggedDataWithZero<Float>);
+      transformedData += weightedData;
+      weightSum += weight;
+    }
+
     // transformedData, transformedFlag and nAccumulated should be contiguous array
     T *p_tdata = transformedData.data();
     Float *p_wsum = weightSum.data();
-    Bool b0, b1, b2;
-    T const *p_data = dataIn.getStorage(b0);
-    Bool const *p_flag = flagIn.getStorage(b1);
-    Float const *p_weight = weightIn.getStorage(b2);
-
-    for (size_t ipol = 0; ipol < npol; ++ipol) {
-      for (size_t i = 0; i < nelem; ++i) {
-        auto offsetIndex = nelem * ipol + i;
-        if (!p_flag[offsetIndex]) {
-          p_tdata[i] += p_data[offsetIndex] * p_weight[offsetIndex];
-          p_wsum[i] += p_weight[offsetIndex];
-        }
-      }
-    }
-
     for (size_t i = 0; i < nelem; ++i) {
       if (p_wsum[i] > 0.0) {
         p_tdata[i] /= T(p_wsum[i]);
       }
     }
 
-    dataIn.freeStorage(p_data, b0);
-    flagIn.freeStorage(p_flag, b1);
-    weightIn.freeStorage(p_weight, b2);
-
     dataOut.reference(transformedData);
   }
 
   template<class T>
   inline static void transformData(Cube<T> const &dataIn,
-      Cube<Bool> const &flagIn, Matrix<Float> const &weightIn,
-      Cube<T> &dataOut) {
+      Cube<Bool> const &flagIn, Matrix<Float> const &weightIn, Int pid0,
+      Int pid1, Cube<T> &dataOut) {
+    cout << "start " << __func__ << endl;
+    if (dataIn.empty()) {
+      dataOut.resize();
+      return;
+    }
     auto const cubeShape = dataIn.shape();
     IPosition const newShape(3, 1, cubeShape[1], cubeShape[2]);
     Cube<T> transformedData(newShape, T(0));
     Cube<Float> weightSum(newShape, 0.0f);
-    auto const npol = dataIn.shape()[0];
+//    auto const npol = dataIn.shape()[0];
     auto const nchan = dataIn.shape()[1];
     auto const nrow = dataIn.shape()[2];
     auto const nelem = nchan * nrow;
+
+    Int pols[] = { pid0, pid1 };
+    for (ssize_t i = 0; i < 2; ++i) {
+      Int ipol = pols[i];
+      for (ssize_t j = 0; j < nrow; ++j) {
+        IPosition start(3, ipol, 0, j);
+        IPosition end(3, ipol, nchan - 1, j);
+        auto dslice = dataIn(start, end);
+        auto fslice = flagIn(start, end);
+        auto w = weightIn(ipol, j);
+        Array<Float> weight(dslice.shape());
+        Array<T> weightedData(dslice.shape());
+        arrayContTransform(dslice * w, fslice, weightedData,
+            replaceFlaggedDataWithZero<T>);
+        arrayContTransform(fslice, weight, [&w](Bool b) {
+          return ((b) ? 0.0f: w);
+        });
+        transformedData += weightedData;
+        weightSum += weight;
+      }
+    }
+
     // transformedData, transformedFlag and nAccumulated should be contiguous array
     T *p_tdata = transformedData.data();
     Float *p_wsum = weightSum.data();
-    Bool b0, b1, b2;
-    T const *p_data = dataIn.getStorage(b0);
-    Bool const *p_flag = flagIn.getStorage(b1);
-    Float const *p_weight = weightIn.getStorage(b2);
-
-    for (ssize_t ipol = 0; ipol < npol; ++ipol) {
-      for (ssize_t ichan = 0; ichan < nchan; ++ichan) {
-        for (ssize_t irow = 0; irow < nrow; ++irow) {
-          auto wIndex = ipol * nrow + irow;
-          auto dIndex = ipol * (nrow * nchan) + ichan * nrow + irow;
-          auto tIndex = ichan * nrow + irow;
-          if (!p_flag[dIndex]) {
-            p_tdata[tIndex] += p_data[dIndex] * p_weight[wIndex];
-            p_wsum[tIndex] += p_weight[wIndex];
-          }
-        }
-      }
-    }
 
     for (ssize_t i = 0; i < nelem; ++i) {
       if (p_wsum[i] > 0.0) {
@@ -156,18 +198,65 @@ struct StokesTransformation {
       }
     }
 
-    dataIn.freeStorage(p_data, b0);
-    flagIn.freeStorage(p_flag, b1);
-    weightIn.freeStorage(p_weight, b2);
-
     dataOut.reference(transformedData);
+    cout << "end " << __func__ << endl;
+  }
+
+  static inline void AccumulateWeight(Float const wt, Double &wtsum) {
+    wtsum += wt;
+  }
+
+  static inline void NormalizeWeight(Double const wtsum, Float &wt) {
+    wt = wtsum;
   }
 };
 
 inline Float weight2Sigma(Float x) {
   return 1.0 / sqrt(x);
 }
+
+template<class WeightHandler>
+inline void transformWeight(Array<Float> const &weightIn, Int pid0, Int pid1,
+    Array<Float> &weightOut) {
+  cout << "start " << __func__ << endl;
+  if (weightIn.empty()) {
+    cout << "input weight is empty" << endl;
+    weightOut.resize();
+    return;
+  }
+  IPosition const shapeIn = weightIn.shape();
+  IPosition shapeOut(shapeIn);
+  // set length of polarization axis to 1
+  shapeOut[0] = 1;
+  cout << "shapeIn = " << shapeIn << " shapeOut = " << shapeOut << endl;
+
+  // initialization
+  weightOut.resize(shapeOut);
+  weightOut = 0.0f;
+
+  ssize_t numPol = shapeIn[0];
+  Int64 numElemPerPol = shapeOut.product();
+  cout << "numElemPerPol = " << numElemPerPol << endl;
+  cout << "numPol = " << numPol << endl;
+
+  Bool b;
+  Float const *p_wIn = weightIn.getStorage(b);
+  Float *p_wOut = weightOut.data();
+
+  Int pols[] = { pid0, pid1 };
+  for (Int64 i = 0; i < numElemPerPol; ++i) {
+    ssize_t offsetIndex = i * numPol;
+    Double sum = 0.0;
+    for (ssize_t j = 0; j < 2; ++j) {
+      Int ipol = pols[j];
+      WeightHandler::AccumulateWeight(p_wIn[offsetIndex + ipol], sum);
+    }
+    WeightHandler::NormalizeWeight(sum, p_wOut[i]);
+  }
+
+  weightIn.freeStorage(p_wIn, b);
 }
+} // anonymous namespace
 
 namespace casa { //# NAMESPACE CASA - BEGIN
 
@@ -178,34 +267,64 @@ namespace vi { //# NAMESPACE VI - BEGIN
 /////////
 PolAverageTVI::PolAverageTVI(ViImplementation2 *inputVII) :
     TransformingVi2(inputVII) {
+  configurePolAverage();
 }
 
 PolAverageTVI::~PolAverageTVI() {
 }
 
-void PolAverageTVI::corrType(Vector<Int> & corrTypes) const {
-  // Always return (Stokes::I)
-  Vector<Int> myCorrTypes(1, (Int) Stokes::I);
-  corrTypes.reference(myCorrTypes);
+void PolAverageTVI::origin() {
+  TransformingVi2::origin();
+
+  // Synchronize own VisBuffer
+  configureNewSubchunk();
+
+  // reconfigure if necessary
+  reconfigurePolAverageIfNecessary();
 }
 
-Int PolAverageTVI::dataDescriptionId() const {
-  // TODO
-  return TransformingVi2::dataDescriptionId();
+void PolAverageTVI::next() {
+  TransformingVi2::next();
+
+  // Synchronize own VisBuffer
+  configureNewSubchunk();
+
+  // reconfigure if necessary
+  reconfigurePolAverageIfNecessary();
+}
+
+void PolAverageTVI::corrType(Vector<Int> & corrTypes) const {
+  if (doTransform_[dataDescriptionId()]) {
+    // Always return (Stokes::I)
+    Vector<Int> myCorrTypes(1, (Int) Stokes::I);
+    corrTypes.reference(myCorrTypes);
+  } else {
+    getVii()->corrType(corrTypes);
+  }
 }
 
 void PolAverageTVI::flag(Cube<Bool> & flags) const {
   auto const vb = getVii()->getVisBuffer();
   Cube<Bool> originalFlags = vb->flagCube();
-  auto const cubeShape = originalFlags.shape();
-  IPosition const newShape(3, 1, cubeShape[1], cubeShape[2]);
-  Cube<Bool> transformedFlags(newShape, True);
-  ArrayIterator < Bool > iter(originalFlags, 1);
-  while (!iter.pastEnd()) {
-    transformedFlags &= iter.array();
-  }
+  Int ddid = dataDescriptionId();
 
-  flags.reference(transformedFlags);
+  if (doTransform_[ddid]) {
+    auto const cubeShape = originalFlags.shape();
+    IPosition const newShape(3, 1, cubeShape[1], cubeShape[2]);
+    Cube<Bool> transformedFlags(newShape, True);
+    // accumulate first polarization component
+    IPosition start(3, polId0_[ddid], 0, 0);
+    IPosition end(3, polId0_[ddid], cubeShape[1] - 1, cubeShape[2] - 1);
+    transformedFlags = originalFlags(start, end);
+
+    // accumulate second polarization component
+    start[0] = polId1_[ddid];
+    end[0] = polId1_[ddid];
+    transformedFlags &= originalFlags(start, end);
+    flags.reference(transformedFlags);
+  } else {
+    flags.reference(originalFlags);
+  }
 }
 
 void PolAverageTVI::flag(Matrix<Bool> & flags) const {
@@ -215,102 +334,196 @@ void PolAverageTVI::flag(Matrix<Bool> & flags) const {
   flags.reference(transformedFlags.yzPlane(0));
 }
 
-Int PolAverageTVI::polarizationId() const {
-  // TODO
-  return TransformingVi2::polarizationId();
-}
-
-void PolAverageTVI::jonesC(Vector<SquareMatrix<Complex, 2> > & cjones) const {
-  // TODO
-  throw AipsError("PolAverageTVI::jonesC");
+void PolAverageTVI::jonesC(Vector<SquareMatrix<Complex, 2> > &cjones) const {
+  if (doTransform_[dataDescriptionId()]) {
+    throw AipsError("PolAverageTVI::jonesC should not be called.");
+  } else {
+    getVii()->jonesC(cjones);
+  }
 }
 
 void PolAverageTVI::sigma(Matrix<Float> & sigmat) const {
-  weight(sigmat);
-  arrayTransformInPlace(sigmat, ::weight2Sigma);
+  if (doTransform_[dataDescriptionId()]) {
+    weight(sigmat);
+    arrayTransformInPlace(sigmat, ::weight2Sigma);
+  } else {
+    getVii()->sigma(sigmat);
+  }
 }
 
 void PolAverageTVI::visibilityCorrected(Cube<Complex> & vis) const {
-  Cube<Complex> dataCube;
-  getVii()->visibilityCorrected(dataCube);
-  Cube<Bool> flagCube;
-  getVii()->flag(flagCube);
-  transformComplexData(dataCube, flagCube, vis);
+  if (getVii()->existsColumn(VisBufferComponent2::VisibilityCorrected)) {
+    Cube<Complex> dataCube;
+    getVii()->visibilityCorrected(dataCube);
+    if (doTransform_[dataDescriptionId()]) {
+      Cube<Bool> flagCube;
+      getVii()->flag(flagCube);
+      transformComplexData(dataCube, flagCube, vis);
+    } else {
+      vis.reference(dataCube);
+    }
+  } else {
+    vis.resize();
+  }
 }
 
 void PolAverageTVI::visibilityModel(Cube<Complex> & vis) const {
-  Cube<Complex> dataCube;
-  getVii()->visibilityModel(dataCube);
-  Cube<Bool> flagCube;
-  getVii()->flag(flagCube);
-  transformComplexData(dataCube, flagCube, vis);
+  if (getVii()->existsColumn(VisBufferComponent2::VisibilityModel)) {
+    Cube<Complex> dataCube;
+    getVii()->visibilityModel(dataCube);
+    if (doTransform_[dataDescriptionId()]) {
+      Cube<Bool> flagCube;
+      getVii()->flag(flagCube);
+      transformComplexData(dataCube, flagCube, vis);
+    } else {
+      vis.reference(dataCube);
+    }
+  } else {
+    vis.resize();
+  }
 }
 
 void PolAverageTVI::visibilityObserved(Cube<Complex> & vis) const {
-  Cube<Complex> dataCube;
-  getVii()->visibilityObserved(dataCube);
-  Cube<Bool> flagCube;
-  getVii()->flag(flagCube);
-  transformComplexData(dataCube, flagCube, vis);
+  if (getVii()->existsColumn(VisBufferComponent2::VisibilityObserved)) {
+    Cube<Complex> dataCube;
+    getVii()->visibilityObserved(dataCube);
+    if (doTransform_[dataDescriptionId()]) {
+      Cube<Bool> flagCube;
+      getVii()->flag(flagCube);
+      transformComplexData(dataCube, flagCube, vis);
+    } else {
+      vis.reference(dataCube);
+    }
+  } else {
+    vis.resize();
+  }
 }
 
 void PolAverageTVI::floatData(casacore::Cube<casacore::Float> & fcube) const {
-  Cube<Float> dataCube;
-  getVii()->floatData(dataCube);
-  Cube<Bool> flagCube;
-  getVii()->flag(flagCube);
-  transformFloatData(dataCube, flagCube, fcube);
+  if (getVii()->existsColumn(VisBufferComponent2::FloatData)) {
+    Cube<Float> dataCube;
+    getVii()->floatData(dataCube);
+    if (doTransform_[dataDescriptionId()]) {
+      Cube<Bool> flagCube;
+      getVii()->flag(flagCube);
+      transformFloatData(dataCube, flagCube, fcube);
+    } else {
+      fcube.reference(dataCube);
+    }
+  } else {
+    fcube.resize();
+  }
 }
 
 IPosition PolAverageTVI::visibilityShape() const {
   IPosition cubeShape = getVii()->visibilityShape();
-  // Length of polarization (Stokes) axis is always 1 after polarizaton averaging
-  cubeShape[0] = 1;
+  if (doTransform_[dataDescriptionId()]) {
+    // Length of polarization (Stokes) axis is always 1 after polarizaton averaging
+    cubeShape[0] = 1;
+  }
   return cubeShape;
 }
 
 void PolAverageTVI::weight(Matrix<Float> & wtmat) const {
-  // TODO
+  Matrix<Float> wtmatOrg;
+  getVii()->weight(wtmatOrg);
+  if (doTransform_[dataDescriptionId()]) {
+    transformWeight(wtmatOrg, wtmat);
+  } else {
+    wtmat.reference(wtmatOrg);
+  }
 }
 
 void PolAverageTVI::weightSpectrum(Cube<Float> & wtsp) const {
-  // TODO
+  if (weightSpectrumExists()) {
+    Cube<Float> wtspOrg;
+    getVii()->weightSpectrum(wtspOrg);
+    if (doTransform_[dataDescriptionId()]) {
+      transformWeight(wtspOrg, wtsp);
+    } else {
+      wtsp.reference(wtspOrg);
+    }
+  } else {
+    wtsp.resize();
+  }
 }
 
 void PolAverageTVI::sigmaSpectrum(Cube<Float> & wtsp) const {
-  // sigma = (weight)^-1/2
-  weightSpectrum(wtsp);
-  arrayTransformInPlace(wtsp, ::weight2Sigma);
+  if (sigmaSpectrumExists()) {
+    if (doTransform_[dataDescriptionId()]) {
+      // sigma = (weight)^-1/2
+      weightSpectrum(wtsp);
+      arrayTransformInPlace(wtsp, ::weight2Sigma);
+    } else {
+      getVii()->sigmaSpectrum(wtsp);
+    }
+  } else {
+    wtsp.resize();
+  }
 }
 
 const VisImagingWeight & PolAverageTVI::getImagingWeightGenerator() const {
-  // TODO
-  throw AipsError("PolAverageTVI::getImagingWeightGenerator");
+  if (doTransform_[dataDescriptionId()]) {
+    throw AipsError(
+        "PolAverageTVI::getImagingWeightGenerator should not be called.");
+  }
+
+  return getVii()->getImagingWeightGenerator();
 }
 
 Vector<Int> PolAverageTVI::getCorrelations() const {
-  // Always return (Stokes::I)
-  return Vector<Int>(1, Stokes::I);
+  if (doTransform_[dataDescriptionId()]) {
+    // Always return (Stokes::I)
+    return Vector<Int>(1, Stokes::I);
+  } else {
+    return getVii()->getCorrelations();
+  }
 }
 
 Vector<Stokes::StokesTypes> PolAverageTVI::getCorrelationTypesDefined() const {
-  // Always return (Stokes::I)
-  return Vector<Stokes::StokesTypes>(1, Stokes::I);
+  if (doTransform_[dataDescriptionId()]) {
+    // Always return (Stokes::I)
+    return Vector<Stokes::StokesTypes>(1, Stokes::I);
+  } else {
+    return getVii()->getCorrelationTypesDefined();
+  }
 }
 
 Vector<Stokes::StokesTypes> PolAverageTVI::getCorrelationTypesSelected() const {
-  // Always return (Stokes::I)
-  return Vector<Stokes::StokesTypes>(1, Stokes::I);
+  if (doTransform_[dataDescriptionId()]) {
+    // Always return (Stokes::I)
+    return Vector<Stokes::StokesTypes>(1, Stokes::I);
+  } else {
+    return getVii()->getCorrelationTypesSelected();
+  }
 }
 
-void PolAverageTVI::dataDescriptionIds(Vector<Int> &ddids) const {
-  // TODO
-  TransformingVi2::dataDescriptionIds(ddids);
-}
-
-Int PolAverageTVI::nPolarizationIds() const {
-  // TODO
-  return TransformingVi2::nPolarizationIds();
+void PolAverageTVI::configurePolAverage() {
+  MeasurementSet const &ms = getVii()->ms();
+  auto const &msdd = ms.dataDescription();
+  ROMSDataDescColumns msddcols(msdd);
+  uInt ndd = msddcols.nrow();
+  Vector<Int> polIds = msddcols.polarizationId().getColumn();
+  doTransform_.resize(ndd);
+  polId0_.resize(ndd);
+  polId1_.resize(ndd);
+  auto const &mspol = ms.polarization();
+  ROMSPolarizationColumns mspolcols(mspol);
+  doTransform_ = False;
+  for (uInt idd = 0; idd < ndd; ++idd) {
+    Vector<Int> corrType = mspolcols.corrType()(polIds[idd]);
+    polId0_[idd] = -1;
+    polId1_[idd] = -1;
+    for (size_t i = 0; i < corrType.size(); ++i) {
+      auto stokesType = Stokes::type(corrType[i]);
+      if (stokesType == Stokes::XX || stokesType == Stokes::RR) {
+        polId0_[idd] = i;
+      } else if (stokesType == Stokes::YY || stokesType == Stokes::LL) {
+        polId1_[idd] = i;
+      }
+    }
+    doTransform_[idd] = (polId0_[idd] >= 0 && polId1_[idd] >= 0);
+  }
 }
 
 //////////
@@ -325,23 +538,42 @@ GeometricPolAverageTVI::~GeometricPolAverageTVI() {
 
 void GeometricPolAverageTVI::transformComplexData(Cube<Complex> const &dataIn,
     Cube<Bool> const &flagIn, Cube<Complex> &dataOut) const {
-  transformData(dataIn, flagIn, dataOut);
+  Int ddid = dataDescriptionId();
+  Int pid0 = polId0_[ddid];
+  Int pid1 = polId1_[ddid];
+  transformData(dataIn, flagIn, pid0, pid1, dataOut);
 }
 
 void GeometricPolAverageTVI::transformFloatData(Cube<Float> const &dataIn,
     Cube<Bool> const &flagIn, Cube<Float> &dataOut) const {
-  transformData(dataIn, flagIn, dataOut);
+  Int ddid = dataDescriptionId();
+  Int pid0 = polId0_[ddid];
+  Int pid1 = polId1_[ddid];
+  transformData(dataIn, flagIn, pid0, pid1, dataOut);
 }
 
-void GeometricPolAverageTVI::transformWeight(Cube<Float> const &weightIn,
-    Cube<Float> &weightOut) const {
-
+void GeometricPolAverageTVI::transformWeight(Array<Float> const &weightIn,
+    Array<Float> &weightOut) const {
+  Int ddid = dataDescriptionId();
+  Int pid0 = polId0_[ddid];
+  Int pid1 = polId1_[ddid];
+  ::transformWeight<GeometricTransformation>(weightIn, pid0, pid1, weightOut);
 }
 
 template<class T>
 void GeometricPolAverageTVI::transformData(Cube<T> const &dataIn,
-    Cube<Bool> const &flagIn, Cube<T> &dataOut) const {
-  ::GeometricTransformation::transformData<T>(dataIn, flagIn, dataOut);
+    Cube<Bool> const &flagIn, Int pid0, Int pid1, Cube<T> &dataOut) const {
+  if (weightSpectrumExists()) {
+    Cube<Float> weightSp;
+    getVii()->weightSpectrum(weightSp);
+    ::GeometricTransformation::transformData<T>(dataIn, flagIn, weightSp, pid0,
+        pid1, dataOut);
+  } else {
+    Matrix<Float> weightMat;
+    getVii()->weight(weightMat);
+    ::GeometricTransformation::transformData<T>(dataIn, flagIn, weightMat, pid0,
+        pid1, dataOut);
+  }
 }
 
 //////////
@@ -356,38 +588,39 @@ StokesPolAverageTVI::~StokesPolAverageTVI() {
 
 void StokesPolAverageTVI::transformComplexData(Cube<Complex> const &dataIn,
     Cube<Bool> const &flagIn, Cube<Complex> &dataOut) const {
-  transformData(dataIn, flagIn, dataOut);
+  Int ddid = dataDescriptionId();
+  Int pid0 = polId0_[ddid];
+  Int pid1 = polId1_[ddid];
+  transformData(dataIn, flagIn, pid0, pid1, dataOut);
 }
 
 void StokesPolAverageTVI::transformFloatData(Cube<Float> const &dataIn,
     Cube<Bool> const &flagIn, Cube<Float> &dataOut) const {
-  transformData(dataIn, flagIn, dataOut);
+  Int ddid = dataDescriptionId();
+  Int pid0 = polId0_[ddid];
+  Int pid1 = polId1_[ddid];
+  transformData(dataIn, flagIn, pid0, pid1, dataOut);
 }
 
-void StokesPolAverageTVI::transformWeight(Cube<Float> const &weightIn,
-    Cube<Float> &weightOut) const {
+void StokesPolAverageTVI::transformWeight(Array<Float> const &weightIn,
+    Array<Float> &weightOut) const {
+  Int ddid = dataDescriptionId();
+  Int pid0 = polId0_[ddid];
+  Int pid1 = polId1_[ddid];
+  ::transformWeight<StokesTransformation>(weightIn, pid0, pid1, weightOut);
 }
 
 template<class T>
 void StokesPolAverageTVI::transformData(Cube<T> const &dataIn,
-    Cube<Bool> const &flagIn, Cube<T> &dataOut) const {
-  if (weightSpectrumExists()) {
-    Cube<Float> weightSp;
-    weightSpectrum(weightSp);
-    ::StokesTransformation::transformData<T>(dataIn, flagIn, weightSp, dataOut);
-  } else {
-    Matrix<Float> weightMat;
-    weight(weightMat);
-    ::StokesTransformation::transformData<T>(dataIn, flagIn, weightMat,
-        dataOut);
-  }
+    Cube<Bool> const &flagIn, Int pid0, Int pid1, Cube<T> &dataOut) const {
+  ::StokesTransformation::transformData<T>(dataIn, flagIn, pid0, pid1, dataOut);
 }
 
 //////////
 // PolAverageTVIFactory
 /////////
 PolAverageVi2Factory::PolAverageVi2Factory(
-    casacore::Record const &configuration, ViImplementation2 *inputVII) :
+casacore::Record const &configuration, ViImplementation2 *inputVII) :
     inputVII_p(inputVII), mode_(AveragingMode::DEFAULT) {
   inputVII_p = inputVII;
 

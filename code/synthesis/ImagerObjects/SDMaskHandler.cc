@@ -903,7 +903,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       autoMaskByThreshold2(*tempmask, *tempres, *temppsf, qreso, resbybeam, qthresh, fracofpeak, thestats, sigma, nmask);
     }
     /***
+    else if (alg==String("multithresh")) {
+      autoMaskByMultiThreshold(*tempmaSk, *tempres, *temppsf, thestats, nmask, itsSidelobeLevel, sidelobeThresholdFactor,
+                                          noiseThresholdFactor, owNoiseThresholdFactor, cutThreshold, smoothFactor, minBeamFrac);
+    ***/
+
     // this did not work (it won't physically remove the mask from the image 
+    /***
     if (imstore->mask()->hasPixelMask()) {
       imstore.get()->mask()->removeRegion(fname, RegionHandler::Any, False);
       cerr<<"imstore->mask()->name()="<<imstore->mask()->name()<<endl;
@@ -915,7 +921,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     delete tempmask; tempmask=0;
   }
 
-  Record SDMaskHandler::calcImageStatistics(ImageInterface<Float>& res, ImageInterface<Float>&  prevmask, String& LELmask,  Record* regionPtr, const Bool robust )
+  Record SDMaskHandler::calcImageStatistics(ImageInterface<Float>& res, ImageInterface<Float>& /*  prevmask */, String& LELmask,  Record* regionPtr, const Bool robust )
   { 
     TempImage<Float>* tempres = new TempImage<Float>(res.shape(), res.coordinates()); 
     Array<Float> resdata;
@@ -929,15 +935,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //ImageStatsCalculator imcalc( tempres_ptr, 0, "", False); 
     //String lelstring = pbname+">0.92 && "+pbname+"<0.98";
     //cerr<<"lelstring = "<<lelstring<<endl;
-    cerr<<"LELMask="<<LELmask<<endl;
-    ImageStatsCalculator imcalc( tempres_ptr, 0, LELmask, False); 
+    //cerr<<"LELMask="<<LELmask<<endl;
+    ImageStatsCalculator imcalc( tempres_ptr, regionPtr, LELmask, False); 
     Vector<Int> axes(2);
     axes[0] = 0;
     axes[1] = 1;
     imcalc.setAxes(axes);
     imcalc.setRobust(robust);
     Record thestats = imcalc.statistics();
-    cerr<<"thestats="<<thestats<<endl;
+    //cerr<<"thestats="<<thestats<<endl;
     //Array<Double> max, min, rms, mad;
     //thestats.get(RecordFieldId("max"), max);
     return thestats;
@@ -1237,7 +1243,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }//end of makeAutoMaskByThreshold2
 
   // for implemtation of Amanda's algorithm
-  void SDMaskHandler::autoMaskByThreshold3(ImageInterface<Float>& mask,
+  void SDMaskHandler::autoMaskByMultiThreshold(ImageInterface<Float>& mask,
                                           const ImageInterface<Float>& res, 
                                           const ImageInterface<Float>& psf, 
                                           const Record& stats, 
@@ -1245,6 +1251,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                           const Float& sidelobeLevel,
                                           const Float& sidelobeThresholdFactor,
                                           const Float& noiseThresholdFactor,
+                                          const Float& lowNoiseThresholdFactor,
                                           const Float& cutThreshold,
                                           const Float& smoothFactor,
                                           const Float& minBeamFrac) 
@@ -1252,7 +1259,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     LogIO os( LogOrigin("SDMaskHandler","autoMaskByThreshold3",WHERE) );
     Array<Double> rmss, maxs, mads;
     Float resPeak, resRms;
-    Double rmsthresh, minrmsval, maxrmsval, minmaxval, maxmaxval, minmadval, maxmadval;
+    Array<Double> resRmss;
+    Double minrmsval, maxrmsval, minmaxval, maxmaxval, minmadval, maxmadval;
     IPosition minrmspos, maxrmspos, minmaxpos, maxmaxpos, minmadpos, maxmadpos;
     Int npix, nxpix, nypix;
 
@@ -1260,6 +1268,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //Bool debug(False);
 
     TempImage<Float> tempmask(mask.shape(), mask.coordinates());
+    TempImage<Float> prevmask(mask.shape(),mask.coordinates());
+    prevmask.copyData(LatticeExpr<Float>(mask) );
     // taking account for beam or input resolution
     IPosition shp = mask.shape();
     CoordinateSystem incsys = res.coordinates();
@@ -1287,9 +1297,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       Quantity bmin = beam.getMinor();
       //for pruning for now
       npix = Int( Double(minBeamFrac) * abs( (bmaj/(qinc.convert(bmaj),qinc)).get().getValue() ) );
+      // make npix beam area in pixels? (and need to modify pruneRegions)...
       //beam in pixels
-      nxpix = Int( abs( (bmaj/(qinc.convert(bmaj),qinc)).get().getValue() ) );
-      nypix = Int( abs( (bmin/(qinc.convert(bmin),qinc)).get().getValue() ) );
+      nxpix = Int( Double(smoothFactor) * abs( (bmaj/(qinc.convert(bmaj),qinc)).get().getValue() ) );
+      nypix = Int( Double(smoothFactor) * abs( (bmin/(qinc.convert(bmin),qinc)).get().getValue() ) );
     }
     else {
        throw(AipsError("No restoring beam(s) in the input image/psf"));
@@ -1300,7 +1311,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     stats.get(RecordFieldId("max"), maxs);
     stats.get(RecordFieldId("rms"), rmss);
     stats.get(RecordFieldId("medabsdevmed"), mads);
-     
+    
+    // only useful if single threshold value are used for all spectral planes... 
     minMax(minmaxval,maxmaxval,minmaxpos, maxmaxpos, maxs);
     minMax(minrmsval,maxrmsval,minrmspos, maxrmspos, rmss); 
     minMax(minmadval,maxmadval,minmadpos, maxmadpos, mads); 
@@ -1308,42 +1320,104 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     resPeak = maxmaxval;
     // use MAD and convert to rms 
     resRms = maxmadval * 1.4826; 
+    resRmss = mads * 1.4826;
 
-    //define mask threshold  
-    Float sidelobeThreshold = sidelobeLevel * sidelobeThresholdFactor * resPeak;
-    Float noiseThreshold = noiseThresholdFactor * resRms;
-    Float maskThreshold = max(sidelobeThreshold, noiseThreshold);
-    String ThresholdType = (maskThreshold == sidelobeThreshold? "sidelobe": "noise");
+    //define mask threshold 
+    //Array<Float> sidelobeThreshold = sidelobeLevel * sidelobeThresholdFactor * maxs;
+    Float sidelobeThreshold;
+    Float noiseThreshold;
+    Float lowNoiseThreshold;
+    Vector<Float> maskThreshold(maxs.nelements());
+    Vector<Float> lowMaskThreshold(maxs.nelements());
+    Vector<String> ThresholdType;
+    for (uInt ich=0; ich < maxs.nelements(); ich++) {
+      sidelobeThreshold = sidelobeLevel * sidelobeThresholdFactor * (Float)maxs(IPosition(2,0,ich)); 
+      noiseThreshold = noiseThresholdFactor * (Float)resRmss(IPosition(2,0,ich));
+      lowNoiseThreshold = lowNoiseThresholdFactor * (Float)resRmss(IPosition(2,0,ich)); 
+      maskThreshold(ich) = max(sidelobeThreshold, noiseThreshold);
+      lowMaskThreshold(ich) = max(sidelobeThreshold, lowNoiseThreshold);
+      ThresholdType(ich) = (maskThreshold(ich) == sidelobeThreshold? "sidelobe": "noise");
+      os << LogIO::NORMAL1 <<" Using "<<ThresholdType(ich)<<" threshold for chan "<<String::toString(ich)<<" threshold="<<maskThreshold(ich)<<LogIO::POST;
+    }
 
 
-    os << LogIO::NORMAL1 <<" Using "<<ThresholdType<<" threshold:"<<maskThreshold<<LogIO::POST;
-
-    // branch out if just need to glow mask
+    // Below corresponds to createThresholdMask in Amanda's Python code.
+    // branch out if just need to grow mask, obviously no 'grow' mask for the beginning of the first iteration
+    // but how should detect if it is the first iteration... the original python prototype code has
+    // a seperate createThresholdMask... save a state in iterBot or get ncycle info from there?
 
     LatticeExpr<Float> themask; 
-    if (resPeak > maskThreshold) {
-      if (minBeamFrac > 0.0 ) {
+    Bool firstIter(false);
+    // do thresholding via pruneRegions() for now
+    if (minBeamFrac > 0.0 ) {
         // make temp mask image consist of the original pix value and below the threshold is set to 0 
         TempImage<Float> maskedRes(res.shape(), res.coordinates());
-        maskedRes.copyData( (LatticeExpr<Float>)( iif(res > maskThreshold, res, 0.0)) );
+        makeMaskByPerChanThreshold(res, maskedRes, maskThreshold); 
+        //maskedRes.copyData( (LatticeExpr<Float>)( iif(res > maskThreshold, res, 0.0)) );
         double tempthresh=0.0;
-        SHARED_PTR<ImageInterface<Float> > tempIm_ptr = pruneRegions(maskedRes, tempthresh,  nmask, npix);
-        themask = LatticeExpr<Float> ( iif( *(tempIm_ptr.get()) > maskThreshold, 1.0, 0.0 ));
-      }
-      else {
-        themask = LatticeExpr<Float> ( iif( res > maskThreshold, 1.0, 0.0 ));
-      }  
-    } 
-    else { // do growmask
-        // binary dilation code here....
+        // ToDo: need npix be an area? and fix purnRegions too!!!
+        // nmask=-1
+        SHARED_PTR<ImageInterface<Float> > tempIm_ptr = pruneRegions(maskedRes, tempthresh,  -1, npix);
+        //themask = LatticeExpr<Float> ( iif( *(tempIm_ptr.get()) > maskThreshold, 1.0, 0.0 ));
+        makeMaskByPerChanThreshold(*(tempIm_ptr.get()), tempmask, maskThreshold); 
     }
-    tempmask.copyData(themask);
+    else {
+      //themask = LatticeExpr<Float> ( iif( res > maskThreshold, 1.0, 0.0 ));
+        makeMaskByPerChanThreshold(res, tempmask, maskThreshold); 
+      //tempmask.copyData(themask);
+    }  
    
     //smooth
     SPIIF outmask = convolveMask(tempmask, nxpix, nypix);
 
     //clean up (appy cutThreshold to convolved mask image)
     LatticeExpr<Float> thenewmask( iif( *(outmask.get()) > cutThreshold, 1.0, 0.0 ));
+
+    // take stats on the current mask for setting flags for grow mask : if max < 1 for any spectral plane it will grow the previous mask
+    String lelmask("");
+    Record maskstats = calcImageStatistics(tempmask, tempmask, lelmask, 0, false);
+    Array<Float> maskmaxs;
+    maskstats.get(RecordFieldId("max"),maskmaxs);
+    // per plane stats 
+    IPosition arrshape = maskmaxs.shape();
+    uInt naxis=arrshape.size();
+    IPosition indx(naxis,0);
+    // ignoring corr for now and ssume first axis is channel
+    Array<Bool> dogrow(arrshape);
+    for (uInt i=0; i < arrshape(0); i++) {
+      indx(0) = i;
+      if (maskmaxs(indx) < 1.0 ) {
+        dogrow(indx) = true;
+      }
+    }   
+
+    if (!firstIter) {
+       //call growMask
+       cerr<<"create constraint mask using lowNoiseThreshold: "<<lowMaskThreshold<<endl;
+       // corresponds to calcThresholdMask with lowNoiseThreshold...
+       TempImage<Float> constraintMaskImage(res.shape(), res.coordinates()); 
+       // constrainMask is 1/0 mask
+       makeMaskByPerChanThreshold(res, constraintMaskImage, lowMaskThreshold);
+       // for mask in binaryDilation, translate it to T/F (if T it will grow the mask region (NOTE currently binary dilation 
+       // does opposite T/F interpretation NEED to CHANGE)
+       TempImage<Bool> constraintMask(res.shape(),res.coordinates());
+       constraintMask.copyData( LatticeExpr<Bool> (iif(constraintMaskImage > 0, true, false)) );
+       // simple structure element for binary dilation
+       IPosition axislen(2, 3, 3);
+       Array<Float> se(axislen);
+       se.set(0);
+       se(IPosition(2,1,0))=1.0;
+       se(IPosition(2,0,1))=1.0;
+       se(IPosition(2,1,1))=1.0;
+       se(IPosition(2,2,1))=1.0;
+       se(IPosition(2,1,2))=1.0;
+       // nIteration for binary dilation 
+       Int niter=100; 
+       binaryDilation(mask, se, niter, constraintMask, dogrow, prevmask); 
+       prevmask.copyData( LatticeExpr<Float> (constraintMask*prevmask));
+       SPIIF outprevmask = convolveMask(prevmask, nxpix, nypix);
+       prevmask.copyData( LatticeExpr<Float> (iif( *(outprevmask.get()) > cutThreshold, 1.0, 0.0 )) );
+    }
 
     //for debug
     /***
@@ -1352,7 +1426,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     ***/
     if (res.hasPixelMask()) {
       LatticeExpr<Bool>  pixmask(res.pixelMask()); 
-      mask.copyData( (LatticeExpr<Float>)( iif((mask + thenewmask) > 0.0 && pixmask, 1.0, 0.0  ) ) );
+      //mask.copyData( (LatticeExpr<Float>)( iif((mask + thenewmask) > 0.0 && pixmask, 1.0, 0.0  ) ) );
+      mask.copyData( (LatticeExpr<Float>)( iif((prevmask + thenewmask) > 0.0 && pixmask, 1.0, 0.0  ) ) );
       mask.clearCache();
       mask.unlock();
       mask.tempClose();
@@ -1364,7 +1439,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       mask.copyData( (LatticeExpr<Float>)( iif((mask + thenewmask) > 0.0, 1.0, 0.0  ) ) );
       os <<LogIO::DEBUG1 <<"Add previous mask and the new mask.."<<LogIO::POST;
     }
-  }//end of makeAutoMaskByThreshold3
+  }//end of autoMaskByMultiThreshold
 
   SHARED_PTR<ImageInterface<Float> >  SDMaskHandler::makeMaskFromBinnedImage(const ImageInterface<Float>& image, 
                                                                              const Int nx, 
@@ -1766,8 +1841,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   }// end of makePBMask
 
-  //n apply per channel plane threshold
-  void SDMaskHandler::maskWithPerPlaneThreshold(ImageInterface<Float>& image, ImageInterface<Float>& mask, Vector<Float>& thresholds) 
+  //apply per channel plane threshold
+  void SDMaskHandler::makeMaskByPerChanThreshold(const ImageInterface<Float>& image, ImageInterface<Float>& mask, Vector<Float>& thresholds) 
   {
     IPosition imshape = image.shape();
     CoordinateSystem imcsys = image.coordinates();
@@ -1783,14 +1858,109 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       Slicer sl(start, length);
 
       // make a subImage for  a channel slice      
-      SubImage<Float> chanImage(image, sl, true);
+      AxesSpecifier aspec(False);
+      SubImage<Float> chanImage(image, sl, aspec, true);
       TempImage<Float>* tempChanImage = new TempImage<Float> (chanImage.shape(), chanImage.coordinates() );
       Array<Float> chanImageArr;
       LatticeExpr<Float> chanMask(iif(chanImage > thresholds(ich),1.0, 0.0)); 
       tempChanImage->copyData(chanMask);
-      tempChanImage->getSlice(chanImageArr, IPosition(4,0), chanImage.shape(),IPosition(4,1,1,1,1));
+      //tempChanImage->getSlice(chanImageArr, IPosition(4,0), chanImage.shape(),IPosition(4,1,1,1,1));
+      tempChanImage->getSlice(chanImageArr, IPosition(2,0), chanImage.shape(),IPosition(2,1,1));
       mask.putSlice(chanImageArr,start,IPosition(4,1,1,1,1)); 
     } // loop over chans
+  }
+
+  void SDMaskHandler::binaryDilationCore(Lattice<Float>& inlattice,
+                      Array<Float>& structure,
+                      Lattice<Bool>& mask,
+                      Array<Bool>& chanmask,
+                      Lattice<Float>& outlattice)
+  {
+    LogIO os( LogOrigin("SDMaskHandler", "binaryDilation", WHERE) );
+    //
+    //IPosition cursorShape=inlattice.niceCursorShape();
+    IPosition inshape = inlattice.shape();
+    Int nx = inshape(0);
+    Int ny = inshape(1);
+    // assume here 3x3 structure elements (connectivity of either 1 or 2)
+    IPosition seshape = structure.shape();
+    Int se_nx =seshape(0); 
+    Int se_ny =seshape(1); 
+
+    if (mask.shape()!=inshape) {
+      throw(AipsError("Incompartible mask shape. Need to be the same as the input image."));
+    } 
+    // assume the origin of structure element is the center  se(1,1)
+    IPosition cursorShape(4, nx, ny, 1, 1);
+    IPosition axisPath(4, 0, 1, 3, 2);
+    //cerr<<"cursorShape="<<cursorShape<<endl;
+    //cerr<<"structure="<<structure<<endl;
+    LatticeStepper tls(inlattice.shape(), cursorShape, axisPath); 
+    RO_LatticeIterator<Float> li(inlattice, tls);
+    RO_LatticeIterator<Bool> mi(mask, tls);
+    LatticeIterator<Float> oli(outlattice,tls);
+    Int ich;
+    IPosition ipch(chanmask.shape().size(),0);
+    for (li.reset(), mi.reset(), oli.reset(), ich=0; !li.atEnd(); li++, mi++, oli++, ich++) {
+      Array<Float> planeImage(li.cursor());
+      Array<Bool> planeMask(mi.cursor());
+      ipch(0)=ich;
+      // if masks are true do binary dilation...
+      if (ntrue(planeMask)>0 && chanmask(ipch)) {
+      //cerr<<"planeImage.shape()="<<planeImage.shape()<<endl;
+      for (Int i=0; i < nx; i++) {
+        for (Int j=0; j < ny; j++) {
+          if (planeImage(IPosition(4,i,j,0,0))==1.0 && planeMask(IPosition(4,i,j,0,0)) ) {
+            //cerr<<"if planeImage ==1 i="<<i<<" j="<<j<<endl;
+            // Set the value for se(1,1)
+            planeImage(IPosition(4,i,j,0,0)) = 2.0;
+            for (Int ise=0; ise < se_nx; ise++) {
+              for (Int jse = 0; jse < se_ny; jse++) {
+                Int relx_se = ise - 1;
+                Int rely_se = jse - 1;
+                if (structure(IPosition(2,ise,jse)) && !(ise==1.0 && jse==1.0)) {
+                  //cerr<<"structure("<<ise<<","<<jse<<")="<<structure(IPosition(2,ise,jse))<<endl; 
+                  if ((i + relx_se) >= 0 && (i + relx_se) < nx &&
+                      (j + rely_se) >= 0 && (j + rely_se) < ny) {
+                    if (planeImage(IPosition(4,i+relx_se,j+rely_se,0,0))==0 ) {
+                      // set to 2.0 to make distinction with the orignal 1.0 pixels
+                      planeImage(IPosition(4, i+relx_se, j+rely_se,0,0))=2.0;
+                      //cerr<<" i+relx_se="<<i+relx_se<<" j+rely_se="<<j+rely_se<<endl;
+                    }                   
+                  }
+                } // if(se(ise,jse)
+              } // if planeImage(i,j)=1.0
+            } // S.E. col loop
+          } // S.E. row loop
+        } // image col loop
+      } //inage row loop
+      for (Int ii=0; ii < nx; ii++) {
+        for (Int jj=0; jj < ny; jj++) {
+          if (planeImage(IPosition(4,ii,jj,0,0))==2) 
+            planeImage(IPosition(4,ii,jj,0,0))=1;
+        }
+      }
+      } // if ntrure() ...
+      oli.woCursor() = planeImage;
+    }
+  }
+
+  void SDMaskHandler::binaryDilation(ImageInterface<Float>& inImage,
+                      Array<Float>& structure,
+                      Int niteration,
+                      Lattice<Bool>& mask,
+                      Array<Bool>& chanmask,
+                      ImageInterface<Float>& outImage)
+  {
+
+      binaryDilationCore(inImage,structure,mask,chanmask,outImage);
+      Int iter = 1;
+      while (iter < niteration) {
+        ArrayLattice<Float> templattice(inImage.shape());
+        templattice.copyData(outImage);
+        binaryDilationCore(templattice,structure,mask,chanmask,outImage); 
+        iter++;
+      }
   }
 
  

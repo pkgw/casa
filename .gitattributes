@@ -3680,8 +3680,6 @@ code/imageanalysis/Annotations/test/tRegionTextList.cc -text
 code/imageanalysis/CMakeLists.txt -text
 code/imageanalysis/IO/AsciiAnnotationFileLine.cc -text
 code/imageanalysis/IO/AsciiAnnotationFileLine.h -text
-code/imageanalysis/IO/CasaImageOpener.cc -text
-code/imageanalysis/IO/CasaImageOpener.h -text
 code/imageanalysis/IO/FitterEstimatesFileParser.cc -text
 code/imageanalysis/IO/FitterEstimatesFileParser.h -text
 code/imageanalysis/IO/ImageFitterResults.cc -text
@@ -5795,7 +5793,6 @@ doc/taskref/makefile -text
 gcwrap/CMakeLists.txt -text
 gcwrap/apps/casaparamgui/casaparamgui.cc -text
 gcwrap/apps/casapy/casa -text
-gcwrap/apps/casapy/casapy -text
 gcwrap/apps/harvestrn/harvestrn.cc -text
 gcwrap/apps/harvestrr/harvestrr.cc -text
 gcwrap/apps/module_paramgui/mksetupdotpy.sh -text
@@ -5899,7 +5896,10 @@ gcwrap/python/scripts/callibrary.py -text
 gcwrap/python/scripts/caltab_convert2.py -text
 gcwrap/python/scripts/carta.py -text
 gcwrap/python/scripts/casa.py -text
+gcwrap/python/scripts/casa_builtin.py -text
 gcwrap/python/scripts/casa_in_py.py -text
+gcwrap/python/scripts/casa_shutdown.py -text
+gcwrap/python/scripts/casa_stack_manip.py -text
 gcwrap/python/scripts/casapy.py -text
 gcwrap/python/scripts/casapy_engine.py -text
 gcwrap/python/scripts/check_exceptionhandling.py -text
@@ -5924,6 +5924,18 @@ gcwrap/python/scripts/fixvis_util.py -text
 gcwrap/python/scripts/flaghelper.py -text
 gcwrap/python/scripts/get_user.py -text
 gcwrap/python/scripts/importarchive.py -text
+gcwrap/python/scripts/init_asap.py -text
+gcwrap/python/scripts/init_dbus.py -text
+gcwrap/python/scripts/init_funcs.py -text
+gcwrap/python/scripts/init_logger.py -text
+gcwrap/python/scripts/init_mpi.py -text
+gcwrap/python/scripts/init_system.py -text
+gcwrap/python/scripts/init_tasks.py -text
+gcwrap/python/scripts/init_testing.py -text
+gcwrap/python/scripts/init_tools.py -text
+gcwrap/python/scripts/init_user_post.py -text
+gcwrap/python/scripts/init_user_pre.py -text
+gcwrap/python/scripts/init_welcome.py -text
 gcwrap/python/scripts/listing.py -text
 gcwrap/python/scripts/mindpipes.py -text
 gcwrap/python/scripts/mpi4casa/CASA-4.3-MPI-Parallel-Processing-Framework-Installation-and-advance-user-guide.pdf -text
@@ -5954,6 +5966,7 @@ gcwrap/python/scripts/partitionhelper.py -text
 gcwrap/python/scripts/plotcomp.py -text
 gcwrap/python/scripts/pointcal.py -text
 gcwrap/python/scripts/predictcomp_helper.py -text
+gcwrap/python/scripts/procmgr.py -text
 gcwrap/python/scripts/pybot/casa/001_3C391polim.html -text
 gcwrap/python/scripts/pybot/casa/002_3C129.html -text
 gcwrap/python/scripts/pybot/casa/003_3C219D_test.html -text
@@ -6351,6 +6364,7 @@ gcwrap/python/scripts/sdutil.py -text
 gcwrap/python/scripts/setjy_helper.py -text
 gcwrap/python/scripts/simutil.py -text
 gcwrap/python/scripts/solar_system_setjy.py -text
+gcwrap/python/scripts/start_casa.py -text
 gcwrap/python/scripts/task_accum.py -text
 gcwrap/python/scripts/task_applycal.py -text
 gcwrap/python/scripts/task_asdmsummary.py -text
