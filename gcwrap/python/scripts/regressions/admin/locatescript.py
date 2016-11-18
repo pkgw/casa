@@ -14,7 +14,7 @@ gl=sys._getframe(stacklevel).f_globals
 
 PYVER = str(sys.version_info[0]) + "." + str(sys.version_info[1])
 
-SCRIPT_REPOS = os.environ["CASAPATH"].split()[0] + '/' + os.environ["CASAPATH"].split()[1] + '/python/' + PYVER
+SCRIPT_REPOS = os.environ["CASAPATH"].split()[0] + '/' + os.environ["CASAPATH"].split()[1] + '/lib/python' + PYVER
 
 # To support casapy-test releases which have different structure
 SCRIPT_REPOS2 = os.environ["CASAPATH"].split()[0]
@@ -27,7 +27,7 @@ SCRIPT_REPOS4 = os.environ["CASAPATH"].split()[0]
 SCRIPT_REPOS4 += "/Resources/python"
 
 def locatescript(lescript=''):
-    a=os.popen("which casapy", "r")
+    a=os.popen("which casa", "r")
     lepath=string.split(a.read(),"/bin")[0]
     if (os.path.exists(SCRIPT_REPOS+"/regressions/"+lescript)):
         lepath = SCRIPT_REPOS+"/regressions/"+lescript

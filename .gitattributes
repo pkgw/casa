@@ -5789,7 +5789,13 @@ doc/taskref/CMakeLists.txt -text
 doc/taskref/TaskRef.dir/Tasks.tex -text
 doc/taskref/TaskRef.latex -text
 doc/taskref/makefile -text
-/doxy -text
+docgen/bin/create_index -text
+docgen/bin/doxy -text
+docgen/bin/fetch_plone -text
+docgen/bin/wget_plone.readme.txt -text
+docgen/bin/wget_plone.sh -text
+docgen/mainpage.dox -text
+docgen/makefile -text
 gcwrap/CMakeLists.txt -text
 gcwrap/apps/casaparamgui/casaparamgui.cc -text
 gcwrap/apps/casapy/casa -text
@@ -5925,10 +5931,12 @@ gcwrap/python/scripts/flaghelper.py -text
 gcwrap/python/scripts/get_user.py -text
 gcwrap/python/scripts/importarchive.py -text
 gcwrap/python/scripts/init_asap.py -text
+gcwrap/python/scripts/init_crashrpt.py -text
 gcwrap/python/scripts/init_dbus.py -text
 gcwrap/python/scripts/init_funcs.py -text
 gcwrap/python/scripts/init_logger.py -text
 gcwrap/python/scripts/init_mpi.py -text
+gcwrap/python/scripts/init_pipeline.py -text
 gcwrap/python/scripts/init_system.py -text
 gcwrap/python/scripts/init_tasks.py -text
 gcwrap/python/scripts/init_testing.py -text
@@ -7200,4 +7208,3 @@ gcwrap/tools/xerces/test/tXMLToRecord.cc -text
 gcwrap/tools/xerces/test/tXMLToRecord.run -text
 gcwrap/xml/casa.xsd -text
 gcwrap/xml/conversions.xml -text
-/mainpage.dox -text
