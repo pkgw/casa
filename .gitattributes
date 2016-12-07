@@ -5341,6 +5341,7 @@ code/synthesis/MeasurementComponents/test/ES.250m.20100902.cfg -text
 code/synthesis/MeasurementComponents/test/SDDoubleCircleGainCalImpl_GTest.cc -text svneol=unset#text/plain
 code/synthesis/MeasurementComponents/test/SDPosInterpolator_GTest.cc -text
 code/synthesis/MeasurementComponents/test/TelCalTrace.h -text
+code/synthesis/MeasurementComponents/test/VisCalTestBase_GT.h -text
 code/synthesis/MeasurementComponents/test/smquick.py -text
 code/synthesis/MeasurementComponents/test/tALMAAperture.cc -text
 code/synthesis/MeasurementComponents/test/tAlgoPClark.cc -text
@@ -5349,15 +5350,18 @@ code/synthesis/MeasurementComponents/test/tBeamSquint.cc -text
 code/synthesis/MeasurementComponents/test/tCalSolVi2Organizer_GT.cc -text
 code/synthesis/MeasurementComponents/test/tCalibrater.cc -text
 code/synthesis/MeasurementComponents/test/tCalibraterSolve_GT.cc -text
+code/synthesis/MeasurementComponents/test/tDJones_GT.cc -text
 code/synthesis/MeasurementComponents/test/tEVLAAperture.cc -text
 code/synthesis/MeasurementComponents/test/tFJones.cc -text
 code/synthesis/MeasurementComponents/test/tFringeJones_GT.cc -text
 code/synthesis/MeasurementComponents/test/tGlinXphJones_GT.cc -text
 code/synthesis/MeasurementComponents/test/tKJones.cc -text
+code/synthesis/MeasurementComponents/test/tKJones_GT.cc -text
 code/synthesis/MeasurementComponents/test/tMSMetaInfoForCal_GT.cc -text
 code/synthesis/MeasurementComponents/test/tPBMath.cc -text
 code/synthesis/MeasurementComponents/test/tPBMath2D.cc -text
 code/synthesis/MeasurementComponents/test/tPBTable.cc -text
+code/synthesis/MeasurementComponents/test/tPJones_GT.cc -text
 code/synthesis/MeasurementComponents/test/tRecursiveVi2LayersWithCal_GT.cc -text
 code/synthesis/MeasurementComponents/test/tSolveDataBuffer_GT.cc -text
 code/synthesis/MeasurementComponents/test/tTrVI2.cc -text
