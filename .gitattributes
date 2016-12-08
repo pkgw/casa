@@ -5908,7 +5908,6 @@ gcwrap/python/scripts/carta.py -text
 gcwrap/python/scripts/carta_install.py -text
 gcwrap/python/scripts/casa.py -text
 gcwrap/python/scripts/casa_builtin.py -text
-gcwrap/python/scripts/casa_in_py.py -text
 gcwrap/python/scripts/casa_shutdown.py -text
 gcwrap/python/scripts/casa_stack_manip.py -text
 gcwrap/python/scripts/casa_system.py -text
@@ -6177,7 +6176,6 @@ gcwrap/python/scripts/recipes/calc_calibratorflux.py -text
 gcwrap/python/scripts/recipes/checkdataformat.py -text
 gcwrap/python/scripts/recipes/checknan.py -text
 gcwrap/python/scripts/recipes/cl2skycat.py -text
-gcwrap/python/scripts/recipes/cluster.py -text
 gcwrap/python/scripts/recipes/cmpmses.py -text
 gcwrap/python/scripts/recipes/commongrid.py -text
 gcwrap/python/scripts/recipes/drawmaskinimage.py -text
@@ -6530,7 +6528,6 @@ gcwrap/python/scripts/task_widebandpbcor.py -text
 gcwrap/python/scripts/task_widefield.py -text
 gcwrap/python/scripts/task_wvrgcal.py -text
 gcwrap/python/scripts/taskinit.py -text
-gcwrap/python/scripts/taskmanager.py -text
 gcwrap/python/scripts/testhelper.py -text
 gcwrap/python/scripts/tests/CMakeLists.txt -text
 gcwrap/python/scripts/tests/__init__.py -text
