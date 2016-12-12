@@ -5357,6 +5357,7 @@ code/synthesis/MeasurementComponents/test/tFringeJones_GT.cc -text
 code/synthesis/MeasurementComponents/test/tGlinXphJones_GT.cc -text
 code/synthesis/MeasurementComponents/test/tKJones.cc -text
 code/synthesis/MeasurementComponents/test/tKJones_GT.cc -text
+code/synthesis/MeasurementComponents/test/tMMueller_GT.cc -text
 code/synthesis/MeasurementComponents/test/tMSMetaInfoForCal_GT.cc -text
 code/synthesis/MeasurementComponents/test/tPBMath.cc -text
 code/synthesis/MeasurementComponents/test/tPBMath2D.cc -text
