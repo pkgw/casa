@@ -6235,6 +6235,7 @@ gcwrap/python/scripts/regressions/admin/process_manager.pl -text
 gcwrap/python/scripts/regressions/admin/profileplot.py -text
 gcwrap/python/scripts/regressions/admin/publish_summary.py -text
 gcwrap/python/scripts/regressions/admin/report.py -text
+gcwrap/python/scripts/regressions/admin/runRegressionTest.py -text
 gcwrap/python/scripts/regressions/admin/runUnitTest.py -text
 gcwrap/python/scripts/regressions/admin/runcasa_from_shell.sh -text
 gcwrap/python/scripts/regressions/admin/scheduler.pl -text
