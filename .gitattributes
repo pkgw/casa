@@ -6263,6 +6263,7 @@ gcwrap/python/scripts/regressions/alma_asdm+reimported-asdm_sf.py -text
 gcwrap/python/scripts/regressions/asdm-imexport+analysis_regression.py -text
 gcwrap/python/scripts/regressions/async-segfault_regression.py -text
 gcwrap/python/scripts/regressions/b0319_regression.py -text
+gcwrap/python/scripts/regressions/calstat_test_regression.py -text
 gcwrap/python/scripts/regressions/cleanchan_regression.py -text
 gcwrap/python/scripts/regressions/cleanhelper_regression.py -text
 gcwrap/python/scripts/regressions/coordsystest_regression.py -text
