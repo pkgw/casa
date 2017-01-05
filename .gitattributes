@@ -6267,7 +6267,7 @@ gcwrap/python/scripts/regressions/calstat_test_regression.py -text
 gcwrap/python/scripts/regressions/cleanchan_regression.py -text
 gcwrap/python/scripts/regressions/cleanhelper_regression.py -text
 gcwrap/python/scripts/regressions/coordsystest_regression.py -text
-gcwrap/python/scripts/regressions/cvel+clean_regression.py -text
+gcwrap/python/scripts/regressions/cvel+clean_test_regression.py -text
 gcwrap/python/scripts/regressions/cvel_regression2.py -text
 gcwrap/python/scripts/regressions/equinox_vis_regression.py -text
 gcwrap/python/scripts/regressions/fits-import-export_regression.py -text
