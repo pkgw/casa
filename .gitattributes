@@ -6377,6 +6377,7 @@ gcwrap/python/scripts/regressions/wf_regression.py -text
 gcwrap/python/scripts/regressions/wideband_regression.py -text
 gcwrap/python/scripts/regressions/widebandmosaic_regression.py -text
 gcwrap/python/scripts/regressions/wproj3ddat_regression.py -text
+gcwrap/python/scripts/regressions/wproject_regression.py -text
 gcwrap/python/scripts/sdbeamutil.py -text
 gcwrap/python/scripts/sdutil.py -text
 gcwrap/python/scripts/setjy_helper.py -text
