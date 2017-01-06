@@ -258,6 +258,8 @@ public:
   pair<casacore::Double,casacore::Double> getXAxisBounds() const;
   pair<casacore::Double,casacore::Double> getYAxisBounds() const;
 
+  inline PMS::DataColumn getDataColumnForAxis(PMS::Axis axis) { return loadedAxesData_[axis]; };
+
 protected:
     
   // Forbid copy for now
