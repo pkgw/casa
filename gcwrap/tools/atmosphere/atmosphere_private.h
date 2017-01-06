@@ -21,6 +21,13 @@ void assert_spwid(int spwid);
  */
 void assert_spwid_and_channel(int spwid, int chan);
 
+
+typedef unsigned int (atm::SpectralGrid::*SpGridSingleIdFuncInt) (unsigned int) const;
+typedef atm::Frequency (atm::SpectralGrid::*SpGridSingleIdFuncFreq) (unsigned int) const;
+/// helper functions
+int DoSpGridSingleIdFuncInt(SpGridSingleIdFuncInt func, int spwid);
+casac::Quantity DoSpGridSingleIdFuncQuantum(SpGridSingleIdFuncFreq func, int spwid, std::string qunits);
+
 atm::AtmProfile *pAtmProfile;
 atm::SpectralGrid *pSpectralGrid;
 atm::RefractiveIndexProfile *pRefractiveIndexProfile;

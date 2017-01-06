@@ -19,7 +19,7 @@
 #include <casa/Exceptions/Error.h>
 #include <casa/Logging/LogIO.h>
 #include <atmosphere_cmpt.h>
-#include <stdcasa/StdCasa/CasacSupport.h>
+//#include <stdcasa/StdCasa/CasacSupport.h>
 
 using namespace atm;
 using namespace std;
@@ -591,55 +591,88 @@ atmosphere::getNumSpectralWindows()
 int
 atmosphere::getNumChan(int spwid)
 {
-  int rstat(-1);
-  try {
-    if (pSpectralGrid) {
-      assert_spwid(spwid);
-      rstat = pSpectralGrid->getNumChan(static_cast<unsigned int>(spwid));
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    //*itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-//	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return rstat;
+  auto myfunc = (unsigned int(SpectralGrid::*)(unsigned int) const)&SpectralGrid::getNumChan;
+  return DoSpGridSingleIdFuncInt(myfunc, spwid);
 }
 
 int
 atmosphere::getRefChan(int spwid)
 {
-  int rstat(-1);
-  try {
-    assert_spwid(spwid);
-    if (pSpectralGrid) {
-      rstat = pSpectralGrid->getRefChan(static_cast<unsigned int>(spwid));
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return rstat;
+  auto myfunc = (unsigned int(SpectralGrid::*)(unsigned int) const)&SpectralGrid::getRefChan;
+  return DoSpGridSingleIdFuncInt(myfunc, spwid);
+}
+
+/// a private helper function
+int atmosphere::DoSpGridSingleIdFuncInt(SpGridSingleIdFuncInt func, int spwid)
+{
+	 int rstat(-1);
+	  try {
+	    if (pSpectralGrid) {
+	      assert_spwid(spwid);
+	      rstat = (pSpectralGrid->*func)(static_cast<unsigned int>(spwid));
+	    } else {
+	      *itsLog << LogIO::WARN
+		      << "Please set spectral window(s) with initSpectralWindow."
+		      << LogIO::POST;
+	    }
+	  } catch (AipsError x) {
+	    //*itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
+	//	    << LogIO::POST;
+	    RETHROW(x);
+	  }
+	  return rstat;
 }
 
 Quantity
 atmosphere::getRefFreq(int spwid)
+{
+  std::string qunits("GHz");
+  auto myfunc = (Frequency(SpectralGrid::*)(unsigned int) const)&SpectralGrid::getRefFreq;
+  return DoSpGridSingleIdFuncQuantum(myfunc, spwid, qunits);
+}
+
+
+Quantity
+atmosphere::getChanSep(int spwid)
+{
+  std::string qunits("MHz");
+  auto myfunc = (Frequency(SpectralGrid::*)(unsigned int) const)&SpectralGrid::getChanSep;
+  return DoSpGridSingleIdFuncQuantum(myfunc, spwid, qunits);
+}
+
+Quantity
+atmosphere::getBandwidth(int spwid)
+{
+  std::string qunits("GHz");
+  auto myfunc = (Frequency(SpectralGrid::*)(unsigned int) const)&SpectralGrid::getBandwidth;
+  return DoSpGridSingleIdFuncQuantum(myfunc, spwid, qunits);
+}
+
+Quantity
+atmosphere::getMinFreq(int spwid)
+{
+  std::string qunits("GHz");
+  auto myfunc = (Frequency(SpectralGrid::*)(unsigned int) const)&SpectralGrid::getMinFreq;
+  return DoSpGridSingleIdFuncQuantum(myfunc, spwid, qunits);
+}
+
+Quantity
+atmosphere::getMaxFreq(int spwid)
+{
+  std::string qunits("GHz");
+  auto myfunc = (Frequency(SpectralGrid::*)(unsigned int) const)&SpectralGrid::getMaxFreq;
+  return DoSpGridSingleIdFuncQuantum(myfunc, spwid, qunits);
+}
+
+/// a private helper function
+Quantity atmosphere::DoSpGridSingleIdFuncQuantum(SpGridSingleIdFuncFreq func, int spwid, string qunits)
 {
   ::casac::Quantity q;
   try {
     if (pSpectralGrid) {
       assert_spwid(spwid);
       std::vector<double> qvalue(1);
-      std::string qunits("GHz");
-      qvalue[0] = pSpectralGrid->getRefFreq(static_cast<unsigned int>(spwid)).get(qunits);
+      qvalue[0] = (pSpectralGrid->*func)(static_cast<unsigned int>(spwid)).get(qunits);
       q.value = qvalue;
       q.units = qunits;
     } else {
@@ -655,60 +688,12 @@ atmosphere::getRefFreq(int spwid)
   return q;
 }
 
-Quantity
-atmosphere::getChanSep(int spwid)
-{
-  ::casac::Quantity q;
-  try {
-    if (pSpectralGrid) {
-      assert_spwid(spwid);
-      std::vector<double> qvalue(1);
-      std::string qunits("MHz");
-      qvalue[0] = pSpectralGrid->getChanSep(static_cast<unsigned int>(spwid)).get(qunits);
-      q.value = qvalue;
-      q.units = qunits;
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return q;
-}
-
-Quantity
-atmosphere::getChanFreq(int chanNum, int spwid)
-{
-  ::casac::Quantity q;
-  try {
-    if (pSpectralGrid) {
-      assert_spwid_and_channel(spwid, chanNum);
-      std::vector<double> qvalue(1);
-      std::string qunits("GHz");
-      qvalue[0] = pSpectralGrid->getChanFreq(static_cast<unsigned int>(spwid),
-					     static_cast<unsigned int>(chanNum)).get(qunits);
-      q.value = qvalue;
-      q.units = qunits;
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return q;
-}
-
+// This can't be merged now since SpectralGrid::getSpectralWindow returns vector
 Quantity
 atmosphere::getSpectralWindow(int spwid)
 {
+  std::string qunits("Hz");
+
   Quantity q;
   try {
     if (pSpectralGrid) {
@@ -751,65 +736,16 @@ atmosphere::getChanNum(const Quantity& freq, int spwid)
 }
 
 Quantity
-atmosphere::getBandwidth(int spwid)
+atmosphere::getChanFreq(int chanNum, int spwid)
 {
   ::casac::Quantity q;
   try {
     if (pSpectralGrid) {
-      assert_spwid(spwid);
+      assert_spwid_and_channel(spwid, chanNum);
       std::vector<double> qvalue(1);
       std::string qunits("GHz");
-      qvalue[0] = pSpectralGrid->getBandwidth(static_cast<unsigned int>(spwid)).get(qunits);
-      q.value = qvalue;
-      q.units = qunits;
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return q;
-}
-
-Quantity
-atmosphere::getMinFreq(int spwid)
-{
-  ::casac::Quantity q;
-  try {
-    if (pSpectralGrid) {
-      assert_spwid(spwid);
-      std::vector<double> qvalue(1);
-      std::string qunits("GHz");
-      qvalue[0] = pSpectralGrid->getMinFreq(static_cast<unsigned int>(spwid)).get(qunits);
-      q.value = qvalue;
-      q.units = qunits;
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    //*itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-//	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return q;
-}
-
-Quantity
-atmosphere::getMaxFreq(int spwid)
-{
-  ::casac::Quantity q;
-  try {
-    if (pSpectralGrid) {
-      assert_spwid(spwid);
-      std::vector<double> qvalue(1);
-      std::string qunits("GHz");
-      qvalue[0] = pSpectralGrid->getMaxFreq(static_cast<unsigned int>(spwid)).get(qunits);
+      qvalue[0] = pSpectralGrid->getChanFreq(static_cast<unsigned int>(spwid),
+					     static_cast<unsigned int>(chanNum)).get(qunits);
       q.value = qvalue;
       q.units = qunits;
     } else {
