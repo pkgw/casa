@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import argparse
+from IPython.terminal.prompts import Prompts, Token
 
 try:
     from casac import casac
@@ -17,6 +18,15 @@ except ImportError, e:
 
 from asap_init import *
 from casa_system import casa
+
+class _Prompt(Prompts):
+     def in_prompt_tokens(self, cli=None):
+         return [(Token.Prompt, 'CASA <'),
+                 (Token.PromptNum, str(self.shell.execution_count)),
+                 (Token.Prompt, '>: ')]
+
+_ip = get_ipython()
+_ip.prompts = _Prompt(_ip)
 
 ##
 ## toplevel frame marker
@@ -134,6 +144,13 @@ for info in [ (['dbus-daemon'],'dbus'),
 ## ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 if os.path.exists(casa['dirs']['root']+"/pipeline"):
     casa['dirs']['pipeline'] = casa['dirs']['root']+"/pipeline"
+
+# initialize/finalize Sakura library
+if hasattr(casac,'sakura'):
+    #casalog.post('Managing Sakura lifecycle', priority='DEBUG')
+    casac.sakura().initialize_sakura()
+    import atexit
+    atexit.register(lambda: __import__('casac').casac.sakura().cleanup_sakura())
 
 class iArgumentParser(argparse.ArgumentParser):
     '''iPython thinks it knows that a user would never want to

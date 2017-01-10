@@ -6263,10 +6263,11 @@ gcwrap/python/scripts/regressions/alma_asdm+reimported-asdm_sf.py -text
 gcwrap/python/scripts/regressions/asdm-imexport+analysis_regression.py -text
 gcwrap/python/scripts/regressions/async-segfault_regression.py -text
 gcwrap/python/scripts/regressions/b0319_regression.py -text
+gcwrap/python/scripts/regressions/calstat_test_regression.py -text
 gcwrap/python/scripts/regressions/cleanchan_regression.py -text
 gcwrap/python/scripts/regressions/cleanhelper_regression.py -text
 gcwrap/python/scripts/regressions/coordsystest_regression.py -text
-gcwrap/python/scripts/regressions/cvel+clean_regression.py -text
+gcwrap/python/scripts/regressions/cvel+clean_test_regression.py -text
 gcwrap/python/scripts/regressions/cvel_regression2.py -text
 gcwrap/python/scripts/regressions/equinox_vis_regression.py -text
 gcwrap/python/scripts/regressions/fits-import-export_regression.py -text
@@ -6289,14 +6290,18 @@ gcwrap/python/scripts/regressions/m51_tpsim_regression.py -text
 gcwrap/python/scripts/regressions/maclog_regression.py -text
 gcwrap/python/scripts/regressions/nf_regression.py -text
 gcwrap/python/scripts/regressions/ngc1333_regression.py -text
+gcwrap/python/scripts/regressions/ngc2403_regression.py -text
 gcwrap/python/scripts/regressions/ngc2403_tutorial_regression.py -text
 gcwrap/python/scripts/regressions/ngc4826-mms_tutorial_regression.py -text
 gcwrap/python/scripts/regressions/ngc4826_regression.py -text
 gcwrap/python/scripts/regressions/ngc4826_tutorial_regression.py -text
 gcwrap/python/scripts/regressions/ngc4826c_regression.py -text
 gcwrap/python/scripts/regressions/ngc5921_regression.py -text
+gcwrap/python/scripts/regressions/ngc5921redux_regression.py -text
 gcwrap/python/scripts/regressions/ngc7538_regression.py -text
+gcwrap/python/scripts/regressions/ori_hc3n_regression.py -text
 gcwrap/python/scripts/regressions/ori_hc3n_task_regression.py -text
+gcwrap/python/scripts/regressions/ori_sio_regression.py -text
 gcwrap/python/scripts/regressions/ori_sio_task_regression.py -text
 gcwrap/python/scripts/regressions/orion_regression.py -text
 gcwrap/python/scripts/regressions/pipelineTest_regression.py -text
@@ -6304,6 +6309,7 @@ gcwrap/python/scripts/regressions/plotxy_regression.py -text
 gcwrap/python/scripts/regressions/pointing_regression.py -text
 gcwrap/python/scripts/regressions/polcal_20080224_cband_regression.py -text
 gcwrap/python/scripts/regressions/ppdisk2_regression.py -text
+gcwrap/python/scripts/regressions/pylabmem_regression.py -text
 gcwrap/python/scripts/regressions/regress_template.0py -text
 gcwrap/python/scripts/regressions/run_orionmos4sim.py -text
 gcwrap/python/scripts/regressions/stokesimagingtest_regression.py -text
@@ -6377,6 +6383,7 @@ gcwrap/python/scripts/regressions/wf_regression.py -text
 gcwrap/python/scripts/regressions/wideband_regression.py -text
 gcwrap/python/scripts/regressions/widebandmosaic_regression.py -text
 gcwrap/python/scripts/regressions/wproj3ddat_regression.py -text
+gcwrap/python/scripts/regressions/wproject_regression.py -text
 gcwrap/python/scripts/sdbeamutil.py -text
 gcwrap/python/scripts/sdutil.py -text
 gcwrap/python/scripts/setjy_helper.py -text
