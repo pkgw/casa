@@ -1141,7 +1141,7 @@ class sdfit_timeaverage(sdfit_unittest_base,unittest.TestCase):
     infile = "sdfit_tave.ms"
     outfile = "sdfit.out"
     common_param = dict(infile=infile, outfile=outfile, datacolumn='float_data',
-                        fitfunc='gaussian', nfit=[1], pol='XX', timeaverage=True)
+                        fitfunc='gaussian', nfit=[1], pol='XX')
     select_param = dict(scan='8', intent='*ON_SOURCE*', field='4')
     def setUp(self):
         self._remove([self.infile])
@@ -1165,7 +1165,7 @@ class sdfit_timeaverage(sdfit_unittest_base,unittest.TestCase):
                             "result in row %d differs" % (irow))
                 
     def testTimebinNullString(self):
-        """Test timebin='' : no averaging"""
+        """Test timebin='' : no averaging (default)"""
         ref = [0.94, 0.98, 1.01, 1.03]
         self.run_test(True, ref, timebin='')
 
@@ -1286,7 +1286,11 @@ class sdfit_polaverage(sdfit_unittest_base,unittest.TestCase):
         # number of fit results should be 1
         # (2 spectra are reduced into 1 by polarization averaging)
         nresults = len(result['nfit'])
-        self.assertEqual(nresults, 1)
+        if (mode == ''):
+            self.assertEqual(nresults, 2)
+            return
+        else:
+            self.assertEqual(nresults, 1)
         
         # verify nfit
         # nfit should be 2
@@ -1336,12 +1340,12 @@ class sdfit_polaverage(sdfit_unittest_base,unittest.TestCase):
     def run_test(self, mode):
         # only spw 0 is processed
         result = sdfit(infile=self.infile, datacolumn='float_data', fitfunc='gaussian', 
-                       nfit=[2], spw='0', polaverage=True, polaveragemode=mode)
+                       nfit=[2], spw='0', polaverage=mode)
         self.verify(mode, result)        
     
     def test_polaverage_default(self):
-        """ test_polaverage_default: test default average mode (=stokes) """
-        self.run_test(mode='default')
+        """ test_polaverage_default: test default case (no averaging) """
+        self.run_test(mode='')
     
     def test_polaverage_stokes(self):
         """ test_polaverage_stokes: test stokes average mode """
@@ -1356,4 +1360,5 @@ def suite():
             sdfit_selection, 
             sdfit_auto, 
             sdfit_timeaverage,
-            sdfit_polaverage]
+            sdfit_polaverage
+           ]

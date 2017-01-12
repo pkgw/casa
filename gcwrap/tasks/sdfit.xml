@@ -65,14 +65,9 @@ or sdreduce.
         <value></value>
     </param>
 
-    <param type="bool" name="timeaverage">
-        <description>average data over time</description>
-        <value>False</value>
-    </param>
-
-    <param type="string" name="timebin" subparam="true">
+    <param type="string" name="timebin">
         <description>bin width for time averaging</description>
-        <value type="string">0s</value>
+        <value type="string"></value>
     </param>
     
     <param type="string" name="timespan" subparam="true">
@@ -80,19 +75,14 @@ or sdreduce.
         <value type="string"></value>
     </param>
 
-    <param type="bool" name="polaverage">
-        <description>average data over polarizations</description>
-        <value>False</value>    
-    </param>
-    
-    <param type="string" name="polaveragemode" subparam="true">
-        <description>polarization averaging mode (\'stokes\' or \'geometric\'). \'default\' is equivalent to \'stokes\'.</description>
+    <param type="string" name="polaverage">
+        <description>polarization averaging mode (\'\', \'stokes\' or \'geometric\').</description>
         <allowed kind="enum">
-            <value>default</value>
+            <value></value>
             <value>stokes</value>
             <value>geometric</value>
         </allowed>
-        <value>default</value>
+        <value></value>
     </param>
     
     <param type="string" name="fitfunc">
@@ -154,18 +144,10 @@ or sdreduce.
     </param>
 
     <constraints>
-            <when param="timeaverage">
-                <equals type="bool" value="False"/>
-                <equals type="bool" value="True">
-                        <default param="timebin"><value type="string">0s</value></default>
+            <when param="timebin">
+                <notequals type="string" value="">
                         <default param="timespan"><value type="string"></value></default>
-                </equals>
-            </when>
-            <when param="polaverage">
-                <equals type="bool" value="False"/>
-                <equals type="bool" value="True">
-                    <default param="polaveragemode"><value type="string">default</value></default>
-                </equals>
+                </notequals>
             </when>
             <when param="fitmode">
                 <equals value="list">
@@ -241,20 +223,16 @@ intent -- select data by observational intent, also referred to as 'scan intent'
         default: '' (use all scan intents)
         example: intent='*ON_SOURCE*' (any valid scan-intent expression accepted by the MSSelection module can be specified)
         this selection is in addition to the other selections to data
-timeaverage -- average data over time
-        default: False
-    &gt;&gt;&gt; timeaverage expandable parameters
-        timebin -- bin width for time averaging. it must be a positive value.
-                default: '0s'
+timebin -- bin width for time averaging. it must be a positive value.
+        default: '' (no averaging over time)
+        example: timebin='1s' (time averaging performed over 1 second bins)
+    &gt;&gt;&gt; timebin expandable parameters
         timespan -- span the timebin across \'scan\', \'state\', \'field\', or a combination of them (e.g., \'scan,state\')
                 default: '' (average each scan, intent and field separately)
                 example: 'scan' time averaging is done across scan ID boundaries
-polaverage -- average data over polarizations
-        default: False
-    &gt;&gt;&gt; polaverage expandable parameters
-        polaveragemode -- polarization averaging mode
-                default: 'default' (='stokes')
-                options: 'stokes', 'geometric'
+polaverage -- polarization averaging mode
+        default: '' (no averaging over polarization)
+        options: '', 'stokes', 'geometric'
 fitfunc -- function for fitting
         options: 'gaussian', 'lorentzian'
         default: 'gaussian'

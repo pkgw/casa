@@ -12,8 +12,8 @@ from numpy import ma, array, logical_not, logical_and
 @sdutil.sdtask_decorator
 def sdfit(infile=None, datacolumn=None, antenna=None, field=None, spw=None,
            timerange=None, scan=None, pol=None, intent=None,
-           timeaverage=None, timebin=None, timespan=None,
-           polaverage=None, polaveragemode=None,
+           timebin=None, timespan=None,
+           polaverage=None, 
            fitfunc=None, fitmode=None, nfit=None, thresh=None, avg_limit=None,
            minwidth=None, edge=None, outfile=None, overwrite=None):
     casalog.origin('sdfit')
@@ -52,8 +52,8 @@ def sdfit(infile=None, datacolumn=None, antenna=None, field=None, spw=None,
         num_fit_str = str(',').join(map(str, nfit))
 
         sdms.fit_line(datacolumn=datacolumn, spw=spw, pol=pol, 
-                      timeaverage=timeaverage, timebin=timebin, timespan=timespan,
-                      polaverage=polaverage, polaveragemode=polaveragemode,
+                      timebin=timebin, timespan=timespan,
+                      polaverage=polaverage, 
                       fitfunc=fitfunc, nfit=num_fit_str,
                       linefinding=(fitmode=='auto'), threshold=thresh,
                       avg_limit=avg_limit, minwidth=minwidth, edge=edge,
