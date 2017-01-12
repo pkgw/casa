@@ -5939,6 +5939,7 @@ gcwrap/python/scripts/importarchive.py -text
 gcwrap/python/scripts/init_asap.py -text
 gcwrap/python/scripts/init_crashrpt.py -text
 gcwrap/python/scripts/init_dbus.py -text
+gcwrap/python/scripts/init_docs.py -text
 gcwrap/python/scripts/init_funcs.py -text
 gcwrap/python/scripts/init_logger.py -text
 gcwrap/python/scripts/init_mpi.py -text
