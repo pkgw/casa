@@ -761,164 +761,66 @@ atmosphere::getChanFreq(int chanNum, int spwid)
   return q;
 }
 
+
 double
 atmosphere::getDryOpacity(int nc, int spwid)
 {
-  double dryOpacity(-1.0);
-  try {
-    assert_spwid(spwid);
-    if (pRefractiveIndexProfile) {
-      unsigned int chan;
-      unsigned int spw = static_cast<unsigned int>(spwid);
-      if (nc < 0) {
-	chan = pSpectralGrid->getRefChan(spw);
-	*itsLog << "Using reference channel " << chan << LogIO::POST;
-      } else {
-	chan = static_cast<unsigned int>(nc);
-      }
-      dryOpacity = 
-	pRefractiveIndexProfile->getDryOpacity(spw,chan).get("neper");
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow first."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return dryOpacity;
+  auto myfunc = [](RefractiveIndexProfile *RIP, unsigned int spw_idx, unsigned int chan_idx) {
+    return RIP->getDryOpacity(spw_idx, chan_idx);
+  };
+  return doRIPTwoIdFuncDouble(myfunc, nc, spwid);
 }
 
 double
 atmosphere::getDryContOpacity(int nc, int spwid)
 {
-  double dryContOpacity(-1.0);
-  try {
-    assert_spwid(spwid);
-    if (pRefractiveIndexProfile) {
-      unsigned int chan;
-      unsigned int spw = static_cast<unsigned int>(spwid);
-      if (nc < 0) {
-	chan = pSpectralGrid->getRefChan(spw);
-	*itsLog << "Using reference channel " << chan << LogIO::POST;
-      } else {
-	chan = static_cast<unsigned int>(nc);
-      }
-      dryContOpacity = 
-	pRefractiveIndexProfile->getDryContOpacity(spw,chan).get("neper");
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow first."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return dryContOpacity;
+  auto myfunc = [](RefractiveIndexProfile *RIP, unsigned int spw_idx, unsigned int chan_idx) {
+    return RIP->getDryContOpacity(spw_idx, chan_idx);
+  };
+  return doRIPTwoIdFuncDouble(myfunc, nc, spwid);
 }
-
 
 double
 atmosphere::getO2LinesOpacity(int nc, int spwid)
 {
-  double o2LinesOpacity(-1.0);
-  try {
-    assert_spwid(spwid);
-    if (pRefractiveIndexProfile) {
-      unsigned int chan;
-      unsigned int spw = static_cast<unsigned int>(spwid);
-      if (nc < 0) {
-	chan = pSpectralGrid->getRefChan(spw);
-	*itsLog << "Using reference channel " << chan << LogIO::POST;
-      } else {
-	chan = static_cast<unsigned int>(nc);
-      }
-      o2LinesOpacity = 
-	pRefractiveIndexProfile->getO2LinesOpacity(spw,chan).get("neper");
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow first."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return o2LinesOpacity;
+  auto myfunc = [](RefractiveIndexProfile *RIP, unsigned int spw_idx, unsigned int chan_idx) {
+    return RIP->getO2LinesOpacity(spw_idx, chan_idx);
+  };
+  return doRIPTwoIdFuncDouble(myfunc, nc, spwid);
 }
-
-
-double
-atmosphere::getO3LinesOpacity(int nc, int spwid)
-{
-  double o3LinesOpacity(-1.0);
-  try {
-    assert_spwid(spwid);
-    if (pRefractiveIndexProfile) {
-      unsigned int chan;
-      unsigned int spw = static_cast<unsigned int>(spwid);
-      if (nc < 0) {
-	chan = pSpectralGrid->getRefChan(spw);
-	*itsLog << "Using reference channel " << chan << LogIO::POST;
-      } else {
-	chan = static_cast<unsigned int>(nc);
-      }
-      o3LinesOpacity = 
-	pRefractiveIndexProfile->getO3LinesOpacity(spw,chan).get("neper");
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow first."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return o3LinesOpacity;
-}
-
 
 double
 atmosphere::getCOLinesOpacity(int nc, int spwid)
 {
-  double coLinesOpacity(-1.0);
-  try {
-    assert_spwid(spwid);
-    if (pRefractiveIndexProfile) {
-      unsigned int chan;
-      unsigned int spw = static_cast<unsigned int>(spwid);
-      if (nc < 0) {
-	chan = pSpectralGrid->getRefChan(spw);
-	*itsLog << "Using reference channel " << chan << LogIO::POST;
-      } else {
-	chan = static_cast<unsigned int>(nc);
-      }
-      coLinesOpacity = 
-	pRefractiveIndexProfile->getCOLinesOpacity(spw,chan).get("neper");
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow first."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return coLinesOpacity;
+  auto myfunc = [](RefractiveIndexProfile *RIP, unsigned int spw_idx, unsigned int chan_idx) {
+    return RIP->getCOLinesOpacity(spw_idx, chan_idx);
+  };
+  return doRIPTwoIdFuncDouble(myfunc, nc, spwid);
 }
 
+double
+atmosphere::getO3LinesOpacity(int nc, int spwid)
+{
+  auto myfunc = [](RefractiveIndexProfile *RIP, unsigned int spw_idx, unsigned int chan_idx) {
+    return RIP->getO3LinesOpacity(spw_idx, chan_idx);
+  };
+  return doRIPTwoIdFuncDouble(myfunc, nc, spwid);
+}
 
 double
 atmosphere::getN2OLinesOpacity(int nc, int spwid)
 {
-  double n2oLinesOpacity(-1.0);
+  auto myfunc = [](RefractiveIndexProfile *RIP, unsigned int spw_idx, unsigned int chan_idx) {
+    return RIP->getN2OLinesOpacity(spw_idx, chan_idx);
+  };
+  return doRIPTwoIdFuncDouble(myfunc, nc, spwid);
+}
+
+// a helper function
+template<typename Func>
+double atmosphere::doRIPTwoIdFuncDouble(Func func, int nc, int spwid)
+{
+  double out_data(-1.0);
   try {
     assert_spwid(spwid);
     if (pRefractiveIndexProfile) {
@@ -930,7 +832,7 @@ atmosphere::getN2OLinesOpacity(int nc, int spwid)
       } else {
 	chan = static_cast<unsigned int>(nc);
       }
-      n2oLinesOpacity = pRefractiveIndexProfile->getN2OLinesOpacity(spw,chan).get("neper");
+      out_data = func(pRefractiveIndexProfile, spw,chan).get("neper");
     } else {
       *itsLog << LogIO::WARN
 	      << "Please set spectral window(s) with initSpectralWindow first."
@@ -941,14 +843,24 @@ atmosphere::getN2OLinesOpacity(int nc, int spwid)
 	    << LogIO::POST;
     RETHROW(x);
   }
-  return n2oLinesOpacity;
+  return out_data;
 }
-
 
 Quantity
 atmosphere::getWetOpacity(int nc, int spwid)
 {
-  ::casac::Quantity wetOpacity;
+  std::string units("neper");
+  auto myfunc = [](SkyStatus *SS, unsigned int spw_idx, unsigned int chan_idx) {
+    return SS->getWetOpacity(spw_idx, chan_idx);
+  };
+  return doSkyStatusTwoIdFuncQuantum(myfunc, nc, spwid, units);
+}
+
+// a helper function
+template<typename Func>
+Quantity atmosphere::doSkyStatusTwoIdFuncQuantum(Func func, int nc, int spwid, string units)
+{
+  ::casac::Quantity rtn;
   try {
     assert_spwid(spwid);
     if (pSkyStatus) {
@@ -960,9 +872,9 @@ atmosphere::getWetOpacity(int nc, int spwid)
       } else {
 	chan = static_cast<unsigned int>(nc);
       }
-      wetOpacity.value.resize(1);
-      wetOpacity.units = "neper";
-      wetOpacity.value[0] = pSkyStatus->getWetOpacity(spw,chan).get(wetOpacity.units);
+      rtn.value.resize(1);
+      rtn.units = units;
+      rtn.value[0] = func(pSkyStatus,spw,chan).get(rtn.units);
     } else {
       *itsLog << LogIO::WARN
 	      << "Please set spectral window(s) with initSpectralWindow first."
@@ -973,44 +885,33 @@ atmosphere::getWetOpacity(int nc, int spwid)
 	    << LogIO::POST;
     RETHROW(x);
   }
-  return wetOpacity;
+  return rtn;
 }
-
 
 double
 atmosphere::getH2OLinesOpacity(int nc, int spwid)
 {
-  double h2oLinesOpacity(-1.0);
-  try {
-    assert_spwid(spwid);
-    if (pSkyStatus) {
-      unsigned int chan;
-      unsigned int spw = static_cast<unsigned int>(spwid);
-      if (nc < 0) {
-	chan = pSpectralGrid->getRefChan(spw);
-	*itsLog << "Using reference channel " << chan << LogIO::POST;
-      } else {
-	chan = static_cast<unsigned int>(nc);
-      }
-      h2oLinesOpacity = pSkyStatus->getH2OLinesOpacity(spw,chan).get("neper");
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow first."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return h2oLinesOpacity;
+  auto myfunc = [](SkyStatus *SS, unsigned int spw_idx, unsigned int chan_idx) {
+    return SS->getH2OLinesOpacity(spw_idx, chan_idx);
+  };
+  return doSkyStatusTwoIdFuncDouble(myfunc, nc, spwid);
 }
 
 
 double
 atmosphere::getH2OContOpacity(int nc, int spwid)
 {
-  double h2oContOpacity(-1.0);
+  auto myfunc = [](SkyStatus *SS, unsigned int spw_idx, unsigned int chan_idx) {
+    return SS->getH2OContOpacity(spw_idx, chan_idx);
+  };
+  return doSkyStatusTwoIdFuncDouble(myfunc, nc, spwid);
+}
+
+// a helper function
+template<typename Func>
+double atmosphere::doSkyStatusTwoIdFuncDouble(Func func, int nc, int spwid)
+{
+  double rtn(-1.0);
   try {
     assert_spwid(spwid);
     if (pSkyStatus) {
@@ -1022,7 +923,7 @@ atmosphere::getH2OContOpacity(int nc, int spwid)
       } else {
 	chan = static_cast<unsigned int>(nc);
       }
-      h2oContOpacity = pSkyStatus->getH2OContOpacity(spw,chan).get("neper");
+      rtn = func(pSkyStatus,spw,chan).get("neper");
     } else {
       *itsLog << LogIO::WARN
 	      << "Please set spectral window(s) with initSpectralWindow first."
@@ -1033,9 +934,8 @@ atmosphere::getH2OContOpacity(int nc, int spwid)
 	    << LogIO::POST;
     RETHROW(x);
   }
-  return h2oContOpacity;
+  return rtn;
 }
-
 
 int
 atmosphere::getDryOpacitySpec(int spwid, std::vector<double>& dryOpacity)
@@ -1097,103 +997,118 @@ atmosphere::getWetOpacitySpec(int spwid, Quantity& wetOpacity)
 Quantity
 atmosphere::getDispersivePhaseDelay(int nc, int spwid)
 {
-  ::casac::Quantity dpd;
-  try {
-    assert_spwid(spwid);
-    if (pSkyStatus) {
-      unsigned int chan;
-      unsigned int spw = static_cast<unsigned int>(spwid);
-      if (nc < 0) {
-	chan = pSpectralGrid->getRefChan(spw);
-	*itsLog << "Using reference channel " << chan << LogIO::POST;
-      } else {
-	chan = static_cast<unsigned int>(nc);
-      }
-      dpd.value.resize(1);
-      std::string units("deg");
-      dpd.value[0] = pSkyStatus->getDispersiveH2OPhaseDelay(spw,chan).get(units);
-      dpd.units = units;
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow first."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return dpd;
+  std::string units("deg");
+  auto myfunc = [](SkyStatus *SS, unsigned int spw_idx, unsigned int chan_idx) {
+    return SS->getDispersiveH2OPhaseDelay(spw_idx, chan_idx);
+  };
+  return doSkyStatusTwoIdFuncQuantum(myfunc, nc, spwid, units);
 }
 
 Quantity
 atmosphere::getDispersiveWetPhaseDelay(int nc, int spwid)
 {
-  ::casac::Quantity dwpd;
-  try {
-    assert_spwid(spwid);
-    if (pRefractiveIndexProfile) {
-      unsigned int chan;
-      unsigned int spw = static_cast<unsigned int>(spwid);
-      if (nc < 0) {
-	chan = pSpectralGrid->getRefChan(spw);
-	*itsLog << "Using reference channel " << chan << LogIO::POST;
-      } else {
-	chan = static_cast<unsigned int>(nc);
-      }
-      dwpd.value.resize(1);
-      std::string units("deg");
-      dwpd.value[0] = pRefractiveIndexProfile->getDispersiveH2OPhaseDelay(pRefractiveIndexProfile->getGroundWH2O(),spw,chan).get(units);
-      dwpd.units = units;
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow first."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return dwpd;
+  std::string units("deg");
+  auto myfunc = [](RefractiveIndexProfile *RIP, unsigned int spw_idx, unsigned int chan_idx) {
+    return RIP->getDispersiveH2OPhaseDelay(RIP->getGroundWH2O(), spw_idx, chan_idx);
+  };
+  return doRIPTwoIdFuncQuantum(myfunc, nc, spwid, units);
 }
 
 Quantity
 atmosphere::getNonDispersiveWetPhaseDelay(int nc, int spwid)
 {
-  ::casac::Quantity ndwpd;
-  try {
-    assert_spwid(spwid);
-    if (pRefractiveIndexProfile) {
-      unsigned int chan;
-      unsigned int spw = static_cast<unsigned int>(spwid);
-      if (nc < 0) {
-	chan = pSpectralGrid->getRefChan(spw);
-	*itsLog << "Using reference channel " << chan << LogIO::POST;
-      } else {
-	chan = static_cast<unsigned int>(nc);
-      }
-      ndwpd.value.resize(1);
-      std::string units("deg");
-      ndwpd.value[0] = pRefractiveIndexProfile->getNonDispersiveH2OPhaseDelay(pRefractiveIndexProfile->getGroundWH2O(),spw,chan).get(units);
-      ndwpd.units = units;
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow first."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return ndwpd;
+  std::string units("deg");
+  auto myfunc = [](RefractiveIndexProfile *RIP, unsigned int spw_idx, unsigned int chan_idx) {
+    return RIP->getNonDispersiveH2OPhaseDelay(RIP->getGroundWH2O(), spw_idx, chan_idx);
+  };
+  return doRIPTwoIdFuncQuantum(myfunc, nc, spwid, units);
 }
 
 Quantity
 atmosphere::getNonDispersiveDryPhaseDelay(int nc, int spwid)
 {
-  ::casac::Quantity nddpd;
+  std::string units("deg");
+  auto myfunc = [](RefractiveIndexProfile *RIP, unsigned int spw_idx, unsigned int chan_idx) {
+    return RIP->getNonDispersiveDryPhaseDelay(spw_idx, chan_idx);
+  };
+  return doRIPTwoIdFuncQuantum(myfunc, nc, spwid, units);
+}
+
+Quantity
+atmosphere::getDispersiveWetPathLength(int nc, int spwid)
+{
+  std::string units("m");
+  auto myfunc = [](RefractiveIndexProfile *RIP, unsigned int spw_idx, unsigned int chan_idx) {
+    return RIP->getDispersiveH2OPathLength(RIP->getGroundWH2O(), spw_idx, chan_idx);
+  };
+  return doRIPTwoIdFuncQuantum(myfunc, nc, spwid, units);
+}
+
+Quantity
+atmosphere::getNonDispersiveWetPathLength(int nc, int spwid)
+{
+  std::string units("m");
+  auto myfunc = [](RefractiveIndexProfile *RIP, unsigned int spw_idx, unsigned int chan_idx) {
+    return RIP->getNonDispersiveH2OPathLength(RIP->getGroundWH2O(), spw_idx, chan_idx);
+  };
+  return doRIPTwoIdFuncQuantum(myfunc, nc, spwid, units);
+}
+
+Quantity
+atmosphere::getNonDispersiveDryPathLength(int nc, int spwid)
+{
+  std::string units("m");
+  auto myfunc = [](RefractiveIndexProfile *RIP, unsigned int spw_idx, unsigned int chan_idx) {
+    return RIP->getNonDispersiveDryPathLength(spw_idx, chan_idx);
+  };
+  return doRIPTwoIdFuncQuantum(myfunc, nc, spwid, units);
+}
+
+Quantity
+atmosphere::getO2LinesPathLength(int nc, int spwid)
+{
+  std::string units("m");
+  auto myfunc = [](RefractiveIndexProfile *RIP, unsigned int spw_idx, unsigned int chan_idx) {
+    return RIP->getO2LinesPathLength(spw_idx, chan_idx);
+  };
+  return doRIPTwoIdFuncQuantum(myfunc, nc, spwid, units);
+}
+
+Quantity
+atmosphere::getO3LinesPathLength(int nc, int spwid)
+{
+  std::string units("m");
+  auto myfunc = [](RefractiveIndexProfile *RIP, unsigned int spw_idx, unsigned int chan_idx) {
+    return RIP->getO3LinesPathLength(spw_idx, chan_idx);
+  };
+  return doRIPTwoIdFuncQuantum(myfunc, nc, spwid, units);
+}
+
+Quantity
+atmosphere::getCOLinesPathLength(int nc, int spwid)
+{
+  std::string units("m");
+  auto myfunc = [](RefractiveIndexProfile *RIP, unsigned int spw_idx, unsigned int chan_idx) {
+    return RIP->getCOLinesPathLength(spw_idx, chan_idx);
+  };
+  return doRIPTwoIdFuncQuantum(myfunc, nc, spwid, units);
+}
+
+Quantity
+atmosphere::getN2OLinesPathLength(int nc, int spwid)
+{
+  std::string units("m");
+  auto myfunc = [](RefractiveIndexProfile *RIP, unsigned int spw_idx, unsigned int chan_idx) {
+    return RIP->getN2OLinesPathLength(spw_idx, chan_idx);
+  };
+  return doRIPTwoIdFuncQuantum(myfunc, nc, spwid, units);
+}
+
+// a helper function
+template<typename Func>
+Quantity atmosphere::doRIPTwoIdFuncQuantum(Func func, int nc, int spwid, string units)
+{
+  ::casac::Quantity rtn(std::vector<double> (1,-1.0), "");
   try {
     assert_spwid(spwid);
     if (pRefractiveIndexProfile) {
@@ -1205,10 +1120,8 @@ atmosphere::getNonDispersiveDryPhaseDelay(int nc, int spwid)
       } else {
 	chan = static_cast<unsigned int>(nc);
       }
-      nddpd.value.resize(1);
-      std::string units("deg");
-      nddpd.value[0] = pRefractiveIndexProfile->getNonDispersiveDryPhaseDelay(spw,chan).get(units);
-      nddpd.units = units;
+      rtn.value[0] = func(pRefractiveIndexProfile,spw,chan).get(units);
+      rtn.units = units;
     } else {
       *itsLog << LogIO::WARN
 	      << "Please set spectral window(s) with initSpectralWindow first."
@@ -1219,553 +1132,146 @@ atmosphere::getNonDispersiveDryPhaseDelay(int nc, int spwid)
 	    << LogIO::POST;
     RETHROW(x);
   }
-  return nddpd;
+  return rtn;
 }
+
 
 Quantity
 atmosphere::getNonDispersivePhaseDelay(int nc, int spwid)
 {
-  ::casac::Quantity ndpd;
-  try {
-    assert_spwid(spwid);
-    if (pSkyStatus) {
-      unsigned int chan;
-      unsigned int spw = static_cast<unsigned int>(spwid);
-      if (nc < 0) {
-	chan = pSpectralGrid->getRefChan(spw);
-	*itsLog << "Using reference channel " << chan << LogIO::POST;
-      } else {
-	chan = static_cast<unsigned int>(nc);
-      }
-      ndpd.value.resize(1);
-      std::string units("deg");
-      ndpd.value[0] = pSkyStatus->getNonDispersiveH2OPhaseDelay(spw,chan).get(units);
-      ndpd.units = units;
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow first."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return ndpd;
+  std::string units("deg");
+  auto myfunc = [](SkyStatus *SS, unsigned int spw_idx, unsigned int chan_idx) {
+    return SS->getNonDispersiveH2OPhaseDelay(spw_idx, chan_idx);
+  };
+  return doSkyStatusTwoIdFuncQuantum(myfunc, nc, spwid, units);
 }
 
 
 Quantity
 atmosphere::getDispersivePathLength(int nc, int spwid)
 {
-  ::casac::Quantity dpl;
-  try {
-    assert_spwid(spwid);
-    if (pSkyStatus) {
-      unsigned int chan;
-      unsigned int spw = static_cast<unsigned int>(spwid);
-      if (nc < 0) {
-	chan = pSpectralGrid->getRefChan(spw);
-	*itsLog << "Using reference channel " << chan << LogIO::POST;
-      } else {
-	chan = static_cast<unsigned int>(nc);
-      }
-      dpl.value.resize(1);
-      std::string units("m");      
-      dpl.value[0] = pSkyStatus->getDispersiveH2OPathLength(spw,chan).get(units);
-      dpl.units = units;
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow first."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return dpl;
+  std::string units("m");
+  auto myfunc = [](SkyStatus *SS, unsigned int spw_idx, unsigned int chan_idx) {
+    return SS->getDispersiveH2OPathLength(spw_idx, chan_idx);
+  };
+  return doSkyStatusTwoIdFuncQuantum(myfunc, nc, spwid, units);
 }
-
-Quantity
-atmosphere::getDispersiveWetPathLength(int nc, int spwid)
-{
-  ::casac::Quantity dwpl;
-  try {
-    assert_spwid(spwid);
-    if (pRefractiveIndexProfile) {
-      unsigned int chan;
-      unsigned int spw = static_cast<unsigned int>(spwid);
-      if (nc < 0) {
-	chan = pSpectralGrid->getRefChan(spw);
-	*itsLog << "Using reference channel " << chan << LogIO::POST;
-      } else {
-	chan = static_cast<unsigned int>(nc);
-      }
-      dwpl.value.resize(1);
-      std::string units("m");
-      dwpl.value[0] = pRefractiveIndexProfile->getDispersiveH2OPathLength(pRefractiveIndexProfile->getGroundWH2O(),spw,chan).get(units);
-      dwpl.units = units;
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow first."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return dwpl;
-}
-
-Quantity
-atmosphere::getNonDispersiveWetPathLength(int nc, int spwid)
-{
-  ::casac::Quantity ndwpl;
-  try {
-    assert_spwid(spwid);
-    if (pRefractiveIndexProfile) {
-      unsigned int chan;
-      unsigned int spw = static_cast<unsigned int>(spwid);
-      if (nc < 0) {
-	chan = pSpectralGrid->getRefChan(spw);
-	*itsLog << "Using reference channel " << chan << LogIO::POST;
-      } else {
-	chan = static_cast<unsigned int>(nc);
-      }
-      ndwpl.value.resize(1);
-      std::string units("m");
-      ndwpl.value[0] = pRefractiveIndexProfile->getNonDispersiveH2OPathLength(pRefractiveIndexProfile->getGroundWH2O(),spw,chan).get(units);
-      ndwpl.units = units;
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow first."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return ndwpl;
-}
-
-Quantity
-atmosphere::getNonDispersiveDryPathLength(int nc, int spwid)
-{
-  ::casac::Quantity nddpl;
-  try {
-    assert_spwid(spwid);
-    if (pRefractiveIndexProfile) {
-      unsigned int chan;
-      unsigned int spw = static_cast<unsigned int>(spwid);
-      if (nc < 0) {
-	chan = pSpectralGrid->getRefChan(spw);
-	*itsLog << "Using reference channel " << chan << LogIO::POST;
-      } else {
-	chan = static_cast<unsigned int>(nc);
-      }
-      nddpl.value.resize(1);
-      std::string units("m");
-      nddpl.value[0] = pRefractiveIndexProfile->getNonDispersiveDryPathLength(spw,chan).get(units);
-      nddpl.units = units;
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow first."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return nddpl;
-}
-
-
-Quantity
-atmosphere::getO2LinesPathLength(int nc, int spwid)
-{
-  ::casac::Quantity o2pl;
-  try {
-    assert_spwid(spwid);
-    if (pRefractiveIndexProfile) {
-      unsigned int chan;
-      unsigned int spw = static_cast<unsigned int>(spwid);
-      if (nc < 0) {
-	chan = pSpectralGrid->getRefChan(spw);
-	*itsLog << "Using reference channel " << chan << LogIO::POST;
-      } else {
-	chan = static_cast<unsigned int>(nc);
-      }
-      o2pl.value.resize(1);
-      std::string units("m");
-      o2pl.value[0] = pRefractiveIndexProfile->getO2LinesPathLength(spw,chan).get(units);
-      o2pl.units = units;
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow first."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return o2pl;
-}
-
-Quantity
-atmosphere::getO3LinesPathLength(int nc, int spwid)
-{
-  ::casac::Quantity o3pl;
-  try {
-    assert_spwid(spwid);
-    if (pRefractiveIndexProfile) {
-      unsigned int chan;
-      unsigned int spw = static_cast<unsigned int>(spwid);
-      if (nc < 0) {
-	chan = pSpectralGrid->getRefChan(spw);
-	*itsLog << "Using reference channel " << chan << LogIO::POST;
-      } else {
-	chan = static_cast<unsigned int>(nc);
-      }
-      o3pl.value.resize(1);
-      std::string units("m");
-      o3pl.value[0] = pRefractiveIndexProfile->getO3LinesPathLength(spw,chan).get(units);
-      o3pl.units = units;
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow first."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return o3pl;
-}
-
-Quantity
-atmosphere::getCOLinesPathLength(int nc, int spwid)
-{
-  ::casac::Quantity COpl;
-  try {
-    assert_spwid(spwid);
-    if (pRefractiveIndexProfile) {
-      unsigned int chan;
-      unsigned int spw = static_cast<unsigned int>(spwid);
-      if (nc < 0) {
-	chan = pSpectralGrid->getRefChan(spw);
-	*itsLog << "Using reference channel " << chan << LogIO::POST;
-      } else {
-	chan = static_cast<unsigned int>(nc);
-      }
-      COpl.value.resize(1);
-      std::string units("m");
-      COpl.value[0] = pRefractiveIndexProfile->getCOLinesPathLength(spw,chan).get(units);
-      COpl.units = units;
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow first."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return COpl;
-}
-
-Quantity
-atmosphere::getN2OLinesPathLength(int nc, int spwid)
-{
-  ::casac::Quantity N2Opl;
-  try {
-    assert_spwid(spwid);
-    if (pRefractiveIndexProfile) {
-      unsigned int chan;
-      unsigned int spw = static_cast<unsigned int>(spwid);
-      if (nc < 0) {
-	chan = pSpectralGrid->getRefChan(spw);
-	*itsLog << "Using reference channel " << chan << LogIO::POST;
-      } else {
-	chan = static_cast<unsigned int>(nc);
-      }
-      N2Opl.value.resize(1);
-      std::string units("m");
-      N2Opl.value[0] = pRefractiveIndexProfile->getN2OLinesPathLength(spw,chan).get(units);
-      N2Opl.units = units;
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow first."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return N2Opl;
-}
-
 
 Quantity
 atmosphere::getNonDispersivePathLength(int nc, int spwid)
 {
-  ::casac::Quantity ndpl;
-  try {
-    assert_spwid(spwid);
-    if (pSkyStatus) {
-      unsigned int chan;
-      unsigned int spw = static_cast<unsigned int>(spwid);
-      if (nc < 0) {
-	chan = pSpectralGrid->getRefChan(spw);
-	*itsLog << "Using reference channel " << chan << LogIO::POST;
-      } else {
-	chan = static_cast<unsigned int>(nc);
-      }
-      ndpl.value.resize(1);
-      std::string units("m");
-      ndpl.value[0] = pSkyStatus->getNonDispersiveH2OPathLength(spw,chan).get(units);
-      ndpl.units = units;
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow first."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return ndpl;
+  std::string units("m");
+  auto myfunc = [](SkyStatus *SS, unsigned int spw_idx, unsigned int chan_idx) {
+    return SS->getNonDispersiveH2OPathLength(spw_idx, chan_idx);
+  };
+  return doSkyStatusTwoIdFuncQuantum(myfunc, nc, spwid, units);
 }
 
 
 Quantity
 atmosphere::getAbsH2OLines(int nl, int nf, int spwid)
 {
-  Quantity rtn(std::vector<double> (1,-1.0), "");
-  try {
-    assert_unsigned_int(nl);
-    assert_spwid_and_channel(spwid, nf);
-    if (pRefractiveIndexProfile) {
-      rtn.units = "m-1";
-      (rtn.value)[0] = pRefractiveIndexProfile->getAbsH2OLines(static_cast<unsigned int>(spwid),
-							       static_cast<unsigned int>(nf),
-							       static_cast<unsigned int>(nl)).get(rtn.units);
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow first."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return rtn;
+  std::string units = "m-1";
+  auto myfunc = [](RefractiveIndexProfile *RIP, unsigned int spw_idx, unsigned int chan_idx, unsigned int layer_idx) {
+    return RIP->getAbsH2OLines(spw_idx, chan_idx, layer_idx);
+  };
+  return doRIPThreeIdFuncQuantum(myfunc, nl, nf, spwid, units);
 }
   
-
 Quantity
 atmosphere::getAbsH2OCont(int nl, int nf, int spwid)
 {
-  Quantity rtn(std::vector<double> (1,-1.0), "");
-  try {
-    assert_unsigned_int(nl);
-    assert_spwid_and_channel(spwid, nf);
-    if (pRefractiveIndexProfile) {
-      rtn.units = "m-1";
-      (rtn.value)[0] = pRefractiveIndexProfile->getAbsH2OCont(static_cast<unsigned int>(spwid),
-							      static_cast<unsigned int>(nf),
-							      static_cast<unsigned int>(nl)).get(rtn.units);
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow first."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return rtn;
+  std::string units = "m-1";
+  auto myfunc = [](RefractiveIndexProfile *RIP, unsigned int spw_idx, unsigned int chan_idx, unsigned int layer_idx) {
+    return RIP->getAbsH2OCont(spw_idx, chan_idx, layer_idx);
+  };
+  return doRIPThreeIdFuncQuantum(myfunc, nl, nf, spwid, units);
 }
   
-
 Quantity
 atmosphere::getAbsO2Lines(int nl, int nf, int spwid)
 {
-  Quantity rtn(std::vector<double> (1,-1.0), "");
-  try {
-    assert_unsigned_int(nl);
-    assert_spwid_and_channel(spwid, nf);
-    if (pRefractiveIndexProfile) {
-      rtn.units = "m-1";
-      (rtn.value)[0] = pRefractiveIndexProfile->getAbsO2Lines(static_cast<unsigned int>(spwid),
-							      static_cast<unsigned int>(nf),
-							      static_cast<unsigned int>(nl)).get(rtn.units);
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow first."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return rtn;
+  std::string units = "m-1";
+  auto myfunc = [](RefractiveIndexProfile *RIP, unsigned int spw_idx, unsigned int chan_idx, unsigned int layer_idx) {
+    return RIP->getAbsO2Lines(spw_idx, chan_idx, layer_idx);
+  };
+  return doRIPThreeIdFuncQuantum(myfunc, nl, nf, spwid, units);
 }
-  
 
 Quantity
 atmosphere::getAbsDryCont(int nl, int nf, int spwid)
 {
-  Quantity rtn(std::vector<double> (1,-1.0), "");
-  try {
-    assert_unsigned_int(nl);
-    assert_spwid_and_channel(spwid, nf);
-    if (pRefractiveIndexProfile) {
-      rtn.units = "m-1";
-      (rtn.value)[0] = pRefractiveIndexProfile->getAbsDryCont(static_cast<unsigned int>(spwid),
-							      static_cast<unsigned int>(nf),
-							      static_cast<unsigned int>(nl)).get(rtn.units);
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow first."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return rtn;
+  std::string units = "m-1";
+  auto myfunc = [](RefractiveIndexProfile *RIP, unsigned int spw_idx, unsigned int chan_idx, unsigned int layer_idx) {
+    return RIP->getAbsDryCont(spw_idx, chan_idx, layer_idx);
+  };
+  return doRIPThreeIdFuncQuantum(myfunc, nl, nf, spwid, units);
 }
   
-
 Quantity
 atmosphere::getAbsO3Lines(int nl, int nf, int spwid)
 {
-  Quantity rtn(std::vector<double> (1,-1.0), "");
-  try {
-    assert_unsigned_int(nl);
-    assert_spwid_and_channel(spwid, nf);
-    if (pRefractiveIndexProfile) {
-      rtn.units = "m-1";
-      (rtn.value)[0] = pRefractiveIndexProfile->getAbsO3Lines(static_cast<unsigned int>(spwid),
-							      static_cast<unsigned int>(nf),
-							      static_cast<unsigned int>(nl)).get(rtn.units);
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow first."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return rtn;
+  std::string units = "m-1";
+  auto myfunc = [](RefractiveIndexProfile *RIP, unsigned int spw_idx, unsigned int chan_idx, unsigned int layer_idx) {
+    return RIP->getAbsO3Lines(spw_idx, chan_idx, layer_idx);
+  };
+  return doRIPThreeIdFuncQuantum(myfunc, nl, nf, spwid, units);
 }
   
-
 Quantity
 atmosphere::getAbsCOLines(int nl, int nf, int spwid)
 {
-  Quantity rtn(std::vector<double> (1,-1.0), "");
-  try {
-    assert_unsigned_int(nl);
-    assert_spwid_and_channel(spwid, nf);
-    if (pRefractiveIndexProfile) {
-      rtn.units = "m-1";
-      (rtn.value)[0] = pRefractiveIndexProfile->getAbsCOLines(static_cast<unsigned int>(spwid),
-							      static_cast<unsigned int>(nf),
-							      static_cast<unsigned int>(nl)).get(rtn.units);
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow first."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    //*itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-//	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return rtn;
+  std::string units = "m-1";
+  auto myfunc = [](RefractiveIndexProfile *RIP, unsigned int spw_idx, unsigned int chan_idx, unsigned int layer_idx) {
+    return RIP->getAbsCOLines(spw_idx, chan_idx, layer_idx);
+  };
+  return doRIPThreeIdFuncQuantum(myfunc, nl, nf, spwid, units);
 }
   
-
 Quantity
 atmosphere::getAbsN2OLines(int nl, int nf, int spwid)
 {
-  Quantity rtn(std::vector<double> (1,-1.0), "");
-  try {
-    assert_unsigned_int(nl);
-    assert_spwid_and_channel(spwid, nf);
-    if (pRefractiveIndexProfile) {
-      rtn.units = "m-1";
-      (rtn.value)[0] = pRefractiveIndexProfile->getAbsN2OLines(static_cast<unsigned int>(spwid),
-							       static_cast<unsigned int>(nf),
-							       static_cast<unsigned int>(nl)).get(rtn.units);
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow first."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return rtn;
+  std::string units = "m-1";
+  auto myfunc = [](RefractiveIndexProfile *RIP, unsigned int spw_idx, unsigned int chan_idx, unsigned int layer_idx) {
+    return RIP->getAbsN2OLines(spw_idx, chan_idx, layer_idx);
+  };
+  return doRIPThreeIdFuncQuantum(myfunc, nl, nf, spwid, units);
 }
-  
 
 Quantity
 atmosphere::getAbsTotalDry(int nl, int nf, int spwid)
 {
-  Quantity rtn(std::vector<double> (1,-1.0), "");
-  try {
-    assert_unsigned_int(nl);
-    assert_spwid_and_channel(spwid, nf);
-    if (pRefractiveIndexProfile) {
-      rtn.units = "m-1";
-      (rtn.value)[0] = pRefractiveIndexProfile->getAbsTotalDry(static_cast<unsigned int>(spwid),
-							       static_cast<unsigned int>(nf),
-							       static_cast<unsigned int>(nl)).get(rtn.units);
-    } else {
-      *itsLog << LogIO::WARN
-	      << "Please set spectral window(s) with initSpectralWindow first."
-	      << LogIO::POST;
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return rtn;
+  std::string units = "m-1";
+  auto myfunc = [](RefractiveIndexProfile *RIP, unsigned int spw_idx, unsigned int chan_idx, unsigned int layer_idx) {
+    return RIP->getAbsTotalDry(spw_idx, chan_idx, layer_idx);
+  };
+  return doRIPThreeIdFuncQuantum(myfunc, nl, nf, spwid, units);
 }
-  
-
+ 
 Quantity
 atmosphere::getAbsTotalWet(int nl, int nf, int spwid)
+{
+  std::string units = "m-1";
+  auto myfunc = [](RefractiveIndexProfile *RIP, unsigned int spw_idx, unsigned int chan_idx, unsigned int layer_idx) {
+    return RIP->getAbsTotalWet(spw_idx, chan_idx, layer_idx);
+  };
+  return doRIPThreeIdFuncQuantum(myfunc, nl, nf, spwid, units);
+}
+
+// a helper function
+template<typename Func>
+Quantity atmosphere::doRIPThreeIdFuncQuantum(Func func, int nl, int nf, int spwid, string units)
 {
   Quantity rtn(std::vector<double> (1,-1.0), "");
   try {
     assert_unsigned_int(nl);
     assert_spwid_and_channel(spwid, nf);
     if (pRefractiveIndexProfile) {
-      rtn.units = "m-1";
-      (rtn.value)[0] = pRefractiveIndexProfile->getAbsTotalWet(static_cast<unsigned int>(spwid),
-							       static_cast<unsigned int>(nf),
-							       static_cast<unsigned int>(nl)).get(rtn.units);
+      rtn.units = units;
+      (rtn.value)[0] = func(pRefractiveIndexProfile,
+			    static_cast<unsigned int>(spwid),
+			    static_cast<unsigned int>(nf),
+			    static_cast<unsigned int>(nl)).get(rtn.units);
     } else {
       *itsLog << LogIO::WARN
 	      << "Please set spectral window(s) with initSpectralWindow first."
@@ -1778,7 +1284,7 @@ atmosphere::getAbsTotalWet(int nl, int nf, int spwid)
   }
   return rtn;
 }
-  
+
 
 bool
 atmosphere::setUserWH2O(const Quantity& wh2o)

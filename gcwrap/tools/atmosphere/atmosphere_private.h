@@ -24,9 +24,32 @@ void assert_spwid_and_channel(int spwid, int chan);
 
 typedef unsigned int (atm::SpectralGrid::*SpGridSingleIdFuncInt) (unsigned int) const;
 typedef atm::Frequency (atm::SpectralGrid::*SpGridSingleIdFuncFreq) (unsigned int) const;
-/// helper functions
+// helper functions to invoke ATM functions in SpectralGrid class which take one integer id as the parameter
+// returns int 
 int DoSpGridSingleIdFuncInt(SpGridSingleIdFuncInt func, int spwid);
+// returns quantity
 casac::Quantity DoSpGridSingleIdFuncQuantum(SpGridSingleIdFuncFreq func, int spwid, std::string qunits);
+
+// helper functions to invoke ATM functions in RefractiveIndexProfile class
+// for atmosphere functions which take two integer ids as paramters
+// return a double
+template<typename Func>
+double doRIPTwoIdFuncDouble(Func func, int nc, int spwid);
+// return a quantity
+template<typename Func>
+casac::Quantity doRIPTwoIdFuncQuantum(Func func, int nc, int spwid, std::string units);
+// for atmosphere functions which take two integer ids as paramters and return a quantity
+template<typename Func>
+casac::Quantity doRIPThreeIdFuncQuantum(Func func, int nl, int nf, int spwid, std::string units);
+
+// helper functions to invoke ATM functions in SkyStatus class
+// for atmosphere functions which take two integer ids as paramters
+// return a double
+template<typename Func>
+double doSkyStatusTwoIdFuncDouble(Func func, int nc, int spwid);
+// return a quantity
+template<typename Func>
+casac::Quantity doSkyStatusTwoIdFuncQuantum(Func func, int nc, int spwid, std::string units);
 
 atm::AtmProfile *pAtmProfile;
 atm::SpectralGrid *pSpectralGrid;
