@@ -30,26 +30,19 @@ int DoSpGridSingleIdFuncInt(SpGridSingleIdFuncInt func, int spwid);
 // returns quantity
 casac::Quantity DoSpGridSingleIdFuncQuantum(SpGridSingleIdFuncFreq func, int spwid, std::string qunits);
 
-// helper functions to invoke ATM functions in RefractiveIndexProfile class
+// helper functions to invoke ATM functions in RefractiveIndexProfile and SkyStatus classes
 // for atmosphere functions which take two integer ids as paramters
 // return a double
-template<typename Func>
-double doRIPTwoIdFuncDouble(Func func, int nc, int spwid);
+template<typename Func, typename ClassType>
+double doTwoIdATMFuncDouble(Func func, ClassType obj, int nc, int spwid);
 // return a quantity
-template<typename Func>
-casac::Quantity doRIPTwoIdFuncQuantum(Func func, int nc, int spwid, std::string units);
+template<typename Func, typename ClassType>
+casac::Quantity doTwoIdATMFuncQuantum(Func func, ClassType pobj, int nc, int spwid, std::string units);
+
+// helper functions to invoke ATM functions in RefractiveIndexProfile class
 // for atmosphere functions which take two integer ids as paramters and return a quantity
 template<typename Func>
 casac::Quantity doRIPThreeIdFuncQuantum(Func func, int nl, int nf, int spwid, std::string units);
-
-// helper functions to invoke ATM functions in SkyStatus class
-// for atmosphere functions which take two integer ids as paramters
-// return a double
-template<typename Func>
-double doSkyStatusTwoIdFuncDouble(Func func, int nc, int spwid);
-// return a quantity
-template<typename Func>
-casac::Quantity doSkyStatusTwoIdFuncQuantum(Func func, int nc, int spwid, std::string units);
 
 atm::AtmProfile *pAtmProfile;
 atm::SpectralGrid *pSpectralGrid;
