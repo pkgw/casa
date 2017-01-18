@@ -16,6 +16,7 @@
 import time
 import os
 import pickle
+import pylab as pl
 
 pathname=os.environ.get('CASAPATH').split()[0]
 
@@ -1699,7 +1700,7 @@ if benchmarking:
     print 'Processing rate MB/s  was: '+str(300./(endTime - startTime))
     print ''
 
-print "Done with NGC4826 Tutorial Regression"
+print "Done with POLCAL Regression"
 #
 # Done
 #

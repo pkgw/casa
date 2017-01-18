@@ -4,6 +4,7 @@ import sys
 import getopt
 import shutil
 import traceback
+from casa_stack_manip import *
 from publish_summary import runTest
 
 ## flush output
@@ -30,7 +31,7 @@ if not os.access(TESTS_DIR, os.F_OK):
         TESTS_DIR = CASA_DIR+'/lib/python' + PYVER + '/regressions/'
     else:            #Mac release
         TESTS_DIR = CASA_DIR+'/Resources/python/regressions/'
-
+stack_frame_find()['TESTS_DIR']=TESTS_DIR
 
 def _find_script_path( name ):
     if os.access(TESTS_DIR+name+".py",os.F_OK):

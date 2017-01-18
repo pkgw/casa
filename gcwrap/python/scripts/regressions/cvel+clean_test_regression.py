@@ -24,7 +24,8 @@ import copy
 myname = 'cvel_regression'
 
 # default dataset name
-dataset_name_orig = 'ANTEN_sort_hann_for_cvel_reg-thinned.ms'
+pathname=os.environ.get('CASAPATH').split()[0]
+dataset_name_orig = pathname + '/data/regression/cvel/input/ANTEN_sort_hann_for_cvel_reg-thinned.ms'
 
 # get the dataset name from the wrapper if possible
 mydict = locals()
@@ -182,8 +183,8 @@ for frame in frames_to_do:
           phasecenter='J2000 12h01m53.13s -18d53m09.8s',
           mask='',
           weighting='briggs',
-          interactive=F,
-          minpb=0.3,pbcor=F)
+          interactive=False,
+          minpb=0.3,pbcor=False)
     
     cvel_imstats['frequency'][peakchan][frame] = imstat(iname+'.image', box=testregion, chans=peakchan)
     cvel_imstats['frequency'][otherchan1][frame] = imstat(iname+'.image', box=testregion, chans=otherchan1)
@@ -218,8 +219,8 @@ for frame in frames_to_do:
           phasecenter='J2000 12h01m53.13s -18d53m09.8s',
           mask='',
           weighting='briggs',
-          interactive=F,
-          minpb=0.3,pbcor=F)
+          interactive=False,
+          minpb=0.3,pbcor=False)
     
     cleanonly_imstats['frequency'][peakchan][frame] = imstat(iname+'.image', box=testregion, chans=peakchan)
     cleanonly_imstats['frequency'][otherchan1][frame] = imstat(iname+'.image', box=testregion, chans=otherchan1)
@@ -275,8 +276,8 @@ for frame in frames_to_do:
           phasecenter='J2000 12h01m53.13s -18d53m09.8s',
           mask='',
           weighting='briggs',
-          interactive=F,
-          minpb=0.3,pbcor=F)
+          interactive=False,
+          minpb=0.3,pbcor=False)
     
     cvel_imstats['radio velocity'][peakchan][frame] = imstat(iname+'.image', box=testregion, chans=peakchan)
     cvel_imstats['radio velocity'][otherchan1][frame] = imstat(iname+'.image', box=testregion, chans=otherchan1)
@@ -311,8 +312,8 @@ for frame in frames_to_do:
           phasecenter='J2000 12h01m53.13s -18d53m09.8s',
           mask='',
           weighting='briggs',
-          interactive=F,
-          minpb=0.3,pbcor=F)
+          interactive=False,
+          minpb=0.3,pbcor=False)
     
     cleanonly_imstats['radio velocity'][peakchan][frame] = imstat(iname+'.image', box=testregion, chans=peakchan)
     cleanonly_imstats['radio velocity'][otherchan1][frame] = imstat(iname+'.image', box=testregion, chans=otherchan1)
@@ -368,8 +369,8 @@ for frame in frames_to_do:
           phasecenter='J2000 12h01m53.13s -18d53m09.8s',
           mask='',
           weighting='briggs',
-          interactive=F,
-          minpb=0.3,pbcor=F,
+          interactive=False,
+          minpb=0.3,pbcor=False,
           veltype='optical')
     
     cvel_imstats['optical velocity'][peakchan][frame] = imstat(iname+'.image', box=testregion, chans=peakchan)
@@ -406,8 +407,8 @@ for frame in frames_to_do:
           phasecenter='J2000 12h01m53.13s -18d53m09.8s',
           mask='',
           weighting='briggs',
-          interactive=F,
-          minpb=0.3,pbcor=F,
+          interactive=False,
+          minpb=0.3,pbcor=False,
           veltype='optical')
     
     cleanonly_imstats['optical velocity'][peakchan][frame] = imstat(iname+'.image', box=testregion, chans=peakchan)
@@ -437,7 +438,7 @@ for frame in frames_to_do:
         for chan in mode_imstats.keys():
             print "Testing ", frame, ", ",  mode, ", Hanning ", dohanning[frame], ", box ", testregion, ", channel ", chan, " ..."
 
-            isok = true
+            isok = True
             c1 = 0.
             c2 = 0.
             s1 = 0.
