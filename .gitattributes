@@ -808,6 +808,7 @@ code/alma/MS2ASDM/MS2ASDM.cc -text
 code/alma/MS2ASDM/MS2ASDM.h -text
 code/alma/alma.dox -text
 code/alma/apps/MS2asdm/MS2asdm.cc -text
+code/alma/apps/asdm2MS/ASDM2MSException.h -text
 code/alma/apps/asdm2MS/ASDM2MSFiller.cc -text
 code/alma/apps/asdm2MS/ASDM2MSFiller.h -text
 code/alma/apps/asdm2MS/ASDM2MSFiller2.cc -text
