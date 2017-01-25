@@ -5954,6 +5954,7 @@ gcwrap/python/scripts/init_tools.py -text
 gcwrap/python/scripts/init_user_post.py -text
 gcwrap/python/scripts/init_user_pre.py -text
 gcwrap/python/scripts/init_welcome.py -text
+gcwrap/python/scripts/init_welcome_helpers.py -text
 gcwrap/python/scripts/listing.py -text
 gcwrap/python/scripts/mindpipes.py -text
 gcwrap/python/scripts/mpi4casa/CASA-4.3-MPI-Parallel-Processing-Framework-Installation-and-advance-user-guide.pdf -text
