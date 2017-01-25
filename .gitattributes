@@ -808,6 +808,7 @@ code/alma/MS2ASDM/MS2ASDM.cc -text
 code/alma/MS2ASDM/MS2ASDM.h -text
 code/alma/alma.dox -text
 code/alma/apps/MS2asdm/MS2asdm.cc -text
+code/alma/apps/asdm2MS/ASDM2MSException.h -text
 code/alma/apps/asdm2MS/ASDM2MSFiller.cc -text
 code/alma/apps/asdm2MS/ASDM2MSFiller.h -text
 code/alma/apps/asdm2MS/ASDM2MSFiller2.cc -text
@@ -889,7 +890,8 @@ code/atmosphere/ATM/ATMWaterVaporRadiometer.cpp -text
 code/atmosphere/ATM/ATMWaterVaporRadiometer.h -text
 code/atmosphere/ATM/mainpage.h -text
 code/atmosphere/CMakeLists.txt -text
-code/atmosphere/doc/developer.doxy.in -text
+code/atmosphere/doc/doxyfile -text
+code/atmosphere/doc/doxygen.conf.c++ -text
 code/atmosphere/test/SMATest.cpp -text
 code/atmosphere/test/absorption.cpp -text
 code/atmosphere/test/atmincludes.hpp -text
@@ -5952,6 +5954,7 @@ gcwrap/python/scripts/init_tools.py -text
 gcwrap/python/scripts/init_user_post.py -text
 gcwrap/python/scripts/init_user_pre.py -text
 gcwrap/python/scripts/init_welcome.py -text
+gcwrap/python/scripts/init_welcome_helpers.py -text
 gcwrap/python/scripts/listing.py -text
 gcwrap/python/scripts/mindpipes.py -text
 gcwrap/python/scripts/mpi4casa/CASA-4.3-MPI-Parallel-Processing-Framework-Installation-and-advance-user-guide.pdf -text

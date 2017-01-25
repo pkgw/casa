@@ -93,4 +93,9 @@ casa_add_python( tools tools_regressions_python lib/python${PYTHONV}/regressions
   pipelineTest_regression.py
   time_then_chan_avg.py
   calstat_test_regression.py
+  wideband.py
+  wproject.py
+  polcal_20080224_cband.py
+  alma-m100-analysis.py
+  alma-m100-sd.py
 )

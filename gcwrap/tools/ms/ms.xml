@@ -349,13 +349,12 @@ the ms definition itself. -->
 
 </description>
 
-<!-- 
    <method type="constructor" name="ms">
    <shortdescription>Create an ms tool attached to a measurement set</shortdescription>
    
   <keyword>ms</keyword>
   <input>
-    
+<!-- 
      <param type="string" direction="in" name="filename">
      <description>measurement set file-name</description>
      <value></value>
@@ -380,6 +379,7 @@ the ms definition itself. -->
      <description>start a new server tool</description>
      <value>false</value>
      </param>
+-->
   </input>
   <returns type="msobject"/>
 
@@ -436,7 +436,6 @@ the ms definition itself. -->
     See the example for the <link anchor="ms:ms.nrow.function">nrow</link> function.
   </example>
 </method>
--->
  
    <method type="function" name="fromfits">
    <shortdescription>Create a measurement set from a uvfits file</shortdescription>
@@ -4779,10 +4778,11 @@ ms.tosdfits("myfile.sdfits")  # write SDFITS file
    </input>
    <returns type="string"/>
    <description>
-   If the MS is imported from an ASDM  with option lazy=True, the DATA column of the MS is virtual
-   and directly reads the visibilities from the ASDM. A reference to the original ASDM is stored
-   with the MS. If the ASDM needs to be moved to a different path, the reference to it in the MS
-   needs to be updated. This can be achieved with ms.asdmref().
+   If the MS is imported from an ASDM  with option lazy=True, the DATA or FLOAT_DATA column of the MS
+   is virtual and directly reads the visibilities from the ASDM. A reference to the original ASDM is 
+   stored with the MS. If the ASDM needs to be moved to a different path, the reference to it in the 
+   MS needs to be updated. This can be achieved with ms.asdmref().
+
    When called with an empty string (default), the method just reports the currently set ASDM path.
 
    Return value is a string containing the new path if the path was successfully set or 

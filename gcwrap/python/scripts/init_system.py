@@ -8,7 +8,7 @@ try:
     from casac import casac
 except ImportError, e:
     print "failed to load casa:\n", e
-    sys.exit(1)
+    os._exit(1)
 
 try:
     import matplotlib
@@ -42,7 +42,8 @@ if os.environ.has_key('CASAPATH') :
     __casaarch__ = os.environ['CASAPATH'].split(' ')[1]
     if not os.path.exists(__casapath__ + "/data") :
         print "DEBUG: CASAPATH = %s" % (__casapath__)
-        raise RuntimeError, "Unable to find the data repository directory in your CASAPATH. Please fix."
+        print "Unable to find the data repository directory in your CASAPATH. Please fix."
+        os._exit(1)
     else :
         casa['dirs']['root'] = __casapath__
         casa['dirs']['data'] = __casapath__ + "/data"
@@ -199,7 +200,7 @@ argparser.add_argument( '--colors', dest='prompt', default='NoColor',
                         help='prompt color', choices=['NoColor', 'Linux', 'LightBG'] )
 argparser.add_argument( "--pipeline",dest='pipeline',action='store_const',const=True,default=False,
                         help='start CASA pipeline run' )
-argparser.add_argument( "-c",dest='execute',default=[],nargs='+',
+argparser.add_argument( "-c",dest='execute',default=[],nargs=argparse.REMAINDER,
                         help='python eval string or python script to execute' )
 
 casa['flags'] = argparser.parse_args( )
