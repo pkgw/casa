@@ -3816,6 +3816,8 @@ code/imageanalysis/ImageAnalysis/ImageSourceFinder.h -text
 code/imageanalysis/ImageAnalysis/ImageSourceFinder.tcc -text
 code/imageanalysis/ImageAnalysis/ImageStatsCalculator.cc -text
 code/imageanalysis/ImageAnalysis/ImageStatsCalculator.h -text
+code/imageanalysis/ImageAnalysis/ImageStatsConfigurator.cc -text
+code/imageanalysis/ImageAnalysis/ImageStatsConfigurator.h -text
 code/imageanalysis/ImageAnalysis/ImageTask.h -text
 code/imageanalysis/ImageAnalysis/ImageTask.tcc -text
 code/imageanalysis/ImageAnalysis/ImageTransposer.cc -text
@@ -3850,6 +3852,8 @@ code/imageanalysis/ImageAnalysis/SpectralCollapser.cc -text
 code/imageanalysis/ImageAnalysis/SpectralCollapser.h -text
 code/imageanalysis/ImageAnalysis/SpectralFitter.cc -text
 code/imageanalysis/ImageAnalysis/SpectralFitter.h -text
+code/imageanalysis/ImageAnalysis/StatImageCreator.cc -text
+code/imageanalysis/ImageAnalysis/StatImageCreator.h -text
 code/imageanalysis/ImageAnalysis/SubImageFactory.h -text
 code/imageanalysis/ImageAnalysis/SubImageFactory.tcc -text
 code/imageanalysis/ImageAnalysis/TwoPointCorrelator.h -text
