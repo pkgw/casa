@@ -4273,6 +4273,8 @@ code/msvis/MSVis/Partition.cc -text
 code/msvis/MSVis/Partition.h -text
 code/msvis/MSVis/PhaseShiftTvi.cc -text
 code/msvis/MSVis/PhaseShiftTvi.h -text
+code/msvis/MSVis/PointingDirectionCache.cc -text
+code/msvis/MSVis/PointingDirectionCache.h -text
 code/msvis/MSVis/Reweighter.cc -text
 code/msvis/MSVis/Reweighter.h -text
 code/msvis/MSVis/SelectAverageSpw.cc -text
@@ -4433,6 +4435,7 @@ code/msvis/MSVis/test/MSCheckerTest.h -text
 code/msvis/MSVis/test/MSChecker_Gtest.cc -text
 code/msvis/MSVis/test/MsFactory.cc -text
 code/msvis/MSVis/test/MsFactory.h -text
+code/msvis/MSVis/test/PointingDirectionCache_Test.cc -text
 code/msvis/MSVis/test/VisibilityIterator_Gtest.cc -text
 code/msvis/MSVis/test/VisibilityIterator_Gtest.h -text
 code/msvis/MSVis/test/VisibilityIterator_Test.cc -text
