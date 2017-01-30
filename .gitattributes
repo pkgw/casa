@@ -5356,6 +5356,7 @@ code/synthesis/MeasurementComponents/test/tAlgoPClark.run -text
 code/synthesis/MeasurementComponents/test/tBeamSquint.cc -text
 code/synthesis/MeasurementComponents/test/tCalSolVi2Organizer_GT.cc -text
 code/synthesis/MeasurementComponents/test/tCalibrater.cc -text
+code/synthesis/MeasurementComponents/test/tCalibraterSolveSimData_GT.cc -text
 code/synthesis/MeasurementComponents/test/tCalibraterSolve_GT.cc -text
 code/synthesis/MeasurementComponents/test/tDJones_GT.cc -text
 code/synthesis/MeasurementComponents/test/tEVLAAperture.cc -text
