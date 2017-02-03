@@ -5923,6 +5923,7 @@ gcwrap/python/scripts/casa_builtin.py -text
 gcwrap/python/scripts/casa_shutdown.py -text
 gcwrap/python/scripts/casa_stack_manip.py -text
 gcwrap/python/scripts/casa_system.py -text
+gcwrap/python/scripts/casa_system_defaults.py -text
 gcwrap/python/scripts/casapy.py -text
 gcwrap/python/scripts/casapy_engine.py -text
 gcwrap/python/scripts/check_exceptionhandling.py -text
