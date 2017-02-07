@@ -2,6 +2,10 @@
 #
 # Test programs for the refactored imager's parallel runs:  test_refimager_parallel
 #
+#  Add tests for 
+#     - cube/cont parallel with multiple MSs, MMS, w/wo model writes, restarts 
+#     - mosaic, AWProj cont and cube
+#
 ##########################################################################
 
 
@@ -16,7 +20,7 @@ from taskinit import *
 import unittest
 import inspect
 
-from refimagerhelper import TestHelpers
+from imagerhelpers.test_imager_helper import TestHelpers
 
 
 refdatapath = os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/clean/refimager/'
@@ -207,6 +211,6 @@ class test_cube(testref_base_parallel):
 
           else:
                print "MPI is not enabled. This test will be skipped"
- 
+
 ###################################################
 

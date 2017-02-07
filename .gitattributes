@@ -3369,6 +3369,8 @@ code/flagging/Flagging/DDMapper.cc -text
 code/flagging/Flagging/DDMapper.h -text
 code/flagging/Flagging/ExtendFlagger.cc -text
 code/flagging/Flagging/ExtendFlagger.h -text
+code/flagging/Flagging/FlagAgentAntennaIntegrations.cc -text
+code/flagging/Flagging/FlagAgentAntennaIntegrations.h -text
 code/flagging/Flagging/FlagAgentBase.cc -text
 code/flagging/Flagging/FlagAgentBase.h -text
 code/flagging/Flagging/FlagAgentClipping.cc -text
@@ -5947,6 +5949,16 @@ gcwrap/python/scripts/filltsys.py -text
 gcwrap/python/scripts/fixvis_util.py -text
 gcwrap/python/scripts/flaghelper.py -text
 gcwrap/python/scripts/get_user.py -text
+gcwrap/python/scripts/imagerhelpers/CMakeLists.txt -text
+gcwrap/python/scripts/imagerhelpers/__init__.py -text
+gcwrap/python/scripts/imagerhelpers/imager_base.py -text
+gcwrap/python/scripts/imagerhelpers/imager_parallel_continuum.py -text
+gcwrap/python/scripts/imagerhelpers/imager_parallel_cube.py -text
+gcwrap/python/scripts/imagerhelpers/imager_parallel_cube2.py -text
+gcwrap/python/scripts/imagerhelpers/imager_parallel_deconvolver.py -text
+gcwrap/python/scripts/imagerhelpers/input_parameters.py -text
+gcwrap/python/scripts/imagerhelpers/parallel_imager_helper.py -text
+gcwrap/python/scripts/imagerhelpers/test_imager_helper.py -text
 gcwrap/python/scripts/importarchive.py -text
 gcwrap/python/scripts/init_asap.py -text
 gcwrap/python/scripts/init_crashrpt.py -text
