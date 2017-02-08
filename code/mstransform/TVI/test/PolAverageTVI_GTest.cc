@@ -46,6 +46,8 @@
 #include <gtest/gtest.h>
 #include <memory>
 #include <typeinfo>
+#include <limits>
+#include <cmath>
 
 using namespace std;
 using namespace casa;
@@ -204,7 +206,19 @@ struct ValidatorBase {
       weight.freeStorage(p_w, b4);
       fSlice.freeStorage(p_f, b5);
     }
-    result /= weightSum;
+//    std::cout << "DEBUG: result = " << result.nonDegenerate()
+//        << " weightSum = " << weightSum.nonDegenerate() << std::endl;
+    Bool b1, b2;
+    T *p_r = result.getStorage(b1);
+    Float const *p_s = weightSum.getStorage(b2);
+    for (ssize_t i = 0; i < result.shape().product(); ++i) {
+      if (p_s[i] > 0.0f) {
+        p_r[i] /= p_s[i];
+      }
+    }
+    result.putStorage(p_r, b1);
+    weightSum.freeStorage(p_s, b2);
+//    std::cout << "DEBUG: r/w = " << result << std::endl;
   }
 
   static void CollapseWeight(Array<Float> const &baseWeight,
@@ -462,7 +476,8 @@ public:
 
     ViImplementation2 *createVi() const {
       Vector<ViiLayerFactory *> v(1);
-      auto layer0 = VisIterImpl2LayerFactory(ms_, IteratingParameters(0.0), false);
+      auto layer0 = VisIterImpl2LayerFactory(ms_, IteratingParameters(0.0),
+          false);
       auto layer1 = PolAverageTVILayerFactory(mode_);
       v[0] = &layer0;
       return layer1.createViImpl2(v);
@@ -474,8 +489,7 @@ public:
 
   static ViFactory *BuildFactory(MeasurementSet *ms, Record const &mode) {
     // create read-only VI impl
-    std::unique_ptr<ViFactory> factory(
-        new LayerFactoryWrapper(ms, mode));
+    std::unique_ptr<ViFactory> factory(new LayerFactoryWrapper(ms, mode));
 
     return factory.release();
   }
@@ -487,31 +501,135 @@ public:
 
 } // anonymous namespace
 
-class PolAverageTVITest: public ::testing::Test {
+class PolAverageTVITestBase: public ::testing::Test {
 public:
+  PolAverageTVITestBase() :
+      my_ms_name_("polaverage_test.ms") {
+  }
+
   virtual void SetUp() {
 //    my_data_name_ = "analytic_spectra.ms";
-    my_data_name_ = "analytic_type1.bl.ms";
-    my_ms_name_ = "polaverage_test.ms";
-    std::string const data_path = ::GetCasaDataPath()
-        + "/regression/unittest/tsdbaseline/";
+    my_data_name_ = GetDataName(); //"analytic_type1.bl.ms";
+    std::string const data_path = ::GetCasaDataPath() + "/regression/unittest/"
+        + GetRelativeDataPath() + "/";
+//        + "/regression/unittest/tsdbaseline/";
 //    + "/regression/unittest/singledish/";
 
+    ASSERT_TRUE(Directory(data_path).exists());
     copyDataFromRepository(data_path);
     ASSERT_TRUE(File(my_data_name_).exists());
     deleteTable(my_ms_name_);
 
     // create MS
-    ms_ = MeasurementSet(my_data_name_, Table::Old);
+    ms_ = MeasurementSet(my_data_name_, Table::Update);
   }
 
   virtual void TearDown() {
     cleanup();
   }
+
 protected:
-  std::string my_ms_name_;
+  std::string const my_ms_name_;
   std::string my_data_name_;
   MeasurementSet ms_;
+
+  virtual std::string GetDataName() {
+    return "";
+  }
+
+  virtual std::string GetRelativeDataPath() {
+    return "";
+  }
+
+private:
+  void copyRegular(String const &src, String const &dst) {
+    RegularFile r(src);
+    r.copy(dst);
+  }
+  void copySymLink(String const &src, String const &dst) {
+    Path p = SymLink(src).followSymLink();
+    String actual_src = p.absoluteName();
+    File f(actual_src);
+    if (f.isRegular()) {
+      copyRegular(actual_src, dst);
+    } else if (f.isDirectory()) {
+      copyDirectory(actual_src, dst);
+    }
+  }
+  void copyDirectory(String const &src, String const &dst) {
+    Directory dsrc(src);
+    Directory ddst(dst);
+    ddst.create();
+    DirectoryIterator iter(dsrc);
+    while (!iter.pastEnd()) {
+      String name = iter.name();
+      if (name.contains(".svn")) {
+        iter++;
+        continue;
+      }
+      File f = iter.file();
+      Path psrc(src);
+      Path pdst(dst);
+      psrc.append(name);
+      String sub_src = psrc.absoluteName();
+      pdst.append(name);
+      String sub_dst = pdst.absoluteName();
+      if (f.isSymLink()) {
+        copySymLink(sub_src, sub_dst);
+      } else if (f.isRegular()) {
+        copyRegular(sub_src, sub_dst);
+      } else if (f.isDirectory()) {
+        copyDirectory(sub_src, sub_dst);
+      }
+      iter++;
+    }
+  }
+  void copyDataFromRepository(std::string const &data_dir) {
+    if (my_data_name_.size() > 0) {
+      std::string full_path = data_dir + my_data_name_;
+      std::string work_path = my_data_name_;
+      File f(full_path);
+      ASSERT_TRUE(f.exists());
+      if (f.isSymLink()) {
+        copySymLink(full_path, work_path);
+      } else if (f.isRegular()) {
+        copyRegular(full_path, work_path);
+      } else if (f.isDirectory()) {
+        copyDirectory(full_path, work_path);
+      }
+    }
+  }
+  void cleanup() {
+    if (my_data_name_.size() > 0) {
+      File f(my_data_name_);
+      if (f.isRegular()) {
+        RegularFile r(my_data_name_);
+        r.remove();
+      } else if (f.isDirectory()) {
+        Directory d(my_data_name_);
+        d.removeRecursive();
+      }
+    }
+    deleteTable(my_ms_name_);
+  }
+  void deleteTable(std::string const &name) {
+    File file(name);
+    if (file.exists()) {
+      std::cout << "Removing " << name << std::endl;
+      Table::deleteTable(name, true);
+    }
+  }
+};
+
+class PolAverageTVITest: public PolAverageTVITestBase {
+protected:
+  virtual std::string GetDataName() {
+    return "analytic_type1.bl.ms";
+  }
+
+  virtual std::string GetRelativeDataPath() {
+    return "tsdbaseline";
+  }
 
   VisibilityIterator2 *ManufactureVI(String const &mode) {
     return BasicManufacturer1::ManufactureVI(&ms_, mode);
@@ -733,85 +851,95 @@ protected:
 
   }
 
-private:
-  void copyRegular(String const &src, String const &dst) {
-    RegularFile r(src);
-    r.copy(dst);
-  }
-  void copySymLink(String const &src, String const &dst) {
-    Path p = SymLink(src).followSymLink();
-    String actual_src = p.absoluteName();
-    File f(actual_src);
-    if (f.isRegular()) {
-      copyRegular(actual_src, dst);
-    } else if (f.isDirectory()) {
-      copyDirectory(actual_src, dst);
-    }
-  }
-  void copyDirectory(String const &src, String const &dst) {
-    Directory dsrc(src);
-    Directory ddst(dst);
-    ddst.create();
-    DirectoryIterator iter(dsrc);
-    while (!iter.pastEnd()) {
-      String name = iter.name();
-      if (name.contains(".svn")) {
-        iter++;
-        continue;
-      }
-      File f = iter.file();
-      Path psrc(src);
-      Path pdst(dst);
-      psrc.append(name);
-      String sub_src = psrc.absoluteName();
-      pdst.append(name);
-      String sub_dst = pdst.absoluteName();
-      if (f.isSymLink()) {
-        copySymLink(sub_src, sub_dst);
-      } else if (f.isRegular()) {
-        copyRegular(sub_src, sub_dst);
-      } else if (f.isDirectory()) {
-        copyDirectory(sub_src, sub_dst);
-      }
-      iter++;
-    }
-  }
-  void copyDataFromRepository(std::string const &data_dir) {
-    if (my_data_name_.size() > 0) {
-      std::string full_path = data_dir + my_data_name_;
-      std::string work_path = my_data_name_;
-      File f(full_path);
-      ASSERT_TRUE(f.exists());
-      if (f.isSymLink()) {
-        copySymLink(full_path, work_path);
-      } else if (f.isRegular()) {
-        copyRegular(full_path, work_path);
-      } else if (f.isDirectory()) {
-        copyDirectory(full_path, work_path);
-      }
-    }
-  }
-  void cleanup() {
-    if (my_data_name_.size() > 0) {
-      File f(my_data_name_);
-      if (f.isRegular()) {
-        RegularFile r(my_data_name_);
-        r.remove();
-      } else if (f.isDirectory()) {
-        Directory d(my_data_name_);
-        d.removeRecursive();
-      }
-    }
-    deleteTable(my_ms_name_);
-  }
-  void deleteTable(std::string const &name) {
-    File file(name);
-    if (file.exists()) {
-      std::cout << "Removing " << name << std::endl;
-      Table::deleteTable(name, true);
-    }
-  }
+  // Make input data dirty
+  void CorruptData() {
+    // Accessor to FLAG column
+    ArrayColumn<Bool> flagColumn(ms_, "FLAG");
+    Cube<Bool> flag = flagColumn.getColumn();
 
+    // Accessor to DATA columns
+    Cube<Float> floatData;
+    Cube<Complex> complexData, correctedData;
+    if (ms_.tableDesc().isColumn("DATA")) {
+      ArrayColumn<Complex> dataColumn(ms_, "DATA");
+      dataColumn.getColumn(complexData);
+      ASSERT_EQ(flag.shape(), complexData.shape());
+    }
+    if (ms_.tableDesc().isColumn("FLOAT_DATA")) {
+      ArrayColumn<Float> dataColumn(ms_, "FLOAT_DATA");
+      dataColumn.getColumn(floatData);
+      ASSERT_EQ(flag.shape(), floatData.shape());
+    }
+    if (ms_.tableDesc().isColumn("CORRECTED_DATA")) {
+      ArrayColumn<Complex> dataColumn(ms_, "CORRECTED_DATA");
+      dataColumn.getColumn(correctedData);
+      ASSERT_EQ(flag.shape(), correctedData.shape());
+    }
+
+    // corrupt row 0, channel 10, pol 1
+    size_t row = 0;
+    size_t chan = 10;
+    size_t pol = 1;
+    ASSERT_GT((size_t)flag.nplane(), row);
+    ASSERT_GT((size_t)flag.ncolumn(), chan);
+    ASSERT_GT((size_t)flag.nrow(), pol);
+    Float corruptValue = std::numeric_limits<float>::quiet_NaN();
+    flag(pol, chan, row) = True;
+    ASSERT_EQ(flag(pol, chan, row), True);
+    if (!floatData.empty()) {
+      floatData(pol, chan, row) = corruptValue;
+      ASSERT_TRUE(std::isnan(floatData(pol, chan, row)));
+    }
+    if (!complexData.empty()) {
+      complexData(pol, chan, row) = corruptValue;
+      ASSERT_TRUE(std::isnan(complexData(pol, chan, row).real()));
+    }
+    if (!correctedData.empty()) {
+      correctedData(pol, chan, row) = corruptValue;
+      ASSERT_TRUE(std::isnan(correctedData(pol, chan, row).real()));
+    }
+
+    // corrupt row 1, channel 100, all pols
+    row = 1;
+    chan = 100;
+    ASSERT_GT((size_t)flag.nplane(), row);
+    ASSERT_GT((size_t)flag.ncolumn(), chan);
+    IPosition blc(3, 0, chan, row);
+    IPosition trc(3, flag.nrow()-1, chan, row);
+    flag(blc, trc) = True;
+    ASSERT_EQ(flag(0, chan, row), True);
+    ASSERT_EQ(flag(1, chan, row), True);
+    if (!floatData.empty()) {
+      floatData(blc, trc) = corruptValue;
+      ASSERT_TRUE(std::isnan(floatData(0, chan, row)));
+      ASSERT_TRUE(std::isnan(floatData(1, chan, row)));
+    }
+    if (!complexData.empty()) {
+      complexData(blc, trc) = corruptValue;
+      ASSERT_TRUE(std::isnan(complexData(0, chan, row).real()));
+      ASSERT_TRUE(std::isnan(complexData(1, chan, row).real()));
+    }
+    if (!correctedData.empty()) {
+      correctedData(blc, trc) = corruptValue;
+      ASSERT_TRUE(std::isnan(correctedData(0, chan, row).real()));
+      ASSERT_TRUE(std::isnan(correctedData(1, chan, row).real()));
+    }
+
+    // write back to MS
+    flagColumn.putColumn(flag);
+    if (ms_.tableDesc().isColumn("DATA")) {
+      ArrayColumn<Complex> dataColumn(ms_, "DATA");
+      dataColumn.putColumn(complexData);
+    }
+    if (ms_.tableDesc().isColumn("FLOAT_DATA")) {
+      ArrayColumn<Float> dataColumn(ms_, "FLOAT_DATA");
+      dataColumn.putColumn(floatData);
+    }
+    if (ms_.tableDesc().isColumn("CORRECTED_DATA")) {
+      ArrayColumn<Complex> dataColumn(ms_, "CORRECTED_DATA");
+      dataColumn.putColumn(correctedData);
+    }
+  }
 };
 
 TEST_F(PolAverageTVITest, Factory) {
@@ -832,21 +960,33 @@ TEST_F(PolAverageTVITest, Factory) {
 }
 
 TEST_F(PolAverageTVITest, GeometricAverage) {
-  // Use difference type of constructor to create factory
+  // Use different types of constructor to create factory
   TestTVI<GeometricAverageValidator, BasicManufacturer1>();
   TestTVI<GeometricAverageValidator, BasicManufacturer2>();
   TestTVI<GeometricAverageValidator, LayerManufacturer>();
 }
 
 TEST_F(PolAverageTVITest, StokesAverage) {
-  // Use difference type of constructor to create factory
+  // Use different types of constructor to create factory
   TestTVI<StokesAverageValidator, BasicManufacturer1>();
   TestTVI<StokesAverageValidator, BasicManufacturer2>();
   TestTVI<StokesAverageValidator, LayerManufacturer>();
 }
 
-// TODO: define test on not-well-behaved data
-//       such as partially flagged, contains NaN, etc.
+TEST_F(PolAverageTVITest, GeometricAverageCorrupted) {
+  // test on dirty MS
+  CorruptData();
+
+  TestTVI<GeometricAverageValidator, BasicManufacturer1>();
+}
+
+TEST_F(PolAverageTVITest, StokesAverageCorrupted) {
+  // test on dirty MS
+  CorruptData();
+
+  TestTVI<StokesAverageValidator, BasicManufacturer1>();
+}
+
 // TODO: define test on the data that should not average
 //       along polarization axis (IQUV or single polarization or multi-pol but not containing XX and YY)
 
