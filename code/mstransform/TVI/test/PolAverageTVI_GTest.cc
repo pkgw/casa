@@ -703,7 +703,6 @@ public:
   }
 
   virtual void TearDown() {
-    cout << "DEBUG: This is TearDown" << endl;
     // delete MS explicitly to detach from MS on disk
     delete ms_;
 
