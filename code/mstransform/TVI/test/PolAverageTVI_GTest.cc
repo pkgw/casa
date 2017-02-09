@@ -248,6 +248,7 @@ private:
   static void ValidateDataColumn(Array<T> const &data, MeasurementSet const &ms,
       String const &columnName, Vector<uInt> const &rowIds) {
     cout << "Start " << __func__ << endl;
+    ASSERT_EQ(data.shape()[0], (ssize_t )1);
     Array<T> baseData;
     Array<Float> baseWeight;
     Array<Bool> baseFlag;
@@ -263,6 +264,7 @@ private:
   static void ValidateWeightColumn(Array<Float> const &weight,
       MeasurementSet const &ms, String const &columnName,
       Vector<uInt> const &rowIds) {
+    ASSERT_EQ(weight.shape()[0], (ssize_t )1);
     Array<Float> baseWeight;
     Filler<Float>::FillArrayReference(ms, columnName, rowIds, baseWeight);
     Array<Float> ref;
@@ -271,6 +273,11 @@ private:
   }
 
 public:
+  static void ValidatePolarization(Vector<Int> const &corrType) {
+    // correlation type is always I
+    ASSERT_EQ((size_t )1, corrType.size());
+    ASSERT_TRUE(allEQ(corrType, (Int )Stokes::I));
+  }
   static void ValidateData(Array<Complex> const &data, MeasurementSet const &ms,
       Vector<uInt> const &rowIds) {
     ValidateDataColumn(data, ms, "DATA", rowIds);
@@ -314,6 +321,7 @@ public:
 
   static void ValidateFlagRow(Vector<Bool> const &flag,
       MeasurementSet const &ms, Vector<uInt> const &rowIds) {
+    ASSERT_EQ(flag.size(), rowIds.size());
     Vector<Bool> ref;
     Filler<Bool>::FillScalarReference(ms, "FLAG_ROW", rowIds, ref);
     ASSERT_EQ(flag.shape(), ref.shape());
@@ -354,6 +362,15 @@ public:
 // Base class for validating polarization average being skipped
 struct IdenticalValidator {
 public:
+  static void ValidatePolarization(Vector<Int> const &corrType) {
+    Int possibleTypes[] = {Stokes::I, Stokes::Q, Stokes::U, Stokes::V, Stokes::XY, Stokes::YX};
+    size_t len = sizeof(possibleTypes) / sizeof(Int);
+    Vector<Int> possibleTypesV(IPosition(1, len), possibleTypes, SHARE);
+    auto iterend = corrType.end();
+    for (auto iter = corrType.begin(); iter != iterend; ++iter) {
+      ASSERT_TRUE(anyEQ(possibleTypesV, *iter));
+    }
+  }
   static void ValidateData(Array<Complex> const &data, MeasurementSet const &ms,
       Vector<uInt> const &rowIds) {
     ValidateArrayColumn(data, ms, "DATA", rowIds);
@@ -376,7 +393,7 @@ public:
   }
   static void ValidateFlagRow(Vector<Bool> const &flag,
       MeasurementSet const &ms, Vector<uInt> const &rowIds) {
-    ValidateScalarColumn(flag, ms, "DATA", rowIds);
+    ValidateScalarColumn(flag, ms, "FLAG_ROW", rowIds);
   }
   static void ValidateWeight(Matrix<Float> const &weight,
       MeasurementSet const &ms, Vector<uInt> const &rowIds) {
@@ -481,6 +498,10 @@ struct StokesIdenticalValidator: public StokesValidatorBase,
 template<class Impl>
 class Manufacturer {
 public:
+  struct Product {
+    ViFactory *factory;
+    ViImplementation2 *vii;
+  };
   static VisibilityIterator2 *ManufactureVI(MeasurementSet *ms,
       String const &mode) {
     cout << "### Manufacturer: " << endl << "###   " << Impl::GetTestPurpose()
@@ -492,13 +513,18 @@ public:
     }
 
     // build factory object
-    std::unique_ptr < ViFactory > factory(Impl::BuildFactory(ms, modeRec));
+    Product p = Impl::BuildFactory(ms, modeRec);
+    std::unique_ptr < ViFactory > factory(p.factory);
 
     std::unique_ptr < VisibilityIterator2 > vi;
     try {
       vi.reset(new VisibilityIterator2(*factory.get()));
     } catch (...) {
       cout << "Failed to create VI at factory" << endl;
+      // vii must be deleted since it is never managed by vi
+      if (p.vii) {
+        delete p.vii;
+      }
       throw;
     }
 
@@ -510,7 +536,7 @@ public:
 
 class BasicManufacturer1: public Manufacturer<BasicManufacturer1> {
 public:
-  static ViFactory *BuildFactory(MeasurementSet *ms, Record const &mode) {
+  static Product BuildFactory(MeasurementSet *ms, Record const &mode) {
     // create read-only VI impl
     Block<MeasurementSet const *> const mss(1, ms);
     SortColumns defaultSortColumns;
@@ -522,11 +548,14 @@ public:
     std::unique_ptr<ViFactory> factory(
         new PolAverageVi2Factory(mode, inputVii.get()));
 
+    Product p;
+
     // vi will be responsible for releasing inputVii so unique_ptr
     // should release the ownership here
-    inputVii.release();
+    p.vii = inputVii.release();
+    p.factory = factory.release();
 
-    return factory.release();
+    return p;
   }
 
   static String GetTestPurpose() {
@@ -536,13 +565,16 @@ public:
 
 class BasicManufacturer2: public Manufacturer<BasicManufacturer2> {
 public:
-  static ViFactory *BuildFactory(MeasurementSet *ms, Record const &mode) {
+  static Product BuildFactory(MeasurementSet *ms, Record const &mode) {
     // create factory directly from MS
     SortColumns defaultSortColumns;
     std::unique_ptr<ViFactory> factory(
         new PolAverageVi2Factory(mode, ms, defaultSortColumns, 0.0, False));
 
-    return factory.release();
+    Product p;
+    p.vii = nullptr;
+    p.factory = factory.release();
+    return p;
   }
 
   static String GetTestPurpose() {
@@ -571,11 +603,14 @@ public:
     Record const mode_;
   };
 
-  static ViFactory *BuildFactory(MeasurementSet *ms, Record const &mode) {
+  static Product BuildFactory(MeasurementSet *ms, Record const &mode) {
     // create read-only VI impl
     std::unique_ptr<ViFactory> factory(new LayerFactoryWrapper(ms, mode));
 
-    return factory.release();
+    Product p;
+    p.vii = nullptr;
+    p.factory = factory.release();
+    return p;
   }
 
   static String GetTestPurpose() {
@@ -588,7 +623,7 @@ public:
 class PolAverageTVITestBase: public ::testing::Test {
 public:
   PolAverageTVITestBase() :
-      my_ms_name_("polaverage_test.ms") {
+      my_ms_name_("polaverage_test.ms"), my_data_name_(), ms_(nullptr) {
   }
 
   virtual void SetUp() {
@@ -605,17 +640,32 @@ public:
     deleteTable(my_ms_name_);
 
     // create MS
-    ms_ = MeasurementSet(my_data_name_, Table::Update);
+    cout << "Locked tables: " << Table::getLockedTables(FileLocker::Read) << " "
+        << Table::getLockedTables(FileLocker::Write) << endl;
+    ms_ = new MeasurementSet(my_data_name_, Table::Update);
+    cout << "Locked tables (after instantiation): "
+        << Table::getLockedTables(FileLocker::Read) << " "
+        << Table::getLockedTables(FileLocker::Write) << endl;
   }
 
   virtual void TearDown() {
+    cout << "DEBUG: This is TearDown" << endl;
+    // delete MS explicitly to detach from MS on disk
+    delete ms_;
+    cout << "Locked tables: " << Table::getLockedTables(FileLocker::Read) << " "
+        << Table::getLockedTables(FileLocker::Write) << endl;
+    Table::relinquishAutoLocks();
+    cout << "Locked tables (after clean up): "
+        << Table::getLockedTables(FileLocker::Read) << " "
+        << Table::getLockedTables(FileLocker::Write) << endl;
+
     cleanup();
   }
 
 protected:
   std::string const my_ms_name_;
   std::string my_data_name_;
-  MeasurementSet ms_;
+  MeasurementSet *ms_;
 
   virtual std::string GetDataName() {
     return "";
@@ -623,6 +673,203 @@ protected:
 
   virtual std::string GetRelativeDataPath() {
     return "";
+  }
+
+  template<class Validator, class Manufacturer = BasicManufacturer1>
+  void TestTVI() {
+    // Create VI
+    std::unique_ptr < VisibilityIterator2
+        > vi(Manufacturer::ManufactureVI(ms_, Validator::GetMode()));
+    ASSERT_TRUE(vi->ViiType().startsWith(Validator::GetTypePrefix()));
+
+    // MS property
+    auto ms = vi->ms();
+    uInt const nRowMs = ms.nrow();
+    uInt const nRowPolarizationTable = ms.polarization().nrow();
+    auto const desc = ms.tableDesc();
+    auto const correctedExists = desc.isColumn("CORRECTED_DATA");
+    auto const modelExists = desc.isColumn("MODEL_DATA");
+    auto const dataExists = desc.isColumn("DATA");
+    auto const floatExists = desc.isColumn("FLOAT_DATA");
+    //auto const weightSpExists = desc.isColumn("WEIGHT_SPECTRUM");
+    cout << "MS Property" << endl;
+    cout << "\tMS Name: \"" << ms.tableName() << "\"" << endl;
+    cout << "\tNumber of Rows: " << nRowMs << endl;
+    cout << "\tNumber of Spws: " << vi->nSpectralWindows() << endl;
+    cout << "\tNumber of Polarizations: " << vi->nPolarizationIds() << endl;
+    cout << "\tNumber of DataDescs: " << vi->nDataDescriptionIds() << endl;
+    cout << "\tChannelized Weight Exists? "
+        << (vi->weightSpectrumExists() ? "True" : "False") << endl;
+    //cout << "\tChannelized Sigma Exists? " << (vi->sigmaSpectrumExists() ? "True" : "False") << endl;
+
+    // mv-VI consistency check
+    EXPECT_EQ(nRowPolarizationTable + 1, (uInt )vi->nPolarizationIds());
+
+    // VI iteration
+    Vector<uInt> swept(nRowMs, 0);
+    uInt nRowChunkSum = 0;
+    VisBuffer2 *vb = vi->getVisBuffer();
+    vi->originChunks();
+    while (vi->moreChunks()) {
+      vi->origin();
+      Int const nRowChunk = vi->nRowsInChunk();
+      nRowChunkSum += nRowChunk;
+      cout << "*************************" << endl;
+      cout << "*** Start loop on chunk " << vi->getSubchunkId().chunk() << endl;
+      cout << "*** Number of Rows: " << nRowChunk << endl;
+      cout << "*************************" << endl;
+
+      Int nRowSubchunkSum = 0;
+
+      while (vi->more()) {
+        auto subchunk = vi->getSubchunkId();
+        cout << "=== Start loop on subchunk " << subchunk.subchunk() << " ==="
+            << endl;
+
+        // cannot use getInterval due to the error
+        // "undefined reference to VisibilityIterator2::getInterval"
+        // even if the code is liked to libmsvis.so.
+        //cout << "Interval: " << vi->getInterval() << endl;
+
+        cout << "Antenna1: " << vb->antenna1() << endl;
+        cout << "Antenna2: " << vb->antenna2() << endl;
+        cout << "Array Id: " << vb->arrayId() << endl;
+        cout << "Data Desc Ids: " << vb->dataDescriptionIds() << endl;
+        cout << "Polarization Id: " << vb->polarizationId() << endl;
+        cout << "Exposure: " << vb->exposure() << endl;
+        cout << "Feed1: " << vb->feed1() << endl;
+        cout << "Feed2: " << vb->feed2() << endl;
+        cout << "Field Id: " << vb->fieldId() << endl;
+        cout << "Flag Row: " << vb->flagRow() << endl;
+        cout << "Observation Id: " << vb->observationId() << endl;
+        cout << "Processor Id: " << vb->processorId() << endl;
+        cout << "Scan: " << vb->scan() << endl;
+        cout << "State Id: " << vb->stateId() << endl;
+        cout << "Time: " << vb->time() << endl;
+        cout << "Time Centroid: " << vb->timeCentroid() << endl;
+        cout << "Time Interval: " << vb->timeInterval() << endl;
+        auto const corrTypes = vb->correlationTypes();
+        auto toStokes = [](Vector<Int> const &corrTypes) {
+          Vector<String> typeNames(corrTypes.size());
+          for (size_t i = 0; i < corrTypes.size(); ++i) {
+            typeNames[i] = Stokes::name((Stokes::StokesTypes)corrTypes[i]);
+          }
+          return typeNames;
+        };
+        cout << "Correlation Types: " << toStokes(corrTypes) << endl;
+        //cout << "UVW: " << vb->uvw() << endl;
+
+        cout << "---" << endl;
+        Int nRowSubchunk = vb->nRows();
+        Vector<uInt> rowIds = vb->rowIds();
+        for (auto iter = rowIds.begin(); iter != rowIds.end(); ++iter) {
+          swept[*iter] += 1;
+        }
+        nRowSubchunkSum += nRowSubchunk;
+        Int nAnt = vb->nAntennas();
+        Int nChan = vb->nChannels();
+        Int nCorr = vb->nCorrelations();
+        IPosition visShape = vb->getShape();
+        cout << "Number of Subchunk Rows: " << nRowSubchunk << endl;
+        cout << "Number of Antennas: " << nAnt << endl;
+        cout << "Number of Channels: " << nChan << endl;
+        cout << "Number of Correlations: " << nCorr << endl;
+        cout << "Row Ids: " << rowIds << endl;
+        cout << "Spectral Windows: " << vb->spectralWindows() << endl;
+        cout << "Visibility Shape: " << visShape << endl;
+        cout << "---" << endl;
+        Cube<Complex> visCube = vb->visCube();
+        cout << "DATA Shape: " << visCube.shape() << endl;
+        Cube<Complex> visCubeCorrected = vb->visCubeCorrected();
+        cout << "CORRECTED_DATA Shape: " << visCubeCorrected.shape() << endl;
+        Cube<Complex> visCubeModel = vb->visCubeModel();
+        cout << "MODEL_DATA Shape: " << visCubeModel.shape() << endl;
+        Cube<Float> visCubeFloat = vb->visCubeFloat();
+        cout << "FLOAT_DATA Shape: " << visCubeFloat.shape() << endl;
+        Cube<Bool> flagCube = vb->flagCube();
+        cout << "FLAG Shape: " << flagCube.shape() << endl;
+        Vector<Bool> flagRow = vb->flagRow();
+        cout << "FLAG_ROW Shape: " << flagRow.shape() << endl;
+        Matrix<Float> weight = vb->weight();
+        cout << "WEIGHT Shape: " << weight.shape() << endl;
+        Cube<Float> weightSp = vb->weightSpectrum();
+        cout << "WEIGHT_SPECTRUM Shape: " << weightSp.shape() << endl;
+        cout << "===" << endl;
+
+        // internal consistency check
+        EXPECT_EQ(nRowSubchunk, visShape[2]);
+        EXPECT_EQ(nChan, visShape[1]);
+        EXPECT_EQ(nCorr, visShape[0]);
+        EXPECT_EQ(!dataExists, visCube.empty());
+        if (!visCube.empty()) {
+          EXPECT_EQ(visShape, visCube.shape());
+        }
+        EXPECT_EQ(!correctedExists, visCubeCorrected.empty());
+        if (!visCubeCorrected.empty()) {
+          EXPECT_EQ(visShape, visCubeCorrected.shape());
+        }
+        EXPECT_EQ(!modelExists, visCubeModel.empty());
+        if (!visCubeModel.empty()) {
+          EXPECT_EQ(visShape, visCubeModel.shape());
+        }
+        EXPECT_EQ(!floatExists, visCubeFloat.empty());
+        if (!visCubeFloat.empty()) {
+          EXPECT_EQ(visShape, visCubeFloat.shape());
+        }
+        EXPECT_EQ((ssize_t )nRowSubchunk, weight.shape()[1]);
+        // NB: weight spectrum is created on-the-fly based on WEIGHT
+        //     so that weightSp is always non-empty.
+        //     see VisBufferImpl2::fillWeightSpectrum.
+        //EXPECT_EQ(!weightSpExists, weightSp.empty());
+        EXPECT_FALSE(weightSp.empty());
+        if (!weightSp.empty()) {
+          EXPECT_EQ((ssize_t )nChan, weightSp.shape()[1]);
+          EXPECT_EQ((ssize_t )nRowSubchunk, weightSp.shape()[2]);
+        }
+
+        // polarization averaging specific check
+        // polarization id always points to the row to be appended
+        ASSERT_EQ(nRowPolarizationTable, (uInt )vb->polarizationId());
+        Validator::ValidatePolarization(corrTypes);
+
+        // validation of polarization average
+        if (!visCube.empty()) {
+          cout << "validate DATA" << endl;
+          Validator::ValidateData(visCube, ms, rowIds);
+        }
+        if (!visCubeCorrected.empty()) {
+          cout << "validate CORRECTED_DATA" << endl;
+          Validator::ValidateCorrected(visCubeCorrected, ms, rowIds);
+        }
+        if (!visCubeModel.empty()) {
+          cout << "validate MODEL_DATA" << endl;
+          Validator::ValidateModel(visCubeModel, ms, rowIds);
+        }
+        if (!visCubeFloat.empty()) {
+          cout << "validate FLOAT_DATA" << endl;
+          Validator::ValidateFloat(visCubeFloat, ms, rowIds);
+        }
+        Validator::ValidateFlag(flagCube, ms, rowIds);
+        Validator::ValidateFlagRow(flagRow, ms, rowIds);
+        Validator::ValidateWeight(weight, ms, rowIds);
+        Validator::ValidateWeightSp(weightSp, ms, rowIds);
+
+        // next round of iteration
+        vi->next();
+      }
+
+      // chunk-subchunk consistency check
+      EXPECT_EQ(nRowChunk, nRowSubchunkSum);
+
+      vi->nextChunk();
+    }
+
+    // chunk-ms consistency check
+    EXPECT_EQ(nRowMs, nRowChunkSum);
+
+    // iteration check
+    EXPECT_TRUE(allEQ(swept, (uInt )1));
+
   }
 
 private:
@@ -685,14 +932,15 @@ private:
   }
   void cleanup() {
     if (my_data_name_.size() > 0) {
-      File f(my_data_name_);
-      if (f.isRegular()) {
-        RegularFile r(my_data_name_);
-        r.remove();
-      } else if (f.isDirectory()) {
-        Directory d(my_data_name_);
-        d.removeRecursive();
-      }
+//      File f(my_data_name_);
+//      if (f.isRegular()) {
+//        RegularFile r(my_data_name_);
+//        r.remove();
+//      } else if (f.isDirectory()) {
+//        Directory d(my_data_name_);
+//        d.removeRecursive();
+//      }
+      deleteTable(my_data_name_);
     }
     deleteTable(my_ms_name_);
   }
@@ -705,6 +953,7 @@ private:
   }
 };
 
+// Fixture class for standard test
 class PolAverageTVITest: public PolAverageTVITestBase {
 protected:
   virtual std::string GetDataName() {
@@ -716,7 +965,7 @@ protected:
   }
 
   VisibilityIterator2 *ManufactureVI(String const &mode) {
-    return BasicManufacturer1::ManufactureVI(&ms_, mode);
+    return BasicManufacturer1::ManufactureVI(ms_, mode);
   }
 
   void TestFactory(String const &mode, String const &expectedClassName) {
@@ -740,203 +989,53 @@ protected:
     }
   }
 
-  template<class Validator, class Manufacturer=BasicManufacturer1>
-  void TestTVI() {
-    // Create VI
-    std::unique_ptr<VisibilityIterator2> vi(Manufacturer::ManufactureVI(&ms_, Validator::GetMode()));
-    ASSERT_TRUE(vi->ViiType().startsWith(Validator::GetTypePrefix()));
-
-    // MS property
-    auto ms = vi->ms();
-    uInt const nRowMs = ms.nrow();
-    uInt const nRowPolarizationTable = ms.polarization().nrow();
-    auto const desc = ms.tableDesc();
-    auto const correctedExists = desc.isColumn("CORRECTED_DATA");
-    auto const modelExists = desc.isColumn("MODEL_DATA");
-    auto const dataExists = desc.isColumn("DATA");
-    auto const floatExists = desc.isColumn("FLOAT_DATA");
-    //auto const weightSpExists = desc.isColumn("WEIGHT_SPECTRUM");
-    cout << "MS Property" << endl;
-    cout << "\tMS Name: \"" << ms.tableName() << "\"" << endl;
-    cout << "\tNumber of Rows: " << nRowMs << endl;
-    cout << "\tNumber of Spws: " << vi->nSpectralWindows() << endl;
-    cout << "\tNumber of Polarizations: " << vi->nPolarizationIds() << endl;
-    cout << "\tNumber of DataDescs: " << vi->nDataDescriptionIds() << endl;
-    cout << "\tChannelized Weight Exists? "
-    << (vi->weightSpectrumExists() ? "True" : "False") << endl;
-    //cout << "\tChannelized Sigma Exists? " << (vi->sigmaSpectrumExists() ? "True" : "False") << endl;
-
-    // mv-VI consistency check
-    EXPECT_EQ(nRowPolarizationTable + 1, (uInt)vi->nPolarizationIds());
-
-    // VI iteration
-    Vector<uInt> swept(nRowMs, 0);
-    uInt nRowChunkSum = 0;
-    VisBuffer2 *vb = vi->getVisBuffer();
-    vi->originChunks();
-    while (vi->moreChunks()) {
-      vi->origin();
-      Int const nRowChunk = vi->nRowsInChunk();
-      nRowChunkSum += nRowChunk;
-      cout << "*************************" << endl;
-      cout << "*** Start loop on chunk " << vi->getSubchunkId().chunk() << endl;
-      cout << "*** Number of Rows: " << nRowChunk << endl;
-      cout << "*************************" << endl;
-
-      Int nRowSubchunkSum = 0;
-
-      while (vi->more()) {
-        auto subchunk = vi->getSubchunkId();
-        cout << "=== Start loop on subchunk " << subchunk.subchunk() << " ===" << endl;
-
-        // cannot use getInterval due to the error
-        // "undefined reference to VisibilityIterator2::getInterval"
-        // even if the code is liked to libmsvis.so.
-        //cout << "Interval: " << vi->getInterval() << endl;
-
-        cout << "Antenna1: " << vb->antenna1() << endl;
-        cout << "Antenna2: " << vb->antenna2() << endl;
-        cout << "Array Id: " << vb->arrayId() << endl;
-        cout << "Data Desc Ids: " << vb->dataDescriptionIds() << endl;
-        cout << "Polarization Id: " << vb->polarizationId() << endl;
-        cout << "Exposure: " << vb->exposure() << endl;
-        cout << "Feed1: " << vb->feed1() << endl;
-        cout << "Feed2: " << vb->feed2() << endl;
-        cout << "Field Id: " << vb->fieldId() << endl;
-        cout << "Flag Row: " << vb->flagRow() << endl;
-        cout << "Observation Id: " << vb->observationId() << endl;
-        cout << "Processor Id: " << vb->processorId() << endl;
-        cout << "Scan: " << vb->scan() << endl;
-        cout << "State Id: " << vb->stateId() << endl;
-        cout << "Time: " << vb->time() << endl;
-        cout << "Time Centroid: " << vb->timeCentroid() << endl;
-        cout << "Time Interval: " << vb->timeInterval() << endl;
-        auto const corrTypes = vb->correlationTypes();
-        cout << "Correlation Types: " << corrTypes << endl;
-        //cout << "UVW: " << vb->uvw() << endl;
-
-        cout << "---" << endl;
-        Int nRowSubchunk = vb->nRows();
-        Vector<uInt> rowIds = vb->rowIds();
-        for (auto iter = rowIds.begin(); iter != rowIds.end(); ++iter) {
-          swept[*iter] += 1;
-        }
-        nRowSubchunkSum += nRowSubchunk;
-        Int nAnt = vb->nAntennas();
-        Int nChan = vb->nChannels();
-        Int nCorr = vb->nCorrelations();
-        IPosition visShape = vb->getShape();
-        cout << "Number of Subchunk Rows: " << nRowSubchunk << endl;
-        cout << "Number of Antennas: " << nAnt << endl;
-        cout << "Number of Channels: " << nChan << endl;
-        cout << "Number of Correlations: " << nCorr << endl;
-        cout << "Row Ids: " << rowIds << endl;
-        cout << "Spectral Windows: " << vb->spectralWindows() << endl;
-        cout << "Visibility Shape: " << visShape << endl;
-        cout << "---" << endl;
-        Cube<Complex> visCube = vb->visCube();
-        cout << "DATA Shape: " << visCube.shape() << endl;
-        Cube<Complex> visCubeCorrected = vb->visCubeCorrected();
-        cout << "CORRECTED_DATA Shape: " << visCubeCorrected.shape() << endl;
-        Cube<Complex> visCubeModel = vb->visCubeModel();
-        cout << "MODEL_DATA Shape: " << visCubeModel.shape() << endl;
-        Cube<Float> visCubeFloat = vb->visCubeFloat();
-        cout << "FLOAT_DATA Shape: " << visCubeFloat.shape() << endl;
-        Cube<Bool> flagCube = vb->flagCube();
-        cout << "FLAG Shape: " << flagCube.shape() << endl;
-        Vector<Bool> flagRow = vb->flagRow();
-        cout << "FLAG_ROW Shape: " << flagRow.shape() << endl;
-        Matrix<Float> weight = vb->weight();
-        cout << "WEIGHT Shape: " << weight.shape() << endl;
-        Cube<Float> weightSp = vb->weightSpectrum();
-        cout << "WEIGHT_SPECTRUM Shape: " << weightSp.shape() << endl;
-        cout << "===" << endl;
-
-        // internal consistency check
-        EXPECT_EQ(nRowSubchunk, visShape[2]);
-        EXPECT_EQ(nChan, visShape[1]);
-        EXPECT_EQ(nCorr, visShape[0]);
-        EXPECT_EQ(!dataExists, visCube.empty());
-        if (!visCube.empty()) {
-          EXPECT_EQ(visShape, visCube.shape());
-        }
-        EXPECT_EQ(!correctedExists, visCubeCorrected.empty());
-        if (!visCubeCorrected.empty()) {
-          EXPECT_EQ(visShape, visCubeCorrected.shape());
-        }
-        EXPECT_EQ(!modelExists, visCubeModel.empty());
-        if (!visCubeModel.empty()) {
-          EXPECT_EQ(visShape, visCubeModel.shape());
-        }
-        EXPECT_EQ(!floatExists, visCubeFloat.empty());
-        if (!visCubeFloat.empty()) {
-          EXPECT_EQ(visShape, visCubeFloat.shape());
-        }
-        EXPECT_EQ((uInt)1, flagRow.size());
-        EXPECT_EQ((ssize_t)1, weight.shape()[0]);
-        EXPECT_EQ((ssize_t)nRowSubchunk, weight.shape()[1]);
-        // NB: weight spectrum is created on-the-fly based on WEIGHT
-        //     so that weightSp is always non-empty.
-        //     see VisBufferImpl2::fillWeightSpectrum.
-        //EXPECT_EQ(!weightSpExists, weightSp.empty());
-        EXPECT_FALSE(weightSp.empty());
-        if (!weightSp.empty()) {
-          EXPECT_EQ((ssize_t)1, weightSp.shape()[0]);
-          EXPECT_EQ((ssize_t)nChan, weightSp.shape()[1]);
-          EXPECT_EQ((ssize_t)nRowSubchunk, weightSp.shape()[2]);
-        }
-
-        // polarization averaging specific check
-        // length of the correlation (polarization) axis must be 1
-        ASSERT_EQ((ssize_t)1, visShape[0]);
-        // polarization id always points to the row to be appended
-        ASSERT_EQ(nRowPolarizationTable, (uInt)vb->polarizationId());
-        // correlation type is always I
-        ASSERT_EQ((size_t)1, corrTypes.size());
-        ASSERT_TRUE(allEQ(corrTypes, (Int)Stokes::I));
-
-        // validation of polarization average
-        if (!visCube.empty()) {
-          cout << "validate DATA" << endl;
-          Validator::ValidateData(visCube, ms, rowIds);
-        }
-        if (!visCubeCorrected.empty()) {
-          cout << "validate CORRECTED_DATA" << endl;
-          Validator::ValidateCorrected(visCubeCorrected, ms, rowIds);
-        }
-        if (!visCubeModel.empty()) {
-          cout << "validate MODEL_DATA" << endl;
-          Validator::ValidateModel(visCubeModel, ms, rowIds);
-        }
-        if (!visCubeFloat.empty()) {
-          cout << "validate FLOAT_DATA" << endl;
-          Validator::ValidateFloat(visCubeFloat, ms, rowIds);
-        }
-        Validator::ValidateFlag(flagCube, ms, rowIds);
-        Validator::ValidateFlagRow(flagRow, ms, rowIds);
-        Validator::ValidateWeight(weight, ms, rowIds);
-        Validator::ValidateWeightSp(weightSp, ms, rowIds);
-
-        // next round of iteration
-        vi->next();
-      }
-
-      // chunk-subchunk consistency check
-      EXPECT_EQ(nRowChunk, nRowSubchunkSum);
-
-      vi->nextChunk();
-    }
-
-    // chunk-ms consistency check
-    EXPECT_EQ(nRowMs, nRowChunkSum);
-
-    // iteration check
-    EXPECT_TRUE(allEQ(swept, (uInt)1));
-
-  }
-
 };
 
+// Fixture class for testing four polarization (cross-pol, stokes IQUV)
+class PolAverageTVIFourPolarizationTest: public PolAverageTVITestBase {
+protected:
+  virtual std::string GetDataName() {
+    return "crosspoltest.ms";
+  }
+
+  virtual std::string GetRelativeDataPath() {
+    return "sdsave";
+  }
+
+  void SetCorrTypeToStokes() {
+    ScalarColumn<Int> dataDescIdColumn(*ms_, "DATA_DESC_ID");
+    Vector<Int> dataDescIdList = dataDescIdColumn.getColumn();
+    ScalarColumn<Int> polarizationIdColumn(ms_->dataDescription(),
+        "POLARIZATION_ID");
+    Vector<Int> polarizationIdList(dataDescIdList.size());
+    for (size_t i = 0; i < dataDescIdList.size(); ++i) {
+      polarizationIdList[i] = polarizationIdColumn(dataDescIdList[i]);
+    }
+    std::cout << "polarizationIdList = " << polarizationIdList << std::endl;
+    uInt n = GenSort<Int>::sort(polarizationIdList, Sort::Ascending,
+        Sort::HeapSort | Sort::NoDuplicates);
+    std::cout << "polarizationIdList (sorted n = " << n << ") = "
+        << polarizationIdList << std::endl;
+
+    ArrayColumn<Int> corrTypeColumn(ms_->polarization(), "CORR_TYPE");
+    Int const newCorrTypes[] = { Stokes::I, Stokes::Q, Stokes::U, Stokes::V };
+    for (uInt i = 0; i < n; ++i) {
+      auto row = polarizationIdList[i];
+      std::cout << "row = " << row << std::endl;
+      Vector<Int> corrType = corrTypeColumn(row);
+      std::cout << "corrType = " << corrType << std::endl;
+      ASSERT_LE(corrType.size(), sizeof(newCorrTypes) / sizeof(Int));
+      for (size_t j = 0; j < corrType.size(); ++j) {
+        corrType[j] = newCorrTypes[j];
+      }
+      std::cout << "new corrType = " << corrType << std::endl;
+      corrTypeColumn.put(row, corrType);
+    }
+  }
+};
+
+// Fixture class for testing dirty (partially flagged) data
+// NB: use same data as PolAverageTVITest
 class PolAverageTVIDirtyDataTest: public PolAverageTVITest {
 public:
   virtual void SetUp() {
@@ -951,24 +1050,24 @@ private:
   // Make input data dirty
   void CorruptData() {
     // Accessor to FLAG column
-    ArrayColumn<Bool> flagColumn(ms_, "FLAG");
+    ArrayColumn<Bool> flagColumn(*ms_, "FLAG");
     Cube<Bool> flag = flagColumn.getColumn();
 
     // Accessor to DATA columns
     Cube<Float> floatData;
     Cube<Complex> complexData, correctedData;
-    if (ms_.tableDesc().isColumn("DATA")) {
-      ArrayColumn<Complex> dataColumn(ms_, "DATA");
+    if (ms_->tableDesc().isColumn("DATA")) {
+      ArrayColumn<Complex> dataColumn(*ms_, "DATA");
       dataColumn.getColumn(complexData);
       ASSERT_EQ(flag.shape(), complexData.shape());
     }
-    if (ms_.tableDesc().isColumn("FLOAT_DATA")) {
-      ArrayColumn<Float> dataColumn(ms_, "FLOAT_DATA");
+    if (ms_->tableDesc().isColumn("FLOAT_DATA")) {
+      ArrayColumn<Float> dataColumn(*ms_, "FLOAT_DATA");
       dataColumn.getColumn(floatData);
       ASSERT_EQ(flag.shape(), floatData.shape());
     }
-    if (ms_.tableDesc().isColumn("CORRECTED_DATA")) {
-      ArrayColumn<Complex> dataColumn(ms_, "CORRECTED_DATA");
+    if (ms_->tableDesc().isColumn("CORRECTED_DATA")) {
+      ArrayColumn<Complex> dataColumn(*ms_, "CORRECTED_DATA");
       dataColumn.getColumn(correctedData);
       ASSERT_EQ(flag.shape(), correctedData.shape());
     }
@@ -1024,57 +1123,20 @@ private:
 
     // write back to MS
     flagColumn.putColumn(flag);
-    if (ms_.tableDesc().isColumn("DATA")) {
-      ArrayColumn<Complex> dataColumn(ms_, "DATA");
+    if (ms_->tableDesc().isColumn("DATA")) {
+      ArrayColumn<Complex> dataColumn(*ms_, "DATA");
       dataColumn.putColumn(complexData);
     }
-    if (ms_.tableDesc().isColumn("FLOAT_DATA")) {
-      ArrayColumn<Float> dataColumn(ms_, "FLOAT_DATA");
+    if (ms_->tableDesc().isColumn("FLOAT_DATA")) {
+      ArrayColumn<Float> dataColumn(*ms_, "FLOAT_DATA");
       dataColumn.putColumn(floatData);
     }
-    if (ms_.tableDesc().isColumn("CORRECTED_DATA")) {
-      ArrayColumn<Complex> dataColumn(ms_, "CORRECTED_DATA");
+    if (ms_->tableDesc().isColumn("CORRECTED_DATA")) {
+      ArrayColumn<Complex> dataColumn(*ms_, "CORRECTED_DATA");
       dataColumn.putColumn(correctedData);
     }
   }
 
-};
-
-class PolAverageTVIStokesTypeDataTest: public PolAverageTVITest {
-public:
-  virtual void SetUp() {
-    // call parent's SetUp method
-    PolAverageTVITestBase::SetUp();
-
-    // corrupt data
-    SetCorrTypeToStokes();
-  }
-
-private:
-  void SetCorrTypeToStokes() {
-    ScalarColumn<Int> dataDescIdColumn(ms_, "DATA_DESC_ID");
-    Vector<Int> dataDescIdList = dataDescIdColumn.getColumn();
-    ScalarColumn<Int> polarizationIdColumn(ms_.dataDescription(),
-        "POLARIZATION_ID");
-    Vector<Int> polarizationIdList(dataDescIdList.size());
-    for (ssize_t i = 0; i < dataDescIdList.size(); ++i) {
-      polarizationIdList[i] = polarizationIdColumn(dataDescIdList[i]);
-    }
-    uInt n = GenSort::sort(polarizationIdList, Sort::Ascending,
-        Sort::HeapSort | Sort::NoDuplicates);
-
-    ArrayColumn<Int> corrTypeColumn(ms_.polarization(), "CORR_TYPE");
-    Int const newCorrTypes[] = { Stokes::I, Stokes::Q, Stokes::U, Stokes::V };
-    for (uInt i = 0; i < n; ++i) {
-      auto row = polarizationIdList[i];
-      Vector<Int> corrType = corrTypeColumn(row);
-      ASSERT_LT(corrType.size(), sizeof(newCorrTypes) / sizeof(Int));
-      for (Int j = 0; j < corrType.size(); ++j) {
-        corrType[j] = newCorrTypes[j];
-      }
-      corrTypeColumn.put(row, corrType);
-    }
-  }
 };
 
 TEST_F(PolAverageTVITest, Factory) {
@@ -1116,7 +1178,10 @@ TEST_F(PolAverageTVIDirtyDataTest, StokesAverageCorrupted) {
   TestTVI<StokesAverageValidator, BasicManufacturer1>();
 }
 
-TEST_F(PolAverageTVIStokesTypeDataTest, GeometricAverageSkipped) {
+TEST_F(PolAverageTVIFourPolarizationTest, GeometricAverageSkipped) {
+  // Edit CORR_TYPE to be IQUV
+  SetCorrTypeToStokes();
+
   TestTVI<GeometricIdenticalValidator, BasicManufacturer1>();
 }
 // TODO: define test on the data that should not average
