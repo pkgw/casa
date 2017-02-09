@@ -1242,8 +1242,6 @@ TEST_F(PolAverageTVIFourPolarizationTest, GeometricAverageCrossPol) {
 TEST_F(PolAverageTVIFourPolarizationTest, StokesAverageCrossPol) {
   TestTVI<StokesAverageCrossPolarizationValidator, BasicManufacturer1>();
 }
-// TODO: define test on the data that should not average
-//       along polarization axis (IQUV or single polarization or multi-pol but not containing XX and YY)
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
