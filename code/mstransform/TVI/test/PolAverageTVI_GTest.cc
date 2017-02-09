@@ -239,7 +239,8 @@ private:
       end -= 1;
       end[0] = i;
       auto wslice = baseWeight(start, end);
-      CollapserImpl::AccumulateWeight(wslice, result);
+      //CollapserImpl::AccumulateWeight(wslice, result);
+      CollapserImpl::AccumulateWeight(start, end, baseWeight, result);
     }
     CollapserImpl::NormalizeWeight(result);
   }
@@ -363,7 +364,8 @@ public:
 struct IdenticalValidator {
 public:
   static void ValidatePolarization(Vector<Int> const &corrType) {
-    Int possibleTypes[] = {Stokes::I, Stokes::Q, Stokes::U, Stokes::V, Stokes::XY, Stokes::YX};
+    Int possibleTypes[] = { Stokes::I, Stokes::Q, Stokes::U, Stokes::V,
+        Stokes::XY, Stokes::YX };
     size_t len = sizeof(possibleTypes) / sizeof(Int);
     Vector<Int> possibleTypesV(IPosition(1, len), possibleTypes, SHARE);
     auto iterend = corrType.end();
@@ -456,9 +458,9 @@ struct GeometricAverageValidator: public GeometricValidatorBase,
     weight = baseWeight(start, end);
   }
 
-  static void AccumulateWeight(Array<Float> const &weight,
-      Array<Float> &result) {
-    result += weight;
+  static void AccumulateWeight(IPosition const &start, IPosition const &end,
+      Array<Float> const &weight, Array<Float> &result) {
+    result += weight(start, end);
   }
 
   static void NormalizeWeight(Array<Float> &/*result*/) {
@@ -473,9 +475,66 @@ struct StokesAverageValidator: public StokesValidatorBase, public ValidatorBase<
     weight = 1.0f;
   }
 
-  static void AccumulateWeight(Array<Float> const &weight,
-      Array<Float> &result) {
-    result += 1.0f / weight;
+  static void AccumulateWeight(IPosition const &start, IPosition const &end,
+      Array<Float> const &weight, Array<Float> &result) {
+    result += 1.0f / weight(start, end);
+  }
+
+  static void NormalizeWeight(Array<Float> &result) {
+    result = 4.0f / result;
+  }
+};
+
+// Validator for Geometric polarization average including cross-polarization
+struct GeometricAverageCrossPolarizationValidator: public GeometricValidatorBase,
+    public ValidatorBase<GeometricAverageCrossPolarizationValidator> {
+  static void SetWeight(IPosition const &start, IPosition const &end,
+      Array<Float> const &baseWeight, Array<Float> &weight) {
+    // Here it is assumed that polarization order is 0: XX (RR), 1: XY (RL), 2: YX (LR), 3: YY (LL)
+    ASSERT_EQ(start[0], end[0]);
+    if (start[0] == 1 || start[0] == 2) {
+      // set weight for cross-polarization component to exclude it from the average
+      weight = 0.0f;
+    } else {
+      weight = baseWeight(start, end);
+    }
+  }
+
+  static void AccumulateWeight(IPosition const &start, IPosition const &end,
+      Array<Float> const &weight, Array<Float> &result) {
+    // Here it is assumed that polarization order is 0: XX (RR), 1: XY (RL), 2: YX (LR), 3: YY (LL)
+    ASSERT_EQ(start[0], end[0]);
+    if (start[0] != 1 && start[0] != 2) {
+      result += weight(start, end);
+    }
+  }
+
+  static void NormalizeWeight(Array<Float> &/*result*/) {
+  }
+};
+
+// Validator for Stokes polarization average including cross-polarization
+struct StokesAverageCrossPolarizationValidator: public StokesValidatorBase,
+    public ValidatorBase<StokesAverageCrossPolarizationValidator> {
+  static void SetWeight(IPosition const &start, IPosition const &end,
+      Array<Float> const &/*baseWeight*/, Array<Float> &weight) {
+    // Here it is assumed that polarization order is 0: XX (RR), 1: XY (RL), 2: YX (LR), 3: YY (LL)
+    ASSERT_EQ(start[0], end[0]);
+    if (start[0] == 1 || start[0] == 2) {
+      // set weight for cross-polarization component to exclude it from the average
+      weight = 0.0f;
+    } else {
+      weight = 1.0f;
+    }
+  }
+
+  static void AccumulateWeight(IPosition const &start, IPosition const &end,
+      Array<Float> const &weight, Array<Float> &result) {
+    // Here it is assumed that polarization order is 0: XX (RR), 1: XY (RL), 2: YX (LR), 3: YY (LL)
+    ASSERT_EQ(start[0], end[0]);
+    if (start[0] != 1 && start[0] != 2) {
+      result += 1.0f / weight(start, end);
+    }
   }
 
   static void NormalizeWeight(Array<Float> &result) {
@@ -640,24 +699,16 @@ public:
     deleteTable(my_ms_name_);
 
     // create MS
-    cout << "Locked tables: " << Table::getLockedTables(FileLocker::Read) << " "
-        << Table::getLockedTables(FileLocker::Write) << endl;
     ms_ = new MeasurementSet(my_data_name_, Table::Update);
-    cout << "Locked tables (after instantiation): "
-        << Table::getLockedTables(FileLocker::Read) << " "
-        << Table::getLockedTables(FileLocker::Write) << endl;
   }
 
   virtual void TearDown() {
     cout << "DEBUG: This is TearDown" << endl;
     // delete MS explicitly to detach from MS on disk
     delete ms_;
-    cout << "Locked tables: " << Table::getLockedTables(FileLocker::Read) << " "
-        << Table::getLockedTables(FileLocker::Write) << endl;
+
+    // just to make sure all locks are effectively released
     Table::relinquishAutoLocks();
-    cout << "Locked tables (after clean up): "
-        << Table::getLockedTables(FileLocker::Read) << " "
-        << Table::getLockedTables(FileLocker::Write) << endl;
 
     cleanup();
   }
@@ -932,14 +983,6 @@ private:
   }
   void cleanup() {
     if (my_data_name_.size() > 0) {
-//      File f(my_data_name_);
-//      if (f.isRegular()) {
-//        RegularFile r(my_data_name_);
-//        r.remove();
-//      } else if (f.isDirectory()) {
-//        Directory d(my_data_name_);
-//        d.removeRecursive();
-//      }
       deleteTable(my_data_name_);
     }
     deleteTable(my_ms_name_);
@@ -1183,6 +1226,21 @@ TEST_F(PolAverageTVIFourPolarizationTest, GeometricAverageSkipped) {
   SetCorrTypeToStokes();
 
   TestTVI<GeometricIdenticalValidator, BasicManufacturer1>();
+}
+
+TEST_F(PolAverageTVIFourPolarizationTest, StokesAverageSkipped) {
+  // Edit CORR_TYPE to be IQUV
+  SetCorrTypeToStokes();
+
+  TestTVI<StokesIdenticalValidator, BasicManufacturer1>();
+}
+
+TEST_F(PolAverageTVIFourPolarizationTest, GeometricAverageCrossPol) {
+  TestTVI<GeometricAverageCrossPolarizationValidator, BasicManufacturer1>();
+}
+
+TEST_F(PolAverageTVIFourPolarizationTest, StokesAverageCrossPol) {
+  TestTVI<StokesAverageCrossPolarizationValidator, BasicManufacturer1>();
 }
 // TODO: define test on the data that should not average
 //       along polarization axis (IQUV or single polarization or multi-pol but not containing XX and YY)
