@@ -441,30 +441,6 @@ simulator::setconfig(const std::string& telescopename, const std::vector<double>
 }
 
 bool
-simulator::setknownconfig(const std::string& /*arrayname*/)
-{
-
-  Bool rstat(false);
-  try {
-    
-    if(itsSim !=0){
-      //      rstat=itsSim->setknownconfig(arrayname);
-      //NEED TO IMPLEMENT known config from glish
-    }
-    
-    
-  } catch  (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() 
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  
-  return rstat;
-
-
-}
-
-bool
 simulator::setfeed(const std::string& mode, const std::vector<double>& x, const std::vector<double>& y, const std::vector<std::string>& pol)
 {
 
@@ -678,7 +654,7 @@ simulator::setoptions(const std::string& ftmachine, const int cache,
 		      const int tile, const std::string& gridfunction, 
 		      const ::casac::variant& location, const double padding,
 		      const int facets, const double maxdata, 
-		      const int wprojplanes, const std::string& vptable)
+		      const int wprojplanes)
 {
 
   Bool rstat(false);
@@ -693,7 +669,7 @@ simulator::setoptions(const std::string& ftmachine, const int cache,
 		<< location.toString() << " to a Position Measures"
 		<< LogIO::POST;
       }
-      rstat=itsSim->setoptions(ftmachine, cache, tile, gridfunction, mpos, padding, facets, maxdata, wprojplanes,vptable);
+      rstat=itsSim->setoptions(ftmachine, cache, tile, gridfunction, mpos, padding, facets, maxdata, wprojplanes);
     }
     
     
