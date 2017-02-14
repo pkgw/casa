@@ -17,6 +17,8 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 This task will be removed in CASA 5.1.
 Import of single dish data to MeasurementSet is supported by importasap 
 (Scantable), importatca (ATCA RPFITS), and importnro (NRO NOSTAR).
+However, there is no facility to export from MeasurementSet to these
+formats (see plotms for export to ASCII).
 #########################################################################
 
 Task sdsaveold writes the single dish data to a disk file in 
