@@ -708,6 +708,7 @@ Bool Simulator::setconfig(const String& telname,
 			     const String& coordsystem,
 			     const MPosition& mRefLocation) 
 {
+  LogIO os(LogOrigin("Simulator", "setconfig()"));
 
   telescope_p = telname;
   x_p.resize(x.nelements());
@@ -734,7 +735,7 @@ Bool Simulator::setconfig(const String& telname,
   if (diam_p.nelements() == 1) {
     diam_p.resize(nn);
     diam_p.set(dishDiameter(0));
-  }
+  } 
   if (mount_p.nelements() == 1) {
     mount_p.resize(nn);
     mount_p.set(mount(0));
@@ -991,8 +992,7 @@ Bool Simulator::setvp(const Bool dovp,
 {
   LogIO os(LogOrigin("Simulator", "setvp()"));
   
-  os << "Setting voltage pattern parameters" << LogIO::POST;
-  
+  os << "Setting voltage pattern parameters" << LogIO::POST;  
   doVP_p=dovp;
   doDefaultVP_p = doDefaultVPs;
   vpTableStr_p = vpTable;
@@ -1007,8 +1007,10 @@ Bool Simulator::setvp(const Bool dovp,
   if (doDefaultVP_p) {
     os << "Using system default voltage patterns for each telescope"  << LogIO::POST;
   } else {
-    os << "Using user defined voltage patterns in Table "<<  vpTableStr_p 
-       << LogIO::POST;
+    if (vpTableStr_p != String("")) {
+      os << "Using user defined voltage patterns in Table "<<  vpTableStr_p 
+	 << LogIO::POST;
+    }
   }
   if (doSquint) {
     os << "Beam Squint will be included in the VP model" <<  LogIO::POST;
@@ -2131,6 +2133,19 @@ Bool Simulator::predict(const Vector<String>& modelImage,
       os << "MeasurementSet pointer is null : logic problem!"
 	 << LogIO::EXCEPTION;
     }
+
+    bool heterogeneous=False;
+    for (uInt i=1;i<diam_p.nelements();i++) 
+      if (diam_p(i)!=diam_p(0)) heterogeneous=True;
+    if (heterogeneous) {
+      if (compList!=String("")) {
+	os<<"Heterogeneous array is not supported for simulation from components.  Primary beam will be applied by telescope name.\n"<<LogIO::WARN;
+      }
+      if ((modelImage[0]!=String(""))&&(ftmachine_p!="mosaic")) {
+	os<<"Heterogeneous array is only supported for ALMA,ACA,OVRO telescopes, and only with option ftmachine=mosaic."<<LogIO::WARN;
+      }
+    }
+
     ms_p->lock();   
     if(mssel_p) mssel_p->lock();   
     if (!createSkyEquation( modelImage, compList)) {
@@ -2197,20 +2212,21 @@ Bool Simulator::predict(const Vector<String>& modelImage,
     LogIO os(LogOrigin("Simulator", "getVPRecord",WHERE));
 
     VPManager *vpman=VPManager::Instance();
-    if( itsVpTable != String("") ) 
-      {
-	os << "Loading Voltage Pattern information from " << itsVpTable << LogIO::POST;
-	vpman->loadfromtable(itsVpTable);
-      }
-    else
-      {
-	//	os << "Using Voltage Pattern currently set in the VPManager" << LogIO::POST;
+    if ((doDefaultVP_p)||(vpTableStr_p != String(""))) {
+      if (doDefaultVP_p) {
 	os << "Using default Voltage Patterns from the VPManager" << LogIO::POST;
 	vpman->reset();
+      } else {
+	os << "Loading Voltage Pattern information from " << vpTableStr_p << LogIO::POST;
+	vpman->loadfromtable(vpTableStr_p );
       }
-
-    os << "Temporary alert : The state of the vpmanager tool has been modified by loading these primary beam models. If any of your scripts rely on the vpmanager state being preserved throughout your CASA session, please use vp.saveastable() and vp.loadfromtable() as needed. "<< LogIO::POST;
-    
+      os << "Temporary alert : The state of the vpmanager tool has been modified by loading these primary beam models. If any of your scripts rely on the vpmanager state being preserved throughout your CASA session, please use vp.saveastable() and vp.loadfromtable() as needed. "<< LogIO::POST;
+    } 
+    // if dodefault=false, and no table is provided, it will used what is in 
+    // the vpmanager already.
+    else {
+      os << "Using Voltage Patterns from the VPManager" << LogIO::POST;
+    }
 
     //    PBMath::CommonPB kpb;
     PBMath::enumerateCommonPB(telescop, kpb);
@@ -2355,28 +2371,24 @@ Bool Simulator::createSkyEquation(const Vector<String>& image,
     String telescop=msc.observation().telescopeName()(0);
     PBMath::CommonPB kpb;
     Record rec;
+    getVPRecord( rec, kpb, telescop );
 
     if((ftmachine_p=="sd")||(ftmachine_p=="both")||(ftmachine_p=="mosaic")) {
-      getVPRecord( rec, kpb, telescop );
       if(!gvp_p) {
-	// 2016 from SynthesisImager:
-	// in SynthesisImager rotatePAStep is passed in as a parameter
-	Float rotatePAStep(5.);
 	if (rec.asString("name")=="COMMONPB" && kpb !=PBMath::UNKNOWN ){
 	  String commonPBName;
 	  PBMath::nameCommonPB(kpb, commonPBName);	  
 	  os << "Using common PB "<<commonPBName<<" for beam calculation for telescope " << telescop << LogIO::POST;
-	  gvp_p= new VPSkyJones(msc, True, Quantity(rotatePAStep, "deg"), BeamSquint::GOFIGURE, Quantity(360.0, "deg"));
+	  gvp_p=new VPSkyJones(msc, true, parAngleInc_p, squintType_p, skyPosThreshold_p);
 	}
 	else{
 	  PBMath myPB(rec);
 	  String whichPBMath;
 	  PBMathInterface::namePBClass(myPB.whichPBClass(), whichPBMath);
 	  os  << "Using the PB defined by " << whichPBMath << " for beam calculation for telescope " << telescop << LogIO::POST;
-	  gvp_p= new VPSkyJones(telescop, myPB, Quantity(rotatePAStep, "deg"), BeamSquint::GOFIGURE, Quantity(360.0, "deg"));
+	  gvp_p= new VPSkyJones(telescop, myPB, parAngleInc_p, squintType_p, skyPosThreshold_p);
 	  kpb=PBMath::DEFAULT;
 	}
-	///2016
       }
       if(ftmachine_p=="sd") {
 	os << "Performing Single dish gridding " << LogIO::POST;
@@ -2389,7 +2401,7 @@ Bool Simulator::createSkyEquation(const Vector<String>& image,
       }
       else if(ftmachine_p=="mosaic") {
 	// RI TODO need stokesString for current spw - e.g. currSpw()?
-	os << "Performing Mosaic gridding" << LogIO::POST;
+	os << "Performing Mosaic gridding for model images (uv convolution)" << LogIO::POST;
 	//2016 from SynthesisImager:
 	ft_p = new MosaicFTNew(gvp_p, mLocation_p, stokesString_p[0], cache_p/2, tile_p, true);
 	PBMathInterface::PBClass pbtype=PBMathInterface::AIRY;
@@ -2404,14 +2416,14 @@ Bool Simulator::createSkyEquation(const Vector<String>& image,
 	  // Will use Airys - to do something more complex we need to 
 	  // use HetArrayConvFunv::fromRecord
 	  if ((kpb==PBMath::ACA) || (kpb==PBMath::ALMA)) {
-	    os << "Will use 10.7m Airy PB for diameter=12 dishes, and 6.25m Airy PB for diameter=7 dishes." << LogIO::POST;
+	    os << "For model images, will use 10.7m Airy PB for diameter=12 dishes, and 6.25m Airy PB for diameter=7 dishes." << LogIO::POST;
 	  } else {
-	    os << "Will use Airy PB scaled to dish diameter."<<LogIO::POST;
+	    os << "For model images, will use Airy PB scaled to dish diameter."<<LogIO::POST;
 	  }
 	  CountedPtr<SimplePBConvFunc> mospb=new HetArrayConvFunc(pbtype, "");
 	  static_cast<MosaicFTNew &>(*ft_p).setConvFunc(mospb);
-	  doVP_p = false; // Since this FTMachine includes PB
 	}
+	//gvp_p->summary();
 	///2016
       }
       else if(ftmachine_p=="both") {
@@ -2430,6 +2442,7 @@ Bool Simulator::createSkyEquation(const Vector<String>& image,
       // since it may be wrong for e.g. spectral line
       vi.setRowBlocking(100);
     }
+
     else {
       os << "Synthesis gridding " << LogIO::POST;
       // Now make the FTMachine
@@ -2522,21 +2535,24 @@ Bool Simulator::createSkyEquation(const Vector<String>& image,
     se_p = new SkyEquation ( *sm_p, *vs_p, *ft_p, *cft_p );
     
     // Now add any SkyJones that are needed    
-    // TODO can we make the single-pointing VPskyjones heterogeneous?
-    // (vp_p is not applied if ftmachine=mosaic)
+    // (vp_p is not applied to images if ftmachine=mosaic)
     if(doVP_p) {
-      ROMSColumns msc(*ams);
-      if (doDefaultVP_p) {
-	os << "Using default primary beams in SkyEquation (use setvp to change)" << LogIO::POST;
+      if (rec.asString("name")=="COMMONPB" && kpb !=PBMath::UNKNOWN ){
+//	String commonPBName;
+//	PBMath::nameCommonPB(kpb, commonPBName);	  
+//	os << "SkyEquation using common PB "<<commonPBName<<" for beam calculation for telescope " << telescop << LogIO::POST;
 	vp_p=new VPSkyJones(msc, true, parAngleInc_p, squintType_p, skyPosThreshold_p);
       } else {
-	Table vpTable( vpTableStr_p );
-	vp_p=new VPSkyJones(msc, vpTable, parAngleInc_p, squintType_p);
+	PBMath myPB(rec);
+//	String whichPBMath;
+//	PBMathInterface::namePBClass(myPB.whichPBClass(), whichPBMath);
+//	os  << "SkyEquation using the PB defined by " << whichPBMath << " for beam calculation for telescope " << telescop << LogIO::POST;
+	vp_p= new VPSkyJones(telescop, myPB, parAngleInc_p, squintType_p, skyPosThreshold_p);
+	kpb=PBMath::DEFAULT;
       }
       vp_p->summary();
       se_p->setSkyJones(*vp_p);
-    }
-    else {
+    } else {
       vp_p=0;
     }
   } catch (AipsError x) {
@@ -2636,7 +2652,7 @@ void Simulator::makeVisSet() {
 Bool Simulator::setoptions(const String& ftmachine, const Int cache, const Int tile,
 			      const String& gridfunction, const MPosition& mLocation,
 			      const Float padding, const Int facets, const Double maxData,
-			   const Int wprojPlanes, const String& vptable)
+			   const Int wprojPlanes)
 {
   LogIO os(LogOrigin("Simulator", "setoptions()", WHERE));
   
@@ -2644,7 +2660,6 @@ Bool Simulator::setoptions(const String& ftmachine, const Int cache, const Int t
   
   sim_p->setMaxData(maxData*1024.0*1024.0);
 
-  itsVpTable=vptable;
   ftmachine_p=downcase(ftmachine);
   if(cache>0) cache_p=cache;
   if(tile>0) tile_p=tile;
