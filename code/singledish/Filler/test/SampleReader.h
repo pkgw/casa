@@ -523,10 +523,10 @@ public:
       if (irow == 0u) {
         LOG << "getData is responsible for constructing MS MAIN row. It should fill \n"
             << "spectral data as well as various kinds of associating information \n"
-            << "including timestamp, Tsys, weather, reference to MS subtables, etc."
+            << "including timestamp, Tsys, weather, reference to MS subtables, etc.\n"
             << "*NOTE*: record contents must be consistent with corresponding \n"
-            << "        subtable row!!!"
-            << "*NOTE*: boolean flag is marked as true if data is invalid."
+            << "        subtable row!!!\n"
+            << "*NOTE*: boolean flag is marked as true if data is invalid.\n"
             << "*NOTE*: flag_row is obsolete."
             << FLUSH;
 
