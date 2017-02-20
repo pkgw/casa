@@ -7,7 +7,7 @@
 #include <casacore/casa/Logging/LogIO.h>
 
 int main(int argc, char *argv[]) {
-  casacore::LogIO os(LogOrigin("GTEST", "SampleReaderTest", WHERE));
+  casacore::LogIO os(LogOrigin("", "SampleReaderDemo", WHERE));
   os <<"This is a test program to demonstrate how SingleDishMSFiller<SampleReader>\n"
      << "works. Usage of the filler is only three steps below:\n"
      << "\n"
