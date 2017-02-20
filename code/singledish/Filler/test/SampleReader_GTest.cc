@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include <singledish/Filler/test/SampleReader.h>
 #include <singledish/Filler/SingleDishMSFiller.h>
+#include <singledish/Filler/SampleReader.h>
 
 #include <casacore/casa/Logging/LogIO.h>
 
