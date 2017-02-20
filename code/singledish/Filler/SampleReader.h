@@ -45,6 +45,7 @@ public:
   SampleReader(std::string const &name) :
       casa::ReaderInterface(name), className_("SampleReader"),
       direction_frame_(casacore::MDirection::J2000),
+      num_main_row_(6),
       observation_row_counter_(0),
       antenna_row_counter_(0),
       processor_row_counter_(0),
@@ -66,10 +67,9 @@ public:
   // get number of rows
   virtual size_t getNumberOfRows() {
     casacore::LogIO os(casacore::LogOrigin(className_, __func__, WHERE));
-    const size_t num_rows = 6;
     LOG << "getNumberOfRows should return number of data (scan records)\n"
-        << "### return " << num_rows << FLUSH;
-    return num_rows;
+        << "### return " << num_main_row_ << FLUSH;
+    return num_main_row_;
   }
 
   // query for data type
@@ -486,8 +486,7 @@ public:
 
   // for DataAccumulator
   virtual casacore::Bool getData(size_t irow, casa::sdfiller::DataRecord &record) {
-    size_t num_rows = getNumberOfRows();
-    bool ret = main_row_counter_ < num_rows;
+    bool ret = main_row_counter_ < num_main_row_;
 
     casacore::LogIO os(casacore::LogOrigin(className_, __func__, WHERE));
 
@@ -797,6 +796,7 @@ protected:
 private:
   std::string const className_;
   casacore::MDirection::Types const direction_frame_;
+  size_t const num_main_row_;
   size_t observation_row_counter_;
   size_t antenna_row_counter_;
   size_t processor_row_counter_;
