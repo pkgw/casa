@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
      << "=== (3)   filler.save(\"mysampledata.ms\");\n"
      << "\n" << casacore::LogIO::POST;
   filler.save("mysampledata.ms");
-  os << "Now you should have \"mysampledata.m\" on your current working directory.\n"
+  os << "Now you should have \"mysampledata.ms\" on your current working directory.\n"
      << "Please open it with, e.g., casabrowser to see the contents!\n"
      << casacore::LogIO::POST;
 
