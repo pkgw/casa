@@ -11,20 +11,18 @@
 // std includes
 #include <string>
 
-#include <singledish/Filler/FillerUtil.h>
-#include <singledish/Filler/AntennaRecord.h>
-#include <singledish/Filler/ObservationRecord.h>
-#include <singledish/Filler/ProcessorRecord.h>
-#include <singledish/Filler/FieldRecord.h>
-#include <singledish/Filler/SourceRecord.h>
-#include <singledish/Filler/SpectralWindowRecord.h>
-#include <singledish/Filler/DataRecord.h>
-
-// casacore includes
 #include <casacore/casa/Containers/Record.h>
 #include <casacore/measures/Measures/MDirection.h>
 #include <casacore/tables/Tables/TableRecord.h>
 #include <measures/Measures/Stokes.h>
+#include <singledishfiller/Filler/AntennaRecord.h>
+#include <singledishfiller/Filler/DataRecord.h>
+#include <singledishfiller/Filler/FieldRecord.h>
+#include <singledishfiller/Filler/FillerUtil.h>
+#include <singledishfiller/Filler/ObservationRecord.h>
+#include <singledishfiller/Filler/ProcessorRecord.h>
+#include <singledishfiller/Filler/SourceRecord.h>
+#include <singledishfiller/Filler/SpectralWindowRecord.h>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
 

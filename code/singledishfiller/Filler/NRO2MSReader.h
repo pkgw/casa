@@ -12,8 +12,8 @@
 
 #include <measures/Measures/Stokes.h>
 
-#include <singledish/Filler/ReaderInterface.h>
-#include <singledish/Filler/NROData.h>
+#include <singledishfiller/Filler/ReaderInterface.h>
+#include <singledishfiller/Filler/NROData.h>
 #include <string>
 #include <memory>
 

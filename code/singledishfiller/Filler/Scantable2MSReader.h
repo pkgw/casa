@@ -8,9 +8,6 @@
 #ifndef SINGLEDISH_FILLER_SCANTABLE2MSREADER_H_
 #define SINGLEDISH_FILLER_SCANTABLE2MSREADER_H_
 
-#include <singledish/Filler/ReaderInterface.h>
-#include <singledish/Filler/ScantableIterator.h>
-
 #include <string>
 #include <memory>
 
@@ -19,6 +16,8 @@
 #include <casacore/tables/Tables/TableRecord.h>
 #include <casacore/tables/Tables/ArrayColumn.h>
 #include <casacore/tables/Tables/ScalarColumn.h>
+#include <singledishfiller/Filler/ReaderInterface.h>
+#include <singledishfiller/Filler/ScantableIterator.h>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
 

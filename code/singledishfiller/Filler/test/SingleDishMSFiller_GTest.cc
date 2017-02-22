@@ -7,12 +7,7 @@
 
 #include <gtest/gtest.h>
 
-#include <singledish/Filler/FillerUtil.h>
-#include <singledish/Filler/SingleDishMSFiller.h>
-#include <singledish/Filler/ReaderInterface.h>
-#include <singledish/Filler/Scantable2MSReader.h>
-#include <singledish/Filler/test/TestReader.h>
-#include <singledish/SingleDish/test/SingleDishTestUtil.h>
+//#include <singledish/SingleDish/test/SingleDishTestUtil.h>
 
 #include <string>
 #include <iostream>
@@ -20,12 +15,14 @@
 #include <map>
 #include <vector>
 
+#include <casacore/casa/OS/EnvVar.h>
 #include <casacore/casa/OS/Time.h>
 #include <casacore/casa/OS/File.h>
 #include <casacore/casa/OS/RegularFile.h>
 #include <casacore/casa/OS/SymLink.h>
 #include <casacore/casa/OS/Directory.h>
 #include <casacore/casa/OS/DirectoryIterator.h>
+#include <casacore/casa/Arrays/Array.h>
 #include <casacore/casa/Arrays/ArrayLogical.h>
 #include <casacore/casa/Arrays/Cube.h>
 #include <casacore/casa/Quanta/MVPosition.h>
@@ -43,6 +40,11 @@
 #include <casacore/ms/MeasurementSets/MSStateColumns.h>
 #include <casacore/ms/MeasurementSets/MSSysCalColumns.h>
 #include <casacore/ms/MeasurementSets/MSWeatherColumns.h>
+#include <singledishfiller/Filler/FillerUtil.h>
+//#include <singledishfiller/Filler/ReaderInterface.h>
+#include <singledishfiller/Filler/Scantable2MSReader.h>
+#include <singledishfiller/Filler/SingleDishMSFiller.h>
+#include <singledishfiller/Filler/test/TestReader.h>
 
 using namespace casacore;
 using namespace casa;
@@ -59,6 +61,26 @@ using namespace sdfiller;
   }
 
 namespace {
+string GetCasaDataPath() {
+  if (casacore::EnvironmentVariable::isDefined ("CASAPATH"))  {
+    string casapath = casacore::EnvironmentVariable::get("CASAPATH");
+    size_t endindex = casapath.find(" ");
+    if (endindex!=string::npos) {
+  string casaroot = casapath.substr(0, endindex);
+  cout << "casaroot = " << casaroot << endl;
+  return (casaroot + "/data/");
+    }
+    else {
+  cout << "hit npos" << endl;
+  return "/data/";
+    }
+  }
+  else {
+    cout  << "CASAPATH is not defined" << endl;
+    return "";
+  }
+}
+
 template<class T>
 Vector<T> getScalarColumn(Table const &table, String const &name) {
   ROScalarColumn<T> col(table, name);
@@ -83,7 +105,7 @@ public:
   virtual void SetUp() {
     my_ms_name_ = getMSName();
     my_data_name_ = getDataName();
-    std::string const data_path = test_utility::GetCasaDataPath()
+    std::string const data_path = ::GetCasaDataPath()
         + "/regression/unittest/importasap/";
 
     copyData(data_path);
