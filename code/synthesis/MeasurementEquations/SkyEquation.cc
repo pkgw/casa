@@ -1021,7 +1021,7 @@ SkyComponent& SkyEquation::applySkyJones(SkyComponent& corruptedComponent,
 					 const VisBuffer& vb,
 					 Int row)
 {
-  if(!isPSFWork_p && (ft_->name() != "MosaicFT")){
+  if(!isPSFWork_p){
     if(ej_) ej_->apply(corruptedComponent,corruptedComponent,vb,row);
     if(dj_) dj_->apply(corruptedComponent,corruptedComponent,vb,row);
     if(tj_) tj_->apply(corruptedComponent,corruptedComponent,vb,row);
@@ -1328,7 +1328,7 @@ ImageInterface<Complex>& SkyEquation::applySkyJones(const VisBuffer& vb,
   StokesImageUtil::From(out, in);
 
   // Now apply the SkyJones as needed
-  if(!isPSFWork_p  && (ift_->name() != "MosaicFT")){
+  if(!isPSFWork_p  && (!(ift_->name().contains("MosaicFT")))){
     if(ej_) ej_->apply(out,out,vb,row,true);
     if(dj_) dj_->apply(out,out,vb,row,true);
     if(tj_) tj_->apply(out,out,vb,row,true);

@@ -33,6 +33,7 @@ scripts/casa_shutdown.py
 scripts/casa_builtin.py
 scripts/start_casa.py
 scripts/casa_system.py
+scripts/casa_system_defaults.py
 scripts/init_system.py
 scripts/init_crashrpt.py
 scripts/init_mpi.py
@@ -76,7 +77,6 @@ scripts/predictcomp_helper.py
 scripts/regression.py
 scripts/regressframe.py
 scripts/regression_utility.py
-scripts/refimagerhelper.py
 scripts/sdbeamutil.py
 scripts/sdutil.py
 scripts/setjy_helper.py
@@ -148,6 +148,7 @@ scripts/task_imreframe.py
 scripts/task_imregrid.py
 scripts/task_imsmooth.py
 scripts/task_imstat.py
+scripts/task_imstatimage.py
 scripts/task_imsubimage.py
 scripts/task_imtrans.py
 scripts/task_imval.py
@@ -254,3 +255,4 @@ add_subdirectory( scripts/demos )
 add_subdirectory( scripts/recipes )
 add_subdirectory( scripts/parallel )
 add_subdirectory( scripts/mpi4casa )
+add_subdirectory( scripts/imagerhelpers )

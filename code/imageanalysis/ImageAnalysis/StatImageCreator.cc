@@ -4,17 +4,16 @@
 
 #include <imageanalysis/Annotations/AnnCenterBox.h>
 #include <imageanalysis/Annotations/AnnCircle.h>
+#include <casacore/lattices/LEL/LatticeExpr.h>
 
-// debug
-#include <components/ComponentModels/C11Timer.h>
-#include <casacore/casa/Arrays/ArrayIO.h>
-#include <casacore/casa/BasicSL/STLIO.h>
 namespace casa {
+
+const Double StatImageCreator::PHI = 1.482602218505602;
 
 StatImageCreator::StatImageCreator(
     const SPCIIF image, const Record *const region,
 	const String& mask, const String& outname, Bool overwrite
-) : ImageTask<Float>(image, region, mask, outname, overwrite) {
+) : ImageStatsConfigurator(image, region, mask, outname, overwrite) {
     this->_construct();
 	auto da = _getImage()->coordinates().directionAxesNumbers();
     _dirAxes[0] = da[0];
@@ -23,6 +22,10 @@ StatImageCreator::StatImageCreator(
 }
 
 void StatImageCreator::setRadius(const Quantity& radius) {
+    ThrowIf(
+        ! (radius.getUnit().startsWith("pix") || radius.isConform("rad")),
+        "radius units " + radius.getUnit() + " must be pixel or angular"
+    );
     _xlen = radius;
     _ylen = Quantity(0,"");
 }
@@ -30,6 +33,14 @@ void StatImageCreator::setRadius(const Quantity& radius) {
 void StatImageCreator::setRectangle(
     const Quantity& xLength, const Quantity& yLength
 ) {
+    ThrowIf(
+        ! (xLength.getUnit().startsWith("pix") || xLength.isConform("rad")),
+        "xLength units " + xLength.getUnit() + " must be pixel or angular"
+    );
+    ThrowIf(
+        ! (yLength.getUnit().startsWith("pix") || yLength.isConform("rad")),
+        "xLength units " + yLength.getUnit() + " must be pixel or angular"
+    );
     _xlen = xLength;
     _ylen = yLength;
 }
@@ -46,7 +57,7 @@ void StatImageCreator::setGridSpacing(uInt x, uInt y) {
     _grid.second = y;
 }
 
-SPIIF StatImageCreator::compute() const {
+SPIIF StatImageCreator::compute() {
     static const AxesSpecifier dummyAxesSpec;
     *_getLog() << LogOrigin(getClass(), __func__);
     auto mylog = _getLog().get();
@@ -54,6 +65,7 @@ SPIIF StatImageCreator::compute() const {
         *_getImage(), *_getRegion(), _getMask(),
         mylog, dummyAxesSpec, _getStretch()
     );
+    _doMask = ! ImageMask::isAllMaskTrue(*subImage);
     const auto imshape = subImage->shape();
     const auto xshape = imshape[_dirAxes[0]];
     const auto yshape = imshape[_dirAxes[1]];
@@ -62,9 +74,12 @@ SPIIF StatImageCreator::compute() const {
     Int xanchor = rint(anchorPixel[_dirAxes[0]]);
     Int yanchor = rint(anchorPixel[_dirAxes[1]]);
     String rStr;
-    // auto ndim = subImage->ndim();
     TempImage<Float> output(imshape, csys);
     output.set(0);
+    if (_doMask) {
+        output.attachMask(ArrayLattice<Bool>(imshape));
+        output.pixelMask().set(True);
+    }
     // xstart and ystart are the pixel location in the
     // subimage of the lower left corner of the grid,
     // ie they are the pixel location of the grid point
@@ -77,8 +92,6 @@ SPIIF StatImageCreator::compute() const {
     if (ystart < 0) {
         ystart += _grid.second;
     }
-    C11Timer t0, t1, t2, t3, t4, t5;
-
     Array<Float> tmp;
     // integer division
     auto nxpts = (xshape - xstart)/_grid.first;
@@ -93,131 +106,358 @@ SPIIF StatImageCreator::compute() const {
     storeShape[_dirAxes[0]] = nxpts;
     storeShape[_dirAxes[1]] = nypts;
     auto interpolate = _grid.first > 1 || _grid.second > 1;
-
-    Lattice<Float>* writeTo = &output;
-    std::unique_ptr<ArrayLattice<Float>> store;
+    TempImage<Float>* writeTo = &output;
+    std::unique_ptr<TempImage<Float>> store;
     if (interpolate) {
-        store.reset(new ArrayLattice<Float>(storeShape));
+        store.reset(new TempImage<Float>(storeShape, csys));
         store->set(0.0);
+        if (_doMask) {
+            store->attachMask(ArrayLattice<Bool>(storeShape));
+            store->pixelMask().set(True);
+        }
         writeTo = store.get();
     }
-    _computeStorage(
-        writeTo, subImage, nxpts, nypts,
-        xstart, ystart
-    );
+    _computeStat(*writeTo, subImage, nxpts, nypts, xstart, ystart);
+    if (_doPhi) {
+        writeTo->copyData((LatticeExpr<Float>)(*writeTo * PHI));
+    }
+
     if (interpolate) {
         _doInterpolation(
             output, *store,
             subImage,  nxpts,  nypts,
             xstart,  ystart
         );
-        /*
-        *_getLog() << LogIO::NORMAL << "Interpolate using "
-            << _interpName << " algorithm." << LogIO::POST;
-        Matrix<Float> result(xshape, yshape);
-        Matrix<Float> storage(nxpts, nypts);
-        std::pair<uInt, uInt> start;
-        start.first = xstart;
-        start.second = ystart;
-        if (ndim == 2) {
-            store->get(storage);
-            _interpolate(result, storage, start);
-            output.put(result);
-        }
-        else {
-            // get each direction plane in the storage lattice at each chan/stokes
-            IPosition cursorShape(ndim, 1);
-            cursorShape[_dirAxes[0]] = nxpts;
-            cursorShape[_dirAxes[1]] = nypts;
-            IPosition axisPath = _dirAxes;
-            axisPath.append((IPosition::otherAxes(ndim,_dirAxes)));
-            LatticeStepper stepper(storeShape, cursorShape, axisPath);
-            Slicer slicer(stepper.position(), stepper.endPosition(), Slicer::endIsLast);
-            for (stepper.reset(); ! stepper.atEnd(); stepper++) {
-                auto pos = stepper.position();
-                slicer.setStart(pos);
-                slicer.setEnd(stepper.endPosition());
-                storage = store->getSlice(slicer, True);
-                _interpolate(result, storage, start);
-                output.putSlice(result, pos);
-            }
-        }
-        */
     }
-    return _prepareOutputImage(output);
+    auto res = _prepareOutputImage(output);
+    return res;
 }
 
-void StatImageCreator::_computeStorage(
-    Lattice<Float> *const& writeTo, SPCIIF subImage,
+void StatImageCreator::_computeStat(
+    TempImage<Float>& writeTo, SPCIIF subImage,
     uInt nxpts, uInt nypts, Int xstart, Int ystart
-) const {
-    const auto imshape = subImage->shape();
-    const auto xshape = imshape[_dirAxes[0]];
-    const auto yshape = imshape[_dirAxes[1]];
-    const auto& csys = subImage->coordinates();
-    const auto ngrid = nxpts * nypts;
-    ProgressMeter pm(0, ngrid, "Processing stats at grid points");
-    Quantity xq(0, "pix");
-    Quantity yq(0, "pix");
-    const auto doCircle = _ylen.getValue() == 0;
-    *_getLog() << LogIO::NORMAL << "Using a ";
+) {
+    SHARED_PTR<Array<Bool>> regionMask;
+    uInt xBlcOff = 0;
+    uInt yBlcOff = 0;
+    uInt xChunkSize = 0;
+    uInt yChunkSize = 0;
+    _nominalChunkInfo(
+        regionMask,  xBlcOff, yBlcOff,
+        xChunkSize, yChunkSize, subImage
+    );
+    Array<Bool> regMaskCopy;
+    if (regionMask) {
+        regMaskCopy = regionMask->copy();
+        if (! writeTo.hasPixelMask()) {
+            ArrayLattice<Bool> mymask(writeTo.shape());
+            mymask.set(True);
+            writeTo.attachMask(mymask);
+        }
+    }
+    auto imshape = subImage->shape();
+    auto ndim = imshape.size();
+    IPosition chunkShape(ndim, 1);
+    chunkShape[_dirAxes[0]] = xChunkSize;
+    chunkShape[_dirAxes[1]] = yChunkSize;
+    auto xsize = imshape[_dirAxes[0]];
+    auto ysize = imshape[_dirAxes[1]];
+    IPosition planeShape(imshape.size(), 1);
+    planeShape[_dirAxes[0]] = xsize;
+    planeShape[_dirAxes[1]] = ysize;
+    RO_MaskedLatticeIterator<Float> lattIter (
+        *subImage, planeShape, True
+    );
+    // Vector rather than IPosition because blc values can be negative
+    Vector<Int> blc(ndim, 0);
+    blc[_dirAxes[0]] = xstart - xBlcOff;
+    blc[_dirAxes[1]] = ystart - yBlcOff;
+    String algName;
+    auto alg = _getStatsAlgorithm(algName);
+    std::set<StatisticsData::STATS> statToCompute;
+    statToCompute.insert(_statType);
+    alg->setStatsToCalculate(statToCompute);
+    auto ngrid = nxpts*nypts;
+    auto nPts = ngrid;
+    IPosition loopAxes;
+    for (uInt i=0; i<ndim; ++i) {
+        if (i != _dirAxes[0] && i != _dirAxes[1]) {
+            loopAxes.append(IPosition(1, i));
+            nPts *= imshape[i];
+        }
+    }
+    auto hasLoopAxes = loopAxes.size() > 0;
+    ProgressMeter pm(0, nPts, "Processing stats at grid points");
+    auto doCircle = _ylen.getValue() <= 0;
+    *_getLog() << LogOrigin(getClass(), __func__) << LogIO::NORMAL
+        << "Using ";
     if (doCircle) {
         *_getLog() << "circular region of radius " << _xlen;
     }
     else {
-        *_getLog() << "rectangular region of dimensions " << _xlen
+        *_getLog() << "rectangular region of specified dimensions " << _xlen
             << " x " << _ylen;
     }
-    *_getLog() << " to choose pixels for computing statistics "
-        << "around each of " << ngrid << " grid points." << LogIO::POST;
-    uInt ptsCount = 0;
-    static const AxesSpecifier dummyAxesSpec;
+    *_getLog() << " (because of centering and "
+            << "rounding to use whole pixels, actual dimensions of bounding box are "
+            << xChunkSize << " pix x " << yChunkSize << " pix";
+    if (doCircle) {
+        *_getLog() << " and there are " << ntrue(*regionMask)
+            << " good pixels in the circle that are being used";
+    }
+    *_getLog() << ") to choose pixels for computing " << _statName
+        << " using the " << algName << " algorithm around each of "
+        << ngrid << " grid points in " << (nPts/ngrid) << " planes." << LogIO::POST;
+    IPosition planeBlc(ndim, 0);
+    auto& xPlaneBlc = planeBlc[_dirAxes[0]];
+    auto& yPlaneBlc = planeBlc[_dirAxes[1]];
+    auto imageChunkShape = chunkShape;
+    // pixels at the TRC are included in the statistics
+    auto planeTrc = planeBlc + chunkShape - 1;
+    auto& xPlaneTrc = planeTrc[_dirAxes[0]];
+    auto& yPlaneTrc = planeTrc[_dirAxes[1]];
+    uInt nCount = 0;
+    auto ximshape = imshape[_dirAxes[0]];
+    auto yimshape = imshape[_dirAxes[1]];
+    for (lattIter.atStart(); ! lattIter.atEnd(); ++lattIter) {
+        auto plane = lattIter.cursor();
+        auto lattMask = lattIter.getMask();
+        auto outPos = lattIter.position();
+        auto& xOutPos = outPos[_dirAxes[0]];
+        auto& yOutPos = outPos[_dirAxes[1]];
+        Int yblc = ystart - yBlcOff;
+        for (uInt yCount=0; yCount<nypts; ++yCount, yblc+=_grid.second) {
+            yOutPos = yCount;
+            yPlaneBlc = max(0, yblc);
+            yPlaneTrc = min(
+                yblc + (Int)yChunkSize - 1, (Int)yimshape - 1
+            );
+            IPosition regMaskStart(ndim, 0);
+            auto& xRegMaskStart = regMaskStart[_dirAxes[0]];
+            auto& yRegMaskStart = regMaskStart[_dirAxes[1]];
+            auto regMaskLength = regMaskStart;
+            auto& xRegMaskLength = regMaskLength[_dirAxes[0]];
+            auto& yRegMaskLength = regMaskLength[_dirAxes[1]];
+            Bool yDoMaskSlice = False;
+            if (regionMask) {
+                regMaskLength = regionMask->shape();
+                if (yblc < 0) {
+                    yRegMaskStart = -yblc;
+                    yRegMaskLength += yblc;
+                    yDoMaskSlice = True;
+                }
+                else if (yblc + yChunkSize > yimshape) {
+                    yRegMaskLength = yimshape - yblc;
+                    yDoMaskSlice = True;
+                }
+            }
+            Int xblc = xstart - xBlcOff;
+            for (uInt xCount=0; xCount<nxpts; ++xCount, xblc+=_grid.first) {
+                xOutPos = xCount;
+                xPlaneBlc = max(0, xblc);
+                xPlaneTrc = min(
+                    xblc + (Int)xChunkSize - 1, (Int)ximshape - 1
+                );
+                SHARED_PTR<Array<Bool>> subRegionMask;
+                if (regionMask) {
+                    auto doMaskSlice = yDoMaskSlice;
+                    xRegMaskStart = 0;
+                    if (xblc < 0) {
+                        xRegMaskStart = -xblc;
+                        xRegMaskLength = regionMask->shape()[_dirAxes[0]] + xblc;
+                        doMaskSlice = True;
+                    }
+                    else if (xblc + xChunkSize > ximshape) {
+                        regMaskLength[_dirAxes[0]] = ximshape - xblc;
+                        doMaskSlice = True;
+                    }
+                    else {
+                        xRegMaskLength = xChunkSize;
+                    }
+                    if (doMaskSlice) {
+                        Slicer sl(regMaskStart, regMaskLength);
+                        subRegionMask.reset(new Array<Bool>(regMaskCopy(sl)));
+                    }
+                    else {
+                        subRegionMask.reset(new Array<Bool>(regMaskCopy));
+                    }
+                }
+                auto maskChunk = lattMask(planeBlc, planeTrc).copy();
+                if (subRegionMask) {
+                    maskChunk = maskChunk && *subRegionMask;
+                }
+                Float res = 0;
+                if (anyTrue(maskChunk)) {
+                    auto chunk = plane(planeBlc, planeTrc);
+                    if (allTrue(maskChunk)) {
+                        alg->setData(chunk.begin(), chunk.size());
+                    }
+                    else {
+                        alg->setData(chunk.begin(), maskChunk.begin(), chunk.size());
+                    }
+                    res = alg->getStatistic(_statType);
+                }
+                else {
+                    writeTo.pixelMask().putAt(False, outPos);
+                }
+                writeTo.putAt(res, outPos);
+            }
+            nCount += nxpts;
+            pm.update(nCount);
+        }
+        if (hasLoopAxes) {
+            Bool done = False;
+            uInt idx = 0;
+            while (! done) {
+                auto targetAxis = loopAxes[idx];
+                ++blc[targetAxis];
+                if (blc[targetAxis] == imshape[targetAxis]) {
+                    blc[targetAxis] = 0;
+                    ++idx;
+                    done = idx == loopAxes.size();
+                }
+                else {
+                    done = True;
+                }
+            }
+        }
+    }
+}
+
+SHARED_PTR<
+    StatisticsAlgorithm<Double, Array<Float>::const_iterator,
+    Array<Bool>::const_iterator>
+>
+StatImageCreator::_getStatsAlgorithm(String& algName) const {
+    auto ac = _getAlgConf();
+    switch(ac.algorithm) {
+    case StatisticsData::CLASSICAL:
+        algName = "classical";
+        return SHARED_PTR<
+            ClassicalStatistics<Double, Array<Float>::const_iterator,
+            Array<Bool>::const_iterator>
+        >(
+            new ClassicalStatistics<
+                Double, Array<Float>::const_iterator,
+                Array<Bool>::const_iterator
+            >()
+        );
+    case StatisticsData::CHAUVENETCRITERION:
+        algName = "Chauvenet criterion/z-score";
+        return SHARED_PTR<ChauvenetCriterionStatistics<
+            Double, Array<Float>::const_iterator,
+            Array<Bool>::const_iterator>
+        >(
+            new ChauvenetCriterionStatistics<
+                Double, Array<Float>::const_iterator,
+                Array<Bool>::const_iterator
+            >(
+                ac.zs, ac.mi
+            )
+        );
+    default:
+        ThrowCc("Unsupported statistics algorithm");
+    }
+}
+
+void StatImageCreator::_nominalChunkInfo(
+    SHARED_PTR<Array<Bool>>& templateMask, uInt& xBlcOff, uInt& yBlcOff,
+    uInt& xChunkSize, uInt& yChunkSize, SPCIIF subimage
+) const {
+    Double xPixLength = 0;
+    const auto& csys = subimage->coordinates();
+    if (_xlen.getUnit().startsWith("pix")) {
+        xPixLength = _xlen.getValue();
+    }
+    else {
+        const auto& dc = csys.directionCoordinate();
+        auto units = dc.worldAxisUnits();
+        auto inc = dc.increment();
+        Quantity worldPixSize(abs(inc[0]), units[0]);
+        xPixLength = _xlen.getValue("rad")/worldPixSize.getValue("rad");
+    }
+    const auto shape = subimage->shape();
+    ThrowIf(
+        xPixLength >= shape[_dirAxes[0]] - 4,
+        "x region length is nearly as large as or larger than the subimage extent of "
+        + String::toString(shape[_dirAxes[0]]) + " pixels. Such a configuration is not supported"
+    );
+    ThrowIf(
+        xPixLength <= 0.5,
+        "x region length is only " + String::toString(xPixLength)
+        + " pixels. Such a configuration is not supported"
+    );
+    Double yPixLength = xPixLength;
+    if (_ylen.getValue() > 0) {
+        if (_ylen.getUnit().startsWith("pix")) {
+            yPixLength = _ylen.getValue();
+        }
+        else {
+            const auto& dc = csys.directionCoordinate();
+            auto units = dc.worldAxisUnits();
+            auto inc = dc.increment();
+            Quantity worldPixSize(abs(inc[1]), units[1]);
+            yPixLength = _ylen.getValue("rad")/worldPixSize.getValue("rad");
+        }
+    }
+    ThrowIf(
+        yPixLength >= shape[_dirAxes[1]] - 4,
+        "y region length is nearly as large as or larger than the subimage extent of "
+        + String::toString(_dirAxes[1]) + " pixels. Such a configuration is not supported"
+    );
+    ThrowIf(
+        yPixLength <= 0.5,
+        "y region length is only " + String::toString(yPixLength)
+        + " pixels. Such a configuration is not supported"
+    );
+    IPosition templateShape(shape.size(), 1);
+    templateShape[_dirAxes[0]] = shape[_dirAxes[0]];
+    templateShape[_dirAxes[1]] = shape[_dirAxes[1]];
+    TempImage<Float> templateImage(templateShape, csys);
+    // integer division, xq, yq must have integral values
+    uInt xcenter = templateShape[_dirAxes[0]]/2;
+    uInt ycenter = templateShape[_dirAxes[1]]/2;
+    Quantity xq(xcenter, "pix");
+    Quantity yq(ycenter, "pix");
+    IPosition centerPix(templateShape.size(), 0);
+    centerPix[_dirAxes[0]] = xcenter;
+    centerPix[_dirAxes[1]] = ycenter;
+    auto world = csys.toWorld(centerPix);
     static const Vector<Stokes::StokesTypes> dummyStokes;
     Record reg;
-    auto ndim = subImage->ndim();
-    IPosition impos(ndim, 0);
-    auto storePos = impos;
-    auto arrShape = imshape;
-    arrShape[_dirAxes[0]] = 1;
-    arrShape[_dirAxes[1]] = 1;
-    Array<Float> stat(arrShape);
-    ImageStatistics<Float> statsCalc(
-        TempImage<Float>(IPosition(ndim, 1), csys), False
+    if (_ylen.getValue() > 0) {
+        AnnCenterBox box(
+            xq, yq, _xlen, _ylen, csys, templateShape, dummyStokes
+        );
+        reg = box.getRegion()->toRecord("");
+    }
+    else {
+        AnnCircle circle(
+            xq, yq, _xlen, csys, templateShape, dummyStokes
+        );
+        reg = circle.getRegion()->toRecord("");
+    }
+    static const AxesSpecifier dummyAxesSpec;
+    auto chunkImage = SubImageFactory<Float>::createSubImageRO(
+        templateImage, reg, "", nullptr, dummyAxesSpec, False
     );
-    statsCalc.setAxes(_dirAxes.asVector());
-    for (uInt y=ystart; y<yshape; y+=_grid.second, ++storePos[_dirAxes[1]]) {
-        impos[_dirAxes[1]] = y;
-        yq.setValue(y);
-        storePos[_dirAxes[0]] = 0;
-        for (uInt x=xstart; x < xshape; x+=_grid.first, ++storePos[_dirAxes[0]]) {
-            xq.setValue(x);
-            impos[_dirAxes[0]] = x;
-            if (doCircle) {
-                AnnCircle circle(
-                    xq, yq, _xlen, csys, imshape, dummyStokes
-                );
-                reg = circle.getRegion()->toRecord("");
-            }
-            else {
-                AnnCenterBox box(
-                    xq, yq, _xlen, _ylen, csys, imshape, dummyStokes
-                );
-                reg = box.getRegion()->toRecord("");
-            }
-            auto chunkImage = SubImageFactory<Float>::createSubImageRO(
-                *subImage, reg, "", nullptr, dummyAxesSpec, False
-            );
-            statsCalc.setNewImage(*chunkImage, False);
-            statsCalc.getConvertedStatistic(stat, _statType);
-            writeTo->putSlice(stat.reform(arrShape), storePos);
+    auto blcOff = chunkImage->coordinates().toPixel(world);
+    xBlcOff = rint(blcOff[_dirAxes[0]]);
+    yBlcOff = rint(blcOff[_dirAxes[1]]);
+    auto chunkShape = chunkImage->shape();
+    xChunkSize = chunkShape[_dirAxes[0]];
+    yChunkSize = chunkShape[_dirAxes[1]];
+    templateMask.reset();
+    if (chunkImage->isMasked()) {
+        auto mask = chunkImage->getMask();
+        if (! allTrue(mask)) {
+            templateMask.reset(new Array<Bool>(mask));
         }
-        ptsCount += nxpts;
-        pm.update(ptsCount);
     }
 }
 
 void StatImageCreator::_doInterpolation(
-    TempImage<Float>& output, ArrayLattice<Float>& store,
+    TempImage<Float>& output, TempImage<Float>& store,
     SPCIIF subImage, uInt nxpts, uInt nypts,
     Int xstart, Int ystart
 ) const {
@@ -225,17 +465,28 @@ void StatImageCreator::_doInterpolation(
     const auto xshape = imshape[_dirAxes[0]];
     const auto yshape = imshape[_dirAxes[1]];
     const auto ndim = subImage->ndim();
-    *_getLog() << LogIO::NORMAL << "Interpolate using "
+    *_getLog() << LogOrigin(getClass(), __func__)
+        << LogIO::NORMAL << "Interpolate using "
         << _interpName << " algorithm." << LogIO::POST;
     Matrix<Float> result(xshape, yshape);
+    Matrix<Bool> resultMask;
+    if (_doMask) {
+        resultMask.resize(IPosition(2, xshape, yshape));
+        resultMask.set(True);
+    }
     Matrix<Float> storage(nxpts, nypts);
+    Matrix<Bool> storeMask(nxpts, nypts);
     std::pair<uInt, uInt> start;
     start.first = xstart;
     start.second = ystart;
     if (ndim == 2) {
         store.get(storage);
-        _interpolate(result, storage, start);
+        store.getMask(storeMask);
+        _interpolate(result, resultMask, storage, storeMask, start);
         output.put(result);
+        if (_doMask) {
+            output.pixelMask().put(resultMask);
+        }
     }
     else {
         // get each direction plane in the storage lattice at each chan/stokes
@@ -251,8 +502,12 @@ void StatImageCreator::_doInterpolation(
             slicer.setStart(pos);
             slicer.setEnd(stepper.endPosition());
             storage = store.getSlice(slicer, True);
-            _interpolate(result, storage, start);
+            storeMask = store.getMaskSlice(slicer, True);
+            _interpolate(result, resultMask, storage, storeMask, start);
             output.putSlice(result, pos);
+            if (_doMask) {
+                output.pixelMask().putSlice(resultMask, pos);
+            }
         }
     }
 }
@@ -277,86 +532,69 @@ void StatImageCreator::setInterpAlgorithm(Interpolate2D::Method alg) {
     _interpolater = Interpolate2D(alg);
 }
 
-void StatImageCreator::setStatType(LatticeStatsBase::StatisticsTypes s) {
-    ThrowIf(
-        s == LatticeStatsBase::FLUX || s == LatticeStatsBase::NSTATS,
-        "This application does not support the specified statistic "
-            + LatticeStatsBase::toStatisticName(s)
-    );
-    if (s == LatticeStatsBase::Q1) {
-        _statName = "FIRST QUARTILE";
-    }
-    else if (s == LatticeStatsBase::Q3) {
-        _statName = "THIRD QUARTILE";
-    }
-    else if (s == LatticeStatsBase::QUARTILE) {
-        _statName = "INNER QUARTILE RANGE";
-    }
-    else {
-        _statName = LatticeStatsBase::toStatisticName(s);
-    }
-    ThrowIf(
-        _statName.empty(),
-        "Logic error: No name found for statistic "
-            + String::toString(s)
-    );
+void StatImageCreator::setStatType(StatisticsData::STATS s) {
     _statType = s;
+    _statName = StatisticsData::toString(s);
+    _statName.upcase();
 }
 
 void StatImageCreator::setStatType(const String& s) {
     String m = s;
-    LatticeStatsBase::StatisticsTypes stat;
+    StatisticsData::STATS stat;
     m.downcase();
     if (m.startsWith("i")) {
-        stat = LatticeStatsBase::QUARTILE;
+        stat = StatisticsData::INNER_QUARTILE_RANGE;
     }
     else if (m.startsWith("max")) {
-        stat = LatticeStatsBase::MAX;
+        stat = StatisticsData::MAX;
     }
     else if (m.startsWith("mea")) {
-        stat = LatticeStatsBase::MEAN;
+        stat = StatisticsData::MEAN;
     }
-    else if (m.startsWith("meda") || m.startsWith("mad")) {
-        stat = LatticeStatsBase::MEDABSDEVMED;
+    else if (m.startsWith("meda") || m.startsWith("mad") || m.startsWith("x")) {
+        stat = StatisticsData::MEDABSDEVMED;
     }
     else if (m.startsWith("medi")) {
-        stat = LatticeStatsBase::MEDIAN;
+        stat = StatisticsData::MEDIAN;
     }
     else if (m.startsWith("mi")) {
-        stat = LatticeStatsBase::MIN;
+        stat = StatisticsData::MIN;
     }
     else if (m.startsWith("n")) {
-        stat = LatticeStatsBase::NPTS;
+        stat = StatisticsData::NPTS;
     }
     else if (m.startsWith("q1")) {
-        stat = LatticeStatsBase::Q1;
+        stat = StatisticsData::FIRST_QUARTILE;
     }
     else if (m.startsWith("q3")) {
-        stat = LatticeStatsBase::Q3;
+        stat = StatisticsData::THIRD_QUARTILE;
     }
     else if (m.startsWith("r")) {
-        stat = LatticeStatsBase::RMS;
+        stat = StatisticsData::RMS;
     }
     else if (m.startsWith("si") || m.startsWith("st")) {
-        stat = LatticeStatsBase::SIGMA;
+        stat = StatisticsData::STDDEV;
     }
     else if (m.startsWith("sums")) {
-        stat = LatticeStatsBase::SUMSQ;
+        stat = StatisticsData::SUMSQ;
     }
     else if (m.startsWith("sum")) {
-        stat = LatticeStatsBase::SUM;
+        stat = StatisticsData::SUM;
     }
     else if (m.startsWith("v")) {
-        stat = LatticeStatsBase::VARIANCE;
+        stat = StatisticsData::VARIANCE;
     }
     else {
         ThrowCc("Statistic " + s + " not supported.");
     }
+    _doPhi = m.startsWith("x");
     setStatType(stat);
 }
 
 void StatImageCreator::_interpolate(
-    Matrix<Float>& result, const Matrix<Float>& storage,
+    Matrix<Float>& result, Matrix<Bool>& resultMask,
+    const Matrix<Float>& storage,
+    const Matrix<Bool>& storeMask,
     const std::pair<uInt, uInt>& start
 ) const {
     auto shape = result.shape();
@@ -364,6 +602,7 @@ void StatImageCreator::_interpolate(
     auto jmax = shape[1];
     // x values change fastest in the iterator
     auto iter = result.begin();
+    auto miter = resultMask.begin();
     // xcell and ycell are the current positions within the current
     // grid cell represented by an integer modulo pointsPerCell
     auto xCell = start.first == 0 ? 0 : _grid.first - start.first;
@@ -395,25 +634,25 @@ void StatImageCreator::_interpolate(
             if (xCell == _grid.first) {
                 xCell = 0;
                 ++xStoreInt;
-                //xStoreFrac = 0;
                 onXGrid = True;
             }
-            /*
-            else {
-                xStoreFrac = (Double)xCell/(Double)_grid.first;
-            }
-            */
             if (onXGrid && onYGrid) {
                 // exactly on a grid point, no interpolation needed
                 // just copy value directly from storage matrix
                 *iter = storage(xStoreInt, yStoreInt);
+                if (_doMask) {
+                    *miter = storeMask(xStoreInt, yStoreInt);
+                }
             }
             else {
                 xStoreFrac = (Double)xCell/(Double)_grid.first;
                 storeLoc[0] = xStoreInt + xStoreFrac;
-                _interpolater.interp(*iter, storeLoc, storage);
+                _interpolater.interp(*iter, storeLoc, storage, storeMask);
             }
             ++iter;
+            if (_doMask) {
+                ++miter;
+            }
         }
     }
 }

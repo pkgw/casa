@@ -1,6 +1,9 @@
 import os
 import time
 import regression_utility as regutl
+import shutil
+import sys
+import pdb
 
 THISHOME  = "ic2233_regression_data/";
 IMSIZE    = 2048;
@@ -23,9 +26,10 @@ IMAGE     = "imIC2233."+FTMACHINE;
 REUSEREPOS = False;
 INTERACTIVE = False;
 TIMERANGE = "";"*+0:30:0";
-#
-EPS       = 1e-5;  # Logical "zero"
-#
+###VI2 temporary change
+###EPS       = 1e-5;  # Logical "zero"
+EPS = 1e-2
+
 #--------------------------------------------------------------
 #
 def ic2233_reg():
@@ -237,12 +241,15 @@ def stats():
             print >>logfile,'Total wall clock time was: ', endTime - startTime
             print >>logfile,'Total CPU        time was: ', endProc - startProc
 
-
-            logfile.close();
-
+        logfile.flush()
+        logfile.close();
+        f=open(outfile, 'r')
+        a=f.read()
+        f.close() 
+        casalog.post(a, origin="ic2233")
     except Exception, instance:
         print "###Error in ic2233 regression: ",instance;
-
+        raise instance
 
 for i in range(1):
      run();

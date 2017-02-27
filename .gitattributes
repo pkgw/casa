@@ -811,7 +811,6 @@ code/alma/apps/MS2asdm/MS2asdm.cc -text
 code/alma/apps/asdm2MS/ASDM2MSException.h -text
 code/alma/apps/asdm2MS/ASDM2MSFiller.cc -text
 code/alma/apps/asdm2MS/ASDM2MSFiller.h -text
-code/alma/apps/asdm2MS/ASDM2MSFiller2.cc -text
 code/alma/apps/asdm2MS/ASDMTableBase.cc -text
 code/alma/apps/asdm2MS/ASDMTableBase.h -text
 code/alma/apps/asdm2MS/ASDMTables.cc -text
@@ -3369,6 +3368,8 @@ code/flagging/Flagging/DDMapper.cc -text
 code/flagging/Flagging/DDMapper.h -text
 code/flagging/Flagging/ExtendFlagger.cc -text
 code/flagging/Flagging/ExtendFlagger.h -text
+code/flagging/Flagging/FlagAgentAntennaIntegrations.cc -text
+code/flagging/Flagging/FlagAgentAntennaIntegrations.h -text
 code/flagging/Flagging/FlagAgentBase.cc -text
 code/flagging/Flagging/FlagAgentBase.h -text
 code/flagging/Flagging/FlagAgentClipping.cc -text
@@ -4259,6 +4260,8 @@ code/msvis/MSVis/MSChecker.cc -text
 code/msvis/MSVis/MSChecker.h -text
 code/msvis/MSVis/MSContinuumSubtractor.cc -text
 code/msvis/MSVis/MSContinuumSubtractor.h -text
+code/msvis/MSVis/MSIter2.cc -text
+code/msvis/MSVis/MSIter2.h -text
 code/msvis/MSVis/MSUVWGenerator.cc -text
 code/msvis/MSVis/MSUVWGenerator.h -text
 code/msvis/MSVis/MSUtil.cc -text
@@ -4273,6 +4276,8 @@ code/msvis/MSVis/Partition.cc -text
 code/msvis/MSVis/Partition.h -text
 code/msvis/MSVis/PhaseShiftTvi.cc -text
 code/msvis/MSVis/PhaseShiftTvi.h -text
+code/msvis/MSVis/PointingDirectionCache.cc -text
+code/msvis/MSVis/PointingDirectionCache.h -text
 code/msvis/MSVis/Reweighter.cc -text
 code/msvis/MSVis/Reweighter.h -text
 code/msvis/MSVis/SelectAverageSpw.cc -text
@@ -4433,6 +4438,7 @@ code/msvis/MSVis/test/MSCheckerTest.h -text
 code/msvis/MSVis/test/MSChecker_Gtest.cc -text
 code/msvis/MSVis/test/MsFactory.cc -text
 code/msvis/MSVis/test/MsFactory.h -text
+code/msvis/MSVis/test/PointingDirectionCache_Test.cc -text
 code/msvis/MSVis/test/VisibilityIterator_Gtest.cc -text
 code/msvis/MSVis/test/VisibilityIterator_Gtest.h -text
 code/msvis/MSVis/test/VisibilityIterator_Test.cc -text
@@ -5920,6 +5926,7 @@ gcwrap/python/scripts/casa_builtin.py -text
 gcwrap/python/scripts/casa_shutdown.py -text
 gcwrap/python/scripts/casa_stack_manip.py -text
 gcwrap/python/scripts/casa_system.py -text
+gcwrap/python/scripts/casa_system_defaults.py -text
 gcwrap/python/scripts/casapy.py -text
 gcwrap/python/scripts/casapy_engine.py -text
 gcwrap/python/scripts/check_exceptionhandling.py -text
@@ -5943,6 +5950,16 @@ gcwrap/python/scripts/filltsys.py -text
 gcwrap/python/scripts/fixvis_util.py -text
 gcwrap/python/scripts/flaghelper.py -text
 gcwrap/python/scripts/get_user.py -text
+gcwrap/python/scripts/imagerhelpers/CMakeLists.txt -text
+gcwrap/python/scripts/imagerhelpers/__init__.py -text
+gcwrap/python/scripts/imagerhelpers/imager_base.py -text
+gcwrap/python/scripts/imagerhelpers/imager_parallel_continuum.py -text
+gcwrap/python/scripts/imagerhelpers/imager_parallel_cube.py -text
+gcwrap/python/scripts/imagerhelpers/imager_parallel_cube2.py -text
+gcwrap/python/scripts/imagerhelpers/imager_parallel_deconvolver.py -text
+gcwrap/python/scripts/imagerhelpers/input_parameters.py -text
+gcwrap/python/scripts/imagerhelpers/parallel_imager_helper.py -text
+gcwrap/python/scripts/imagerhelpers/test_imager_helper.py -text
 gcwrap/python/scripts/importarchive.py -text
 gcwrap/python/scripts/init_asap.py -text
 gcwrap/python/scripts/init_crashrpt.py -text
@@ -6463,6 +6480,7 @@ gcwrap/python/scripts/task_imreframe.py -text
 gcwrap/python/scripts/task_imregrid.py -text
 gcwrap/python/scripts/task_imsmooth.py -text
 gcwrap/python/scripts/task_imstat.py -text
+gcwrap/python/scripts/task_imstatimage.py -text
 gcwrap/python/scripts/task_imsubimage.py -text
 gcwrap/python/scripts/task_imtrans.py -text
 gcwrap/python/scripts/task_imval.py -text
@@ -6619,6 +6637,7 @@ gcwrap/python/scripts/tests/test_ia_imageconcat.py -text
 gcwrap/python/scripts/tests/test_ia_insert.py -text
 gcwrap/python/scripts/tests/test_ia_isconform.py -text
 gcwrap/python/scripts/tests/test_ia_makecomplex.py -text
+gcwrap/python/scripts/tests/test_ia_makestatimage.py -text
 gcwrap/python/scripts/tests/test_ia_maskhandler.py -text
 gcwrap/python/scripts/tests/test_ia_modify.py -text
 gcwrap/python/scripts/tests/test_ia_newimagefromimage.py -text
@@ -6831,6 +6850,7 @@ gcwrap/tasks/imreframe.xml -text
 gcwrap/tasks/imregrid.xml -text
 gcwrap/tasks/imsmooth.xml -text
 gcwrap/tasks/imstat.xml -text
+gcwrap/tasks/imstatimage.xml -text
 gcwrap/tasks/imsubimage.xml -text
 gcwrap/tasks/imtrans.xml -text
 gcwrap/tasks/imval.xml -text

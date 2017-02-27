@@ -931,7 +931,7 @@ void MSUVBin::inplaceGridData(const vi::VisBuffer2& vb){
   void MSUVBin::inplaceLargeBW(const vi::VisBuffer2& vb){
 	//Dang i thought the new vb will return Data or FloatData if correctedData was
 	//not there
-	Bool hasCorrected=!(ROMSMainColumns(vb.getVi()->ms()).correctedData().isNull());
+	Bool hasCorrected=!(ROMSMainColumns(vb.ms()).correctedData().isNull());
 	Int nrows=vb.nRows();
 	//	Cube<Complex> grid(npol_p, nchan_p, nrows);
 	//	Matrix<Float> wght(npol_p,nrows);
@@ -987,7 +987,6 @@ void MSUVBin::inplaceGridData(const vi::VisBuffer2& vb){
 	
 	Vector<Double> invLambda=visFreq/C::c;
 	Vector<Double> phasmult(vb.nChannels(),0.0);
-	Complex elphas(1.0, 0.0);
 	for (Int k=0; k < nrows; ++k){ 
 	  if(needRot)
 	    phasmult=phasor(k)*invLambda;
@@ -1073,7 +1072,7 @@ void MSUVBin::inplaceGridData(const vi::VisBuffer2& vb){
   void MSUVBin::inplaceSmallBW(const vi::VisBuffer2& vb){
 	//Dang i thought the new vb will return Data or FloatData if correctedData was
 	//not there
-	Bool hasCorrected=!(ROMSMainColumns(vb.getVi()->ms()).correctedData().isNull());
+	Bool hasCorrected=!(ROMSMainColumns(vb.ms()).correctedData().isNull());
 	Int nrows=vb.nRows();
 	MSColumns msc(*outMsPtr_p);
 	SpectralCoordinate spec=csys_p.spectralCoordinate(2);
@@ -1229,7 +1228,7 @@ void MSUVBin::gridData(const vi::VisBuffer2& vb, Cube<Complex>& grid,
     scale(1)=fabs(ny_p*thedir.increment()(1))/C::c;
     //Dang i thought the new vb will return Data or FloatData if correctedData was
 	    //not there
-	    Bool hasCorrected=!(ROMSMainColumns(vb.getVi()->ms()).correctedData().isNull());
+	    Bool hasCorrected=!(ROMSMainColumns(vb.ms()).correctedData().isNull());
 		//locateuvw(locuv, vb.uvw());
 	    Vector<Double> visFreq=vb.getFrequencies(0, MFrequency::LSRK);
 		for (Int k=0; k < vb.nRows(); ++k){
@@ -1335,7 +1334,7 @@ void MSUVBin::gridData(const vi::VisBuffer2& vb, Cube<Complex>& grid,
     //cerr << "chanmap " << chanMap_p << " pol map " <<polMap_p << " weight " << wghtSpec.shape() << endl;
     //Dang i thought the new vb will return Data or FloatData if correctedData was
 	    //not there
-	    Bool hasCorrected=!(ROMSMainColumns(vb.getVi()->ms()).correctedData().isNull());
+	    Bool hasCorrected=!(ROMSMainColumns(vb.ms()).correctedData().isNull());
 		//locateuvw(locuv, vb.uvw());
 	    Vector<Double> visFreq=vb.getFrequencies(0, MFrequency::LSRK);
 		for (Int k=0; k < vb.nRows(); ++k){
@@ -1436,7 +1435,7 @@ void MSUVBin::gridDataConv(const vi::VisBuffer2& vb, Cube<Complex>& grid,
   scale(1)=fabs(Double(ny_p)*thedir.increment()(1))/C::c;
   //Dang i thought the new vb will return Data or FloatData if correctedData was
   //not there
-  Bool hasCorrected=!(ROMSMainColumns(vb.getVi()->ms()).correctedData().isNull());
+  Bool hasCorrected=!(ROMSMainColumns(vb.ms()).correctedData().isNull());
   //locateuvw(locu v, vb.uvw());
   Vector<Double> visFreq=vb.getFrequencies(0, MFrequency::LSRK);
   //cerr << "support " << convSupport << endl;
@@ -1601,7 +1600,7 @@ void MSUVBin::gridDataConvThr(const vi::VisBuffer2& vb, Cube<Complex>& grid,
   scale(1)=fabs(Double(ny_p)*thedir.increment()(1))/C::c;
   //Dang i thought the new vb will return Data or FloatData if correctedData was
   //not there
-  Bool hasCorrected=!(ROMSMainColumns(vb.getVi()->ms()).correctedData().isNull());
+  Bool hasCorrected=!(ROMSMainColumns(vb.ms()).correctedData().isNull());
   Vector<Double> visFreq=vb.getFrequencies(0, MFrequency::LSRK);
   //cerr << "support " << convSupport << endl;
   Vector<Double> phasor;
@@ -1928,7 +1927,7 @@ void MSUVBin::multiThrLoop(const Int outchan, const vi::VisBuffer2& vb, Double r
     scale(1)=fabs(ny_p*thedir.increment()(1))/C::c;
     //Dang i thought the new vb will return Data or FloatData if correctedData was
 	    //not there
-	    //Bool hasCorrected=!(ROMSMainColumns(vb.getVi()->ms()).correctedData().isNull());
+	    //Bool hasCorrected=!(ROMSMainColumns(vb.ms()).correctedData().isNull());
 		//locateuvw(locuv, vb.uvw());
 	    Vector<Double> visFreq=vb.getFrequencies(0, MFrequency::LSRK);
 		for (Int k=0; k < vb.nRows(); ++k){
@@ -2685,8 +2684,8 @@ void MSUVBin::makeWConv(vi::VisibilityIterator2& iter, Cube<Complex>& convFunc, 
   //convFunc.xyPlane(iz) = convFunc.xyPlane(iz)/Complex(pbSum);
   // }
   //cerr << "pbSum " << pbSum << endl;
-   for (Int iz=0; iz< convSupport.shape()[0]; ++iz){
-     convFunc.xyPlane(iz)= convFunc.xyPlane(iz)/pbSum;
+   for (Int iz2=0; iz2< convSupport.shape()[0]; ++iz2){
+     convFunc.xyPlane(iz2)= convFunc.xyPlane(iz2)/pbSum;
 
    }
    Int newConvSize=2*(max(convSupport)+2)*convSampling;

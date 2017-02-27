@@ -41,6 +41,7 @@
 //#include <msvis/MSVis/StokesVector.h>
 #include <msvis/MSVis/MeasurementSet2.h>
 #include <msvis/MSVis/MSUtil.h>
+#include <msvis/MSVis/MSIter2.h>
 #include <msvis/MSVis/UtilJ.h>
 #include <msvis/MSVis/SpectralWindow.h>
 #include <msvis/MSVis/ViFrequencySelection.h>
@@ -48,6 +49,7 @@
 #include <msvis/MSVis/VisBufferComponents2.h>
 #include <msvis/MSVis/VisibilityIterator2.h>
 #include <msvis/MSVis/VisibilityIteratorImpl2.h>
+#include <msvis/MSVis/PointingDirectionCache.h>
 #include <msvis/MSVis/VisModelDataI.h>
 #include <tables/Tables/ColDescSet.h>
 #include <tables/Tables/ArrayColumn.h>
@@ -933,7 +935,8 @@ VisibilityIteratorImpl2::VisibilityIteratorImpl2 (const Block<const MeasurementS
                                                   const SortColumns & sortColumns,
                                                   Double timeInterval,
                                                   VisBufferType vbType,
-                                                  Bool writable)
+                                                  Bool writable,
+						  Bool useMSIter2)
 : ViImplementation2 (),
   channelSelector_p (0),
   channelSelectorCache_p (new ChannelSelectorCache ()),
@@ -958,7 +961,7 @@ VisibilityIteratorImpl2::VisibilityIteratorImpl2 (const Block<const MeasurementS
   weightScaling_p ( ),
   writable_p (writable)
 {
-    initialize (mss);
+  initialize (mss,useMSIter2);
 
     VisBufferOptions options = isWritable () ? VbWritable : VbNoOptions;
 
@@ -1022,7 +1025,8 @@ VisibilityIteratorImpl2::addDataSelection (const MeasurementSet & ms)
 
 
 void
-VisibilityIteratorImpl2::initialize (const Block<const MeasurementSet *> &mss)
+VisibilityIteratorImpl2::initialize (const Block<const MeasurementSet *> &mss,
+				     Bool useMSIter2)
 {
     cache_p.flush();
 
@@ -1040,11 +1044,26 @@ VisibilityIteratorImpl2::initialize (const Block<const MeasurementSet *> &mss)
         addDataSelection (measurementSets_p [k]);
     }
 
-   msIter_p = new MSIter (measurementSets_p,
-                          sortColumns_p.getColumnIds(),
-                          timeInterval_p,
-                          sortColumns_p.shouldAddDefaultColumns(),
-                          false);
+    if (useMSIter2) {
+
+      cout << "Using MSIter2......................................." << endl;
+
+      // This version uses the MSSmartInterval for time comparisons
+      //   in the Table sort/iteration
+      msIter_p = new MSIter2 (measurementSets_p,
+			      sortColumns_p.getColumnIds(),
+			      timeInterval_p,
+			      sortColumns_p.shouldAddDefaultColumns(),
+			      false);
+    }
+    else
+      // The old-fashioned version
+      msIter_p = new MSIter (measurementSets_p,
+			     sortColumns_p.getColumnIds(),
+			     timeInterval_p,
+			     sortColumns_p.shouldAddDefaultColumns(),
+			     false);
+
 
    subtableColumns_p = new SubtableColumns (msIter_p);
 
@@ -1097,6 +1116,19 @@ VisibilityIteratorImpl2::getBeamOffsets () const
 {
     return msIter_p->getBeamOffsets ();
 }
+
+std::pair <bool, casacore::MDirection>
+VisibilityIteratorImpl2::getPointingAngle (int antenna, double time) const
+{
+  if (! pointingDirectionCache_p){
+      pointingSource_p.reset (new PointingColumns (subtableColumns_p->pointing()));
+      pointingDirectionCache_p.reset (new PointingDirectionCache (nAntennas(),
+                                                                  * pointingSource_p.get()));
+  }
+
+  return pointingDirectionCache_p->getPointingDirection (antenna, time, phaseCenter());
+}
+
 
 Vector<Double>
 VisibilityIteratorImpl2::getFrequencies (Double time, Int frameOfReference,
@@ -1730,7 +1762,6 @@ VisibilityIteratorImpl2::configureNewSubchunk ()
                 // of the subchunk.
 
                 rowBounds_p.subchunkEnd_p = i - 1;
-
             }
         }
     }
@@ -1766,6 +1797,7 @@ VisibilityIteratorImpl2::configureNewSubchunk ()
     Vector<Stokes::StokesTypes> correlationsSelected = getCorrelationTypesSelected();
 
     String msName = ms().tableName ();
+
     vb_p->configureNewSubchunk (msId (), msName, isNewMs (), isNewArrayId (), isNewFieldId (),
                                 isNewSpectralWindow (), subchunk_p, rowBounds_p.subchunkNRows_p,
                                 channelSelector_p->getNFrequencies(), nCorrelations_p,
@@ -2223,6 +2255,13 @@ VisibilityIteratorImpl2::configureNewChunk ()
 
         timeFrameOfReference_p = msIter_p->msColumns().timeMeas () (0).getRef();
 
+
+
+    }
+
+    if (isNewMs ()){ // New ms so flush pointing caches (if they exist).
+        pointingDirectionCache_p.reset();
+        pointingSource_p.reset ();
     }
 
     if (msIter_p->newField () || msIterAtOrigin_p) {
@@ -2280,7 +2319,6 @@ VisibilityIteratorImpl2::setTileCache ()
         }
 
     } else {
-
         setMsCacheSizes (theMs, columnIds);
     }
 
