@@ -8,6 +8,12 @@
 #ifndef SINGLEDISH_FILLER_SCANTABLEITERATOR_H_
 #define SINGLEDISH_FILLER_SCANTABLEITERATOR_H_
 
+#include <singledish/Filler/FillerUtil.h>
+#include <singledish/Filler/FieldRecord.h>
+#include <singledish/Filler/SourceRecord.h>
+#include <singledish/Filler/SpectralWindowRecord.h>
+#include <singledish/Filler/SysCalRecord.h>
+
 #include <casacore/casa/Arrays/Vector.h>
 #include <casacore/casa/Utilities/Compare.h>
 #include <casacore/casa/Utilities/Sort.h>
@@ -18,11 +24,6 @@
 #include <casacore/tables/Tables/ScalarColumn.h>
 #include <casacore/tables/Tables/ArrayColumn.h>
 #include <casacore/tables/TaQL/ExprNode.h>
-#include <singledishfiller/Filler/FieldRecord.h>
-#include <singledishfiller/Filler/FillerUtil.h>
-#include <singledishfiller/Filler/SourceRecord.h>
-#include <singledishfiller/Filler/SpectralWindowRecord.h>
-#include <singledishfiller/Filler/SysCalRecord.h>
 
 using namespace casacore;
 

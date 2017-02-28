@@ -5,9 +5,9 @@
  *      Author: nakazato
  */
 
-#include <singledishfiller/Filler/SingleDishMSFiller.h>
+#include <singledish/Filler/SingleDishMSFiller.h>
 
-#include <singledishfiller/Filler/Scantable2MSReader.h>
+#include <singledish/Filler/Scantable2MSReader.h>
 
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN

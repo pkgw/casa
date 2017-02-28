@@ -8,7 +8,16 @@
 #ifndef SINGLEDISH_FILLER_SINGLEDISHMSFILLER_TCC_
 #define SINGLEDISH_FILLER_SINGLEDISHMSFILLER_TCC_
 
-#include <singledishfiller/Filler/SingleDishMSFiller.h>
+#include <singledish/Filler/SingleDishMSFiller.h>
+#include <singledish/Filler/FillerUtil.h>
+#include <singledish/Filler/AntennaRecord.h>
+#include <singledish/Filler/FieldRecord.h>
+#include <singledish/Filler/ObservationRecord.h>
+#include <singledish/Filler/ProcessorRecord.h>
+#include <singledish/Filler/SourceRecord.h>
+#include <singledish/Filler/SpectralWindowRecord.h>
+#include <singledish/Filler/SysCalRecord.h>
+#include <singledish/Filler/WeatherRecord.h>
 
 #include <iostream>
 #include <map>
@@ -32,15 +41,6 @@
 #include <casacore/tables/Tables/Table.h>
 #include <casacore/tables/Tables/ScalarColumn.h>
 #include <casacore/tables/Tables/SetupNewTab.h>
-#include <singledishfiller/Filler/AntennaRecord.h>
-#include <singledishfiller/Filler/FieldRecord.h>
-#include <singledishfiller/Filler/FillerUtil.h>
-#include <singledishfiller/Filler/ObservationRecord.h>
-#include <singledishfiller/Filler/ProcessorRecord.h>
-#include <singledishfiller/Filler/SourceRecord.h>
-#include <singledishfiller/Filler/SpectralWindowRecord.h>
-#include <singledishfiller/Filler/SysCalRecord.h>
-#include <singledishfiller/Filler/WeatherRecord.h>
 
 using namespace casacore;
 

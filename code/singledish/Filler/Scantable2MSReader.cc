@@ -5,7 +5,7 @@
  *      Author: nakazato
  */
 
-#include <singledishfiller/Filler/Scantable2MSReader.h>
+#include <singledish/Filler/Scantable2MSReader.h>
 
 #include <iostream>
 #include <string>

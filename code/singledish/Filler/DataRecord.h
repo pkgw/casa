@@ -8,6 +8,8 @@
 #ifndef SINGLEDISH_FILLER_DATARECORD_H_
 #define SINGLEDISH_FILLER_DATARECORD_H_
 
+#include <singledish/Filler/FillerUtil.h>
+
 #include <memory>
 #include <stdlib.h>
 
@@ -15,7 +17,6 @@
 #include <casacore/casa/Arrays/Matrix.h>
 #include <casacore/casa/Arrays/Vector.h>
 #include <measures/Measures/Stokes.h>
-#include <singledishfiller/Filler/FillerUtil.h>
 
 namespace {
 template<class T>

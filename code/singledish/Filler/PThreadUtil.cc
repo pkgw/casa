@@ -5,7 +5,7 @@
  *      Author: nakazato
  */
 
-#include <singledishfiller/Filler/PThreadUtil.h>
+#include "PThreadUtil.h"
 
 namespace casa { //# NAMESPACE CASA - BEGIN
 namespace sdfiller { //# NAMESPACE SDFILLER - BEGIN
