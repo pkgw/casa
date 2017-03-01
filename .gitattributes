@@ -4260,6 +4260,8 @@ code/msvis/MSVis/MSChecker.cc -text
 code/msvis/MSVis/MSChecker.h -text
 code/msvis/MSVis/MSContinuumSubtractor.cc -text
 code/msvis/MSVis/MSContinuumSubtractor.h -text
+code/msvis/MSVis/MSIter2.cc -text
+code/msvis/MSVis/MSIter2.h -text
 code/msvis/MSVis/MSUVWGenerator.cc -text
 code/msvis/MSVis/MSUVWGenerator.h -text
 code/msvis/MSVis/MSUtil.cc -text
@@ -6478,6 +6480,7 @@ gcwrap/python/scripts/task_imreframe.py -text
 gcwrap/python/scripts/task_imregrid.py -text
 gcwrap/python/scripts/task_imsmooth.py -text
 gcwrap/python/scripts/task_imstat.py -text
+gcwrap/python/scripts/task_imstatimage.py -text
 gcwrap/python/scripts/task_imsubimage.py -text
 gcwrap/python/scripts/task_imtrans.py -text
 gcwrap/python/scripts/task_imval.py -text
@@ -6847,6 +6850,7 @@ gcwrap/tasks/imreframe.xml -text
 gcwrap/tasks/imregrid.xml -text
 gcwrap/tasks/imsmooth.xml -text
 gcwrap/tasks/imstat.xml -text
+gcwrap/tasks/imstatimage.xml -text
 gcwrap/tasks/imsubimage.xml -text
 gcwrap/tasks/imtrans.xml -text
 gcwrap/tasks/imval.xml -text

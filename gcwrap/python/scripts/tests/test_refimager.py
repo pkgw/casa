@@ -1458,13 +1458,14 @@ class test_mask(testref_base):
           report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[250,250,0,0]),(self.img+'.mask',0.0,[250,285,0,0]),(self.img+'.mask',0.0,[360,360])])
           self.checkfinal(report)
 
-     def test_mask_autobox_autoadjust(self):
-          """ [mask] test_mask_autobox_autoadjust : Autoboxing with autoadjust=T """
-          self.prepData('refim_point.ms')
-          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10,deconvolver='hogbom',
-                       interactive=0,usemask='auto-thresh',autoadjust=True)
-          report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[50,85,0,0])])
-          self.checkfinal(report)
+# This test deprecated. removed autoadjust param.
+#     def test_mask_autobox_autoadjust(self):
+#          """ [mask] test_mask_autobox_autoadjust : Autoboxing with autoadjust=T """
+#          self.prepData('refim_point.ms')
+#          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10,deconvolver='hogbom',
+#                       interactive=0,usemask='auto-thresh',autoadjust=True)
+#          report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[50,85,0,0])])
+#          self.checkfinal(report)
       
 #     def test_mask_pbmask(self):
 #          """ [mask] test_mask_pbmask :  pb mask """
@@ -2044,3 +2045,13 @@ class test_pbcor(testref_base):
           report2=self.th.checkall(imexist=[self.img+'.image', self.img+'.pb', self.img+'.image.pbcor'], imval=[(self.img+'.pb',0.7,[256,256,0,0]),(self.img+'.image.pbcor',1.0,[256,256,0,0])])
           self.checkfinal(report1+report2)
 
+     def test_pbcor_turn_off_pbmask(self):
+          """ [pbcor] Test pbcor with mfs where the internal T/F mask is turned off"""
+          self.prepData('refim_mawproject.ms')
+          ret1 = tclean(vis=self.msfile, imagename=self.img, field='0', imsize=512, cell='10.0arcsec', phasecenter="J2000 19:59:28.500 +40.44.01.50", niter=0, specmode='mfs', vptable='evlavp.tab', pbcor=True)
+          report1=self.th.checkall(imexist=[self.img+'.image', self.img+'.pb'], imval=[(self.img+'.pb',0.7,[256,256,0,0])], immask=[(self.img+'.pb',False,[10,10,0,0]), (self.img+'.image',False,[10,10,0,0])] )
+
+          ret2 = tclean(vis=self.msfile, imagename=self.img, field='0', imsize=512, cell='10.0arcsec', phasecenter="J2000 19:59:28.500 +40.44.01.50", niter=10, specmode='mfs', vptable='evlavp.tab', pbcor=True, calcpsf=False, calcres=False, pblimit=-0.2)
+          report2=self.th.checkall(imexist=[self.img+'.image', self.img+'.pb'], imval=[(self.img+'.pb',0.7,[256,256,0,0])] , immask=[(self.img+'.pb',False,[10,10,0,0]), (self.img+'.image',True,[10,10,0,0])]  )
+
+          self.checkfinal(report1+report2)

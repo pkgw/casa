@@ -275,6 +275,15 @@ void SimplePBConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
 
 
 
+    LogIO os;
+     os << LogOrigin("SimplePBConv", "findConvFunction")  << LogIO::NORMAL;
+     /////////////////////////
+     os<< LogIO::DEBUG1 
+       << "msID " << vb.msId()  <<  " ANT1 id" << vb.antenna1()(0) 
+       << " direction " << vb.firstDirection1().toString() << " ANT2 id" 
+       << vb.antenna2()(0) << " direction " << vb.direction2()(0).toString() 
+       << LogIO::POST ; 
+    //////////////////////
   Int convSamp=2*convSampling;
   storeImageParams(iimage, vb);
   convFuncChanMap.resize(vb.nChannel());
@@ -291,9 +300,7 @@ void SimplePBConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
   //break reference
   convFunc.resize();
   weightConvFunc.resize();
-  LogIO os;
-  os << LogOrigin("SimplePBConv", "findConvFunction")  << LogIO::NORMAL;
-  
+ 
   
   // Get the coordinate system
   CoordinateSystem coords(iimage.coordinates());

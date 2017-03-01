@@ -71,14 +71,22 @@ SPIIF StatImageCreator::compute() {
     const auto yshape = imshape[_dirAxes[1]];
     const auto& csys = subImage->coordinates();
     auto anchorPixel = csys.toPixel(_anchor);
-    Int xanchor = rint(anchorPixel[_dirAxes[0]]);
-    Int yanchor = rint(anchorPixel[_dirAxes[1]]);
-    String rStr;
     TempImage<Float> output(imshape, csys);
     output.set(0);
     if (_doMask) {
         output.attachMask(ArrayLattice<Bool>(imshape));
         output.pixelMask().set(True);
+    }
+    Int xanchor = rint(anchorPixel[_dirAxes[0]]);
+    Int yanchor = rint(anchorPixel[_dirAxes[1]]);
+    // ensure xanchor and yanchor are positive
+    if (xanchor < 0) {
+        // ugh, mod of a negative number in C++ doesn't do what I want it to
+        // integer division
+        xanchor += (abs(xanchor)/_grid.first + 1)*_grid.first;
+    }
+    if (yanchor < 0) {
+        yanchor += (abs(yanchor)/_grid.second + 1)*_grid.second;
     }
     // xstart and ystart are the pixel location in the
     // subimage of the lower left corner of the grid,
@@ -195,10 +203,17 @@ void StatImageCreator::_computeStat(
         *_getLog() << "circular region of radius " << _xlen;
     }
     else {
-        *_getLog() << "rectangular region of dimensions " << _xlen
+        *_getLog() << "rectangular region of specified dimensions " << _xlen
             << " x " << _ylen;
     }
-    *_getLog() << " to choose pixels for computing " << _statName
+    *_getLog() << " (because of centering and "
+            << "rounding to use whole pixels, actual dimensions of bounding box are "
+            << xChunkSize << " pix x " << yChunkSize << " pix";
+    if (doCircle) {
+        *_getLog() << " and there are " << ntrue(*regionMask)
+            << " good pixels in the circle that are being used";
+    }
+    *_getLog() << ") to choose pixels for computing " << _statName
         << " using the " << algName << " algorithm around each of "
         << ngrid << " grid points in " << (nPts/ngrid) << " planes." << LogIO::POST;
     IPosition planeBlc(ndim, 0);
@@ -458,7 +473,8 @@ void StatImageCreator::_doInterpolation(
     const auto xshape = imshape[_dirAxes[0]];
     const auto yshape = imshape[_dirAxes[1]];
     const auto ndim = subImage->ndim();
-    *_getLog() << LogIO::NORMAL << "Interpolate using "
+    *_getLog() << LogOrigin(getClass(), __func__)
+        << LogIO::NORMAL << "Interpolate using "
         << _interpName << " algorithm." << LogIO::POST;
     Matrix<Float> result(xshape, yshape);
     Matrix<Bool> resultMask;
