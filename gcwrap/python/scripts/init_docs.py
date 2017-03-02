@@ -13,9 +13,13 @@ class __doc(object):
         self.local_toc = None
         self.remote_toc = None
         self.remote_toc_url = 'https://casa.nrao.edu/PloneResource/stable/toc.xml'
-        self.local_toc_url = casa['dirs']['doc'] + '/casa.nrao.edu/casadocs/toc.xml'
+        self.local_toc_url = None if casa['dirs']['doc'] is None else casa['dirs']['doc'] + '/casa.nrao.edu/casadocs/toc.xml'
 
-    def __call__( self, sec=None, remote=False ):
+    def __call__( self, sec=None ):
+        "open browser with documentation, try \"doc('toc')\""
+
+        ## for now, access to the plone site is turned off
+        remote=False
         def show_toc( toc_dict ):
             width = max(len(key) for key in toc_dict.keys( ))+3
             for i in sorted(toc_dict.iterkeys( )):
@@ -46,8 +50,8 @@ class __doc(object):
                     print "------------------------------------------------------------------------------"
                     show_toc(self.remote_toc)
         else:
+            path = casa['dirs']['doc'] + "/casa.nrao.edu/casadocs"
             if sec is None:
-                path = casa['dirs']['doc'] + "/casa.nrao.edu/casadocs"
                 homepage = path + "/stable.html"
                 if os.path.exists(path):
                     return webbrowser.open("file://" + homepage)
@@ -56,11 +60,15 @@ class __doc(object):
                     return False
             else:
                 if self.local_toc is None:
-                    self.local_toc = reduce( entry_to_dict, ET.ElementTree(file=urllib2.urlopen("file://" + self.local_toc_url)).getroot( ).getchildren( ), { } )
+                    if self.local_toc_url is not None:
+                        self.local_toc = reduce( entry_to_dict, ET.ElementTree(file=urllib2.urlopen("file://" + self.local_toc_url)).getroot( ).getchildren( ), { } )
+                    else:
+                        print "local documentation tree not found..."
+                        return False
                 if sec == 'toc':
                     show_toc(self.local_toc)
                 elif self.local_toc.has_key(sec):
-                    return webbrowser.open(path + "/stable/" + self.remote_toc[sec]['path'])
+                    return webbrowser.open(path + "/stable/" + self.local_toc[sec]['path'])
                 else:
                     print "Sorry '%s' is not a recognized section..." % sec
                     print "------------------------------------------------------------------------------"
