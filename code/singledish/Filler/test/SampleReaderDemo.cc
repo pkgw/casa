@@ -2,9 +2,8 @@
 //   g++ /Users/nakazato/work/eclipse/casadevel/casa/code/singledish/Filler/test/SampleReaderDemo.cc -o SampleReaderDemo -I../../darwin/casacode/ -I../../darwin/include -I../../darwin/include/casacore -L../../darwin/lib -lcasa_casa -lcasa_measures -lcasa_ms -lcasa_tables -lsingledish -std=c++11 -DUseCasacoreNamespace
 
 #include <singledish/Filler/SingleDishMSFiller.h>
-#include <singledish/Filler/SampleReader.h>
-
 #include <casacore/casa/Logging/LogIO.h>
+#include "SampleReader.h"
 
 int main(int argc, char *argv[]) {
   casacore::LogIO os(LogOrigin("", "SampleReaderDemo", WHERE));

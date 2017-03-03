@@ -61,7 +61,6 @@ install (FILES
     Filler/Scantable2MSReader.h
     Filler/SingleDishMSFiller.h
     Filler/SingleDishMSFiller.tcc
-    Filler/SampleReader.h
     DESTINATION include/casacode/singledish/Filler
 )
 
