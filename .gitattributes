@@ -6480,6 +6480,7 @@ gcwrap/python/scripts/task_imreframe.py -text
 gcwrap/python/scripts/task_imregrid.py -text
 gcwrap/python/scripts/task_imsmooth.py -text
 gcwrap/python/scripts/task_imstat.py -text
+gcwrap/python/scripts/task_imstatimage.py -text
 gcwrap/python/scripts/task_imsubimage.py -text
 gcwrap/python/scripts/task_imtrans.py -text
 gcwrap/python/scripts/task_imval.py -text
@@ -6849,6 +6850,7 @@ gcwrap/tasks/imreframe.xml -text
 gcwrap/tasks/imregrid.xml -text
 gcwrap/tasks/imsmooth.xml -text
 gcwrap/tasks/imstat.xml -text
+gcwrap/tasks/imstatimage.xml -text
 gcwrap/tasks/imsubimage.xml -text
 gcwrap/tasks/imtrans.xml -text
 gcwrap/tasks/imval.xml -text

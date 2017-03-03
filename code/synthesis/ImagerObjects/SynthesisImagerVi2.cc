@@ -232,11 +232,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         ////////////////////////////
         Double lowfreq;
         Double topfreq;
-        MFrequency::Types freqFrame=MFrequency::castType(ROMSColumns(*mss_p[mss_p.nelements()-1]).spectralWindow().measFreqRef()(Int(freqList(0,0))));
+	//cerr << "chanlist " << chanlist << "\n freqlis " << freqList << endl;
+        MFrequency::Types freqFrame=MFrequency::castType(ROMSColumns(*mss_p[mss_p.nelements()-1]).spectralWindow().measFreqRef()(Int(chanlist(0,0))));
         vi::FrequencySelectionUsingFrame channelSelector(freqFrame);
     	  for(uInt k=0; k < nSelections; ++k){
-            lowfreq=freqList(k,1)-freqList(k,3)/2.0;
-            topfreq=freqList(k, 2)+freqList(k,3)/2.0;
+	    //The getChanfreqList is wrong for beg and end..going round that too.
+	    Vector<Double> freqies=ROMSColumns(*mss_p[mss_p.nelements()-1]).spectralWindow().chanFreq()(Int(chanlist(k,0)));
+	    Vector<Double> reso=ROMSColumns(*mss_p[mss_p.nelements()-1]).spectralWindow().resolution()(Int(chanlist(k,0)));
+            //lowfreq=freqList(k,1)-freqList(k,3)/2.0;
+            //topfreq=freqList(k, 2)+freqList(k,3)/2.0;
+	    lowfreq=freqies(chanlist(k,1));
+            topfreq=freqies(chanlist(k,2));
 	    //cerr << "Dat lowFreq "<< lowfreq << " topfreq " << topfreq << endl; 
             channelSelector.add(Int(freqList(k,0)), lowfreq, topfreq);
           }
@@ -253,14 +259,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     	  Double lowfreq=freq.getValue("Hz");
     	  Quantity::read(freq, selpars.freqend);
     	  Double topfreq=freq.getValue("Hz");
-    	  //cerr << "lowFreq "<< lowfreq << " topfreq " << topfreq << endl;
+    	 
 	  ////Work aroun CAS-8829
 	  if(vi_p) 
 	    VisBufferUtil::getFreqRangeFromRange(lowfreq, topfreq,  selpars.freqframe, lowfreq,  topfreq, *vi_p, freqFrame);
+	  //cerr << "lowFreq "<< lowfreq << " topfreq " << topfreq << endl;
 	  vi::FrequencySelectionUsingFrame channelSelector((vi_p ? freqFrame :selpars.freqframe));
     	  for(uInt k=0; k < nSelections; ++k){
-            lowfreq=freqList(k,1)-freqList(k,3)/2.0;
-            topfreq=freqList(k, 2)+freqList(k,3)/2.0;
+	    //cerr << "lowFreq "<< lowfreq << " topfreq " << topfreq << endl;
             channelSelector.add(Int(freqList(k,0)), lowfreq, topfreq);
           }
     	  fselections_p.add(channelSelector);
@@ -392,6 +398,7 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
     try
       {
 
+	
 		appendToMapperList(impars.imageName,  csys,  impars.shp(),
 			   ftm, iftm,
 			   gridpars.distance, gridpars.facets, gridpars.chanchunks,impars.overwrite,
@@ -572,6 +579,7 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
       LogIO log_l(LogOrigin("SynthesisImagerVi2", "appendToMapperList(ftm)"));
       //---------------------------------------------
       // Some checks..
+      
       if(facets > 1 && itsMappers.nMappers() > 0)
 	log_l << "Facetted image has to be the first of multifields" << LogIO::EXCEPTION;
 
@@ -687,9 +695,15 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
 	      Block<CountedPtr<SIImageStore> > imstorList = createChanChunkImageStoreList( imstor, chanchunks );
 	      for( uInt chunk=0; chunk<imstorList.nelements(); chunk++)
 		{
+		  
 		  CountedPtr<refim::FTMachine> new_ftm, new_iftm;
-		  if(chunk==0){ new_ftm = ftm;  new_iftm = iftm; }
-		  else{ new_ftm=ftm->cloneFTM();  new_iftm=iftm->cloneFTM(); }
+		  if(chunk==0){ 
+		    new_ftm = ftm;  
+		    new_iftm = iftm; }
+		  else{ 
+		    new_ftm=ftm->cloneFTM();  
+		    new_iftm=iftm->cloneFTM(); }
+		 
 		  itsMappers.addMapper(createSIMapper( mappertype, imstorList[chunk], new_ftm, new_iftm, ntaylorterms));
 		}
 	    }// chanchunks
@@ -813,29 +827,35 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
       {
 	resetModel=True;
 	os << "Iterating through the model column to reset it to zero" << LogIO::POST;
-    	VisBufferAutoPtr vb(rvi_p);
-    	rvi_p->originChunks();
-    	rvi_p->origin();
-
-	ProgressMeter pm(1.0, Double(vb->numberCoh()), 
+	vi::VisBuffer2* vb=vi_p->getVisBuffer();
+    	vi_p->originChunks();
+    	vi_p->origin();
+	Double numcoh=0;
+	for (uInt k=0; k< mss_p.nelements(); ++k)
+	  numcoh+=Double(mss_p[k]->nrow());
+	ProgressMeter pm(1.0, numcoh, 
 			 dopsf?"Seting model column to zero":"pre-Major Cycle", "","","",True);
 	Int cohDone=0;
-    	for (rvi_p->originChunks(); rvi_p->moreChunks();rvi_p->nextChunk())
+    	for (vi_p->originChunks(); vi_p->moreChunks();vi_p->nextChunk())
 	  {
 	    
-	    for (rvi_p->origin(); rvi_p->more(); (*rvi_p)++)
+	    for (vi_p->origin(); vi_p->more(); vi_p->next())
 	      {
 		if (SynthesisUtilMethods::validate(*vb)!=SynthesisUtilMethods::NOVALIDROWS)
 		  {
-		    vb->setModelVisCube(Complex(0.0, 0.0));
-		    wvi_p->setVis(vb->modelVisCube(),VisibilityIterator::Model);
+		    { Cube<Complex> mod(vb->nCorrelations(), vb->nChannels(), vb->nRows(), Complex(0.0));
+			    vb->setVisCubeModel(mod); 
+		    }
+		    vi_p->writeVisModel(vb->visCubeModel());
+		    
 		  }
-		cohDone += vb->nRow();
+		cohDone += vb->nRows();;
 		pm.update(Double(cohDone));
 	      }
 	  }
       }// setting model to zero
 
+    
     for(Int gmap=0;gmap<itsMappers.nMappers();gmap++)
        {
 	 os << "Running major cycle for chunk : " << gmap << LogIO::POST;
@@ -854,8 +874,9 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
 			  dopsf?"Gridding Weights and PSF":"Major Cycle", "","","",true);
 	Int cohDone=0;
 
-	itsMappers.getFTM(gmap, False)->reset();
-	itsMappers.getFTM(gmap, True)->reset();
+
+	itsMappers.getFTM2(gmap, False)->reset();
+	itsMappers.getFTM2(gmap, True)->reset();
 
     	if(!dopsf){
 	  itsMappers.initializeDegrid(*vb, gmap);
@@ -1334,14 +1355,22 @@ void SynthesisImagerVi2::unlockMSs()
    
     ROMSColumns msc(vi_p->ms());
     String telescop=msc.observation().telescopeName()(0);
-    // Hack...start
-    //    if(telescop=="EVLA"){os << LogIO::WARN << "vpmanager does not list EVLA. Using VLA beam parameters" << LogIO::POST; telescop="VLA";}
-    // Hack...stop
- 
+    Bool multiTel=False;
+    Int msid=0;
+     for(vi_p->originChunks(); vi_p->moreChunks(); vi_p->nextChunk()){
+       if(((vi_p->getVisBuffer())->msId() != msid) && telescop !=  ROMSColumns(vi_p->ms()).observation().telescopeName()(0)){
+	 msid=(vi_p->getVisBuffer())->msId();
+	 multiTel=True;
+       }
+     }
+    vi_p->originChunks();
+  
+  
 
     PBMath::CommonPB kpb;
     Record rec;
     getVPRecord( rec, kpb, telescop );
+   
 
     if(rec.empty()){os << LogIO::SEVERE << "Cannot proceed with mosaicft gridder without a valid PB model" << LogIO::POST; }
     
@@ -1361,15 +1390,24 @@ void SynthesisImagerVi2::unlockMSs()
       ////vps.setThreshold(minPB);
       
     }
+    else{
+      PBMath myPB(rec);
+      String whichPBMath;
+      PBMathInterface::namePBClass(myPB.whichPBClass(), whichPBMath);
+      os  << "Using the PB defined by " << whichPBMath << " for beam calculation for telescope " << telescop << LogIO::POST;
+      vps= new refim::VPSkyJones(telescop, myPB, Quantity(rotatePAStep, "deg"), BeamSquint::GOFIGURE, Quantity(360.0, "deg"));
+      kpb=PBMath::DEFAULT;
+    }
+   
     
     theFT = new refim::MosaicFTNew(vps, mLocation_p, stokes, 1000000000, 16, useAutoCorr, 
 		      useDoublePrec);
-    PBMathInterface::PBClass pbtype=PBMathInterface::AIRY;
+    PBMathInterface::PBClass pbtype=((kpb==PBMath::EVLA) || multiTel)? PBMathInterface::COMMONPB: PBMathInterface::AIRY;
     if(rec.asString("name")=="IMAGE")
        pbtype=PBMathInterface::IMAGE;
     ///Use Heterogenous array mode for the following
     if((kpb == PBMath::UNKNOWN) || (kpb==PBMath::OVRO) || (kpb==PBMath::ACA)
-       || (kpb==PBMath::ALMA)){
+       || (kpb==PBMath::ALMA) || (kpb==PBMath::EVLA) || multiTel){
       CountedPtr<refim::SimplePBConvFunc> mospb=new refim::HetArrayConvFunc(pbtype, "");
       static_cast<refim::MosaicFTNew &>(*theFT).setConvFunc(mospb);
     }
