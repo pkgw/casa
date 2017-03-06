@@ -6621,6 +6621,7 @@ gcwrap/python/scripts/tests/test_ia_decimate.py -text
 gcwrap/python/scripts/tests/test_ia_decompose.py -text
 gcwrap/python/scripts/tests/test_ia_deconvolvecomponentlist.py -text
 gcwrap/python/scripts/tests/test_ia_deconvolvefrombeam.py -text
+gcwrap/python/scripts/tests/test_ia_deviation.py -text
 gcwrap/python/scripts/tests/test_ia_fft.py -text
 gcwrap/python/scripts/tests/test_ia_findsources.py -text
 gcwrap/python/scripts/tests/test_ia_fromarray.py -text
@@ -6636,7 +6637,6 @@ gcwrap/python/scripts/tests/test_ia_imageconcat.py -text
 gcwrap/python/scripts/tests/test_ia_insert.py -text
 gcwrap/python/scripts/tests/test_ia_isconform.py -text
 gcwrap/python/scripts/tests/test_ia_makecomplex.py -text
-gcwrap/python/scripts/tests/test_ia_makestatimage.py -text
 gcwrap/python/scripts/tests/test_ia_maskhandler.py -text
 gcwrap/python/scripts/tests/test_ia_modify.py -text
 gcwrap/python/scripts/tests/test_ia_newimagefromimage.py -text
