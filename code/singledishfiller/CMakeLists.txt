@@ -50,4 +50,4 @@ install (FILES
 )
 
 ### google tests ###
-casa_add_google_test (MODULES singledish SOURCES Filler/test/SingleDishMSFiller_GTest.cc)
+casa_add_google_test (MODULES singledishfiller SOURCES Filler/test/SingleDishMSFiller_GTest.cc)
