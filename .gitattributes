@@ -6456,6 +6456,7 @@ gcwrap/python/scripts/task_hanningsmooth.py -text
 gcwrap/python/scripts/task_help.py -text
 gcwrap/python/scripts/task_imcollapse.py -text
 gcwrap/python/scripts/task_imcontsub.py -text
+gcwrap/python/scripts/task_imdev.py -text
 gcwrap/python/scripts/task_imfit.py -text
 gcwrap/python/scripts/task_imhead.py -text
 gcwrap/python/scripts/task_imhistory.py -text
@@ -6479,7 +6480,6 @@ gcwrap/python/scripts/task_imreframe.py -text
 gcwrap/python/scripts/task_imregrid.py -text
 gcwrap/python/scripts/task_imsmooth.py -text
 gcwrap/python/scripts/task_imstat.py -text
-gcwrap/python/scripts/task_imstatimage.py -text
 gcwrap/python/scripts/task_imsubimage.py -text
 gcwrap/python/scripts/task_imtrans.py -text
 gcwrap/python/scripts/task_imval.py -text
@@ -6825,6 +6825,7 @@ gcwrap/tasks/gencal.xml -text
 gcwrap/tasks/hanningsmooth.xml -text
 gcwrap/tasks/imcollapse.xml -text
 gcwrap/tasks/imcontsub.xml -text
+gcwrap/tasks/imdev.xml -text
 gcwrap/tasks/imfit.xml -text
 gcwrap/tasks/imhead.xml -text
 gcwrap/tasks/imhistory.xml -text
@@ -6849,7 +6850,6 @@ gcwrap/tasks/imreframe.xml -text
 gcwrap/tasks/imregrid.xml -text
 gcwrap/tasks/imsmooth.xml -text
 gcwrap/tasks/imstat.xml -text
-gcwrap/tasks/imstatimage.xml -text
 gcwrap/tasks/imsubimage.xml -text
 gcwrap/tasks/imtrans.xml -text
 gcwrap/tasks/imval.xml -text
