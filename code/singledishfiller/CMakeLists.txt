@@ -23,6 +23,7 @@ casa_add_library( singledishfiller
     Filler/PThreadUtil.cc
     Filler/Scantable2MSReader.cc
     Filler/SingleDishMSFiller.cc
+    Filler/SingleDishMSFiller2.cc
 )
 
 install (FILES
