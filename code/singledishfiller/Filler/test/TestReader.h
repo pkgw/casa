@@ -10,8 +10,6 @@
 
 #include <gtest/gtest.h>
 
-#include <singledish/Filler/ReaderInterface.h>
-
 #include <map>
 
 #include <casacore/casa/Arrays/Array.h>
@@ -20,6 +18,7 @@
 #include <casacore/casa/Quanta/MVPosition.h>
 #include <casacore/measures/Measures/MPosition.h>
 #include <casacore/measures/Measures/MeasConvert.h>
+#include <singledishfiller/Filler/ReaderInterface.h>
 
 using namespace casa;
 using namespace casacore;
