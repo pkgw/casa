@@ -32,7 +32,7 @@ public:
   // get number of rows
   virtual size_t getNumberOfRows();
 
-  virtual casacore::MDirection::Types getDirectionFrame();
+  virtual casacore::MDirection::Types getDirectionFrame() const;
   
   virtual casacore::Bool isFloatData() const {
     return true;

@@ -115,7 +115,7 @@ inline void updateSubtable(_Columns &columns, casacore::uInt irow,
   }
 }
 
-void makeSourceMap(casacore::MSSource const &table, casacore::Record &source_map) {
+inline void makeSourceMap(casacore::MSSource const &table, casacore::Record &source_map) {
   POST_START;
 
   casacore::ROScalarColumn<casacore::String> name_column(table, "NAME");

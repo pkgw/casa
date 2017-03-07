@@ -611,7 +611,7 @@ size_t NRO2MSReader::getNumberOfRows() {
   return (nrows >= 0) ? nrows : 0;
 }
 
-MDirection::Types NRO2MSReader::getDirectionFrame() {
+MDirection::Types NRO2MSReader::getDirectionFrame() const {
   MDirection::Types res;
   int scan_coord = obs_header_.SCNCD0;
   //std::cout << "********** SCNCD0 = " << scan_coord << std::endl;
