@@ -5,8 +5,45 @@
 #include <casacore/casa/Logging/LogIO.h>
 #include <singledishfiller/Filler/test/SampleReader.h>
 
+#include <string>
+#include <iostream>
+
+void usage(char const *command) {
+  std::string const command_string(command);
+  auto const pos = command_string.find_last_of('/');
+  std::string basename(command);
+  if (pos != std::string::npos) {
+    basename = command_string.substr(pos+1);
+  }
+  std::cout << "Usage: " << std::endl;
+  std::cout << "    " << basename << " [parallel|serial]" << std::endl;
+}
+
 int main(int argc, char *argv[]) {
   casacore::LogIO os(LogOrigin("", "SampleReaderDemo", WHERE));
+
+  // parsing command line option
+  // usage is
+  //     SampleReaderDemo [parallel|serial]
+  bool parallel = false;
+  if (argc == 2) {
+    std::string const parallel_key("parallel");
+    std::string const serial_key("serial");
+    std::string const arg(argv[1]);
+    if (arg == parallel_key) {
+      parallel = true;
+    } else if (arg == serial_key) {
+      parallel = false;
+    } else {
+      usage(argv[0]);
+      return 1;
+    }
+  } else if (argc > 2) {
+    usage(argv[0]);
+    return 1;
+  }
+
+  // start processing
   os <<"This is a test program to demonstrate how SingleDishMSFiller<SampleReader>\n"
      << "works. Usage of the filler is only three steps below:\n"
      << "\n"
@@ -24,7 +61,7 @@ int main(int argc, char *argv[]) {
      << "  (NB: input data name \"mysampledata.nro\" is dummy. SampleReader generates\n"
      << "       the data on-the-fly)\n"
      << "\n" << casacore::LogIO::POST;
-  casa::SingleDishMSFiller<SampleReader> filler("mysampledata.nro", false);
+  casa::SingleDishMSFiller<SampleReader> filler("mysampledata.nro", parallel);
   os << "=== Step 2. Fill MS\n"
      << "=== (2)   filler.fill();\n"
      << "\n" << casacore::LogIO::POST;
