@@ -35,7 +35,7 @@ void printSubtableMethodDesc(casacore::LogIO &os, casacore::String const &subtab
     << "also, it should return true when more rows are available but\n"
     << "return false if no more rows." << casacore::LogIO::POST;
 }
-}
+} // anonymous namespace
 
 #define LOG os << casacore::LogOrigin(className_, __func__, WHERE)
 #define FLUSH casacore::LogIO::POST
@@ -390,6 +390,15 @@ public:
         time = 4.7e9;
         casacore::Double dirx = -1.4;
         casacore::Double diry = 0.05;
+        casacore::MDirection original = casacore::MDirection(casacore::MVDirection(dirx, diry),
+            casacore::MDirection::GALACTIC);
+        casacore::MDirection::Convert dc(casacore::MDirection::GALACTIC, frame);
+        casacore::MDirection converted = dc(original);
+        casacore::Vector<casacore::Double> v = converted.getAngle().getValue("rad");
+//        cout << "conversion from (" << dirx << "," << diry << ") to ("
+//            << v[0] << "," << v[1] << ")" << endl;
+        dirx = v[0];
+        diry = v[1];
         direction.resize(2, 1);
         direction(0, 0) = dirx;
         direction(1, 0) = diry;
