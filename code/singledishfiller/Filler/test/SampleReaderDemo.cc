@@ -3,7 +3,7 @@
 
 #include <singledishfiller/Filler/SingleDishMSFiller.h>
 #include <casacore/casa/Logging/LogIO.h>
-#include <singledishfiller/Filler/test/SampleReader.h>
+#include "SampleReader.h"
 
 #include <string>
 #include <iostream>
