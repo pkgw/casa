@@ -232,12 +232,27 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         ////////////////////////////
         Double lowfreq;
         Double topfreq;
-        MFrequency::Types freqFrame=MFrequency::castType(ROMSColumns(*mss_p[mss_p.nelements()-1]).spectralWindow().measFreqRef()(Int(freqList(0,0))));
+	//cerr << "chanlist " << chanlist << "\n freqlis " << freqList << endl;
+        MFrequency::Types freqFrame=MFrequency::castType(ROMSColumns(*mss_p[mss_p.nelements()-1]).spectralWindow().measFreqRef()(Int(chanlist(0,0))));
         vi::FrequencySelectionUsingFrame channelSelector(freqFrame);
     	  for(uInt k=0; k < nSelections; ++k){
-            lowfreq=freqList(k,1)-freqList(k,3)/2.0;
-            topfreq=freqList(k, 2)+freqList(k,3)/2.0;
-	    //cerr << "Dat lowFreq "<< lowfreq << " topfreq " << topfreq << endl; 
+	    //The getChanfreqList is wrong for beg and end..going round that too.
+	    Vector<Double> freqies=ROMSColumns(*mss_p[mss_p.nelements()-1]).spectralWindow().chanFreq()(Int(chanlist(k,0)));
+	    Vector<Double> reso=ROMSColumns(*mss_p[mss_p.nelements()-1]).spectralWindow().resolution()(Int(chanlist(k,0)));
+            
+	    if(freqList(k,3) < 0.0){
+	      topfreq=freqies(chanlist(k,1));
+	      lowfreq=freqies(chanlist(k,2));
+	      //lowfreq=freqList(k,2); //+freqList(k,3)/2.0;
+	      //topfreq=freqList(k, 1); //-freqList(k,3)/2.0;
+	    }
+	    else{
+	      lowfreq=freqies(chanlist(k,1));
+	      topfreq=freqies(chanlist(k,2));
+	      //lowfreq=freqList(k,1); //-freqList(k,3)/2.0;
+	      //topfreq=freqList(k, 2); //+freqList(k,3)/2.0;
+	    }
+	    //cerr << std::setprecision(12) << "Dat lowFreq "<< lowfreq << " topfreq " << topfreq << endl; 
             channelSelector.add(Int(freqList(k,0)), lowfreq, topfreq);
           }
     	  fselections_p.add(channelSelector);
@@ -281,22 +296,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       {    if( thisms.tableDesc().isColumn("DATA") ) { datacol_p = FTMachine::OBSERVED; }
            else { os << LogIO::SEVERE <<"DATA column does not exist" << LogIO::EXCEPTION;}
       }
-    else if( selpars.datacolumn.contains("corr") ) {    
-      if( thisms.tableDesc().isColumn("CORRECTED_DATA") ) { datacol_p = FTMachine::CORRECTED; } 
-      else 
-	{
-	  if( thisms.tableDesc().isColumn("DATA") ) { 
-	    datacol_p = FTMachine::OBSERVED;
-	    os << "CORRECTED_DATA column does not exist. Using DATA column instead" << LogIO::POST; 
-	  }
-	  else { 
-	    os << LogIO::SEVERE <<"Neither CORRECTED_DATA nor DATA columns exist" << LogIO::EXCEPTION;
-	  }
-	}
-	
-      }
-   
-    else { os << LogIO::WARN << "Invalid data column : " << datacol_p << ". Using corrected (or observed if corrected doesn't exist)" << LogIO::POST;  datacol_p = thisms.tableDesc().isColumn("CORRECTED_DATA") ? FTMachine::CORRECTED : FTMachine::OBSERVED; }
+    else if( selpars.datacolumn.contains("corr") ) { datacol_p = FTMachine::CORRECTED; }
+    else { os << LogIO::WARN << "Invalid data column : " << selpars.datacolumn << ". Using corrected (or observed if corrected doesn't exist)" << LogIO::POST;  datacol_p =  FTMachine::CORRECTED;}
+
 
     dataSel_p.resize(dataSel_p.nelements()+1, true);
 
@@ -1109,7 +1111,7 @@ void SynthesisImagerVi2::unlockMSs()
      Double minW=-1.0;
      Double rmsW=-1.0;
      if(wprojplane <1)
-       casa::WProjectFT::wStat(*rvi_p, minW, maxW, rmsW);
+       casa::refim::WProjectFT::wStat(*vi_p, minW, maxW, rmsW);
     if(facets >1){
       theFT=new refim::WProjectFT(wprojplane,  phaseCenter_p, mLocation_p,
 			   cache/2, tile, useAutocorr, padding, useDoublePrec, minW, maxW, rmsW);

@@ -59,6 +59,7 @@ import inspect
 
 _ia = iatool( )
 _vp = vptool( )
+_cb = cbtool( )
 
 from imagerhelpers.test_imager_helper import TestHelpers
 
@@ -182,6 +183,23 @@ class test_onefield(testref_base):
 #          self.assertTrue(correct)
           ## This run should go smoothly.
           ret = tclean(vis=[ms1,ms2],field='0',spw=['0','0'], imagename=self.img,imsize=100,cell='8.0arcsec',deconvolver='hogbom',niter=10,datacolumn='data')
+          report=self.th.checkall(imexist=[self.img+'.psf',self.img+'.residual'])
+          self.delData(ms1)
+          self.delData(ms2)
+          self.checkfinal(pstr=report)
+
+     def test_onefield_twoMS_diffcolumns(self):
+          """ [onefield] Test_Onefield_twoMS_diffcolumns : One field, two input MSs, one with data and one with data and corrected """
+          ms1 = 'refim_point_onespw0.ms'
+          ms2 = 'refim_point_onespw1.ms'
+          self.prepData(ms1)
+          self.prepData(ms2)
+
+          ## Make corrected_data column for one of them
+          _cb.open(ms2)
+          _cb.close()
+
+          ret = tclean(vis=[ms1,ms2],field='0',spw=['0','0'], imagename=self.img,imsize=100,cell='8.0arcsec',deconvolver='hogbom',niter=10,datacolumn='corrected')
           report=self.th.checkall(imexist=[self.img+'.psf',self.img+'.residual'])
           self.delData(ms1)
           self.delData(ms2)
@@ -2045,3 +2063,13 @@ class test_pbcor(testref_base):
           report2=self.th.checkall(imexist=[self.img+'.image', self.img+'.pb', self.img+'.image.pbcor'], imval=[(self.img+'.pb',0.7,[256,256,0,0]),(self.img+'.image.pbcor',1.0,[256,256,0,0])])
           self.checkfinal(report1+report2)
 
+     def test_pbcor_turn_off_pbmask(self):
+          """ [pbcor] Test pbcor with mfs where the internal T/F mask is turned off"""
+          self.prepData('refim_mawproject.ms')
+          ret1 = tclean(vis=self.msfile, imagename=self.img, field='0', imsize=512, cell='10.0arcsec', phasecenter="J2000 19:59:28.500 +40.44.01.50", niter=0, specmode='mfs', vptable='evlavp.tab', pbcor=True)
+          report1=self.th.checkall(imexist=[self.img+'.image', self.img+'.pb'], imval=[(self.img+'.pb',0.7,[256,256,0,0])], immask=[(self.img+'.pb',False,[10,10,0,0]), (self.img+'.image',False,[10,10,0,0])] )
+
+          ret2 = tclean(vis=self.msfile, imagename=self.img, field='0', imsize=512, cell='10.0arcsec', phasecenter="J2000 19:59:28.500 +40.44.01.50", niter=10, specmode='mfs', vptable='evlavp.tab', pbcor=True, calcpsf=False, calcres=False, pblimit=-0.2)
+          report2=self.th.checkall(imexist=[self.img+'.image', self.img+'.pb'], imval=[(self.img+'.pb',0.7,[256,256,0,0])] , immask=[(self.img+'.pb',False,[10,10,0,0]), (self.img+'.image',True,[10,10,0,0])]  )
+
+          self.checkfinal(report1+report2)
