@@ -8,7 +8,7 @@
 #ifndef SINGLEDISH_FILLER_SAMPLE_TESTREADER_H_
 #define SINGLEDISH_FILLER_SAMPLE_TESTREADER_H_
 
-#include <singledish/Filler/ReaderInterface.h>
+#include <singledishfiller/Filler/ReaderInterface.h>
 
 #include <map>
 
