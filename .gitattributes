@@ -4218,6 +4218,7 @@ code/mstransform/TVI/test/TestUtilsTVI.cc -text
 code/mstransform/TVI/test/TestUtilsTVI.h -text
 code/mstransform/TVI/test/tChannelAverageTVI.cc -text
 code/mstransform/TVI/test/tChannelAverageTVI.h -text
+code/mstransform/TVI/test/tChannelAverageTransformEngine_GT.cc -text
 code/mstransform/TVI/test/tHanningSmoothTVI.cc -text
 code/mstransform/TVI/test/tHanningSmoothTVI.h -text
 code/mstransform/TVI/test/tPhaseShiftingTVI.cc -text
