@@ -1,5 +1,13 @@
-// Compile command against local build environment:
-//   g++ /Users/nakazato/work/eclipse/casadevel/casa/code/singledish/Filler/test/SampleReaderDemo.cc -o SampleReaderDemo -I../../darwin/casacode/ -I../../darwin/include -I../../darwin/include/casacore -L../../darwin/lib -lcasa_casa -lcasa_measures -lcasa_ms -lcasa_tables -lsingledish -std=c++11 -DUseCasacoreNamespace
+// How to compile:
+//    * requirement is that produced executable is portable, i.e.
+//      it can run without casacore libraries at runtime
+//    1. build casacore to produce static libraries (-DENABLE_SHARED=NO)
+//    2. compile PThreadUtil.cc to produce PThreadUtil.o
+//    3. compile SingleDishMSFiller.cc to produce SingleDishFiller.o
+//    4. compile this file, statically link casacore libraries and object files
+//       created at the steps 2 and 3
+//
+// Makefile which implements the above steps will be provided externally.
 
 #include <singledishfiller/Filler/SingleDishMSFiller.h>
 #include <casacore/casa/Logging/LogIO.h>
