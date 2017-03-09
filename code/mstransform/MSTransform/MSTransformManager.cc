@@ -174,6 +174,7 @@ void MSTransformManager::initialize()
 	dy_p = 0;
 
 	// Time transformation parameters
+	scalarAverage_p = false;
 	timeAverage_p = false;
 	timeBin_p = 0.0;
 	timespan_p = String("");
@@ -1046,12 +1047,21 @@ void MSTransformManager::parseTimeAvgParams(Record &configuration)
 					<< "Time average is activated" << LogIO::POST;
 		}
 	}
-	else
+
+    exists = -1;
+	exists = configuration.fieldNumber ("scalaraverage");
+	if (exists >= 0)
 	{
-		return;
+		configuration.get (exists, scalarAverage_p);
+
+		if (scalarAverage_p)
+		{
+			logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+					<< "Scalar average is activated" << LogIO::POST;
+		}
 	}
 
-	if (timeAverage_p)
+	if (timeAverage_p || scalarAverage_p)
 	{
 		exists = -1;
 		exists = configuration.fieldNumber ("timebin");
@@ -1067,8 +1077,9 @@ void MSTransformManager::parseTimeAvgParams(Record &configuration)
 		else
 		{
 			logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
-					<< "Time average is activated but no timebin parameter provided " << LogIO::POST;
+					<< "Time or scalar average is activated but no timebin parameter provided " << LogIO::POST;
 			timeAverage_p = false;
+			scalarAverage_p = false;
 			return;
 		}
 
@@ -1090,7 +1101,7 @@ void MSTransformManager::parseTimeAvgParams(Record &configuration)
 		}
 
 		// CAS-4850 (jagonzal): For ALMA each bdf is limited to 30s, so we need to combine across state (i.e. su-scan)
-		if ((timeBin_p > 30.0) and !timespan_p.contains("state"))
+		if (timeAverage_p && (timeBin_p > 30.0) and !timespan_p.contains("state"))
 		{
 			MeasurementSet tmpMs(inpMsName_p,Table::Old);
 			MSObservation observationTable = tmpMs.observation();
@@ -2922,6 +2933,12 @@ void MSTransformManager::regridSpwAux(	Int spwId,
 
 		if ((width >= 2) and  2*width <= originalCHAN_WIDTH.size())
 		{
+			logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
+				 << "mstransform with regridms does not regrid properly for channel widths "
+				    "> or = 2 x the native channel width, please use clean or tclean for larger regridding. "
+				    "A fix is expected for CASA 5.0, all earlier versions also have this issue."
+				 << LogIO::POST;
+
 			logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
 	        					<< "Ratio between input and output width is " << avgRegriddedWidth/avgCombinedWidth
 	        					<< ", setting pre-channel average width to " << width << LogIO::POST;
@@ -2942,7 +2959,7 @@ void MSTransformManager::regridSpwAux(	Int spwId,
 	            				<< std::setprecision(9) << std::setw(14) << std::scientific
 	            				<< inputCHAN_FREQ(inputCHAN_WIDTH.size() -1) << " Hz";
 			logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-	            				<< oss.str() << LogIO::POST;
+				 << oss.str() << LogIO::POST;
 		}
 	}
 
@@ -5440,12 +5457,16 @@ void MSTransformManager::generateIterator()
 		if (timeAverageTVIFactory) delete timeAverageTVIFactory;
 		if (uvContSubTVIFactory) delete uvContSubTVIFactory;
 	}
-	else if (calibrate_p)
+	else if (calibrate_p || scalarAverage_p)
 	{
 		try
 		{
 			// Isolate iteration parameters
-			vi::IteratingParameters iterpar(0,vi::SortColumns(sortColumns_p, false));
+			vi::IteratingParameters iterpar;
+            if (scalarAverage_p)
+                iterpar = vi::IteratingParameters(timeBin_p,vi::SortColumns(sortColumns_p, false));
+            else
+			    iterpar = vi::IteratingParameters(0,vi::SortColumns(sortColumns_p, false));
 
 			// By callib String
 	        if (callib_p.length() > 0)
@@ -5465,6 +5486,10 @@ void MSTransformManager::generateIterator()
 
 				visibilityIterator_p = new vi::VisibilityIterator2(vi::LayeredVi2Factory(selectedInputMs_p, &iterpar,callibRec_p, timeavgParams));
 			}
+            else // scalar
+            {
+				visibilityIterator_p = new vi::VisibilityIterator2(vi::LayeredVi2Factory(selectedInputMs_p, &iterpar));
+            }
 		}
 		catch (MSSelectionError x)
 		{

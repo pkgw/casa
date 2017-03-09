@@ -228,8 +228,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  }
 	}// if non zero model
 
+    if(col==refim::FTMachine::CORRECTED &&
+       ROMSMainColumns(vb.getVi()->ms()).correctedData().isNull()){
+      //cout << "Corrected column isn't there, using data instead" << endl;
+      col=refim::FTMachine::OBSERVED;
+    }
+    
     if (mapperid < 0)
       {
+	//cout << "Using column : " << col << endl;
+
 	for (uInt k=0; k < itsMappers.nelements(); ++k)
 	  {
 	    (itsMappers[k])->grid(vb, dopsf, col);
@@ -265,6 +273,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			  vb.visCube()-=vb.modelVisCube();
 	    }
 	}// if non zero model
+
+    if(col==FTMachine::CORRECTED && vb.msColumns().correctedData().isNull())
+      {	    col=FTMachine::OBSERVED;}
 
     if (mapperid < 0)
       {
@@ -723,11 +734,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // If any one Mapper has a valid and nonzero model, return true.
     for (Int model=0;model<nMappers(); ++model) 
       { 
-	//	validmodel = ((itsMappers[model])->imageStore())->hasModel() && 
-	//	                        ( ! ( ((itsMappers[model])->imageStore())->isModelEmpty() ));
-	validmodel =  ! ( ((itsMappers[model])->imageStore())->isModelEmpty() );
+	validmodel |= (! ( ((itsMappers[model])->imageStore())->isModelEmpty() ));
       }
-    //    cout << "anyNonZeroModel : " << validmodel << endl;
+    //cout << "anyNonZeroModel : " << validmodel << endl;
     return validmodel;
   }
   //////////////////////////////////////////////////////////////////////////////////////////////////////
