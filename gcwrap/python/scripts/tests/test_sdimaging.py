@@ -2198,7 +2198,18 @@ class sdimaging_test_polflag(sdimaging_unittest_base):
     def tearDown(self):
         if os.path.exists(self.infiles):
             shutil.rmtree(self.infiles)
-        #os.system( 'rm -rf '+self.prefix+'*' )
+        # Since the data is flagged by flagdata, flagversions directory 
+        # is automatically created. This must be removed
+        flagversions = self.infiles + '.flagversions'
+        if os.path.exists(flagversions):
+            shutil.rmtree(flagversions)
+        # By executing flagdata task, flagdata.last is created automatically
+        # This must also be removed
+        flagdata_last = 'flagdata.last'
+        if os.path.exists(flagdata_last):
+            os.remove(flagdata_last)
+        # Remove test image and its weight image
+        os.system( 'rm -rf '+self.prefix+'*' )
 
     def run_test(self, task_param, refstats, shape,
                  atol=1.e-8, rtol=1.e-5, box=None):
