@@ -2409,6 +2409,7 @@ class sdimaging_test_restfreq(sdimaging_unittest_base):
     def tearDown(self):
         if os.path.exists(self.infiles):
             shutil.rmtree(self.infiles)
+        os.system('rm -rf {0}*'.format(self.outfile))
 
     def run_test(self, restfreq_ref, beam_ref, cell_ref, stats, **kwargs):
         self.param.update(**kwargs)
