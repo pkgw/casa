@@ -671,6 +671,11 @@ void MSTransformManager::parseChanAvgParams(Record &configuration)
 		}
 		else if ( configuration.type(exists) == casacore::TpArrayInt)
 		{
+		    if(combinespws_p)
+		        logger_p << LogIO::SEVERE << LogOrigin("MSTransformManager", __FUNCTION__)
+		                 << "If SPW combination is active, "
+		                 "chabin cannot be an array" << LogIO::EXCEPTION;
+		        
 			configuration.get (exists, freqbin_p);
 		}
 		else
