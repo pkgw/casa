@@ -712,6 +712,10 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
              2) When WEIGHT_SPECTRUM/SIGMA_SPECTRUM are present:
                     Avg = SUM(Chan_i*Flag_i*WeightSpectrum_i)/SUM(Flag_i*WeightSpectrum_i)
 
+           If combinespws=True, then chanbin can only be a (int). This is because the
+           channel average then refers to the already combined MS after spw combination,
+           which has a single spw.
+
 
 --- Hanning smoothing parameters --- 
     hanning -- Hanning smooth frequency channel data to remove Gibbs ringing.
