@@ -63,6 +63,7 @@ namespace casa{
     for(uInt i=0;i<freqNdxMap_p.nelements();i++) freqNdxMap_p[i].assign(other.freqNdxMap_p[i]);
     conjFreqNdxMap_p.assign(other.conjFreqNdxMap_p);
     for(uInt i=0;i<conjFreqNdxMap_p.nelements();i++) conjFreqNdxMap_p[i].assign(other.conjFreqNdxMap_p[i]);
+    cfCacheDirName_p = other.cfCacheDirName_p;
   }
   //---------------------------------------------------------------
   //
@@ -102,6 +103,19 @@ namespace casa{
     //   for(Int j=0;j<muellerElements(i).nelements();j++)
     // 	if (muellerElements(i)(j) > n) n=muellerElements(i)(j);
     // return n;
+  }
+  //
+  //---------------------------------------------------------------
+  //
+   void CFBuffer::clear()
+  {
+    IPosition shp(cfCells_p.shape());
+    for (Int i=0;i < shp[0]; i++)
+      for (Int j=0; j < shp[1]; j++)
+	for (Int k=0; k < shp[2]; k++)
+	  {
+	    cfCells_p(i,j,k)->clear();
+	  }
   }
   //
   //---------------------------------------------------------------
@@ -179,11 +193,42 @@ namespace casa{
   //---------------------------------------------------------------
   //
   //  template <class T>  void CFBuffer<T>
-  RigidVector<Int, 3> CFBuffer::setParams(const Int& inu, const Int& iw, const Int& /*ipx*/, const Int& /*ipy*/,
-					  CoordinateSystem& cs, Float& sampling,
-					  Int& xSupport, Int& ySupport, 
-					  const Double& freqValue, const Double& wValue,
+  RigidVector<Int, 3> CFBuffer::setParams(const Int& inu, const Int& iw, const Int& ipx, const Int& ipy,
+					  const Double& freqValue,
+					  const Double& wValue,
 					  const Int& muellerElement,
+					  CoordinateSystem& cs,
+					  const TableRecord& miscInfo)
+  {
+    float sampling; miscInfo.get("Sampling",sampling);
+    int xSupport, ySupport; miscInfo.get("Xsupport",xSupport);miscInfo.get("Ysupport",ySupport);
+    String fileName; miscInfo.get("Name",fileName);
+    double conjFreq; miscInfo.get("ConjFreq", conjFreq);
+    int conjPoln; miscInfo.get("ConjPoln", conjPoln);
+    String telescopeName; miscInfo.get("TelescopeName", telescopeName);
+    float diameter; miscInfo.get("Diameter", diameter);
+    // In the absense of evidence, assume that users are sensible and
+    // are using AWProjection where it is really need it and not for
+    // using it as a replacement for rotatially symmetric stuff.  So
+    // by default, the CFs are assumed to be rotationally asymmetric.
+    bool isRotationallySymmetric=True; 
+    
+    if (miscInfo.isDefined("OpCode"))
+	miscInfo.get("OpCode",isRotationallySymmetric);
+
+    RigidVector<Int,3> ndx=setParams(inu, iw, ipx, ipy, freqValue, wValue, muellerElement, cs,
+				     sampling, xSupport, ySupport, fileName, conjFreq, conjPoln, telescopeName,
+				     diameter);
+    cfCells_p(ndx(0),ndx(1),ndx(2))->isRotationallySymmetric_p = isRotationallySymmetric;
+    return ndx;
+  }
+  RigidVector<Int, 3> CFBuffer::setParams(const Int& inu, const Int& iw, const Int& /*ipx*/, const Int& /*ipy*/,
+					  const Double& freqValue,
+					  const Double& wValue,
+					  const Int& muellerElement,
+					  CoordinateSystem& cs,
+					  Float& sampling,
+					  Int& xSupport, Int& ySupport, 
 					  const String& fileName,
 					  const Double& conjFreq,
 					  const Int& conjPoln,
@@ -412,7 +457,8 @@ namespace casa{
     LogIO log_l(LogOrigin("CFBuffer","show[R&D]"));
 
     if (Mesg != NULL) os << Mesg << endl;
-    os << "Shapes: " << cfCells_p.shape() << endl;
+    os << "---------------------------------------------------------" << endl
+       << "Shapes: " << cfCells_p.shape() << endl;
     for (Int i=0;i<cfCells_p.shape()(0);i++)
       for (Int j=0;j<cfCells_p.shape()(1);j++)
 	for (Int k=0;k<cfCells_p.shape()(2);k++)
@@ -421,6 +467,7 @@ namespace casa{
 	    cfCells_p(i,j,k)->show(Mesg, os);
 	    os << "Pointing offset: " << pointingOffset_p << endl;
 	  }
+    os << "---------------------------------------------------------" << endl;
   }
 
   void CFBuffer::makePersistent(const char *dir, const char *cfName)

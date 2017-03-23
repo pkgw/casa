@@ -517,6 +517,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       {    if( thisms.tableDesc().isColumn("DATA") ) { datacol_p = FTMachine::OBSERVED; }
            else { os << LogIO::SEVERE <<"DATA column does not exist" << LogIO::EXCEPTION;}
       }
+    else if( selpars.datacolumn.contains("corr") ) { datacol_p = FTMachine::CORRECTED; }
+    else { os << LogIO::WARN << "Invalid data column : " << selpars.datacolumn << ". Using corrected (or observed if corrected doesn't exist)" << LogIO::POST;  datacol_p =  FTMachine::CORRECTED;}
+
+    /*
     else if( selpars.datacolumn.contains("corr") ) {    
       if( thisms.tableDesc().isColumn("CORRECTED_DATA") ) { datacol_p = FTMachine::CORRECTED; } 
       else 
@@ -531,19 +535,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}
 	
       }
-    /*
-    else if( selpars.datacolumn.contains("model") ) {
-      datacol_p = FTMachine::MODEL;
-    }
-    else if( selpars.datacolumn.contains("residual") ) {
-      datacol_p = FTMachine::RESIDUAL;
-    }
-    else if( selpars.datacolumn.contains("psf") ) {
-      datacol_p = FTMachine::PSF;
-    }
-    */
-    else { os << LogIO::WARN << "Invalid data column : " << datacol_p << ". Using corrected (or observed if corrected doesn't exist)" << LogIO::POST;  datacol_p = thisms.tableDesc().isColumn("CORRECTED_DATA") ? FTMachine::CORRECTED : FTMachine::OBSERVED; }
-
+     else { os << LogIO::WARN << "Invalid data column : " << datacol_p << ". Using corrected (or observed if corrected doesn't exist)" << LogIO::POST;  datacol_p = thisms.tableDesc().isColumn("CORRECTED_DATA") ? FTMachine::CORRECTED : FTMachine::OBSERVED; }
+*/
     dataSel_p.resize(dataSel_p.nelements()+1, true);
 
     dataSel_p[dataSel_p.nelements()-1]=selpars;
@@ -859,6 +852,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	   //Record outRec=SynthesisUtilMethods::cubeDataPartition(selpars, 1, freq1, freq2);
 	   //Record partRec=outRec.asRecord("0");
 
+	   if(mss_p.nelements() >0){
+	     for (uInt k=0; k < mss_p.nelements(); ++k){
+	       if(mss_p[k])
+		 delete mss_p[k];
+	     }
+	     mss_p.resize(0, true, false);
+	   }
 	   ///resetting the block ms
 	   mss4vi_p.resize(0,true, false);
 	   //resetting data selection stored
@@ -1053,8 +1053,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     	  }
     	  else if ((type=="robust")||(type=="uniform")||(type=="briggs")) {
     		  if(!imageDefined_p) throw(AipsError("Please define image first"));
-    		  Quantity actualFieldOfView(fieldofview);
-    		  Int actualNPixels(npixels);
+    		  Quantity actualFieldOfView_x(fieldofview), actualFieldOfView_y(fieldofview) ;
+    		  Int actualNPixels_x(npixels),actualNPixels_y(npixels) ;
     		  String wtype;
     		  if(type=="briggs") {
     			  wtype = "Briggs";
@@ -1062,40 +1062,46 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     		  else {
     			  wtype = "Uniform";
     		  }
-    		  if(actualFieldOfView.get().getValue()==0.0&&actualNPixels==0) {
-    			  actualNPixels=nx;
-    			  actualFieldOfView=Quantity(actualNPixels*cellx.get("rad").getValue(),
-    					  "rad");
+    		  if(actualFieldOfView_x.get().getValue()==0.0&&actualNPixels_x==0) {
+    			  actualNPixels_x=nx;
+    			  actualFieldOfView_x=Quantity(actualNPixels_x*cellx.get("rad").getValue(),"rad");
+    			  actualNPixels_y=ny;
+    			  actualFieldOfView_y=Quantity(actualNPixels_y*celly.get("rad").getValue(),"rad");
     			  os << LogIO::NORMAL // Loglevel INFO
     					  << wtype
     					  << " weighting: sidelobes will be suppressed over full image"
     					  << LogIO::POST;
     		  }
-    		  else if(actualFieldOfView.get().getValue()>0.0&&actualNPixels==0) {
-    			  actualNPixels=nx;
+    		  else if(actualFieldOfView_x.get().getValue()>0.0&&actualNPixels_x==0) {
+    			  actualNPixels_x=nx;
+    			  actualNPixels_y=ny;
     			  os << LogIO::NORMAL // Loglevel INFO
     					  << wtype
     					  << " weighting: sidelobes will be suppressed over specified field of view: "
-    					  << actualFieldOfView.get("arcsec").getValue() << " arcsec" << LogIO::POST;
+			                  << actualFieldOfView_x.get("arcsec").getValue() << " arcsec by " 
+			                  << actualFieldOfView_y.get("arcsec").getValue()  << " arcsec" << LogIO::POST;
     		  }
-    		  else if(actualFieldOfView.get().getValue()==0.0&&actualNPixels>0) {
-    			  actualFieldOfView=Quantity(actualNPixels*cellx.get("rad").getValue(),
-    					  "rad");
+    		  else if(actualFieldOfView_x.get().getValue()==0.0&&actualNPixels_x>0) {
+    			  actualFieldOfView_x=Quantity(actualNPixels_x*cellx.get("rad").getValue(),"rad");
+    			  actualFieldOfView_y=Quantity(actualNPixels_y*celly.get("rad").getValue(),"rad");
     			  os << LogIO::NORMAL // Loglevel INFO
     					  << wtype
     					  << " weighting: sidelobes will be suppressed over full image field of view: "
-    					  << actualFieldOfView.get("arcsec").getValue() << " arcsec" << LogIO::POST;
+			                  << actualFieldOfView_x.get("arcsec").getValue() << " arcsec by " 
+    					  << actualFieldOfView_y.get("arcsec").getValue() << " arcsec" << LogIO::POST;
     		  }
     		  else {
     			  os << LogIO::NORMAL // Loglevel INFO
     					  << wtype
     					  << " weighting: sidelobes will be suppressed over specified field of view: "
-    					  << actualFieldOfView.get("arcsec").getValue() << " arcsec" << LogIO::POST;
+			                  << actualFieldOfView_x.get("arcsec").getValue() << " arcsec by " 
+    					  << actualFieldOfView_y.get("arcsec").getValue() << " arcsec" << LogIO::POST;
     		  }
     		  os << LogIO::DEBUG1
-    				  << "Weighting used " << actualNPixels << " uv pixels."
-    				  << LogIO::POST;
-    		  Quantity actualCellSize(actualFieldOfView.get("rad").getValue()/actualNPixels, "rad");
+		     << "Weighting used " << actualNPixels_x << " by " << actualNPixels_y << " uv pixels."
+		     << LogIO::POST;
+    		  Quantity actualCellSize_x(actualFieldOfView_x.get("rad").getValue()/actualNPixels_x, "rad");
+    		  Quantity actualCellSize_y(actualFieldOfView_y.get("rad").getValue()/actualNPixels_y, "rad");
 
 		  //		  cerr << "rmode " << rmode << " noise " << noise << " robust " << robust << " npixels " << actualNPixels << " cellsize " << actualCellSize << " multifield " << multiField << endl;
 		  //		  Timer timer;
@@ -1104,8 +1110,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
 		  imwgt_p=VisImagingWeight(*rvi_p, wtype=="Uniform" ? "none" : rmode, noise, robust,
-                                 actualNPixels, actualNPixels, actualCellSize,
-                                 actualCellSize, 0, 0, multiField);
+                                 actualNPixels_x, actualNPixels_y, actualCellSize_x,
+                                 actualCellSize_y, 0, 0, multiField);
 
 		  /*
 		  if(rvi_p !=NULL){
@@ -1168,7 +1174,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  {
 	    for (uInt fid=0;fid<densitymatrices.nelements();fid++)
 	      {
-		//cout << "Density shape (get) for f " << fid << ": " << densitymatrices[fid].shape() << endl;
+		//cout << "********** Density shape (get) for f " << fid << ": " << densitymatrices[fid].shape() << endl;
 		itsMappers.imageStore(fid)->gridwt(0)->put(densitymatrices[fid]);
 	      }
 	  }
@@ -1195,7 +1201,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    Array<Float> arr;
 	    itsMappers.imageStore(fid)->gridwt(0)->get(arr,true);
 	    densitymatrices[fid].reference( arr );
-	    //cout << "Density shape (set) for f " << fid << " : " << arr.shape() << " : " << densitymatrices[fid].shape() << endl;
+	    //cout << "********** Density shape (set) for f " << fid << " : " << arr.shape() << " : " << densitymatrices[fid].shape() << endl;
 	  }
 
 

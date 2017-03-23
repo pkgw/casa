@@ -176,7 +176,7 @@ class Calibrater
 
   // Apply all setapply'd calibration components to MODEL_DATA and
   //  deposit in the MODEL_DATA column
-  virtual casacore::Bool corrupt()  { throw(casacore::AipsError("Calibrater::corrupt not implemented")); };
+  virtual casacore::Bool corrupt() { return this->corrupt2(); };
   casacore::Bool corrupt2();
 
   // Initialize sigma/weight, and possibly weight_spectrum
@@ -427,6 +427,7 @@ class OldCalibrater : public Calibrater
 			 const casacore::String& msSelect="");
 
   // Uses *vs_p to ctor VisCals
+  using Calibrater::setapply;
   virtual casacore::Bool setapply (const casacore::String& type, 
 				   const casacore::Record& applypar);
 

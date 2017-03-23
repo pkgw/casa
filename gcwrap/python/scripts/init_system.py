@@ -12,7 +12,6 @@ except ImportError, e:
 
 try:
     import matplotlib
-    matplotlib.use('TkAgg')
 except ImportError, e:
     print "failed to load matplotlib:\n", e
     print "sys.path =", "\n\t".join(sys.path)
@@ -47,12 +46,13 @@ if os.environ.has_key('CASAPATH') :
     else :
         casa['dirs']['root'] = __casapath__
         casa['dirs']['data'] = __casapath__ + "/data"
-        if os.path.exists(__casapath__ + "/" + __casaarch__ + "/python/2.7/assignmentFilter.py"):
-            casa['dirs']['python'] = __casapath__ + "/" + __casaarch__ + "/python/2.7"
-        elif os.path.exists(__casapath__ + "/lib/python2.7/assignmentFilter.py"):
+
+        if os.path.exists(__casapath__ + "/lib/python2.7/start_casa.py"):
             casa['dirs']['python'] = __casapath__ + "/lib/python2.7"
-        elif os.path.exists(__casapath__ + "/Resources/python/assignmentFilter.py"):
+        elif os.path.exists(__casapath__ + "/Resources/python/start_casa.py"):
             casa['dirs']['python'] = __casapath__ + "/Resources/python"
+        elif os.path.exists(__casapath__ + "/" + __casaarch__ + "/lib/python2.7/start_casa.py"):
+            casa['dirs']['python'] = __casapath__ + "/" + __casaarch__ + "/lib/python2.7"
 
         if casa['dirs']['python'] is not None:
             casa['dirs']['recipes'] = casa['dirs']['python'] + "/recipes"
@@ -69,8 +69,8 @@ if os.environ.has_key('CASAPATH') :
             casa['dirs']['doc'] = __casapath__ + "/share/doc"
         elif os.path.exists(__casapath__ + "/doc"):
             casa['dirs']['doc'] = __casapath__ + "/doc"
-        elif os.path.exists(__casapath__ + "/Contents/Resources/doc"):
-            casa['dirs']['doc'] = __casapath__ + "/Contents/Resources/doc"
+        elif os.path.exists(__casapath__ + "/Resources/doc"):
+            casa['dirs']['doc'] = __casapath__ + "/Resources/doc"
 
 else :
     __casapath__ = casac.__file__
@@ -198,8 +198,15 @@ argparser.add_argument( "--nogui",dest='nogui',action='store_const',const=True,d
                         help='avoid starting GUI tools' )
 argparser.add_argument( '--colors', dest='prompt', default='NoColor',
                         help='prompt color', choices=['NoColor', 'Linux', 'LightBG'] )
+argparser.add_argument( "--trace",dest='trace',action='store_const',const=True,default=False,
+                        help='list imported modules' )
 argparser.add_argument( "--pipeline",dest='pipeline',action='store_const',const=True,default=False,
                         help='start CASA pipeline run' )
+argparser.add_argument( "--agg",dest='agg',action='store_const',const=True,default=False,
+                        help='startup without tkagg' )
+argparser.add_argument( '--iplog',dest='ipython_log',default=False,
+                          const=True,action='store_const',
+                          help='create ipython log' )
 argparser.add_argument( "-c",dest='execute',default=[],nargs=argparse.REMAINDER,
                         help='python eval string or python script to execute' )
 
@@ -211,5 +218,31 @@ casa['dirs']['rc'] = casa['flags'].rcdir
 #### pipeline requires the Agg backend; any use of
 #### matplotlib before 'init_pipeline.py' is loaded
 #### would affect the ability to set the backend...
-if casa['flags'].pipeline:
+if casa['flags'].pipeline or casa['flags'].agg:
     matplotlib.use('Agg')
+
+### provide details about what is being imported:
+### before the module is imported:
+###
+###      importer => importee
+###
+### is printed. After the module has been imported:
+###
+###      ---> importee: <path to importee>
+###
+### is printed...
+if casa['flags'].trace:
+    import inspect
+    import __builtin__
+    _savimp = __builtin__.__import__
+
+    def _newimp(name, *x):
+        caller = inspect.currentframe( ).f_back
+        print "%s => %s" % (caller.f_globals.get('__name__'), name)
+        result = _savimp(name, *x)
+        print "---> %s: %s" % (name, result.__file__ if hasattr(result,'__file__') else '?')
+        return result
+
+    __builtin__.__import__ = _newimp
+
+print "CASA %s -- Common Astronomy Software Applications\n" % casa['build']['version']

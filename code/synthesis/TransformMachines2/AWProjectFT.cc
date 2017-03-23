@@ -137,21 +137,19 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 							    const Bool wTermOn,
 							    const Bool mTermOn,
 							    const Bool wbAWP,
-							    const Int cfBufferSize,
-							    const Int cfOversampling)
+							    const Bool conjBeams)
   {
     (void)wTermOn;//Unused
     CountedPtr<ATerm> apertureFunction = AWProjectFT::createTelescopeATerm(telescopeName, aTermOn);
     CountedPtr<PSTerm> psTerm = new PSTerm();
     CountedPtr<WTerm> wTerm = new WTerm();
-    if (cfBufferSize > 0) apertureFunction->setConvSize(cfBufferSize);
-    if (cfOversampling > 0) apertureFunction->setOversampling(cfOversampling);
+    //if (cfBufferSize > 0) apertureFunction->setConvSize(cfBufferSize);
     //
     // Selectively switch off CFTerms.
     //
     if (aTermOn == false) {apertureFunction->setOpCode(CFTerms::NOOP);}
     if (psTermOn == false) psTerm->setOpCode(CFTerms::NOOP);
-
+    if (wTermOn == False) wTerm->setOpCode(CFTerms::NOOP);
     //
     // Construct the CF object with appropriate CFTerms.
     //
@@ -159,9 +157,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //    awConvFunc = new AWConvFunc(apertureFunction,psTerm,wTerm, !wbAWP);
     //if ((ftmName=="mawprojectft") || (mTermOn))
     if (mTermOn)
-      awConvFunc = new AWConvFuncEPJones(apertureFunction,psTerm,wTerm,wbAWP);
+      awConvFunc = new AWConvFuncEPJones(apertureFunction,psTerm,wTerm,wbAWP, conjBeams);
     else
-      awConvFunc = new AWConvFunc(apertureFunction,psTerm,wTerm,wbAWP);
+      awConvFunc = new AWConvFunc(apertureFunction,psTerm,wTerm,wbAWP, conjBeams);
     return awConvFunc;
   }
   //
@@ -180,7 +178,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       Second("s"),Radian("rad"),Day("d"), pbNormalized_p(false), paNdxProcessed_p(),
       visResampler_p(), sensitivityPatternQualifier_p(-1),sensitivityPatternQualifierStr_p(""),
       rotatedConvFunc_p(),//cfs2_p(), cfwts2_p(), 
-      runTime1_p(0.0)
+      runTime1_p(0.0), previousSPWID_p(-1)
   {
     //    convSize=0;
     tangentSpecified_p=false;
@@ -238,7 +236,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       rotateOTFPAIncr_p(0.1),
       Second("s"),Radian("rad"),Day("d"), pbNormalized_p(false),
       visResampler_p(visResampler), sensitivityPatternQualifier_p(-1),sensitivityPatternQualifierStr_p(""),
-      rotatedConvFunc_p(), runTime1_p(0.0)
+      rotatedConvFunc_p(), runTime1_p(0.0),  previousSPWID_p(-1)
   {
     //convSize=0;
     tangentSpecified_p=false;
@@ -413,6 +411,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	computePAIncr_p=other.computePAIncr_p;
 	runTime1_p = other.runTime1_p;
 	muellerType_p = other.muellerType_p;
+	previousSPWID_p = other.previousSPWID_p;
       };
     return *this;
   };
@@ -538,7 +537,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // ...now make an object to hold the observatory position info...
     //
     MPosition pos;
-    String ObsName=(vb.getVi()->subtableColumns()).observation().telescopeName()(vb.arrayId()(0));
+    String ObsName=(vb.subtableColumns()).observation().telescopeName()(vb.arrayId()(0));
     
     if (!MeasTable::Observatory(pos,ObsName))
       log_l << "Observatory position for "+ ObsName + " not found"
@@ -614,7 +613,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //
     // An array of shape [2,1,1]!
     //
-    Array<Double> phaseDir = vb.getVi()->subtableColumns().field().phaseDir().getColumn();
+    Array<Double> phaseDir = vb.subtableColumns().field().phaseDir().getColumn();
     Double RA0   = phaseDir(IPosition(3,0,0,0));
     Double Dec0  = phaseDir(IPosition(3,1,0,0));
     //  
@@ -740,7 +739,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //
     // An array of shape [2,1,1]!
     //
-    Array<Double> phaseDir = vb.getVi()->subtableColumns().field().phaseDir().getColumn();
+    Array<Double> phaseDir = vb.subtableColumns().field().phaseDir().getColumn();
     Double RA0   = phaseDir(IPosition(3,0,0,0));
     Double Dec0  = phaseDir(IPosition(3,1,0,0));
     //  
@@ -1004,7 +1003,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // have the same pol. setup.
     //
     Int polID=polIDs(0);
-    Array<Int> stokesForAllIFs = (vb.getVi()->subtableColumns()).polarization().corrType().get(polID);
+    Array<Int> stokesForAllIFs = (vb.subtableColumns()).polarization().corrType().get(polID);
     IPosition stokesShape(stokesForAllIFs.shape());
     IPosition firstIFStart(stokesShape),firstIFLength(stokesShape);
     //
@@ -1688,7 +1687,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       }
     if (isDryRun) return;
 
-    Nant_p     = vb.getVi()->subtableColumns().antenna().nrow();
+    Nant_p     = vb.subtableColumns().antenna().nrow();
 
     const Matrix<Float> *imagingweight;
     imagingweight=&(vb.imagingWeight());
@@ -1738,7 +1737,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Vector<Double> dphase(vb.nRows());
     dphase=0.0;
     doUVWRotation_p=true;
-    rotateUVW(uvw, dphase, vb);
+    //rotateUVW(uvw, dphase, vb);
+    girarUVW(uvw, dphase, vb);
     refocus(uvw, vb.antenna1(), vb.antenna2(), dphase, vb);
     
     // // This is the convention for dphase
@@ -1824,7 +1824,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     
     findConvFunction(*image, vb);
     
-    Nant_p     = vb.getVi()->subtableColumns().antenna().nrow();
+    Nant_p     = vb.subtableColumns().antenna().nrow();
     Int NAnt=0;
     if (doPointing)   NAnt = findPointingOffsets(vb,l_offsets,m_offsets,true);
     NAnt=NAnt;  // Dummy statement to supress complier warnings and will be used when pointing offsets are used.
@@ -1843,7 +1843,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Vector<Double> dphase(vb.nRows());
     dphase=0.0;
     doUVWRotation_p=true;
-    rotateUVW(uvw, dphase, vb);
+    //rotateUVW(uvw, dphase, vb);
+    girarUVW(uvw, dphase, vb);
     refocus(uvw, vb.antenna1(), vb.antenna2(), dphase, vb);
     
     // This is the convention for dphase
@@ -2324,6 +2325,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     convFuncCtor_p->setRotateCF(computePAIncr_p, rotateOTFPAIncr_p);
 
     paChangeDetector.setTolerance(computePAIncrement);
+    visResampler_p->setPATolerance(computePAIncrement.getValue("rad"));
     log_l << LogIO::NORMAL <<"Setting PA increment to " 
 	  << computePAIncrement.getValue("deg") << " deg" << endl;
     cfCache_p->setPAChangeDetector(paChangeDetector);
@@ -2435,14 +2437,36 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     timer_p.mark();
 
     Vector<Double> pointingOffset(convFuncCtor_p->findPointingOffset(*image, vb));
-    if (makingPSF)
+    if (makingPSF){
+      cfwts2_p->invokeGC(vbs.spwID_p);
       visResampler_p->makeVBRow2CFMap(*cfwts2_p,*convFuncCtor_p, vb,
 				      paChangeDetector.getParAngleTolerance(),
 				      chanMap,polMap,pointingOffset);
+    }
     else
+      {
+	
+       // If the Wt. CFs are still in the memory, clear them.  They
+	// won't be required again (though with the silly check below,
+	// if the in-memory Wt. CFs are less than 1KB, they will be
+	// left in memory).
+	if (cfwts2_p->memUsage() > 1000)
+	  {
+	    //SynthesisUtilMethods::getResource(String("BeforeWTSClearing"),String("memusage"));
+	    //cerr << "CFWTS memusage before clearing: " << cfwts2_p->memUsage() << endl;
+
+	    cfwts2_p->clear();
+
+	    //cerr << "CFWTS memusage after clearing: " << cfwts2_p->memUsage() << endl;
+	    //SynthesisUtilMethods::getResource(String("AfterWTSClearing"),String("memusage"));
+	  }
+
+	cfs2_p->invokeGC(vbs.spwID_p);
       visResampler_p->makeVBRow2CFMap(*cfs2_p,*convFuncCtor_p, vb,
 				      paChangeDetector.getParAngleTolerance(),
 				      chanMap,polMap,pointingOffset);
+
+      }
     //    VBRow2CFMapType theMap(visResampler_p->getVBRow2CFMap());
     VBRow2CFBMapType& theMap=visResampler_p->getVBRow2CFBMap();
     //
@@ -2506,7 +2530,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     findConvFunction(*image, vb);
     Int NAnt=0;
-    Nant_p     = vb.getVi()->subtableColumns().antenna().nrow();
+    Nant_p     = vb.subtableColumns().antenna().nrow();
     if (doPointing)   
       NAnt = findPointingOffsets(vb,l_offsets,m_offsets,false);
 
@@ -2525,7 +2549,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Vector<Double> dphase(vb.nRows());
     dphase=0.0;
     doUVWRotation_p=true;
-    rotateUVW(uvw, dphase, vb);
+    //rotateUVW(uvw, dphase, vb);
+    girarUVW(uvw, dphase, vb);
     refocus(uvw, vb.antenna1(), vb.antenna2(), dphase, vb);
     
     // This is the convention for dphase
@@ -2682,7 +2707,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     
     findConvFunction(*image, vb);
 
-    Nant_p     = vb.getVi()->subtableColumns().antenna().nrow();
+    Nant_p     = vb.subtableColumns().antenna().nrow();
     Int NAnt=0;
     if (doPointing)   
       NAnt = findPointingOffsets(vb,pointingOffsets,l_offsets,m_offsets,false);
@@ -2700,7 +2725,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Vector<Double> dphase(vb.nRows());
     dphase=0.0;
     doUVWRotation_p=true;
-    rotateUVW(uvw, dphase, vb);
+    // rotateUVW(uvw, dphase, vb);
+    girarUVW(uvw, dphase, vb);
     refocus(uvw, vb.antenna1(), vb.antenna2(), dphase, vb);
     
     // This is the convention for dphase
@@ -2898,7 +2924,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Vector<Double> dphase(vb.nRows());
     dphase=0.0;
     doUVWRotation_p=true;
-    rotateUVW(uvw, dphase, vb);
+    //rotateUVW(uvw, dphase, vb);
+    girarUVW(uvw, dphase, vb); 
     refocus(uvw, vb.antenna1(), vb.antenna2(), dphase, vb);
     
     // This is the convention for dphase

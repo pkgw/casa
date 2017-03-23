@@ -69,6 +69,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                        itsMaskType(""),
                                        itsPBMask(0.0),
 				       //itsMaskString(String("")),
+                                       itsIterDone(0.0),
 				       itsIsMaskLoaded(false)
   {
   }
@@ -179,7 +180,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         itsMaskResolution = decpars.maskResolution;
         itsMaskResByBeam = decpars.maskResByBeam;
         itsNMask = decpars.nMask;
-        itsAutoAdjust = decpars.autoAdjust;
+        //itsAutoAdjust = decpars.autoAdjust;
+        //desable autoadjust 
+        itsAutoAdjust = false;
         itsSidelobeThreshold = decpars.sidelobeThreshold;
         itsNoiseThreshold = decpars.noiseThreshold;
         itsLowNoiseThreshold = decpars.lowNoiseThreshold;
@@ -218,7 +221,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       setStartingModel();
 
       // Set up the mask too.
-      itsIterDone = itsLoopController.getIterDone();
+      itsIterDone += itsLoopController.getIterDone();
       setupMask();
 
  

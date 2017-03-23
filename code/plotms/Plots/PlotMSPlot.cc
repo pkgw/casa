@@ -315,25 +315,29 @@ vector<PMS::Axis> PlotMSPlot::getCachedAxes() {
 	int yAxisCount = c->numYAxes();
 	int count = xAxisCount + yAxisCount;
 	vector<PMS::Axis> axes( count );
-    PMS::Axis axis, defaultAxis;
+    PMS::Axis axis;
 	for(int i = 0; i < xAxisCount; i++){
         axis = c->xAxis(i);
         if (axis == PMS::NONE) {
-            String caltype = itsCache_->calType();
-            defaultAxis = getDefaultXAxis(caltype);
-            axes[i] = defaultAxis;
-            c->setXAxis(defaultAxis, i);
-        } else
-		    axes[i] = axis;
+            axis = getDefaultXAxis();
+            c->setXAxis(axis, i);
+        }
+		axes[i] = axis;
 	}
 	for(int i = xAxisCount; i < count; i++){
 		uInt yIndex = i - xAxisCount;
-	    axes[i] = c->yAxis(yIndex);
+        axis = c->yAxis(yIndex);
+        if (axis == PMS::NONE) {
+            axis = PMS::DEFAULT_YAXIS;
+            c->setYAxis(axis, yIndex);
+        }
+	    axes[i] = axis;
 	}
 	return axes;
 }
 
-PMS::Axis PlotMSPlot::getDefaultXAxis(String caltype) {
+PMS::Axis PlotMSPlot::getDefaultXAxis() {
+    String caltype = itsCache_->calType();
     PMS::Axis xaxis = PMS::TIME;
     if (itsCache_->cacheType() == PlotMSCacheBase::CAL) {
         if (caltype.contains("BPOLY"))
@@ -960,27 +964,51 @@ bool PlotMSPlot::exportToFormat(const PlotExportFormat& format) {
     		fileId = fileId + sep + pageStr;
     	}
 
-    	String exportFileName = baseFileName + fileId + suffix;
+        std::string::size_type filepos = baseFileName.rfind('/');
+        // returned by os.getcwd() in task_plotms.py
+        String path = baseFileName.substr(0, filepos+1);
+        // user's plotfile, minus suffix
+        String filename = baseFileName.substr(filepos+1, baseFileName.size());
+        // This could add iteration names, plus suffix
+    	String exportFileName = filename + fileId + suffix;
         // CAS-7777 - file(s) will not export if filename > 255
         // Need cushion for sep, pageStr, additional digits, etc.
         // Hopefully first filename is representative of the rest!
-        if ((exportFileName.length() > 240) || shortenName) {
-            if (pageStr.size() > 0)
-                exportFileName = baseFileName + sep + pageStr + suffix;
-            else
-                exportFileName = baseFileName + suffix;
+        if ((exportFileName.length() > 256) || shortenName) {
+            if (pageStr.size() > 0) {
+                // shorten to 'basename_#.ext' e.g. 'test_2.jpg'
+                exportFileName = filename + sep + pageStr + suffix;
+            } else {
+                // no iteration, just use 'basename.ext'
+                exportFileName = filename + suffix;
+            }
             // if shorten one name, shorten them all
             shortenName = true;
         }
 
-        exportFormat.location = exportFileName;
-    	exportSuccess = itsParent_->exportToFormat( exportFormat );
-    	waitOnCanvases();
-    	if ( i < pageCount - 1 ){
-    		nextIter();
-    	}
-    	waitOnCanvases();
+        // check if shortening filename didn't work
+        if (exportFileName.length() > 255) {
+            logMessage("ERROR: Export filename exceeds length limit (256).  Export failed.");
+            exportSuccess = false;
+        } else {
+            exportFormat.location = path + exportFileName;
+    	    exportSuccess = itsParent_->exportToFormat( exportFormat );
+            if (exportSuccess) {
+                // let user know exported filename (if added iteration label)
+                String msg = "Exported " + exportFormat.location;
+                logMessage(msg.c_str());
+            }
+    	    waitOnCanvases();
+    	    if ( i < pageCount - 1 ){
+    		    nextIter();
+    	    }
+    	    waitOnCanvases();
+        }
     }
+
+    // Warn user if shortened plotfile name
+    if (exportSuccess && shortenName)
+        logMessage("Export filenames do not include iteration labels so that plotfile names do not exceed length limit (256).");
 
     //Restore the current page
     setIter( currentIter );
@@ -1678,10 +1706,18 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
 
 	// Set axes scales
 	PMS::Axis x = cacheParams->xAxis();
+    if (x==PMS::NONE) {
+        x = getDefaultXAxis();
+        cacheParams->setXAxis(x);
+    }
     if (isCalTable && PMS::axisIsData(x)) x = getCalAxis(calType, x);
 	canvas->setAxisScale(cx, PMS::axisScale(x));
 	for ( int i = 0; i < yAxisCount; i++ ){
 		PMS::Axis y = cacheParams->yAxis( i );
+        if (y==PMS::NONE) {
+            y = PMS::DEFAULT_YAXIS;
+            cacheParams->setYAxis(y, i);
+        }
         if (isCalTable && PMS::axisIsData(y)) y = getCalAxis(calType, y);
 	    canvas->setAxisScale(cx, PMS::axisScale(x));
 		PlotAxis cy = axesParams->yAxis( i );
@@ -1921,8 +1957,12 @@ bool PlotMSPlot::axisIsAveraged(PMS::Axis axis, PlotMSAveraging averaging) {
 }
 
 String PlotMSPlot::addFreqFrame(String freqLabel) {
-    String freqType = MFrequency::showType(itsCache_->getFreqFrame());
-    return freqLabel + " " + freqType;
+    if (itsCache_->cacheType() == PlotMSCacheBase::MS) {
+        String freqType = MFrequency::showType(itsCache_->getFreqFrame());
+        return freqLabel + " " + freqType;
+    } else {
+        return freqLabel;
+    }
 }
 
 PMS::Axis PlotMSPlot::getCalAxis(String calType, PMS::Axis axis) {

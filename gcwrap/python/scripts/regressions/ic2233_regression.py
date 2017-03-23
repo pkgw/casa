@@ -1,6 +1,9 @@
 import os
 import time
 import regression_utility as regutl
+import shutil
+import sys
+import pdb
 
 THISHOME  = "ic2233_regression_data/";
 IMSIZE    = 2048;
@@ -23,9 +26,9 @@ IMAGE     = "imIC2233."+FTMACHINE;
 REUSEREPOS = False;
 INTERACTIVE = False;
 TIMERANGE = "";"*+0:30:0";
-#
 EPS       = 1e-5;  # Logical "zero"
-#
+
+
 #--------------------------------------------------------------
 #
 def ic2233_reg():
@@ -49,7 +52,7 @@ def ic2233_reg():
            cfcache=MYIMAGE+".cf",computepastep=360.0,rotatepastep=5.0,pblimit=0.05,normtype="flatnoise",deconvolver=DECONVOLVER,scales=[],
            nterms=2,smallscalebias=0.6,restoration=True,restoringbeam=[],pbcor=False,outlierfile="",weighting="natural",robust=0.5,npixels=0,
            uvtaper=[],niter=NITER,gain=0.1,threshold=0.0,cycleniter=-1,cyclefactor=1.0,minpsffraction=0.05,maxpsffraction=0.8,interactive=INTERACTIVE,
-           usemask="user",mask="",pbmask=0.0,maskthreshold="",maskresolution="",nmask=0,autoadjust=False,restart=True,savemodel="none",
+           usemask="user",mask="",pbmask=0.0,maskthreshold="",maskresolution="",nmask=0,restart=True,savemodel="none",
            calcres=True,calcpsf=True,parallel=False);
 
 #    tclean(vis=MSFILE,selectdata=True,field="0",spw="*:69~80",timerange="",uvrange="",antenna="",scan="",observation="",intent="",datacolumn="corrected",imagename=MYIMAGE,imsize=2048,cell="4arcsec",phasecenter="",stokes="IV",projection="SIN",startmodel="",specmode="mfs",reffreq="",nchan=-1,start="",width="",outframe="LSRK",veltype="radio",restfreq=[],interpolation="linear",gridder="awproject",facets=1,chanchunks=1,wprojplanes=1,vptable="",aterm=True,psterm=False,wbawp=True,conjbeams=True,cfcache="junk_newVR.cf",computepastep=360.0,rotatepastep=5.0,pblimit=0.2,normtype="flatnoise",deconvolver="hogbom",scales=[],nterms=2,smallscalebias=0.6,restoration=True,restoringbeam=[],pbcor=False,outlierfile="",weighting="natural",robust=0.5,npixels=0,uvtaper=[],niter=6000,gain=0.1,threshold=0.0,cycleniter=-1,cyclefactor=1.0,minpsffraction=0.05,maxpsffraction=0.8,interactive=True,usemask="user",mask="",pbmask=0.0,maskthreshold="",maskresolution="",nmask=0,autoadjust=False,restart=True,savemodel="none",calcres=True,calcpsf=True,parallel=False);
@@ -129,8 +132,13 @@ StokesIPeakPos      = [942,1130,0,0]; #Pixels
 # Change to this from the above after the change in 3rd party pkgs
 # around Jan. 1st week, 2017.  Also using tclean now for the imaging
 # instead of the old imager (im-tool).
-StokesVPeak         =  0.00061497
-StokesVRMS          =  0.00012994
+# StokesVPeak         =  0.00061497
+# StokesVRMS          =  0.00012994
+
+# Changes after fixing the w-term in prediction.  Stokes-V looks OK,
+# but the peak and therefore the RMS has changed.
+StokesVPeak         = 0.00143313
+StokesVRMS          = 0.00019522
 
 StokesVPeakPosWorld = '08:11:29.219, +45.48.26.199'; #J2000
 StokesVPeakPos      = [1415,1008,1,0]; #Pixels
@@ -237,12 +245,15 @@ def stats():
             print >>logfile,'Total wall clock time was: ', endTime - startTime
             print >>logfile,'Total CPU        time was: ', endProc - startProc
 
-
-            logfile.close();
-
+        logfile.flush()
+        logfile.close();
+        f=open(outfile, 'r')
+        a=f.read()
+        f.close() 
+        casalog.post(a, origin="ic2233")
     except Exception, instance:
         print "###Error in ic2233 regression: ",instance;
-
+        raise instance
 
 for i in range(1):
      run();

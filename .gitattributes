@@ -811,7 +811,6 @@ code/alma/apps/MS2asdm/MS2asdm.cc -text
 code/alma/apps/asdm2MS/ASDM2MSException.h -text
 code/alma/apps/asdm2MS/ASDM2MSFiller.cc -text
 code/alma/apps/asdm2MS/ASDM2MSFiller.h -text
-code/alma/apps/asdm2MS/ASDM2MSFiller2.cc -text
 code/alma/apps/asdm2MS/ASDMTableBase.cc -text
 code/alma/apps/asdm2MS/ASDMTableBase.h -text
 code/alma/apps/asdm2MS/ASDMTables.cc -text
@@ -3369,6 +3368,8 @@ code/flagging/Flagging/DDMapper.cc -text
 code/flagging/Flagging/DDMapper.h -text
 code/flagging/Flagging/ExtendFlagger.cc -text
 code/flagging/Flagging/ExtendFlagger.h -text
+code/flagging/Flagging/FlagAgentAntennaIntegrations.cc -text
+code/flagging/Flagging/FlagAgentAntennaIntegrations.h -text
 code/flagging/Flagging/FlagAgentBase.cc -text
 code/flagging/Flagging/FlagAgentBase.h -text
 code/flagging/Flagging/FlagAgentClipping.cc -text
@@ -4217,6 +4218,7 @@ code/mstransform/TVI/test/TestUtilsTVI.cc -text
 code/mstransform/TVI/test/TestUtilsTVI.h -text
 code/mstransform/TVI/test/tChannelAverageTVI.cc -text
 code/mstransform/TVI/test/tChannelAverageTVI.h -text
+code/mstransform/TVI/test/tChannelAverageTransformEngine_GT.cc -text
 code/mstransform/TVI/test/tHanningSmoothTVI.cc -text
 code/mstransform/TVI/test/tHanningSmoothTVI.h -text
 code/mstransform/TVI/test/tPhaseShiftingTVI.cc -text
@@ -4259,6 +4261,8 @@ code/msvis/MSVis/MSChecker.cc -text
 code/msvis/MSVis/MSChecker.h -text
 code/msvis/MSVis/MSContinuumSubtractor.cc -text
 code/msvis/MSVis/MSContinuumSubtractor.h -text
+code/msvis/MSVis/MSIter2.cc -text
+code/msvis/MSVis/MSIter2.h -text
 code/msvis/MSVis/MSUVWGenerator.cc -text
 code/msvis/MSVis/MSUVWGenerator.h -text
 code/msvis/MSVis/MSUtil.cc -text
@@ -4273,6 +4277,8 @@ code/msvis/MSVis/Partition.cc -text
 code/msvis/MSVis/Partition.h -text
 code/msvis/MSVis/PhaseShiftTvi.cc -text
 code/msvis/MSVis/PhaseShiftTvi.h -text
+code/msvis/MSVis/PointingDirectionCache.cc -text
+code/msvis/MSVis/PointingDirectionCache.h -text
 code/msvis/MSVis/Reweighter.cc -text
 code/msvis/MSVis/Reweighter.h -text
 code/msvis/MSVis/SelectAverageSpw.cc -text
@@ -4433,6 +4439,7 @@ code/msvis/MSVis/test/MSCheckerTest.h -text
 code/msvis/MSVis/test/MSChecker_Gtest.cc -text
 code/msvis/MSVis/test/MsFactory.cc -text
 code/msvis/MSVis/test/MsFactory.h -text
+code/msvis/MSVis/test/PointingDirectionCache_Test.cc -text
 code/msvis/MSVis/test/VisibilityIterator_Gtest.cc -text
 code/msvis/MSVis/test/VisibilityIterator_Gtest.h -text
 code/msvis/MSVis/test/VisibilityIterator_Test.cc -text
@@ -5920,6 +5927,7 @@ gcwrap/python/scripts/casa_builtin.py -text
 gcwrap/python/scripts/casa_shutdown.py -text
 gcwrap/python/scripts/casa_stack_manip.py -text
 gcwrap/python/scripts/casa_system.py -text
+gcwrap/python/scripts/casa_system_defaults.py -text
 gcwrap/python/scripts/casapy.py -text
 gcwrap/python/scripts/casapy_engine.py -text
 gcwrap/python/scripts/check_exceptionhandling.py -text
@@ -5943,6 +5951,16 @@ gcwrap/python/scripts/filltsys.py -text
 gcwrap/python/scripts/fixvis_util.py -text
 gcwrap/python/scripts/flaghelper.py -text
 gcwrap/python/scripts/get_user.py -text
+gcwrap/python/scripts/imagerhelpers/CMakeLists.txt -text
+gcwrap/python/scripts/imagerhelpers/__init__.py -text
+gcwrap/python/scripts/imagerhelpers/imager_base.py -text
+gcwrap/python/scripts/imagerhelpers/imager_parallel_continuum.py -text
+gcwrap/python/scripts/imagerhelpers/imager_parallel_cube.py -text
+gcwrap/python/scripts/imagerhelpers/imager_parallel_cube2.py -text
+gcwrap/python/scripts/imagerhelpers/imager_parallel_deconvolver.py -text
+gcwrap/python/scripts/imagerhelpers/input_parameters.py -text
+gcwrap/python/scripts/imagerhelpers/parallel_imager_helper.py -text
+gcwrap/python/scripts/imagerhelpers/test_imager_helper.py -text
 gcwrap/python/scripts/importarchive.py -text
 gcwrap/python/scripts/init_asap.py -text
 gcwrap/python/scripts/init_crashrpt.py -text
@@ -6221,7 +6239,6 @@ gcwrap/python/scripts/recipes/specframeconvert.py -text
 gcwrap/python/scripts/recipes/taskutil.py -text
 gcwrap/python/scripts/recipes/tec_maps.py -text
 gcwrap/python/scripts/recipes/weights.py -text
-gcwrap/python/scripts/refimagerhelper.py -text
 gcwrap/python/scripts/regressframe.py -text
 gcwrap/python/scripts/regression.py -text
 gcwrap/python/scripts/regression_utility.py -text
@@ -6440,6 +6457,7 @@ gcwrap/python/scripts/task_hanningsmooth.py -text
 gcwrap/python/scripts/task_help.py -text
 gcwrap/python/scripts/task_imcollapse.py -text
 gcwrap/python/scripts/task_imcontsub.py -text
+gcwrap/python/scripts/task_imdev.py -text
 gcwrap/python/scripts/task_imfit.py -text
 gcwrap/python/scripts/task_imhead.py -text
 gcwrap/python/scripts/task_imhistory.py -text
@@ -6604,6 +6622,7 @@ gcwrap/python/scripts/tests/test_ia_decimate.py -text
 gcwrap/python/scripts/tests/test_ia_decompose.py -text
 gcwrap/python/scripts/tests/test_ia_deconvolvecomponentlist.py -text
 gcwrap/python/scripts/tests/test_ia_deconvolvefrombeam.py -text
+gcwrap/python/scripts/tests/test_ia_deviation.py -text
 gcwrap/python/scripts/tests/test_ia_fft.py -text
 gcwrap/python/scripts/tests/test_ia_findsources.py -text
 gcwrap/python/scripts/tests/test_ia_fromarray.py -text
@@ -6807,6 +6826,7 @@ gcwrap/tasks/gencal.xml -text
 gcwrap/tasks/hanningsmooth.xml -text
 gcwrap/tasks/imcollapse.xml -text
 gcwrap/tasks/imcontsub.xml -text
+gcwrap/tasks/imdev.xml -text
 gcwrap/tasks/imfit.xml -text
 gcwrap/tasks/imhead.xml -text
 gcwrap/tasks/imhistory.xml -text

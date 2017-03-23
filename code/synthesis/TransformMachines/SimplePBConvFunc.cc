@@ -275,6 +275,15 @@ void SimplePBConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
 
 
 
+    LogIO os;
+     os << LogOrigin("SimplePBConv", "findConvFunction")  << LogIO::NORMAL;
+     /////////////////////////
+     os<< LogIO::DEBUG1 
+       << "msID " << vb.msId()  <<  " ANT1 id" << vb.antenna1()(0) 
+       << " direction " << vb.firstDirection1().toString() << " ANT2 id" 
+       << vb.antenna2()(0) << " direction " << vb.direction2()(0).toString() 
+       << LogIO::POST ; 
+    //////////////////////
   Int convSamp=2*convSampling;
   storeImageParams(iimage, vb);
   convFuncChanMap.resize(vb.nChannel());
@@ -291,9 +300,7 @@ void SimplePBConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
   //break reference
   convFunc.resize();
   weightConvFunc.resize();
-  LogIO os;
-  os << LogOrigin("SimplePBConv", "findConvFunction")  << LogIO::NORMAL;
-  
+ 
   
   // Get the coordinate system
   CoordinateSystem coords(iimage.coordinates());
@@ -748,7 +755,7 @@ void SimplePBConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
       }
       else {
 	os << "Convolution function is misbehaved - support seems to be zero\n"
-	   << "Reasons can be: \n(1)The image definition not covering one or more of the pointings selected"
+	   << "Reasons can be: \n(1)The image definition not covering one or more of the pointings selected\n"
            << "(2) No unflagged data in a given pointing\n"
 	   << "(3) The entries in the POINTING subtable do not match the field being imaged."
 	   << "Please check, and try again with an empty POINTING subtable.)\n"

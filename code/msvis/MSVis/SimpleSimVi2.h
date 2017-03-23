@@ -165,7 +165,10 @@ public:
   virtual void originChunks (casacore::Bool forceRewind = false);
   virtual casacore::Bool moreChunks () const;
   virtual void nextChunk ();
-  
+
+  // Detecting the key change isn't possible (yet?)  
+  virtual casacore::String keyChange() const { SSVi2NotPossible() };
+
   virtual casacore::Bool isWritable () const { return false; };
 
   // Return the time interval (in seconds) used for iteration.
@@ -275,6 +278,8 @@ public:
   virtual casacore::MDirection azel0 (casacore::Double) const { SSVi2NotPossible() };
   virtual const casacore::Vector<casacore::MDirection> & azel (casacore::Double) const { SSVi2NotPossible() };
   virtual const casacore::Vector<casacore::Float> & feed_pa (casacore::Double t) const; 
+  virtual std::pair<bool, casacore::MDirection> getPointingAngle (int /*antenna*/, double /*time*/) const
+  { return std::make_pair (true, phaseCenter()); }
   virtual const casacore::Cube<casacore::RigidVector<casacore::Double, 2> > & getBeamOffsets () const { SSVi2NotPossible() };
   virtual casacore::Double hourang (casacore::Double) const { SSVi2NotPossible() };
   virtual const casacore::Float & parang0 (casacore::Double) const { SSVi2NotPossible() };

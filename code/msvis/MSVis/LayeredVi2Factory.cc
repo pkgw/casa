@@ -164,7 +164,7 @@ vi::ViImplementation2 * LayeredVi2Factory::createVi () const
   }
 
   // Must be at the last layer now
-  Assert((nlayer_p-ilayer)==1)
+  Assert((nlayer_p-ilayer)==1);
   Assert(viis[nlayer_p-1]);
 
   // Return outermost ViImplementation2 layer
@@ -178,11 +178,13 @@ vi::ViImplementation2 * LayeredVi2Factory::createVi () const
 //
 VisIterImpl2LayerFactory::VisIterImpl2LayerFactory(MeasurementSet* ms,
                                                    const IteratingParameters& pars,
-                                                   Bool writable)
+                                                   Bool writable,
+						   Bool useMSIter2)
   : ViiLayerFactory(),
     ms_(ms),
     pars_(pars),
-    writable_(writable)
+    writable_(writable),
+    useMSIter2_(useMSIter2)
 {}
   
 
@@ -197,7 +199,8 @@ ViImplementation2 * VisIterImpl2LayerFactory::createInstance (ViImplementation2*
                                                        pars_.getSortColumns(),
                                                        pars_.getChunkInterval(),
                                                        vi::VbPlain,
-                                                       writable_); 
+                                                       writable_,
+						       useMSIter2_); 
   return vii;
 }
 

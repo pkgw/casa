@@ -204,9 +204,16 @@ namespace casa{
     int conjPoln; miscInfo.get("ConjPoln", conjPoln);
     String telescopeName; miscInfo.get("TelescopeName", telescopeName);
     float diameter; miscInfo.get("Diameter", diameter);
-    bool isRotationallySymmetric; miscInfo.get("OpCode",isRotationallySymmetric);
+    // In the absense of evidence, assume that users are sensible and
+    // are using AWProjection where it is really need it and not for
+    // using it as a replacement for rotatially symmetric stuff.  So
+    // by default, the CFs are assumed to be rotationally asymmetric.
+    bool isRotationallySymmetric=True; 
+    
+    if (miscInfo.isDefined("OpCode"))
+	miscInfo.get("OpCode",isRotationallySymmetric);
 
-    RigidVector<Int,3> ndx=setParams(inu, iw, ipx, ipy, freqValue, wValue, muellerElement, cs, miscInfo,
+    RigidVector<Int,3> ndx=setParams(inu, iw, ipx, ipy, freqValue, wValue, muellerElement, cs,
 				     sampling, xSupport, ySupport, fileName, conjFreq, conjPoln, telescopeName,
 				     diameter);
     cfCells_p(ndx(0),ndx(1),ndx(2))->isRotationallySymmetric_p = isRotationallySymmetric;
@@ -216,9 +223,7 @@ namespace casa{
 					  const Double& freqValue,
 					  const Double& wValue,
 					  const Int& muellerElement,
-
 					  CoordinateSystem& cs,
-					  const TableRecord& miscInfo,
 					  Float& sampling,
 					  Int& xSupport, Int& ySupport, 
 					  const String& fileName,
