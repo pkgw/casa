@@ -174,6 +174,7 @@ void MSTransformManager::initialize()
 	dy_p = 0;
 
 	// Time transformation parameters
+	scalarAverage_p = false;
 	timeAverage_p = false;
 	timeBin_p = 0.0;
 	timespan_p = String("");
@@ -1046,12 +1047,21 @@ void MSTransformManager::parseTimeAvgParams(Record &configuration)
 					<< "Time average is activated" << LogIO::POST;
 		}
 	}
-	else
+
+    exists = -1;
+	exists = configuration.fieldNumber ("scalaraverage");
+	if (exists >= 0)
 	{
-		return;
+		configuration.get (exists, scalarAverage_p);
+
+		if (scalarAverage_p)
+		{
+			logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+					<< "Scalar average is activated" << LogIO::POST;
+		}
 	}
 
-	if (timeAverage_p)
+	if (timeAverage_p || scalarAverage_p)
 	{
 		exists = -1;
 		exists = configuration.fieldNumber ("timebin");
@@ -1067,8 +1077,9 @@ void MSTransformManager::parseTimeAvgParams(Record &configuration)
 		else
 		{
 			logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
-					<< "Time average is activated but no timebin parameter provided " << LogIO::POST;
+					<< "Time or scalar average is activated but no timebin parameter provided " << LogIO::POST;
 			timeAverage_p = false;
+			scalarAverage_p = false;
 			return;
 		}
 
@@ -1090,7 +1101,7 @@ void MSTransformManager::parseTimeAvgParams(Record &configuration)
 		}
 
 		// CAS-4850 (jagonzal): For ALMA each bdf is limited to 30s, so we need to combine across state (i.e. su-scan)
-		if ((timeBin_p > 30.0) and !timespan_p.contains("state"))
+		if (timeAverage_p && (timeBin_p > 30.0) and !timespan_p.contains("state"))
 		{
 			MeasurementSet tmpMs(inpMsName_p,Table::Old);
 			MSObservation observationTable = tmpMs.observation();
@@ -1275,11 +1286,11 @@ void MSTransformManager::open()
 	inputMs_p = dataHandler_p->getInputMS();
 	// Note: We always get the input number of channels because we don't know if pre-averaging will be necessary
 	getInputNumberOfChannels();
-
+	
 	// Check available data cols to pass this information on to MSTransformDataHandler which creates the MS structure
 	checkDataColumnsAvailable();
 	checkDataColumnsToFill();
-
+	
 	// Set virtual column operation
 	dataHandler_p->setVirtualModelCol(makeVirtualModelColReal_p);
 	dataHandler_p->setVirtualCorrectedCol(makeVirtualCorrectedColReal_p);
@@ -1288,6 +1299,10 @@ void MSTransformManager::open()
 	// in this way we also validate the selection parameters
 	dataHandler_p->setReindex(reindex_p);
 	initDataSelectionParams();
+
+	// Once the selection parameters have been processed, check consistency in
+	// number of channels, if needed.
+	checkSPWChannelsKnownLimitation();
 
 	// Determine channel specification for output MS
 	Vector<Int> chanSpec;
@@ -1319,6 +1334,52 @@ void MSTransformManager::open()
 
 	dataHandler_p->selectTime(timeBin_p,timeSelection_p);
 
+	createOutputMSStructure();
+
+	// jagonzal (CAS-5076): Reindex state column when there is scan selection
+	// jagonzal (CAS-6351): Removing this fix as only implicit selection-based re-indexing has to be applied
+	/*
+	map<Int, Int> stateRemapper = dataHandler_p->getStateRemapper();
+    std::map<Int, Int>::iterator stateRemapperIter;
+    for (	stateRemapperIter = stateRemapper.begin();
+    		stateRemapperIter != stateRemapper.end();
+    		stateRemapperIter++)
+    {
+    	inputOutputScanIntentIndexMap_p[stateRemapperIter->first] = stateRemapperIter->second;
+
+    	logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+    			<< "State " << stateRemapperIter->first << " mapped to " << stateRemapperIter->second << LogIO::POST;
+    }
+    */
+
+    // jagonzal (CAS-5349): Reindex antenna columns when there is antenna selection
+    if (!baselineSelection_p.empty() and reindex_p)
+    {
+    	Vector<Int> antennaRemapper = dataHandler_p->getAntennaRemapper();
+    	for (uInt oldIndex=0;oldIndex<antennaRemapper.size();oldIndex++)
+    	{
+    		inputOutputAntennaIndexMap_p[oldIndex] = antennaRemapper[oldIndex];
+    	}
+    }
+
+
+	selectedInputMs_p = dataHandler_p->getSelectedInputMS();
+	outputMs_p = dataHandler_p->getOutputMS();
+	selectedInputMsCols_p = dataHandler_p->getSelectedInputMSColumns();
+	outputMsCols_p = dataHandler_p->getOutputMSColumns();
+
+	return;
+}
+
+
+/**
+ * Helper method for open() to create the structure of the output MS
+ * and check errors.
+ *
+ * @throws AipsError in case of errors creating the output MS
+ */
+void MSTransformManager::createOutputMSStructure()
+{
 	// Create output MS structure
 	if (not bufferMode_p)
 	{
@@ -1363,40 +1424,6 @@ void MSTransformManager::open()
 	{
 		throw AipsError("Error creating output MS structure");
 	}
-
-	// jagonzal (CAS-5076): Reindex state column when there is scan selection
-	// jagonzal (CAS-6351): Removing this fix as only implicit selection-based re-indexing has to be applied
-	/*
-	map<Int, Int> stateRemapper = dataHandler_p->getStateRemapper();
-    std::map<Int, Int>::iterator stateRemapperIter;
-    for (	stateRemapperIter = stateRemapper.begin();
-    		stateRemapperIter != stateRemapper.end();
-    		stateRemapperIter++)
-    {
-    	inputOutputScanIntentIndexMap_p[stateRemapperIter->first] = stateRemapperIter->second;
-
-    	logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-    			<< "State " << stateRemapperIter->first << " mapped to " << stateRemapperIter->second << LogIO::POST;
-    }
-    */
-
-    // jagonzal (CAS-5349): Reindex antenna columns when there is antenna selection
-    if (!baselineSelection_p.empty() and reindex_p)
-    {
-    	Vector<Int> antennaRemapper = dataHandler_p->getAntennaRemapper();
-    	for (uInt oldIndex=0;oldIndex<antennaRemapper.size();oldIndex++)
-    	{
-    		inputOutputAntennaIndexMap_p[oldIndex] = antennaRemapper[oldIndex];
-    	}
-    }
-
-
-	selectedInputMs_p = dataHandler_p->getSelectedInputMS();
-	outputMs_p = dataHandler_p->getOutputMS();
-	selectedInputMsCols_p = dataHandler_p->getSelectedInputMSColumns();
-	outputMsCols_p = dataHandler_p->getOutputMSColumns();
-
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -1709,6 +1736,7 @@ void MSTransformManager::setup()
 
 	return;
 }
+
 
 // -----------------------------------------------------------------------
 //
@@ -2905,6 +2933,12 @@ void MSTransformManager::regridSpwAux(	Int spwId,
 
 		if ((width >= 2) and  2*width <= originalCHAN_WIDTH.size())
 		{
+			logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
+				 << "mstransform with regridms does not regrid properly for channel widths "
+				    "> or = 2 x the native channel width, please use clean or tclean for larger regridding. "
+				    "A fix is expected for CASA 5.0, all earlier versions also have this issue."
+				 << LogIO::POST;
+
 			logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
 	        					<< "Ratio between input and output width is " << avgRegriddedWidth/avgCombinedWidth
 	        					<< ", setting pre-channel average width to " << width << LogIO::POST;
@@ -2925,7 +2959,7 @@ void MSTransformManager::regridSpwAux(	Int spwId,
 	            				<< std::setprecision(9) << std::setw(14) << std::scientific
 	            				<< inputCHAN_FREQ(inputCHAN_WIDTH.size() -1) << " Hz";
 			logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-	            				<< oss.str() << LogIO::POST;
+				 << oss.str() << LogIO::POST;
 		}
 	}
 
@@ -4457,8 +4491,8 @@ void MSTransformManager::reindexGenericTimeDependentSubTable(const String& subta
 // -----------------------------------------------------------------------
 void MSTransformManager::getInputNumberOfChannels()
 {
-	// Access spectral window sub-table
-	MSSpectralWindow spwTable = inputMs_p->spectralWindow();
+    // Access spectral window sub-table
+    MSSpectralWindow spwTable = inputMs_p->spectralWindow();
     uInt nInputSpws = spwTable.nrow();
     MSSpWindowColumns spwCols(spwTable);
     ScalarColumn<Int> numChanCol = spwCols.numChan();
@@ -4469,7 +4503,7 @@ void MSTransformManager::getInputNumberOfChannels()
     	numOfInpChanMap_p[spw_idx] = numChanCol(spw_idx);
     }
 
-	return;
+    return;
 }
 
 // -----------------------------------------------------------------------
@@ -4733,6 +4767,44 @@ void MSTransformManager::checkFillWeightSpectrum()
 	}
 
 	return;
+}
+
+/**
+ * Early check for a potential issue that would prevent an MSTransform
+ * setup which looks in principle fine from running correctly. Ensures
+ * that we catch a current limitation in the underlying iterators /
+ * VI/VB2 framework whereby combinespws won't work when the number of
+ * channels is different for different SPWs.
+ *
+ * Requires that numOfInpChanMap_p be populated previously (in
+ * getInputNumberOfChannels()).
+ *
+ * @throws AipsError if combinespws is enabled and the input MS of the
+ * current configuration has different number of channels for
+ * different SPWs
+ */
+void MSTransformManager::checkSPWChannelsKnownLimitation()
+{
+  if (not combinespws_p)
+    return;
+  
+  auto nSpws = inputMs_p->spectralWindow().nrow();
+  if (1 >= nSpws or numOfInpChanMap_p.empty() or numOfSelChanMap_p.empty())
+    return;
+
+  auto firstNum = numOfSelChanMap_p.begin()->second;
+  auto diff = std::find_if(numOfSelChanMap_p.begin(), numOfSelChanMap_p.end(),
+			   [&firstNum](const std::pair<casacore::uInt,casacore::uInt> &other) {
+			     return firstNum != other.second; });
+
+  
+  if (numOfSelChanMap_p.end() != diff) {
+    auto otherNum = diff->second;
+    throw AipsError("Currently the option 'combinespws' is only supported when the number "
+		    "of channels is the same for all the spw's selected. One of the SPWs "
+		    "selected has " + std::to_string(firstNum) + " channels, but another "
+		    "selected SPW has " + std::to_string(otherNum) + " channels.");
+  }
 }
 
 // -----------------------------------------------------------------------
@@ -5385,12 +5457,16 @@ void MSTransformManager::generateIterator()
 		if (timeAverageTVIFactory) delete timeAverageTVIFactory;
 		if (uvContSubTVIFactory) delete uvContSubTVIFactory;
 	}
-	else if (calibrate_p)
+	else if (calibrate_p || scalarAverage_p)
 	{
 		try
 		{
 			// Isolate iteration parameters
-			vi::IteratingParameters iterpar(0,vi::SortColumns(sortColumns_p, false));
+			vi::IteratingParameters iterpar;
+            if (scalarAverage_p)
+                iterpar = vi::IteratingParameters(timeBin_p,vi::SortColumns(sortColumns_p, false));
+            else
+			    iterpar = vi::IteratingParameters(0,vi::SortColumns(sortColumns_p, false));
 
 			// By callib String
 	        if (callib_p.length() > 0)
@@ -5410,6 +5486,10 @@ void MSTransformManager::generateIterator()
 
 				visibilityIterator_p = new vi::VisibilityIterator2(vi::LayeredVi2Factory(selectedInputMs_p, &iterpar,callibRec_p, timeavgParams));
 			}
+            else // scalar
+            {
+				visibilityIterator_p = new vi::VisibilityIterator2(vi::LayeredVi2Factory(selectedInputMs_p, &iterpar));
+            }
 		}
 		catch (MSSelectionError x)
 		{

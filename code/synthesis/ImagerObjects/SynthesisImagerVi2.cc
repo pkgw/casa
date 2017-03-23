@@ -64,6 +64,7 @@
 
 #include <synthesis/MeasurementEquations/ImagerMultiMS.h>
 #include <synthesis/MeasurementEquations/VPManager.h>
+#include <imageanalysis/Utilities/SpectralImageUtil.h>
 #include <msvis/MSVis/MSUtil.h>
 #include <msvis/MSVis/VisSetUtil.h>
 #include <msvis/MSVis/VisImagingWeight.h>
@@ -99,9 +100,9 @@ using namespace std;
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
 
-  SynthesisImagerVi2::SynthesisImagerVi2() : SynthesisImager(), mss_p(0), vi_p(0) {
+  SynthesisImagerVi2::SynthesisImagerVi2() : SynthesisImager(), vi_p(0), fselections_p(nullptr) {
 
-
+    mss_p.resize(0);
   }
 
   SynthesisImagerVi2::~SynthesisImagerVi2(){
@@ -216,6 +217,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     
     ///Channel selection
     {
+      if(!fselections_p) fselections_p=new FrequencySelections();
       Matrix<Int> chanlist = thisSelection.getChanList(mss_p[mss_p.nelements()-1]);
       Matrix<Double> freqList=thisSelection.getChanFreqList(mss_p[mss_p.nelements()-1]);
       //cerr << std::setprecision(12) << "FreqList " << freqList << endl;
@@ -232,15 +234,33 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         ////////////////////////////
         Double lowfreq;
         Double topfreq;
-        MFrequency::Types freqFrame=MFrequency::castType(ROMSColumns(*mss_p[mss_p.nelements()-1]).spectralWindow().measFreqRef()(Int(freqList(0,0))));
+	//cerr << "chanlist " << chanlist << "\n freqlis " << freqList << endl;
+        MFrequency::Types freqFrame=MFrequency::castType(ROMSColumns(*mss_p[mss_p.nelements()-1]).spectralWindow().measFreqRef()(Int(chanlist(0,0))));
         vi::FrequencySelectionUsingFrame channelSelector(freqFrame);
+	///temporary variable as we carry that for tunechunk
+	selFreqFrame_p=freqFrame;
     	  for(uInt k=0; k < nSelections; ++k){
-            lowfreq=freqList(k,1)-freqList(k,3)/2.0;
-            topfreq=freqList(k, 2)+freqList(k,3)/2.0;
-	    //cerr << "Dat lowFreq "<< lowfreq << " topfreq " << topfreq << endl; 
-            channelSelector.add(Int(freqList(k,0)), lowfreq, topfreq);
+	    //The getChanfreqList is wrong for beg and end..going round that too.
+	    Vector<Double> freqies=ROMSColumns(*mss_p[mss_p.nelements()-1]).spectralWindow().chanFreq()(Int(chanlist(k,0)));
+	    Vector<Double> reso=ROMSColumns(*mss_p[mss_p.nelements()-1]).spectralWindow().resolution()(Int(chanlist(k,0)));
+            
+	    if(freqList(k,3) < 0.0){
+	      topfreq=freqies(chanlist(k,1));
+	      lowfreq=freqies(chanlist(k,2));
+	      //lowfreq=freqList(k,2); //+freqList(k,3)/2.0;
+	      //topfreq=freqList(k, 1); //-freqList(k,3)/2.0;
+	    }
+	    else{
+	      lowfreq=freqies(chanlist(k,1));
+	      topfreq=freqies(chanlist(k,2));
+	      //lowfreq=freqList(k,1); //-freqList(k,3)/2.0;
+	      //topfreq=freqList(k, 2); //+freqList(k,3)/2.0;
+	    }
+	    //cerr << std::setprecision(12) << "Dat lowFreq "<< lowfreq << " topfreq " << topfreq << endl; 
+            //channelSelector.add(Int(freqList(k,0)), lowfreq, topfreq);
+	    andFreqSelection(mss_p.nelements()-1, Int(freqList(k,0)), lowfreq, topfreq, freqFrame);
           }
-    	  fselections_p.add(channelSelector);
+    	  //fselections_p->add(channelSelector);
           //////////////////////////////////
       }
       else{
@@ -253,17 +273,18 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     	  Double lowfreq=freq.getValue("Hz");
     	  Quantity::read(freq, selpars.freqend);
     	  Double topfreq=freq.getValue("Hz");
-    	  //cerr << "lowFreq "<< lowfreq << " topfreq " << topfreq << endl;
+    	 
 	  ////Work aroun CAS-8829
 	  if(vi_p) 
 	    VisBufferUtil::getFreqRangeFromRange(lowfreq, topfreq,  selpars.freqframe, lowfreq,  topfreq, *vi_p, freqFrame);
+	  //cerr << "lowFreq "<< lowfreq << " topfreq " << topfreq << endl;
 	  vi::FrequencySelectionUsingFrame channelSelector((vi_p ? freqFrame :selpars.freqframe));
     	  for(uInt k=0; k < nSelections; ++k){
-            lowfreq=freqList(k,1)-freqList(k,3)/2.0;
-            topfreq=freqList(k, 2)+freqList(k,3)/2.0;
-            channelSelector.add(Int(freqList(k,0)), lowfreq, topfreq);
+	    //cerr << "lowFreq "<< lowfreq << " topfreq " << topfreq << endl;
+            //channelSelector.add(Int(freqList(k,0)), lowfreq, topfreq);
+	    andFreqSelection((mss_p.nelements()-1), Int(freqList(k,0)), lowfreq, topfreq, vi_p ?freqFrame : selpars.freqframe);
           }
-    	  fselections_p.add(channelSelector);
+    	  //fselections_p->add(channelSelector);
 
       }
     }
@@ -281,22 +302,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       {    if( thisms.tableDesc().isColumn("DATA") ) { datacol_p = FTMachine::OBSERVED; }
            else { os << LogIO::SEVERE <<"DATA column does not exist" << LogIO::EXCEPTION;}
       }
-    else if( selpars.datacolumn.contains("corr") ) {    
-      if( thisms.tableDesc().isColumn("CORRECTED_DATA") ) { datacol_p = FTMachine::CORRECTED; } 
-      else 
-	{
-	  if( thisms.tableDesc().isColumn("DATA") ) { 
-	    datacol_p = FTMachine::OBSERVED;
-	    os << "CORRECTED_DATA column does not exist. Using DATA column instead" << LogIO::POST; 
-	  }
-	  else { 
-	    os << LogIO::SEVERE <<"Neither CORRECTED_DATA nor DATA columns exist" << LogIO::EXCEPTION;
-	  }
-	}
-	
-      }
-   
-    else { os << LogIO::WARN << "Invalid data column : " << datacol_p << ". Using corrected (or observed if corrected doesn't exist)" << LogIO::POST;  datacol_p = thisms.tableDesc().isColumn("CORRECTED_DATA") ? FTMachine::CORRECTED : FTMachine::OBSERVED; }
+    else if( selpars.datacolumn.contains("corr") ) { datacol_p = FTMachine::CORRECTED; }
+    else { os << LogIO::WARN << "Invalid data column : " << selpars.datacolumn << ". Using corrected (or observed if corrected doesn't exist)" << LogIO::POST;  datacol_p =  FTMachine::CORRECTED;}
+
 
     dataSel_p.resize(dataSel_p.nelements()+1, true);
 
@@ -316,6 +324,90 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
   }
+
+  void SynthesisImagerVi2::andFreqSelection(const Int msId, const Int spwId,  const Double freqBeg, const Double freqEnd, const MFrequency::Types frame){
+    
+   
+    Int key=msId;
+   
+    Bool isDefined=False;
+    FrequencySelectionUsingFrame frameSel(frame);
+    for (uInt k =0; k<freqBegs_p.size(); ++k){ 
+      // cerr <<freqBegs_p[k].first  << " == " << key << " && " << freqSpws_p[k].second<< " == " << spwId << " && " << freqBeg << " < " << freqEnds_p[k].second<< " && " << freqEnd << " > " << freqBegs_p[k].second << endl;
+	if((freqBegs_p[k].first == key || key <0 ) && (freqSpws_p[k].second==spwId || spwId <0)  && (freqBeg < freqEnds_p[k].second) && (freqEnd > freqBegs_p[k].second)){
+	isDefined=True;
+	//cerr << k << " inside freqBegs " << freqBegs_p[k].second << "  " << freqBeg << endl;  
+	if(freqBegs_p[k].second < freqBeg)
+	  freqBegs_p[k].second=freqBeg;
+	if(freqEnds_p[k].second > freqEnd)
+	  freqEnds_p[k].second=freqEnd;
+	if(msId < 0) key=freqBegs_p[k].first;
+	//cerr << "modified " <<  freqBegs_p[k].second << "   "  <<  freqEnds_p[k].second << endl;
+      }
+	//cerr << "added " << k << " freqBegs " << freqBegs_p[k].second << "  " << freqEnds_p[k].second << endl;  
+	frameSel.add(freqSpws_p[k].second ,  freqBegs_p[k].second, freqEnds_p[k].second);
+    }
+    if(!isDefined && msId >=0){
+      //cerr << "undefined " << key << " freqBegs "  << freqBeg << "  " << freqEnd << endl;  
+      freqBegs_p.push_back(make_pair(key, freqBeg));
+      freqEnds_p.push_back(make_pair(key, freqEnd));
+      freqSpws_p.push_back(make_pair(key, spwId));
+      frameSel.add(spwId,  freqBeg, freqEnd);
+    }
+    CountedPtr<vi::FrequencySelections> copyFsels=fselections_p->clone();
+    uInt nMSs=copyFsels->size() <=msId ? msId+1 : copyFsels->size();
+    fselections_p=new FrequencySelections();
+    for (uInt k=0;  k < nMSs ; ++k){
+      if(k==uInt(key)){
+	fselections_p->add(frameSel);
+	//cerr <<"framesel " << frameSel.toString() << endl;
+      }
+      else{
+	const FrequencySelectionUsingFrame& thissel= static_cast<const FrequencySelectionUsingFrame &> (copyFsels->get(k));
+	fselections_p->add(thissel);
+
+      }
+    }
+    
+ 
+
+  }
+
+  void SynthesisImagerVi2::tuneChunk(const Int gmap){
+    
+
+    CoordinateSystem cs=itsMappers.imageStore(gmap)->getCSys();
+    IPosition imshape=itsMappers.imageStore(gmap)->getShape();
+    Double minFreq=SpectralImageUtil::worldFreq(cs, 0.0);
+    Double maxFreq=SpectralImageUtil::worldFreq(cs,imshape(3)-1);
+    if(maxFreq < minFreq){
+      Double tmp=minFreq;
+      minFreq=maxFreq;
+      maxFreq=tmp;
+    }
+    Int spectralIndex=cs.findCoordinate(Coordinate::SPECTRAL);
+    SpectralCoordinate spectralCoord=cs.spectralCoordinate(spectralIndex);
+    MFrequency::Types intype=spectralCoord.frequencySystem(True);
+    VisBufferUtil::getFreqRangeFromRange(minFreq, maxFreq,  intype, minFreq,  maxFreq, *vi_p, selFreqFrame_p);
+    maxFreq+=fabs(spectralCoord.increment()(0))/2.0;
+    minFreq-=fabs(spectralCoord.increment()(0))/2.0;
+    if(minFreq < 0.0) minFreq=0.0;
+    
+    auto copyFreqBegs=freqBegs_p;
+    auto copyFreqEnds=freqEnds_p;
+    auto copyFreqSpws=  freqSpws_p;
+    andFreqSelection(-1, -1, minFreq, maxFreq, selFreqFrame_p);
+    vi_p->setFrequencySelection (*fselections_p);
+
+    freqBegs_p=copyFreqBegs;
+    freqEnds_p=copyFreqEnds;
+    freqSpws_p=copyFreqSpws;
+    
+
+
+
+  }
+
 
 Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars, 
 			   const SynthesisParamsGrid& gridpars)
@@ -456,9 +548,9 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
     				  actualNpix, multiField);
     	  }
     	  else if ((type=="robust")||(type=="uniform")||(type=="briggs")) {
-    		  if(!imageDefined_p) throw(AipsError("Please define image first"));
-    		  Quantity actualFieldOfView(fieldofview);
-    		  Int actualNPixels(npixels);
+   		  if(!imageDefined_p) throw(AipsError("Please define image first"));
+    		  Quantity actualFieldOfView_x(fieldofview), actualFieldOfView_y(fieldofview) ;
+    		  Int actualNPixels_x(npixels),actualNPixels_y(npixels) ;
     		  String wtype;
     		  if(type=="briggs") {
     			  wtype = "Briggs";
@@ -466,40 +558,47 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
     		  else {
     			  wtype = "Uniform";
     		  }
-    		  if(actualFieldOfView.get().getValue()==0.0&&actualNPixels==0) {
-    			  actualNPixels=nx;
-    			  actualFieldOfView=Quantity(actualNPixels*cellx.get("rad").getValue(),
-    					  "rad");
+    		  if(actualFieldOfView_x.get().getValue()==0.0&&actualNPixels_x==0) {
+    			  actualNPixels_x=nx;
+    			  actualFieldOfView_x=Quantity(actualNPixels_x*cellx.get("rad").getValue(),"rad");
+    			  actualNPixels_y=ny;
+    			  actualFieldOfView_y=Quantity(actualNPixels_y*celly.get("rad").getValue(),"rad");
     			  os << LogIO::NORMAL // Loglevel INFO
     					  << wtype
     					  << " weighting: sidelobes will be suppressed over full image"
     					  << LogIO::POST;
     		  }
-    		  else if(actualFieldOfView.get().getValue()>0.0&&actualNPixels==0) {
-    			  actualNPixels=nx;
+    		  else if(actualFieldOfView_x.get().getValue()>0.0&&actualNPixels_x==0) {
+    			  actualNPixels_x=nx;
+    			  actualNPixels_y=ny;
     			  os << LogIO::NORMAL // Loglevel INFO
     					  << wtype
     					  << " weighting: sidelobes will be suppressed over specified field of view: "
-    					  << actualFieldOfView.get("arcsec").getValue() << " arcsec" << LogIO::POST;
+			                  << actualFieldOfView_x.get("arcsec").getValue() << " arcsec by " 
+			                  << actualFieldOfView_y.get("arcsec").getValue()  << " arcsec" << LogIO::POST;
     		  }
-    		  else if(actualFieldOfView.get().getValue()==0.0&&actualNPixels>0) {
-    			  actualFieldOfView=Quantity(actualNPixels*cellx.get("rad").getValue(),
-    					  "rad");
+    		  else if(actualFieldOfView_x.get().getValue()==0.0&&actualNPixels_x>0) {
+    			  actualFieldOfView_x=Quantity(actualNPixels_x*cellx.get("rad").getValue(),"rad");
+    			  actualFieldOfView_y=Quantity(actualNPixels_y*celly.get("rad").getValue(),"rad");
     			  os << LogIO::NORMAL // Loglevel INFO
     					  << wtype
     					  << " weighting: sidelobes will be suppressed over full image field of view: "
-    					  << actualFieldOfView.get("arcsec").getValue() << " arcsec" << LogIO::POST;
+			                  << actualFieldOfView_x.get("arcsec").getValue() << " arcsec by " 
+    					  << actualFieldOfView_y.get("arcsec").getValue() << " arcsec" << LogIO::POST;
     		  }
     		  else {
     			  os << LogIO::NORMAL // Loglevel INFO
     					  << wtype
     					  << " weighting: sidelobes will be suppressed over specified field of view: "
-    					  << actualFieldOfView.get("arcsec").getValue() << " arcsec" << LogIO::POST;
+			                  << actualFieldOfView_x.get("arcsec").getValue() << " arcsec by " 
+    					  << actualFieldOfView_y.get("arcsec").getValue() << " arcsec" << LogIO::POST;
     		  }
     		  os << LogIO::DEBUG1
-    				  << "Weighting used " << actualNPixels << " uv pixels."
-    				  << LogIO::POST;
-    		  Quantity actualCellSize(actualFieldOfView.get("rad").getValue()/actualNPixels, "rad");
+		     << "Weighting used " << actualNPixels_x << " by " << actualNPixels_y << " uv pixels."
+		     << LogIO::POST;
+    		  Quantity actualCellSize_x(actualFieldOfView_x.get("rad").getValue()/actualNPixels_x, "rad");
+    		  Quantity actualCellSize_y(actualFieldOfView_y.get("rad").getValue()/actualNPixels_y, "rad");
+
 
 		  //		  cerr << "rmode " << rmode << " noise " << noise << " robust " << robust << " npixels " << actualNPixels << " cellsize " << actualCellSize << " multifield " << multiField << endl;
 		  //		  Timer timer;
@@ -508,8 +607,8 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 
 
 		  imwgt_p=VisImagingWeight(*vi_p, wtype=="Uniform" ? "none" : rmode, noise, robust,
-                                 actualNPixels, actualNPixels, actualCellSize,
-                                 actualCellSize, 0, 0, multiField);
+                                 actualNPixels_x, actualNPixels_y, actualCellSize_x,
+                                 actualCellSize_y, 0, 0, multiField);
 
 		  /*
 		  if(rvi_p !=NULL){
@@ -770,6 +869,7 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
 			  }
     			}
     			itsMappers.grid(*vb, dopsf, (refim::FTMachine::Type)datacol_p);
+			
 			cohDone += vb->nRows();
 			pm.update(Double(cohDone));
 		    }
@@ -855,7 +955,8 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
 	 os << "Running major cycle for chunk : " << gmap << LogIO::POST;
 
 	 SynthesisUtilMethods::getResource("Start Major Cycle for mapper"+String::toString(gmap));
-
+	 CountedPtr<vi::FrequencySelections> copyFsels=fselections_p->clone();
+	 tuneChunk(gmap);
 	 vi::VisBuffer2* vb=vi_p->getVisBuffer();
 	 vi_p->originChunks();
 	 vi_p->origin();
@@ -929,7 +1030,9 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
 	itsMappers.getMapper(gmap)->imageStore()->releaseComplexGrids();        
 	
 	SynthesisUtilMethods::getResource("End Major Cycle for mapper"+String::toString(gmap));
+	fselections_p=copyFsels;
        }// end of mapper loop
+    vi_p->setFrequencySelection(*fselections_p);
 
     itsMappers.checkOverlappingModels("restore");
 
@@ -1109,7 +1212,7 @@ void SynthesisImagerVi2::unlockMSs()
      Double minW=-1.0;
      Double rmsW=-1.0;
      if(wprojplane <1)
-       casa::WProjectFT::wStat(*rvi_p, minW, maxW, rmsW);
+       casa::refim::WProjectFT::wStat(*vi_p, minW, maxW, rmsW);
     if(facets >1){
       theFT=new refim::WProjectFT(wprojplane,  phaseCenter_p, mLocation_p,
 			   cache/2, tile, useAutocorr, padding, useDoublePrec, minW, maxW, rmsW);
@@ -1454,12 +1557,12 @@ void SynthesisImagerVi2::unlockMSs()
   void SynthesisImagerVi2::createVisSet(const Bool /*writeAccess*/)
   {
     LogIO os( LogOrigin("SynthesisImagerVi2","createVisSet",WHERE) );
-    if(mss_p.nelements() != uInt(fselections_p.size()) && (fselections_p.size() !=0)){
+    if(mss_p.nelements() != uInt(fselections_p->size()) && (fselections_p->size() !=0)){
       throw(AipsError("Discrepancy between Number of MSs and Frequency selections"));
     }
     vi_p=new vi::VisibilityIterator2(mss_p, vi::SortColumns(), true); //writeAccess);
-    if(fselections_p.size() !=0)
-      vi_p->setFrequencySelection (fselections_p);
+    if(fselections_p->size() !=0)
+      vi_p->setFrequencySelection (*fselections_p);
     //
     vi_p->originChunks();
     vi_p->origin();

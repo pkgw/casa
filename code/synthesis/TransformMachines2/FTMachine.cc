@@ -888,7 +888,7 @@ using namespace casa::vi;
       //scale(0)=dc.increment()(0);
       //scale(1)=dc.increment()(1);
       for (uInt irow=0; irow<nrows;++irow) {
-	thisRow.reference(uvw.column(irow));
+	thisRow.assign(uvw.column(irow));
 	//cerr << " uvw " << thisRow ;
 	// This is for frame change
 	uvwMachine_p->convertUVW(dphase(irow), thisRow);
@@ -901,7 +901,11 @@ using namespace casa::vi;
 	//Double pixphase2=(thePix(0)-nx/2.0)*thisRow(0)*scale(0)+(thePix(1)-ny/2.0)*thisRow(1)*scale(1);
 	//cerr << " pixphase " <<  pixphase <<  " pixphase2 " << pixphase2<< endl;
 	//dphase(irow)=pixphase;
-	dphase(irow)+= rotphase(0)*thisRow(0)+rotphase(1)*thisRow(1);
+	RotMatrix rotMat=phaseShifter_p->rotationUVW();
+	uvw.column(irow)(0)=thisRow(0)*rotMat(0,0)+thisRow(1)*rotMat(1,0);
+	uvw.column(irow)(1)=thisRow(1)*rotMat(1,1)+thisRow(0)*rotMat(0,1);
+	uvw.column(irow)(2)=thisRow(0)*rotMat(0,2)+thisRow(1)*rotMat(1,2)+thisRow(2)*rotMat(2,2);
+	dphase(irow)+= rotphase(0)*uvw.column(irow)(0)+rotphase(1)*uvw.column(irow)(1);
       }
 	
       
@@ -2037,10 +2041,10 @@ using namespace casa::vi;
 	Matrix<Float> sumWeightStokes( (imstore->sumwt())->shape()[2], (imstore->sumwt())->shape()[3]   );
 	StokesImageUtil::ToStokesSumWt( sumWeightStokes, sumWeights );
 
-	AlwaysAssert( ( (imstore->sumwt())->shape()[2] == sumWeights.shape()[0] ) && 
-		      ((imstore->sumwt())->shape()[3] == sumWeights.shape()[1] ) , AipsError );
+	AlwaysAssert( ( (imstore->sumwt())->shape()[2] == sumWeightStokes.shape()[0] ) && 
+		      ((imstore->sumwt())->shape()[3] == sumWeightStokes.shape()[1] ) , AipsError );
 
-	(imstore->sumwt())->put( sumWeights.reform((imstore->sumwt())->shape()) );
+	(imstore->sumwt())->put( sumWeightStokes.reform((imstore->sumwt())->shape()) );
 	
       }
     //------------------------------------------------------------------------------------

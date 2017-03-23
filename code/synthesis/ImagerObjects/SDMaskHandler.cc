@@ -1402,7 +1402,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       else {
         chindx(1) = ich;
       }
-      sidelobeThreshold = sidelobeLevel * sidelobeThresholdFactor * (Float)maxs(chindx); 
+      
+      //sidelobeThreshold = sidelobeLevel * sidelobeThresholdFactor * (Float)maxs(chindx); 
+      // add a factor modification in the case of high sidelobe level
+      Float modfactor = min(sidelobeThresholdFactor*sidelobeLevel, 0.5*(sidelobeLevel+1.0));
+      if (modfactor != sidelobeThresholdFactor*sidelobeLevel) os<<LogIO::NORMAL<<" sidelobethreshld*sidelobeLevel ="<<sidelobeThresholdFactor*sidelobeLevel<<" appears to be high for automasking, adjusting this factor to "<<modfactor<<LogIO::POST;
+      sidelobeThreshold = modfactor * (Float)maxs(chindx); 
       noiseThreshold = noiseThresholdFactor * (Float)resRmss(chindx);
       lowNoiseThreshold = lowNoiseThresholdFactor * (Float)resRmss(chindx); 
       maskThreshold(ich) = max(sidelobeThreshold, noiseThreshold);
@@ -1414,9 +1419,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
     // Below corresponds to createThresholdMask in Amanda's Python code.
-    // branch out if just need to grow mask, obviously no 'grow' mask for the beginning of the first iteration
-    // but how should detect if it is the first iteration... the original python prototype code has
-    // a seperate createThresholdMask... save a state in iterBot or get ncycle info from there?
     LatticeExpr<Float> themask; 
     if (minBeamFrac > 0.0 ) {
         // do pruning...
@@ -1529,7 +1531,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
        Int niter=100; 
        if(debug2) {
          PagedImage<Float> beforeBinaryDilationIm(res.shape(), res.coordinates(),"tmpBeforeBinaryDilation-"+String::toString(iterdone)+".im");
-         beforeBinaryDilationIm.copyData(constraintMaskImage);
+         //beforeBinaryDilationIm.copyData(constraintMaskImage);
+         beforeBinaryDilationIm.copyData(mask);
        }
        binaryDilation(mask, se, niter, constraintMask, dogrow, prevmask); 
        if(debug2) {
@@ -1555,6 +1558,20 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     PagedImage<Float> tempthemask(TiledShape(tempIm_ptr.get()->shape()), tempIm_ptr.get()->coordinates(),"tempthemask.Im");
     tempthemask.copyData(themask);
     ***/
+    // In the initial iteration, if no mask is created (all spectral planes) by automask it will fall back to full clean mask
+    if (!iterdone) {
+      Array<Float> maskdata; 
+      IPosition maskshape = thenewmask.shape();
+      Int naxis = maskshape.size();
+      IPosition blc(naxis,0);
+      IPosition trc=maskshape-1;
+      Slicer sl(blc,trc,Slicer::endIsLast);
+      thenewmask.doGetSlice(maskdata,sl);
+      if (sum(maskdata)==0.0) {
+         mask.set(1);
+         os<<LogIO::WARN<<"No mask was created by automask, set a clean mask to the entire image."<<LogIO::POST;
+      }
+    }
     if (res.hasPixelMask()) {
       LatticeExpr<Bool>  pixmask(res.pixelMask()); 
       //mask.copyData( (LatticeExpr<Float>)( iif((mask + thenewmask) > 0.0 && pixmask, 1.0, 0.0  ) ) );

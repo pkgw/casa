@@ -1697,6 +1697,7 @@ class simutil:
         Transverse Mercator Projection
         conversion of grid coords n,e to geodetic coords
         revised subroutine of t. vincenty  feb. 25, 1985
+        orig. source: https://www.ngs.noaa.gov/TOOLS/program_descriptions.html
         converted from Fortran R Indebetouw Jan 2009
         ********** symbols and definitions ***********************
         latitude positive north, longitude positive west.
@@ -1918,6 +1919,7 @@ class simutil:
         longitude and latitude (in radians)
 
         converted from Fortran by R. Indebetouw Jan 2009.
+        orig. source: https://www.ngs.noaa.gov/TOOLS/program_descriptions.html
         ri also added other datums and ellipsoids in a helper function
         
         header from original UTMS fortran program:
@@ -2073,6 +2075,7 @@ class simutil:
         The ITRF frame used is not the official ITRF, just a right
         handed Cartesian system with X going through 0 latitude and 0 longitude,
         and Z going through the north pole.  
+        orig. source: http://www.oc.nps.edu/oc2902w/coord/llhxyz.htm
         """
 
         # geodesy/NGS/XYZWIN/
@@ -2104,6 +2107,7 @@ class simutil:
         Elevation is measured relative to the closest point to 
         the (latitude, longitude) on the WGS84 reference
         ellipsoid.
+        orig. source: http://www.iausofa.org/2013_1202_C/sofa/gc2gde.html
         """
         # http://www.iausofa.org/
         # http://www.iausofa.org/2013_1202_C/sofa/gc2gde.html
@@ -2620,7 +2624,7 @@ class simutil:
         # we've now found or assigned two direction axes, and changed direction and cell if required
         # next, work on spectral axis:
 
-        model_center=""
+        model_specrefval=""
         model_width=""
         # look for a spectral axis:
         if in_spc['return']:
@@ -2635,16 +2639,12 @@ class simutil:
             axmap[3]=foo
             axassigned[foo]=3
             model_restfreq=in_csys.restfrequency()
-            in_startpix=in_csys.referencepixel(type="spectral")['numeric'][0]
-            model_width=in_csys.increment(type="spectral")['numeric'][0]
-            model_start=in_csys.referencevalue(type="spectral")['numeric'][0]-in_startpix*model_width
-            # this maybe can be done more accurately - for nonregular
-            # grids it may trip things up
-            # start is center of first channel.  for nch=1, that equals center
-            model_center=model_start+0.5*(model_nchan-1)*model_width
-            model_width=str(model_width)+in_csys.units(type="spectral")[0]
-            model_start=str(model_start)+in_csys.units(type="spectral")[0]
-            model_center=str(model_center)+in_csys.units(type="spectral")[0]
+            model_specrefpix=in_csys.referencepixel(type="spectral")['numeric'][0]
+            model_width     =in_csys.increment(type="spectral")['numeric'][0]
+            model_specrefval=in_csys.referencevalue(type="spectral")['numeric'][0]
+            # make quantities
+            model_width=qa.quantity(model_width,in_csys.units(type="spectral")[0])
+            model_specrefval=qa.quantity(model_specrefval,in_csys.units(type="spectral")[0])
             add_spectral_coord=False
             if self.verbose: self.msg("Spectral Coordinate %i parsed" % axmap[3],origin="setup model")                
         else:
@@ -2652,21 +2652,40 @@ class simutil:
             add_spectral_coord=True 
 
 
-        # override incenter?
-        center_replaced=False
+        if add_spectral_coord:                        
+            # find first unused axis - probably at end, but just in case its not:
+            i=0
+            extra_axis=-1
+            while extra_axis<0 and i<4:
+                if axassigned[i]<0: extra_axis=i
+                i+=1
+            if extra_axis<0:
+                in_ia.close()
+                self.msg("I can't find an unused axis to make Spectral [%i %i %i %i] " % (axassigned[0],axassigned[1],axassigned[2],axassigned[3]),priority="error",origin="setup model")
+                return False
+
+            axmap[3]=extra_axis
+            axassigned[extra_axis]=3
+            model_nchan=arr.shape[extra_axis]
+
+
+
+        # override specrefval?
+        specref_replaced=False
         if self.isquantity(incenter,halt=False):
             if qa.compare(incenter,"1Hz"): 
                 if (qa.quantity(incenter))['value']>=0:
-                    model_center=incenter
-                    model_restfreq=model_center
-                    center_replaced=True
+                    model_specrefval=incenter
+                    model_specrefpix=pl.floor(model_nchan*0.5)
+                    model_restfreq=incenter
+                    specref_replaced=True
                     if self.verbose: self.msg("setting central frequency to "+incenter,origin="setup model")
-        valid_modcenter=False
-        if not center_replaced:
-            if self.isquantity(model_center,halt=False):
-                if qa.compare(model_center,"1Hz"):
-                    valid_modcenter=True
-            if not valid_modcenter:
+        valid_modspec=False
+        if not specref_replaced:
+            if self.isquantity(model_specrefval,halt=False):
+                if qa.compare(model_specrefval,"1Hz"):
+                    valid_modspec=True
+            if not valid_modspec:
                 in_ia.close()
                 self.msg("Unable to determine model frequency.  Valid 'incenter' parameter must be provided.",priority="error")
                 return False
@@ -2721,23 +2740,6 @@ class simutil:
             # need to add one to the coordsys 
             add_stokes_coord=True 
 
-
-
-        if add_spectral_coord:                        
-            # find first unused axis - probably at end, but just in case its not:
-            i=0
-            extra_axis=-1
-            while extra_axis<0 and i<4:
-                if axassigned[i]<0: extra_axis=i
-                i+=1
-            if extra_axis<0:
-                in_ia.close()
-                self.msg("I can't find an unused axis to make Spectral [%i %i %i %i] " % (axassigned[0],axassigned[1],axassigned[2],axassigned[3]),priority="error",origin="setup model")
-                return False
-
-            axmap[3]=extra_axis
-            axassigned[extra_axis]=3
-            model_nchan=arr.shape[extra_axis]
 
 
         if add_stokes_coord:
@@ -2807,12 +2809,11 @@ class simutil:
         modelcsys.setreferencepixel(model_refpix,"direction")
         if self.verbose: 
             self.msg("sky model image direction = "+model_refdir,origin="setup model")
-            self.msg("sky model image increment = "+str(model_cell),origin="setup model")
+            self.msg("sky model image increment = "+str(model_cell[0]),origin="setup model")
 
         modelcsys.setspectral(refcode="LSRK",restfreq=model_restfreq)
-        modelcsys.setreferencevalue(qa.convert(model_center,modelcsys.units()[3])['value'],type="spectral")
-#        modelcsys.setreferencepixel(0.5*model_nchan,type="spectral") # default is middle chan
-        modelcsys.setreferencepixel(0.5*(model_nchan-1),type="spectral") # but not half-pixel
+        modelcsys.setreferencevalue(qa.convert(model_specrefval,modelcsys.units()[3])['value'],type="spectral")
+        modelcsys.setreferencepixel(model_specrefpix,type="spectral") # but not half-pixel
         modelcsys.setincrement(qa.convert(model_width,modelcsys.units()[3])['value'],type="spectral")
 
 
@@ -2881,7 +2882,7 @@ class simutil:
 
         if self.verbose: self.msg(" ") # add a line after my spewage
 
-        return model_refdir,model_cell,model_size,model_nchan,model_center,model_width,model_stokes
+        return model_refdir,model_cell,model_size,model_nchan,model_specrefval,model_specrefpix,model_width,model_stokes
 
 
 

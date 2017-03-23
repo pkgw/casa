@@ -71,14 +71,22 @@ SPIIF StatImageCreator::compute() {
     const auto yshape = imshape[_dirAxes[1]];
     const auto& csys = subImage->coordinates();
     auto anchorPixel = csys.toPixel(_anchor);
-    Int xanchor = rint(anchorPixel[_dirAxes[0]]);
-    Int yanchor = rint(anchorPixel[_dirAxes[1]]);
-    String rStr;
     TempImage<Float> output(imshape, csys);
     output.set(0);
     if (_doMask) {
         output.attachMask(ArrayLattice<Bool>(imshape));
         output.pixelMask().set(True);
+    }
+    Int xanchor = rint(anchorPixel[_dirAxes[0]]);
+    Int yanchor = rint(anchorPixel[_dirAxes[1]]);
+    // ensure xanchor and yanchor are positive
+    if (xanchor < 0) {
+        // ugh, mod of a negative number in C++ doesn't do what I want it to
+        // integer division
+        xanchor += (abs(xanchor)/_grid.first + 1)*_grid.first;
+    }
+    if (yanchor < 0) {
+        yanchor += (abs(yanchor)/_grid.second + 1)*_grid.second;
     }
     // xstart and ystart are the pixel location in the
     // subimage of the lower left corner of the grid,
