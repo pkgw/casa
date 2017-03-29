@@ -19,6 +19,14 @@
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include <numpy/arrayobject.h>
 
+#if PY_MAJOR_VERSION >= 3
+# define PYTEXT_CHECK PyUnicode_Check
+# define PYTEXT_ASDATA PyUnicode_AsUTF8
+#else
+# define PYTEXT_CHECK PyString_Check
+# define PYTEXT_ASDATA PyString_AsString
+#endif
+
 using casac::record;
 using casac::variant;
 using namespace casac;
@@ -26,7 +34,7 @@ using namespace casac;
 %}
 
 %typemap(in) long long {
-  if(!(PyString_Check($input) || PyFloat_Check($input) || PyDict_Check($input) || PyList_Check($input))){
+  if(!(PYTEXT_CHECK($input) || PyFloat_Check($input) || PyDict_Check($input) || PyList_Check($input))){
      $1 = PyInt_AsLong($input);
   } else {
      cerr << "Failed here " << $input->ob_type->tp_name << endl;
@@ -35,7 +43,7 @@ using namespace casac;
   }
 }
 %typemap(in) long {
-  if(!(PyString_Check($input) || PyFloat_Check($input) || PyDict_Check($input) || PyList_Check($input))){
+  if(!(PYTEXT_CHECK($input) || PyFloat_Check($input) || PyDict_Check($input) || PyList_Check($input))){
      $1 = PyInt_AsLong($input);
   } else {
      cerr << "Failed here " << $input->ob_type->tp_name << endl;
@@ -45,7 +53,7 @@ using namespace casac;
 }
 
 %typemap(in) int {
-  if(!(PyString_Check($input) || PyFloat_Check($input) || PyDict_Check($input) || PyList_Check($input))){
+  if(!(PYTEXT_CHECK($input) || PyFloat_Check($input) || PyDict_Check($input) || PyList_Check($input))){
      $1 = PyInt_AsLong($input);
   } else {
      cerr << "Failed here " << $input->ob_type->tp_name << endl;
@@ -63,8 +71,8 @@ using namespace casac;
 }
 
 %typemap(in) string {
-   if(PyString_Check($input)){
-      $1 = string(PyString_AsString($input));
+   if(PYTEXT_CHECK($input)){
+      $1 = string(PYTEXT_ASDATA($input));
    } else {
       // Can't throw an exception here as it's not in a try catch block
       //
@@ -74,17 +82,17 @@ using namespace casac;
    }
 }
 %typemap(typecheck) string {
-   $1 = PyString_Check($input);
+   $1 = PYTEXT_CHECK($input);
 }
 %typemap(in) string& (std::unique_ptr<string> deleter) {
-   if(PyString_Check($input)){
+   if(PYTEXT_CHECK($input)){
        if(!$1){
 	  
-	   deleter.reset (new string(PyString_AsString($input)));
+	   deleter.reset (new string(PYTEXT_ASDATA($input)));
 	   $1 = deleter.get();
 
        } else {
-        *$1 = string(PyString_AsString($input));
+        *$1 = string(PYTEXT_ASDATA($input));
        }
    } else {
         PyErr_SetString(PyExc_TypeError,"argument $1_name must be a string");
@@ -93,15 +101,15 @@ using namespace casac;
 }
 
 %typemap(typecheck) string& {
-   $1 = PyString_Check($input);
+   $1 = PYTEXT_CHECK($input);
 }
 %typemap(in) const string& (std::unique_ptr<string> deleter){
-   if(PyString_Check($input)){
+   if(PYTEXT_CHECK($input)){
        if(!$1){
-	   deleter.reset (new string(PyString_AsString($input)));
+	   deleter.reset (new string(PYTEXT_ASDATA($input)));
 	   $1 = deleter.get();
        }else {
-	   *$1 = string(PyString_AsString($input));
+	   *$1 = string(PYTEXT_ASDATA($input));
        }
    } else {
         PyErr_SetString(PyExc_TypeError,"argument $1_name must be a string");
@@ -109,7 +117,7 @@ using namespace casac;
    }
 }
 %typemap(typecheck) const string& {
-   $1 = PyString_Check($input);
+   $1 = PYTEXT_CHECK($input);
 }
 
 %typemap(feeearg) const string& columnname{
@@ -124,16 +132,16 @@ if($1){
     Py_ssize_t size = PyList_Size($input);
     for (Py_ssize_t i = 0; i < size; i++) {
       PyObject *o = PyList_GetItem($input,i);
-      if (PyString_Check(o))
-        $1.value.push_back(PyString_AsString(PyList_GetItem($input,i)));
+      if (PYTEXT_CHECK(o))
+        $1.value.push_back(PYTEXT_ASDATA(PyList_GetItem($input,i)));
       else {
         PyErr_SetString(PyExc_TypeError,"list $1_name must contain strings");
         return NULL;
       }
     }
   } else {
-    if(PyString_Check($input)){
-       $1.value.push_back(PyString_AsString($input));
+    if(PYTEXT_CHECK($input)){
+       $1.value.push_back(PYTEXT_ASDATA($input));
     } else {
        PyErr_SetString(PyExc_TypeError,"$1_name is not a list");
        return NULL;
@@ -151,26 +159,26 @@ if($1){
     }
     for (Py_ssize_t i = 0; i < size; i++) {
       PyObject *o = PyList_GetItem($input,i);
-      if (PyString_Check(o))
+      if (PYTEXT_CHECK(o))
         if(i < (Py_ssize_t)($1->size()))
-          (*$1)[i] = PyString_AsString(PyList_GetItem($input,i));
+          (*$1)[i] = PYTEXT_ASDATA(PyList_GetItem($input,i));
         else
-          $1->push_back(PyString_AsString(PyList_GetItem($input,i)));
+          $1->push_back(PYTEXT_ASDATA(PyList_GetItem($input,i)));
       else {
         PyErr_SetString(PyExc_TypeError,"list $1_name must contain strings");
         return NULL;
       }
     }
   } else {
-    if(PyString_Check($input)){
+    if(PYTEXT_CHECK($input)){
 	if(!$1){
 	    deleter.reset (new std::vector<std::string>(1));
 	    $1 = deleter.get();
 	}
        if(!$1->size())
-         $1->push_back(PyString_AsString($input));
+         $1->push_back(PYTEXT_ASDATA($input));
        else
-          (*$1)[0] = PyString_AsString($input);
+          (*$1)[0] = PYTEXT_ASDATA($input);
     } else {
        PyErr_SetString(PyExc_TypeError,"$1_name is not a list");
        return NULL;
@@ -239,7 +247,7 @@ if($1){
          if(casac::pyarray_check(theVal)){
             casac::numpy2vector((PyArrayObject*)theVal, myVals, shape);
          } else {
-             if (PyString_Check(theVal)){
+             if (PYTEXT_CHECK(theVal)){
                 myVals.push_back(-1);
              } else if (PyInt_Check(theVal)){
                 myVals.push_back(double(PyInt_AsLong(theVal)));
@@ -252,10 +260,10 @@ if($1){
                 casac::pylist2vector(theVal,  myVals, shape);
              }
          }
-         $1 = Quantity(myVals, PyString_AsString(theUnits));
+         $1 = Quantity(myVals, PYTEXT_ASDATA(theUnits));
       }
-   } else if (PyString_Check($input)) {
-        std::string inpstring(PyString_AsString($input));
+   } else if (PYTEXT_CHECK($input)) {
+        std::string inpstring(PYTEXT_ASDATA($input));
         double val;
         std::string units;
         istringstream iss(inpstring);
@@ -278,7 +286,7 @@ if($1){
          if(casac::pyarray_check(theVal)){
             casac::numpy2vector((PyArrayObject*)theVal, myVals, shape);
          } else {
-             if (PyString_Check(theVal)){
+             if (PYTEXT_CHECK(theVal)){
                 myVals.push_back(-1);
              } else if (PyInt_Check(theVal)){
                 myVals.push_back(double(PyInt_AsLong(theVal)));
@@ -291,10 +299,10 @@ if($1){
                 casac::pylist2vector(theVal,  myVals, shape);
              }
          }
-         $1 = new Quantity(myVals,PyString_AsString(theUnits));
+         $1 = new Quantity(myVals,PYTEXT_ASDATA(theUnits));
       }
-   } else if (PyString_Check($input)) {
-        std::string inpstring(PyString_AsString($input));
+   } else if (PYTEXT_CHECK($input)) {
+        std::string inpstring(PYTEXT_ASDATA($input));
         double val;
         std::string units;
         istringstream iss(inpstring);
@@ -318,7 +326,7 @@ if($1){
          if(casac::pyarray_check(theVal)){
             casac::numpy2vector((PyArrayObject*)theVal, myVals, shape);
          } else {
-             if (PyString_Check(theVal)){
+             if (PYTEXT_CHECK(theVal)){
                 myVals.push_back(-1);
              } else if (PyInt_Check(theVal)){
                 myVals.push_back(double(PyInt_AsLong(theVal)));
@@ -331,12 +339,12 @@ if($1){
                 casac::pylist2vector(theVal,  myVals, shape);
              }
          }
-	 deleter.reset (new Quantity(myVals, PyString_AsString(theUnits)));
+	 deleter.reset (new Quantity(myVals, PYTEXT_ASDATA(theUnits)));
          $1 = deleter.get();
       }
-   } else if (PyString_Check($input)) {
+   } else if (PYTEXT_CHECK($input)) {
         std::vector<double> myVals;
-        std::string inpstring(PyString_AsString($input));
+        std::string inpstring(PYTEXT_ASDATA($input));
         double val;
         std::string units;
         istringstream iss(inpstring);
@@ -471,7 +479,7 @@ if($1){
       //cerr << "numpy2vec" << endl;
       casac::numpy2vector((PyArrayObject*)$input, *$1, shape);
    } else {
-       if (PyString_Check($input)){
+       if (PYTEXT_CHECK($input)){
           $1->push_back(-1);
        } else if (PyInt_Check($input)){
           $1->push_back(double(PyInt_AsLong($input)));
@@ -498,7 +506,7 @@ if($1){
    if(casac::pyarray_check($input)){
       casac::numpy2vector((PyArrayObject*)$input, *$1, shape);
    } else {
-      if (PyString_Check($input)){
+      if (PYTEXT_CHECK($input)){
          $1->push_back(0);
          PyErr_SetString(PyExc_TypeError,"argument $1_name must be a string");
          return NULL;
@@ -530,7 +538,7 @@ if($1){
    if(casac::pyarray_check($input)){
       casac::numpy2vector((PyArrayObject*)$input, *$1, shape);
    } else {
-      if (PyString_Check($input)){
+      if (PYTEXT_CHECK($input)){
          $1->push_back(-1);
          PyErr_SetString(PyExc_TypeError,"argument $1_name must not be a string");
          return NULL;
@@ -559,7 +567,7 @@ if($1){
    if(casac::pyarray_check($input)){
       casac::numpy2vector((PyArrayObject*)$input, *$1, shape);
    } else {
-      if (PyString_Check($input)){
+      if (PYTEXT_CHECK($input)){
          $1->push_back(-1);
          PyErr_SetString(PyExc_TypeError,"argument $1_name must not be a string");
          return NULL;
@@ -589,7 +597,7 @@ if($1){
    if(casac::pyarray_check($input)){
       casac::numpy2vector((PyArrayObject*)$input, *$1, shape);
    } else {
-      if (PyString_Check($input)){
+      if (PYTEXT_CHECK($input)){
          $1->push_back(-1);
          PyErr_SetString(PyExc_TypeError,"argument $1_name must not be a string");
          return NULL;
