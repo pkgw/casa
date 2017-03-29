@@ -1308,7 +1308,7 @@ TEST_F(PolAverageTVITest, StokesAverage) {
 
 TEST_F(PolAverageTVITest, SpectralWeightTest) {
   // add SIGMA_SPECTRUM and WEIGHT_SPECTRUM columns and
-  // initialize them by Nyquist value.
+  // initialize them using EXPOSURE value.
   initWeights(ms_);
   ASSERT_TRUE(ms_->tableDesc().isColumn("WEIGHT_SPECTRUM"));
   ASSERT_TRUE(ms_->tableDesc().isColumn("SIGMA_SPECTRUM"));
