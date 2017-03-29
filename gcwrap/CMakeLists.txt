@@ -927,7 +927,7 @@ endif()
 if( NOT PYTHON_FOUND )
 
   if ( NOT PYTHON_LIBNAME )
-    set( _names 3.5m 3.4m 2.7 )
+    set( _names 3.6m 3.5m 3.4m 2.7 )
   else()
     set( _names ${PYTHON_LIBNAME} )
   endif()
