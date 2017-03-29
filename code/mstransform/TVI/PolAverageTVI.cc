@@ -383,11 +383,17 @@ void PolAverageTVI::jonesC(Vector<SquareMatrix<Complex, 2> > &cjones) const {
 }
 
 void PolAverageTVI::sigma(Matrix<Float> & sigmat) const {
-  if (doTransform_[dataDescriptionId()]) {
-    weight(sigmat);
-    arrayTransformInPlace(sigmat, ::weight2Sigma);
+  if (weightSpectrumExists()) {
+    Cube<Float> const &sigmaSp = getVisBufferConst()->sigmaSpectrum();
+    Cube<Bool> const &flag = getVisBufferConst()->flagCube();
+    accumulateWeightCube(sigmaSp, flag, sigmat);
   } else {
-    getVii()->sigma(sigmat);
+    if (doTransform_[dataDescriptionId()]) {
+      weight(sigmat);
+      arrayTransformInPlace(sigmat, ::weight2Sigma);
+    } else {
+      getVii()->sigma(sigmat);
+    }
   }
 }
 
@@ -465,12 +471,18 @@ IPosition PolAverageTVI::visibilityShape() const {
 }
 
 void PolAverageTVI::weight(Matrix<Float> & wtmat) const {
-  Matrix<Float> wtmatOrg;
-  getVii()->weight(wtmatOrg);
-  if (doTransform_[dataDescriptionId()]) {
-    transformWeight(wtmatOrg, wtmat);
+  if (weightSpectrumExists()) {
+    Cube<Float> const &weightSp = getVisBufferConst()->weightSpectrum();
+    Cube<Bool> const &flag = getVisBufferConst()->flagCube();
+    accumulateWeightCube(weightSp, flag, wtmat);
   } else {
-    wtmat.reference(wtmatOrg);
+    Matrix<Float> wtmatOrg;
+    getVii()->weight(wtmatOrg);
+    if (doTransform_[dataDescriptionId()]) {
+      transformWeight(wtmatOrg, wtmat);
+    } else {
+      wtmat.reference(wtmatOrg);
+    }
   }
 }
 
