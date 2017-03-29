@@ -6775,6 +6775,7 @@ gcwrap/python/scripts/tests/test_vpmanager.py -text
 gcwrap/python/scripts/tests/test_wvrgcal.py -text
 gcwrap/python/scripts/tests/testutils.py -text
 gcwrap/python/scripts/tests/unittests_list.txt -text
+gcwrap/python/scripts/tf.py -text
 gcwrap/python/scripts/tget.py -text
 gcwrap/python/scripts/update_spw.py -text
 gcwrap/python/scripts/usecases/CMakeLists.txt -text
