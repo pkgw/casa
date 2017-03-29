@@ -20,24 +20,6 @@
 %feature("kwargs");
 %feature("autodoc", "0");
 </xsl:text>
-<xsl:for-each select="aps:method">
-   <xsl:if test="lower-case(@type)!='constructor'">
-      <xsl:apply-templates select="aps:output"/>
-      <xsl:text disable-output-escaping="yes">%feature("docstring", " </xsl:text>
-      <xsl:apply-templates select="aps:shortdescription"/>
-      <xsl:apply-templates select="aps:description"/>
-      <xsl:if test="count(aps:input/aps:param)">
-         <xsl:call-template name="iparaminfo"/>
-      </xsl:if>
-      <xsl:if test="count(aps:output/aps:param)">
-         <xsl:call-template name="oparaminfo"/>
-      </xsl:if>
-      <xsl:apply-templates select="aps:example"/>
-      <xsl:text>
---------------------------------------------------------------------------------
-	      ") </xsl:text><xsl:value-of select="@name"/>;
-   </xsl:if>
-</xsl:for-each>
 <xsl:text disable-output-escaping="yes">
 %exception {
    try {
