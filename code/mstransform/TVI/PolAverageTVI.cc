@@ -36,6 +36,8 @@
 #include <msvis/MSVis/VisBufferComponents2.h>
 #include <msvis/MSVis/VisibilityIteratorImpl2.h>
 
+#include <mstransform/TVI/UtilsTVI.h>
+
 using namespace casacore;
 
 namespace {
@@ -334,6 +336,11 @@ void PolAverageTVI::corrType(Vector<Int> & corrTypes) const {
   } else {
     getVii()->corrType(corrTypes);
   }
+}
+
+void PolAverageTVI::flagRow(Vector<Bool> & rowflags) const {
+  Cube<Bool> const &flags = getVisBufferConst()->flagCube();
+  accumulateFlagCube(flags, rowflags);
 }
 
 void PolAverageTVI::flag(Cube<Bool> & flags) const {
