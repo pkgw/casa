@@ -52,7 +52,7 @@ add_dependencies( tools_python_casadef tools_definitions )
 
 add_dependencies( inst tools_python_casadef )
 add_dependencies( tools_fast tools_python_casadef )
-install( PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/casadef.py DESTINATION lib/python${PYTHONV} )
+install( PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/casadef.py DESTINATION ${PYTHON_LIBD} )
 
 if( MPI_CXX_FOUND )
   set( tools_DEFINITIONS ${tools_DEFINITIONS}
@@ -196,7 +196,7 @@ foreach(_tool ${tools_swig} )
    add_dependencies( _${_base} libtools)
    add_dependencies( inst  _${_base} )
    install( TARGETS _${_base}
-	            DESTINATION lib/python${PYTHONV}/__casac__ )
+	            DESTINATION ${PYTHON_LIBD}/__casac__ )
 endforeach()
 
 add_dependencies( inst  libtools generated_sources generated_py )
@@ -206,6 +206,6 @@ add_dependencies( libtools_fast  generated_sources )
 foreach(_tool ${tools_py} )
    get_filename_component( _base ${_tool} NAME_WE )
    install( FILES ${CMAKE_CURRENT_BINARY_DIR}/${_base}.py
-	               DESTINATION lib/python${PYTHONV}/__casac__ )
+	               DESTINATION ${PYTHON_LIBD}/__casac__ )
 endforeach()
 

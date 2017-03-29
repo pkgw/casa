@@ -1332,8 +1332,11 @@ casa_config_end()
 #
 # The following variables are substitued into python scripts
 #
-set( PYTHON_LIBD ${CMAKE_INSTALL_PREFIX}/python/${PYTHONV} )
-set( PYTHON_TASKD ${PYTHON_LIBD} )
+# XXX: we are injecting the assumption that the `python` in $PATH is
+# the one we want.
+execute_process(COMMAND python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())" OUTPUT_VARIABLE PYTHON_LIBD)
+STRING(STRIP "${PYTHON_LIBD}" PYTHON_LIBD)
+set( PYTHON_TASKD "${PYTHON_LIBD}/casa_tasks" )
 #
 # allow user to override contents of casadef.py (needed for linux rpms)
 #
@@ -1444,6 +1447,6 @@ install( FILES
          install/casa2tlatex.xsl
          install/casa2tsum.xsl
          install/casatlist.xsl
-         DESTINATION ${CMAKE_INSTALL_PREFIX}/xml )
+         DESTINATION share/casa-python/xml )
 
 install( FILES install/saxon8.jar DESTINATION lib )
