@@ -501,6 +501,10 @@ else()
     message( WARNING "Unsupported system: ${CMAKE_SYSTEM_NAME}" )
 endif()
 
+if(CASA_PACKAGES)
+  set( casa_packages "${CASA_PACKAGES}" )
+endif()
+
 set( CMAKE_MODULE_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS} )
 
 if( NOT CMAKE_CXX_FLAGS )
