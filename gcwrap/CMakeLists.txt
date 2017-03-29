@@ -961,7 +961,8 @@ if( NOT PYTHON_LIBNAME )
   message( FATAL_ERROR "The variable PYTHON_LIBNAME is undefined. Most likely, CMake's cache is out of date and you need to redetect your PYTHON installation (\"cmake -U PYTHON*\")")
 endif()
 
-set( PYTHONV "${PYTHON_LIBNAME}" )
+# PYTHON_LIBNAME might be "3.6m" ; PYTHONV might be "3.6"; PV might be "36"
+string( REGEX REPLACE "m$" "" PYTHONV "${PYTHON_LIBNAME}" )
 string( REPLACE "." "" PV ${PYTHONV} )
 set( python_library python${PYTHON_LIBNAME} )
 
@@ -1004,7 +1005,7 @@ casa_find( PYTHON
   VERSION 2.5    # minimum required
   INCLUDES Python.h
      numpy/npy_interrupt.h   # for numpy
-  INCLUDES_SUFFIXES python${PYTHONV}
+  INCLUDES_SUFFIXES python${PYTHON_LIBNAME}
   PREFIX_HINTS
      ${NUMPY_ROOT_DIR}
      ${python_prefix}/lib/python${PYTHONV}/site-packages/numpy/core
