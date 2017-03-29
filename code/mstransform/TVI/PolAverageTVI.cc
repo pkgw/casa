@@ -276,6 +276,9 @@ namespace vi { //# NAMESPACE VI - BEGIN
 PolAverageTVI::PolAverageTVI(ViImplementation2 *inputVII) :
     TransformingVi2(inputVII) {
   configurePolAverage();
+
+  // Initialize attached VisBuffer
+  setVisBuffer(createAttachedVisBuffer(VbPlain, VbRekeyable));
 }
 
 PolAverageTVI::~PolAverageTVI() {
@@ -314,7 +317,7 @@ void PolAverageTVI::warnIfNoTransform() {
     String msg("Skip polarization average because");
     if (vb->nCorrelations() == 1) {
       msg += " number of polarizations is 1.";
-    } else if (anyEQ(vb->correlationTypes(), (Int)Stokes::I)) {
+    } else if (anyEQ(vb->correlationTypes(), (Int) Stokes::I)) {
       msg += " polarization type is Stokes.";
     } else {
       msg += " no valid polarization components are found.";
@@ -682,15 +685,14 @@ ViImplementation2 * PolAverageVi2Factory::createVi() const {
   return nullptr;
 }
 
-PolAverageTVILayerFactory::PolAverageTVILayerFactory(Record const &configuration) :
-  ViiLayerFactory()
-{
+PolAverageTVILayerFactory::PolAverageTVILayerFactory(
+    Record const &configuration) :
+    ViiLayerFactory() {
   configuration_p = configuration;
 }
 
 ViImplementation2*
-PolAverageTVILayerFactory::createInstance(ViImplementation2* vii0) const
-{
+PolAverageTVILayerFactory::createInstance(ViImplementation2* vii0) const {
   // Make the PolAverageTVI, using supplied ViImplementation2, and return it
   PolAverageVi2Factory factory(configuration_p, vii0);
   return factory.createVi();
