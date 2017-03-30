@@ -5,6 +5,7 @@
 # Known bug: if called from outside a casapy session, tb.open(currms) will bomb
 # if the given pathname for currms is too long.  "Too long" is not long enough.
 
+from __future__ import absolute_import, division, print_function
 from glob import glob
 import locale
 import os
