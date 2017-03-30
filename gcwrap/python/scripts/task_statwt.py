@@ -58,7 +58,7 @@ def statwt(vis, dorms, byantenna, sepacs, fitspw, fitcorr, combine,
                              timebin, minsamp, field, spw, antenna, timerange, scan, intent,
                              array, correlation, obs, datacolumn)
         myms.close()
-    except Exception, e:
+    except Exception as e:
         casalog.post("Error setting WEIGHT and SIGMA for %s:" % vis, 'SEVERE')
         casalog.post("%s" % e, 'SEVERE')
         if False:  # Set True for debugging.

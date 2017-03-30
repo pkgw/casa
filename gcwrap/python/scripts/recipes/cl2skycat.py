@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import casa as c
 import numpy as np
 def cl2skycat(componentlist='', skycat=''):
@@ -14,7 +16,7 @@ def cl2skycat(componentlist='', skycat=''):
         cl.purge()
         cl.fromrecord(componentlist)
     if(cl.length()==0):
-            print "no components found"
+            print("no components found")
             return
 
     des={}

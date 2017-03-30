@@ -63,14 +63,14 @@ def predictcomp(objname=None, standard=None, epoch=None,
         casalog.origin('predictcomp')
         # some parameter minimally required
         if objname=='':
-          raise Exception, "Error, objname is undefined"
+          raise Exception("Error, objname is undefined")
         if minfreq=='':
-          raise Exception, "Error, minfreq is undefined" 
+          raise Exception("Error, minfreq is undefined")
         minfreqq = qa.quantity(minfreq)
         minfreqHz = qa.convert(minfreqq, 'Hz')['value']
         try:
             maxfreqq = qa.quantity(maxfreq)
-        except Exception, instance:
+        except Exception as instance:
             maxfreqq = minfreqq
         frequnit = maxfreqq['unit']
         maxfreqHz = qa.convert(maxfreqq, 'Hz')['value']

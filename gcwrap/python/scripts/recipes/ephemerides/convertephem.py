@@ -155,7 +155,7 @@ def converttopoephem2geo(tablename='', outtablename='', overwrite=True):
         tbt.putkeyword('obsloc', 'GEOCENTRIC')
         tbt.putkeyword('posrefsys', newposref)
         tbt.close()
-    except Exception, instance:
+    except Exception as instance:
         casalog.post("*** Error \'%s\' " % (instance), 'SEVERE')
         if overwrite and outtablename==tablename:
             casalog.post('Conversion in situ was not possible. Restoring original ephemeris ...', 'INFO')

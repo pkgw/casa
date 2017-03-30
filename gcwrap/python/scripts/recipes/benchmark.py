@@ -2,7 +2,7 @@
 Using tools with timeit seems to be a real pain, so this is a simpler
 alternative, although likely a little less accurate.
 """
-
+from __future__ import print_function
 import time
 
 def benchmark(func, args, kwargs, nreps=5, nperrep=1):
@@ -24,7 +24,7 @@ def benchmark(func, args, kwargs, nreps=5, nperrep=1):
     """
     meantime = 0.0
     maxtime =  0.0
-    print "Run",
+    print("Run", end='')
     for i in xrange(nreps):
         print i + 1,
         sys.stdout.flush()
@@ -39,8 +39,8 @@ def benchmark(func, args, kwargs, nreps=5, nperrep=1):
             mintime = min(mintime, wallclocktime)
         maxtime = max(maxtime, wallclocktime)
     if nreps > 1:
-        print "\nMin wall clock time:  %.3gs" % mintime
-        print "Mean wall clock time: %.3gs" % meantime
-        print "Max wall clock time:  %.3gs" % maxtime
+        print("\nMin wall clock time:  %.3gs" % mintime)
+        print("Mean wall clock time: %.3gs" % meantime)
+        print("Max wall clock time:  %.3gs" % maxtime)
     else:
-        print "\nWall clock time: %.3gs" % mintime
+        print("\nWall clock time: %.3gs" % mintime)
