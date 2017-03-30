@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+from __future__ import absolute_import, division, print_function
+
 def cmptabs(tab1, tab2):
     """
     Returns 1 if any of the columns in tab1 differ from the corresponding ones

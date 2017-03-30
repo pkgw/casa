@@ -19,6 +19,7 @@ for thing in jplreq.asteroids.keys() + jplreq.planets_and_moons.keys():
         jplreq.request_from_JPL(thing, '2012-12-31')
 """
 
+from __future__ import absolute_import, division, print_function
 import os
 import re
 import smtplib

@@ -3,6 +3,8 @@ Using tools with timeit seems to be a real pain, so this is a simpler
 alternative, although likely a little less accurate.
 """
 
+from __future__ import absolute_import, division, print_function
+
 import time
 
 def benchmark(func, args, kwargs, nreps=5, nperrep=1):

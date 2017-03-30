@@ -13,6 +13,7 @@ There are various utilities like convert_radec, datestr*, get_num_from_str,
 mean_radius*, and construct_tablepath defined in here as well.
 """
 
+from __future__ import absolute_import, division, print_function
 from glob import glob
 import os
 import re

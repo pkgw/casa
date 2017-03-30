@@ -18,6 +18,7 @@
 # DP, Dec 2013
 # GM, 2013Dec19  added chbw/nchan version (adjustweights2)
 
+from __future__ import absolute_import, division, print_function
 import taskinit
 import numpy
 
