@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import absolute_import, division, print_function
 from taskinit import * # casalog, casautils, etc
 import sys, inspect, string # To navigate and access stack frames
 import os # To handle files and environmental variables 

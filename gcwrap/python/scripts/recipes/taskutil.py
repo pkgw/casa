@@ -4,6 +4,7 @@ Functions used in converting other functions into tasks.
 Use: import taskutil
 """
 
+from __future__ import absolute_import, division, print_function
 import inspect, string, sys
 
 def get_global_namespace(ns_label='ipython console'):
