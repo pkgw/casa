@@ -38,9 +38,9 @@ add_custom_command( OUTPUT definitions
 #Resources/python
 add_custom_target(
     tools_python_casadef
-    COMMAND echo "import os" > casadef.py
-    COMMAND echo "task_directory = os.environ.get\\\(\\'__CASAPY_TASKDIR\\',\\'${CMAKE_INSTALL_PREFIX}/lib/casa/tasks\\'\\\)" >> casadef.py
-    COMMAND echo "python_library_directory = os.environ.get\\\(\\'__CASAPY_PYTHONDIR\\',task_directory\\\)" >> casadef.py
+    COMMAND echo "import os, site" > casadef.py
+    COMMAND echo "task_directory = os.environ.get\\\(\\'__CASAPY_TASKDIR\\',\\'${CMAKE_INSTALL_PREFIX}/share/casa-python/tasks\\'\\\)" >> casadef.py
+    COMMAND echo "python_library_directory = os.environ.get\\\(\\'__CASAPY_PYTHONDIR\\',site.getsitepackages\\\(\\\)[0]\\\)" >> casadef.py
     COMMAND echo "casa_version = \\\"${CASA_MAJOR_VERSION}.${CASA_MINOR_VERSION}.${CASA_PATCH_VERSION}\\\"" >> casadef.py
     COMMAND echo "if os.environ.get\\\(\\'CASAVERSION\\'\\\) is not None:" >> casadef.py
     COMMAND echo "    casa_version = os.environ.get\\\(\\'CASAVERSION\\'\\\)" >> casadef.py
