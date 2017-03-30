@@ -31,47 +31,43 @@ namespace casa {
 template <class T> const casacore::String ImageConvolverTask<T>::CLASS_NAME = "ImageConvolverTask";
 
 template <class T> ImageConvolverTask<T>::ImageConvolverTask(
-	const SPCIIT image, const casacore::Record *const &region,
-	const casacore::String& mask, const casacore::String& outname, const casacore::Bool overwrite
+    const SPCIIT image, const casacore::Record *const &region,
+    const casacore::String& mask, const casacore::String& outname, const casacore::Bool overwrite
 ) : ImageTask<T>(image, "", region, "", "", "", mask, outname, overwrite),
-	_kernel(), _scale(0) {
-	this->_construct(true);
+    _kernel(), _scale(0) {
+    this->_construct(true);
 }
 
 
 template <class T> SPIIT ImageConvolverTask<T>::convolve() {
-
-	auto autoScale = _scale <= 0;
-
-	auto subImage = SubImageFactory<T>::createSubImageRO(
-		*this->_getImage(), *this->_getRegion(), this->_getMask(),
-		this->_getLog().get(), casacore::AxesSpecifier(), this->_getStretch()
-	);
-
-
-	casacore::TempImage<T> x(subImage->shape(), subImage->coordinates());
-
-	// Make the convolver
-
-	casacore::Bool copyMisc = true;
-	//casacore::Bool warnOnly = true;
-	auto scaleType = autoScale
-		? ImageConvolver<T>::AUTOSCALE : ImageConvolver<T>::SCALE;
-	ImageConvolver<T> aic;
-	aic.convolve(
-		*this->_getLog(), x, *subImage, _kernel, scaleType,
-		_scale, copyMisc
-	);
-	return this->_prepareOutputImage(x);
+    auto autoScale = _scale <= 0;
+    auto subImage = SubImageFactory<T>::createSubImageRO(
+        *this->_getImage(), *this->_getRegion(), this->_getMask(),
+        this->_getLog().get(), casacore::AxesSpecifier(), this->_getStretch()
+    );
+    casacore::TempImage<T> x(subImage->shape(), subImage->coordinates());
+    // Make the convolver
+    casacore::Bool copyMisc = true;
+    auto scaleType = autoScale
+        ? ImageConvolver<T>::AUTOSCALE : ImageConvolver<T>::SCALE;
+    ImageConvolver<T> aic;
+    aic.convolve(
+        *this->_getLog(), x, *subImage, _kernel, scaleType,
+        _scale, copyMisc
+    );
+    if (_kernel.ndim() < subImage->ndim()) {
+        String msg = "NOTE: kernel with fewer dimensions than the input image applied. Degenerate axes added to the kernel";
+        this->addHistory(LogOrigin("ImageConvolverTask", __func__), msg);
+    }
+    return this->_prepareOutputImage(x);
 }
 
 template <class T> void ImageConvolverTask<T>::setKernel(const casacore::Array<T>& kernel) {
-	ThrowIf(
-		kernel.empty(), "Kernel array cannot be empty"
-	);
-	_kernel.assign(kernel);
+    ThrowIf(
+        kernel.empty(), "Kernel array cannot be empty"
+    );
+    _kernel.assign(kernel);
 }
-
 
 }
 

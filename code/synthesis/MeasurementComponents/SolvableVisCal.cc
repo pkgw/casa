@@ -50,6 +50,7 @@
 #include <ms/MeasurementSets/MSAntennaColumns.h>
 #include <ms/MeasurementSets/MSSpWindowColumns.h>
 #include <ms/MeasurementSets/MSFieldColumns.h>
+#include <ms/MSOper/MSMetaData.h>
 #include <synthesis/CalTables/CTMainColumns.h>
 #include <synthesis/CalTables/CTColumns.h>
 #include <synthesis/CalTables/CTGlobals.h>
@@ -2263,7 +2264,7 @@ void SolvableVisCal::reParseSolintForVI2() {
     solTimeInterval_=DBL_MAX;
   }
   else if (upcase(solint()).contains("INT"))
-    solTimeInterval_=DBL_MIN;
+    solTimeInterval_=FLT_MIN;  // implausibly small; forces chunk boundaries at integrations
   else {
     QuantumHolder qhsolint;
     String error;
@@ -2287,15 +2288,16 @@ void SolvableVisCal::reParseSolintForVI2() {
     }
   }
 
-  cout << "******* VI2: Review fsolint parsing..." << endl;
+  //  cout << "******* VI2: Review fsolint parsing..." << endl;
 
   // Maybe should just parse it, and then work out logic re freqDepPar, etc.
 
   // Handle fsolint format
-  if (upcase(fsolint()).contains("NONE") ||   // unspecified  OR  (should be AND?)
+  // TBD:  compare to logic in Calibrater::genericGatherAndSolve (line ~2298)
+  if (upcase(fsolint()).contains("NONE") ||   // unspecified  OR  
       !freqDepMat()) {                        // cal is entirely unchannelizedb 
     fsolint()="none";
-    fintervalCh_.set(1);    // signals full averaging (this is different from old way)
+    fintervalCh_.set(0.0);    // signals full averaging (this is different from old way)
     fintervalHz_=-1.0;      // don't care
   }
   else {
@@ -2320,9 +2322,7 @@ void SolvableVisCal::reParseSolintForVI2() {
 	
 	if (qFsolint.isConform("Hz")) {
 	  fintervalHz_=qFsolint.get("Hz").getValue();
-	  fintervalCh_.set(-1.0);
-	  throw(AipsError("Can't handle non-channel units in freq solint yet for VI2."));
-	  //	  throw(AipsError("Not able to convert freq-dep solint from Hz to channel yet."));
+	  convertHzToCh();
 	}
 	else {
 	  if (qFsolint.getUnit().length()==0) {
@@ -2341,7 +2341,7 @@ void SolvableVisCal::reParseSolintForVI2() {
 	 << " Ch=" << fintervalCh_ 
 	 << " Hz=" << fintervalHz() 
 	 << endl;
-    */
+    //*/
   } // user set something
 
 }
@@ -2391,11 +2391,15 @@ void SolvableVisCal::setOrVerifyCTFrequencies(Int spw) {
   // How many solution channels?
   Int nChan=currFreq().nelements();
 
+  Vector<Double> currFreqHz;
+  currFreqHz.assign(currFreq());  // currFreq is in GHz!!
+  currFreqHz*=1e9;                // currFreqHz is in Hz
+
   if (needToSet) {
 
-    cout << "Setting freqs in spw=" << spw << endl;
+    //    cout << "Setting freqs in spw=" << spw << endl;
     
-    // Existing values (from the MS)
+    // Existing values (from the _unaveraged_ MS)
     Vector<Double> chfr,chwid,chres,cheff;
     Double totbw;
     spwcol.chanFreq().get(spw,chfr);
@@ -2404,34 +2408,48 @@ void SolvableVisCal::setOrVerifyCTFrequencies(Int spw) {
     spwcol.effectiveBW().get(spw,cheff);
     totbw=spwcol.totalBandwidth().get(spw);
 
-    if (freqDepPar() && nChan>1) {
-      // Set chan width,res,effbw is f(1)-f(0)
-      // TBD: do better job here for quirky non-gridded cases!
-      Double df=currFreq()(1)-currFreq()(0);
-      totbw=(currFreq()(nChan-1)-currFreq()(0))+df;  // total span
-      chwid.resize(nChan); chwid.set(df);
-      chres.resize(nChan); chres.set(df);
-      cheff.resize(nChan); cheff.set(df);
+    // Setup freq info for caltable accordingly
+    if (nChan>1) {
+      // Incoming data is channelized...
+      Double df=currFreqHz(1)-currFreqHz(0); // apparent width
+      totbw=(currFreqHz(nChan-1)-currFreqHz(0))+df;  // total span (ignoring gaps!)
+      if (freqDepPar()) {
+	// solution is channelized
+	
+	// Assumes uniform width
+	// TBD: do better job here for quirky non-gridded cases!
+	chfr.resize(nChan); chfr.assign(currFreqHz);
+	chwid.resize(nChan); chwid.set(df);
+	chres.resize(nChan); chres.set(df);
+	cheff.resize(nChan); cheff.set(df);
+      }
+      else {
+	// Data channelized, but solution is not  (e.g., delays)
+	chfr.resize(1); chfr.set(mean(currFreqHz));  // The ~centroid freq
+	chwid.resize(1); chwid.set(totbw);
+	chres.resize(1); chres.set(totbw);
+	cheff.resize(1); cheff.set(totbw);
+      }
     }
     else {
-      // Must be exactly _one_  (!freqDepPar())
-      AlwaysAssert(nChan==1,AipsError);
-    
+      // Incoming data has only one channel
+
       // Assume full collapse of existing freq axis
+      // NB: Using UN-SELECTED MS total bandwidth here!!
       // TBD:  this is wrong for partially selected channels....
+      AlwaysAssert(currFreqHz.nelements()==1,AipsError);
+      chfr.resize(1);   chfr.assign(currFreqHz);
       chwid.resize(1);  chwid.set(totbw);
       chres.resize(1);  chres.set(totbw);
       cheff.resize(1);  cheff.set(totbw);
-
     }
 
     // Export revised values to the table
-    spwcol.chanFreq().setShape(spw,IPosition(1,nChan));
-    spwcol.chanFreq().put(spw,currFreq());
+    spwcol.chanFreq().put(spw,chfr);
     spwcol.chanWidth().put(spw,chwid);
     spwcol.resolution().put(spw,chres);
     spwcol.effectiveBW().put(spw,cheff);
-    spwcol.numChan().put(spw,nChan);
+    spwcol.numChan().put(spw,(freqDepPar()?nChan:1)); // handles unchan'd par case
     spwcol.totalBandwidth().put(spw,totbw);
     spwcol.flagRow().put(spw,False);
 
@@ -2439,17 +2457,27 @@ void SolvableVisCal::setOrVerifyCTFrequencies(Int spw) {
   else {
     // Only verify that freqs haven't changed
 
-    cout << "Verifying freqs in spw=" << spw << endl;
+    //    cout << "Verifying freqs in spw=" << spw << endl;
 
     Vector<Double> currCTFreq;
     spwcol.chanFreq().get(spw,currCTFreq);
 
-    if (!allEQ(currCTFreq,currFreq())) {
+
+    if (!freqDepPar()) {
+      Double currFreqHz1=mean(currFreqHz);
+      currFreqHz.resize(1);
+      currFreqHz.set(currFreqHz1);
+    }
+
+    if (!allEQ(currCTFreq,currFreqHz)) {
       cout << "For spw=" << spw << ":" << endl;
       cout << "Current CalTable nchan= " << currCTFreq.nelements() << endl;
       cout << "Current CalTable freq = " << currCTFreq << endl;
-      cout << "Current Solution nchan= " << nChan << endl;
-      cout << "Current Solution freq = " << currFreq() << endl;
+      cout << "Current Solution nchan= " << (freqDepPar() ? nChan : 1) << endl;
+      cout << "Current Solution freq = " << currFreqHz << endl;
+      cout << "Diff = " << currFreqHz-currCTFreq << endl;
+
+      
       throw(AipsError("Mismatch between Solution frequencies and existing CalTable frequencies for spw="+String::toString(spw)));
     }
   }
@@ -2571,6 +2599,39 @@ void SolvableVisCal::setSolveChannelization(VisSet& vs) {
   //     solve parameters depend (e.g., delay, polynomial bandpass, etc.)
 
 }
+
+
+
+
+void SolvableVisCal::convertHzToCh() {
+
+  //  cout << "convertHzToCh!" << endl;
+
+  // Access the channel widths vis msmc, etc.
+  vector<QVD> chanwidths=msmc().msmd().getChanWidths();
+
+  logSink() << LogIO::NORMAL;
+  logSink() << " Frequency solint parsing:" << LogIO::POST;
+  for (Int ispw=0;ispw<nSpw();++ispw) {
+    currSpw()=ispw;
+    // Calculate channel increment from Hz
+    if (fintervalCh()<0.0 && fintervalHz()>0.0) {
+      // Assumes constant chan width in each spw!
+      Double datawidthHz=abs(chanwidths[ispw][0].get("Hz").getValue()); 
+      fintervalCh()=floor(fintervalHz()/datawidthHz);
+      if (fintervalCh()<1.0) fintervalCh()=1.0;  // nothing fractional <1.0
+
+      logSink() << ".  Spw " << ispw << ": "
+		<< " (freq solint: " << fintervalHz() << " Hz) / (data width: " << datawidthHz << " Hz)"
+		<< " = " << fintervalCh() << " data channels per solution channel."
+		<< LogIO::POST;
+    }
+  } // ispw  
+
+}
+
+
+
 
 void SolvableVisCal::setFracChanAve() {
 
@@ -2710,10 +2771,13 @@ void SolvableVisCal::syncSolveMeta(SDBList& sdbs) {  // VI2
   
   //  cout << "spwMap() = " << spwMap() << endl;
   
+  
+
   // Ask the sdbs
   setMeta(sdbs.aggregateObsId(),
 	  sdbs.aggregateScan(),
-	  sdbs.aggregateTime(),
+	  //sdbs.aggregateTime(),   
+	  sdbs.aggregateTimeCentroid(),
 	  sdbs.aggregateSpw(),
 	  sdbs.freqs(),
 	  sdbs.aggregateFld());
@@ -2833,6 +2897,10 @@ void SolvableVisCal::enforceAPonData(VisBuffer& vb) {
 void SolvableVisCal::setUpForPolSolve(VisBuffer& vb) {
 
   // TBD: migrate this to VisEquation?
+
+  // NB (2016Nov29, gmoellen): No, should actually move this very specific
+  //   activity into DJones where it is specifically relevant.
+  //   VB2 version has done this.
   
   // Divide model and data by (scalar) stokes I (which may be resolved!), 
   //  and set model cross-hands to (1,0) so we can solve for fractional
@@ -4841,6 +4909,9 @@ void SolvableVisJones::differentiate(SolveDataBuffer& sdb) {  // VI2
   
   // "Apply" the current Q,U or X estimates to the crosshand model
   // NB:  This is circular-basis specific!!
+
+  /*   2016Nov29 (gmoellen):  MOVED TO DJones::guessPar(SDBList)
+
   if (solvePol()>0) {
     Complex pol(1.0);
 
@@ -4856,7 +4927,9 @@ void SolvableVisJones::differentiate(SolveDataBuffer& sdb) {  // VI2
     Array<Complex> LR(Vout(blc,trc));
     LR*=conj(pol);
   }
-  
+  */  
+
+
   // Visibility vector renderers
   VisVector::VisType vt(visType(nCorr));
   VisVector cVm(vt);  // The model data corrupted by trial solution

@@ -392,7 +392,7 @@ void SkyEquation::predict(Bool incremental,  MS::PredefinedColumns Type) {
 	  // get the model visibility (adds to vb->model)
 	  //get(vb,model,incremental);
 	  // this version takes Type and reads existing Type col instead 
-	  // of hardcoded existing MODEL co
+	  // of hardcoded existing MODEL column
 	  get(* vb,model,incremental,Type);
 	  // and write it to VI	  
 	  switch(Type) {
@@ -864,7 +864,14 @@ VisBuffer& SkyEquation::get(VisBuffer& result, Int model,
   }
 
   //result.modelVisCube(); // get the visibility so vb will have it
-  VisBufferAutoPtr vb (result);
+  //VisBufferAutoPtr vb (result);
+  // We need msId and mscolumns from result in the vb passed to FT below.
+  // I can't find a public method to copy that ms info over, so instead, 
+  // save the datacube and add it back at the end of this method.
+  VisBuffer *oldvb,*vb;
+  vb = &result; // this will get replaced by FT->get
+  oldvb = new VisBuffer(result);
+  oldvb->setModelVisCube(result.modelVisCube());
 
   Bool FTChanged=changedFTMachine(* vb);
 
@@ -896,7 +903,7 @@ VisBuffer& SkyEquation::get(VisBuffer& result, Int model,
   else {
     ft_->get(* vb);
   }
-  result.modelVisCube()+=vb->modelVisCube();
+  result.modelVisCube()+=oldvb->modelVisCube();
   return result;
 }
 
@@ -1014,7 +1021,7 @@ SkyComponent& SkyEquation::applySkyJones(SkyComponent& corruptedComponent,
 					 const VisBuffer& vb,
 					 Int row)
 {
-  if(!isPSFWork_p && (ft_->name() != "MosaicFT")){
+  if(!isPSFWork_p){
     if(ej_) ej_->apply(corruptedComponent,corruptedComponent,vb,row);
     if(dj_) dj_->apply(corruptedComponent,corruptedComponent,vb,row);
     if(tj_) tj_->apply(corruptedComponent,corruptedComponent,vb,row);
@@ -1321,7 +1328,7 @@ ImageInterface<Complex>& SkyEquation::applySkyJones(const VisBuffer& vb,
   StokesImageUtil::From(out, in);
 
   // Now apply the SkyJones as needed
-  if(!isPSFWork_p  && (ift_->name() != "MosaicFT")){
+  if(!isPSFWork_p  && (!(ift_->name().contains("MosaicFT")))){
     if(ej_) ej_->apply(out,out,vb,row,true);
     if(dj_) dj_->apply(out,out,vb,row,true);
     if(tj_) tj_->apply(out,out,vb,row,true);

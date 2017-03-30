@@ -19,14 +19,38 @@
 #
 
 #casa_add_executable(tableplot projtable  apps/projtable/projtable.cc)
-casa_add_python( python  casa_python python/${PYTHONV}
+casa_add_python( python  casa_python lib/python${PYTHONV}
+scripts/tf.py
 scripts/asap_init.py
 scripts/assignmentFilter.py
 scripts/callibrary.py
 scripts/carta.py
-scripts/casa_in_py.py
+scripts/carta_install.py
 scripts/casa.py
 scripts/casapy.py
+scripts/procmgr.py
+scripts/casa_stack_manip.py
+scripts/casa_shutdown.py
+scripts/casa_builtin.py
+scripts/start_casa.py
+scripts/casa_system.py
+scripts/casa_system_defaults.py
+scripts/init_system.py
+scripts/init_crashrpt.py
+scripts/init_mpi.py
+scripts/init_dbus.py
+scripts/init_docs.py
+scripts/init_tools.py
+scripts/init_logger.py
+scripts/init_funcs.py
+scripts/init_pipeline.py
+scripts/init_asap.py
+scripts/init_testing.py
+scripts/init_tasks.py
+scripts/init_welcome.py
+scripts/init_welcome_helpers.py
+scripts/init_user_pre.py
+scripts/init_user_post.py
 scripts/casapy_engine.py
 scripts/caltab_convert2.py
 scripts/check_exceptionhandling.py
@@ -54,7 +78,6 @@ scripts/predictcomp_helper.py
 scripts/regression.py
 scripts/regressframe.py
 scripts/regression_utility.py
-scripts/refimagerhelper.py
 scripts/sdbeamutil.py
 scripts/sdutil.py
 scripts/setjy_helper.py
@@ -103,6 +126,7 @@ scripts/task_hanningsmooth.py
 scripts/task_help.py
 scripts/task_imcollapse.py
 scripts/task_imcontsub.py
+scripts/task_imdev.py
 scripts/task_imfit.py
 scripts/task_imhead.py
 scripts/task_imhistory.py
@@ -138,7 +162,6 @@ scripts/task_listobs.py
 scripts/task_listpartition.py
 scripts/task_listsdm.py
 scripts/task_listvis.py
-scripts/taskmanager.py
 scripts/task_makemask.py 
 scripts/task_mosaic.py
 scripts/task_mstransform.py
@@ -233,3 +256,4 @@ add_subdirectory( scripts/demos )
 add_subdirectory( scripts/recipes )
 add_subdirectory( scripts/parallel )
 add_subdirectory( scripts/mpi4casa )
+add_subdirectory( scripts/imagerhelpers )

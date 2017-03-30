@@ -52,7 +52,7 @@
 # </synopsis> 
 #
 # <example>
-# `echo $CASAPATH/bin/casapy | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_imfit[test1,test2,...]
+# `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_imfit[test1,test2,...]
 # </example>
 #
 # <motivation>
@@ -1468,7 +1468,7 @@ class imfit_test(unittest.TestCase):
         self.assertTrue(near(flux['error'][0], 4.6, 1e-1))
         self.assertTrue(flux['unit'] == "Jy")
         
-        sub.setrestoringbeam(remove=T)
+        sub.setrestoringbeam(remove=True)
         sub.setbrightnessunit("Jy/pixel")
         zz = sub.fitcomponents()
         flux = zz['results']['component0']['flux']

@@ -147,7 +147,10 @@ namespace casa{
   				  Complex& norm,
   				  Int* igrdpos);
 
-  Complex* AWVisResampler::getConvFunc_p(Vector<Int>& cfShape, CFBuffer& cfb,
+  Complex* AWVisResampler::getConvFunc_p(const double& vbPA, Vector<Int>& cfShape,
+					 Vector<int>& support,
+					 int& muellerElement,
+					 CFBuffer& cfb,
 					 Double& wVal, Int& fndx, Int& wndx,
 					 PolMapType& mNdx, PolMapType& conjMNdx,
 					 Int& ipol, uInt& mRow)
@@ -167,7 +170,9 @@ namespace casa{
     if (wVal > 0.0) 
       {
 	cfcell=&(*(cfb.getCFCellPtr(fndx,wndx,mNdx[ipol][mRow])));
-
+        CFCell& cfO=cfb(fndx,wndx,mNdx[ipol][mRow]);
+	convFuncV = &(*cfO.getStorage());
+	support(0)=support(1)=cfO.xSupport_p;
 	//	convFuncV=&(*(cfb.getCFCellPtr(fndx,wndx,mNdx[ipol][mRow])->getStorage()));//->getStorage(Dummy);
 	// if (mNdx[ipol][mRow] != ipol)
 	//   cerr << "Indexes+: " << fndx << " " << wndx << " " << mNdx[ipol][mRow] << " " << ipol << " " << mRow << endl;
@@ -175,21 +180,56 @@ namespace casa{
     else
       {
 	cfcell=&(*(cfb.getCFCellPtr(fndx,wndx,conjMNdx[ipol][mRow])));
-
+	CFCell& cfO=cfb(fndx,wndx,conjMNdx[ipol][mRow]);
+	convFuncV = &(*cfO.getStorage());
+	support(0)=support(1)=cfO.xSupport_p;
 	//	convFuncV=&(*(cfb.getCFCellPtr(fndx,wndx,conjMNdx[ipol][mRow])->getStorage()));//->getStorage(Dummy);
 	// if (conjMNdx[ipol][mRow] != ipol)
 	//   cerr << "Indexes-: " << fndx << " " << wndx << " " << conjMNdx[ipol][mRow] << " " << ipol << " " << mRow << endl;
       }
-    convFuncV = &(*cfcell->getStorage());
-    Complex *tt=convFuncV->getStorage(Dummy);
-    //    cfShape = convFuncV->shape().asVector();
+   
 
-    cfShape.reference(cfcell->cfShape_p);
+       //    cerr << getpid() << " " << cfb.getCFCacheDir() << " " << cfcell->fileName_p << " " << cfcell->freqValue_p << endl;
+
+
+    // Get the pointer to the CFCell storage (a single CF)
+    //    if ((convFuncV = &(*cfcell->getStorage())) == NULL)
+    if (convFuncV == NULL)
+      throw(SynthesisFTMachineError("cfcell->getStorage() == null"));
+
+    // Load the CF if it not already loaded.  If a new CF is loaded,
+    // check if it needs to be rotated.
+    if (convFuncV->shape().product() == 0)
+      {
+	Array<Complex>  tt=SynthesisUtils::getCFPixels(cfb.getCFCacheDir(), cfcell->fileName_p);
+	cfcell->setStorage(tt);
+
+	cerr << (cfcell->isRotationallySymmetric_p?"o":"+");
+
+	// No rotation necessary if the CF is rotationally symmetric
+	if (!(cfcell->isRotationallySymmetric_p))
+	  {
+	    CFCell *baseCFC=NULL;
+	    // Rotate only if the difference between CF PA and VB PA
+	    // is greater than paTolerance.
+	    SynthesisUtils::rotate2(vbPA, *baseCFC, *cfcell, paTolerance_p);
+	  }
+	convFuncV = &(*cfcell->getStorage());
+      }
+
+    //cfShape.reference(cfcell->cfShape_p);
+     cfShape.assign(convFuncV->shape().asVector());
+
+     // Always extract the Mueller element value from mNdx.  mNdx
+     // carries the direct mapping between Mueller Matrix and
+     // Visibility vector.
+     muellerElement=cfb.getCFCellPtr(fndx,wndx,mNdx[ipol][mRow])->muellerElement_p;
+    
     //    cfShape.assign(cfcell->cfShape_p);
     runTimeG1_p += timer_p.real();
 
 
-    return tt;
+    return convFuncV->getStorage(Dummy);
   };
 
   template <class T>
@@ -358,7 +398,7 @@ namespace casa{
 	log_l << "Computing phase gradiant for pointing offset " 
 	      << pointingOffset << cfShape << " " << cached_phaseGrad_p.shape() 
 	      << "(SPW: " << spwID << " Field: " << fieldId << ")"
-	      << LogIO::POST;
+	      << LogIO::DEBUGGING << LogIO::POST;
 	Int nx=cfShape(0), ny=cfShape(1);
 	Double grad;
 	Complex phx,phy;
@@ -400,6 +440,15 @@ namespace casa{
 
   //   return *this;
   // }
+
+  // CFB::initPolMaps(polMap,conjPolMap) sets the internal maps of CFB
+  //
+  // AWP::findCF() --> cfCache->initPolMap(...,...) --> cfb->initPolMaps(...,...)
+  //
+  // AWVR extracts polMap from CFB.
+  // Same CF is extracted for gridding and de-gridding.  CF* used in the gridding loops.
+  // getConvFunc_p() ensures the jugglery needed for AW CFs
+
   //
   //-----------------------------------------------------------------------------------
   // Template implementation for DataToGrid
@@ -540,8 +589,6 @@ namespace casa{
 		      // else  cfFreqNdx = cfb.nearestFreqNdx(vbSpw,ichan);
 		      Int cfFreqNdx = cfb.nearestFreqNdx(vbSpw,ichan,vbs.conjBeams_p);
 
-		      //		      cerr << "G: " << cfFreqNdx << " " << wndx << " " << ichan << " " << vbSpw << " " << freq[ichan] << endl;
-
 		      runTimeG3_p += timer_p.real();
 		      
 		      Float s;
@@ -577,7 +624,7 @@ namespace casa{
 			    uvwScale_p, offset_p, sampling);
 		      runTimeG5_p += timer_p.real();
 		      
-		      if (onGrid(nx, ny, nw, loc, support)) 
+		      //  if (onGrid(nx, ny, nw, loc, support)) 
 			{
 			  // Loop over all image-plane polarization planes.
 			  for(Int ipol=0; ipol< nDataPol; ipol++) 
@@ -594,28 +641,53 @@ namespace casa{
 				      // ConjPlane = cfMap_p[ipol];
 				      // PolnPlane = conjCFMap_p[ipol];
 				      
-				      if(dopsf) nvalue=Complex(*(imgWts_ptr + ichan + irow*nDataChan));
-				      else      nvalue= *(imgWts_ptr+ichan+irow*nDataChan)*
-						  (*(visCube_ptr+ipol+ichan*nDataPol+irow*nDataChan*nDataPol)*phasor);
+				      //	      if(dopsf) nvalue=Complex(*(imgWts_ptr + ichan + irow*nDataChan));
+				      // else      nvalue= *(imgWts_ptr+ichan+irow*nDataChan)*
+				      //	  (*(visCube_ptr+ipol+ichan*nDataPol+irow*nDataChan*nDataPol)*phasor);
 				      
 				      norm = 0.0;
 				      // Loop over all relevant elements of the Mueller matrix for the polarization
 				      // ipol.
-				      for (uInt mRow=0;mRow<conjMNdx[ipol].nelements(); mRow++) 
+				      Vector<int> conjMRow = conjMNdx[ipol];
+				      //for (uInt mCols=0;mCols<conjMNdx[ipol].nelements(); mCols++)
+
+				      // ipol determines the targetIMPol.  Each targetIMPol gets a row of CFs (mRow).
+				      // visVecElements is gridded using the convFuncV and added to the target grid.
+
+				      for (uInt mCols=0;mCols<conjMRow.nelements(); mCols++) 
 					{
+					  int visVecElement=mCols, muellerElement;
+
 					  Complex* convFuncV=NULL;
 					  timer_p.mark();
-					  // if (vbs.conjBeams_p) convFuncV=getConvFunc_p(cfShape, cfb, dataWVal, conjFNdx, 
-					  // 					       wndx, mNdx, conjMNdx, ipol,  mRow);
-					  // else                 convFuncV=getConvFunc_p(cfShape, cfb, dataWVal, fndx, 
-					  // 					       wndx, mNdx, conjMNdx, ipol,  mRow);
+					  try
+					    {
+					      convFuncV=getConvFunc_p(vbs.paQuant_p.getValue("rad"),
+								      cfShape, support,muellerElement,
+								      cfb, dataWVal, cfFreqNdx,
+								      wndx, mNdx, conjMNdx, ipol,  mCols);
+					    }
+					  catch (SynthesisFTMachineError& x)
+					    {
+					      log_l << x.getMesg() << LogIO::EXCEPTION;
+					    }
+					  // Extract the vis. vector element corresponding to the mCols column of the conjMRow row of the Mueller matrix.
 
-					  convFuncV=getConvFunc_p(cfShape, cfb, dataWVal, cfFreqNdx,
-								  wndx, mNdx, conjMNdx, ipol,  mRow);
+					  visVecElement=(int)(muellerElement%nDataPol);
+					  // If the vis. vector element is flagged, don't grid it.
+					  if(((*(flagCube_ptr + visVecElement + ichan*nDataPol + irow*nDataPol*nDataChan)))) break;
 
+					  //cerr << "G: " << mCols << "-->" << visVecElement << "-->" << ipol << " " << polMap_p[ipol] << endl;
+
+					  if(dopsf) nvalue=Complex(*(imgWts_ptr + ichan + irow*nDataChan));
+					  else      nvalue=Complex(*(imgWts_ptr+ichan+irow*nDataChan))*
+					   	      (*(visCube_ptr+visVecElement+ichan*nDataPol+irow*nDataChan*nDataPol)*phasor);
+
+			
+
+					  if (!onGrid(nx, ny, nw, loc, support)) break;
 					  runTimeG6_p += timer_p.real();
-					  // support.assign(scaledSupport);
-					  // sampling.assign(scaledSampling);
+					  
 					  
 					  convOrigin=cfShape/2;
 					  Bool psfOnly=((dopsf==true) && (accumCFs==false));
@@ -685,7 +757,7 @@ runTimeG7_p += timer_p.real();
     rbeg = vbs.beginRow_p;
     rend = vbs.endRow_p;
     nx       = grid.shape()[0]; ny        = grid.shape()[1];
-    nw       = cfShape[2];
+    //nw       = cfShape[2];
     nGridPol = grid.shape()[2]; nGridChan = grid.shape()[3];
     
     nDataPol  = vbs.flagCube_p.shape()[0];
@@ -711,7 +783,7 @@ runTimeG7_p += timer_p.real();
     Vector<Int> gridInc, cfInc;
     
     cacheAxisIncrements(grid.shape().asVector(), gridInc_p);
-    cacheAxisIncrements(cfShape, cfInc_p);
+    //cacheAxisIncrements(cfShape, cfInc_p);
     // Initialize the co-ordinates used for reading the CF values The
     // CFs are 4D arrays, with the last two axis degenerate (of length
     // 1).  The last two axis were formerly the W-, and
@@ -767,7 +839,8 @@ runTimeG7_p += timer_p.real();
 	    //	    iloc[2]=max(0, min(nw, loc[2]));
 	    
 	    Bool isOnGrid;
-	    if ((isOnGrid=onGrid(nx, ny, nw, loc, support))) {
+	    //  if ((isOnGrid=onGrid(nx, ny, nw, loc, support)))
+	    {
 	      for(Int ipol=0; ipol < nDataPol; ipol++) {
 		
 		if(!flagCube(ipol,ichan,irow)) { 
@@ -775,26 +848,44 @@ runTimeG7_p += timer_p.real();
 		  
 		  if((apol>=0) && (apol<nGridPol)) {
 		    igrdpos[2]=apol; igrdpos[3]=achan;
-		    nvalue=0.0;      norm(apol)=0.0;
+		    nvalue=0.0;      norm(ipol)=0.0;
 		    
 		    // ConjPlane = cfMap_p(ipol);
 		    // PolnPlane = conjCFMap_p(ipol);
 		    
 		    // With VBRow2CFMap in use, CF for each pol. plane is a separate 2D Array.  
 		    //		    iloc[3]=0;
-		    for (uInt mRow=0; mRow<conjMNdx[ipol].nelements(); mRow++)
+		    for (uInt mCol=0; mCol<conjMNdx[ipol].nelements(); mCol++)
 		      {
 			//
+			int visGridElement, muellerElement;
 			// Get the pointer to the storage for the CF
 			// indexed by the Freq, W-term and Mueller
 			// Element.
 			//
-			Complex*  convFuncV;
-			convFuncV = getConvFunc_p(cfShape, cfb, dataWVal, fndx, wndx, mNdx,
-						  conjMNdx, ipol, mRow);
+			Complex*  convFuncV=NULL;
+			try
+			  {
+			    convFuncV = getConvFunc_p(vbs.paQuant_p.getValue("rad"),
+						      cfShape, support, muellerElement,
+						      cfb, dataWVal, fndx, wndx,
+						      //mNdx,conjMNdx,
+						      conjMNdx,mNdx,
+						      ipol, mCol);
+			  }
+			catch (SynthesisFTMachineError& x)
+			  {
+			    LogIO log_l(LogOrigin("AWVisResampler[R&D]","GridToData"));
+			    log_l << x.getMesg() << LogIO::EXCEPTION;
+			  }
+			// Set the polarization plane of the gridded data to use for predicting with the CF from mCols column
+			visGridElement=(int)(muellerElement%nDataPol);
+			igrdpos[2]=polMap_p[visGridElement];
+			//cerr << "DG: " << mCol << "-->" << visGridElement << "-->" << ipol << " " << polMap_p[ipol] << " " << polMap_p[visGridElement] << endl;
 			//
 			// Compute the incrmenets and center pixel for the current CF
 			//
+			if ((isOnGrid=onGrid(nx, ny, nw, loc, support))==false) break;
 			cacheAxisIncrements(cfShape, cfInc_p);
 			convOrigin = (cfShape)/2;
 			if (finitePointingOffset)
@@ -856,30 +947,16 @@ runTimeG7_p += timer_p.real();
 			 //       }
 			 //   }
 			 // //--------------------------------------------------------------------------------
-
-			 //		    visCube(ipol,ichan,irow)=(nvalue*conj(phasor))/norm(apol);
 		      }
-		    visCube(ipol,ichan,irow)=nvalue; // Goes with FortranizedLoopsFromGrid.cc
-		    //if (casa::isNaN(nvalue))
-		      // {
-		      // 	cout << ipol << "," << ichan << "," << irow << "," << nvalue << "," << nDataChan << "," << nGridChan << "," << achan << endl;
-		      // 	//exit(0);
-		      // }
-		    
-		    //visCube(ipol,ichan,irow)=nvalue*conj(phasor)/norm(apol); // Goes with C++ loops
-		    // cerr << ipol << " " << ichan << " " << irow << " " << nvalue << " " << norm(apol) << " " << pointingOffset 
-		    // 	 << " " << qualifier_p << " " << ttt << " " << scaledSupport << endl;
+		    if (norm[ipol] != Complex(0.0)) visCube(ipol,ichan,irow)=nvalue/norm[ipol]; // Goes with FortranizedLoopsFromGrid.cc
 		}
 	      }
 	    }
 	  }
 	}
       }
-      //	junk++;
     }
   } // End row-loop
-    // cerr << endl;
-    // if (junk==20) exit(0);
 }
 //
 //-----------------------------------------------------------------------------------

@@ -52,7 +52,7 @@
 # </synopsis> 
 #
 # <example>
-# `echo $CASAPATH/bin/casapy | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_imageconcat[test1,test2,...]
+# `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_imageconcat[test1,test2,...]
 # </example>
 #
 # <motivation>
@@ -301,7 +301,7 @@ class ia_imageconcat_test(unittest.TestCase):
         myia.fromshape(im1, [10,10,5])
         myia.fromshape(im2, [10,10,5])
         myia.done()
-        zz = myia.imageconcat("", [im1, im2], relax=T)
+        zz = myia.imageconcat("", [im1, im2], relax=True)
         msgs = zz.history()
         self.assertTrue("ia.imageconcat" in msgs[-1])
         self.assertTrue("ia.imageconcat" in msgs[-2])

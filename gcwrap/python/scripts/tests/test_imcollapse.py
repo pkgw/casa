@@ -55,7 +55,7 @@
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
 # 
-# `echo $CASAPATH/bin/casapy | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_imcollapse[test1,test2,...]
+# `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_imcollapse[test1,test2,...]
 #
 # </example>
 #
@@ -342,7 +342,7 @@ class imcollapse_test(unittest.TestCase):
         xx.calcmask(good_image_im + "<78")
         xx.close()
         xx.done()
-        mytool = F
+        mytool = False
         axes = 3
         for i in [0,1]:
             for j in [0, 1, 2]:
@@ -428,13 +428,13 @@ class imcollapse_test(unittest.TestCase):
         for i in range(0,4):
             xx = iatool()
             xx.open(good_image)
-            exp = xx.statistics(robust=T, axes=i)["median"]
+            exp = xx.statistics(robust=True, axes=i)["median"]
             xx.done()
             mytool = run_collapse(
                 good_image, "median", i, "", "", "",
                 "", "", "", False
             )
-            zz = mytool.subimage("", dropdeg=T)
+            zz = mytool.subimage("", dropdeg=True)
             got = zz.getchunk()
             self.assertTrue((got == exp).all())
             outfile = "test_CAS_3418.im"
@@ -443,7 +443,7 @@ class imcollapse_test(unittest.TestCase):
                 "", "", "", overwrite=True
             )
             mytool.open(outfile)
-            zz = mytool.subimage("", dropdeg=T)
+            zz = mytool.subimage("", dropdeg=True)
             got = zz.getchunk()
             self.assertTrue((got == exp).all())
             mytool.done()
@@ -558,12 +558,12 @@ class imcollapse_test(unittest.TestCase):
                     counter += 1
         myia.putchunk(bb)
         col = myia.collapse("min", [2])
-        got = col.subimage(dropdeg=T).getchunk()
+        got = col.subimage(dropdeg=True).getchunk()
         exp = numpy.min(bb, 2)
         self.assertTrue((got == exp).all())
         
         col = myia.collapse("mean", [2])
-        got = col.subimage(dropdeg=T).getchunk()
+        got = col.subimage(dropdeg=True).getchunk()
         exp = numpy.average(bb, 2)
         self.assertTrue((got == exp).all())
 

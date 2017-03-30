@@ -134,8 +134,8 @@ class SIImageStore
   /// Other
   virtual casacore::Bool releaseLocks();
   virtual casacore::Bool releaseComplexGrids();
-  void releaseImage( SHARED_PTR<casacore::ImageInterface<casacore::Float> > im );
-  void releaseImage( SHARED_PTR<casacore::ImageInterface<casacore::Complex> > im );
+  void releaseImage( SHARED_PTR<casacore::ImageInterface<casacore::Float> > &im );
+  void releaseImage( SHARED_PTR<casacore::ImageInterface<casacore::Complex> > &im );
   virtual casacore::Double getReferenceFrequency(){return 0.0;}
   virtual casacore::uInt getNTaylorTerms(casacore::Bool dopsf=casacore::False); //{return 1;};
   casacore::GaussianBeam getPSFGaussian();
@@ -275,6 +275,8 @@ protected:
 
   casacore::ImageBeamSet itsPSFBeams;
   casacore::ImageBeamSet itsRestoredBeams;
+
+  casacore::Float itsPSFSideLobeLevel;
 
   //
   //------------------------------------------

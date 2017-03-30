@@ -167,6 +167,9 @@ public:
     virtual casacore::Bool moreChunks () const = 0;
     virtual void nextChunk () = 0;
 
+    // Report Name of slowest column that changes at end of current iteration
+    virtual casacore::String keyChange() const = 0;
+
     virtual casacore::Bool isWritable () const = 0;
 
     // Return the time interval (in seconds) used for iteration.
@@ -215,7 +218,7 @@ public:
 
     //   +=========================+
     //   |                         |
-    //   | Subchunk casacore::Data Accessors |
+    //   | Subchunk Data Accessors |
     //   |                         |
     //   +=========================+
 
@@ -391,7 +394,7 @@ public:
 
     //   +------------------------+
     //   |                        |
-    //   | Angular casacore::Data Providers |
+    //   | Angular Data Providers |
     //   |                        |
     //   +------------------------+
 
@@ -422,6 +425,8 @@ public:
     // parameter in the feed table). The cube axes are receptor, antenna, feed.
 
     virtual const casacore::Cube<casacore::RigidVector<casacore::Double, 2> > & getBeamOffsets () const = 0;
+
+    virtual std::pair<bool, casacore::MDirection> getPointingAngle (int antenna, double time) const = 0;
 
     // Return the hour angle for the specified time
 
@@ -456,13 +461,15 @@ public:
 
     //   +=========================+
     //   |                         |
-    //   | Chunk and casacore::MS Level casacore::Data |
+    //   | Chunk and MS Level Data |
     //   |                         |
     //   +=========================+
 
     // return a string mount identifier for each antenna
 
     virtual const casacore::Vector<casacore::String> & antennaMounts () const = 0;
+    //    virtual casacore::Vector<casacore::MPosition> antennaPositions () const;
+    //casacore::MSDerivedValues makeMsd ();
 
     virtual casacore::MEpoch getEpoch () const = 0;
 
@@ -615,7 +622,7 @@ protected:
                                  WeightScaling * scaling,
                                  const casacore::Array<casacore::Float>& unscaled,
                                  casacore::Array<casacore::Float>& scaled);
-
+    //static void setVisBufferFillable (VisBuffer2 * vb, bool fillable);
 };
 
 } // end namespace vi

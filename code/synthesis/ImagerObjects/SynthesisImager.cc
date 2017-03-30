@@ -139,6 +139,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     rvi_p=NULL;
     //    cerr << "IN DESTR"<< endl;
     //    VisModelData::listModel(mss4vi_p[0]);
+
+    SynthesisUtilMethods::getResource("End Run");
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -192,6 +194,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   Bool SynthesisImager::selectData(const SynthesisParamsSelect& selpars)
   {
     LogIO os( LogOrigin("SynthesisImager","selectData",WHERE) );
+
+    SynthesisUtilMethods::getResource("Start Run");
 
     try
       {
@@ -513,6 +517,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       {    if( thisms.tableDesc().isColumn("DATA") ) { datacol_p = FTMachine::OBSERVED; }
            else { os << LogIO::SEVERE <<"DATA column does not exist" << LogIO::EXCEPTION;}
       }
+    else if( selpars.datacolumn.contains("corr") ) { datacol_p = FTMachine::CORRECTED; }
+    else { os << LogIO::WARN << "Invalid data column : " << selpars.datacolumn << ". Using corrected (or observed if corrected doesn't exist)" << LogIO::POST;  datacol_p =  FTMachine::CORRECTED;}
+
+    /*
     else if( selpars.datacolumn.contains("corr") ) {    
       if( thisms.tableDesc().isColumn("CORRECTED_DATA") ) { datacol_p = FTMachine::CORRECTED; } 
       else 
@@ -527,19 +535,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}
 	
       }
-    /*
-    else if( selpars.datacolumn.contains("model") ) {
-      datacol_p = FTMachine::MODEL;
-    }
-    else if( selpars.datacolumn.contains("residual") ) {
-      datacol_p = FTMachine::RESIDUAL;
-    }
-    else if( selpars.datacolumn.contains("psf") ) {
-      datacol_p = FTMachine::PSF;
-    }
-    */
-    else { os << LogIO::WARN << "Invalid data column : " << datacol_p << ". Using corrected (or observed if corrected doesn't exist)" << LogIO::POST;  datacol_p = thisms.tableDesc().isColumn("CORRECTED_DATA") ? FTMachine::CORRECTED : FTMachine::OBSERVED; }
-
+     else { os << LogIO::WARN << "Invalid data column : " << datacol_p << ". Using corrected (or observed if corrected doesn't exist)" << LogIO::POST;  datacol_p = thisms.tableDesc().isColumn("CORRECTED_DATA") ? FTMachine::CORRECTED : FTMachine::OBSERVED; }
+*/
     dataSel_p.resize(dataSel_p.nelements()+1, true);
 
     dataSel_p[dataSel_p.nelements()-1]=selpars;
@@ -855,6 +852,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	   //Record outRec=SynthesisUtilMethods::cubeDataPartition(selpars, 1, freq1, freq2);
 	   //Record partRec=outRec.asRecord("0");
 
+	   if(mss_p.nelements() >0){
+	     for (uInt k=0; k < mss_p.nelements(); ++k){
+	       if(mss_p[k])
+		 delete mss_p[k];
+	     }
+	     mss_p.resize(0, true, false);
+	   }
 	   ///resetting the block ms
 	   mss4vi_p.resize(0,true, false);
 	   //resetting data selection stored
@@ -1049,8 +1053,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     	  }
     	  else if ((type=="robust")||(type=="uniform")||(type=="briggs")) {
     		  if(!imageDefined_p) throw(AipsError("Please define image first"));
-    		  Quantity actualFieldOfView(fieldofview);
-    		  Int actualNPixels(npixels);
+    		  Quantity actualFieldOfView_x(fieldofview), actualFieldOfView_y(fieldofview) ;
+    		  Int actualNPixels_x(npixels),actualNPixels_y(npixels) ;
     		  String wtype;
     		  if(type=="briggs") {
     			  wtype = "Briggs";
@@ -1058,40 +1062,46 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     		  else {
     			  wtype = "Uniform";
     		  }
-    		  if(actualFieldOfView.get().getValue()==0.0&&actualNPixels==0) {
-    			  actualNPixels=nx;
-    			  actualFieldOfView=Quantity(actualNPixels*cellx.get("rad").getValue(),
-    					  "rad");
+    		  if(actualFieldOfView_x.get().getValue()==0.0&&actualNPixels_x==0) {
+    			  actualNPixels_x=nx;
+    			  actualFieldOfView_x=Quantity(actualNPixels_x*cellx.get("rad").getValue(),"rad");
+    			  actualNPixels_y=ny;
+    			  actualFieldOfView_y=Quantity(actualNPixels_y*celly.get("rad").getValue(),"rad");
     			  os << LogIO::NORMAL // Loglevel INFO
     					  << wtype
     					  << " weighting: sidelobes will be suppressed over full image"
     					  << LogIO::POST;
     		  }
-    		  else if(actualFieldOfView.get().getValue()>0.0&&actualNPixels==0) {
-    			  actualNPixels=nx;
+    		  else if(actualFieldOfView_x.get().getValue()>0.0&&actualNPixels_x==0) {
+    			  actualNPixels_x=nx;
+    			  actualNPixels_y=ny;
     			  os << LogIO::NORMAL // Loglevel INFO
     					  << wtype
     					  << " weighting: sidelobes will be suppressed over specified field of view: "
-    					  << actualFieldOfView.get("arcsec").getValue() << " arcsec" << LogIO::POST;
+			                  << actualFieldOfView_x.get("arcsec").getValue() << " arcsec by " 
+			                  << actualFieldOfView_y.get("arcsec").getValue()  << " arcsec" << LogIO::POST;
     		  }
-    		  else if(actualFieldOfView.get().getValue()==0.0&&actualNPixels>0) {
-    			  actualFieldOfView=Quantity(actualNPixels*cellx.get("rad").getValue(),
-    					  "rad");
+    		  else if(actualFieldOfView_x.get().getValue()==0.0&&actualNPixels_x>0) {
+    			  actualFieldOfView_x=Quantity(actualNPixels_x*cellx.get("rad").getValue(),"rad");
+    			  actualFieldOfView_y=Quantity(actualNPixels_y*celly.get("rad").getValue(),"rad");
     			  os << LogIO::NORMAL // Loglevel INFO
     					  << wtype
     					  << " weighting: sidelobes will be suppressed over full image field of view: "
-    					  << actualFieldOfView.get("arcsec").getValue() << " arcsec" << LogIO::POST;
+			                  << actualFieldOfView_x.get("arcsec").getValue() << " arcsec by " 
+    					  << actualFieldOfView_y.get("arcsec").getValue() << " arcsec" << LogIO::POST;
     		  }
     		  else {
     			  os << LogIO::NORMAL // Loglevel INFO
     					  << wtype
     					  << " weighting: sidelobes will be suppressed over specified field of view: "
-    					  << actualFieldOfView.get("arcsec").getValue() << " arcsec" << LogIO::POST;
+			                  << actualFieldOfView_x.get("arcsec").getValue() << " arcsec by " 
+    					  << actualFieldOfView_y.get("arcsec").getValue() << " arcsec" << LogIO::POST;
     		  }
     		  os << LogIO::DEBUG1
-    				  << "Weighting used " << actualNPixels << " uv pixels."
-    				  << LogIO::POST;
-    		  Quantity actualCellSize(actualFieldOfView.get("rad").getValue()/actualNPixels, "rad");
+		     << "Weighting used " << actualNPixels_x << " by " << actualNPixels_y << " uv pixels."
+		     << LogIO::POST;
+    		  Quantity actualCellSize_x(actualFieldOfView_x.get("rad").getValue()/actualNPixels_x, "rad");
+    		  Quantity actualCellSize_y(actualFieldOfView_y.get("rad").getValue()/actualNPixels_y, "rad");
 
 		  //		  cerr << "rmode " << rmode << " noise " << noise << " robust " << robust << " npixels " << actualNPixels << " cellsize " << actualCellSize << " multifield " << multiField << endl;
 		  //		  Timer timer;
@@ -1100,8 +1110,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
 		  imwgt_p=VisImagingWeight(*rvi_p, wtype=="Uniform" ? "none" : rmode, noise, robust,
-                                 actualNPixels, actualNPixels, actualCellSize,
-                                 actualCellSize, 0, 0, multiField);
+                                 actualNPixels_x, actualNPixels_y, actualCellSize_x,
+                                 actualCellSize_y, 0, 0, multiField);
 
 		  /*
 		  if(rvi_p !=NULL){
@@ -1136,6 +1146,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	 rvi_p->useImagingWeight(imwgt_p);
       ///////////////////////////////
 	 
+    SynthesisUtilMethods::getResource("Set Weighting");
 	 
 	 ///	 return true;
 	 
@@ -1163,7 +1174,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  {
 	    for (uInt fid=0;fid<densitymatrices.nelements();fid++)
 	      {
-		//cout << "Density shape (get) for f " << fid << ": " << densitymatrices[fid].shape() << endl;
+		//cout << "********** Density shape (get) for f " << fid << ": " << densitymatrices[fid].shape() << endl;
 		itsMappers.imageStore(fid)->gridwt(0)->put(densitymatrices[fid]);
 	      }
 	  }
@@ -1190,7 +1201,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    Array<Float> arr;
 	    itsMappers.imageStore(fid)->gridwt(0)->get(arr,true);
 	    densitymatrices[fid].reference( arr );
-	    //cout << "Density shape (set) for f " << fid << " : " << arr.shape() << " : " << densitymatrices[fid].shape() << endl;
+	    //cout << "********** Density shape (set) for f " << fid << " : " << arr.shape() << " : " << densitymatrices[fid].shape() << endl;
 	  }
 
 
@@ -1926,7 +1937,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     LogIO os(LogOrigin("SynthesisImager", "getVPRecord",WHERE));
 
     VPManager *vpman=VPManager::Instance();
-    if( itsVpTable != String("") ) 
+    if( itsVpTable != String("") )  
       {
 	os << "Loading Voltage Pattern information from " << itsVpTable << LogIO::POST;
 	vpman->loadfromtable(itsVpTable);
@@ -1968,12 +1979,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     
     LogIO os(LogOrigin("SynthesisImager", "createMosFTMachine",WHERE));
    
+    rvi_p->originChunks();
     ROMSColumns msc(rvi_p->ms());
     String telescop=msc.observation().telescopeName()(0);
-    // Hack...start
-    //if(telescop=="EVLA"){os << LogIO::WARN << "vpmanager does not list EVLA. Using VLA beam parameters" << LogIO::POST; telescop="VLA";}
-    // Hack...stop
-
+    ///Multi ms with different telescop
+    Bool multiTel=False;
+    for(rvi_p->originChunks(); rvi_p->moreChunks(); rvi_p->nextChunk()){
+      if(rvi_p->newMS() && telescop !=  ROMSColumns(rvi_p->ms()).observation().telescopeName()(0))
+	multiTel=True;
+    }
+    rvi_p->originChunks();
+  
     PBMath::CommonPB kpb;
     Record rec;
     getVPRecord( rec, kpb, telescop );
@@ -2020,16 +2036,19 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       vps= new VPSkyJones(telescop, myPB, Quantity(rotatePAStep, "deg"), BeamSquint::GOFIGURE, Quantity(360.0, "deg"));
       kpb=PBMath::DEFAULT;
     }
-    
+   
+
+    //cerr << "SImager tel " << ((vps) ? vps->telescope(): "NOTEL " )  << " multiTel " << multiTel << endl;
+ 
     theFT = new MosaicFTNew(vps, mLocation_p, stokes, 1000000000, 16, useAutoCorr, 
 		      useDoublePrec);
-    PBMathInterface::PBClass pbtype=(kpb==PBMath::EVLA)? PBMathInterface::COMMONPB: PBMathInterface::AIRY;
+    PBMathInterface::PBClass pbtype=((kpb==PBMath::EVLA) || multiTel)? PBMathInterface::COMMONPB: PBMathInterface::AIRY;
     if(rec.asString("name")=="IMAGE")
        pbtype=PBMathInterface::IMAGE;
     ///Use Heterogenous array mode for the following
     ///Added EVLA in it to use different beam models for different frequencies
     if((kpb == PBMath::UNKNOWN) || (kpb==PBMath::OVRO) || (kpb==PBMath::ACA)
-       || (kpb==PBMath::ALMA) || (kpb==PBMath::EVLA)){
+       || (kpb==PBMath::ALMA) || (kpb==PBMath::EVLA) || multiTel){
       CountedPtr<SimplePBConvFunc> mospb=new HetArrayConvFunc(pbtype, "");
       static_cast<MosaicFTNew &>(*theFT).setConvFunc(mospb);
     }
@@ -2114,7 +2133,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     	if(!dopsf)itsMappers.initializeDegrid(*vb);
     	itsMappers.initializeGrid(*vb,dopsf);
-	SynthesisUtilMethods::getResource("After initGrid for all mappers");
+	//SynthesisUtilMethods::getResource("After initGrid for all mappers");
 
     	for (rvi_p->originChunks(); rvi_p->moreChunks();rvi_p->nextChunk())
     	{
@@ -2142,7 +2161,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     	}
     	//cerr << "IN SYNTHE_IMA" << endl;
     	//VisModelData::listModel(rvi_p->getMeasurementSet());
-	SynthesisUtilMethods::getResource("Before finalize for all mappers");
+	//SynthesisUtilMethods::getResource("Before finalize for all mappers");
     	if(!dopsf) itsMappers.finalizeDegrid(*vb);
     	itsMappers.finalizeGrid(*vb, dopsf);
 

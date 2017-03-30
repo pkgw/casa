@@ -48,6 +48,9 @@ public:
   // Construct from a VB
   DelayFFT(const VisBuffer& vb,casacore::Double padBW,casacore::Int refant);
 
+  // Construct from a VB2
+  DelayFFT(SolveDataBuffer& sdb,casacore::Double padBW,casacore::Int refant,casacore::Int nElem);
+
   // Perform FFT
   void FFT();
 
@@ -86,9 +89,14 @@ private:
 
 // Forward declarations
 
+
 // K Jones provides support for SBD delays
 class KJones : public GJones {
+
+
 public:
+
+  //  friend class KJonesTest;
 
   // Constructor
   KJones(VisSet& vs);
@@ -100,6 +108,7 @@ public:
 
   // Local setApply to enforce calWt=F for delays
   virtual void setApply(const casacore::Record& apply);
+  virtual void setApply();
   using GJones::setApply;
   virtual void setCallib(const casacore::Record& callib,
 			 const casacore::MeasurementSet& selms);
@@ -159,6 +168,9 @@ public:
   // Override G here; nothing to do for K, for now
   virtual void globalPostSolveTinker() {};
 
+  // Local implementation of selfSolveOne (generalized signature)
+  virtual void selfSolveOne(VisBuffGroupAcc& vbga);
+  virtual void selfSolveOne(SDBList& sdbs);
 
 protected:
 
@@ -174,14 +186,13 @@ protected:
   // Initialize trivial dJs
   virtual void initTrivDJ() {};
 
-  // Local implementation of selfSolveOne (generalized signature)
-  virtual void selfSolveOne(VisBuffGroupAcc& vbga);
-
   // FFT solver for one VB
   virtual void solveOneVB(const VisBuffer& vb);
+  virtual void solveOneSDB(SolveDataBuffer& sdb);
 
   // FFT solver for multi-VB (MBD)
   virtual void solveOneVBmbd(VisBuffGroupAcc& vbga);
+  virtual void solveOneSDBmbd(SDBList& sdbs);
 
   // Reference frequencies
   casacore::Vector<casacore::Double> KrefFreqs_;
@@ -211,14 +222,18 @@ public:
   // By definition, we consider cross-hands
   virtual casacore::Bool phandonly() { return false; };
 
-protected:
-
   // Local implementation of selfSolveOne 
   //   This traps combine='spw', which isn't supported yet
   virtual void selfSolveOne(VisBuffGroupAcc& vbga);
+  virtual void selfSolveOne(SDBList& sdbs);
+
+
+protected:
+
 
   // FFT solver for on VB, that collapses baselines and cross-hands first
   virtual void solveOneVB(const VisBuffer& vb);
+  virtual void solveOneSDB(SolveDataBuffer& sdb);
 
 };
 
@@ -244,6 +259,7 @@ public:
 
   // Local setApply (to enforce KrefFreq_=0.0)
   virtual void setApply(const casacore::Record& apply);
+  using KJones::setApply;
 
  
 };
@@ -313,7 +329,22 @@ private:
   casacore::MDirection phasedir_p;
   casacore::MPosition antpos0_p;
 
+  // utility methods/variables for Trop Delay Error correction
+  bool vlaTrDelCorrApplicable(bool checkCalTable=false);
+  void markCalTableForTrDelCorr();
+  void initTrDelCorr();                        // init (at set apply)
+  double calcTrDelError(int iant);              // calc (per ant,timestamp)
+  bool doTrDelCorr_;                            // on or off
+  double userEterm_;
+  casacore::Vector<double> MJDlim_;             // applicable date ranges
+  #define MJD0 String("2016/08/09/00:00:00.0")
+  #define MJD1 String("2016/11/15/00:00:00.0") 
+  double eterm_;                                // scale
+  casacore::Vector<double> losDist_, armAz_;    // geo info
+  casacore::Vector<casacore::MDirection> azel_;
+
 };
+
 
 } //# NAMESPACE CASA - END
 

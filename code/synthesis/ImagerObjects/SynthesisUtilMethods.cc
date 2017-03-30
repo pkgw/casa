@@ -61,8 +61,7 @@
 #include <msvis/MSVis/SubMS.h>
 #include <mstransform/MSTransform/MSTransformRegridder.h>
 #include <msvis/MSVis/MSUtil.h>
-
-#include <msvis/MSVis/VisibilityIterator2.h>
+#include <msvis/MSVis/VisibilityIteratorImpl2.h>
 #include <msvis/MSVis/VisBufferUtil.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -189,14 +188,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     
   void SynthesisUtilMethods::getResource(String label, String fname)
   {
-           return;
+               return;
 
      LogIO os( LogOrigin("SynthesisUtilMethods","getResource",WHERE) );
 
 
         FILE* file = fopen("/proc/self/status", "r");
         int vmSize = -1, vmRSS=-1, pid=-1;
-	//	int fdSize=-1;
+	int fdSize=-1;
         char line[128];
     
         while (fgets(line, 128, file) != NULL){
@@ -206,9 +205,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  if (strncmp(line, "VmRSS:", 6) == 0){
 	    vmRSS = parseLine(line)/1024.0;
 	  }
-	  //	  if (strncmp(line, "FDSize:", 7) == 0){
-	  //  fdSize = parseLine(line);
-	  //}
+	  	  if (strncmp(line, "FDSize:", 7) == 0){
+	    fdSize = parseLine(line);
+	  }
 	  if (strncmp(line, "Pid:", 4) == 0){
 	    pid = parseLine(line);
 	  }
@@ -225,8 +224,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	oss << " PID: " << pid ;
 	oss << " MemRSS: " << vmRSS << " MB.";
 	oss << " VirtMem: " << vmSize << " MB.";
-	//	oss << " FDSize: " << fdSize;
 	oss << " ProcTime: " << now.tv_sec << "." << now.tv_usec;
+	oss << " FDSize: " << fdSize;
 	oss <<  " [" << label << "] ";
 
 
@@ -1859,18 +1858,48 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     /// This version uses the new vi2/vb2
     // get the first ms for multiple MSes
     MeasurementSet msobj=vi2.ms();
-    Vector<Int> spwids;
-    vi2.getImpl()->spectralWindows( spwids );
-    Vector<Int> flds;
-    vi2.getImpl()->fieldIds( flds );
-    AlwaysAssert( flds.nelements()>0 , AipsError );
-    Int fld = flds[0];
+    
+    //vi2.getImpl()->spectralWindows( spwids );
+    //The above is not right
+    //////////// ///Kludge to find all spw selected
+    std::vector<Int> pushspw;
+    vi::VisBuffer2* vb=vi2.getVisBuffer();
+    vi2.originChunks();
+    vi2.origin();
+    Int fld=vb->fieldId()(0);
+    for (vi2.originChunks(); vi2.moreChunks();vi2.nextChunk())
+    	{
+	  for (vi2.origin(); vi2.more();vi2.next())
+    		{
+		  Int a=vb->spectralWindows()(0);
+		  if(std::find(pushspw.begin(), pushspw.end(), a) == pushspw.end()) {
+		    
+		    pushspw.push_back(a);
+		  }
+
+
+
+		}
+	}
+    Vector<Int> spwids(pushspw);
+    //////////////////This returns junk for multiple ms CAS-9994..so kludged up along with spw kludge
+    //Vector<Int> flds;
+    //vi2.getImpl()->fieldIds( flds );
+    //AlwaysAssert( flds.nelements()>0 , AipsError );
+    //fld = flds[0];
     Double freqmin=0, freqmax=0;
-    freqFrameValid=(freqFrame != MFrequency::REST || mode != "cubedata" );
-    VisBufferUtil::getFreqRange(freqmin,freqmax, vi2, freqFrameValid? freqFrame:MFrequency::REST );
+    freqFrameValid=(freqFrame != MFrequency::REST );
     MFrequency::Types dataFrame=(MFrequency::Types)vi2.subtableColumns().spectralWindow().measFreqRef()(spwids[0]);
     Double datafstart, datafend;
     VisBufferUtil::getFreqRange(datafstart, datafend, vi2, dataFrame );
+    if (mode=="cubedata") {
+       freqmin = datafstart;
+       freqmax = datafend;
+    }
+    else {
+       VisBufferUtil::getFreqRange(freqmin,freqmax, vi2, freqFrameValid? freqFrame:MFrequency::REST );
+    }
+    
 
     return buildCoordinateSystemCore( msobj, spwids, fld, freqmin, freqmax, datafstart, datafend );
   }
@@ -1887,13 +1916,20 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Int fld = rvi->fieldId();
     Double freqmin=0, freqmax=0;
     Double datafstart, datafend;
-    freqFrameValid=(freqFrame != MFrequency::REST || mode != "cubedata" );
-    rvi->getFreqInSpwRange(freqmin,freqmax,freqFrameValid? freqFrame:MFrequency::REST );
-    // Following three lines are  kind of redundant but need to get freq range in the data frame to be used
-    // to select channel range for default start 
+    //freqFrameValid=(freqFrame != MFrequency::REST || mode != "cubedata" );
+    freqFrameValid=(freqFrame != MFrequency::REST );
     ROMSColumns msc(msobj);
     MFrequency::Types dataFrame=(MFrequency::Types)msc.spectralWindow().measFreqRef()(spwids[0]);
     rvi->getFreqInSpwRange(datafstart, datafend, dataFrame );
+    if (mode=="cubedata") {
+       freqmin = datafstart;
+       freqmax = datafend;
+    }
+    else { 
+       rvi->getFreqInSpwRange(freqmin,freqmax,freqFrameValid? freqFrame:MFrequency::REST );
+    }
+    // Following three lines are  kind of redundant but need to get freq range in the data frame to be used
+    // to select channel range for default start 
     //cerr<<"freqmin="<<freqmin<<" datafstart="<<datafstart<<" freqmax="<<freqmax<<" datafend="<<datafend<<endl;
     return buildCoordinateSystemCore( msobj, spwids, fld, freqmin, freqmax, datafstart, datafend );
   }
@@ -1907,7 +1943,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     LogIO os( LogOrigin("SynthesisParamsImage","buildCoordinateSystem",WHERE) );
   
     CoordinateSystem csys;
-    
     if( csysRecord.nfields()!=0 ) 
       {
         //use cysRecord
@@ -2017,6 +2052,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     std::vector<std::vector<Int> > averageWhichChan;
     std::vector<std::vector<Int> > averageWhichSPW;
     std::vector<std::vector<Double> > averageChanFrac;
+    
     if(spwids.nelements()==1)
       {
         dataChanFreq=msc.spectralWindow().chanFreq()(spwids[0]);
@@ -2026,6 +2062,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       {
         //SubMS thems(msobj);
         //if(!thems.combineSpws(spwids,true,dataChanFreq,dataChanWidth))
+	
 	if(!MSTransformRegridder::combineSpwsCore(os,msobj, spwids,dataChanFreq,dataChanWidth,
 											  averageWhichChan,averageWhichSPW,averageChanFrac))
           {
@@ -2665,7 +2702,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         descendingoutfreq = true;
       }
 
-      if (descendingfreq && !descendingoutfreq) {
+       //if (descendingfreq && !descendingoutfreq) {
+      if ((specmode=="channel" && descendingfreq==1) 
+          || (specmode!="channel" && (descendingfreq != descendingoutfreq))) { 
         // reverse the freq vector if necessary so the first element can be
         // used to set spectralCoordinates in all the cases.
         //
@@ -2680,15 +2719,19 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     else if ( mode=="mfs" ) {
       chanFreq.resize(1);
       chanFreqStep.resize(1);
-      chanFreqStep[0] = freqmax - freqmin;
+      //chanFreqStep[0] = freqmax - freqmin;
       Double freqmean = (freqmin + freqmax)/2;
       if (refFreq.getValue("Hz")==0) {
         chanFreq[0] = freqmean;
         refPix = 0.0;
+	chanFreqStep[0] = freqmax - freqmin;
       }
       else { 
         chanFreq[0] = refFreq.getValue("Hz"); 
-        refPix  = (refFreq.getValue("Hz") - freqmean)/chanFreqStep[0];
+	// Set the new reffreq to be the refPix (CAS-9518)
+        refPix  = 0.0; // (refFreq.getValue("Hz") - freqmean)/chanFreqStep[0];
+	// A larger bandwidth to compensate for the shifted reffreq (CAS-9518)
+	chanFreqStep[0] = freqmax - freqmin + 2*fabs(chanFreq[0] - freqmean);
       }
 
       if( nchan==-1 ) nchan=1;
@@ -3248,7 +3291,78 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                 err+= "autoadjust must be a bool\n";
               }
           }
-
+        //params for the new automasking algorithm
+        if( inrec.isDefined("sidelobethreshold"))
+          {
+            if(inrec.dataType("sidelobethreshold")==TpFloat || inrec.dataType("sidelobethreshold")==TpDouble )
+              {
+                err+= readVal(inrec, String("sidelobethreshold"), sidelobeThreshold );
+              }
+            else 
+              {
+                err+= "sidelobethreshold must be a float or double";
+              }
+          }
+        if( inrec.isDefined("noisethreshold"))
+          {
+            if(inrec.dataType("noisethreshold")==TpFloat || inrec.dataType("noisethreshold")==TpDouble )
+              {
+                err+= readVal(inrec, String("noisethreshold"), noiseThreshold );
+              }
+            else 
+              {
+                err+= "noisethreshold must be a float or double";
+              }
+          }
+        if( inrec.isDefined("lownoisethreshold"))
+          {
+            if(inrec.dataType("lownoisethreshold")==TpFloat || inrec.dataType("lownoisethreshold")==TpDouble )
+              {
+                err+= readVal(inrec, String("lownoisethreshold"), lowNoiseThreshold );
+              }
+            else 
+              {
+                err+= "lownoisethreshold must be a float or double";
+              }
+          }
+        if( inrec.isDefined("smoothfactor"))
+          {
+            if( inrec.dataType("smoothfactor")==TpFloat || inrec.dataType("smoothfactor")==TpDouble )
+              {
+                err+= readVal(inrec, String("smoothfactor"), smoothFactor );
+              }
+            else 
+              {
+                err+= "smoothfactor must be a float or double";
+              }
+          }
+        if( inrec.isDefined("minbeamfrac"))
+          {
+            if( inrec.dataType("minbeamfrac")==TpFloat || inrec.dataType("minbeamfrac")==TpDouble )
+              {
+                err+= readVal(inrec, String("minbeamfrac"), minBeamFrac );
+              }
+            else 
+              {
+                if (inrec.dataType("minbeamfrac")==TpInt) {
+                  cerr<<"minbeamfrac is int"<<endl;
+                }
+                if (inrec.dataType("minbeamfrac")==TpString) {
+                  cerr<<"minbeamfrac is String"<<endl;
+                }
+                err+= "minbeamfrac must be a float or double";
+              }
+          }
+        if( inrec.isDefined("cutthreshold"))
+          {
+            if( inrec.dataType("cutthreshold")==TpFloat || inrec.dataType("cutthreshold")==TpDouble )
+              {
+                err+= readVal(inrec, String("cutthreshold"), cutThreshold );
+              }
+            else {
+                err+= "cutthreshold must be a float or double";
+            }
+          }
         if( inrec.isDefined("restoringbeam") )     
 	  {
 	    String errinfo("");
@@ -3410,6 +3524,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     decpar.define("maskresolution",maskResolution);
     decpar.define("nmask",nMask);
     decpar.define("autoadjust",autoAdjust);
+    decpar.define("sidelobethreshold",sidelobeThreshold);
+    decpar.define("noisethreshold",noiseThreshold);
+    decpar.define("lownoisethreshold",lowNoiseThreshold);
+    decpar.define("smoothfactor",smoothFactor);
+    decpar.define("minbeamfrac",minBeamFrac);
+    decpar.define("cutthreshold",cutThreshold);
     decpar.define("interactive",interactive);
 
     return decpar;

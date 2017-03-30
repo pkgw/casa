@@ -944,7 +944,7 @@ def parseAgents(aflocal, flagdict, myrows, apply, writeflags, display=''):
         myrows --> selected rows to apply/unapply flags
         apply --> a boolean to control whether to apply or unapply the flags
         writeflags --> used by mode=rflag only
-        display --> used by mode='rflag only
+        display --> used by mode='rflag' only
         
         The original flagdict dictionary is not modified '''
     
@@ -1890,8 +1890,8 @@ def evaluateFlagParameters(pardict, pars):
             fpars.pop(par)
         
     # Define the parameters that have variant type in flagdata
-    dup_pars = ['ntime','observation','addantenna','timedev','timedev','freqdev','freqdev']
-    dup_types = [0.0,0,{},[],0.0,[],0.0]
+    dup_pars = ['ntime','observation','addantenna','timedev','timedev','freqdev','freqdev','quackinterval']
+    dup_types = [0.0,0,{},[],0.0,[],0.0,0]
          
     # Create a tuple from flagdata's parameters
     ftup = fpars.items()
@@ -1934,6 +1934,7 @@ def evaluateFlagParameters(pardict, pars):
 #               ('addantenna',{}),
 #                 # quack
 #               ('quackinterval',0.0),
+#               ('quackinterval',0),
 #               ('quackmode','string'),
 #               ('quackincrement',False),
 #                 # tfcrop
@@ -3847,6 +3848,7 @@ def setupAgent(aflocal, myflagcmd, myrows, apply, writeflags, display=''):
     tfcroppars = ['ntime','combinescans','datacolumn','timecutoff','freqcutoff',
                   'timefit','freqfit','maxnpieces','flagdimension','usewindowstats','halfwin',
                   'extendflags']
+    antintpars = ['minchanfrac','verbose']
     extendpars = ['ntime','combinescans','extendpols','growtime','growfreq','growaround',
                   'flagneartime','flagnearfreq']
     rflagpars = ['winsize','timedev','freqdev','timedevscale','freqdevscale','spectralmax',
@@ -3916,6 +3918,9 @@ def setupAgent(aflocal, myflagcmd, myrows, apply, writeflags, display=''):
             elif cmdline.__contains__('tfcrop'):
                 mode = 'tfcrop'
                 modepars = getLinePars(cmdline,tfcroppars)
+            elif cmdline.__contains__('antint'):
+                mode = 'antint'
+                modepars = getLinePars(cmdline,antintpars)
             elif cmdline.__contains__('extend') and cmdline.__contains__('extendpols'):
                 # Necessary to avoid matching the extenflags parameter of rflag/tfcrop
                 mode = 'extend'

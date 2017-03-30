@@ -18,14 +18,26 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-casa_add_python( tools tools_regressions_python python/${PYTHONV}/regressions
+casa_add_python( tools tools_regressions_python lib/python${PYTHONV}/regressions
+  3C129_regression.py
+  3C219D_test_regression.py
+  asdm-imexport+analysis_regression.py
+  equinox_vis_regression.py
+  ic2233_regression.py
+  ngc2403_regression.py
+  ngc5921redux_regression.py
+  ori_hc3n_regression.py
+  ori_sio_regression.py
+  pylabmem_regression.py
+  wproject_regression.py
+  calstat_test_regression.py
   3c129_tutorial_regression.py
   3C219D_regression.py
   3C391polim_regression.py
   accum_regression.py
   alma-m100-analysis-regression.py
   alma-m100-analysis-hpc-regression.py
-  alma-m100-analysis-hpc-regression-tclean.py  
+  alma-m100-analysis-hpc-regression-tclean.py
   alma-m100-sd-regression.py
   alma-ngc3256-analysis-regression.py
   alma-titan-ephemeris-regression.py
@@ -35,7 +47,7 @@ casa_add_python( tools tools_regressions_python python/${PYTHONV}/regressions
   cleanchan_regression.py
   cleanhelper_regression.py
   coordsystest_regression.py
-  cvel+clean_regression.py
+  cvel+clean_test_regression.py
   cvel_regression2.py
   fits-import-export_regression.py
   fls3a_hi_regression.py
@@ -79,4 +91,16 @@ casa_add_python( tools tools_regressions_python python/${PYTHONV}/regressions
   testcube2_regression.py
   testcompsim.py
   pipelineTest_regression.py
+  time_then_chan_avg.py
+  calstat_test_regression.py
+  wideband.py
+  wproject.py
+  polcal_20080224_cband.py
+  alma-m100-analysis.py
+  alma-m100-sd.py
+  alma-m100-analysis-hpc-tclean.py
+  alma-m100-analysis-hpc.py
+  alma-ngc3256-analysis.py
+  alma-titan-ephemeris.py
+
 )

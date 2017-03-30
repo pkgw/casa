@@ -20,6 +20,19 @@
 
 cmake_minimum_required( VERSION 2.8 )
 
+# ccache use is optional
+option( UseCcache OFF )
+
+if (UseCcache)
+    message (STATUS "Searching for ccache.")
+    find_program(CCACHE_FOUND ccache)
+    if(CCACHE_FOUND)
+        message (STATUS "Ccache found.")
+        set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+        set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
+    endif(CCACHE_FOUND)
+endif()
+
 add_definitions ("-DUseCasacoreNamespace")
 
 set( CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/install )
@@ -80,6 +93,7 @@ if( CASA_VERSION_FEATURE STREQUAL "0" )
 
     else( )
         execute_process( COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/install/resolvegitrevision.sh
+                         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
                          OUTPUT_VARIABLE CASA_VERSION_FEATURE_AND_BRANCH_TAG # Getting a list
                          OUTPUT_STRIP_TRAILING_WHITESPACE )
         message("resolvegitrevision: ${CASA_VERSION_FEATURE_AND_BRANCH_TAG}")
@@ -167,7 +181,11 @@ endif()
  
 if( CMAKE_BUILD_TYPE STREQUAL Debug )
     add_definitions( -DAIPS_DEBUG )
-    set( CMAKE_CXX_FLAGS_DEBUG "-ggdb3 -O0 -fno-omit-frame-pointer" )
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+        set( CMAKE_CXX_FLAGS_DEBUG "-O0 -fno-omit-frame-pointer" )
+    else( )
+        set( CMAKE_CXX_FLAGS_DEBUG "-ggdb3 -O0 -fno-omit-frame-pointer" )
+    endif( )
 endif()
 
 if( INTERACTIVE_ITERATION )
@@ -220,10 +238,19 @@ dump( CMAKE_SYSTEM
 set( BUILD_SHARED_LIBS ON )
 
 if( APPLE )
-    set( DEFAULT_CXX_FLAGS "-pipe -Wall -Wextra -Wcast-align -Wno-comment" )
+    set( DEFAULT_CXX_FLAGS "-pipe -Wall -Wextra -Wno-comment" )
 else ()
-    set( DEFAULT_CXX_FLAGS "-pipe -Wall -Wextra -Wno-non-template-friend -Wcast-align -Wno-comment" )
+    set( DEFAULT_CXX_FLAGS "-pipe -Wall -Wextra -Wno-comment" )
 endif()
+if (NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+    set( DEFAULT_CXX_FLAGS "${DEFAULT_CXX_FLAGS} -Wcast-align" )
+    if (NOT APPLE)
+        set( DEFAULT_CXX_FLAGS "${DEFAULT_CXX_FLAGS} -Wno-non-template-friend" )
+    endif( )
+endif( )
+if ( NOT UseCrashReporter OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+    set( DEFAULT_CXX_FLAGS "${DEFAULT_CXX_FLAGS} -DNO_CRASH_REPORTER" )
+endif( )
 
 set( DEFAULT_C_FLAGS "-pipe -Wall -Wextra -Wcast-align -Wno-comment" )
 
@@ -231,6 +258,7 @@ include(CheckCXXCompilerFlag)
 include(CheckCCompilerFlag)
 
 check_cxx_compiler_flag(-std=c++11 HAS_CXX11)
+
 if (HAS_CXX11)
     set(DEFAULT_CXX_FLAGS "${DEFAULT_CXX_FLAGS} -std=c++11")
 else()
@@ -250,11 +278,32 @@ if (HAS_GCC_FORTRAN_RULES)
     set(DEFAULT_C_FLAGS "-fcx-fortran-rules ${DEFAULT_C_FLAGS}")
 endif()
 
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+   ## setting intel libraries with e.g.
+   ##
+   ##    find_library( INTEL_IRNG irng HINTS ${INTEL_PATH} )
+   ##
+   ## causes CMAKE to substitute fully qualified paths which makes
+   ## python shared object unrelocatable in the case of libirng.so
+   ##
+   get_filename_component(INTEL_PATH ${CMAKE_CXX_COMPILER} DIRECTORY)
+   set(INTEL_LIB_PATH ${INTEL_PATH}/../lib/intel64)
+   set(INTEL_LIBS -limf -lsvml -lirng -lintlc -lifport -lifcore -liomp5)
+   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,${INTEL_LIB_PATH}")
+   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-rpath,${INTEL_LIB_PATH}")
+endif()
+
+
 # OpenMP
 find_package( OpenMP )
 if( OPENMP_FOUND )
-    set( DEFAULT_CXX_FLAGS "${DEFAULT_CXX_FLAGS} ${OpenMP_CXX_FLAGS}" )
-    set( DEFAULT_C_FLAGS   "${DEFAULT_C_FLAGS}   ${OpenMP_C_FLAGS}" )
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+        set(DEFAULT_CXX_FLAGS "${DEFAULT_CXX_FLAGS} -qopenmp")
+        set(DEFAULT_C_FLAGS "${DEFAULT_C_FLAGS} -qopenmp")
+    else( )
+        set( DEFAULT_CXX_FLAGS "${DEFAULT_CXX_FLAGS} ${OpenMP_CXX_FLAGS}" )
+        set( DEFAULT_C_FLAGS   "${DEFAULT_C_FLAGS}   ${OpenMP_C_FLAGS}" )
+    endif()
 endif()
 
 # For CalLibrary parser
@@ -345,6 +394,8 @@ if( APPLE )
                     set ( casa_packages /opt/casa/darwin11 )
                 elseif(CMAKE_SYSTEM MATCHES ^Darwin-12)
                     set ( casa_packages /opt/casa/01 )
+                elseif( EXISTS /opt/casa/02)
+                    set ( casa_packages /opt/casa/02 )
                 else()
                     set ( casa_packages /opt/casa/01 )
                 endif()
@@ -370,14 +421,6 @@ if( APPLE )
                          COMMAND perl -pe "s|.*?(\\d+\\.\\d+)\\.\\d+$|$1|"
                          OUTPUT_VARIABLE _cxx_version
                          OUTPUT_STRIP_TRAILING_WHITESPACE )
-        set (INTEL_CXX_COMPILER "false" )
-        if( _cxx_version MATCHES "ICC")
-            set (INTEL_CXX_COMPILER "true" )
-        endif()
-        set (INTEL_FORTRAN_COMPILER "false" )
-        if( _gfortran__version MATCHES "IFORT")
-            set (INTEL_FORTRAN_COMPILER "true" )
-        endif()
     
         message( STATUS "$_gfortran_version = ${_gfortran_version}" )
         message( STATUS "$_gcc_machine = ${_gcc_machine}" )
@@ -406,7 +449,7 @@ if( APPLE )
         message( WARNING "Unsupported Mac: ${CMAKE_SYSTEM}" )
     endif()
 
-    if( NOT INTEL_CXX_COMPILER STREQUAL "true" )
+    if( NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" )
         if( _cxx_version STREQUAL "4.4" )
             set( DEFAULT_CXX_FLAGS "${DEFAULT_CXX_FLAGS} -dynamic -mtune=nocona -ftree-vectorize -mfpmath=sse" )
         else()
@@ -437,9 +480,9 @@ if( APPLE )
 elseif( CMAKE_SYSTEM_NAME STREQUAL Linux )
 
     if( DEFINED ENV{LDFLAGS} )
-        set( CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined $ENV{LDFLAGS}")
+        set( CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined $ENV{LDFLAGS} -Wl,-rpath,${INTEL_LIB_PATH}")
     else( )
-        set( CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined")
+        set( CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined -Wl,-rpath,${INTEL_LIB_PATH}")
     endif( )
 
     if( CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64 )
@@ -495,7 +538,7 @@ elseif( CMAKE_SYSTEM_NAME STREQUAL Linux )
         set( dbusxx dbus-c++ )
         set( casa_packages /usr/lib/casapy )
         set( qt4 system-qt )
-        set( python_version 2.6 )
+        set( python_version 2.7 )
 
     endif()
 else()
@@ -511,7 +554,6 @@ endif()
 if( NOT CMAKE_C_FLAGS )
   set( CMAKE_C_FLAGS "${DEFAULT_C_FLAGS} ${EXTRA_C_FLAGS}" )
 endif()
-
 
 if( NOT RE_CMAKE )
     if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -648,7 +690,7 @@ file( WRITE ${casaroot}/casainit.csh
 # Choose to have correct RPATHs both in the build tree and
 # in the install tree (at the cost of having to change the
 # rpath when installing)
-set( CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib )
+set( CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib:${INTEL_LIB_PATH}:arbitraryExtraPaddingToAllowForRpathGrowth" )
 set( CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 set( CMAKE_INSTALL_NAME_DIR ${CMAKE_INSTALL_PREFIX}/lib )
 
@@ -859,7 +901,7 @@ if( NOT SKIP_PGPLOT )
      if (APPLE) 
         set( CMAKE_SHARED_LINKER_FLAGS "-Wl,-undefined -Wl,error -framework AppKit" )
      else()
-        set( CMAKE_SHARED_LINKER_FLAGS "-Wl,-undefined -Wl,error" )
+        set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined -Wl,error" )
      endif()
   endif()
   casa_find( PGPLOT
@@ -1158,6 +1200,8 @@ if( ${qt4} STREQUAL casa-qt )
   ### cmake is so lame...
   if ( EXISTS /opt/casa/02/bin/qmake )
       set( QT_QMAKE_EXECUTABLE /opt/casa/02/bin/qmake )
+  elseif ( EXISTS /opt/casa/02/libexec/qt4/bin/qmake )
+      set( QT_QMAKE_EXECUTABLE /opt/casa/02/libexec/qt4/bin/qmake ) 
   else( )
       set( QT_QMAKE_EXECUTABLE /usr/lib64/casa/01/bin/qmake )
   endif( )
@@ -1293,13 +1337,16 @@ casa_find( LIBSAKURA
 
 include (GoogleTestInstall)
 
+
 #########################
 #                       #
 # Breakpad Installation #
 #                       #
 #########################
 
-include (BreakpadInstall)
+if (UseCrashReporter AND NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+   include (BreakpadInstall)
+endif( )
 
 ###
 
@@ -1347,7 +1394,9 @@ casa_add_module( singledish CASACORE casa_sakura msvis mstransform)
 casa_add_module( bnmin1 Boost GSL GSLCBLAS CASACORE )
 casa_add_module( air_casawvr CASACORE bnmin1 Boost synthesis WCSLIB CFITSIO LAPACK )
 
-add_subdirectory( crash) 
+if (UseCrashReporter AND NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+   add_subdirectory( crash) 
+endif( )
 
 #
 # ASAP's build depends on something called a makedefs file. Fake one of those.

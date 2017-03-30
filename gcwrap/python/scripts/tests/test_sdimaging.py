@@ -12,6 +12,9 @@ import math
 import re
 import string
 
+_ia = iatool( )
+_rg = rgtool( )
+
 try:
     import selection_syntax
 except:
@@ -61,7 +64,13 @@ def merge_dict(d1, d2):
     d12 = d1.copy()
     d12.update(d2)
     return d12
-    
+
+def get_table_cache():
+    (mytb,) = gentools(['tb'])
+    cache = mytb.showcache()
+    #print 'cache = {}'.format(cache)
+    return cache
+
 ###
 # Base class for sdimaging unit test
 ###
@@ -153,9 +162,9 @@ class sdimaging_unittest_base(unittest.TestCase):
 
     def _checkshape(self,name,nx,ny,npol,nchan):
         self._checkfile(name)
-        ia.open(name)
-        imshape=ia.shape()
-        ia.close()
+        _ia.open(name)
+        imshape=_ia.shape()
+        _ia.close()
         self.assertEqual(nx,imshape[0],
                     msg='nx does not match')
         self.assertEqual(ny,imshape[1],
@@ -186,16 +195,16 @@ class sdimaging_unittest_base(unittest.TestCase):
         self._checkfile(name)
         if compstats is None: compstats = ref.keys()
         if region is None: region = ""
-        ia.open(name)
+        _ia.open(name)
         try:
             if ignoremask:
-                def_mask = ia.maskhandler('default')
-                ia.calcmask('T')
-            stats=ia.statistics(region=region, list=True, verbose=True)
+                def_mask = _ia.maskhandler('default')
+                _ia.calcmask('T')
+            stats=_ia.statistics(region=region, list=True, verbose=True)
             if ignoremask:
-                ia.maskhandler('set',def_mask)
+                _ia.maskhandler('set',def_mask)
         except: raise
-        finally: ia.close()
+        finally: _ia.close()
         #for key in stats.keys():
         for key in compstats:
             message='statistics \'%s\' does not match: %s (expected: %s)' % ( key, str(stats[key]), str(ref[key]) )
@@ -212,10 +221,10 @@ class sdimaging_unittest_base(unittest.TestCase):
         """ Test image center, cell size and imsize"""
         cell = self._format_dir_list(cell)
         imsize = self._format_dir_list(imsize)
-        ia.open(imagename)
-        csys = ia.coordsys()
-        ret = ia.summary()
-        ia.close()
+        _ia.open(imagename)
+        csys = _ia.coordsys()
+        ret = _ia.summary()
+        _ia.close()
         ra_idx = csys.findaxisbyname('ra')
         dec_idx = csys.findaxisbyname('dec')
         ra_unit = ret['axisunits'][ra_idx]
@@ -265,9 +274,9 @@ class sdimaging_unittest_base(unittest.TestCase):
 
     def _check_beam(self, image, ref_beam):
         """Check image beam size"""
-        ia.open(image)
-        beam = ia.restoringbeam()
-        ia.close()
+        _ia.open(image)
+        beam = _ia.restoringbeam()
+        _ia.close()
         maj_asec = qa.getvalue(qa.convert(beam['major'], 'arcsec'))
         min_asec = qa.getvalue(qa.convert(beam['minor'], 'arcsec'))
         maj_asec_ref = qa.getvalue(qa.convert(ref_beam['major'], 'arcsec'))
@@ -280,9 +289,9 @@ class sdimaging_unittest_base(unittest.TestCase):
         self.assertTrue(qa.compare(restfreq, 'Hz'))
         myunit = qa.getunit(restfreq)
         refval = qa.getvalue(restfreq)[0]
-        ia.open(imagename)
-        csys = ia.coordsys()
-        ia.close()
+        _ia.open(imagename)
+        csys = _ia.coordsys()
+        _ia.close()
         testval = qa.getvalue(qa.convert(csys.restfrequency(), myunit))
         csys.done()
         ret=numpy.allclose(testval,refval, atol=1.e-5, rtol=1.e-5)
@@ -312,6 +321,8 @@ class sdimaging_test0(sdimaging_unittest_base):
         if (os.path.exists(self.rawfile)):
             shutil.rmtree(self.rawfile)
         os.system( 'rm -rf '+self.prefix+'*' )
+        
+        self.assertEqual(len(get_table_cache()), 0)
 
     def test000(self):
         """Test 000: Default parameters"""
@@ -515,6 +526,8 @@ class sdimaging_test1(sdimaging_unittest_base):
         if (os.path.exists(self.rawfile)):
             shutil.rmtree(self.rawfile)
         os.system( 'rm -rf '+self.prefix+'*' )
+
+        self.assertEqual(len(get_table_cache()), 0)
 
     def test100(self):
         """Test 100: Integrated image"""
@@ -834,6 +847,8 @@ class sdimaging_test2(sdimaging_unittest_base):
             shutil.rmtree(self.rawfile)
         os.system( 'rm -rf '+self.prefix+'*' )
 
+        self.assertEqual(len(get_table_cache()), 0)
+
     def test200(self):
         """Test 200: Integrated image"""
         nchan = 1
@@ -959,6 +974,8 @@ class sdimaging_test3(sdimaging_unittest_base):
         if (os.path.exists(self.rawfile)):
             shutil.rmtree(self.rawfile)
         os.system( 'rm -rf '+self.prefix+'*' )
+
+        self.assertEqual(len(get_table_cache()), 0)
 
     def test300(self):
         """Test 300: Integrated image"""
@@ -1087,6 +1104,8 @@ class sdimaging_autocoord(sdimaging_unittest_base):
         if (os.path.exists(self.rawfile)):
             shutil.rmtree(self.rawfile)
         os.system( 'rm -rf '+self.prefix+'*' )
+
+        self.assertEqual(len(get_table_cache()), 0)
 
     def run_test(self, task_param, shape, dirax):
         """
@@ -1232,6 +1251,8 @@ class sdimaging_test_selection(selection_syntax.SelectionSyntaxTest,sdimaging_un
             if (os.path.exists(name)):
                 shutil.rmtree(name)
         os.system( 'rm -rf '+self.prefix+'*' )
+        
+        self.assertEqual(len(get_table_cache()), 0)
 
     def run_test(self, task_param, refstats, shape,
                  atol=1.e-8, rtol=1.e-5, box=None):
@@ -1681,7 +1702,7 @@ class sdimaging_test_selection(selection_syntax.SelectionSyntaxTest,sdimaging_un
         out_shape = (self.spw_imsize_auto[0],self.spw_imsize_auto[1],1,self.spw_nchan)
         # Tests
         self.run_test(self.task_param,refstats,out_shape,box=region,atol=1.e-3,rtol=1.e-3)
-       
+        
     @unittest.expectedFailure
     def test_spw_id_default_velocity(self):
         """test spw selection w/ channel selection (spw='X~Ykm/s') NOT SUPPORTED YET"""
@@ -1781,7 +1802,7 @@ class sdimaging_test_selection(selection_syntax.SelectionSyntaxTest,sdimaging_un
         out_shape = (self.spw_imsize_auto[0],self.spw_imsize_auto[1],1,self.spw_nchan)
         # Tests
         self.run_test(self.task_param,refstats,out_shape,box=region,atol=1.e-3,rtol=1.e-3)
-        
+ 
     @unittest.expectedFailure
     def test_spw_id_pattern_velocity(self):
         """test spw selection w/ channel selection (spw='*:X~Ykm/s') NOT SUPPORTED YET"""
@@ -1904,7 +1925,7 @@ class sdimaging_test_selection(selection_syntax.SelectionSyntaxTest,sdimaging_un
                          are calculated from whole pixels in image. default
                          is False (take image mask into account).
         """
-        boxreg = rg.box(**box) if box is not None else None
+        boxreg = _rg.box(**box) if box is not None else None
         refstats = ref.copy()
         refstats.update(box)
         for stats in ['blcf', 'trcf']:
@@ -2031,6 +2052,8 @@ class sdimaging_test_flag(sdimaging_unittest_base):
         if os.path.exists(self.rawfile):
             shutil.rmtree(self.rawfile)
         os.system( 'rm -rf '+self.prefix+'*' )
+
+        self.assertEqual(len(get_table_cache()), 0)
 
     def testFlag01(self):
         """testFlag01: """
@@ -2195,7 +2218,20 @@ class sdimaging_test_polflag(sdimaging_unittest_base):
     def tearDown(self):
         if os.path.exists(self.infiles):
             shutil.rmtree(self.infiles)
-        #os.system( 'rm -rf '+self.prefix+'*' )
+        # Since the data is flagged by flagdata, flagversions directory 
+        # is automatically created. This must be removed
+        flagversions = self.infiles + '.flagversions'
+        if os.path.exists(flagversions):
+            shutil.rmtree(flagversions)
+        # By executing flagdata task, flagdata.last is created automatically
+        # This must also be removed
+        flagdata_last = 'flagdata.last'
+        if os.path.exists(flagdata_last):
+            os.remove(flagdata_last)
+        # Remove test image and its weight image
+        os.system( 'rm -rf '+self.prefix+'*' )
+
+        self.assertEqual(len(get_table_cache()), 0)
 
     def run_test(self, task_param, refstats, shape,
                  atol=1.e-8, rtol=1.e-5, box=None):
@@ -2249,7 +2285,7 @@ class sdimaging_test_polflag(sdimaging_unittest_base):
         # statistics of YY only
         refstats['blc'][2] = 1
         for key in ['blcf', 'trcf']: refstats.pop(key)
-        box = rg.box(blc=refstats['blc'],trc=refstats['trc'])
+        box = _rg.box(blc=refstats['blc'],trc=refstats['trc'])
         self._checkstats(self.outfile,refstats,atol=1.e-5,region=box)
 
 class sdimaging_test_mslist(sdimaging_unittest_base):
@@ -2318,6 +2354,8 @@ class sdimaging_test_mslist(sdimaging_unittest_base):
                 if os.path.exists(name):
                     shutil.rmtree(name)
                     
+        self.assertEqual(len(get_table_cache()), 0)
+
     def run_test(self, task_param=None,refstats=None):
         if task_param is None:
             task_param = self.default_param
@@ -2395,6 +2433,9 @@ class sdimaging_test_restfreq(sdimaging_unittest_base):
     def tearDown(self):
         if os.path.exists(self.infiles):
             shutil.rmtree(self.infiles)
+        os.system('rm -rf {0}*'.format(self.outfile))
+
+        self.assertEqual(len(get_table_cache()), 0)
 
     def run_test(self, restfreq_ref, beam_ref, cell_ref, stats, **kwargs):
         self.param.update(**kwargs)
@@ -2505,6 +2546,8 @@ class sdimaging_test_mapextent(unittest.TestCase):
         #self.__remove_table(self.outfile)
         os.system('rm -rf %s*'%(self.outfile))
         
+        self.assertEqual(len(get_table_cache()), 0)
+
     def run_test(self, **kwargs):
         self.param.update(**kwargs)
         status = sdimaging(**self.param)
@@ -2629,6 +2672,8 @@ class sdimaging_test_interp(unittest.TestCase):
             self.__remove_table(infile)
         os.system('rm -rf %s*'%(self.outfile))
         
+        self.assertEqual(len(get_table_cache()), 0)
+
     def run_test(self, **kwargs):
         self.params.update(**kwargs)
         status = sdimaging(**self.params)
@@ -2703,6 +2748,8 @@ class sdimaging_test_clipping(sdimaging_unittest_base):
         # remove test data
         self.__clear_up()
         
+        self.assertEqual(len(get_table_cache()), 0)
+
     def __clear_up(self):
         for data in self.data_list:
             if os.path.exists(data):

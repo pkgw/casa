@@ -119,13 +119,13 @@
 		</param>
 
 		<param type="bool" name="listmodels" subparam="true">
-		  <description>List the available modimages for VLA calibrators or Tb models for Solar System objects</description>
+		  <description>List the available models for VLA calibrators or Tb models for Solar System objects</description>
 		  <value>False</value>
 		</param>
 
 		<param type="any" name="fluxdensity" subparam="true">
 			<any type="variant" limittypes="int intArray doubleArray"/>
-			<description>Specified flux density [I,Q,U,V]; (-1 will lookup values)</description>
+			<description>Specified flux density in Jy [I,Q,U,V]; (-1 will lookup values)</description>
 			<value type="int">-1</value>
 		</param>
                 <param type="any" name="spix" subparam="true">
@@ -144,7 +144,7 @@
 			<value></value>
 		</param>
 		<param type="doubleArray" name="polangle" subparam="true">
-			<description>Coefficients of an expansion of frequency-dependent polarization angle expression</description>
+			<description>Coefficients of an expansion of frequency-dependent polarization angle expression (in radians) </description>
 			<value></value>
 		</param>
 		<param type="double" name="rotmeas" subparam="true">
@@ -620,7 +620,13 @@
 
                 Example: [-0.7, -0.15] for alpha and a curvature term
 
-	    reffreq -- The reference frequency for spix, given with units.
+	    reffreq -- The reference frequency for spix, given with a unit with
+                an optional frequency frame (if the frame is not given, LSRK 
+                is assumed). 
+                There should be no space between the value and the unit 
+                (e.g. '100.0GHz' or 'TOPO 100.0GHz' are correct but with 
+                '100.0 GHz' you will see a warning message that it will be
+                defaulted to LSRK). 
 		Default: '1GHz'; this is only here to prevent division by 0!
 		N.B.: If the flux density is being scaled by spectral index,
 		then reffreq must be set to whatever reference frequency is
@@ -628,7 +634,7 @@
 		determined from vis.  On the other hand, if spix is 0, then any
 		positive frequency can be used (and ignored).
 
-		Examples: '86.0GHz', '4.65e9Hz'
+		Examples: '86.0GHz', 'TOPO 86.0GHz', '4.65e9Hz'
 
             polindex -- Coefficients of the frequency-dependent linear polarization index (polarization fraction) 
                         expressed as,
@@ -642,14 +648,20 @@
 
             polangle -- Coefficients of the frequency-dependent linear polarization angle (in radians) expressed as,
                         pol. angle = 0.5*arctan(U/Q) = d0 + d1*((freq-reffreq)/reffreq) + d2*((freq-reffreq)/reffreq)^2 + ..
-                        When Q and U flux densities are given fluxdensity, d0 is determined from
+                        When Q and U flux densities are given in fluxdensity, d0 is determined from
                         these flux densities and the entry for d0 in polangle is ignored. Or Q and U flux densities in
                         fluxdensity can be set to 0.0 and then polindex[0] and polangle[0] are used to determine Q and U
-                        at reffreq.
+                        at reffreq. Here polangle parameters are assumed to represent the intrinsic polarization angle.
                 Default: []
                 Example: [0.57, 0.2] (=[d0,d1])
 
-            rotmeas -- rotation measure (in rad/m^2)
+            rotmeas -- rotation measure (in rad/m^2). 
+
+            *** Note on the use of polindex, polangle and rotmeas ***
+            When the frequnecy-dependent polindex and polangle are used, be sure to include all the coefficients of 
+            both polindex and polangle to describe frequency depencency.  Otherwise frequency-dependent Q and U flux densities 
+            are not calculated correctly.  If rotmeas is given, the calculated Q and U flux densities are then corrected for 
+            the Faraday rotation.
 
        &gt;&gt;&gt; standard="fluxscale" expandable parameters
 	    fluxdict -- Output dictionary from fluxscale
@@ -662,7 +674,7 @@
                 the fluxdict (but those spws with fluxd=-1 will be skipped) are
                 used.  
 		default: {}
-                 
+
 
         usescratch  -- If False: 'virtual' model is created. The model information is saved 
         either in the SOURCE_MODEL column in the SOURCE table (if one exists) or in the keyword 

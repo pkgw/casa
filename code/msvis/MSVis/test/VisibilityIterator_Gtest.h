@@ -13,6 +13,8 @@
 
 #include <map>
 #include <set>
+#include <memory>
+#include <stdlib.h>
 
 namespace casacore{
 
@@ -41,9 +43,16 @@ class TestWidget : public ::testing::Test {
 
 public:
 
-    TestWidget (const casacore::String & name) : name_p (name) {}
+    TestWidget (const casacore::String & name)
+    : name_p (name)
+    {
+        strcpy (tmpdir, "/tmp/testXXXXXX");
+	    mkdtemp(tmpdir);
+    }
 
-    virtual ~TestWidget () {}
+    virtual ~TestWidget () {
+	    system((std::string("rm -rf ") + tmpdir).c_str());
+    }
 
     virtual casacore::String name () const = 0;
 
@@ -66,6 +75,10 @@ public:
     virtual bool usesMultipleMss () const { return false;}
     virtual void sweepMs ();
 
+protected:
+
+	char tmpdir[16];
+
 private:
 
     casacore::String name_p;
@@ -76,8 +89,6 @@ class BasicChannelSelection : public TestWidget {
 public:
 
     BasicChannelSelection ();
-    ~BasicChannelSelection ();
-
 
     virtual std::tuple <casacore::MeasurementSet *, casacore::Int, casacore::Bool> createMs ();
     virtual casacore::String name () const { return "BasicChannelSelection";}
@@ -115,7 +126,7 @@ private:
 
     casacore::Vector< casacore::Vector <casacore::Slice> > correlationSlices_p;
     casacore::Int factor_p;
-    MsFactory * msf_p;
+	std::unique_ptr<MsFactory> msf_p;
     const casacore::Int nAntennas_p;
     const casacore::Int nFlagCategories_p;
     casacore::Int nRowsToProcess_p;
@@ -157,6 +168,19 @@ public:
     casacore::Bool noMoreData (casa::vi::VisibilityIterator2 & /*vi*/, casa::vi::VisBuffer2 * /*vb*/, int nRowsProcessed);
 };
 
+class FrequencyRefinedChannelSelection : public BasicChannelSelection {
+
+public:
+
+    FrequencyRefinedChannelSelection () {}
+
+    virtual casacore::String name () const { return "FrequencyRefinedChannelSelection";}
+    virtual void startOfData (casa::vi::VisibilityIterator2 & /*vi*/, casa::vi::VisBuffer2 * /*vb*/);
+    virtual void nextSubchunk (casa::vi::VisibilityIterator2 & /*vi*/, casa::vi::VisBuffer2 * /*vb*/);
+    casacore::Bool noMoreData (casa::vi::VisibilityIterator2 & /*vi*/, casa::vi::VisBuffer2 * /*vb*/, int nRowsProcessed);
+};
+
+
 class Weighting : public TestWidget {
 
 public:
@@ -170,7 +194,7 @@ public:
 
 private:
 
-    MsFactory * msf_p;
+	std::unique_ptr<MsFactory> msf_p;
     casacore::Int nRowsToProcess_p;
 };
 

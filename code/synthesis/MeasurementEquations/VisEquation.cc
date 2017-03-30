@@ -279,6 +279,22 @@ void VisEquation::corrupt(VisBuffer& vb) {
 }
 
 //----------------------------------------------------------------------
+// Corrupt in place the MODEL visibilities in a VisBuffer
+void VisEquation::corrupt2(vi::VisBuffer2& vb) {
+
+  if (prtlev()>0) cout << "VE::corrupt2(VB2)" << endl;
+
+  AlwaysAssert(ok(),AipsError);
+
+  if (napp_==0) throw(AipsError("Nothing to Apply"));
+
+  // Apply each VisCal in right-to-left order
+  for (Int iapp=(napp_-1);iapp>-1;iapp--)
+    vc()[iapp]->corrupt2(vb);
+
+}
+
+//----------------------------------------------------------------------
 void VisEquation::collapse(VisBuffer& vb) {
 
   if (prtlev()>0) cout << "VE::collapse()" << endl;
@@ -358,6 +374,15 @@ void VisEquation::collapse2(vi::VisBuffer2& vb) {
 
   if (prtlev()>0) cout << "VE::collapse2(VB2)" << endl;
 
+  // Trap case of unavailable calibration in any vc we intend to apply below
+  //   In the solve context, if we can't pre-cal, we flag it
+  //    NB: this assumes only one spw in the VB2!
+  if (!this->spwOK(vb.spectralWindows()(0))) {
+    Cube<Bool> fl(vb.flagCube());          fl.set(true);
+    Cube<Float> wtsp(vb.weightSpectrum()); wtsp.set(0.0f);
+    Matrix<Float> wt(vb.weight());         wt.set(0.0f);
+    return;
+  }    
 
   // Handle origin of model data here:
   if (useInternalModel_)
@@ -366,6 +391,13 @@ void VisEquation::collapse2(vi::VisBuffer2& vb) {
   else
     // from MS
     vb.visCubeModel();
+
+  // If we are solving for the polarization:
+  //  1. Normalize data and model by I model
+  //  2. Set cross-hands to (1,0) so P factors multiplying them
+  //     are propogated, and we can solve for pol factors
+  if (svc().solvePol())
+    svc().setUpForPolSolve(vb);
 
   // initialize LHS/RHS indices
   Int lidx=0;
@@ -398,6 +430,8 @@ void VisEquation::divideCorrByModel(vi::VisBuffer2& vb) {
   Cube<Bool> fl(vb.flagCube());
   Cube<Float> w(vb.weightSpectrum());
 
+  Complex cOne(1.0);
+
   for (Int irow=0;irow<vb.nRows();++irow) {
     if (vb.flagRow()(irow)) {
       // Row flagged, make sure cube also flagged, weight/data zeroed
@@ -406,20 +440,36 @@ void VisEquation::divideCorrByModel(vi::VisBuffer2& vb) {
       fl(Slice(),Slice(),Slice(irow,1,1))=True;
     }
     else {
+      Bool *flp=&fl(0,0,irow);
+      Float *wtp=&w(0,0,irow);
+      Complex *cvp=&c(0,0,irow);
+      Complex *mvp=&m(0,0,irow);
+
       for (Int ichan=0;ichan<vb.nChannels();++ichan) {
 	for (Int icorr=0;icorr<vb.nCorrelations();++icorr) {
-	  Bool& Fl(fl(icorr,ichan,irow));
-	  Float& W(w(icorr,ichan,irow));
+	  Bool& Fl(*flp);
+	  Float& W(*wtp);
+	  //Bool& Fl(fl(icorr,ichan,irow));
+	  //Float& W(w(icorr,ichan,irow));
 	  if (!Fl) {
 	    // Not flagged...
-	    Float A=abs(m(icorr,ichan,irow));
+	    Float A=abs(*mvp);
+	    //Float A=abs(m(icorr,ichan,irow));
 	    if (A >0.0f) {
 	      // ...and model non-zero
-	      Complex& C(c(icorr,ichan,irow));
-	      Complex& M(m(icorr,ichan,irow));
-	      C=Complex(DComplex(C)/DComplex(M));  // divide corr data by model
+	      Complex& C(*cvp);
+	      Complex& M(*mvp);
+	      //Complex& C(c(icorr,ichan,irow));
+	      //Complex& M(m(icorr,ichan,irow));
+
+	      // divide corr data by model
+	      // NB: Use of DComplex here increased cost of this calculation by ~33%
+	      C=Complex(DComplex(C)/DComplex(M));  
+	      //C=C/M;  
+
 	      W*=square(A);                        // multiply weight by model**2
-	      M=Complex(1.0f);                     // divide model by itself
+	      M=cOne;                              // divide model by itself
+
 	    }
 	  }
 	  else {
@@ -427,13 +477,22 @@ void VisEquation::divideCorrByModel(vi::VisBuffer2& vb) {
 	    Fl=True;
 	    W=0.0f;
 	  }
+	  ++cvp;
+	  ++mvp;
+	  ++flp;
+	  ++wtp;
 	} // icorr
       }	// ichan  
     } // !flagRow
   } // irow
   
   // Set unchan'd weight, in case someone wants it
+  // NB: Use of median increases cost by ~100%
+  // NB: use of mean increases cost by ~50%
+  //  ...but both are inaccurate if some channels flagged,
+  //  and it should not be necessary to do this here
   vb.setWeight(partialMedians(vb.weightSpectrum(),IPosition(1,1),True));
+  //vb.setWeight(partialMeans(vb.weightSpectrum(),IPosition(1,1)));
 
 }
 

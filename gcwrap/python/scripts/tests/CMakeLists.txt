@@ -18,7 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-casa_add_python( tools tools_tests_python python/${PYTHONV}/tests
+casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   __init__.py
   test_admit.py
   test_agentflagger.py
@@ -68,6 +68,7 @@ casa_add_python( tools tools_tests_python python/${PYTHONV}/tests
   test_ia_decompose.py
   test_ia_deconvolvecomponentlist.py
   test_ia_deconvolvefrombeam.py
+  test_ia_deviation.py
   test_ia_fft.py
   test_ia_findsources.py
   test_ia_fromarray.py

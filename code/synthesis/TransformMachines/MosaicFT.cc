@@ -267,7 +267,7 @@ void MosaicFT::findConvFunction(const ImageInterface<Complex>& iimage,
   
   
   //oversample if image is small
-  //But not more than 5000 pixels
+  //But not more than 50000 pixels
   convSampling=(max(nx, ny) < 50) ? 100: Int(ceil(5000.0/max(nx, ny)));
   if(convSampling <1) 
     convSampling=1;
@@ -275,6 +275,12 @@ void MosaicFT::findConvFunction(const ImageInterface<Complex>& iimage,
     pbConvFunc_p=new SimplePBConvFunc();
   if(sj_p)
     pbConvFunc_p->setSkyJones(sj_p);
+  ////TEST for HetArray only for now
+  if(pbConvFunc_p->name()=="HetArrayConvFunc"){
+    if(convSampling <10) 
+      convSampling=10;
+    AipsrcValue<Int>::find (convSampling, "mosaic.oversampling", 10);
+  }
   pbConvFunc_p->findConvFunction(iimage, vb, convSampling, interpVisFreq_p, convFunc, weightConvFunc_p, convSizePlanes_p, convSupportPlanes_p,
 		  convPolMap_p, convChanMap_p, convRowMap_p);
 
@@ -309,8 +315,9 @@ void MosaicFT::initializeToVis(ImageInterface<Complex>& iimage,
   //make sure we rotate the first field too
   lastFieldId_p=-1;
   phaseShifter_p=new UVWMachine(*uvwMachine_p);
-  //findConvFunction(*image, vb);
-  prepGridForDegrid();
+   //This is needed here as we need to know the grid correction before FFTing 
+  findConvFunction(*image, vb);
+ prepGridForDegrid();
 
 }
 
@@ -1799,7 +1806,8 @@ void MosaicFT::getWeightImage(ImageInterface<Float>& weightImage,
 {
   
   logIO() << LogOrigin("MosaicFT", "getWeightImage") << LogIO::NORMAL;
-  
+  //cerr << "SUMWT " << sumWeight << endl;
+
   weights.resize(sumWeight.shape());
   convertArray(weights,sumWeight);
   /*
@@ -2171,109 +2179,6 @@ void MosaicFT::addBeamCoverage(ImageInterface<Complex>& pbImage){
   skyCoverage_p->copyData((LatticeExpr<Float>)(*skyCoverage_p + beamStokes ));
 
 
-}
-
-
-void  MosaicFT::girarUVW(Matrix<Double>& uvw, Vector<Double>& dphase,
-			    const VisBuffer& vb)
-{
-    
-    
-    
-    //the uvw rotation is done for common tangent reprojection or if the 
-    //image center is different from the phasecenter
-    // UVrotation is false only if field never changes
-  
-
-   if((vb.fieldId()!=lastFieldId_p) || (vb.msId()!=lastMSId_p))
-      doUVWRotation_p=true;
-    if(doUVWRotation_p ||  fixMovingSource_p){
-      
-      mFrame_p.epoch() != 0 ? 
-	mFrame_p.resetEpoch(MEpoch(Quantity(vb.time()(0), "s"))):
-	mFrame_p.set(mLocation_p, MEpoch(Quantity(vb.time()(0), "s"), vb.msColumns().timeMeas()(0).getRef()));
-      MDirection::Types outType;
-      MDirection::getType(outType, mImage_p.getRefString());
-      MDirection phasecenter=MDirection::Convert(vb.phaseCenter(), MDirection::Ref(outType, mFrame_p))();
-      
-
-      if(fixMovingSource_p){
-       
-      //First convert to HA-DEC or AZEL for parallax correction
-	MDirection::Ref outref1(MDirection::AZEL, mFrame_p);
-	MDirection tmphadec=MDirection::Convert(movingDir_p, outref1)();
-	MDirection::Ref outref(mImage_p.getRef().getType(), mFrame_p);
-	MDirection sourcenow=MDirection::Convert(tmphadec, outref)();
-	//cerr << "Rotating to fixed moving source " << MVDirection(phasecenter.getAngle()-firstMovingDir_p.getAngle()+sourcenow.getAngle()) << endl;
-	phasecenter.set(MVDirection(phasecenter.getAngle()+firstMovingDir_p.getAngle()-sourcenow.getAngle()));
-	
-    }
-
-
-      // Set up the UVWMachine only if the field id has changed. If
-      // the tangent plane is specified then we need a UVWMachine that
-      // will reproject to that plane iso the image plane
-      if((vb.fieldId()!=lastFieldId_p) || (vb.msId()!=lastMSId_p) || fixMovingSource_p) {
-	
-	String observatory=vb.msColumns().observation().telescopeName()(0);
-	if(uvwMachine_p) delete uvwMachine_p; uvwMachine_p=0;
-	if(observatory.contains("ATCA") || observatory.contains("WSRT")){
-		//Tangent specified is being wrongly used...it should be for a
-	    	//Use the safest way  for now.
-	    uvwMachine_p=new UVWMachine(phasecenter, vb.phaseCenter(), mFrame_p,
-					true, false);
-	    phaseShifter_p=new UVWMachine(mImage_p, phasecenter, mFrame_p,
-					true, false);
-	}
-	else{
-	  uvwMachine_p=new UVWMachine(phasecenter, vb.phaseCenter(),  mFrame_p,
-				      false, false);
-	  phaseShifter_p=new UVWMachine(mImage_p, phasecenter,  mFrame_p,
-				      false, false);
-	}
-      }
-
-	lastFieldId_p=vb.fieldId();
-	lastMSId_p=vb.msId();
-
-      
-      AlwaysAssert(uvwMachine_p, AipsError);
-      
-      // Always force a recalculation 
-      uvwMachine_p->reCalculate();
-      phaseShifter_p->reCalculate();
-      
-      // Now do the conversions
-      uInt nrows=dphase.nelements();
-      Vector<Double> thisRow(3);
-      thisRow=0.0;
-      //CoordinateSystem csys=image->coordinates();
-      //DirectionCoordinate dc=csys.directionCoordinate(0);
-      //Vector<Double> thePix(2);
-      //dc.toPixel(thePix, phasecenter);
-      //cerr << "field id " << vb.fieldId() << "  the Pix " << thePix << endl;
-      //Vector<Float> scale(2);
-      //scale(0)=dc.increment()(0);
-      //scale(1)=dc.increment()(1);
-      for (uInt irow=0; irow<nrows;++irow) {
-	thisRow.reference(uvw.column(irow));
-	//cerr << " uvw " << thisRow ;
-	// This is for frame change
-	uvwMachine_p->convertUVW(dphase(irow), thisRow);
-	// This is for correlator phase center change
-	MVPosition rotphase=phaseShifter_p->rotationPhase() ;
-	//cerr << " rotPhase " <<  rotphase << " oldphase "<<  rotphase*(uvw.column(irow))  << " newphase " << (rotphase)*thisRow ;
-	//	cerr << " phase " << dphase(irow) << " new uvw " << uvw.column(irow);
-	//dphase(irow)+= (thePix(0)-nx/2.0)*thisRow(0)*scale(0)+(thePix(1)-ny/2.0)*thisRow(1)*scale(1);
-	//Double pixphase=(thePix(0)-nx/2.0)*uvw.column(irow)(0)*scale(0)+(thePix(1)-ny/2.0)*uvw.column(irow)(1)*scale(1);
-	//Double pixphase2=(thePix(0)-nx/2.0)*thisRow(0)*scale(0)+(thePix(1)-ny/2.0)*thisRow(1)*scale(1);
-	//cerr << " pixphase " <<  pixphase <<  " pixphase2 " << pixphase2<< endl;
-	//dphase(irow)=pixphase;
-	dphase(irow)+= rotphase(0)*thisRow(0)+rotphase(1)*thisRow(1);
-      }
-	
-      
-    }
 }
 
 

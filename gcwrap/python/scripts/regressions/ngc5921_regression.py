@@ -15,7 +15,7 @@
 #   NGC5921.fits ----> importuvfits  ------>  ngc5921.ms   +                 #
 #   (1.4GHz,                 |                ngc5921.ms.flagversions        #
 #    63 sp chan,             v                                               #
-#    D-array)             listobs    ------>  casapy.log                     #
+#    D-array)             listobs    ------>  casa.log                       #
 #                            |                                               #
 #                            v                                               #
 #                      flagautocorr                                          #
@@ -61,7 +61,7 @@
 #                       exportfits   ------>  ngc5921.clean.fits             #
 #                            |                                               #
 #                            v                                               #
-#                         imstat     ------>  casapy.log                     #
+#                         imstat     ------>  casa.log                       #
 #                            |                                               #
 #                            v                                               #
 #                        immoments   ------>  ngc5921.moments.integrated +   #
@@ -229,7 +229,7 @@ verbose = True
 
 listobs()
 
-# You should get in your logger window and in the casapy.log file
+# You should get in your logger window and in the casa.log file
 # something like:
 #
 # MeasurementSet Name:  /home/sandrock2/smyers/Testing2/Sep07/ngc5921_regression/ngc5921.ms
@@ -371,7 +371,7 @@ usescratch=False
 setjy()
 
 #
-# You should see something like this in the logger and casapy.log file:
+# You should see something like this in the logger and casa.log file:
 #
 # 1331+30500002_0  spwid=  0  [I=14.76, Q=0, U=0, V=0] Jy, (Perley-Taylor 99)
 #
@@ -442,7 +442,7 @@ bandpass()
 # channels 6-56 (out of 0-62) are the best
 
 # add this to the callibrary
-c.add(caltable=btable,tinterp='nearest',calwt=T)
+c.add(caltable=btable,tinterp='nearest',calwt=True)
 c.write(callibfile)
 
 # bandpass calibration completion time
@@ -491,7 +491,7 @@ minsnr = 1.0
 refant = '15'
 
 # Turn on cal library apply
-docallib=T
+docallib=True
 callib=callibfile
 
 gaincal()
@@ -511,8 +511,8 @@ gaincal()
 
 
 # add this gain result to the callibrary
-c.add(caltable=gtable,field='0',fldmap=[0],tinterp='nearest',calwt=T)
-c.add(caltable=gtable,field='1,2',fldmap='1',tinterp='linear',calwt=T)
+c.add(caltable=gtable,field='0',fldmap=[0],tinterp='nearest',calwt=True)
+c.add(caltable=gtable,field='1,2',fldmap='1',tinterp='linear',calwt=True)
 c.write(callibfile)
 
 
@@ -605,7 +605,7 @@ fluxscale()
 
 # Add this to the cal library
 
-c.add(caltable=ftable,fldmap='nearest',tinterp='nearest',calwt=T)
+c.add(caltable=ftable,fldmap='nearest',tinterp='nearest',calwt=True)
 c.write(callibfile)
 
 # Record fluxscale completion time
@@ -634,7 +634,7 @@ selectdata = False
 field = ''
 
 # Turn on the cal library
-docallib=T
+docallib=True
 callib=callibfile
 
 applycal()

@@ -66,6 +66,7 @@
     elevation   = remove data below/above given elevations
     tfcrop      = automatic identification of outliers on the time-freq plane
     rflag       = automatic detection of outliers based on sliding-window RMS filters
+    antint      = flag integrations if all baselines to a specified antenna are flagged
     extend      = extend and/or grow flags beyond what the basic algorithms detect
     summary     = report the amount of flagged data
     unflag      = unflag the specified data
@@ -91,9 +92,10 @@
                     <value>elevation</value>
                     <value>tfcrop</value>
                     <value>rflag</value>
+                    <value>antint</value>
                     <value>extend</value>
-                    <value>unflag</value>
                     <value>summary</value>
+                    <value>unflag</value>
                 </allowed>
             </param>
 
@@ -123,51 +125,51 @@
             
             <!-- SELECTION parameters -->
             <param type="any" name="spw" subparam="true">
-                <description>Spectral-window/frequency/channel: \'\' ==> all, spw=\'0:17~19\'</description>
+                <description>Spectral-window/frequency/channel: '' ==&gt; all, spw="0:17~19"</description>
                 <any type="variant" limittypes="string stringArray" />
                 <value type="string" />
             </param>
             <param type="any" name="field" subparam="true">
-                <description>Field names or field index numbers: \'\' ==> all, field=\'0~2,3C286\'</description>
+                <description>Field names or field index numbers: '' ==&gt; all, field="0~2,3C286"</description>
                 <any type="variant" limittypes="string stringArray" />
                 <value type="string" />
             </param>
             <param type="any" name="antenna" subparam="true">
-                <description>Antenna/baselines: \'\' ==> all, antenna =\'3,VA04\'</description>
+                <description>Antenna/baselines: '' ==> all, antenna ="3,VA04"</description>
                 <any type="variant" limittypes="string stringArray" />
                 <value type="string" />
             </param>
             <param type="any" name="uvrange" subparam="true">
-                <description>UV range: \'\' ==> all; uvrange =\'0~100klambda\', default units=meters</description>
+                <description>UV range: '' ==> all; uvrange ="0~100klambda", default units=meters</description>
                 <any type="variant" limittypes="string stringArray" />
                 <value type="string" />
             </param>
-            <param type="any" name="timerange" subparam="true"><description>Time range: \'\' ==> all,timerange=\'09:14:0~09:54:0\'</description>
+            <param type="any" name="timerange" subparam="true"><description>Time range: '' ==> all,timerange="09:14:0~09:54:0"</description>
                 <any type="variant" limittypes="string stringArray" />
                 <value type="string" />
             </param>
             <param type="any" name="correlation" subparam="true">
-                <description>Correlation: \'\' ==> all, correlation=\'XX,YY\'</description>
+                <description>Correlation: '' ==> all, correlation="XX,YY"</description>
                 <any type="variant" limittypes="string stringArray" />
                 <value type="string" />
             </param>
             <param type="any" name="scan" subparam="true">
-                <description>Scan numbers: \'\' ==> all</description>
+                <description>Scan numbers: '' ==> all</description>
                 <any type="variant" limittypes="string stringArray" />
                 <value type="string" />
             </param>
             <param type="any" name="intent" subparam="true">
-                <description>Scan intent: \'\' ==> all, intent=\'CAL*POINT*\'</description>
+                <description>Scan intent: '' ==> all, intent="CAL*POINT*"</description>
                 <any type="variant" limittypes="string stringArray" />
                 <value type="string" />
             </param>
             <param type="any" name="array" subparam="true">
-                <description>(Sub)array numbers: \'\' ==> all</description>
+                <description>(Sub)array numbers: '' ==> all</description>
                 <any type="variant" limittypes="string stringArray" />
                 <value type="string" />
             </param>
             <param type="any" name="observation" subparam="true">
-                <description>Observation ID: \'\' ==> all</description>
+                <description>Observation ID: '' ==> all</description>
                 <any type="variant" limittypes="string int" />
                 <value type="string" />
             </param>
@@ -220,7 +222,7 @@
             <!-- QUACK parameters -->
             <param type="any" name="quackinterval" subparam="true">
                 <description>Quack n seconds from scan beginning or end</description>
-                <any type="variant" limittypes="double doubleArray" />
+                <any type="variant" limittypes="double doubleArray int intArray" />
                 <value type="double">1.0</value>
             </param>
             <param type="any" name="quackmode" subparam="true">
@@ -282,7 +284,7 @@
                 <value>poly</value>
             </param>
             <param type="int" name="maxnpieces" subparam="true">
-                <description>Number of pieces in the polynomial-fits (for \'freqfit\' or \'timefit\' = \'poly\')</description>
+                <description>Number of pieces in the polynomial-fits (for "freqfit" or "timefit" = "poly")</description>
                 <value>7</value>
             </param>
             <param type="string" name="flagdimension" subparam="true">
@@ -294,7 +296,7 @@
                 <value>none</value>
             </param>
             <param type="int" name="halfwin" subparam="true">
-                <description>Half-width of sliding window to use with \'usewindowstats\' (1,2,3).</description>
+                <description>Half-width of sliding window to use with "usewindowstats" (1,2,3).</description>
                 <value>1</value>
             </param>
             <param type="bool" name="extendflags" subparam="true">
@@ -334,6 +336,15 @@
                 <value>0.0</value>
             </param>
 
+            <!-- ANTINT parameters -->
+            <param type="double" name="minchanfrac" subparam="true">
+                <description>Minimum fraction of flagged channels required for a baseline to be deemed as flagged</description>
+                <value>0.6</value>
+            </param>
+            <param type="bool" name="verbose" subparam="true">
+                <description>Print timestamps of flagged integrations to the log</description>
+                <value type="bool">False</value>
+            </param>
 
             <!-- EXTEND parameters -->
             <param type="any" name="extendpols" subparam="true">
@@ -341,7 +352,7 @@
                 <value type="bool">True</value>
             </param>
            <param type="double" name="growtime" subparam="true">
-                <description>Flag all \'ntime\' integrations if more than X% of the timerange is flagged (0-100)</description>
+                <description>Flag all "ntime" integrations if more than X% of the timerange is flagged (0-100)</description>
                 <value>50.0</value>
             </param>
             <param type="double" name="growfreq" subparam="true">
@@ -603,6 +614,14 @@
                         <default param="timeavg"> <value type="bool">False</value></default>
                         <default param="timebin"> <value type="string"></value></default>                        
                     </equals>
+                    <equals value="antint">
+                        <default param="field"><value type="string"></value></default>
+                        <default param="spw"><value type="string"></value></default>
+                        <default param="antenna"><value type="string"></value></default>
+                        <default param="datacolumn"><value type="string">DATA</value></default>
+                        <default param="minchanfrac"><value type="double">.6</value></default>
+                        <default param="verbose"><value type="bool">False</value></default>
+                    </equals>
                     <equals value="extend">
                         <default param="field"><value type="string"></value></default>
                         <default param="spw"><value type="string"></value></default>
@@ -784,8 +803,8 @@
 
 
     mode -- Mode of operation.
-        options: 'list', 'manual','clip','quack','shadow','elevation', 'tfcrop', 'extend',
-                 'unflag', 'summary'
+        options: 'list', 'manual','clip','quack','shadow','elevation', 'tfcrop', 'antint',
+                 'extend', 'unflag', 'summary'
         default: 'manual'
 
         
@@ -976,6 +995,8 @@
                quackinterval -- Time in seconds from scan beginning or end to flag. Make time slightly 
                                 smaller than the desired time.
                     default: 0.0
+                    type: int or float
+	
                quackmode -- Quack mode
                     default: 'beg'
                     options: 'beg'  ==> flag an interval at the beginning of scan
@@ -1001,6 +1022,7 @@
 
                quackincrement -- Quack incrementally in time?
                     default: False
+                    type: bool
                              False  ==> the quack interval is counted from the
                                         beginning of the scan
                              True   ==> the quack interval is counted from the
@@ -1020,12 +1042,13 @@
                         A positive number allows antennas to overlap in projection
                         A negative number forces antennas apart in projection
                         Zero implies a distance of radius_1+radius_2 between antenna centers.
-                   default: 0.0
+                   default: 0.0	               
 
                addantenna -- It can be either a file name with additional antenna names, positions 
                          and diameters, or a Python dictionary with the same information. 
                          You can use the flaghelper functions to create the dictionary from a file.  
                    default: ''
+                   type: string or {}
                    
                    To create a dictionary inside casapy.
                    > import flaghelper as fh
@@ -1409,6 +1432,49 @@
                timebin -- Bin width for time average in seconds.
                     default: '0s'                                                   
 
+    ------------------------------------- ANTINT MODE -----------------------------------------------    
+    
+        antint -- Flag integrations if all baselines to a specified antenna are flagged
+
+                 This mode flag all integrations in which a specified antenna is flagged.
+                 This mode operates for an spectral window. It flags any integration in
+                 which all baselines to a specified antenna are flagged, but only if this
+                 condition is satisfied in a fraction of channels within the spectral
+                 window of interest greater than a nominated fraction. For simplicity, it
+                 assumes that all polarization products must be unflagged for a baseline to
+                 be deemed unflagged. The antint mode implements the flagging approach
+                 introduced in 'antintflag' (https://doi.org/10.5281/zenodo.163546)
+
+                 The motivating application for introducing this mode is removal of data
+                 that will otherwise lead to changes in reference antenna during gain
+                 calibration, which will in turn lead to corrupted polarization
+                 calibration. 
+
+               antenna -- Select and antenna and check all baselines to this antenna
+
+               minchanfrac -- Minimum fraction of flagged channels required for a baseline
+                              to be deemed as flagged. Takes values between 0-1 (float).
+                              In this mode flagdata does the following for every point in
+                              time. It checks the fraction of channels flagged for any of
+                              the polarization products and for every baseline to the antenna
+                              of interest. If the fraction is higher than this 'minchanfrac'
+                              threshold then the data are flagged for this pont in time.
+                              This parameter will be ignored if spw specifies a channel.
+
+               verbose -- Print timestamps of flagged integrations to the log
+
+                    Example1:
+
+                        flagdata(..., spw='9', antenna='ea01')
+
+                    Example2:
+
+                        Here we reduce the fraction of channels that are required to be
+                        flagged, and print information for every integratino that is
+                        flagged.
+
+                        flagdata(..., spw='9', antenna='ea01', minchanfrac=0.3, verbose=True)
+
     ------------------------------------- EXTEND MODE -----------------------------------------------   
      
         extend -- Extend and/or grow flags beyond what the basic algorithms detect.
@@ -1695,7 +1761,7 @@
         
         flagdata('my.ms', mode='list', inpfile='flags.txt', reason='MYREASON')
 
-    10b) The same result of 10a can be achieved using the task flagcmd.
+    10b) The same as above but using task flagcmd.
 
         flagcmd('my.ms', inpmode='file', inpfile='flags.txt', action='apply', reason='MYREASON')
             

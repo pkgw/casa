@@ -275,6 +275,15 @@ void SimplePBConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
 
 
 
+    LogIO os;
+     os << LogOrigin("SimplePBConv", "findConvFunction")  << LogIO::NORMAL;
+     /////////////////////////
+     os<< LogIO::DEBUG1 
+       << "msID " << vb.msId()  <<  " ANT1 id" << vb.antenna1()(0) 
+       << " direction " << vb.firstDirection1().toString() << " ANT2 id" 
+       << vb.antenna2()(0) << " direction " << vb.direction2()(0).toString() 
+       << LogIO::POST ; 
+    //////////////////////
   Int convSamp=2*convSampling;
   storeImageParams(iimage, vb);
   convFuncChanMap.resize(vb.nChannel());
@@ -291,9 +300,7 @@ void SimplePBConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
   //break reference
   convFunc.resize();
   weightConvFunc.resize();
-  LogIO os;
-  os << LogOrigin("SimplePBConv", "findConvFunction")  << LogIO::NORMAL;
-  
+ 
   
   // Get the coordinate system
   CoordinateSystem coords(iimage.coordinates());
@@ -713,11 +720,12 @@ void SimplePBConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
       */
       //cerr << "twoDPB shape " << twoDPB.shape() << " slice shape " << IPosition(4, tempConvSize, tempConvSize, 1, 1) << endl;
       convFunc_p=twoDPB.getSlice(IPosition(4,0,0,0,0), IPosition(4, tempConvSize, tempConvSize, 1, 1), true);
-      
+      weightConvFunc_p.resize();
+      weightConvFunc_p=twoDPB2.getSlice(IPosition(4,0,0,0,nBeamChans-1), IPosition(4, tempConvSize, tempConvSize, 1, 1), true);
       //convFunc/=max(abs(convFunc));
-      Float maxAbsConvFunc=max(amplitude(convFunc_p));
+      Float maxAbsConvFunc=max(amplitude(weightConvFunc_p));
       
-      Float minAbsConvFunc=min(amplitude(convFunc_p));
+      Float minAbsConvFunc=min(amplitude(weightConvFunc_p));
       //cerr << "min max " << minAbsConvFunc << "  " <<  maxAbsConvFunc << endl;
       convSupport_p=-1;
       Bool found=false;
@@ -726,14 +734,14 @@ void SimplePBConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
       Int trial=0;
       for (trial=tempConvSize/2-2;trial>0;trial--) {
 	//Searching down a diagonal
-	if(abs(convFunc_p(tempConvSize/2-trial, tempConvSize/2-trial)) >  (1.0e-2*maxAbsConvFunc)) {
+	if(abs(weightConvFunc_p(tempConvSize/2-trial, tempConvSize/2-trial)) >  (1.0e-3*maxAbsConvFunc)) {
 	  found=true;
 	  trial=Int(sqrt(2.0*Float(trial*trial)));
 	  break;
 	}
       }
       if(!found){
-	if((maxAbsConvFunc-minAbsConvFunc) > (1.0e-2*maxAbsConvFunc)) 
+	if((maxAbsConvFunc-minAbsConvFunc) > (1.0e-3*maxAbsConvFunc)) 
 	  found=true;
 	// if it drops by more than 2 magnitudes per pixel
 	trial=( tempConvSize > (10*convSampling)) ? 5*convSampling : (tempConvSize/2 - 4*convSampling);
@@ -747,7 +755,7 @@ void SimplePBConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
       }
       else {
 	os << "Convolution function is misbehaved - support seems to be zero\n"
-	   << "Reasons can be: \n(1)The image definition not covering one or more of the pointings selected"
+	   << "Reasons can be: \n(1)The image definition not covering one or more of the pointings selected\n"
            << "(2) No unflagged data in a given pointing\n"
 	   << "(3) The entries in the POINTING subtable do not match the field being imaged."
 	   << "Please check, and try again with an empty POINTING subtable.)\n"

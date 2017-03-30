@@ -1,7 +1,7 @@
 import os
 import time
 from taskinit import *
-from callibrary import *  # to convert cal lib file to dict
+from casa_stack_manip import stack_frame_find
 
 def plotms(vis=None, 
            gridrows=None, gridcols=None,
@@ -270,6 +270,9 @@ def plotms(vis=None,
         if(synonyms.has_key(xaxis)): xaxis = synonyms[xaxis]
         if type(yaxis) is str:
             if(synonyms.has_key(yaxis)): yaxis = synonyms[yaxis]
+        elif type(yaxis) is list:
+            for index,axis in enumerate(yaxis):
+                if (synonyms.has_key(axis)): yaxis[index] = synonyms[axis]
         if type(coloraxis) is str:
             if(synonyms.has_key(coloraxis)): coloraxis = synonyms[coloraxis]
         
@@ -290,13 +293,42 @@ def plotms(vis=None,
         if clearplots and plotindex > 0:   
             casalog.post("A nonzero plotindex is not valid when clearing plots.", "SEVERE")
             return False
-        '''elif ( gridrows > 1 or gridcols > 1) and plotindex > 0:
-            if ( gridrows*gridcols - 1 < plotindex):
-                casalog.post("A nonzero plotindex is not valid when resetting the page grid", "SEVERE")
-                return False'''
-        #Determine whether this is going to be a scripting client or a full GUI supporting
-        #user interaction.  This must be done before other properties are set because it affects
-        #the constructor of plotms.
+       
+        # start plotms with the procmgr, use logfile
+        myframe = stack_frame_find()
+        if myframe['casa']['state']['init_version'] > 0:
+            from casa_system import procmgr
+            pmsrun = procmgr.running("plotms")
+            pms = procmgr.fetch("plotms")
+            try:
+                if pmsrun and not pms.is_alive():  # crash!
+                    pms.stop()
+                    pmsrun = False
+            except AttributeError:  # fetch failed: pms=None
+                pass
+            if not pmsrun:
+                # start (or restart)
+                plotmsApp = 'casaplotms'
+                for dir in os.getenv('PATH').split(':'):
+                    dd = dir + os.sep + plotmsApp
+                    if os.path.exists(dd) and os.access(dd, os.X_OK):
+                        plotmsApp = dd
+                        break
+                try:
+                    logfile = myframe['casa']['files']['logfile']
+                except KeyError:
+                    logfile = ""
+                procmgr.create("plotms", [plotmsApp, "--nogui", "--nopopups",
+                    "--casapy", "--logfilename="+logfile])
+                if procmgr.running("plotms"):
+                    # connect future calls to this plotms
+                    procpid = procmgr.fetch('plotms').pid
+                    pm.setPlotmsPid(procpid)
+
+        # Determine whether this is going to be a scripting client or 
+        # a full GUI supporting user interaction.  This must be done 
+        # before other properties are set because it affects the
+        # constructor of plotms.
         pm.setShowGui( showgui )
         
         if pm.isDrawing() and clearplots:
@@ -365,7 +397,7 @@ def plotms(vis=None,
                         yDataColumn = ydatacolumn[i]
                     yAxisLocation = 'left'
                     if i < yLocationCount:
-                        yAxisLocation = yaxislocation[i] 
+                        yAxisLocation = yaxislocation[i]
                     pm.setPlotAxes(xaxis, yaxis[i], xdatacolumn, yDataColumn, yAxisLocation, False, plotindex, i)
             else :
                 raise Exception, 'Please remove duplicate y-axes.'
@@ -424,17 +456,6 @@ def plotms(vis=None,
                     if os.path.exists(callibFile):
                         useCallib = True
                         callibString = callibFile
-                        """
-                        try:
-                            mycallib = callibrary()
-                            mycallib.read(callibFile)
-                            callibRec = mycallib.cld
-                            useCallib = True
-                        except Exception, e:
-                            print e
-                            casalog.post("Cannot validate callib file")
-                            raise RuntimeError("Cannot validate callib file")
-                        """
                     else:
                         casalog.post("Callib file does not exist")
                         raise RuntimeError("Callib file does not exist")
@@ -492,9 +513,6 @@ def plotms(vis=None,
         pm.setPlotMSIterate(iteraxis,rowindex,colindex,
                             xselfscale,yselfscale,
                             xsharedaxis,ysharedaxis,False,plotindex);
-                            
-                
-                            
         
         # (Colorization)
         if coloraxis:
@@ -690,8 +708,8 @@ def plotms(vis=None,
             casalog.post( "There was a problem updating the plot.")
         else:
             # write file if requested
-            casalog.post("Plot file " + plotfile, 'NORMAL')
             if(plotfile != ""):
+                casalog.post("Plot file " + plotfile, 'NORMAL')
                 time.sleep(0.5)
                 if (pm.isDrawing()):
                     casalog.post("Will wait until drawing of the plot has completed before exporting it",'NORMAL')

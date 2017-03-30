@@ -121,6 +121,8 @@ def flagdata(vis,
              freqdevscale,
              spectralmax,
              spectralmin,
+             minchanfrac,   # mode antint
+             verbose,
              extendpols,    # mode extend
              growtime,
              growfreq,
@@ -512,9 +514,13 @@ def flagdata(vis,
 
             casalog.post('Rflag mode is active')
 
+        elif mode == 'antint':
+            agent_pars['minchanfrac'] = minchanfrac
+            agent_pars['verbose'] = verbose
+
         elif mode == 'extend':
             agent_pars['ntime'] = newtime
-            agent_pars['combinescans'] = combinescans                            
+            agent_pars['combinescans'] = combinescans
             agent_pars['extendpols'] = extendpols
             agent_pars['growtime'] = growtime
             agent_pars['growfreq'] = growfreq
@@ -787,6 +793,9 @@ def flagdata(vis,
            else:
                summary_stats_list = {}  
                
+        elif mode == 'rflag' and action == 'calculate':
+            # keep the dictionary of rflag intact and return it
+            pass
         else:
              summary_stats_list = {} 
                    

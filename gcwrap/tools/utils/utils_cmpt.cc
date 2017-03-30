@@ -24,7 +24,9 @@
 #include <tables/Tables/Table.h>
 #include <casa/System/Aipsrc.h>
 #include <casa/OS/HostInfo.h>
+#ifndef NO_CRASH_REPORTER
 #include <stdcasa/StdCasa/CrashReporter.h>
+#endif
 #include <signal.h>
 #include <string>
 #include <vector>
@@ -348,14 +350,19 @@ void bogusHandler (int, siginfo_t *, void *)
 string
 utils::_crash_reporter_initialize (const string & crashDirectory,
                                    const string & crashPosterApplication,
-                                   const string & crashPostingUrl)
+                                   const string & crashPostingUrl,
+				   const string & logFile)
 {
+#ifndef NO_CRASH_REPORTER
     // *NOTE*: Not intended for casual use!
 
     string status = casa::CrashReporter::initialize(crashDirectory, crashPosterApplication,
-                                                    crashPostingUrl);
+                                                    crashPostingUrl, logFile);
 
     return status;
+#else
+    return "";
+#endif
 }
 
 bool
@@ -404,7 +411,7 @@ utils::version_info( ) { return VersionInfo::info( ); }
 
 bool
  utils::compare_version(const  string& comparitor,  const std::vector<int>& vec) {
-  vector<int> current_version = { 5, 0, 0, 15 };
+  vector<int> current_version = version( );
   for ( unsigned int i=0; i < vec.size( ); ++i )
     if ( vec[i] < 0 ) throw(AipsError("negative values not allowed in version numbers"));
 

@@ -22,6 +22,7 @@
 
 #include <mstransform/MSTransform/MSTransformManager.h>
 
+#include <mstransform/TVI/PolAverageTVI.h>
 
 
 using namespace casacore;
@@ -173,6 +174,7 @@ void MSTransformManager::initialize()
 	dy_p = 0;
 
 	// Time transformation parameters
+	scalarAverage_p = false;
 	timeAverage_p = false;
 	timeBin_p = 0.0;
 	timespan_p = String("");
@@ -191,6 +193,10 @@ void MSTransformManager::initialize()
 
 	// Spw averaging
 	spwAverage_p = false;
+
+	// Polarization transformation
+	polAverage_p = false;
+	polAverageConfig_p = Record();
 
 	// Weight Spectrum parameters
 	usewtspectrum_p = false;
@@ -322,6 +328,7 @@ void MSTransformManager::configure(Record &configuration)
 	parseCalParams(configuration);
 	parseUVContSubParams(configuration);
 	setSpwAvg(configuration);
+	parsePolAvgParams(configuration);
 
 
 	return;
@@ -1040,12 +1047,21 @@ void MSTransformManager::parseTimeAvgParams(Record &configuration)
 					<< "Time average is activated" << LogIO::POST;
 		}
 	}
-	else
+
+    exists = -1;
+	exists = configuration.fieldNumber ("scalaraverage");
+	if (exists >= 0)
 	{
-		return;
+		configuration.get (exists, scalarAverage_p);
+
+		if (scalarAverage_p)
+		{
+			logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+					<< "Scalar average is activated" << LogIO::POST;
+		}
 	}
 
-	if (timeAverage_p)
+	if (timeAverage_p || scalarAverage_p)
 	{
 		exists = -1;
 		exists = configuration.fieldNumber ("timebin");
@@ -1061,8 +1077,9 @@ void MSTransformManager::parseTimeAvgParams(Record &configuration)
 		else
 		{
 			logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
-					<< "Time average is activated but no timebin parameter provided " << LogIO::POST;
+					<< "Time or scalar average is activated but no timebin parameter provided " << LogIO::POST;
 			timeAverage_p = false;
+			scalarAverage_p = false;
 			return;
 		}
 
@@ -1081,40 +1098,23 @@ void MSTransformManager::parseTimeAvgParams(Record &configuration)
 				logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
 						<< "Time span is " << timespan_p << LogIO::POST;
 			}
-
-			// CAS-4850 (jagonzal): For ALMA each bdf is limited to 30s, so we need to combine across state (i.e. su-scan)
-			if ((timeBin_p > 30.0) and !timespan_p.contains("state"))
-			{
-				MeasurementSet tmpMs(inpMsName_p,Table::Old);
-			    MSObservation observationTable = tmpMs.observation();
-			    MSObservationColumns observationCols(observationTable);
-			    String telescopeName = observationCols.telescopeName()(0);
-
-			    if (telescopeName.contains("ALMA"))
-			    {
-					logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
-							<< "Operating with ALMA data, automatically adding state to timespan "<< endl
-							<< "In order to remove sub-scan boundaries which limit time average to 30s "<< LogIO::POST;
-					timespan_p += String(",state");
-			    }
-			}
 		}
 
 		// CAS-4850 (jagonzal): For ALMA each bdf is limited to 30s, so we need to combine across state (i.e. su-scan)
-		if ((timeBin_p > 30.0) and !timespan_p.contains("state"))
+		if (timeAverage_p && (timeBin_p > 30.0) and !timespan_p.contains("state"))
 		{
 			MeasurementSet tmpMs(inpMsName_p,Table::Old);
-		    MSObservation observationTable = tmpMs.observation();
-		    MSObservationColumns observationCols(observationTable);
-		    String telescopeName = observationCols.telescopeName()(0);
+			MSObservation observationTable = tmpMs.observation();
+			MSObservationColumns observationCols(observationTable);
+			String telescopeName = observationCols.telescopeName()(0);
 
-		    if (telescopeName.contains("ALMA"))
-		    {
-				logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
+			if (telescopeName.contains("ALMA"))
+			{
+			        logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
 						<< "Operating with ALMA data, automatically adding state to timespan "<< endl
 						<< "In order to remove sub-scan boundaries which limit time average to 30s "<< LogIO::POST;
 				timespan_p += String(",state");
-		    }
+			}
 		}
 
 		exists = -1;
@@ -1243,6 +1243,27 @@ void MSTransformManager::setSpwAvg(Record &configuration)
 }
 
 // -----------------------------------------------------------------------
+// Parameter parser for polarization transformation
+// -----------------------------------------------------------------------
+void MSTransformManager::parsePolAvgParams(Record &configuration)
+{
+  String key("polaverage");
+  Bool exists = configuration.isDefined(key);
+  if (exists) {
+    polAverage_p = configuration.asBool(key);
+  }
+
+  key = "polaveragemode";
+  if (polAverage_p) {
+    if (configuration.isDefined(key)) {
+      polAverageConfig_p.define("mode", configuration.asString(key));
+    } else {
+      polAverageConfig_p.define("mode", "default");
+    }
+  }
+}
+
+// -----------------------------------------------------------------------
 // Method to open the input MS, select the data and create the
 // structure of the output MS filling the auxiliary tables.
 // -----------------------------------------------------------------------
@@ -1265,11 +1286,11 @@ void MSTransformManager::open()
 	inputMs_p = dataHandler_p->getInputMS();
 	// Note: We always get the input number of channels because we don't know if pre-averaging will be necessary
 	getInputNumberOfChannels();
-
+	
 	// Check available data cols to pass this information on to MSTransformDataHandler which creates the MS structure
 	checkDataColumnsAvailable();
 	checkDataColumnsToFill();
-
+	
 	// Set virtual column operation
 	dataHandler_p->setVirtualModelCol(makeVirtualModelColReal_p);
 	dataHandler_p->setVirtualCorrectedCol(makeVirtualCorrectedColReal_p);
@@ -1278,6 +1299,10 @@ void MSTransformManager::open()
 	// in this way we also validate the selection parameters
 	dataHandler_p->setReindex(reindex_p);
 	initDataSelectionParams();
+
+	// Once the selection parameters have been processed, check consistency in
+	// number of channels, if needed.
+	checkSPWChannelsKnownLimitation();
 
 	// Determine channel specification for output MS
 	Vector<Int> chanSpec;
@@ -1309,6 +1334,52 @@ void MSTransformManager::open()
 
 	dataHandler_p->selectTime(timeBin_p,timeSelection_p);
 
+	createOutputMSStructure();
+
+	// jagonzal (CAS-5076): Reindex state column when there is scan selection
+	// jagonzal (CAS-6351): Removing this fix as only implicit selection-based re-indexing has to be applied
+	/*
+	map<Int, Int> stateRemapper = dataHandler_p->getStateRemapper();
+    std::map<Int, Int>::iterator stateRemapperIter;
+    for (	stateRemapperIter = stateRemapper.begin();
+    		stateRemapperIter != stateRemapper.end();
+    		stateRemapperIter++)
+    {
+    	inputOutputScanIntentIndexMap_p[stateRemapperIter->first] = stateRemapperIter->second;
+
+    	logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+    			<< "State " << stateRemapperIter->first << " mapped to " << stateRemapperIter->second << LogIO::POST;
+    }
+    */
+
+    // jagonzal (CAS-5349): Reindex antenna columns when there is antenna selection
+    if (!baselineSelection_p.empty() and reindex_p)
+    {
+    	Vector<Int> antennaRemapper = dataHandler_p->getAntennaRemapper();
+    	for (uInt oldIndex=0;oldIndex<antennaRemapper.size();oldIndex++)
+    	{
+    		inputOutputAntennaIndexMap_p[oldIndex] = antennaRemapper[oldIndex];
+    	}
+    }
+
+
+	selectedInputMs_p = dataHandler_p->getSelectedInputMS();
+	outputMs_p = dataHandler_p->getOutputMS();
+	selectedInputMsCols_p = dataHandler_p->getSelectedInputMSColumns();
+	outputMsCols_p = dataHandler_p->getOutputMSColumns();
+
+	return;
+}
+
+
+/**
+ * Helper method for open() to create the structure of the output MS
+ * and check errors.
+ *
+ * @throws AipsError in case of errors creating the output MS
+ */
+void MSTransformManager::createOutputMSStructure()
+{
 	// Create output MS structure
 	if (not bufferMode_p)
 	{
@@ -1353,40 +1424,6 @@ void MSTransformManager::open()
 	{
 		throw AipsError("Error creating output MS structure");
 	}
-
-	// jagonzal (CAS-5076): Reindex state column when there is scan selection
-	// jagonzal (CAS-6351): Removing this fix as only implicit selection-based re-indexing has to be applied
-	/*
-	map<Int, Int> stateRemapper = dataHandler_p->getStateRemapper();
-    std::map<Int, Int>::iterator stateRemapperIter;
-    for (	stateRemapperIter = stateRemapper.begin();
-    		stateRemapperIter != stateRemapper.end();
-    		stateRemapperIter++)
-    {
-    	inputOutputScanIntentIndexMap_p[stateRemapperIter->first] = stateRemapperIter->second;
-
-    	logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-    			<< "State " << stateRemapperIter->first << " mapped to " << stateRemapperIter->second << LogIO::POST;
-    }
-    */
-
-    // jagonzal (CAS-5349): Reindex antenna columns when there is antenna selection
-    if (!baselineSelection_p.empty() and reindex_p)
-    {
-    	Vector<Int> antennaRemapper = dataHandler_p->getAntennaRemapper();
-    	for (uInt oldIndex=0;oldIndex<antennaRemapper.size();oldIndex++)
-    	{
-    		inputOutputAntennaIndexMap_p[oldIndex] = antennaRemapper[oldIndex];
-    	}
-    }
-
-
-	selectedInputMs_p = dataHandler_p->getSelectedInputMS();
-	outputMs_p = dataHandler_p->getOutputMS();
-	selectedInputMsCols_p = dataHandler_p->getSelectedInputMSColumns();
-	outputMsCols_p = dataHandler_p->getOutputMSColumns();
-
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -1450,6 +1487,13 @@ void MSTransformManager::setup()
 	{
 		initRefFrameTransParams();
 		regridSpwSubTable();
+	}
+
+	// Subtable manipulation for polarization averaging
+	if (polAverage_p) {
+//	  Int nInputPolarizations = outputMs_p->polarization().nrow();
+	  Int averagedPolId = getAveragedPolarizationId();
+	  reindexPolarizationIdInDataDesc(averagedPolId);
 	}
 
 	//// Determine the frequency transformation methods to use ////
@@ -1692,6 +1736,7 @@ void MSTransformManager::setup()
 
 	return;
 }
+
 
 // -----------------------------------------------------------------------
 //
@@ -2888,6 +2933,12 @@ void MSTransformManager::regridSpwAux(	Int spwId,
 
 		if ((width >= 2) and  2*width <= originalCHAN_WIDTH.size())
 		{
+			logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
+				 << "mstransform with regridms does not regrid properly for channel widths "
+				    "> or = 2 x the native channel width, please use clean or tclean for larger regridding. "
+				    "A fix is expected for CASA 5.0, all earlier versions also have this issue."
+				 << LogIO::POST;
+
 			logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
 	        					<< "Ratio between input and output width is " << avgRegriddedWidth/avgCombinedWidth
 	        					<< ", setting pre-channel average width to " << width << LogIO::POST;
@@ -2908,7 +2959,7 @@ void MSTransformManager::regridSpwAux(	Int spwId,
 	            				<< std::setprecision(9) << std::setw(14) << std::scientific
 	            				<< inputCHAN_FREQ(inputCHAN_WIDTH.size() -1) << " Hz";
 			logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-	            				<< oss.str() << LogIO::POST;
+				 << oss.str() << LogIO::POST;
 		}
 	}
 
@@ -3934,6 +3985,71 @@ void MSTransformManager::separateSysPowerSubtable()
 }
 
 // -----------------------------------------------------------------------
+// Return polarization id corresponding to polarization averaged data (Stokes I)
+// Append Polarization row if necessary
+// -----------------------------------------------------------------------
+Int MSTransformManager::getAveragedPolarizationId() {
+  logger_p << LogOrigin("MSTransformManager", __func__, WHERE);
+  MSPolarizationColumns cols(outputMs_p->polarization());
+  Int polId = -1;
+  Int nrow = cols.nrow();
+  for (Int i = 0; i < nrow; ++i) {
+    auto const numCorr = cols.numCorr()(i);
+    auto const flagRow = cols.flagRow()(i);
+    if (numCorr == 1 && flagRow == False) {
+      Vector<Int> const corrType = cols.corrType()(i);
+      Int const corrType0 = corrType[0];
+      if (Stokes::type(corrType0) == Stokes::I) {
+        logger_p << "Matched " << i << LogIO::POST;
+        polId = i;
+        break;
+      }
+    }
+  }
+
+  if (polId < 0) {
+    // add new row to PolarizationTable
+    outputMs_p->polarization().addRow(1, False);
+    polId = nrow;
+    Matrix<Int> corrProduct(2, 1, 0);
+    cols.corrProduct().put(polId, corrProduct);
+    Vector<Int> corrType(1, Stokes::I);
+    cols.corrType().put(polId, corrType);
+    cols.flagRow().put(polId, False);
+    cols.numCorr().put(polId, 1);
+  }
+
+  return polId;
+}
+
+// -----------------------------------------------------------------------
+// Re-index POLARIZATION_ID's in DATA_DESCRIPTION table
+// -----------------------------------------------------------------------
+void MSTransformManager::reindexPolarizationIdInDataDesc(Int newPolarizationId) {
+  logger_p << LogOrigin("MSTransformManager", __func__, WHERE);
+  logger_p << "new polid is " << newPolarizationId << LogIO::POST;
+  MSDataDescColumns ddcols(outputMs_p->dataDescription());
+  MSPolarizationColumns pcols(outputMs_p->polarization());
+  Int nrow = ddcols.nrow();
+  auto __isValidType = [&](Vector<Int> const &ctype) {
+    return (anyEQ(ctype, (Int)Stokes::XX) && anyEQ(ctype, (Int)Stokes::YY))
+      || (anyEQ(ctype, (Int)Stokes::RR) && anyEQ(ctype, (Int)Stokes::LL));
+  };
+  for (Int i = 0; i < nrow; ++i) {
+    Int const polarizationId = ddcols.polarizationId()(i);
+    Int nCorr = pcols.numCorr()(polarizationId);
+    Vector<Int> corrType = pcols.corrType()(polarizationId);
+    Bool flagRow = pcols.flagRow()(polarizationId);
+    Bool needReindex = (polarizationId != newPolarizationId) &&
+        (nCorr > 1) && (flagRow == False) && __isValidType(corrType);
+    if (needReindex) {
+      logger_p << "ddid " << i << " polid " << polarizationId << " needs reindex" << LogIO::POST;
+      ddcols.polarizationId().put(i, newPolarizationId);
+    }
+  }
+}
+
+// -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
 void MSTransformManager::calculateIntermediateFrequencies(	Int spwId,
@@ -4375,8 +4491,8 @@ void MSTransformManager::reindexGenericTimeDependentSubTable(const String& subta
 // -----------------------------------------------------------------------
 void MSTransformManager::getInputNumberOfChannels()
 {
-	// Access spectral window sub-table
-	MSSpectralWindow spwTable = inputMs_p->spectralWindow();
+    // Access spectral window sub-table
+    MSSpectralWindow spwTable = inputMs_p->spectralWindow();
     uInt nInputSpws = spwTable.nrow();
     MSSpWindowColumns spwCols(spwTable);
     ScalarColumn<Int> numChanCol = spwCols.numChan();
@@ -4387,7 +4503,7 @@ void MSTransformManager::getInputNumberOfChannels()
     	numOfInpChanMap_p[spw_idx] = numChanCol(spw_idx);
     }
 
-	return;
+    return;
 }
 
 // -----------------------------------------------------------------------
@@ -4653,6 +4769,44 @@ void MSTransformManager::checkFillWeightSpectrum()
 	return;
 }
 
+/**
+ * Early check for a potential issue that would prevent an MSTransform
+ * setup which looks in principle fine from running correctly. Ensures
+ * that we catch a current limitation in the underlying iterators /
+ * VI/VB2 framework whereby combinespws won't work when the number of
+ * channels is different for different SPWs.
+ *
+ * Requires that numOfInpChanMap_p be populated previously (in
+ * getInputNumberOfChannels()).
+ *
+ * @throws AipsError if combinespws is enabled and the input MS of the
+ * current configuration has different number of channels for
+ * different SPWs
+ */
+void MSTransformManager::checkSPWChannelsKnownLimitation()
+{
+  if (not combinespws_p)
+    return;
+  
+  auto nSpws = inputMs_p->spectralWindow().nrow();
+  if (1 >= nSpws or numOfInpChanMap_p.empty() or numOfSelChanMap_p.empty())
+    return;
+
+  auto firstNum = numOfSelChanMap_p.begin()->second;
+  auto diff = std::find_if(numOfSelChanMap_p.begin(), numOfSelChanMap_p.end(),
+			   [&firstNum](const std::pair<casacore::uInt,casacore::uInt> &other) {
+			     return firstNum != other.second; });
+
+  
+  if (numOfSelChanMap_p.end() != diff) {
+    auto otherNum = diff->second;
+    throw AipsError("Currently the option 'combinespws' is only supported when the number "
+		    "of channels is the same for all the spw's selected. One of the SPWs "
+		    "selected has " + std::to_string(firstNum) + " channels, but another "
+		    "selected SPW has " + std::to_string(otherNum) + " channels.");
+  }
+}
+
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
@@ -4905,7 +5059,6 @@ void MSTransformManager::checkDataColumnsToFill()
 	}
 	else if (datacolumn_p.contains("FLOAT_DATA,DATA"))
 	{
-		Bool mainColSet=false;
 
 		if (dataColumnAvailable_p)
 		{
@@ -5304,12 +5457,16 @@ void MSTransformManager::generateIterator()
 		if (timeAverageTVIFactory) delete timeAverageTVIFactory;
 		if (uvContSubTVIFactory) delete uvContSubTVIFactory;
 	}
-	else if (calibrate_p)
+	else if (calibrate_p || scalarAverage_p)
 	{
 		try
 		{
 			// Isolate iteration parameters
-			vi::IteratingParameters iterpar(0,vi::SortColumns(sortColumns_p, false));
+			vi::IteratingParameters iterpar;
+            if (scalarAverage_p)
+                iterpar = vi::IteratingParameters(timeBin_p,vi::SortColumns(sortColumns_p, false));
+            else
+			    iterpar = vi::IteratingParameters(0,vi::SortColumns(sortColumns_p, false));
 
 			// By callib String
 	        if (callib_p.length() > 0)
@@ -5329,6 +5486,10 @@ void MSTransformManager::generateIterator()
 
 				visibilityIterator_p = new vi::VisibilityIterator2(vi::LayeredVi2Factory(selectedInputMs_p, &iterpar,callibRec_p, timeavgParams));
 			}
+            else // scalar
+            {
+				visibilityIterator_p = new vi::VisibilityIterator2(vi::LayeredVi2Factory(selectedInputMs_p, &iterpar));
+            }
 		}
 		catch (MSSelectionError x)
 		{
@@ -5341,6 +5502,11 @@ void MSTransformManager::generateIterator()
 			if (timeAverage_p)
 			{
 				visibilityIterator_p = new vi::VisibilityIterator2(vi::AveragingVi2Factory(*timeavgParams, selectedInputMs_p));
+			}
+			// Polarization Averaging VI
+			else if (polAverage_p) {
+			  visibilityIterator_p = new vi::VisibilityIterator2(vi::PolAverageVi2Factory(polAverageConfig_p, selectedInputMs_p,
+			      vi::SortColumns(sortColumns_p, false), timeBin_p, isWritable));
 			}
 			// Plain VI
 			else
@@ -5362,6 +5528,11 @@ void MSTransformManager::generateIterator()
 	{
 		visibilityIterator_p = new vi::VisibilityIterator2(vi::AveragingVi2Factory(*timeavgParams, selectedInputMs_p));
 	}
+  // Polarization Averaging VI
+  else if (polAverage_p) {
+    visibilityIterator_p = new vi::VisibilityIterator2(vi::PolAverageVi2Factory(polAverageConfig_p, selectedInputMs_p,
+        vi::SortColumns(sortColumns_p, false), timeBin_p, isWritable));
+  }
 	// Plain VI
 	else
 	{
@@ -5835,7 +6006,7 @@ Bool MSTransformManager::transformDDIVector(const Vector<Int> &inputVector,Vecto
 void MSTransformManager::mapAndAverageVector(	const Vector<Double> &inputVector,
 												Vector<Double> &outputVector)
 {
-	Double average = 0;
+	Double vec_average = 0;
 	vector<uInt> baselineRows;
 	uInt row, counts, absoluteIndex = 0;
 	for (baselineMap::iterator iter = baselineMap_p.begin(); iter != baselineMap_p.end(); iter++)
@@ -5846,28 +6017,28 @@ void MSTransformManager::mapAndAverageVector(	const Vector<Double> &inputVector,
 		// Compute combined value from each SPW
 		counts = 0;
 
-		for (vector<uInt>::iterator iter = baselineRows.begin();iter != baselineRows.end(); iter++)
+		for (vector<uInt>::iterator iter_row = baselineRows.begin();iter_row != baselineRows.end(); iter_row++)
 		{
-			row = *iter;
+			row = *iter_row;
 			if (counts == 0)
 			{
-				average = inputVector(row);
+				vec_average = inputVector(row);
 			}
 			else
 			{
-				average += inputVector(row);
+				vec_average += inputVector(row);
 			}
 
 			counts += 1;
 		}
 
 		// Normalize value
-		if (counts) average /= counts;
+		if (counts) vec_average /= counts;
 
 		// Set value in output vector
 		for (uInt spwIndex=0;spwIndex < nspws_p; spwIndex++)
 		{
-			outputVector(absoluteIndex) = average;
+			outputVector(absoluteIndex) = vec_average;
 			absoluteIndex += 1;
 		}
 	}
@@ -5881,7 +6052,7 @@ void MSTransformManager::mapAndAverageVector(	const Vector<Double> &inputVector,
 void MSTransformManager::mapAndAverageVector(	const Vector<Bool> &inputVector,
 												Vector<Bool> &outputVector)
 {
-	Bool average = false;
+	Bool vec_average = false;
 	vector<uInt> baselineRows;
 	uInt row, counts, absoluteIndex = 0;
 	for (baselineMap::iterator iter = baselineMap_p.begin(); iter != baselineMap_p.end(); iter++)
@@ -5892,23 +6063,23 @@ void MSTransformManager::mapAndAverageVector(	const Vector<Bool> &inputVector,
 		// Compute combined value from each SPW
 		counts = 0;
 
-		for (vector<uInt>::iterator iter = baselineRows.begin();iter != baselineRows.end(); iter++)
+		for (vector<uInt>::iterator iter_row = baselineRows.begin();iter_row != baselineRows.end(); iter_row++)
 		{
-			row = *iter;
+			row = *iter_row;
 			if (counts == 0)
 			{
-				average = inputVector(row);
+				vec_average = inputVector(row);
 			}
 			else
 			{
-				average &= inputVector(row);
+				vec_average &= inputVector(row);
 			}
 		}
 
 		// Set value in output vector
 		for (uInt spwIndex=0;spwIndex < nspws_p; spwIndex++)
 		{
-			outputVector(absoluteIndex) = average;
+			outputVector(absoluteIndex) = vec_average;
 			absoluteIndex += 1;
 		}
 	}
@@ -5948,9 +6119,9 @@ template <class T> void MSTransformManager::mapAndAverageMatrix(	const Matrix<T>
 		normalizingFactor = 0;
 
 		// Compute combined value from each SPW
-		for (vector<uInt>::iterator iter = baselineRows.begin();iter != baselineRows.end(); iter++)
+		for (vector<uInt>::iterator iter_row = baselineRows.begin();iter_row != baselineRows.end(); iter_row++)
 		{
-			row = *iter;
+			row = *iter_row;
 			if (convolveFlags)
 			{
 				contributionFactor = !flags(row);
@@ -6910,9 +7081,9 @@ template <class T> void MSTransformManager::combineCubeOfData(	vi::VisBuffer2 *v
 		{
 			combinationOfSPWsWithDifferentExposure = true;
 			addWeightSpectrumContribution_p = &MSTransformManager::addWeightSpectrumContribution;
-			for (vector<uInt>::iterator iter = baselineRows.begin();iter != baselineRows.end(); iter++)
+			for (vector<uInt>::iterator iter_row = baselineRows.begin();iter_row != baselineRows.end(); iter_row++)
 			{
-				row = *iter;
+				row = *iter_row;
 				spw = spws(row);
 				spwRowMap[spw]=row;
 			}
@@ -6921,9 +7092,9 @@ template <class T> void MSTransformManager::combineCubeOfData(	vi::VisBuffer2 *v
 		{
 			exposure = exposures(*baselineRows.begin());
 			combinationOfSPWsWithDifferentExposure = false;
-			for (vector<uInt>::iterator iter = baselineRows.begin();iter != baselineRows.end(); iter++)
+			for (vector<uInt>::iterator iter_row = baselineRows.begin();iter_row != baselineRows.end(); iter_row++)
 			{
-				row = *iter;
+				row = *iter_row;
 				spw = spws(row);
 				spwRowMap[spw]=row;
 

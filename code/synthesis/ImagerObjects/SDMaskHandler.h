@@ -98,8 +98,28 @@ public:
 
   // Return a reference to an imageinterface for the mask.
   void makeAutoMask(SHARED_PTR<SIImageStore> imstore);
-  // Top level autoMask interface...
+  // Top level autoMask interface
+  // Different automasking algorithm can be choosen by specifying a specific alogrithm name in alg.
+  // Not all arguments are used for a choosen alogrithm.
+  // 
+  //
+  // @param[in,out] imstore SIImageStore 
+  // @param[in] alg autoboxing alogrithm name (currently recongnized names are 'one-box', 'thresh','thresh2', and 'multithresh')
+  // @param[in] threshold threshold with a unit
+  // @param[in] fracpeak Fraction of the peak
+  // @param[in] resolution Resolution with a unit
+  // @param[in] resbybeam Multiplier of a beam to specify the resolution
+  // @param[in] nmask Number of masks to use
+  // @param[in] autoadjust Use autoadjustment of mask threshold (for 'thresh')
+  // @param[in] sidlobethreshold Threshold factor in a multiplier of the sidelobe level
+  // @param[in] noisethreshold Threshold factor in a multiplier of the rms noise
+  // @param[in] lownoisethreshold Threshold factor in a multiplier of the rms noise used in the binary dilation
+  // @param[in] cutthreshold Cut threshold factor for adjust a mask after smoothing of the mask
+  // @param[in] smoothfactor Smoothing factor (multiplier of the beam)
+  // @param[in] pblimit Primary beam cut off level
+  //
   void autoMask(SHARED_PTR<SIImageStore> imstore, 
+                const casacore::Int iterdone,
                 const casacore::String& alg="",
                 const casacore::String& threshold="",
                 const casacore::Float& fracpeak=0.0,
@@ -107,8 +127,14 @@ public:
                 const casacore::Float& resbybeam=0.0,
                 const casacore::Int nmask=0, 
                 const casacore::Bool autoadjust=false,
+                const casacore::Float& sidelobethreshold=0.0,
+                const casacore::Float& noisethreshold=0.0, 
+                const casacore::Float& lownoisethreshold=0.0,
+                const casacore::Float& cutthreshold=0.0,
+                const casacore::Float& smoothfactor=0.0,
+                const casacore::Float& minbeamfrac=0.0, 
                 casacore::Float pblimit=0.0);
-  // automask algorithms...  
+  // automask by threshold with binning before applying it 
   void autoMaskByThreshold (casacore::ImageInterface<casacore::Float>& mask,
                            const casacore::ImageInterface<casacore::Float>& res, 
                            const casacore::ImageInterface<casacore::Float>& psf, 
@@ -121,7 +147,7 @@ public:
                            const casacore::Int nmask=0, 
                            const casacore::Bool autoadjust=casacore::False);
 
-  // no binning version
+  // automask by threshold : no binning version
   void autoMaskByThreshold2 (casacore::ImageInterface<casacore::Float>& mask,
                            const casacore::ImageInterface<casacore::Float>& res,
                            const casacore::ImageInterface<casacore::Float>& psf,
@@ -133,18 +159,19 @@ public:
                            const casacore::Float& sigma=3.0,
                            const casacore::Int nmask=0);
 
-  // implementation of Amanda's autoboxing algorithm
-  void autoMaskByThreshold3(casacore::ImageInterface<float>& mask,
+  // implementation of Amanda's automasking algorithm using multiple thresholds
+  void autoMaskByMultiThreshold(casacore::ImageInterface<float>& mask,
                                           const casacore::ImageInterface<casacore::Float>& res, 
                                           const casacore::ImageInterface<casacore::Float>& psf, 
                                           const casacore::Record& stats, 
-                                          const casacore::Int nmask=0,
+                                          const casacore::Int iterdone,
                                           const casacore::Float& sidelobeLevel=0.0,
                                           const casacore::Float& sidelobeThresholdFactor=3.0,
                                           const casacore::Float& noiseThresholdFactor=3.0,
+                                          const casacore::Float& lowNoiseThresholdFactor=2.0,
                                           const casacore::Float& cutThreshold=0.01,
                                           const casacore::Float& smoothFactor=1.0,
-                                          const casacore::Float& minBeamFrac=-1); 
+                                          const casacore::Float& minBeamFrac=-1.0); 
                            
   // Calculate statistics on a residual image with additional region and LEL mask specificaations
   casacore::Record calcImageStatistics(casacore::ImageInterface<casacore::Float>& res, 
@@ -163,21 +190,57 @@ public:
                                const casacore::Bool autoadjust,
                                casacore::Double thresh=0.0);
 
+  // Convolve mask image with nx pixel by ny pixel
   SHARED_PTR<casacore::ImageInterface<float> > convolveMask(const casacore::ImageInterface<casacore::Float>& inmask,
-                                                  int nxpix, int nypix);
+                                                  casacore::Int nxpix, casacore::Int nypix);
+ 
+  // Convolve mask image by a gaussian 
+  SHARED_PTR<casacore::ImageInterface<float> > convolveMask(const casacore::ImageInterface<casacore::Float>& inmask,
+                                                  const casacore::GaussianBeam& beam);
 
+  // Prune the mask regions found 
   SHARED_PTR<casacore::ImageInterface<float> >  pruneRegions(const casacore::ImageInterface<casacore::Float>& image,
-                                                   double& thresh,
-                                                   int nmask=0,
-                                                   int npix=0);
+                                                   casacore::Double& thresh,
+                                                   casacore::Int nmask=0,
+                                                   casacore::Int npix=0);
+  // Prune the mask regions per spectral plane
+  SHARED_PTR<casacore::ImageInterface<float> >  pruneRegions2(const casacore::ImageInterface<casacore::Float>& image,
+                                                   casacore::Double& thresh,
+                                                   casacore::Int nmask=0,
+                                                   casacore::Double prunesize=0.0);
 
-  void maskWithPerPlaneThreshold(casacore::ImageInterface<casacore::Float>& image, 
+  // Yet another Prune the mask regions per spectral plane
+  SHARED_PTR<casacore::ImageInterface<float> >  YAPruneRegions(const casacore::ImageInterface<casacore::Float>& image,
+                                                   casacore::Double prunesize=0.0);
+
+  // create a mask image (1/0 image) applying a different threshold for each channel plane
+  void makeMaskByPerChanThreshold(const casacore::ImageInterface<casacore::Float>& image, 
                                  casacore::ImageInterface<casacore::Float>& mask, 
                                  casacore::Vector<casacore::Float>& thresholds); 
 
+  // A core method for binary dilation of the input lattice   
+  void binaryDilationCore(casacore::Lattice<casacore::Float>& inlattice,
+                      casacore::Array<casacore::Float>& structure,
+                      casacore::Lattice<casacore::Bool>& mask,
+                      casacore::Array<casacore::Bool>& chanmask,
+                      casacore::Lattice<casacore::Float>& outlattice);
+
+  // Multiple Binary dilation application of an image with a constraint mask and channel plane based flags
+  void binaryDilation(casacore::ImageInterface<casacore::Float>& inImage,
+                      casacore::Array<casacore::Float>& structure,
+                      casacore::Int niteration,
+                      casacore::Lattice<casacore::Bool>& mask,
+                      casacore::Array<casacore::Bool>& chanmask,
+                      casacore::ImageInterface<casacore::Float>& outImage);
+
+  // return beam area in pixel unit
+  casacore::Float pixelBeamArea(const casacore::GaussianBeam& beam, const casacore::CoordinateSystem& csys); 
+
+  // Create a mask image applying PB level
   void makePBMask(SHARED_PTR<SIImageStore> imstore, casacore::Float pblimit=0.1);
 
   void autoMaskWithinPB(SHARED_PTR<SIImageStore> imstore, 
+                        const casacore::Int iterdone,
                         const casacore::String& alg="",
                         const casacore::String& threshold="",
                         const casacore::Float& fracpeak=0.0,
@@ -185,13 +248,37 @@ public:
                         const casacore::Float& resbybeam=0.0,
                         const casacore::Int nmask=0,
                         const casacore::Bool autoadjust=false,
+                        const casacore::Float& sidelobethreshold=0.0,
+                        const casacore::Float& noisethreshold=0.0, 
+                        const casacore::Float& lownoisethreshold=0.0,
+                        const casacore::Float& cutthreshold=0.0,
+                        const casacore::Float& smoothfactor=0.0,
+                        const casacore::Float& minbeamfrac=0.0, 
                         casacore::Float pblimit=0.1);
+
+  
+  // depth-first-search algorithm for 2D 
+  void depthFirstSearch(casacore::Int x,
+                        casacore::Int y,
+                        casacore::Int cur_label,
+                        casacore::Array<casacore::Float>& inlatarr,
+                        casacore::Array<casacore::Float>& lablatarr);
+
+
+  // label connected regions using depth-first-search algorithm
+  void labelRegions(casacore::Lattice<casacore::Float>& inlat, casacore::Lattice<casacore::Float>& lablat); 
+
+  // find sizes of bolbs (regions) found by labelRegions 
+  casacore::Vector<casacore::Float>  findBlobSize(casacore::Lattice<casacore::Float>& lablat);
+
 
   // check if input image is a mask image with 0 or a value (if normalize=true, 1)
   casacore::Bool checkMaskImage(casacore::ImageInterface<casacore::Float>& maskiamge, casacore::Bool normalize=true);
 
-// 
+  // 
   static casacore::Bool cloneImShape(const casacore::ImageInterface<casacore::Float>& inImage, const casacore::String& outImageName);
+  // max MB of memory to use in TempImage
+  static inline casacore::Double memoryToUse() {return 1.0;};
 
 protected:
   InteractiveMasking *interactiveMasker_p;

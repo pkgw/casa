@@ -20,13 +20,25 @@ def gaincal(vis=None,caltable=None,
 
 	try: 
                 mycb = cbtool()
+
+                # Revert to old VI for GSPLINE
+                if (gaintype=='GSPLINE'):
+                        mycb.setvi(old=True,quiet=False);
+
                 if ((type(vis)==str) & (os.path.exists(vis))):
                         mycb.open(filename=vis,compress=False,addcorr=False,addmodel=False)
                 else:
                         raise Exception, 'Visibility data set not found - please verify the name'
 
 		# Do data selection according to selectdata
+		casalog.post("NB: gaincal automatically excludes auto-correlations.")
 		if (selectdata):
+			# insist no ACs
+			if len(msselect)>0:
+				msselect='('+msselect+') && ANTENNA1!=ANTENNA2'
+			else:
+				msselect='ANTENNA1!=ANTENNA2'
+
 			# pass all data selection parameters in as specified
 			mycb.selectvis(time=timerange,spw=spw, scan=scan, field=field,
 				     intent=intent, observation=str(observation),
@@ -35,9 +47,10 @@ def gaincal(vis=None,caltable=None,
 		else:
 			# selectdata=F, so time,scan,baseline,uvrange,msselect=''
 			# using spw and field specifications only
+			# also insist no ACs
 			mycb.selectvis(time='',spw=spw,scan='',field=field,intent=intent,
                                      observation='', baseline='', uvrange='',
-                                     chanmode='none', msselect='')
+                                     chanmode='none', msselect='ANTENNA1!=ANTENNA2')
 
 		# set the model, if specified
 		if (len(smodel)>0):

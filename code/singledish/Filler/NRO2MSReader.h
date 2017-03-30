@@ -10,6 +10,8 @@
 
 #define STRING2CHAR(s) const_cast<char *>((s).c_str())
 
+#include <casacore/measures/Measures/Stokes.h>
+
 #include <singledish/Filler/ReaderInterface.h>
 #include <singledish/Filler/NROData.h>
 #include <string>
@@ -88,7 +90,7 @@ public:
   virtual casacore::Bool getData(size_t irow, sdfiller::DataRecord &record);
 
   virtual int getNROArraySize() {
-    return obs_header_.NBEAM * obs_header_.NPOL * obs_header_.NSPWIN;
+    return obs_header_.ARYNM0; //obs_header_.NBEAM * obs_header_.NPOL * obs_header_.NSPWIN;
   }
   virtual int getNRONumBeam() {
     return obs_header_.NBEAM;
@@ -98,6 +100,19 @@ public:
   }
   virtual int getNRONumSpw() {
     return obs_header_.NSPWIN;
+  }
+
+  virtual int getNROArrayBeamId(int array_id) {
+//	  assert(array_id >= 0 && array_id < getNROArraySize());
+    return array_mapper_[array_id].getBeamId();
+  }
+  virtual casacore::Stokes::StokesTypes getNROArrayPol(int array_id) {
+//	  assert(array_id >= 0 && array_id < getNROArraySize());
+    return array_mapper_[array_id].getPol();
+  }
+  virtual int getNROArraySpwId(int array_id) {
+//	  assert(array_id >= 0 && array_id < getNROArraySize());
+    return array_mapper_[array_id].getSpwId();
   }
 
 protected:
@@ -150,6 +165,54 @@ private:
     }
   }
 
+  struct NROArrayData {
+	  int beam_id=-1;
+	  casacore::Stokes::StokesTypes stokes_type = casacore::Stokes::Undefined;
+	  string pol_name="";
+	  int spw_id=-1;
+	  void set(int16_t const arr_data, string const *pol_data) {
+		  // indices in NOSTAR data are 1-base
+		  if (arr_data < 1101) {
+			  throw "An attempt to set invalid ARRAY information to NROArrayData\n";
+		  }
+		  beam_id = static_cast<int>(arr_data/1000) - 1;
+		  int pol_id = static_cast<int>((arr_data % 1000)/100) - 1;
+		  spw_id = static_cast<int>(arr_data % 100) -1;
+		  pol_name = pol_data[pol_id];
+		  stokes_type = casacore::Stokes::type(pol_name);
+		  if (stokes_type == casacore::Stokes::Undefined) {
+			  throw "Got unsupported polarization type\n";
+		  }
+	  }
+	  int getBeamId() const {
+		  if (beam_id < 0) throw "Array data is not set yet\n";
+		  return beam_id;}
+	  casacore::Stokes::StokesTypes getPol() const {
+		  if (stokes_type == casacore::Stokes::Undefined) throw "Array data is not set yet\n";
+		  return stokes_type;}
+	  int getSpwId() const {
+		  if (spw_id < 0) throw "Array data is not set yet\n";
+		  return spw_id;}
+	  string getPolName() const {
+		  if (pol_name.size() == 0) throw "Array data is not set yet\n";
+		  return pol_name;}
+  };
+
+  std::vector<NROArrayData> array_mapper_;
+
+  void constructArrayTable();
+  bool checkScanArray(string const scan_array, NROArrayData const *header_array);
+  // Returns the first array ID whose SPW ID is spwid.
+  int getFirstArrayIdWithSpwID(int spwid) {
+	  for (int iarr = 0; iarr < obs_header_.ARYNM0 ; ++iarr) {
+	    if (spwid == array_mapper_[iarr].spw_id) {
+	      return iarr;
+	    }
+	  }
+	  // no array with spwid found
+	  throw "Internal ERROR: Could not find array ID corresponds to an SPW ID\n";
+  }
+
   int beam_id_counter_;
   int source_spw_id_counter_;
   int spw_id_counter_;
@@ -173,7 +236,7 @@ private:
 		      std::vector<double> &freqs);
 
   std::vector<double> getSpectrum(int const irow, sdfiller::NRODataScanData const &data);
-  casacore::Int getPolNo(string const &rx);
+//  casacore::Int getPolNo(string const &rx);
 
   casacore::Bool (NRO2MSReader::*get_antenna_row_)(sdfiller::AntennaRecord &);
   casacore::Bool (NRO2MSReader::*get_field_row_)(sdfiller::FieldRecord &);

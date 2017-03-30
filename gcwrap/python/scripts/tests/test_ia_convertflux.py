@@ -54,7 +54,7 @@
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
 # 
-# `echo $CASAPATH/bin/casapy | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_convertflux[test1,test2,...]
+# `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_convertflux[test1,test2,...]
 #
 # </example>
 #
@@ -93,22 +93,22 @@ class ia_convertflux_test(unittest.TestCase):
             "5arcsec", "4arcsec", "40deg", channel=-1,
             polarization=1
         )
-        got = myia.convertflux("1Jy","1arcsec","1arcsec",topeak=T, polarization=0)
+        got = myia.convertflux("1Jy","1arcsec","1arcsec",topeak=True, polarization=0)
         exp = qa.quantity("12Jy/beam")
         self.assertTrue(got["unit"] == exp["unit"])
         self.assertTrue(abs(got["value"] - exp["value"])/exp["value"] < 1e-7)
 
-        got = myia.convertflux("3Jy/beam", "4arcsec", "2arcsec",topeak=F, polarization=0)
+        got = myia.convertflux("3Jy/beam", "4arcsec", "2arcsec",topeak=False, polarization=0)
         exp = qa.quantity("2Jy")
         self.assertTrue(got["unit"] == exp["unit"])
         self.assertTrue(abs(got["value"] - exp["value"])/exp["value"] < 1e-7)
         
-        got = myia.convertflux("1Jy","1arcsec","1arcsec",topeak=T, polarization=1)
+        got = myia.convertflux("1Jy","1arcsec","1arcsec",topeak=True, polarization=1)
         exp = qa.quantity("20Jy/beam")
         self.assertTrue(got["unit"] == exp["unit"])
         self.assertTrue(abs(got["value"] - exp["value"])/exp["value"] < 1e-7)
 
-        got = myia.convertflux("3Jy/beam", "4arcsec", "2arcsec",topeak=F, polarization=1)
+        got = myia.convertflux("3Jy/beam", "4arcsec", "2arcsec",topeak=False, polarization=1)
         exp = qa.quantity("1.2Jy")
         self.assertTrue(got["unit"] == exp["unit"])
         self.assertTrue(abs(got["value"] - exp["value"])/exp["value"] < 1e-7)

@@ -326,10 +326,15 @@ public:
   casacore::Bool reset();
 
   // Set the processing options
-  casacore::Bool setoptions(const casacore::String& ftmachine, const casacore::Int cache, const casacore::Int tile,
-		  const casacore::String& gridfunction, const casacore::MPosition& mLocation,
-		  const casacore::Float padding, const casacore::Int facets,
-		  const casacore::Double maxData,const casacore::Int wprojPlanes);
+  casacore::Bool setoptions(const casacore::String& ftmachine, 
+			    const casacore::Int cache, 
+			    const casacore::Int tile,
+			    const casacore::String& gridfunction, 
+			    const casacore::MPosition& mLocation,
+			    const casacore::Float padding, 
+			    const casacore::Int facets,
+			    const casacore::Double maxData,
+			    const casacore::Int wprojPlanes);
 
  
   // Set the print level
@@ -340,6 +345,8 @@ public:
   
 private:
 
+  // Get VP record - copied from SynthesisImager
+  void getVPRecord(casacore::Record &rec, PBMath::CommonPB &kpb, casacore::String telescop);
   
   // Arrange to corrupt with simulated calibration
   //   (cf Calibrater setapply)

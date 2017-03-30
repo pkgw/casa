@@ -33,6 +33,7 @@
 #include <flagging/Flagging/FlagAgentExtension.h>
 #include <flagging/Flagging/FlagAgentRFlag.h>
 #include <flagging/Flagging/FlagAgentDisplay.h>
+#include <flagging/Flagging/FlagAgentAntennaIntegrations.h>
 
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -305,6 +306,12 @@ FlagAgentBase::create (FlagDataHandler *dh,Record config)
 		FlagAgentRFlag* agent = new FlagAgentRFlag(dh,config);
 		return agent;
 	}
+	// Antint
+	else if (mode.compare("antint")==0)
+	{
+		FlagAgentAntennaIntegrations* agent = new FlagAgentAntennaIntegrations(dh,config,writePrivateFlags, true);
+		return agent;
+	}
 	// Display
 	else if (mode.compare("display")==0)
 	{
@@ -554,6 +561,10 @@ FlagAgentBase::setDataSelection(Record config)
 	logger_p->origin(LogOrigin(agentName_p,__FUNCTION__,WHERE));
 
 	int exists;
+	// Set the MS Selection error handler to catch spw IDs or names that are
+    // not present in the MS in an expression that contains valid spw values.
+	// This will issue a WARNING and not fail.
+    MSSelectionLogError mssLESPW;
 	MSSelection parser;
 
 	exists = config.fieldNumber ("array");
@@ -688,6 +699,7 @@ FlagAgentBase::setDataSelection(Record config)
 		}
 		else
 		{
+		    parser.setErrorHandler(MSSelection::SPW_EXPR, &mssLESPW, true);
 			parser.setSpwExpr(spwSelection_p);
 			if (flagDataHandler_p->parseExpression(parser))
 			{
@@ -1130,7 +1142,7 @@ FlagAgentBase::sanitizeCorrExpression(String corrExpression, std::vector<String>
 void
 FlagAgentBase::setAgentParameters(Record config)
 {
-	// NOTE: This class must be re-implemented in the derived classes for
+	// NOTE: This method must be re-implemented in the derived classes for
 	// the specific parameters although here we handle the common ones
 
 	int exists;

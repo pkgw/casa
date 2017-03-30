@@ -280,10 +280,6 @@ void PlotMSDataCollapsible::showContextMenu( const QPoint& location ) {
 	else if ( selectedAction == &maximizeAction ){
 		openCloseDisplay();
 	}
-	else {
-		qDebug() << "Unrecognized action Collapsible::contextMenu";
-	}
-
 }
 
 String PlotMSDataCollapsible::getFile() const {
@@ -295,9 +291,11 @@ String PlotMSDataCollapsible::getFile() const {
 }
 
 PlotMSDataCollapsible::~PlotMSDataCollapsible(){
-	if ( nameLabel->parent() == NULL ){
-		delete nameLabel;
-	}
+    if ( nameLabel->parent() == NULL ){
+        delete nameLabel;
+    }
+    if ( plotTab)
+        delete plotTab;
 }
 
 }

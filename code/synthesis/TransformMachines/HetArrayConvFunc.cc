@@ -1,5 +1,5 @@
 //# HetArrayConvFunc.cc: Implementation for HetArrayConvFunc
-//# Copyright (C) 2008-2013
+//# Copyright (C) 2008-2016
 //# Associated Universities, Inc. Washington DC, USA.
 //#
 //# This library is free software; you can redistribute it and/or modify it
@@ -27,6 +27,7 @@
 //# $Id$
 
 #include <casa/Arrays/ArrayMath.h>
+#include <casa/Arrays/ArrayLogical.h>
 #include <casa/Arrays/Array.h>
 #include <casa/Arrays/MaskedArray.h>
 #include <casa/Arrays/Vector.h>
@@ -114,7 +115,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   
 
   void HetArrayConvFunc::findAntennaSizes(const VisBuffer& vb){
-    //cerr << "findAnt " << msId_p  << "  " << vb.msId() << " " << vb.msName() << endl;
     if(msId_p != vb.msId()){
       msId_p=vb.msId();
       
@@ -124,6 +124,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       Int diamIndex=antDiam2IndexMap_p.ndefined();
       Vector<Double> dishDiam=ac.dishDiameter().getColumn();
       Vector<String>dishName=ac.name().getColumn();
+      String telescop=vb.msColumns().observation().telescopeName()(0);
       PBMath::CommonPB whichPB;
       if(pbClass_p==PBMathInterface::COMMONPB){
 	String band;
@@ -132,45 +133,59 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	// The VLA, the ATNF, and WSRT have frequency - dependent PB models
 	Quantity freq( vb.msColumns().spectralWindow().refFrequency()(0), "Hz");
 	
-	String telescop=vb.msColumns().observation().telescopeName()(0);
+
 	PBMath::whichCommonPBtoUse( telescop, freq, band, whichPB, commonPBName );
+
+	////////////////////
+	String commonpbstr;
+	PBMath::nameCommonPB(whichPB, commonpbstr);
+	//cerr << "ms " << vb.msName() << "  pb " << commonpbstr << endl;
+
+
+	////////////////
 	//Revert to using AIRY for unknown common telescope
 	if(whichPB==PBMath::UNKNOWN)
 	  pbClass_p=PBMathInterface::AIRY;
 
       }
       if(pbClass_p== PBMathInterface::AIRY){
-      ////////We'll be using dish diameter as key
-      for (uInt k=0; k < dishDiam.nelements(); ++k){
-	if((diamIndex !=0) && antDiam2IndexMap_p.isDefined(String::toString(dishDiam(k)))){
+	LogIO os;
+	os << LogOrigin("HetArrConvFunc", "findAntennaSizes")  << LogIO::NORMAL;
+	////////We'll be using dish diameter as key
+	for (uInt k=0; k < dishDiam.nelements(); ++k){
+	  if((diamIndex !=0) && antDiam2IndexMap_p.isDefined(String::toString(dishDiam(k)))){
 	    antIndexToDiamIndex_p(k)=antDiam2IndexMap_p(String::toString(dishDiam(k)));
-	}
-	else{
-	  if(dishDiam[k] > 0.0){ //there may be stations with no dish on
-	    antDiam2IndexMap_p.define(String::toString(dishDiam(k)), diamIndex);
-	    antIndexToDiamIndex_p(k)=diamIndex;
-	    antMath_p.resize(diamIndex+1);
-	    //cerr << "diamindex " << diamIndex << " antMath_p,size " << antMath_p.nelements() << endl;
-	    if(pbClass_p== PBMathInterface::AIRY){
-	      Quantity qdiam(10.7, "m");
-	      Quantity blockDiam(0.75, "m");
-	      ///For ALMA 12m dish it is effectively 10.7 m according to Todd Hunter
-	      ///@ 2011-12-06
-	      if(!((vb.msColumns().observation().telescopeName()(0) =="ALMA") 
-		   && (abs(dishDiam[k] - 12.0) < 0.5))){
-		qdiam= Quantity (dishDiam(k),"m");	
-		//VLA ratio of blockage to dish
-		blockDiam= Quantity(dishDiam(k)/25.0*2.0, "m");
-	      }	      
-	      antMath_p[diamIndex]=new PBMath1DAiry(qdiam, blockDiam,  
-						    Quantity(150,"arcsec"), 
-						    Quantity(100.0,"GHz"));
+	  }
+	  else{
+	    if(dishDiam[k] > 0.0){ //there may be stations with no dish on
+	      antDiam2IndexMap_p.define(String::toString(dishDiam(k)), diamIndex);
+	      antIndexToDiamIndex_p(k)=diamIndex;
+	      antMath_p.resize(diamIndex+1);
+	      //cerr << "diamindex " << diamIndex << " antMath_p,size " << antMath_p.nelements() << endl;
+	      if(pbClass_p== PBMathInterface::AIRY){
+		Quantity qdiam= Quantity (dishDiam(k),"m");	
+		//ALMA ratio of blockage to dish
+		Quantity blockDiam= Quantity(dishDiam(k)/12.0*.75, "m");
+		
+		if((vb.msColumns().observation().telescopeName()(0) =="ALMA") || (vb.msColumns().observation().telescopeName()(0) =="ACA")){		  
+		  if (abs(dishDiam[k] - 12.0) < 0.5) {
+		    qdiam= Quantity(10.7, "m");
+		    blockDiam= Quantity(0.75, "m");
+		  } else {
+		    qdiam= Quantity(6.25,"m");
+		    blockDiam = Quantity(0.75,"m");
+		  }
+		}
+		os << "Overriding PB with Airy of diam,blockage="<<qdiam<<","<<blockDiam<<" starting with antenna "<<k<<LogIO::POST;
+		antMath_p[diamIndex]=new PBMath1DAiry(qdiam, blockDiam,  
+						      Quantity(150,"arcsec"), 
+						      Quantity(100.0,"GHz"));
+		
 	      
+	      }
 	      
-	    }
-
-	    //////Will no longer support this
-	    /*else if(pbClass_p== PBMathInterface::IMAGE){
+	      //////Will no longer support this
+	      /*else if(pbClass_p== PBMathInterface::IMAGE){
 	      //Get the image name by calling code for the antenna name and array name
 	      //For now hard wired to ALMA as this part of the code will not be accessed for non-ALMA 
 	      //see Imager::setMosaicFTMachine 
@@ -180,52 +195,52 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	      //right voltage pattern image. 
 	      String vpImageName="";
 	      if (abs(dishDiam[k]-7.0) < 1.0) 
-		Aipsrc::find(vpImageName, "alma.vp.7m", "");
+	      Aipsrc::find(vpImageName, "alma.vp.7m", "");
 	      else
-		Aipsrc::find(vpImageName, "alma.vp.12m", "") ;
+	      Aipsrc::find(vpImageName, "alma.vp.12m", "") ;
 	      //cerr << "first vpImagename " << vpImageName  << endl;
 	      if(vpImageName==""){
-		String beamPath; 
-		if(!MeasTable::AntennaResponsesPath(beamPath, "ALMA")){
-		  throw(AipsError("Alma beam images requested cannot be found ")); 		  
-		}
+	      String beamPath; 
+	      if(!MeasTable::AntennaResponsesPath(beamPath, "ALMA")){
+	      throw(AipsError("Alma beam images requested cannot be found ")); 		  
+	      }
 		else{
-		  beamPath=beamPath.before(String("AntennaResponses"));	
-		  vpImageName= (abs(dishDiam[k]-7.0) < 1.0) ? beamPath
-		    +String("/ALMA_AIRY_7M.VP") : 
-		    beamPath+String("/ALMA_AIRY_12M.VP");
+		beamPath=beamPath.before(String("AntennaResponses"));	
+		vpImageName= (abs(dishDiam[k]-7.0) < 1.0) ? beamPath
+		+String("/ALMA_AIRY_7M.VP") : 
+		beamPath+String("/ALMA_AIRY_12M.VP");
 		}
 		
-
-	      }
+		
+		}
 	      //cerr << "Using the image VPs " << vpImageName << endl; 
 	      if(Table::isReadable(vpImageName))
-		antMath_p[diamIndex]=new PBMath2DImage(PagedImage<Complex>(vpImageName)); 
+	      antMath_p[diamIndex]=new PBMath2DImage(PagedImage<Complex>(vpImageName)); 
 	      else
 		throw(AipsError(String("Cannot find voltage pattern image ") + vpImageName));
+		}
+		else{
+		
+		throw(AipsError("Do not  deal with non airy dishes or images of VP yet "));
 	    }
-	    else{
-
-	      throw(AipsError("Do not  deal with non airy dishes or images of VP yet "));
-	    }
-	    */
-	    ++diamIndex;
-	  } 
+	      */
+	      ++diamIndex;
+	    } 
+	  }
+	  
 	}
-
-      }
 
 
       }
       else if(pbClass_p== PBMathInterface::IMAGE) { 
-
+	
 	VPManager *vpman=VPManager::Instance();
 	if(vpTable_p != String(""))
 	  vpman->loadfromtable(vpTable_p);
 	///else it is already loaded in the static object
 	Vector<Record> recs;
 	Vector<Vector<String> > antnames;
-
+	
 	if(vpman->imagepbinfo(antnames, recs)){
 	  Vector<Bool> dishDefined(dishName.nelements(), false);
 	  Int nbeams=antnames.nelements();
@@ -276,12 +291,21 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       }
 
       else if(pbClass_p==PBMathInterface::COMMONPB){
-	//cerr << "Doing the commonPB thing" << endl;
-	antDiam2IndexMap_p.define(String::toString(dishDiam(0)), diamIndex);
-	antIndexToDiamIndex_p.set(diamIndex);
-	antMath_p.resize(diamIndex+1);
-	antMath_p[diamIndex]=PBMath::pbMathInterfaceForCommonPB(whichPB, True);
-
+	///Have to use telescop part as string as in multims case different
+	//telescopes may have same dish size but different commonpb
+	// VLA and EVLA for e.g.
+	if((diamIndex !=0) && antDiam2IndexMap_p.isDefined(telescop+String("_")+String::toString(dishDiam(0)))){
+	  antIndexToDiamIndex_p.set(antDiam2IndexMap_p(telescop+String("_")+String::toString(dishDiam(0))));   
+	  //cerr << " 0 telescop " << telescop << " index " << antDiam2IndexMap_p(telescop+String("_")+String::toString(dishDiam(0))) << endl;
+	}
+	else{   
+	  antDiam2IndexMap_p.define(telescop+"_"+String::toString(dishDiam(0)), diamIndex);
+	  antIndexToDiamIndex_p.set(diamIndex);
+	  antMath_p.resize(diamIndex+1);
+	  antMath_p[diamIndex]=PBMath::pbMathInterfaceForCommonPB(whichPB, True);
+	  //cerr << " 1 telescop " << telescop << " index " << antDiam2IndexMap_p(telescop+String("_")+String::toString(dishDiam(0))) << endl; 
+	  
+	}
 
       }
       else{
@@ -314,7 +338,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage, 
 					  const VisBuffer& vb,
-					  const Int& convSampling, const Vector<Double>& visFreq,
+					  const Int& convSamp, const Vector<Double>& visFreq,
 					  Array<Complex>& convFunc, 
 					  Array<Complex>& weightConvFunc, 
 					  Vector<Int>& convsize,
@@ -381,6 +405,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     ///// In multi ms mode ndishpair may change when meeting a new ms
     //// redo the calculation then
     if(msChanged){
+      //cerr << "ms " << vb.msName() << " spw " <<  vb.spectralWindow() << endl;
       doneMainConv_p[actualConvIndex_p]=false;
       //cerr << "invalidating doneMainConv " << endl; //<<  convFunctions_p[actualConvIndex_p]->shape()[3] << " =? " << nBeamChans << " convsupp " << convSupport_p.nelements() << endl;
     }
@@ -395,6 +420,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Int nx=nx_p;
     Int ny=ny_p;
     Int support=0;
+    Int convSampling=1;
     if(!doneMainConv_p[actualConvIndex_p]){
       for (uInt ii=0; ii < ndish; ++ii){
 	support=max((antMath_p[ii])->support(coords), support);
@@ -425,8 +451,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     pixFieldDir(0)=pixFieldDir(0)- Double(nx / 2);
     pixFieldDir(1)=pixFieldDir(1)- Double(ny / 2);
     //phase gradient per pixel to apply
-    pixFieldDir(0)=-pixFieldDir(0)*2.0*C::pi/Double(nx)/Double(convSampling);
-    pixFieldDir(1)=-pixFieldDir(1)*2.0*C::pi/Double(ny)/Double(convSampling);
+    pixFieldDir(0)=-pixFieldDir(0)*2.0*C::pi/Double(nx)/Double(convSamp);
+    pixFieldDir(1)=-pixFieldDir(1)*2.0*C::pi/Double(ny)/Double(convSamp);
 
     
    
@@ -473,7 +499,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       Double memtobeused= Double(memtot)*1024.0;
       if(memtot <= 2000000)
     	  memtobeused=0.0;
-      //cerr << "Shape " << pbShape << endl;
+      //cerr << "Shape " << pbShape << " memtobe used " << memtobeused << endl;
       TempImage<Complex> pBScreen(TiledShape(pbShape), coords, memtobeused/2.2);
       TempImage<Complex> pB2Screen(TiledShape(pbShape), coords, memtobeused/2.2);
       IPosition start(4, 0, 0, 0, 0);
@@ -520,6 +546,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	   //tim.mark();
 	   //subim.copyData((LatticeExpr<Complex>) (iif(abs(subim)> 5e-2, subim, 0)));
 	   //subim2.copyData((LatticeExpr<Complex>) (iif(abs(subim2)> 25e-4, subim2, 0)));
+	   
 	
 	   ft_p.c2cFFT(subim);
 	  
@@ -612,6 +639,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  plane=plane+j;
 	  begin[4]=plane;
 	  end[4]=plane;
+	  //cerr << "ms" << vb.msName() << " spw " << vb.spectralWindow() << " k " << k << "  j  " << j << " plane " << plane << endl;
 	  Slicer slplane(begin, end, Slicer::endIsLast);
 	  //cerr <<  "SHAPES " << convFunc_p(begin, end).shape() << "  " << pBScreen.get(false).shape() << " begin and end " << begin << "    " << end << endl;
 	  //convFunc_p(begin, end).copyMatchingPart(pBScreen.get(false));
@@ -622,7 +650,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  //cerr << "blcQ " << blcQ << " trcQ " << trcQ << " pbShape " << pbShape << endl;
 	  Slicer slQ(blcQ, trcQ, Slicer::endIsLast);
 	  {
-	    SubImage<Complex>  pBSSub(pBScreen, slQ, false);
+	    SubImage<Complex>  pBSSub(pBScreen, slQ, false);	    
 	    SubLattice<Complex> cFTempSub(convFuncTemp,  slplane, true);
 	    LatticeConcat<Complex> lc(4);
 	    lc.setLattice(pBSSub);
@@ -660,9 +688,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       convWeights_p[actualConvIndex_p]= new Array<Complex>();
       convSupportBlock_p[actualConvIndex_p]=new Vector<Int>();
       Int newConvSize=2*(max(convSupport_p)+2)*convSampling;
+      Int newRealConvSize=newConvSize* Int(Double(convSamp)/Double(convSampling));
       Int lattSize=convFuncTemp.shape()(0);
       (*convSupportBlock_p[actualConvIndex_p])=convSupport_p;
      
+      //cerr << "convSize " << newConvSize << "  " << newRealConvSize<< " lattSize " << lattSize << endl;
+
       if(newConvSize < lattSize){
 	IPosition blc(5, (lattSize/2)-(newConvSize/2),
 		      (lattSize/2)-(newConvSize/2),0,0,0);
@@ -670,11 +701,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		      (lattSize/2)+(newConvSize/2-1), nBeamPols-1, nBeamChans-1,ndishpair-1);
 	IPosition shp(5, newConvSize, newConvSize, nBeamPols, nBeamChans, ndishpair);
 	
-	convFunctions_p[actualConvIndex_p]= new Array<Complex>(IPosition(5, newConvSize, newConvSize, nBeamPols, nBeamChans, ndishpair ));
-	convWeights_p[actualConvIndex_p]= new Array<Complex>(IPosition(5, newConvSize, newConvSize, nBeamPols, nBeamChans, ndishpair ));
-	(*convFunctions_p[actualConvIndex_p])=convFuncTemp.getSlice(blc,shp);
-	convSize_p=newConvSize;
-	(*convWeights_p[actualConvIndex_p])=weightConvFuncTemp.getSlice(blc, shp);
+	convFunctions_p[actualConvIndex_p]= new Array<Complex>(IPosition(5, newRealConvSize, newRealConvSize, nBeamPols, nBeamChans, ndishpair ));
+	convWeights_p[actualConvIndex_p]= new Array<Complex>(IPosition(5, newRealConvSize, newRealConvSize, nBeamPols, nBeamChans, ndishpair ));
+	(*convFunctions_p[actualConvIndex_p])=resample(convFuncTemp.getSlice(blc,shp), Double(convSamp)/Double(convSampling));
+	convSize_p=newRealConvSize;
+	(*convWeights_p[actualConvIndex_p])=resample(weightConvFuncTemp.getSlice(blc, shp),Double(convSamp)/Double(convSampling)) ;
 	convFunc_p.resize();
 	weightConvFunc_p.resize();
       }
@@ -701,7 +732,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     }
     */
     makerowmap(vb, convFuncRowMap);
-
+    ///need to deal with only the maximum of different baselines available in this
+    ///vb
+    //cerr << "ms " << vb.msName() << " convFuncRowMap " << convFuncRowMap[0] << endl;
+    ndishpair=max(convFuncRowMap)+1;
     
     convSupportBlock_p.resize(actualConvIndex_p+1);
     convSizes_p.resize(actualConvIndex_p+1);
@@ -719,6 +753,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     convFunc_p=(*convFunctions_p[actualConvIndex_p]);
     weightConvFunc_p.resize();
     weightConvFunc_p=(*convWeights_p[actualConvIndex_p]);
+
+    //cerr << "convfunc shapes " <<  convFunc_p.shape() <<  "   " << weightConvFunc_p.shape() << "  " << convSize_p << " pol " << nBeamPols << "  chan " << nBeamChans << " ndishpair " << ndishpair << endl;
+
     //convSupport_p.resize();
     //convSupport_p=(*convSupportBlock_p[actualConvIndex_p]);
     Bool delc; Bool delw;
@@ -759,6 +796,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   
   }
 
+typedef unsigned long long ooLong; 
 
   void HetArrayConvFunc::applyGradientToYLine(const Int iy, Complex*& convFunctions, Complex*& convWeights, const Double pixXdir, const Double pixYdir, Int convSize, const Int ndishpair, const Int nChan, const Int nPol){
     Double cy, sy;
@@ -774,7 +812,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	for (Int ichan=0; ichan < nChan; ++ichan){
 	  //Int chanoffset=ichan*ndishpair*convSize*convSize;
 	  for(Int iz=0; iz <ndishpair; ++iz){
-	    Int index=(((ipol*nChan+ichan)*ndishpair+iz)*convSize+iy)*convSize+ix;
+	    ooLong index=((ooLong(iz*nChan+ichan)*nPol+ipol)*ooLong(convSize)+ooLong(iy))*ooLong(convSize)+ooLong(ix);
 	    convFunctions[index]= convFunctions[index]*phx*phy;
 	    convWeights[index]= convWeights[index]*phx*phy;
 	  }
@@ -974,25 +1012,27 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     os << LogOrigin("HetArrConvFunc", "suppAndNorm")  << LogIO::NORMAL;
     // Locate support
 	Int convSupport=-1;
-	IPosition begin(5, 0, 0, 0, 0, plane);
+	///Use largest channel as highest freq thus largest conv func
+	IPosition begin(5, 0, 0, 0, convFuncLat.shape()(3)-1, plane);
 	IPosition shape(5, convFuncLat.shape()[0],  convFuncLat.shape()[1], 1, 1, 1);
 	//Int convSize=convSize_p;
 	Int convSize=shape(0);
-	Matrix<Complex> convPlane=convFuncLat.getSlice(begin, shape, true);
+	///use FT weightconvlat as it is wider 
+	Matrix<Complex> convPlane=weightConvFuncLat.getSlice(begin, shape, true);
 	Float maxAbsConvFunc=max(amplitude(convPlane));
 	Float minAbsConvFunc=min(amplitude(convPlane));
 	Bool found=false;
 	Int trial=0;
 	for (trial=convSize/2-2;trial>0;trial--) {
 	  //Searching down a diagonal
-	  if(abs(convPlane(convSize/2-trial,convSize/2-trial)) >  (1.0e-2*maxAbsConvFunc)) {
+	  if(abs(convPlane(convSize/2-trial,convSize/2-trial)) >  (1e-3*maxAbsConvFunc)) {
 	    found=true;
 	    trial=Int(sqrt(2.0*Float(trial*trial)));
 	    break;
 	  }
 	}
 	if(!found){
-	  if((maxAbsConvFunc-minAbsConvFunc) > (1.0e-2*maxAbsConvFunc)) 
+	  if((maxAbsConvFunc-minAbsConvFunc) > (1.0e-3*maxAbsConvFunc)) 
 	  found=true;
 	  // if it drops by more than 2 magnitudes per pixel
 	  trial=( (10*convSampling) < convSize) ? 5*convSampling : (convSize/2 - 4*convSampling);
@@ -1044,14 +1084,22 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    //end[3]=chan;
 	    convPlane.resize();
 	    convPlane=convFuncLat.getSlice(begin, shape, true);
+	    ///////
+	    //Matrix<Float> ampi=amplitude(convPlane) ;
+	    //LogicalArray mask(ampi < Float(1.e-3* maxAbsConvFunc));
+
+	    //convPlane(mask)=0.0;
+	    /////  
 	    pbSum=real(sum(convPlane(blc,trc)))/Double(convSampling)/Double(convSampling);
 	    if(pbSum>0.0) {
 	      (convPlane)=convPlane*Complex(1.0/pbSum,0.0);
 	      convFuncLat.putSlice(convPlane, begin);
-	      convPlane.resize();
-	      convPlane=weightConvFuncLat.getSlice(begin, shape, true);
-	      (convPlane) =(convPlane)*Complex(1.0/pbSum,0.0);
-	      weightConvFuncLat.putSlice(convPlane, begin);
+	      //convPlane.resize();
+	      Matrix<Complex> convPlane2;
+	      convPlane2=weightConvFuncLat.getSlice(begin, shape, true);
+	      //convPlane2(mask)=0.0;
+	      (convPlane2) =(convPlane2)*Complex(1.0/pbSum,0.0);
+	      weightConvFuncLat.putSlice(convPlane2, begin);
 	    }
 	    else {
 	      os << "Convolution function integral is not positive"
@@ -1196,6 +1244,82 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     }
 
   }
+
+  Array<Complex> HetArrayConvFunc::resample(const Array<Complex>& inarray, const Double factor){
+
+    Double nx=Double(inarray.shape()(0));
+    Double ny=Double(inarray.shape()(1));
+    IPosition shp=inarray.shape();
+    shp(0)=Int(nx*factor);
+    shp(1)=Int(ny*factor);
+
+    Array<Complex> out(shp);
+    ArrayIterator<Complex> inIt(inarray, 2);
+    ArrayIterator<Complex> outIt(out, 2);
+    //for (zzz=0; zzz< shp.(4); ++zzz){
+    //  for(yyy=0; yyy< shp.(3); ++yyy){
+    // for(xxx=0; xxx< shp.(2); ++xxx){
+    while(!inIt.pastEnd()){
+      Matrix<Float> leReal=real(Matrix<Complex>(inIt.array()));
+      Matrix<Float> leImag=imag(Matrix<Complex>(inIt.array()));
+      Bool leRealCopy, leImagCopy;
+      Float *realptr=leReal.getStorage(leRealCopy);
+      Float *imagptr=leImag.getStorage(leImagCopy);
+      Bool isCopy;
+      Matrix<Complex> outMat(outIt.array());
+      Complex *intPtr=outMat.getStorage(isCopy);
+      Float realval, imagval;
+#ifdef _OPENMP
+      omp_set_nested(0);
+#endif
+#pragma omp parallel for default(none) private(realval, imagval) firstprivate(intPtr, realptr, imagptr, nx, ny) shared(leReal, leImag)
+      
+      for (Int k =0; k < Int(ny*factor); ++k){
+	Double y =Double(k)/factor;
+	
+	for (Int j=0; j < Int(nx*factor); ++j){
+	  //      Interpolate2D interp(Interpolate2D::LANCZOS);
+	  Double x=Double(j)/Double(factor);
+	  //interp.interp(realval, where, leReal);
+	  realval=interpLanczos(x , y, nx, ny,   
+				realptr);
+	  imagval=interpLanczos(x , y, nx, ny,   
+				imagptr);
+	  //interp.interp(imagval, where, leImag);
+	  intPtr[k*Int(nx*factor)+j]=Complex(realval, imagval);
+	}
+	
+      }
+      outMat.putStorage(intPtr, isCopy);
+      leReal.putStorage(realptr, leRealCopy);
+      leImag.putStorage(imagptr, leImagCopy);
+      inIt.next();
+      outIt.next();
+    }
+    return out;
+  }
+
+  Float HetArrayConvFunc::sinc(const Float x)  {
+    if (x == 0) {
+        return 1;
+    }
+    return sin(C::pi * x) / (C::pi * x);
+}
+  Float HetArrayConvFunc::interpLanczos( const Double& x , const Double& y, const Double& nx, const Double& ny,   const Float* data, const Float a){
+  Double floorx = floor(x);
+  Double floory = floor(y);
+  Float result=0.0;
+  if (floorx < a || floorx >= nx - a || floory < a || floory >= ny - a) {
+        result = 0;
+        return result;
+  }
+  for (Float i = floorx - a + 1; i <= floorx + a; ++i) {
+        for (Float j = floory - a + 1; j <= floory + a; ++j) {
+	  result += Float(Double(data[Int(j*nx+i)]) * sinc(x - i)*sinc((x-i)/ a) * sinc(y - j)*sinc((y-j)/ a));
+        }
+    }
+  return result;
+}
 
   ImageInterface<Float>&  HetArrayConvFunc::getFluxScaleImage(){
     if(!calcFluxScale_p)

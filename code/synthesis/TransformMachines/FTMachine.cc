@@ -414,7 +414,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //logIO() << LogIO::DEBUGGING << "Channel Map: " << chanMap << LogIO::POST;
     }
     // Should never get here
-    if(max(chanMap)>=nchan||min(chanMap)<-1) {
+    if(max(chanMap)>=nchan||min(chanMap)<-3) {
       logIO() << "Illegal Channel Map: " << chanMap << LogIO::EXCEPTION;
     }
     
@@ -796,10 +796,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     
     Cube<Bool>  copyOfFlag;
     //cerr << "spw " << vb.spectralWindow() << " chanMap " << multiChanMap_p[vb.spectralWindow()] << endl;
-    Vector<Int> mychanmap=multiChanMap_p[vb.spectralWindow()];
+    Vector<Int> mychanmap;
+    mychanmap=multiChanMap_p[vb.spectralWindow()];
     copyOfFlag.assign(vb.flagCube());
     for (uInt k=0; k< mychanmap.nelements(); ++ k)
-      if(mychanmap(k) < 0)
+      if(mychanmap(k) ==-1)
 	copyOfFlag.xzPlane(k).set(true);
     
     swapyz(vb.modelVisCube(), copyOfFlag, flipdata);
@@ -807,6 +808,117 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     
     return true;
   }
+void  FTMachine::girarUVW(Matrix<Double>& uvw, Vector<Double>& dphase,
+			    const VisBuffer& vb)
+{
+    
+    
+    
+    //the uvw rotation is done for common tangent reprojection or if the 
+    //image center is different from the phasecenter
+    // UVrotation is false only if field never changes
+  
+
+   if((vb.fieldId()!=lastFieldId_p) || (vb.msId()!=lastMSId_p))
+      doUVWRotation_p=true;
+    if(doUVWRotation_p ||  fixMovingSource_p){
+      
+      mFrame_p.epoch() != 0 ? 
+	mFrame_p.resetEpoch(MEpoch(Quantity(vb.time()(0), "s"))):
+	mFrame_p.set(mLocation_p, MEpoch(Quantity(vb.time()(0), "s"), vb.msColumns().timeMeas()(0).getRef()));
+      MDirection::Types outType;
+      MDirection::getType(outType, mImage_p.getRefString());
+      MDirection phasecenter=MDirection::Convert(vb.phaseCenter(), MDirection::Ref(outType, mFrame_p))();
+      
+
+      if(fixMovingSource_p){
+       
+      //First convert to HA-DEC or AZEL for parallax correction
+	MDirection::Ref outref1(MDirection::AZEL, mFrame_p);
+	MDirection tmphadec=MDirection::Convert(movingDir_p, outref1)();
+	MDirection::Ref outref(mImage_p.getRef().getType(), mFrame_p);
+	MDirection sourcenow=MDirection::Convert(tmphadec, outref)();
+	//cerr << "Rotating to fixed moving source " << MVDirection(phasecenter.getAngle()-firstMovingDir_p.getAngle()+sourcenow.getAngle()) << endl;
+	phasecenter.set(MVDirection(phasecenter.getAngle()+firstMovingDir_p.getAngle()-sourcenow.getAngle()));
+	
+    }
+
+
+      // Set up the UVWMachine only if the field id has changed. If
+      // the tangent plane is specified then we need a UVWMachine that
+      // will reproject to that plane iso the image plane
+      if((vb.fieldId()!=lastFieldId_p) || (vb.msId()!=lastMSId_p) || fixMovingSource_p) {
+	
+	String observatory=vb.msColumns().observation().telescopeName()(0);
+	if(uvwMachine_p) delete uvwMachine_p; uvwMachine_p=0;
+	if(observatory.contains("ATCA") || observatory.contains("WSRT")){
+		//Tangent specified is being wrongly used...it should be for a
+	    	//Use the safest way  for now.
+	    uvwMachine_p=new UVWMachine(phasecenter, vb.phaseCenter(), mFrame_p,
+					true, false);
+	    phaseShifter_p=new UVWMachine(mImage_p, phasecenter, mFrame_p,
+					true, false);
+	}
+	else{
+	  uvwMachine_p=new UVWMachine(phasecenter, vb.phaseCenter(),  mFrame_p,
+				      false, false);
+	  phaseShifter_p=new UVWMachine(mImage_p, phasecenter,  mFrame_p,
+				      false, false);
+	}
+      }
+
+	lastFieldId_p=vb.fieldId();
+	lastMSId_p=vb.msId();
+
+      
+      AlwaysAssert(uvwMachine_p, AipsError);
+      
+      // Always force a recalculation 
+      uvwMachine_p->reCalculate();
+      phaseShifter_p->reCalculate();
+      
+      // Now do the conversions
+      uInt nrows=dphase.nelements();
+      Vector<Double> thisRow(3);
+      thisRow=0.0;
+      //CoordinateSystem csys=image->coordinates();
+      //DirectionCoordinate dc=csys.directionCoordinate(0);
+      //Vector<Double> thePix(2);
+      //dc.toPixel(thePix, phasecenter);
+      //cerr << "field id " << vb.fieldId() << "  the Pix " << thePix << endl;
+      //Vector<Float> scale(2);
+      //scale(0)=dc.increment()(0);
+      //scale(1)=dc.increment()(1);
+      for (uInt irow=0; irow<nrows;++irow) {
+	thisRow.assign(uvw.column(irow));
+	//cerr << " uvw " << thisRow ;
+	// This is for frame change
+	uvwMachine_p->convertUVW(dphase(irow), thisRow);
+	// This is for correlator phase center change
+	MVPosition rotphase=phaseShifter_p->rotationPhase() ;
+	//cerr << " rotPhase " <<  rotphase << " oldphase "<<  rotphase*(uvw.column(irow))  << " newphase " << (rotphase)*thisRow ;
+	//	cerr << " phase " << dphase(irow) << " new uvw " << uvw.column(irow);
+	//dphase(irow)+= (thePix(0)-nx/2.0)*thisRow(0)*scale(0)+(thePix(1)-ny/2.0)*thisRow(1)*scale(1);
+	//Double pixphase=(thePix(0)-nx/2.0)*uvw.column(irow)(0)*scale(0)+(thePix(1)-ny/2.0)*uvw.column(irow)(1)*scale(1);
+	//Double pixphase2=(thePix(0)-nx/2.0)*thisRow(0)*scale(0)+(thePix(1)-ny/2.0)*thisRow(1)*scale(1);
+	//cerr << " pixphase " <<  pixphase <<  " pixphase2 " << pixphase2<< endl;
+	//dphase(irow)=pixphase;
+	//dphase(irow)+= rotphase(0)*thisRow(0)+rotphase(1)*thisRow(1);
+	RotMatrix rotMat=phaseShifter_p->rotationUVW();
+	//cerr << "rot 0 " << rotMat(0,0) << "    " << rotMat(1,0) << "   " << rotMat(2,0) << endl;
+	//cerr << "rot 1 " << rotMat(0,1) << "    " << rotMat(1,1) << "   " << rotMat(2,1) << 
+	uvw.column(irow)(0)=thisRow(0)*rotMat(0,0)+thisRow(1)*rotMat(1,0);	  
+	uvw.column(irow)(1)=thisRow(0)*rotMat(0,1)+thisRow(1)*rotMat(1,1);
+	
+	uvw.column(irow)(2)=thisRow(0)*rotMat(0,2)+thisRow(1)*rotMat(1,2)+thisRow(2)*rotMat(2,2);
+	//cerr << "w term " << thisRow(2) << " aft " << 	uvw.column(irow)(2) << endl;
+	dphase(irow)+= rotphase(0)*uvw.column(irow)(0)+rotphase(1)*uvw.column(irow)(1);
+      }
+	
+      
+    }
+}
+
   void FTMachine::rotateUVW(Matrix<Double>& uvw, Vector<Double>& dphase,
 			    const VisBuffer& vb)
   {
@@ -1533,6 +1645,28 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    */
 	  }
 	}
+	else{
+
+
+	  if(nvischan > 1){
+	    Double fwidth=lsrFreq[1]-lsrFreq[0];
+	    Double limit=0;
+	    Double where=c(0)*fabs(spectralCoord_p.increment()(0));
+	    if( freqInterpMethod_p==InterpolateArray1D<Double,Complex>::linear)
+	      limit=1;
+	    else if( freqInterpMethod_p==InterpolateArray1D<Double,Complex>::cubic ||  freqInterpMethod_p==InterpolateArray1D<Double,Complex>::spline)
+	      limit=2;
+	    if(((pixel<0) && (where >= (0-limit*fabs(fwidth)))) )
+	      chanMap(chan)=-2;
+	    if((pixel>=nchan) ) {
+	      where=f(0);
+	      Double fend;
+	      spectralCoord_p.toWorld(fend, Double(nchan));
+	      if( ( (fwidth >0) &&where < (fend+limit*fwidth))  || ( (fwidth <0) &&where > (fend+limit*fwidth)) )
+		chanMap(chan)=-2;
+	    }
+	  }
+	}
       }
     }
     
@@ -1667,7 +1801,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       Int yOffset=zOffset;
       for (uInt iy=0; iy<nyy; ++iy, yOffset+=nxx*nzz) {
 	for (uInt ix=0; ix<nxx; ++ix){ 
-	  if(!poutflag[i])
+	  if(!poutflag[i] )
 	    pout[i] = pin[ix+yOffset];
 	  ++i;
 	}
@@ -2109,6 +2243,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	if( useWeightImage() && dopsf ) { 
 	  getWeightImage( *(imstore->weight())  , sumWeights); 
+
+	  //cerr << "weightim val " << (imstore->weight())->getAt(IPosition(4, nx/2, ny/2, 0, 0)) << " nx, ny " << ny <<", " << ny << " sumWeights " << sumWeights << endl;
+
 	  // Fill weight image only once, during PSF generation. Remember.... it is normalized only once
 	  // during PSF generation.
 	}
@@ -2178,7 +2315,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  
 	}
 
-    }
+      }///image mosaic only
     //------------------------------------------------------------------------------------
 
 

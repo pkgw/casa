@@ -65,6 +65,26 @@ or sdreduce.
         <value></value>
     </param>
 
+    <param type="string" name="timebin">
+        <description>bin width for time averaging</description>
+        <value type="string"></value>
+    </param>
+    
+    <param type="string" name="timespan" subparam="true">
+        <description>span the timebin across \'scan\', \'state\', \'field\', or a combination of them (e.g., \'scan,state\')</description>
+        <value type="string"></value>
+    </param>
+
+    <param type="string" name="polaverage">
+        <description>polarization averaging mode (\'\', \'stokes\' or \'geometric\').</description>
+        <allowed kind="enum">
+            <value></value>
+            <value>stokes</value>
+            <value>geometric</value>
+        </allowed>
+        <value></value>
+    </param>
+    
     <param type="string" name="fitfunc">
         <shortdescription>function for fitting [\'gaussian\', \'lorentzian\']</shortdescription>
         <description>function for fitting</description>
@@ -124,6 +144,11 @@ or sdreduce.
     </param>
 
     <constraints>
+            <when param="timebin">
+                <notequals type="string" value="">
+                        <default param="timespan"><value type="string"></value></default>
+                </notequals>
+            </when>
             <when param="fitmode">
                 <equals value="list">
                         <default param="nfit"><value type='vector'><value>0</value></value></default>
@@ -198,6 +223,16 @@ intent -- select data by observational intent, also referred to as 'scan intent'
         default: '' (use all scan intents)
         example: intent='*ON_SOURCE*' (any valid scan-intent expression accepted by the MSSelection module can be specified)
         this selection is in addition to the other selections to data
+timebin -- bin width for time averaging. it must be a positive value.
+        default: '' (no averaging over time)
+        example: timebin='1s' (time averaging performed over 1 second bins)
+    &gt;&gt;&gt; timebin expandable parameters
+        timespan -- span the timebin across \'scan\', \'state\', \'field\', or a combination of them (e.g., \'scan,state\')
+                default: '' (average each scan, intent and field separately)
+                example: 'scan' time averaging is done across scan ID boundaries
+polaverage -- polarization averaging mode
+        default: '' (no averaging over polarization)
+        options: '', 'stokes', 'geometric'
 fitfunc -- function for fitting
         options: 'gaussian', 'lorentzian'
         default: 'gaussian'
@@ -271,6 +306,17 @@ or sdreduce.
 Note that multiple scans, IFs, and polarizations can in principle 
 be handled, but we recommend that you use scan, field, spw, and pol
 to give a single selection for each fit.
+
+-------
+POLARIZATION AVERAGE
+-------
+Two modes of polarization averaging are available. The default is 
+'stokes' which is an average based on a formulation of Stokes 
+parameter. In this mode, averaged data is calculated by 
+(XX + YY) / 2 or (RR + LL) / 2. Other option is 'geometric', which 
+is a conventional way of averaging in the field of single-dish 
+data reduction. The averaged data is given by weighted average 
+of XX and YY, or RR and LL. 
 
 -------
 FITMODE

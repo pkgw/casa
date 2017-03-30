@@ -37,7 +37,7 @@ from taskinit import casalog
 PYVER = str(sys.version_info[0]) + "." + str(sys.version_info[1])
 
 CASA_DIR = os.environ["CASAPATH"].split()[0]
-TESTS_DIR = CASA_DIR + "/" + os.environ["CASAPATH"].split()[1] + '/python/' + PYVER + '/tests/'
+TESTS_DIR = CASA_DIR + "/" + os.environ["CASAPATH"].split()[1] + '/lib/python' + PYVER + '/tests/'
 #DATA_DIR = CASA_DIR+'/data/'
 #print 'HELLOR DATA_DIR'
 #print DATA_DIR
@@ -45,7 +45,7 @@ if not os.access(TESTS_DIR, os.F_OK):
     if os.access(CASA_DIR+'/lib64', os.F_OK):
         TESTS_DIR = CASA_DIR+'/lib64/python' + PYVER + '/tests/'
     elif os.access(CASA_DIR+'/lib', os.F_OK):
-        TESTS_DIR = CASA_DIR+'/lib/python/tests/'
+        TESTS_DIR = CASA_DIR+'/lib/python'+ PYVER +'/tests/'
     else:            #Mac release
         TESTS_DIR = CASA_DIR+'/Resources/python/tests/'
 
@@ -320,8 +320,11 @@ def main(testnames=[]):
 # by argparse. The next section will need to be updated accordingly
 # ---------------------------------------------------------------------
 if __name__ == "__main__":
-    # Get command line arguments
+    ## flush output
+    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
+    sys.stderr = os.fdopen(sys.stderr.fileno(), 'w', 0)
     
+    # Get command line arguments
     if "-c" in sys.argv:
         # If called with ... -c runUnitTest.py from the command line,
         # then parse the command line parameters
@@ -421,4 +424,3 @@ if __name__ == "__main__":
     except:
         traceback.print_exc()
         
-

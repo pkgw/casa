@@ -37,15 +37,16 @@ def pointing_reg():
         os.system("cp -r " + REPOSNAME+MODELIMAGE + " " + MYIMAGE);
         os.system("cp -r " + REPOSNAME+TEMPLATEEPJ + " " + MYTEMPLATEEPJ);
 
+    cb.setvi(old=True)  # force old VI2
     cb.open(MYMS);
-    
+
     cb.selectvis(time=TOTALTIME);
     cb.setsolve(type     = "EP",
                 t         = INTEG,
                 table     = THISHOME+EPJTABLE,
                 preavg    = -1,
-                phaseonly = false,
-                append    = false,
+                phaseonly = False,
+                append    = False,
                 cfcache   = THISHOME + EPJCACHE,
                 painc     = PASTEP);
     cb.setmodel(modelimage=MYIMAGE);
@@ -120,7 +121,7 @@ try:
     print >>logfile,'*                                      *'
     print >>logfile,'Total wall clock time was: ', endTime - startTime
     print >>logfile,'Total CPU        time was: ', endProc - startProc
-        
+
 
     logfile.close();
 

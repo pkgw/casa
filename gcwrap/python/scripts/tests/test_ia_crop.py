@@ -54,7 +54,7 @@
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
 # 
-# `echo $CASAPATH/bin/casapy | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_crop[test1,test2,...]
+# `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_crop[test1,test2,...]
 #
 # </example>
 #
@@ -94,7 +94,7 @@ class ia_crop_test(unittest.TestCase):
                 ["2.15930000e+04arcmin", "6.00000305e+00arcmin","1.41500500e+09Hz"]
             )
         )
-        myia.set(pixelmask=F,region=reg)
+        myia.set(pixelmask=False,region=reg)
         crop = myia.crop()
         self.assertTrue((crop.shape() == [16, 14, 12]).all())
         crop = myia.crop(axes=[0])
@@ -121,8 +121,8 @@ class ia_crop_test(unittest.TestCase):
         myia.done()
         msgs = bb.history()
         bb.done()
-        self.assertTrue("ia.crop" in msgs[-2])
-        self.assertTrue("ia.crop" in msgs[-1])
+        self.assertTrue("ia.crop" in msgs[-4])
+        self.assertTrue("ia.crop" in msgs[-3])
         
 def suite():
     return [ia_crop_test]

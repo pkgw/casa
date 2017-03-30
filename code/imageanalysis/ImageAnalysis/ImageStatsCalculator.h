@@ -28,13 +28,9 @@
 #ifndef IMAGEANALYSIS_IMAGESTATSCALCULATOR_H
 #define IMAGEANALYSIS_IMAGESTATSCALCULATOR_H
 
-#include <imageanalysis/ImageAnalysis/ImageTask.h>
+#include <imageanalysis/ImageAnalysis/ImageStatsConfigurator.h>
 
-#include <images/Images/ImageStatistics.h>
-//#include <casa/Utilities/CountedPtr.h>
 #include <casa/namespace.h>
-
-#include <memory>
 
 namespace casacore{
 
@@ -43,8 +39,7 @@ template <class T> class CountedPtr;
 
 namespace casa {
 
-
-class ImageStatsCalculator: public ImageTask<casacore::Float> {
+class ImageStatsCalculator: public ImageStatsConfigurator {
     // <summary>
     // Top level class used for statistics calculations
     // </summary>
@@ -65,46 +60,22 @@ class ImageStatsCalculator: public ImageTask<casacore::Float> {
 
 public:
 
-	enum PreferredClassicalAlgorithm {
-		// old algorithm
-		TILED_APPLY,
-		// new algorithm
-		STATS_FRAMEWORK,
-		// decide based on size and number of steps needed for
-		// stats
-		AUTO
-	};
-
-   	ImageStatsCalculator(
-   		const SPCIIF image,
-    	const casacore::Record *const &regionPtr,
-    	const casacore::String& maskInp, casacore::Bool beVerboseDuringConstruction=false
+    ImageStatsCalculator(
+        const SPCIIF image,
+        const casacore::Record *const &regionPtr,
+        const casacore::String& maskInp, casacore::Bool beVerboseDuringConstruction=false
     );
 
     ~ImageStatsCalculator();
 
     casacore::Record calculate();
 
-    void configureChauvenet(casacore::Double zscore, casacore::Int maxIterations);
-
-    void configureClassical(PreferredClassicalAlgorithm p);
-
-    // configure fit to half algorithm
-    void configureFitToHalf(
-    	casacore::FitToHalfStatisticsData::CENTER centerType,
-    	casacore::FitToHalfStatisticsData::USE_DATA useData,
-    	casacore::Double centerValue
-    );
-
-    // configure hinges-fences algorithm
-    void configureHingesFences(casacore::Double f);
-
-    void forceNewStorage() { _statistics.reset(); }
+    void forceNewStorage() { _resetStats(); }
 
     inline casacore::String getClass() const {return _class;}
 
     inline void setAxes(const casacore::Vector<casacore::Int>& axes) {
-    	_axes.assign(axes); casacore::GenSort<casacore::Int>::sort(_axes);
+        _axes.assign(axes); casacore::GenSort<casacore::Int>::sort(_axes);
     }
 
     void setDisk(casacore::Bool d);
@@ -129,21 +100,23 @@ public:
     // if messageStore != 0, log messages, stripped of time stampe and priority, will also
     // be placed in this parameter and returned to caller for eg logging to file.
     casacore::Record statistics(
-    	 vector<casacore::String> *const &messageStore=0
+         vector<casacore::String> *const &messageStore=0
     );
+
+    const static String SIGMA;
 
 protected:
 
-   	CasacRegionManager::StokesControl _getStokesControl() const {
-   		return CasacRegionManager::USE_ALL_STOKES;
-   	}
+       CasacRegionManager::StokesControl _getStokesControl() const {
+           return CasacRegionManager::USE_ALL_STOKES;
+       }
 
     vector<OutputDestinationChecker::OutputStruct> _getOutputStruct() {
-    	return vector<OutputDestinationChecker::OutputStruct>(0);
+        return vector<OutputDestinationChecker::OutputStruct>(0);
     }
 
     vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const {
-    	return vector<casacore::Coordinate::Type>(0);
+        return vector<casacore::Coordinate::Type>(0);
     }
 
     casacore::Bool _hasLogfileSupport() const { return true; }
@@ -151,31 +124,25 @@ protected:
     inline casacore::Bool _supportsMultipleRegions() const {return true;}
 
 private:
-    std::unique_ptr<casacore::ImageStatistics<casacore::Float> > _statistics;
     casacore::CountedPtr<casacore::ImageRegion> _oldStatsRegion, _oldStatsMask;
     casacore::Vector<casacore::Int> _axes;
     casacore::Vector<casacore::Float> _includepix, _excludepix;
     casacore::Bool _list, _disk, _robust, _verbose;
-    casacore::LatticeStatistics<casacore::Float>::AlgConf _algConf;
     SHARED_PTR<const casacore::SubImage<casacore::Float> > _subImage;
-    PreferredClassicalAlgorithm _prefClassStatsAlg;
-
     static const casacore::String _class;
-
-    casacore::String _configureAlgorithm();
 
     // moved from ImageAnalysis
     // See if the combination of the 'region' and 'mask' ImageRegions have changed
     static casacore::Bool _haveRegionsChanged (
-    	casacore::ImageRegion* pNewRegionRegion,
-    	casacore::ImageRegion* pNewMaskRegion,
-    	casacore::ImageRegion* pOldRegionRegion,
-    	casacore::ImageRegion* pOldMaskRegion
+        casacore::ImageRegion* newRegion,
+        casacore::ImageRegion* newMask,
+        casacore::ImageRegion* oldRegion,
+        casacore::ImageRegion* oldMask
     );
 
     void _reportDetailedStats(
-    	const SHARED_PTR<const casacore::ImageInterface<casacore::Float> > tempIm,
-    	const casacore::Record& retval
+        const SHARED_PTR<const casacore::ImageInterface<casacore::Float> > tempIm,
+        const casacore::Record& retval
     );
 
 };

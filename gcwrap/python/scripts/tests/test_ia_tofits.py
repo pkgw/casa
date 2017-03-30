@@ -54,7 +54,7 @@
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
 # 
-# `echo $CASAPATH/bin/casapy | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/gcwrap/python/scripts/regressions/admin/runUnitTest.py test_ia_tofits[test1,test2,...]
+# `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/gcwrap/python/scripts/regressions/admin/runUnitTest.py test_ia_tofits[test1,test2,...]
 #
 # </example>
 #
@@ -107,9 +107,9 @@ class ia_tofits_test(unittest.TestCase):
         name = "my.im"
         yy = self.myia
         yy.fromshape(name, [1,1,1,1])
-        self.assertRaises(Exception, yy.tofits, overwrite=T)
+        self.assertRaises(Exception, yy.tofits, overwrite=True)
         yy.done()
-        self.assertFalse(exportfits(imagename=name, overwrite=T))
+        self.assertFalse(exportfits(imagename=name, overwrite=True))
     
     def test_multibeam(self):
         """Test exporting and importing an image with multiple beams"""

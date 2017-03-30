@@ -31,6 +31,7 @@ import time
 import inspect
 import gc
 import numpy
+from casa_stack_manip import stack_frame_find
 from odict import odict
 from types import * 
 from task_</xsl:text><xsl:value-of select="$taskname"/> import <xsl:value-of select="$taskname"/>
@@ -70,10 +71,10 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
 		<xsl:if test="not(@visibility) or @visibility!='hidden'">
 		<xsl:choose>
 		<xsl:when test="aps:description">
-		<xsl:text>		</xsl:text><xsl:value-of select="@name"/><xsl:text>:	</xsl:text><xsl:value-of select="aps:description"/>
+		<xsl:text>		</xsl:text><xsl:value-of select="@name"/><xsl:text>:	</xsl:text><xsl:value-of select="aps:description" disable-output-escaping="yes"/>
 		</xsl:when>
 		<xsl:otherwise>
-		<xsl:text>		</xsl:text><xsl:value-of select="@name"/><xsl:text>:	</xsl:text><xsl:value-of select="aps:shortdescription"/>
+		<xsl:text>		</xsl:text><xsl:value-of select="@name"/><xsl:text>:	</xsl:text><xsl:value-of select="aps:shortdescription" disable-output-escaping="yes"/>
 		</xsl:otherwise>
 		</xsl:choose>
 		<xsl:text>
@@ -107,7 +108,7 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
         """</xsl:text>
 <xsl:text disable-output-escaping="yes">
 	if not hasattr(self, "__globals__") or self.__globals__ == None :
-           self.__globals__=sys._getframe(len(inspect.stack())-1).f_globals
+           self.__globals__=stack_frame_find( )
 	#casac = self.__globals__['casac']
 	casalog = self.__globals__['casalog']
 	casa = self.__globals__['casa']
@@ -251,7 +252,7 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
         """
         import paramgui
 	if not hasattr(self, "__globals__") or self.__globals__ == None :
-           self.__globals__=sys._getframe(len(inspect.stack())-1).f_globals
+           self.__globals__=stack_frame_find( )
 
         if useGlobals:
 	    if ipython_globals == None:
@@ -271,7 +272,7 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
 #
     def defaults(self, param=None, ipython_globals=None, paramvalue=None, subparam=None):
 	if not hasattr(self, "__globals__") or self.__globals__ == None :
-           self.__globals__=sys._getframe(len(inspect.stack())-1).f_globals
+           self.__globals__=stack_frame_find( )
         if ipython_globals == None:
             myf=self.__globals__
         else:

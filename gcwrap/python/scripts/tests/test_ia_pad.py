@@ -53,7 +53,7 @@
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
 # 
-# `echo $CASAPATH/bin/casapy | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_pad[test1,test2,...]
+# `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_pad[test1,test2,...]
 #
 # </example>
 #
@@ -224,8 +224,8 @@ class ia_pad_test(unittest.TestCase):
         myia.done()
         msgs = bb.history()
         bb.done()
-        self.assertTrue("ia.pad" in msgs[-2])
-        self.assertTrue("ia.pad" in msgs[-1])
+        self.assertTrue("ia.pad" in msgs[-4])
+        self.assertTrue("ia.pad" in msgs[-3])
 
 def suite():
     return [ia_pad_test]

@@ -146,6 +146,28 @@ string plotms::getLogFilter() {
     }
 }
 
+void plotms::setPlotmsPid(int pid) {
+    // Connect dbus to existing plotms pid (started by procmgr)
+    app_pid = pid;
+    app.dbusName() = to_string(QtDBusApp::generateServiceName(
+        app.getName(), pid));
+    QtApp::init();  // must have QCoreApplication before dbus connection
+    // Wait for it to connect...
+    unsigned int slept = 0;
+    bool connected = false;
+    while(!connected && slept < LAUNCH_TOTAL_WAIT_US) {
+        usleep(LAUNCH_WAIT_INTERVAL_US);
+        connected = QtDBusApp::serviceIsAvailable(app.dbusName( ));
+        slept += LAUNCH_WAIT_INTERVAL_US;
+    }
+    if(!connected) {
+        app.dbusName( ) = "";
+        cerr << "ERROR: plotms dbus connection failed within specified"
+                " time window.  Check running processes and try again if "
+                "desired." << endl;
+    }
+}
+
 void plotms::setClearSelectionOnAxesChange(const bool clearSelection) {
     launchApp();
     SETSINGLE(SETPLOTMSPARAMS, CLEARSELECTIONS, clearSelection, asyncCall) }
@@ -564,12 +586,16 @@ void plotms::setPlotAxes(const string& xAxis, const string& yAxis,
     Record params;
     if(!xAxis.empty()){
     	params.define(PlotMSDBusApp::PARAM_AXIS_X, xAxis);
+    } else if (!yAxis.empty()) { 
+    	params.define(PlotMSDBusApp::PARAM_AXIS_X, "None");
     }
     if(!xdc.empty()){
         params.define(PlotMSDBusApp::PARAM_DATACOLUMN_X, xdc);
     }
     if(!yAxis.empty()){
     	params.define(PlotMSDBusApp::PARAM_AXIS_Y, yAxis);
+    } else if (!xAxis.empty()) { 
+    	params.define(PlotMSDBusApp::PARAM_AXIS_Y, "None");
     }
     if(!ydc.empty()){
         params.define(PlotMSDBusApp::PARAM_DATACOLUMN_Y, ydc);
@@ -797,6 +823,7 @@ void plotms::killApp() {
 
 // Private Methods //
 
+
 bool plotms::displaySet() {
     bool set = getenv("DISPLAY") != NULL;
     if(!set) {
@@ -810,10 +837,12 @@ bool plotms::displaySet() {
 void plotms::launchApp() {
 
 	if(!displaySet()) return;
+
     // is it running?
 	if( (!app.dbusName( ).empty()) && 
-        (QtDBusApp::serviceIsAvailable(app.dbusName( ))) )
+        (QtDBusApp::serviceIsAvailable(app.dbusName( ))) ) {
         return;
+    }
 
 	// Launch PlotMS application with the DBus switch.
 	pid_t pid = fork();
@@ -856,13 +885,6 @@ void plotms::launchApp() {
 			slept += LAUNCH_WAIT_INTERVAL_US;
 		}
 
-        /* Keep these for plotms restart
-		if(launched) {
-			itsLogFilename_ = "";
-			itsLogFilter_ = "";
-
-		} else {
-        */
 		if(!launched) {
 			app.dbusName( ) = "";
 			cerr << "ERROR: plotms application did not launch within specified"

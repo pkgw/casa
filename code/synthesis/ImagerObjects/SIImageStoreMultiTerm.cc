@@ -826,7 +826,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     }
     else { makePBImage(pblimit); }
     //    calcSensitivity();
-    // createMask
   }
 
 
@@ -863,7 +862,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	      os << " by [ weight ] to get flat sky"<< LogIO::POST;
 	    }
 	    
-	    Float scalepb = pblimit * itsPBScaleFactor * itsPBScaleFactor ;
+	    Float scalepb = fabs(pblimit) * itsPBScaleFactor * itsPBScaleFactor ;
 	    LatticeExpr<Float> mask( iif( (deno) > scalepb , 1.0, 0.0 ) );
 	    LatticeExpr<Float> maskinv( iif( (deno) > scalepb , 0.0, 1.0 ) );
 	    LatticeExpr<Float> ratio( ( (*(residual(tix))) * mask ) / ( deno + maskinv ) );
@@ -871,11 +870,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    residual(tix)->copyData(ratio);
 	  }
 
-	if( (residual(tix)->getDefaultMask()=="") && hasPB())
+	if( (residual(tix)->getDefaultMask()=="") && hasPB()  && pblimit >= 0.0 )
 	  {copyMask(pb(),residual(tix));}
 
+	if( pblimit <0.0 && (residual(tix)->getDefaultMask()).matches("mask0") ) removeMask( residual(tix) );
+
       }
-    // createMask
   }
 
   void SIImageStoreMultiTerm::divideModelByWeight(Float pblimit, const String normtype)
@@ -883,7 +883,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     LogIO os( LogOrigin("SIImageStoreMultiTerm","divideModelByWeight",WHERE) );
 
         if( 	itsUseWeight // only when needed
-	&& hasSensitivity() )// i.e. only when possible. For an initial starting model, don't need wt anyway.
+	&& weight() )// i.e. only when possible. For an initial starting model, don't need wt anyway.
       {
 
 	if( normtype=="flatsky") {
@@ -906,14 +906,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    
 	    LatticeExpr<Float> deno( sqrt( abs(*(weight(0))) ) / itsPBScaleFactor );
 	    
-	    LatticeExpr<Float> mask( iif( (deno) > pblimit , 1.0, 0.0 ) );
-	    LatticeExpr<Float> maskinv( iif( (deno) > pblimit , 0.0, 1.0 ) );
+	    LatticeExpr<Float> mask( iif( (deno) > fabs(pblimit) , 1.0, 0.0 ) );
+	    LatticeExpr<Float> maskinv( iif( (deno) > fabs(pblimit) , 0.0, 1.0 ) );
 	    LatticeExpr<Float> ratio( ( (*(model(tix))) * mask ) / ( deno + maskinv ) );
 
 	    itsModels[tix]->copyData(ratio);
 	  }    
       }
-    // createMask
   }
 
 
@@ -923,7 +922,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     
     if(        itsUseWeight // only when needed
-	&& hasSensitivity() )// i.e. only when possible. For an initial starting model, don't need wt anyway.
+	&& weight() )// i.e. only when possible. For an initial starting model, don't need wt anyway.
       {
 
 	if( normtype=="flatsky") {
@@ -942,14 +941,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  
 	  LatticeExpr<Float> deno( sqrt( abs(*(weight(0)) ) ) / itsPBScaleFactor );
 
-	  LatticeExpr<Float> mask( iif( (deno) > pblimit , 1.0, 0.0 ) );
-	  LatticeExpr<Float> maskinv( iif( (deno) > pblimit , 0.0, 1.0 ) );
+	  LatticeExpr<Float> mask( iif( (deno) > fabs(pblimit) , 1.0, 0.0 ) );
+	  LatticeExpr<Float> maskinv( iif( (deno) > fabs(pblimit) , 0.0, 1.0 ) );
 	  LatticeExpr<Float> ratio( ( (*(model(tix))) * mask ) * ( deno + maskinv ) );
 
 	    itsModels[tix]->copyData(ratio);
 	  }    
       }
-    // createMask
   }
 
 
@@ -1195,9 +1193,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  }
       }
 
-    Double fbw = calcFractionalBandwidth();
-    os << "Fractional Bandwidth : " << fbw << " %." << LogIO::POST;
-
+    calcFractionalBandwidth();
   }
  
   Double SIImageStoreMultiTerm::calcFractionalBandwidth()
@@ -1205,7 +1201,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     LogIO os( LogOrigin("SIImageStoreMultiTerm","calcFractionalBandwidth",WHERE) );
 
-    Double fbw;
+    Double fbw=1.0;
 
     for(uInt i=0; i<itsCoordSys.nCoordinates(); i++)
     {
@@ -1218,8 +1214,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  speccoord.toWorld(endfreq,endpixel);
 	  Double midfreq = (endfreq+startfreq)/2.0;
 	  fbw = ((endfreq - startfreq)/midfreq) * 100.0;
-	  //os << "MFS frequency range : " << startfreq << " -> " << endfreq; 
-	  //os << ". Fractional Bandwidth : " << itsFractionalBandwidth << " %." << LogIO::POST;
+	  os << "MFS frequency range : " << startfreq/1.0e+9 << " GHz -> " << endfreq/1.0e+9 << "GHz."; 
+	  os << "Fractional Bandwidth : " << fbw << " %.";
+	  os << "Reference Frequency for Taylor Expansion : "<< getReferenceFrequency()/1.0e+9 << "GHz." << LogIO::POST;
 	}
     }
     return fbw;

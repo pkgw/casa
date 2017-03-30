@@ -511,6 +511,32 @@ class test_rflag(test_base):
         self.assertTrue(abs(res1['flagged']-res2['flagged'])<10000)
         self.assertTrue(abs(res1['flagged']-39504.0)<10000)
 
+    def test_rflag3_dict(self):
+        '''flagdata:: mode = rflag : output/input via returned dictionary and cmd'''
+        # (1) Test input/output files, through the task, mode='rflag'
+        # Files tdevfile.txt and fdevfile.txt are created in this step
+        rdict = flagdata(vis=self.vis, mode='rflag', spw='9,10', timedev='', 
+                      freqdev='', action='calculate', extendflags=False)
+        
+        flagdata(vis=self.vis, mode='rflag', spw='9,10', timedev=rdict['report0']['timedev'], 
+                      freqdev=rdict['report0']['freqdev'], action='apply', flagbackup=False, 
+                      extendflags=False)
+        res1 = flagdata(vis=self.vis, mode='summary', spw='9,10')
+        # (2) Test rflag output written to cmd file via mode='rflag' and 'savepars' 
+        #      and then read back in via list mode. 
+        #      Also test the 'savepars' when timedev and freqdev are specified differently...
+#        flagdata(vis=self.vis,mode='unflag', flagbackup=False)
+        self.unflag_ms()
+        flagdata(vis=self.vis, mode='rflag', spw='9,10', timedev='', \
+                      freqdev=[],action='calculate',savepars=True,outfile='outcmd.txt',
+                      extendflags=False);
+        flagdata(vis=self.vis, mode='list', inpfile='outcmd.txt', flagbackup=False)
+        res2 = flagdata(vis=self.vis, mode='summary', spw='9,10')
+
+        #print res1['flagged'], res2['flagged']
+        self.assertTrue(abs(res1['flagged']-res2['flagged'])<10000)
+        self.assertTrue(abs(res1['flagged']-39504.0)<10000)
+
     def test_rflag4(self):
         '''flagdata:: mode = rflag : correlation selection'''
         flagdata(vis=self.vis, mode='rflag', spw='9,10', correlation='rr,ll', flagbackup=False,
@@ -525,6 +551,17 @@ class test_rflag(test_base):
         '''flagdata:: Use provided value for time stats, but automatically computed value for freq. stats'''
         flagdata(vis=self.vis, mode='rflag', field = '1', spw='10', timedev=0.1, \
                  timedevscale=5.0, freqdevscale=5.0, action='calculate', flagbackup=False)
+
+    def test_rflag_return_dict1(self):
+        '''flagdata:: Use provided value for time stats, but automatically computed value for freq. stats'''
+        rflag_dict = flagdata(vis=self.vis, mode='rflag', field = '1', spw='10', timedev=0.1, \
+                 timedevscale=5.0, freqdevscale=5.0, action='calculate', flagbackup=False)
+        
+        fd = rflag_dict['report0']['freqdev']
+
+        self.assertEqual(fd.ndim,2)
+        self.assertEqual(fd.max(),10.0)
+        self.assertGreater(fd.min(),0.07068)
 
     def test_rflag_extendflags(self):
         '''flagdata: automatically extend the flags after rflag'''    
@@ -759,6 +796,48 @@ class test_msselection(test_base):
         self.assertEqual(s['baseline']['VA09&&VA28']['flagged'], 252)
         self.assertEqual(s['baseline']['VA09&&VA09']['flagged'], 3780)
         self.assertEqual(s['flagged'], 190386)
+        
+    def test_spw_error_handler_name(self):
+        '''flagdata: A non-existing spw name in a compound with a existing spw should not fail'''
+        # CAS-9366: flagcmd fails when applying flags based on an spw selection by name, when
+        # one of the spws do not exist
+        # The spw names in Four_ants_3C286.ms are not unique. They are:
+        #     Subband:0 Subband:1 Subband:2 Subband:3 Subband:4 Subband:5 Subband:6 Subband:7
+        # spw=0,8       1,9       2,10 etc.
+        self.setUp_data4tfcrop()
+        
+        # Copy the input flagcmd file with a non-existing spw name
+        # flagsfile has spw='"Subband:1","Subband:2","Subband:8"
+        flagsfile = 'cas9366.flags.txt'
+        os.system('cp -rf '+datapath + flagsfile +' '+ ' .')
+        
+        # Try to flag
+        try:
+            flagdata(self.vis, mode='list', inpfile=flagsfile, flagbackup=False)
+        except Exception, instance:
+            print 'Expected RuntimeError error: %s'%instance
+
+        # should flag spws 1,2,9,10
+        s = flagdata(self.vis, mode='summary')
+        self.assertEqual(s['spw']['1']['flagged'],274944.0)
+        self.assertEqual(s['spw']['9']['flagged'],274944.0)
+        self.assertEqual(s['spw']['2']['flagged'],274944.0)
+        self.assertEqual(s['spw']['10']['flagged'],274944.0)
+        self.assertEqual(s['flagged'],274944.0*4)
+
+    def test_spw_error_handler_id(self):
+        '''flagdata: A non-existing spw ID in a compound with a existing spw should not fail'''
+                        
+        # Try to flag. Only spw=0 exists
+        try:
+            flagdata(self.vis, spw='0,32,33', flagbackup=False)
+        except Exception, instance:
+            print 'Expected RuntimeError error: %s'%instance
+
+        # Only spw 0 should be flagged
+        s = flagdata(self.vis, mode='summary')
+        self.assertEqual(s['flagged'],2854278.0)
+
                         
 class test_statistics_queries(test_base):
 
@@ -1963,6 +2042,108 @@ class test_clip(test_base):
         self.assertEqual(res['spw']['8']['flagged'], 274944)
         self.assertEqual(res['spw']['9']['flagged'], 0)
         self.assertEqual(res['flagged'], 274944*2)
+
+
+class test_antint(test_base):
+    """flagdata:: Test of mode = 'antint'"""
+    
+    def setUp(self):
+        # TODO: we need a more appropriate input MS for this.
+        self.setUp_data4tfcrop()
+        
+    def test_antint_spw3_high_threshold(self):
+    	'''flagdata: mode = antint, spw = 3, minchanfrac = 0.6'''
+
+        flagdata(vis=self.vis, mode='antint', spw='3', antenna='ea01', minchanfrac=0.6)
+        res = flagdata(vis=self.vis, mode='summary', spw='3')
+
+        self.assertEqual(res['flagged'], 0)
+        self.assertEqual(res['antenna']['ea01']['flagged'], 0)
+        self.assertEqual(res['spw']['3']['total'], 274944)
+        self.assertEqual(res['spw']['3']['flagged'], 0)
+
+    def test_antint_spw3_low_threshold(self):
+    	'''flagdata: mode = antint, spw = 3, minchanfrac = -.1'''
+
+        flagdata(vis=self.vis, mode='antint', spw='3', antenna='ea01', minchanfrac=-.1)
+        res = flagdata(vis=self.vis, mode='summary', spw='3')
+
+        self.assertEqual(res['flagged'], 137472)
+        self.assertEqual(res['antenna']['ea01']['flagged'], 137472)
+        self.assertEqual(res['spw']['3']['total'], 274944)
+        self.assertEqual(res['spw']['3']['flagged'], 137472)
+
+    def test_antint_spw0_high_threshold(self):
+    	'''flagdata: mode = antint, spw = 0, minchanfrac = 0.45'''
+
+        flagdata(vis=self.vis, mode='antint', spw='0', antenna='ea01', minchanfrac=0.45)
+        res = flagdata(vis=self.vis, mode='summary', spw='0')
+
+        self.assertEqual(res['flagged'], 0)
+        self.assertEqual(res['antenna']['ea01']['flagged'], 0)
+        self.assertEqual(res['spw']['0']['total'], 274944)
+        self.assertEqual(res['spw']['0']['flagged'], 0)
+
+    def test_antint_spw0_low_threshold(self):
+    	'''flagdata: mode = antint, spw = 0, minchanfrac = 0.05'''
+
+        flagdata(vis=self.vis, mode='antint', spw='0', antenna='ea01', minchanfrac=0.05)
+        res = flagdata(vis=self.vis, mode='summary', spw='0')
+
+        self.assertEqual(res['flagged'], 0)
+        self.assertEqual(res['antenna']['ea01']['flagged'], 0)
+        self.assertEqual(res['spw']['0']['total'], 274944)
+        self.assertEqual(res['spw']['0']['flagged'], 0)
+
+    def test_antint_list_mode1_with_clip(self):
+        '''flagdata in list mode: mode = antint + clip, spw = 2, minchanfrac=0.3'''
+
+        in_list = ["mode='clip' spw='2' clipminmax=[0.1, 0.7] clipzeros=True",
+                   "mode='antint' antenna='ea01' spw='2' minchanfrac=0.3 verbose=True",
+                   "mode='summary' spw='2'"]
+
+        res = flagdata(vis=self.vis, mode='list', inpfile=in_list)
+
+        self.assertEqual(res['total'], 274944)
+        self.assertEqual(res['flagged'], 149258)
+        self.assertEqual(len(res['antenna']), 4)
+        self.assertEqual(res['antenna']['ea01']['total'], 137472)
+        self.assertEqual(res['antenna']['ea01']['flagged'], 74300)
+        self.assertEqual(len(res['spw']), 1)
+        self.assertEqual(res['spw']['2']['total'], 274944)
+        self.assertEqual(res['spw']['2']['flagged'], 149258)
+
+    def test_antint_list_mode2_compare_against_flagcmd(self):
+        '''flagdata and flagcmd in list mode: mode = antint, spw = 2, minchanfrac=0.3'''
+
+        # Clear all flags with flagcmd
+        flagcmd(vis=self.vis, action='clear', clearall=True)
+
+        in_list = ["mode='clip' spw='2' clipminmax=[0.1, 0.7] clipzeros=True",
+                   "mode='antint' antenna='ea01' spw='2' minchanfrac=0.3 verbose=True",
+                   "mode='summary' spw='2'"]
+
+        # Run antint mode with flagdata in list mode
+        res_flagdata = flagdata(vis=self.vis, mode='list', inpfile=in_list)
+
+        # Re-run antint mode with flagcmd
+        self.unflag_ms()
+        flagcmd(vis=self.vis, inpmode='list', inpfile=in_list)
+        res_flagcmd = flagdata(vis=self.vis, mode='summary', spw='2')
+
+        # Check result from flagdata against flagcmd
+        self.assertEqual(res_flagdata['total'], res_flagcmd['total'])
+        self.assertEqual(res_flagdata['flagged'], res_flagcmd['flagged'])
+        self.assertEqual(len(res_flagdata['antenna']), len(res_flagcmd['antenna']))
+        self.assertEqual(res_flagdata['antenna']['ea01']['total'],
+                         res_flagcmd['antenna']['ea01']['total'])
+        self.assertEqual(res_flagdata['antenna']['ea01']['flagged'],
+                         res_flagcmd['antenna']['ea01']['flagged'])
+        self.assertEqual(len(res_flagdata['spw']), len(res_flagcmd['spw']))
+        self.assertEqual(res_flagdata['spw']['2']['total'],
+                         res_flagcmd['spw']['2']['total'])
+        self.assertEqual(res_flagdata['spw']['2']['flagged'],
+                         res_flagcmd['spw']['2']['flagged'])
 
 
 class test_CASA_4_0_bug_fix(test_base):
@@ -3394,7 +3575,8 @@ class test_preaveraging(test_base):
 
 
 def suite():
-    return [test_rflag,
+    return [test_antint,
+            test_rflag,
             test_tfcrop,
             test_shadow,
             test_selections,

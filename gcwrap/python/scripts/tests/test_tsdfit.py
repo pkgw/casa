@@ -21,6 +21,10 @@ try:
 except:
     import tests.selection_syntax as selection_syntax
 
+try:
+    import testutils
+except:
+    import tests.testutils as testutils
 
 ### Utilities for reading blparam file
 class FileReader(object):
@@ -987,6 +991,7 @@ class sdfit_selection(sdfit_unittest_base,unittest.TestCase):
         """Test selection by pol (corrected)"""
         self.run_test("pol", "corrected")
 
+
 class sdfit_auto(sdfit_unittest_base,unittest.TestCase):
     """
     This class tests fitmode='auto'
@@ -1086,5 +1091,329 @@ class sdfit_auto(sdfit_unittest_base,unittest.TestCase):
         flagdata(vis=self.infile, spw='6:0~19;101~127')
         self.run_test(True, None, spw='', edge=[0])
 
+
+class sdfit_timeaverage(sdfit_unittest_base,unittest.TestCase):
+    """
+    tests for time-averaging capability
+
+    Note: the input data 'sdfit_tave.ms' has 32 rows. Any combination of 
+          SCAN_ID (8 and 9), STATE_ID (6 and 4) and FIELD_ID (4 and 5)
+          has 4 rows, where Gaussian profile has different amplitude and 
+          different weight:
+          --------------------------------------
+          irow scan state field weight amplitude
+          --------------------------------------
+           0   8    6     4     0.5    1*0.94
+           1   8    6     4     0.5    1*0.98
+           2   8    6     4     1.0    1*1.01
+           3   8    6     4     1.0    1*1.03
+
+           4   8    6     5     0.5    2*0.94
+           5   8    6     5     0.5    2*0.98
+           6   8    6     5     1.0    2*1.01
+           7   8    6     5     1.0    2*1.03
+
+           8   8    4     4     0.5    3*0.94
+                     ..........
+
+          12   8    4     5     0.5    4*0.94
+                     ..........
+
+          16   9    6     4     0.5    5*0.94
+                     ..........
+
+          20   9    6     5     0.5    6*0.94
+                     ..........
+
+          24   9    4     4     0.5    7*0.94
+                     ..........
+
+          28   9    4     5     0.5    8*0.94
+          29   9    4     5     0.5    8*0.98
+          30   9    4     5     1.0    8*1.01
+          31   9    4     5     1.0    8*1.03
+          --------------------------------------
+          Averaging the first 4 rows, taking account of weight, gives
+          Gaussian with peak amplitude of 1. 
+    """
+    datapath = os.environ.get('CASAPATH').split()[0] + \
+        '/data/regression/unittest/tsdfit/'
+    infile = "sdfit_tave.ms"
+    outfile = "sdfit.out"
+    common_param = dict(infile=infile, outfile=outfile, datacolumn='float_data',
+                        fitfunc='gaussian', nfit=[1], pol='XX')
+    select_param = dict(scan='8', intent='*ON_SOURCE*', field='4')
+    def setUp(self):
+        self._remove([self.infile])
+        shutil.copytree(self.datapath+self.infile, self.infile)
+        default(sdfit)
+
+    def tearDown(self):
+        self._remove([self.infile, self.outfile])
+
+    def run_test(self, select=True, ref_val=None, **kwarg):
+        param = dict(**self.common_param)
+        param.update(kwarg)
+        if select:
+            param.update(**self.select_param)
+        fit_val = sdfit(**param)
+        #print("Return:",fit_val)
+        for irow in range(len(fit_val['peak'])):
+            out = fit_val['peak'][irow][0][0]
+            ref = ref_val[irow]
+            self.assertTrue(numpy.allclose(out, ref, rtol=1.e2), 
+                            "result in row %d differs" % (irow))
+                
+    def testTimebinNullString(self):
+        """Test timebin='' : no averaging (default)"""
+        ref = [0.94, 0.98, 1.01, 1.03]
+        self.run_test(True, ref, timebin='')
+
+    def testAverage2(self):
+        """Test timebin='0.2s' : averaging 2 spectra"""
+        ref = [0.96, 1.02]
+        self.run_test(True, ref, timebin='0.2s')
+
+    def testAverage4(self):
+        """Test timebin='0.4s' : averaging 4 spectra"""
+        ref = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]
+        self.run_test(False, ref, timebin='0.4s')
+
+    def testTimespanScan(self):
+        """Test timespan='scan' : averaging across SCAN_NUMBER border"""
+        ref = [3.0, 4.0, 5.0, 6.0]
+        self.run_test(False, ref, timebin='10s', timespan='scan')
+
+    def testTimespanState(self):
+        """Test timespan='state' : averaging across STATE_ID border"""
+        ref = [2.0, 3.0, 6.0, 7.0]
+        self.run_test(False, ref, timebin='10s', timespan='state')
+
+    def testTimespanField(self):
+        """Test timespan='field' : averaging across FIELD_ID border"""
+        ref = [1.5, 3.5, 5.5, 7.5]
+        self.run_test(False, ref, timebin='10s', timespan='field')
+
+    def testTimespanScanState(self):
+        """Test timespan='scan,state' : averaging across SCAN_NUMBER and STATE_ID borders"""
+        ref = [4.0, 10.0]
+        self.run_test(False, ref, timebin='10s', timespan='scan,state')
+
+    def testTimespanScanField(self):
+        """Test timespan='scan,field' : averaging across SCAN_NUMBER and FIELD_ID borders"""
+        ref = [3.5, 5.5]
+        self.run_test(False, ref, timebin='10s', timespan='scan,field')
+
+    def testTimespanStateField(self):
+        """Test timespan='state,field' : averaging across STATE_ID and FIELD_ID borders"""
+        ref = [2.5, 6.5]
+        self.run_test(False, ref, timebin='10s', timespan='state,field')
+
+    def testTimespanScanStateField(self):
+        """Test timespan='scan,state,field' : averaging across SCAN_NUMBER, STATE_ID and FIELD_ID borders"""
+        ref = [4.5]
+        self.run_test(False, ref, timebin='10s', timespan='scan,state,field')
+
+    def testTimespanStateAutoAdded(self):
+        """Test timespan='scan,field' : to see if 'state' is automatically added to timespan"""
+        ref = [4.5]
+        self.run_test(False, ref, timebin='100s', timespan='scan,field')
+
+class sdfit_polaverage(sdfit_unittest_base,unittest.TestCase):
+    """
+    Test polarization averaging capability
+    
+        test_polaverage_default   -- test default average mode (=stokes)
+        test_polaverage_stokes    -- test stokes average mode
+        test_polaverage_geometric -- test geometric average mode 
+        --- The following tests are defined to verify fix for CAS-9778 --- 
+        test_polaverage_stokes_chunk -- test stokes average mode against different access pattern 
+        test_polaverage_geometric_chunk -- test geometric average mode against different access pattern
+    """
+    infile = "gaussian.ms"
+    
+    # reference value from basicTest
+    answer = sdfit_basicTest.answer012
+    
+    def setUp(self):
+        testutils.copytree_ignore_subversion(self.datapath, self.infile)
+        self.edit_weight()
+    
+    def tearDown(self):
+        if os.path.exists(self.infile):
+            shutil.rmtree(self.infile)
+
+    def edit_weight(self):
+        (mytb,) = gentools(['tb'])
+        mytb.open(self.infile, nomodify=False)
+        try:
+            print 'Editing weight'
+            for irow in xrange(mytb.nrows()):
+                # weight for XX is two times larger than YY
+                print '    irow = {}'.format(irow)
+                weight = mytb.getcell('WEIGHT', irow)
+                print '    weight (before)', weight
+                weight[1] *= 2.0
+                print '    weight (after)', weight
+                mytb.putcell('WEIGHT', irow, weight)
+        finally:
+            mytb.close()
+            
+    def edit_meta(self):
+        """
+        Edit DATA_DESC_ID and TIME (TIME_CENTROID) so taht VI/VB2 takes more than 
+        one row in one (sub)chunk
+        """
+        (mytb) = gentools(['tb'])
+        tb.open(self.infile, nomodify=False)
+        try:
+            ddid = tb.getcol('DATA_DESC_ID')
+            time = tb.getcol('TIME')
+            interval = tb.getcol('INTERVAL')
+            ddid[0] = 0
+            ddid[1] = 0
+            ddid[2] = 1
+            ddid[3] = 1
+            time[1] = time[0] + interval[0]
+            time[2] = time[0]
+            time[3] = time[0] + interval[0]
+            tb.putcol('DATA_DESC_ID', ddid)
+            tb.putcol('TIME', time)
+            tb.putcol('TIME_CENTROID', time)
+        finally:
+            tb.close()
+            
+    def scale_expected_peak(self, mode, peak):
+        scaled = numpy.copy(peak)
+        if mode == 'default' or mode == 'stokes':
+            scaled /= 2.0
+        elif mode == 'geometric':
+            (myms, mytb,) = gentools(['ms', 'tb'])
+            sel = myms.msseltoindex(vis=self.infile, spw='0')
+            ddid = sel['dd'][0]
+            mytb.open(self.infile)
+            tsel = mytb.query('DATA_DESC_ID=={}'.format(ddid))
+            try:
+                weight = tsel.getcell('WEIGHT', 0)
+            finally:
+                tsel.close()
+                mytb.close()
+            wsum = numpy.sum(weight)
+            scaled *= weight / wsum
+
+        return scaled
+            
+    def verify(self, mode, result, where=[0,1]):
+        print 'mode=\'{}\''.format(mode)
+        print 'result=\'{}\''.format(result)
+        
+        # number of fit results
+        # number of fit results should be 1
+        # (2 spectra are reduced into 1 by polarization averaging)
+        nresults = len(result['nfit'])
+        if (mode == ''):
+            self.assertEqual(nresults, 2)
+            return
+        else:
+            self.assertEqual(nresults, 1)
+        
+        # verify nfit
+        # nfit should be 2
+        nfit = numpy.asarray(result['nfit'])
+        self.assertTrue(numpy.all(nfit == 2))
+        
+        # verify cent
+        # cent should not be changed
+        cent = numpy.asarray(result['cent'])
+        cent_result = cent[0,:,0]
+        cent_err = cent[0,:,1]
+        cent_expected = numpy.asarray(self.answer['cent'])[where].squeeze()
+        sort_index = numpy.argsort(cent_expected)
+        cent_expected = cent_expected[sort_index]
+        print 'cent (result)={}\ncent (expected)={}'.format(cent_result, 
+                                                            cent_expected) 
+        err_factor = 2.0
+        for i in xrange(2):
+            self.assertLessEqual(cent_expected[i], cent_result[i] + err_factor * cent_err[i])
+            self.assertGreaterEqual(cent_expected[i], cent_result[i] - err_factor * cent_err[i])
+            
+        # verify fwhm
+        # fwhm should not be changed
+        fwhm = numpy.asarray(result['fwhm'])
+        fwhm_result = fwhm[0,:,0]
+        fwhm_err = fwhm[0,:,1]
+        fwhm_expected = numpy.asarray(self.answer['fwhm'])[where].squeeze()
+        fwhm_expected = fwhm_expected[sort_index]
+        print 'fwhm (result)={}\nfwhm (expected)={}'.format(fwhm_result, 
+                                                            fwhm_expected) 
+        err_factor = 2.0
+        for i in xrange(2):
+            self.assertLessEqual(fwhm_expected[i], fwhm_result[i] + err_factor * fwhm_err[i])
+            self.assertGreaterEqual(fwhm_expected[i], fwhm_result[i] - err_factor * fwhm_err[i])
+        
+        # verify peak
+        # peak should depend on mode and weight value
+        peak = numpy.asarray(result['peak'])
+        peak_result = peak[0,:,0]
+        peak_err = peak[0,:,1]
+        peak_expected = numpy.asarray(self.answer['peak'])[where].squeeze()
+        peak_expected_scaled = self.scale_expected_peak(mode, peak_expected)
+        peak_expected_scaled = peak_expected_scaled[sort_index]
+        print 'peak (result)={}\npeak (expected)={}'.format(peak_result, 
+                                                            peak_expected_scaled) 
+        err_factor = 2.0
+        for i in xrange(2):
+            self.assertLessEqual(peak_expected_scaled[i], peak_result[i] + err_factor * peak_err[i])
+            self.assertGreaterEqual(peak_expected_scaled[i], peak_result[i] - err_factor * peak_err[i])
+        
+    def run_test(self, mode):
+        # only spw 0 is processed
+        result = sdfit(infile=self.infile, datacolumn='float_data', fitfunc='gaussian', 
+                       nfit=[2], spw='0', fitmode='auto', polaverage=mode)
+        self.verify(mode, result)        
+    
+    def run_test2(self, mode):
+        """
+        run_test2 is test function that should be used for tests including edit_meta 
+        """
+        # only spw 0 is processed
+        # since edit_meta, effectively it corresponds to process both spw 0 and 1
+        result = sdfit(infile=self.infile, datacolumn='float_data', fitfunc='gaussian', 
+                       nfit=[2], spw='0', fitmode='auto', polaverage=mode)
+        for i in xrange(len(result['nfit'])):
+            subresult = {}
+            subresult['nfit'] = [result['nfit'][i]]
+            subresult['cent'] = [result['cent'][i]]
+            subresult['fwhm'] = [result['fwhm'][i]]
+            subresult['peak'] = [result['peak'][i]]
+            self.verify(mode, subresult, where=[2*i, 2*i+1])        
+    
+    def test_polaverage_default(self):
+        """ test_polaverage_default: test default case (no averaging) """
+        self.run_test(mode='')
+    
+    def test_polaverage_stokes(self):
+        """ test_polaverage_stokes: test stokes average mode """
+        self.run_test(mode='stokes')
+        
+    def test_polaverage_geometric(self):
+        """ test_polaverage_geometric: test geometric average mode """
+        self.run_test(mode='geometric')
+        
+    def test_polaverage_stokes_chunk(self):
+        """ test_polaverage_stokes_chunk: test stokes average mode against different access pattern """
+        self.edit_meta()
+        self.run_test2(mode='stokes')
+        
+    def test_polaverage_geometric_chunk(self):
+        """ test_polaverage_geometric_chunk: test geometric average mode against different access pattern """
+        self.edit_meta()
+        self.run_test2(mode='geometric')
+
 def suite():
-    return [sdfit_basicTest, sdfit_selection, sdfit_auto]
+    return [sdfit_basicTest, 
+            sdfit_selection, 
+            sdfit_auto, 
+            sdfit_timeaverage,
+            sdfit_polaverage
+           ]

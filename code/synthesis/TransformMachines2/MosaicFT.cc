@@ -278,6 +278,12 @@ void MosaicFT::findConvFunction(const ImageInterface<Complex>& iimage,
     pbConvFunc_p=new SimplePBConvFunc();
   if(sj_p)
     pbConvFunc_p->setSkyJones(sj_p);
+  ////TEST for HetArray only for now
+  if(pbConvFunc_p->name()=="HetArrayConvFunc"){
+    if(convSampling <10) 
+      convSampling=10;
+    AipsrcValue<Int>::find (convSampling, "mosaic.oversampling", 10);
+  }
   pbConvFunc_p->findConvFunction(iimage, vb, convSampling, interpVisFreq_p, convFunc, weightConvFunc_p, convSizePlanes_p, convSupportPlanes_p,
 		  convPolMap_p, convChanMap_p, convRowMap_p);
 
@@ -312,7 +318,8 @@ void MosaicFT::initializeToVis(ImageInterface<Complex>& iimage,
   //make sure we rotate the first field too
   lastFieldId_p=-1;
   phaseShifter_p=new UVWMachine(*uvwMachine_p);
-  //findConvFunction(*image, vb);
+  //This is needed here as we need to know the grid correction before FFTing 
+  findConvFunction(*image, vb);
   prepGridForDegrid();
 
 }
@@ -553,7 +560,7 @@ void MosaicFT::initializeToSky(ImageInterface<Complex>& iimage,
 void MosaicFT::reset(){
 
   doneWeightImage_p=false;
-  
+  convWeightImage_p=nullptr;
   pbConvFunc_p->reset();
 }
 
@@ -669,7 +676,7 @@ void MosaicFT::finalizeToSky()
     //it can be used for rescaling or shared by other ftmachines that use
     //this pbconvfunc
     pbConvFunc_p->setWeightImage(skyCoverage_p);
-    delete convWeightImage_p;
+    if(convWeightImage_p) delete convWeightImage_p;
     convWeightImage_p=0;
     doneWeightImage_p=true;
 
@@ -1151,7 +1158,7 @@ Int x0, y0, nxsub, nysub, ixsub, iysub, icounter, ix, iy;
     
 #pragma omp parallel default(none) private(icounter,ix,iy,x0,y0,nxsub,nysub, del) firstprivate(idopsf, doWeightGridding, datStorage, wgtStorage, flagstor, rowflagstor, convstor, wconvstor, pmapstor, cmapstor, gridstor,  csupp, nxp, nyp, np, nc,ixsub, iysub, rend, rbeg, csamp, csize, nvp, nvc, nvisrow, phasorstor, locstor, offstor, convrowmapstor, convchanmapstor, convpolmapstor, nPolConv, nChanConv, nConvFunc) shared(sumwgt) num_threads(ixsub*iysub)
     {   
-#pragma omp for schedule(static, 1)      
+#pragma omp for schedule(dynamic, 1)      
     for(icounter=0; icounter < ixsub*iysub; ++icounter){
       ix= (icounter+1)-((icounter)/ixsub)*ixsub;
       iy=(icounter)/ixsub+1;
@@ -1222,7 +1229,7 @@ Int x0, y0, nxsub, nysub, ixsub, iysub, icounter, ix, iy;
     Complex *gridstor=griddedData.getStorage(gridcopy);
 #pragma omp parallel default(none) private(icounter,ix,iy,x0,y0,nxsub,nysub, del) firstprivate(idopsf, doWeightGridding, datStorage, wgtStorage, flagstor, rowflagstor, convstor, wconvstor, pmapstor, cmapstor, gridstor, csupp, nxp, nyp, np, nc,ixsub, iysub, rend, rbeg, csamp, csize, nvp, nvc, nvisrow, phasorstor, locstor, offstor, convrowmapstor, convchanmapstor, convpolmapstor, nPolConv, nChanConv, nConvFunc) shared(sumwgt) num_threads(ixsub*iysub)
     {   
-#pragma omp for schedule(static, 1)      
+#pragma omp for schedule(dynamic, 1)      
       for(icounter=0; icounter < ixsub*iysub; ++icounter){
 	ix= (icounter+1)-((icounter)/ixsub)*ixsub;
 	iy=(icounter)/ixsub+1;
@@ -1442,7 +1449,7 @@ void MosaicFT::get(vi::VisBuffer2& vb, Int row)
   Int ix=0;
 #pragma omp parallel default(none) private(ix, rbeg, rend) firstprivate(uvwstor, datStorage, flagstor, rowflagstor, convstor, pmapstor, cmapstor, gridstor, nxp, nyp, np, nc, csamp, csize, csupp, nvp, nvc, nvisrow, phasorstor, locstor, offstor, nPolConv, nChanConv, nConvFunc, convrowmapstor, convpolmapstor, convchanmapstor, npart)  num_threads(npart)
   {
-    #pragma omp for schedule(static,1) 
+    #pragma omp for schedule(dynamic,1) 
     for (ix=0; ix< npart; ++ix){
       rbeg=ix*(nvisrow/npart)+1;
       rend=(ix != (npart-1)) ? (rbeg+(nvisrow/npart)-1) : (rbeg+(nvisrow/npart)-1+nvisrow%npart) ;
@@ -1686,7 +1693,7 @@ ImageInterface<Complex>& MosaicFT::getImage(Matrix<Float>& weights,
       // Int npixCorr= max(nx,ny);
       Vector<Float> sincConvX(nx);
       for (Int ix=0;ix<nx;ix++) {
-	Float x=C::pi*Float(ix-nx/2)/(Float(nx));//*Float(convSampling));
+	Float x=C::pi*Float(ix-nx/2)/(Float(nx)*Float(convSampling));
 	if(ix==nx/2) {
 	  sincConvX(ix)=1.0;
 	}
@@ -1696,7 +1703,7 @@ ImageInterface<Complex>& MosaicFT::getImage(Matrix<Float>& weights,
       }
       Vector<Float> sincConvY(ny);
       for (Int ix=0;ix<ny;ix++) {
-	Float x=C::pi*Float(ix-ny/2)/(Float(ny));//*Float(convSampling));
+	Float x=C::pi*Float(ix-ny/2)/(Float(ny)*Float(convSampling));
 	if(ix==ny/2) {
 	  sincConvY(ix)=1.0;
 	}
@@ -1871,6 +1878,7 @@ Bool MosaicFT::fromRecord(String& error,
   Bool retval = true;
   pointingToImage=0;
   doneWeightImage_p=false;
+  convWeightImage_p=nullptr;
   machineName_p="MosaicFT";
   if(!FTMachine::fromRecord(error, inRec))
     return false;
@@ -1927,6 +1935,7 @@ Bool MosaicFT::fromRecord(String& error,
   else{
     pbConvFunc_p=0;
   }
+  gridder=nullptr;
    return retval;
 }
 
@@ -2003,7 +2012,7 @@ void MosaicFT::makeImage(FTMachine::Type type,
 
 Bool MosaicFT::getXYPos(const vi::VisBuffer2& vb, Int row) {
   
-  ROMSColumns mscol(vb.getVi()->ms());
+  ROMSColumns mscol(vb.ms());
   const ROMSPointingColumns& act_mspc=mscol.pointing();
   Int pointIndex=getIndex(act_mspc, vb.time()(row), vb.timeInterval()(row));
   if((pointIndex<0)||pointIndex>=Int(act_mspc.time().nrow())) {
@@ -2131,107 +2140,6 @@ void MosaicFT::addBeamCoverage(ImageInterface<Complex>& pbImage){
 }
 
 
-void  MosaicFT::girarUVW(Matrix<Double>& uvw, Vector<Double>& dphase,
-			 const vi::VisBuffer2& vb)
-{
-    
-    
-    
-    //the uvw rotation is done for common tangent reprojection or if the 
-    //image center is different from the phasecenter
-    // UVrotation is false only if field never changes
-  
-   ROMSColumns mscol(vb.getVi()->ms());
-   if((vb.fieldId()(0)!=lastFieldId_p) || (vb.msId()!=lastMSId_p))
-      doUVWRotation_p=true;
-    if(doUVWRotation_p ||  fixMovingSource_p){
-      
-      mFrame_p.epoch() != 0 ? 
-	mFrame_p.resetEpoch(MEpoch(Quantity(vb.time()(0), "s"))):
-	mFrame_p.set(mLocation_p, MEpoch(Quantity(vb.time()(0), "s"), mscol.timeMeas()(0).getRef()));
-      MDirection::Types outType;
-      MDirection::getType(outType, mImage_p.getRefString());
-      MDirection phasecenter=MDirection::Convert(vb.phaseCenter(), MDirection::Ref(outType, mFrame_p))();
-      
-
-      if(fixMovingSource_p){
-       
-      //First convert to HA-DEC or AZEL for parallax correction
-	MDirection::Ref outref1(MDirection::AZEL, mFrame_p);
-	MDirection tmphadec=MDirection::Convert(movingDir_p, outref1)();
-	MDirection::Ref outref(mImage_p.getRef().getType(), mFrame_p);
-	MDirection sourcenow=MDirection::Convert(tmphadec, outref)();
-	//cerr << "Rotating to fixed moving source " << MVDirection(phasecenter.getAngle()-firstMovingDir_p.getAngle()+sourcenow.getAngle()) << endl;
-	phasecenter.set(MVDirection(phasecenter.getAngle()+firstMovingDir_p.getAngle()-sourcenow.getAngle()));
-	
-    }
-
-
-      // Set up the UVWMachine only if the field id has changed. If
-      // the tangent plane is specified then we need a UVWMachine that
-      // will reproject to that plane iso the image plane
-      if((vb.fieldId()(0)!=lastFieldId_p) || (vb.msId()!=lastMSId_p) || fixMovingSource_p) {
-	
-	String observatory=mscol.observation().telescopeName()(0);
-	if(uvwMachine_p) delete uvwMachine_p; uvwMachine_p=0;
-	if(observatory.contains("ATCA") || observatory.contains("WSRT")){
-		//Tangent specified is being wrongly used...it should be for a
-	    	//Use the safest way  for now.
-	    uvwMachine_p=new UVWMachine(phasecenter, vb.phaseCenter(), mFrame_p,
-					true, false);
-	    phaseShifter_p=new UVWMachine(mImage_p, phasecenter, mFrame_p,
-					true, false);
-	}
-	else{
-	  uvwMachine_p=new UVWMachine(phasecenter, vb.phaseCenter(),  mFrame_p,
-				      false, false);
-	  phaseShifter_p=new UVWMachine(mImage_p, phasecenter,  mFrame_p,
-				      false, false);
-	}
-      }
-
-      lastFieldId_p=vb.fieldId()(0);
-	lastMSId_p=vb.msId();
-
-      
-      AlwaysAssert(uvwMachine_p, AipsError);
-      
-      // Always force a recalculation 
-      uvwMachine_p->reCalculate();
-      phaseShifter_p->reCalculate();
-      
-      // Now do the conversions
-      uInt nrows=dphase.nelements();
-      Vector<Double> thisRow(3);
-      thisRow=0.0;
-      //CoordinateSystem csys=image->coordinates();
-      //DirectionCoordinate dc=csys.directionCoordinate(0);
-      //Vector<Double> thePix(2);
-      //dc.toPixel(thePix, phasecenter);
-      //cerr << "field id " << vb.fieldId() << "  the Pix " << thePix << endl;
-      //Vector<Float> scale(2);
-      //scale(0)=dc.increment()(0);
-      //scale(1)=dc.increment()(1);
-      for (uInt irow=0; irow<nrows;++irow) {
-	thisRow.reference(uvw.column(irow));
-	//cerr << " uvw " << thisRow ;
-	// This is for frame change
-	uvwMachine_p->convertUVW(dphase(irow), thisRow);
-	// This is for correlator phase center change
-	MVPosition rotphase=phaseShifter_p->rotationPhase() ;
-	//cerr << " rotPhase " <<  rotphase << " oldphase "<<  rotphase*(uvw.column(irow))  << " newphase " << (rotphase)*thisRow ;
-	//	cerr << " phase " << dphase(irow) << " new uvw " << uvw.column(irow);
-	//dphase(irow)+= (thePix(0)-nx/2.0)*thisRow(0)*scale(0)+(thePix(1)-ny/2.0)*thisRow(1)*scale(1);
-	//Double pixphase=(thePix(0)-nx/2.0)*uvw.column(irow)(0)*scale(0)+(thePix(1)-ny/2.0)*uvw.column(irow)(1)*scale(1);
-	//Double pixphase2=(thePix(0)-nx/2.0)*thisRow(0)*scale(0)+(thePix(1)-ny/2.0)*thisRow(1)*scale(1);
-	//cerr << " pixphase " <<  pixphase <<  " pixphase2 " << pixphase2<< endl;
-	//dphase(irow)=pixphase;
-	dphase(irow)+= rotphase(0)*thisRow(0)+rotphase(1)*thisRow(1);
-      }
-	
-      
-    }
-}
 
 
 

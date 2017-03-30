@@ -18,7 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-casa_add_python( tools tools_recipes_python python/${PYTHONV}/recipes
+casa_add_python( tools tools_recipes_python lib/python${PYTHONV}/recipes
   almahelpers.py
   almapolhelpers.py
   atcapolhelpers.py
@@ -27,7 +27,6 @@ casa_add_python( tools tools_recipes_python python/${PYTHONV}/recipes
   checknan.py
   checkdataformat.py
   cl2skycat.py
-  cluster.py
   cmpmses.py
   commongrid.py
   drawmaskinimage.py

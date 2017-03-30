@@ -6,6 +6,8 @@ from math import sqrt
 from taskinit import *
 from parallel.parallel_task_helper import ParallelTaskHelper
 
+_cb = cbtool( )
+
 def concat(vislist,concatvis,freqtol,dirtol,respectname,timesort,copypointing,
 	   visweightscale, forcesingleephemfield):
 	"""concatenate visibility datasets
@@ -325,10 +327,10 @@ def concat(vislist,concatvis,freqtol,dirtol,respectname,timesort,copypointing,
 		if(considerscrcols and needscrcols[i]):
 			# create scratch cols			
 			casalog.post('creating scratch columns in '+theconcatvis , 'INFO')
-			cb.open(theconcatvis,
+			_cb.open(theconcatvis,
 				addcorr=(considercorr and needcorr[i]),
 				addmodel=(considermodel and needmodel[i])) # calibrator-open creates scratch columns
-			cb.close()
+			_cb.close()
 
 		# scale the weights and sigma of the first MS in the chain
 		if doweightscale:
@@ -383,10 +385,10 @@ def concat(vislist,concatvis,freqtol,dirtol,respectname,timesort,copypointing,
 					tempname = elvis+'_with_scrcols'
 					shutil.rmtree(tempname, ignore_errors=True)
 					shutil.copytree(elvis, tempname)
-					cb.open(tempname,
+					_cb.open(tempname,
 						addcorr=(considercorr and needcorr[i]),
 						addmodel=(considermodel and needmodel[i])) # calibrator-open creates scratch columns
-					cb.close()
+					_cb.close()
 					# concatenate copy instead of original file
 					m.concatenate(msfile=tempname,freqtol=freqtol,dirtol=dirtol,respectname=respectname,
 						      weightscale=wscale,handling=handlingswitch,

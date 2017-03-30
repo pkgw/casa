@@ -9,7 +9,6 @@ from taskinit import *
 from parallel.parallel_data_helper import ParallelDataHelper
 import flaghelper as fh
 from update_spw import update_spwchan
-import inspect
 from callibrary import callibrary
 
 
@@ -60,6 +59,9 @@ def mstransform(
              fitspw,
              fitorder,
              want_cont,
+             denoising_lib,
+             nthreads,
+             niter,
              disableparallel,    # HIDDEN parameter to create MMS in sequential
              ddistart,           # HIDDEN internal parameter for the sub-table re-indexing
              taql,               # HIDDEN internal parameter
@@ -279,6 +281,9 @@ def mstransform(
             uvcontsub_config['fitspw'] = fitspw
             uvcontsub_config['fitorder'] = fitorder
             uvcontsub_config['want_cont'] = want_cont
+            uvcontsub_config['denoising_lib'] = denoising_lib   
+            uvcontsub_config['nthreads'] = nthreads            
+            uvcontsub_config['niter'] = niter                 
             config['uvcontsublib'] = dict(uvcontsub_config)
         
         # Configure the tool and all the parameters

@@ -21,6 +21,19 @@
 
 cmake_minimum_required( VERSION 2.8 )
 
+# ccache use is optional
+option( UseCcache OFF )
+
+if (UseCcache)
+    message (STATUS "Searching for ccache.")
+    find_program(CCACHE_FOUND ccache)
+    if(CCACHE_FOUND)
+        message (STATUS "Ccache found.")
+        set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+        set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
+    endif(CCACHE_FOUND)
+endif()
+
 set( CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/install )
 
 add_definitions ("-DUseCasacoreNamespace")
@@ -57,6 +70,8 @@ set( CASA_MAJOR_VERSION 5 )
 set( CASA_MINOR_VERSION 0 )
 set( CASA_PATCH_VERSION 0 )
 set( CASA_API_VERSION "${CASA_MAJOR_VERSION}.${CASA_MINOR_VERSION}.${CASA_PATCH_VERSION}" )
+
+set( casa_startup 0 )
 
 ###
 ### default name for casa-maintained dbus C++ library... (but could also be called just "dbus-cpp")
@@ -116,13 +131,21 @@ if( NOT CMAKE_BUILD_TYPE )
   set( CMAKE_BUILD_TYPE RelWithDebInfo )
 endif()
 
+# Build CrashReporter by default
+if( NOT DEFINED UseCrashReporter)
+    set( UseCrashReporter 1 )
+endif()
+
 if( INTERACTIVE_ITERATION )
 	add_definitions( -DINTERACTIVE_ITERATION )
 endif()
 
 if( CMAKE_BUILD_TYPE STREQUAL Debug )
   add_definitions( -DAIPS_DEBUG )
-  set( CMAKE_CXX_FLAGS_DEBUG "-ggdb3 -O0 -fno-omit-frame-pointer" )
+  set( CMAKE_CXX_FLAGS_DEBUG " -O0" )
+  if (NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+      set( CMAKE_CXX_FLAGS_DEBUG "-ggdb3 -fno-omit-frame-pointer" )
+  endif( )
 endif()
 
 include( UsePrivatePath )
@@ -173,10 +196,19 @@ dump( CMAKE_SYSTEM
 set( BUILD_SHARED_LIBS ON )
 
 if( APPLE )
-    set( DEFAULT_CXX_FLAGS "-pipe -Wall -Wextra -Wcast-align -Wno-comment" )
+    set( DEFAULT_CXX_FLAGS "-pipe -Wall -Wextra -Wno-comment" )
 else ()
-    set( DEFAULT_CXX_FLAGS "-pipe -Wall -Wextra -Wno-non-template-friend -Wcast-align -Wno-comment" )
+    set( DEFAULT_CXX_FLAGS "-pipe -Wall -Wextra -Wno-comment" )
 endif()
+if (NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+    set( DEFAULT_CXX_FLAGS "${DEFAULT_CXX_FLAGS} -Wcast-align" )
+    if (NOT APPLE)
+        set( DEFAULT_CXX_FLAGS "${DEFAULT_CXX_FLAGS} -Wno-non-template-friend" )
+    endif( )
+endif( )
+if ( NOT UseCrashReporter OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+    set( DEFAULT_CXX_FLAGS "${DEFAULT_CXX_FLAGS} -DNO_CRASH_REPORTER" )
+endif( )
 
 set( DEFAULT_C_FLAGS
      "-pipe -Wall -Wextra -Wcast-align -Wno-comment"
@@ -191,11 +223,32 @@ else()
     message( FATAL_ERROR "Building requires a c++11 compatible compiler" )
 endif()
 
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+   ## setting intel libraries with e.g.
+   ##
+   ##    find_library( INTEL_IRNG irng HINTS ${INTEL_PATH} )
+   ##
+   ## causes CMAKE to substitute fully qualified paths which makes
+   ## python shared object unrelocatable in the case of libirng.so
+   ##
+   get_filename_component(INTEL_PATH ${CMAKE_CXX_COMPILER} DIRECTORY)
+   set(INTEL_LIB_PATH ${INTEL_PATH}/../lib/intel64)
+   set(INTEL_LIBS -limf -lsvml -lirng -lintlc -lifport -lifcore -liomp5)
+   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,${INTEL_LIB_PATH}")
+   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-rpath,${INTEL_LIB_PATH}")
+endif()
+
+
 # OpenMP
 find_package( OpenMP )
 if( OPENMP_FOUND )
-  set( DEFAULT_CXX_FLAGS "${DEFAULT_CXX_FLAGS} ${OpenMP_CXX_FLAGS}" )
-  set( DEFAULT_C_FLAGS   "${DEFAULT_C_FLAGS}   ${OpenMP_C_FLAGS}" )
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+        set(DEFAULT_CXX_FLAGS "${DEFAULT_CXX_FLAGS} -qopenmp")
+        set(DEFAULT_C_FLAGS "${DEFAULT_C_FLAGS} -qopenmp")
+    else( )
+        set( DEFAULT_CXX_FLAGS "${DEFAULT_CXX_FLAGS} ${OpenMP_CXX_FLAGS}" )
+        set( DEFAULT_C_FLAGS   "${DEFAULT_C_FLAGS}   ${OpenMP_C_FLAGS}" )
+    endif()
 endif()
 
 # use faster fortran rules for complex operations, removes restoring complex
@@ -239,7 +292,10 @@ message( STATUS "$_gfortran_lib_path = ${_gfortran_lib_path}" )
 #
 if( APPLE )
     set( CMAKE_Fortran_FLAGS -fno-second-underscore )
-
+    if ( EXISTS /opt/casa/02/bin/python )
+            set( casa_packages /opt/casa/02 )
+            set( casa_startup 1 )
+    endif()
     ### look for dynamic libgfortran
     if( NOT _gfortran_lib_path )
         execute_process( COMMAND ${CMAKE_Fortran_COMPILER} -print-search-dirs
@@ -294,9 +350,11 @@ if( APPLE )
 	            if(CMAKE_SYSTEM MATCHES ^Darwin-11)
                         set ( casa_packages /opt/casa/darwin11 )
                         set( PYTHON_ROOT_DIR /opt/casa/darwin11 )
-                    elseif(CMAKE_SYSTEM MATCHES ^Darwin-12)
+                elseif(CMAKE_SYSTEM MATCHES ^Darwin-12)
                         set ( casa_packages /opt/casa/01 )
                         set( PYTHON_ROOT_DIR /opt/casa/01 )
+                elseif(EXISTS /opt/casa/02 )
+                        set ( casa_packages /opt/casa/02 )
 	            else()
                         set ( casa_packages /opt/casa/01 )
 	            endif()
@@ -322,14 +380,6 @@ if( APPLE )
                          COMMAND perl -pe "s|.*?(\\d+\\.\\d+)\\.\\d+$|$1|"
                          OUTPUT_VARIABLE _cxx_version
                          OUTPUT_STRIP_TRAILING_WHITESPACE )
-	    set (INTEL_CXX_COMPILER "false" )
-	    if( _cxx_version MATCHES "ICC")
-		    set (INTEL_CXX_COMPILER "true" )
-        endif()
-	    set (INTEL_FORTRAN_COMPILER "false" )
-	    if( _gfortran__version MATCHES "IFORT")
-		    set (INTEL_FORTRAN_COMPILER "true" )
-	    endif()
 
 	    message( STATUS "$_gfortran_version = ${_gfortran_version}" )
 	    message( STATUS "$_gcc_machine = ${_gcc_machine}" )
@@ -359,7 +409,7 @@ if( APPLE )
         message( WARNING "Unsupported Mac: ${CMAKE_SYSTEM}" )
     endif()
 
-    if( NOT INTEL_CXX_COMPILER STREQUAL "true" )
+    if( NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" )
         if( _cxx_version STREQUAL "4.4" )
 	        set( DEFAULT_CXX_FLAGS "${DEFAULT_CXX_FLAGS} -dynamic -mtune=nocona -ftree-vectorize -mfpmath=sse" )
         else()
@@ -387,14 +437,15 @@ if( APPLE )
 elseif( CMAKE_SYSTEM_NAME STREQUAL Linux )
 
     if( DEFINED ENV{LDFLAGS} )
-        set( CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined $ENV{LDFLAGS}")
+        set( CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined $ENV{LDFLAGS} -Wl,-rpath,${INTEL_LIB_PATH}")
     else( )
-        set( CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined")
+        set( CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined -Wl,-rpath,${INTEL_LIB_PATH}")
     endif( )
 
     if( CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64 )
         if ( EXISTS /opt/casa/02/bin/python )
             set( casa_packages /opt/casa/02 )
+            set( casa_startup 1 )
             set( dbusxx dbus-cpp )
             add_definitions( -DDBUS_CPP )
             if ( EXISTS /opt/casa/02/bin/qmake )
@@ -404,6 +455,7 @@ elseif( CMAKE_SYSTEM_NAME STREQUAL Linux )
                 ## RHEL7
                 set( qt4 system-qt )
             endif( )
+            set( python_version 2.7 )
         elseif ( EXISTS /usr/lib64/casa/01/bin/qmake )
             set( casa_packages /usr/lib64/casa/01 )
 	        set( dbusxx dbus-cpp )
@@ -426,7 +478,7 @@ elseif( CMAKE_SYSTEM_NAME STREQUAL Linux )
 	        set( dbusxx dbus-c++ )
             set( casa_packages /usr/lib64/casapy )
 	        set( qt4 system-qt )
-            set( python_version 2.6 )
+            set( python_version 2.7 )
         endif( )
         if( NOT arch )
     	    set( arch linux_64b )
@@ -442,7 +494,7 @@ elseif( CMAKE_SYSTEM_NAME STREQUAL Linux )
         set( dbusxx dbus-c++ )
         set( casa_packages /usr/lib/casapy )
         set( qt4 system-qt )
-        set( python_version 2.6 )
+        set( python_version 2.7 )
 
     endif()
 else()
@@ -526,7 +578,7 @@ endif()
 # Choose to have correct RPATHs both in the build tree and
 # in the install tree (at the cost of having to change the
 # rpath when installing)
-set( CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib:arbitraryExtraPaddingToAllowForRpathGrowth" )
+set( CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib:${INTEL_LIB_PATH}:arbitraryExtraPaddingToAllowForRpathGrowth" )
 set( CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 set( CMAKE_INSTALL_NAME_DIR ${CMAKE_INSTALL_PREFIX}/lib )
 
@@ -650,7 +702,7 @@ if( NOT SKIP_PGPLOT )
      if (APPLE)
         set( CMAKE_SHARED_LINKER_FLAGS "-Wl,-undefined -Wl,error -framework AppKit" )
      else()
-        set( CMAKE_SHARED_LINKER_FLAGS "-Wl,-undefined -Wl,error" )
+        set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined -Wl,error" )
      endif()
   endif()
   casa_find( PGPLOT
@@ -1377,14 +1429,12 @@ add_subdirectory(python)
 add_custom_target( doc DEPENDS taskref_html taskref_pdf casaref_html casaref_pdf )
 #add_custom_target( doc )
 
-configure_file( apps/casapy/casapy ${CMAKE_CURRENT_BINARY_DIR}/preprocessed/casapy @ONLY )
 configure_file( apps/casapy/casa ${CMAKE_CURRENT_BINARY_DIR}/preprocessed/casa @ONLY )
 
 install( PROGRAMS
          install/buildmytasks
          install/xmlgenpy
-	 ${CMAKE_CURRENT_BINARY_DIR}/preprocessed/casa
-	 ${CMAKE_CURRENT_BINARY_DIR}/preprocessed/casapy
+         ${CMAKE_CURRENT_BINARY_DIR}/preprocessed/casa
          DESTINATION bin )
 
 install( FILES

@@ -284,11 +284,27 @@ void NRO2MSReader::readObsHeader() {
   readHeader<int>(obs_header_.NSPWIN);
   readHeader<int>(obs_header_.CHMAX);
   readHeader(obs_header_.VERSION, 40);
-  readHeader(obs_header_.CDMY1, 108);
+  readHeader<int16_t>(obs_header_.ARRYTB, 36);
+  readHeader(obs_header_.POLNAME, 3, 12);
+//  readHeader(obs_header_.CDMY1, 108);
+	{ // Debug output
+		LogIO os(LogOrigin("NRODataset", "readObsHeader", WHERE) );
+		os << LogIO::DEBUGGING << "NRO ARRAY TABLE from NOSTAR header:" << LogIO::POST;
+		for (int i = 0; i < obs_header_.ARYNM0; ++i) {
+			os << LogIO::DEBUGGING << "- Array" << i << " : " << obs_header_.ARRYTB[i] << LogIO::POST;
+		}
+		os << LogIO::DEBUGGING << "POL NAMES:" << LogIO::POST;
+		for (size_t i = 0; i < 12; ++i) {
+			if (obs_header_.POLNAME[i][0] == '\0') continue;
+			os << LogIO::DEBUGGING << i << " : " << obs_header_.POLNAME[i] << LogIO::POST;
+		}
+	}
 }
 
 void NRO2MSReader::readScanData(int const irow, sdfiller::NRODataScanData &data) {
-  fseek(fp_, len_obs_header_ + irow * obs_header_.SCNLEN0, SEEK_SET);
+  if (irow < 0) throw AipsError("Negative row number");
+  size_t offset = len_obs_header_ + static_cast<size_t>(irow) * obs_header_.SCNLEN0;
+  fseek(fp_, offset, SEEK_SET);
 
   readHeader(data.LSFIL0, 4);
   readHeader(data.ISCN0);
@@ -326,12 +342,31 @@ void NRO2MSReader::readScanData(int const irow, sdfiller::NRODataScanData &data)
   readHeader(data.IDMY0);
   readHeader(data.IDMY2);
   readHeader(data.DPFRQ0);
-  readHeader(data.CDMY1, 144);
+  readHeader(data.ARRYSCN, 8);
+  readHeader(data.CDMY1, 136);
   readHeader(data.SFCTR0);
   readHeader(data.ADOFF0);
-  readHeader(data.LDATA, obs_header_.CHMAX * obs_header_.IBIT0 / 8);
+  // KS: use of NCH0 instead of CHMAX (2017/01/25)
+  readHeader(data.LDATA, obs_header_.NCH0 * obs_header_.IBIT0 / 8);
 }
-  
+
+bool NRO2MSReader::checkScanArray(string const scan_array,
+		NROArrayData const *header_array) {
+	// ARRYSCN is a string in the form, ##SS## (beam id in 2 digits, pol name, and spw id in 2 digits)
+	if (scan_array.size() < 6) {
+		throw AipsError(
+				"Internal Data ERROR: insufficient length of ARRAY information from scan header");
+	}
+	// indices in NOSTAR data are 1-base
+	int const sbeam = atoi(scan_array.substr(0, 2).c_str()) -1;
+	string const spol = scan_array.substr(2, 2);
+	int const sspw = atoi(scan_array.substr(4, 2).c_str()) -1;
+	return (sbeam == header_array->getBeamId()
+			&& spol == header_array->getPolName()
+			&& sspw == header_array->getSpwId());
+}
+
+
 double NRO2MSReader::getMJD(string const &strtime) {
   // TODO: should be checked which time zone the time depends on
   // 2008/11/14 Takeshi Nakazato
@@ -357,7 +392,9 @@ double NRO2MSReader::getIntMiddleTimeSec(sdfiller::NRODataScanData const &data) 
 }
 
 double NRO2MSReader::getIntStartTimeSec(int const scanno) {
-  fseek(fp_, len_obs_header_ + scanno * obs_header_.ARYNM0 * obs_header_.SCNLEN0 + 8, SEEK_SET);
+  if (scanno < 0) throw AipsError("Negative scan number");
+  size_t offset = len_obs_header_ + static_cast<size_t>(scanno) * obs_header_.ARYNM0 * obs_header_.SCNLEN0 + 8;
+  fseek(fp_, offset, SEEK_SET);
   string time_header;
   readHeader(time_header, 24);
   return getMJD(time_header) * kDay2Sec;
@@ -381,10 +418,32 @@ double NRO2MSReader::getMiddleOfTimeRangeSec() {
 }
 
 double NRO2MSReader::getRestFrequency(int const spwno) {
-  fseek(fp_, len_obs_header_ + spwno * obs_header_.SCNLEN0 + 184, SEEK_SET);
+  size_t offset = len_obs_header_ + static_cast<size_t>(getFirstArrayIdWithSpwID(spwno)) * obs_header_.SCNLEN0 + 184;
+  fseek(fp_, offset, SEEK_SET);
   double restfreq_header;
   readHeader(restfreq_header);
   return restfreq_header;
+}
+
+void NRO2MSReader::constructArrayTable() {
+	array_mapper_.resize(obs_header_.ARYNM0);
+	LogIO os(LogOrigin("NRODataset", "constructArrayTable", WHERE) );
+	os << LogIO::DEBUG1 << "NRO ARRAY TABLE:" << LogIO::POST;
+
+	for (size_t i = 0; i < array_mapper_.size(); ++i) {
+		array_mapper_[i].set(obs_header_.ARRYTB[i], obs_header_.POLNAME);
+		int beam_id = array_mapper_[i].beam_id;
+		int spw_id = array_mapper_[i].spw_id;
+		int stokes = array_mapper_[i].stokes_type;
+		if (beam_id < 0 || beam_id >= obs_header_.NBEAM
+				|| stokes == Stokes::Undefined || spw_id < 0
+				|| spw_id >= obs_header_.NSPWIN) {
+			throw AipsError("Internal Data ERROR: inconsistent ARRAY table");
+		}
+		os << LogIO::DEBUG1 << "- Array " << i << " : (beam, pol, spw) = ("
+				<< beam_id << ", " << array_mapper_[i].pol_name
+				<< ", "	<< spw_id << ")" << LogIO::POST;
+	}
 }
 
 string NRO2MSReader::convertVRefName(string const &vref0) {
@@ -406,9 +465,11 @@ void NRO2MSReader::shiftFrequency(string const &vdef,
                                   std::vector<double> &freqs) {
   double factor = v/2.99792458e8;
   if (vdef == "RAD") {
-    factor = 1.0 / (1.0 + factor);
+    //factor = 1.0 / (1.0 + factor);
+    factor = 1.0 - factor;
   } else if (vdef == "OPT") {
-    factor += 1.0;
+    //factor += 1.0;
+    factor = 1.0 / (1.0 + factor);
   } else {
     cout << "vdef=" << vdef << " is not supported." << endl;
     factor = 1.0;
@@ -423,7 +484,7 @@ std::vector<double> NRO2MSReader::getSpectrum(int const irow, sdfiller::NRODataS
   // but obs_header_.NCH0 after binding
   int const nchan = obs_header_.NCH0;
   int const chmax_ = (obs_header_.SCNLEN0 - SCNLEN_HEADER_SIZE) * 8 / obs_header_.IBIT0;
-  vector<double> spec( chmax_ ) ;  // spectrum "before" binding
+  vector<double> spec( chmax_ ) ;  // spectrum "after" binding
   // DEBUG
   //cout << "NRODataset::getSpectrum()  nchan = " << nchan << " chmax_ = " << chmax_ << endl ;
 
@@ -456,8 +517,6 @@ std::vector<double> NRO2MSReader::getSpectrum(int const irow, sdfiller::NRODataS
   string sbeamno = data.ARRYT0.substr(1, data.ARRYT0.size() - 1);
   int index = atoi(sbeamno.c_str()) - 1;
   double dscale = mscale[index];
-  int cbind = obs_header_.CBIND0;
-  int chmin = obs_header_.CHRANGE0[0];
 
   // char -> int -> double
   vector<double>::iterator iter = spec.begin();
@@ -497,55 +556,34 @@ std::vector<double> NRO2MSReader::getSpectrum(int const irow, sdfiller::NRODataS
     iter++;
   }
 
-  // channel binding if necessary
-  if (cbind != 1) {
-    iter = spec.begin();
-    advance(iter, chmin);
-    vector<double>::iterator iter2 = spec.begin();
-    for (int i = 0; i < nchan; ++i) {
-      double sum0 = 0;
-      double sum1 = 0;
-      for (int j = 0; j < cbind; ++j) {
-        sum0 += *iter;
-        sum1 += 1.0;
-        iter++;
-      }
-      *iter2 = sum0 / sum1;
-      iter2++;
-      // DEBUG
-      //cout << "NRODataset::getSpectrum()  bspec[" << i << "] = " << bspec[i] << endl ;
-    }
-    spec.resize(nchan);
-  }
-
   // DEBUG
   //cout << "NRODataset::getSpectrum() end process" << endl ;
   return spec;
 }
 
-Int NRO2MSReader::getPolNo(string const &rx) {
-  Int polno = 0;
-  // 2013/01/23 TN
-  // In NRO 45m telescope, naming convension for dual-polarization 
-  // receiver is as follows:
-  // 
-  //    xxxH for horizontal component,
-  //    xxxV for vertical component.
-  // 
-  // Exception is H20ch1/ch2.
-  // Here, POLNO is assigned as follows:
-  // 
-  //    POLNO=0: xxxH or H20ch1
-  //          1: xxxV or H20ch2
-  //
-  // For others, POLNO is always 0.
-  string last_letter = rx.substr(rx.size()-1, 1);
-  if ((last_letter == "V") || (rx == "H20ch2")) {
-    polno = 1;
-  }
-
-  return polno;
-}
+//Int NRO2MSReader::getPolNo(string const &rx) {
+//  Int polno = 0;
+//  // 2013/01/23 TN
+//  // In NRO 45m telescope, naming convension for dual-polarization
+//  // receiver is as follows:
+//  //
+//  //    xxxH for horizontal component,
+//  //    xxxV for vertical component.
+//  //
+//  // Exception is H20ch1/ch2.
+//  // Here, POLNO is assigned as follows:
+//  //
+//  //    POLNO=0: xxxH or H20ch1
+//  //          1: xxxV or H20ch2
+//  //
+//  // For others, POLNO is always 0.
+//  string last_letter = rx.substr(rx.size()-1, 1);
+//  if ((last_letter == "V") || (rx == "H20ch2")) {
+//    polno = 1;
+//  }
+//
+//  return polno;
+//}
 
 void NRO2MSReader::initializeSpecific() {
 //  std::cout << "NRO2MSReader::initialize" << std::endl;
@@ -557,6 +595,7 @@ void NRO2MSReader::initializeSpecific() {
   
   readObsHeader();
   getFullTimeRange();
+  constructArrayTable();
 }
 
 void NRO2MSReader::finalizeSpecific() {
@@ -705,13 +744,14 @@ Bool NRO2MSReader::getSpectralWindowRowImpl(
   record.meas_freq_ref = frame_type;
 
   NRODataScanData scan_data;
-  readScanData(spw_id_counter_, scan_data);
-  double freq_offset = scan_data.FRQ00 - obs_header_.F0CAL0[spw_id_counter_];
+  int spw_id_array = getFirstArrayIdWithSpwID(spw_id_counter_);
+  readScanData(spw_id_array, scan_data);
+  double freq_offset = scan_data.FRQ00 - obs_header_.F0CAL0[spw_id_array];
   std::vector<double> freqs(2, freq_offset);
   std::vector<double> chcal(2);
   for (size_t i = 0; i < 2; ++i) {
-    freqs[i] += obs_header_.FQCAL0[spw_id_counter_][i];
-    chcal[i]  = obs_header_.CHCAL0[spw_id_counter_][i];
+    freqs[i] += obs_header_.FQCAL0[spw_id_array][i];
+    chcal[i]  = obs_header_.CHCAL0[spw_id_array][i];
   }
   //-------------(change 2016/9/23)---------
   shiftFrequency(obs_header_.VDEF0, obs_header_.VEL0, freqs);
@@ -747,6 +787,12 @@ Bool NRO2MSReader::getData(size_t irow, DataRecord &record) {
   NRODataScanData scan_data;
   readScanData(irow, scan_data);
 
+  // Verify Array INFO in scan header
+  size_t const array_id = irow % getNROArraySize();
+  if (!checkScanArray(scan_data.ARRYSCN, &array_mapper_[array_id])) {
+	  throw AipsError("Internal Data ERROR: inconsistent ARRAY information in scan header");
+  }
+
   record.time = getIntMiddleTimeSec(scan_data);
   record.interval = obs_header_.IPTIM0;
 //  std::cout << "TIME=" << record.time << " INTERVAL=" << record.interval
@@ -757,15 +803,15 @@ Bool NRO2MSReader::getData(size_t irow, DataRecord &record) {
   record.scan = (Int)scan_data.ISCN0;
   record.subscan = getSubscan(srctype); 
   record.field_id = 0;
-  Int ndata_per_ant = obs_header_.NPOL * obs_header_.NSPWIN;
-  record.antenna_id = (Int)(irow / ndata_per_ant % obs_header_.NBEAM);
+//  Int ndata_per_ant = obs_header_.NPOL * obs_header_.NSPWIN;
+  record.antenna_id = (Int) getNROArrayBeamId(array_id); //(irow / ndata_per_ant % obs_header_.NBEAM);
   record.direction_vector(0) = scan_data.SCX0;
   record.direction_vector(1) = scan_data.SCY0;
   record.scan_rate = 0.0;
   record.feed_id = (Int)0;
-  record.spw_id = (Int)(irow % obs_header_.NSPWIN);
-  Int ndata_per_scan = obs_header_.NBEAM * obs_header_.NPOL * obs_header_.NSPWIN;
-  record.polno = getPolNo(obs_header_.RX0[irow % ndata_per_scan]);
+  record.spw_id = (Int) getNROArraySpwId(array_id);//(irow % obs_header_.NSPWIN);
+//  Int ndata_per_scan = obs_header_.NBEAM * obs_header_.NPOL * obs_header_.NSPWIN;
+  record.pol = getNROArrayPol(array_id); //getPolNo(obs_header_.RX0[irow % ndata_per_scan]);
   record.pol_type = "linear";
 
 //  std::cout << "set data size to " << num_chan_map_[record.spw_id] << " shape "

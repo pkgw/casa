@@ -29,6 +29,7 @@
 #include <msvis/MSVis/VisBuffer2.h>
 #include <msvis/MSVis/VisBufferComponents2.h>
 #include <casa/Arrays/ArrayMath.h>
+#include <casa/Arrays/ArrayPartMath.h>
 #include <casa/Arrays/MaskArrMath.h>
 #include <casa/Exceptions/Error.h>
 #include <casa/Containers/Block.h>
@@ -43,6 +44,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 SolveDataBuffer::SolveDataBuffer() : 
   vb_(0),
   freqs_(0),
+  feedPa_(0),
   focusChan_p(-1),
   infocusFlagCube_p(),
   infocusWtSpec_p(),
@@ -56,6 +58,7 @@ SolveDataBuffer::SolveDataBuffer() :
 SolveDataBuffer::SolveDataBuffer(const vi::VisBuffer2& vb) :
   vb_(0),
   freqs_(0),
+  feedPa_(0),
   focusChan_p(-1),
   infocusFlagCube_p(),
   infocusWtSpec_p(),
@@ -75,6 +78,7 @@ SolveDataBuffer::SolveDataBuffer(const vi::VisBuffer2& vb) :
 SolveDataBuffer::SolveDataBuffer(const SolveDataBuffer& sdb) :
   vb_(),
   freqs_(0),
+  feedPa_(0),
   focusChan_p(-1),
   infocusFlagCube_p(),
   infocusWtSpec_p(),
@@ -87,9 +91,9 @@ SolveDataBuffer::SolveDataBuffer(const SolveDataBuffer& sdb) :
   // Copy from the other's VB2
   initFromVB(*(sdb.vb_));
 
-  // copy over freqs_
+  // copy over freqs_, feedPa
   freqs_.assign(sdb.freqs_);
-  
+  feedPa_.assign(sdb.feedPa_);
 
 }
 
@@ -105,9 +109,54 @@ SolveDataBuffer::~SolveDataBuffer()
   
 Bool SolveDataBuffer::Ok() {
   // Ok if net unflagged weight is positive
-  Float wtsum=sum(weightSpectrum()(!flagCube()));
-  return (wtsum>0.0f);
+  if (nfalse(flagCube())>0) {
+    Float wtsum=sum(weightSpectrum()(!flagCube()));
+    return (wtsum>0.0f);
+  }
+  else
+    return false;
 }
+
+/*
+// Divide corrected by model
+void SolveDataBuffer::divideCorrByModel() {
+
+  Int nCor(nCorrelations());
+  Int nChan(nChannels());
+  Int nRow(nRows());
+  Float amp(1.0);
+  Complex cor(1.0);
+    
+  Cube<Complex> vC; vC.reference(visCubeCorrected());
+  Cube<Complex> vM; vM.reference(visCubeModel());
+  Cube<Float> wS; wS.reference(weightSpectrum());
+
+  for (Int irow=0;irow<nRow;++irow) {
+    if (!flagRow()(irow)) {
+      for (Int ich=0;ich<nChan;++ich) {
+	for (Int icorr=0;icorr<nCor;icorr++) {
+	  if (!flagCube()(icorr,ich,irow)) {
+	    amp=abs(vM(icorr,ich,irow));
+	    if (amp>0.0f) {
+	      // Divide corr by model
+	      vC(icorr,ich,irow)/=vM(icorr,ich,irow);
+	      // Adjust weight by square of model amp
+	      wS(icorr,ich,irow)*=square(amp);
+	    }
+	  } // !*fl
+	  else {
+	    // zero data and weight
+	    vC(icorr,ich,irow)=Complex(0.0);
+	    wS(icorr,ich,irow)=0.0;
+	  }
+	  // model always unity after division
+	  vM(icorr,ich,irow)=Complex(1.0);
+	} // icorr
+      } // ich
+    } // !*flR
+  } // irow
+}
+*/
 
 void SolveDataBuffer::enforceAPonData(const String& apmode)
 {
@@ -256,6 +305,7 @@ void SolveDataBuffer::initFromVB(const vi::VisBuffer2& vb)
 				    VisBufferComponent2::Antenna1,
 				    VisBufferComponent2::Antenna2,
 				    VisBufferComponent2::Time,
+				    VisBufferComponent2::TimeCentroid,
 				    VisBufferComponent2::NCorrelations,
 				    VisBufferComponent2::NChannels,
 				    VisBufferComponent2::NRows,
@@ -267,6 +317,10 @@ void SolveDataBuffer::initFromVB(const vi::VisBuffer2& vb)
 
   // Copy required components from the supplied VB2:
   vb_->copyComponents(vb,comps,True,True);   // will fetch things, if needed
+
+  // Set weights for flagged data to zero
+  Cube<Float> wtsp(vb_->weightSpectrum());
+  wtsp(vb_->flagCube())=0.0;
 
   // Store the frequeny info
   //  TBD: also need bandwidth info....
@@ -283,6 +337,11 @@ void SolveDataBuffer::initFromVB(const vi::VisBuffer2& vb)
     freqs_*=1e6;
     freqs_+=100.0005e9; // _edge_ of first channel at 100 GHz.
   }
+
+  // Store the feedPa info
+  if (vb.isAttached())
+    // Assumes vb.time() is constant!
+    feedPa_.assign(vb.feedPa(vb.time()(0)));
 
 }
 void SolveDataBuffer::cleanUp() 
@@ -303,7 +362,8 @@ void SolveDataBuffer::cleanUp()
 
 SDBList::SDBList() :
   nSDB_(0),
-  SDB_()
+  SDB_(),
+  freqs_()
 {}
 
 SDBList::~SDBList() 
@@ -326,6 +386,9 @@ void SDBList::add(const vi::VisBuffer2& vb)
 
   // increment the count
   nSDB_++;
+
+  // Clear the freqs_ info (forces recalculation)
+  freqs_.resize(0);
 
 }
 
@@ -378,6 +441,33 @@ Double SDBList::aggregateTime() const {
     return aTime;
   }
   else
+    throw(AipsError("SDBList::aggregateTime(): No SDBs in this SDBList yet."));
+}
+
+Double SDBList::aggregateTimeCentroid() const {
+
+  // Weighted average of SDBs' timeCentroids
+  if (nSDB_>0) {
+    Double aTime(0.0);
+    Double aWt(0.0);
+    Vector<Double> wtvD;
+    for (Int isdb=0;isdb<nSDB_;++isdb) {
+      SolveDataBuffer& sdb(*SDB_[isdb]);
+      Vector<Float> wtv(partialSums(sdb.weightSpectrum(),IPosition(2,0,1)));
+      wtvD.resize(wtv.nelements());
+      convertArray(wtvD,wtv);
+      aTime+=sum(wtvD*sdb.timeCentroid());
+      aWt+=sum(wtvD);
+    }
+    if (aWt>0.0)
+      aTime/=aWt;
+    else
+      // Use aggregateTime if no unflagged data
+      aTime=aggregateTime();
+
+    return aTime;
+  }
+  else
     throw(AipsError("SDBList::aggregateFld(): No SDBs in this SDBList yet."));
 }
 
@@ -402,16 +492,68 @@ Int SDBList::nChannels() const {
 
 const Vector<Double>& SDBList::freqs() const {
 
-  const Vector<Double>& f(SDB_[0]->freqs());  // from first SDB
+  if (nSDB_==0)
+    throw(AipsError("SDBList::freqs(): No SDBs in this SDBList yet."));
   
-  // Trap non-uniformity, for now
-  for (Int isdb=1;isdb<nSDB_;++isdb)
-    AlwaysAssert(allEQ(SDB_[isdb]->freqs(),f),AipsError);
-  
-  // Reach here, then ok
-  return f;
+
+  if (nSDB_==1) {
+    // Only one SDB, just return that one's freqs
+    const Vector<Double>& f(SDB_[0]->freqs());  // from first SDB
+    return f;
+  }
+
+  // Reach here, more than one SDB, need to gather info
+  if (freqs_.nelements()==0) {
+    // Haven't accumumlated yet
+    
+    // How many channels in aggregate?
+    //  (This will insist on uniformity over SDBs)
+    Int nchan(this->nChannels());   
+    
+    // Will accumulate mean freqs here
+    freqs_.resize(nchan);
+    freqs_.set(0.0);
+    
+    // Average over SDBs, counting each spw exactly _once_
+    // Map to keep track of unique spws
+    std::set<Int> spws;
+    Int nSpw(0); 
+    for (Int isdb=0;isdb<nSDB_;++isdb) {
+      Int ispw=SDB_[isdb]->spectralWindow()(0);
+      if (spws.count(ispw)<1) {
+	freqs_+=SDB_[isdb]->freqs();
+	spws.insert(ispw);  // Record that we got this spw
+	++nSpw;
+      }
+    }
+    // Divide by nSpw
+    freqs_/=Double(nSpw);
+    
+  }
+  // else:  freqs_ already filled previously...
+
+  return freqs_;
   
 }
+
+// How many correlations?
+//   Currently, this insists on uniformity over all SDBs
+Int SDBList::nCorrelations() const {
+
+  Int nCorr=SDB_[0]->nCorrelations();
+
+  // Trap non-uniformity, for now
+  for (Int isdb=1;isdb<nSDB_;++isdb)
+    AlwaysAssert((SDB_[isdb]->nCorrelations()==nCorr),AipsError);
+
+  // Reach here, then ok
+  return nCorr;
+
+}
+
+
+
+
 
 Bool SDBList::Ok() {
 
@@ -423,6 +565,13 @@ Bool SDBList::Ok() {
 
 }
 
+/*
+void SDBList::divideCorrByModel()
+{
+  for (Int i=0;i<nSDB_;++i)
+    SDB_[i]->divideCorrByModel();
+}
+*/
 
 void SDBList::enforceAPonData(const String& apmode)
 {

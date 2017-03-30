@@ -69,6 +69,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                        itsMaskType(""),
                                        itsPBMask(0.0),
 				       //itsMaskString(String("")),
+                                       itsIterDone(0.0),
 				       itsIsMaskLoaded(false)
   {
   }
@@ -151,6 +152,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           {
             itsAutoMaskAlgorithm="thresh2";
           }
+        else if(itsMaskType=="auto-multithresh")
+          { 
+            itsAutoMaskAlgorithm="multithresh";
+          }
         else if(itsMaskType=="auto-onebox")
           {
             itsAutoMaskAlgorithm="onebox";
@@ -175,7 +180,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         itsMaskResolution = decpars.maskResolution;
         itsMaskResByBeam = decpars.maskResByBeam;
         itsNMask = decpars.nMask;
-        itsAutoAdjust = decpars.autoAdjust;
+        //itsAutoAdjust = decpars.autoAdjust;
+        //desable autoadjust 
+        itsAutoAdjust = false;
+        itsSidelobeThreshold = decpars.sidelobeThreshold;
+        itsNoiseThreshold = decpars.noiseThreshold;
+        itsLowNoiseThreshold = decpars.lowNoiseThreshold;
+        itsSmoothFactor = decpars.smoothFactor;
+        itsMinBeamFrac = decpars.minBeamFrac;
+        itsCutThreshold = decpars.cutThreshold;
 	itsIsInteractive = decpars.interactive;
       }
     catch(AipsError &x)
@@ -208,6 +221,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       setStartingModel();
 
       // Set up the mask too.
+      itsIterDone += itsLoopController.getIterDone();
       setupMask();
 
  
@@ -218,6 +232,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
       // Calculate Peak Residual and Max Psf Sidelobe, and fill into SubIterBot.
       itsLoopController.setPeakResidual( validMask ? itsImages->getPeakResidualWithinMask() : itsImages->getPeakResidual() );
+      itsLoopController.setPeakResidualNoMask( itsImages->getPeakResidual() );
       itsLoopController.setMaxPsfSidelobe( itsImages->getPSFSidelobeLevel() );
       returnRecord = itsLoopController.getCycleInitializationRecord();
 
@@ -457,10 +472,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
      //modify mask using automask otherwise no-op
      if ( itsAutoMaskAlgorithm != "" )  {
        if ( itsPBMask > 0.0 ) {
-         itsMaskHandler->autoMaskWithinPB( itsImages, itsAutoMaskAlgorithm, itsMaskThreshold, itsFracOfPeak, itsMaskResolution, itsMaskResByBeam, itsNMask, itsAutoAdjust,  itsPBMask);
+         itsMaskHandler->autoMaskWithinPB( itsImages, itsIterDone, itsAutoMaskAlgorithm, itsMaskThreshold, itsFracOfPeak, itsMaskResolution, itsMaskResByBeam, itsNMask, itsAutoAdjust,  itsSidelobeThreshold, itsNoiseThreshold, itsLowNoiseThreshold, itsCutThreshold, itsSmoothFactor, itsMinBeamFrac, itsPBMask);
        }
        else {
-         itsMaskHandler->autoMask( itsImages, itsAutoMaskAlgorithm, itsMaskThreshold, itsFracOfPeak, itsMaskResolution, itsMaskResByBeam, itsNMask, itsAutoAdjust);
+         itsMaskHandler->autoMask( itsImages, itsIterDone, itsAutoMaskAlgorithm, itsMaskThreshold, itsFracOfPeak, itsMaskResolution, itsMaskResByBeam, itsNMask, itsAutoAdjust, itsSidelobeThreshold, itsNoiseThreshold, itsLowNoiseThreshold, itsCutThreshold, itsSmoothFactor, itsMinBeamFrac );
        }
      }
   }

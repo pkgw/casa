@@ -167,6 +167,8 @@ import shutil
 from taskinit import *
 import re
 
+_rg = rgtool( )
+
 def immath(
     imagename, mode, outfile, expr, varnames, sigma,
     polithresh, mask, region, box, chans, stokes, stretch,
@@ -215,6 +217,15 @@ def immath(
                 box, chans, stokes, region, mask,
                 stretch, filenames, _myia, tmpFilePrefix
             )
+            if imagemd:
+                casalog.post(
+                    "Specifying region, box, chan, or stokes will "
+                    + "create smaller sub-images. The image "
+                    + "metadata specified in imagemd will have to "
+                    + "conform to the output, not the input image "
+                    + "dimensions. Please check your output image "
+                    + "for accurate header definition.", 'WARN'
+                )
             (expr, varnames, subImages) = _immath_updateexpr(
                 expr, varnames, subImages, filenames, file_map
             )
@@ -293,7 +304,7 @@ def _immath_createsubimages(
     for image in filenames:
         try:
             _myia.open(image)
-            reg = rg.frombcs(csys=_myia.coordsys().torecord(),
+            reg = _rg.frombcs(csys=_myia.coordsys().torecord(),
                 shape=_myia.shape(), box=box, chans=chans, stokes=stokes,
                 stokescontrol="a", region=region
             )
@@ -582,7 +593,7 @@ def _immath_extract_stokes_from_single_image(
             pixNum = stokeslist.index(stokes)
             blc[stokesPixel] = pixNum
             trc[stokesPixel] = pixNum
-            subim = _myia.subimage(outfile=myfile, region=rg.box(blc=blc, trc=trc))
+            subim = _myia.subimage(outfile=myfile, region=_rg.box(blc=blc, trc=trc))
             subim.done()
     _myia.done()
     filenames = [Qimage, Uimage]

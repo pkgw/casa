@@ -13,6 +13,8 @@ import string
 
 from sdimprocess import sdimprocess
 
+_ia = iatool( )
+
 #
 # Unit test of sdimprocess task.
 # 
@@ -62,14 +64,14 @@ class sdimprocess_unittest_base:
     def _check_shape(self, infile, outfile):
         self._checkfile(infile)
         self._checkfile(outfile)
-        ia.open(infile)
-        inshape = ia.shape()
-        inaxistypes = ia.coordsys().axiscoordinatetypes()
-        ia.close()
-        ia.open(outfile)
-        outshape = ia.shape()
-        outaxistypes = ia.coordsys().axiscoordinatetypes()
-        ia.close()
+        _ia.open(infile)
+        inshape = _ia.shape()
+        inaxistypes = _ia.coordsys().axiscoordinatetypes()
+        _ia.close()
+        _ia.open(outfile)
+        outshape = _ia.shape()
+        outaxistypes = _ia.coordsys().axiscoordinatetypes()
+        _ia.close()
         
         self.assertEqual(len(inshape), len(outshape))
         self.assertTrue(numpy.all(inshape == outshape))
@@ -77,8 +79,8 @@ class sdimprocess_unittest_base:
 
     def _flux(self, csys, ref):
         # see CAS-5779, images/Images/ImageStatistics.tcc
-        axis_ra = csys.findaxis('ra')['axisincoordinate']
-        axis_dec = csys.findaxis('dec')['axisincoordinate']
+        axis_ra = csys.findaxis(axis=csys.findaxisbyname('ra'))['axisincoordinate']
+        axis_dec = csys.findaxis(axis=csys.findaxisbyname('dec'))['axisincoordinate']
         print axis_ra, axis_dec
         units = csys.units()
         increments = csys.increment()['numeric']
@@ -89,14 +91,14 @@ class sdimprocess_unittest_base:
         
     def _checkstats(self,name,ref):
         self._checkfile(name)
-        ia.open(name)
-        stats=ia.statistics(list=True, verbose=True)
+        _ia.open(name)
+        stats=_ia.statistics(list=True, verbose=True)
 
         # set 'flux' value to ref
         if not ref.has_key('flux'):
-            ref['flux'] = self._flux(ia.coordsys(), ref)
+            ref['flux'] = self._flux(_ia.coordsys(), ref)
 
-        ia.close()
+        _ia.close()
         
         for key in stats.keys():
         #for key in self.keys:
@@ -354,9 +356,9 @@ class sdimprocess_test1(unittest.TestCase,sdimprocess_unittest_base):
 
         self._check_shape(self.rawfile, self.outfile)
         self._checkstats(self.outfile,refstats)
-        ia.open(self.outfile)
-        mask_out = ia.getchunk(getmask=True)
-        ia.close()
+        _ia.open(self.outfile)
+        mask_out = _ia.getchunk(getmask=True)
+        _ia.close()
         self.assertTrue((mask_out==mask_in).all(), "Unexpected mask in output image.")
         
     def test100_3d(self):
@@ -463,24 +465,24 @@ class sdimprocess_test2(unittest.TestCase,sdimprocess_unittest_base):
 
     def test200(self):
         """Test 200: FFT based Basket-Weaving using whole pixels"""
-        res=sdimprocess(infiles=self.rawfiles,mode=self.mode,direction=[0.0,90.0],masklist=20.0,outfile=self.outfile,overwrite=True)
+        res=sdimprocess(infiles=self.rawfiles,mode=self.mode,direction=[0.0,90.0],maskwidth=20.0,outfile=self.outfile,overwrite=True)
         refstats={'blc': numpy.array([0, 0, 0, 0], dtype=numpy.int32),
                   'blcf': '00:00:00.000, +00.00.00.000, I, 1.415e+09Hz',
-                  'max': numpy.array([ 0.92714936]),
+                  'max': numpy.array([ 0.92863309]),
                   'maxpos': numpy.array([64, 64,  0,  0], dtype=numpy.int32),
                   'maxposf': '23:55:43.941, +01.04.00.222, I, 1.415e+09Hz',
                   'mean': numpy.array([ 0.02962625]),
                   'medabsdevmed': numpy.array([ 0.00571492]),
                   'median': numpy.array([ 0.00429045]),
-                  'min': numpy.array([-0.02618393]),
+                  'min': numpy.array([-0.02551341]),
                   'minpos': numpy.array([ 56, 107,   0,   0], dtype=numpy.int32),
                   'minposf': '23:56:15.881, +01.47.01.037, I, 1.415e+09Hz',
                   'npts': numpy.array([ 16384.]),
                   'quartile': numpy.array([ 0.01154788]),
-                  'rms': numpy.array([ 0.11236797]),
-                  'sigma': numpy.array([ 0.1083954]),
+                  'rms': numpy.array([ 0.11279197]),
+                  'sigma': numpy.array([ 0.1088349]),
                   'sum': numpy.array([ 485.39648429]),
-                  'sumsq': numpy.array([ 206.87355986]),
+                  'sumsq': numpy.array([ 208.43769809]),
                   'trc': numpy.array([127, 127,   0,   0], dtype=numpy.int32),
                   'trcf': '23:51:31.537, +02.07.01.734, I, 1.415e+09Hz'}
         self._check_shape(self.rawfiles[0], self.outfile)
@@ -488,24 +490,24 @@ class sdimprocess_test2(unittest.TestCase,sdimprocess_unittest_base):
 
     def test201(self):
         """Test 201: FFT based Basket-Weaving with certain threshold"""
-        res=sdimprocess(infiles=self.rawfiles,mode=self.mode,direction=[0.0,90.0],masklist=20.0,tmax=0.5,tmin=-0.1,outfile=self.outfile,overwrite=True)
+        res=sdimprocess(infiles=self.rawfiles,mode=self.mode,direction=[0.0,90.0],maskwidth=20.0,tmax=0.5,tmin=-0.1,outfile=self.outfile,overwrite=True)
         refstats={'blc': numpy.array([0, 0, 0, 0], dtype=numpy.int32),
                   'blcf': '00:00:00.000, +00.00.00.000, I, 1.415e+09Hz',
-                  'max': numpy.array([ 0.99387228]),
+                  'max': numpy.array([ 0.99608284]),
                   'maxpos': numpy.array([63, 63,  0,  0], dtype=numpy.int32),
                   'maxposf': '23:55:47.944, +01.03.00.212, I, 1.415e+09Hz',
                   'mean': numpy.array([ 0.02962625]),
                   'medabsdevmed': numpy.array([ 0.00570825]),
                   'median': numpy.array([ 0.00428429]),
-                  'min': numpy.array([-0.0260052]),
+                  'min': numpy.array([-0.02518307]),
                   'minpos': numpy.array([ 56, 107,   0,   0], dtype=numpy.int32),
                   'minposf': '23:56:15.881, +01.47.01.037, I, 1.415e+09Hz',
                   'npts': numpy.array([ 16384.]),
                   'quartile': numpy.array([ 0.01155156]),
-                  'rms': numpy.array([ 0.1128579]),
-                  'sigma': numpy.array([ 0.10890324]),
+                  'rms': numpy.array([ 0.113305]),
+                  'sigma': numpy.array([ 0.10936653]),
                   'sum': numpy.array([ 485.39650849]),
-                  'sumsq': numpy.array([ 208.68146098]),
+                  'sumsq': numpy.array([ 210.3381585]),
                   'trc': numpy.array([127, 127,   0,   0], dtype=numpy.int32),
                   'trcf': '23:51:31.537, +02.07.01.734, I, 1.415e+09Hz'}
         self._check_shape(self.rawfiles[0], self.outfile)
@@ -542,57 +544,57 @@ class sdimprocess_test2(unittest.TestCase,sdimprocess_unittest_base):
             mask_ref += msk
         del mask_in
         # Task execution
-        res=sdimprocess(infiles=self.rawfiles,mode=self.mode,direction=[0.0,90.0],masklist=20.0,outfile=self.outfile,overwrite=True)
+        res=sdimprocess(infiles=self.rawfiles,mode=self.mode,direction=[0.0,90.0],maskwidth=20.0,outfile=self.outfile,overwrite=True)
         # Test results
         refstats={'blc': numpy.array([0, 0, 0, 0], dtype=numpy.int32),
                   'blcf': '00:00:00.000, +00.00.00.000, I, 1.415e+09Hz',
-                  'max': numpy.array([ 0.92715073]),
+                  'max': numpy.array([ 0.92862648]),
                   'maxpos': numpy.array([64, 64,  0,  0], dtype=numpy.int32),
                   'maxposf': '23:55:43.941, +01.04.00.222, I, 1.415e+09Hz',
-                  'mean': numpy.array([ 0.02969737]),
+                  'mean': numpy.array([ 0.02969963]),
                   'medabsdevmed': numpy.array([ 0.00574234]),
                   'median': numpy.array([ 0.00439214]),
-                  'min': numpy.array([-0.02619936]),
+                  'min': numpy.array([-0.02554246]),
                   'minpos': numpy.array([ 56, 107,   0,   0], dtype=numpy.int32),
                   'minposf': '23:56:15.881, +01.47.01.037, I, 1.415e+09Hz',
                   'npts': numpy.array([ 16359.]),
                   'quartile': numpy.array([ 0.011633]),
-                  'rms': numpy.array([ 0.11246141]),
-                  'sigma': numpy.array([ 0.10847283]),
-                  'sum': numpy.array([ 485.81925964]),
-                  'sumsq': numpy.array([ 206.90158001]),
+                  'rms': numpy.array([ 0.11288381]),
+                  'sigma': numpy.array([ 0.10891011]),
+                  'sum': numpy.array([ 485.85626113]),
+                  'sumsq': numpy.array([ 208.45871511]),
                   'trc': numpy.array([127, 127,   0,   0], dtype=numpy.int32),
                   'trcf': '23:51:31.537, +02.07.01.734, I, 1.415e+09Hz'}
 
         #print imstat(self.outfile)
         self._check_shape(self.rawfiles[0], self.outfile)
         self._checkstats(self.outfile,refstats)
-        ia.open(self.outfile)
-        mask_out = ia.getchunk(getmask=True)
-        ia.close()
+        _ia.open(self.outfile)
+        mask_out = _ia.getchunk(getmask=True)
+        _ia.close()
         self.assertTrue((mask_out==mask_ref).all(), "Unexpected mask in output image.")
 
     def test203(self):
         """Test 203: test for len(infiles) > len(direction)"""
         infiles = self.rawfiles + self.rawfiles
-        res=sdimprocess(infiles=infiles,mode=self.mode,direction=[0.0,90.0],masklist=20.0,outfile=self.outfile,overwrite=True)
+        res=sdimprocess(infiles=infiles,mode=self.mode,direction=[0.0,90.0],maskwidth=20.0,outfile=self.outfile,overwrite=True)
         refstats={'blc': numpy.array([0, 0, 0, 0], dtype=numpy.int32),
                   'blcf': '00:00:00.000, +00.00.00.000, I, 1.415e+09Hz',
-                  'max': numpy.array([ 0.92714936]),
+                  'max': numpy.array([ 0.92863309]),
                   'maxpos': numpy.array([64, 64,  0,  0], dtype=numpy.int32),
                   'maxposf': '23:55:43.941, +01.04.00.222, I, 1.415e+09Hz',
                   'mean': numpy.array([ 0.02962625]),
                   'medabsdevmed': numpy.array([ 0.00571492]),
                   'median': numpy.array([ 0.00429045]),
-                  'min': numpy.array([-0.02618393]),
+                  'min': numpy.array([-0.02551341]),
                   'minpos': numpy.array([ 56, 107,   0,   0], dtype=numpy.int32),
                   'minposf': '23:56:15.881, +01.47.01.037, I, 1.415e+09Hz',
                   'npts': numpy.array([ 16384.]),
                   'quartile': numpy.array([ 0.01154788]),
-                  'rms': numpy.array([ 0.11236797]),
-                  'sigma': numpy.array([ 0.1083954]),
+                  'rms': numpy.array([ 0.11279196]),
+                  'sigma': numpy.array([ 0.1088349]),
                   'sum': numpy.array([ 485.39648429]),
-                  'sumsq': numpy.array([ 206.87355986]),
+                  'sumsq': numpy.array([ 208.4376955]),
                   'trc': numpy.array([127, 127,   0,   0], dtype=numpy.int32),
                   'trcf': '23:51:31.537, +02.07.01.734, I, 1.415e+09Hz'}
         self._check_shape(self.rawfiles[0], self.outfile)
@@ -603,24 +605,24 @@ class sdimprocess_test2(unittest.TestCase,sdimprocess_unittest_base):
         for infile, outfile in zip(self.rawfiles, self.rawfilesmod):
             drop_stokes_axis(infile, outfile)
             self.assertTrue(os.path.exists(outfile))
-        res=sdimprocess(infiles=self.rawfilesmod,mode=self.mode,direction=[0.0,90.0],masklist=20.0,outfile=self.outfile,overwrite=True)
+        res=sdimprocess(infiles=self.rawfilesmod,mode=self.mode,direction=[0.0,90.0],maskwidth=20.0,outfile=self.outfile,overwrite=True)
         refstats={'blc': numpy.array([0, 0, 0], dtype=numpy.int32),
                   'blcf': '00:00:00.000, +00.00.00.000, 1.415e+09Hz',
-                  'max': numpy.array([ 0.92714936]),
+                  'max': numpy.array([ 0.92863309]),
                   'maxpos': numpy.array([64, 64,  0], dtype=numpy.int32),
                   'maxposf': '23:55:43.941, +01.04.00.222, 1.415e+09Hz',
                   'mean': numpy.array([ 0.02962625]),
                   'medabsdevmed': numpy.array([ 0.00571492]),
                   'median': numpy.array([ 0.00429045]),
-                  'min': numpy.array([-0.02618393]),
+                  'min': numpy.array([-0.02551341]),
                   'minpos': numpy.array([ 56, 107,   0], dtype=numpy.int32),
                   'minposf': '23:56:15.881, +01.47.01.037, 1.415e+09Hz',
                   'npts': numpy.array([ 16384.]),
                   'quartile': numpy.array([ 0.01154788]),
-                  'rms': numpy.array([ 0.11236797]),
-                  'sigma': numpy.array([ 0.1083954]),
+                  'rms': numpy.array([ 0.11279197]),
+                  'sigma': numpy.array([ 0.1088349]),
                   'sum': numpy.array([ 485.39648429]),
-                  'sumsq': numpy.array([ 206.87355986]),
+                  'sumsq': numpy.array([ 208.43769809]),
                   'trc': numpy.array([127, 127,   0], dtype=numpy.int32),
                   'trcf': '23:51:31.537, +02.07.01.734, 1.415e+09Hz'}
         self._check_shape(self.rawfilesmod[0], self.outfile)
@@ -631,24 +633,24 @@ class sdimprocess_test2(unittest.TestCase,sdimprocess_unittest_base):
         for infile, outfile in zip(self.rawfiles, self.rawfilesmod):
             drop_deg_axes(infile, outfile)
             self.assertTrue(os.path.exists(outfile))
-        res=sdimprocess(infiles=self.rawfilesmod,mode=self.mode,direction=[0.0,90.0],masklist=20.0,outfile=self.outfile,overwrite=True)
+        res=sdimprocess(infiles=self.rawfilesmod,mode=self.mode,direction=[0.0,90.0],maskwidth=20.0,outfile=self.outfile,overwrite=True)
         refstats={'blc': numpy.array([0, 0], dtype=numpy.int32),
                   'blcf': '00:00:00.000, +00.00.00.000',
-                  'max': numpy.array([ 0.92714936]),
+                  'max': numpy.array([ 0.92863309]),
                   'maxpos': numpy.array([64, 64], dtype=numpy.int32),
                   'maxposf': '23:55:43.941, +01.04.00.222',
                   'mean': numpy.array([ 0.02962625]),
                   'medabsdevmed': numpy.array([ 0.00571492]),
                   'median': numpy.array([ 0.00429045]),
-                  'min': numpy.array([-0.02618393]),
+                  'min': numpy.array([-0.02551341]),
                   'minpos': numpy.array([ 56, 107], dtype=numpy.int32),
                   'minposf': '23:56:15.881, +01.47.01.037',
                   'npts': numpy.array([ 16384.]),
                   'quartile': numpy.array([ 0.01154788]),
-                  'rms': numpy.array([ 0.11236797]),
-                  'sigma': numpy.array([ 0.1083954]),
+                  'rms': numpy.array([ 0.11279197]),
+                  'sigma': numpy.array([ 0.1088349]),
                   'sum': numpy.array([ 485.39648429]),
-                  'sumsq': numpy.array([ 206.87355986]),
+                  'sumsq': numpy.array([ 208.43769809]),
                   'trc': numpy.array([127, 127], dtype=numpy.int32),
                   'trcf': '23:51:31.537, +02.07.01.734'}
         self._check_shape(self.rawfilesmod[0], self.outfile)
@@ -656,4 +658,6 @@ class sdimprocess_test2(unittest.TestCase,sdimprocess_unittest_base):
 
 
 def suite():
-    return [sdimprocess_test0,sdimprocess_test1,sdimprocess_test2]
+    return [sdimprocess_test0,
+            sdimprocess_test1,
+            sdimprocess_test2]

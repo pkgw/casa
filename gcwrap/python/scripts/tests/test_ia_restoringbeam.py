@@ -54,7 +54,7 @@
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
 # 
-# `echo $CASAPATH/bin/casapy | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_restoringbeam[test1,test2,...]
+# `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_restoringbeam[test1,test2,...]
 #
 # </example>
 #
@@ -99,7 +99,7 @@ class ia_restoringbeam_test(unittest.TestCase):
                 self.assertTrue(beam["major"] == qa.quantity(major))
                 self.assertTrue(beam["minor"] == qa.quantity(minor))
                 self.assertTrue(beam["positionangle"] == qa.quantity(pa))
-        myia.setrestoringbeam(remove=T)
+        myia.setrestoringbeam(remove=True)
         self.assertFalse(bool(myia.restoringbeam()))
 
     def test_per_plane_beams(self):
@@ -324,7 +324,7 @@ class ia_restoringbeam_test(unittest.TestCase):
         self.assertTrue(
             qa.eq(
                 myia.restoringbeam(channel=1, polarization=0)['positionangle'],
-                "100deg"
+                "-80deg"
             )
         )
 

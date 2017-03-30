@@ -28,6 +28,8 @@
 
 //#include <casacore/ms/MeasurementSets/MeasurementSet.h>
 #include <synthesis/MeasurementComponents/CalSolVi2Organizer.h>
+#include <msvis/MSVis/IteratingParameters.h>
+#include <msvis/MSVis/LayeredVi2Factory.h>
 #include <msvis/MSVis/SimpleSimVi2.h>
 #include <msvis/MSVis/AveragingTvi2.h>
 #include <casa/aips.h>
@@ -41,7 +43,7 @@ using namespace vi;
   
 // Constructor
 CalSolVi2Organizer::CalSolVi2Organizer() : 
-  ss_(NULL),
+  data_(NULL),
   cal_(NULL),
   chanave_(NULL),
   timeave_(NULL),
@@ -106,16 +108,36 @@ int CalSolVi2Organizer::countSolutions(casacore::Vector<int>& nChunkPerSolve) {
 }
 
 
+void CalSolVi2Organizer::addDiskIO(MeasurementSet* ms,Float interval,
+				   Bool combobs,Bool combscan,
+				   Bool combfld,Bool combspw,
+				   Bool useMSIter2) 
+{
+
+  //  Must be first specified layer
+  AlwaysAssert(factories_.nelements()==0, AipsError);
+
+
+  Block<Int> sc;
+  deriveVI2Sort(sc,combobs,combscan,combfld,combspw);
+  IteratingParameters iterpar(interval,SortColumns(sc));
+
+  data_=new VisIterImpl2LayerFactory(ms,iterpar,True,useMSIter2);
+
+  factories_.resize(1);
+  factories_[0]=data_;
+}
+
 void CalSolVi2Organizer::addSimIO() {
 
   //  Must be first specified layer
   AlwaysAssert(factories_.nelements()==0, AipsError);
 
   SimpleSimVi2Parameters ss;
-  ss_=new SimpleSimVi2LayerFactory(ss);
+  data_=new SimpleSimVi2LayerFactory(ss);
 
   factories_.resize(1);
-  factories_[0]=ss_;
+  factories_[0]=data_;
 }
 
 void CalSolVi2Organizer::addSimIO(const SimpleSimVi2Parameters& ss) {
@@ -123,10 +145,10 @@ void CalSolVi2Organizer::addSimIO(const SimpleSimVi2Parameters& ss) {
   //  Must be first specified layer
   AlwaysAssert(factories_.nelements()==0, AipsError);
 
-  ss_=new SimpleSimVi2LayerFactory(ss);
+  data_=new SimpleSimVi2LayerFactory(ss);
 
   factories_.resize(1);
-  factories_[0]=ss_;
+  factories_[0]=data_;
 }
 
 void CalSolVi2Organizer::addCalForSolving(Float calfactor) {
@@ -164,13 +186,17 @@ void CalSolVi2Organizer::addCalForSolving(VisEquation& ve) {
 }
 
 
-void CalSolVi2Organizer::addChanAve(Int chanbin) {
+void CalSolVi2Organizer::addChanAve(Vector<Int> chanbin) {
 
   // Must not have added one already!
   AlwaysAssert(!chanave_, AipsError);
 
   //  Must be at least one other layer already...
   AlwaysAssert(factories_.nelements()>0, AipsError);
+
+  // Force no averaging with chanbin[i]=0 in ChannelAverageTVI
+  //  (NB: chanbin[i]=1 means nchan averaging)
+  chanbin(chanbin==1)=0;
 
   Record config;
   config.define("chanbin",chanbin);
@@ -217,7 +243,7 @@ void CalSolVi2Organizer::appendFactory(ViiLayerFactory* f) {
 void CalSolVi2Organizer::cleanUp() {
 
   if (vi_) delete vi_; vi_=NULL;
-  if (ss_) delete ss_; ss_=NULL;
+  if (data_) delete data_; data_=NULL;
   if (cal_) delete cal_;  cal_=NULL;
   if (chanave_) delete chanave_;  chanave_=NULL;
   if (timeave_) delete timeave_;  timeave_=NULL;
@@ -227,7 +253,7 @@ void CalSolVi2Organizer::cleanUp() {
 
 void CalSolVi2Organizer::barf() {
   
-  cout << "ss_        = " << ss_ << endl;
+  cout << "data_        = " << data_ << endl;
   cout << "cal_       = " << cal_ << endl;
   cout << "chanave_   = " << chanave_ << endl;
   cout << "timeave_   = " << timeave_ << endl;
@@ -238,7 +264,7 @@ void CalSolVi2Organizer::barf() {
 
 }
 
-void CalSolVi2Organizer::deriveVI2Sort(Block<Int>& sortcols,  // Double& iterInterval,
+void CalSolVi2Organizer::deriveVI2Sort(Block<Int>& sortcols, 
 				       Bool combobs,Bool combscan,
 				       Bool combfld,Bool combspw) 
 {
@@ -272,13 +298,10 @@ void CalSolVi2Organizer::deriveVI2Sort(Block<Int>& sortcols,  // Double& iterInt
   if (!combfld) sortcols[i++]=MS::FIELD_ID;      // force field boundaries
   if (!combspw) sortcols[i++]=MS::DATA_DESC_ID;  // force spw boundaries
   sortcols[i++]=MS::TIME;
-  //if (combspw() || combfld()) iterInterval=DBL_MIN;  // force per-timestamp chunks
   if (combfld) sortcols[i++]=MS::FIELD_ID;      // effectively ignore field boundaries
   if (combspw) sortcols[i++]=MS::DATA_DESC_ID;  // effectively ignore spw boundaries
-  
-  if (verbose) {
-    cout << " sort sortcols: " << Vector<Int>(sortcols) << endl;
-    //    cout << "iterInterval = " << iterInterval << endl;
+  if (true || verbose) {
+    //    cout << " sort sortcols: " << Vector<Int>(sortcols) << endl;
   }
   
 }

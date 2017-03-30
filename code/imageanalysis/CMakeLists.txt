@@ -60,6 +60,7 @@ ImageAnalysis/ImageProfileFitter.cc
 ImageAnalysis/ImageRegridder.cc
 ImageAnalysis/ImageRotator.cc
 ImageAnalysis/ImageStatsCalculator.cc
+ImageAnalysis/ImageStatsConfigurator.cc
 ImageAnalysis/ImageTransposer.cc
 ImageAnalysis/PeakIntensityFluxDensityConverter.cc
 ImageAnalysis/PixelValueManipulatorData.cc
@@ -67,9 +68,9 @@ ImageAnalysis/ProfileFitResults.cc
 ImageAnalysis/PVGenerator.cc
 ImageAnalysis/SpectralCollapser.cc
 ImageAnalysis/SpectralFitter.cc
+ImageAnalysis/StatImageCreator.cc
 
 IO/AsciiAnnotationFileLine.cc
-IO/CasaImageOpener.cc
 IO/FitterEstimatesFileParser.cc
 IO/ImageFitterResults.cc
 IO/ImageProfileFitterResults.cc
@@ -108,7 +109,6 @@ install (FILES
 	)
 install (FILES
 	IO/AsciiAnnotationFileLine.h
-	IO/CasaImageOpener.h
 	IO/FitterEstimatesFileParser.h
 	IO/LogFile.h
     IO/ImageFitterResults.h
@@ -211,6 +211,7 @@ install (FILES
 	ImageAnalysis/ImageSourceFinder.h
 	ImageAnalysis/ImageSourceFinder.tcc
 	ImageAnalysis/ImageStatsCalculator.h
+	ImageAnalysis/ImageStatsConfigurator.h
 	ImageAnalysis/ImageTask.h
     ImageAnalysis/ImageTask.tcc
 	ImageAnalysis/ImageTransposer.h
@@ -237,6 +238,7 @@ install (FILES
 	ImageAnalysis/SepImageConvolverTask.h
     ImageAnalysis/SepImageConvolverTask.tcc
 	ImageAnalysis/SpectralCollapser.h
+    ImageAnalysis/StatImageCreator.h
 	ImageAnalysis/SubImageFactory.h
 	ImageAnalysis/SubImageFactory.tcc
 	ImageAnalysis/TwoPointCorrelator.h
@@ -277,7 +279,6 @@ casa_add_assay( imageanalysis ImageAnalysis/test/tSpectralFitter.cc )
 casa_add_assay( imageanalysis ImageAnalysis/test/tSubImageFactory.cc )
 
 casa_add_assay( imageanalysis IO/test/tFitterEstimatesFileParser.cc )
-casa_add_assay( imageanalysis IO/test/tCasaImageOpener.cc )
 casa_add_assay( imageanalysis IO/test/tProfileFitterEstimatesFileParser.cc )
 casa_add_assay( imageanalysis IO/test/tRegionTextParser.cc )
 

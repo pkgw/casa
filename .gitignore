@@ -1,3 +1,8 @@
+# Ignore temp files
+*~
+*.swp
+*.swo
+#
 /casainit.csh
 /casainit.sh
 code/.cproject
@@ -89,3 +94,6 @@ gcwrap/tools/scimath/pdf_files
 gcwrap/tools/synthesis/htmlfiles
 gcwrap/tools/synthesis/pdf_files
 /linux_64b
+!gcwrap/python/scripts/imagerhelpers/*~
+!gcwrap/python/scripts/imagerhelpers/*.swp
+!gcwrap/python/scripts/imagerhelpers/*.swo

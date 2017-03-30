@@ -5,7 +5,6 @@ import casac
 import os
 import shutil
 import commands
-#import pdb
 # all I really need is casalog, but how to get it:?
 from taskinit import *
 import pylab as pl
@@ -86,6 +85,13 @@ class compositenumber:
 
 
 class simutil:
+    """
+    simutil contains methods to facilitate simulation. 
+    To use these, create a simutil instance e.g.
+     CASA> from simutil import simutil
+     CASA> u=simutil()
+     CASA> x,y,z,d,padnames,telescope,posobs = u.readantenna("myconfig.cfg")
+    """
     def __init__(self, direction="",
                  centerfreq=qa.quantity("245GHz"),
                  bandwidth=qa.quantity("1GHz"),
@@ -152,10 +158,10 @@ class simutil:
     def msg(self, s, origin=None, priority=None):
         # everything goes to logger with priority=priority
         # priority error: raise an exception, 
+        # casa 5.0.0: default is now no term unless toterm=True
         # priority warn: change color to magenta, send to terminal
         # priority info: change color to green, send to terminal
-        # priority none: not normally to terminal unless toterm=True
-        # i.e. setting a priority makes it go to terminal
+        # priority none: not normally to terminal unless verbose=True
 
         # ansi color codes:
         # Foreground colors
@@ -178,13 +184,13 @@ class simutil:
             priority="INFO"
         else:
             priority=priority.upper()
-            toterm=True
+            #toterm=True 
             if priority=="INFO":
                 clr="\x1b[32m"
             elif priority.count("WARN")>0:
                 clr="\x1b[35m"                
-                toterm=True
-                priority="INFO" # otherwise casalog will spew to term also.
+                #toterm=True
+                #priority="INFO" # otherwise casalog will spew to term also.
             elif priority=="ERROR":                
                 clr="\x1b[31m"
                 toterm=False  # casalog spews severe to term already
@@ -1090,6 +1096,7 @@ class simutil:
 
 
 
+
     def sensitivity(self, freq, bandwidth, etime, elevation, pwv=None,
                    telescope=None, diam=None, nant=None,
                    antennalist=None,
@@ -1126,13 +1133,24 @@ class simutil:
                 self.msg("Number of antennas has not been set.",priority="error")
                 return False
                
-            posobs=me.observatory(telescope)
-            obs=me.measure(posobs,'WGS84')
-            obslat=qa.convert(obs['m1'],'deg')['value']
-            obslon=qa.convert(obs['m0'],'deg')['value']
-            obsalt=qa.convert(obs['m2'],'m')['value']
+            found=False
+            t=telescope.upper()
+            for l in pl.arange(len(t)-1)+2:
+                if t[0:l] in me.obslist(): found=True
+            if found:
+                posobs=me.measure(me.observatory(telescope),'WGS84')
+            else:
+                self.msg("Unknown telescope and no antenna list.",priority="error")
+                return False
+
+            obslat=qa.convert(posobs['m1'],'deg')['value']
+            obslon=qa.convert(posobs['m0'],'deg')['value']
+            obsalt=qa.convert(posobs['m2'],'m')['value']
             stnx,stny,stnz = self.locxyz2itrf(obslat,obslon,obsalt,0,0,0)
             antnames="A00"
+            # use a single dish of diameter diam - must be set if antennalist
+            # is not set.
+            stnd=[diam]
 
         else:
             if str.upper(antennalist[0:4])=="ALMA":
@@ -1149,30 +1167,23 @@ class simutil:
                         self.msg("converted resolution to antennalist "+antennalist)
 
             if os.path.exists(antennalist):
-                stnx, stny, stnz, stnd, padnames, nant, telescope = self.readantenna(antennalist)
+                stnx, stny, stnz, stnd, padnames, telescope, posobs = self.readantenna(antennalist)
             else:
                 self.msg("antennalist "+antennalist+" not found",priority="error")
                 return False
 
-            # RI TODO average antenna instead of first?
-            diam = stnd[0]
+            # diam is only used as a test below, not quantitatively
+            diam = pl.average(stnd)
             antnames=padnames
-
-            posobs=me.observatory(telescope)
-            obs=me.measure(posobs,'WGS84')
-            #obslat=qa.convert(obs['m1'],'deg')['value']
-            #obslon=qa.convert(obs['m0'],'deg')['value']
-            #obsalt=qa.convert(obs['m2'],'m')['value']
-
+            
  
         if (telescope==None or diam==None):
-            self.msg("Telescope name and antenna diameter have not been set.",priority="error")
+            self.msg("Telescope name or antenna diameter have not been set.",priority="error")
             return False
 
         # copied from task_simdata:
 
-        self.setcfg(sm, telescope, stnx, stny, stnz, diam,
-                    padnames, posobs)
+        self.setcfg(sm, telescope, stnx, stny, stnz, stnd, padnames, posobs)
                 
         model_nchan=1
         # RI TODO isquantity checks
@@ -1277,10 +1288,10 @@ class simutil:
         if os.path.exists(tmpname+".T.cal"):
             tb.open(tmpname+".T.cal")
             gain=tb.getcol("CPARAM")
-            # RI TODO average instead of first?
             tb.done()
             # gain is per ANT so square for per baseline;  
             # pick a gain from about the middle of the track
+            # TODO average over the track instead?
             noiseperbase=1./(gain[0][0][0.5*nint*nant].real)**2
         else:
             noiseperbase=0.
@@ -1351,13 +1362,11 @@ class simutil:
     #===================== ephemeris ==========================
 
 
-    def ephemeris(self, date, usehourangle=True, direction=None, telescope=None, ms=None):
+    def ephemeris(self, date, usehourangle=True, direction=None, telescope=None, ms=None, cofa=None):
 
         if direction==None: direction=self.direction
         if telescope==None: telescope=self.telescopename
 
-        import pdb
-        
         # right now, simdata centers at the transit;  when that changes,
         # or when that becomes optional, then that option needs to be
         # stored in the simutil object and used here, to either
@@ -1374,7 +1383,12 @@ class simutil:
         src=me.direction(ds[0],ds[1],ds[2])
     
         me.done()
-        me.doframe(me.observatory(telescope))
+        posobs=me.observatory(telescope)
+        if len(posobs)<=0:
+            if cofa==None:
+                self.msg("simutil::ephemeris needs either a known observatory or an explicitly specified cofa measure",priority="error")
+            posobs=cofa
+        me.doframe(posobs)
     
         time=me.epoch('TAI',date)
         me.doframe(time)
@@ -1430,8 +1444,8 @@ class simutil:
             time['m0']['value']+=timeinc
     
 #        self.msg(" ref="+date,origin='ephemeris')
-        self.msg("rise="+qa.time(rise['m0'],form='dmy')[0],origin='ephemeris')
-        self.msg(" set="+qa.time(settime['m0'],form='dmy')[0],origin='ephemeris')
+#        self.msg("rise="+qa.time(rise['m0'],form='dmy')[0],origin='ephemeris')
+#        self.msg(" set="+qa.time(settime['m0'],form='dmy')[0],origin='ephemeris')
     
         pl.plot((pl.array(times)-reftime_floor)*24,el)
 #        peak=(rise['m0']['value']+settime['m0']['value'])/2        
@@ -1490,7 +1504,29 @@ class simutil:
     #==========================================================
     
     def readantenna(self, antab=None):
-    ###Helper function to read 4 columns text antenna table X, Y, Z, Diam
+        """
+        Helper function to read antenna configuration file; example:
+             # observatory=FOO
+             # COFA=-67.75,-23.02
+             # coordsys=LOC (local tangent plane)
+             # x     y    z      diam  name 
+              20.  -20.   28.8   12.0  A12S
+              20.   20.   28.8   12.0  A12N
+             -20.  -20.   28.8    7.0  A07S
+             -20.   20.   28.8    7.0  A07N
+        lines beginning with "#" will be interpreted as header key=value 
+           pairs if they contain "=", and as comments otherwise        
+        for the observatory name, one can check the known observatories list
+           me.obslist
+        if an unknown observatory is specified, then one either must
+           use absolute positions (coordsys XYZ,UTM), or 
+           specify COFA= lon,lat 
+        coordsys can be XYZ=earth-centered, 
+           UTM=easting,northing,alt, or LOC=xoffset,yoffset,height
+           
+        returns: earth-centered x,y,z, diameter, name, observatory_name, observatory_measure_dictionary
+
+        """
         f=open(antab)
         self.msg("Reading antenna positions from '%s'" % antab,origin="readantenna")
         line= '  '
@@ -1533,19 +1569,45 @@ class simutil:
                 break
         f.close()
 
-        if not params.has_key("observatory"):
-            self.msg("Must specify observatory in antenna file",origin="readantenna",priority="error")
-            return -1
-        else:
-            self.telescopename=params["observatory"]
-            if self.verbose:
-                self.msg("Using observatory= %s" % params["observatory"],origin="readantenna")
-
         if not params.has_key("coordsys"):
-            self.msg("Must specify coordinate system #coorsys=XYZ|UTM|GEO in antenna file",origin="readantenna",priority="error")
+            self.msg("Must specify coordinate system #coorsys=XYZ|UTM|LOCin antenna file",origin="readantenna",priority="error")
             return -1
         else:
             self.coordsys=params["coordsys"]
+
+        if params.has_key("observatory"):
+            self.telescopename=params["observatory"]
+        else:
+            self.telescopename="SIMULATED"
+        if self.verbose:
+            self.msg("Using observatory= %s" % self.telescopename,origin="readantenna")
+
+        # me.observatory has partial matching implemented
+        found=False
+        t=self.telescopename.upper()
+        for l in pl.arange(len(t)-1)+2:
+            if t[0:l] in me.obslist(): found=True
+        if found:
+            posobs=me.measure(me.observatory(self.telescopename),'WGS84')
+            
+        if params.has_key("COFA"):
+            obs_latlon=params["COFA"].split(",")
+            cofa_lon=float(obs_latlon[0])
+            cofa_lat=float(obs_latlon[1])
+            cofa_alt=0.
+            posobs=me.position("WGS84",qa.quantity(cofa_lon,"deg"),qa.quantity(cofa_lat,"deg"),qa.quantity(cofa_alt,"m"))
+            if found: 
+                self.msg("antenna config file specifies COFA but a known observatory "+self.telescopename+", so ignoring specified COFA.",priority="warn")
+        elif not found:
+            if params["coordsys"].upper()[0:3]=="LOC":
+                self.msg("To use local coordinates in the antenna position file, you must either use a known observatory name, or provide the COFA explicitly",priority="error")
+                return -1
+            else:
+                # we have absolute coords, so can create the posobs from their
+                # average at the end 
+                posobs={}
+
+            
 
         if (params["coordsys"].upper()=="XYZ"):
         ### earth-centered XYZ i.e. ITRF in casa
@@ -1586,38 +1648,28 @@ class simutil:
                     stnz.append(z)
                 self.verbose=vsave
             else:
-                if (params["coordsys"].upper()[0:3]=="LOC"):
-                    # I'm pretty sure Rob's function only works with lat,lon in degrees;
-                    meobs=me.observatory(params["observatory"])
-                    if (meobs.__len__()<=1):
-                        self.msg("You need to add "+params["observatory"]+" to the Observatories table in your installation to proceed.",priority="error")
-                        return False,False,False,False,False,params["observatory"]
-                    obs=me.measure(meobs,'WGS84')
-                    obslat=qa.convert(obs['m1'],'deg')['value']
-                    obslon=qa.convert(obs['m0'],'deg')['value']
-                    obsalt=qa.convert(obs['m2'],'m')['value']
+                if (params["coordsys"].upper()[0:3]=="LOC"):                    
+                    obslat=qa.convert(posobs['m1'],'deg')['value']
+                    obslon=qa.convert(posobs['m0'],'deg')['value']
+                    obsalt=qa.convert(posobs['m2'],'m')['value']
                     if self.verbose:
                         self.msg("converting local tangent plane coordinates to ITRF using observatory position = %f %f " % (obslat,obslon),origin="readantenna")
-                        #foo=self.getdatum(datum,verbose=True)
                     for i in range(len(inx)):
                         x,y,z = self.locxyz2itrf(obslat,obslon,obsalt,inx[i],iny[i],inz[i])
                         stnx.append(x)
                         stny.append(y)
                         stnz.append(z)                
-                else:
-                    if (params["coordsys"].upper()[0:3]=="GEO"):
-                        if params.has_key("datum"):
-                            datum=params["datum"]
-                        else:
-                            self.msg("You must specify zone=NN in your antenna file",origin="readantenna",priority="error")
-                            return -1
-                        if (datum.upper() != "WGS84"):
-                            self.msg("Unfortunately I only can deal with WGS84 right now",origin="readantenna",priority="error")
-                            return -1
-                        self.msg("geodetic coordinates not implemented yet",priority="error")
-                    
-        return (stnx, stny, stnz, pl.array(ind), id, nant, params["observatory"])
 
+        if len(posobs)<=0:
+            # we had absolute coords but unknown telescope and no COFA
+            cofa_x=pl.average(x)
+            cofa_y=pl.average(y)
+            cofa_z=pl.average(z)
+            cofa_lat,cofa_lon,cofa_alt=self.xyz2long(cofa_x,cofa_y,cofa_z,'WGS84')
+            posobs=me.position("WGS84",qa.quantity(cofa_lon,"rad"),qa.quantity(cofa_lat,"rad"),qa.quantity(cofa_alt,"m"))
+
+                    
+        return (stnx, stny, stnz, pl.array(ind), id, self.telescopename, posobs)
 
 
 
@@ -1645,6 +1697,7 @@ class simutil:
         Transverse Mercator Projection
         conversion of grid coords n,e to geodetic coords
         revised subroutine of t. vincenty  feb. 25, 1985
+        orig. source: https://www.ngs.noaa.gov/TOOLS/program_descriptions.html
         converted from Fortran R Indebetouw Jan 2009
         ********** symbols and definitions ***********************
         latitude positive north, longitude positive west.
@@ -1863,9 +1916,10 @@ class simutil:
     def utm2long(self,east,north,zone,datum,nors):
         """
         this program converts universal transverse meractor coordinates to gps
-        longitude and latitude.
+        longitude and latitude (in radians)
 
         converted from Fortran by R. Indebetouw Jan 2009.
+        orig. source: https://www.ngs.noaa.gov/TOOLS/program_descriptions.html
         ri also added other datums and ellipsoids in a helper function
         
         header from original UTMS fortran program:
@@ -2017,10 +2071,11 @@ class simutil:
     def long2xyz(self,lon,lat,elevation,datum):
         """
         Returns the nominal ITRF (X, Y, Z) coordinates [m] for a point at 
-        geodetic latitude and longitude [degrees] and elevation [m].  
+        geodetic latitude and longitude [radians] and elevation [m].  
         The ITRF frame used is not the official ITRF, just a right
         handed Cartesian system with X going through 0 latitude and 0 longitude,
         and Z going through the north pole.  
+        orig. source: http://www.oc.nps.edu/oc2902w/coord/llhxyz.htm
         """
 
         # geodesy/NGS/XYZWIN/
@@ -2034,6 +2089,10 @@ class simutil:
         x=(nu+elevation)*pl.cos(lat)*pl.cos(lon) +dx
         y=(nu+elevation)*pl.cos(lat)*pl.sin(lon) +dy
         z=((1.-esq)*nu+elevation)*pl.sin(lat)  +dz
+
+        # https://www.ngs.noaa.gov/cgi-bin/xyz_getxyz.prl
+        # S231200.0          W0674800.0     0.0000
+        # >    2216194.4188 -5430618.6472 -2497092.5213 GRS80
         
         return x,y,z
     
@@ -2041,13 +2100,14 @@ class simutil:
     def xyz2long(self,x,y,z,datum):
         """
         Given ITRF Earth-centered (X, Y, Z) coordinates [m] for a point, 
-        returns geodetic latitude and longitude [degrees] and elevation [m]
+        returns geodetic latitude and longitude [radians] and elevation [m]
         The ITRF frame used is not the official ITRF, just a right
         handed Cartesian system with X going through 0 latitude and 0 longitude,
         and Z going through the north pole.  
         Elevation is measured relative to the closest point to 
         the (latitude, longitude) on the WGS84 reference
         ellipsoid.
+        orig. source: http://www.iausofa.org/2013_1202_C/sofa/gc2gde.html
         """
         # http://www.iausofa.org/
         # http://www.iausofa.org/2013_1202_C/sofa/gc2gde.html
@@ -2158,9 +2218,9 @@ class simutil:
 
     def locxyz2itrf(self, lat, longitude, alt, locx=0.0, locy=0.0, locz=0.0):
         """
-        Returns the nominal ITRF (X, Y, Z) coordinates [m] for a point at "local"
-        (x, y, z) [m] measured at geodetic latitude lat and longitude longitude
-        (degrees) and altitude of the reference point of alt.  
+        Returns the nominal ITRF (X, Y, Z) coordinates [m] for a point at 
+        "local" (x, y, z) [m] measured at geodetic latitude lat and longitude 
+        longitude (degrees) and altitude of the reference point of alt.  
         The ITRF frame used is not the official ITRF, just a right
         handed Cartesian system with X going through 0 latitude and 0 longitude,
         and Z going through the north pole.  The "local" (x, y, z) are measured
@@ -2262,7 +2322,6 @@ class simutil:
     def plotants(self,x,y,z,d,name):
         # given globals
         
-        #stnx, stny, stnz, stnd, nant, telescopename = util.readantenna(antennalist)
         cx=pl.mean(x)
         cy=pl.mean(y)
         cz=pl.mean(z)
@@ -2565,7 +2624,7 @@ class simutil:
         # we've now found or assigned two direction axes, and changed direction and cell if required
         # next, work on spectral axis:
 
-        model_center=""
+        model_specrefval=""
         model_width=""
         # look for a spectral axis:
         if in_spc['return']:
@@ -2580,16 +2639,12 @@ class simutil:
             axmap[3]=foo
             axassigned[foo]=3
             model_restfreq=in_csys.restfrequency()
-            in_startpix=in_csys.referencepixel(type="spectral")['numeric'][0]
-            model_width=in_csys.increment(type="spectral")['numeric'][0]
-            model_start=in_csys.referencevalue(type="spectral")['numeric'][0]-in_startpix*model_width
-            # this maybe can be done more accurately - for nonregular
-            # grids it may trip things up
-            # start is center of first channel.  for nch=1, that equals center
-            model_center=model_start+0.5*(model_nchan-1)*model_width
-            model_width=str(model_width)+in_csys.units(type="spectral")[0]
-            model_start=str(model_start)+in_csys.units(type="spectral")[0]
-            model_center=str(model_center)+in_csys.units(type="spectral")[0]
+            model_specrefpix=in_csys.referencepixel(type="spectral")['numeric'][0]
+            model_width     =in_csys.increment(type="spectral")['numeric'][0]
+            model_specrefval=in_csys.referencevalue(type="spectral")['numeric'][0]
+            # make quantities
+            model_width=qa.quantity(model_width,in_csys.units(type="spectral")[0])
+            model_specrefval=qa.quantity(model_specrefval,in_csys.units(type="spectral")[0])
             add_spectral_coord=False
             if self.verbose: self.msg("Spectral Coordinate %i parsed" % axmap[3],origin="setup model")                
         else:
@@ -2597,21 +2652,40 @@ class simutil:
             add_spectral_coord=True 
 
 
-        # override incenter?
-        center_replaced=False
+        if add_spectral_coord:                        
+            # find first unused axis - probably at end, but just in case its not:
+            i=0
+            extra_axis=-1
+            while extra_axis<0 and i<4:
+                if axassigned[i]<0: extra_axis=i
+                i+=1
+            if extra_axis<0:
+                in_ia.close()
+                self.msg("I can't find an unused axis to make Spectral [%i %i %i %i] " % (axassigned[0],axassigned[1],axassigned[2],axassigned[3]),priority="error",origin="setup model")
+                return False
+
+            axmap[3]=extra_axis
+            axassigned[extra_axis]=3
+            model_nchan=arr.shape[extra_axis]
+
+
+
+        # override specrefval?
+        specref_replaced=False
         if self.isquantity(incenter,halt=False):
             if qa.compare(incenter,"1Hz"): 
                 if (qa.quantity(incenter))['value']>=0:
-                    model_center=incenter
-                    model_restfreq=model_center
-                    center_replaced=True
+                    model_specrefval=incenter
+                    model_specrefpix=pl.floor(model_nchan*0.5)
+                    model_restfreq=incenter
+                    specref_replaced=True
                     if self.verbose: self.msg("setting central frequency to "+incenter,origin="setup model")
-        valid_modcenter=False
-        if not center_replaced:
-            if self.isquantity(model_center,halt=False):
-                if qa.compare(model_center,"1Hz"):
-                    valid_modcenter=True
-            if not valid_modcenter:
+        valid_modspec=False
+        if not specref_replaced:
+            if self.isquantity(model_specrefval,halt=False):
+                if qa.compare(model_specrefval,"1Hz"):
+                    valid_modspec=True
+            if not valid_modspec:
                 in_ia.close()
                 self.msg("Unable to determine model frequency.  Valid 'incenter' parameter must be provided.",priority="error")
                 return False
@@ -2666,23 +2740,6 @@ class simutil:
             # need to add one to the coordsys 
             add_stokes_coord=True 
 
-
-
-        if add_spectral_coord:                        
-            # find first unused axis - probably at end, but just in case its not:
-            i=0
-            extra_axis=-1
-            while extra_axis<0 and i<4:
-                if axassigned[i]<0: extra_axis=i
-                i+=1
-            if extra_axis<0:
-                in_ia.close()
-                self.msg("I can't find an unused axis to make Spectral [%i %i %i %i] " % (axassigned[0],axassigned[1],axassigned[2],axassigned[3]),priority="error",origin="setup model")
-                return False
-
-            axmap[3]=extra_axis
-            axassigned[extra_axis]=3
-            model_nchan=arr.shape[extra_axis]
 
 
         if add_stokes_coord:
@@ -2752,12 +2809,11 @@ class simutil:
         modelcsys.setreferencepixel(model_refpix,"direction")
         if self.verbose: 
             self.msg("sky model image direction = "+model_refdir,origin="setup model")
-            self.msg("sky model image increment = "+str(model_cell),origin="setup model")
+            self.msg("sky model image increment = "+str(model_cell[0]),origin="setup model")
 
         modelcsys.setspectral(refcode="LSRK",restfreq=model_restfreq)
-        modelcsys.setreferencevalue(qa.convert(model_center,modelcsys.units()[3])['value'],type="spectral")
-#        modelcsys.setreferencepixel(0.5*model_nchan,type="spectral") # default is middle chan
-        modelcsys.setreferencepixel(0.5*(model_nchan-1),type="spectral") # but not half-pixel
+        modelcsys.setreferencevalue(qa.convert(model_specrefval,modelcsys.units()[3])['value'],type="spectral")
+        modelcsys.setreferencepixel(model_specrefpix,type="spectral") # but not half-pixel
         modelcsys.setincrement(qa.convert(model_width,modelcsys.units()[3])['value'],type="spectral")
 
 
@@ -2826,7 +2882,7 @@ class simutil:
 
         if self.verbose: self.msg(" ") # add a line after my spewage
 
-        return model_refdir,model_cell,model_size,model_nchan,model_center,model_width,model_stokes
+        return model_refdir,model_cell,model_size,model_nchan,model_specrefval,model_specrefpix,model_width,model_stokes
 
 
 
@@ -3021,6 +3077,7 @@ class simutil:
         cleanlast.close()
         
         if not dryrun:
+            casalog.filter("ERROR")
             clean(vis=mstoimage, imagename=imagename, mode=chanmode, 
               niter=niter, threshold=threshold, selectdata=False, nchan=nchan,
               psfmode=psfmode, imagermode=imagermode, ftmachine=ftmachine, 
@@ -3029,6 +3086,7 @@ class simutil:
               interactive=interactive,
               uvtaper=uvtaper,outertaper=outertaper, pbcor=True, mask=mask,
               modelimage=modelimage)
+            casalog.filter()
 
             del freq,nchan # something is holding onto the ms in table cache
 
@@ -3423,11 +3481,13 @@ class simutil:
 ######################################
     # adapted from aU.getBaselineStats
     def baselineLengths(self, configfile):
-        stnx, stny, stnz, stnd, padnames, nAntennas, telescopename = self.readantenna(configfile)
+        stnx, stny, stnz, stnd, padnames, telescopename, posobs = self.readantenna(configfile)
 
+        # use mean position, not official COFA=posobs
         cx=pl.mean(stnx)
         cy=pl.mean(stny)
         cz=pl.mean(stnz)
+        nAntennas=len(stnx)
         lat,lon,el = self.itrf2loc(stnx,stny,stnz,cx,cy,cz)
         
         #l = {}

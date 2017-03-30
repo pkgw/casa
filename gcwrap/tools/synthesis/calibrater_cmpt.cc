@@ -42,14 +42,35 @@ using namespace casa;
 using namespace casacore;
 namespace casac {
 
+// Hardwire which VI to use
+#define USEOLDVI false
+
 calibrater::calibrater() : 
-  itsMS(0)
+  itsMS(0),
+  oldcal_(USEOLDVI),  // use OldCalibrater by defaultfor now...
+  itsCalibrater(0)
 {
+
   // Default constructor
-  //    itsApplyMap   SimpleOrderedMap   Cal. table apply assignments
-  //    itsSolveMap   SimpleOrderedMap   Cal. table solve assignments
+
+  // User can override to use old VI in CALIBRATION 
+  //  by setting the VI1CAL variable (to anything) in the shell
+  bool forceOldVIByEnv(false);
+  forceOldVIByEnv = (getenv("VI1CAL")!=NULL);
+  bool forceNewVIByEnv(false);
+  forceNewVIByEnv = (getenv("VI2CAL")!=NULL);
+  //cout << "forceOldVIByEnv = " << boolalpha << forceOldVIByEnv << endl;
+  if (forceOldVIByEnv) {
+    cout << "Found VI1CAL env var; forcing default use of old VI!" << endl;
+    oldcal_ = true;
+  } else if (forceNewVIByEnv) {
+    cout << "Found VI2CAL env var; forcing default use of NEW VI2!" << endl;
+    oldcal_ = false;
+  }
+
   itsLog = new casacore::LogIO();
-  itsCalibrater = new casa::Calibrater();
+  itsCalibrater = casa::Calibrater::factory(oldcal_);
+  LogIO os (LogOrigin ("calibrater", "ctor"));
 }
 
 calibrater::~calibrater()
@@ -65,6 +86,14 @@ bool calibrater::open(const std::string& filename,
 {
   bool rstat(false);
   try {
+    {
+    LogIO os (LogOrigin ("calibrater", "open"));
+    if (oldcal_)
+      os << "****Using OLD VI-driven calibrater tool****";
+    else
+      os << "****Using NEW VI2-driven calibrater tool****";
+    os << LogIO::POST;    
+    }
     LogIO os (LogOrigin ("calibrater", "open"));
     os << "Opening MS: " 
        << filename
@@ -1251,7 +1280,7 @@ calibrater::close()
     itsMS = 0;
     delete itsCalibrater;
     //delete itsLog;
-    itsCalibrater = new Calibrater();
+    itsCalibrater = casa::Calibrater::factory(oldcal_);
 
     rstat = true;
  } catch  (AipsError x) {
@@ -1265,15 +1294,13 @@ bool
 calibrater::done()
 {
 
-  // TBD:  is 'new Calibrater()' ok here?
-
  bool rstat(false);
  try {
     if(itsMS) delete itsMS;
     itsMS = 0;
     delete itsCalibrater;
     //delete itsLog;
-    itsCalibrater = new Calibrater();
+    itsCalibrater = casa::Calibrater::factory(oldcal_);
     rstat = true;
  } catch  (AipsError x) {
     *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
@@ -1281,6 +1308,68 @@ calibrater::done()
  }
  return rstat;
 };
+
+
+//----------------------------------------------------------------------------
+
+bool calibrater::setvi(const bool old, const bool quiet)
+{
+
+  LogIO os(LogOrigin("calibrater", "setvi(bool,bool)"));
+  if (itsMS) {
+    os << LogIO::SEVERE
+       << "Must call setvi _before_ open!"
+       << LogIO::POST;
+    return false;
+  }
+
+  if (old) {          // OLD is requested
+
+    if (!oldcal_) {    // nominally using NEW
+      oldcal_=true;
+      if (itsCalibrater) delete itsCalibrater;
+      itsCalibrater=casa::Calibrater::factory(true);   // force OldCalibrater
+      
+      if (!quiet) {
+	os << LogIO::WARN
+	   << "Forcing use of OLD VisibilityIterator."
+	   << LogIO::POST;
+      }    
+    }
+    else {
+      if (!quiet) {
+	os << LogIO::WARN
+	   << "Already using OLD VisibilityIterator."
+	   << LogIO::POST;
+      }
+    }
+  }
+  else {  // asking for new
+
+    if (oldcal_) {     // nominally using OLD
+      oldcal_=false;
+      if (itsCalibrater) delete itsCalibrater;
+      itsCalibrater=casa::Calibrater::factory(false);   // force Calibrater
+      
+      if (!quiet) {
+	os << LogIO::WARN
+	   << "Forcing use of NEW VisibilityIterator."
+	   << LogIO::POST;
+      }    
+    }
+    else {
+      if (!quiet) {
+	os << LogIO::WARN
+	   << "Already using NEW VisibilityIterator."
+	   << LogIO::POST;
+      }
+    }
+  }
+
+  return true;
+
+}
+
 
 
 //----------------------------------------------------------------------------

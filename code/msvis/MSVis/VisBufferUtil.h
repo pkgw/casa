@@ -109,7 +109,10 @@ public:
 			const casacore::MFrequency::Types freqFrame);
   //This is a helper function as vi2 does not have a get Freq range for the data selected
   static void getFreqRange(casacore::Double& freqMin, casacore::Double& freqMax,  vi::VisibilityIterator2& vi, casacore::MFrequency::Types freqFrame);
-  
+
+  //Get the freqRange from in Frame to range it represents in outFrame for 
+  //all the fields and time selected in the vi
+  static void getFreqRangeFromRange(casacore::Double& outfreqMin, casacore::Double& outfreqMax,  const casacore::MFrequency::Types inFreqFrame, const casacore::Double infreqMin, const casacore::Double infreqMax, vi::VisibilityIterator2& vi, casacore::MFrequency::Types outFreqFrame);
 
   // Converts the frequency in this VisBuffer to velocity in the frame/def requested
   void toVelocity(casacore::Vector<casacore::Double>& outVel, 
@@ -158,6 +161,7 @@ public:
    /// get the pointing direction for a given integration and antenna id
    /// will cache it for large pointing table specially so that it can be reused pronto
    casacore::MDirection getPointingDir(const VisBuffer& vb, const casacore::Int antid, const casacore::Int row);
+   casacore::MDirection getPointingDir(const vi::VisBuffer2& vb, const casacore::Int antid, const casacore::Int row);
  private:
   void swapyz(casacore::Cube<casacore::Bool>& out, const casacore::Cube<casacore::Bool>& in);
   void swapyz(casacore::Cube<casacore::Complex>& out, const casacore::Cube<casacore::Complex>& in);

@@ -60,7 +60,10 @@ public:
   int countSolutions(casacore::Vector<int>& nChunkPerSolve);
 
   // Add disk-accesing layer factory
-  //  void addDiskIO();
+  void addDiskIO(casacore::MeasurementSet* ms,float interval,
+		 casacore::Bool combobs=false,casacore::Bool combscan=false,
+		 casacore::Bool combfld=false,casacore::Bool combspw=false,
+		 casacore::Bool useMSIter2=true);
 
   // Add spoofed data layer factory
   void addSimIO();
@@ -71,7 +74,7 @@ public:
   void addCalForSolving(VisEquation& ve);
 
   // Add chan-averaging layer factory
-  void addChanAve(int chanbin);
+  void addChanAve(casacore::Vector<int> chanbin);
 
   // Add time-averaging layer factory
   void addTimeAve(float timebin);
@@ -87,12 +90,12 @@ private:
   void cleanUp();
 
   // Derive MS iteration sort order, based on comb*
-  void deriveVI2Sort(casacore::Block<int>& sortcols, // Double& iterInterval
+  void deriveVI2Sort(casacore::Block<int>& sortcols,
 		     bool combobs,bool combscan,
 		     bool combfld,bool combspw);
 
   // Pointers to the various kinds of layer factories we may use
-  vi::ViiLayerFactory *ss_, *cal_, *chanave_, *timeave_;
+  vi::ViiLayerFactory *data_, *cal_, *chanave_, *timeave_;
 
   //vi::SimpleSimVi2LayerFactory *ss_;
   //vi::CalSolvingVi2LayerFactoryByVE *cal_;

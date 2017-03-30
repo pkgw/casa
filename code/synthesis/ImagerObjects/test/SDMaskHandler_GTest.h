@@ -63,6 +63,9 @@ protected:
      void testRegionText();
      void testCopyMask();
      void testMaskByPerPlaneThreshold();
+     void testBinaryDilation();
+     void testBinaryDilationIter();
+     void testYAPruneRegions();
 
 };
 
