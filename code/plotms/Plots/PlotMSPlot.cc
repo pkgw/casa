@@ -1756,7 +1756,8 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
 
 	//x-axis label
 	if(set && showX) {
-		PMS::DataColumn xDataColumn = cacheParams->xDataColumn();
+	    // data col may have been changed during loading if no col
+        PMS::DataColumn xDataColumn = itsCache_->getXDataColumn();
 		String xLabelSingle = canvParams->xLabelFormat().getLabel(x, xref, xrefval, xDataColumn, polnRatio);
         if (x == PMS::FREQUENCY)
             xLabelSingle = addFreqFrame(xLabelSingle);
@@ -1789,7 +1790,8 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
 				PlotAxis cy = plotAxisParams->yAxis( i );
 				bool yref = itsCache_->hasReferenceValue(y);
 				double yrefval = itsCache_->referenceValue(y);
-				PMS::DataColumn yDataColumn = plotCacheParams->yDataColumn(i);
+				// data col may have been changed during loading if no col
+                PMS::DataColumn yDataColumn = itsCache_->getYDataColumn(i);
 				String yLabelSingle = canvParams->yLabelFormat( ).getLabel(y, yref, yrefval, yDataColumn, polnRatio );
                 if (y == PMS::FREQUENCY)
                     yLabelSingle = addFreqFrame(yLabelSingle);
@@ -1835,6 +1837,8 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
 	if ( set ){
 	    PMS_PP_Display *display = itsParams_.typedGroup<PMS_PP_Display>();
         double xmin, xmax, ymin, ymax;
+        double maxval, xymax(0);
+        bool xIsUV(false);
         bool displayUnflagged = (display->unflaggedSymbol()->symbol() != PlotSymbol::NOSYMBOL);
         bool displayFlagged = (display->flaggedSymbol()->symbol() != PlotSymbol::NOSYMBOL);
         if (displayUnflagged && !displayFlagged) {
@@ -1858,6 +1862,17 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
                 pair<double, double> xbounds = make_pair(xmin, xmax);
 			    canvas->setAxisRange(cx, xbounds);
             }
+            // make scales symmetrical for u and v
+            PMS::Axis x = cacheParams->xAxis();
+            if (PMS::axisIsUV(x)) {
+                xIsUV = true;
+                maxval = round(max(abs(xmin),xmax)) + 1.0;
+                xmin = -maxval;
+                xmax = maxval;
+                xymax = max(xymax, maxval);
+                pair<double, double> xbounds = make_pair(xmin, xmax);
+                canvas->setAxisRange(cx, xbounds);
+            }
         }
 		for ( int i = 0; i < yAxisCount; i++ ){
 			PlotAxis cy = axesParams->yAxis( i );
@@ -1872,6 +1887,24 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
                     pair<double, double> ybounds = make_pair(ymin, ymax);
                     canvas->setAxisRange(cy, ybounds);
                 }
+                // make scales symmetrical for u and v
+                PMS::Axis y = cacheParams->yAxis(i);
+                if (PMS::axisIsUV(y)) {
+                    maxval = round(max(abs(ymin),ymax)) + 1.0;
+                    if (xIsUV) {
+                        // set x and y ranges equally
+                        xymax = max(xymax, maxval);
+                        pair<double, double> xybounds = make_pair(xymax, xymax);
+                        canvas->setAxisRange(cx, xybounds);
+                        canvas->setAxisRange(cy, xybounds);
+                    } else {
+                        // just set yrange equally
+                        ymin = -maxval;
+                        ymax = maxval;
+                        pair<double, double> ybounds = make_pair(ymin, ymax);
+                        canvas->setAxisRange(cy, ybounds);
+                    }
+                }
 		    }
         }
 	}
@@ -1884,7 +1917,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
 	}
 	String title = "";
 	if(resetTitle) {
-		PMS::DataColumn xDataColumn = cacheParams->xDataColumn();
+        PMS::DataColumn xDataColumn = itsCache_->getXDataColumn();
 		vector<PMS::Axis> yAxes;
 		vector<bool> yRefs;
 		vector<double> yRefVals;
@@ -1904,7 +1937,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
 				yAxes.push_back(y);
 				yRefs.push_back(plotCacheBase.hasReferenceValue(yAxes[i]));
 				yRefVals.push_back(plotCacheBase.referenceValue(yAxes[i]));
-				yDatas.push_back(plotCacheParams->yDataColumn( i ) );
+				yDatas.push_back(itsCache_->getYDataColumn(i));
 			}
 		}
 		title = canvParams->titleFormat().getLabel(x, yAxes, xref,

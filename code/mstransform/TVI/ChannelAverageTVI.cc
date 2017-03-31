@@ -90,6 +90,10 @@ Bool ChannelAverageTVI::parseConfiguration(const Record &configuration)
 
 		logger_p << LogIO::NORMAL << LogOrigin("ChannelAverageTVI", __FUNCTION__)
 				<< "Channel bin is " << chanbin_p << LogIO::POST;
+		if (anyEQ(chanbin_p,0)) {
+		  logger_p << LogIO::NORMAL << LogOrigin("ChannelAverageTVI", __FUNCTION__)
+			   << "  NB: Channel bin '0' means no channel averaging for the corresponding spw." << LogIO::POST;
+		}
 	}
 	else
 	{
@@ -124,12 +128,21 @@ void ChannelAverageTVI::initialize()
 	{
 		spw = iter->first;
 
+		// No averaging when user specifies 0
+		if (chanbin_p(spw_idx)==0) {
+		  logger_p << LogIO::DEBUG1 << LogOrigin("ChannelAverageTVI", __FUNCTION__)
+			   << "Specified chanbin for spw " << spw
+			   << " of 0 means no averaging."
+			   << LogIO::POST;
+		  
+		  spwChanbinMap_p[spw] = 1;
+		}
 		// Make sure that chanbin is greater than 1
-		if ((uInt)chanbin_p(spw_idx) <= 1)
+		else if ((uInt)chanbin_p(spw_idx) <= 1)
 		{
-			logger_p << LogIO::DEBUG1 << LogOrigin("MSTransformManager", __FUNCTION__)
-					<< "Selected chanbin for spw " << spw
-					<< " set to 1 fallbacks to the default number of"
+			logger_p << LogIO::DEBUG1 << LogOrigin("ChannelAverageTVI", __FUNCTION__)
+					<< "Specified chanbin for spw " << spw
+					<< " less than 1 falls back to the default number of"
 					<< " existing/selected channels: " << iter->second.size()
 					<< LogIO::POST;
 
@@ -138,7 +151,7 @@ void ChannelAverageTVI::initialize()
 		// Make sure that chanbin does not exceed number of selected channels
 		else if ((uInt)chanbin_p(spw_idx) > iter->second.size())
 		{
-			logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
+			logger_p << LogIO::WARN << LogOrigin("ChannelAverageTVI", __FUNCTION__)
 					<< "Number of selected channels " << iter->second.size()
 					<< " for SPW " << spw
 					<< " is smaller than specified chanbin " << chanbin_p(spw_idx) << endl
@@ -177,6 +190,13 @@ void ChannelAverageTVI::flag(Cube<Bool>& flagCube) const
     
 	// Get input VisBuffer and SPW
 	VisBuffer2 *vb = getVii()->getVisBuffer();
+	Int inputSPW = vb->spectralWindows()(0);
+
+	// Pass-thru for chanbin=1 case:
+	if (spwChanbinMap_p[inputSPW]==1) {
+	  getVii()->flag(flagCube);
+	  return;
+	}
 
 #ifdef _OPENMP
 	// Pre-load relevant input info and start clock
@@ -184,7 +204,6 @@ void ChannelAverageTVI::flag(Cube<Bool>& flagCube) const
 	Double time0=omp_get_wtime();
 #endif
 
-	Int inputSPW = vb->spectralWindows()(0);
 
 	// Reshape output data before passing it to the DataCubeHolder
 	flagCube.resize(getVisBufferConst()->getShape(),false);
@@ -234,6 +253,12 @@ void ChannelAverageTVI::floatData (Cube<Float> & vis) const
 	// Get input VisBuffer and SPW
 	VisBuffer2 *vb = getVii()->getVisBuffer();
 	Int inputSPW = vb->spectralWindows()(0);
+
+	// Pass-thru for chanbin=1 case:
+	if (spwChanbinMap_p[inputSPW]==1) {
+	  getVii()->floatData(vis);
+	  return;
+	}
 
 	// Reshape output data before passing it to the DataCubeHolder
 	vis.resize(getVisBufferConst()->getShape(),false);
@@ -336,6 +361,14 @@ void ChannelAverageTVI::visibilityCorrected (Cube<Complex> & vis) const
 
 	// Get input VisBuffer and SPW
 	VisBuffer2 *vb = getVii()->getVisBuffer();
+	Int inputSPW = vb->spectralWindows()(0);
+
+	// Pass-thru for chanbin=1 case:
+	if (spwChanbinMap_p[inputSPW]==1) {
+	  getVii()->visibilityCorrected(vis);
+	  return;
+	}
+
 
 #ifdef _OPENMP
 	// Pre-load relevant input info and start clock
@@ -345,7 +378,6 @@ void ChannelAverageTVI::visibilityCorrected (Cube<Complex> & vis) const
 	Double time0=omp_get_wtime();
 #endif
 
-	Int inputSPW = vb->spectralWindows()(0);
 
 	// Reshape output data before passing it to the DataCubeHolder
 	vis.resize(getVisBufferConst()->getShape(),false);
@@ -442,6 +474,13 @@ void ChannelAverageTVI::visibilityModel (Cube<Complex> & vis) const
 
 	// Get input VisBuffer and SPW
 	VisBuffer2 *vb = getVii()->getVisBuffer();
+	Int inputSPW = vb->spectralWindows()(0);
+
+	// Pass-thru for chanbin=1 case:
+	if (spwChanbinMap_p[inputSPW]==1) {
+	  getVii()->visibilityModel(vis);
+	  return;
+	}
 
 #ifdef _OPENMP
 	// Pre-load relevant input info and start clock
@@ -451,7 +490,6 @@ void ChannelAverageTVI::visibilityModel (Cube<Complex> & vis) const
 	Double time0=omp_get_wtime();
 #endif
 
-	Int inputSPW = vb->spectralWindows()(0);
 
 	// Reshape output data before passing it to the DataCubeHolder
 	vis.resize(getVisBufferConst()->getShape(),false);
@@ -502,6 +540,13 @@ void ChannelAverageTVI::weightSpectrum(Cube<Float> &weightSp) const
 
 	// Get input VisBuffer and SPW
 	VisBuffer2 *vb = getVii()->getVisBuffer();
+	Int inputSPW = vb->spectralWindows()(0);
+
+	// Pass-thru for chanbin=1 case:
+	if (spwChanbinMap_p[inputSPW]==1) {
+	  getVii()->weightSpectrum(weightSp);;
+	  return;
+	}
 
 #ifdef _OPENMP
 	// Pre-load relevant input info and start clock
@@ -510,7 +555,6 @@ void ChannelAverageTVI::weightSpectrum(Cube<Float> &weightSp) const
 	Double time0=omp_get_wtime();
 #endif
 
-	Int inputSPW = vb->spectralWindows()(0);
 
 	// Reshape output data before passing it to the DataCubeHolder
 	weightSp.resize(getVisBufferConst()->getShape(),false);
@@ -560,6 +604,13 @@ void ChannelAverageTVI::sigmaSpectrum(Cube<Float> &sigmaSp) const
 
 	// Get input VisBuffer and SPW
 	VisBuffer2 *vb = getVii()->getVisBuffer();
+	Int inputSPW = vb->spectralWindows()(0);
+
+	// Pass-thru for chanbin=1 case:
+	if (spwChanbinMap_p[inputSPW]==1) {
+	  getVii()->sigmaSpectrum(sigmaSp);;
+	  return;
+	}
 
 #ifdef _OPENMP
 	// Pre-load relevant input info and start clock
@@ -567,8 +618,6 @@ void ChannelAverageTVI::sigmaSpectrum(Cube<Float> &sigmaSp) const
 	vb->flagCube();
 	Double time0=omp_get_wtime();
 #endif
-
-	Int inputSPW = vb->spectralWindows()(0);
 
 	// Reshape output data before passing it to the DataCubeHolder
 	sigmaSp.resize(getVisBufferConst()->getShape(),false);
@@ -623,8 +672,9 @@ Vector<Double> ChannelAverageTVI::getFrequencies (	Double time,
 													Int msId) const
 {
 
-        // Pass-thru for single-channel case
-        if (getVii()->visibilityShape()[1]==1) {
+        // Pass-thru for single-channel case or chanbin=1 case
+        if (getVii()->visibilityShape()[1]==1 ||
+	    spwChanbinMap_p[spectralWindowId]==1) {
 	  return getVii()->getFrequencies(time,frameOfReference,spectralWindowId,msId);
 	}
 
