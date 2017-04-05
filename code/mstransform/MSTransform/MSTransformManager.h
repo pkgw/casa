@@ -405,15 +405,15 @@ protected:
 	void initRefFrameTransParams();
 	void regridSpwSubTable();
 	void regridAndCombineSpwSubtable();
-	void regridSpwAux(	casacore::Int spwId,
-						casacore::MFrequency::Types spwInputRefFrame,
-						casacore::Vector<casacore::Double> &inputCHAN_FREQ,
-						casacore::Vector<casacore::Double> &inputCHAN_WIDTH,
-						casacore::Vector<casacore::Double> &originalCHAN_FREQ,
-						casacore::Vector<casacore::Double> &originalCHAN_WIDTH,
-						casacore::Vector<casacore::Double> &regriddedCHAN_FREQ,
-						casacore::Vector<casacore::Double> &regriddedCHAN_WIDTH,
-						string msg);
+	/// Regrids one SPW
+	void regridSpwAux(casacore::Int spwId, casacore::MFrequency::Types spwInputRefFrame,
+			  casacore::Vector<casacore::Double> &inputCHAN_FREQ,
+			  casacore::Vector<casacore::Double> &inputCHAN_WIDTH,
+			  casacore::Vector<casacore::Double> &originalCHAN_FREQ,
+			  casacore::Vector<casacore::Double> &originalCHAN_WIDTH,
+			  casacore::Vector<casacore::Double> &regriddedCHAN_FREQ,
+			  casacore::Vector<casacore::Double> &regriddedCHAN_WIDTH,
+			  string msg);
 
 	void reindexColumn(casacore::ScalarColumn<casacore::Int> &inputCol, casacore::Int value);
 	void reindexSourceSubTable();
@@ -447,6 +447,12 @@ protected:
 
 	// From output MS
 	void getOutputNumberOfChannels();
+
+	void doPreAveragingBeforeRegridding(uInt width, Int spwId,
+					    Vector<Double> &originalCHAN_FREQ,
+					    Vector<Double> &originalCHAN_WIDTH,
+					    Vector<Double> &inputCHAN_FREQ,
+					    Vector<Double> &inputCHAN_WIDTH);
 
 	// For channel averaging and selection
 	void calculateIntermediateFrequencies(	casacore::Int spwId,

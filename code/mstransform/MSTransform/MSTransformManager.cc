@@ -2780,17 +2780,17 @@ void MSTransformManager::regridAndCombineSpwSubtable()
 
 
 // -----------------------------------------------------------------------
-// Auxiliary method common whenever re-gridding is necessary (with or without combining the SPWs)
+// Auxiliary method common whenever re-gridding is necessary (with or without combining
+// the SPWs). It regrids one SPW.
 // -----------------------------------------------------------------------
-void MSTransformManager::regridSpwAux(	Int spwId,
-										MFrequency::Types spwInputRefFrame,
-										Vector<Double> &originalCHAN_FREQ,
-										Vector<Double> &originalCHAN_WIDTH,
-										Vector<Double> &inputCHAN_FREQ,
-										Vector<Double> &inputCHAN_WIDTH,
-										Vector<Double> &regriddedCHAN_FREQ,
-										Vector<Double> &regriddedCHAN_WIDTH,
-										string msg)
+void MSTransformManager::regridSpwAux(Int spwId, MFrequency::Types spwInputRefFrame,
+				      Vector<Double> &originalCHAN_FREQ,
+				      Vector<Double> &originalCHAN_WIDTH,
+				      Vector<Double> &inputCHAN_FREQ,
+				      Vector<Double> &inputCHAN_WIDTH,
+				      Vector<Double> &regriddedCHAN_FREQ,
+				      Vector<Double> &regriddedCHAN_WIDTH,
+				      string msg)
 {
 
     // Print characteristics of input SPW
@@ -2833,7 +2833,7 @@ void MSTransformManager::regridSpwAux(	Int spwId,
 
 	// Re-grid the output SPW to be uniform and change reference frame
 	logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-    					<< "Calculate frequencies in output reference frame " << LogIO::POST;
+		 << "Calculate frequencies in output reference frame " << LogIO::POST;
 
 	Double weightScale;
 	Bool ret = MSTransformRegridder::calcChanFreqs(	logger_p,
@@ -2862,24 +2862,23 @@ void MSTransformManager::regridSpwAux(	Int spwId,
 				 << LogIO::EXCEPTION;
 	}
 
-	/*
 	ostringstream oss_debug;
-    oss_debug 	<< " phaseCenter_p=" << phaseCenter_p << endl
-				<< " inputReferenceFrame_p=" << inputReferenceFrame_p << endl
-				<< " referenceTime_p=" << referenceTime_p << endl
-				<< " observatoryPosition_p=" << observatoryPosition_p << endl
-				<< " mode_p=" << mode_p << endl
-				<< " nChan_p=" << nChan_p << endl
-				<< " start_p=" << start_p << endl
-				<< " width_p=" << width_p << endl
-				<< " restFrequency_p=" << restFrequency_p << endl
-				<< " outputReferenceFrame_p=" << outputReferenceFrame_p << endl
-				<< " velocityType_p=" << velocityType_p << endl
-				<< " radialVelocity_p=" << radialVelocity_p;
-    logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__) << oss_debug.str() << LogIO::POST;
-	*/
+	oss_debug 	<< "after calcChanFreqs, phaseCenter_p=" << phaseCenter_p << endl
+			<< " inputReferenceFrame_p=" << inputReferenceFrame_p << endl
+			<< " referenceTime_p=" << referenceTime_p << endl
+			<< " observatoryPosition_p=" << observatoryPosition_p << endl
+			<< " mode_p=" << mode_p << endl
+			<< " nChan_p=" << nChan_p << endl
+			<< " start_p=" << start_p << endl
+			<< " width_p=" << width_p << endl
+			<< " restFrequency_p=" << restFrequency_p << endl
+			<< " outputReferenceFrame_p=" << outputReferenceFrame_p << endl
+			<< " velocityType_p=" << velocityType_p << endl
+			<< " radialVelocity_p=" << radialVelocity_p;
+	logger_p << LogIO::DEBUG1 << LogOrigin("MSTransformManager", __FUNCTION__) <<
+	  oss_debug.str() << LogIO::POST;
 
-    // jagonzal (new WEIGHT/SIGMA convention in CASA 4.2.2)
+	// jagonzal (new WEIGHT/SIGMA convention in CASA 4.2.2)
 	if (newWeightFactorMap_p.find(spwId) == newWeightFactorMap_p.end())
 	{
 		newWeightFactorMap_p[spwId] = weightScale;
@@ -2895,25 +2894,18 @@ void MSTransformManager::regridSpwAux(	Int spwId,
 		Double weightScaleDummy;
 		Vector<Double> tmpCHAN_FREQ;
 		Vector<Double> tmpCHAN_WIDTH;
-		MSTransformRegridder::calcChanFreqs(	logger_p,
-												tmpCHAN_FREQ,
-												tmpCHAN_WIDTH,
-												weightScaleDummy,
-												originalCHAN_FREQ,
-												originalCHAN_WIDTH,
-												phaseCenter_p,
-												inputReferenceFrame_p,
-												referenceTime_p,
-												observatoryPosition_p,
-												String("channel"),
-												-1,
-												String("0"),
-												String("1"),
-												restFrequency_p,
-												outputReferenceFramePar_p,
-												velocityType_p,
-												false // verbose
-												);
+		MSTransformRegridder::calcChanFreqs(logger_p, tmpCHAN_FREQ, tmpCHAN_WIDTH,
+						    weightScaleDummy, originalCHAN_FREQ,
+						    originalCHAN_WIDTH, phaseCenter_p,
+						    inputReferenceFrame_p,
+						    referenceTime_p,
+						    observatoryPosition_p,
+						    String("channel"), -1,
+						    String("0"), String("1"),
+						    restFrequency_p,
+						    outputReferenceFramePar_p,
+						    velocityType_p, false // verbose
+						    );
 
 		Double avgCombinedWidth = 0;
 		for (uInt chanIdx=0;chanIdx<tmpCHAN_WIDTH.size();chanIdx++)
@@ -2931,35 +2923,29 @@ void MSTransformManager::regridSpwAux(	Int spwId,
 
 		uInt width =  (uInt)floor(abs(avgRegriddedWidth/avgCombinedWidth) + 0.001);
 
-		if ((width >= 2) and  2*width <= originalCHAN_WIDTH.size())
-		{
-			logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
-				 << "mstransform with regridms does not regrid properly for channel widths "
-				    "> or = 2 x the native channel width, please use clean or tclean for larger regridding. "
-				    "A fix is expected for CASA 5.0, all earlier versions also have this issue."
-				 << LogIO::POST;
 
-			logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-	        					<< "Ratio between input and output width is " << avgRegriddedWidth/avgCombinedWidth
-	        					<< ", setting pre-channel average width to " << width << LogIO::POST;
-			channelAverage_p = true;
-			freqbinMap_p[spwId] = width;
-			newWeightFactorMap_p[spwId] /= width; // jagonzal: Remove channel width contribution to the scale factor
+		bool enabledPreAveraging = false;
+		if ((width >= 2) and  2*width <= originalCHAN_WIDTH.size()) {
+		  if (!enabledPreAveraging) {
+		    logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+			     << "Ratio between input and output width is >=2: " << avgRegriddedWidth/avgCombinedWidth
+			     << ", but not doing pre-channel average (it is disabled by "
+			     << "default since CASA release 5.0." << LogIO::POST;
+		  } else {
+		    logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
+			     << "mstransform with regridms does not regrid properly for channel widths "
+		      "> or = 2 x the native channel width, please use clean or tclean for larger regridding. "
+		      "A fix is expected for CASA 5.0, all earlier versions also have this issue."
+			     << LogIO::POST;
 
-			// Calculate averaged frequencies
-			calculateIntermediateFrequencies(spwId,originalCHAN_FREQ,originalCHAN_WIDTH,inputCHAN_FREQ,inputCHAN_WIDTH);
+		    logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+			     << "Ratio between input and output width is " << avgRegriddedWidth/avgCombinedWidth
+			     << ", setting pre-channel average width to " << width << LogIO::POST;
 
-			oss.str("");
-			oss.clear();
-			oss 	<< "Averaged SPW: " << std::setw(5) << inputCHAN_WIDTH.size()
-	            				<< " channels, first channel = "
-	            				<< std::setprecision(9) << std::setw(14) << std::scientific
-	            				<< inputCHAN_FREQ(0) << " Hz"
-	            				<< ", last channel = "
-	            				<< std::setprecision(9) << std::setw(14) << std::scientific
-	            				<< inputCHAN_FREQ(inputCHAN_WIDTH.size() -1) << " Hz";
-			logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-				 << oss.str() << LogIO::POST;
+		    doPreAveragingBeforeRegridding(width, spwId,
+						   originalCHAN_FREQ, originalCHAN_WIDTH,
+						   inputCHAN_FREQ, inputCHAN_WIDTH);
+		  }
 		}
 	}
 
@@ -4047,6 +4033,34 @@ void MSTransformManager::reindexPolarizationIdInDataDesc(Int newPolarizationId) 
       ddcols.polarizationId().put(i, newPolarizationId);
     }
   }
+}
+
+// -----------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------
+void MSTransformManager::doPreAveragingBeforeRegridding(uInt width, Int spwId,
+							Vector<Double> &originalCHAN_FREQ,
+							Vector<Double> &originalCHAN_WIDTH,
+							Vector<Double> &inputCHAN_FREQ,
+							Vector<Double> &inputCHAN_WIDTH) {
+  channelAverage_p = true;
+  freqbinMap_p[spwId] = width;
+  newWeightFactorMap_p[spwId] /= width; // jagonzal: Remove channel width contribution to the scale factor
+
+  // Calculate averaged frequencies
+  calculateIntermediateFrequencies(spwId, originalCHAN_FREQ, originalCHAN_WIDTH,
+				   inputCHAN_FREQ, inputCHAN_WIDTH);
+
+  ostringstream oss;
+  oss 	<< "Averaged SPW: " << std::setw(5) << inputCHAN_WIDTH.size()
+	<< " channels, first channel = "
+	<< std::setprecision(9) << std::setw(14) << std::scientific
+	<< inputCHAN_FREQ(0) << " Hz"
+	<< ", last channel = "
+	<< std::setprecision(9) << std::setw(14) << std::scientific
+	<< inputCHAN_FREQ(inputCHAN_WIDTH.size() -1) << " Hz";
+  logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+	   << oss.str() << LogIO::POST;
 }
 
 // -----------------------------------------------------------------------
