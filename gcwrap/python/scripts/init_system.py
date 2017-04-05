@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import argparse
+import multiprocessing
 from IPython.terminal.prompts import Prompts, Token
 
 try:
@@ -19,6 +20,10 @@ except ImportError, e:
 from asap_init import *
 from casa_system import casa
 
+if not os.environ.has_key('OMP_NUM_THREADS'):
+    # if OMP_NUM_THREADS is not set, set it to max(1,N_CPU-2)
+    os.environ['OMP_NUM_THREADS'] = str(max(1,multiprocessing.cpu_count()-2))
+
 class _Prompt(Prompts):
      def in_prompt_tokens(self, cli=None):
          return [(Token.Prompt, 'CASA <'),
@@ -27,6 +32,23 @@ class _Prompt(Prompts):
 
 _ip = get_ipython()
 _ip.prompts = _Prompt(_ip)
+
+###
+### provide extra context for T/F errors...
+###
+def true_false_handler(self, etype, value, tb, tb_offset=None):
+    if type(etype) is type(NameError):
+        if str(value) == "name 'T' is not defined" or \
+           str(value) == "name 'F' is not defined" or \
+           str(value) == "name 'true' is not defined" or \
+           str(value) == "name 'false' is not defined" :
+            print "------------------------------------------------------------------------------"
+            print "Warning: CASA no longer defines T/true and F/false as synonyms for True/False"
+            print "------------------------------------------------------------------------------"
+    return self.showtraceback()
+
+_ip.set_custom_exc((BaseException,), true_false_handler)
+
 
 ##
 ## toplevel frame marker

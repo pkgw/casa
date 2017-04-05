@@ -2293,10 +2293,11 @@ void SolvableVisCal::reParseSolintForVI2() {
   // Maybe should just parse it, and then work out logic re freqDepPar, etc.
 
   // Handle fsolint format
-  if (upcase(fsolint()).contains("NONE") ||   // unspecified  OR  (should be AND?)
+  // TBD:  compare to logic in Calibrater::genericGatherAndSolve (line ~2298)
+  if (upcase(fsolint()).contains("NONE") ||   // unspecified  OR  
       !freqDepMat()) {                        // cal is entirely unchannelizedb 
     fsolint()="none";
-    fintervalCh_.set(1);    // signals full averaging (this is different from old way)
+    fintervalCh_.set(-1.0);    // signals full averaging (this is different from old way)
     fintervalHz_=-1.0;      // don't care
   }
   else {
@@ -2340,7 +2341,7 @@ void SolvableVisCal::reParseSolintForVI2() {
 	 << " Ch=" << fintervalCh_ 
 	 << " Hz=" << fintervalHz() 
 	 << endl;
-    */
+    //*/
   } // user set something
 
 }
@@ -2616,14 +2617,12 @@ void SolvableVisCal::convertHzToCh() {
     // Calculate channel increment from Hz
     if (fintervalCh()<0.0 && fintervalHz()>0.0) {
       // Assumes constant chan width in each spw!
-      Double datawidth=chanwidths[ispw][0].get("Hz").getValue();   //abs(spwcol.chanWidth()(ispw)(IPosition(1,0)));
-      //cout << "ispw=" << ispw << " datawidth=" << datawidth << flush;
-      fintervalCh()=floor(fintervalHz()/datawidth);
-      if (fintervalCh()<1.0) fintervalCh()=1.0;
-      //cout << " dHz=" << fintervalHz() << " --> " << fintervalCh() << " channels." << endl;
+      Double datawidthHz=abs(chanwidths[ispw][0].get("Hz").getValue()); 
+      fintervalCh()=floor(fintervalHz()/datawidthHz);
+      if (fintervalCh()<1.0) fintervalCh()=1.0;  // nothing fractional <1.0
 
       logSink() << ".  Spw " << ispw << ": "
-		<< " (freq solint: " << fintervalHz() << " Hz) / (data width: " << datawidth << " Hz)"
+		<< " (freq solint: " << fintervalHz() << " Hz) / (data width: " << datawidthHz << " Hz)"
 		<< " = " << fintervalCh() << " data channels per solution channel."
 		<< LogIO::POST;
     }
