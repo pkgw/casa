@@ -5956,7 +5956,6 @@ gcwrap/python/scripts/imagerhelpers/__init__.py -text
 gcwrap/python/scripts/imagerhelpers/imager_base.py -text
 gcwrap/python/scripts/imagerhelpers/imager_parallel_continuum.py -text
 gcwrap/python/scripts/imagerhelpers/imager_parallel_cube.py -text
-gcwrap/python/scripts/imagerhelpers/imager_parallel_cube2.py -text
 gcwrap/python/scripts/imagerhelpers/imager_parallel_deconvolver.py -text
 gcwrap/python/scripts/imagerhelpers/input_parameters.py -text
 gcwrap/python/scripts/imagerhelpers/parallel_imager_helper.py -text
