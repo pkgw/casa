@@ -139,27 +139,10 @@ void MSTransformManager::initialize()
 	inputOutputChanIndexMap_p.clear();
 
 	// Frequency transformation parameters
-	nspws_p = 1;
-	ddiStart_p = 0;
-	combinespws_p = false;
-	channelAverage_p = false;
-	hanningSmooth_p = false;
-	regridding_p = false;
-	refFrameTransformation_p = false;
-	freqbin_p = Vector<Int>(1,-1);
-	useweights_p = "flags";
-	weightmode_p = MSTransformations::flags;
-	interpolationMethodPar_p = String("linear");	// Options are: nearest, linear, cubic, spline, fftshift
-	phaseCenterPar_p = new casac::variant("");
-	restFrequency_p = String("");
-	outputReferenceFramePar_p = String("");			// Options are: LSRK, LSRD, BARY, GALACTO, LGROUP, CMB, GEO, or TOPO
-	radialVelocityCorrection_p = false;
-	smoothBin_p = 3;
 	smoothCoeff_p.resize(3,false);
 	smoothCoeff_p(0) = 0.25;
 	smoothCoeff_p(1) = 0.5;
 	smoothCoeff_p(2) = 0.25;
-	smoothmode_p = MSTransformations::plainSmooth;
 
 	// Frequency specification parameters
 	mode_p = String("channel"); 					// Options are: channel, frequency, velocity
@@ -923,6 +906,16 @@ void MSTransformManager::parseRefFrameTransParams(Record &configuration)
 	}
 
 	parseFreqSpecParams(configuration);
+
+	exists = configuration.fieldNumber ("preaverage");
+	if (exists >= 0) {
+	  configuration.get (exists, enableChanPreAverage_p);
+
+	  if (combinespws_p) {
+	    logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+		     << "Enabling channel pre-averaging" << LogIO::POST;
+	  }
+	}
 
 	return;
 }
@@ -2924,9 +2917,8 @@ void MSTransformManager::regridSpwAux(Int spwId, MFrequency::Types spwInputRefFr
 		uInt width =  (uInt)floor(abs(avgRegriddedWidth/avgCombinedWidth) + 0.001);
 
 
-		bool enabledPreAveraging = false;
 		if ((width >= 2) and  2*width <= originalCHAN_WIDTH.size()) {
-		  if (!enabledPreAveraging) {
+		  if (!enableChanPreAverage_p) {
 		    logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
 			     << "Ratio between input and output width is >=2: " << avgRegriddedWidth/avgCombinedWidth
 			     << ", but not doing pre-channel average (it is disabled by "
