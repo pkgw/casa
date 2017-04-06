@@ -6695,6 +6695,7 @@ gcwrap/python/scripts/tests/test_mst_split.py -text
 gcwrap/python/scripts/tests/test_mstool.py -text
 gcwrap/python/scripts/tests/test_mstransform.py -text
 gcwrap/python/scripts/tests/test_mstransform_mms.py -text
+gcwrap/python/scripts/tests/test_msview.py -text
 gcwrap/python/scripts/tests/test_oldhanningsmooth.py -text
 gcwrap/python/scripts/tests/test_oldpartition.py -text
 gcwrap/python/scripts/tests/test_oldsplit.py -text
