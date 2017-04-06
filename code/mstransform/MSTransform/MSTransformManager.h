@@ -1276,23 +1276,26 @@ protected:
 	map<casacore::Int,vector<casacore::Int> > inputOutputChanIndexMap_p;
 
 	// Frequency transformation parameters
-	casacore::uInt nspws_p;
-	casacore::Int ddiStart_p;
-	casacore::Bool combinespws_p;
-	casacore::Bool channelAverage_p;
-	casacore::Bool hanningSmooth_p;
-	casacore::Bool refFrameTransformation_p;
-	casacore::Vector<casacore::Int> freqbin_p;
-	casacore::String useweights_p;
-	casacore::uInt weightmode_p;
-	casacore::String interpolationMethodPar_p;
-	casac::variant *phaseCenterPar_p;
-	casacore::String restFrequency_p;
-	casacore::String outputReferenceFramePar_p;
-	casacore::Bool radialVelocityCorrection_p;
-	casacore::Bool regridding_p;
-	casacore::uInt smoothBin_p;
-	casacore::uInt smoothmode_p;
+	casacore::uInt nspws_p = 1;
+	casacore::Int ddiStart_p = 0;
+	casacore::Bool combinespws_p = false;
+	casacore::Bool enableChanPreAverage_p = false;
+	casacore::Bool channelAverage_p = false;
+	casacore::Bool hanningSmooth_p = false;
+	casacore::Bool refFrameTransformation_p = false;
+	casacore::Vector<casacore::Int> freqbin_p = casacore::Vector<Int>(1,-1);
+	casacore::String useweights_p = "flags";
+	casacore::uInt weightmode_p = MSTransformations::flags;
+	// Options are: nearest, linear, cubic, spline, fftshift
+	casacore::String interpolationMethodPar_p = casacore::String("linear");
+	casac::variant *phaseCenterPar_p = new casac::variant("");
+	casacore::String restFrequency_p = casacore::String("");
+	// Options are: LSRK, LSRD, BARY, GALACTO, LGROUP, CMB, GEO, or TOPO
+	casacore::String outputReferenceFramePar_p = String("");
+	casacore::Bool radialVelocityCorrection_p = false;
+	casacore::Bool regridding_p = false ;
+	casacore::uInt smoothBin_p = 3;
+	casacore::uInt smoothmode_p = MSTransformations::plainSmooth;
 	casacore::Vector<casacore::Float> smoothCoeff_p;
 
 	// Frequency specification parameters
