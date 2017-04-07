@@ -9,6 +9,7 @@
 #include <synthesis/MeasurementComponents/StandardVisCal.h>
 #include <synthesis/MeasurementComponents/SolvableVisCal.h>
 #include <synthesis/MeasurementComponents/SDDoubleCircleGainCalImpl.h>
+#include <synthesis/MeasurementComponents/SolveDataBuffer.h>
 #include <synthesis/MeasurementEquations/VisEquation.h>
 #include <synthesis/Utilities/PointingDirectionCalculator.h>
 #include <synthesis/Utilities/PointingDirectionProjector.h>
@@ -19,6 +20,7 @@
 #include <casacore/casa/Arrays/ArrayIO.h>
 #include <casacore/casa/Quanta/Quantum.h>
 #include <casacore/casa/Quanta/QuantumHolder.h>
+#include <casacore/casa/Utilities/Assert.h>
 #include <casacore/tables/TaQL/TableParse.h>
 #include <casacore/measures/TableMeasures/ScalarQuantColumn.h>
 #include <casacore/measures/TableMeasures/ArrayQuantColumn.h>
@@ -68,8 +70,9 @@ casacore::Vector<casacore::Int> &nChanParList) {
   casacore::MeasurementSet const ms(msName);
   casacore::MSSpectralWindow const &msspw = ms.spectralWindow();
   casacore::ROScalarColumn<casacore::Int> nchanCol(msspw, "NUM_CHAN");
-  debuglog<< "nchanCol=" << nchanCol.getColumn() << debugpost;
-  nChanParList = nchanCol.getColumn()(casacore::Slice(0, nChanParList.nelements()));
+  debuglog << "nchanCol=" << nchanCol.getColumn() << debugpost;
+  nChanParList = nchanCol.getColumn()(
+  casacore::Slice(0, nChanParList.nelements()));
 }
 
 template<class T>
@@ -85,13 +88,14 @@ inline casacore::String toString(casacore::Vector<T> const &v) {
   return casacore::String(oss);
 }
 
-inline casacore::String selectOnSourceAutoCorr(casacore::MeasurementSet const &ms) {
-  debuglog<< "selectOnSource" << debugpost;
+inline casacore::String selectOnSourceAutoCorr(
+casacore::MeasurementSet const &ms) {
+  debuglog << "selectOnSource" << debugpost;
   casacore::String taqlForState(
       "SELECT FLAG_ROW FROM $1 WHERE UPPER(OBS_MODE) ~ m/^OBSERVE_TARGET#ON_SOURCE/");
   casacore::Table stateSel = casacore::tableCommand(taqlForState, ms.state());
   casacore::Vector<casacore::uInt> stateIdList = stateSel.rowNumbers();
-  debuglog<< "stateIdList = " << stateIdList << debugpost;
+  debuglog << "stateIdList = " << stateIdList << debugpost;
   std::ostringstream oss;
   oss << "SELECT FROM $1 WHERE ANTENNA1 == ANTENNA2 && STATE_ID IN "
       << toString(stateIdList)
@@ -220,10 +224,9 @@ void SDDoubleCircleGainCal::setSolve(const Record &solve) {
 
 String SDDoubleCircleGainCal::solveinfo() {
   ostringstream o;
-  o << typeName()
-      << ": " << calTableName()
-      << " smooth=" << (smooth_?"True":"False") << endl
-      << " radius=" << central_disk_size_;
+  o << typeName() << ": " << calTableName() << " smooth="
+      << (smooth_ ? "True" : "False") << endl << " radius="
+      << central_disk_size_;
   if (central_disk_size_ == 0.0) {
     o << " (half of primary beam will be used)";
   }
@@ -242,7 +245,7 @@ void SDDoubleCircleGainCal::keepNCT() {
   // Call parent to do general stuff
   GJones::keepNCT();
 
-  if (prtlev()>4)
+  if (prtlev() > 4)
     cout << " SVJ::keepNCT" << endl;
 
   // Set proper antenna id
@@ -253,23 +256,23 @@ void SDDoubleCircleGainCal::keepNCT() {
   debuglog << "antenna is " << a1 << debugpost;
 
   // We are adding to the most-recently added rows
-  RefRows rows(ct_->nrow()-nElem(),ct_->nrow()-1,1);
+  RefRows rows(ct_->nrow() - nElem(), ct_->nrow() - 1, 1);
 
   // Write to table
   CTMainColumns ncmc(*ct_);
-  ncmc.antenna1().putColumnCells(rows,a1);
+  ncmc.antenna1().putColumnCells(rows, a1);
 }
 
 void SDDoubleCircleGainCal::selfGatherAndSolve(VisSet& vs,
     VisEquation& /* ve */) {
   SDDoubleCircleGainCalImpl sdcalib;
-  debuglog<< "SDDoubleCircleGainCal::selfGatherAndSolve()" << debugpost;
+  debuglog << "SDDoubleCircleGainCal::selfGatherAndSolve()" << debugpost;
 
   // TODO: implement pre-application of single dish caltables
 
-  debuglog<< "nspw = " << nSpw() << debugpost;
+  debuglog << "nspw = " << nSpw() << debugpost;
   fillNChanParList(msName(), nChanParList());
-  debuglog<< "nChanParList=" << nChanParList() << debugpost;
+  debuglog << "nChanParList=" << nChanParList() << debugpost;
 
   // Create a new caltable to fill up
   createMemCalTable();
@@ -280,9 +283,10 @@ void SDDoubleCircleGainCal::selfGatherAndSolve(VisSet& vs,
 
   // Pick up OFF spectra using STATE_ID
   auto const msSel = vs.iter().ms();
-  debuglog<< "configure data selection for specific calibration mode" << debugpost;
+  debuglog << "configure data selection for specific calibration mode"
+      << debugpost;
   auto const taql = selectOnSourceAutoCorr(msSel);
-  debuglog<< "taql = \"" << taql << "\"" << debugpost;
+  debuglog << "taql = \"" << taql << "\"" << debugpost;
   MeasurementSet msOnSource(tableCommand(taql, msSel));
   logSink() << LogIO::DEBUGGING << "msSel.nrow()=" << msSel.nrow()
       << " msOnSource.nrow()=" << msOnSource.nrow() << LogIO::POST;
@@ -291,7 +295,8 @@ void SDDoubleCircleGainCal::selfGatherAndSolve(VisSet& vs,
   }
   String dataColName =
       (msOnSource.tableDesc().isColumn("FLOAT_DATA")) ? "FLOAT_DATA" : "DATA";
-  logSink() << LogIO::DEBUGGING << "dataColName = " << dataColName << LogIO::POST;
+  logSink() << LogIO::DEBUGGING << "dataColName = " << dataColName
+      << LogIO::POST;
 
   if (msOnSource.tableDesc().isColumn("FLOAT_DATA")) {
     executeDoubleCircleGainCal<FloatDataColumnAccessor>(msOnSource);
@@ -308,8 +313,29 @@ void SDDoubleCircleGainCal::selfGatherAndSolve(VisSet& vs,
   storeNCT();
 }
 
-void SDDoubleCircleGainCal::selfSolveOne(SDBList &/*sdbs*/) {
+void SDDoubleCircleGainCal::selfSolveOne(SDBList &sdbs) {
   // do nothing at this moment
+  auto const nSDB = sdbs.nSDB();
+  debuglog << "nSDB = " << nSDB << debugpost;
+  AlwaysAssert(nSDB == 1, AipsError);
+  // DebugAssert(nSDB == 1, AipsError);
+
+  auto &sdb = sdbs(0);
+  debuglog << "spw = " << sdb.spectralWindow()[0] << " antenna1 = "
+      << sdb.antenna1()[0] << "," << sdb.antenna2()[0] << " nRows = "
+      << sdb.nRows() << debugpost;
+
+  debuglog << "solveAllCPar().shape() = " << solveAllCPar().shape()
+      << debugpost;
+  debuglog << "visCube.shape() = " << sdb.visCubeCorrected().shape()
+      << debugpost;
+
+  auto const &corrected = sdb.visCubeCorrected();
+  auto const &flag = sdb.flagCube();
+  if (corrected.conform(solveAllCPar())) {
+    solveAllCPar() = corrected;
+    solveAllParOK() = !flag;
+  }
 }
 
 template<class Accessor>
@@ -317,92 +343,92 @@ void SDDoubleCircleGainCal::executeDoubleCircleGainCal(
     MeasurementSet const &ms) {
   logSink() << LogOrigin("SDDoubleCircleGainCal", __FUNCTION__, WHERE);
   // setup worker class
-  SDDoubleCircleGainCalImpl worker;
+      SDDoubleCircleGainCalImpl worker;
 
-  Int smoothingSize = -1;// use default smoothing size
-  worker.setCentralRegion(central_disk_size_);
-  if (smooth_) {
-    worker.setSmoothing(smoothingSize);
-  } else {
-    worker.unsetSmoothing();
-  }
+      Int smoothingSize = -1;// use default smoothing size
+      worker.setCentralRegion(central_disk_size_);
+      if (smooth_) {
+        worker.setSmoothing(smoothingSize);
+      } else {
+        worker.unsetSmoothing();
+      }
 
-  ROArrayColumn<Double> uvwColumn(ms, "UVW");
-  Matrix<Double> uvw = uvwColumn.getColumn();
-  debuglog<< "uvw.shape " << uvw.shape() << debugpost;
+      ROArrayColumn<Double> uvwColumn(ms, "UVW");
+      Matrix<Double> uvw = uvwColumn.getColumn();
+      debuglog<< "uvw.shape " << uvw.shape() << debugpost;
 
-  // make a map between SOURCE_ID and source NAME
-  auto const &sourceTable = ms.source();
-  ROScalarColumn<Int> idCol(sourceTable,
-      sourceTable.columnName(MSSource::MSSourceEnums::SOURCE_ID));
-  ROScalarColumn<String> nameCol(sourceTable,
-      sourceTable.columnName(MSSource::MSSourceEnums::NAME));
-  std::map<Int, String> sourceMap;
-  for (uInt irow = 0; irow < sourceTable.nrow(); ++irow) {
-    auto sourceId = idCol(irow);
-    if (sourceMap.find(sourceId) == sourceMap.end()) {
-      sourceMap[sourceId] = nameCol(irow);
-    }
-  }
+      // make a map between SOURCE_ID and source NAME
+      auto const &sourceTable = ms.source();
+      ROScalarColumn<Int> idCol(sourceTable,
+          sourceTable.columnName(MSSource::MSSourceEnums::SOURCE_ID));
+      ROScalarColumn<String> nameCol(sourceTable,
+          sourceTable.columnName(MSSource::MSSourceEnums::NAME));
+      std::map<Int, String> sourceMap;
+      for (uInt irow = 0; irow < sourceTable.nrow(); ++irow) {
+        auto sourceId = idCol(irow);
+        if (sourceMap.find(sourceId) == sourceMap.end()) {
+          sourceMap[sourceId] = nameCol(irow);
+        }
+      }
 
-  // make a map between FIELD_ID and SOURCE_ID
-  auto const &fieldTable = ms.field();
-  idCol.attach(fieldTable,
-      fieldTable.columnName(MSField::MSFieldEnums::SOURCE_ID));
-  ROArrayMeasColumn<MDirection> dirCol(fieldTable, "REFERENCE_DIR");
-  std::map<Int, Int> fieldMap;
-  for (uInt irow = 0; irow < fieldTable.nrow(); ++irow) {
-    auto sourceId = idCol(irow);
-    fieldMap[static_cast<Int>(irow)] = sourceId;
-  }
+      // make a map between FIELD_ID and SOURCE_ID
+      auto const &fieldTable = ms.field();
+      idCol.attach(fieldTable,
+          fieldTable.columnName(MSField::MSFieldEnums::SOURCE_ID));
+      ROArrayMeasColumn<MDirection> dirCol(fieldTable, "REFERENCE_DIR");
+      std::map<Int, Int> fieldMap;
+      for (uInt irow = 0; irow < fieldTable.nrow(); ++irow) {
+        auto sourceId = idCol(irow);
+        fieldMap[static_cast<Int>(irow)] = sourceId;
+      }
 
-  // access to subtable columns
-  ROScalarQuantColumn<Double> antennaDiameterColumn(ms.antenna(),
-      "DISH_DIAMETER");
-  ROArrayQuantColumn<Double> observingFrequencyColumn(ms.spectralWindow(),
-      "CHAN_FREQ");
+      // access to subtable columns
+      ROScalarQuantColumn<Double> antennaDiameterColumn(ms.antenna(),
+          "DISH_DIAMETER");
+      ROArrayQuantColumn<Double> observingFrequencyColumn(ms.spectralWindow(),
+          "CHAN_FREQ");
 
-  // traverse MS
-  Int cols[] = {MS::FIELD_ID, MS::ANTENNA1, MS::FEED1, MS::DATA_DESC_ID};
-  Int *colsp = cols;
-  Block<Int> sortCols(4, colsp, false);
-  MSIter msIter(ms, sortCols, 0.0, false, false);
-  for (msIter.origin(); msIter.more(); msIter++) {
-    MeasurementSet const currentMS = msIter.table();
+      // traverse MS
+      Int cols[] = {MS::FIELD_ID, MS::ANTENNA1, MS::FEED1, MS::DATA_DESC_ID};
+      Int *colsp = cols;
+      Block<Int> sortCols(4, colsp, false);
+      MSIter msIter(ms, sortCols, 0.0, false, false);
+      for (msIter.origin(); msIter.more(); msIter++) {
+        MeasurementSet const currentMS = msIter.table();
 
-    uInt nrow = currentMS.nrow();
-    debuglog<< "nrow = " << nrow << debugpost;
-    if (nrow == 0) {
-      debuglog<< "Skip" << debugpost;
-      continue;
-    }
-    Int ispw = msIter.spectralWindowId();
-    if (nChanParList()[ispw] == 4) {
-      // Skip WVR
-      debuglog<< "Skip " << ispw
-      << "(nchan " << nChanParList()[ispw] << ")"
-      << debugpost;
-      continue;
-    }
-    logSink() << "Process spw " << ispw
+        uInt nrow = currentMS.nrow();
+        debuglog<< "nrow = " << nrow << debugpost;
+        if (nrow == 0) {
+          debuglog<< "Skip" << debugpost;
+          continue;
+        }
+        Int ispw = msIter.spectralWindowId();
+        if (nChanParList()[ispw] == 4) {
+          // Skip WVR
+          debuglog<< "Skip " << ispw
+          << "(nchan " << nChanParList()[ispw] << ")"
+          << debugpost;
+          continue;
+        }
+        logSink() << "Process spw " << ispw
         << "(nchan " << nChanParList()[ispw] << ")" << LogIO::POST;
 
-    Int ifield = msIter.fieldId();
-    ROScalarColumn<Int> antennaCol(currentMS, "ANTENNA1");
-    //currAnt_ = antennaCol(0);
-    Int iantenna = antennaCol(0);
-    ROScalarColumn<Int> feedCol(currentMS, "FEED1");
-    debuglog<< "FIELD_ID " << msIter.fieldId()
-    << " ANTENNA1 " << iantenna//currAnt_
-    << " FEED1 " << feedCol(0)
-    << " DATA_DESC_ID " << msIter.dataDescriptionId()
-    << debugpost;
+        Int ifield = msIter.fieldId();
+        ROScalarColumn<Int> antennaCol(currentMS, "ANTENNA1");
+        //currAnt_ = antennaCol(0);
+        Int iantenna = antennaCol(0);
+        ROScalarColumn<Int> feedCol(currentMS, "FEED1");
+        debuglog<< "FIELD_ID " << msIter.fieldId()
+        << " ANTENNA1 " << iantenna//currAnt_
+        << " FEED1 " << feedCol(0)
+        << " DATA_DESC_ID " << msIter.dataDescriptionId()
+        << debugpost;
 
-    // setup PointingDirectionCalculator
-    PointingDirectionCalculator pcalc(currentMS);
-    pcalc.setDirectionColumn("DIRECTION");
-    pcalc.setFrame("J2000");
-    pcalc.setDirectionListMatrixShape(PointingDirectionCalculator::ROW_MAJOR);
+        // setup PointingDirectionCalculator
+        PointingDirectionCalculator pcalc(currentMS);
+        pcalc.setDirectionColumn("DIRECTION");
+        pcalc.setFrame("J2000");
+        pcalc.setDirectionListMatrixShape(PointingDirectionCalculator::ROW_MAJOR);
     debuglog<< "SOURCE_ID " << fieldMap[ifield] << " SOURCE_NAME " << sourceMap[fieldMap[ifield]] << debugpost;
     auto const isEphem = ::isEphemeris(sourceMap[fieldMap[ifield]]);
     Matrix<Double> offset_direction;

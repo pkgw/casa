@@ -11,6 +11,9 @@
 #include <synthesis/MeasurementComponents/StandardVisCal.h>
 #include <casacore/casa/BasicSL/String.h>
 
+// set false if you want to use new Calibrater
+#define USEOLDVI true
+
 namespace casa {
 
 class VisSet;
@@ -30,16 +33,23 @@ public:
 //    return "SDGAIN_OTFD (Single Dish gain calibration for double circle fast scan";
 //  }
 
-  // Return the parameter type
-  // so far single dish calibration is real
+// Return the parameter type
+// so far single dish calibration is real
 //  virtual VisCalEnum::VCParType parType() { return VisCalEnum::REAL; }
 
   // Frequency-dependent Parameters?
-  virtual casacore::Bool freqDepPar() { return true; };
+  virtual casacore::Bool freqDepPar() {
+    return true;
+  }
+  ;
 
   // useGenericGatherForSolve must return true to migrate VI/VB2 based implementation
   virtual casacore::Bool useGenericGatherForSolve() override {
-    return true;
+    // it should finally return true, but to pass the unit test, it should return false
+    // so, at the moment, return value is configurable depending on whether it is called
+    // from old Calibrater or not
+    bool ret = !(USEOLDVI);
+    return ret;
   }
   // Do not use generic data gathering mechanism for solve
   virtual casacore::Bool useGenericSolveOne() override {
@@ -68,9 +78,7 @@ private:
   template<class Accessor>
   void executeDoubleCircleGainCal(casacore::MeasurementSet const &ms);
 
-  casacore::Double central_disk_size_;
-  casacore::Bool smooth_;
-  casacore::uInt currAnt_;
+  casacore::Double central_disk_size_;casacore::Bool smooth_;casacore::uInt currAnt_;
 };
 
 } // namespace casa END
