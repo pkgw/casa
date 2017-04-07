@@ -1481,7 +1481,7 @@ void MSTransformManager::setup()
 		reindexGenericTimeDependentSubTable("CALDEVICE");
 		reindexGenericTimeDependentSubTable("SYSPOWER");
 	}
-	else if (regridding_p)
+	else if (regridding_p)  // regrid as in the regridms option
 	{
 		initRefFrameTransParams();
 		regridSpwSubTable();
@@ -2348,163 +2348,158 @@ void MSTransformManager::initDataSelectionParams()
 // -----------------------------------------------------------------------
 void MSTransformManager::initRefFrameTransParams()
 {
-    // Determine input reference frame from the first row in the SPW sub-table of the output/selected MS
-	MSSpectralWindow spwTable;
-	if (userBufferMode_p)
-	{
-		spwTable = selectedInputMs_p->spectralWindow();
+  inputReferenceFrame_p = determineInputRefFrame();
+
+  // Parse output reference frame
+  refFrameTransformation_p = true;
+  radialVelocityCorrection_p = false;
+  if(outputReferenceFramePar_p.empty()) {
+    outputReferenceFrame_p = inputReferenceFrame_p;
+  }
+  // CAS-6778: Support for new ref. frame SOURCE that requires radial velocity correction
+  else if (outputReferenceFramePar_p == "SOURCE") {
+    outputReferenceFrame_p = MFrequency::GEO;
+    radialVelocityCorrection_p = true;
+  } else if(!MFrequency::getType(outputReferenceFrame_p, outputReferenceFramePar_p)) {
+    logger_p << LogIO::SEVERE << LogOrigin("MSTransformManager", __FUNCTION__)
+	     << "Problem parsing output reference frame:" << outputReferenceFramePar_p
+	     << LogIO::EXCEPTION;
+  }
+
+  if (outputReferenceFrame_p == inputReferenceFrame_p) {
+    refFrameTransformation_p = false;
+  }
+
+  // Determine observatory position from the first row in the observation sub-table of the output (selected) MS
+  MSObservation observationTable;
+  if (userBufferMode_p) {
+    observationTable = selectedInputMs_p->observation();
+  } else {
+    observationTable = outputMs_p->observation();
+  }
+  MSObservationColumns observationCols(observationTable);
+  String observatoryName = observationCols.telescopeName()(0);
+  MeasTable::Observatory(observatoryPosition_p,observatoryName);
+
+  // jagonzal: This conversion is needed only for cosmetic reasons
+  // observatoryPosition_p=MPosition::Convert(observatoryPosition_p, MPosition::ITRF)();
+
+  // Determine observation time from the first row in the selected MS
+  referenceTime_p = selectedInputMsCols_p->timeMeas()(0);
+
+  // Access FIELD cols to get phase center and radial velocity
+  inputMSFieldCols_p = new MSFieldColumns(selectedInputMs_p->field());
+
+  phaseCenter_p = determinePhaseCenter();
+}
+
+/**
+ * Determine input reference frame from the first row in the SPW 8
+ * sub-table of the output/selected MS.
+ * Helper for the initialization of the reference frame transformations
+ *
+ * @return Reference frame of output/selected MS.
+ */
+casacore::MFrequency::Types MSTransformManager::determineInputRefFrame() {
+  MSSpectralWindow spwTable;
+  if (userBufferMode_p)	{
+    spwTable = selectedInputMs_p->spectralWindow();
+  } else {
+    spwTable = outputMs_p->spectralWindow();
+  }
+  MSSpWindowColumns spwCols(spwTable);
+
+  casacore::MFrequency::Types result;
+  if (reindex_p) {
+    result = MFrequency::castType(spwCols.measFreqRef()(0));
+  } else {
+    Int firstSelectedDDI = selectedInputMsCols_p->dataDescId()(0);
+    MSDataDescription ddiTable = outputMs_p->dataDescription();
+    MSDataDescColumns ddiCols(ddiTable);
+    Int firstSelectedSPW = ddiCols.spectralWindowId()(firstSelectedDDI);
+    result = MFrequency::castType(spwCols.measFreqRef()(firstSelectedSPW));
+  }
+
+  return result;
+}
+
+/**
+ * Determine phase center from output/selected MS.
+ * Helper for the initialization of the reference frame transformations
+ *
+ * @return phase center from output/selected MS.
+ */
+casacore::MDirection MSTransformManager::determinePhaseCenter() {
+  casacore::MDirection result;
+
+  // Determine phase center
+  if (phaseCenterPar_p->type() == casac::variant::INT) {
+    Int fieldIdForPhaseCenter = phaseCenterPar_p->toInt();
+
+    if (fieldIdForPhaseCenter >= (Int)inputMSFieldCols_p->nrow() ||
+	fieldIdForPhaseCenter < 0) {
+      logger_p << LogIO::SEVERE << LogOrigin("MSTransformManager", __FUNCTION__)
+	       << "Selected FIELD_ID to determine phase center does not exist "
+	       << LogIO::POST;
+    } else {
+      // CAS-6778: Support for new ref. frame SOURCE that requires radial velocity correction
+      if (radialVelocityCorrection_p) {
+	radialVelocity_p = inputMSFieldCols_p->radVelMeas(fieldIdForPhaseCenter,
+							  referenceTime_p.get("s").getValue());
+	result = inputMSFieldCols_p->phaseDirMeas(fieldIdForPhaseCenter,
+							 referenceTime_p.get("s").getValue());
+      } else {
+	result = inputMSFieldCols_p->phaseDirMeasCol()(fieldIdForPhaseCenter)(IPosition(1,0));
+      }
+    }
+  } else {
+    String phaseCenter = phaseCenterPar_p->toString(true);
+
+    // Determine phase center from the first row in the FIELD sub-table of the output
+    // (selected) MS
+    if (phaseCenter.empty()) {
+      MSFieldColumns *fieldCols;
+      if (userBufferMode_p) {
+	fieldCols = inputMSFieldCols_p;
+      } else {
+	MSField fieldTable = outputMs_p->field();
+	fieldCols = new MSFieldColumns(fieldTable);
+      }
+
+      // CAS-8870: Mstransform with outframe=’SOURCE’ crashes because of ephemeris type
+      Int firstSelectedField = selectedInputMsCols_p->fieldId()(0);
+      if (inputOutputFieldIndexMap_p.find(firstSelectedField) !=
+	  inputOutputFieldIndexMap_p.end()) {
+	firstSelectedField = inputOutputFieldIndexMap_p[firstSelectedField];
+      }
+
+      // CAS-6778: Support for new ref. frame SOURCE that requires radial velocity correction
+      if (radialVelocityCorrection_p) {
+	radialVelocity_p = fieldCols->radVelMeas(firstSelectedField, referenceTime_p.get("s").getValue());
+
+	if (radialVelocity_p.getRef().getType() != MRadialVelocity::GEO) {
+	  logger_p << LogIO::SEVERE << LogOrigin("MSTransformManager", __FUNCTION__)
+		   << "Cannot perform radial velocity correction with ephemerides attached "
+		   << "to first selected field " << firstSelectedField << " of type "
+		   << MRadialVelocity::showType(radialVelocity_p.getRef().getType())
+		   << ".\nType needs to be GEO."
+		   << LogIO::EXCEPTION;
 	}
-	else
-	{
-		 spwTable = outputMs_p->spectralWindow();
-	}
-	MSSpWindowColumns spwCols(spwTable);
 
-	if (reindex_p)
-	{
-		inputReferenceFrame_p = MFrequency::castType(spwCols.measFreqRef()(0));
-	}
-	else
-	{
-		Int firstSelectedDDI = selectedInputMsCols_p->dataDescId()(0);
-		MSDataDescription ddiTable = outputMs_p->dataDescription();
-		MSDataDescColumns ddiCols(ddiTable);
-		Int firstSelectedSPW = ddiCols.spectralWindowId()(firstSelectedDDI);
-		inputReferenceFrame_p = MFrequency::castType(spwCols.measFreqRef()(firstSelectedSPW));
-	}
-
-    // Parse output reference frame
-    refFrameTransformation_p = true;
-    radialVelocityCorrection_p = false;
-    if(outputReferenceFramePar_p.empty())
-    {
-    	outputReferenceFrame_p = inputReferenceFrame_p;
+	result = fieldCols->phaseDirMeas(firstSelectedField,referenceTime_p.get("s").getValue());
+      } else {
+	result = fieldCols->phaseDirMeasCol()(firstSelectedField)(IPosition(1,0));
+      }
+    } else {
+      // Parse phase center
+      if(!casaMDirection(phaseCenter, result)) {
+	logger_p << LogIO::SEVERE << LogOrigin("MSTransformManager", __FUNCTION__)
+		 << "Cannot interpret phase center " << phaseCenter << LogIO::POST;
+      }
     }
-    // CAS-6778: Support for new ref. frame SOURCE that requires radial velocity correction
-    else if (outputReferenceFramePar_p == "SOURCE")
-    {
-    	outputReferenceFrame_p = MFrequency::GEO;
-    	radialVelocityCorrection_p = true;
-    }
-    else if(!MFrequency::getType(outputReferenceFrame_p, outputReferenceFramePar_p))
-    {
-    	logger_p << LogIO::SEVERE << LogOrigin("MSTransformManager", __FUNCTION__)
-    			<< "Problem parsing output reference frame:" << outputReferenceFramePar_p  << LogIO::EXCEPTION;
-    }
+  }
 
-    if (outputReferenceFrame_p == inputReferenceFrame_p) {
-    	refFrameTransformation_p = false;
-    }
-
-
-    // Determine observatory position from the first row in the observation sub-table of the output (selected) MS
-    MSObservation observationTable;
-    if (userBufferMode_p)
-    {
-    	observationTable = selectedInputMs_p->observation();
-    }
-    else
-    {
-    	observationTable = outputMs_p->observation();
-    }
-    MSObservationColumns observationCols(observationTable);
-    String observatoryName = observationCols.telescopeName()(0);
-    MeasTable::Observatory(observatoryPosition_p,observatoryName);
-
-    // jagonzal: This conversion is needed only for cosmetic reasons
-    // observatoryPosition_p=MPosition::Convert(observatoryPosition_p, MPosition::ITRF)();
-
-    // Determine observation time from the first row in the selected MS
-    referenceTime_p = selectedInputMsCols_p->timeMeas()(0);
-
-    // Access FIELD cols to get phase center and radial velocity
-    inputMSFieldCols_p = new MSFieldColumns(selectedInputMs_p->field());
-
-	// Determine phase center
-    if (phaseCenterPar_p->type() == casac::variant::INT)
-    {
-    	Int fieldIdForPhaseCenter = phaseCenterPar_p->toInt();
-
-    	if (fieldIdForPhaseCenter >= (Int)inputMSFieldCols_p->nrow() || fieldIdForPhaseCenter < 0)
-    	{
-    		logger_p << LogIO::SEVERE << LogOrigin("MSTransformManager", __FUNCTION__)
-    				<< "Selected FIELD_ID to determine phase center does not exist "
-    				<< LogIO::POST;
-    	}
-    	else
-    	{
-    		// CAS-6778: Support for new ref. frame SOURCE that requires radial velocity correction
-    		if (radialVelocityCorrection_p)
-    		{
-    			radialVelocity_p = inputMSFieldCols_p->radVelMeas(fieldIdForPhaseCenter, referenceTime_p.get("s").getValue());
-    			phaseCenter_p = inputMSFieldCols_p->phaseDirMeas(fieldIdForPhaseCenter,referenceTime_p.get("s").getValue());
-    		}
-    		else
-    		{
-    			phaseCenter_p = inputMSFieldCols_p->phaseDirMeasCol()(fieldIdForPhaseCenter)(IPosition(1,0));
-    		}
-    	}
-    }
-    else
-    {
-    	String phaseCenter = phaseCenterPar_p->toString(true);
-
-    	// Determine phase center from the first row in the FIELD sub-table of the output (selected) MS
-    	if (phaseCenter.empty())
-    	{
-    		MSFieldColumns *fieldCols;
-    		if (userBufferMode_p)
-    		{
-    			fieldCols = inputMSFieldCols_p;
-    		}
-    		else
-    		{
-    			MSField fieldTable = outputMs_p->field();
-    			fieldCols = new MSFieldColumns(fieldTable);
-    		}
-
-    		// CAS-8870: Mstransform with outframe=’SOURCE’ crashes because of ephemeris type
-    		Int firstSelectedField = selectedInputMsCols_p->fieldId()(0);
-    		if (inputOutputFieldIndexMap_p.find(firstSelectedField) != inputOutputFieldIndexMap_p.end())
-    		{
-    			firstSelectedField = inputOutputFieldIndexMap_p[firstSelectedField];
-    		}
-
-    		// CAS-6778: Support for new ref. frame SOURCE that requires radial velocity correction
-    		if (radialVelocityCorrection_p)
-    		{
-    			radialVelocity_p = fieldCols->radVelMeas(firstSelectedField, referenceTime_p.get("s").getValue());
-
-    			if (radialVelocity_p.getRef().getType() != MRadialVelocity::GEO)
-    			{
-    				logger_p << LogIO::SEVERE << LogOrigin("MSTransformManager", __FUNCTION__)
-    						   << "Cannot perform radial velocity correction with ephemerides attached to first selected field "
-    						   << firstSelectedField << " of type "
-    						   << MRadialVelocity::showType(radialVelocity_p.getRef().getType())
-    				   	   	   << ".\nType needs to be GEO."
-    						   << LogIO::EXCEPTION;
-    			}
-
-    			phaseCenter_p = fieldCols->phaseDirMeas(firstSelectedField,referenceTime_p.get("s").getValue());
-    		}
-    		else
-    		{
-    			phaseCenter_p = fieldCols->phaseDirMeasCol()(firstSelectedField)(IPosition(1,0));
-    		}
-    	}
-    	// Parse phase center
-    	else
-    	{
-        	if(!casaMDirection(phaseCenter, phaseCenter_p))
-        	{
-        		logger_p << LogIO::SEVERE << LogOrigin("MSTransformManager", __FUNCTION__)
-        				<< "Cannot interpret phase center " << phaseCenter << LogIO::POST;
-        		return;
-        	}
-    	}
-    }
-
-	return;
+  return result;
 }
 
 // -----------------------------------------------------------------------
@@ -2513,96 +2508,91 @@ void MSTransformManager::initRefFrameTransParams()
 // -----------------------------------------------------------------------
 void MSTransformManager::regridSpwSubTable()
 {
-	// Access Spectral Window sub-table
-	MSSpectralWindow spwTable = outputMs_p->spectralWindow();
-    uInt nInputSpws = spwTable.nrow();
-    MSSpWindowColumns spwCols(spwTable);
+  // Access Spectral Window sub-table
+  MSSpectralWindow spwTable = outputMs_p->spectralWindow();
+  uInt nInputSpws = spwTable.nrow();
+  MSSpWindowColumns spwCols(spwTable);
 
-    // Access columns which have to be modified
-    ArrayColumn<Double> chanFreqCol = spwCols.chanFreq();
-    ArrayColumn<Double> chanWidthCol = spwCols.chanWidth();
-    ArrayColumn<Double> effectiveBWCol = spwCols.effectiveBW();
-    ArrayColumn<Double> resolutionCol = spwCols.resolution();
-    ScalarColumn<Int> numChanCol = spwCols.numChan();
-    ScalarColumn<Double> refFrequencyCol = spwCols.refFrequency();
-    ScalarColumn<Double> totalBandwidthCol = spwCols.totalBandwidth();
-    ScalarColumn<Int> measFreqRefCol = spwCols.measFreqRef();
+  // Access columns which have to be modified
+  ArrayColumn<Double> chanFreqCol = spwCols.chanFreq();
+  ArrayColumn<Double> chanWidthCol = spwCols.chanWidth();
+  ArrayColumn<Double> effectiveBWCol = spwCols.effectiveBW();
+  ArrayColumn<Double> resolutionCol = spwCols.resolution();
+  ScalarColumn<Int> numChanCol = spwCols.numChan();
+  ScalarColumn<Double> refFrequencyCol = spwCols.refFrequency();
+  ScalarColumn<Double> totalBandwidthCol = spwCols.totalBandwidth();
+  ScalarColumn<Int> measFreqRefCol = spwCols.measFreqRef();
 
-    Int spwId;
-    for(uInt spw_idx=0; spw_idx<nInputSpws; spw_idx++)
-    {
-    	if (outputInputSPWIndexMap_p.size()>0)
-    	{
-    		spwId = outputInputSPWIndexMap_p[spw_idx];
-    	}
-    	else
-    	{
-    		spwId = spw_idx;
-    	}
-
-    	// jagonzal: Skip this SPW in non-reindex mode
-    	if ((!reindex_p) and (numOfSelChanMap_p.find(spwId) == numOfSelChanMap_p.end())) continue;
-
-    	logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-    			<< "Regridding SPW with Id " <<  spwId << LogIO::POST;
-
-    	// Get input frequencies and widths
-    	Vector<Double> originalChanFreq(chanFreqCol(spw_idx));
-    	Vector<Double> originalChanWidth(chanWidthCol(spw_idx));
-
-    	// Calculate output SPW
-        Vector<Double> regriddedCHAN_FREQ;
-        Vector<Double> regriddedCHAN_WIDTH;
-        Vector<Double> inputCHAN_FREQ;
-        Vector<Double> inputCHAN_WIDTH;
-        regridSpwAux(spwId,MFrequency::castType(spwCols.measFreqRef()(spw_idx)),originalChanFreq,originalChanWidth,inputCHAN_FREQ,inputCHAN_WIDTH,regriddedCHAN_FREQ,regriddedCHAN_WIDTH,string("Input"));
-        spwInfo inputSpw(inputCHAN_FREQ,inputCHAN_WIDTH);
-        spwInfo outputSpw(regriddedCHAN_FREQ,regriddedCHAN_WIDTH);
-
-        // Set the output SPW characteristics in the SPW sub-table
-        numChanCol.put(spw_idx,outputSpw.NUM_CHAN);
-        chanFreqCol.put(spw_idx, outputSpw.CHAN_FREQ);
-        chanWidthCol.put(spw_idx,  outputSpw.CHAN_WIDTH);
-        effectiveBWCol.put(spw_idx, outputSpw.EFFECTIVE_BW);
-        resolutionCol.put(spw_idx, outputSpw.RESOLUTION);
-        refFrequencyCol.put(spw_idx,outputSpw.REF_FREQUENCY);
-        totalBandwidthCol.put(spw_idx,outputSpw.TOTAL_BANDWIDTH);
-
-        // CAS-6778: Support for new ref. frame SOURCE that requires radial velocity correction
-	    if(outputReferenceFrame_p==MFrequency::GEO) // i.e. outframe was GEO or SOURCE
-	    {
-	    	measFreqRefCol.put(spw_idx, (Int)MFrequency::REST);
-	    }
-	    else
-	    {
-	    	measFreqRefCol.put(spw_idx, (Int)outputReferenceFrame_p);
-	    }
-
-        // Add input-output SPW pair to map
-    	inputOutputSpwMap_p[spwId] = std::make_pair(inputSpw,outputSpw);
-
-    	// Prepare frequency transformation engine for the reference time
-    	if (fftShiftEnabled_p)
-    	{
-    		MFrequency::Ref inputFrameRef(inputReferenceFrame_p,
-    				MeasFrame(phaseCenter_p, observatoryPosition_p, referenceTime_p));
-    		MFrequency::Ref outputFrameRef(outputReferenceFrame_p,
-    				MeasFrame(phaseCenter_p, observatoryPosition_p, referenceTime_p));
-    		refTimeFreqTransEngine_p = MFrequency::Convert(MSTransformations::Hz, inputFrameRef, outputFrameRef);
-
-    	    for(uInt chan_idx=0; chan_idx<inputOutputSpwMap_p[spwId].first.CHAN_FREQ.size(); chan_idx++)
-    	    {
-    	    	inputOutputSpwMap_p[spwId].first.CHAN_FREQ_aux[chan_idx] =
-    	    			refTimeFreqTransEngine_p(inputOutputSpwMap_p[spwId].first.CHAN_FREQ[chan_idx]).
-    	    			get(MSTransformations::Hz).getValue();
-    	    }
-    	}
+  Int spwId;
+  for(uInt spw_idx=0; spw_idx<nInputSpws; ++spw_idx) {
+    if (outputInputSPWIndexMap_p.size() > 0) {
+      spwId = outputInputSPWIndexMap_p[spw_idx];
+    } else {
+      spwId = spw_idx;
     }
 
-    // Flush changes
-    outputMs_p->flush(true);
+    // jagonzal: Skip this SPW in non-reindex mode
+    if ((!reindex_p) and (numOfSelChanMap_p.find(spwId) == numOfSelChanMap_p.end()))
+      continue;
 
-	return;
+    logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+	     << "Regridding SPW with Id " <<  spwId << LogIO::POST;
+
+    // Get input frequencies and widths
+    Vector<Double> originalChanFreq(chanFreqCol(spw_idx));
+    Vector<Double> originalChanWidth(chanWidthCol(spw_idx));
+
+    // Calculate output SPW
+    Vector<Double> regriddedCHAN_FREQ;
+    Vector<Double> regriddedCHAN_WIDTH;
+    Vector<Double> inputCHAN_FREQ;
+    Vector<Double> inputCHAN_WIDTH;
+    regridSpwAux(spwId, MFrequency::castType(spwCols.measFreqRef()(spw_idx)),
+		 originalChanFreq, originalChanWidth,
+		 inputCHAN_FREQ, inputCHAN_WIDTH,
+		 regriddedCHAN_FREQ, regriddedCHAN_WIDTH, string("Input"));
+    spwInfo inputSpw(inputCHAN_FREQ, inputCHAN_WIDTH);
+    spwInfo outputSpw(regriddedCHAN_FREQ, regriddedCHAN_WIDTH);
+
+    // Set the output SPW characteristics in the SPW sub-table
+    numChanCol.put(spw_idx, outputSpw.NUM_CHAN);
+    chanFreqCol.put(spw_idx, outputSpw.CHAN_FREQ);
+    chanWidthCol.put(spw_idx, outputSpw.CHAN_WIDTH);
+    effectiveBWCol.put(spw_idx, outputSpw.EFFECTIVE_BW);
+    resolutionCol.put(spw_idx, outputSpw.RESOLUTION);
+    refFrequencyCol.put(spw_idx, outputSpw.REF_FREQUENCY);
+    totalBandwidthCol.put(spw_idx, outputSpw.TOTAL_BANDWIDTH);
+
+    // CAS-6778: Support for new ref. frame SOURCE that requires radial velocity correction
+    if(outputReferenceFrame_p==MFrequency::GEO) {
+      // i.e. outframe was GEO or SOURCE
+      measFreqRefCol.put(spw_idx, (Int)MFrequency::REST);
+    } else {
+      measFreqRefCol.put(spw_idx, (Int)outputReferenceFrame_p);
+    }
+
+    // Add input-output SPW pair to map
+    inputOutputSpwMap_p[spwId] = std::make_pair(inputSpw,outputSpw);
+
+    // Prepare frequency transformation engine for the reference time
+    if (fftShiftEnabled_p) {
+      MFrequency::Ref inputFrameRef(inputReferenceFrame_p,
+				    MeasFrame(phaseCenter_p, observatoryPosition_p, referenceTime_p));
+      MFrequency::Ref outputFrameRef(outputReferenceFrame_p,
+				     MeasFrame(phaseCenter_p, observatoryPosition_p, referenceTime_p));
+      refTimeFreqTransEngine_p = MFrequency::Convert(MSTransformations::Hz, inputFrameRef, outputFrameRef);
+
+      for(uInt chan_idx=0; chan_idx < inputOutputSpwMap_p[spwId].first.CHAN_FREQ.size();
+	  ++chan_idx) {
+	inputOutputSpwMap_p[spwId].first.CHAN_FREQ_aux[chan_idx] =
+	  refTimeFreqTransEngine_p(inputOutputSpwMap_p[spwId].first.CHAN_FREQ[chan_idx]).
+	  get(MSTransformations::Hz).getValue();
+      }
+    }
+  }
+
+  // Flush changes
+  outputMs_p->flush(true);
 }
 
 // -----------------------------------------------------------------------
@@ -2611,10 +2601,10 @@ void MSTransformManager::regridSpwSubTable()
 // -----------------------------------------------------------------------
 void MSTransformManager::regridAndCombineSpwSubtable()
 {
-	/// Determine input SPW structure ////////////////////
+    /// Determine input SPW structure ////////////////////
 
-	// Access Spectral Window sub-table
-	MSSpectralWindow spwTable = outputMs_p->spectralWindow();
+    // Access Spectral Window sub-table
+    MSSpectralWindow spwTable = outputMs_p->spectralWindow();
     uInt nInputSpws = spwTable.nrow();
     MSSpWindowColumns spwCols(spwTable);
 
@@ -2671,9 +2661,9 @@ void MSTransformManager::regridAndCombineSpwSubtable()
 
     /// Determine combined SPW structure ///////////////////
 
-	// Determine combined SPWs
-	logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-			<< "Calculate combined SPW frequencies" << LogIO::POST;
+    // Determine combined SPWs
+    logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+	     << "Calculate combined SPW frequencies" << LogIO::POST;
 
     Vector<Double> combinedCHAN_FREQ;
     Vector<Double> combinedCHAN_WIDTH;
@@ -2726,7 +2716,7 @@ void MSTransformManager::regridAndCombineSpwSubtable()
 		}
 	}
 
-	/// Calculate output SPW ///////////////////////////////
+    /// Calculate output SPW ///////////////////////////////
     Vector<Double> regriddedCHAN_FREQ;
     Vector<Double> regriddedCHAN_WIDTH;
     Vector<Double> inputCHAN_FREQ;
@@ -2762,26 +2752,26 @@ void MSTransformManager::regridAndCombineSpwSubtable()
 
 
     /// Add input-output SPW pair to map ///////////////////
-	inputOutputSpwMap_p[0] = std::make_pair(inputSpw,outputSpw);
+    inputOutputSpwMap_p[0] = std::make_pair(inputSpw,outputSpw);
 
-	// Prepare frequency transformation engine for the reference time
-	if (fftShiftEnabled_p)
-	{
-		MFrequency::Ref inputFrameRef(inputReferenceFrame_p,
-				MeasFrame(phaseCenter_p, observatoryPosition_p, referenceTime_p));
-		MFrequency::Ref outputFrameRef(outputReferenceFrame_p,
-				MeasFrame(phaseCenter_p, observatoryPosition_p, referenceTime_p));
-		refTimeFreqTransEngine_p = MFrequency::Convert(MSTransformations::Hz, inputFrameRef, outputFrameRef);
+    // Prepare frequency transformation engine for the reference time
+    if (fftShiftEnabled_p)
+    {
+    	MFrequency::Ref inputFrameRef(inputReferenceFrame_p,
+    			MeasFrame(phaseCenter_p, observatoryPosition_p, referenceTime_p));
+    	MFrequency::Ref outputFrameRef(outputReferenceFrame_p,
+    			MeasFrame(phaseCenter_p, observatoryPosition_p, referenceTime_p));
+    	refTimeFreqTransEngine_p = MFrequency::Convert(MSTransformations::Hz, inputFrameRef, outputFrameRef);
 
-	    for(uInt chan_idx=0; chan_idx<inputOutputSpwMap_p[0].first.CHAN_FREQ.size(); chan_idx++)
-	    {
-	    	inputOutputSpwMap_p[0].first.CHAN_FREQ_aux[chan_idx] =
-	    			refTimeFreqTransEngine_p(inputOutputSpwMap_p[0].first.CHAN_FREQ[chan_idx]).
-	    			get(MSTransformations::Hz).getValue();
-	    }
-	}
+        for(uInt chan_idx=0; chan_idx<inputOutputSpwMap_p[0].first.CHAN_FREQ.size(); chan_idx++)
+        {
+        	inputOutputSpwMap_p[0].first.CHAN_FREQ_aux[chan_idx] =
+		  refTimeFreqTransEngine_p(inputOutputSpwMap_p[0].first.CHAN_FREQ[chan_idx]).
+		  get(MSTransformations::Hz).getValue();
+        }
+    }
 
-	return;
+    return;
 }
 
 
@@ -2799,175 +2789,153 @@ void MSTransformManager::regridSpwAux(Int spwId, MFrequency::Types spwInputRefFr
 				      string msg)
 {
 
-    // Print characteristics of input SPW
-	ostringstream oss;
-	oss << msg;
-    oss 	<< " SPW: " << std::setw(5) << originalCHAN_FREQ.size()
-    		<< " channels, first channel = "
-    		<< std::setprecision(9) << std::setw(14) << std::scientific
-    		<< originalCHAN_FREQ(0) << " Hz"
-    		<< ", last channel = "
-    		<< std::setprecision(9) << std::setw(14) << std::scientific
-    		<< originalCHAN_FREQ(originalCHAN_FREQ.size() -1) << " Hz";
-    logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__) << oss.str() << LogIO::POST;
+  // Print characteristics of input SPW
+  ostringstream oss;
+  oss << msg;
+  oss << " SPW: " << std::setw(5) << originalCHAN_FREQ.size()
+      << " channels, first channel = "
+      << std::setprecision(9) << std::setw(14) << std::scientific
+      << originalCHAN_FREQ(0) << " Hz"
+      << ", last channel = "
+      << std::setprecision(9) << std::setw(14) << std::scientific
+      << originalCHAN_FREQ(originalCHAN_FREQ.size() -1) << " Hz";
+  logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__) << oss.str() << LogIO::POST;
 
+  // Apply channel average if necessary
+  if (freqbinMap_p.find(spwId) != freqbinMap_p.end()) {
+    calculateIntermediateFrequencies(spwId,originalCHAN_FREQ,originalCHAN_WIDTH,inputCHAN_FREQ,inputCHAN_WIDTH);
 
-	// Apply channel average if necessary
-	if (freqbinMap_p.find(spwId) != freqbinMap_p.end())
-	{
-		calculateIntermediateFrequencies(spwId,originalCHAN_FREQ,originalCHAN_WIDTH,inputCHAN_FREQ,inputCHAN_WIDTH);
+    oss.str("");
+    oss.clear();
+    oss << "Averaged SPW: " << std::setw(5) << inputCHAN_WIDTH.size()
+	<< " channels, first channel = "
+	<< std::setprecision(9) << std::setw(14) << std::scientific
+	<< inputCHAN_FREQ(0) << " Hz"
+	<< ", last channel = "
+	<< std::setprecision(9) << std::setw(14) << std::scientific
+	<< inputCHAN_FREQ(inputCHAN_WIDTH.size() -1) << " Hz";
+    logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+	     << oss.str() << LogIO::POST;
+  } else {
+    numOfCombInputChanMap_p[spwId] = originalCHAN_FREQ.size();
+    numOfCombInterChanMap_p[spwId] = originalCHAN_FREQ.size();
+    inputCHAN_FREQ = originalCHAN_FREQ;
+    inputCHAN_WIDTH = originalCHAN_WIDTH;
+  }
 
-		oss.str("");
-		oss.clear();
-		oss 	<< "Averaged SPW: " << std::setw(5) << inputCHAN_WIDTH.size()
-            				<< " channels, first channel = "
-            				<< std::setprecision(9) << std::setw(14) << std::scientific
-            				<< inputCHAN_FREQ(0) << " Hz"
-            				<< ", last channel = "
-            				<< std::setprecision(9) << std::setw(14) << std::scientific
-            				<< inputCHAN_FREQ(inputCHAN_WIDTH.size() -1) << " Hz";
-		logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-            				<< oss.str() << LogIO::POST;
-	}
-	else
-	{
-		numOfCombInputChanMap_p[spwId] = originalCHAN_FREQ.size();
-		numOfCombInterChanMap_p[spwId] = originalCHAN_FREQ.size();
-		inputCHAN_FREQ = originalCHAN_FREQ;
-		inputCHAN_WIDTH = originalCHAN_WIDTH;
-	}
+  // Re-grid the output SPW to be uniform and change reference frame
+  logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+	   << "Calculate frequencies in output reference frame " << LogIO::POST;
 
-	// Re-grid the output SPW to be uniform and change reference frame
+  Double weightScale;
+  Bool ret = MSTransformRegridder::calcChanFreqs(logger_p,
+						 regriddedCHAN_FREQ, regriddedCHAN_WIDTH,
+						 weightScale, inputCHAN_FREQ,
+						 inputCHAN_WIDTH, phaseCenter_p,
+						 spwInputRefFrame, referenceTime_p,
+						 observatoryPosition_p, mode_p, nChan_p,
+						 start_p, width_p, restFrequency_p,
+						 outputReferenceFramePar_p,
+						 velocityType_p,
+						 true, // verbose
+						 radialVelocity_p);
+
+  if (!ret) {
+    logger_p << LogIO::SEVERE << "calcChanFreqs failed, check input start and width parameters"
+	     << LogIO::EXCEPTION;
+  }
+
+  ostringstream oss_debug;
+  oss_debug << "after calcChanFreqs, phaseCenter_p=" << phaseCenter_p << endl
+	    << " inputReferenceFrame_p=" << inputReferenceFrame_p << endl
+	    << " referenceTime_p=" << referenceTime_p << endl
+	    << " observatoryPosition_p=" << observatoryPosition_p << endl
+	    << " mode_p=" << mode_p << endl
+	    << " nChan_p=" << nChan_p << endl
+	    << " start_p=" << start_p << endl
+	    << " width_p=" << width_p << endl
+	    << " restFrequency_p=" << restFrequency_p << endl
+	    << " outputReferenceFrame_p=" << outputReferenceFrame_p << endl
+	    << " velocityType_p=" << velocityType_p << endl
+	    << " radialVelocity_p=" << radialVelocity_p;
+  logger_p << LogIO::DEBUG1 << LogOrigin("MSTransformManager", __FUNCTION__) <<
+    oss_debug.str() << LogIO::POST;
+
+  // jagonzal (new WEIGHT/SIGMA convention in CASA 4.2.2)
+  if (newWeightFactorMap_p.find(spwId) == newWeightFactorMap_p.end()) {
+    newWeightFactorMap_p[spwId] = weightScale;
+  } else {
+    newWeightFactorMap_p[spwId] *= weightScale;
+  }
+
+  // Check if pre-averaging step is necessary
+  if (freqbinMap_p.find(spwId) == freqbinMap_p.end()) {
+    Double weightScaleDummy;
+    Vector<Double> tmpCHAN_FREQ;
+    Vector<Double> tmpCHAN_WIDTH;
+    MSTransformRegridder::calcChanFreqs(logger_p, tmpCHAN_FREQ, tmpCHAN_WIDTH,
+					weightScaleDummy, originalCHAN_FREQ,
+					originalCHAN_WIDTH, phaseCenter_p,
+					inputReferenceFrame_p,
+					referenceTime_p,
+					observatoryPosition_p,
+					String("channel"), -1,
+					String("0"), String("1"),
+					restFrequency_p,
+					outputReferenceFramePar_p,
+					velocityType_p, false // verbose
+					);
+
+    Double avgCombinedWidth = 0;
+    for (uInt chanIdx = 0; chanIdx < tmpCHAN_WIDTH.size(); ++chanIdx) {
+      avgCombinedWidth += tmpCHAN_WIDTH(chanIdx);
+    }
+    avgCombinedWidth /= tmpCHAN_WIDTH.size();
+
+    Double avgRegriddedWidth = 0;
+    for (uInt chanIdx=0;chanIdx<regriddedCHAN_WIDTH.size();chanIdx++) {
+      avgRegriddedWidth += regriddedCHAN_WIDTH(chanIdx);
+    }
+    avgRegriddedWidth /= regriddedCHAN_WIDTH.size();
+
+    uInt width =  (uInt)floor(abs(avgRegriddedWidth/avgCombinedWidth) + 0.001);
+
+    if ((width >= 2) and  2*width <= originalCHAN_WIDTH.size()) {
+      if (!enableChanPreAverage_p) {
 	logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-		 << "Calculate frequencies in output reference frame " << LogIO::POST;
+		 << "Ratio between input and output width is >=2: " << avgRegriddedWidth/avgCombinedWidth
+		 << ", but not doing pre-channel average (it is disabled by "
+		 << "default since CASA release 5.0)." << LogIO::POST;
+      } else {
+	logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
+		 << "mstransform with regridms does not regrid properly for channel widths "
+	  "> or = 2 x the native channel width, when using channel pre-averaging. Please "
+	  "use clean or tclean for larger regridding. "
+		 << LogIO::POST;
 
-	Double weightScale;
-	Bool ret = MSTransformRegridder::calcChanFreqs(	logger_p,
-											regriddedCHAN_FREQ,
-											regriddedCHAN_WIDTH,
-											weightScale,
-											inputCHAN_FREQ,
-											inputCHAN_WIDTH,
-											phaseCenter_p,
-											spwInputRefFrame,
-											referenceTime_p,
-											observatoryPosition_p,
-											mode_p,
-											nChan_p,
-											start_p,
-											width_p,
-											restFrequency_p,
-											outputReferenceFramePar_p,
-											velocityType_p,
-											true, // verbose
-											radialVelocity_p
-											);
-
-	if (!ret) {
-		logger_p << LogIO::SEVERE << "calcChanFreqs failed, check input start and width parameters"
-				 << LogIO::EXCEPTION;
-	}
-
-	ostringstream oss_debug;
-	oss_debug 	<< "after calcChanFreqs, phaseCenter_p=" << phaseCenter_p << endl
-			<< " inputReferenceFrame_p=" << inputReferenceFrame_p << endl
-			<< " referenceTime_p=" << referenceTime_p << endl
-			<< " observatoryPosition_p=" << observatoryPosition_p << endl
-			<< " mode_p=" << mode_p << endl
-			<< " nChan_p=" << nChan_p << endl
-			<< " start_p=" << start_p << endl
-			<< " width_p=" << width_p << endl
-			<< " restFrequency_p=" << restFrequency_p << endl
-			<< " outputReferenceFrame_p=" << outputReferenceFrame_p << endl
-			<< " velocityType_p=" << velocityType_p << endl
-			<< " radialVelocity_p=" << radialVelocity_p;
-	logger_p << LogIO::DEBUG1 << LogOrigin("MSTransformManager", __FUNCTION__) <<
-	  oss_debug.str() << LogIO::POST;
-
-	// jagonzal (new WEIGHT/SIGMA convention in CASA 4.2.2)
-	if (newWeightFactorMap_p.find(spwId) == newWeightFactorMap_p.end())
-	{
-		newWeightFactorMap_p[spwId] = weightScale;
-	}
-	else
-	{
-		newWeightFactorMap_p[spwId] *= weightScale;
-	}
-
-	// Check if pre-averaging step is necessary
-	if (freqbinMap_p.find(spwId) == freqbinMap_p.end())
-	{
-		Double weightScaleDummy;
-		Vector<Double> tmpCHAN_FREQ;
-		Vector<Double> tmpCHAN_WIDTH;
-		MSTransformRegridder::calcChanFreqs(logger_p, tmpCHAN_FREQ, tmpCHAN_WIDTH,
-						    weightScaleDummy, originalCHAN_FREQ,
-						    originalCHAN_WIDTH, phaseCenter_p,
-						    inputReferenceFrame_p,
-						    referenceTime_p,
-						    observatoryPosition_p,
-						    String("channel"), -1,
-						    String("0"), String("1"),
-						    restFrequency_p,
-						    outputReferenceFramePar_p,
-						    velocityType_p, false // verbose
-						    );
-
-		Double avgCombinedWidth = 0;
-		for (uInt chanIdx=0;chanIdx<tmpCHAN_WIDTH.size();chanIdx++)
-		{
-			avgCombinedWidth += tmpCHAN_WIDTH(chanIdx);
-		}
-		avgCombinedWidth /= tmpCHAN_WIDTH.size();
-
-		Double avgRegriddedWidth = 0;
-		for (uInt chanIdx=0;chanIdx<regriddedCHAN_WIDTH.size();chanIdx++)
-		{
-			avgRegriddedWidth += regriddedCHAN_WIDTH(chanIdx);
-		}
-		avgRegriddedWidth /= regriddedCHAN_WIDTH.size();
-
-		uInt width =  (uInt)floor(abs(avgRegriddedWidth/avgCombinedWidth) + 0.001);
-
-
-		if ((width >= 2) and  2*width <= originalCHAN_WIDTH.size()) {
-		  if (!enableChanPreAverage_p) {
-		    logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-			     << "Ratio between input and output width is >=2: " << avgRegriddedWidth/avgCombinedWidth
-			     << ", but not doing pre-channel average (it is disabled by "
-			     << "default since CASA release 5.0." << LogIO::POST;
-		  } else {
-		    logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
-			     << "mstransform with regridms does not regrid properly for channel widths "
-		      "> or = 2 x the native channel width, please use clean or tclean for larger regridding. "
-		      "A fix is expected for CASA 5.0, all earlier versions also have this issue."
-			     << LogIO::POST;
-
-		    logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-			     << "Ratio between input and output width is " << avgRegriddedWidth/avgCombinedWidth
-			     << ", setting pre-channel average width to " << width << LogIO::POST;
-
-		    doPreAveragingBeforeRegridding(width, spwId,
-						   originalCHAN_FREQ, originalCHAN_WIDTH,
-						   inputCHAN_FREQ, inputCHAN_WIDTH);
-		  }
-		}
-	}
-
-	// Print characteristics of output SPW
-	oss.str("");
-	oss.clear();
-	oss 	<< "Output SPW: " << std::setw(5) << regriddedCHAN_FREQ.size()
-			<< " channels, first channel = "
-			<< std::setprecision(9) << std::setw(14) << std::scientific
-			<< regriddedCHAN_FREQ(0) << " Hz"
-			<< ", last channel = "
-			<< std::setprecision(9) << std::setw(14) << std::scientific
-			<< regriddedCHAN_FREQ(regriddedCHAN_FREQ.size()-1) << " Hz";
 	logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-	    				<< oss.str() << LogIO::POST;
+		 << "Ratio between input and output width is " << avgRegriddedWidth/avgCombinedWidth
+		 << ", setting pre-channel average width to " << width << LogIO::POST;
 
-	return;
+	doPreAveragingBeforeRegridding(width, spwId,
+				       originalCHAN_FREQ, originalCHAN_WIDTH,
+				       inputCHAN_FREQ, inputCHAN_WIDTH);
+      }
+    }
+  }
+
+  // Print characteristics of output SPW
+  oss.str("");
+  oss.clear();
+  oss << "Output SPW: " << std::setw(5) << regriddedCHAN_FREQ.size()
+      << " channels, first channel = "
+      << std::setprecision(9) << std::setw(14) << std::scientific
+      << regriddedCHAN_FREQ(0) << " Hz"
+      << ", last channel = "
+      << std::setprecision(9) << std::setw(14) << std::scientific
+      << regriddedCHAN_FREQ(regriddedCHAN_FREQ.size()-1) << " Hz";
+  logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+	   << oss.str() << LogIO::POST;
 }
 
 // -----------------------------------------------------------------------
