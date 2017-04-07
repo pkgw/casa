@@ -231,6 +231,12 @@ String SDDoubleCircleGainCal::solveinfo() {
   return String(o);
 }
 
+void SDDoubleCircleGainCal::globalPostSolveTinker() {
+
+  // apply generic post-solve stuff
+  SolvableVisCal::globalPostSolveTinker();
+}
+
 void SDDoubleCircleGainCal::keepNCT() {
   debuglog << "SDDoubleCircleGainCal::keepNCT" << debugpost;
   // Call parent to do general stuff
@@ -300,6 +306,10 @@ void SDDoubleCircleGainCal::selfGatherAndSolve(VisSet& vs,
 
   // store caltable
   storeNCT();
+}
+
+void SDDoubleCircleGainCal::selfSolveOne(SDBList &/*sdbs*/) {
+  // do nothing at this moment
 }
 
 template<class Accessor>

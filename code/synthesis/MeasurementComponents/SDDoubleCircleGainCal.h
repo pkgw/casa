@@ -16,7 +16,7 @@ namespace casa {
 class VisSet;
 class VisEquation;
 
-class SDDoubleCircleGainCal: public GJones {
+class SDDoubleCircleGainCal final : public GJones {
 public:
   SDDoubleCircleGainCal(VisSet& vs);
   SDDoubleCircleGainCal(const MSMetaInfoForCal& msmc);
@@ -34,24 +34,35 @@ public:
   // so far single dish calibration is real
 //  virtual VisCalEnum::VCParType parType() { return VisCalEnum::REAL; }
 
+  // Frequency-dependent Parameters?
+  virtual casacore::Bool freqDepPar() { return true; };
+
+  // useGenericGatherForSolve must return true to migrate VI/VB2 based implementation
+  virtual casacore::Bool useGenericGatherForSolve() override {
+    return true;
+  }
   // Do not use generic data gathering mechanism for solve
-  virtual casacore::Bool useGenericGatherForSolve() {
+  virtual casacore::Bool useGenericSolveOne() override {
     return false;
   }
 
   // Set the solving parameters
-  virtual void setSolve();
-  virtual void setSolve(const casacore::Record& solve);
+  virtual void setSolve() override;
+  virtual void setSolve(const casacore::Record& solve) override;
 
   // Report solve info/params, e.g., for logging
-  virtual casacore::String solveinfo();
+  virtual casacore::String solveinfo() override;
+
+  // Post solve tinkering
+  virtual void globalPostSolveTinker() override;
 
   // Self- gather and/or solve prototypes
   //  (triggered by useGenericGatherForSolve=F or useGenericSolveOne=F)
-  virtual void selfGatherAndSolve(VisSet& vs, VisEquation& ve);
+  virtual void selfGatherAndSolve(VisSet& vs, VisEquation& ve) override;
+  virtual void selfSolveOne(SDBList &sdbs) override;
 
   // specific keepNCT
-  virtual void keepNCT();
+  virtual void keepNCT() override;
 
 private:
   template<class Accessor>
