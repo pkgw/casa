@@ -403,6 +403,8 @@ protected:
 
 	// To re-grid SPW subtable
 	void initRefFrameTransParams();
+	casacore::MFrequency::Types determineInputRefFrame();
+	casacore::MDirection determinePhaseCenter();
 	void regridSpwSubTable();
 	void regridAndCombineSpwSubtable();
 	/// Regrids one SPW
