@@ -66,25 +66,25 @@
 #include <msvis/MSVis/VisSetUtil.h>
 #include <msvis/MSVis/ViFrequencySelection.h>
 
-#include <msvis/MSVis/statistics/Vi2ChunkStatisticsIteratee.h>
-#include <msvis/MSVis/statistics/Vi2ChunkDataProvider.h>
-#include <msvis/MSVis/statistics/Vi2ChunkVisAmplitudeProvider.h>
-#include <msvis/MSVis/statistics/Vi2ChunkVisPhaseProvider.h>
-#include <msvis/MSVis/statistics/Vi2ChunkVisRealProvider.h>
-#include <msvis/MSVis/statistics/Vi2ChunkVisImaginaryProvider.h>
-#include <msvis/MSVis/statistics/Vi2ChunkFloatVisDataProvider.h>
-#include <msvis/MSVis/statistics/Vi2ChunkUVRangeDataProvider.h>
-#include <msvis/MSVis/statistics/Vi2ChunkFlagCubeDataProvider.h>
-#include <msvis/MSVis/statistics/Vi2ChunkAntennaDataProvider.h>
-#include <msvis/MSVis/statistics/Vi2ChunkFeedDataProvider.h>
-#include <msvis/MSVis/statistics/Vi2ChunkFieldIdDataProvider.h>
-#include <msvis/MSVis/statistics/Vi2ChunkArrayIdDataProvider.h>
-#include <msvis/MSVis/statistics/Vi2ChunkDataDescriptionIdsDataProvider.h>
-#include <msvis/MSVis/statistics/Vi2ChunkFlagRowDataProvider.h>
-#include <msvis/MSVis/statistics/Vi2ChunkIntervalDataProvider.h>
-#include <msvis/MSVis/statistics/Vi2ChunkScanDataProvider.h>
-#include <msvis/MSVis/statistics/Vi2ChunkTimeDataProvider.h>
-#include <msvis/MSVis/statistics/Vi2ChunkWeightSpectrumDataProvider.h>
+#include <msvis/MSVis/statistics/Vi2StatisticsIteratee.h>
+#include <msvis/MSVis/statistics/Vi2DataProvider.h>
+#include <msvis/MSVis/statistics/Vi2VisAmplitudeProvider.h>
+#include <msvis/MSVis/statistics/Vi2VisPhaseProvider.h>
+#include <msvis/MSVis/statistics/Vi2VisRealProvider.h>
+#include <msvis/MSVis/statistics/Vi2VisImaginaryProvider.h>
+#include <msvis/MSVis/statistics/Vi2FloatVisDataProvider.h>
+#include <msvis/MSVis/statistics/Vi2UVRangeDataProvider.h>
+#include <msvis/MSVis/statistics/Vi2FlagCubeDataProvider.h>
+#include <msvis/MSVis/statistics/Vi2AntennaDataProvider.h>
+#include <msvis/MSVis/statistics/Vi2FeedDataProvider.h>
+#include <msvis/MSVis/statistics/Vi2FieldIdDataProvider.h>
+#include <msvis/MSVis/statistics/Vi2ArrayIdDataProvider.h>
+#include <msvis/MSVis/statistics/Vi2DataDescriptionIdsDataProvider.h>
+#include <msvis/MSVis/statistics/Vi2FlagRowDataProvider.h>
+#include <msvis/MSVis/statistics/Vi2IntervalDataProvider.h>
+#include <msvis/MSVis/statistics/Vi2ScanDataProvider.h>
+#include <msvis/MSVis/statistics/Vi2TimeDataProvider.h>
+#include <msvis/MSVis/statistics/Vi2WeightSpectrumDataProvider.h>
 
 #include <ms_cmpt.h>
 #include <msmetadata_cmpt.h>
@@ -1397,45 +1397,12 @@ ms::statistics(const std::string& column,
 	return retval;
 }
 
-// Create key value for statistics reporting axis
-//
-static string
-mkKey(int id, const vi::VisBuffer2 *vb)
-{
-	string result;
-
-	switch (id) {
-	case MSMainEnums::PredefinedColumns::ARRAY_ID:
-		result = "ARRAY_ID=" + to_string(vb->arrayId()[0]);
-		break;
-	case MSMainEnums::PredefinedColumns::FIELD_ID:
-		result = "FIELD_ID=" + to_string(vb->fieldId()[0]);
-		break;
-	case MSMainEnums::PredefinedColumns::DATA_DESC_ID:
-		result = "DATA_DESC_ID=" + to_string(vb->dataDescriptionIds()[0]);
-		break;
-	case MSMainEnums::PredefinedColumns::TIME:
-		result = "TIME=" + to_string(vb->time()[0] - vb->timeInterval()[0] / 2);
-		break;
-	case MSMainEnums::PredefinedColumns::SCAN_NUMBER:
-		result = "SCAN_NUMBER=" + to_string(vb->scan()[0]);
-		break;
-	case MSMainEnums::PredefinedColumns::STATE_ID:
-		result = "STATE_ID=" + to_string(vb->stateId()[0]);
-		break;
-	default:
-		assert(false);
-		break;
-	}
-	return result;
-}
-
-// Class used by doStatistics to accumulate the statistics for each chunk
-// provided by a VisibilityIterator2 instance (through a Vi2ChunkDataProvider
+// Class used by doStatistics to accumulate the statistics for each dataset
+// provided by a VisibilityIterator2 instance (through a Vi2DataProvider
 // instance.)
 template <class A, class D, class W, class M>
-class ChunkStatisticsAccumulator
-	: public Vi2ChunkStatisticsIteratee<D,W,M>
+class StatisticsAccumulator
+	: public Vi2StatisticsIteratee<D,W,M>
 {
 	std::map<double, A> quantileToValue;
 	const double quartile1 = 0.25;
@@ -1443,23 +1410,29 @@ class ChunkStatisticsAccumulator
 	std::set<double> quantiles = {quartile1, quartile3};
 
 	Record &acc;
-	vector<Int> &sortColumnIds;
+	const vector<Int> &sortColumnIds;
+	const set<MSMainEnums::PredefinedColumns> &mergedColumns;
 	bool hideTimeAxis;
 
 public:
-	ChunkStatisticsAccumulator(Record &acc, vector<Int> &sortColumnIds, 
-	                           bool hideTimeAxis)
+	StatisticsAccumulator(
+		Record &acc, const vector<Int> &sortColumnIds,
+		const set<MSMainEnums::PredefinedColumns> &mergedColumns,
+		bool hideTimeAxis)
 		: acc(acc)
 		, sortColumnIds(sortColumnIds)
+		, mergedColumns(mergedColumns)
 		, hideTimeAxis(hideTimeAxis) {};
 
-	void nextChunk(StatisticsAlgorithm<A,D,M,W> &statistics, const vi::VisBuffer2 *vb) {
+	void nextDataset(StatisticsAlgorithm<A,D,M,W> &statistics,
+	                 const std::unordered_map<int,std::string> *columnValues) {
 		string keyvals;
 		string delim;
 		for (auto const & id : sortColumnIds) {
-			if (!(id == MSMainEnums::PredefinedColumns::TIME
-			      && hideTimeAxis)) {
-				keyvals += delim + mkKey(id, vb);
+			if (!((id == MSMainEnums::PredefinedColumns::TIME && hideTimeAxis)
+			      || (mergedColumns.count(MSMainEnums::PredefinedColumns(id))
+			          > 0))) {
+				keyvals += delim + columnValues->at(id);
 				delim = ",";
 			}
 		}
@@ -1490,7 +1463,8 @@ template <class DataProvider,
           template <class A, class D, class M, class W> class Statistics>
 static ::casac::record *
 doStatistics(
-	vector<Int> &sortColumnIds,
+	const vector<Int> &sortColumnIds,
+	const set<MSMainEnums::PredefinedColumns> &mergedColumns,
 	bool hideTimeAxis,
 	DataProvider *dataProvider)
 {
@@ -1502,13 +1476,14 @@ doStatistics(
 	           typename DataProvider::WeightsIteratorType>
 		statistics;
 
-	ChunkStatisticsAccumulator<typename DataProvider::AccumType,
-	                           typename DataProvider::DataIteratorType,
-	                           typename DataProvider::WeightsIteratorType,
-	                           typename DataProvider::MaskIteratorType>
-		accumulateChunkStatistics(result, sortColumnIds, hideTimeAxis);
+	StatisticsAccumulator<typename DataProvider::AccumType,
+	                      typename DataProvider::DataIteratorType,
+	                      typename DataProvider::WeightsIteratorType,
+	                      typename DataProvider::MaskIteratorType>
+		accumulateStatistics(result, sortColumnIds, mergedColumns,
+		                     hideTimeAxis);
 
-	dp->foreachChunk(statistics, accumulateChunkStatistics);
+	dp->foreachDataset(statistics, accumulateStatistics);
 	return fromRecord(result);
 }
 
@@ -1517,12 +1492,13 @@ doStatistics(
 template <class DataProvider>
 static ::casac::record *
 doClassicalStatistics(
-	vector<Int> &sortColumnIds,
+	const vector<Int> &sortColumnIds,
+	const set<MSMainEnums::PredefinedColumns> &mergedColumns,
 	bool hideTimeAxis,
 	DataProvider *dataProvider)
 {
 	return doStatistics<DataProvider,ClassicalStatistics>(
-		sortColumnIds, hideTimeAxis, dataProvider);
+		sortColumnIds, mergedColumns, hideTimeAxis, dataProvider);
 }
 
 // Convert string provided as a statistics "reporting axis" to MS column id.
@@ -1803,6 +1779,24 @@ ms::statistics2(const std::string& column,
 				sortColumnIds.push_back(MSMainEnums::PredefinedColumns::TIME);
 			}
 
+			// determine the column boundaries to be ignored by datasets
+			std::vector<MSMainEnums::PredefinedColumns> mergedColumns = {
+				MSMainEnums::PredefinedColumns::ARRAY_ID,
+				MSMainEnums::PredefinedColumns::FIELD_ID,
+				MSMainEnums::PredefinedColumns::DATA_DESC_ID
+			};
+			// don't ignore column boundaries in sortColumnIds
+			auto mergedEnd = mergedColumns.end();
+			for (auto &&c : sortColumnIds)
+				mergedEnd = std::remove(mergedColumns.begin(), mergedEnd, c);
+			std::set<MSMainEnums::PredefinedColumns> mergedColumnIds;
+			for (auto c = mergedColumns.begin(); c != mergedEnd; ++c)
+				mergedColumnIds.insert(*c);
+
+			// add ignored column boundaries to tail end of sortColumnIds
+			for (auto c = mergedColumns.begin(); c != mergedEnd; ++c)
+				sortColumnIds.push_back(*c);
+
 			// create the vi2 instance
 			auto sortColumnIdsData = sortColumnIds.data();
 			Block<Int> sortColumnsBlock(
@@ -1906,189 +1900,230 @@ ms::statistics2(const std::string& column,
 			//
 			// Most of the remaining code in this function effectively acts as a
 			// lookup table to get an instance of the appropriate sub-class of
-			// Vi2ChunkDataProvider for the requested MS column (and data
+			// Vi2DataProvider for the requested MS column (and data
 			// transformation for visibilities), followed by a call to
 			// doStatistics().
 			if (mycolumn == "DATA") {
 				if (complex_value == "amplitude" || complex_value == "amp")
 					retval = doClassicalStatistics(
 						sortColumnIds,
+						mergedColumnIds,
 						hideTimeAxis,
-						new Vi2ChunkObservedVisAmplitudeProvider(
-							vi2, useflags, useweights));
+						new Vi2ObservedVisAmplitudeProvider(
+							vi2, mergedColumnIds, useflags, useweights));
 
 				else if (complex_value == "phase")
 					retval = doClassicalStatistics(
 						sortColumnIds,
+						mergedColumnIds,
 						hideTimeAxis,
-						new Vi2ChunkObservedVisPhaseProvider(
-							vi2, useflags, useweights));
+						new Vi2ObservedVisPhaseProvider(
+							vi2, mergedColumnIds, useflags, useweights));
 
 				else if (complex_value == "imaginary" || complex_value == "imag")
 					retval = doClassicalStatistics(
 						sortColumnIds,
+						mergedColumnIds,
 						hideTimeAxis,
-						new Vi2ChunkObservedVisImaginaryProvider(
-							vi2, useflags, useweights));
+						new Vi2ObservedVisImaginaryProvider(
+							vi2, mergedColumnIds, useflags, useweights));
 
 				else if (complex_value == "real")
 					retval = doClassicalStatistics(
 						sortColumnIds,
+						mergedColumnIds,
 						hideTimeAxis,
-						new Vi2ChunkObservedVisRealProvider(
-							vi2, useflags, useweights));
+						new Vi2ObservedVisRealProvider(
+							vi2, mergedColumnIds, useflags, useweights));
 
 			} else if (mycolumn == "CORRECTED") {
 				if (complex_value == "amplitude" || complex_value == "amp")
 					retval = doClassicalStatistics(
 						sortColumnIds,
+						mergedColumnIds,
 						hideTimeAxis,
-						new Vi2ChunkCorrectedVisAmplitudeProvider(
-							vi2, useflags, useweights));
+						new Vi2CorrectedVisAmplitudeProvider(
+							vi2, mergedColumnIds, useflags, useweights));
 
 				else if (complex_value == "phase")
 					retval = doClassicalStatistics(
 						sortColumnIds,
+						mergedColumnIds,
 						hideTimeAxis,
-						new Vi2ChunkCorrectedVisPhaseProvider(
-							vi2, useflags, useweights));
+						new Vi2CorrectedVisPhaseProvider(
+							vi2, mergedColumnIds, useflags, useweights));
 
 				else if (complex_value == "imaginary" || complex_value == "imag")
 					retval = doClassicalStatistics(
 						sortColumnIds,
+						mergedColumnIds,
 						hideTimeAxis,
-						new Vi2ChunkCorrectedVisImaginaryProvider(
-							vi2, useflags, useweights));
+						new Vi2CorrectedVisImaginaryProvider(
+							vi2, mergedColumnIds, useflags, useweights));
 
 				else if (complex_value == "real")
 					retval = doClassicalStatistics(
 						sortColumnIds,
+						mergedColumnIds,
 						hideTimeAxis,
-						new Vi2ChunkCorrectedVisRealProvider(
-							vi2, useflags, useweights));
+						new Vi2CorrectedVisRealProvider(
+							vi2, mergedColumnIds, useflags, useweights));
 
 			} else if (mycolumn == "MODEL") {
 				if (complex_value == "amplitude" || complex_value == "amp")
 					retval = doClassicalStatistics(
 						sortColumnIds,
+						mergedColumnIds,
 						hideTimeAxis,
-						new Vi2ChunkModelVisAmplitudeProvider(
-							vi2, useflags, useweights));
+						new Vi2ModelVisAmplitudeProvider(
+							vi2, mergedColumnIds, useflags, useweights));
 
 				else if (complex_value == "phase")
 					retval = doClassicalStatistics(
 						sortColumnIds,
+						mergedColumnIds,
 						hideTimeAxis,
-						new Vi2ChunkModelVisPhaseProvider(
-							vi2, useflags, useweights));
+						new Vi2ModelVisPhaseProvider(
+							vi2, mergedColumnIds, useflags, useweights));
 
 				else if (complex_value == "imaginary" || complex_value == "imag")
 					retval = doClassicalStatistics(
 						sortColumnIds,
+						mergedColumnIds,
 						hideTimeAxis,
-						new Vi2ChunkModelVisImaginaryProvider(
-							vi2, useflags, useweights));
+						new Vi2ModelVisImaginaryProvider(
+							vi2, mergedColumnIds, useflags, useweights));
 
 				else if (complex_value == "real")
 					retval = doClassicalStatistics(
 						sortColumnIds,
+						mergedColumnIds,
 						hideTimeAxis,
-						new Vi2ChunkModelVisRealProvider(
-							vi2, useflags, useweights));
+						new Vi2ModelVisRealProvider(
+							vi2, mergedColumnIds, useflags, useweights));
 
 			} else if (mycolumn == "FLOAT") {
 				retval = doClassicalStatistics(
 					sortColumnIds,
+					mergedColumnIds,
 					hideTimeAxis,
-					new Vi2ChunkFloatVisDataProvider(
-						vi2, useflags, useweights));
+					new Vi2FloatVisDataProvider(
+						vi2, mergedColumnIds, useflags, useweights));
 				// } else if (mycolumn == "UVW") {
 
 			} else if (mycolumn == "UVRANGE") {
 				retval = doClassicalStatistics(
 					sortColumnIds,
+					mergedColumnIds,
 					hideTimeAxis,
-					new Vi2ChunkUVRangeDataProvider(vi2, useflags));
+					new Vi2UVRangeDataProvider(
+						vi2, mergedColumnIds, useflags));
 
 			} else if (mycolumn == "FLAG") {
 				retval = doClassicalStatistics(
 					sortColumnIds,
+					mergedColumnIds,
 					hideTimeAxis,
-					new Vi2ChunkFlagCubeDataProvider(vi2, useflags));
+					new Vi2FlagCubeDataProvider(
+						vi2, mergedColumnIds, useflags));
 				// } else if (mycolumn == "WEIGHT") {
 				// } else if (mycolumn == "SIGMA") {
 
 			} else if (mycolumn == "ANTENNA1") {
 				retval = doClassicalStatistics(
 					sortColumnIds,
+					mergedColumnIds,
 					hideTimeAxis,
-					new Vi2ChunkAntenna1DataProvider(vi2, useflags));
+					new Vi2Antenna1DataProvider(
+						vi2, mergedColumnIds, useflags));
 
 			} else if (mycolumn == "ANTENNA2") {
 				retval = doClassicalStatistics(
 					sortColumnIds,
+					mergedColumnIds,
 					hideTimeAxis,
-					new Vi2ChunkAntenna2DataProvider(vi2, useflags));
+					new Vi2Antenna2DataProvider(
+						vi2, mergedColumnIds, useflags));
 
 			} else if (mycolumn == "FEED1") {
 				retval = doClassicalStatistics(
 					sortColumnIds,
+					mergedColumnIds,
 					hideTimeAxis,
-					new Vi2ChunkFeed1DataProvider(vi2, useflags));
+					new Vi2Feed1DataProvider(
+						vi2, mergedColumnIds, useflags));
 
 			} else if (mycolumn == "FEED2") {
 				retval = doClassicalStatistics(
 					sortColumnIds,
+					mergedColumnIds,
 					hideTimeAxis,
-					new Vi2ChunkFeed2DataProvider(vi2, useflags));
+					new Vi2Feed2DataProvider(
+						vi2, mergedColumnIds, useflags));
 
 			} else if (mycolumn == "FIELD_ID") {
 				retval = doClassicalStatistics(
 					sortColumnIds,
+					mergedColumnIds,
 					hideTimeAxis,
-					new Vi2ChunkFieldIdDataProvider(vi2, useflags));
+					new Vi2FieldIdDataProvider(
+						vi2, mergedColumnIds, useflags));
 
 			} else if (mycolumn == "ARRAY_ID") {
 				retval = doClassicalStatistics(
 					sortColumnIds,
+					mergedColumnIds,
 					hideTimeAxis,
-					new Vi2ChunkArrayIdDataProvider(vi2, useflags));
+					new Vi2ArrayIdDataProvider(
+						vi2, mergedColumnIds, useflags));
 
 			} else if (mycolumn == "DATA_DESC_ID") {
 				retval = doClassicalStatistics(
 					sortColumnIds,
+					mergedColumnIds,
 					hideTimeAxis,
-					new Vi2ChunkDataDescriptionIdsDataProvider(vi2, useflags));
+					new Vi2DataDescriptionIdsDataProvider(
+						vi2, mergedColumnIds, useflags));
 
 			} else if (mycolumn == "FLAG_ROW") {
 				retval = doClassicalStatistics(
 					sortColumnIds,
+					mergedColumnIds,
 					hideTimeAxis,
-					new Vi2ChunkFlagRowDataProvider(vi2, useflags));
+					new Vi2FlagRowDataProvider(
+						vi2, mergedColumnIds, useflags));
 
 			} else if (mycolumn == "INTERVAL") {
 				retval = doClassicalStatistics(
 					sortColumnIds,
+					mergedColumnIds,
 					hideTimeAxis,
-					new Vi2ChunkIntervalDataProvider(vi2, useflags));
+					new Vi2IntervalDataProvider(
+						vi2, mergedColumnIds, useflags));
 
 			} else if (mycolumn == "SCAN_NUMBER" || mycolumn == "SCAN") {
 				retval = doClassicalStatistics(
 					sortColumnIds,
+					mergedColumnIds,
 					hideTimeAxis,
-					new Vi2ChunkScanDataProvider(vi2, useflags));
+					new Vi2ScanDataProvider(
+						vi2, mergedColumnIds, useflags));
 
 			} else if (mycolumn == "TIME") {
 				retval = doClassicalStatistics(
 					sortColumnIds,
+					mergedColumnIds,
 					hideTimeAxis,
-					new Vi2ChunkTimeDataProvider(vi2, useflags));
+					new Vi2TimeDataProvider(
+						vi2, mergedColumnIds, useflags));
 
 			} else if (mycolumn == "WEIGHT_SPECTRUM") {
 				retval = doClassicalStatistics(
 					sortColumnIds,
+					mergedColumnIds,
 					hideTimeAxis,
-					new Vi2ChunkWeightSpectrumDataProvider(vi2, useflags));
+					new Vi2WeightSpectrumDataProvider(
+						vi2, mergedColumnIds, useflags));
 
 			} else {
 				stringstream ss;
