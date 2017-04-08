@@ -955,13 +955,13 @@ void MSTransformManager::parseFreqSpecParams(Record &configuration)
 		if (nspws_p > 1)
 		{
 			logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-					<< "Number of channels per output spw is " << nChan_p << LogIO::POST;
+					<< "Number of output channels per output spw is " << nChan_p << LogIO::POST;
 			nChan_p *=  nspws_p;
 		}
 		else
 		{
 			logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-					<< "Number of channels is " << nChan_p<< LogIO::POST;
+					<< "Number of output channels is " << nChan_p<< LogIO::POST;
 		}
 	}
 
@@ -2868,61 +2868,9 @@ void MSTransformManager::regridSpwAux(Int spwId, MFrequency::Types spwInputRefFr
     newWeightFactorMap_p[spwId] *= weightScale;
   }
 
-  // Check if pre-averaging step is necessary
-  if (freqbinMap_p.find(spwId) == freqbinMap_p.end()) {
-    Double weightScaleDummy;
-    Vector<Double> tmpCHAN_FREQ;
-    Vector<Double> tmpCHAN_WIDTH;
-    MSTransformRegridder::calcChanFreqs(logger_p, tmpCHAN_FREQ, tmpCHAN_WIDTH,
-					weightScaleDummy, originalCHAN_FREQ,
-					originalCHAN_WIDTH, phaseCenter_p,
-					inputReferenceFrame_p,
-					referenceTime_p,
-					observatoryPosition_p,
-					String("channel"), -1,
-					String("0"), String("1"),
-					restFrequency_p,
-					outputReferenceFramePar_p,
-					velocityType_p, false // verbose
-					);
-
-    Double avgCombinedWidth = 0;
-    for (uInt chanIdx = 0; chanIdx < tmpCHAN_WIDTH.size(); ++chanIdx) {
-      avgCombinedWidth += tmpCHAN_WIDTH(chanIdx);
-    }
-    avgCombinedWidth /= tmpCHAN_WIDTH.size();
-
-    Double avgRegriddedWidth = 0;
-    for (uInt chanIdx=0;chanIdx<regriddedCHAN_WIDTH.size();chanIdx++) {
-      avgRegriddedWidth += regriddedCHAN_WIDTH(chanIdx);
-    }
-    avgRegriddedWidth /= regriddedCHAN_WIDTH.size();
-
-    uInt width =  (uInt)floor(abs(avgRegriddedWidth/avgCombinedWidth) + 0.001);
-
-    if ((width >= 2) and  2*width <= originalCHAN_WIDTH.size()) {
-      if (!enableChanPreAverage_p) {
-	logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-		 << "Ratio between input and output width is >=2: " << avgRegriddedWidth/avgCombinedWidth
-		 << ", but not doing pre-channel average (it is disabled by "
-		 << "default since CASA release 5.0)." << LogIO::POST;
-      } else {
-	logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
-		 << "mstransform with regridms does not regrid properly for channel widths "
-	  "> or = 2 x the native channel width, when using channel pre-averaging. Please "
-	  "use clean or tclean for larger regridding. "
-		 << LogIO::POST;
-
-	logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-		 << "Ratio between input and output width is " << avgRegriddedWidth/avgCombinedWidth
-		 << ", setting pre-channel average width to " << width << LogIO::POST;
-
-	doPreAveragingBeforeRegridding(width, spwId,
-				       originalCHAN_FREQ, originalCHAN_WIDTH,
-				       inputCHAN_FREQ, inputCHAN_WIDTH);
-      }
-    }
-  }
+  checkAndPreaverageChannelsIfNeeded(spwId, inputCHAN_FREQ, inputCHAN_WIDTH,
+				     originalCHAN_FREQ, originalCHAN_WIDTH,
+				     regriddedCHAN_WIDTH);
 
   // Print characteristics of output SPW
   oss.str("");
@@ -4008,12 +3956,82 @@ void MSTransformManager::reindexPolarizationIdInDataDesc(Int newPolarizationId) 
   }
 }
 
+
+// -----------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------
+void MSTransformManager::checkAndPreaverageChannelsIfNeeded(Int spwId,
+							    Vector<Double> &inputCHAN_FREQ,
+							    Vector<Double> &inputCHAN_WIDTH,
+
+							    const Vector<Double> &originalCHAN_FREQ,
+							    const Vector<Double> &originalCHAN_WIDTH,
+							    const Vector<Double> &regriddedCHAN_WIDTH
+
+							    ) {
+  // Check if pre-averaging step is necessary
+  if (freqbinMap_p.find(spwId) == freqbinMap_p.end()) {
+    Double weightScaleDummy;
+    Vector<Double> tmpCHAN_FREQ;
+    Vector<Double> tmpCHAN_WIDTH;
+    MSTransformRegridder::calcChanFreqs(logger_p, tmpCHAN_FREQ, tmpCHAN_WIDTH,
+					weightScaleDummy, originalCHAN_FREQ,
+					originalCHAN_WIDTH, phaseCenter_p,
+					inputReferenceFrame_p,
+					referenceTime_p,
+					observatoryPosition_p,
+					String("channel"), -1,
+					String("0"), String("1"),
+					restFrequency_p,
+					outputReferenceFramePar_p,
+					velocityType_p, false // verbose
+					);
+
+    Double avgCombinedWidth = 0;
+    for (uInt chanIdx = 0; chanIdx < tmpCHAN_WIDTH.size(); ++chanIdx) {
+      avgCombinedWidth += tmpCHAN_WIDTH(chanIdx);
+    }
+    avgCombinedWidth /= tmpCHAN_WIDTH.size();
+
+    Double avgRegriddedWidth = 0;
+    for (uInt chanIdx=0;chanIdx<regriddedCHAN_WIDTH.size();chanIdx++) {
+      avgRegriddedWidth += regriddedCHAN_WIDTH(chanIdx);
+    }
+    avgRegriddedWidth /= regriddedCHAN_WIDTH.size();
+
+    uInt width =  (uInt)floor(abs(avgRegriddedWidth/avgCombinedWidth) + 0.001);
+
+    if ((width >= 2) and  2*width <= originalCHAN_WIDTH.size()) {
+      if (!enableChanPreAverage_p) {
+	logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+		 << "Ratio between input and output width is >=2: " << avgRegriddedWidth/avgCombinedWidth
+		 << ", but not doing pre-channel average (it is disabled by "
+		 << "default since CASA release 5.0)." << LogIO::POST;
+      } else {
+	logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
+		 << "mstransform with regridms does not regrid properly for channel widths "
+	  "> or = 2 x the native channel width, when using channel pre-averaging. Please "
+	  "use clean or tclean for larger regridding. "
+		 << LogIO::POST;
+
+	logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+		 << "Ratio between input and output width is " << avgRegriddedWidth/avgCombinedWidth
+		 << ", setting pre-channel average width to " << width << LogIO::POST;
+
+	doPreAveragingBeforeRegridding(width, spwId,
+				       originalCHAN_FREQ, originalCHAN_WIDTH,
+				       inputCHAN_FREQ, inputCHAN_WIDTH);
+      }
+    }
+  }
+}
+
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
 void MSTransformManager::doPreAveragingBeforeRegridding(uInt width, Int spwId,
-							Vector<Double> &originalCHAN_FREQ,
-							Vector<Double> &originalCHAN_WIDTH,
+							const Vector<Double> &originalCHAN_FREQ,
+							const Vector<Double> &originalCHAN_WIDTH,
 							Vector<Double> &inputCHAN_FREQ,
 							Vector<Double> &inputCHAN_WIDTH) {
   channelAverage_p = true;
@@ -4040,8 +4058,8 @@ void MSTransformManager::doPreAveragingBeforeRegridding(uInt width, Int spwId,
 //
 // -----------------------------------------------------------------------
 void MSTransformManager::calculateIntermediateFrequencies(	Int spwId,
-																Vector<Double> &inputChanFreq,
-																Vector<Double> &inputChanWidth,
+																const Vector<Double> &inputChanFreq,
+																const Vector<Double> &inputChanWidth,
 																Vector<Double> &intermediateChanFreq,
 																Vector<Double> &intermediateChanWidth)
 {
@@ -7970,9 +7988,9 @@ template <class T> void MSTransformManager::average(	Int inputSpw,
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-template <class T> void  MSTransformManager::simpleAverage(	uInt width,
-																Vector<T> &inputData,
-																Vector<T> &outputData)
+template <class T> void  MSTransformManager::simpleAverage(uInt width,
+							   const Vector<T> &inputData,
+							   Vector<T> &outputData)
 {
 	// Dummy variables
 	Vector<Bool> inputFlags,outputFlags;
@@ -8002,7 +8020,7 @@ template <class T> void  MSTransformManager::simpleAverage(	uInt width,
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-void MSTransformManager::averageKernel(	Vector<Complex> &inputData,
+void MSTransformManager::averageKernel(const Vector<Complex> &inputData,
 											Vector<Bool> &inputFlags,
 											Vector<Float> &inputWeights,
 											Vector<Complex> &outputData,
@@ -8019,7 +8037,7 @@ void MSTransformManager::averageKernel(	Vector<Complex> &inputData,
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-void MSTransformManager::averageKernel(	Vector<Float> &inputData,
+void MSTransformManager::averageKernel(const Vector<Float> &inputData,
 											Vector<Bool> &inputFlags,
 											Vector<Float> &inputWeights,
 											Vector<Float> &outputData,
@@ -8036,7 +8054,7 @@ void MSTransformManager::averageKernel(	Vector<Float> &inputData,
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-template <class T> void MSTransformManager::simpleAverageKernel(Vector<T> &inputData,
+template <class T> void MSTransformManager::simpleAverageKernel(const Vector<T> &inputData,
 																	Vector<Bool> &,
 																	Vector<Float> &,
 																	Vector<T> &outputData,
@@ -8068,7 +8086,7 @@ template <class T> void MSTransformManager::simpleAverageKernel(Vector<T> &input
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-template <class T> void MSTransformManager::flagAverageKernel(	Vector<T> &inputData,
+template <class T> void MSTransformManager::flagAverageKernel(const Vector<T> &inputData,
 																	Vector<Bool> &inputFlags,
 																	Vector<Float> &,
 																	Vector<T> &outputData,
@@ -8106,7 +8124,7 @@ template <class T> void MSTransformManager::flagAverageKernel(	Vector<T> &inputD
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-template <class T> void MSTransformManager::weightAverageKernel(	Vector<T> &inputData,
+template <class T> void MSTransformManager::weightAverageKernel(const Vector<T> &inputData,
 																		Vector<Bool> &,
 																		Vector<Float> &inputWeights,
 																		Vector<T> &outputData,
@@ -8144,7 +8162,7 @@ template <class T> void MSTransformManager::weightAverageKernel(	Vector<T> &inpu
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-template <class T> void MSTransformManager::cumSumKernel(	Vector<T> &inputData,
+template <class T> void MSTransformManager::cumSumKernel(const Vector<T> &inputData,
 															Vector<Bool> &,
 															Vector<Float> &,
 															Vector<T> &outputData,
@@ -8171,7 +8189,7 @@ template <class T> void MSTransformManager::cumSumKernel(	Vector<T> &inputData,
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-template <class T> void MSTransformManager::flagWeightAverageKernel(	Vector<T> &inputData,
+template <class T> void MSTransformManager::flagWeightAverageKernel(const Vector<T> &inputData,
 																		Vector<Bool> &inputFlags,
 																		Vector<Float> &inputWeights,
 																		Vector<T> &outputData,
@@ -8211,7 +8229,7 @@ template <class T> void MSTransformManager::flagWeightAverageKernel(	Vector<T> &
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-template <class T> void MSTransformManager::flagCumSumKernel(	Vector<T> &inputData,
+template <class T> void MSTransformManager::flagCumSumKernel(const Vector<T> &inputData,
 																Vector<Bool> &inputFlags,
 																Vector<Float> &,
 																Vector<T> &outputData,
@@ -8238,7 +8256,7 @@ template <class T> void MSTransformManager::flagCumSumKernel(	Vector<T> &inputDa
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-template <class T> void MSTransformManager::flagNonZeroAverageKernel(	Vector<T> &inputData,
+template <class T> void MSTransformManager::flagNonZeroAverageKernel(const Vector<T> &inputData,
 																		Vector<Bool> &inputFlags,
 																		Vector<Float> & /* inputWeights */,
 																		Vector<T> &outputData,
@@ -8300,7 +8318,7 @@ template <class T> void MSTransformManager::flagNonZeroAverageKernel(	Vector<T> 
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-template <class T> void MSTransformManager::flagWeightNonZeroAverageKernel(	Vector<T> &inputData,
+template <class T> void MSTransformManager::flagWeightNonZeroAverageKernel(const Vector<T> &inputData,
 																			Vector<Bool> &inputFlags,
 																			Vector<Float> &inputWeights,
 																			Vector<T> &outputData,
@@ -8361,7 +8379,7 @@ template <class T> void MSTransformManager::flagWeightNonZeroAverageKernel(	Vect
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-template <class T> void MSTransformManager::flagCumSumNonZeroKernel(	Vector<T> &inputData,
+template <class T> void MSTransformManager::flagCumSumNonZeroKernel(const Vector<T> &inputData,
 																		Vector<Bool> &inputFlags,
 																		Vector<Float> & /* inputWeights */,
 																		Vector<T> &outputData,
@@ -8447,7 +8465,7 @@ template <class T> void MSTransformManager::smooth(	Int ,
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-void MSTransformManager::smoothKernel(	Vector<Complex> &inputData,
+void MSTransformManager::smoothKernel(const Vector<Complex> &inputData,
 										Vector<Bool> &inputFlags,
 										Vector<Float> &inputWeights,
 										Vector<Complex> &outputData,
@@ -8462,7 +8480,7 @@ void MSTransformManager::smoothKernel(	Vector<Complex> &inputData,
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-void MSTransformManager::smoothKernel(	Vector<Float> &inputData,
+void MSTransformManager::smoothKernel(const Vector<Float> &inputData,
 										Vector<Bool> &inputFlags,
 										Vector<Float> &inputWeights,
 										Vector<Float> &outputData,
@@ -8477,9 +8495,9 @@ void MSTransformManager::smoothKernel(	Vector<Float> &inputData,
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-template <class T> void  MSTransformManager::plainSmooth(	Vector<T> &inputData,
-															Vector<Bool> &inputFlags,
-															Vector<Float> &,
+template <class T> void  MSTransformManager::plainSmooth(const Vector<T> &inputData,
+															const Vector<Bool> &inputFlags,
+															const Vector<Float> &,
 															Vector<T> &outputData,
 															Vector<Bool> &outputFlags,
 															uInt outputPos)
@@ -8505,9 +8523,9 @@ template <class T> void  MSTransformManager::plainSmooth(	Vector<T> &inputData,
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-template <class T> void  MSTransformManager::plainSmoothSpectrum(	Vector<T> &inputData,
-																	Vector<Bool> &inputFlags,
-																	Vector<Float> &,
+template <class T> void  MSTransformManager::plainSmoothSpectrum(const Vector<T> &inputData,
+																	const Vector<Bool> &inputFlags,
+																	const Vector<Float> &,
 																	Vector<T> &outputData,
 																	Vector<Bool> &outputFlags,
 																	uInt outputPos)
