@@ -4014,7 +4014,7 @@ void MSTransformManager::checkAndPreaverageChannelsIfNeeded(Int spwId,
 		 << ", but not doing pre-channel average (it is disabled by "
 		 << "default since CASA release 5.0)." << LogIO::POST;
 
-	logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)p
+	logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
 		 << "Regridding to intermediate grid ("
 		 << originalCHAN_FREQ.size()
 		 << " channels) for interpolation as in tclean" << LogIO::POST;
