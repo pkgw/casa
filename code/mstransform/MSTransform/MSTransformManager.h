@@ -456,7 +456,7 @@ protected:
 						const Vector<Double> &originalCHAN_FREQ,
 						const Vector<Double> &originalCHAN_WIDTH,
 						const Vector<Double> &regriddedCHAN_WIDTH);
-	void doPreAveragingBeforeRegridding(uInt width, Int spwId,
+	void doPreAveragingBeforeRegridding(uInt widthFactor, Int spwId,
 					    const Vector<Double> &originalCHAN_FREQ,
 					    const Vector<Double> &originalCHAN_WIDTH,
 					    Vector<Double> &inputCHAN_FREQ,
@@ -1162,58 +1162,59 @@ protected:
 									casacore::Vector<T> &outputDataStripe,
 									casacore::Vector<casacore::Bool> &outputFlagsStripe);
 
-	void regridCore(	casacore::Int inputSpw,
-						casacore::Vector<casacore::Complex> &inputDataStripe,
-						casacore::Vector<casacore::Bool> &inputFlagsStripe,
-						casacore::Vector<casacore::Float> &inputWeightsStripe,
-						casacore::Vector<casacore::Complex> &outputDataStripe,
-						casacore::Vector<casacore::Bool> &outputFlagsStripe);
-	void regridCore(	casacore::Int inputSpw,
-						casacore::Vector<casacore::Float> &inputDataStripe,
-						casacore::Vector<casacore::Bool> &inputFlagsStripe,
-						casacore::Vector<casacore::Float> &inputWeightsStripe,
-						casacore::Vector<casacore::Float> &outputDataStripe,
-						casacore::Vector<casacore::Bool> &outputFlagsStripe);
+	void regridCore(casacore::Int inputSpw,
+			const casacore::Vector<casacore::Complex> &inputDataStripe,
+			const casacore::Vector<casacore::Bool> &inputFlagsStripe,
+			const casacore::Vector<casacore::Float> &inputWeightsStripe,
+			casacore::Vector<casacore::Complex> &outputDataStripe,
+			casacore::Vector<casacore::Bool> &outputFlagsStripe);
+	void regridCore(casacore::Int inputSpw,
+			const casacore::Vector<casacore::Float> &inputDataStripe,
+			const casacore::Vector<casacore::Bool> &inputFlagsStripe,
+			const casacore::Vector<casacore::Float> &inputWeightsStripe,
+			casacore::Vector<casacore::Float> &outputDataStripe,
+			casacore::Vector<casacore::Bool> &outputFlagsStripe);
 
-	void (casa::MSTransformManager::*regridCoreComplex_p)(		casacore::Int inputSpw,
-																	casacore::Vector<casacore::Complex> &inputDataStripe,
-																	casacore::Vector<casacore::Bool> &inputFlagsStripe,
-																	casacore::Vector<casacore::Float> &inputWeightsStripe,
-																	casacore::Vector<casacore::Complex> &outputDataStripe,
-																	casacore::Vector<casacore::Bool> &outputFlagsStripe);
-	void (casa::MSTransformManager::*regridCoreFloat_p)(	casacore::Int inputSpw,
-																casacore::Vector<casacore::Float> &inputDataStripe,
-																casacore::Vector<casacore::Bool> &inputFlagsStripe,
-																casacore::Vector<casacore::Float> &inputWeightsStripe,
-																casacore::Vector<casacore::Float> &outputDataStripe,
-																casacore::Vector<casacore::Bool> &outputFlagsStripe);
+	void (casa::MSTransformManager::*regridCoreComplex_p)(casacore::Int inputSpw,
+							      const casacore::Vector<casacore::Complex> &inputDataStripe,
+							      const casacore::Vector<casacore::Bool> &inputFlagsStripe,
+							      const casacore::Vector<casacore::Float> &inputWeightsStripe,
+							      casacore::Vector<casacore::Complex> &outputDataStripe,
+							      casacore::Vector<casacore::Bool> &outputFlagsStripe);
 
-	void fftshift(	casacore::Int inputSpw,
-					casacore::Vector<casacore::Complex> &inputDataStripe,
-					casacore::Vector<casacore::Bool> &inputFlagsStripe,
-					casacore::Vector<casacore::Float> &inputWeightsStripe,
-					casacore::Vector<casacore::Complex> &outputDataStripe,
-					casacore::Vector<casacore::Bool> &outputFlagsStripe);
-	void fftshift(	casacore::Int inputSpw,
-					casacore::Vector<casacore::Float> &inputDataStripe,
-					casacore::Vector<casacore::Bool> &inputFlagsStripe,
-					casacore::Vector<casacore::Float> &inputWeightsStripe,
-					casacore::Vector<casacore::Float> &outputDataStripe,
-					casacore::Vector<casacore::Bool> &outputFlagsStripe);
+	void (casa::MSTransformManager::*regridCoreFloat_p)(casacore::Int inputSpw,
+							    const casacore::Vector<casacore::Float> &inputDataStripe,
+							    const casacore::Vector<casacore::Bool> &inputFlagsStripe,
+							    const casacore::Vector<casacore::Float> &inputWeightsStripe,
+							    casacore::Vector<casacore::Float> &outputDataStripe,
+							    casacore::Vector<casacore::Bool> &outputFlagsStripe);
 
-	template <class T> void interpol1D(	casacore::Int inputSpw,
-										casacore::Vector<T> &inputDataStripe,
-										casacore::Vector<casacore::Bool> &inputFlagsStripe,
-										casacore::Vector<casacore::Float> &,
-										casacore::Vector<T> &outputDataStripe,
-										casacore::Vector<casacore::Bool> &outputFlagsStripe);
+	void fftshift(casacore::Int inputSpw,
+		      const casacore::Vector<casacore::Complex> &inputDataStripe,
+		      const casacore::Vector<casacore::Bool> &inputFlagsStripe,
+		      const casacore::Vector<casacore::Float> &inputWeightsStripe,
+		      casacore::Vector<casacore::Complex> &outputDataStripe,
+		      casacore::Vector<casacore::Bool> &outputFlagsStripe);
+	void fftshift(casacore::Int inputSpw,
+		      const casacore::Vector<casacore::Float> &inputDataStripe,
+		      const casacore::Vector<casacore::Bool> &inputFlagsStripe,
+		      const casacore::Vector<casacore::Float> &inputWeightsStripe,
+		      casacore::Vector<casacore::Float> &outputDataStripe,
+		      casacore::Vector<casacore::Bool> &outputFlagsStripe);
 
-	template <class T> void interpol1Dfftshift(	casacore::Int inputSpw,
-												casacore::Vector<T> &inputDataStripe,
-												casacore::Vector<casacore::Bool> &inputFlagsStripe,
-												casacore::Vector<casacore::Float> &inputWeightsStripe,
-												casacore::Vector<T> &outputDataStripe,
-												casacore::Vector<casacore::Bool> &outputFlagsStripe);
+	template <class T> void interpol1D(casacore::Int inputSpw,
+					   const casacore::Vector<T> &inputDataStripe,
+					   const casacore::Vector<casacore::Bool> &inputFlagsStripe,
+					   const casacore::Vector<casacore::Float> &,
+					   casacore::Vector<T> &outputDataStripe,
+					   casacore::Vector<casacore::Bool> &outputFlagsStripe);
+
+	template <class T> void interpol1Dfftshift(casacore::Int inputSpw,
+						   const casacore::Vector<T> &inputDataStripe,
+						   const casacore::Vector<casacore::Bool> &inputFlagsStripe,
+						   const casacore::Vector<casacore::Float> &inputWeightsStripe,
+						   casacore::Vector<T> &outputDataStripe,
+						   casacore::Vector<casacore::Bool> &outputFlagsStripe);
 
 	template <class T> void averageSmooth(	casacore::Int inputSpw,
 											casacore::Vector<T> &inputDataStripe,
@@ -1292,6 +1293,9 @@ protected:
 	casacore::Bool hanningSmooth_p = false;
 	casacore::Bool refFrameTransformation_p = false;
 	casacore::Vector<casacore::Int> freqbin_p = casacore::Vector<Int>(1,-1);
+	casacore::Bool regridTClean_p = false;
+	// for emulation of tclean interpolation in two stages CAS-9853, CAS-9852
+	Vector<Double> regridTCleanCHAN_FREQ_p;
 	casacore::String useweights_p = "flags";
 	casacore::uInt weightmode_p = MSTransformations::flags;
 	// Options are: nearest, linear, cubic, spline, fftshift
