@@ -2868,7 +2868,13 @@ void MSTransformManager::regridSpwAux(Int spwId, MFrequency::Types spwInputRefFr
       << regriddedCHAN_FREQ(0) << " Hz"
       << ", last channel = "
       << std::setprecision(9) << std::setw(14) << std::scientific
-      << regriddedCHAN_FREQ(regriddedCHAN_FREQ.size()-1) << " Hz";
+      << regriddedCHAN_FREQ(regriddedCHAN_FREQ.size()-1) << " Hz"
+      <<", first width = "
+      << std::setprecision(9) << std::setw(14) << std::scientific
+      << regriddedCHAN_WIDTH(0) << " Hz"
+      << ", last width = "
+      << std::setprecision(9) << std::setw(14) << std::scientific
+      << regriddedCHAN_WIDTH(regriddedCHAN_WIDTH.size()-1) << " Hz";
   logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
 	   << oss.str() << LogIO::POST;
 }
@@ -3986,14 +3992,40 @@ void MSTransformManager::checkAndPreaverageChannelsIfNeeded(Int spwId,
     }
     avgRegriddedWidth /= regriddedCHAN_WIDTH.size();
 
-    uInt width =  (uInt)floor(abs(avgRegriddedWidth/avgCombinedWidth) + 0.001);
+    uInt widthFactor =  (uInt)floor(abs(avgRegriddedWidth/avgCombinedWidth) + 0.001);
 
-    if ((width >= 2) and  2*width <= originalCHAN_WIDTH.size()) {
+    if ((widthFactor >= 2) and 2*widthFactor <= originalCHAN_WIDTH.size()) {
       if (!enableChanPreAverage_p) {
 	logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
 		 << "Ratio between input and output width is >=2: " << avgRegriddedWidth/avgCombinedWidth
 		 << ", but not doing pre-channel average (it is disabled by "
 		 << "default since CASA release 5.0)." << LogIO::POST;
+
+	logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)p
+		 << "Regridding to intermediate grid ("
+		 << originalCHAN_FREQ.size()
+		 << " channels) for interpolation as in tclean" << LogIO::POST;
+	Double weightScaleDummy;
+	Vector<Double> regridTCleanCHAN_WIDTH_p;
+	MSTransformRegridder::calcChanFreqs(logger_p,
+					    regridTCleanCHAN_FREQ_p,
+					    regridTCleanCHAN_WIDTH_p,
+					    weightScaleDummy,
+					    originalCHAN_FREQ,
+					    originalCHAN_WIDTH, phaseCenter_p,
+					    inputReferenceFrame_p,
+					    referenceTime_p,
+					    observatoryPosition_p,
+					    mode_p,
+					    originalCHAN_FREQ.size(),
+					    // as many channels as originally
+					    start_p, width_p,
+					    restFrequency_p,
+					    // start, width, restFreq from command opts
+					    outputReferenceFramePar_p,
+					    velocityType_p, True // verbose
+					    );
+
       } else {
 	logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
 		 << "mstransform with regridms does not regrid properly for channel widths "
@@ -4003,9 +4035,9 @@ void MSTransformManager::checkAndPreaverageChannelsIfNeeded(Int spwId,
 
 	logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
 		 << "Ratio between input and output width is " << avgRegriddedWidth/avgCombinedWidth
-		 << ", setting pre-channel average width to " << width << LogIO::POST;
+		 << ", setting pre-channel average width to " << widthFactor << LogIO::POST;
 
-	doPreAveragingBeforeRegridding(width, spwId,
+	doPreAveragingBeforeRegridding(widthFactor, spwId,
 				       originalCHAN_FREQ, originalCHAN_WIDTH,
 				       inputCHAN_FREQ, inputCHAN_WIDTH);
       }
@@ -4016,14 +4048,14 @@ void MSTransformManager::checkAndPreaverageChannelsIfNeeded(Int spwId,
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-void MSTransformManager::doPreAveragingBeforeRegridding(uInt width, Int spwId,
+void MSTransformManager::doPreAveragingBeforeRegridding(uInt widthFactor, Int spwId,
 							const Vector<Double> &originalCHAN_FREQ,
 							const Vector<Double> &originalCHAN_WIDTH,
 							Vector<Double> &inputCHAN_FREQ,
 							Vector<Double> &inputCHAN_WIDTH) {
   channelAverage_p = true;
-  freqbinMap_p[spwId] = width;
-  newWeightFactorMap_p[spwId] /= width; // jagonzal: Remove channel width contribution to the scale factor
+  freqbinMap_p[spwId] = widthFactor;
+  newWeightFactorMap_p[spwId] /= widthFactor; // jagonzal: Remove channel width contribution to the scale factor
 
   // Calculate averaged frequencies
   calculateIntermediateFrequencies(spwId, originalCHAN_FREQ, originalCHAN_WIDTH,
@@ -8581,12 +8613,12 @@ template <class T> void MSTransformManager::regrid(	Int inputSpw,
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-void MSTransformManager::regridCore(	Int inputSpw,
-											Vector<Complex> &inputDataStripe,
-											Vector<Bool> &inputFlagsStripe,
-											Vector<Float> &inputWeightsStripe,
-											Vector<Complex> &outputDataStripe,
-											Vector<Bool> &outputFlagsStripe)
+void MSTransformManager::regridCore(Int inputSpw,
+				    const Vector<Complex> &inputDataStripe,
+				    const Vector<Bool> &inputFlagsStripe,
+				    const Vector<Float> &inputWeightsStripe,
+				    Vector<Complex> &outputDataStripe,
+				    Vector<Bool> &outputFlagsStripe)
 {
 
 	(*this.*regridCoreComplex_p)(	inputSpw,
@@ -8601,12 +8633,12 @@ void MSTransformManager::regridCore(	Int inputSpw,
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-void MSTransformManager::regridCore(	Int inputSpw,
-											Vector<Float> &inputDataStripe,
-											Vector<Bool> &inputFlagsStripe,
-											Vector<Float> &inputWeightsStripe,
-											Vector<Float> &outputDataStripe,
-											Vector<Bool> &outputFlagsStripe)
+  void MSTransformManager::regridCore(Int inputSpw,
+				      const Vector<Float> &inputDataStripe,
+				      const Vector<Bool> &inputFlagsStripe,
+				      const Vector<Float> &inputWeightsStripe,
+				      Vector<Float> &outputDataStripe,
+				      Vector<Bool> &outputFlagsStripe)
 {
 	(*this.*regridCoreFloat_p)(	inputSpw,
 								inputDataStripe,
@@ -8620,12 +8652,12 @@ void MSTransformManager::regridCore(	Int inputSpw,
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-void MSTransformManager::fftshift(	Int ,
-										Vector<Complex> &inputDataStripe,
-										Vector<Bool> &inputFlagsStripe,
-										Vector<Float> &,
-										Vector<Complex> &outputDataStripe,
-										Vector<Bool> &outputFlagsStripe)
+void MSTransformManager::fftshift(Int ,
+				  const Vector<Complex> &inputDataStripe,
+				  const Vector<Bool> &inputFlagsStripe,
+				  const Vector<Float> &,
+				  Vector<Complex> &outputDataStripe,
+				  Vector<Bool> &outputFlagsStripe)
 {
 	fFFTServer_p.fftshift(outputDataStripe,
     					outputFlagsStripe,
@@ -8641,12 +8673,12 @@ void MSTransformManager::fftshift(	Int ,
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-void MSTransformManager::fftshift(	Int ,
-										Vector<Float> &inputDataStripe,
-										Vector<Bool> &inputFlagsStripe,
-										Vector<Float> &,
-										Vector<Float> &outputDataStripe,
-										Vector<Bool> &outputFlagsStripe)
+void MSTransformManager::fftshift(Int ,
+				  const Vector<Float> &inputDataStripe,
+				  const Vector<Bool> &inputFlagsStripe,
+				  const Vector<Float> &,
+				  Vector<Float> &outputDataStripe,
+				  Vector<Bool> &outputFlagsStripe)
 {
     fFFTServer_p.fftshift(outputDataStripe,
     					outputFlagsStripe,
@@ -8661,44 +8693,71 @@ void MSTransformManager::fftshift(	Int ,
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-template <class T> void MSTransformManager::interpol1D(	Int inputSpw,
-															Vector<T> &inputDataStripe,
-															Vector<Bool> &inputFlagsStripe,
-															Vector<Float> &,
-															Vector<T> &outputDataStripe,
-															Vector<Bool> &outputFlagsStripe)
+template <class T> void MSTransformManager::interpol1D(Int inputSpw,
+						       const Vector<T> &inputDataStripe,
+						       const Vector<Bool> &inputFlagsStripe,
+						       const Vector<Float> &,
+						       Vector<T> &outputDataStripe,
+						       Vector<Bool> &outputFlagsStripe)
 {
-	if (inputDataStripe.size() > 1)
-	{
-		InterpolateArray1D<Double,T>::interpolate(	outputDataStripe, // Output data
-		    										outputFlagsStripe, // Output flags
-		    										inputOutputSpwMap_p[inputSpw].second.CHAN_FREQ, // Out chan freq
-		    										inputOutputSpwMap_p[inputSpw].first.CHAN_FREQ_aux, // In chan freq
-		    										inputDataStripe, // Input data
-		    										inputFlagsStripe, // Input Flags
-		    										interpolationMethod_p, // Interpolation method
-		    										false, // A good data point has its flag set to false
-		    										false // If false extrapolated data points are set flagged
-								    				);
-	}
-	else
-	{
-		outputDataStripe = inputDataStripe(0);
-		outputFlagsStripe = true;
-	}
+  if (inputDataStripe.size() < 2) {
+    outputDataStripe = inputDataStripe(0);
+    outputFlagsStripe = true;
+    return;
+  }
 
-	return;
+  if (!regridTClean_p) {
+    InterpolateArray1D<Double,T>::interpolate(outputDataStripe, // Output data
+					      outputFlagsStripe, // Output flags
+					      inputOutputSpwMap_p[inputSpw].second.CHAN_FREQ, // Out chan freq
+					      inputOutputSpwMap_p[inputSpw].first.CHAN_FREQ_aux, // In chan freq
+					      inputDataStripe, // Input data
+					      inputFlagsStripe, // Input Flags
+					      interpolationMethod_p, // Interpolation method
+					      false, // A good data point has its flag set to false
+					      false // If false extrapolated data points are set flagged
+					      );
+  } else {
+    // introduced here to emulate the way tclean regrids when the factor between
+    // the output channel width and the input channel width is > 2.
+    // Ref. TransformMachines2/FTMachine.cc
+    Vector<T> intermDataStripe;
+    Vector<Bool> intermFlagsStripe;
+    // interpolate first from input -> intermediate grid
+    InterpolateArray1D<Double,T>::interpolate(intermDataStripe, // Output data
+					      intermFlagsStripe, // Output flags
+					      regridTCleanCHAN_FREQ_p, // Out chan freq
+					      inputOutputSpwMap_p[inputSpw].first.CHAN_FREQ_aux, // In chan freq
+					      inputDataStripe, // Input data
+					      inputFlagsStripe, // Input Flags
+					      interpolationMethod_p, // Interpolation method
+					      false, // A good data point has its flag set to false
+					      false // If false extrapolated data points are set flagged
+					      );
+
+    // interpolate from intermediate grid -> output, by picking nearest neighbor
+    InterpolateArray1D<Double,T>::interpolate(outputDataStripe, // Output data
+					      outputFlagsStripe, // Output flags
+					      inputOutputSpwMap_p[inputSpw].second.CHAN_FREQ, // Out chan freq
+					      regridTCleanCHAN_FREQ_p, // In chan freq
+					      intermDataStripe, // Input data
+					      intermFlagsStripe, // Input Flags
+					      MSTransformations::nearestNeighbour,
+					      false, // A good data point has its flag set to false
+					      false // If false extrapolated data points are set flagged
+					      );
+  }
 }
 
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-template <class T> void MSTransformManager::interpol1Dfftshift(	Int inputSpw,
-																	Vector<T> &inputDataStripe,
-																	Vector<Bool> &inputFlagsStripe,
-																	Vector<Float> &inputWeightsStripe,
-																	Vector<T> &outputDataStripe,
-																	Vector<Bool> &outputFlagsStripe)
+template <class T> void MSTransformManager::interpol1Dfftshift(Int inputSpw,
+							       const Vector<T> &inputDataStripe,
+							       const Vector<Bool> &inputFlagsStripe,
+							       const Vector<Float> &inputWeightsStripe,
+							       Vector<T> &outputDataStripe,
+							       Vector<Bool> &outputFlagsStripe)
 {
 	Vector<T> regriddedDataStripe(inputDataStripe.shape(),T());
 	Vector<Bool> regriddedFlagsStripe(inputFlagsStripe.shape(),false);
