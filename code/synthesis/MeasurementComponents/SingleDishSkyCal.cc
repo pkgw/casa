@@ -715,10 +715,15 @@ void SingleDishSkyCal::traverseMS(MeasurementSet const &ms) {
 
 	debuglog << "spw " << ispw << ": solveAllRPar.shape=" << solveAllRPar().shape() << " nPar=" << nPar() << " nChanPar=" << nChanPar() << " nElem=" << nElem() << debugpost;
 	
-	solveAllRPar() = dataSum.addDegenerate(1);
-	solveAllParOK() = resultMask.addDegenerate(1);
-	solveAllParErr() = 0.1; // TODO: this is tentative
-	solveAllParSNR() = 1.0; // TODO: this is tentative
+  size_t const nCorr = dataSum.shape()[0];
+	Cube<Float> const rpar = dataSum.addDegenerate(1);
+	Cube<Bool> const parOK = resultMask.addDegenerate(1);
+	for (size_t iCorr = 0; iCorr < nCorr; ++iCorr) {
+	  solveAllRPar().yzPlane(iCorr) = rpar.yzPlane(iCorr);
+	  solveAllParOK().yzPlane(iCorr) = parOK.yzPlane(iCorr);
+	  solveAllParErr().yzPlane(iCorr) = 0.1; // TODO: this is tentative
+	  solveAllParSNR().yzPlane(iCorr) = 1.0; // TODO: this is tentative
+	}
 
 	keepNCT();
 
@@ -775,7 +780,7 @@ void SingleDishSkyCal::initSolvePar()
     solveAllParOK().resize(solveAllRPar().shape());
     solveAllParErr().resize(solveAllRPar().shape());
     solveAllParSNR().resize(solveAllRPar().shape());
-    solveAllParOK()=true;
+    solveAllParOK()=false;
     solveAllParErr()=0.0;
     solveAllParSNR()=0.0;
     solveParOK().reference(solveAllParOK());
