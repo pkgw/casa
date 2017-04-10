@@ -1100,7 +1100,7 @@ void SingleDishSkyCal::updateWt2(Matrix<Float> &weight, const Int &antenna1)
 
   auto const wtShape = weight.shape();
   size_t const nCorr = wtShape[0];
-  size_t const nChan = wtShape[0];
+  size_t const nChan = wtShape[1];
   // for each correlation
   for (size_t iCorr = 0; iCorr < nCorr; ++iCorr) {
     auto wSlice = weight.row(iCorr);
