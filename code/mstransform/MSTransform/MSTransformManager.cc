@@ -2857,7 +2857,7 @@ void MSTransformManager::regridSpwAux(Int spwId, MFrequency::Types spwInputRefFr
 
   checkAndPreaverageChannelsIfNeeded(spwId, inputCHAN_FREQ, inputCHAN_WIDTH,
 				     originalCHAN_FREQ, originalCHAN_WIDTH,
-				     regriddedCHAN_WIDTH);
+				     regriddedCHAN_FREQ, regriddedCHAN_WIDTH);
 
   // Print characteristics of output SPW
   oss.str("");
@@ -3959,8 +3959,8 @@ void MSTransformManager::checkAndPreaverageChannelsIfNeeded(Int spwId,
 
 							    const Vector<Double> &originalCHAN_FREQ,
 							    const Vector<Double> &originalCHAN_WIDTH,
+							    const Vector<Double> &regriddedCHAN_FREQ,
 							    const Vector<Double> &regriddedCHAN_WIDTH
-
 							    ) {
   // Check if pre-averaging step is necessary
   if (freqbinMap_p.find(spwId) == freqbinMap_p.end()) {
@@ -3992,9 +3992,10 @@ void MSTransformManager::checkAndPreaverageChannelsIfNeeded(Int spwId,
     }
     avgRegriddedWidth /= regriddedCHAN_WIDTH.size();
 
-    uInt widthFactor =  (uInt)floor(abs(avgRegriddedWidth/avgCombinedWidth) + 0.001);
+    Double widthFactor = fabs(avgRegriddedWidth/avgCombinedWidth);
+    uInt widthFactorInt =  (uInt)floor(widthFactor + 0.001);
 
-    if ((widthFactor >= 2) and 2*widthFactor <= originalCHAN_WIDTH.size()) {
+    if ((widthFactorInt >= 2) and 2*widthFactorInt <= originalCHAN_WIDTH.size()) {
       if (!enableChanPreAverage_p) {
 	logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
 		 << "Ratio between input and output width is >=2: " << avgRegriddedWidth/avgCombinedWidth
@@ -4004,27 +4005,12 @@ void MSTransformManager::checkAndPreaverageChannelsIfNeeded(Int spwId,
 	logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
 		 << "Regridding to intermediate grid ("
 		 << originalCHAN_FREQ.size()
-		 << " channels) for interpolation as in tclean" << LogIO::POST;
-	Double weightScaleDummy;
-	Vector<Double> regridTCleanCHAN_WIDTH_p;
-	MSTransformRegridder::calcChanFreqs(logger_p,
-					    regridTCleanCHAN_FREQ_p,
-					    regridTCleanCHAN_WIDTH_p,
-					    weightScaleDummy,
-					    originalCHAN_FREQ,
-					    originalCHAN_WIDTH, phaseCenter_p,
-					    inputReferenceFrame_p,
-					    referenceTime_p,
-					    observatoryPosition_p,
-					    mode_p,
-					    originalCHAN_FREQ.size(),
-					    // as many channels as originally
-					    start_p, width_p,
-					    restFrequency_p,
-					    // start, width, restFreq from command opts
-					    outputReferenceFramePar_p,
-					    velocityType_p, True // verbose
-					    );
+		 << " channels) for interpolation as in tclean when the "
+		 << " ratio between the output and input widths is >2."
+		 << LogIO::POST;
+
+	initGridForRegridTClean(originalCHAN_FREQ, regriddedCHAN_FREQ,
+				regriddedCHAN_WIDTH, widthFactor);
 
       } else {
 	logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
@@ -4035,9 +4021,9 @@ void MSTransformManager::checkAndPreaverageChannelsIfNeeded(Int spwId,
 
 	logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
 		 << "Ratio between input and output width is " << avgRegriddedWidth/avgCombinedWidth
-		 << ", setting pre-channel average width to " << widthFactor << LogIO::POST;
+		 << ", setting pre-channel average width to " << widthFactorInt << LogIO::POST;
 
-	doPreAveragingBeforeRegridding(widthFactor, spwId,
+	doPreAveragingBeforeRegridding(widthFactorInt, spwId,
 				       originalCHAN_FREQ, originalCHAN_WIDTH,
 				       inputCHAN_FREQ, inputCHAN_WIDTH);
       }
@@ -4107,6 +4093,64 @@ void MSTransformManager::calculateIntermediateFrequencies(	Int spwId,
 	}
 
     return;
+}
+
+/**
+ * Create a fake grid and create a map [input channels] => [output channels]
+ * from it. This is for the tclean-like interpolation that is applied when
+ * the width of the output is > 2 x width of the inputs.
+ *
+ * Irrespective of channel widths, we want as many channels as in the
+ * original input, with their (lower) width, but projected/aligned
+ * with the output grid. As the output grid is fixed based on the
+ * first row timestamp, this only need to be done once, at init time.
+ *
+ * After this method is run, the interpolation methods can use
+ * regridTCleanChanMap_p to interpolate the tclean way.
+ *
+ * @param originalCHAN_FREQ initial input channel frequencies
+ * @param outCHAN_FREQ final output channel frequencies
+ * @param outCHAN_WIDTH final output channel widths
+ * @param widthFactor avg(output_widths) / avg(input_widths)
+ */
+void MSTransformManager::initGridForRegridTClean(const Vector<Double> &originalCHAN_FREQ,
+						 const Vector<Double> &outCHAN_FREQ,
+						 const Vector<Double> &outCHAN_WIDTH,
+						 Double widthFactor)
+{
+  // build grid with widths of the input channels but aligned with the output
+  // grid
+  regridTCleanCHAN_FREQ_p.resize(originalCHAN_FREQ.size());
+  Vector<Double> regridTCleanCHAN_WIDTH_p;
+  regridTCleanCHAN_WIDTH_p.resize(regridTCleanCHAN_FREQ_p.size());
+  regridTCleanCHAN_FREQ_p(0) = outCHAN_FREQ(0) - outCHAN_WIDTH(0)/2.;
+  regridTCleanCHAN_WIDTH_p(0) = outCHAN_WIDTH(0) / widthFactor;
+  Double widthFactorIdx = static_cast<Double>(regridTCleanCHAN_FREQ_p.size()) /
+    outCHAN_FREQ.size();
+  for (size_t idx = 1; idx < regridTCleanCHAN_FREQ_p.size(); ++idx) {
+    Int outIdx = static_cast<Int>(idx / widthFactorIdx);
+    regridTCleanCHAN_WIDTH_p(idx) = outCHAN_WIDTH(outIdx) / widthFactorIdx;
+    regridTCleanCHAN_FREQ_p(idx) = regridTCleanCHAN_FREQ_p(idx-1) +
+      regridTCleanCHAN_WIDTH_p(idx);
+  }
+
+  // Build map from fake input channels => output channels
+  regridTCleanChanMap_p.resize(regridTCleanCHAN_FREQ_p.size());
+  regridTCleanChanMap_p = -1;
+  const auto &outputFreqs = outCHAN_FREQ;
+  const auto &outputWidths = outCHAN_WIDTH;
+  const auto &intermFreqs = regridTCleanCHAN_FREQ_p;
+  for (uInt mapIdx = 0; mapIdx < regridTCleanChanMap_p.size(); ++mapIdx) {
+    for (uInt outIdx = 0; outIdx < outputFreqs.size(); ++outIdx) {
+      if (intermFreqs(mapIdx) >= outputFreqs(outIdx) - outputWidths(outIdx)/2. and
+	  intermFreqs(mapIdx) < outputFreqs(outIdx) + outputWidths(outIdx)/2.) {
+	regridTCleanChanMap_p(mapIdx) = outIdx;
+	break;
+      }
+    }
+  }
+
+  regridTClean_p = true;
 }
 
 // -----------------------------------------------------------------------
@@ -8718,35 +8762,49 @@ template <class T> void MSTransformManager::interpol1D(Int inputSpw,
 					      false // If false extrapolated data points are set flagged
 					      );
   } else {
-    // introduced here to emulate the way tclean regrids when the factor between
-    // the output channel width and the input channel width is > 2.
-    // Ref. TransformMachines2/FTMachine.cc
-    Vector<T> intermDataStripe;
-    Vector<Bool> intermFlagsStripe;
-    // interpolate first from input -> intermediate grid
-    InterpolateArray1D<Double,T>::interpolate(intermDataStripe, // Output data
-					      intermFlagsStripe, // Output flags
-					      regridTCleanCHAN_FREQ_p, // Out chan freq
-					      inputOutputSpwMap_p[inputSpw].first.CHAN_FREQ_aux, // In chan freq
-					      inputDataStripe, // Input data
-					      inputFlagsStripe, // Input Flags
-					      interpolationMethod_p, // Interpolation method
-					      false, // A good data point has its flag set to false
-					      false // If false extrapolated data points are set flagged
-					      );
-
-    // interpolate from intermediate grid -> output, by picking nearest neighbor
-    InterpolateArray1D<Double,T>::interpolate(outputDataStripe, // Output data
-					      outputFlagsStripe, // Output flags
-					      inputOutputSpwMap_p[inputSpw].second.CHAN_FREQ, // Out chan freq
-					      regridTCleanCHAN_FREQ_p, // In chan freq
-					      intermDataStripe, // Input data
-					      intermFlagsStripe, // Input Flags
-					      MSTransformations::nearestNeighbour,
-					      false, // A good data point has its flag set to false
-					      false // If false extrapolated data points are set flagged
-					      );
+    interpolateByChannelMap(inputDataStripe, inputFlagsStripe,
+			    outputDataStripe, outputFlagsStripe);
   }
+}
+
+/**
+ * Introduced to mimic the way tclean regrids when the factor between
+ * the output channel width and the input channel width is > 2.
+ * Ref. TransformMachines2/FTMachine.cc
+ *
+ * Uses a map from original input channels => fake output channels,
+ * where the fake output channels have the (lower) width of the
+ * input channels but are projected/aligned with the output channel
+ * grid.
+ *
+ * @param inputDataStripe input data coming from regridCubeOfData,
+ *        transformAndWriteCubeOfData, etc. and passed to the
+ *        regrid/interpolation kernels.
+ * @param inputFlagsStripe flags for the inputDataStripe
+ * @param outputDataStripe will be interpolated by aggregating
+ *        input visibilities into wider channels
+ * @param outputFlagsStripe flags for outputDataStripe
+ */
+template <class T> void MSTransformManager::interpolateByChannelMap(const Vector<T> &inputDataStripe,
+								    const Vector<Bool> &inputFlagsStripe,
+								    Vector<T> &outputDataStripe,
+								    Vector<Bool> &outputFlagsStripe)
+{
+    outputDataStripe = 0;
+    Vector<Double> outWeights;
+    outWeights.resize(outputDataStripe.size());
+    outWeights = 0.;
+
+    for (uInt mapIdx = 0; mapIdx < regridTCleanChanMap_p.size(); ++mapIdx) {
+      Int outIdx = regridTCleanChanMap_p[mapIdx];
+      if (outIdx < 0)
+	continue;
+      outputDataStripe[outIdx] = (outputDataStripe[outIdx] * outWeights[outIdx] +
+				  inputDataStripe[mapIdx]) /
+	(1. + outWeights[outIdx]);
+      outWeights[outIdx] += 1;
+      outputFlagsStripe[outIdx] |= inputFlagsStripe[mapIdx];
+    }
 }
 
 // -----------------------------------------------------------------------
