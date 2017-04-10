@@ -455,6 +455,7 @@ protected:
 						Vector<Double> &inputCHAN_WIDTH,
 						const Vector<Double> &originalCHAN_FREQ,
 						const Vector<Double> &originalCHAN_WIDTH,
+						const Vector<Double> &regriddedCHAN_FREQ,
 						const Vector<Double> &regriddedCHAN_WIDTH);
 	void doPreAveragingBeforeRegridding(uInt widthFactor, Int spwId,
 					    const Vector<Double> &originalCHAN_FREQ,
@@ -463,11 +464,18 @@ protected:
 					    Vector<Double> &inputCHAN_WIDTH);
 
 	// For channel averaging and selection
-	void calculateIntermediateFrequencies(	casacore::Int spwId,
-											const casacore::Vector<casacore::Double> &inputChanFreq,
-											const casacore::Vector<casacore::Double> &inputChanWidth,
-											casacore::Vector<casacore::Double> &intermediateChanFreq,
-											casacore::Vector<casacore::Double> &intermediateChanWidth);
+	void calculateIntermediateFrequencies(casacore::Int spwId,
+					      const casacore::Vector<casacore::Double> &inputChanFreq,
+					      const casacore::Vector<casacore::Double> &inputChanWidth,
+					      casacore::Vector<casacore::Double> &intermediateChanFreq,
+					      casacore::Vector<casacore::Double> &intermediateChanWidth);
+
+	void initGridForRegridTClean(const Vector<Double> &originalCHAN_FREQ,
+				     const Vector<Double> &regriddedCHAN_FREQ,
+				     const Vector<Double> &regriddedCHAN_WIDTH,
+				     Double widthFactor);
+
+
 	void calculateWeightAndSigmaFactors();
 	void calculateNewWeightAndSigmaFactors();
 
@@ -1216,6 +1224,11 @@ protected:
 						   casacore::Vector<T> &outputDataStripe,
 						   casacore::Vector<casacore::Bool> &outputFlagsStripe);
 
+	template <class T> void interpolateByChannelMap(const Vector<T> &inputDataStripe,
+							const Vector<Bool> &inputFlagsStripe,
+							Vector<T> &outputDataStripe,
+							Vector<Bool> &outputFlagsStripe);
+
 	template <class T> void averageSmooth(	casacore::Int inputSpw,
 											casacore::Vector<T> &inputDataStripe,
 											casacore::Vector<casacore::Bool> &inputFlagsStripe,
@@ -1293,9 +1306,11 @@ protected:
 	casacore::Bool hanningSmooth_p = false;
 	casacore::Bool refFrameTransformation_p = false;
 	casacore::Vector<casacore::Int> freqbin_p = casacore::Vector<Int>(1,-1);
+	// For when the interpolation needs to be done the tclean way
+	// (output width > 2 input width). CAS-9853, CAS-9852
 	casacore::Bool regridTClean_p = false;
-	// for emulation of tclean interpolation in two stages CAS-9853, CAS-9852
 	Vector<Double> regridTCleanCHAN_FREQ_p;
+	Vector<Int> regridTCleanChanMap_p;
 	casacore::String useweights_p = "flags";
 	casacore::uInt weightmode_p = MSTransformations::flags;
 	// Options are: nearest, linear, cubic, spline, fftshift
