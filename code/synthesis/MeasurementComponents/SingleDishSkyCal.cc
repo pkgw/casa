@@ -1097,14 +1097,22 @@ void SingleDishSkyCal::updateWt2(Matrix<Float> &weight, const Int &antenna1)
   debuglog << "factor.shape() = " << factor.shape() << debugpost;
   debuglog << "weight.shape() = " << weight.shape() << debugpost;
   debuglog << "weight = " << weight << debugpost;
-  if (weight.shape() == factor.shape()) {
-    weight *= factor;
-  }
-  else if (weight.shape() == IPosition(2,factor.shape()[0],1)) {
-    weight *= factor(Slice(0,factor.shape()[0]),Slice(0,1));
-  }
-  else {
-    throw AipsError("Shape mismatch between input weight and weight scaling factor");
+
+  auto const wtShape = weight.shape();
+  size_t const nCorr = wtShape[0];
+  size_t const nChan = wtShape[0];
+  // for each correlation
+  for (size_t iCorr = 0; iCorr < nCorr; ++iCorr) {
+    auto wSlice = weight.row(iCorr);
+    auto const fSlice = factor.row(iCorr);
+    if (fSlice.nelements() == nChan) {
+      wSlice *= fSlice;
+    } else if (nChan == 1) {
+      // take mean of spectral weight factor to apply it to scalar weight
+      wSlice *= mean(fSlice);
+    } else {
+      throw AipsError("Shape mismatch between input weight and weight scaling factor");
+    }
   }
 }
 
