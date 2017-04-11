@@ -977,198 +977,217 @@ protected:
 												casacore::IPosition &,
 												casacore::uInt &) {return;}
 
-	void transformStripeOfData(	casacore::Int inputSpw,
-								casacore::Vector<casacore::Complex> &inputDataStripe,
-								casacore::Vector<casacore::Bool> &inputFlagsStripe,
-								casacore::Vector<casacore::Float> &inputWeightsStripe,
-								casacore::Vector<casacore::Complex> &outputDataStripe,
-								casacore::Vector<casacore::Bool> &outputFlagsStripe);
-	void transformStripeOfData(	casacore::Int inputSpw,
-								casacore::Vector<casacore::Float> &inputDataStripe,
-								casacore::Vector<casacore::Bool> &inputFlagsStripe,
-								casacore::Vector<casacore::Float> &inputWeightsStripe,
-								casacore::Vector<casacore::Float> &outputDataStripe,
-								casacore::Vector<casacore::Bool> &outputFlagsStripe);
-	void (casa::MSTransformManager::*transformStripeOfDataComplex_p)(	casacore::Int inputSpw,
-																			casacore::Vector<casacore::Complex> &inputDataStripe,
-																			casacore::Vector<casacore::Bool> &inputFlagsStripe,
-																			casacore::Vector<casacore::Float> &inputWeightsStripe,
-																			casacore::Vector<casacore::Complex> &outputDataStripe,
-																			casacore::Vector<casacore::Bool> &outputFlagsStripe);
-	void (casa::MSTransformManager::*transformStripeOfDataFloat_p)(	casacore::Int inputSpw,
-																		casacore::Vector<casacore::Float> &inputDataStripe,
-																		casacore::Vector<casacore::Bool> &inputFlagsStripe,
-																		casacore::Vector<casacore::Float> &inputWeightsStripe,
-																		casacore::Vector<casacore::Float> &outputDataStripe,
-																		casacore::Vector<casacore::Bool> &outputFlagsStripe);
+	void transformStripeOfData(casacore::Int inputSpw,
+				   const casacore::Vector<casacore::Complex> &inputDataStripe,
+				   const casacore::Vector<casacore::Bool> &inputFlagsStripe,
+				   const casacore::Vector<casacore::Float> &inputWeightsStripe,
+				   casacore::Vector<casacore::Complex> &outputDataStripe,
+				   casacore::Vector<casacore::Bool> &outputFlagsStripe);
 
-	template <class T> void average(	casacore::Int inputSpw,
-										casacore::Vector<T> &inputDataStripe,
-										casacore::Vector<casacore::Bool> &inputFlagsStripe,
-										casacore::Vector<casacore::Float> &inputWeightsStripe,
-										casacore::Vector<T> &outputDataStripe,
-										casacore::Vector<casacore::Bool> &outputFlagsStripe);
-	template <class T> void simpleAverage(	casacore::uInt width,
-											const casacore::Vector<T> &inputData,
-											casacore::Vector<T> &outputData);
+	void transformStripeOfData(casacore::Int inputSpw,
+				   const casacore::Vector<casacore::Float> &inputDataStripe,
+				   const casacore::Vector<casacore::Bool> &inputFlagsStripe,
+				   const casacore::Vector<casacore::Float> &inputWeightsStripe,
+				   casacore::Vector<casacore::Float> &outputDataStripe,
+				   casacore::Vector<casacore::Bool> &outputFlagsStripe);
+
+	void (casa::MSTransformManager::*transformStripeOfDataComplex_p)(casacore::Int inputSpw,
+									 const casacore::Vector<casacore::Complex> &inputDataStripe,
+									 const casacore::Vector<casacore::Bool> &inputFlagsStripe,
+									 const casacore::Vector<casacore::Float> &inputWeightsStripe,
+									 casacore::Vector<casacore::Complex> &outputDataStripe,
+									 casacore::Vector<casacore::Bool> &outputFlagsStripe);
+
+	void (casa::MSTransformManager::*transformStripeOfDataFloat_p)(casacore::Int inputSpw,
+								       const casacore::Vector<casacore::Float> &inputDataStripe,
+								       const casacore::Vector<casacore::Bool> &inputFlagsStripe,
+								       const casacore::Vector<casacore::Float> &inputWeightsStripe,
+								       casacore::Vector<casacore::Float> &outputDataStripe,
+								       casacore::Vector<casacore::Bool> &outputFlagsStripe);
+
+	template <class T> void average(casacore::Int inputSpw,
+					const casacore::Vector<T> &inputDataStripe,
+					const casacore::Vector<casacore::Bool> &inputFlagsStripe,
+					const casacore::Vector<casacore::Float> &inputWeightsStripe,
+					casacore::Vector<T> &outputDataStripe,
+					casacore::Vector<casacore::Bool> &outputFlagsStripe);
+
+	template <class T> void simpleAverage(casacore::uInt width,
+					      const casacore::Vector<T> &inputData,
+					      casacore::Vector<T> &outputData);
+
 	void averageKernel(const casacore::Vector<casacore::Complex> &inputData,
-						casacore::Vector<casacore::Bool> &inputFlags,
-						casacore::Vector<casacore::Float> &inputWeights,
-						casacore::Vector<casacore::Complex> &outputData,
-						casacore::Vector<casacore::Bool> &outputFlags,
-						casacore::uInt startInputPos,
-						casacore::uInt outputPos,
-						casacore::uInt width);
+			   const casacore::Vector<casacore::Bool> &inputFlags,
+			   const casacore::Vector<casacore::Float> &inputWeights,
+			   casacore::Vector<casacore::Complex> &outputData,
+			   casacore::Vector<casacore::Bool> &outputFlags,
+			   casacore::uInt startInputPos,
+			   casacore::uInt outputPos,
+			   casacore::uInt width);
+
 	void averageKernel(const casacore::Vector<casacore::Float> &inputData,
-						casacore::Vector<casacore::Bool> &inputFlags,
-						casacore::Vector<casacore::Float> &inputWeights,
-						casacore::Vector<casacore::Float> &outputData,
-						casacore::Vector<casacore::Bool> &outputFlags,
-						casacore::uInt startInputPos,
-						casacore::uInt outputPos,
-						casacore::uInt width);
+			   const casacore::Vector<casacore::Bool> &inputFlags,
+			   const casacore::Vector<casacore::Float> &inputWeights,
+			   casacore::Vector<casacore::Float> &outputData,
+			   casacore::Vector<casacore::Bool> &outputFlags,
+			   casacore::uInt startInputPos,
+			   casacore::uInt outputPos,
+			   casacore::uInt width);
+
 	void (casa::MSTransformManager::*averageKernelComplex_p)(const casacore::Vector<casacore::Complex> &inputData,
-																	casacore::Vector<casacore::Bool> &inputFlags,
-																	casacore::Vector<casacore::Float> &inputWeights,
-																	casacore::Vector<casacore::Complex> &outputData,
-																	casacore::Vector<casacore::Bool> &outputFlags,
-																	casacore::uInt startInputPos,
+								 const casacore::Vector<casacore::Bool> &inputFlags,
+								 const casacore::Vector<casacore::Float> &inputWeights,
+								 casacore::Vector<casacore::Complex> &outputData,
+								 casacore::Vector<casacore::Bool> &outputFlags,
+								 casacore::uInt startInputPos,
 																	casacore::uInt outputPos,
 																	casacore::uInt width);
 	void (casa::MSTransformManager::*averageKernelFloat_p)(const casacore::Vector<casacore::Float> &inputData,
-																	casacore::Vector<casacore::Bool> &inputFlags,
-																	casacore::Vector<casacore::Float> &inputWeights,
-																	casacore::Vector<casacore::Float> &outputData,
-																	casacore::Vector<casacore::Bool> &outputFlags,
-																	casacore::uInt startInputPos,
-																	casacore::uInt outputPos,
+							       const casacore::Vector<casacore::Bool> &inputFlags,
+							       const casacore::Vector<casacore::Float> &inputWeights,
+							       casacore::Vector<casacore::Float> &outputData,
+							       casacore::Vector<casacore::Bool> &outputFlags,
+							       casacore::uInt startInputPos,
+							       casacore::uInt outputPos,
 																	casacore::uInt width);
 	template <class T> void simpleAverageKernel(const casacore::Vector<T> &inputData,
-													casacore::Vector<casacore::Bool> &,
-													casacore::Vector<casacore::Float> &,
-													casacore::Vector<T> &outputData,
-													casacore::Vector<casacore::Bool> &,
-													casacore::uInt startInputPos,
-													casacore::uInt outputPos,
-													casacore::uInt width);
+						    const casacore::Vector<casacore::Bool> &,
+						    const casacore::Vector<casacore::Float> &,
+						    casacore::Vector<T> &outputData,
+						    casacore::Vector<casacore::Bool> &,
+						    casacore::uInt startInputPos,
+						    casacore::uInt outputPos,
+						    casacore::uInt width);
+
 	template <class T> void flagAverageKernel(const casacore::Vector<T> &inputData,
-												casacore::Vector<casacore::Bool> &inputFlags,
-												casacore::Vector<casacore::Float> &,
-												casacore::Vector<T> &outputData,
-												casacore::Vector<casacore::Bool> &outputFlags,
-												casacore::uInt startInputPos,
-												casacore::uInt outputPos,
-												casacore::uInt width);
+						  const casacore::Vector<casacore::Bool> &inputFlags,
+						  const casacore::Vector<casacore::Float> &,
+						  casacore::Vector<T> &outputData,
+						  casacore::Vector<casacore::Bool> &outputFlags,
+						  casacore::uInt startInputPos,
+						  casacore::uInt outputPos,
+						  casacore::uInt width);
+
 	template <class T> void weightAverageKernel(const casacore::Vector<T> &inputData,
-													casacore::Vector<casacore::Bool> &,
-													casacore::Vector<casacore::Float> &inputWeights,
-													casacore::Vector<T> &outputData,
-													casacore::Vector<casacore::Bool> &outputFlags,
-													casacore::uInt startInputPos,
-													casacore::uInt outputPos,
-													casacore::uInt width);
+						    const casacore::Vector<casacore::Bool> &,
+						    const casacore::Vector<casacore::Float> &inputWeights,
+						    casacore::Vector<T> &outputData,
+						    casacore::Vector<casacore::Bool> &outputFlags,
+						    casacore::uInt startInputPos,
+						    casacore::uInt outputPos,
+						    casacore::uInt width);
+
 	template <class T> void cumSumKernel(const casacore::Vector<T> &inputData,
-											casacore::Vector<casacore::Bool> &,
-											casacore::Vector<casacore::Float> &,
-											casacore::Vector<T> &outputData,
-											casacore::Vector<casacore::Bool> &,
-											casacore::uInt startInputPos,
-											casacore::uInt outputPos,
-											casacore::uInt width);
+					     const casacore::Vector<casacore::Bool> &,
+					     const casacore::Vector<casacore::Float> &,
+					     casacore::Vector<T> &outputData,
+					     casacore::Vector<casacore::Bool> &,
+					     casacore::uInt startInputPos,
+					     casacore::uInt outputPos,
+					     casacore::uInt width);
+
 	template <class T> void flagWeightAverageKernel(const casacore::Vector<T> &inputData,
-														casacore::Vector<casacore::Bool> &inputFlags,
-														casacore::Vector<casacore::Float> &inputWeights,
-														casacore::Vector<T> &outputData,
-														casacore::Vector<casacore::Bool> &outputFlags,
-														casacore::uInt startInputPos,
-														casacore::uInt outputPos,
-														casacore::uInt width);
+							const casacore::Vector<casacore::Bool> &inputFlags,
+							const casacore::Vector<casacore::Float> &inputWeights,
+							casacore::Vector<T> &outputData,
+							casacore::Vector<casacore::Bool> &outputFlags,
+							casacore::uInt startInputPos,
+							casacore::uInt outputPos,
+							casacore::uInt width);
+
 	template <class T> void flagCumSumKernel(const casacore::Vector<T> &inputData,
-												casacore::Vector<casacore::Bool> &inputFlags,
-												casacore::Vector<casacore::Float> &,
-												casacore::Vector<T> &outputData,
-												casacore::Vector<casacore::Bool> &,
-												casacore::uInt startInputPos,
-												casacore::uInt outputPos,
-												casacore::uInt width);
+						 const casacore::Vector<casacore::Bool> &inputFlags,
+						 const casacore::Vector<casacore::Float> &,
+						 casacore::Vector<T> &outputData,
+						 casacore::Vector<casacore::Bool> &,
+						 casacore::uInt startInputPos,
+						 casacore::uInt outputPos,
+						 casacore::uInt width);
 
 	template <class T> void flagNonZeroAverageKernel(const casacore::Vector<T> &inputData,
-														casacore::Vector<casacore::Bool> &inputFlags,
-														casacore::Vector<casacore::Float> &,
-														casacore::Vector<T> &outputData,
-														casacore::Vector<casacore::Bool> &,
-														casacore::uInt startInputPos,
-														casacore::uInt outputPos,
-														casacore::uInt width);
+							 const casacore::Vector<casacore::Bool> &inputFlags,
+							 const casacore::Vector<casacore::Float> &,
+							 casacore::Vector<T> &outputData,
+							 casacore::Vector<casacore::Bool> &,
+							 casacore::uInt startInputPos,
+							 casacore::uInt outputPos,
+							 casacore::uInt width);
+
 	template <class T> void flagWeightNonZeroAverageKernel(const casacore::Vector<T> &inputData,
-															casacore::Vector<casacore::Bool> &inputFlags,
-															casacore::Vector<casacore::Float> &,
-															casacore::Vector<T> &outputData,
-															casacore::Vector<casacore::Bool> &,
-															casacore::uInt startInputPos,
-															casacore::uInt outputPos,
-															casacore::uInt width);
+							       const casacore::Vector<casacore::Bool> &inputFlags,
+							       const casacore::Vector<casacore::Float> &,
+							       casacore::Vector<T> &outputData,
+							       casacore::Vector<casacore::Bool> &,
+							       casacore::uInt startInputPos,
+							       casacore::uInt outputPos,
+							       casacore::uInt width);
+
 	template <class T> void flagCumSumNonZeroKernel(const casacore::Vector<T> &inputData,
-														casacore::Vector<casacore::Bool> &inputFlags,
-														casacore::Vector<casacore::Float> &,
-														casacore::Vector<T> &outputData,
-														casacore::Vector<casacore::Bool> &,
-														casacore::uInt startInputPos,
-														casacore::uInt outputPos,
-														casacore::uInt width);
+							const casacore::Vector<casacore::Bool> &inputFlags,
+							const casacore::Vector<casacore::Float> &,
+							casacore::Vector<T> &outputData,
+							casacore::Vector<casacore::Bool> &,
+							casacore::uInt startInputPos,
+							casacore::uInt outputPos,
+							casacore::uInt width);
 
 
-	template <class T> void smooth(	casacore::Int inputSpw,
-									casacore::Vector<T> &inputDataStripe,
-									casacore::Vector<casacore::Bool> &inputFlagsStripe,
-									casacore::Vector<casacore::Float> &inputWeightsStripe,
-									casacore::Vector<T> &outputDataStripe,
-									casacore::Vector<casacore::Bool> &outputFlagsStripe);
+	template <class T> void smooth(casacore::Int inputSpw,
+				       const casacore::Vector<T> &inputDataStripe,
+				       const casacore::Vector<casacore::Bool> &inputFlagsStripe,
+				       const casacore::Vector<casacore::Float> &inputWeightsStripe,
+				       casacore::Vector<T> &outputDataStripe,
+				       casacore::Vector<casacore::Bool> &outputFlagsStripe);
+
 	void smoothKernel(const casacore::Vector<casacore::Complex> &inputData,
-						casacore::Vector<casacore::Bool> &inputFlags,
-						casacore::Vector<casacore::Float> &inputWeights,
-						casacore::Vector<casacore::Complex> &outputData,
-						casacore::Vector<casacore::Bool> &outputFlags,
-						casacore::uInt outputPos);
+			  const casacore::Vector<casacore::Bool> &inputFlags,
+			  const casacore::Vector<casacore::Float> &inputWeights,
+			  casacore::Vector<casacore::Complex> &outputData,
+			  casacore::Vector<casacore::Bool> &outputFlags,
+			  casacore::uInt outputPos);
+
 	void smoothKernel(const casacore::Vector<casacore::Float> &inputData,
-						casacore::Vector<casacore::Bool> &inputFlags,
-						casacore::Vector<casacore::Float> &inputWeights,
-						casacore::Vector<casacore::Float> &outputData,
-						casacore::Vector<casacore::Bool> &outputFlags,
-						casacore::uInt outputPos);
+			  const casacore::Vector<casacore::Bool> &inputFlags,
+			  const casacore::Vector<casacore::Float> &inputWeights,
+			  casacore::Vector<casacore::Float> &outputData,
+			  casacore::Vector<casacore::Bool> &outputFlags,
+			  casacore::uInt outputPos);
+
 	void (casa::MSTransformManager::*smoothKernelComplex_p)(const casacore::Vector<casacore::Complex> &inputData,
-																const casacore::Vector<casacore::Bool> &inputFlags,
-																const casacore::Vector<casacore::Float> &inputWeights,
-																casacore::Vector<casacore::Complex> &outputData,
-																casacore::Vector<casacore::Bool> &outputFlags,
-																casacore::uInt outputPos);
+								const casacore::Vector<casacore::Bool> &inputFlags,
+								const casacore::Vector<casacore::Float> &inputWeights,
+								casacore::Vector<casacore::Complex> &outputData,
+								casacore::Vector<casacore::Bool> &outputFlags,
+								casacore::uInt outputPos);
+
 	void (casa::MSTransformManager::*smoothKernelFloat_p)(const casacore::Vector<casacore::Float> &inputData,
-																const casacore::Vector<casacore::Bool> &inputFlags,
-																const casacore::Vector<casacore::Float> &inputWeights,
-																casacore::Vector<casacore::Float> &outputData,
-																casacore::Vector<casacore::Bool> &outputFlags,
-																casacore::uInt outputPos);
+							      const casacore::Vector<casacore::Bool> &inputFlags,
+							      const casacore::Vector<casacore::Float> &inputWeights,
+							      casacore::Vector<casacore::Float> &outputData,
+							      casacore::Vector<casacore::Bool> &outputFlags,
+							      casacore::uInt outputPos);
+
 	template <class T> void plainSmooth(const casacore::Vector<T> &inputData,
-											const casacore::Vector<casacore::Bool> &inputFlags,
-											const casacore::Vector<casacore::Float> &inputWeights,
-											casacore::Vector<T> &outputData,
-											casacore::Vector<casacore::Bool> &outputFlags,
-											casacore::uInt outputPos);
+					    const casacore::Vector<casacore::Bool> &inputFlags,
+					    const casacore::Vector<casacore::Float> &inputWeights,
+					    casacore::Vector<T> &outputData,
+					    casacore::Vector<casacore::Bool> &outputFlags,
+					    casacore::uInt outputPos);
 
 	template <class T> void plainSmoothSpectrum(const casacore::Vector<T> &inputData,
-													const casacore::Vector<casacore::Bool> &inputFlags,
-													const casacore::Vector<casacore::Float> &inputWeights,
-													casacore::Vector<T> &outputData,
-													casacore::Vector<casacore::Bool> &outputFlags,
-													casacore::uInt outputPos);
+						    const casacore::Vector<casacore::Bool> &inputFlags,
+						    const casacore::Vector<casacore::Float> &inputWeights,
+						    casacore::Vector<T> &outputData,
+						    casacore::Vector<casacore::Bool> &outputFlags,
+						    casacore::uInt outputPos);
 
 
-	template <class T> void regrid(	casacore::Int ,
-									casacore::Vector<T> &inputDataStripe,
-									casacore::Vector<casacore::Bool> &inputFlagsStripe,
-									casacore::Vector<casacore::Float> &,
-									casacore::Vector<T> &outputDataStripe,
-									casacore::Vector<casacore::Bool> &outputFlagsStripe);
+	template <class T> void regrid(casacore::Int ,
+				       const casacore::Vector<T> &inputDataStripe,
+				       const casacore::Vector<casacore::Bool> &inputFlagsStripe,
+				       const casacore::Vector<casacore::Float> &,
+				       casacore::Vector<T> &outputDataStripe,
+				       casacore::Vector<casacore::Bool> &outputFlagsStripe);
 
 	void regridCore(casacore::Int inputSpw,
 			const casacore::Vector<casacore::Complex> &inputDataStripe,
@@ -1224,43 +1243,53 @@ protected:
 						   casacore::Vector<T> &outputDataStripe,
 						   casacore::Vector<casacore::Bool> &outputFlagsStripe);
 
-	template <class T> void interpolateByChannelMap(const Vector<T> &inputDataStripe,
+	template <class T> void interpolateByChannelMap(Int spw,
+							const Vector<T> &inputDataStripe,
 							const Vector<Bool> &inputFlagsStripe,
 							Vector<T> &outputDataStripe,
 							Vector<Bool> &outputFlagsStripe);
 
-	template <class T> void averageSmooth(	casacore::Int inputSpw,
-											casacore::Vector<T> &inputDataStripe,
-											casacore::Vector<casacore::Bool> &inputFlagsStripe,
-											casacore::Vector<casacore::Float> &inputWeightsStripe,
-											casacore::Vector<T> &outputDataStripe,
-											casacore::Vector<casacore::Bool> &outputFlagsStripe);
-	template <class T> void averageRegrid(	casacore::Int inputSpw,
-											casacore::Vector<T> &inputDataStripe,
-											casacore::Vector<casacore::Bool> &inputFlagsStripe,
-											casacore::Vector<casacore::Float> &inputWeightsStripe,
-											casacore::Vector<T> &outputDataStripe,
-											casacore::Vector<casacore::Bool> &outputFlagsStripe);
-	template <class T> void smoothRegrid(	casacore::Int inputSpw,
-											casacore::Vector<T> &inputDataStripe,
-											casacore::Vector<casacore::Bool> &inputFlagsStripe,
-											casacore::Vector<casacore::Float> &inputWeightsStripe,
-											casacore::Vector<T> &outputDataStripe,
-											casacore::Vector<casacore::Bool> &outputFlagsStripe);
-	template <class T> void averageSmoothRegrid(	casacore::Int inputSpw,
-													casacore::Vector<T> &inputDataStripe,
-													casacore::Vector<casacore::Bool> &inputFlagsStripe,
-													casacore::Vector<casacore::Float> &inputWeightsStripe,
-													casacore::Vector<T> &outputDataStripe,
-													casacore::Vector<casacore::Bool> &outputFlagsStripe);
+	template <class T> void averageRegrid(casacore::Int inputSpw,
+					      const casacore::Vector<T> &inputDataStripe,
+					      const casacore::Vector<casacore::Bool> &inputFlagsStripe,
+					      const casacore::Vector<casacore::Float> &inputWeightsStripe,
+					      casacore::Vector<T> &outputDataStripe,
+					      casacore::Vector<casacore::Bool> &outputFlagsStripe);
+
+	template <class T> void smoothRegrid(casacore::Int inputSpw,
+					     const casacore::Vector<T> &inputDataStripe,
+					     const casacore::Vector<casacore::Bool> &inputFlagsStripe,
+					     const casacore::Vector<casacore::Float> &inputWeightsStripe,
+					     casacore::Vector<T> &outputDataStripe,
+					     casacore::Vector<casacore::Bool> &outputFlagsStripe);
+
+	template <class T> void averageSmooth(casacore::Int inputSpw,
+					      const casacore::Vector<T> &inputDataStripe,
+					      const casacore::Vector<casacore::Bool> &inputFlagsStripe,
+					      const casacore::Vector<casacore::Float> &inputWeightsStripe,
+					      casacore::Vector<T> &outputDataStripe,
+					      casacore::Vector<casacore::Bool> &outputFlagsStripe);
+
+	template <class T> void averageSmoothRegrid(casacore::Int inputSpw,
+						    const casacore::Vector<T> &inputDataStripe,
+						    const casacore::Vector<casacore::Bool> &inputFlagsStripe,
+						    const casacore::Vector<casacore::Float> &inputWeightsStripe,
+						    casacore::Vector<T> &outputDataStripe,
+						    casacore::Vector<casacore::Bool> &outputFlagsStripe);
 
 	// The following methods are single dish specific so far
-	void smoothFourierFloat(casacore::Int , casacore::Vector<casacore::Float> &inputDataStripe,
-	          casacore::Vector<casacore::Bool> &inputFlagsStripe, casacore::Vector<casacore::Float> &inputWeightStripe,
-	          casacore::Vector<casacore::Float> &outputDataStripe, casacore::Vector<casacore::Bool> &outputFlagsStripe);
-	void smoothFourierComplex(casacore::Int , casacore::Vector<casacore::Complex> &inputDataStripe,
-	          casacore::Vector<casacore::Bool> &inputFlagsStripe, casacore::Vector<casacore::Float> &inputWeightStripe,
-	          casacore::Vector<casacore::Complex> &outputDataStripe, casacore::Vector<casacore::Bool> &outputFlagsStripe);
+	void smoothFourierFloat(casacore::Int , const casacore::Vector<casacore::Float> &inputDataStripe,
+				const casacore::Vector<casacore::Bool> &inputFlagsStripe,
+				const casacore::Vector<casacore::Float> &inputWeightStripe,
+				casacore::Vector<casacore::Float> &outputDataStripe,
+				casacore::Vector<casacore::Bool> &outputFlagsStripe);
+
+	void smoothFourierComplex(casacore::Int , const casacore::Vector<casacore::Complex> &inputDataStripe,
+				  const casacore::Vector<casacore::Bool> &inputFlagsStripe,
+				  const casacore::Vector<casacore::Float> &inputWeightStripe,
+				  casacore::Vector<casacore::Complex> &outputDataStripe,
+				  casacore::Vector<casacore::Bool> &outputFlagsStripe);
+
 	casacore::Convolver<casacore::Float> *getConvolver(casacore::Int const numChan);
 
 	// casacore::MS specification parameters
