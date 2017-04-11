@@ -8837,7 +8837,7 @@ template <class T> void MSTransformManager::interpolateByChannelMap(Int spw,
 				intermDataStripe[mapIdx]) /
       (1. + outWeights[outIdx]);
     outWeights[outIdx] += 1;
-    outputFlagsStripe[outIdx] |= inputFlagsStripe[mapIdx];
+    outputFlagsStripe[outIdx] |= intermFlagsStripe[mapIdx];
   }
 }
 
