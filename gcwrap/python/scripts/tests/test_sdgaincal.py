@@ -4,6 +4,7 @@ import shutil
 import re
 import numpy
 import math
+import sdutil
 
 from __main__ import default
 from taskinit import gentools
@@ -312,10 +313,51 @@ class sdgaincal_variable_test(sdgaincal_test_base):
         
         self._verify_caltable(self._generic_verify, **params)
 
+class sdgaincal_single_polarization_test(sdgaincal_test_base):
+    """
+    Unit tests for task sdgaincal.
+    
+    The list of tests:
+    Test Name        | Radius      | Expectation
+    ==========================================================================
+    test_single_pol  | '65arcsec'  | test single-polarization calibration (YY)
+    """
+    infile = 'doublecircletest_const.ms'
+    outfile = 'sdgaincal_const_test.sdgain.caltable'
+    
+    # for single-polarization test
+    infile_YY = 'doublecircletest_const.YY.ms'
+    
+    def tearDown(self):
+        super(sdgaincal_single_polarization_test, self).tearDown()
+        
+        if os.path.exists(self.infile_YY):
+            shutil.rmtree(self.infile_YY)
+    
+    def test_single_pol(self):
+        """test_single_pol: test single-polarization calibration (YY)"""
+        # generate single-polarization MS
+        from mstransform_cli import mstransform_cli as mstransform
+        mstransform(vis=self.infile, outputvis=self.infile_YY, correlation='YY')
+        
+        self.assertTrue(os.path.exists(self.infile_YY))
+        with sdutil.tbmanager(self.infile_YY) as tb:
+            try:
+                for irow in xrange(tb.nrows()):
+                    flag = tb.getcell('FLAG', irow)
+                    self.assertEqual(flag.shape[0], 1)
+            finally:
+                tb.close()
+        
+        params = self.generate_params(radius='65arcsec')
+        params['infile'] = self.infile_YY
+        self.run_task(**params)
+        
 
 def suite():
     return [sdgaincal_fail_test,
             sdgaincal_const_test,
-            sdgaincal_variable_test]
+            sdgaincal_variable_test,
+            sdgaincal_single_polarization_test]
 
 
