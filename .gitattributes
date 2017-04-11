@@ -6704,6 +6704,7 @@ gcwrap/python/scripts/tests/test_partitionHelper.py -text
 gcwrap/python/scripts/tests/test_plotants.py -text
 gcwrap/python/scripts/tests/test_plotms.py -text
 gcwrap/python/scripts/tests/test_plotuv.py -text
+gcwrap/python/scripts/tests/test_plotweather.py -text
 gcwrap/python/scripts/tests/test_po_complexfraclinpol.py -text
 gcwrap/python/scripts/tests/test_po_complexlinpol.py -text
 gcwrap/python/scripts/tests/test_po_depolratio.py -text
