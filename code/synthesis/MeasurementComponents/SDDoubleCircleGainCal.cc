@@ -272,8 +272,12 @@ void SDDoubleCircleGainCal::selfGatherAndSolve(VisSet& vs,
   nElem() = 1;
   initSolvePar();
 
-  // re-initialize calibration flags to false
-  solveAllParOK() = false;
+  // re-initialize calibration solution to 0.0 and calibration flags to false
+  for (Int ispw=0;ispw<nSpw();++ispw) {
+    currSpw() = ispw;
+    solveAllParOK() = false;
+    solveAllCPar() = Complex(0.0);
+  }
 
   // Pick up OFF spectra using STATE_ID
   auto const msSel = vs.iter().ms();
