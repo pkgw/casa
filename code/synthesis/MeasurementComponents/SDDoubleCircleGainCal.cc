@@ -232,19 +232,16 @@ String SDDoubleCircleGainCal::solveinfo() {
 }
 
 void SDDoubleCircleGainCal::keepNCT() {
-  debuglog << "SDDoubleCircleGainCal::keepNCT" << debugpost;
   // Call parent to do general stuff
   GJones::keepNCT();
 
   if (prtlev()>4)
-    cout << " SVJ::keepNCT" << endl;
+    cout << " SDDoubleCircleGainCal::keepNCT" << endl;
 
   // Set proper antenna id
   Vector<Int> a1(nAnt());
   a1 = currAnt_;
   //indgen(a1);
-
-  debuglog << "antenna is " << a1 << debugpost;
 
   // We are adding to the most-recently added rows
   RefRows rows(ct_->nrow()-nElem(),ct_->nrow()-1,1);
@@ -486,20 +483,20 @@ void SDDoubleCircleGainCal::executeDoubleCircleGainCal(
     debuglog<< "number of gain " << numGain << debugpost;
 
     currSpw() = ispw;
+
+    // make sure storage and flag for calibration solution allocated
+    // for the current spw are properly initialized
+    solveAllCPar() = Complex(0.0);
+    solveAllParOK() = false;
+
     currField() = ifield;
     currAnt_ = iantenna;
-
-//    solveAllParErr() = 0.1; // TODO
-//    solveAllParSNR() = 1.0; // TODO
+    debuglog << "antenna is " << currAnt_ << debugpost;
 
     size_t numCorr = gain.shape()[0];
-//    Slice corrSlice(0, numCorr);
     Slice const chanSlice(0, numChan);
     for (size_t i = 0; i < numGain; ++i) {
       refTime() = gainTime[i];
-      //solveAllCPar() = gain(corrSlice, chanSlice, Slice(i, 1));
-      //convertArray(solveAllCPar(), gain(corrSlice, chanSlice, Slice(i, 1)));
-      //solveAllParOK() = !gain_flag(corrSlice, chanSlice, Slice(i, 1));
       Slice const rowSlice(i, 1);
       for (size_t iCorr = 0; iCorr < numCorr; ++iCorr) {
         Slice const corrSlice(iCorr, 1);
