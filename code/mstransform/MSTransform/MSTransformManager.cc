@@ -8001,12 +8001,12 @@ void MSTransformManager::setWeightStripeByReference(	uInt corrIndex,
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-void MSTransformManager::transformStripeOfData(	Int inputSpw,
-													Vector<Complex> &inputDataStripe,
-													Vector<Bool> &inputFlagsStripe,
-													Vector<Float> &inputWeightsStripe,
-													Vector<Complex> &outputDataStripe,
-													Vector<Bool> &outputFlagsStripe)
+void MSTransformManager::transformStripeOfData(Int inputSpw,
+					       const Vector<Complex> &inputDataStripe,
+					       const Vector<Bool> &inputFlagsStripe,
+					       const Vector<Float> &inputWeightsStripe,
+					       Vector<Complex> &outputDataStripe,
+					       Vector<Bool> &outputFlagsStripe)
 {
 	(*this.*transformStripeOfDataComplex_p)(	inputSpw,inputDataStripe,inputFlagsStripe,
 												inputWeightsStripe,outputDataStripe,outputFlagsStripe);
@@ -8016,12 +8016,12 @@ void MSTransformManager::transformStripeOfData(	Int inputSpw,
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-void MSTransformManager::transformStripeOfData(	Int inputSpw,
-													Vector<Float> &inputDataStripe,
-													Vector<Bool> &inputFlagsStripe,
-													Vector<Float> &inputWeightsStripe,
-													Vector<Float> &outputDataStripe,
-													Vector<Bool> &outputFlagsStripe)
+void MSTransformManager::transformStripeOfData(Int inputSpw,
+					       const Vector<Float> &inputDataStripe,
+					       const Vector<Bool> &inputFlagsStripe,
+					       const Vector<Float> &inputWeightsStripe,
+					       Vector<Float> &outputDataStripe,
+					       Vector<Bool> &outputFlagsStripe)
 {
 	(*this.*transformStripeOfDataFloat_p)(	inputSpw,inputDataStripe,inputFlagsStripe,inputWeightsStripe,
 											outputDataStripe,outputFlagsStripe);
@@ -8031,12 +8031,12 @@ void MSTransformManager::transformStripeOfData(	Int inputSpw,
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-template <class T> void MSTransformManager::average(	Int inputSpw,
-															Vector<T> &inputDataStripe,
-															Vector<Bool> &inputFlagsStripe,
-															Vector<Float> &inputWeightsStripe,
-															Vector<T> &outputDataStripe,
-															Vector<Bool> &outputFlagsStripe)
+template <class T> void MSTransformManager::average(Int inputSpw,
+						    const Vector<T> &inputDataStripe,
+						    const Vector<Bool> &inputFlagsStripe,
+						    const Vector<Float> &inputWeightsStripe,
+						    Vector<T> &outputDataStripe,
+						    Vector<Bool> &outputFlagsStripe)
 {
 	uInt width = freqbinMap_p[inputSpw];
 	uInt startChan = 0;
@@ -8097,13 +8097,13 @@ template <class T> void  MSTransformManager::simpleAverage(uInt width,
 //
 // -----------------------------------------------------------------------
 void MSTransformManager::averageKernel(const Vector<Complex> &inputData,
-											Vector<Bool> &inputFlags,
-											Vector<Float> &inputWeights,
-											Vector<Complex> &outputData,
-											Vector<Bool> &outputFlags,
-											uInt startInputPos,
-											uInt outputPos,
-											uInt width)
+				       const Vector<Bool> &inputFlags,
+				       const Vector<Float> &inputWeights,
+				       Vector<Complex> &outputData,
+				       Vector<Bool> &outputFlags,
+				       uInt startInputPos,
+				       uInt outputPos,
+				       uInt width)
 {
 	(*this.*averageKernelComplex_p)(	inputData,inputFlags,inputWeights,
 										outputData,outputFlags,startInputPos,outputPos,width);
@@ -8114,12 +8114,12 @@ void MSTransformManager::averageKernel(const Vector<Complex> &inputData,
 //
 // -----------------------------------------------------------------------
 void MSTransformManager::averageKernel(const Vector<Float> &inputData,
-											Vector<Bool> &inputFlags,
-											Vector<Float> &inputWeights,
-											Vector<Float> &outputData,
-											Vector<Bool> &outputFlags,
-											uInt startInputPos,
-											uInt outputPos,
+				       const Vector<Bool> &inputFlags,
+				       const Vector<Float> &inputWeights,
+				       Vector<Float> &outputData,
+				       Vector<Bool> &outputFlags,
+				       uInt startInputPos,
+				       uInt outputPos,
 											uInt width)
 {
 	(*this.*averageKernelFloat_p)(	inputData,inputFlags,inputWeights,
@@ -8131,12 +8131,12 @@ void MSTransformManager::averageKernel(const Vector<Float> &inputData,
 //
 // -----------------------------------------------------------------------
 template <class T> void MSTransformManager::simpleAverageKernel(const Vector<T> &inputData,
-																	Vector<Bool> &,
-																	Vector<Float> &,
-																	Vector<T> &outputData,
-																	Vector<Bool> &,
-																	uInt startInputPos,
-																	uInt outputPos,
+								const Vector<Bool> &,
+								const Vector<Float> &,
+								Vector<T> &outputData,
+								Vector<Bool> &,
+								uInt startInputPos,
+								uInt outputPos,
 																	uInt width)
 {
 	uInt pos = startInputPos + 1;
@@ -8163,13 +8163,13 @@ template <class T> void MSTransformManager::simpleAverageKernel(const Vector<T> 
 //
 // -----------------------------------------------------------------------
 template <class T> void MSTransformManager::flagAverageKernel(const Vector<T> &inputData,
-																	Vector<Bool> &inputFlags,
-																	Vector<Float> &,
-																	Vector<T> &outputData,
-																	Vector<Bool> &outputFlags,
-																	uInt startInputPos,
-																	uInt outputPos,
-																	uInt width)
+							      const Vector<Bool> &inputFlags,
+							      const Vector<Float> &,
+							      Vector<T> &outputData,
+							      Vector<Bool> &outputFlags,
+							      uInt startInputPos,
+							      uInt outputPos,
+							      uInt width)
 {
 	uInt samples = 1;
 	uInt pos = startInputPos + 1;
@@ -8201,13 +8201,13 @@ template <class T> void MSTransformManager::flagAverageKernel(const Vector<T> &i
 //
 // -----------------------------------------------------------------------
 template <class T> void MSTransformManager::weightAverageKernel(const Vector<T> &inputData,
-																		Vector<Bool> &,
-																		Vector<Float> &inputWeights,
-																		Vector<T> &outputData,
-																		Vector<Bool> &outputFlags,
-																		uInt startInputPos,
-																		uInt outputPos,
-																		uInt width)
+								const Vector<Bool> &,
+								const Vector<Float> &inputWeights,
+								Vector<T> &outputData,
+								Vector<Bool> &outputFlags,
+								uInt startInputPos,
+								uInt outputPos,
+								uInt width)
 {
 	uInt samples = 1;
 	uInt pos = startInputPos + 1;
@@ -8239,13 +8239,13 @@ template <class T> void MSTransformManager::weightAverageKernel(const Vector<T> 
 //
 // -----------------------------------------------------------------------
 template <class T> void MSTransformManager::cumSumKernel(const Vector<T> &inputData,
-															Vector<Bool> &,
-															Vector<Float> &,
-															Vector<T> &outputData,
-															Vector<Bool> &,
-															uInt startInputPos,
-															uInt outputPos,
-															uInt width)
+							 const Vector<Bool> &,
+							 const Vector<Float> &,
+							 Vector<T> &outputData,
+							 Vector<Bool> &,
+							 uInt startInputPos,
+							 uInt outputPos,
+							 uInt width)
 {
 	uInt pos = startInputPos + 1;
 	uInt counts = 1;
@@ -8266,13 +8266,13 @@ template <class T> void MSTransformManager::cumSumKernel(const Vector<T> &inputD
 //
 // -----------------------------------------------------------------------
 template <class T> void MSTransformManager::flagWeightAverageKernel(const Vector<T> &inputData,
-																		Vector<Bool> &inputFlags,
-																		Vector<Float> &inputWeights,
-																		Vector<T> &outputData,
-																		Vector<Bool> &outputFlags,
-																		uInt startInputPos,
-																		uInt outputPos,
-																		uInt width)
+								    const Vector<Bool> &inputFlags,
+								    const Vector<Float> &inputWeights,
+								    Vector<T> &outputData,
+								    Vector<Bool> &outputFlags,
+								    uInt startInputPos,
+								    uInt outputPos,
+								    uInt width)
 {
 	uInt samples = 1;
 	uInt pos = startInputPos + 1;
@@ -8306,13 +8306,13 @@ template <class T> void MSTransformManager::flagWeightAverageKernel(const Vector
 //
 // -----------------------------------------------------------------------
 template <class T> void MSTransformManager::flagCumSumKernel(const Vector<T> &inputData,
-																Vector<Bool> &inputFlags,
-																Vector<Float> &,
-																Vector<T> &outputData,
-																Vector<Bool> &,
-																uInt startInputPos,
-																uInt outputPos,
-																uInt width)
+							     const Vector<Bool> &inputFlags,
+							     const Vector<Float> &,
+							     Vector<T> &outputData,
+							     Vector<Bool> &,
+							     uInt startInputPos,
+							     uInt outputPos,
+							     uInt width)
 {
 	uInt samples = 1;
 	uInt pos = startInputPos + 1;
@@ -8333,13 +8333,13 @@ template <class T> void MSTransformManager::flagCumSumKernel(const Vector<T> &in
 //
 // -----------------------------------------------------------------------
 template <class T> void MSTransformManager::flagNonZeroAverageKernel(const Vector<T> &inputData,
-																		Vector<Bool> &inputFlags,
-																		Vector<Float> & /* inputWeights */,
-																		Vector<T> &outputData,
-																		Vector<Bool> &outputFlags,
-																		uInt startInputPos,
-																		uInt outputPos,
-																		uInt width)
+								     const Vector<Bool> &inputFlags,
+								     const Vector<Float> & /* inputWeights */,
+								     Vector<T> &outputData,
+								     Vector<Bool> &outputFlags,
+								     uInt startInputPos,
+								     uInt outputPos,
+								     uInt width)
 {
 	T avg = 0;
 	uInt samples = 0;
@@ -8395,13 +8395,13 @@ template <class T> void MSTransformManager::flagNonZeroAverageKernel(const Vecto
 //
 // -----------------------------------------------------------------------
 template <class T> void MSTransformManager::flagWeightNonZeroAverageKernel(const Vector<T> &inputData,
-																			Vector<Bool> &inputFlags,
-																			Vector<Float> &inputWeights,
-																			Vector<T> &outputData,
-																			Vector<Bool> &outputFlags,
-																			uInt startInputPos,
-																			uInt outputPos,
-																			uInt width)
+									   const Vector<Bool> &inputFlags,
+									   const Vector<Float> &inputWeights,
+									   Vector<T> &outputData,
+									   Vector<Bool> &outputFlags,
+									   uInt startInputPos,
+									   uInt outputPos,
+									   uInt width)
 {
 	T avg = 0;
 	T normalization = 0;
@@ -8456,13 +8456,13 @@ template <class T> void MSTransformManager::flagWeightNonZeroAverageKernel(const
 //
 // -----------------------------------------------------------------------
 template <class T> void MSTransformManager::flagCumSumNonZeroKernel(const Vector<T> &inputData,
-																		Vector<Bool> &inputFlags,
-																		Vector<Float> & /* inputWeights */,
-																		Vector<T> &outputData,
-																		Vector<Bool> &outputFlags,
-																		uInt startInputPos,
-																		uInt outputPos,
-																		uInt width)
+								    const Vector<Bool> &inputFlags,
+								    const Vector<Float> & /* inputWeights */,
+								    Vector<T> &outputData,
+								    Vector<Bool> &outputFlags,
+								    uInt startInputPos,
+								    uInt outputPos,
+								    uInt width)
 {
 	T avg = 0;
 	uInt inputPos = 0;
@@ -8501,12 +8501,12 @@ template <class T> void MSTransformManager::flagCumSumNonZeroKernel(const Vector
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-template <class T> void MSTransformManager::smooth(	Int ,
-													Vector<T> &inputDataStripe,
-													Vector<Bool> &inputFlagsStripe,
-													Vector<Float> &inputWeightsStripe,
-													Vector<T> &outputDataStripe,
-													Vector<Bool> &outputFlagsStripe)
+template <class T> void MSTransformManager::smooth(Int ,
+						   const Vector<T> &inputDataStripe,
+						   const Vector<Bool> &inputFlagsStripe,
+						   const Vector<Float> &inputWeightsStripe,
+						   Vector<T> &outputDataStripe,
+						   Vector<Bool> &outputFlagsStripe)
 {
 	// Calculate limits
 	uInt width = smoothBin_p;
@@ -8542,11 +8542,11 @@ template <class T> void MSTransformManager::smooth(	Int ,
 //
 // -----------------------------------------------------------------------
 void MSTransformManager::smoothKernel(const Vector<Complex> &inputData,
-										Vector<Bool> &inputFlags,
-										Vector<Float> &inputWeights,
-										Vector<Complex> &outputData,
-										Vector<Bool> &outputFlags,
-										uInt outputPos)
+				      const Vector<Bool> &inputFlags,
+				      const Vector<Float> &inputWeights,
+				      Vector<Complex> &outputData,
+				      Vector<Bool> &outputFlags,
+				      uInt outputPos)
 {
 	(*this.*smoothKernelComplex_p)(	inputData,inputFlags,inputWeights,
 										outputData,outputFlags,outputPos);
@@ -8557,11 +8557,11 @@ void MSTransformManager::smoothKernel(const Vector<Complex> &inputData,
 //
 // -----------------------------------------------------------------------
 void MSTransformManager::smoothKernel(const Vector<Float> &inputData,
-										Vector<Bool> &inputFlags,
-										Vector<Float> &inputWeights,
-										Vector<Float> &outputData,
-										Vector<Bool> &outputFlags,
-										uInt outputPos)
+				      const Vector<Bool> &inputFlags,
+				      const Vector<Float> &inputWeights,
+				      Vector<Float> &outputData,
+				      Vector<Bool> &outputFlags,
+				      uInt outputPos)
 {
 	(*this.*smoothKernelFloat_p)(	inputData,inputFlags,inputWeights,
 									outputData,outputFlags,outputPos);
@@ -8572,11 +8572,11 @@ void MSTransformManager::smoothKernel(const Vector<Float> &inputData,
 //
 // -----------------------------------------------------------------------
 template <class T> void  MSTransformManager::plainSmooth(const Vector<T> &inputData,
-															const Vector<Bool> &inputFlags,
-															const Vector<Float> &,
-															Vector<T> &outputData,
-															Vector<Bool> &outputFlags,
-															uInt outputPos)
+							 const Vector<Bool> &inputFlags,
+							 const Vector<Float> &,
+							 Vector<T> &outputData,
+							 Vector<Bool> &outputFlags,
+							 uInt outputPos)
 {
 	uInt halfWidth = smoothBin_p / 2;
 
@@ -8600,11 +8600,11 @@ template <class T> void  MSTransformManager::plainSmooth(const Vector<T> &inputD
 //
 // -----------------------------------------------------------------------
 template <class T> void  MSTransformManager::plainSmoothSpectrum(const Vector<T> &inputData,
-																	const Vector<Bool> &inputFlags,
-																	const Vector<Float> &,
-																	Vector<T> &outputData,
-																	Vector<Bool> &outputFlags,
-																	uInt outputPos)
+								 const Vector<Bool> &inputFlags,
+								 const Vector<Float> &,
+								 Vector<T> &outputData,
+								 Vector<Bool> &outputFlags,
+								 uInt outputPos)
 {
 	uInt halfWidth = smoothBin_p / 2;
 
@@ -8649,12 +8649,12 @@ template <class T> void  MSTransformManager::plainSmoothSpectrum(const Vector<T>
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-template <class T> void MSTransformManager::regrid(	Int inputSpw,
-														Vector<T> &inputDataStripe,
-														Vector<Bool> &inputFlagsStripe,
-														Vector<Float> &inputWeightsStripe,
-														Vector<T> &outputDataStripe,
-														Vector<Bool> &outputFlagsStripe)
+template <class T> void MSTransformManager::regrid(Int inputSpw,
+						   const Vector<T> &inputDataStripe,
+						   const Vector<Bool> &inputFlagsStripe,
+						   const Vector<Float> &inputWeightsStripe,
+						   Vector<T> &outputDataStripe,
+						   Vector<Bool> &outputFlagsStripe)
 {
 
 	regridCore(	inputSpw,
@@ -8775,7 +8775,8 @@ template <class T> void MSTransformManager::interpol1D(Int inputSpw,
 					      false // If false extrapolated data points are set flagged
 					      );
   } else {
-    interpolateByChannelMap(inputDataStripe, inputFlagsStripe,
+    interpolateByChannelMap(inputSpw,
+			    inputDataStripe, inputFlagsStripe,
 			    outputDataStripe, outputFlagsStripe);
   }
 }
@@ -8790,6 +8791,8 @@ template <class T> void MSTransformManager::interpol1D(Int inputSpw,
  * input channels but are projected/aligned with the output channel
  * grid.
  *
+ * @param spw spw index of the input channels, to fetch original
+ *        input channel freqs
  * @param inputDataStripe input data coming from regridCubeOfData,
  *        transformAndWriteCubeOfData, etc. and passed to the
  *        regrid/interpolation kernels.
@@ -8798,26 +8801,44 @@ template <class T> void MSTransformManager::interpol1D(Int inputSpw,
  *        input visibilities into wider channels
  * @param outputFlagsStripe flags for outputDataStripe
  */
-template <class T> void MSTransformManager::interpolateByChannelMap(const Vector<T> &inputDataStripe,
+template <class T> void MSTransformManager::interpolateByChannelMap(Int spw,
+								    const Vector<T> &inputDataStripe,
 								    const Vector<Bool> &inputFlagsStripe,
 								    Vector<T> &outputDataStripe,
 								    Vector<Bool> &outputFlagsStripe)
 {
-    outputDataStripe = 0;
-    Vector<Double> outWeights;
-    outWeights.resize(outputDataStripe.size());
-    outWeights = 0.;
+  Vector<T> intermDataStripe;
+  Vector<Bool> intermFlagsStripe;
+  // Bring frequencies from input grid to fake output grid ( the
+  // one with same widths as the original input channels).
+  InterpolateArray1D<Double,T>::interpolate(intermDataStripe,
+					    intermFlagsStripe,
+					    regridTCleanCHAN_FREQ_p, // Out channel freqs
+					    inputOutputSpwMap_p[spw].first.CHAN_FREQ_aux, // Input chan freqs
+					    inputDataStripe,
+					    inputFlagsStripe,
+					    interpolationMethod_p,
+					    false, // flags
+					    false // extrapolated data points are set flagged
+					    );
 
-    for (uInt mapIdx = 0; mapIdx < regridTCleanChanMap_p.size(); ++mapIdx) {
-      Int outIdx = regridTCleanChanMap_p[mapIdx];
-      if (outIdx < 0)
-	continue;
-      outputDataStripe[outIdx] = (outputDataStripe[outIdx] * outWeights[outIdx] +
-				  inputDataStripe[mapIdx]) /
-	(1. + outWeights[outIdx]);
-      outWeights[outIdx] += 1;
-      outputFlagsStripe[outIdx] |= inputFlagsStripe[mapIdx];
-    }
+  // Aggregate fine grain fake output channels into the final
+  // output channels
+  outputDataStripe = 0;
+  Vector<Double> outWeights;
+  outWeights.resize(outputDataStripe.size());
+  outWeights = 0.;
+  for (uInt mapIdx = 0; mapIdx < regridTCleanChanMap_p.size(); ++mapIdx) {
+    Int outIdx = regridTCleanChanMap_p[mapIdx];
+    if (outIdx < 0)
+      continue;
+
+    outputDataStripe[outIdx] = (outputDataStripe[outIdx] * outWeights[outIdx] +
+				intermDataStripe[mapIdx]) /
+      (1. + outWeights[outIdx]);
+    outWeights[outIdx] += 1;
+    outputFlagsStripe[outIdx] |= inputFlagsStripe[mapIdx];
+  }
 }
 
 // -----------------------------------------------------------------------
@@ -8845,32 +8866,12 @@ template <class T> void MSTransformManager::interpol1Dfftshift(Int inputSpw,
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-template <class T> void MSTransformManager::averageSmooth(	Int inputSpw,
-																Vector<T> &inputDataStripe,
-																Vector<Bool> &inputFlagsStripe,
-																Vector<Float> &inputWeightsStripe,
-																Vector<T> &outputDataStripe,
-																Vector<Bool> &outputFlagsStripe)
-{
-	Vector<T> averagedDataStripe(outputDataStripe.shape(),T());
-	Vector<Bool> averagedFlagsStripe(outputFlagsStripe.shape(),false);
-
-	average(inputSpw,inputDataStripe,inputFlagsStripe,inputWeightsStripe, averagedDataStripe,averagedFlagsStripe);
-
-	smooth(inputSpw,averagedDataStripe,averagedFlagsStripe, inputWeightsStripe, outputDataStripe,outputFlagsStripe);
-
-	return;
-}
-
-// -----------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------
-template <class T> void MSTransformManager::averageRegrid(	Int inputSpw,
-																Vector<T> &inputDataStripe,
-																Vector<Bool> &inputFlagsStripe,
-																Vector<Float> &inputWeightsStripe,
-																Vector<T> &outputDataStripe,
-																Vector<Bool> &outputFlagsStripe)
+template <class T> void MSTransformManager::averageRegrid(Int inputSpw,
+							  const Vector<T> &inputDataStripe,
+							  const Vector<Bool> &inputFlagsStripe,
+							  const Vector<Float> &inputWeightsStripe,
+							  Vector<T> &outputDataStripe,
+							  Vector<Bool> &outputFlagsStripe)
 {
 	Vector<T> averagedDataStripe(numOfCombInterChanMap_p[inputSpw],T());
 	Vector<Bool> averagedFlagsStripe(numOfCombInterChanMap_p[inputSpw],false);
@@ -8885,12 +8886,12 @@ template <class T> void MSTransformManager::averageRegrid(	Int inputSpw,
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-template <class T> void MSTransformManager::smoothRegrid(	Int inputSpw,
-																Vector<T> &inputDataStripe,
-																Vector<Bool> &inputFlagsStripe,
-																Vector<Float> &inputWeightsStripe,
-																Vector<T> &outputDataStripe,
-																Vector<Bool> &outputFlagsStripe)
+template <class T> void MSTransformManager::smoothRegrid(Int inputSpw,
+							 const Vector<T> &inputDataStripe,
+							 const Vector<Bool> &inputFlagsStripe,
+							 const Vector<Float> &inputWeightsStripe,
+							 Vector<T> &outputDataStripe,
+							 Vector<Bool> &outputFlagsStripe)
 {
 	Vector<T> smoothedDataStripe(inputDataStripe.shape(),T());
 	Vector<Bool> smoothedFlagsStripe(inputFlagsStripe.shape(),false);
@@ -8905,12 +8906,32 @@ template <class T> void MSTransformManager::smoothRegrid(	Int inputSpw,
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-template <class T> void MSTransformManager::averageSmoothRegrid(Int inputSpw,
-																	Vector<T> &inputDataStripe,
-																	Vector<Bool> &inputFlagsStripe,
-																	Vector<Float> &inputWeightsStripe,
-																	Vector<T> &outputDataStripe,
-																	Vector<Bool> &outputFlagsStripe)
+template <class T> void MSTransformManager::averageSmooth(Int inputSpw,
+							  const Vector<T> &inputDataStripe,
+							  const Vector<Bool> &inputFlagsStripe,
+							  const Vector<Float> &inputWeightsStripe,
+							  Vector<T> &outputDataStripe,
+							  Vector<Bool> &outputFlagsStripe)
+{
+	Vector<T> averagedDataStripe(outputDataStripe.shape(),T());
+	Vector<Bool> averagedFlagsStripe(outputFlagsStripe.shape(),false);
+
+	average(inputSpw,inputDataStripe,inputFlagsStripe,inputWeightsStripe, averagedDataStripe,averagedFlagsStripe);
+
+	smooth(inputSpw,averagedDataStripe,averagedFlagsStripe, inputWeightsStripe, outputDataStripe,outputFlagsStripe);
+
+	return;
+}
+
+// -----------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------
+  template <class T> void MSTransformManager::averageSmoothRegrid(Int inputSpw,
+								  const Vector<T> &inputDataStripe,
+								  const Vector<Bool> &inputFlagsStripe,
+								  const Vector<Float> &inputWeightsStripe,
+								  Vector<T> &outputDataStripe,
+								  Vector<Bool> &outputFlagsStripe)
 {
 	Vector<T> averageSmoothedDataStripe(numOfCombInterChanMap_p[inputSpw],T());
 	Vector<Bool> averageSmoothedFlagsStripe(numOfCombInterChanMap_p[inputSpw],false);
@@ -8928,23 +8949,24 @@ template <class T> void MSTransformManager::averageSmoothRegrid(Int inputSpw,
 //
 // -----------------------------------------------------------------------
 void MSTransformManager::smoothFourierFloat(Int,
-        									Vector<Float> &inputDataStripe,
-        									Vector<Bool> &inputFlagStripe,
-        									Vector<Float> &,
-        									Vector<Float> &outputDataStripe,
-        									Vector<Bool> &outputFlagStripe)
+					    const Vector<Float> &inputDataStripe,
+					    const Vector<Bool> &inputFlagStripe,
+					    const Vector<Float> &,
+					    Vector<Float> &outputDataStripe,
+					    Vector<Bool> &outputFlagStripe)
 {
     // replace flagged channel data with zero
-    Int const numChan = inputDataStripe.nelements();
+    auto mutableInputDataStripe = inputDataStripe;
+    Int const numChan = mutableInputDataStripe.nelements();
     for (Int ichan = 0; ichan < numChan; ++ichan) {
         if (inputFlagStripe[ichan]) {
-            inputDataStripe[ichan] = 0.0f;
+            mutableInputDataStripe[ichan] = 0.0f;
         }
     }
 
     // execute convolution
     Convolver<Float> *convolver = getConvolver(numChan);
-    convolver->linearConv(outputDataStripe, inputDataStripe);
+    convolver->linearConv(outputDataStripe, mutableInputDataStripe);
 
     // copy input flags
     outputFlagStripe = inputFlagStripe;
@@ -8954,9 +8976,10 @@ void MSTransformManager::smoothFourierFloat(Int,
 //
 // -----------------------------------------------------------------------
 void MSTransformManager::smoothFourierComplex(Int n,
-        Vector<Complex> &inputDataStripe, Vector<Bool> &inputFlagStripe,
-        Vector<Float> &inputWeightStripe,
-        Vector<Complex> &outputDataStripe, Vector<Bool> &outputFlagStripe)
+					      const Vector<Complex> &inputDataStripe,
+					      const Vector<Bool> &inputFlagStripe,
+					      const Vector<Float> &inputWeightStripe,
+					      Vector<Complex> &outputDataStripe, Vector<Bool> &outputFlagStripe)
 {
     Vector<Float> inputDataStripeFloat = real(inputDataStripe);
     Vector<Float> outputDataStripeFloat(inputDataStripeFloat.nelements());
