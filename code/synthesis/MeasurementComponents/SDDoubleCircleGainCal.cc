@@ -272,6 +272,9 @@ void SDDoubleCircleGainCal::selfGatherAndSolve(VisSet& vs,
   nElem() = 1;
   initSolvePar();
 
+  // re-initialize calibration flags to false
+  solveAllParOK() = false;
+
   // Pick up OFF spectra using STATE_ID
   auto const msSel = vs.iter().ms();
   debuglog<< "configure data selection for specific calibration mode" << debugpost;
@@ -482,17 +485,26 @@ void SDDoubleCircleGainCal::executeDoubleCircleGainCal(
     currField() = ifield;
     currAnt_ = iantenna;
 
-    solveAllParErr() = 0.1; // TODO
-    solveAllParSNR() = 1.0; // TODO
+//    solveAllParErr() = 0.1; // TODO
+//    solveAllParSNR() = 1.0; // TODO
 
     size_t numCorr = gain.shape()[0];
-    Slice corrSlice(0, numCorr);
-    Slice chanSlice(0, numChan);
+//    Slice corrSlice(0, numCorr);
+    Slice const chanSlice(0, numChan);
     for (size_t i = 0; i < numGain; ++i) {
       refTime() = gainTime[i];
       //solveAllCPar() = gain(corrSlice, chanSlice, Slice(i, 1));
-      convertArray(solveAllCPar(), gain(corrSlice, chanSlice, Slice(i, 1)));
-      solveAllParOK() = !gain_flag(corrSlice, chanSlice, Slice(i, 1));
+      //convertArray(solveAllCPar(), gain(corrSlice, chanSlice, Slice(i, 1)));
+      //solveAllParOK() = !gain_flag(corrSlice, chanSlice, Slice(i, 1));
+      Slice const rowSlice(i, 1);
+      for (size_t iCorr = 0; iCorr < numCorr; ++iCorr) {
+        Slice const corrSlice(iCorr, 1);
+        auto cparSlice = solveAllCPar()(corrSlice, chanSlice, Slice(0, 1));
+        convertArray(cparSlice, gain(corrSlice, chanSlice, rowSlice));
+        solveAllParOK()(corrSlice, chanSlice, Slice(0, 1)) = !gain_flag(corrSlice, chanSlice, rowSlice);
+        solveAllParErr().yzPlane(iCorr) = 0.1; // TODO
+        solveAllParSNR().yzPlane(iCorr) = 1.0; // TODO
+      }
 
       keepNCT();
     }
