@@ -93,8 +93,7 @@ class sdgaincal_test_base(unittest.TestCase):
         try:
             # caltype must be "G Jones"
             caltype = tb.getkeyword('VisCal')
-            self.assertEqual(caltype, "G Jones")
-            
+            self.assertEqual(caltype, "SDGAIN_OTFD")
             # paramter must be Complex
             partype = tb.getkeyword('ParType')
             self.assertEqual(partype, 'Complex')

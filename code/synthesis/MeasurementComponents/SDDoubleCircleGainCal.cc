@@ -251,6 +251,16 @@ void SDDoubleCircleGainCal::keepNCT() {
   ncmc.antenna1().putColumnCells(rows,a1);
 }
 
+void SDDoubleCircleGainCal::syncWtScale()
+{
+  currWtScale().resize(currJElem().shape());
+
+  // We use simple (pre-inversion) square of currJElem
+  Cube<Float> cWS(currWtScale());
+  cWS=real(currJElem()*conj(currJElem()));
+  cWS(!currJElemOK())=1.0;
+}
+
 void SDDoubleCircleGainCal::selfGatherAndSolve(VisSet& vs,
     VisEquation& /* ve */) {
   SDDoubleCircleGainCalImpl sdcalib;
