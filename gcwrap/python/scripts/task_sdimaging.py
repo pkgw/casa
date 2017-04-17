@@ -10,7 +10,11 @@ import sdbeamutil
 from cleanhelper import cleanhelper
 
 @sdutil.sdtask_decorator
-def sdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, mode, nchan, start, width, veltype, outframe, gridfunction, convsupport, truncate, gwidth, jwidth, imsize, cell, phasecenter, ephemsrcname, pointingcolumn, restfreq, stokes, minweight, clipminmax):
+def sdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, 
+              mode, nchan, start, width, veltype, outframe, 
+              gridfunction, convsupport, truncate, gwidth, jwidth, 
+              imsize, cell, phasecenter, projection, ephemsrcname, 
+              pointingcolumn, restfreq, stokes, minweight, clipminmax):
     with sdutil.sdtask_manager(sdimaging_worker, locals()) as worker:
         worker.initialize()
         worker.execute()
