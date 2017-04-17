@@ -202,7 +202,7 @@ Imager::Imager()
      cft_p(0), se_p(0),
      sm_p(0), vp_p(0), gvp_p(0), setimaged_p(false), nullSelect_p(false), 
      mssFreqSel_p(), mssChanSel_p(), viewer_p(0), clean_panel_p(0), image_id_p(0), mask_id_p(0), 
-      prev_image_id_p(0), prev_mask_id_p(0)
+      prev_image_id_p(0), prev_mask_id_p(0), projection_p("SIN")
 {
   ms_p=0;
   mssel_p=0;
@@ -311,6 +311,7 @@ traceEvent(1,"Entering imager::defaults",25);
   avoidTempLatt_p=false;
   mssFreqSel_p.resize();
   mssChanSel_p.resize();
+  projection_p=String("SIN");
 #ifdef PABLO_IO
   traceEvent(1,"Exiting imager::defaults",24);
 #endif
@@ -323,7 +324,8 @@ Imager::Imager(MeasurementSet& theMS,  Bool compress, Bool useModel)
   : msname_p(""), vs_p(0), rvi_p(0), wvi_p(0), 
     ft_p(0), cft_p(0), se_p(0),
     sm_p(0), vp_p(0), gvp_p(0), setimaged_p(false), nullSelect_p(false), 
-    mssFreqSel_p(), mssChanSel_p(), viewer_p(0), clean_panel_p(0), image_id_p(0), mask_id_p(0), prev_image_id_p(0), prev_mask_id_p(0)
+    mssFreqSel_p(), mssChanSel_p(), viewer_p(0), clean_panel_p(0), image_id_p(0), mask_id_p(0), prev_image_id_p(0), prev_mask_id_p(0),
+    projection_p("SIN")
 
 {
 
@@ -346,7 +348,7 @@ Imager::Imager(MeasurementSet& theMS, Bool compress)
   :  msname_p(""),  vs_p(0), rvi_p(0), wvi_p(0), ft_p(0), cft_p(0), se_p(0),
      sm_p(0), vp_p(0), gvp_p(0), setimaged_p(false), nullSelect_p(false), 
      mssFreqSel_p(), mssChanSel_p(), viewer_p(0), clean_panel_p(0), image_id_p(0), mask_id_p(0),
-     prev_image_id_p(0), prev_mask_id_p(0)
+     prev_image_id_p(0), prev_mask_id_p(0), projection_p("SIN")
 {
   mssel_p=0;
   ms_p=0;
@@ -433,6 +435,7 @@ Imager &Imager::operator=(const Imager & other)
     flatnoise_p=other.flatnoise_p;
     mssFreqSel_p.assign(other.mssFreqSel_p);
     mssChanSel_p.assign(other.mssChanSel_p);
+    projection_p = other.projection_p;
   }
   return *this;
 }
@@ -885,7 +888,8 @@ Bool Imager::defineImage(const Int nx, const Int ny,
 			 const Quantity& restFreq,
                          const MFrequency::Types& mFreqFrame,
 			 const Quantity& distance, const Bool dotrackDir, 
-			 const MDirection& trackDir)
+			 const MDirection& trackDir,
+			 const String& projection)
 {
 
 
@@ -1038,6 +1042,17 @@ Bool Imager::defineImage(const Int nx, const Int ny,
       phaseCenter_p=msfield.phaseDirMeas(fieldid_p);
     }
     
+    // we only support projections SIN, CAR, TAN, and SFL
+    Projection::Type const ptype = Projection::type(projection);
+    if (ptype != Projection::SIN && ptype != Projection::CAR
+        && ptype != Projection::TAN && ptype != Projection::SFL) {
+      this->unlock();
+      os << LogIO::SEVERE << "Projection " << projection << " is currently not supported." << LogIO::EXCEPTION;
+      return false;
+    } else {
+      projection_p = projection;
+    }
+
     
     // Now we have set the image parameters
     setimaged_p=true;
