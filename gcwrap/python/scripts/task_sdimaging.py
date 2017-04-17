@@ -392,6 +392,8 @@ class sdimaging_worker(sdutil.sdtask_template_imaging):
         self.imager_param['start'] = startval
         self.imager_param['step'] = widthval
         self.imager_param['nchan'] = imnchan #self.nchan
+        
+        self.imager_param['projection'] = self.projection
 
         
 
