@@ -2961,6 +2961,7 @@ class sdimaging_test_projection(sdimaging_unittest_base):
     """
     Test projection
 
+       - test_projection_GSL: unsupported projection type
        - test_projection_SIN: create image with SIN (Slant Orthographic) projection 
        - test_projection_TAN: create image with TAN (Gnomonic) projection
        - test_projection_CAR: create image with CAR (Plate Caree) projection
@@ -3017,6 +3018,14 @@ class sdimaging_test_projection(sdimaging_unittest_base):
         finally:
             _ia.close()
         self.assertEqual(projection, result_projection)
+        
+    def test_projection_GSL(self):
+        """test_projection_GSL: unsupported projection type"""
+        projection = 'GSL'
+        self.task_param.update(dict(projection=projection))
+        res=sdimaging(**self.task_param)
+        self.assertFalse(res)
+        self.assertFalse(os.path.exists(self.outfile))
 
     def test_projection_SIN(self):
         """test_projection_SIN: create image with SIN (Slant Orthographic) projection"""
