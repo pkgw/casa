@@ -35,6 +35,7 @@ class plotprofilemap_test(unittest.TestCase):
         test_plotmasked_zero: plotmasked is zero
         test_plotmasked_text: plotmasked is text
         test_plotmasked_plot: plotmasked is plot
+        test_plotmasked_none: plotmasked is none
         test_export_image: test export the plot to PNG file
         test_fits_image: input image is FITS cube
         test_title: put title to the plot
@@ -67,9 +68,6 @@ class plotprofilemap_test(unittest.TestCase):
         
         # copy standard task parameter set
         self.task_param = self.standard_task_param.copy()
-        
-        # make mask
-        self.make_mask(self.imagename)
         
         # initial check
         self.assertTrue(os.path.exists(self.imagename))
@@ -111,9 +109,63 @@ class plotprofilemap_test(unittest.TestCase):
         
     def run_task(self, **kwargs):
         self.task_param.update(kwargs)
-        print self.task_param
+        #print self.task_param
         res = plotprofilemap(**self.task_param)
         return res
+    
+    def _verify_axes_for_text(self, a, text=None):
+        self.assertFalse(a.axison)
+        lines = a.get_lines()
+        self.assertEqual(len(lines), 0)
+        texts = a.texts
+        self.assertEqual(len(texts), 1)
+        if text is not None:
+            self.assertEqual(texts[0].get_text(), text)
+            
+    def _verify_plotmasked(self, a, plotmasked):
+        axison = a.axison
+        lines = a.get_lines()
+        texts = a.texts
+        
+        if plotmasked == 'empty':
+            # empty
+            # show empty panel
+            self.assertTrue(axison)
+            self.assertEqual(len(lines), 0)
+            self.assertEqual(len(texts), 0)
+        elif plotmasked == 'zero':
+            # zero
+            # plot zero level
+            self.assertTrue(axison)
+            self.assertEqual(len(lines), 1)
+            self.assertEqual(len(texts), 0)
+            xdata, ydata = lines[0].get_data()
+            self.assertTrue(numpy.all(ydata == 0.0))
+        elif plotmasked == 'none':
+            # none
+            # show nothing
+            self.assertFalse(axison)
+            self.assertEqual(len(lines), 0)
+            self.assertEqual(len(texts), 0)
+        elif plotmasked == 'text':
+            # text
+            # show text 'NO DATA'
+            self.assertTrue(axison)
+            self.assertEqual(len(lines), 0)
+            self.assertEqual(len(texts), 1)
+            text = texts[0].get_text()
+            self.assertEqual(text, 'NO DATA')
+        elif plotmasked == 'plot':
+            # plot
+            # plot data with different color
+            self.assertTrue(axison)
+            self.assertEqual(len(lines), 1)
+            self.assertEqual(len(texts), 0)
+            xdata, ydata = lines[0].get_data()
+            self.assertFalse(numpy.all(ydata == 0.0))
+        else:
+            self.fail('Invalid plotmasked value {0}'.format(plotmasked))
+            
     
     def verify(self, numpanels, plotmasked=None, title=None):
         # get figure object
@@ -143,8 +195,84 @@ class plotprofilemap_test(unittest.TestCase):
             expected_num_panels += 1
         self.assertEqual(len(alist), expected_num_panels)
         
-        if plotmasked is not None:
-            pass
+        # verify axes
+        # 0~nx-1: axes for horizontal axis label (right to left)
+        # nx~nx+ny-1: axes for vertical axis label (bottom to top)
+        # nx+ny: axes for horizontal axis title
+        # nx+ny+1: axes for vertical axis title
+        # nx+ny+2: axes for plot title (if title is specified)
+        # subsequent: axes for plots (bottom right -> top right 
+        #                              -> bottom of next column -> top of next column 
+        #                              -> ... -> bottom left -> top left)
+        # NOTE: (ny * (nx - 1) + 1)-th panel is empty 
+        index = 0
+        
+        # axes for horizontal axis label
+        #   - axison should be False
+        #   - no line 
+        #   - one text entry
+        for i in xrange(nx):
+            self._verify_axes_for_text(alist[index])
+            index += 1
+            
+        # axes for vertical axis label
+        #   - axison should be False
+        #   - no line 
+        #   - one text entry
+        for i in xrange(ny):
+            self._verify_axes_for_text(alist[index])
+            index += 1
+            
+        # axes for horizontal axis title
+        #   - axison should be False
+        #   - no line 
+        #   - one text entry
+        #   - text should be 'Right Ascension (J2000)'
+        for i in xrange(1):
+            text = 'Right Ascension (J2000)'
+            self._verify_axes_for_text(alist[index], text=text)
+            index += 1
+
+        # axes for vertical axis title
+        #   - axison should be False
+        #   - no line 
+        #   - one text entry
+        #   - text should be 'Declination (J2000)'
+        for i in xrange(1):
+            text = 'Declination (J2000)'
+            self._verify_axes_for_text(alist[index], text=text)
+            index += 1
+        
+        # axes for vertical axis title
+        #   - axison should be False
+        #   - no line 
+        #   - one text entry
+        #   - text should be title  
+        if title is not None:
+            for i in xrange(1):
+                self._verify_axes_for_text(alist[index], text=title)
+                index += 1
+            
+        # axes for profile map
+        #   - axison should be True
+        #   - one line (if not empty)
+        #   - no text (if not empty)
+        empty_panel = ny * (nx - 1) 
+        for i in xrange(nx * ny):
+            #print 'verify axes {0}'.format(index)
+            a = alist[index]
+            if plotmasked is None or i != empty_panel:
+                self.assertTrue(a.axison)
+                lines = a.get_lines()
+                texts = a.texts
+                self.assertEqual(len(lines), 1)
+                self.assertEqual(len(texts), 0)
+            else:
+                print 'verifying plotmasked parameter: axes {0} plotmasked {1}'.format(index, plotmasked)
+                # verify plotmasked parameter 
+                self._verify_plotmasked(a, plotmasked)
+            index += 1
+
         
     def verify_figfile(self, figfile):
         # figfile must exist
@@ -210,6 +338,9 @@ class plotprofilemap_test(unittest.TestCase):
 
     def test_plotmasked_empty(self):
         """test_plotmasked_empty: plotmasked is empty"""
+        # make mask
+        self.make_mask(self.imagename)
+        
         numpanels = '5,5'
         plotmasked = 'empty'
         
@@ -219,6 +350,9 @@ class plotprofilemap_test(unittest.TestCase):
 
     def test_plotmasked_zero(self):
         """test_plotmasked_zero: plotmasked is zero"""
+        # make mask
+        self.make_mask(self.imagename)
+        
         numpanels = '5,5'
         plotmasked = 'zero'
         
@@ -228,6 +362,9 @@ class plotprofilemap_test(unittest.TestCase):
 
     def test_plotmasked_text(self):
         """test_plotmasked_text: plotmasked is text"""
+        # make mask
+        self.make_mask(self.imagename)
+        
         numpanels = '5,5'
         plotmasked = 'text'
         
@@ -237,8 +374,23 @@ class plotprofilemap_test(unittest.TestCase):
 
     def test_plotmasked_plot(self):
         """test_plotmasked_plot: plotmasked is plot"""
+        # make mask
+        self.make_mask(self.imagename)
+        
         numpanels = '5,5'
         plotmasked = 'plot'
+        
+        res = self.run_task(numpanels=numpanels, plotmasked=plotmasked)
+        
+        self.verify(numpanels, plotmasked)
+
+    def test_plotmasked_none(self):
+        """test_plotmasked_plot: plotmasked is none"""
+        # make mask
+        self.make_mask(self.imagename)
+        
+        numpanels = '5,5'
+        plotmasked = 'none'
         
         res = self.run_task(numpanels=numpanels, plotmasked=plotmasked)
         
