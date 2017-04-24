@@ -4190,9 +4190,12 @@ code/mstransform/MSTransform/MSTransformRegridder.cc -text
 code/mstransform/MSTransform/MSTransformRegridder.h -text
 code/mstransform/MSTransform/MSUVBin.cc -text
 code/mstransform/MSTransform/MSUVBin.h -text
+code/mstransform/MSTransform/StatWt.cc -text
+code/mstransform/MSTransform/StatWt.h -text
 code/mstransform/MSTransform/test/tMSBin.cc -text
 code/mstransform/MSTransform/test/tMSTransformIterator.cc -text
 code/mstransform/MSTransform/test/tMSTransformIterator.h -text
+code/mstransform/MSTransform/test/tStatWt.cc -text
 code/mstransform/TVI/ChannelAverageTVI.cc -text
 code/mstransform/TVI/ChannelAverageTVI.h -text
 code/mstransform/TVI/ConvolutionTVI.cc -text
@@ -4209,6 +4212,10 @@ code/mstransform/TVI/PolAverageTVI.cc -text svneol=unset#text/plain
 code/mstransform/TVI/PolAverageTVI.h -text svneol=unset#text/plain
 code/mstransform/TVI/RegriddingTVI.cc -text
 code/mstransform/TVI/RegriddingTVI.h -text
+code/mstransform/TVI/StatWtTVI.cc -text
+code/mstransform/TVI/StatWtTVI.h -text
+code/mstransform/TVI/StatWtTVIFactory.cc -text
+code/mstransform/TVI/StatWtTVIFactory.h -text
 code/mstransform/TVI/UVContSubTVI.cc -text
 code/mstransform/TVI/UVContSubTVI.h -text
 code/mstransform/TVI/UtilsTVI.cc -text
@@ -4226,6 +4233,9 @@ code/mstransform/TVI/test/tPhaseShiftingTVI.h -text
 code/mstransform/TVI/test/tRecursiveVi2Layers_GT.cc -text
 code/mstransform/TVI/test/tRegriddingTVI.cc -text
 code/mstransform/TVI/test/tRegriddingTVI.h -text
+code/mstransform/TVI/test/tStatWt2.cc -text
+code/mstransform/TVI/test/tStatWtTVI.cc -text
+code/mstransform/TVI/test/tStatWtTVI.h -text
 code/mstransform/TVI/test/tUVContSubTVI.cc -text
 code/mstransform/TVI/test/tUVContSubTVI.h -text
 code/mstransform/apps/fixspwbackport/fixspwbackport.cc -text
