@@ -37,6 +37,7 @@ class plotprofilemap_test(unittest.TestCase):
         test_plotmasked_plot: plotmasked is plot
         test_export_image: test export the plot to PNG file
         test_fits_image: input image is FITS cube
+        test_title: put title to the plot
     """
     # Data path of input/output
     datapath = os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/imregrid/'
@@ -114,7 +115,7 @@ class plotprofilemap_test(unittest.TestCase):
         res = plotprofilemap(**self.task_param)
         return res
     
-    def verify(self, numpanels, plotmasked=None):
+    def verify(self, numpanels, plotmasked=None, title=None):
         # get figure object
         figure = pl.gcf()
         
@@ -137,6 +138,9 @@ class plotprofilemap_test(unittest.TestCase):
         #   + (nx + ny) (number of position labels)
         #   + 2 (number of position titles)
         expected_num_panels = nx * ny + nx + ny + 2
+        if title is not None:
+            # if title is specified, the task adds additional axes for title
+            expected_num_panels += 1
         self.assertEqual(len(alist), expected_num_panels)
         
         if plotmasked is not None:
@@ -263,6 +267,15 @@ class plotprofilemap_test(unittest.TestCase):
         res = self.run_task(imagename=imagename, numpanels=numpanels)
         
         self.verify(numpanels)
+        
+    def test_title(self):
+        """test_title: put title to the plot"""
+        numpanels = '5,5'
+        title = 'This is test image'
+        
+        res = self.run_task(numpanels=numpanels, title=title)
+        
+        self.verify(numpanels, title=title)
 
 
 def suite():
