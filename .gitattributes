@@ -6562,6 +6562,7 @@ gcwrap/python/scripts/task_split.py -text
 gcwrap/python/scripts/task_spxfit.py -text
 gcwrap/python/scripts/task_ssoflux.py -text
 gcwrap/python/scripts/task_statwt.py -text
+gcwrap/python/scripts/task_statwt2.py -text
 gcwrap/python/scripts/task_tclean.py -text
 gcwrap/python/scripts/task_tclean2.py -text
 gcwrap/python/scripts/task_testconcat.py -text
@@ -6770,6 +6771,7 @@ gcwrap/python/scripts/tests/test_split.py -text
 gcwrap/python/scripts/tests/test_split2.py -text
 gcwrap/python/scripts/tests/test_spxfit.py -text
 gcwrap/python/scripts/tests/test_statwt.py -text
+gcwrap/python/scripts/tests/test_statwt2.py -text
 gcwrap/python/scripts/tests/test_testconcat.py -text
 gcwrap/python/scripts/tests/test_tsdbaseline.py -text
 gcwrap/python/scripts/tests/test_tsdcal.py -text
@@ -6936,6 +6938,7 @@ gcwrap/tasks/split.xml -text
 gcwrap/tasks/spxfit.xml -text
 gcwrap/tasks/ssoflux.xml -text
 gcwrap/tasks/statwt.xml -text
+gcwrap/tasks/statwt2.xml -text
 gcwrap/tasks/tclean.xml -text
 gcwrap/tasks/tclean2.xml -text
 gcwrap/tasks/testconcat.xml -text
