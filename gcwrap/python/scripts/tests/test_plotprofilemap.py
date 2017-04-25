@@ -281,6 +281,12 @@ class plotprofilemap_test(unittest.TestCase):
         # figfile must be PNG format
         self.assertEqual(imghdr.what(figfile), 'png')
         
+    def skip_if_darwin(self):
+        sysname = os.uname()[0]
+        if sysname == 'Darwin':
+            self.skipTest('Skip test_export_image on OS X since it may cause segfault')
+            return
+        
     def test_image_not_exist(self):
         """test_image_not_exist: input image does not exist (causes error)"""
         imagename = 'blabla.im'
@@ -322,6 +328,8 @@ class plotprofilemap_test(unittest.TestCase):
 
     def test_numpanel_5x5(self):
         """test_numpanel_5x5: standard test (5x5 panels)"""
+        self.skip_if_darwin()
+
         numpanels = '5,5'
         
         res = self.run_task(numpanels=numpanels)
@@ -330,6 +338,8 @@ class plotprofilemap_test(unittest.TestCase):
 
     def test_numpanel_10x10(self):
         """test_numpanel_10x10: standard test (10x10 panels)"""
+        self.skip_if_darwin()
+
         numpanels = '10,10'
         
         res = self.run_task(numpanels=numpanels)
@@ -338,6 +348,8 @@ class plotprofilemap_test(unittest.TestCase):
 
     def test_plotmasked_empty(self):
         """test_plotmasked_empty: plotmasked is empty"""
+        self.skip_if_darwin()
+
         # make mask
         self.make_mask(self.imagename)
         
@@ -350,6 +362,8 @@ class plotprofilemap_test(unittest.TestCase):
 
     def test_plotmasked_zero(self):
         """test_plotmasked_zero: plotmasked is zero"""
+        self.skip_if_darwin()
+
         # make mask
         self.make_mask(self.imagename)
         
@@ -362,6 +376,8 @@ class plotprofilemap_test(unittest.TestCase):
 
     def test_plotmasked_text(self):
         """test_plotmasked_text: plotmasked is text"""
+        self.skip_if_darwin()
+
         # make mask
         self.make_mask(self.imagename)
         
@@ -374,6 +390,8 @@ class plotprofilemap_test(unittest.TestCase):
 
     def test_plotmasked_plot(self):
         """test_plotmasked_plot: plotmasked is plot"""
+        self.skip_if_darwin()
+
         # make mask
         self.make_mask(self.imagename)
         
@@ -386,6 +404,8 @@ class plotprofilemap_test(unittest.TestCase):
 
     def test_plotmasked_none(self):
         """test_plotmasked_plot: plotmasked is none"""
+        self.skip_if_darwin()
+
         # make mask
         self.make_mask(self.imagename)
         
@@ -398,10 +418,7 @@ class plotprofilemap_test(unittest.TestCase):
 
     def test_export_image(self):
         """test_export_image: test export the plot to PNG file"""
-        sysname = os.uname()[0]
-        if sysname == 'Darwin':
-            self.skipTest('Skip test_export_image on OS X since it may cause segfault')
-            return
+        self.skip_if_darwin()
         
         numpanels = '5,5'
         figfile = self.figfile
@@ -413,6 +430,8 @@ class plotprofilemap_test(unittest.TestCase):
 
     def test_fits_image(self):
         """test_fits_image: input image is FITS cube"""
+        self.skip_if_darwin()
+
         # convert input image to FITS
         self.assertFalse(os.path.exists(self.fitsimage))
         exportfits(imagename=self.imagename, fitsimage=self.fitsimage)
@@ -427,6 +446,8 @@ class plotprofilemap_test(unittest.TestCase):
         
     def test_title(self):
         """test_title: put title to the plot"""
+        self.skip_if_darwin()
+        
         numpanels = '5,5'
         title = 'This is test image'
         
