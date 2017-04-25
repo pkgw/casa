@@ -398,6 +398,11 @@ class plotprofilemap_test(unittest.TestCase):
 
     def test_export_image(self):
         """test_export_image: test export the plot to PNG file"""
+        sysname = os.uname()[0]
+        if sysname == 'Darwin':
+            self.skipTest('Skip test_export_image on OS X since it may cause segfault')
+            return
+        
         numpanels = '5,5'
         figfile = self.figfile
         
