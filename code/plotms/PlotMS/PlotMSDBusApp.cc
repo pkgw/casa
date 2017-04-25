@@ -54,6 +54,7 @@ const String PlotMSDBusApp::PARAM_AVERAGING = "averaging";
 const String PlotMSDBusApp::PARAM_AXIS_X = "xAxis";
 const String PlotMSDBusApp::PARAM_AXIS_Y = "yAxis";
 const String PlotMSDBusApp::PARAM_AXIS_Y_LOCATION = "yAxisLocation";
+const String PlotMSDBusApp::PARAM_SHOW_ATM = "showAtm";
 const String PlotMSDBusApp::PARAM_GRIDROWS = "gridRows";
 const String PlotMSDBusApp::PARAM_GRIDCOLS = "gridCols";
 const String PlotMSDBusApp::PARAM_SHOWLEGEND = "showLegend";
@@ -148,7 +149,6 @@ const String PlotMSDBusApp::METHOD_ISDRAWING   = "isDrawing";
 const String PlotMSDBusApp::METHOD_ISCLOSED  = "isClosed";
 
 const String PlotMSDBusApp::METHOD_LOCATEINFO = "locateInfo";
-
 
 
 /* 
@@ -399,6 +399,7 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 				ret.define(PARAM_AXIS_Y, PMS::axis(c->yAxis()));
 				ret.define(PARAM_DATACOLUMN_Y,
 						PMS::dataColumn(c->yDataColumn()));
+				ret.define(PARAM_SHOW_ATM, c->showAtm());
 			}
 
 			if (disp!=NULL)  {
@@ -562,6 +563,11 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 			}
 		}
 
+		if(parameters.isDefined(PARAM_SHOW_ATM) &&
+				parameters.dataType(PARAM_SHOW_ATM) == TpBool)   {
+			bool show = parameters.asBool(PARAM_SHOW_ATM);
+			ppcache->setShowAtm(show, dataIndex);
+		}
 
 		if(parameters.isDefined(PARAM_CANVASTITLE) &&
 				parameters.dataType(PARAM_CANVASTITLE) == TpString)   {
@@ -689,6 +695,7 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 					fill, outline );
 			ppdisp->setFlaggedSymbol(ps, dataIndex);
 		}
+
 
 		if(parameters.isDefined(PARAM_COLORIZE) &&
 				parameters.dataType(PARAM_COLORIZE) == TpBool)   {

@@ -37,7 +37,7 @@ def plotms(vis=None,
            plotfile=None, expformat=None, exprange=None,
            highres=None, dpi=None, width=None, height=None, overwrite=None,
            showgui=None, clearplots=None,
-           callib=None
+           callib=None, showatm=None
 ):
 
 # we'll add these later
@@ -188,6 +188,7 @@ def plotms(vis=None,
                     default: 'upperright'
     clearplots -- clear existing plots so that the new ones coming in can replace them.                 
     callib -- calibration library string, list of strings, or filename for on-the-fly calibration
+    showatm -- for bandpass plots, show atmospheric transmission curve
 
     """
     # Check if DISPLAY environment variable is set.
@@ -401,6 +402,8 @@ def plotms(vis=None,
                     pm.setPlotAxes(xaxis, yaxis[i], xdatacolumn, yDataColumn, yAxisLocation, False, plotindex, i)
             else :
                 raise Exception, 'Please remove duplicate y-axes.'
+        if showatm:
+            pm.setShowAtm(showatm)
         
         # Set selection
         if (selectdata and os.path.exists(vis)):

@@ -69,6 +69,7 @@ public:
     static const casacore::String PARAM_AXIS_X; // String
     static const casacore::String PARAM_AXIS_Y; // String
     static const casacore::String PARAM_AXIS_Y_LOCATION;
+    static const casacore::String PARAM_SHOW_ATM;
     static const casacore::String PARAM_GRIDROWS; //int
     static const casacore::String PARAM_GRIDCOLS; //int
     static const casacore::String PARAM_CLEARSELECTIONS; // bool
@@ -213,7 +214,7 @@ public:
     // PARAMETERS: none.
     // RETURNS: none.
     static const casacore::String METHOD_UPDATE;
-    
+   
     //Existing plots should be removed.
     //PARAMETERS: none.
     //RETURNS: none.

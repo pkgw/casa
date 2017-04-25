@@ -407,6 +407,30 @@ public:
 		}
 	}
 
+	const vector<bool> &showAtms() const {
+		return itsShowAtm_;
+	}
+	void setShowAtms (const vector < bool > &value) {
+		if (itsShowAtm_ != value) {
+			itsShowAtm_ = value;
+			updated();
+		}
+	}
+
+	bool showAtm (unsigned int index = 0) const {
+		if (index >= itsShowAtm_.size())
+			const_cast < vector < bool > &>(itsShowAtm_).resize (index + 1);
+		return itsShowAtm_[index];
+	}
+	void setShowAtm (const bool & value, unsigned int index = 0) {
+		if (index >= itsShowAtm_.size())
+			itsShowAtm_.resize (index + 1);
+		if (itsShowAtm_[index] != value) {
+			itsShowAtm_[index] = value;
+			updated();
+		}
+	}
+
 	void resize( int count );
 
 private:
@@ -418,13 +442,14 @@ private:
 	vector<PMS::Axis> itsYAxes_;
 	vector<PMS::DataColumn> itsXData_;
 	vector<PMS::DataColumn> itsYData_;
+    vector<bool> itsShowAtm_;
 
 	/* Key strings for casacore::Record */
 	static const casacore::String REC_XAXES;
 	static const casacore::String REC_YAXES;
 	static const casacore::String REC_XDATACOLS;
 	static const casacore::String REC_YDATACOLS;
-
+	static const casacore::String REC_SHOWATMS;
 
 	void setDefaults();
 };
