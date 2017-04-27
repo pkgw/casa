@@ -386,6 +386,7 @@ const int PMS::LOG_EVENT_##TYPE =                                             \
                                     LogMessage::PRIORITY);
 
 PMS_LOG(DBUS, "dbus", NORMAL3)
+PMS_LOG(DBUSWARN, "dbus", WARN)
 PMS_LOG(FLAG, "flag", NORMAL)
 PMS_LOG(LOAD_CACHE, "load_cache", NORMAL)
 PMS_LOG(LOCATE, "locate", NORMAL)

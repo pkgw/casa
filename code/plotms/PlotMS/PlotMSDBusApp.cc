@@ -54,7 +54,7 @@ const String PlotMSDBusApp::PARAM_AVERAGING = "averaging";
 const String PlotMSDBusApp::PARAM_AXIS_X = "xAxis";
 const String PlotMSDBusApp::PARAM_AXIS_Y = "yAxis";
 const String PlotMSDBusApp::PARAM_AXIS_Y_LOCATION = "yAxisLocation";
-const String PlotMSDBusApp::PARAM_SHOW_ATM = "showAtm";
+const String PlotMSDBusApp::PARAM_SHOWATM = "showatm";
 const String PlotMSDBusApp::PARAM_GRIDROWS = "gridRows";
 const String PlotMSDBusApp::PARAM_GRIDCOLS = "gridCols";
 const String PlotMSDBusApp::PARAM_SHOWLEGEND = "showLegend";
@@ -390,6 +390,7 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 				ret.defineRecord(PARAM_SELECTION, d->selection().toRecord());
 				ret.defineRecord(PARAM_TRANSFORMATIONS, d->transformations().toRecord());
 				ret.defineRecord(PARAM_CALIBRATION, d->calibration().toRecord());
+				ret.define(PARAM_SHOWATM, d->showAtm());
 			}
 
 			if(c != NULL) {
@@ -399,7 +400,6 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 				ret.define(PARAM_AXIS_Y, PMS::axis(c->yAxis()));
 				ret.define(PARAM_DATACOLUMN_Y,
 						PMS::dataColumn(c->yDataColumn()));
-				ret.define(PARAM_SHOW_ATM, c->showAtm());
 			}
 
 			if (disp!=NULL)  {
@@ -517,6 +517,14 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 			ppdata->setCalibration(calib);
 		}
 
+		if(parameters.isDefined(PARAM_SHOWATM) &&
+				parameters.dataType(PARAM_SHOWATM) == TpBool)   {
+			bool show = parameters.asBool(PARAM_SHOWATM);
+			ppdata->setShowAtm(show);
+            if (ppdata->showAtm() != show)
+                logWarn("Parameter " + PARAM_SHOWATM + " not valid for input table type");
+		}
+
 		if(parameters.isDefined(PARAM_ITERATE) &&
 				parameters.dataType(PARAM_ITERATE) == TpRecord) {
 			PlotMSIterParam iter = ppiter->iterParam();
@@ -561,12 +569,6 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 			if(ok){
 				ppcache->setYDataColumn(dc, dataIndex);
 			}
-		}
-
-		if(parameters.isDefined(PARAM_SHOW_ATM) &&
-				parameters.dataType(PARAM_SHOW_ATM) == TpBool)   {
-			bool show = parameters.asBool(PARAM_SHOW_ATM);
-			ppcache->setShowAtm(show, dataIndex);
 		}
 
 		if(parameters.isDefined(PARAM_CANVASTITLE) &&
@@ -951,6 +953,10 @@ void PlotMSDBusApp::dbusXmlReceived(const QtDBusXML& xml) {
 void PlotMSDBusApp::log(const String& m) {
 	itsPlotms_.getLogger()->postMessage(PMS::LOG_ORIGIN, PMS::LOG_ORIGIN_DBUS,
 			m, PMS::LOG_EVENT_DBUS);
+}
+
+void PlotMSDBusApp::logWarn(const String& m) {
+    itsPlotms_.getLogger()->postMessage(PMS::LOG_ORIGIN, PMS::LOG_ORIGIN_DBUS, m, PMS::LOG_EVENT_DBUSWARN);
 }
 
 bool PlotMSDBusApp::plotParameters(int& plotIndex) const {

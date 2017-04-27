@@ -336,6 +336,7 @@ public:
     // Log event origin names.
     // <group>
     static const casacore::String LOG_ORIGIN_DBUS;
+    static const casacore::String LOG_ORIGIN_DBUSWARN;
     static const casacore::String LOG_ORIGIN_FLAG;
     static const casacore::String LOG_ORIGIN_LOAD_CACHE;
     static const casacore::String LOG_ORIGIN_LOCATE;
@@ -349,6 +350,7 @@ public:
     // Log event flags.
     // <group>
     static const int LOG_EVENT_DBUS;
+    static const int LOG_EVENT_DBUSWARN;
     static const int LOG_EVENT_FLAG;
     static const int LOG_EVENT_LOAD_CACHE;
     static const int LOG_EVENT_LOCATE;

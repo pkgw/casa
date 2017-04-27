@@ -69,7 +69,7 @@ public:
     static const casacore::String PARAM_AXIS_X; // String
     static const casacore::String PARAM_AXIS_Y; // String
     static const casacore::String PARAM_AXIS_Y_LOCATION;
-    static const casacore::String PARAM_SHOW_ATM;
+    static const casacore::String PARAM_SHOWATM; // bool
     static const casacore::String PARAM_GRIDROWS; //int
     static const casacore::String PARAM_GRIDCOLS; //int
     static const casacore::String PARAM_CLEARSELECTIONS; // bool
@@ -292,8 +292,9 @@ private:
     // true if the user updates something while the GUI is hidden.
     bool itsUpdateFlag_;
 
-    // Helper method for posting log messages.
+    // Helper methods for posting log messages.
     void log(const casacore::String& message);
+    void logWarn(const casacore::String& message);
     
     // Adjusts the given plot index to be an acceptable, and returns whether
     // the parameters were resized or not.

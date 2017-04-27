@@ -402,8 +402,7 @@ def plotms(vis=None,
                     pm.setPlotAxes(xaxis, yaxis[i], xdatacolumn, yDataColumn, yAxisLocation, False, plotindex, i)
             else :
                 raise Exception, 'Please remove duplicate y-axes.'
-        if showatm:
-            pm.setShowAtm(showatm)
+        pm.setShowAtm(showatm, False, plotindex)
         
         # Set selection
         if (selectdata and os.path.exists(vis)):

@@ -37,6 +37,9 @@
 #include <plotms/PlotMS/PlotMSCalibration.h>
 #include <plotms/PlotMS/PlotMSLabelFormat.h>
 
+#include <tables/Tables/Table.h>
+#include <tables/Tables/TableRecord.h>
+
 namespace casa {
 
 // Container class to hold constants for groups.
@@ -165,6 +168,7 @@ public:
 	void setFilename (const casacore::String & value) {
 		if (itsFilename_ != value) {
 			itsFilename_ = value;
+            setShowAtm(allowAtm(itsFilename_));
 			updated();
 		}
 	}
@@ -212,6 +216,38 @@ public:
 		}
 	}
 
+	bool showAtm() const {
+		return itsShowAtm_;
+	}
+	void setShowAtm (const bool & value) {
+	    if (itsShowAtm_!= value) {
+            // if true, test if this is valid (B table plot)
+            if (!value) {
+		        itsShowAtm_ = value;
+		        updated();
+            } else if (allowAtm(itsFilename_)) {
+		        itsShowAtm_ = value;
+		        updated();
+            } // else log message?
+	    }
+    }
+
+    // determine whether this is a bandpass cal table
+    bool allowAtm(const casacore::String filename) const {
+        bool allowed = false;
+        // check for MS or cal table
+        if (casacore::Table::tableInfo(filename).type() == "Calibration") {
+            casacore::Table tab(filename);
+            // old cal table type if field name is unknown
+            if (tab.keywordSet().fieldNumber("VisCal") > -1) {
+                casacore::String caltype = tab.keywordSet().asString("VisCal");
+                if (caltype[0] == 'B') allowed = true;
+            }
+        }
+        return allowed;
+    }
+
+
 private:
 	//Does the work of the operator=()s.
 	PMS_PP_MSData& assign(const PMS_PP_MSData* other);
@@ -222,6 +258,7 @@ private:
 	PlotMSAveraging itsAveraging_;
 	PlotMSTransformations itsTransformations_;
 	PlotMSCalibration itsCalibration_;
+	bool itsShowAtm_;
 
 	/* Key strings for casacore::Record */
 	static const casacore::String REC_FILENAME;
@@ -229,7 +266,7 @@ private:
 	static const casacore::String REC_AVERAGING;
 	static const casacore::String REC_TRANSFORMATIONS;
 	static const casacore::String REC_CALIBRATION;
-
+	static const casacore::String REC_SHOWATM;
 
 	void setDefaults();
 };
@@ -286,8 +323,6 @@ public:
 
 	/* Overrides PlotMSPlotParameters::Group::operator==(). */
 	bool operator== (const Group & other) const;
-
-
 
 	// Gets how many axes and data columns there are.
 	// <group>
@@ -407,29 +442,6 @@ public:
 		}
 	}
 
-	const vector<bool> &showAtms() const {
-		return itsShowAtm_;
-	}
-	void setShowAtms (const vector < bool > &value) {
-		if (itsShowAtm_ != value) {
-			itsShowAtm_ = value;
-			updated();
-		}
-	}
-
-	bool showAtm (unsigned int index = 0) const {
-		if (index >= itsShowAtm_.size())
-			const_cast < vector < bool > &>(itsShowAtm_).resize (index + 1);
-		return itsShowAtm_[index];
-	}
-	void setShowAtm (const bool & value, unsigned int index = 0) {
-		if (index >= itsShowAtm_.size())
-			itsShowAtm_.resize (index + 1);
-		if (itsShowAtm_[index] != value) {
-			itsShowAtm_[index] = value;
-			updated();
-		}
-	}
 
 	void resize( int count );
 
@@ -442,14 +454,12 @@ private:
 	vector<PMS::Axis> itsYAxes_;
 	vector<PMS::DataColumn> itsXData_;
 	vector<PMS::DataColumn> itsYData_;
-    vector<bool> itsShowAtm_;
 
 	/* Key strings for casacore::Record */
 	static const casacore::String REC_XAXES;
 	static const casacore::String REC_YAXES;
 	static const casacore::String REC_XDATACOLS;
 	static const casacore::String REC_YDATACOLS;
-	static const casacore::String REC_SHOWATMS;
 
 	void setDefaults();
 };

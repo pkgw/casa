@@ -84,6 +84,10 @@ private:
     QtFileWidget* itsFileWidget_;
 
     Ui::PlotMSDataTabClass ui;
+
+    // private method to determine whether to show atm checkbox
+    // (only for bandpass plots)
+    bool allowAtm(casacore::String filename);
 };
 
 }

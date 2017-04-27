@@ -86,6 +86,7 @@ const String PMS_PP_MSData::REC_SELECTION = "selection";
 const String PMS_PP_MSData::REC_AVERAGING = "averaging";
 const String PMS_PP_MSData::REC_TRANSFORMATIONS = "transformations";
 const String PMS_PP_MSData::REC_CALIBRATION = "calibration";
+const String PMS_PP_MSData::REC_SHOWATM = "showatm";
 
 
 PMS_PP_MSData::PMS_PP_MSData(PlotFactoryPtr factory)
@@ -117,6 +118,7 @@ Record PMS_PP_MSData::toRecord() const
 	rec.defineRecord(REC_AVERAGING, itsAveraging_.toRecord());
 	rec.defineRecord(REC_TRANSFORMATIONS, itsTransformations_.toRecord());
 	rec.defineRecord(REC_CALIBRATION, itsCalibration_.toRecord());
+	rec.define(REC_SHOWATM, itsShowAtm_);
 	return rec;
 }
 
@@ -169,7 +171,15 @@ void PMS_PP_MSData::fromRecord(const Record& record)
 			valuesChanged = true;
 		}
 	}
-
+    if (record.isDefined(REC_SHOWATM) && record.dataType(REC_SHOWATM) == TpBool)
+	{
+		bool tmp = record.asBool(REC_SHOWATM);
+		if (itsShowAtm_ != tmp)
+		{
+			itsShowAtm_ = tmp;
+			valuesChanged = true;
+		}
+	}
 	if (valuesChanged) updated();
 }
 
@@ -190,6 +200,7 @@ PMS_PP_MSData& PMS_PP_MSData::assign(const PMS_PP_MSData* o){
 		itsAveraging_ = o->itsAveraging_;
 		itsTransformations_ = o->itsTransformations_;
 		itsCalibration_ = o->itsCalibration_;
+        itsShowAtm_ = o->itsShowAtm_;
 		updated();
 	}
 	return *this;
@@ -205,6 +216,7 @@ bool PMS_PP_MSData::operator==(const Group& other) const
 	if (itsAveraging_ != o->itsAveraging_) return false;
 	if (itsTransformations_ != o->itsTransformations_) return false;
 	if (itsCalibration_ != o->itsCalibration_) return false;
+    if (itsShowAtm_ != o->itsShowAtm_) return false;
 	return true;
     		}
 
@@ -217,6 +229,7 @@ void PMS_PP_MSData::setDefaults()
 	itsAveraging_ = PlotMSAveraging();
 	itsTransformations_ = PlotMSTransformations();
 	itsCalibration_ = PlotMSCalibration();
+    itsShowAtm_ = false;
 }
 
 
@@ -233,7 +246,6 @@ const String PMS_PP_Cache::REC_XAXES = "xaxes";
 const String PMS_PP_Cache::REC_YAXES = "yaxes";
 const String PMS_PP_Cache::REC_XDATACOLS = "xdatacolumns";
 const String PMS_PP_Cache::REC_YDATACOLS = "ydatacolumns";
-const String PMS_PP_Cache::REC_SHOWATMS = "showatms";
 
 
 PMS_PP_Cache::PMS_PP_Cache(PlotFactoryPtr factory)
@@ -254,7 +266,6 @@ Record PMS_PP_Cache::toRecord() const
 	rec.define(REC_YAXES, PMS::toIntVector<PMS::Axis>(itsYAxes_));
 	rec.define(REC_XDATACOLS, PMS::toIntVector<PMS::DataColumn>(itsXData_));
 	rec.define(REC_YDATACOLS, PMS::toIntVector<PMS::DataColumn>(itsYData_));
-	rec.define(REC_SHOWATMS, Vector<bool>(itsShowAtm_));
 	return rec;
 }
 
@@ -298,16 +309,7 @@ void PMS_PP_Cache::fromRecord(const Record& record)
 			valuesChanged = true;
 		}
 	}
-    if (record.isDefined(REC_SHOWATMS) && record.dataType(REC_SHOWATMS) == TpArrayBool)
-	{
-		vector<bool> tmp;
-		record.asArrayBool(REC_SHOWATMS).tovector(tmp);
-		if (itsShowAtm_ != tmp)
-		{
-			itsShowAtm_ = tmp;
-			valuesChanged = true;
-		}
-	}
+
 	if (valuesChanged) updated();
 }
 
@@ -328,7 +330,6 @@ PMS_PP_Cache& PMS_PP_Cache::assign(const PMS_PP_Cache* o){
 		itsYAxes_ = o->itsYAxes_;
 		itsXData_ = o->itsXData_;
 		itsYData_ = o->itsYData_;
-        itsShowAtm_ = o->itsShowAtm_;
 		updated();
 	}
 	return *this;
@@ -343,7 +344,6 @@ bool PMS_PP_Cache::operator==(const Group& other) const
 	if (itsYAxes_ != o->itsYAxes_) return false;
 	if (itsXData_ != o->itsXData_) return false;
 	if (itsYData_ != o->itsYData_) return false;
-	if (itsShowAtm_ != o->itsShowAtm_) return false;
 	return true;
     		}
 
@@ -357,7 +357,6 @@ void PMS_PP_Cache::setDefaults(){
 	itsYAxes_ = vector<PMS::Axis>(1, PMS::DEFAULT_YAXIS);
 	itsXData_ = vector<PMS::DataColumn>(1, PMS::DEFAULT_DATACOLUMN);
 	itsYData_ = vector<PMS::DataColumn>(1, PMS::DEFAULT_DATACOLUMN);
-	itsShowAtm_ = vector<bool>(1, false);
 }
 
 void PMS_PP_Cache::resize( int count ){
@@ -366,7 +365,6 @@ void PMS_PP_Cache::resize( int count ){
 	itsYAxes_ = vector<PMS::Axis>(count, PMS::DEFAULT_YAXIS);
 	itsXData_ = vector<PMS::DataColumn>(count, PMS::DEFAULT_DATACOLUMN);
 	itsYData_ = vector<PMS::DataColumn>(count, PMS::DEFAULT_DATACOLUMN);
-	itsShowAtm_ = vector<bool>(count, false);
 }
 
 unsigned int PMS_PP_Cache::numXAxes() const{

@@ -618,7 +618,7 @@ void plotms::setShowAtm(const bool showatm, const bool updateImmediately, const 
 {
     launchApp();
     Record params;
-    params.define(PlotMSDBusApp::PARAM_SHOW_ATM, showatm);
+    params.define(PlotMSDBusApp::PARAM_SHOWATM, showatm);
     params.define(PlotMSDBusApp::PARAM_UPDATEIMMEDIATELY, updateImmediately);
     params.define(PlotMSDBusApp::PARAM_PLOTINDEX, plotIndex);
     QtDBusXmlApp::dbusXmlCallNoRet(dbus::FROM_NAME, app.dbusName( ),
@@ -629,7 +629,7 @@ void plotms::setShowAtm(const bool showatm, const bool updateImmediately, const 
 bool plotms::getShowAtm(const int plotIndex) 
 {
     launchApp();
-    GETSINGLEPLOTBOOL(SHOW_ATM) 
+    GETSINGLEPLOTBOOL(SHOWATM) 
 }
 string plotms::getPlotXAxis(const int plotIndex) 
 {

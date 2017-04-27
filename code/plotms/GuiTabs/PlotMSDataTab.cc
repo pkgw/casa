@@ -48,6 +48,9 @@ namespace casa {
 PlotMSDataTab::PlotMSDataTab(PlotMSPlotTab* plotTab, PlotMSPlotter* parent) :
     		PlotMSPlotSubtab(plotTab, parent) {
     ui.setupUi(this);
+    // only show this checkbox for bandpass plots (checked by allowAtm)
+    ui.showAtm->hide();
+    ui.showAtmLabel->hide();
 
     // Setup widgets
     itsFileWidget_ = new QtFileWidget(true, false);
@@ -68,6 +71,7 @@ PlotMSDataTab::PlotMSDataTab(PlotMSPlotTab* plotTab, PlotMSPlotter* parent) :
     connect(itsFileWidget_, SIGNAL(changed()), SIGNAL(changed()));
     connect(itsSelectionWidget_, SIGNAL(changed()), SIGNAL(changed()));
     connect(itsAveragingWidget_, SIGNAL(changed()), SIGNAL(changed()));
+    connect(ui.showAtm, SIGNAL(toggled(bool)), SIGNAL(changed()));
 
 }
 
@@ -101,6 +105,9 @@ void PlotMSDataTab::getValue(PlotMSPlotParameters& params) const {
     d->setFilename(itsFileWidget_->getFile());
     d->setSelection(itsSelectionWidget_->getValue());
     d->setAveraging(itsAveragingWidget_->getValue());
+    // don't have to check setting showatm since checkbox is only shown
+    // when atm is valid:
+    d->setShowAtm(ui.showAtm->isChecked());
 }
 
 
@@ -109,7 +116,7 @@ void PlotMSDataTab::setValue(const PlotMSPlotParameters& params) {
     const PMS_PP_MSData* d = params.typedGroup<PMS_PP_MSData>();
     if(d == NULL) return;
     itsFileWidget_->setFile(d->filename());
-
+    ui.showAtm->setChecked(d->showAtm());
     itsSelectionWidget_->setValue(d->selection());
     itsAveragingWidget_->setValue(d->averaging());
 }
@@ -117,12 +124,19 @@ void PlotMSDataTab::setValue(const PlotMSPlotParameters& params) {
 void PlotMSDataTab::update(const PlotMSPlot& plot) {
     const PMS_PP_MSData* d = plot.parameters().typedGroup<PMS_PP_MSData>();
     if(d == NULL) return;
+
+    // showAtm checkbox depends on whether cal table
+    const casacore::String filename = itsFileWidget_->getFile();
+    bool atmAllowed = (!filename.empty() && d->allowAtm(filename));
+    ui.showAtm->setVisible(atmAllowed);
+    ui.showAtmLabel->setVisible(atmAllowed);
+
     highlightWidgetText(ui.locationLabel, itsFileWidget_->getFile() != d->filename());
+    highlightWidgetText(ui.showAtmLabel, d->showAtm() != ui.showAtm->isChecked());
     highlightWidgetText(ui.selectionLabel,
 	    itsSelectionWidget_->getValue().fieldsNotEqual(d->selection()));
     highlightWidgetText(ui.averagingLabel,
             itsAveragingWidget_->getValue() != d->averaging());
 }
-
 
 }
