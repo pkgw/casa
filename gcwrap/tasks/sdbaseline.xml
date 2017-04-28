@@ -212,9 +212,9 @@ pipeline processing for huge dataset.
         <value></value>
     </param>
 
-    <param type="bool" name="verbose">
-        <shortdescription>(NOT SUPPORTED YET) output fitting results to logger [True, False]</shortdescription>
-        <description>(NOT SUPPORTED YET) output fitting results to logger</description>
+    <param type="bool" name="verbose" subparam="true">
+        <shortdescription>output fitting parameters to logger [True, False]</shortdescription>
+        <description>output fitting parameters to logger</description>
         <value>False</value>
     </param>
 
@@ -288,6 +288,7 @@ pipeline processing for huge dataset.
                 </equals> 
                 <equals value="variable">
                         <default param="blparam"><value type="string"></value></default>
+                        <default param="verbose"><value>False</value></default>
                 </equals>
             </when>
             <when param="showprogress">
@@ -534,11 +535,11 @@ blfunc -- baseline model function. In cases blmode='apply' or blparam is
                  default: 0 (no iteration, i.e., no clipping)
         blparam -- the name of text file that stores per spectrum fit
                    parameters. See below for details of format.
-verbose -- (NOT SUPPORTED YET) output fitting results to logger. if False, the fitting results
-           including coefficients, residual rms, etc., are not output to
-           the CASA logger, while the processing speed gets faster.
-        options: (bool) False
-        default: False (verbose=True is currently unavailable)
+        verbose -- output fitting parameters to logger (ONLY available
+           for blfunc='variable'. if False, the fitting parameters are
+           not output to the CASA logger.
+            options: (bool) True, False
+            default: False
 showprogress -- (NOT SUPPORTED YET) show progress status for large data
         options: (bool) False (this capability is currently unavailable.)
         default: False
