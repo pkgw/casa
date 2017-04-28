@@ -4216,6 +4216,8 @@ code/mstransform/TVI/StatWtTVI.cc -text
 code/mstransform/TVI/StatWtTVI.h -text
 code/mstransform/TVI/StatWtTVIFactory.cc -text
 code/mstransform/TVI/StatWtTVIFactory.h -text
+code/mstransform/TVI/StatWtTVILayerFactory.cc -text
+code/mstransform/TVI/StatWtTVILayerFactory.h -text
 code/mstransform/TVI/UVContSubTVI.cc -text
 code/mstransform/TVI/UVContSubTVI.h -text
 code/mstransform/TVI/UtilsTVI.cc -text
