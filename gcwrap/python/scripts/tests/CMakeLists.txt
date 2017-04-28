@@ -146,8 +146,10 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_partition.py
   test_partitionHelper.py
   test_plotants.py
+  test_plotcal.py
   test_plotms.py
   test_plotuv.py
+  test_plotweather.py
   test_po_complexfraclinpol.py
   test_po_complexlinpol.py  
   test_po_depolratio.py
@@ -207,6 +209,7 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_split2.py
   test_spxfit.py
   test_statwt.py
+  test_statwt2.py
   test_testconcat.py
   test_uvcontsub.py
   test_uvcontsub3.py
