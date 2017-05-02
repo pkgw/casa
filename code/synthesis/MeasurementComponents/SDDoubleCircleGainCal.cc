@@ -13,6 +13,7 @@
 #include <synthesis/MeasurementEquations/VisEquation.h>
 #include <synthesis/Utilities/PointingDirectionCalculator.h>
 #include <synthesis/Utilities/PointingDirectionProjector.h>
+#include <synthesis/CalTables/CTIter.h>
 #include <msvis/MSVis/VisSet.h>
 
 #include <casacore/casa/BasicSL/String.h>
@@ -236,8 +237,42 @@ String SDDoubleCircleGainCal::solveinfo() {
 
 void SDDoubleCircleGainCal::globalPostSolveTinker() {
 
-  // apply generic post-solve stuff
+  // apply generic post-solve stuff - is it necessary?
   SolvableVisCal::globalPostSolveTinker();
+
+  // double-circle gain calibration is implemented here
+  // assuming that given caltable (on memory) has complete
+  // set of spectral data required for the calibration
+
+  // sort caltable by TIME
+  NewCalTable sorted(ct_->sort("TIME"));
+  Block<String> col(3);
+  col[0] = "SPECTRAL_WINDOW_ID";
+  col[1] = "FIELD_ID";
+  col[2] = "ANTENNA1";
+  //col[3] = "FEED1";
+  CTIter ctiter(sorted,col);
+
+  while (!ctiter.pastEnd()) {
+    // get table entry sorted by TIME
+    Vector<Double> time(ctiter.time());
+    Cube<Complex> p(ctiter.cparam());
+    Cube<Bool> fl(ctiter.flag());
+
+    // take real part of CPARAM
+    Cube<Float> preal = real(p);
+
+    // execute double-circle gain calibration
+    worker_.doCalibrate(time, preal, fl);
+
+    // set real part of CPARAM
+    setReal(p, preal);
+
+    // record result
+    ctiter.setcparam(p);
+    ctiter.setflag(fl);
+    ctiter.next();
+  }
 }
 
 void SDDoubleCircleGainCal::keepNCT() {

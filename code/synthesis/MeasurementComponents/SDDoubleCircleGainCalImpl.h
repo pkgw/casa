@@ -98,6 +98,12 @@ public:
   casacore::Vector<casacore::Double> &gain_time,
   casacore::Cube<casacore::Float> &gain,
   casacore::Cube<casacore::Bool> &gain_flag);
+
+  // gain calibration implementation
+  void doCalibrate(casacore::Vector<casacore::Double> &gain_time,
+      casacore::Cube<casacore::Float> &gain,
+      casacore::Cube<casacore::Bool> &gain_flag);
+
   // apply gain factor
 //  void apply(casacore::Vector<casacore::Double> const &gain_time,
 //      casacore::Cube<casacore::Float> const &gain,

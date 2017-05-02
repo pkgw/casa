@@ -11,6 +11,8 @@
 #include <synthesis/MeasurementComponents/StandardVisCal.h>
 #include <casacore/casa/BasicSL/String.h>
 
+#include <synthesis/MeasurementComponents/SDDoubleCircleGainCalImpl.h>
+
 // set false if you want to use new Calibrater
 #define USEOLDVI true
 
@@ -78,7 +80,10 @@ private:
   template<class Accessor>
   void executeDoubleCircleGainCal(casacore::MeasurementSet const &ms);
 
-  casacore::Double central_disk_size_;casacore::Bool smooth_;casacore::uInt currAnt_;
+  casacore::Double central_disk_size_;
+  casacore::Bool smooth_;
+  casacore::uInt currAnt_;
+  SDDoubleCircleGainCalImpl worker_;
 };
 
 } // namespace casa END

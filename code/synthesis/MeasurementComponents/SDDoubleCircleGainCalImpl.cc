@@ -309,8 +309,18 @@ void SDDoubleCircleGainCalImpl::calibrate(Cube<Float> const &data,
   assert(direction.shape()[0] == 2);
   findDataWithinRadius(radius, time, data, flag, direction, gain_time, gain,
       gain_flag);
-  size_t num_gain = gain_time.nelements();
+  doCalibrate(gain_time, gain, gain_flag);
+}
+
+void SDDoubleCircleGainCalImpl::doCalibrate(Vector<Double> &gain_time,
+    Cube<Float> &gain, Cube<Bool> &gain_flag) {
+
+  size_t const num_gain = gain_time.nelements();
   LOG << "num_gain = " << num_gain << POSTLOG;
+
+  size_t const num_pol = ::toUnsigned(gain.shape()[0]);
+  size_t const num_chan = ::toUnsigned(gain.shape()[1]);
+  assert(gain.shape()[2] == num_gain);
 
   //LOG << "indices within radius: " << within_radius << POSTLOG;
 
