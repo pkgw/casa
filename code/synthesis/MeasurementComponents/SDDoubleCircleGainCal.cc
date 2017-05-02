@@ -332,9 +332,15 @@ void SDDoubleCircleGainCal::selfSolveOne(SDBList &sdbs) {
 
   auto const &corrected = sdb.visCubeCorrected();
   auto const &flag = sdb.flagCube();
-  if (corrected.conform(solveAllCPar())) {
-    solveAllCPar() = corrected;
-    solveAllParOK() = !flag;
+  solveAllCPar() = Complex(0.0);
+  solveAllParOK() = false;
+
+  size_t const numCorr = corrected.shape()[0];
+  for (size_t iCorr = 0; iCorr < numCorr; ++iCorr) {
+    solveAllCPar().yzPlane(iCorr) = corrected.yzPlane(iCorr);
+    solveParOK().yzPlane(iCorr) = !flag.yzPlane(iCorr);
+    solveAllParErr().yzPlane(iCorr) = 0.1; // TODO
+    solveAllParSNR().yzPlane(iCorr) = 1.0; // TODO
   }
 }
 
