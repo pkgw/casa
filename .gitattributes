@@ -6686,6 +6686,7 @@ gcwrap/python/scripts/tests/test_importasdm_mms.py -text
 gcwrap/python/scripts/tests/test_importevla.py -text
 gcwrap/python/scripts/tests/test_importfitsidi.py -text
 gcwrap/python/scripts/tests/test_importnro.py -text
+gcwrap/python/scripts/tests/test_importvla.py -text
 gcwrap/python/scripts/tests/test_imregrid.py -text
 gcwrap/python/scripts/tests/test_imsmooth.py -text
 gcwrap/python/scripts/tests/test_imstat.py -text
