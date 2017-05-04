@@ -559,11 +559,13 @@ using namespace casac;
 }
 
 %typemap(out) string* {
-    if ($1)
-        $result = PYSTRING_FROM_C_STRING($1->c_str());
-    else
+    if (!$1) {
         $result = Py_None;
-    delete $1;
+    } else {
+        $result = PYSTRING_FROM_C_STRING($1->c_str());
+        delete $1;
+        $1 = NULL;
+    }
 }
 
 %typemap(argout) string& OUTARGSTR {
