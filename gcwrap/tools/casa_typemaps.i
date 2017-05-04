@@ -59,10 +59,13 @@ using namespace casac;
 %typemap(argout) int& OUTARGINT {
     PyObject *o = PyLong_FromLong(*$1);
 
+    // I think this logic is either returning the value as a scalar, or
+    // building up a tuple of return values -- I guess that's relevant if one
+    // function has multiple output arguments.
+
     if (!$result || $result == Py_None) {
         $result = o;
     } else {
-        // What the hell is this code path?
         PyObject *o2 = $result;
         if (!PyTuple_Check($result)) {
             $result = PyTuple_New(1);
@@ -117,7 +120,6 @@ using namespace casac;
     if (!$result || $result == Py_None) {
         $result = o;
     } else {
-        // Again: what??
         PyObject *o2 = $result;
         if (!PyTuple_Check($result)) {
             $result = PyTuple_New(1);
@@ -482,17 +484,21 @@ using namespace casac;
 }
 
 %typemap(in) string {
+    cout << "QQQ 1 " << PYTEXT_CHECK($input) << " " << PYBYTES_CHECK($input) << "\n";
+
     if (PYTEXT_CHECK($input)) {
         $1 = string(PYTEXT_ASDATA($input));
     } else if (PYBYTES_CHECK($input)) {
         $1 = string(PYBYTES_ASDATA($input));
     } else {
-        PyErr_SetString(PyExc_TypeError, "argument $1_name must be a string");
+        PyErr_SetString(PyExc_TypeError, "argument $1_name must be a string (1)");
         return NULL;
     }
 }
 
 %typemap(in) string& (std::unique_ptr<string> deleter) {
+    cout << "QQQ 2 " << PYTEXT_CHECK($input) << " " << PYBYTES_CHECK($input) << "\n";
+
     if (PYTEXT_CHECK($input)) {
         if (!$1) {
             deleter.reset (new string(PYTEXT_ASDATA($input)));
@@ -508,12 +514,14 @@ using namespace casac;
             *$1 = string(PYBYTES_ASDATA($input));
         }
     } else {
-        PyErr_SetString(PyExc_TypeError, "argument $1_name must be a string");
+        PyErr_SetString(PyExc_TypeError, "argument $1_name must be a string (2)");
         return NULL;
     }
 }
 
 %typemap(in) const string& (std::unique_ptr<string> deleter) {
+    cout << "QQQ 3 " << PYTEXT_CHECK($input) << " " << PYBYTES_CHECK($input) << "\n";
+
     if (PYTEXT_CHECK($input)) {
         if (!$1) {
             deleter.reset (new string(PYTEXT_ASDATA($input)));
@@ -529,7 +537,7 @@ using namespace casac;
             *$1 = string(PYBYTES_ASDATA($input));
         }
     } else {
-        PyErr_SetString(PyExc_TypeError, "argument $1_name must be a string");
+        PyErr_SetString(PyExc_TypeError, "argument $1_name must be a string (3)");
         return NULL;
     }
 }
@@ -554,18 +562,20 @@ using namespace casac;
 
 %typemap(argout) string& OUTARGSTR {
     PyObject *o = PYSTRING_FROM_STRING($1->c_str());
-    if ((!$result) || ($result == Py_None)) {
+
+    if (!$result || $result == Py_None) {
         $result = o;
     } else {
         PyObject *o2 = $result;
         if (!PyTuple_Check($result)) {
             $result = PyTuple_New(1);
-            PyTuple_SetItem($result,0,o2);
+            PyTuple_SetItem($result, 0, o2);
         }
+
         PyObject *o3 = PyTuple_New(1);
-        PyTuple_SetItem(o3,0,o);
+        PyTuple_SetItem(o3, 0, o);
         o2 = $result;
-        $result = PySequence_Concat(o2,o3);
+        $result = PySequence_Concat(o2, o3);
         Py_DECREF(o2);
         Py_DECREF(o3);
     }
