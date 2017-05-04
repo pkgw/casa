@@ -9,6 +9,9 @@
 #include <numpy/arrayobject.h>
 
 #if PY_MAJOR_VERSION >= 3
+# define PYINT_CHECK(x) 0
+# define PyInt_AsLong(x) 0
+# define PY_INTEGER_FROM_LONG(x) PyLong_FromLong(x)
 # define PYSTRING_FROM_C_STRING PyUnicode_FromString
 # define PYBYTES_CHECK PyBytes_Check
 # define PYBYTES_AS_C_STRING PyBytes_AsString
@@ -16,6 +19,9 @@
 # define PYTEXT_TO_CXX_STRING(cxx_string,text_obj) \
     do { (cxx_string) = string(PyUnicode_AsUTF8AndSize((text_obj), NULL)); } while (0)
 #else
+# define PYINT_CHECK(x) PyInt_Check(x)
+# define PY_INTEGER_FROM_LONG(x) PyInt_FromLong(x)
+# define PYINTGER_AS_LONG PyLong_AsLong
 # define PYSTRING_FROM_C_STRING PyString_FromString
 # define PYBYTES_CHECK PyString_Check
 # define PYBYTES_AS_C_STRING PyString_AsString
@@ -43,7 +49,11 @@ using namespace casac;
 // Integer scalars.
 
 %typemap(in) int {
-    $1 = PyInt_AsLong($input);
+    if (PYINT_CHECK($input))
+        $1 = PyInt_AsLong($input);
+    else
+        $1 = PyLong_AsLong($input);
+
     if (PyErr_Occurred()) {
         PyErr_SetString(PyExc_TypeError, "argument $1_name must be an integer");
         return NULL;
@@ -51,7 +61,11 @@ using namespace casac;
 }
 
 %typemap(in) long {
-    $1 = PyInt_AsLong($input);
+    if (PYINT_CHECK($input))
+        $1 = PyInt_AsLong($input);
+    else
+        $1 = PyLong_AsLong($input);
+
     if (PyErr_Occurred()) {
         PyErr_SetString(PyExc_TypeError, "argument $1_name must be an integer");
         return NULL;
@@ -59,8 +73,11 @@ using namespace casac;
 }
 
 %typemap(in) long long {
-    // TODO: handle PyLong specially?
-    $1 = PyInt_AsLong($input);
+    if (PYINT_CHECK($input))
+        $1 = PyInt_AsLong($input);
+    else
+        $1 = PyLong_AsLongLong($input);
+
     if (PyErr_Occurred()) {
         PyErr_SetString(PyExc_TypeError, "argument $1_name must be an integer");
         return NULL;
@@ -68,7 +85,7 @@ using namespace casac;
 }
 
 %typemap(argout) int& OUTARGINT {
-    PyObject *o = PyLong_FromLong(*$1);
+    PyObject *o = PY_INTEGER_FROM_LONG(*$1);
 
     // Looks like this logic is either returning the value as a scalar, or
     // building up a tuple of return values -- I guess that's relevant if one
@@ -167,7 +184,7 @@ using namespace casac;
             return NULL;
         }
     } else {
-        $1->push_back(bool(PyInt_AsLong($input)));
+        $1->push_back(bool(PyLong_AsLong($input)));
         if (PyErr_Occurred()) {
             PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into a bool vector");
             return NULL;
@@ -193,7 +210,7 @@ using namespace casac;
             return NULL;
         }
     } else {
-        $1->push_back(int(PyInt_AsLong($input)));
+        $1->push_back(int(PyLong_AsLong($input)));
         if (PyErr_Occurred()) {
             PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into an int vector");
             return NULL;
@@ -219,7 +236,7 @@ using namespace casac;
             return NULL;
         }
     } else {
-        $1->push_back(long(PyInt_AsLong($input)));
+        $1->push_back(long(PyLong_AsLong($input)));
         if (PyErr_Occurred()) {
             PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into a long vector");
             return NULL;
@@ -245,8 +262,7 @@ using namespace casac;
             return NULL;
         }
     } else {
-        // TODO: handle PyLong specially?
-        $1->push_back(PyInt_AsLong($input));
+        $1->push_back(PyLong_AsLongLong($input));
         if (PyErr_Occurred()) {
             PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into a long long vector");
             return NULL;

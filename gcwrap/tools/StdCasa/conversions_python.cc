@@ -14,6 +14,7 @@
 
 #if PY_MAJOR_VERSION >= 3
 # define PYINT_CHECK(x) 0
+# define PyInt_AsLong(x) 0
 # define PY_INTEGER_FROM_LONG(x) PyLong_FromLong(x)
 # define PYSTRING_FROM_C_STRING PyUnicode_FromString
 # define PYBYTES_CHECK PyBytes_Check
