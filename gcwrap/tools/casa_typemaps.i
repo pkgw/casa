@@ -160,7 +160,6 @@ using namespace casac;
     if (casac::pyarray_check($input)) {
         casac::numpy2vector((PyArrayObject*) $input, *$1, shape);
     } else if (IS_LIST_LIKE($input)) {
-        shape.push_back(PyList_Size($input));
         if (!casac::pylist2vector($input, *$1, shape)) {
             PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into a bool vector");
             return NULL;
@@ -187,7 +186,6 @@ using namespace casac;
     if (casac::pyarray_check($input)) {
         casac::numpy2vector((PyArrayObject*) $input, *$1, shape);
     } else if (IS_LIST_LIKE($input)) {
-        shape.push_back(PyList_Size($input));
         if (!casac::pylist2vector($input, *$1, shape)) {
             PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into an int vector");
             return NULL;
@@ -214,7 +212,6 @@ using namespace casac;
     if (casac::pyarray_check($input)) {
         casac::numpy2vector((PyArrayObject*) $input, *$1, shape);
     } else if (IS_LIST_LIKE($input)) {
-        shape.push_back(PyList_Size($input));
         if (!casac::pylist2vector($input, *$1, shape)) {
             PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into a long vector");
             return NULL;
@@ -241,7 +238,6 @@ using namespace casac;
     if (casac::pyarray_check($input)) {
         casac::numpy2vector((PyArrayObject*) $input, *$1, shape);
     } else if (IS_LIST_LIKE($input)) {
-        shape.push_back(PyList_Size($input));
         if (!casac::pylist2vector($input, *$1, shape)) {
             PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into a long long vector");
             return NULL;
@@ -268,7 +264,6 @@ using namespace casac;
     if (casac::pyarray_check($input)) {
         casac::numpy2vector((PyArrayObject*) $input, *$1, shape);
     } else if (IS_LIST_LIKE($input)) {
-        shape.push_back(PyList_Size($input));
         if (!casac::pylist2vector($input, *$1, shape)) {
             PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into a double vector");
             return NULL;
@@ -366,7 +361,6 @@ using namespace casac;
     if (pyarray_check($input)) {
         numpy2vector((PyArrayObject*) $input, $1->value, $1->shape);
     } else {
-        shape.push_back(PyList_Size($input));
         if (!pylist2vector($input, $1->value, $1->shape)) {
             PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into a BoolVec");
             return NULL;
@@ -381,7 +375,6 @@ using namespace casac;
     if (pyarray_check($input)) {
         numpy2vector((PyArrayObject*) $input, $1->value, $1->shape);
     } else {
-        shape.push_back(PyList_Size($input));
         if (!pylist2vector($input, $1->value, $1->shape)) {
             PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into a BoolVec&");
             return NULL;
@@ -396,7 +389,6 @@ using namespace casac;
     if (pyarray_check($input)) {
         numpy2vector((PyArrayObject*) $input, $1->value, $1->shape);
     } else {
-        shape.push_back(PyList_Size($input));
         if (!pylist2vector($input, $1->value, $1->shape)) {
             PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into an IntVec");
             return NULL;
@@ -411,7 +403,6 @@ using namespace casac;
     if (pyarray_check($input)) {
         numpy2vector((PyArrayObject*) $input, $1->value, $1->shape);
     } else {
-        shape.push_back(PyList_Size($input));
         if (!pylist2vector($input, $1->value, $1->shape)) {
             PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into an IntVec&");
             return NULL;
@@ -426,7 +417,6 @@ using namespace casac;
     if (pyarray_check($input)) {
         numpy2vector((PyArrayObject*) $input, $1->value, $1->shape);
     } else {
-        shape.push_back(PyList_Size($input));
         if (!pylist2vector($input, $1->value, $1->shape)) {
             PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into a DoubleVec");
             return NULL;
@@ -441,7 +431,6 @@ using namespace casac;
     if (pyarray_check($input)) {
         numpy2vector((PyArrayObject*) $input, $1->value, $1->shape);
     } else {
-        shape.push_back(PyList_Size($input));
         if (!pylist2vector($input, $1->value, $1->shape)) {
             PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into a DoubleVec&");
             return NULL;
@@ -456,7 +445,6 @@ using namespace casac;
     if (pyarray_check($input)) {
         numpy2vector((PyArrayObject*) $input, $1->value, $1->shape);
     } else {
-        shape.push_back(PyList_Size($input));
         if (!pylist2vector($input, $1->value, $1->shape)) {
             PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into a ComplexVec");
             return NULL;
@@ -471,7 +459,6 @@ using namespace casac;
     if (pyarray_check($input)) {
         numpy2vector((PyArrayObject*) $input, $1->value, $1->shape);
     } else {
-        shape.push_back(PyList_Size($input));
         if (!pylist2vector($input, $1->value, $1->shape)) {
             PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into a ComplexVec&");
             return NULL;
@@ -804,7 +791,6 @@ using namespace casac;
                 } else if (PyFloat_Check(theVal)) {
                     myVals.push_back(PyFloat_AsDouble(theVal));
                 } else {
-                    shape.push_back(PyList_Size(theVal));
                     if (!casac::pylist2vector(theVal, myVals, shape)) {
                         PyErr_SetString(PyExc_TypeError, "error when vectorizing Quantity argument $1_name");
                         return NULL;
@@ -852,7 +838,6 @@ using namespace casac;
                 } else if (PyFloat_Check(theVal)) {
                     myVals.push_back(PyFloat_AsDouble(theVal));
                 } else {
-                    shape.push_back(PyList_Size(theVal));
                     if (!casac::pylist2vector(theVal, myVals, shape)) {
                         PyErr_SetString(PyExc_TypeError, "error when vectorizing Quantity* argument $1_name");
                         return NULL;
@@ -901,7 +886,6 @@ using namespace casac;
                 } else if (PyFloat_Check(theVal)) {
                     myVals.push_back(PyFloat_AsDouble(theVal));
                 } else {
-                    shape.push_back(PyList_Size(theVal));
                     if (!casac::pylist2vector(theVal, myVals, shape)) {
                         PyErr_SetString(PyExc_TypeError, "error when vectorizing Quantity& argument $1_name");
                         return NULL;
