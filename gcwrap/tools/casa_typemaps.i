@@ -9,17 +9,24 @@
 #include <numpy/arrayobject.h>
 
 #if PY_MAJOR_VERSION >= 3
-# define PYTEXT_CHECK PyUnicode_Check
-# define PYTEXT_AS_C_STRING PyUnicode_AsUTF8String
+# define PYSTRING_FROM_C_STRING PyUnicode_FromString
 # define PYBYTES_CHECK PyBytes_Check
 # define PYBYTES_AS_C_STRING PyBytes_AsString
-# define PYSTRING_FROM_C_STRING PyUnicode_FromString
-#else
 # define PYTEXT_CHECK PyUnicode_Check
-# define PYTEXT_AS_C_STRING PyUnicode_AsUTF8String
+# define PYTEXT_TO_CXX_STRING(cxx_string,text_obj) \
+    do { (cxx_string) = string(PyUnicode_AsUTF8AndSize((text_obj), NULL)); } while (0)
+#else
+# define PYSTRING_FROM_C_STRING PyString_FromString
 # define PYBYTES_CHECK PyString_Check
 # define PYBYTES_AS_C_STRING PyString_AsString
-# define PYSTRING_FROM_C_STRING PyString_FromString
+# define PYTEXT_CHECK PyUnicode_Check
+// Below, the string constructor copies the char*, so we can dealloc bytes_obj safely.
+# define PYTEXT_TO_CXX_STRING(cxx_string,text_obj) \
+    do { \
+        PyObject *bytes_obj = PyUnicode_AsUTF8String(text_obj);  \
+        (cxx_string) = string(PyString_AsString(bytes_obj)); \
+        Py_DECREF(bytes_obj); \
+    } while (0)
 #endif
 
 using casac::record;
@@ -59,7 +66,7 @@ using namespace casac;
 %typemap(argout) int& OUTARGINT {
     PyObject *o = PyLong_FromLong(*$1);
 
-    // I think this logic is either returning the value as a scalar, or
+    // Looks like this logic is either returning the value as a scalar, or
     // building up a tuple of return values -- I guess that's relevant if one
     // function has multiple output arguments.
 
@@ -338,37 +345,40 @@ using namespace casac;
 %typemap(argout) std::vector<int>& OUTARGVEC {
     PyObject *o = casac::map_vector(*$1);
 
-    if ((!$result) || ($result == Py_None)) {
+    if (!$result || $result == Py_None) {
         $result = o;
     } else {
         PyObject *o2 = $result;
         if (!PyTuple_Check($result)) {
             $result = PyTuple_New(1);
-            PyTuple_SetItem($result,0,o2);
+            PyTuple_SetItem($result, 0, o2);
         }
+
         PyObject *o3 = PyTuple_New(1);
-        PyTuple_SetItem(o3,0,o);
+        PyTuple_SetItem(o3, 0, o);
         o2 = $result;
-        $result = PySequence_Concat(o2,o3);
+        $result = PySequence_Concat(o2, o3);
         Py_DECREF(o2);
         Py_DECREF(o3);
     }
 }
 
 %typemap(argout) std::vector<double>& OUTARGVEC {
-    PyObject *o= casac::map_vector(*$1);
-    if ((!$result) || ($result == Py_None)) {
+    PyObject *o = casac::map_vector(*$1);
+
+    if (!$result || $result == Py_None) {
         $result = o;
     } else {
         PyObject *o2 = $result;
         if (!PyTuple_Check($result)) {
             $result = PyTuple_New(1);
-            PyTuple_SetItem($result,0,o2);
+            PyTuple_SetItem($result, 0, o2);
         }
+
         PyObject *o3 = PyTuple_New(1);
-        PyTuple_SetItem(o3,0,o);
+        PyTuple_SetItem(o3, 0, o);
         o2 = $result;
-        $result = PySequence_Concat(o2,o3);
+        $result = PySequence_Concat(o2, o3);
         Py_DECREF(o2);
         Py_DECREF(o3);
     }
@@ -380,6 +390,7 @@ using namespace casac;
 %typemap(in) BoolVec (std::unique_ptr<BoolVec> deleter) {
     deleter.reset (new casac::BoolAry);
     $1 = deleter.get();
+
     if (pyarray_check($input)) {
         numpy2vector((PyArrayObject*) $input, $1->value, $1->shape);
     } else {
@@ -394,6 +405,7 @@ using namespace casac;
 %typemap(in) BoolVec& (std::unique_ptr<BoolVec> deleter) {
     deleter.reset (new casac::BoolAry);
     $1 = deleter.get();
+
     if (pyarray_check($input)) {
         numpy2vector((PyArrayObject*) $input, $1->value, $1->shape);
     } else {
@@ -408,6 +420,7 @@ using namespace casac;
 %typemap(in) IntVec (std::unique_ptr<IntVec> deleter) {
     deleter.reset (new casac::IntAry);
     $1 = deleter.get();
+
     if (pyarray_check($input)) {
         numpy2vector((PyArrayObject*) $input, $1->value, $1->shape);
     } else {
@@ -422,6 +435,7 @@ using namespace casac;
 %typemap(in) IntVec& (std::unique_ptr<IntVec> deleter) {
     deleter.reset (new casac::IntAry);
     $1 = deleter.get();
+
     if (pyarray_check($input)) {
         numpy2vector((PyArrayObject*) $input, $1->value, $1->shape);
     } else {
@@ -436,6 +450,7 @@ using namespace casac;
 %typemap(in) DoubleVec (std::unique_ptr<DoubleVec> deleter) {
     deleter.reset (new casac::DoubleAry);
     $1 = deleter.reset();
+
     if (pyarray_check($input)) {
         numpy2vector((PyArrayObject*) $input, $1->value, $1->shape);
     } else {
@@ -448,10 +463,9 @@ using namespace casac;
 }
 
 %typemap(in) DoubleVec& (std::unique_ptr<DoubleVec> deleter) {
-    if (!$1) {
-        deleter.reset (new casac::DoubleAry);
-        $1 = deleter.reset();
-    }
+    deleter.reset (new casac::DoubleAry);
+    $1 = deleter.reset();
+
     if (pyarray_check($input)) {
         numpy2vector((PyArrayObject*) $input, $1->value, $1->shape);
     } else {
@@ -466,6 +480,7 @@ using namespace casac;
 %typemap(in) ComplexVec (std::unique_ptr<ComplexVec> deleter) {
     deleter.reset (new casac::ComplexAry);
     $1 = deleter.get();
+
     if (pyarray_check($input)) {
         numpy2vector((PyArrayObject*) $input, $1->value, $1->shape);
     } else {
@@ -480,6 +495,7 @@ using namespace casac;
 %typemap(in) ComplexVec& (std::unique_ptr<ComplexVec> deleter) {
     deleter.reset (new casac::ComplexAry);
     $1 = deleter.get();
+
     if (pyarray_check($input)) {
         numpy2vector((PyArrayObject*) $input, $1->value, $1->shape);
     } else {
@@ -526,7 +542,7 @@ using namespace casac;
     cout << "QQQ 1 " << PYTEXT_CHECK($input) << " " << PYBYTES_CHECK($input) << "\n";
 
     if (PYTEXT_CHECK($input)) {
-        $1 = string(PYTEXT_AS_C_STRING($input));
+        PYTEXT_TO_CXX_STRING($1, $input);
     } else if (PYBYTES_CHECK($input)) {
         $1 = string(PYBYTES_AS_C_STRING($input));
     } else {
@@ -540,10 +556,12 @@ using namespace casac;
 
     if (PYTEXT_CHECK($input)) {
         if (!$1) {
-            deleter.reset (new string(PYTEXT_AS_C_STRING($input)));
+            string tempval;
+            PYTEXT_TO_CXX_STRING(tempval, $input);
+            deleter.reset (new string(tempval));
             $1 = deleter.get();
         } else {
-            *$1 = string(PYTEXT_AS_C_STRING($input));
+            PYTEXT_TO_CXX_STRING(*$1, $input);
         }
     } else if (PYBYTES_CHECK($input)) {
         if (!$1) {
@@ -563,10 +581,12 @@ using namespace casac;
 
     if (PYTEXT_CHECK($input)) {
         if (!$1) {
-            deleter.reset (new string(PYTEXT_AS_C_STRING($input)));
+            string tempval;
+            PYTEXT_TO_CXX_STRING(tempval, $input);
+            deleter.reset (new string(tempval));
             $1 = deleter.get();
         } else {
-            *$1 = string(PYTEXT_AS_C_STRING($input));
+            PYTEXT_TO_CXX_STRING(*$1, $input);
         }
     } else if (PYBYTES_CHECK($input)) {
         if (!$1) {
@@ -622,18 +642,20 @@ using namespace casac;
 
 %typemap(argout) std::string& OUTARGSTR {
     PyObject *o = PYSTRING_FROM_C_STRING($1->c_str());
-    if ((!$result) || ($result == Py_None)) {
+
+    if (!$result || $result == Py_None) {
         $result = o;
     } else {
         PyObject *o2 = $result;
         if (!PyTuple_Check($result)) {
             $result = PyTuple_New(1);
-            PyTuple_SetItem($result,0,o2);
+            PyTuple_SetItem($result, 0, o2);
         }
+
         PyObject *o3 = PyTuple_New(1);
-        PyTuple_SetItem(o3,0,o);
+        PyTuple_SetItem(o3, 0, o);
         o2 = $result;
-        $result = PySequence_Concat(o2,o3);
+        $result = PySequence_Concat(o2, o3);
         Py_DECREF(o2);
         Py_DECREF(o3);
     }
@@ -652,10 +674,13 @@ using namespace casac;
         for (Py_ssize_t i = 0; i < size; i++) {
             PyObject *o = PyList_GetItem($input,i);
             if (PYTEXT_CHECK(o))
-                if (i < (Py_ssize_t)($1->size()))
-                    (*$1)[i] = PYTEXT_AS_C_STRING(PyList_GetItem($input,i));
-                else
-                    $1->push_back(PYTEXT_AS_C_STRING(PyList_GetItem($input,i)));
+                if (i < (Py_ssize_t)($1->size())) {
+                    PYTEXT_TO_CXX_STRING((*$1)[i], PyList_GetItem($input,i));
+                } else {
+                    string tempval;
+                    PYTEXT_TO_CXX_STRING(tempval, PyList_GetItem($input,i));
+                    $1->push_back(tempval);
+                }
             else {
                 PyErr_SetString(PyExc_TypeError, "list $1_name must contain strings");
                 return NULL;
@@ -667,10 +692,13 @@ using namespace casac;
                 deleter.reset (new std::vector<std::string>(1));
                 $1 = deleter.get();
             }
-            if (!$1->size())
-                $1->push_back(PYTEXT_AS_C_STRING($input));
-            else
-                (*$1)[0] = PYTEXT_AS_C_STRING($input);
+            if (!$1->size()) {
+                string tempval;
+                PYTEXT_TO_CXX_STRING(tempval, $input);
+                $1->push_back(tempval);
+            } else {
+                PYTEXT_TO_CXX_STRING((*$1)[0], $input);
+            }
         } else {
             PyErr_SetString(PyExc_TypeError, "$1_name is not a list");
             return NULL;
@@ -683,16 +711,20 @@ using namespace casac;
         Py_ssize_t size = PyList_Size($input);
         for (Py_ssize_t i = 0; i < size; i++) {
             PyObject *o = PyList_GetItem($input,i);
-            if (PYTEXT_CHECK(o))
-                $1.value.push_back(PYTEXT_AS_C_STRING(PyList_GetItem($input,i)));
-            else {
+            if (PYTEXT_CHECK(o)) {
+                string tempval;
+                PYTEXT_TO_CXX_STRING(tempval, PyList_GetItem($input,i))
+                $1.value.push_back(tempval);
+            } else {
                 PyErr_SetString(PyExc_TypeError, "list $1_name must contain strings");
                 return NULL;
             }
         }
     } else {
         if (PYTEXT_CHECK($input)) {
-            $1.value.push_back(PYTEXT_AS_C_STRING($input));
+            string tempval;
+            PYTEXT_TO_CXX_STRING(tempval, $input);
+            $1.value.push_back(tempval);
         } else {
             PyErr_SetString(PyExc_TypeError, "$1_name is not a list");
             return NULL;
@@ -720,7 +752,7 @@ using namespace casac;
     for(std::vector<std::string>::size_type i=0;i<$1.size();i++)
         PyList_SetItem($result, i, PYSTRING_FROM_C_STRING($1[i].c_str()));
 
-    if ((!$result) || ($result == Py_None)) {
+    if (!$result || $result == Py_None) {
         $result = o;
     } else {
         PyObject *o2 = $result;
@@ -805,10 +837,13 @@ using namespace casac;
                     }
                 }
             }
-            $1 = Quantity(myVals, PYTEXT_AS_C_STRING(theUnits));
+            string tempval;
+            PYTEXT_TO_CXX_STRING(tempval, theUnits);
+            $1 = Quantity(myVals, tempval);
         }
     } else if (PYTEXT_CHECK($input)) {
-        std::string inpstring(PYTEXT_AS_C_STRING($input));
+        std::string inpstring;
+        PYTEXT_TO_CXX_STRING(inpstring, $input);
         double val;
         std::string units;
         istringstream iss(inpstring);
@@ -847,10 +882,13 @@ using namespace casac;
                     }
                 }
             }
-            $1 = new Quantity(myVals,PYTEXT_AS_C_STRING(theUnits));
+            string tempval;
+            PYTEXT_TO_CXX_STRING(tempval, theUnits);
+            $1 = new Quantity(myVals,tempval);
         }
     } else if (PYTEXT_CHECK($input)) {
-        std::string inpstring(PYTEXT_AS_C_STRING($input));
+        std::string inpstring;
+        PYTEXT_TO_CXX_STRING(inpstring, $input);
         double val;
         std::string units;
         istringstream iss(inpstring);
@@ -890,12 +928,15 @@ using namespace casac;
                     }
                 }
             }
-            deleter.reset (new Quantity(myVals, PYTEXT_AS_C_STRING(theUnits)));
+            string tempval;
+            PYTEXT_TO_CXX_STRING(tempval, theUnits);
+            deleter.reset (new Quantity(myVals, tempval));
             $1 = deleter.get();
         }
     } else if (PYTEXT_CHECK($input)) {
         std::vector<double> myVals;
-        std::string inpstring(PYTEXT_AS_C_STRING($input));
+        std::string inpstring;
+        PYTEXT_TO_CXX_STRING(inpstring, $input);
         double val;
         std::string units;
         istringstream iss(inpstring);
@@ -940,7 +981,7 @@ using namespace casac;
     PyObject *v = casac::map_vector($1->value);
     PyDict_SetItem(o, PYSTRING_FROM_C_STRING("value"), v);
     Py_DECREF(v);
-    if ((!$result) || ($result == Py_None)) {
+    if (!$result || $result == Py_None) {
         $result = o;
     } else {
         PyObject *o2 = $result;
@@ -1042,7 +1083,7 @@ using namespace casac;
         Py_DECREF(v);
     }
 
-    if ((!$result) || ($result == Py_None)) {
+    if (!$result || $result == Py_None) {
         $result = o;
     } else {
         PyObject *o2 = $result;
