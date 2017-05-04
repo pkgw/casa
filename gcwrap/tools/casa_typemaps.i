@@ -147,11 +147,11 @@ using namespace casac;
     std::vector<int> shape;
 
     if (casac::pyarray_check($input)) {
-        casac::numpy2vector((PyArrayObject*)$input, *$1, shape);
+        casac::numpy2vector((PyArrayObject*) $input, *$1, shape);
     } else {
         if (PYTEXT_CHECK($input)) {
             $1->push_back(0);
-            PyErr_SetString(PyExc_TypeError,"argument $1_name must be a string");
+            PyErr_SetString(PyExc_TypeError, "argument $1_name must be a string");
             return NULL;
         } else if (PyBool_Check($input)) {
             $1->push_back(bool(PyInt_AsLong($input)));
@@ -179,11 +179,11 @@ using namespace casac;
     std::vector<int> shape;
 
     if (casac::pyarray_check($input)) {
-        casac::numpy2vector((PyArrayObject*)$input, *$1, shape);
+        casac::numpy2vector((PyArrayObject*) $input, *$1, shape);
     } else {
         if (PYTEXT_CHECK($input)) {
             $1->push_back(-1);
-            PyErr_SetString(PyExc_TypeError,"argument $1_name must not be a string");
+            PyErr_SetString(PyExc_TypeError, "argument $1_name must not be a string");
             return NULL;
         } else if (PyInt_Check($input)) {
             $1->push_back(int(PyInt_AsLong($input)));
@@ -209,11 +209,11 @@ using namespace casac;
     std::vector<int> shape;
 
     if (casac::pyarray_check($input)) {
-        casac::numpy2vector((PyArrayObject*)$input, *$1, shape);
+        casac::numpy2vector((PyArrayObject*) $input, *$1, shape);
     } else {
         if (PYTEXT_CHECK($input)) {
             $1->push_back(-1);
-            PyErr_SetString(PyExc_TypeError,"argument $1_name must not be a string");
+            PyErr_SetString(PyExc_TypeError, "argument $1_name must not be a string");
             return NULL;
         } else if (PyInt_Check($input)) {
             $1->push_back(int(PyInt_AsLong($input)));
@@ -239,11 +239,11 @@ using namespace casac;
     std::vector<int> shape;
 
     if (casac::pyarray_check($input)) {
-        casac::numpy2vector((PyArrayObject*)$input, *$1, shape);
+        casac::numpy2vector((PyArrayObject*) $input, *$1, shape);
     } else {
         if (PYTEXT_CHECK($input)) {
             $1->push_back(-1);
-            PyErr_SetString(PyExc_TypeError,"argument $1_name must not be a string");
+            PyErr_SetString(PyExc_TypeError, "argument $1_name must not be a string");
             return NULL;
         } else if (PyInt_Check($input)) {
             $1->push_back(int(PyInt_AsLong($input)));
@@ -269,7 +269,7 @@ using namespace casac;
     std::vector<int> shape;
 
     if (casac::pyarray_check($input)) {
-        casac::numpy2vector((PyArrayObject*)$input, *$1, shape);
+        casac::numpy2vector((PyArrayObject*) $input, *$1, shape);
     } else {
         if (PYTEXT_CHECK($input)) {
             $1->push_back(-1);
@@ -364,7 +364,7 @@ using namespace casac;
     deleter.reset (new casac::BoolAry);
     $1 = deleter.get();
     if (pyarray_check($input)) {
-        numpy2vector((PyArrayObject*)$input, $1->value, $1->shape);
+        numpy2vector((PyArrayObject*) $input, $1->value, $1->shape);
     } else {
         shape.push_back(PyList_Size($input));
         pylist2vector($input,  $1->value, $1->shape);
@@ -375,7 +375,7 @@ using namespace casac;
     deleter.reset (new casac::BoolAry);
     $1 = deleter.get();
     if (pyarray_check($input)) {
-        numpy2vector((PyArrayObject*)$input, $1->value, $1->shape);
+        numpy2vector((PyArrayObject*) $input, $1->value, $1->shape);
     } else {
         shape.push_back(PyList_Size($input));
         pylist2vector($input,  $1->value, $1->shape);
@@ -386,7 +386,7 @@ using namespace casac;
     deleter.reset (new casac::IntAry);
     $1 = deleter.get();
     if (pyarray_check($input)) {
-        numpy2vector((PyArrayObject*)$input, $1->value, $1->shape);
+        numpy2vector((PyArrayObject*) $input, $1->value, $1->shape);
     } else {
         shape.push_back(PyList_Size($input));
         pylist2vector($input,  $1->value, $1->shape);
@@ -397,7 +397,7 @@ using namespace casac;
     deleter.reset (new casac::IntAry);
     $1 = deleter.get();
     if (pyarray_check($input)) {
-        numpy2vector((PyArrayObject*)$input, $1->value, $1->shape);
+        numpy2vector((PyArrayObject*) $input, $1->value, $1->shape);
     } else {
         shape.push_back(PyList_Size($input));
         pylist2vector($input,  $1->value, $1->shape);
@@ -408,7 +408,7 @@ using namespace casac;
     deleter.reset (new casac::DoubleAry);
     $1 = deleter.reset();
     if (pyarray_check($input)) {
-        numpy2vector((PyArrayObject*)$input, $1->value, $1->shape);
+        numpy2vector((PyArrayObject*) $input, $1->value, $1->shape);
     } else {
         shape.push_back(PyList_Size($input));
         pylist2vector($input,  $1->value, $1->shape);
@@ -421,7 +421,7 @@ using namespace casac;
         $1 = deleter.reset();
     }
     if (pyarray_check($input)) {
-        numpy2vector((PyArrayObject*)$input, $1->value, $1->shape);
+        numpy2vector((PyArrayObject*) $input, $1->value, $1->shape);
     } else {
         shape.push_back(PyList_Size($input));
         pylist2vector($input,  $1->value, $1->shape);
@@ -432,7 +432,7 @@ using namespace casac;
     deleter.reset (new casac::ComplexAry);
     $1 = deleter.get();
     if (pyarray_check($input)) {
-        numpy2vector((PyArrayObject*)$input, $1->value, $1->shape);
+        numpy2vector((PyArrayObject*) $input, $1->value, $1->shape);
     } else {
         shape.push_back(PyList_Size($input));
         pylist2vector($input,  $1->value, $1->shape);
@@ -443,7 +443,7 @@ using namespace casac;
     deleter.reset (new casac::ComplexAry);
     $1 = deleter.get();
     if (pyarray_check($input)) {
-        numpy2vector((PyArrayObject*)$input, $1->value, $1->shape);
+        numpy2vector((PyArrayObject*) $input, $1->value, $1->shape);
     } else {
         shape.push_back(PyList_Size($input));
         pylist2vector($input,  $1->value, $1->shape);
@@ -487,7 +487,7 @@ using namespace casac;
     } else if (PYBYTES_CHECK($input)) {
         $1 = string(PYBYTES_ASDATA($input));
     } else {
-        PyErr_SetString(PyExc_TypeError,"argument $1_name must be a string");
+        PyErr_SetString(PyExc_TypeError, "argument $1_name must be a string");
         return NULL;
     }
 }
@@ -508,7 +508,7 @@ using namespace casac;
             *$1 = string(PYBYTES_ASDATA($input));
         }
     } else {
-        PyErr_SetString(PyExc_TypeError,"argument $1_name must be a string");
+        PyErr_SetString(PyExc_TypeError, "argument $1_name must be a string");
         return NULL;
     }
 }
@@ -529,7 +529,7 @@ using namespace casac;
             *$1 = string(PYBYTES_ASDATA($input));
         }
     } else {
-        PyErr_SetString(PyExc_TypeError,"argument $1_name must be a string");
+        PyErr_SetString(PyExc_TypeError, "argument $1_name must be a string");
         return NULL;
     }
 }
@@ -608,7 +608,7 @@ using namespace casac;
                 else
                     $1->push_back(PYTEXT_ASDATA(PyList_GetItem($input,i)));
             else {
-                PyErr_SetString(PyExc_TypeError,"list $1_name must contain strings");
+                PyErr_SetString(PyExc_TypeError, "list $1_name must contain strings");
                 return NULL;
             }
         }
@@ -623,7 +623,7 @@ using namespace casac;
             else
                 (*$1)[0] = PYTEXT_ASDATA($input);
         } else {
-            PyErr_SetString(PyExc_TypeError,"$1_name is not a list");
+            PyErr_SetString(PyExc_TypeError, "$1_name is not a list");
             return NULL;
         }
     }
@@ -637,7 +637,7 @@ using namespace casac;
             if (PYTEXT_CHECK(o))
                 $1.value.push_back(PYTEXT_ASDATA(PyList_GetItem($input,i)));
             else {
-                PyErr_SetString(PyExc_TypeError,"list $1_name must contain strings");
+                PyErr_SetString(PyExc_TypeError, "list $1_name must contain strings");
                 return NULL;
             }
         }
@@ -645,7 +645,7 @@ using namespace casac;
         if (PYTEXT_CHECK($input)) {
             $1.value.push_back(PYTEXT_ASDATA($input));
         } else {
-            PyErr_SetString(PyExc_TypeError,"$1_name is not a list");
+            PyErr_SetString(PyExc_TypeError, "$1_name is not a list");
             return NULL;
         }
     }
@@ -764,7 +764,7 @@ using namespace casac;
         myVals.push_back(val);
         $1 = Quantity(myVals,units.c_str());
     } else {
-        PyErr_SetString(PyExc_TypeError,"$1_name is not a dictionary Dictionary");
+        PyErr_SetString(PyExc_TypeError, "$1_name is not a dictionary Dictionary");
         return NULL;
     }
 }
@@ -804,7 +804,7 @@ using namespace casac;
         deleter.reset (new Quantity(myVals,units.c_str()));
         $1 = deleter.get();
     } else {
-        PyErr_SetString(PyExc_TypeError,"$1_name is not a dictionary");
+        PyErr_SetString(PyExc_TypeError, "$1_name is not a dictionary");
         return NULL;
     }
 }
@@ -846,7 +846,7 @@ using namespace casac;
         deleter.reset (new Quantity(myVals,units.c_str()));
         $1 = deleter.get();
     } else {
-        PyErr_SetString(PyExc_TypeError,"$1_name is not a dictionary");
+        PyErr_SetString(PyExc_TypeError, "$1_name is not a dictionary");
         return NULL;
     }
 }
@@ -913,7 +913,7 @@ using namespace casac;
     if (PyDict_Check($input)) {
         $1 = pyobj2variant($input, true).asRecord();
     } else {
-        PyErr_SetString(PyExc_TypeError,"$1_name is not a dictionary");
+        PyErr_SetString(PyExc_TypeError, "$1_name is not a dictionary");
         return NULL;
     }
 }
@@ -923,7 +923,7 @@ using namespace casac;
         deleter.reset (new record(pyobj2variant($input, true).asRecord()));
         $1 = deleter.get();
     } else {
-        PyErr_SetString(PyExc_TypeError,"$1_name is not a dictionary");
+        PyErr_SetString(PyExc_TypeError, "$1_name is not a dictionary");
         return NULL;
     }
 }
@@ -933,7 +933,7 @@ using namespace casac;
         deleter.reset (new record(pyobj2variant($input, true).asRecord()));
         $1 = deleter.get();
     } else {
-        PyErr_SetString(PyExc_TypeError,"$1_name is not a dictionary");
+        PyErr_SetString(PyExc_TypeError, "$1_name is not a dictionary");
         return NULL;
     }
 }
