@@ -20,7 +20,7 @@
 # define PYBYTES_AS_C_STRING PyBytes_AsString
 # define PYTEXT_CHECK PyUnicode_Check
 # define PYTEXT_TO_CXX_STRING(cxx_string,text_obj) \
-    do { (cxx_string) = string(PyUnicode_AsUTF8AndSize((text_obj), NULL)); } while (0)
+    do { (cxx_string) = std::string(PyUnicode_AsUTF8AndSize((text_obj), NULL)); } while (0)
 #else
 # define PYINT_CHECK(x) PyInt_Check(x)
 # define PY_INTEGER_FROM_LONG(x) PyInt_FromLong(x)
@@ -32,7 +32,7 @@
 # define PYTEXT_TO_CXX_STRING(cxx_string,text_obj) \
     do { \
         PyObject *bytes_obj = PyUnicode_AsUTF8String(text_obj);  \
-        (cxx_string) = string(PyString_AsString(bytes_obj)); \
+        (cxx_string) = std::string(PyString_AsString(bytes_obj));	\
         Py_DECREF(bytes_obj); \
     } while (0)
 #endif
@@ -954,15 +954,15 @@ unmap_array_pylist( PyObject *array, std::vector<int> &shape, casac::variant &vn
         MYPYSIZE pos = 0;                                                               \
 	record &rec = result.asRecord( );						\
 	while ( PyDict_Next(obj, &pos, &key, &val) ) {					\
-	    std::string keystr; \
+	    std::string str; \
 	    PyObject *strobj = 0;							\
 	    if (PYTEXT_CHECK(key)) {							\
-		PYTEXT_TO_CXX_STRING(keystr, key); \
+		PYTEXT_TO_CXX_STRING(str, key); \
 	    } else if (PYBYTES_CHECK(key)) {					\
-		str = string(PYBYTES_AS_C_STRING(key)); \
+		str = std::string(PYBYTES_AS_C_STRING(key));		\
 	    } else {									\
 		strobj = PyObject_Bytes(key);						\
-		str = string(PYBYTES_AS_C_STRING(strobj)); \
+		str = std::string(PYBYTES_AS_C_STRING(strobj));		\
 	    }										\
             if(PyBool_Check(val) || PYINT_CHECK(val) || PyLong_Check(val) || \
                PyFloat_Check(val) || PYTEXT_CHECK(val) || PYBYTES_CHECK(val) || PyComplex_Check(val) ||     \
