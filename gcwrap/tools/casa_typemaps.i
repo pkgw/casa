@@ -692,21 +692,21 @@ using namespace casac;
 %typemap(out) std::vector<std::string> {
     $result = PyList_New($1.size());
 
-    for(std::vector<std::string>::size_type i=0;i<$1.size();i++)
+    for(std::vector<std::string>::size_type i = 0; i < $1.size(); i++)
         PyList_SetItem($result, i, PYSTRING_FROM_C_STRING($1[i].c_str()));
 }
 
 %typemap(out) StringVec {
     $result = PyList_New($1.size());
 
-    for(StringVec::size_type i=0;i<$1.size();i++)
+    for(StringVec::size_type i = 0; i < $1.size(); i++)
         PyList_SetItem($result, i, PYSTRING_FROM_C_STRING($1[i].c_str()));
 }
 
 %typemap(argout) std::vector<std::string>& OUTARGVEC {
     PyObject *o = PyList_New($1.size());
 
-    for(std::vector<std::string>::size_type i=0;i<$1.size();i++)
+    for(std::vector<std::string>::size_type i = 0; i < $1.size(); i++)
         PyList_SetItem($result, i, PYSTRING_FROM_C_STRING($1[i].c_str()));
 
     if (!$result || $result == Py_None) {
@@ -735,7 +735,7 @@ using namespace casac;
         (*$1) = variant(pyobj2variant($input, true));
     } else {
         PyErr_SetString (PyExc_RuntimeError, "BugCheck: Argument not initialized???");
-        return nullptr;
+        return NULL;
     }
 }
 
