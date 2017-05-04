@@ -29,6 +29,8 @@
     } while (0)
 #endif
 
+#define IS_LIST_LIKE(obj) (PyList_Check(obj) || PyTuple_Check(obj))
+
 using casac::record;
 using casac::variant;
 using namespace casac;
@@ -157,25 +159,17 @@ using namespace casac;
 
     if (casac::pyarray_check($input)) {
         casac::numpy2vector((PyArrayObject*) $input, *$1, shape);
-    } else {
-        if (PYTEXT_CHECK($input)) {
-            $1->push_back(0);
-            PyErr_SetString(PyExc_TypeError, "argument $1_name must be a string");
+    } else if (IS_LIST_LIKE($input)) {
+        shape.push_back(PyList_Size($input));
+        if (!casac::pylist2vector($input, *$1, shape)) {
+            PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into a bool vector");
             return NULL;
-        } else if (PyBool_Check($input)) {
-            $1->push_back(bool(PyInt_AsLong($input)));
-        } else if (PyInt_Check($input)) {
-            $1->push_back(bool(PyInt_AsLong($input)));
-        } else if (PyLong_Check($input)) {
-            $1->push_back(bool(PyLong_AsLong($input)));
-        } else if (PyFloat_Check($input)) {
-            $1->push_back(bool(PyInt_AsLong(PyNumber_Long($input))));
-        } else {
-            shape.push_back(PyList_Size($input));
-            if (!casac::pylist2vector($input, *$1, shape)) {
-                PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into a bool vector");
-                return NULL;
-            }
+        }
+    } else {
+        $1->push_back(bool(PyInt_AsLong($input)));
+        if (PyErr_Occurred()) {
+            PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into a bool vector");
+            return NULL;
         }
     }
 }
@@ -192,23 +186,17 @@ using namespace casac;
 
     if (casac::pyarray_check($input)) {
         casac::numpy2vector((PyArrayObject*) $input, *$1, shape);
-    } else {
-        if (PYTEXT_CHECK($input)) {
-            $1->push_back(-1);
-            PyErr_SetString(PyExc_TypeError, "argument $1_name must not be a string");
+    } else if (IS_LIST_LIKE($input)) {
+        shape.push_back(PyList_Size($input));
+        if (!casac::pylist2vector($input, *$1, shape)) {
+            PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into an int vector");
             return NULL;
-        } else if (PyInt_Check($input)) {
-            $1->push_back(int(PyInt_AsLong($input)));
-        } else if (PyLong_Check($input)) {
-            $1->push_back(PyLong_AsLong($input));
-        } else if (PyFloat_Check($input)) {
-            $1->push_back(PyInt_AsLong(PyNumber_Long($input)));
-        } else {
-            shape.push_back(PyList_Size($input));
-            if (!casac::pylist2vector($input, *$1, shape)) {
-                PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into an int vector");
-                return NULL;
-            }
+        }
+    } else {
+        $1->push_back(int(PyInt_AsLong($input)));
+        if (PyErr_Occurred()) {
+            PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into an int vector");
+            return NULL;
         }
     }
 }
@@ -225,23 +213,17 @@ using namespace casac;
 
     if (casac::pyarray_check($input)) {
         casac::numpy2vector((PyArrayObject*) $input, *$1, shape);
-    } else {
-        if (PYTEXT_CHECK($input)) {
-            $1->push_back(-1);
-            PyErr_SetString(PyExc_TypeError, "argument $1_name must not be a string");
+    } else if (IS_LIST_LIKE($input)) {
+        shape.push_back(PyList_Size($input));
+        if (!casac::pylist2vector($input, *$1, shape)) {
+            PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into a long vector");
             return NULL;
-        } else if (PyInt_Check($input)) {
-            $1->push_back(int(PyInt_AsLong($input)));
-        } else if (PyLong_Check($input)) {
-            $1->push_back(PyLong_AsLong($input));
-        } else if (PyFloat_Check($input)) {
-            $1->push_back(PyInt_AsLong(PyNumber_Long($input)));
-        } else {
-            shape.push_back(PyList_Size($input));
-            if (!casac::pylist2vector($input, *$1, shape)) {
-                PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into a long vector");
-                return NULL;
-            }
+        }
+    } else {
+        $1->push_back(long(PyInt_AsLong($input)));
+        if (PyErr_Occurred()) {
+            PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into a long vector");
+            return NULL;
         }
     }
 }
@@ -258,23 +240,17 @@ using namespace casac;
 
     if (casac::pyarray_check($input)) {
         casac::numpy2vector((PyArrayObject*) $input, *$1, shape);
-    } else {
-        if (PYTEXT_CHECK($input)) {
-            $1->push_back(-1);
-            PyErr_SetString(PyExc_TypeError, "argument $1_name must not be a string");
+    } else if (IS_LIST_LIKE($input)) {
+        shape.push_back(PyList_Size($input));
+        if (!casac::pylist2vector($input, *$1, shape)) {
+            PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into a long long vector");
             return NULL;
-        } else if (PyInt_Check($input)) {
-            $1->push_back(int(PyInt_AsLong($input)));
-        } else if (PyLong_Check($input)) {
-            $1->push_back(PyLong_AsLong($input));
-        } else if (PyFloat_Check($input)) {
-            $1->push_back(PyInt_AsLong(PyNumber_Long($input)));
-        } else {
-            shape.push_back(PyList_Size($input));
-            if (!casac::pylist2vector($input, *$1, shape)) {
-                PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into a long long vector");
-                return NULL;
-            }
+        }
+    } else {
+        $1->push_back(PyInt_AsLong($input));
+        if (PyErr_Occurred()) {
+            PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into a long long vector");
+            return NULL;
         }
     }
 }
@@ -291,21 +267,17 @@ using namespace casac;
 
     if (casac::pyarray_check($input)) {
         casac::numpy2vector((PyArrayObject*) $input, *$1, shape);
+    } else if (IS_LIST_LIKE($input)) {
+        shape.push_back(PyList_Size($input));
+        if (!casac::pylist2vector($input, *$1, shape)) {
+            PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into a double vector");
+            return NULL;
+        }
     } else {
-        if (PYTEXT_CHECK($input)) {
-            $1->push_back(-1);
-        } else if (PyInt_Check($input)) {
-            $1->push_back(double(PyInt_AsLong($input)));
-        } else if (PyLong_Check($input)) {
-            $1->push_back(PyLong_AsDouble($input));
-        } else if (PyFloat_Check($input)) {
-            $1->push_back(PyFloat_AsDouble($input));
-        } else {
-            shape.push_back(PyList_Size($input));
-            if (!casac::pylist2vector($input, *$1, shape)) {
-                PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into a double vector");
-                return NULL;
-            }
+        $1->push_back(PyFloat_AsDouble($input));
+        if (PyErr_Occurred()) {
+            PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into a long long vector");
+            return NULL;
         }
     }
 }
