@@ -672,13 +672,13 @@ using namespace casac;
             $1 = deleter.get();
         }
         for (Py_ssize_t i = 0; i < size; i++) {
-            PyObject *o = PyList_GetItem($input,i);
+            PyObject *o = PyList_GetItem($input, i);
             if (PYTEXT_CHECK(o))
                 if (i < (Py_ssize_t)($1->size())) {
-                    PYTEXT_TO_CXX_STRING((*$1)[i], PyList_GetItem($input,i));
+                    PYTEXT_TO_CXX_STRING((*$1)[i], PyList_GetItem($input, i));
                 } else {
                     string tempval;
-                    PYTEXT_TO_CXX_STRING(tempval, PyList_GetItem($input,i));
+                    PYTEXT_TO_CXX_STRING(tempval, PyList_GetItem($input, i));
                     $1->push_back(tempval);
                 }
             else {
@@ -710,10 +710,10 @@ using namespace casac;
     if (PyList_Check($input)) {
         Py_ssize_t size = PyList_Size($input);
         for (Py_ssize_t i = 0; i < size; i++) {
-            PyObject *o = PyList_GetItem($input,i);
+            PyObject *o = PyList_GetItem($input, i);
             if (PYTEXT_CHECK(o)) {
                 string tempval;
-                PYTEXT_TO_CXX_STRING(tempval, PyList_GetItem($input,i))
+                PYTEXT_TO_CXX_STRING(tempval, PyList_GetItem($input, i))
                 $1.value.push_back(tempval);
             } else {
                 PyErr_SetString(PyExc_TypeError, "list $1_name must contain strings");
@@ -758,12 +758,12 @@ using namespace casac;
         PyObject *o2 = $result;
         if (!PyTuple_Check($result)) {
             $result = PyTuple_New(1);
-            PyTuple_SetItem($result,0,o2);
+            PyTuple_SetItem($result, 0, o2);
         }
         PyObject *o3 = PyTuple_New(1);
-        PyTuple_SetItem(o3,0,o);
+        PyTuple_SetItem(o3, 0, o);
         o2 = $result;
-        $result = PySequence_Concat(o2,o3);
+        $result = PySequence_Concat(o2, o3);
         Py_DECREF(o2);
         Py_DECREF(o3);
     }
@@ -773,7 +773,7 @@ using namespace casac;
 
 %typemap(in) variant {
     if ($1) {
-        (* $1) = variant(pyobj2variant($input, true));
+        (*$1) = variant(pyobj2variant($input, true));
     } else {
         PyErr_SetString (PyExc_RuntimeError, "BugCheck: Argument not initialized???");
         return nullptr;
@@ -815,9 +815,11 @@ using namespace casac;
     if (PyDict_Check($input)) {
         PyObject *theUnits = PyDict_GetItemString($input, "unit");
         PyObject *theVal = PyDict_GetItemString($input, "value");
-        if ( theUnits && theVal) {
+
+        if (theUnits && theVal) {
             std::vector<int> shape;
             std::vector<double> myVals;
+
             if (casac::pyarray_check(theVal)) {
                 casac::numpy2vector((PyArrayObject*)theVal, myVals, shape);
             } else {
@@ -837,6 +839,7 @@ using namespace casac;
                     }
                 }
             }
+
             string tempval;
             PYTEXT_TO_CXX_STRING(tempval, theUnits);
             $1 = Quantity(myVals, tempval);
@@ -849,7 +852,7 @@ using namespace casac;
         istringstream iss(inpstring);
         iss >> val >> units;
         myVals.push_back(val);
-        $1 = Quantity(myVals,units.c_str());
+        $1 = Quantity(myVals, units.c_str());
     } else {
         PyErr_SetString(PyExc_TypeError, "$1_name is not a dictionary Dictionary");
         return NULL;
@@ -860,9 +863,11 @@ using namespace casac;
     if (PyDict_Check($input)) {
         PyObject *theUnits = PyDict_GetItemString($input, "unit");
         PyObject *theVal = PyDict_GetItemString($input, "value");
-        if ( theUnits && theVal) {
+
+        if (theUnits && theVal) {
             std::vector<int> shape;
             std::vector<double> myVals;
+
             if (casac::pyarray_check(theVal)) {
                 casac::numpy2vector((PyArrayObject*)theVal, myVals, shape);
             } else {
@@ -882,9 +887,10 @@ using namespace casac;
                     }
                 }
             }
+
             string tempval;
             PYTEXT_TO_CXX_STRING(tempval, theUnits);
-            $1 = new Quantity(myVals,tempval);
+            $1 = new Quantity(myVals, tempval);
         }
     } else if (PYTEXT_CHECK($input)) {
         std::string inpstring;
@@ -894,7 +900,7 @@ using namespace casac;
         istringstream iss(inpstring);
         iss >> val >> units;
         myVals.push_back(val);
-        deleter.reset (new Quantity(myVals,units.c_str()));
+        deleter.reset (new Quantity(myVals, units.c_str()));
         $1 = deleter.get();
     } else {
         PyErr_SetString(PyExc_TypeError, "$1_name is not a dictionary");
@@ -906,9 +912,11 @@ using namespace casac;
     if (PyDict_Check($input)) {
         PyObject *theUnits = PyDict_GetItemString($input, "unit");
         PyObject *theVal = PyDict_GetItemString($input, "value");
-        if ( theUnits && theVal) {
+
+        if (theUnits && theVal) {
             std::vector<int> shape;
             std::vector<double> myVals;
+
             if (casac::pyarray_check(theVal)) {
                 casac::numpy2vector((PyArrayObject*)theVal, myVals, shape);
             } else {
@@ -928,6 +936,7 @@ using namespace casac;
                     }
                 }
             }
+
             string tempval;
             PYTEXT_TO_CXX_STRING(tempval, theUnits);
             deleter.reset (new Quantity(myVals, tempval));
@@ -942,7 +951,7 @@ using namespace casac;
         istringstream iss(inpstring);
         iss >> val >> units;
         myVals.push_back(val);
-        deleter.reset (new Quantity(myVals,units.c_str()));
+        deleter.reset (new Quantity(myVals, units.c_str()));
         $1 = deleter.get();
     } else {
         PyErr_SetString(PyExc_TypeError, "$1_name is not a dictionary");
@@ -953,6 +962,7 @@ using namespace casac;
 %typemap(out) Quantity {
     $result = PyDict_New();
     PyDict_SetItem($result, PYSTRING_FROM_C_STRING("unit"), PYSTRING_FROM_C_STRING($1.units.c_str()));
+
     PyObject *v = casac::map_vector($1.value);
     PyDict_SetItem($result, PYSTRING_FROM_C_STRING("value"), v);
     Py_DECREF(v);
@@ -961,6 +971,7 @@ using namespace casac;
 %typemap(out) Quantity& {
     $result = PyDict_New();
     PyDict_SetItem($result, PYSTRING_FROM_C_STRING("unit"), PYSTRING_FROM_C_STRING($1.units.c_str()));
+
     PyObject *v = casac::map_vector($1.value);
     PyDict_SetItem($result, PYSTRING_FROM_C_STRING("value"), v);
     Py_DECREF(v);
@@ -969,30 +980,35 @@ using namespace casac;
 %typemap(out) Quantity* {
     $result = PyDict_New();
     PyDict_SetItem($result, PYSTRING_FROM_C_STRING("unit"), PYSTRING_FROM_C_STRING($1->units.c_str()));
+
     PyObject *v = casac::map_vector($1->value);
     PyDict_SetItem($result, PYSTRING_FROM_C_STRING("value"), v);
     Py_DECREF(v);
+
     delete $1;
 }
 
 %typemap(argout) Quantity& OUTARGQUANTITY {
     PyObject *o = PyDict_New();
     PyDict_SetItem(o, PYSTRING_FROM_C_STRING("unit"), PYSTRING_FROM_C_STRING($1->units.c_str()));
+
     PyObject *v = casac::map_vector($1->value);
     PyDict_SetItem(o, PYSTRING_FROM_C_STRING("value"), v);
     Py_DECREF(v);
+
     if (!$result || $result == Py_None) {
         $result = o;
     } else {
         PyObject *o2 = $result;
         if (!PyTuple_Check($result)) {
             $result = PyTuple_New(1);
-            PyTuple_SetItem($result,0,o2);
+            PyTuple_SetItem($result, 0, o2);
         }
+
         PyObject *o3 = PyTuple_New(1);
-        PyTuple_SetItem(o3,0,o);
+        PyTuple_SetItem(o3, 0, o);
         o2 = $result;
-        $result = PySequence_Concat(o2,o3);
+        $result = PySequence_Concat(o2, o3);
         Py_DECREF(o2);
         Py_DECREF(o3);
     }
@@ -1039,6 +1055,7 @@ using namespace casac;
 
 %typemap(out) record {
     $result = PyDict_New();
+
     for(record::const_iterator iter = $1.begin(); iter != $1.end(); ++iter) {
         const std::string &key = (*iter).first;
         const casac::variant &val = (*iter).second;
@@ -1050,6 +1067,7 @@ using namespace casac;
 
 %typemap(out) record& {
     $result = PyDict_New();
+
     for(record::const_iterator iter = $1->begin(); iter != $1->end(); ++iter) {
         const std::string &key = (*iter).first;
         const casac::variant &val = (*iter).second;
@@ -1061,6 +1079,7 @@ using namespace casac;
 
 %typemap(out) record* {
     $result = PyDict_New();
+
     if ($1) {
         for(record::const_iterator iter = $1->begin(); iter != $1->end(); ++iter) {
             const std::string &key = (*iter).first;
@@ -1075,6 +1094,7 @@ using namespace casac;
 
 %typemap(argout) record& OUTARGREC {
     PyObject *o = PyDict_New();
+
     for(record::const_iterator iter = $1->begin(); iter != $1->end(); ++iter) {
         const std::string &key = (*iter).first;
         const casac::variant &val = (*iter).second;
@@ -1089,12 +1109,13 @@ using namespace casac;
         PyObject *o2 = $result;
         if (!PyTuple_Check($result)) {
             $result = PyTuple_New(1);
-            PyTuple_SetItem($result,0,o2);
+            PyTuple_SetItem($result, 0, o2);
         }
+
         PyObject *o3 = PyTuple_New(1);
-        PyTuple_SetItem(o3,0,o);
+        PyTuple_SetItem(o3, 0, o);
         o2 = $result;
-        $result = PySequence_Concat(o2,o3);
+        $result = PySequence_Concat(o2, o3);
         Py_DECREF(o2);
         Py_DECREF(o3);
     }
@@ -1104,6 +1125,7 @@ using namespace casac;
 
 %typemap(out) RecordVec {
     $result = PyList_New($1.size());
+
     for(RecordVec::size_type i=0;i<$1.size();i++) {
         const record &val = $1[i];
         PyObject *r = record2pydict(val);
