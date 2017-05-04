@@ -775,7 +775,10 @@ using namespace casac;
         PyObject *theUnits = PyDict_GetItemString($input, "unit");
         PyObject *theVal = PyDict_GetItemString($input, "value");
 
-        if (theUnits && theVal) {
+        if (!theUnits || !theVal) {
+            PyErr_SetString(PyExc_TypeError, "dict value for argument $1_name must contain \"unit\" and \"value\"");
+            return NULL;
+        } else {
             std::vector<int> shape;
             std::vector<double> myVals;
 
@@ -818,7 +821,10 @@ using namespace casac;
         PyObject *theUnits = PyDict_GetItemString($input, "unit");
         PyObject *theVal = PyDict_GetItemString($input, "value");
 
-        if (theUnits && theVal) {
+        if (!theUnits || !theVal) {
+            PyErr_SetString(PyExc_TypeError, "dict value for argument $1_name must contain \"unit\" and \"value\"");
+            return NULL;
+        } else {
             std::vector<int> shape;
             std::vector<double> myVals;
 
@@ -862,7 +868,10 @@ using namespace casac;
         PyObject *theUnits = PyDict_GetItemString($input, "unit");
         PyObject *theVal = PyDict_GetItemString($input, "value");
 
-        if (theUnits && theVal) {
+        if (!theUnits || !theVal) {
+            PyErr_SetString(PyExc_TypeError, "dict value for argument $1_name must contain \"unit\" and \"value\"");
+            return NULL;
+        } else {
             std::vector<int> shape;
             std::vector<double> myVals;
 
