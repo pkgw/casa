@@ -15,13 +15,26 @@
 #if PY_MAJOR_VERSION >= 3
 # define PYINT_CHECK(x) 0
 # define PY_INTEGER_FROM_LONG(x) PyLong_FromLong(x)
+# define PYSTRING_FROM_C_STRING PyUnicode_FromString
+# define PYBYTES_CHECK PyBytes_Check
+# define PYBYTES_AS_C_STRING PyBytes_AsString
 # define PYTEXT_CHECK PyUnicode_Check
-# define PYTEXT_ASDATA PyUnicode_AsUTF8
+# define PYTEXT_TO_CXX_STRING(cxx_string,text_obj) \
+    do { (cxx_string) = string(PyUnicode_AsUTF8AndSize((text_obj), NULL)); } while (0)
 #else
 # define PYINT_CHECK(x) PyInt_Check(x)
 # define PY_INTEGER_FROM_LONG(x) PyInt_FromLong(x)
-# define PYTEXT_CHECK PyString_Check
-# define PYTEXT_ASDATA PyString_AsString
+# define PYSTRING_FROM_C_STRING PyString_FromString
+# define PYBYTES_CHECK PyString_Check
+# define PYBYTES_AS_C_STRING PyString_AsString
+# define PYTEXT_CHECK PyUnicode_Check
+// Below, the string constructor copies the char*, so we can dealloc bytes_obj safely.
+# define PYTEXT_TO_CXX_STRING(cxx_string,text_obj) \
+    do { \
+        PyObject *bytes_obj = PyUnicode_AsUTF8String(text_obj);  \
+        (cxx_string) = string(PyString_AsString(bytes_obj)); \
+        Py_DECREF(bytes_obj); \
+    } while (0)
 #endif
 
 STRINGTOCOMPLEX_DEFINITION(casac::complex,stringtoccomplex)
@@ -342,7 +355,11 @@ int casac::pyarray_check(PyObject *obj) {
 	Py_complex c = PyComplex_AsCComplex(ele);				\
 	VECTOR[INDEX] = COMPLEXCVT(c); 						\
     } else if (PYTEXT_CHECK(ele)) {						\
-	VECTOR[INDEX] = STRINGCVT(PYTEXT_ASDATA(ele));			\
+	std::string tempval; \
+	PYTEXT_TO_CXX_STRING(tempval, ele); \
+	VECTOR[INDEX] = STRINGCVT(tempval); \
+    } else if (PYBYTES_CHECK(ele)) { \
+	VECTOR[INDEX] = STRINGCVT(PYBYTES_AS_C_STRING(ele)); \
     } else { \
 	    if (PyNumber_Check(ele)){ \
 		    if(!strncmp(ele->ob_type->tp_name, "numpy.int", 9)){ \
@@ -529,7 +546,11 @@ PyObject *record2pydict(const record &rec) {
 	   VARIANT.place(double(PyFloat_AsDouble(PyNumber_Float(ele))),INDEX);  		\
 	} \
     } else if (PYTEXT_CHECK(ele)) {						\
-	VARIANT.place(std::string(PYTEXT_ASDATA(ele)),INDEX);		\
+	std::string tempval; \
+	PYTEXT_TO_CXX_STRING(tempval, ele); \
+	VARIANT.place(tempval,INDEX); \
+    } else if (PYBYTES_CHECK(ele)) { \
+	VARIANT.place(std::string(PYBYTES_AS_C_STRING(ele)), INDEX); \
     }										\
 }										\
 
@@ -848,9 +869,12 @@ static int unmap_array_pylist( PyObject *array, std::vector<int> &shape, casac::
     else if ( PyFloat_Check(obj) )							\
 	SINGLETON(PyFloat_AsDouble(obj) );						\
 											\
-    else if ( PYTEXT_CHECK(obj) NOT_NUMPY_ARRAY(obj) )				\
-	SINGLETON(std::string(PYTEXT_ASDATA(obj)));					\
-											\
+    else if (PYTEXT_CHECK(obj) NOT_NUMPY_ARRAY(obj)) { \
+	std::string tempval; \
+	PYTEXT_TO_CXX_STRING(tempval, obj); \
+	SINGLETON(tempval); \
+    } else if (PYBYTES_CHECK(obj) NOT_NUMPY_ARRAY(obj)) \
+	SINGLETON(std::string(PYBYTES_AS_C_STRING(obj))); \
     else if ( PyComplex_Check(obj) ) {							\
 											\
 	Py_complex c = PyComplex_AsCComplex(obj);					\
@@ -926,8 +950,12 @@ static int unmap_array_pylist( PyObject *array, std::vector<int> &shape, casac::
 		} else if ( PyComplex_Check(ele)) {					\
 		    Py_complex c = PyComplex_AsCComplex(ele);				\
 		    result.push(std::complex<double>(c.real, c.imag));			\
-		} else if (PYTEXT_CHECK(ele)) {					\
-		    result.push(std::string(PYTEXT_ASDATA(ele)));			\
+		} else if (PYTEXT_CHECK(ele)) { \
+		    std::string tempval; \
+		    PYTEXT_TO_CXX_STRING(tempval, ele); \
+		    result.push(tempval); \
+		} else if (PYBYTES_CHECK(ele)) { \
+		    result.push(std::string(PYBYTES_AS_C_STRING(ele))); \
 		} else if (PyNumber_Check(ele)) {					\
 		    if(!strncmp(ele->ob_type->tp_name, "numpy.int", 9)){ \
 		       result.push((int)PyLong_AsLong(PyNumber_Long(ele)));  		\
@@ -948,16 +976,18 @@ static int unmap_array_pylist( PyObject *array, std::vector<int> &shape, casac::
         MYPYSIZE pos = 0;                                                               \
 	record &rec = result.asRecord( );						\
 	while ( PyDict_Next(obj, &pos, &key, &val) ) {					\
-	    const char *str = 0;							\
+	    std::string keystr; \
 	    PyObject *strobj = 0;							\
 	    if (PYTEXT_CHECK(key)) {							\
-		str = PYTEXT_ASDATA(key);						\
+		PYTEXT_TO_CXX_STRING(keystr, key); \
+	    } else if (PYBYTES_CHECK(key)) {					\
+		str = string(PYBYTES_AS_C_STRING(key)); \
 	    } else {									\
-		strobj = PyObject_Str(key);						\
-		str = PYTEXT_ASDATA(strobj);					\
+		strobj = PyObject_Bytes(key);						\
+		str = string(PYBYTES_AS_C_STRING(strobj)); \
 	    }										\
             if(PyBool_Check(val) || PYINT_CHECK(val) || PyLong_Check(val) || \
-               PyFloat_Check(val) || PYTEXT_CHECK(val) || PyComplex_Check(val) ||     \
+               PyFloat_Check(val) || PYTEXT_CHECK(val) || PYBYTES_CHECK(val) || PyComplex_Check(val) ||     \
                PyList_Check(val) || PyTuple_Check(val) || PyDict_Check(val) ||          \
                (casac::pyarray_check(val) &&                                            \
                 (PyArray_TYPE((PyArrayObject*)val) == NPY_BOOL ||                       \

@@ -993,7 +993,7 @@ using namespace casac;
     if (PyDict_Check($input)) {
         $1 = pyobj2variant($input, true).asRecord();
     } else {
-        PyErr_SetString(PyExc_TypeError, "$1_name is not a dictionary");
+        PyErr_SetString(PyExc_TypeError, "$1_name must be a dictionary");
         return NULL;
     }
 }
@@ -1003,7 +1003,7 @@ using namespace casac;
         deleter.reset (new record(pyobj2variant($input, true).asRecord()));
         $1 = deleter.get();
     } else {
-        PyErr_SetString(PyExc_TypeError, "$1_name is not a dictionary");
+        PyErr_SetString(PyExc_TypeError, "$1_name must be a dictionary");
         return NULL;
     }
 }
@@ -1013,7 +1013,7 @@ using namespace casac;
         deleter.reset (new record(pyobj2variant($input, true).asRecord()));
         $1 = deleter.get();
     } else {
-        PyErr_SetString(PyExc_TypeError, "$1_name is not a dictionary");
+        PyErr_SetString(PyExc_TypeError, "$1_name must be a dictionary");
         return NULL;
     }
 }
