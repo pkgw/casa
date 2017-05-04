@@ -33,31 +33,25 @@ using namespace casac;
 // Integer scalars
 
 %typemap(in) int {
-    if (!(PYTEXT_CHECK($input) || PyFloat_Check($input) || PyDict_Check($input) || PyList_Check($input))) {
-        $1 = PyInt_AsLong($input);
-    } else {
-        cerr << "Failed here " << $input->ob_type->tp_name << endl;
-        PyErr_SetString(PyExc_TypeError,"argument $1_name must be an integer");
+    $1 = PyInt_AsLong($input);
+    if (PyErr_Occurred()) {
+        PyErr_SetString(PyExc_TypeError, "argument $1_name must be an integer");
         return NULL;
     }
 }
 
 %typemap(in) long {
-    if (!(PYTEXT_CHECK($input) || PyFloat_Check($input) || PyDict_Check($input) || PyList_Check($input))) {
-        $1 = PyInt_AsLong($input);
-    } else {
-        cerr << "Failed here " << $input->ob_type->tp_name << endl;
-        PyErr_SetString(PyExc_TypeError,"argument $1_name must be an integer");
+    $1 = PyInt_AsLong($input);
+    if (PyErr_Occurred()) {
+        PyErr_SetString(PyExc_TypeError, "argument $1_name must be an integer");
         return NULL;
     }
 }
 
 %typemap(in) long long {
-    if (!(PYTEXT_CHECK($input) || PyFloat_Check($input) || PyDict_Check($input) || PyList_Check($input))) {
-        $1 = PyInt_AsLong($input);
-    } else {
-        cerr << "Failed here " << $input->ob_type->tp_name << endl;
-        PyErr_SetString(PyExc_TypeError,"argument $1_name must be an integer");
+    $1 = PyInt_AsLong($input);
+    if (PyErr_Occurred()) {
+        PyErr_SetString(PyExc_TypeError, "argument $1_name must be an integer");
         return NULL;
     }
 }
@@ -65,18 +59,20 @@ using namespace casac;
 %typemap(argout) int& OUTARGINT {
     PyObject *o = PyLong_FromLong(*$1);
 
-    if ((!$result) || ($result == Py_None)) {
+    if (!$result || $result == Py_None) {
         $result = o;
     } else {
+        // What the hell is this code path?
         PyObject *o2 = $result;
         if (!PyTuple_Check($result)) {
             $result = PyTuple_New(1);
-            PyTuple_SetItem($result,0,o2);
+            PyTuple_SetItem($result, 0, o2);
         }
+
         PyObject *o3 = PyTuple_New(1);
-        PyTuple_SetItem(o3,0,o);
+        PyTuple_SetItem(o3, 0, o);
         o2 = $result;
-        $result = PySequence_Concat(o2,o3);
+        $result = PySequence_Concat(o2, o3);
         Py_DECREF(o2);
         Py_DECREF(o3);
     }
@@ -87,17 +83,28 @@ using namespace casac;
 
 %typemap(in) float {
     $1 = PyFloat_AsDouble($input);
+    if (PyErr_Occurred()) {
+        PyErr_SetString(PyExc_TypeError, "argument $1_name must be a number");
+        return NULL;
+    }
 }
 
 %typemap(in) double {
     $1 = PyFloat_AsDouble($input);
+    if (PyErr_Occurred()) {
+        PyErr_SetString(PyExc_TypeError, "argument $1_name must be a number");
+        return NULL;
+    }
 }
 
 %typemap(in) complex {
-    if (PyComplex_Check($input)) {
-        Py_complex c = PyComplex_AsCComplex($input);
-        $1 = std::complex<double>(c.real, c.imag);
+    Py_complex c = PyComplex_AsCComplex($input);
+    if (PyErr_Occurred()) {
+        PyErr_SetString(PyExc_TypeError, "argument $1_name must be a number");
+        return NULL;
     }
+
+    $1 = std::complex<double>(c.real, c.imag);
 }
 
 %typemap(out) complex {
@@ -107,18 +114,20 @@ using namespace casac;
 %typemap(argout) double& OUTARGDBL {
     PyObject *o = PyFloat_FromDouble(*$1);
 
-    if ((!$result) || ($result == Py_None)) {
+    if (!$result || $result == Py_None) {
         $result = o;
     } else {
+        // Again: what??
         PyObject *o2 = $result;
         if (!PyTuple_Check($result)) {
             $result = PyTuple_New(1);
-            PyTuple_SetItem($result,0,o2);
+            PyTuple_SetItem($result, 0, o2);
         }
+
         PyObject *o3 = PyTuple_New(1);
-        PyTuple_SetItem(o3,0,o);
+        PyTuple_SetItem(o3, 0, o);
         o2 = $result;
-        $result = PySequence_Concat(o2,o3);
+        $result = PySequence_Concat(o2, o3);
         Py_DECREF(o2);
         Py_DECREF(o3);
     }
