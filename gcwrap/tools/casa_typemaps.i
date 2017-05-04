@@ -498,8 +498,6 @@ using namespace casac;
 }
 
 %typemap(in) string {
-    cout << "QQQ 1 " << PYTEXT_CHECK($input) << " " << PYBYTES_CHECK($input) << "\n";
-
     if (PYTEXT_CHECK($input)) {
         PYTEXT_TO_CXX_STRING($1, $input);
     } else if (PYBYTES_CHECK($input)) {
@@ -511,8 +509,6 @@ using namespace casac;
 }
 
 %typemap(in) string& (std::unique_ptr<string> deleter) {
-    cout << "QQQ 2 " << PYTEXT_CHECK($input) << " " << PYBYTES_CHECK($input) << "\n";
-
     if (PYTEXT_CHECK($input)) {
         if (!$1) {
             string tempval;
@@ -536,8 +532,6 @@ using namespace casac;
 }
 
 %typemap(in) const string& (std::unique_ptr<string> deleter) {
-    cout << "QQQ 3 " << PYTEXT_CHECK($input) << " " << PYBYTES_CHECK($input) << "\n";
-
     if (PYTEXT_CHECK($input)) {
         if (!$1) {
             string tempval;
