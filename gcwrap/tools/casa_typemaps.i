@@ -986,10 +986,7 @@ using namespace casac;
 // CASA "record" type
 
 %typemap(typecheck) record& {
-    if ($input)
-        $1 = PyDict_Check($input);
-    else
-        $1 = 1;
+    $1 = PyDict_Check($input);
 }
 
 %typemap(in) record {
