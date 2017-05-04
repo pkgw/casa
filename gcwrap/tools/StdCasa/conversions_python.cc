@@ -484,7 +484,7 @@ PyObject *convert_idl_complex_to_python_complex(const casac::complex &from) {
 	const std::string &key = (*iter).first;										\
 	const variant &val = (*iter).second;										\
 	PyObject *v = variant2pyobj( val );										\
-	PyDict_SetItem(result, PyUnicode_FromString(key.c_str()), v);							\
+	PyDict_SetItem(result, PYSTRING_FROM_C_STRING(key.c_str()), v);							\
 	Py_DECREF(v);													\
     }															\
 															\
@@ -1062,7 +1062,7 @@ ARRAY2PYOBJ(bool,(val == 0 ? Py_False : Py_True); Py_INCREF(ele),(*iter == false
 ARRAY2PYOBJ(double,PyFloat_FromDouble(val),PyFloat_FromDouble(*iter),,)
 ARRAY2PYOBJ(std::complex<double> ,PyComplex_FromDoubles(val.real(),val.imag()),PyComplex_FromDoubles(cpx.real(),cpx.imag()),,std::complex<double> cpx = *iter;)
 ARRAY2PYOBJ(casac::complex ,PyComplex_FromDoubles(val.re,val.im),PyComplex_FromDoubles(cpx.re,cpx.im),,casac::complex cpx = *iter;)
-ARRAY2PYOBJ(std::string,PyUnicode_FromString(val.c_str()),PyUnicode_FromString((*iter).c_str()),,)
+ARRAY2PYOBJ(std::string,PYSTRING_FROM_C_STRING(val.c_str()),PYSTRING_FROM_C_STRING((*iter).c_str()),,)
 
 #define HANDLEVEC2(TYPE,FETCH)												\
 {															\
@@ -1119,7 +1119,7 @@ ARRAY2PYOBJ(std::string,PyUnicode_FromString(val.c_str()),PyUnicode_FromString((
 		break;													\
 		}													\
 	    case variant::STRING:											\
-		result = PyUnicode_FromString(val.toString().c_str());							\
+		result = PYSTRING_FROM_C_STRING(val.toString().c_str());							\
 		break;													\
 	    case variant::BOOLVEC:											\
 		HANDLEVEC2(bool,getBoolVec)										\
