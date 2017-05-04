@@ -39,7 +39,8 @@ using namespace casac;
 // As far as I can tell, the "deleter" construct adds a method-scope
 // unique_ptr to delete the object after the method exits.
 
-// Integer scalars
+
+// Integer scalars.
 
 %typemap(in) int {
     $1 = PyInt_AsLong($input);
@@ -58,6 +59,7 @@ using namespace casac;
 }
 
 %typemap(in) long long {
+    // TODO: handle PyLong specially?
     $1 = PyInt_AsLong($input);
     if (PyErr_Occurred()) {
         PyErr_SetString(PyExc_TypeError, "argument $1_name must be an integer");
@@ -243,6 +245,7 @@ using namespace casac;
             return NULL;
         }
     } else {
+        // TODO: handle PyLong specially?
         $1->push_back(PyInt_AsLong($input));
         if (PyErr_Occurred()) {
             PyErr_SetString(PyExc_TypeError, "error converting argument $1_name into a long long vector");
@@ -600,13 +603,16 @@ using namespace casac;
 %typemap(in) std::vector<std::string>& (std::unique_ptr<std::vector<std::string> > deleter) {
     if (PyList_Check($input)) {
         Py_ssize_t size = PyList_Size($input);
+
         if (!$1) {
             deleter.reset (new std::vector<std::string>(size));
             $1 = deleter.get();
         }
+
         for (Py_ssize_t i = 0; i < size; i++) {
             PyObject *o = PyList_GetItem($input, i);
-            if (PYTEXT_CHECK(o))
+
+            if (PYTEXT_CHECK(o)) {
                 if (i < (Py_ssize_t)($1->size())) {
                     PYTEXT_TO_CXX_STRING((*$1)[i], PyList_GetItem($input, i));
                 } else {
@@ -614,7 +620,12 @@ using namespace casac;
                     PYTEXT_TO_CXX_STRING(tempval, PyList_GetItem($input, i));
                     $1->push_back(tempval);
                 }
-            else {
+            } else if (PYBYTES_CHECK(o)) {
+                if (i < (Py_ssize_t)($1->size()))
+                    (*$1)[i] = PYBYTES_AS_C_STRING(PyList_GetItem($input, i));
+                else
+                    $1->push_back(PYBYTES_AS_C_STRING(PyList_GetItem($input, i)));
+            } else {
                 PyErr_SetString(PyExc_TypeError, "list $1_name must contain strings");
                 return NULL;
             }
@@ -624,6 +635,7 @@ using namespace casac;
             deleter.reset (new std::vector<std::string>(1));
             $1 = deleter.get();
         }
+
         if (!$1->size()) {
             string tempval;
             PYTEXT_TO_CXX_STRING(tempval, $input);
@@ -631,8 +643,18 @@ using namespace casac;
         } else {
             PYTEXT_TO_CXX_STRING((*$1)[0], $input);
         }
+    } else if (PYBYTES_CHECK($input)) {
+        if (!$1) {
+            deleter.reset (new std::vector<std::string>(1));
+            $1 = deleter.get();
+        }
+
+        if (!$1->size())
+            $1->push_back(string(PYBYTES_AS_C_STRING($input)));
+        else
+            (*$1)[0] = string(PYBYTES_AS_C_STRING($input));
     } else {
-        PyErr_SetString(PyExc_TypeError, "$1_name is not a list");
+        PyErr_SetString(PyExc_TypeError, "$1_name is not a list or string");
         return NULL;
     }
 }
@@ -640,12 +662,16 @@ using namespace casac;
 %typemap(in) StringVec {
     if (PyList_Check($input)) {
         Py_ssize_t size = PyList_Size($input);
+
         for (Py_ssize_t i = 0; i < size; i++) {
             PyObject *o = PyList_GetItem($input, i);
+
             if (PYTEXT_CHECK(o)) {
                 string tempval;
                 PYTEXT_TO_CXX_STRING(tempval, PyList_GetItem($input, i))
                 $1.value.push_back(tempval);
+            } else if (PYBYTES_CHECK(o)) {
+                $1.value.push_back(PYBYTES_AS_C_STRING(PyList_GetItem($input, i)));
             } else {
                 PyErr_SetString(PyExc_TypeError, "list $1_name must contain strings");
                 return NULL;
@@ -655,8 +681,10 @@ using namespace casac;
         string tempval;
         PYTEXT_TO_CXX_STRING(tempval, $input);
         $1.value.push_back(tempval);
+    } else if (PYBYTES_CHECK($input)) {
+        $1.value.push_back(PYBYTES_AS_C_STRING($input));
     } else {
-        PyErr_SetString(PyExc_TypeError, "$1_name is not a list");
+        PyErr_SetString(PyExc_TypeError, "$1_name is not a list or string");
         return NULL;
     }
 }
