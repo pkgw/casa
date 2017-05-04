@@ -784,14 +784,10 @@ using namespace casac;
 
             if (casac::pyarray_check(theVal)) {
                 casac::numpy2vector((PyArrayObject*)theVal, myVals, shape);
-            } else if (PYTEXT_CHECK(theVal)) {
-                myVals.push_back(-1);
-            } else if (PyInt_Check(theVal)) {
-                myVals.push_back(double(PyInt_AsLong(theVal)));
-            } else if (PyLong_Check(theVal)) {
-                myVals.push_back(PyLong_AsDouble(theVal));
-            } else if (PyFloat_Check(theVal)) {
-                myVals.push_back(PyFloat_AsDouble(theVal));
+            } else if (PyNumber_Check(theVal)) {
+                PyObject *tmp = PyNumber_Float(theVal);
+                myVals.push_back(PyFloat_AsDouble(tmp));
+                Py_DECREF(tmp);
             } else if (!casac::pylist2vector(theVal, myVals, shape)) {
                 PyErr_SetString(PyExc_TypeError, "error when vectorizing Quantity argument $1_name");
                 return NULL;
@@ -810,8 +806,16 @@ using namespace casac;
         iss >> val >> units;
         myVals.push_back(val);
         $1 = Quantity(myVals, units.c_str());
+    } else if (PYBYTES_CHECK($input)) {
+        std::string inpstring(PYBYTES_AS_C_STRING($input));
+        double val;
+        std::string units;
+        istringstream iss(inpstring);
+        iss >> val >> units;
+        myVals.push_back(val);
+        $1 = Quantity(myVals, units.c_str());
     } else {
-        PyErr_SetString(PyExc_TypeError, "$1_name is not a dictionary Dictionary");
+        PyErr_SetString(PyExc_TypeError, "argument $1_name must be a dictionary or string");
         return NULL;
     }
 }
@@ -830,14 +834,10 @@ using namespace casac;
 
             if (casac::pyarray_check(theVal)) {
                 casac::numpy2vector((PyArrayObject*)theVal, myVals, shape);
-            } else if (PYTEXT_CHECK(theVal)) {
-                myVals.push_back(-1);
-            } else if (PyInt_Check(theVal)) {
-                myVals.push_back(double(PyInt_AsLong(theVal)));
-            } else if (PyLong_Check(theVal)) {
-                myVals.push_back(PyLong_AsDouble(theVal));
-            } else if (PyFloat_Check(theVal)) {
-                myVals.push_back(PyFloat_AsDouble(theVal));
+            } else if (PyNumber_Check(theVal)) {
+                PyObject *tmp = PyNumber_Float(theVal);
+                myVals.push_back(PyFloat_AsDouble(tmp));
+                Py_DECREF(tmp);
             } else if (!casac::pylist2vector(theVal, myVals, shape)) {
                 PyErr_SetString(PyExc_TypeError, "error when vectorizing Quantity* argument $1_name");
                 return NULL;
@@ -857,8 +857,17 @@ using namespace casac;
         myVals.push_back(val);
         deleter.reset (new Quantity(myVals, units.c_str()));
         $1 = deleter.get();
+    } else if (PYBYTES_CHECK($input)) {
+        std::string inpstring(PYBYTES_AS_C_STRING($input));
+        double val;
+        std::string units;
+        istringstream iss(inpstring);
+        iss >> val >> units;
+        myVals.push_back(val);
+        deleter.reset (new Quantity(myVals, units.c_str()));
+        $1 = deleter.get();
     } else {
-        PyErr_SetString(PyExc_TypeError, "$1_name is not a dictionary");
+        PyErr_SetString(PyExc_TypeError, "argument $1_name must be a dictionary or string");
         return NULL;
     }
 }
@@ -877,14 +886,10 @@ using namespace casac;
 
             if (casac::pyarray_check(theVal)) {
                 casac::numpy2vector((PyArrayObject*)theVal, myVals, shape);
-            } else if (PYTEXT_CHECK(theVal)) {
-                myVals.push_back(-1);
-            } else if (PyInt_Check(theVal)) {
-                myVals.push_back(double(PyInt_AsLong(theVal)));
-            } else if (PyLong_Check(theVal)) {
-                myVals.push_back(PyLong_AsDouble(theVal));
-            } else if (PyFloat_Check(theVal)) {
-                myVals.push_back(PyFloat_AsDouble(theVal));
+            } else if (PyNumber_Check(theVal)) {
+                PyObject *tmp = PyNumber_Float(theVal);
+                myVals.push_back(PyFloat_AsDouble(tmp));
+                Py_DECREF(tmp);
             } else if (!casac::pylist2vector(theVal, myVals, shape)) {
                 PyErr_SetString(PyExc_TypeError, "error when vectorizing Quantity& argument $1_name");
                 return NULL;
@@ -906,8 +911,18 @@ using namespace casac;
         myVals.push_back(val);
         deleter.reset (new Quantity(myVals, units.c_str()));
         $1 = deleter.get();
+    } else if (PYBYTES_CHECK($input)) {
+        std::vector<double> myVals;
+        std::string inpstring(PYBYTES_AS_C_STRING($input));
+        double val;
+        std::string units;
+        istringstream iss(inpstring);
+        iss >> val >> units;
+        myVals.push_back(val);
+        deleter.reset (new Quantity(myVals, units.c_str()));
+        $1 = deleter.get();
     } else {
-        PyErr_SetString(PyExc_TypeError, "$1_name is not a dictionary");
+        PyErr_SetString(PyExc_TypeError, "argument $1_name must be a dictionary or string");
         return NULL;
     }
 }
