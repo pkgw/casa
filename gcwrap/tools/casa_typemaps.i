@@ -554,12 +554,6 @@ using namespace casac;
     }
 }
 
-%typemap(freearg) const string& columnname {
-    if ($1) {
-        delete $1;
-    }
-}
-
 %typemap(out) string {
     $result = PYSTRING_FROM_C_STRING($1.c_str());
 }
