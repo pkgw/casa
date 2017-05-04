@@ -13,9 +13,13 @@
 #include <iostream>
 
 #if PY_MAJOR_VERSION >= 3
+# define PYINT_CHECK(x) 0
+# define PY_INTEGER_FROM_LONG(x) PyLong_FromLong(x)
 # define PYTEXT_CHECK PyUnicode_Check
 # define PYTEXT_ASDATA PyUnicode_AsUTF8
 #else
+# define PYINT_CHECK(x) PyInt_Check(x)
+# define PY_INTEGER_FROM_LONG(x) PyInt_FromLong(x)
 # define PYTEXT_CHECK PyString_Check
 # define PYTEXT_ASDATA PyString_AsString
 #endif
@@ -307,9 +311,9 @@ int casac::pyarray_check(PyObject *obj) {
 										\
 	VECTOR[INDEX] = BOOLCVT( ele == Py_True );				\
 										\
-    } else if (PyLong_Check(ele)) {						\
+    } else if (PYINT_CHECK(ele)) {						\
 										\
-	long l = PyLong_AsLong(ele);						\
+	long l = PyInt_AsLong(ele);						\
 	/*** need range check ***/						\
 	VECTOR[INDEX] = INTCVT( l );						\
 										\
@@ -487,9 +491,9 @@ PyObject *record2pydict(const record &rec) {
 										\
 	VARIANT.place( ele == Py_True ? true : false, INDEX );			\
 										\
-    } else if (PyLong_Check(ele)) {						\
+    } else if (PYINT_CHECK(ele)) {						\
 										\
-	long l = PyLong_AsLong(ele);						\
+	long l = PyInt_AsLong(ele);						\
 	/*** need range check ***/						\
 	VARIANT.place((int)l,INDEX);						\
 										\
@@ -816,9 +820,9 @@ static int unmap_array_pylist( PyObject *array, std::vector<int> &shape, casac::
     if ( PyBool_Check(obj) )								\
 	SINGLETON(obj == Py_True ? true : false );					\
 											\
-    else if ( PyLong_Check(obj) )							\
+    else if ( PYINT_CHECK(obj) )							\
         /*** need range check ***/							\
-	SINGLETON((int) PyLong_AsLong(obj) );						\
+	SINGLETON((int) PyInt_AsLong(obj) );						\
 											\
     else if ( PyLong_Check(obj) ) {							\
 	long l_result = PyLong_AsLong(obj);						\
@@ -892,9 +896,9 @@ static int unmap_array_pylist( PyObject *array, std::vector<int> &shape, casac::
 											\
 		    result.push( ele == Py_True ? true : false );			\
 											\
-		} else if (PyLong_Check(ele)) {						\
+		} else if (PYINT_CHECK(ele)) {						\
 											\
-		    long l = PyLong_AsLong(ele);						\
+		    long l = PyInt_AsLong(ele);						\
 		    /*** need range check ***/						\
 		    result.push((int)l);						\
 											\
@@ -952,7 +956,7 @@ static int unmap_array_pylist( PyObject *array, std::vector<int> &shape, casac::
 		strobj = PyObject_Str(key);						\
 		str = PYTEXT_ASDATA(strobj);					\
 	    }										\
-            if(PyBool_Check(val) || PyLong_Check(val) ||                                \
+            if(PyBool_Check(val) || PYINT_CHECK(val) || PyLong_Check(val) || \
                PyFloat_Check(val) || PYTEXT_CHECK(val) || PyComplex_Check(val) ||     \
                PyList_Check(val) || PyTuple_Check(val) || PyDict_Check(val) ||          \
                (casac::pyarray_check(val) &&                                            \
@@ -1043,8 +1047,8 @@ static PyObject *map_array_pylist( const std::vector<TYPE> &vec, const std::vect
     return result;										\
 }
 
-ARRAY2PYOBJ(int,PyLong_FromLong(val),PyLong_FromLong(*iter),,)
-ARRAY2PYOBJ(unsigned int,PyLong_FromLong(val),PyLong_FromLong(*iter),,)
+ARRAY2PYOBJ(int,PY_INTEGER_FROM_LONG(val),PY_INTEGER_FROM_LONG(*iter),,)
+ARRAY2PYOBJ(unsigned int,PY_INTEGER_FROM_LONG(val),PY_INTEGER_FROM_LONG(*iter),,)
 ARRAY2PYOBJ(bool,(val == 0 ? Py_False : Py_True); Py_INCREF(ele),(*iter == false ? Py_False : Py_True),Py_INCREF(vec_val);,)
 ARRAY2PYOBJ(double,PyFloat_FromDouble(val),PyFloat_FromDouble(*iter),,)
 ARRAY2PYOBJ(std::complex<double> ,PyComplex_FromDoubles(val.real(),val.imag()),PyComplex_FromDoubles(cpx.real(),cpx.imag()),,std::complex<double> cpx = *iter;)
@@ -1088,13 +1092,13 @@ ARRAY2PYOBJ(std::string,PyUnicode_FromString(val.c_str()),PyUnicode_FromString((
 		break;													\
 		}													\
 	    case variant::INT:												\
-		result = PyLong_FromLong(val.toInt());									\
+		result = PY_INTEGER_FROM_LONG(val.toInt());									\
 		break;													\
         case variant::UINT:                                             \
-        result = PyLong_FromLong(val.touInt());                          \
+        result = PY_INTEGER_FROM_LONG(val.touInt());                          \
         break;                                                          \
 	    case variant::LONG:												\
-		result = PyLong_FromLong(val.toLong());									\
+		result = PY_INTEGER_FROM_LONG(val.toLong());									\
 		break;													\
 	    case variant::DOUBLE:											\
 		result = PyFloat_FromDouble(val.toDouble());								\

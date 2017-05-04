@@ -713,6 +713,7 @@ using namespace casac;
             $result = PyTuple_New(1);
             PyTuple_SetItem($result, 0, o2);
         }
+
         PyObject *o3 = PyTuple_New(1);
         PyTuple_SetItem(o3, 0, o);
         o2 = $result;
