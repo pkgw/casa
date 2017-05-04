@@ -1,7 +1,7 @@
 #############################################################################
 # $Id:$
 # Test Name:                                                                #
-# alma-m100-analysis-hpc-regression.py                                      #
+# alma-m100-analysis-regression.py                                      #
 # An ALMA Science Verification Data Analysis Regression                     #
 # using observation of M100 from September 2011                             # 
 #                                                                           # 
@@ -20,7 +20,7 @@
 
 
 step_title = { 0 : 'Data import',
-			   1 : 'Generate antenna position cal tables',
+               1 : 'Generate antenna position cal tables',
                2 : 'Generate tsys cal tables',
                3 : 'Correct the Titan position',
                4 : 'Apriori flagging',
