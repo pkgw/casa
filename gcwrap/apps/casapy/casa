@@ -80,9 +80,8 @@ if [ "$1" = "--debug" ]; then
     _dodebug="T"
 fi
 
-if [ $installed_from_rpm = "T" ]; then
-    prefix=`echo ${CASAPATH} | awk '{printf "%s", $1}'`
-else
+prefix=`echo ${CASAPATH} | awk '{printf "%s", $1}'`
+if [ ! -e "${prefix}/lib/python2.7/$startup" ]; then
     prefix=`echo ${CASAPATH} | awk '{printf "%s/%s", $1,$2}'`
 fi
 # echo "DEBUG: prefix = $prefix"
