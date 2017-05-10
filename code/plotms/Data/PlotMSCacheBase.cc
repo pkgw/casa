@@ -262,6 +262,8 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 		const PlotMSAveraging& averaging,
 		const PlotMSTransformations& transformations,
 		const PlotMSCalibration& calibration,
+        const PMS::Axis iteraxis,
+        const PMS::Axis coloraxis,
 		ThreadCommunication* thread) {
 
 	// TBD:
@@ -405,14 +407,44 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 	//   works---it is used to pre-estimate memory requirements.
 	pendingLoadAxes_.clear();
 
-	// Check meta-data.
-	for(Int i = 0; i < nmetadata(); ++i) {
+	// Add metadata axes if GUI
+    if (plotms_->guiShown()) {
+	  for(Int i = 0; i < nmetadata(); ++i) {
 		pendingLoadAxes_[metadata(i)]=true; // all meta data will be loaded
 		if(!loadedAxes_[metadata(i)]) {
 			loadAxes.push_back(metadata(i));
 			loadData.push_back(PMS::DEFAULT_DATACOLUMN);
 		}
-	}
+	  }
+    } else {
+        // load flags and extra axes
+		pendingLoadAxes_[PMS::FLAG]=true;
+		if(!loadedAxes_[PMS::FLAG]) {
+            loadAxes.push_back(PMS::FLAG);
+	        loadData.push_back(PMS::DEFAULT_DATACOLUMN);
+        }
+        if (iteraxis!=PMS::NONE) {
+            if (iteraxis==PMS::ANTENNA) {
+                if(!loadedAxes_[PMS::ANTENNA1]) {
+                    loadAxes.push_back(PMS::ANTENNA1);
+                    loadData.push_back(PMS::DEFAULT_DATACOLUMN);
+                }
+                if(!loadedAxes_[PMS::ANTENNA2]) {
+                    loadAxes.push_back(PMS::ANTENNA2);
+                    loadData.push_back(PMS::DEFAULT_DATACOLUMN);
+                }
+            } else if(!loadedAxes_[iteraxis]) {
+                loadAxes.push_back(iteraxis);
+                loadData.push_back(PMS::DEFAULT_DATACOLUMN);
+            }
+        }
+        if (coloraxis!=PMS::NONE) {
+            if(!loadedAxes_[coloraxis]) {
+                loadAxes.push_back(coloraxis);
+                loadData.push_back(PMS::DEFAULT_DATACOLUMN);
+            }
+        }
+    }
 
 	// Ensure all _already-loaded_ axes are in the pending list
 	for (Int i= 0;i<PMS::NONE;++i)
@@ -457,14 +489,27 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 
 		// 3)  data axis is loaded; check if data column loaded
 		else if(PMS::axisIsData(axis)) {
-            // see if datacol is loaded for axis
-            std::set<PMS::DataColumn> datacols = loadedAxesData_[axis];
-            if (datacols.find(dc) == datacols.end()) {
+            // Reload if averaging, else see if datacol is already loaded
+            //std::set<PMS::DataColumn> datacols = loadedAxesData_[axis];
+            String datacolStr = PMS::dataColumn(dc);
+            Bool datacolLoaded = loadedAxesData_[axis].isDefined(datacolStr);
+            if (!datacolLoaded) { 
 			    loadAxes.push_back(axis);
 			    loadData.push_back(dc);
+            } else {
+              // check if averaging changed since loading
+              Record datacolRec = loadedAxesData_[axis].subRecord(datacolStr);
+              PlotMSAveraging datacolAvg;
+              datacolAvg.fromRecord(datacolRec);
+              if (datacolAvg != averaging) {
+			    loadAxes.push_back(axis);
+			    loadData.push_back(dc);
+              }
             }
         }
 	}
+
+    
 
 	if (false) {
 		{
@@ -497,8 +542,9 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
             for(unsigned int i = 0; i < loadAxes.size(); i++) {
                 axis = loadAxes[i];
                 loadedAxes_[axis] = true;
+                String datacol = PMS::dataColumn(loadData[i]);
                 if(PMS::axisIsData(axis)) 
-                    loadedAxesData_[axis].insert(loadData[i]);
+                    loadedAxesData_[axis].defineRecord(datacol, averaging.toRecord());
             }
         }
 
@@ -549,11 +595,13 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
     dataLoaded_ = true;
 
     // Calculate refTime (for plot labels)
-    refTime_p=min(time_);
-    refTime_p=86400.0*floor(refTime_p/86400.0);
-    logLoad("refTime = "+MVTime(refTime_p/C::day).string(MVTime::YMD,7));
-    QString timeMesg("refTime = ");
-    timeMesg.append(MVTime(refTime_p/C::day).string(MVTime::YMD,7).c_str());
+    if (loadedAxes_[PMS::TIME] == true) {
+        refTime_p=min(time_);
+        refTime_p=86400.0*floor(refTime_p/86400.0);
+        logLoad("refTime = "+MVTime(refTime_p/C::day).string(MVTime::YMD,7));
+        QString timeMesg("refTime = ");
+        timeMesg.append(MVTime(refTime_p/C::day).string(MVTime::YMD,7).c_str());
+    }
     logLoad("Finished loading.");
 }
 
