@@ -114,7 +114,7 @@ namespace refim{ //namespace for imaging refactor
 				    casacore::Array<casacore::Complex>& weightConvFunc,
 				    casacore::Vector<casacore::Int>& convsize,
 				    casacore::Vector<casacore::Int>& convSupport,
-				    casacore::Vector<casacore::Int>& polMap, casacore::Vector<casacore::Int>& chanMap, casacore::Vector<casacore::Int>& rowMap);
+				    casacore::Vector<casacore::Int>& polMap, casacore::Vector<casacore::Int>& chanMap, casacore::Vector<casacore::Int>& rowMap, const casacore::Bool getConjFreqConvFunc=false);
       virtual casacore::ImageInterface<casacore::Float>&  getFluxScaleImage();
       // slice fluxscale image by npol 
       virtual void sliceFluxScale(casacore::Int npol);

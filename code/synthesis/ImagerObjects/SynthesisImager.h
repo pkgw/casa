@@ -236,7 +236,9 @@ protected:
                           const casacore::Bool useAutoCorr,
                           const casacore::Bool useDoublePrec,
                           const casacore::Float rotatePAStep,
-                          const casacore::String Stokes="I");
+                          const casacore::String Stokes="I",
+						  const casacore::Bool doConjConvFunc=false
+ 						);
 
   // Choose between different types of ImageStore types (single term, multiterm, faceted)
   casacore::CountedPtr<SIImageStore> createIMStore(casacore::String imageName, 
