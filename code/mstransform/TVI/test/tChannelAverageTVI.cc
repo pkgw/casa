@@ -36,7 +36,7 @@ using namespace casa::vi;
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-void ChannelAverageTVITest::generateTestFile()
+void ChannelAverageTVICompareTest::generateTestFile()
 {
 	String path("");
 	if (autoMode_p) path = String("/data/regression/unittest/flagdata/");
@@ -48,7 +48,7 @@ void ChannelAverageTVITest::generateTestFile()
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-void ChannelAverageTVITest::generateReferenceFile()
+void ChannelAverageTVICompareTest::generateReferenceFile()
 {
 	String path("");
 	if (autoMode_p) path = String("/data/regression/unittest/flagdata/");
@@ -60,7 +60,7 @@ void ChannelAverageTVITest::generateReferenceFile()
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-void ChannelAverageTVITest::initTestConfiguration(Record &configuration)
+void ChannelAverageTVICompareTest::initTestConfiguration(Record &configuration)
 {
 	testConfiguration_p = configuration;
 	testConfiguration_p.define ("inputms", testFile_p);
@@ -71,7 +71,7 @@ void ChannelAverageTVITest::initTestConfiguration(Record &configuration)
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-void ChannelAverageTVITest::initReferenceConfiguration(Record &configuration)
+void ChannelAverageTVICompareTest::initReferenceConfiguration(Record &configuration)
 {
 	refConfiguration_p = configuration;
 	refConfiguration_p.define ("inputms", referenceFile_p);
@@ -85,7 +85,7 @@ void ChannelAverageTVITest::initReferenceConfiguration(Record &configuration)
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-ChannelAverageTVITest::ChannelAverageTVITest(): FreqAxisTVITest ()
+ChannelAverageTVICompareTest::ChannelAverageTVICompareTest(): FreqAxisTVITest ()
 {
 	inpFile_p = String("Four_ants_3C286.ms");
     testFile_p = String("Four_ants_3C286.ms.test");
@@ -101,7 +101,7 @@ ChannelAverageTVITest::ChannelAverageTVITest(): FreqAxisTVITest ()
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-ChannelAverageTVITest::ChannelAverageTVITest(Record configuration): FreqAxisTVITest(configuration)
+ChannelAverageTVICompareTest::ChannelAverageTVICompareTest(Record configuration): FreqAxisTVITest(configuration)
 {
 	init(configuration);
 }
@@ -109,7 +109,7 @@ ChannelAverageTVITest::ChannelAverageTVITest(Record configuration): FreqAxisTVIT
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-void ChannelAverageTVITest::TestBody()
+void ChannelAverageTVICompareTest::TestBody()
 {
 	SetUp();
 	testCompareTransformedData();
@@ -125,7 +125,7 @@ void ChannelAverageTVITest::TestBody()
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-void ChannelAverageTVITest::testCompareTransformedData()
+void ChannelAverageTVICompareTest::testCompareTransformedData()
 {
 	// Declare working variables
 	Float tolerance = 1E-5; // FLT_EPSILON is 1.19209290e-7F
@@ -175,7 +175,7 @@ void ChannelAverageTVITest::testCompareTransformedData()
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-void ChannelAverageTVITest::testComparePropagatedFlags()
+void ChannelAverageTVICompareTest::testComparePropagatedFlags()
 {
 	// Declare working variables
 	Float tolerance = 1E-5; // FLT_EPSILON is 1.19209290e-7F
@@ -212,7 +212,7 @@ void ChannelAverageTVITest::testComparePropagatedFlags()
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-void ChannelAverageTVITest::propagateFlags()
+void ChannelAverageTVICompareTest::propagateFlags()
 {
 	// Create MSTransformIterator pointing to reference file
 	refConfiguration_p.define("factory",False);
@@ -240,12 +240,12 @@ void ChannelAverageTVITest::propagateFlags()
 //////////////////////////////////////////////////////////////////////////
 // Googletest macros
 //////////////////////////////////////////////////////////////////////////
-TEST_F(ChannelAverageTVITest, testCompareTransformedData)
+TEST_F(ChannelAverageTVICompareTest, testCompareTransformedData)
 {
 	testCompareTransformedData();
 }
 
-TEST_F(ChannelAverageTVITest, testComparePropagatedFlags)
+TEST_F(ChannelAverageTVICompareTest, testComparePropagatedFlags)
 {
 	testComparePropagatedFlags();
 }
@@ -288,7 +288,7 @@ int main(int argc, char **argv)
 	}
 	else
 	{
-		ChannelAverageTVITest test(configuration);
+		ChannelAverageTVICompareTest test(configuration);
 		test.TestBody();
 		if (test.getTestResult()) ret = 0;
 		else ret = 1;
