@@ -799,14 +799,6 @@ ChannelAverageTVIFactory::ChannelAverageTVIFactory (Record &configuration,
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-vi::ViImplementation2 * ChannelAverageTVIFactory::createVi(VisibilityIterator2 *) const
-{
-	return new ChannelAverageTVI(inputVii_p,configuration_p);
-}
-
-// -----------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------
 vi::ViImplementation2 * ChannelAverageTVIFactory::createVi() const
 {
 	return new ChannelAverageTVI(inputVii_p,configuration_p);
