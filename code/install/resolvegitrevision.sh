@@ -39,7 +39,7 @@ if [ $branch == "HEAD" ];then
     if [ -z $CASAFORKPOINTHINT ]; then
         CASAFORKPOINTHINT=`git merge-base master $branch`
     fi
-    headTag=`git describe --abbrev=0 --match='[0-9]*.[0-9]*.[0-9]*-mas-[0-9]*' $(git rev-parse $CASAFORKPOINTHINT)`
+    #headTag=`git describe --abbrev=0 --match='[0-9]*.[0-9]*.[0-9]*-mas-[0-9]*' $(git rev-parse $CASAFORKPOINTHINT)`
     #echo "${headTag##*-};$CASA_VERSION_DESC"
     # --curr #echo "${headTag##*-}; "
     if [ "$param" == "--pretty-print" ];then
