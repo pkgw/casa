@@ -43,7 +43,7 @@ FreqAxisTVI::FreqAxisTVI(	ViImplementation2 * inputVii,
 	// associated with the object itself is cleaned up — there is no memory leak.
 	if (not parseConfiguration(configuration))
 	{
-		throw AipsError("Error parsing ChannelAverageTVI configuration");
+		throw AipsError("Error parsing FreqAxisTVI configuration");
 	}
 
 	initialize();
