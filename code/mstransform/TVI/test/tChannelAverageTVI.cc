@@ -250,6 +250,12 @@ TEST_F(ChannelAverageTVICompareTest, testComparePropagatedFlags)
 	testComparePropagatedFlags();
 }
 
+TEST(ChannelAverageTVIConfTest, NoChanbinParam)
+{
+    Record configuration;
+    ChannelAverageTVIFactory testFactory(configuration, nullptr);
+    ASSERT_THROW(VisibilityIterator2 testTVI(testFactory), AipsError);
+}
 //////////////////////////////////////////////////////////////////////////
 // main
 //////////////////////////////////////////////////////////////////////////
