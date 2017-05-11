@@ -103,6 +103,9 @@ Bool FreqAxisTVI::parseConfiguration(const Record &configuration)
 void FreqAxisTVI::initialize()
 {
 
+    if (inputVii_p == nullptr)
+        return;
+    
   if (inputVii_p->msName()=="<noms>")
     // Handle "no-MS" case  (SimpleSimVi2 as base layer)
     formSelectedChanMap();
