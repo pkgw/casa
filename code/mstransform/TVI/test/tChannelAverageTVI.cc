@@ -40,7 +40,7 @@ void ChannelAverageTVICompareTest::generateTestFile()
 {
 	String path("");
 	if (autoMode_p) path = String("/data/regression/unittest/flagdata/");
-	ASSERT_TRUE(copyTestFile(path,inpFile_p,testFile_p));
+	copyTestFile(path,inpFile_p,testFile_p);
 
 	return;
 }
@@ -52,7 +52,7 @@ void ChannelAverageTVICompareTest::generateReferenceFile()
 {
 	String path("");
 	if (autoMode_p) path = String("/data/regression/unittest/flagdata/");
-	ASSERT_TRUE(copyTestFile(path,inpFile_p,referenceFile_p));
+	copyTestFile(path,inpFile_p,referenceFile_p);
 
 	return;
 }
@@ -161,15 +161,9 @@ void ChannelAverageTVICompareTest::testCompareTransformedData()
 	columns += VisBufferComponent2::Frequencies;
 
 	// Compare
-	Bool res = compareVisibilityIterators(testTVI,refTVI,columns,tolerance);
+    SCOPED_TRACE("Comparing transformed data");
+	compareVisibilityIterators(testTVI,refTVI,columns,tolerance);
 
-	// Store result
-	if (not res) testResult_p = res;
-
-	// Trigger google test macro
-	ASSERT_TRUE(res);
-
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -177,6 +171,7 @@ void ChannelAverageTVICompareTest::testCompareTransformedData()
 // -----------------------------------------------------------------------
 void ChannelAverageTVICompareTest::testComparePropagatedFlags()
 {
+    
 	// Declare working variables
 	Float tolerance = 1E-5; // FLT_EPSILON is 1.19209290e-7F
 
@@ -198,15 +193,9 @@ void ChannelAverageTVICompareTest::testComparePropagatedFlags()
 	columns += VisBufferComponent2::FlagCube;
 
 	// Compare
-	Bool res = compareVisibilityIterators(*testTVI,*refTVI,columns,tolerance);
+    SCOPED_TRACE("Comparing propagated flags");
+	compareVisibilityIterators(*testTVI,*refTVI,columns,tolerance);
 
-	// Store result
-	if (not res) testResult_p = res;
-
-	// Trigger google test macro
-	ASSERT_TRUE(res);
-
-	return;
 }
 
 // -----------------------------------------------------------------------

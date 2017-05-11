@@ -39,24 +39,6 @@
 #include <msvis/MSVis/VisBuffer2.h>
 #include <msvis/MSVis/VisibilityIterator2.h>
 
-#define RESET   "\033[0m"
-#define BLACK   "\033[30m"      /* Black */
-#define RED     "\033[31m"      /* Red */
-#define GREEN   "\033[32m"      /* Green */
-#define YELLOW  "\033[33m"      /* Yellow */
-#define BLUE    "\033[34m"      /* Blue */
-#define MAGENTA "\033[35m"      /* Magenta */
-#define CYAN    "\033[36m"      /* Cyan */
-#define WHITE   "\033[37m"      /* White */
-#define BOLDBLACK   "\033[1m\033[30m"      /* Bold Black */
-#define BOLDRED     "\033[1m\033[31m"      /* Bold Red */
-#define BOLDGREEN   "\033[1m\033[32m"      /* Bold Green */
-#define BOLDYELLOW  "\033[1m\033[33m"      /* Bold Yellow */
-#define BOLDBLUE    "\033[1m\033[34m"      /* Bold Blue */
-#define BOLDMAGENTA "\033[1m\033[35m"      /* Bold Magenta */
-#define BOLDCYAN    "\033[1m\033[36m"      /* Bold Cyan */
-#define BOLDWHITE   "\033[1m\033[37m"      /* Bold White */
-
 
 namespace casa { //# NAMESPACE CASA - BEGIN
 
@@ -98,33 +80,33 @@ protected:
 //////////////////////////////////////////////////////////////////////////
 // Convenience methods
 //////////////////////////////////////////////////////////////////////////
-template <class T> casacore::Bool compareVector(	const casacore::Char* column,
+template <class T> void compareVector(const casacore::Char* column,
 										const casacore::Vector<T> &inp,
 										const casacore::Vector<T> &ref,
 										const casacore::Vector<casacore::uInt> &rowIds,
 										casacore::Float tolerance = FLT_EPSILON);
 
-template <class T> casacore::Bool compareMatrix(	const casacore::Char* column,
+template <class T> void compareMatrix(const casacore::Char* column,
 										const casacore::Matrix<T> &inp,
 										const casacore::Matrix<T> &ref,
 										const casacore::Vector<casacore::uInt> &rowIds,
 										casacore::Float tolerance = FLT_EPSILON);
 
-template <class T> casacore::Bool compareCube(const casacore::Char* column,
+template <class T> void compareCube(const casacore::Char* column,
 									const casacore::Cube<T> &inp,
 									const casacore::Cube<T> &ref,
 									const casacore::Vector<casacore::uInt> &rowIds,
 									casacore::Float tolerance = FLT_EPSILON);
 
-casacore::Bool compareVisibilityIterators(VisibilityIterator2 &testTVI,
+void compareVisibilityIterators(VisibilityIterator2 &testTVI,
 								VisibilityIterator2 &refTVI,
 								VisBufferComponents2 &columns,
 								casacore::Float tolerance = FLT_EPSILON,
 								dataColMap *datacolmap = NULL);
 
-casacore::Bool copyTestFile(casacore::String &path,casacore::String &filename,casacore::String &outfilename);
+void copyTestFile(casacore::String &path,casacore::String &filename,casacore::String &outfilename);
 
-const casacore::Cube<casacore::Complex> & getViscube(	VisBuffer2 *vb,
+const casacore::Cube<casacore::Complex> & getViscube(VisBuffer2 *vb,
 									casacore::MS::PredefinedColumns datacol,
 									dataColMap *datacolmap);
 

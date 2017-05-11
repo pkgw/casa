@@ -114,160 +114,93 @@ void FreqAxisTVITest::TearDown()
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-template <class T> Bool compareVector(	const Char* column,
+template <class T> void compareVector(	const Char* column,
 										const Vector<T> &inp,
 										const Vector<T> &ref,
 										const Vector<uInt> &rowIds,
 										Float tolerance)
 {
 	// Check matching shape
-	if (inp.size() != ref.size())
-	{
-		cout << RED;
-		cout << column << " test and reference vectors don't have the same size"
-				<< " test size=" << inp.size()
-				<< " reference size=" << ref.size()
-				<< endl;
-		return false;
-	}
+    ASSERT_EQ(inp.size(), ref.size()) 
+        << " test and reference vectors don't have the same size";
 
 	// Compare values
-	Bool ret = true;
 	for (uInt index=0;index < inp.size(); index++)
 	{
-		if (abs(inp(index) - ref(index)) > tolerance )
-		{
-			ret = false;
-			cout << RED;
-			cout << column << " does not match in position="
-					<< index
-					<< " rowId=" << rowIds(index)
-					<< " test=" << inp(index)
-					<< " reference=" << ref(index)
-					<< endl;
-		}
+	    ASSERT_NEAR(abs(inp(index) - ref(index)), 0, tolerance)
+            << column << " does not match in position ="
+            << index
+            << " rowId=" << rowIds(index)
+            << " test=" << inp(index)
+            << " reference=" << ref(index);
 	}
-
-	if (ret)
-	{
-		cout << GREEN;
-		cout 	<< "=>" << column << " match" << endl;
-	}
-
-	return ret;
 }
 
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-template <class T> Bool compareMatrix(	const Char* column,
+template <class T> void compareMatrix(	const Char* column,
 										const Matrix<T> &inp,
 										const Matrix<T> &ref,
 										const Vector<uInt> &rowIds,
 										Float tolerance)
 {
 	// Check matching shape
-	if (inp.shape() != ref.shape())
-	{
-		cout << RED;
-		cout << column << " test and reference matrix don't have the same shape"
-				<< " test (row,col)="
-				<< "("<< inp.shape()(1) << "," << inp.shape()(0) << ")"
-				<< " reference (row,col)="
-				<< "("<< ref.shape()(1) << "," << ref.shape()(0) << ")"
-				<< endl;
-		return false;
-	}
+    ASSERT_EQ(inp.shape(), ref.shape()) 
+        << " test and reference matrices don't have the same shape";
 
 	// Compare values
-	Bool ret = true;
 	const IPosition &shape = inp.shape();
-	for (uInt row=0;row < shape(1) and ret; row++)
+	for (uInt row=0;row < shape(1); row++)
 	{
-		for (uInt col=0;col < shape(0) and ret; col++)
+		for (uInt col=0;col < shape(0); col++)
 		{
-			if (abs(inp(col,row) - ref(col,row)) > tolerance )
-			{
-				ret = false;
-				cout << RED;
-				cout << column << " does not match in position (row,col)="
-						<< "("<< row << "," << col << ")"
-						<< " rowId=" << rowIds(row)
-						<< " test=" << inp(col,row)
-						<< " reference=" << ref(col,row)
-						<< endl;
-			}
+		    ASSERT_NEAR(abs(inp(col,row) - ref(col,row)), 0, tolerance)
+                << column << " does not match in position (row,col)="
+                << "("<< row << "," << col << ")"
+                << " rowId=" << rowIds(row)
+                << " test=" << inp(col,row)
+                << " reference=" << ref(col,row);
 		}
 	}
-
-	if (ret)
-	{
-		cout << GREEN;
-		cout 	<< "=>" << column << " match" << endl;
-	}
-
-	return ret;
 }
 
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-template <class T> Bool compareCube(const Char* column,
+template <class T> void compareCube(const Char* column,
 									const Cube<T> &inp,
 									const Cube<T> &ref,
 									const Vector<uInt> &rowIds,
 									Float tolerance)
 {
-	// Check matching shape
-	if (inp.shape() != ref.shape())
-	{
-		cout << RED;
-		cout << column << " test and reference cubes don't have the same shape"
-				<< " test (row,chan,corr)="
-				<< "("<< inp.shape()(2) << "," << inp.shape()(1) << "," << inp.shape()(0) << ")"
-				<< " reference (row,chan,corr)="
-				<< "("<< ref.shape()(2) << "," << ref.shape()(1) << "," << ref.shape()(0) << ")"
-				<< endl;
-		return false;
-	}
+    // Check matching shape
+    ASSERT_EQ(inp.shape(), ref.shape()) 
+         << " test and reference cubes don't have the same shape";
 
 	// Compare values
-	Bool ret = true;
 	const IPosition &shape = inp.shape();
-	for (uInt row=0;row < shape(2) and ret; row++)
+	for (uInt row=0;row < shape(2); row++)
 	{
-		for (uInt chan=0;chan < shape(1) and ret; chan++)
+		for (uInt chan=0;chan < shape(1); chan++)
 		{
-			for (uInt corr=0;corr < shape(0) and ret; corr++)
+			for (uInt corr=0;corr < shape(0); corr++)
 			{
-				if (abs(inp(corr,chan,row) - ref(corr,chan,row)) > tolerance )
-				{
-					ret = false;
-					cout << RED;
-					cout << column << " does not match in position (row,chan,corr)="
-							<< "("<< row << "," << chan << "," << corr << ")"
-							<< " rowId=" << rowIds(row)
-							<< " test=" << inp(corr,chan,row)
-							<< " reference=" << ref(corr,chan,row)
-							<< endl;
-				}
+                ASSERT_NEAR(abs(inp(corr,chan,row) - ref(corr,chan,row)), 0, tolerance)
+	                << column << " does not match in position (row,chan,corr)="
+			        << "("<< row << "," << chan << "," << corr << ")"
+			        << " rowId=" << rowIds(row)
+                    << " test=" << inp(corr,chan,row)
+                    << " reference=" << ref(corr,chan,row);
 			}
 		}
 	}
-
-	if (ret)
-	{
-		cout << GREEN;
-		cout 	<< "=>" << column << " match" << endl;
-	}
-
-	return ret;
 }
 
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-Bool compareVisibilityIterators(VisibilityIterator2 &testTVI,
+void compareVisibilityIterators(VisibilityIterator2 &testTVI,
 								VisibilityIterator2 &refTVI,
 								VisBufferComponents2 &columns,
 								Float tolerance,
@@ -276,7 +209,6 @@ Bool compareVisibilityIterators(VisibilityIterator2 &testTVI,
 	// Declare working variables
 	String columnName;
 	Int chunk = 0,buffer = 0;
-	Bool res, keepIterating = true;
 
 	// Get VisBuffers
 	VisBuffer2 *refVb = refTVI.getVisBuffer();
@@ -287,7 +219,7 @@ Bool compareVisibilityIterators(VisibilityIterator2 &testTVI,
 	{
 		refTVI.originChunks();
 		testTVI.originChunks();
-		while (refTVI.moreChunks() and testTVI.moreChunks() and keepIterating)
+		while (refTVI.moreChunks() and testTVI.moreChunks())
 		{
 			chunk += 1;
 			buffer = 0;
@@ -295,143 +227,98 @@ Bool compareVisibilityIterators(VisibilityIterator2 &testTVI,
 			refTVI.origin();
 			testTVI.origin();
 
-			while (refTVI.more() and testTVI.more() and keepIterating)
+			while (refTVI.more() and testTVI.more())
 			{
 				buffer += 1;
-				cout << BLUE;
-				cout << " COMPARING CHUNK " << chunk << " BUFFER " << buffer << endl;
-				cout << " SPW=" << refVb->spectralWindows()[0]
-				     << " SCAN=" << refVb->scan()[0]
-				     << endl;
+                SCOPED_TRACE(string("Comparing chunk ") + to_string(chunk) + 
+                             " buffer " + to_string(buffer) +
+                             " Spw " + to_string(refVb->spectralWindows()[0]) + 
+                             " scan " + to_string(refVb->scan()[0]));
 
 				if (columns.contains(VisBufferComponent2::NRows))
-				{
-					res = testVb->nRows() == refVb->nRows();
-					if (not res)
-					{
-						keepIterating = false;
-						cout << RED;
-						cout << "Number of rows does not match "
-								<< " test=" << testVb->nRows()
-								<< " reference=" << refVb->nRows()
-								<< endl;
-					}
-				}
+                    ASSERT_EQ(testVb->nRows() , refVb->nRows());
 
 				if (columns.contains(VisBufferComponent2::NChannels))
-				{
-					res = testVb->nChannels() == refVb->nChannels();
-					if (not res)
-					{
-						keepIterating = false;
-						cout << RED;
-						cout << "Number of channels does not match "
-								<< " test=" << testVb->nChannels()
-								<< " reference=" << refVb->nChannels()
-								<< endl;
-					}
-				}
+                    ASSERT_EQ(testVb->nChannels(), refVb->nChannels());
 
 				if (columns.contains(VisBufferComponent2::NCorrelations))
-				{
-					res = testVb->nCorrelations() == refVb->nCorrelations();
-					if (not res)
-					{
-						keepIterating = false;
-						cout << RED;
-						cout << "Number of correlations does not match "
-								<< " test=" << testVb->nCorrelations()
-								<< " reference=" << refVb->nCorrelations()
-								<< endl;
-					}
-				}
+                    ASSERT_EQ(testVb->nCorrelations(), refVb->nCorrelations());
 
 				if (columns.contains(VisBufferComponent2::FlagRow))
 				{
 					columnName = VisBufferComponents2::name(VisBufferComponent2::FlagRow);
-					res = compareVector(columnName.c_str(),testVb->flagRow(),refVb->flagRow(),
+					compareVector(columnName.c_str(),testVb->flagRow(),refVb->flagRow(),
 							refVb->rowIds(),tolerance);
-					if (not res) keepIterating = false;
 				}
 
 				if (columns.contains(VisBufferComponent2::FlagCube))
 				{
 					columnName = VisBufferComponents2::name(VisBufferComponent2::FlagCube);
-					res = compareCube(columnName.c_str(),testVb->flagCube(),refVb->flagCube(),
+					compareCube(columnName.c_str(),testVb->flagCube(),refVb->flagCube(),
 							refVb->rowIds(),tolerance);
-					if (not res) keepIterating = false;
 				}
 
 				if (columns.contains(VisBufferComponent2::VisibilityCubeObserved))
 				{
 					columnName = VisBufferComponents2::name(VisBufferComponent2::VisibilityCubeObserved);
-					res = compareCube(columnName.c_str(),testVb->visCube(),getViscube(refVb,MS::DATA,datacolmap),
+					compareCube(columnName.c_str(),testVb->visCube(),getViscube(refVb,MS::DATA,datacolmap),
 							refVb->rowIds(),tolerance);
-					if (not res) keepIterating = false;
 				}
 
 				if (columns.contains(VisBufferComponent2::VisibilityCubeCorrected))
 				{
 					columnName = VisBufferComponents2::name(VisBufferComponent2::VisibilityCubeCorrected);
-					res = compareCube(columnName.c_str(),testVb->visCubeCorrected(),getViscube(refVb,MS::CORRECTED_DATA,datacolmap),
+                    compareCube(columnName.c_str(),testVb->visCubeCorrected(),getViscube(refVb,MS::CORRECTED_DATA,datacolmap),
 							refVb->rowIds(),tolerance);
-					if (not res) keepIterating = false;
 				}
 
 				if (columns.contains(VisBufferComponent2::VisibilityCubeModel))
 				{
 					columnName = VisBufferComponents2::name(VisBufferComponent2::VisibilityCubeModel);
-					res = compareCube(columnName.c_str(),testVb->visCubeModel(),getViscube(refVb,MS::MODEL_DATA,datacolmap),
+                    compareCube(columnName.c_str(),testVb->visCubeModel(),getViscube(refVb,MS::MODEL_DATA,datacolmap),
 							refVb->rowIds(),tolerance);
-					if (not res) keepIterating = false;
 				}
 
 				if (columns.contains(VisBufferComponent2::VisibilityCubeFloat))
 				{
 					columnName = VisBufferComponents2::name(VisBufferComponent2::VisibilityCubeFloat);
-					res = compareCube(columnName.c_str(),testVb->visCubeFloat(),refVb->visCubeFloat(),
+                    compareCube(columnName.c_str(),testVb->visCubeFloat(),refVb->visCubeFloat(),
 							refVb->rowIds(),tolerance);
-					if (not res) keepIterating = false;
 				}
 
 				if (columns.contains(VisBufferComponent2::WeightSpectrum))
 				{
 					columnName = VisBufferComponents2::name(VisBufferComponent2::WeightSpectrum);
-					res = compareCube(columnName.c_str(),testVb->weightSpectrum(),refVb->weightSpectrum(),
+                    compareCube(columnName.c_str(),testVb->weightSpectrum(),refVb->weightSpectrum(),
 							refVb->rowIds(),tolerance);
-					if (not res) keepIterating = false;
 				}
 
 				if (columns.contains(VisBufferComponent2::SigmaSpectrum))
 				{
 					columnName = VisBufferComponents2::name(VisBufferComponent2::SigmaSpectrum);
-					res = compareCube(columnName.c_str(),testVb->sigmaSpectrum(),refVb->sigmaSpectrum(),
+                    compareCube(columnName.c_str(),testVb->sigmaSpectrum(),refVb->sigmaSpectrum(),
 							refVb->rowIds(),tolerance);
-					if (not res) keepIterating = false;
 				}
 
 				if (columns.contains(VisBufferComponent2::Weight))
 				{
 					columnName = VisBufferComponents2::name(VisBufferComponent2::Weight);
-					res = compareMatrix(columnName.c_str(),testVb->weight(),refVb->weight(),
+                    compareMatrix(columnName.c_str(),testVb->weight(),refVb->weight(),
 							refVb->rowIds(),tolerance);
-					if (not res) keepIterating = false;
 				}
 
 				if (columns.contains(VisBufferComponent2::Sigma))
 				{
 					columnName = VisBufferComponents2::name(VisBufferComponent2::Sigma);
-					res = compareMatrix(columnName.c_str(),testVb->sigma(),refVb->sigma(),
+                    compareMatrix(columnName.c_str(),testVb->sigma(),refVb->sigma(),
 							refVb->rowIds(),tolerance);
-					if (not res) keepIterating = false;
 				}
 
 				if (columns.contains(VisBufferComponent2::Frequencies))
 				{
 					columnName = VisBufferComponents2::name(VisBufferComponent2::Frequencies);
-					res = compareVector(columnName.c_str(),testVb->getFrequencies(0),refVb->getFrequencies(0),
+                    compareVector(columnName.c_str(),testVb->getFrequencies(0),refVb->getFrequencies(0),
 							refVb->rowIds(),tolerance);
-					if (not res) keepIterating = false;
 				}
 
 				refTVI.next();
@@ -444,27 +331,16 @@ Bool compareVisibilityIterators(VisibilityIterator2 &testTVI,
 	}
 	catch (AipsError &ex)
 	{
-		LogIO logger;
-		logger 	<< LogIO::SEVERE
-					<< "Exception comparing visibility iterators: " << ex.getMesg() << endl
-					<< "Stack Trace: " << ex.getStackTrace()
-					<< LogIO::POST;
-		keepIterating = false;
+        FAIL()<< "Exception comparing visibility iterators: " << ex.getMesg() 
+                      << endl << "Stack Trace: " << ex.getStackTrace();
 	}
-
-
-	cout << RESET << endl;
-
-	return keepIterating;
 }
 
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-Bool copyTestFile(String &path,String &filename,String &outfilename)
+void copyTestFile(String &path,String &filename,String &outfilename)
 {
-	Bool ret = true;
-
 	if (path.size() > 0)
 	{
 		char* pathChar = getenv ("CASAPATH");
@@ -485,25 +361,12 @@ Bool copyTestFile(String &path,String &filename,String &outfilename)
 
 			// Make a copy of the file in the working directory
 			String cp_command = String ("cp -r ") + fullfilename + String(" ") + outfilename;
-			Int ret1 = system(cp_command.c_str());
-
-			// Check that copy command was successful
-			if (ret1 != 0)
-			{
-				cout << RED;
-				cout << "TEST FILE NOT FOUND: " << fullfilename << endl;
-				cout << RESET;
-
-				ret = false;
-			}
+			ASSERT_TRUE(system(cp_command.c_str()))
+                << "Test file not found: " << fullfilename;
 		}
 		else
 		{
-			cout << RED;
-			cout << "CASAPATH ENVIRONMENTAL VARIABLE NOT DEFINED" << endl;
-			cout << RESET;
-
-			ret = false;
+            FAIL() << "CASAPATH environmental variable not defined ";
 		}
 	}
 	else
@@ -514,20 +377,9 @@ Bool copyTestFile(String &path,String &filename,String &outfilename)
 
 		// Make a copy of the file in the working directory
 		String cp_command = String ("cp -r ") + filename + String(" ") + outfilename;
-		Int ret1 = system(cp_command.c_str());
-
-		// Check that copy command was successful
-		if (ret1 != 0)
-		{
-			cout << RED;
-			cout << "TEST FILE NOT FOUND: " << filename << endl;
-			cout << RESET;
-
-			ret = false;
-		}
+        ASSERT_TRUE(system(cp_command.c_str()))
+            << "Test file not found: " << filename;
 	}
-
-	return ret;
 }
 
 // -----------------------------------------------------------------------
