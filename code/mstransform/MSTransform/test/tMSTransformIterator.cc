@@ -39,7 +39,7 @@ void MSTransformIteratorTest::generateTestFile()
 {
 	String path("");
 	if (autoMode_p) path = String("/data/regression/unittest/flagdata/");
-	ASSERT_TRUE(copyTestFile(path,inpFile_p,testFile_p));
+	copyTestFile(path,inpFile_p,testFile_p);
 
 	return;
 }
@@ -52,7 +52,7 @@ void MSTransformIteratorTest::generateReferenceFile()
 	if (autoMode_p)
 	{
 		String path("/data/regression/unittest/flagdata/");
-		ASSERT_TRUE(copyTestFile(path,inpFile_p,inpFile_p));
+		copyTestFile(path,inpFile_p,inpFile_p);
 	}
 
 	MSTransformManager manager(refConfiguration_p);
@@ -202,15 +202,8 @@ void MSTransformIteratorTest::testCompareTransformedData()
 	columns += VisBufferComponent2::Frequencies;
 
 	// Compare
-	Bool res = compareVisibilityIterators(testTVI,refTVI,columns,tolerance);
-
-	// Store result
-	if (not res) testResult_p = res;
-
-	// Trigger google test macro
-	ASSERT_TRUE(res);
-
-	return;
+    SCOPED_TRACE("Comparing transformed data");
+    compareVisibilityIterators(testTVI,refTVI,columns,tolerance);
 }
 
 //////////////////////////////////////////////////////////////////////////

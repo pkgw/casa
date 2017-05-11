@@ -40,7 +40,7 @@ void PhaseShiftingTVITest::generateTestFile()
 {
 	String path("");
 	if (autoMode_p) path = String("/data/regression/unittest/flagdata/");
-	ASSERT_TRUE(copyTestFile(path,inpFile_p,testFile_p));
+	copyTestFile(path,inpFile_p,testFile_p);
 
 	return;
 }
@@ -52,7 +52,7 @@ void PhaseShiftingTVITest::generateReferenceFile()
 {
 	String path("");
 	if (autoMode_p) path = String("/data/regression/unittest/flagdata/");
-	ASSERT_TRUE(copyTestFile(path,inpFile_p,referenceFile_p));
+	copyTestFile(path,inpFile_p,referenceFile_p);
 
 	return;
 }
@@ -149,15 +149,8 @@ void PhaseShiftingTVITest::testCompareTransformedData()
 	columns += VisBufferComponent2::VisibilityCubeModel;
 
 	// Compare
-	Bool res = compareVisibilityIterators(testTVI,refTVI,columns,tolerance);
-
-	// Store result
-	if (not res) testResult_p = res;
-
-	// Trigger google test macro
-	ASSERT_TRUE(res);
-
-	return;
+    SCOPED_TRACE("Comparing transformed data");
+    compareVisibilityIterators(testTVI,refTVI,columns,tolerance);
 }
 
 //////////////////////////////////////////////////////////////////////////
