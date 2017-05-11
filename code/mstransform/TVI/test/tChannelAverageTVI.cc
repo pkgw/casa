@@ -240,12 +240,12 @@ void ChannelAverageTVICompareTest::propagateFlags()
 //////////////////////////////////////////////////////////////////////////
 // Googletest macros
 //////////////////////////////////////////////////////////////////////////
-TEST_F(ChannelAverageTVICompareTest, testCompareTransformedData)
+TEST_F(ChannelAverageTVICompareTest, CompareTransformedData)
 {
 	testCompareTransformedData();
 }
 
-TEST_F(ChannelAverageTVICompareTest, testComparePropagatedFlags)
+TEST_F(ChannelAverageTVICompareTest, ComparePropagatedFlags)
 {
 	testComparePropagatedFlags();
 }
