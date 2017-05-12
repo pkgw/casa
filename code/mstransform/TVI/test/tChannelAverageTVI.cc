@@ -253,6 +253,14 @@ TEST(ChannelAverageTVIConfTest, WrongChanbinType)
     ChannelAverageTVIFactory testFactory(configuration, nullptr);
     ASSERT_THROW(VisibilityIterator2 testTVI(testFactory), AipsError);
 }
+
+TEST(ChannelAverageTVIConfTest, NullInput)
+{
+    Record configuration;
+    configuration.define ("chanbin", 2);
+    ChannelAverageTVIFactory testFactory(configuration, nullptr);
+    ASSERT_THROW(VisibilityIterator2 testTVI(testFactory), AipsError);
+}
 //////////////////////////////////////////////////////////////////////////
 // main
 //////////////////////////////////////////////////////////////////////////
