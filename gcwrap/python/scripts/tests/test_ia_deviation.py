@@ -204,5 +204,40 @@ class ia_deviation_test(unittest.TestCase):
         self._myia.done()
         self.assertTrue(numpy.all(numpy.isclose(got, expec)), "ref val as anchor compare") 
 
+    def test_mask(self):
+        aa = numpy.array(range(100), dtype=numpy.double)
+        aa = aa.reshape([10,10])
+        self._myia.fromshape("", [10, 10])
+        self._myia.putchunk(aa*aa)
+        mask = self._myia.getchunk(getmask=True)
+        mask[2,2] = False
+        mask[6,6] = False
+        self.assertFalse(mask.all())
+        self._myia.putregion(pixelmask=mask)
+        self.assertTrue((self._myia.getchunk(getmask=True) == mask).all()) 
+        mm = self._myia.deviation("", grid=[3,3], anchor=[2,2], xlength="4pix", ylength="4pix", interp="linear")
+        self._myia.done()
+        self.assertTrue((mm.getchunk(getmask=True) == mask).all()) 
+        mm.done()
+
+        self._myia.fromshape("", [10, 10, 2])
+        bb = self._myia.getchunk()
+        bb[:,:,0] = aa
+        bb[:,:,1] = aa
+        self._myia.putchunk(bb)
+        mask2 = self._myia.getchunk(getmask=True)
+        mask2[:,:,0] = mask
+        mask2[2,5,1] = False
+        mask2[6,6,1] = False
+        self.assertFalse(mask2.all())
+        self._myia.putregion(pixelmask=mask2)
+        self.assertTrue((self._myia.getchunk(getmask=True) == mask2).all()) 
+        mm = self._myia.deviation("", grid=[3,3], anchor=[2,2], xlength="4pix", ylength="4pix", interp="linear")
+        self._myia.done()
+        self.assertTrue((mm.getchunk(getmask=True) == mask2).all()) 
+        mm.done()
+        
+
+
 def suite():
     return [ia_deviation_test]
