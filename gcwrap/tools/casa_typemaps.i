@@ -10,18 +10,19 @@
 
 #if PY_MAJOR_VERSION >= 3
 # define PYINT_CHECK(x) 0
-# define PyInt_AsLong(x) 0
+# ifndef PyInt_AsLong
+#  define PyInt_AsLong(x) 0
+# endif
 # define PY_INTEGER_FROM_LONG(x) PyLong_FromLong(x)
 # define PYSTRING_FROM_C_STRING PyUnicode_FromString
 # define PYBYTES_CHECK PyBytes_Check
 # define PYBYTES_AS_C_STRING PyBytes_AsString
 # define PYTEXT_CHECK PyUnicode_Check
 # define PYTEXT_TO_CXX_STRING(cxx_string,text_obj) \
-    do { (cxx_string) = string(PyUnicode_AsUTF8AndSize((text_obj), NULL)); } while (0)
+    do { (cxx_string) = std::string(PyUnicode_AsUTF8AndSize((text_obj), NULL)); } while (0)
 #else
 # define PYINT_CHECK(x) PyInt_Check(x)
 # define PY_INTEGER_FROM_LONG(x) PyInt_FromLong(x)
-# define PYINTGER_AS_LONG PyLong_AsLong
 # define PYSTRING_FROM_C_STRING PyString_FromString
 # define PYBYTES_CHECK PyString_Check
 # define PYBYTES_AS_C_STRING PyString_AsString
@@ -29,8 +30,8 @@
 // Below, the string constructor copies the char*, so we can dealloc bytes_obj safely.
 # define PYTEXT_TO_CXX_STRING(cxx_string,text_obj) \
     do { \
-        PyObject *bytes_obj = PyUnicode_AsUTF8String(text_obj);  \
-        (cxx_string) = string(PyString_AsString(bytes_obj)); \
+        PyObject *bytes_obj = PyUnicode_AsUTF8String(text_obj); \
+        (cxx_string) = std::string(PyString_AsString(bytes_obj)); \
         Py_DECREF(bytes_obj); \
     } while (0)
 #endif
