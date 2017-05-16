@@ -20,6 +20,11 @@
 %feature("kwargs");
 %feature("autodoc", "0");
 </xsl:text>
+<xsl:for-each select="aps:method">
+   <xsl:if test="lower-case(@type)!='constructor'">
+      <xsl:apply-templates select="aps:output"/>
+   </xsl:if>
+</xsl:for-each>
 <xsl:text disable-output-escaping="yes">
 %exception {
    try {
