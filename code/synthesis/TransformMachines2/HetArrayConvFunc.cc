@@ -548,14 +548,19 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
 					}
 					else{
 						//direct frequency PB
-						cerr << "orig coords " << subim.coordinates().toWorld(IPosition(4,0,0,0,0)) << " conj coords " <<  subim2.coordinates().toWorld(IPosition(4,0,0,0,0)) << endl;
-						cerr << "incr " << subim.coordinates().increment() << "   " << subim2.coordinates().increment() << endl;
-						subim2.copyData(subim);
+						//cerr << "orig coords " << subim.coordinates().toWorld(IPosition(4,0,0,0,0)) << " conj coords " <<  subim2.coordinates().toWorld(IPosition(4,0,0,0,0)) << endl;
+						//cerr << "incr " << subim.coordinates().increment() << "   " << subim2.coordinates().increment() << endl;
+						/*subim2.copyData(subim);
 						//Now do the conjugate freq multiplication
 						(antMath_p[k])->applyVP(subim2, subim2, direction1_p);
 
 						//Then the other
 						(antMath_p[j])->applyVP(subim2, subim2, direction2_p);
+						*/
+						//one antenna
+						(antMath_p[k])->applyPB(subim2, subim2, direction1_p);
+						//Then the other
+						(antMath_p[j])->applyPB(subim2, subim2, direction2_p);
 					}
                     //tim.show("After Apply2 ");
                     //tim.mark();
@@ -712,7 +717,7 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
             (*convFunctions_p[actualConvIndex_p])=resample(convFuncTemp.getSlice(blc,shp),Double(convSamp)/Double(convSampling));
             convSize_p=newRealConvSize;
             (*convWeights_p[actualConvIndex_p])=resample(weightConvFuncTemp.getSlice(blc, shp),Double(convSamp)/Double(convSampling));
-			cerr << "nchan " << nchan_p << " getconj " << getConjConvFunc << endl;
+			//cerr << "nchan " << nchan_p << " getconj " << getConjConvFunc << endl;
             if((nchan_p == 1) && getConjConvFunc) {
                 fillConjConvFunc(beamFreqs);
                 ////////////////
@@ -844,7 +849,7 @@ void HetArrayConvFunc::applyGradientToYLine(const Int iy, Complex*& convFunction
     }
 }
 void HetArrayConvFunc::fillConjConvFunc(const Vector<Double>& freqs) {
-    cerr << "Actualconv index " << actualConvIndex_p << endl;
+    //cerr << "Actualconv index " << actualConvIndex_p << endl;
     convFunctionsConjFreq_p.resize(actualConvIndex_p+1);
     Double centerFreq=SpectralImageUtil::worldFreq(csys_p, 0.0);
     IPosition shp=convFunctions_p[actualConvIndex_p]->shape();
@@ -855,10 +860,9 @@ void HetArrayConvFunc::fillConjConvFunc(const Vector<Double>& freqs) {
         Double conjFreq=(centerFreq-freqs[k])+centerFreq;
         blc[3]=k;
         trc[3]=k;
-        cerr << "blc " << blc << " trc "<< trc << " ratio " << conjFreq/freqs[k] << endl; 
+        //cerr << "blc " << blc << " trc "<< trc << " ratio " << conjFreq/freqs[k] << endl; 
         //Matrix<Complex> convSlice((*convFunctions_p[actualConvIndex_p])(blc, trc).reform(IPosition(2, shp[0], shp[1])));
         Array<Complex> convSlice((*convFunctions_p[actualConvIndex_p])(blc, trc));
-        cerr << "convSlice shape " << convSlice.shape() << endl;
         Array<Complex> conjFreqSlice(resample(convSlice, conjFreq/freqs[k]));
         Array<Complex> conjSlice=(*convFunctionsConjFreq_p[actualConvIndex_p])(blc, trc);
         if(conjFreq > freqs[k]) {
@@ -869,7 +873,6 @@ void HetArrayConvFunc::fillConjConvFunc(const Vector<Double>& freqs) {
 			end(0)=beg(0)+shp(0)-1;
 			end(1)=beg(1)+shp(1)-1;
             end[3]=0;
-			cerr << "beg end " << beg << "  " << end << endl;
             conjSlice=conjFreqSlice(beg, end);
         }
         else {
@@ -880,7 +883,6 @@ void HetArrayConvFunc::fillConjConvFunc(const Vector<Double>& freqs) {
             beg(1)=(shp(1)-conjFreqSlice.shape()(1))/2;
 			end(0)+=beg(0);
 			end(1)+=beg(1);
-			cerr << "2 beg end " << beg << "  " << end << endl;
             conjSlice(beg, end)=conjFreqSlice;
         }
         
@@ -1385,7 +1387,7 @@ Matrix <Complex> HetArrayConvFunc::resample2(const Matrix<Complex>& inarray, con
 
     
     Matrix<Complex> outMat(shp, Complex(0.0));
-    cerr << "SHP " << shp << endl;
+    
     
    
      {
