@@ -577,9 +577,9 @@ class MPICommandClient:
             
             # Create a fake command response copying the command request and marking it as not successful
             command_response = dict(self.__command_request_list[command_request_id])
-            command_response['status']='timeout'
-            command_response['successful']=False
-            command_response['ret']=None
+            command_response['status'] = 'timeout'
+            command_response['successful'] = False
+            command_response['ret'] = None
             
             # Get server, processor and pid to identify which server timed out
             server = command_response['server']
@@ -796,17 +796,15 @@ class MPICommandClient:
                 return command_request_id_list
         
         
-        def get_command_response(self,command_request_id_list,block=False,verbose=True):
-            
-            casalog_call_origin = "MPICommandClient::get_command_response"    
-            
-            
-            command_response_list = []
-            if block:
-                
+        def get_command_response(self, command_request_id_list, block=False, verbose=True):
+
+            def blocking_loop(command_request_id_list):
+                """ Go in a loop until all requests are done (or some finish, some
+                time out)"""
+
                 # Wait until command request response is received or timeout
                 pending_command_request_id_list = list(command_request_id_list)
-                while len(pending_command_request_id_list)>0:
+                while len(pending_command_request_id_list) > 0:
                     for command_request_id in command_request_id_list:
                         # Check if command request id is still pending
                         if command_request_id in pending_command_request_id_list:
@@ -824,8 +822,11 @@ class MPICommandClient:
                                 
                             
                     time.sleep(MPIEnvironment.mpi_push_command_request_block_mode_sleep_time)
-                    
-                # Gather command response list
+
+            def blocking_gather_response_list(command_request_id_list):
+                """ build command_response list from responses available for command requests"""
+
+                command_response_list = []
                 for command_request_id in command_request_id_list:
                     if self.__command_response_list.has_key(command_request_id):
                         command_response = dict(self.__command_response_list[command_request_id])
@@ -833,22 +834,12 @@ class MPICommandClient:
                     else:
                         command_response = self.__format_command_response_timeout(command_request_id)
                         command_response_list.append(command_response)
-                    
-                # Gather return codes
-                #command_return_code_list = []
-                #for command_response in command_response_list:
-                #    successful = command_response['successful']
-                #    if not successful:
-                #        command_return_code_list.append([command_response['id'],False, command_response['traceback']])
-                #    elif command_response['mode'] == 'eval':
-                #        command_return_code_list.append([command_response['id'],True,command_response['ret']])
-                #    else:
-                #        command_return_code_list.append([command_response['id'],True,None])
-                
-                # Return command return code list
+
                 return command_response_list
-            
-            else:
+
+            def nonblocking_gather_response_list(command_request_id_list, verbose):
+                """ Gather all the responses as currently available. """
+
                 command_response_list = []
                 for command_request_id in command_request_id_list:
                     if not self.__command_response_list.has_key(command_request_id):
@@ -866,8 +857,34 @@ class MPICommandClient:
                     else:
                         command_response = dict(self.__command_response_list[command_request_id])
                         command_response_list.append(command_response)
-                        
+
                 return command_response_list
+
+
+            casalog_call_origin = "MPICommandClient::get_command_response"
+
+            if block:
+                blocking_loop(command_request_id_list)
+                command_response_list = blocking_gather_response_list(command_request_id_list)
+
+                # Gather return codes
+                #command_return_code_list = []
+                #for command_response in command_response_list:
+                #    successful = command_response['successful']
+                #    if not successful:
+                #        command_return_code_list.append([command_response['id'],False, command_response['traceback']])
+                #    elif command_response['mode'] == 'eval':
+                #        command_return_code_list.append([command_response['id'],True,command_response['ret']])
+                #    else:
+                #        command_return_code_list.append([command_response['id'],True,None])
+
+                # Return command return code list
+
+            else:
+                command_response_list = nonblocking_gather_response_list(command_request_id_list,
+                                                                         verbose)
+
+            return command_response_list
             
             
         def get_command_response_event(self,command_request_id_list):
