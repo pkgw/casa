@@ -855,25 +855,8 @@ void SDGrid::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
   
   gridOk(convSupport);
 
-//  //Check if ms has changed then cache new spw and chan selection
-//  if(vb.isNewMs()){
-//    matchAllSpwChans(vb);
-//    lastIndex_p=0;
-//    if (lastIndexPerAnt_p.nelements() < (size_t)vb.nAntennas()) {
-//      lastIndexPerAnt_p.resize(vb.nAntennas());
-//    }
-//    lastIndexPerAnt_p=0;
-//  }
-//  //Here we redo the match or use previous match
-//
-//  //Channel matching for the actual spectral window of buffer
-//  if(doConversion_p[vb.spectralWindow()]){
-//    matchChannel(vb.spectralWindows()[0], vb);
-//  }
-//  else{
-//    chanMap.resize();
-//    chanMap=multiChanMap_p[vb.spectralWindows()[0]];
-//  }
+  // There is no channel mapping cache in VI/VB2 version of FTMachine
+  // Perform matchChannel everytime
   matchChannel(vb);
   
   //No point in reading data if its not matching in frequency
@@ -1100,29 +1083,8 @@ void SDGrid::get(vi::VisBuffer2& vb, Int row)
     //vb.modelVisCube().xyPlane(row)=Complex(0.0,0.0);
   }
 
-
-  //Check if ms has changed then cache new spw and chan selection
-//  if(vb.isNewMs()){
-//    // TODO: ask imager guru why matchAllSpwChans still depends on old VB
-//    matchAllSpwChans(vb);
-//    lastIndex_p=0;
-//    if (lastIndexPerAnt_p.nelements() < (size_t)vb.nAntennas()) {
-//      lastIndexPerAnt_p.resize(vb.nAntennas());
-//    }
-//    lastIndexPerAnt_p=0;
-//  }
-//
-//  //Here we redo the match or use previous match
-//
-//  //Channel matching for the actual spectral window of buffer
-//  // TODO: spectralWindows()[0] OK?
-//  if(doConversion_p[vb.spectralWindows()[0]]){
-//    matchChannel(vb.spectralWindows()[0], vb);
-//  }
-//  else{
-//    chanMap.resize();
-//    chanMap=multiChanMap_p[vb.spectralWindows()[0]];
-//  }
+  // There is no channel mapping cache in VI/VB2 version of FTMachine
+  // Perform matchChannel everytime
   matchChannel(vb);
 
   //No point in reading data if its not matching in frequency
