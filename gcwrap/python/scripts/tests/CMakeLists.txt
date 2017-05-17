@@ -180,6 +180,13 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_sdimaging.py
   test_sdimprocess.py
   test_tsdsmooth.py
+
+  ### CASAGUIDES ###
+  test_FirstLook_Imaging.py
+  test_FirstLook_LineImageAnalysis.py
+  test_FirstLook_LineImaging.py
+  test_FirstLook_SelfCalibration.py
+
   ### ASAP tasks ###
   test_sdaverage.py
   test_sdbaseline.py
