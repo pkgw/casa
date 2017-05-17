@@ -117,7 +117,7 @@ class MPIMonitorClient:
                         try:
                             self.__communicator.ping_status_request_send(server=rank)
                             self.__server_status_list[rank]['ping_time'] = time.time()
-                            self.__server_status_list[rank]['pong_pending'] = True    
+                            self.__server_status_list[rank]['pong_pending'] = True
                             self.__server_status_list[rank]['pong_checks'] = 0           
                         except:
                             formatted_traceback = traceback.format_exc()
@@ -359,7 +359,10 @@ class MPIMonitorClient:
             for rank in self.__server_status_list:
                 if self.__server_status_list[rank]['timeout'] is True:
                     server_rank_timeout.append(rank)
-                    
+
+            casalog.post('Found {} server in timeout status'.
+                         format(len(server_rank_timeout)),
+                         "INFO", casalog_call_origin)
             return server_rank_timeout
 
 
@@ -381,7 +384,12 @@ class MPIMonitorClient:
 
             casalog_call_origin = "MPIMonitorClient::stop_debugging_mode"
 
+            # Amnesty: clear all 'pong_pending' and 'timeout' flags and start anew
+            for rank in self.__server_status_list:
+                self.__server_status_list[rank]['pong_pending'] = False
+                self.__server_status_list[rank]['timeout'] = False;
             MPIEnvironment.mpi_monitor_status_service_timeout_enabled = True
+
             casalog.post("Stopped debugging mode. Timeout mechanism enabled.",
                          "INFO", casalog_call_origin)
 

@@ -836,6 +836,9 @@ class test_MPICommandServer(unittest.TestCase):
 
         # Back to normal
         mon.stop_debugging_mode()
+        monitorClient = MPIMonitorClient()
+        online_before = list(monitorClient.get_server_rank_online())
+
 
     def test_server_not_responsive(self):
 
@@ -937,18 +940,23 @@ class test_MPICommandServer(unittest.TestCase):
         
         
     def test_server_fake_timeout_busy_wait(self):
-               
+
+        monitorClient = MPIMonitorClient()
+        online_before = list(monitorClient.get_server_rank_online())
+        self.assertEqual(len(self.server_list), len(online_before),
+                         "Expected to start this test with all servers online")
+
         # Simulate a client timeout with a greedy operation
         nloops = len(self.server_list) / 2
         for iter in range(0,nloops):
             str(10**1000000) # NOTE: The greedy part is the str conversion
         
         # Check if any server turns into timeout condition in 2 loops of the heartbeat service
-        monitorClient = MPIMonitorClient()
         end_check = time.time() + 2*MPIEnvironment.mpi_monitor_status_service_heartbeat
         while (time.time() < end_check):
             onlineServers = list(monitorClient.get_server_rank_online())
-            self.assertEqual(len(self.server_list),len(onlineServers), "There are servers in timeout condition") 
+            self.assertEqual(len(self.server_list), len(online_before),
+                             "There are servers in timeout condition")
 
         
 class test_MPIInterface(unittest.TestCase):            
