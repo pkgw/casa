@@ -16,7 +16,7 @@ class MPICommunicator:
         # Check if MPI is effectively enabled
         if not MPIEnvironment.is_mpi_enabled:
             msg = "MPI is not enabled"
-            raise Exception,msg
+            raise Exception(msg)
         
         # Check whether we already have a MPIClient singleton instance
         if MPICommunicator.__instance is None:
@@ -74,7 +74,7 @@ class MPICommunicator:
                 self.__control_service_response_communicator = None
                 msg = "Exception initializing MPICommunicator at processor with rank "
                 msg = msg + "%s: %s" % (str(MPIEnvironment.mpi_processor_rank),str(instance))
-                raise Exception,msg
+                raise Exception(msg)
             
         def finalize_server_and_client_mpi_environment(self):
             

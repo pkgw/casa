@@ -38,13 +38,13 @@ class MPICommandClient:
         if not MPIEnvironment.is_mpi_enabled:
             msg = "MPI is not enabled"
             casalog.post(msg,"SEVERE",casalog_call_origin)
-            raise Exception,msg
+            raise Exception(msg)
         
         # Check if MPICommandClient can be instantiated
         if not MPIEnvironment.is_mpi_client:
             msg = "MPICommandClient can only be instantiated at master MPI process"
             casalog.post(msg,"SEVERE",casalog_call_origin)
-            raise Exception,msg
+            raise Exception(msg)
         
         # Check whether we already have a MPICommandClient singleton instance
         if MPICommandClient.__instance is None:
@@ -180,7 +180,7 @@ class MPICommandClient:
                                          % (str(command_id),str(server),str(command_response['traceback'])),
                                          "SEVERE",casalog_call_origin)          
                         # If this request belongs to a group update the group response object
-                        if self.__command_request_list[command_id].has_key('group'):
+                        if 'group' in self.__command_request_list[command_id]:
                             command_group_response_id = self.__command_request_list[command_id]['group']
                             self.__command_group_response_list[command_group_response_id]['list'].remove(command_id)
                             # If there are no requests pending from this group send the group response signal
@@ -663,7 +663,7 @@ class MPICommandClient:
                 
                 # Notify command requests which are going to be interrupted
                 for command_request_id in self.__command_request_list:
-                        if not self.__command_response_list.has_key(command_request_id):
+                        if command_request_id not in self.__command_response_list:
                             server = self.__command_request_list[command_request_id]['server']
                             status = self.__command_request_list[command_request_id]['status']
                             casalog.post("Aborting command request with id# %s: %s" 
@@ -809,7 +809,7 @@ class MPICommandClient:
                         # Check if command request id is still pending
                         if command_request_id in pending_command_request_id_list:
                             # Check if we have response for command request id
-                            if self.__command_response_list.has_key(command_request_id):
+                            if command_request_id in self.__command_response_list:
                                 # Remove command request id from pending list
                                 pending_command_request_id_list.remove(command_request_id)
                             else:
@@ -828,7 +828,7 @@ class MPICommandClient:
 
                 command_response_list = []
                 for command_request_id in command_request_id_list:
-                    if self.__command_response_list.has_key(command_request_id):
+                    if command_request_id in self.__command_response_list:
                         command_response = dict(self.__command_response_list[command_request_id])
                         command_response_list.append(command_response)
                     else:
@@ -842,7 +842,7 @@ class MPICommandClient:
 
                 command_response_list = []
                 for command_request_id in command_request_id_list:
-                    if not self.__command_response_list.has_key(command_request_id):
+                    if command_request_id not in self.__command_response_list:
                         server = self.__command_request_list[command_request_id]['server']
                         timeout = self.__monitor_client.get_server_status_keyword(server,'timeout')
                         if timeout:
