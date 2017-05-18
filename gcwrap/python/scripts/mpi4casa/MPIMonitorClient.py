@@ -219,7 +219,7 @@ class MPIMonitorClient:
                         # Notify if the response has been received after timeout
                         if self.__server_status_list[rank]['timeout']:
                             self.__server_status_list[rank]['timeout'] = False
-                            casalog.post("Ping status response from server %s finally received after %ss" %
+                            casalog.post("Ping status response from server %s received after %ss" %
                                          (str(rank),str(int(elapsed_time))),"WARN",casalog_call_origin)
                     except:
                         formatted_traceback = traceback.format_exc()
@@ -369,7 +369,8 @@ class MPIMonitorClient:
         def start_debugging_mode(self):
             """ Enter debugging/development mode. This disables the heart-beat time
             out mechanism (which would otherwise trigger when a debugger is attached
-            to MPI server processes)."""
+            to MPI server processes). After this no more servers will be flagged as
+            'timeout', until stop_debugging_mode() is called."""
 
             casalog_call_origin = "MPIMonitorClient::start_debugging_mode"
 
@@ -379,15 +380,16 @@ class MPIMonitorClient:
 
 
         def stop_debugging_mode(self):
-            """ Leave debugging/development mode. The heart-beat mechanism is re-enabled
-            and timeouts """
+            """ Leave debugging/development mode. The heart-beat timeout mechanism is
+            re-enabled. """
 
             casalog_call_origin = "MPIMonitorClient::stop_debugging_mode"
 
-            # Amnesty: clear all 'pong_pending' and 'timeout' flags and start anew
+            # Clear all 'pong_pending' and start ping/pong counts anew
             for rank in self.__server_status_list:
-                self.__server_status_list[rank]['pong_pending'] = False
-                self.__server_status_list[rank]['timeout'] = False;
+                if not self.__server_status_list[rank]['timeout'] is True:
+                    self.__server_status_list[rank]['pong_pending'] = False
+                    self.__server_status_list[rank]['pong_checks'] = 0;
             MPIEnvironment.mpi_monitor_status_service_timeout_enabled = True
 
             casalog.post("Stopped debugging mode. Timeout mechanism enabled.",
