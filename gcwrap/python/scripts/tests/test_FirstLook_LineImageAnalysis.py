@@ -132,7 +132,10 @@ class Test010_FirstLookatImageAnalysis(unittest.TestCase):
 
  	os.symlink(os.environ.get('CASAPATH').split()[0] + "/data/casaguidedata/working_data/sis14_twhya_cont.image",os.getcwd()+'/sis14_twhya_cont.image')
 	os.symlink(os.environ.get('CASAPATH').split()[0] + "/data/casaguidedata/working_data/sis14_twhya_n2hp.image",os.getcwd()+'/sis14_twhya_n2hp.image')
-	os.system(os.environ.get('CASAPATH').split()[0] +"/lib/python2.7/extractCASAscript.py -n -p -d 'https://casaguides.nrao.edu/index.php/First_Look_at_Image_Analysis'")
+	if os.uname()[0] == 'Darwin':
+		os.system(os.environ.get('CASAPATH').split()[0] +"/Resources/python/extractCASAscript.py -n -p -d 'https://casaguides.nrao.edu/index.php/First_Look_at_Image_Analysis'")
+	else:
+		os.system(os.environ.get('CASAPATH').split()[0] +"/lib/python2.7/extractCASAscript.py -n -p -d 'https://casaguides.nrao.edu/index.php/First_Look_at_Image_Analysis'")
 
 	time.sleep(5) # Allow extract time to download script
 

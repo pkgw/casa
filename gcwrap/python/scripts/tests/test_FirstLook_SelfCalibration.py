@@ -136,7 +136,10 @@ class Test010_FirstLookatSelfCalibration(unittest.TestCase):
 			except: shutil.rmtree(os.getcwd()+'/%s'%(dataset))
  	os.symlink(os.environ.get('CASAPATH').split()[0] + "/data/casaguidedata/working_data/sis14_twhya_selfcal.ms",os.getcwd()+'/sis14_twhya_selfcal.ms')
  	os.symlink(os.environ.get('CASAPATH').split()[0] + "/data/casaguidedata/working_data/sis14_twhya_calibrated_flagged.ms",os.getcwd()+'/sis14_twhya_calibrated_flagged.ms')
-	os.system(os.environ.get('CASAPATH').split()[0] +"/lib/python2.7/extractCASAscript.py -n 'https://casaguides.nrao.edu/index.php/First_Look_at_Self_Calibration'")
+	if os.uname()[0] == 'Darwin':
+		os.system(os.environ.get('CASAPATH').split()[0] +"/Resources/python/extractCASAscript.py -n -p -d 'https://casaguides.nrao.edu/index.php/First_Look_at_Self_Calibration'")
+	else:
+		os.system(os.environ.get('CASAPATH').split()[0] +"/lib/python2.7/extractCASAscript.py -n -p -d 'https://casaguides.nrao.edu/index.php/First_Look_at_Self_Calibration'")
 	
 	time.sleep(5) # Allow extract time to download script
 
