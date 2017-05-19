@@ -557,9 +557,17 @@ def main( URL, options ):
     outFile = ''
     if ( URL[:4].upper() == 'HTTP' ):
         print "Acquiring " + URL
-        req = urllib2.Request(URL)
-        response = urllib2.urlopen(req)
-        responseLines = response.read().split("\n")
+        if os.uname()[0] == 'Darwin': #http://stackoverflow.com/questions/27835619/ssl-certificate-verify-failed-error
+            import ssl
+            req = urllib2.Request(URL)
+            gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
+            response = urllib2.urlopen(req,context=gcontext)
+            responseLines = response.read().split("\n")
+    
+        else:
+            req = urllib2.Request(URL)
+            response = urllib2.urlopen(req)
+            responseLines = response.read().split("\n")
         # Clean up the output file name
         outFile = URL.split('/')[-1]
         if not pyInput: outFile += '.py'

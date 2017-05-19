@@ -102,8 +102,8 @@ def msHandler(file):
 	return table_instance
 
 def suite():
-    #return [Test010_FirstLookatImaging,Test020_FirstLookatImaging]
-    return [Test010_FirstLookatImaging]# ,Test020_FirstLookatImaging]
+    return [Test010_FirstLookatImaging,Test020_FirstLookatImaging]
+
 class Test010_FirstLookatImaging(unittest.TestCase):
     def setUp(self):
 	if os.path.isdir(os.getcwd()+'/twhya_smoothed.ms'):
@@ -111,7 +111,10 @@ class Test010_FirstLookatImaging(unittest.TestCase):
 	os.symlink(os.environ.get('CASAPATH').split()[0] + "/data/casaguidedata/working_data/sis14_twhya_calibrated.ms",os.getcwd()+'/sis14_twhya_calibrated.ms')
 	os.symlink(os.environ.get('CASAPATH').split()[0] + "/data/casaguidedata/working_data/sis14_twhya_uncalibrated.ms",os.getcwd()+'/sis14_twhya_uncalibrated.ms')
 	os.symlink(os.environ.get('CASAPATH').split()[0] + "/data/casaguidedata/working_data/sis14_twhya_calibrated_flagged.ms",os.getcwd()+'/sis14_twhya_calibrated_flagged.ms')
-	os.system(os.environ.get('CASAPATH').split()[0] +"/lib/python2.7/extractCASAscript.py -n -p -d 'https://casaguides.nrao.edu/index.php/First_Look_at_Imaging'")
+	if os.uname()[0] == 'Darwin':
+		os.system(os.environ.get('CASAPATH').split()[0] +"/Resources/python/extractCASAscript.py -n -p -d 'https://casaguides.nrao.edu/index.php/First_Look_at_Imaging'")
+	else:
+		os.system(os.environ.get('CASAPATH').split()[0] +"/lib/python2.7/extractCASAscript.py -n -p -d 'https://casaguides.nrao.edu/index.php/First_Look_at_Imaging'")
 	file = open("my_script.py", "w");file.write("print 'Execfile executed'");file.close()
 
 	time.sleep(5) # Allow extract time to download script

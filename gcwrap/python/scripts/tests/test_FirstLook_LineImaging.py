@@ -131,7 +131,10 @@ def suite():
 class Test010_FirstLookatLineImaging(unittest.TestCase):
     def setUp(self):
  	os.symlink(os.environ.get('CASAPATH').split()[0] + "/data/casaguidedata/working_data/sis14_twhya_selfcal.ms",os.getcwd()+'/sis14_twhya_selfcal.ms')
-	os.system(os.environ.get('CASAPATH').split()[0] +"/lib/python2.7/extractCASAscript.py -n -p -d 'https://casaguides.nrao.edu/index.php/First_Look_at_Line_Imaging'")
+	if os.uname()[0] == 'Darwin':
+		os.system(os.environ.get('CASAPATH').split()[0] +"/Resources/python/extractCASAscript.py -n -p -d 'https://casaguides.nrao.edu/index.php/First_Look_at_Line_Imaging'")
+	else:
+		os.system(os.environ.get('CASAPATH').split()[0] +"/lib/python2.7/extractCASAscript.py -n -p -d 'https://casaguides.nrao.edu/index.php/First_Look_at_Line_Imaging'")
 	time.sleep(5) # Allow extract time to download script
         lines = open('FirstLookatLineImaging.py')
         file = open("newfile.txt", "w")
