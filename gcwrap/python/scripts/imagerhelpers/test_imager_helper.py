@@ -179,8 +179,11 @@ class TestHelpers():
                   imexist=None,  # list of image names
                   imexistnot=None, # list of image names
                   imval=None,  # list of tuples of (imagename,val,pos)
-                  immask=None,
-                  tabcache=True
+                  imvalexact=None, # list of tuples of (imagename,val,pos)
+                  immask=None,  #list of tuples to check mask value
+                  tabcache=True,
+                  stopcode=None,
+                  reffreq=None # list of tuples of (imagename, reffreq)
                   ):
           pstr = ""
 
@@ -218,6 +221,12 @@ class TestHelpers():
                          if type(ii)==tuple and len(ii)==3:
                               pstr += self.checkpixval(ii[0],ii[1],ii[2])
 
+          if imvalexact != None:
+               if type(imvalexact)==list:
+                    for ii in imvalexact:
+                         if type(ii)==tuple and len(ii)==3:
+                              pstr += self.checkpixval(ii[0],ii[1],ii[2], exact=True)
+
           if immask != None:
                if type(immask)==list:
                     for ii in immask:
@@ -228,6 +237,18 @@ class TestHelpers():
                opentabs = tb.showcache()
                if len(opentabs)>0 : 
                     pstr += "["+inspect.stack()[1][3]+"] "+self.verdict(False) + ": Found open tables after run "
+
+          if stopcode != None:
+              if type(stopcode)==int:
+                  stopstr = "["+inspect.stack()[1][3]+"] Stopcode is " + str(ret['stopcode']) + " (" + self.verdict(ret['stopcode']==stopcode)  +  " : should be " + str(stopcode) + ")\n"
+                  print stopstr
+                  pstr += stopstr
+                  
+          if reffreq != None:
+              if type(reffreq)==list:
+                  for ii in reffreq:
+                      if type(ii)==tuple and len(ii)==2:
+                          pstr += self.checkreffreq(ii[0],ii[1])
           
           return pstr
           #self.checkfinal(pstr)
@@ -305,7 +326,7 @@ class TestHelpers():
 #               self.fail(pstr)
           return pstr
 
-     def checkpixval(self,imname,theval=0, thepos=[0,0,0,0]):
+     def checkpixval(self,imname,theval=0, thepos=[0,0,0,0], exact=False):
           testname = inspect.stack()[2][3]
 #          maxvals, maxvalposs = self.get_max(imname)
           readval = self.get_pix(imname,thepos)
@@ -318,10 +339,17 @@ class TestHelpers():
                res=False
           else:
                if abs(theval)>self.epsilon:
-                  if abs(readval - theval)/abs(theval) > self.epsilon: 
-                       res = False
-                  else:
-                       res = True
+                   if exact==False:
+                       if abs(readval - theval)/abs(theval) > self.epsilon: 
+                           res = False
+                       else:
+                           res = True
+                   else:
+                       if abs(readval - theval) > 0.0: 
+                           res = False
+                       else:
+                           res = True
+                       
                else:  ## this is to guard against exact zero... sort of.
                   if abs(readval - theval) > self.epsilon: 
                        res = False
@@ -334,6 +362,8 @@ class TestHelpers():
 #          if res==False:
 #               self.fail(pstr)
           return pstr
+
+
 
      def checkpixmask(self,imname,theval=True, thepos=[0,0,0,0]):
           testname = inspect.stack()[2][3]
@@ -357,6 +387,26 @@ class TestHelpers():
           pstr=pstr+"\n"
 #          if res==False:
 #               self.fail(pstr)
+          return pstr
+
+     def checkreffreq(self,imname,theval=0):
+          testname = inspect.stack()[2][3]
+
+          retres=True
+
+          _ia.open(imname)
+          csys = _ia.coordsys()
+          _ia.close()
+          reffreq = csys.referencevalue()['numeric'][3]
+          if  abs(reffreq - theval)/theval > self.epsilon :
+              retres=False
+          else:
+              retres=True
+
+          pstr = "[" +  testname + "] Ref-Freq is " + str(reffreq) + " ("+self.verdict(retres)+" : should be " + str(theval) + ")"
+
+          print pstr
+          pstr=pstr+"\n"
           return pstr
    
      def checkspecframe(self,imname,frame, crval=0.0):

@@ -148,6 +148,10 @@ def tclean(
     #####################################################
     
     ### Move these checks elsewhere ? 
+
+    if specmode=='cont':
+        specmode='mfs'
+
     if specmode=='mfs' and nterms==1 and deconvolver == "mtmfs":
         casalog.post( "The MTMFS deconvolution algorithm (deconvolver='mtmfs') needs nterms>1.Please set nterms=2 (or more). ", "WARN", "task_tclean" )
         return
@@ -351,10 +355,19 @@ def tclean(
             if niter==0 and calcres==False:
                 if savemodel != "none":
                     imager.predictModel()
-        
+
             ## Do deconvolution and iterations
             if niter>0 :
+
+                isit = imager.hasConverged()
+                imager.updateMask()
+
                 while ( not imager.hasConverged() ):
+
+#                    maskchanged = imager.updateMask()
+#                    if maskchanged and imager.hasConverged() :
+#                        break;
+
                     t0=time.time();
                     imager.runMinorCycle()
                     t1=time.time();
@@ -364,6 +377,9 @@ def tclean(
                     imager.runMajorCycle()
                     t1=time.time();
                     casalog.post("***Time for major cycle: "+"%.2f"%(t1-t0)+" sec", "INFO3", "task_tclean");
+
+                    imager.updateMask()
+
                 ## Get summary from iterbot
                 if type(interactive) != bool:
                     retrec=imager.getSummary();

@@ -211,7 +211,7 @@ public:
 
   // Yet another Prune the mask regions per spectral plane
   SHARED_PTR<casacore::ImageInterface<float> >  YAPruneRegions(const casacore::ImageInterface<casacore::Float>& image,
-                                                   casacore::Double prunesize=0.0);
+                                                   casacore::Vector<casacore::Bool>& allpruned, casacore::Double prunesize=0.0);
 
   // create a mask image (1/0 image) applying a different threshold for each channel plane
   void makeMaskByPerChanThreshold(const casacore::ImageInterface<casacore::Float>& image, 
@@ -258,12 +258,12 @@ public:
 
   
   // depth-first-search algorithm for 2D 
-  // input lattice can by 3d or 4d but only search is done on the first plane 
   void depthFirstSearch(casacore::Int x,
                         casacore::Int y,
                         casacore::Int cur_label,
-                        casacore::Lattice<casacore::Float>& inlat,
-                        casacore::Lattice<casacore::Float>& lablat);
+                        casacore::Array<casacore::Float>& inlatarr,
+                        casacore::Array<casacore::Float>& lablatarr);
+
 
   // label connected regions using depth-first-search algorithm
   void labelRegions(casacore::Lattice<casacore::Float>& inlat, casacore::Lattice<casacore::Float>& lablat); 
@@ -271,9 +271,15 @@ public:
   // find sizes of bolbs (regions) found by labelRegions 
   casacore::Vector<casacore::Float>  findBlobSize(casacore::Lattice<casacore::Float>& lablat);
 
+  // check if mask image is empty (all zeros ) =True or not
+  casacore::Bool isEmptyMask(casacore::ImageInterface<casacore::Float>& maskiamge);
+
+  // for warning messages for empy initial mask in automask
+  void noMaskCheck(casacore::ImageInterface<casacore::Float>& mask, casacore::Vector<casacore::String>& thresholdType);
 
   // check if input image is a mask image with 0 or a value (if normalize=true, 1)
-  casacore::Bool checkMaskImage(casacore::ImageInterface<casacore::Float>& maskiamge, casacore::Bool normalize=true);
+  //casacore::Bool checkMaskImage(casacore::ImageInterface<casacore::Float>& maskiamge, casacore::Bool normalize=true);
+
 
   // 
   static casacore::Bool cloneImShape(const casacore::ImageInterface<casacore::Float>& inImage, const casacore::String& outImageName);

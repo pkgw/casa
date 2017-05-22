@@ -50,6 +50,7 @@
 #include <ms/MeasurementSets/MSAntennaColumns.h>
 #include <ms/MeasurementSets/MSSpWindowColumns.h>
 #include <ms/MeasurementSets/MSFieldColumns.h>
+#include <ms/MSOper/MSMetaData.h>
 #include <synthesis/CalTables/CTMainColumns.h>
 #include <synthesis/CalTables/CTColumns.h>
 #include <synthesis/CalTables/CTGlobals.h>
@@ -2292,10 +2293,11 @@ void SolvableVisCal::reParseSolintForVI2() {
   // Maybe should just parse it, and then work out logic re freqDepPar, etc.
 
   // Handle fsolint format
-  if (upcase(fsolint()).contains("NONE") ||   // unspecified  OR  (should be AND?)
+  // TBD:  compare to logic in Calibrater::genericGatherAndSolve (line ~2298)
+  if (upcase(fsolint()).contains("NONE") ||   // unspecified  OR  
       !freqDepMat()) {                        // cal is entirely unchannelizedb 
     fsolint()="none";
-    fintervalCh_.set(1);    // signals full averaging (this is different from old way)
+    fintervalCh_.set(-1.0);    // signals full averaging (this is different from old way)
     fintervalHz_=-1.0;      // don't care
   }
   else {
@@ -2320,9 +2322,7 @@ void SolvableVisCal::reParseSolintForVI2() {
 	
 	if (qFsolint.isConform("Hz")) {
 	  fintervalHz_=qFsolint.get("Hz").getValue();
-	  fintervalCh_.set(-1.0);
-	  throw(AipsError("Can't handle non-channel units in freq solint yet for VI2."));
-	  //	  throw(AipsError("Not able to convert freq-dep solint from Hz to channel yet."));
+	  convertHzToCh();
 	}
 	else {
 	  if (qFsolint.getUnit().length()==0) {
@@ -2336,13 +2336,13 @@ void SolvableVisCal::reParseSolintForVI2() {
 	} // Hz vs. Ch via Quantum
       } // parse by Quantum
     } // freqDepPar
-    /*
-    cout << "Freq-dep solint: " << fsolint() 
-	 << " Ch=" << fintervalCh_ 
-	 << " Hz=" << fintervalHz() 
-	 << endl;
-    */
   } // user set something
+  /*
+  cout << "Freq-dep solint: " << fsolint() 
+       << " Ch=" << fintervalCh_ 
+       << " Hz=" << fintervalHz() 
+       << endl;
+  //*/
 
 }
 
@@ -2371,9 +2371,34 @@ void SolvableVisCal::createMemCalTable2() {
   // Flag all SPW subtable rows; we'll set them OTF
   CTColumns ncc(*ct_);
 
+  // Set FLAG_ROW in SPW subtable
   Vector<Bool> flr=ncc.spectralWindow().flagRow().getColumn();
   flr.set(True);
   ncc.spectralWindow().flagRow().putColumn(flr);
+
+  // Collapse channel axis info in all rows for unchan'd 
+  //  calibration, so columns are "clean" (uniform shape)
+  // NB: some of this info will be revised during data iteration
+  CTSpWindowColumns& spwcol(ncc.spectralWindow());
+  if (!freqDepPar()) {
+    Int nspw=ncc.spectralWindow().nrow();
+    for (Int ispw=0;ispw<nspw;++ispw) {
+      Vector<Double> chfr,chwid,chres,cheff;
+
+      spwcol.chanFreq().get(ispw,chfr);
+      spwcol.chanWidth().get(ispw,chwid);
+      spwcol.resolution().get(ispw,chres);
+      spwcol.effectiveBW().get(ispw,cheff);
+
+      spwcol.chanFreq().put(ispw,Vector<Double>(1,mean(chfr)));
+      spwcol.chanWidth().put(ispw,Vector<Double>(1,sum(chwid)));
+      spwcol.resolution().put(ispw,Vector<Double>(1,sum(chres)));
+      spwcol.effectiveBW().put(ispw,Vector<Double>(1,sum(cheff)));
+    }
+    
+    // One channel per spw
+    spwcol.numChan().putColumn(Vector<Int>(nspw,1));
+  }
 
 }
 
@@ -2600,6 +2625,39 @@ void SolvableVisCal::setSolveChannelization(VisSet& vs) {
 
 }
 
+
+
+
+void SolvableVisCal::convertHzToCh() {
+
+  //  cout << "convertHzToCh!" << endl;
+
+  // Access the channel widths vis msmc, etc.
+  vector<QVD> chanwidths=msmc().msmd().getChanWidths();
+
+  logSink() << LogIO::NORMAL;
+  logSink() << " Frequency solint parsing:" << LogIO::POST;
+  for (Int ispw=0;ispw<nSpw();++ispw) {
+    currSpw()=ispw;
+    // Calculate channel increment from Hz
+    if (fintervalCh()<0.0 && fintervalHz()>0.0) {
+      // Assumes constant chan width in each spw!
+      Double datawidthHz=abs(chanwidths[ispw][0].get("Hz").getValue()); 
+      fintervalCh()=floor(fintervalHz()/datawidthHz);
+      if (fintervalCh()<1.0) fintervalCh()=1.0;  // nothing fractional <1.0
+
+      logSink() << ".  Spw " << ispw << ": "
+		<< " (freq solint: " << fintervalHz() << " Hz) / (data width: " << datawidthHz << " Hz)"
+		<< " = " << fintervalCh() << " data channels per solution channel."
+		<< LogIO::POST;
+    }
+  } // ispw  
+
+}
+
+
+
+
 void SolvableVisCal::setFracChanAve() {
 
   // TBD: calculate fintervalCh from fintervalHz
@@ -2743,7 +2801,8 @@ void SolvableVisCal::syncSolveMeta(SDBList& sdbs) {  // VI2
   // Ask the sdbs
   setMeta(sdbs.aggregateObsId(),
 	  sdbs.aggregateScan(),
-	  sdbs.aggregateTime(),   // TBD:  Use aggreateTimeCentroid()
+	  //sdbs.aggregateTime(),   
+	  sdbs.aggregateTimeCentroid(),
 	  sdbs.aggregateSpw(),
 	  sdbs.freqs(),
 	  sdbs.aggregateFld());

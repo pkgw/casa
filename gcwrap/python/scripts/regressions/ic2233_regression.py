@@ -102,8 +102,8 @@ def ic2233_reg():
 # Change to this from the above after the change in 3rd party pkgs
 # around Jan. 1st week, 2017.  Also using tclean now for the imaging
 # instead of the old imager (im-tool).
-StokesIPeak          =  0.85726589
-StokesIRMS           =  0.00394806
+StokesIPeak          =  0.85711205
+StokesIRMS           =  0.00394761
 
 StokesIPeakPosWorld = '08:20:22.869, +44.40.38.993'; #J2000
 StokesIPeakPos      = [942,1130,0,0]; #Pixels
@@ -132,11 +132,16 @@ StokesIPeakPos      = [942,1130,0,0]; #Pixels
 # Change to this from the above after the change in 3rd party pkgs
 # around Jan. 1st week, 2017.  Also using tclean now for the imaging
 # instead of the old imager (im-tool).
-StokesVPeak         =  0.00061497
-StokesVRMS          =  0.00012994
+# StokesVPeak         =  0.00061497
+# StokesVRMS          =  0.00012994
+
+# Changes after fixing the w-term in prediction.  Stokes-V looks OK,
+# but the peak and therefore the RMS has changed.
+StokesVPeak         = 0.00145028
+StokesVRMS          =  0.0001952
 
 StokesVPeakPosWorld = '08:11:29.219, +45.48.26.199'; #J2000
-StokesVPeakPos      = [1415,1008,1,0]; #Pixels
+StokesVPeakPos      = [1184,1346,1,0]; #Pixels
 #
 #--------------------------------------------------------------
 #

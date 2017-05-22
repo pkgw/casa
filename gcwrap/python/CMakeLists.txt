@@ -20,6 +20,7 @@
 
 #casa_add_executable(tableplot projtable  apps/projtable/projtable.cc)
 casa_add_python( python  casa_python lib/python${PYTHONV}
+scripts/tf.py
 scripts/asap_init.py
 scripts/assignmentFilter.py
 scripts/callibrary.py
@@ -221,6 +222,7 @@ scripts/task_split.py
 #scripts/task_split2.py
 scripts/task_spxfit.py
 scripts/task_statwt.py
+scripts/task_statwt2.py
 scripts/task_tclean.py
 scripts/task_tclean2.py
 scripts/task_testconcat.py

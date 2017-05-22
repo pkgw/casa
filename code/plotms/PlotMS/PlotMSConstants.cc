@@ -70,7 +70,14 @@ bool PMS::axisNeedsCalSlice(Axis axis) {
 
 bool PMS::axisIsWeight(Axis axis) {
     switch(axis) {
-    case WT: case WTSP: case SIGMA: case SIGMASP: return true;
+    case WT: case WTSP: case SIGMA: case SIGMASP: case WTxAMP: return true;
+    default: return false;
+    }
+}
+
+bool PMS::axisIsUV(Axis axis) {
+    switch(axis) {
+    case U: case V: case UWAVE: case VWAVE: return true;
     default: return false;
     }
 }

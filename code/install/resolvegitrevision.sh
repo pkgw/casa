@@ -5,6 +5,7 @@ param=$1
 # Get the hint from an environment variable. This is used for detached head builds
 # Default grep is master
 headGrep="\\\-mas-"
+tagid="mas"
 #echo $CASABRANCHHINT
 if [ ! -z $CASABRANCHHINT ]; then
     if [[ $CASABRANCHHINT =~ ^feature.*CAS.* ]] ; then
@@ -17,6 +18,7 @@ if [ ! -z $CASABRANCHHINT ]; then
         headGrep=$b1-$b2
     elif [[ $CASABRANCHHINT =~ .*release.* ]] ; then
         headGrep=$CASABRANCHHINT
+        tagid="rel"
     fi
 fi
 #echo $headGrep
@@ -37,13 +39,21 @@ if [ $branch == "HEAD" ];then
     # You can obtain this by executing  "git merge-base --fork-point master"
     # while in the branch, but before detaching the HEAD
     if [ -z $CASAFORKPOINTHINT ]; then
-        CASAFORKPOINTHINT=`git merge-base master $branch`
+        if [[ $CASABRANCHHINT =~ .*release.* ]]; then
+            CASAFORKPOINTHINT=`git merge-base $CASABRANCHHINT $branch`
+        else 
+            CASAFORKPOINTHINT=`git merge-base master $branch`
+        fi
     fi
-    headTag=`git describe --abbrev=0 --match='[0-9]*.[0-9]*.[0-9]*-mas-[0-9]*' $(git rev-parse $CASAFORKPOINTHINT)`
+    if [ $tagid == "rel" ]; then
+        headTag=`git describe --abbrev=0 --tags --match='[0-9]*.[0-9]*.[0-9]*-rel-[0-9]*' $(git rev-parse $CASAFORKPOINTHINT)`
+    else
+        headTag=`git describe --abbrev=0 --tags --match='[0-9]*.[0-9]*.[0-9]*-mas-[0-9]*' $(git rev-parse $CASAFORKPOINTHINT)`
+    fi
     #echo "${headTag##*-};$CASA_VERSION_DESC"
     # --curr #echo "${headTag##*-}; "
     if [ "$param" == "--pretty-print" ];then
-        if [ -n "$CASA_VERSION_DESC" ] && [[ "$CASA_VERSION_DESC" != *"-mas-"* ]]; then
+        if [ -n "$CASA_VERSION_DESC" ] && [[ "$CASA_VERSION_DESC" != *"-$tagid-"* ]]; then
             #echo "${headTag%-mas*}-${headTag##*-}+"
             echo "${headTag}+"
         else
@@ -52,7 +62,7 @@ if [ $branch == "HEAD" ];then
         fi
     else
             # Don't include version desc for master
-            if [[ $CASA_VERSION_DESC == *"-mas-"* ]];then
+            if [[ $CASA_VERSION_DESC == *"-$tagid-"* ]];then
                 echo "${headTag##*-};"
             else
                 echo "${headTag##*-};$CASA_VERSION_DESC"

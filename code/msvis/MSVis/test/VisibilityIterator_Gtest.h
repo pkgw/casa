@@ -43,7 +43,10 @@ class TestWidget : public ::testing::Test {
 
 public:
 
-    TestWidget (const casacore::String & name) : name_p (name) {
+    TestWidget (const casacore::String & name)
+    : name_p (name)
+    {
+        strcpy (tmpdir, "/tmp/testXXXXXX");
 	    mkdtemp(tmpdir);
     }
 
@@ -73,7 +76,8 @@ public:
     virtual void sweepMs ();
 
 protected:
-	char tmpdir[16] = "/tmp/testXXXXXX";
+
+	char tmpdir[16];
 
 private:
 
@@ -163,6 +167,19 @@ public:
     virtual void startOfData (casa::vi::VisibilityIterator2 & /*vi*/, casa::vi::VisBuffer2 * /*vb*/);
     casacore::Bool noMoreData (casa::vi::VisibilityIterator2 & /*vi*/, casa::vi::VisBuffer2 * /*vb*/, int nRowsProcessed);
 };
+
+class FrequencyRefinedChannelSelection : public BasicChannelSelection {
+
+public:
+
+    FrequencyRefinedChannelSelection () {}
+
+    virtual casacore::String name () const { return "FrequencyRefinedChannelSelection";}
+    virtual void startOfData (casa::vi::VisibilityIterator2 & /*vi*/, casa::vi::VisBuffer2 * /*vb*/);
+    virtual void nextSubchunk (casa::vi::VisibilityIterator2 & /*vi*/, casa::vi::VisBuffer2 * /*vb*/);
+    casacore::Bool noMoreData (casa::vi::VisibilityIterator2 & /*vi*/, casa::vi::VisBuffer2 * /*vb*/, int nRowsProcessed);
+};
+
 
 class Weighting : public TestWidget {
 

@@ -262,6 +262,8 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 		const PlotMSAveraging& averaging,
 		const PlotMSTransformations& transformations,
 		const PlotMSCalibration& calibration,
+        const PMS::Axis iteraxis,
+        const PMS::Axis coloraxis,
 		ThreadCommunication* thread) {
 
 	// TBD:
@@ -337,7 +339,7 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 			logError("load", "Cannot average negative number of channels");
             throw(AipsError("Invalid avgchannel"));
         }
-		if ( averaging_.baseline() || averaging_.antenna() || averaging_.spw() )
+		if ( averaging_.baseline() || averaging_.antenna() || averaging_.spw() || averaging_.scalarAve())
 		{
 			int axesCount = axes.size();
 			for ( int j = 0; j < axesCount; j++ ){
@@ -405,14 +407,44 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 	//   works---it is used to pre-estimate memory requirements.
 	pendingLoadAxes_.clear();
 
-	// Check meta-data.
-	for(Int i = 0; i < nmetadata(); ++i) {
+	// Add metadata axes if GUI
+    if (plotms_->guiShown()) {
+	  for(Int i = 0; i < nmetadata(); ++i) {
 		pendingLoadAxes_[metadata(i)]=true; // all meta data will be loaded
 		if(!loadedAxes_[metadata(i)]) {
 			loadAxes.push_back(metadata(i));
 			loadData.push_back(PMS::DEFAULT_DATACOLUMN);
 		}
-	}
+	  }
+    } else {
+        // load flags and extra axes
+		pendingLoadAxes_[PMS::FLAG]=true;
+		if(!loadedAxes_[PMS::FLAG]) {
+            loadAxes.push_back(PMS::FLAG);
+	        loadData.push_back(PMS::DEFAULT_DATACOLUMN);
+        }
+        if (iteraxis!=PMS::NONE) {
+            if (iteraxis==PMS::ANTENNA) {
+                if(!loadedAxes_[PMS::ANTENNA1]) {
+                    loadAxes.push_back(PMS::ANTENNA1);
+                    loadData.push_back(PMS::DEFAULT_DATACOLUMN);
+                }
+                if(!loadedAxes_[PMS::ANTENNA2]) {
+                    loadAxes.push_back(PMS::ANTENNA2);
+                    loadData.push_back(PMS::DEFAULT_DATACOLUMN);
+                }
+            } else if(!loadedAxes_[iteraxis]) {
+                loadAxes.push_back(iteraxis);
+                loadData.push_back(PMS::DEFAULT_DATACOLUMN);
+            }
+        }
+        if (coloraxis!=PMS::NONE) {
+            if(!loadedAxes_[coloraxis]) {
+                loadAxes.push_back(coloraxis);
+                loadData.push_back(PMS::DEFAULT_DATACOLUMN);
+            }
+        }
+    }
 
 	// Ensure all _already-loaded_ axes are in the pending list
 	for (Int i= 0;i<PMS::NONE;++i)
@@ -457,14 +489,27 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 
 		// 3)  data axis is loaded; check if data column loaded
 		else if(PMS::axisIsData(axis)) {
-            // see if datacol is loaded for axis
-            std::set<PMS::DataColumn> datacols = loadedAxesData_[axis];
-            if (datacols.find(dc) == datacols.end()) {
+            // Reload if averaging, else see if datacol is already loaded
+            //std::set<PMS::DataColumn> datacols = loadedAxesData_[axis];
+            String datacolStr = PMS::dataColumn(dc);
+            Bool datacolLoaded = loadedAxesData_[axis].isDefined(datacolStr);
+            if (!datacolLoaded) { 
 			    loadAxes.push_back(axis);
 			    loadData.push_back(dc);
+            } else {
+              // check if averaging changed since loading
+              Record datacolRec = loadedAxesData_[axis].subRecord(datacolStr);
+              PlotMSAveraging datacolAvg;
+              datacolAvg.fromRecord(datacolRec);
+              if (datacolAvg != averaging) {
+			    loadAxes.push_back(axis);
+			    loadData.push_back(dc);
+              }
             }
         }
 	}
+
+    
 
 	if (false) {
 		{
@@ -497,8 +542,9 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
             for(unsigned int i = 0; i < loadAxes.size(); i++) {
                 axis = loadAxes[i];
                 loadedAxes_[axis] = true;
+                String datacol = PMS::dataColumn(loadData[i]);
                 if(PMS::axisIsData(axis)) 
-                    loadedAxesData_[axis].insert(loadData[i]);
+                    loadedAxesData_[axis].defineRecord(datacol, averaging.toRecord());
             }
         }
 
@@ -549,11 +595,13 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
     dataLoaded_ = true;
 
     // Calculate refTime (for plot labels)
-    refTime_p=min(time_);
-    refTime_p=86400.0*floor(refTime_p/86400.0);
-    logLoad("refTime = "+MVTime(refTime_p/C::day).string(MVTime::YMD,7));
-    QString timeMesg("refTime = ");
-    timeMesg.append(MVTime(refTime_p/C::day).string(MVTime::YMD,7).c_str());
+    if (loadedAxes_[PMS::TIME] == true) {
+        refTime_p=min(time_);
+        refTime_p=86400.0*floor(refTime_p/86400.0);
+        logLoad("refTime = "+MVTime(refTime_p/C::day).string(MVTime::YMD,7));
+        QString timeMesg("refTime = ");
+        timeMesg.append(MVTime(refTime_p/C::day).string(MVTime::YMD,7).c_str());
+    }
     logLoad("Finished loading.");
 }
 
@@ -1146,16 +1194,28 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
 		   << PMS::axis(currentX_[dataIndex]);
         if (PMS::axisIsData(currentX_[dataIndex])) 
             ss << ":" << PMS::dataColumn(currentXData_[dataIndex]);
-        ss << ": " << xminG_ << "-" << xmaxG_ << " (unflagged); "
-		   << xflminG_ << "-" << xflmaxG_ << " (flagged)." << endl
-		   << PMS::axis(currentY_[dataIndex]);
+        ss << ": " << xminG_ << " to " << xmaxG_ << " (unflagged); ";
+        if (xflminG_ == DBL_MAX)
+            ss << "(no flagged data)" << endl;
+        else 
+		   ss << "; " << xflminG_ << " to " << xflmaxG_ << " (flagged)." << endl;
+		ss << PMS::axis(currentY_[dataIndex]);
         if (PMS::axisIsData(currentY_[dataIndex])) 
             ss << ":" << PMS::dataColumn(currentYData_[dataIndex]);
-        ss << ": " << yminG_ << "-" << ymaxG_ << " (unflagged); "
-		   << yflminG_ << "-" << yflmaxG_ << "(flagged).";
+        ss << ": " << yminG_ << " to " << ymaxG_ << " (unflagged); ";
+        if (yflminG_ == DBL_MAX)
+            ss << "(no flagged data)";
+        else
+		    ss << yflminG_ << " to " << yflmaxG_ << "(flagged).";
 		logLoad(ss.str());
-
-		//  cout << "Use global ranges? : " << boolalpha << globalXRange << " " << globalYRange << endl;
+    
+        if (indexer_[dataIndex][0]->plotConjugates()) {
+            stringstream ss;
+            ss << "For a UV plot, plotms will plot the conjugates of the points in the MS." << endl;
+            ss << "However, the Locate and Flag functions will not work for these conjugate points!" << endl;
+            ss << "The global ranges above do not include the conjugates.";
+            logWarn("load_cache", ss.str());
+        } 
 	}
 }
 

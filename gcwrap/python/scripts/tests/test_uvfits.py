@@ -19,6 +19,7 @@ Features tested:
 '''
 
 datapath = os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/uvfits/'
+datapath2 = os.environ.get('CASAPATH').split()[0] + '/data/regression/'
 
 def check_eq(val, expval, tol=None):
     """Checks that val matches expval within tol."""
@@ -114,7 +115,6 @@ class uvfits_test(unittest.TestCase):
         fitsname = datapath + "1331+305_I.UVFITS"
         self.assertRaises(Exception, myms.fromfits, msname, fitsname)
 
-
     def test_receptor_angle(self):
         """CAS-7081: Test receptor angle is preserved"""
         myms = mstool()
@@ -128,13 +128,18 @@ class uvfits_test(unittest.TestCase):
         rec_ang = "RECEPTOR_ANGLE"
         expec = tb.getcol(rec_ang)
         tb.done()
-        importname = "ke.ms"
-        self.assertTrue(myms.fromfits(importname, uvfits), "Failed uvfits import")
-        myms.done()
-        tb.open(importname + feed)
-        got = tb.getcol(rec_ang)
-        tb.done()
-        self.assertTrue(np.max(np.abs(got -expec)) < 1e-7, "Receptor angles not preserved")
+        for i in [0, 1]:
+            if i == 0:
+                importname = "ke.ms"
+                self.assertTrue(myms.fromfits(importname, uvfits), "Failed uvfits import")
+                myms.done()
+            else:
+                importname = "kf.ms"
+                importuvfits(fitsfile=uvfits, vis=importname)
+            tb.open(importname + feed)
+            got = tb.getcol(rec_ang)
+            tb.done()
+            self.assertTrue(np.max(np.abs(got-expec)) < 1e-7, "Receptor angles not preserved")
 
     def test_diameters(self):
         """CAS-5818: Verify bogus dish diameters in AN table are not used but normal algorithm is used instead"""
@@ -174,17 +179,27 @@ class uvfits_test(unittest.TestCase):
         self.assertFalse(exportuvfits(msname, fitsname, overwrite=False))
         self.assertTrue(exportuvfits(msname, fitsname, overwrite=True))
             
-    def test_varying_receptor_angles(self):
-        """CAS-8744 Test that selected spws with varying receptor angles will not be written"""
-        vis = datapath + "receptor_angle_test.ms"
+    def test_badscan(self):
+        """CAS-10054: Tests intermittent incorrect scan number in last row of single-scan dataset"""
         myms = mstool()
-        myms.open(vis)
-        fitsfile = "blah.fits"
-        self.assertRaises(myms.tofits, fitsfile=fitsfile, overwrite=True)
-        self.assertTrue(myms.tofits(fitsfile=fitsfile, spw="1,2", overwrite=True))
-        for i in (0,1,2):
-            self.assertTrue(myms.tofits(fitsfile=fitsfile, spw=str(i), overwrite=True))
+        fitsname = datapath2 + "ngc4826/fitsfiles/3c273.fits7"
+        msname = "ngc4826.tutorial.3c273.7.ms"
+        self.assertTrue(myms.fromfits(msname, fitsname), "Failed to import uvfits file")
         myms.done()
+
+        mytb = tbtool()
+        mytb.open(msname);
+        scans=mytb.getcol('SCAN_NUMBER')
+        mytb.close()
+
+        nrows=len(scans)
+
+        print 'Last row has scan='+str(scans[nrows-1])+' ; (should be 1).'
+        self.assertFalse(scans[nrows-1]==2, "Last row has wrong scan number: "+str(scans[nrows-1]) )
+        # the following verifies that _all_ scan numbers are correct (and lists unique values)
+        self.assertTrue(sum(scans==1)==nrows, "Unexpected scan number found: "+str(np.unique(scans)) )
+
+
 
 def suite():
     return [uvfits_test]        
