@@ -214,7 +214,9 @@ class PySynthesisImager:
                      if self.alldecpars[str(immod)]['usemask'].count('auto')>0:
                         prevmask = self.allimpars[str(immod)]['imagename']+'.prev.mask'
                         if os.path.isdir(prevmask):
-                          shutil.rmtree(self.allimpars[str(immod)]['imagename']+'.mask')
+                          # Try to force rmtree even with an error as an nfs mounted disk gives an error 
+                          #shutil.rmtree(self.allimpars[str(immod)]['imagename']+'.mask')
+                          shutil.rmtree(self.allimpars[str(immod)]['imagename']+'.mask', ignore_errors=True)
                           #shutil.copytree(prevmask,self.allimpars[str(immod)]['imagename']+'.mask')
                           shutil.move(prevmask,self.allimpars[str(immod)]['imagename']+'.mask')
                           casalog.post("[" + str(self.allimpars[str(immod)]['imagename']) + "] : Reverting output mask to one that was last used ", "INFO")
