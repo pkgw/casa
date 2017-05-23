@@ -100,7 +100,7 @@ public:
     // if messageStore != 0, log messages, stripped of time stampe and priority, will also
     // be placed in this parameter and returned to caller for eg logging to file.
     casacore::Record statistics(
-         vector<casacore::String> *const &messageStore=0
+         std::vector<casacore::String> *const &messageStore=0
     );
 
     const static String SIGMA;
@@ -144,6 +144,13 @@ private:
         const SHARED_PTR<const casacore::ImageInterface<casacore::Float> > tempIm,
         const casacore::Record& retval
     );
+
+    template <class T> void _removePlanes(
+        Array<T>& arr, uInt axis, const std::set<uInt>& planes
+    ) const;
+
+    // remove values for which there were no points, CAS-10183
+    void _sanitizeDueToRegionSelection(Record& retval) const;
 
 };
 }
