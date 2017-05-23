@@ -82,8 +82,10 @@ test_immoments                  dmehring@nrao.edu
 test_impbcor                    dmehring@nrao.edu
 test_importasdm                 dpetry@eso.org
 test_importasdm_mms             scastro@eso.org
+test_importatca                 mwiering@nrao.edu
 test_importevla                 scastro@eso.org
 test_importfitsidi              dpetry@eso.org
+test_importmiriad               mwiering@nrao.edu
 test_importnro                  wataru.kawasaki@nao.ac.jp
 test_imregrid                   jkern@nrao.edu
 test_imsmooth                   dmehring@nrao.edu

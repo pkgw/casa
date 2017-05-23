@@ -7,11 +7,6 @@
 
 #include <gtest/gtest.h>
 
-#include <singledish/Filler/FillerUtil.h>
-#include <singledish/Filler/SingleDishMSFiller.h>
-#include <singledish/Filler/ReaderInterface.h>
-#include <singledish/Filler/Scantable2MSReader.h>
-#include <singledish/Filler/test/TestReader.h>
 #include <singledish/SingleDish/test/SingleDishTestUtil.h>
 
 #include <string>
@@ -26,6 +21,7 @@
 #include <casacore/casa/OS/SymLink.h>
 #include <casacore/casa/OS/Directory.h>
 #include <casacore/casa/OS/DirectoryIterator.h>
+#include <casacore/casa/Arrays/MaskedArray.h>
 #include <casacore/casa/Arrays/ArrayLogical.h>
 #include <casacore/casa/Arrays/Cube.h>
 #include <casacore/casa/Quanta/MVPosition.h>
@@ -43,6 +39,11 @@
 #include <casacore/ms/MeasurementSets/MSStateColumns.h>
 #include <casacore/ms/MeasurementSets/MSSysCalColumns.h>
 #include <casacore/ms/MeasurementSets/MSWeatherColumns.h>
+#include <singledishfiller/Filler/FillerUtil.h>
+#include <singledishfiller/Filler/ReaderInterface.h>
+#include <singledishfiller/Filler/Scantable2MSReader.h>
+#include <singledishfiller/Filler/SingleDishMSFiller.h>
+#include <singledishfiller/Filler/test/TestReader.h>
 
 using namespace casacore;
 using namespace casa;

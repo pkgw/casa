@@ -36,9 +36,9 @@
 #include <tables/Tables/ScalarColumn.h>
 
 // for importasap and importnro
-#include <singledish/Filler/SingleDishMSFiller.h>
-#include <singledish/Filler/Scantable2MSReader.h>
-#include <singledish/Filler/NRO2MSReader.h>
+#include <singledishfiller/Filler/NRO2MSReader.h>
+#include <singledishfiller/Filler/Scantable2MSReader.h>
+#include <singledishfiller/Filler/SingleDishMSFiller.h>
 
 #define _ORIGIN LogOrigin("SingleDishMS", __func__, WHERE)
 
