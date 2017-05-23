@@ -701,7 +701,6 @@ using namespace casa::vi;
   void FTMachine::getInterpolateArrays(const vi::VisBuffer2& vb,
   				       Cube<Complex>& data, Cube<Int>& flags){
 
-	Bool multichan=False;
 	Vector<Double> visFreq(vb.getFrequencies(0).nelements());
 
       //if(doConversion_p[vb.spectralWindows()[0]]){
@@ -712,14 +711,9 @@ using namespace casa::vi;
         convertArray(visFreq, vb.getFrequencies(0));
       }
     
-	/*if(vb.nChannels()>1 && imageFreq_p.nelements() >1){
-		Double width=fabs(imageFreq_p[1]-imageFreq_p[0])/fabs(visFreq[1]-visFreq[0]);
-		multichan=(((width >2.0) && (freqInterpMethod_p==InterpolateArray1D<Double, Complex>::linear)) ||
-         ((width >4.0) && (freqInterpMethod_p !=InterpolateArray1D<Double, Complex>::linear)));
-	}
-	*/
+	
 	  
-      if((imageFreq_p.nelements()==1) || (freqInterpMethod_p== InterpolateArray1D<Double, Complex>::nearestNeighbour)||  (vb.nChannels()==1) || multichan){
+      if((imageFreq_p.nelements()==1) || (freqInterpMethod_p== InterpolateArray1D<Double, Complex>::nearestNeighbour)||  (vb.nChannels()==1)){
         Cube<Bool> modflagCube;
         setSpectralFlag(vb,modflagCube);
 	
@@ -790,18 +784,12 @@ using namespace casa::vi;
     // has only one channel, resort to nearestNeighbour interpolation.
     // Honour user selection of nearestNeighbour.
     //
-    Bool multichan=False;
+    
+	Double width=fabs(imageFreq_p[1]-imageFreq_p[0])/fabs(visFreq[1]-visFreq[0]);
 	
-  /*  cerr << "chanmap " << chanMap << endl;
-	if(vb.nChannels()>1 && imageFreq_p.nelements() >1){
-		Double width=fabs(imageFreq_p[1]-imageFreq_p[0])/fabs(visFreq[1]-visFreq[0]);
-		multichan=(((width >2.0) && (freqInterpMethod_p==InterpolateArray1D<Double, Complex>::linear)) ||
-         ((width >4.0) && (freqInterpMethod_p !=InterpolateArray1D<Double, Complex>::linear)));
-	}f
-	*/
     if((imageFreq_p.nelements()==1) || 
        (vb.nChannels()==1) || 
-       (freqInterpMethod_p== InterpolateArray1D<Double, Complex>::nearestNeighbour) || multichan){
+       (freqInterpMethod_p== InterpolateArray1D<Double, Complex>::nearestNeighbour)){
         origdata->reference(data);
         return false;
       }
@@ -815,7 +803,7 @@ using namespace casa::vi;
 		newImFreq=imageFreq_p;
 		
 		//cerr << "width " << width << endl;
-        /* if(((width >2.0) && (freqInterpMethod_p==InterpolateArray1D<Double, Complex>::linear)) ||
+         if(((width >2.0) && (freqInterpMethod_p==InterpolateArray1D<Double, Complex>::linear)) ||
          ((width >4.0) && (freqInterpMethod_p !=InterpolateArray1D<Double, Complex>::linear))){
 			Int newNchan=Int(std::round(width))*imageFreq_p.nelements();
 			newImFreq.resize(newNchan);
@@ -835,12 +823,12 @@ using namespace casa::vi;
 			flipgrid.resize();
 			flipgrid.reference(newflipgrid);
 			 
-		 }*/
+		 }
       Cube<Complex> flipdata((origdata->shape())(0),(origdata->shape())(2),
   			   (origdata->shape())(1)) ;
       flipdata.set(Complex(0.0));
       InterpolateArray1D<Double,Complex>::
-        interpolate(flipdata,visFreq, newImFreq, flipgrid,InterpolateArray1D<Double, Complex>::nearestNeighbour);
+        interpolate(flipdata,visFreq, newImFreq, flipgrid,freqInterpMethod_p);
       
 
       
