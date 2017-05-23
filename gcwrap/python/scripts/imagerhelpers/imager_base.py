@@ -217,8 +217,20 @@ class PySynthesisImager:
                           # Try to force rmtree even with an error as an nfs mounted disk gives an error 
                           #shutil.rmtree(self.allimpars[str(immod)]['imagename']+'.mask')
                           shutil.rmtree(self.allimpars[str(immod)]['imagename']+'.mask', ignore_errors=True)
-                          #shutil.copytree(prevmask,self.allimpars[str(immod)]['imagename']+'.mask')
-                          shutil.move(prevmask,self.allimpars[str(immod)]['imagename']+'.mask')
+                          # For NFS mounted disk it still leave .nfs* file(s) 
+                          if os.path.isdir(self.allimpars[str(immod)]['imagename']+'.mask'):
+                              import glob
+                              if glob.glob(self.allimpars[str(immod)]['imagename']+'.mask/.nfs*'):
+                                  for item in os.listdir(prevmask):
+                                      src = os.path.join(prevmask,item)
+                                      dst = os.path.join(self.allimpars[str(immod)]['imagename']+'.mask',item)
+                                      if os.path.isdir(src):
+                                          shutil.move(src, dst)
+                                      else:
+                                          shutil.copy2(src,dst)
+                              shutil.rmtree(prevmask)
+                          else: 
+                              shutil.move(prevmask,self.allimpars[str(immod)]['imagename']+'.mask')
                           casalog.post("[" + str(self.allimpars[str(immod)]['imagename']) + "] : Reverting output mask to one that was last used ", "INFO")
 
          return (stopflag>0)
