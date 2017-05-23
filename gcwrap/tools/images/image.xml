@@ -9515,11 +9515,11 @@ exclude such elements from computations on the output arrays by using the numpy.
 For example, to compute the minimum rms value, not including any fully masked planes, one could
 use
 
-numpy.min(numpy.extract(stats['npts']>0, stats['rms']))
+stats = ia.statistics(...)
+rmsmin = numpy.min(numpy.extract(stats['npts']>0, stats['rms']))
 
-where stats is the name of the variable that contains the returned record from ia.statistics().
-Thus in this computation, only the rms elements are considered which have associated values of
-npts that are positive.
+Thus in the computation of rmsmin, only the rms elements are considered which have
+associated values of npts that are not zero.
 
 ALGORITHMS
 

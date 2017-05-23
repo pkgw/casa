@@ -260,18 +260,18 @@ For example, continuing with our example, if axes=[0,1], chans="5~15;30~70", and
 stokes="IV", the output statistic arrays will have shapes of 2x52. Only the selected
 planes will be displayed in the logger output if verbose=True.
 
-In the case where the image has a pixel mask, and/or the mask parameter is specified, and because
-of this specification a plane is entirely masked, this element is included in the statistic arrays
-(usually with a value of 0). It is not included in the logger output if verbose=True. One can
-exclude such elements from computations on the output arrays by using the numpy.extract() method.
-For example, to compute the minimum rms value, not including any fully masked planes, one could
-use
+In the case where the image has a pixel mask, and/or the mask parameter is specified,
+and because of this specification a plane is entirely masked, this element is included in
+the statistic arrays (usually with a value of 0). It is not included in the logger output
+if verbose=True. One can exclude such elements from computations on the output arrays by
+using the numpy.extract() method. For example, to compute the minimum rms value, not
+including any fully masked planes, one could use
 
-numpy.min(numpy.extract(stats['npts']>0, stats['rms']))
+stats = imstat(...)
+rmsmin = numpy.min(numpy.extract(stats['npts']>0, stats['rms']))
 
-where stats is the name of the variable that contains the returned record from ia.statistics().
-Thus in this computation, only the rms elements are considered which have associated values of
-npts that are positive.
+Thus in the computation of rmsmin, only the rms elements are considered which have
+associated values of npts that are not zero.
 
 ALGORITHMS
 
