@@ -549,7 +549,6 @@ ms::name()
 bool ms::tofits(
 	const std::string& fitsfile, const std::string& column,
 	const casac::variant& field, const casac::variant& spw,
-	int width,
 	const ::casac::variant& baseline, const std::string& time,
 	const ::casac::variant& scan, const ::casac::variant& uvrange,
 	const std::string& taql, bool writesyscal,
@@ -571,13 +570,6 @@ bool ms::tofits(
 			Int inchan=1;
 			Int istart=0;
 			Int istep=1;
-            if (width != 1) {
-                *itsLog << LogIO::WARN << LogOrigin("ms", __func__)
-                    << "The width parameter has been deprecated. Run mstransform "
-                    << "prior to running ms.tofits() to select and average data."
-                    << LogIO::POST;
-            }
-			Int iwidth = 1;
 			if (spwS==String("")) {
 				spwS="*";
 			}
@@ -641,7 +633,7 @@ bool ms::tofits(
 				! MSFitsOutput::writeFitsFile(
 					fitsfile, selms, column, istart, inchan,
 					istep, writesyscal, multisource, combinespw,
-					writestation, 1.0, padwithflags, iwidth,
+					writestation, 1.0, padwithflags, 1,
 					fieldID, overwrite
 					)
 				) {

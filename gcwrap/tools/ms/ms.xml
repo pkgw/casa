@@ -1245,11 +1245,6 @@ the ms definition itself. -->
      <value></value>
      </param>
     
-     <param type="int" direction="in" name="width">
-     <description>DEPRECATED. Use mstransform to select and average data prior to running tofits().</description>
-     <value>1</value>
-     </param>
-
      <param type="any" direction="in" name="baseline">
      <description>Antenna names or Antenna indices to select</description>
      <any type="variant" />
@@ -1375,13 +1370,6 @@ the ms definition itself. -->
     This is a rather WSRT-specific operation at the moment and may not
     work correctly for measurement sets from other telescopes.
 
-    The width argument is for channel averaging while outputing the 
-    data to the fits file. The default values of 1 will copy the 
-    channels of the input as is. The start channel number is the 
-    first channel of the spw expression. The number of output channels
-    is determined by spw expression and the width. The width is the 
-    number of channels of the input data to make 1 channel of the output data. 
-
     One may overwrite the specified output file if it exists by specifying
     overwrite=True.
 
@@ -1396,7 +1384,6 @@ the ms definition itself. -->
 
   <example>
     
-      
       ms.open('3C273XC1.MS')
       ms.tofits('3C273XC1.fits', column='DATA'); 
       ms.done()
@@ -1412,7 +1399,6 @@ the ms definition itself. -->
      This example writes part (the first 2 fields and the third spectral 
      window) of the corrected data to the fits file.  
     
-
   </example>
 </method>
 

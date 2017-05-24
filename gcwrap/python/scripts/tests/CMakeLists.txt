@@ -118,8 +118,10 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_importasap.py
   test_importasdm.py
   test_importasdm_mms.py
+  test_importatca.py
   test_importevla.py
   test_importfitsidi.py
+  test_importmiriad.py
   test_importnro.py
   test_importvla.py
   test_imregrid.py
@@ -150,6 +152,7 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_plotants.py
   test_plotcal.py
   test_plotms.py
+  test_plotprofilemap.py
   test_plotuv.py
   test_plotweather.py
   test_po_complexfraclinpol.py
