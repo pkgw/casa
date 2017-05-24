@@ -6,6 +6,7 @@
  */
 
 #include "CrashReporter.h"
+#include <casacore/casa/OS/EnvVar.h>
 
 //#warning "Defining UseCrashReport to compile main code"
 //#define UseCrashReporter
@@ -133,11 +134,13 @@ crashCallbackCommon (const char * dumpPath,
 
 #if defined (__APPLE__)
 bool crashCallback (const char * dumpPath,
-                    const char * /*minidump_id*/,
+                    const char * minidump_id,
                     void * /*context*/,
                     bool succeeded)
 {
-    return crashCallbackCommon (dumpPath, succeeded);
+    string fullpath = dumpPath;
+    fullpath = fullpath + "/" + minidump_id + ".dmp";
+    return crashCallbackCommon (fullpath.c_str() , succeeded);
 }
 
 #else // Linux
@@ -169,8 +172,17 @@ CrashReporter::initialize (const string & crashDumpDirectory,
                            const string & crashPostingUrl,
                            const string & theLogFile)
 {
+    // If the Casa settings contain a value for UseCrashReporter, then act on that;
+    // otherwise see if there's an environment variable set and if so use that value.
+
+    static const String CasaUseCrashReporter = "CASA_USE_CRASH_REPORTER";
     bool useCrashReporter = false;
-    AipsrcValue<Bool>::find (useCrashReporter, String ("UseCrashReporter"), false);
+    bool foundIt = AipsrcValue<Bool>::find (useCrashReporter, String ("UseCrashReporter"));
+
+    if (! foundIt && casacore::EnvironmentVariable::isDefined (CasaUseCrashReporter)){
+        String s = casacore::EnvironmentVariable::get (CasaUseCrashReporter);
+        useCrashReporter = (s == "True" || s == "true");
+    }
 
     if (! useCrashReporter){
         return "";
@@ -310,5 +322,3 @@ using namespace casacore;
 } // end namespace casa
 
 #endif
-
-

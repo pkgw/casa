@@ -186,13 +186,17 @@ void CalSolVi2Organizer::addCalForSolving(VisEquation& ve) {
 }
 
 
-void CalSolVi2Organizer::addChanAve(Int chanbin) {
+void CalSolVi2Organizer::addChanAve(Vector<Int> chanbin) {
 
   // Must not have added one already!
   AlwaysAssert(!chanave_, AipsError);
 
   //  Must be at least one other layer already...
   AlwaysAssert(factories_.nelements()>0, AipsError);
+
+  // Force no averaging with chanbin[i]=0 in ChannelAverageTVI
+  //  (NB: chanbin[i]=1 means nchan averaging)
+  chanbin(chanbin==1)=0;
 
   Record config;
   config.define("chanbin",chanbin);

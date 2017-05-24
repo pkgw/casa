@@ -1838,6 +1838,7 @@ void Importmiriad::show()
 // ==============================================================================================
 void Importmiriad::close()
 {
-  // does nothing for now
+  // close the file
+  uvclose_c(uv_handle_p);
 }
 

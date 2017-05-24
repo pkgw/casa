@@ -986,6 +986,21 @@ def simobserve(
                         sm.setoptions(ftmachine="mosaic")
                     else:
                         msg("Heterogeneous array only supported for mosaics (nfld>1), and make sure that your image is larger than the primary beam or results may be unstable",priority="error")
+                else:
+                    # checks have to be manual since there's no way to 
+                    # get the "diam" out of PBMath AFAIK
+                    if telescopename=="ALMA":
+                        if (diam[0]<10)|(diam[0]>13):
+                            msg("Diameter = %f is inconsistent with telescope=ALMA in the configuration file.  *12m ALMA PB will be used*"%diam[0],priority="warn")
+                            n=len(diam)
+                            diam=12.+pl.zeros(n)
+                    elif telescopename=="ACA":
+                        if (diam[0]<6)|(diam[0]>7.5):
+                            msg("Diameter = %f is inconsistent with telescope=ALMA in the configuration file.  *7m ACA PB will be used*"%diam[0],priority="warn")
+                            n=len(diam)
+                            diam=7.+pl.zeros(n)
+                    else:
+                        msg("Note: diameters in configuration file will not be used - PB for "+telescopename+" will be used",priority="info")
 
 
             msg("done setting up observations (blank visibilities)",origin='simobserve')
@@ -1031,6 +1046,23 @@ def simobserve(
 
             sm.done()
             msg('generation of measurement set '+msfile+' complete',origin="simobserve")
+
+            # rest freqs are hardcoded to the first freq in the spw in core
+            tb.open(msfile+"/SPECTRAL_WINDOW/",nomodify=False)
+            restfreq=tb.getcol("REF_FREQUENCY")
+            for i in range(len(restfreq)):
+                restfreq[i]=qa.convert(qa.quantity(model_specrefval),'Hz')['value']
+            tb.putcol("REF_FREQUENCY",restfreq)
+            tb.done()
+            tb.open(msfile+"/SOURCE/",nomodify=False)
+            restfreq=tb.getcol("REST_FREQUENCY")
+            for i in range(len(restfreq)):
+                restfreq[i]=qa.convert(qa.quantity(model_specrefval),'Hz')['value']
+            tb.putcol("REST_FREQUENCY",restfreq)
+            tb.done()
+            
+
+
 
 
             ############################################

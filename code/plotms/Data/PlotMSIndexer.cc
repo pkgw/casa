@@ -542,12 +542,13 @@ void PlotMSIndexer::setUpIndexing() {
 	// Count per segment
 	Int iseg(-1);
 	Vector<Bool>& nAM(plotmscache_->netAxesMask_[dataIndex]);
-	double timeInterval = 1;
+	double timeInterval(1), iterTime(0);
 	bool averagingTime = plotmscache_->averaging_.time();
 	if ( averagingTime ){
 		timeInterval = plotmscache_->averaging_.timeValue();
 	}
-	double iterTime = plotmscache_->time_[iterValue_];
+    if (iterAxis_ == PMS::TIME)
+	    iterTime = plotmscache_->time_[iterValue_];
 
 	for (Int ic=0; ic<nChunk(); ++ic) {
 
@@ -1365,6 +1366,8 @@ PlotLogMessage* PlotMSIndexer::locateRange(const Vector<PlotRegion>& regions,
 	if (showFlagged) ss << nFoundMasked << " flagged";
 	ss << ") among " << n << " in "
 			<< locatetimer.all_usec()/1.0e6 << "s.";
+    if (plotConjugates())
+        ss << "\nNote: only points in the original MS can be located, not the plotted conjugate points.";
 
 	return new PlotLogMessage(PMS::LOG_ORIGIN,PMS::LOG_ORIGIN_LOCATE,ss.str(),PMS::LOG_EVENT_LOCATE);
 }
@@ -1413,7 +1416,9 @@ void PlotMSIndexer::reportMeta(Double x, Double y, Bool masked,stringstream& ss)
 		ss << plotmscache_->antstanames_(ant1);
 	if (!plotmscache_->netAxesMask_[dataIndex](2))
 		ss << " & * ";
-	else if (ant2>0)
+    else if (ant1==ant2)
+		ss << " && " << plotmscache_->antstanames_(ant2);
+	else if (ant2>=0)
 		ss << " & " << plotmscache_->antstanames_(ant2);
 	// Antenna indices
 	if (showindices) {
@@ -1424,7 +1429,9 @@ void PlotMSIndexer::reportMeta(Double x, Double y, Bool masked,stringstream& ss)
 			ss << ant1;
 		if (!plotmscache_->netAxesMask_[dataIndex](2))
 			ss << "&*";
-		else if (ant2>0)
+        else if (ant1==ant2)
+			ss << "&&" << ant2;
+		else if (ant2>=0)
 			ss << "&" << ant2;
 		ss << "]";
 	}
@@ -1556,6 +1563,8 @@ PlotLogMessage* PlotMSIndexer::flagRange(const PlotMSFlagging& flagging,
 	ss << (flag ? "FLAGGED " : "UNFLAGGED ") << nFound
 			<< " points among " << n << " in "
 			<< flagtimer.all_usec()/1.0e6 << "s.";
+    if (plotConjugates())
+        ss << "\nNote: only points in the original MS can be flagged, not the plotted conjugate points.";
 
 	return new PlotLogMessage(PMS::LOG_ORIGIN,
 			flag ? PMS::LOG_ORIGIN_FLAG : PMS::LOG_ORIGIN_UNFLAG,
