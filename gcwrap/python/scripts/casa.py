@@ -224,6 +224,8 @@ from sdbaseline import sdbaseline
 from sdcal import sdcal
 from sdgaincal import sdgaincal
 from sdfit import sdfit
+from sdimaging import sdimaging
+from sdfixscan import sdfixscan
 from uvcontsub import  uvcontsub
 from uvmodelfit import  uvmodelfit
 from uvsub import  uvsub
@@ -239,8 +241,6 @@ from widefield import  widefield
 ##
 try:
     import asap as sd
-    from sdimaging import sdimaging
-    from sdimprocess import sdimprocess
     from sdaverageold import sdaverageold
     from sdbaselineold import sdbaselineold
     from sdbaseline2old import sdbaseline2old
