@@ -320,11 +320,11 @@
                 <value type="string"></value>
             </param>
             <param type="double" name="timedevscale" subparam="true">
-                <description>Threshold scaling for timedev [aips:fparm(9)]</description>
+                <description>Threshold scaling for timedev [aips:fparm(9)]. Only used when action is "apply". Ignored when action is "calculate".</description>
                 <value>5.0</value>
             </param>
             <param type="double" name="freqdevscale" subparam="true">
-                <description>Threshold scaling for freqdev [aips:fparm(10)]</description>
+                <description>Threshold scaling for freqdev [aips:fparm(10)]. Only used when action is "apply". Ignored when action is "calculate".</description>
                 <value>5.0</value>
             </param>
             <param type="double" name="spectralmax" subparam="true">
@@ -1287,7 +1287,7 @@
                   (1) Calculate thresholds automatically per scan, and use them to find flags.
                       Specify scale-factor for time-analysis thresholds, use default for frequency.
 
-                      flagdata('my.ms', mode='rflag',spw='9',timedevscale=4.0)
+                      flagdata('my.ms', mode='rflag', spw='9', timedevscale=4.0)
  
                   (2) Supply noise-estimates to be used with default scale-factors. 
   
@@ -1295,10 +1295,12 @@
 
                   (3) Two-passes. This replicates the usage pattern in AIPS.
 
-                      -- The first pass saves commands in an output text files, with auto-calculated 
+                      -- The first pass saves commands in output text files, with auto-calculated
                          thresholds. Thresholds are returned from rflag only when action='calculate'. 
                          The user can edit this file before doing the second pass, 
                          but the python-dictionary structure must be preserved.
+                         The parameters timedevscale and freqdevscale are not used in this
+                         first pass.
 
                       -- The second pass applies these commands (action='apply').
 
@@ -1309,7 +1311,10 @@
 
                         With action='calculate', display='report' will produce diagnostic plots 
                         showing data-statistics and thresholds (the same thresholds as those
-                        written out to 'tdevfile.txt' and 'fdevfile.txt'). 
+                        written out to 'tdevfile.txt' and 'fdevfile.txt'). In this second
+                        pass, with action 'apply', the parameters freqdevscale and
+                        timedevscale can be used to re-scale the thresholds calculated in the
+                        first pass.
            
                         Note : The RFlag algorithm was originally developed by Eric Greisen in 
                                 AIPS (31DEC11).
