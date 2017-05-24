@@ -112,16 +112,14 @@ protected:
 								map< pair<casacore::Int,casacore::Int>,vector<casacore::Double> > &counts,
 								map< pair<casacore::Int,casacore::Int>,casacore::Double > &threshold,
 								FlagReport &totalReport,
-								string label,
-								casacore::Double scale);
+								string label);
 
 	// Dedicated method to generate threshold values
 	void generateThresholds(	map< pair<casacore::Int,casacore::Int>,vector<casacore::Double> > &data,
 								map< pair<casacore::Int,casacore::Int>,vector<casacore::Double> > &dataSquared,
 								map< pair<casacore::Int,casacore::Int>,vector<casacore::Double> > &counts,
 								map< pair<casacore::Int,casacore::Int>,casacore::Double > &threshold,
-								string label,
-								casacore::Double scale);
+								string label);
 
 private:
 

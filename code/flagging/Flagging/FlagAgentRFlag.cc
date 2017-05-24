@@ -442,14 +442,12 @@ FlagReport FlagAgentRFlag::getReport()
 							field_spw_noise_histogram_sum_squares_p,
 							field_spw_noise_histogram_counts_p,
 							field_spw_noise_map_p,
-							"Time analysis",
-							noiseScale_p);
+							"Time analysis");
 		generateThresholds(	field_spw_scutof_histogram_sum_p,
 							field_spw_scutof_histogram_sum_squares_p,
 							field_spw_scutof_histogram_counts_p,
 							field_spw_scutof_map_p,
-							"Spectral analysis",
-							scutofScale_p);
+							"Spectral analysis");
 
 		// Threshold reports (should be returned if params were calculated)
 		Record threshList;
@@ -502,15 +500,13 @@ FlagReport FlagAgentRFlag::getReport()
 							field_spw_noise_histogram_counts_p,
 							field_spw_noise_map_p,
 							plotRepCont,
-							"Time analysis",
-							noiseScale_p);
+							"Time analysis");
 			getReportCore(	field_spw_scutof_histogram_sum_p,
 							field_spw_scutof_histogram_sum_squares_p,
 							field_spw_scutof_histogram_counts_p,
 							field_spw_scutof_map_p,
 							plotRepCont,
-							"Spectral analysis",
-							scutofScale_p);
+							"Spectral analysis");
 
 			Int nReports = plotRepCont.nReport();
 			for (Int report_idx=0; report_idx<nReports; report_idx++)
@@ -531,8 +527,7 @@ FlagReport FlagAgentRFlag::getReportCore(	map< pair<Int,Int>,vector<Double> > &d
 											map< pair<Int,Int>,vector<Double> > &counts,
 											map< pair<Int,Int>,Double > &threshold,
 											FlagReport &totalReport,
-											string label,
-											Double scale)
+											string label)
 {
 	// Set logger origin
 	logger_p->origin(LogOrigin(agentName_p,__FUNCTION__,WHERE));
@@ -671,8 +666,7 @@ void FlagAgentRFlag::generateThresholds(	map< pair<Int,Int>,vector<Double> > &da
 											map< pair<Int,Int>,vector<Double> > &dataSquared,
 											map< pair<Int,Int>,vector<Double> > &counts,
 											map< pair<Int,Int>,Double > &threshold,
-											string label,
-											Double scale)
+											string label)
 {
 	// Set logger origin
 	logger_p->origin(LogOrigin(agentName_p,__FUNCTION__,WHERE));
@@ -687,20 +681,22 @@ void FlagAgentRFlag::generateThresholds(	map< pair<Int,Int>,vector<Double> > &da
     {
     	current_field_spw = field_spw_iter->first;
 
-    	// Compute threshold
-    	threshold[current_field_spw] = scale*computeThreshold(	data[current_field_spw],
-																dataSquared[current_field_spw],
-																counts[current_field_spw]);
+    	// Compute threshold. This is independent of the scale parameters
+	// (timedevscale/freqdevscale) which will be used when action='apply'
+    	threshold[current_field_spw] = computeThreshold(data[current_field_spw],
+							dataSquared[current_field_spw],
+							counts[current_field_spw]);
 
     	// Log info
     	nfreq = field_spw_frequency_p[current_field_spw].size();
     	freqStart = field_spw_frequency_p[current_field_spw][0];
     	freqEnd = field_spw_frequency_p[current_field_spw][nfreq-1];
-    	*logger_p << logLevel_p << label.c_str() 	<< " - Field " << current_field_spw.first
-    												<< " - Spw " << current_field_spw.second
-    												<< " - Frequency " << freqStart << "~" << freqEnd << "GHz"
-    												<< " threshold (over baselines/timesteps) avg: "
-    												<< threshold[current_field_spw] << LogIO::POST;
+    	*logger_p << logLevel_p << label.c_str() << " - Field " << current_field_spw.first
+		  << " - Spw " << current_field_spw.second
+		  << " - Frequency " << freqStart << "~" << freqEnd << "GHz"
+		  << " threshold (over baselines/timesteps) avg: "
+		  << threshold[current_field_spw]
+		  << "(note this is for RMS with no scale factor)" << LogIO::POST;
     }
 
     return;
@@ -1071,7 +1067,7 @@ FlagAgentRFlag::computeAntennaPairFlags(const vi::VisBuffer2 &visBuffer, VisMapp
 	// Check if frequency array has to be initialized
 	Bool initFreq = false;
 
-	// Get noise and scutoff levels
+	// Get noise and scutoff levels - and re-scale * timedevscale
 	Double noise = -1;
 	if ( (field_spw_noise_map_p.find(field_spw) != field_spw_noise_map_p.end()) and
 			field_spw_noise_map_p[field_spw] > 0)
@@ -1091,8 +1087,9 @@ FlagAgentRFlag::computeAntennaPairFlags(const vi::VisBuffer2 &visBuffer, VisMapp
 		if (doflag_p) prepass_p = true;
 		initFreq = true;
 	}
+	noise *= noiseScale_p;
 
-	// Get cutoff level
+	// Get cutoff level - and re-scale * freqdevscale
 	Double scutof = -1;
 	if ((field_spw_scutof_map_p.find(field_spw) != field_spw_scutof_map_p.end()) and
 			(field_spw_scutof_map_p[field_spw] > 0))
@@ -1117,7 +1114,7 @@ FlagAgentRFlag::computeAntennaPairFlags(const vi::VisBuffer2 &visBuffer, VisMapp
 
 		if (doflag_p) prepass_p = true;
 	}
-
+	scutof *= scutofScale_p;
 
 	// Initialize frequency array has to be initialized
 	if (initFreq)
@@ -1186,7 +1183,7 @@ FlagAgentRFlag::passIntermediate(const vi::VisBuffer2 &visBuffer)
 														field_spw_noise_histogram_counts_p[field_spw]		);
 
 		field_spw_noise_map_p[field_spw] = noise;
-		*logger_p << LogIO::DEBUG1 << " field=" << field << " spw=" <<  spw << " noise=" << noise << LogIO::POST;
+		*logger_p << LogIO::DEBUG1 << " field=" << field << " spw=" <<  spw << " scale*noise=" << noise << LogIO::POST;
 	}
 
 	if (field_spw_scutof_map_p.find(field_spw) == field_spw_scutof_map_p.end() && !scutof_p)
@@ -1196,7 +1193,7 @@ FlagAgentRFlag::passIntermediate(const vi::VisBuffer2 &visBuffer)
 														field_spw_scutof_histogram_counts_p[field_spw]		);
 
 		field_spw_scutof_map_p[field_spw] = scutof;
-		*logger_p << LogIO::DEBUG1 << " field=" << field << " spw=" <<  spw << " scutof=" << scutof << LogIO::POST;
+		*logger_p << LogIO::DEBUG1 << " field=" << field << " spw=" <<  spw << " scale*scutof=" << scutof << LogIO::POST;
 	}
 
 	return;
