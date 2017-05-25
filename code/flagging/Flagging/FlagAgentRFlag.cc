@@ -257,22 +257,29 @@ void FlagAgentRFlag::setAgentParameters(Record config)
 	  if ( config.type( exists ) == casacore::TpFloat ||  config.type( exists ) == casacore::TpDouble || config.type(exists) == casacore::TpInt )
 		{
 			noise_p = config.asDouble("timedev");
-			*logger_p << logLevel_p << " timedev (same for all fields and spws) is " << noise_p << LogIO::POST;
+			*logger_p << logLevel_p << " timedev (same for all fields and spws) is " << noise_p
+				  << " (* timedevscale=" << noiseScale_p << ")"
+				  << LogIO::POST;
+			// new behavior since CAS-5808: multiply X freqdevscale
+			noise_p *= noiseScale_p;
+
 		}
 		else if( config.type(exists) == casacore::TpArrayDouble || config.type(exists) == casacore::TpArrayFloat || config.type(exists) == casacore::TpArrayInt)
 		{
 			Matrix<Double> timedev = config.asArrayDouble( RecordFieldId("timedev") );
 			if(timedev.ncolumn()==3)
 			{
-				*logger_p << logLevel_p << " timedev [field,spw,dev] is " << timedev << LogIO::POST;
+				*logger_p << logLevel_p << " timedev [field,spw,dev] is " << timedev
+					  << " (* timedevscale=" << noiseScale_p << ")"
+					  << LogIO::POST;
 
 			    IPosition shape = timedev.shape();
 			    uInt nDevs = shape[0];
 			    for(uInt dev_i=0;dev_i<nDevs;dev_i++)
 			    {
-			    	pair<Int,Int> field_spw = std::make_pair((Int)timedev(dev_i,0),
-			    	                                         (Int)timedev(dev_i,1));
-			    	field_spw_noise_map_p[field_spw] = timedev(dev_i,2);
+			    	pair<Int,Int> field_spw = std::make_pair((Int)timedev(dev_i, 0),
+			    	                                         (Int)timedev(dev_i, 1));
+			    	field_spw_noise_map_p[field_spw] = timedev(dev_i, 2) * noiseScale_p;
 			    	user_field_spw_noise_map_p[field_spw] = true;
 			    	*logger_p << LogIO::DEBUG1 << "timedev matrix - field=" << timedev(dev_i,0) << " spw=" << timedev(dev_i,1) << " dev=" << timedev(dev_i,2) << LogIO::POST;
 			    }
@@ -302,22 +309,29 @@ void FlagAgentRFlag::setAgentParameters(Record config)
 		if ( config.type( exists ) == casacore::TpFloat ||  config.type( exists ) == casacore::TpDouble  || config.type(exists) == casacore::TpInt )
 		{
 			scutof_p = config.asDouble("freqdev");
-			*logger_p << logLevel_p << " freqdev (same for all fields and spws) is " << scutof_p << LogIO::POST;
+			*logger_p << logLevel_p << " freqdev (same for all fields and spws) is " << scutof_p
+				  << " (* freqdevscale=" << scutofScale_p << ")"
+				  << LogIO::POST;
+			// new behavior since CAS-5808: multiply X freqdevscale
+			scutof_p *= scutofScale_p;
+
 		}
 		else if( config.type(exists) == casacore::TpArrayDouble || config.type(exists) == casacore::TpArrayFloat || config.type(exists) == casacore::TpArrayInt)
 		{
 			Matrix<Double> freqdev = config.asArrayDouble( RecordFieldId("freqdev") );
 			if(freqdev.ncolumn()==3)
 			{
-				*logger_p << logLevel_p << " freqdev [field,spw,dev] is " << freqdev << LogIO::POST;
+				*logger_p << logLevel_p << " freqdev [field,spw,dev] is " << freqdev
+					  << " (* freqdevscale=" << scutofScale_p << ")"
+					  << LogIO::POST;
 
 			    IPosition shape = freqdev.shape();
 			    uInt nDevs = shape[0];
 			    for(uInt dev_i=0;dev_i<nDevs;dev_i++)
 			    {
-			    	pair<Int,Int> field_spw = std::make_pair(static_cast<Int>(freqdev(dev_i,0)),
-			    			static_cast<Int>(freqdev(dev_i,1)));
-			    	field_spw_scutof_map_p[field_spw] = freqdev(dev_i,2);
+			    	pair<Int,Int> field_spw = std::make_pair(static_cast<Int>(freqdev(dev_i, 0)),
+			    			static_cast<Int>(freqdev(dev_i, 1)));
+			    	field_spw_scutof_map_p[field_spw] = freqdev(dev_i, 2) * scutofScale_p;
 			    	user_field_spw_scutof_map_p[field_spw] = true;
 				*logger_p << LogIO::DEBUG1 << "freqdev matrix - field=" << freqdev(dev_i,0) << " spw=" << freqdev(dev_i,1) << " dev=" << freqdev(dev_i,2) << LogIO::POST;
 			    }
@@ -1091,6 +1105,7 @@ FlagAgentRFlag::computeAntennaPairFlags(const vi::VisBuffer2 &visBuffer, VisMapp
 		if (doflag_p) prepass_p = true;
 		initFreq = true;
 	}
+
 
 	// Get cutoff level
 	Double scutof = -1;
