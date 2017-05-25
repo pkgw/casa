@@ -32,6 +32,7 @@
 
 #include <map>
 #include <vector>
+#include <memory>
 
 #include <measures/Measures/Stokes.h>
 
@@ -626,12 +627,13 @@ protected:
   // MSTransformIterator destructor because MSTransformIteratorFactory is borrowing
   // the ViImplementation2 from the input iterator, which is deleted in the first
   // steps of the MSTransformIterator destructor.
-  ViImplementation2 * inputVii_p;
+  //ViImplementation2 * inputVii_p;
 
 private:
 
-  VisBuffer2 * vb_p; // [own]
-  casacore::CountedPtr<WeightScaling> weightScaling_p;
+//  VisBuffer2 * vb_p; // [own]
+//  casacore::CountedPtr<WeightScaling> weightScaling_p;
+  std::shared_ptr<Filter> filter_p;
 };
 
 // factory
