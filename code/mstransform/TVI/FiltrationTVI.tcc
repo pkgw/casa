@@ -1,4 +1,4 @@
-//# FilteringTVI.tcc: Template class for data filtering TVI
+//# FiltrationTVI.tcc: Template class for data filtering TVI
 //# Copyright (C) 1996,1997,1998,1999,2000,2001,2002,2003
 //# Associated Universities, Inc. Washington DC, USA.
 //#
@@ -23,8 +23,10 @@
 //#                        520 Edgemont Road
 //#                        Charlottesville, VA 22903-2475 USA
 //#
+#ifndef _MSVIS_FILTRATIONTVI_TCC_
+#define _MSVIS_FILTRATIONTVI_TCC_
 
-#include <mstransform/TVI/FilteringTVI.h>
+//#include <mstransform/TVI/FiltrationTVI.h>
 
 #include <casacore/casa/Exceptions/Error.h>
 
@@ -37,37 +39,39 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 namespace vi { //# NAMESPACE vi - BEGIN
 
 // forward declaration
-
-// FilteringTVI implementation
 template<class Filter>
-FilteringTVI<Filter>::FilteringTVI(ViImplementation2 * inputVi, Filter *filter) :
+class FiltrationTVI;
+
+// FiltrationTVI implementation
+template<class Filter>
+FiltrationTVI<Filter>::FiltrationTVI(ViImplementation2 * inputVi, Filter *filter) :
     TransformingVi2(inputVi), filter_p(filter) {
 }
 
 template<class Filter>
-FilteringTVI<Filter>::~FilteringTVI() {
+FiltrationTVI<Filter>::~FiltrationTVI() {
 }
 
 template<class Filter>
-void FilteringTVI<Filter>::origin() {
+void FiltrationTVI<Filter>::origin() {
   auto const vii = getVii();
   vii->origin();
 
   // Synchronize own VisBuffer
   configureNewSubchunk();
 
-  // filtering
+  // filtration
   filter();
 }
 
 template<class Filter>
-void FilteringTVI<Filter>::next() {
-  // filtering
+void FiltrationTVI<Filter>::next() {
+  // filtration
   filter();
 }
 
 template<class Filter>
-void FilteringTVI<Filter>::filter() {
+void FiltrationTVI<Filter>::filter() {
   auto const vii = getVii();
 
   for (; vii->more() && filter_p->isResidue(vii->getVisBuffer()); vii->next()) {
@@ -79,3 +83,5 @@ void FilteringTVI<Filter>::filter() {
 } //# NAMESPACE vi - END
 
 } //# NAMESPACE CASA - END
+
+#endif // _MSVIS_FILTRATIONTVI_TCC_

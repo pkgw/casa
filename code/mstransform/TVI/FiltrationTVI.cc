@@ -1,4 +1,4 @@
-//# FilteringTVI.cc: Template class for data filtering TVI
+//# FiltrationTVI.cc: Template class for data filtering TVI
 //# Copyright (C) 1996,1997,1998,1999,2000,2001,2002,2003
 //# Associated Universities, Inc. Washington DC, USA.
 //#
@@ -23,9 +23,8 @@
 //#                        520 Edgemont Road
 //#                        Charlottesville, VA 22903-2475 USA
 //#
-
-#include <mstransform/TVI/FilteringTVI.h>
-#include <mstransform/TVI/FilteringTVI.tcc>
+#include <mstransform/TVI/FiltrationTVI.h>
+#include <mstransform/TVI/FiltrationTVI.tcc>
 
 #include <casacore/casa/Exceptions/Error.h>
 
@@ -42,18 +41,18 @@ namespace vi { //# NAMESPACE vi - BEGIN
 class SDDoubleCircleFilter;
 
 // explicit instantiation of template class
-template class FilteringTVI<SDDoubleCircleFilter>;
+template class FiltrationTVI<SDDoubleCircleFilter>;
 
 // Factory
-FilteringTVIFactory::FilteringTVIFactory(casacore::Record const &configuration,
+FiltrationTVIFactory::FiltrationTVIFactory(casacore::Record const &configuration,
     ViImplementation2 *inputVII) :
     inputVII_p(inputVII), configuration_p(configuration) {
 }
 
-FilteringTVIFactory::~FilteringTVIFactory() {
+FiltrationTVIFactory::~FiltrationTVIFactory() {
 }
 
-ViImplementation2 * FilteringTVIFactory::createVi() const {
+ViImplementation2 * FiltrationTVIFactory::createVi() const {
   ViImplementation2 *vii = nullptr;
 
   if (!configuration_p.isDefined("type")) {
@@ -70,11 +69,11 @@ ViImplementation2 * FilteringTVIFactory::createVi() const {
     SDDoubleCircleFilter filter = new SDDoubleCircleFilter(ms, configuration_p);
 
     // new filter
-    vii = new FilteringTVI<SDDoubleCircleFilter>(inputVII_p, filter);
+    vii = new FiltrationTVI<SDDoubleCircleFilter>(inputVII_p, filter);
     break;
   default:
     // unsupported type, throw exception
-    throw AipsError(String("Invalid FilteringType for FilteringTVI: ")+String::toString(type_indicator));
+    throw AipsError(String("Invalid FilteringType for FiltrationTVI: ")+String::toString(type_indicator));
     break;
   }
 
@@ -82,14 +81,14 @@ ViImplementation2 * FilteringTVIFactory::createVi() const {
 }
 
 // LayerFactory
-FilteringTVILayerFactory::FilteringTVILayerFactory(Record const &configuration) :
+FiltrationTVILayerFactory::FiltrationTVILayerFactory(Record const &configuration) :
     ViiLayerFactory(), configuration_p(configuration) {
 }
 
-ViImplementation2 * FilteringTVILayerFactory::createInstance(
+ViImplementation2 * FiltrationTVILayerFactory::createInstance(
     ViImplementation2* vii0) const {
-  // Make the FilteringTVI, using supplied ViImplementation2, and return it
-  FilteringTVIFactory factory(configuration_p, vii0);
+  // Make the FiltrationTVI, using supplied ViImplementation2, and return it
+  FiltrationTVIFactory factory(configuration_p, vii0);
   return factory.createVi();
 }
 

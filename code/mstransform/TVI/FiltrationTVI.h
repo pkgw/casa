@@ -1,4 +1,4 @@
-//# FilteringTVI.h: Template class for data filtering TVI
+//# FiltrationTVI.h: Template class for data filtering TVI
 //# Copyright (C) 1996,1997,1998,1999,2000,2001,2002,2003
 //# Associated Universities, Inc. Washington DC, USA.
 //#
@@ -24,8 +24,8 @@
 //#                        Charlottesville, VA 22903-2475 USA
 //#
 
-#ifndef _MSVIS_FILTERINGTVI_H_
-#define _MSVIS_FILTERINGTVI_H_
+#ifndef _MSVIS_FILTRATIONTVI_H_
+#define _MSVIS_FILTRATIONTVI_H_
 
 #include <casa/aips.h>
 #include <msvis/MSVis/TransformingVi2.h>
@@ -72,7 +72,7 @@ public:
 
 
 // <summary>
-// FilteringTVI is an implementation of data filtering
+// FiltrationTVI is an implementation of data filtering
 // </summary>
 
 // <use visibility=export>
@@ -89,7 +89,7 @@ public:
 // </etymology>
 //
 // <synopsis>
-// FilteringTVI works as a visibility filter, returning only necessary data chunk
+// FiltrationTVI works as a visibility filter, returning only necessary data chunk
 // when iterating through the data. It takes filter implementation
 // class as its template argument, and work with it to filter out unwanted
 // data chunk. You can change the behavior of the class by simply replacing
@@ -117,17 +117,17 @@ public:
 // </todo>
 
 template<class Filter>
-class FilteringTVI: public TransformingVi2 {
+class FiltrationTVI: public TransformingVi2 {
 
 public:
 
   // Destructor
 
-  virtual ~FilteringTVI();
+  virtual ~FiltrationTVI();
 
   // Report the the ViImplementation type
   virtual casacore::String ViiType() const {
-    return casacore::String("FilteringTVI<") + filter_p->filterType() + ">( "
+    return casacore::String("FiltrationTVI<") + filter_p->filterType() + ">( "
         + getVii()->ViiType() + " )";
   }
   ;
@@ -604,7 +604,7 @@ protected:
   const VisBuffer2 * getVisBufferConst() const {
     return vb_p;
   }
-  FilteringTVI(ViImplementation2 * inputVi, Filter *filter);
+  FiltrationTVI(ViImplementation2 * inputVi, Filter *filter);
 
 //  void configureNewSubchunk();
 //  void configureNewSubchunk(casacore::Int msId, const casacore::String & msName,
@@ -631,7 +631,7 @@ protected:
   //ViImplementation2 * inputVii_p;
 
 private:
-  // Filter operation
+  // Filtration operation
   // increment the iterator until given subchunk passes through the filter
   void filter();
 
@@ -641,18 +641,18 @@ private:
 };
 
 // factory
-class FilteringTVIFactory: public ViFactory {
+class FiltrationTVIFactory: public ViFactory {
 
 public:
   // Constructor
-  FilteringTVIFactory(casacore::Record const &configuration,
+  FiltrationTVIFactory(casacore::Record const &configuration,
       ViImplementation2 *inputVII);
-//  FilteringTVIFactory(casacore::Record const &configuration,
+//  FiltrationTVIFactory(casacore::Record const &configuration,
 //  casacore::MeasurementSet const *ms, SortColumns const sortColumns,
 //  casacore::Double timeInterval, casacore::Bool isWritable);
 
   // Destructor
-  ~FilteringTVIFactory();
+  ~FiltrationTVIFactory();
 
   ViImplementation2 * createVi() const;
 
@@ -661,11 +661,11 @@ private:
   casacore::Record configuration_p;
 };
 
-class FilteringTVILayerFactory: public ViiLayerFactory {
+class FiltrationTVILayerFactory: public ViiLayerFactory {
 
 public:
-  FilteringTVILayerFactory(casacore::Record const &configuration);
-  virtual ~FilteringTVILayerFactory() {
+  FiltrationTVILayerFactory(casacore::Record const &configuration);
+  virtual ~FiltrationTVILayerFactory() {
   }
 
 protected:
@@ -680,5 +680,5 @@ protected:
 
 } //# NAMESPACE CASA - END
 
-#endif // _MSVIS_FILTERINGTVI_H_
+#endif // _MSVIS_FILTRATIONTVI_H_
 
