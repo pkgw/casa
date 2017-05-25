@@ -455,7 +455,7 @@ class test_rflag(test_base):
         os.remove('tdevfile.txt')
         os.remove('fdevfile.txt')
         
-    def test_rflag1(self):
+    def test_rflag_auto_thresholds(self):
         '''flagdata:: mode = rflag : automatic thresholds'''
         flagdata(vis=self.vis, mode='rflag', spw='9,10', timedev=[], freqdev=[], flagbackup=False,
                  extendflags=False)
@@ -464,27 +464,29 @@ class test_rflag(test_base):
         self.assertEqual(res['antenna']['ea19']['flagged'], 18411.0)
         self.assertEqual(res['spw']['7']['flagged'], 0)
 
-    def test_rflag2(self):
+    def test_rflag_partial_thresholds(self):
         '''flagdata:: mode = rflag : partially-specified thresholds'''
-        flagdata(vis=self.vis, mode='rflag', spw='9,10', timedev=[[1,10,0.1],[1,11,0.07]], \
-                       freqdev=0.5, flagbackup=False, extendflags=False)
+        flagdata(vis=self.vis, mode='rflag', spw='9,10',
+                 timedev=[[1, 10, 0.1],[1, 11, 0.07]], freqdev=0.5,
+                 flagbackup=False, extendflags=False)
         res = flagdata(vis=self.vis, mode='summary',spw='9,10,11')
-        self.assertEqual(res['flagged'], 52411)
-        self.assertEqual(res['antenna']['ea19']['flagged'], 24142)
+        self.assertEqual(res['flagged'], 24494)
+        self.assertEqual(res['antenna']['ea19']['flagged'], 11413)
         self.assertEqual(res['spw']['11']['flagged'], 0)
         
     def test_rflag_numpy_types(self):
         '''flagdata:: mode = rflag : partially-specified thresholds using numpy types'''
-        # Results should be the same as in test_rflag2 above
+        # Results should be the same as in test_rflag_partial_thresholds above
         import numpy as np
         t1 = [np.int32(1), 10, np.float32(0.1)]
         t2 = [1, np.int16(11), np.float64(0.07)]
 
-        flagdata(vis=self.vis, mode='rflag', spw='9,10', timedev=[t1,t2], \
-                       freqdev=0.5, flagbackup=False, extendflags=False)
+        flagdata(vis=self.vis, mode='rflag', spw='9,10',
+                 timedev=[t1, t2], freqdev=0.5,
+                 flagbackup=False, extendflags=False)
         res = flagdata(vis=self.vis, mode='summary',spw='9,10,11')
-        self.assertEqual(res['flagged'], 52411)
-        self.assertEqual(res['antenna']['ea19']['flagged'], 24142)
+        self.assertEqual(res['flagged'], 24494)
+        self.assertEqual(res['antenna']['ea19']['flagged'], 11413)
         self.assertEqual(res['spw']['11']['flagged'], 0)
 
     def test_rflag_calculate_file_apply_scales(self):
@@ -581,9 +583,11 @@ class test_rflag(test_base):
         rdict = flagdata(vis=self.vis, mode='rflag', spw='9,10', timedev='', 
                       freqdev='', action='calculate', extendflags=False)
         
-        flagdata(vis=self.vis, mode='rflag', spw='9,10', timedev=rdict['report0']['timedev'], 
-                      freqdev=rdict['report0']['freqdev'], action='apply', flagbackup=False, 
-                      extendflags=False)
+        flagdata(vis=self.vis, mode='rflag', spw='9,10',
+                 timedev=rdict['report0']['timedev'],
+                 freqdev=rdict['report0']['freqdev'],
+                 timedevscale=1.0, freqdevscale=1.0,
+                 action='apply', flagbackup=False, extendflags=False)
         res1 = flagdata(vis=self.vis, mode='summary', spw='9,10')
 
         # unflag like flagdata(vis=self.vis,mode='unflag', flagbackup=False)
@@ -592,16 +596,14 @@ class test_rflag(test_base):
         # (2) Test rflag output written to cmd file via mode='rflag' and 'savepars' 
         #      and then read back in via list mode. 
         #      Also test the 'savepars' when timedev and freqdev are specified differently...
-        flagdata(vis=self.vis, mode='rflag', spw='9,10', timedev='', \
-                      freqdev=[],action='calculate',savepars=True,outfile='outcmd.txt',
-                      extendflags=False);
+        flagdata(vis=self.vis, mode='rflag', spw='9,10',
+                 timedev='', freqdev=[], action='calculate', extendflags=False,
+                 savepars=True, outfile='outcmd.txt')
         flagdata(vis=self.vis, mode='list', inpfile='outcmd.txt', flagbackup=False)
         res2 = flagdata(vis=self.vis, mode='summary', spw='9,10')
 
         self.assertEqual(res1['flagged'], res2['flagged'])
-        self.assertEqual(res1['flagged'], 39504.0)
-
-        self.cleanup_threshold_txt_files()
+        self.assertEqual(res1['flagged'], 270386.0)
 
     def test_rflag4(self):
         '''flagdata:: mode = rflag : correlation selection'''
