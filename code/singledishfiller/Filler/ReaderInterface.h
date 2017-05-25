@@ -58,6 +58,10 @@ public:
     return is_nro_;
   }
   
+  virtual casacore::String getDataUnit() const {
+    return "";
+  }
+
   virtual int getNROArraySize() {
     return 0;
   }
