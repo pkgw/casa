@@ -26,17 +26,60 @@
 
 #include <mstransform/TVI/FilteringTVI.h>
 
+#include <casacore/casa/Exceptions/Error.h>
+
 #include <msvis/MSVis/VisibilityIterator2.h>
 #include <msvis/MSVis/ViiLayerFactory.h>
+
+using namespace casacore;
 
 namespace casa { //# NAMESPACE CASA - BEGIN
 
 namespace vi { //# NAMESPACE vi - BEGIN
 
+// forward declaration
+class SDDoubleCircleFilter;
+
+// Factory
+FilteringTVIFactory::FilteringTVIFactory(casacore::Record const &configuration,
+    ViImplementation2 *inputVII) :
+    inputVII_p(inputVII), configuration_p(configuration) {
+}
+
+FilteringTVIFactory::~FilteringTVIFactory() {
+}
+
+ViImplementation2 * FilteringTVIFactory::createVi() const {
+  ViImplementation2 *vii = nullptr;
+
+  if (!configuration_p.isDefined("type")) {
+    throw AipsError(String("You have to specify Filtering type"));
+  }
+
+  Int const type_indicator = configuration_p.asInt("type");
+
+  switch(type_indicator) {
+  case FilteringType::SDDoubleCircleFilter:
+    // new filter impl
+    // filter impl requires MS
+    MeasurementSet const &ms = inputVII_p->ms();
+    SDDoubleCircleFilter filter = new SDDoubleCircleFilter(ms, configuration_p);
+
+    // new filter
+    vii = new FilteringTVI<SDDoubleCircleFilter>(inputVII_p, filter);
+    break;
+  default:
+    // unsupported type, throw exception
+    throw AipsError(String("Invalid FilteringType for FilteringTVI: ")+String::toString(type_indicator));
+    break;
+  }
+
+  return vii;
+}
+
 // LayerFactory
 FilteringTVILayerFactory::FilteringTVILayerFactory(Record const &configuration) :
-    ViiLayerFactory() {
-  configuration_p = configuration;
+    ViiLayerFactory(), configuration_p(configuration) {
 }
 
 ViImplementation2 * FilteringTVILayerFactory::createInstance(
