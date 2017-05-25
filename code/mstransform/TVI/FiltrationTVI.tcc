@@ -44,7 +44,8 @@ class FiltrationTVI;
 
 // FiltrationTVI implementation
 template<class Filter>
-FiltrationTVI<Filter>::FiltrationTVI(ViImplementation2 * inputVi, Filter *filter) :
+FiltrationTVI<Filter>::FiltrationTVI(ViImplementation2 * inputVi,
+    Filter *filter) :
     TransformingVi2(inputVi), filter_p(filter) {
 }
 
@@ -57,8 +58,8 @@ void FiltrationTVI<Filter>::origin() {
   auto const vii = getVii();
   vii->origin();
 
-  // Synchronize own VisBuffer
-  configureNewSubchunk();
+  // Synchronize own VisBuffer -- is it required?
+  //configureNewSubchunk();
 
   // filtration
   filter();
@@ -72,12 +73,14 @@ void FiltrationTVI<Filter>::next() {
 
 template<class Filter>
 void FiltrationTVI<Filter>::filter() {
-  auto const vii = getVii();
-
-  for (; vii->more() && filter_p->isResidue(vii->getVisBuffer()); vii->next()) {
-    // Synchronize own VisBuffer
-    configureNewSubchunk();
+  for (auto const vii = getVii();
+      vii->more() && filter_p->isResidue(vii->getVisBuffer()); vii->next()) {
+    // Synchronize own VisBuffer -- is it required to do inside the loop?
+    //configureNewSubchunk();
   }
+
+  // Synchronize own VisBuffer
+  configureNewSubchunk();
 }
 
 } //# NAMESPACE vi - END
