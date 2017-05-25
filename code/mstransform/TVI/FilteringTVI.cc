@@ -1,4 +1,4 @@
-//# FilteringTVI.h: Template class for data filtering TVI
+//# FilteringTVI.cc: Template class for data filtering TVI
 //# Copyright (C) 1996,1997,1998,1999,2000,2001,2002,2003
 //# Associated Universities, Inc. Washington DC, USA.
 //#
@@ -25,6 +25,7 @@
 //#
 
 #include <mstransform/TVI/FilteringTVI.h>
+#include <mstransform/TVI/FilteringTVI.tcc>
 
 #include <casacore/casa/Exceptions/Error.h>
 
@@ -39,6 +40,9 @@ namespace vi { //# NAMESPACE vi - BEGIN
 
 // forward declaration
 class SDDoubleCircleFilter;
+
+// explicit instantiation of template class
+template class FilteringTVI<SDDoubleCircleFilter>;
 
 // Factory
 FilteringTVIFactory::FilteringTVIFactory(casacore::Record const &configuration,
