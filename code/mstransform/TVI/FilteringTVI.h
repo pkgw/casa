@@ -127,7 +127,7 @@ public:
 
   // Report the the ViImplementation type
   virtual casacore::String ViiType() const {
-    return casacore::String("FilteringTVI<") + Filter::FilterType() + ">( "
+    return casacore::String("FilteringTVI<") + filter_p->filterType() + ">( "
         + getVii()->ViiType() + " )";
   }
   ;
@@ -141,23 +141,24 @@ public:
   // Methods to control and monitor subchunk iteration
 
   virtual void origin();
-  virtual casacore::Bool more() const;
+  //virtual casacore::Bool more() const;
   virtual void next();
-  virtual Subchunk getSubchunkId() const;
+  //virtual Subchunk getSubchunkId() const;
 
   // Methods to control chunk iterator
+  // do not care about chunk iterator
 
-  virtual void originChunks(casacore::Bool forceRewind = false);
-  virtual casacore::Bool moreChunks() const;
-  virtual void nextChunk();
+//  virtual void originChunks(casacore::Bool forceRewind = false);
+//  virtual casacore::Bool moreChunks() const;
+//  virtual void nextChunk();
 
   // Report Name of slowest column that changes at end of current iteration
-  virtual casacore::String keyChange() const {
-    return getVii()->keyChange();
-  }
-  ;
+//  virtual casacore::String keyChange() const {
+//    return getVii()->keyChange();
+//  }
+//  ;
 
-  virtual casacore::Bool isWritable() const;
+//  virtual casacore::Bool isWritable() const;
 
   // Return the time interval (in seconds) used for iteration.
   // This is not the same as the INTERVAL column.  Setting the
@@ -605,16 +606,16 @@ protected:
   }
   FilteringTVI(ViImplementation2 * inputVi, Filter *filter);
 
-  void configureNewSubchunk();
-  void configureNewSubchunk(casacore::Int msId, const casacore::String & msName,
-  casacore::Bool isNewMs,
-  casacore::Bool isNewArrayId, casacore::Bool isNewFieldId,
-  casacore::Bool isNewSpectralWindow, const Subchunk & subchunk,
-  casacore::Int nRows, casacore::Int nChannels, casacore::Int nCorrelations,
-      const casacore::Vector<casacore::Int> & correlations,
-      const casacore::Vector<casacore::Stokes::StokesTypes> & correlationsDefined,
-      const casacore::Vector<casacore::Stokes::StokesTypes> & correlationsSelected,
-      casacore::CountedPtr<WeightScaling> weightScaling);
+//  void configureNewSubchunk();
+//  void configureNewSubchunk(casacore::Int msId, const casacore::String & msName,
+//  casacore::Bool isNewMs,
+//  casacore::Bool isNewArrayId, casacore::Bool isNewFieldId,
+//  casacore::Bool isNewSpectralWindow, const Subchunk & subchunk,
+//  casacore::Int nRows, casacore::Int nChannels, casacore::Int nCorrelations,
+//      const casacore::Vector<casacore::Int> & correlations,
+//      const casacore::Vector<casacore::Stokes::StokesTypes> & correlationsDefined,
+//      const casacore::Vector<casacore::Stokes::StokesTypes> & correlationsSelected,
+//      casacore::CountedPtr<WeightScaling> weightScaling);
 
   VisibilityIterator2 * getVi() const;
   ViImplementation2 * getVii() const;
@@ -630,6 +631,9 @@ protected:
   //ViImplementation2 * inputVii_p;
 
 private:
+  // Filter operation
+  // increment the iterator until given subchunk passes through the filter
+  void filter();
 
 //  VisBuffer2 * vb_p; // [own]
 //  casacore::CountedPtr<WeightScaling> weightScaling_p;

@@ -48,6 +48,34 @@ template<class Filter>
 FilteringTVI<Filter>::~FilteringTVI() {
 }
 
+template<class Filter>
+void FilteringTVI<Filter>::origin() {
+  auto const vii = getVii();
+  vii->origin();
+
+  // Synchronize own VisBuffer
+  configureNewSubchunk();
+
+  // filtering
+  filter();
+}
+
+template<class Filter>
+void FilteringTVI<Filter>::next() {
+  // filtering
+  filter();
+}
+
+template<class Filter>
+void FilteringTVI<Filter>::filter() {
+  auto const vii = getVii();
+
+  for (; vii->more() && filter_p->isResidue(vii->getVisBuffer()); vii->next()) {
+    // Synchronize own VisBuffer
+    configureNewSubchunk();
+  }
+}
+
 } //# NAMESPACE vi - END
 
 } //# NAMESPACE CASA - END
