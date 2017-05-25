@@ -43,6 +43,32 @@ namespace vi { //# NAMESPACE vi - BEGIN
 class ViFactory;
 class ViiLayerFactory;
 
+// Filtering type
+class FilteringType {
+public:
+  // Filtering type enum
+  enum FilteringTypeEnum {
+    SDDoubleCircleFilter,
+    NumFilteringTypes,
+    NoTypeFilter
+  };
+
+  static casacore::String toString(FilteringTypeEnum type) {
+    casacore::String type_string = "";
+
+    switch (type) {
+    case SDDoubleCircleFilter:
+      type_string = "SDDoubleCircleFilter";
+      break;
+    default:
+      type_string = "InvalidFilter";
+      break;
+    }
+
+    return type_string;
+  }
+};
+
 
 // <summary>
 // FilteringTVI is an implementation of data filtering
@@ -576,7 +602,7 @@ protected:
   const VisBuffer2 * getVisBufferConst() const {
     return vb_p;
   }
-  FilteringTVI(ViImplementation2 * inputVi);
+  FilteringTVI(ViImplementation2 * inputVi, Filter *filter);
 
   void configureNewSubchunk();
   void configureNewSubchunk(casacore::Int msId, const casacore::String & msName,
@@ -615,9 +641,9 @@ public:
   // Constructor
   FilteringTVIFactory(casacore::Record const &configuration,
       ViImplementation2 *inputVII);
-  FilteringTVIFactory(casacore::Record const &configuration,
-  casacore::MeasurementSet const *ms, SortColumns const sortColumns,
-  casacore::Double timeInterval, casacore::Bool isWritable);
+//  FilteringTVIFactory(casacore::Record const &configuration,
+//  casacore::MeasurementSet const *ms, SortColumns const sortColumns,
+//  casacore::Double timeInterval, casacore::Bool isWritable);
 
   // Destructor
   ~FilteringTVIFactory();
@@ -626,6 +652,7 @@ public:
 
 private:
   ViImplementation2 *inputVII_p;
+  casacore::Record configuration_p;
 };
 
 class FilteringTVILayerFactory: public ViiLayerFactory {
