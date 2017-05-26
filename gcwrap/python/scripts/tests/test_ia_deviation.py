@@ -217,7 +217,9 @@ class ia_deviation_test(unittest.TestCase):
         self.assertTrue((self._myia.getchunk(getmask=True) == mask).all()) 
         mm = self._myia.deviation("", grid=[3,3], anchor=[2,2], xlength="4pix", ylength="4pix", interp="linear")
         self._myia.done()
-        self.assertTrue((mm.getchunk(getmask=True) == mask).all()) 
+        expec = mask[:]
+        expec[0:5, 0:5] = False
+        self.assertTrue((mm.getchunk(getmask=True) == expec).all()) 
         mm.done()
 
         self._myia.fromshape("", [10, 10, 2])
@@ -234,7 +236,12 @@ class ia_deviation_test(unittest.TestCase):
         self.assertTrue((self._myia.getchunk(getmask=True) == mask2).all()) 
         mm = self._myia.deviation("", grid=[3,3], anchor=[2,2], xlength="4pix", ylength="4pix", interp="linear")
         self._myia.done()
-        self.assertTrue((mm.getchunk(getmask=True) == mask2).all()) 
+        expec = mask2[:]
+        expec[0:5, 0:5, 0] = False
+        expec[0:5, :, 1] = False
+        expec[2, 2, 1] = True
+        expec[2, 8, 1] = True
+        self.assertTrue((mm.getchunk(getmask=True) == expec).all()) 
         mm.done()
         
 

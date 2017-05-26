@@ -703,7 +703,13 @@ void StatImageCreator::_interpolate(
             else {
                 xStoreFrac = (Double)xCell/(Double)_grid.first;
                 storeLoc[0] = xStoreInt + xStoreFrac;
-                _interpolater.interp(*iter, storeLoc, storage, storeMask);
+                if (! _interpolater.interp(*iter, storeLoc, storage, storeMask)) {
+                    ThrowIf(
+                        ! _doMask,
+                        "Logic error: bad interpolation but there is no mask to set"
+                    );
+                    *miter = False;
+                }
             }
             ++iter;
             if (_doMask) {
