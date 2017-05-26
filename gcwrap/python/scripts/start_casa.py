@@ -62,7 +62,14 @@ try:
     __configs.HistoryManager.hist_file = __configs.TerminalInteractiveShell.ipython_dir + "/history.sqlite"
     __configs.TerminalIPythonApp.matplotlib = __defaults.backend
 
-    start_ipython( config=__configs, argv= (['--logfile='+casa['files']['iplogfile']] if __defaults.ipython_log else []) + ['--ipython-dir='+__defaults.rcdir+"/ipython", '--autocall=2', "-c", "for i in " + str(__startup_scripts) + ": execfile( i )"+("\n%matplotlib" if __defaults.backend is not None else ""), "-i" ] )
+    ### what does this do?
+    ###   (1) removes current directory (i.e. '' as the first path element) for CASA startup
+    ###   (2) exec each of the startup files
+    ###   (3) restore sys.path
+    ###   (4) delete temporary variable
+    ###   (5) invoke matplotlib (for interactive grapics)
+    ###       unless --agg flag has been supplied
+    start_ipython( config=__configs, argv= (['--logfile='+casa['files']['iplogfile']] if __defaults.ipython_log else []) + ['--ipython-dir='+__defaults.rcdir+"/ipython", '--autocall=2', "-c", "import sys\nif len(sys.path[0]) == 0:\n    __path=sys.path[:1]\n    sys.path=sys.path[1:]\nelse:\n    __path=[]\nfor i in " + str(__startup_scripts) + ": execfile( i )\nsys.path=__path+sys.path\ndel __path\n"+("\n%matplotlib" if __defaults.backend is not None else ""), "-i" ] )
 
 except:
     print "Unexpected error:", sys.exc_info()[0]
