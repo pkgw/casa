@@ -37,6 +37,8 @@ casa_add_library( mstransform
  TVI/RegriddingTVI.cc  
  TVI/UVContSubTVI.cc
  TVI/PolAverageTVI.cc
+ TVI/FiltrationTVI.cc
+ TVI/SDDoubleCircleFilter.cc
 )
 
 install (FILES
@@ -67,6 +69,9 @@ install (FILES
  	TVI/RegriddingTVI.h
  	TVI/UVContSubTVI.h 	
  	TVI/PolAverageTVI.h
+ 	TVI/FiltrationTVI.h
+ 	TVI/FiltrationTVI.tcc
+ 	TVI/SDDoubleCircleFilter.h
 	DESTINATION include/casacode/mstransform/TVI
 	)
 	
