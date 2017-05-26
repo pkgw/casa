@@ -27,6 +27,9 @@
 #ifndef _MSVIS_SD_DOUBLE_CIRCLE_FILTER_H_
 #define _MSVIS_SD_DOUBLE_CIRCLE_FILTER_H_
 
+#include <casacore/casa/Arrays/Vector.h>
+#include <casacore/casa/Arrays/ArrayLogical.h>
+
 namespace casa { //# NAMESPACE CASA - BEGIN
 
 namespace vi { //# NAMESPACE vi - BEGIN
@@ -48,7 +51,13 @@ public:
   }
 
   // isFiltrate returns true if given vb does pass through the filter
+  // (either fully and partly)
   bool isFiltrate(VisBuffer2 const *vb);
+
+  // row-wise filtration information
+  // it fills in is_filtrate vector (resize if necessary)
+  // and returns number of rows that pass through the filter
+  int isFiltratePerRow(VisBuffer2 const *vb, casacore::Vector<bool> &is_filtrate);
 
 private:
   void initFilter();
