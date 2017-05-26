@@ -26,6 +26,8 @@
 #include <mstransform/TVI/FiltrationTVI.h>
 #include <mstransform/TVI/FiltrationTVI.tcc>
 
+#include <mstransform/TVI/SDDoubleCircleFilter.h>
+
 #include <casacore/casa/Exceptions/Error.h>
 
 #include <msvis/MSVis/VisibilityIterator2.h>
@@ -36,9 +38,6 @@ using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
 
 namespace vi { //# NAMESPACE vi - BEGIN
-
-// forward declaration
-class SDDoubleCircleFilter;
 
 // explicit instantiation of template class
 template class FiltrationTVI<SDDoubleCircleFilter>;
@@ -63,18 +62,22 @@ ViImplementation2 * FiltrationTVIFactory::createVi() const {
 
   switch(type_indicator) {
   case FilteringType::SDDoubleCircleFilter:
+  {
     // new filter impl
     // filter impl requires MS
     MeasurementSet const &ms = inputVII_p->ms();
-    SDDoubleCircleFilter filter = new SDDoubleCircleFilter(ms, configuration_p);
+    SDDoubleCircleFilter *filter = new SDDoubleCircleFilter(ms, configuration_p);
 
     // new filter
     vii = new FiltrationTVI<SDDoubleCircleFilter>(inputVII_p, filter);
     break;
+  }
   default:
+  {
     // unsupported type, throw exception
     throw AipsError(String("Invalid FilteringType for FiltrationTVI: ")+String::toString(type_indicator));
     break;
+  }
   }
 
   return vii;

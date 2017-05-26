@@ -41,7 +41,7 @@ namespace {
 template<class T>
 inline void FiltrateVector(Vector<T> const &feed,
     Vector<bool> const &is_filtrate, Vector<T> &filtrate) {
-  AlwaysAssert(feed.conform(is_filtrate), AipsError);
+  AlwaysAssert(feed.nelements() == is_filtrate.nelements(), AipsError);
   // filter_flag: true --> filtrate, false --> residue
   filtrate.resize(ntrue(is_filtrate));
   Int k = 0;
@@ -111,10 +111,11 @@ template<class T>
 inline void FiltrateArray(Array<T> const &feed, Vector<bool> const &is_filtrate,
     Array<T> &filtrate) {
   // filter_flag: true --> filtrate, false --> residue
-  filtrate.resize(ntrue(is_filtrate));
-  Int k = 0;
+  IPosition shape = feed.shape();
   uInt const ndim = feed.ndim();
-  AlwaysAssert(feed.shape()[ndim - 1] == is_filtrate.nelements(), AipsError);
+  shape[ndim - 1] = ntrue(is_filtrate);
+//  filtrate.resize(ntrue(is_filtrate));
+  AlwaysAssert((size_t)feed.shape()[ndim - 1] == is_filtrate.nelements(), AipsError);
   IPosition iter_axis(1, ndim - 1);
   ArrayIterator<T> from_iter(feed, iter_axis, False);
   ArrayIterator<T> to_iter(filtrate, iter_axis, False);
@@ -182,154 +183,199 @@ Int FiltrationTVI<Filter>::nRows() const {
 
 template<class Filter>
 void FiltrationTVI<Filter>::getRowIds(Vector<uInt> &rowids) const {
-  ::FiltrateVector2(getVii()->getRowIds, is_filtrate_p, rowids);
-//  Vector<uInt> rowids_org;
-//  getVii()->getRowIds(rowids_org);
-//  ::FiltrateVector(rowids_org, is_filtrate_p, rowids);
+  Vector<uInt> org;
+  getVii()->getRowIds(org);
+  ::FiltrateVector(org, is_filtrate_p, rowids);
 }
 
 template<class Filter>
 void FiltrationTVI<Filter>::antenna1(Vector<Int> &ant1) const {
-  ::FiltrateVector2(getVii()->antenna1, is_filtrate_p, ant1);
-//  Vector<Int> ant1_org;
-//  getVii()->antenna1(ant1_org);
-//  ::FiltrateVector(ant1_org, is_filtrate_p, ant1);
+  Vector<Int> org;
+  getVii()->antenna1(org);
+  ::FiltrateVector(org, is_filtrate_p, ant1);
 }
 
 template<class Filter>
 void FiltrationTVI<Filter>::antenna2(Vector<Int> &ant2) const {
-  ::FiltrateVector2(getVii()->antenna2, is_filtrate_p, ant2);
-//  Vector<Int> ant2_org;
-//  getVii()->antenna2(ant2_org);
-//  ::FiltrateVector(ant2_org, is_filtrate_p, ant2);
+  Vector<Int> org;
+  getVii()->antenna2(org);
+  ::FiltrateVector(org, is_filtrate_p, ant2);
 }
 
 template<class Filter>
 void FiltrationTVI<Filter>::corrType(Vector<Int> &corrTypes) const {
-  ::FiltrateVector2(getVii()->corrType, is_filtrate_p, corrTypes);
+  Vector<Int> org;
+  getVii()->corrType(org);
+  ::FiltrateVector(org, is_filtrate_p, corrTypes);
 }
 
 template<class Filter>
 void FiltrationTVI<Filter>::exposure(Vector<double> &expo) const {
-  ::FiltrateVector2(getVii()->exposure, is_filtrate_p, expo);
+  Vector<double> org;
+  getVii()->exposure(org);
+  ::FiltrateVector(org, is_filtrate_p, expo);
 }
 
 template<class Filter>
 void FiltrationTVI<Filter>::feed1(Vector<Int> &fd1) const {
-  ::FiltrateVector2(getVii()->feed1, is_filtrate_p, fd1);
+  Vector<Int> org;
+  getVii()->feed1(org);
+  ::FiltrateVector(org, is_filtrate_p, fd1);
 }
 
 template<class Filter>
 void FiltrationTVI<Filter>::feed2(Vector<Int> &fd2) const {
-  ::FiltrateVector2(getVii()->feed2, is_filtrate_p, fd2);
+  Vector<Int> org;
+  getVii()->feed2(org);
+  ::FiltrateVector(org, is_filtrate_p, fd2);
 }
 
 template<class Filter>
 void FiltrationTVI<Filter>::fieldIds(Vector<Int> &fld) const {
-  ::FiltrateVector2(getVii()->fieldIds, is_filtrate_p, fld);
+  Vector<Int> org;
+  getVii()->fieldIds(org);
+  ::FiltrateVector(org, is_filtrate_p, fld);
 }
 
 template<class Filter>
 void FiltrationTVI<Filter>::arrayIds(Vector<Int> &arr) const {
-  ::FiltrateVector2(getVii()->arrayIds, is_filtrate_p, arr);
+  Vector<Int> org;
+  getVii()->arrayIds(org);
+  ::FiltrateVector(org, is_filtrate_p, arr);
 }
 
 template<class Filter>
 void FiltrationTVI<Filter>::flag(Cube<Bool> &flags) const {
-  ::FiltrateCube2(getVii()->flag, is_filtrate_p, flags);
+  Cube<Bool> org;
+  getVii()->flag(org);
+  ::FiltrateArray(org, is_filtrate_p, flags);
 }
 
 template<class Filter>
 void FiltrationTVI<Filter>::flag(Matrix<Bool> &flags) const {
-  ::FiltrateMatrix2(getVii()->flag, is_filtrate_p, flags);
+  Matrix<Bool> org;
+  getVii()->flag(org);
+  ::FiltrateArray(org, is_filtrate_p, flags);
 }
 
 template<class Filter>
-void FiltrationTVI<Filter>::flagCategory(Array<Bool> & flagCategories) const {
-  ::FiltrateArray2(getVii()->flagCategory, is_filtrate_p, flagCategories);
+void FiltrationTVI<Filter>::flagCategory(Array<Bool> &flagCategories) const {
+  Array<Bool> org;
+  getVii()->flagCategory(org);
+  ::FiltrateArray(org, is_filtrate_p, flagCategories);
 }
 
 template<class Filter>
 void FiltrationTVI<Filter>::flagRow(Vector<Bool> &rowflags) const {
-  ::FiltrateVector2(getVii()->falgRow, is_filtrate_p, rowflags);
+  Vector<Bool> org;
+  getVii()->flagRow(org);
+  ::FiltrateVector(org, is_filtrate_p, rowflags);
 }
 
 template<class Filter>
 void FiltrationTVI<Filter>::observationId(Vector<Int> &obsids) const {
-  ::FiltrateVector2(getVii()->observationId, is_filtrate_p, obsids);
+  Vector<Int> org;
+  getVii()->observationId(org);
+  ::FiltrateVector(org, is_filtrate_p, obsids);
 }
 
 template<class Filter>
 void FiltrationTVI<Filter>::processorId(Vector<Int> &procids) const {
-  ::FiltrateVector2(getVii()->processorId, is_filtrate_p, procids);
+  Vector<Int> org;
+  getVii()->processorId(org);
+  ::FiltrateVector(org, is_filtrate_p, procids);
 }
 
 template<class Filter>
-void FiltrationTVI<Filter>::scan(Vector<Int> & scans) const {
-  ::FiltrateVector2(getVii()->scan, is_filtrate_p, scans);
+void FiltrationTVI<Filter>::scan(Vector<Int> &scans) const {
+  Vector<Int> org;
+  getVii()->scan(org);
+  ::FiltrateVector(org, is_filtrate_p, scans);
 }
 
 template<class Filter>
-void FiltrationTVI<Filter>::stateId(Vector<Int> & stateids) const {
-  ::FiltrateVector2(getVii()->stateId, is_filtrate_p, stateids);
+void FiltrationTVI<Filter>::stateId(Vector<Int> &stateids) const {
+  Vector<Int> org;
+  getVii()->stateId(org);
+  ::FiltrateVector(org, is_filtrate_p, stateids);
 }
 
 template<class Filter>
 void FiltrationTVI<Filter>::jonesC(
-      Vector<SquareMatrix<Complex, 2> > & cjones) const {
-  ::FiltrateVector2(getVii()->jonesC, is_filtrate_p, cjones);
+    Vector<SquareMatrix<Complex, 2> > &cjones) const {
+  Vector<SquareMatrix<Complex, 2>> org;
+  getVii()->jonesC(org);
+  ::FiltrateVector(org, is_filtrate_p, cjones);
 }
 
 template<class Filter>
-void FiltrationTVI<Filter>::sigma(Matrix<Float> & sigmat) const {
-  ::FiltrateMatrix2(getVii()->sigma, is_filtrate_p, sigmat);
+void FiltrationTVI<Filter>::sigma(Matrix<Float> &sigmat) const {
+  Matrix<Float> org;
+  getVii()->sigma(org);
+  ::FiltrateArray(org, is_filtrate_p, sigmat);
 }
 
 template<class Filter>
-void FiltrationTVI<Filter>::spectralWindows(Vector<Int> & spws) const {
-  ::FiltrateVector2(getVii()->spectralWindows, is_filtrate_p, spws);
+void FiltrationTVI<Filter>::spectralWindows(Vector<Int> &spws) const {
+  Vector<Int> org;
+  getVii()->spectralWindows(org);
+  ::FiltrateVector(org, is_filtrate_p, spws);
 }
 
 template<class Filter>
-void FiltrationTVI<Filter>::time(Vector<double> & t) const {
-  ::FiltrateVector2(getVii()->time, is_filtrate_p, t);
+void FiltrationTVI<Filter>::time(Vector<double> &t) const {
+  Vector<double> org;
+  getVii()->time(org);
+  ::FiltrateVector(org, is_filtrate_p, t);
 }
 
 template<class Filter>
-void FiltrationTVI<Filter>::timeCentroid(Vector<double> & t) const {
-  ::FiltrateVector2(getVii()->timeCentroid, is_filtrate_p, t);
+void FiltrationTVI<Filter>::timeCentroid(Vector<double> &t) const {
+  Vector<double> org;
+  getVii()->timeCentroid(org);
+  ::FiltrateVector(org, is_filtrate_p, t);
 }
 
 template<class Filter>
-void FiltrationTVI<Filter>::timeInterval(Vector<double> & ti) const {
-  ::FiltrateVector2(getVii()->timeInterval, is_filtrate_p, ti);
+void FiltrationTVI<Filter>::timeInterval(Vector<double> &ti) const {
+  Vector<double> org;
+  getVii()->timeInterval(org);
+  ::FiltrateVector(org, is_filtrate_p, ti);
 }
 
 template<class Filter>
-void FiltrationTVI<Filter>::uvw(Matrix<double> & uvwmat) const {
-  ::FiltrateMatrix2(getVii()->uvw, is_filtrate_p, uvwmat);
+void FiltrationTVI<Filter>::uvw(Matrix<double> &uvwmat) const {
+  Matrix<double> org;
+  getVii()->uvw(org);
+  ::FiltrateArray(org, is_filtrate_p, uvwmat);
 }
 
 template<class Filter>
-void FiltrationTVI<Filter>::visibilityCorrected(
-  Cube<Complex> & vis) const {
-  ::FiltrateCube2(getVii()->visibilityCorrected, is_filtrate_p, vis);
+void FiltrationTVI<Filter>::visibilityCorrected(Cube<Complex> &vis) const {
+  Cube<Complex> org;
+  getVii()->visibilityCorrected(org);
+  ::FiltrateArray(org, is_filtrate_p, vis);
 }
 
 template<class Filter>
-void FiltrationTVI<Filter>::visibilityModel(Cube<Complex> & vis) const {
-  ::FiltrateCube2(getVii()->visibilityModel, is_filtrate_p, vis);
+void FiltrationTVI<Filter>::visibilityModel(Cube<Complex> &vis) const {
+  Cube<Complex> org;
+  getVii()->visibilityModel(org);
+  ::FiltrateArray(org, is_filtrate_p, vis);
 }
 
 template<class Filter>
-void FiltrationTVI<Filter>::visibilityObserved(
-  Cube<Complex> & vis) const {
-  ::FiltrateCube2(getVii()->visibilityObserved, is_filtrate_p, vis);
+void FiltrationTVI<Filter>::visibilityObserved(Cube<Complex> &vis) const {
+  Cube<Complex> org;
+  getVii()->visibilityObserved(org);
+  ::FiltrateArray(org, is_filtrate_p, vis);
 }
 
 template<class Filter>
-void FiltrationTVI<Filter>::floatData(Cube<Float> & fcube) const {
-  ::FiltrateCube2(getVii()->floatData, is_filtrate_p, fcube);
+void FiltrationTVI<Filter>::floatData(Cube<Float> &fcube) const {
+  Cube<Float> org;
+  getVii()->floatData(org);
+  ::FiltrateArray(org, is_filtrate_p, fcube);
 }
 
 template<class Filter>
@@ -340,26 +386,32 @@ IPosition FiltrationTVI<Filter>::visibilityShape() const {
 }
 
 template<class Filter>
-void FiltrationTVI<Filter>::weight(Matrix<Float> & wtmat) const {
-  ::FiltrateMatrix2(getVii()->weight, is_filtrate_p, wtmat);
+void FiltrationTVI<Filter>::weight(Matrix<Float> &wtmat) const {
+  Matrix<Float> org;
+  getVii()->weight(org);
+  ::FiltrateArray(org, is_filtrate_p, wtmat);
 }
 
 template<class Filter>
-void FiltrationTVI<Filter>::weightSpectrum(Cube<Float> & wtsp) const {
-  ::FiltrateCube2(getVii()->weightSpectrum, is_filtrate_p, wtsp);
+void FiltrationTVI<Filter>::weightSpectrum(Cube<Float> &wtsp) const {
+  Cube<Float> org;
+  getVii()->weightSpectrum(org);
+  ::FiltrateArray(org, is_filtrate_p, wtsp);
 }
 
 template<class Filter>
-void FiltrationTVI<Filter>::sigmaSpectrum(Cube<Float> & sigmasp) const {
-  ::FiltrateCube2(getVii()->sigmaSpectrum, is_filtrate_p, sigmasp);
+void FiltrationTVI<Filter>::sigmaSpectrum(Cube<Float> &sigmasp) const {
+  Cube<Float> org;
+  getVii()->sigmaSpectrum(org);
+  ::FiltrateArray(org, is_filtrate_p, sigmasp);
 }
 
 template<class Filter>
 void FiltrationTVI<Filter>::dataDescriptionIds(Vector<Int> &ddids) const {
-  ::FiltrateVector2(getVii()->dataDescriptionIds, is_filtrate_p, ddids);
+  Vector<Int> org;
+  getVii()->dataDescriptionIds(org);
+  ::FiltrateVector(org, is_filtrate_p, ddids);
 }
-
-
 
 template<class Filter>
 void FiltrationTVI<Filter>::filter() {
