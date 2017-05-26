@@ -33,8 +33,8 @@ namespace casac {
   synthesisiterbot::synthesisiterbot():
     itsIterBot(NULL)
 {
-  itsIterBot = new SynthesisIterBot() ;
-  //  itsIterBot = new SynthesisIterBotWithOldGUI() ;
+  //  itsIterBot = new SynthesisIterBot() ;
+  itsIterBot = new SynthesisIterBotWithOldGUI() ;
 }
 
 synthesisiterbot::~synthesisiterbot()
