@@ -26,14 +26,25 @@
 
 #include <mstransform/TVI/SDDoubleCircleFilter.h>
 
+#include <casacore/casa/aips.h>
+#include <casacore/casa/Arrays/Vector.h>
+#include <casacore/casa/Arrays/ArrayLogical.h>
+#include <casacore/casa/BasicSL/String.h>
+#include <casacore/ms/MeasurementSets/MeasurementSet.h>
+#include <casacore/casa/Containers/Record.h>
+
+#include <msvis/MSVis/VisBuffer2.h>
+
+using namespace casacore;
+
 namespace casa { //# NAMESPACE CASA - BEGIN
 
 namespace vi { //# NAMESPACE vi - BEGIN
 
 // constructor
 SDDoubleCircleFilter::SDDoubleCircleFilter(casacore::MeasurementSet const &ms,
-    casacore::Record const &configuration)
-: ms_p(ms), configuration_p(configuration) {
+casacore::Record const &configuration) :
+    ms_p(ms), configuration_p(configuration) {
   initFilter();
 }
 
@@ -41,6 +52,10 @@ SDDoubleCircleFilter::SDDoubleCircleFilter(casacore::MeasurementSet const &ms,
 //SDDoubleCircleFilter::~SDDoubleCircleFilter() {
 //
 //}
+
+String SDDoubleCircleFilter::filterType() const {
+  return String("SDDoubleCircle");
+}
 
 // isFiltrate returns true if given vb does pass through the filter
 bool SDDoubleCircleFilter::isFiltrate(VisBuffer2 const *vb) {
@@ -51,8 +66,17 @@ void SDDoubleCircleFilter::initFilter() {
 
 }
 
+int SDDoubleCircleFilter::isFiltratePerRow(VisBuffer2 const *vb,
+    casacore::Vector<bool> &is_filtrate) {
+  Int nrows = vb->nRows();
+  AlwaysAssert(nrows >= 0, AipsError);
+  if (is_filtrate.nelements() != (uInt)nrows) {
+    is_filtrate.resize(nrows);
+  }
+  is_filtrate = true;
+  return nrows;
+}
+
 } //# NAMESPACE vi - END
 
 } //# NAMESPACE CASA - END
-
-#endif  // _MSVIS_SD_DOUBLE_CIRCLE_FILTER_H_

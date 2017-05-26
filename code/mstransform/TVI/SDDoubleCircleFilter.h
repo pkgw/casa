@@ -27,12 +27,23 @@
 #ifndef _MSVIS_SD_DOUBLE_CIRCLE_FILTER_H_
 #define _MSVIS_SD_DOUBLE_CIRCLE_FILTER_H_
 
-#include <casacore/casa/Arrays/Vector.h>
-#include <casacore/casa/Arrays/ArrayLogical.h>
+//#include <casacore/casa/Arrays/Vector.h>
+//#include <casacore/casa/Arrays/ArrayLogical.h>
+
+namespace casacore {
+// forward declaration
+template<class T> class Vector;
+class MeasurementSet;
+class Record;
+class String;
+}
 
 namespace casa { //# NAMESPACE CASA - BEGIN
 
 namespace vi { //# NAMESPACE vi - BEGIN
+
+// forward declaration
+class VisBuffer2;
 
 class SDDoubleCircleFilter {
 public:
@@ -43,6 +54,9 @@ public:
   // destructor
   ~SDDoubleCircleFilter() {
   }
+
+  // return string representation of the filter type
+  casacore::String filterType() const;
 
   // filter query
   // isResidue returns true if given vb doesn't pass through the filter
