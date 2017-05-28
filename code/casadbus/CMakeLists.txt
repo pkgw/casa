@@ -23,12 +23,14 @@ casa_add_dbus_proxy( session/DBusSession.proxy.h xml/DBusSession.interface.xml )
 casa_add_dbus_proxy( viewer/ViewerProxy.proxy.h xml/ViewerProxy.interface.xml )
 #casa_add_dbus_adaptor( viewer/ViewerAdaptor.adaptor.h xml/ViewerProxy.interface.xml )
 
-if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT OR CMAKE_INSTALL_PREFIX MATCHES ".*/linux[^/]*$")
-    string( REGEX REPLACE /[^/]+/?$ "" casaroot ${CMAKE_SOURCE_DIR} )
-else( )
-    set( casaroot ${CMAKE_INSTALL_PREFIX} )
-endif( )
-set( casaroot ${casaroot} CACHE PATH "toplevel casa directory" FORCE )
+if( NOT RE_CMAKE )
+    if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT OR CMAKE_INSTALL_PREFIX MATCHES ".*/linux[^/]*$")
+        string( REGEX REPLACE /[^/]+/?$ "" casaroot ${CMAKE_SOURCE_DIR} )
+    else( )
+        set( casaroot ${CMAKE_INSTALL_PREFIX} )
+    endif( )
+    set( casaroot ${casaroot} CACHE PATH "toplevel casa directory" FORCE )
+endif()
 
 ###
 ### who know what is the right way to do this with C-MINUS-MAKE...
