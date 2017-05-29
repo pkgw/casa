@@ -1,4 +1,4 @@
-//# SDDoubleCircleFilter.h: Filter for SDDoubleCircleGainCal
+//# SDDoubleCircleFilter.cc: Filter for SDDoubleCircleGainCal
 //# Copyright (C) 1996,1997,1998,1999,2000,2001,2002,2003
 //# Associated Universities, Inc. Washington DC, USA.
 //#
