@@ -12,12 +12,6 @@
 #include <memory>
 #include <map>
 
-#include <singledish/Filler/DataAccumulator.h>
-#include <singledish/Filler/SysCalRecord.h>
-#include <singledish/Filler/WeatherRecord.h>
-#include <singledish/Filler/FillerUtil.h>
-#include <singledish/Filler/PThreadUtil.h>
-
 #include <casacore/casa/OS/File.h>
 #include <casacore/casa/OS/Path.h>
 #include <casacore/casa/BasicSL/String.h>
@@ -37,6 +31,11 @@
 #include <casacore/tables/Tables/ArrayColumn.h>
 #include <casacore/tables/Tables/ScalarColumn.h>
 #include <casacore/tables/Tables/ScaColDesc.h>
+#include <singledishfiller/Filler/DataAccumulator.h>
+#include <singledishfiller/Filler/FillerUtil.h>
+#include <singledishfiller/Filler/PThreadUtil.h>
+#include <singledishfiller/Filler/SysCalRecord.h>
+#include <singledishfiller/Filler/WeatherRecord.h>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
 namespace sdfiller {
@@ -225,6 +224,6 @@ private:
 
 } //# NAMESPACE CASA - END
 
-#include <singledish/Filler/SingleDishMSFiller.tcc>
+#include <singledishfiller/Filler/SingleDishMSFiller.tcc>
 
 #endif /* SINGLEDISH_FILLER_SINGLEDISHMSFILLER_H_ */

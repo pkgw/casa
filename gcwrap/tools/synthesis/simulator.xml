@@ -315,7 +315,7 @@
     start time is later than the reference time, but less than one day
     later, and the hour angles refer to the first source observed.
     
-    setconfig or setknownconfig, setspwindow, setfeed, and setfield must
+    setconfig, setspwindow, setfeed, and setfield must
     be run before observe can be run.
     
     See also sm.observemany 

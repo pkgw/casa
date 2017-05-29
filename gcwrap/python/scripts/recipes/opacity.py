@@ -17,7 +17,7 @@
 # execfile(casadef.python_library_directory+'/recipes/opacity.py')
 #
 # MHW, Feb 2016
-from taskinit import tbtool,cu
+from taskinit import tbtool,cu,casac
 from task_gencal import gencal as mygencal
 import pylab as pl
 
@@ -144,7 +144,14 @@ def opacal(vis,calname,asap=True,interpolate=0,height=200):
     mytb.close()
   return calname
   
-
+  
+def atcaatm(fGHz,tempK,humi,press,height):
+  """Use the asap/miriad/atca atmosphere model to calculate the opacity
+  given the surface weather data and frequency. fGHz needs to be an array"""
+  af=casac.atcafiller()
+  op=af.opacities(fGHz,tempK,humi,press,height)
+  return(fGHz,op)
+  
 def asapatm(fGHz,tempK,humi,press,height):
   """Use the asap (=miriad) atmosphere model to calculate the opacity
   given the surface weather data and frequency. fGHz needs to be an array"""
