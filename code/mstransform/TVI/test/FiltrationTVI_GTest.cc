@@ -55,7 +55,6 @@
 #include <msvis/MSVis/VisibilityIteratorImpl2.h>
 #include <msvis/MSVis/LayeredVi2Factory.h>
 
-
 using namespace std;
 using namespace casa;
 using namespace casacore;
@@ -91,18 +90,26 @@ struct VerboseDeleterForNew {
 // dummy
 class FiltrationTestTVIFactory;
 template<class Filter>
-class FiltrationTVIWrapper : public FiltrationTVI<Filter> {
-  FiltrationTVIWrapper(ViImplementation2 * inputVi, Filter *filter)
-  : FiltrationTVI<Filter>(inputVi, filter) {
+class FiltrationTVIWrapper: public FiltrationTVI<Filter> {
+  FiltrationTVIWrapper(ViImplementation2 * inputVi, Filter *filter) :
+      FiltrationTVI<Filter>(inputVi, filter) {
   }
 
-  virtual ~FiltrationTVIWrapper() {}
+  virtual ~FiltrationTVIWrapper() {
+  }
 
 private:
   friend class FiltrationTestTVIFactory;
 };
 
 // Filter class for testing
+class FilterTypeLocal {
+public:
+  enum {
+    Porous = -1, Nonporous = -2
+  };
+};
+
 class PorousFilter {
 public:
   // constructor
@@ -205,10 +212,12 @@ public:
     ViImplementation2 *vii = nullptr;
 
     Bool is_porous = true;
-    if (configuration_p.isDefined("porous")
-        && !configuration_p.asBool("poros")) {
+    if (configuration_p.isDefined("type")
+        && configuration_p.asInt("type") == (Int)FilterTypeLocal::Nonporous) {
       is_porous = false;
     }
+    cout << "type_enum = " << configuration_p.asInt("type") << endl;
+    cout << "is_porous = " << is_porous << endl;
 
     MeasurementSet const &ms = inputVII_p->ms();
 
@@ -411,12 +420,22 @@ public:
 };
 
 struct PorousValidator {
-  static String GetMode() {
-    return "porous";
+  static Int GetMode() {
+    return FilterTypeLocal::Porous;
   }
 
   static String GetTypePrefix() {
     return "FiltrationTVI<Porous>(";
+  }
+};
+
+struct NonporousValidator {
+  static Int GetMode() {
+    return FilterTypeLocal::Nonporous;
+  }
+
+  static String GetTypePrefix() {
+    return "FiltrationTVI<Nonporous>(";
   }
 };
 
@@ -622,17 +641,15 @@ public:
     ViImplementation2 *vii;
   };
   static VisibilityIterator2 *ManufactureVI(MeasurementSet *ms,
-      String const &mode) {
+      Int const &type_enum) {
     cout << "### Manufacturer: " << endl << "###   " << Impl::GetTestPurpose()
         << endl;
 
-    Record modeRec;
-    if (mode.size() > 0) {
-      modeRec.define("mode", mode);
-    }
+    Record type_rec;
+    type_rec.define("type", type_enum);
 
     // build factory object
-    Product p = Impl::BuildFactory(ms, modeRec);
+    Product p = Impl::BuildFactory(ms, type_rec);
     std::unique_ptr < ViFactory > factory(p.factory);
 
     std::unique_ptr < VisibilityIterator2 > vi;
@@ -663,7 +680,6 @@ public:
     std::unique_ptr<ViImplementation2> inputVii(
         new VisibilityIteratorImpl2(mss, defaultSortColumns, 0.0, VbPlain,
             False));
-
     std::unique_ptr<ViFactory> factory(
         new FiltrationTestTVIFactory(mode, inputVii.get()));
 
@@ -832,8 +848,8 @@ void initWeights(MeasurementSet *ms) {
 
 namespace casa {
 namespace vi {
-template class FiltrationTVI<PorousFilter>;
-template class FiltrationTVI<NonporousFilter>;
+template class FiltrationTVI<PorousFilter> ;
+template class FiltrationTVI<NonporousFilter> ;
 }
 }
 
@@ -886,6 +902,8 @@ protected:
 
   template<class Validator, class Manufacturer = BasicManufacturer1>
   void TestTVI() {
+    cout << "TestTVI" << endl;
+
     // Create VI
     // VI with filter
     std::unique_ptr < VisibilityIterator2
@@ -1161,7 +1179,7 @@ private:
   }
 };
 
-class PorousFiltrationTVITest: public FiltrationTVITestBase {
+class FiltrationTVITest: public FiltrationTVITestBase {
 protected:
   virtual std::string GetDataName() {
     return "analytic_type1.bl.ms";
@@ -1431,8 +1449,12 @@ protected:
 //  TestTVI<StokesAverageCrossPolarizationValidator, BasicManufacturer1>();
 //}
 
-TEST_F(PorousFiltrationTVITest, BasicTest) {
+TEST_F(FiltrationTVITest, PorousTest) {
   TestTVI<PorousValidator, BasicManufacturer1>();
+}
+
+TEST_F(FiltrationTVITest, NonporousTest) {
+  TestTVI<NonporousValidator, BasicManufacturer1>();
 }
 
 int main(int argc, char **argv) {
