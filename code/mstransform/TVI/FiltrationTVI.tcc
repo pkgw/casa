@@ -26,7 +26,7 @@
 #ifndef _MSVIS_FILTRATIONTVI_TCC_
 #define _MSVIS_FILTRATIONTVI_TCC_
 
-//#include <mstransform/TVI/FiltrationTVI.h>
+#include <mstransform/TVI/FiltrationTVI.h>
 
 #include <climits>
 
@@ -43,22 +43,20 @@ inline void FiltrateVector(Vector<T> const &feed,
     Vector<bool> const &is_filtrate, Vector<T> &filtrate) {
   AlwaysAssert(feed.nelements() == is_filtrate.nelements(), AipsError);
   // filter_flag: true --> filtrate, false --> residue
-  filtrate.resize(ntrue(is_filtrate));
-  Int k = 0;
-  for (size_t i = 0; i < feed.nelements(); ++i) {
-    if (is_filtrate[i]) {
-      filtrate[k] = feed[i];
-      ++k;
+  auto const num_filtrates = ntrue(is_filtrate);
+  if (num_filtrates == feed.nelements()) {
+    filtrate.resize();
+    filtrate.reference(feed);
+  } else {
+    filtrate.resize(ntrue(is_filtrate));
+    Int k = 0;
+    for (size_t i = 0; i < feed.nelements(); ++i) {
+      if (is_filtrate[i]) {
+        filtrate[k] = feed[i];
+        ++k;
+      }
     }
   }
-}
-
-template<class T, class Func>
-inline void FiltrateVector2(Func feeder, Vector<bool> const &is_filtrate,
-    Vector<T> &filtrate) {
-  Vector<T> feed;
-  feeder(feed);
-  FiltrateVector(feed, is_filtrate, filtrate);
 }
 
 template<class T>
@@ -76,14 +74,6 @@ inline void FiltrateMatrix(Matrix<T> const &feed,
   }
 }
 
-template<class T, class Func>
-inline void FiltrateMatrix2(Func feeder, Vector<bool> const &is_filtrate,
-    Matrix<T> &filtrate) {
-  Matrix<T> feed;
-  feeder(feed);
-  FiltrateMatrix(feed, is_filtrate, filtrate);
-}
-
 template<class T>
 inline void FiltrateCube(Cube<T> const &feed, Vector<bool> const &is_filtrate,
     Cube<T> &filtrate) {
@@ -99,42 +89,34 @@ inline void FiltrateCube(Cube<T> const &feed, Vector<bool> const &is_filtrate,
   }
 }
 
-template<class T, class Func>
-inline void FiltrateCube2(Func feeder, Vector<bool> const &is_filtrate,
-    Cube<T> &filtrate) {
-  Cube<T> feed;
-  feeder(feed);
-  FiltrateCube(feed, is_filtrate, filtrate);
-}
-
 template<class T>
 inline void FiltrateArray(Array<T> const &feed, Vector<bool> const &is_filtrate,
     Array<T> &filtrate) {
   // filter_flag: true --> filtrate, false --> residue
+  ssize_t const num_filtrates = ntrue(is_filtrate);
   IPosition shape = feed.shape();
   uInt const ndim = feed.ndim();
-  shape[ndim - 1] = ntrue(is_filtrate);
+  if (num_filtrates == shape[ndim - 1]) {
+    filtrate.resize();
+    filtrate.reference(feed);
+  } else {
+    shape[ndim - 1] = ntrue(is_filtrate);
 //  filtrate.resize(ntrue(is_filtrate));
-  AlwaysAssert((size_t)feed.shape()[ndim - 1] == is_filtrate.nelements(), AipsError);
-  IPosition iter_axis(1, ndim - 1);
-  ArrayIterator<T> from_iter(feed, iter_axis, False);
-  ArrayIterator<T> to_iter(filtrate, iter_axis, False);
-  for (size_t i = 0; i < is_filtrate.nelements(); ++i) {
-    if (is_filtrate[i]) {
-      to_iter.array() = from_iter.array();
-      to_iter.next();
+    AlwaysAssert((size_t )feed.shape()[ndim - 1] == is_filtrate.nelements(),
+        AipsError);
+    IPosition iter_axis(1, ndim - 1);
+    ArrayIterator<T> from_iter(feed, iter_axis, False);
+    ArrayIterator<T> to_iter(filtrate, iter_axis, False);
+    for (size_t i = 0; i < is_filtrate.nelements(); ++i) {
+      if (is_filtrate[i]) {
+        to_iter.array() = from_iter.array();
+        to_iter.next();
+      }
+      from_iter.next();
     }
-    from_iter.next();
   }
 }
 
-template<class T, class Func>
-inline void FiltrateArray2(Func feeder, Vector<bool> const &is_filtrate,
-    Array<T> &filtrate) {
-  Array<T> feed;
-  feeder(feed);
-  FiltrateArray(feed, is_filtrate, filtrate);
-}
 }
 
 namespace casa { //# NAMESPACE CASA - BEGIN
