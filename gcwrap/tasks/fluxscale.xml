@@ -47,12 +47,12 @@
 		</param>
 
 		<param type="stringArray" name="transfer">
-			<description>Transfer field name(s) (transfer flux scale TO), \'\' -&gt; all</description>
+			<description>Transfer field name(s) (transfer flux scale TO).  (Unspecified=all)</description>
 			<value></value>
 		</param>
 
      		<param type="string" direction="in" name="listfile">
-  		   <description>Name of listfile that contains the fit information.  Default is '' (no file).</description>
+  		   <description>Name of listfile that contains the fit information.  (Unspecified=no file).</description>
    		   <value></value>
     		</param>
 
@@ -62,7 +62,7 @@
 		</param>
 
 		<param type="intArray" name="refspwmap">
-			<description>Scale across spectral window boundaries.  See help fluxscale</description>
+			<description>Scale across spectral window boundaries. </description>
 			<value>-1</value>
 		</param>
 
@@ -110,7 +110,7 @@
 	</input>
         <output>
             <param type="any" name="fluxd">
-    	    <description>Dictionary containing the transfer fluxes and their errors.</description>
+    	    <description>Output dictionary (return value) containing the transfer fluxes and their errors.</description>
 	    <any type="variant"/>
 	    <value>{}</value>
         </param>
