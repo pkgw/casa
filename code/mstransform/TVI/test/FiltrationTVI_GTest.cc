@@ -45,10 +45,6 @@
 #include <casacore/casa/Arrays/ArrayMath.h>
 #include <casacore/casa/iomanip.h>
 #include <casacore/casa/Containers/Record.h>
-#include <casacore/casa/Utilities/GenSort.h>
-
-#include <casacore/tables/Tables/ArrColData.h>
-#include <casacore/tables/DataMan/TiledShapeStMan.h>
 
 #include <casacore/ms/MeasurementSets/MeasurementSet.h>
 
@@ -78,14 +74,6 @@ string GetCasaDataPath() {
     return "";
   }
 }
-
-//template<class T>
-//struct VerboseDeleterForNew {
-//  void operator()(T *p) {
-//    cout << "Destructing " << typeid(p).name() << endl;
-//    delete p;
-//  }
-//};
 
 // dummy
 class FiltrationTestTVIFactory;
@@ -123,7 +111,7 @@ public:
 
   // return string representation of the filter type
   String filterType() const {
-    return FilterImpl::GetFilterType(); //String("Porous");
+    return FilterImpl::GetFilterType();
   }
 
   // filter query
@@ -135,16 +123,18 @@ public:
   // isFiltrate returns true if given vb does pass through the filter
   // (either fully and partly)
   bool isFiltrate(VisBuffer2 const */*vb*/) {
-    return FilterImpl::IsFiltrate();  //true;
+    return FilterImpl::IsFiltrate();
   }
 
   // row-wise filtration information
   // it fills in is_filtrate vector (resize if necessary)
   // and returns number of rows that pass through the filter
+  // in this case, no partial fitration is implemented, i.e.
+  // either fully filterd out or fully pass through
   int isFiltratePerRow(VisBuffer2 const *vb, Vector<bool> &is_filtrate) {
     int nrows = vb->nRows();
     is_filtrate.resize(nrows);
-    is_filtrate = FilterImpl::IsFiltrate();  //true;
+    is_filtrate = FilterImpl::IsFiltrate();
     return nrows;
   }
 
@@ -162,7 +152,7 @@ private:
  */
 class PorousProperty {
 public:
-  static Int GetFilterTypeEnum() {
+  static constexpr Int GetFilterTypeEnum() {
     return (Int) FilterTypeLocal::Porous;
   }
 
@@ -195,7 +185,7 @@ public:
  */
 class NonporousProperty {
 public:
-  static Int GetFilterTypeEnum() {
+  static constexpr Int GetFilterTypeEnum() {
     return (Int) FilterTypeLocal::Nonporous;
   }
 
