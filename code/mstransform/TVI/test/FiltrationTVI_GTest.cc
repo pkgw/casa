@@ -79,13 +79,13 @@ string GetCasaDataPath() {
   }
 }
 
-template<class T>
-struct VerboseDeleterForNew {
-  void operator()(T *p) {
-    cout << "Destructing " << typeid(p).name() << endl;
-    delete p;
-  }
-};
+//template<class T>
+//struct VerboseDeleterForNew {
+//  void operator()(T *p) {
+//    cout << "Destructing " << typeid(p).name() << endl;
+//    delete p;
+//  }
+//};
 
 // dummy
 class FiltrationTestTVIFactory;
@@ -110,26 +110,20 @@ public:
   };
 };
 
-/**
- * PorousFilter
- *
- * PorousFilter is an implementaiton of the filter that pass through
- * everything. It is equivalent to the case when no filter is
- * inserted to the TVI layer.
- */
-class PorousFilter {
+template<class FilterImpl>
+class FilterInterface {
 public:
   // constructor
-  PorousFilter(MeasurementSet const &/*ms*/, Record const &/*configuration*/) {
+  FilterInterface(MeasurementSet const &/*ms*/,
+      Record const &/*configuration*/) {
   }
 
   // destructor
-  ~PorousFilter() {
-  }
+  virtual ~FilterInterface() = default;
 
   // return string representation of the filter type
   String filterType() const {
-    return String("Porous");
+    return FilterImpl::GetFilterType(); //String("Porous");
   }
 
   // filter query
@@ -141,7 +135,7 @@ public:
   // isFiltrate returns true if given vb does pass through the filter
   // (either fully and partly)
   bool isFiltrate(VisBuffer2 const */*vb*/) {
-    return true;
+    return FilterImpl::IsFiltrate();  //true;
   }
 
   // row-wise filtration information
@@ -150,7 +144,7 @@ public:
   int isFiltratePerRow(VisBuffer2 const *vb, Vector<bool> &is_filtrate) {
     int nrows = vb->nRows();
     is_filtrate.resize(nrows);
-    is_filtrate = true;
+    is_filtrate = FilterImpl::IsFiltrate();  //true;
     return nrows;
   }
 
@@ -160,53 +154,70 @@ private:
 };
 
 /**
+ * PorousFilter
+ *
+ * PorousFilter is an implementaiton of the filter that pass through
+ * everything. It is equivalent to the case when no filter is
+ * inserted to the TVI layer.
+ */
+class PorousProperty {
+public:
+  static Int GetFilterTypeEnum() {
+    return (Int) FilterTypeLocal::Porous;
+  }
+
+  static String GetFilterType() {
+    return String("Porous");
+  }
+
+  static constexpr bool IsFiltrate() {
+    return true;
+  }
+};
+
+class PorousFilter: public PorousProperty, public FilterInterface<PorousFilter> {
+public:
+  // constructor
+  PorousFilter(MeasurementSet const &ms, Record const &configuration) :
+      FilterInterface<PorousFilter>(ms, configuration) {
+  }
+
+  // destructor
+  virtual ~PorousFilter() = default;
+};
+
+/**
  * NonporousFilter
  *
  * NonporousFilter is an implementaiton of the filter that filter out
  * everything. No data will be emerged if it is inserted to the TVI
  * layer.
  */
-class NonporousFilter {
+class NonporousProperty {
 public:
-  // constructor
-  NonporousFilter(MeasurementSet const &/*ms*/,
-      Record const &/*configuration*/) {
+  static Int GetFilterTypeEnum() {
+    return (Int) FilterTypeLocal::Nonporous;
   }
 
-  // destructor
-  ~NonporousFilter() {
-  }
-
-  // return string representation of the filter type
-  String filterType() const {
+  static String GetFilterType() {
     return String("Nonporous");
   }
 
-  // filter query
-  // isResidue returns true if given vb doesn't pass through the filter
-  bool isResidue(VisBuffer2 const *vb) {
-    return !isFiltrate(vb);
-  }
-
-  // isFiltrate returns true if given vb does pass through the filter
-  // (either fully and partly)
-  bool isFiltrate(VisBuffer2 const */*vb*/) {
+  static constexpr bool IsFiltrate() {
     return false;
   }
+};
 
-  // row-wise filtration information
-  // it fills in is_filtrate vector (resize if necessary)
-  // and returns number of rows that pass through the filter
-  int isFiltratePerRow(VisBuffer2 const *vb, Vector<bool> &is_filtrate) {
-    int nrows = vb->nRows();
-    is_filtrate.resize(nrows);
-    is_filtrate = false;
-    return nrows;
+class NonporousFilter: public NonporousProperty, public FilterInterface<
+    NonporousFilter> {
+public:
+  // constructor
+  NonporousFilter(MeasurementSet const &ms, Record const &configuration) :
+      FilterInterface<NonporousFilter>(ms, configuration) {
   }
 
-private:
-  void initFilter() {
-  }
+  // destructor
+  virtual ~NonporousFilter() = default;
 };
 
 class FiltrationTestTVIFactory: public ViFactory {
@@ -251,45 +262,38 @@ private:
   Record configuration_p;
 };
 
-struct ValidatorUtil {
-  template<class T>
-  static void ValidateArray(Array<T> const &ref, Array<T> const &result) {
-    ASSERT_TRUE(ref.conform(result));
-    Bool b1, b2;
-    auto const p_ref = ref.getStorage(b1);
-    auto const p_result = result.getStorage(b2);
-    size_t arraySize = ref.size();
-    for (size_t i = 0; i < arraySize; ++i) {
-      ValidateScalar(p_ref[i], p_result[i]);
-    }
-  }
-private:
-  template<class T>
-  static void ValidateScalar(T const ref, T const result) {
-    EXPECT_EQ(ref, result);
-  }
-
-};
-
-template<>
-void ValidatorUtil::ValidateScalar<Float>(Float const ref, Float const result) {
-  EXPECT_FLOAT_EQ(ref, result);
-}
-
-template<>
-void ValidatorUtil::ValidateScalar<Complex>(Complex const ref,
-    Complex const result) {
-  EXPECT_FLOAT_EQ(ref.real(), result.real());
-  EXPECT_FLOAT_EQ(ref.imag(), result.imag());
-}
-
+template<class Impl>
 struct ValidatorBase {
+  static Int GetMode() {
+    return Impl::GetFilterTypeEnum();
+  }
+
+  static String GetTypePrefix() {
+    return String("FiltrationTVI<") + Impl::GetFilterType() + ">";
+  }
+
+  static bool IsFiltrate(VisBuffer2 const */*vb*/) {
+    return Impl::IsFiltrate();
+  }
+
+  static bool IsResidue(VisBuffer2 const *vb) {
+    return !IsFiltrate(vb);
+  }
+
+  static int IsFiltratePerRow(VisBuffer2 const *vb, Vector<bool> &is_filtrate) {
+    auto const nrow = vb->nRows();
+    is_filtrate.resize(nrow);
+    is_filtrate = Impl::IsFiltrate();
+    return nrow;
+  }
+
   template<class T>
-  static void ValidateCube(Cube<T> const &data, Cube<T> const &ref, Vector<bool> const &flag) {
+  static void ValidateCube(Cube<T> const &data, Cube<T> const &ref,
+      Vector<bool> const &flag) {
     IPosition const refshape = ref.shape();
     IPosition const shape = data.shape();
-    ASSERT_EQ((size_t)refshape[2], flag.nelements());
-    ASSERT_EQ(shape[2], (ssize_t)ntrue(flag));
+    ASSERT_EQ((size_t )refshape[2], flag.nelements());
+    ASSERT_EQ(shape[2], (ssize_t )ntrue(flag));
 
     ssize_t n = refshape[2];
     ssize_t j = 0;
@@ -300,57 +304,21 @@ struct ValidatorBase {
       }
     }
   }
-};
 
-struct PorousValidator : public ValidatorBase {
-  static Int GetMode() {
-    return FilterTypeLocal::Porous;
-  }
-
-  static String GetTypePrefix() {
-    return "FiltrationTVI<Porous>(";
-  }
-
-  static bool IsResidue(VisBuffer2 const */*vb*/) {
-    return false;
-  }
-
-  static bool IsFiltrate(VisBuffer2 const */*vb*/) {
-    return true;
-  }
-
-  static int IsFiltratePerRow(VisBuffer2 const *vb, Vector<bool> &is_filtrate) {
-    auto const nrow = vb->nRows();
-    is_filtrate.resize(nrow);
-    is_filtrate = true;
-    return nrow;
+  template<class Func>
+  static void ValidateVB(String const what_axis, Func get_axis,
+      VisBuffer2 const *vb, VisBuffer2 const *vb_ref,
+      Vector<bool> const &flag) {
+    cout << "Examining " << what_axis;
+    cout.flush();
+    auto const data = get_axis(vb);
+    auto const ref = get_axis(vb_ref);
+    ValidateCube(data, ref, flag);
+    cout << "...DONE" << endl;
   }
 };
-
-struct NonporousValidator : public ValidatorBase {
-  static Int GetMode() {
-    return FilterTypeLocal::Nonporous;
-  }
-
-  static String GetTypePrefix() {
-    return "FiltrationTVI<Nonporous>(";
-  }
-
-  static bool IsResidue(VisBuffer2 const */*vb*/) {
-    return true;
-  }
-
-  static bool IsFiltrate(VisBuffer2 const */*vb*/) {
-    return false;
-  }
-
-  static int IsFiltratePerRow(VisBuffer2 const *vb, Vector<bool> &is_filtrate) {
-    auto const nrow = vb->nRows();
-    is_filtrate.resize(nrow);
-    is_filtrate = false;
-    return nrow;
-  }
-};
+typedef ValidatorBase<PorousProperty> PorousValidator;
+typedef ValidatorBase<NonporousProperty> NonporousValidator;
 
 template<class Impl>
 class Manufacturer {
@@ -417,7 +385,7 @@ public:
   }
 };
 
-class BasicManufacturer : public Manufacturer<BasicManufacturer> {
+class BasicManufacturer: public Manufacturer<BasicManufacturer> {
 public:
   static Product BuildFactory(MeasurementSet *ms, Record const &mode) {
     // create read-only VI impl
@@ -575,9 +543,7 @@ protected:
         << (vi->weightSpectrumExists() ? "True" : "False") << endl;
     //cout << "\tChannelized Sigma Exists? " << (vi->sigmaSpectrumExists() ? "True" : "False") << endl;
 
-//    // VI iteration
-//    Vector<uInt> swept(nRowMs, 0);
-//    uInt nRowChunkSum = 0;
+    // VI iteration
     VisBuffer2 *vb = vi->getVisBuffer();
     VisBuffer2 *vb_ref = refvi->getVisBuffer();
     vi->originChunks();
@@ -591,7 +557,7 @@ protected:
       refvi->origin();
       vi->origin();
 
-      // increment chunk until refvi iteration hits filtrate subchunk
+      // increment chunk until refvi iteration hits first valid subchunk
       while (refvi->more() && Validator::IsResidue(vb_ref)) {
         refvi->next();
       }
@@ -606,14 +572,11 @@ protected:
       auto const chunk_id = vi->getSubchunkId().chunk();
       auto const chunk_id_ref = refvi->getSubchunkId().chunk();
       EXPECT_EQ(chunk_id_ref, chunk_id);
-//      nRowChunkSum += nRowChunk;
       cout << "*************************" << endl;
       cout << "*** Start loop on chunk " << chunk_id << endl;
       cout << "*** Number of Rows: " << nrow_chunk << endl;
       cout << "*************************" << endl;
-//
-//      Int nRowSubchunkSum = 0;
-//
+
       // no valid subchunk exists
       if (!refvi->more()) {
         cout << "No valid chunk exists." << endl;
@@ -626,6 +589,8 @@ protected:
 
       // again, iteration loop is based on refvi
       while (refvi->more()) {
+
+        // vi with FiltrationTVI should have subchunk
         EXPECT_TRUE(vi->more());
 
         auto const subchunk = vi->getSubchunkId();
@@ -642,10 +607,11 @@ protected:
         vi->getImpl()->getRowIds(row_ids);
         refvi->getImpl()->getRowIds(row_ids_ref);
         Vector<bool> is_filtrate;
-        auto const num_filtrates = Validator::IsFiltratePerRow(vb_ref, is_filtrate);
+        auto const num_filtrates = Validator::IsFiltratePerRow(vb_ref,
+            is_filtrate);
         ASSERT_GE(num_filtrates, 0);
         ASSERT_EQ(refvi->getImpl()->nRows(), num_filtrates);
-        ASSERT_EQ((unsigned long)num_filtrates, is_filtrate.nelements());
+        ASSERT_EQ((unsigned long )num_filtrates, is_filtrate.nelements());
 
         // ROW IDs
         cout << "Examining ROW ID";
@@ -658,43 +624,35 @@ protected:
             ++j;
           }
         }
-        cout << "...OK" << endl;
+        cout << "...DONE" << endl;
 
         // DATA columns
         if (corrected_exists) {
-          cout << "Examining CORRECTED_DATA";
-          cout.flush();
-          Cube<Complex> data = vb->visCubeCorrected();
-          Cube<Complex> data_ref = vb_ref->visCubeCorrected();
-          Validator::ValidateCube(data, data_ref, is_filtrate);
-          cout << "...OK" << endl;
+          Validator::ValidateVB("CORRECTED_DATA",
+              [](VisBuffer2 const *vb) -> Cube<Complex> {
+                return vb->visCubeCorrected();
+              }, vb, vb_ref, is_filtrate);
         }
 
         if (model_exists) {
-          cout << "Examining MODEL_DATA";
-          cout.flush();
-          Cube<Complex> data = vb->visCubeModel();
-          Cube<Complex> data_ref = vb_ref->visCubeModel();
-          Validator::ValidateCube(data, data_ref, is_filtrate);
-          cout << "...OK" << endl;
+          Validator::ValidateVB("MODEL_DATA",
+              [](VisBuffer2 const *vb) -> Cube<Complex> {
+                return vb->visCubeModel();
+              }, vb, vb_ref, is_filtrate);
         }
 
         if (data_exists) {
-          cout << "Examining DATA";
-          cout.flush();
-          Cube<Complex> data = vb->visCube();
-          Cube<Complex> data_ref = vb_ref->visCube();
-          Validator::ValidateCube(data, data_ref, is_filtrate);
-          cout << "...OK" << endl;
+          Validator::ValidateVB("DATA",
+              [](VisBuffer2 const *vb) -> Cube<Complex> {
+                return vb->visCube();
+              }, vb, vb_ref, is_filtrate);
         }
 
         if (float_exists) {
-          cout << "Examining FLOAT_DATA";
-          cout.flush();
-          Cube<Float> data = vb->visCubeFloat();
-          Cube<Float> data_ref = vb_ref->visCubeFloat();
-          Validator::ValidateCube(data, data_ref, is_filtrate);
-          cout << "...OK" << endl;
+          Validator::ValidateVB("FLOAT_DATA",
+              [](VisBuffer2 const *vb) -> Cube<Float> {
+                return vb->visCubeFloat();
+              }, vb, vb_ref, is_filtrate);
         }
 
         // next round of iteration
@@ -717,7 +675,8 @@ protected:
         << expectedClassName << "\"" << endl;
 
     if (expectedClassName.size() > 0) {
-      std::unique_ptr<VisibilityIterator2> vi(Manufacturer::ManufactureVI(ms_, type_enum));
+      std::unique_ptr<VisibilityIterator2> vi(
+          Manufacturer::ManufactureVI(ms_, type_enum));
 
       // Verify type string
       String viiType = vi->ViiType();
@@ -825,7 +784,7 @@ TEST_F(FiltrationTVITest, NonporousTest) {
 }
 
 TEST_F(FiltrationTVITest, FactoryTest) {
-  Int const type_enum = (Int)FilteringType::SDDoubleCircleFilter;
+  Int const type_enum = (Int) FilteringType::SDDoubleCircleFilter;
   String const expected_name("FiltrationTVI<SDDoubleCircle>");
   TestFactory<BasicManufacturer>(type_enum, expected_name);
   TestFactory<LayerManufacturer>(type_enum, expected_name);
