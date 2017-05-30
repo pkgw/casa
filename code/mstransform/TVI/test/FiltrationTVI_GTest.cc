@@ -110,6 +110,13 @@ public:
   };
 };
 
+/**
+ * PorousFilter
+ *
+ * PorousFilter is an implementaiton of the filter that pass through
+ * everything. It is equivalent to the case when no filter is
+ * inserted to the TVI layer.
+ */
 class PorousFilter {
 public:
   // constructor
@@ -152,6 +159,13 @@ private:
   }
 };
 
+/**
+ * NonporousFilter
+ *
+ * NonporousFilter is an implementaiton of the filter that filter out
+ * everything. No data will be emerged if it is inserted to the TVI
+ * layer.
+ */
 class NonporousFilter {
 public:
   // constructor
@@ -213,7 +227,7 @@ public:
 
     Bool is_porous = true;
     if (configuration_p.isDefined("type")
-        && configuration_p.asInt("type") == (Int)FilterTypeLocal::Nonporous) {
+        && configuration_p.asInt("type") == (Int) FilterTypeLocal::Nonporous) {
       is_porous = false;
     }
     cout << "type_enum = " << configuration_p.asInt("type") << endl;
@@ -237,71 +251,56 @@ private:
   Record configuration_p;
 };
 
-//class FiltrationTestTVILayerFactory: public ViiLayerFactory {
-//
-//public:
-//  FiltrationTestTVILayerFactory(casacore::Record const &configuration);
-//  virtual ~FiltrationTestTVILayerFactory() {
+//template<class T>
+//struct Filler {
+//  static void FillArrayReference(MeasurementSet const &ms,
+//      String const &columnName, Vector<uInt> const &rowIds, Array<T> &data) {
+//    //cout << "Start " << __func__ << endl;
+//    ArrayColumn<T> col(ms, columnName);
+//    RefRows rows(rowIds);
+//    col.getColumnCells(rows, data);
 //  }
-//
-//protected:
-//
-//  ViImplementation2 * createInstance(ViImplementation2* vii0) const;
-//
-//  casacore::Record configuration_p;
-//
+//  static void FillScalarReference(MeasurementSet const &ms,
+//      String const &columnName, Vector<uInt> const &rowIds, Vector<T> &data) {
+//    ScalarColumn<T> col(ms, columnName);
+//    RefRows rows(rowIds);
+////    Vector<T> vref(data);
+//    col.getColumnCells(rows, data);
+//  }
+//  static void FillWeightSp(MeasurementSet const &ms, Vector<uInt> const &rowIds,
+//      Array<Float> &weightSp) {
+//    // weightSp must be resized to appropriate shape
+//    if (ms.tableDesc().isColumn("WEIGHT_SPECTRUM")) {
+//      Filler<Float>::FillArrayReference(ms, "WEIGHT_SPECTRUM", rowIds,
+//          weightSp);
+//    } else {
+//      Array<Float> weight;
+//      Filler<Float>::FillArrayReference(ms, "WEIGHT", rowIds, weight);
+//      auto const wshape(weight.shape());
+//      ASSERT_EQ(wshape.size(), (uInt )2);
+//      ASSERT_EQ(wshape[0], weightSp.shape()[0]);
+//      ASSERT_EQ(wshape[1], weightSp.shape()[2]);
+//      Matrix<Float> wtMat(weight);
+//      Cube<Float> wtCube(weightSp);
+//      cout << "wtCube.shape() = " << wtCube.shape() << " weightSp.shape() = "
+//          << weightSp.shape() << endl;
+//      size_t nPol = wshape[0];
+//      size_t nRow = wshape[1];
+//      cout << "wtMat.shape() = " << wtMat.shape() << " nrow = " << wtMat.nrow()
+//          << " ncol = " << wtMat.ncolumn() << endl;
+//      for (size_t i = 0; i < nPol; ++i) {
+//        for (size_t j = 0; j < nRow; ++j) {
+//          cout << "wtCube.yzPlane(" << i << ").shape() = "
+//              << wtCube.yzPlane(i).shape() << endl;
+//          cout << "wtCube.yzPlane(i).column(j).shape() = "
+//              << wtCube.yzPlane(i).column(j).shape() << endl;
+//          cout << "wtMat(i, j) = " << wtMat(i, j) << endl;
+//          wtCube.yzPlane(i).column(j) = wtMat(i, j);
+//        }
+//      }
+//    }
+//  }
 //};
-
-template<class T>
-struct Filler {
-  static void FillArrayReference(MeasurementSet const &ms,
-      String const &columnName, Vector<uInt> const &rowIds, Array<T> &data) {
-    //cout << "Start " << __func__ << endl;
-    ArrayColumn<T> col(ms, columnName);
-    RefRows rows(rowIds);
-    col.getColumnCells(rows, data);
-  }
-  static void FillScalarReference(MeasurementSet const &ms,
-      String const &columnName, Vector<uInt> const &rowIds, Vector<T> &data) {
-    ScalarColumn<T> col(ms, columnName);
-    RefRows rows(rowIds);
-//    Vector<T> vref(data);
-    col.getColumnCells(rows, data);
-  }
-  static void FillWeightSp(MeasurementSet const &ms, Vector<uInt> const &rowIds,
-      Array<Float> &weightSp) {
-    // weightSp must be resized to appropriate shape
-    if (ms.tableDesc().isColumn("WEIGHT_SPECTRUM")) {
-      Filler<Float>::FillArrayReference(ms, "WEIGHT_SPECTRUM", rowIds,
-          weightSp);
-    } else {
-      Array<Float> weight;
-      Filler<Float>::FillArrayReference(ms, "WEIGHT", rowIds, weight);
-      auto const wshape(weight.shape());
-      ASSERT_EQ(wshape.size(), (uInt )2);
-      ASSERT_EQ(wshape[0], weightSp.shape()[0]);
-      ASSERT_EQ(wshape[1], weightSp.shape()[2]);
-      Matrix<Float> wtMat(weight);
-      Cube<Float> wtCube(weightSp);
-      cout << "wtCube.shape() = " << wtCube.shape() << " weightSp.shape() = "
-          << weightSp.shape() << endl;
-      size_t nPol = wshape[0];
-      size_t nRow = wshape[1];
-      cout << "wtMat.shape() = " << wtMat.shape() << " nrow = " << wtMat.nrow()
-          << " ncol = " << wtMat.ncolumn() << endl;
-      for (size_t i = 0; i < nPol; ++i) {
-        for (size_t j = 0; j < nRow; ++j) {
-          cout << "wtCube.yzPlane(" << i << ").shape() = "
-              << wtCube.yzPlane(i).shape() << endl;
-          cout << "wtCube.yzPlane(i).column(j).shape() = "
-              << wtCube.yzPlane(i).column(j).shape() << endl;
-          cout << "wtMat(i, j) = " << wtMat(i, j) << endl;
-          wtCube.yzPlane(i).column(j) = wtMat(i, j);
-        }
-      }
-    }
-  }
-};
 
 struct ValidatorUtil {
   template<class T>
@@ -336,8 +335,8 @@ void ValidatorUtil::ValidateScalar<Complex>(Complex const ref,
 }
 
 // Base class for validating polarization average
-struct ValidatorBase {
-public:
+//struct ValidatorBase {
+//public:
 //  static void ValidateData(Array<Complex> const &data, MeasurementSet const &ms,
 //      Vector<uInt> const &rowIds) {
 //    ValidateDataColumn(data, ms, "DATA", rowIds);
@@ -417,7 +416,7 @@ public:
 //      }
 //    }
 //  }
-};
+//};
 
 struct PorousValidator {
   static Int GetMode() {
@@ -426,6 +425,14 @@ struct PorousValidator {
 
   static String GetTypePrefix() {
     return "FiltrationTVI<Porous>(";
+  }
+
+  static bool IsResidue(VisBuffer2 const *vb) {
+    return false;
+  }
+
+  static bool IsFiltrate(VisBuffer2 const *vb) {
+    return true;
   }
 };
 
@@ -437,201 +444,15 @@ struct NonporousValidator {
   static String GetTypePrefix() {
     return "FiltrationTVI<Nonporous>(";
   }
-};
 
-//// Base class for validating polarization average being skipped
-//struct IdenticalValidator {
-//public:
-//  static void ValidatePolarization(Vector<Int> const &corrType) {
-//    Int possibleTypes[] = { Stokes::I, Stokes::Q, Stokes::U, Stokes::V,
-//        Stokes::XY, Stokes::YX };
-//    size_t len = sizeof(possibleTypes) / sizeof(Int);
-//    Vector<Int> possibleTypesV(IPosition(1, len), possibleTypes, SHARE);
-//    auto iterend = corrType.end();
-//    for (auto iter = corrType.begin(); iter != iterend; ++iter) {
-//      ASSERT_TRUE(anyEQ(possibleTypesV, *iter));
-//    }
-//  }
-//  static void ValidateData(Array<Complex> const &data, MeasurementSet const &ms,
-//      Vector<uInt> const &rowIds) {
-//    ValidateArrayColumn(data, ms, "DATA", rowIds);
-//  }
-//  static void ValidateCorrected(Cube<Complex> const &data,
-//      MeasurementSet const &ms, Vector<uInt> const &rowIds) {
-//    ValidateArrayColumn(data, ms, "CORRECTED_DATA", rowIds);
-//  }
-//  static void ValidateModel(Cube<Complex> const &data, MeasurementSet const &ms,
-//      Vector<uInt> const &rowIds) {
-//    ValidateArrayColumn(data, ms, "MODEL_DATA", rowIds);
-//  }
-//  static void ValidateFloat(Cube<Float> const &data, MeasurementSet const &ms,
-//      Vector<uInt> const &rowIds) {
-//    ValidateArrayColumn(data, ms, "FLOAT_DATA", rowIds);
-//  }
-//  static void ValidateFlag(Cube<Bool> const &flag, MeasurementSet const &ms,
-//      Vector<uInt> const &rowIds) {
-//    ValidateArrayColumn(flag, ms, "FLAG", rowIds);
-//  }
-//  static void ValidateFlagRow(Vector<Bool> const &flag,
-//      MeasurementSet const &ms, Vector<uInt> const &rowIds) {
-//    ValidateScalarColumn(flag, ms, "FLAG_ROW", rowIds);
-//  }
-//  static void ValidateWeight(Matrix<Float> const &weight,
-//      MeasurementSet const &ms, Vector<uInt> const &rowIds) {
-//    ValidateArrayColumn(weight, ms, "WEIGHT", rowIds);
-//  }
-//  static void ValidateWeightSp(Cube<Float> const &weight,
-//      MeasurementSet const &ms, Vector<uInt> const &rowIds) {
-//    if (ms.tableDesc().isColumn("WEIGHT_SPECTRUM")) {
-//      ValidateArrayColumn(weight, ms, "WEIGHT_SPECTRUM", rowIds);
-//    }
-//  }
-//private:
-//  template<class T>
-//  static void ValidateArrayColumn(Array<T> const &data,
-//      MeasurementSet const &ms, String const &columnName,
-//      Vector<uInt> const &rowIds) {
-//    Array<T> ref;
-//    Filler<T>::FillArrayReference(ms, columnName, rowIds, ref);
-//    EXPECT_EQ(data.shape(), ref.shape());
-//    EXPECT_TRUE(allEQ(data, ref));
-//  }
-//  template<class T>
-//  static void ValidateScalarColumn(Array<T> const &data,
-//      MeasurementSet const &ms, String const &columnName,
-//      Vector<uInt> const &rowIds) {
-//    Vector<T> ref;
-//    Filler<T>::FillScalarReference(ms, columnName, rowIds, ref);
-//    EXPECT_EQ(data.shape(), ref.shape());
-//    EXPECT_TRUE(allEQ(data, ref));
-//  }
-//};
-//
-//// Base class for Geometric type validator
-//struct GeometricValidatorBase {
-//  static String GetMode() {
-//    return "geometric";
-//  }
-//
-//  static String GetTypePrefix() {
-//    return "GeometricPolAverage(";
-//  }
-//};
-//
-//// Base class for Stokes type validator
-//struct StokesValidatorBase {
-//  static String GetMode() {
-//    return "stokes";
-//  }
-//
-//  static String GetTypePrefix() {
-//    return "StokesPolAverage(";
-//  }
-//};
-//
-//// Validator for Geometric polarization average
-//struct GeometricAverageValidator: public GeometricValidatorBase,
-//    public ValidatorBase<GeometricAverageValidator> {
-//  static void SetWeight(IPosition const &start, IPosition const &end,
-//      Array<Float> const &baseWeight, Array<Float> &weight) {
-//    weight = baseWeight(start, end);
-//  }
-//
-//  static void AccumulateWeight(IPosition const &start, IPosition const &end,
-//      Array<Float> const &weight, Array<Float> &result) {
-//    result += weight(start, end);
-//  }
-//
-//  static void NormalizeWeight(Array<Float> &/*result*/) {
-//  }
-//};
-//
-//// Validator for Stokes polarization average
-//struct StokesAverageValidator: public StokesValidatorBase, public ValidatorBase<
-//    StokesAverageValidator> {
-//  static void SetWeight(IPosition const &/*start*/, IPosition const &/*end*/,
-//      Array<Float> const &/*baseWeight*/, Array<Float> &weight) {
-//    weight = 1.0f;
-//  }
-//
-//  static void AccumulateWeight(IPosition const &start, IPosition const &end,
-//      Array<Float> const &weight, Array<Float> &result) {
-//    result += 1.0f / weight(start, end);
-//  }
-//
-//  static void NormalizeWeight(Array<Float> &result) {
-//    result = 4.0f / result;
-//  }
-//};
-//
-//// Validator for Geometric polarization average including cross-polarization
-//struct GeometricAverageCrossPolarizationValidator: public GeometricValidatorBase,
-//    public ValidatorBase<GeometricAverageCrossPolarizationValidator> {
-//  static void SetWeight(IPosition const &start, IPosition const &end,
-//      Array<Float> const &baseWeight, Array<Float> &weight) {
-//    // Here it is assumed that polarization order is 0: XX (RR), 1: XY (RL), 2: YX (LR), 3: YY (LL)
-//    ASSERT_EQ(start[0], end[0]);
-//    if (start[0] == 1 || start[0] == 2) {
-//      // set weight for cross-polarization component to exclude it from the average
-//      weight = 0.0f;
-//    } else {
-//      weight = baseWeight(start, end);
-//    }
-//  }
-//
-//  static void AccumulateWeight(IPosition const &start, IPosition const &end,
-//      Array<Float> const &weight, Array<Float> &result) {
-//    // Here it is assumed that polarization order is 0: XX (RR), 1: XY (RL), 2: YX (LR), 3: YY (LL)
-//    ASSERT_EQ(start[0], end[0]);
-//    if (start[0] != 1 && start[0] != 2) {
-//      result += weight(start, end);
-//    }
-//  }
-//
-//  static void NormalizeWeight(Array<Float> &/*result*/) {
-//  }
-//};
-//
-//// Validator for Stokes polarization average including cross-polarization
-//struct StokesAverageCrossPolarizationValidator: public StokesValidatorBase,
-//    public ValidatorBase<StokesAverageCrossPolarizationValidator> {
-//  static void SetWeight(IPosition const &start, IPosition const &end,
-//      Array<Float> const &/*baseWeight*/, Array<Float> &weight) {
-//    // Here it is assumed that polarization order is 0: XX (RR), 1: XY (RL), 2: YX (LR), 3: YY (LL)
-//    ASSERT_EQ(start[0], end[0]);
-//    if (start[0] == 1 || start[0] == 2) {
-//      // set weight for cross-polarization component to exclude it from the average
-//      weight = 0.0f;
-//    } else {
-//      weight = 1.0f;
-//    }
-//  }
-//
-//  static void AccumulateWeight(IPosition const &start, IPosition const &end,
-//      Array<Float> const &weight, Array<Float> &result) {
-//    // Here it is assumed that polarization order is 0: XX (RR), 1: XY (RL), 2: YX (LR), 3: YY (LL)
-//    ASSERT_EQ(start[0], end[0]);
-//    if (start[0] != 1 && start[0] != 2) {
-//      result += 1.0f / weight(start, end);
-//    }
-//  }
-//
-//  static void NormalizeWeight(Array<Float> &result) {
-//    result = 4.0f / result;
-//  }
-//};
-//
-//// Validator for Geometric polarization average (identical case = skip)
-//struct GeometricIdenticalValidator: public GeometricValidatorBase,
-//    public IdenticalValidator {
-//
-//};
-//
-//// Validator for Stokes polarization average (identical case = skip)
-//struct StokesIdenticalValidator: public StokesValidatorBase,
-//    public IdenticalValidator {
-//
-//};
+  static bool IsResidue(VisBuffer2 const *vb) {
+    return true;
+  }
+
+  static bool IsFiltrate(VisBuffer2 const *vb) {
+    return false;
+  }
+};
 
 template<class Impl>
 class Manufacturer {
@@ -650,9 +471,9 @@ public:
 
     // build factory object
     Product p = Impl::BuildFactory(ms, type_rec);
-    std::unique_ptr < ViFactory > factory(p.factory);
+    std::unique_ptr<ViFactory> factory(p.factory);
 
-    std::unique_ptr < VisibilityIterator2 > vi;
+    std::unique_ptr<VisibilityIterator2> vi;
     try {
       vi.reset(new VisibilityIterator2(*factory.get()));
     } catch (...) {
@@ -670,7 +491,7 @@ public:
   }
 };
 
-class BasicManufacturer1: public Manufacturer<BasicManufacturer1> {
+class TestManufacturer: public Manufacturer<TestManufacturer> {
 public:
   static Product BuildFactory(MeasurementSet *ms, Record const &mode) {
     // create read-only VI impl
@@ -694,36 +515,38 @@ public:
   }
 
   static String GetTestPurpose() {
+    return "Test FiltrationTestTVIFactory(Record const &, ViImplementation2 *)";
+  }
+};
+
+class BasicManufacturer : public Manufacturer<BasicManufacturer> {
+public:
+  static Product BuildFactory(MeasurementSet *ms, Record const &mode) {
+    // create read-only VI impl
+    Block<MeasurementSet const *> const mss(1, ms);
+    SortColumns defaultSortColumns;
+
+    std::unique_ptr<ViImplementation2> inputVii(
+        new VisibilityIteratorImpl2(mss, defaultSortColumns, 0.0, VbPlain,
+            False));
+    std::unique_ptr<ViFactory> factory(
+        new FiltrationTVIFactory(mode, inputVii.get()));
+
+    Product p;
+
+    // vi will be responsible for releasing inputVii so unique_ptr
+    // should release the ownership here
+    p.vii = inputVii.release();
+    p.factory = factory.release();
+
+    return p;
+
+  }
+
+  static String GetTestPurpose() {
     return "Test FiltrationTVIFactory(Record const &, ViImplementation2 *)";
   }
 };
-
-class FactorylessManufacturer {
-public:
-  static VisibilityIterator2 *ManufactureVI(MeasurementSet *ms,
-      String const &mode) {
-
-  }
-};
-
-//class BasicManufacturer2: public Manufacturer<BasicManufacturer2> {
-//public:
-//  static Product BuildFactory(MeasurementSet *ms, Record const &mode) {
-//    // create factory directly from MS
-//    SortColumns defaultSortColumns;
-//    std::unique_ptr<ViFactory> factory(
-//        new PolAverageVi2Factory(mode, ms, defaultSortColumns, 0.0, False));
-//
-//    Product p;
-//    p.vii = nullptr;
-//    p.factory = factory.release();
-//    return p;
-//  }
-//
-//  static String GetTestPurpose() {
-//    return "Test FiltrationTVIFactory(Record const &, MeasurementSet const *, ...)";
-//  }
-//};
 
 class LayerManufacturer: public Manufacturer<LayerManufacturer> {
 public:
@@ -762,90 +585,91 @@ public:
 };
 
 // copy & paste from Calibrater::initWeights
-void initWeights(MeasurementSet *ms) {
-  // add columns
-  TableDesc mstd = ms->actualTableDesc();
-  String colWtSp = MS::columnName(MS::WEIGHT_SPECTRUM);
-  Bool wtspexists = mstd.isColumn(colWtSp);
-  String colSigSp = MS::columnName(MS::SIGMA_SPECTRUM);
-  Bool sigspexists = mstd.isColumn(colSigSp);
-
-  if (!wtspexists) {
-    // Nominal defaulttileshape
-    IPosition dts(3, 4, 32, 1024);
-
-    // Discern DATA's default tile shape and use it
-    const Record dminfo = ms->dataManagerInfo();
-    for (uInt i = 0; i < dminfo.nfields(); ++i) {
-      Record col = dminfo.asRecord(i);
-      //if (upcase(col.asString("NAME"))=="TILEDDATA") {
-      if (anyEQ(col.asArrayString("COLUMNS"), String("DATA"))) {
-        dts = IPosition(col.asRecord("SPEC").asArrayInt("DEFAULTTILESHAPE"));
-        //cout << "Found DATA's default tile: " << dts << endl;
-        break;
-      }
-    }
-
-    // Add the column
-    String colWtSp = MS::columnName(MS::WEIGHT_SPECTRUM);
-    TableDesc tdWtSp;
-    tdWtSp.addColumn(ArrayColumnDesc<Float>(colWtSp, "weight spectrum", 2));
-    TiledShapeStMan wtSpStMan("TiledWgtSpectrum", dts);
-    ms->addColumn(tdWtSp, wtSpStMan);
-  }
-
-  if (!sigspexists) {
-    // Nominal defaulttileshape
-    IPosition dts(3, 4, 32, 1024);
-
-    // Discern DATA's default tile shape and use it
-    const Record dminfo = ms->dataManagerInfo();
-    for (uInt i = 0; i < dminfo.nfields(); ++i) {
-      Record col = dminfo.asRecord(i);
-      //if (upcase(col.asString("NAME"))=="TILEDDATA") {
-      if (anyEQ(col.asArrayString("COLUMNS"), String("DATA"))) {
-        dts = IPosition(col.asRecord("SPEC").asArrayInt("DEFAULTTILESHAPE"));
-        //cout << "Found DATA's default tile: " << dts << endl;
-        break;
-      }
-    }
-
-    // Add the column
-    String colSigSp = MS::columnName(MS::SIGMA_SPECTRUM);
-    TableDesc tdSigSp;
-    tdSigSp.addColumn(ArrayColumnDesc<Float>(colSigSp, "sigma spectrum", 2));
-    TiledShapeStMan sigSpStMan("TiledSigtSpectrum", dts);
-    ms->addColumn(tdSigSp, sigSpStMan);
-    {
-      TableDesc loctd = ms->actualTableDesc();
-      String loccolSigSp = MS::columnName(MS::SIGMA_SPECTRUM);
-      AlwaysAssert(loctd.isColumn(loccolSigSp), AipsError);
-    }
-
-    ArrayColumn<Float> weightColumn(*ms, "WEIGHT");
-    ArrayColumn<Float> sigmaColumn(*ms, "SIGMA");
-    ArrayColumn<Float> weightSpColumn(*ms, "WEIGHT_SPECTRUM");
-    ArrayColumn<Float> sigmaSpColumn(*ms, "SIGMA_SPECTRUM");
-    ArrayColumn<Bool> const flagColumn(*ms, "FLAG");
-    ROScalarColumn<Double> exposureColumn(*ms, "EXPOSURE");
-    for (size_t i = 0; i < ms->nrow(); ++i) {
-      IPosition const cellShape = flagColumn.shape(i);
-      Double const exposure = exposureColumn(i);
-      Matrix<Float> weightSp(cellShape, exposure);
-      Vector<Float> weight(cellShape[0], exposure);
-      Matrix<Float> sigmaSp = 1.0f / sqrt(weightSp);
-      Vector<Float> sigma = 1.0f / sqrt(weight);
-      weightColumn.put(i, weight);
-      sigmaColumn.put(i, sigma);
-      weightSpColumn.put(i, weightSp);
-      sigmaSpColumn.put(i, sigmaSp);
-    }
-
-  }
-}
+//void initWeights(MeasurementSet *ms) {
+//  // add columns
+//  TableDesc mstd = ms->actualTableDesc();
+//  String colWtSp = MS::columnName(MS::WEIGHT_SPECTRUM);
+//  Bool wtspexists = mstd.isColumn(colWtSp);
+//  String colSigSp = MS::columnName(MS::SIGMA_SPECTRUM);
+//  Bool sigspexists = mstd.isColumn(colSigSp);
+//
+//  if (!wtspexists) {
+//    // Nominal defaulttileshape
+//    IPosition dts(3, 4, 32, 1024);
+//
+//    // Discern DATA's default tile shape and use it
+//    const Record dminfo = ms->dataManagerInfo();
+//    for (uInt i = 0; i < dminfo.nfields(); ++i) {
+//      Record col = dminfo.asRecord(i);
+//      //if (upcase(col.asString("NAME"))=="TILEDDATA") {
+//      if (anyEQ(col.asArrayString("COLUMNS"), String("DATA"))) {
+//        dts = IPosition(col.asRecord("SPEC").asArrayInt("DEFAULTTILESHAPE"));
+//        //cout << "Found DATA's default tile: " << dts << endl;
+//        break;
+//      }
+//    }
+//
+//    // Add the column
+//    String colWtSp = MS::columnName(MS::WEIGHT_SPECTRUM);
+//    TableDesc tdWtSp;
+//    tdWtSp.addColumn(ArrayColumnDesc<Float>(colWtSp, "weight spectrum", 2));
+//    TiledShapeStMan wtSpStMan("TiledWgtSpectrum", dts);
+//    ms->addColumn(tdWtSp, wtSpStMan);
+//  }
+//
+//  if (!sigspexists) {
+//    // Nominal defaulttileshape
+//    IPosition dts(3, 4, 32, 1024);
+//
+//    // Discern DATA's default tile shape and use it
+//    const Record dminfo = ms->dataManagerInfo();
+//    for (uInt i = 0; i < dminfo.nfields(); ++i) {
+//      Record col = dminfo.asRecord(i);
+//      //if (upcase(col.asString("NAME"))=="TILEDDATA") {
+//      if (anyEQ(col.asArrayString("COLUMNS"), String("DATA"))) {
+//        dts = IPosition(col.asRecord("SPEC").asArrayInt("DEFAULTTILESHAPE"));
+//        //cout << "Found DATA's default tile: " << dts << endl;
+//        break;
+//      }
+//    }
+//
+//    // Add the column
+//    String colSigSp = MS::columnName(MS::SIGMA_SPECTRUM);
+//    TableDesc tdSigSp;
+//    tdSigSp.addColumn(ArrayColumnDesc<Float>(colSigSp, "sigma spectrum", 2));
+//    TiledShapeStMan sigSpStMan("TiledSigtSpectrum", dts);
+//    ms->addColumn(tdSigSp, sigSpStMan);
+//    {
+//      TableDesc loctd = ms->actualTableDesc();
+//      String loccolSigSp = MS::columnName(MS::SIGMA_SPECTRUM);
+//      AlwaysAssert(loctd.isColumn(loccolSigSp), AipsError);
+//    }
+//
+//    ArrayColumn<Float> weightColumn(*ms, "WEIGHT");
+//    ArrayColumn<Float> sigmaColumn(*ms, "SIGMA");
+//    ArrayColumn<Float> weightSpColumn(*ms, "WEIGHT_SPECTRUM");
+//    ArrayColumn<Float> sigmaSpColumn(*ms, "SIGMA_SPECTRUM");
+//    ArrayColumn<Bool> const flagColumn(*ms, "FLAG");
+//    ROScalarColumn<Double> exposureColumn(*ms, "EXPOSURE");
+//    for (size_t i = 0; i < ms->nrow(); ++i) {
+//      IPosition const cellShape = flagColumn.shape(i);
+//      Double const exposure = exposureColumn(i);
+//      Matrix<Float> weightSp(cellShape, exposure);
+//      Vector<Float> weight(cellShape[0], exposure);
+//      Matrix<Float> sigmaSp = 1.0f / sqrt(weightSp);
+//      Vector<Float> sigma = 1.0f / sqrt(weight);
+//      weightColumn.put(i, weight);
+//      sigmaColumn.put(i, sigma);
+//      weightSpColumn.put(i, weightSp);
+//      sigmaSpColumn.put(i, sigmaSp);
+//    }
+//
+//  }
+//}
 
 } // anonymous namespace
 
+// explicitly instantiate test TVI
 namespace casa {
 namespace vi {
 template class FiltrationTVI<PorousFilter> ;
@@ -900,14 +724,14 @@ protected:
     return "";
   }
 
-  template<class Validator, class Manufacturer = BasicManufacturer1>
+  template<class Validator, class Manufacturer = TestManufacturer>
   void TestTVI() {
     cout << "TestTVI" << endl;
 
     // Create VI
     // VI with filter
-    std::unique_ptr < VisibilityIterator2
-        > vi(Manufacturer::ManufactureVI(ms_, Validator::GetMode()));
+    std::unique_ptr<VisibilityIterator2> vi(
+        Manufacturer::ManufactureVI(ms_, Validator::GetMode()));
     ASSERT_TRUE(vi->ViiType().startsWith(Validator::GetTypePrefix()));
 
     // reference VI
@@ -920,45 +744,86 @@ protected:
     uInt const nRowRefMs = refms.nrow();
     EXPECT_EQ(nRowMs, nRowRefMs);
 ////    uInt const nRowPolarizationTable = ms.polarization().nrow();
-//    auto const desc = ms.tableDesc();
-//    auto const correctedExists = desc.isColumn("CORRECTED_DATA");
-//    auto const modelExists = desc.isColumn("MODEL_DATA");
-//    auto const dataExists = desc.isColumn("DATA");
-//    auto const floatExists = desc.isColumn("FLOAT_DATA");
-//    //auto const weightSpExists = desc.isColumn("WEIGHT_SPECTRUM");
-//    cout << "MS Property" << endl;
-//    cout << "\tMS Name: \"" << ms.tableName() << "\"" << endl;
-//    cout << "\tNumber of Rows: " << nRowMs << endl;
-//    cout << "\tNumber of Spws: " << vi->nSpectralWindows() << endl;
-//    cout << "\tNumber of Polarizations: " << vi->nPolarizationIds() << endl;
-//    cout << "\tNumber of DataDescs: " << vi->nDataDescriptionIds() << endl;
-//    cout << "\tChannelized Weight Exists? "
-//        << (vi->weightSpectrumExists() ? "True" : "False") << endl;
-//    //cout << "\tChannelized Sigma Exists? " << (vi->sigmaSpectrumExists() ? "True" : "False") << endl;
-//
+    auto const desc = ms.tableDesc();
+    auto const correctedExists = desc.isColumn("CORRECTED_DATA");
+    auto const modelExists = desc.isColumn("MODEL_DATA");
+    auto const dataExists = desc.isColumn("DATA");
+    auto const floatExists = desc.isColumn("FLOAT_DATA");
+    //auto const weightSpExists = desc.isColumn("WEIGHT_SPECTRUM");
+    cout << "MS Property" << endl;
+    cout << "\tMS Name: \"" << ms.tableName() << "\"" << endl;
+    cout << "\tNumber of Rows: " << nRowMs << endl;
+    cout << "\tNumber of Spws: " << vi->nSpectralWindows() << endl;
+    cout << "\tNumber of Polarizations: " << vi->nPolarizationIds() << endl;
+    cout << "\tNumber of DataDescs: " << vi->nDataDescriptionIds() << endl;
+    cout << "\tChannelized Weight Exists? "
+        << (vi->weightSpectrumExists() ? "True" : "False") << endl;
+    //cout << "\tChannelized Sigma Exists? " << (vi->sigmaSpectrumExists() ? "True" : "False") << endl;
+
 //    // mv-VI consistency check
 ////    EXPECT_EQ(nRowPolarizationTable + 1, (uInt )vi->nPolarizationIds());
 //
 //    // VI iteration
 //    Vector<uInt> swept(nRowMs, 0);
 //    uInt nRowChunkSum = 0;
-//    VisBuffer2 *vb = vi->getVisBuffer();
-//    vi->originChunks();
-//    while (vi->moreChunks()) {
-//      vi->origin();
-//      Int const nRowChunk = vi->nRowsInChunk();
+    VisBuffer2 *vb = vi->getVisBuffer();
+    VisBuffer2 *vb_ref = refvi->getVisBuffer();
+    vi->originChunks();
+    refvi->originChunks();
+    // iteration loop is based on refvi
+    while (refvi->moreChunks()) {
+      // make sure there is a chunk in vi
+      EXPECT_TRUE(vi->moreChunks());
+
+      // initialize subchunk iterator
+      refvi->origin();
+      vi->origin();
+
+      // increment chunk until refvi iteration hits filtrate subchunk
+      while (refvi->more() && Validator::IsResidue(vb_ref)) {
+        refvi->next();
+      }
+
+      // nRowsInChunk returns number of rows in chunk regardless of
+      // whether they are filtered out or not
+      Int const nrow_chunk = vi->nRowsInChunk();
+      Int const nrow_chunk_ref = refvi->nRowsInChunk();
+      EXPECT_EQ(nrow_chunk_ref, nrow_chunk);
+
+      // chunk id should be the same
+      auto const chunk_id = vi->getSubchunkId().chunk();
+      auto const chunk_id_ref = refvi->getSubchunkId().chunk();
+      EXPECT_EQ(chunk_id_ref, chunk_id);
 //      nRowChunkSum += nRowChunk;
-//      cout << "*************************" << endl;
-//      cout << "*** Start loop on chunk " << vi->getSubchunkId().chunk() << endl;
-//      cout << "*** Number of Rows: " << nRowChunk << endl;
-//      cout << "*************************" << endl;
+      cout << "*************************" << endl;
+      cout << "*** Start loop on chunk " << chunk_id << endl;
+      cout << "*** Number of Rows: " << nrow_chunk << endl;
+      cout << "*************************" << endl;
 //
 //      Int nRowSubchunkSum = 0;
 //
-//      while (vi->more()) {
-//        auto subchunk = vi->getSubchunkId();
-//        cout << "=== Start loop on subchunk " << subchunk.subchunk() << " ==="
-//            << endl;
+      // no valid subchunk exists
+      if (!refvi->more()) {
+        cout << "No valid chunk exists." << endl;
+        EXPECT_FALSE(vi->more());
+
+        refvi->nextChunk();
+        vi->nextChunk();
+        continue;
+      }
+
+      // again, iteration loop is based on refvi
+      while (refvi->more()) {
+        EXPECT_TRUE(vi->more());
+
+        auto const subchunk = vi->getSubchunkId();
+        auto const subchunk_ref = refvi->getSubchunkId();
+        auto const subchunk_id = subchunk.subchunk();
+        auto const subchunk_id_ref = subchunk_ref.subchunk();
+        cout << "=== Start loop on subchunk " << subchunk_id_ref << " ==="
+            << endl;
+
+        EXPECT_EQ(subchunk_id_ref, subchunk_id);
 //
 //        // cannot use getInterval due to the error
 //        // "undefined reference to VisibilityIterator2::getInterval"
@@ -1088,15 +953,20 @@ protected:
 //        Validator::ValidateWeight(weight, ms, rowIds);
 //        Validator::ValidateWeightSp(weightSp, ms, rowIds);
 //
-//        // next round of iteration
-//        vi->next();
-//      }
+        // next round of iteration
+        refvi->next();
+        vi->next();
+      }
 //
 //      // chunk-subchunk consistency check
 //      EXPECT_EQ(nRowChunk, nRowSubchunkSum);
 //
-//      vi->nextChunk();
-//    }
+      refvi->nextChunk();
+      vi->nextChunk();
+    }
+
+    // make sure there is no chunk remaining
+    EXPECT_FALSE(vi->moreChunks());
 //
 //    // chunk-ms consistency check
 //    EXPECT_EQ(nRowMs, nRowChunkSum);
@@ -1104,6 +974,28 @@ protected:
 //    // iteration check
 //    EXPECT_TRUE(allEQ(swept, (uInt )1));
 
+  }
+
+  template<class Manufacturer>
+  void TestFactory(Int const &type_enum, String const &expectedClassName) {
+
+    cout << "Type \"" << type_enum << "\" expected class name \""
+        << expectedClassName << "\"" << endl;
+
+    if (expectedClassName.size() > 0) {
+      std::unique_ptr<VisibilityIterator2> vi(Manufacturer::ManufactureVI(ms_, type_enum));
+
+      // Verify type string
+      String viiType = vi->ViiType();
+      EXPECT_TRUE(viiType.startsWith(expectedClassName));
+    } else {
+      cout << "Creation of VI via factory will fail" << endl;
+      // exception must be thrown
+      EXPECT_THROW( {
+            std::unique_ptr<VisibilityIterator2> vi(Manufacturer::ManufactureVI(ms_, type_enum)); //new VisibilityIterator2(factory));
+          },
+          AipsError)<< "The process must throw AipsError";
+    }
   }
 
 private:
@@ -1190,271 +1082,19 @@ protected:
   }
 };
 
-// Fixture class for standard test
-//class PolAverageTVITest: public PolAverageTVITestBase {
-//protected:
-//  virtual std::string GetDataName() {
-//    return "analytic_type1.bl.ms";
-//  }
-//
-//  virtual std::string GetRelativeDataPath() {
-//    return "tsdbaseline";
-//  }
-//
-//  VisibilityIterator2 *ManufactureVI(String const &mode) {
-//    return BasicManufacturer1::ManufactureVI(ms_, mode);
-//  }
-//
-//  void TestFactory(String const &mode, String const &expectedClassName) {
-//
-//    cout << "Mode \"" << mode << "\" expected class name \""
-//        << expectedClassName << "\"" << endl;
-//
-//    if (expectedClassName.size() > 0) {
-//      std::unique_ptr < VisibilityIterator2 > vi(ManufactureVI(mode));
-//
-//      // Verify type string
-//      String viiType = vi->ViiType();
-//      EXPECT_TRUE(viiType.startsWith(expectedClassName));
-//    } else {
-//      cout << "Creation of VI via factory will fail" << endl;
-//      // exception must be thrown
-//      EXPECT_THROW( {
-//            std::unique_ptr<VisibilityIterator2> vi(ManufactureVI(mode)); //new VisibilityIterator2(factory));
-//          },
-//          AipsError)<< "The process must throw AipsError";
-//    }
-//  }
-//
-//};
-//
-//// Fixture class for testing four polarization (cross-pol, stokes IQUV)
-//class PolAverageTVIFourPolarizationTest: public PolAverageTVITestBase {
-//protected:
-//  virtual std::string GetDataName() {
-//    return "crosspoltest.ms";
-//  }
-//
-//  virtual std::string GetRelativeDataPath() {
-//    return "sdsave";
-//  }
-//
-//  void SetCorrTypeToStokes() {
-//    ScalarColumn<Int> dataDescIdColumn(*ms_, "DATA_DESC_ID");
-//    Vector<Int> dataDescIdList = dataDescIdColumn.getColumn();
-//    ScalarColumn<Int> polarizationIdColumn(ms_->dataDescription(),
-//        "POLARIZATION_ID");
-//    Vector<Int> polarizationIdList(dataDescIdList.size());
-//    for (size_t i = 0; i < dataDescIdList.size(); ++i) {
-//      polarizationIdList[i] = polarizationIdColumn(dataDescIdList[i]);
-//    }
-//    std::cout << "polarizationIdList = " << polarizationIdList << std::endl;
-//    uInt n = GenSort<Int>::sort(polarizationIdList, Sort::Ascending,
-//        Sort::HeapSort | Sort::NoDuplicates);
-//    std::cout << "polarizationIdList (sorted n = " << n << ") = "
-//        << polarizationIdList << std::endl;
-//
-//    ArrayColumn<Int> corrTypeColumn(ms_->polarization(), "CORR_TYPE");
-//    Int const newCorrTypes[] = { Stokes::I, Stokes::Q, Stokes::U, Stokes::V };
-//    for (uInt i = 0; i < n; ++i) {
-//      auto row = polarizationIdList[i];
-//      std::cout << "row = " << row << std::endl;
-//      Vector<Int> corrType = corrTypeColumn(row);
-//      std::cout << "corrType = " << corrType << std::endl;
-//      ASSERT_LE(corrType.size(), sizeof(newCorrTypes) / sizeof(Int));
-//      for (size_t j = 0; j < corrType.size(); ++j) {
-//        corrType[j] = newCorrTypes[j];
-//      }
-//      std::cout << "new corrType = " << corrType << std::endl;
-//      corrTypeColumn.put(row, corrType);
-//    }
-//  }
-//};
-//
-//// Fixture class for testing dirty (partially flagged) data
-//// NB: use same data as PolAverageTVITest
-//class PolAverageTVIDirtyDataTest: public PolAverageTVITest {
-//public:
-//  virtual void SetUp() {
-//    // call parent's SetUp method
-//    PolAverageTVITestBase::SetUp();
-//
-//    // corrupt data
-//    CorruptData();
-//  }
-//
-//private:
-//  // Make input data dirty
-//  void CorruptData() {
-//    // Accessor to FLAG column
-//    ArrayColumn<Bool> flagColumn(*ms_, "FLAG");
-//    Cube<Bool> flag = flagColumn.getColumn();
-//
-//    // Accessor to DATA columns
-//    Cube<Float> floatData;
-//    Cube<Complex> complexData, correctedData;
-//    if (ms_->tableDesc().isColumn("DATA")) {
-//      ArrayColumn<Complex> dataColumn(*ms_, "DATA");
-//      dataColumn.getColumn(complexData);
-//      ASSERT_EQ(flag.shape(), complexData.shape());
-//    }
-//    if (ms_->tableDesc().isColumn("FLOAT_DATA")) {
-//      ArrayColumn<Float> dataColumn(*ms_, "FLOAT_DATA");
-//      dataColumn.getColumn(floatData);
-//      ASSERT_EQ(flag.shape(), floatData.shape());
-//    }
-//    if (ms_->tableDesc().isColumn("CORRECTED_DATA")) {
-//      ArrayColumn<Complex> dataColumn(*ms_, "CORRECTED_DATA");
-//      dataColumn.getColumn(correctedData);
-//      ASSERT_EQ(flag.shape(), correctedData.shape());
-//    }
-//
-//    // corrupt row 0, channel 10, pol 1
-//    size_t row = 0;
-//    size_t chan = 10;
-//    size_t pol = 1;
-//    ASSERT_GT((size_t )flag.nplane(), row);
-//    ASSERT_GT((size_t )flag.ncolumn(), chan);
-//    ASSERT_GT((size_t )flag.nrow(), pol);
-//    Float corruptValue = std::numeric_limits<float>::quiet_NaN();
-//    flag(pol, chan, row) = True;
-//    ASSERT_EQ(flag(pol, chan, row), True);
-//    if (!floatData.empty()) {
-//      floatData(pol, chan, row) = corruptValue;
-//      ASSERT_TRUE(std::isnan(floatData(pol, chan, row)));
-//    }
-//    if (!complexData.empty()) {
-//      complexData(pol, chan, row) = corruptValue;
-//      ASSERT_TRUE(std::isnan(complexData(pol, chan, row).real()));
-//    }
-//    if (!correctedData.empty()) {
-//      correctedData(pol, chan, row) = corruptValue;
-//      ASSERT_TRUE(std::isnan(correctedData(pol, chan, row).real()));
-//    }
-//
-//    // corrupt row 1, channel 100, all pols
-//    row = 1;
-//    chan = 100;
-//    ASSERT_GT((size_t )flag.nplane(), row);
-//    ASSERT_GT((size_t )flag.ncolumn(), chan);
-//    IPosition blc(3, 0, chan, row);
-//    IPosition trc(3, flag.nrow() - 1, chan, row);
-//    flag(blc, trc) = True;
-//    ASSERT_EQ(flag(0, chan, row), True);
-//    ASSERT_EQ(flag(1, chan, row), True);
-//    if (!floatData.empty()) {
-//      floatData(blc, trc) = corruptValue;
-//      ASSERT_TRUE(std::isnan(floatData(0, chan, row)));
-//      ASSERT_TRUE(std::isnan(floatData(1, chan, row)));
-//    }
-//    if (!complexData.empty()) {
-//      complexData(blc, trc) = corruptValue;
-//      ASSERT_TRUE(std::isnan(complexData(0, chan, row).real()));
-//      ASSERT_TRUE(std::isnan(complexData(1, chan, row).real()));
-//    }
-//    if (!correctedData.empty()) {
-//      correctedData(blc, trc) = corruptValue;
-//      ASSERT_TRUE(std::isnan(correctedData(0, chan, row).real()));
-//      ASSERT_TRUE(std::isnan(correctedData(1, chan, row).real()));
-//    }
-//
-//    // write back to MS
-//    flagColumn.putColumn(flag);
-//    if (ms_->tableDesc().isColumn("DATA")) {
-//      ArrayColumn<Complex> dataColumn(*ms_, "DATA");
-//      dataColumn.putColumn(complexData);
-//    }
-//    if (ms_->tableDesc().isColumn("FLOAT_DATA")) {
-//      ArrayColumn<Float> dataColumn(*ms_, "FLOAT_DATA");
-//      dataColumn.putColumn(floatData);
-//    }
-//    if (ms_->tableDesc().isColumn("CORRECTED_DATA")) {
-//      ArrayColumn<Complex> dataColumn(*ms_, "CORRECTED_DATA");
-//      dataColumn.putColumn(correctedData);
-//    }
-//  }
-//
-//};
-
-//TEST_F(PolAverageTVITest, Factory) {
-//
-//  TestFactory("default", "StokesPolAverage");
-//  TestFactory("Default", "StokesPolAverage");
-//  TestFactory("DEFAULT", "StokesPolAverage");
-//  TestFactory("geometric", "GeometricPolAverage");
-//  TestFactory("Geometric", "GeometricPolAverage");
-//  TestFactory("GEOMETRIC", "GeometricPolAverage");
-//  TestFactory("stokes", "StokesPolAverage");
-//  TestFactory("Stokes", "StokesPolAverage");
-//  TestFactory("STOKES", "StokesPolAverage");
-//  // empty mode (default)
-//  TestFactory("", "StokesPolAverage");
-//  // invalid mode (throw exception)
-//  TestFactory("invalid", "");
-//}
-//
-//TEST_F(PolAverageTVITest, GeometricAverage) {
-//  // Use different types of constructor to create factory
-//  TestTVI<GeometricAverageValidator, BasicManufacturer1>();
-//  TestTVI<GeometricAverageValidator, BasicManufacturer2>();
-//  TestTVI<GeometricAverageValidator, LayerManufacturer>();
-//}
-//
-//TEST_F(PolAverageTVITest, StokesAverage) {
-//  // Use different types of constructor to create factory
-//  TestTVI<StokesAverageValidator, BasicManufacturer1>();
-//  TestTVI<StokesAverageValidator, BasicManufacturer2>();
-//  TestTVI<StokesAverageValidator, LayerManufacturer>();
-//}
-//
-//TEST_F(PolAverageTVITest, SpectralWeightTest) {
-//  // add SIGMA_SPECTRUM and WEIGHT_SPECTRUM columns and
-//  // initialize them using EXPOSURE value.
-//  initWeights (ms_);
-//  ASSERT_TRUE(ms_->tableDesc().isColumn("WEIGHT_SPECTRUM"));
-//  ASSERT_TRUE(ms_->tableDesc().isColumn("SIGMA_SPECTRUM"));
-//
-//  // test
-//  TestTVI<GeometricAverageValidator, BasicManufacturer1>();
-//  TestTVI<StokesAverageValidator, BasicManufacturer1>();
-//}
-//
-//TEST_F(PolAverageTVIDirtyDataTest, GeometricAverageCorrupted) {
-//  TestTVI<GeometricAverageValidator, BasicManufacturer1>();
-//}
-//
-//TEST_F(PolAverageTVIDirtyDataTest, StokesAverageCorrupted) {
-//  TestTVI<StokesAverageValidator, BasicManufacturer1>();
-//}
-//
-//TEST_F(PolAverageTVIFourPolarizationTest, GeometricAverageSkipped) {
-//  // Edit CORR_TYPE to be IQUV
-//  SetCorrTypeToStokes();
-//
-//  TestTVI<GeometricIdenticalValidator, BasicManufacturer1>();
-//}
-//
-//TEST_F(PolAverageTVIFourPolarizationTest, StokesAverageSkipped) {
-//  // Edit CORR_TYPE to be IQUV
-//  SetCorrTypeToStokes();
-//
-//  TestTVI<StokesIdenticalValidator, BasicManufacturer1>();
-//}
-//
-//TEST_F(PolAverageTVIFourPolarizationTest, GeometricAverageCrossPol) {
-//  TestTVI<GeometricAverageCrossPolarizationValidator, BasicManufacturer1>();
-//}
-//
-//TEST_F(PolAverageTVIFourPolarizationTest, StokesAverageCrossPol) {
-//  TestTVI<StokesAverageCrossPolarizationValidator, BasicManufacturer1>();
-//}
-
 TEST_F(FiltrationTVITest, PorousTest) {
-  TestTVI<PorousValidator, BasicManufacturer1>();
+  TestTVI<PorousValidator, TestManufacturer>();
 }
 
 TEST_F(FiltrationTVITest, NonporousTest) {
-  TestTVI<NonporousValidator, BasicManufacturer1>();
+  TestTVI<NonporousValidator, TestManufacturer>();
+}
+
+TEST_F(FiltrationTVITest, FactoryTest) {
+  Int const type_enum = (Int)FilteringType::SDDoubleCircleFilter;
+  String const expected_name("FiltrationTVI<SDDoubleCircle>");
+  TestFactory<BasicManufacturer>(type_enum, expected_name);
+  TestFactory<LayerManufacturer>(type_enum, expected_name);
 }
 
 int main(int argc, char **argv) {
