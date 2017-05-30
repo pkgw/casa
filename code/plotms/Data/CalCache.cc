@@ -49,7 +49,8 @@ namespace casa {
 CalCache::CalCache(PlotMSApp* parent):
   PlotMSCacheBase(parent),
   basis_("unknown"),
-  divZero_(False)
+  divZero_(False),
+  atm_p(NULL)
 {
 }
 
@@ -121,18 +122,28 @@ void CalCache::loadIt(vector<PMS::Axis>& loadAxes,
   } 	
 
   setUpCalIter(filename_,selection_, True,True,True);
-    
-  // supports only channel averaging...    
+
+  // set up data columns and check for atm axis
+  bool doAtm(false);
   vector<PMS::DataColumn> loadData(loadAxes.size());
-  for (uInt i=0; i<loadData.size(); ++i) 
+  for (uInt i=0; i<loadData.size(); ++i) {
     loadData[i] = PMS::DEFAULT_DATACOLUMN;
+    if (loadAxes[i]==PMS::ATM) doAtm=true;
+  }
+  if (doAtm) {
+    atm_.resize(ci_p->nchan());
+    atm_p = new PlotMSAtm(filename_);
+    if (!selection_.isEmpty()) atm_p->setSelection(selection_);
+  }
+
   countChunks(*ci_p, loadAxes, loadData, thread);
   //    trapExcessVolume(pendingLoadAxes);
   loadCalChunks(*ci_p,loadAxes,thread);
 
-  if (ci_p)
-    delete ci_p;
-  ci_p=NULL;
+  if (ci_p)  delete ci_p;
+  if (doAtm) delete atm_p;
+  ci_p  = NULL;
+  atm_p = NULL;
 }
 
 void CalCache::setUpCalIter(const String& ctname,
@@ -208,7 +219,7 @@ void CalCache::countChunks(ROCTIter& ci,
   }
 
   setCache(chunk, loadAxes, loadData);
-  //  cout << " Found " << nChunk_ << " chunks." << endl;
+  //    cout << " Found " << nChunk_ << " chunks." << endl;
 }
 
 
@@ -627,6 +638,15 @@ void CalCache::loadCalChunks(ROCTIter& ci,
   }
   case PMS::INTENT: {
     // metadata axis that always gets loaded so don't want to throw exception
+    break;
+  }
+  case PMS::ATM: {
+    // always need chan for getAtm()
+    *chan_[chunk] = cti.chan();
+    if (chunk==0) {  // load atm array once, per-channel
+        Vector<Int> temp = atm_p->calcAtmTransmission();
+        atm_ = 10;   // TBF: for testing, load constant to plot
+    }
     break;
   }
   default:

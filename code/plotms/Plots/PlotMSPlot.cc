@@ -311,12 +311,39 @@ vector<PMS::DataColumn> PlotMSPlot::getCachedData(){
 
 vector<PMS::Axis> PlotMSPlot::getCachedAxes() {
 	PMS_PP_Cache* c = itsParams_.typedGroup<PMS_PP_Cache>();
+	PMS_PP_MSData* d = itsParams_.typedGroup<PMS_PP_MSData>();
+    if (d->showAtm()) {
+        // add ATM yaxis "under the hood" if valid xaxis
+        PMS::Axis xaxis = c->xAxis();
+        if (xaxis==PMS::CHANNEL || 
+            xaxis==PMS::FREQUENCY || 
+            xaxis==PMS::NONE) {
+            // set Cache axes
+	        int index = c->numXAxes();
+            c->setAxes(xaxis, PMS::ATM, c->xDataColumn(0), PMS::DEFAULT_DATACOLUMN, index);
+            // set Axes positions
+	        PMS_PP_Axes* a = itsParams_.typedGroup<PMS_PP_Axes>();
+            a->resize(index+1);
+            a->setAxes(a->xAxis(index-1), Y_RIGHT, index);
+            // set Display symbol color
+	        PMS_PP_Display* disp = itsParams_.typedGroup<PMS_PP_Display>();
+            PlotSymbolPtr atmSymbol = disp->unflaggedSymbol(index);
+            atmSymbol->setColor("#FF00FF");
+            disp->setUnflaggedSymbol(atmSymbol, index);
+            PlotSymbolPtr flaggedSymbol = disp->flaggedSymbol();
+            disp->setFlaggedSymbol(flaggedSymbol, index);
+	        itsTCLParams_.updateIteration = true;
+        } else {
+		    itsParent_->showError("Atmospheric overlay (showatm) is only valid when xaxis is channel or frequency");
+        }
+    }
 	int xAxisCount = c->numXAxes();
 	int yAxisCount = c->numYAxes();
 	int count = xAxisCount + yAxisCount;
 	vector<PMS::Axis> axes( count );
     PMS::Axis axis;
-	for(int i = 0; i < xAxisCount; i++){
+    int i;
+	for(i = 0; i < xAxisCount; i++){
         axis = c->xAxis(i);
         if (axis == PMS::NONE) {
             axis = getDefaultXAxis();
@@ -324,7 +351,7 @@ vector<PMS::Axis> PlotMSPlot::getCachedAxes() {
         }
 		axes[i] = axis;
 	}
-	for(int i = xAxisCount; i < count; i++){
+	for(i = xAxisCount; i < count; i++){
 		uInt yIndex = i - xAxisCount;
         axis = c->yAxis(yIndex);
         if (axis == PMS::NONE) {
@@ -1939,10 +1966,13 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
 			for ( int i = 0; i < plotYAxisCount; i++ ){
                 PMS::Axis y = plotCacheParams->yAxis( i );
                 if (isCalTable && PMS::axisIsData(y)) y = getCalAxis(calType, y);
-				yAxes.push_back(y);
-				yRefs.push_back(plotCacheBase.hasReferenceValue(yAxes[i]));
-				yRefVals.push_back(plotCacheBase.referenceValue(yAxes[i]));
-				yDatas.push_back(itsCache_->getYDataColumn(i));
+                // Don't put ATM overlay in title
+                if (y != PMS::ATM) {
+				    yAxes.push_back(y);
+				    yRefs.push_back(plotCacheBase.hasReferenceValue(yAxes[i]));
+				    yRefVals.push_back(plotCacheBase.referenceValue(yAxes[i]));
+				    yDatas.push_back(itsCache_->getYDataColumn(i));
+                }
 			}
 		}
 		title = canvParams->titleFormat().getLabel(x, yAxes, xref,

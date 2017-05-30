@@ -402,6 +402,12 @@ def plotms(vis=None,
                     pm.setPlotAxes(xaxis, yaxis[i], xdatacolumn, yDataColumn, yAxisLocation, False, plotindex, i)
             else :
                 raise Exception, 'Please remove duplicate y-axes.'
+
+        if showatm:  # check that xaxis is None, chan, or freq
+            validxaxis = not xaxis or xaxis in ["channel", "frequency"]
+            if not validxaxis:
+                casalog.post('showatm is only valid when xaxis is channel or frequency', 'SEVERE')
+                return False
         pm.setShowAtm(showatm, False, plotindex)
         
         # Set selection

@@ -91,8 +91,6 @@ public:
   
   // Reference an indexer; returns -1 if there is no indexer
   // for the given dataIndex.
-  casacore::Int nIter( int dataIndex ) const;
-
   PlotMSIndexer& indexer( int dataIndex, casacore::uInt i) {
 	  return (*indexer_[dataIndex][i]);
   };
@@ -103,6 +101,7 @@ public:
   int getDataCount() const {
 	  return currentX_.size();
   }
+  casacore::Int nIter( int dataIndex ) const;
 
   PMS::Axis getIterAxis() const;
 
@@ -278,6 +277,8 @@ public:
   inline casacore::Double getPar(casacore::Int chnk,casacore::Int irel)  { return *(par_[chnk]->data()+irel); };
   inline casacore::Double getSnr(casacore::Int chnk,casacore::Int irel)  { return *(snr_[chnk]->data()+irel); };
 
+  casacore::Double getAtm(casacore::Int chnk,casacore::Int irel);
+
   // Returns a list of channel numbers that were averaged together in that chunk
   inline casacore::Vector<casacore::Int> getChansPerBin(casacore::Int chnk,casacore::Int irel) { return (*chansPerBin_[chnk])[irel]; };
 
@@ -412,7 +413,7 @@ protected:
   casacore::Matrix<casacore::Int> chshapes_;
   casacore::Vector<casacore::Bool> goodChunk_;
   casacore::Vector<casacore::Double> time_, timeIntr_;
-  casacore::Vector<casacore::Int> field_, spw_, scan_;
+  casacore::Vector<casacore::Int> field_, spw_, scan_, atm_;
   casacore::PtrBlock<casacore::Vector<casacore::uInt>*> row_;
   casacore::PtrBlock<casacore::Vector<casacore::Int>*> antenna1_, antenna2_, baseline_;
   casacore::PtrBlock<casacore::Vector<casacore::Double>*> uvdist_, u_, v_, w_;

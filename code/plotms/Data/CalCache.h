@@ -29,6 +29,7 @@
 
 #include <plotms/Data/PlotMSCacheBase.h>
 
+#include <plotms/Data/PlotMSAtm.h>
 #include <plotms/PlotMS/PlotMSAveraging.h>
 #include <plotms/PlotMS/PlotMSConstants.h>
 #include <plotms/PlotMS/PlotMSFlagging.h>
@@ -148,6 +149,9 @@ private:
 
   // Is parameter column complex?
   casacore::Bool parsAreComplex_;
+
+  // If ATM axis is requested for bandpass plots
+  PlotMSAtm* atm_p;
 
   // Volume meter for volume calculation
   //  PMSCacheVolMeter vm_;

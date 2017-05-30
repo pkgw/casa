@@ -548,7 +548,7 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                                            yMap.transform(-tempy)));
                         }
 
-                        if(!brect.intersects(rect)) continue;
+                        if(!brect.intersects(mRect)) continue;
                         if(drawMaskedSymbol) {
                             if(!samePen) p->setPen(pen);
                             if(!sameBrush) p->setBrush(brush);
