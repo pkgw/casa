@@ -54,6 +54,8 @@ class __doc(object):
                     print "------------------------------------------------------------------------------"
                     show_toc(self.remote_toc)
         else:
+            print "Displaying packaged documentation for CASA %s\nusing the web browser provided by your operating system...\n" % casa['version']
+            print "The documentation for this and other releases is available at:\n        https://casa.nrao.edu/casadocs/\n\n"
             path = casa['dirs']['doc'] + "/casa.nrao.edu"
             if sec is None:
                 homepage = "%s/%s.html" % (path,self.remote_source_url_components[2])
