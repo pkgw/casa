@@ -288,21 +288,29 @@ struct ValidatorBase {
   }
 
   template<class T>
-  static void ValidateCube(Cube<T> const &data, Cube<T> const &ref,
+  static void ValidateArray(Array<T> const &data, Array<T> const &ref,
       Vector<bool> const &flag) {
+    uInt const refndim = ref.ndim();
+    uInt const ndim = data.ndim();
+    ASSERT_EQ(refndim, ndim);
     IPosition const refshape = ref.shape();
     IPosition const shape = data.shape();
-    ASSERT_EQ((size_t )refshape[2], flag.nelements());
-    ASSERT_EQ(shape[2], (ssize_t )ntrue(flag));
+    ASSERT_EQ((size_t )refshape[ndim - 1], flag.nelements());
+    ASSERT_EQ(shape[ndim - 1], (ssize_t )ntrue(flag));
 
-    ssize_t n = refshape[2];
-    ssize_t j = 0;
+    ssize_t n = refshape[ndim - 1];
+    IPosition const iter_axis(1, ndim - 1);
+    ArrayIterator<T> from_iter(ref, iter_axis, False);
+    ArrayIterator<T> to_iter(data, iter_axis, False);
     for (ssize_t i = 0; i < n; ++i) {
       if (flag[i]) {
-        EXPECT_TRUE(allEQ(data.xyPlane(j), ref.xyPlane(i)));
-        ++j;
+        EXPECT_TRUE(allEQ(to_iter.array(), from_iter.array()));
+        to_iter.next();
       }
+      from_iter.next();
     }
+    ASSERT_TRUE(to_iter.pastEnd());
+    ASSERT_TRUE(from_iter.pastEnd());
   }
 
   template<class Func>
@@ -313,7 +321,7 @@ struct ValidatorBase {
     cout.flush();
     auto const data = get_axis(vb);
     auto const ref = get_axis(vb_ref);
-    ValidateCube(data, ref, flag);
+    ValidateArray(data, ref, flag);
     cout << "...DONE" << endl;
   }
 };
@@ -602,6 +610,9 @@ protected:
 
         EXPECT_EQ(subchunk_id_ref, subchunk_id);
 
+        // ROW IDs
+        cout << "Examining ROW ID";
+        cout.flush();
         Vector<uInt> row_ids;
         Vector<uInt> row_ids_ref;
         vi->getImpl()->getRowIds(row_ids);
@@ -612,10 +623,6 @@ protected:
         ASSERT_GE(num_filtrates, 0);
         ASSERT_EQ(refvi->getImpl()->nRows(), num_filtrates);
         ASSERT_EQ((unsigned long )num_filtrates, is_filtrate.nelements());
-
-        // ROW IDs
-        cout << "Examining ROW ID";
-        cout.flush();
         EXPECT_EQ(num_filtrates, vi->getImpl()->nRows());
         int j = 0;
         for (int i = 0; i < vb_ref->nRows(); ++i) {
