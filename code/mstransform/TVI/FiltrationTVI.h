@@ -303,7 +303,7 @@ private:
   // increment the iterator until given subchunk passes through the filter
   void filter();
 
-  std::shared_ptr<Filter> filter_p;
+  Filter *filter_p;
   casacore::Int num_filtrates_p;
   casacore::Vector<casacore::Bool> is_filtrate_p;
 

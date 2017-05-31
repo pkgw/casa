@@ -138,6 +138,9 @@ FiltrationTVI<Filter>::FiltrationTVI(ViImplementation2 * inputVi,
 
 template<class Filter>
 FiltrationTVI<Filter>::~FiltrationTVI() {
+  if (filter_p) {
+    delete filter_p;
+  }
 }
 
 template<class Filter>
