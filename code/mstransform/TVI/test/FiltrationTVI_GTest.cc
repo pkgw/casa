@@ -91,7 +91,7 @@ private:
 };
 
 // Filter class for testing
-class FilterTypeLocal {
+class FilteringTypeLocal {
 public:
   enum {
     Porous = -1, Nonporous = -2
@@ -153,7 +153,7 @@ private:
 class PorousProperty {
 public:
   static constexpr Int GetFilterTypeEnum() {
-    return (Int) FilterTypeLocal::Porous;
+    return (Int) FilteringTypeLocal::Porous;
   }
 
   static String GetFilterType() {
@@ -186,7 +186,7 @@ public:
 class NonporousProperty {
 public:
   static constexpr Int GetFilterTypeEnum() {
-    return (Int) FilterTypeLocal::Nonporous;
+    return (Int) FilteringTypeLocal::Nonporous;
   }
 
   static String GetFilterType() {
@@ -228,7 +228,7 @@ public:
 
     Bool is_porous = true;
     if (configuration_p.isDefined("type")
-        && configuration_p.asInt("type") == (Int) FilterTypeLocal::Nonporous) {
+        && configuration_p.asInt("type") == (Int) FilteringTypeLocal::Nonporous) {
       is_porous = false;
     }
     cout << "type_enum = " << configuration_p.asInt("type") << endl;
@@ -781,10 +781,21 @@ TEST_F(FiltrationTVITest, NonporousTest) {
 }
 
 TEST_F(FiltrationTVITest, FactoryTest) {
-  Int const type_enum = (Int) FilteringType::SDDoubleCircleFilter;
-  String const expected_name("FiltrationTVI<SDDoubleCircle>");
-  TestFactory<BasicManufacturer>(type_enum, expected_name);
-  TestFactory<LayerManufacturer>(type_enum, expected_name);
+  // successfull case
+  {
+    Int const type_enum = (Int) FilteringType::SDDoubleCircleFilter;
+    String const expected_name("FiltrationTVI<SDDoubleCircle>");
+    TestFactory<BasicManufacturer>(type_enum, expected_name);
+    TestFactory<LayerManufacturer>(type_enum, expected_name);
+  }
+
+  // erroneous
+  {
+    Int const type_enum = (Int) FilteringTypeLocal::Porous;
+    String const expected_name(""); // expects exception
+    TestFactory<BasicManufacturer>(type_enum, expected_name);
+    TestFactory<LayerManufacturer>(type_enum, expected_name);
+  }
 }
 
 int main(int argc, char **argv) {
