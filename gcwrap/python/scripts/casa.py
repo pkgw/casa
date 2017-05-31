@@ -2,7 +2,7 @@ import os
 import re
 import sys
 import time
-from casac import *
+from casac import casac
 
 homedir = os.getenv('HOME')
 if homedir == None :
@@ -123,31 +123,31 @@ setup_path()
 ## finally load tools
 ##
 
-quanta = casac.quanta()
-measures = casac.measures()
-imager = casac.imager()
-calibrater = casac.calibrater()
-ms = casac.ms()
-tableplot = casac.tableplot()
-msplot = casac.msplot()
-pmtool = casac.plotms()
-calplot = casac.calplot()
-table = casac.table()
-#flagger = casac.flagger()
-agentflagger = casac.agentflagger()
-image = casac.image()
-imagepol = casac.imagepol()
-simulator = casac.simulator()
-componentlist = casac.componentlist()
-coordsys = casac.coordsys()
-regionmanager = casac.regionmanager()
-spectralline = casac.spectralline()
-utils = casac.utils()
-deconvolver = casac.deconvolver()
-vpmanager = casac.vpmanager()
-vlafillertask = casac.vlafillertask()
-atmosphere = casac.atmosphere()
-mstransformer = casac.mstransformer()
+quanta = casac.quanta
+measures = casac.measures
+imager = casac.imager
+calibrater = casac.calibrater
+ms = casac.ms
+tableplot = casac.tableplot
+msplot = casac.msplot
+pmtool = casac.plotms
+calplot = casac.calplot
+table = casac.table
+#flagger = casac.flagger
+agentflagger = casac.agentflagger
+image = casac.image
+imagepol = casac.imagepol
+simulator = casac.simulator
+componentlist = casac.componentlist
+coordsys = casac.coordsys
+regionmanager = casac.regionmanager
+spectralline = casac.spectralline
+utils = casac.utils
+deconvolver = casac.deconvolver
+vpmanager = casac.vpmanager
+vlafillertask = casac.vlafillertask
+atmosphere = casac.atmosphere
+mstransformer = casac.mstransformer
 
 from accum import  accum
 from applycal import  applycal
