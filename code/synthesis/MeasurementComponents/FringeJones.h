@@ -29,14 +29,13 @@
 #define SYNTHESIS_FRINGEJONES_H
 
 #include <casa/aips.h>
-#include <synthesis/MeasurementComponents/SolvableVisCal.h> 
+#include <synthesis/MeasurementComponents/StandardVisCal.h> 
 
 namespace casa { //# NAMESPACE CASA - BEGIN
 
 // Fringe-fitting (parametrized phase) VisCal
-class FringeJones : public SolvableVisJones {
+class FringeJones : public GJones {
 public:
-
   // Constructor
   //  TBD:  MSMetaInfoForCal-aware version; deprecate older ones
   FringeJones(VisSet& vs);
@@ -63,17 +62,18 @@ public:
 
   // Freq dependence (delays)
   virtual casacore::Bool freqDepPar() { return false; };
+  // If the following is false frequency spectrum is squashed to one point.
   virtual casacore::Bool freqDepMat() { return true; };
 
   // Local setApply to enforce calWt=F for delays
   virtual void setApply(const casacore::Record& apply);
-  using SolvableVisJones::setApply;
+  using GJones::setApply;
   virtual void setCallib(const casacore::Record& callib,
 			 const casacore::MeasurementSet& selms);
 
   // Local setSolve (traps lack of refant)
   virtual void setSolve(const casacore::Record& solve);
-  using SolvableVisJones::setSolve;
+  using GJones::setSolve;
 
   // This type is not yet accumulatable
   //  Deprecate?
@@ -99,9 +99,14 @@ public:
   virtual void globalPostSolveTinker() {};
 
   // Local implementation of selfSolveOne (generalized signature)
-  virtual void selfSolveOne(VisBuffGroupAcc& vbga);
-  virtual void selfSolveOne(SDBList& sdbs);
+  // virtual void selfSolveOne(VisBuffGroupAcc& vbga);
+  virtual void selfSolveOne(SDBList&);
 
+  virtual void solveOneVB(const VisBuffer&);
+
+  // virtual void solveOneSDB(const SolveDataBuffer&);
+
+  virtual void solveLotsOfSDBs(SDBList&);
 
 protected:
 

@@ -4,7 +4,7 @@ from taskinit import *
 (cb,) = gentools(['cb'])
 def gencal(vis=None,caltable=None,caltype=None,infile=None,
            spw=None,antenna=None,pol=None,
-           parameter=None):
+           parameter=None,uniform=None):
 
        """ Externally specify calibration solutions af various types
        """
@@ -42,7 +42,8 @@ def gencal(vis=None,caltable=None,caltype=None,infile=None,
                    warnings.warn('No offsets found. No caltable created.')
 
               cb.specifycal(caltable=caltable,time="",spw=spw,antenna=antenna,pol=pol,
-                            caltype=caltype,parameter=parameter,infile=infile)
+                            caltype=caltype,parameter=parameter,infile=infile,
+                            uniform=uniform)
 
               #cb.close()
        

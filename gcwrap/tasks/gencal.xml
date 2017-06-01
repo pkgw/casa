@@ -69,6 +69,12 @@
 			<description>The calibration values</description>
 			<value></value>
 		</param>
+
+		<param type="bool" name="uniform" subparam="true">
+			<description>Blah</description>
+			<value>True</value>
+		</param>
+
             <constraints>
               <when param="caltype">
                 <equals value="tecim">
