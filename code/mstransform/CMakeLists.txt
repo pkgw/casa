@@ -37,8 +37,6 @@ casa_add_library( mstransform
  TVI/RegriddingTVI.cc  
  TVI/UVContSubTVI.cc
  TVI/PolAverageTVI.cc
- TVI/FiltrationTVI.cc
- TVI/SDDoubleCircleFilter.cc
 )
 
 install (FILES
@@ -69,9 +67,6 @@ install (FILES
  	TVI/RegriddingTVI.h
  	TVI/UVContSubTVI.h 	
  	TVI/PolAverageTVI.h
- 	TVI/FiltrationTVI.h
- 	TVI/FiltrationTVI.tcc
- 	TVI/SDDoubleCircleFilter.h
 	DESTINATION include/casacode/mstransform/TVI
 	)
 	
@@ -87,4 +82,3 @@ casa_add_executable( mstransform fixspwbackport apps/fixspwbackport/fixspwbackpo
 casa_add_google_test( MODULES mstransform SOURCES TVI/test/tRecursiveVi2Layers_GT.cc )
 casa_add_google_test( MODULES mstransform SOURCES TVI/test/PolAverageTVI_GTest.cc )
 #casa_add_google_test( MODULES mstransform SOURCES TVI/test/tChannelAverageTransformEngine_GT.cc )
-casa_add_google_test( MODULES mstransform SOURCES TVI/test/FiltrationTVI_GTest.cc )
