@@ -16,6 +16,7 @@
 #include <casacore/casa/Arrays/Matrix.h>
 #include <casacore/casa/Arrays/Vector.h>
 #include <casacore/casa/Logging/LogIO.h>
+#include <casacore/casa/BasicSL/Constants.h>
 
 namespace casa { // namespace casa START
 
@@ -47,6 +48,24 @@ private:
 
 typedef std::pair<casacore::Double, casacore::Double> TimeRange;
 typedef std::list<TimeRange> TimeRangeList;
+
+class TimeRangeListTool {
+public:
+  static bool InRange(TimeRange const &timerange, casacore::Double const current_time) {
+    auto const time_from = timerange.first * (1.0 - casacore::C::dbl_epsilon);
+    auto const time_to = timerange.second * (1.0 + casacore::C::dbl_epsilon);
+    return time_from < current_time && current_time < time_to;
+  }
+
+  static bool InRange(TimeRangeList const &timerange_list, casacore::Double const current_time) {
+    for (auto iter = timerange_list.begin(); iter != timerange_list.end(); ++iter) {
+      if (InRange(*iter, current_time)) {
+        return true;
+      }
+    }
+    return false;
+  }
+};
 
 class SDDoubleCircleGainCalImpl {
 public:
