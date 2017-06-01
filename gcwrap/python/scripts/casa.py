@@ -32,41 +32,43 @@ else :
 import __casac__
 cu = __casac__.utils.utils()
 
-casa = { 'build': {
-             'time': casadef.build_time,
-             'version': cu.version_info( ),
-             'number': casadef.subversion_revision
-         },
-         'source': {
-             'url': casadef.subversion_url,
-             'revision': casadef.subversion_revision
-         },
-         'helpers': {
-             'logger': 'casalogger',
-             'viewer': 'casaviewer',
-             'info': None,
-             'dbus': None,
-             'ipcontroller': None,
-             'ipengine': None
-         },
-         'dirs': {
-             'rc': homedir + '/.casa',
-             'data': __casapath__ + "/data",
-             'recipes': __casapath__ + "/lib/python2.7/recipes",
-             'root': __casapath__,
-             'python':  __casapath__ + "/lib/python2.7",
-             'pipeline': None,
-             'xml': __casapath__ + "/xml"
-         },
-         'flags': { },
-         'files': { 
-             'logfile': os.getcwd( ) + '/casa-'+time.strftime("%Y%m%d-%H%M%S", time.gmtime())+'.log'
-         },
-         'state' : {
-             'startup': True,
-             'unwritable': set( )
-         }
-       }
+from casa_system import casa as config
+
+#casa = { 'build': {
+#             'time': casadef.build_time,
+#             'version': cu.version_info( ),
+#             'number': casadef.subversion_revision
+#         },
+#         'source': {
+#             'url': casadef.subversion_url,
+#             'revision': casadef.subversion_revision
+#         },
+#         'helpers': {
+#             'logger': 'casalogger',
+#             'viewer': 'casaviewer',
+#             'info': None,
+#             'dbus': None,
+#             'ipcontroller': None,
+#             'ipengine': None
+#         },
+#         'dirs': {
+#             'rc': homedir + '/.casa',
+#             'data': __casapath__ + "/data",
+#             'recipes': __casapath__ + "/lib/python2.7/recipes",
+#             'root': __casapath__,
+#             'python':  __casapath__ + "/lib/python2.7",
+#             'pipeline': None,
+#             'xml': __casapath__ + "/xml"
+#         },
+#         'flags': { },
+#         'files': { 
+#             'logfile': os.getcwd( ) + '/casa-'+time.strftime("%Y%m%d-%H%M%S", time.gmtime())+'.log'
+#         },
+#         'state' : {
+#             'startup': True,
+#             'unwritable': set( )
+#         }
+#       }
 
 ##
 ## next adjust the PYTHONPATH
@@ -122,55 +124,68 @@ setup_path()
 ##
 ## finally load tools
 ##
-
-quanta = casac.quanta
-measures = casac.measures
 imager = casac.imager
+imtool=imager
 calibrater = casac.calibrater
-ms = casac.ms
-tableplot = casac.tableplot
-msplot = casac.msplot
+cbtool=calibrater
+mstool = casac.ms
+tptool = casac.tableplot
+mptool = casac.msplot
 pmtool = casac.plotms
-calplot = casac.calplot
-table = casac.table
-#flagger = casac.flagger
-agentflagger = casac.agentflagger
-image = casac.image
-imagepol = casac.imagepol
-simulator = casac.simulator
-componentlist = casac.componentlist
-coordsys = casac.coordsys
-regionmanager = casac.regionmanager
-spectralline = casac.spectralline
-utils = casac.utils
-deconvolver = casac.deconvolver
-vpmanager = casac.vpmanager
-vlafillertask = casac.vlafillertask
-atmosphere = casac.atmosphere
-mstransformer = casac.mstransformer
+cptool = casac.calplot
+qatool = casac.quanta
+tbtool = casac.table
+aftool = casac.agentflagger
+metool = casac.measures
+iatool = casac.image
+potool = casac.imagepol
+lmtool= casac.linearmosaic
+smtool = casac.simulator
+cltool = casac.componentlist
+coordsystool = casac.coordsys
+cstool = casac.coordsys
+rgtool = casac.regionmanager
+sltool = casac.spectralline
+dctool = casac.deconvolver
+vptool = casac.vpmanager
+msmdtool = casac.msmetadata
+fitool = casac.fitter
+fntool = casac.functional
+imdtool = casac.imagemetadata
 
-from accum import  accum
-from applycal import  applycal
-from asdmsummary import  asdmsummary
-from autoclean import  autoclean
-from bandpass import  bandpass
+utilstool = casac.utils
+mttool = casac.mstransformer
+sdmstool = casac.singledishms
+
+from accum import accum
+from applycal import applycal
+from asdmsummary import asdmsummary
+from autoclean import autoclean
+from bandpass import bandpass
 from blcal import  blcal
 from boxit import  boxit
 from browsetable import  browsetable
 from calstat import  calstat
+from caltabconvert import  caltabconvert
 from clean import  clean
 from clearcal import  clearcal
 from clearplot import  clearplot
 from clearstat import  clearstat
-#from concat import  concat
+from concat import  concat
+from conjugatevis import  conjugatevis
+from csvclean import  csvclean
 from cvel import  cvel
 from cvel2 import  cvel2
 from deconvolve import  deconvolve
+from delmod import  delmod
+from exportasdm import  exportasdm
 from exportfits import  exportfits
 from exportuvfits import  exportuvfits
 from feather import  feather
 from find import  find
+from fixplanets import  fixplanets
 from fixvis import  fixvis
+from flagcmd import  flagcmd
 from flagdata import  flagdata
 from flagmanager import  flagmanager
 from fluxscale import  fluxscale
@@ -178,61 +193,98 @@ from ft import  ft
 from gaincal import  gaincal
 from gencal import  gencal
 from hanningsmooth import  hanningsmooth
-#from hanningsmooth2 import  hanningsmooth2
+from imcollapse import  imcollapse
 from imcontsub import  imcontsub
+from imdev import  imdev
 from imfit import  imfit
 from imhead import  imhead
+from imhistory import  imhistory
 from immath import  immath
 from immoments import  immoments
+from impbcor import  impbcor
+from importatca import  importatca
+from importasap import  importasap
 from importasdm import  importasdm
+from importevla import  importevla
 from importfits import  importfits
+from importfitsidi import  importfitsidi
 from importgmrt import  importgmrt
+from importmiriad import  importmiriad
+from importnro import  importnro
 from importuvfits import  importuvfits
 from importvla import  importvla
+from imrebin import  imrebin
+from imreframe import  imreframe
 from imregrid import  imregrid
 from imsmooth import  imsmooth
 from imstat import  imstat
+from imsubimage import  imsubimage
+from imtrans import  imtrans
 from imval import  imval
-from imview import imview
+from initweights import  initweights
 from listcal import  listcal
 from listhistory import  listhistory
+from listfits import  listfits
 from listobs import  listobs
+from listpartition import  listpartition
+from listsdm import  listsdm
 from listvis import  listvis
+from makemask import  makemask
 from mosaic import  mosaic
-from mstransform import mstransform
-from msview import msview
+from mstransform import  mstransform
+from msuvbin import  msuvbin
 from oldhanningsmooth import  oldhanningsmooth
 from oldsplit import  oldsplit
-from partition import partition
 from plotants import  plotants
+from plotbandpass import  plotbandpass
 from plotcal import  plotcal
 from plotms import  plotms
-#from plotxy import  plotxy
+from plotuv import  plotuv
+from plotweather import  plotweather
+from plotprofilemap import  plotprofilemap
+from partition import  partition
 from polcal import  polcal
+from predictcomp import  predictcomp
+from impv import  impv
+from rmfit import  rmfit
 from rmtables import  rmtables
+from sdbaseline import  sdbaseline
+from sdcal import  sdcal
+from sdfit import  sdfit
+from sdgaincal import  sdgaincal
+from sdsmooth import  sdsmooth
 from setjy import  setjy
+from ssoflux import  ssoflux
 from simalma import  simalma
 from simobserve import  simobserve
 from simanalyze import  simanalyze
+from slsearch import  slsearch
 from smoothcal import  smoothcal
 from specfit import  specfit
+from specflux import  specflux
+from specsmooth import  specsmooth
+from splattotable import  splattotable
 from split import  split
-#from split2 import split2
-from tclean import tclean
-from tclean2 import tclean2
-from sdbaseline import sdbaseline
-from sdcal import sdcal
-from sdgaincal import sdgaincal
-from sdfit import sdfit
+from spxfit import  spxfit
+from statwt import  statwt
+from statwt2 import  statwt2
+from tclean import  tclean
+from tclean2 import  tclean2
+from testconcat import  testconcat
 from uvcontsub import  uvcontsub
+from uvcontsub3 import  uvcontsub3
 from uvmodelfit import  uvmodelfit
 from uvsub import  uvsub
-from viewer import  viewer
+from wvrgcal import  wvrgcal
+from virtualconcat import  virtualconcat
 from vishead import  vishead
 from visstat import  visstat
 from visstat2 import  visstat2
+from widebandpbcor import  widebandpbcor
 from widefield import  widefield
 
+from split import  split
+from hanningsmooth import  hanningsmooth
 
 ##
 ## asap may not be available with every casa installation
