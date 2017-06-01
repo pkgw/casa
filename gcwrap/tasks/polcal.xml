@@ -108,7 +108,7 @@ calibrations can be applied on the fly.
 	</param>
 
 	<param type="string" name="poltype">
-		<description>Type of instrumental polarization solution (see help)</description>
+		<description>Type of instrumental polarization solution</description>
 		<value>D+QU</value>
 		<allowed kind="enum">
 			<value>D</value>
