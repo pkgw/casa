@@ -21,7 +21,6 @@
 #include <cmath>
 
 using namespace casacore;
-using namespace casacore;
 
 #define LOG logger_ << LogOrigin("SDDoubleCircleGainCal", __FUNCTION__, WHERE)
 #define POSTLOG LogIO::POST
@@ -180,7 +179,6 @@ inline size_t toUnsigned(ssize_t const v) {
 }
 } // anonymous namespace END
 
-using namespace casacore;
 namespace casa { // namespace casa START
 SDDoubleCircleGainCalImpl::SDDoubleCircleGainCalImpl() :
     central_region_(-1.0), do_smooth_(false), smooth_size_(-1),
@@ -302,8 +300,6 @@ void SDDoubleCircleGainCalImpl::calibrate(Cube<Float> const &data,
 
   // select data within radius
   auto const data_shape = data.shape();
-  size_t const num_pol = ::toUnsigned(data_shape[0]);
-  size_t const num_chan = ::toUnsigned(data_shape[1]);
   assert(time.nelements() == uInt(data_shape[2]));
   assert(direction.shape()[1] == data_shape[2]);
   assert(direction.shape()[0] == 2);
@@ -450,30 +446,9 @@ void SDDoubleCircleGainCalImpl::findDataWithinRadius(Double const radius,
     Vector<Double> const &time, Cube<Float> const &data,
     Matrix<Double> const &direction, Vector<Double> &gain_time,
     Cube<Float> &gain) {
-  size_t num_data = ::toUnsigned(direction.shape()[1]);
-  // find data within radius
-  Vector<size_t> data_index(num_data);
-  size_t num_gain = 0;
-  for (size_t i = 0; i < num_data; ++i) {
-    Double x = direction(0, i);
-    Double y = direction(1, i);
-    Double r2 = x * x + y * y;
-    if (r2 <= radius * radius) {
-      data_index[num_gain] = i;
-      num_gain++;
-    }
-  }
-
-  // store data for calibration
-  gain_time.resize(num_gain);
-  IPosition gain_shape(data.shape());
-  gain_shape[2] = num_gain;
-  gain.resize(gain_shape);
-  for (size_t i = 0; i < num_gain; ++i) {
-    size_t j = data_index[i];
-    gain_time[i] = time[j];
-    gain.xyPlane(i) = data.xyPlane(j);
-  }
+  Cube<Bool> flag(data.shape(), False);
+  Cube<Bool> gain_flag;
+  findDataWithinRadius(radius, time, data, flag, direction, gain_time, gain, gain_flag);
 }
 
 void SDDoubleCircleGainCalImpl::findDataWithinRadius(Double const radius,
@@ -513,5 +488,4 @@ void SDDoubleCircleGainCalImpl::findDataWithinRadius(Double const radius,
 //  // TODO implement
 //  // not necessary to implement? reuse G type application?
 //}
-using namespace casacore;
 }// namespace casa END
