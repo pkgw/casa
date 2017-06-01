@@ -518,14 +518,18 @@ bool SDDoubleCircleGainCalImpl::findTimeRange(Vector<Double> const &time,
   Sort s(time_sel.data(), num_data);
   Vector<uInt> index_vector;
   uInt num_sorted = s.sort(index_vector, num_data);
+  if (num_sorted != index_vector.nelements()) {
+    return false;
+  }
 
   // conversion from the list of timestamp to TimeRangeList
   timerange.clear();
   Double time_from = time_sel[index_vector[0]] - 0.5 * interval_sel[index_vector[0]];
   Double time_to = time_sel[index_vector[0]] + 0.5 * interval_sel[index_vector[0]];
-  for (auto i = index_vector.begin(); i != index_vector.end(); ++i) {
-    Double current_from = time_sel[*i] - 0.5 * interval_sel[*i];
-    Double current_to = time_sel[*i] + 0.5 * interval_sel[*i];
+  auto iter = index_vector.begin();
+  for (++iter; iter != index_vector.end(); ++iter) {
+    Double current_from = time_sel[*iter] - 0.5 * interval_sel[*iter];
+    Double current_to = time_sel[*iter] + 0.5 * interval_sel[*iter];
     if (abs(current_from - time_to) < time_to * C::dbl_epsilon) {
       time_to = current_to;
     } else {
@@ -535,6 +539,8 @@ bool SDDoubleCircleGainCalImpl::findTimeRange(Vector<Double> const &time,
       time_to = current_to;
     }
   }
+  TimeRange range(time_from, time_to);
+  timerange.push_back(range);
 
   return true;
 }
