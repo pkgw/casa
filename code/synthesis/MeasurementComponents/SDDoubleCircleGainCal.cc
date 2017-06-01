@@ -394,10 +394,10 @@ void SDDoubleCircleGainCal::executeDoubleCircleGainCal(
         worker.unsetSmoothing();
       }
 
-      ROArrayColumn<Double> uvwColumn(ms, "UVW");
-      Matrix<Double> uvw = uvwColumn.getColumn();
-      debuglog<< "uvw.shape " << uvw.shape() << debugpost;
-
+//      ROArrayColumn<Double> uvwColumn(ms, "UVW");
+//      Matrix<Double> uvw = uvwColumn.getColumn();
+//      debuglog<< "uvw.shape " << uvw.shape() << debugpost;
+//
       // make a map between SOURCE_ID and source NAME
       auto const &sourceTable = ms.source();
       ROScalarColumn<Int> idCol(sourceTable,

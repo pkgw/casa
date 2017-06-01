@@ -27,8 +27,13 @@
 #ifndef _MSVIS_SD_DOUBLE_CIRCLE_FILTER_H_
 #define _MSVIS_SD_DOUBLE_CIRCLE_FILTER_H_
 
-//#include <casacore/casa/Arrays/Vector.h>
-//#include <casacore/casa/Arrays/ArrayLogical.h>
+#include <map>
+
+#include <casacore/casa/aips.h>
+#include <casacore/casa/Containers/Block.h>
+
+#include <msvis/MSVis/ViImplementation2.h>
+#include <synthesis/MeasurementComponents/SDDoubleCircleGainCalImpl.h>
 
 namespace casacore {
 // forward declaration
@@ -48,8 +53,7 @@ class VisBuffer2;
 class SDDoubleCircleFilter {
 public:
   // constructor
-  SDDoubleCircleFilter(casacore::MeasurementSet const &ms,
-      casacore::Record const &configuration);
+  SDDoubleCircleFilter(casacore::Record const &configuration);
 
   // destructor
   ~SDDoubleCircleFilter() {
@@ -73,11 +77,21 @@ public:
   // and returns number of rows that pass through the filter
   int isFiltratePerRow(VisBuffer2 const *vb, casacore::Vector<bool> &is_filtrate);
 
+  // sync with VI2
+  void syncWith(ViImplementation2 const *vii);
+
 private:
   void initFilter();
 
-  casacore::MeasurementSet const &ms_p;
-  casacore::Record const &configuration_p;
+  casacore::MeasurementSet *ms_p;
+  casacore::Record const &configuration_;
+
+  // parameter for filtering
+  bool smooth_;
+  casacore::Double central_disk_radius_;
+
+  // time range list that observed central region
+  std::map<TimeRangeKey, TimeRangeList, TimeRangeKey::Less> timerange_list_;
 };
 
 } //# NAMESPACE vi - END

@@ -8,6 +8,9 @@
 #ifndef SYNTHESIS_MEASUREMENTCOMPONENTS_SDDOUBLECIRCLEGAINCALIMPL_H_
 #define SYNTHESIS_MEASUREMENTCOMPONENTS_SDDOUBLECIRCLEGAINCALIMPL_H_
 
+#include <map>
+#include <list>
+
 #include <casacore/casa/aipstype.h>
 #include <casacore/casa/Arrays/Cube.h>
 #include <casacore/casa/Arrays/Matrix.h>
@@ -15,6 +18,35 @@
 #include <casacore/casa/Logging/LogIO.h>
 
 namespace casa { // namespace casa START
+
+class TimeRangeKey {
+public:
+  struct Less {
+    bool operator()(TimeRangeKey const &a, TimeRangeKey const &b) {
+      for (size_t i = 0; i < 3; ++i) {
+        if (a.meta_[i] != b.meta_[i]) {
+          return a.meta_[i] < b.meta_[i];
+        }
+      }
+      // a.meta_ == b.meta_
+      return false;
+    }
+  };
+  TimeRangeKey(casacore::Int const field_id, casacore::Int const antenna_id,
+  casacore::Int const feed_id) :
+      meta_(3) {
+    meta_[0] = field_id;
+    meta_[1] = antenna_id;
+    meta_[2] = feed_id;
+  }
+  ~TimeRangeKey() = default;
+private:
+  casacore::Block<casacore::Int> meta_;
+  TimeRangeKey() = delete;
+};
+
+typedef std::pair<casacore::Double, casacore::Double> TimeRange;
+typedef std::list<TimeRange> TimeRangeList;
 
 class SDDoubleCircleGainCalImpl {
 public:
@@ -53,7 +85,6 @@ public:
 
   // get effective smoothing size
   casacore::Int getEffectiveSmoothingSize();
-
 
   // setter
   // set radius of the central region in radian
@@ -101,8 +132,14 @@ public:
 
   // gain calibration implementation
   void doCalibrate(casacore::Vector<casacore::Double> &gain_time,
-      casacore::Cube<casacore::Float> &gain,
-      casacore::Cube<casacore::Bool> &gain_flag);
+  casacore::Cube<casacore::Float> &gain,
+  casacore::Cube<casacore::Bool> &gain_flag);
+
+  // find time range that observed central region
+  bool findTimeRange(casacore::Vector<casacore::Double> const &time,
+  casacore::Vector<casacore::Double> const &interval,
+  casacore::Matrix<casacore::Double> const &direction,
+      TimeRangeList &timerange);
 
   // apply gain factor
 //  void apply(casacore::Vector<casacore::Double> const &gain_time,
@@ -132,19 +169,19 @@ private:
 
   // find data within radius
   void findDataWithinRadius(casacore::Double const radius,
-      casacore::Vector<casacore::Double> const &time,
-      casacore::Cube<casacore::Float> const &data,
-      casacore::Matrix<casacore::Double> const &direction,
-      casacore::Vector<casacore::Double> &gain_time,
-      casacore::Cube<casacore::Float> &gain);
+  casacore::Vector<casacore::Double> const &time,
+  casacore::Cube<casacore::Float> const &data,
+  casacore::Matrix<casacore::Double> const &direction,
+  casacore::Vector<casacore::Double> &gain_time,
+  casacore::Cube<casacore::Float> &gain);
   void findDataWithinRadius(casacore::Double const radius,
-      casacore::Vector<casacore::Double> const &time,
-      casacore::Cube<casacore::Float> const &data,
-      casacore::Cube<casacore::Bool> const &flag,
-      casacore::Matrix<casacore::Double> const &direction,
-      casacore::Vector<casacore::Double> &gain_time,
-      casacore::Cube<casacore::Float> &gain,
-      casacore::Cube<casacore::Bool> &gain_flag);
+  casacore::Vector<casacore::Double> const &time,
+  casacore::Cube<casacore::Float> const &data,
+  casacore::Cube<casacore::Bool> const &flag,
+  casacore::Matrix<casacore::Double> const &direction,
+  casacore::Vector<casacore::Double> &gain_time,
+  casacore::Cube<casacore::Float> &gain,
+  casacore::Cube<casacore::Bool> &gain_flag);
 };
 
 } // namespace casa END
