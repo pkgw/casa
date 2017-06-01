@@ -73,20 +73,6 @@ Double rad2arcsec(Double value_in_rad) {
   return Quantity(value_in_rad, "rad").getValue("arcsec");
 }
 
-bool InRange(casa::TimeRange const &timerange, Double const current_time) {
-  auto const time_from = timerange.first * (1.0 - C::dbl_epsilon);
-  auto const time_to = timerange.second * (1.0 + C::dbl_epsilon);
-  return time_from < current_time && current_time < time_to;
-}
-
-bool InRange(casa::TimeRangeList const &timerange_list, Double const current_time) {
-  for (auto iter = timerange_list.begin(); iter != timerange_list.end(); ++iter) {
-    if (InRange(*iter, current_time)) {
-      return true;
-    }
-  }
-  return false;
-}
 } //# ANONYMOUS NAMESPACE - END
 
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -150,7 +136,7 @@ int SDDoubleCircleFilter::isFiltratePerRow(VisBuffer2 const *vb,
     is_filtrate.resize(nrows);
   }
   for (uInt i = 0; i < nrows; ++i) {
-    is_filtrate[i] = InRange(
+    is_filtrate[i] = TimeRangeListTool::InRange(
         timerange_list_[TimeRangeKey(field_id[i], antenna_id[i], feed_id[i])],
         current_time[i]);
   }
