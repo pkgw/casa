@@ -1,38 +1,41 @@
-import os
-import re
-import sys
-import time
-from casac import casac
+import os as _os
+import re as _re
+import sys as _sys
+#import time
+from casac import casac as _casac
 
-homedir = os.getenv('HOME')
-if homedir == None :
+_homedir = _os.getenv('HOME')
+if _homedir == None :
    print "Environment variable HOME is not set, please set it"
-   sys.exit(1)
+   _sys.exit(1)
 
-import casadef
+#import casadef
 
 ##
 ## first set up CASAPATH
 ##
-if os.environ.has_key('CASAPATH') :
-    __casapath__ = os.environ['CASAPATH'].split(' ')[0]
-    if not os.path.exists(__casapath__ + "/data") :
+if _os.environ.has_key('CASAPATH') :
+    __casapath__ = _os.environ['CASAPATH'].split(' ')[0]
+    if not _os.path.exists(__casapath__ + "/data") :
         raise RuntimeError, "CASAPATH environment variable is improperly set"
 else :
-    __casapath__ = casac.__file__
+    __casapath__ = _casac.__file__
     while __casapath__ and __casapath__ != "/" :
-        if os.path.exists( __casapath__ + "/data") :
+        if _os.path.exists( __casapath__ + "/data") :
             break
-        __casapath__ = os.path.dirname(__casapath__)
+        __casapath__ = _os.path.dirname(__casapath__)
     if __casapath__ and __casapath__ != "/" :
-        os.environ['CASAPATH']=__casapath__ + " linux local host"
+        _os.environ['CASAPATH']=__casapath__ + " linux local host"
     else :
         raise RuntimeError, "CASAPATH environment variable must be set"
 
-import __casac__
-cu = __casac__.utils.utils()
+#import __casac__
+#cu = __casac__.utils.utils()
+#xcu = __casac__.utils.utils
 
-from casa_system import casa as config
+# this dict should transition to namespace (as with argparser)
+# --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+#from casa_system import casa as config
 
 #casa = { 'build': {
 #             'time': casadef.build_time,
@@ -52,7 +55,7 @@ from casa_system import casa as config
 #             'ipengine': None
 #         },
 #         'dirs': {
-#             'rc': homedir + '/.casa',
+#             'rc': _homedir + '/.casa',
 #             'data': __casapath__ + "/data",
 #             'recipes': __casapath__ + "/lib/python2.7/recipes",
 #             'root': __casapath__,
@@ -62,7 +65,7 @@ from casa_system import casa as config
 #         },
 #         'flags': { },
 #         'files': { 
-#             'logfile': os.getcwd( ) + '/casa-'+time.strftime("%Y%m%d-%H%M%S", time.gmtime())+'.log'
+#             'logfile': _os.getcwd( ) + '/casa-'+time.strftime("%Y%m%d-%H%M%S", time.gmtime())+'.log'
 #         },
 #         'state' : {
 #             'startup': True,
@@ -73,35 +76,35 @@ from casa_system import casa as config
 ##
 ## next adjust the PYTHONPATH
 ##
-def adapt_pythonpath(searchroot):
+def _adapt_pythonpath(searchroot):
     # tarball location
-    guess = os.path.join(searchroot, 'lib/python2.7/site-packages/numpy')
-    if os.path.isdir(guess):
-        sys.path.append(os.path.dirname(guess))
+    guess = _os.path.join(searchroot, 'lib/python2.7/site-packages/numpy')
+    if _os.path.isdir(guess):
+        _sys.path.append(_os.path.dirname(guess))
     else:
-        for root, dirs, files in os.walk(searchroot):
+        for root, dirs, files in _os.walk(searchroot):
             # skip data folder which might be a network mount
             if root == searchroot and 'data' in dirs:
                 del dirs[dirs.index('data')]
             if root.endswith("/numpy"):
-                sys.path.append(os.path.dirname(root))
+                _sys.path.append(_os.path.dirname(root))
                 break
 
-if re.match( r'.*/\d+\.\d+\.\d+\w*-\d+$', __casapath__ ) :
-    adapt_pythonpath(os.path.dirname(__casapath__))
+if _re.match( r'.*/\d+\.\d+\.\d+\w*-\d+$', __casapath__ ) :
+    _adapt_pythonpath(_os.path.dirname(__casapath__))
 else:
-    adapt_pythonpath(__casapath__)
+    _adapt_pythonpath(__casapath__)
 
 ##
 ## next adjust PATH and LD_LIBRARY_PATH
 ##
-def setup_path():
+def _setup_path():
     global __ipcontroller__, __ld_library_path__
     _rootdir = None
-    if os.path.exists(os.path.join(__casapath__, 'bin', 'casapyinfo')):
-        _rootdir = os.path.join(__casapath__, 'bin')
+    if _os.path.exists(_os.path.join(__casapath__, 'bin', 'casapyinfo')):
+        _rootdir = _os.path.join(__casapath__, 'bin')
     else:
-        for root, dirs, files in os.walk(__casapath__):
+        for root, dirs, files in _os.walk(__casapath__):
             # skip data folder which might be a network mount
             if root == __casapath__ and 'data' in dirs:
                 del dirs[dirs.index('data')]
@@ -111,51 +114,53 @@ def setup_path():
     if _rootdir is None:
         return
 
-    __ipcontroller__ = (lambda fd: fd.readline().strip('\n'))(os.popen(_rootdir + "/casapyinfo --exec 'which ipcontroller'"))
-    if os.path.exists(__ipcontroller__) :
-        os.environ['PATH'] = os.path.dirname(__ipcontroller__) + ":" + os.environ['PATH']
+    __ipcontroller__ = (lambda fd: fd.readline().strip('\n'))(_os.popen(_rootdir + "/casapyinfo --exec 'which ipcontroller'"))
+    if _os.path.exists(__ipcontroller__) :
+        _os.environ['PATH'] = _os.path.dirname(__ipcontroller__) + ":" + _os.environ['PATH']
     else :
         raise RuntimeError, "cannot configure CASA tasking system"
-    __ld_library_path__ = (lambda fd: fd.readline().strip('\n').split(':'))(os.popen(_rootdir + "/casapyinfo --exec 'echo $LD_LIBRARY_PATH'"))
-    map(lambda x: sys.path.append(x),__ld_library_path__)
+    __ld_library_path__ = (lambda fd: fd.readline().strip('\n').split(':'))(_os.popen(_rootdir + "/casapyinfo --exec 'echo $LD_LIBRARY_PATH'"))
+    map(lambda x: _sys.path.append(x),__ld_library_path__)
 
-setup_path()
+_setup_path()
 
 ##
 ## finally load tools
 ##
-imager = casac.imager
+imager = _casac.imager
 imtool=imager
-calibrater = casac.calibrater
+calibrater = _casac.calibrater
 cbtool=calibrater
-mstool = casac.ms
-tptool = casac.tableplot
-mptool = casac.msplot
-pmtool = casac.plotms
-cptool = casac.calplot
-qatool = casac.quanta
-tbtool = casac.table
-aftool = casac.agentflagger
-metool = casac.measures
-iatool = casac.image
-potool = casac.imagepol
-lmtool= casac.linearmosaic
-smtool = casac.simulator
-cltool = casac.componentlist
-coordsystool = casac.coordsys
-cstool = casac.coordsys
-rgtool = casac.regionmanager
-sltool = casac.spectralline
-dctool = casac.deconvolver
-vptool = casac.vpmanager
-msmdtool = casac.msmetadata
-fitool = casac.fitter
-fntool = casac.functional
-imdtool = casac.imagemetadata
+mstool = _casac.ms
+tptool = _casac.tableplot
+mptool = _casac.msplot
+pmtool = _casac.plotms
+cptool = _casac.calplot
+qatool = _casac.quanta
+tbtool = _casac.table
+aftool = _casac.agentflagger
+metool = _casac.measures
+iatool = _casac.image
+potool = _casac.imagepol
+lmtool= _casac.linearmosaic
+smtool = _casac.simulator
+cltool = _casac.componentlist
+coordsystool = _casac.coordsys
+cstool = _casac.coordsys
+rgtool = _casac.regionmanager
+sltool = _casac.spectralline
+dctool = _casac.deconvolver
+vptool = _casac.vpmanager
+msmdtool = _casac.msmetadata
+fitool = _casac.fitter
+fntool = _casac.functional
+imdtool = _casac.imagemetadata
 
-utilstool = casac.utils
-mttool = casac.mstransformer
-sdmstool = casac.singledishms
+cutool = _casac.utils
+mttool = _casac.mstransformer
+sdmstool = _casac.singledishms
+catool = _casac.calanalysis
+attool = _casac.atmosphere
 
 from accum import accum
 from applycal import applycal
@@ -311,7 +316,6 @@ try:
     from sdscaleold import sdscaleold
     from sdstatold import sdstatold
 except ImportError:
-    sd = None
     sdaverageold = None
     sdbaselineold = None
     sdbaseline2old = None
