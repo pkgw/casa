@@ -30,9 +30,6 @@
 #include <limits>
 #include <cmath>
 
-#include <mstransform/TVI/FiltrationTVI.h>
-#include <mstransform/TVI/FiltrationTVI.tcc>
-
 #include <casacore/casa/aips.h>
 #include <casacore/casa/OS/EnvVar.h>
 #include <casacore/casa/OS/File.h>
@@ -50,6 +47,8 @@
 
 #include <msvis/MSVis/VisibilityIteratorImpl2.h>
 #include <msvis/MSVis/LayeredVi2Factory.h>
+#include <synthesis/MeasurementComponents/FiltrationTVI.h>
+#include <synthesis/MeasurementComponents/FiltrationTVI.tcc>
 
 using namespace std;
 using namespace casa;
@@ -102,8 +101,7 @@ template<class FilterImpl>
 class FilterInterface {
 public:
   // constructor
-  FilterInterface(MeasurementSet const &/*ms*/,
-      Record const &/*configuration*/) {
+  FilterInterface(Record const &/*configuration*/) {
   }
 
   // destructor
@@ -138,6 +136,9 @@ public:
     return nrows;
   }
 
+  void syncWith(ViImplementation2 const */*vii*/) {
+  }
+
 private:
   void initFilter() {
   }
@@ -168,8 +169,8 @@ public:
 class PorousFilter: public PorousProperty, public FilterInterface<PorousFilter> {
 public:
   // constructor
-  PorousFilter(MeasurementSet const &ms, Record const &configuration) :
-      FilterInterface<PorousFilter>(ms, configuration) {
+  PorousFilter(Record const &configuration) :
+      FilterInterface<PorousFilter>(configuration) {
   }
 
   // destructor
@@ -202,8 +203,8 @@ class NonporousFilter: public NonporousProperty, public FilterInterface<
     NonporousFilter> {
 public:
   // constructor
-  NonporousFilter(MeasurementSet const &ms, Record const &configuration) :
-      FilterInterface<NonporousFilter>(ms, configuration) {
+  NonporousFilter(Record const &configuration) :
+      FilterInterface<NonporousFilter>(configuration) {
   }
 
   // destructor
@@ -228,7 +229,8 @@ public:
 
     Bool is_porous = true;
     if (configuration_p.isDefined("type")
-        && configuration_p.asInt("type") == (Int) FilteringTypeLocal::Nonporous) {
+        && configuration_p.asInt("type")
+            == (Int) FilteringTypeLocal::Nonporous) {
       is_porous = false;
     }
     cout << "type_enum = " << configuration_p.asInt("type") << endl;
@@ -237,7 +239,8 @@ public:
     if (is_porous) {
       vii = new FiltrationTVIWrapper<PorousFilter>(inputVII_p, configuration_p);
     } else {
-      vii = new FiltrationTVIWrapper<NonporousFilter>(inputVII_p, configuration_p);
+      vii = new FiltrationTVIWrapper<NonporousFilter>(inputVII_p,
+          configuration_p);
     }
 
     return vii;
@@ -331,9 +334,9 @@ public:
 
     // build factory object
     Product p = Impl::BuildFactory(ms, type_rec);
-    std::unique_ptr<ViFactory> factory(p.factory);
+    std::unique_ptr < ViFactory > factory(p.factory);
 
-    std::unique_ptr<VisibilityIterator2> vi;
+    std::unique_ptr < VisibilityIterator2 > vi;
     try {
       vi.reset(new VisibilityIterator2(*factory.get()));
     } catch (...) {
@@ -507,8 +510,8 @@ protected:
 
     // Create VI
     // VI with filter
-    std::unique_ptr<VisibilityIterator2> vi(
-        Manufacturer::ManufactureVI(ms_, Validator::GetMode()));
+    std::unique_ptr < VisibilityIterator2
+        > vi(Manufacturer::ManufactureVI(ms_, Validator::GetMode()));
     ASSERT_TRUE(vi->ViiType().startsWith(Validator::GetTypePrefix()));
 
     // reference VI
@@ -668,8 +671,8 @@ protected:
         << expectedClassName << "\"" << endl;
 
     if (expectedClassName.size() > 0) {
-      std::unique_ptr<VisibilityIterator2> vi(
-          Manufacturer::ManufactureVI(ms_, type_enum));
+      std::unique_ptr < VisibilityIterator2
+          > vi(Manufacturer::ManufactureVI(ms_, type_enum));
 
       // Verify type string
       String viiType = vi->ViiType();

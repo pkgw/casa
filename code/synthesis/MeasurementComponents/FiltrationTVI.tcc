@@ -26,7 +26,7 @@
 #ifndef _MSVIS_FILTRATIONTVI_TCC_
 #define _MSVIS_FILTRATIONTVI_TCC_
 
-#include <mstransform/TVI/FiltrationTVI.h>
+#include <synthesis/MeasurementComponents/FiltrationTVI.h>
 
 #include <climits>
 
@@ -133,8 +133,8 @@ FiltrationTVI<Filter>::FiltrationTVI(ViImplementation2 * inputVi,
     Record const &configuration) :
     TransformingVi2(inputVi), configuration_p(configuration), filter_p(0), num_filtrates_p(0), is_filtrate_p() {
   // new filter
-  MeasurementSet const &ms = getVii()->ms();
-  filter_p = new Filter(ms, configuration_p);
+//  MeasurementSet const &ms = getVii()->ms();
+  filter_p = new Filter(configuration_p);
 
   // Initialize attached VisBuffer
   setVisBuffer(createAttachedVisBuffer(VbPlain, VbRekeyable));
@@ -163,6 +163,20 @@ template<class Filter>
 void FiltrationTVI<Filter>::next() {
   // filtration
   filter();
+}
+
+template<class Filter> void FiltrationTVI<Filter>::originChunks (Bool forceRewind) {
+  TransformingVi2::originChunks(forceRewind);
+
+  // sync
+  filter_p->syncWith(this);
+}
+
+template<class Filter> void FiltrationTVI<Filter>::nextChunk () {
+  TransformingVi2::nextChunk();
+
+  // sync
+  filter_p->syncWith(this);
 }
 
 template<class Filter>

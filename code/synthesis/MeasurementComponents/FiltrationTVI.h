@@ -151,6 +151,11 @@ public:
   virtual void origin();
   virtual void next();
 
+  // Methods to control chunk iterator
+
+  virtual void originChunks (casacore::Bool forceRewind = false);
+  virtual void nextChunk ();
+
   // Return the number of rows in the current iteration
   // FiltrationTVI may change the number of rows when given vb
   // is partly filtrate

@@ -23,10 +23,9 @@
 //#                        520 Edgemont Road
 //#                        Charlottesville, VA 22903-2475 USA
 //#
-#include <mstransform/TVI/FiltrationTVI.h>
-#include <mstransform/TVI/FiltrationTVI.tcc>
-
-#include <mstransform/TVI/SDDoubleCircleFilter.h>
+#include <synthesis/MeasurementComponents/FiltrationTVI.h>
+#include <synthesis/MeasurementComponents/FiltrationTVI.tcc>
+#include <synthesis/MeasurementComponents/SDDoubleCircleFilter.h>
 
 #include <casacore/casa/Exceptions/Error.h>
 
