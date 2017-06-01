@@ -59,35 +59,35 @@ inline void FiltrateVector(Vector<T> const &feed,
   }
 }
 
-template<class T>
-inline void FiltrateMatrix(Matrix<T> const &feed,
-    Vector<bool> const &is_filtrate, Matrix<T> &filtrate) {
-  AlwaysAssert(feed.conform(is_filtrate), AipsError);
-  // filter_flag: true --> filtrate, false --> residue
-  filtrate.resize(ntrue(is_filtrate));
-  Int k = 0;
-  for (size_t i = 0; i < feed.nelements(); ++i) {
-    if (is_filtrate[i]) {
-      filtrate.column(k) = feed.column(i);
-      ++k;
-    }
-  }
-}
-
-template<class T>
-inline void FiltrateCube(Cube<T> const &feed, Vector<bool> const &is_filtrate,
-    Cube<T> &filtrate) {
-  AlwaysAssert(feed.conform(is_filtrate), AipsError);
-  // filter_flag: true --> filtrate, false --> residue
-  filtrate.resize(ntrue(is_filtrate));
-  Int k = 0;
-  for (size_t i = 0; i < feed.nelements(); ++i) {
-    if (is_filtrate[i]) {
-      filtrate.xyPlane(k) = feed.xyPlane(i);
-      ++k;
-    }
-  }
-}
+//template<class T>
+//inline void FiltrateMatrix(Matrix<T> const &feed,
+//    Vector<bool> const &is_filtrate, Matrix<T> &filtrate) {
+//  AlwaysAssert(feed.conform(is_filtrate), AipsError);
+//  // filter_flag: true --> filtrate, false --> residue
+//  filtrate.resize(ntrue(is_filtrate));
+//  Int k = 0;
+//  for (size_t i = 0; i < feed.nelements(); ++i) {
+//    if (is_filtrate[i]) {
+//      filtrate.column(k) = feed.column(i);
+//      ++k;
+//    }
+//  }
+//}
+//
+//template<class T>
+//inline void FiltrateCube(Cube<T> const &feed, Vector<bool> const &is_filtrate,
+//    Cube<T> &filtrate) {
+//  AlwaysAssert(feed.conform(is_filtrate), AipsError);
+//  // filter_flag: true --> filtrate, false --> residue
+//  filtrate.resize(ntrue(is_filtrate));
+//  Int k = 0;
+//  for (size_t i = 0; i < feed.nelements(); ++i) {
+//    if (is_filtrate[i]) {
+//      filtrate.xyPlane(k) = feed.xyPlane(i);
+//      ++k;
+//    }
+//  }
+//}
 
 template<class T>
 inline void FiltrateArray(Array<T> const &feed, Vector<bool> const &is_filtrate,
@@ -130,8 +130,12 @@ class FiltrationTVI;
 // FiltrationTVI implementation
 template<class Filter>
 FiltrationTVI<Filter>::FiltrationTVI(ViImplementation2 * inputVi,
-    Filter *filter) :
-    TransformingVi2(inputVi), filter_p(filter), num_filtrates_p(0), is_filtrate_p() {
+    Record const &configuration) :
+    TransformingVi2(inputVi), configuration_p(configuration), filter_p(0), num_filtrates_p(0), is_filtrate_p() {
+  // new filter
+  MeasurementSet const &ms = getVii()->ms();
+  filter_p = new Filter(ms, configuration_p);
+
   // Initialize attached VisBuffer
   setVisBuffer(createAttachedVisBuffer(VbPlain, VbRekeyable));
 }

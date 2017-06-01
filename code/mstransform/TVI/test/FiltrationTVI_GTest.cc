@@ -79,8 +79,8 @@ string GetCasaDataPath() {
 class FiltrationTestTVIFactory;
 template<class Filter>
 class FiltrationTVIWrapper: public FiltrationTVI<Filter> {
-  FiltrationTVIWrapper(ViImplementation2 * inputVi, Filter *filter) :
-      FiltrationTVI<Filter>(inputVi, filter) {
+  FiltrationTVIWrapper(ViImplementation2 * inputVi, Record configuration) :
+      FiltrationTVI<Filter>(inputVi, configuration) {
   }
 
   virtual ~FiltrationTVIWrapper() {
@@ -234,14 +234,10 @@ public:
     cout << "type_enum = " << configuration_p.asInt("type") << endl;
     cout << "is_porous = " << is_porous << endl;
 
-    MeasurementSet const &ms = inputVII_p->ms();
-
     if (is_porous) {
-      PorousFilter *filter = new PorousFilter(ms, configuration_p);
-      vii = new FiltrationTVIWrapper<PorousFilter>(inputVII_p, filter);
+      vii = new FiltrationTVIWrapper<PorousFilter>(inputVII_p, configuration_p);
     } else {
-      NonporousFilter *filter = new NonporousFilter(ms, configuration_p);
-      vii = new FiltrationTVIWrapper<NonporousFilter>(inputVII_p, filter);
+      vii = new FiltrationTVIWrapper<NonporousFilter>(inputVII_p, configuration_p);
     }
 
     return vii;

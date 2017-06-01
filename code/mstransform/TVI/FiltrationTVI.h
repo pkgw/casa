@@ -296,13 +296,14 @@ public:
 
 protected:
 
-  FiltrationTVI(ViImplementation2 * inputVi, Filter *filter);
+  FiltrationTVI(ViImplementation2 * inputVi, casacore::Record const &configuration);
 
 private:
   // Filtration operation
   // increment the iterator until given subchunk passes through the filter
   void filter();
 
+  casacore::Record configuration_p;
   Filter *filter_p;
   casacore::Int num_filtrates_p;
   casacore::Vector<casacore::Bool> is_filtrate_p;

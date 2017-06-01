@@ -64,12 +64,7 @@ ViImplementation2 * FiltrationTVIFactory::createVi() const {
   case FilteringType::SDDoubleCircleFilter:
   {
     // new filter impl
-    // filter impl requires MS
-    MeasurementSet const &ms = inputVII_p->ms();
-    SDDoubleCircleFilter *filter = new SDDoubleCircleFilter(ms, configuration_p);
-
-    // new filter
-    vii = new FiltrationTVI<SDDoubleCircleFilter>(inputVII_p, filter);
+    vii = new FiltrationTVI<SDDoubleCircleFilter>(inputVII_p, configuration_p);
     break;
   }
   default:
