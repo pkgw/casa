@@ -32,6 +32,7 @@
 #include <msvis/MSVis/LayeredVi2Factory.h>
 #include <msvis/MSVis/SimpleSimVi2.h>
 #include <msvis/MSVis/AveragingTvi2.h>
+#include <synthesis/MeasurementComponents/FiltrationTVI.h>
 #include <casa/aips.h>
 #include <casa/iostream.h>
 
@@ -47,6 +48,7 @@ CalSolVi2Organizer::CalSolVi2Organizer() :
   cal_(NULL),
   chanave_(NULL),
   timeave_(NULL),
+  calfilter_(NULL),
   factories_(),
   vi_(NULL)
 {
@@ -230,6 +232,31 @@ void CalSolVi2Organizer::addTimeAve(Float timebin) {
 
 }
 
+// Add data-filtering layer factory
+void CalSolVi2Organizer::addCalFilter(Record const &config) {
+  // Must not have added one already!
+  AlwaysAssert(!timeave_, AipsError);
+
+  //  Must be at least one other layer already...
+  AlwaysAssert(factories_.nelements()>0, AipsError);
+
+  // config must have "mode" field
+  AlwaysAssert(config.isDefined("mode"), AipsError);
+
+  Record configuration(config);
+  String const mode = configuration.asString("mode");
+  if (mode == "SDGAIN_OTFD") {
+    configuration.define("type", (Int)FilteringType::SDDoubleCircleFilter);
+  } else {
+    // not supported
+    configuration.define("type", (Int)FilteringType::NoTypeFilter);
+  }
+
+  calfilter_ = new FiltrationTVILayerFactory(configuration);
+
+  // Add it to the list...
+  this->appendFactory(calfilter_);
+}
 
 void CalSolVi2Organizer::appendFactory(ViiLayerFactory* f) {
 
@@ -247,6 +274,7 @@ void CalSolVi2Organizer::cleanUp() {
   if (cal_) delete cal_;  cal_=NULL;
   if (chanave_) delete chanave_;  chanave_=NULL;
   if (timeave_) delete timeave_;  timeave_=NULL;
+  if (calfilter_) delete calfilter_; calfilter_=NULL;
   factories_.resize(0);
 
 }
