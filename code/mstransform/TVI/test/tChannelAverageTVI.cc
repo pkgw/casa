@@ -249,6 +249,20 @@ TEST(ChannelAverageTVIConfTest, NoChanbinParam)
 
 TEST(ChannelAverageTVIConfTest, WrongChanbinType)
 {
+    //Checks that an exception is thrown if chanbin parameter has an invalid type
+    Record configuration;
+    configuration.define ("chanbin", true);
+    ChannelAverageTVIFactory testFactory(configuration, nullptr);
+    ASSERT_THROW(VisibilityIterator2 testTVI(testFactory), AipsError);
+    Record configuration2;
+    configuration2.define ("chanbin", 4.5);
+    ChannelAverageTVIFactory testFactory2(configuration2, nullptr);
+    ASSERT_THROW(VisibilityIterator2 testTVI2(testFactory2), AipsError);
+}
+
+TEST(ChannelAverageTVIConfTest, WrongChanbinValue)
+{
+    //Checks that an exception is thrown if chanbin parameter has an invalid value
     Record configuration;
     configuration.define ("chanbin", "invalid");
     ChannelAverageTVIFactory testFactory(configuration, nullptr);
@@ -267,6 +281,7 @@ TEST(ChannelAverageTVIConfTest, WrongChanbinForMultipleSpw)
 {
     Record configuration;
     configuration.define ("chanbin", "2,2,2");
+    //Generates 
     SimpleSimVi2Parameters simParam(1, 1, 2, 4, 4 , 
                                     Vector<Int>(1,1), Vector<Int>(1,10));
     SimpleSimVi2Factory simFactory(simParam);
@@ -274,6 +289,7 @@ TEST(ChannelAverageTVIConfTest, WrongChanbinForMultipleSpw)
     ChannelAverageTVIFactory testFactory(configuration, vi->getImpl());
     ASSERT_THROW(VisibilityIterator2 testTVI(testFactory), AipsError);
 }
+
 //////////////////////////////////////////////////////////////////////////
 // main
 //////////////////////////////////////////////////////////////////////////
