@@ -22,6 +22,7 @@
 
 
 #include <mstransform/TVI/test/tChannelAverageTVI.h>
+#include <msvis/MSVis/SimpleSimVi2.h>
 
 using namespace std;
 using namespace casa;
@@ -259,6 +260,18 @@ TEST(ChannelAverageTVIConfTest, NullInput)
     Record configuration;
     configuration.define ("chanbin", 2);
     ChannelAverageTVIFactory testFactory(configuration, nullptr);
+    ASSERT_THROW(VisibilityIterator2 testTVI(testFactory), AipsError);
+}
+
+TEST(ChannelAverageTVIConfTest, WrongChanbinForMultipleSpw)
+{
+    Record configuration;
+    configuration.define ("chanbin", "2,2,2");
+    SimpleSimVi2Parameters simParam(1, 1, 2, 4, 4 , 
+                                    Vector<Int>(1,1), Vector<Int>(1,10));
+    SimpleSimVi2Factory simFactory(simParam);
+    VisibilityIterator2 *vi = new VisibilityIterator2(simFactory);
+    ChannelAverageTVIFactory testFactory(configuration, vi->getImpl());
     ASSERT_THROW(VisibilityIterator2 testTVI(testFactory), AipsError);
 }
 //////////////////////////////////////////////////////////////////////////
