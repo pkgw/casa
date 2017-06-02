@@ -25,6 +25,7 @@
 
 #include <mstransform/MSTransform/MSTransformIteratorFactory.h>
 #include <mstransform/TVI/StatWtTVIFactory.h>
+#include <mstransform/TVI/StatWtTVILayerFactory.h>
 
 using namespace std;
 using namespace casa;
@@ -32,114 +33,85 @@ using namespace casacore;
 using namespace casa::vi;
 
 StatWtTVITest::StatWtTVITest(): FreqAxisTVITest () {
-    cout << __FILE__ << " " << __LINE__ << endl;
     inpFile_p = "ngc5921.split.ms";
     testFile_p = "ngc5921.split.ms.test";
     referenceFile_p = "ngc5921.split.ms.ref";
     Record configuration;
 	init(configuration);
-    cout << __FILE__ << " " << __LINE__ << endl;
 }
 
 StatWtTVITest::StatWtTVITest(Record configuration): FreqAxisTVITest(configuration) {
-    cout << __FILE__ << " " << __LINE__ << endl;
 	init(configuration);
-    cout << __FILE__ << " " << __LINE__ << endl;
 }
 
 void StatWtTVITest::generateTestFile() {
-    cout << __FILE__ << " " << __LINE__ << endl;
     String path = autoMode_p ? "/data/regression/unittest/simplecluster" : "";
     ASSERT_TRUE(copyTestFile(path, inpFile_p, testFile_p));
-    cout << __FILE__ << " " << __LINE__ << endl;
 }
 
 void StatWtTVITest::generateReferenceFile() {
-    cout << __FILE__ << " " << __LINE__ << endl;
     String path = autoMode_p ? "/data/regression/unittest/statwt" : "";
     ASSERT_TRUE(copyTestFile(path, referenceFile_p, referenceFile_p));
-    cout << __FILE__ << " " << __LINE__ << endl;
 }
 
 void StatWtTVITest::initTestConfiguration(Record &configuration) {
-    cout << __FILE__ << " " << __LINE__ << endl;
     testConfiguration_p = configuration;
     testConfiguration_p.define("inputms", testFile_p);
-    cout << __FILE__ << " " << __LINE__ << endl;
 }
 
 void StatWtTVITest::initReferenceConfiguration(Record &configuration) {
-    cout << __FILE__ << " " << __LINE__ << endl;
     refConfiguration_p = configuration;
     refConfiguration_p.define ("inputms", referenceFile_p);
-    cout << __FILE__ << " " << __LINE__ << endl;
 }
 
 void StatWtTVITest::TestBody() {
-    cout << __FILE__ << " " << __LINE__ << endl;
     SetUp();
     testCompareTransformedData();
     TearDown();
-    cout << __FILE__ << " " << __LINE__ << endl;
 }
 
 void StatWtTVITest::testCompareTransformedData() {
-    cout << __FILE__ << " " << __LINE__ << endl;
 	Float tolerance = 1E-5; // FLT_EPSILON is 1.19209290e-7F
 
 	// Create MSTransformIterator pointing to reference file
+	/*
 	refConfiguration_p.define("factory",False);
 	MSTransformIteratorFactory refFactory(refConfiguration_p);
 	VisibilityIterator2 refTVI(refFactory);
-
+	*/
+    /*
 	// Use MSTransformFactory to create a plain input VII
 	testConfiguration_p.define("factory",True);
-    cout << __FILE__ << " " << __LINE__ << endl;
-	MSTransformIteratorFactory plainVIFactory(testConfiguration_p);
-    cout << __FILE__ << " " << __LINE__ << endl;
+    testConfiguration_p.define ("timebin", "1s");
+    MSTransformIteratorFactory plainVIFactory(testConfiguration_p);
 	ViImplementation2 *inputVI = plainVIFactory.getInputVI()->getImpl();
-/*
-    Block<int> sort(5);
-    Int icol(0);
-    sort[icol++] = MS::ARRAY_ID;
-    sort[icol++] = MS::SCAN_NUMBER;
-    sort[icol++] = MS::FIELD_ID;
-    sort[icol++] = MS::DATA_DESC_ID;
-    sort[icol++] = MS::TIME;
-    SortColumns sc(sort);
-*/
 
-	// Generate TVI to test
-    cout << "create tvi factory" << endl;
+    // Generate TVI to test
 	StatWtTVIFactory testFactory(testConfiguration_p, inputVI);
     VisibilityIterator2 testTVI(testFactory);
+    */
+    // no binning
+    vi::IteratingParameters ipar(0.001);
+	MeasurementSet msref(referenceFile_p);
+	vi::VisIterImpl2LayerFactory dataRef(&msref, ipar, True);
+	Vector<vi::ViiLayerFactory*> factsRef(1, &dataRef);
+	vi::VisibilityIterator2 refTVI(factsRef);
 
+    MeasurementSet mstest(testFile_p);
+    vi::VisIterImpl2LayerFactory data(&mstest, ipar, True);
+    Record config;
+    vi::StatWtTVILayerFactory statWtLayerFactory(config);
+    Vector<vi::ViiLayerFactory*> factsTest(2);
+    factsTest[0] = &data;
+    factsTest[1] = &statWtLayerFactory;
+    vi::VisibilityIterator2 testTVI(factsTest);
 	// Determine columns to check
 	VisBufferComponents2 columns;
-    cout << __FILE__ << " " << __LINE__ << endl;
 	columns += VisBufferComponent2::NRows;
-//	columns += VisBufferComponent2::NChannels;
-//	columns += VisBufferComponent2::NCorrelations;
-//	columns += VisBufferComponent2::FlagRow;
-//	columns += VisBufferComponent2::FlagCube;
-//	columns += VisBufferComponent2::VisibilityCubeObserved;
-//	columns += VisBufferComponent2::VisibilityCubeCorrected;
-//	columns += VisBufferComponent2::VisibilityCubeModel;
+	columns += VisBufferComponent2::FlagRow;
+	columns += VisBufferComponent2::FlagCube;
 	columns += VisBufferComponent2::WeightSpectrum;
-//	columns += VisBufferComponent2::SigmaSpectrum;
 	columns += VisBufferComponent2::Weight;
-//	columns += VisBufferComponent2::Sigma;
-//    columns += VisBufferComponent2::Scan;
-    /*
-    vi::VisBuffer2 *vb = vi2.getVisBuffer();
-    Int iChunk(0);
-    for(vi2.originChunks(); vi2.moreChunks(); ++iChunk, vi2.nextChunk()) {
-        Int iIter(0);
-        for (vi2.origin(); vi2.more(); ++iIter, vi2.next()) {
-            auto x = vb->weightSpectrum();
-        }
-    }
-*/
     // Compare
 	Bool res = compareVisibilityIterators(testTVI,refTVI,columns,tolerance);
 

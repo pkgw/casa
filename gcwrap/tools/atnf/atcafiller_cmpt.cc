@@ -65,5 +65,14 @@ bool atcafiller::select(int firstScan, int lastScan,
     return true;
 }
 
+std::vector<double> atcafiller::opacities(const std::vector<double>& fGHz,float tempK,
+  float humi, float press, float height)
+{
+  Vector<Double> v=itsATCAFiller->opacities(fGHz,tempK,humi,press,height);
+  std::vector<double> out(0);
+  v.tovector(out);
+  return out;  
+}
+
 } // casac namespace
 

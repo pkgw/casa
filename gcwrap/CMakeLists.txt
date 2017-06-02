@@ -150,9 +150,18 @@ endif()
 
 include( UsePrivatePath )
 if( NOT RE_CMAKE )
-    string( REGEX REPLACE /[^/]+/?$ "" casaroot ${CMAKE_SOURCE_DIR} )
+    if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT OR CMAKE_INSTALL_PREFIX MATCHES ".*/linux[^/]*$")
+        string( REGEX REPLACE /[^/]+/?$ "" casaroot ${CMAKE_SOURCE_DIR} )
+        message("using traditional configuration where casaroot != install prefix:")
+        message("        casaroot             = ${casaroot}")
+        message("        CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
+    else( )
+        set( casaroot ${CMAKE_INSTALL_PREFIX} )
+        message("using modern configuraiton where casaroot and install prefix are the same:")
+        message("        casaroot = ${casaroot}")
+    endif( )
+    file(MAKE_DIRECTORY ${casaroot}/share/doc)
 endif()
-#string ( REGEX REPLACE /\\/\\.\\./ "" casaroot ${casaroot} )
 
 #
 # aipshosts is supported for backwards compatibility
@@ -511,20 +520,6 @@ if( NOT CMAKE_C_FLAGS )
   set( CMAKE_C_FLAGS "${DEFAULT_C_FLAGS} ${EXTRA_C_FLAGS}" )
 endif()
 
-
-if( NOT RE_CMAKE )
-    if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-        set( CMAKE_INSTALL_PREFIX ${casaroot}/${arch} CACHE PATH "casa architecture directory" FORCE )
-	set( casaroot ${casaroot} CACHE PATH "toplevel casa directory" FORCE )
-    else()
-        set( CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX} CACHE PATH "casa architecture directory" FORCE )
-	set( casaroot ${CMAKE_INSTALL_PREFIX}/.. CACHE PATH "toplevel casa directory" FORCE )
-   endif(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-endif()
-
-dump( casaroot )
-dump( CMAKE_INSTALL_PREFIX )
-
 SET(NO_SOVERSION FALSE CACHE BOOL "do not add version information to shared libraries")
 if( NOT NO_SOVERSION )
     set( epochdelta 1385614800 )
@@ -560,7 +555,7 @@ find_program( PDFLATEX_COMPILER NAMES pdflatex )
 #set( LATEX2PDF_OPTIONS "htcasa,section+,next,p-width,3"
 #CACHE STRING "LATEX2PDF_CONVERTER options" )
 
-set( CASA_DOC_DIR ${casaroot}/docs ) # Where to put documentation
+set( CASA_DOC_DIR ${casaroot}/share/doc ) # Where to put documentation
 
 find_package( Doxygen )
 
