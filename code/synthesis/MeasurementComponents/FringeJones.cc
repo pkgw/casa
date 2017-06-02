@@ -522,7 +522,7 @@ public:
             t0 = sdbs(0).time()(0);
             Double tlast = sdbs(last_index).time()(0);
             reftime = 0.5*(t0 + tlast);
-            cerr << "AuxParamBundle reftime " << reftime << " dt " << tlast - t0 << endl;
+            cerr << "AuxParamBundle reftime " << reftime << " t0 " << t0 <<" dt " << tlast - t0 << endl;
         }
     Double get_t0() {
         return t0;
@@ -654,19 +654,20 @@ expb_f(const gsl_vector *param, void *d, gsl_vector *f)
                     }
                     if ( fl(dcorr, ichan, irow) ) continue;
                     Complex vis = v(dcorr, ichan, irow);
-                    Float w = weights(dcorr, ichan, irow);
+                    Double w = 1.0;
+                    // Double w = weights(dcorr, ichan, irow);
                     // We have to turn the delay back into seconds from nanoseconds.
                     // Freq difference is in Hz, which comes out typically as 1e6 bands
                     Double wDf = 2.0*C::pi*(freqs(ichan) - freqs(0))*1e-9;
                     //
-                    Double t1 = s.time()(irow);
+                    Double t1 = s.time()(0);
                     Double ref_freq = freqs(0);
                     
                     Double wDt = 2.0*C::pi*(t1 - refTime) * ref_freq; 
                     //
                     //Float mtheta = -(phi0 + tau*wDf); 
-                    Float mtheta = -(phi0 + tau*wDf + r*wDt); 
-                    Float vtheta = arg(vis);
+                    Double mtheta = -(phi0 + tau*wDf + r*wDt); 
+                    Double vtheta = arg(vis);
                     // FIXME! Weights!
                     // gsl_vector_set(f, count, w*(cos(mtheta) - cos(vtheta)));
                     // gsl_vector_set(f, count+1, w*(sin(mtheta)  - sin(vtheta)));
@@ -700,7 +701,7 @@ expb_df(const gsl_vector *param, void *d, gsl_matrix *J)
 
     for (size_t i=0; i!=J->size1; i++) {
         for (size_t j=0; j!=J->size2; j++) {
-            gsl_matrix_set(J, i, j, 0);
+            gsl_matrix_set(J, i, j, 0.0);
         }
     }
 
@@ -719,7 +720,7 @@ expb_df(const gsl_vector *param, void *d, gsl_matrix *J)
         Cube<Float> weights = s.weightSpectrum();
 
 
-        Double t1 = s.time()(ibuf);
+        Double t1 = s.time()(0);
         // cerr << "ibuf " << ibuf << " t1 - t0 = " << t1 - t0 << endl;
             
         for (Int irow=0; irow!=s.nRows(); irow++) {
@@ -771,8 +772,6 @@ expb_df(const gsl_vector *param, void *d, gsl_matrix *J)
                 Double tau = tau2 - tau1;
                 Double r = r2-r1;
 
-
-                
                 Double ref_freq = freqs(0); 
                 Double wDt = 2.0*C::pi*(t1 - refTime) * ref_freq; 
 
@@ -780,7 +779,7 @@ expb_df(const gsl_vector *param, void *d, gsl_matrix *J)
                     if ( fl(dcorr, ichan, irow) ) continue;
                     Double w = 1.0; // VERY FIXME: This is the weights.
                     // Double w = weights(dcorr, ichan, irow);
-                    // Add a 1e-9 factor because tau parameter is in milliseconds.
+                    // Add a 1e-9 factor because tau parameter is in nanoseconds.
                     Double wDf = 2.0*C::pi*(freqs(ichan) - freqs(0))*1e-9;
                     //
                     Double mtheta = -(phi0 + tau*wDf + r*wDt);
@@ -788,13 +787,14 @@ expb_df(const gsl_vector *param, void *d, gsl_matrix *J)
                     Double wc = cos(mtheta);
 
 
-                    if (0 && newBaseline) {
+                    if (1 && newBaseline) {
                         Double eps = sqrt(FLT_EPSILON)*abs(r);
                         Double mtheta2 = -(phi0 + tau*wDf + (r+eps)*wDt);
                         Double mtheta0 = -(phi0 + tau*wDf + (r-eps)*wDt);
                         Double rderivest = (cos(mtheta2) - cos(mtheta0))/(2*eps);
                         Double rderivofficial = -ws*-wDt;
-                        cerr << "refTime " << refTime << " dt " << t1 - refTime << " wDt " << wDt << " eps " << eps << endl
+                        cerr << "refTime " << refTime << " t1 " << t1 << " dt " << t1 - refTime << endl
+                             << " wDt " << wDt << " eps " << eps << endl
                              << "rderiv est " << rderivest << " calc " << rderivofficial << endl;
                     }
                     
@@ -883,6 +883,7 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& param, Int refant) {
     cerr << "num corrs: " << bundle.get_num_corrs() << " num antennas: " << bundle.get_num_antennas() << endl;
 
     cerr << "Reftime again " << bundle.get_ref_time() << endl;
+    cerr << "Bundle t0 " << bundle.get_t0() << endl;
     // throw(AipsError("Yeah."));
 
     size_t p = 3 * bundle.get_num_corrs() * (bundle.get_num_antennas() - 1);
@@ -904,6 +905,10 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& param, Int refant) {
     f.params = &bundle;
 
     gsl_vector *gp = gsl_vector_alloc( p );
+    for (size_t i=0; i!=p; i++) {
+        gsl_vector_set(gp, i, 0.0);
+    }
+    
     cerr << "Allocated vector gp of size " << p << "." <<endl;
     for (size_t icor=0; icor != bundle.get_num_corrs(); icor++ ) {
         for (size_t iant=0; iant != bundle.get_num_antennas(); iant++) {
@@ -913,8 +918,15 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& param, Int refant) {
             gsl_vector_set( gp, ind+0, param(3*icor + 0, iant) );
             gsl_vector_set( gp, ind+1, param(3*icor + 1, iant) );
             gsl_vector_set( gp, ind+2, param(3*icor + 2, iant) );
+            // Messing about with parameters
+            //gsl_vector_set( gp, ind+2, 0.8*param(3*icor + 2, iant) );
         }
     }
+    gsl_vector *gp_orig = gsl_vector_alloc( p );
+
+    // Keep a copy of original parameters
+    gsl_vector_memcpy (gp_orig, gp);
+
     // It is said that param is a matrix of (3*nCorr, nElem)
     cerr << "Initialized parameter vector." << endl;
     gsl_multifit_fdfsolver_set(s, &f, gp);
@@ -940,15 +952,18 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& param, Int refant) {
     // solve the system with a maximum of max_iter iterations */
     int info;
     const double param_tol = 1e-30;
-    const double gtol = 1e-30; 
+    //const double gtol = 1e-50; // 1e-30; 
+    const double gtol = 1e-30; // 1e-30; 
     const double ftol = 0.0;   // eps rel
-    const size_t max_iter = 5;
+    const size_t max_iter = 10;
 
     int status = gsl_multifit_fdfsolver_driver(s, max_iter, param_tol, gtol, ftol, &info);
     
-    gsl_vector *g = s->g;
-    for (size_t iparam=0; iparam!=p; iparam++) {
-        cerr << "g(" << iparam << ") = " << gsl_vector_get(g, iparam) << endl;
+    if (0) {
+        gsl_vector *g = s->g;
+        for (size_t iparam=0; iparam!=p; iparam++) {
+            cerr << "g(" << iparam << ") = " << gsl_vector_get(g, iparam) << endl;
+        }
     }
 
     // gsl_multifit_covar(J, 0.0, covar);
@@ -956,7 +971,10 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& param, Int refant) {
     // double chi1 = gsl_blas_dnrm2(f3);
     double chi1 = gsl_blas_dnrm2(res_f);
 
-    gsl_vector *diff = s->dx;
+
+    // gsl_vector *diff = s->dx;
+    gsl_vector_sub( gp_orig, s->x);
+    gsl_vector *diff = gp_orig;
     double diffsize = gsl_blas_dnrm2(diff);
     
     // Was I really getting the output?
@@ -989,7 +1007,7 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& param, Int refant) {
                     cerr << "delay0 = " << tau0 << " delay1 = " << tau1 << " diff= " << tau1 - tau0 << " " << endl;
                     cerr << "diff2 = " << gsl_vector_get(diff, iparam + 1)  << endl;
                 }
-                if ( fabs(gsl_vector_get(diff, iparam + 2) > FLT_EPSILON) ) {
+                if ( fabs(gsl_vector_get(diff, iparam + 2) > 1e-30) ) {
                     flag = true;
                     Float r0 = param(3*icor + 2, iant);
                     Float r1 = gsl_vector_get(res, iparam+2);
@@ -1261,8 +1279,8 @@ void FringeJones::solveLotsOfSDBs(SDBList& sdbs) {
             Double rate = sRP(3*icor + 2, iant);
             Double delta1 = df0*delay;
             Double delta2 = ref_freq*dt0*rate;
-            // FIXME: or should we be subtracting?
-            sRP(3*icor + 0, iant) -= 2*C::pi*(delta1+delta2);
+            // FIXME: or should we be subtracting? Or doing nothing?
+            // sRP(3*icor + 0, iant) -= 2*C::pi*(delta1+delta2);
             cerr << "For " << iant << " correlation " << icor << "." << endl;
             cerr << "phi0 " << phi0 << " delay " << delay << " rate " << rate << endl;
             // cerr << "Adding " << 360*delta1 << " and " << 360*delta2 << " degrees." << endl << endl;
