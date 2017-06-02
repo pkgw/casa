@@ -92,7 +92,6 @@ String SDDoubleCircleFilter::filterType() const {
 
 // isFiltrate returns true if given vb does pass through the filter
 bool SDDoubleCircleFilter::isFiltrate(VisBuffer2 const *vb) {
-  //return true;
   Vector<bool> is_filtrate;
   int n = isFiltratePerRow(vb, is_filtrate);
   return 0 < n;
@@ -140,7 +139,7 @@ int SDDoubleCircleFilter::isFiltratePerRow(VisBuffer2 const *vb,
         timerange_list_[TimeRangeKey(field_id[i], antenna_id[i], feed_id[i])],
         current_time[i]);
   }
-  return nrows;
+  return ntrue(is_filtrate);
 }
 
 void SDDoubleCircleFilter::syncWith(ViImplementation2 const *vii) {
