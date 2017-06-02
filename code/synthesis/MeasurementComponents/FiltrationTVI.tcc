@@ -131,7 +131,8 @@ class FiltrationTVI;
 template<class Filter>
 FiltrationTVI<Filter>::FiltrationTVI(ViImplementation2 * inputVi,
     Record const &configuration) :
-    TransformingVi2(inputVi), configuration_p(configuration), filter_p(0), num_filtrates_p(0), is_filtrate_p() {
+    TransformingVi2(inputVi), configuration_p(configuration), filter_p(0), num_filtrates_p(
+        0), is_filtrate_p() {
   // new filter
 //  MeasurementSet const &ms = getVii()->ms();
   filter_p = new Filter(configuration_p);
@@ -165,14 +166,16 @@ void FiltrationTVI<Filter>::next() {
   filter();
 }
 
-template<class Filter> void FiltrationTVI<Filter>::originChunks (Bool forceRewind) {
+template<class Filter>
+void FiltrationTVI<Filter>::originChunks(Bool forceRewind) {
   TransformingVi2::originChunks(forceRewind);
 
   // sync
   filter_p->syncWith(this);
 }
 
-template<class Filter> void FiltrationTVI<Filter>::nextChunk () {
+template<class Filter>
+void FiltrationTVI<Filter>::nextChunk() {
   TransformingVi2::nextChunk();
 
   // sync
