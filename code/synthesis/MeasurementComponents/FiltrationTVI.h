@@ -180,10 +180,6 @@ public:
 
   virtual void antenna2(casacore::Vector<casacore::Int> & ant2) const;
 
-  // Return the correlation type (returns casacore::Stokes enums)
-
-  virtual void corrType(casacore::Vector<casacore::Int> & corrTypes) const;
-
   // Return actual time interval
 
   virtual void exposure(casacore::Vector<double> & expo) const;

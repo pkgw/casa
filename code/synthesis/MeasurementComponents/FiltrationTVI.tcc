@@ -150,20 +150,46 @@ FiltrationTVI<Filter>::~FiltrationTVI() {
 
 template<class Filter>
 void FiltrationTVI<Filter>::origin() {
-  auto const vii = getVii();
-  vii->origin();
+  getVii()->origin();
+  cout << __func__ << ": subchunkId = " << getSubchunkId().subchunk() << endl;
 
   // Synchronize own VisBuffer -- is it required?
   //configureNewSubchunk();
 
   // filtration
   filter();
+
+  if (more()) {
+    cout << __func__ << ": there is a subchunk passed through the filter ";
+    Vector<uInt> rowIds;
+    getVii()->getRowIds(rowIds);
+    cout << " is_filtrate_p = " << is_filtrate_p << ", rowIds = " << rowIds << endl;
+  } else {
+    cout << __func__ << ": no subchunk remaining after filtration" << endl;
+    cout << __func__ << ": is_filtrate_p = " << is_filtrate_p << endl;
+  }
 }
 
 template<class Filter>
 void FiltrationTVI<Filter>::next() {
+  // next subchunk
+  // must call next at least one time
+  getVii()->next();
+
   // filtration
   filter();
+
+  cout << __func__ << ": subchunkId = " << getSubchunkId().subchunk() << endl;
+
+  if (more()) {
+    cout << __func__ << ": there is a subchunk passed through the filter ";
+    Vector<uInt> rowIds;
+    getVii()->getRowIds(rowIds);
+    cout << " is_filtrate_p = " << is_filtrate_p << ", rowIds = " << rowIds << endl;
+  } else {
+    cout << __func__ << ": no subchunk remaining after filtration" << endl;
+    cout << __func__ << ": is_filtrate_p = " << is_filtrate_p << endl;
+  }
 }
 
 template<class Filter>
@@ -172,6 +198,8 @@ void FiltrationTVI<Filter>::originChunks(Bool forceRewind) {
 
   // sync
   filter_p->syncWith(this);
+
+  cout << __func__ << ": chunkId = " << getSubchunkId().chunk() << endl;
 }
 
 template<class Filter>
@@ -180,6 +208,8 @@ void FiltrationTVI<Filter>::nextChunk() {
 
   // sync
   filter_p->syncWith(this);
+
+  cout << __func__ << ": chunkId = " << getSubchunkId().chunk() << endl;
 }
 
 template<class Filter>
@@ -206,13 +236,6 @@ void FiltrationTVI<Filter>::antenna2(Vector<Int> &ant2) const {
   Vector<Int> org;
   getVii()->antenna2(org);
   ::FiltrateVector(org, is_filtrate_p, ant2);
-}
-
-template<class Filter>
-void FiltrationTVI<Filter>::corrType(Vector<Int> &corrTypes) const {
-  Vector<Int> org;
-  getVii()->corrType(org);
-  ::FiltrateVector(org, is_filtrate_p, corrTypes);
 }
 
 template<class Filter>
@@ -428,11 +451,11 @@ void FiltrationTVI<Filter>::filter() {
     //configureNewSubchunk();
   }
 
-  // Synchronize own VisBuffer
-  configureNewSubchunk();
-
   // update filter information
   num_filtrates_p = filter_p->isFiltratePerRow(vb, is_filtrate_p);
+
+  // Synchronize own VisBuffer
+  configureNewSubchunk();
 }
 
 } //# NAMESPACE vi - END
