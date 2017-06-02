@@ -249,20 +249,22 @@ TEST(ChannelAverageTVIConfTest, NoChanbinParam)
 
 TEST(ChannelAverageTVIConfTest, WrongChanbinType)
 {
-    //Checks that an exception is thrown if chanbin parameter has an invalid type
+    //Checks that an exception is thrown if chanbin parameter 
+    //has an invalid type. Only Int and Array<Int> are allowed
     Record configuration;
-    configuration.define ("chanbin", true);
+    configuration.define ("chanbin", true); //Checking boolean
     ChannelAverageTVIFactory testFactory(configuration, nullptr);
     ASSERT_THROW(VisibilityIterator2 testTVI(testFactory), AipsError);
     Record configuration2;
-    configuration2.define ("chanbin", 4.5);
+    configuration2.define ("chanbin", 4.5); //Checking double
     ChannelAverageTVIFactory testFactory2(configuration2, nullptr);
     ASSERT_THROW(VisibilityIterator2 testTVI2(testFactory2), AipsError);
 }
 
 TEST(ChannelAverageTVIConfTest, WrongChanbinValue)
 {
-    //Checks that an exception is thrown if chanbin parameter has an invalid value
+    //Checks that an exception is thrown if chanbin parameter 
+    //has an invalid value (the string cannot be converted to Array<Int>)
     Record configuration;
     configuration.define ("chanbin", "invalid");
     ChannelAverageTVIFactory testFactory(configuration, nullptr);
@@ -271,6 +273,7 @@ TEST(ChannelAverageTVIConfTest, WrongChanbinValue)
 
 TEST(ChannelAverageTVIConfTest, NullInput)
 {
+    //Check that an exception is thrown if the input ViImplementation is null
     Record configuration;
     configuration.define ("chanbin", 2);
     ChannelAverageTVIFactory testFactory(configuration, nullptr);
@@ -281,7 +284,8 @@ TEST(ChannelAverageTVIConfTest, WrongChanbinForMultipleSpw)
 {
     Record configuration;
     configuration.define ("chanbin", "2,2,2");
-    //Generates 
+    //Generates a simulated Vi with  nField = 1 , nScan = 1, nSpw = 2, nAnt = 4,
+    //nCorr = 4, nTimePerField = (1, 1), nChan = 1, 10
     SimpleSimVi2Parameters simParam(1, 1, 2, 4, 4 , 
                                     Vector<Int>(1,1), Vector<Int>(1,10));
     SimpleSimVi2Factory simFactory(simParam);
