@@ -179,6 +179,7 @@ scripts/task_oldsplit.py
 scripts/task_partition.py
 scripts/task_polcal.py
 scripts/task_predictcomp.py
+scripts/task_rerefant.py
 scripts/task_rmfit.py
 scripts/task_rmtables.py
 scripts/task_sdbaseline.py

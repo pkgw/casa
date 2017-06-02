@@ -2667,6 +2667,86 @@ Bool Calibrater::smooth(const String& infile,
   return false;
 }
 
+// Apply new reference antenna to calibration
+Bool Calibrater::reRefant(const casacore::String& infile,
+			  casacore::String& outfile, 
+			  const casacore::String& refantmode, 
+			  const casacore::String& refant)
+{
+
+  logSink() << LogOrigin("Calibrater","reRefant") << LogIO::NORMAL;
+
+  //  logSink() << "Beginning smoothing/interpolating method." << LogIO::POST;
+
+
+  // A pointer to an SVC
+  SolvableVisJones *svj(NULL);
+
+  try {
+    
+    // Handle no in file 
+    if (infile=="")
+      throw(AipsError("Please specify an input calibration table."));
+
+    // Handle bad smoothtype
+    if (refantmode!="strict" && 
+	refantmode!="flexible")
+      throw(AipsError("Unrecognized refantmode!"));
+
+    // Handle no outfile
+    if (outfile=="") {
+      outfile=infile;
+      logSink() << "Will overwrite input file with smoothing result." 
+		<< LogIO::POST;
+    }
+
+
+    svj = (SolvableVisJones*) createSolvableVisCal(calTableType(infile),*msmc_p);
+    
+    // Fill calibration table using setApply
+    RecordDesc applyparDesc;
+    applyparDesc.addField ("table", TpString);
+    Record applypar(applyparDesc);
+    applypar.define ("table", infile);
+    svj->setApply(applypar);
+
+    // Do the work
+    svj->refantlist() = getRefantIdxList(refant);
+    svj->applyRefAnt();
+
+
+    cout << "HELLO-------------------------" << endl;
+      
+    // Store the result on disk
+    logSink() << "Storing result in " << outfile << LogIO::POST;
+      
+    if (outfile != "") 
+      svj->calTableName()=outfile;
+    svj->storeNCT();
+
+    // Clean up
+    if (svj) delete svj; svj=NULL;
+      
+    // Apparently, it worked
+    return true;
+
+  } catch (AipsError x) {
+   
+    logSink() << LogIO::SEVERE
+	      << "Caught Exception: "
+	      << x.getMesg()
+	      << LogIO::POST;
+    // Clean up
+    if (svj) delete svj; svj=NULL;
+
+    throw(AipsError("Error in Calibrater::reRefant."));
+    
+    return false;
+  }
+  return false;
+}
+
+
 // List a calibration table
 Bool Calibrater::listCal(const String& infile,
 			 const String& field,

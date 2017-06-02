@@ -259,6 +259,13 @@ class Calibrater
 				const casacore::String& fields);
 
 
+  // Apply new reference antenna to calibration
+  virtual casacore::Bool reRefant(const casacore::String& infile,
+				  casacore::String& outfile, 
+				  const casacore::String& refantmode, 
+				  const casacore::String& refant);
+
+
   // casacore::List a calibration table
   virtual casacore::Bool listCal(const casacore::String& infile,
 				 const casacore::String& field,

@@ -2071,6 +2071,58 @@ and the result written to 'out.gcal'.
 
 </method>
 
+<method type="function" name="rerefant">
+   <shortdescription>Apply a new reference antenna</shortdescription>
+   
+
+<input>
+
+     <param type="string" direction="in" name="tablein">
+     <description>Input calibration table</description>
+     </param>
+
+     <param type="string" direction="in" name="tableout">
+     <description>Output calibration table</description>
+     </param>
+
+     <param type="string" direction="in" name="refantmode">
+     <description>The refant application mode</description>
+     <value>strict</value>
+     <value>flexible</value>
+     </param>
+
+     <param type="any" direction="in" name="refant">
+     <description>Reference antenna.  Default is none.</description>
+     <any type="variant"/>
+     <value></value>
+     </param>
+
+
+</input>
+<returns type="bool"/>
+
+<description>
+
+TBD
+
+Pending improvements:
+
+\begin{itemize}
+\item TBD
+\end{itemize}
+
+</description>
+
+<example>
+
+cb.open('ngc5921.ms');
+cb.rerefant(tablein='in.gcal',tableout='out.gcal',
+            refantmode='median',refant='4')
+cb.close();
+
+</example>
+</method>
+
 <method type="function" name="listcal">
    <shortdescription> List the contents of a calibration table
    </shortdescription>

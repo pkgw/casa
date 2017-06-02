@@ -1084,6 +1084,40 @@ calibrater::smooth(const std::string& tablein,
   return rstat;
 }
 
+bool
+calibrater::rerefant(const std::string& tablein, 
+		     const std::string& tableout, 
+		     const std::string& refantmode,
+		     const ::casac::variant& refant)
+{
+  bool rstat(false);
+
+  // TBD: Is this really needed?
+  if (! itsMS) {
+    *itsLog << LogIO::SEVERE << "Must first open a MeasurementSet."
+	    << endl << LogIO::POST;
+    return false;
+  }
+
+  try {
+
+    logSink_p.clearLocally();
+    LogIO os(LogOrigin("calibrater", "refant"),logSink_p);
+    os << "Beginning smooth--(MSSelection version)-------" << LogIO::POST;
+
+    String tabo(tableout);
+
+    rstat = itsCalibrater->reRefant(tablein,tabo,
+				    refantmode,
+				    toCasaString(refant));
+
+  } catch(AipsError x) {
+    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
+    RETHROW(x);
+  }
+  return rstat;
+}
+
 bool 
 calibrater::listcal(const std::string& tablein, 
 		    const ::casac::variant& field, 
