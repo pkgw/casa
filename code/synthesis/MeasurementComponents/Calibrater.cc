@@ -3204,11 +3204,6 @@ casacore::Bool Calibrater::genericGatherAndSolve()
       }  // VI2 subchunks (VB2s)
     } // VI2 chunks
 
-    // empty sdbs may happen
-    if (!sdbs.Ok()) {
-      continue;
-    }
-
     // Which spw is this?
     Int thisSpw(sdbs.aggregateSpw());
 
