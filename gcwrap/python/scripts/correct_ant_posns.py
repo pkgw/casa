@@ -5,8 +5,8 @@ from taskinit import *
 # for getting a single tool in gentools 
 (tb,)=gentools(['tb'])
 
-def correct_ant_posns (vis_name, print_offsets=False):
-    '''
+def correct_ant_posns(vis_name, print_offsets=False):
+    """
     Given an input visibility MS name (vis_name), find the antenna
     position offsets that should be applied.  This application should
     be via the gencal task, using caltype='antpos'.
@@ -29,6 +29,27 @@ def correct_ant_posns (vis_name, print_offsets=False):
                      caltype='antpos', antenna=antenna_offsets[1], \
                      parameter=antenna_offsets[2])
 
+    For specific details for the EVLA see correct_ant_posns_evla.
+    For specific details for ALMA see correct_ant_posns_alma.
+    """
+    observation = tb.open(vis_name+'/OBSERVATION')
+    # specific code for different telescopes
+    tel_name = tb.getcol('TELESCOPE_NAME')
+    tb.close()
+    if tel_name=='EVLA' or tel_name=='VLA':
+        return correct_ant_posns_evla(vis_name, print_offsets)
+    elif tel_name=='ALMA':
+        return correct_ant_posns_alma(vis_name, print_offsets)
+    else:
+        if (print_offsets):
+            print 'Currently only work for EVLA observations'
+        else:
+            # send to casalogger
+            casalog.post('Currently only work for EVLA observations',"WARN")
+        return [1, '', []]
+
+def correct_ant_posns_evla(vis_name, print_offsets=False):
+    '''
     This function does NOT work for VLA datasets, only EVLA.  If an
     attempt is made to use the function for VLA data (prior to 2010),
     an error code of 1 is returned.
@@ -52,20 +73,12 @@ def correct_ant_posns (vis_name, print_offsets=False):
     MONTHS = [ 'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
                'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC' ]
     URL_BASE = 'http://www.vla.nrao.edu/cgi-bin/evlais_blines.cgi?Year='
-#
-# get start date+time of observation
-#
+    #
+    # get start date+time of observation
+    #
     observation = tb.open(vis_name+'/OBSERVATION')
-# added check for other telescope
+    # specific code for different telescopes
     tel_name = tb.getcol('TELESCOPE_NAME')
-    if (tel_name!='EVLA' and tel_name!='VLA'):
-      if (print_offsets):
-          print 'Currently only work for EVLA observations'
-      else:
-          #send to casalogger
-          casalog.post('Currently only work for EVLA observations',"WARN")
-      return [1, '', []] 
-    
     time_range = tb.getcol('TIME_RANGE')
     tb.close()
     MJD_start_time = time_range[0][0] / 86400
