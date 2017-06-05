@@ -77,7 +77,7 @@ class gencal_antpostest(unittest.TestCase):
         reference = self.reffile1
         self.assertTrue(th.compTables(self.caltable, reference, ['WEIGHT','OBSERVATION_ID']))
 
-    def test_antpos_auto(self):
+    def test_antpos_auto_evla(self):
         """
         gencal: test automated antenna position correction
         """
@@ -105,5 +105,132 @@ class gencal_antpostest(unittest.TestCase):
           print "Cannot access %s , skip this test" % evlabslncorrURL
           self.res=True
 
+
+class test_gencal_antpos_alma(unittest.TestCase):
+    """
+    Tests the automatic generation of antenna position corrections for ALMA
+
+    Example minimalistic use of a client to query the service:
+      from suds.client import Client
+      srv_wsdl_url = 'http://asa.alma.cl/axis2/services/TMCDBAntennaPadService?wsdl'
+      ws_cli = Client(srv_wsdl_url)
+      resp = ws_cli.service.getAntennaPositions("CURRENT.AOS", "DA49", "2017-01-30T01:53:54")
+    """
+
+    # setup of the ALMA TMC DB AntennaPadService
+    ALMA_SRV_WSDL_URL = 'http://asa.alma.cl/axis2/services/TMCDBAntennaPadService?wsdl'
+
+    ALMA_MS = os.path.join(datapath, '../flagdata/uid___A002_X30a93d_X43e_small.ms')  # TODO: new, small one
+    CAL_TYPE = 'antpos'
+    REF_CALTABLE_MANUAL = os.path.join(datapath, 'alma_ref_ant_pos.manual.cal')
+    REF_CALTABLE_AUTO = os.path.join(datapath, 'alma_ref_ant_pos.auto.cal')
+    IGNORE_COLS = ['WEIGHT','OBSERVATION_ID']
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def remove_caltable(self, ct_name):
+        """ Removes a cal table. ct_name: path to the caltable """
+        import shutil
+        shutil.rmtree(ct_name)
+
+    def test_antpos_alma_manual(self):
+        """
+        gencal: manual antenna position correction on ALMA table
+        """
+
+        out_caltable = 'ant_pos_man.cal'
+        print('ALMA MS {}'.format(self.ALMA_MS))
+        gencal(vis=self.ALMA_MS,
+               caltable=out_caltable,
+               caltype=self.CAL_TYPE,
+               antenna='DV07,DV10,DV11',
+               parameter=[-0.0072,0.0045,-0.0017, -0.0220,0.0040,-0.0190])
+
+        self.assertTrue(os.path.exists(out_caltable),
+                        "The output caltable file should have been created")
+
+        # Compare against ref file
+        self.assertTrue(th.compTables(out_caltable,
+                                      self.REF_CALTABLE_MANUAL,
+                                      self.IGNORE_COLS))
+
+        self.remove_caltable(out_caltable)
+
+    def test_antpos_alma_server(self):
+        """
+        gencal: connection to alma TCM DB AntennaPadService for ALMA
+        """
+        try:
+            import urllib2
+            from suds.client import Client
+            ws_cli = Client(self.ALMA_SRV_WSDL_URL)
+
+            # Basic check that the schema has the minimum requirement
+            method_name = 'getAntennaPositions'
+            self.assertTrue(callable(getattr(ws_cli.service, method_name)),
+                            'The client service should have this method: {}, and '
+                            'it should be callable.'.format(method_name))
+        except ImportError, exc:
+            print('Cannot import required dependencies to query the ALMA TCM DB '
+                  'web service')
+            raise
+        except urllib2.URLError, exc:
+            print('Connection/network error while querying the ALMA TCM DB web'
+                  'service')
+            raise
+
+    def test_antpos_auto_alma_empty_query(self):
+        """
+        gencal: empty query (empty antennas list) to the TCM DB AntennaPadService (ALMA)
+        """
+        try:
+            import urllib2
+            from suds.client import Client
+            ws_cli = Client(self.ALMA_SRV_WSDL_URL)
+            # Run empty query
+            res = ws_cli.service.getAntennaPositions("CURRENT.AOS", "", "2015-09-30T01:53:54")
+        except ImportError:
+            print('Cannot import required dependencies to query the ALMA TCM DB '
+                  'web service')
+            raise
+        except urllib2.URLError, exc:
+            print('Connection/network error while querying the ALMA TCM DB web'
+                  'service')
+            raise
+
+    def test_antpos_auto_web_srv_alma(self):
+        """
+        gencal: auto gencal using data from TCM DB AntennaPadService (ALMA)
+        """
+
+        out_caltable = 'ant_pos_web_srv.cal'
+        try:
+            # this will import the required libraries, urllib2, suds, etc.
+            # Coul also use additional parameters: antenna='', parameter=''
+            gencal(vis=self.ALMA_MS, caltable=out_caltable, caltype=self.CAL_TYPE)
+        except ImportError:
+            print('Cannot import required dependencies to query the ALMA TCM DB '
+                  'web service')
+            raise
+        except urllib2.URLError:
+            print('Connection/network error while querying the ALMA TCM DB web'
+                  'service')
+            raise
+
+        self.assertTrue(os.path.exists(out_caltable),
+                        "The output caltable file should have been created")
+
+        # Compare against ref file
+        self.assertTrue(th.compTables(out_caltable,
+                                      self.REF_CALTABLE_AUTO,
+                                      self.IGNORE_COLS))
+        self.remove_caltable(out_caltable)
+
+
 def suite():
-    return [gencal_antpostest]
+    return [gencal_antpostest,
+            test_gencal_antpos_alma]
