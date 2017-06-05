@@ -132,7 +132,7 @@ template<class Filter>
 FiltrationTVI<Filter>::FiltrationTVI(ViImplementation2 * inputVi,
     Record const &configuration) :
     TransformingVi2(inputVi), configuration_p(configuration), filter_p(0), num_filtrates_p(
-        0), is_filtrate_p() {
+        0), is_filtrate_p(), is_valid_subchunk_p() {
   // new filter
 //  MeasurementSet const &ms = getVii()->ms();
   filter_p = new Filter(configuration_p);
@@ -199,6 +199,10 @@ void FiltrationTVI<Filter>::originChunks(Bool forceRewind) {
   // sync
   filter_p->syncWith(this);
 
+  filterChunk();
+
+  getVii()->origin();
+
   cout << __func__ << ": chunkId = " << getSubchunkId().chunk() << endl;
 }
 
@@ -208,6 +212,10 @@ void FiltrationTVI<Filter>::nextChunk() {
 
   // sync
   filter_p->syncWith(this);
+
+  filterChunk();
+
+  getVii()->origin();
 
   cout << __func__ << ": chunkId = " << getSubchunkId().chunk() << endl;
 }
@@ -446,7 +454,7 @@ template<class Filter>
 void FiltrationTVI<Filter>::filter() {
   auto const vii = getVii();
   auto const vb = vii->getVisBuffer();
-  for (; vii->more() && filter_p->isResidue(vb); vii->next()) {
+  for (; vii->more() && !is_valid_subchunk_p(vii->getSubchunkId().subchunk()); vii->next()) {
     // Synchronize own VisBuffer -- is it required to do inside the loop?
     //configureNewSubchunk();
   }
@@ -456,6 +464,38 @@ void FiltrationTVI<Filter>::filter() {
 
   // Synchronize own VisBuffer
   configureNewSubchunk();
+}
+
+template<class Filter>
+void FiltrationTVI<Filter>::filterChunk() {
+  size_t const block_size = max(getVii()->nRowsInChunk(), 100);
+  if (is_valid_subchunk_p.nelements() < block_size) {
+    is_valid_subchunk_p.resize(block_size);
+  }
+  is_valid_subchunk_p = false;
+
+  // increment iterator while the chunk doesn't contain valid subchunk
+  for (auto vii = getVii(); vii->moreChunks(); vii->nextChunk()) {
+    is_valid_subchunk_p = false;
+    for (vii->origin(); vii->more(); vii->next()) {
+      size_t const subchunk_id = vii->getSubchunkId().subchunk();
+      size_t const n = is_valid_subchunk_p.nelements();
+      size_t m = n;
+      while (m < subchunk_id) {
+        is_valid_subchunk_p.resize(m + block_size);
+        m = is_valid_subchunk_p.nelements();
+      }
+      is_valid_subchunk_p(Slice(n, m - n)) = false;
+      is_valid_subchunk_p[subchunk_id] = filter_p->isFiltrate(vii->getVisBuffer());
+      cout << __func__ << ": chunk " << vii->getSubchunkId().chunk() << " subchunk " << subchunk_id
+          << " is_valid " << is_valid_subchunk_p[subchunk_id] << endl;
+    }
+
+    if (anyTrue(is_valid_subchunk_p)) {
+      break;
+    }
+  }
+
 }
 
 } //# NAMESPACE vi - END

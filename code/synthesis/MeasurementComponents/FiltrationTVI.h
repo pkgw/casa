@@ -303,11 +303,15 @@ private:
   // Filtration operation
   // increment the iterator until given subchunk passes through the filter
   void filter();
+  void filterChunk();
 
   casacore::Record configuration_p;
   Filter *filter_p;
   casacore::Int num_filtrates_p;
   casacore::Vector<casacore::Bool> is_filtrate_p;
+
+  // boolean flag for each subchunk in the current chunk (True: valid, False: invalid)
+  casacore::Vector<bool> is_valid_subchunk_p;
 
   friend FiltrationTVIFactory;
 };
