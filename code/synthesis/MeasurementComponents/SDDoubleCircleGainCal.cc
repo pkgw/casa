@@ -194,6 +194,9 @@ void SDDoubleCircleGainCal::setSolve() {
 
   // call parent setSolve
   SolvableVisCal::setSolve();
+
+  // solint forcibly set to 'int'
+  solint() = "int";
 }
 
 void SDDoubleCircleGainCal::setSolve(const Record &solve) {
@@ -221,6 +224,9 @@ void SDDoubleCircleGainCal::setSolve(const Record &solve) {
 
   // call parent setSolve
   SolvableVisCal::setSolve(solve);
+
+  // solint forcibly set to 'int'
+  solint() = "int";
 }
 
 String SDDoubleCircleGainCal::solveinfo() {
@@ -244,6 +250,15 @@ void SDDoubleCircleGainCal::globalPostSolveTinker() {
   // assuming that given caltable (on memory) has complete
   // set of spectral data required for the calibration
 
+  // setup worker_
+  Int smoothingSize = -1;// use default smoothing size
+  worker_.setCentralRegion(central_disk_size_);
+  if (smooth_) {
+    worker_.setSmoothing(smoothingSize);
+  } else {
+    worker_.unsetSmoothing();
+  }
+
   // sort caltable by TIME
   NewCalTable sorted(ct_->sort("TIME"));
   Block<String> col(3);
@@ -253,6 +268,7 @@ void SDDoubleCircleGainCal::globalPostSolveTinker() {
   //col[3] = "FEED1";
   CTIter ctiter(sorted,col);
 
+  Vector<uInt> to_be_removed;
   while (!ctiter.pastEnd()) {
     // get table entry sorted by TIME
     Vector<Double> time(ctiter.time());
@@ -265,6 +281,19 @@ void SDDoubleCircleGainCal::globalPostSolveTinker() {
     // execute double-circle gain calibration
     worker_.doCalibrate(time, preal, fl);
 
+    // if gain calibration fail (typically due to insufficient
+    // number of data points), go to next iteration step
+    if (preal.empty()) {
+      // add row numbers to the "TO-BE-REMOVED" list
+      Vector<uInt> rows = ctiter.table().rowNumbers();
+      size_t nelem = to_be_removed.nelements();
+      size_t nelem_add = rows.nelements();
+      to_be_removed.resize(nelem + nelem_add, True);
+      to_be_removed(Slice(nelem, nelem_add)) = rows;
+      ctiter.next();
+      continue;
+    }
+
     // set real part of CPARAM
     setReal(p, preal);
 
@@ -272,6 +301,11 @@ void SDDoubleCircleGainCal::globalPostSolveTinker() {
     ctiter.setcparam(p);
     ctiter.setflag(fl);
     ctiter.next();
+  }
+
+  // remove rows registered to the "TO-BE-REMOVED" list
+  if (to_be_removed.nelements() > 0) {
+    ct_->removeRow(to_be_removed);
   }
 }
 
@@ -352,6 +386,17 @@ void SDDoubleCircleGainCal::selfSolveOne(SDBList &sdbs) {
   // do nothing at this moment
   auto const nSDB = sdbs.nSDB();
   debuglog << "nSDB = " << nSDB << debugpost;
+  for (Int i = 0; i < nSDB; ++i) {
+    auto const &sdb = sdbs(i);
+    debuglog << "SDB" << i << ": ";
+    debuglog << "fld " << sdb.fieldId()
+        << " ant " << sdb.antenna1()
+        << " spw " << sdb.spectralWindow();
+    auto current_precision = cerr.precision();
+    cerr.precision(16);
+    debuglog << " time " << sdb.time() << debugpost;
+    cerr.precision(current_precision);
+  }
   AlwaysAssert(nSDB == 1, AipsError);
   // DebugAssert(nSDB == 1, AipsError);
 
