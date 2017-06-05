@@ -3204,6 +3204,11 @@ casacore::Bool Calibrater::genericGatherAndSolve()
       }  // VI2 subchunks (VB2s)
     } // VI2 chunks
 
+    // empty sdbs may happen
+    if (!sdbs.Ok()) {
+      continue;
+    }
+
     // Which spw is this?
     Int thisSpw(sdbs.aggregateSpw());
 
@@ -3391,7 +3396,7 @@ void Calibrater::writeHistory(LogIO& /*os*/, Bool /*cliCommand*/)
 void Calibrater::setCalFilterConfiguration(String const &type,
     Record const &config) {
   // currently only SDDoubleCircleGainCal requires data filtering
-  if (svc_p->longTypeName().startsWith("SDGAIN_OTFD")) {
+  if (type.startsWith("SDGAIN_OTFD")) {
     calFilterConfig_p.define("mode", "SDGAIN_OTFD");
     if (config.isDefined("smooth")) {
       calFilterConfig_p.define("smooth", config.asBool("smooth"));
