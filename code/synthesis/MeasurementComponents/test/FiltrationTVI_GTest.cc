@@ -547,9 +547,6 @@ protected:
     refvi->originChunks();
     // iteration loop is based on refvi
     while (refvi->moreChunks()) {
-      // make sure there is a chunk in vi
-      EXPECT_TRUE(vi->moreChunks());
-
       // initialize subchunk iterator
       refvi->origin();
       vi->origin();
@@ -558,6 +555,19 @@ protected:
       while (refvi->more() && Validator::IsResidue(vb_ref)) {
         refvi->next();
       }
+
+      // no valid subchunk exists
+      if (!refvi->more()) {
+        cout << "No valid chunk exists." << endl;
+//        EXPECT_FALSE(vi->more());
+
+        refvi->nextChunk();
+//        vi->nextChunk();
+        continue;
+      }
+
+      // make sure there is a chunk in vi
+      EXPECT_TRUE(vi->moreChunks());
 
       // nRowsInChunk returns number of rows in chunk regardless of
       // whether they are filtered out or not
@@ -573,16 +583,6 @@ protected:
       cout << "*** Start loop on chunk " << chunk_id << endl;
       cout << "*** Number of Rows: " << nrow_chunk << endl;
       cout << "*************************" << endl;
-
-      // no valid subchunk exists
-      if (!refvi->more()) {
-        cout << "No valid chunk exists." << endl;
-        EXPECT_FALSE(vi->more());
-
-        refvi->nextChunk();
-        vi->nextChunk();
-        continue;
-      }
 
       // again, iteration loop is based on refvi
       while (refvi->more()) {
