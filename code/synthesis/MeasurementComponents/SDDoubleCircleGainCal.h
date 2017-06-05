@@ -14,7 +14,7 @@
 #include <synthesis/MeasurementComponents/SDDoubleCircleGainCalImpl.h>
 
 // set false if you want to use new Calibrater
-#define USEOLDVI true
+#define USEOLDVI false
 
 namespace casa {
 
@@ -31,9 +31,9 @@ public:
 //  virtual casacore::String typeName() {
 //    return "SDGAIN_OTFD";
 //  }
-//  virtual casacore::String longTypeName() {
-//    return "SDGAIN_OTFD (Single Dish gain calibration for double circle fast scan";
-//  }
+  virtual casacore::String longTypeName() override {
+    return "SDGAIN_OTFD (Single Dish gain calibration for double circle fast scan";
+  }
 
 // Return the parameter type
 // so far single dish calibration is real
