@@ -305,7 +305,7 @@ class sdgaincal_variable_test(sdgaincal_test_base):
             reftable.close()
             
     
-    def test_varialbe01(self):
+    def test_variable01(self):
         """test_variable01: valid caltable is created"""
         params = self.generate_params(radius='65arcsec')
         self.run_task(**params)
