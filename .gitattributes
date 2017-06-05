@@ -4190,9 +4190,12 @@ code/mstransform/MSTransform/MSTransformRegridder.cc -text
 code/mstransform/MSTransform/MSTransformRegridder.h -text
 code/mstransform/MSTransform/MSUVBin.cc -text
 code/mstransform/MSTransform/MSUVBin.h -text
+code/mstransform/MSTransform/StatWt.cc -text
+code/mstransform/MSTransform/StatWt.h -text
 code/mstransform/MSTransform/test/tMSBin.cc -text
 code/mstransform/MSTransform/test/tMSTransformIterator.cc -text
 code/mstransform/MSTransform/test/tMSTransformIterator.h -text
+code/mstransform/MSTransform/test/tStatWt.cc -text
 code/mstransform/TVI/ChannelAverageTVI.cc -text
 code/mstransform/TVI/ChannelAverageTVI.h -text
 code/mstransform/TVI/ConvolutionTVI.cc -text
@@ -4209,6 +4212,12 @@ code/mstransform/TVI/PolAverageTVI.cc -text svneol=unset#text/plain
 code/mstransform/TVI/PolAverageTVI.h -text svneol=unset#text/plain
 code/mstransform/TVI/RegriddingTVI.cc -text
 code/mstransform/TVI/RegriddingTVI.h -text
+code/mstransform/TVI/StatWtTVI.cc -text
+code/mstransform/TVI/StatWtTVI.h -text
+code/mstransform/TVI/StatWtTVIFactory.cc -text
+code/mstransform/TVI/StatWtTVIFactory.h -text
+code/mstransform/TVI/StatWtTVILayerFactory.cc -text
+code/mstransform/TVI/StatWtTVILayerFactory.h -text
 code/mstransform/TVI/UVContSubTVI.cc -text
 code/mstransform/TVI/UVContSubTVI.h -text
 code/mstransform/TVI/UtilsTVI.cc -text
@@ -4226,6 +4235,9 @@ code/mstransform/TVI/test/tPhaseShiftingTVI.h -text
 code/mstransform/TVI/test/tRecursiveVi2Layers_GT.cc -text
 code/mstransform/TVI/test/tRegriddingTVI.cc -text
 code/mstransform/TVI/test/tRegriddingTVI.h -text
+code/mstransform/TVI/test/tStatWt2.cc -text
+code/mstransform/TVI/test/tStatWtTVI.cc -text
+code/mstransform/TVI/test/tStatWtTVI.h -text
 code/mstransform/TVI/test/tUVContSubTVI.cc -text
 code/mstransform/TVI/test/tUVContSubTVI.h -text
 code/mstransform/apps/fixspwbackport/fixspwbackport.cc -text
@@ -6552,6 +6564,7 @@ gcwrap/python/scripts/task_split.py -text
 gcwrap/python/scripts/task_spxfit.py -text
 gcwrap/python/scripts/task_ssoflux.py -text
 gcwrap/python/scripts/task_statwt.py -text
+gcwrap/python/scripts/task_statwt2.py -text
 gcwrap/python/scripts/task_tclean.py -text
 gcwrap/python/scripts/task_tclean2.py -text
 gcwrap/python/scripts/task_testconcat.py -text
@@ -6673,6 +6686,7 @@ gcwrap/python/scripts/tests/test_importasdm_mms.py -text
 gcwrap/python/scripts/tests/test_importevla.py -text
 gcwrap/python/scripts/tests/test_importfitsidi.py -text
 gcwrap/python/scripts/tests/test_importnro.py -text
+gcwrap/python/scripts/tests/test_importvla.py -text
 gcwrap/python/scripts/tests/test_imregrid.py -text
 gcwrap/python/scripts/tests/test_imsmooth.py -text
 gcwrap/python/scripts/tests/test_imstat.py -text
@@ -6760,6 +6774,7 @@ gcwrap/python/scripts/tests/test_split.py -text
 gcwrap/python/scripts/tests/test_split2.py -text
 gcwrap/python/scripts/tests/test_spxfit.py -text
 gcwrap/python/scripts/tests/test_statwt.py -text
+gcwrap/python/scripts/tests/test_statwt2.py -text
 gcwrap/python/scripts/tests/test_testconcat.py -text
 gcwrap/python/scripts/tests/test_tsdbaseline.py -text
 gcwrap/python/scripts/tests/test_tsdcal.py -text
@@ -6926,6 +6941,7 @@ gcwrap/tasks/split.xml -text
 gcwrap/tasks/spxfit.xml -text
 gcwrap/tasks/ssoflux.xml -text
 gcwrap/tasks/statwt.xml -text
+gcwrap/tasks/statwt2.xml -text
 gcwrap/tasks/tclean.xml -text
 gcwrap/tasks/tclean2.xml -text
 gcwrap/tasks/testconcat.xml -text
