@@ -1172,6 +1172,7 @@ class simutil:
                 self.msg("antennalist "+antennalist+" not found",priority="error")
                 return False
 
+            nant=len(stnx)
             # diam is only used as a test below, not quantitatively
             diam = pl.average(stnd)
             antnames=padnames
@@ -1202,7 +1203,7 @@ class simutil:
         sm.setlimits(shadowlimit=0.01, elevationlimit='10deg')
         sm.setauto(0.0)
 
-        obslat=qa.convert(obs['m1'],'deg')
+        obslat=qa.convert(posobs['m1'],'deg')
         dec=qa.add(obslat, qa.add(qa.quantity("90deg"),qa.mul(elevation,-1)))
 
         sm.setfield(sourcename="src1", 
@@ -1288,11 +1289,16 @@ class simutil:
         if os.path.exists(tmpname+".T.cal"):
             tb.open(tmpname+".T.cal")
             gain=tb.getcol("CPARAM")
+            flag=tb.getcol("FLAG")
+            # RI TODO average instead of first?
             tb.done()
             # gain is per ANT so square for per baseline;  
             # pick a gain from about the middle of the track
-            # TODO average over the track instead?
-            noiseperbase=1./(gain[0][0][0.5*nint*nant].real)**2
+            # needs to be unflagged!
+            z=pl.where(flag[0][0]==False)[0]
+            nunflagged=len(z)
+#            noiseperbase=1./(gain[0][0][0.5*nint*nant].real)**2
+            noiseperbase=1./(gain[0][0][z[nunflagged/2]].real)**2
         else:
             noiseperbase=0.
 
