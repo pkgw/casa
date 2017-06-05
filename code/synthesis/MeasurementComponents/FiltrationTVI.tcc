@@ -151,7 +151,7 @@ FiltrationTVI<Filter>::~FiltrationTVI() {
 template<class Filter>
 void FiltrationTVI<Filter>::origin() {
   getVii()->origin();
-  cout << __func__ << ": subchunkId = " << getSubchunkId().subchunk() << endl;
+//  cout << __func__ << ": subchunkId = " << getSubchunkId().subchunk() << endl;
 
   // Synchronize own VisBuffer -- is it required?
   //configureNewSubchunk();
@@ -159,15 +159,15 @@ void FiltrationTVI<Filter>::origin() {
   // filtration
   filter();
 
-  if (more()) {
-    cout << __func__ << ": there is a subchunk passed through the filter ";
-    Vector<uInt> rowIds;
-    getVii()->getRowIds(rowIds);
-    cout << " is_filtrate_p = " << is_filtrate_p << ", rowIds = " << rowIds << endl;
-  } else {
-    cout << __func__ << ": no subchunk remaining after filtration" << endl;
-    cout << __func__ << ": is_filtrate_p = " << is_filtrate_p << endl;
-  }
+//  if (more()) {
+//    cout << __func__ << ": there is a subchunk passed through the filter ";
+//    Vector<uInt> rowIds;
+//    getVii()->getRowIds(rowIds);
+//    cout << " is_filtrate_p = " << is_filtrate_p << ", rowIds = " << rowIds << endl;
+//  } else {
+//    cout << __func__ << ": no subchunk remaining after filtration" << endl;
+//    cout << __func__ << ": is_filtrate_p = " << is_filtrate_p << endl;
+//  }
 }
 
 template<class Filter>
@@ -179,17 +179,17 @@ void FiltrationTVI<Filter>::next() {
   // filtration
   filter();
 
-  cout << __func__ << ": subchunkId = " << getSubchunkId().subchunk() << endl;
+//  cout << __func__ << ": subchunkId = " << getSubchunkId().subchunk() << endl;
 
-  if (more()) {
-    cout << __func__ << ": there is a subchunk passed through the filter ";
-    Vector<uInt> rowIds;
-    getVii()->getRowIds(rowIds);
-    cout << " is_filtrate_p = " << is_filtrate_p << ", rowIds = " << rowIds << endl;
-  } else {
-    cout << __func__ << ": no subchunk remaining after filtration" << endl;
-    cout << __func__ << ": is_filtrate_p = " << is_filtrate_p << endl;
-  }
+//  if (more()) {
+//    cout << __func__ << ": there is a subchunk passed through the filter ";
+//    Vector<uInt> rowIds;
+//    getVii()->getRowIds(rowIds);
+//    cout << " is_filtrate_p = " << is_filtrate_p << ", rowIds = " << rowIds << endl;
+//  } else {
+//    cout << __func__ << ": no subchunk remaining after filtration" << endl;
+//    cout << __func__ << ": is_filtrate_p = " << is_filtrate_p << endl;
+//  }
 }
 
 template<class Filter>
@@ -203,7 +203,7 @@ void FiltrationTVI<Filter>::originChunks(Bool forceRewind) {
 
   getVii()->origin();
 
-  cout << __func__ << ": chunkId = " << getSubchunkId().chunk() << endl;
+//  cout << __func__ << ": chunkId = " << getSubchunkId().chunk() << endl;
 }
 
 template<class Filter>
@@ -217,7 +217,7 @@ void FiltrationTVI<Filter>::nextChunk() {
 
   getVii()->origin();
 
-  cout << __func__ << ": chunkId = " << getSubchunkId().chunk() << endl;
+//  cout << __func__ << ": chunkId = " << getSubchunkId().chunk() << endl;
 }
 
 template<class Filter>
@@ -487,8 +487,8 @@ void FiltrationTVI<Filter>::filterChunk() {
       }
       is_valid_subchunk_p(Slice(n, m - n)) = false;
       is_valid_subchunk_p[subchunk_id] = filter_p->isFiltrate(vii->getVisBuffer());
-      cout << __func__ << ": chunk " << vii->getSubchunkId().chunk() << " subchunk " << subchunk_id
-          << " is_valid " << is_valid_subchunk_p[subchunk_id] << endl;
+//      cout << __func__ << ": chunk " << vii->getSubchunkId().chunk() << " subchunk " << subchunk_id
+//          << " is_valid " << is_valid_subchunk_p[subchunk_id] << endl;
     }
 
     if (anyTrue(is_valid_subchunk_p)) {
