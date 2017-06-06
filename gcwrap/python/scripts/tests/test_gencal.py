@@ -120,8 +120,10 @@ class test_gencal_antpos_alma(unittest.TestCase):
     # setup of the ALMA TMC DB AntennaPadService
     ALMA_SRV_WSDL_URL = 'http://asa.alma.cl/axis2/services/TMCDBAntennaPadService?wsdl'
 
-    # TODO: new, recent, small one
-    ALMA_MS = os.path.join(datapath, '../flagdata/uid___A002_X30a93d_X43e_small.ms')
+    # For this MS, there is position information for 25 out of the 29 antennas
+    # (at 2013-11-15T10:26:19)
+    ALMA_MS = os.path.join(datapath,
+                           '../flagdata/uid___A002_X72c4aa_X8f5_scan21_spw18_field2_corrXX.ms')
     CAL_TYPE = 'antpos'
     REF_CALTABLE_MANUAL = os.path.join(datapath, 'alma_ref_ant_pos.manual.cal')
     REF_CALTABLE_AUTO = os.path.join(datapath, 'alma_ref_ant_pos.auto.cal')
@@ -207,6 +209,8 @@ class test_gencal_antpos_alma(unittest.TestCase):
         """
         gencal: auto gencal using data from TCM DB AntennaPadService (ALMA)
         """
+
+        import urllib2
 
         out_caltable = 'ant_pos_web_srv.cal'
         try:
