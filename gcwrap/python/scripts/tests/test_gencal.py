@@ -120,7 +120,8 @@ class test_gencal_antpos_alma(unittest.TestCase):
     # setup of the ALMA TMC DB AntennaPadService
     ALMA_SRV_WSDL_URL = 'http://asa.alma.cl/axis2/services/TMCDBAntennaPadService?wsdl'
 
-    ALMA_MS = os.path.join(datapath, '../flagdata/uid___A002_X30a93d_X43e_small.ms')  # TODO: new, small one
+    # TODO: new, recent, small one
+    ALMA_MS = os.path.join(datapath, '../flagdata/uid___A002_X30a93d_X43e_small.ms')
     CAL_TYPE = 'antpos'
     REF_CALTABLE_MANUAL = os.path.join(datapath, 'alma_ref_ant_pos.manual.cal')
     REF_CALTABLE_AUTO = os.path.join(datapath, 'alma_ref_ant_pos.auto.cal')
@@ -151,7 +152,7 @@ class test_gencal_antpos_alma(unittest.TestCase):
                parameter=[-0.0072,0.0045,-0.0017, -0.0220,0.0040,-0.0190])
 
         self.assertTrue(os.path.exists(out_caltable),
-                        "The output caltable file should have been created")
+                        "The output cal table should have been created")
 
         # Compare against ref file
         self.assertTrue(th.compTables(out_caltable,
@@ -222,7 +223,7 @@ class test_gencal_antpos_alma(unittest.TestCase):
             raise
 
         self.assertTrue(os.path.exists(out_caltable),
-                        "The output caltable file should have been created")
+                        "The output cal table should have been created")
 
         # Compare against ref file
         self.assertTrue(th.compTables(out_caltable,
