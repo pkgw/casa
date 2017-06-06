@@ -261,14 +261,14 @@ class sdgaincal_const_test(sdgaincal_test_base):
        
     def test_const03(self):
         """test_const03: overwrite existing file"""
-        params = self.generate_params(overwrite=True)
+        params = self.generate_params(overwrite=True, radius='65arcsec')
         
         # outfile exists
         shutil.copytree(params['infile'], params['outfile'])
 
         self.run_task(**params)
         
-        self._verify_caltable(self._is_empty_caltable, **params)
+        self._verify_caltable(self._generic_verify, **params)
         
 class sdgaincal_variable_test(sdgaincal_test_base):
     """
