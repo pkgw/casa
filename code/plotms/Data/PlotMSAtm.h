@@ -98,7 +98,7 @@ private:
     // calculated values
     casacore::Double getMedianPwv();
     casacore::Record getMeanWeather();
-    casacore::Double computeAirmass();
+    casacore::Double computeMeanAirmass();
     casacore::Double getMeanScantime();
 
     // utility functions
@@ -108,7 +108,7 @@ private:
         casacore::Vector<casacore::Double> timesCol);
     casacore::String getSelectionExpr(
         casacore::Vector<casacore::Int> intVector);
-    casacore::Double getElevation();
+    casacore::Double getElevation(casacore::Int fieldId);
 
     NewCalTable* bptable_;
     casacore::Vector<casacore::Double> caltimes_;

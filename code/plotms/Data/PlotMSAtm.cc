@@ -145,7 +145,7 @@ casacore::Vector<casacore::Int> PlotMSAtm::calcAtmTransmission() {
     // Get info from MS
     casacore::Double pwv = getMedianPwv();
     casacore::Record weather = getMeanWeather();
-    casacore::Double airmass = computeAirmass();
+    casacore::Double airmass = computeMeanAirmass();
     return transmission;
 }
 
@@ -250,19 +250,25 @@ casacore::Record PlotMSAtm::getMeanWeather() {
     return weatherInfo;
 }
 
-casacore::Double PlotMSAtm::computeAirmass() {
+casacore::Double PlotMSAtm::computeMeanAirmass() {
     // Calculate airmass from elevation
-    casacore::Double elevation = getElevation();
-    if (elevation <= 3.0) elevation = 45.0;
-    casacore::Double airmass(1.0 / std::cos((90.0 - elevation) * C::pi / 180.0));
+    casacore::Vector<casacore::Double> airmasses;
+    airmasses.resize(calfields_.size());
+    casacore::Double elevation;
+    for (uInt i=0; i<calfields_.size(); ++i) {
+        elevation = getElevation(calfields_(i));
+        if (elevation <= 3.0) elevation = 45.0;
+        airmasses(i) = 1.0 / std::cos((90.0 - elevation) * C::pi / 180.0);
+    }
+    casacore::Double airmass = mean(airmasses);
     return airmass;
 }
 
-casacore::Double PlotMSAtm::getElevation() {
+casacore::Double PlotMSAtm::getElevation(casacore::Int fieldId) {
     // Get RADec (DELAY_DIR) from FIELD table
     ROCTColumns ctCol(*bptable_);
     casacore::Array<casacore::Double> raDec = 
-        ctCol.field().delayDir().get(calfields_(0));
+        ctCol.field().delayDir().get(fieldId);
     casacore::Double ra = raDec(IPosition(2,0,0));
     casacore::Double dec = raDec(IPosition(2,1,0));
     // convert J2000 to AzEl
