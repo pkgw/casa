@@ -23,7 +23,7 @@ namespace casa { // namespace casa START
 class TimeRangeKey {
 public:
   struct Less {
-    bool operator()(TimeRangeKey const &a, TimeRangeKey const &b) {
+    bool operator()(TimeRangeKey const &a, TimeRangeKey const &b) const {
       for (size_t i = 0; i < 3; ++i) {
         if (a.meta_[i] != b.meta_[i]) {
           return a.meta_[i] < b.meta_[i];
