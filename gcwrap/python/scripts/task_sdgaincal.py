@@ -28,13 +28,6 @@ def sdgaincal(infile=None, calmode=None, radius=None, smooth=None,
         if os.path.exists(outfile) and not overwrite:
             raise RuntimeError(outfile + ' exists.')
         
-        # TODO: pre-application functionality is not supported yet
-        if type(applytable) == types.ListType or \
-          (isinstance(applytable, str) and len(applytable) > 0):
-            msg = 'Pre-application of calibration solutions is not supported yet.'
-            casalog.post(msg, priority='SEVERE')
-            raise RuntimeError(msg)
-        
         # open MS
         if isinstance(infile, str) and os.path.exists(infile):
             #mycb.setvi(old=True)
@@ -48,6 +41,20 @@ def sdgaincal(infile=None, calmode=None, radius=None, smooth=None,
         else:
             baseline = ''
         mycb.selectvis(spw=spw, scan=scan, field=field, intent=intent, baseline=baseline)
+        
+        # set apply
+        if isinstance(applytable, str):
+            if len(applytable) > 0:
+                mycb.setapply(table=applytable)
+        elif hasattr(applytable, '__iter__'):
+            # list type 
+            for table in applytable:
+                if isinstance(table, str) and len(table) > 0:
+                    mycb.setapply(table=table)
+                else:
+                    RuntimeError, 'wrong type of applytable item ({0}). it should be string'.format(type(table))
+        else:
+            raise RuntimeError, 'wrong type of applytable ({0}). it should be string or list'.format(type(applytable))
         
         # set solve
         if calmode == 'doublecircle':
