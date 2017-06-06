@@ -62,8 +62,36 @@ int main(int argc, char **argv)
   try{
 
 
-
-    String imagename(argv[1]);
+    String imagename;
+    if (argc > 1) {
+      imagename=argv[1];
+    }
+    else {
+      imagename="tLabelandFindRegions.temp.mask";
+      Int imsize = 100;
+      Int nchan = 2; 
+      IPosition blc(4,45,50,0,0); 
+      IPosition trc(4,55,55,0,0); 
+      IPosition shape(4, imsize, imsize, 1, nchan);
+      CoordinateSystem csys=CoordinateUtil::defaultCoords4D();
+      PagedImage<Float> maskImage(TiledShape(shape), csys, imagename);
+      maskImage.setUnits(Unit("Jy/pixel"));
+      maskImage.set(0.0);
+      // sanity check
+      if (blc(0) <= trc(0) && blc(1) <= trc(1) && blc(3) < nchan) {
+        Int dx = trc(0) - blc(0);
+        Int dy = trc(1) - blc(1);
+        for (uInt i=0+blc(3); i < trc(3)+1; i++) {
+          for (uInt j=0; j < (uInt)dx+1; j++) {
+            for (uInt k=0; k < (uInt)dy+1; k++) {
+              IPosition loc(4,blc(0)+j, blc(1)+k, 0, Int(i));
+              Float val = 1.0;
+              maskImage.putAt(val, loc);
+            }
+          }
+        }
+      }
+    }
 
     CountedPtr<ImageInterface<Float> > im;
     im = ImageUtilities::openImage<Float>(imagename);
