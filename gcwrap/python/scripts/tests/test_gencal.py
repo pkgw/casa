@@ -114,7 +114,8 @@ class test_gencal_antpos_alma(unittest.TestCase):
       from suds.client import Client
       srv_wsdl_url = 'http://asa.alma.cl/axis2/services/TMCDBAntennaPadService?wsdl'
       ws_cli = Client(srv_wsdl_url)
-      resp = ws_cli.service.getAntennaPositions("CURRENT.AOS", "DA49", "2017-01-30T01:53:54")
+      resp = ws_cli.service.getAntennaPositions("CURRENT.AOS", "DA49",
+                                                "2017-01-30T01:53:54")
     """
 
     # setup of the ALMA TMC DB AntennaPadService
@@ -125,8 +126,10 @@ class test_gencal_antpos_alma(unittest.TestCase):
     ALMA_MS = os.path.join(datapath,
                            '../flagdata/uid___A002_X72c4aa_X8f5_scan21_spw18_field2_corrXX.ms')
     CAL_TYPE = 'antpos'
-    REF_CALTABLE_MANUAL = os.path.join(datapath, 'alma_ref_ant_pos.manual.cal')
-    REF_CALTABLE_AUTO = os.path.join(datapath, 'alma_ref_ant_pos.auto.cal')
+    REF_CALTABLE_MANUAL = os.path.join(datapath,
+                                       'alma_reference/A002_X72c4aa_ref_ant_pos.manual.cal')
+    REF_CALTABLE_AUTO = os.path.join(datapath,
+                                     'alma_reference/A002_X72c4aa_ref_ant_pos.auto.cal')
     IGNORE_COLS = ['WEIGHT','OBSERVATION_ID']
 
     def setUp(self):
@@ -214,7 +217,7 @@ class test_gencal_antpos_alma(unittest.TestCase):
 
         out_caltable = 'ant_pos_web_srv.cal'
         try:
-            # this will import the required libraries, urllib2, suds, etc.
+            # This will import the required libraries, urllib2, suds, etc.
             # Coul also use additional parameters: antenna='', parameter=''
             gencal(vis=self.ALMA_MS, caltable=out_caltable, caltype=self.CAL_TYPE)
         except ImportError:

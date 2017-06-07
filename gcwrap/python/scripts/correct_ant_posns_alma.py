@@ -80,7 +80,7 @@ def process_tmcdb_response_for_gencal(resp):
         pos_found = False
         # when the antenna is not found
         if not pos.completion.status == 'true' or not pos.position:
-            casalog.post('Did not find position parameters for antenna {0}.'
+            casalog.post('Did not find position parameters for antenna {0}. '
                          'Error description: {1}'.
                          format(pos.name, pos.completion.errorList), 'WARN')
             ant_params = [0, 0, 0]
