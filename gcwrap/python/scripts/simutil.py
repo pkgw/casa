@@ -1104,6 +1104,10 @@ class simutil:
                    integration=None,debug=None,
                    method="tsys-atm",tau0=None,t_sky=None):
         
+        if qa.convert(elevation,"deg")['value']<3:
+            self.msg("Elevation < ALMA limit of 3 deg",priority="error")
+            return False
+
         import glob
         tmpname="tmp"+str(os.getpid())
         i=0
@@ -1186,9 +1190,6 @@ class simutil:
             self.msg("Telescope name or antenna diameter have not been set.",priority="error")
             return False
 
-        if qa.convert(elevation,"deg")['value']<3:
-            self.msg("Elevation < ALMA limit of 3 deg",priority="error")
-            return False
         # copied from task_simdata:
 
         self.setcfg(sm, telescope, stnx, stny, stnz, stnd, padnames, posobs)
@@ -1310,8 +1311,8 @@ class simutil:
             noiseperbase=0.
 
         theoreticalnoise=noiseperbase/pl.sqrt(nint*nbase*2) # assume 2-poln
-        
-        if debug==None:
+
+        if debug!=True:
             xx=glob.glob(tmpname+"*")
             for k in range(len(xx)):
                 if os.path.isdir(xx[k]):
