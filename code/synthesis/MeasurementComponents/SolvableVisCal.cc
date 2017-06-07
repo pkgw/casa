@@ -100,6 +100,7 @@ SolvableVisCal::SolvableVisCal(VisSet& vs) :
   tInterpType_(""),
   fInterpType_(""),
   spwMap_(1,-1),
+  refantmode_("flex"),
   urefantlist_(1,-1),
   minblperant_(4),
   solved_(false),
@@ -167,6 +168,7 @@ SolvableVisCal::SolvableVisCal(String msname,Int MSnAnt,Int MSnSpw) :
   tInterpType_(""),
   fInterpType_(""),
   spwMap_(1,-1),
+  refantmode_("flex"),
   urefantlist_(1,-1),
   minblperant_(4),
   solved_(false),
@@ -236,6 +238,7 @@ SolvableVisCal::SolvableVisCal(const MSMetaInfoForCal& msmc) :
   tInterpType_(""),
   fInterpType_(""),
   spwMap_(1,-1),
+  refantmode_("flex"),
   urefantlist_(1,-1),
   minblperant_(4),
   solved_(False),
@@ -301,6 +304,7 @@ SolvableVisCal::SolvableVisCal(const Int& nAnt) :
   tInterpType_(""),
   fInterpType_(""),
   spwMap_(1,-1),
+  refantmode_("flex"),
   urefantlist_(1,-1),
   minblperant_(4),
   solved_(false),
@@ -1199,6 +1203,9 @@ void SolvableVisCal::setSolve(const Record& solve)
   if (solve.isDefined("preavg"))
     preavg()=solve.asFloat("preavg");
 
+  if (solve.isDefined("refantmode")) {
+    refantmode_=solve.asString("refantmode");
+  }
   if (solve.isDefined("refant")) {
     refantlist().resize();
     refantlist()=solve.asArrayInt("refant");
@@ -1262,6 +1269,7 @@ String SolvableVisCal::solveinfo() {
     << (freqDepPar() ? (","+fsolint()) : "")
     //    << " t="          << interval()
     //    << " preavg="     << preavg()
+    << " refantmode="     << "'" << refantmode_ << "'"
     << " refant="     << "'" << refantNames << "'" // (id=" << refant() << ")"
     << " minsnr=" << minSNR()
     << " apmode="  << apmode()
@@ -4111,6 +4119,7 @@ void SolvableVisCal::stateSVC(const Bool& doVC) {
   cout << "  tInterpType() = " << tInterpType() << endl;
   cout << "  fInterpType() = " << fInterpType() << endl;
   cout << "  spwMap() = " << spwMap() << endl;
+  cout << "  refantmode() = " << refantmode() << endl;
   cout << "  refant() = " << refant() << endl;
   cout << "  refantlist() = " << refantlist() << endl;
   
@@ -5831,6 +5840,14 @@ void SolvableVisJones::applyRefAnt() {
 
   //cout << "refantchoices = " << refantchoices << endl;
 
+
+  if (refantmode()=="strict") {
+    nchoices=1;
+    refantchoices.resize(1,True);
+    cout << "refantmode=" << refantmode() << endl;
+    cout << "refantchoices = " << refantchoices << endl;
+  }
+
   Vector<Int> nPol(nSpw(),nPar());  // TBD:or 1, if data was single pol
 
   if (nPar()==2) {
@@ -6068,6 +6085,12 @@ void SolvableVisJones::applyRefAnt() {
       first=false;  // avoid first-pass stuff from now on
       
     } // found
+    else {
+      cout << "Bad interval, no refant..." << endl;
+      // Flag all solutions in this interval
+      flB.set(True);
+      ctiter.setflag(flB);
+    }
 
     // advance to the next interval
     lastspw=ispw;

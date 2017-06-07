@@ -28,10 +28,10 @@
 
 		<param type="string" name="refantmode">
 			<description>Refant algorithm to use</description>
-			<value>flexible</value>
+			<value>flex</value>
 			<allowed kind="enum">
-			<value>flexible</value>
-			<value>strict</value>
+			  <value>flex</value>
+			  <value>strict</value>
 			</allowed>
 		</param>
 
@@ -57,8 +57,8 @@
                 default: ''  (will overwrite tablein); 
                 example: caltable='ngc5921_newrefant.gcal'
         refantmode -- The phase refant algorithm to use
-                default: 'flexible'; example: refantmode='flexible'
-                Options: 'flexible','strict'
+                default: 'flex'; example: refantmode='flex'
+                Options: 'flex','strict'
         refant -- Reference antenna name(s); a prioritized list may be specified
               default: '' =&gt; no refant applied
               example: refant='4' (antenna with index 4)

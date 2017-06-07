@@ -101,6 +101,15 @@ Previous calibrations (egs. bandpass) should be applied on the fly.
 		<value></value>
 	</param>
 
+	<param type="string" name="refantmode">
+		<description>Reference antenna mode</description>
+		<value>flex</value>
+		<allowed kind="enum">
+			<value>flex</value>
+			<value>strict</value>
+		</allowed>
+	</param>
+
 	<param type="int" name="minblperant">
 		<description>Minimum baselines _per antenna_ required for solve</description>
 		<value>4</value>

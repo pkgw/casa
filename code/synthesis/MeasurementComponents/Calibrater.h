@@ -121,6 +121,7 @@ class Calibrater
 		 const casacore::String& apmode="AP",
 		 const casacore::Int minblperant=4,
 		 const casacore::String& refant="",
+		 const casacore::String& refantmode="flex",
 		 const casacore::Bool solnorm=false,
 		 const casacore::Float minsnr=0.0f,
 		 const casacore::String& combine="",

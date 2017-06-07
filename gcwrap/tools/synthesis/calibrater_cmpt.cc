@@ -349,6 +349,7 @@ calibrater::setsolve(const std::string& type,
 		     const bool phaseonly, 
 		     const std::string& apmode,
 		     const ::casac::variant& refant,
+		     const std::string& refantmode,
 		     const int minblperant,
 		     const bool solnorm,
 		     const float minsnr,
@@ -385,7 +386,8 @@ calibrater::setsolve(const std::string& type,
     // Forward to Calibrater object
     itsCalibrater->setsolve(type,toCasaString(t),table,append,preavg,mode,
 			    minblperant,
-			    toCasaString(refant),solnorm,minsnr,combine,fillgaps,
+			    toCasaString(refant),refantmode,
+			    solnorm,minsnr,combine,fillgaps,
 			    cfcache, painc, fitorder, fraction, numedge, radius, smooth);
     
   } catch(AipsError x) {

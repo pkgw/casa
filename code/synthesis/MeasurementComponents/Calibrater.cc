@@ -747,6 +747,7 @@ Bool Calibrater::setsolve (const String& type,
 			   const String& apmode,
 			   const Int minblperant,
                            const String& refant,
+                           const String& refantmode,
 			   const Bool solnorm,
 			   const Float minsnr,
 			   const String& combine,
@@ -768,6 +769,7 @@ Bool Calibrater::setsolve (const String& type,
   solveparDesc.addField ("preavg", TpDouble);
   solveparDesc.addField ("apmode", TpString);
   solveparDesc.addField ("refant", TpArrayInt);
+  solveparDesc.addField ("refantmode", TpString);
   solveparDesc.addField ("minblperant", TpInt);
   solveparDesc.addField ("table", TpString);
   solveparDesc.addField ("append", TpBool);
@@ -794,6 +796,7 @@ Bool Calibrater::setsolve (const String& type,
   upmode.upcase();
   solvepar.define ("apmode", upmode);
   solvepar.define ("refant", getRefantIdxList(refant));
+  solvepar.define ("refantmode", refantmode);
   solvepar.define ("minblperant", minblperant);
   solvepar.define ("table", table);
   solvepar.define ("append", append);
@@ -2688,9 +2691,9 @@ Bool Calibrater::reRefant(const casacore::String& infile,
     if (infile=="")
       throw(AipsError("Please specify an input calibration table."));
 
-    // Handle bad smoothtype
+    // Handle bad refantmode
     if (refantmode!="strict" && 
-	refantmode!="flexible")
+	refantmode!="flex")
       throw(AipsError("Unrecognized refantmode!"));
 
     // Handle no outfile
@@ -2711,12 +2714,10 @@ Bool Calibrater::reRefant(const casacore::String& infile,
     svj->setApply(applypar);
 
     // Do the work
+    svj->refantmode() = refantmode;
     svj->refantlist() = getRefantIdxList(refant);
     svj->applyRefAnt();
 
-
-    cout << "HELLO-------------------------" << endl;
-      
     // Store the result on disk
     logSink() << "Storing result in " << outfile << LogIO::POST;
       

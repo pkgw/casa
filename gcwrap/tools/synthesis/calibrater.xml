@@ -626,6 +626,14 @@ TBD
      <value></value>
      </param>
 
+     <param type="string" direction="in" name="refantmode">
+     <description>Reference antenna mode</description>
+     <value>flex</value>
+     <value>strict</value>
+     <value>auto</value>
+     <value>mindev</value>
+     </param>
+
      <param type="int" direction="in" name="minblperant">
      <description>Minimum number of baselines per ant for solving</description>
      <value>4</value>
