@@ -333,6 +333,7 @@ casa_add_library( synthesis
  Parallel/MPITransport.cc
  Parallel/PabloIO.cc
  Parallel/SerialTransport.cc
+ Utilities/AppRC.cc		
  Utilities/FFT2D.cc	
  Utilities/FixVis.cc
  Utilities/SigHandler.cc
@@ -864,6 +865,7 @@ casa_add_google_test( MODULES mstransform SOURCES ../mstransform/MSTransform/tes
 casa_add_google_test( MODULES mstransform SOURCES ../mstransform/TVI/test/tChannelAverageTVI.cc  ../mstransform/TVI/test/TestUtilsTVI.cc)
 casa_add_google_test( MODULES mstransform SOURCES ../mstransform/TVI/test/tHanningSmoothTVI.cc  ../mstransform/TVI/test/TestUtilsTVI.cc)
 casa_add_google_test( MODULES mstransform SOURCES ../mstransform/TVI/test/tPhaseShiftingTVI.cc  ../mstransform/TVI/test/TestUtilsTVI.cc)
+#casa_add_google_test( MODULES mstransform SOURCES ../mstransform/TVI/test/tStatWtTVI.cc  ../mstransform/TVI/test/TestUtilsTVI.cc)
 casa_add_google_test( NOT_ON_APPLE MODULES mstransform SOURCES ../mstransform/TVI/test/tRegriddingTVI.cc  ../mstransform/TVI/test/TestUtilsTVI.cc)
 casa_add_google_test( NOT_ON_APPLE MODULES mstransform SOURCES ../mstransform/TVI/test/tUVContSubTVI.cc  ../mstransform/TVI/test/TestUtilsTVI.cc)
 

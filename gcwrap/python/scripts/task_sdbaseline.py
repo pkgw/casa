@@ -93,7 +93,8 @@ def sdbaseline(infile=None, datacolumn=None, antenna=None, field=None, spw=None,
                                                   rejwn=rejwn,
                                                   clip_threshold_sigma=clipthresh,
                                                   num_fitting_max=clipniter+1,
-                                                  blparam=blparam)
+                                                  blparam=blparam,
+                                                  verbose=verbose)
             func(**params)
             sdms.close()
             
@@ -283,7 +284,7 @@ def prepare_for_baselining(**keywords):
         keys += ['applyfft', 'fftmethod', 'fftthresh', 'addwn', 'rejwn']
         funcname += ('_' + blfunc)
     elif blfunc == 'variable':
-        keys += ['blparam']
+        keys += ['blparam', 'verbose']
         funcname += ('_' + blfunc)
     else:
         raise ValueError, "Unsupported blfunc = %s" % blfunc

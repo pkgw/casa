@@ -284,7 +284,6 @@ model\_imaginary\ddag &amp; \bul  &amp; \none &amp; \bul    &amp; \none   &amp; 
 ratio\_imaginary\ddag &amp; \none &amp; \none &amp; \bul    &amp; \none   &amp; imag part of corrected/model \\
 residual\_imaginary\ddag&amp;\none  &amp;\none &amp; \bul    &amp; \none   &amp; imag part of residual data\\
 obs\_residual\_imaginary\ddag&amp;\none  &amp;\none&amp;\bul &amp; \none   &amp; imag part of obs residual data\\
-imaging\_weight\ddag  &amp; \bul  &amp; \none &amp; \bul    &amp; \bul    &amp; weights used for imaging\\
 last                 &amp; \none &amp; \none  &amp; \bul    &amp; \none   &amp; add LAST to axis\_info\\
 num\_corr            &amp; \bul  &amp; \none  &amp; \none   &amp; \none   &amp; number of polarizations\\
 num\_chan            &amp; \bul  &amp; \none  &amp; \none   &amp; \none   &amp; number of freq channels\\
@@ -1108,7 +1107,116 @@ the ms definition itself. -->
   </example>
 </method>
 -->
+
+    <method type="function" name="statwt2">
+        <shortdescription>THIS APPLICATION IS CURRENTLY FOR TESTING ONLY! USE AT YOUR OWN RISK! Compute and set weights based on variance of data.</shortdescription>
+        <input>
+            <param type="any" name="timebin">
+                <description>Length for binning in time to determine statistics. Can either be integer to be multiplied by the representative integration time, a quantity (string) in time units.</description>
+                <any type="variant" limittypes="string int"/>
+                <value type="int">1</value>
+                <example>4</example>
+                <example>"300s"</example>
+            </param>
+            <param type="any" name="chanbin">
+                <any type="variant" limittypes="string int"/>
+                <description>Channel bin width for computing weights. Can either be integer, in which case it is interpreted as number of channels to include in each bin, or a string "spw" or quantity with frequency units.</description>
+                <value type="string">spw</value>
+                <example>5</example>
+                <example>1.5MHz</example>
+            </param>
+        </input>
+        <returns type="bool"/>
+        <description>
+            THIS APPLICATION IS UNDER DEVELOPMENT AND CURRENTLY FOR TESTING ONLY! USE AT YOUR OWN RISK!
+
+            THIS APPLICATION MODIFIES THE WEIGHT, WEIGHT SPECTRUM, FLAG, AND FLAG_ROW COLUMNS OF THE INPUT
+            MS. IF YOU WANT A PRISTINE COPY OF THE INPUT MS TO BE PRESERVED, MAKE A COPY OF IT BEFORE
+            RUNNING THIS APPLICATION.
+
+            This application computes weights for the WEIGHT and WEIGHT_SPECTRUM (if present) columns
+            based on the variance of values in the CORRECTED_DATA column. If the MS has no CORRECTED_DATA
+            column, the application will fail.  The following algorithm is used:
  
+            1. For unflagged data, create two sets of values, one set is composed solely of the real part
+               of the data values, the other set is composed solely of the imaginary part of the data
+               values.
+            2. Compute the variance of each of these sets, vr and vi.
+            3. Compute veq = (vr + vi)/2.
+            4. The associated weight is just the reciprocal of veq. The weight will have unit
+               of (data unit)^(-2), eg Jy^(-2).
+
+            Data are aggregated on a per-baseline, per-data description ID basis. Data are aggregated
+            in bins determined by the specified values of the timebin and chanbin parameters.
+            
+            TIME BINNING
+            
+            If the value of timebin is an integer, it means that the specified value should be
+            multiplied by the representative integration time in the MS. This integration is the
+            median value of all the values in the INTERVAL column. Flags are not considered in
+            the integration time computation. If either extrema in the INTERVAL column differs from
+            the median by more than 25%, the application will fail because the values vary too much
+            for there to be a single, representative, integration time. The timebin parameter can
+            also be specified as a quantity (string) that must have time conformant units.
+            
+            The time bins are not necessarily contiguous and are not necessarily the same width. The start
+            of a bin is always coincident with a value from the TIME column, So for example, if values
+            from the time column are [20, 60, 100, 140, 180, 230], and the width of the bins is chosen
+            to be 110s, the first bin would start at 20s and run to 130s, so that data from timestamps
+            20, 60, and 100 will be included in the first bin. The second bin would start at 140s, so that
+            data for timestamps 140, 180, and 230 would be included in the second bin. Also, time binning
+            does not span scan boundaries, so that data associated with different scan numbers will
+            always be binned separately; changes in SCAN_NUMBER will cause a new time bin to be created,
+            with its starting value coincident with the time of the new SCAN_NUMBER. Similar behavior can
+            be expected for changes in FIELD_ID and ARRAY_ID.
+            
+            CHANNEL BINNING
+            
+            The width of channel bins is specified via the chanbin parameter. Channel binning occurs within
+            individual spectral windows; bins never span multiple spectral windows. Each channel will
+            be included in exactly one bin.
+            
+            The default value "spw" indicates that all channels in each spectral window are to be
+            included in a single bin.
+            
+            Any other string value is interpreted as a quantity, and so should have frequency units, eg
+            "1MHz". In this case, the channel frequencies from the CHAN_FREQ column of the SPECTRAL_WINDOW
+            subtable of the MS are used to determine the bins. The first bin starts at the channel frequency
+            of the 0th channel in the spectral window. Channels with frequencies that differ by less than
+            the value specified by the chanbin parameter are included in this bin. The next bin starts at
+            the frequency of the first channel outside the first bin, and the process is repeated until all
+            channels have been binned.
+            
+            If specified as an integer, the value is interpreted as the number of channels to include in
+            each bin. The final bin in the spectral window may not necessarily contain this number of
+            channels. For example, if a spectral window has 15 channels, and chanbin is specified to be 6,
+            then channels 0-5 will comprise the first bin, channels 6-11 the second, and channels 12-14 the
+            third, so that only three channels will comprise the final bin.
+            
+            OTHER CONSIDERATIONS
+
+            Flagged values are not used in computing the weights, although the associated weights of
+            these values are updated.
+
+            If the variance for a set of data is 0, all associated flags for that data are set to True,
+            and the corresponding weights are set to 0.
+
+            Because data are modified in the input MS, the nomodify parameter must be set to False when opening
+            the associated MS tool.
+
+        </description>
+        <example>
+            # update the weights of an MS
+            ms.open("my.ms", nomodify=False)
+            # compute weights, using time bins of 300s
+            if ms.statwt(timebin=("300s")):
+                print "Successfully updated weights"
+            else:
+                print "Updating weights failed"
+            ms.done()
+        </example>
+   </method>
+       
    <method type="function" name="tofits">
    <shortdescription>Convert a measurement set to a uvfits file</shortdescription>
    
@@ -1137,11 +1245,6 @@ the ms definition itself. -->
      <value></value>
      </param>
     
-     <param type="int" direction="in" name="width">
-     <description>DEPRECATED. Use mstransform to select and average data prior to running tofits().</description>
-     <value>1</value>
-     </param>
-
      <param type="any" direction="in" name="baseline">
      <description>Antenna names or Antenna indices to select</description>
      <any type="variant" />
@@ -1267,13 +1370,6 @@ the ms definition itself. -->
     This is a rather WSRT-specific operation at the moment and may not
     work correctly for measurement sets from other telescopes.
 
-    The width argument is for channel averaging while outputing the 
-    data to the fits file. The default values of 1 will copy the 
-    channels of the input as is. The start channel number is the 
-    first channel of the spw expression. The number of output channels
-    is determined by spw expression and the width. The width is the 
-    number of channels of the input data to make 1 channel of the output data. 
-
     One may overwrite the specified output file if it exists by specifying
     overwrite=True.
 
@@ -1288,7 +1384,6 @@ the ms definition itself. -->
 
   <example>
     
-      
       ms.open('3C273XC1.MS')
       ms.tofits('3C273XC1.fits', column='DATA'); 
       ms.done()
@@ -1304,7 +1399,6 @@ the ms definition itself. -->
      This example writes part (the first 2 fields and the third spectral 
      window) of the corrected data to the fits file.  
     
-
   </example>
 </method>
 
@@ -1793,9 +1887,9 @@ the ms definition itself. -->
     For some items, you need to call selectinit to select a portion of
     the data with a unique shape prior to calling this function.
 
-    Items prefixed with corrected, model, residual or obs_residual and
-    the imaging_weight item are not available unless your measurement
-    set has been processed either with the imager or calibrator tools.
+    Items prefixed with corrected, model, residual or obs_residual 
+    are not available unless your measurement set has been processed either
+    with the imager or calibrator tools.
   </description>
   <example>
     
@@ -1873,9 +1967,9 @@ the ms definition itself. -->
     For some items, you need to call selectinit2 to select a portion of
     the data with a unique shape prior to calling this function.
 
-    Items prefixed with corrected, model, residual or obs_residual and
-    the imaging_weight item are not available unless your measurement
-    set has been processed either with the imager or calibrator tools.
+    Items prefixed with corrected, model, residual or obs_residual 
+    are not available unless your measurement set has been processed either
+    with the imager or calibrator tools.
   </description>
   <example>
     
@@ -2035,7 +2129,7 @@ F           \&amp; Flag: `F' = flagged datum; ` ' = unflagged \\
       ms.open('AZ136.ms')
       ms.lister()
     
-    These commands yeild the following listing: 
+    These commands yield the following listing: 
     
 Date/Time:                         RR:                      RL:                      LR:                      LL:                     
 2001/12/01/  Intrf UVDist Fld SpW      Amp   Phs       Wt F     Amp   Phs       Wt F     Amp   Phs       Wt F     Amp   Phs       Wt F
@@ -2142,8 +2236,9 @@ Date/Time:                         RR:                      RL:                 
     
 
     In this example we display the range of uv distances for the data
-    in the specified measurement set. The first print statement will
-    only use data where the DATA_DESC_ID column is 0. This will
+    in the specified measurement set (the range 'items' argument is a list of
+    strings, even if only one item is requested). The first print statement
+    will only use data where the DATA_DESC_ID column is 0. This will
     correspond to a specific spectral window and polarization
     setup. The second print statement will print the range of uv
     distances for all the data in the measurement set (which is the
@@ -2209,8 +2304,9 @@ Date/Time:                         RR:                      RL:                 
       print ms.range2("uvdist")
     
     In this example we display the range of uv distances for the data
-    in the specified measurement set. The first print statement will
-    only use data where the DATA_DESC_ID column is 0. This will
+    in the specified measurement set (the range 'items' argument is a list of
+    strings, even if only one item is requested). The first print statement
+    will only use data where the DATA_DESC_ID column is 0. This will
     correspond to a specific spectral window and polarization
     setup. The second print statement will print the range of uv
     distances for all the data in the measurement set (which is the
@@ -3193,20 +3289,19 @@ Date/Time:                         RR:                      RL:                 
     residual_data, obs_residual_data, feed1, feed2, field_id, flag,
     flag_row, flag_sum, ha (added to axis_info), ifr_number, imaginary,
     corrected_imaginary, model_imaginary, ratio_imaginary,
-    residual_imaginary, obs_residual_imaginary, imaging_weight, last
-    (added to axis_info), phase, corrected_phase, model_phase,
-    ratio_phase, residual_phase, obs_residual_phase, real,
-    corrected_real, ratio_real, residual_real, obs_residual_real,
-    scan_number, sigma, data_desc_id, time, ut (added to axis_info),
-    uvw, u, v, w, uvdist, and weight. Unrecognized items will result in
-    a warning being sent to the logger.  Duplicate items are silently
-    ignored.
+    residual_imaginary, obs_residual_imaginary, last (added to axis_info),
+    phase, corrected_phase, model_phase, ratio_phase, residual_phase,
+    obs_residual_phase, real, corrected_real, ratio_real, residual_real,
+    obs_residual_real, scan_number, sigma, data_desc_id, time, ut (added to
+    axis_info), uvw, u, v, w, uvdist, and weight. Unrecognized items will
+    result in a warning being sent to the logger.  Duplicate items are
+    silently ignored.
 
     The record that is returned contains fields that correspond to
     each of the specified items. Most fields will contain an
     array. The array may be one, two or three dimensional depending on
     whether the corresponding row in the measurement set is a scalar,
-    one or two dimensional. Unless the ifraxis argument is set to T
+    one or two dimensional. Unless the ifraxis argument is set to True
     the length of the last axis on these arrays will correspond to the
     number of rows in the selected measurement set.
 
@@ -3277,10 +3372,9 @@ Date/Time:                         RR:                      RL:                 
     calling this function. If you haven't then selectinit will be
     called for you with default arguments.
 
-    Items prefixed with either; corrected, model, residual or
-    obs_residual and the imaging_weight item are not available unless
-    your measurement set has been processed either with the imager or
-    calibrator tools.
+    Items prefixed with corrected, model, residual or obs_residual are not
+    available unless your measurement set has been processed either with the
+    imager or calibrator tools.
   </description>
   <example>
     
@@ -3401,14 +3495,13 @@ for i in range(len(tcoord)):
     residual_data, obs_residual_data, feed1, feed2, field_id, flag,
     flag_row, flag_sum, ha (added to axis_info), ifr_number, imaginary,
     corrected_imaginary, model_imaginary, ratio_imaginary,
-    residual_imaginary, obs_residual_imaginary, imaging_weight, last
-    (added to axis_info), phase, corrected_phase, model_phase,
-    ratio_phase, residual_phase, obs_residual_phase, real,
-    corrected_real, ratio_real, residual_real, obs_residual_real,
-    scan_number, sigma, data_desc_id, time, ut (added to axis_info),
-    uvw, u, v, w, uvdist, and weight. Unrecognized items will result in
-    a warning being sent to the logger.  Duplicate items are silently
-    ignored.
+    residual_imaginary, obs_residual_imaginary, last (added to axis_info),
+    phase, corrected_phase, model_phase, ratio_phase, residual_phase,
+    obs_residual_phase, real, corrected_real, ratio_real, residual_real,
+    obs_residual_real, scan_number, sigma, data_desc_id, time, ut (added to
+    axis_info), uvw, u, v, w, uvdist, and weight. Unrecognized items will
+    result in a warning being sent to the logger.  Duplicate items are
+    silently ignored.
 
     The record that is returned contains fields that correspond to
     each of the specified items. Most fields will contain an
@@ -3485,10 +3578,9 @@ for i in range(len(tcoord)):
     calling this function. If you haven't then selectinit2 will be
     called for you with default arguments.
 
-    Items prefixed with either; corrected, model, residual or
-    obs_residual and the imaging_weight item are not available unless
-    your measurement set has been processed either with the imager or
-    calibrator tools.
+    Items prefixed with corrected, model, residual or obs_residual are not
+    available unless your measurement set has been processed either with the
+    imager or calibrator tools.
   </description>
   <example>
     
@@ -3586,7 +3678,7 @@ for i in range(len(tcoord)):
     ignored when writing the modified values back using this function.
 
     Allowable items include:  data, corrected_data, model_data, flag,
-    flag_row, imaging_weight, sigma, and weight.
+    flag_row, sigma, and weight.
 
     The measurement set has to be opened for read/write access to be
     able to use this function.
@@ -3595,10 +3687,9 @@ for i in range(len(tcoord)):
     calling this function. If you haven't then selectinit will be
     called for you with default arguments.
 
-    Items prefixed with either; corrected, model, residual or
-    obs_residual and the imaging_weight item are not available unless
-    your measurement set has been processed either with the imager or
-    calibrator tools.
+    Items prefixed with corrected, model, residual or obs_residual are not
+    available unless your measurement set has been processed either with the
+    imager or calibrator tools.
   </description>
   <example>
     
@@ -3658,7 +3749,7 @@ for i in range(len(tcoord)):
     ignored when writing the modified values back using this function.
 
     Allowable items include:  data, corrected_data, model_data, flag,
-    flag_row, imaging_weight, sigma, and weight.
+    flag_row, sigma, and weight.
 
     The measurement set has to be opened for read/write access to be
     able to use this function.
@@ -3667,10 +3758,9 @@ for i in range(len(tcoord)):
     calling this function. If you haven't then selectinit2 will be
     called for you with default arguments.
 
-    Items prefixed with either; corrected, model, residual or
-    obs_residual and the imaging_weight item are not available unless
-    your measurement set has been processed either with the imager or
-    calibrator tools.
+    Items prefixed with corrected, model, residual or obs_residual are not
+    available unless your measurement set has been processed either with the
+    imager or calibrator tools.
   </description>
   <example>
     
