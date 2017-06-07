@@ -1166,6 +1166,10 @@ class simutil:
                         antennalist=repodir+"alma.out"+conf+".cfg"
                         self.msg("converted resolution to antennalist "+antennalist)
 
+            repodir = os.getenv("CASAPATH").split(' ')[0] + "/data/alma/simmos/"
+            if not os.path.exists(antennalist) and \
+                     os.path.exists(repodir+antennalist):
+                antennalist = repodir + antennalist
             if os.path.exists(antennalist):
                 stnx, stny, stnz, stnd, padnames, telescope, posobs = self.readantenna(antennalist)
             else:
@@ -1182,6 +1186,9 @@ class simutil:
             self.msg("Telescope name or antenna diameter have not been set.",priority="error")
             return False
 
+        if qa.convert(elevation,"deg")['value']<3:
+            self.msg("Elevation < ALMA limit of 3 deg",priority="error")
+            return False
         # copied from task_simdata:
 
         self.setcfg(sm, telescope, stnx, stny, stnz, stnd, padnames, posobs)
@@ -1200,7 +1207,7 @@ class simutil:
                        nchannels=model_nchan, stokes=stokes)
         sm.setfeed(mode=feeds, pol=[''])
 
-        sm.setlimits(shadowlimit=0.01, elevationlimit='10deg')
+        sm.setlimits(shadowlimit=0.01, elevationlimit='3deg')
         sm.setauto(0.0)
 
         obslat=qa.convert(posobs['m1'],'deg')
