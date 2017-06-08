@@ -13,9 +13,10 @@ class __doc(object):
     def __init__( self ):
         self.local_toc = None
         self.remote_toc = None
-        self.remote_source_url = "https://casaweb-snapshot.cv.nrao.edu/casa5-0/casa5-0"
+        version = "casa-%d.%d.%d" % tuple(cu.version( )[:3])
+        self.remote_source_url = "https://casa.nrao.edu/casadocs/%s" % version
         self.remote_source_url_components = urlparse(self.remote_source_url)
-        self.remote_toc_url = 'https://%s/PloneResource/stable/toc.xml' % self.remote_source_url_components[1]
+        self.remote_toc_url = 'https://%s/PloneResource/%s/toc.xml' % (self.remote_source_url_components[1],version)
 
         self.local_toc_url = None if casa['dirs']['doc'] is None else casa['dirs']['doc'] + '/casa.nrao.edu/casadocs/toc.xml'
 
@@ -54,8 +55,6 @@ class __doc(object):
                     print "------------------------------------------------------------------------------"
                     show_toc(self.remote_toc)
         else:
-            print "Displaying packaged documentation for CASA %s\nusing the web browser provided by your operating system...\n" % casa['version']
-            print "The documentation for this and other releases is available at:\n        https://casa.nrao.edu/casadocs/\n\n"
             path = casa['dirs']['doc'] + "/casa.nrao.edu"
             if sec is None:
                 homepage = "%s/%s.html" % (path,self.remote_source_url_components[2])
