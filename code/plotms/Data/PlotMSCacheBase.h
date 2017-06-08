@@ -412,8 +412,8 @@ protected:
   // The fundamental meta-data cache
   casacore::Matrix<casacore::Int> chshapes_;
   casacore::Vector<casacore::Bool> goodChunk_;
-  casacore::Vector<casacore::Double> time_, timeIntr_;
-  casacore::Vector<casacore::Int> field_, spw_, scan_, atm_;
+  casacore::Vector<casacore::Double> time_, timeIntr_, atm_;
+  casacore::Vector<casacore::Int> field_, spw_, scan_;
   casacore::PtrBlock<casacore::Vector<casacore::uInt>*> row_;
   casacore::PtrBlock<casacore::Vector<casacore::Int>*> antenna1_, antenna2_, baseline_;
   casacore::PtrBlock<casacore::Vector<casacore::Double>*> uvdist_, u_, v_, w_;

@@ -30,6 +30,7 @@
 #include <plotms/PlotMS/PlotMSSelection.h>
 #include <ms/MeasurementSets/MeasurementSet.h>
 #include <synthesis/CalTables/NewCalTable.h>
+#include <atmosphere/ATM/ATMProfile.h>
 
 namespace casa {
 
@@ -80,7 +81,7 @@ public:
     void setSelection(PlotMSSelection& selection);
 
     // returns transmission vector
-    casacore::Vector<casacore::Int> calcAtmTransmission();
+    casacore::Vector<casacore::Double> calcAtmTransmission();
 
 private:
 
@@ -99,7 +100,9 @@ private:
     casacore::Double getMedianPwv();
     casacore::Record getMeanWeather();
     casacore::Double computeMeanAirmass();
-    casacore::Double getMeanScantime();
+
+    // atmosphere tool
+    atm::AtmProfile* getAtmProfile();
 
     // utility functions
     template <typename T>
@@ -109,6 +112,7 @@ private:
     casacore::String getSelectionExpr(
         casacore::Vector<casacore::Int> intVector);
     casacore::Double getElevation(casacore::Int fieldId);
+    casacore::Double getMeanScantime();
 
     NewCalTable* bptable_;
     casacore::Vector<casacore::Double> caltimes_;

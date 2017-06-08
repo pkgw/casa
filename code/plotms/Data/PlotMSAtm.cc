@@ -35,6 +35,9 @@
 #include <measures/Measures/MeasTable.h>
 #include <ms/MeasurementSets/MSColumns.h>
 #include <synthesis/CalTables/CTColumns.h>
+#include <atmosphere/ATM/ATMSpectralGrid.h>
+#include <atmosphere/ATM/ATMRefractiveIndexProfile.h>
+#include <atmosphere/ATM/ATMSkyStatus.h>
 
 using namespace casacore;
 
@@ -139,19 +142,79 @@ void PlotMSAtm::setSelection(PlotMSSelection& selection) {
     setCalTimes();  // update based on selection
 }
 
-casacore::Vector<casacore::Int> PlotMSAtm::calcAtmTransmission() {
-    // Implements algorithm in CAS-9053 to get atmospheric transmission curve
-    casacore::Vector<casacore::Int> transmission;
-    // Get info from MS
-    casacore::Double pwv = getMedianPwv();
+atm::AtmProfile* PlotMSAtm::getAtmProfile() {
+    // AtmProfile uses weather info and altitude
     casacore::Record weather = getMeanWeather();
-    casacore::Double airmass = computeMeanAirmass();
-    return transmission;
+    casacore::Double altitude(5059.0);
+    // Use at tool defaults for other values:
+    // Tropospheric lapse rate, scale height, pressure step,
+    // pressure step factor, top altitude
+    casacore::Double TLR(-5.6), h0(2.0), dp(10.0), dPm(1.2), maxAlt(48.0);
+    unsigned int atmtype(atm::midlatWinter);
+    atm::AtmProfile* atmProfile = new atm::AtmProfile(
+        atm::Length(altitude,"m"), 
+        atm::Pressure(weather.asDouble("pressure"), "mb"), 
+        atm::Temperature(weather.asDouble("temperature"), "K"), TLR, 
+        atm::Humidity(weather.asDouble("humidity"),"%"), atm::Length(h0,"km"), 
+        atm::Pressure(dp, "mb"), dPm, atm::Length(maxAlt, "km"), atmtype);
+    return atmProfile;
+}
+
+casacore::Vector<casacore::Double> PlotMSAtm::calcAtmTransmission() {
+    // Implements algorithm in CAS-9053 to get atmospheric transmission curve
+    casacore::Vector<casacore::Double> transmission;
+    // get chan freqs
+    ROCTColumns ctCol(*bptable_);
+    casacore::Array<casacore::Double> chanFreqCol = 
+        ctCol.spectralWindow().chanFreq().getColumn();
+    casacore::Array<casacore::Double> chanFreqColGHz = chanFreqCol / 1.0e9;
+    // make SpectralGrid, RefractiveIndexProfile, SkyStatus for each spw
+    unsigned int numSpw(chanFreqColGHz.shape()(1));
+    unsigned int numChan(chanFreqColGHz.shape()(0)), chansForCalc(numChan);
+    unsigned int midChan(numChan/2);
+    while (chansForCalc > 512)  chansForCalc /= 2;
+    unsigned int refChan((chansForCalc - 1) / 2);
+    casacore::Array<casacore::Double> chanFreqPerSpw;
+    casacore::Double refFreq, chanSep;
+    atm::SpectralGrid* specGrid;
+    atm::RefractiveIndexProfile* refIdxProfile;
+    atm::SkyStatus* skyStatus;
+    casacore::Double pwv = getMedianPwv();  // in mm, for SkyStatus
+    casacore::Vector<casacore::Double> dryOpacity, wetOpacity;
+    casacore::Double airmass = computeMeanAirmass(); // for transmission
+    for (uInt spw=0; spw<numSpw; ++spw) {
+        atm::AtmProfile* atmProfile = getAtmProfile();
+        chanFreqPerSpw = chanFreqColGHz(Slicer(Slice(), spw));
+        refFreq = 0.5 * (chanFreqPerSpw(IPosition(2, midChan-1, 0)) + chanFreqPerSpw(IPosition(2, midChan, 0)));
+        chanSep = (chanFreqPerSpw(IPosition(2, numChan-1, 0)) - chanFreqPerSpw(IPosition(2, 0, 0))) / (chansForCalc - 1);
+        if (chansForCalc % 2 == 0)
+            refFreq -= chanSep*0.5;
+        specGrid = new atm::SpectralGrid(chansForCalc, refChan,
+            atm::Frequency(refFreq, "GHz"), atm::Frequency(chanSep, "GHz"));
+        refIdxProfile = new atm::RefractiveIndexProfile(*specGrid, *atmProfile);
+        skyStatus = new atm::SkyStatus(*refIdxProfile);
+        skyStatus->setUserWH2O(atm::Length(pwv, "mm"));
+        dryOpacity.resize(chansForCalc);
+        wetOpacity.resize(chansForCalc);
+        for (uInt chan=0; chan<chansForCalc; ++chan) {
+            dryOpacity(chan) = refIdxProfile->getDryOpacity(0,chan).get("neper");
+            wetOpacity(chan) = skyStatus->getWetOpacity(0, chan).get("mm-1");
+        }
+        transmission = exp(-airmass*(wetOpacity + dryOpacity));
+        cout << "PDEBUG: airmass=" << airmass << " transmission=" << transmission << endl;
+        // clean up
+        delete specGrid;
+        delete refIdxProfile;
+        delete skyStatus;
+        delete atmProfile;
+    }
+    return transmission; 
 }
 
 casacore::Double PlotMSAtm::getMedianPwv() {
     // Get pwv (precipitable water vapor) from MS subtable
     // or use default value for telescope
+    // Return value in meters
     casacore::Double pwv(0.0);
 
     if (ms_) {
@@ -176,7 +239,7 @@ casacore::Double PlotMSAtm::getMedianPwv() {
             casacore::Vector<casacore::Double> water = 
                 getValuesNearCalTimes(waterCol, timesCol);
             if (!water.empty())
-                pwv = median(water) * 1000.0; // convert to mm
+                pwv = median(water) * 1000.0; // in mm
         }
     }
 
@@ -191,6 +254,8 @@ casacore::Record PlotMSAtm::getMeanWeather() {
     // Info from MS WEATHER table
     // set defaults
     casacore::Float pressure, humidity(20.0), temperature(273.15);
+    // NB: plotbandpass uses default pressure 563 in all cases;
+    // see CAS-9053 algorithm #2
     if (isAlma())
         pressure = 563.0;  // mb
     else 

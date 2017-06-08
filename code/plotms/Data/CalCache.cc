@@ -644,8 +644,8 @@ void CalCache::loadCalChunks(ROCTIter& ci,
     // always need chan for getAtm()
     *chan_[chunk] = cti.chan();
     if (chunk==0) {  // load atm array once, per-channel
-        Vector<Int> temp = atm_p->calcAtmTransmission();
-        atm_ = 10;   // TBF: for testing, load constant to plot
+        Vector<Double> temp = atm_p->calcAtmTransmission();
+        atm_ = 10.0;   // TBF: for testing, load constant to plot
     }
     break;
   }
