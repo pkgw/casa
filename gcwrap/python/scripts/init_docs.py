@@ -19,6 +19,7 @@ class __doc(object):
         self.remote_toc_url = 'https://%s/PloneResource/%s/toc.xml' % (self.remote_source_url_components[1],version)
 
         self.local_toc_url = None if casa['dirs']['doc'] is None else casa['dirs']['doc'] + '/casa.nrao.edu/casadocs/toc.xml'
+        self.local_start_path = "usingcasa/starting-casa.html"
 
     def __call__( self, sec=None ):
         "open browser with documentation, try \"doc('toc')\""
@@ -57,7 +58,7 @@ class __doc(object):
         else:
             path = casa['dirs']['doc'] + "/casa.nrao.edu"
             if sec is None:
-                homepage = "%s/%s.html" % (path,self.remote_source_url_components[2])
+                homepage = "%s%s.html" % (path,self.remote_source_url_components[2])
                 if os.path.exists(path):
                     return webbrowser.open("file://" + homepage)
                 else:
@@ -72,8 +73,10 @@ class __doc(object):
                         return False
                 if sec == 'toc':
                     show_toc(self.local_toc)
+                elif sec == 'start':
+                    return webbrowser.open(path + "/casadocs/stable/" + self.local_start_path)
                 elif self.local_toc.has_key(sec):
-                    return webbrowser.open(path + "/stable/" + self.local_toc[sec]['path'])
+                    return webbrowser.open(path + "/casadocs/stable/" + self.local_toc[sec]['path'])
                 else:
                     print "Sorry '%s' is not a recognized section..." % sec
                     print "------------------------------------------------------------------------------"
@@ -89,13 +92,14 @@ class __doc(object):
             return False
 
         ## rename existing directory
+        path = casa['dirs']['doc'] + "/casa.nrao.edu"
         if os.path.exists(casa['dirs']['doc'] + "/casa.nrao.edu"):
-            path = casa['dirs']['doc'] + "/casa.nrao.edu"
             now = datetime.datetime.now( ).isoformat('-')
             os.rename(path, path + "." + now)
 
         print "               source:  %s" % self.remote_source_url
         print "    table of contents:  %s" % self.remote_toc_url
+        print "       download point:  %s" % path
         print "--- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---"
         print "this will take some time..."
         print "relax..."
