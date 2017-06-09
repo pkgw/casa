@@ -674,6 +674,10 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                   all the spws. Using this option with different numbers of channels for
                   different spws will result in an error.
 
+            NOTE: If the SPWs have different polarization settings only the common
+                  polarizations will be output. For instance, if SPW 1 has XX XY YX YY and
+                  SPW 2 has XX YY, the output MS will have a single SPW with XX YY polarizations
+
             NOTE: Whenever the data to be combined has different EXPOSURE values 
                   in the spectral windows, mstransform will use the WEIGHT_SPECTRUM 
                   for the combination. If WEIGHT_SPECTRUM is not available, it will 
