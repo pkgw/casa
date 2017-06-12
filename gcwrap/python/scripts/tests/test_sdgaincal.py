@@ -4,6 +4,7 @@ import shutil
 import re
 import numpy
 import math
+import sdutil
 
 from __main__ import default
 from taskinit import gentools
@@ -92,8 +93,7 @@ class sdgaincal_test_base(unittest.TestCase):
         try:
             # caltype must be "G Jones"
             caltype = tb.getkeyword('VisCal')
-            self.assertEqual(caltype, "G Jones")
-            
+            self.assertEqual(caltype, "SDGAIN_OTFD")
             # paramter must be Complex
             partype = tb.getkeyword('ParType')
             self.assertEqual(partype, 'Complex')
@@ -142,17 +142,20 @@ class sdgaincal_test_base(unittest.TestCase):
                 ma = numpy.ma.masked_array(fparam, flag)
                 mean_gain = ma.mean(axis=2)
                 print mean_gain
-                self.assertTrue(numpy.all((numpy.abs(mean_gain) - 1.0) < 0.01))
+                npol = fparam.shape[0]
+                for ipol in xrange(npol):
+                    if numpy.any(flag[ipol] == False):
+                        self.assertTrue(abs(mean_gain[ipol] - 1.0) < 0.01)
                 
             
-            self._verify_fparam_and_flag(tb)
+            self._verify_param_and_flag(tb)
             
         finally:
             tb.close()
         pass
     
-    def _verify_fparam_and_flag(self, table):
-        self.assertFail('_verify_fparam_and_flag not implemented')
+    def _verify_param_and_flag(self, table):
+        self.assertFail('_verify_param_and_flag not implemented')
 
 class sdgaincal_fail_test(sdgaincal_test_base):
     """
@@ -237,7 +240,7 @@ class sdgaincal_const_test(sdgaincal_test_base):
             tb.close()
         self.assertEqual(nrow, 0)
         
-    def _verify_fparam_and_flag(self, table):
+    def _verify_param_and_flag(self, table):
         for irow in xrange(table.nrows()):
             fparam = table.getcell('CPARAM', irow).real
             self.assertTrue(numpy.all(fparam == 1.0))
@@ -284,7 +287,7 @@ class sdgaincal_variable_test(sdgaincal_test_base):
     outfile = 'sdgaincal_variable_test.sdgain.caltable'
     reffile = 'doublecircletest_autoscale.sdgain.caltable'
     
-    def _verify_fparam_and_flag(self, table):
+    def _verify_param_and_flag(self, table):
         (reftable,) = gentools(['tb'])
         reftable.open(self.reffile)
         
@@ -312,10 +315,68 @@ class sdgaincal_variable_test(sdgaincal_test_base):
         
         self._verify_caltable(self._generic_verify, **params)
 
+class sdgaincal_single_polarization_test(sdgaincal_test_base):
+    """
+    Unit tests for task sdgaincal.
+    
+    The list of tests:
+    Test Name        | Radius      | Expectation
+    ==========================================================================
+    test_single_pol  | '65arcsec'  | test single-polarization calibration (YY)
+    """
+    infile = 'doublecircletest_const.ms'
+    outfile = 'sdgaincal_const_test.sdgain.caltable'
+    
+    # for single-polarization test
+    infile_YY = 'doublecircletest_const.YY.ms'
+    
+    def tearDown(self):
+        super(sdgaincal_single_polarization_test, self).tearDown()
+        
+        if os.path.exists(self.infile_YY):
+            shutil.rmtree(self.infile_YY)
+    
+    def _verify_param_and_flag(self, table):
+        """
+        Only first polarization is effective.
+        Second polarization should be all flagged.
+        """
+        print 'sdgaincal_single_polarization_test._verify_param_and_flag'
+        for irow in xrange(table.nrows()):
+            fparam = table.getcell('CPARAM', irow).real
+            self.assertTrue(numpy.all(fparam[0] == 1.0))
+            self.assertTrue(numpy.all(fparam[1] == 0.0))
+                
+            flag = table.getcell('FLAG', irow)
+            self.assertTrue(numpy.all(flag[0] == False))
+            self.assertTrue(numpy.all(flag[1] == True))
+    
+    def test_single_pol(self):
+        """test_single_pol: test single-polarization calibration (YY)"""
+        # generate single-polarization MS
+        from mstransform_cli import mstransform_cli as mstransform
+        mstransform(vis=self.infile, outputvis=self.infile_YY, correlation='YY',
+                    datacolumn='float_data')
+        
+        self.assertTrue(os.path.exists(self.infile_YY))
+        with sdutil.tbmanager(self.infile_YY) as tb:
+            try:
+                for irow in xrange(tb.nrows()):
+                    flag = tb.getcell('FLAG', irow)
+                    self.assertEqual(flag.shape[0], 1)
+            finally:
+                tb.close()
+        
+        params = self.generate_params(radius='65arcsec')
+        params['infile'] = self.infile_YY
+        self.run_task(**params)
+        
+        self._verify_caltable(self._generic_verify, **params)
 
 def suite():
     return [sdgaincal_fail_test,
             sdgaincal_const_test,
-            sdgaincal_variable_test]
+            sdgaincal_variable_test,
+            sdgaincal_single_polarization_test]
 
 

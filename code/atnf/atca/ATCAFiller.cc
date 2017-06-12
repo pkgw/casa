@@ -23,10 +23,10 @@
 //#                        520 Edgemont Road
 //#                        Charlottesville, VA 22903-2475 USA
 //#
-//# $Id: ATCAFillerImpl.cc,v 1.12 2007/02/23 02:08:49 gvandiep Exp $
 
 
 #include <atnf/atca/ATCAFiller.h>
+#include <atnf/atca/ATAtmosphere.h>
 #include <casa/Arrays/Cube.h>
 #include <scimath/Mathematics/FFTServer.h>
 #include <casa/OS/DirectoryIterator.h>
@@ -35,7 +35,8 @@
 #include <RPFITS.h>
 #include <ms/MeasurementSets/MSTileLayout.h>
 
-using namespace casa;
+using namespace casacore;
+namespace casa {
 
 Int myround(Double x) { return Int(floor(x+0.5));}
 
@@ -2427,3 +2428,15 @@ Bool ATCAFiller::samplerFlag(Int row, Double posNegTolerance,
   }
   return flag;
 }
+
+Vector<Double> ATCAFiller::opacities(Vector<Double> fGHz, Float tempK,Float humi,Float press,
+                                     Float height) {
+  // use (former) ASAP/Miriad code to calculate zenith opacities at a range of frequencies
+  // given the surface weather conditions
+  
+  ATAtmosphere atm = ATAtmosphere(tempK,press*100.,humi/100.);
+  atm.setObservatoryElevation(height);
+  return atm.zenithOpacities(fGHz*1e9);
+}
+
+} //# end casa namespace
