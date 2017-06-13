@@ -158,11 +158,14 @@ fntool = casac.functional
 imdtool = casac.imagemetadata
 
 utilstool = casac.utils
-cu = casac.cu = utilstool()
+cutool = utilstool
+cu = casac.cu = cutool( )
 vftask = casac.vlafillertask()
 vlafiller=vftask.fill
-at = casac.atmosphere()
-ca = casac.calanalysis()
+attool = casac.atmosphere
+at = attool( )
+catool = casac.calanalysis
+ca = catool( )
 mttool = casac.mstransformer
 mt = mttool()
 sdmstool = casac.singledishms
