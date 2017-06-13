@@ -605,7 +605,9 @@ int
 atmosphere::getRefChan(int spwid)
 {
   auto myfunc = (unsigned int(SpectralGrid::*)(unsigned int) const)&SpectralGrid::getRefChan;
-  return DoSpGridSingleIdFuncInt(myfunc, spwid);
+//  return DoSpGridSingleIdFuncInt(myfunc, spwid);
+// KS NOTE A WORKAROUND FOR CAS-10228.
+  return DoSpGridSingleIdFuncInt(myfunc, spwid)-1;
 }
 
 /// a private helper function
