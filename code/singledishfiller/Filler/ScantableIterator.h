@@ -337,7 +337,7 @@ public:
     for (casacore::uInt i = 1; i < nrow_main; ++i) {
       casacore::String name = srcname_list[index_list[i]];
       if (current != name) {
-        srcname_boundary.push_back(i);
+        srcname_boundary.push_back(index_list[i]);
         current = name;
       }
     }
@@ -350,6 +350,11 @@ public:
       casacore::String name = srcname_list[srcname_boundary[i]];
       size_t start = srcname_boundary[i];
       size_t end = srcname_boundary[i + 1];
+      if (start > end) {
+        auto const tmp = start;
+        start = end;
+        end = tmp;
+      }
       std::map<casacore::uInt, casacore::Block<casacore::Double> > range;
       std::map<casacore::uInt, casacore::Block<casacore::uInt> > range_index;
       getDataRangePerId(index_list, ifno_list, start, end,
