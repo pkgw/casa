@@ -132,6 +132,8 @@ public:
 
 	// Members
 
+	std::unique_ptr<VisibilityIteratorImpl2> clone();
+
 	// Report the the ViImplementation type
 	//  TBD:  indicate writable?
 	virtual casacore::String

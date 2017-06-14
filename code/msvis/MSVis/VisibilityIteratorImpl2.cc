@@ -1174,6 +1174,91 @@ VisibilityIteratorImpl2::~VisibilityIteratorImpl2()
 	delete vb_p;
 }
 
+std::unique_ptr<VisibilityIteratorImpl2>
+VisibilityIteratorImpl2::clone()
+{
+	unsigned nms = measurementSets_p.nelements();
+	Block<const MeasurementSet *> msps(nms);
+	for (unsigned i = 0; i < nms; ++i)
+		msps[i] = &measurementSets_p[i];
+
+	std::unique_ptr<VisibilityIteratorImpl2> result(
+		new VisibilityIteratorImpl2(
+			msps,
+			sortColumns_p,
+			timeInterval_p,
+			VbPlain,
+			writable_p,
+			false));
+
+	// clone msIter_p
+	result->msIter_p.reset(msIter_p->clone());
+
+	// copy cache
+	result->cache_p = cache_p;
+
+	// clone frequencySelections_p
+	delete result->frequencySelections_p;
+	result->frequencySelections_p = frequencySelections_p->clone();
+
+	// copy channelSelector_p
+	result->channelSelector_p =
+		new ChannelSelector(
+			channelSelector_p->timeStamp,
+			channelSelector_p->msId,
+			channelSelector_p->spectralWindowId,
+			channelSelector_p->polarizationId,
+			channelSelector_p->getSlicer());
+
+	// get frame of reference for current MS
+	const FrequencySelection &selection = frequencySelections_p->get(msId());
+	Int frameOfReference = selection.getFrameOfReference();
+
+	// initialize channelSelector_p with current channelSelector_p
+	result->channelSelectorCache_p->flush();
+	result->channelSelectorCache_p->add(
+		result->channelSelector_p,
+		result->channelSelector_p->timeStamp,
+		result->channelSelector_p->msId,
+		frameOfReference,
+		result->channelSelector_p->spectralWindowId);
+
+	// copy assign some values
+	result->columns_p = columns_p;
+	result->floatDataFound_p = floatDataFound_p;
+	result->imwgt_p = imwgt_p;
+	result->measurementFrame_p = measurementFrame_p;
+	result->more_p = more_p;
+	result->msIndex_p = msIndex_p;
+	result->msIterAtOrigin_p = msIterAtOrigin_p;
+	result->nCorrelations_p = nCorrelations_p;
+	result->nRowBlocking_p = nRowBlocking_p;
+	result->reportingFrame_p = reportingFrame_p;
+	result->rowBounds_p = rowBounds_p;
+	result->subchunk_p = subchunk_p;
+	result->timeFrameOfReference_p = timeFrameOfReference_p;
+	result->timeInterval_p = timeInterval_p;
+	result->weightScaling_p = weightScaling_p;
+	result->writable_p = writable_p;
+
+	// clone modelDataGenerator_p
+	delete result->modelDataGenerator_p;
+	result->modelDataGenerator_p = modelDataGenerator_p->clone();
+
+	// initialize MSDerivedValues
+	result->msd_p.setAntennas(result->msIter_p->msColumns().antenna());
+	result->msd_p.setFieldCenter(result->msIter_p->phaseCenter());
+
+	// clone pendingChanges_p
+	result->pendingChanges_p.reset(pendingChanges_p->clone());
+
+	// initialize subtableColumns_p
+	delete result->subtableColumns_p;
+	result->subtableColumns_p = new SubtableColumns(result->msIter_p);
+
+	return result;
+}
+
 VisibilityIteratorImpl2::Cache::Cache()
 	:
 	azel0Time_p(-1),
