@@ -1162,7 +1162,7 @@ protected:
 	// suggested # of rows in a subchunk
 	casacore::Int nRowBlocking_p;
 	// holds pending changes to VI properties
-	PendingChanges pendingChanges_p;
+	std::unique_ptr<PendingChanges> pendingChanges_p;
 	mutable std::unique_ptr<PointingDirectionCache>  pointingDirectionCache_p;
 	mutable std::unique_ptr<PointingSource>  pointingSource_p;
 	// default frequency reporting (not selecting) frame of reference

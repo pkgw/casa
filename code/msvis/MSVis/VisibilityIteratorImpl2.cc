@@ -1040,6 +1040,7 @@ VisibilityIteratorImpl2::VisibilityIteratorImpl2(
 	  msIter_p( ),
 	  nCorrelations_p(-1),
 	  nRowBlocking_p(0),
+	  pendingChanges_p(new PendingChanges()),
 	  reportingFrame_p(VisBuffer2::FrameNotSpecified),
 	  sortColumns_p(sortColumns),
 	  spectralWindowChannelsCache_p(new SpectralWindowChannelsCache()),
@@ -1473,13 +1474,13 @@ VisibilityIteratorImpl2::antennaMounts() const
 void
 VisibilityIteratorImpl2::setInterval(Double timeInterval)
 {
-	pendingChanges_p.setInterval(timeInterval);
+	pendingChanges_p->setInterval(timeInterval);
 }
 
 void
 VisibilityIteratorImpl2::setRowBlocking(Int nRow)
 {
-	pendingChanges_p.setNRowBlocking(nRow);
+	pendingChanges_p->setNRowBlocking(nRow);
 }
 
 const MDirection &
@@ -1662,7 +1663,7 @@ VisibilityIteratorImpl2::originChunks()
 void
 VisibilityIteratorImpl2::applyPendingChanges()
 {
-	if (!pendingChanges_p.empty()) {
+	if (!pendingChanges_p->empty()) {
 
 		Bool exists;
 
@@ -1670,7 +1671,7 @@ VisibilityIteratorImpl2::applyPendingChanges()
 
 		FrequencySelections * newSelection;
 		std::tie(exists, newSelection) =
-			pendingChanges_p.popFrequencySelections();
+			pendingChanges_p->popFrequencySelections();
 
 		if (exists) {
 
@@ -1682,7 +1683,7 @@ VisibilityIteratorImpl2::applyPendingChanges()
 		// Handle any pending interval change
 
 		Double newInterval;
-		std::tie(exists, newInterval) = pendingChanges_p.popInterval();
+		std::tie(exists, newInterval) = pendingChanges_p->popInterval();
 
 		if (exists) {
 
@@ -1693,7 +1694,7 @@ VisibilityIteratorImpl2::applyPendingChanges()
 		// Handle any row-blocking change
 
 		Int newBlocking;
-		std::tie(exists, newBlocking) = pendingChanges_p.popNRowBlocking();
+		std::tie(exists, newBlocking) = pendingChanges_p->popNRowBlocking();
 
 		if (exists) {
 
@@ -1779,7 +1780,7 @@ VisibilityIteratorImpl2::throwIfPendingChanges()
 	// changes to take effect; it is an error to try to advance the VI if there
 	// are unapplied changes pending.
 
-	ThrowIf(!pendingChanges_p.empty(),
+	ThrowIf(!pendingChanges_p->empty(),
 	        "Call to originChunks required after applying frequencySelection");
 
 }
@@ -3292,7 +3293,7 @@ void
 VisibilityIteratorImpl2::setFrequencySelections(
 	FrequencySelections const& frequencySelections)
 {
-	pendingChanges_p.setFrequencySelections(frequencySelections.clone());
+	pendingChanges_p->setFrequencySelections(frequencySelections.clone());
 
 	channelSelectorCache_p->flush();
 	spectralWindowChannelsCache_p->flush();
