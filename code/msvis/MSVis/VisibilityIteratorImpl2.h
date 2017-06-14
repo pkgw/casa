@@ -1029,8 +1029,6 @@ protected:
 
 		Cache();
 
-		Cache & operator=(const Cache & other);
-
 		void flush();
 
 		casacore::MDirection azel0_p;

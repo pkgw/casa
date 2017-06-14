@@ -15,7 +15,6 @@ class ViColumns2 {
 public:
 
     ViColumns2 ();
-    ViColumns2 & operator= (const ViColumns2 & other);
 
     void attachColumns (const casacore::Table & t, bool attachSpecialColumns = true);
 
