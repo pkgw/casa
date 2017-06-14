@@ -894,7 +894,6 @@ private:
 	Int msId_p;
 	Int nBytes_p;
 
-
 };
 
 Subchunk
@@ -1045,7 +1044,6 @@ VisibilityIteratorImpl2::VisibilityIteratorImpl2(
 	  sortColumns_p(sortColumns),
 	  spectralWindowChannelsCache_p(new SpectralWindowChannelsCache()),
 	  subtableColumns_p(0),
-	  tileCacheIsSet_p(0),
 	  timeInterval_p(timeInterval),
 	  vb_p(0),
 	  weightScaling_p( ),
@@ -1987,7 +1985,7 @@ VisibilityIteratorImpl2::determineChannelSelection(
 	// Cache it for possible future use.  The cache may hold multiple equivalent
 	// selectors, each having a different timestamp.  Since selectors are small
 	// and there are not expected to be many equivalent selectors in the cache
-	// at a time, this shouldn't be a problem(the special case of selection by
+	// at a time, this shouldn't be a problem (the special case of selection by
 	// channel number is already handled).
 
 	channelSelectorCache_p->add(newSelector, time, msId, frameOfReference,

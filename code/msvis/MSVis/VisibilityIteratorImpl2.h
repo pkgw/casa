@@ -1130,7 +1130,7 @@ protected:
 
 	casacore::Bool autoTileCacheSizing_p;
 	std::map <VisBufferComponent2, BackWriter *> backWriters_p;
-	// general copllection of cached values
+	// general collection of cached values
 	mutable Cache cache_p;
 	// [use] current channel selector for this casacore::MS & Spw
 	const ChannelSelector * channelSelector_p;
@@ -1177,8 +1177,6 @@ protected:
 	Subchunk subchunk_p;
 	// [own] Allows const access to casacore::MS's subtable columns
 	SubtableColumns * subtableColumns_p;
-	// Flags indicating whether tile cache set for this column
-	casacore::Vector<casacore::Bool> tileCacheIsSet_p;
 	casacore::MeasRef<casacore::MEpoch> timeFrameOfReference_p;
 	casacore::Double timeInterval_p;
 	// [own] VisBuffer attached to this VI
