@@ -81,7 +81,7 @@ Previous calibrations (egs. bandpass) should be applied on the fly.
 	</param>
 
 	<param type="any" name="solint">
-		<description>Solution interval: egs. \'inf\', \'60s\' (see help)</description>
+		<description>Solution interval</description>
 		<any type="variant"/>
 		<value type="string">inf</value>
 	</param>
@@ -138,7 +138,8 @@ Previous calibrations (egs. bandpass) should be applied on the fly.
 
 
 	<param type="string" name="calmode">
-		<description>Type of solution: (\'ap\', \'p\', \'a\')</description>
+		<shortdescription>Amp/phase calibration solving mode</shortdescription>
+		<description>Amp/phase calibration solving mode: ('ap', 'p', 'a')</description>
 		<value>ap</value>
 		<allowed kind="enum">
 			<value>a</value>
@@ -153,7 +154,7 @@ Previous calibrations (egs. bandpass) should be applied on the fly.
 	</param>
 
 	<param type="double" name="splinetime" subparam="true">
-		<description>Spline timescale(sec); All spw\'s are first averaged.</description>
+		<description>Spline timescale(sec); All spws are first averaged.</description>
 		<value>3600.0</value>
 	</param>
 

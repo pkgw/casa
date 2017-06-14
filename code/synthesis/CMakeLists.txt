@@ -859,13 +859,14 @@ casa_add_unit_test( MODULES synthesis SOURCES ImagerObjects/test/tSynthesisImage
 casa_add_unit_test( MODULES synthesis SOURCES ImagerObjects/test/tSynthesisImagerVi2.cc  TransformMachines2/test/MakeMS.cc )
 casa_add_unit_test( MODULES synthesis SOURCES Utilities/test/tFFT2D.cc  ) 
 casa_add_unit_test( MODULES synthesis SOURCES CalTables/test/tCTPatchedInterp.cc )
+casa_add_unit_test( MODULES synthesis SOURCES ImagerObjects/test/tLabelandFindRegions.cc )
 
 
 casa_add_google_test( MODULES mstransform SOURCES ../mstransform/MSTransform/test/tMSTransformIterator.cc  ../mstransform/TVI/test/TestUtilsTVI.cc)
 casa_add_google_test( MODULES mstransform SOURCES ../mstransform/TVI/test/tChannelAverageTVI.cc  ../mstransform/TVI/test/TestUtilsTVI.cc)
 casa_add_google_test( MODULES mstransform SOURCES ../mstransform/TVI/test/tHanningSmoothTVI.cc  ../mstransform/TVI/test/TestUtilsTVI.cc)
 casa_add_google_test( MODULES mstransform SOURCES ../mstransform/TVI/test/tPhaseShiftingTVI.cc  ../mstransform/TVI/test/TestUtilsTVI.cc)
-casa_add_google_test( MODULES mstransform SOURCES ../mstransform/TVI/test/tStatWtTVI.cc  ../mstransform/TVI/test/TestUtilsTVI.cc)
+#casa_add_google_test( MODULES mstransform SOURCES ../mstransform/TVI/test/tStatWtTVI.cc  ../mstransform/TVI/test/TestUtilsTVI.cc)
 casa_add_google_test( NOT_ON_APPLE MODULES mstransform SOURCES ../mstransform/TVI/test/tRegriddingTVI.cc  ../mstransform/TVI/test/TestUtilsTVI.cc)
 casa_add_google_test( NOT_ON_APPLE MODULES mstransform SOURCES ../mstransform/TVI/test/tUVContSubTVI.cc  ../mstransform/TVI/test/TestUtilsTVI.cc)
 

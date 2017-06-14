@@ -241,7 +241,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //itsLoopController.setMadRMS( rmss[0] );
       */
 
-      if( itsMaskSum != masksum ) // i.e. mask has changed. 
+      if( itsMaskSum != masksum || masksum == 0.0 ) // i.e. mask has changed. 
 	{ 
 	  itsMaskSum = masksum; 
 	  itsLoopController.setMaskSum( masksum );
