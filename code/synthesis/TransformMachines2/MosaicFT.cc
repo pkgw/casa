@@ -285,8 +285,9 @@ void MosaicFT::findConvFunction(const ImageInterface<Complex>& iimage,
       convSampling=10;
     AipsrcValue<Int>::find (convSampling, "mosaic.oversampling", 10);
   }
+  cerr << "use " <<useConjConvFunc_p << " toVis " << toVis_p << endl;
   pbConvFunc_p->findConvFunction(iimage, vb, convSampling, interpVisFreq_p, convFunc, weightConvFunc_p, convSizePlanes_p, convSupportPlanes_p,
-		  convPolMap_p, convChanMap_p, convRowMap_p, useConjConvFunc_p);
+		  convPolMap_p, convChanMap_p, convRowMap_p, (useConjConvFunc_p && !toVis_p));
 
   // cerr << "MAX of convFunc " << max(abs(convFunc)) << endl;
   //For now only use one size and support
@@ -458,7 +459,7 @@ void MosaicFT::initializeToSky(ImageInterface<Complex>& iimage,
 {
   // image always points to the image
   image=&iimage;
-  
+  toVis_p=False;
   //  if(convSize==0) {
     init();
     

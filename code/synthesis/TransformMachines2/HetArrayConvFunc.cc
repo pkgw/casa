@@ -550,17 +550,19 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
 						//direct frequency PB
 						//cerr << "orig coords " << subim.coordinates().toWorld(IPosition(4,0,0,0,0)) << " conj coords " <<  subim2.coordinates().toWorld(IPosition(4,0,0,0,0)) << endl;
 						//cerr << "incr " << subim.coordinates().increment() << "   " << subim2.coordinates().increment() << endl;
-						/*subim2.copyData(subim);
+						subim2.copyData(subim);
 						//Now do the conjugate freq multiplication
 						(antMath_p[k])->applyVP(subim2, subim2, direction1_p);
 
 						//Then the other
 						(antMath_p[j])->applyVP(subim2, subim2, direction2_p);
-						*/
+						
+						/*
 						//one antenna
 						(antMath_p[k])->applyPB(subim2, subim2, direction1_p);
 						//Then the other
 						(antMath_p[j])->applyPB(subim2, subim2, direction2_p);
+						*/
 					}
                     //tim.show("After Apply2 ");
                     //tim.mark();
@@ -776,7 +778,14 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
     */
 
     convFunc_p.resize();
-    convFunc_p=(*convFunctions_p[actualConvIndex_p]);
+	if((nchan_p == 1) && getConjConvFunc) {
+		convFunc_p=(*convFunctionsConjFreq_p[actualConvIndex_p]);
+	}
+	else{
+		
+		convFunc_p=(*convFunctions_p[actualConvIndex_p]);
+	}
+	
     weightConvFunc_p.resize();
     weightConvFunc_p=(*convWeights_p[actualConvIndex_p]);
 
