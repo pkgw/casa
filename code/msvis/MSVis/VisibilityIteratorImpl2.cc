@@ -395,15 +395,15 @@ public:
 
 	ChannelSelector(
 		Double time,
-		Int msId,
-		Int spectralWindowId,
-		Int polarizationId,
+		Int _msId,
+		Int _spectralWindowId,
+		Int _polarizationId,
 		const ChannelSlicer & slicer)
-		: msId_p(msId),
-		  polarizationId_p(polarizationId),
-		  slicer_p(slicer),
-		  spectralWindowId_p(spectralWindowId),
-		  timeStamp_p(time)
+		: msId(_msId)
+		, polarizationId(_polarizationId)
+		, spectralWindowId(_spectralWindowId)
+		, timeStamp(time)
+		, slicer_p(slicer)
 		{
 			// Count up the number of frequencies selected
 
@@ -428,12 +428,12 @@ public:
 			// To be equal the other ChannelSelector must be for the same
 			// MS and spectral window
 
-			Bool equal = msId_p == other.msId_p &&
-				spectralWindowId_p == other.spectralWindowId_p;
+			Bool equal = msId == other.msId &&
+				spectralWindowId == other.spectralWindowId;
 
 			// If the timestamps match, then they're equal
 
-			if (timeStamp_p == other.timeStamp_p) {
+			if (timeStamp == other.timeStamp) {
 				return true;
 			}
 
@@ -533,12 +533,6 @@ public:
 			return nFrequencies_p;
 		}
 
-	Int
-	getPolarizationId() const
-		{
-			return polarizationId_p;
-		}
-
 	// Returns the ChannelSlicer object which contains the actual
 	// channelselection for the current time, window and MS.
 
@@ -554,15 +548,16 @@ public:
 			return slicerFlagCategories_p;
 		}
 
+	const Int msId;
+	const Int polarizationId;
+	const Int spectralWindowId;
+	const Double timeStamp;
+
 private:
 
-	Int msId_p;
 	Int nFrequencies_p;
-	Int polarizationId_p;
 	ChannelSlicer slicer_p;
 	ChannelSlicer slicerFlagCategories_p;
-	Int spectralWindowId_p;
-	Double timeStamp_p;
 };
 
 class ChannelSelectorCache
@@ -1315,7 +1310,7 @@ VisibilityIteratorImpl2::getCorrelationTypesDefined() const
 	assert(channelSelector_p != 0);
 
 	Vector<Int> typesAsInt;
-	Int polarizationId = channelSelector_p->getPolarizationId();
+	Int polarizationId = channelSelector_p->polarizationId;
 	subtableColumns_p->polarization().corrType().get(
 		polarizationId, typesAsInt, true);
 	Vector<Stokes::StokesTypes> correlationTypesDefined(typesAsInt.size());
