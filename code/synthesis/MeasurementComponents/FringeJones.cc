@@ -37,6 +37,8 @@
 
 #include <casa/Arrays/ArrayMath.h>
 #include <casa/Arrays/MatrixMath.h>
+// FIXME: ?
+#include <casa/Arrays/ArrayLogical.h>
 #include <casa/BasicSL/String.h>
 #include <casa/Utilities/Assert.h>
 #include <casa/Exceptions/Error.h>
@@ -97,6 +99,7 @@ private:
    // 
     Matrix<Float> param_;
     Matrix<Bool> flag_; //?
+    std::set<Int> activeAntennas_;
 
 public:
     DelayRateFFT(SDBList& sdbs, Int refant) :
@@ -110,14 +113,15 @@ public:
         df_(sdbs.freqs()(1)/1.e9-f0_),
         Vpad_()
         {
-        Int veryDebug ( 1 );
+        Int veryDebug ( 0 );
         Int nCorrOrig( sdbs(0).nCorrelations() );
         nCorr_ = (nCorrOrig> 1 ? 2 : 1); // number of p-hands
         // when we get the visCubecorrected it is already
         // reduced to parallel hands, but there isn't a
         // corresponding method for flags.
-        Int sC = (nCorrOrig > 2 ? 3 : 1); // step for p-hands
+        Int corrStep = (nCorrOrig > 2 ? 3 : 1); // step for p-hands
 
+        activeAntennas_.insert(refant_);
         SolveDataBuffer& s0 ( sdbs(0) );
         nElem_ =  1 + max( max(s0.antenna1()), max(s0.antenna2())) ;
         // Can't get timeInterval, fails with error
@@ -185,11 +189,11 @@ public:
                 // cerr << "nCorrOrig " << nCorrOrig << endl;
                 Slicer sl2(IPosition(3, 0,         0, irow),
                            IPosition(3, nCorr_,    nChan_, 1),
-                           IPosition(3, sC,        1,  1), Slicer::endIsLength);
+                           IPosition(3, corrStep,        1,  1), Slicer::endIsLength);
                 
                 Slicer flagSlice(IPosition(3, 0,         0, irow),
                                  IPosition(3, nCorr_, nChan_, 1),
-                                 IPosition(3, sC,        1, 1), Slicer::endIsLength);
+                                 IPosition(3, corrStep,        1, 1), Slicer::endIsLength);
                 nr++;
                 if (veryDebug) {
                     cerr << "nr " << nr
@@ -208,6 +212,13 @@ public:
                 // and not yet ported
 
                 Array<Bool> flagged( fl(flagSlice).nonDegenerate() );
+                
+                if ( allTrue(flagged) ) {
+                    cerr << "irow " << irow << " Whoopsie!" << endl;
+                } else {
+                    activeAntennas_.insert(iant);
+                }
+                
                 if (veryDebug) {
                     cerr << "flagSlice " << flagSlice << endl
                          << "fl.shape() " << fl.shape() << endl
@@ -220,9 +231,15 @@ public:
             }
         }
         cerr << "Constructed a DelayRateFFT object." << endl;
+        cerr << "Antennas found: ";
+        std::set<Int>::iterator it;
+        for (it = activeAntennas_.begin(); it != activeAntennas_.end(); it++) {
+            cerr << *it << ", ";
+        }
+        cerr << endl;
     }
 
-        
+    // Deprecated. Won't even actually work, but I'm too nervous to delete it yet.
     DelayRateFFT(const VisBuffer& vb, Int nPadFactor, Int refant) :
         refant_(refant),
         nPadFactor_(nPadFactor),
@@ -244,7 +261,7 @@ public:
 
         // Discern effective shapes
         nCorr_=(nCorrOrig> 1 ? 2 : 1); // number of p-hands
-        Int sC=(nCorrOrig > 2 ? 3 : 1); // step for p-hands
+        Int corrStep=(nCorrOrig > 2 ? 3 : 1); // step for p-hands
         // double interval_length = e3.getTime("s").getValue();
 
         t0_ = min(vb.time());
@@ -283,17 +300,15 @@ public:
              << endl;
         // We grovel over the rows
         for (Int irow=0; irow != nRow; irow++) {
-            Int sgn, iant;
+            Int iant;
             Int a1(vb.antenna1()(irow));
             Int a2(vb.antenna2()(irow));
             if (!vb.flagRow()(irow) && a1!=a2) {
                 if (a1==refant) {
                     iant = a2;
-                    sgn = -1;
                 }
                 else if (a2==refant) {
                     iant = a2;
-                    sgn = +1;
                 }
                 else
                     continue; // Ignore baselines not to refant
@@ -305,13 +320,13 @@ public:
                 Int itime( round(0.5 + (t - t0_)/dt_) ); 
                 // Still following the KJones DelayFFT constructor.
                 // source slice:
-                Slicer sl0( Slice(0,nCorr_,sC), Slice(), Slice(irow,1,1) );
+                Slicer sl0( Slice(0,nCorr_,corrStep), Slice(), Slice(irow,1,1) );
                 // target slice:
                 // FIXME: Can't have four(4) slice indices!
                 //Slicer sl1( Slice(), Slice(iant,1,1), Slice(itime,1,1), Slice(0,nChan,1) ); 
                 IPosition start(4, 0,      iant, itime, 0);
                 IPosition stop( 4, nCorr_, 1, 1, nChan);
-                IPosition stride(4, sC, 1, 1, 1);
+                IPosition stride(4, corrStep, 1, 1, 1);
                 Slicer sl1(start, stop, stride, Slicer::endIsLength);
 
                 Cube<Complex> vC(vb.visCube()(sl0));
@@ -341,9 +356,7 @@ public:
                      << "*****************************************************************************"
                      << endl;
 
-                // Normalise the sign. Can't seem to multiply by sgn; can do the below.
-                // Vpad_(sl1) = Float(sgn)*vC;
-                Vpad_(sl1) = (sgn == 1) ? vC : conj(vC);
+                Vpad_(sl1) = vC;
                 cerr << "*****************************************************************************"
                      << endl << "assigned slice." << endl
                      << "*****************************************************************************"
@@ -356,6 +369,7 @@ public:
     // The following are copied from KJones.h definition of DelayFFT.
     // I'm putting them here because I haven't yet split out the header version.
 
+    const std::set<Int>& getActiveAntennas() const { return activeAntennas_; }
     const Array<Bool>& flag() const { return flag_; }
     const Array<Complex>& Vpad() const { return Vpad_; }
     const Matrix<Float>& param() const { return param_; }
@@ -392,11 +406,11 @@ public:
         flag_.resize(3*nCorr_, nElem_);
         flag_.set(true);  // all flagged initially 
         cerr << "nt_ " << nt_ << " nPadChan_ " << nPadChan_ << endl;
-        for (Int icorr=0;icorr<nCorr_;++icorr) {
-            flag_(icorr*3 + 0, refant())=false; 
-            flag_(icorr*3 + 1, refant())=false;
-            flag_(icorr*3 + 2, refant())=false;
-            for (Int ielem=0;ielem<nElem_;++ielem) {
+        for (Int icorr=0; icorr<nCorr_; ++icorr) {
+            flag_(icorr*3 + 0, refant()) = false; 
+            flag_(icorr*3 + 1, refant()) = false;
+            flag_(icorr*3 + 2, refant()) = false;
+            for (Int ielem=0; ielem<nElem_; ++ielem) {
                 if (ielem==refant()) {
                     continue;
                 }
@@ -443,30 +457,35 @@ public:
                 Float ahi_t = amp(ipkt < (nPadT_ -1) ? ipkt+1 : 0,   ipkch);
                 std::pair<Bool, Float> maybeFpkt = xinterp(alo_t, amax, ahi_t);
 
-                // Int sgn = (icorr==0) ? -1 : +1;
-                Int sgn = -1;
+                Int sgn = (ielem < refant()) ? 1 : -1;
+                // Int sgn = +1;
                 if (maybeFpkch.first and maybeFpkt.first) {
                     // Phase
                     Complex c = aS(ipkt, ipkch);
-                    param_(icorr*3 + 0, ielem) = sgn*arg(c);
+                    Float phase = arg(c);
+                    param_(icorr*3 + 0, ielem) = sgn*phase;
                     // Delay
                     Float delay = (ipkch + maybeFpkch.second)/Float(nPadChan_);
                     if (delay > 0.5) delay -= 1.0;           // fold
                     delay /= (df_);                            // nsec
+                    // param_(icorr*3 + 1, ielem) = -1*delay; // FIXME: Looks like -delay is better?
                     param_(icorr*3 + 1, ielem) = sgn*delay; // FIXME: Looks like -delay is better?
                     // Rate
                     Float rate = (ipkt + maybeFpkt.second)/Float(nPadT_);
                     if (rate > 0.5) rate -= 1.0;
                     rate /= dt_;
                     rate /= (1e9 * f0_);
+                    // param_(icorr*3 + 2, ielem) = -rate; // FIXME: so probably also -rate?
                     param_(icorr*3 + 2, ielem) = sgn*rate; // FIXME: so probably also -rate?
-                    cerr << "maybeFpkch.second=" << maybeFpkch.second << ", "
-                         << "df_ " << df_ << ", nt_ " << nt_
-                         << " fpkch " << (ipkch + maybeFpkch.second) << endl;
+                    if (0) {
+                        cerr << "maybeFpkch.second=" << maybeFpkch.second << ", "
+                             << "df_ " << df_ << ", nt_ " << nt_
+                             << " fpkch " << (ipkch + maybeFpkch.second) << endl;
+                    }
                     cerr << "Found peak for element " << ielem << " correlation " << icorr
                          << " ipkt=" << ipkt << "/" << nPadT_ << ", ipkch=" << ipkch << "/" << nPadChan_
                          << "; delay " << delay << ", rate " << rate
-                         << ", phase " << arg(c) << endl;
+                         << ", phase " << arg(c) << " sign= " << sgn << endl;
                     // Set 3 flags.
                     flag_(icorr*3 + 0, ielem)=false; 
                     flag_(icorr*3 + 1, ielem)=false;
@@ -507,15 +526,18 @@ private:
     size_t corrStep;
     Double t0;
     Double reftime;
+    std::set< Int > activeAntennas;
+    std::map< Int, Int > antennaIndexMap;
 public:
-    AuxParamBundle(SDBList& sdbs_, size_t refant) :
+    AuxParamBundle(SDBList& sdbs_, size_t refant, const std::set<Int>& activeAntennas_) :
         sdbs(sdbs_),
         nCalls(0),
         refant(refant),
         nCorrelations( sdbs.nCorrelations() > 1 ? 2 : 1 ),
         // nCorrelations( sdbs.nCorrelations() ),
         // nCorrelations( 2 ),
-        corrStep( sdbs.nCorrelations() > 2 ? 3 : 1)
+        corrStep( sdbs.nCorrelations() > 2 ? 3 : 1),
+        activeAntennas( activeAntennas_ )
         // corrStep( 3 )
         {
             Int last_index = sdbs.nSDB() - 1 ;
@@ -523,6 +545,11 @@ public:
             Double tlast = sdbs(last_index).time()(0);
             reftime = 0.5*(t0 + tlast);
             cerr << "AuxParamBundle reftime " << reftime << " t0 " << t0 <<" dt " << tlast - t0 << endl;
+            std::set<Int>::iterator it;
+            Int i = 0;
+            for (it = activeAntennas.begin(); it != activeAntennas.end(); it++) {
+                antennaIndexMap[*it] = i++;
+            }
         }
     Double get_t0() {
         return t0;
@@ -538,8 +565,11 @@ public:
     }
     size_t
     get_num_antennas() {
-        SolveDataBuffer& s0 = sdbs(0);
-        return 1 + max( max(s0.antenna1()), max(s0.antenna2()) );
+        return (size_t) activeAntennas.size();
+    }
+    size_t
+    get_max_antenna_index() {
+        return max( max(sdbs(0).antenna1()), max(sdbs(0).antenna2())) ;
     }
     // Sometimes there is Int, sometimes size_t; the following ones are casacore::Int.
     Int
@@ -558,20 +588,25 @@ public:
         size_t dcorr = icorr * corrStep;
         return dcorr;
     }
+    bool
+    isActive(Int iant) {
+        if (iant == refant) return true;
+        else return (activeAntennas.find( iant ) != activeAntennas.end() );
+    }
     int
     get_param_index(size_t iant, size_t icor) {
         // here we use parallel correlation indices, because parameters
         // by definition only have one hand.
         if (iant == refant) return -1;
-        if (iant > refant) iant -= 1;
-        return 3*(iant*nCorrelations + icor);
+        int ipar = antennaIndexMap[iant];
+        if (iant > refant) ipar -= 1;
+        return 3*(ipar*nCorrelations + icor);
     }
 };
     
 int
 expb_f(const gsl_vector *param, void *d, gsl_vector *f)
 {
-    
     AuxParamBundle *bundle =  (AuxParamBundle *)d;
     SDBList& sdbs = bundle->sdbs;
     // Double refTime = bundle->get_ref_time();
@@ -603,6 +638,8 @@ expb_f(const gsl_vector *param, void *d, gsl_vector *f)
 
             Int ant1(s.antenna1()(irow));
             Int ant2(s.antenna2()(irow));
+            if (!bundle->isActive(ant1) || !bundle->isActive(ant2))
+                continue;            
             if (ant1==ant2) continue;
 
             // VisBuffer.h seems to suggest that a vb.visCube may have shape
@@ -613,7 +650,6 @@ expb_f(const gsl_vector *param, void *d, gsl_vector *f)
                 // We also need to get the right parameters for this,
                 // polarization (icorr is an encoding of the
                 // polarization of the correlation products).
-
                 Int iparam1 = bundle->get_param_index(ant1, icorr0);
                 Double phi0_1, tau1, r1;
                 if (iparam1 >= 0) {
@@ -639,8 +675,8 @@ expb_f(const gsl_vector *param, void *d, gsl_vector *f)
                 }
 
                 Float phi0 = phi0_2 - phi0_1;
-                Float tau = (tau2 - tau1);
-                Float r = r2-r1;
+                Float tau  = tau2 - tau1;
+                Float r    = r2 - r1;
                 for (size_t ichan = 0; ichan != v.ncolumn(); ichan++) {
                     // if (1) {
                     if (count >= f->size-4) {
@@ -654,8 +690,10 @@ expb_f(const gsl_vector *param, void *d, gsl_vector *f)
                     }
                     if ( fl(dcorr, ichan, irow) ) continue;
                     Complex vis = v(dcorr, ichan, irow);
-                    Double w = 1.0;
-                    // Double w = weights(dcorr, ichan, irow);
+                    // Double w = 1.0;
+                    Double w = weights(dcorr, ichan, irow);
+                    if (fabs(w) < FLT_EPSILON) continue;
+
                     // We have to turn the delay back into seconds from nanoseconds.
                     // Freq difference is in Hz, which comes out typically as 1e6 bands
                     Double wDf = 2.0*C::pi*(freqs(ichan) - freqs(0))*1e-9;
@@ -668,9 +706,7 @@ expb_f(const gsl_vector *param, void *d, gsl_vector *f)
                     //Float mtheta = -(phi0 + tau*wDf); 
                     Double mtheta = -(phi0 + tau*wDf + r*wDt); 
                     Double vtheta = arg(vis);
-                    // FIXME! Weights!
-                    // gsl_vector_set(f, count, w*(cos(mtheta) - cos(vtheta)));
-                    // gsl_vector_set(f, count+1, w*(sin(mtheta)  - sin(vtheta)));
+
                     gsl_vector_set(f, count, w*(cos(mtheta) - cos(vtheta)));
                     gsl_vector_set(f, count+1, w*(sin(mtheta)  - sin(vtheta)));
 
@@ -688,11 +724,11 @@ expb_f(const gsl_vector *param, void *d, gsl_vector *f)
 
 
 int
-expb_df(const gsl_vector *param, void *d, gsl_matrix *J)
+expb_df(const gsl_vector *param, void *bundle_, gsl_matrix *J)
 {
     
     cerr << "Entering expb_df." << endl;
-    AuxParamBundle *bundle =  (AuxParamBundle *)d;
+    AuxParamBundle *bundle =  (AuxParamBundle *)bundle_;
 
     SDBList& sdbs = bundle->sdbs;
     Vector<Double> freqs = sdbs.freqs();
@@ -705,9 +741,7 @@ expb_df(const gsl_vector *param, void *d, gsl_matrix *J)
         }
     }
 
-    //Double refTime = bundle->get_ref_time();
     Double refTime = bundle->get_t0();
-    
     std::set< Int > params;
     std::set <std::pair < Int, Int> > baselines;
     for (Int ibuf=0; ibuf < sdbs.nSDB(); ibuf++) {
@@ -728,11 +762,15 @@ expb_df(const gsl_vector *param, void *d, gsl_matrix *J)
 
             Int ant1(s.antenna1()(irow));
             Int ant2(s.antenna2()(irow));
+
             if (ant1==ant2) continue;
+            if (!bundle->isActive(ant1) || !bundle->isActive(ant2)) {
+                // cerr << "Skipping " << ant1 << ", " << ant2 << endl;                   
+                continue;
+            }
 
             std::pair<Int, Int> antpair = std::make_pair(ant1, ant2);
             bool newBaseline = (baselines.find( antpair ) == baselines.end());
-            
             baselines.insert( antpair );
 
             // VisBuffer.h seems to suggest that a vb.visCube may have shape
@@ -775,10 +813,17 @@ expb_df(const gsl_vector *param, void *d, gsl_matrix *J)
                 Double ref_freq = freqs(0); 
                 Double wDt = 2.0*C::pi*(t1 - refTime) * ref_freq; 
 
+                if (1 && newBaseline) {
+                    cerr << "ant1 " << ant1 << " iparam1 " << iparam1 << " ant2 " << ant2 << " iparam2 " << iparam2 << endl;
+                    cerr << "weight " << weights(dcorr, v.ncolumn()/2, irow) << endl;
+                }
+
                 for (size_t ichan = 0; ichan != v.ncolumn(); ichan++) {
                     if ( fl(dcorr, ichan, irow) ) continue;
-                    Double w = 1.0; // VERY FIXME: This is the weights.
-                    // Double w = weights(dcorr, ichan, irow);
+                    // Double w = 1.0; // VERY FIXME: This is the weights.
+                    Double w = weights(dcorr, ichan, irow);
+                    if (fabs(w) < FLT_EPSILON) continue;
+
                     // Add a 1e-9 factor because tau parameter is in nanoseconds.
                     Double wDf = 2.0*C::pi*(freqs(ichan) - freqs(0))*1e-9;
                     //
@@ -787,7 +832,7 @@ expb_df(const gsl_vector *param, void *d, gsl_matrix *J)
                     Double wc = cos(mtheta);
 
 
-                    if (1 && newBaseline) {
+                    if (0 && newBaseline) {
                         Double eps = sqrt(FLT_EPSILON)*abs(r);
                         Double mtheta2 = -(phi0 + tau*wDf + (r+eps)*wDt);
                         Double mtheta0 = -(phi0 + tau*wDf + (r-eps)*wDt);
@@ -830,32 +875,36 @@ expb_df(const gsl_vector *param, void *d, gsl_matrix *J)
         std::ostream_iterator<Int>(std::cerr, " ")
         );
     cerr << endl;
+
+    if (0) {
+        cerr << "Jacobian slice" << endl;
+        for (size_t i=10; i!=20; i++) {
+            for (size_t j=0; j!=J->size2; j++) {
+                Float f = gsl_matrix_get(J, i, j);
+                if (fabs(f) > FLT_EPSILON) {
+                    cerr << "J(" <<i << ", " << j <<") = " << f << endl;
+                }
+            }
+        }
     
-    cerr << "Jacobian slice" << endl;
-    for (size_t i=10; i!=20; i++) {
-        for (size_t j=0; j!=J->size2; j++) {
+        for (size_t i=0; i!=J->size1; i++) {
+            size_t j=10;
             Float f = gsl_matrix_get(J, i, j);
             if (fabs(f) > FLT_EPSILON) {
                 cerr << "J(" <<i << ", " << j <<") = " << f << endl;
             }
         }
+
     }
 
-    for (size_t i=0; i!=J->size1; i++) {
-        size_t j=10;
-        Float f = gsl_matrix_get(J, i, j);
-        if (fabs(f) > FLT_EPSILON) {
-            cerr << "J(" <<i << ", " << j <<") = " << f << endl;
+    if (1) {
+        cerr << "Baselines encountered ";
+        std::set<std::pair< Int, Int > >::iterator it;
+        for (it=baselines.begin(); it != baselines.end(); ++it) {
+            cerr << "(" << it->first << ", " << it->second << ") ";
         }
+        cerr << endl;
     }
-
-    
-    cerr << "Baselines encountered ";
-    std::set<std::pair< Int, Int > >::iterator it;
-    for (it=baselines.begin(); it != baselines.end(); ++it) {
-        cerr << "(" << it->first << ", " << it->second << ") ";
-    }
-    cerr << endl;
     return GSL_SUCCESS;
 }
 
@@ -869,16 +918,15 @@ expb_fdf(const gsl_vector *param, void *data, gsl_vector *f, gsl_matrix *J)
 }
 
 void
-least_squares_driver(SDBList& sdbs, Matrix<Float>& param, Int refant) {
+least_squares_driver(SDBList& sdbs, Matrix<Float>& param, Int refant, const std::set<Int>& activeAntennas) {
     cerr << "Enter the least_squares_driver" << endl;
     // n below is number of variables,
     // p is number of parameters
 
-
     // Int midTimeIndex = sdbs.nSDB() / 2;
     // Double refTime = sdbs(midTimeIndex).time()(0);
 
-    AuxParamBundle bundle( sdbs, refant );
+    AuxParamBundle bundle( sdbs, refant, activeAntennas );
     cerr << "Constructed a bundle" << endl;
     cerr << "num corrs: " << bundle.get_num_corrs() << " num antennas: " << bundle.get_num_antennas() << endl;
 
@@ -911,7 +959,11 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& param, Int refant) {
     
     cerr << "Allocated vector gp of size " << p << "." <<endl;
     for (size_t icor=0; icor != bundle.get_num_corrs(); icor++ ) {
-        for (size_t iant=0; iant != bundle.get_num_antennas(); iant++) {
+        for (size_t iant=0; iant != bundle.get_max_antenna_index(); iant++) {
+            if ( !bundle.isActive(iant) ) {
+                cerr << "Skipping " << iant << endl;
+                continue;
+            }
             Int ind = bundle.get_param_index(iant, icor);
             if (ind < 0) continue;
             // cerr << "icor " << icor << " iant " << iant << " ind " << ind << "." << endl;
@@ -955,7 +1007,7 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& param, Int refant) {
     //const double gtol = 1e-50; // 1e-30; 
     const double gtol = 1e-30; // 1e-30; 
     const double ftol = 0.0;   // eps rel
-    const size_t max_iter = 10;
+    const size_t max_iter = 5;
 
     int status = gsl_multifit_fdfsolver_driver(s, max_iter, param_tol, gtol, ftol, &info);
     
@@ -977,13 +1029,10 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& param, Int refant) {
     gsl_vector *diff = gp_orig;
     double diffsize = gsl_blas_dnrm2(diff);
     
-    // Was I really getting the output?
-    // A day of poking results in this:
-    // For a test case, only one parameter (delay for antenna 11) changes,
-    // and that change is not applied to actual parameter vector.
     gsl_vector *res = gsl_multifit_fdfsolver_position(s);
     for (size_t icor=0; icor != bundle.get_num_corrs(); icor++) {
-        for (size_t iant=0; iant!=bundle.get_num_antennas(); iant++) {
+        for (size_t iant=0; iant!=bundle.get_max_antenna_index(); iant++) {
+            if ( !bundle.isActive(iant) ) continue;
             Int iparam = bundle.get_param_index(iant, icor);
             if (iparam<0) continue;
             cerr.precision(20);
@@ -1005,7 +1054,6 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& param, Int refant) {
                     cerr << "Delay changed by " << gsl_vector_get(diff, iparam + 1)
                          << " for " << "Antenna "  << iant << " correlation " << icor << " " <<  endl;
                     cerr << "delay0 = " << tau0 << " delay1 = " << tau1 << " diff= " << tau1 - tau0 << " " << endl;
-                    cerr << "diff2 = " << gsl_vector_get(diff, iparam + 1)  << endl;
                 }
                 if ( fabs(gsl_vector_get(diff, iparam + 2) > 1e-30) ) {
                     flag = true;
@@ -1247,8 +1295,9 @@ void FringeJones::solveLotsOfSDBs(SDBList& sdbs) {
          << " flag matrix has shape " << sPok.shape() 
          << " whereas I have " << drf.flag().shape() << endl;
 
-
+    // Map from MS antenna number to index 
     Int ncol = drf.param().ncolumn();
+
     for (Int i=0; i!=ncol; i++) {
         IPosition start(2, 0,                  i);
         IPosition stop( 2, drf.param().nrow(), 1);
@@ -1265,13 +1314,14 @@ void FringeJones::solveLotsOfSDBs(SDBList& sdbs) {
 
     if (1) {
         cerr << "(Finally) having a go at least squares." << endl;
-        least_squares_driver(sdbs, sRP, refant());
+        least_squares_driver(sdbs, sRP, refant(), drf.getActiveAntennas());
     }
     
     size_t nCorrOrig( sdbs(0).nCorrelations() );
     size_t nCorr = (nCorrOrig> 1 ? 2 : 1); // number of p-hands
 
     cerr << "df0 " << df0 << " dt0 " << dt0 << " ref_freq*dt0 " << ref_freq*dt0 << endl;
+    // Report delays to console.
     for (size_t iant=0; iant != nAnt(); iant++) {
         for (size_t icor=0; icor != nCorr; icor++ ) {
             Double phi0 = sRP(3*icor + 0, iant);
@@ -1279,17 +1329,15 @@ void FringeJones::solveLotsOfSDBs(SDBList& sdbs) {
             Double rate = sRP(3*icor + 2, iant);
             Double delta1 = df0*delay;
             Double delta2 = ref_freq*dt0*rate;
-            // FIXME: or should we be subtracting? Or doing nothing?
-            // sRP(3*icor + 0, iant) -= 2*C::pi*(delta1+delta2);
-            cerr << "For " << iant << " correlation " << icor << "." << endl;
-            cerr << "phi0 " << phi0 << " delay " << delay << " rate " << rate << endl;
-            // cerr << "Adding " << 360*delta1 << " and " << 360*delta2 << " degrees." << endl << endl;
-            cerr << "Subtracting " << 360*delta1 << " and " << 360*delta2 << " degrees." << endl << endl;
+            Double delta3 = 2*C::pi*(delta1+delta2);
+            // cerr << "For " << iant << " correlation " << icor << "." << endl;
+            cerr << "Antenna " << iant << ": phi0 " << phi0 << " delay " << delay << " rate " << rate << endl;
+            cerr << "Adding " << 360*delta1 << " and " << 360*delta2 << " degrees." << endl;
+            // If you actually add this delta everything gets worse.
+            cerr << "Not actually adding " << delta3 << endl << endl;
+            // sRP(3*icor + 0, iant) += delta3;
         }
     }
-    
-       
-    
 }
 
 void FringeJones::solveOneVB(const VisBuffer& vb) {
