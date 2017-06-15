@@ -73,6 +73,7 @@ if casa.has_key('state') and casa['state'].has_key('init_version') and casa['sta
     potool = stack_find("potool")
     rgtool = stack_find("rgtool")
     sdmstool = stack_find("sdmstool")
+    sdms = stack_find("sdms")
     sltool = stack_find("sltool")
     tptool = stack_find("tptool")
     viewertool = stack_find("viewertool")
