@@ -71,29 +71,34 @@ atmosphere::atmosphere()
 
 atmosphere::~atmosphere()
 {
+	cleanUp();
+	delete itsLog;
+}
+
+bool
+atmosphere::close()
+{
   try {
-    if (pSkyStatus != 0) {
-      delete pSkyStatus;
-      pSkyStatus = 0;
-    }
-    if (pRefractiveIndexProfile != 0) {
-      delete pRefractiveIndexProfile;
-      pRefractiveIndexProfile = 0;
-    }
-    if (pSpectralGrid != 0) {
-      delete pSpectralGrid;
-      pSpectralGrid = 0;
-    }
-    if (pAtmProfile != 0) {
-      delete pAtmProfile;
-      pAtmProfile = 0;
-    }
-    delete itsLog;
+	  cleanUp();
   } catch (AipsError x) {
     *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
 	    << LogIO::POST;
     RETHROW(x);
   }
+  return true;
+}
+
+bool
+atmosphere::done()
+{
+  try {
+	  cleanUp();
+  } catch (AipsError x) {
+	  *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
+		    << LogIO::POST;
+	  RETHROW(x);
+  }
+  return true;
 }
 
 std::string
