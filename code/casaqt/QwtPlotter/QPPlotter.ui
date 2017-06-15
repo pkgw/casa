@@ -12,7 +12,7 @@
   <property name="windowTitle" >
    <string>Qwt Plotter</string>
   </property>
-  <layout class="QVBoxLayout" >
+  <layout class="QVBoxLayout" name="plotterLayout" >
    <property name="spacing" >
     <number>3</number>
    </property>
@@ -29,20 +29,74 @@
     <number>3</number>
    </property>
    <item>
-    <widget class="QSplitter" name="splitter_2" >
+    <widget class="QSplitter" name="pageToolSplitter" >
      <property name="orientation" >
       <enum>Qt::Horizontal</enum>
      </property>
-     <widget class="QFrame" name="canvasFrame" >
+     <widget class="QFrame" name="pageFrame" >
       <property name="frameShape" >
        <enum>QFrame::NoFrame</enum>
       </property>
       <property name="frameShadow" >
        <enum>QFrame::Plain</enum>
       </property>
-      <property name="lineWidth" >
-       <number>0</number>
-      </property>
+      <layout class="QVBoxLayout" name="pageLayout" stretch="20,80">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <property name="margin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QFrame" name="pageHeaderFrame">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Plain</enum>
+         </property>
+         <layout class="QVBoxLayout" name="pageHeaderLayout">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="sizeConstraint">
+           <enum>QLayout::SetNoConstraint</enum>
+          </property>
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>50</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>50</number>
+          </property>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="canvasFrame">
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Plain</enum>
+         </property>
+         <property name="lineWidth">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
      <widget class="QFrame" name="toolFrame" >
       <property name="sizePolicy" >

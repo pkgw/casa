@@ -25,6 +25,8 @@
 //# $Id: $
 #include <plotms/GuiTabs/PlotMSDataSummaryTab.qo.h>
 
+
+#include <casaqt/QwtPlotter/QPPlotter.qo.h>
 #include <casaqt/QtUtilities/QtUtilities.h>
 #include <plotms/Actions/PlotMSAction.h>
 #include <plotms/GuiTabs/PlotMSDataCollapsible.qo.h>
@@ -33,6 +35,9 @@
 #include <plotms/Plots/PlotMSPlot.h>
 #include <plotms/Plots/PlotMSPlotParameterGroups.h>
 #include <QDebug>
+
+#include <QMessageBox>
+#include <plotms/Data/MSCache.h>
 
 using namespace casacore;
 namespace casa {
@@ -213,6 +218,23 @@ void PlotMSDataSummaryTab::close( PlotMSDataCollapsible* collapsible ){
 	delete collapsible;
 }
 
+void PlotMSDataSummaryTab::refreshPageHeader(){
+	auto plotter = itsParent_->getPlotter();
+	// Cheating ...
+	QPPlotter *qpPlotter = dynamic_cast<QPPlotter *>(&(*plotter));
+	if (qpPlotter == nullptr) return;
+	auto pageHeaderTable = qpPlotter->pageHeaderTable();
+	auto oldDataModel = pageHeaderTable->model();
+	pageHeaderTable->setModel(new PlotMSPageHeaderDataModel(itsParent_));
+	if (oldDataModel != nullptr) {
+		delete oldDataModel;
+		oldDataModel = nullptr;
+	}
+	// Auto-hide page header if table is empty
+	auto emptyHeader = ( pageHeaderTable->model()->rowCount() == 0 );
+	pageHeaderTable->parentWidget()->setVisible(! emptyHeader);
+}
+
 bool PlotMSDataSummaryTab::plot(){
 	bool plotted = false;
 	//If there is at least one of the graphs updating its data
@@ -223,6 +245,7 @@ bool PlotMSDataSummaryTab::plot(){
 			plotted = true;
 		}
 	}
+	refreshPageHeader();
 	return plotted;
 }
 
@@ -243,6 +266,7 @@ void PlotMSDataSummaryTab::completePlotting( bool success, PlotMSPlot* plot ){
 		completePlotting( success, completedIndex );
 
 	}
+	refreshPageHeader();
 }
 
 void PlotMSDataSummaryTab::completePlotting( bool success, int plotIndex ){

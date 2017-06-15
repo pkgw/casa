@@ -29,6 +29,7 @@
 
 #include <casa/OS/Timer.h>
 #include <casa/OS/Memory.h>
+#include <casa/OS/Path.h>
 #include <casa/Quanta/MVTime.h>
 #include <casa/System/Aipsrc.h>
 #include <casa/Utilities/Sort.h>
@@ -105,7 +106,11 @@ void MSCache::loadIt(vector<PMS::Axis>& loadAxes,
 
     // Make volume meter for countChunks to estimate memory requirements
     vm_ = new MSCacheVolMeter(*inputMS, averaging_, chansel, corrsel);
-    delete inputMS;
+
+    // Load Page Header Cache
+    loadPageHeaderCache(*selMS);
+
+	delete inputMS;
     delete selMS;
     Vector<Int> nIterPerAve;
 
@@ -158,6 +163,9 @@ void MSCache::loadIt(vector<PMS::Axis>& loadAxes,
 		nVBPerAve_.resize(nChunk_);
 		nVBPerAve_.set(1);
 	}
+
+	completeLoadPageHeaderCache();
+
 	deleteVi(); // close any open tables
 }
 
@@ -693,10 +701,10 @@ bool MSCache::countChunks(vi::VisibilityIterator2& vi,
 
 void MSCache::trapExcessVolume(map<PMS::Axis,Bool> pendingLoadAxes) {
 	try {
-        String s;
+		String s;
 		if (visBufferShapes_.size() > 0) {
-			s = vm_->evalVolume(visBufferShapes_, pendingLoadAxes);
-        } else {
+			s = vm_->evalVolume(visBufferShapes_, pendingLoadAxes); }
+		else {
 			Vector<Bool> mask(4, false);
 			int dataCount = getDataCount();
 
@@ -712,9 +720,9 @@ void MSCache::trapExcessVolume(map<PMS::Axis,Bool> pendingLoadAxes) {
 		logLoad(log.getMesg());
 		deleteVm();
 		stringstream ss;
-		ss << "Please try using data selection, averaging," << endl
-           << "'force reload' (to clear unneeded cache items)," << endl
-		   << "or letting other memory-intensive processes finish.";
+		ss << "Please try selecting less data or averaging and/or" << endl
+		   << " 'force reload' (to clear unneeded cache items) and/or" << endl
+		   << " letting other memory-intensive processes finish.";
 		throw(AipsError(ss.str()));
 	}
 }
@@ -1982,6 +1990,89 @@ Vector<Double> MSCache::calcVelocity(vi::VisBuffer2* vb) {
 			transformations_.veldef());
 	outVel /= 1.0e3;  // in km/s
 	return outVel;
+}
+
+void MSCache::loadPageHeaderCache(const casacore::MeasurementSet& selectedMS){
+	logInfo(PMS::LOG_ORIGIN_LOAD_CACHE,String("Loading page header cache"));
+    using Item = PageHeaderItemsDef::Item;
+
+    // ---- Filename
+    pageHeaderCache_.store(HeaderItemData(Item::Filename,Path(filename_).baseName()));
+
+    // ---- Observation table
+	ROMSColumns selectionColumns(selectedMS);
+	const auto & selectionObs = selectionColumns.observation();
+	if (selectionObs.nrow() > 0) {
+		const uInt firstRow = 0;
+
+		// ---- Observation Start Date
+		auto timeRangeMeasure = selectionObs.timeRangeMeas()(firstRow);
+		IPosition startTimePos(1,0);
+		auto obsStartMEpoch = timeRangeMeasure(startTimePos);
+
+		Bool isUTC = (obsStartMEpoch.getRef().getType() == MEpoch::UTC);
+		if ( ! isUTC ) {
+			obsStartMEpoch = MEpoch::Convert(obsStartMEpoch,MEpoch::Ref(MEpoch::UTC))();
+		}
+
+		MVTime obsStartMVTime(obsStartMEpoch.getValue());
+
+		stringstream obsStartDateStream;
+		obsStartDateStream << obsStartMVTime.monthday()  << " "
+				           << obsStartMVTime.monthName() << " "
+				           << obsStartMVTime.year();
+		auto obsStartDate = obsStartDateStream.str();
+		pageHeaderCache_.store(HeaderItemData(Item::Obs_Start_Date,obsStartDate));
+
+		// ---- Observation Start Time
+		const uInt timePrecision = 4;
+		MVTime::Format timeFormat(MVTime::TIME | MVTime::CLEAN,timePrecision);
+		auto obsStartTime = obsStartMVTime.string(timeFormat);
+		obsStartTime += String(" ") + MEpoch::showType(obsStartMEpoch.getRef().getType());
+		pageHeaderCache_.store(HeaderItemData(Item::Obs_Start_Time,obsStartTime));
+
+		// ---- Observer
+		auto observer = selectionObs.observer().get(firstRow);
+		pageHeaderCache_.store(HeaderItemData(Item::Obs_Observer,observer));
+		// ---- Project
+		auto project = selectionObs.project().get(firstRow);
+		pageHeaderCache_.store(HeaderItemData(Item::Obs_Project,project));
+		// ---- Telescope Name
+		auto telescopeName = selectionObs.telescopeName().get(firstRow);
+		pageHeaderCache_.store(HeaderItemData(Item::Obs_Telescope_Name,telescopeName));
+	}
+	// ---- Source table
+	const auto & selectionSrc = selectionColumns.source();
+	if (selectionSrc.nrow() > 0) {
+		const uInt firstRow = 0;
+		// ---- Source Name
+		auto sourceName = selectionSrc.name().get(firstRow);
+		pageHeaderCache_.store(HeaderItemData(Item::Src_Name,sourceName));
+		// ---- Source Direction
+		auto sourceDirectionMeasure = selectionSrc.directionMeas()(firstRow);
+		stringstream sourceDirectionStream;
+		sourceDirectionStream << sourceDirectionMeasure.getAngle(Unit("deg"));
+		auto sourceDirection = sourceDirectionStream.str();
+		pageHeaderCache_.store(HeaderItemData(Item::Src_Direction,sourceDirection));
+	}
+}
+
+void MSCache::completeLoadPageHeaderCache(){
+	using Item = PageHeaderItemsDef::Item;
+    // ---- Y Column(s)
+    String yColumns;
+    String axisSep;
+    for ( uInt k=0; k<currentY_.size(); k++) {
+    	yColumns += axisSep;
+    	auto axis = currentY_[k];
+    	yColumns += PMS::axis(axis);
+    	if ( PMS::axisIsData(axis) && k < currentYData_.size() ) {
+    		auto dataColumn = currentYData_[k];
+    		yColumns += String(":") + PMS::dataColumn(dataColumn);
+    	}
+    	axisSep = String(", ");
+    }
+    pageHeaderCache_.store(HeaderItemData(Item::YColumns,yColumns));
 }
 
 }

@@ -26,6 +26,8 @@
 #ifndef PLOTMSDATASUMMARYTAB_QO_H_
 #define PLOTMSDATASUMMARYTAB_QO_H_
 
+#include <plotms/Gui/PlotMSPageHeaderDataModel.qo.h>
+
 #include <plotms/GuiTabs/PlotMSDataSummaryTab.ui.h>
 #include <plotms/Plots/PlotMSPlotParameters.h>
 #include <plotms/PlotMS/PlotMS.h>
@@ -101,6 +103,8 @@ private:
 	//the same canvas are done updating their data in background threads.
     void completePlotting( bool success, int plotIndex);
     void fillLayout();
+
+    void refreshPageHeader();
 
     QList<PlotMSDataCollapsible*> dataList;
     QWidget* scrollWidget;

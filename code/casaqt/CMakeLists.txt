@@ -78,6 +78,7 @@ qt4_wrap_cpp( outfiles_qoh
   QwtPlotter/QPPlotItem.qo.h
   QwtPlotter/QPPlotter.qo.h
   QwtPlotter/QPTool.qo.h
+  QwtPlotter/QPHeaderTableWidget.qo.h
   )
 
 casa_qt4_wrap_ui( outfiles_ui
@@ -219,6 +220,7 @@ casa_add_library( casaqt
   QwtPlotter/QPScatterPlot.cc
   QwtPlotter/QPShape.cc
   QwtPlotter/QPTool.cc
+  QwtPlotter/QPHeaderTableWidget.cc
   )
 install (FILES
 	PlotterImplementations/PlotterImplementations.h
@@ -337,6 +339,7 @@ install (FILES
 	QwtPlotter/QPScatterPlot.h
 	QwtPlotter/QPShape.h
 	QwtPlotter/QPTool.qo.h
+	QwtPlotter/QPHeaderTableWidget.qo.h
 	DESTINATION include/casacode/casaqt/QwtPlotter
 	)
 

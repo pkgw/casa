@@ -28,6 +28,8 @@
 #include <plotms/PlotMS/PlotMS.h>
 #include <plotms/Plots/PlotMSPlot.h>
 #include <plotms/Plots/PlotMSPlotParameterGroups.h>
+#include <casaqt/QwtPlotter/QPPlotter.qo.h>
+
 #include <QDebug>
 
 using namespace casacore;
@@ -279,6 +281,23 @@ void PlotMSPlotManager::removePlot( PlotMSPlot* plot ){
 		itsPlotParameters_.erase(paramLoc);
         }
 	notifyWatchers();
+
+	// Dirty page header refresh
+	auto plotter = itsParent_->getPlotter();
+	// Cheating ...
+	QPPlotter *qpPlotter = dynamic_cast<QPPlotter *>(&(*plotter));
+	if (qpPlotter != nullptr) {
+		auto pageHeaderTable = qpPlotter->pageHeaderTable();
+		auto oldDataModel = pageHeaderTable->model();
+		pageHeaderTable->setModel(new PlotMSPageHeaderDataModel(itsParent_));
+		if (oldDataModel != nullptr) {
+			delete oldDataModel;
+			oldDataModel = nullptr;
+		}
+		// Auto-hide page header if table is empty
+		auto emptyHeader = ( pageHeaderTable->model()->rowCount() == 0 );
+		pageHeaderTable->parentWidget()->setVisible(! emptyHeader);
+	}
 }
 
 void PlotMSPlotManager::getGridSize( Int& rows, Int& cols ){

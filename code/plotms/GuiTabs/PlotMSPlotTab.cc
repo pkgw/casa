@@ -301,6 +301,10 @@ bool PlotMSPlotTab::plot( bool forceReload ) {
                 plotCompleted = !itsCurrentPlot_->isCacheUpdating();
                 if ( plotCompleted ){
                 	completePlotting( true );
+                	// Quick & dirty (?) fix for GUI bug:
+                	// state of parameters is not reset when plotting
+                	// does not trigger a cache reload
+                	plotsChanged(itsPlotManager_);
                 }
                 return plotCompleted;
             }

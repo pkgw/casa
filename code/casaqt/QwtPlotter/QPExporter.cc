@@ -211,8 +211,6 @@ bool QPExporter::exportToImageFile(
         QPExportCanvas* grabCanvas,
         QPPlotter* grabPlotter){
 
-    QImage image;
-
     Int width = 0;
     Int height = 0;
     Int gridRows = 1;
@@ -222,29 +220,45 @@ bool QPExporter::exportToImageFile(
     // Remember the current background color, used for on-screen GUI
     // We want to temporarily change this to white for making the image file.
     // Later we will restore this color.
-    PlotAreaFillPtr normal_background;
+    PlotAreaFillPtr normalBackground;
     if(grabCanvas != NULL)
-        normal_background = grabCanvas->background();
+        normalBackground = grabCanvas->background();
 
     bool wasCanceled = false;
+    QImage graphicsImage;
     if(format.resolution == PlotExportFormat::SCREEN)    {
         if (grabCanvas != NULL) {
-            image=grabCanvas->grabImageFromCanvas(format);
+            graphicsImage=grabCanvas->grabImageFromCanvas(format);
         } else {
-            image = produceScreenImage(format, qcanvases, width, height, 
+            graphicsImage = produceScreenImage(format, qcanvases, width, height,
                 gridRows, gridCols, wasCanceled);
         }
     } else {
         // High resolution, or format size larger than widget.
-        image = produceHighResImage(format, qcanvases, width, height, gridRows, gridCols, wasCanceled);
+        graphicsImage = produceHighResImage(format, qcanvases, width, height, gridRows, gridCols, wasCanceled);
     }
+
+    QWidget* pageHeader = grabPlotter->pageHeaderWidget();
+
+    // Page image
+    QSize pageSize(graphicsImage.size());
+    pageSize.rheight() += pageHeader->height();
+    QImage pageImage(pageSize,graphicsImage.format());
+
+    // Paint page
+    QPoint headerTopLeft(0,0);
+    pageHeader->render(&pageImage,headerTopLeft,pageHeader->rect());
+    QPainter pagePainter(&pageImage);
+    QPoint graphicsTopLeftDest(0,pageHeader->height());
+    QRect graphicsRectDest(graphicsTopLeftDest,graphicsImage.size());
+    pagePainter.drawImage(graphicsRectDest,graphicsImage);
 
     // Set DPI.
     if(!wasCanceled && format.dpi > 0) {
         // convert dpi to dpm
         int dpm = QPOptions::round((format.dpi / 2.54) * 100);
-        image.setDotsPerMeterX(dpm);
-        image.setDotsPerMeterY(dpm);
+        pageImage.setDotsPerMeterX(dpm);
+        pageImage.setDotsPerMeterY(dpm);
     }
 
     // Set output quality.
@@ -269,16 +283,16 @@ bool QPExporter::exportToImageFile(
     }
 
     // Save to file.
-    bool save_ok;
-    save_ok= image.save(format.location.c_str(),
+    bool saveOk;
+    saveOk= pageImage.save(format.location.c_str(),
           PlotExportFormat::exportFormat(format.type).c_str(),
           quality);
 
     // Restore background color
     if(grabCanvas != NULL)
-        grabCanvas->setBackground(normal_background);
+        grabCanvas->setBackground(normalBackground);
 
-    return !wasCanceled && !image.isNull() && save_ok;
+    return !wasCanceled && !pageImage.isNull() && saveOk;
 }
 
 /* static */
