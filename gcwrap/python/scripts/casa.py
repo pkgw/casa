@@ -270,24 +270,12 @@ from specflux import  specflux
 from specsmooth import  specsmooth
 from splattotable import  splattotable
 from split import  split
-<<<<<<< HEAD
-#from split2 import split2
-from tclean import tclean
-from tclean2 import tclean2
-from sdbaseline import sdbaseline
-from sdcal import sdcal
-from sdgaincal import sdgaincal
-from sdfit import sdfit
-from sdimaging import sdimaging
-from sdfixscan import sdfixscan
-=======
 from spxfit import  spxfit
 from statwt import  statwt
 from statwt2 import  statwt2
 from tclean import  tclean
 from tclean2 import  tclean2
 from testconcat import  testconcat
->>>>>>> master
 from uvcontsub import  uvcontsub
 from uvcontsub3 import  uvcontsub3
 from uvmodelfit import  uvmodelfit
@@ -303,6 +291,13 @@ from widefield import  widefield
 from split import  split
 from hanningsmooth import  hanningsmooth
 
+#from split2 import split2
+from sdbaseline import sdbaseline
+from sdcal import sdcal
+from sdgaincal import sdgaincal
+from sdfit import sdfit
+from sdimaging import sdimaging
+from sdfixscan import sdfixscan
 ##
 ## asap may not be available with every casa installation
 ##
