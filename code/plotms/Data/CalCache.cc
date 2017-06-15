@@ -131,9 +131,8 @@ void CalCache::loadIt(vector<PMS::Axis>& loadAxes,
     if (loadAxes[i]==PMS::ATM) doAtm=true;
   }
   if (doAtm) {
-    atm_.resize(ci_p->nchan());
     atm_p = new PlotMSAtm(filename_);
-    if (!selection_.isEmpty()) atm_p->setSelection(selection_);
+    if (!selection_.isEmpty()) atm_p->setUserSelection(selection_);
   }
 
   countChunks(*ci_p, loadAxes, loadData, thread);
@@ -641,12 +640,10 @@ void CalCache::loadCalChunks(ROCTIter& ci,
     break;
   }
   case PMS::ATM: {
-    // always need chan for getAtm()
-    *chan_[chunk] = cti.chan();
-    if (chunk==0) {  // load atm array once, per-channel
-        Vector<Double> temp = atm_p->calcAtmTransmission();
-        atm_ = 10.0;   // TBF: for testing, load constant to plot
-    }
+    casacore::Int spw = cti.thisSpw();
+    casacore::Int scan = cti.thisScan();
+    *atm_[chunk] = atm_p->calcAtmTransmission(spw, scan) * 100.0; // percent
+    cout << "PDEBUG: atm for chunk " << chunk << "=" << *atm_[chunk] << endl;
     break;
   }
   default:

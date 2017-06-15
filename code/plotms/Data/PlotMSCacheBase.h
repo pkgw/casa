@@ -276,8 +276,7 @@ public:
   // These support generic non-complex calibration
   inline casacore::Double getPar(casacore::Int chnk,casacore::Int irel)  { return *(par_[chnk]->data()+irel); };
   inline casacore::Double getSnr(casacore::Int chnk,casacore::Int irel)  { return *(snr_[chnk]->data()+irel); };
-
-  casacore::Double getAtm(casacore::Int chnk,casacore::Int irel);
+  inline casacore::Double getAtm(casacore::Int chnk,casacore::Int irel) { return *(atm_[chnk]->data()+irel); };
 
   // Returns a list of channel numbers that were averaged together in that chunk
   inline casacore::Vector<casacore::Int> getChansPerBin(casacore::Int chnk,casacore::Int irel) { return (*chansPerBin_[chnk])[irel]; };
@@ -412,7 +411,7 @@ protected:
   // The fundamental meta-data cache
   casacore::Matrix<casacore::Int> chshapes_;
   casacore::Vector<casacore::Bool> goodChunk_;
-  casacore::Vector<casacore::Double> time_, timeIntr_, atm_;
+  casacore::Vector<casacore::Double> time_, timeIntr_;
   casacore::Vector<casacore::Int> field_, spw_, scan_;
   casacore::PtrBlock<casacore::Vector<casacore::uInt>*> row_;
   casacore::PtrBlock<casacore::Vector<casacore::Int>*> antenna1_, antenna2_, baseline_;
@@ -459,7 +458,9 @@ protected:
   casacore::Vector<casacore::Double> radialVelocity_, rho_;
   casacore::Vector<casacore::Double> az0_,el0_,ha0_,pa0_;
 
+  // for cal tables
   casacore::PtrBlock<casacore::Array<casacore::Float>*> par_, snr_;
+  casacore::PtrBlock<casacore::Vector<casacore::Double>*> atm_;
 
   // Current setup/state.
   bool dataLoaded_;

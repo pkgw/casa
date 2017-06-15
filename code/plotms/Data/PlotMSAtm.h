@@ -78,10 +78,11 @@ public:
     ~PlotMSAtm();
 
     // apply selection to cal table
-    void setSelection(PlotMSSelection& selection);
+    void setUserSelection(PlotMSSelection& selection);
 
     // returns transmission vector
-    casacore::Vector<casacore::Double> calcAtmTransmission();
+    casacore::Vector<casacore::Double> calcAtmTransmission(casacore::Int spw,
+            casacore::Int scan);
 
 private:
 
@@ -89,17 +90,22 @@ private:
     PlotMSAtm& operator= (const PlotMSAtm& other);
 
     // info from cal tables
-    void setCalTimes();
+    void setCalTimes(NewCalTable* nct=NULL);
     void setTelescope();
     void setFields();
     void setMS();
 
+    // for each chunk's spw and scan
+    NewCalTable* applySelection(PlotMSSelection& selection);
+
     inline bool isAlma() { return (telescopeName_=="ALMA"); }
 
     // calculated values
-    casacore::Double getMedianPwv();
-    casacore::Record getMeanWeather();
+    void getMeanWeather();  // stored in weather_ Record
+    void getMedianPwv();    // stored in pwv_
     casacore::Double computeMeanAirmass();
+    casacore::Double getElevation(casacore::Int fieldId);
+    casacore::Double getMeanScantime();
 
     // atmosphere tool
     atm::AtmProfile* getAtmProfile();
@@ -111,15 +117,14 @@ private:
         casacore::Vector<casacore::Double> timesCol);
     casacore::String getSelectionExpr(
         casacore::Vector<casacore::Int> intVector);
-    casacore::Double getElevation(casacore::Int fieldId);
-    casacore::Double getMeanScantime();
 
-    NewCalTable* bptable_;
+    NewCalTable *bptable_, *seltable_;
     casacore::Vector<casacore::Double> caltimes_;
     casacore::String telescopeName_;
     casacore::Vector<casacore::Int> calfields_;
     casacore::MeasurementSet* ms_;
-    PlotMSSelection selection_;
+    casacore::Record weather_;
+    casacore::Double pwv_;
 };
 
 }

@@ -136,7 +136,7 @@ public:
 	      "Gain Amplitude","Gain Phase","Gain Real","Gain Imag",
 	      "Delay","SwPower","Tsys","Opac", "SNR", "TEC",
 	      "Radial Velocity [km/s]", "Distance (rho) [km]", 
-          "Atm Transmission", "None")
+          "Atm Transmission (%)", "None")
 
     // </group>
               

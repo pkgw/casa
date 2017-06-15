@@ -817,7 +817,8 @@ void PlotMSCacheBase::release(const vector<PMS::Axis>& axes) {
                 break;
 			case PMS::RHO: rho_.resize(0);
                 break;
-			case PMS::ATM:
+			case PMS::ATM: PMSC_DELETE(atm_)
+                break;
 			case PMS::NONE:
                 break;
 			}
@@ -1554,7 +1555,10 @@ void PlotMSCacheBase::setCache(Int newnChunk,
                 rho_.resize(nChunk_,true);
                 }
                 break;
-            case PMS::ATM:
+            case PMS::ATM: {
+		        addVectors(atm_);
+                }
+                break;
             case PMS::NONE:
                 break;
         }
@@ -1809,9 +1813,11 @@ int PlotMSCacheBase::findColorIndex( int chunk, bool initialize ){
 	return index;
 }
 
+/*
 casacore::Double PlotMSCacheBase::getAtm(casacore::Int chnk,casacore::Int irel){
     casacore::Int chan = static_cast<casacore::Int>(getChan(chnk, irel));
     return (casacore::Double)(atm_(chan));
 }
+*/
 
 }
