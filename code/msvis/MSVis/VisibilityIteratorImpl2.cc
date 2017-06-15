@@ -1044,6 +1044,8 @@ VisibilityIteratorImpl2::VisibilityIteratorImpl2(
 	  sortColumns_p(sortColumns),
 	  spectralWindowChannelsCache_p(new SpectralWindowChannelsCache()),
 	  subtableColumns_p(0),
+	  tileCacheModMtx_p(new std::mutex()),
+	  tileCacheIsSet_p(new std::vector<bool>()),
 	  timeInterval_p(timeInterval),
 	  vb_p(0),
 	  weightScaling_p( ),
@@ -1127,12 +1129,12 @@ VisibilityIteratorImpl2::initialize(const Block<const MeasurementSet *> &mss,
 
 	Int nMs = mss.nelements();
 	measurementSets_p.resize(nMs);
+	tileCacheIsSet_p->resize(nMs);
 
 	for (Int k = 0; k < nMs; ++k) {
-
 		measurementSets_p[k] = * mss[k];
-
 		addDataSelection(measurementSets_p[k]);
+		(*tileCacheIsSet_p)[k] = false;
 	}
 
 	if (useMSIter2)
@@ -1196,6 +1198,9 @@ VisibilityIteratorImpl2::clone()
 
 	// copy cache
 	result->cache_p = cache_p;
+
+	result->tileCacheModMtx_p = tileCacheModMtx_p;
+	result->tileCacheIsSet_p = tileCacheIsSet_p;
 
 	// clone frequencySelections_p
 	delete result->frequencySelections_p;
@@ -2482,7 +2487,11 @@ VisibilityIteratorImpl2::getMsd() const
 void
 VisibilityIteratorImpl2::setTileCache()
 {
-	if (!msIter_p->newMS() || autoTileCacheSizing_p) {
+	std::lock_guard<std::mutex> lck(*tileCacheModMtx_p);
+
+	if ((*tileCacheIsSet_p)[msId()]
+	    || !msIter_p->newMS()
+	    || autoTileCacheSizing_p) {
 		return; // Only useful when at start of an MS
 	}
 
@@ -2522,7 +2531,7 @@ VisibilityIteratorImpl2::setTileCache()
 	} else {
 		setMsCacheSizes(theMs, columnIds);
 	}
-
+	(*tileCacheIsSet_p)[msId()] = true;
 }
 
 void VisibilityIteratorImpl2::setMsCacheSizes(

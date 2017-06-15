@@ -1,3 +1,4 @@
+// -*- mode: c++ -*-
 //# VisibilityIterator.h: Step through the MeasurementEquation by visibility
 //# Copyright (C) 1996,1997,1998,1999,2000,2001,2002,2003
 //# Associated Universities, Inc. Washington DC, USA.
@@ -40,6 +41,8 @@
 #include <tuple>
 #include <map>
 #include <vector>
+#include <mutex>
+#include <memory>
 
 namespace casacore{
 
@@ -1180,6 +1183,8 @@ protected:
 	// [own] Allows const access to casacore::MS's subtable columns
 	SubtableColumns * subtableColumns_p;
 	casacore::MeasRef<casacore::MEpoch> timeFrameOfReference_p;
+	std::shared_ptr<std::mutex> tileCacheModMtx_p;
+	std::shared_ptr<std::vector<bool> > tileCacheIsSet_p;
 	casacore::Double timeInterval_p;
 	// [own] VisBuffer attached to this VI
 	VisBuffer2 * vb_p;
