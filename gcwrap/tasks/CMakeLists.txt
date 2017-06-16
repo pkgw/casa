@@ -99,7 +99,7 @@ sdcal.xml
 sdfit.xml
 sdgaincal.xml
 sdimaging.xml
-sdimprocess.xml
+sdfixscan.xml
 sdsmooth.xml
 ### ASAP tasks ###
 sdaverageold.xml
