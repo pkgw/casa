@@ -226,15 +226,22 @@ PlotMSIterateTab::PlotMSIterateTab(PlotMSPlotTab* tab, PlotMSPlotter* parent)
 	auto selectedItemsH_Header = selectedItemsTableView->horizontalHeader();
 	selectedItemsH_Header->setStretchLastSection(true);
 	selectedItemsH_Header->hide();
+
 	// ---- Buttons animation
 	arrowUpIcon = addItemsButton->icon();
 	// -------- Create arrow down icons: vertical flip
 	auto arrowUpNormalPixmap = arrowUpIcon.pixmap(QSize(128,128),QIcon::Mode::Normal,QIcon::State::Off);
 	QImage arrowDownNormalImg(arrowUpNormalPixmap.toImage().mirrored(false,true));
 	arrowDownIcon.addPixmap(QPixmap().fromImage(arrowDownNormalImg),QIcon::Mode::Normal,QIcon::State::Off);
+
 	auto arrowUpActivePixmap = arrowUpIcon.pixmap(QSize(128,128),QIcon::Mode::Active,QIcon::State::On);
 	QImage arrowDownActiveImg(arrowUpActivePixmap.toImage().mirrored(false,true));
 	arrowDownIcon.addPixmap(QPixmap().fromImage(arrowDownActiveImg),QIcon::Mode::Active,QIcon::State::On);
+
+	auto arrowUpActiveErrPixmap = arrowUpIcon.pixmap(QSize(128,128),QIcon::Mode::Active,QIcon::State::Off);
+	QImage arrowDownActiveErrImg(arrowUpActiveErrPixmap.toImage().mirrored(false,true));
+	arrowDownIcon.addPixmap(QPixmap().fromImage(arrowDownActiveErrImg),QIcon::Mode::Active,QIcon::State::Off);
+
 	removeItemsButton->setIcon(arrowDownIcon);
 
     // Connect widgets.
@@ -566,8 +573,17 @@ void PlotMSIterateTab::setButtonIcon(QPushButton *button, Bool isActive){
 	else return;
 
 	auto & icon = useArrowUpIcon ? arrowUpIcon : arrowDownIcon;
+
+	Bool haveSelection;
+	if ( button == addItemsButton )
+		haveSelection = availableItemsTableView->selectionModel()->hasSelection();
+	else
+		haveSelection = selectedItemsTableView->selectionModel()->hasSelection();
+
 	auto iconMode = isActive ? QIcon::Mode::Active : QIcon::Mode::Normal;
-	auto iconState = isActive ? QIcon::State::On : QIcon::State::Off;
+	auto iconState = isActive && haveSelection ?
+			         QIcon::State::On : QIcon::State::Off;
+
 	auto iconSize = icon.actualSize(QSize(32,32),iconMode,iconState);
 	auto iconPixmap = icon.pixmap(iconSize,iconMode,iconState);
 

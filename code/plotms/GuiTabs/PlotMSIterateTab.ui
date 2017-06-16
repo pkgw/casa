@@ -273,6 +273,7 @@ p, li { white-space: pre-wrap; }
           <property name="icon">
            <iconset resource="GuiTabs.qrc">
             <normaloff>:/images/images/arrowUpOff.png</normaloff>
+            <activeoff>:/images/images/arrowUpOnErr.png</activeoff>
             <activeon>:/images/images/arrowUpOn.png</activeon>:/images/images/arrowUpOff.png</iconset>
           </property>
           <property name="iconSize">
@@ -333,10 +334,6 @@ p, li { white-space: pre-wrap; }
           </property>
           <property name="text">
            <string/>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>:/images/images/del_header_items.png</normaloff>:/images/images/del_header_items.png</iconset>
           </property>
           <property name="iconSize">
            <size>
