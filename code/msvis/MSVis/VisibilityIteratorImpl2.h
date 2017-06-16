@@ -125,9 +125,13 @@ public:
 		casacore::Bool isWritable,
 		casacore::Bool useMSIter2=false);
 
-//    // Copy construct. This calls the assigment operator.
-//    VisibilityIteratorImpl2(const VisibilityIteratorImpl2 & other,
-//                                  VisibilityIterator2 * rovi);
+	VisibilityIteratorImpl2(const VisibilityIteratorImpl2& vii);
+
+	VisibilityIteratorImpl2 & operator=(const VisibilityIteratorImpl2& vii);
+
+	VisibilityIteratorImpl2(VisibilityIteratorImpl2&& vii);
+
+	VisibilityIteratorImpl2 & operator=(VisibilityIteratorImpl2&& vii);
 
 	// Destructor
 
@@ -1186,6 +1190,7 @@ protected:
 	std::shared_ptr<std::mutex> tileCacheModMtx_p;
 	std::shared_ptr<std::vector<bool> > tileCacheIsSet_p;
 	casacore::Double timeInterval_p;
+	VisBufferType vbType;
 	// [own] VisBuffer attached to this VI
 	VisBuffer2 * vb_p;
 	casacore::CountedPtr<WeightScaling> weightScaling_p;

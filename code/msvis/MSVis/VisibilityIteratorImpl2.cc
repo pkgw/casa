@@ -1025,37 +1025,232 @@ VisibilityIteratorImpl2::VisibilityIteratorImpl2(
 	Double timeInterval,
 	Bool writable,
 	Bool useMSIter2)
-	: ViImplementation2(),
-	  channelSelector_p(0),
-	  channelSelectorCache_p(new ChannelSelectorCache()),
-	  columns_p(),
-	  floatDataFound_p(false),
-	  frequencySelections_p(0),
-	  measurementFrame_p(VisBuffer2::FrameNotSpecified),
-	  modelDataGenerator_p(VisModelDataI::create2()),
-	  more_p(false),
-	  msIndex_p(0),
-	  msIterAtOrigin_p(false),
-	  msIter_p( ),
-	  nCorrelations_p(-1),
-	  nRowBlocking_p(0),
-	  pendingChanges_p(new PendingChanges()),
-	  reportingFrame_p(VisBuffer2::FrameNotSpecified),
-	  sortColumns_p(sortColumns),
-	  spectralWindowChannelsCache_p(new SpectralWindowChannelsCache()),
-	  subtableColumns_p(0),
-	  tileCacheModMtx_p(new std::mutex()),
-	  tileCacheIsSet_p(new std::vector<bool>()),
-	  timeInterval_p(timeInterval),
-	  vb_p(0),
-	  weightScaling_p( ),
-	  writable_p(writable)
+	: ViImplementation2()
+	, channelSelector_p(nullptr)
+	, channelSelectorCache_p(new ChannelSelectorCache())
+	, columns_p()
+	, floatDataFound_p(false)
+	, frequencySelections_p(nullptr)
+	, measurementFrame_p(VisBuffer2::FrameNotSpecified)
+	, modelDataGenerator_p(VisModelDataI::create2())
+	, more_p(false)
+	, msIndex_p(0)
+	, msIterAtOrigin_p(false)
+	, msIter_p()
+	, nCorrelations_p(-1)
+	, nRowBlocking_p(0)
+	, pendingChanges_p(new PendingChanges())
+	, reportingFrame_p(VisBuffer2::FrameNotSpecified)
+	, sortColumns_p(sortColumns)
+	, spectralWindowChannelsCache_p(new SpectralWindowChannelsCache())
+	, subtableColumns_p(nullptr)
+	, tileCacheModMtx_p(new std::mutex())
+	, tileCacheIsSet_p(new std::vector<bool>())
+	, timeInterval_p(timeInterval)
+	, vb_p(nullptr)
+	, weightScaling_p()
+	, writable_p(writable)
 {
-	initialize(mss,useMSIter2);
+	initialize(mss, useMSIter2);
 
-	VisBufferOptions options = isWritable() ? VbWritable : VbNoOptions;
+	VisBufferOptions options = writable_p ? VbWritable : VbNoOptions;
 
     vb_p = createAttachedVisBuffer(options);
+}
+
+VisibilityIteratorImpl2::VisibilityIteratorImpl2(
+	const VisibilityIteratorImpl2& vii)
+	: ViImplementation2()
+	, channelSelector_p(nullptr)
+	, channelSelectorCache_p(nullptr)
+	, frequencySelections_p(nullptr)
+	, modelDataGenerator_p(nullptr)
+	, pendingChanges_p(nullptr)
+	, spectralWindowChannelsCache_p(nullptr)
+	, vb_p(nullptr)
+{
+	*this = vii;
+}
+
+VisibilityIteratorImpl2 &
+VisibilityIteratorImpl2::operator=(const VisibilityIteratorImpl2& vii)
+{
+	// clone msIter_p
+	msIter_p = vii.msIter_p->clone();
+
+	// copy cache
+	cache_p = vii.cache_p;
+
+	tileCacheModMtx_p = vii.tileCacheModMtx_p;
+	tileCacheIsSet_p = vii.tileCacheIsSet_p;
+
+	// clone frequencySelections_p
+	if (frequencySelections_p) delete frequencySelections_p;
+	frequencySelections_p = vii.frequencySelections_p->clone();
+
+	// copy channelSelector_p...owned by channelSelectorCache_p, so don't delete
+	// current value before replacing it
+	channelSelector_p =
+		new ChannelSelector(
+			vii.channelSelector_p->timeStamp,
+			vii.channelSelector_p->msId,
+			vii.channelSelector_p->spectralWindowId,
+			vii.channelSelector_p->polarizationId,
+			vii.channelSelector_p->getSlicer());
+
+	// get frame of reference for current MS
+	const FrequencySelection &selection =
+		vii.frequencySelections_p->get(vii.msId());
+	Int frameOfReference = selection.getFrameOfReference();
+
+	// initialize channelSelector_p with current channelSelector_p
+	channelSelectorCache_p->flush();
+	channelSelectorCache_p->add(
+		channelSelector_p,
+		channelSelector_p->timeStamp,
+		channelSelector_p->msId,
+		frameOfReference,
+		channelSelector_p->spectralWindowId);
+
+	// copy assign some values
+	columns_p = vii.columns_p;
+	floatDataFound_p = vii.floatDataFound_p;
+	imwgt_p = vii.imwgt_p;
+	measurementFrame_p = vii.measurementFrame_p;
+	more_p = vii.more_p;
+	msIndex_p = vii.msIndex_p;
+	msIterAtOrigin_p = vii.msIterAtOrigin_p;
+	nCorrelations_p = vii.nCorrelations_p;
+	nRowBlocking_p = vii.nRowBlocking_p;
+	reportingFrame_p = vii.reportingFrame_p;
+	rowBounds_p = vii.rowBounds_p;
+	subchunk_p = vii.subchunk_p;
+	timeFrameOfReference_p = vii.timeFrameOfReference_p;
+	timeInterval_p = vii.timeInterval_p;
+	vbType = vii.vbType;
+	weightScaling_p = vii.weightScaling_p;
+	writable_p = vii.writable_p;
+
+	// clone modelDataGenerator_p
+	if (modelDataGenerator_p) delete modelDataGenerator_p;
+	modelDataGenerator_p = vii.modelDataGenerator_p->clone();
+
+	// initialize MSDerivedValues as done in configureNewChunk()
+	msd_p.setAntennas(msIter_p->msColumns().antenna());
+	msd_p.setFieldCenter(msIter_p->phaseCenter());
+
+	// clone pendingChanges_p
+	pendingChanges_p.reset(vii.pendingChanges_p->clone());
+
+	// initialize subtableColumns_p
+	if (subtableColumns_p) delete subtableColumns_p;
+	subtableColumns_p = new SubtableColumns(msIter_p);
+
+	// initialize attached VisBuffer...vii.vb_p does *not* get copied
+	// TODO: it would be better to use a shared_ptr to the attached VisBuffer,
+	// since we don't know if there are any outstanding references, as they can
+	// escape from VisibilityIteratorImpl2...for now, just delete it
+	if (vb_p) delete vb_p;
+	vb_p =
+		createAttachedVisBuffer(vbType, writable_p ? VbWritable : VbNoOptions);
+
+	return *this;
+}
+
+VisibilityIteratorImpl2::VisibilityIteratorImpl2(VisibilityIteratorImpl2&& vii)
+	: ViImplementation2()
+	, channelSelector_p(nullptr)
+	, channelSelectorCache_p(nullptr)
+	, frequencySelections_p(nullptr)
+	, modelDataGenerator_p(nullptr)
+	, pendingChanges_p(nullptr)
+	, spectralWindowChannelsCache_p(nullptr)
+	, vbType(VbPlain)
+	, vb_p(nullptr)
+	, writable_p(false)
+{
+	*this = std::move(vii);
+}
+
+VisibilityIteratorImpl2 &
+VisibilityIteratorImpl2::operator=(VisibilityIteratorImpl2&& vii)
+{
+	// copy msIter_p
+	msIter_p = vii.msIter_p;
+
+	// copy cache
+	cache_p = vii.cache_p;
+
+	tileCacheModMtx_p = std::move(vii.tileCacheModMtx_p);
+	tileCacheIsSet_p = std::move(vii.tileCacheIsSet_p);
+
+	// move frequencySelections_p
+	if (frequencySelections_p) delete frequencySelections_p;
+	frequencySelections_p = vii.frequencySelections_p;
+	vii.frequencySelections_p = nullptr;
+
+	// move channelSelector_p...owned by channelSelectorCache_p so don't delete
+	// initial destination value or source value
+	channelSelector_p = vii.channelSelector_p;
+
+	// move channelSelectorCache_p
+	if (channelSelectorCache_p) delete channelSelectorCache_p;
+	channelSelectorCache_p = vii.channelSelectorCache_p;
+	vii.channelSelectorCache_p = nullptr;
+
+	// move backWriters_p
+	backWriters_p = std::move(vii.backWriters_p);
+
+	// copy assign some values
+	autoTileCacheSizing_p = vii.autoTileCacheSizing_p;
+	columns_p = vii.columns_p;
+	floatDataFound_p = vii.floatDataFound_p;
+	imwgt_p = vii.imwgt_p;
+	measurementFrame_p = vii.measurementFrame_p;
+	measurementSets_p = vii.measurementSets_p;
+	more_p = vii.more_p;
+	msIndex_p = vii.msIndex_p;
+	msIterAtOrigin_p = vii.msIterAtOrigin_p;
+	nCorrelations_p = vii.nCorrelations_p;
+	nRowBlocking_p = vii.nRowBlocking_p;
+	reportingFrame_p = vii.reportingFrame_p;
+	rowBounds_p = vii.rowBounds_p;
+	sortColumns_p = vii.sortColumns_p;
+	subchunk_p = vii.subchunk_p;
+	timeFrameOfReference_p = vii.timeFrameOfReference_p;
+	timeInterval_p = vii.timeInterval_p;
+	vbType = vii.vbType;
+	weightScaling_p = vii.weightScaling_p;
+	writable_p = vii.writable_p;
+
+	// move modelDataGenerator_p
+	if (modelDataGenerator_p) delete modelDataGenerator_p;
+	modelDataGenerator_p = vii.modelDataGenerator_p;
+	vii.modelDataGenerator_p = nullptr;
+
+	// initialize MSDerivedValues as done in configureNewChunk()...moving or
+	// copying the value is not well supported
+	msd_p.setAntennas(msIter_p->msColumns().antenna());
+	msd_p.setFieldCenter(msIter_p->phaseCenter());
+
+	// move pendingChanges_p
+	pendingChanges_p = std::move(vii.pendingChanges_p);
+
+	// initialize subtableColumns_p
+	if (subtableColumns_p) delete subtableColumns_p;
+	subtableColumns_p = vii.subtableColumns_p;
+	vii.subtableColumns_p = nullptr;
+
+	// initialize vb_p...can't steal VisBuffer2 instance since it is attached to
+	// vii
+	if (vb_p) delete vb_p;
+	vb_p =
+		createAttachedVisBuffer(vbType, writable_p ? VbWritable : VbNoOptions);
+	// TODO: again, it would be better were vb_p a shared_ptr
+	delete vii.vb_p;
+	vii.vb_p = nullptr;
+
+	return *this;
 }
 
 void
@@ -1192,75 +1387,7 @@ VisibilityIteratorImpl2::clone()
 			VbPlain,
 			writable_p,
 			false));
-
-	// clone msIter_p
-	result->msIter_p.reset(msIter_p->clone());
-
-	// copy cache
-	result->cache_p = cache_p;
-
-	result->tileCacheModMtx_p = tileCacheModMtx_p;
-	result->tileCacheIsSet_p = tileCacheIsSet_p;
-
-	// clone frequencySelections_p
-	delete result->frequencySelections_p;
-	result->frequencySelections_p = frequencySelections_p->clone();
-
-	// copy channelSelector_p
-	result->channelSelector_p =
-		new ChannelSelector(
-			channelSelector_p->timeStamp,
-			channelSelector_p->msId,
-			channelSelector_p->spectralWindowId,
-			channelSelector_p->polarizationId,
-			channelSelector_p->getSlicer());
-
-	// get frame of reference for current MS
-	const FrequencySelection &selection = frequencySelections_p->get(msId());
-	Int frameOfReference = selection.getFrameOfReference();
-
-	// initialize channelSelector_p with current channelSelector_p
-	result->channelSelectorCache_p->flush();
-	result->channelSelectorCache_p->add(
-		result->channelSelector_p,
-		result->channelSelector_p->timeStamp,
-		result->channelSelector_p->msId,
-		frameOfReference,
-		result->channelSelector_p->spectralWindowId);
-
-	// copy assign some values
-	result->columns_p = columns_p;
-	result->floatDataFound_p = floatDataFound_p;
-	result->imwgt_p = imwgt_p;
-	result->measurementFrame_p = measurementFrame_p;
-	result->more_p = more_p;
-	result->msIndex_p = msIndex_p;
-	result->msIterAtOrigin_p = msIterAtOrigin_p;
-	result->nCorrelations_p = nCorrelations_p;
-	result->nRowBlocking_p = nRowBlocking_p;
-	result->reportingFrame_p = reportingFrame_p;
-	result->rowBounds_p = rowBounds_p;
-	result->subchunk_p = subchunk_p;
-	result->timeFrameOfReference_p = timeFrameOfReference_p;
-	result->timeInterval_p = timeInterval_p;
-	result->weightScaling_p = weightScaling_p;
-	result->writable_p = writable_p;
-
-	// clone modelDataGenerator_p
-	delete result->modelDataGenerator_p;
-	result->modelDataGenerator_p = modelDataGenerator_p->clone();
-
-	// initialize MSDerivedValues
-	result->msd_p.setAntennas(result->msIter_p->msColumns().antenna());
-	result->msd_p.setFieldCenter(result->msIter_p->phaseCenter());
-
-	// clone pendingChanges_p
-	result->pendingChanges_p.reset(pendingChanges_p->clone());
-
-	// initialize subtableColumns_p
-	delete result->subtableColumns_p;
-	result->subtableColumns_p = new SubtableColumns(result->msIter_p);
-
+	*result = *this;
 	return result;
 }
 
