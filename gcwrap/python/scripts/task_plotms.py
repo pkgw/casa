@@ -727,6 +727,8 @@ def plotms(vis=None,
         cpp_headeritems = []
         for headeritem_word in headeritems.split(','):
             py_headeritem = headeritem_word.strip()
+            if py_headeritem == "":
+                continue
             if py_headeritem in header_cpp_kw:
                 ccp_headeritem = header_cpp_kw[py_headeritem]
                 cpp_headeritems.append(ccp_headeritem)
