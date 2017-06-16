@@ -15,7 +15,7 @@ def asap_init():
     print('*** ... ASAP (rev#%s) import complete ***' % (sd.__revision__))
     os.environ['CASAPATH']=casapath
     from sdimaging_cli import sdimaging_cli as sdimaging
-    from sdimprocess_cli import sdimprocess_cli as sdimprocess
+    from sdfixscan_cli import sdfixscan_cli as sdfixscan
     from sdaverageold_cli import sdaverageold_cli as sdaverageold
     from sdbaselineold_cli import sdbaselineold_cli as sdbaselineold
     from sdbaseline2old_cli import sdbaseline2old_cli as sdbaseline2old
@@ -35,7 +35,7 @@ def asap_init():
     from sdstatold_cli import sdstatold_cli as sdstatold
     myf['sd']=sd
     myf['sdimaging']=sdimaging
-    myf['sdimprocess']=sdimprocess
+    myf['sdfixscan']=sdfixscan
     myf['sdaverageold']=sdaverageold
     myf['sdbaselineold']=sdbaselineold
     myf['sdbaseline2old']=sdbaseline2old
