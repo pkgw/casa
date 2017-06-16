@@ -1168,12 +1168,12 @@ VisibilityIteratorImpl2::initialize(const Block<const MeasurementSet *> &mss,
 
 VisibilityIteratorImpl2::~VisibilityIteratorImpl2()
 {
-	delete channelSelectorCache_p;
-	delete frequencySelections_p;
-	delete modelDataGenerator_p;
-	delete spectralWindowChannelsCache_p;
-	delete subtableColumns_p;
-	delete vb_p;
+	if (channelSelectorCache_p) delete channelSelectorCache_p;
+	if (frequencySelections_p) delete frequencySelections_p;
+	if (modelDataGenerator_p) delete modelDataGenerator_p;
+	if (spectralWindowChannelsCache_p) delete spectralWindowChannelsCache_p;
+	if (subtableColumns_p) delete subtableColumns_p;
+	if (vb_p) delete vb_p;
 }
 
 std::unique_ptr<VisibilityIteratorImpl2>
