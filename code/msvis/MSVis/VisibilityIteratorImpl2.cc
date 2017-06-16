@@ -565,13 +565,15 @@ class ChannelSelectorCache
 public:
 
 	ChannelSelectorCache(Int maxEntries = 20)
-		: frameOfReference_p(FrequencySelection::Unknown),
-		  maxEntries_p(maxEntries),
-		  msId_p(-1) {}
+		: frameOfReference_p(FrequencySelection::Unknown)
+		, maxEntries_p(maxEntries)
+		, msId_p(-1)
+		{}
 
-	~ChannelSelectorCache() {
-		flush();
-	}
+	~ChannelSelectorCache()
+		{
+			flush();
+		}
 
 	void add(const ChannelSelector * entry, Double time, Int msId,
 	         Int frameOfReference, Int spectralWindowId)
@@ -652,15 +654,15 @@ class SpectralWindowChannel
 public:
 
 	SpectralWindowChannel() // for use of vector only
-		: channel_p(-1),
-		  frequency_p(-1),
-		  width_p(-1)
+		: channel_p(-1)
+		, frequency_p(-1)
+		, width_p(-1)
 		{}
 
 	SpectralWindowChannel(Int channel, Double frequency, Double width)
-		: channel_p(channel),
-		  frequency_p(frequency),
-		  width_p(width)
+		: channel_p(channel)
+		, frequency_p(frequency)
+		, width_p(width)
 		{}
 
 	Bool
@@ -829,8 +831,8 @@ class SpectralWindowChannelsCache
 public:
 
 	SpectralWindowChannelsCache()
-		: msId_p(-1),
-		  nBytes_p(0)
+		: msId_p(-1)
+		, nBytes_p(0)
 		{}
 
 	~SpectralWindowChannelsCache()
@@ -3902,10 +3904,10 @@ VisibilityIteratorImpl2::initializeBackWriters()
 }
 
 VisibilityIteratorImpl2::PendingChanges::PendingChanges()
-	: frequencySelections_p(0),
-	  frequencySelectionsPending_p(false),
-	  interval_p(Empty),
-	  nRowBlocking_p(Empty)
+	: frequencySelections_p(0)
+	, frequencySelectionsPending_p(false)
+	, interval_p(Empty)
+	, nRowBlocking_p(Empty)
 {}
 
 VisibilityIteratorImpl2::PendingChanges::~PendingChanges()
