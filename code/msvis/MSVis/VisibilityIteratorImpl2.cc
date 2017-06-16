@@ -1,4 +1,4 @@
-///# VisibilityIterator2.cc: Step through MeasurementEquation by visibility
+//# VisibilityIterator2.cc: Step through MeasurementEquation by visibility
 //# Copyright (C) 1996-2012
 //# Associated Universities, Inc. Washington DC, USA.
 //#
@@ -575,17 +575,17 @@ public:
 			flush();
 		}
 
-	void add(const ChannelSelector * entry, Double time, Int msId,
-	         Int frameOfReference, Int spectralWindowId)
+	void add(const ChannelSelector *entry, Int frameOfReference)
 		{
-			if (msId != msId_p || frameOfReference != frameOfReference_p) {
+			if (entry->msId != msId_p
+			    || frameOfReference != frameOfReference_p) {
 
 				// Cache only holds values for a single MS and a single frame of
 				// reference at a time.
 
 				flush();
 
-				msId_p = msId;
+				msId_p = entry->msId;
 				frameOfReference_p = frameOfReference;
 			}
 
@@ -598,11 +598,13 @@ public:
 				cache_p.erase(cache_p.begin());
 			}
 
-			if (frameOfReference_p == FrequencySelection::ByChannel) {
-				time = -1; // channel selection is not function of time
-			}
-			// take ownership of it
-			cache_p[Key(time, spectralWindowId)] = entry;
+			Double time =
+				((frameOfReference_p == FrequencySelection::ByChannel)
+				 ? -1 // channel selection not function of time
+				 : entry->timeStamp);
+
+			// take ownership of entry
+			cache_p[Key(time, entry->spectralWindowId)] = entry;
 		}
 
 	const ChannelSelector *
@@ -1107,12 +1109,7 @@ VisibilityIteratorImpl2::operator=(const VisibilityIteratorImpl2& vii)
 
 	// initialize channelSelector_p with current channelSelector_p
 	channelSelectorCache_p->flush();
-	channelSelectorCache_p->add(
-		channelSelector_p,
-		channelSelector_p->timeStamp,
-		channelSelector_p->msId,
-		frameOfReference,
-		channelSelector_p->spectralWindowId);
+	channelSelectorCache_p->add(channelSelector_p, frameOfReference);
 
 	// copy assign some values
 	columns_p = vii.columns_p;
@@ -2207,8 +2204,7 @@ VisibilityIteratorImpl2::determineChannelSelection(
 	// at a time, this shouldn't be a problem (the special case of selection by
 	// channel number is already handled).
 
-	channelSelectorCache_p->add(newSelector, time, msId, frameOfReference,
-	                            spectralWindowId);
+	channelSelectorCache_p->add(newSelector, frameOfReference);
 
 	return newSelector;
 }
