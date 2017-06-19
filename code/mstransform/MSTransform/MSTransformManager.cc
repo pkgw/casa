@@ -2798,7 +2798,15 @@ void MSTransformManager::regridSpwAux(Int spwId, MFrequency::Types spwInputRefFr
       << originalCHAN_FREQ(0) << " Hz"
       << ", last channel = "
       << std::setprecision(9) << std::setw(14) << std::scientific
-      << originalCHAN_FREQ(originalCHAN_FREQ.size() -1) << " Hz";
+      << originalCHAN_FREQ(originalCHAN_FREQ.size() -1) << " Hz"
+      << ", first width = "
+      << std::setprecision(9) << std::setw(14) << std::scientific
+      << originalCHAN_WIDTH(originalCHAN_WIDTH.size()-1) << " Hz"
+      << ", last width = "
+      << std::setprecision(9) << std::setw(14) << std::scientific
+      << originalCHAN_WIDTH(originalCHAN_WIDTH.size()-1) << " Hz"
+    ;
+
   logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__) << oss.str() << LogIO::POST;
 
   // Apply channel average if necessary
@@ -2888,6 +2896,7 @@ void MSTransformManager::regridSpwAux(Int spwId, MFrequency::Types spwInputRefFr
       << ", last width = "
       << std::setprecision(9) << std::setw(14) << std::scientific
       << regriddedCHAN_WIDTH(regriddedCHAN_WIDTH.size()-1) << " Hz";
+
   logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
 	   << oss.str() << LogIO::POST;
 }
@@ -4136,33 +4145,39 @@ void MSTransformManager::initGridForRegridTClean(const Vector<Double> &originalC
   regridTCleanCHAN_FREQ_p.resize(originalCHAN_FREQ.size());
   Vector<Double> regridTCleanCHAN_WIDTH_p;
   regridTCleanCHAN_WIDTH_p.resize(regridTCleanCHAN_FREQ_p.size());
-  regridTCleanCHAN_FREQ_p(0) = outCHAN_FREQ(0) - outCHAN_WIDTH(0)/2.;
-  regridTCleanCHAN_WIDTH_p(0) = outCHAN_WIDTH(0) / widthFactor;
+
+  const auto &outputFreqs = outCHAN_FREQ;
+  bool negativeWidths = outputFreqs[0] > outputFreqs[outputFreqs.size()-1];
+
+  // swap first/last if "negative width" (decreasing frequencies)
+  auto startIdx = negativeWidths ? (outCHAN_FREQ.size() -1) : 0;
+  regridTCleanCHAN_FREQ_p[0] = outCHAN_FREQ[startIdx] - outCHAN_WIDTH[startIdx]/2.;
+  regridTCleanCHAN_WIDTH_p[0] = outCHAN_WIDTH[startIdx] / widthFactor;
   Double widthFactorIdx = static_cast<Double>(regridTCleanCHAN_FREQ_p.size()) /
     outCHAN_FREQ.size();
+
   for (size_t idx = 1; idx < regridTCleanCHAN_FREQ_p.size(); ++idx) {
     Int outIdx = static_cast<Int>(idx / widthFactorIdx);
-    regridTCleanCHAN_WIDTH_p(idx) = outCHAN_WIDTH(outIdx) / widthFactorIdx;
-    regridTCleanCHAN_FREQ_p(idx) = regridTCleanCHAN_FREQ_p(idx-1) +
-      regridTCleanCHAN_WIDTH_p(idx);
+    regridTCleanCHAN_WIDTH_p[idx] = outCHAN_WIDTH[outIdx] / widthFactorIdx;
+    regridTCleanCHAN_FREQ_p[idx] = regridTCleanCHAN_FREQ_p[idx-1] +
+      regridTCleanCHAN_WIDTH_p[idx];
   }
+
 
   // Build map from fake input channels => output channels
   regridTCleanChanMap_p.resize(regridTCleanCHAN_FREQ_p.size());
   regridTCleanChanMap_p = -1;
-  const auto &outputFreqs = outCHAN_FREQ;
-  const auto &outputWidths = outCHAN_WIDTH;
   const auto &intermFreqs = regridTCleanCHAN_FREQ_p;
+  const auto &outputWidths = outCHAN_WIDTH;
   for (uInt mapIdx = 0; mapIdx < regridTCleanChanMap_p.size(); ++mapIdx) {
     for (uInt outIdx = 0; outIdx < outputFreqs.size(); ++outIdx) {
-      if (intermFreqs(mapIdx) >= outputFreqs(outIdx) - outputWidths(outIdx)/2. and
-	  intermFreqs(mapIdx) < outputFreqs(outIdx) + outputWidths(outIdx)/2.) {
+      if (intermFreqs[mapIdx] >= outputFreqs[outIdx] - outputWidths[outIdx]/2. and
+	  intermFreqs[mapIdx] < outputFreqs[outIdx] + outputWidths[outIdx]/2.) {
 	regridTCleanChanMap_p(mapIdx) = outIdx;
 	break;
       }
     }
   }
-
   regridTClean_p = true;
 }
 
