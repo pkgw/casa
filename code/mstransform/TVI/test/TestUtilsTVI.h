@@ -83,19 +83,16 @@ protected:
 template <class T> void compareVector(const casacore::Char* column,
                                       const casacore::Vector<T> &inp,
                                       const casacore::Vector<T> &ref,
-                                      const casacore::Vector<casacore::uInt> &rowIds,
                                       casacore::Float tolerance = FLT_EPSILON);
 
 template <class T> void compareMatrix(const casacore::Char* column,
                                       const casacore::Matrix<T> &inp,
                                       const casacore::Matrix<T> &ref,
-                                      const casacore::Vector<casacore::uInt> &rowIds,
                                       casacore::Float tolerance = FLT_EPSILON);
 
 template <class T> void compareCube(const casacore::Char* column,
                                     const casacore::Cube<T> &inp,
                                     const casacore::Cube<T> &ref,
-                                    const casacore::Vector<casacore::uInt> &rowIds,
                                     casacore::Float tolerance = FLT_EPSILON);
 
 void compareVisibilityIterators(VisibilityIterator2 &testTVI,

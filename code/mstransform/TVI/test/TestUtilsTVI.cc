@@ -117,7 +117,6 @@ void FreqAxisTVITest::TearDown()
 template <class T> void compareVector(	const Char* column,
 										const Vector<T> &inp,
 										const Vector<T> &ref,
-										const Vector<uInt> &rowIds,
 										Float tolerance)
 {
 	// Check matching shape
@@ -130,7 +129,6 @@ template <class T> void compareVector(	const Char* column,
 	    ASSERT_NEAR(abs(inp(index) - ref(index)), 0, tolerance)
             << column << " does not match in position ="
             << index
-            << " rowId=" << rowIds(index)
             << " test=" << inp(index)
             << " reference=" << ref(index);
 	}
@@ -142,7 +140,6 @@ template <class T> void compareVector(	const Char* column,
 template <class T> void compareMatrix(	const Char* column,
 										const Matrix<T> &inp,
 										const Matrix<T> &ref,
-										const Vector<uInt> &rowIds,
 										Float tolerance)
 {
 	// Check matching shape
@@ -158,7 +155,6 @@ template <class T> void compareMatrix(	const Char* column,
 		    ASSERT_NEAR(abs(inp(col,row) - ref(col,row)), 0, tolerance)
                 << column << " does not match in position (row,col)="
                 << "("<< row << "," << col << ")"
-                << " rowId=" << rowIds(row)
                 << " test=" << inp(col,row)
                 << " reference=" << ref(col,row);
 		}
@@ -171,7 +167,6 @@ template <class T> void compareMatrix(	const Char* column,
 template <class T> void compareCube(const Char* column,
                                     const Cube<T> &inp,
                                     const Cube<T> &ref,
-                                    const Vector<uInt> &rowIds,
                                     Float tolerance)
 {
     // Check matching shape
@@ -189,7 +184,6 @@ template <class T> void compareCube(const Char* column,
                 ASSERT_NEAR(abs(inp(corr,chan,row) - ref(corr,chan,row)), 0, tolerance)
 	                << column << " does not match in position (row,chan,corr)="
 			        << "("<< row << "," << chan << "," << corr << ")"
-			        << " rowId=" << rowIds(row)
                     << " test=" << inp(corr,chan,row)
                     << " reference=" << ref(corr,chan,row);
             }
@@ -211,8 +205,8 @@ void compareVisibilityIterators(VisibilityIterator2 &testTVI,
     Int chunk = 0,buffer = 0;
 
     // Get VisBuffers
-    VisBuffer2 *refVb = refTVI.getVisBuffer();
-    VisBuffer2 *testVb = testTVI.getVisBuffer();
+    VisBuffer2 *refVb = refTVI.getImpl()->getVisBuffer();
+    VisBuffer2 *testVb = testTVI.getImpl()->getVisBuffer();
 
     // Compare selected columns
     try
@@ -242,83 +236,83 @@ void compareVisibilityIterators(VisibilityIterator2 &testTVI,
                     ASSERT_EQ(testVb->nChannels(), refVb->nChannels());
 
                 if (columns.contains(VisBufferComponent2::NCorrelations))
-                    ASSERT_EQ(testVb->nCorrelations(), refVb->nCorrelations());
+                    ASSERT_EQ(testVb->nCorrelations(), testVb->nCorrelations());
 
                 if (columns.contains(VisBufferComponent2::FlagRow))
                 {
                     columnName = VisBufferComponents2::name(VisBufferComponent2::FlagRow);
                     compareVector(columnName.c_str(),testVb->flagRow(),refVb->flagRow(),
-                                  refVb->rowIds(),tolerance);
+                                  tolerance);
                 }
 
                 if (columns.contains(VisBufferComponent2::FlagCube))
                 {
                     columnName = VisBufferComponents2::name(VisBufferComponent2::FlagCube);
                     compareCube(columnName.c_str(),testVb->flagCube(),refVb->flagCube(),
-                                refVb->rowIds(),tolerance);
+                                tolerance);
                 }
 
                 if (columns.contains(VisBufferComponent2::VisibilityCubeObserved))
                 {
                     columnName = VisBufferComponents2::name(VisBufferComponent2::VisibilityCubeObserved);
                     compareCube(columnName.c_str(),testVb->visCube(),getViscube(refVb,MS::DATA,datacolmap),
-                                refVb->rowIds(),tolerance);
+                                tolerance);
                 }
 
                 if (columns.contains(VisBufferComponent2::VisibilityCubeCorrected))
                 {
                     columnName = VisBufferComponents2::name(VisBufferComponent2::VisibilityCubeCorrected);
                     compareCube(columnName.c_str(),testVb->visCubeCorrected(),getViscube(refVb,MS::CORRECTED_DATA,datacolmap),
-                                refVb->rowIds(),tolerance);
+                                tolerance);
                 }
 
                 if (columns.contains(VisBufferComponent2::VisibilityCubeModel))
                 {
                     columnName = VisBufferComponents2::name(VisBufferComponent2::VisibilityCubeModel);
                     compareCube(columnName.c_str(),testVb->visCubeModel(),getViscube(refVb,MS::MODEL_DATA,datacolmap),
-                                refVb->rowIds(),tolerance);
+                                tolerance);
                 }
 
                 if (columns.contains(VisBufferComponent2::VisibilityCubeFloat))
                 {
                     columnName = VisBufferComponents2::name(VisBufferComponent2::VisibilityCubeFloat);
                     compareCube(columnName.c_str(),testVb->visCubeFloat(),refVb->visCubeFloat(),
-                                refVb->rowIds(),tolerance);
+                                tolerance);
                 }
 
                 if (columns.contains(VisBufferComponent2::WeightSpectrum))
                 {
                     columnName = VisBufferComponents2::name(VisBufferComponent2::WeightSpectrum);
                     compareCube(columnName.c_str(),testVb->weightSpectrum(),refVb->weightSpectrum(),
-                                refVb->rowIds(),tolerance);
+                                tolerance);
                 }
 
                 if (columns.contains(VisBufferComponent2::SigmaSpectrum))
                 {
                     columnName = VisBufferComponents2::name(VisBufferComponent2::SigmaSpectrum);
                     compareCube(columnName.c_str(),testVb->sigmaSpectrum(),refVb->sigmaSpectrum(),
-                                refVb->rowIds(),tolerance);
+                                tolerance);
                 }
 
                 if (columns.contains(VisBufferComponent2::Weight))
                 {
                     columnName = VisBufferComponents2::name(VisBufferComponent2::Weight);
                     compareMatrix(columnName.c_str(),testVb->weight(),refVb->weight(),
-                                  refVb->rowIds(),tolerance);
+                                  tolerance);
                 }
 
                 if (columns.contains(VisBufferComponent2::Sigma))
                 {
                     columnName = VisBufferComponents2::name(VisBufferComponent2::Sigma);
                     compareMatrix(columnName.c_str(),testVb->sigma(),refVb->sigma(),
-                                  refVb->rowIds(),tolerance);
+                                  tolerance);
                 }
 
                 if (columns.contains(VisBufferComponent2::Frequencies))
                 {
                     columnName = VisBufferComponents2::name(VisBufferComponent2::Frequencies);
                     compareVector(columnName.c_str(),testVb->getFrequencies(0),refVb->getFrequencies(0),
-                                  refVb->rowIds(),tolerance);
+                                  tolerance);
                 }
 
                 refTVI.next();
