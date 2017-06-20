@@ -21,6 +21,7 @@
 //# $Id: $
 
 
+#include <limits>
 #include <mstransform/TVI/test/tChannelAverageTVI.h>
 #include <msvis/MSVis/SimpleSimVi2.h>
 
@@ -285,15 +286,95 @@ TEST(ChannelAverageTVIConfTest, WrongChanbinForMultipleSpw)
     Record configuration;
     configuration.define ("chanbin", "2,2,2");
     //Generates a simulated Vi with  nField = 1 , nScan = 1, nSpw = 2, nAnt = 4,
-    //nCorr = 4, nTimePerField = (1, 1), nChan = 1, 10
+    //nCorr = 4, nTimePerField = (1), nChan = (10, 10)
     SimpleSimVi2Parameters simParam(1, 1, 2, 4, 4 , 
-                                    Vector<Int>(1,1), Vector<Int>(1,10));
+                                    Vector<Int>(1,1), Vector<Int>(2,10));
     SimpleSimVi2Factory simFactory(simParam);
-    VisibilityIterator2 *vi = new VisibilityIterator2(simFactory);
-    ChannelAverageTVIFactory testFactory(configuration, vi->getImpl());
+    VisibilityIterator2 *simVi = new VisibilityIterator2(simFactory);
+    ChannelAverageTVIFactory testFactory(configuration, simVi->getImpl());
     ASSERT_THROW(VisibilityIterator2 testTVI(testFactory), AipsError);
 }
 
+TEST(ChannelAverageTVIExecuteSimulatedTest, UniformMS)
+{
+    for(int nField = 1; nField < 4; nField++)
+    {
+        for(int nScan = 1; nScan < 3; nScan++)
+        {
+            for(int nSpw = 1; nSpw < 4; nSpw++)
+            {
+                for(int nAnt = 4; nAnt <= 8; nAnt*=2)
+                {
+                    for(int nTimePerField = 1; nTimePerField <= 10; nTimePerField*=10)
+                    {
+                        for(int nChan = 4; nChan <= 128; nChan*=2)
+                        {
+                            for(int chanbin = 0; chanbin <= nChan; 
+                                    chanbin = (chanbin == 0 ? 1 : chanbin*4))
+                            {
+                                int nCorr = 4;
+                                casacore::Complex visValue(1.0, 2.0);
+                                SCOPED_TRACE(string("Channel averaging data with nField=") + 
+                                             to_string(nField) + " nScan=" + to_string(nScan) +
+                                             " nAnt " + to_string(nAnt) + " nCorr=" + to_string(nCorr) +
+                                             " nTimePerField " + to_string(nTimePerField) + 
+                                             " nChan=" + to_string(nChan));
+                                //Generating a uniform simulated Vi2 
+                                SimpleSimVi2Parameters simParam(nField, nScan, 
+                                    nSpw, nAnt, nCorr,
+                                    Vector<Int>(nField, nTimePerField),
+                                    Vector<Int>(nSpw, nChan), visValue);
+                                SimpleSimVi2Factory simFactory(simParam);
+                                VisibilityIterator2 *simVi = 
+                                        new VisibilityIterator2(simFactory);
+                                
+                                //Chaining a ChannelAverageTVI 
+                                //after the simulated Vi2
+                                Record configuration;
+                                configuration.define ("chanbin", chanbin);
+                                ChannelAverageTVIFactory testFactory(configuration, 
+                                                                     simVi->getImpl());
+                                VisibilityIterator2 testTVI(testFactory);
+                                
+                                //Generating a simulated Vi2 with the  
+                                //expected result (which is also uniform)
+                                int nAveragedChannels = 
+                                    chanbin == 0 ? nChan : (chanbin == 1 ? 1 : nChan / chanbin);
+                                //chanbin == 0 means no averaging
+                                //chanbin == 1 means do full averaging across the whole SPW
+                                SimpleSimVi2Parameters simResultParam(nField, nScan, 
+                                    nSpw, nAnt, nCorr, 
+                                    Vector<Int>(nField, nTimePerField),
+                                    Vector<Int>(nSpw, nAveragedChannels),
+                                    visValue);
+                                SimpleSimVi2Factory simResultFactory(simResultParam);
+                                VisibilityIterator2 *simResultVi = 
+                                        new VisibilityIterator2(simResultFactory);
+
+                                // Determine columns to check
+                                VisBufferComponents2 columns;
+                                columns += VisBufferComponent2::NRows;
+                                columns += VisBufferComponent2::NChannels;
+                                columns += VisBufferComponent2::NCorrelations;
+                                columns += VisBufferComponent2::FlagRow;
+                                columns += VisBufferComponent2::FlagCube;
+                                columns += VisBufferComponent2::VisibilityCubeObserved;
+                                columns += VisBufferComponent2::VisibilityCubeCorrected;
+                                columns += VisBufferComponent2::VisibilityCubeModel;
+
+                                // Compare the channel average 
+                                SCOPED_TRACE("Comparing transformed data for simulated uniform ms");
+                                double tolerance = std::numeric_limits<double>::epsilon();
+                                compareVisibilityIterators(testTVI,*simResultVi,
+                                                           columns, tolerance);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 //////////////////////////////////////////////////////////////////////////
 // main
 //////////////////////////////////////////////////////////////////////////
