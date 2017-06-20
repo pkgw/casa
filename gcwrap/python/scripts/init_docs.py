@@ -21,6 +21,12 @@ class __doc(object):
         self.local_toc_url = None if casa['dirs']['doc'] is None else casa['dirs']['doc'] + '/casa.nrao.edu/casadocs/toc.xml'
         self.local_start_path = "usingcasa/starting-casa.html"
 
+    def __welcome( self, welcome="\nOpening packaged documentation.\n" ):
+        if welcome is not None:
+            print welcome
+        print "The most recent version of all CASA documentation is available online from:"
+        print "\thttps://casa.nrao.edu/casadocs/\n"
+
     def __call__( self, sec=None ):
         "open browser with documentation, try \"doc('toc')\""
 
@@ -60,9 +66,11 @@ class __doc(object):
             if sec is None:
                 homepage = "%s%s.html" % (path,self.remote_source_url_components[2])
                 if os.path.exists(path):
+                    self.__welcome( )
                     return webbrowser.open("file://" + homepage)
                 else:
                     print "local documentation tree not found..."
+                    self.__welcome(None)
                     return False
             else:
                 if self.local_toc is None:
@@ -70,14 +78,18 @@ class __doc(object):
                         self.local_toc = reduce( entry_to_dict, ET.ElementTree(file=urllib2.urlopen("file://" + self.local_toc_url)).getroot( ).getchildren( ), { } )
                     else:
                         print "local documentation tree not found..."
+                        self.__welcome(None)
                         return False
                 if sec == 'toc':
                     show_toc(self.local_toc)
                 elif sec == 'start':
+                    self.__welcome( )
                     return webbrowser.open(path + "/casadocs/stable/" + self.local_start_path)
                 elif self.local_toc.has_key(sec):
+                    self.__welcome( )
                     return webbrowser.open(path + "/casadocs/stable/" + self.local_toc[sec]['path'])
                 else:
+                    self.__welcome(None)
                     print "Sorry '%s' is not a recognized section..." % sec
                     print "------------------------------------------------------------------------------"
                     show_toc(self.local_toc)
