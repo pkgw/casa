@@ -328,6 +328,7 @@ vector<PMS::Axis> PlotMSPlot::getCachedAxes() {
             // set Display symbol color
 	        PMS_PP_Display* disp = itsParams_.typedGroup<PMS_PP_Display>();
             PlotSymbolPtr atmSymbol = disp->unflaggedSymbol(index);
+            atmSymbol->setSymbol("circle");
             atmSymbol->setColor("#FF00FF");
             disp->setUnflaggedSymbol(atmSymbol, index);
             PlotSymbolPtr flaggedSymbol = disp->flaggedSymbol();
@@ -1936,6 +1937,10 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
                         pair<double, double> ybounds = make_pair(ymin, ymax);
                         canvas->setAxisRange(cy, ybounds);
                     }
+                } else if (y==PMS::ATM) {
+                    itsCache_->indexer(1,iteration).minsMaxes(xmin, xmax, ymin, ymax);
+                    pair<double,double> atmrange = make_pair(0, min(ymax+5.0, 100.0));
+                    canvas->setAxisRange(cy, atmrange);
                 }
 		    }
         }

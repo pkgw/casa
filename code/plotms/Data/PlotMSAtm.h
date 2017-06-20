@@ -27,6 +27,7 @@
 #ifndef PLOTMSATM_H_
 #define PLOTMSATM_H_
 
+#include <plotms/Data/PlotMSCacheBase.h>
 #include <plotms/PlotMS/PlotMSSelection.h>
 #include <ms/MeasurementSets/MeasurementSet.h>
 #include <synthesis/CalTables/NewCalTable.h>
@@ -73,7 +74,7 @@ class PlotMSAtm {
 
 public:
 
-    // construct with (selected) bandpass table
+    // construct with bandpass table name
     PlotMSAtm(casacore::String bptable);
     ~PlotMSAtm();
 
@@ -83,6 +84,9 @@ public:
     // returns transmission vector
     casacore::Vector<casacore::Double> calcAtmTransmission(casacore::Int spw,
             casacore::Int scan);
+
+    inline casacore::Double getPwv() { return pwv_; }
+    inline casacore::Double getAirmass() { return airmass_; }
 
 private:
 
@@ -123,8 +127,9 @@ private:
     casacore::String telescopeName_;
     casacore::Vector<casacore::Int> calfields_;
     casacore::MeasurementSet* ms_;
+    casacore::Int scan_;  // needed for elevation
     casacore::Record weather_;
-    casacore::Double pwv_;
+    casacore::Double pwv_, airmass_;
 };
 
 }

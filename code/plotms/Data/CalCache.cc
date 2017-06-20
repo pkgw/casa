@@ -263,6 +263,7 @@ void CalCache::loadCalChunks(ROCTIter& ci,
 
   // Reset iterator
   ci.reset();
+  casacore::Int lastscan=0;
 
   while (!ci.pastEnd()) {
 
@@ -309,6 +310,20 @@ void CalCache::loadCalChunks(ROCTIter& ci,
 
       for(unsigned int i = 0; i < loadAxes.size(); i++) {
         loadCalAxis(ci, chunk, loadAxes[i], pol);
+        // print atm stats once per scan
+        if (atm_p && (loadAxes[i]==PMS::ATM)) {
+            casacore::Int thisscan = ci.thisScan();
+            if (thisscan != lastscan) {
+                stringstream ss;
+                ss << "Atmospheric curve stats for scan " << thisscan;
+                ss.precision(2);
+                ss << ": PWV " << fixed << atm_p->getPwv() << " mm, airmass ";
+                ss.precision(3); 
+                ss << fixed << atm_p->getAirmass();
+                logLoad(ss.str());
+                lastscan = thisscan;
+            }
+        }
       }
         chunk++;
         ci.next();
@@ -643,7 +658,6 @@ void CalCache::loadCalChunks(ROCTIter& ci,
     casacore::Int spw = cti.thisSpw();
     casacore::Int scan = cti.thisScan();
     *atm_[chunk] = atm_p->calcAtmTransmission(spw, scan) * 100.0; // percent
-    cout << "PDEBUG: atm for chunk " << chunk << "=" << *atm_[chunk] << endl;
     break;
   }
   default:

@@ -1057,7 +1057,6 @@ void PlotMSIndexer::setIndexer(IndexerMethPtr& indexmethod,PMS::Axis axis) {
 	case PMS::INTENT:
 	case PMS::FEED1:
 	case PMS::FEED2:
-	case PMS::ATM:
 		indexmethod = &PlotMSIndexer::getIndex0000;
 		break;
 
@@ -1098,6 +1097,7 @@ void PlotMSIndexer::setIndexer(IndexerMethPtr& indexmethod,PMS::Axis axis) {
 	case PMS::FREQUENCY:
 	case PMS::VELOCITY:
 	case PMS::CHANNEL:
+	case PMS::ATM:
 		indexmethod = &PlotMSIndexer::getIndex0100;
 		break;
 
