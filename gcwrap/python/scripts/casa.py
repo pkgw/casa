@@ -291,13 +291,18 @@ from widefield import  widefield
 from split import  split
 from hanningsmooth import  hanningsmooth
 
+#from split2 import split2
+from sdbaseline import sdbaseline
+from sdcal import sdcal
+from sdgaincal import sdgaincal
+from sdfit import sdfit
+from sdimaging import sdimaging
+from sdfixscan import sdfixscan
 ##
 ## asap may not be available with every casa installation
 ##
 try:
     import asap as sd
-    from sdimaging import sdimaging
-    from sdimprocess import sdimprocess
     from sdaverageold import sdaverageold
     from sdbaselineold import sdbaselineold
     from sdbaseline2old import sdbaseline2old

@@ -11,12 +11,12 @@ import numpy
 import re
 import string
 
-from sdimprocess import sdimprocess
+from sdfixscan import sdfixscan
 
 _ia = iatool( )
 
 #
-# Unit test of sdimprocess task.
+# Unit test of sdfixscan task.
 # 
 
 ### Utility
@@ -47,14 +47,14 @@ def drop_deg_axes(imagename, outimagename):
     myia.close()
     
 ###
-# Base class for sdimprocess unit test
+# Base class for sdfixscan unit test
 ###
-class sdimprocess_unittest_base:
+class sdfixscan_unittest_base:
     """
-    Base class for sdimprocess unit test
+    Base class for sdfixscan unit test
     """
-    taskname='sdimprocess'
-    datapath=os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/sdimprocess/'
+    taskname='sdfixscan'
+    datapath=os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/sdfixscan/'
     
     def _checkfile( self, name ):
         isthere=os.path.exists(name)
@@ -115,13 +115,13 @@ class sdimprocess_unittest_base:
 ###
 # Test on bad parameter settings
 ###
-class sdimprocess_test0(unittest.TestCase,sdimprocess_unittest_base):
+class sdfixscan_test0(unittest.TestCase,sdfixscan_unittest_base):
     """
     Test on bad parameter setting
     """
     # Input and output names
     rawfiles=['scan_x.im','scan_y.im']
-    prefix=sdimprocess_unittest_base.taskname+'Test0'
+    prefix=sdfixscan_unittest_base.taskname+'Test0'
     outfile=prefix+'.im'
 
     def setUp(self):
@@ -130,7 +130,7 @@ class sdimprocess_test0(unittest.TestCase,sdimprocess_unittest_base):
             if (not os.path.exists(name)):
                 shutil.copytree(self.datapath+name, name)
 
-        default(sdimprocess)
+        default(sdfixscan)
 
     def tearDown(self):
         for name in self.rawfiles:
@@ -140,13 +140,13 @@ class sdimprocess_test0(unittest.TestCase,sdimprocess_unittest_base):
 
     def test000(self):
         """Test 000: Default parameters"""
-        res=sdimprocess()
+        res=sdfixscan()
         self.assertEqual(res,False)
 
     def test001(self):
         """Test 001: only 1 image is given for Basket-Weaving"""
         try:
-            res=sdimprocess(infiles=[self.rawfiles[0]],mode='basket',direction=[0.])
+            res=sdfixscan(infiles=[self.rawfiles[0]],mode='fft_mask',direction=[0.])
             self.assertTrue(False,
                             msg='The task must throw exception')
         except Exception, e:
@@ -157,7 +157,7 @@ class sdimprocess_test0(unittest.TestCase,sdimprocess_unittest_base):
     def test002(self):
         """Test 002: direction is not given for Basket-Weaving"""
         try:
-            res=sdimprocess(infiles=self.rawfiles,mode='basket')
+            res=sdfixscan(infiles=self.rawfiles,mode='fft_mask')
             self.assertTrue(False,
                             msg='The task must throw exception')
         except Exception, e:
@@ -168,7 +168,7 @@ class sdimprocess_test0(unittest.TestCase,sdimprocess_unittest_base):
     def test003(self):
         """Test 003: Multiple images are given for Press"""
         try:
-            res=sdimprocess(infiles=self.rawfiles,mode='press')
+            res=sdfixscan(infiles=self.rawfiles,mode='model')
             self.assertTrue(False,
                             msg='The task must throw exception')
         except Exception, e:
@@ -179,7 +179,7 @@ class sdimprocess_test0(unittest.TestCase,sdimprocess_unittest_base):
     def test004(self):
         """Test 004: direction is not given for Press"""
         try:
-            res=sdimprocess(infiles=[self.rawfiles[0]],mode='press')
+            res=sdfixscan(infiles=[self.rawfiles[0]],mode='model')
             self.assertTrue(False,
                             msg='The task must throw exception')
         except Exception, e:
@@ -191,7 +191,7 @@ class sdimprocess_test0(unittest.TestCase,sdimprocess_unittest_base):
         """Test 005: Existing output image file"""
         shutil.copytree(self.datapath+self.rawfiles[0], self.outfile)
         try:
-            res=sdimprocess(infiles=self.rawfiles,mode='basket',direction=[0.,90.0],outfile=self.outfile,overwrite=False)
+            res=sdfixscan(infiles=self.rawfiles,mode='fft_mask',direction=[0.,90.0],outfile=self.outfile,overwrite=False)
             self.assertTrue(False,
                             msg='The task must throw exception')
         except StandardError, e:
@@ -205,7 +205,7 @@ class sdimprocess_test0(unittest.TestCase,sdimprocess_unittest_base):
     def test006(self):
         """Test 006: Zero beamsize for Press"""
         try:
-            res=sdimprocess(infiles=[self.rawfiles[0]],mode='press',beamsize=0.0,direction=[0.],outfile=self.outfile,overwrite=True)
+            res=sdfixscan(infiles=[self.rawfiles[0]],mode='model',beamsize=0.0,direction=[0.],outfile=self.outfile,overwrite=True)
             self.assertTrue(False,
                             msg='The task must throw exception')
         except StandardError, e:
@@ -219,7 +219,7 @@ class sdimprocess_test0(unittest.TestCase,sdimprocess_unittest_base):
 ###
 # Test on Pressed method
 ###
-class sdimprocess_test1(unittest.TestCase,sdimprocess_unittest_base):
+class sdfixscan_test1(unittest.TestCase,sdfixscan_unittest_base):
     """
     Test on Pressed method.
 
@@ -237,9 +237,9 @@ class sdimprocess_test1(unittest.TestCase,sdimprocess_unittest_base):
     # Input and output names
     rawfile='scan_x.im'
     rawfilemod = rawfile.replace('.im', '_mod.im')
-    prefix=sdimprocess_unittest_base.taskname+'Test1'
+    prefix=sdfixscan_unittest_base.taskname+'Test1'
     outfile=prefix+'.im'
-    mode='press'
+    mode='model'
 
     def setUp(self):
         self.res=None
@@ -247,7 +247,7 @@ class sdimprocess_test1(unittest.TestCase,sdimprocess_unittest_base):
             shutil.rmtree(self.rawfile)
         shutil.copytree(self.datapath+self.rawfile, self.rawfile)
 
-        default(sdimprocess)
+        default(sdfixscan)
 
     def tearDown(self):
         if (os.path.exists(self.rawfile)):
@@ -258,7 +258,7 @@ class sdimprocess_test1(unittest.TestCase,sdimprocess_unittest_base):
 
     def test100(self):
         """Test 100: Pressed method using whole pixels"""
-        res=sdimprocess(infiles=self.rawfile,mode=self.mode,numpoly=0,beamsize=300.0,smoothsize=2.0,direction=0.0,outfile=self.outfile,overwrite=True)
+        res=sdfixscan(infiles=self.rawfile,mode=self.mode,numpoly=0,beamsize=300.0,smoothsize=2.0,direction=0.0,outfile=self.outfile,overwrite=True)
         self.assertEqual(res,None,
                          msg='Any error occurred during imaging')
         refstats={'blc': numpy.array([0, 0, 0, 0], dtype=numpy.int32),
@@ -285,7 +285,7 @@ class sdimprocess_test1(unittest.TestCase,sdimprocess_unittest_base):
 
     def test101(self):
         """Test 101: Pressed method with certain threshold"""
-        res=sdimprocess(infiles=self.rawfile,mode=self.mode,numpoly=2,beamsize=300.0,smoothsize=2.0,direction=0.0,tmax=0.1,tmin=-0.1,outfile=self.outfile,overwrite=True)
+        res=sdfixscan(infiles=self.rawfile,mode=self.mode,numpoly=2,beamsize=300.0,smoothsize=2.0,direction=0.0,tmax=0.1,tmin=-0.1,outfile=self.outfile,overwrite=True)
         self.assertEqual(res,None,
                          msg='Any error occurred during imaging')
         refstats={'blc': numpy.array([0, 0, 0, 0], dtype=numpy.int32),
@@ -330,7 +330,7 @@ class sdimprocess_test1(unittest.TestCase,sdimprocess_unittest_base):
         finally: my_ia.close()
         del my_ia
         # Task execution
-        res=sdimprocess(infiles=self.rawfile,mode=self.mode,numpoly=0,beamsize=300.0,smoothsize=2.0,direction=0.0,outfile=self.outfile,overwrite=True)
+        res=sdfixscan(infiles=self.rawfile,mode=self.mode,numpoly=0,beamsize=300.0,smoothsize=2.0,direction=0.0,outfile=self.outfile,overwrite=True)
         # Test results
         self.assertEqual(res,None,
                          msg='Any error occurred during imaging')
@@ -365,7 +365,7 @@ class sdimprocess_test1(unittest.TestCase,sdimprocess_unittest_base):
         """Test 100_3d: Pressed method using whole pixels for 3D image"""
         drop_stokes_axis(self.rawfile, self.rawfilemod)
         self.assertTrue(os.path.exists(self.rawfilemod))
-        res=sdimprocess(infiles=self.rawfilemod,mode=self.mode,numpoly=0,beamsize=300.0,smoothsize=2.0,direction=0.0,outfile=self.outfile,overwrite=True)
+        res=sdfixscan(infiles=self.rawfilemod,mode=self.mode,numpoly=0,beamsize=300.0,smoothsize=2.0,direction=0.0,outfile=self.outfile,overwrite=True)
         self.assertEqual(res,None,
                          msg='Any error occurred during imaging')
         refstats={'blc': numpy.array([0, 0, 0], dtype=numpy.int32),
@@ -394,7 +394,7 @@ class sdimprocess_test1(unittest.TestCase,sdimprocess_unittest_base):
         """Test 100_2d: Pressed method using whole pixels for 2D image"""
         drop_deg_axes(self.rawfile, self.rawfilemod)
         self.assertTrue(os.path.exists(self.rawfilemod))
-        res=sdimprocess(infiles=self.rawfilemod,mode=self.mode,numpoly=0,beamsize=300.0,smoothsize=2.0,direction=0.0,outfile=self.outfile,overwrite=True)
+        res=sdfixscan(infiles=self.rawfilemod,mode=self.mode,numpoly=0,beamsize=300.0,smoothsize=2.0,direction=0.0,outfile=self.outfile,overwrite=True)
         self.assertEqual(res,None,
                          msg='Any error occurred during imaging')
         refstats={'blc': numpy.array([0, 0], dtype=numpy.int32),
@@ -422,7 +422,7 @@ class sdimprocess_test1(unittest.TestCase,sdimprocess_unittest_base):
 ###
 # Test on FFT based Basket-Weaving
 ###
-class sdimprocess_test2(unittest.TestCase,sdimprocess_unittest_base):
+class sdfixscan_test2(unittest.TestCase,sdfixscan_unittest_base):
     """
     Test on FFT based Basket-Weaving
     
@@ -441,9 +441,9 @@ class sdimprocess_test2(unittest.TestCase,sdimprocess_unittest_base):
     # Input and output names
     rawfiles=['scan_x.im','scan_y.im']
     rawfilesmod = map(lambda x: x.replace('.im', '_mod.im'), rawfiles)
-    prefix=sdimprocess_unittest_base.taskname+'Test2'
+    prefix=sdfixscan_unittest_base.taskname+'Test2'
     outfile=prefix+'.im'
-    mode='basket'
+    mode='fft_mask'
 
     def setUp(self):
         self.res=None
@@ -452,7 +452,7 @@ class sdimprocess_test2(unittest.TestCase,sdimprocess_unittest_base):
                 shutil.rmtree(name)
             shutil.copytree(self.datapath+name, name)
 
-        default(sdimprocess)
+        default(sdfixscan)
 
     def tearDown(self):
         for name in self.rawfiles:
@@ -465,7 +465,7 @@ class sdimprocess_test2(unittest.TestCase,sdimprocess_unittest_base):
 
     def test200(self):
         """Test 200: FFT based Basket-Weaving using whole pixels"""
-        res=sdimprocess(infiles=self.rawfiles,mode=self.mode,direction=[0.0,90.0],maskwidth=20.0,outfile=self.outfile,overwrite=True)
+        res=sdfixscan(infiles=self.rawfiles,mode=self.mode,direction=[0.0,90.0],maskwidth=20.0,outfile=self.outfile,overwrite=True)
         refstats={'blc': numpy.array([0, 0, 0, 0], dtype=numpy.int32),
                   'blcf': '00:00:00.000, +00.00.00.000, I, 1.415e+09Hz',
                   'max': numpy.array([ 0.92863309]),
@@ -490,7 +490,7 @@ class sdimprocess_test2(unittest.TestCase,sdimprocess_unittest_base):
 
     def test201(self):
         """Test 201: FFT based Basket-Weaving with certain threshold"""
-        res=sdimprocess(infiles=self.rawfiles,mode=self.mode,direction=[0.0,90.0],maskwidth=20.0,tmax=0.5,tmin=-0.1,outfile=self.outfile,overwrite=True)
+        res=sdfixscan(infiles=self.rawfiles,mode=self.mode,direction=[0.0,90.0],maskwidth=20.0,tmax=0.5,tmin=-0.1,outfile=self.outfile,overwrite=True)
         refstats={'blc': numpy.array([0, 0, 0, 0], dtype=numpy.int32),
                   'blcf': '00:00:00.000, +00.00.00.000, I, 1.415e+09Hz',
                   'max': numpy.array([ 0.99608284]),
@@ -544,7 +544,7 @@ class sdimprocess_test2(unittest.TestCase,sdimprocess_unittest_base):
             mask_ref += msk
         del mask_in
         # Task execution
-        res=sdimprocess(infiles=self.rawfiles,mode=self.mode,direction=[0.0,90.0],maskwidth=20.0,outfile=self.outfile,overwrite=True)
+        res=sdfixscan(infiles=self.rawfiles,mode=self.mode,direction=[0.0,90.0],maskwidth=20.0,outfile=self.outfile,overwrite=True)
         # Test results
         refstats={'blc': numpy.array([0, 0, 0, 0], dtype=numpy.int32),
                   'blcf': '00:00:00.000, +00.00.00.000, I, 1.415e+09Hz',
@@ -577,7 +577,7 @@ class sdimprocess_test2(unittest.TestCase,sdimprocess_unittest_base):
     def test203(self):
         """Test 203: test for len(infiles) > len(direction)"""
         infiles = self.rawfiles + self.rawfiles
-        res=sdimprocess(infiles=infiles,mode=self.mode,direction=[0.0,90.0],maskwidth=20.0,outfile=self.outfile,overwrite=True)
+        res=sdfixscan(infiles=infiles,mode=self.mode,direction=[0.0,90.0],maskwidth=20.0,outfile=self.outfile,overwrite=True)
         refstats={'blc': numpy.array([0, 0, 0, 0], dtype=numpy.int32),
                   'blcf': '00:00:00.000, +00.00.00.000, I, 1.415e+09Hz',
                   'max': numpy.array([ 0.92863309]),
@@ -605,7 +605,7 @@ class sdimprocess_test2(unittest.TestCase,sdimprocess_unittest_base):
         for infile, outfile in zip(self.rawfiles, self.rawfilesmod):
             drop_stokes_axis(infile, outfile)
             self.assertTrue(os.path.exists(outfile))
-        res=sdimprocess(infiles=self.rawfilesmod,mode=self.mode,direction=[0.0,90.0],maskwidth=20.0,outfile=self.outfile,overwrite=True)
+        res=sdfixscan(infiles=self.rawfilesmod,mode=self.mode,direction=[0.0,90.0],maskwidth=20.0,outfile=self.outfile,overwrite=True)
         refstats={'blc': numpy.array([0, 0, 0], dtype=numpy.int32),
                   'blcf': '00:00:00.000, +00.00.00.000, 1.415e+09Hz',
                   'max': numpy.array([ 0.92863309]),
@@ -633,7 +633,7 @@ class sdimprocess_test2(unittest.TestCase,sdimprocess_unittest_base):
         for infile, outfile in zip(self.rawfiles, self.rawfilesmod):
             drop_deg_axes(infile, outfile)
             self.assertTrue(os.path.exists(outfile))
-        res=sdimprocess(infiles=self.rawfilesmod,mode=self.mode,direction=[0.0,90.0],maskwidth=20.0,outfile=self.outfile,overwrite=True)
+        res=sdfixscan(infiles=self.rawfilesmod,mode=self.mode,direction=[0.0,90.0],maskwidth=20.0,outfile=self.outfile,overwrite=True)
         refstats={'blc': numpy.array([0, 0], dtype=numpy.int32),
                   'blcf': '00:00:00.000, +00.00.00.000',
                   'max': numpy.array([ 0.92863309]),
@@ -658,6 +658,6 @@ class sdimprocess_test2(unittest.TestCase,sdimprocess_unittest_base):
 
 
 def suite():
-    return [sdimprocess_test0,
-            sdimprocess_test1,
-            sdimprocess_test2]
+    return [sdfixscan_test0,
+            sdfixscan_test1,
+            sdfixscan_test2]
