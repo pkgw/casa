@@ -2153,6 +2153,9 @@ ia.close()             # close to unlock disk image
     non-grid-point pixels. The user may specify which interpolation algorithm to use for this computation
     using the interp parameter.
     
+    The input image pixel mask is copied to the output image. If interpolation is performed, output pixels are
+    masked where the interpolation fails.
+    
     ANCHORING THE GRID
     
     The user may choose at which pixel to "anchor" the grid. For example, if one specifies grid=[4,4] and
