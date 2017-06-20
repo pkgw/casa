@@ -243,12 +243,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         ////////////////////////////
         Double lowfreq;
         Double topfreq;
-
-	//cerr << "chanlist " << chanlist << "\n freqlis " << freqList << endl;
+      Vector<Int> fieldList=thisSelection.getFieldList(mss_p[mss_p.nelements()-1]);
+	 // cerr << "chanlist " << chanlist.column(0) << "\n fieldList " << fieldList << endl;
         
 	//cerr << "selpars.freqframe " << selpars.freqframe << endl;
         vi::FrequencySelectionUsingFrame channelSelector(selFreqFrame_p);
 	///temporary variable as we carry that for tunechunk
+		
+		
     	  for(uInt k=0; k < nSelections; ++k){
 	    //The getChanfreqList is wrong for beg and end..going round that too.
 	    Vector<Double> freqies=ROMSColumns(*mss_p[mss_p.nelements()-1]).spectralWindow().chanFreq()(Int(chanlist(k,0)));
@@ -268,13 +270,24 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    }
 	    
 	    if(!ignoreframe){
-	      vi::VisibilityIterator2 tmpvi(mss_p, vi::SortColumns(), false); 
-	      VisBufferUtil::getFreqRangeFromRange(lowfreq, topfreq,  freqFrame, lowfreq,  topfreq, tmpvi, selFreqFrame_p);
+		
+			
+          //cerr << "begin " << lowfreq << "  " << topfreq << endl; 
+	      //vi::VisibilityIterator2 tmpvi(mss_p, vi::SortColumns(), false); 
+	      //VisBufferUtil::getFreqRangeFromRange(lowfreq, topfreq,  freqFrame, lowfreq,  topfreq, tmpvi, selFreqFrame_p);
+		  //cerr << "orig low-top freq " << lowfreq << "  " << topfreq << endl; 
+			MSUtil::getFreqRangeInSpw( lowfreq,
+				  topfreq, Vector<Int>(1,chanlist(k,0)), Vector<Int>(1,chanlist(k,1)),
+				  Vector<Int>(1, chanlist(k,2)-chanlist(k,1)+1),
+				 *mss_p[mss_p.nelements()-1] , 
+				  selFreqFrame_p,
+				  fieldList(0), False);
+			//cerr << "new low-top freq " << lowfreq << "  " << topfreq << endl; 
 	    }
-	    //cerr << std::setprecision(12) << "Dat lowFreq "<< lowfreq << " topfreq " << topfreq << endl; 
-            //channelSelector.add(Int(freqList(k,0)), lowfreq, topfreq);
+	    
 	    andFreqSelection(mss_p.nelements()-1, Int(freqList(k,0)), lowfreq, topfreq, selFreqFrame_p);
           }
+	  
     	  //fselections_p->add(channelSelector);
           //////////////////////////////////
       }
