@@ -1008,7 +1008,6 @@ VisibilityIteratorImpl2::putColumnRows (ScalarColumn<T> & column, const Vector <
 VisibilityIteratorImpl2::VisibilityIteratorImpl2 (const Block<const MeasurementSet *> &mss,
                                                   const SortColumns & sortColumns,
                                                   Double timeInterval,
-                                                  VisBufferType vbType,
                                                   Bool writable,
 						  Bool useMSIter2)
 : ViImplementation2 (),
@@ -1039,7 +1038,7 @@ VisibilityIteratorImpl2::VisibilityIteratorImpl2 (const Block<const MeasurementS
 
     VisBufferOptions options = isWritable () ? VbWritable : VbNoOptions;
 
-    vb_p = createAttachedVisBuffer (vbType, options);
+    vb_p = createAttachedVisBuffer(options);
 }
 
 void

@@ -134,6 +134,12 @@ class VisBufferImpl2 : public VisBuffer2 {
 
 public:
 
+	// Create empty VisBufferImpl2 you can assign to or attach.
+	VisBufferImpl2 (VisBufferOptions options = VbNoOptions);
+	// Construct VisBufferImpl2 for a particular ViImplementation2
+	// The buffer will remain synchronized with the iterator.
+
+	VisBufferImpl2(ViImplementation2 * iter, VisBufferOptions options);
 
     // Destructor (detaches from VisIter)
 
@@ -357,16 +363,6 @@ public:
     virtual void setSigmaSpectrum (const casacore::Cube<casacore::Float>& value);
 
 protected:
-
-    // Create empty VisBufferImpl2 you can assign to or attach.
-    VisBufferImpl2 (VisBufferOptions options = VbNoOptions);
-    // Construct VisBufferImpl2 for a particular ViImplementation2
-    // The buffer will remain synchronized with the iterator.
-
-    VisBufferImpl2(ViImplementation2 * iter, VisBufferOptions options);
-
-    // Attach to a VisIter. Detaches itself first if already attached
-    // to a VisIter. Will remain synchronized with iterator.
 
     //virtual void cacheCopy (const VisBufferImpl2 & other, casacore::Bool markAsCached);
 

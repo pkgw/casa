@@ -152,7 +152,7 @@ CalibratingVi2::CalibratingVi2(	vi::ViImplementation2 * inputVii,
   getVii()->origin();
  
   // Make the internal VisBuffer2 for CalibratingVi2 clients
-  setVisBuffer(createAttachedVisBuffer (VbPlain,VbRekeyable));
+  setVisBuffer(createAttachedVisBuffer (VbRekeyable));
 
 }
 
@@ -186,7 +186,7 @@ CalibratingVi2::CalibratingVi2( vi::ViImplementation2 * inputVii,
   getVii()->origin();
  
   // Make a VisBuffer for CalibratingVi2 clients 
-  setVisBuffer(createAttachedVisBuffer (VbPlain,VbRekeyable));
+  setVisBuffer(createAttachedVisBuffer (VbRekeyable));
 
 }
 // -----------------------------------------------------------------------
@@ -204,7 +204,7 @@ CalibratingVi2::CalibratingVi2( vi::ViImplementation2 * inputVii,
   getVii()->origin();
  
   // Make a VisBuffer for CalibratingVi2 clients
-  setVisBuffer(createAttachedVisBuffer (VbPlain,VbRekeyable));
+  setVisBuffer(createAttachedVisBuffer (VbRekeyable));
 
 }
 

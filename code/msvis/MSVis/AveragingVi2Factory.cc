@@ -354,7 +354,6 @@ AveragingVi2Factory::createVi () const
     VisibilityIteratorImpl2 * vii2 = new VisibilityIteratorImpl2 (mss_p,
                                                                   parameters_p.getSortColumns (),
                                                                   chunkInterval,
-                                                                  VbPlain,
                                                                   isWriteable);
 
     vii2->setWeightScaling (parameters_p.getWeightScaling());

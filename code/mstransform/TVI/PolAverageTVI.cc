@@ -280,7 +280,7 @@ PolAverageTVI::PolAverageTVI(ViImplementation2 *inputVII) :
   configurePolAverage();
 
   // Initialize attached VisBuffer
-  setVisBuffer(createAttachedVisBuffer(VbPlain, VbRekeyable));
+  setVisBuffer(createAttachedVisBuffer(VbRekeyable));
 }
 
 PolAverageTVI::~PolAverageTVI() {
@@ -684,7 +684,7 @@ PolAverageVi2Factory::PolAverageVi2Factory(Record const &configuration,
     Double timeInterval, Bool isWritable) :
     inputVII_p(nullptr), mode_(AveragingMode::DEFAULT) {
   inputVII_p = new VisibilityIteratorImpl2(Block<MeasurementSet const *>(1, ms),
-      sortColumns, timeInterval, VbPlain, isWritable);
+      sortColumns, timeInterval, isWritable);
 
   mode_ = PolAverageVi2Factory::GetAverageModeFromConfig(configuration);
 }

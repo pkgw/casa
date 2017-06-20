@@ -393,7 +393,7 @@ VisBuffer2 *
 TransformingVi2::getVisBuffer (const VisibilityIterator2 * vi)
 {
     if (! vb_p){
-        vb_p = createAttachedVisBuffer (VbPlain, VbNoOptions);
+        vb_p = createAttachedVisBuffer (VbNoOptions);
     }
 
     vb_p->associateWithVi2 (vi);

@@ -398,7 +398,7 @@ SimpleSimVi2::SimpleSimVi2 (const SimpleSimVi2Parameters& pars)
   }
     
   VisBufferOptions vbopt=VbWritable;
-  vb_ = createAttachedVisBuffer(VbPlain,vbopt);
+  vb_ = createAttachedVisBuffer(vbopt);
 
 }
 

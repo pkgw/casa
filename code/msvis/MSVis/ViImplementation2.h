@@ -615,8 +615,7 @@ public:
 protected:
 
     void associateVbWithVi2 (VisBuffer2 * vb, const VisibilityIterator2 * vi);
-    VisBuffer2 * createAttachedVisBuffer (VisBufferType t, VisBufferOptions options);
-
+	virtual VisBuffer2 *createAttachedVisBuffer(VisBufferOptions options);
 
     static void doWeightScaling (casacore::Bool hasWeightScaling,
                                  WeightScaling * scaling,

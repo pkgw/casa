@@ -200,7 +200,6 @@ public:
     VisibilityIteratorImpl2 (const casacore::Block<const casacore::MeasurementSet *> & mss,
                              const SortColumns & sortColumns,
                              casacore::Double timeInterval,
-                             VisBufferType vbType,
                              casacore::Bool isWritable,
 			     casacore::Bool useMSIter2=false);
 

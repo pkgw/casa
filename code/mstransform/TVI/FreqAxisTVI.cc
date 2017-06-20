@@ -49,7 +49,7 @@ FreqAxisTVI::FreqAxisTVI(	ViImplementation2 * inputVii,
 	initialize();
 
 	// Initialize attached VisBuffer
-	setVisBuffer(createAttachedVisBuffer (VbPlain,VbRekeyable));
+	setVisBuffer(createAttachedVisBuffer (VbRekeyable));
 
 	return;
 }
