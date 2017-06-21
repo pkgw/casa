@@ -3656,9 +3656,17 @@ void SolvableVisCal::createMemCalTable() {
 
   // Set up description
   String partype = ((parType()==VisCalEnum::COMPLEX) ? "Complex" : "Float");
-  CTDesc caltabdesc(partype,Path(msName()).baseName(),typeName(),"unknown");
-  ct_ = new NewCalTable("tempNCT.tab",caltabdesc,Table::Scratch,Table::Memory);
-  ct_->setMetaInfo(msName());
+
+  if (msName()!="<noms>") {
+    CTDesc caltabdesc(partype,Path(msName()).baseName(),typeName(),"unknown");
+    ct_ = new NewCalTable("tempNCT.tab",caltabdesc,Table::Scratch,Table::Memory)
+;
+    ct_->setMetaInfo(msName());
+  }
+  else {
+    ct_ = new NewCalTable("tempNCT.tab",partype,typeName(),msmc().ssp(),
+			  false,true);
+  }
 
   CTColumns ncc(*ct_);
 
@@ -4247,7 +4255,8 @@ void SolvableVisCal::verifyCalTable(const String& caltablename) {
   if (calType!=typeName()) {
     ostringstream o;
     o << "Table " << caltablename 
-      << " has wrong Calibration type: " << calType;
+      << " has wrong Calibration type: " << calType
+      << " (expected: " << typeName() << ")";
     throw(AipsError(String(o)));
   }
 }
