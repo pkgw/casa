@@ -361,7 +361,7 @@ utils::_crash_reporter_initialize (const string & crashDirectory,
 
     return status;
 #else
-    return "";
+    return "no-op";
 #endif
 }
 
