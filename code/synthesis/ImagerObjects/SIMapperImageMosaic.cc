@@ -69,7 +69,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 					    CountedPtr<FTMachine>& iftm)
     //		      CountedPtr<VPSkyJones>& vp)
     : SIMapper( imagestore, ftm, iftm )
-    //    vb_p (vi::VisBuffer2::factory (vi::VbPlain, vi::VbRekeyable))
+    //    vb_p (vi::VisBuffer2::factory (vi::VbRekeyable))
   {
     LogIO os( LogOrigin("SIMapperImageMosaic","Constructor",WHERE) );
 
