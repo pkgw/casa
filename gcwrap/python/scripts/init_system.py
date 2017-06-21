@@ -239,6 +239,9 @@ argparser.add_argument( "--agg",dest='agg',action='store_const',const=True,defau
 argparser.add_argument( '--iplog',dest='ipython_log',default=False,
                           const=True,action='store_const',
                           help='create ipython log' )
+argparser.add_argument( '--nocrashreport',dest='crash_report',default=True,
+                          const=False,action='store_const',
+                          help='do not submit an online report when CASA crashes' )
 argparser.add_argument( "-c",dest='execute',default=[],nargs=argparse.REMAINDER,
                         help='python eval string or python script to execute' )
 
