@@ -286,6 +286,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    }
 	    
 	    andFreqSelection(mss_p.nelements()-1, Int(freqList(k,0)), lowfreq, topfreq, selFreqFrame_p);
+		andChanSelection(mss_p.nelements()-1, Int(chanlist(k,0)), Int(chanlist(k,1)),Int(chanlist(k,2)));
           }
 	  
     	  //fselections_p->add(channelSelector);
@@ -353,7 +354,37 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
   }
-
+void SynthesisImagerVi2::andChanSelection(const Int msId, const Int spwId, const Int startchan, const Int endchan){
+	map<Int, Vector<Int> > spwsel;
+	auto it=channelSelections_p.find(msId);
+	if(it !=channelSelections_p.end())
+		spwsel=it->second;
+	auto hasspw=spwsel.find(spwId);
+	Vector<Int>chansel(2,-1);
+	if(hasspw != spwsel.end()){
+		chansel.resize();
+		chansel=hasspw->second;
+	}
+	Int nchan=endchan-startchan+1;
+	if(chansel(1)== -1)
+		chansel(1)=startchan;
+	if(chansel(1) >= startchan){
+		if(nchan > (chansel(1)-startchan+1+chansel(0)))
+			chansel(0)=nchan;
+		else
+			chansel(0)=chansel(1)-startchan+1+chansel(0);
+		chansel(1)=startchan;
+	}
+	else{
+		if((chansel(0) -(startchan - chansel(1))) < nchan){	
+			chansel(0)=nchan+startchan-chansel(1)+1;
+		}
+	}
+	spwsel[spwId]=chansel;
+	channelSelections_p[msId]=spwsel;
+	//cerr << "chansel "<< channelSelections_p << endl;
+	
+}
   void SynthesisImagerVi2::andFreqSelection(const Int msId, const Int spwId,  const Double freqBeg, const Double freqEnd, const MFrequency::Types frame){
     
    
@@ -467,7 +498,7 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 
 	os << "Define image coordinates for [" << impars.imageName << "] : " << LogIO::POST;
 
-	csys = impars.buildCoordinateSystem( *vi_p );
+	csys = impars.buildCoordinateSystem( *vi_p, channelSelections_p );
 	IPosition imshape = impars.shp();
 
 	os << "Impars : start " << impars.start << LogIO::POST;
