@@ -409,6 +409,9 @@ utils::version_desc( ) { return VersionInfo::desc( ); }
 std::string
 utils::version_info( ) { return VersionInfo::info( ); }
 
+std::string
+utils::version_string( ) { return VersionInfo::str( ); }
+
 bool
  utils::compare_version(const  string& comparitor,  const std::vector<int>& vec) {
   vector<int> current_version = version( );
