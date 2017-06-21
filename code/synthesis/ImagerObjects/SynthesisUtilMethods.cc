@@ -1855,7 +1855,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   
-  CoordinateSystem SynthesisParamsImage::buildCoordinateSystem(vi::VisibilityIterator2& vi2) 
+  CoordinateSystem SynthesisParamsImage::buildCoordinateSystem(vi::VisibilityIterator2& vi2, const std::map<Int, std::map<Int, Vector<Int> > >& chansel) 
   {
     
     
@@ -1870,15 +1870,24 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // get the first ms for multiple MSes
     MeasurementSet msobj=vi2.ms();
     Int fld=vb->fieldId()(0);
-   
-	Vector<Int> spwids;
-	Vector<Int> nChannels;
-	Vector<Int> firstChannels;
-	Vector<Int> channelIncrement;
-	
-	 std::tie (spwids, nChannels, firstChannels, channelIncrement)=(static_cast<vi::VisibilityIteratorImpl2 * >(vi2.getImpl()))->getChannelInformation(false);
+	//handling first ms only
+    auto forMS0=chansel.find(0);
+    map<Int, Vector<Int> > spwsels=forMS0->second;
+	Int nspws=spwsels.size();
+	Vector<Int> spwids(nspws);
+	Vector<Int> nChannels(nspws);
+	Vector<Int> firstChannels(nspws);
+	//Vector<Int> channelIncrement(nspws);
+	Int k=0;
+	for (auto it=spwsels.begin(); it != spwsels.end(); ++it, ++k){
+		spwids[k]=it->first;
+		nChannels[k]=(it->second)[0];
+		firstChannels[k]=(it->second)[1];
+	}
+    
+	// std::tie (spwids, nChannels, firstChannels, channelIncrement)=(static_cast<vi::VisibilityIteratorImpl2 * >(vi2.getImpl()))->getChannelInformation(false);
   
-    //cerr << "SPWIDS "<< spwids <<  "  nchan " << nChannels << " firstchan " << firstChannels << endl;
+    cerr << "SPWIDS "<< spwids <<  "  nchan " << nChannels << " firstchan " << firstChannels << endl;
     //////////////////This returns junk for multiple ms CAS-9994..so kludged up along with spw kludge
     //Vector<Int> flds;
     //vi2.getImpl()->fieldIds( flds );
