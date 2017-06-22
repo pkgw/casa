@@ -342,9 +342,6 @@ public:
       }
     }
     srcname_boundary.push_back(nrow_main);
-    for (auto iter = srcname_boundary.begin(); iter != srcname_boundary.end(); ++iter) {
-      std::cout << *iter << std::endl;
-    }
 
     constexpr double kDay2Sec = 86400.0;
     interval_column.attach(main_table_, "INTERVAL");
