@@ -103,6 +103,12 @@ if os.environ.has_key('CASAPATH') :
             casa['dirs']['doc'] = __casapath__ + "/doc"
         elif os.path.exists(__casapath__ + "/Resources/doc"):
             casa['dirs']['doc'] = __casapath__ + "/Resources/doc"
+        elif os.path.exists(__casapath__ + "/share"):
+            try:
+                os.mkdir(__casapath__ + "/share/doc")
+                casa['dirs']['doc'] = __casapath__ + "/share/doc"
+            except OSError as exc:
+                pass
 
 else :
     __casapath__ = casac.__file__
