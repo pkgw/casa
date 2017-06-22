@@ -356,6 +356,17 @@ Returns a description string that includes the version information and the descr
 </description>
 </method>
 
+<method type="function" name="version_string">
+<shortdescription>Returns the complete version description as a string but without the description (i.e. git hash) string.</shortdescription>
+   
+<returns type="string"/>
+<description>
+
+Returns a description string that includes the version information and the descriptive string..
+
+</description>
+</method>
+
 <method type="function" name="compare_version">
 <shortdescription>Returns the complete version description as a string.</shortdescription>
    
