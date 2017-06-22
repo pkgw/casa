@@ -696,12 +696,12 @@ expb_f(const gsl_vector *param, void *d, gsl_vector *f)
 
                     // We have to turn the delay back into seconds from nanoseconds.
                     // Freq difference is in Hz, which comes out typically as 1e6 bands
-                    Double wDf = 2.0*C::pi*(freqs(ichan) - freqs(0))*1e-9;
+                    Double wDf = C::_2pi*(freqs(ichan) - freqs(0))*1e-9;
                     //
                     Double t1 = s.time()(0);
                     Double ref_freq = freqs(0);
                     
-                    Double wDt = 2.0*C::pi*(t1 - refTime) * ref_freq; 
+                    Double wDt = C::_2pi*(t1 - refTime) * ref_freq; 
                     //
                     //Float mtheta = -(phi0 + tau*wDf); 
                     Double mtheta = -(phi0 + tau*wDf + r*wDt); 
@@ -811,9 +811,9 @@ expb_df(const gsl_vector *param, void *bundle_, gsl_matrix *J)
                 Double r = r2-r1;
 
                 Double ref_freq = freqs(0); 
-                Double wDt = 2.0*C::pi*(t1 - refTime) * ref_freq; 
+                Double wDt = C::_2pi*(t1 - refTime) * ref_freq; 
 
-                if (1 && newBaseline) {
+                if (0 && newBaseline) {
                     cerr << "ant1 " << ant1 << " iparam1 " << iparam1 << " ant2 " << ant2 << " iparam2 " << iparam2 << endl;
                     cerr << "weight " << weights(dcorr, v.ncolumn()/2, irow) << endl;
                 }
@@ -825,7 +825,7 @@ expb_df(const gsl_vector *param, void *bundle_, gsl_matrix *J)
                     if (fabs(w) < FLT_EPSILON) continue;
 
                     // Add a 1e-9 factor because tau parameter is in nanoseconds.
-                    Double wDf = 2.0*C::pi*(freqs(ichan) - freqs(0))*1e-9;
+                    Double wDf = C::_2pi*(freqs(ichan) - freqs(0))*1e-9;
                     //
                     Double mtheta = -(phi0 + tau*wDf + r*wDt);
                     Double ws = sin(mtheta);
@@ -1229,9 +1229,9 @@ void FringeJones::calcAllJones() {
             for (Int ipar=0;ipar<nPar();ipar+=3) {
                 if (onePOK(ipar)) {
                     phase=onePar(ipar);
-                    phase+=2.0*C::pi*onePar(ipar+1)*
+                    phase+=C::_2pi*onePar(ipar+1)*
                         (currFreq()(ich)-KrefFreqs_(currSpw()));
-                    phase+=2.0*C::pi*onePar(ipar+2)*KrefFreqs_(currSpw())*1e9*
+                    phase+=C::_2pi*onePar(ipar+2)*KrefFreqs_(currSpw())*1e9*
                         (currTime() - refTime());
                     oneJones(ipar/3)=Complex(cos(phase),sin(phase));
                     oneJOK(ipar/3)=True;
@@ -1329,7 +1329,7 @@ void FringeJones::solveLotsOfSDBs(SDBList& sdbs) {
             Double rate = sRP(3*icor + 2, iant);
             Double delta1 = df0*delay;
             Double delta2 = ref_freq*dt0*rate;
-            Double delta3 = 2*C::pi*(delta1+delta2);
+            Double delta3 = C::_2pi*(delta1+delta2);
             // cerr << "For " << iant << " correlation " << icor << "." << endl;
             cerr << "Antenna " << iant << ": phi0 " << phi0 << " delay " << delay << " rate " << rate << endl;
             cerr << "Adding " << 360*delta1 << " and " << 360*delta2 << " degrees." << endl;
