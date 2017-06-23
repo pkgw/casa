@@ -5789,7 +5789,12 @@ void SolvableVisJones::applyRefAnt() {
   }
 
   logSink() << "Applying refant: " << refantName
-	    << LogIO::POST;
+	    << " refantmode = " << refantmode();
+  if (refantmode()=="flex")
+    logSink() << " (hold alternate refants' phase constant) when refant flagged";
+  if (refantmode()=="strict")
+    logSink() << " (flag all antennas when refant flagged)";
+  logSink() << LogIO::POST;
 
   // Generate a prioritized refant choice list
   //  The first entry in this list is the user's primary refant,
@@ -5853,8 +5858,6 @@ void SolvableVisJones::applyRefAnt() {
   if (refantmode()=="strict") {
     nchoices=1;
     refantchoices.resize(1,True);
-    cout << "refantmode=" << refantmode() << endl;
-    cout << "refantchoices = " << refantchoices << endl;
   }
 
   Vector<Int> nPol(nSpw(),nPar());  // TBD:or 1, if data was single pol
@@ -5964,7 +5967,7 @@ void SolvableVisJones::applyRefAnt() {
       // at this point, irefA/irefB point to a good refant
       
       // Keep track
-      usedaltrefant=(ichoice>0);
+      usedaltrefant|=(ichoice>0);
       currrefant=refantchoices(ichoice);
       refantchoices(1)=currrefant;  // 2nd priorty next time
 
@@ -6095,7 +6098,16 @@ void SolvableVisJones::applyRefAnt() {
       
     } // found
     else {
-      cout << "Bad interval, no refant..." << endl;
+      logSink() 
+	<< "At " 
+	<< MVTime(ctiter.thisTime()/C::day).string(MVTime::YMD,7) 
+	<< " ("
+	<< "Spw=" << ctiter.thisSpw()
+	<< ", Fld=" << ctiter.thisField()
+	<< ")"
+	<< ", refant (id=" << currrefant 
+	<< ") was flagged; flagging all antennas strictly." 
+	<< LogIO::POST;
       // Flag all solutions in this interval
       flB.set(True);
       ctiter.setflag(flB);

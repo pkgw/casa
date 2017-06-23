@@ -159,26 +159,22 @@ TEST_F(VisCalTest, GJonesSolveState) {
 
 TEST_F(VisCalTest, GJonesSpecifyTest) {
   
-  SolvableVisJones *G = new TJones(msmc);
+  SolvableVisJones *G = new GJones(msmc);
 
-  String caltablename("GJonesSpecifyTest.T");
+  String caltablename("GJonesSpecifyTest.G");
   Record spec;
   spec.define("caltable",caltablename);
 
-  cout << "spec=" << spec << endl;
-
   G->setSpecify(spec);
-
-  cout << "Hello" << endl;
 
 
   if (SHOWSTATE)
     G->state();
 
   ASSERT_EQ(VisCalEnum::JONES,G->matrixType());
-  ASSERT_EQ(VisCal::T,G->type());
-  ASSERT_EQ(String("T Jones"),G->typeName());
-  ASSERT_EQ(1,G->nPar());
+  ASSERT_EQ(VisCal::G,G->type());
+  ASSERT_EQ(String("G Jones"),G->typeName());
+  ASSERT_EQ(2,G->nPar());
   ASSERT_FALSE(G->freqDepPar());
   ASSERT_FALSE(G->freqDepMat());
   ASSERT_FALSE(G->freqDepCalWt());
@@ -187,39 +183,172 @@ TEST_F(VisCalTest, GJonesSpecifyTest) {
   ASSERT_FALSE(G->isSolved());
   ASSERT_TRUE(G->isSolvable());
 
-  cout << "G->solveAllCPar().shape() = " << G->solveAllCPar().shape() << endl;
-  cout << "G->solveAllCPar() = " << G->solveAllCPar() << endl;
-  cout << "G->solveParOK() = " << G->solveParOK() << endl;
+  Float dpr(180.0/C::pi);
+  Int nTimes(35);
+
+  Int nAnt=ss.nAnt_;
 
   Cube<Complex> g(G->solveAllCPar());
-  //for (Int iant=0;iant<ss.nAnt_;++iant) {
-  //  g(Slice(),Slice(),Slice(iant,1,1))=Complex(cos(iant),sin(iant));
-  //}
+  for (Int iant=0;iant<nAnt;++iant) {
+    Float polph=-iant*10.0/dpr;
+    g(Slice(1,1,1),Slice(),Slice(iant,1,1))=Complex(cos(polph),sin(polph));
+  }
 
-  Int refant(3);
-  for (Int itime=0;itime<35;++itime) {
+  Int refant(2);
+  G->refantlist().assign(Vector<Int>(1,refant));
+
+  for (Int itime=0;itime<nTimes;++itime) {
     Double t(itime);
-    for (Int iant=1;iant<ss.nAnt_;++iant) {
-      Float ph(itime*iant*C::pi/1800.0);
+    for (Int iant=1;iant<nAnt;++iant) {
+      Float ph(itime*iant/5/dpr);
       Complex dg(cos(ph),sin(ph));
       g(Slice(),Slice(),Slice(iant,1,1))=g(Slice(),Slice(),Slice(iant,1,1))*dg;
     }
 
+    // Flag 5 intervals on refant, 2nd pol
     if (itime>24 && itime<30) 
-      G->solveParOK()(0,0,refant)=false;
+      G->solveParOK()(Slice(1,1,1),Slice(),Slice(refant,1,1))=false;
     else
-      G->solveParOK()(0,0,refant)=true;
+      G->solveParOK()(Slice(1,1,1),Slice(),Slice(refant,1,1))=true;
       
 
     G->setMeta(0,0,t,0,ss.freqs(0),0);
     G->keepNCT();
   }
 
-  G->refantmode()="strict";
-  G->refantlist().assign(Vector<Int>(1,refant));
+  //G->calTableName()="refant_raw.G";
+  //G->storeNCT();
+
+  G->refantmode()="flex";
   G->applyRefAnt();
 
+  G->calTableName()="refant_flex.G";
   G->storeNCT();
 
+
+  Cube<Float> blph(2,nAnt*(nAnt-1)/2,nTimes,0);
+
+  {
+    //cout << endl << endl << "Testing flex refant...................." << endl;
+    Table flex("refant_flex.G");
+    //cout << "Table name=" << flex.tableName() << endl;
+
+    // Check gains
+    ArrayColumn<Complex> ccol(flex,"CPARAM");
+    Cube<Complex> cparam;  ccol.getColumn(cparam);
+    //cout << "cparam=" << phase(cparam(Slice(0),Slice(),Slice(4,nTimes,nAnt)).nonDegenerate())*dpr << endl;
+
+    // Check cross-hand gain
+    Vector<Float> RLph(phase(cparam(Slice(0,1,1),Slice(),Slice())/cparam(Slice(1,1,1),Slice(),Slice())).nonDegenerate());
+    for (Int iant=0;iant<nAnt;++iant) {
+      Float mRLph=mean(RLph(Slice(iant,nTimes,5)));
+      Float dRLph=mRLph-(iant-refant)*10.0/dpr;
+      //cout << "RLph=" << mRLph*dpr
+      //<< " dph=" << dRLph
+      //	   << endl;
+      EXPECT_NEAR(0.0,dRLph,5e-7);
+    }
+
+    // Check flags
+    ArrayColumn<bool> fcol(flex,"FLAG");
+    Cube<Bool> cflag; fcol.getColumn(cflag);
+    ASSERT_EQ(uInt(5),ntrue(cflag));  // 5 are flagged
+    Vector<Bool> cflagged(cflag(Slice(1,1,1),Slice(),Slice(25*nAnt+refant,5,5)).nonDegenerate());
+    //cout << "cflag=" << boolalpha <<  cflagged << endl;
+    ASSERT_TRUE(allTrue(cflagged));
+
+    // Check baseline gains
+    for (Int itime=0;itime<nTimes;++itime) {
+      Int i0=itime*nAnt;
+      Int ibl=0;
+      for (Int a1=0;a1<nAnt-1;++a1) {
+	Vector<Complex> g1=cparam(Slice(),Slice(),Slice(i0+a1,1,1)).nonDegenerate();
+	for (Int a2=a1+1;a2<nAnt;++a2) {
+	  Vector<Complex> g2=cparam(Slice(),Slice(),Slice(i0+a2,1,1)).nonDegenerate();
+	  Vector<Float> blph0(phase(g1/g2)*dpr);
+	  blph(Slice(),Slice(ibl,1,1),Slice(itime,1,1))=blph0;
+	  //if (itime==nTimes/2-1)
+	  //  cout << a1 << "-" << a2 << " " 
+	  //	 << phase(g1)*dpr << " " << phase(g2)*dpr 
+	  //	 << " " << blph0
+	  //	 << endl;
+	  ++ibl;
+	}
+      }
+    }
+
+    ScalarColumn<Int> a2col(flex,"ANTENNA2");
+    Vector<Int> a2; a2col.getColumn(a2);
+    //cout << "a2=" << a2 << endl;
+
+  }
+
+  //cout << "dblph=" << blph << endl;
+
+
+
+  G->refantmode()="strict";
+  G->applyRefAnt();
+
+  G->calTableName()="refant_strict.G";
+  G->storeNCT();
+
+
+  {
+    //cout << endl << endl << "Testing strict refant...................." << endl;
+    Table strict("refant_strict.G");
+    //cout << "Table name=" << strict.tableName() << endl;
+    ArrayColumn<Complex> ccol(strict,"CPARAM");
+    Cube<Complex> cparam;  ccol.getColumn(cparam);
+    //cout << "cparam=" << phase(cparam)*dpr << endl;
+    Vector<Float> RLph(phase(cparam(Slice(0,1,1),Slice(),Slice())/cparam(Slice(1,1,1),Slice(),Slice())).nonDegenerate());
+    for (Int iant=0;iant<nAnt;++iant) {
+      Float mRLph=mean(RLph(Slice(iant,nTimes,5)));
+      Float dRLph=mRLph-(iant-refant)*10.0/dpr;
+      //cout << "RLph=" << mRLph*dpr
+      //<< " dph=" << dRLph
+      //<< endl;
+      EXPECT_NEAR(0.0,dRLph,5e-7);
+    }
+    ArrayColumn<bool> fcol(strict,"FLAG");
+    Cube<Bool> cflag; fcol.getColumn(cflag);
+    ASSERT_EQ(uInt(50),ntrue(cflag));  // 50 should be flagged
+    Matrix<Bool> cflagged(cflag(Slice(),Slice(),Slice(25*nAnt,5*nAnt,1)).nonDegenerate());
+    //cout << "cflag=" << boolalpha <<  cflagged << endl;
+    ASSERT_TRUE(allTrue(cflagged));   // which ones are flagged
+
+    for (Int itime=0;itime<nTimes;++itime) {
+      Int i0=itime*nAnt;
+      Int ibl=0;
+      for (Int a1=0;a1<nAnt-1;++a1) {
+	Vector<Complex> g1=cparam(Slice(),Slice(),Slice(i0+a1,1,1)).nonDegenerate();
+	for (Int a2=a1+1;a2<nAnt;++a2) {
+	  Vector<Complex> g2=cparam(Slice(),Slice(),Slice(i0+a2,1,1)).nonDegenerate();
+	  Vector<Float> blph0(phase(g1/g2)*dpr);
+	  blph(Slice(),Slice(ibl,1,1),Slice(itime,1,1))=blph(Slice(),Slice(ibl,1,1),Slice(itime,1,1)).nonDegenerate()-blph0;
+	  //if (itime==nTimes/2-1)
+	  //  cout << a1 << "-" << a2 << " " 
+	  //	 << phase(g1)*dpr << " " << phase(g2)*dpr << " " 
+	  //	 << blph0 << " "
+	  //	 << endl;
+	  ++ibl;
+	}
+      }
+    }
+
+    ScalarColumn<Int> a2col(strict,"ANTENNA2");
+    Vector<Int> a2; a2col.getColumn(a2);
+    //cout << "a2=" << a2 << endl;
+
+  }
+
+  //cout << "dblph=" << blph << endl;
+
+  ASSERT_TRUE(allNearAbs(blph,0.0f,5e-5));
+
   delete G;
+
+  Table::deleteTable("refant_flex.G");
+  Table::deleteTable("refant_strict.G");
+
 }
