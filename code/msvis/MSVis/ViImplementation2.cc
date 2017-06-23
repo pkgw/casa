@@ -24,16 +24,6 @@ namespace vi {
 // }
 
 
-void
-ViImplementation2::associateVbWithVi2 (VisBuffer2 * vb, const VisibilityIterator2 * vi)
-{
-    // Associates the top-level VI with the presumably top-level VB.
-    // Implemented here since the associateWithVi2 method is protected
-    // but ViImplementation has friend access to VB.
-
-    vb->associateWithVi2(vi);
-}
-
 VisBuffer2 *
 ViImplementation2::createAttachedVisBuffer(VisBufferOptions options)
 {
