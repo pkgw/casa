@@ -187,7 +187,7 @@ scripts/task_sdcal.py
 scripts/task_sdfit.py
 scripts/task_sdgaincal.py
 scripts/task_sdimaging.py
-scripts/task_sdimprocess.py
+scripts/task_sdfixscan.py
 scripts/task_sdsmooth.py
 ### ASAP tasks ###
 scripts/task_sdaverageold.py

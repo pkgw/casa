@@ -76,7 +76,7 @@ from sdcal_pg import  sdcal_pg as sdcal
 from sdgaincal_pg import  sdgaincal_pg as sdgaincal
 from sdfit_pg import  sdfit_pg as sdfit
 from sdimaging_pg import sdimaging_pg as sdimaging
-from sdimprocess_pg import sdimprocess_pg as sdimprocess
+from sdfixscan_pg import sdfixscan_pg as sdfixscan
 from sdsmooth_pg import  sdsmooth_pg as sdsmooth
 ### ASAP tasks ###
 from sdaverageold_pg import sdaverageold_pg as sdaverageold
