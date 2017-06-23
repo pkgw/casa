@@ -52,10 +52,6 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 		<description>Select data based on time range</description>
 		<value></value>
 	</param>
-	<param type="int" name="avgchan">
-		<description>DEPRECATED. Use mstransform to select and average data prior to running exportuvfits.</description>
-		<value>1</value>
-	</param>
 
 	<param type="bool" name="writesyscal">
 		<description>Write GC and TY tables, (Not yet available)</description>
@@ -157,7 +153,6 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                timerange='25:00:00~27:30:00' picks 1 hr to 3 hr 30min on next day
                timerange='09:44:00' data within one integration of time
                timerange='&gt;10:24:00' data after this time
-        avgchan -- DEPRECATED Use mstranform to select and average data prior to running exportuvfits.
         multisource -- Write in multi-source format
                 default: =&gt; True;
                 Set to False if a single source is selected. Note that diffmap does not work on

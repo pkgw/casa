@@ -2917,7 +2917,7 @@ bool image::makecomplex(
 image* image::deviation(
     const std::string& outfile, const variant& region,
     const string& mask, bool overwrite, bool stretch,
-    const vector<int>& grid, const vector<int>& anchor,
+    const vector<int>& grid, const variant& anchor,
     const variant& xlength, const variant& ylength,
     const string& interp, const string& stattype,
     const string& statalg, double zscore, int maxiter
@@ -2935,10 +2935,30 @@ image* image::deviation(
             grid.size() != 2,
             "grid must have exactly two positive integer values"
         );
-        ThrowIf(
-            anchor.size() != 2,
-            "anchor must have exactly two integer values"
-        );
+        auto useRef = False;
+        switch (anchor.type()) {
+        case variant::INTVEC:
+            ThrowIf(
+                anchor.toIntVec().size() != 2,
+                "anchor must have exactly two integer values"
+            );
+            useRef = False;
+            break;
+        case variant::STRING:
+            ThrowIf(
+                anchor.toString() != "ref",
+                "Unsupported value for anchor: " + anchor.toString()
+            );
+            useRef = True;
+            break;
+        case variant::BOOLVEC:
+            // because the interface always passes in a boolvec by default for a variant,
+            // even if specified differently in the XML
+            useRef = True;
+            break;
+        default:
+            ThrowCc("Unsupported type for anchor");
+        }
         ThrowIf(
             grid[0] <= 0 || grid[1] <= 0,
             "Both grid value(s) must be positive"
@@ -2948,8 +2968,9 @@ image* image::deviation(
         auto  myxlen = xlength.type() == variant::INT
             ? casacore::String::toString(xlength.toInt()) + "pix"
             : xlength.toString();
-        auto myylen = ylength.type() == variant::BOOLVEC
-            ? "" : variant::INT
+        auto ytype = ylength.type();
+        auto myylen = ytype == variant::BOOLVEC
+            ? "" : ytype == variant::INT
             ? casacore::String::toString(ylength.toInt()) + "pix"
             : ylength.toString();
         String err;
@@ -3001,7 +3022,13 @@ image* image::deviation(
         else {
             ThrowCc("Unsupported stats algorithm " + statalg);
         }
-        sic.setAnchorPosition(anchor[0], anchor[1]);
+        if (useRef) {
+            sic.useReferencePixelAsAnchor();
+        }
+        else {
+            auto myan = anchor.toIntVec();
+            sic.setAnchorPosition(myan[0], myan[1]);
+        }
         sic.setGridSpacing(grid[0], grid[1]);
         sic.setStretch(stretch);
         sic.setStatType(stattype);
