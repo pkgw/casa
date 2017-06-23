@@ -573,7 +573,7 @@ VisBuffer2 * SimpleSimVi2::getVisBuffer (const VisibilityIterator2 * vi)
 }
   */
 
-VisBuffer2 * SimpleSimVi2::getVisBuffer () { return vb_; }
+VisBuffer2 * SimpleSimVi2::getVisBuffer () const { return vb_; }
 
   //   +=========================+
   //   |                         |

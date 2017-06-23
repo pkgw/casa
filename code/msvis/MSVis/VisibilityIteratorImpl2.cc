@@ -3033,16 +3033,8 @@ VisibilityIteratorImpl2::setReportingFrameOfReference (Int frame)
 }
 
 VisBuffer2 *
-VisibilityIteratorImpl2::getVisBuffer ()
+VisibilityIteratorImpl2::getVisBuffer () const
 {
-    return vb_p;
-}
-
-VisBuffer2 *
-VisibilityIteratorImpl2::getVisBuffer (const VisibilityIterator2 * vi)
-{
-    ThrowIf (vb_p == nullptr, "VI Implementation has no VisBuffer.");
-    vb_p->associateWithVi2 (vi);
     return vb_p;
 }
 

@@ -267,8 +267,7 @@ public:
     virtual casacore::Int msId () const;
     virtual casacore::Int getNMs () const;
 
-    virtual VisBuffer2 * getVisBuffer ();
-    virtual VisBuffer2 * getVisBuffer (const VisibilityIterator2 *);
+    virtual VisBuffer2 * getVisBuffer () const;
 
     //reference to actual ms in interator
     virtual const casacore::MeasurementSet & ms () const;

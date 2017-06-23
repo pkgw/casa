@@ -389,17 +389,6 @@ TransformingVi2::getVisBuffer ()
     return vb_p;
 }
 
-VisBuffer2 *
-TransformingVi2::getVisBuffer (const VisibilityIterator2 * vi)
-{
-    if (! vb_p){
-        vb_p = createAttachedVisBuffer (VbNoOptions);
-    }
-
-    vb_p->associateWithVi2 (vi);
-    return vb_p;
-}
-
 Double
 TransformingVi2::hourang (Double time)  const
 {
