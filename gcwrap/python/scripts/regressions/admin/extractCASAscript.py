@@ -61,7 +61,7 @@ interactive=re.compile("[\s;]*(plotxy|plotcal|plotms|viewer|plotants|imview)")
 # CASA task list (used for benchmarking markup, else ignored)
 # Check and update this list using function listCASATasks(), below.
 # for CASA 4.5...
-casa_tasks = ['accum', 'applycal', 'asap_init', 'asdmsummary', 'bandpass',
+casa_tasks = ['accum', 'applycal', 'asdmsummary', 'bandpass',
 'blcal', 'boxit', 'browsetable', 'calstat', 'caltabconvert', 'clean',
 'clearcal', 'clearplot', 'clearstat', 'concat', 'conjugatevis', 'csvclean',
 'cvel', 'deconvolve', 'delmod', 'exportasdm', 'exportfits', 'exportuvfits',
