@@ -196,6 +196,7 @@ public:
     // Reference to underlying MS, via the Vii
     virtual const casacore::MeasurementSet& ms() const;
     virtual const vi::SubtableColumns & subtableColumns () const;
+	virtual casacore::Bool existsColumn (VisBufferComponent2 id) const;
 
     //--> This needs to be removed: virtual casacore::Bool fetch(const asyncio::PrefetchColumns *pfc);
 

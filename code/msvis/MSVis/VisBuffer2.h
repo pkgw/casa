@@ -220,6 +220,7 @@ public:
 
     virtual const casacore::MeasurementSet& ms() const { ThrowCc ("Should be overridden"); } // Kluge
     virtual const vi::SubtableColumns & subtableColumns () const { ThrowCc ("Should be overridden"); } // Kluge
+	virtual casacore::Bool existsColumn (VisBufferComponent2 id) const = 0;
     
     virtual casacore::Bool isAttached () const = 0;
     virtual casacore::Bool isFillable () const = 0;
