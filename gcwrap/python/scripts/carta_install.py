@@ -9,6 +9,7 @@ from subprocess import check_output
 import platform
 
 # Supported operating system versions
+
 osVersions = ["el6", "el7", "osx1011", "osx1012"]
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
