@@ -74,9 +74,9 @@ from impbcor_pg import impbcor_pg as impbcor
 from sdbaseline_pg import  sdbaseline_pg as sdbaseline
 from sdcal_pg import  sdcal_pg as sdcal
 from sdfit_pg import  sdfit_pg as sdfit
+from sdfixscan_pg import sdfixscan_pg as sdfixscan
 from sdgaincal_pg import  sdgaincal_pg as sdgaincal
 from sdimaging_pg import sdimaging_pg as sdimaging
-from sdfixscan_pg import sdfixscan_pg as sdfixscan
 from sdsmooth_pg import  sdsmooth_pg as sdsmooth
 
 # EOF
