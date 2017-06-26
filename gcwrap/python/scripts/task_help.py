@@ -60,7 +60,6 @@ def toolhelp():
     print ' vp : Voltage pattern/primary beam utilities'
     print ' ---'
     print ' pl : pylab functions (e.g., pl.title, etc)'
-    print ' sd : Single dish utilities'
     print ' ---'
 
 def tasklist():
