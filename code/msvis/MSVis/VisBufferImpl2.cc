@@ -2046,7 +2046,8 @@ VisBufferImpl2::setVisCubeModel(const Vector<Float>& stokesIn)
   }
 
   // A map onto the actual correlations in the VisBuffer  (which may be a subset)
-  Vector<Int> corrmap = correlationTypes ();
+  Vector<Int> corrmap;
+  corrmap.assign(correlationTypes());  // actual copy, to avoid changing correlationTypes()!
   corrmap -= corrmap(0);
 
   ThrowIf (max(corrmap) >= 4,  "HELP! The correlations in the data are not normal!");
@@ -2476,7 +2477,8 @@ VisBufferImpl2::fillImagingWeight (Matrix<Float> & value) const
 
     value.resize (IPosition (2, nChannels(), nRows()));
 
-    Matrix<Bool> flagMat = flagCube().yzPlane(0);
+    Matrix<Bool> flagMat;
+    flagMat.assign(flagCube().yzPlane(0));
     std::logical_and<Bool> andOp;
 
     /*

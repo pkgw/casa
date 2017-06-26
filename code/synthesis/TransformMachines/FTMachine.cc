@@ -592,7 +592,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	chanMap.set(-1);
 	interpVisFreq_p.resize(ninterpchan);
 	interpVisFreq_p[0]=(interpwidth > 0) ? minIF : maxIF;
-	interpVisFreq_p[0] -= fabs(imageFreq_p[1]-imageFreq_p[0])/2.0;
+	interpVisFreq_p[0] =(interpwidth >0) ? (interpVisFreq_p[0]-fabs(imageFreq_p[1]-imageFreq_p[0])/2.0):
+																(interpVisFreq_p[0]+fabs(imageFreq_p[1]-imageFreq_p[0])/2.0);
 	for (Int k=1; k < ninterpchan; ++k){
 	  interpVisFreq_p[k] = interpVisFreq_p[k-1]+ interpwidth;
 	}

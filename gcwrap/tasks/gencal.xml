@@ -24,8 +24,8 @@
 		</param>
 
 		<param type="string" name="caltype">
-			<description>The calibration type: \'amp\',\'ph\',\'sbd\',\'mbd\',\'antpos\',\'antposvla\',\'tsys\',\'evlagain\',\'opac\',\'gc\',\'gceff\',\'eff\',\'tecim\'</description>
-			<value></value>
+			<description>The calibration type</description>
+			<value type="string">amp</value>
                         <allowed kind="enum">
                             <value>amp</value>
                             <value>ph</value>
@@ -34,7 +34,6 @@
                             <value>antpos</value>
                             <value>antposvla</value>
                             <value>tsys</value>
-                            <value>evlagain</value>
                             <value>swpow</value>
                             <value>rq</value>
                             <value>swp/rq</value>
@@ -96,7 +95,7 @@
         'antposvla' = VLA-centric antenna position corrections 
         'tsys' = Tsys from the SYSCAL table (ALMA)
         'swpow' = EVLA switched-power gains (experimental)
-        'evlagain' (='swpow') (this syntax will deprecate)
+        ('evlagain' = deprecated; use 'swpow' instead)
         'rq' = EVLA requantizer gains _only_
         'swp/rq' = EVLA switched-power gains divided by requantizer gain
         'opac' = Tropospheric opacity

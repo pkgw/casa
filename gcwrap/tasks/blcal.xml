@@ -91,7 +91,8 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 	</param>
 
         <param type="string" name="calmode">
-                <description>Type of solution" (\'ap\', \'p\', \'a\')</description>
+		<shortdescription>Amp/phase calibration solving mode</shortdescription>
+		<description>Amp/phase calibration solving mode: ('ap', 'p', 'a')</description>
                 <value>ap</value>
                 <allowed kind="enum">
                         <value>a</value>

@@ -1120,7 +1120,7 @@ VisibilityIteratorImpl2::initialize (const Block<const MeasurementSet *> &mss,
 
     if (useMSIter2) {
 
-      cout << "Using MSIter2......................................." << endl;
+      //cout << "Using MSIter2......................................." << endl;
 
       // This version uses the MSSmartInterval for time comparisons
       //   in the Table sort/iteration
@@ -1979,6 +1979,17 @@ VisibilityIteratorImpl2::makeChannelSelectorC (const FrequencySelection & select
 {
     const FrequencySelectionUsingChannels & selection =
         dynamic_cast<const FrequencySelectionUsingChannels &> (selectionIn);
+
+    if (selection.refinementNeeded ()){
+        auto spwcFetcher =
+            [this, msId]
+            (int spectralWindowId, double lowerFrequency, double upperFrequency)
+            {
+                const SpectralWindowChannels & spwChannels = getSpectralWindowChannels (msId, spectralWindowId);
+                return spwChannels.getIntersection (lowerFrequency, upperFrequency);
+            };
+        selection.applyRefinement (spwcFetcher);
+    }
 
     vector<Slice> frequencySlices;
 
@@ -3344,7 +3355,7 @@ VisibilityIteratorImpl2::writeModel(const RecordInterface& rec, Bool iscomponent
   Vector<Int> channelIncrement;
 
   std::tie (selectedWindows, nChannels, firstChannels, channelIncrement) =
-      getChannelInformation (true);
+      getChannelInformation(false);
 
   CountedPtr<VisModelDataI> visModelData = VisModelDataI::create();
 
@@ -3355,13 +3366,15 @@ VisibilityIteratorImpl2::writeModel(const RecordInterface& rec, Bool iscomponent
 VisibilityIteratorImpl2::ChannelInfo
 VisibilityIteratorImpl2::getChannelInformationUsingFrequency (Bool now) const
 {
-    const FrequencySelection & frequencySelection = frequencySelections_p->get (msId());
-    set<Int> windows = frequencySelection.getSelectedWindows();
+    const FrequencySelectionUsingFrame  *frequencySelection =dynamic_cast <const FrequencySelectionUsingFrame* >  (&frequencySelections_p->get (msId()));
+	if(!frequencySelection)
+		throw(AipsError("Programmer Error channel info with wrong object called"));
+    set<Int> windows = frequencySelection->getSelectedWindows();
 
     Vector<Int> spectralWindow (windows.size());
-    Vector<Int> nChannels (windows.size());
-    Vector<Int> firstChannel (windows.size());
-    Vector<Int> channelIncrement (windows.size());
+    Vector<Int> nChannels (windows.size(), -1);
+    Vector<Int> firstChannel (windows.size(), -1);
+    Vector<Int> channelIncrement (windows.size(), -1);
 
     if (now){
 
@@ -3402,20 +3415,21 @@ VisibilityIteratorImpl2::getChannelInformationUsingFrequency (Bool now) const
     }
     else{
 
-        // Since the frequency selection was not specified using channels, return the
-        // entire number of channels in the selected spectral windows.  This might be overkill
-        // but it should not cause false results to the caller.
-
-        casa::ms::SpectralWindows spectralWindows (& measurementSets_p [msId()]);
-
         Int i = 0;
+		map<int, pair<int, int> > spwRanges=frequencySelection->getChannelRange ( measurementSets_p [msId()]) ;
         for (set<Int>::iterator j = windows.begin(); j != windows.end(); j++){
 
             spectralWindow [i] = * j;
-            nChannels [i] = spectralWindows.get (* j).nChannels();
-            firstChannel [i] = 0;
-            channelIncrement = 0;
+			auto sel = spwRanges.find(spectralWindow[i]);
+			if(sel != spwRanges.end()){
+				nChannels [i] = (sel->second).first;
+				firstChannel [i] =(sel->second).second;
+				channelIncrement[i] = 1;
+			}
+			
+			++i;
         }
+       
     }
 
     return std::make_tuple (spectralWindow, nChannels, firstChannel, channelIncrement);

@@ -120,6 +120,7 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_importevla.py
   test_importfitsidi.py
   test_importnro.py
+  test_importvla.py
   test_imregrid.py
   test_imsmooth.py
   test_imstat.py
@@ -146,8 +147,10 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_partition.py
   test_partitionHelper.py
   test_plotants.py
+  test_plotcal.py
   test_plotms.py
   test_plotuv.py
+  test_plotweather.py
   test_po_complexfraclinpol.py
   test_po_complexlinpol.py  
   test_po_depolratio.py
@@ -207,6 +210,7 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_split2.py
   test_spxfit.py
   test_statwt.py
+  test_statwt2.py
   test_testconcat.py
   test_uvcontsub.py
   test_uvcontsub3.py
@@ -218,6 +222,8 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_visstat2.py
   test_vpmanager.py
   test_wvrgcal.py
+  test_imview.py
+  test_msview.py
   selection_syntax.py
   ../mpi4casa/test_mpi4casa.py
   testutils.py
