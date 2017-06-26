@@ -237,7 +237,10 @@ def plotweather(vis='', seasonal_weight=0.5, doPlot=True, plotName = ''):
     for i in range(len(spwFreqs)):
         mysearch=(pl.array(freqs)-spwFreqs[i])**2
         hits=pl.find(mysearch == min(mysearch))
-        if len(hits) > 1: hits=hits[0]
+        # Fix deprecation warning: could be array of 1
+        #if len(hits) > 1: hits=hits[0]
+        if not isinstance(hits, int):
+            hits = hits[0]
         tau_interp = (pl.array(coef0[hits-2:hits+2])+pl.array(coef1[hits-2:hits+2])*pl.mean(myPWV)) * 1e-1  #percent
         tau_F = pl.interp(spwFreqs[i],freqs[hits-2:hits+2],tau_interp)
         meanTau.append(pl.mean(tau_F*.01))  #nepers
