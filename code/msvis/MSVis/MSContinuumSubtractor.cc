@@ -320,7 +320,7 @@ void MSContinuumSubtractor::subtract()
     }
     polSel.resize(nPol,True);
     msSel.selectPolarization(polSel);
-     
+
     msSel.iterInit(
         stringToVector("ARRAY_ID,DATA_DESC_ID,SCAN_NUMBER,FIELD_ID,TIME"),
         itsSolInt,0,False);
@@ -355,7 +355,7 @@ void MSContinuumSubtractor::subtract()
         for (start[0]=end[0]=0; start[0]<nPol; start[0]++,end[0]++) {
           Vector<Complex> c(avCorData(start,end).nonDegenerate());
           tmp=c; // copy into contiguous storage
-	  c.set(Complex(0.0));  // zero the input
+          c.set(Complex(0.0));  // zero the input
           real(y1,tmp);
           imag(y2,tmp);
           sol = fitter.fit(x,y1,&fitChanMask);
@@ -367,8 +367,8 @@ void MSContinuumSubtractor::subtract()
           y2=x;
           y2.apply(poly);
           for (Int chn=0; chn<nChan; chn++) 
-	    if (subChanMask(chn))
-	      c(chn)=Complex(y1(chn),y2(chn));
+            if (subChanMask(chn))
+              c(chn)=Complex(y1(chn),y2(chn));
         }
       }
         
@@ -381,15 +381,15 @@ void MSContinuumSubtractor::subtract()
         if (itsMode!="model") {
           Array<Complex> corr(correctedData(start4,end4).nonDegenerate(3));
           if (itsMode=="replace") corr=avCorData;
-          if (itsMode=="subtract") corr-=avCorData;
+          if (itsMode=="subtract" || itsMode=="sub") corr-=avCorData;
         }
       }  
                     
       Record newDataRec;
-      if (itsMode=="model"||itsMode=="subtract") {
+      if (itsMode=="model"||itsMode=="subtract"||itsMode=="sub") {
         newDataRec.define("model_data",modelData);
       }
-      if (itsMode=="replace"||itsMode=="subtract") {
+      if (itsMode=="replace"||itsMode=="subtract"||itsMode=="sub") {
         newDataRec.define("corrected_data",correctedData);
       }
       msSel.putData(newDataRec);
@@ -404,75 +404,71 @@ void MSContinuumSubtractor::subtract2()
 {
   // Log selections for subtraction
   LogIO os(LogOrigin("MSContinuumSubtractor","subtract2"));
-  os << LogIO::NORMAL<< "MSContinuumSubtractor::subtract2() - parameters:" << LogIO::POST;
-  os << LogIO::NORMAL << "   ddIds=" << itsDDIds << "," << LogIO::POST;
-  os << LogIO::NORMAL << "   fieldIds="<< itsFieldIds
-                      << ", order="<< itsOrder
-                      << ", mode="<< itsMode << LogIO::POST;
+  os << LogIO::NORMAL << "parameters:" 
+     << LogIO::POST;
+  os << LogIO::NORMAL << "   ddIds=" << itsDDIds
+     << ", fieldIds="<< itsFieldIds
+     << ", order="<< itsOrder
+     << ", mode="<< itsMode 
+     << LogIO::POST;
   if (itsFitChans.nelements()>0) {
-    os<<"fit channels: " << LogIO::POST;
-    for (uInt i=0;i<itsFitChans.nrow();++i)
-      os<<" spw="<<itsFitChans.row(i)(0)
-	<<": "<<itsFitChans.row(i)(1)<<"~"<<itsFitChans.row(i)(2)
-	<< LogIO::POST;
+    os << "fit channels: " << LogIO::POST;
+    for (uInt i=0; i<itsFitChans.nrow(); ++i)
+      os << " spw=" << itsFitChans.row(i)(0)
+	     << ": " << itsFitChans.row(i)(1) << "~" << itsFitChans.row(i)(2)
+	     << LogIO::POST;
   }
 
   // Use taQL for selection (no DDiD sel in MSSelection)
   ostringstream select;
-  select <<"select from $1 where ANTENNA1!=ANTENNA2";
-  if (itsFieldIds.nelements()>0) {
-    select<<" && FIELD_ID IN ["<<itsFieldIds(0);
+  select << "select from $1 where ANTENNA1!=ANTENNA2";
+  if (itsFieldIds.nelements() > 0) {
+    select << " && FIELD_ID IN [" << itsFieldIds(0);
     for (uInt j=1; j<itsFieldIds.nelements(); j++) 
         select << ", " << itsFieldIds(j);
     select << "]";
   }
-  if (itsDDIds.nelements()>0) {
-    select<<" && DATA_DESC_ID IN ["<<itsDDIds(0);
+  if (itsDDIds.nelements() > 0) {
+    select << " && DATA_DESC_ID IN [" << itsDDIds(0);
     for (uInt j=1; j<itsDDIds.nelements(); j++)
         select << ", " << itsDDIds(j);
     select << "]";
   }
-
-  MeasurementSet selectedMS(tableCommand(select,*ms_p));
+  MeasurementSet selectedMS(tableCommand(select, *ms_p));
   MSColumns msc(selectedMS);
-  MSSelection mssel;
-
-  if (itsDDIds.nelements()>=1) {
-    cout << "Processing " << itsDDIds.nelements() << " spectral windows" << endl;
-  }
+  MSSelection mssel;  // for channel and poln selection
 
   for (uInt iDD=0; iDD<itsDDIds.nelements(); iDD++) {
-    Vector<Int> ddIDs(1,itsDDIds(iDD));
+    Int thisDDId(itsDDIds(iDD));
     Int nChan = msc.spectralWindow().numChan()
-        (msc.dataDescription().spectralWindowId()(ddIDs(0)));
+        (msc.dataDescription().spectralWindowId()(thisDDId));
     Vector<Int> corrTypes = msc.polarization().corrType()
-        (msc.dataDescription().polarizationId()(ddIDs(0)));
+        (msc.dataDescription().polarizationId()(thisDDId));
 
     // default to fit all channels
     Vector<Bool> fitChanMask(nChan,True);
     // Handle non-trivial channel selection:
-    if (itsFitChans.nelements()>0 && anyEQ(itsFitChans.column(0),itsDDIds(iDD))) {
+    if (itsFitChans.nelements()>0 && anyEQ(itsFitChans.column(0),thisDDId)) {
       // If subset of channels selected, set fit mask all False...
       fitChanMask = False;
       IPosition blc(1,0);
       IPosition trc(1,0);
       // ... and set only selected fit channels True:
       for (uInt i=0; i<itsFitChans.nrow(); ++i) {
-	    Vector<Int> chansel(itsFitChans.row(i));
+	    Vector<Int> chansel(itsFitChans.row(i));  // [spw, startChan, endChan]
 	    // match current spwId/DDid
-	    if (chansel(0)==itsDDIds(iDD)) {
+	    if (chansel(0) == thisDDId) {
 	        blc(0) = chansel(1);
 	        trc(0) = chansel(2);
 	        fitChanMask(blc,trc) = True;
 	    }
       }
     }
-    //  cout << "fitChanMask = " << fitChanMask << endl;
 
     // default to subtract from all channels
     Vector<Bool> subChanMask(nChan,True);
     // Handle non-trivial channel selection:
-    if (itsSubChans.nelements()>0 && anyEQ(itsSubChans.column(0),itsDDIds(iDD))) {
+    if (itsSubChans.nelements()>0 && anyEQ(itsSubChans.column(0),thisDDId)) {
       // If subset of channels selected, set sub mask all False...
       subChanMask = False;
       IPosition blc(1,0);
@@ -481,7 +477,7 @@ void MSContinuumSubtractor::subtract2()
       for (uInt i=0; i<itsSubChans.nrow(); ++i) {
 	    Vector<Int> chansel(itsSubChans.row(i));
 	    // match current spwId/DDid
-	    if (chansel(0)==itsDDIds(iDD)) {
+	    if (chansel(0) == thisDDId) {
 	        blc(0) = chansel(1);
 	        trc(0) = chansel(2);
 	        subChanMask(blc,trc) = True;
@@ -493,9 +489,9 @@ void MSContinuumSubtractor::subtract2()
     Vector<String> polSel(corrTypes.nelements()); 
     Int nPol = 0;
     for (uInt j=0; j<corrTypes.nelements(); j++) {
-      if (corrTypes(j)==Stokes::XX||corrTypes(j)==Stokes::YY||
-          corrTypes(j)==Stokes::RR||corrTypes(j)==Stokes::LL) {
-        polSel(nPol++)=Stokes::name(Stokes::type(corrTypes(j)));
+      if (corrTypes(j)==Stokes::XX || corrTypes(j)==Stokes::YY ||
+          corrTypes(j)==Stokes::RR || corrTypes(j)==Stokes::LL) {
+        polSel(nPol++) = Stokes::name(Stokes::type(corrTypes(j)));
       }
     }
     polSel.resize(nPol,True);
@@ -506,18 +502,25 @@ void MSContinuumSubtractor::subtract2()
             polnExpr += "," + polSel[np];
         }
     }
-    String spwExpr = String::toString(iDD);
-    MeasurementSet spwSelMS(selectedMS);
     // apply selection to get correlation slices
-    mssel.clear();
+    String spwExpr = String::toString(thisDDId);
+    MeasurementSet spwSelMS(selectedMS);
     Vector<Vector<Slice> > chansel;
     Vector<Vector<Slice> > corrsel;
+    mssel.clear();
     mssSetData(selectedMS, spwSelMS, chansel, corrsel,
                "", "", "", "", spwExpr, "", "",
                polnExpr, "", "", "", "", 1, &mssel);
 
-    // Set up FrequencySelection with corrsel for VisibilityIterator2
+    casacore::Float chunkInt(itsSolInt);
+    if (chunkInt < 0.0) {
+        ROMSMainColumns msmain(spwSelMS);
+        chunkInt = msmain.interval().getColumn()(0);
+    }
+
+    // Set up FrequencySelection with chansel and corrsel for VisibilityIterator2
     vi::FrequencySelectionUsingChannels freqSel = vi::FrequencySelectionUsingChannels();
+    freqSel.add(mssel, &spwSelMS);
     freqSel.addCorrelationSlices(corrsel);
 
     // Sort Columns
@@ -531,7 +534,7 @@ void MSContinuumSubtractor::subtract2()
     vi::SortColumns sortcols(columns, false);
       
     // Set up averaged non-calibrating vi
-    vi::IteratingParameters iterpar(itsSolInt, sortcols);
+    vi::IteratingParameters iterpar(chunkInt, sortcols);
     vi::AveragingOptions avgopt(vi::AveragingOptions::AverageCorrected |
             vi::AveragingOptions::CorrectedWeightAvgFromWEIGHT);
     vi::AveragingParameters avgpar(1e8, 0.0, sortcols, avgopt);
@@ -553,17 +556,18 @@ void MSContinuumSubtractor::subtract2()
     Vector<Float> y1(nChan),y2(nChan);
     Vector<Float> sol(itsOrder+1);
     Vector<Complex> tmp(nChan);
-
     Cube<Complex> avgCorrData;
     // map is <scan, fit model>
     map<Int, Cube<Complex>> fitCorrData;
-    Int nIter = 0;
+    map<Int, Vector<Int>> fitCorrIfr;
+    Int nIter(0);
     IPosition start(3,0,0,0), end(3,0,nChan-1,0);
     for (vi2->originChunks(); vi2->moreChunks(); vi2->nextChunk()){
         for (vi2->origin(); vi2->more(); vi2->next()){
             avgCorrData.resize();
             avgCorrData = vb2->visCubeCorrected();
-            for (start[2]=end[2]=0; start[2]<avgCorrData.shape()[2]; start[2]++,end[2]++) {
+            for (start[2]=end[2]=0; start[2]<avgCorrData.shape()[2];
+                    start[2]++,end[2]++) {
                 for (start[0]=end[0]=0; start[0]<nPol; start[0]++,end[0]++) {
                     Vector<Complex> c(avgCorrData(start,end).nonDegenerate());
                     tmp=c; // copy into contiguous storage
@@ -584,7 +588,10 @@ void MSContinuumSubtractor::subtract2()
                     }
                 }
             }
-            fitCorrData[vb2->scan()(0)] = avgCorrData;
+            fitCorrData[nIter] = avgCorrData;
+            Vector<Int> ant1 = vb2->antenna1();
+            Vector<Int> ant2 = vb2->antenna2();
+            fitCorrIfr[nIter] = ant1*1000 + ant2;
             nIter++;
         }
     }
@@ -599,6 +606,7 @@ void MSContinuumSubtractor::subtract2()
     vi2->originChunks();
     vi2->origin();
     Cube<Complex> modelData, correctedData, fitModel;
+    nIter=0;
     for (vi2->originChunks(); vi2->moreChunks(); vi2->nextChunk()){
         for (vi2->origin(); vi2->more(); vi2->next()){
             // get model and corrected data with poln selection applied
@@ -606,23 +614,53 @@ void MSContinuumSubtractor::subtract2()
             modelData = vb2->visCubeModel();
             correctedData.resize();
             correctedData = vb2->visCubeCorrected();
+            IPosition datashape = correctedData.shape();
             fitModel.resize();
-            fitModel = fitCorrData[vb2->scan()(0)];
+            fitModel = fitCorrData[nIter];
 
-            if (itsMode=="subtract" || itsMode=="model") {
-                modelData = fitModel;
-            }
-            if (itsMode=="replace") {
-                correctedData = fitModel;
-            }
-            if (itsMode=="subtract") {
-                correctedData -= fitModel;
+            // Unaveraged data may have different shape
+            if (fitModel.shape() != datashape) {
+                // only use baselines in this chunk
+                Cube<Complex> newFitModel(datashape);
+                Vector<Int> ant1 = vb2->antenna1();
+                Vector<Int> ant2 = vb2->antenna2();
+                Vector<Int> ifrs = ant1*1000 + ant2;
+                Vector<Int> fitIfr = fitCorrIfr[nIter];
+                IPosition start(3,0,0,0), start2(3,0,0,0);
+                Int nPol(datashape[0]), nChan(datashape[1]), nIfr(datashape[2]);
+                IPosition end(3, nPol-1, nChan-1, nIfr-1);
+                IPosition end2(3, nPol-1, nChan-1, nIfr-1);
+                for (uInt i=0; i<ifrs.size(); ++i) {
+                    start[2] = end[2] = i;
+                    Int ifr = ifrs[i];
+                    // now find ifr in fitIfr
+                    for (uInt j=0; j<fitIfr.size(); ++j) {
+                        if (fitIfr[j]==ifr) {
+                            start2[2] = end2[2] = j;
+                            newFitModel(start,end) = fitModel(start2,end2);
+                            break;
+                        }
+                    }
+                }
+                fitModel.resize(datashape);
+                fitModel = newFitModel;
             }
 
             // write out cubes to MS
-            vi2->getImpl()->writeVisModel(modelData);
-            vi2->getImpl()->writeVisCorrected(correctedData);
+            if (itsMode=="subtract" || itsMode=="model" || itsMode=="sub") {
+                modelData = fitModel;
+                vi2->getImpl()->writeVisModel(modelData);
+            }
+            if (itsMode=="replace") {
+                correctedData = fitModel;
+                vi2->getImpl()->writeVisCorrected(correctedData);
+            }
+            if (itsMode=="subtract" || itsMode=="sub") {
+                correctedData -= fitModel;
+                vi2->getImpl()->writeVisCorrected(correctedData);
+            }
         }
+        nIter++;
     }
     delete vi2;
   } // end DDId loop
