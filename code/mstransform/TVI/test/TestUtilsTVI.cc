@@ -182,8 +182,8 @@ template <class T> void compareCube(const Char* column,
             for (uInt corr=0;corr < shape(0); corr++)
             {
                 ASSERT_NEAR(abs(inp(corr,chan,row) - ref(corr,chan,row)), 0, tolerance)
-	                << column << " does not match in position (row,chan,corr)="
-			        << "("<< row << "," << chan << "," << corr << ")"
+	                << column << " does not match in position (corr,chan,row)="
+			        << "("<< corr << "," << chan << "," << row << ")"
                     << " test=" << inp(corr,chan,row)
                     << " reference=" << ref(corr,chan,row);
             }
@@ -429,7 +429,7 @@ const Cube<Complex> & getViscube(	VisBuffer2 *vb,
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-void flagEachOtherChannel(VisibilityIterator2 &vi)
+void flagEachOtherChannel(VisibilityIterator2 &vi, bool unfoldChanbin, int chanbin)
 {
     // Declare working variables
     Int chunk = 0,buffer = 0;
@@ -456,7 +456,7 @@ void flagEachOtherChannel(VisibilityIterator2 &vi)
             Cube<Bool> flagCube(shape,false);
 
             // Switch each other buffer the sign of the flag of the first block of channels
-            Bool firstChanBlockFlag = buffer % 2? true:False;
+            Bool firstChanBlockFlag = buffer % 2? true:false;
 
             // Fill flag cube alternating flags per blocks channels
             size_t nCorr = shape(0);
@@ -474,7 +474,11 @@ void flagEachOtherChannel(VisibilityIterator2 &vi)
                     for (size_t chan_i =0;chan_i<nChan;chan_i++)
                     {
                         // Set the flags in each other block of channels
-                        Bool chanBlockFlag = chan_i % 2? firstChanBlockFlag:!firstChanBlockFlag;
+                        Bool chanBlockFlag;
+                        if(unfoldChanbin)
+                            chanBlockFlag = ((chan_i / chanbin) % 2 )? firstChanBlockFlag:!firstChanBlockFlag;
+                        else
+                            chanBlockFlag = chan_i % 2? firstChanBlockFlag:!firstChanBlockFlag;
 
                         for (size_t corr_i =0;corr_i<nCorr;corr_i++)
                         {

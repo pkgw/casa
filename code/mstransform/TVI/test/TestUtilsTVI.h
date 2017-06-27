@@ -107,7 +107,7 @@ const casacore::Cube<casacore::Complex> & getViscube(VisBuffer2 *vb,
 									casacore::MS::PredefinedColumns datacol,
 									dataColMap *datacolmap);
 
-void flagEachOtherChannel(VisibilityIterator2 &vi);
+void flagEachOtherChannel(VisibilityIterator2 &vi, bool undoChanbin, int chanbin = 1);
 
 } //# NAMESPACE VI - END
 

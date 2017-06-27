@@ -221,10 +221,10 @@ void ChannelAverageTVICompareTest::propagateFlags()
 	VisibilityIterator2 testTVI(testFactory);
 
 	// Propagate flags with MSTransformIterator
-	flagEachOtherChannel(refTVI);
+	flagEachOtherChannel(refTVI, false);
 
 	// Propagate flags with TVI to test
-	flagEachOtherChannel(testTVI);
+	flagEachOtherChannel(testTVI, false);
 
 	return;
 }
