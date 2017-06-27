@@ -126,6 +126,7 @@ class VisBufferImpl2 : public VisBuffer2 {
     friend class VisBufferCache;
     friend class VisBufferState;
     friend class casa::vi::VisBuffer2;
+	friend class VisBuffer2Adapter;
     friend class VisBufferImpl2Async; // for async i/o
     friend class VisBufferImpl2AsyncWrapper; // for async i/o
     friend class ViReadImpl;
