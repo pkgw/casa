@@ -410,7 +410,7 @@ def simobserve(
             # first set based on psfsize:
             # needs high subsampling because small shifts in placement of 
             # components lead to large changes in the difference image.
-            model_cell = [ str(psfsize/20)+"arcsec", str(psfsize/20)+"arcsec" ]
+            model_cell = [ qa.quantity(str(psfsize/20)+"arcsec"), qa.quantity(str(psfsize/20)+"arcsec") ]
             
             # XXX if the user has set direction should we center the compskymodel there?
             # if len(direction)>0: model_refdir = direction
@@ -1121,8 +1121,8 @@ def simobserve(
                     util.nextfig()
                     im.open(msfile)
                     # TODO spectral parms
-                    msg("using default model cell "+qa.tos(model_cell[0])+" for PSF calculation",origin='simobserve')
-                    im.defineimage(cellx=qa.tos(model_cell[0]),nx=int(max([minimsize,128])))
+                    msg("using default model cell "+str(model_cell[0])+" for PSF calculation",origin='simobserve')
+                    im.defineimage(cellx=str(model_cell[0]["value"])+str(model_cell[0]["unit"]),nx=int(max([minimsize,128])))
                     # TODO trigger im.setoptions(ftmachine="mosaic")
                     if os.path.exists(fileroot+"/"+project+".quick.psf"):
                         shutil.rmtree(fileroot+"/"+project+".quick.psf")
