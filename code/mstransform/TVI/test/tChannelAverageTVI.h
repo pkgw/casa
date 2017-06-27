@@ -45,6 +45,7 @@ public:
     void TestBody();
     void testCompareMSTransformTransformedData();
     void testCompareMSTransformPropagatedFlags();
+    void testWriteFlags();
 
 protected:
 

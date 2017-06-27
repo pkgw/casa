@@ -200,6 +200,50 @@ void ChannelAverageTVICompareTest::testCompareMSTransformPropagatedFlags()
 
 }
 
+// -----------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------
+void ChannelAverageTVICompareTest::testWriteFlags()
+{
+    //Tolerance for booleans is just 0
+    Float tolerance = 0;
+
+    // Create VisibilityIterator2 pointing to reference file
+    MeasurementSet msRef(referenceFile_p, Table::Update);
+    vi::VisibilityIterator2 refVI(msRef, SortColumns(), true);
+
+    // Propagate flags in raw MS (takes into account the chanbin)
+    flagEachOtherChannel(refVI, true, refConfiguration_p.asInt("chanbin"));
+
+    //Create channel average TVI pointing to the testing file
+    {
+        MeasurementSet msTest(testFile_p, Table::Update);
+        vi::VisibilityIterator2*  testVI =
+                new vi::VisibilityIterator2(msTest, SortColumns(), true);
+        Record configuration;
+        configuration.define ("chanbin", 8);
+        ChannelAverageTVIFactory testFactory(configuration,
+                                             testVI->getImpl());
+        VisibilityIterator2 testTVI(testFactory);
+
+        // Propagate flags using the TVI
+        flagEachOtherChannel(testTVI, false);
+
+        //testVI is deleted by testTVI destructor (!)
+    }
+
+    // Create VisibilityIterator2 pointing to test file
+    //(after flags have been written)
+    MeasurementSet msTestAfter(testFile_p);
+    vi::VisibilityIterator2 testVIAfter(msTestAfter);
+
+    // Determine columns to check
+    VisBufferComponents2 columns;
+    columns += VisBufferComponent2::FlagCube;
+
+    SCOPED_TRACE("Comparing propagated flags");
+    compareVisibilityIterators(testVIAfter, refVI, columns, tolerance);
+}
 
 // -----------------------------------------------------------------------
 //
@@ -240,6 +284,11 @@ TEST_F(ChannelAverageTVICompareTest, CompareMSTransformTransformedData)
 TEST_F(ChannelAverageTVICompareTest, CompareMSTransformPropagatedFlags)
 {
     testCompareMSTransformPropagatedFlags();
+}
+
+TEST_F(ChannelAverageTVICompareTest, TestWriteFlags)
+{
+    testWriteFlags();
 }
 
 TEST(ChannelAverageTVIConfTest, NoChanbinParam)
