@@ -339,7 +339,7 @@ void PolAverageTVI::corrType(Vector<Int> & corrTypes) const {
 }
 
 void PolAverageTVI::flagRow(Vector<Bool> & rowflags) const {
-  Cube<Bool> const &flags = getVisBufferConst()->flagCube();
+  Cube<Bool> const &flags = getVisBuffer()->flagCube();
   accumulateFlagCube(flags, rowflags);
 }
 
@@ -384,8 +384,8 @@ void PolAverageTVI::jonesC(Vector<SquareMatrix<Complex, 2> > &cjones) const {
 
 void PolAverageTVI::sigma(Matrix<Float> & sigmat) const {
   if (weightSpectrumExists()) {
-    Cube<Float> const &sigmaSp = getVisBufferConst()->sigmaSpectrum();
-    Cube<Bool> const &flag = getVisBufferConst()->flagCube();
+    Cube<Float> const &sigmaSp = getVisBuffer()->sigmaSpectrum();
+    Cube<Bool> const &flag = getVisBuffer()->flagCube();
     accumulateWeightCube(sigmaSp, flag, sigmat);
   } else {
     if (doTransform_[dataDescriptionId()]) {
@@ -472,8 +472,8 @@ IPosition PolAverageTVI::visibilityShape() const {
 
 void PolAverageTVI::weight(Matrix<Float> & wtmat) const {
   if (weightSpectrumExists()) {
-    Cube<Float> const &weightSp = getVisBufferConst()->weightSpectrum();
-    Cube<Bool> const &flag = getVisBufferConst()->flagCube();
+    Cube<Float> const &weightSp = getVisBuffer()->weightSpectrum();
+    Cube<Bool> const &flag = getVisBuffer()->flagCube();
     accumulateWeightCube(weightSp, flag, wtmat);
   } else {
     Matrix<Float> wtmatOrg;

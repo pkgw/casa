@@ -381,14 +381,6 @@ TransformingVi2::getVii () const
     return inputVii_p;
 }
 
-VisBuffer2 *
-TransformingVi2::getVisBuffer ()
-{
-    ThrowIf (vb_p == 0, "This VI implementation does not provide a VisBuffer");
-
-    return vb_p;
-}
-
 Double
 TransformingVi2::hourang (Double time)  const
 {
