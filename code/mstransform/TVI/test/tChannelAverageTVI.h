@@ -43,8 +43,8 @@ public:
 	ChannelAverageTVICompareTest(casacore::Record configuration);
 
     void TestBody();
-    void testCompareTransformedData();
-    void testComparePropagatedFlags();
+    void testCompareMSTransformTransformedData();
+    void testCompareMSTransformPropagatedFlags();
 
 protected:
 
