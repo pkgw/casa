@@ -4640,14 +4640,16 @@ from spwid 1 of the input data, starting at channel 4, and every
   <description>
     Specify the columns to iterate over and the time interval to use
     for the TIME column iteration.  The columns are specified by their
-    MS column name.  Note that the following columns are always added
-    to the specified columns: array_id, field_id, data_desc_id and
-    time. This is so that the iterator can keep track of the
-    coordinates associated with the data (field direction, frequency
-    etc.) If you want to sort on these columns last instead of first
-    you need to include them in the columns specified. If you don't
-    want to sort on these columns at all, you can set
-    adddefaultsortcolumns to False.
+    MS column name and must contain scalar values.
+
+    Note that the following columns are always added to the specified
+    columns: array_id, field_id, data_desc_id and time. This is so that
+    the iterator can keep track of the coordinates associated with the
+    data (field direction, frequency, etc.). If you want to sort on these
+    columns last instead of first, you need to include them in the
+    columns specified. If you don't want to sort on these columns at
+    all, you can set adddefaultsortcolumns to False.
+
     You need to call <link anchor="ms:ms.selectinit.function">selectinit</link> before 
     calling this.  See the example below.
   </description>
@@ -4687,13 +4689,15 @@ from spwid 1 of the input data, starting at channel 4, and every
   <description>
     Specify the columns to iterate over and the time interval to use
     for the TIME column iteration.  The columns are specified by their
-    MS column name.  Note that the following columns are always added
-    to the specified columns: array_id, field_id, data_desc_id and
-    time. This is so that the iterator can keep track of the coordinates
-    associated with the data (field direction, frequency etc.) If you
-    want to sort on these columns last instead of first you need to
-    include them in the columns specified. If you don't want to sort on
-    these columns at all, you can set adddefaultsortcolumns to False.
+    MS column name and must contain scalar values.
+
+    Note that the following columns are always added to the specified
+    columns: array_id, field_id, data_desc_id and time. This is so that
+    the iterator can keep track of the coordinates associated with the
+    data (field direction, frequency, etc.). If you want to sort on these
+    columns last instead of first, you need to include them in the
+    columns specified. If you don't want to sort on these columns at
+    all, you can set adddefaultsortcolumns to False.
     
     You need to call <link
         anchor="ms:ms.selectinit2.function">selectinit2</link> before
