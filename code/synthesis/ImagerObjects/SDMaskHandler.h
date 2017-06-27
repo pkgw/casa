@@ -264,10 +264,23 @@ public:
                         casacore::Array<casacore::Float>& inlatarr,
                         casacore::Array<casacore::Float>& lablatarr);
 
+  // non-recursive depth-first-search algorithm for 2D
+  void depthFirstSearch2(casacore::Int x,
+                        casacore::Int y,
+                        casacore::Int cur_label,
+                        casacore::Array<casacore::Float>& inlatarr,
+                        casacore::Array<casacore::Float>& lablatarr);
+
+  // returns a Vector of neighboring pixels in IPosition (4-direction connectivity) 
+  casacore::Vector<casacore::IPosition> defineNeighbors(casacore::IPosition& pos, 
+                                             casacore::Int nrow, 
+                                             casacore::Int ncol);
 
   // label connected regions using depth-first-search algorithm
   void labelRegions(casacore::Lattice<casacore::Float>& inlat, casacore::Lattice<casacore::Float>& lablat); 
-
+   
+ 
+ 
   // find sizes of bolbs (regions) found by labelRegions 
   casacore::Vector<casacore::Float>  findBlobSize(casacore::Lattice<casacore::Float>& lablat);
 
