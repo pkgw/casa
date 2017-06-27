@@ -877,6 +877,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	      LatticeExpr<Float> maskinv( iif( (deno) > scalepb , 0.0, 1.0 ) );
 	      ratio=LatticeExpr<Float> ( ( (*(residual(tix))) * mask ) / ( deno + maskinv ) );
 	    }
+	    else{
+			throw(AipsError("Don't know how to proceed with normtype "+normtype));
+		}
 	    
 	    
 	    

@@ -478,7 +478,7 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
 		CoordinateSystem conjCoord=coords;
 		Double centerFreq=SpectralImageUtil::worldFreq(csys_p, 0.0);
 		SpectralCoordinate conjSpCoord=spCoord;
-		cerr << "centreFreq " << centerFreq << " beamFreqs " << beamFreqs(0) << "  " << beamFreqs(1) << endl;
+		//cerr << "centreFreq " << centerFreq << " beamFreqs " << beamFreqs(0) << "  " << beamFreqs(1) << endl;
 		conjSpCoord.setReferenceValue(Vector<Double>(1, 2*centerFreq-beamFreqs(0)));
 		///Increment should go in the reverse direction
 		if(beamFreqs.nelements() >1)
@@ -706,6 +706,7 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
         Int newRealConvSize=newConvSize* Int(Double(convSamp)/Double(convSampling));
         Int lattSize=convFuncTemp.shape()(0);
         (*convSupportBlock_p[actualConvIndex_p])=convSupport_p;
+		//cerr << "convsupport " << convSupport_p << endl;
 
         if(newConvSize < lattSize) {
             IPosition blc(5, (lattSize/2)-(newConvSize/2),
@@ -720,18 +721,7 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
             convSize_p=newRealConvSize;
             (*convWeights_p[actualConvIndex_p])=resample(weightConvFuncTemp.getSlice(blc, shp),Double(convSamp)/Double(convSampling));
 			//cerr << "nchan " << nchan_p << " getconj " << getConjConvFunc << endl;
-            if((nchan_p == 1) && getConjConvFunc) {
-                fillConjConvFunc(beamFreqs);
-                ////////////////
-                CoordinateSystem TMP = coords;
-                CoordinateUtil::addLinearAxes(TMP, Vector<String>(1,"gulu"), IPosition(1,nBeamChans)); 
-                PagedImage<Complex> SCREEN(TiledShape(convFunctions_p[actualConvIndex_p]->shape()), TMP, "NONCONJU"+String::toString(actualConvIndex_p));
-                SCREEN.put(*convFunctions_p[actualConvIndex_p]  );
-                PagedImage<Complex> SCREEN2(TiledShape(convFunctions_p[actualConvIndex_p]->shape()), TMP, "CONJU"+String::toString(actualConvIndex_p));
-                SCREEN2.put(*convFunctionsConjFreq_p[actualConvIndex_p]  );
-                /////////////////
-            }
-
+       
         }
         else {
             newRealConvSize=lattSize* Int(Double(convSamp)/Double(convSampling));
@@ -742,6 +732,18 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
             (*convWeights_p[actualConvIndex_p])=resample(weightConvFuncTemp.get(),  Double(convSamp)/Double(convSampling));
             convSize_p=newRealConvSize;
         }
+             if((nchan_p == 1) && getConjConvFunc) {
+                fillConjConvFunc(beamFreqs);
+                ////////////////
+                //CoordinateSystem TMP = coords;
+                //CoordinateUtil::addLinearAxes(TMP, Vector<String>(1,"gulu"), IPosition(1,nBeamChans)); 
+                //PagedImage<Complex> SCREEN(TiledShape(convFunctions_p[actualConvIndex_p]->shape()), TMP, "NONCONJU"+String::toString(actualConvIndex_p));
+                //SCREEN.put(*convFunctions_p[actualConvIndex_p]  );
+                //PagedImage<Complex> SCREEN2(TiledShape(convFunctions_p[actualConvIndex_p]->shape()), TMP, "CONJU"+String::toString(actualConvIndex_p));
+                //SCREEN2.put(*convFunctionsConjFreq_p[actualConvIndex_p]  );
+                /////////////////
+            }
+
         convFunc_p.resize();
         weightConvFunc_p.resize();
 
@@ -1103,14 +1105,15 @@ void HetArrayConvFunc::supportAndNormalizeLatt(Int plane, Int convSampling, Temp
     Int trial=0;
     for (trial=convSize/2-2; trial>0; trial--) {
         //Searching down a diagonal
-        if(abs(convPlane(convSize/2-trial,convSize/2-trial)) >  (1.0e-3*maxAbsConvFunc)) {
+        if(abs(convPlane(convSize/2-trial,convSize/2-trial)) >  (1.0e-2*maxAbsConvFunc)) {
             found=true;
             trial=Int(sqrt(2.0*Float(trial*trial)));
             break;
         }
     }
+   // cerr << "found " << found << "  trial " << trial << endl;
     if(!found) {
-        if((maxAbsConvFunc-minAbsConvFunc) > (1.0e-3*maxAbsConvFunc))
+        if((maxAbsConvFunc-minAbsConvFunc) > (1.0e-2*maxAbsConvFunc))
             found=true;
         // if it drops by more than 2 magnitudes per pixel
         trial=( (10*convSampling) < convSize) ? 5*convSampling : (convSize/2 - 4*convSampling);
@@ -1400,7 +1403,7 @@ Matrix <Complex> HetArrayConvFunc::resample2(const Matrix<Complex>& inarray, con
     
    
      {
-        cerr << "Iter shape " << inarray.shape() << endl;
+        //cerr << "Iter shape " << inarray.shape() << endl;
         
         Matrix<Float> leReal=real(inarray);
         Matrix<Float> leImag=imag(inarray);

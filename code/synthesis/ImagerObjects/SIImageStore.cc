@@ -1447,12 +1447,7 @@ void SIImageStore::setWeightDensity( SHARED_PTR<SIImageStore> imagetoset )
 		  os << " by [ sqrt(weightimage) * " << itsPBScaleFactor ;
 		  os << " ] to get flat noise with unit pb peak."<< LogIO::POST;
 
-            //////////////////////////////TEST
-            IPosition minpos, maxpos;
-            Float themin, themax;
-            minMax(themin, themax,minpos, maxpos, *ressubim);
-            cerr << "RES minpos , maxpos " << minpos << "   " << maxpos << "  min max " << themin << "    " << themax << endl;
-            //////////////////////////////
+           
           scalepb=fabs(pblimit)*itsPBScaleFactor*itsPBScaleFactor;
 		  LatticeExpr<Float> mask( iif( (deno) > scalepb , 1.0, 0.0 ) );
 		  LatticeExpr<Float> maskinv( iif( (deno) > scalepb , 0.0, 1.0 ) );
@@ -1495,13 +1490,6 @@ void SIImageStore::setWeightDensity( SHARED_PTR<SIImageStore> imagetoset )
 		//LatticeExpr<Float> ratio(iif( deno > scalepb, (*(ressubim))/ deno, *ressubim ) );
 
 		ressubim->copyData(ratio);
-        /////////////
-         IPosition minpos, maxpos;
-            Float themin, themax;   
-        minMax(themin, themax,minpos, maxpos, *ressubim);
-        cerr << "after minpos , maxpos " << minpos << "   " << maxpos << "  min max " << themin << "    " << themax << endl;
-            
-            ////////
 		//cout << "Val of residual before|after normalizing at center for pol " << pol << " chan " << chan << " : " << resval << "|" << ressubim->getAt(ip) << " weight : " << wtsubim->getAt(ip) << endl;
 		}// if not zero
 	      }//chan
@@ -1531,8 +1519,7 @@ void SIImageStore::setWeightDensity( SHARED_PTR<SIImageStore> imagetoset )
   {
     LogIO os( LogOrigin("SIImageStore","divideModelByWeight",WHERE) );
 
-    //cerr << "ITSWEIGHT" << itsUseWeight <<  " sensi " << hasSensitivity() << (weight()) << endl;
-    //cerr <<  " sensi " << hasSensitivity()  << endl;
+    
         if(itsUseWeight // only when needed
 	   && weight() )// i.e. only when possible. For an initial starting model, don't need wt anyway.
       {
@@ -1571,13 +1558,7 @@ void SIImageStore::setWeightDensity( SHARED_PTR<SIImageStore> imagetoset )
 		  os << " by [ sqrt(weight) / " << itsPBScaleFactor ;
 		  os <<" ] to get to flat sky model before prediction" << LogIO::POST;
 		  
-		    /////////////
-         IPosition minpos, maxpos;
-            Float themin, themax;   
-        minMax(themin, themax,minpos, maxpos, *modsubim);
-        cerr << "MOD-DIV minpos , maxpos " << minpos << "   " << maxpos << "  min max " << themin << "    " << themax << endl;
-            
-            ////////
+		 
 		  LatticeExpr<Float> deno( sqrt( abs(*(wtsubim)) ) / itsPBScaleFactor );
 		  
 		  LatticeExpr<Float> mask( iif( (deno) > fabs(pblimit) , 1.0, 0.0 ) );
@@ -1597,12 +1578,6 @@ void SIImageStore::setWeightDensity( SHARED_PTR<SIImageStore> imagetoset )
 		  //cout << "Before ---- min : " << aminval.getFloat() << " max : " << amaxval.getFloat() << endl;
 
 		  modsubim->copyData(ratio);
-		    /////////////
-        
-        minMax(themin, themax,minpos, maxpos, *modsubim);
-        cerr << "after minpos , maxpos " << minpos << "   " << maxpos << "  min max " << themin << "    " << themax << endl;
-            
-            ////////
 		  //		  cout << "Val of model before|after flattening at center for pol " << pol << " chan " << chan << " : " << modval << "|" << modsubim->getAt(ip) << " weight : " << wtsubim->getAt(ip) << endl;
 		  //LatticeExprNode minval( min(*modsubim) );
 		  //LatticeExprNode maxval( max(*modsubim) );
@@ -1712,13 +1687,7 @@ void SIImageStore::setWeightDensity( SHARED_PTR<SIImageStore> imagetoset )
 		  os << "Multiplying " << itsImageName+String(".model") ;
 		  os << " by [ sqrt(weight) / " << itsPBScaleFactor;
 		  os <<  " ] to take model back to flat noise with unit pb peak." << LogIO::POST;
-		  	    /////////////
-         IPosition minpos, maxpos;
-            Float themin, themax;   
-        minMax(themin, themax,minpos, maxpos, *modsubim);
-        cerr << "MOD-MULT minpos , maxpos " << minpos << "   " << maxpos << "  min max " << themin << "    " << themax << endl;
-            
-            ////////
+
 		  LatticeExpr<Float> deno( sqrt( abs(*(wtsubim)) ) / itsPBScaleFactor );
 		  
 		  LatticeExpr<Float> mask( iif( (deno) > fabs(pblimit) , 1.0, 0.0 ) );
@@ -1728,12 +1697,7 @@ void SIImageStore::setWeightDensity( SHARED_PTR<SIImageStore> imagetoset )
 		  /////See comment in divmodel and divresidual for below usage 
 		  //LatticeExpr<Float> ratio ( (*(modsubim)) * sqrt( abs(*(wtsubim)))  / itsPBScaleFactor );
 		  modsubim->copyData(ratio);
-            /////////////
-         
-        minMax(themin, themax,minpos, maxpos, *modsubim);
-        cerr << "after minpos , maxpos " << minpos << "   " << maxpos << "  min max " << themin << "    " << themax << endl;
-            
-            ////////
+      
 		}// if not zero
 		}//chan
 	    }//pol
