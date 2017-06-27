@@ -114,11 +114,11 @@ ChannelAverageTVICompareTest::ChannelAverageTVICompareTest(Record configuration)
 void ChannelAverageTVICompareTest::TestBody()
 {
 	SetUp();
-	testCompareTransformedData();
+	testCompareMSTransformTransformedData();
 	TearDown();
 
 	SetUp();
-	testComparePropagatedFlags();
+	testCompareMSTransformPropagatedFlags();
 	TearDown();
 
 	return;
@@ -127,7 +127,7 @@ void ChannelAverageTVICompareTest::TestBody()
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-void ChannelAverageTVICompareTest::testCompareTransformedData()
+void ChannelAverageTVICompareTest::testCompareMSTransformTransformedData()
 {
 	// Declare working variables
 	Float tolerance = 1E-5; // FLT_EPSILON is 1.19209290e-7F
@@ -171,34 +171,35 @@ void ChannelAverageTVICompareTest::testCompareTransformedData()
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-void ChannelAverageTVICompareTest::testComparePropagatedFlags()
+void ChannelAverageTVICompareTest::testCompareMSTransformPropagatedFlags()
 {
     
-	// Declare working variables
-	Float tolerance = 1E-5; // FLT_EPSILON is 1.19209290e-7F
+    // Declare working variables
+    Float tolerance = 1E-5; // FLT_EPSILON is 1.19209290e-7F
 
-	// Propagate flags
-	propagateFlags();
+    // Propagate flags
+    propagateFlags();
 
-	// Use MSTransformIteratorFactory to create a plain input VI pointing to the test file
-	testConfiguration_p.define("factory",False);
-	MSTransformIteratorFactory testFactory(testConfiguration_p);
-	VisibilityIterator2 *testTVI = testFactory.getInputVI();
+    // Use MSTransformIteratorFactory to create a plain input VI pointing to the test file
+    testConfiguration_p.define("factory",False);
+    MSTransformIteratorFactory testFactory(testConfiguration_p);
+    VisibilityIterator2 *testTVI = testFactory.getInputVI();
 
-	// Use MSTransformIteratorFactory to create a plain input VI pointing to the reference file
-	refConfiguration_p.define("factory",False);
-	MSTransformIteratorFactory refFactory(refConfiguration_p);
-	VisibilityIterator2 *refTVI = refFactory.getInputVI();
+    // Use MSTransformIteratorFactory to create a plain input VI pointing to the reference file
+    refConfiguration_p.define("factory",False);
+    MSTransformIteratorFactory refFactory(refConfiguration_p);
+    VisibilityIterator2 *refTVI = refFactory.getInputVI();
 
-	// Determine columns to check
-	VisBufferComponents2 columns;
-	columns += VisBufferComponent2::FlagCube;
+    // Determine columns to check
+    VisBufferComponents2 columns;
+    columns += VisBufferComponent2::FlagCube;
 
-	// Compare
+    // Compare
     SCOPED_TRACE("Comparing propagated flags");
-	compareVisibilityIterators(*testTVI,*refTVI,columns,tolerance);
+    compareVisibilityIterators(*testTVI,*refTVI,columns,tolerance);
 
 }
+
 
 // -----------------------------------------------------------------------
 //
@@ -231,14 +232,14 @@ void ChannelAverageTVICompareTest::propagateFlags()
 //////////////////////////////////////////////////////////////////////////
 // Googletest macros
 //////////////////////////////////////////////////////////////////////////
-TEST_F(ChannelAverageTVICompareTest, CompareTransformedData)
+TEST_F(ChannelAverageTVICompareTest, CompareMSTransformTransformedData)
 {
-	testCompareTransformedData();
+	testCompareMSTransformTransformedData();
 }
 
-TEST_F(ChannelAverageTVICompareTest, ComparePropagatedFlags)
+TEST_F(ChannelAverageTVICompareTest, CompareMSTransformPropagatedFlags)
 {
-	testComparePropagatedFlags();
+    testCompareMSTransformPropagatedFlags();
 }
 
 TEST(ChannelAverageTVIConfTest, NoChanbinParam)
@@ -375,6 +376,8 @@ TEST(ChannelAverageTVIExecuteSimulatedTest, UniformMS)
         }
     }
 }
+
+
 //////////////////////////////////////////////////////////////////////////
 // main
 //////////////////////////////////////////////////////////////////////////
