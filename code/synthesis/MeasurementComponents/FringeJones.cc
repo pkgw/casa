@@ -166,11 +166,9 @@ public:
                 }
                 else if (a1 == refant_) {
                     iant = a2;
-                    sign = -1;
                 }
                 else if (a2 == refant_) {
                     iant = a1;
-                    sign = 1;
                 }
                 else {
                     continue;
@@ -206,10 +204,8 @@ public:
                 }
                 Array<Complex> rhs = v(sl2).nonDegenerate();
                 unitize(rhs);
-                Vpad_(sl1).nonDegenerate() = sign ? rhs : -rhs;
+                Vpad_(sl1).nonDegenerate() = rhs;
                 // Zero flagged entries.
-                // FIXME: Stolen from the VisBuf version
-                // and not yet ported
 
                 Array<Bool> flagged( fl(flagSlice).nonDegenerate() );
                 
@@ -428,11 +424,11 @@ public:
                 Int ipkt(0);
                 Float amax(-1.0);
                 // Unlike KJones we have to iterate in time too
-                for (Int itime=0; itime != nt_; itime++) {
+                for (Int itime=0; itime != nPadT_; itime++) {
                     for (Int ich=0; ich != nPadChan_; ++ich) {
                         if (amp(itime, ich) > amax) {
-                            ipkch=ich;
-                            ipkt = itime;
+                            ipkch = ich;
+                            ipkt  = itime;
                             amax=amp(itime, ich);
                         }
                     }
@@ -467,18 +463,20 @@ public:
                     // Delay
                     Float delay = (ipkch + maybeFpkch.second)/Float(nPadChan_);
                     if (delay > 0.5) delay -= 1.0;           // fold
-                    delay /= (df_);                            // nsec
-                    // param_(icorr*3 + 1, ielem) = -1*delay; // FIXME: Looks like -delay is better?
-                    param_(icorr*3 + 1, ielem) = sgn*delay; // FIXME: Looks like -delay is better?
+                    delay /= df_;                           // nsec
+                    // FIXME!
+                    param_(icorr*3 + 1, ielem) = sgn*delay; // 
                     // Rate
                     Float rate = (ipkt + maybeFpkt.second)/Float(nPadT_);
                     if (rate > 0.5) rate -= 1.0;
                     rate /= dt_;
-                    rate /= (1e9 * f0_);
-                    // param_(icorr*3 + 2, ielem) = -rate; // FIXME: so probably also -rate?
-                    param_(icorr*3 + 2, ielem) = sgn*rate; // FIXME: so probably also -rate?
-                    if (0) {
+                    rate /= (1e9 * f0_); // C::_2pi ?
+
+                    // FIXME: This is pretty odd that rate takes a minus-sign.
+                    param_(icorr*3 + 2, ielem) = sgn*rate; 
+                    if (1) {
                         cerr << "maybeFpkch.second=" << maybeFpkch.second << ", "
+                             << " maybeFpkt.second=" << maybeFpkt.second << ", "
                              << "df_ " << df_ << ", nt_ " << nt_
                              << " fpkch " << (ipkch + maybeFpkch.second) << endl;
                     }
@@ -528,6 +526,7 @@ private:
     Double reftime;
     std::set< Int > activeAntennas;
     std::map< Int, Int > antennaIndexMap;
+    size_t activeCorr;
 public:
     AuxParamBundle(SDBList& sdbs_, size_t refant, const std::set<Int>& activeAntennas_) :
         sdbs(sdbs_),
@@ -537,7 +536,8 @@ public:
         // nCorrelations( sdbs.nCorrelations() ),
         // nCorrelations( 2 ),
         corrStep( sdbs.nCorrelations() > 2 ? 3 : 1),
-        activeAntennas( activeAntennas_ )
+        activeAntennas( activeAntennas_ ),
+        activeCorr( -1 )
         // corrStep( 3 )
         {
             Int last_index = sdbs.nSDB() - 1 ;
@@ -589,11 +589,11 @@ public:
         return dcorr;
     }
     bool
-    isActive(Int iant) {
+    isActive(size_t iant) {
         if (iant == refant) return true;
         else return (activeAntennas.find( iant ) != activeAntennas.end() );
     }
-    int
+    Int
     get_param_index(size_t iant, size_t icor) {
         // here we use parallel correlation indices, because parameters
         // by definition only have one hand.
@@ -602,6 +602,21 @@ public:
         if (iant > refant) ipar -= 1;
         return 3*(ipar*nCorrelations + icor);
     }
+    Int
+    get_param_corr_index(size_t iant) {
+        if (iant == refant) return -1;
+        int ipar = antennaIndexMap[iant];
+        if (iant > refant) ipar -= 1;
+        return 3*ipar;        
+    }
+    size_t
+    get_active_corr() {
+        return activeCorr;
+    }
+    void
+    set_active_corr(size_t icorr) {
+        activeCorr = icorr;
+    }
 };
     
 int
@@ -609,10 +624,8 @@ expb_f(const gsl_vector *param, void *d, gsl_vector *f)
 {
     AuxParamBundle *bundle =  (AuxParamBundle *)d;
     SDBList& sdbs = bundle->sdbs;
-    // Double refTime = bundle->get_ref_time();
     Double refTime = bundle->get_t0();
 
-    // if ((bundle->nCalls % 10) == 0) {
     if (0) {
         cerr << "Entering expb_f (call " << bundle->nCalls++ << ")." << endl;
     }
@@ -621,7 +634,7 @@ expb_f(const gsl_vector *param, void *d, gsl_vector *f)
         gsl_vector_set(f, i, 0.0);
     }
     Vector<Double> freqs = sdbs.freqs();
-    cerr << "freqs(0) = " << freqs(0) << endl;
+    // cerr << "freqs(0) = " << freqs(0) << endl;
     
     size_t count = 0; // This is the master index.
     for (Int ibuf=0; ibuf < sdbs.nSDB(); ibuf++) {
@@ -643,79 +656,75 @@ expb_f(const gsl_vector *param, void *d, gsl_vector *f)
             if (ant1==ant2) continue;
 
             // VisBuffer.h seems to suggest that a vb.visCube may have shape
-            // (nCorr(), nChannel(), nRow()) 
-            for (size_t icorr0 = 0; icorr0 != bundle->get_num_corrs(); icorr0++) {
-
-                size_t dcorr = bundle->get_data_corr_index(icorr0);
+            // (nCorr(), nChannel(), nRow())
+            size_t icorr0 = bundle->get_active_corr();
+            size_t dcorr = bundle->get_data_corr_index(icorr0);
                 // We also need to get the right parameters for this,
                 // polarization (icorr is an encoding of the
                 // polarization of the correlation products).
-                Int iparam1 = bundle->get_param_index(ant1, icorr0);
-                Double phi0_1, tau1, r1;
-                if (iparam1 >= 0) {
-                    phi0_1 = gsl_vector_get(param, iparam1+0);
-                    tau1 =   gsl_vector_get(param, iparam1+1);
-                    r1 =     gsl_vector_get(param, iparam1+2);
-                } else {
-                    phi0_1 = 0.0;
-                    tau1 = 0.0;
-                    r1 = 0.0;
+            Int iparam1 = bundle->get_param_corr_index(ant1);
+            Double phi0_1, tau1, r1;
+            if (iparam1 >= 0) {
+                phi0_1 = gsl_vector_get(param, iparam1+0);
+                tau1 =   gsl_vector_get(param, iparam1+1);
+                r1 =     gsl_vector_get(param, iparam1+2);
+            } else {
+                phi0_1 = 0.0;
+                tau1 = 0.0;
+                r1 = 0.0;
+            }
+            Int iparam2 = bundle->get_param_corr_index(ant2);
+            Double phi0_2, tau2, r2;
+            if (iparam2 >= 0) {
+                phi0_2 = gsl_vector_get(param, iparam2+0);
+                tau2 =   gsl_vector_get(param, iparam2+1);
+                r2 =     gsl_vector_get(param, iparam2+2);
+                // cerr << "phi0_2 " << phi0_2 << " tau2 " << tau2 << " r2 " << r2 << endl;
+            } else {
+                phi0_2 = 0.0;
+                tau2 = 0.0;
+                r2 = 0.0;
+            }
+            
+            Float phi0 = phi0_2 - phi0_1;
+            Float tau  = tau2 - tau1;
+            Float r    = r2 - r1;
+            for (size_t ichan = 0; ichan != v.ncolumn(); ichan++) {
+                // if (1) {
+                if (count >= f->size-4) {
+                    cerr << "ibuf= " << ibuf << "/" << sdbs.nSDB()
+                         << " irow= " << irow << "/" << s.nRows()
+                         << " (corr) dcorr= " << dcorr << "/" << v.nrow()
+                         << " (column) ichan= " << ichan << "/" << v.ncolumn()
+                         << " count " << count 
+                         << "." << endl;
+                    // throw(AipsError("Index too big."));
                 }
-                Int iparam2 = bundle->get_param_index(ant2, icorr0);
-                Double phi0_2, tau2, r2;
-                if (iparam2 >= 0) {
-                    phi0_2 = gsl_vector_get(param, iparam2+0);
-                    tau2 =   gsl_vector_get(param, iparam2+1);
-                    r2 =     gsl_vector_get(param, iparam2+2);
-                    // cerr << "phi0_2 " << phi0_2 << " tau2 " << tau2 << " r2 " << r2 << endl;
-                } else {
-                    phi0_2 = 0.0;
-                    tau2 = 0.0;
-                    r2 = 0.0;
-                }
+                if ( fl(dcorr, ichan, irow) ) continue;
+                Complex vis = v(dcorr, ichan, irow);
+                Double w = weights(dcorr, ichan, irow);
+                if (fabs(w) < FLT_EPSILON) continue;
+                
+                // We have to turn the delay back into seconds from nanoseconds.
+                // Freq difference is in Hz, which comes out typically as 1e6 bands
+                Double wDf = C::_2pi*(freqs(ichan) - freqs(0))*1e-9;
+                //
+                Double t1 = s.time()(0);
+                Double ref_freq = freqs(0);
+                
+                Double wDt = C::_2pi*(t1 - refTime) * ref_freq; 
 
-                Float phi0 = phi0_2 - phi0_1;
-                Float tau  = tau2 - tau1;
-                Float r    = r2 - r1;
-                for (size_t ichan = 0; ichan != v.ncolumn(); ichan++) {
-                    // if (1) {
-                    if (count >= f->size-4) {
-                        cerr << "ibuf= " << ibuf << "/" << sdbs.nSDB()
-                             << " irow= " << irow << "/" << s.nRows()
-                             << " (corr) dcorr= " << dcorr << "/" << v.nrow()
-                             << " (column) ichan= " << ichan << "/" << v.ncolumn()
-                             << " count " << count 
-                             << "." << endl;
-                        // throw(AipsError("Index too big."));
-                    }
-                    if ( fl(dcorr, ichan, irow) ) continue;
-                    Complex vis = v(dcorr, ichan, irow);
-                    // Double w = 1.0;
-                    Double w = weights(dcorr, ichan, irow);
-                    if (fabs(w) < FLT_EPSILON) continue;
-
-                    // We have to turn the delay back into seconds from nanoseconds.
-                    // Freq difference is in Hz, which comes out typically as 1e6 bands
-                    Double wDf = C::_2pi*(freqs(ichan) - freqs(0))*1e-9;
-                    //
-                    Double t1 = s.time()(0);
-                    Double ref_freq = freqs(0);
-                    
-                    Double wDt = C::_2pi*(t1 - refTime) * ref_freq; 
-                    //
-                    //Float mtheta = -(phi0 + tau*wDf); 
-                    Double mtheta = -(phi0 + tau*wDf + r*wDt); 
-                    Double vtheta = arg(vis);
-
-                    gsl_vector_set(f, count, w*(cos(mtheta) - cos(vtheta)));
-                    gsl_vector_set(f, count+1, w*(sin(mtheta)  - sin(vtheta)));
-
-                    count += 2;
-                }
+                Double mtheta = -(phi0 + tau*wDf + r*wDt); 
+                Double vtheta = arg(vis);
+                
+                gsl_vector_set(f, count, w*(cos(mtheta) - cos(vtheta)));
+                gsl_vector_set(f, count+1, w*(sin(mtheta)  - sin(vtheta)));
+                
+                count += 2;
             }
         }
     }
-    if (1) {
+    if (0) {
         cerr << "Count " << count << endl;
         cerr << "Leaving expb_f." << endl;
     }
@@ -723,11 +732,21 @@ expb_f(const gsl_vector *param, void *d, gsl_vector *f)
 }
 
 
+void
+print_baselines(std::set<std::pair< Int, Int > > baselines) {
+    cerr << "Baselines encountered ";
+    std::set<std::pair< Int, Int > >::iterator it;
+    for (it=baselines.begin(); it != baselines.end(); ++it) {
+        cerr << "(" << it->first << ", " << it->second << ") ";
+    }
+    cerr << endl;
+}
+
+    
 int
 expb_df(const gsl_vector *param, void *bundle_, gsl_matrix *J)
 {
-    
-    cerr << "Entering expb_df." << endl;
+    std::set <std::pair < Int, Int> > baselines;
     AuxParamBundle *bundle =  (AuxParamBundle *)bundle_;
 
     SDBList& sdbs = bundle->sdbs;
@@ -743,7 +762,6 @@ expb_df(const gsl_vector *param, void *bundle_, gsl_matrix *J)
 
     Double refTime = bundle->get_t0();
     std::set< Int > params;
-    std::set <std::pair < Int, Int> > baselines;
     for (Int ibuf=0; ibuf < sdbs.nSDB(); ibuf++) {
         // cerr << "OK so count = " << count << endl;
         SolveDataBuffer& s ( sdbs(ibuf) );
@@ -753,15 +771,14 @@ expb_df(const gsl_vector *param, void *bundle_, gsl_matrix *J)
         Cube<Bool> fl = s.flagCube();
         Cube<Float> weights = s.weightSpectrum();
 
-
         Double t1 = s.time()(0);
         // cerr << "ibuf " << ibuf << " t1 - t0 = " << t1 - t0 << endl;
-            
         for (Int irow=0; irow!=s.nRows(); irow++) {
             if ( s.flagRow()(irow) ) continue;
 
             Int ant1(s.antenna1()(irow));
             Int ant2(s.antenna2()(irow));
+
 
             if (ant1==ant2) continue;
             if (!bundle->isActive(ant1) || !bundle->isActive(ant2)) {
@@ -769,113 +786,114 @@ expb_df(const gsl_vector *param, void *bundle_, gsl_matrix *J)
                 continue;
             }
 
-            std::pair<Int, Int> antpair = std::make_pair(ant1, ant2);
-            bool newBaseline = (baselines.find( antpair ) == baselines.end());
-            baselines.insert( antpair );
-
             // VisBuffer.h seems to suggest that a vb.visCube may have shape
             // (nCorr(), nChannel(), nRow()) 
 
-            for (size_t icorr0 = 0; icorr0 != bundle->get_num_corrs(); icorr0++) {
-                // 
-                size_t dcorr = bundle->get_data_corr_index(icorr0);
-                // We also need to get the right parameters for this
-                // polarization (icorr is an encoding of the
-                // polarization of the correlation products).
+            size_t icorr0 = bundle->get_active_corr();
+            size_t dcorr = bundle->get_data_corr_index(icorr0);
+            // We also need to get the right parameters for this
+            // polarization (icorr is an encoding of the
+            // polarization of the correlation products).
 
-                Int iparam1 = bundle->get_param_index(ant1, icorr0);
-                Double phi0_1, tau1, r1;
-                if (iparam1 >= 0) {
-                    phi0_1 = gsl_vector_get(param, iparam1+0);
-                    tau1 =   gsl_vector_get(param, iparam1+1);
-                    r1 =     gsl_vector_get(param, iparam1+2);
-                } else {
-                    phi0_1 = 0.0;
-                    tau1 = 0.0;
-                    r1 = 0.0;
-                }
-                
-                Int iparam2 = bundle->get_param_index(ant2, icorr0);
-                Double phi0_2, tau2, r2;
-                if (iparam2 >= 0) {
-                    phi0_2 = gsl_vector_get(param, iparam2+0);
-                    tau2 =   gsl_vector_get(param, iparam2+1);
-                    r2 =     gsl_vector_get(param, iparam2+2);
-                } else {
-                    phi0_2 = 0.0;
-                    tau2 = 0.0;
-                    r2 = 0.0;
-                }
-                Double phi0 = phi0_2 - phi0_1;
-                Double tau = tau2 - tau1;
-                Double r = r2-r1;
+            Int iparam1 = bundle->get_param_corr_index(ant1);
+            Double phi0_1, tau1, r1;
+            if (iparam1 >= 0) {
+                phi0_1 = gsl_vector_get(param, iparam1+0);
+                tau1 =   gsl_vector_get(param, iparam1+1);
+                r1 =     gsl_vector_get(param, iparam1+2);
+            } else {
+                phi0_1 = 0.0;
+                tau1 = 0.0;
+                r1 = 0.0;
+            }
+            Int iparam2 = bundle->get_param_corr_index(ant2);
+            Double phi0_2, tau2, r2;
+            if (iparam2 >= 0) {
+                phi0_2 = gsl_vector_get(param, iparam2+0);
+                tau2 =   gsl_vector_get(param, iparam2+1);
+                r2 =     gsl_vector_get(param, iparam2+2);
+            } else {
+                phi0_2 = 0.0;
+                tau2 = 0.0;
+                r2 = 0.0;
+            }
+            Double phi0 = phi0_2 - phi0_1;
+            Double tau = tau2 - tau1;
+            Double r = r2-r1;
 
-                Double ref_freq = freqs(0); 
-                Double wDt = C::_2pi*(t1 - refTime) * ref_freq; 
+            Double ref_freq = freqs(0); 
+            Double wDt = C::_2pi*(t1 - refTime) * ref_freq; 
 
-                if (0 && newBaseline) {
-                    cerr << "ant1 " << ant1 << " iparam1 " << iparam1 << " ant2 " << ant2 << " iparam2 " << iparam2 << endl;
-                    cerr << "weight " << weights(dcorr, v.ncolumn()/2, irow) << endl;
-                }
+            bool found_data = false;
+            for (size_t ichan = 0; ichan != v.ncolumn(); ichan++) {
+                if ( fl(dcorr, ichan, irow) ) continue;
+                Double w = weights(dcorr, ichan, irow);
+                if (fabs(w) < FLT_EPSILON) continue;
+                found_data = true;
+                // Add a 1e-9 factor because tau parameter is in nanoseconds.
+                Double wDf = C::_2pi*(freqs(ichan) - freqs(0))*1e-9;
+                //
+                Double mtheta = -(phi0 + tau*wDf + r*wDt);
+                Double ws = sin(mtheta);
+                Double wc = cos(mtheta);
 
-                for (size_t ichan = 0; ichan != v.ncolumn(); ichan++) {
-                    if ( fl(dcorr, ichan, irow) ) continue;
-                    // Double w = 1.0; // VERY FIXME: This is the weights.
-                    Double w = weights(dcorr, ichan, irow);
-                    if (fabs(w) < FLT_EPSILON) continue;
-
-                    // Add a 1e-9 factor because tau parameter is in nanoseconds.
-                    Double wDf = C::_2pi*(freqs(ichan) - freqs(0))*1e-9;
-                    //
-                    Double mtheta = -(phi0 + tau*wDf + r*wDt);
-                    Double ws = sin(mtheta);
-                    Double wc = cos(mtheta);
-
-
-                    if (0 && newBaseline) {
-                        Double eps = sqrt(FLT_EPSILON)*abs(r);
-                        Double mtheta2 = -(phi0 + tau*wDf + (r+eps)*wDt);
-                        Double mtheta0 = -(phi0 + tau*wDf + (r-eps)*wDt);
-                        Double rderivest = (cos(mtheta2) - cos(mtheta0))/(2*eps);
-                        Double rderivofficial = -ws*-wDt;
-                        cerr << "refTime " << refTime << " t1 " << t1 << " dt " << t1 - refTime << endl
-                             << " wDt " << wDt << " eps " << eps << endl
-                             << "rderiv est " << rderivest << " calc " << rderivofficial << endl;
-                    }
+                // if (0 && newBaseline) {
+                //     Double eps = sqrt(FLT_EPSILON)*abs(r);
+                //     Double mtheta2 = -(phi0 + tau*wDf + (r+eps)*wDt);
+                //     Double mtheta0 = -(phi0 + tau*wDf + (r-eps)*wDt);
+                //     Double rderivest = (cos(mtheta2) - cos(mtheta0))/(2*eps);
+                //     Double rderivofficial = -ws*-wDt;
+                //     cerr << "refTime " << refTime << " t1 " << t1 << " dt " << t1 - refTime << endl
+                //          << " wDt " << wDt << " eps " << eps << endl
+                //          << "rderiv est " << rderivest << " calc " << rderivofficial << endl;
+                // }
                     
-                    if (iparam2 >= 0) {
-                        params.insert(iparam2);
-                        gsl_matrix_set (J, count + 0, iparam2 + 0, w*-ws*-1.0);
-                        gsl_matrix_set (J, count + 1, iparam2 + 0, w*+wc*-1.0);
-                        gsl_matrix_set (J, count + 0, iparam2 + 1, w*-ws*-wDf);
-                        gsl_matrix_set (J, count + 1, iparam2 + 1, w*+wc*-wDf);
-                        gsl_matrix_set (J, count + 0, iparam2 + 2, w*-ws*-wDt);
-                        gsl_matrix_set (J, count + 1, iparam2 + 2, w*+wc*-wDt);
-                    }
-                    if (iparam1 >= 0) {
-                        params.insert(iparam1);
-                        gsl_matrix_set (J, count + 0, iparam1 + 0, w*-ws*+1.0);
-                        gsl_matrix_set (J, count + 1, iparam1 + 0, w*+wc*+1.0);
-                        gsl_matrix_set (J, count + 0, iparam1 + 1, w*-ws*+wDf);
-                        gsl_matrix_set (J, count + 1, iparam1 + 1, w*+wc*+wDf);
-                        gsl_matrix_set (J, count + 0, iparam1 + 2, w*-ws*+wDt);
-                        gsl_matrix_set (J, count + 1, iparam1 + 2, w*+wc*+wDt);
-                    }
-                    count += 2;
+                if (iparam2 >= 0) {
+                    params.insert(iparam2);
+                    gsl_matrix_set (J, count + 0, iparam2 + 0, w*-ws*-1.0);
+                    gsl_matrix_set (J, count + 1, iparam2 + 0, w*+wc*-1.0);
+                    gsl_matrix_set (J, count + 0, iparam2 + 1, w*-ws*-wDf);
+                    gsl_matrix_set (J, count + 1, iparam2 + 1, w*+wc*-wDf);
+                    gsl_matrix_set (J, count + 0, iparam2 + 2, w*-ws*-wDt);
+                    gsl_matrix_set (J, count + 1, iparam2 + 2, w*+wc*-wDt);
                 }
+                if (iparam1 >= 0) {
+                    params.insert(iparam1);
+                    gsl_matrix_set (J, count + 0, iparam1 + 0, w*-ws*+1.0);
+                    gsl_matrix_set (J, count + 1, iparam1 + 0, w*+wc*+1.0);
+                    gsl_matrix_set (J, count + 0, iparam1 + 1, w*-ws*+wDf);
+                    gsl_matrix_set (J, count + 1, iparam1 + 1, w*+wc*+wDf);
+                    gsl_matrix_set (J, count + 0, iparam1 + 2, w*-ws*+wDt);
+                    gsl_matrix_set (J, count + 1, iparam1 + 2, w*+wc*+wDt);
+                }
+                count += 2;
+            }
+            if (found_data) {
+                std::pair<Int, Int> antpair = std::make_pair(ant1, ant2);
+                bool newBaseline = (baselines.find( antpair ) == baselines.end());
+                if ( newBaseline ) {
+                    // print_baselines(baselines);
+                    // cerr << "Adding (" << ant1 << ", " << ant2 << ")" << endl;
+                    baselines.insert( antpair );
+                }
+                // only print weights to ref ant.
+                if (0 && newBaseline && ((iparam1 == -1) || (iparam2 == -1))) {
+                    cerr << "baseline (" << ant1 << ", " << ant2 << ") "
+                         << "weight " << weights(dcorr, v.ncolumn()/2, irow) << endl;
+                }
+
             }
         }
     }
-    cerr << "Leaving expb_df." << endl;
-    cerr << "Count " << count << endl;
-    cerr << "Param indices ";
-    std::copy(
-        params.begin(),
-        params.end(),
-        std::ostream_iterator<Int>(std::cerr, " ")
-        );
-    cerr << endl;
-
+    if (0) {
+        cerr << "Param indices ";
+        std::copy(
+            params.begin(),
+            params.end(),
+            std::ostream_iterator<Int>(std::cerr, " ")
+            );
+        cerr << endl;
+    }
     if (0) {
         cerr << "Jacobian slice" << endl;
         for (size_t i=10; i!=20; i++) {
@@ -897,17 +915,12 @@ expb_df(const gsl_vector *param, void *bundle_, gsl_matrix *J)
 
     }
 
-    if (1) {
-        cerr << "Baselines encountered ";
-        std::set<std::pair< Int, Int > >::iterator it;
-        for (it=baselines.begin(); it != baselines.end(); ++it) {
-            cerr << "(" << it->first << ", " << it->second << ") ";
-        }
-        cerr << endl;
+    if (0) {
+        print_baselines(baselines);
     }
     return GSL_SUCCESS;
 }
-
+    
 int
 expb_fdf(const gsl_vector *param, void *data, gsl_vector *f, gsl_matrix *J)
 {
@@ -934,106 +947,84 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& param, Int refant, const std:
     cerr << "Bundle t0 " << bundle.get_t0() << endl;
     // throw(AipsError("Yeah."));
 
-    size_t p = 3 * bundle.get_num_corrs() * (bundle.get_num_antennas() - 1);
+    size_t p = 3 * (bundle.get_num_antennas() - 1);
     size_t n = 2 * bundle.get_num_data_points();
 
     cerr << "n: " << n << " p: " << p << endl;
     
-    const gsl_multifit_fdfsolver_type *T = gsl_multifit_fdfsolver_lmsder;
-    gsl_multifit_fdfsolver *s = gsl_multifit_fdfsolver_alloc(T, n, p);
 
-    gsl_multifit_function_fdf f;
-    f.f = &expb_f;
-    f.df = &expb_df;   /* set to NULL for finite-difference Jacobian */
-    //f.fdf = &expb_fdf;
-    // f.df = NULL;
-    
-    f.n = n;    /* number of data points */
-    f.p = p;    /* number of parameters */
-    f.params = &bundle;
-
-    gsl_vector *gp = gsl_vector_alloc( p );
-    for (size_t i=0; i!=p; i++) {
-        gsl_vector_set(gp, i, 0.0);
-    }
-    
-    cerr << "Allocated vector gp of size " << p << "." <<endl;
-    for (size_t icor=0; icor != bundle.get_num_corrs(); icor++ ) {
-        for (size_t iant=0; iant != bundle.get_max_antenna_index(); iant++) {
-            if ( !bundle.isActive(iant) ) {
-                cerr << "Skipping " << iant << endl;
-                continue;
-            }
-            Int ind = bundle.get_param_index(iant, icor);
-            if (ind < 0) continue;
-            // cerr << "icor " << icor << " iant " << iant << " ind " << ind << "." << endl;
-            gsl_vector_set( gp, ind+0, param(3*icor + 0, iant) );
-            gsl_vector_set( gp, ind+1, param(3*icor + 1, iant) );
-            gsl_vector_set( gp, ind+2, param(3*icor + 2, iant) );
-            // Messing about with parameters
-            //gsl_vector_set( gp, ind+2, 0.8*param(3*icor + 2, iant) );
-        }
-    }
-    gsl_vector *gp_orig = gsl_vector_alloc( p );
-
-    // Keep a copy of original parameters
-    gsl_vector_memcpy (gp_orig, gp);
-
-    // It is said that param is a matrix of (3*nCorr, nElem)
-    cerr << "Initialized parameter vector." << endl;
-    gsl_multifit_fdfsolver_set(s, &f, gp);
-    
-    // compute initial residual norm */
-    gsl_vector *res_f = gsl_multifit_fdfsolver_residual(s);
-    double chi0 = gsl_blas_dnrm2(res_f);
-
-    // int status = gsl_multifit_fdfsolver_iterate (s);
-
-    // Calculate the jacobian manually
-    // gsl_vector *y2 = gsl_vector_alloc( n );
-    // gsl_matrix *J2 = gsl_matrix_alloc( n, p);
-    // f.df(s->x, f.params, J2);
-
-
-    // I keep trying to do this. It keeps not working.
-    // gsl_vector *f3 = gsl_vector_alloc( n );
-    // gsl_matrix *J3 = gsl_matrix_alloc( n, p);
-    // // Calculate the jacobian and the function
-    // gsl_multifit_fdfsolver_dif_fdf(gp, &f, f3, J3);
-    
-    // solve the system with a maximum of max_iter iterations */
-    int info;
+    // Parameters for the least-squares solver.
     const double param_tol = 1e-30;
     //const double gtol = 1e-50; // 1e-30; 
     const double gtol = 1e-30; // 1e-30; 
     const double ftol = 0.0;   // eps rel
     const size_t max_iter = 5;
+    const gsl_multifit_fdfsolver_type *T = gsl_multifit_fdfsolver_lmsder;
 
-    int status = gsl_multifit_fdfsolver_driver(s, max_iter, param_tol, gtol, ftol, &info);
-    
-    if (0) {
-        gsl_vector *g = s->g;
-        for (size_t iparam=0; iparam!=p; iparam++) {
-            cerr << "g(" << iparam << ") = " << gsl_vector_get(g, iparam) << endl;
+    gsl_multifit_function_fdf f;
+    f.f = &expb_f;
+    f.df = &expb_df;   /* set to NULL for finite-difference Jacobian */
+    // f.df = NULL;
+    f.n = n;    /* number of data points */
+    f.p = p;    /* number of parameters */
+    f.params = &bundle;
+
+    gsl_multifit_fdfsolver *s = gsl_multifit_fdfsolver_alloc(T, n, p);
+    cerr << "Allocated vector gp of size " << p << "." <<endl;
+
+    for (size_t icor=0; icor != bundle.get_num_corrs(); icor++ ) {
+        bundle.set_active_corr(icor);
+
+        gsl_vector *gp = gsl_vector_alloc( p );
+        for (size_t i=0; i!=p; i++) {
+            gsl_vector_set(gp, i, 0.0);
         }
-    }
 
-    // gsl_multifit_covar(J, 0.0, covar);
-    // compute final residual norm
-    // double chi1 = gsl_blas_dnrm2(f3);
-    double chi1 = gsl_blas_dnrm2(res_f);
+        for (size_t iant=0; iant != bundle.get_max_antenna_index(); iant++) {
+            if ( !bundle.isActive(iant) ) {
+                cerr << "Skipping antenna " << iant << endl;
+                continue;
+            }
+            Int ind = bundle.get_param_corr_index(iant);
+            if (ind < 0) continue;
+            gsl_vector_set( gp, ind+0, param(3*icor + 0, iant) );
+            gsl_vector_set( gp, ind+1, param(3*icor + 1, iant) );
+            gsl_vector_set( gp, ind+2, param(3*icor + 2, iant) );
+        }
+        gsl_vector *gp_orig = gsl_vector_alloc( p );
+        
+        
+        // Keep a copy of original parameters
+        gsl_vector_memcpy (gp_orig, gp);
 
-
-    // gsl_vector *diff = s->dx;
-    gsl_vector_sub( gp_orig, s->x);
-    gsl_vector *diff = gp_orig;
-    double diffsize = gsl_blas_dnrm2(diff);
+        // It is said that param is a matrix of (3*nCorr, nElem)
+        cerr << "Initialized parameter vector." << endl;
+        gsl_multifit_fdfsolver_set(s, &f, gp);
     
-    gsl_vector *res = gsl_multifit_fdfsolver_position(s);
-    for (size_t icor=0; icor != bundle.get_num_corrs(); icor++) {
+        // compute initial residual norm */
+        gsl_vector *res_f = gsl_multifit_fdfsolver_residual(s);
+        double chi0 = gsl_blas_dnrm2(res_f);
+
+        int info;
+        int status = gsl_multifit_fdfsolver_driver(s, max_iter, param_tol, gtol, ftol, &info);
+    
+        if (0) {
+            gsl_vector *g = s->g;
+            for (size_t iparam=0; iparam!=p; iparam++) {
+                cerr << "g(" << iparam << ") = " << gsl_vector_get(g, iparam) << endl;
+            }
+        }
+        double chi1 = gsl_blas_dnrm2(res_f);
+
+        gsl_vector_sub( gp_orig, s->x);
+        gsl_vector *diff = gp_orig;
+        double diffsize = gsl_blas_dnrm2(diff);
+    
+        gsl_vector *res = gsl_multifit_fdfsolver_position(s);
+        
         for (size_t iant=0; iant!=bundle.get_max_antenna_index(); iant++) {
             if ( !bundle.isActive(iant) ) continue;
-            Int iparam = bundle.get_param_index(iant, icor);
+            Int iparam = bundle.get_param_corr_index(iant);
             if (iparam<0) continue;
             cerr.precision(20);
             if (1) {
@@ -1043,51 +1034,58 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& param, Int refant, const std:
                     Float psi0 = param(3*icor + 0, iant);
                     Float psi1 = gsl_vector_get(res, iparam+0);
 
-                    cerr << "Psi changed by " << gsl_vector_get(diff, iparam + 0)
-                         << " for " << "Antenna "  << iant << " correlation " << icor << " " <<  endl;
-                    cerr << "psi0 = "    << psi0 << " psi1 = " << psi1 << " diff= " << psi1 - psi0  << endl;
+                    // cerr << "Psi changed by " << gsl_vector_get(diff, iparam + 0)
+                    //      << " for " << "Antenna "  << iant << " correlation " << icor << " " <<  endl;
+                    // cerr << "psi0 = "    << psi0 << " psi1 = " << psi1 << " diff= " << psi1 - psi0  << endl;
                 }
                 if ( fabs(gsl_vector_get(diff, iparam + 1) > FLT_EPSILON) ) {
                     flag = true;
                     Float tau0 = param(3*icor + 1, iant);
                     Float tau1 = gsl_vector_get(res, iparam+1);
-                    cerr << "Delay changed by " << gsl_vector_get(diff, iparam + 1)
-                         << " for " << "Antenna "  << iant << " correlation " << icor << " " <<  endl;
-                    cerr << "delay0 = " << tau0 << " delay1 = " << tau1 << " diff= " << tau1 - tau0 << " " << endl;
+                    // cerr << "Delay changed by " << gsl_vector_get(diff, iparam + 1)
+                    //      << " for " << "Antenna "  << iant << " correlation " << icor << " " <<  endl;
+                    // cerr << "delay0 = " << tau0 << " delay1 = " << tau1 << " diff= " << tau1 - tau0 << " " << endl;
                 }
                 if ( fabs(gsl_vector_get(diff, iparam + 2) > 1e-30) ) {
                     flag = true;
-                    Float r0 = param(3*icor + 2, iant);
-                    Float r1 = gsl_vector_get(res, iparam+2);
-                    cerr << "Rate changed by " << gsl_vector_get(diff, iparam + 2)
-                         << " for " << "Antenna "  << iant << " correlation " << icor << " " <<  endl;
-                    cerr << "rate0 = " << r0 << " rate1 = " << r1 << " diff = " << r1 - r0 << " " << endl;
+                    // Float r0 = param(3*icor + 2, iant);
+                    // Float r1 = gsl_vector_get(res, iparam+2);
+                    // cerr << "Rate changed by " << gsl_vector_get(diff, iparam + 2)
+                    //      << " for " << "Antenna "  << iant << " correlation " << icor << " " <<  endl;
+                    // cerr << "rate0 = " << r0 << " rate1 = " << r1 << " diff = " << r1 - r0 << " " << endl;
                 }
                 if (flag) cerr << endl;
+                cerr << "Old values for ant " << iant << " correlation " << icor << endl;
+                cerr << "Psi " << param(3*icor + 0, iant)
+                     << " delay " << param(3*icor + 1, iant)
+                     << " rate " << param(3*icor + 2, iant)
+                     << endl;
+                cerr << "New values for ant " << iant << " correlation " << icor << endl;
+                cerr << "Psi " << gsl_vector_get(res, iparam+0)
+                     << " delay " << gsl_vector_get(res, iparam+1)
+                     << " rate " << gsl_vector_get(res, iparam+2)
+                     << endl << endl;
             }
-            param(3*icor + 0, iant) = gsl_vector_get( res, iparam+0);
-            param(3*icor + 1, iant) = gsl_vector_get( res, iparam+1);
-            param(3*icor + 2, iant) = gsl_vector_get( res, iparam+2);
+            
+            param(3*icor + 0, iant) = gsl_vector_get( res, iparam+0 );
+            param(3*icor + 1, iant) = gsl_vector_get( res, iparam+1 );
+            param(3*icor + 2, iant) = gsl_vector_get( res, iparam+2 );
         }
-    }
 
-    cerr << "Summary from method '" << gsl_multifit_fdfsolver_name(s) << "'" << endl
-         << "number of iterations: " <<  gsl_multifit_fdfsolver_niter(s) << endl
-         << "function evaluations: " << f.nevalf << endl
-         << "Jacobian evaluations: " << f.nevaldf << endl
-         << "reason for stopping: " << ( (info == 1) ? "small step size" : "small gradient" ) << endl
-         << "initial |f(x)| = " << chi0 << endl
-         << "final   |f(x)| = " << chi1 << endl
-         << "final step taken = " << diffsize 
-         << "." << endl;
-    //<< "status = " << gsl_strerror(status) << endl;
-    
-    // // gsl_matrix_free(covar);
-    // // gsl_matrix_free(J);
-    // // gsl_rng_free(r);
+        cerr << "Correlation " << icor << endl
+             << "Summary from method '" << gsl_multifit_fdfsolver_name(s) << "'" << endl
+             << "number of iterations: " <<  gsl_multifit_fdfsolver_niter(s) << endl
+             << "function evaluations: " << f.nevalf << endl
+             << "Jacobian evaluations: " << f.nevaldf << endl
+             << "reason for stopping: " << ( (info == 1) ? "small step size" : "small gradient" ) << endl
+             << "initial |f(x)| = " << chi0 << endl
+             << "final   |f(x)| = " << chi1 << endl
+             << "final step taken = " << diffsize 
+             << "." << endl;
+        //<< "status = " << gsl_strerror(status) << endl;
+        gsl_vector_free( gp );
+    }    
     gsl_multifit_fdfsolver_free( s );
-    gsl_vector_free( gp );
-    
 }
 
     
@@ -1119,7 +1117,7 @@ FringeJones::FringeJones(const MSMetaInfoForCal& msmc) :
     if (prtlev()>2) cout << "FringeJones::FringeJones(msmc)" << endl;
 }
 
-FringeJones::FringeJones(const Int& nAnt) :
+FringeJones::FringeJones(Int nAnt) :
     VisCal(nAnt), 
     VisMueller(nAnt),
     GJones(nAnt)
@@ -1215,10 +1213,11 @@ void FringeJones::calcAllJones() {
     ArrayIterator<Bool>    JOKiter(currJElemOK(),1);
     ArrayIterator<Float>   Piter(currRPar(),1);
     ArrayIterator<Bool>    POKiter(currParOK(),1);
+    cerr << "currTime() - refTime()  " << currTime()-refTime() << endl; 
 
     Double phase;
     for (Int iant=0; iant<nAnt(); iant++) {
-
+        
         for (Int ich=0; ich<nChanMat(); ich++) {
       
             oneJones.reference(Jiter.array());
@@ -1248,15 +1247,15 @@ void FringeJones::calcAllJones() {
     }
 }
 
-    void FringeJones::selfSolveOne(SDBList& sdbs) {
-        solveLotsOfSDBs(sdbs);
+void FringeJones::selfSolveOne(SDBList& sdbs) {
+    solveLotsOfSDBs(sdbs);
         
-        // Implement actual solve here!!!
-        //  E.g., gather data from visCubeCorrected in the SolveDataBuffers 
-        //   in the SDBList and feed to solving code
-        //  Typically, each SolveDataBuffer will contain a single timestamp 
-        //    in a single spw
-        //  E.g., see KJones::solveOneSDBmbd(SDBList&)
+    // Implement actual solve here!!!
+    //  E.g., gather data from visCubeCorrected in the SolveDataBuffers 
+    //   in the SDBList and feed to solving code
+    //  Typically, each SolveDataBuffer will contain a single timestamp 
+    //    in a single spw
+    //  E.g., see KJones::solveOneSDBmbd(SDBList&)
 }
 
 void FringeJones::solveLotsOfSDBs(SDBList& sdbs) {
@@ -1320,9 +1319,12 @@ void FringeJones::solveLotsOfSDBs(SDBList& sdbs) {
     size_t nCorrOrig( sdbs(0).nCorrelations() );
     size_t nCorr = (nCorrOrig> 1 ? 2 : 1); // number of p-hands
 
+    logSink() << "df0 " << df0 << " dt0 " << dt0 << " ref_freq*dt0 " << ref_freq*dt0 << LogIO::POST;
+
     cerr << "df0 " << df0 << " dt0 " << dt0 << " ref_freq*dt0 " << ref_freq*dt0 << endl;
     // Report delays to console.
-    for (size_t iant=0; iant != nAnt(); iant++) {
+    // FIXME: nAnt 
+    for (Int iant=0; iant != nAnt(); iant++) {
         for (size_t icor=0; icor != nCorr; icor++ ) {
             Double phi0 = sRP(3*icor + 0, iant);
             Double delay = sRP(3*icor + 1, iant);
@@ -1334,8 +1336,8 @@ void FringeJones::solveLotsOfSDBs(SDBList& sdbs) {
             cerr << "Antenna " << iant << ": phi0 " << phi0 << " delay " << delay << " rate " << rate << endl;
             cerr << "Adding " << 360*delta1 << " and " << 360*delta2 << " degrees." << endl;
             // If you actually add this delta everything gets worse.
-            cerr << "Not actually adding " << delta3 << endl << endl;
-            // sRP(3*icor + 0, iant) += delta3;
+            logSink() << "Not actually adding " << 360*(delta1+delta2) << " for element " << iant << LogIO::POST;
+            sRP(3*icor + 0, iant) += delta3;
         }
     }
 }
