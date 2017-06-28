@@ -712,7 +712,7 @@ void MSCache::trapExcessVolume(map<PMS::Axis,Bool> pendingLoadAxes) {
 		logLoad(log.getMesg());
 		deleteVm();
 		stringstream ss;
-		ss << "Insufficent memory" << endl
+		ss << "Insufficient memory." << endl
            << "Please try using data selection, averaging," << endl
            << "checking 'Reload' (to clear unneeded cache items)," << endl
 		   << "or letting other memory-intensive processes finish.";
