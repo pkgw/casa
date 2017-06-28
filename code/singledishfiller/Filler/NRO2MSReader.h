@@ -12,8 +12,8 @@
 
 #include <casacore/measures/Measures/Stokes.h>
 
-#include <singledish/Filler/ReaderInterface.h>
-#include <singledish/Filler/NROData.h>
+#include <singledishfiller/Filler/ReaderInterface.h>
+#include <singledishfiller/Filler/NROData.h>
 #include <string>
 #include <memory>
 
@@ -32,7 +32,7 @@ public:
   // get number of rows
   virtual size_t getNumberOfRows();
 
-  virtual casacore::MDirection::Types getDirectionFrame();
+  virtual casacore::MDirection::Types getDirectionFrame() const;
   
   virtual casacore::Bool isFloatData() const {
     return true;

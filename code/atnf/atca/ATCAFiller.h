@@ -37,10 +37,6 @@
 #include <ms/MeasurementSets/MSColumns.h>
 
 #include <casa/namespace.h>
-namespace casacore{
-
-class String;
-}
 
 namespace casa { //# NAMESPACE CASA - BEGIN
 
@@ -120,9 +116,14 @@ public:
   // Set percentage of channels to flag at band edges
   ATCAFiller & edge(casacore::Float edge);
 
+  // Calculate zenith opacities using the ASAP/Miriad model given surface weather conditions and
+  // observatory height. Units are: fGHz [GHz], tempK [Kelvin], humi [%], press [hPa], height [m]
+  casacore::Vector<casacore::Double> opacities(
+    casacore::Vector<casacore::Double> fGHz, casacore::Float tempK,casacore::Float humi,
+    casacore::Float press,casacore::Float height);
+
 private:
   //# disallow all these
-  //ATCAFiller();
   ATCAFiller(const ATCAFiller &);
   ATCAFiller & operator=(const ATCAFiller &);
 

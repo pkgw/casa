@@ -8,9 +8,6 @@
 #ifndef SINGLEDISH_FILLER_DATAACCUMULATOR_H_
 #define SINGLEDISH_FILLER_DATAACCUMULATOR_H_
 
-#include <singledish/Filler/DataRecord.h>
-#include <singledish/Filler/FillerUtil.h>
-
 #include <vector>
 #include <cassert>
 #include <memory>
@@ -26,6 +23,8 @@
 #include <casacore/measures/Measures/Stokes.h>
 
 #include <casacore/tables/Tables/TableRecord.h>
+#include <singledishfiller/Filler/DataRecord.h>
+#include <singledishfiller/Filler/FillerUtil.h>
 
 using namespace casacore;
 
