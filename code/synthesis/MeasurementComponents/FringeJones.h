@@ -41,7 +41,7 @@ public:
   FringeJones(VisSet& vs);
   FringeJones(casacore::String msname,casacore::Int MSnAnt,casacore::Int MSnSpw);
   FringeJones(const MSMetaInfoForCal& msmc);
-  FringeJones(const casacore::Int& nAnt);
+  FringeJones(casacore::Int nAnt);
 
   virtual ~FringeJones();
 
