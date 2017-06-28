@@ -817,7 +817,11 @@ void SimplePBConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
   }
 
   void SimplePBConvFunc::findUsefulChannels(Vector<Int>& chanMap, Vector<Double>& chanFreqs,  const vi::VisBuffer2& vb, const Vector<Double>& freq){
-    chanMap.resize(freq.nelements());
+    
+	  
+	Int spw=vb.spectralWindows()(0);
+	bandName_p=ROMSColumns(vb.ms()).spectralWindow().name()(spw);
+	chanMap.resize(freq.nelements());
     Vector<Double> localfreq=vb.getFrequencies(0, MFrequency::TOPO);
     Double minfreq=min(freq);
     
