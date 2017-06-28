@@ -654,6 +654,11 @@ void MSTransformManager::parseChanAvgParams(Record &configuration)
 		}
 		else if ( configuration.type(exists) == casacore::TpArrayInt)
 		{
+		    if(combinespws_p)
+		        logger_p << LogIO::SEVERE << LogOrigin("MSTransformManager", __FUNCTION__)
+		                 << "If SPW combination is active, "
+		                 "chabin cannot be an array" << LogIO::EXCEPTION;
+		        
 			configuration.get (exists, freqbin_p);
 		}
 		else
@@ -1981,7 +1986,7 @@ void MSTransformManager::setSmoothingFourierKernel(uInt mode)
 // -----------------------------------------------------------------------
 void MSTransformManager::initDataSelectionParams()
 {
-	MSSelection mssel;
+    MSSelection mssel;
 
 	if (reindex_p)
 	{
@@ -2226,36 +2231,44 @@ void MSTransformManager::initDataSelectionParams()
 
 		if (freqbin_p.size() == 1)
 		{
-			// jagonzal (CAS-8018): Update chanbin, otherwise there is a problem with dropped channels
-			Int freqbin = freqbin_p(0);
-			freqbin_p.resize(spwList.size(),True);
-			freqbin_p = freqbin;
+		    if(combinespws_p)
+		    {
+		        uInt spwAfterComb = 0;
+		        freqbinMap_p[spwAfterComb] = freqbin_p(spwAfterComb);
+		    }
+		    else
+		    {
+		        // jagonzal (CAS-8018): Update chanbin, otherwise there is a problem with dropped channels
+		        Int freqbin = freqbin_p(0);
+		        freqbin_p.resize(spwList.size(),True);
+		        freqbin_p = freqbin;
 
-			for (uInt spw_i=0;spw_i<spwList.size();spw_i++)
-			{
-				freqbinMap_p[spwList(spw_i)] = freqbin_p(spw_i);
+		        for (uInt spw_i=0;spw_i<spwList.size();spw_i++)
+		        {
+		            freqbinMap_p[spwList(spw_i)] = freqbin_p(spw_i);
 
-				// jagonzal (new WEIGHT/SIGMA convention)
-				// jagonzal (CAS-7149): Cut chanbin to not exceed n# selected channels
-				if (freqbin_p(spw_i) > (Int)numOfSelChanMap_p[spwList(spw_i)])
-				{
-					logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
-							<< "Number of selected channels " << numOfSelChanMap_p[spwList(spw_i)]
-							<< " for SPW " << spwList(spw_i)
-							<< " is smaller than specified chanbin " << freqbin_p(0) << endl
-							<< "Setting chanbin to " << numOfSelChanMap_p[spwList(spw_i)]
-							<< " for SPW " << spwList(spw_i)
-							<< LogIO::POST;
-					freqbinMap_p[spwList(spw_i)] = numOfSelChanMap_p[spwList(spw_i)];
-					newWeightFactorMap_p[spwList(spw_i)] = numOfSelChanMap_p[spwList(spw_i)];
-					// jagonzal (CAS-8018): Update chanbin, otherwise there is a problem with dropped channels
-					freqbin_p(spw_i) = numOfSelChanMap_p[spwList(spw_i)];
-				}
-				else
-				{
-					newWeightFactorMap_p[spwList(spw_i)] = freqbin_p(0);
-				}
-			}
+		            // jagonzal (new WEIGHT/SIGMA convention)
+		            // jagonzal (CAS-7149): Cut chanbin to not exceed n# selected channels
+		            if (freqbin_p(spw_i) > (Int)numOfSelChanMap_p[spwList(spw_i)])
+		            {
+		                logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
+							     << "Number of selected channels " << numOfSelChanMap_p[spwList(spw_i)]
+							     << " for SPW " << spwList(spw_i)
+							     << " is smaller than specified chanbin " << freqbin_p(0) << endl
+							     << "Setting chanbin to " << numOfSelChanMap_p[spwList(spw_i)]
+							     << " for SPW " << spwList(spw_i)
+							     << LogIO::POST;
+		                freqbinMap_p[spwList(spw_i)] = numOfSelChanMap_p[spwList(spw_i)];
+		                newWeightFactorMap_p[spwList(spw_i)] = numOfSelChanMap_p[spwList(spw_i)];
+		                // jagonzal (CAS-8018): Update chanbin, otherwise there is a problem with dropped channels
+		                freqbin_p(spw_i) = numOfSelChanMap_p[spwList(spw_i)];
+		            }
+		            else
+		            {
+		                newWeightFactorMap_p[spwList(spw_i)] = freqbin_p(0);
+		            }
+		        }
+		    }
 		}
 		else
 		{
