@@ -326,6 +326,11 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
             </allowed>
         </param>
 
+	<param type="bool" name="preaverage">
+          <description>Pre-average channels before regridding when the ratio.</description>
+          <value>False</value>
+	</param>
+
     <!-- TIME AVERAGING parameters -->
     <param type="bool" name="timeaverage">
         <description>Average data in time.</description>
@@ -458,6 +463,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                 <default param="restfreq"><value type="string"></value></default>
                 <default param="outframe"><value type="string"></value></default>
                 <default param="veltype"><value type="string">radio</value></default>
+                <default param="preaverage"><value type="bool">False</value></default>
             </equals>
           </when>
         <when param="timeaverage">
@@ -791,7 +797,12 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         veltype -- Definition of velocity (as used in mode).
             default: 'radio'
 
-	
+        preaverage -- Pre-average channels before regridding. This is done when the ratio
+                      between the output and and input widths is greater than 2. This has
+                      been disabled since CASA 5.0
+            default: False
+
+
 --- Time averaging parameters ---
     timeaverage -- Average data across time. Partially flagged data is not be included in the average
                    unless all data contributing to a given output channel is flagged. In this case, 
