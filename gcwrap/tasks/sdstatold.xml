@@ -16,7 +16,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 ### DEPRECATION WARNING #################################################
 This task will be removed in CASA 5.1.
 The functionality of this task with MeasurementSet format is replicated
-with visstat2.
+with visstat.
 #########################################################################
 
 Task sdstatold computes basic statistics for each of single-dish spectrum.
