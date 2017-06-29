@@ -315,29 +315,41 @@ vector<PMS::Axis> PlotMSPlot::getCachedAxes() {
     if (d->showAtm()) {
         // add ATM yaxis "under the hood" if valid xaxis
         PMS::Axis xaxis = c->xAxis();
-        if (xaxis==PMS::CHANNEL || 
-            xaxis==PMS::FREQUENCY || 
-            xaxis==PMS::NONE) {
-            // set Cache axes
-	        int index = c->numXAxes();
-            c->setAxes(xaxis, PMS::ATM, c->xDataColumn(0), PMS::DEFAULT_DATACOLUMN, index);
-            // set Axes positions
-	        PMS_PP_Axes* a = itsParams_.typedGroup<PMS_PP_Axes>();
-            a->resize(index+1);
-            a->setAxes(a->xAxis(index-1), Y_RIGHT, index);
-            // set Display symbol color
-	        PMS_PP_Display* disp = itsParams_.typedGroup<PMS_PP_Display>();
-            PlotSymbolPtr atmSymbol = disp->unflaggedSymbol(index);
-            atmSymbol->setSymbol("circle");
-            atmSymbol->setColor("#FF00FF");
-            disp->setUnflaggedSymbol(atmSymbol, index);
-            PlotSymbolPtr flaggedSymbol = disp->flaggedSymbol();
-            disp->setFlaggedSymbol(flaggedSymbol, index);
-	        itsTCLParams_.updateIteration = true;
-        } else {
-		    itsParent_->showError("Atmospheric overlay (showatm) is only valid when xaxis is channel or frequency");
+        bool validXAxis = (xaxis==PMS::CHANNEL || xaxis==PMS::FREQUENCY || 
+              xaxis==PMS::NONE);
+        if (!validXAxis)
+		    itsParent_->showError("Atmospheric overlay (showatm) is only valid when xaxis is Channel or Frequency");
+        else {
+            // add here for script client
+            bool found(false);
+            const vector<PMS::Axis> yAxes = c->yAxes();
+            for (uInt i=0; i<yAxes.size(); ++i) {
+                if (yAxes[i] == PMS::ATM) {
+                    found=True;
+                    break;
+                }
+            }
+            if (!found) {
+                // add ATM to Cache axes
+                int index = c->numXAxes();
+                c->setAxes(xaxis, PMS::ATM, c->xDataColumn(0), 
+                        PMS::DEFAULT_DATACOLUMN, index);
+                // set Axes positions
+                PMS_PP_Axes* a = itsParams_.typedGroup<PMS_PP_Axes>();
+                a->resize(index+1);
+                a->setAxes(a->xAxis(index-1), Y_RIGHT, index);
+                // set Display symbol color
+                PMS_PP_Display* disp = itsParams_.typedGroup<PMS_PP_Display>();
+                PlotSymbolPtr atmSymbol = disp->unflaggedSymbol(index);
+                atmSymbol->setSymbol("circle");
+                atmSymbol->setColor("#FF00FF");
+                disp->setUnflaggedSymbol(atmSymbol, index);
+                PlotSymbolPtr flaggedSymbol = disp->flaggedSymbol();
+                disp->setFlaggedSymbol(flaggedSymbol, index);
+            }
         }
     }
+            
 	int xAxisCount = c->numXAxes();
 	int yAxisCount = c->numYAxes();
 	int count = xAxisCount + yAxisCount;

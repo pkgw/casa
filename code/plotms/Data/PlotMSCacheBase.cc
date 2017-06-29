@@ -1813,11 +1813,4 @@ int PlotMSCacheBase::findColorIndex( int chunk, bool initialize ){
 	return index;
 }
 
-/*
-casacore::Double PlotMSCacheBase::getAtm(casacore::Int chnk,casacore::Int irel){
-    casacore::Int chan = static_cast<casacore::Int>(getChan(chnk, irel));
-    return (casacore::Double)(atm_(chan));
-}
-*/
-
 }

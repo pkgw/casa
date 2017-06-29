@@ -188,6 +188,8 @@ bool PlotMSAxesTab::isAxesValid() const {
 void PlotMSAxesTab::getValue(PlotMSPlotParameters& params) const {
     PMS_PP_Cache* c = params.typedGroup<PMS_PP_Cache>();
     PMS_PP_Axes* a = params.typedGroup<PMS_PP_Axes>();
+    PMS_PP_MSData* d = params.typedGroup<PMS_PP_MSData>();
+
     if(c == NULL) {
         params.setGroup<PMS_PP_Cache>();
         c = params.typedGroup<PMS_PP_Cache>();
@@ -196,6 +198,11 @@ void PlotMSAxesTab::getValue(PlotMSPlotParameters& params) const {
         params.setGroup<PMS_PP_Axes>();
         a = params.typedGroup<PMS_PP_Axes>();
     }
+    if(d == NULL) {
+        params.setGroup<PMS_PP_MSData>();
+        d = params.typedGroup<PMS_PP_MSData>();
+    }
+    bool showatm = d->showAtm();
     
     //The cache must have exactly as many x-axes as y-axes so we duplicate
     //the x-axis properties here.
@@ -214,6 +221,38 @@ void PlotMSAxesTab::getValue(PlotMSPlotParameters& params) const {
     	c->setYAxis(itsYWidgets_[i]->axis(), itsYWidgets_[i]->data(), i);
     	a->setYAxis(itsYWidgets_[i]->attachAxis(), i);
     	a->setYRange(itsYWidgets_[i]->rangeCustom(), itsYWidgets_[i]->range(), i);
+    }
+    if (showatm) {
+        // add ATM yaxis "under the hood" if valid xaxis for GUI client
+        PMS::Axis xaxis = c->xAxis();
+        if (xaxis==PMS::CHANNEL || 
+              xaxis==PMS::FREQUENCY || 
+              xaxis==PMS::NONE) {
+            bool found(false);
+            const vector<PMS::Axis> yAxes = c->yAxes();
+            for (uInt i=0; i<yAxes.size(); ++i) {
+                if (yAxes[i] == PMS::ATM) {
+                    found=True;
+                    break;
+                }
+            }
+            if (!found) {
+                // add ATM to Cache axes
+                int index = c->numXAxes();
+                c->setAxes(xaxis, PMS::ATM, c->xDataColumn(0), PMS::DEFAULT_DATACOLUMN, index);
+                // set Axes positions
+                a->resize(index+1);
+                a->setAxes(a->xAxis(index-1), Y_RIGHT, index);
+                // set Display symbol color
+                PMS_PP_Display* disp = params.typedGroup<PMS_PP_Display>();
+                PlotSymbolPtr atmSymbol = disp->unflaggedSymbol(index);
+                atmSymbol->setSymbol("circle");
+                atmSymbol->setColor("#FF00FF");
+                disp->setUnflaggedSymbol(atmSymbol, index);
+                PlotSymbolPtr flaggedSymbol = disp->flaggedSymbol();
+                disp->setFlaggedSymbol(flaggedSymbol, index);
+            }
+        } 
     }
 }
 
