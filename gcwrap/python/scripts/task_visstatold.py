@@ -37,7 +37,7 @@ def visstatold(vis=None,
         array=''
         observation = ''
         
-    s = mslocal.statistics(column=col.upper(),
+    s = mslocal.statisticsold(column=col.upper(),
                       complex_value=complex_type,
                       useflags=useflags,
                       spw=spw,

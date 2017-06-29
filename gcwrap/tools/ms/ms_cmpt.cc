@@ -1003,20 +1003,20 @@ append(Array<T> &data, unsigned &current_length,
 
 
 ::casac::record*
-ms::statistics(const std::string& column,
-               const std::string& complex_value,
-               const bool useflags,
-               const std::string& spw,
-               const std::string& field,
-               const std::string& baseline,
-               const std::string& uvrange,
-               const std::string& time,
-               const std::string& correlation,
-               const std::string& scan,
-               const std::string& array,
-               const std::string& obs)
+ms::statisticsold(const std::string& column,
+                  const std::string& complex_value,
+                  const bool useflags,
+                  const std::string& spw,
+                  const std::string& field,
+                  const std::string& baseline,
+                  const std::string& uvrange,
+                  const std::string& time,
+                  const std::string& correlation,
+                  const std::string& scan,
+                  const std::string& array,
+                  const std::string& obs)
 {
-	*itsLog << LogOrigin("ms", "statistics");
+	*itsLog << LogOrigin("ms", "statisticsold");
 
 	::casac::record *retval(0);
 	try {
