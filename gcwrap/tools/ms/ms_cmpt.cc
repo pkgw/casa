@@ -1018,6 +1018,13 @@ ms::statisticsold(const std::string& column,
 {
 	*itsLog << LogOrigin("ms", "statisticsold");
 
+	*itsLog << LogIO::WARN
+			<< "The use of ms::statisticsold() is deprecated; this function "
+			<< "will be removed from CASA in a future version. "
+			<< "Calls to ms::statisticsold() should be replaced by calls to "
+			<< "ms::statistics()."
+			<< LogIO::POST;
+
 	::casac::record *retval(0);
 	try {
 		if(!detached()){

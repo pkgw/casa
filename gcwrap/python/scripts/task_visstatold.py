@@ -17,6 +17,8 @@ def visstatold(vis=None,
 
     casalog.origin('visstatold')  
 
+    casalog.post('Use of visstatold is deprecated; please replace calls to visstatold with calls to visstat', priority='WARN')
+
     mslocal = mstool()
 
     mslocal.open(vis)

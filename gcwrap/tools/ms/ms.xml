@@ -1649,6 +1649,9 @@ the ms definition itself. -->
   <returns type="record"/>
 
   <description>
+    DEPRECATED: Please use the ms::statistics() function in place of
+    ms::statisticsold().
+
     This function computes descriptive statistics on the measurement set.
     It returns the statistical values as a python dictionary.  The given 
     column name must be a numerical column.
