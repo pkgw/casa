@@ -36,9 +36,9 @@
 #include <tables/Tables/ScalarColumn.h>
 
 // for importasap and importnro
-#include <singledish/Filler/SingleDishMSFiller.h>
-#include <singledish/Filler/Scantable2MSReader.h>
-#include <singledish/Filler/NRO2MSReader.h>
+#include <singledishfiller/Filler/NRO2MSReader.h>
+#include <singledishfiller/Filler/Scantable2MSReader.h>
+#include <singledishfiller/Filler/SingleDishMSFiller.h>
 
 #define _ORIGIN LogOrigin("SingleDishMS", __func__, WHERE)
 
@@ -2579,7 +2579,8 @@ void SingleDishMS::subtractBaselineVariable(string const& in_column_name,
                                             string const& out_bloutput_name,
                                             bool const& do_subtract,
                                             string const& in_spw,
-                                            string const& param_file) {
+                                            string const& param_file,
+					    bool const& verbose) {
 
   LogIO os(_ORIGIN);
   os << "Fitting and subtracting baseline using parameters in file "
@@ -2755,7 +2756,7 @@ void SingleDishMS::subtractBaselineVariable(string const& in_column_name,
             apply_mtx[0][ipol] = false;
             continue;
           }
-          if (true) {
+          if (verbose) {
             os << "Fitting Parameter" << LogIO::POST;
             os << "[ROW " << orig_rows[irow] << " (nchan " << num_chan << ")" << ", POL" << ipol << "]"
                 << LogIO::POST;

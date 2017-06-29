@@ -8,12 +8,6 @@
 #ifndef SINGLEDISH_FILLER_SCANTABLEITERATOR_H_
 #define SINGLEDISH_FILLER_SCANTABLEITERATOR_H_
 
-#include <singledish/Filler/FillerUtil.h>
-#include <singledish/Filler/FieldRecord.h>
-#include <singledish/Filler/SourceRecord.h>
-#include <singledish/Filler/SpectralWindowRecord.h>
-#include <singledish/Filler/SysCalRecord.h>
-
 #include <casacore/casa/Arrays/Vector.h>
 #include <casacore/casa/Utilities/Compare.h>
 #include <casacore/casa/Utilities/Sort.h>
@@ -24,6 +18,11 @@
 #include <casacore/tables/Tables/ScalarColumn.h>
 #include <casacore/tables/Tables/ArrayColumn.h>
 #include <casacore/tables/TaQL/ExprNode.h>
+#include <singledishfiller/Filler/FieldRecord.h>
+#include <singledishfiller/Filler/FillerUtil.h>
+#include <singledishfiller/Filler/SourceRecord.h>
+#include <singledishfiller/Filler/SpectralWindowRecord.h>
+#include <singledishfiller/Filler/SysCalRecord.h>
 
 using namespace casacore;
 
@@ -348,7 +347,7 @@ public:
     interval_column.attach(main_table_, "INTERVAL");
     time_range_.clear();
     for (size_t i = 0; i < srcname_boundary.size() - 1; ++i) {
-      casacore::String name = srcname_list[srcname_boundary[i]];
+      casacore::String name = srcname_list[index_list[srcname_boundary[i]]];
       size_t start = srcname_boundary[i];
       size_t end = srcname_boundary[i + 1];
       std::map<casacore::uInt, casacore::Block<casacore::Double> > range;

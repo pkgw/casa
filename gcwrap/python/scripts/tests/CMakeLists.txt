@@ -23,6 +23,7 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_admit.py
   test_agentflagger.py
   test_applycal.py
+  test_asdmsummary.py
   test_bandpass.py
   test_boxit.py
   test_caltabconvert.py
@@ -117,9 +118,12 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_importasap.py
   test_importasdm.py
   test_importasdm_mms.py
+  test_importatca.py
   test_importevla.py
   test_importfitsidi.py
+  test_importmiriad.py
   test_importnro.py
+  test_importvla.py
   test_imregrid.py
   test_imsmooth.py
   test_imstat.py
@@ -148,6 +152,7 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_plotants.py
   test_plotcal.py
   test_plotms.py
+  test_plotprofilemap.py
   test_plotuv.py
   test_plotweather.py
   test_po_complexfraclinpol.py
@@ -177,8 +182,15 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_tsdfit.py
   test_sdgaincal.py
   test_sdimaging.py
-  test_sdimprocess.py
+  test_sdfixscan.py
   test_tsdsmooth.py
+
+  ### CASAGUIDES ###
+  test_FirstLook_Imaging.py
+  test_FirstLook_LineImageAnalysis.py
+  test_FirstLook_LineImaging.py
+  test_FirstLook_SelfCalibration.py
+
   ### ASAP tasks ###
   test_sdaverage.py
   test_sdbaseline.py
