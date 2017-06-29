@@ -192,20 +192,24 @@ private:
 		  pol_name = pol_data[pol_id];
 		  stokes_type = casacore::Stokes::type(pol_name);
 		  if (stokes_type == casacore::Stokes::Undefined) {
-			  throw "Got unsupported polarization type\n";
+			  throw casacore::AipsError("Got unsupported polarization type\n");
 		  }
 	  }
 	  int getBeamId() const {
-		  if (beam_id < 0) throw "Array data is not set yet\n";
+		  if (beam_id < 0)
+		    throw casacore::AipsError("Array data is not set yet\n");
 		  return beam_id;}
 	  casacore::Stokes::StokesTypes getPol() const {
-		  if (stokes_type == casacore::Stokes::Undefined) throw "Array data is not set yet\n";
+		  if (stokes_type == casacore::Stokes::Undefined)
+		    throw casacore::AipsError("Array data is not set yet\n");
 		  return stokes_type;}
 	  int getSpwId() const {
-		  if (spw_id < 0) throw "Array data is not set yet\n";
+		  if (spw_id < 0)
+		    throw casacore::AipsError("Array data is not set yet\n");
 		  return spw_id;}
 	  string getPolName() const {
-		  if (pol_name.size() == 0) throw "Array data is not set yet\n";
+		  if (pol_name.size() == 0)
+		    throw casacore::AipsError("Array data is not set yet\n");
 		  return pol_name;}
 	  bool isUsed() const {
 	    return is_used;
@@ -224,7 +228,7 @@ private:
 	    }
 	  }
 	  // no array with spwid found
-	  throw "Internal ERROR: Could not find array ID corresponds to an SPW ID\n";
+	  throw casacore::AipsError("Internal ERROR: Could not find array ID corresponds to an SPW ID\n");
   }
 
   int beam_id_counter_;
