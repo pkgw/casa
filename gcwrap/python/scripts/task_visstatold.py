@@ -1,21 +1,21 @@
 from taskinit import mstool, casalog
 
-def visstat(vis=None,
-            axis=None,
-            datacolumn=None,
-            useflags=None,
-            spw=None,
-            field=None,
-            selectdata=None,
-            antenna=None,
-            uvrange=None,
-            timerange=None,
-            correlation=None,
-            scan=None,
-            array=None,
-            observation=None):
+def visstatold(vis=None,
+               axis=None,
+               datacolumn=None,
+               useflags=None,
+               spw=None,
+               field=None,
+               selectdata=None,
+               antenna=None,
+               uvrange=None,
+               timerange=None,
+               correlation=None,
+               scan=None,
+               array=None,
+               observation=None):
 
-    casalog.origin('visstat')  
+    casalog.origin('visstatold')  
 
     mslocal = mstool()
 
