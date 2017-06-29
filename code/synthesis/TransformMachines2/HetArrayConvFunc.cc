@@ -452,7 +452,6 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
     pixFieldDir(1)=-pixFieldDir(1)*2.0*C::pi/Double(ny)/Double(convSamp);
 
 
-
     if(!doneMainConv_p[actualConvIndex_p]) {
         Vector<Double> sampling;
         sampling = dc.increment();
@@ -520,6 +519,8 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
 
                 //pBScreen.set(Complex(1.0, 0.0));
                 //one antenna
+		antMath_p[k]->setBandOrFeedName(bandName_p);
+		antMath_p[j]->setBandOrFeedName(bandName_p);
                 IPosition blcin(4, 0, 0, 0, 0);
                 IPosition trcin(4, convSize_p-1, convSize_p-1, 0, 0);
                 for (Int kk=0; kk < nBeamChans; ++kk) {
