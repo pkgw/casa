@@ -230,7 +230,7 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_virtualconcat.py
   test_vishead.py
   test_visstatold.py
-  test_visstat2.py
+  test_visstat.py
   test_vpmanager.py
   test_wvrgcal.py
   test_imview.py

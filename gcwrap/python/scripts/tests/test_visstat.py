@@ -9,7 +9,7 @@ from itertools import izip
 import copy
 import numpy as np
 
-#     Functional tests of visstat2
+#     Functional tests of visstat
 
 epsilon = 0.0001
 
@@ -24,9 +24,9 @@ if os.environ.has_key('TEST_DATADIR'):
         testmms = True
         datapath = DATADIR
 
-print 'visstat2 tests will use data from '+datapath
+print 'visstat tests will use data from '+datapath
 
-class visstat2_test(unittest.TestCase):
+class visstat_test(unittest.TestCase):
     def setUp(self):
         self.msfile = "ngc5921_add_corect_model.ms"
         self.msfile2 ="OrionS_rawACSmod_calave.ms"
@@ -58,7 +58,7 @@ class visstat2_test(unittest.TestCase):
         shutil.copyfile(datapath+self.msfile13, self.msfile13)
         shutil.copyfile(datapath+self.msfile14, self.msfile14)
 
-        default('visstat2')
+        default('visstat')
 
     def tearDown(self):
         shutil.rmtree(self.msfile)
@@ -84,7 +84,7 @@ class visstat2_test(unittest.TestCase):
 
 
     def test01(self):
-        '''Visstat2 01: Default values'''
+        '''Visstat 01: Default values'''
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
 
         expected = {self.msfile:
@@ -108,7 +108,7 @@ class visstat2_test(unittest.TestCase):
                                         'sumsq': 776391995.3973862,
                                         'variance': 268.3701951590845}}}
 
-        v2 = visstat2(vis=self.msfile, axis='amp', datacolumn='data', reportingaxes='ddid')
+        v2 = visstat(vis=self.msfile, axis='amp', datacolumn='data', reportingaxes='ddid')
 
         if v2.keys() != expected[self.msfile].keys():
             retValue['success']=False
@@ -124,8 +124,8 @@ class visstat2_test(unittest.TestCase):
         if not v2.has_key('DATA_DESC_ID=0'):
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
-                     +"\nError: Dictionary returned from visstat2 does not have key DATA_DESC_ID=0"
-            raise Exception("Dictionary returned from visstat2 does not have key DATA_DESC_ID=0")
+                     +"\nError: Dictionary returned from visstat does not have key DATA_DESC_ID=0"
+            raise Exception("Dictionary returned from visstat does not have key DATA_DESC_ID=0")
 
         for e in expected[self.msfile]['DATA_DESC_ID=0'].keys():
             print ''
@@ -150,12 +150,12 @@ class visstat2_test(unittest.TestCase):
 
 
     def test02(self):
-        '''Visstat2 02: Check channel selections, useflags=True, reportingaxes='ddid',correlation=corr, datacolumn=data, axis=amp'''
+        '''Visstat 02: Check channel selections, useflags=True, reportingaxes='ddid',correlation=corr, datacolumn=data, axis=amp'''
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
         for ch in [1, 2, 4, 7, 13, 62]:
           for corr in ['ll', 'rr', 'll,rr']:
             print "Call with spw='0:1~"+str(ch)+"', correlation="+corr
-            s2 = visstat2(vis=self.msfile, axis='amp', datacolumn='data', spw='0:1~'+str(ch), correlation=corr, reportingaxes='ddid', useflags=True)
+            s2 = visstat(vis=self.msfile, axis='amp', datacolumn='data', spw='0:1~'+str(ch), correlation=corr, reportingaxes='ddid', useflags=True)
             print ''
             print 's2', s2
             n_expected = 2660994/63 * ch
@@ -173,7 +173,7 @@ class visstat2_test(unittest.TestCase):
 
 
     def test03(self):
-        '''Visstat2 03: Default values with datacolum=model, reportingaxis=ddid'''
+        '''Visstat 03: Default values with datacolum=model, reportingaxis=ddid'''
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
 
         expected = {self.msfile:
@@ -197,7 +197,7 @@ class visstat2_test(unittest.TestCase):
                                         'sumsq': 2660994.0,
                                         'variance': 0.0}}}
 
-        v2 = visstat2(vis=self.msfile, axis='amp', datacolumn='model', reportingaxes='ddid')
+        v2 = visstat(vis=self.msfile, axis='amp', datacolumn='model', reportingaxes='ddid')
         if v2.keys() != expected[self.msfile].keys():
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
@@ -207,8 +207,8 @@ class visstat2_test(unittest.TestCase):
         if not v2.has_key('DATA_DESC_ID=0'):
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
-                     +"\nError: Dictionary returned from visstat2 does not have key DATA_DESC_ID=0"
-            raise Exception("Dictionary returned from visstat2 does not have key DATA_DESC_ID=0")
+                     +"\nError: Dictionary returned from visstat does not have key DATA_DESC_ID=0"
+            raise Exception("Dictionary returned from visstat does not have key DATA_DESC_ID=0")
 
         for e in expected[self.msfile]['DATA_DESC_ID=0'].keys():
             print ''
@@ -232,11 +232,11 @@ class visstat2_test(unittest.TestCase):
 
 
     def test04(self):
-        '''Visstat2 04: Test of special cases'''
+        '''Visstat 04: Test of special cases'''
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
 
         for a in range(1, 5):
-            s2 = visstat2(vis=self.msfile, axis='ANTENNA1', antenna=str(a)+'&26')
+            s2 = visstat(vis=self.msfile, axis='ANTENNA1', antenna=str(a)+'&26')
             print ''
             print "antenna =", a, "; mean = ", s2['DATA_DESC_ID=0']['mean']
 
@@ -254,7 +254,7 @@ class visstat2_test(unittest.TestCase):
                 raise Exception("Error!")
 
         for scan in range(1, 8):
-            s2 = visstat2(vis=self.msfile, axis='scan_number', scan=str(scan))
+            s2 = visstat(vis=self.msfile, axis='scan_number', scan=str(scan))
             if abs(s2['DATA_DESC_ID=0']['mean'] - scan) > epsilon:
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']\
@@ -266,7 +266,7 @@ class visstat2_test(unittest.TestCase):
 
 
     def test05(self):
-        '''Visstat2 05: Test using reportingaxes=integration, datacolumn=float_data'''
+        '''Visstat 05: Test using reportingaxes=integration, datacolumn=float_data'''
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
 
         correlation_type=['RR', 'LL']
@@ -290,7 +290,7 @@ class visstat2_test(unittest.TestCase):
                 for time in tt:
                     for spwin in spw_list:
                         trange = qa.time(me.epoch('ref','%fs' % time)['m0'], prec=8, form='ymd')[0]
-                        v2 = visstat2(vis=self.msfile2, axis='amp', timerange=str(trange),reportingaxes=reporting_axes[0],
+                        v2 = visstat(vis=self.msfile2, axis='amp', timerange=str(trange),reportingaxes=reporting_axes[0],
                                       correlation=col, datacolumn=dt, spw=spwin, intent=intent_list[0])
                         v2_keys=v2.keys()
                         for check in check_list:
@@ -307,7 +307,7 @@ class visstat2_test(unittest.TestCase):
 
 
     def test06(self):
-        '''Visstat2 06: Test using reportingaxes=field'''
+        '''Visstat 06: Test using reportingaxes=field'''
 
         datacolumn_list=['data', 'corrected', 'model']
         correlation_type=['RR', 'LL']
@@ -329,14 +329,14 @@ class visstat2_test(unittest.TestCase):
                         for fg in useflags_list:
 
                             if(ax=='scan_number'):
-                                v2 = visstat2(vis=self.msfile, axis=ax, useflags=fg, correlation=col,
+                                v2 = visstat(vis=self.msfile, axis=ax, useflags=fg, correlation=col,
                                       spw=spwin, reportingaxes=reporting_axes[0])
                                 for check in check_list:
                                     ax_scan.append(check+':'+str(v2['FIELD_ID='+ fd][check]))
 
                             if(ax=='amp'):
                                 for dt in datacolumn_list:
-                                    v2 = visstat2(vis=self.msfile, axis=ax, useflags=fg, datacolumn=dt, correlation=col,
+                                    v2 = visstat(vis=self.msfile, axis=ax, useflags=fg, datacolumn=dt, correlation=col,
                                       spw=spwin, reportingaxes=reporting_axes[0])
                                     for check in check_list:
                                         ax_amp.append(check+':'+str(v2['FIELD_ID='+ fd][check]))
@@ -352,7 +352,7 @@ class visstat2_test(unittest.TestCase):
 
 
     def test07(self):
-        '''Visstat2 07: Default values with datacolum=corrected, reportingaxis=ddid'''
+        '''Visstat 07: Default values with datacolum=corrected, reportingaxis=ddid'''
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
 
         expected = {self.msfile:
@@ -376,7 +376,7 @@ class visstat2_test(unittest.TestCase):
                                         'sumsq': 776391995.3973862,
                                         'variance': 268.3701951590845}}}
 
-        v2 = visstat2(vis=self.msfile, axis='amp', datacolumn='corrected', reportingaxes='ddid')
+        v2 = visstat(vis=self.msfile, axis='amp', datacolumn='corrected', reportingaxes='ddid')
         if v2.keys() != expected[self.msfile].keys():
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
@@ -388,7 +388,7 @@ class visstat2_test(unittest.TestCase):
         if not v2.has_key('DATA_DESC_ID=0'):
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
-                     +"\nError: Dictionary returned from visstat2 does not have key DATA_DESC_ID=0"
+                     +"\nError: Dictionary returned from visstat does not have key DATA_DESC_ID=0"
             raise Exception("Dictionary returned from visstat does not have key DATA_DESC_ID=0")
 
         for e in expected[self.msfile]['DATA_DESC_ID=0'].keys():
@@ -414,7 +414,7 @@ class visstat2_test(unittest.TestCase):
 
 
     def test08(self):
-        '''Visstat2 08: Test when using reportingaxes='integration, datacolumn=data,corrected,model'''
+        '''Visstat 08: Test when using reportingaxes='integration, datacolumn=data,corrected,model'''
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
 
         clearcal(self.msfile, addmodel=True)
@@ -427,7 +427,7 @@ class visstat2_test(unittest.TestCase):
         tb.close()
 
         trange = qa.time(me.epoch('ref','%fs' % tt[0])['m0'], prec=8, form='ymd')[0]
-        s2 = visstat2(vis=self.msfile, axis='amp', timerange=str(trange),reportingaxes='integration')
+        s2 = visstat(vis=self.msfile, axis='amp', timerange=str(trange),reportingaxes='integration')
         s2_keys=s2.keys()
 
         check_list=['rms', 'medabsdevmed', 'min', 'max', 'sum', 'median', 'sumsq', 'stddev', 'variance', 'npts', 'mean']
@@ -438,7 +438,7 @@ class visstat2_test(unittest.TestCase):
                 num_tt=0
                 for time in tt:
                     trange = qa.time(me.epoch('ref','%fs' % time)['m0'], prec=8, form='ymd')[0]
-                    s2 = visstat2(vis=self.msfile, axis='amp', timerange=str(trange),reportingaxes='integration', correlation=col, datacolumn=dt)
+                    s2 = visstat(vis=self.msfile, axis='amp', timerange=str(trange),reportingaxes='integration', correlation=col, datacolumn=dt)
                     for check in check_list:
                         result_list.append(check+':' + str(s2[str(s2_keys[0])][check]))
 
@@ -452,7 +452,7 @@ class visstat2_test(unittest.TestCase):
 
 
     def test09(self):
-        '''Visstat2 09: Test using reportingaxes=ddid, correlation=[LL,RR], datacolumn=float_data spw=[0,1,2,3]'''
+        '''Visstat 09: Test using reportingaxes=ddid, correlation=[LL,RR], datacolumn=float_data spw=[0,1,2,3]'''
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
 
         correlation_type=['RR', 'LL']
@@ -476,7 +476,7 @@ class visstat2_test(unittest.TestCase):
                 for time in tt:
                     for spwin in spw_list:
                         trange = qa.time(me.epoch('ref','%fs' % time)['m0'], prec=8, form='ymd')[0]
-                        v2 = visstat2(vis=self.msfile2, axis='amp', timerange=str(trange),reportingaxes=reporting_axes[0],
+                        v2 = visstat(vis=self.msfile2, axis='amp', timerange=str(trange),reportingaxes=reporting_axes[0],
                                       correlation=col, datacolumn=dt, spw=spwin, intent=intent_list[0])
                         v2_keys=v2.keys()
                         for check in check_list:
@@ -491,7 +491,7 @@ class visstat2_test(unittest.TestCase):
 
 
     def test10(self):
-        '''Visstat2 10: Test using reportingaxes=field, datacolumn=corrected, intent=[on,off]'''
+        '''Visstat 10: Test using reportingaxes=field, datacolumn=corrected, intent=[on,off]'''
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
 
         correlation_type=['RR','LL']
@@ -508,9 +508,9 @@ class visstat2_test(unittest.TestCase):
         for dt in datacolumn_list:
             for col, sd_pol in izip(correlation_type, sd_correlation_type):
                     for fd in field_list:
-                        v2_intent_on = visstat2(vis=self.msfile3, axis='real',reportingaxes=reporting_axes[0],
+                        v2_intent_on = visstat(vis=self.msfile3, axis='real',reportingaxes=reporting_axes[0],
                                          correlation=col, datacolumn=dt, intent='OBSERVE_TARGET#ON_SOURCE',field=fd)
-                        v2_intent_off = visstat2(vis=self.msfile5, axis='real',reportingaxes=reporting_axes[0],
+                        v2_intent_off = visstat(vis=self.msfile5, axis='real',reportingaxes=reporting_axes[0],
                                          correlation=col, datacolumn=dt, intent='OBSERVE_TARGET#OFF_SOURCE',field=fd)
                         for check in check_list:
                             print ''
@@ -532,7 +532,7 @@ class visstat2_test(unittest.TestCase):
         self.compare(np.array(f_off_split), np.array(intent_off))
 
     def test11(self):
-        '''Visstat2 11: Test of time averaging within scans'''
+        '''Visstat 11: Test of time averaging within scans'''
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
 
         period = 120
@@ -543,19 +543,19 @@ class visstat2_test(unittest.TestCase):
         all_scans.sort()
         tb.close()
 
-        v2 = visstat2(vis=self.msfile, axis='amp', reportingaxes='ddid',
+        v2 = visstat(vis=self.msfile, axis='amp', reportingaxes='ddid',
                       datacolumn='data', useflags=False, timeaverage=True,
                       timebin='%ds' % period)
         def scanTime(x):
             '''Get scan number and time from a single statistics result set
-            in dictionary returned from visstat2'''
+            in dictionary returned from visstat'''
             xparts = x.split(',')
             scan = [v for v in xparts if v.startswith('SCAN_NUMBER=')][0]
             time = [v for v in xparts if v.startswith('TIME=')][0]
             return (int(scan[len('SCAN_NUMBER='):]), float(time[len('TIME='):]))
 
         def compareKeys(x, y):
-            '''Comparison of visstat2 dictionary keys: scan number, then time'''
+            '''Comparison of visstat dictionary keys: scan number, then time'''
             return cmp(scanTime(x), scanTime(y))
 
         # sort the dictionary keys, and create an ordered list of dictionary
@@ -564,7 +564,7 @@ class visstat2_test(unittest.TestCase):
         v2_keys.sort(cmp=compareKeys)
         ordered_v2 = [(scanTime(k), v2[k]) for k in v2_keys]
 
-        # get ordered list of scan numbers in visstat2 results
+        # get ordered list of scan numbers in visstat results
         scans = list(set(s for ((s, t), v) in ordered_v2))
         scans.sort()
 
@@ -592,24 +592,24 @@ class visstat2_test(unittest.TestCase):
         self.assertTrue(retValue['success'],retValue['error_msgs'])
 
     def test12(self):
-        '''Visstat2 12: Test of time averaging across scans'''
+        '''Visstat 12: Test of time averaging across scans'''
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
 
         period = 120
 
-        v2 = visstat2(vis=self.msfile, axis='amp', reportingaxes='ddid',
+        v2 = visstat(vis=self.msfile, axis='amp', reportingaxes='ddid',
                       datacolumn='data', useflags=False, timeaverage=True,
                       timebin='%ds' % period, timespan='scan')
 
         def statTime(x):
             '''Get the time from a single statistics result set in dictionary returned from
-            visstat2'''
+            visstat'''
             xparts = x.split(',')
             time = [v for v in xparts if v.startswith('TIME=')][0]
             return float(time[len('TIME='):])
 
         def compareKeys(x, y):
-            '''Comparison of visstat2 dictionary keys by time'''
+            '''Comparison of visstat dictionary keys by time'''
             return cmp(statTime(x), statTime(y))
 
         # sort the dictionary keys, and create an ordered list of dictionary
@@ -633,4 +633,4 @@ class visstat2_test(unittest.TestCase):
         self.assertTrue(retValue['success'],retValue['error_msgs'])
 
 def suite():
-    return [visstat2_test]
+    return [visstat_test]

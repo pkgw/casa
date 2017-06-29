@@ -1,31 +1,31 @@
 from taskinit import mstool, casalog
 
-def visstat2(vis=None,
-             axis=None,
-             datacolumn=None,
-             useflags=None,
-             spw=None,
-             field=None,
-             selectdata=None,
-             antenna=None,
-             uvrange=None,
-             timerange=None,
-             correlation=None,
-             scan=None,
-             array=None,
-             observation=None,
-             timeaverage=None,
-             timebin=None,
-             timespan=None,
-             maxuvwdistance=None,
-             disableparallel=None,
-             ddistart=None,
-             taql=None,
-             monolithic_processing=None,
-             intent=None,
-             reportingaxes=None):
+def visstat(vis=None,
+            axis=None,
+            datacolumn=None,
+            useflags=None,
+            spw=None,
+            field=None,
+            selectdata=None,
+            antenna=None,
+            uvrange=None,
+            timerange=None,
+            correlation=None,
+            scan=None,
+            array=None,
+            observation=None,
+            timeaverage=None,
+            timebin=None,
+            timespan=None,
+            maxuvwdistance=None,
+            disableparallel=None,
+            ddistart=None,
+            taql=None,
+            monolithic_processing=None,
+            intent=None,
+            reportingaxes=None):
 
-    casalog.origin('visstat2')  
+    casalog.origin('visstat')
 
     mslocal = mstool()
 
@@ -46,7 +46,7 @@ def visstat2(vis=None,
         scan=''
         array=''
         observation = ''
-        
+
     s = mslocal.statistics2(column=col.upper(),
                             complex_value=complex_type,
                             useflags=useflags,
@@ -67,12 +67,12 @@ def visstat2(vis=None,
                             timebin=timebin,
                             timespan=timespan,
                             maxuvwdistance=maxuvwdistance)
-    
+
     mslocal.close()
 
     for stats in s.keys():
         casalog.post(stats + " values --- ", "NORMAL")
-        
+
         if s[stats]['npts'] > 0:
             casalog.post("         -- number of points [npts]:           " + str(int(round(s[stats]['npts']))), "NORMAL")
             casalog.post("         -- minimum value [min]:               " + str(s[stats]['min'  ]), "NORMAL")
@@ -94,7 +94,4 @@ def visstat2(vis=None,
             casalog.post(stats + " -- No valid points found", "WARN")
 
     return s
-
-
-        
 
