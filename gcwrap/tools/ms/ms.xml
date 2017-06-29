@@ -1664,7 +1664,7 @@ the ms definition itself. -->
   </example>
 </method>
 
-<method type="function" name="statistics2">
+<method type="function" name="statistics">
   <shortdescription>
     Get statistics on the selected measurement set
   </shortdescription>
@@ -1828,7 +1828,7 @@ the ms definition itself. -->
   <example>
 
     ms.open("3C273XC1.MS")
-    ms.statistics2(column="DATA", complex_value='amp', field="2")
+    ms.statistics(column="DATA", complex_value='amp', field="2")
 
   </example>
 </method>
