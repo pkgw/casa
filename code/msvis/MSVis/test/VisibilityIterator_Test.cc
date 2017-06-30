@@ -76,7 +76,7 @@ VisibilityIterator2::copyingViFactory (const MeasurementSet & srcMs,
     Block <Int> sortColumns;
 
     VisibilityIteratorImpl2 * viReader = new VisibilityIteratorImpl2 (mss, SortColumns(),
-                                                                      0, VbPlain, false);
+                                                                      0, false);
     FinalTvi2 * fVi = new FinalTvi2 (viReader, dstMs, false);
 
     VisibilityIterator2 * vi = new VisibilityIterator2 ();
@@ -581,7 +581,7 @@ BasicChannelSelection::nextSubchunk (VisibilityIterator2 & /*vi*/, VisBuffer2 * 
     Int nRows = vb->nRows();
     Int nCorrelations = vb->nCorrelations();
 
-    VisBuffer2 * vb2 = VisBuffer2::factory (VbPlain, VbRekeyable);
+    VisBuffer2 * vb2 = VisBuffer2::factory (VbRekeyable);
     vb2->copyCoordinateInfo(vb, false, true);
     delete vb2;
 

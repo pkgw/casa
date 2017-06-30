@@ -173,7 +173,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //
     if (NAnt <=0 )
       {
-	NAnt=vb.getVi()->subtableColumns().antenna().nrow();
+	NAnt=vb.subtableColumns().antenna().nrow();
 	l_off.resize(IPosition(3,1,1,NAnt)); // Poln x NChan x NAnt 
 	m_off.resize(IPosition(3,1,1,NAnt)); // Poln x NChan x NAnt 
 	l_off = m_off = 0.0; 
