@@ -97,7 +97,7 @@ namespace casa{
       ////Returns the convfunctions in the Cubes...the casacore::Matrix rowChanMap maps 
       // the vb.row and channel 
       //to the plane of the convfunc appropriate 
-      
+      //when conjugateFreqFuncs=True the the convFunc contains the conjugate frequency convFunctions
       virtual void findConvFunction(const casacore::ImageInterface<casacore::Complex>& iimage, 
 				    const VisBuffer& vb,
 				    const casacore::Int& convSampling,
@@ -106,7 +106,8 @@ namespace casa{
 				    casacore::Array<casacore::Complex>& weightConvFunc,
 				    casacore::Vector<casacore::Int>& convsize,
 				    casacore::Vector<casacore::Int>& convSupport,
-				    casacore::Vector<casacore::Int>& polMap, casacore::Vector<casacore::Int>& chanMap, casacore::Vector<casacore::Int>& rowMap);
+				    casacore::Vector<casacore::Int>& polMap, casacore::Vector<casacore::Int>& chanMap, casacore::Vector<casacore::Int>& rowMap, const casacore::Bool conjugateFreqFuncs=false);
+	
       virtual casacore::ImageInterface<casacore::Float>&  getFluxScaleImage();
       // slice fluxscale image by npol 
       virtual void sliceFluxScale(casacore::Int npol);

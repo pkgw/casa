@@ -847,26 +847,42 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	//	if(doesImageExist(itsImageName+String(".weight.tt0"))  )
 	if( itsUseWeight )
 	{
-	    
-	    LatticeExpr<Float> deno;
+	    LatticeExpr<Float> ratio;
+	    Float scalepb = fabs(pblimit) * itsPBScaleFactor * itsPBScaleFactor ;
 	    if( normtype=="flatnoise"){
-	      deno = LatticeExpr<Float> ( sqrt( abs(*(weight(0)) ) ) * itsPBScaleFactor );
+	      LatticeExpr<Float> deno = LatticeExpr<Float> ( sqrt( abs(*(weight(0)) ) ) * itsPBScaleFactor );
 	      os << LogIO::NORMAL1 << "Dividing " << itsImageName+String(".residual.tt")+String::toString(tix) ;
 	      os << " by [ sqrt(weightimage) * " << itsPBScaleFactor ;
 	      os << " ] to get flat noise with unit pb peak."<< LogIO::POST;
-	      
+	      LatticeExpr<Float> mask( iif( (deno) > scalepb , 1.0, 0.0 ) );
+	      LatticeExpr<Float> maskinv( iif( (deno) > scalepb , 0.0, 1.0 ) );
+	      ratio=LatticeExpr<Float> ( ( (*(residual(tix))) * mask ) / ( deno + maskinv ) );
 	    }
-	    if( normtype=="flatsky") {
-	      deno = LatticeExpr<Float> ( *(weight(0)) );
+	    else if(normtype=="pbsquare"){
+	      Float deno =  itsPBScaleFactor*itsPBScaleFactor ;
+	      os << LogIO::NORMAL1 << "Dividing " << itsImageName+String(".residual.tt")+String::toString(tix) ;
+	      os  << deno ;
+	      os << " ] to get optimal sig/noise with unit pb peak."<< LogIO::POST;
+	      
+	      ratio=LatticeExpr<Float> ( ( *(residual(tix)) ) / ( deno ) );
+	      
+
+
+	    }
+	    else if( normtype=="flatsky") {
+	       LatticeExpr<Float> deno( *(weight(0)) );
 	      os << LogIO::NORMAL1 << "Dividing " << itsImageName+String(".residual.tt")+String::toString(tix) ;
 	      os << " by [ weight ] to get flat sky"<< LogIO::POST;
+	      LatticeExpr<Float> mask( iif( (deno) > scalepb , 1.0, 0.0 ) );
+	      LatticeExpr<Float> maskinv( iif( (deno) > scalepb , 0.0, 1.0 ) );
+	      ratio=LatticeExpr<Float> ( ( (*(residual(tix))) * mask ) / ( deno + maskinv ) );
 	    }
+	    else{
+			throw(AipsError("Don't know how to proceed with normtype "+normtype));
+		}
 	    
-	    Float scalepb = fabs(pblimit) * itsPBScaleFactor * itsPBScaleFactor ;
-	    LatticeExpr<Float> mask( iif( (deno) > scalepb , 1.0, 0.0 ) );
-	    LatticeExpr<Float> maskinv( iif( (deno) > scalepb , 0.0, 1.0 ) );
-	    LatticeExpr<Float> ratio( ( (*(residual(tix))) * mask ) / ( deno + maskinv ) );
-
+	    
+	    
 	    residual(tix)->copyData(ratio);
 	  }
 
@@ -899,13 +915,21 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  itsPBScaleFactor = getPbMax();
 
 	for(uInt tix=0;tix<itsNTerms;tix++)
-	  {
-	    os << LogIO::NORMAL1 << "Dividing " << itsImageName+String(".model")+String::toString(tix);
-	    os << " by [ sqrt(weight) / " << itsPBScaleFactor ;
-	    os <<" ] to get to flat sky model before prediction" << LogIO::POST;
+	  { LatticeExpr<Float> deno;
+	    if(normtype=="flatnoise"){
+	      os << LogIO::NORMAL1 << "Dividing " << itsImageName+String(".model")+String::toString(tix);
+	      os << " by [ sqrt(weight) / " << itsPBScaleFactor ;
+	      os <<" ] to get to flat sky model before prediction" << LogIO::POST;
 	    
-	    LatticeExpr<Float> deno( sqrt( abs(*(weight(0))) ) / itsPBScaleFactor );
+	      deno = LatticeExpr<Float> ( sqrt( abs(*(weight(0))) ) / itsPBScaleFactor );
+	    }
+	    else if(normtype=="pbsquare"){
+	      os << LogIO::NORMAL1 << "Dividing " << itsImageName+String(".model")+String::toString(tix);
+	      os << " by [ (weight) / " << itsPBScaleFactor*itsPBScaleFactor ;
+	      os <<" ] to get an optimal sig/noise  model before prediction" << LogIO::POST;
 	    
+	      deno = LatticeExpr<Float> (  abs(*(weight(0)))  / (itsPBScaleFactor*itsPBScaleFactor) );
+	    }
 	    LatticeExpr<Float> mask( iif( (deno) > fabs(pblimit) , 1.0, 0.0 ) );
 	    LatticeExpr<Float> maskinv( iif( (deno) > fabs(pblimit) , 0.0, 1.0 ) );
 	    LatticeExpr<Float> ratio( ( (*(model(tix))) * mask ) / ( deno + maskinv ) );
@@ -934,12 +958,24 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	for(uInt tix=0;tix<itsNTerms;tix++)
 	  {
-
-	    os << LogIO::NORMAL1 << "Multiplying " << itsImageName+String(".model")+String::toString(tix);
-	  os << " by [ sqrt(weight) / " << itsPBScaleFactor;
-	  os <<  " ] to take model back to flat noise with unit pb peak." << LogIO::POST;
+	    LatticeExpr<Float> deno;
+	    if( normtype=="flatnoise") {
+	      os << LogIO::NORMAL1 << "Multiplying " << itsImageName+String(".model")+String::toString(tix);
+	      os << " by [ sqrt(weight) / " << itsPBScaleFactor;
+	      os <<  " ] to take model back to flat noise with unit pb peak." << LogIO::POST;
 	  
-	  LatticeExpr<Float> deno( sqrt( abs(*(weight(0)) ) ) / itsPBScaleFactor );
+	      deno=LatticeExpr<Float> ( sqrt( abs(*(weight(0)) ) ) / itsPBScaleFactor );
+	    }
+	    else if ( normtype=="pbsquare"){
+	      os << LogIO::NORMAL1 << "Multiplying " << itsImageName+String(".model")+String::toString(tix);
+	      os << " by [ weight / " << itsPBScaleFactor*itsPBScaleFactor;
+	      os <<  " ] to take model back to optima sig/noise with unit pb peak." << LogIO::POST;
+	  
+	      deno=LatticeExpr<Float> (  abs(*(weight(0))  ) / (itsPBScaleFactor*itsPBScaleFactor) );
+	    }
+	    else{
+	      throw(AipsError("No idea of what to do for  "+normtype));
+	    }
 
 	  LatticeExpr<Float> mask( iif( (deno) > fabs(pblimit) , 1.0, 0.0 ) );
 	  LatticeExpr<Float> maskinv( iif( (deno) > fabs(pblimit) , 0.0, 1.0 ) );
