@@ -1860,7 +1860,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //vi2.getImpl()->spectralWindows( spwids );
     //The above is not right
     //////////// ///Kludge to find all spw selected
-    std::vector<Int> pushspw;
+    //std::vector<Int> pushspw;
     vi::VisBuffer2* vb=vi2.getVisBuffer();
     vi2.originChunks();
     vi2.origin();
@@ -1885,7 +1885,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     
 	// std::tie (spwids, nChannels, firstChannels, channelIncrement)=(static_cast<vi::VisibilityIteratorImpl2 * >(vi2.getImpl()))->getChannelInformation(false);
   
-    cerr << "SPWIDS "<< spwids <<  "  nchan " << nChannels << " firstchan " << firstChannels << endl;
+    //cerr << "SPWIDS "<< spwids <<  "  nchan " << nChannels << " firstchan " << firstChannels << endl;
     //////////////////This returns junk for multiple ms CAS-9994..so kludged up along with spw kludge
     //Vector<Int> flds;
     //vi2.getImpl()->fieldIds( flds );
