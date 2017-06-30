@@ -7,7 +7,6 @@ from tasks import predictcomp
 from taskinit import *
 import unittest
 import exceptions
-import matplotlib 
 
 
 ''' Python unit tests for the predictcomp task
@@ -19,8 +18,9 @@ import matplotlib
  minfreq/maxfreq: wrong unit vs correct unit
  output: check for the cl file
  antennalist: use of the configuration file to plot 'observed' visibility
-              amplitudes vs uvdist.
+              amplitudes vs uvdist. GUI is turned off.
  
+
 '''
 
 datapath = os.environ.get('CASAPATH').split()[0] +\
@@ -32,8 +32,6 @@ class predictcomp_test(unittest.TestCase):
     def setUp(self):
         self.res=None
         default(predictcomp) 
-        if matplotlib.is_interactive():
-          matplotlib.pylab.ioff() 
 
     def tearDown(self):
         #pass
@@ -66,7 +64,7 @@ class predictcomp_test(unittest.TestCase):
     def test_predicted_visplot(self):
         '''predictcomp: generate visibility plot for a given array configuration''' 
         self.res=predictcomp(objname='Titan', epoch='2017/09/01:00', minfreq='100GHz',maxfreq='120GHz', 
-                 standard='Butler-JPL-Horizons 2012',antennalist=datapath+'alma.cycle5.1.cfg', savefig='visplot.png') 
+                 standard='Butler-JPL-Horizons 2012',antennalist=datapath+'alma.cycle5.1.cfg', showplot=False,savefig='visplot.png') 
         self.assertTrue(type(self.res)==dict)
         self.assertTrue(os.path.exists(self.res['clist']))
         self.assertTrue(os.path.exists('visplot.png'))
@@ -74,7 +72,7 @@ class predictcomp_test(unittest.TestCase):
     def test_valid_but_not_visible_objname(self):
         '''predictcomp: valid but not visible objname'''
         self.res=predictcomp(objname='Mars', epoch='2018/09/01:00', minfreq='100GHz',maxfreq='120GHz',
-                             antennalist=datapath+'alma.cycle5.1.cfg') 
+                             antennalist=datapath+'alma.cycle5.1.cfg',showplot=False) 
         self.assertIsNone(self.res)
 
 def suite():
