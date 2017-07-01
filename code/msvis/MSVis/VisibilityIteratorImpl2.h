@@ -200,7 +200,6 @@ public:
     VisibilityIteratorImpl2 (const casacore::Block<const casacore::MeasurementSet *> & mss,
                              const SortColumns & sortColumns,
                              casacore::Double timeInterval,
-                             VisBufferType vbType,
                              casacore::Bool isWritable,
 			     casacore::Bool useMSIter2=false);
 
@@ -268,8 +267,7 @@ public:
     virtual casacore::Int msId () const;
     virtual casacore::Int getNMs () const;
 
-    virtual VisBuffer2 * getVisBuffer ();
-    virtual VisBuffer2 * getVisBuffer (const VisibilityIterator2 *);
+    virtual VisBuffer2 * getVisBuffer () const;
 
     //reference to actual ms in interator
     virtual const casacore::MeasurementSet & ms () const;

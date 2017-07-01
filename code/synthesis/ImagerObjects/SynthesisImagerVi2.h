@@ -156,7 +156,7 @@ public:
                          const casacore::Bool useAutoCorr,
                          const casacore::Bool useDoublePrec,
                          const casacore::Float rotatePAStep,
-                         const casacore::String Stokes="I");
+                         const casacore::String Stokes="I", const casacore::Bool doConjBeam=false);
   casacore::CountedPtr<SIMapper> createSIMapper(casacore::String mappertype,  
 				      casacore::CountedPtr<SIImageStore> imagestore, //// make this inside !!!!!
 				      casacore::CountedPtr<refim::FTMachine> ftmachine,

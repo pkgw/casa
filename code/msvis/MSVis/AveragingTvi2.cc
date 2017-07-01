@@ -2286,7 +2286,7 @@ AveragingTvi2::AveragingTvi2 (ViImplementation2 * inputVi,
     getVii()->originChunks();
     getVii()->origin ();
 
-    setVisBuffer (createAttachedVisBuffer (VbPlain, VbNoOptions));
+    setVisBuffer (createAttachedVisBuffer (VbNoOptions));
 }
 
 AveragingTvi2::~AveragingTvi2 ()
