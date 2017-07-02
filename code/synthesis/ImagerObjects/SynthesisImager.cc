@@ -1699,7 +1699,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     }
     else if ( ftname == "mosaic" || ftname== "mosft" || ftname == "mosaicft" || ftname== "MosaicFT"){
 
-      createMosFTMachine(theFT, theIFT, padding, useAutocorr, useDoublePrec, rotatePAStep, stokes, conjBeams);
+      createMosFTMachine(theFT, theIFT, padding, useAutocorr, useDoublePrec, rotatePAStep, stokes);
     }
     else
       {
@@ -1977,7 +1977,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }// get VPRecord
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  void SynthesisImager:: createMosFTMachine(CountedPtr<FTMachine>& theFT,CountedPtr<FTMachine>&  theIFT, const Float /*padding*/, const Bool useAutoCorr, const Bool useDoublePrec, const Float rotatePAStep, const String stokes, const Bool /*doConjBeam*/){
+  void SynthesisImager:: createMosFTMachine(CountedPtr<FTMachine>& theFT,CountedPtr<FTMachine>&  theIFT, const Float /*padding*/, const Bool useAutoCorr, const Bool useDoublePrec, const Float rotatePAStep, const String stokes){
     
     LogIO os(LogOrigin("SynthesisImager", "createMosFTMachine",WHERE));
    
