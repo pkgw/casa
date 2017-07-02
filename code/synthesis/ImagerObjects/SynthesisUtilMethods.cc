@@ -1853,7 +1853,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   
+<<<<<<< Updated upstream
   CoordinateSystem SynthesisParamsImage::buildCoordinateSystem(vi::VisibilityIterator2& vi2) 
+=======
+  CoordinateSystem SynthesisParamsImage::buildCoordinateSystem(vi::VisibilityIterator2& vi2, const std::map<Int, std::map<Int, Vector<Int> > >& chansel, Block<const MeasurementSet *> mss) 
+>>>>>>> Stashed changes
   {
     
     
@@ -1868,6 +1872,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // get the first ms for multiple MSes
     MeasurementSet msobj=vi2.ms();
     Int fld=vb->fieldId()(0);
+<<<<<<< Updated upstream
     for (vi2.originChunks(); vi2.moreChunks();vi2.nextChunk())
     	{
 	  for (vi2.origin(); vi2.more();vi2.next())
@@ -1886,6 +1891,35 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    }
 	}
     Vector<Int> spwids(pushspw);
+=======
+	//handling first ms only
+	Double gfreqmax=-1.0;
+	Double gdatafend=-1.0;
+	Double gdatafstart=1e14;
+	Double gfreqmin=1e14;
+	Vector<Int> spwids0;
+	Int j=0;
+	for (auto forMS0=chansel.begin(); forMS0 !=chansel.end(); ++forMS0, ++j){
+    //auto forMS0=chansel.find(0);
+    map<Int, Vector<Int> > spwsels=forMS0->second;
+	Int nspws=spwsels.size();
+	Vector<Int> spwids(nspws);
+	Vector<Int> nChannels(nspws);
+	Vector<Int> firstChannels(nspws);
+	//Vector<Int> channelIncrement(nspws);
+	
+	Int k=0;
+	for (auto it=spwsels.begin(); it != spwsels.end(); ++it, ++k){
+		spwids[k]=it->first;
+		nChannels[k]=(it->second)[0];
+		firstChannels[k]=(it->second)[1];
+	}
+    if(j==0)
+		spwids0=spwids;
+	// std::tie (spwids, nChannels, firstChannels, channelIncrement)=(static_cast<vi::VisibilityIteratorImpl2 * >(vi2.getImpl()))->getChannelInformation(false);
+  
+    //cerr << "SPWIDS "<< spwids <<  "  nchan " << nChannels << " firstchan " << firstChannels << endl;
+>>>>>>> Stashed changes
     //////////////////This returns junk for multiple ms CAS-9994..so kludged up along with spw kludge
     //Vector<Int> flds;
     //vi2.getImpl()->fieldIds( flds );
@@ -1893,19 +1927,48 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //fld = flds[0];
     Double freqmin=0, freqmax=0;
     freqFrameValid=(freqFrame != MFrequency::REST );
+<<<<<<< Updated upstream
     MFrequency::Types dataFrame=(MFrequency::Types)vi2.subtableColumns().spectralWindow().measFreqRef()(spwids[0]);
     Double datafstart, datafend;
     VisBufferUtil::getFreqRange(datafstart, datafend, vi2, dataFrame );
+=======
+    //MFrequency::Types dataFrame=(MFrequency::Types)vi2.subtableColumns().spectralWindow().measFreqRef()(spwids[0]);
+    MFrequency::Types dataFrame=(MFrequency::Types)ROMSColumns(*mss[j]).spectralWindow().measFreqRef()(spwids[0]);
+	Double datafstart, datafend;
+    //VisBufferUtil::getFreqRange(datafstart, datafend, vi2, dataFrame );
+	//cerr << std::setprecision(12) << "before " << datafstart << "   " << datafend << endl;
+		MSUtil::getFreqRangeInSpw( datafstart, datafend, spwids, firstChannels,
+				  nChannels,*mss[j], dataFrame, fld, True);
+	//	cerr << "after " << datafstart << "   " << datafend << endl;
+		if(datafstart > datafend)
+			throw(AipsError("spw selection failed")); 
+		//cerr << "datafstart " << datafstart << " end " << datafend << endl;
+>>>>>>> Stashed changes
     if (mode=="cubedata") {
        freqmin = datafstart;
        freqmax = datafend;
     }
     else {
+<<<<<<< Updated upstream
        VisBufferUtil::getFreqRange(freqmin,freqmax, vi2, freqFrameValid? freqFrame:MFrequency::REST );
     }
     
+=======
+       //VisBufferUtil::getFreqRange(freqmin,freqmax, vi2, freqFrameValid? freqFrame:MFrequency::REST );
+	   //cerr << "before " << freqmin << "   " << freqmax << endl;
+		MSUtil::getFreqRangeInSpw( freqmin, freqmax, spwids, firstChannels,
+				  nChannels,*mss[j], freqFrameValid? freqFrame:MFrequency::REST , fld, True);
+		//cerr << "after " << freqmin << "   " << freqmax << endl;
+    }
+    if(freqmin < gfreqmin) gfreqmin=freqmin;
+	if(freqmax > gfreqmax) gfreqmax=freqmax;
+	if(datafstart < gdatafstart) gdatafstart=datafstart;
+	if(datafend > gdatafend) gdatafend=datafend;
+	}
+    //cerr << "freqmin " <<freqmin << " max " <<freqmax << endl;
+>>>>>>> Stashed changes
 
-    return buildCoordinateSystemCore( msobj, spwids, fld, freqmin, freqmax, datafstart, datafend );
+    return buildCoordinateSystemCore( msobj, spwids0, fld, gfreqmin, gfreqmax, gdatafstart, gdatafend );
   }
   
 

@@ -454,7 +454,11 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 
 	os << "Define image coordinates for [" << impars.imageName << "] : " << LogIO::POST;
 
+<<<<<<< Updated upstream
 	csys = impars.buildCoordinateSystem( *vi_p );
+=======
+	csys = impars.buildCoordinateSystem( *vi_p, channelSelections_p, mss_p );
+>>>>>>> Stashed changes
 	IPosition imshape = impars.shp();
 
 	os << "Impars : start " << impars.start << LogIO::POST;
