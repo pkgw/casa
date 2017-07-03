@@ -270,8 +270,7 @@ void SimplePBConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
 					  Vector<Int>& convSupport,
 					  Vector<Int>& convFuncPolMap,
 					  Vector<Int>& convFuncChanMap,
-					  Vector<Int>& convFuncRowMap,
-					  const Bool /*getConjFreqConvFunc*/
+					  Vector<Int>& convFuncRowMap
 					  ){
 
 

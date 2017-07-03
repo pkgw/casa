@@ -185,8 +185,7 @@ public:
 
     virtual void getRowIds (casacore::Vector<casacore::uInt> & rowids) const;
 
-    virtual VisBuffer2 * getVisBuffer (const VisibilityIterator2 *);
-    virtual VisBuffer2 * getVisBuffer ();
+	virtual VisBuffer2 * getVisBuffer () const {return vb_p;}
 
 
     //   +=========================+
@@ -571,8 +570,6 @@ public:
 
 protected:
 
-    //const VisBuffer2 * getVisBufferConst () const /*__attribute__((deprecated))*/ { throw casacore::AipsError ("Not implemented"); }
-    const VisBuffer2 * getVisBufferConst () const {return vb_p;}
     TransformingVi2 (ViImplementation2 * inputVi);
 
     void configureNewSubchunk ();
@@ -588,7 +585,6 @@ protected:
     VisibilityIterator2 * getVi () const;
     ViImplementation2 * getVii () const;
     void setVisBuffer (VisBuffer2 * vb);
-    virtual VisBuffer2 * getVisBuffer () const {return vb_p;}
 
     // jagonzal (to be reviewed by jjacobs): I need to set inputVii_p to NULL from
     // MSTransformIterator destructor because MSTransformIteratorFactory is borrowing
