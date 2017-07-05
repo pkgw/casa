@@ -4650,7 +4650,11 @@ from spwid 1 of the input data, starting at channel 4, and every
     columns specified. If you don't want to sort on these columns at
     all, you can set adddefaultsortcolumns to False.
 
-    You need to call <link anchor="ms:ms.selectinit.function">selectinit</link> before calling this.  See the example for ms.iterend.
+    You may want to use iteration for a large dataset. After calling
+    iterinit, you must call iterorigin before attempting to retrieve data
+    with getdata.
+
+    You need to call <link anchor="ms:ms.selectinit.function">selectinit</link> before calling this.
   </description>
   <example>
     See the example for the <link anchor="ms:ms.iterend.function">iterend</link> function.
@@ -4702,7 +4706,7 @@ from spwid 1 of the input data, starting at channel 4, and every
     iterinit2, you must call iterorigin2 before attempting to retrieve data
     with getdata2.
     
-    You need to call <link anchor="ms:ms.selectinit2.function">selectinit2</link> before calling this.  See the example for ms.iterend2.
+    You need to call <link anchor="ms:ms.selectinit2.function">selectinit2</link> before calling this.
   </description>
   <example>
     See the example for the <link anchor="ms:ms.iterend2.function">iterend2</link> function.
@@ -4718,8 +4722,8 @@ from spwid 1 of the input data, starting at channel 4, and every
   <description>
     Set or reset the iterator to the start of the currently specified
     iteration. You need to call this after iterinit, before attempting to
-    retrieve data with getdata. Use iterorigin to set the iteration back to
-    the start before you reach the end of the data.
+    retrieve data with getdata. You may also use iterorigin to set the
+    iteration back to the start before you reach the end of the data.
   </description>
   <example>
     See the example for the <link anchor="ms:ms.iterend.function">iterend</link> function.
@@ -4735,8 +4739,8 @@ from spwid 1 of the input data, starting at channel 4, and every
   <description>
     Set or reset the iterator to the start of the currently specified
     iteration.  You need to call this after iterinit2, before attempting to
-    retrieve data with getdata2. Use iterorigin2 to set the iterator back to
-    the start before you reach the end of the data.
+    retrieve data with getdata2. You may also use iterorigin2 to set the
+    iterator back to the start before you reach the end of the data.
   </description>
   <example>
     See the example for the <link anchor="ms:ms.iterend2.function">iterend2</link> function.
