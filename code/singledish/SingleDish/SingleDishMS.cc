@@ -448,7 +448,7 @@ void SingleDishMS::format_selection(Record &selection) {
 
 }
 
-void SingleDishMS::get_data_cube_float(vi::VisBuffer2 const &vb,
+void SingleDishMS::get_data_cube_float(vi::VisBuffer2 const &vb, 
     Cube<Float> &data_cube) {
 //  if (in_column_ == MS::FLOAT_DATA) {
 //    data_cube = vb.visCubeFloat();
@@ -2079,7 +2079,7 @@ void SingleDishMS::applyBaselineTable(string const& in_column_name,
   }
 
   Block<Int> columns(1);
-  columns[0] = MS::TIME;
+  columns[0] = MS::DATA_DESC_ID;  // (CAS-9918, 2017/4/27 WK)   //columns[0] = MS::TIME;
   prepare_for_process(in_column_name, out_ms_name, columns, false);
   vi::VisibilityIterator2 *vi = sdh_->getVisIter();
   vi->setRowBlocking(kNRowBlocking);
