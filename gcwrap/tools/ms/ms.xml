@@ -2693,10 +2693,16 @@ Date/Time:                         RR:                      RL:                 
     first input channel to use, the number of input channels to
     average into one output channel, and the increment in the input
     spectrum for the next output channel. All four parameters need to
-    be specified. 
+    be specified.
 
-    This function return True if the selection was successful, and False if
-    not. In the latter case an error message will also be sent to the
+    When all data to be averaged is unflagged, the result is the averaged
+    value and the corresponding flag is False.  When all data is flagged,
+    the result is set to zero and the corresponding flag is True.  When
+    data to be averaged is mixed (unflagged and flagged), only the
+    unflagged values are averaged and the flag is set to False.
+
+    This function return True if the selection was successful, and False
+    if not. In the latter case an error message will also be sent to the
     logger.
 
     You need to call <link anchor="ms:ms.selectinit.function">selectinit</link> before
@@ -2774,6 +2780,12 @@ Date/Time:                         RR:                      RL:                 
     average into one output channel, and the increment in the input
     spectrum for the next output channel. All four parameters need to
     be specified. 
+
+    When all data to be averaged is unflagged, the result is the averaged
+    value and the corresponding flag is False.  When all data is flagged,
+    the result is set to zero and the corresponding flag is True.  When
+    data to be averaged is mixed (unflagged and flagged), only the
+    unflagged values are averaged and the flag is set to False.
 
     This function return True if the selection was successful, and False
     if not. In the latter case an error message will also be sent to the
@@ -3366,7 +3378,12 @@ Date/Time:                         RR:                      RL:                 
     time axis if the ifraxis is True or the row axis i.e., different
     interferometers and times may be averaged together. In the latter
     case, some of the coordinate information, like antenna_id, will
-    no longer make sense.
+    no longer make sense.  When all data to be averaged is unflagged, the
+    result is the averaged value and the corresponding flag is False.
+    When all data is flagged, the result is set to zero and the
+    corresponding flag is True.  When data to be averaged is mixed
+    (unflagged and flagged), only the unflagged values are averaged and
+    the flag is set to False.
 
     You need to call <link anchor="ms:ms.selectinit.function">selectinit</link> before
     calling this function. If you haven't then selectinit will be
@@ -3572,7 +3589,12 @@ for i in range(len(tcoord)):
     time axis if the ifraxis is True or the row axis i.e., different
     interferometers and times may be averaged together. In the latter
     case, some of the coordinate information, like antenna_id, will
-    no longer make sense.
+    no longer make sense. When all data to be averaged is unflagged, the
+    result is the averaged value and the corresponding flag is False.
+    When all data is flagged, the result is set to zero and the
+    corresponding flag is True.  When data to be averaged is mixed
+    (unflagged and flagged), only the unflagged values are averaged and
+    the flag is set to False.
 
     You need to call <link anchor="ms:ms.selectinit2.function">selectinit2</link> before
     calling this function. If you haven't then selectinit2 will be
