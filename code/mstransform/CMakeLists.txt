@@ -84,10 +84,11 @@ install (FILES
 	)	
 
 casa_add_assay( mstransform MSTransform/test/tMSBin.cc )
-casa_add_assay( mstransform MSTransform/test/tStatWt.cc )
+#casa_add_assay( mstransform MSTransform/test/tStatWt.cc )
 casa_add_executable( mstransform msuvbin apps/msuvbin/msuvbin.cc )
 casa_add_executable( mstransform fixspwbackport apps/fixspwbackport/fixspwbackport.cc )
 
 casa_add_google_test( MODULES mstransform SOURCES TVI/test/tRecursiveVi2Layers_GT.cc )
 casa_add_google_test( MODULES mstransform SOURCES TVI/test/PolAverageTVI_GTest.cc )
 #casa_add_google_test( MODULES mstransform SOURCES TVI/test/tChannelAverageTransformEngine_GT.cc )
+casa_add_google_test( MODULES mstransform SOURCES TVI/test/tStatWtTVI.cc  TVI/test/TestUtilsTVI.cc)

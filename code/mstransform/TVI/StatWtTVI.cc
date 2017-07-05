@@ -23,11 +23,17 @@
 
 #include <casacore/casa/Quanta/QuantumHolder.h>
 #include <casacore/ms/MSOper/MSMetaData.h>
-#include <casacore/scimath/Mathematics/ClassicalStatistics.h>
+#include <casacore/tables/Tables/ArrColDesc.h>
+
+#include <iomanip>
 
 using namespace casacore;
+using namespace casac;
+
 namespace casa { 
 namespace vi { 
+
+const String StatWtTVI::CHANBIN = "stchanbin";
 
 StatWtTVI::StatWtTVI(ViImplementation2 * inputVii, const Record &configuration)
     : TransformingVi2 (inputVii) {
@@ -38,55 +44,270 @@ StatWtTVI::StatWtTVI(ViImplementation2 * inputVii, const Record &configuration)
         ! _parseConfiguration(configuration),
 	    "Error parsing StatWtTVI configuration"
     );
+    ThrowIf(
+        _useCorrected && ! ms().isColumn(MSMainEnums::CORRECTED_DATA),
+        "StatWtTVI requires the MS to have a "
+        "CORRECTED_DATA column. This MS does not"
+    );
+    ThrowIf(
+        ! _useCorrected && ! ms().isColumn(MSMainEnums::DATA),
+        "StatWtTVI requires the MS to have a "
+        "DATA column. This MS does not"
+    );
 	_initialize();
 	// Initialize attached VisBuffer
 	setVisBuffer(createAttachedVisBuffer(VbRekeyable));
+    _wtSpExists = ms().isColumn(MSMainEnums::WEIGHT_SPECTRUM);
 }
 
 StatWtTVI::~StatWtTVI() {}
 
 Bool StatWtTVI::_parseConfiguration(const Record& config) {
-    if (config.isDefined("chanbin")) {
+    String field = CHANBIN;
+    if (config.isDefined(field)) {
         // channel binning
-        auto fieldNum = config.fieldNumber("chanbin");
+        auto fieldNum = config.fieldNumber(field);
         switch (config.type(fieldNum)) {
-        case DataType::TpUInt:
-            uInt binWidth;
-            config.get("chanbin", binWidth);
+        case DataType::TpArrayBool:
+            // because this is the actual default variant type, no matter
+            // what is specified in the xml
+            ThrowIf(
+                ! config.asArrayBool(field).empty(),
+                "Unsupported data type for " + field
+            );
+            _setDefaultChanBinMap();
+            break;
+        case DataType::TpInt:
+            Int binWidth;
+            config.get(CHANBIN, binWidth);
             _setChanBinMap(binWidth);
             break;
-        case DataType::TpRecord:
+        case DataType::TpString:
         {
-            QuantumHolder qh;
-            String err;
-            ThrowIf(
-                ! qh.fromRecord(err, config.asRecord("chanbin")),
-                err
-            );
-            auto q = qh.asQuantity();
-            _setChanBinMap(qh.asQuantity());
+            auto chanbin = config.asString(field);
+            if (chanbin == "spw") {
+                // bin using entire spws
+                _setDefaultChanBinMap();
+                break;
+            }
+            else {
+                QuantumHolder qh(casaQuantity(chanbin));
+                _setChanBinMap(qh.asQuantity());
+            }
             break;
         }
         default:
-            ThrowCc("Unsupported data type for chanbin");
+            ThrowCc("Unsupported data type for " + field);
         }
     }
     else {
         _setDefaultChanBinMap();
     }
-	return True;
+    field = "minsamp";
+    if (config.isDefined(field)) {
+        config.get(field, _minSamp);
+        ThrowIf(_minSamp < 2, "Minimum size of sample must be >= 2.");
+    }
+    field = "combine";
+    if (config.isDefined(field)) {
+        ThrowIf(
+            config.type(config.fieldNumber(field)) != TpString,
+            "Unsupported data type for combine"
+        );
+        _combineCorr = config.asString(field).contains("corr");
+    }
+    field = "wtrange";
+    if (config.isDefined(field)) {
+        ThrowIf(
+            config.type(config.fieldNumber(field)) != TpArrayDouble,
+            "Unsupported type for field '" + field + "'"
+        );
+        auto myrange = config.asArrayDouble(field);
+        if (! myrange.empty()) {
+            ThrowIf(
+                myrange.size() != 2,
+                "Array specified in '" + field + "' must have exactly two values"
+            );
+            ThrowIf(
+                casacore::anyLT(myrange, 0.0),
+                "Both values specified in '" + field + "' array must be non-negative"
+            );
+            std::set<Double> rangeset(myrange.begin(), myrange.end());
+            ThrowIf(
+                rangeset.size() == 1, "Values specified in '" + field + "' array must be unique"
+            );
+            auto iter = rangeset.begin();
+            _wtrange.reset(new std::pair<Double, Double>(*iter, *(++iter)));
+        }
+    }
+    field = "excludechans";
+    if (config.isDefined(field)) {
+        ThrowIf(
+            config.type(config.fieldNumber(field)) != TpString,
+            "Unsupported type for field '" + field + "'"
+        );
+        auto val = config.asString(field);
+        if (! val.empty()) {
+            MSSelection sel(ms());
+            sel.setSpwExpr(val);
+            auto chans = sel.getChanList();
+            auto nrows = chans.nrow();
+            //const auto& myms = ms();
+            MSMetaData md(&ms(), 50);
+            auto nchans = md.nChans();
+            IPosition start(3, 0);
+            IPosition stop(3, 0);
+            IPosition step(3, 1);
+            for (uInt i=0; i<nrows; ++i) {
+                auto row = chans.row(i);
+                const auto& spw = row[0];
+                if (_chanSelFlags.find(spw) == _chanSelFlags.end()) {
+                    _chanSelFlags[spw] = Cube<Bool>(1, nchans[spw], 1, False);
+                }
+                start[1] = row[1];
+                stop[1] = row[2];
+                step[1] = row[3];
+                Slicer slice(start, stop, step, Slicer::endIsLast);
+                _chanSelFlags[spw](slice) = True;
+            }
+        }
+    }
+    field = "datacolumn";
+    if (config.isDefined(field)) {
+        ThrowIf(
+            config.type(config.fieldNumber(field)) != TpString,
+            "Unsupported type for field '" + field + "'"
+        );
+        auto val = config.asString(field);
+        if (! val.empty()) {
+            val.downcase();
+            ThrowIf (
+                ! (val.startsWith("c") || val.startsWith("d")),
+                "Unsupported value for " + field + ": " + val
+            );
+            _useCorrected = val.startsWith("c");
+        }
+    }
+    _configureStatAlg(config);
+    return True;
 }
 
-void StatWtTVI::_setChanBinMap(const Quantity& binWidth) {
+void StatWtTVI::_configureStatAlg(const Record& config) {
+    String field = "statalg";
+    if (config.isDefined(field)) {
+        ThrowIf(
+            config.type(config.fieldNumber(field)) != TpString,
+            "Unsupported type for field '" + field + "'"
+        );
+        auto alg = config.asString(field);
+        alg.downcase();
+        if (alg.startsWith("cl")) {
+            _statAlg = new ClassicalStatistics<
+                Double, Array<Float>::const_iterator,
+                Array<Bool>::const_iterator
+            >();
+        }
+        else {
+            StatisticsAlgorithmFactory<
+                Double, Array<Float>::const_iterator,
+                Array<Bool>::const_iterator
+            > saf;
+            if (alg.startsWith("ch")) {
+                Int maxiter = -1;
+                field = "maxiter";
+                if (config.isDefined(field)) {
+                    ThrowIf(
+                        config.type(config.fieldNumber(field)) != TpInt,
+                        "Unsupported type for field '" + field + "'"
+                    );
+                    maxiter = config.asInt(field);
+                }
+                Double zscore = -1;
+                field = "zscore";
+                if (config.isDefined(field)) {
+                    ThrowIf(
+                        config.type(config.fieldNumber(field)) != TpDouble,
+                        "Unsupported type for field '" + field + "'"
+                    );
+                    zscore = config.asDouble(field);
+                }
+                saf.configureChauvenet(zscore, maxiter);
+            }
+            else if (alg.startsWith("f")) {
+                FitToHalfStatisticsData::CENTER center = FitToHalfStatisticsData::CMEAN;
+                field = "center";
+                if (config.isDefined(field)) {
+                    ThrowIf(
+                        config.type(config.fieldNumber(field)) != TpString,
+                        "Unsupported type for field '" + field + "'"
+                    );
+                    auto cs = config.asString(field);
+                    cs.downcase();
+                    if (cs == "mean") {
+                        center = FitToHalfStatisticsData::CMEAN;
+                    }
+                    else if (cs == "median") {
+                        center = FitToHalfStatisticsData::CMEDIAN;
+                    }
+                    else if (cs == "zero") {
+                        center = FitToHalfStatisticsData::CVALUE;
+                    }
+                    else {
+                        ThrowCc("Unsupported value for '" + field + "'");
+                    }
+                }
+                field = "lside";
+                FitToHalfStatisticsData::USE_DATA ud = FitToHalfStatisticsData::LE_CENTER;
+                if (config.isDefined(field)) {
+                    ThrowIf(
+                        config.type(config.fieldNumber(field)) != TpBool,
+                        "Unsupported type for field '" + field + "'"
+                    );
+                    ud = config.asBool(field)
+                        ? FitToHalfStatisticsData::LE_CENTER
+                        : FitToHalfStatisticsData::GE_CENTER;
+                }
+                saf.configureFitToHalf(center, ud, 0);
+            }
+            else if (alg.startsWith("h")) {
+                Double fence = -1;
+                field = "fence";
+                if (config.isDefined(field)) {
+                    ThrowIf(
+                        config.type(config.fieldNumber(field)) != TpDouble,
+                        "Unsupported type for field '" + field + "'"
+                    );
+                    fence = config.asDouble(field);
+                }
+                saf.configureHingesFences(fence);
+            }
+            else {
+                ThrowCc("Unsupported value for 'statalg'");
+            }
+            _statAlg = saf.createStatsAlgorithm();
+        }
+    }
+    else {
+        _statAlg = new ClassicalStatistics<
+            Double, Array<Float>::const_iterator,
+            Array<Bool>::const_iterator
+        >();
+    }
+    std::set<StatisticsData::STATS> stats;
+    stats.insert(StatisticsData::VARIANCE);
+    _statAlg->setStatsToCalculate(stats);
+}
+
+void StatWtTVI::_setChanBinMap(const casacore::Quantity& binWidth) {
     if (! binWidth.isConform(Unit("Hz"))) {
         ostringstream oss;
-        oss << "If specified as a quantity, chanbin must have frequency units. "
+        oss << "If specified as a quantity, channel bin width must have frequency units. "
             << binWidth << " does not.";
         ThrowCc(oss.str());
     }
     ThrowIf(
         binWidth.getValue() <= 0,
-        "chanbin must be positive"
+        "channel bin width must be positive"
     );
     MSMetaData msmd(&ms(), 100.0);
     auto chanFreqs = msmd.getChanFreqs();
@@ -118,7 +339,7 @@ void StatWtTVI::_setChanBinMap(const Quantity& binWidth) {
     }
 }
 
-void StatWtTVI::_setChanBinMap(uInt binWidth) {
+void StatWtTVI::_setChanBinMap(Int binWidth) {
     ThrowIf(binWidth < 2, "Channel bin width must >= 2");
     MSMetaData msmd(&ms(), 100.0);
     auto nchans = msmd.nChans();
@@ -185,7 +406,13 @@ void StatWtTVI::weightSpectrum(Cube<Float> & newWtsp) const {
             blc[1] = biter->start;
             trc[1] = biter->end;
             blcb.chanBin = *biter;
-            newWtsp(blc, trc) = _weights.find(blcb)->second;
+            auto weights = _weights.find(blcb)->second;
+            auto ncorr = weights.size();
+            for (uInt corr=0; corr<ncorr; ++corr) {
+                blc[0] = _combineCorr ? 0 : corr;
+                trc[0] = _combineCorr ? newWtsp.shape()[0] - 1 : corr;
+                newWtsp(blc, trc) = weights[corr];
+            }
         }
     }
     // cache it
@@ -201,21 +428,45 @@ void StatWtTVI::weight(Matrix<Float> & wtmat) const {
     auto nrows = nRows();
     getVii()->weight(wtmat);
     if (_wtSpExists) {
+        // always use classical algorithm to get median for weights
         ClassicalStatistics<Double, Array<Float>::const_iterator, Array<Bool>::const_iterator> cs;
         Cube<Float> newWtsp;
         Cube<Bool> flagCube;
         weightSpectrum(newWtsp);
         flag(flagCube);
+        IPosition blc(3, 0);
+        IPosition trc = newWtsp.shape() - 1;
+        const auto ncorr = newWtsp.shape()[0];
         for (Int i=0; i<nrows; ++i) {
-            auto weights = newWtsp.xyPlane(i);
-            auto flags = flagCube.xyPlane(i);
-            if (allTrue(flags)) {
-                wtmat.column(i) = 0;
+            blc[2] = i;
+            trc[2] = i;
+            if (_combineCorr) {
+                auto flags = flagCube(blc, trc);
+                if (allTrue(flags)) {
+                    wtmat.column(i) = 0;
+                }
+                else {
+                    auto weights = newWtsp(blc, trc);
+                    auto mask = ! flags;
+                    cs.setData(weights.begin(), mask.begin(), weights.size());
+                    wtmat.column(i) = cs.getMedian();
+                }
             }
             else {
-                auto mask = ! flags;
-                cs.setData(weights.begin(), mask.begin(), weights.size());
-                wtmat.column(i) = cs.getMedian();
+                for (uInt corr=0; corr<ncorr; ++corr) {
+                    blc[0] = corr;
+                    trc[0] = corr;
+                    auto weights = newWtsp(blc, trc);
+                    auto flags = flagCube(blc, trc);
+                    if (allTrue(flags)) {
+                        wtmat(corr, i) = 0;
+                    }
+                    else {
+                        auto mask = ! flags;
+                        cs.setData(weights.begin(), mask.begin(), weights.size());
+                        wtmat(corr, i) = cs.getMedian();
+                    }
+                }
             }
         }
     }
@@ -232,7 +483,17 @@ void StatWtTVI::weight(Matrix<Float> & wtmat) const {
             blcb.baseline = _baseline(ant1[i], ant2[i]);
             blcb.spw = spws[1];
             blcb.chanBin = bins[0];
-            wtmat.column(i) = _weights.find(blcb)->second;
+            auto weights = _weights.find(blcb)->second;
+            if (_combineCorr) {
+                wtmat.column(i) = weights[0];
+            }
+            else {
+                auto corr = 0;
+                for (const auto weight: weights) {
+                    wtmat(corr, i) = weight;
+                    ++corr;
+                }
+            }
         }
     }
     _newWt = wtmat.copy();
@@ -245,6 +506,9 @@ void StatWtTVI::flag(Cube<Bool>& flagCube) const {
         return;
     }
     getVii()->flag(flagCube);
+    _nTotalPts += flagCube.size();
+    auto nOrigFlagged = ntrue(flagCube);
+    _nOrigFlaggedPts += nOrigFlagged;
     Vector<Int> ant1, ant2, spws;
     antenna1(ant1);
     antenna2(ant2);
@@ -252,7 +516,9 @@ void StatWtTVI::flag(Cube<Bool>& flagCube) const {
     auto nrows = nRows();
     IPosition blc(3, 0);
     auto trc = flagCube.shape() - 1;
+    auto ncorr = _combineCorr ? 1 : flagCube.shape()[0];
     BaselineChanBin blcb;
+    auto checkFlags = False;
     for (Int i=0; i<nrows; ++i) {
         blcb.baseline = _baseline(ant1[i], ant2[i]);
         auto spw = spws[i];
@@ -265,10 +531,24 @@ void StatWtTVI::flag(Cube<Bool>& flagCube) const {
         for (; biter!=bend; ++biter) {
             blc[1] = biter->start;
             trc[1] = biter->end;
-            if (_weights.find(blcb)->second == 0) {
-                flagCube(blc, trc) = True;
+            blcb.chanBin = *biter;
+            auto weights = _weights.find(blcb)->second;
+            for (uInt corr=0; corr<ncorr; ++corr) {
+                blc[0] = _combineCorr ? 0 : corr;
+                trc[0] = _combineCorr ? flagCube.shape()[0] - 1 : corr;
+                auto wt = weights[corr];
+                if (
+                    wt == 0
+                    || (_wtrange && (wt < _wtrange->first || wt > _wtrange->second))
+                ) {
+                    checkFlags = True;
+                    flagCube(blc, trc) = True;
+                }
             }
         }
+    }
+    if (checkFlags) {
+        _nNewFlaggedPts += ntrue(flagCube) - nOrigFlagged;
     }
     _newFlag = flagCube.copy();
 }
@@ -284,7 +564,7 @@ void StatWtTVI::flagRow (Vector<Bool>& flagRow) const {
     getVii()->flagRow(flagRow);
     auto nrows = nRows();
     for (Int i=0; i<nrows; ++i) {
-        flagRow[i] = anyTrue(flags.xyPlane(i));
+        flagRow[i] = allTrue(flags.xyPlane(i));
     }
     _newFlagRow = flagRow.copy();
 }
@@ -299,7 +579,6 @@ void StatWtTVI::originChunks(Bool forceRewind) {
     // re-origin this chunk in next layer
     //  (ensures wider scopes see start of the this chunk)
     getVii()->origin();
-    _wtSpExists = weightSpectrumExists();
 }
 
 void StatWtTVI::nextChunk() {
@@ -327,35 +606,73 @@ void StatWtTVI::_gatherAndComputeWeights() const {
     //   for the variance calculation
     //  Essentially, we are sorting the incoming data into
     //   allvis, to enable a convenient variance calculation
+    _weights.clear();
     ViImplementation2* vii = getVii();
     VisBuffer2* vb = vii->getVisBuffer();
     _newRowIDs.resize(vii->nRowsInChunk());
     // baseline to visibility, flag maps
     std::map<BaselineChanBin, Cube<Complex>> data;
     std::map<BaselineChanBin, Cube<Bool>> flags;
-    IPosition blc, trc;
-    for (vii->origin();vii->more();vii->next()) {
+    IPosition blc(3, 0);
+    auto trc = blc;
+    auto doChanSelFlags = ! _chanSelFlags.empty();
+    auto initChanSelFlags = doChanSelFlags;
+    Cube<Bool> chanSelFlagCube;
+    Cube<Bool> myChanSelFlags;
+    IPosition mystart(3, 0);
+    IPosition mystop(3, 0);
+    Slicer sl(mystart, mystop, Slicer::endIsLast);
+    for (vii->origin(); vii->more(); vii->next()) {
         const auto rowIDs = vb->rowIds();
         const auto ant1 = vb->antenna1();
         const auto ant2 = vb->antenna2();
         // [nC,nF,nR)
-        const auto dataCube = vb->visCubeCorrected();
+        const auto dataCube = _useCorrected
+            ? vb->visCubeCorrected() : vb->visCube();
         IPosition dataCubeBLC(3, 0);
         auto dataCubeTRC = dataCube.shape() - 1;
         dataCubeTRC[2] = 0;
         const auto flagCube = vb->flagCube();
         const auto nrows = vb->nRows();
         const auto npol = dataCube.nrow();
-        //const auto nchan = dataCube.ncolumn();
         const auto spws = vb->spectralWindows();
-        blc = dataCubeBLC;
-        trc = dataCubeTRC;
-        for (Int i=0; i<nrows; ++i) {
-            dataCubeBLC[2] = i;
-            dataCubeTRC[2] = i;
+        if (initChanSelFlags) {
+            // this can be done just once because all the rows
+            // in the chunk are guaranteed to have the same spw
+            // because each subchunk is guaranteed to have a single
+            // data description ID.
+            auto spw = *spws.begin();
+            auto chanSelFlagIter = _chanSelFlags.find(spw);
+            doChanSelFlags = chanSelFlagIter != _chanSelFlags.end();
+            if (doChanSelFlags) {
+                chanSelFlagCube = chanSelFlagIter->second;
+            }
+            initChanSelFlags = False;
+        }
+        if (doChanSelFlags) {
+            auto dataShape = dataCube.shape();
+            myChanSelFlags.resize(dataShape, False);
+            auto nchan = dataShape[1];
+            auto ncorr = dataShape[0];
+            mystop[1] = nchan-1;
+            for (uInt corr=0; corr<ncorr; ++corr) {
+                mystart[0] = corr;
+                mystop[0] = corr;
+                for (Int row=0; row<nrows; ++row) {
+                    mystart[2] = row;
+                    mystop[2] = row;
+                    sl.setStart(mystart);
+                    sl.setEnd(mystop);
+                    myChanSelFlags(sl) = chanSelFlagCube;
+                }
+            }
+        }
+        for (Int row=0; row<nrows; ++row) {
+            dataCubeBLC[2] = row;
+            dataCubeTRC[2] = row;
             BaselineChanBin blcb;
-            blcb.baseline = _baseline(ant1[i], ant2[i]);
-            auto spw = spws[i];
+            blcb.baseline = _baseline(ant1[row], ant2[row]);
+            auto spw = spws[row];
             auto bins = _chanBins.find(spw)->second;
             blcb.spw = spw;
             auto citer = bins.begin();
@@ -365,19 +682,28 @@ void StatWtTVI::_gatherAndComputeWeights() const {
                 dataCubeTRC[1] = citer->end;
                 blcb.chanBin.start = citer->start;
                 blcb.chanBin.end = citer->end;
+                auto dataSlice = dataCube(dataCubeBLC, dataCubeTRC);
+                auto flagSlice = doChanSelFlags
+                    ? flagCube(dataCubeBLC, dataCubeTRC)
+                        || myChanSelFlags(dataCubeBLC, dataCubeTRC)
+                    : flagCube(dataCubeBLC, dataCubeTRC);
                 if (data.find(blcb) == data.end()) {
-                    data[blcb] = dataCube(dataCubeBLC, dataCubeTRC);
-                    flags[blcb] = flagCube(dataCubeBLC, dataCubeTRC);
+                    data[blcb] = dataSlice;
+                    flags[blcb] = flagSlice;
                 }
                 else {
-                    const auto nplane = data[blcb].nplane();
-                    blc[2] = nplane;
-                    trc[2] = nplane;
-                    auto nchan = citer->end - citer->start + 1;
+                    auto myshape = data[blcb].shape();
+                    auto nplane = myshape[2];
+                    auto nchan = myshape[1];
                     data[blcb].resize(npol, nchan, nplane+1, True);
                     flags[blcb].resize(npol, nchan, nplane+1, True);
-                    data[blcb](blc, trc) = dataCube(dataCubeBLC, dataCubeTRC);
-                    flags[blcb](blc, trc) = flagCube(dataCubeBLC, dataCubeTRC);
+                    trc = myshape - 1;
+                    // because we've extended the cube by one plane since
+                    // myshape was determined.
+                    ++trc[2];
+                    blc[2] = trc[2];
+                    data[blcb](blc, trc) = dataSlice;
+                    flags[blcb](blc, trc) = flagSlice;
                 }
             }
         }
@@ -386,7 +712,13 @@ void StatWtTVI::_gatherAndComputeWeights() const {
     _computeWeights(data, flags);
 }
 
-void StatWtTVI::writeBackChanges(VisBuffer2 * vb) {
+void StatWtTVI::initWeightSpectrum (const casacore::Cube<casacore::Float>& wtspec) {
+    // Pass to next layer down
+    getVii()->initWeightSpectrum(wtspec);
+}
+
+
+void StatWtTVI::writeBackChanges(VisBuffer2 *vb) {
     // Pass to next layer down
     getVii()->writeBackChanges(vb);
 }
@@ -409,43 +741,93 @@ void StatWtTVI::_computeWeights(
     const map<BaselineChanBin, Cube<Complex>>& data,
     const map<BaselineChanBin, Cube<Bool>>& flags
 ) const {
-    ClassicalStatistics<Double, Array<Float>::const_iterator, Array<Bool>::const_iterator> csReal, csImag;
-    std::set<StatisticsData::STATS> stats;
-    stats.insert(StatisticsData::VARIANCE);
-    csReal.setStatsToCalculate(stats);
-    csImag.setStatsToCalculate(stats);
     auto diter = data.begin();
     auto dend = data.end();
     auto fiter = flags.begin();
+    const auto nActCorr = diter->second.shape()[0];
+    const auto ncorr = _combineCorr ? 1 : nActCorr;
     for (; diter!=dend; ++diter, ++fiter) {
         auto blcb = diter->first;
-        auto dataForBLCB = diter->second;
-        const auto npts = dataForBLCB.size();
-        if (npts == 1) {
-            // one data point, trivial
-            _weights[blcb] = 0;
+        auto spw = blcb.spw;
+        if (_samples.find(spw) == _samples.end()) {
+            _samples[spw].first = 0;
+            _samples[spw].second = 0;
         }
-        else {
-            auto flagsForBLCB = fiter->second;
-            if (allTrue(flagsForBLCB)) {
-                // all data flagged, trivial
-                _weights[blcb] = 0;
+        auto dataForBLCB = diter->second;
+        auto flagsForBLCB = fiter->second;
+        for (uInt corr=0; corr<ncorr; ++corr) {
+            IPosition start(3, 0);
+            IPosition end = dataForBLCB.shape() - 1;
+            if (! _combineCorr) {
+                start[0] = corr;
+                end[0] = corr;
+            }
+            Slicer slice(start, end, Slicer::endIsLast);
+            auto dataChunk = dataForBLCB(slice);
+            const auto npts = dataChunk.size();
+            if ((Int)npts < _minSamp) {
+                // not enough points, trivial
+                _weights[blcb].push_back(0);
             }
             else {
-                // some data not flagged
-                const auto realPart = real(dataForBLCB);
-                const auto imagPart = imag(dataForBLCB);
-                const auto mask = ! flagsForBLCB;
-                const auto riter = realPart.begin();
-                const auto iiter = imagPart.begin();
-                const auto miter = mask.begin();
-                csReal.setData(riter, miter, npts);
-                csImag.setData(iiter, miter, npts);
-                auto varSum = csReal.getStatistic(StatisticsData::VARIANCE)
-                    + csImag.getStatistic(StatisticsData::VARIANCE);
-                _weights[blcb] = varSum == 0 ? 0 : 2/varSum;
+                auto flagChunk = flagsForBLCB(slice);
+                if ((Int)nfalse(flagChunk) < _minSamp) {
+                    // not enough points, trivial
+                    _weights[blcb].push_back(0);
+                }
+                else {
+                    // some data not flagged
+                    const auto realPart = real(dataChunk);
+                    const auto imagPart = imag(dataChunk);
+                    const auto mask = ! flagChunk;
+                    const auto riter = realPart.begin();
+                    const auto iiter = imagPart.begin();
+                    const auto miter = mask.begin();
+                    _statAlg->setData(riter, miter, npts);
+                    auto realVar = _statAlg->getStatistic(StatisticsData::VARIANCE);
+                    _statAlg->setData(iiter, miter, npts);
+                    auto imagVar = _statAlg->getStatistic(StatisticsData::VARIANCE);
+                    auto varSum = realVar + imagVar;
+                    _weights[blcb].push_back(varSum == 0 ? 0 : 2/varSum);
+                    if (varSum > 0) {
+                        ++_samples[spw].first;
+                        if (imagVar == 0 || realVar == 0) {
+                            ++_samples[spw].second;
+                        }
+                        else {
+                            auto ratio = imagVar/realVar;
+                            auto inverse = 1/ratio;
+                            if (ratio > 1.5 || inverse > 1.5) {
+                                ++_samples[spw].second;
+                            }
+                        }
+                    }
+                }
             }
         }
+    }
+}
+
+void StatWtTVI::summarizeFlagging() const {
+    auto orig = (Double)_nOrigFlaggedPts/(Double)_nTotalPts*100;
+    auto stwt = (Double)_nNewFlaggedPts/(Double)_nTotalPts*100;
+    LogIO log(LogOrigin("StatWtTVI", __func__));
+    log << LogIO::NORMAL << "Originally, " << orig
+        << "% of the data were flagged. StatWtTVI flagged an "
+        << "additional " << stwt << "%" << LogIO::POST;
+    log << LogIO::NORMAL << std::endl << LogIO::POST;
+    String col0 = "SPECTRAL_WINDOW";
+    String col1 = "SAMPLES_WITH_NON-ZERO_VARIANCE";
+    String col2 = "SAMPLES_WHERE_REAL_PART_VARIANCE_DIFFERS_BY_>50%_FROM_IMAGINARY_PART";
+    log << LogIO::NORMAL << col0 << " " << col1 << " " << col2 << LogIO::POST;
+    auto n0 = col0.size();
+    auto n1 = col1.size();
+    auto n2 = col2.size();
+    for (const auto& sample: _samples) {
+        ostringstream oss;
+        oss << std::setw(n0) << sample.first << " " << std::setw(n1)
+            << sample.second.first << " " << std::setw(n2) << sample.second.second;
+        log << LogIO::NORMAL << oss.str() << LogIO::POST;
     }
 }
 
@@ -468,5 +850,3 @@ void StatWtTVI::next() {
 }
 
 }
-
-
