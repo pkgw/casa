@@ -25,9 +25,9 @@ casa_add_dbus_proxy( viewer/ViewerProxy.proxy.h xml/ViewerProxy.interface.xml )
 
 if( NOT RE_CMAKE )
     if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT OR CMAKE_INSTALL_PREFIX MATCHES ".*/linux[^/]*$")
-        string( REGEX REPLACE /[^/]+/?$ "" casaroot ${CMAKE_SOURCE_DIR} )
+        string( REGEX REPLACE /[^/]+/?$ "" casaroot ${CMAKE_SOURCE_DIR} CACHE FORCE)
     else( )
-        set( casaroot ${CMAKE_INSTALL_PREFIX} )
+        set( casaroot ${CMAKE_INSTALL_PREFIX} CACHE FORCE )
     endif( )
     set( casaroot ${casaroot} CACHE PATH "toplevel casa directory" FORCE )
 endif()
@@ -40,10 +40,11 @@ add_custom_target(install-dbus-session ALL
     COMMAND cp -f ${CMAKE_CURRENT_SOURCE_DIR}/etc/casa.conf ${casaroot}/etc/dbus
 )
 
+
 if (INTERACTIVE_ITERATION)
    casa_add_dbus_proxy( interfaces/SynthImager.proxy.h xml/SynthImager.interface.xml )
    casa_add_dbus_adaptor( interfaces/SynthImager.adaptor.h xml/SynthImager.interface.xml )
-    install( FILES 
+    install( FILES
              ${CMAKE_CURRENT_BINARY_DIR}/interfaces/SynthImager.proxy.h
 	${CMAKE_CURRENT_BINARY_DIR}/interfaces/SynthImager.adaptor.h
 	DESTINATION include/casacode/casadbus/interfaces
@@ -54,15 +55,15 @@ else()
    message( WARNING "Not Building Support for Interactive control of imaging")
 endif()
 
-install( FILES 
+install( FILES
 	${CMAKE_CURRENT_BINARY_DIR}/plotserver/PlotServerProxy.proxy.h
 	DESTINATION include/casacode/casadbus/plotserver
 	)
-install( FILES 
+install( FILES
 	${CMAKE_CURRENT_BINARY_DIR}/viewer/ViewerProxy.proxy.h
 	DESTINATION include/casacode/casadbus/viewer
 	)
-install( FILES 
+install( FILES
 	${CMAKE_CURRENT_BINARY_DIR}/session/DBusSession.proxy.h
 	DESTINATION include/casacode/casadbus/session
 	)
@@ -85,7 +86,7 @@ casa_add_library( casadbus
   interfaces/SynthImager.adaptor.h
   plotserver/PlotServerProxy.proxy.h
   session/DBusSession.proxy.h
-  viewer/ViewerProxy.proxy.h  
+  viewer/ViewerProxy.proxy.h
 )
 else()
 casa_add_library( casadbus
@@ -103,7 +104,7 @@ casa_add_library( casadbus
   viewer/ViewerProxy.cc
   plotserver/PlotServerProxy.proxy.h
   session/DBusSession.proxy.h
-  viewer/ViewerProxy.proxy.h  
+  viewer/ViewerProxy.proxy.h
 )
 endif()
 install (FILES
