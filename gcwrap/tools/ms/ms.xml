@@ -4650,8 +4650,7 @@ from spwid 1 of the input data, starting at channel 4, and every
     columns specified. If you don't want to sort on these columns at
     all, you can set adddefaultsortcolumns to False.
 
-    You need to call <link anchor="ms:ms.selectinit.function">selectinit</link> before 
-    calling this.  See the example below.
+    You need to call <link anchor="ms:ms.selectinit.function">selectinit</link> before calling this.  See the example for ms.iterend.
   </description>
   <example>
     See the example for the <link anchor="ms:ms.iterend.function">iterend</link> function.
@@ -4691,17 +4690,19 @@ from spwid 1 of the input data, starting at channel 4, and every
     for the TIME column iteration.  The columns are specified by their
     MS column name and must contain scalar values.
 
-    Note that the following columns are always added to the specified
-    columns: array_id, field_id, data_desc_id and time. This is so that
-    the iterator can keep track of the coordinates associated with the
+    Note that the following default sort columns are always added to the
+    specified columns: array_id, field_id, data_desc_id and time. This is so
+    that the iterator can keep track of the coordinates associated with the
     data (field direction, frequency, etc.). If you want to sort on these
     columns last instead of first, you need to include them in the
     columns specified. If you don't want to sort on these columns at
     all, you can set adddefaultsortcolumns to False.
+
+    You may want to use iteration for a large dataset. After calling
+    iterinit2, you must call iterorigin2 before attempting to retrieve data
+    with getdata2.
     
-    You need to call <link
-        anchor="ms:ms.selectinit2.function">selectinit2</link> before
-    calling this.  See the example below.
+    You need to call <link anchor="ms:ms.selectinit2.function">selectinit2</link> before calling this.  See the example for ms.iterend2.
   </description>
   <example>
     See the example for the <link anchor="ms:ms.iterend2.function">iterend2</link> function.
@@ -4716,10 +4717,9 @@ from spwid 1 of the input data, starting at channel 4, and every
 
   <description>
     Set or reset the iterator to the start of the currently specified
-    iteration. You need to call this before attempting to retrieve
-    data with getdata. You can set the iteration back to the start
-    before you reach the end of the data.  You need to call iterinit
-    before calling this.  See the example below.
+    iteration. You need to call this after iterinit, before attempting to
+    retrieve data with getdata. Use iterorigin to set the iteration back to
+    the start before you reach the end of the data.
   </description>
   <example>
     See the example for the <link anchor="ms:ms.iterend.function">iterend</link> function.
@@ -4734,10 +4734,9 @@ from spwid 1 of the input data, starting at channel 4, and every
 
   <description>
     Set or reset the iterator to the start of the currently specified
-    iteration. You may want to call this before attempting to retrieve
-    data with getdata2 for a large dataset. You can set the iteration
-    back to the start before you reach the end of the data.  You need to
-    call iterinit2 before calling this.  See the example below.
+    iteration.  You need to call this after iterinit2, before attempting to
+    retrieve data with getdata2. Use iterorigin2 to set the iterator back to
+    the start before you reach the end of the data.
   </description>
   <example>
     See the example for the <link anchor="ms:ms.iterend2.function">iterend2</link> function.
@@ -4758,7 +4757,7 @@ from spwid 1 of the input data, starting at channel 4, and every
     to the next iteration. If there is no more data, the function
     returns False and the selection is reset to that before the
     iteration started.  You need to call iterinit and iterorigin
-    before calling this.  See the example below.
+    before calling this.
   </description>
   <example>
     See the example for the <link anchor="ms:ms.iterend.function">iterend</link> function.
@@ -4779,7 +4778,7 @@ from spwid 1 of the input data, starting at channel 4, and every
     to the next iteration. If there is no more data, the function
     returns False and the selection is reset to that before the
     iteration started.  You need to call iterinit2 and iterorigin2
-    before calling this.  See the example below.
+    before calling this.
   </description>
   <example>
     See the example for the <link anchor="ms:ms.iterend2.function">iterend2</link> function.
@@ -4852,13 +4851,14 @@ from spwid 1 of the input data, starting at channel 4, and every
       ms.iterorigin2()
       rec=ms.getdata2(["u","v","data"])
       ms.iternext2()
+      rec=ms.getdata2(["u","v","data"])
       ms.iterend2()
     
     We open the MS, select an array and spectral window and then
     specify an iteration over interferometer and time, with a 60s time
     interval.  We then set the iterator to the start of the data and
-    get out some data. Finally we advance the iterator to the next lot
-    of data and then end the iteration.
+    get out some data. Then we advance the iterator to the next lot
+    of data, and finally end the iteration.
   </example>
 </method>
 
