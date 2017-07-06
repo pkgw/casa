@@ -35,6 +35,18 @@ def tbmanager(vis, *args, **kwargs):
 def cbmanager(vis, *args, **kwargs):
     return toolmanager(vis, 'cb', *args, **kwargs)
 
+def is_ms(filename):
+    if (os.path.isdir(filename) and os.path.exists(filename+'/table.info') and os.path.exists(filename+'/table.dat')):
+        f = open(filename + '/table.info')
+        l = f.readline()
+        f.close()
+        if (l.find('Measurement Set') != -1):
+            return True
+        else:
+            return False
+    else:
+        return False
+
 @contextlib.contextmanager
 def table_selector(table, taql, *args, **kwargs):
     with tbmanager(table, *args, **kwargs) as tb:
