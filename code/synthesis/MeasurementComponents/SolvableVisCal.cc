@@ -6182,9 +6182,9 @@ void SolvableVisJones::fluxscale(const String& outfile,
     for (Int iRef=0; iRef<nRef; iRef++) {
         auto iidx = std::find(tmpTranField.begin(),tmpTranField.end(),refField(iRef));
         if (iidx != tmpTranField.end()) { 
-          logSink() << "A transfer field, "<<fldNames(*iidx)
-                    << " , is also listed as a reference field. "
-                    <<" It will be ignored for further scaling process"
+          logSink() << "The reference field, "<<fldNames(*iidx)
+                    << " , is also listed in the transfer fields. "
+                    <<" It will be ignored for further scaling process."
 	             << LogIO::POST;
           tmpTranField.erase(iidx);
         }
