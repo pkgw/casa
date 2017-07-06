@@ -630,8 +630,7 @@ TBD
      <description>Reference antenna mode</description>
      <value>flex</value>
      <value>strict</value>
-     <value>auto</value>
-     <value>mindev</value>
+     <value>flex</value>
      </param>
 
      <param type="int" direction="in" name="minblperant">
