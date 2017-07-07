@@ -29,7 +29,10 @@ for i in range(n):
 	cf = at.getChanFreq(i)
 	#print i, " channel: ", i-rc+1, " freq: ", cf['value'][0], cf['unit']
 print "Expect an error here"
-at.getNumChan(1)  # spwId is 0-based.
+try:
+	at.getNumChan(1)  # spwId is 0-based.
+except Exception as e:
+	print e.message
 
 #
 print
