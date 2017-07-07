@@ -658,7 +658,13 @@ void CalCache::loadCalChunks(ROCTIter& ci,
   case PMS::TSKY: { 
     casacore::Int spw = cti.thisSpw();
     casacore::Int scan = cti.thisScan();
-    *atm_[chunk] = atm_p->calcOverlayCurve(spw, scan, (axis==PMS::ATM));
+    casacore::Vector<casacore::Double> curve = 
+        atm_p->calcOverlayCurve(spw, scan, (axis==PMS::ATM));
+    if (curve.nelements()==1) {
+        logWarn("load_cache", "Skipping spw "+ String::toString(spw) + 
+            " for " + PMS::axis(axis) + " because it has only one channel.");
+    }
+    *atm_[chunk] = curve;
     break;
   }
   default:

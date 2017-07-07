@@ -153,6 +153,7 @@ casacore::Vector<casacore::Double> PlotMSAtm::calcOverlayCurve(
         casacore::Int spw, casacore::Int scan, bool atm) {
     // Implements algorithm in CAS-9053 to get overlay curves
     // (atm or tsky) per spw + scan
+    casacore::Vector<casacore::Double> curve(1, 0.0);
     scan_ = scan;
     PlotMSSelection pmsSel;
     pmsSel.setSpw(String::toString(spw));
@@ -161,15 +162,14 @@ casacore::Vector<casacore::Double> PlotMSAtm::calcOverlayCurve(
     setCalTimes(selct);
     // get chan freqs
     ROCTColumns ctCol(*selct);
-    casacore::Array<casacore::Double> chanFreqCol = 
-        ctCol.spectralWindow().chanFreq().getColumn();
-    casacore::Array<casacore::Double> chanFreqColGHz = chanFreqCol / 1.0e9;
-    casacore::Array<casacore::Double> chanFreqPerSpw =
-        chanFreqColGHz(Slicer(Slice(), spw));
-    unsigned int numChan(chanFreqColGHz.shape()(0)), chansForCalc(numChan);
-    unsigned int midChan(numChan/2);
+    casacore::Array<casacore::Double> chanFreqPerSpw = 
+        ctCol.spectralWindow().chanFreq().get(spw);
+    unsigned int numChan(chanFreqPerSpw.nelements());
+    if (numChan==1) return curve;
+    unsigned int chansForCalc(numChan), midChan(numChan/2);
     // limit number of channels for calculation to <512 ?
     //while (chansForCalc > 512)  chansForCalc /= 2;
+    chanFreqPerSpw /= 1.0e9; // in GHz
     casacore::Double refFreq = 0.5 * (chanFreqPerSpw(IPosition(2, midChan-1, 0))
         + chanFreqPerSpw(IPosition(2, midChan, 0)));
     casacore::Double chanSep = (chanFreqPerSpw(IPosition(2, numChan-1, 0))
@@ -199,18 +199,17 @@ casacore::Vector<casacore::Double> PlotMSAtm::calcOverlayCurve(
         for (uInt chan=0; chan<chansForCalc; ++chan) {
             TebbSky(chan) = skyStatus->getTebbSky(0, chan).get("K");
         }
-        TebbSky *=
-            (1.0-atmTransmission) / (1.0-exp((-1.0*wetOpacity)-dryOpacity));
     }
     // clean up
     delete specGrid;
     delete atmProfile;
     delete refIdxProfile;
     delete skyStatus;
-    if (atm)
-        return (atmTransmission * 100.0); // percent
-    else
-        return TebbSky;
+    curve.resize();
+    if (atm) curve = atmTransmission * 100.0; // percent
+    else curve = TebbSky *
+            (1.0-atmTransmission) / (1.0-exp((-1.0*wetOpacity)-dryOpacity));
+    return curve;
 }
 
 atm::AtmProfile* PlotMSAtm::getAtmProfile() {
