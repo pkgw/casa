@@ -202,7 +202,6 @@ void PlotMSAxesTab::getValue(PlotMSPlotParameters& params) const {
         params.setGroup<PMS_PP_MSData>();
         d = params.typedGroup<PMS_PP_MSData>();
     }
-    bool showatm = d->showAtm();
     
     //The cache must have exactly as many x-axes as y-axes so we duplicate
     //the x-axis properties here.
@@ -222,24 +221,30 @@ void PlotMSAxesTab::getValue(PlotMSPlotParameters& params) const {
     	a->setYAxis(itsYWidgets_[i]->attachAxis(), i);
     	a->setYRange(itsYWidgets_[i]->rangeCustom(), itsYWidgets_[i]->range(), i);
     }
-    if (showatm) {
+
+    bool showatm = d->showAtm();
+    bool showtsky = d->showTsky();
+    if (showatm || showtsky) {
         // add ATM yaxis "under the hood" if valid xaxis for GUI client
         PMS::Axis xaxis = c->xAxis();
+        PMS::Axis atmAxis;
         if (xaxis==PMS::CHANNEL || 
               xaxis==PMS::FREQUENCY || 
               xaxis==PMS::NONE) {
             bool found(false);
             const vector<PMS::Axis> yAxes = c->yAxes();
+            if (showatm) atmAxis = PMS::ATM;
+            else atmAxis = PMS::TSKY;
             for (uInt i=0; i<yAxes.size(); ++i) {
-                if (yAxes[i] == PMS::ATM) {
-                    found=True;
-                    break;
+                if (yAxes[i] == atmAxis) {
+                        found=True;
+                        break;
                 }
             }
             if (!found) {
-                // add ATM to Cache axes
+                // add axis to Cache axes
                 int index = c->numXAxes();
-                c->setAxes(xaxis, PMS::ATM, c->xDataColumn(0), PMS::DEFAULT_DATACOLUMN, index);
+                c->setAxes(xaxis, atmAxis, c->xDataColumn(0), PMS::DEFAULT_DATACOLUMN, index);
                 // set Axes positions
                 a->resize(index+1);
                 a->setAxes(a->xAxis(index-1), Y_RIGHT, index);

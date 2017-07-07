@@ -312,19 +312,24 @@ vector<PMS::DataColumn> PlotMSPlot::getCachedData(){
 vector<PMS::Axis> PlotMSPlot::getCachedAxes() {
 	PMS_PP_Cache* c = itsParams_.typedGroup<PMS_PP_Cache>();
 	PMS_PP_MSData* d = itsParams_.typedGroup<PMS_PP_MSData>();
-    if (d->showAtm()) {
-        // add ATM yaxis "under the hood" if valid xaxis
+    if (d->showAtm() || d->showTsky()) {
+        // add ATM/TSKY yaxis "under the hood" if valid xaxis
         PMS::Axis xaxis = c->xAxis();
         bool validXAxis = (xaxis==PMS::CHANNEL || xaxis==PMS::FREQUENCY || 
               xaxis==PMS::NONE);
-        if (!validXAxis)
-		    itsParent_->showError("Atmospheric overlay (showatm) is only valid when xaxis is Channel or Frequency");
-        else {
+        if (!validXAxis) {
+            d->setShowAtm(false);
+            d->setShowTsky(false);
+		    itsParent_->showError("Overlays are valid only when xaxis is Channel or Frequency");
+        } else {
             // add here for script client
             bool found(false);
             const vector<PMS::Axis> yAxes = c->yAxes();
+            PMS::Axis atmAxis;
+            if (d->showAtm()) atmAxis = PMS::ATM;
+            else atmAxis = PMS::TSKY;
             for (uInt i=0; i<yAxes.size(); ++i) {
-                if (yAxes[i] == PMS::ATM) {
+                if (yAxes[i] == atmAxis) {
                     found=True;
                     break;
                 }
@@ -332,7 +337,7 @@ vector<PMS::Axis> PlotMSPlot::getCachedAxes() {
             if (!found) {
                 // add ATM to Cache axes
                 int index = c->numXAxes();
-                c->setAxes(xaxis, PMS::ATM, c->xDataColumn(0), 
+                c->setAxes(xaxis, atmAxis, c->xDataColumn(0), 
                         PMS::DEFAULT_DATACOLUMN, index);
                 // set Axes positions
                 PMS_PP_Axes* a = itsParams_.typedGroup<PMS_PP_Axes>();
@@ -1949,9 +1954,11 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
                         pair<double, double> ybounds = make_pair(ymin, ymax);
                         canvas->setAxisRange(cy, ybounds);
                     }
-                } else if (y==PMS::ATM) {
+                } else if (y==PMS::ATM || y==PMS::TSKY) {
                     itsCache_->indexer(1,iteration).minsMaxes(xmin, xmax, ymin, ymax);
-                    pair<double,double> atmrange = make_pair(0, min(ymax+5.0, 100.0));
+                    pair<double,double> atmrange;
+                    if (y==PMS::ATM) atmrange = make_pair(0, min(ymax+5.0, 100.0));
+                    else atmrange = make_pair(0, ymax+0.1);
                     canvas->setAxisRange(cy, atmrange);
                 }
 		    }
@@ -1986,8 +1993,8 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
 			for ( int i = 0; i < plotYAxisCount; i++ ){
                 PMS::Axis y = plotCacheParams->yAxis( i );
                 if (isCalTable && PMS::axisIsData(y)) y = getCalAxis(calType, y);
-                // Don't put ATM overlay in title
-                if (y != PMS::ATM) {
+                // Don't put ATM and TSKY in title
+                if (y!=PMS::ATM && y!=PMS::TSKY) {
 				    yAxes.push_back(y);
 				    yRefs.push_back(plotCacheBase.hasReferenceValue(yAxes[i]));
 				    yRefVals.push_back(plotCacheBase.referenceValue(yAxes[i]));

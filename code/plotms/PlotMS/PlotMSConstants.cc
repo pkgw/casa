@@ -141,6 +141,7 @@ PMS::AxisUnit PMS::axisUnit(Axis axis) {
    case DELAY:
 	   	return NANOSECONDS;
    case TSYS:
+   case TSKY:
 	   	return KELVIN;
    case OPAC:
 	   return NEPERS;

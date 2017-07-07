@@ -87,6 +87,7 @@ const String PMS_PP_MSData::REC_AVERAGING = "averaging";
 const String PMS_PP_MSData::REC_TRANSFORMATIONS = "transformations";
 const String PMS_PP_MSData::REC_CALIBRATION = "calibration";
 const String PMS_PP_MSData::REC_SHOWATM = "showatm";
+const String PMS_PP_MSData::REC_SHOWTSKY = "showtsky";
 
 
 PMS_PP_MSData::PMS_PP_MSData(PlotFactoryPtr factory)
@@ -119,6 +120,7 @@ Record PMS_PP_MSData::toRecord() const
 	rec.defineRecord(REC_TRANSFORMATIONS, itsTransformations_.toRecord());
 	rec.defineRecord(REC_CALIBRATION, itsCalibration_.toRecord());
 	rec.define(REC_SHOWATM, itsShowAtm_);
+	rec.define(REC_SHOWTSKY, itsShowTsky_);
 	return rec;
 }
 
@@ -180,6 +182,15 @@ void PMS_PP_MSData::fromRecord(const Record& record)
 			valuesChanged = true;
 		}
 	}
+    if (record.isDefined(REC_SHOWTSKY) && record.dataType(REC_SHOWTSKY) == TpBool)
+	{
+		bool tmp = record.asBool(REC_SHOWTSKY);
+		if (itsShowTsky_ != tmp)
+		{
+			itsShowTsky_ = tmp;
+			valuesChanged = true;
+		}
+	}
 	if (valuesChanged) updated();
 }
 
@@ -201,6 +212,7 @@ PMS_PP_MSData& PMS_PP_MSData::assign(const PMS_PP_MSData* o){
 		itsTransformations_ = o->itsTransformations_;
 		itsCalibration_ = o->itsCalibration_;
         itsShowAtm_ = o->itsShowAtm_;
+        itsShowTsky_ = o->itsShowTsky_;
 		updated();
 	}
 	return *this;
@@ -217,6 +229,7 @@ bool PMS_PP_MSData::operator==(const Group& other) const
 	if (itsTransformations_ != o->itsTransformations_) return false;
 	if (itsCalibration_ != o->itsCalibration_) return false;
     if (itsShowAtm_ != o->itsShowAtm_) return false;
+    if (itsShowTsky_ != o->itsShowTsky_) return false;
 	return true;
     		}
 
@@ -230,6 +243,7 @@ void PMS_PP_MSData::setDefaults()
 	itsTransformations_ = PlotMSTransformations();
 	itsCalibration_ = PlotMSCalibration();
     itsShowAtm_ = false;
+    itsShowTsky_ = false;
 }
 
 

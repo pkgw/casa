@@ -1078,6 +1078,10 @@ Export plot as image Parameters
          <value>False</value>
      </param>
      
+     <param type="bool" name="showtsky">
+         <description>Compute and overlay the sky temperature curve on a bandpass plot</description>
+         <value>False</value>
+     </param>
      
 <!--
 ###############################################################################

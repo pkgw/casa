@@ -169,6 +169,7 @@ public:
 		if (itsFilename_ != value) {
 			itsFilename_ = value;
             setShowAtm(allowAtm(itsFilename_));
+            setShowTsky(allowAtm(itsFilename_));
 			updated();
 		}
 	}
@@ -232,6 +233,22 @@ public:
 	    }
     }
 
+    bool showTsky() const {
+		return itsShowTsky_;
+	}
+	void setShowTsky (const bool & value) {
+	    if (itsShowTsky_!= value) {
+            // if true, test if this is valid (B table plot)
+            if (!value) {
+		        itsShowTsky_ = value;
+		        updated();
+            } else if (allowAtm(itsFilename_)) {
+		        itsShowTsky_ = value;
+		        updated();
+            } // else log message?
+	    }
+    }
+
     // determine whether this is a bandpass cal table
     bool allowAtm(const casacore::String filename) const {
         bool allowed = false;
@@ -259,6 +276,7 @@ private:
 	PlotMSTransformations itsTransformations_;
 	PlotMSCalibration itsCalibration_;
 	bool itsShowAtm_;
+	bool itsShowTsky_;
 
 	/* Key strings for casacore::Record */
 	static const casacore::String REC_FILENAME;
@@ -267,6 +285,7 @@ private:
 	static const casacore::String REC_TRANSFORMATIONS;
 	static const casacore::String REC_CALIBRATION;
 	static const casacore::String REC_SHOWATM;
+	static const casacore::String REC_SHOWTSKY;
 
 	void setDefaults();
 };

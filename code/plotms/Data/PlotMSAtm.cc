@@ -149,10 +149,10 @@ NewCalTable* PlotMSAtm::applySelection(PlotMSSelection& selection) {
     return new NewCalTable(selct);
 }
 
-casacore::Vector<casacore::Double> PlotMSAtm::calcAtmTransmission(
-        casacore::Int spw, casacore::Int scan) {
-    // Implements algorithm in CAS-9053 to get atmospheric transmission curve
-    // per spw + scan
+casacore::Vector<casacore::Double> PlotMSAtm::calcOverlayCurve(
+        casacore::Int spw, casacore::Int scan, bool atm) {
+    // Implements algorithm in CAS-9053 to get overlay curves
+    // (atm or tsky) per spw + scan
     scan_ = scan;
     PlotMSSelection pmsSel;
     pmsSel.setSpw(String::toString(spw));
@@ -168,7 +168,7 @@ casacore::Vector<casacore::Double> PlotMSAtm::calcAtmTransmission(
         chanFreqColGHz(Slicer(Slice(), spw));
     unsigned int numChan(chanFreqColGHz.shape()(0)), chansForCalc(numChan);
     unsigned int midChan(numChan/2);
-    // limit number of channels for calculation to <512:
+    // limit number of channels for calculation to <512 ?
     //while (chansForCalc > 512)  chansForCalc /= 2;
     casacore::Double refFreq = 0.5 * (chanFreqPerSpw(IPosition(2, midChan-1, 0))
         + chanFreqPerSpw(IPosition(2, midChan, 0)));
@@ -184,22 +184,33 @@ casacore::Vector<casacore::Double> PlotMSAtm::calcAtmTransmission(
         new atm::RefractiveIndexProfile(*specGrid, *atmProfile);
     atm::SkyStatus* skyStatus = new atm::SkyStatus(*refIdxProfile);
     skyStatus->setUserWH2O(atm::Length(pwv_, "mm"));
-    casacore::Vector<casacore::Double> dryOpacity, wetOpacity;
+    airmass_ = computeMeanAirmass();
+    casacore::Vector<casacore::Double> dryOpacity, wetOpacity, 
+        atmTransmission, TebbSky;
     dryOpacity.resize(chansForCalc);
     wetOpacity.resize(chansForCalc);
     for (uInt chan=0; chan<chansForCalc; ++chan) {
         dryOpacity(chan) = refIdxProfile->getDryOpacity(0,chan).get("neper");
         wetOpacity(chan) = skyStatus->getWetOpacity(0, chan).get("mm-1");
     }
-    airmass_ = computeMeanAirmass();
-    casacore::Vector<casacore::Double> transmission =
-        exp(-airmass_ * (wetOpacity + dryOpacity));
+    atmTransmission = exp(-airmass_ * (wetOpacity + dryOpacity));
+    if (!atm) {
+        TebbSky.resize(chansForCalc);
+        for (uInt chan=0; chan<chansForCalc; ++chan) {
+            TebbSky(chan) = skyStatus->getTebbSky(0, chan).get("K");
+        }
+        TebbSky *=
+            (1.0-atmTransmission) / (1.0-exp((-1.0*wetOpacity)-dryOpacity));
+    }
     // clean up
     delete specGrid;
     delete atmProfile;
     delete refIdxProfile;
     delete skyStatus;
-    return transmission; 
+    if (atm)
+        return (atmTransmission * 100.0); // percent
+    else
+        return TebbSky;
 }
 
 atm::AtmProfile* PlotMSAtm::getAtmProfile() {

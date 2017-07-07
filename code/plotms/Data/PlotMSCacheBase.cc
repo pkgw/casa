@@ -817,7 +817,8 @@ void PlotMSCacheBase::release(const vector<PMS::Axis>& axes) {
                 break;
 			case PMS::RHO: rho_.resize(0);
                 break;
-			case PMS::ATM: PMSC_DELETE(atm_)
+			case PMS::ATM:
+			case PMS::TSKY: PMSC_DELETE(atm_)
                 break;
 			case PMS::NONE:
                 break;
@@ -1555,7 +1556,8 @@ void PlotMSCacheBase::setCache(Int newnChunk,
                 rho_.resize(nChunk_,true);
                 }
                 break;
-            case PMS::ATM: {
+            case PMS::ATM:
+            case PMS::TSKY: {
 		        addVectors(atm_);
                 }
                 break;
@@ -1707,6 +1709,7 @@ void PlotMSCacheBase::setAxesMask(PMS::Axis axis,Vector<Bool>& axismask) {
 	case PMS::FEED1:
 	case PMS::FEED2:
 	case PMS::ATM:
+	case PMS::TSKY:
 	case PMS::NONE:
 		break;
 	}

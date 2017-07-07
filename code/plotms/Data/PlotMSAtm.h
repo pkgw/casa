@@ -81,9 +81,9 @@ public:
     // apply selection to cal table
     void setUserSelection(PlotMSSelection& selection);
 
-    // returns transmission vector
-    casacore::Vector<casacore::Double> calcAtmTransmission(casacore::Int spw,
-            casacore::Int scan);
+    // returns curve vector (atm if atm=true, else tsky)
+    casacore::Vector<casacore::Double> calcOverlayCurve(
+        casacore::Int spw, casacore::Int scan, bool atm);
 
     inline casacore::Double getPwv() { return pwv_; }
     inline casacore::Double getAirmass() { return airmass_; }

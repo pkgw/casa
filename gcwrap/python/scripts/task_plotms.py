@@ -37,7 +37,7 @@ def plotms(vis=None,
            plotfile=None, expformat=None, exprange=None,
            highres=None, dpi=None, width=None, height=None, overwrite=None,
            showgui=None, clearplots=None,
-           callib=None, showatm=None
+           callib=None, showatm=None, showtsky=None
 ):
 
 # we'll add these later
@@ -189,6 +189,7 @@ def plotms(vis=None,
     clearplots -- clear existing plots so that the new ones coming in can replace them.                 
     callib -- calibration library string, list of strings, or filename for on-the-fly calibration
     showatm -- for bandpass plots, show atmospheric transmission curve
+    showtsky -- for bandpass plots, show sky temperature curve
 
     """
     # Check if DISPLAY environment variable is set.
@@ -403,12 +404,16 @@ def plotms(vis=None,
             else :
                 raise Exception, 'Please remove duplicate y-axes.'
 
-        if showatm:  # check that xaxis is None, chan, or freq
+        if showatm and showtsky:
+            casalog.post('You have selected both showatm and showtsky.  Defaulting to showatm=True only.', "WARN")
+            showtsky = False
+        if showatm or showtsky:  # check that xaxis is None, chan, or freq
             validxaxis = not xaxis or xaxis in ["channel", "frequency"]
             if not validxaxis:
-                casalog.post('showatm is only valid when xaxis is channel or frequency', 'SEVERE')
+                casalog.post('showatm and showtsky are only valid when xaxis is channel or frequency', 'SEVERE')
                 return False
         pm.setShowAtm(showatm, False, plotindex)
+        pm.setShowTsky(showtsky, False, plotindex)
         
         # Set selection
         if (selectdata and os.path.exists(vis)):
@@ -465,7 +470,7 @@ def plotms(vis=None,
                         useCallib = True
                         callibString = callibFile
                     else:
-                        casalog.post("Callib file does not exist")
+                        casalog.post("Callib file does not exist", "ERROR")
                         raise RuntimeError("Callib file does not exist")
         elif isinstance(callib, list):
             if len(callib[0]) > 0:  # no param is a list (default in plotms.xml?)

@@ -128,7 +128,7 @@ void CalCache::loadIt(vector<PMS::Axis>& loadAxes,
   vector<PMS::DataColumn> loadData(loadAxes.size());
   for (uInt i=0; i<loadData.size(); ++i) {
     loadData[i] = PMS::DEFAULT_DATACOLUMN;
-    if (loadAxes[i]==PMS::ATM) doAtm=true;
+    if (loadAxes[i]==PMS::ATM || loadAxes[i]==PMS::TSKY) doAtm=true;
   }
   if (doAtm) {
     atm_p = new PlotMSAtm(filename_);
@@ -311,7 +311,7 @@ void CalCache::loadCalChunks(ROCTIter& ci,
       for(unsigned int i = 0; i < loadAxes.size(); i++) {
         loadCalAxis(ci, chunk, loadAxes[i], pol);
         // print atm stats once per scan
-        if (atm_p && (loadAxes[i]==PMS::ATM)) {
+        if (atm_p && (loadAxes[i]==PMS::ATM || loadAxes[i]==PMS::TSKY)) {
             casacore::Int thisscan = ci.thisScan();
             if (thisscan != lastscan) {
                 stringstream ss;
@@ -654,10 +654,11 @@ void CalCache::loadCalChunks(ROCTIter& ci,
     // metadata axis that always gets loaded so don't want to throw exception
     break;
   }
-  case PMS::ATM: {
+  case PMS::ATM:
+  case PMS::TSKY: { 
     casacore::Int spw = cti.thisSpw();
     casacore::Int scan = cti.thisScan();
-    *atm_[chunk] = atm_p->calcAtmTransmission(spw, scan) * 100.0; // percent
+    *atm_[chunk] = atm_p->calcOverlayCurve(spw, scan, (axis==PMS::ATM));
     break;
   }
   default:

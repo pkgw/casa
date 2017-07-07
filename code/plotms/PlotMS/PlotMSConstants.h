@@ -121,7 +121,7 @@ public:
 	      GAMP,GPHASE,GREAL,GIMAG,
 	      DELAY,SWP,TSYS,OPAC, SNR, TEC,
 	      RADIAL_VELOCITY, RHO,  
-	      ATM, NONE)
+	      ATM, TSKY, NONE)
 
     PMS_ENUM2(Axis, axes, axesStrings, axis,
 	      "Scan","Field","Time","Interval",
@@ -136,7 +136,7 @@ public:
 	      "Gain Amplitude","Gain Phase","Gain Real","Gain Imag",
 	      "Delay","SwPower","Tsys","Opac", "SNR", "TEC",
 	      "Radial Velocity [km/s]", "Distance (rho) [km]", 
-          "Atm Transmission (%)", "None")
+          "Atm Transmission (%)", "Tsky", "None")
 
     // </group>
               

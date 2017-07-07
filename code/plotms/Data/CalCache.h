@@ -150,7 +150,7 @@ private:
   // Is parameter column complex?
   casacore::Bool parsAreComplex_;
 
-  // If ATM axis is requested for bandpass plots
+  // If ATM or TSKY axis is requested for bandpass plots
   PlotMSAtm* atm_p;
 
   // Volume meter for volume calculation

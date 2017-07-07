@@ -1033,6 +1033,7 @@ void PlotMSIndexer::setMethod(CacheMemPtr& getmethod,PMS::Axis axis,
 		getmethod = &PlotMSCacheBase::getRHO0;
 		break;
 	case PMS::ATM:
+	case PMS::TSKY:
 		getmethod = &PlotMSCacheBase::getAtm;
 		break;
 	default:
@@ -1098,6 +1099,7 @@ void PlotMSIndexer::setIndexer(IndexerMethPtr& indexmethod,PMS::Axis axis) {
 	case PMS::VELOCITY:
 	case PMS::CHANNEL:
 	case PMS::ATM:
+	case PMS::TSKY:
 		indexmethod = &PlotMSIndexer::getIndex0100;
 		break;
 

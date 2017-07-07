@@ -55,6 +55,7 @@ const String PlotMSDBusApp::PARAM_AXIS_X = "xAxis";
 const String PlotMSDBusApp::PARAM_AXIS_Y = "yAxis";
 const String PlotMSDBusApp::PARAM_AXIS_Y_LOCATION = "yAxisLocation";
 const String PlotMSDBusApp::PARAM_SHOWATM = "showatm";
+const String PlotMSDBusApp::PARAM_SHOWTSKY = "showtsky";
 const String PlotMSDBusApp::PARAM_GRIDROWS = "gridRows";
 const String PlotMSDBusApp::PARAM_GRIDCOLS = "gridCols";
 const String PlotMSDBusApp::PARAM_SHOWLEGEND = "showLegend";
@@ -391,6 +392,7 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 				ret.defineRecord(PARAM_TRANSFORMATIONS, d->transformations().toRecord());
 				ret.defineRecord(PARAM_CALIBRATION, d->calibration().toRecord());
 				ret.define(PARAM_SHOWATM, d->showAtm());
+				ret.define(PARAM_SHOWTSKY, d->showTsky());
 			}
 
 			if(c != NULL) {
@@ -523,6 +525,14 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 			ppdata->setShowAtm(show);
             if (ppdata->showAtm() != show)
                 logWarn("Parameter " + PARAM_SHOWATM + " not valid for input table type");
+		}
+
+		if(parameters.isDefined(PARAM_SHOWTSKY) &&
+				parameters.dataType(PARAM_SHOWTSKY) == TpBool)   {
+			bool show = parameters.asBool(PARAM_SHOWTSKY);
+			ppdata->setShowTsky(show);
+            if (ppdata->showTsky() != show)
+                logWarn("Parameter " + PARAM_SHOWTSKY + " not valid for input table type");
 		}
 
 		if(parameters.isDefined(PARAM_ITERATE) &&
