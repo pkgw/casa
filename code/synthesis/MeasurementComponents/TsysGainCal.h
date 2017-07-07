@@ -76,7 +76,7 @@ public:
   virtual void specify(const casacore::Record& specify);
 
   // In general, we are freq-dep
-  virtual casacore::Bool freqDepPar() { return true; };
+  virtual casacore::Bool freqDepPar() { return freqDepTsys_; };
 
   // Specialized to turn on spectral weight calibration
   virtual void correct2(vi::VisBuffer2& vb, casacore::Bool trial=false, 
@@ -104,6 +104,9 @@ protected:
   virtual void calcWtScale();
   virtual void calcWtScale2();  // called by local syncWtScale only
 
+  using BJones::keepNCT;
+  virtual void keepNCT(const casacore::Vector<casacore::Int>& ants);
+
 private:
 
   // The name of the SYSCAL table
@@ -111,6 +114,9 @@ private:
 
   // Signal formation of channelized weight calibration
   casacore::Bool freqDepCalWt_;
+
+  // Signal presence of channelized Tsys data
+  casacore::Bool freqDepTsys_;
 
   // <nothing>
 

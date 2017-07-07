@@ -61,7 +61,8 @@ StandardTsys::StandardTsys(VisSet& vs) :
   VisMueller(vs),         // virtual base
   BJones(vs),              // immediate parent
   sysCalTabName_(vs.sysCalTableName()),
-  freqDepCalWt_(false)
+  freqDepCalWt_(false),
+  freqDepTsys_(true)
 {
   if (prtlev()>2) cout << "StandardTsys::StandardTsys(vs)" << endl;
 
@@ -76,7 +77,8 @@ StandardTsys::StandardTsys(String msname,Int MSnAnt,Int MSnSpw) :
   VisMueller(msname,MSnAnt,MSnSpw),         // virtual base
   BJones(msname,MSnAnt,MSnSpw),              // immediate parent
   sysCalTabName_(""),
-  freqDepCalWt_(false)
+  freqDepCalWt_(false),
+  freqDepTsys_(true)
 {
   if (prtlev()>2) cout << "StandardTsys::StandardTsys(msname,MSnAnt,MSnSpw)" << endl;
 
@@ -97,7 +99,8 @@ StandardTsys::StandardTsys(const MSMetaInfoForCal& msmc) :
   VisMueller(msmc),         // virtual base
   BJones(msmc),              // immediate parent
   sysCalTabName_(""),
-  freqDepCalWt_(False)
+  freqDepCalWt_(false),
+  freqDepTsys_(true)
 {
   if (prtlev()>2) cout << "StandardTsys::StandardTsys(msmc)" << endl;
 
@@ -166,11 +169,19 @@ void StandardTsys::setSpecify(const Record& specify) {
 	 (sscol.interval().isNull() || 
 	  !sscol.interval().isDefined(0)) ||
 	 (sscol.antennaId().isNull() || 
-	  !sscol.antennaId().isDefined(0)) ||
-	 (sscol.tsysSpectrum().isNull() || 
-	  !sscol.tsysSpectrum().isDefined(0)) )
+	  !sscol.antennaId().isDefined(0)) )
       throw(AipsError("SYSCAL table is incomplete. Cannot proceed."));
+
+    if ( !sscol.tsysSpectrum().isNull() && sscol.tsysSpectrum().isDefined(0) )
+      freqDepTsys_ = True;
+    else if ( !sscol.tsys().isNull() && sscol.tsys().isDefined(0) )
+      freqDepTsys_ = False;
+    else
+      throw(AipsError("SYSCAL table has no Tsys measurements. Cannot proceed."));
   }
+
+  if (!freqDepTsys_)
+    nChanParList() = 1;
 
   // Create a new caltable to fill up
   createMemCalTable();
@@ -182,7 +193,7 @@ void StandardTsys::setSpecify(const Record& specify) {
 
 
 
-void StandardTsys::specify(const Record&) {
+void StandardTsys::specify(const Record& specify) {
 
   // Escape if SYSCAL table absent
   if (!Table::isReadable(sysCalTabName_))
@@ -199,7 +210,6 @@ void StandardTsys::specify(const Record&) {
   TableIterator sysCalIter(sysCalTab,columns);
 
   // Iterate
-  Int iter(0);
   while (!sysCalIter.pastEnd()) {
 
     // First extract info from SYSCAL
@@ -215,7 +225,14 @@ void StandardTsys::specify(const Record&) {
     sccol.antennaId().getColumn(ants);
 
     Cube<Float> tsys;
-    sccol.tsysSpectrum().getColumn(tsys);
+    if (freqDepTsys_) {
+      sccol.tsysSpectrum().getColumn(tsys);
+    } else {
+      Array<Float> tmp;
+      sccol.tsys().getColumn(tmp);
+      IPosition shape=tmp.shape();
+      tsys=tmp.reform(IPosition(3, shape(0), 1, shape(1)));
+    }
     IPosition tsysshape(tsys.shape());
 
     // Insist only that channel axis matches
@@ -256,7 +273,7 @@ void StandardTsys::specify(const Record&) {
       for (Int ipol=0;ipol<npol;++ipol) {
         if (nfalse(Matrix<Float>(currtsys).row(ipol)<FLT_MIN)==0)
 	  logSink() << "  Tsys data for ant id=" 
-                    << iant << " (pol=" << ipol<< ")"
+		    << thisant << " (pol=" << ipol<< ")"
 		    << " in spw " << ispw
 		    << " at t=" << MVTime(refTime()/C::day).string(MVTime::YMD,7) 
 		    << " are all negative or zero will be entirely flagged."
@@ -269,10 +286,16 @@ void StandardTsys::specify(const Record&) {
     MaskedArray<Bool> negs(solveAllParOK(),mask);
     negs=false;
 
-    keepNCT();
+    Bool uniform=True;
+    if (specify.isDefined("uniform"))
+      uniform=specify.asBool("uniform");
+
+    if (uniform)
+      keepNCT();
+    else
+      keepNCT(ants);
 
     sysCalIter.next();
-    ++iter;
   }
 
   // Assign scan and fieldid info
@@ -300,6 +323,41 @@ void StandardTsys::specify(const Record&) {
     //      logSink() << "Spw " << ispw << ": NONE." << LogIO::POST;
   }
 
+}
+
+void StandardTsys::keepNCT(const Vector<Int>& ants) {
+
+  for (uInt iant=0;iant<ants.nelements();++iant) {
+    Int thisant=ants(iant);
+
+    ct_->addRow(1);
+
+    CTMainColumns ncmc(*ct_);
+
+    // We are adding to the most-recently added row
+    Int row=ct_->nrow()-1;
+
+    // Meta-info
+    ncmc.time().put(row,refTime());
+    ncmc.fieldId().put(row,currField());
+    ncmc.spwId().put(row,currSpw());
+    ncmc.scanNo().put(row,currScan());
+    ncmc.obsId().put(row,currObs());
+    ncmc.interval().put(row,0.0);
+    ncmc.antenna1().put(row,thisant);
+    ncmc.antenna2().put(row,-1);
+
+    // Params
+    ncmc.fparam().put(row,solveAllRPar().xyPlane(thisant));
+
+    // Stats
+    ncmc.paramerr().put(row,solveAllParErr().xyPlane(thisant));
+    ncmc.snr().put(row,solveAllParErr().xyPlane(thisant));
+    ncmc.flag().put(row,!solveAllParOK().xyPlane(thisant));
+  }
+
+  // This spw now has some solutions in it
+  spwOK_(currSpw())=True;
 }
 
 void StandardTsys::correct2(vi::VisBuffer2& vb, Bool trial, 
