@@ -1,4 +1,5 @@
 casa_add_tasks( tools  casa_tasks 
+accor.xml
 accum.xml
 applycal.xml
 asdmsummary.xml

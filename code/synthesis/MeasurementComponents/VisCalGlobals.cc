@@ -35,6 +35,7 @@
 #include <synthesis/MeasurementComponents/EPJones.h>
 #include <synthesis/MeasurementComponents/FJones.h>
 #include <synthesis/MeasurementComponents/FringeJones.h>
+#include <synthesis/MeasurementComponents/AccorJones.h>
 #include <synthesis/MeasurementComponents/KJones.h>
 #include <synthesis/MeasurementComponents/LJJones.h>
 #include <synthesis/MeasurementComponents/AMueller.h>
@@ -228,6 +229,9 @@ SolvableVisCal* createSolvableVisCal(const String& type, VisSet& vs) {
   else if (uptype.contains("FRINGE"))   // Fringe-fitting
     return new FringeJones(vs);
 
+  else if (uptype.contains("ACCOR"))
+    return new AccorJones(vs);
+
   else if (uptype.contains("SDSKY_PS"))
     return new SingleDishPositionSwitchCal(vs);
 
@@ -375,6 +379,9 @@ SolvableVisCal* createSolvableVisCal(const String& type, String msname, Int MSnA
   else if (uptype.contains("FRINGE"))  // Fringe-fitting
     return new FringeJones(msname,MSnAnt,MSnSpw);
 
+  else if (uptype.contains("ACCOR"))
+    return new AccorJones(msname,MSnAnt,MSnSpw);
+
   else if (uptype.contains("SDSKY_PS"))
     throw(AipsError(uptype+" not yet supported via SingleDishPositionSwitchCal(msname,MSnAnt,MSnSpw)"));
   //    return new SingleDishPositionSwitchCal(msname,MSnAnt,MSnSpw);
@@ -521,6 +528,9 @@ SolvableVisCal* createSolvableVisCal(const String& type, const MSMetaInfoForCal&
 
   else if (uptype.contains("FRINGE"))  // Fringe-fitting
     return new FringeJones(msmc);
+
+  else if (uptype.contains("ACCOR"))
+    return new AccorJones(msmc);
 
   else if (uptype.contains("SDSKY_PS"))
     return new SingleDishPositionSwitchCal(msmc);

@@ -221,6 +221,7 @@ casa_add_library( synthesis
  DataSampling/SDDataSampling.cc
  DataSampling/SynDataSampling.cc
  IDL/IDL.cc
+ MeasurementComponents/AccorJones.cc
  MeasurementComponents/AMueller.cc
  MeasurementComponents/BPoly.cc
  MeasurementComponents/CalCorruptor.cc
