@@ -811,10 +811,13 @@ void StatWtTVI::_computeWeights(
 void StatWtTVI::summarizeFlagging() const {
     auto orig = (Double)_nOrigFlaggedPts/(Double)_nTotalPts*100;
     auto stwt = (Double)_nNewFlaggedPts/(Double)_nTotalPts*100;
+    auto total = orig + stwt;
     LogIO log(LogOrigin("StatWtTVI", __func__));
     log << LogIO::NORMAL << "Originally, " << orig
         << "% of the data were flagged. StatWtTVI flagged an "
-        << "additional " << stwt << "%" << LogIO::POST;
+        << "additional " << stwt << "%."  << LogIO::POST;
+    log << LogIO::NORMAL << "TOTAL FLAGGED DATA AFTER RUNNING STATWT: "
+        << total << "%" << LogIO::POST;
     log << LogIO::NORMAL << std::endl << LogIO::POST;
     String col0 = "SPECTRAL_WINDOW";
     String col1 = "SAMPLES_WITH_NON-ZERO_VARIANCE";

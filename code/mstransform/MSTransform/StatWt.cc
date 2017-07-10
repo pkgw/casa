@@ -177,7 +177,7 @@ void StatWt::writeWeights() const {
     if (_preview) {
         LogIO log(LogOrigin("StatWt", __func__));
         log << LogIO::NORMAL
-            << "Running in preview mode, no data were changed"
+            << "RAN IN PREVIEW MODE. NO WEIGHTS NOR FLAGS WERE CHANGED."
             << LogIO::POST;
     }
     statWtLayerFactory.getTVI()->summarizeFlagging();
