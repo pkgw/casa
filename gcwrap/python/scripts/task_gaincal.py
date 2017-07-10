@@ -7,7 +7,8 @@ def gaincal(vis=None,caltable=None,
 	    field=None,spw=None,intent=None,
 	    selectdata=None,timerange=None,uvrange=None,antenna=None,scan=None,
             observation=None, msselect=None,
-	    solint=None,combine=None,preavg=None,refant=None,minblperant=None,
+	    solint=None,combine=None,preavg=None,
+	    refant=None,refantmode=None,minblperant=None,
 	    minsnr=None,solnorm=None,
 	    gaintype=None,smodel=None,calmode=None,append=None,
 	    splinetime=None,npointaver=None,phasewrap=None,
@@ -117,24 +118,26 @@ def gaincal(vis=None,caltable=None,
 		# Set up for solving:  
 		phaseonly=False
 		if (gaintype=='G'):
-			mycb.setsolve(type='G',t=solint,combine=combine,preavg=preavg,refant=refant,
-				    minblperant=minblperant,
-				    solnorm=solnorm,minsnr=minsnr,table=caltable,
-				    apmode=calmode,phaseonly=phaseonly,append=append)
+			mycb.setsolve(type='G',t=solint,combine=combine,preavg=preavg,
+				      refant=refant,refantmode=refantmode,
+				      minblperant=minblperant,
+				      solnorm=solnorm,minsnr=minsnr,table=caltable,
+				      apmode=calmode,phaseonly=phaseonly,append=append)
 		elif (gaintype=='T'):
-			mycb.setsolve(type='T',t=solint,combine=combine,preavg=preavg,refant=refant,
-				    minblperant=minblperant,
-				    solnorm=solnorm,minsnr=minsnr,table=caltable,
-				    apmode=calmode,phaseonly=phaseonly,append=append)
+			mycb.setsolve(type='T',t=solint,combine=combine,preavg=preavg,
+				      refant=refant,refantmode=refantmode,
+				      minblperant=minblperant,
+				      solnorm=solnorm,minsnr=minsnr,table=caltable,
+				      apmode=calmode,phaseonly=phaseonly,append=append)
 		elif (gaintype=='K' or gaintype=='KCROSS' or gaintype=='XY+QU' or gaintype=='XYf+QU'):
 			mycb.setsolve(type=gaintype,t=solint,combine=combine,preavg=preavg,refant=refant,
-				    minblperant=minblperant,
-				    solnorm=solnorm,minsnr=minsnr,table=caltable,
-				    apmode=calmode,phaseonly=phaseonly,append=append)
+				      minblperant=minblperant,
+				      solnorm=solnorm,minsnr=minsnr,table=caltable,
+				      apmode=calmode,phaseonly=phaseonly,append=append)
 		elif (gaintype=='GSPLINE'):
 			mycb.setsolvegainspline(table=caltable,append=append,mode=calmode,
-					      refant=refant,splinetime=splinetime,preavg=preavg,
-					      npointaver=npointaver,phasewrap=phasewrap)
+						refant=refant,splinetime=splinetime,preavg=preavg,
+						npointaver=npointaver,phasewrap=phasewrap)
 		mycb.solve()
 
 		reportsolvestats(mycb.activityrec());
