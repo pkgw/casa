@@ -56,7 +56,7 @@ class gencal_antpostest(unittest.TestCase):
     def tearDown(self):
         if (os.path.exists(self.msfile)):
             shutil.rmtree(self.msfile)
-            
+
         shutil.rmtree(self.caltable,ignore_errors=True)
 
     def test_antpos_manual(self):
@@ -123,8 +123,7 @@ class test_gencal_antpos_alma(unittest.TestCase):
 
     # For this MS, there is position information for 25 out of the 29 antennas
     # (at 2013-11-15T10:26:19)
-    ALMA_MS = os.path.join(datapath,
-                           '../flagdata/uid___A002_X72c4aa_X8f5_scan21_spw18_field2_corrXX.ms')
+    ALMA_MS = 'uid___A002_X72c4aa_X8f5_scan21_spw18_field2_corrXX.ms'
     CAL_TYPE = 'antpos'
     REF_CALTABLE_MANUAL = os.path.join(datapath,
                                        'alma_reference/A002_X72c4aa_ref_ant_pos.manual.cal')
@@ -133,10 +132,16 @@ class test_gencal_antpos_alma(unittest.TestCase):
     IGNORE_COLS = ['WEIGHT','OBSERVATION_ID']
 
     def setUp(self):
-        pass
+        if (os.path.exists(self.ALMA_MS)):
+            shutil.rmtree(self.ALMA_MS)
+
+        flagdata_datapath = os.path.join(datapath, '../flagdata/')
+        shutil.copytree(os.path.join(flagdata_datapath, self.ALMA_MS),
+                        self.ALMA_MS, symlinks=True)
 
     def tearDown(self):
-        pass
+        if (os.path.exists(self.ALMA_MS)):
+            shutil.rmtree(self.ALMA_MS)
 
     def remove_caltable(self, ct_name):
         """ Removes a cal table. ct_name: path to the caltable """
@@ -149,7 +154,6 @@ class test_gencal_antpos_alma(unittest.TestCase):
         """
 
         out_caltable = 'ant_pos_man.cal'
-        print('ALMA MS {}'.format(self.ALMA_MS))
         gencal(vis=self.ALMA_MS,
                caltable=out_caltable,
                caltype=self.CAL_TYPE,
@@ -198,7 +202,7 @@ class test_gencal_antpos_alma(unittest.TestCase):
             from suds.client import Client
             ws_cli = Client(self.ALMA_SRV_WSDL_URL)
             # Run empty query
-            res = ws_cli.service.getAntennaPositions("CURRENT.AOS", "", "2015-09-30T01:53:54")
+            res = ws_cli.service.getAntennaPositions("CURRENT.AOS", "", "2015-07-28T16:53:54")
         except ImportError:
             print('Cannot import required dependencies to query the ALMA TCM DB '
                   'web service')
@@ -230,7 +234,8 @@ class test_gencal_antpos_alma(unittest.TestCase):
             raise
 
         self.assertTrue(os.path.exists(out_caltable),
-                        "The output cal table should have been created")
+                        "The output cal table should have been created: {0}".
+                        format(out_caltable))
 
         # Compare against ref file
         self.assertTrue(th.compTables(out_caltable,
