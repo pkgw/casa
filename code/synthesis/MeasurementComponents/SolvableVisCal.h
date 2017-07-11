@@ -103,6 +103,7 @@ public:
   inline casacore::String&      tInterpType()    { return tInterpType_; };
   inline casacore::String&      fInterpType()    { return fInterpType_; };
   inline casacore::Vector<casacore::Int>& spwMap()         { return spwMap_; };
+  inline casacore::String&      refantmode()     { return refantmode_; };
   inline casacore::Int&         refant()         { return refantlist()(0); };
   inline casacore::Vector<casacore::Int>& refantlist()     { return urefantlist_; };
   inline casacore::Int&         minblperant()    { return minblperant_; };
@@ -533,6 +534,9 @@ private:
 
   // Spw mapping
   casacore::Vector<casacore::Int> spwMap_;
+
+  // Refant mode
+  casacore::String refantmode_;
 
   // Refant
   casacore::Vector<casacore::Int> urefantlist_;
