@@ -81,7 +81,7 @@ namespace vi { //# NAMESPACE vi - BEGIN
 
 // constructor
 SDDoubleCircleFilter::SDDoubleCircleFilter(Record const &configuration) :
-    ms_p(0), configuration_(configuration), smooth_(false), central_disk_radius_(
+    ms_name_(), configuration_(configuration), smooth_(false), central_disk_radius_(
         0.0), timerange_list_() {
   initFilter();
 }
@@ -143,7 +143,9 @@ int SDDoubleCircleFilter::isFiltratePerRow(VisBuffer2 const *vb,
 }
 
 void SDDoubleCircleFilter::syncWith(ViImplementation2 const *vii) {
-  if (vii->isNewMs()) {
+  if (vii->isNewMs() && ms_name_ != vii->msName()) {
+    ms_name_ = vii->msName();
+
     // execute findDataWithinRadius
     // ---> map<pair(field, antenna, feed), TimeRangeList: list of TimeRange>
 

@@ -83,7 +83,7 @@ public:
 private:
   void initFilter();
 
-  casacore::MeasurementSet *ms_p;
+  casacore::String ms_name_;
   casacore::Record const &configuration_;
 
   // parameter for filtering
