@@ -623,11 +623,21 @@ void StatWtTVI::_gatherAndComputeWeights() const {
     IPosition mystop(3, 0);
     Slicer sl(mystart, mystop, Slicer::endIsLast);
     for (vii->origin(); vii->more(); vii->next()) {
-        const auto rowIDs = vb->rowIds();
-        const auto ant1 = vb->antenna1();
-        const auto ant2 = vb->antenna2();
+        const auto& rowIDs = vb->rowIds();
+        if (_processedRowIDs.find(rowIDs[0]) == _processedRowIDs.end()) {
+            // haven't processed this chunk
+            _processedRowIDs.insert(rowIDs[0]);
+        }
+        else {
+            // this subchunk has been processed, this can happen at the end
+            // when the last chunk is processed twice
+            cout << "chunk already processed, return" << endl;
+            return;
+        }
+        const auto& ant1 = vb->antenna1();
+        const auto& ant2 = vb->antenna2();
         // [nC,nF,nR)
-        const auto dataCube = _useCorrected
+        const auto& dataCube = _useCorrected
             ? vb->visCubeCorrected() : vb->visCube();
         IPosition dataCubeBLC(3, 0);
         auto dataCubeTRC = dataCube.shape() - 1;

@@ -168,6 +168,7 @@ private:
     mutable casacore::uInt _nOrigFlaggedPts = 0;
     mutable casacore::Bool _useCorrected = true;
     mutable std::map<casacore::uInt, std::pair<casacore::uInt, casacore::uInt>> _samples;
+    mutable std::set<casacore::uInt> _processedRowIDs = std::set<casacore::uInt>();
 
     void _gatherAndComputeWeights() const;
 
