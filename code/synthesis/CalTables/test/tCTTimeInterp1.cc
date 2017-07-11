@@ -41,6 +41,8 @@
 // Control verbosity
 #define CTTIMEINTERP1TEST_VERBOSE false
 
+using namespace casa;
+
 void doTest1 (Bool verbose=false) {
 
   {  
@@ -150,11 +152,104 @@ void doTest1 (Bool verbose=false) {
 
 }
 
+/* Experimenting with pointers to factory methods
+
+class A {
+public:
+  
+  A() {}
+  A(Int i) { cout << "A ctor w/ i=" << i << endl; }
+  virtual ~A() {}
+
+  static A* factory(Int i) { return new A(i); }
+  
+  virtual void name() {  cout << "I'm a A" << endl; }
+  
+  
+};
+
+class B: public A {
+public:
+
+  B():A() {}
+  B(Int i):A() { cout << "B ctor w/ i=" << i << endl; }
+
+  static A* factory(Int i) { return new B(i); }
+  
+  virtual void name() {  cout << "I'm a B" << endl; }
+  
+  virtual ~B() {}
+  
+};
+
+typedef A* (*AFactory)(Int i);
+
+class X {
+public:
+  X(): a_(0) { cout << "X ctor" << endl;}
+  virtual ~X() { if (a_) delete a_; }
+  virtual void init(Int i)  { cout << "X::init" << endl; a_=(*af())(i); a_->name(); }
+
+  A* a_;
+
+private:
+  virtual AFactory af() { cout << "Using A::factory" << endl; return &A::factory; }
+};
+
+
+class Y: public X {
+public:
+  Y(): X() {cout << "Y ctor" << endl;}
+  virtual ~Y() {}
+
+private:
+  virtual AFactory af() { cout << "Using B::factory" << endl; return &B::factory; }
+};
+
+
+
+
+void doTestFactory (AFactory f, Int i) {
+  A* a=(*f)(i);
+  a->name();
+  delete a;
+}
+
+void doTest2() {
+
+{
+  AFactory p=&B::factory;
+  A* a = (*p)(3);
+  a->name();
+  delete a;
+}
+
+ cout <<endl<< "***********" << endl;
+
+ doTestFactory(&A::factory,4);
+ cout << "***********" << endl;
+ doTestFactory(&B::factory,5);
+
+ cout << endl << "*********************" << endl;
+
+ X x;
+ x.init(13);
+ cout << "***********" << endl;
+ Y y;
+ y.init(21);
+
+
+}
+
+//*/
+
 int main ()
 {
   try {
 
     doTest1(CTTIMEINTERP1TEST_VERBOSE);
+
+    // doTest2();
 
   } catch (AipsError x) {
     cout << "Unexpected exception: " << x.getMesg() << endl;

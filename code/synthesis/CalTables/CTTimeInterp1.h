@@ -57,27 +57,34 @@ public:
   virtual ~CTTimeInterp1();
 
   // Some state info
-  casacore::Double timeRef() { return timeRef_; };
-  casacore::String timeType() { return timeType_; };
-  casacore::Vector<casacore::Double> domain() { return domain_; };
+  casacore::Double timeRef() const { return timeRef_; };
+  casacore::String timeType() const { return timeType_; };
+  casacore::Vector<casacore::Double> domain() const { return domain_; };
+
+  // Interpolate, given timestamp; returns T if new result
+  virtual casacore::Bool interpolate(casacore::Double time);
+
+  // Interpolate, given timestamp and fiducial freq; returns T if new result
+  virtual casacore::Bool interpolate(casacore::Double newtime, casacore::Double freq);
+
+  virtual void state(casacore::Bool verbose=false);
+
+  // static factory method to make CTTimeInterp1
+  static CTTimeInterp1* factory(NewCalTable& ct,
+				const casacore::String& timetype,
+				casacore::Array<casacore::Float>& result,
+				casacore::Array<casacore::Bool>& rflag) {
+    return new casa::CTTimeInterp1(ct,timetype,result,rflag); }
 
   // Set interpolation type
   void setInterpType(casacore::String strtype);
 
-  // Interpolate, given timestamp; returns T if new result
-  casacore::Bool interpolate(casacore::Double time);
+protected:
 
-  // Interpolate, given timestamp and fiducial freq; returns T if new result
-  casacore::Bool interpolate(casacore::Double newtime, casacore::Double freq);
-
-  void state(casacore::Bool verbose=false);
-
-private:
-  
-  // Find 
+  // Find time registration
   casacore::Bool findTimeRegistration(casacore::Int& idx,casacore::Bool& exact,casacore::Float newtime);
 
-  // 
+  // Do phase delay math
   void applyPhaseDelay(casacore::Double freq);
 
 
@@ -118,6 +125,11 @@ private:
 
 };
 
+// Pointer to static factory methods for CTTimeInterp1
+typedef CTTimeInterp1* (*CTTIFactoryPtr)(NewCalTable&,
+					 const casacore::String&,
+					 casacore::Array<casacore::Float>&,
+					 casacore::Array<casacore::Bool>&);
 
 } //# NAMESPACE CASA - END
 

@@ -225,15 +225,16 @@ public:
   CLPatchPanel(const casacore::String& ctname,
 	       const casacore::Record& callib,
 	       VisCalEnum::MatrixType mtype,
-	       casacore::Int nPar);
+	       casacore::Int nPar,
+	       const CTTIFactoryPtr cttifactoryptr=&CTTimeInterp1::factory);
 
    // From caltable name and (selected) casacore::MS 
   CLPatchPanel(const casacore::String& ctname,
 	       const casacore::MeasurementSet& ms,
 	       const casacore::Record& callib,
 	       VisCalEnum::MatrixType mtype,
-	       casacore::Int nPar);
- 
+	       casacore::Int nPar,
+	       const CTTIFactoryPtr cttifactoryptr=&CTTimeInterp1::factory);
   // Destructor
   virtual ~CLPatchPanel();
 
@@ -380,6 +381,8 @@ private:
 
   casacore::LogIO logsink_;
 
+  // The factory to use to create CTTimeInterp1s
+  CTTIFactoryPtr cttifactoryptr_;
 
 };
 
