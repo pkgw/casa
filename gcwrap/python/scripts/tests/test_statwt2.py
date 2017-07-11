@@ -10,7 +10,7 @@ import numpy
 import numbers
 
 datadir = os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/statwt/'
-src = datadir + 'ngc5921.split.ms'
+src = datadir + 'ngc5921.split_2.ms'
 
 def _get_dst_cols(dst, other="", dodata=True):
     mytb = tbtool()
@@ -156,7 +156,7 @@ class statwt2_test(unittest.TestCase):
     def test_timebin(self):
         """ Test time binning"""
         dst = "ngc5921.split.timebin.ms"
-        ref = datadir + "ngc5921.timebin300s_1.ms.ref"
+        ref = datadir + "ngc5921.timebin300s_2.ms.ref"
         [refwt, refwtsp, refflag, reffrow, refdata] = _get_dst_cols(ref)
         rtol = 1e-7
         combine = "corr"
@@ -183,9 +183,9 @@ class statwt2_test(unittest.TestCase):
         rtol = 1e-7
         for combine in ["", "corr"]:
             if combine == "":
-                ref = datadir + "ngc5921.chanbin_sepcorr.ms.ref"
+                ref = datadir + "ngc5921.chanbin_sepcorr_2.ms.ref"
             else:
-                ref = datadir + "ngc5921.chanbin_combcorr.ms.ref"
+                ref = datadir + "ngc5921.chanbin_combcorr_2.ms.ref"
             [refwt, refwtsp, refflag, reffrow, refdata] = _get_dst_cols(ref)
             for i in [0, 1, 2]:
                 for chanbin in ["195.312kHz", 8]:
@@ -225,6 +225,7 @@ class statwt2_test(unittest.TestCase):
         """Test minimum number of points"""
         dst = "ngc5921.split.minsamp.ms"
         combine = "corr"
+        trow = 12
         for i in [0,1]:
             for minsamp in [60, 80]:
                 shutil.copytree(src, dst)
@@ -237,15 +238,15 @@ class statwt2_test(unittest.TestCase):
                     statwt2(dst, minsamp=minsamp, combine=combine)
                 [wt, wtsp, flag, frow, data] = _get_dst_cols(dst)
                 if minsamp == 60:
-                    self.assertTrue((wt[:, 30] > 0).all(), "Incorrect weight row 30")
-                    self.assertTrue((wtsp[:, :, 30] > 0).all(), "Incorrect weight spectrum row 30")
-                    self.assertFalse(flag[:,:,30].all(), "Incorrect flag row 30")
-                    self.assertFalse(frow[30], "Incorrect flagrow row 30")
+                    self.assertTrue((wt[:, trow] > 0).all(), "Incorrect weight row " + str(trow))
+                    self.assertTrue((wtsp[:, :, trow] > 0).all(), "Incorrect weight spectrum row " + str(trow))
+                    self.assertFalse(flag[:,:,trow].all(), "Incorrect flag row " + str(trow))
+                    self.assertFalse(frow[trow], "Incorrect flagrow row " + str(trow))
                 else:
-                    self.assertTrue((wt[:, 30] == 0).all(), "Incorrect weight row 30")
-                    self.assertTrue((wtsp[:, :, 30] == 0).all(), "Incorrect weight spectrum row 30")
-                    self.assertTrue(flag[:,:,30].all(), "Incorrect flag row 30")
-                    self.assertTrue(frow[30], "Incorrect flagrow row 30")
+                    self.assertTrue((wt[:, trow] == 0).all(), "Incorrect weight row " + str(trow))
+                    self.assertTrue((wtsp[:, :, trow] == 0).all(), "Incorrect weight spectrum row " + str(trow))
+                    self.assertTrue(flag[:,:,trow].all(), "Incorrect flag row " + str(trow))
+                    self.assertTrue(frow[trow], "Incorrect flagrow row " + str(trow))
                 shutil.rmtree(dst)
             
     def test_fieldsel(self):
@@ -316,7 +317,7 @@ class statwt2_test(unittest.TestCase):
         """Test default scan, field, etc boundaries"""
         dst = "ngc5921.split.normalbounds.ms"
         timebin = "6000s"
-        ref = datadir + "ngc5921.normal_bounds.ms.ref"
+        ref = datadir + "ngc5921.normal_bounds_2.ms.ref"
         rtol = 1e-7
         [expwt, expwtsp, expflag, expfrow, expdata] = _get_dst_cols(ref)
         # there are three field_ids, and there is a change in field_id when
@@ -343,7 +344,7 @@ class statwt2_test(unittest.TestCase):
         """Test no scan boundaries"""
         dst = "ngc5921.no_scan_bounds.ms"
         timebin = "6000s"
-        ref = datadir + "ngc5921.no_scan_bounds.ms.ref"
+        ref = datadir + "ngc5921.no_scan_bounds_2.ms.ref"
         rtol = 1e-7
         [expwt, expwtsp, expflag, expfrow, expdata] = _get_dst_cols(ref)
         combine = "corr, scan"
@@ -367,7 +368,7 @@ class statwt2_test(unittest.TestCase):
         """Test no scan nor field boundaries"""
         dst = "ngc5921.no_scan_nor_field_bounds.ms"
         timebin = "6000s"
-        ref = datadir + "ngc5921.no_scan_nor_field_bounds.ms.ref"
+        ref = datadir + "ngc5921.no_scan_nor_field_bounds_2.ms.ref"
         rtol = 1e-7
         [expwt, expwtsp, expflag, expfrow, expdata] = _get_dst_cols(ref)
         for combine in ["corr,scan,field", "corr,field,scan"]:
@@ -424,7 +425,7 @@ class statwt2_test(unittest.TestCase):
     def test_wtrange(self):
         """ Test weight range"""
         dst = "ngc5921.split.timebin.ms"
-        ref = datadir + "ngc5921.timebin300s_1.ms.ref"
+        ref = datadir + "ngc5921.timebin300s_2.ms.ref"
         [refwt, refwtsp, refflag, reffrow, refdata] = _get_dst_cols(ref)
         rtol = 1e-7
         combine = "corr"
@@ -508,7 +509,7 @@ class statwt2_test(unittest.TestCase):
     def test_data(self):
         """ Test using data column"""
         dst = "ngc5921.split.data.ms"
-        ref = datadir + "ngc5921.timebin300s_1.ms.ref"
+        ref = datadir + "ngc5921.timebin300s_2.ms.ref"
         [refwt, refwtsp, refflag, reffrow] = _get_dst_cols(ref, "", dodata=False)
         rtol = 1e-7
         combine = "corr"
