@@ -26,7 +26,7 @@ def gencal(vis=None,caltable=None,caltype=None,infile=None,
 
               # call a Python function to retreive ant position offsets automatically (currently EVLA only)
               if (caltype=='antpos' and antenna==''):
-                casalog.post(" Determine antenna position offests from the baseline correction database")
+                casalog.post(" Determine antenna position offsets from the baseline correction database")
                 import correct_ant_posns as getantposns 
                 # correct_ant_posns returns a list , [return_code, antennas, offsets]
                 antenna_offsets=getantposns.correct_ant_posns(vis,False)
