@@ -3,7 +3,7 @@ import unittest
 import os
 import filecmp
 import pprint
-from tasks import flagcmd, flagdata, mstransform
+from tasks import flagcmd, flagdata, mstransform, setjy
 from taskinit import aftool, tbtool
 from __main__ import default
 import exceptions
@@ -3573,6 +3573,44 @@ class test_preaveraging(test_base):
         # Compare results
         self.assertEqual(res2['flagged'], res2['flagged'])          
 
+class test_virtual_col(test_base):
+    def setUp(self):
+        self.setUp_ngc5921(force=True)        
+        
+    def tearDown(self):    
+        os.system('rm -rf ngc5921*')        
+    
+    def test_virtual_model_col(self):
+        '''flagdata: Tests using a virtual MODEL column'''
+        
+        # Copy MS to new MS
+        os.system('cp -RH ngc5921.ms ngc5921_virtual.ms')
+        self.MSvirtual = 'ngc5921_virtual.ms'
+        
+        # First, run setjy to create a virtual MODEl column (SOURCE_MODEL)
+        setjy(vis=self.MSvirtual, field='1331+305*',modimage='',standard='Perley-Taylor 99',
+                scalebychan=False, usescratch=False)
+        
+        # Verify that the virtual column exist
+        import testhelper as th
+        mcol = th.getColDesc(self.MSvirtual+'/SOURCE', 'SOURCE_MODEL')
+        mkeys = mcol.keys()
+        self.assertTrue(mkeys.__len__() > 0, 'Should have a SOURCE_MODEL column')
+        
+        # Run flagdata on it. RESIDUAL_DATA = DATA - MODEL
+        flagdata(vis=self.MSvirtual,mode='clip',datacolumn='RESIDUAL_DATA',clipminmax=[2.3,3.1],clipoutside=False)
+        res_virtual = flagdata(vis=self.MSvirtual, mode='summary')['flagged']
+
+        # Compare with a normal MODEL column flagging
+        # Run setjy to create a normal MODEl column (SOURCE_MODEL)
+        setjy(vis=self.vis, field='1331+305*',modimage='',standard='Perley-Taylor 99',
+                scalebychan=False, usescratch=True)
+        
+        flagdata(vis=self.vis,mode='clip',datacolumn='RESIDUAL_DATA',clipminmax=[2.3,3.1],clipoutside=False)
+        res = flagdata(vis=self.vis, mode='summary')['flagged']
+        
+        self.assertEqual(res_virtual, res, 'Flagging using virtual MODEL column differs from normal MODEL column')
+
 
 def suite():
     return [test_antint,
@@ -3598,4 +3636,5 @@ def suite():
             test_tbuff,
             TestMergeManualTimerange,
             test_preaveraging,
+            test_virtual_col,
             cleanup]
