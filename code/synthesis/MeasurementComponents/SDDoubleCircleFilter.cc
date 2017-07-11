@@ -222,14 +222,14 @@ void SDDoubleCircleFilter::syncWith(ViImplementation2 const *vii) {
             << nChanParList[ispw] << ")" << LogIO::POST;
         continue;
       }
-      os << "Process spw " << ispw << "(nchan " << nChanParList[ispw] << ")"
+      ROScalarColumn<Int> antennaCol(currentMS, "ANTENNA1");
+      Int antenna_id = antennaCol(0);
+      os << "Process antenna " << antenna_id
+          << " spw " << ispw << "(nchan " << nChanParList[ispw] << ")"
           << LogIO::POST;
 
       Int field_id = msIter.fieldId();
 
-      ROScalarColumn<Int> antennaCol(currentMS, "ANTENNA1");
-      //currAnt_ = antennaCol(0);
-      Int antenna_id = antennaCol(0);
       ROScalarColumn<Int> feedCol(currentMS, "FEED1");
       Int feed_id = feedCol(0);
       os << LogIO::DEBUGGING << "FIELD_ID " << field_id << " ANTENNA1 "
