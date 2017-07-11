@@ -37,7 +37,7 @@ myat.initSpectralWindow(nb,fC,fW,fR)
 do=myat.getDryOpacitySpec()
 rchan=myat.getRefChan()
 print("")
-print("Absorption Profile built from RefractiveIndexProfile CONSTRUCTOR. Summary of results:", TestName)
+print_test("Absorption Profile built from RefractiveIndexProfile CONSTRUCTOR. Summary of results:", TestName)
 print_test("Total Dry Opacity at %f %s for 1.0 air mass: %f" % \
 		(fC['value'][0], fC['unit'], myat.getDryOpacity()), TestName)
 print("")
