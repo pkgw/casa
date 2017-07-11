@@ -100,8 +100,8 @@ inline void FiltrateArray(Array<T> const &feed, Vector<bool> const &is_filtrate,
     filtrate.resize();
     filtrate.reference(feed);
   } else {
-    shape[ndim - 1] = ntrue(is_filtrate);
-//  filtrate.resize(ntrue(is_filtrate));
+    shape[ndim - 1] = num_filtrates;
+    filtrate.resize(shape);
     AlwaysAssert((size_t )feed.shape()[ndim - 1] == is_filtrate.nelements(),
         AipsError);
     IPosition iter_axis(1, ndim - 1);
