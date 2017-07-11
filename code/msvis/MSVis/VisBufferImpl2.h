@@ -126,6 +126,7 @@ class VisBufferImpl2 : public VisBuffer2 {
     friend class VisBufferCache;
     friend class VisBufferState;
     friend class casa::vi::VisBuffer2;
+	friend class VisBuffer2Adapter;
     friend class VisBufferImpl2Async; // for async i/o
     friend class VisBufferImpl2AsyncWrapper; // for async i/o
     friend class ViReadImpl;
@@ -134,6 +135,12 @@ class VisBufferImpl2 : public VisBuffer2 {
 
 public:
 
+	// Create empty VisBufferImpl2 you can assign to or attach.
+	VisBufferImpl2 (VisBufferOptions options = VbNoOptions);
+	// Construct VisBufferImpl2 for a particular ViImplementation2
+	// The buffer will remain synchronized with the iterator.
+
+	VisBufferImpl2(ViImplementation2 * iter, VisBufferOptions options);
 
     // Destructor (detaches from VisIter)
 
@@ -190,6 +197,7 @@ public:
     // Reference to underlying MS, via the Vii
     virtual const casacore::MeasurementSet& ms() const;
     virtual const vi::SubtableColumns & subtableColumns () const;
+	virtual casacore::Bool existsColumn (VisBufferComponent2 id) const;
 
     //--> This needs to be removed: virtual casacore::Bool fetch(const asyncio::PrefetchColumns *pfc);
 
@@ -357,16 +365,6 @@ public:
     virtual void setSigmaSpectrum (const casacore::Cube<casacore::Float>& value);
 
 protected:
-
-    // Create empty VisBufferImpl2 you can assign to or attach.
-    VisBufferImpl2 (VisBufferOptions options = VbNoOptions);
-    // Construct VisBufferImpl2 for a particular ViImplementation2
-    // The buffer will remain synchronized with the iterator.
-
-    VisBufferImpl2(ViImplementation2 * iter, VisBufferOptions options);
-
-    // Attach to a VisIter. Detaches itself first if already attached
-    // to a VisIter. Will remain synchronized with iterator.
 
     //virtual void cacheCopy (const VisBufferImpl2 & other, casacore::Bool markAsCached);
 
