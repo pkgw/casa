@@ -176,13 +176,13 @@ namespace casa {
 SDDoubleCircleGainCal::SDDoubleCircleGainCal(VisSet &vs) :
     VisCal(vs),             // virtual base
     VisMueller(vs),         // virtual base
-    GJones(vs), central_disk_size_(0.0), smooth_(True) {
+    GJones(vs), central_disk_size_(0.0), smooth_(True), currAnt_() {
 }
 
 SDDoubleCircleGainCal::SDDoubleCircleGainCal(const MSMetaInfoForCal& msmc) :
     VisCal(msmc),             // virtual base
     VisMueller(msmc),         // virtual base
-    GJones(msmc), central_disk_size_(0.0), smooth_(True) {
+    GJones(msmc), central_disk_size_(0.0), smooth_(True), currAnt_() {
 }
 
 SDDoubleCircleGainCal::~SDDoubleCircleGainCal() {
@@ -251,6 +251,10 @@ void SDDoubleCircleGainCal::globalPostSolveTinker() {
   // set of spectral data required for the calibration
 
   // setup worker_
+  ROScalarQuantColumn<Double> antennaDiameterColumn(ct_->antenna(),
+      "DISH_DIAMETER");
+  ROArrayQuantColumn<Double> observingFrequencyColumn(ct_->spectralWindow(),
+      "CHAN_FREQ");
   Int smoothingSize = -1;// use default smoothing size
   worker_.setCentralRegion(central_disk_size_);
   if (smooth_) {
@@ -270,6 +274,29 @@ void SDDoubleCircleGainCal::globalPostSolveTinker() {
 
   Vector<uInt> to_be_removed;
   while (!ctiter.pastEnd()) {
+    Int const thisAntenna = ctiter.thisAntenna1();
+    Quantity antennaDiameterQuant = antennaDiameterColumn(thisAntenna); // nominal
+    worker_.setAntennaDiameter(antennaDiameterQuant.getValue("m"));
+    debuglog<< "antenna diameter = " << worker_.getAntennaDiameter() << "m" << debugpost;
+    Int const thisSpw = ctiter.thisSpw();
+    Vector<Quantity> observingFrequencyQuant = observingFrequencyColumn(thisSpw);
+    Double meanFrequency = 0.0;
+    auto numChan = observingFrequencyQuant.nelements();
+    debuglog<< "numChan = " << numChan << debugpost;
+    assert(numChan > 0);
+    if (numChan % 2 == 0) {
+      meanFrequency = (observingFrequencyQuant[numChan / 2 - 1].getValue("Hz")
+          + observingFrequencyQuant[numChan / 2].getValue("Hz")) / 2.0;
+    } else {
+      meanFrequency = observingFrequencyQuant[numChan / 2].getValue("Hz");
+    }
+    //debuglog << "mean frequency " << meanFrequency.getValue() << " [" << meanFrequency.getFullUnit() << "]" << debugpost;
+    debuglog<< "mean frequency " << meanFrequency << debugpost;
+    worker_.setObservingFrequency(meanFrequency);
+    debuglog<< "observing frequency = " << worker_.getObservingFrequency() / 1e9 << "GHz" << debugpost;
+    Double primaryBeamSize = worker_.getPrimaryBeamSize();
+    debuglog<< "primary beam size = " << rad2arcsec(primaryBeamSize) << " arcsec" << debugpost;
+
     // get table entry sorted by TIME
     Vector<Double> time(ctiter.time());
     Cube<Complex> p(ctiter.cparam());
@@ -348,6 +375,8 @@ void SDDoubleCircleGainCal::selfGatherAndSolve(VisSet& vs,
 
   // Setup shape of solveAllRPar
   nElem() = 1;
+  currAnt_.resize(nElem());
+  currAnt_ = -1;
   initSolvePar();
 
   // Pick up OFF spectra using STATE_ID
@@ -416,11 +445,13 @@ void SDDoubleCircleGainCal::selfSolveOne(SDBList &sdbs) {
   if (!corrected.conform(solveAllCPar())) {
     // resize solution array
     nElem() = sdb.nRows();
+    currAnt_.resize(nElem());
     sizeSolveParCurrSpw(sdb.nChannels());
   }
 
   solveAllCPar() = Complex(1.0);
   solveAllParOK() = false;
+  currAnt_ = sdb.antenna1();
 
   size_t const numCorr = corrected.shape()[0];
   for (size_t iCorr = 0; iCorr < numCorr; ++iCorr) {

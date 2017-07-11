@@ -82,7 +82,7 @@ private:
 
   casacore::Double central_disk_size_;
   casacore::Bool smooth_;
-  casacore::uInt currAnt_;
+  casacore::Vector<casacore::Int> currAnt_;
   SDDoubleCircleGainCalImpl worker_;
 };
 
