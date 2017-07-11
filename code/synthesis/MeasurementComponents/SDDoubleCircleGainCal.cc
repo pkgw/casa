@@ -412,7 +412,14 @@ void SDDoubleCircleGainCal::selfSolveOne(SDBList &sdbs) {
 
   auto const &corrected = sdb.visCubeCorrected();
   auto const &flag = sdb.flagCube();
-  solveAllCPar() = Complex(0.0);
+
+  if (!corrected.conform(solveAllCPar())) {
+    // resize solution array
+    nElem() = sdb.nRows();
+    sizeSolveParCurrSpw(sdb.nChannels());
+  }
+
+  solveAllCPar() = Complex(1.0);
   solveAllParOK() = false;
 
   size_t const numCorr = corrected.shape()[0];
