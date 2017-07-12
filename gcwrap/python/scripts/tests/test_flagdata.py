@@ -3579,7 +3579,26 @@ class test_virtual_col(test_base):
         
     def tearDown(self):    
         os.system('rm -rf ngc5921*')        
-    
+
+    @unittest.skip('Skip until CAS-10383 is fixed')
+    def test_no_model_col(self):
+        '''flagdata: catch failure when MODEL or virtual MODEL do not exist'''
+        # Verify that a MODEL or virtual MODEL column do not exist in MS
+        tblocal = tbtool()
+        tblocal.open(self.vis)
+        cols = tblocal.colnames()
+        tblocal.close()
+        
+        tblocal.open(self.vis+'/SOURCE')
+        cols_v = tblocal.colnames()
+        tblocal.close()
+       
+        self.assertFalse('MODEL_DATA' in cols, 'Test cannot have a MODEL_DATA column')
+        self.assertFalse('SOURCE_MODEL' in cols_v, 'Test cannot have a virtual MODEL column')
+        
+        # Run flagdata on it. RESIDUAL_DATA = DATA - MODEL
+        flagdata(self.vis, mode='clip',datacolumn='RESIDUAL_DATA',clipminmax=[2.3,3.1],clipoutside=False)
+
     def test_virtual_model_col(self):
         '''flagdata: Tests using a virtual MODEL column'''
         
