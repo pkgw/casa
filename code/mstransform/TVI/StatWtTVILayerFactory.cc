@@ -20,8 +20,6 @@
 
 #include <mstransform/TVI/StatWtTVILayerFactory.h>
 
-#include <mstransform/TVI/StatWtTVI.h>
-
 using namespace casacore;
 
 namespace casa {
@@ -32,8 +30,8 @@ StatWtTVILayerFactory::StatWtTVILayerFactory(Record& configuration)
     : ViiLayerFactory(), _configuration(configuration) {}
 
 ViImplementation2* StatWtTVILayerFactory::createInstance(ViImplementation2* vii0) const {
-    // Make the ChannelAverageTVi2, using supplied ViImplementation2, and return it
-    ViImplementation2 *vii = new StatWtTVI(vii0, _configuration);
+    _statWtTVI = new StatWtTVI(vii0, _configuration);
+    ViImplementation2 *vii = _statWtTVI;
     return vii; 
 }
 

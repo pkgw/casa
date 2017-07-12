@@ -24,6 +24,7 @@
 #include <msvis/MSVis/VisibilityIterator2.h>
 
 #include <casacore/casa/Containers/Record.h>
+#include <mstransform/TVI/StatWtTVI.h>
 
 namespace casa { 
 
@@ -35,15 +36,19 @@ public:
 
     StatWtTVILayerFactory() = delete;
 
+    ~StatWtTVILayerFactory() {};
+
     StatWtTVILayerFactory(casacore::Record& configuration);
 
-    ~StatWtTVILayerFactory() {}; 
+    StatWtTVI* getTVI() const { return _statWtTVI; }
 
 protected:
 
     const casacore::Record _configuration;
     
     ViImplementation2* createInstance(ViImplementation2* vii0) const;
+
+    mutable StatWtTVI* _statWtTVI = nullptr;
 
 };
 

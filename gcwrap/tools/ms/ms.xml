@@ -1111,6 +1111,10 @@ the ms definition itself. -->
     <method type="function" name="statwt2">
         <shortdescription>THIS APPLICATION IS CURRENTLY FOR TESTING ONLY! USE AT YOUR OWN RISK! Compute and set weights based on variance of data.</shortdescription>
         <input>
+            <param type="string" name="combine">
+                <description>Ignore changes in these columns (scan, field, and/or state) when aggregating samples to compute weights.</description>
+                <value/>
+            </param>
             <param type="any" name="timebin">
                 <description>Length for binning in time to determine statistics. Can either be integer to be multiplied by the representative integration time, a quantity (string) in time units.</description>
                 <any type="variant" limittypes="string int"/>
@@ -1124,6 +1128,61 @@ the ms definition itself. -->
                 <value type="string">spw</value>
                 <example>5</example>
                 <example>1.5MHz</example>
+            </param>
+            <param type="int" name="minsamp">
+                <description>Minimum number of visibilities required for computing weights in a sample. Must be &gt;= 2.</description>
+                <value>2</value>
+                <example>10</example>
+            </param>
+            <param type="string" name="statalg">
+                <description>Statistics algorithm to use for computing variances. Supported values are "chauvenet", "classic", "fit-half", and "hinges-fences". Minimum match is supported.</description>
+                <value>classic</value>
+                <example>"cl", "ch", "f", or "h"</example>
+            </param>
+            <param type="double" name="fence">
+                <description>Fence value for statalg="hinges-fences". A negative value means use the entire data set (ie default to the "classic" algorithm). Ignored if statalg is not "hinges-fences".</description>
+                <value>-1</value>
+                <example>0.2</example>
+            </param>
+            <param type="string" name="center">
+                <description>Center to use for statalg="fit-half". Valid choices are "mean", "median", and "zero". Ignored if statalg is not "fit-half".</description>
+                <value>mean</value>
+                <example>"mean", "median", or "zero"</example>
+            </param>
+            <param type="bool" name="lside">
+                <description>For statalg="fit-half", real data are &lt;=; center? If false, real data are &gt;= center. Ignored if statalg is not "fit-half".</description>
+                <value>true</value>
+                <example>True</example>
+            </param>
+            <param type="double" name="zscore">
+                <description>For statalg="chauvenet", this is the target maximum number of standard deviations data may have to be included. If negative, use Chauvenet's criterion. Ignored if statalg is not "chauvenet".</description>
+                <value>-1</value>
+                <example>3.5</example>
+            </param>
+            <param type="int" name="maxiter">
+                <description>For statalg="chauvenet", this is the maximum number of iterations to attempt. Iterating will stop when either this limit is reached, or the zscore criterion is met. If negative, iterate until the zscore criterion is met. Ignored if statalg is not "chauvenet".</description>
+                <value>-1</value>
+                <example>10</example>
+            </param>
+            <param type="string" name="excludechans">
+                <description>Channels to exclude from the computation of weights. Specified as an MS select channel selection string.</description>
+                <value/>
+                <example>"0:5~30"</example>
+            </param>
+            <param type="doubleArray" name="wtrange">
+                <description>Range of acceptable weights. Data with weights outside this range will be flagged. Empty array (default) means all weights are good.</description>
+                <value/>
+                <example>[0.1, 10]</example>
+            </param>
+            <param type="bool" name="preview">
+                <description>Preview mode. If True, no data is changed, although the amount of data that would have been flagged is reported.</description>
+                <value>false</value>
+                <example>True or False</example>
+            </param>
+            <param type="string" name="datacolumn">
+                <description>Data column to use to compute weights. Supported values are "data" and "corrected" (case insensitive, minimum match supported).</description>
+                <value>corrected</value>
+                <example>"data" or "corrected"</example>
             </param>
         </input>
         <returns type="bool"/>
@@ -1147,7 +1206,9 @@ the ms definition itself. -->
                of (data unit)^(-2), eg Jy^(-2).
 
             Data are aggregated on a per-baseline, per-data description ID basis. Data are aggregated
-            in bins determined by the specified values of the timebin and chanbin parameters.
+            in bins determined by the specified values of the timebin and chanbin parameters. By default,
+            data for separate correlations are aggregated separately. This behavior can be overriden
+            by specifying combine="corr" (see below).
             
             TIME BINNING
             
@@ -1168,7 +1229,8 @@ the ms definition itself. -->
             does not span scan boundaries, so that data associated with different scan numbers will
             always be binned separately; changes in SCAN_NUMBER will cause a new time bin to be created,
             with its starting value coincident with the time of the new SCAN_NUMBER. Similar behavior can
-            be expected for changes in FIELD_ID and ARRAY_ID.
+            be expected for changes in FIELD_ID and ARRAY_ID. One can override this behavior for some
+            columns by specifying the combine parameter (see below).
             
             CHANNEL BINNING
             
@@ -1192,6 +1254,61 @@ the ms definition itself. -->
             channels. For example, if a spectral window has 15 channels, and chanbin is specified to be 6,
             then channels 0-5 will comprise the first bin, channels 6-11 the second, and channels 12-14 the
             third, so that only three channels will comprise the final bin.
+            
+            MINIMUM REQUIRED NUMBER OF VISIBILITIES
+            
+            The minsamp parameter allows the user to specify the minimum number of unflagged visibilities that
+            must be present in a sample for that sample's weight to be computed. If a sample has less than
+            this number of unflagged points, the associated weights of all the points in the sample are
+            set to zero, and all the points in the sample are flagged.
+            
+            AGGREGATING DATA ACROSS BOUNDARIES
+            
+            By default, data are not aggregated across changes in values in the columns ARRAY_ID,
+            SCAN_NUMBER, STATE_ID, FIELD_ID, and DATA_DESC_ID. One can override this behavior for
+            SCAN_NUMBER, STATE_ID, and FIELD_ID by specifying the combine parameter. For example,
+            specifying combine="scan" will ignore scan boundaries when aggregating data. Specifying 
+            combine="field, scan" will ignore both scan and field boundaries when aggregating data.
+            
+            Also by default, data for separate correlations are aggregated separately. Data for all
+            correlations within each spectral window can be aggregated together by specifying
+            "corr" in the combine parameter.
+            
+            Any combination and permutation of "scan", "field", "state", and "corr" are supported
+            by the combine parameter. Other values will be silently ignored.
+            
+            STATISTICS ALGORITHMS
+            
+            The supported statistics algorithms are described in detail in the imstat and ia.statistics()
+            help. For the current application, these algorithms are used to compute vr and vi (see above),
+            such that the set of the real parts of the visibilities and the set of the imaginary parts of
+            the visibilities are treated as independent data sets.
+            
+            RANGE OF ACCEPTABLE WEIGHTS
+            
+            The wtrange parameter allows one to specify the acceptable range (inclusive, except for zero)
+            for weights. Data with weights computed to be outside this range will be flagged. If not
+            specified (empty array), all weights are considered to be acceptable. If specified, the array
+            must contain exactly two nonnegative numeric values. Note that data with weights of zero are
+            always flagged.
+            
+            EXCLUDING CHANNELS
+            
+            Channels can be excluded from the computation of the weights by specifying the excludechans
+            parameter. This parameter accepts a valid MS channel selection string. Data associated with
+            the selected channels will not be used in computing the weights.
+            
+            PREVIEW MODE
+            
+            By setting preview=True, the application is run in "preview" mode. In this mode, no data
+            in the input MS are changed, although the amount of data that the application would have
+            flagged is reported.
+            
+            DATA COLUMN
+            
+            The datacolumn parameter can be specified to indicate which data column should be used
+            for computing the weights. The values "corrected" for the CORRECTED_DATA column and "data"
+            for the DATA column are supported (minimum match, case insensitive).
             
             OTHER CONSIDERATIONS
 

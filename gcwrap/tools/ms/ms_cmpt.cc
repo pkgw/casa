@@ -87,6 +87,7 @@
 #include <msvis/MSVis/statistics/Vi2WeightSpectrumDataProvider.h>
 
 #include <mstransform/MSTransform/StatWt.h>
+#include <mstransform/TVI/StatWtTVI.h>
 
 #include <ms_cmpt.h>
 #include <msmetadata_cmpt.h>
@@ -5674,7 +5675,14 @@ ms::iterinit2(const std::vector<std::string>& columns, const double interval,
 	return rstat;
 }
 
-bool ms::statwt2(const variant& timebin, const variant& chanbin) {
+bool ms::statwt2(
+    const string& combine, const variant& timebin,
+    const variant& chanbin, int minsamp, const string& statalg,
+    double fence, const string& center, bool lside,
+    double zscore, int maxiter, const string& excludechans,
+    const std::vector<double>& wtrange, bool preview,
+    const string& datacolumn
+) {
     *itsLog << LogOrigin("ms", __func__);
     try {
         if (detached()) {
@@ -5696,30 +5704,23 @@ bool ms::statwt2(const variant& timebin, const variant& chanbin) {
             }
             statwt.setTimeBinWidth(myTimeBin);
         }
-        auto chanbinType = chanbin.type();
-        switch(chanbinType) {
-        case variant::INT:
-        {
-            auto n = chanbin.toInt();
-            ThrowIf(n <= 2, "timebin must be >= 2");
-            statwt.setChanBinWidth(n);
-            break;
-        }
-        case variant::STRING:
-            if (chanbin.toString() == "spw") {
-                break;
-            }
-            else {
-                statwt.setChanBinWidth(casaQuantity(chanbin));
-            }
-            break;
-        case variant::BOOLVEC:
-            // because this is the default no matter what
-            // is specified in the XML
-            break;
-        default:
-            statwt.setChanBinWidth(casaQuantity(chanbin));
-        }
+        statwt.setCombine(combine);
+        statwt.setPreview(preview);
+        casac::record tviConfig;
+        tviConfig["combine"] = combine;
+        tviConfig[vi::StatWtTVI::CHANBIN] = chanbin;
+        tviConfig["minsamp"] = minsamp;
+        tviConfig["statalg"] = statalg;
+        tviConfig["fence"] = fence;
+        tviConfig["center"] = center;
+        tviConfig["lside"] = lside;
+        tviConfig["zscore"] = zscore;
+        tviConfig["maxiter"] = maxiter;
+        tviConfig["excludechans"] = excludechans;
+        tviConfig["wtrange"] = wtrange;
+        tviConfig["datacolumn"] = datacolumn;
+        unique_ptr<Record> rec(toRecord(tviConfig));
+        statwt.setTVIConfig(*rec);
         statwt.writeWeights();
         return True;
     }

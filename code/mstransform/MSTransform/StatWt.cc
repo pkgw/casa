@@ -21,7 +21,9 @@
 #include <casacore/casa/Containers/ValueHolder.h>
 #include <casacore/casa/Quanta/QuantumHolder.h>
 #include <casacore/ms/MSOper/MSMetaData.h>
+#include <casacore/tables/Tables/ArrColDesc.h>
 #include <casacore/tables/Tables/TableProxy.h>
+#include <casacore/tables/DataMan/TiledShapeStMan.h>
 
 #include <mstransform/MSTransform/StatWt.h>
 #include <mstransform/TVI/StatWtTVI.h>
@@ -34,7 +36,7 @@ using namespace casacore;
 
 namespace casa { 
 
-StatWt::StatWt(MeasurementSet* ms) : _ms(ms) {
+StatWt::StatWt(MeasurementSet* ms) : _ms(ms), _saf() {
     ThrowIf(! _ms, "Input MS pointer cannot be NULL");
 }
 
@@ -75,66 +77,110 @@ void StatWt::setTimeBinWidthUsingInterval(uInt n) {
     setTimeBinWidth(width);
 }
 
-void StatWt::setChanBinWidth(uInt w) {
-    ThrowIf(w < 2, "channel bin width must be >= 2");
-    _chanBinWidthInt.reset(new uInt(w));
-    _chanBinWidthQ.reset();
+void StatWt::setCombine(const String& combine) {
+    _combine = downcase(combine);
 }
 
-void StatWt::setChanBinWidth(const casacore::Quantity& w) {
-    QuantumHolder qh(w);
-    _chanBinWidthQ.reset(new Record(qh.toRecord()));
-    _chanBinWidthInt.reset();
+void StatWt::setPreview(casacore::Bool preview) {
+    _preview = preview;
 }
 
+void StatWt::setTVIConfig(const Record& config) {
+    _tviConfig = config;
+}
 
 void StatWt::writeWeights() const {
-    vi::IteratingParameters ipar(_timeBinWidth);
+    auto doWtSp = _ms->isColumn(MSMainEnums::WEIGHT_SPECTRUM);
+    auto needWtSp = ! doWtSp && _tviConfig.isDefined(vi::StatWtTVI::CHANBIN);
+    if (needWtSp) {
+        doWtSp = True;
+        // from Calibrater.cc
+        // Nominal default tile shape
+        IPosition dts(3, 4, 32, 1024);
+        // Discern DATA's default tile shape and use it
+        const auto dminfo = _ms->dataManagerInfo();
+        for (uInt i=0; i<dminfo.nfields(); ++i) {
+            Record col = dminfo.asRecord(i);
+            if (anyEQ(col.asArrayString("COLUMNS"), String("DATA"))) {
+                dts = IPosition(col.asRecord("SPEC").asArrayInt("DEFAULTTILESHAPE"));
+                break;
+             }
+         }
+         // Add the column
+         String colWtSp = MS::columnName(MS::WEIGHT_SPECTRUM);
+         TableDesc tdWtSp;
+         tdWtSp.addColumn(ArrayColumnDesc<Float>(colWtSp, "weight spectrum", 2));
+         TiledShapeStMan wtSpStMan("TiledWgtSpectrum", dts);
+         _ms->addColumn(tdWtSp, wtSpStMan);
+    }
+    // default sort columns are from MSIter and are ARRAY_ID, FIELD_ID, DATA_DESC_ID, and TIME
+    // I'm adding scan and state because, according to the statwt requirements, by default, scan
+    // and state changes should mark boundaries in the weights computation
+    std::vector<Int> scs;
+    scs.push_back(MS::ARRAY_ID);
+    if (! _combine.contains("scan")) {
+        scs.push_back(MS::SCAN_NUMBER);
+    }
+    if (! _combine.contains("state")) {
+        scs.push_back(MS::STATE_ID);
+    }
+    if (! _combine.contains("field")) {
+        scs.push_back(MS::FIELD_ID);
+    }
+    scs.push_back(MS::DATA_DESC_ID);
+    scs.push_back(MS::TIME);
+    Block<int> sort(scs.size());
+    uInt i = 0;
+    for (const auto& col: scs) {
+        sort[i] = col;
+        ++i;
+    }
+    vi::SortColumns sc(sort, False);
+    vi::IteratingParameters ipar(_timeBinWidth, sc);
     vi::VisIterImpl2LayerFactory data(_ms, ipar, True);
-    Record config;
-    if (_chanBinWidthInt) {
-        config.define("chanbin", *_chanBinWidthInt);
-    }
-    else if (_chanBinWidthQ) {
-        config.defineRecord("chanbin", *_chanBinWidthQ);
-    }
-    vi::StatWtTVILayerFactory statWtLayerFactory(config);
+    unique_ptr<Record> config(dynamic_cast<Record*>(_tviConfig.clone()));
+    vi::StatWtTVILayerFactory statWtLayerFactory(*config);
     Vector<vi::ViiLayerFactory*> facts(2);
     facts[0] = &data;
     facts[1] = &statWtLayerFactory;
     vi::VisibilityIterator2 vi(facts);
     vi::VisBuffer2 *vb = vi.getVisBuffer();
-    Slice defaultSlice;
     Vector<Int> vr(1);
-    static const String WEIGHT = "WEIGHT";
-    static const String WEIGHT_SPECTRUM = "WEIGHT_SPECTRUM";
-    static const String FLAG = "FLAG";
-    static const String FLAG_ROW = "FLAG_ROW";
     for (vi.originChunks(); vi.moreChunks(); vi.nextChunk()) {
-        auto doWtSp = vi.weightSpectrumExists();
         for (vi.origin(); vi.more(); vi.next()) {
-            const auto rownr = vb->rowIds();
-            const auto rend = rownr.end();
-            //uInt i = 0;
-            if (doWtSp) {
-                Cube<Float> wtsp = vb->weightSpectrum();
-                vb->setWeightSpectrum(wtsp);
+            if (_preview) {
+                // just need to run the flags to accumulate
+                // flagging info
+                vb->flagCube();
             }
-            Matrix<Float> wt = vb->weight();
-            vb->setWeight(wt);
-            Cube<Bool> flag;
-            Vector<Bool> flagRow;
-            auto wtv = wt.tovector();
-            Bool updateFlags = std::find(wtv.begin(), wtv.end(), 0) != wtv.end();
-            if (updateFlags) {
-                flag = vb->flagCube();
-                vb->setFlagCube(flag);
-                flagRow = vb->flagRow();
-                vb->setFlagRow(flagRow);
+            else {
+                if (needWtSp) {
+                    Int nrow = vb->nRows();
+                    Int nchan = vb->nChannels();
+                    Int ncor = vb->nCorrelations();
+                    Cube<Float> newwtsp(0, 0, 0);
+                    newwtsp.resize(ncor, nchan, nrow);
+                    newwtsp.set(0.0);
+                    vb->initWeightSpectrum(newwtsp);
+                    vb->writeChangesBack();
+                }
+                if (doWtSp) {
+                    vb->setWeightSpectrum(vb->weightSpectrum());
+                }
+                vb->setWeight(vb->weight());
+                vb->setFlagCube(vb->flagCube());
+                vb->setFlagRow(vb->flagRow());
+                vb->writeChangesBack();
             }
-            vb->writeChangesBack();
         }
     }
+    if (_preview) {
+        LogIO log(LogOrigin("StatWt", __func__));
+        log << LogIO::NORMAL
+            << "RAN IN PREVIEW MODE. NO WEIGHTS NOR FLAGS WERE CHANGED."
+            << LogIO::POST;
+    }
+    statWtLayerFactory.getTVI()->summarizeFlagging();
 }
 
 }
