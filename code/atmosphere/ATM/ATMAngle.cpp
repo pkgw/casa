@@ -25,7 +25,7 @@
 
 #include "ATMAngle.h"
 
-using namespace std;
+
 
 ATM_NAMESPACE_BEGIN
 
@@ -39,7 +39,7 @@ Angle::Angle(double angle) :
 {
 }
 
-Angle::Angle(double angle, const string &units)
+Angle::Angle(double angle, const std::string &units)
 {
   if(units == "Rad" || units == "RAD" || units == "rad") {
     valueIS_ = angle;
@@ -54,7 +54,7 @@ Angle::~Angle()
 {
 }
 
-double Angle::get(const string &units) const
+double Angle::get(const std::string &units) const
 {
   if(units == "Rad" || units == "RAD" || units == "rad") {
     return valueIS_;

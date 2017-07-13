@@ -451,10 +451,9 @@ void AtmosCorruptor::initAtm() {
 
   os << "Spectral window " << fRefFreq()[0]/1e9 << "(ch " << ATMchanMap(0)[focusChan()] << "/"<<ATMnChan()[0] << ")" << LogIO::POST;
 
-  // !!! refChan is 1-based !!!
-  //  unsigned int SpectralGrid::add(unsigned int numChan, unsigned int refChan, Frequency refFreq, Frequency chanSep)
+  // !!! refChan is 0-based !!!
   itsSpecGrid = new atm::SpectralGrid(ATMnChan()[0],
-				      ATMchanMap(0)[focusChan()]+1, 
+				      ATMchanMap(0)[focusChan()],
 				      atm::Frequency(fRefFreq()[0],"Hz"),
 				      atm::Frequency(ATMfRes,"Hz"));
 
