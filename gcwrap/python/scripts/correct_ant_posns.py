@@ -2,8 +2,9 @@ from taskinit import *
 from correct_ant_posns_alma import correct_ant_posns_alma
 from correct_ant_posns_evla import correct_ant_posns_evla
 
-# for getting a single tool in gentools 
-(tb,)=gentools(['tb'])
+# for getting a single tool in gentools
+(tb,) = gentools(['tb'])
+
 
 def correct_ant_posns(vis_name, print_offsets=False):
     """
@@ -16,8 +17,8 @@ def correct_ant_posns(vis_name, print_offsets=False):
     runs silently.
 
     A list is returned where the first element is the returned error
-    code, the second element is a string of the antennas, and the 
-    third element is a list of antenna Bx,By,Bz offsets.  An example 
+    code, the second element is a string of the antennas, and the
+    third element is a list of antenna Bx,By,Bz offsets. An example
     return list might look like:
     [ 0, 'ea01,ea19', [0.0184, -0.0065, 0.005, 0.0365, -0.0435, 0.0543] ]
 
@@ -36,18 +37,18 @@ def correct_ant_posns(vis_name, print_offsets=False):
     For specific details for the EVLA see correct_ant_posns_evla.
     For specific details for ALMA see correct_ant_posns_alma.
     """
-    observation = tb.open(vis_name+'/OBSERVATION')
+    tb.open(vis_name+'/OBSERVATION')
     # specific code for different telescopes
     tel_name = tb.getcol('TELESCOPE_NAME')
     tb.close()
-    if tel_name=='EVLA' or tel_name=='VLA':
+    if tel_name == 'EVLA' or tel_name == 'VLA':
         return correct_ant_posns_evla(vis_name, print_offsets)
-    elif tel_name=='ALMA':
+    elif tel_name == 'ALMA':
         return correct_ant_posns_alma(vis_name, print_offsets)
     else:
         if (print_offsets):
             print 'Currently only work for EVLA observations'
         else:
             # send to casalogger
-            casalog.post('Currently only work for EVLA observations',"WARN")
+            casalog.post('Currently only work for EVLA observations', "WARN")
         return [1, '', []]
