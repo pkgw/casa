@@ -220,6 +220,7 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_msview.py
   selection_syntax.py
   ../mpi4casa/test_mpi4casa.py
+  ../mpi4casa/test_mpi4casa_subset.py
   testutils.py
   unittests_list.txt
 )
