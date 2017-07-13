@@ -1,4 +1,5 @@
 import os
+import sys
 import traceback
 
 from init_welcome_helpers import redirect_argv, immediate_exit_with_handlers
@@ -36,6 +37,8 @@ if casa['flags'].execute:
             traceback.print_exc()
             immediate_exit_with_handlers(1)
 
+        sys.stdout.flush()
+        sys.stderr.flush()
         immediate_exit_with_handlers()
 
     else:
@@ -100,4 +103,7 @@ else:
     register_builtin(["viewer", "imview", "msview"])
 
     enable_builtin_protection()
+    _blue = '\033[94m'
+    _end = '\033[0m'
+    print "Enter " + _blue + "doc('start')" + _end + " for help getting started with CASA..."
     #print "CASA Version " + casa['build']['version'] + "\n  Compiled on: " + casa['build']['time']

@@ -126,8 +126,14 @@ crashCallbackCommon (const char * dumpPath,
 
     // Only the original process gets to here.  Exiting the routine will
     // cause the original signal to terminate the the process.
-
-    cerr << "--> Now on to our untimely death ..." << endl;
+    cerr << endl << "--------------------------------------------------------------" << endl;
+    cerr << "CASA has crashed..." << endl;
+    cerr << "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --" << endl;
+    cerr << "A crash report is being generated and submitted. The report" << endl;
+    cerr << "will contain information about CASA's environment when the" << endl;
+    cerr << "crash occurred (e.g. CASA log, call stack, CPU information)." << endl;
+    cerr << "This should not take too long..." << endl;
+    cerr << "--------------------------------------------------------------" << endl << endl;
 
     return succeeded;
 }

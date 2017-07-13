@@ -349,6 +349,7 @@ calibrater::setsolve(const std::string& type,
 		     const bool phaseonly, 
 		     const std::string& apmode,
 		     const ::casac::variant& refant,
+		     const std::string& refantmode,
 		     const int minblperant,
 		     const bool solnorm,
 		     const float minsnr,
@@ -385,7 +386,8 @@ calibrater::setsolve(const std::string& type,
     // Forward to Calibrater object
     itsCalibrater->setsolve(type,toCasaString(t),table,append,preavg,mode,
 			    minblperant,
-			    toCasaString(refant),solnorm,minsnr,combine,fillgaps,
+			    toCasaString(refant),refantmode,
+			    solnorm,minsnr,combine,fillgaps,
 			    cfcache, painc, fitorder, fraction, numedge, radius, smooth);
     
   } catch(AipsError x) {
@@ -1076,6 +1078,40 @@ calibrater::smooth(const std::string& tablein,
     rstat = itsCalibrater->smooth(tablein,tabo,
 				  smoothtype,smoothtime,
 				  toCasaString(field));
+
+  } catch(AipsError x) {
+    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
+    RETHROW(x);
+  }
+  return rstat;
+}
+
+bool
+calibrater::rerefant(const std::string& tablein, 
+		     const std::string& tableout, 
+		     const std::string& refantmode,
+		     const ::casac::variant& refant)
+{
+  bool rstat(false);
+
+  // TBD: Is this really needed?
+  if (! itsMS) {
+    *itsLog << LogIO::SEVERE << "Must first open a MeasurementSet."
+	    << endl << LogIO::POST;
+    return false;
+  }
+
+  try {
+
+    logSink_p.clearLocally();
+    LogIO os(LogOrigin("calibrater", "refant"),logSink_p);
+    os << "Beginning smooth--(MSSelection version)-------" << LogIO::POST;
+
+    String tabo(tableout);
+
+    rstat = itsCalibrater->reRefant(tablein,tabo,
+				    refantmode,
+				    toCasaString(refant));
 
   } catch(AipsError x) {
     *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
