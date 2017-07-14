@@ -279,8 +279,11 @@ void FringeJones::calcAllJones() {
 
       for (Int ipar=0;ipar<nPar();ipar+=3) {
         if (onePOK(ipar)) {
-	  phase=onePar(ipar);
-          phase+=2.0*C::pi*onePar(ipar+1)*(currFreq()(ich)-KrefFreqs_(currSpw()));
+          phase=onePar(ipar);
+          phase+=2.0*C::pi*onePar(ipar+1)*
+            (currFreq()(ich)-KrefFreqs_(currSpw()));
+          phase+=2.0*C::pi*onePar(ipar+2)*KrefFreqs_(currSpw())*1e9*
+            (currTime() - refTime());
           oneJones(ipar/3)=Complex(cos(phase),sin(phase));
           oneJOK(ipar/3)=True;
         }
