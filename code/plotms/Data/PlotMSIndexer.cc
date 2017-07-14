@@ -542,13 +542,12 @@ void PlotMSIndexer::setUpIndexing() {
 	// Count per segment
 	Int iseg(-1);
 	Vector<Bool>& nAM(plotmscache_->netAxesMask_[dataIndex]);
-	double timeInterval(1), iterTime(0);
+	double timeInterval(1);
 	bool averagingTime = plotmscache_->averaging_.time();
 	if ( averagingTime ){
 		timeInterval = plotmscache_->averaging_.timeValue();
 	}
-    if (iterAxis_ == PMS::TIME)
-	    iterTime = plotmscache_->time_[iterValue_];
+	double iterTime = plotmscache_->time_[iterValue_];
 
 	for (Int ic=0; ic<nChunk(); ++ic) {
 
