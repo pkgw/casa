@@ -45,6 +45,7 @@ if casa['flags'].execute:
         immediate_exit_with_handlers(_err)
 
     else:
+        # python command provided on the command line...
         _err = 0
         try:
             exec(casa['flags'].execute[0])
