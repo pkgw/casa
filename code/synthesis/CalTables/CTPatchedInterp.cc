@@ -584,6 +584,7 @@ Bool CTPatchedInterp::interpolate(Int msobs, Int msfld, Int msspw, Double time, 
      if (freqResult_(msspw,thisAltFld,thisobs(msobs)).nelements()!=nMSChan) {
        freqResult_(msspw,thisAltFld,thisobs(msobs)).resize(nFPar_,nMSChan,nMSElem_);
        freqResFlag_(msspw,thisAltFld,thisobs(msobs)).resize(nPar_,nMSChan,nMSElem_);
+       freqResFlag_(msspw,thisAltFld,thisobs(msobs)).set(True);
      }
      if (thisAltFld!=msfld) {
        freqResult_(msspw,msfld,thisobs(msobs)).reference(freqResult_(msspw,thisAltFld,thisobs(msobs)));
@@ -827,6 +828,7 @@ void CTPatchedInterp::makeInterpolators() {
 	  if (timeResult_(iMSSpw,iMSFld,iMSObs).nelements()==0) {
 	    timeResult_(iMSSpw,iMSFld,iMSObs).resize(nFPar_,nChanIn_(spwMap_(iMSSpw)),nMSElem_);
 	    timeResFlag_(iMSSpw,iMSFld,iMSObs).resize(nPar_,nChanIn_(spwMap_(iMSSpw)),nMSElem_);
+	    timeResFlag_(iMSSpw,iMSFld,iMSObs).set(True);
 	  }
 	  for (Int iMSElem=0;iMSElem<nMSElem_;++iMSElem) {
 	    // Realize the mapping 
