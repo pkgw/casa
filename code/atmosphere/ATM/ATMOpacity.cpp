@@ -27,7 +27,7 @@
 
 #include "ATMOpacity.h"
 
-using namespace std;
+
 
 ATM_NAMESPACE_BEGIN
 
@@ -41,7 +41,7 @@ Opacity::Opacity(double opacity) :
 {
 }
 
-Opacity::Opacity(double opacity, const string &units)
+Opacity::Opacity(double opacity, const std::string &units)
 {
   valueIS_ = sput(opacity, units);
 }
@@ -55,7 +55,7 @@ Opacity::~Opacity()
 {
 }
 
-double Opacity::sget(double value, const string &units)
+double Opacity::sget(double value, const std::string &units)
 {
   if(units == "db" || units == "DB") {
     return value * 4.34294482;
@@ -67,7 +67,7 @@ double Opacity::sget(double value, const string &units)
   }
 }
 
-double Opacity::sput(double value, const string &units)
+double Opacity::sput(double value, const std::string &units)
 {
   if(units == "db" || units == "DB") {
     return value / 4.34294482;

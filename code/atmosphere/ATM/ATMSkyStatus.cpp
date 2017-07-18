@@ -2487,6 +2487,7 @@ double SkyStatus::mkSkyCouplingRetrieval_fromTEBB(unsigned int spwId,
 
 }
 
+
   double SkyStatus::RT(double pfit_wh2o,
 		       double skycoupling,
 		       double tspill,
@@ -2494,7 +2495,6 @@ double SkyStatus::mkSkyCouplingRetrieval_fromTEBB(unsigned int spwId,
 		       unsigned int spwid,
 		       const vector<double> &spwId_filter,
 		       const Percent &signalgain)
-
   {
     
     double tebb_channel = 0.0;
@@ -2534,6 +2534,7 @@ double SkyStatus::mkSkyCouplingRetrieval_fromTEBB(unsigned int spwId,
   }
 
 
+
 double SkyStatus::RT(double pfit_wh2o,
                      double skycoupling,
                      double tspill,
@@ -2541,7 +2542,6 @@ double SkyStatus::RT(double pfit_wh2o,
                      unsigned int spwid,
                      unsigned int nc)
 {
-
 
   double radiance;
   double singlefreq;
