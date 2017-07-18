@@ -214,7 +214,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       // If a starting model exists, this will initialize the ImageStore with it. Will do this only once.
       setStartingModel();
 
-      itsIterDone += itsLoopController.getIterDone();
+      //itsIterDone is currently only used by automask code so move this to inside setAutomask
+      //itsIterDone += itsLoopController.getIterDone();
 
       //      setupMask();
 
@@ -515,6 +516,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   {
      //modify mask using automask otherwise no-op
      if ( itsAutoMaskAlgorithm != "" )  {
+       itsIterDone += itsLoopController.getIterDone();
 
        LogIO os( LogOrigin("SynthesisDeconvolver","setAutoMask",WHERE) );
        os << "Generating AutoMask" << LogIO::POST;
