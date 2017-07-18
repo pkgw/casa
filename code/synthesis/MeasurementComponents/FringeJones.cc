@@ -323,7 +323,7 @@ public:
                 Array<Bool> flagged( fl(flagSlice).nonDegenerate() );
                 
                 if ( allTrue(flagged) ) {
-                    cerr << "irow " << irow << " Whoopsie!" << endl;
+                    ; // cerr << "irow " << irow << " Whoopsie!" << endl;
                 } else {
                     activeAntennas_.insert(iant);
                 }
@@ -999,20 +999,18 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& param, Int refant, const std:
 
     cerr << "Reftime again " << bundle.get_ref_time() << endl;
     cerr << "Bundle t0 " << bundle.get_t0() << endl;
-    // throw(AipsError("Yeah."));
 
     size_t p = 3 * (bundle.get_num_antennas() - 1);
     size_t n = 2 * bundle.get_num_data_points();
 
     cerr << "n: " << n << " p: " << p << endl;
     
-
     // Parameters for the least-squares solver.
-    const double param_tol = 1e-50;
+    const double param_tol = 1.0e-50;
     //const double gtol = 1e-50; // 1e-30; 
-    const double gtol = 1e-50; // 1e-30; 
+    const double gtol = 1.0e-50; // 1e-30; 
     const double ftol = 1.0e-50;   // eps rel
-    const size_t max_iter = 100;
+    const size_t max_iter = 20;
 
     const gsl_multilarge_nlinear_type *T = gsl_multilarge_nlinear_trust;
     
@@ -1247,51 +1245,48 @@ void FringeJones::setSolve(const Record& solve) {
 
 void FringeJones::calcAllJones() {
 
-    if (prtlev()>6) cout << "       FringeJones::calcAllJones()" << endl;
+  if (prtlev()>6) cout << "       FringeJones::calcAllJones()" << endl;
 
-    // Should handle OK flags in this method, and only
-    //  do Jones calc if OK
+  // Should handle OK flags in this method, and only
+  //  do Jones calc if OK
 
-    Vector<Complex> oneJones;
-    Vector<Bool> oneJOK;
-    Vector<Float> onePar;
-    Vector<Bool> onePOK;
+  Vector<Complex> oneJones;
+  Vector<Bool> oneJOK;
+  Vector<Float> onePar;
+  Vector<Bool> onePOK;
 
-    ArrayIterator<Complex> Jiter(currJElem(),1);
-    ArrayIterator<Bool>    JOKiter(currJElemOK(),1);
-    ArrayIterator<Float>   Piter(currRPar(),1);
-    ArrayIterator<Bool>    POKiter(currParOK(),1);
+  ArrayIterator<Complex> Jiter(currJElem(),1);
+  ArrayIterator<Bool>    JOKiter(currJElemOK(),1);
+  ArrayIterator<Float>   Piter(currRPar(),1);
+  ArrayIterator<Bool>    POKiter(currParOK(),1);
 
-    Double phase;
-    for (Int iant=0; iant<nAnt(); iant++) {
-        
-        for (Int ich=0; ich<nChanMat(); ich++) {
+  Double phase;
+  for (Int iant=0; iant<nAnt(); iant++) {
+
+    for (Int ich=0; ich<nChanMat(); ich++) {
       
-            oneJones.reference(Jiter.array());
-            oneJOK.reference(JOKiter.array());
-            onePar.reference(Piter.array());
-            onePOK.reference(POKiter.array());
+      oneJones.reference(Jiter.array());
+      oneJOK.reference(JOKiter.array());
+      onePar.reference(Piter.array());
+      onePOK.reference(POKiter.array());
 
-            for (Int ipar=0;ipar<nPar();ipar+=3) {
-                if (onePOK(ipar)) {
-                    phase=onePar(ipar);
-                    phase+=C::_2pi*onePar(ipar+1)*
-                        (currFreq()(ich)-KrefFreqs_(currSpw()));
-                    phase+=C::_2pi*onePar(ipar+2)*KrefFreqs_(currSpw())*1e9*
-                        (currTime() - refTime());
-                    oneJones(ipar/3)=Complex(cos(phase),sin(phase));
-                    oneJOK(ipar/3)=True;
-                }
-            }
-      
-            // Advance iterators
-            Jiter.next();
-            JOKiter.next();
+      for (Int ipar=0;ipar<nPar();ipar+=3) {
+        if (onePOK(ipar)) {
+          phase=onePar(ipar);
+          phase+=2.0*C::pi*onePar(ipar+1)*(currFreq()(ich)-KrefFreqs_(currSpw()));
+          oneJones(ipar/3)=Complex(cos(phase),sin(phase));
+          oneJOK(ipar/3)=True;
         }
-        // Step to next antenns's pars
-        Piter.next();
-        POKiter.next();
+      }
+      
+      // Advance iterators
+      Jiter.next();
+      JOKiter.next();
     }
+    // Step to next antenns's pars
+    Piter.next();
+    POKiter.next();
+  }
 }
 
 void FringeJones::selfSolveOne(SDBList& sdbs) {
@@ -1367,9 +1362,10 @@ void FringeJones::solveLotsOfSDBs(SDBList& sdbs) {
     
     size_t nCorrOrig( sdbs(0).nCorrelations() );
     size_t nCorr = (nCorrOrig> 1 ? 2 : 1); // number of p-hands
-    
+
+    cerr << "Ref time " << MVTime(refTime()/C::day).string(MVTime::YMD,7) << endl;
     logSink() << "df0 " << df0 << " dt0 " << dt0 << " ref_freq*dt0 " << ref_freq*dt0 << LogIO::POST;
-    cerr << "ref_freq " << ref_freq << ", ref_time " << ref_time << endl;
+    cerr << "ref_freq " << ref_freq << endl;
     cerr << "df0 " << df0 << " dt0 " << dt0 << " ref_freq*dt0 " << ref_freq*dt0 << endl;
     // Report delays to console.
     // FIXME: nAnt 
@@ -1385,8 +1381,8 @@ void FringeJones::solveLotsOfSDBs(SDBList& sdbs) {
             cerr << "Antenna " << iant << ": phi0 " << phi0 << " delay " << delay << " rate " << rate << endl;
             cerr << "Adding " << 360*delta1 << " and " << 360*delta2 << " degrees." << endl;
             // If you actually add this delta everything gets worse.
-            logSink() << "Not actually adding " << 360*(delta1+delta2) << " for element " << iant << LogIO::POST;
-            // sRP(3*icor + 0, iant) += delta3;
+            logSink() << "Actually adding " << 360*(delta1+delta2) << " degrees for element " << iant << LogIO::POST;
+            sRP(3*icor + 0, iant) += delta3;
         }
     }
 }
@@ -1395,7 +1391,6 @@ void FringeJones::solveLotsOfSDBs(SDBList& sdbs) {
 void
 FringeJones::solveOneVB(const VisBuffer&) {
     throw(AipsError("VisBuffer interface not supported!"));
-
 }
 
 
