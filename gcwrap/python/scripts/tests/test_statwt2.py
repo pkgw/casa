@@ -542,6 +542,35 @@ class statwt2_test(unittest.TestCase):
             )
             shutil.rmtree(dst)
 
+    def test_slding_time_window(self):
+        """ Test sliding time window"""
+        dst = "ngc5921.split.sliding_time_window.ms"
+        ref = datadir + "ngc5921.slidingtimebin300s_2.ms.ref"
+        [refwt, refwtsp, refflag, reffrow] = _get_dst_cols(ref, "", dodata=False)
+        rtol = 1e-7
+        timebin = "300s"
+        myms = mstool()
+        for i in [0, 1]:
+            shutil.copytree(src, dst)
+            if i == 0:
+                myms.open(dst, nomodify=False)
+                myms.statwt2(timebin=timebin, slidetimebin=True)
+                myms.done()
+            else:
+                statwt2(dst, timebin=timebin, slidetimebin=True)
+            [tstwt, tstwtsp, tstflag, tstfrow] = _get_dst_cols(dst, "", False)
+            self.assertTrue(numpy.all(tstflag == refflag), "FLAGs don't match")
+            self.assertTrue(numpy.all(tstfrow == reffrow), "FLAG_ROWs don't match")
+            self.assertTrue(
+                numpy.all(numpy.isclose(tstwt, refwt, rtol)),
+                "WEIGHTs don't match"
+            )
+            self.assertTrue(
+                numpy.all(numpy.isclose(tstwtsp, refwtsp, rtol)),
+                "WEIGHT_SPECTRUMs don't match"
+            )
+            shutil.rmtree(dst)
+
 def suite():
     return [statwt2_test]
 

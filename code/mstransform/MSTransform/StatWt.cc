@@ -47,34 +47,20 @@ void StatWt::setOutputMS(const casacore::String& outname) {
 }
 
 void StatWt::setTimeBinWidth(const casacore::Quantity& binWidth) {
-    ThrowIf(
-        ! binWidth.isConform(Unit("s")),
-        "Time bin width unit must be a unit of time"
-    );
-    setTimeBinWidth(binWidth.getValue("s"));
+    _timeBinWidth = vi::StatWtTVI::getTimeBinWidthInSec(binWidth);
 }
 
 void StatWt::setTimeBinWidth(Double binWidth) {
-    ThrowIf(
-        binWidth <= 0, "time bin width must be positive"
-    );
+    vi::StatWtTVI::checkTimeBinWidth(binWidth);
     _timeBinWidth = binWidth;
 }
 
 void StatWt::setTimeBinWidthUsingInterval(uInt n) {
-    MSMetaData msmd(_ms, 100.0);
-    auto stats = msmd.getIntervalStatistics();
-    ThrowIf(
-        stats.max/stats.median - 1 > 0.25
-        || 1 - stats.min/stats.median > 0.25,
-        "There is not a representative integration time in the INTERVAL column"
-    );
-    auto width = n*stats.median;
+    _timeBinWidth = vi::StatWtTVI::getTimeBinWidthUsingInterval(_ms, n);
     _log << LogOrigin("StatWt", __func__) << LogIO::NORMAL
         << "Determined representative integration time of "
-        << stats.median << "s. Setting time bin width to "
-        << width << "s" << LogIO::POST;
-    setTimeBinWidth(width);
+        << (_timeBinWidth/(Double)n) << "s. Setting time bin width to "
+        << _timeBinWidth << "s" << LogIO::POST;
 }
 
 void StatWt::setCombine(const String& combine) {
@@ -155,9 +141,9 @@ void StatWt::writeWeights() const {
             }
             else {
                 if (needWtSp) {
-                    Int nrow = vb->nRows();
-                    Int nchan = vb->nChannels();
-                    Int ncor = vb->nCorrelations();
+                    auto nrow = vb->nRows();
+                    auto nchan = vb->nChannels();
+                    auto ncor = vb->nCorrelations();
                     Cube<Float> newwtsp(0, 0, 0);
                     newwtsp.resize(ncor, nchan, nrow);
                     newwtsp.set(0.0);

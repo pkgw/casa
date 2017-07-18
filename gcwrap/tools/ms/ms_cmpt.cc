@@ -5676,7 +5676,7 @@ ms::iterinit2(const std::vector<std::string>& columns, const double interval,
 }
 
 bool ms::statwt2(
-    const string& combine, const variant& timebin,
+    const string& combine, const variant& timebin, bool slidetimebin,
     const variant& chanbin, int minsamp, const string& statalg,
     double fence, const string& center, bool lside,
     double zscore, int maxiter, const string& excludechans,
@@ -5689,24 +5689,35 @@ bool ms::statwt2(
             return False;
         }
         StatWt statwt(itsMS);
-        if (timebin.type() == variant::INT) {
-            auto n = timebin.toInt();
-            ThrowIf(n <= 0, "timebin must be positive");
-            statwt.setTimeBinWidthUsingInterval(timebin.touInt());
+        if (slidetimebin) {
+            // make the size of the encompassing chunks
+            // very large, so that chunk boundaries are determined only
+            // by changes in MS key values
+            statwt.setTimeBinWidth(1e8);
         }
         else {
-            casacore::Quantity myTimeBin = casaQuantity(timebin);
-            if (myTimeBin.getUnit().empty()) {
-                myTimeBin.setUnit("s");
+            // block time processing
+            if (timebin.type() == variant::INT) {
+                auto n = timebin.toInt();
+                ThrowIf(n <= 0, "timebin must be positive");
+                statwt.setTimeBinWidthUsingInterval(timebin.touInt());
             }
-            if (myTimeBin.getValue() <= 0) {
-                myTimeBin.setValue(1e-5);
+            else {
+                casacore::Quantity myTimeBin = casaQuantity(timebin);
+                if (myTimeBin.getUnit().empty()) {
+                    myTimeBin.setUnit("s");
+                }
+                if (myTimeBin.getValue() <= 0) {
+                    myTimeBin.setValue(1e-5);
+                }
+                statwt.setTimeBinWidth(myTimeBin);
             }
-            statwt.setTimeBinWidth(myTimeBin);
         }
         statwt.setCombine(combine);
         statwt.setPreview(preview);
         casac::record tviConfig;
+        tviConfig["timebin"] = timebin;
+        tviConfig["slidetimebin"] = slidetimebin;
         tviConfig["combine"] = combine;
         tviConfig[vi::StatWtTVI::CHANBIN] = chanbin;
         tviConfig["minsamp"] = minsamp;

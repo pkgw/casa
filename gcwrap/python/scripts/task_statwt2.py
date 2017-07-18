@@ -3,7 +3,7 @@ import flaghelper
 
 def statwt2(
     vis, field, spw, intent, array, observation, combine,
-    timebin, chanbin, minsamp, statalg, fence, center,
+    timebin, slidetimebin, chanbin, minsamp, statalg, fence, center,
     lside, zscore, maxiter, excludechans, wtrange,
     flagbackup, preview, datacolumn
 ):
@@ -31,7 +31,8 @@ def statwt2(
             # Select the data. Only-parse is set to false.
             myms.msselect(sel, False)
         myms.statwt2(
-            combine=combine, timebin=timebin, chanbin=chanbin,
+            combine=combine, timebin=timebin,
+            slidetimebin=slidetimebin, chanbin=chanbin,
             minsamp=minsamp, statalg=statalg, fence=fence,
             center=center, lside=lside, zscore=zscore,
             maxiter=maxiter, excludechans=excludechans,
