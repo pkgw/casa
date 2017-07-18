@@ -248,6 +248,46 @@ NewCalTable::NewCalTable(String tableName, String CorF,
 
 }
 
+// Create an empty NewCalTable from a SimpleSimVi2Parameters object
+NewCalTable::NewCalTable(String tableName, String CorF, String caltype,
+			 const vi::SimpleSimVi2Parameters& ssp,
+			 Bool disk,Bool verbose) :
+  Table()
+{
+
+  if (CorF!="Complex" &&
+      CorF!="Float")
+    throw(AipsError("CorF must be 'Complex' or 'Float'"));
+
+  CTDesc nctd(CorF,"none",caltype,"circ");
+
+  // Form underlying generic Table according to the supplied desc
+  SetupNewTable calMainTab(tableName+".tempMemCalTable",nctd.calMainDesc(),Table::New);
+  Table tab(calMainTab, Table::Memory, 0, false); 
+  *this = tab;
+  
+  // Set the table info record
+  this->setTableInfo();
+
+  // Add (empty) subtables
+  this->createSubTables();
+
+  // Fill generic subtables, according to SimpleSimVi2Parameters
+  fillGenericObs(ssp);
+  fillGenericField(ssp);
+  fillGenericAntenna(ssp);
+  fillGenericSpw(ssp);
+
+  if (disk) {
+    // Write it out to disk
+    if (verbose) cout << "Writing out to disk: "+tableName << endl;
+    this->writeToDisk(tableName);
+  }
+
+}
+
+
+
 //----------------------------------------------------------------------------
 
 NewCalTable::NewCalTable (const Table& table): Table(table)
@@ -753,6 +793,52 @@ void NewCalTable::fillGenericSpw(Int nSpw,Vector<Int>& nChan) {
   for (Int ispw=0;ispw<nSpw;++ispw) {
     Double refFreq(60.0e9+Double(ispw)*1.0e9);  // Every GHz
     Double width(1.0e6);  // 1 MHz channels
+    Vector<Double> chanfreq(nChan(ispw),refFreq);
+    for (Int ich=0;ich<nChan(ispw);++ich) chanfreq(ich)+=(Double(ich)+0.5)*width;
+
+    sc.name().put(ispw,("SPW_"+String::toString(ispw)));
+    sc.refFrequency().put(ispw,refFreq);
+    sc.numChan().put(ispw,nChan(ispw));
+    sc.chanFreq().put(ispw,chanfreq);
+    
+    Vector<Double> res(nChan(ispw),width);
+
+    sc.chanWidth().put(ispw,res);
+    sc.effectiveBW().put(ispw,res);
+    sc.resolution().put(ispw,res);
+    sc.totalBandwidth().put(ispw,sum(res));
+    sc.flagRow().put(ispw,false);
+  }
+}
+
+//----------------------------------------------------------------------------
+void NewCalTable::fillGenericObs(const vi::SimpleSimVi2Parameters& /*ssp*/) { 
+  this->fillGenericObs(1); // Just one, for now
+}
+
+//----------------------------------------------------------------------------
+void NewCalTable::fillGenericField(const vi::SimpleSimVi2Parameters& ssp) { 
+  this->fillGenericField(ssp.nField_);
+}
+
+//----------------------------------------------------------------------------
+void NewCalTable::fillGenericAntenna(const vi::SimpleSimVi2Parameters& ssp) { 
+  this->fillGenericAntenna(ssp.nAnt_);
+}
+
+
+//----------------------------------------------------------------------------
+void NewCalTable::fillGenericSpw(const vi::SimpleSimVi2Parameters& ssp) { 
+
+  // Gather info from the SimpleSimVi2Parameters
+  const Int& nSpw(ssp.nSpw_);
+  const Vector<Int>& nChan(ssp.nChan_);
+
+  this->spectralWindow().addRow(nSpw);
+  MSSpWindowColumns sc(this->spectralWindow());
+  for (Int ispw=0;ispw<nSpw;++ispw) {
+    const Double& refFreq(ssp.refFreq_(ispw));
+    const Double& width(ssp.df_(ispw));
     Vector<Double> chanfreq(nChan(ispw),refFreq);
     for (Int ich=0;ich<nChan(ispw);++ich) chanfreq(ich)+=(Double(ich)+0.5)*width;
 

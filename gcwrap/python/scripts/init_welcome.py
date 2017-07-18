@@ -1,4 +1,5 @@
 import os
+import sys
 import traceback
 
 from init_welcome_helpers import redirect_argv, immediate_exit_with_handlers
@@ -36,6 +37,8 @@ if casa['flags'].execute:
             traceback.print_exc()
             immediate_exit_with_handlers(1)
 
+        sys.stdout.flush()
+        sys.stderr.flush()
         immediate_exit_with_handlers()
 
     else:

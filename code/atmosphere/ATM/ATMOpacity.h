@@ -32,7 +32,7 @@
 #include "ATMCommon.h"
 #include <string>
 
-using namespace std;
+
 
 ATM_NAMESPACE_BEGIN
 
@@ -49,7 +49,7 @@ public:
   /** A full constructor: value in default units (np) */
   Opacity(double opacity);
   /** A full constructor: value + units. Valid units are:  np [neper] [NP] [NEPER], db [DB]. */
-  Opacity(double opacity, const string &units);
+  Opacity(double opacity, const std::string &units);
   /** Copy constructor */
   Opacity (const Opacity &opacity);
 
@@ -60,7 +60,7 @@ public:
   double get() const { return valueIS_; }
   /** Accessor to the opacity value in specified units. Implemented units are np [neper] [NP] [NEPER], db [DB].
    *  If none of these implemented units is given, the value in neper will be returned. */
-  inline double get(const string &units) const { return sget(valueIS_, units); }
+  inline double get(const std::string &units) const { return sget(valueIS_, units); }
 
   /** Operator "equal to a Opacity" */
   inline Opacity& operator=(const Opacity &rhs) { if(&rhs != this) valueIS_ = rhs.valueIS_; return *this; }
@@ -100,8 +100,8 @@ public:
   inline bool operator!=(const Opacity &rhs) const { return (valueIS_ != rhs.get()); }
 
 private:
-  static double sget(double value, const string &units);
-  static double sput(double value, const string &units);
+  static double sget(double value, const std::string &units);
+  static double sput(double value, const std::string &units);
 
 private:
   double valueIS_;

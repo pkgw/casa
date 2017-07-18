@@ -149,19 +149,19 @@ if( CMAKE_BUILD_TYPE STREQUAL Debug )
 endif()
 
 include( UsePrivatePath )
-if( NOT RE_CMAKE )
-    if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT OR CMAKE_INSTALL_PREFIX MATCHES ".*/linux[^/]*$" OR CMAKE_INSTALL_PREFIX MATCHES ".*/darwin[^/]*$")
-        string( REGEX REPLACE /[^/]+/?$ "" casaroot ${CMAKE_SOURCE_DIR} )
-        message("using traditional configuration where casaroot != install prefix:")
-        message("        casaroot             = ${casaroot}")
-        message("        CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
-    else( )
-        set( casaroot ${CMAKE_INSTALL_PREFIX} )
-        message("using modern configuraiton where casaroot and install prefix are the same:")
-        message("        casaroot = ${casaroot}")
-    endif( )
-    file(MAKE_DIRECTORY ${casaroot}/share/doc)
-endif()
+
+if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT OR CMAKE_INSTALL_PREFIX MATCHES ".*/linux[^/]*$" OR CMAKE_INSTALL_PREFIX MATCHES ".*/darwin[^/]*$")
+    string( REGEX REPLACE /[^/]+/?$ "" casaroot ${CMAKE_SOURCE_DIR} CACHE )
+    message("using traditional configuration where casaroot != install prefix:")
+    message("        casaroot             = ${casaroot}")
+    message("        CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
+else( )
+    set( casaroot ${CMAKE_INSTALL_PREFIX} CACHE )
+    message("using modern configuraiton where casaroot and install prefix are the same:")
+    message("        casaroot = ${casaroot}")
+endif( )
+
+file(MAKE_DIRECTORY ${casaroot}/share/doc)
 
 #
 # aipshosts is supported for backwards compatibility
