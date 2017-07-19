@@ -134,8 +134,14 @@ class Test010_FirstLookatSelfCalibration(unittest.TestCase):
 		if os.path.isdir(os.getcwd()+'/%s'%(dataset)):
 			try: os.unlink(os.getcwd()+'/%s'%(dataset))
 			except: shutil.rmtree(os.getcwd()+'/%s'%(dataset))
- 	os.symlink(os.environ.get('CASAPATH').split()[0] + "/data/casaguidedata/working_data/sis14_twhya_selfcal.ms",os.getcwd()+'/sis14_twhya_selfcal.ms')
- 	os.symlink(os.environ.get('CASAPATH').split()[0] + "/data/casaguidedata/working_data/sis14_twhya_calibrated_flagged.ms",os.getcwd()+'/sis14_twhya_calibrated_flagged.ms')
+
+        if os.path.isdir(os.environ.get('CASAPATH').split()[0] + "/data/casaguidedata"):
+                casaguidedata_path = "/data/casaguidedata/"
+        else:
+                casaguidedata_path = "/casaguidedata/"
+
+ 	os.symlink(os.environ.get('CASAPATH').split()[0] + casaguidedata_path + "working_data/sis14_twhya_selfcal.ms",os.getcwd()+'/sis14_twhya_selfcal.ms')
+ 	os.symlink(os.environ.get('CASAPATH').split()[0] + casaguidedata_path + "working_data/sis14_twhya_calibrated_flagged.ms",os.getcwd()+'/sis14_twhya_calibrated_flagged.ms')
 	if os.uname()[0] == 'Darwin':
 		os.system(os.environ.get('CASAPATH').split()[0] +"/Resources/python/extractCASAscript.py -n -p -d 'https://casaguides.nrao.edu/index.php/First_Look_at_Self_Calibration'")
 	else:
@@ -303,13 +309,14 @@ class Test020_FirstLookatSelfCalibration(unittest.TestCase):
 		tableName = 'third_image.residual'
 		self.assertTrue(openTable(tableName))
 
-	def test_35_sis14_selfcal_phase_scan_png(self):
-		'''Test 35: Check sis14_selfcal_phase_scan.png'''
-		self.assertTrue(assert_file('sis14_selfcal_phase_scan.png'))
+	# Turn these tests on if Plotting is on.
+	#def test_35_sis14_selfcal_phase_scan_png(self):
+	#	'''Test 35: Check sis14_selfcal_phase_scan.png'''
+	#	self.assertTrue(assert_file('sis14_selfcal_phase_scan.png'))
 
-	def test_37_sis14_selfcal_phase_scan_2_png(self):
-		'''Test 37: Check sis14_selfcal_phase_scan_2.png'''
-		self.assertTrue(assert_file('sis14_selfcal_phase_scan_2.png'))
+	#def test_37_sis14_selfcal_phase_scan_2_png(self):
+	#	'''Test 37: Check sis14_selfcal_phase_scan_2.png'''
+	#	self.assertTrue(assert_file('sis14_selfcal_phase_scan_2.png'))
 
 ####################################################################################################
 # Needs to be Fixed
