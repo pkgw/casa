@@ -154,7 +154,7 @@ class sdgaincal_test_base(unittest.TestCase):
             tb.close()
     
     def _verify_param_and_flag(self, table):
-        self.assertFail('_verify_param_and_flag not implemented')
+        self.fail('_verify_param_and_flag not implemented')
 
 class sdgaincal_fail_test(sdgaincal_test_base):
     """
@@ -340,15 +340,15 @@ class sdgaincal_preapply_test(sdgaincal_test_base):
         if os.path.exists(self.skytable):
             shutil.rmtree(self.skytable)
     
-    def _verify_fparam_and_flag_const(self, table):
+    def _verify_param_and_flag_const(self, table):
         for irow in xrange(table.nrows()):
-            fparam = table.getcell('CPARAM', irow).real
-            self.assertTrue(numpy.all(fparam == 1.0))
+            param = table.getcell('CPARAM', irow).real
+            self.assertTrue(numpy.all(param == 1.0))
                 
             flag = table.getcell('FLAG', irow)
             self.assertTrue(numpy.all(flag == False))
     
-    def _verify_fparam_and_flag_variable(self, table):
+    def _verify_param_and_flag_variable(self, table):
         nrow = table.nrows()
         nrow_per_spw = nrow / 2
         ref_min = 0.90240508
@@ -377,19 +377,19 @@ class sdgaincal_preapply_test(sdgaincal_test_base):
               1.07822275,  1.07963037,  1.08108199,  1.08235824,  1.08367515,
               1.08503532,  1.08644176], dtype=numpy.float64)
         for irow in xrange(nrow):
-            ref_fparam = ref[irow % nrow_per_spw]
-            fparam = table.getcell('CPARAM', irow).real
-            diff = numpy.abs((fparam - ref_fparam) / ref_fparam)
+            ref_param = ref[irow % nrow_per_spw]
+            param = table.getcell('CPARAM', irow).real
+            diff = numpy.abs((param - ref_param) / ref_param)
             self.assertTrue(numpy.all(diff < 1e-8),
-                            msg='row {0} actual {1} expected {2}'.format(irow, fparam[0,0], ref_fparam))
-            #self.assertTrue(numpy.all(ref_fparam == fparam), 
-            #                msg='row {0} actual {1} expected {2}'.format(irow, fparam[0,0], ref_fparam))
+                            msg='row {0} actual {1} expected {2}'.format(irow, param[0,0], ref_param))
+            #self.assertTrue(numpy.all(ref_param == param), 
+            #                msg='row {0} actual {1} expected {2}'.format(irow, param[0,0], ref_param))
              
             ref_flag = False
             flag = table.getcell('FLAG', irow)
             self.assertTrue(numpy.all(flag == ref_flag))
             
-            #print irow, fparam, flag
+            #print irow, param, flag
            
     def generate(self):
         # generate Tsys table
@@ -440,12 +440,12 @@ class sdgaincal_preapply_test(sdgaincal_test_base):
         time[:2] = tmin
         time[2:] = tmax
         tb.putcol('TIME', time)
-        fparam = tb.getcol('FPARAM')
-        fparam[:,:,:2] = 100.0
-        fparam[:,:,2:] = 200.0
-        tb.putcol('FPARAM', fparam)
-        fparam[:] = 1.0
-        tb.putcol('WEIGHT', fparam)
+        param = tb.getcol('FPARAM')
+        param[:,:,:2] = 100.0
+        param[:,:,2:] = 200.0
+        tb.putcol('FPARAM', param)
+        param[:] = 1.0
+        tb.putcol('WEIGHT', param)
         tb.close()
 
     def test_preapply01(self):
@@ -453,7 +453,7 @@ class sdgaincal_preapply_test(sdgaincal_test_base):
         params = self.generate_params(radius='65arcsec', applytable=self.skytable)
         self.run_task(**params)
         
-        setattr(self, '_verify_fparam_and_flag', self._verify_fparam_and_flag_const)
+        setattr(self, '_verify_param_and_flag', self._verify_param_and_flag_const)
         self._verify_caltable(self._generic_verify, **params)
     
     def test_preapply02(self):
@@ -461,7 +461,7 @@ class sdgaincal_preapply_test(sdgaincal_test_base):
         params = self.generate_params(radius='65arcsec', applytable=self.tsystable)
         self.run_task(**params)
         
-        setattr(self, '_verify_fparam_and_flag', self._verify_fparam_and_flag_variable)
+        setattr(self, '_verify_param_and_flag', self._verify_param_and_flag_variable)
         self._verify_caltable(self._generic_verify, **params)
     
     def test_preapply03(self):
@@ -470,7 +470,7 @@ class sdgaincal_preapply_test(sdgaincal_test_base):
                                       applytable=[self.tsystable, self.skytable])
         self.run_task(**params)
         
-        setattr(self, '_verify_fparam_and_flag', self._verify_fparam_and_flag_variable)
+        setattr(self, '_verify_param_and_flag', self._verify_param_and_flag_variable)
         self._verify_caltable(self._generic_verify, **params)
         
 class sdgaincal_single_polarization_test(sdgaincal_test_base):
