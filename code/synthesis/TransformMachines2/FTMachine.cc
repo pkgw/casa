@@ -76,7 +76,7 @@
 #include <casa/OS/Timer.h>
 #include <casa/sstream.h>
 #include <casa/iostream.h>
-
+#include <iomanip>
 using namespace casacore;
 namespace casa{//# CASA namespace
 namespace refim {//# namespace refactor imaging
@@ -99,7 +99,7 @@ using namespace casa::vi;
                            numthreads_p(-1), pbLimit_p(0.05),sj_p(0), cmplxImage_p( )
   {
     spectralCoord_p=SpectralCoordinate();
-    isIOnly=false;
+    isPseudoI_p=false;
     spwChanSelFlag_p=0;
     polInUse_p=0;
     pop_p = new PolOuterProduct;
@@ -118,7 +118,7 @@ using namespace casa::vi;
     pbLimit_p(0.05),sj_p(0), cmplxImage_p( )
   {
     spectralCoord_p=SpectralCoordinate();
-    isIOnly=false;
+    isPseudoI_p=false;
     spwChanSelFlag_p=0;
     polInUse_p=0;
     pop_p = new PolOuterProduct;
@@ -416,7 +416,6 @@ using namespace casa::vi;
       AlwaysAssert(nvispol>0, AipsError);
       polMap.resize(nvispol);
       polMap=-1;
-      isIOnly=false;
       Int pol=0;
       Bool found=false;
       // First we try matching Stokes in the visibilities to
@@ -459,7 +458,7 @@ using namespace casa::vi;
     					<< visPolMap << LogIO::EXCEPTION;
     		}
     	else {
-    		isIOnly=true;
+    		
     		//logIO() << LogIO::DEBUGGING << "Transforming I only" << LogIO::POST;
     	}
     	  };
@@ -492,6 +491,8 @@ using namespace casa::vi;
   					     FTMachine::Type type){
       Cube<Complex> origdata;
       Cube<Bool> modflagCube;
+      // Read flags from the vb.
+      setSpectralFlag(vb,modflagCube);
       Vector<Double> visFreq(vb.getFrequencies(0).nelements());
       //if(doConversion_p[vb.spectralWindows()[0]]){
       if(freqFrameValid_p){
@@ -525,13 +526,14 @@ using namespace casa::vi;
         data.reference(origdata);
         // do something here for apply flag based on spw chan sels
         // e.g.
-        // setSpecFlag(vb, chansels_p) -> newflag cube
-        setSpectralFlag(vb,modflagCube);
-        //flags.resize(vb.flagCube().shape());
+        
+        
         flags.resize(modflagCube.shape());
         flags=0;
         //flags(vb.flagCube())=true;
-        flags(modflagCube)=true;
+	
+	flags(modflagCube)=true;
+	
         weight.reference(wt);
         interpVisFreq_p.resize();
         interpVisFreq_p=lsrFreq_p;
@@ -589,7 +591,8 @@ using namespace casa::vi;
   	chanMap.set(-1);
   	interpVisFreq_p.resize(ninterpchan);
   	interpVisFreq_p[0]=(interpwidth > 0) ? minIF : maxIF;
-  	interpVisFreq_p[0] -= fabs(imageFreq_p[1]-imageFreq_p[0])/2.0;
+  	interpVisFreq_p[0] =(interpwidth >0) ? (interpVisFreq_p[0]-fabs(imageFreq_p[1]-imageFreq_p[0])/2.0):
+																(interpVisFreq_p[0]+fabs(imageFreq_p[1]-imageFreq_p[0])/2.0);
   	for (Int k=1; k < ninterpchan; ++k){
   	  interpVisFreq_p[k] = interpVisFreq_p[k-1]+ interpwidth;
   	}
@@ -612,9 +615,7 @@ using namespace casa::vi;
         indgen(chanMap);
       }
 
-      // Read flags from the vb.
-      setSpectralFlag(vb,modflagCube);
-
+	  
       if(type != FTMachine::PSF){ // Interpolating the data
    	//Need to get  new interpolate functions that interpolate explicitly on the 2nd axis
   	//2 swap of axes needed
@@ -700,18 +701,30 @@ using namespace casa::vi;
   void FTMachine::getInterpolateArrays(const vi::VisBuffer2& vb,
   				       Cube<Complex>& data, Cube<Int>& flags){
 
+	Vector<Double> visFreq(vb.getFrequencies(0).nelements());
 
+      //if(doConversion_p[vb.spectralWindows()[0]]){
+      if(freqFrameValid_p){
+        convertArray(visFreq, lsrFreq_p);
+      }
+      else{
+        convertArray(visFreq, vb.getFrequencies(0));
+      }
+    
+	
+	  
       if((imageFreq_p.nelements()==1) || (freqInterpMethod_p== InterpolateArray1D<Double, Complex>::nearestNeighbour)||  (vb.nChannels()==1)){
         Cube<Bool> modflagCube;
         setSpectralFlag(vb,modflagCube);
-        data.reference(vb.visCubeModel());
+	
+		data.reference(vb.visCubeModel());
         //flags.resize(vb.flagCube().shape());
         flags.resize(modflagCube.shape());
         flags=0;
         //flags(vb.flagCube())=true;
         flags(modflagCube)=true;
         interpVisFreq_p.resize();
-        interpVisFreq_p=vb.getFrequencies(0);
+        interpVisFreq_p=visFreq;
         return;
       }
 
@@ -771,24 +784,51 @@ using namespace casa::vi;
     // has only one channel, resort to nearestNeighbour interpolation.
     // Honour user selection of nearestNeighbour.
     //
+    
+	Double width=fabs(imageFreq_p[1]-imageFreq_p[0])/fabs(visFreq[1]-visFreq[0]);
+	
     if((imageFreq_p.nelements()==1) || 
        (vb.nChannels()==1) || 
        (freqInterpMethod_p== InterpolateArray1D<Double, Complex>::nearestNeighbour)){
         origdata->reference(data);
         return false;
       }
-
+  
       //Need to get  new interpolate functions that interpolate explicitly on the 2nd axis
       //2 swap of axes needed
-      Cube<Complex> flipgrid;
-      flipgrid.resize();
-      swapyz(flipgrid,data);
-
+		Cube<Complex> flipgrid;
+		flipgrid.resize();
+		swapyz(flipgrid,data);
+		Vector<Double> newImFreq;
+		newImFreq=imageFreq_p;
+		
+		//cerr << "width " << width << endl;
+         if(((width >2.0) && (freqInterpMethod_p==InterpolateArray1D<Double, Complex>::linear)) ||
+         ((width >4.0) && (freqInterpMethod_p !=InterpolateArray1D<Double, Complex>::linear))){
+			Int newNchan=Int(std::round(width))*imageFreq_p.nelements();
+			newImFreq.resize(newNchan);
+			Double newIncr= (imageFreq_p[1]-imageFreq_p[0])/std::round(width);
+			Double newStart=imageFreq_p[0]-(imageFreq_p[1]-imageFreq_p[0])/2.0+newIncr/2.0;
+			Cube<Complex> newflipgrid(flipgrid.shape()[0], flipgrid.shape()[1], newNchan);
+			for (Int k=0; k < newNchan; ++k){
+				newImFreq[k]=newStart+k*newIncr;
+				Int oldchan=k/Int(std::round(width));
+				newflipgrid.xyPlane(k)=flipgrid.xyPlane(oldchan);
+				
+			}
+			//cerr << std::setprecision(12) << "newfreq " << newImFreq << endl;
+			//cerr << "oldfreq " << imageFreq_p << endl;
+			//InterpolateArray1D<Double,Complex>::
+        //interpolate(newflipgrid,newImFreq, imageFreq_p, flipgrid, InterpolateArray1D<Double, Complex>::nearestNeighbour);
+			flipgrid.resize();
+			flipgrid.reference(newflipgrid);
+			 
+		 }
       Cube<Complex> flipdata((origdata->shape())(0),(origdata->shape())(2),
   			   (origdata->shape())(1)) ;
       flipdata.set(Complex(0.0));
       InterpolateArray1D<Double,Complex>::
-        interpolate(flipdata,visFreq, imageFreq_p, flipgrid,freqInterpMethod_p);
+        interpolate(flipdata,visFreq, newImFreq, flipgrid,freqInterpMethod_p);
       
 
       
@@ -1777,6 +1817,14 @@ using namespace casa::vi;
 
       modflagcube.resize(vb.flagCube().shape());
       modflagcube=vb.flagCube();
+      if(!isPseudoI_p){
+	ArrayIterator<Bool> from(modflagcube, IPosition(1, 0));
+	while(!from.pastEnd()){
+	  if(anyTrue(from.array()))
+	    from.array().set(True);
+	  from.next();
+	}
+      }
       uInt nchan = vb.nChannels();
       uInt msid = vb.msId();
       uInt selspw = vb.spectralWindows()[0];

@@ -16,8 +16,6 @@ for category in thecats :
                   deprecated.append('{'+key+'}')
                else :
                   allcat[category].append(key)
-   if category == 'single dish' :
-      allcat[category].append('asap_init')
    if category == 'utility' :
       allcat[category].append('taskhelp')
       allcat[category].append('tasklist')

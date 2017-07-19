@@ -410,7 +410,7 @@ def simobserve(
             # first set based on psfsize:
             # needs high subsampling because small shifts in placement of 
             # components lead to large changes in the difference image.
-            model_cell = [ str(psfsize/20)+"arcsec", str(psfsize/20)+"arcsec" ]
+            model_cell = [ qa.quantity(str(psfsize/20)+"arcsec"), qa.quantity(str(psfsize/20)+"arcsec") ]
             
             # XXX if the user has set direction should we center the compskymodel there?
             # if len(direction)>0: model_refdir = direction
@@ -986,6 +986,21 @@ def simobserve(
                         sm.setoptions(ftmachine="mosaic")
                     else:
                         msg("Heterogeneous array only supported for mosaics (nfld>1), and make sure that your image is larger than the primary beam or results may be unstable",priority="error")
+                else:
+                    # checks have to be manual since there's no way to 
+                    # get the "diam" out of PBMath AFAIK
+                    if telescopename=="ALMA":
+                        if (diam[0]<10)|(diam[0]>13):
+                            msg("Diameter = %f is inconsistent with telescope=ALMA in the configuration file.  *12m ALMA PB will be used*"%diam[0],priority="warn")
+                            n=len(diam)
+                            diam=12.+pl.zeros(n)
+                    elif telescopename=="ACA":
+                        if (diam[0]<6)|(diam[0]>7.5):
+                            msg("Diameter = %f is inconsistent with telescope=ALMA in the configuration file.  *7m ACA PB will be used*"%diam[0],priority="warn")
+                            n=len(diam)
+                            diam=7.+pl.zeros(n)
+                    else:
+                        msg("Note: diameters in configuration file will not be used - PB for "+telescopename+" will be used",priority="info")
 
 
             msg("done setting up observations (blank visibilities)",origin='simobserve')
@@ -1106,8 +1121,8 @@ def simobserve(
                     util.nextfig()
                     im.open(msfile)
                     # TODO spectral parms
-                    msg("using default model cell "+qa.tos(model_cell[0])+" for PSF calculation",origin='simobserve')
-                    im.defineimage(cellx=qa.tos(model_cell[0]),nx=int(max([minimsize,128])))
+                    msg("using default model cell "+str(model_cell[0])+" for PSF calculation",origin='simobserve')
+                    im.defineimage(cellx=str(model_cell[0]["value"])+str(model_cell[0]["unit"]),nx=int(max([minimsize,128])))
                     # TODO trigger im.setoptions(ftmachine="mosaic")
                     if os.path.exists(fileroot+"/"+project+".quick.psf"):
                         shutil.rmtree(fileroot+"/"+project+".quick.psf")

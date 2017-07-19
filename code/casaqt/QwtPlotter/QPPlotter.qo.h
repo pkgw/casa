@@ -221,8 +221,10 @@ public:
     QSize minimumSizeHint() const;
 
     // Implements Plotter::makeSquarePlot to set width=height
-    virtual void makeSquarePlot(bool square);
+    virtual void makeSquarePlot(bool square, bool waveplot=false);
     bool isSquarePlot() { return (m_sizeRatio != 1.0); }
+    // For iteration plot exports
+    int squareHeight() { return m_squareHeight; }
     
     virtual bool exportPlot(const PlotExportFormat& format );
 
@@ -265,6 +267,9 @@ private:
     // </group>
     
     QList<QPAxis*> externalAxes;
+
+    // Save height for square iteration plots
+    int m_squareHeight;
 
     // For restoring rectangular plot after square one;
     // ratio of width/height

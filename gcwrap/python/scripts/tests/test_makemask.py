@@ -16,7 +16,7 @@ datapath = os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/ma
 
 #debug=True
 debug=False
-
+_ia = iatool( )
 
 class makemaskTestBase(unittest.TestCase):
     """ base class for makemask unit test"""
@@ -26,14 +26,14 @@ class makemaskTestBase(unittest.TestCase):
 	returns true if identical in terms of pixel values
 	and shape (does not check coordinates)
 	"""
-	ia.open(refimage)
-	refdata=ia.getchunk(getmask=evalmask)
-	refshp=list(ia.shape())
-	ia.close()
-	ia.open(inimage)
-	indata=ia.getchunk(getmask=evalmask)
-	inshp=list(ia.shape())
-	ia.close()
+	_ia.open(refimage)
+	refdata=_ia.getchunk(getmask=evalmask)
+	refshp=list(_ia.shape())
+	_ia.close()
+	_ia.open(inimage)
+	indata=_ia.getchunk(getmask=evalmask)
+	inshp=list(_ia.shape())
+	_ia.close()
 	if inshp==refshp:
 	    for i in range(inshp[3]):
 		for j in range(inshp[2]):
@@ -106,13 +106,13 @@ class test_copy(makemaskTestBase):
        
         self.assertTrue(os.path.exists(self.outimage1))           
         self.assertTrue(self.compareimpix(self.inimage,self.outimage1))           
-        ia.open(self.outimage1)
-        masknames=ia.maskhandler('get')
+        _ia.open(self.outimage1)
+        masknames=_ia.maskhandler('get')
         if masknames.count('masknew')==1:
             pixelmask2cleanmask(self.outimage1,'masknew','_tmp_im',False)
             self.assertTrue(self.compareimpix(self.inimage,'_tmp_im'))
             shutil.rmtree('_tmp_im')
-            ia.done()
+            _ia.done()
 
     def test3_copyimagemask(self):
         """ (copy mode) testcopy3: copying an image mask (1/0 mask) to a new image with internal (T/F) mask"""
@@ -127,13 +127,13 @@ class test_copy(makemaskTestBase):
         # check by converting the output back to a 1/0 mask to see if it 
         # is identical to the input 1/0 mask.
         if os.path.exists(self.outimage2):
-            ia.open(self.outimage2)
-            masknames=ia.maskhandler('get')
+            _ia.open(self.outimage2)
+            masknames=_ia.maskhandler('get')
             if masknames.count('masknew')==1:
                 pixelmask2cleanmask(self.outimage2,'masknew','_tmp_im',False)
                 self.assertTrue(self.compareimpix(self.inimage,'_tmp_im')) 
                 shutil.rmtree('_tmp_im')
-            ia.done()
+            _ia.done()
 
     def test4_copyimagemask(self):
         """ (copy mode) testcopy4: copying an image mask (1/0 amsk) to a new image with different coordinates(regrid)""" 
@@ -163,14 +163,14 @@ class test_copy(makemaskTestBase):
            
         self.assertTrue(os.path.exists(self.outimage3))
         if os.path.exists(self.outimage3):
-          ia.open(self.outimage3)
-          outmask = ia.maskhandler('get')
+          _ia.open(self.outimage3)
+          outmask = _ia.maskhandler('get')
           self.assertTrue(outmask[0]=='newmask')
-          stats=ia.statistics()
+          stats=_ia.statistics()
           # the inpimage is 1/0 image mask in this case and the ellipse region does not overlap with the '1' region in inpimage
           # so the ellipse region inside will be 0 in output and the rest is masked.
           self.assertTrue(stats['max'][0]==0. and stats['min'][0]==0.)
-          ia.close()
+          _ia.close()
 
     def test6_copyimagemask(self):
         """ (copy mode) testcopy6: copying an internal mask to a new image mask with different coordinates(regrid)""" 
@@ -200,9 +200,9 @@ class test_copy(makemaskTestBase):
         self.assertTrue(os.path.exists(self.outimage1))
         if os.path.exists(self.outimage1):
             self.assertTrue(self.compareimpix(self.inimage4,self.outimage1)) 
-            ia.open(self.outimage1)
-            masknames=ia.maskhandler('get')
-            ia.close()
+            _ia.open(self.outimage1)
+            masknames=_ia.maskhandler('get')
+            _ia.close()
             if masknames.count('newmask')==1:
                 self.assertTrue(self.compareimpix(self.inimage3,self.outimage1,True)) 
 
@@ -359,13 +359,13 @@ class test_merge(makemaskTestBase):
 
         self.assertTrue(os.path.exists(self.outimage1))
         if os.path.exists(self.outimage1):
-          ia.open(self.outimage1)
-          masknames=ia.maskhandler('get')
+          _ia.open(self.outimage1)
+          masknames=_ia.maskhandler('get')
           if masknames.count('newmask')==1:
               pixelmask2cleanmask(self.outimage1,'newmask','_tmp_im',False)
               self.assertTrue(self.compareimpix(self.refimage3,'_tmp_im')) 
               shutil.rmtree('_tmp_im')
-          ia.done()
+          _ia.done()
         #self.assertTrue(self.compareimpix(self.refimage3,self.outimage1))
 
     def test5_mergemasks(self):
@@ -563,13 +563,13 @@ class test_expand(makemaskTestBase):
 
         self.assertTrue(os.path.exists(self.outimage3))
         if os.path.exists(self.outimage3):
-          ia.open(self.outimage3)
-          masknames=ia.maskhandler('get')
+          _ia.open(self.outimage3)
+          masknames=_ia.maskhandler('get')
           if masknames.count('newmask')==1:
               pixelmask2cleanmask(self.outimage3,'newmask','_tmp_im',False)
               self.assertTrue(self.compareimpix(self.refimage4,'_tmp_im')) 
               shutil.rmtree('_tmp_im')
-          ia.done()
+          _ia.done()
 
 
 class test_inmask(makemaskTestBase):
@@ -599,9 +599,9 @@ class test_inmask(makemaskTestBase):
             print "\nError running makemask"
             raise e
 
-        ia.open(self.inimage)
-        mlist=ia.maskhandler('get')
-        ia.close()
+        _ia.open(self.inimage)
+        mlist=_ia.maskhandler('get')
+        _ia.close()
         self.assertTrue(mlist.count('mask2')==0)
 
     def test_setdefault(self):
@@ -612,9 +612,9 @@ class test_inmask(makemaskTestBase):
             print "\nError running makemask"
             raise e
 
-        ia.open(self.inimage)
-        defaultmask=ia.maskhandler('default')[0]
-        ia.close()
+        _ia.open(self.inimage)
+        defaultmask=_ia.maskhandler('default')[0]
+        _ia.close()
         self.assertTrue(defaultmask=='mask2')
 
 def suite():

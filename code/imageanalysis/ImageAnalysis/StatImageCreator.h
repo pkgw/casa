@@ -51,6 +51,9 @@ public:
 	// not the resulting subimage if a region was also specified.
 	void setAnchorPosition(Int x, Int y);
 
+    // rounds reference pixel to nearest ints, if necessary
+    void useReferencePixelAsAnchor();
+
 	// set spacing between grid pixels.
 	void setGridSpacing(uInt x, uInt y);
 
@@ -88,12 +91,6 @@ private:
 
     Quantity _xlen = Quantity(1, "pix");
     Quantity _ylen = Quantity(1, "pix");
-    // blc of the data chunk offset from the grid point, in pixels
-    uInt _xoff = 0;
-    uInt _yoff = 0;
-    // x,y chunksize, in pixels
-    uInt _xsize = 1;
-    uInt _ysize = 1;
 
     std::pair<uInt, uInt> _grid = std::make_pair(1,1);
     // _anchor pixel world coordinates
@@ -108,7 +105,7 @@ private:
     casacore::Bool _doPhi = casacore::False;
 
     void _doInterpolation(
-        TempImage<Float>& output, TempImage<Float>& store,
+        /*TempImage<Float>& */ SPIIF output, TempImage<Float>& store,
         SPCIIF subImage, uInt nxpts, uInt nypts, Int xstart, Int ystart
     ) const;
 
@@ -116,6 +113,23 @@ private:
         TempImage<Float>& writeTo,
         SPCIIF subImage, uInt nxpts, uInt nypts,
         Int xstart, Int ystart
+    );
+
+    void _doStatsLoop(
+        casacore::TempImage<Float>& writeTo, casacore::RO_MaskedLatticeIterator<Float>& lattIter,
+        casacore::uInt nxpts, casacore::uInt nypts, casacore::Int xstart, casacore::Int ystart,
+        casacore::uInt xBlcOff, casacore::uInt yBlcOff, casacore::uInt xChunkSize,
+        casacore::uInt yChunkSize, const casacore::IPosition& imshape,
+        const casacore::IPosition& chunkShape,
+        SHARED_PTR<casacore::Array<casacore::Bool>> regionMask,
+        SHARED_PTR<
+            casacore::StatisticsAlgorithm<
+                casacore::Double, casacore::Array<casacore::Float>::const_iterator,
+                casacore::Array<casacore::Bool>::const_iterator,
+                casacore::Array<casacore::Float>::const_iterator
+            >
+        >& alg, const casacore::Array<casacore::Bool>& regMaskCopy,
+        const casacore::IPosition& loopAxes, casacore::uInt nPts
     );
 
     // start is the pixel offset in the result matrix relative the

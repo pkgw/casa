@@ -205,6 +205,48 @@ atf.fill()
 del atf
 </example>
 </method>
+<method type="function" name="opacities">
+<shortdescription>Calculate opacity correction
+</shortdescription>
+<input>
+  <param type="doubleArray" direction="in" name="fghz">
+  <description>array of frequencies</description>
+  <value></value>
+  </param>
+  <param type="float" direction="in" name="tempk">
+  <description>surface temperature in K</description>
+  <value>300.0</value>
+  </param>
+  <param type="float" direction="in" name="humi">
+  <description>humidity in %</description>
+  <value>50.0</value>
+  </param>
+  <param type="float" direction="in" name="press">
+  <description>surface pressure in hPa</description>
+  <value>1010.0</value>
+  </param>
+  <param type="float" direction="in" name="height">
+  <description>observatory height in m</description>
+  <value>200.0</value>
+  </param>
+</input>
+<returns type="doubleArray">Returns opacities at given frequencies</returns>
+<example>
+#
+atf = atcafiller()
+opac=atf.opacities([22.0,23.0],300.,50.,1013.,200.)
+print opac
+del atf
+</example>
+
+<description>
+This function does the actual filling of the data from rpfits format
+files to a MeasurementSet. You may want to run select before fill, to 
+reduce the amount of data you read in.
+
+</description>
+</method>
+
 </tool>
 </casaxml>
 

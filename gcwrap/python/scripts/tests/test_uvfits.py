@@ -19,6 +19,7 @@ Features tested:
 '''
 
 datapath = os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/uvfits/'
+datapath2 = os.environ.get('CASAPATH').split()[0] + '/data/regression/'
 
 def check_eq(val, expval, tol=None):
     """Checks that val matches expval within tol."""
@@ -178,17 +179,27 @@ class uvfits_test(unittest.TestCase):
         self.assertFalse(exportuvfits(msname, fitsname, overwrite=False))
         self.assertTrue(exportuvfits(msname, fitsname, overwrite=True))
             
-    def test_varying_receptor_angles(self):
-        """CAS-8744 Test that selected spws with varying receptor angles will not be written"""
-        vis = datapath + "receptor_angle_test.ms"
+    def test_badscan(self):
+        """CAS-10054: Tests intermittent incorrect scan number in last row of single-scan dataset"""
         myms = mstool()
-        myms.open(vis)
-        fitsfile = "blah.fits"
-        self.assertRaises(myms.tofits, fitsfile=fitsfile, overwrite=True)
-        self.assertTrue(myms.tofits(fitsfile=fitsfile, spw="1,2", overwrite=True))
-        for i in (0,1,2):
-            self.assertTrue(myms.tofits(fitsfile=fitsfile, spw=str(i), overwrite=True))
+        fitsname = datapath2 + "ngc4826/fitsfiles/3c273.fits7"
+        msname = "ngc4826.tutorial.3c273.7.ms"
+        self.assertTrue(myms.fromfits(msname, fitsname), "Failed to import uvfits file")
         myms.done()
+
+        mytb = tbtool()
+        mytb.open(msname);
+        scans=mytb.getcol('SCAN_NUMBER')
+        mytb.close()
+
+        nrows=len(scans)
+
+        print 'Last row has scan='+str(scans[nrows-1])+' ; (should be 1).'
+        self.assertFalse(scans[nrows-1]==2, "Last row has wrong scan number: "+str(scans[nrows-1]) )
+        # the following verifies that _all_ scan numbers are correct (and lists unique values)
+        self.assertTrue(sum(scans==1)==nrows, "Unexpected scan number found: "+str(np.unique(scans)) )
+
+
 
 def suite():
     return [uvfits_test]        

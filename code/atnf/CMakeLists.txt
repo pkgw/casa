@@ -20,9 +20,11 @@
 
 casa_add_library( atnf
   atca/ATCAFiller.cc
+  atca/ATAtmosphere.cc
   )
 
 install(FILES
 	atca/ATCAFiller.h
+        atca/ATAtmosphere.h
 	DESTINATION include/casacode/atnf/atca
 	)

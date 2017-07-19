@@ -62,6 +62,13 @@ public:
   virtual void setSolve() override;
   virtual void setSolve(const casacore::Record& solve) override;
 
+  // This is the freq-dep version of G
+  //   (this is the ONLY fundamental difference from G)
+  virtual casacore::Bool freqDepPar() { return true; };
+
+  // Freq-dep Weight scaling
+  virtual casacore::Bool freqDepCalWt() { return true; };
+
   // Report solve info/params, e.g., for logging
   virtual casacore::String solveinfo() override;
 
@@ -75,6 +82,9 @@ public:
 
   // specific keepNCT
   virtual void keepNCT() override;
+
+protected:
+  virtual void syncWtScale();
 
 private:
   template<class Accessor>

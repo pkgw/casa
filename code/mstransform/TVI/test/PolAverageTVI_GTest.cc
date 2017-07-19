@@ -606,8 +606,7 @@ public:
     SortColumns defaultSortColumns;
 
     std::unique_ptr<ViImplementation2> inputVii(
-        new VisibilityIteratorImpl2(mss, defaultSortColumns, 0.0, VbPlain,
-            False));
+        new VisibilityIteratorImpl2(mss, defaultSortColumns, 0.0, False));
 
     std::unique_ptr<ViFactory> factory(
         new PolAverageVi2Factory(mode, inputVii.get()));

@@ -151,10 +151,10 @@ void ChannelAverageTVI::initialize()
 		// Make sure that chanbin does not exceed number of selected channels
 		else if ((uInt)chanbin_p(spw_idx) > iter->second.size())
 		{
-			logger_p << LogIO::WARN << LogOrigin("ChannelAverageTVI", __FUNCTION__)
+			logger_p << LogIO::DEBUG1 << LogOrigin("ChannelAverageTVI", __FUNCTION__)
 					<< "Number of selected channels " << iter->second.size()
 					<< " for SPW " << spw
-					<< " is smaller than specified chanbin " << chanbin_p(spw_idx) << endl
+				        << " is smaller than specified chanbin " << (uInt)chanbin_p(spw_idx) << endl
 					<< "Setting chanbin to " << iter->second.size()
 					<< " for SPW " << spw
 					<< LogIO::POST;
@@ -206,7 +206,7 @@ void ChannelAverageTVI::flag(Cube<Bool>& flagCube) const
 
 
 	// Reshape output data before passing it to the DataCubeHolder
-	flagCube.resize(getVisBufferConst()->getShape(),false);
+	flagCube.resize(getVisBuffer()->getShape(),false);
 
 	// Gather input data
 	DataCubeMap inputData;
@@ -261,7 +261,7 @@ void ChannelAverageTVI::floatData (Cube<Float> & vis) const
 	}
 
 	// Reshape output data before passing it to the DataCubeHolder
-	vis.resize(getVisBufferConst()->getShape(),false);
+	vis.resize(getVisBuffer()->getShape(),false);
 
 	// Gather input data
 	DataCubeMap inputData;
@@ -309,7 +309,7 @@ void ChannelAverageTVI::visibilityObserved (Cube<Complex> & vis) const
 	Int inputSPW = vb->spectralWindows()(0);
 
 	// Reshape output data before passing it to the DataCubeHolder
-	vis.resize(getVisBufferConst()->getShape(),false);
+	vis.resize(getVisBuffer()->getShape(),false);
 
 	// Get weightSpectrum from sigmaSpectrum
 	Cube<Float> weightSpFromSigmaSp;
@@ -380,7 +380,7 @@ void ChannelAverageTVI::visibilityCorrected (Cube<Complex> & vis) const
 
 
 	// Reshape output data before passing it to the DataCubeHolder
-	vis.resize(getVisBufferConst()->getShape(),false);
+	vis.resize(getVisBuffer()->getShape(),false);
 
 	// Gather input data
 	DataCubeMap inputData;
@@ -492,7 +492,7 @@ void ChannelAverageTVI::visibilityModel (Cube<Complex> & vis) const
 
 
 	// Reshape output data before passing it to the DataCubeHolder
-	vis.resize(getVisBufferConst()->getShape(),false);
+	vis.resize(getVisBuffer()->getShape(),false);
 
 	// Gather input data
 	DataCubeMap inputData;
@@ -557,7 +557,7 @@ void ChannelAverageTVI::weightSpectrum(Cube<Float> &weightSp) const
 
 
 	// Reshape output data before passing it to the DataCubeHolder
-	weightSp.resize(getVisBufferConst()->getShape(),false);
+	weightSp.resize(getVisBuffer()->getShape(),false);
 
 	// Gather input data
 	DataCubeMap inputData;
@@ -620,7 +620,7 @@ void ChannelAverageTVI::sigmaSpectrum(Cube<Float> &sigmaSp) const
 #endif
 
 	// Reshape output data before passing it to the DataCubeHolder
-	sigmaSp.resize(getVisBufferConst()->getShape(),false);
+	sigmaSp.resize(getVisBuffer()->getShape(),false);
 
 	// Get weightSpectrum from sigmaSpectrum
 	Cube<Float> weightSpFromSigmaSp;
@@ -772,9 +772,7 @@ void ChannelAverageTVI::propagateChanAvgFlags (const Cube<Bool> &transformedFlag
 			if (outChan < nTransChan) // outChan >= nChan  may happen when channels are dropped
 			{
 				for (size_t corr_i =0;corr_i<nCorr;corr_i++)
-				{
-					if (transformedFlagCube(corr_i,outChan,row_i)) propagatedFlagCube(corr_i,chan_i,row_i) = true;
-				}
+					propagatedFlagCube(corr_i,chan_i,row_i) = transformedFlagCube(corr_i,outChan,row_i);
 			}
 		}
 	}

@@ -111,9 +111,9 @@ VisBufferUtil::VisBufferUtil(const VisBuffer& vb): oldMSId_p(-1), timeAntIndex_p
 
 // Construct from a VisBuffer (sets frame info)
 VisBufferUtil::VisBufferUtil(const vi::VisBuffer2& vb): oldMSId_p(-1) {
-	if(vb.getVi() == NULL)
+	if(!vb.isAttached())
 		ThrowCc("Programmer Error: used a detached Visbuffer when it should not have been so");
-	ROMSColumns msc(vb.getVi()->ms());
+	ROMSColumns msc(vb.ms());
   // The nominal epoch
   MEpoch ep=msc.timeMeas()(0);
 
@@ -275,12 +275,12 @@ Bool VisBufferUtil::interpolateFrequency(Cube<Complex>& data,
                   Vector<Double> chanWidths = vi.subtableColumns().spectralWindow().chanWidth()(curspws[0]);  
                   // freqs are in channel center freq so add the half the width to the values to return the edge frequencies 
                   if (nfreq==1) {
-		    freqEnd=max(freqEnd, localmax+chanWidths[0]/2.0);
-		    freqStart=min(freqStart, localmin-chanWidths[0]/2.0);
+		    freqEnd=max(freqEnd, localmax+fabs(chanWidths[0]/2.0));
+		    freqStart=min(freqStart, localmin-fabs(chanWidths[0]/2.0));
                   }
                   else {
-		    freqEnd=max(freqEnd, localmax+chanWidths[localmaxpos[0]]/2.0);
-		    freqStart=min(freqStart, localmin-chanWidths[localminpos[0]]/2.0);
+		    freqEnd=max(freqEnd, localmax+fabs(chanWidths[localmaxpos[0]]/2.0));
+		    freqStart=min(freqStart, localmin-fabs(chanWidths[localminpos[0]]/2.0));
                   }
 		   
 		}
@@ -403,7 +403,7 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
 				     const vi::VisBuffer2& vb, 
 				     const MFrequency::Types freqFrame){
   Int spw=vb.spectralWindows()(0);
-  MFrequency::Types obsMFreqType=(MFrequency::Types)(ROMSColumns(vb.getVi()->ms()).spectralWindow().measFreqRef()(spw));
+  MFrequency::Types obsMFreqType=(MFrequency::Types)(ROMSColumns(vb.ms()).spectralWindow().measFreqRef()(spw));
 
   
 
@@ -411,7 +411,7 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
   Vector<Int> chanNums=vb.getChannelNumbers(0);
   
   Vector<Double> inFreq(chanNums.nelements());
-  Vector<Double> spwfreqs=ROMSColumns(vb.getVi()->ms()).spectralWindow().chanFreq().get(spw);
+  Vector<Double> spwfreqs=ROMSColumns(vb.ms()).spectralWindow().chanFreq().get(spw);
   for (uInt k=0; k < chanNums.nelements(); ++k){
 
     inFreq[k]=spwfreqs[chanNums[k]];

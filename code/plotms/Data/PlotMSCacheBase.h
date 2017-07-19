@@ -159,6 +159,8 @@ public:
 		    const PlotMSAveraging& averaging,
 		    const PlotMSTransformations& transformations,
 		    const PlotMSCalibration& calibration,
+            const PMS::Axis iteraxis,
+            const PMS::Axis coloraxis,
 		    /*PlotMSCacheThread**/ThreadCommunication* thread = NULL);
   
   // Clears the cache of all stored values.  This should be called when the
@@ -466,7 +468,8 @@ protected:
   std::vector<PMS::DataColumn> currentXData_;
   std::vector<PMS::DataColumn> currentYData_;
   map<PMS::Axis, bool> loadedAxes_;
-  map<PMS::Axis, std::set<PMS::DataColumn>> loadedAxesData_;
+  map<PMS::Axis, casacore::Record> loadedAxesData_;
+  //map<PMS::Axis, std::set<PMS::DataColumn>> loadedAxesData_;
   map<PMS::Axis, bool> pendingLoadAxes_;
 
   // Global ranges
