@@ -24,7 +24,7 @@
  */
 #include "ATMPressure.h"
 
-using namespace std;
+
 
 ATM_NAMESPACE_BEGIN
 
@@ -37,7 +37,7 @@ Pressure::Pressure(double pressure) :
 {
 }
 
-Pressure::Pressure(double pressure, const string &units)
+Pressure::Pressure(double pressure, const std::string &units)
 {
   if(units == "Pa" || units == "PA") {
     valueIS_ = pressure;
@@ -61,7 +61,7 @@ Pressure::~Pressure()
 {
 }
 
-double Pressure::get(string const &units) const
+double Pressure::get(std::string const &units) const
 {
   if(units == "Pa" || units == "PA") {
     return valueIS_;

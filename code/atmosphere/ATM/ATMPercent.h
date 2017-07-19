@@ -32,7 +32,7 @@
 #include "ATMCommon.h"
 #include <string>
 
-using namespace std;
+
 
 ATM_NAMESPACE_BEGIN
 
@@ -49,7 +49,7 @@ public:
   /** A full constructor: Amount in default units (relative to 1) */
   Percent(double percent);
   /** A full constructor: Amount + units. Valid units are: % */
-  Percent(double percent, const string &units);
+  Percent(double percent, const std::string &units);
 
   ~Percent();
 
@@ -57,7 +57,7 @@ public:
   /** Accessor to the percent value in International System units */
   double get()const;
   /** Accessor to the percent value in specified units.  */
-   double get(const string &units)const;
+   double get(const std::string &units)const;
   //@}
 
   /** Operator "equal to a Percent" */
