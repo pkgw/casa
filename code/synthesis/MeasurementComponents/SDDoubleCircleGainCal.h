@@ -28,9 +28,9 @@ public:
   virtual ~SDDoubleCircleGainCal();
 
   // Return type name as string (ditto)
-//  virtual casacore::String typeName() {
-//    return "SDGAIN_OTFD";
-//  }
+  virtual casacore::String typeName() {
+    return "SDGAIN_OTFD";
+  }
   virtual casacore::String longTypeName() override {
     return "SDGAIN_OTFD (Single Dish gain calibration for double circle fast scan";
   }
@@ -38,12 +38,6 @@ public:
 // Return the parameter type
 // so far single dish calibration is real
 //  virtual VisCalEnum::VCParType parType() { return VisCalEnum::REAL; }
-
-  // Frequency-dependent Parameters?
-  virtual casacore::Bool freqDepPar() {
-    return true;
-  }
-  ;
 
   // useGenericGatherForSolve must return true to migrate VI/VB2 based implementation
   virtual casacore::Bool useGenericGatherForSolve() override {
