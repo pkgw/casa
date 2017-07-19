@@ -1489,8 +1489,8 @@ Bool MSTransformRegridder::regridChanBounds(	Vector<Double>& newChanLoBound,
 		uInt nc = newChanLoBound.size();
 		oss << " Total width of SPW (in output frame) = "
 			<< newChanHiBound[nc- 1] - newChanLoBound[0] << " Hz" << endl;
-		oss << " Lower edge = " << newChanLoBound[0] << " Hz,"
-			<< " upper edge = " << newChanHiBound[nc - 1] << " Hz" << endl;
+		oss << " Lower edge = " << std::setprecision(9) << newChanLoBound[0] << " Hz,"
+		    << " upper edge = " << std::setprecision(9) << newChanHiBound[nc - 1] << " Hz" << endl;
 
 		if (isDescending)
 		{
@@ -1981,8 +1981,8 @@ Bool MSTransformRegridder::regridChanBounds(	Vector<Double>& newChanLoBound,
 				// Cope with numerical accuracy problems
 				if (diff > 1.)
 				{
-					oss << "*** Requested center of SPW " << theRegridCenterF
-						<< " Hz is smaller than minimum possible value";
+					oss << "*** Requested center of SPW (" << theRegridCenterF
+						<< " Hz) is smaller than minimum possible value";
 					oss << " by " << diff << " Hz";
 				}
 
@@ -2205,7 +2205,8 @@ Bool MSTransformRegridder::regridChanBounds(	Vector<Double>& newChanLoBound,
 				// 1 Hz tolerance to cope with numerical accuracy problems
 				if (theCentralChanWidthF < smallestChanWidth - 1.)
 				{
-					oss	<< " *** Requested new channel width is smaller than smallest original channel width" << endl;
+					oss << " *** Requested new channel width (" << theCentralChanWidthF << " Hz) "
+					    << "is smaller than smallest original channel width" << endl;
 					oss << "     which is " << smallestChanWidth << " Hz" << endl;
 
 					if (regridQuant == "vrad")

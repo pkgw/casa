@@ -28,7 +28,7 @@
 #include <stdio.h>
 #include <iostream>
 
-using namespace std;
+
 
 ATM_NAMESPACE_BEGIN
 
@@ -37,7 +37,7 @@ WVRMeasurement::WVRMeasurement()
 }
 
 WVRMeasurement::WVRMeasurement(const Angle &elevation,
-                               const vector<Temperature> &measuredSkyBrightness)
+                               const std::vector<Temperature> &measuredSkyBrightness)
 {
   elevation_ = elevation;
   v_measuredSkyBrightness_ = measuredSkyBrightness;
@@ -48,8 +48,8 @@ WVRMeasurement::WVRMeasurement(const Angle &elevation,
   } // !< Fitted sky brightness temperatures over all WVR channels for each event
 }
 WVRMeasurement::WVRMeasurement(const Angle &elevation,
-                               const vector<Temperature> &measuredSkyBrightness,
-                               const vector<Temperature> &fittedSkyBrightness,
+                               const std::vector<Temperature> &measuredSkyBrightness,
+                               const std::vector<Temperature> &fittedSkyBrightness,
                                const Length &retrievedWaterVaporColumn,
                                const Temperature &sigma_fittedSkyBrightness)
 {

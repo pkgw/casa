@@ -1,4 +1,5 @@
 import os
+import sys
 import traceback
 
 from init_welcome_helpers import redirect_argv, immediate_exit_with_handlers
@@ -17,11 +18,13 @@ if casa['flags'].execute:
 
     if len(__candidates) > 0:
         # Run file with filename given in the command line
+        _err = 0
         try:
             with redirect_argv(casa['flags'].execute):
                 execfile(__candidates[0])
 
         except NameError, err:
+            _err = 1
             if str(err) == "name 'T' is not defined" or \
                str(err) == "name 'F' is not defined" or \
                str(err) == "name 'true' is not defined" or \
@@ -30,22 +33,27 @@ if casa['flags'].execute:
                 print "Warning: CASA no longer defines T/true and F/false as synonyms for True/False"
                 print "------------------------------------------------------------------------------"
                 traceback.print_exc()
-                immediate_exit_with_handlers(1)
+            else:
+                traceback.print_exc()
 
         except Exception, err:
+            _err = 1
             traceback.print_exc()
-            immediate_exit_with_handlers(1)
 
-        immediate_exit_with_handlers()
+        sys.stdout.flush()
+        sys.stderr.flush()
+        immediate_exit_with_handlers(_err)
 
     else:
+        # python command provided on the command line...
+        _err = 0
         try:
             exec(casa['flags'].execute[0])
         except Exception, err:
+            _err = 1
             traceback.print_exc()
-            os._exit(0)
 
-        immediate_exit_with_handlers()
+        immediate_exit_with_handlers(_err)
 
 else:
 
@@ -100,4 +108,7 @@ else:
     register_builtin(["viewer", "imview", "msview"])
 
     enable_builtin_protection()
+    _blue = '\033[94m'
+    _end = '\033[0m'
+    print "Enter " + _blue + "doc('start')" + _end + " for help getting started with CASA..."
     #print "CASA Version " + casa['build']['version'] + "\n  Compiled on: " + casa['build']['time']
