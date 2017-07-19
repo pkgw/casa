@@ -290,7 +290,7 @@ void NRO2MSReader::readObsHeader() {
 	{ // Debug output
 		LogIO os(LogOrigin("NRODataset", "readObsHeader", WHERE) );
 		os << LogIO::DEBUGGING << "NRO ARRAY TABLE from NOSTAR header:" << LogIO::POST;
-		for (int i = 0; i < obs_header_.ARYNM0; ++i) {
+		for (int i = 0; i < NRO_ARYMAX; ++i) {
 			os << LogIO::DEBUGGING << "- Array" << i << " : " << obs_header_.ARRYTB[i] << LogIO::POST;
 		}
 		os << LogIO::DEBUGGING << "POL NAMES:" << LogIO::POST;
@@ -426,7 +426,8 @@ double NRO2MSReader::getRestFrequency(int const spwno) {
 }
 
 void NRO2MSReader::constructArrayTable() {
-	array_mapper_.resize(obs_header_.ARYNM0);
+  size_t array_max = NRO_ARYMAX;
+  array_mapper_.resize(array_max);
 	LogIO os(LogOrigin("NRODataset", "constructArrayTable", WHERE) );
 	os << LogIO::DEBUG1 << "NRO ARRAY TABLE:" << LogIO::POST;
 
@@ -435,14 +436,19 @@ void NRO2MSReader::constructArrayTable() {
 		int beam_id = array_mapper_[i].beam_id;
 		int spw_id = array_mapper_[i].spw_id;
 		int stokes = array_mapper_[i].stokes_type;
-		if (beam_id < 0 || beam_id >= obs_header_.NBEAM
-				|| stokes == Stokes::Undefined || spw_id < 0
-				|| spw_id >= obs_header_.NSPWIN) {
-			throw AipsError("Internal Data ERROR: inconsistent ARRAY table");
+		if (array_mapper_[i].isUsed()) {
+      if (beam_id < 0 || beam_id >= obs_header_.NBEAM
+          || stokes == Stokes::Undefined || spw_id < 0
+          || spw_id >= obs_header_.NSPWIN) {
+        throw AipsError("Internal Data ERROR: inconsistent ARRAY table");
+      }
+      os << LogIO::DEBUG1 << "- Array " << i << " : (beam, pol, spw) = ("
+          << beam_id << ", " << array_mapper_[i].pol_name
+          << ", "	<< spw_id << ")" << LogIO::POST;
 		}
-		os << LogIO::DEBUG1 << "- Array " << i << " : (beam, pol, spw) = ("
-				<< beam_id << ", " << array_mapper_[i].pol_name
-				<< ", "	<< spw_id << ")" << LogIO::POST;
+		else {
+      os << LogIO::DEBUG1 << "- Array " << i << " : Unused" << LogIO::POST;
+		}
 	}
 }
 
@@ -788,7 +794,8 @@ Bool NRO2MSReader::getData(size_t irow, DataRecord &record) {
   readScanData(irow, scan_data);
 
   // Verify Array INFO in scan header
-  size_t const array_id = irow % getNROArraySize();
+  string array_number = scan_data.ARRYT0.substr(1, scan_data.ARRYT0.size() - 1);
+  size_t const array_id = atoi(array_number.c_str()) - 1; // 1-base -> 0-base
   if (!checkScanArray(scan_data.ARRYSCN, &array_mapper_[array_id])) {
 	  throw AipsError("Internal Data ERROR: inconsistent ARRAY information in scan header");
   }
