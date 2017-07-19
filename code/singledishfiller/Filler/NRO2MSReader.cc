@@ -290,7 +290,7 @@ void NRO2MSReader::readObsHeader() {
 	{ // Debug output
 		LogIO os(LogOrigin("NRODataset", "readObsHeader", WHERE) );
 		os << LogIO::DEBUGGING << "NRO ARRAY TABLE from NOSTAR header:" << LogIO::POST;
-		for (int i = 0; i < obs_header_.ARYNM0; ++i) {
+		for (int i = 0; i < NRO_ARYMAX; ++i) {
 			os << LogIO::DEBUGGING << "- Array" << i << " : " << obs_header_.ARRYTB[i] << LogIO::POST;
 		}
 		os << LogIO::DEBUGGING << "POL NAMES:" << LogIO::POST;
