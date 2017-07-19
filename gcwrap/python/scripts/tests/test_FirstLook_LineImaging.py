@@ -126,47 +126,49 @@ def msHandler(file):
 	return table_instance
 
 def suite():
-    return [Test010_FirstLookatLineImaging,Test020_FirstLookatLineImaging,Test021_FirstLookatLineImaging]
+	return [Test010_FirstLookatLineImaging,Test020_FirstLookatLineImaging,Test021_FirstLookatLineImaging]
 
 class Test010_FirstLookatLineImaging(unittest.TestCase):
-    def setUp(self):
+	def setUp(self):
 
-	if os.path.isdir(os.environ.get('CASAPATH').split()[0] + "/data/casaguidedata"):
-		casaguidedata_path = "/data/casaguidedata/"
-	else:
-		casaguidedata_path = "/casaguidedata/"
+		if os.path.isdir(os.environ.get('CASAPATH').split()[0] + "/data/casaguidedata"):
+			casaguidedata_path = "/data/casaguidedata/"
+		else:
+			casaguidedata_path = "/casaguidedata/"
 
- 	os.symlink(os.environ.get('CASAPATH').split()[0] + casaguidedata_path + "working_data/sis14_twhya_selfcal.ms",os.getcwd()+'/sis14_twhya_selfcal.ms')
-	if os.uname()[0] == 'Darwin':
-		os.system(os.environ.get('CASAPATH').split()[0] +"/Resources/python/extractCASAscript.py -n -p -d 'https://casaguides.nrao.edu/index.php/First_Look_at_Line_Imaging'")
-	else:
-		os.system(os.environ.get('CASAPATH').split()[0] +"/lib/python2.7/extractCASAscript.py -n -p -d 'https://casaguides.nrao.edu/index.php/First_Look_at_Line_Imaging'")
-	time.sleep(5) # Allow extract time to download script
-        lines = open('FirstLookatLineImaging.py')
-        file = open("newfile.txt", "w")
-        for line in lines:
+		os.symlink(os.environ.get('CASAPATH').split()[0] + casaguidedata_path + "working_data/sis14_twhya_selfcal.ms",os.getcwd()+'/sis14_twhya_selfcal.ms')
+		if os.uname()[0] == 'Darwin':
+			os.system(os.environ.get('CASAPATH').split()[0] +"/Resources/python/extractCASAscript.py -n -p -d 'https://casaguides.nrao.edu/index.php/First_Look_at_Line_Imaging'")
+		else:
+			os.system(os.environ.get('CASAPATH').split()[0] +"/lib/python2.7/extractCASAscript.py -n -p -d 'https://casaguides.nrao.edu/index.php/First_Look_at_Line_Imaging'")
+		time.sleep(5) # Allow extract time to download script
 
-	    if "rm -rf sis14_twhya_selfcal.ms" in line:
-	    	continue
+		lines = open('FirstLookatLineImaging.py')
+		file = open("newfile.txt", "w")
+		for line in lines:
 
-	    if "niter=5000)" in line:
-		file.write("niter=250)\n")
-		continue
-            file.write(line)
-        file.close()
-        os.remove('FirstLookatLineImaging.py')
-        os.rename("newfile.txt",'FirstLookatLineImaging.py')
+			if "rm -rf sis14_twhya_selfcal.ms" in line:
+				continue
 
-        time.sleep(30)
-    def tearDown(self):
-        pass
-    def test_00_runGuide(self):
-        '''Run Casa Guide: First Look at Line Imaging'''
+			if "niter=5000)" in line:
+				file.write("niter=250)\n")
+				continue
+			file.write(line)
+		file.close()
+		os.remove('FirstLookatLineImaging.py')
+		os.rename("newfile.txt",'FirstLookatLineImaging.py')
+
+		time.sleep(15)
+
+	def tearDown(self):
+		pass
+	def test_00_runGuide(self):
+		'''Run Casa Guide: First Look at Line Imaging'''
 
 
-        execfile('FirstLookatLineImaging.py')
+		execfile('FirstLookatLineImaging.py')
                 
-        return True
+		return True
 
 
 
