@@ -25,13 +25,8 @@ QPHeaderTable::QPHeaderTable(QWidget* parent)
     setShowGrid(false);
 
     // Events handling properties
-    //setFocusPolicy(Qt::NoFocus);
-    //setFocusPolicy(Qt::FocusPolicy);
     setSelectionMode(QAbstractItemView::NoSelection);
 
-    // Connections
-    // Debug
-    connect(horizontalHeader(),SIGNAL(sectionClicked(int)),this,SLOT(debugInfo(int)));
 }
 
 void QPHeaderTable::resizeEvent(QResizeEvent *e){
@@ -44,10 +39,6 @@ void QPHeaderTable::resizeEvent(QResizeEvent *e){
 		setColumnWidth(2,logicalColumnsWidth);
 	}
 	QTableView::resizeEvent(e);
-	/*
-	QTableView::resizeEvent(e);
-	setColumnWidth(1,50);
-	*/
 }
 
 

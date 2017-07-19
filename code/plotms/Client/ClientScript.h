@@ -136,6 +136,7 @@ public:
 private:
 	void initializeCurrentPlot();
 	void initialize( Plotter::Implementation impl );
+	void updatePlotterPageHeader();
 	PlotMSApp* plotController;
 	PlotMSFlagging flagging;
 	vector<PlotMSPlot*> currentPlots;

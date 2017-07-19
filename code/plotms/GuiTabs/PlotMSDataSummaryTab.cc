@@ -219,20 +219,13 @@ void PlotMSDataSummaryTab::close( PlotMSDataCollapsible* collapsible ){
 }
 
 void PlotMSDataSummaryTab::refreshPageHeader(){
+	auto * controllerQtDataModel = new PlotMSPageHeaderDataModel(itsParent_);
+	QtPageHeaderDataModelPtr controllerDataModelPtr { new QtPageHeaderDataModel(controllerQtDataModel) };
+
 	auto plotter = itsParent_->getPlotter();
-	// Cheating ...
-	QPPlotter *qpPlotter = dynamic_cast<QPPlotter *>(&(*plotter));
-	if (qpPlotter == nullptr) return;
-	auto pageHeaderTable = qpPlotter->pageHeaderTable();
-	auto oldDataModel = pageHeaderTable->model();
-	pageHeaderTable->setModel(new PlotMSPageHeaderDataModel(itsParent_));
-	if (oldDataModel != nullptr) {
-		delete oldDataModel;
-		oldDataModel = nullptr;
-	}
-	// Auto-hide page header if table is empty
-	auto emptyHeader = ( pageHeaderTable->model()->rowCount() == 0 );
-	pageHeaderTable->parentWidget()->setVisible(! emptyHeader);
+
+	plotter->refreshPageHeaderDataModel(controllerDataModelPtr);
+
 }
 
 bool PlotMSDataSummaryTab::plot(){

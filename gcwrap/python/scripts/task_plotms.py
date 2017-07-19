@@ -715,12 +715,12 @@ def plotms(vis=None,
         # the c++ keyword is what's coded in PlotMSPageHeaderParam.h
         header_cpp_kw = {}
         header_cpp_kw['filename'] = 'filename'
-        header_cpp_kw['column']   = 'y_columns'
+        header_cpp_kw['ycolumn']  = 'y_columns'
         header_cpp_kw['obsdate']  = 'obs_start_date'
         header_cpp_kw['obstime']  = 'obs_start_time'
         header_cpp_kw['observer'] = 'obs_observer'
         header_cpp_kw['projid']   = 'obs_project'
-        header_cpp_kw['observatory'] = 'obs_telescope_name'
+        header_cpp_kw['telescope'] = 'obs_telescope_name'
         header_cpp_kw['targname'] = 'src_name'
         header_cpp_kw['targpos']  = 'src_direction'
         

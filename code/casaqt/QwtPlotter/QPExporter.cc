@@ -240,16 +240,31 @@ bool QPExporter::exportToImageFile(
 
     QWidget* pageHeader = grabPlotter->pageHeaderWidget();
 
+    auto haveHeader = pageHeader->isVisible();
+
     // Page image
     QSize pageSize(graphicsImage.size());
-    pageSize.rheight() += pageHeader->height();
+    if ( haveHeader ) {
+    	pageSize.rheight() += pageHeader->height();
+    }
     QImage pageImage(pageSize,graphicsImage.format());
 
     // Paint page
-    QPoint headerTopLeft(0,0);
-    pageHeader->render(&pageImage,headerTopLeft,pageHeader->rect());
     QPainter pagePainter(&pageImage);
-    QPoint graphicsTopLeftDest(0,pageHeader->height());
+    // Paint header
+    if ( haveHeader ) {
+    	// For an unknown reason, page header widget's width
+    	// is 6 pixels shorter than graphics image's width
+    	QSize headerSize(pageSize.width(),pageHeader->height());
+    	QImage headerImage(headerSize,graphicsImage.format());
+    	headerImage.fill(Qt::white);
+    	QPoint headerTopLeft(0,0);
+    	pageHeader->render(&headerImage,headerTopLeft,pageHeader->rect());
+    	QRect headerRectDest(headerTopLeft,headerSize);
+    	pagePainter.drawImage(headerRectDest,headerImage);
+    }
+    // Paint graphics
+    QPoint graphicsTopLeftDest = haveHeader ? QPoint(0,pageHeader->height()) : QPoint(0,0);
     QRect graphicsRectDest(graphicsTopLeftDest,graphicsImage.size());
     pagePainter.drawImage(graphicsRectDest,graphicsImage);
 

@@ -458,6 +458,35 @@ QWidget* QPPlotter::pageHeaderWidget() { return pageHeaderFrame; }
 
 QPHeaderTable* QPPlotter::pageHeaderTable() { return headerTable; }
 
+void QPPlotter::refreshPageHeaderDataModel(PageHeaderDataModelPtr dataModel) {
+	auto qtPageHeaderDataModelPtr = dynamic_pointer_cast<QtPageHeaderDataModel,PageHeaderDataModel>(dataModel);
+	if (qtPageHeaderDataModelPtr.null()) return;
+	auto * qtPageHeaderDataModel = qtPageHeaderDataModelPtr.get();
+	if (qtPageHeaderDataModel == nullptr) return;
+	setHeaderTableDataModel(qtPageHeaderDataModel->model());
+	refreshPageHeader();
+}
+
+void QPPlotter::setHeaderTableDataModel(QAbstractItemModel *newDataModel) {
+	newHeaderTableDataModel = newDataModel;
+}
+
+void QPPlotter::refreshPageHeader() {
+	auto oldDataModel = headerTable->model();
+	if (newHeaderTableDataModel == oldDataModel) return;
+
+	headerTable->setModel(newHeaderTableDataModel);
+	if (oldDataModel != nullptr) {
+		delete oldDataModel;
+		oldDataModel = nullptr;
+	}
+	// Auto-hide page header if table is empty
+	auto emptyHeader = (headerTable->model() == nullptr) ||
+			           (headerTable->model()->rowCount() == 0 );
+	//TODO: pageHeader()->setVisible(! pageHeader()->empty());
+	headerTable->parentWidget()->setVisible(! emptyHeader);
+}
+
 QSize QPPlotter::sizeHint() const { return QSize(); }
 QSize QPPlotter::minimumSizeHint() const { return QSize(); }
 

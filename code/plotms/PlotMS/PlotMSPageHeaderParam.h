@@ -76,7 +76,7 @@ public:
 		  { {"obs_start_time"     , "Observation time", "Observation Start Time" } , Item::Obs_Start_Time     },
 		  { {"obs_observer"       , "Observer"        , "Observer"               } , Item::Obs_Observer       },
 		  { {"obs_project"        , "Project ID"      , "Project ID"             } , Item::Obs_Project        },
-		  { {"obs_telescope_name" , "Observatory"     , "Telescope Name"         } , Item::Obs_Telescope_Name },
+		  { {"obs_telescope_name" , "Telescope"       , "Telescope Name"         } , Item::Obs_Telescope_Name },
 		  { {"src_name"           , "Target name"     , "Source Name"            } , Item::Src_Name           },
 		  { {"src_direction"      , "Target RA,Dec"   , "Source Direction"       } , Item::Src_Direction      }
 		};

@@ -1993,20 +1993,27 @@ Vector<Double> MSCache::calcVelocity(vi::VisBuffer2* vb) {
 }
 
 void MSCache::loadPageHeaderCache(const casacore::MeasurementSet& selectedMS){
-	logInfo(PMS::LOG_ORIGIN_LOAD_CACHE,String("Loading page header cache"));
+	logLoad("Loading page header cache");
     using Item = PageHeaderItemsDef::Item;
 
     // ---- Filename
     pageHeaderCache_.store(HeaderItemData(Item::Filename,Path(filename_).baseName()));
 
-    // ---- Observation table
-	ROMSColumns selectionColumns(selectedMS);
-	const auto & selectionObs = selectionColumns.observation();
-	if (selectionObs.nrow() > 0) {
-		const uInt firstRow = 0;
+    if ( selectedMS.nrow() == 0 ) return;
+
+	const uInt firstSelectedRow = 0;
+
+	ROMSColumns selMSColumns(selectedMS);
+
+    // ---- Queries on Observation table
+	auto firstObservationId = selMSColumns.observationId().get(firstSelectedRow);
+	auto firstObservationRow = static_cast<uInt>(firstObservationId);
+	const auto & obsColumns = selMSColumns.observation();
+
+	if ( firstObservationRow < obsColumns.nrow() ) {
 
 		// ---- Observation Start Date
-		auto timeRangeMeasure = selectionObs.timeRangeMeas()(firstRow);
+		auto timeRangeMeasure = obsColumns.timeRangeMeas()(firstObservationRow);
 		IPosition startTimePos(1,0);
 		auto obsStartMEpoch = timeRangeMeasure(startTimePos);
 
@@ -2032,28 +2039,61 @@ void MSCache::loadPageHeaderCache(const casacore::MeasurementSet& selectedMS){
 		pageHeaderCache_.store(HeaderItemData(Item::Obs_Start_Time,obsStartTime));
 
 		// ---- Observer
-		auto observer = selectionObs.observer().get(firstRow);
+		auto observer = obsColumns.observer().get(firstObservationRow);
 		pageHeaderCache_.store(HeaderItemData(Item::Obs_Observer,observer));
 		// ---- Project
-		auto project = selectionObs.project().get(firstRow);
+		auto project = obsColumns.project().get(firstObservationRow);
 		pageHeaderCache_.store(HeaderItemData(Item::Obs_Project,project));
 		// ---- Telescope Name
-		auto telescopeName = selectionObs.telescopeName().get(firstRow);
+		auto telescopeName = obsColumns.telescopeName().get(firstObservationRow);
 		pageHeaderCache_.store(HeaderItemData(Item::Obs_Telescope_Name,telescopeName));
 	}
-	// ---- Source table
-	const auto & selectionSrc = selectionColumns.source();
-	if (selectionSrc.nrow() > 0) {
-		const uInt firstRow = 0;
-		// ---- Source Name
-		auto sourceName = selectionSrc.name().get(firstRow);
-		pageHeaderCache_.store(HeaderItemData(Item::Src_Name,sourceName));
-		// ---- Source Direction
-		auto sourceDirectionMeasure = selectionSrc.directionMeas()(firstRow);
-		stringstream sourceDirectionStream;
-		sourceDirectionStream << sourceDirectionMeasure.getAngle(Unit("deg"));
-		auto sourceDirection = sourceDirectionStream.str();
-		pageHeaderCache_.store(HeaderItemData(Item::Src_Direction,sourceDirection));
+	// Target Name
+	// Lookup NAME of first selected row in FIELD table
+	auto firstFieldId = selMSColumns.fieldId().get(firstSelectedRow);
+	auto firstFieldRow = static_cast<uInt>(firstFieldId);
+	const auto & fieldColumns = selMSColumns.field();
+	auto firstFieldName = fieldColumns.name().get(firstFieldRow);
+	pageHeaderCache_.store(HeaderItemData(Item::Src_Name,firstFieldName));
+
+	// Target Direction
+	auto haveSourceTable = ! selectedMS.source().isNull();
+	if ( haveSourceTable ) {
+		// Lookup SOURCE_ID of first selected row in FIELD table
+		auto firstSourceId = fieldColumns.sourceId().get(firstFieldRow);
+		// Lookup SPECTRAL_WINDOW_ID of first selected row in DATA_DESCRIPTION table
+		auto firstDataDescId = selMSColumns.dataDescId().get(firstSelectedRow);
+		auto firstDataDescRow = static_cast<uInt>(firstDataDescId);
+		const auto & dataDescColumns = selMSColumns.dataDescription();
+		auto firstSpwId = dataDescColumns.spectralWindowId().get(firstDataDescRow);
+		// Query target direction from SOURCE table
+		auto & sourceTable = selectedMS.source();
+		// ---- Shorthands
+		using SourceColumn = MSSourceEnums::PredefinedColumns;
+		auto getTen = [sourceTable](SourceColumn colEnum) {
+			return sourceTable.col(sourceTable.columnName(colEnum)) ;
+		};
+		// ---- Table Expression Nodes
+		auto tenSourceID = getTen(SourceColumn::SOURCE_ID);
+		auto tenSpwID = getTen(SourceColumn::SPECTRAL_WINDOW_ID);
+		// ---- Selection criteria
+		auto sourceMatch { tenSourceID == firstSourceId };
+		auto spwIdAny   { tenSpwID == -1  /* row valid for any SPECTRAL_WINDOW_ID */  };
+		auto spwIdMatch { tenSpwID == firstSpwId };
+		// ---- Select and sort by ascending TIME
+		auto qryTargetDirection { sourceMatch && (spwIdAny || spwIdMatch) };
+		const auto & timeColName = sourceTable.columnName(SourceColumn::TIME);
+		Table qryResult = sourceTable(qryTargetDirection).sort(timeColName,Sort::Ascending);
+		auto qryResultRows = qryResult.rowNumbers(sourceTable);
+		// ---- Pick-up first direction
+		if ( ! qryResultRows.empty() ) {
+			auto firstDirectionRow = qryResultRows[0];
+			const auto & sourceColumns = selMSColumns.source();
+			auto firstDirectionMeasure = sourceColumns.directionMeas()(firstDirectionRow);
+			auto sourceDirection = firstDirectionMeasure.toString();
+			pageHeaderCache_.store(HeaderItemData(Item::Src_Direction,sourceDirection));
+		}
+
 	}
 }
 

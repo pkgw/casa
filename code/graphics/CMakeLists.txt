@@ -55,6 +55,7 @@ install (FILES
 	GenericPlotter/PlotPanel.h
 	GenericPlotter/PlotShape.h
 	GenericPlotter/PlotTool.h
+	GenericPlotter/PageHeaderDataModel.h
 	GenericPlotter/Plotter.h
 	GenericPlotter/SimplePlotter.h
 	DESTINATION include/casacode/graphics/GenericPlotter

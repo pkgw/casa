@@ -224,6 +224,7 @@ casa_add_library( casaqt
   )
 install (FILES
 	PlotterImplementations/PlotterImplementations.h
+	QwtPlotter/QtPageHeaderDataModel.h
 	DESTINATION include/casacode/casaqt/QwtPlotter
 	)
 install (FILES
