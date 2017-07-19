@@ -138,7 +138,7 @@ FiltrationTVI<Filter>::FiltrationTVI(ViImplementation2 * inputVi,
   filter_p = new Filter(configuration_p);
 
   // Initialize attached VisBuffer
-  setVisBuffer(createAttachedVisBuffer(VbPlain, VbRekeyable));
+  setVisBuffer(createAttachedVisBuffer(VbRekeyable));
 }
 
 template<class Filter>
