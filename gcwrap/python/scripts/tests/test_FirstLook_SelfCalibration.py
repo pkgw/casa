@@ -135,10 +135,10 @@ class Test010_FirstLookatSelfCalibration(unittest.TestCase):
 			try: os.unlink(os.getcwd()+'/%s'%(dataset))
 			except: shutil.rmtree(os.getcwd()+'/%s'%(dataset))
 
-        if os.path.isdir(os.environ.get('CASAPATH').split()[0] + "/data/casaguidedata"):
-                casaguidedata_path = "/data/casaguidedata/"
-        else:
-                casaguidedata_path = "/casaguidedata/"
+	if os.path.isdir(os.environ.get('CASAPATH').split()[0] + "/data/casaguidedata"):
+		casaguidedata_path = "/data/casaguidedata/"
+	else:
+		casaguidedata_path = "/casaguidedata/"
 
  	os.symlink(os.environ.get('CASAPATH').split()[0] + casaguidedata_path + "working_data/sis14_twhya_selfcal.ms",os.getcwd()+'/sis14_twhya_selfcal.ms')
  	os.symlink(os.environ.get('CASAPATH').split()[0] + casaguidedata_path + "working_data/sis14_twhya_calibrated_flagged.ms",os.getcwd()+'/sis14_twhya_calibrated_flagged.ms')
