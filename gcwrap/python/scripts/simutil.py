@@ -2402,7 +2402,7 @@ class simutil:
             self.msg("Your image is rotated with respect to Lat/Lon.  I can't cope with that yet",priority="error")
         cellx=qa.mul(cellx,abs(xform[0,0]))
         celly=qa.mul(celly,abs(xform[1,1]))
-        return [qa.tos(cellx),qa.tos(celly)]
+        return [cellx,celly]
 
     ######################################################
     # helper function to get the spectral size from an image
@@ -3028,9 +3028,10 @@ class simutil:
         cleanlast.write('width                   = 1\n')
         cleanlast.write('outframe                = ""\n')
         cleanlast.write('veltype                 = "radio"\n')
-        cleanstr=cleanstr+",imsize="+str(imsize)+",cell="+str(map(qa.tos,cell))+",phasecenter='"+str(imcenter)+"'"
+        cellstr="['"+str(cell[0]['value'])+str(cell[0]['unit'])+"','"+str(cell[1]['value'])+str(cell[1]['unit'])+"']"
+        cleanstr=cleanstr+",imsize="+str(imsize)+",cell="+cellstr+",phasecenter='"+str(imcenter)+"'"
         cleanlast.write('imsize                  = '+str(imsize)+'\n');
-        cleanlast.write('cell                    = '+str(map(qa.tos,cell))+'\n');
+        cleanlast.write('cell                    = '+cellstr+'\n');
         cleanlast.write('phasecenter             = "'+str(imcenter)+'"\n');
         cleanlast.write('restfreq                = ""\n');
         if stokes != "I":
@@ -3083,10 +3084,9 @@ class simutil:
         cleanlast.write('chaniter                = False\n');
         cleanstr=cleanstr+")"        
         if self.verbose:
-            # RI TODO assumed origin is simanalyze
-            self.msg(cleanstr,priority="warn",origin="simanalyze")
+            self.msg(cleanstr,priority="warn",origin="simutil")
         else:
-            self.msg(cleanstr,priority="info",origin="simanalyze")
+            self.msg(cleanstr,priority="info",origin="simutil")
         cleanlast.write("#"+cleanstr+"\n")
         cleanlast.close()
         
@@ -3095,7 +3095,7 @@ class simutil:
             clean(vis=mstoimage, imagename=imagename, mode=chanmode, 
               niter=niter, threshold=threshold, selectdata=False, nchan=nchan,
               psfmode=psfmode, imagermode=imagermode, ftmachine=ftmachine, 
-              imsize=imsize, cell=map(qa.tos,cell), phasecenter=imcenter,
+              imsize=imsize, cell=[str(cell[0]['value'])+str(cell[0]['unit']),str(cell[1]['value'])+str(cell[1]['unit'])], phasecenter=imcenter,
               stokes=stokes, weighting=weighting, robust=robust,
               interactive=interactive,
               uvtaper=uvtaper,outertaper=outertaper, pbcor=True, mask=mask,

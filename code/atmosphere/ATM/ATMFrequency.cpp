@@ -27,7 +27,7 @@
 
 #include "ATMFrequency.h"
 
-using namespace std;
+
 
 ATM_NAMESPACE_BEGIN
 
@@ -41,7 +41,7 @@ Frequency::Frequency(double frequency) :
 {
 }
 
-Frequency::Frequency(double frequency, const string &units)
+Frequency::Frequency(double frequency, const std::string &units)
 {
   valueIS_ = sput(frequency, units);
 }
@@ -55,7 +55,7 @@ Frequency::~Frequency()
 {
 }
 
-double Frequency::sget(double value, const string &units)
+double Frequency::sget(double value, const std::string &units)
 {
   if(units == "THz" || units == "THZ") {
     return 1.0E-12 * value;
@@ -71,7 +71,7 @@ double Frequency::sget(double value, const string &units)
     return value;
   }
 }
-double Frequency::sput(double freq, const string &units)
+double Frequency::sput(double freq, const std::string &units)
 {
   if(units == "THz" || units == "THZ") {
     return 1.0E12 * freq;

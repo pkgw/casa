@@ -10,6 +10,7 @@
 
 #include <msvis/MSVis/VisBuffer.h>
 #include <msvis/MSVis/VisBuffer2.h>
+#include <msvis/MSVis/VisBufferImpl2.h>
 #include <casa/BasicSL/String.h>
 #include <msvis/MSVis/UtilJ.h>
 #include <msvis/MSVis/VisibilityIterator2.h>
@@ -44,7 +45,8 @@ public:
     construct ()
     {
         const VisibilityIteratorImpl2 * vi =
-            dynamic_cast<const VisibilityIteratorImpl2 *> (vb2_p->getVi()->getImpl());
+	        dynamic_cast<const VisibilityIteratorImpl2 *>(
+		        dynamic_cast<const VisBufferImpl2 *>(vb2_p)->getViiP());
 
         msColumns_p = vi->msColumnsKluge();
 
@@ -182,7 +184,8 @@ public:
                               const casacore::Bool ignoreConv = false) const
     {
         const VisibilityIteratorImpl2 * vi =
-            dynamic_cast<const VisibilityIteratorImpl2 *> (vb2_p->getVi()->getImpl());
+	        dynamic_cast<const VisibilityIteratorImpl2 *>(
+		        dynamic_cast<const VisBufferImpl2 *>(vb2_p)->getViiP());
 
         casacore::Int frame = -1;
         if (ignoreConv){
