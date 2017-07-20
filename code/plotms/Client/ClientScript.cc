@@ -32,11 +32,8 @@
 #include <plotms/PlotMS/PlotMSConstants.h>
 #include <plotms/Actions/ActionExport.h>
 #include <plotms/Plots/PlotMSPlotParameterGroups.h>
-
-// Renaud : tmp test
 #include <plotms/Gui/PlotMSPageHeaderDataModel.qo.h>
-#include <casaqt/QwtPlotter/QPPlotter.qo.h>
-
+#include <casaqt/QwtPlotter/QtPageHeaderDataModel.h>
 #include <casaqt/PlotterImplementations/PlotterImplementations.h>
 #include <QDebug>
 #include <QWidget>
