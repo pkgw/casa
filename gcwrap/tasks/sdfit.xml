@@ -26,42 +26,42 @@ or sdreduce.
     </param>
 
     <param type="string" name="datacolumn" ignorecase="true">
-        <description>name of data column to be used [\'data\', \'float_data\', or \'corrected_data\']</description>
+        <description>name of data column to be used ["data", "float_data", or "corrected_data"]</description>
         <value>data</value>
     </param>
 
     <param type="string" name="antenna">
-        <description>select data by antenna name or ID, e.g. \'PM03\'</description>
+        <description>select data by antenna name or ID, e.g. "PM03"</description>
         <value></value>
     </param> 
 
     <param type="string" name="field">
-        <description>select data by field IDs and names, e.g. \'3C2*\' (\'\'=all)</description>
+        <description>select data by field IDs and names, e.g. "3C2*" (""=all)</description>
         <value></value>
     </param>
 
     <param type="string" name="spw">
-        <description>select data by IF IDs (spectral windows), e.g. \'3,5,7\' (\'\'=all)</description>
+        <description>select data by IF IDs (spectral windows), e.g. "3,5,7" (""=all)</description>
         <value></value>
     </param>
 
     <param type="string" name="timerange">
-        <description>select data by time range, e.g. \'09:14:0~09:54:0\' (\'\'=all) (see examples in help)</description>
+        <description>select data by time range, e.g. "09:14:0~09:54:0" (""=all) (see examples in help)</description>
         <value></value>
     </param>
 
     <param type="string" name="scan">
-        <description>select data by scan numbers, e.g. \'21~23\' (\'\'=all)</description>
+        <description>select data by scan numbers, e.g. "21~23" (""=all)</description>
         <value></value>
     </param>
 
     <param type="string" name="pol">
-        <description>select data by polarization IDs, e.g. \'XX,YY\' (\'\'=all)</description>
+        <description>select data by polarization IDs, e.g. "XX,YY" (""=all)</description>
         <value></value>
     </param>
 
     <param type="string" name="intent">
-        <description>select data by observational intent, e.g. \'*ON_SOURCE*\' (\'\'=all)</description>
+        <description>select data by observational intent, e.g. "*ON_SOURCE*" (""=all)</description>
         <value></value>
     </param>
 
@@ -71,12 +71,12 @@ or sdreduce.
     </param>
     
     <param type="string" name="timespan" subparam="true">
-        <description>span the timebin across \'scan\', \'state\', \'field\', or a combination of them (e.g., \'scan,state\')</description>
+        <description>span the timebin across "scan", "state", "field", or a combination of them (e.g., "scan,state")</description>
         <value type="string"></value>
     </param>
 
     <param type="string" name="polaverage">
-        <description>polarization averaging mode (\'\', \'stokes\' or \'geometric\').</description>
+        <description>polarization averaging mode ("", "stokes" or "geometric").</description>
         <allowed kind="enum">
             <value></value>
             <value>stokes</value>
@@ -86,7 +86,7 @@ or sdreduce.
     </param>
     
     <param type="string" name="fitfunc">
-        <shortdescription>function for fitting [\'gaussian\', \'lorentzian\']</shortdescription>
+        <shortdescription>function for fitting ["gaussian", "lorentzian"]</shortdescription>
         <description>function for fitting</description>
         <value>gaussian</value>
         <allowed kind="enum">
@@ -96,8 +96,8 @@ or sdreduce.
     </param>
 
     <param type="string" name="fitmode">
-<!--        <shortdescription>mode for setting additional channel masks [\'auto\', \'list\', or \'interact\']</shortdescription> -->
-        <shortdescription>mode for setting additional channel masks. \'list\' and \'auto\' are available now.</shortdescription>
+<!--        <shortdescription>mode for setting additional channel masks ["auto", "list", or "interact"]</shortdescription> -->
+        <shortdescription>mode for setting additional channel masks. "list" and "auto" are available now.</shortdescription>
         <description>mode for setting additional channel masks.</description>
         <value>list</value>
         <allowed kind="enum">
@@ -227,7 +227,7 @@ timebin -- bin width for time averaging. it must be a positive value.
         default: '' (no averaging over time)
         example: timebin='1s' (time averaging performed over 1 second bins)
     &gt;&gt;&gt; timebin expandable parameters
-        timespan -- span the timebin across \'scan\', \'state\', \'field\', or a combination of them (e.g., \'scan,state\')
+        timespan -- span the timebin across 'scan', 'state', 'field', or a combination of them (e.g., 'scan,state')
                 default: '' (average each scan, intent and field separately)
                 example: 'scan' time averaging is done across scan ID boundaries
 polaverage -- polarization averaging mode
