@@ -21,7 +21,7 @@
 #casa_add_executable(tableplot projtable  apps/projtable/projtable.cc)
 casa_add_python( python  casa_python lib/python${PYTHONV}
 scripts/tf.py
-scripts/asap_init.py
+#scripts/asap_init.py
 scripts/assignmentFilter.py
 scripts/callibrary.py
 scripts/carta.py
@@ -44,7 +44,6 @@ scripts/init_tools.py
 scripts/init_logger.py
 scripts/init_funcs.py
 scripts/init_pipeline.py
-scripts/init_asap.py
 scripts/init_testing.py
 scripts/init_tasks.py
 scripts/init_welcome.py
@@ -179,34 +178,16 @@ scripts/task_oldsplit.py
 scripts/task_partition.py
 scripts/task_polcal.py
 scripts/task_predictcomp.py
+scripts/task_rerefant.py
 scripts/task_rmfit.py
 scripts/task_rmtables.py
 scripts/task_sdbaseline.py
 scripts/task_sdcal.py
 scripts/task_sdfit.py
+scripts/task_sdfixscan.py
 scripts/task_sdgaincal.py
 scripts/task_sdimaging.py
-scripts/task_sdfixscan.py
 scripts/task_sdsmooth.py
-### ASAP tasks ###
-scripts/task_sdaverageold.py
-scripts/task_sdbaselineold.py
-scripts/task_sdbaseline2old.py
-scripts/task_sdcalold.py
-scripts/task_sdcal2old.py
-scripts/task_sdcoaddold.py
-scripts/task_sdfitold.py
-scripts/task_sdflagold.py
-scripts/task_sdflagmanagerold.py
-scripts/task_sdgridold.py
-scripts/task_sdlistold.py
-scripts/task_sdmathold.py
-scripts/task_sdplotold.py
-scripts/task_sdreduceold.py
-scripts/task_sdsaveold.py
-scripts/task_sdscaleold.py
-scripts/task_sdstatold.py
-###
 scripts/task_setjy.py
 scripts/task_ssoflux.py
 scripts/task_simalma.py

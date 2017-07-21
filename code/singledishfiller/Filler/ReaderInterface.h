@@ -71,6 +71,9 @@ public:
     return 0;
   }
 
+  virtual bool isNROArrayUsed(int /* array_id */) {
+    return false;
+  }
   virtual int getNROArrayBeamId(int /* array_id */) {
     return -1;
   }

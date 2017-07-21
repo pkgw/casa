@@ -27,7 +27,7 @@
 #include "ATMLength.h"
 #include <stdio.h>
 
-using namespace std;
+
 
 ATM_NAMESPACE_BEGIN
 
@@ -41,7 +41,7 @@ Length::Length(double length) :
 {
 }
 
-Length::Length(double length, const string &units)
+Length::Length(double length, const std::string &units)
 {
   valueIS_ = sput(length, units);
 }
@@ -55,7 +55,7 @@ Length::~Length()
 {
 }
 
-double Length::sget(double value, const string &units)
+double Length::sget(double value, const std::string &units)
 {
   if(units == "km" || units == "KM") {
     return 1.0E-3 * value;
@@ -74,7 +74,7 @@ double Length::sget(double value, const string &units)
   }
 }
 
-double Length::sput(double value, const string &units)
+double Length::sput(double value, const std::string &units)
 {
   if(units == "km" || units == "KM") {
     return 1.0E+3 * value;
@@ -93,14 +93,14 @@ double Length::sput(double value, const string &units)
   
 
 /*  
-string Length::get(const string &form, const string &units) const
+std::string Length::get(const std::string &form, const std::string &units) const
   {
     char myString[18];
 
     sprintf(myString, "%f %s", get(units), units.c_str());
 
     
-    return string(myString);
+    return std::string(myString);
     } 
 */
 

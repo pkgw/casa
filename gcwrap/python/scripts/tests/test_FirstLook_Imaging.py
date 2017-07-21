@@ -102,53 +102,60 @@ def msHandler(file):
 	return table_instance
 
 def suite():
-    return [Test010_FirstLookatImaging,Test020_FirstLookatImaging]
+	return [Test010_FirstLookatImaging,Test020_FirstLookatImaging]
 
 class Test010_FirstLookatImaging(unittest.TestCase):
-    def setUp(self):
-	if os.path.isdir(os.getcwd()+'/twhya_smoothed.ms'):
-		shutil.rmtree(os.getcwd()+'/twhya_smoothed.ms')  
-	os.symlink(os.environ.get('CASAPATH').split()[0] + "/data/casaguidedata/working_data/sis14_twhya_calibrated.ms",os.getcwd()+'/sis14_twhya_calibrated.ms')
-	os.symlink(os.environ.get('CASAPATH').split()[0] + "/data/casaguidedata/working_data/sis14_twhya_uncalibrated.ms",os.getcwd()+'/sis14_twhya_uncalibrated.ms')
-	os.symlink(os.environ.get('CASAPATH').split()[0] + "/data/casaguidedata/working_data/sis14_twhya_calibrated_flagged.ms",os.getcwd()+'/sis14_twhya_calibrated_flagged.ms')
-	if os.uname()[0] == 'Darwin':
-		os.system(os.environ.get('CASAPATH').split()[0] +"/Resources/python/extractCASAscript.py -n -p -d 'https://casaguides.nrao.edu/index.php/First_Look_at_Imaging'")
-	else:
-		os.system(os.environ.get('CASAPATH').split()[0] +"/lib/python2.7/extractCASAscript.py -n -p -d 'https://casaguides.nrao.edu/index.php/First_Look_at_Imaging'")
-	file = open("my_script.py", "w");file.write("print 'Execfile executed'");file.close()
+	def setUp(self):
+		if os.path.isdir(os.getcwd()+'/twhya_smoothed.ms'):
+			shutil.rmtree(os.getcwd()+'/twhya_smoothed.ms')  
 
-	time.sleep(5) # Allow extract time to download script
-
-        lines = open('FirstLookatImaging.py')
-        file = open("newfile.txt", "w")
-        for line in lines:
-
-	    if "rm -rf sis14_twhya_calibrated.ms" in line:
-	    	continue
-
-	    if "rm -rf sis14_twhya_uncalibrated.ms" in line:
-	    	continue
-
-	    if "rm -rf sis14_twhya_calibrated_flagged.ms" in line:
-	    	continue
-
-            file.write(line)
-        file.close()
-        os.remove('FirstLookatImaging.py')
-        os.rename("newfile.txt",'FirstLookatImaging.py')
-
-        time.sleep(30)
-    def tearDown(self):
-
-	pass
+		if os.path.isdir(os.environ.get('CASAPATH').split()[0] + "/data/casaguidedata"):
+			casaguidedata_path = "/data/casaguidedata/"
+		else:
+			casaguidedata_path = "/casaguidedata/"
 	
-    def test_00_runGuide(self):
-        '''Run Casa Guide: First Look at Imaging'''
+		os.symlink(os.environ.get('CASAPATH').split()[0] + casaguidedata_path + "working_data/sis14_twhya_calibrated.ms",os.getcwd()+'/sis14_twhya_calibrated.ms')
+		os.symlink(os.environ.get('CASAPATH').split()[0] + casaguidedata_path + "working_data/sis14_twhya_uncalibrated.ms",os.getcwd()+'/sis14_twhya_uncalibrated.ms')
+		os.symlink(os.environ.get('CASAPATH').split()[0] + casaguidedata_path + "working_data/sis14_twhya_calibrated_flagged.ms",os.getcwd()+'/sis14_twhya_calibrated_flagged.ms')
+
+		if os.uname()[0] == 'Darwin':
+			os.system(os.environ.get('CASAPATH').split()[0] +"/Resources/python/extractCASAscript.py -n -p -d 'https://casaguides.nrao.edu/index.php/First_Look_at_Imaging'")
+		else:
+			os.system(os.environ.get('CASAPATH').split()[0] +"/lib/python2.7/extractCASAscript.py -n -p -d 'https://casaguides.nrao.edu/index.php/First_Look_at_Imaging'")
+		
+		file = open("my_script.py", "w");file.write("print 'Execfile executed'");file.close()
+		time.sleep(5) # Allow extract time to download script
+
+		lines = open('FirstLookatImaging.py')
+		file = open("newfile.txt", "w")
+		for line in lines:
+
+			if "rm -rf sis14_twhya_calibrated.ms" in line:
+				continue
+
+			if "rm -rf sis14_twhya_uncalibrated.ms" in line:
+				continue
+
+			if "rm -rf sis14_twhya_calibrated_flagged.ms" in line:
+				continue
+
+			file.write(line)
+		file.close()
+		os.remove('FirstLookatImaging.py')
+		os.rename("newfile.txt",'FirstLookatImaging.py')
+
+		time.sleep(15)
+	def tearDown(self):
+
+		pass
+	
+	def test_00_runGuide(self):
+		'''Run Casa Guide: First Look at Imaging'''
 
 
-        execfile('FirstLookatImaging.py')
+		execfile('FirstLookatImaging.py')
                 
-        return True
+		return True
 
 class Test020_FirstLookatImaging(unittest.TestCase):
 
