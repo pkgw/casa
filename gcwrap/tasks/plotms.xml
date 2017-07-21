@@ -1075,6 +1075,7 @@ Export plot as image Parameters
      
      <param type="string" name="headeritems" >
         <description>Comma-separated list of pre-defined page header items.</description>
+        <value></value>
     </param>
      
 <!--

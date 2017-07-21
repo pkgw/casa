@@ -724,18 +724,19 @@ def plotms(vis=None,
         header_cpp_kw['targname'] = 'src_name'
         header_cpp_kw['targpos']  = 'src_direction'
         
-        cpp_headeritems = []
-        for headeritem_word in headeritems.split(','):
-            py_headeritem = headeritem_word.strip()
-            if py_headeritem == "":
-                continue
-            if py_headeritem in header_cpp_kw:
-                ccp_headeritem = header_cpp_kw[py_headeritem]
-                cpp_headeritems.append(ccp_headeritem)
-            else:
-                casalog.post("Ignoring invalid page header item: " + py_headeritem ,"WARN")
-
-        pm.setPlotMSPageHeaderItems(','.join(cpp_headeritems), False, plotindex)
+        if type(headeritems) is str:
+            cpp_headeritems = []
+            for headeritem_word in headeritems.split(','):
+                py_headeritem = headeritem_word.strip()
+                if py_headeritem == "":
+                    continue
+                if py_headeritem in header_cpp_kw:
+                    ccp_headeritem = header_cpp_kw[py_headeritem]
+                    cpp_headeritems.append(ccp_headeritem)
+                else:
+                    casalog.post("Ignoring invalid page header item: " + py_headeritem ,"WARN")
+    
+            pm.setPlotMSPageHeaderItems(','.join(cpp_headeritems), False, plotindex)
 
         # Update
         plotUpdated = pm.update()
