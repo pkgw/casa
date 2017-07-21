@@ -15,21 +15,19 @@ def statwt2(
         myms = mstool()
         myms.open(vis, nomodify=False)
         sel = {}
-        selectdata = not (type(field) == str and len(field) == 0)
-        if (selectdata):
-            sel['spw'] = spw 
-            #sel['time'] = timerange
-            sel['field'] = field
-            #sel['baseline'] = antenna
-            #sel['scan'] = scan
-            sel['scanintent'] = intent
-            #sel['polarization'] = correlation
-            #sel['uvdist'] = uvrange
-            sel['observation'] = str(observation)
-            sel['array'] = array
-            #sel['feed'] = feed
-            # Select the data. Only-parse is set to false.
-            myms.msselect(sel, False)
+        sel['spw'] = spw 
+        #sel['time'] = timerange
+        sel['field'] = field
+        #sel['baseline'] = antenna
+        #sel['scan'] = scan
+        sel['scanintent'] = intent
+        #sel['polarization'] = correlation
+        #sel['uvdist'] = uvrange
+        sel['observation'] = str(observation)
+        sel['array'] = array
+        #sel['feed'] = feed
+        # Select the data. Only-parse is set to false.
+        myms.msselect(sel, False)
         myms.statwt2(
             combine=combine, timebin=timebin,
             slidetimebin=slidetimebin, chanbin=chanbin,

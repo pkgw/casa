@@ -1,4 +1,4 @@
-# CASA - Common Astronomy Software Applications
+# CASA - Common Astronomy Software Applications 
 # Copyright (C) 2010 by ESO (in the framework of the ALMA collaboration)
 # Copyright (C) 2010 by NAOJ (in the framework of the ALMA collaboration)
 # Copyright (C) 2010 Associated Universities, Inc. Washington DC, USA.
@@ -156,7 +156,7 @@ if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT OR CMAKE_INSTALL_PREFIX MATCHES 
     message("        casaroot             = ${casaroot}")
     message("        CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
 else( )
-    set( casaroot ${CMAKE_INSTALL_PREFIX} CACHE )
+    set( casaroot ${CMAKE_INSTALL_PREFIX} CACHE PATH "toplevel casa directory" FORCE )
     message("using modern configuraiton where casaroot and install prefix are the same:")
     message("        casaroot = ${casaroot}")
 endif( )
