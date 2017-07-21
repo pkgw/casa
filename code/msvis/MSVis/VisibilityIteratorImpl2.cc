@@ -1126,7 +1126,6 @@ VisibilityIteratorImpl2::operator=(const VisibilityIteratorImpl2& vii)
 	subchunk_p = vii.subchunk_p;
 	timeFrameOfReference_p = vii.timeFrameOfReference_p;
 	timeInterval_p = vii.timeInterval_p;
-	vbType = vii.vbType;
 	weightScaling_p = vii.weightScaling_p;
 	writable_p = vii.writable_p;
 
@@ -1150,8 +1149,7 @@ VisibilityIteratorImpl2::operator=(const VisibilityIteratorImpl2& vii)
 	// since we don't know if there are any outstanding references, as they can
 	// escape from VisibilityIteratorImpl2...for now, just delete it
 	if (vb_p) delete vb_p;
-	vb_p =
-		createAttachedVisBuffer(vbType, writable_p ? VbWritable : VbNoOptions);
+	vb_p = createAttachedVisBuffer(writable_p ? VbWritable : VbNoOptions);
 
 	return *this;
 }
@@ -1164,7 +1162,6 @@ VisibilityIteratorImpl2::VisibilityIteratorImpl2(VisibilityIteratorImpl2&& vii)
 	, modelDataGenerator_p(nullptr)
 	, pendingChanges_p(nullptr)
 	, spectralWindowChannelsCache_p(nullptr)
-	, vbType(VbPlain)
 	, vb_p(nullptr)
 	, writable_p(false)
 {
@@ -1218,7 +1215,6 @@ VisibilityIteratorImpl2::operator=(VisibilityIteratorImpl2&& vii)
 	subchunk_p = vii.subchunk_p;
 	timeFrameOfReference_p = vii.timeFrameOfReference_p;
 	timeInterval_p = vii.timeInterval_p;
-	vbType = vii.vbType;
 	weightScaling_p = vii.weightScaling_p;
 	writable_p = vii.writable_p;
 
@@ -1243,8 +1239,7 @@ VisibilityIteratorImpl2::operator=(VisibilityIteratorImpl2&& vii)
 	// initialize vb_p...can't steal VisBuffer2 instance since it is attached to
 	// vii
 	if (vb_p) delete vb_p;
-	vb_p =
-		createAttachedVisBuffer(vbType, writable_p ? VbWritable : VbNoOptions);
+	vb_p = createAttachedVisBuffer(writable_p ? VbWritable : VbNoOptions);
 	// TODO: again, it would be better were vb_p a shared_ptr
 	delete vii.vb_p;
 	vii.vb_p = nullptr;
@@ -1383,7 +1378,6 @@ VisibilityIteratorImpl2::clone()
 			msps,
 			sortColumns_p,
 			timeInterval_p,
-			VbPlain,
 			writable_p,
 			false));
 	*result = *this;
@@ -3353,7 +3347,7 @@ VisibilityIteratorImpl2::getVisBuffer() const
 }
 
 VisBuffer2 *
-VisibilityIteratorImpl2::getVisBuffer(const VisibilityIterator2 * vi)
+VisibilityIteratorImpl2::getVisBuffer(const VisibilityIterator2 * vi) const
 {
 	ThrowIf(vb_p == nullptr, "VI Implementation has no VisBuffer.");
 	vb_p->associateWithVi2(vi);

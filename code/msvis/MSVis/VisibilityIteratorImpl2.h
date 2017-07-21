@@ -203,7 +203,8 @@ public:
 	virtual casacore::Bool
 	isNewArrayId() const;
 
-    virtual VisBuffer2 * getVisBuffer() const;
+	virtual casacore::Bool
+	isNewFieldId() const;
 
 	virtual casacore::Bool
 	isNewMs() const;
@@ -218,10 +219,7 @@ public:
 	getNMs() const;
 
 	virtual VisBuffer2 *
-	getVisBuffer();
-
-	virtual VisBuffer2 *
-	getVisBuffer(const VisibilityIterator2 *);
+	getVisBuffer() const;
 
 	//reference to actual ms in interator
 	virtual const casacore::MeasurementSet &
@@ -816,7 +814,8 @@ protected:
 //    void getVisibilityAsStokes(casacore::Matrix<CStokesVector> & visibilityStokes,
 //                                const casacore::ROArrayColumn<casacore::Complex> & column) const;
 
-	VisBuffer2 * getVisBuffer (const VisibilityIterator2 *);
+	VisBuffer2 *
+	getVisBuffer(const VisibilityIterator2 *) const;
 
 	// Ctor auxiliary method
 
