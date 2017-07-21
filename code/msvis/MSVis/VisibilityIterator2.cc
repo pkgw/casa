@@ -155,7 +155,7 @@ VisibilityIterator2::construct (const VisBufferComponents2 * prefetchColumns,
         //                                               addDefaultSortCols, timeInterval, writable);
     }
     else{
-        impl_p = new VisibilityIteratorImpl2 (mss, sortColumns, timeInterval, VbPlain, writable);
+        impl_p = new VisibilityIteratorImpl2 (mss, sortColumns, timeInterval, writable);
     }
 }
 
@@ -231,7 +231,7 @@ VisBuffer2 *
 VisibilityIterator2::getVisBuffer ()
 {
     CheckImplementationPointerR ();
-    return impl_p->getVisBuffer (this);
+    return impl_p->getVisBuffer(this);
 }
 
 Bool

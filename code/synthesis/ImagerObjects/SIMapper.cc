@@ -271,7 +271,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
      
     IPosition imShape=itsImages->pb()->shape();
 
-    ROMSColumns mscol(vb.getVi()->ms());
+    ROMSColumns mscol(vb.ms());
 
     MDirection wcenter=mscol.field().phaseDirMeas(vb.fieldId()(0));
     TempImage<Float> pbTemp(imShape, imageCoord);

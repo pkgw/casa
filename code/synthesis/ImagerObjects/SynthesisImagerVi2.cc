@@ -243,14 +243,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         ////////////////////////////
         Double lowfreq;
         Double topfreq;
-      Vector<Int> fieldList=thisSelection.getFieldList(mss_p[mss_p.nelements()-1]);
-	 // cerr << "chanlist " << chanlist.column(0) << "\n fieldList " << fieldList << endl;
+
+	//cerr << "chanlist " << chanlist << "\n freqlis " << freqList << endl;
         
 	//cerr << "selpars.freqframe " << selpars.freqframe << endl;
         vi::FrequencySelectionUsingFrame channelSelector(selFreqFrame_p);
 	///temporary variable as we carry that for tunechunk
-		
-		
     	  for(uInt k=0; k < nSelections; ++k){
 	    //The getChanfreqList is wrong for beg and end..going round that too.
 	    Vector<Double> freqies=ROMSColumns(*mss_p[mss_p.nelements()-1]).spectralWindow().chanFreq()(Int(chanlist(k,0)));
@@ -270,25 +268,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    }
 	    
 	    if(!ignoreframe){
-		
-			
-          //cerr << "begin " << lowfreq << "  " << topfreq << endl; 
-	      //vi::VisibilityIterator2 tmpvi(mss_p, vi::SortColumns(), false); 
-	      //VisBufferUtil::getFreqRangeFromRange(lowfreq, topfreq,  freqFrame, lowfreq,  topfreq, tmpvi, selFreqFrame_p);
-		  //cerr << "orig low-top freq " << lowfreq << "  " << topfreq << endl; 
-			MSUtil::getFreqRangeInSpw( lowfreq,
-				  topfreq, Vector<Int>(1,chanlist(k,0)), Vector<Int>(1,chanlist(k,1)),
-				  Vector<Int>(1, chanlist(k,2)-chanlist(k,1)+1),
-				 *mss_p[mss_p.nelements()-1] , 
-				  selFreqFrame_p,
-				  fieldList(0), False);
-			//cerr << "new low-top freq " << lowfreq << "  " << topfreq << endl; 
+	      vi::VisibilityIterator2 tmpvi(mss_p, vi::SortColumns(), false); 
+	      VisBufferUtil::getFreqRangeFromRange(lowfreq, topfreq,  freqFrame, lowfreq,  topfreq, tmpvi, selFreqFrame_p);
 	    }
-	    
+	    //cerr << std::setprecision(12) << "Dat lowFreq "<< lowfreq << " topfreq " << topfreq << endl; 
+            //channelSelector.add(Int(freqList(k,0)), lowfreq, topfreq);
 	    andFreqSelection(mss_p.nelements()-1, Int(freqList(k,0)), lowfreq, topfreq, selFreqFrame_p);
-		andChanSelection(mss_p.nelements()-1, Int(chanlist(k,0)), Int(chanlist(k,1)),Int(chanlist(k,2)));
           }
-	  
     	  //fselections_p->add(channelSelector);
           //////////////////////////////////
       }
@@ -354,37 +340,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
   }
-void SynthesisImagerVi2::andChanSelection(const Int msId, const Int spwId, const Int startchan, const Int endchan){
-	map<Int, Vector<Int> > spwsel;
-	auto it=channelSelections_p.find(msId);
-	if(it !=channelSelections_p.end())
-		spwsel=it->second;
-	auto hasspw=spwsel.find(spwId);
-	Vector<Int>chansel(2,-1);
-	if(hasspw != spwsel.end()){
-		chansel.resize();
-		chansel=hasspw->second;
-	}
-	Int nchan=endchan-startchan+1;
-	if(chansel(1)== -1)
-		chansel(1)=startchan;
-	if(chansel(1) >= startchan){
-		if(nchan > (chansel(1)-startchan+1+chansel(0)))
-			chansel(0)=nchan;
-		else
-			chansel(0)=chansel(1)-startchan+1+chansel(0);
-		chansel(1)=startchan;
-	}
-	else{
-		if((chansel(0) -(startchan - chansel(1))) < nchan){	
-			chansel(0)=nchan+startchan-chansel(1)+1;
-		}
-	}
-	spwsel[spwId]=chansel;
-	channelSelections_p[msId]=spwsel;
-	//cerr << "chansel "<< channelSelections_p << endl;
-	
-}
+
   void SynthesisImagerVi2::andFreqSelection(const Int msId, const Int spwId,  const Double freqBeg, const Double freqEnd, const MFrequency::Types frame){
     
    
@@ -498,7 +454,7 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 
 	os << "Define image coordinates for [" << impars.imageName << "] : " << LogIO::POST;
 
-	csys = impars.buildCoordinateSystem( *vi_p, channelSelections_p );
+	csys = impars.buildCoordinateSystem( *vi_p );
 	IPosition imshape = impars.shp();
 
 	os << "Impars : start " << impars.start << LogIO::POST;
@@ -1027,10 +983,10 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
 
 	 SynthesisUtilMethods::getResource("Start Major Cycle for mapper"+String::toString(gmap));
 	 CountedPtr<vi::FrequencySelections> copyFsels=fselections_p->clone();
-	 tuneChunk(gmap);
 	 vi::VisBuffer2* vb=vi_p->getVisBuffer();
 	 vi_p->originChunks();
 	 vi_p->origin();
+	 tuneChunk(gmap);
 	 Double numcoh=0;
 	 for (uInt k=0; k< mss_p.nelements(); ++k)
 	   numcoh+=Double(mss_p[k]->nrow());

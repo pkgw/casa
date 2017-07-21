@@ -419,39 +419,14 @@ FrequencySelectionUsingFrame::toString () const
 	 Vector<Int> outspw;
 	 Vector<Int> outstart;
 	 Vector<Int> outnchan;
-	 for (Elements::const_iterator j = elements_p.begin(); j != elements_p.end(); j++){
-		//cerr << "elements " << (j->spectralWindow_p) <<  "  " << (j->beginFrequency_p)<< "  " <<  (j->endFrequency_p)<< endl;
-
-		Int outstart;
-		Int outnchan;
-		Int spw=j->spectralWindow_p;
-		Double begFreq=j->beginFrequency_p;
-		Double endFreq=j->endFrequency_p;
-		//cerr << "spw " << spw << " BegFreq " << begFreq << "  EndFreq " << endFreq << endl;
-		MSUtil::getChannelRangeFromFreqRange(outstart,
-  			  outnchan, ms, spw, begFreq, endFreq, 1.0e-6,freqframe); 
-		if(outstart > -1){
-			auto  old=retval.find(spw);
-			if(old != retval.end()){
-				pair<int, int> oldrange=old->second;
-				if(oldrange.second >= outstart){
-						if(outnchan > (oldrange.second-outstart+1+oldrange.first))
-							oldrange.first=outnchan;
-						else
-							oldrange.first=oldrange.second-outstart+1+oldrange.first;
-						oldrange.second=outstart;
-				}
-				else{
-				    if((oldrange.first -(outstart - oldrange.second)) <outnchan){	
-						oldrange.first=outnchan+outstart-oldrange.second+1;
-					}
-				}
-				old->second=oldrange;
-			}
-			else{
+	 if(elements_p.size() >0){
+		Double begFreq=(elements_p.begin())->beginFrequency_p;
+		Double endFreq=(elements_p.begin())->endFrequency_p;
+		MSUtil::getSpwInFreqRangeAllFields(outspw, outstart,
+  			  outnchan, ms, begFreq, endFreq, 1.0e-6,freqframe); 
+		for (int k=0; k < int(outspw.nelements()); ++k){ 
 	 
-				retval[int(spw)]=make_pair(int(outnchan), int(outstart));
-			}
+			retval[int(outspw[k])]=make_pair(int(outnchan[k]), int(outstart[k]));
 		}
 	 }
 	 return retval;
