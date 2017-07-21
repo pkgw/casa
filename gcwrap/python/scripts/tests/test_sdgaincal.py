@@ -497,7 +497,7 @@ class sdgaincal_preapply_test(sdgaincal_test_base):
                                       interp='', spwmap=[spwmap,[-1]])
         self.run_task(**params)
         
-        setattr(self, '_verify_fparam_and_flag', self._verify_fparam_and_flag_variable)
+        setattr(self, '_verify_param_and_flag', self._verify_param_and_flag_variable)
         self._verify_caltable(self._generic_verify, **params)
         
 class sdgaincal_single_polarization_test(sdgaincal_test_base):
@@ -557,7 +557,6 @@ class sdgaincal_single_polarization_test(sdgaincal_test_base):
         self.run_task(**params)
         
         self._verify_caltable(self._generic_verify, **params)
-
 
 def suite():
     return [sdgaincal_fail_test,
