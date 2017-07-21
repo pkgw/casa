@@ -57,7 +57,9 @@ class sdgaincal_test_base(unittest.TestCase):
                           'field': '',
                           'spw': '',
                           'scan': '',
-                          'applytable': ''}
+                          'applytable': '',
+                          'interp': '',
+                          'spwmap': []}
         retval = {}
         for (k,v) in default_params.items():
             if params.has_key(k):
@@ -318,6 +320,7 @@ class sdgaincal_preapply_test(sdgaincal_test_base):
     test_preapply01  | '65arcsec'  | only sky caltable is applied (resulting const factor)
     test_preapply02  | '65arcsec'  | only tsys caltable is applied (resulting variable factor)
     test_preapply03  | '65arcsec'  | both tsys and sky caltables are applied (resulting variable factor)
+    test_preapply04  | '65arcsec'  | transfer Tsys from [2,3] to [0,1]
     """
     infile = 'doublecircletest_const.ms'
     outfile = 'sdgaincal_const_test.sdgain.caltable'
@@ -447,6 +450,17 @@ class sdgaincal_preapply_test(sdgaincal_test_base):
         param[:] = 1.0
         tb.putcol('WEIGHT', param)
         tb.close()
+        
+    def _edit_tsys_spw(self, spwmap):
+        (tb,) = gentools(['tb'])
+        tb.open(self.tsystable, nomodify=False)
+        spw_id = tb.getcol('SPECTRAL_WINDOW_ID')
+        print 'before ', spw_id
+        for i in xrange(len(spw_id)):
+            spw_id[i] = spwmap[spw_id[i]]
+        print 'after', spw_id
+        tb.putcol('SPECTRAL_WINDOW_ID', spw_id)
+        tb.close()
 
     def test_preapply01(self):
         """test_preapply01: only sky caltable is applied (resulting const factor)"""
@@ -471,6 +485,19 @@ class sdgaincal_preapply_test(sdgaincal_test_base):
         self.run_task(**params)
         
         setattr(self, '_verify_param_and_flag', self._verify_param_and_flag_variable)
+        self._verify_caltable(self._generic_verify, **params)
+        
+    def test_preapply04(self):
+        """test_preapply04: transfer Tsys from [2,3] to [0,1]"""
+        # edit spwid [0,1] to [2,3]
+        spwmap = [2,3,2,3]
+        self._edit_tsys_spw(spwmap=spwmap)
+        params = self.generate_params(radius='65arcsec', 
+                                      applytable=[self.tsystable, self.skytable],
+                                      interp='', spwmap=[spwmap,[-1]])
+        self.run_task(**params)
+        
+        setattr(self, '_verify_fparam_and_flag', self._verify_fparam_and_flag_variable)
         self._verify_caltable(self._generic_verify, **params)
         
 class sdgaincal_single_polarization_test(sdgaincal_test_base):
@@ -530,6 +557,7 @@ class sdgaincal_single_polarization_test(sdgaincal_test_base):
         self.run_task(**params)
         
         self._verify_caltable(self._generic_verify, **params)
+
 
 def suite():
     return [sdgaincal_fail_test,
