@@ -838,7 +838,7 @@ Bool MSTransformDataHandler::makeMSBasicStructure(	String& msname,
 
 	msOut_p = *outpointer;
 
-	// handle column keywords copy for DATA_COLUMN -> DATA
+	// handle column keywords copy for DATA_COLUMN -> DATA 
 	if (mustConvertToData(colNamesTok.nelements(), colNamesTok)
 			&& (colNamesTok[0] == casacore::MS::CORRECTED_DATA)) {
 	    TableColumn outCol(msOut_p, "DATA");
