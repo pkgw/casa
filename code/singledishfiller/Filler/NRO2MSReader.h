@@ -90,7 +90,8 @@ public:
   virtual casacore::Bool getData(size_t irow, sdfiller::DataRecord &record);
 
   virtual int getNROArraySize() {
-    return obs_header_.ARYNM0; //obs_header_.NBEAM * obs_header_.NPOL * obs_header_.NSPWIN;
+//    return obs_header_.ARYNM0; //obs_header_.NBEAM * obs_header_.NPOL * obs_header_.NSPWIN;
+    return NRO_ARYMAX;
   }
   virtual int getNRONumBeam() {
     return obs_header_.NBEAM;
@@ -102,6 +103,9 @@ public:
     return obs_header_.NSPWIN;
   }
 
+  virtual bool isNROArrayUsed(int array_id) {
+    return array_mapper_[array_id].isUsed();
+  }
   virtual int getNROArrayBeamId(int array_id) {
 //	  assert(array_id >= 0 && array_id < getNROArraySize());
     return array_mapper_[array_id].getBeamId();
@@ -170,32 +174,46 @@ private:
 	  casacore::Stokes::StokesTypes stokes_type = casacore::Stokes::Undefined;
 	  string pol_name="";
 	  int spw_id=-1;
+	  bool is_used=false;
 	  void set(int16_t const arr_data, string const *pol_data) {
 		  // indices in NOSTAR data are 1-base
 		  if (arr_data < 1101) {
-			  throw "An attempt to set invalid ARRAY information to NROArrayData\n";
+		    is_used = false;
+		    beam_id = -1;
+		    spw_id = -1;
+		    pol_name = "";
+		    stokes_type = casacore::Stokes::Undefined;
+		    return;
 		  }
+		  is_used = true;
 		  beam_id = static_cast<int>(arr_data/1000) - 1;
 		  int pol_id = static_cast<int>((arr_data % 1000)/100) - 1;
 		  spw_id = static_cast<int>(arr_data % 100) -1;
 		  pol_name = pol_data[pol_id];
 		  stokes_type = casacore::Stokes::type(pol_name);
 		  if (stokes_type == casacore::Stokes::Undefined) {
-			  throw "Got unsupported polarization type\n";
+			  throw casacore::AipsError("Got unsupported polarization type\n");
 		  }
 	  }
 	  int getBeamId() const {
-		  if (beam_id < 0) throw "Array data is not set yet\n";
+		  if (beam_id < 0)
+		    throw casacore::AipsError("Array data is not set yet\n");
 		  return beam_id;}
 	  casacore::Stokes::StokesTypes getPol() const {
-		  if (stokes_type == casacore::Stokes::Undefined) throw "Array data is not set yet\n";
+		  if (stokes_type == casacore::Stokes::Undefined)
+		    throw casacore::AipsError("Array data is not set yet\n");
 		  return stokes_type;}
 	  int getSpwId() const {
-		  if (spw_id < 0) throw "Array data is not set yet\n";
+		  if (spw_id < 0)
+		    throw casacore::AipsError("Array data is not set yet\n");
 		  return spw_id;}
 	  string getPolName() const {
-		  if (pol_name.size() == 0) throw "Array data is not set yet\n";
+		  if (pol_name.size() == 0)
+		    throw casacore::AipsError("Array data is not set yet\n");
 		  return pol_name;}
+	  bool isUsed() const {
+	    return is_used;
+	  }
   };
 
   std::vector<NROArrayData> array_mapper_;
@@ -210,7 +228,7 @@ private:
 	    }
 	  }
 	  // no array with spwid found
-	  throw "Internal ERROR: Could not find array ID corresponds to an SPW ID\n";
+	  throw casacore::AipsError("Internal ERROR: Could not find array ID corresponds to an SPW ID\n");
   }
 
   int beam_id_counter_;

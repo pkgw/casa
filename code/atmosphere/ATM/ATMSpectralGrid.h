@@ -104,10 +104,10 @@ public:
   SpectralGrid(unsigned int numChan,
                double refFreq,
                double* chanFreq,
-               const string &freqUnits);
-  SpectralGrid(double refFreq, const vector<double> &chanFreq, const string &freqUnits);
-  SpectralGrid(const vector<double> &chanFreq, const string &freqUnits);
-  SpectralGrid(const vector<Frequency> &chanFreq);
+               const std::string &freqUnits);
+  SpectralGrid(double refFreq, const std::vector<double> &chanFreq, const std::string &freqUnits);
+  SpectralGrid(const std::vector<double> &chanFreq, const std::string &freqUnits);
+  SpectralGrid(const std::vector<Frequency> &chanFreq);
 
   /** A full constructor to be used in cases of two sibands (separated or not)
    *  The reference frequency, may not coincide with the center
@@ -152,7 +152,7 @@ public:
   SpectralGrid(unsigned int numChan,
                unsigned int refChan,
                double* chanFreq,
-               const string &freqUnits);
+               const std::string &freqUnits);
 
   SpectralGrid();
 
@@ -188,7 +188,7 @@ public:
   unsigned int add(unsigned int numChan,
                    unsigned int refChan,
                    double* chanFreq,
-                   const string &freqUnits);
+                   const std::string &freqUnits);
 
   /** Add a new spectral window, this spectral window having no sideband.
    * @pre   at least one spectral window has already been defined
@@ -203,15 +203,15 @@ public:
   unsigned int add(unsigned int numChan,
                    double refFreq,
                    double* chanFreq,
-                   const string &freqUnits);
+                   const std::string &freqUnits);
   unsigned int add(unsigned int numChan,
                    double refFreq,
-                   const vector<double> &chanFreq,
-                   const string &freqUnits);
-  unsigned int add(const vector<Frequency> &chanFreq)
+                   const std::vector<double> &chanFreq,
+                   const std::string &freqUnits);
+  unsigned int add(const std::vector<Frequency> &chanFreq)
   {
     unsigned int spwid;
-    vector<double> v;
+    std::vector<double> v;
     for(unsigned int i = 0; i < chanFreq.size(); i++) {
       v.push_back(chanFreq[i].get("GHz"));
     }
@@ -258,7 +258,7 @@ public:
 
   /** Accessor to the reference channel of the first spectral window
    * @return the reference channel
-   * \note with the constructor SpectralGrid( int numChan, double refFreq, double* chanFreq, string freqUnits)
+   * \note with the constructor SpectralGrid( int numChan, double refFreq, double* chanFreq, std::string freqUnits)
    *       there is no way to determine the reference channel if the grid is not regularily sampled! would that be
    *       the case, the returned value is 0.
    */
@@ -316,15 +316,15 @@ public:
    * @return  the frequencies corresponding to the center of the channel in the specified units for
    *          the input spectral window and for the corresponding channel in the other sideband
    */
-  vector<double> getSbChanFreq(unsigned int spwId,
+  std::vector<double> getSbChanFreq(unsigned int spwId,
                                unsigned int chanNum,
-                               const string &freqUnits) const;
+                               const std::string &freqUnits) const;
 
   /** Accessor to retrieve the spectral grid of a spectral window
    * @param spwId     spectral window identifier (0-based)
-   * @return a vector of numChan frequencies (Hz)
+   * @return a std::vector of numChan frequencies (Hz)
    */
-  vector<double> getSpectralWindow(unsigned int spwId) const;
+  std::vector<double> getSpectralWindow(unsigned int spwId) const;
 
   /** Method to get the grid position for a given frequency specified in Hz (the first spectral window)
    * @return the grid position
@@ -392,43 +392,43 @@ public:
    * @return the side of the sideband
    * \note Possible result is no sideband (NoSB) or lower sideband (LSB) or upper sideband (USB)
    */
-  string getSidebandSide(unsigned int spwId) const;
+  std::string getSidebandSide(unsigned int spwId) const;
 
   /** Accessor to the nature(s) of the associated spectral window(s)
    * @pre the spectral window must have an associated sideband. Would that not be the
-   *      case the returned vector has a size of 0.
+   *      case the returned std::vector has a size of 0.
    * @param spwId spectral window identifier (0-based)
    * @return the associated nature(s) of the associated spectral windows
    */
-  vector<string> getAssocNature(unsigned int spwId) const;
+  std::vector<std::string> getAssocNature(unsigned int spwId) const;
 
   /** Accessor to the identifier of the associated spectral window(s)
    * @pre the spectral window must have an associated spectral window. Would that not be the
-   *      case the returned vector has a size of 0.
+   *      case the returned std::vector has a size of 0.
    * @param spwId spectral window identifier (0-based)
    * @return the identifiers of the its associated spectral windows
    */
-  vector<unsigned int> getAssocSpwId(unsigned int spwId) const;
+  std::vector<unsigned int> getAssocSpwId(unsigned int spwId) const;
 
-  vector<unsigned int> getAssocSpwIds(const vector<unsigned int> &spwIds) const;
+  std::vector<unsigned int> getAssocSpwIds(const std::vector<unsigned int> &spwIds) const;
 
   /** Accessor for the type of  sideband
    * @pre the spectral window must have an associated spectral window. Would that not be the
-   *      case the returned vector has a size of 0.
+   *      case the returned std::vector has a size of 0.
    * @param spwId spectral window identifier (0-based)
    * @return the type of the sideband
    * \note Possible result is double sideband (DSB) or single sideband (SSB) or two sidebands (2SB).
    * 2SB implies sideband separation which is possible only in the interferometric case
    */
-  string getSidebandType(unsigned int spwId) const;
+  std::string getSidebandType(unsigned int spwId) const;
 
   /** Accessor for the side of the sideband and its type
    * @pre the spectral window must have a sideband side and a sideband type. Would that not be the
-   *      case the returned string has a size of 0.
+   *      case the returned std::string has a size of 0.
    * @param spwId spectral window identifier (0-based)
    * @return the side and the type of the sideband
    */
-  string getSideband(unsigned int spwId) const;
+  std::string getSideband(unsigned int spwId) const;
 
   double getLoFrequency() const;
   double getLoFrequency(unsigned int spwId) const;
@@ -438,29 +438,29 @@ public:
   bool operator ==(const SpectralGrid&) const;
 
 protected:
-  string freqUnits_; //!< The frequency inits (always Hz)
-  vector<double> v_chanFreq_; //!< Channel frequencies of ALL the channels (i.e. all spectral window appended)
+  std::string freqUnits_; //!< The frequency inits (always Hz)
+  std::vector<double> v_chanFreq_; //!< Channel frequencies of ALL the channels (i.e. all spectral window appended)
 
-  vector<unsigned int> v_numChan_; //!< number of channels for every spectral window
-  vector<unsigned int> v_refChan_; //!< reference channel for every spectral window
-  vector<double> v_refFreq_; //!< frequency at reference channel for every spectral window
-  vector<double> v_chanSep_; //!< channel separation for every spectral window
-  vector<double> v_maxFreq_; //!< frequency maximum for every spectral window
-  vector<double> v_minFreq_; //!< frequency minimum for every spectral window
-  vector<double> v_intermediateFrequency_; //<! intermediate frequency of the band for every spectral window
-  vector<double> v_loFreq_; //<! LO frequency
+  std::vector<unsigned int> v_numChan_; //!< number of channels for every spectral window
+  std::vector<unsigned int> v_refChan_; //!< reference channel for every spectral window
+  std::vector<double> v_refFreq_; //!< frequency at reference channel for every spectral window
+  std::vector<double> v_chanSep_; //!< channel separation for every spectral window
+  std::vector<double> v_maxFreq_; //!< frequency maximum for every spectral window
+  std::vector<double> v_minFreq_; //!< frequency minimum for every spectral window
+  std::vector<double> v_intermediateFrequency_; //<! intermediate frequency of the band for every spectral window
+  std::vector<double> v_loFreq_; //<! LO frequency
 
-  vector<SidebandSide> v_sidebandSide_; //<!  NOSB=0, LSB=1, USB=2
-  vector<SidebandType> v_sidebandType_; //<!  DSB=0, SSB=1, TWOSB=2
-  vector<vector<unsigned int> > vv_assocSpwId_; //<!  associated spectral window Id(s)
-  vector<vector<string> > vv_assocNature_; //<!  corresponding associated nature
+  std::vector<SidebandSide> v_sidebandSide_; //<!  NOSB=0, LSB=1, USB=2
+  std::vector<SidebandType> v_sidebandType_; //<!  DSB=0, SSB=1, TWOSB=2
+  std::vector<std::vector<unsigned int> > vv_assocSpwId_; //<!  associated spectral window Id(s)
+  std::vector<std::vector<std::string> > vv_assocNature_; //<!  corresponding associated nature
 
-  vector<unsigned int> v_transfertId_;
+  std::vector<unsigned int> v_transfertId_;
 
 private:
 
   void appendChanFreq(unsigned int numChan, double* chanFreq);
-  void appendChanFreq(unsigned int numChan, const vector<double> &chanFreq);
+  void appendChanFreq(unsigned int numChan, const std::vector<double> &chanFreq);
   bool wrongSpwId(unsigned int spwId) const;
 };
 

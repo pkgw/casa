@@ -8,7 +8,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 <!-- This is the param set for sdfixscan -->
 
-<task type="function" name="sdfixscan" startup="false" category="single dish">
+<task type="function" name="sdfixscan" category="single dish">
 
   <shortdescription>Task for single-dish image processing</shortdescription>
 
@@ -33,7 +33,7 @@ the scanning effect.
     </param>
 
     <param type="string" name="mode">
-        <shortdescription>image processing mode [\'fft_mask\', \'model\']</shortdescription>
+        <shortdescription>image processing mode ["fft_mask", "model"]</shortdescription>
 	<description>image processing mode</description>
         <value>fft_mask</value>
         <allowed kind="enum">

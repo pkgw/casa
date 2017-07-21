@@ -32,7 +32,7 @@
 #include "ATMCommon.h"
 #include <string>
 
-using namespace std;
+
 
 ATM_NAMESPACE_BEGIN
 
@@ -49,7 +49,7 @@ public:
   /** A full constructor: value in default units (m) */
   Length(double length);
   /** A full constructor: value + units. Valid units are:  km [KM], m [M], mm [MM], micron [MICRON], nm [NM]. */
-  Length(double length, const string &units);
+  Length(double length, const std::string &units);
   /** Copy constructor */
   Length(const Length &length);
 
@@ -60,11 +60,11 @@ public:
   inline double get() const { return valueIS_; }
   /** Accessor to the length value in specified units. Implemented units are km [KM], m [M], mm [MM], micron [MICRON], nm [NM].
    *  If none of these implemented units is given, the SI value will be returned. */
-  inline double get(const string &units) const { return sget(valueIS_, units); }
-  /** Accessor to the length in specified units as a formatted string.
+  inline double get(const std::string &units) const { return sget(valueIS_, units); }
+  /** Accessor to the length in specified units as a formatted std::string.
    *  Implemented units are km [KM], m [M], mm [MM], micron [MICRON], nm [NM].
    *  If none of these implemented units is given, the SI value will be returned. */
-  string get(const string &form, const string &units) const;
+  std::string get(const std::string &form, const std::string &units) const;
 
   /** Operator "equal to a Length" */
   inline Length& operator=(const Length &rhs) { if(&rhs != this) valueIS_ = rhs.valueIS_; return *this; }
@@ -104,8 +104,8 @@ public:
   inline bool operator!=(const Length &rhs) const { return (valueIS_ != rhs.get()); }
 
 private:
-  static double sget(double value, const string &units);
-  static double sput(double value, const string &units);
+  static double sget(double value, const std::string &units);
+  static double sput(double value, const std::string &units);
 
 private:
   double valueIS_;

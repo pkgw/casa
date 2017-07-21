@@ -30,11 +30,11 @@
 #include <stdio.h>
 #include <iostream>
 
-using namespace std;
+
 
 ATM_NAMESPACE_BEGIN
 
-WaterVaporRadiometer::WaterVaporRadiometer(const vector<unsigned int> &IdChannels)
+WaterVaporRadiometer::WaterVaporRadiometer(const std::vector<unsigned int> &IdChannels)
 {
 
   spilloverTemperature_ = Temperature(-999.0, "K");
@@ -51,8 +51,8 @@ WaterVaporRadiometer::WaterVaporRadiometer(const vector<unsigned int> &IdChannel
 
 }
 
-WaterVaporRadiometer::WaterVaporRadiometer(const vector<unsigned int> &IdChannels,
-                                           const vector<double> &skyCoupling)
+WaterVaporRadiometer::WaterVaporRadiometer(const std::vector<unsigned int> &IdChannels,
+                                           const std::vector<double> &skyCoupling)
 {
 
   spilloverTemperature_ = Temperature(-999.0, "K");
@@ -79,8 +79,8 @@ WaterVaporRadiometer::WaterVaporRadiometer(const vector<unsigned int> &IdChannel
 
 }
 
-WaterVaporRadiometer::WaterVaporRadiometer(const vector<unsigned int> &IdChannels,
-                                           const vector<Percent> &signalGain)
+WaterVaporRadiometer::WaterVaporRadiometer(const std::vector<unsigned int> &IdChannels,
+                                           const std::vector<Percent> &signalGain)
 {
 
   spilloverTemperature_ = Temperature(-999.0, "K");
@@ -105,9 +105,9 @@ WaterVaporRadiometer::WaterVaporRadiometer(const vector<unsigned int> &IdChannel
 
 }
 
-WaterVaporRadiometer::WaterVaporRadiometer(const vector<unsigned int> &IdChannels,
-                                           const vector<double> &skyCoupling,
-                                           const vector<Percent> &signalGain)
+WaterVaporRadiometer::WaterVaporRadiometer(const std::vector<unsigned int> &IdChannels,
+                                           const std::vector<double> &skyCoupling,
+                                           const std::vector<Percent> &signalGain)
 {
 
   spilloverTemperature_ = Temperature(-999.0, "K");
@@ -149,7 +149,7 @@ WaterVaporRadiometer::WaterVaporRadiometer(const vector<unsigned int> &IdChannel
 
 }
 
-WaterVaporRadiometer::WaterVaporRadiometer(const vector<unsigned int> &IdChannels,
+WaterVaporRadiometer::WaterVaporRadiometer(const std::vector<unsigned int> &IdChannels,
                                            const Temperature &spilloverTemperature)
 {
 
@@ -167,8 +167,8 @@ WaterVaporRadiometer::WaterVaporRadiometer(const vector<unsigned int> &IdChannel
 
 }
 
-WaterVaporRadiometer::WaterVaporRadiometer(const vector<unsigned int> &IdChannels,
-                                           const vector<double> &skyCoupling,
+WaterVaporRadiometer::WaterVaporRadiometer(const std::vector<unsigned int> &IdChannels,
+                                           const std::vector<double> &skyCoupling,
                                            const Temperature &spilloverTemperature)
 {
 
@@ -194,8 +194,8 @@ WaterVaporRadiometer::WaterVaporRadiometer(const vector<unsigned int> &IdChannel
 
 }
 
-WaterVaporRadiometer::WaterVaporRadiometer(const vector<unsigned int> &IdChannels,
-                                           const vector<Percent> &signalGain,
+WaterVaporRadiometer::WaterVaporRadiometer(const std::vector<unsigned int> &IdChannels,
+                                           const std::vector<Percent> &signalGain,
                                            const Temperature &spilloverTemperature)
 {
 
@@ -221,9 +221,9 @@ WaterVaporRadiometer::WaterVaporRadiometer(const vector<unsigned int> &IdChannel
 
 }
 
-WaterVaporRadiometer::WaterVaporRadiometer(const vector<unsigned int> &IdChannels,
-                                           const vector<double> &skyCoupling,
-                                           const vector<Percent> &signalGain,
+WaterVaporRadiometer::WaterVaporRadiometer(const std::vector<unsigned int> &IdChannels,
+                                           const std::vector<double> &skyCoupling,
+                                           const std::vector<Percent> &signalGain,
                                            const Temperature &spilloverTemperature)
 {
 
