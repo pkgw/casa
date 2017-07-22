@@ -140,7 +140,7 @@ private:
     };
 
     mutable casacore::Bool _weightsComputed = false;
-    mutable casacore::Bool _wtSpExists = true;
+    mutable std::unique_ptr<casacore::Bool> _mustComputeWtSp = nullptr;
     mutable casacore::Cube<casacore::Float> _newWtSp;
     mutable casacore::Matrix<casacore::Float> _newWt;
     mutable casacore::Cube<casacore::Bool> _newFlag;

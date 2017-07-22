@@ -57,7 +57,6 @@ StatWtTVI::StatWtTVI(ViImplementation2 * inputVii, const Record &configuration)
 	_initialize();
 	// Initialize attached VisBuffer
 	setVisBuffer(createAttachedVisBuffer(VbRekeyable));
-    _wtSpExists = ms().isColumn(MSMainEnums::WEIGHT_SPECTRUM);
 }
 
 StatWtTVI::~StatWtTVI() {}
@@ -337,6 +336,8 @@ void StatWtTVI::_setChanBinMap(const casacore::Quantity& binWidth) {
             }
         }
     }
+    // weight spectrum must be written
+    _mustComputeWtSp.reset(new Bool(True));
 }
 
 void StatWtTVI::_setChanBinMap(Int binWidth) {
@@ -353,6 +354,8 @@ void StatWtTVI::_setChanBinMap(Int binWidth) {
             _chanBins[i].push_back(bin);
         }
     }
+    // weight spectrum must be written
+    _mustComputeWtSp.reset(new Bool(True));
 }
 
 void StatWtTVI::_setDefaultChanBinMap() {
@@ -373,7 +376,7 @@ void StatWtTVI::_initialize() {}
 
 void StatWtTVI::weightSpectrum(Cube<Float> & newWtsp) const {
     ThrowIf(! _weightsComputed, "Weights have not been computed yet");
-    if (! _wtSpExists) {
+    if (! *_mustComputeWtSp) {
         newWtsp.resize(IPosition(3, 0));
         return;
     }
@@ -390,8 +393,6 @@ void StatWtTVI::weightSpectrum(Cube<Float> & newWtsp) const {
     IPosition blc(3, 0);
     auto trc = newWtsp.shape() - 1;
     auto nrows = nRows();
-    Vector<uInt> rowIDs;
-    getRowIds(rowIDs);
     for (Int i=0; i<nrows; ++i) {
         blc[2] = i;
         trc[2] = i;
@@ -427,7 +428,7 @@ void StatWtTVI::weight(Matrix<Float> & wtmat) const {
     }
     auto nrows = nRows();
     getVii()->weight(wtmat);
-    if (_wtSpExists) {
+    if (*_mustComputeWtSp) {
         // always use classical algorithm to get median for weights
         ClassicalStatistics<Double, Array<Float>::const_iterator, Array<Bool>::const_iterator> cs;
         Cube<Float> newWtsp;
@@ -636,6 +637,9 @@ void StatWtTVI::_gatherAndComputeWeights() const {
                 // when the last chunk is processed twice
                 return;
             }
+        }
+        if (! _mustComputeWtSp) {
+            _mustComputeWtSp.reset(new Bool(vb->existsColumn(VisBufferComponent2::WeightSpectrum)));
         }
         const auto& ant1 = vb->antenna1();
         const auto& ant2 = vb->antenna2();

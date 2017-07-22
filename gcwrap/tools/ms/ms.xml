@@ -1209,6 +1209,19 @@ the ms definition itself. -->
             in bins determined by the specified values of the timebin and chanbin parameters. By default,
             data for separate correlations are aggregated separately. This behavior can be overriden
             by specifying combine="corr" (see below).
+
+            RULES REGARDING CREATING/INITIALIZING WEIGHT_SPECTRUM COLUMN
+
+            1. If the MS already has a WEIGHT_SPECTRUM and this column has been initialized (has values),
+               it will always be populated with the new weights.  The WEIGHT column will be populated with
+               the corresponding median values of the associated WEIGHT_SPECTRUM array.
+            2. If the frequency range specified for the sample is not the default ("spw"), the
+               WEIGHT_SPECTRUM column will be created (if it doesn't already exist) and the new weights
+               will be written to it.  The WEIGHT column should be populated with the corresponding median
+               values of the WEIGHT_SPECTRUM array.
+           3.  Otherwise the single value for each spectral window will be written to the WEIGHT column;
+               the WEIGHT_SPECTRUM column will not be added if it doesn't already exist, and if it does,
+               it will remain uninitialized (no values will be written to it).
             
             TIME BINNING
             

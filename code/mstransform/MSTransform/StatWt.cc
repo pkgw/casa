@@ -20,6 +20,7 @@
 
 #include <casacore/casa/Containers/ValueHolder.h>
 #include <casacore/casa/Quanta/QuantumHolder.h>
+#include <casacore/casa/System/ProgressMeter.h>
 #include <casacore/ms/MSOper/MSMetaData.h>
 #include <casacore/tables/Tables/ArrColDesc.h>
 #include <casacore/tables/Tables/TableProxy.h>
@@ -90,10 +91,27 @@ void StatWt::setTVIConfig(const Record& config) {
 }
 
 void StatWt::writeWeights() const {
-    auto doWtSp = _ms->isColumn(MSMainEnums::WEIGHT_SPECTRUM);
-    auto needWtSp = ! doWtSp && _tviConfig.isDefined(vi::StatWtTVI::CHANBIN);
-    if (needWtSp) {
-        doWtSp = True;
+    auto hasWtSp = _ms->isColumn(MSMainEnums::WEIGHT_SPECTRUM);
+    auto mustWriteWtSp = _tviConfig.isDefined(vi::StatWtTVI::CHANBIN);
+    if (mustWriteWtSp) {
+        auto type = _tviConfig.type(_tviConfig.fieldNumber(vi::StatWtTVI::CHANBIN));
+        if (type == TpArrayBool) {
+            // default variant type
+            mustWriteWtSp = False;
+        }
+        else if (type == TpString) {
+            auto val = _tviConfig.asString(vi::StatWtTVI::CHANBIN);
+            val.downcase();
+            if (val == "spw") {
+                mustWriteWtSp = False;
+            }
+        }
+    }
+    auto mustInitWtSp = False;
+    if (! hasWtSp && mustWriteWtSp) {
+        // we must create WEIGHT_SPECTRUM
+        hasWtSp = True;
+        mustInitWtSp = True;
         // from Calibrater.cc
         // Nominal default tile shape
         IPosition dts(3, 4, 32, 1024);
@@ -104,14 +122,29 @@ void StatWt::writeWeights() const {
             if (anyEQ(col.asArrayString("COLUMNS"), String("DATA"))) {
                 dts = IPosition(col.asRecord("SPEC").asArrayInt("DEFAULTTILESHAPE"));
                 break;
-             }
-         }
-         // Add the column
-         String colWtSp = MS::columnName(MS::WEIGHT_SPECTRUM);
-         TableDesc tdWtSp;
-         tdWtSp.addColumn(ArrayColumnDesc<Float>(colWtSp, "weight spectrum", 2));
-         TiledShapeStMan wtSpStMan("TiledWgtSpectrum", dts);
-         _ms->addColumn(tdWtSp, wtSpStMan);
+            }
+        }
+        // Add the column
+        String colWtSp = MS::columnName(MS::WEIGHT_SPECTRUM);
+        TableDesc tdWtSp;
+        tdWtSp.addColumn(ArrayColumnDesc<Float>(colWtSp, "weight spectrum", 2));
+        TiledShapeStMan wtSpStMan("TiledWgtSpectrum", dts);
+        _ms->addColumn(tdWtSp, wtSpStMan);
+    }
+    else {
+        // check to see if existant WEIGHT_SPECTRUM needs to be initialized
+        ArrayColumn<Float> col(*_ms, MS::columnName(MS::WEIGHT_SPECTRUM));
+        try {
+            col.get(0);
+            // its initialized, so even if we are using the full spw for
+            // binning, we still need to update WEIGHT_SPECTRUM
+            mustWriteWtSp = True;
+        }
+        catch (const AipsError& x) {
+            // its not initialized, so we aren't going to write to it unless
+            // chanbin has been specified to be less than the spw width
+            mustInitWtSp = mustWriteWtSp;
+        }
     }
     // default sort columns are from MSIter and are ARRAY_ID, FIELD_ID, DATA_DESC_ID, and TIME
     // I'm adding scan and state because, according to the statwt requirements, by default, scan
@@ -146,25 +179,25 @@ void StatWt::writeWeights() const {
     vi::VisibilityIterator2 vi(facts);
     vi::VisBuffer2 *vb = vi.getVisBuffer();
     Vector<Int> vr(1);
+    ProgressMeter pm(0, _ms->nrow(), "StatWt Progress");
+    uInt64 count = 0;
     for (vi.originChunks(); vi.moreChunks(); vi.nextChunk()) {
         for (vi.origin(); vi.more(); vi.next()) {
+            auto nrow = vb->nRows();
             if (_preview) {
                 // just need to run the flags to accumulate
                 // flagging info
                 vb->flagCube();
             }
             else {
-                if (needWtSp) {
-                    Int nrow = vb->nRows();
-                    Int nchan = vb->nChannels();
-                    Int ncor = vb->nCorrelations();
-                    Cube<Float> newwtsp(0, 0, 0);
-                    newwtsp.resize(ncor, nchan, nrow);
-                    newwtsp.set(0.0);
+                if (mustInitWtSp) {
+                    auto nchan = vb->nChannels();
+                    auto ncor = vb->nCorrelations();
+                    Cube<Float> newwtsp(ncor, nchan, nrow, 0);
                     vb->initWeightSpectrum(newwtsp);
                     vb->writeChangesBack();
                 }
-                if (doWtSp) {
+                if (mustWriteWtSp) {
                     vb->setWeightSpectrum(vb->weightSpectrum());
                 }
                 vb->setWeight(vb->weight());
@@ -172,6 +205,8 @@ void StatWt::writeWeights() const {
                 vb->setFlagRow(vb->flagRow());
                 vb->writeChangesBack();
             }
+            count += nrow;
+            pm.update(count);
         }
     }
     if (_preview) {
