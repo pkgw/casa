@@ -122,17 +122,17 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         </param>
     </input>
     <example>
-        THIS APPLICATION MODIFIES THE WEIGHT, WEIGHT SPECTRUM, FLAG, AND FLAG_ROW COLUMNS OF THE INPUT
-        MS. IF YOU WANT A PRISTINE COPY OF THE INPUT MS TO BE PRESERVED, MAKE A COPY OF IT BEFORE
-        RUNNING THIS APPLICATION.
+        IF NOT RUN IN PREVIEW MODE, THIS APPLICATION WILL MODIFY THE WEIGHT, WEIGHT SPECTRUM, FLAG,
+        AND FLAG_ROW COLUMNS OF THE INPUT MS. IF YOU WANT A PRISTINE COPY OF THE INPUT MS TO BE
+        PRESERVED, YOU SHOULD MAKE A COPY OF IT BEFORE RUNNING THIS APPLICATION.
 
         This application computes weights for the WEIGHT and WEIGHT_SPECTRUM (if present) columns
-        based on the variance of values in the CORRECTED_DATA column. If the MS has no CORRECTED_DATA
-        column, the application will fail.  The following algorithm is used:
+        based on the variance of values in the CORRECTED_DATA or DATA column. If the MS does not
+        have the specified data column, the application will fail. The following algorithm is used:
  
-        1. For unflagged data, create two sets of values, one set is composed solely of the real part
-           of the data values, the other set is composed solely of the imaginary part of the data
-           values.
+        1. For unflagged data in each sample, create two sets of values, one set is composed solely
+           of the real part of the data values, the other set is composed solely of the imaginary
+           part of the data values.
         2. Compute the variance of each of these sets, vr and vi.
         3. Compute veq = (vr + vi)/2.
         4. The associated weight is just the reciprocal of veq. The weight will have unit
@@ -145,17 +145,18 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
             
         RULES REGARDING CREATING/INITIALIZING WEIGHT_SPECTRUM COLUMN
 
-        1. If the MS already has a WEIGHT_SPECTRUM and this column has been initialized (has values),
+        1. If run in preview mode (preview=True), no data are modified and no columns are added.
+        2. Else if the MS already has a WEIGHT_SPECTRUM and this column has been initialized (has values),
            it will always be populated with the new weights.  The WEIGHT column will be populated with
            the corresponding median values of the associated WEIGHT_SPECTRUM array.
-        2. If the frequency range specified for the sample is not the default ("spw"), the
+        3. Else if the frequency range specified for the sample is not the default ("spw"), the
            WEIGHT_SPECTRUM column will be created (if it doesn't already exist) and the new weights
            will be written to it.  The WEIGHT column should be populated with the corresponding median
            values of the WEIGHT_SPECTRUM array.
-       3.  Otherwise the single value for each spectral window will be written to the WEIGHT column;
+        4. Otherwise the single value for each spectral window will be written to the WEIGHT column;
            the WEIGHT_SPECTRUM column will not be added if it doesn't already exist, and if it does,
            it will remain uninitialized (no values will be written to it).
-
+            
         TIME BINNING
             
         One of two algorithms can be used for time binning. If slidetimebin=True, then
