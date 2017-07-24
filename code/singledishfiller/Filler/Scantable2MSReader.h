@@ -51,6 +51,10 @@ public:
     return is_float;
   }
 
+  virtual casacore::String getDataUnit() const {
+	return main_table_->keywordSet().asString("FluxUnit");
+  }
+
   // to get OBSERVATION table
   virtual casacore::Bool getObservationRow(sdfiller::ObservationRecord &record) {
     POST_START;
