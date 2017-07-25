@@ -121,6 +121,7 @@ class Calibrater
 		 const casacore::String& apmode="AP",
 		 const casacore::Int minblperant=4,
 		 const casacore::String& refant="",
+		 const casacore::String& refantmode="flex",
 		 const casacore::Bool solnorm=false,
 		 const casacore::Float minsnr=0.0f,
 		 const casacore::String& combine="",
@@ -257,6 +258,13 @@ class Calibrater
 				const casacore::String& smoothtype, 
 				const casacore::Double& smoothtime,
 				const casacore::String& fields);
+
+
+  // Apply new reference antenna to calibration
+  virtual casacore::Bool reRefant(const casacore::String& infile,
+				  casacore::String& outfile, 
+				  const casacore::String& refantmode, 
+				  const casacore::String& refant);
 
 
   // casacore::List a calibration table

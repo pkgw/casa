@@ -254,6 +254,9 @@ public:
   // Is state of PBMath object OK?
   virtual casacore::Bool ok()=0;
 
+  virtual void setBandOrFeedName(const casacore::String elnamo){
+	 bandOrFeedName_p=elnamo; 
+  };
 protected:
  
   // Dumb constructor: protected, as it won't do you any good!
@@ -305,6 +308,7 @@ protected:
   static casacore::Float asFloat(const casacore::DComplex & value){return (casacore::Float) value.real(); }
   static casacore::Float asFloat(const casacore::Float & value) {return value; }
   static casacore::Float asFloat(const casacore::Double & value) {return (casacore::Float) value; }
+  
   // </group>
 
   
@@ -323,6 +327,8 @@ protected:
   // Should we use the effective az-symmetrical primary beam?
   // Otherwise, use squinted beam; if no squint, no difference
   casacore::Bool useSymmetricBeam_p;
+  
+  casacore::String bandOrFeedName_p;
 
 private:
 

@@ -9,11 +9,15 @@ def sdbaseline(infile=None, datacolumn=None, antenna=None, field=None, spw=None,
 
     casalog.origin('sdbaseline')
     try:
+        if not os.path.exists(infile):
+            raise Exception("infile='" + str(infile) + "' does not exist.")
         if (outfile == '') or not isinstance(outfile, str):
-            print("type=%s, value=%s" % (type(outfile), str(outfile)))
-            raise ValueError, "outfile name is empty."
+            #print("type=%s, value=%s" % (type(outfile), str(outfile)))
+            #raise ValueError, "outfile name is empty."
+            outfile = infile.rstrip('/') + '_bs'
+            print("outfile is empty or non-string. set to '" + outfile + "'")
         if os.path.exists(outfile) and not overwrite:
-            raise Exception(outfile + ' exists.')
+            raise Exception("outfile='%s' exists, and cannot overwrite it." % (outfile))
         if (maskmode == 'interact'):
             raise ValueError, "maskmode='%s' is not supported yet" % maskmode
         if (blfunc == 'variable' and not os.path.exists(blparam)):

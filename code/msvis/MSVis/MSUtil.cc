@@ -180,125 +180,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
   }
-  void MSUtil::getChannelRangeFromFreqRange(Int& start,
-				  Int& nchan,
-				  const MeasurementSet& ms,
-				  const Int spw,
-				  const Double freqStart,
-				  const Double freqEnd,
-				  const Double freqStep,
-			    const MFrequency::Types freqframe)
-  {
-    start=-1;
-    nchan=-1;
-    ROMSFieldColumns fieldCol(ms.field());
-    ROMSDataDescColumns ddCol(ms.dataDescription());
-	Vector<Int> dataDescSel=MSDataDescIndex(ms.dataDescription()).matchSpwId(spw);
-	//cerr << "dataDescSel " << dataDescSel << endl;
-	if(dataDescSel.nelements()==0)
-		return;
-	Vector<Double> t;
-    ROScalarColumn<Double> (ms,MS::columnName(MS::TIME)).getColumn(t);
-	Vector<Int> ddId;
-    ROScalarColumn<Int> (ms,MS::columnName(MS::DATA_DESC_ID)).getColumn(ddId);
-    ROMSSpWindowColumns spwCol(ms.spectralWindow());
-    Vector<Double> ddIdD(ddId.shape());
-    convertArray(ddIdD, ddId);
-    ddIdD+= 1.0; //no zero id
-     //we have to do this as one can have multiple dd for the same time. 
-    t*=ddIdD;
-    //t(fldId != fieldId)=-1.0;
-    Vector<Double> elt;
-    Vector<Int> elindx;
-    //rejecting the large blocks of same time for all baselines
-    //this speeds up by a lot GenSort::sort
-    rejectConsecutive(t, elt, elindx);
-    
-    ROScalarMeasColumn<MEpoch> timeCol(ms, MS::columnName(MS::TIME));
-    Vector<uInt>  uniqIndx;
-    uInt nTimes=GenSortIndirect<Double>::sort (uniqIndx, elt, Sort::Ascending, Sort::QuickSort|Sort::NoDuplicates);
-
-    t.resize(0);
-    
-    //ROScalarColumn<Int> ddId(ms,MS::columnName(MS::DATA_DESC_ID));
-    ROScalarColumn<Int> fldId(ms,MS::columnName(MS::FIELD_ID));
-    //now need to do the conversion to data frame from requested frame
-    //Get the epoch mesasures of the first row
-    MEpoch ep;
-    timeCol.get(0, ep);
-    String observatory;
-    MPosition obsPos;
-    /////observatory position
-    ROMSColumns msc(ms);
-    if (ms.observation().nrow() > 0) {
-      observatory = msc.observation().telescopeName()(msc.observationId()(0));
-    }
-    if (observatory.length() == 0 || 
-	!MeasTable::Observatory(obsPos,observatory)) {
-      // unknown observatory, use first antenna
-      obsPos=msc.antenna().positionMeas()(0);
-    }
-    //////
-    Int oldDD=dataDescSel(0);
-    Int newDD=oldDD;
-    //For now we will assume that the field is not moving very far from polynome 0
-    MDirection dir =fieldCol.phaseDirMeas(0);
-    MFrequency::Types obsMFreqType= (MFrequency::Types) (spwCol.measFreqRef()(ddCol.spectralWindowId()(dataDescSel(0))));
-    MeasFrame frame(ep, obsPos, dir);
-    MFrequency::Convert toObs(freqframe,
-                              MFrequency::Ref(obsMFreqType, frame));
-    Double freqEndMax=freqEnd+0.5*fabs(freqStep);
-    Double freqStartMin=freqStart-0.5*fabs(freqStep);
-    if(freqframe != obsMFreqType){
-      freqEndMax=0.0;
-      freqStartMin=C::dbl_max;
-    }
-    for (uInt j=0; j< nTimes; ++j) {
-        if(anyEQ(dataDescSel, ddId(elindx[uniqIndx[j]]))){
-            timeCol.get(elindx[uniqIndx[j]], ep);
-            newDD=ddId(elindx[uniqIndx[j]]);
-            if(oldDD != newDD) {
-				
-                oldDD=newDD;
-                if(spwCol.measFreqRef()(ddCol.spectralWindowId()(newDD)) != obsMFreqType) {
-                    obsMFreqType= (MFrequency::Types) (spwCol.measFreqRef()(ddCol.spectralWindowId()(newDD)));
-                    toObs.setOut(MFrequency::Ref(obsMFreqType, frame));
-                }
-            }
-            if(obsMFreqType != freqframe) {
-                dir=fieldCol.phaseDirMeas(fldId(elindx[uniqIndx[j]]));
-                frame.resetEpoch(ep);
-                frame.resetDirection(dir);
-                Double freqTmp=toObs(Quantity(freqStart, "Hz")).get("Hz").getValue();
-                freqStartMin=(freqStartMin > freqTmp) ? freqTmp : freqStartMin;
-                freqTmp=toObs(Quantity(freqEnd, "Hz")).get("Hz").getValue();
-                freqEndMax=(freqEndMax < freqTmp) ? freqTmp : freqEndMax;
-            }
-        }
-    }
-
-    
-    MSSpwIndex spwIn(ms.spectralWindow());
-	Vector<Int> spws;
-	Vector<Int> starts;
-	Vector<Int> nchans;
-    if(!spwIn.matchFrequencyRange(freqStartMin-0.5*freqStep, freqEndMax+0.5*freqStep, spws, starts, nchans)){
-			return;
-	}
-	for (uInt k=0; k < spws.nelements(); ++k){
-			if(spws[k]==spw){
-					start=starts[k];
-					nchan=nchans[k];
-			}
-	
-	}
-  }
   void MSUtil::getFreqRangeInSpw( Double& freqStart,
 				  Double& freqEnd, const Vector<Int>& spw, const Vector<Int>& start,
 				  const Vector<Int>& nchan,
 				  const MeasurementSet& ms, 
 				  const MFrequency::Types freqframe,
-				  const Int fieldId, const Bool fromEdge){
+				  const Int fieldId){
     
 
     freqStart=C::dbl_max;
@@ -349,21 +236,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     
 						
     for (uInt ispw =0 ; ispw < spw.nelements() ; ++ispw){
-		if(nchan[ispw]>0 && start[ispw] >-1){
       Double freqStartObs=C::dbl_max;
       Double freqEndObs=0.0;
       Vector<Double> chanfreq=spwCol.chanFreq()(spw[ispw]);
       Vector<Double> chanwid=spwCol.chanWidth()(spw[ispw]);
       Vector<Int> ddOfSpw=mddin.matchSpwId(spw[ispw]);
       for (Int ichan=start[ispw]; ichan<start[ispw]+nchan[ispw]; ++ichan){ 
-		  if(fromEdge){
-			if(freqStartObs > (chanfreq[ichan]-fabs(chanwid[ichan])/2.0)) freqStartObs=chanfreq[ichan]-fabs(chanwid[ichan])/2.0;
-			if(freqEndObs < (chanfreq[ichan]+fabs(chanwid[ichan])/2.0)) freqEndObs=chanfreq[ichan]+fabs(chanwid[ichan])/2.0;   
-		  }
-		  else{
-			if(freqStartObs > (chanfreq[ichan])) freqStartObs=chanfreq[ichan];
-			if(freqEndObs < (chanfreq[ichan])) freqEndObs=chanfreq[ichan];   
-		  }
+	if(freqStartObs > (chanfreq[ichan]-fabs(chanwid[ichan])/2.0)) freqStartObs=chanfreq[ichan]-fabs(chanwid[ichan])/2.0;
+	if(freqEndObs < (chanfreq[ichan]+fabs(chanwid[ichan])/2.0)) freqEndObs=chanfreq[ichan]+fabs(chanwid[ichan])/2.0;    
       }
       obsMFreqType= (MFrequency::Types) (spwCol.measFreqRef()(spw[ispw]));
       if((obsMFreqType==MFrequency::REST) || (obsMFreqType==freqframe && obsMFreqType != MFrequency::TOPO)){
@@ -389,7 +269,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}
       }
     }
-	}
   }
   void MSUtil::rejectConsecutive(const Vector<Double>& t, Vector<Double>& retval, Vector<Int>& indx){
     uInt n=t.nelements();

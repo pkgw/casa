@@ -100,6 +100,7 @@ SolvableVisCal::SolvableVisCal(VisSet& vs) :
   tInterpType_(""),
   fInterpType_(""),
   spwMap_(1,-1),
+  refantmode_("flex"),
   urefantlist_(1,-1),
   minblperant_(4),
   solved_(false),
@@ -167,6 +168,7 @@ SolvableVisCal::SolvableVisCal(String msname,Int MSnAnt,Int MSnSpw) :
   tInterpType_(""),
   fInterpType_(""),
   spwMap_(1,-1),
+  refantmode_("flex"),
   urefantlist_(1,-1),
   minblperant_(4),
   solved_(false),
@@ -236,6 +238,7 @@ SolvableVisCal::SolvableVisCal(const MSMetaInfoForCal& msmc) :
   tInterpType_(""),
   fInterpType_(""),
   spwMap_(1,-1),
+  refantmode_("flex"),
   urefantlist_(1,-1),
   minblperant_(4),
   solved_(False),
@@ -301,6 +304,7 @@ SolvableVisCal::SolvableVisCal(const Int& nAnt) :
   tInterpType_(""),
   fInterpType_(""),
   spwMap_(1,-1),
+  refantmode_("flex"),
   urefantlist_(1,-1),
   minblperant_(4),
   solved_(false),
@@ -1199,6 +1203,9 @@ void SolvableVisCal::setSolve(const Record& solve)
   if (solve.isDefined("preavg"))
     preavg()=solve.asFloat("preavg");
 
+  if (solve.isDefined("refantmode")) {
+    refantmode_=solve.asString("refantmode");
+  }
   if (solve.isDefined("refant")) {
     refantlist().resize();
     refantlist()=solve.asArrayInt("refant");
@@ -1262,6 +1269,7 @@ String SolvableVisCal::solveinfo() {
     << (freqDepPar() ? (","+fsolint()) : "")
     //    << " t="          << interval()
     //    << " preavg="     << preavg()
+    << " refantmode="     << "'" << refantmode_ << "'"
     << " refant="     << "'" << refantNames << "'" // (id=" << refant() << ")"
     << " minsnr=" << minSNR()
     << " apmode="  << apmode()
@@ -3648,9 +3656,17 @@ void SolvableVisCal::createMemCalTable() {
 
   // Set up description
   String partype = ((parType()==VisCalEnum::COMPLEX) ? "Complex" : "Float");
-  CTDesc caltabdesc(partype,Path(msName()).baseName(),typeName(),"unknown");
-  ct_ = new NewCalTable("tempNCT.tab",caltabdesc,Table::Scratch,Table::Memory);
-  ct_->setMetaInfo(msName());
+
+  if (msName()!="<noms>") {
+    CTDesc caltabdesc(partype,Path(msName()).baseName(),typeName(),"unknown");
+    ct_ = new NewCalTable("tempNCT.tab",caltabdesc,Table::Scratch,Table::Memory)
+;
+    ct_->setMetaInfo(msName());
+  }
+  else {
+    ct_ = new NewCalTable("tempNCT.tab",partype,typeName(),msmc().ssp(),
+			  false,true);
+  }
 
   CTColumns ncc(*ct_);
 
@@ -4111,6 +4127,7 @@ void SolvableVisCal::stateSVC(const Bool& doVC) {
   cout << "  tInterpType() = " << tInterpType() << endl;
   cout << "  fInterpType() = " << fInterpType() << endl;
   cout << "  spwMap() = " << spwMap() << endl;
+  cout << "  refantmode() = " << refantmode() << endl;
   cout << "  refant() = " << refant() << endl;
   cout << "  refantlist() = " << refantlist() << endl;
   
@@ -4238,7 +4255,8 @@ void SolvableVisCal::verifyCalTable(const String& caltablename) {
   if (calType!=typeName()) {
     ostringstream o;
     o << "Table " << caltablename 
-      << " has wrong Calibration type: " << calType;
+      << " has wrong Calibration type: " << calType
+      << " (expected: " << typeName() << ")";
     throw(AipsError(String(o)));
   }
 }
@@ -5771,7 +5789,12 @@ void SolvableVisJones::applyRefAnt() {
   }
 
   logSink() << "Applying refant: " << refantName
-	    << LogIO::POST;
+	    << " refantmode = " << refantmode();
+  if (refantmode()=="flex")
+    logSink() << " (hold alternate refants' phase constant) when refant flagged";
+  if (refantmode()=="strict")
+    logSink() << " (flag all antennas when refant flagged)";
+  logSink() << LogIO::POST;
 
   // Generate a prioritized refant choice list
   //  The first entry in this list is the user's primary refant,
@@ -5830,6 +5853,12 @@ void SolvableVisJones::applyRefAnt() {
       refantlist()(IPosition(1,1),IPosition(1,nUserRefant-1));
 
   //cout << "refantchoices = " << refantchoices << endl;
+
+
+  if (refantmode()=="strict") {
+    nchoices=1;
+    refantchoices.resize(1,True);
+  }
 
   Vector<Int> nPol(nSpw(),nPar());  // TBD:or 1, if data was single pol
 
@@ -5938,7 +5967,7 @@ void SolvableVisJones::applyRefAnt() {
       // at this point, irefA/irefB point to a good refant
       
       // Keep track
-      usedaltrefant=(ichoice>0);
+      usedaltrefant|=(ichoice>0);
       currrefant=refantchoices(ichoice);
       refantchoices(1)=currrefant;  // 2nd priorty next time
 
@@ -6068,6 +6097,21 @@ void SolvableVisJones::applyRefAnt() {
       first=false;  // avoid first-pass stuff from now on
       
     } // found
+    else {
+      logSink() 
+	<< "At " 
+	<< MVTime(ctiter.thisTime()/C::day).string(MVTime::YMD,7) 
+	<< " ("
+	<< "Spw=" << ctiter.thisSpw()
+	<< ", Fld=" << ctiter.thisField()
+	<< ")"
+	<< ", refant (id=" << currrefant 
+	<< ") was flagged; flagging all antennas strictly." 
+	<< LogIO::POST;
+      // Flag all solutions in this interval
+      flB.set(True);
+      ctiter.setflag(flB);
+    }
 
     // advance to the next interval
     lastspw=ispw;

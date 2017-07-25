@@ -840,9 +840,16 @@ void SingleDishMSFiller<T>::fillNROArray() {
  casacore:: ScalarColumn<int> spw(nro_table, "SPECTRAL_WINDOW");
   for (int iarr = 0; iarr < reader_->getNROArraySize(); ++iarr) {
         arr.put(iarr, iarr);
-        bea.put(iarr, reader_->getNROArrayBeamId(iarr));
-        pol.put(iarr, reader_->getNROArrayPol(iarr));
-        spw.put(iarr, reader_->getNROArraySpwId(iarr));
+        if (reader_->isNROArrayUsed(iarr)) {
+          bea.put(iarr, reader_->getNROArrayBeamId(iarr));
+          pol.put(iarr, reader_->getNROArrayPol(iarr));
+          spw.put(iarr, reader_->getNROArraySpwId(iarr));
+        } else {
+          // array is not used, fill with -1
+          bea.put(iarr, -1);
+          pol.put(iarr, -1);
+          spw.put(iarr, -1);
+        }
   }
 
   POST_END;

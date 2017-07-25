@@ -150,7 +150,7 @@ public:
     //  };
 
     typedef VisibilityIterator2::DataColumn DataColumn;
-	 typedef std::tuple <casacore::Vector<casacore::Int>, casacore::Vector<casacore::Int>, casacore::Vector<casacore::Int>, casacore::Vector<casacore::Int> > ChannelInfo;
+
     //    class AsyncEnabler {
     //    public:
     //        AsyncEnabler (VisibilityIterator2 &);
@@ -200,7 +200,6 @@ public:
     VisibilityIteratorImpl2 (const casacore::Block<const casacore::MeasurementSet *> & mss,
                              const SortColumns & sortColumns,
                              casacore::Double timeInterval,
-                             VisBufferType vbType,
                              casacore::Bool isWritable,
 			     casacore::Bool useMSIter2=false);
 
@@ -268,8 +267,7 @@ public:
     virtual casacore::Int msId () const;
     virtual casacore::Int getNMs () const;
 
-    virtual VisBuffer2 * getVisBuffer ();
-    virtual VisBuffer2 * getVisBuffer (const VisibilityIterator2 *);
+    virtual VisBuffer2 * getVisBuffer () const;
 
     //reference to actual ms in interator
     virtual const casacore::MeasurementSet & ms () const;
@@ -398,13 +396,6 @@ public:
     virtual casacore::Int spectralWindow () const;
 
     virtual void spectralWindows (casacore::Vector<casacore::Int> & spws) const;
-	
-	//Get the all the selected channel info now or for all data set
-	ChannelInfo
-    getChannelInformation(casacore::Bool now) const;
-	
-	// This will return all selected spwids for each ms attached with this iterator
-	virtual casacore::Vector<casacore::Vector<casacore::Int> > getAllSelectedSpws() const;
 
     // Return current Polarization Id
     virtual casacore::Int polarizationId () const;
@@ -614,6 +605,7 @@ public:
 
 protected:
 
+    typedef std::tuple <casacore::Vector<casacore::Int>, casacore::Vector<casacore::Int>, casacore::Vector<casacore::Int>, casacore::Vector<casacore::Int> > ChannelInfo;
 
     void addDataSelection (const casacore::MeasurementSet & ms);
 
@@ -653,7 +645,9 @@ protected:
     casacore::Slice findChannelsInRange (casacore::Double lowerFrequency, casacore::Double upperFrequency,
                                const vi::SpectralWindowChannels & spectralWindowChannels) const;
 
-    
+    ChannelInfo
+    getChannelInformation(casacore::Bool now) const;
+
     ChannelInfo
     getChannelInformationUsingFrequency (casacore::Bool now) const;
 

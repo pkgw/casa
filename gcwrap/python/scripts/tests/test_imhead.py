@@ -961,7 +961,8 @@ class imhead_test(unittest.TestCase):
         myia = iatool()
         for xx in ['f', 'c']:
             imagename = "xx1d.im_" + xx
-            shape = [1, 1, 6]
+            # make large enough to ensure not all pixels will be negative (addnoise() is used)
+            shape = [20, 20, 15]
             myia.fromshape(imagename, shape, type=xx)
             major = {'value': 4, 'unit': "arcsec"}
             minor = {'value': 2, 'unit': "arcsec"}
@@ -1034,7 +1035,7 @@ class imhead_test(unittest.TestCase):
             self.assertFalse(imhead(imagename=imagename, mode="get", hdkey="crpix6"))
             self.assertFalse(imhead(imagename=imagename, mode="get", hdkey="crpix0"))
             got = imhead(imagename=imagename, mode="get", hdkey="crpix1")
-            self.assertTrue(got == 0)
+            self.assertTrue(got == 10)
             self.assertFalse(imhead(imagename=imagename, mode="get", hdkey="crval6"))
             self.assertFalse(imhead(imagename=imagename, mode="get", hdkey="crval0"))
             got = imhead(imagename=imagename, mode="get", hdkey="crval3")
