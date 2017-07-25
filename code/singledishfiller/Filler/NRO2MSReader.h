@@ -38,10 +38,6 @@ public:
     return true;
   }
 
-  virtual casacore::String getDataUnit() const {
-    return "K";
-  }
-
   // to get OBSERVATION table
   virtual casacore::Bool getObservationRow(sdfiller::ObservationRecord &record) {
     POST_START;
