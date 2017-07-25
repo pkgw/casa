@@ -412,7 +412,7 @@ void SingleDishMSFiller<T>::initialize() {
   casacore::String ref_string = casacore::MDirection::showType(direction_frame);
   meas_info.define("Ref", ref_string);
   record.defineRecord("MEASINFO", meas_info);
-  
+
   POST_END;
 }
 
@@ -455,16 +455,14 @@ template<class T>
 void SingleDishMSFiller<T>::setupMS() {
 //  std::cout << "Start " << __PRETTY_FUNCTION__ << std::endl;
 
-  casacore::String const dunit = reader_->getDataUnit();
+//  casacore::String dunit = table_->getHeader().fluxunit ;
 
   casacore::TableDesc ms_main_description = casacore::MeasurementSet::requiredTableDesc();
   if (is_float_) {
     casacore::MeasurementSet::addColumnToDesc(ms_main_description,
         casacore::MSMainEnums::FLOAT_DATA, 2);
-    ms_main_description.rwColumnDesc(MS::columnName(MS::FLOAT_DATA)).rwKeywordSet().define("UNIT", dunit);
   } else {
     casacore::MeasurementSet::addColumnToDesc(ms_main_description, casacore::MSMainEnums::DATA, 2);
-    ms_main_description.rwColumnDesc(MS::columnName(MS::DATA)).rwKeywordSet().define("UNIT", dunit);
   }
 
   casacore::String const scratch_table_name = casacore::File::newUniqueName(".",
