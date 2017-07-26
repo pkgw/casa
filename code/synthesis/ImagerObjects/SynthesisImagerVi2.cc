@@ -81,6 +81,7 @@
 #include <synthesis/TransformMachines2/AWConvFunc.h>
 #include <synthesis/TransformMachines2/AWConvFuncEPJones.h>
 #include <synthesis/TransformMachines2/NoOpATerm.h>
+#include <synthesis/TransformMachines2/SDGrid.h>
 #include <synthesis/TransformMachines/WProjectFT.h>
 #include <casadbus/viewer/ViewerProxy.h>
 #include <casadbus/plotserver/PlotServerProxy.h>
@@ -98,6 +99,26 @@
 using namespace std;
 
 using namespace casacore;
+
+namespace {
+String tangentPoint(MDirection const &phaseCenter)
+{
+  MVAngle mvRa=phaseCenter.getAngle().getValue()(0);
+  MVAngle mvDec=phaseCenter.getAngle().getValue()(1);
+  ostringstream oos;
+  oos << "     ";
+  Int widthRA=20;
+  Int widthDec=20;
+  oos.setf(ios::left, ios::adjustfield);
+  oos.width(widthRA);  oos << mvRa(0.0).string(MVAngle::TIME,8);
+  oos.width(widthDec); oos << mvDec.string(MVAngle::DIG2,8);
+  oos << "     "
+      << MDirection::showType(phaseCenter.getRefPtr()->getType());
+  return String(oos);
+}
+
+}
+
 namespace casa { //# NAMESPACE CASA - BEGIN
 
   SynthesisImagerVi2::SynthesisImagerVi2() : SynthesisImager(), vi_p(0), fselections_p(nullptr) {
@@ -501,7 +522,9 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 			gridpars.doPBCorr,gridpars.conjBeams,
 			gridpars.computePAStep,gridpars.rotatePAStep,
 			gridpars.interpolation, impars.freqFrameValid, 1000000000,  16, impars.stokes,
-			impars.imageName);
+			impars.imageName, gridpars.pointingDirCol, gridpars.skyPosThreshold,
+			gridpars.convSupport, gridpars.truncateSize, gridpars.gwidth, gridpars.jwidth,
+			gridpars.minWeight, gridpars.clipMinMax);
 
       }
     catch(AipsError &x)
@@ -1124,6 +1147,45 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
     unlockMSs();
    
   }// end of predictModel
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  void SynthesisImagerVi2::makeSdImage()
+  {
+    LogIO os( LogOrigin("SynthesisImagerVi2","makeSdImage",WHERE) );
+
+    Bool dopsf=false;
+    if(datacol_p==FTMachine::PSF) dopsf=true;
+
+    {
+      vi::VisBuffer2* vb = vi_p->getVisBuffer();;
+      vi_p->originChunks();
+      vi_p->origin();
+
+      Double numberCoh=0;
+      for (uInt k=0; k< mss_p.nelements(); ++k)
+        numberCoh+=Double(mss_p[k]->nrow());
+
+      ProgressMeter pm(1.0, numberCoh, "Predict Model", "","","",true);
+      Int cohDone=0;
+
+      itsMappers.initializeGrid(*vb,dopsf);
+      for (vi_p->originChunks(); vi_p->moreChunks(); vi_p->nextChunk())
+      {
+
+        for (vi_p->origin(); vi_p->more(); vi_p->next())
+        {
+          itsMappers.grid(*vb, dopsf, (refim::FTMachine::Type)datacol_p);
+          cohDone += vb->nRows();
+          pm.update(Double(cohDone));
+        }
+      }
+      itsMappers.finalizeGrid(*vb, dopsf);
+
+    }
+
+    unlockMSs();
+
+  }// end makeImage
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -1219,7 +1281,16 @@ void SynthesisImagerVi2::unlockMSs()
 					   const Int cache,             //=1000000000,
 					   const Int tile,               //=16
 					   const String stokes, //=I
-					   const String imageNamePrefix
+					   const String imageNamePrefix,
+					   //---------------------------
+					   const String &pointingDirCol,
+					   const Float skyPosThreshold,
+					   const Int convSupport,
+					   const Quantity &truncateSize,
+					   const Quantity &gwidth,
+					   const Quantity &jwidth,
+					   const Float minWeight,
+					   const Bool clipMinMax
 					   )
 
   {
@@ -1268,6 +1339,10 @@ void SynthesisImagerVi2::unlockMSs()
     else if ( ftname == "mosaic" || ftname== "mosft" || ftname == "mosaicft" || ftname== "MosaicFT"){
 
       createMosFTMachine(theFT, theIFT, padding, useAutocorr, useDoublePrec, rotatePAStep, stokes);
+    } else if (ftname == "sd") {
+      createSDFTMachine(theFT, theIFT, pointingDirCol, skyPosThreshold, doPBCorr, rotatePAStep,
+          gridFunction, convSupport, truncateSize, gwidth, jwidth,
+          minWeight, clipMinMax, cache, tile);
     }
     else
       {
@@ -1543,7 +1618,99 @@ void SynthesisImagerVi2::unlockMSs()
     
   }
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  void SynthesisImagerVi2::createSDFTMachine(CountedPtr<refim::FTMachine>& theFT,
+      CountedPtr<refim::FTMachine>& theIFT,
+      const String &pointingDirCol,
+      const Float skyPosThreshold,
+      const Bool doPBCorr,
+      const Float rotatePAStep,
+      const String& gridFunction,
+      const Int convSupport,
+      const Quantity& truncateSize,
+      const Quantity& gwidth,
+      const Quantity& jwidth,
+      const Float minWeight,
+      const Bool clipMinMax,
+      const Int cache,
+      const Int tile) {
+//    // member variable itsVPTable is VP table name
+    LogIO os(LogOrigin("SynthesisImagerVi2", "createSDFTMachine", WHERE));
+    os << LogIO::NORMAL // Loglevel INFO
+       << "Performing single dish gridding..." << LogIO::POST;
+    os << LogIO::NORMAL1 // gridFunction is too cryptic for most users.
+       << "with convolution function " << gridFunction << LogIO::POST;
+
+    // Now make the Single Dish Gridding
+    os << LogIO::NORMAL // Loglevel INFO
+       << "Gridding will use specified common tangent point:" << LogIO::POST;
+    os << LogIO::NORMAL << tangentPoint(phaseCenter_p) << LogIO::POST; // Loglevel INFO
+    if(gridFunction=="pb") {
+      refim::SkyJones *vp = nullptr;
+      ROMSColumns msc(*mss_p[0]);
+      // todo: NONE is OK?
+      BeamSquint::SquintType squintType = BeamSquint::NONE;
+      Quantity skyPosThresholdQuant((Double)skyPosThreshold, "deg");
+      Quantity parAngleStepQuant((Double)rotatePAStep, "deg");
+      if (itsVpTable.empty()) {
+        os << LogIO::NORMAL // Loglevel INFO
+            << "Using defaults for primary beams used in gridding" << LogIO::POST;
+        vp=new refim::VPSkyJones(msc, true, parAngleStepQuant, squintType,
+            skyPosThresholdQuant);
+      } else {
+        os << LogIO::NORMAL // Loglevel INFO
+            << "Using VP as defined in " << itsVpTable <<  LogIO::POST;
+        Table vpTable( itsVpTable );
+        vp=new refim::VPSkyJones(msc, vpTable, parAngleStepQuant, squintType,
+            skyPosThresholdQuant);
+      }
+      theFT = new refim::SDGrid(mLocation_p, *vp, cache/2, tile, gridFunction,
+          convSupport, minWeight, clipMinMax);
+      theIFT = new refim::SDGrid(mLocation_p, *vp, cache/2, tile, gridFunction,
+          convSupport, minWeight, clipMinMax);
+    } else if (gridFunction=="gauss" || gridFunction=="gjinc") {
+      DirectionCoordinate dirCoord = itsMaxCoordSys.directionCoordinate();
+      Vector<String> units = dirCoord.worldAxisUnits();
+      Vector<Double> increments = dirCoord.increment();
+      Quantity cellx(increments[0], units[0]);
+      Quantity celly(increments[1], units[1]);
+      if (cellx != celly &&
+          ((!truncateSize.getUnit().empty()||truncateSize.getUnit()=="pixel")
+              || (!gwidth.getUnit().empty()||gwidth.getUnit()=="pixel")
+              || (!jwidth.getUnit().empty()||jwidth.getUnit()=="pixel"))) {
+        os << LogIO::WARN
+            << "The " << gridFunction << " gridding doesn't support non-square grid." << endl
+            << "Result may be wrong." << LogIO::POST;
+      }
+      Float truncateValue, gwidthValue, jwidthValue;
+      if (truncateSize.getUnit().empty() || truncateSize.getUnit()=="pixel")
+        truncateValue = truncateSize.getValue();
+      else
+        truncateValue = truncateSize.getValue("rad")/celly.getValue("rad");
+      if (gwidth.getUnit().empty() || gwidth.getUnit()=="pixel")
+        gwidthValue = gwidth.getValue();
+      else
+        gwidthValue = gwidth.getValue("rad")/celly.getValue("rad");
+      if (jwidth.getUnit().empty() || jwidth.getUnit()=="pixel")
+        jwidthValue = jwidth.getValue();
+      else
+        jwidthValue = jwidth.getValue("rad")/celly.getValue("rad");
+      theFT = new refim::SDGrid(mLocation_p, cache/2, tile, gridFunction,
+                        truncateValue, gwidthValue, jwidthValue, minWeight, clipMinMax);
+      theIFT = new refim::SDGrid(mLocation_p, cache/2, tile, gridFunction,
+                        truncateValue, gwidthValue, jwidthValue, minWeight, clipMinMax);
+    }
+    else {
+      theFT = new refim::SDGrid(mLocation_p, cache/2, tile, gridFunction,
+                        convSupport, minWeight, clipMinMax);
+      theIFT = new refim::SDGrid(mLocation_p, cache/2, tile, gridFunction,
+                        convSupport, minWeight, clipMinMax);
+    }
+    theFT->setPointingDirColumn(pointingDirCol);
+
+  }
   
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //// Get/Set Weight Grid.... write to disk and read
 
   /// todo : do for full mapper list, and taylor terms.
