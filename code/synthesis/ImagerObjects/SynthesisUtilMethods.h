@@ -313,6 +313,16 @@ public:
   casacore::String cfCache;
   casacore::Float computePAStep, rotatePAStep;
 
+  // For single-dish imaging
+  casacore::String pointingDirCol;
+  casacore::Float skyPosThreshold;
+  casacore::Int convSupport;
+  casacore::Quantity truncateSize;
+  casacore::Quantity gwidth;
+  casacore::Quantity jwidth;
+  casacore::Float minWeight;
+  casacore::Bool clipMinMax;
+
   // Mapper Type.
   casacore::String mType;
 
