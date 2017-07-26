@@ -2967,6 +2967,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	err += readVal( inrec, String("computepastep"), computePAStep );
 	err += readVal( inrec, String("rotatepastep"), rotatePAStep );
 
+	// The extra params for single-dish
+	err += readVal( inrec, String("pointingcolumntouse"), pointingDirCol );
+	err += readVal( inrec, String("skypolthreshold"), skyPosThreshold );
+	err += readVal( inrec, String("convsupport"), convSupport );
+	err += readVal( inrec, String("truncate"), truncateSize );
+	err += readVal( inrec, String("gwidth"), gwidth );
+	err += readVal( inrec, String("jwidth"), jwidth );
+	err += readVal( inrec, String("minweight"), minWeight );
+	err += readVal( inrec, String("clipminmax"), clipMinMax );
+
 	// Single or MultiTerm mapper : read in 'deconvolver' and set mType here.
 	//	err += readVal( inrec, String("mtype"), mType );
 
@@ -3030,6 +3040,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       { err += "The combination of mosaicft gridding with multiple facets is not supported. "
 	  "Please use the awprojectft gridder instead, and set wprojplanes to a value > 1 to trigger AW-Projection. \n"; }
 
+    // todo: any single-dish specific limitation?
+
     return err;
   }
 
@@ -3073,6 +3085,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     computePAStep=360.0;
     rotatePAStep=5.0;
 
+    // extra params for single-dish
+    pointingDirCol = "";
+    skyPosThreshold = 0.0;
+    convSupport = -1;
+    truncateSize = Quantity(-1.0);
+    gwidth = Quantity(-1.0);
+    jwidth = Quantity(-1.0);
+    minWeight = 0.0;
+    clipMinMax = False;
+
     // Mapper type
     mType = String("default");
     
@@ -3109,6 +3131,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     gridpar.define("conjbeams",conjBeams );
     gridpar.define("computepastep", computePAStep);
     gridpar.define("rotatepastep", rotatePAStep);
+
+    gridpar.define("pointingcolumntouse", pointingDirCol );
+    gridpar.define("skyposthreshold", skyPosThreshold );
+    gridpar.define("convsupport", convSupport );
+    gridpar.define("truncate", QuantityToString(truncateSize) );
+    gridpar.define("gwidth", QuantityToString(gwidth) );
+    gridpar.define("jwidth", QuantityToString(jwidth) );
+    gridpar.define("minweight", minWeight );
+    gridpar.define("clipminmax", clipMinMax );
 
     if( mType=="multiterm") gridpar.define("deconvolver","mtmfs");
     ///    else gridpar.define("deconvolver","singleterm");
