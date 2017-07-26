@@ -133,9 +133,9 @@ class ImagerParameters():
                  ## single-dish imaging params
                  gridfunction='BOX',
                  convsupport=-1,
-                 truncate=-1,
-                 gwidth=-1,
-                 jwidth=-1,
+                 truncate="-1",
+                 gwidth="-1",
+                 jwidth="-1",
                  pointingcolumntouse='direction',
                  minweight=0.0,
                  clipminmax=False
@@ -174,7 +174,7 @@ class ImagerParameters():
                                    'interpolation':interpolation, 'wprojplanes':wprojplanes,
                                    'deconvolver':deconvolver, 'vptable':vptable,
                                    ## single-dish specific
-                                   'gridfunction': gridfunction, 'convsupport': convsupport,
+                                   'convfunc': gridfunction, 'convsupport': convsupport,
                                    'truncate': truncate, 'gwidth': gwidth, 'jwidth': jwidth,
                                    'minweight': minweight, 'clipminmax': clipminmax}     }
         ######### weighting
