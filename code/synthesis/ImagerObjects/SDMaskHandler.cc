@@ -1522,43 +1522,39 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     // take stats on the current mask for setting flags for grow mask : if max < 1 for any spectral plane it will grow the previous mask
     //
-    // maxes not used currently.. 
-    Record maskstats = calcImageStatistics(thenewmask, thenewmask, lelmask, 0, false);
+    //  Mod: 2017.07.26: modified get stats for prev mask, if channel contains no mask in prev mask it will set flag to skip the channel 
+    //Record maskstats = calcImageStatistics(thenewmask, thenewmask, lelmask, 0, false);
+    Record maskstats = calcImageStatistics(mask, mask, lelmask, 0, false);
     Array<Double> maskmaxs;
     maskstats.get(RecordFieldId("max"),maskmaxs);
     // per plane stats 
     IPosition arrshape = maskmaxs.shape();
     uInt naxis=arrshape.size();
     IPosition indx(naxis,0);
-    os<<LogIO::NORMAL<<"arrshape="<<arrshape<<" indx="<<indx<<LogIO::POST;
-    os<<LogIO::NORMAL<<"statshp="<<statshp<<LogIO::POST;
+    //os<<LogIO::NORMAL<<"arrshape="<<arrshape<<" indx="<<indx<<LogIO::POST;
+    //os<<LogIO::NORMAL<<"statshp="<<statshp<<LogIO::POST;
     // ignoring corr for now and assume first axis is channel
     Array<Bool> dogrow(arrshape);
-    // set dogrow to true, should be the same shape as 
-    // the previously obtained stats shape
-    //Array<Bool> dogrow(statshp);
-    //dogrow.set(true);
+    dogrow.set(false);
     for (uInt i=0; i < arrshape(0); i++) {
       indx(0) = i;
-    //  /***
-    //  if (maskmaxs(indx) < 1.0 ) {
-    //    dogrow(indx) = true;
-    //  }
-    //  ***/
-    //  // set dogrow true for all chans (contraintMask should be able to handle skiping channels )
-      dogrow(indx) = true;
+      if (maskmaxs(indx) == 1.0 ) {
+        dogrow(indx) = true;
+      }
+    //  // set dogrow true for all chans (contraintMask should be able to handle skipping channels )
+    //  dogrow(indx) = true;
     }   
     if (iterdone) {
        //cerr<<" iter done ="<<iterdone<<" grow mask..."<<endl;
-       //os<<LogIO::NORMAL<<"Growing the previous mask "<<LogIO::POST;
-       os<<LogIO::NORMAL<<"Growing the previous mask "<<endl;
+       os<<LogIO::NORMAL<<"Growing the previous mask "<<LogIO::POST;
        //call growMask
        // corresponds to calcThresholdMask with lowNoiseThreshold...
        TempImage<Float> constraintMaskImage(res.shape(), res.coordinates(), memoryToUse()); 
        // constrainMask is 1/0 mask
        makeMaskByPerChanThreshold(res, constraintMaskImage, lowMaskThreshold);
        if(debug2) {
-         PagedImage<Float> beforepruneconstIm(res.shape(), res.coordinates(),"tmpBeforePruneConstraint-"+String::toString(iterdone)+".im");
+         os<< LogIO::NORMAL<<"saving constraint mask " << LogIO::POST;
+         PagedImage<Float> beforepruneconstIm(res.shape(), res.coordinates(),"tmpConstraint-"+String::toString(iterdone)+".im");
          beforepruneconstIm.copyData(constraintMaskImage);
        }
        // 2017.05.05: should done after multiply by binary dilation 
@@ -1597,9 +1593,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
          //beforeBinaryDilationIm.copyData(constraintMaskImage);
          beforeBinaryDilationIm.copyData(mask);
        }
-       os<<"calling binaryDillation..."<<LogIO::POST;
        binaryDilation(mask, se, niter, constraintMask, dogrow, prevmask); 
-       os<<"DONE binaryDillation..."<<LogIO::POST;
        if(debug2) {
          PagedImage<Float> afterBinaryDilationIm(res.shape(), res.coordinates(),"tmpAfterBinaryDilation-"+String::toString(iterdone)+".im");
          afterBinaryDilationIm.copyData(prevmask);
@@ -2627,8 +2621,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
       binaryDilationCore(inImage,structure,mask,chanmask,outImage);
       Int iter = 1;
+      ArrayLattice<Float> templattice(inImage.shape());
       while (iter < niteration) {
-        ArrayLattice<Float> templattice(inImage.shape());
         templattice.copyData(outImage);
         binaryDilationCore(templattice,structure,mask,chanmask,outImage); 
         iter++;
