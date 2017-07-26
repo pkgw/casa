@@ -26,7 +26,7 @@
 #include <stdio.h>
 #include "ATMInverseLength.h"
 
-using namespace std;
+
 
 ATM_NAMESPACE_BEGIN
 
@@ -40,7 +40,7 @@ InverseLength::InverseLength(double inverseLength) :
 {
 }
 
-InverseLength::InverseLength(double inverseLength, const string &units)
+InverseLength::InverseLength(double inverseLength, const std::string &units)
 {
   valueIS_ = sput(inverseLength, units);
 }
@@ -54,7 +54,7 @@ InverseLength::~InverseLength()
 {
 }
 
-double InverseLength::sget(double value, const string &units)
+double InverseLength::sget(double value, const std::string &units)
 {
   if(units == "km-1" || units == "KM-1") {
     return 1.0E+3 * value;
@@ -71,7 +71,7 @@ double InverseLength::sget(double value, const string &units)
   }
 }
 
-double InverseLength::sput(double value, const string &units)
+double InverseLength::sput(double value, const std::string &units)
 {
   if(units == "km-1" || units == "KM-1") {
     return 1.0E-3 * value;

@@ -8,7 +8,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 <!-- This is the param set for sdimaging -->
 
-<task type="function" name="sdimaging" startup="false" category="single dish">
+<task type="function" name="sdimaging" category="single dish">
 
   <shortdescription>SD task: imaging for total power and spectral data</shortdescription>
 
@@ -67,38 +67,38 @@ values. See description below for details of gridfunction available.
     </param>
 
     <param type="any" name="field">
-	    <description>select data by field IDs and names, e.g. \'3C2*\' (\'\'=all)</description>
+	    <description>select data by field IDs and names, e.g. "3C2*" (""=all)</description>
 	    <any type="variant" limittypes="string stringArray"/>
             <value type="string"></value>
     </param>
 
     <param type="any" name="spw">
-            <description>select data by IF IDs (spectral windows), e.g. \'3,5,7\' (\'\'=all)</description>
+            <description>select data by IF IDs (spectral windows), e.g. "3,5,7" (""=all)</description>
             <any type="variant" limittypes="string stringArray"/>
             <value type="string"></value>
     </param>
 
     <param type="any" name="antenna">
-            <description>select data by antenna names or IDs, e.g, \'PM03\' (\'\' = all antennas)</description>
+            <description>select data by antenna names or IDs, e.g, "PM03" ("" = all antennas)</description>
             <any type="variant" limittypes="string stringArray"/>
             <value type="string"></value>
     </param>
 
     <param type="any" name="scan">
-            <description>select data by scan numbers, e.g. \'21~23\' (\'\'=all)</description>
+            <description>select data by scan numbers, e.g. "21~23" (""=all)</description>
             <any type="variant" limittypes="string stringArray"/>
             <value type="string"></value>
     </param>
     
     <param type="any" name="intent">
-            <description>select data by observational intent, e.g. \'*ON_SOURCE*\' (\'\'=all)</description>
+            <description>select data by observational intent, e.g. "*ON_SOURCE*" (""=all)</description>
             <any type="variant" limittypes="string stringArray"/>
             <value type="string">OBSERVE_TARGET#ON_SOURCE</value>
     </param>
 
     <param type="string" name="mode">
             <description>spectral gridding type</description>
-            <shortdescription>spectral gridding type [\'channel\', \'frequency\', \'velocity\']</shortdescription>
+            <shortdescription>spectral gridding type ["channel", "frequency", "velocity"]</shortdescription>
             <value>channel</value> 
             <allowed kind="enum">
                     <value>channel</value>
@@ -113,7 +113,7 @@ values. See description below for details of gridfunction available.
     </param>
 
     <param type="any" name="start" subparam="true">
-            <description>start of output spectral dimension, e.g. \'0\', \'110GHz\', \'-20km/s\'</description>
+            <description>start of output spectral dimension, e.g. "0", "110GHz", "-20km/s"</description>
             <any type="variant" limittypes="string int"/>
 	    <value type="int">0</value>
     </param>
@@ -125,7 +125,7 @@ values. See description below for details of gridfunction available.
     </param>
 
     <param type="string" name="veltype" ignorecase="true"  subparam="true">
-            <shortdescription>velocity definition [\'radio\', \'optical\', \'true\' or \'relativistic\'] </shortdescription>
+            <shortdescription>velocity definition ["radio", "optical", "true" or "relativistic"] </shortdescription>
             <description>velocity definition</description>
             <value>radio</value>
             <allowed kind="enum">
@@ -137,8 +137,8 @@ values. See description below for details of gridfunction available.
     </param>
 
     <param type="string" name="outframe" ignorecase="true">
-            <shortdescription>velocity frame of output image [\'lsrk\', \'lsrd\', \'bary\', \'geo\', \'topo\', \'galacto\', \'lgroup\', \'cmb\'] (\'\'=current frame or LSRK for multiple-MS inputs) </shortdescription>
-            <description>velocity frame of output image (''=current frame or LSRK for multiple-MS inputs)</description>
+            <shortdescription>velocity frame of output image ["lsrk", "lsrd", "bary", "geo", "topo", "galacto", "lgroup", "cmb"] (""=current frame or LSRK for multiple-MS inputs) </shortdescription>
+            <description>velocity frame of output image (""=current frame or LSRK for multiple-MS inputs)</description>
             <value></value>
             <allowed kind="enum">
                     <value>lsrk</value>
@@ -154,7 +154,7 @@ values. See description below for details of gridfunction available.
     </param>
 
     <param type="string" name ="gridfunction">
-            <shortdescription>gridding function for imaging [\'BOX\', \'SF\', \'PB\', \'GAUSS\' or \'GJINC\'] (see description in help)</shortdescription>
+            <shortdescription>gridding function for imaging ["BOX", "SF", "PB", "GAUSS" or "GJINC"] (see description in help)</shortdescription>
             <description>gridding function for imaging (see description in help)</description>
             <value>BOX</value>
             <allowed kind="enum">
@@ -202,24 +202,24 @@ values. See description below for details of gridfunction available.
     </param>
 
     <param type="any" name="cell">
-    <description>x and y cell size, (e.g., [\'8arcsec\',\'8arcsec\']. default unit arcmin. ('' = 1/3 of FWHM of primary beam)</description>
+    <description>x and y cell size, (e.g., ["8arcsec","8arcsec"]. default unit arcmin. ("" = 1/3 of FWHM of primary beam)</description>
     <any type="variant" limittypes="string stringArray doubleArray"/>
     <value type="string"></value>
     </param>
 
     <param type="any" name="phasecenter">
-            <description>image center direction: position or field index, e.g., \'J2000 17:30:15.0 -25.30.00.0\'. ('' = the center of pointing directions in MSes)</description>
+            <description>image center direction: position or field index, e.g., "J2000 17:30:15.0 -25.30.00.0". ("" = the center of pointing directions in MSes)</description>
             <any type="variant"/>
             <value type="string"></value>
     </param>
 
     <param type="string" name="ephemsrcname">
-	    <description>ephemeris source name, e.g. \'MARS\'</description>
+	    <description>ephemeris source name, e.g. "MARS"</description>
 	    <value></value>
     </param>
 
     <param type="string" name="pointingcolumn">
-            <shortdescription>pointing data column to use [\'direction\', \'target\', \'pointing_offset\', \'source_offset\' or \'encoder\']</shortdescription>
+            <shortdescription>pointing data column to use ["direction", "target", "pointing_offset", "source_offset" or "encoder"]</shortdescription>
             <description>pointing data column to use</description>
             <value>direction</value>
             <allowed kind="enum" ignorecase="True">
@@ -232,13 +232,13 @@ values. See description below for details of gridfunction available.
     </param>
 
     <param type="any" name="restfreq">
-            <description>rest frequency to assign to image, e.g., \'114.5GHz\'</description>
+            <description>rest frequency to assign to image, e.g., "114.5GHz"</description>
             <any type="variant" limittypes="string double"/>
             <value type="string"/>
     </param>
 
     <param type="string" name="stokes">
-            <description>stokes parameters or polarization types to image, e.g. \'I\', \'XX\'</description>
+            <description>stokes parameters or polarization types to image, e.g. "I", "XX"</description>
             <value></value>
     </param>
 
@@ -263,25 +263,25 @@ values. See description below for details of gridfunction available.
 		        <description>Begin the output cube at the frequency of this channel in the MS</description>
                     </default>
                     <default param="width"><value type="string"></value>
-                        <description>Width of output channel relative to MS channel (# to average)(\'\' = 1 channel) </description>
+                        <description>Width of output channel relative to MS channel (# to average)("" = 1 channel) </description>
                     </default>
                 </equals>
                 <equals value="frequency">
                     <default param="nchan"><value>-1</value></default>
                     <default param="start"><value type="string"></value>
-		        <description>Frequency of first channel: e.g. \'1.4GHz\' (\'\'= first channel in first SpW of MS)</description>
+		        <description>Frequency of first channel: e.g. "1.4GHz" (""= first channel in first SpW of MS)</description>
                     </default>
                     <default param="width"><value type="string"></value>
-                        <description>Channel width: e.g \'1.0kHz\'(\'\'=width of first channel in first SpW of MS)</description>
+                        <description>Channel width: e.g "1.0kHz"(""=width of first channel in first SpW of MS)</description>
                     </default>
                 </equals>
                 <equals value="velocity">
                     <default param="nchan"><value>-1</value></default>
                     <default param="start"><value type="string"></value>
-		        <description>Velocity of first channel: e.g \'0.0km/s\'(\'\'=first channel in first SpW of MS)</description>
+		        <description>Velocity of first channel: e.g "0.0km/s"(""=first channel in first SpW of MS)</description>
                     </default>
                     <default param="width"><value type="string"></value>
-                        <description>Channel width e.g \'-1.0km/s\' (\'\'=width of first channel in first SpW of MS)</description>
+                        <description>Channel width e.g "-1.0km/s" (""=width of first channel in first SpW of MS)</description>
                     </default>
                     <default param="veltype"><value type="string">radio</value></default>
                 </equals>

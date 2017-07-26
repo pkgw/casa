@@ -71,7 +71,7 @@ spectrum is
     </param>
 
     <param type="string" name="calmode">
-      <shortdescription>SD calibration mode [\'ps\',\'otfraster\',\'otf\',\'tsys\',\'apply\', and allowed combinations]</shortdescription>
+      <shortdescription>SD calibration mode ["ps","otfraster","otf","tsys","apply", and allowed combinations]</shortdescription>
       <description>SD calibration mode</description>
       <value>ps</value>
       <allowed kind="enum">
@@ -140,22 +140,22 @@ spectrum is
     </param>
 
     <param type="string" name="field">
-      <description>select data by field IDs and names, e.g. \'3C2*\' (\'\' = all)</description>
+      <description>select data by field IDs and names, e.g. "3C2*" ("" = all)</description>
       <value></value>
     </param>
 
     <param type="string" name="spw">
-      <description>select data by spw IDs (spectral windows), e.g., \'3,5,7\' (\'\' = all)</description>
+      <description>select data by spw IDs (spectral windows), e.g., "3,5,7" ("" = all)</description>
       <value></value>
     </param>
 
     <param type="string" name="scan">
-      <description>select data by scan numbers, e.g. \'21~23\' (\'\'=all)</description>
+      <description>select data by scan numbers, e.g. "21~23" (""=all)</description>
       <value></value>
     </param>
     
     <param type="string" name="intent" subparam="true">
-      <description>select data by observation intent, e.g. \'OBSERVE_TARGET#ON_SOURCE\' (\'\'=all)</description>
+      <description>select data by observation intent, e.g. "OBSERVE_TARGET#ON_SOURCE" (""=all)</description>
       <value></value>
     </param>
 

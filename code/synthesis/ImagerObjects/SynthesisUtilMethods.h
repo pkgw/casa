@@ -213,11 +213,10 @@ public:
 
   // Generate casacore::Coordinate System 
   casacore::CoordinateSystem buildCoordinateSystem(ROVisibilityIterator* rvi);
-<<<<<<< Updated upstream
-  casacore::CoordinateSystem buildCoordinateSystem(vi::VisibilityIterator2& vi2);
-=======
+
   casacore::CoordinateSystem buildCoordinateSystem(vi::VisibilityIterator2& vi2, const std::map<casacore::Int, std::map<casacore::Int, casacore::Vector<casacore::Int> > >& chansel,  casacore::Block<const casacore::MeasurementSet *> mss);
->>>>>>> Stashed changes
+
+ 
   casacore::CoordinateSystem buildCoordinateSystemCore(casacore::MeasurementSet& msobj, 
 					     casacore::Vector<casacore::Int> spwids, casacore::Int fld, 
 					     casacore::Double freqmin, casacore::Double freqmax, 

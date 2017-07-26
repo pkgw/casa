@@ -93,6 +93,23 @@ public:
              const Length &topAtmProfile,
              unsigned int atmType); //Atmospheretype atmType);
 
+  /** A long constructor of the atmospheric profile from the basic set of parameters described above which, 
+      in addition, includes user-defined temperature profile  */
+  AtmProfile(const Length &altitude,
+             const Pressure &groundPressure,
+             const Temperature &groundTemperature,
+             double tropoLapseRate,
+             const Humidity &relativeHumidity,
+             const Length &wvScaleHeight,
+             const Pressure &pressureStep,
+             double pressureStepFactor,
+             const Length &topAtmProfile,
+             unsigned int atmType,
+	     const vector<Length> &v_layerBoundaries,
+	     const vector<Temperature> &v_layerTemperature); 
+
+
+  
   /** A long constructor of the atmospheric profile from the basic set of parameters described above. */
   /*
    AtmProfile(Length altitude, Pressure    groundPressure,
@@ -114,15 +131,35 @@ public:
              const Length &wvScaleHeight,
              unsigned int atmType); //Atmospheretype atmType);
 
+  /*AtmProfile(const Length &altitude,
+             const Pressure &groundPressure,
+             const Temperature &groundTemperature,
+	     const Humidity &relativeHumidity,
+	     const vector<Length> &v_layerTop,
+	     const vector<Pressure> &v_layerTopPressure,
+	     const vector<Temperature> &v_layerTopTemperature,
+	     const vector<Humidity> &v_layerTopHumidity); */
+  
   /** The user provides his own atmospheric profile (basic one: four vectors for layer thickness in m,
    average pressure in each layer in mb, average temperature in each layer in K, and average water
    vapor density in each layer in kg/m**3). QUESTION: SHOULD O3, CO, N2O, NO2, SO2 PROFILES BE FILLED UP
    INTERNALLY FROM A STANDARD ATMOSPHERE OR LEFT ITS ABUNDANCES EQUAL TO ZERO ? */
-  AtmProfile(const vector<Length> &v_layerThickness,
+  AtmProfile(const Length &altitude,
+	     const vector<Length> &v_layerThickness,
              const vector<Pressure> &v_layerPressure,
              const vector<Temperature> &v_layerTemperature,
              const vector<MassDensity> &v_layerWaterVapor);
-  AtmProfile(const vector<Length> &v_layerThickness,
+  AtmProfile(const vector<Length> &v_layerBoundaries,
+             const vector<Pressure> &v_layerPressure,
+             const vector<Temperature> &v_layerTemperature,
+             const vector<MassDensity> &v_layerWaterVapor);
+
+  AtmProfile(const Length &altitude,
+	     const vector<Length> &v_layerThickness,
+             const vector<Pressure> &v_layerPressure,
+             const vector<Temperature> &v_layerTemperature,
+             const vector<NumberDensity> &v_layerWaterVapor);
+  AtmProfile(const vector<Length> &v_layerBoundaries,
              const vector<Pressure> &v_layerPressure,
              const vector<Temperature> &v_layerTemperature,
              const vector<NumberDensity> &v_layerWaterVapor);
@@ -132,12 +169,15 @@ public:
    density in each layer in kg/m**3, and average ozone number density in each layer in molecules/m**3)
    QUESTION: SHOULD CO and N2O, NO2, SO2 PROFILES BE FILLED UP
    INTERNALLY FROM A STANDARD ATMOSPHERE OR LEFT ITS ABUNDANCES EQUAL TO ZERO ? */
-  AtmProfile(const vector<Length> &v_layerThickness,
+
+  AtmProfile(const Length &altitude,
+	     const vector<Length> &v_layerThickness,
              const vector<Pressure> &v_layerPressure,
              const vector<Temperature> &v_layerTemperature,
              const vector<MassDensity> &v_layerWaterVapor,
              const vector<NumberDensity> &v_layerO3);
-  AtmProfile(const vector<Length> &v_layerThickness,
+  AtmProfile(const Length &altitude,
+	     const vector<Length> &v_layerThickness,
              const vector<Pressure> &v_layerPressure,
              const vector<Temperature> &v_layerTemperature,
              const vector<NumberDensity> &v_layerWaterVapor,
@@ -148,7 +188,8 @@ public:
    density in each layer in kg/m**3, average ozone number density in each layer in molecules/m**3,
    average CO number density in each layer in molecules/m**3, average N2O, NO2, SO2 number density in each
    layer in molecules/m**3) */
-  AtmProfile(const vector<Length> &v_layerThickness,
+  AtmProfile(const Length &altitude,
+	     const vector<Length> &v_layerThickness,
              const vector<Pressure> &v_layerPressure,
              const vector<Temperature> &v_layerTemperature,
              const vector<MassDensity> &v_layerWaterVapor,
@@ -157,7 +198,9 @@ public:
              const vector<NumberDensity> &v_layerN2O,
              const vector<NumberDensity> &v_layerNO2,
              const vector<NumberDensity> &v_layerSO2);
-  AtmProfile(const vector<Length> &v_layerThickness,
+
+  AtmProfile(const Length &altitude,
+	     const vector<Length> &v_layerThickness,
              const vector<Pressure> &v_layerPressure,
              const vector<Temperature> &v_layerTemperature,
              const vector<NumberDensity> &v_layerWaterVapor,
@@ -229,8 +272,11 @@ public:
    be DP_n**DP1. */
   Pressure getPressureStepFactor() const { return pressureStepFactor_; }
 
-  /** Accessor to the altitude of site (length units) */
+  /** Accessor to the ground altitude of site (length units) */
   Length getAltitude() const { return altitude_; }
+
+  /** Alternative accessor to the ground altitude of site (length units) */
+  Length getGroundAltitude() const { return altitude_; }
 
   /** Accessor to the altitude of the tropopause (length units) */
   Length getTropopauseAltitude() const { return tropoAltitude_; }
@@ -250,6 +296,18 @@ public:
    **/
   Temperature getLayerTemperature(unsigned int i) const;
 
+  /**
+   * Method to access the Temperature at bottom of layer i (thickness of layers in ThicknessProfile)
+   * @exception AtmException if the layer is not valid.
+   **/
+  Temperature getLayerBottomTemperature(unsigned int i) const;
+
+  /**
+   * Method to access the Temperature at top of layer i (thickness of layers in ThicknessProfile)
+   * @exception AtmException if the layer is not valid.
+   **/
+  Temperature getLayerTopTemperature(unsigned int i) const;
+  
   /** Setter for the average Temperature in layer i (allows to touch one layer each time once a profile has been defined) */
   void setLayerTemperature(unsigned int i, const Temperature &layerTemperature);
 
@@ -268,12 +326,42 @@ public:
   void setLayerThickness(unsigned int i, const Length &layerThickness);
   //void setLayerThickness(const Length &layerThickness, unsigned int i) { setLayerThickness(i, layerThickness); }
 
+  /**
+   * Method to access the Bottom Height of layer i above the Ground
+   * @exception AtmException if the layer is not valid.
+   */
+  Length getLayerBottomHeightAboveGround(unsigned int i) const;
+
+  /**
+   * Method to access the Bottom Height of layer i above the Sea Level
+   * @exception AtmException if the layer is not valid.
+   */
+  Length getLayerBottomHeightAboveSeaLevel(unsigned int i) const;
+  
+  
+  /**
+   * Method to access the Top Height of layer i above the Ground
+   * @exception AtmException if the layer is not valid.
+   */
+  Length getLayerTopHeightAboveGround(unsigned int i) const;
+  
+  /**
+   * Method to access the Top Height of layer i above the Sea Level
+   * @exception AtmException if the layer is not valid.
+   */
+  Length getLayerTopHeightAboveSeaLevel(unsigned int i) const;
+
+  
   /** Function to retrieve Average Water vapor density in a given layer in kg/m**3
    *  (thickness of layers in ThicknessProfile)
    * @exception AtmException if the layer is not valid.
    */
   MassDensity getLayerWaterVaporMassDensity(unsigned int i) const;
+  MassDensity getLayerBottomWaterVaporMassDensity(unsigned int i) const;
+  MassDensity getLayerTopWaterVaporMassDensity(unsigned int i) const;
   NumberDensity getLayerWaterVaporNumberDensity(unsigned int i) const;
+  NumberDensity getLayerBottomWaterVaporNumberDensity(unsigned int i) const;
+  NumberDensity getLayerTopWaterVaporNumberDensity(unsigned int i) const;
 
   /** Setter for the average Water vapor density in layer i in kg/m**3 (allows to touch one layer each
    *  time once a profile has been defined) */
@@ -289,6 +377,16 @@ public:
    * @exception AtmException if the layer is not valid.
    */
   Pressure getLayerPressure(unsigned int i) const;
+
+  /** Method to access the Pressure at bottom of layer i
+   * @exception AtmException if the layer is not valid.
+   */
+  Pressure getLayerBottomPressure(unsigned int i) const;
+
+  /** Method to access the Pressure at top of layer i
+   * @exception AtmException if the layer is not valid.
+   */
+  Pressure getLayerTopPressure(unsigned int i) const;
 
   /** Setter for the average Pressure in layer i (allows to touch one layer each
    *  time once a profile has been defined) */
@@ -387,9 +485,15 @@ protected:
   unsigned int numLayer_; //!< Total number of layers in the output	atmospheric profiles
   bool newBasicParam_;
   vector<double> v_layerThickness_; //!< Thickness of layer (m)
-  vector<double> v_layerTemperature_; //!< Temp. of layer (K)
-  vector<double> v_layerWaterVapor_; //!< Water vapor kg/m**3
-  vector<double> v_layerPressure_; //!< Pressure in mb
+  vector<double> v_layerTemperature_; //!< Temp. of layers (K)
+  vector<double> v_layerTemperature0_; //!< Temp. at bottom of layers (K)
+  vector<double> v_layerTemperature1_; //!< Temp. at top of layer (K)
+  vector<double> v_layerWaterVapor_; //!< Average water vapor kg/m**3 in the layer
+  vector<double> v_layerWaterVapor0_; //!< Water vapor kg/m**3 at bottom of layer
+  vector<double> v_layerWaterVapor1_; //!< Water vapor kg/m**3 at top of layer
+  vector<double> v_layerPressure_; //!< Pressure of layers (mb)
+  vector<double> v_layerPressure0_; //!< Pressure at bottom of layers (mb)
+  vector<double> v_layerPressure1_; //!< Pressure at top of layers (mb)
   vector<double> v_layerCO_; //!< CO in molecules per m**3
   vector<double> v_layerO3_; //!< O3 in molecules per m**3
   vector<double> v_layerN2O_; //!< N2O in molecules per m**3
