@@ -320,6 +320,7 @@ void MosaicFT::initializeToVis(ImageInterface<Complex>& iimage,
   phaseShifter_p=new UVWMachine(*uvwMachine_p);
   //This is needed here as we need to know the grid correction before FFTing 
   findConvFunction(*image, vb);
+  pbConvFunc_p->setVBUtil(vbutil_p);
   prepGridForDegrid();
 
 }
@@ -466,6 +467,7 @@ void MosaicFT::initializeToSky(ImageInterface<Complex>& iimage,
   // Initialize the maps for polarization and channel. These maps
   // translate visibility indices into image indices
   initMaps(vb);
+  pbConvFunc_p->setVBUtil(vbutil_p);
   //make sure we rotate the first field too
   lastFieldId_p=-1;
   phaseShifter_p=new UVWMachine(*uvwMachine_p);
