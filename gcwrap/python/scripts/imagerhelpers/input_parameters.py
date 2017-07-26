@@ -128,7 +128,17 @@ class ImagerParameters():
                  workdir='',
 
                  ## CFCache params
-                 cflist=[]
+                 cflist=[],
+                 
+                 ## single-dish imaging params
+                 gridfunction='BOX',
+                 convsupport=-1,
+                 truncate=-1,
+                 gwidth=-1,
+                 jwidth=-1,
+                 pointingcolumntouse='direction',
+                 minweight=0.0,
+                 clipminmax=False
                  ):
 
         self.defaultKey="0";
@@ -162,7 +172,11 @@ class ImagerParameters():
                                    'rotatepastep':rotatepastep, #'mtype':mtype, # 'weightlimit':weightlimit,
                                    'facets':facets,'chanchunks':chanchunks,
                                    'interpolation':interpolation, 'wprojplanes':wprojplanes,
-                                   'deconvolver':deconvolver, 'vptable':vptable }     }
+                                   'deconvolver':deconvolver, 'vptable':vptable,
+                                   ## single-dish specific
+                                   'gridfunction': gridfunction, 'convsupport': convsupport,
+                                   'truncate': truncate, 'gwidth': gwidth, 'jwidth': jwidth,
+                                   'minweight': minweight, 'clipminmax': clipminmax}     }
         ######### weighting
         self.weightpars = {'type':weighting,'robust':robust, 'npixels':npixels,'uvtaper':uvtaper}
 
