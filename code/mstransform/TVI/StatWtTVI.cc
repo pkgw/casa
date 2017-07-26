@@ -459,16 +459,37 @@ void StatWtTVI::weightSpectrum(Cube<Float>& newWtsp) const {
         newWtsp = _newWtSp.copy();
         return;
     }
-    if (_timeBlockProcessing) {
-        _weightSpectrumFlagsTimeBlockProcessing();
-    }
-    else {
-        _weightSpectrumFlagsSlidingTimeWindow();
-    }
+    _computeWeightSpectrumAndFlags();
     newWtsp = _newWtSp.copy();
 }
 
-void StatWtTVI::_weightSpectrumFlagsSlidingTimeWindow() const {
+void StatWtTVI::_computeWeightSpectrumAndFlags() const {
+    size_t nOrigFlagged;
+    auto mypair = _getLowerLayerWtSpFlags(nOrigFlagged);
+    auto& wtsp = mypair.first;
+    auto& flagCube = mypair.second;
+    if (*_mustComputeWtSp && wtsp.empty()) {
+        // This can happen in preview mode if
+        // WEIGHT_SPECTRUM doesn't exist or is empty
+        wtsp.resize(flagCube.shape());
+    }
+    auto checkFlags = False;
+    if (_timeBlockProcessing) {
+        _weightSpectrumFlagsTimeBlockProcessing(wtsp, flagCube, checkFlags);
+    }
+    else {
+        _weightSpectrumFlagsSlidingTimeWindow(wtsp, flagCube, checkFlags);
+    }
+    if (checkFlags) {
+        _nNewFlaggedPts += ntrue(flagCube) - nOrigFlagged;
+    }
+    _newWtSp = wtsp;
+    _newFlag = flagCube;
+}
+
+void StatWtTVI::_weightSpectrumFlagsSlidingTimeWindow(
+    Cube<Float>& wtsp, Cube<Bool>& flagCube, Bool& checkFlags
+) const {
     // fish out the rows relevant to this subchunk
     Vector<uInt> rowIDs;
     getRowIds(rowIDs);
@@ -480,15 +501,6 @@ void StatWtTVI::_weightSpectrumFlagsSlidingTimeWindow() const {
     // this is the row index in the chunk
     auto chunkRowIndex = start->second;
     auto chunkRowEnd = chunkRowIndex + nRows();
-    size_t nOrigFlagged;
-    auto mypair = _getLowerLayerWtSpFlags(nOrigFlagged);
-    auto& newWtsp = mypair.first;
-    auto& flagCube = mypair.second;
-    if (*_mustComputeWtSp && newWtsp.empty()) {
-        // This can happen in preview mode if
-        // WEIGHT_SPECTRUM doesn't exist or is empty
-        newWtsp.resize(flagCube.shape());
-    }
     Slicer slice(IPosition(3, 0), flagCube.shape(), Slicer::endIsLength);
     auto sliceStart = slice.start();
     auto sliceEnd = slice.end();
@@ -497,7 +509,6 @@ void StatWtTVI::_weightSpectrumFlagsSlidingTimeWindow() const {
     spectralWindows(spws);
     auto spw = *spws.begin();
     const auto& chanBins = _chanBins.find(spw)->second;
-    auto checkFlags = False;
     auto subChunkRowIndex = 0;
     for (; chunkRowIndex < chunkRowEnd; ++chunkRowIndex, ++subChunkRowIndex) {
         sliceStart[2] = subChunkRowIndex;
@@ -515,39 +526,26 @@ void StatWtTVI::_weightSpectrumFlagsSlidingTimeWindow() const {
                 slice.setStart(sliceStart);
                 slice.setEnd(sliceEnd);
                 _updateWtSpFlags(
-                    newWtsp, flagCube, checkFlags, slice,
+                    wtsp, flagCube, checkFlags, slice,
                     _slidingTimeWindowWeights(corr, iChanBin, chunkRowIndex)
                 );
             }
             ++iChanBin;
         }
     }
-    if (checkFlags) {
-        _nNewFlaggedPts += ntrue(flagCube) - nOrigFlagged;
-    }
-    _newWtSp = newWtsp;
-    _newFlag = flagCube;
 }
 
-void StatWtTVI::_weightSpectrumFlagsTimeBlockProcessing() const {
+void StatWtTVI::_weightSpectrumFlagsTimeBlockProcessing(
+    Cube<Float>& wtsp, Cube<Bool>& flagCube, Bool& checkFlags
+) const {
     Vector<Int> ant1, ant2, spws;
     antenna1(ant1);
     antenna2(ant2);
     spectralWindows(spws);
-    size_t nOrigFlagged;
-    auto mypair = _getLowerLayerWtSpFlags(nOrigFlagged);
-    auto& newWtsp = mypair.first;
-    auto& flagCube = mypair.second;
-    if (*_mustComputeWtSp && newWtsp.empty()) {
-        // This can happen in preview mode if
-        // WEIGHT_SPECTRUM doesn't exist or is empty
-        newWtsp.resize(flagCube.shape());
-    }
     Slicer slice(IPosition(3, 0), flagCube.shape(), Slicer::endIsLength);
     auto sliceStart = slice.start();
     auto sliceEnd = slice.end();
     auto nrows = nRows();
-    Bool checkFlags = False;
     for (Int i=0; i<nrows; ++i) {
         sliceStart[2] = i;
         sliceEnd[2] = i;
@@ -569,15 +567,10 @@ void StatWtTVI::_weightSpectrumFlagsTimeBlockProcessing() const {
                 }
                 slice.setStart(sliceStart);
                 slice.setEnd(sliceEnd);
-                _updateWtSpFlags(newWtsp, flagCube, checkFlags, slice, weights[corr]);
+                _updateWtSpFlags(wtsp, flagCube, checkFlags, slice, weights[corr]);
             }
         }
     }
-    if (checkFlags) {
-        _nNewFlaggedPts += ntrue(flagCube) - nOrigFlagged;
-    }
-    _newWtSp = newWtsp;
-    _newFlag = flagCube;
 }
 
 void StatWtTVI::_updateWtSpFlags(
@@ -734,12 +727,7 @@ void StatWtTVI::flag(Cube<Bool>& flagCube) const {
         flagCube = _newFlag.copy();
         return;
     }
-    if (_timeBlockProcessing) {
-        _weightSpectrumFlagsTimeBlockProcessing();
-    }
-    else {
-        _weightSpectrumFlagsSlidingTimeWindow();
-    }
+    _computeWeightSpectrumAndFlags();
     flagCube = _newFlag.copy();
 }
 
@@ -911,10 +899,6 @@ void StatWtTVI::_computeWeightsSlidingTimeWindow(
     auto chunkShape = data.shape();
     const auto nActCorr = chunkShape[0];
     const auto ncorr = _combineCorr ? 1 : nActCorr;
-    if (_samples.find(spw) == _samples.end()) {
-        _samples[spw].first = 0;
-        _samples[spw].second = 0;
-    }
     IPosition chunkSliceStart(3, 0);
     IPosition chunkSliceLength = chunkShape;
     chunkSliceLength[2] = 1;
@@ -1025,9 +1009,6 @@ void StatWtTVI::_gatherAndComputeWeightsTimeBlockProcessing() const {
         // [nC,nF,nR)
         const auto& dataCube = _useCorrected
             ? vb->visCubeCorrected() : vb->visCube();
-        IPosition dataCubeBLC(3, 0);
-        auto dataCubeTRC = dataCube.shape() - 1;
-        dataCubeTRC[2] = 0;
         const auto& flagCube = vb->flagCube();
         const auto nrows = vb->nRows();
         const auto npol = dataCube.nrow();
@@ -1036,14 +1017,17 @@ void StatWtTVI::_gatherAndComputeWeightsTimeBlockProcessing() const {
             initChanSelTemplate, doChanSelFlags, spw,
             flagCube
         );
-        BaselineChanBin blcb;
         auto bins = _chanBins.find(spw)->second;
+        BaselineChanBin blcb;
         blcb.spw = spw;
+        IPosition dataCubeBLC(3, 0);
+        auto dataCubeTRC = dataCube.shape() - 1;
+        dataCubeTRC[2] = 0;
         for (Int row=0; row<nrows; ++row) {
+            dataCubeTRC[2] = 0;
             dataCubeBLC[2] = row;
             dataCubeTRC[2] = row;
             blcb.baseline = _baseline(ant1[row], ant2[row]);
-            // auto spw = spws[row];
             auto citer = bins.begin();
             auto cend = bins.end();
             for (; citer!=cend; ++citer) {
@@ -1128,12 +1112,17 @@ Bool StatWtTVI::_checkFirsSubChunk(
         return False;
     }
     const auto& rowIDs = vb->rowIds();
+
     if (_processedRowIDs.find(rowIDs[0]) == _processedRowIDs.end()) {
         // haven't processed this chunk
         _processedRowIDs.insert(rowIDs[0]);
         // the spw is the same for all subchunks, so it only needs to
         // be set once
         spw = *vb->spectralWindows().begin();
+        if (_samples.find(spw) == _samples.end()) {
+            _samples[spw].first = 0;
+            _samples[spw].second = 0;
+        }
         firstTime = False;
         return False;
     }
@@ -1177,13 +1166,10 @@ void StatWtTVI::_computeWeightsTimeBlockProcessing(
     auto fiter = flags.begin();
     const auto nActCorr = diter->second.shape()[0];
     const auto ncorr = _combineCorr ? 1 : nActCorr;
+    // spw will be the same for all members
+    const auto& spw = data.begin()->first.spw;
     for (; diter!=dend; ++diter, ++fiter) {
         auto blcb = diter->first;
-        auto spw = blcb.spw;
-        if (_samples.find(spw) == _samples.end()) {
-            _samples[spw].first = 0;
-            _samples[spw].second = 0;
-        }
         auto dataForBLCB = diter->second;
         auto flagsForBLCB = fiter->second;
         for (uInt corr=0; corr<ncorr; ++corr) {
@@ -1194,7 +1180,6 @@ void StatWtTVI::_computeWeightsTimeBlockProcessing(
                 end[0] = corr;
             }
             Slicer slice(start, end, Slicer::endIsLast);
-            auto dataChunk = dataForBLCB(slice);
             auto weight = _computeWeight(dataForBLCB(slice), flagsForBLCB(slice), spw);
             _weights[blcb].push_back(weight);
         }

@@ -206,6 +206,8 @@ private:
         const casacore::Cube<casacore::Bool>& flagCube
     ) const;
 
+    void _computeWeightSpectrumAndFlags() const;
+
     void _gatherAndComputeWeights() const;
 
     void _gatherAndComputeWeightsSlidingTimeWindow() const;
@@ -256,9 +258,15 @@ private:
 
     void _configureStatAlg(const casacore::Record& config);
 
-    void _weightSpectrumFlagsTimeBlockProcessing() const;
+    void _weightSpectrumFlagsTimeBlockProcessing(
+        casacore::Cube<casacore::Float>& wtsp, casacore::Cube<casacore::Bool>& flagCube,
+        casacore::Bool& checkFlags
+     ) const;
 
-    void _weightSpectrumFlagsSlidingTimeWindow() const;
+    void _weightSpectrumFlagsSlidingTimeWindow(
+        casacore::Cube<casacore::Float>& wtsp, casacore::Cube<casacore::Bool>& flagCube,
+        casacore::Bool& checkFlags
+    ) const;
 
     void _weightSingleChanBinBlockTimeProcessing(
         casacore::Matrix<casacore::Float>& wtmat, casacore::Int nrows
