@@ -49,7 +49,7 @@ else
     casa3party="/usr/lib/casapy"
     CPU=$(uname -p)
     if [ "${CPU}" = "x86_64" ]; then
-        casa3party="/home/heron1/kgolap/casa_git/linux_64b"
+        casa3party="@casa_packages@"
     fi
     p_root=${casa3party}
     if [[ "$CASAPATH" =~ /usr/lib* ]] || [[ "$CASAPATH" =~ /opt/casa* ]]; then
