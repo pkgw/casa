@@ -231,6 +231,37 @@ class test_cont(testref_base_parallel):
  
 ###################################################
 
+     def test_cont_restart(self):
+          """ [cont] Test_cont_restart : Test restarting a continuum imaging run in parallel.  """
+          
+          if self.th.checkMPI() == True:
+               
+               self.prepData('refim_point.ms')
+               
+               # Initial paralle run
+               ret=tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='10.0arcsec',deconvolver='mtmfs',niter=10,parallel=True,interactive=0)
+               report1 = self.th.checkall(ret=ret, 
+                                          peakres=0.36915234, modflux=0.68956602);
+                                          # imexist=[self.img+'.psf', self.img+'.residual', 
+                                          #          self.img+'.image',self.img+'.model', 
+                                          #          self.img+'.pb',  self.img+'.image.pbcor' ], 
+                                          # imval=[(self.img+'.image',1.2,[50,50,0,5]),
+                                          #        (self.img+'.sumwt',2949.775,[0,0,0,0]) ])
+
+               # Parallel restart
+               ret=tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='10.0arcsec',deconvolver='mtmfs',niter=10,parallel=True,calcres=False,calcpsf=False,interactive=0)
+               report2 = self.th.checkall(ret=ret, peakres=0.12871516, modflux=0.93000221);
+
+
+
+
+               ## Pass or Fail (and why) ?
+               self.checkfinal(report1+report2)
+
+          else:
+               print "MPI is not enabled. This test will be skipped"
+###################################################
+
 
 ###################################################
 #### Test parallel continuum imaging
@@ -321,5 +352,6 @@ class test_cube(testref_base_parallel):
 
           else:
                print "MPI is not enabled. This test will be skipped"
+
 
 ###################################################

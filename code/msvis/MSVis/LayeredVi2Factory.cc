@@ -141,7 +141,6 @@ vi::ViImplementation2 * LayeredVi2Factory::createVi () const
   viis[ilayer]= new vi::VisibilityIteratorImpl2 (Block<const MeasurementSet*>(1,ms_p),
                                                  iterpar_p->getSortColumns(),
                                                  iterpar_p->getChunkInterval(),
-                                                 vi::VbPlain,
                                                  true); // writable!  (hardwired?)
   
   // TBD: consider if this is the layer where weight scaling should be applied?
@@ -198,7 +197,6 @@ ViImplementation2 * VisIterImpl2LayerFactory::createInstance (ViImplementation2*
   ViImplementation2 *vii = new VisibilityIteratorImpl2(Block<const MeasurementSet*>(1,ms_),
                                                        pars_.getSortColumns(),
                                                        pars_.getChunkInterval(),
-                                                       vi::VbPlain,
                                                        writable_,
 						       useMSIter2_); 
   return vii;

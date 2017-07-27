@@ -31,7 +31,7 @@
 #include <components/SpectralComponents/PowerLogPolynomialSpectralElement.h>
 #include <components/SpectralComponents/LogTransformedPolynomialSpectralElement.h>
 
-#include <stdcasa/StdCasa/CasacSupport.cc>
+#include <stdcasa/StdCasa/CasacSupport.h>
 
 using namespace casacore;
 using namespace casac;

@@ -26,7 +26,7 @@
 #include "ATMException.h"
 #include <sstream>
 
-using std::string;
+
 
 ATM_NAMESPACE_BEGIN
 
@@ -52,7 +52,7 @@ AtmException::AtmException(const char* file, const char* routine, int line, cons
 
 string AtmException::formatMsg(const char* file, const char* routine, int line, const char* msg)
 {
-  static const string pattern = "[%F, %R, %L]: %M";
+  static const std::string pattern = "[%F, %R, %L]: %M";
   std::ostringstream oss;
 
   for(string::const_iterator it(pattern.begin()), it_max(pattern.end()); it != it_max; ++it) {

@@ -1462,6 +1462,10 @@ VisBufferImpl2::subtableColumns () const {
   return getViiP()->subtableColumns();
 }  
 
+casacore::Bool
+VisBufferImpl2::existsColumn(VisBufferComponent2 id) const {
+	return getViiP()->existsColumn(id);
+}
 
 //      +---------------+
 //      |               |

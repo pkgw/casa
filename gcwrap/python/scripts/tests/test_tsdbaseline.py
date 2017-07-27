@@ -772,7 +772,8 @@ class sdbaseline_basicTest(sdbaseline_unittest_base):
         try:
             result = sdbaseline(infile=infile, outfile=outfile, overwrite=False, maskmode=mode)
         except Exception, e:
-            pos = str(e).find(outfile+' exists.')
+            #pos = str(e).find(outfile+' exists.')
+            pos = str(e).find("outfile='" + outfile + "' exists, and cannot overwrite it.")
             self.assertNotEqual(pos, -1, msg='Unexpected exception was thrown: %s'%(str(e)))
         finally:
             shutil.rmtree(outfile)

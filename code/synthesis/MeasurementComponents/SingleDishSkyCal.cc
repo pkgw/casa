@@ -802,7 +802,7 @@ void SingleDishSkyCal::syncMeta2(const vi::VisBuffer2& vb)
   interval_.reference(vb.exposure());
   debuglog << "SingleDishSkyCal::syncMeta2 interval_= " << interval_ << debugpost;
 
-  setNumberOfCorrelationsPerSpw(vb.getVi()->ms(), nCorr_);
+  setNumberOfCorrelationsPerSpw(vb.ms(), nCorr_);
   debuglog << "nCorr_ = " << nCorr_ << debugpost;
   debuglog << "currSpw() = " << currSpw() << debugpost;
   debuglog << "nPar() = " << nPar() << debugpost;

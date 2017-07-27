@@ -53,6 +53,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     virtual void nearestVPArray(double freq, bool printINFO=true);
     virtual void fillPBArray();
   private:
+	  void limitFreqForBand(const casacore::String& band, casacore::Double& freq);
     std::map<double, std::vector<double> > coeffmap_p;
     std::map<casacore::String, double> feedConf_p;
     void init();

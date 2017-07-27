@@ -1,156 +1,206 @@
-CASA Version 2.0 Rev 3119
-  Built on: Mon 2007/08/27 01:15:06 UTC
 
-___________________________________________________________
-Available tasks:
+=========================================
+The start-up time of CASA may vary
+depending on whether the shared libraries
+are cached or not.
+=========================================
 
-   accum         exportfits      immoments       plotcal
-   almasimmos    exportuvfits    importasdm      plotxy
-   applycal      feather         importfits      (pointcal)
-   bandpass      filecatalog     importuvfits    regridimage
-   blcal         flagautocorr    importvla       restore
-   browsetable   flagdata        invert          setjy
-   clean         flagmanager     listcal         smoothcal
-   clearcal      fluxscale       listhistory     split
-   clearplot     fringecal       listobs         uvcontsub
-   clearstat     ft              makemask        uvmodelfit
-   concat        gaincal         mosaic          viewer
-   deconvolve    imhead          plotants
- 
-Available tools:
+]0;IPython: atmosphere/attool_testIPython 5.1.0 -- An enhanced Interactive Python.
 
-   cb (calibrater)     cp (cal plot)     fg (flagger)
-   ia (image analysis) im (imager)       me (measures)
-   mp (MS plot)        ms (MS)           qa (quanta)
-   sm (simulation      tb (table)        tp (table plot)
- 
-   pl (pylab functions)
-   sd (ASAP functions - run asap_init() to import into CASA)
+CASA 5.1.0-32  ID c3ceb4437ff916fc88aa8040765c1f8667368426 -- Common Astronomy Software Applications
 
-___________________________________________________________________
-
-Help :   
-   help taskname          - Full help for task
-   help par.parametername - Full help for parameter name 
-   find string            - Find occurances of string in doc
-   tasklist               - Task list organized by catagory
-   taskhelp               - One line summary of available tasks
-   toolhelp               - One line summary of available tools
-   startup                - The start up screen
-
-___________________________________________________________________
-will execute script AtmTypeTest.py
-Activating auto-logging. Current session state plus future input saved.
-Filename       : ipython.log
-Mode           : backup
-Output logging : False
-Raw input log  : False
-Timestamping   : False
-State          : active
+*** Loading ATNF ASAP Package...
+*** ... ASAP (rev# unknown ) import complete ***
 Test AtmType class
-Test for type  tropical
-0  hx:  9.225  px:  319.0  tx:  242.1
-1  hx:  10.225  px:  276.8  tx:  235.4
-2  hx:  11.225  px:  239.1  tx:  228.6
-3  hx:  12.85  px:  186.4  tx:  218.0
-4  hx:  14.85  px:  135.4  tx:  204.6
-5  hx:  16.85  px:  96.13  tx:  195.1
-6  hx:  18.85  px:  68.33  tx:  202.1
-7  hx:  22.6  px:  37.26  tx:  216.0
-8  hx:  26.6  px:  20.23  tx:  225.0
-9  hx:  30.6  px:  11.21  tx:  233.6
-10  hx:  34.85  px:  6.142  tx:  242.8
-11  hx:  40.85  px:  2.732  tx:  255.8
-12  hx:  46.85  px:  1.26  tx:  268.6
-13  hx:  52.85  px:  0.6042  tx:  266.7
-14  hx:  58.85  px:  0.2798  tx:  256.0
-15  hx:  65.1  px:  0.1202  tx:  235.7
-16  hx:  73.1  px:  0.036  tx:  208.3
-17  hx:  81.1  px:  0.009162  tx:  182.6
-18  hx:  89.1  px:  0.002076  tx:  176.7
-19  hx:  95.6  px:  0.0006374  tx:  184.1
-Test for type  midlatSummer
-0  hx:  9.225  px:  313.9  tx:  240.3
-1  hx:  10.225  px:  272.1  tx:  233.8
-2  hx:  11.225  px:  235.0  tx:  227.3
-3  hx:  12.85  px:  183.3  tx:  216.7
-4  hx:  14.85  px:  133.2  tx:  215.7
-5  hx:  16.85  px:  97.26  tx:  215.7
-6  hx:  18.85  px:  71.15  tx:  217.7
-7  hx:  22.6  px:  39.92  tx:  222.3
-8  hx:  26.6  px:  21.85  tx:  227.1
-9  hx:  30.6  px:  12.16  tx:  234.9
-10  hx:  34.85  px:  6.68  tx:  244.8
-11  hx:  40.85  px:  2.985  tx:  259.6
-12  hx:  46.85  px:  1.4  tx:  274.0
-13  hx:  52.85  px:  0.678  tx:  272.7
-14  hx:  58.85  px:  0.3178  tx:  260.3
-15  hx:  65.1  px:  0.138  tx:  239.4
-16  hx:  73.1  px:  0.04163  tx:  204.5
-17  hx:  81.1  px:  0.009881  tx:  171.5
-18  hx:  89.1  px:  0.00201  tx:  164.4
-19  hx:  95.6  px:  0.0005804  tx:  178.5
-Test for type  midlatWinter
-0  hx:  9.225  px:  289.2  tx:  223.9
-1  hx:  10.225  px:  248.0  tx:  219.6
-2  hx:  11.225  px:  212.4  tx:  219.1
-3  hx:  12.85  px:  164.9  tx:  218.3
-4  hx:  14.85  px:  120.6  tx:  217.3
-5  hx:  16.85  px:  88.16  tx:  216.3
-6  hx:  18.85  px:  64.33  tx:  215.3
-7  hx:  22.6  px:  35.58  tx:  215.2
-8  hx:  26.6  px:  19.01  tx:  215.2
-9  hx:  30.6  px:  10.14  tx:  217.8
-10  hx:  34.85  px:  5.316  tx:  227.5
-11  hx:  40.85  px:  2.255  tx:  245.8
-12  hx:  46.85  px:  1.022  tx:  263.7
-13  hx:  52.85  px:  0.4814  tx:  263.3
-14  hx:  58.85  px:  0.2206  tx:  253.1
-15  hx:  65.1  px:  0.09455  tx:  240.7
-16  hx:  73.1  px:  0.03  tx:  224.3
-17  hx:  81.1  px:  0.008729  tx:  207.2
-18  hx:  89.1  px:  0.002332  tx:  199.1
-19  hx:  95.6  px:  0.0008164  tx:  209.1
-Test for type  subarcticSummer
-0  hx:  9.225  px:  300.6  tx:  230.1
-1  hx:  10.225  px:  258.7  tx:  225.2
-2  hx:  11.225  px:  222.3  tx:  225.2
-3  hx:  12.85  px:  173.9  tx:  225.2
-4  hx:  14.85  px:  128.8  tx:  225.2
-5  hx:  16.85  px:  94.95  tx:  225.2
-6  hx:  18.85  px:  70.18  tx:  225.2
-7  hx:  22.6  px:  39.83  tx:  225.2
-8  hx:  26.6  px:  21.99  tx:  229.8
-9  hx:  30.6  px:  12.32  tx:  236.1
-10  hx:  34.85  px:  6.771  tx:  246.8
-11  hx:  40.85  px:  3.056  tx:  264.8
-12  hx:  46.85  px:  1.452  tx:  275.6
-13  hx:  52.85  px:  0.7051  tx:  276.3
-14  hx:  58.85  px:  0.3353  tx:  266.2
-15  hx:  65.1  px:  0.1459  tx:  239.2
-16  hx:  73.1  px:  0.04431  tx:  202.3
-17  hx:  81.1  px:  0.01024  tx:  168.1
-18  hx:  89.1  px:  0.001985  tx:  160.9
-19  hx:  95.6  px:  0.0005627  tx:  177.0
-Test for type  subarcticWinter
-0  hx:  9.225  px:  273.1  tx:  217.2
-1  hx:  10.225  px:  233.5  tx:  217.2
-2  hx:  11.225  px:  199.5  tx:  217.2
-3  hx:  12.85  px:  154.6  tx:  217.2
-4  hx:  14.85  px:  113.0  tx:  217.2
-5  hx:  16.85  px:  82.52  tx:  216.1
-6  hx:  18.85  px:  60.17  tx:  214.9
-7  hx:  22.6  px:  33.14  tx:  212.6
-8  hx:  26.6  px:  17.51  tx:  212.7
-9  hx:  30.6  px:  9.306  tx:  216.5
-10  hx:  34.85  px:  4.826  tx:  222.2
-11  hx:  40.85  px:  1.988  tx:  236.8
-12  hx:  46.85  px:  0.8645  tx:  251.6
-13  hx:  52.85  px:  0.4  tx:  260.1
-14  hx:  58.85  px:  0.1819  tx:  252.3
-15  hx:  65.1  px:  0.07866  tx:  248.6
-16  hx:  73.1  px:  0.02639  tx:  238.8
-17  hx:  81.1  px:  0.008264  tx:  221.5
-18  hx:  89.1  px:  0.002364  tx:  203.3
-19  hx:  95.6  px:  0.0008439  tx:  211.3
-leaving casapy...
+Test for type  TROPICAL
+BASIC ATMOSPHERIC PARAMETERS TO GENERATE REFERENCE ATMOSPHERIC PROFILE
+  
+Ground temperature T:         270.32 K
+Ground pressure P:            735.85 mb
+Relative humidity rh:         20 %
+Scale height h0:              2 km
+Pressure step dp:             5 mb
+Altitude alti:                2550 m
+Attitude top atm profile:     45 km
+Pressure step factor:         1.5 
+Tropospheric lapse rate:      -5.6 K/km
+Atmospheric type:             TROPICAL
+User-defined temperature profile: OFF
+
+Built atmospheric profile with 22 layers.
+
+
+layer	altitude	thickness	temperature	watermassdensity	pressure
+0 	54.3006017011 	54.3006017011 	270.167958315 	0.000796044385639 	733.345738721
+1 	136.361034222 	82.0604325209 	269.786147419 	0.000769364374734 	727.09032967
+2 	260.851930697 	124.490896475 	269.207803698 	0.000730644377975 	717.702957358
+3 	450.840176635 	189.988245938 	268.327262099 	0.000675401324314 	703.611911852
+4 	743.503855157 	292.663678523 	266.975836711 	0.000598630225395 	682.451403261
+5 	1201.14034551 	457.636490351 	264.874996238 	0.000496244647179 	650.651225636
+6 	1934.89537913 	733.75503362 	261.539099971 	0.00036841910573 	602.794933437
+7 	3165.30055763 	1230.4051785 	256.039451377 	0.000225468646954 	530.559091364
+8 	5426.02787445 	2260.72731683 	246.26428039 	9.41979093451e-05 	420.636844168
+9 	10800.1970369 	5374.16916246 	224.886570248 	1.39666712682e-05 	247.288323136
+10 	6873.23299996 	-3926.96403695 	225.969448297 	9.72667962185e-06 	232.324504499
+11 	7873.23299996 	1000.0 	242.1 	2.02188147787e-05 	319.0
+12 	8873.23299996 	1000.0 	238.75 	1.22633310663e-05 	297.151813052
+13 	10498.233 	1625.0 	232.0 	6.36213234536e-06 	257.260335069
+14 	12498.233 	2000.0 	223.3 	2.57053383591e-06 	211.111913449
+15 	14498.233 	2000.0 	211.3 	9.45646551065e-07 	158.866484823
+16 	16498.233 	2000.0 	199.85 	3.47883924752e-07 	114.087694341
+17 	20248.233 	3750.0 	198.6 	8.26296747571e-08 	81.0466711223
+18 	24248.233 	4000.0 	209.05 	1.19039332959e-08 	50.4576634417
+19 	28248.233 	4000.0 	220.5 	1.61102218423e-09 	27.4548684207
+20 	32498.233 	4250.0 	229.3 	2.04818486161e-10 	15.0591600031
+21 	38498.233 	6000.0 	238.2 	1.57939057492e-11 	8.29769968124
+
+Test for type  MIDLATSUMMER
+BASIC ATMOSPHERIC PARAMETERS TO GENERATE REFERENCE ATMOSPHERIC PROFILE
+  
+Ground temperature T:         270.32 K
+Ground pressure P:            735.85 mb
+Relative humidity rh:         20 %
+Scale height h0:              2 km
+Pressure step dp:             5 mb
+Altitude alti:                2550 m
+Attitude top atm profile:     45 km
+Pressure step factor:         1.5 
+Tropospheric lapse rate:      -5.6 K/km
+Atmospheric type:             MIDLATSUMMER
+User-defined temperature profile: OFF
+
+Built atmospheric profile with 18 layers.
+
+
+layer	altitude	thickness	temperature	watermassdensity	pressure
+0 	54.3006017011 	54.3006017011 	270.167958315 	0.000796044385639 	733.345738721
+1 	136.361034222 	82.0604325209 	269.786147419 	0.000769364374734 	727.09032967
+2 	260.851930697 	124.490896475 	269.207803698 	0.000730644377975 	717.702957358
+3 	450.840176635 	189.988245938 	268.327262099 	0.000675401324314 	703.611911852
+4 	743.503855157 	292.663678523 	266.975836711 	0.000598630225395 	682.451403261
+5 	1201.14034551 	457.636490351 	264.874996238 	0.000496244647179 	650.651225636
+6 	1934.89537913 	733.75503362 	261.539099971 	0.00036841910573 	602.794933437
+7 	3165.30055763 	1230.4051785 	256.039451377 	0.000225468646954 	530.559091364
+8 	5426.02787445 	2260.72731683 	246.26428039 	9.41979093451e-05 	420.636844168
+9 	10229.9880557 	4803.96018129 	228.317121952 	1.61065514731e-05 	257.386144277
+10 	12229.9880557 	2000.0 	216.2 	2.9394899141e-06 	156.254791927
+11 	14229.9880557 	2000.0 	215.7 	1.08137790693e-06 	113.820173959
+12 	17979.9880557 	3750.0 	216.7 	2.56849766205e-07 	83.1868318906
+13 	21979.9880557 	4000.0 	220.0 	3.70027171589e-08 	53.2945400581
+14 	25979.9880557 	4000.0 	224.7 	5.00777320723e-09 	29.5339127106
+15 	30229.9880557 	4250.0 	231.0 	6.36666917058e-10 	16.300184048
+16 	36229.9880557 	6000.0 	239.85 	4.90944810213e-11 	9.01270214752
+17 	42229.9880557 	6000.0 	252.2 	2.44427028309e-12 	4.465400318
+
+Test for type  MIDLATWINTER
+BASIC ATMOSPHERIC PARAMETERS TO GENERATE REFERENCE ATMOSPHERIC PROFILE
+  
+Ground temperature T:         270.32 K
+Ground pressure P:            735.85 mb
+Relative humidity rh:         20 %
+Scale height h0:              2 km
+Pressure step dp:             5 mb
+Altitude alti:                2550 m
+Attitude top atm profile:     45 km
+Pressure step factor:         1.5 
+Tropospheric lapse rate:      -5.6 K/km
+Atmospheric type:             MIDLATWINTER
+User-defined temperature profile: OFF
+
+Built atmospheric profile with 18 layers.
+
+
+layer	altitude	thickness	temperature	watermassdensity	pressure
+0 	54.3006017011 	54.3006017011 	270.167958315 	0.000796044385639 	733.345738721
+1 	136.361034222 	82.0604325209 	269.786147419 	0.000769364374734 	727.09032967
+2 	260.851930697 	124.490896475 	269.207803698 	0.000730644377975 	717.702957358
+3 	450.840176635 	189.988245938 	268.327262099 	0.000675401324314 	703.611911852
+4 	743.503855157 	292.663678523 	266.975836711 	0.000598630225395 	682.451403261
+5 	1201.14034551 	457.636490351 	264.874996238 	0.000496244647179 	650.651225636
+6 	1934.89537913 	733.75503362 	261.539099971 	0.00036841910573 	602.794933437
+7 	3165.30055763 	1230.4051785 	256.039451377 	0.000225468646954 	530.559091364
+8 	5426.02787445 	2260.72731683 	246.26428039 	9.41979093451e-05 	420.636844168
+9 	9187.35605362 	3761.32817916 	229.517121952 	2.0902820741e-05 	277.064694047
+10 	11187.3560536 	2000.0 	218.7 	4.95081430326e-06 	187.149031523
+11 	13187.3560536 	2000.0 	217.8 	1.82130279923e-06 	141.021062257
+12 	15187.3560536 	2000.0 	216.8 	6.70019855983e-07 	103.112055551
+13 	18937.3560536 	3750.0 	215.8 	1.59143665003e-07 	75.3082518719
+14 	22937.3560536 	4000.0 	215.25 	2.29268187032e-08 	47.8420463609
+15 	26937.3560536 	4000.0 	215.2 	3.10280750291e-09 	26.007225919
+16 	31187.3560536 	4250.0 	216.5 	3.9447770603e-10 	13.8838539318
+17 	37187.3560536 	6000.0 	222.65 	3.04188544011e-11 	7.34195069447
+
+Test for type  SUBARTSUMMER
+BASIC ATMOSPHERIC PARAMETERS TO GENERATE REFERENCE ATMOSPHERIC PROFILE
+  
+Ground temperature T:         270.32 K
+Ground pressure P:            735.85 mb
+Relative humidity rh:         20 %
+Scale height h0:              2 km
+Pressure step dp:             5 mb
+Altitude alti:                2550 m
+Attitude top atm profile:     45 km
+Pressure step factor:         1.5 
+Tropospheric lapse rate:      -5.6 K/km
+Atmospheric type:             SUBARTSUMMER
+User-defined temperature profile: OFF
+
+Built atmospheric profile with 17 layers.
+
+
+layer	altitude	thickness	temperature	watermassdensity	pressure
+0 	54.3006017011 	54.3006017011 	270.167958315 	0.000796044385639 	733.345738721
+1 	136.361034222 	82.0604325209 	269.786147419 	0.000769364374734 	727.09032967
+2 	260.851930697 	124.490896475 	269.207803698 	0.000730644377975 	717.702957358
+3 	450.840176635 	189.988245938 	268.327262099 	0.000675401324314 	703.611911852
+4 	743.503855157 	292.663678523 	266.975836711 	0.000598630225395 	682.451403261
+5 	1201.14034551 	457.636490351 	264.874996238 	0.000496244647179 	650.651225636
+6 	1934.89537913 	733.75503362 	261.539099971 	0.00036841910573 	602.794933437
+7 	3165.30055763 	1230.4051785 	256.039451377 	0.000225468646954 	530.559091364
+8 	5426.02787445 	2260.72731683 	246.26428039 	9.41979093451e-05 	420.636844168
+9 	10602.496428 	5176.46855359 	232.567121952 	1.46743198916e-05 	250.699647082
+10 	12602.496428 	2000.0 	225.2 	2.43996057538e-06 	149.66068288
+11 	14602.496428 	2000.0 	225.2 	8.97611332952e-07 	110.587341048
+12 	18352.496428 	3750.0 	225.2 	2.13201379032e-07 	81.6308213851
+13 	22352.496428 	4000.0 	225.2 	3.07145707888e-08 	52.8703073568
+14 	26352.496428 	4000.0 	227.5 	4.1567651372e-09 	29.5949607197
+15 	30602.496428 	4250.0 	232.95 	5.28473382344e-10 	16.4595504191
+16 	36602.496428 	6000.0 	241.45 	4.075149147e-11 	9.1333849147
+
+Test for type  SUBARTWINTER
+BASIC ATMOSPHERIC PARAMETERS TO GENERATE REFERENCE ATMOSPHERIC PROFILE
+  
+Ground temperature T:         270.32 K
+Ground pressure P:            735.85 mb
+Relative humidity rh:         20 %
+Scale height h0:              2 km
+Pressure step dp:             5 mb
+Altitude alti:                2550 m
+Attitude top atm profile:     45 km
+Pressure step factor:         1.5 
+Tropospheric lapse rate:      -5.6 K/km
+Atmospheric type:             SUBARTWINTER
+User-defined temperature profile: OFF
+
+Built atmospheric profile with 18 layers.
+
+
+layer	altitude	thickness	temperature	watermassdensity	pressure
+0 	54.3006017011 	54.3006017011 	270.167958315 	0.000796044385639 	733.345738721
+1 	136.361034222 	82.0604325209 	269.786147419 	0.000769364374734 	727.09032967
+2 	260.851930697 	124.490896475 	269.207803698 	0.000730644377975 	717.702957358
+3 	450.840176635 	189.988245938 	268.327262099 	0.000675401324314 	703.611911852
+4 	743.503855157 	292.663678523 	266.975836711 	0.000598630225395 	682.451403261
+5 	1201.14034551 	457.636490351 	264.874996238 	0.000496244647179 	650.651225636
+6 	1934.89537913 	733.75503362 	261.539099971 	0.00036841910573 	602.794933437
+7 	3165.30055763 	1230.4051785 	256.039451377 	0.000225468646954 	530.559091364
+8 	5426.02787445 	2260.72731683 	246.26428039 	9.41979093451e-05 	420.636844168
+9 	9630.71892503 	4204.69105058 	228.567121952 	1.87097241308e-05 	268.519222863
+10 	11630.718925 	2000.0 	217.2 	3.96644660846e-06 	175.620898529
+11 	13630.718925 	2000.0 	217.2 	1.45917416176e-06 	132.173370994
+12 	15630.718925 	2000.0 	216.65 	5.36800175199e-07 	96.5647968982
+13 	19380.718925 	3750.0 	215.5 	1.27501217304e-07 	70.4643768155
+14 	23380.718925 	4000.0 	213.75 	1.83682919047e-08 	44.6546055855
+15 	27380.718925 	4000.0 	212.65 	2.48587798749e-09 	24.0890306986
+16 	31630.718925 	4250.0 	214.6 	3.16043919919e-10 	12.7651110453
+17 	37630.718925 	6000.0 	219.35 	2.43706902505e-11 	6.70154877622

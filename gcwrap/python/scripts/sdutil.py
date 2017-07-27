@@ -10,10 +10,10 @@ import contextlib
 
 from casac import casac
 from taskinit import casalog, gentools, qatool
-import asap as sd
+#import asap as sd
 #from asap import _to_list
-from asap.scantable import is_scantable, is_ms, scantable
-import rasterutil
+#from asap.scantable import is_scantable, is_ms, scantable
+#import rasterutil
 
 
 
@@ -34,6 +34,18 @@ def tbmanager(vis, *args, **kwargs):
 
 def cbmanager(vis, *args, **kwargs):
     return toolmanager(vis, 'cb', *args, **kwargs)
+
+def is_ms(filename):
+    if (os.path.isdir(filename) and os.path.exists(filename+'/table.info') and os.path.exists(filename+'/table.dat')):
+        f = open(filename + '/table.info')
+        l = f.readline()
+        f.close()
+        if (l.find('Measurement Set') != -1):
+            return True
+        else:
+            return False
+    else:
+        return False
 
 @contextlib.contextmanager
 def table_selector(table, taql, *args, **kwargs):
@@ -204,7 +216,7 @@ class sdtask_template(sdtask_interface):
         ### WORKAROUND to support old telescopeparm parameter
         if hasattr(self, 'telescopeparm'):
             self.telescopeparam = self.telescopeparm
-        self.is_disk_storage = (sd.rcParams['scantable.storage'] == 'disk')
+        self.is_disk_storage = True #(sd.rcParams['scantable.storage'] == 'disk')
         # attribute for tasks that return any result
         self.result = None
 
@@ -267,22 +279,22 @@ class sdtask_template(sdtask_interface):
         # do nothing by default
         pass
 
-
+    """
     def get_selector(self, scantb=None):
-        """
-        Get selector instance that select scan(s), IF(s), polarization(s),
-        beam(s), field(s), and timerange set to this class.
-        This method parses attributes of string selection parameter,
-        scan(no), spw, pol(no), and beam(no), and converts to lists of
-        selected IDs, scanlist, iflist, pollist, and beamlist. The lists
-        are saved as attributes of this class.
-        Available range of IDs and time are obtained from a scantable.
-
-        Parameter
-            scantb : input scantable instance to get ID and time range from.
-                     The scantable defined as self.scan is used if scantb
-                     is not defined (default).
-        """
+        
+        #Get selector instance that select scan(s), IF(s), polarization(s),
+        #beam(s), field(s), and timerange set to this class.
+        #This method parses attributes of string selection parameter,
+        #scan(no), spw, pol(no), and beam(no), and converts to lists of
+        #selected IDs, scanlist, iflist, pollist, and beamlist. The lists
+        #are saved as attributes of this class.
+        #Available range of IDs and time are obtained from a scantable.
+        #
+        #Parameter
+        #    scantb : input scantable instance to get ID and time range from.
+        #             The scantable defined as self.scan is used if scantb
+        #             is not defined (default).
+        #
         if not scantb:
             if hasattr(self,'scan') and isinstance(self.scan, scantable):
                 scantb = self.scan
@@ -337,7 +349,9 @@ class sdtask_template(sdtask_interface):
             casalog.post('taql: \'%s\''%(selector.get_query()), priority='DEBUG')
 
         return selector
+    """
 
+    """
     def select_by_raster(self, base_selector, scantb=None):
         if not scantb:
             if hasattr(self,'scan') and isinstance(self.scan, scantable):
@@ -402,20 +416,21 @@ class sdtask_template(sdtask_interface):
                         casalog.post('taql: \'%s\''%(selector.get_query()), priority='INFO')
                     
         return selector
-
+    """
+    """
     def set_selection(self, scantb=None):
-        """
-        Set selection that select scan(s), IF(s), polarization(s),
-        beam(s), field(s), and timerange set to this class.
-        This method parses attributes of string selection parameter,
-        scan(no), spw, pol(no), and beam(no), and applies the selection
-        to a scantable.
-
-        Parameter
-            scantb : A scantable instance to apply selection.
-                     The scantable defined as self.scan is used if scantb
-                     is not defined (default).
-        """
+        
+        #Set selection that select scan(s), IF(s), polarization(s),
+        #beam(s), field(s), and timerange set to this class.
+        #This method parses attributes of string selection parameter,
+        #scan(no), spw, pol(no), and beam(no), and applies the selection
+        #to a scantable.
+        #
+        #Parameter
+        #    scantb : A scantable instance to apply selection.
+        #             The scantable defined as self.scan is used if scantb
+        #             is not defined (default).
+        
         if not scantb:
             if hasattr(self,'scan') and isinstance(self.scan, scantable):
                 scantb = self.scan
@@ -434,6 +449,7 @@ class sdtask_template(sdtask_interface):
             for if_idx in sel_ifno:
                 rf.append(self.restfreq[in_ifno.index(if_idx)])
             self.selected_restfreq = rf
+    """
     
     def assert_no_channel_selection_in_spw(self, mode='warn'):
         """
@@ -632,7 +648,7 @@ def assert_outfile_canoverwrite_or_nonexistent(outfile=None, outform=None, overw
 def get_listvalue(value):
     return _to_list(value, int) or []
 
-
+"""
 def get_selector(in_scans=None, in_ifs=None, in_pols=None, \
                  in_field=None, in_beams=None, in_rows=None,
                  in_timerange=None):
@@ -648,6 +664,7 @@ def get_selector(in_scans=None, in_ifs=None, in_pols=None, \
         selector.set_msselection_field(in_field)
 
     return selector
+"""
 
 def combine_masklist(masklist1, masklist2, mode='and'):
     """
@@ -982,7 +999,7 @@ def dochannelrange(s, channelrange):
             casalog.post( "Split spectrum in the range [%d, %d]" % (channelrange[0], channelrange[1]) )
             s._reshape( int(channelrange[0]), int(channelrange[1]) )
 
-
+"""
 def doaverage(s, scanaverage, timeaverage, tweight, polaverage, pweight,
               averageall=False, docopy=False):
     # Average in time if desired
@@ -1040,7 +1057,8 @@ def doaverage(s, scanaverage, timeaverage, tweight, polaverage, pweight,
     if docopy and (sret == s):
         sret = s.copy()
     return sret
-
+"""
+"""
 def plot_scantable(s, pltfile, plotlevel, comment=None):
     # reset plotter
     if sd.plotter._plotter:
@@ -1062,7 +1080,8 @@ def plot_scantable(s, pltfile, plotlevel, comment=None):
         # Hardcopy - currently no way w/o screen display first
         #pltfile=project+'_'+suffix+'.eps'
         sd.plotter.save(pltfile)
-
+"""
+"""
 def scantable_restore_factory(s, infile, fluxunit, specunit, frame, doppler, restfreq=''):
     storage = sd.rcParams['scantable.storage']
     isscantable = is_scantable(infile)
@@ -1070,7 +1089,8 @@ def scantable_restore_factory(s, infile, fluxunit, specunit, frame, doppler, res
         return scantable_restore_null(s, fluxunit, specunit, frame, doppler, restfreq)
     else:
         return scantable_restore_impl(s, fluxunit, specunit, frame, doppler, restfreq)
-
+"""
+"""
 class scantable_restore_interface(object):
     def __init__(self, s=None, fluxunit=None, specunit=None, frame=None, doppler=None, restfreq=None):
         pass
@@ -1128,7 +1148,8 @@ class scantable_restore_impl(scantable_restore_interface):
             self.scntab.set_freqframe(self.frame)
         if self.rfset:
             self.scntab._setmolidcol_list(self.molids)
-
+"""
+"""
 def interactive_mask(s, masklist, invert=False, purpose=None):
     new_mask = init_interactive_mask(s, masklist, invert)
     msk = get_interactive_mask(new_mask, purpose)
@@ -1150,7 +1171,9 @@ def get_interactive_mask(obj, purpose=None):
 
 def finalize_interactive_mask(obj):
     obj.finish_selection()
-    
+"""
+
+"""
 def get_plotter(plotlevel=0):
     from matplotlib import rc as rcp
     rcp('lines', linewidth=1)
@@ -1161,6 +1184,7 @@ def get_plotter(plotlevel=0):
 ##     visible = (plotlevel > 0) if plotlevel else sd.rcParams['plotter.gui']
     plotter = new_asaplot(visible=visible)
     return plotter
+"""
 
 def get_nx_ny(n):
     nl = _to_list(n, int)
@@ -1467,6 +1491,7 @@ def get_spwchs(selection, infile):
 
 
 ##### OBSOLETE METHOD #####
+"""
 def get_ms_sampling_arcsec(msname, spw='', antenna='', field='',
                            intent='ON_SOURCE', scan='',#timerange='',
                            outref=''):
@@ -1573,8 +1598,8 @@ def get_ms_sampling_arcsec(msname, spw='', antenna='', field='',
     dx_rad, dy_rad, pa = rasterutil._get_sampling(direction_rad,row_gap)
     rad_to_asec = 180./numpy.pi*3600
     return dx_rad*rad_to_asec, dy_rad*rad_to_asec, pa
-    
-    
+"""
+
 def parse_wavenumber_param(wn):
     if isinstance(wn, list):
         _check_positive_or_zero(wn)

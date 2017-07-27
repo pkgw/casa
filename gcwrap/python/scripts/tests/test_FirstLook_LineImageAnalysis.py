@@ -125,46 +125,52 @@ def msHandler(file):
 	return table_instance
 
 def suite():
-    return [Test010_FirstLookatImageAnalysis,Test020_FirstLookatImageAnalysis,Test021_FirstLookatImageAnalysis]
+	return [Test010_FirstLookatImageAnalysis,Test020_FirstLookatImageAnalysis,Test021_FirstLookatImageAnalysis]
 
 class Test010_FirstLookatImageAnalysis(unittest.TestCase):
-    def setUp(self):
+	def setUp(self):
 
- 	os.symlink(os.environ.get('CASAPATH').split()[0] + "/data/casaguidedata/working_data/sis14_twhya_cont.image",os.getcwd()+'/sis14_twhya_cont.image')
-	os.symlink(os.environ.get('CASAPATH').split()[0] + "/data/casaguidedata/working_data/sis14_twhya_n2hp.image",os.getcwd()+'/sis14_twhya_n2hp.image')
-	if os.uname()[0] == 'Darwin':
-		os.system(os.environ.get('CASAPATH').split()[0] +"/Resources/python/extractCASAscript.py -n -p -d 'https://casaguides.nrao.edu/index.php/First_Look_at_Image_Analysis'")
-	else:
-		os.system(os.environ.get('CASAPATH').split()[0] +"/lib/python2.7/extractCASAscript.py -n -p -d 'https://casaguides.nrao.edu/index.php/First_Look_at_Image_Analysis'")
-
-	time.sleep(5) # Allow extract time to download script
-
-        lines = open('FirstLookatImageAnalysis.py')
-        file = open("newfile.txt", "w")
-        for line in lines:
-
-	    if "rm -rf sis14_twhya_cont.image" in line:
-	    	continue
-	    if "rm -rf sis14_twhya_n2hp.image" in line:
-	    	continue
-	    if "niter=5000)" in line:
-		file.write("niter=250)\n")
-		continue
-            file.write(line)
-        file.close()
-        os.remove('FirstLookatImageAnalysis.py')
-        os.rename("newfile.txt",'FirstLookatImageAnalysis.py')
-
-        time.sleep(30)
-    def tearDown(self):
-        pass
-    def test_00_runGuide(self):
-        '''Run Casa Guide: First Look at Line Imaging'''
+		if os.path.isdir(os.environ.get('CASAPATH').split()[0] + "/data/casaguidedata"):
+			casaguidedata_path = "/data/casaguidedata/"
+		else:
+			casaguidedata_path = "/casaguidedata/"
 
 
-        execfile('FirstLookatImageAnalysis.py')
+		os.symlink(os.environ.get('CASAPATH').split()[0] + casaguidedata_path + "working_data/sis14_twhya_cont.image",os.getcwd()+'/sis14_twhya_cont.image')
+		os.symlink(os.environ.get('CASAPATH').split()[0] + casaguidedata_path + "working_data/sis14_twhya_n2hp.image",os.getcwd()+'/sis14_twhya_n2hp.image')
+		if os.uname()[0] == 'Darwin':
+			os.system(os.environ.get('CASAPATH').split()[0] +"/Resources/python/extractCASAscript.py -n -p -d 'https://casaguides.nrao.edu/index.php/First_Look_at_Image_Analysis'")
+		else:
+			os.system(os.environ.get('CASAPATH').split()[0] +"/lib/python2.7/extractCASAscript.py -n -p -d 'https://casaguides.nrao.edu/index.php/First_Look_at_Image_Analysis'")
+
+		time.sleep(5) # Allow extract time to download script
+
+		lines = open('FirstLookatImageAnalysis.py')
+		file = open("newfile.txt", "w")
+		for line in lines:
+
+			if "rm -rf sis14_twhya_cont.image" in line:
+				continue
+			if "rm -rf sis14_twhya_n2hp.image" in line:
+				continue
+			if "niter=5000)" in line:
+				file.write("niter=250)\n")
+				continue
+			file.write(line)
+		file.close()
+		os.remove('FirstLookatImageAnalysis.py')
+		os.rename("newfile.txt",'FirstLookatImageAnalysis.py')
+
+		time.sleep(15)
+	def tearDown(self):
+		pass
+	def test_00_runGuide(self):
+		'''Run Casa Guide: First Look at Line Imaging'''
+
+
+		execfile('FirstLookatImageAnalysis.py')
                 
-        return True
+		return True
 
 class Test020_FirstLookatImageAnalysis(unittest.TestCase):
 
