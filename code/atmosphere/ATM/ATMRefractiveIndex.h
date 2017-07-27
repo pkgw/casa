@@ -32,7 +32,7 @@
 #include "ATMCommon.h"
 #include <complex>
 
-using namespace std;
+
 
 ATM_NAMESPACE_BEGIN
 
@@ -847,7 +847,7 @@ public:
 
 private:
 
-  std::complex<double> mkSpecificRefractivity(unsigned int species,    // species --> 1 to 23           
+  std::complex<double> mkSpecificRefractivity(unsigned int species,    // species --> 1 to 23
 					 double temperature,                 
 					 double pressure,
 					 double wvpressure,
@@ -855,7 +855,7 @@ private:
 
   std::complex<double> mkSpecificRefractivity(unsigned int species, double temperature, double pressure, double frequency){return mkSpecificRefractivity(species, temperature, pressure, double(0.0), frequency);}
 
-  std::complex<double> mkSpecificRefractivity(unsigned int species,    // species --> 1 to 23           
+  std::complex<double> mkSpecificRefractivity(unsigned int species,    // species --> 1 to 23
 					 double temperature,                 
 					 double pressure,
 					 double wvpressure,
@@ -865,7 +865,7 @@ private:
 
   std::complex<double> mkSpecificRefractivity(unsigned int species, double temperature, double pressure, double frequency, double width, unsigned int n){return mkSpecificRefractivity(species, temperature, pressure, double(0.0), frequency, width, n);}
 
-  std::complex<double> mkSpecificRefractivity_16o16o(double temperature,          /// 1   
+  std::complex<double> mkSpecificRefractivity_16o16o(double temperature,          /// 1
                                                 double pressure,
                                                 double wvpressure,
                                                 double frequency);

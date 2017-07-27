@@ -206,8 +206,7 @@ public:
 
   virtual void getRowIds (casacore::Vector<casacore::uInt> & rowids) const;
 
-  virtual VisBuffer2 * getVisBuffer (const VisibilityIterator2 *) { SSVi2NotPossible() };
-  virtual VisBuffer2 * getVisBuffer ();
+  virtual VisBuffer2 * getVisBuffer () const;
 
 
   //   +=========================+

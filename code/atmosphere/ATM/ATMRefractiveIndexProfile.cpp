@@ -30,7 +30,7 @@
 #include <string>
 #include <vector>
 
-using namespace std;
+
 
 ATM_NAMESPACE_BEGIN
 
@@ -52,7 +52,7 @@ RefractiveIndexProfile::RefractiveIndexProfile(const SpectralGrid &spectralGrid,
 
 RefractiveIndexProfile::RefractiveIndexProfile(const RefractiveIndexProfile & a) : AtmProfile(a), SpectralGrid(a)
 {
-  //   cout<<"Enter RefractiveIndexProfile copy constructor version Fri May 20 00:59:47 CEST 2005"<<endl;
+  //   std::cout<<"Enter RefractiveIndexProfile copy constructor version Fri May 20 00:59:47 CEST 2005"<<endl;
 
   // level AtmProfile
 
@@ -103,7 +103,7 @@ RefractiveIndexProfile::RefractiveIndexProfile(const RefractiveIndexProfile & a)
   for(unsigned int n = 0; n < numLayer_; n++) {
     v_layerThickness_.push_back(a.v_layerThickness_[n]);
     v_layerTemperature_.push_back(a.v_layerTemperature_[n]);
-    //cout << "n=" << n << endl;
+    //cout << "n=" << n << std::endl;
     v_layerWaterVapor_.push_back(a.v_layerWaterVapor_[n]);
     v_layerPressure_.push_back(a.v_layerPressure_[n]);
     v_layerCO_.push_back(a.v_layerCO_[n]);
@@ -145,40 +145,40 @@ RefractiveIndexProfile::RefractiveIndexProfile(const RefractiveIndexProfile & a)
   vv_N_NO2LinesPtr_.reserve(a.v_chanFreq_.size());
   vv_N_SO2LinesPtr_.reserve(a.v_chanFreq_.size());
 
-  vector<complex<double> >* v_N_H2OLinesPtr;
-  vector<complex<double> >* v_N_H2OContPtr;
-  vector<complex<double> >* v_N_O2LinesPtr;
-  vector<complex<double> >* v_N_DryContPtr;
-  vector<complex<double> >* v_N_O3LinesPtr;
-  vector<complex<double> >* v_N_COLinesPtr;
-  vector<complex<double> >* v_N_N2OLinesPtr;
-  vector<complex<double> >* v_N_NO2LinesPtr;
-  vector<complex<double> >* v_N_SO2LinesPtr;
+  std::vector<std::complex<double> >* v_N_H2OLinesPtr;
+  std::vector<std::complex<double> >* v_N_H2OContPtr;
+  std::vector<std::complex<double> >* v_N_O2LinesPtr;
+  std::vector<std::complex<double> >* v_N_DryContPtr;
+  std::vector<std::complex<double> >* v_N_O3LinesPtr;
+  std::vector<std::complex<double> >* v_N_COLinesPtr;
+  std::vector<std::complex<double> >* v_N_N2OLinesPtr;
+  std::vector<std::complex<double> >* v_N_NO2LinesPtr;
+  std::vector<std::complex<double> >* v_N_SO2LinesPtr;
 
   for(unsigned int nc = 0; nc < v_chanFreq_.size(); nc++) {
 
-    v_N_H2OLinesPtr = new vector<complex<double> > ;
+    v_N_H2OLinesPtr = new std::vector<std::complex<double> > ;
     v_N_H2OLinesPtr->reserve(numLayer_);
-    v_N_H2OContPtr = new vector<complex<double> > ;
+    v_N_H2OContPtr = new std::vector<std::complex<double> > ;
     v_N_H2OContPtr->reserve(numLayer_);
-    v_N_O2LinesPtr = new vector<complex<double> > ;
+    v_N_O2LinesPtr = new std::vector<std::complex<double> > ;
     v_N_O2LinesPtr->reserve(numLayer_);
-    v_N_DryContPtr = new vector<complex<double> > ;
+    v_N_DryContPtr = new std::vector<std::complex<double> > ;
     v_N_DryContPtr->reserve(numLayer_);
-    v_N_O3LinesPtr = new vector<complex<double> > ;
+    v_N_O3LinesPtr = new std::vector<std::complex<double> > ;
     v_N_O3LinesPtr->reserve(numLayer_);
-    v_N_COLinesPtr = new vector<complex<double> > ;
+    v_N_COLinesPtr = new std::vector<std::complex<double> > ;
     v_N_COLinesPtr->reserve(numLayer_);
-    v_N_N2OLinesPtr = new vector<complex<double> > ;
+    v_N_N2OLinesPtr = new std::vector<std::complex<double> > ;
     v_N_N2OLinesPtr->reserve(numLayer_);
-    v_N_NO2LinesPtr = new vector<complex<double> > ;
+    v_N_NO2LinesPtr = new std::vector<std::complex<double> > ;
     v_N_NO2LinesPtr->reserve(numLayer_);
-    v_N_SO2LinesPtr = new vector<complex<double> > ;
+    v_N_SO2LinesPtr = new std::vector<std::complex<double> > ;
     v_N_SO2LinesPtr->reserve(numLayer_);
 
     for(unsigned int n = 0; n < numLayer_; n++) {
 
-      // cout << "numLayer_=" << nc << " " << n << endl; // COMMENTED OUT BY JUAN MAY/16/2005
+      // std::cout << "numLayer_=" << nc << " " << n << std::endl; // COMMENTED OUT BY JUAN MAY/16/2005
 
       v_N_H2OLinesPtr->push_back(a.vv_N_H2OLinesPtr_[nc]->at(n));
       v_N_H2OContPtr->push_back(a.vv_N_H2OContPtr_[nc]->at(n));
@@ -250,16 +250,16 @@ bool RefractiveIndexProfile::updateRefractiveIndexProfile(const Length &altitude
 
   if(vv_N_H2OLinesPtr_.size() < v_chanFreq_.size()) {
     mkNewAtmProfile = true;
-    cout << " RefractiveIndexProfile: number of spectral windows has increased"
-        << endl;
+    std::cout << " RefractiveIndexProfile: number of spectral windows has increased"
+        << std::endl;
   }
   if(mkNewAtmProfile) {
     if(numLayer) {
       mkRefractiveIndexProfile();
       updated = true;
     } else {
-      cout << " RefractiveIndexProfile: ERROR:  getNumLayer() returns 0"
-          << endl;
+      std::cout << " RefractiveIndexProfile: ERROR:  getNumLayer() returns 0"
+          << std::endl;
     }
   }
   return updated;
@@ -307,7 +307,7 @@ void RefractiveIndexProfile::mkRefractiveIndexProfile()
   //TODO we will have to put numLayer_ and v_chanFreq_.size() const
   //we do not want to resize! ==> pas de setter pour SpectralGrid
 
-  //cout << "vv_N_H2OLinesPtr_.size()=" << vv_N_H2OLinesPtr_.size() << endl;
+  //cout << "vv_N_H2OLinesPtr_.size()=" << vv_N_H2OLinesPtr_.size() << std::endl;
   if(vv_N_H2OLinesPtr_.size() == 0) { // first time
     vv_N_H2OLinesPtr_.reserve(v_chanFreq_.size());
     vv_N_H2OContPtr_.reserve(v_chanFreq_.size());
@@ -323,38 +323,38 @@ void RefractiveIndexProfile::mkRefractiveIndexProfile()
     rmRefractiveIndexProfile(); // delete all the layer profiles for all the frequencies
   }
 
-  vector<complex<double> >* v_N_H2OLinesPtr;
-  vector<complex<double> >* v_N_H2OContPtr;
-  vector<complex<double> >* v_N_O2LinesPtr;
-  vector<complex<double> >* v_N_DryContPtr;
-  vector<complex<double> >* v_N_O3LinesPtr;
-  vector<complex<double> >* v_N_COLinesPtr;
-  vector<complex<double> >* v_N_N2OLinesPtr;
-  vector<complex<double> >* v_N_NO2LinesPtr;
-  vector<complex<double> >* v_N_SO2LinesPtr;
+  std::vector<std::complex<double> >* v_N_H2OLinesPtr;
+  std::vector<std::complex<double> >* v_N_H2OContPtr;
+  std::vector<std::complex<double> >* v_N_O2LinesPtr;
+  std::vector<std::complex<double> >* v_N_DryContPtr;
+  std::vector<std::complex<double> >* v_N_O3LinesPtr;
+  std::vector<std::complex<double> >* v_N_COLinesPtr;
+  std::vector<std::complex<double> >* v_N_N2OLinesPtr;
+  std::vector<std::complex<double> >* v_N_NO2LinesPtr;
+  std::vector<std::complex<double> >* v_N_SO2LinesPtr;
 
-  // cout << "v_chanFreq_.size()=" << v_chanFreq_.size() << endl;
-  // cout << "numLayer_=" << numLayer_ << endl;
-  // cout << "v_chanFreq_[0]=" << v_chanFreq_[0] << endl;
+  // std::cout << "v_chanFreq_.size()=" << v_chanFreq_.size() << std::endl;
+  // std::cout << "numLayer_=" << numLayer_ << std::endl;
+  // std::cout << "v_chanFreq_[0]=" << v_chanFreq_[0] << std::endl;
   // check if new spectral windows have been added
   unsigned int ncmin;
-  /*  cout << "vv_N_H2OLinesPtr_.size()="<<vv_N_H2OLinesPtr_.size()<<endl; */
+  /*  std::cout << "vv_N_H2OLinesPtr_.size()="<<vv_N_H2OLinesPtr_.size()<<endl; */
   ncmin = vv_N_H2OLinesPtr_.size(); // will be > 0 if spectral window(s) have been added
   if(newBasicParam_) ncmin = 0;
 
-  //    cout << "ncmin=" << ncmin << endl;
+  //    std::cout << "ncmin=" << ncmin << std::endl;
 
   for(unsigned int nc = ncmin; nc < v_chanFreq_.size(); nc++) {
 
-    v_N_H2OLinesPtr = new vector<complex<double> > ;
-    v_N_H2OContPtr = new vector<complex<double> > ;
-    v_N_O2LinesPtr = new vector<complex<double> > ;
-    v_N_DryContPtr = new vector<complex<double> > ;
-    v_N_O3LinesPtr = new vector<complex<double> > ;
-    v_N_COLinesPtr = new vector<complex<double> > ;
-    v_N_N2OLinesPtr = new vector<complex<double> > ;
-    v_N_NO2LinesPtr = new vector<complex<double> > ;
-    v_N_SO2LinesPtr = new vector<complex<double> > ;
+    v_N_H2OLinesPtr = new std::vector<std::complex<double> > ;
+    v_N_H2OContPtr = new std::vector<std::complex<double> > ;
+    v_N_O2LinesPtr = new std::vector<std::complex<double> > ;
+    v_N_DryContPtr = new std::vector<std::complex<double> > ;
+    v_N_O3LinesPtr = new std::vector<std::complex<double> > ;
+    v_N_COLinesPtr = new std::vector<std::complex<double> > ;
+    v_N_N2OLinesPtr = new std::vector<std::complex<double> > ;
+    v_N_NO2LinesPtr = new std::vector<std::complex<double> > ;
+    v_N_SO2LinesPtr = new std::vector<std::complex<double> > ;
     v_N_H2OLinesPtr->reserve(numLayer_);
     v_N_H2OContPtr->reserve(numLayer_);
     v_N_O2LinesPtr->reserve(numLayer_);
@@ -367,7 +367,7 @@ void RefractiveIndexProfile::mkRefractiveIndexProfile()
 
     nu = 1.0E-9 * v_chanFreq_[nc]; // ATM uses GHz units
 
-    // cout << "freq. points =" << v_chanFreq_.size() << endl;
+    // std::cout << "freq. points =" << v_chanFreq_.size() << std::endl;
 
     /*       TO BE IMPLEMENTED IN NEXT RELEASE
 
@@ -395,7 +395,7 @@ void RefractiveIndexProfile::mkRefractiveIndexProfile()
 
 
 
-    // cout << "nc =" << nc << " nu=" << nu << " width=" << width << " GHz    npoints=" << npoints << endl;
+    // std::cout << "nc =" << nc << " nu=" << nu << " width=" << width << " GHz    npoints=" << npoints << std::endl;
 
     // nu2 = nu * nu;      // [-Wunused_but_set_variable]
     // nu_pi = nu / M_PI;    // [-Wunused_but_set_variable] 
@@ -407,27 +407,27 @@ void RefractiveIndexProfile::mkRefractiveIndexProfile()
       // t = v_layerTemperature_[j] / 300.0;    // [-Wunused_but_set_variable] 
 
 
-      // cout <<"ATMRefractiveIndexProfile: " << v_layerTemperature_[j] << " K " << v_layerPressure_[j] << " mb "  << nu << " GHz " << endl;
-      // cout <<"ATMRefractiveIndexProfile: O2" <<  atm.getRefractivity_o2(v_layerTemperature_[j],v_layerPressure_[j],wvt,nu) << endl;
-      // cout << "ATMRefractiveIndexProfile: O2" << atm.getRefractivity_o2(v_layerTemperature_[j],v_layerPressure_[j],wvt,nu,width,npoints) << endl;
-      // cout << "ATMRefractiveIndexProfile: H2O" << atm.getRefractivity_h2o(v_layerTemperature_[j],v_layerPressure_[j],wvt,nu) << endl;
-      // cout << "ATMRefractiveIndexProfile: H2O" << atm.getRefractivity_h2o(v_layerTemperature_[j],v_layerPressure_[j],wvt,nu,width,npoints) << endl;
-      // cout <<"ATMRefractiveIndexProfile: O3" <<  atm.getRefractivity_o3(v_layerTemperature_[j],v_layerPressure_[j],nu,v_layerO3_[j]) << endl;
-      // cout << "ATMRefractiveIndexProfile: O3" << atm.getRefractivity_o3(v_layerTemperature_[j],v_layerPressure_[j],nu,width,npoints,v_layerO3_[j]) << endl;      
-      // cout <<"ATMRefractiveIndexProfile: CO" <<  atm.getSpecificRefractivity_co(v_layerTemperature_[j],v_layerPressure_[j],nu) << endl;
-      // cout << "ATMRefractiveIndexProfile: CO" << atm.getSpecificRefractivity_co(v_layerTemperature_[j],v_layerPressure_[j],nu,width,npoints) << endl;
+      // std::cout <<"ATMRefractiveIndexProfile: " << v_layerTemperature_[j] << " K " << v_layerPressure_[j] << " mb "  << nu << " GHz " << std::endl;
+      // std::cout <<"ATMRefractiveIndexProfile: O2" <<  atm.getRefractivity_o2(v_layerTemperature_[j],v_layerPressure_[j],wvt,nu) << std::endl;
+      // std::cout << "ATMRefractiveIndexProfile: O2" << atm.getRefractivity_o2(v_layerTemperature_[j],v_layerPressure_[j],wvt,nu,width,npoints) << std::endl;
+      // std::cout << "ATMRefractiveIndexProfile: H2O" << atm.getRefractivity_h2o(v_layerTemperature_[j],v_layerPressure_[j],wvt,nu) << std::endl;
+      // std::cout << "ATMRefractiveIndexProfile: H2O" << atm.getRefractivity_h2o(v_layerTemperature_[j],v_layerPressure_[j],wvt,nu,width,npoints) << std::endl;
+      // std::cout <<"ATMRefractiveIndexProfile: O3" <<  atm.getRefractivity_o3(v_layerTemperature_[j],v_layerPressure_[j],nu,v_layerO3_[j]) << std::endl;
+      // std::cout << "ATMRefractiveIndexProfile: O3" << atm.getRefractivity_o3(v_layerTemperature_[j],v_layerPressure_[j],nu,width,npoints,v_layerO3_[j]) << std::endl;
+      // std::cout <<"ATMRefractiveIndexProfile: CO" <<  atm.getSpecificRefractivity_co(v_layerTemperature_[j],v_layerPressure_[j],nu) << std::endl;
+      // std::cout << "ATMRefractiveIndexProfile: CO" << atm.getSpecificRefractivity_co(v_layerTemperature_[j],v_layerPressure_[j],nu,width,npoints) << std::endl;
 
       v_N_O2LinesPtr->push_back(atm.getRefractivity_o2(v_layerTemperature_[j],
                                                        v_layerPressure_[j],
                                                        wvt,
                                                        nu));     // ,width,npoints)); TO BE IMPLEMENTED IN NEXT RELEASE
 
-      complex<double> cont_h2o =
+      std::complex<double> cont_h2o =
         atm.getSpecificRefractivity_cnth2o(v_layerTemperature_[j],
                                            v_layerPressure_[j],
                                            wvt,
                                            nu);                   // ,width,npoints); TO BE IMPLEMENTED IN NEXT RELEASE
-      complex<double> cont_dry =
+      std::complex<double> cont_dry =
           atm.getSpecificRefractivity_cntdry(v_layerTemperature_[j],
                                              v_layerPressure_[j],
                                              wvt,
@@ -446,7 +446,7 @@ void RefractiveIndexProfile::mkRefractiveIndexProfile()
         v_N_H2OLinesPtr->push_back(0.0);
       }
 
-      //	if(v_layerO3_[j]<0.0||j==10){cout << "v_layerO3_[" << j << "]=" << v_layerO3_[j] << endl;}
+      //	if(v_layerO3_[j]<0.0||j==10){cout << "v_layerO3_[" << j << "]=" << v_layerO3_[j] << std::endl;}
 
       if(v_layerO3_[j] > 0) {
 
@@ -585,12 +585,12 @@ Opacity RefractiveIndexProfile::getAverageO3LinesOpacity(unsigned int spwid)
   Opacity totalaverage;
   totalaverage = Opacity(0.0, "np");
   for(unsigned int nc = 0; nc < getNumChan(spwid); nc++) {
-    /*      cout << " Freq = " << getChanFreq(spwid,nc).get("GHz")
+    /*      std::cout << " Freq = " << getChanFreq(spwid,nc).get("GHz")
      << " O3 opacity = " << getO3LinesOpacity(spwid,nc).get("np")
      << " O3 pathlength = " << getO3LinesPathLength(spwid,nc).get("microns")
      << " O2 opacity = " << getO2LinesOpacity(spwid,nc).get("np")
      << " O2 pathlength = " << getO2LinesPathLength(spwid,nc).get("microns")
-     << endl; */
+     << std::endl; */
     totalaverage = totalaverage + getO3LinesOpacity(spwid, nc);
   }
   totalaverage = totalaverage / getNumChan(spwid);
@@ -818,10 +818,10 @@ Opacity RefractiveIndexProfile::getO3LinesOpacity(unsigned int spwid,
 
 Opacity RefractiveIndexProfile::getWetOpacity(const Length &integratedwatercolumn)
 {
-//   cout << "1 integratedwatercolumn.get()="  << integratedwatercolumn.get() << endl;
-//   cout << "2 getGroundWH2O().get()="   << getGroundWH2O().get() << endl;
-//   cout << "3 getWetOpacity()="  << endl;
-//   cout << "4 " << endl;
+//   std::cout << "1 integratedwatercolumn.get()="  << integratedwatercolumn.get() << std::endl;
+//   std::cout << "2 getGroundWH2O().get()="   << getGroundWH2O().get() << std::endl;
+//   std::cout << "3 getWetOpacity()="  << std::endl;
+//   std::cout << "4 " << std::endl;
   return getWetOpacity(getGroundWH2O(),0)*(integratedwatercolumn.get()/getGroundWH2O().get());
 
   // 2010_SEP02: return getWetOpacity(integratedwatercolumn,0)*(integratedwatercolumn.get()/getGroundWH2O().get());
@@ -832,7 +832,7 @@ Opacity RefractiveIndexProfile::getWetOpacity(const Length &integratedwatercolum
 {
   if(!chanIndexIsValid(nc)) return Opacity(-999.0);
   double kv = 0;
-  /*  cout<<"nc="<<nc<<endl; */
+  /*  std::cout<<"nc="<<nc<<endl; */
   for(unsigned int j = 0; j < numLayer_; j++) {
     kv = kv + imag(vv_N_H2OLinesPtr_[nc]->at(j) + vv_N_H2OContPtr_[nc]->at(j))
         * v_layerThickness_[j];
@@ -873,7 +873,7 @@ Opacity RefractiveIndexProfile::getH2OLinesOpacity(const Length &integratedwater
   if(!chanIndexIsValid(nc)) return Opacity(-999.0);
   double kv = 0;
   for(unsigned int j = 0; j < numLayer_; j++) {
-    /*    cout <<"j="<<j<<" abs H2O Lines ="<<vv_N_H2OLinesPtr_[nc]->at(j) <<endl; */
+    /*    std::cout <<"j="<<j<<" abs H2O Lines ="<<vv_N_H2OLinesPtr_[nc]->at(j) <<endl; */
     kv = kv + imag(vv_N_H2OLinesPtr_[nc]->at(j)) * v_layerThickness_[j];
   }
   return Opacity(kv*(integratedwatercolumn.get()/getGroundWH2O().get()));
@@ -1063,12 +1063,12 @@ Angle RefractiveIndexProfile::getNonDispersiveDryPhaseDelay(unsigned int nc)
 
 Angle RefractiveIndexProfile::getDispersiveDryPhaseDelay(unsigned int nc)
 {
-  //    cout << "getO2LinesPhaseDelay(" << nc << ")=" << getO2LinesPhaseDelay(nc).get("deg")  << endl;
-  // cout << "getO3LinesPhaseDelay(" << nc << ")=" << getO3LinesPhaseDelay(nc).get("deg") << endl;
-  //    cout << "getN2OLinesPhaseDelay(" << nc << ")=" << getN2OLinesPhaseDelay(nc).get("deg") << endl;
-  //    cout << "getNO2LinesPhaseDelay(" << nc << ")=" << getNO2LinesPhaseDelay(nc).get("deg") << endl;
-  //    cout << "getSO2LinesPhaseDelay(" << nc << ")=" << getSO2LinesPhaseDelay(nc).get("deg") << endl;
-  //    cout << "getCOLinesPhaseDelay(" << nc << ")=" << getCOLinesPhaseDelay(nc).get("deg") << endl;
+  //    std::cout << "getO2LinesPhaseDelay(" << nc << ")=" << getO2LinesPhaseDelay(nc).get("deg")  << std::endl;
+  // std::cout << "getO3LinesPhaseDelay(" << nc << ")=" << getO3LinesPhaseDelay(nc).get("deg") << std::endl;
+  //    std::cout << "getN2OLinesPhaseDelay(" << nc << ")=" << getN2OLinesPhaseDelay(nc).get("deg") << std::endl;
+  //    std::cout << "getNO2LinesPhaseDelay(" << nc << ")=" << getNO2LinesPhaseDelay(nc).get("deg") << std::endl;
+  //    std::cout << "getSO2LinesPhaseDelay(" << nc << ")=" << getSO2LinesPhaseDelay(nc).get("deg") << std::endl;
+  //    std::cout << "getCOLinesPhaseDelay(" << nc << ")=" << getCOLinesPhaseDelay(nc).get("deg") << std::endl;
   return getO2LinesPhaseDelay(nc) + getO3LinesPhaseDelay(nc)
       + getN2OLinesPhaseDelay(nc) + getCOLinesPhaseDelay(nc)
       + getNO2LinesPhaseDelay(nc) + getSO2LinesPhaseDelay(nc);
@@ -1288,11 +1288,11 @@ Angle RefractiveIndexProfile::getO3LinesPhaseDelay(unsigned int nc)
   }
   double kv = 0;
 
-  //    if(nc=66){cout << "vv_N_O3LinesPtr_" << ".size()=" << vv_N_O3LinesPtr_.size() << endl;}
+  //    if(nc=66){cout << "vv_N_O3LinesPtr_" << ".size()=" << vv_N_O3LinesPtr_.size() << std::endl;}
 
   for(unsigned int j = 0; j < numLayer_; j++) {
     /* if(nc=66){
-     cout << "j=" << j << " vv_N_O3LinesPtr_[" << nc << "]->at(" << j << ")="  << vv_N_O3LinesPtr_[nc]->at(j) << endl;
+     std::cout << "j=" << j << " vv_N_O3LinesPtr_[" << nc << "]->at(" << j << ")="  << vv_N_O3LinesPtr_[nc]->at(j) << std::endl;
      } */
     kv = kv + real(vv_N_O3LinesPtr_[nc]->at(j)) * v_layerThickness_[j];
   }
@@ -1777,15 +1777,15 @@ bool RefractiveIndexProfile::chanIndexIsValid(unsigned int nc)
 {
   if(nc < vv_N_H2OLinesPtr_.size()) return true;
   if(nc < v_chanFreq_.size()) {
-    cout
+    std::cout
         << " RefractiveIndexProfile: Requested index in a new spectral window ==> update profile"
-        << endl;
+        << std::endl;
     mkRefractiveIndexProfile();
-    // cout << "...and we return" << endl;
+    // std::cout << "...and we return" << std::endl;
     return true;
   }
-  cout << " RefractiveIndexProfile: ERROR: Invalid channel frequency index"
-      << endl;
+  std::cout << " RefractiveIndexProfile: ERROR: Invalid channel frequency index"
+      << std::endl;
   return false;
 }
 
@@ -1795,14 +1795,14 @@ bool RefractiveIndexProfile::spwidAndIndexAreValid(unsigned int spwid,
 {
 
   if(spwid > getNumSpectralWindow() - 1) {
-    cout
+    std::cout
         << " RefractiveIndexProfile: ERROR: spectral window identifier out of range "
-        << endl;
+        << std::endl;
     return false;
   }
   if(idx > getNumChan(spwid) - 1) {
-    cout << " RefractiveIndexProfile: ERROR: channel index out of range "
-        << endl;
+    std::cout << " RefractiveIndexProfile: ERROR: channel index out of range "
+        << std::endl;
     return false;
   }
   unsigned int nc = v_transfertId_[spwid] + idx;

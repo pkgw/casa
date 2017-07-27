@@ -40,7 +40,7 @@ StatWtTVI::StatWtTVI(ViImplementation2 * inputVii, const Record &configuration)
     );
 	_initialize();
 	// Initialize attached VisBuffer
-	setVisBuffer(createAttachedVisBuffer(VbPlain, VbRekeyable));
+	setVisBuffer(createAttachedVisBuffer(VbRekeyable));
 }
 
 StatWtTVI::~StatWtTVI() {}

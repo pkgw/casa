@@ -61,7 +61,7 @@ public:
     a2(nRow,-1),
     c0(9,1.0)
  {
-   VisBuffer2 *vb0 = VisBuffer2::factory(VbPlain, VbRekeyable);
+   VisBuffer2 *vb0 = VisBuffer2::factory(VbRekeyable);
    
    // The basic shape
    vb0->setShape(nCorr,nChan,nRow);
