@@ -49,8 +49,10 @@
 #include <synthesis/CalTables/CTMainRecord.h>
 #include <synthesis/CalTables/CTMainColumns.h>
 #include <synthesis/CalTables/VisCalEnum.h>
+#include <msvis/MSVis/SimpleSimVi2.h>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
+
 
 // <summary> 
 // NewCalTable: New Calibration table access and creation
@@ -162,6 +164,12 @@ class NewCalTable : public casacore::Table
 	       casacore::Double rTime=0.0, casacore::Double tint=0.0,
 	       casacore::Bool disk=false, casacore::Bool verbose=false);
 
+   // Create an empty NewCalTable from a SimpleSimVi2Parameters object
+   // NB: only for testing, for now
+   NewCalTable(casacore::String tableName, casacore::String CorF, casacore::String caltype,
+	       const vi::SimpleSimVi2Parameters& ssp,
+	       casacore::Bool disk=false,casacore::Bool verbose=false);
+
    // Assignment operator
    NewCalTable& operator= (const NewCalTable& other);
 
@@ -266,6 +274,12 @@ class NewCalTable : public casacore::Table
    void fillGenericAntenna(casacore::Int nAnt);
    void fillGenericSpw(casacore::Int nSpw,casacore::Vector<casacore::Int>& nChan);
      
+   // Init subtables from SimpleSimVi2Parameters
+   void fillGenericObs(const vi::SimpleSimVi2Parameters& ssp);
+   void fillGenericField(const vi::SimpleSimVi2Parameters& ssp);
+   void fillGenericAntenna(const vi::SimpleSimVi2Parameters& ssp);
+   void fillGenericSpw(const vi::SimpleSimVi2Parameters& ssp);
+
    // Force Spw subtable to be all nchan=1
    //  (very basic; uses chan n/2 freq)
    void makeSpwSingleChan();

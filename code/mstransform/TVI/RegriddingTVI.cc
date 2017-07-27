@@ -592,7 +592,7 @@ void RegriddingTVI::flag(Cube<Bool>& flagCube) const
 	initFrequencyTransformationEngine();
 
 	// Reshape output data before passing it to the DataCubeHolder
-	flagCube.resize(getVisBufferConst()->getShape(),false);
+	flagCube.resize(getVisBuffer()->getShape(),false);
 
 	// Gather input data
 	DataCubeMap inputData;
@@ -714,7 +714,7 @@ template<class T> void RegriddingTVI::transformDataCube(	const Cube<T> &inputVis
 	initFrequencyTransformationEngine();
 
 	// Reshape output data before passing it to the DataCubeHolder
-	outputVis.resize(getVisBufferConst()->getShape(),false);
+	outputVis.resize(getVisBuffer()->getShape(),false);
 
 	// Gather input data
 	DataCubeMap inputData;

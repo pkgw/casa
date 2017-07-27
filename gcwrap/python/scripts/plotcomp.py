@@ -69,7 +69,7 @@ def plotcomp(compdict, showplot=True, wantdict=False, symb=',',
             antennalist = repodir + antennalist
 
         su = simutil("")
-        stnx, stny, stnz, diam, padnames, nant, telescopename = su.readantenna(antennalist)
+        stnx, stny, stnz, diam, padnames, telescopename, obsmeas = su.readantenna(antennalist)
         #print "telescopename:", telescopename
 
         # Check that the source is up.

@@ -53,6 +53,7 @@ def toolhelp():
     print ' pm : PlotMS utilities'
     print ' po : Imagepol utilities'
     print ' rg : Region manipulation utilities'
+    print ' sdms : MeasurementSet (MS) utilities for Single-Dish'
     print ' sl : Spectral line import and search'
     print ' sm : Simulation utilities'
     print ' tb : Table utilities (selection, extraction, etc)'
@@ -60,7 +61,6 @@ def toolhelp():
     print ' vp : Voltage pattern/primary beam utilities'
     print ' ---'
     print ' pl : pylab functions (e.g., pl.title, etc)'
-    print ' sd : Single dish utilities'
     print ' ---'
 
 def tasklist():

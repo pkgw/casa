@@ -17,7 +17,6 @@ except ImportError, e:
     print "failed to load matplotlib:\n", e
     print "sys.path =", "\n\t".join(sys.path)
 
-from asap_init import *
 from casa_system import casa
 
 if not os.environ.has_key('OMP_NUM_THREADS'):
