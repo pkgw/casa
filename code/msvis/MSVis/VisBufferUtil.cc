@@ -735,7 +735,7 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
 
    MDirection VisBufferUtil::getPhaseCenter(const vi::VisBuffer2& vb, const Int vbrow){
      //Timer tim;
-	 //tim.mark();
+	 
 	 
 	 //MDirection outdir;
 	 if(oldPCMSId_p != vb.msId()){
@@ -772,10 +772,35 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
 	   }
 	   //tim.show("After caching all phasecenters");
 	 }
+	 //tim.mark();
+	 MDirection retval;
+	 auto it=cachedPhaseCenter_p[oldPCMSId_p].find(vb.time()(vbrow));
+	 if(it != cachedPhaseCenter_p[oldPCMSId_p].end()){
+	   retval=it->second;
+	 }
+	 else{
+	   auto upp= cachedPhaseCenter_p[oldPCMSId_p].upper_bound(vb.time()(vbrow));
+	   auto low= cachedPhaseCenter_p[oldPCMSId_p].lower_bound(vb.time()(vbrow));
+	   if (upp==cachedPhaseCenter_p[oldPCMSId_p].begin())
+	     retval=(cachedPhaseCenter_p[oldPCMSId_p].begin())->second;
+	   else if(low==cachedPhaseCenter_p[oldPCMSId_p].end()){
+	     --low;
+	     retval=low->second;
+	   }
+	   else{
+	     if(fabs(vb.time()(vbrow) - (low->first)) < fabs(vb.time()(vbrow) - (upp->first))){
+	       retval=low->second;
+	     }
+	     else{
+	       retval=upp->second;
+	     }
 
-
+	   }
+	 }
 	 //tim.show("retrieved cache");
-	 return cachedPhaseCenter_p[oldPCMSId_p][vb.time()(vbrow)];
+	 
+
+	 return retval;
 
 
 
