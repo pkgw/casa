@@ -46,6 +46,7 @@ namespace casa {
 class PlotMSApp;
 class PlotMSIndexer;
 class ThreadCommunication;
+class PlotMSAtm;
 
 class PlotMSCacheBase {
   
@@ -330,7 +331,9 @@ protected:
   void deleteCache();
   void deleteIndexer();
 
-
+  // helpers for atm/tsky overlays
+  void deleteAtm();
+  void printAtmStats(casacore::Int scan);
 
   virtual bool isEphemeris() {return false;};
   bool isEphemerisAxis( PMS::Axis axis ) const;
@@ -375,7 +378,6 @@ protected:
 
   //Return the color lookup index for the chunk.
   int findColorIndex( int chunk, bool initialize );
-
 
 
   // Private data
@@ -456,9 +458,10 @@ protected:
   casacore::Vector<casacore::Double> radialVelocity_, rho_;
   casacore::Vector<casacore::Double> az0_,el0_,ha0_,pa0_;
 
+  casacore::PtrBlock<casacore::Vector<casacore::Double>*> atm_;
+
   // for cal tables
   casacore::PtrBlock<casacore::Array<casacore::Float>*> par_, snr_;
-  casacore::PtrBlock<casacore::Vector<casacore::Double>*> atm_;
 
   // Current setup/state.
   bool dataLoaded_;
@@ -504,6 +507,9 @@ protected:
   casacore::String calType_;
   // polarization selection is ratio ("/")
   bool polnRatio_;
+
+  // For atm/tsky overlays
+  PlotMSAtm* plotmsAtm_;
 
 private:
   void _updateAntennaMask( casacore::Int a, casacore::Vector<casacore::Bool>& antMask, const casacore::Vector<casacore::Int> selectedAntennas );

@@ -26,6 +26,7 @@
 //# $Id: $
 #include <plotms/Data/CalCache.h>
 #include <plotms/Data/PlotMSIndexer.h>
+#include <plotms/Data/PlotMSAtm.h>
 #include <plotms/PlotMS/PlotMS.h>
 #include <plotms/Threads/ThreadCommunication.h>
 
@@ -49,8 +50,7 @@ namespace casa {
 CalCache::CalCache(PlotMSApp* parent):
   PlotMSCacheBase(parent),
   basis_("unknown"),
-  divZero_(False),
-  atm_p(NULL)
+  divZero_(False)
 {
 }
 
@@ -123,26 +123,20 @@ void CalCache::loadIt(vector<PMS::Axis>& loadAxes,
 
   setUpCalIter(filename_,selection_, True,True,True);
 
-  // set up data columns and check for atm axis
-  bool doAtm(false);
+  // set up data columns and check for atm/tsky axis
   vector<PMS::DataColumn> loadData(loadAxes.size());
   for (uInt i=0; i<loadData.size(); ++i) {
     loadData[i] = PMS::DEFAULT_DATACOLUMN;
-    if (loadAxes[i]==PMS::ATM || loadAxes[i]==PMS::TSKY) doAtm=true;
-  }
-  if (doAtm) {
-    atm_p = new PlotMSAtm(filename_);
-    if (!selection_.isEmpty()) atm_p->setUserSelection(selection_);
   }
 
   countChunks(*ci_p, loadAxes, loadData, thread);
   //    trapExcessVolume(pendingLoadAxes);
   loadCalChunks(*ci_p,loadAxes,thread);
 
-  if (ci_p)  delete ci_p;
-  if (doAtm) delete atm_p;
-  ci_p  = NULL;
-  atm_p = NULL;
+  if (ci_p) {
+    delete ci_p;
+    ci_p  = NULL;
+  }
 }
 
 void CalCache::setUpCalIter(const String& ctname,
@@ -255,7 +249,7 @@ void CalCache::loadCalChunks(ROCTIter& ci,
   // Initialize the freq/vel calculator (in case we use it)
   //  vbu_=VisBufferUtil(vb);
 
-  Int chunk = 0;
+  Int chunk(0), lastscan(0), thisscan(0), lastspw(-1), thisspw(0);
   chshapes_.resize(4,nChunk_);
   goodChunk_.resize(nChunk_);
   goodChunk_.set(False);
@@ -263,7 +257,6 @@ void CalCache::loadCalChunks(ROCTIter& ci,
 
   // Reset iterator
   ci.reset();
-  casacore::Int lastscan=0;
 
   while (!ci.pastEnd()) {
 
@@ -311,17 +304,20 @@ void CalCache::loadCalChunks(ROCTIter& ci,
       for(unsigned int i = 0; i < loadAxes.size(); i++) {
         loadCalAxis(ci, chunk, loadAxes[i], pol);
         // print atm stats once per scan
-        if (atm_p && (loadAxes[i]==PMS::ATM || loadAxes[i]==PMS::TSKY)) {
-            casacore::Int thisscan = ci.thisScan();
+        if (loadAxes[i]==PMS::ATM || loadAxes[i]==PMS::TSKY) {
+            thisscan = ci.thisScan();
             if (thisscan != lastscan) {
-                stringstream ss;
-                ss << "Atmospheric curve stats for scan " << thisscan;
-                ss.precision(2);
-                ss << ": PWV " << fixed << atm_p->getPwv() << " mm, airmass ";
-                ss.precision(3); 
-                ss << fixed << atm_p->getAirmass();
-                logLoad(ss.str());
+                printAtmStats(thisscan);
                 lastscan = thisscan;
+            }
+            thisspw = ci.thisSpw();
+            if (((*atm_[chunk]).nelements()==1) &&
+                    (thisspw != lastspw)) {
+                logWarn("load_cache", "Setting " + 
+                    PMS::axis(loadAxes[i]) + " for spw " +
+                    String::toString(thisspw) +
+                    " to zero because it has only one channel.");
+                lastspw = thisspw;
             }
         }
       }
@@ -658,12 +654,11 @@ void CalCache::loadCalChunks(ROCTIter& ci,
   case PMS::TSKY: { 
     casacore::Int spw = cti.thisSpw();
     casacore::Int scan = cti.thisScan();
-    casacore::Vector<casacore::Double> curve = 
-        atm_p->calcOverlayCurve(spw, scan, (axis==PMS::ATM));
-    if (curve.nelements()==1) {
-        logWarn("load_cache", "Skipping spw "+ String::toString(spw) + 
-            " for " + PMS::axis(axis) + " because it has only one channel.");
-    }
+    casacore::Vector<casacore::Double> curve(1, 0.0);
+    if (plotmsAtm_) {
+        curve.resize();    
+        curve = plotmsAtm_->calcOverlayCurve(spw, scan, (axis==PMS::ATM));
+    } 
     *atm_[chunk] = curve;
     break;
   }

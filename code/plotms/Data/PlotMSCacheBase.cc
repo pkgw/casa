@@ -27,6 +27,7 @@
 #include <plotms/Data/PlotMSCacheBase.h>
 #include <plotms/Data/PlotMSIndexer.h>
 #include <plotms/Threads/ThreadCommunication.h>
+#include <plotms/Data/PlotMSAtm.h>
 #include <casa/OS/Timer.h>
 #include <casa/OS/HostInfo.h>
 #include <casa/OS/Memory.h>
@@ -105,7 +106,8 @@ PlotMSCacheBase::PlotMSCacheBase(PlotMSApp* parent):
           xmaxG_(0),
           ymaxG_(0),
           calType_(""),
-          polnRatio_(false)
+          polnRatio_(false),
+          plotmsAtm_(NULL)
 {
 
 	// Make the empty indexer0 object so we have and empty PlotData object
@@ -149,6 +151,7 @@ PlotMSCacheBase::~PlotMSCacheBase() {
 	deleteIndexer();
 	deletePlotMask();
 	deleteCache();
+    deleteAtm();
 }
 
 Int PlotMSCacheBase::nIter( int dataIndex ) const {
@@ -278,7 +281,6 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 	// need a way to keep track of whether:
 	// 1) we already have the metadata loaded
 	// 2) the underlying MS has changed, requiring a reloading of metadata
-
     userCanceled_ = false;
 
     // Trap ratio plots, only for cal tables
@@ -291,11 +293,14 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 	currentXData_.clear();
 	currentYData_.clear();
 	int dataCount = axes.size() / 2;
+    bool doAtm(false);
 	for ( int i = 0; i < dataCount; i++ ){
 		currentX_.push_back(axes[i]);
         currentXData_.push_back(data[i]);
 		currentY_.push_back(axes[dataCount+i]);
         currentYData_.push_back(data[dataCount+i]);
+        if (axes[dataCount+i]==PMS::ATM || axes[dataCount+i]==PMS::TSKY)
+            doAtm=true;
 	}
 
 	// Maintain access to this msname, selection, & averager, because we'll
@@ -312,6 +317,11 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 	averaging_ = averaging;
 	transformations_ = transformations;
 	calibration_ = calibration;
+
+    if (doAtm) {
+        plotmsAtm_ = new PlotMSAtm(filename_, selection_,
+            cacheType()==PlotMSCacheBase::MS);
+    }
 
 	//logLoad(selection_.summary());
 	logLoad(transformations_.summary());
@@ -612,6 +622,7 @@ void PlotMSCacheBase::clear() {
 	deleteIndexer();
 	deletePlotMask();
 	deleteCache();
+    deleteAtm();
 	refTime_p=0.0;
 	dataLoaded_=false;
 }
@@ -1779,6 +1790,25 @@ int PlotMSCacheBase::findColorIndex( int chunk, bool initialize ){
 	double timeChunk = getTime(chunk,0);
 	int index = uniqueTimes.indexOf( timeChunk );
 	return index;
+}
+
+void PlotMSCacheBase::deleteAtm() {
+    if (plotmsAtm_) {
+        delete plotmsAtm_;
+        plotmsAtm_ = NULL;
+    }
+}
+
+void PlotMSCacheBase::printAtmStats(casacore::Int scan) {
+    if (plotmsAtm_) {
+        stringstream ss;
+        ss << "Atmospheric curve stats for scan " << scan;
+        ss.precision(2);
+        ss << ": PWV " << fixed << plotmsAtm_->getPwv() << " mm, airmass ";
+        ss.precision(3); 
+        ss << fixed << plotmsAtm_->getAirmass();
+        logLoad(ss.str());
+    }
 }
 
 }

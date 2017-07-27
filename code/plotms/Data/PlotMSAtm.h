@@ -75,11 +75,8 @@ class PlotMSAtm {
 public:
 
     // construct with bandpass table name
-    PlotMSAtm(casacore::String bptable);
+    PlotMSAtm(casacore::String filename, PlotMSSelection& userSel, bool isMS);
     ~PlotMSAtm();
-
-    // apply selection to cal table
-    void setUserSelection(PlotMSSelection& selection);
 
     // returns curve vector (atm if atm=true, else tsky)
     casacore::Vector<casacore::Double> calcOverlayCurve(
@@ -93,16 +90,20 @@ private:
     PlotMSAtm(const PlotMSAtm& other);
     PlotMSAtm& operator= (const PlotMSAtm& other);
 
+    // info from MS
+    void setUpMS(casacore::String filename, PlotMSSelection& userSel);
+    void getMSTimes();
+    void getMSFields();
+
     // info from cal tables
-    void setCalTimes(NewCalTable* nct=NULL);
-    void setTelescope();
-    void setFields();
-    void setMS();
+    void setUpCalTable(casacore::String filename, PlotMSSelection& userSel);
+    void getCalTimes();
+    void getCalFields();
+    void getCalMS();
 
-    // for each chunk's spw and scan
-    NewCalTable* applySelection(PlotMSSelection& selection);
-
-    inline bool isAlma() { return (telescopeName_=="ALMA"); }
+    // for user selection then each chunk's spw and scan
+    casacore::MeasurementSet* applyMSSelection(PlotMSSelection& selection);
+    NewCalTable* applyCalSelection(PlotMSSelection& selection);
 
     // calculated values
     void getMeanWeather();  // stored in weather_ Record
@@ -115,21 +116,23 @@ private:
     atm::AtmProfile* getAtmProfile();
 
     // utility functions
+    // Sets times_ = unique values in TIME column
+    void getUniqueTimes(casacore::Vector<casacore::Double> alltimes);
+    // Sets fields_ = unique values in FIELD column
+    void getUniqueFields(casacore::Vector<casacore::Int> allfields);
     template <typename T>
-    casacore::Vector<T> getValuesNearCalTimes(
+    casacore::Vector<T> getValuesNearTimes(
         casacore::Vector<T> inputCol, 
         casacore::Vector<casacore::Double> timesCol);
-    casacore::String getSelectionExpr(
-        casacore::Vector<casacore::Int> intVector);
 
-    NewCalTable *bptable_, *seltable_;
-    casacore::Vector<casacore::Double> caltimes_;
+    bool isMS_;
+    casacore::MeasurementSet *ms_, *selms_; // selected MS for each spw/scan
+    NewCalTable *bptable_, *selct_;  // selected CT for each spw/scan
     casacore::String telescopeName_;
-    casacore::Vector<casacore::Int> calfields_;
-    casacore::MeasurementSet* ms_;
-    casacore::Int scan_;  // needed for elevation
-    casacore::Record weather_;
     casacore::Double pwv_, airmass_;
+    casacore::Vector<casacore::Double> times_;
+    casacore::Vector<casacore::Int> fields_;
+    casacore::Record weather_;
 };
 
 }

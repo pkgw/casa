@@ -168,8 +168,8 @@ public:
 	void setFilename (const casacore::String & value) {
 		if (itsFilename_ != value) {
 			itsFilename_ = value;
-            setShowAtm(allowAtm(itsFilename_));
-            setShowTsky(allowAtm(itsFilename_));
+            setShowAtm(true);
+            setShowTsky(true);
 			updated();
 		}
 	}
@@ -222,14 +222,8 @@ public:
 	}
 	void setShowAtm (const bool & value) {
 	    if (itsShowAtm_!= value) {
-            // if true, test if this is valid (B table plot)
-            if (!value) {
-		        itsShowAtm_ = value;
-		        updated();
-            } else if (allowAtm(itsFilename_)) {
-		        itsShowAtm_ = value;
-		        updated();
-            } // else log message?
+		    itsShowAtm_ = value;
+		    updated();
 	    }
     }
 
@@ -238,32 +232,10 @@ public:
 	}
 	void setShowTsky (const bool & value) {
 	    if (itsShowTsky_!= value) {
-            // if true, test if this is valid (B table plot)
-            if (!value) {
-		        itsShowTsky_ = value;
-		        updated();
-            } else if (allowAtm(itsFilename_)) {
-		        itsShowTsky_ = value;
-		        updated();
-            } // else log message?
+		    itsShowTsky_ = value;
+		    updated();
 	    }
     }
-
-    // determine whether this is a bandpass cal table
-    bool allowAtm(const casacore::String filename) const {
-        bool allowed = false;
-        // check for MS or cal table
-        if (casacore::Table::tableInfo(filename).type() == "Calibration") {
-            casacore::Table tab(filename);
-            // old cal table type if field name is unknown
-            if (tab.keywordSet().fieldNumber("VisCal") > -1) {
-                casacore::String caltype = tab.keywordSet().asString("VisCal");
-                if (caltype[0] == 'B') allowed = true;
-            }
-        }
-        return allowed;
-    }
-
 
 private:
 	//Does the work of the operator=()s.
