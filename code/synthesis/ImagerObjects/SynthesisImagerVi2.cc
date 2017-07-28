@@ -1623,7 +1623,7 @@ void SynthesisImagerVi2::unlockMSs()
       CountedPtr<refim::FTMachine>& theIFT,
       const String &pointingDirCol,
       const Float skyPosThreshold,
-      const Bool doPBCorr,
+      const Bool /*doPBCorr*/,
       const Float rotatePAStep,
       const String& gridFunction,
       const Int convSupport,
