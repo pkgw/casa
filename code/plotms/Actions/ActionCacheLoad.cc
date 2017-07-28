@@ -118,6 +118,7 @@ void ActionCacheLoad::setUpWorkParameters(CacheThread* cacheThread, int plotInde
 
 	PlotMSPlotParameters& params = plots[plotIndex]->parameters();
 	PMS_PP_MSData* paramsData = params.typedGroup<PMS_PP_MSData>();
+
 	if ( cacheThread != NULL ){
 		cacheThread->setLoad(true);
 		cacheThread->setCacheBase(&plots[plotIndex]->cache());

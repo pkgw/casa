@@ -19,13 +19,13 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     </param>
 
     <param type="any" name="region">
-        <description>Region selection. Default is to use the full image.</description>
+        <description>Region selection. Empty string (default) means use rules for box/chans/stokes specification.</description>
 	<any type='variant' limittype='string stringArray'/>
         <value type='string'/>
     </param>
 
     <param type="string" name="box">
-        <description>Rectangular region(s) to select in direction plane. Default is to use the entire direction plane.</description>
+        <description>Rectangular region(s) to select in direction plane. Empty string (default) means use the reference pixel.</description>
         <value/>
     </param>
 
@@ -106,10 +106,10 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 	Keyword arguments:
 	imagename -- Name of input image
 		Default: none; Example: imagename='ngc5921_task.im'
-        region -- Region selection. Default is to use the full image.
+        region -- Region selection. Empty string (default) means use rules for box/chans/stokes specification.
                 Example: region='myimage.im.rgn'
                          region='region1'
-	box --  Rectangular region to select in direction plane. Default is to use the entire direction plane.
+	box --  Rectangular region to select in direction plane. Empty string (default) means use the reference pixel.
 		Default: '' (referencepixel values for the Directional coord); 
                 Example: box='10,10,50,50'
                          box = '10,10,30,30,35,35,50,50' (two boxes)

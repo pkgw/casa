@@ -34,7 +34,7 @@ namespace casa {
 
 Vi2StatsFlagsCubeIterator::Vi2StatsFlagsCubeIterator(vi::VisBuffer2 *vb2)
 {
-	if (vb2->getVi()->existsColumn(vi::VisBufferComponent2::FlagCube)) {
+	if (vb2->existsColumn(vi::VisBufferComponent2::FlagCube)) {
 		flags_array = &vb2->flagCube();
 		expansion_factor = 1;
 	} else {
@@ -101,7 +101,7 @@ Vi2StatsFlagsCubeIterator::atEnd()
 
 Vi2StatsFlagsRowIterator::Vi2StatsFlagsRowIterator(vi::VisBuffer2 *vb2)
 {
-	if (vb2->getVi()->existsColumn(vi::VisBufferComponent2::FlagCube)) {
+	if (vb2->existsColumn(vi::VisBufferComponent2::FlagCube)) {
 		flags_array = &vb2->flagCube();
 		reduction_factor = vb2->nChannels() * vb2->nCorrelations();
 	} else {

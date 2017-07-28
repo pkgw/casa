@@ -331,6 +331,22 @@ public:
 	CTBuffer(CTIter *ctIter) {ctCache_p = new CTCache(ctIter);invalidate();}
 	~CTBuffer() {}
 
+	virtual casacore::Bool existsColumn (VisBufferComponent2 id) const {
+		return id == VisBufferComponent2::ArrayId
+			|| id == VisBufferComponent2::FieldId
+			|| id == VisBufferComponent2::SpectralWindows
+			|| id == VisBufferComponent2::Scan
+			|| id == VisBufferComponent2::Time
+			|| id == VisBufferComponent2::Antenna1
+			|| id == VisBufferComponent2::Antenna2
+			|| id == VisBufferComponent2::FlagCube
+			|| id == VisBufferComponent2::VisibilityCubeObserved
+			|| id == VisBufferComponent2::VisibilityCubeCorrected
+			|| id == VisBufferComponent2::VisibilityCubeModel
+			|| id == VisBufferComponent2::ObservationId
+			|| id == VisBufferComponent2::CorrType;
+	}
+
 	const casacore::Vector<casacore::Int> & arrayId() const {arrayId_p.assign (casacore::Vector<casacore::Int> (time().nelements(), ctCache_p->arrayId())); return arrayId_p;}
 	const casacore::Vector<casacore::Int> & fieldId() const {fieldId_p.assign (casacore::Vector<casacore::Int> (time().nelements(), ctCache_p->fieldId())); return fieldId_p;}
 	casacore::Int spectralWindow() const {return ctCache_p->spectralWindow();}

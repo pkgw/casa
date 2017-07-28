@@ -24,6 +24,7 @@
 ##    Modified by J. E. Kooi   2015/03/2   v2.5 (Changed ztec_value for doplot = 
 ##                                              True to plot a red bar over the VTEC
 ##                                              to show the observing session)
+##    Modified by gmoellen     2017/05/30  v2.6 Generate plot disk file
 ##
 ##
 ##    Tested in CASA 4.3.0 and 4.2.1 on RHEL release 6.4 (Santiago)
@@ -297,13 +298,20 @@ def create0(ms_name,tec_server='IGS',plot_vla_tec=False,im_name='',username='',u
             ymd_date_num +=1
 
         if tec_type != '':
-            ztec_value(-107.6184,34.0790,points_long,points_lat,ref_long,ref_lat,incr_long,\
-                        incr_lat,incr_time,ref_start,ref_end,int((num_maps-1)*call_num+1),\
-                        full_tec_array,plot_vla_tec)
+
             if im_name == '':
                 prefix = ms_name
             else:
                 prefix = im_name
+
+            plot_name=''
+            if plot_vla_tec:
+                plot_name=prefix+'.IGS_TEC_at_site.png'
+
+            ztec_value(-107.6184,34.0790,points_long,points_lat,ref_long,ref_lat,incr_long,\
+                        incr_lat,incr_time,ref_start,ref_end,int((num_maps-1)*call_num+1),\
+                        full_tec_array,plot_vla_tec,plot_name)
+
             CASA_image = make_image(prefix,ref_long,ref_lat,ref_time,incr_long,incr_lat,\
                                     incr_time*60,full_tec_array[0],tec_type,appendix = '.IGS_TEC')
             CASA_RMS_image = make_image(prefix,ref_long,ref_lat,ref_time,incr_long,incr_lat,\
@@ -366,7 +374,11 @@ def create0(ms_name,tec_server='IGS',plot_vla_tec=False,im_name='',username='',u
   
     ## Returns the name of the TEC image generated
     print 'The following TEC map was generated: '+CASA_image+' & '+CASA_RMS_image
-    return CASA_image,CASA_RMS_image
+    if len(plot_name)>0:
+        print 'The following TEC zenith plot was generated: '+plot_name
+    else:
+        plot_name='none'
+    return CASA_image,CASA_RMS_image,plot_name
 
 
 
@@ -728,7 +740,7 @@ def make_image(prefix,ref_long,ref_lat,ref_time,incr_long,incr_lat,incr_time,tec
 
 
 
-def ztec_value(my_long,my_lat,points_long,points_lat,ref_long,ref_lat,incr_long,incr_lat,incr_time,ref_start,ref_end,num_maps,tec_array,PLOT=False):
+def ztec_value(my_long,my_lat,points_long,points_lat,ref_long,ref_lat,incr_long,incr_lat,incr_time,ref_start,ref_end,num_maps,tec_array,PLOT=False,PLOTNAME=''):
     """
 ## =============================================================================
 ##
@@ -804,6 +816,7 @@ def ztec_value(my_long,my_lat,points_long,points_lat,ref_long,ref_lat,incr_long,
         rc('xtick', labelsize=15)
         rc('ytick', labelsize=15)
         plottimes = [x*incr_time for x in range(num_maps)]
+        plt.interactive(False)
         plt.errorbar(plottimes,site_tec[0],site_tec[1])
         plt.axvspan(ref_start/60.0, ref_end/60.0, facecolor='r', alpha=0.5)
         plt.xlabel(r'$\mathrm{Time}$ $\mathrm{(minutes)}$', fontsize=20)
@@ -812,6 +825,10 @@ def ztec_value(my_long,my_lat,points_long,points_lat,ref_long,ref_lat,incr_long,
                     '$\mathrm{'+str(my_long)+'}$ / $\mathrm{Lat.}$ $\mathrm{=}$ $\mathrm{'+str(my_lat)+'}$',\
                     fontsize=20)
         plt.axis([min(plottimes),max(plottimes),0,1.1*max(site_tec[0])])
+
+        if len(PLOTNAME)>0:
+            plt.savefig( PLOTNAME )
+
     if PLOT == False:
         return site_tec
 

@@ -126,8 +126,14 @@ crashCallbackCommon (const char * dumpPath,
 
     // Only the original process gets to here.  Exiting the routine will
     // cause the original signal to terminate the the process.
-
-    cerr << "--> Now on to our untimely death ..." << endl;
+    cerr << endl << "--------------------------------------------------------------" << endl;
+    cerr << "CASA has crashed..." << endl;
+    cerr << "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --" << endl;
+    cerr << "A crash report is being generated and submitted. The report" << endl;
+    cerr << "will contain information about CASA's environment when the" << endl;
+    cerr << "crash occurred (e.g. CASA log, call stack, CPU information)." << endl;
+    cerr << "This should not take too long..." << endl;
+    cerr << "--------------------------------------------------------------" << endl << endl;
 
     return succeeded;
 }
@@ -175,7 +181,7 @@ CrashReporter::initialize (const string & crashDumpDirectory,
     // If the Casa settings contain a value for UseCrashReporter, then act on that;
     // otherwise see if there's an environment variable set and if so use that value.
 
-    static const String CasaUseCrashReporter = "CasaUseCrashReporter";
+    static const String CasaUseCrashReporter = "CASA_USE_CRASH_REPORTER";
     bool useCrashReporter = false;
     bool foundIt = AipsrcValue<Bool>::find (useCrashReporter, String ("UseCrashReporter"));
 

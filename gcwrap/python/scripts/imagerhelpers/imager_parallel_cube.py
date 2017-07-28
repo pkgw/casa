@@ -58,6 +58,8 @@ class PyParallelCubeSynthesisImager():
         self.SItool = casac.synthesisimager()
         #print "allselpars=",allselpars
         for mss in sorted( allselpars.keys() ):
+#            if(self.allimpars['0']['specmode']=='cubedata'):
+#                self.allselpars[mss]['outframe']='Undefined'
             self.SItool.selectdata( allselpars[mss] )
         for fid in sorted( allimagepars.keys() ):
             self.SItool.defineimage( allimagepars[fid], self.allgridpars[fid] )
@@ -127,6 +129,7 @@ class PyParallelCubeSynthesisImager():
             joblist.append( self.PH.runcmd("from imagerhelpers.imager_base import PySynthesisImager", node) )
         self.PH.checkJobs( joblist )
 
+        self.exitflag={}
         joblist=[]
         #### MPIInterface related changes
         #for node in range(0,self.NN):
@@ -145,6 +148,8 @@ class PyParallelCubeSynthesisImager():
             joblist.append( self.PH.runcmd("paramList.checkParameters()", node) )
 
             joblist.append( self.PH.runcmd("imager = PySynthesisImager(params=paramList)", node) )
+
+            self.exitflag[str(node)] = False
 
         self.PH.checkJobs( joblist )
 
@@ -196,35 +201,54 @@ class PyParallelCubeSynthesisImager():
     def runMajorCycle(self):
         joblist=[]
         for node in self.listOfNodes:
-            joblist.append( self.PH.runcmd("imager.runMajorCycle()", node) )
+            if self.exitflag[str(node)]==False:
+                joblist.append( self.PH.runcmd("imager.runMajorCycle()", node) )
         self.PH.checkJobs( joblist )
 
     def runMinorCycle(self):
         joblist=[]
         for node in self.listOfNodes:
-            joblist.append( self.PH.runcmd("imager.runMinorCycle()", node) )
+            if self.exitflag[str(node)]==False:
+                joblist.append( self.PH.runcmd("imager.runMinorCycle()", node) )
         self.PH.checkJobs( joblist )
 
     ## Merge the results from all pieces. Maintain an 'active' list of nodes...
     def hasConverged(self):
-        self.PH.runcmdcheck("rest = imager.hasConverged()")
+
+        joblist=[]
+        for node in self.listOfNodes:
+            if self.exitflag[str(node)]==False:
+                joblist.append( self.PH.runcmd("rest = imager.hasConverged()", node) )
+        self.PH.checkJobs( joblist )
+
+#        self.PH.runcmdcheck("rest = imager.hasConverged()")
 
         retval = True
         for node in self.listOfNodes:
-             rest = self.PH.pullval("rest", node )
-             retval = retval and rest[node]
-             print "Node " , node , " converged : ", rest[node];
+            if self.exitflag[str(node)]==False:
+                rest = self.PH.pullval("rest", node )
+                retval = retval and rest[node]
+                self.exitflag[str(node)] = rest[node]
+                casalog.post("Node " + str(node) + " converged : " + str(rest[node]) , "INFO")
 
         return retval
 
     def updateMask(self):
-        self.PH.runcmdcheck("maskchanged = imager.updateMask()")
+
+        joblist=[]
+        for node in self.listOfNodes:
+            if self.exitflag[str(node)]==False:
+                joblist.append( self.PH.runcmd("maskchanged = imager.updateMask()", node) )
+        self.PH.checkJobs( joblist )
+
+#        self.PH.runcmdcheck("maskchanged = imager.updateMask()")
 
         retval = False
         for node in self.listOfNodes:
-             rest = self.PH.pullval("maskchanged", node )
-             retval = retval or rest[node]
-             print "Node " , node , " maskchanged : ", rest[node];
+            if self.exitflag[str(node)]==False:
+                rest = self.PH.pullval("maskchanged", node )
+                retval = retval or rest[node]
+                casalog.post("Node " + str(node) + " maskchanged : ", str(rest[node]) , "INFO")
 
         return retval
 
@@ -277,7 +301,8 @@ class PyParallelCubeSynthesisImager():
                         except:
                             casalog.post("Cleaning up the existing file named "+fullconcatimname,"DEBUG")
                             os.remove(fullconcatimname)
-                    cmd = 'imageconcat inimages='+subimliststr+' outimage='+"'"+fullconcatimname+"'"+' type='+type      
+                    # set tempclose = false to avoid a long accessing issue
+                    cmd = 'imageconcat inimages='+subimliststr+' outimage='+"'"+fullconcatimname+"'"+' type='+type+' tempclose=false'      
                     # run virtual concat
                     ret=os.system(cmd)
                     if ret!=0:

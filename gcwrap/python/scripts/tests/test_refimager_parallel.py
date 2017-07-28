@@ -133,7 +133,8 @@ class test_cont(testref_base_parallel):
                                                    self.img+'.image.tt0',self.img+'.model.tt0'], 
                                           imval=[(self.img+'.alpha',-1.032,[50,50,0,0]),
                                                  (self.img+'.sumwt.tt0', 34390852.0,[0,0,0,0]) ,
-                                                 (self.img+'.sumwt.tt1',350.618,[0,0,0,0]) ])
+                                                 (self.img+'.sumwt.tt1',-8.2289,[0,0,0,0]) ], 
+                                          reffreq= [(self.img+'.image.tt0',1474984983.07)] )
 
                # Parallel run
                imgpar = self.img+'.par'
@@ -148,7 +149,8 @@ class test_cont(testref_base_parallel):
                                           imexist=checkims, 
                                           imval=[(imgpar+'.alpha',-1.032,[50,50,0,0]),
                                                  (imgpar+'.sumwt.tt0',34390852.0,[0,0,0,0]),
-                                                 (imgpar+'.sumwt.tt1',350.618,[0,0,0,0]) ])
+                                                 (imgpar+'.sumwt.tt1',-8.2289,[0,0,0,0]) ], 
+                                          reffreq=[ (imgpar+'.image.tt0',1474984983.07)] )
 
                ## Pass or Fail (and why) ?
                self.checkfinal(report1+report2)
@@ -178,8 +180,9 @@ class test_cont(testref_base_parallel):
                                                    self.img+'.image.tt0',self.img+'.model.tt0'], 
                                           imval=[(self.img+'.alpha',-2.0,[50,50,0,0]),
                                                  (self.img+'.sumwt.tt0', 94050.05,[0,0,0,0]) ,
-                                                 (self.img+'.sumwt.tt1',0.986736,[0,0,0,0]) ])
-
+                                                 (self.img+'.sumwt.tt1', 0.006198,[0,0,0,0]) ], 
+                                          reffreq= [(self.img+'.image.tt0',1489984775.68)] )
+               
                # Parallel run
                imgpar = self.img+'.par'
                retpar = tclean(vis=[ms1,ms2],imagename=imgpar,imsize=100,cell='8.0arcsec',
@@ -193,21 +196,22 @@ class test_cont(testref_base_parallel):
                                           imexist=checkims, 
                                           imval=[(imgpar+'.alpha',-2.0,[50,50,0,0]),
                                                  (imgpar+'.sumwt.tt0',94050.05,[0,0,0,0]),
-                                                 (imgpar+'.sumwt.tt1',0.986736,[0,0,0,0]) ])
+                                                 (imgpar+'.sumwt.tt1', 0.006198,[0,0,0,0]) ],
+                                          reffreq= [(imgpar+'.image.tt0',1489984775.68)] )
 
                ## Check the reference frequency of the coordinate system of the parallel run.
-               _ia.open(imgpar+'.image.tt0')
-               csys = _ia.coordsys()
-               _ia.close()
-               reffreq = csys.referencevalue()['numeric'][3]
-               correctfreq = 1489984780.68491
-               if  abs(reffreq - correctfreq)/correctfreq > self.epsilon :
-                    retres=False
-               else:
-                    retres=True
-
-               pstr = "[" +  inspect.stack()[0][3]+ "] Ref-Freq is " + str(reffreq) + " ("+self.th.verdict(retres)+" : should be " + str(correctfreq) + ")\n"
-               report2 = report2 + pstr
+#               _ia.open(imgpar+'.image.tt0')
+#               csys = _ia.coordsys()
+#               _ia.close()
+#               reffreq = csys.referencevalue()['numeric'][3]
+#               correctfreq = 1489984780.68491
+#               if  abs(reffreq - correctfreq)/correctfreq > self.epsilon :
+#                    retres=False
+#               else:
+#                    retres=True
+#
+#               pstr = "[" +  inspect.stack()[0][3]+ "] Ref-Freq is " + str(reffreq) + " ("+self.th.verdict(retres)+" : should be " + str(correctfreq) + ")\n"
+#               report2 = report2 + pstr
 
                ## Pass or Fail (and why) ?
                self.checkfinal(report1+report2)
@@ -225,6 +229,37 @@ class test_cont(testref_base_parallel):
           else:
                print "MPI is not enabled. This test will be skipped"
  
+###################################################
+
+     def test_cont_restart(self):
+          """ [cont] Test_cont_restart : Test restarting a continuum imaging run in parallel.  """
+          
+          if self.th.checkMPI() == True:
+               
+               self.prepData('refim_point.ms')
+               
+               # Initial paralle run
+               ret=tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='10.0arcsec',deconvolver='mtmfs',niter=10,parallel=True,interactive=0)
+               report1 = self.th.checkall(ret=ret, 
+                                          peakres=0.36915234, modflux=0.68956602);
+                                          # imexist=[self.img+'.psf', self.img+'.residual', 
+                                          #          self.img+'.image',self.img+'.model', 
+                                          #          self.img+'.pb',  self.img+'.image.pbcor' ], 
+                                          # imval=[(self.img+'.image',1.2,[50,50,0,5]),
+                                          #        (self.img+'.sumwt',2949.775,[0,0,0,0]) ])
+
+               # Parallel restart
+               ret=tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='10.0arcsec',deconvolver='mtmfs',niter=10,parallel=True,calcres=False,calcpsf=False,interactive=0)
+               report2 = self.th.checkall(ret=ret, peakres=0.12871516, modflux=0.93000221);
+
+
+
+
+               ## Pass or Fail (and why) ?
+               self.checkfinal(report1+report2)
+
+          else:
+               print "MPI is not enabled. This test will be skipped"
 ###################################################
 
 
@@ -275,4 +310,48 @@ class test_cube(testref_base_parallel):
                print "MPI is not enabled. This test will be skipped"
 
 ###################################################
+     def test_cube_highthreshold(self):
+          """ [cube] Test_cube_highthreshold : Some channel chunks finish before others.  """
+          
+          if self.th.checkMPI() == True:
+               
+               self.prepData('refim_point.ms')
+               
+               # Non-parallel run
+               ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',
+                            interactive=0,niter=500,threshold='1.3Jy', 
+                            deconvolver='hogbom',specmode='cube',
+                            pbcor=True, parallel=False)
 
+               report1 = self.th.checkall(ret=ret, 
+                                          peakres=1.173, modflux=0.134, iterdone=5, nmajordone=2,
+                                          imexist=[self.img+'.psf', self.img+'.residual', 
+                                                   self.img+'.image',self.img+'.model', 
+                                                   self.img+'.pb',  self.img+'.image.pbcor' ], 
+                                          imval=[(self.img+'.image',1.2,[50,50,0,5]),
+                                                 (self.img+'.sumwt',2949.775,[0,0,0,0]) ])
+
+               # Parallel run
+               imgpar = self.img+'.par'
+               retpar = tclean(vis=self.msfile,imagename=imgpar,imsize=100,cell='8.0arcsec',
+                               interactive=0,niter=500, threshold='1.3Jy',
+                               deconvolver='hogbom',specmode='cube',
+                               pbcor=True,parallel=True)
+               
+               checkims =self.th.getNParts( imprefix=imgpar, imexts=['residual','psf','model']) 
+               report2 = self.th.checkall(ret=retpar['node1'][1], 
+#                                          peakres=0.241, modflux=0.527, iterdone=200, nmajordone=2,
+                                          imexist=[self.img+'.psf', self.img+'.residual', 
+                                                   self.img+'.image',self.img+'.model', 
+                                                   self.img+'.pb',  self.img+'.image.pbcor' ], 
+                                          imval=[(self.img+'.image',1.2,[50,50,0,5]),
+                                                 (self.img+'.sumwt',2949.775,[0,0,0,0]) ])
+
+               ## Pass or Fail (and why) ?
+               self.checkfinal(report1+report2)
+
+          else:
+               print "MPI is not enabled. This test will be skipped"
+
+
+###################################################

@@ -73,7 +73,7 @@ PlotMSVBAverager::PlotMSVBAverager(Int nAnt)
 //    nAnt_p               Int              No. of antennas
 //
   // Note: this returns a VisBufferImpl2
-  avBuf_p = vi::VisBuffer2::factory(vi::VbPlain, vi::VbRekeyable);
+  avBuf_p = vi::VisBuffer2::factory(vi::VbRekeyable);
 
   if (prtlev()>2) cout << "PMSVBA::PMSVBA()" << endl;
 

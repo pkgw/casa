@@ -1,5 +1,6 @@
 #include <msvis/MSVis/ViFrequencySelection.h>
 #include <msvis/MSVis/UtilJ.h>
+#include <msvis/MSVis/MSUtil.h>
 #include <ms/MSSel/MSSelection.h>
 
 #include <utility>
@@ -368,7 +369,6 @@ FrequencySelectionUsingFrame::getSelectedWindows () const
          i ++){
 
         result.insert (i->spectralWindow_p);
-
     }
 
     return result;
@@ -412,7 +412,26 @@ FrequencySelectionUsingFrame::toString () const
 
     return s;
 }
-
+ std::map<int, std::pair<int, int>  >  FrequencySelectionUsingFrame::getChannelRange (const casacore::MeasurementSet& ms) const {
+	 
+	 map<int, pair<int, int> > retval;
+	 MFrequency::Types freqframe=MFrequency::castType(getFrameOfReference());
+	 Vector<Int> outspw;
+	 Vector<Int> outstart;
+	 Vector<Int> outnchan;
+	 if(elements_p.size() >0){
+		Double begFreq=(elements_p.begin())->beginFrequency_p;
+		Double endFreq=(elements_p.begin())->endFrequency_p;
+		MSUtil::getSpwInFreqRangeAllFields(outspw, outstart,
+  			  outnchan, ms, begFreq, endFreq, 1.0e-6,freqframe); 
+		for (int k=0; k < int(outspw.nelements()); ++k){ 
+	 
+			retval[int(outspw[k])]=make_pair(int(outnchan[k]), int(outstart[k]));
+		}
+	 }
+	 return retval;
+	 
+ }
 FrequencySelections::FrequencySelections ()
 : filterWindow_p (-1)
 {}

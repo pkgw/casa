@@ -405,14 +405,13 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 	//   works---it is used to pre-estimate memory requirements.
 	pendingLoadAxes_.clear();
 
-	// Check meta-data.
 	for(Int i = 0; i < nmetadata(); ++i) {
-		pendingLoadAxes_[metadata(i)]=true; // all meta data will be loaded
-		if(!loadedAxes_[metadata(i)]) {
-			loadAxes.push_back(metadata(i));
-			loadData.push_back(PMS::DEFAULT_DATACOLUMN);
-		}
-	}
+	  pendingLoadAxes_[metadata(i)]=true; // all meta data will be loaded
+	  if(!loadedAxes_[metadata(i)]) {
+		loadAxes.push_back(metadata(i));
+		loadData.push_back(PMS::DEFAULT_DATACOLUMN);
+ 	  }
+    }
 
 	// Ensure all _already-loaded_ axes are in the pending list
 	for (Int i= 0;i<PMS::NONE;++i)
@@ -457,14 +456,27 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 
 		// 3)  data axis is loaded; check if data column loaded
 		else if(PMS::axisIsData(axis)) {
-            // see if datacol is loaded for axis
-            std::set<PMS::DataColumn> datacols = loadedAxesData_[axis];
-            if (datacols.find(dc) == datacols.end()) {
+            // Reload if averaging, else see if datacol is already loaded
+            //std::set<PMS::DataColumn> datacols = loadedAxesData_[axis];
+            String datacolStr = PMS::dataColumn(dc);
+            Bool datacolLoaded = loadedAxesData_[axis].isDefined(datacolStr);
+            if (!datacolLoaded) { 
 			    loadAxes.push_back(axis);
 			    loadData.push_back(dc);
+            } else {
+              // check if averaging changed since loading
+              Record datacolRec = loadedAxesData_[axis].subRecord(datacolStr);
+              PlotMSAveraging datacolAvg;
+              datacolAvg.fromRecord(datacolRec);
+              if (datacolAvg != averaging) {
+			    loadAxes.push_back(axis);
+			    loadData.push_back(dc);
+              }
             }
         }
 	}
+
+    
 
 	if (false) {
 		{
@@ -497,8 +509,9 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
             for(unsigned int i = 0; i < loadAxes.size(); i++) {
                 axis = loadAxes[i];
                 loadedAxes_[axis] = true;
+                String datacol = PMS::dataColumn(loadData[i]);
                 if(PMS::axisIsData(axis)) 
-                    loadedAxesData_[axis].insert(loadData[i]);
+                    loadedAxesData_[axis].defineRecord(datacol, averaging.toRecord());
             }
         }
 
@@ -545,15 +558,15 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
         setPlotMask( i );
     }
 
-    // At this stage, data is loaded and ready for indexing then plotting....
-    dataLoaded_ = true;
-
     // Calculate refTime (for plot labels)
     refTime_p=min(time_);
     refTime_p=86400.0*floor(refTime_p/86400.0);
     logLoad("refTime = "+MVTime(refTime_p/C::day).string(MVTime::YMD,7));
     QString timeMesg("refTime = ");
     timeMesg.append(MVTime(refTime_p/C::day).string(MVTime::YMD,7).c_str());
+
+    // At this stage, data is loaded and ready for indexing then plotting
+    dataLoaded_ = true;
     logLoad("Finished loading.");
 }
 

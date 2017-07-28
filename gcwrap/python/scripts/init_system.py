@@ -17,7 +17,6 @@ except ImportError, e:
     print "failed to load matplotlib:\n", e
     print "sys.path =", "\n\t".join(sys.path)
 
-from asap_init import *
 from casa_system import casa
 
 if not os.environ.has_key('OMP_NUM_THREADS'):
@@ -45,7 +44,17 @@ def true_false_handler(self, etype, value, tb, tb_offset=None):
             print "------------------------------------------------------------------------------"
             print "Warning: CASA no longer defines T/true and F/false as synonyms for True/False"
             print "------------------------------------------------------------------------------"
-    return self.showtraceback()
+    ###
+    ### without incrementing the execution_count, you get:
+    ###
+    ###    ERROR! Session/line number was not unique in database. History logging moved to new session 51
+    ###
+    ### on the second syntax error in a row... presumably this will eventually
+    ### be fixed in ipython and then this will need to be removed... but such
+    ### is the current state of affairs in ipython 5.1.0...
+    ###
+    self.execution_count += 1
+    self.showtraceback((etype, value, tb), tb_offset=tb_offset)
 
 _ip.set_custom_exc((BaseException,), true_false_handler)
 
@@ -93,6 +102,12 @@ if os.environ.has_key('CASAPATH') :
             casa['dirs']['doc'] = __casapath__ + "/doc"
         elif os.path.exists(__casapath__ + "/Resources/doc"):
             casa['dirs']['doc'] = __casapath__ + "/Resources/doc"
+        elif os.path.exists(__casapath__ + "/share"):
+            try:
+                os.mkdir(__casapath__ + "/share/doc")
+                casa['dirs']['doc'] = __casapath__ + "/share/doc"
+            except OSError as exc:
+                pass
 
 else :
     __casapath__ = casac.__file__
@@ -229,6 +244,9 @@ argparser.add_argument( "--agg",dest='agg',action='store_const',const=True,defau
 argparser.add_argument( '--iplog',dest='ipython_log',default=False,
                           const=True,action='store_const',
                           help='create ipython log' )
+argparser.add_argument( '--nocrashreport',dest='crash_report',default=True,
+                          const=False,action='store_const',
+                          help='do not submit an online report when CASA crashes' )
 argparser.add_argument( "-c",dest='execute',default=[],nargs=argparse.REMAINDER,
                         help='python eval string or python script to execute' )
 

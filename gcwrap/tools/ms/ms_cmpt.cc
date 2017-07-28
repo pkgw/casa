@@ -86,6 +86,8 @@
 #include <msvis/MSVis/statistics/Vi2TimeDataProvider.h>
 #include <msvis/MSVis/statistics/Vi2WeightSpectrumDataProvider.h>
 
+#include <mstransform/MSTransform/StatWt.h>
+
 #include <ms_cmpt.h>
 #include <msmetadata_cmpt.h>
 #include <tools/ms/Statistics.h>
@@ -547,7 +549,6 @@ ms::name()
 bool ms::tofits(
 	const std::string& fitsfile, const std::string& column,
 	const casac::variant& field, const casac::variant& spw,
-	int width,
 	const ::casac::variant& baseline, const std::string& time,
 	const ::casac::variant& scan, const ::casac::variant& uvrange,
 	const std::string& taql, bool writesyscal,
@@ -569,13 +570,6 @@ bool ms::tofits(
 			Int inchan=1;
 			Int istart=0;
 			Int istep=1;
-            if (width != 1) {
-                *itsLog << LogIO::WARN << LogOrigin("ms", __func__)
-                    << "The width parameter has been deprecated. Run mstransform "
-                    << "prior to running ms.tofits() to select and average data."
-                    << LogIO::POST;
-            }
-			Int iwidth = 1;
 			if (spwS==String("")) {
 				spwS="*";
 			}
@@ -639,7 +633,7 @@ bool ms::tofits(
 				! MSFitsOutput::writeFitsFile(
 					fitsfile, selms, column, istart, inchan,
 					istep, writesyscal, multisource, combinespw,
-					writestation, 1.0, padwithflags, iwidth,
+					writestation, 1.0, padwithflags, 1,
 					fieldID, overwrite
 					)
 				) {
@@ -2383,6 +2377,15 @@ ms::select2(const ::casac::record& items)
                         retval = false;
                     }
                 }
+                else if (fieldStr == "TIMES") {
+                    String column = MS::columnName(MS::TIME);
+                    Vector<Double> time = selRecord->asArrayDouble(RecordFieldId(field));
+                    MeasurementSet selms = (*itsSelectedMS)((itsSelectedMS->col(column)).in(time));
+                    *itsSelectedMS = selms;
+                    if (nrow2(true)==0) {
+                        *itsLog << LogIO::WARN << "Zero rows selected; input precision may be too small to select times exactly.  Reset selection and select time range with {'time':[start,stop]} instead" << LogIO::POST;
+                    }
+                }
                 else
                   *itsLog << LogIO::WARN << "Unrecognized field in input ignored: "+fieldStr << LogIO::POST;
                      
@@ -3573,39 +3576,46 @@ ms::getdata2(const std::vector<std::string>& items, const bool ifraxis, const in
                 }
 
                 // check data columns
+                bool datacolOk(true);
                 // model
                 if (noModelCol &&
                     ((name.find("model")!=string::npos) ||
                      (name.find("ratio")!=string::npos) ||
+                     (name.find("obs_residual")!=string::npos) ||
                      (name.find("residual")!=string::npos))) { 
-		                *itsLog << LogIO::WARN << "Requested column doesn't exist: " + itemnames(it) <<  LogIO::POST;
+		                *itsLog << LogIO::WARN << "Cannot get requested column: " + itemnames(it) << ". Model column does not exist" << LogIO::POST;
+                        // return empty array
                         if (name.find("data")!=string::npos) {
                             out.define(itemnames(it), Array<Complex>());
-                        } else {
+                        } else {  // amp, phase, real, imag
                             out.define(itemnames(it), Array<Float>());
                         }
-                        itemnames(it)="";
+                        datacolOk = false;
                 }
                 // corrected
                 if (noCorrectedCol &&
                     ((name.find("corrected")!=string::npos) ||
                      (name.find("ratio")!=string::npos) ||
-                     (name.find("residual")!=string::npos))) {
-		                *itsLog << LogIO::WARN << "Requested column doesn't exist: " + itemnames(it) <<  LogIO::POST;
+                     (name.find("residual")!=string::npos && name.find("obs")==string::npos))) {
+		                *itsLog << LogIO::WARN << "Cannot get requested column: " + itemnames(it) << ". Corrected column does not exist" << LogIO::POST;
+                        // return empty array
                         if (name.find("data")!=string::npos) {
                             out.define(itemnames(it), Array<Complex>());
                         } else {
                             out.define(itemnames(it), Array<Float>());
                         }
-                        itemnames(it)="";
+                        datacolOk = false;
                 }
                 // float
                 if (noFloatCol &&
                     name.find("float")!=string::npos) {
-		                *itsLog << LogIO::WARN << "Requested column doesn't exist: " + itemnames(it) <<  LogIO::POST;
+		                *itsLog << LogIO::WARN << "Requested column does not exist: " + itemnames(it) <<  LogIO::POST;
+                        // return empty array
                         out.define(itemnames(it), Array<Float>());
-                        itemnames(it)="";
+                        datacolOk = false;
                 }
+                // Don't need to "get" this now
+                if (!datacolOk) itemnames(it)="";
             } // for loop (itemnames)
 
             if (ifraxis && do_axis_info && !do_time) {
@@ -5662,6 +5672,64 @@ ms::iterinit2(const std::vector<std::string>& columns, const double interval,
 	}
 	Table::relinquishAutoLocks(true);
 	return rstat;
+}
+
+bool ms::statwt2(const variant& timebin, const variant& chanbin) {
+    *itsLog << LogOrigin("ms", __func__);
+    try {
+        if (detached()) {
+            return False;
+        }
+        StatWt statwt(itsMS);
+        if (timebin.type() == variant::INT) {
+            auto n = timebin.toInt();
+            ThrowIf(n <= 0, "timebin must be positive");
+            statwt.setTimeBinWidthUsingInterval(timebin.touInt());
+        }
+        else {
+            casacore::Quantity myTimeBin = casaQuantity(timebin);
+            if (myTimeBin.getUnit().empty()) {
+                myTimeBin.setUnit("s");
+            }
+            if (myTimeBin.getValue() <= 0) {
+                myTimeBin.setValue(1e-5);
+            }
+            statwt.setTimeBinWidth(myTimeBin);
+        }
+        auto chanbinType = chanbin.type();
+        switch(chanbinType) {
+        case variant::INT:
+        {
+            auto n = chanbin.toInt();
+            ThrowIf(n <= 2, "timebin must be >= 2");
+            statwt.setChanBinWidth(n);
+            break;
+        }
+        case variant::STRING:
+            if (chanbin.toString() == "spw") {
+                break;
+            }
+            else {
+                statwt.setChanBinWidth(casaQuantity(chanbin));
+            }
+            break;
+        case variant::BOOLVEC:
+            // because this is the default no matter what
+            // is specified in the XML
+            break;
+        default:
+            statwt.setChanBinWidth(casaQuantity(chanbin));
+        }
+        statwt.writeWeights();
+        return True;
+    }
+    catch (const AipsError& x) {
+        *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
+        Table::relinquishAutoLocks(true);
+        RETHROW(x);
+    }
+    Table::relinquishAutoLocks(true);
+    return False;
 }
 
 bool

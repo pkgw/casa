@@ -214,7 +214,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       // If a starting model exists, this will initialize the ImageStore with it. Will do this only once.
       setStartingModel();
 
-      itsIterDone += itsLoopController.getIterDone();
+      //itsIterDone is currently only used by automask code so move this to inside setAutomask
+      //itsIterDone += itsLoopController.getIterDone();
 
       //      setupMask();
 
@@ -241,7 +242,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //itsLoopController.setMadRMS( rmss[0] );
       */
 
-      if( itsMaskSum != masksum ) // i.e. mask has changed. 
+      if( itsMaskSum != masksum || masksum == 0.0 ) // i.e. mask has changed. 
 	{ 
 	  itsMaskSum = masksum; 
 	  itsLoopController.setMaskSum( masksum );
@@ -496,6 +497,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       if ( itsAutoMaskAlgorithm == "" )
         {	itsIsMaskLoaded=true; }
    
+
+      // Get the number of mask pixels (sum) and send to the logger.
+      Float masksum = itsImages->getMaskSum();
+      Int npix = (itsImages->getShape()).product();
+      os << "[" << itsImages->getName() << "] Number of pixels in the clean mask : " << masksum << " out of a total of " << npix << " pixels. [ " << 100.0 * masksum/npix << " % ]" << LogIO::POST;
+
       maskchanged=True;
     }
     else {
@@ -509,6 +516,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   {
      //modify mask using automask otherwise no-op
      if ( itsAutoMaskAlgorithm != "" )  {
+       itsIterDone += itsLoopController.getIterDone();
 
        LogIO os( LogOrigin("SynthesisDeconvolver","setAutoMask",WHERE) );
        os << "Generating AutoMask" << LogIO::POST;

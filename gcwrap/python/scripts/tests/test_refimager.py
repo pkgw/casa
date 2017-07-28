@@ -1552,6 +1552,17 @@ class test_mask(testref_base):
 
           self.checkfinal(report)
 
+     def test_mask_zeroauto(self):
+          """ [mask] test_mask_zeroauto : Test that an automask-generated zero mask is caught  """
+          self.prepData('refim_point.ms')
+          ret = tclean(vis=self.msfile, imagename=self.img,niter=0,interactive=0,usemask='auto-thresh',maskthreshold='40.0Jy')
+          ret = tclean(vis=self.msfile, imagename=self.img,niter=10,interactive=0,usemask='auto-thresh',maskthreshold='40.0Jy')
+
+          report=self.th.checkall(ret=ret, imexist=[self.img+'.mask'], imval=[(self.img+'.model',0.0,[50,50,0,0]),(self.img+'.mask',0.0,[50,50,0,0])], stopcode=7)
+
+          self.checkfinal(report)
+
+
 
 ##############################################
 ##############################################

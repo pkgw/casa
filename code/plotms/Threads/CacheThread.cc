@@ -104,8 +104,8 @@ bool CacheThread::doWork(){
 			if ( itsCache ){
 				itsCache->load(workAxes, itsAxesData, itsMSName, 
 					itsSelection, itsAveraging,
-					itsTransformations, itsCalibration,
-					threadController );
+					itsTransformations, itsCalibration, 
+                    threadController );
 			}
 			else {
 				throw(AipsError("Problem in Cache Thread::run A"));

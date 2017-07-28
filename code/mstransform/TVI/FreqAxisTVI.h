@@ -94,7 +94,7 @@ protected:
 												FreqAxisTransformEngine<T> &transformer) const
 	{
 		// Re-shape output data cube
-		outputDataCube.resize(getVisBufferConst()->getShape(),false);
+		outputDataCube.resize(getVisBuffer()->getShape(),false);
 
 		// Get data shape for iteration
 		const casacore::IPosition &inputShape = inputDataCube.shape();
