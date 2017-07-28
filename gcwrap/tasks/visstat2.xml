@@ -6,7 +6,7 @@
          xsi:schemaLocation="http://casa.nrao.edu/schema/casa.xsd
                              file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
-	<task type="function" name="visstat" category="information">
+	<task type="function" name="visstat2" category="information">
 		<shortdescription>Displays statistical information from a Measurement Set, or from a Multi-MS</shortdescription>
 
 		<input>
