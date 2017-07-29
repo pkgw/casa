@@ -133,7 +133,7 @@ class test_cont(testref_base_parallel):
                                                    self.img+'.image.tt0',self.img+'.model.tt0'], 
                                           imval=[(self.img+'.alpha',-1.032,[50,50,0,0]),
                                                  (self.img+'.sumwt.tt0', 34390852.0,[0,0,0,0]) ,
-                                                 (self.img+'.sumwt.tt1',-8.2289,[0,0,0,0]) ], 
+                                                 (self.img+'.sumwt.tt1',-8.696,[0,0,0,0]) ], 
                                           reffreq= [(self.img+'.image.tt0',1474984983.07)] )
 
                # Parallel run
@@ -149,7 +149,7 @@ class test_cont(testref_base_parallel):
                                           imexist=checkims, 
                                           imval=[(imgpar+'.alpha',-1.032,[50,50,0,0]),
                                                  (imgpar+'.sumwt.tt0',34390852.0,[0,0,0,0]),
-                                                 (imgpar+'.sumwt.tt1',-8.2289,[0,0,0,0]) ], 
+                                                 (imgpar+'.sumwt.tt1',-8.696,[0,0,0,0]) ], 
                                           reffreq=[ (imgpar+'.image.tt0',1474984983.07)] )
 
                ## Pass or Fail (and why) ?
