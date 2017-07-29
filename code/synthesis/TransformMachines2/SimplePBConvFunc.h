@@ -171,6 +171,7 @@ namespace refim{ //namespace for imaging refactor
       virtual void toPix(const vi::VisBuffer2& vb);
       FFT2D ft_p;
       casacore::CountedPtr<casacore::TempImage<casacore::Float> > convWeightImage_p;
+	  casacore::String bandName_p;
     private:
       casacore::Bool checkPBOfField(const vi::VisBuffer2& vb);
       void addPBToFlux(const vi::VisBuffer2& vb);

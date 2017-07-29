@@ -1306,7 +1306,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     //for debug set to True to save intermediate mask images on disk
     Bool debug(false); // create additional temp masks for debugging
-    Bool debug2(true); // debug2 saves masks before/after prune and binary dilation
+    Bool debug2(false); // debug2 saves masks before/after prune and binary dilation
 
     // tempmsk: working image for the curret mask
     TempImage<Float> tempmask(mask.shape(), mask.coordinates(), memoryToUse());
@@ -1521,35 +1521,40 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     }
 
     // take stats on the current mask for setting flags for grow mask : if max < 1 for any spectral plane it will grow the previous mask
-    Record maskstats = calcImageStatistics(thenewmask, thenewmask, lelmask, 0, false);
+    //
+    //  Mod: 2017.07.26: modified get stats for prev mask, if channel contains no mask in prev mask it will set flag to skip the channel 
+    //Record maskstats = calcImageStatistics(thenewmask, thenewmask, lelmask, 0, false);
+    Record maskstats = calcImageStatistics(mask, mask, lelmask, 0, false);
     Array<Double> maskmaxs;
     maskstats.get(RecordFieldId("max"),maskmaxs);
     // per plane stats 
     IPosition arrshape = maskmaxs.shape();
     uInt naxis=arrshape.size();
     IPosition indx(naxis,0);
+    //os<<LogIO::NORMAL<<"arrshape="<<arrshape<<" indx="<<indx<<LogIO::POST;
+    //os<<LogIO::NORMAL<<"statshp="<<statshp<<LogIO::POST;
     // ignoring corr for now and assume first axis is channel
     Array<Bool> dogrow(arrshape);
+    dogrow.set(false);
     for (uInt i=0; i < arrshape(0); i++) {
       indx(0) = i;
-      /***
-      if (maskmaxs(indx) < 1.0 ) {
+      if (maskmaxs(indx) == 1.0 ) {
         dogrow(indx) = true;
       }
-      ***/
-      // set dogrow true for all chans (contraintMask should be able to handle skiping channels )
-      dogrow(indx) = true;
+    //  // set dogrow true for all chans (contraintMask should be able to handle skipping channels )
+    //  dogrow(indx) = true;
     }   
     if (iterdone) {
        //cerr<<" iter done ="<<iterdone<<" grow mask..."<<endl;
-       os<<LogIO::NORMAL<<"Growing the previous mask "<<endl;
+       os<<LogIO::NORMAL<<"Growing the previous mask "<<LogIO::POST;
        //call growMask
        // corresponds to calcThresholdMask with lowNoiseThreshold...
        TempImage<Float> constraintMaskImage(res.shape(), res.coordinates(), memoryToUse()); 
        // constrainMask is 1/0 mask
        makeMaskByPerChanThreshold(res, constraintMaskImage, lowMaskThreshold);
        if(debug2) {
-         PagedImage<Float> beforepruneconstIm(res.shape(), res.coordinates(),"tmpBeforePruneConstraint-"+String::toString(iterdone)+".im");
+         os<< LogIO::NORMAL<<"saving constraint mask " << LogIO::POST;
+         PagedImage<Float> beforepruneconstIm(res.shape(), res.coordinates(),"tmpConstraint-"+String::toString(iterdone)+".im");
          beforepruneconstIm.copyData(constraintMaskImage);
        }
        // 2017.05.05: should done after multiply by binary dilation 
@@ -2616,8 +2621,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
       binaryDilationCore(inImage,structure,mask,chanmask,outImage);
       Int iter = 1;
+      ArrayLattice<Float> templattice(inImage.shape());
       while (iter < niteration) {
-        ArrayLattice<Float> templattice(inImage.shape());
         templattice.copyData(outImage);
         binaryDilationCore(templattice,structure,mask,chanmask,outImage); 
         iter++;
@@ -2698,7 +2703,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // 4-direction connectivity
     dx(0) = 1; dx(1)=0;dx(2)=-1;dx(3)=0;
     dy(0) = 0; dy(1)=1;dy(2)=0;dy(3)=-1;
-    
     //IPosition inshape = inlat.shape();
     IPosition inshape = inlatarr.shape();
     Int nrow = inshape(0);
@@ -2718,8 +2722,70 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //
     //
     //recursively check the neighbor 
-    for (uInt inc = 0; inc < 4; ++inc) 
+    for (uInt inc = 0; inc < 4; ++inc)  
       depthFirstSearch(x + dx[inc], y + dy[inc], cur_label, inlatarr, lablatarr);
+  }
+
+  void SDMaskHandler::depthFirstSearch2(Int x,
+                                       Int y,
+                                       Int cur_label,
+                                       Array<Float>& inlatarr,
+                                       Array<Float>& lablatarr)
+
+  {
+    Stack<IPosition> mystack;
+    IPosition inshape = inlatarr.shape();
+    Int nrow = inshape(0);
+    Int ncol = inshape(1);
+    // out of bound condition
+    if(x < 0 || x == nrow) return;
+    if(y < 0 || y == ncol) return;
+    //2d lattice is assumed
+    IPosition loc(2,x,y);
+    // if already visited or not mask region, return 
+    if(lablatarr(loc) || !inlatarr(loc)) return;
+
+    IPosition curloc;
+    mystack.push(loc);
+    while (!mystack.empty()) {
+      curloc = mystack.popVal(); 
+      //cerr<<"curloc="<<curloc<<" cur_label="<<cur_label<<endl;
+      lablatarr(curloc) = Float(cur_label);
+      Vector<IPosition> loclist = defineNeighbors(curloc, nrow, ncol);
+      //cerr<<"defineNeighbors done nelements="<<loclist.nelements()<<endl;
+      if (loclist.nelements()) {
+        for (uInt i=0; i < loclist.nelements(); ++i) 
+        {
+          if (inlatarr(loclist(i)) == 1 && lablatarr(loclist(i)) == 0 ) 
+          {
+            mystack.push(loclist(i));
+          }
+        }
+      }
+    } 
+  }      
+
+  Vector<IPosition> SDMaskHandler::defineNeighbors(IPosition& pos, Int nx, Int ny) 
+  {
+    Vector<IPosition> neighbors(0);
+    Int nelement=0;
+    // 4-direction connectivity
+    Vector<Int> dx(4);
+    Vector<Int> dy(4);
+    dx(0) = 1; dx(1)=0;dx(2)=-1;dx(3)=0;
+    dy(0) = 0; dy(1)=1;dy(2)=0;dy(3)=-1;
+    for (uInt inc = 0; inc < 4; ++inc) {
+      IPosition newpos(2,0);
+      newpos(0) = pos(0)+dx(inc);
+      newpos(1) = pos(1)+dy(inc);
+      if (newpos(0) >= 0 && newpos(0) < nx && newpos(1) >= 0 &&  newpos(1) < ny)
+      {
+        nelement++;
+        neighbors.resize(nelement,True);  
+        neighbors(nelement-1)=newpos;
+      }
+    } 
+    return neighbors;
   }
 
   void SDMaskHandler::labelRegions(Lattice<Float>& inlat, Lattice<Float>& lablat) 
@@ -2732,6 +2798,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Array<Float> lablatarr;
     inlat.get(inlatarr);
     lablat.get(lablatarr);
+    //cerr<<"IN labelRegions:: inlat.shape="<<inlat.shape()<<" lablat.shape="<<lablat.shape()<<" nrow="<<nrow<<" ncol="<<ncol<<endl;
 
     for (Int i = 0; i < nrow; ++i)
     { 
@@ -2741,10 +2808,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         // changed to use Arrarys
         //if (!lablat(IPosition(2,i,j)) && inlat(IPosition(2,i,j) ) ) 
         if (!lablatarr(IPosition(2,i,j)) && inlatarr(IPosition(2,i,j) ) ) 
-          depthFirstSearch(i, j, ++blobId, inlatarr, lablatarr);
+          //depthFirstSearch(i, j, ++blobId, inlatarr, lablatarr);
+          // Use non-recursive version
+          depthFirstSearch2(i, j, ++blobId, inlatarr, lablatarr);
       }
     }
     lablat.put(lablatarr);
+    //cerr<<"done blobId="<<blobId<<endl;
   }
 
   Vector<Float> SDMaskHandler::findBlobSize(Lattice<Float>& lablat) 

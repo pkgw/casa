@@ -27,7 +27,6 @@ except:
 
 from sdimaging import sdimaging
 from sdutil import tbmanager, toolmanager, table_selector
-import asap as sd
 
 #
 # Unit test of sdimaging task.
@@ -2596,7 +2595,9 @@ class sdimaging_test_mapextent(unittest.TestCase):
         self.__copy_table(self.infiles_azel)
         self.run_test(infiles=self.infiles_azel)
         npix_ref = numpy.array([27,37])
-        blc_ref, trc_ref = get_mapextent(self.infiles_azel)
+        #blc_ref, trc_ref = get_mapextent(self.infiles_azel) #CAS-10301
+        blc_ref = numpy.array([-85.2565977,  -13.87524395]) #CAS-10301
+        trc_ref = numpy.array([-85.30504227, -13.80972133]) #CAS-10301
         self.verify_mapextent(npix_ref, blc_ref, trc_ref)
     
     def test_data_selection(self):
@@ -2609,7 +2610,9 @@ class sdimaging_test_mapextent(unittest.TestCase):
         # this effect causes unexpected failure of the test
         self.run_test(infiles=self.infiles_selection, scan='16', imsize=13)
         npix_ref = numpy.array([13,13])
-        blc_ref, trc_ref = get_mapextent(self.infiles_selection, scan='16')
+        #blc_ref, trc_ref = get_mapextent(self.infiles_selection, scan='16') #CAS-10301
+        blc_ref = numpy.array([ 0.00202179, -0.00202178]) #CAS-10301
+        trc_ref = numpy.array([-0.01819663,  0.01819663]) #CAS-10301
         self.verify_mapextent(npix_ref, blc_ref, trc_ref)
 
     def test_ephemeris(self):
@@ -2957,7 +2960,9 @@ class sdimaging_test_clipping(sdimaging_unittest_base):
         self._test_clipping(infile, is_clip_effective=True)
         
 
+"""
 # utility for sdimaging_test_mapextent
+# commented out since sd tool is no longer available in CASA (CAS-10301)
 def get_mapextent(infile, scan=None):
     s = sd.scantable(infile, average=False)
     outfile = infile.rstrip('/') + '.tmp'
@@ -2978,7 +2983,7 @@ def get_mapextent(infile, scan=None):
     finally:
         if os.path.exists(outfile):
             shutil.rmtree(outfile)
-            
+
 def get_mapextent_ephemeris(infiles):
     mapcenter = None
     xmin = None
@@ -3006,7 +3011,8 @@ def get_mapextent_ephemeris(infiles):
         else:
             ymax = max(ymax, trc[1])
     return numpy.array([xmax, ymin]), numpy.array([xmin, ymax])
-    
+"""
+
 def str_to_deg(s):
     return qa.quantity(s)['value']
 
@@ -3039,7 +3045,9 @@ def suite():
     return [sdimaging_test0,sdimaging_test1,
             sdimaging_test2,sdimaging_test3,
             sdimaging_autocoord,sdimaging_test_selection,
-            sdimaging_test_flag, 
-            sdimaging_test_polflag,sdimaging_test_mslist,
-            sdimaging_test_restfreq, sdimaging_test_mapextent,
-            sdimaging_test_interp, sdimaging_test_clipping]
+            sdimaging_test_flag,sdimaging_test_polflag,
+            sdimaging_test_mslist,
+            sdimaging_test_restfreq, 
+            sdimaging_test_mapextent,
+            sdimaging_test_interp,sdimaging_test_clipping
+            ]

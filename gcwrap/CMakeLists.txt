@@ -1,4 +1,4 @@
-# CASA - Common Astronomy Software Applications
+# CASA - Common Astronomy Software Applications 
 # Copyright (C) 2010 by ESO (in the framework of the ALMA collaboration)
 # Copyright (C) 2010 by NAOJ (in the framework of the ALMA collaboration)
 # Copyright (C) 2010 Associated Universities, Inc. Washington DC, USA.
@@ -149,19 +149,19 @@ if( CMAKE_BUILD_TYPE STREQUAL Debug )
 endif()
 
 include( UsePrivatePath )
-if( NOT RE_CMAKE )
-    if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT OR CMAKE_INSTALL_PREFIX MATCHES ".*/linux[^/]*$")
-        string( REGEX REPLACE /[^/]+/?$ "" casaroot ${CMAKE_SOURCE_DIR} )
-        message("using traditional configuration where casaroot != install prefix:")
-        message("        casaroot             = ${casaroot}")
-        message("        CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
-    else( )
-        set( casaroot ${CMAKE_INSTALL_PREFIX} )
-        message("using modern configuraiton where casaroot and install prefix are the same:")
-        message("        casaroot = ${casaroot}")
-    endif( )
-    file(MAKE_DIRECTORY ${casaroot}/share/doc)
-endif()
+
+if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT OR CMAKE_INSTALL_PREFIX MATCHES ".*/linux[^/]*$" OR CMAKE_INSTALL_PREFIX MATCHES ".*/darwin[^/]*$")
+    string( REGEX REPLACE /[^/]+/?$ "" casaroot ${CMAKE_SOURCE_DIR} CACHE )
+    message("using traditional configuration where casaroot != install prefix:")
+    message("        casaroot             = ${casaroot}")
+    message("        CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
+else( )
+    set( casaroot ${CMAKE_INSTALL_PREFIX} CACHE PATH "toplevel casa directory" FORCE )
+    message("using modern configuraiton where casaroot and install prefix are the same:")
+    message("        casaroot = ${casaroot}")
+endif( )
+
+file(MAKE_DIRECTORY ${casaroot}/share/doc)
 
 #
 # aipshosts is supported for backwards compatibility
@@ -520,6 +520,15 @@ if( NOT CMAKE_C_FLAGS )
   set( CMAKE_C_FLAGS "${DEFAULT_C_FLAGS} ${EXTRA_C_FLAGS}" )
 endif()
 
+if( NOT RE_CMAKE )
+    if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+        set( CMAKE_INSTALL_PREFIX ${casaroot}/${arch} CACHE PATH "casa architecture directory" FORCE )
+        set( casaroot ${casaroot} CACHE PATH "toplevel casa directory" FORCE )
+   endif(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+endif()
+
+dump( casaroot )
+dump( CMAKE_INSTALL_PREFIX )
 SET(NO_SOVERSION FALSE CACHE BOOL "do not add version information to shared libraries")
 if( NOT NO_SOVERSION )
     set( epochdelta 1385614800 )
