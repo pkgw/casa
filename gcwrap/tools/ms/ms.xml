@@ -5049,7 +5049,7 @@ for editing based on the rms fit will be added in the near future.
  cb.close()
  ms.open('ngc5921.ms',nomodify=False);    # writable!
  ms.continuumsub(field=2,fitspw='0:5~9;50~59',
-                 solint=0.0,fitorder=1,mode='sub')
+                 solint=0.0,fitorder=1,mode='subtract')
  ms.done()
     
     This example will fit a linear continuum to channels 5-9 and 50-59 in 
@@ -5125,11 +5125,11 @@ For now, the only way to recover the un-subtracted CORRECTED_DATA column
 is to use calibrater.correct() again.
 
 Note that the MODEL_DATA and CORRECTED_DATA columns must be present
-for continuumsub to work correctly.  The function will warn the user
+for continuumsub2 to work correctly.  The function will warn the user
 if they are not present, and abort.  To add these scratch columns (for
 now), close the ms tool, then start a calibrater or an imager tool,
 which will add the scratch columns.  Then restart the ms tool, and try
-continuumsub again.
+continuumsub2 again.
 
 Options for shifting known bright sources to the phase center and
 for editing based on the rms fit will be added in the near future.
@@ -5143,7 +5143,7 @@ for editing based on the rms fit will be added in the near future.
  cb.close()
  ms.open('ngc5921.ms', nomodify=False);    # writable!
  ms.continuumsub2(field=2,fitspw='0:5~9;50~59',
-                 solint=0.0,fitorder=1,mode='sub')
+                 solint=0.0,fitorder=1,mode='subtract')
  ms.done()
     
     This example will fit a linear continuum to channels 5-9 and 50-59
