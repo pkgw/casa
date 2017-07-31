@@ -838,14 +838,12 @@ Bool MSTransformDataHandler::makeMSBasicStructure(	String& msname,
 
 	msOut_p = *outpointer;
 
-	// handle column keywords copy for DATA_COLUMN -> DATA
-	if (mustConvertToData(colNamesTok.nelements(), colNamesTok)
-			&& (colNamesTok[0] == casacore::MS::CORRECTED_DATA)) {
+	// handle column keywords copy for CORRECTED_DATA -> DATA
+	if (colNamesTok.nelements() == 1 && colNamesTok[0] == MS::CORRECTED_DATA && mssel_p.isColumn(MS::CORRECTED_DATA)) {
 	    TableColumn outCol(msOut_p, "DATA");
 	    ROTableColumn inCol(mssel_p, "CORRECTED_DATA");
 	    // Copy the keywords CORRECTED_DATA -> DATA
 	    copyMainTableKeywords(outCol.rwKeywordSet(), inCol.keywordSet());
-
 	}
 
 	Bool ret = true;
@@ -3228,7 +3226,7 @@ Bool MSTransformDataHandler::copyGenericSubtables()
 						     mssel_p);
 			    // Copy the keywords if column is [FLOAT_|CORRECTED_]DATA
 			    // KS NOTE CORRECTED_DATA -> DATA case should be handled separately.
-			    if (name == "FLOAT_DATA" || name == "DATA" || name == "CORREDTED_DATA")
+			    if (name == "FLOAT_DATA" || name == "DATA" || name == "CORRECTED_DATA")
 					copyMainTableKeywords(outCol.rwKeywordSet(), inCol.keywordSet());
 
 			}
