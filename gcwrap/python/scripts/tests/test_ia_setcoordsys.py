@@ -89,6 +89,16 @@ class ia_setcoordsys_test(unittest.TestCase):
         msgs = myia.history()
         self.assertTrue("ia.setcoordsys" in msgs[-2])
         self.assertTrue("ia.setcoordsys" in msgs[-1])
+
+    def test_one_direction_axis(self):
+        """Verify fix for CAS-10447"""
+        myia = self._myia
+        myia.fromshape('', [64,64,128])
+        mycs = myia.coordsys(axes=[0,2])
+        myia.fromshape('', [64, 128], csys=mycs.torecord())
+        self.assertTrue(myia.coordsys().naxes() == 2, "Wrong number of axes")
+        myia.done()
+        mycs.done()
         
 def suite():
     return [ia_setcoordsys_test]
