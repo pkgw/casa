@@ -97,6 +97,12 @@ class ia_setcoordsys_test(unittest.TestCase):
         mycs = myia.coordsys(axes=[0,2])
         myia.fromshape('', [64, 128], csys=mycs.torecord())
         self.assertTrue(myia.coordsys().naxes() == 2, "Wrong number of axes")
+
+        myia.fromshape('', [64,64,128])
+        mycs = myia.coordsys(axes=[0,2])
+        myia.fromshape('', [64, 128])
+        myia.setcoordsys(mycs.torecord())
+        self.assertTrue(myia.coordsys().naxes() == 2, "Wrong number of axes")
         myia.done()
         mycs.done()
         
