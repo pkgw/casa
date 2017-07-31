@@ -899,33 +899,33 @@ void StatWtTVI::_computeWeightsSlidingTimeWindow(
     auto chunkShape = data.shape();
     const auto nActCorr = chunkShape[0];
     const auto ncorr = _combineCorr ? 1 : nActCorr;
-    IPosition chunkSliceStart(3, 0);
-    IPosition chunkSliceLength = chunkShape;
-    chunkSliceLength[2] = 1;
-    Slicer chunkSlice(chunkSliceStart, chunkSliceLength, Slicer::endIsLength);
-    auto chunkSliceEnd = chunkSlice.end();
-    auto appendingSlice = chunkSlice;
-    auto appendingSliceStart = appendingSlice.start();
-    auto appendingSliceEnd = appendingSlice.end();
-    auto intraChunkSlice = appendingSlice;
-    auto intraChunkSliceStart = intraChunkSlice.start();
-    auto intraChunkSliceEnd = intraChunkSlice.end();
-    intraChunkSliceEnd[0] = nActCorr - 1;
     const auto& chanBins = _chanBins.find(spw)->second;
     _slidingTimeWindowWeights.resize(
         IPosition(3, ncorr, chanBins.size(), chunkShape[2]),
         False
     );
-    auto iRow = 0;
-    auto riter = rowMap.begin();
-    auto rend = rowMap.end();
-    auto dataShape = chunkShape;
-    for (; riter!=rend; ++riter, ++iRow) {
-        dataShape[2] = riter->size();
+    const auto nRows = rowMap.size();
+#pragma omp parallel for
+    for (size_t iRow=0; iRow<nRows; ++iRow) {
+        IPosition chunkSliceStart(3, 0);
+        auto chunkSliceLength = chunkShape;
+        chunkSliceLength[2] = 1;
+        Slicer chunkSlice(chunkSliceStart, chunkSliceLength, Slicer::endIsLength);
+        auto chunkSliceEnd = chunkSlice.end();
+        auto appendingSlice = chunkSlice;
+        auto appendingSliceStart = appendingSlice.start();
+        auto appendingSliceEnd = appendingSlice.end();
+        auto intraChunkSlice = appendingSlice;
+        auto intraChunkSliceStart = intraChunkSlice.start();
+        auto intraChunkSliceEnd = intraChunkSlice.end();
+        intraChunkSliceEnd[0] = nActCorr - 1;
+        const auto& rowsToInclude = rowMap[iRow];
+        auto dataShape = chunkShape;
+        dataShape[2] = rowsToInclude.size();
         Cube<Complex> dataArray(dataShape);
         Cube<Bool> flagArray(dataShape);
-        auto siter = riter->begin();
-        auto send = riter->end();
+        auto siter = rowsToInclude.begin();
+        auto send = rowsToInclude.end();
         uInt n = 0;
         // create an array with only the rows that should
         // be used in the computation of weights for the
@@ -957,7 +957,7 @@ void StatWtTVI::_computeWeightsSlidingTimeWindow(
                 intraChunkSliceEnd[1] = citer->end;
                 intraChunkSlice.setStart(intraChunkSliceStart);
                 intraChunkSlice.setEnd(intraChunkSliceEnd);
-                _slidingTimeWindowWeights(corr, iChanBin, iRow)  = _computeWeight(
+                _slidingTimeWindowWeights(corr, iChanBin, iRow) = _computeWeight(
                     dataArray(intraChunkSlice), flagArray(intraChunkSlice), spw
                 );
             }
@@ -1163,15 +1163,23 @@ void StatWtTVI::_computeWeightsTimeBlockProcessing(
 ) const {
     auto diter = data.begin();
     auto dend = data.end();
-    auto fiter = flags.begin();
     const auto nActCorr = diter->second.shape()[0];
     const auto ncorr = _combineCorr ? 1 : nActCorr;
     // spw will be the same for all members
     const auto& spw = data.begin()->first.spw;
-    for (; diter!=dend; ++diter, ++fiter) {
-        auto blcb = diter->first;
-        auto dataForBLCB = diter->second;
-        auto flagsForBLCB = fiter->second;
+    std::vector<BaselineChanBin> keys(data.size());
+    auto idx = 0;
+    for (; diter!=dend; ++diter, ++idx) {
+        const auto& blcb = diter->first;
+        keys[idx] = blcb;
+        _weights[blcb].resize(ncorr);
+    }
+    auto n = keys.size();
+#pragma omp parallel for
+    for (size_t i=0; i<n; ++i) {
+        auto blcb = keys[i];
+        auto dataForBLCB = data.find(blcb)->second;
+        auto flagsForBLCB = flags.find(blcb)->second;
         for (uInt corr=0; corr<ncorr; ++corr) {
             IPosition start(3, 0);
             IPosition end = dataForBLCB.shape() - 1;
@@ -1180,17 +1188,23 @@ void StatWtTVI::_computeWeightsTimeBlockProcessing(
                 end[0] = corr;
             }
             Slicer slice(start, end, Slicer::endIsLast);
-            auto weight = _computeWeight(dataForBLCB(slice), flagsForBLCB(slice), spw);
-            _weights[blcb].push_back(weight);
+            _weights[blcb][corr] = _computeWeight(
+                dataForBLCB(slice), flagsForBLCB(slice), spw
+            );
         }
     }
 }
 
 casacore::Double StatWtTVI::_computeWeight(
-    const casacore::Cube<casacore::Complex>& data,
-    const casacore::Cube<casacore::Bool>& flags,
-    uInt spw
+    const Cube<Complex>& data, const Cube<Bool>& flags, uInt spw
 ) const {
+    // called in multi-threaded mode
+    std::unique_ptr<
+        StatisticsAlgorithm<
+            Double, Array<Float>::const_iterator,
+            Array<Bool>::const_iterator
+        >
+    > statAlg(_statAlg->clone());
     const auto npts = data.size();
     if ((Int)npts < _minSamp || (Int)nfalse(flags) < _minSamp) {
         // not enough points, trivial
@@ -1203,22 +1217,29 @@ casacore::Double StatWtTVI::_computeWeight(
     const auto riter = realPart.begin();
     const auto iiter = imagPart.begin();
     const auto miter = mask.begin();
-    _statAlg->setData(riter, miter, npts);
-    auto realVar = _statAlg->getStatistic(StatisticsData::VARIANCE);
-    _statAlg->setData(iiter, miter, npts);
-    auto imagVar = _statAlg->getStatistic(StatisticsData::VARIANCE);
+    statAlg->setData(riter, miter, npts);
+    auto realVar = statAlg->getStatistic(StatisticsData::VARIANCE);
+    statAlg->setData(iiter, miter, npts);
+    auto imagVar = statAlg->getStatistic(StatisticsData::VARIANCE);
     auto varSum = realVar + imagVar;
+    // _samples.second can be updated in two different places, so use
+    // a local (per thread) variable and update the object's private field in one
+    // place
+    uInt updateSecond = False;;
     if (varSum > 0) {
+#pragma omp atomic
         ++_samples[spw].first;
         if (imagVar == 0 || realVar == 0) {
-            ++_samples[spw].second;
+            updateSecond = True;
         }
         else {
             auto ratio = imagVar/realVar;
             auto inverse = 1/ratio;
-            if (ratio > 1.5 || inverse > 1.5) {
-                ++_samples[spw].second;
-            }
+            updateSecond = ratio > 1.5 || inverse > 1.5;
+        }
+        if (updateSecond) {
+#pragma omp atomic
+            ++_samples[spw].second;
         }
     }
     return varSum == 0 ? 0 : 2/varSum;

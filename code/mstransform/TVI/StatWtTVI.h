@@ -214,6 +214,7 @@ private:
 
     void _gatherAndComputeWeightsTimeBlockProcessing() const;
 
+    // multi-threaded case
     casacore::Double _computeWeight(
         const casacore::Cube<casacore::Complex>& data,
         const casacore::Cube<casacore::Bool>& flags,
