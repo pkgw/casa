@@ -203,6 +203,19 @@ class fluxscale1_test(unittest.TestCase):
                   transfer='1445*', antenna='!24', scan='1~5', incremental=True)
         self.assertTrue(os.path.exists(outtable))
 
+    def test_refintransfer(self):
+        '''Fluxscale test 1.7: test CAS-10227 fix: reference field included in transfer fields'''
+
+        #input
+        gtable = self.gtable
+
+        # Output
+        outtable = self.msfile + '.test1.7.fcal'
+
+        thisdict = fluxscale(vis=self.msfile, caltable=gtable, fluxtable=outtable, reference='1331*',
+                  transfer='1445*,1331*', incremental=True)
+        self.assertTrue(os.path.exists(outtable))
+        self.assertFalse(thisdict.has_key('0'))
 
 class fluxscale2_test(unittest.TestCase):
 

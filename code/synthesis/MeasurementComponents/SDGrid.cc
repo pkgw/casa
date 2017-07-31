@@ -505,10 +505,19 @@ void SDGrid::findPBAsConvFunction(const ImageInterface<Complex>& image,
   directionCoord=coords.directionCoordinate(directionIndex);
   //make sure we use the same units
   worldPosMeas.set(dc.worldAxisUnits()(0));
+
+  // Reference pixel may be modified in dc.setReferenceValue when
+  // projection type is SFL. To take into account this effect,
+  // keep original reference pixel here and subtract it from
+  // the reference pixel after dc.setReferenceValue instead
+  // of setting reference pixel to (0,0).
+  Vector<Double> const originalReferencePixel = dc.referencePixel();
   dc.setReferenceValue(worldPosMeas.getAngle().getValue());
-  Vector<Double> unitVec(2);
-  unitVec=0.0;
-  dc.setReferencePixel(unitVec);
+  //Vector<Double> unitVec(2);
+  //unitVec=0.0;
+  //dc.setReferencePixel(unitVec);
+  Vector<Double> updatedReferencePixel = dc.referencePixel() - originalReferencePixel;
+  dc.setReferencePixel(updatedReferencePixel);
 
   coords.replaceCoordinate(dc, directionIndex);
 
