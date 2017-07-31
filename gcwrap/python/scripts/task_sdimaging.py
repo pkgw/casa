@@ -10,7 +10,11 @@ import sdbeamutil
 from cleanhelper import cleanhelper
 
 @sdutil.sdtask_decorator
-def sdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, mode, nchan, start, width, veltype, outframe, gridfunction, convsupport, truncate, gwidth, jwidth, imsize, cell, phasecenter, ephemsrcname, pointingcolumn, restfreq, stokes, minweight, brightnessunit, clipminmax):
+def sdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, 
+              mode, nchan, start, width, veltype, outframe, 
+              gridfunction, convsupport, truncate, gwidth, jwidth, 
+              imsize, cell, phasecenter, projection, ephemsrcname, 
+              pointingcolumn, restfreq, stokes, minweight, brightnessunit, clipminmax):
     with sdutil.sdtask_manager(sdimaging_worker, locals()) as worker:
         worker.initialize()
         worker.execute()
@@ -398,6 +402,8 @@ class sdimaging_worker(sdutil.sdtask_template_imaging):
         self.imager_param['start'] = startval
         self.imager_param['step'] = widthval
         self.imager_param['nchan'] = imnchan #self.nchan
+        
+        self.imager_param['projection'] = self.projection
 
         
 
