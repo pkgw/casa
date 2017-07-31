@@ -75,7 +75,7 @@ SolveDataBuffer::SolveDataBuffer(const vi::VisBuffer2& vb) :
 
 {
   
-  vb_= vi::VisBuffer2::factory(VbPlain,VbRekeyable);
+  vb_= vi::VisBuffer2::factory(VbRekeyable);
 
   initFromVB(vb);
 }

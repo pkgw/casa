@@ -49,6 +49,7 @@ def mstransform(
              restfreq, 
              outframe, 
              veltype,
+             preaverage,
              timeaverage,        # time averaging --> split
              timebin,
              timespan,
@@ -253,6 +254,7 @@ def mstransform(
             if phasecenter != '':
                 config['phasecenter'] = phasecenter
             config['veltype'] = veltype
+            config['preaverage'] = preaverage
             
         # Only parse timeaverage parameters when timebin > 0s
         if timeaverage:

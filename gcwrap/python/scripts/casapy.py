@@ -124,7 +124,6 @@ except ImportError, e:
     print "failed to load matplotlib:\n", e
     print "sys.path =", "\n\t".join(sys.path)
     
-from asap_init import *
 
 
 homedir = os.getenv('HOME')
@@ -1504,16 +1503,6 @@ except:
 casalog.showconsole(showconsole)
 casalog.version()
 
-
-### Try loading ASAP
-try:
-    asap_init()
-except ImportError, e:
-    casalog.post("%s\nCould not load ASAP. sd* tasks will not be available." % e,'WARN')
-except Exception, instance:
-    casalog.post("Could not load ASAP. sd* tasks will not be available.",'WARN')
-    casalog.post(str(instance),'WARN',origin="asap_init")
-##
 ## warn when available memory is < 512M (clean throws and exception)
 if cu.hostinfo( )['memory']['available'] < 524288:
     casalog.post( 'available memory less than 512MB (with casarc settings)\n...some things will not run correctly', 'SEVERE' )

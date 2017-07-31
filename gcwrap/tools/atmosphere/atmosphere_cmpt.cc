@@ -149,7 +149,9 @@ atmosphere::initAtmProfile(const Quantity& altitude,
 			   const Quantity& maxAltitude,
 			   const double humidity, const Quantity& dTem_dh,
 			   const Quantity& dP, const double dPm,
-			   const Quantity& h0, int atmtype)
+			   const Quantity& h0, int atmtype,
+			   const std::vector<double> &layerBoundaries,
+			   const std::vector<double> &layerTemperature)
 {
   string rtn;
 
@@ -166,6 +168,10 @@ atmosphere::initAtmProfile(const Quantity& altitude,
     Length    topAtm((casaQuantity(maxAltitude)).getValue("m"), "m");
     unsigned int atmType = (unsigned int)atmtype;
 
+    ThrowIf(layerBoundaries.size() != layerTemperature.size(),
+    		"Size of user-defined layer boundaries and temperature does not match.");
+    bool const user_profile = (layerBoundaries.size() > 0 && layerTemperature.size() > 0);
+
     ostringstream oss;
     oss<<"BASIC ATMOSPHERIC PARAMETERS TO GENERATE REFERENCE ATMOSPHERIC PROFILE"<<endl;
     oss<<"  "<<endl;
@@ -178,6 +184,7 @@ atmosphere::initAtmProfile(const Quantity& altitude,
     oss<<"Attitude top atm profile:     " << topAtm.get("km")<< " km"   <<endl;
     oss<<"Pressure step factor:         " << PstepFact          << " "    <<endl;
     oss<<"Tropospheric lapse rate:      " << TLR                << " K/km" <<endl;
+
 
     // Reset all atmospheric and spectral settings for this function.
     if (pSpectralGrid != 0) {
@@ -193,10 +200,23 @@ atmosphere::initAtmProfile(const Quantity& altitude,
       pSkyStatus = 0;
     }
     if (pAtmProfile != 0) delete pAtmProfile;
-    pAtmProfile = new AtmProfile( Alt, P, T, TLR, H, WVL, Pstep, PstepFact,
+    if (user_profile) {
+    	size_t const num_user_layer = layerTemperature.size();
+    	vector<Length> layerAlt(num_user_layer);
+    	vector<Temperature> layerTemp(num_user_layer);
+    	for (size_t i = 0 ; i < num_user_layer ; ++i) {
+    		layerAlt[i] = Length(layerBoundaries[i], "m");
+    		layerTemp[i] = Temperature(layerTemperature[i], "K");
+    	}
+        pAtmProfile = new AtmProfile( Alt, P, T, TLR, H, WVL, Pstep, PstepFact,
+    					  topAtm, atmType, layerAlt, layerTemp );
+    } else {
+        pAtmProfile = new AtmProfile( Alt, P, T, TLR, H, WVL, Pstep, PstepFact,
 				  topAtm, atmType );
+    }
 
     oss<<"Atmospheric type:             " << pAtmProfile->getAtmosphereType() <<endl;
+    oss<<"User-defined temperature profile: " << (user_profile ? "ON" : "OFF") <<endl;
     oss<<endl;
     oss<<"Built atmospheric profile with " << pAtmProfile->getNumLayer() << " layers." << endl;
     oss<<endl;
@@ -500,7 +520,7 @@ atmosphere::initSpectralWindow(int nbands, const Quantity& fCenter,
 	} else {
 	  numChan[i] = (int)ceil((casacore::Quantity(fW[i],ufW).getValue(ufR) / fR[i]));
 	}
-	refChan[i] = (numChan[i] - 1)/2 + 1; // NEED TO ADD 1 because refChan is 1-base (ICT-9490)
+	refChan[i] = (numChan[i] - 1)/2;
 	refFreq[i] = Frequency(fC[i],fCenter.units);
 	chanSep[i] = Frequency(fR[i],fRes.units);
 	if (numChan[i] % 2 == 0) {
@@ -551,7 +571,7 @@ atmosphere::addSpectralWindow(const Quantity& fCenter,
 	return rstat;
       }	
       int numChan = (int)ceil((casacore::Quantity(fWidth.value[0],ufW).getValue(ufR) / fRes.value[0]));
-      int refChan = (numChan - 1)/2 + 1; // NEED TO ADD 1 because refChan is 1-base (ICT-9490)
+      int refChan = (numChan - 1)/2;
       Frequency refFreq = Frequency(fCenter.value[0],fCenter.units);
       Frequency chanSep = Frequency(fRes.value[0],fRes.units);
       if (numChan % 2 == 0) {
@@ -610,9 +630,7 @@ int
 atmosphere::getRefChan(int spwid)
 {
   auto myfunc = (unsigned int(SpectralGrid::*)(unsigned int) const)&SpectralGrid::getRefChan;
-//  return DoSpGridSingleIdFuncInt(myfunc, spwid);
-// KS NOTE A WORKAROUND FOR CAS-10228.
-  return DoSpGridSingleIdFuncInt(myfunc, spwid)-1;
+  return DoSpGridSingleIdFuncInt(myfunc, spwid);
 }
 
 /// a private helper function

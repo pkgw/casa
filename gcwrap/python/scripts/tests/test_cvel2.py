@@ -1052,7 +1052,8 @@ class cvel2_test(test_base):
         self.assertTrue(ret[0],ret[1])
 
     def test_preaveraging_exception(self):
-        ''' cvel2 pre-averaging exception: check the exception introduced for CAS-9798'''
+        ''' cvel2 pre-averaging exception not there any longer: check the exception
+        introduced for CAS-9798, but removed after CAS-9853.'''
         self.setUp_vis_d()
         myvis = vis_d
         os.system('ln -sf ' + myvis + ' myinput.ms')
@@ -1065,11 +1066,9 @@ class cvel2_test(test_base):
             width = 3,
             phasecenter = "J2000 18h25m56.09 -12d04m28.20"
         )
-        self.assertFalse(rval)
-        with self.assertRaises(RuntimeError):
-            ret = verify_ms(outfile, 1, 10, 0)    
+        self.assertTrue(rval)
+        ret = verify_ms(outfile, 1, 10, 0)
 
-    @unittest.skip('Skip, this produces an exception since release 4.7.2 as per CAS-9798')
     def test43(self):
         '''cvel2 43: SMA input MS, 1 spw, channel mode, nchan not set'''
         self.setUp_vis_d()
@@ -1088,7 +1087,6 @@ class cvel2_test(test_base):
         ret = verify_ms(outfile, 1, 10, 0)
         self.assertTrue(ret[0],ret[1])
 
-    @unittest.skip('Skip, this produces an exception since release 4.7.2 as per CAS-9798')
     def test44(self):
         '''cvel2 44: SMA input MS, 2 spws to combine, channel mode, nchan not set'''
         self.setUp_vis_d()
@@ -1107,7 +1105,6 @@ class cvel2_test(test_base):
         ret = verify_ms(outfile, 1, 10, 0)
         self.assertTrue(ret[0],ret[1])
 
-    @unittest.skip('Skip, this produces an exception since release 4.7.2 as per CAS-9798')
     def test45(self):
         '''cvel2 45: SMA input MS, 1 spw, channel mode, nchan not set, negative width'''
         self.setUp_vis_d()
@@ -1143,7 +1140,6 @@ class cvel2_test(test_base):
         ret = verify_ms(outfile, 1, 100, 0)
         self.assertTrue(ret[0],ret[1])
 
-    @unittest.skip('Skip, this produces an exception since release 4.7.2 as per CAS-9798')
     def test47(self):
         '''cvel2 47: SMA input MS with descending freq, 1 spw, nchan not set'''
         self.setUp_vis_f()

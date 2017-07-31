@@ -46,8 +46,7 @@ public:
 
     const casacore::MeasurementSet & ms () const {return *transformedMS_p;};
 
-	vi::VisBuffer2 * getVisBuffer (const vi::VisibilityIterator2 *) {return buffer_p;}
-	vi::VisBuffer2 * getVisBuffer () {return buffer_p;}
+	virtual vi::VisBuffer2 * getVisBuffer () const {return buffer_p;}
 
     void originChunks ();
     casacore::Bool moreChunks () const;

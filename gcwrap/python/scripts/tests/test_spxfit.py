@@ -331,7 +331,10 @@ class spxfit_test(unittest.TestCase):
             if i == 1:
                 rec = spxfit(imagename=imagename, spxtype="ltp", spxest=ltpestoff)
             sols = rec['ltp']['solution'].ravel()
-            self.assertTrue((abs(1 - sols/ltpest) < 2e-2).all())
+            self.assertTrue(
+                (abs(1 - sols/ltpest) < 3e-2).all(),
+                "sols " + str(sols) + " ltpest " + str(ltpest)
+            )
             spxsol = "ltpsol.im"
             spxerr = "ltperr.im"
             ltpestoff = [0.4, 2.2]

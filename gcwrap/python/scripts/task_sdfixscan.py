@@ -1,4 +1,4 @@
-# sd task for image processing (press or basket)
+# sd task for image processing (fft_mask or model)
 import os
 import time
 import numpy
@@ -31,21 +31,21 @@ def create_4d_image(infile, outfile):
 
 
 @sdutil.sdtask_decorator
-def sdimprocess(infiles, mode, numpoly, beamsize, smoothsize, direction, maskwidth, tmax, tmin, outfile, overwrite):
-    with sdutil.sdtask_manager(sdimprocess_worker, locals()) as worker:
+def sdfixscan(infiles, mode, numpoly, beamsize, smoothsize, direction, maskwidth, tmax, tmin, outfile, overwrite):
+    with sdutil.sdtask_manager(sdfixscan_worker, locals()) as worker:
         worker.initialize()
         worker.execute()
         worker.finalize()
     
-class sdimprocess_worker(sdutil.sdtask_interface):
+class sdfixscan_worker(sdutil.sdtask_interface):
     def __init__(self, **kwargs):
-        super(sdimprocess_worker,self).__init__(**kwargs)
+        super(sdfixscan_worker,self).__init__(**kwargs)
 
     def __del__(self, base=sdutil.sdtask_interface):
         # cleanup method must be called when the instance is
         # deleted
         self.cleanup()
-        super(sdimprocess_worker,self).__del__()
+        super(sdfixscan_worker,self).__del__()
 
     def initialize(self):
         self.parameter_check()
@@ -74,7 +74,7 @@ class sdimprocess_worker(sdutil.sdtask_interface):
 
         # default output filename
         if self.outfile == '':
-            self.outfile = 'sdimprocess.out.im'
+            self.outfile = 'sdfixscan.out.im'
         casalog.post( 'outfile=%s' % self.outfile )
 
         # threshold
@@ -95,7 +95,7 @@ class sdimprocess_worker(sdutil.sdtask_interface):
             self.thresh = [self.tmin, self.tmax]
 
     def parameter_check(self):
-        if self.mode.lower() == 'press':
+        if self.mode.lower() == 'model':
             # Pressed-out method
             # check input file
             if type(self.infiles) == list:
@@ -109,7 +109,7 @@ class sdimprocess_worker(sdutil.sdtask_interface):
                     raise Exception, "direction allows only one direction for pressed-out method."
                 else:
                     self.direction = self.direction[0]
-        elif self.mode.lower() == 'basket':
+        elif self.mode.lower() == 'fft_mask':
             # FFT-based basket-weaving method
             # check input file
             if type(self.infiles) == str or \
@@ -126,9 +126,9 @@ class sdimprocess_worker(sdutil.sdtask_interface):
             raise Exception, 'Unsupported processing mode: %s'%(self.mode)
 
     def execute(self):
-        if self.mode.lower() == 'press':
+        if self.mode.lower() == 'model':
            self.__execute_press()
-        elif self.mode.lower() == 'basket':
+        elif self.mode.lower() == 'fft_mask':
             self.__execute_basket_weaving()
 
     def __execute_press(self):

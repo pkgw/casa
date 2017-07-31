@@ -27,6 +27,7 @@
 //# $Id$
  
 #include <synthesis/TransformMachines/PBMath1DEVLA.h>
+#include <synthesis/TransformMachines2/Utils.h>
 #include <measures/Measures.h>
 #include <measures/Measures/MeasConvert.h>
 #include <measures/Measures/MDirection.h>
@@ -60,10 +61,21 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     nearestVPArray(1.425e9, False);
     
   }
-
+ 
   void PBMath1DEVLA::nearestVPArray(Double freq, bool printINFO){
     LogIO os(LogOrigin("PBMATH1DEVLA", "nearestVPArray"));
-    String band=feed(freq);
+	String band="";
+	
+	if(refim::SynthesisUtils::parseBandName(bandOrFeedName_p).nelements() > 0){
+		band=refim::SynthesisUtils::parseBandName(bandOrFeedName_p)[0];
+		band=band.after("EVLA_");
+	}
+	if(band==""){
+       band=feed(freq);
+	}
+	Double origFreq=freq;
+	limitFreqForBand(band, freq);
+	
     auto confiter=feedConf_p.find(band);
     Float mag = 1.21;
     if(confiter != feedConf_p.end()){
@@ -108,7 +120,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       
     }
     if(printINFO)
-        os << LogIO::NORMAL1 << "Using EVLA beam model of frequency  " << freqUsed << " MHz " << LogIO::POST;
+        os << LogIO::NORMAL1 << "Using EVLA "+band+" band beam model of frequency  " << freqUsed << " MHz scaled to original frequency "<< origFreq*1e-6 << LogIO::POST;
     pbMathPoly_p= new PBMath1DPoly(coeff, maxRad_p, Quantity(1.0, "GHz"), False,  squint_p, useSymmetric_p);
     (this->vp_p).resize();
     (this->vp_p)=pbMathPoly_p->vp_p;
@@ -143,7 +155,45 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     return "";
   }
-  
+  void PBMath1DEVLA::limitFreqForBand(const casacore::String& band, casacore::Double& freq){
+	  
+	if(band=="P"){
+		if(freq <= 224e6) freq=232e6;
+		if(freq >=480e6) freq=470e6;
+	}
+	else if(band=="L"){
+		if(freq <= 900e6) freq=1040e6;
+		if(freq >=2000e6) freq=2000e6;
+	}
+	else if(band=="S"){
+		if(freq < 2052e6) freq=2052e6;
+		if(freq >=3948e6) freq=3948e6;
+	}
+	else if(band=="C"){
+		if(freq < 4052e6) freq=4052e6;
+		if(freq >=7948e6) freq=7948e6;
+	}
+	else if(band=="X"){
+		if(freq < 8052e6) freq=8052e6;
+		if(freq >=11948e6) freq=11948e6;
+	}  
+	else if(band=="U"){
+		if(freq < 12052e6) freq=12052e6;
+		if(freq >=17948e6) freq=17948e6;
+	}  
+	else if(band=="K"){
+		if(freq < 19052e6) freq=19052e6;
+		if(freq >=25948e6) freq=25948e6;
+	}  
+	else if(band=="A"){
+		if(freq < 28052e6) freq=28052e6;
+		if(freq >=38048e6) freq=38048e6;
+	}  
+	else if(band=="Q"){
+		if(freq < 41052e6) freq=41052e6;
+		if(freq >=43948e6) freq=43948e6;
+	}  
+  }
 
   void PBMath1DEVLA::init(){
     wFreqs_p=std::vector<Double>({232., 246., 281., 296., 312., 328., 344., 357., 382., 392., 403., 421., 458., 470., 1040, 1104, 1168, 1232, 1296, 1360, 1424, 1488, 1552, 1680, 1744, 1808, 1872, 1936, 2000});

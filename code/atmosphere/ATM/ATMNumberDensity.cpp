@@ -25,7 +25,7 @@
 
 #include "ATMNumberDensity.h"
 
-using namespace std;
+
 
 ATM_NAMESPACE_BEGIN
 
@@ -39,7 +39,7 @@ NumberDensity::NumberDensity(double numberdensity) :
 {
 }
 
-NumberDensity::NumberDensity(double numberdensity, const string &units)
+NumberDensity::NumberDensity(double numberdensity, const std::string &units)
 {
   if(units == "cm**-3" || units == "CM**-3") {
     valueIS_ = 1.0E+6 * numberdensity;
@@ -55,7 +55,7 @@ NumberDensity::~NumberDensity()
 {
 }
 
-double NumberDensity::get(const string &units) const
+double NumberDensity::get(const std::string &units) const
 {
   if(units == "cm**-3" || units == "CM**-3") {
     return 1.0E-6 * valueIS_;
