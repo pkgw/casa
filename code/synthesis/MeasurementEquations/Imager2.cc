@@ -339,8 +339,10 @@ Bool Imager::imagecoordinates2(CoordinateSystem& coordInfo, const Bool verbose)
 
   // Now find the projection to use: could probably also use
   // max(abs(w))=0.0 as a criterion
-  Projection projection(Projection::SIN);
-  if(telescop == "ATCASCP" || telescop == "WSRT" || telescop == "DRAO") {
+  Projection::Type ptype = Projection::type(projection_p);
+  Projection projection(ptype);
+  if(ptype == Projection::SIN
+      && (telescop == "ATCASCP" || telescop == "WSRT" || telescop == "DRAO")) {
     os << LogIO::NORMAL // Loglevel NORMAL
        << "Using SIN image projection adjusted for "
        << (telescop == "ATCASCP" ? 'S' : 'N') << "CP" 
@@ -359,7 +361,7 @@ Bool Imager::imagecoordinates2(CoordinateSystem& coordInfo, const Bool verbose)
     }
   }
   else {
-    os << LogIO::DEBUGGING << "Using SIN image projection" << LogIO::POST;
+    os << LogIO::DEBUGGING << "Using " << projection_p << " image projection" << LogIO::POST;
   }
   os << LogIO::NORMAL;
   

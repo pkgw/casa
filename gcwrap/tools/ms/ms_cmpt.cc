@@ -3503,10 +3503,11 @@ ms::getdata2(const std::vector<std::string>& items, const bool ifraxis, const in
             Vector<String> itemnames(items);
             Int axisgap = ifraxisgap;
 		    doingAveraging_p = average;
+            bool chanAverage = ((chansel_p.size() > 0) && (chansel_p[2] > 1));
 
             uInt nrows = itsSelectedMS->nrow();
             if (nrows == 0) {
-                *itsLog << LogIO::WARN << "Selected Table is empty - use selectinit" << LogIO::POST;
+                *itsLog << LogIO::WARN << "Selected table is empty - use selectinit2" << LogIO::POST;
 		        return retval;
 	        }
 
@@ -3540,36 +3541,31 @@ ms::getdata2(const std::vector<std::string>& items, const bool ifraxis, const in
             Bool noCorrectedCol = msc.correctedData().isNull();
             Bool noModelCol = msc.modelData().isNull();
             Bool noFloatCol = msc.floatData().isNull();
-            Bool do_flag_sum(False), do_axis_info(False), do_info_options(False),
-                 do_time(False), do_field(False), do_flag(False), do_weight(False);
+            Bool do_flag_sum(False), do_axis_info(False),
+                 do_info_options(False), do_time(False), do_field(False),
+                 do_flag(False), do_weight(False);
             Vector<Bool> info_options(3); // [ha, last, ut]
             for (uInt it=0; it<itemnames.size(); ++it) {
                 String name = downcase(itemnames(it));
-                if (name=="flag_sum") 
-                    do_flag_sum = True; // added later
-                if (name=="axis_info") 
-                    do_axis_info = True;
-                if (name=="time") 
-                    do_time = True; // needed for axis_info
-                if (name=="field_id") 
-                    do_field = True; // needed for info options
-                if (average) {
-                    if (name=="flag") do_flag = True;
-                    if (name=="weight") do_weight = True;
-                }
-                if (name=="ha" && ifraxis) {
+                if (name=="flag_sum") do_flag_sum = True; // added later
+                else if (name=="axis_info") do_axis_info = True;
+                else if (name=="time") do_time = True; // for axis_info
+                else if (name=="field_id") do_field = True; // for info options
+                else if (name=="flag") do_flag = True;
+                else if (name=="weight") do_weight = True;
+                else if (name=="ha" && ifraxis) {
                     do_info_options = True;
                     info_options(0) = True;
                     out.define(itemnames(it), info_options);
                     itemnames(it)="";
                 }
-                if (name=="last" && ifraxis) {
+                else if (name=="last" && ifraxis) {
                     do_info_options = True;
                     info_options(1) = True;
                     out.define(itemnames(it), info_options);
                     itemnames(it)="";
                 }
-                if (name=="ut" && ifraxis) {
+                else if (name=="ut" && ifraxis) {
                     do_info_options = True;
                     info_options(2) = True;
                     out.define(itemnames(it), info_options);
@@ -3615,10 +3611,18 @@ ms::getdata2(const std::vector<std::string>& items, const bool ifraxis, const in
                         out.define(itemnames(it), Array<Float>());
                         datacolOk = false;
                 }
-                // Don't need to "get" this now
-                if (!datacolOk) itemnames(it)="";
+                if (!datacolOk) {
+                    // Don't need to get this item now
+                    itemnames(it)="";
+                } else {
+                    // Need to get averaged data
+                    if (average && itemIsData(name))
+                        itemnames(it).prepend("avg_");
+                }
             } // for loop (itemnames)
 
+            // Add axes user did not request but are needed for other items
+            // (remove later)
             if (ifraxis && do_axis_info && !do_time) {
                 // need time for time_axis
                 size_t itemsSize = itemnames.size();
@@ -3631,17 +3635,28 @@ ms::getdata2(const std::vector<std::string>& items, const bool ifraxis, const in
                 itemnames.resize(itemsSize+1, True);
                 itemnames(itemsSize) = "field_id";
             }
-            if (average && !do_flag) {
-                size_t itemsSize = itemnames.size();
-                itemnames.resize(itemsSize+1, True);
-                itemnames(itemsSize) = "flag";
+            if (average || chanAverage) {
+                // Check if we still have data items that need averaging
+                // (and column exists)
+                bool needAvgData(false);
+                for (uInt it=0; it<itemnames.size(); ++it) {
+                    if (itemnames(it).startsWith("avg_")) {
+                        needAvgData = true;
+                        break;
+                    }
+                }
+                // add flag and weight items for averaging
+                if ((needAvgData || chanAverage) && !do_flag) {
+                    size_t itemsSize = itemnames.size();
+                    itemnames.resize(itemsSize+1, True);
+                    itemnames(itemsSize) = "flag";
+                }
+                if (needAvgData && !do_weight) {
+                    size_t itemsSize = itemnames.size();
+                    itemnames.resize(itemsSize+1, True);
+                    itemnames(itemsSize) = "weight";
+                }
             }
-            if (average && !do_weight) {
-                size_t itemsSize = itemnames.size();
-                itemnames.resize(itemsSize+1, True);
-                itemnames(itemsSize) = "weight";
-            }
-
 
             // iterate to next chunk or subchunk (if maxrows) and get items
             if (itsVI2) {
@@ -3696,17 +3711,54 @@ ms::getdata2(const std::vector<std::string>& items, const bool ifraxis, const in
                 } // checkinit 
             } // else (!VI2)
 
-            if (average) {
-                getAveragedValues(itemnames, out);
-                // remove or redefine flag field
-                if (!do_flag) out.removeField("flag");
-                else {
-                    if (out.isDefined("dataflag"))
-                        out.renameField("dataflag", "flag");
+
+            if (chanAverage && !average) {
+                // zero out flagged averaged data to duplicate old behavior
+                Array<Bool> flagArray = out.asArrayBool("flag");
+                IPosition datashape = flagArray.shape();
+                size_t nelements = flagArray.nelements();
+                IPosition onedim(1, nelements);
+                Array<Bool> flagVector = flagArray.reform(onedim);
+                for (uInt it=0; it<itemnames.size(); ++it) {
+                    String name = itemnames(it);
+                    if (!name.empty() && itemIsData(name)) {
+                        Int fieldnum = out.fieldNumber(name);
+                        if (out.type(fieldnum) == TpArrayFloat) {
+                            Array<Float> dataArray = out.asArrayFloat(name);
+                            Array<Float> dataVector = dataArray.reform(onedim);
+                            for (uInt i=0; i<nelements; ++i)
+                                if (flagVector(IPosition(1,i))) 
+                                    dataVector(IPosition(1,i)) = 0.0;
+                            dataArray = dataVector.reform(datashape);
+                            out.removeField(name);
+                            out.define(name, dataArray);
+                        } else {
+                            Array<Complex> dataArray = out.asArrayComplex(name);
+                            Array<Complex> dataVector = dataArray.reform(onedim);
+                            for (uInt i=0; i<nelements; ++i)
+                                if (flagVector(IPosition(1,i))) 
+                                    dataVector(IPosition(1,i)) = 0.0;
+                            dataArray = dataVector.reform(datashape);
+                            out.removeField(name);
+                            out.define(name, dataArray);
+                        }
+                    }
                 }
+                // remove flag field if not requested
+                if (!do_flag)
+                    if (out.isDefined("flag")) out.removeField("flag");
+            } 
+
+            if (average || chanAverage) {
+                if (average)
+                    getAveragedValues(itemnames, out);
+                // remove flag field if not requested
+                if (!do_flag)
+                    if (out.isDefined("flag")) out.removeField("flag");
                 // remove or redefine weight field
-                if (!do_weight) out.removeField("weight");
-                else {
+                if (!do_weight) {
+                    if (out.isDefined("weight")) out.removeField("weight");
+                } else {
                     Array<Float> weights = out.asArrayFloat("weight");
                     out.removeField("weight");
                     getWeightSum(weights);  // redefines weights array
@@ -3742,9 +3794,23 @@ ms::getdata2(const std::vector<std::string>& items, const bool ifraxis, const in
 	return retval;
 }
 
+bool ms::itemIsData(String item) {
+   bool isdata = (
+      (item.find("data") != string::npos) ||
+      (item.find("amplitude") != string::npos) ||
+      (item.find("phase") != string::npos) ||
+      (item.find("real") != string::npos) ||
+      (item.find("imaginary") != string::npos));
+   return isdata;
+}
+
 void ms::getAveragedValues(Vector<String> fieldnames, Record& rec) {
     for (uInt it=0; it<fieldnames.size(); ++it) {
         String field = fieldnames(it);
+        String recname(field);
+        // remove "avg_" from fieldname for switch but keep it in recname
+        if (!field.empty() && field.startsWith("avg_"))
+            field = field.substr(4, field.size()-4);
         MSS::Field fld = MSS::field(field);
         switch(fld) {
             case MSS::AMPLITUDE:
@@ -3752,34 +3818,75 @@ void ms::getAveragedValues(Vector<String> fieldnames, Record& rec) {
             case MSS::MODEL_AMPLITUDE:
             case MSS::RATIO_AMPLITUDE:
             case MSS::RESIDUAL_AMPLITUDE:
-            case MSS::OBS_RESIDUAL_AMPLITUDE:
+            case MSS::OBS_RESIDUAL_AMPLITUDE: {
+                Array<Complex> data = rec.asArrayComplex(recname);
+                Array<Bool> flags = rec.asArrayBool("flag");
+                Array<Float> weight = rec.asArrayFloat("weight");
+                Array<Bool> dataflag;
+                MSSelUtil2<Complex>::timeAverage(dataflag, data, flags, weight);
+                rec.removeField(recname);
+                rec.define(field, amplitude(data));
+                rec.removeField("flag");
+                rec.define("flag", dataflag);
+                }
+                break;
             case MSS::IMAGINARY:
             case MSS::CORRECTED_IMAGINARY:
             case MSS::MODEL_IMAGINARY:
             case MSS::RATIO_IMAGINARY:
             case MSS::RESIDUAL_IMAGINARY:
-            case MSS::OBS_RESIDUAL_IMAGINARY:
+            case MSS::OBS_RESIDUAL_IMAGINARY: {
+                Array<Complex> data = rec.asArrayComplex(recname);
+                Array<Bool> flags = rec.asArrayBool("flag");
+                Array<Float> weight = rec.asArrayFloat("weight");
+                Array<Bool> dataflag;
+                MSSelUtil2<Complex>::timeAverage(dataflag, data, flags, weight);
+                rec.removeField(recname);
+                rec.define(field, imag(data));
+                rec.define("flag", dataflag);
+                }
+                break;
             case MSS::PHASE:
             case MSS::CORRECTED_PHASE:
             case MSS::MODEL_PHASE:
             case MSS::RATIO_PHASE:
             case MSS::RESIDUAL_PHASE:
-            case MSS::OBS_RESIDUAL_PHASE:
+            case MSS::OBS_RESIDUAL_PHASE: {
+                Array<Complex> data = rec.asArrayComplex(recname);
+                Array<Bool> flags = rec.asArrayBool("flag");
+                Array<Float> weight = rec.asArrayFloat("weight");
+                Array<Bool> dataflag;
+                MSSelUtil2<Complex>::timeAverage(dataflag, data, flags, weight);
+                rec.removeField(recname);
+                rec.define(field, phase(data));
+                rec.define("flag", dataflag);
+                }
+                break;
             case MSS::REAL:
             case MSS::CORRECTED_REAL:
             case MSS::MODEL_REAL:
             case MSS::RATIO_REAL:
             case MSS::RESIDUAL_REAL:
-            case MSS::OBS_RESIDUAL_REAL:
-            case MSS::FLOAT_DATA: {
+            case MSS::OBS_RESIDUAL_REAL: {
+                Array<Complex> data = rec.asArrayComplex(recname);
                 Array<Bool> flags = rec.asArrayBool("flag");
                 Array<Float> weight = rec.asArrayFloat("weight");
-                Array<Float> data = rec.asArrayFloat(field);
+                Array<Bool> dataflag;
+                MSSelUtil2<Complex>::timeAverage(dataflag, data, flags, weight);
+                rec.removeField(recname);
+                rec.define(field, real(data));
+                rec.define("flag", dataflag);
+                }
+                break;
+            case MSS::FLOAT_DATA: {
+                Array<Float> data = rec.asArrayFloat(recname);
+                Array<Bool> flags = rec.asArrayBool("flag");
+                Array<Float> weight = rec.asArrayFloat("weight");
                 Array<Bool> dataflag;
                 MSSelUtil2<Float>::timeAverage(dataflag, data, flags, weight);
-                rec.removeField(field);
+                rec.removeField(recname);
                 rec.define(field, data);
-                rec.define("dataflag", dataflag);
+                rec.define("flag", dataflag);
                 }
                 break; 
             case MSS::DATA:
@@ -3788,14 +3895,14 @@ void ms::getAveragedValues(Vector<String> fieldnames, Record& rec) {
             case MSS::RATIO_DATA:
             case MSS::RESIDUAL_DATA:
             case MSS::OBS_RESIDUAL_DATA: {
+                Array<Complex> data = rec.asArrayComplex(recname);
                 Array<Bool> flags = rec.asArrayBool("flag");
                 Array<Float> weight = rec.asArrayFloat("weight");
-                Array<Complex> data = rec.asArrayComplex(field);
                 Array<Bool> dataflag;
                 MSSelUtil2<Complex>::timeAverage(dataflag, data, flags, weight);
-                rec.removeField(field);
+                rec.removeField(recname);
                 rec.define(field, data);
-                rec.define("dataflag", dataflag);
+                rec.define("flag", dataflag);
                 }
                 break;
             case MSS::ANTENNA1:
@@ -4181,11 +4288,16 @@ void ms::addTimeAxis(Record& out) {
     out.defineRecord(fieldname, axisInfoRec);
 }
 
-void ms::getitem(String item, vi::VisBuffer2* vb2, Record& outputRec, bool ifraxis) {
+void ms::getitem(String item, vi::VisBuffer2* vb2, Record& outputRec,
+        bool ifraxis) {
     String itemname = downcase(item);
     Bool fieldExists = outputRec.isDefined(item);
     Record intermediateValue(RecordInterface::Variable);
-    MSS::Field fld = MSS::field(itemname);
+    MSS::Field fld;
+    if (itemname.startsWith("avg_"))
+        fld = MSS::field(getbaseitem(itemname));
+    else
+        fld = MSS::field(itemname);
     switch(fld) {
 		case MSS::AMPLITUDE: {
             getitem("data", vb2, intermediateValue, ifraxis);
@@ -4610,6 +4722,19 @@ void ms::getitem(String item, vi::VisBuffer2* vb2, Record& outputRec, bool ifrax
     }
 }
 
+casacore::String ms::getbaseitem(String itemname) {
+    String baseItem;
+    // remove "avg_"
+    String derivedItem = itemname.substr(4, itemname.size()-4);
+    // base item is column + "data"
+    string::size_type columnEnd = derivedItem.find_last_of('_');
+    if (columnEnd == string::npos)
+        baseItem = "data";
+    else
+        baseItem = derivedItem.substr(0,columnEnd) + "_data";
+    return baseItem;
+}
+
 bool
 ms::putdata(const ::casac::record& items)
 {
@@ -4638,7 +4763,7 @@ ms::putdata2(const ::casac::record& items)
 		if(!detached()){
             // run some checks!
             if (nrow2(True)==0) {
-                *itsLog << LogIO::SEVERE << "Selected Table is empty - use selectinit"
+                *itsLog << LogIO::SEVERE << "Selected table is empty - use selectinit2"
 				    << LogIO::POST;
 		        return false;
 	        }
