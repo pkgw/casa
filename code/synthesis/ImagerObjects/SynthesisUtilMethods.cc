@@ -325,10 +325,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	//	Tint = intT.modifiedJulianDay();
 
 	Int partNo=0;
+	// The +1 in rowBeg and rowEnd below is because it appears
+	// that TaQL by default counts from 1, not 0.
 	while(rowEndID < nRows)
 	  {
 	    //	    rowBeg=rowNumbers[rowBegID]; rowEnd = rowNumbers[rowEndID];
-	    rowBeg=rowBegID; rowEnd = rowEndID;
+	    rowBeg=rowBegID+1; rowEnd = rowEndID+1;
 	    stringstream taql;
 	    taql << "ROWNUMBER() >= " << rowBeg << " && ROWNUMBER() <= " << rowEnd;
 	    timeSelPerPart[msID][partNo] = taql.str();
@@ -342,7 +344,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	//rowBeg=rowNumbers[rowBegID]; rowEnd = rowNumbers[nRows-1];
 	stringstream taql;
-	rowBeg=rowBegID; rowEnd = nRows-1;
+	rowBeg=rowBegID+1; rowEnd = nRows-1+1;
 	taql << "ROWNUMBER() >= " << rowBeg << " && ROWNUMBER() <= " << rowEnd;
 	timeSelPerPart[msID][partNo] = taql.str();
 	os << endl << "Rows = " << rowBeg << " " << rowEnd << " "

@@ -772,9 +772,7 @@ void ChannelAverageTVI::propagateChanAvgFlags (const Cube<Bool> &transformedFlag
 			if (outChan < nTransChan) // outChan >= nChan  may happen when channels are dropped
 			{
 				for (size_t corr_i =0;corr_i<nCorr;corr_i++)
-				{
-					if (transformedFlagCube(corr_i,outChan,row_i)) propagatedFlagCube(corr_i,chan_i,row_i) = true;
-				}
+					propagatedFlagCube(corr_i,chan_i,row_i) = transformedFlagCube(corr_i,outChan,row_i);
 			}
 		}
 	}

@@ -163,8 +163,6 @@ def stats():
             print "hifv_fluxboot values are not within tolerances."
             print >>logfile,"hifv_fluxboot test FAILED."
             print "hifv_fluxboot test FAILED."
-            print >>logfile, e
-            print e
         
     except Exception, e:
         regstate=False
