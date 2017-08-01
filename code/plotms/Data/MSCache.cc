@@ -715,8 +715,9 @@ void MSCache::trapExcessVolume(map<PMS::Axis,Bool> pendingLoadAxes) {
 		logLoad(log.getMesg());
 		deleteVm();
 		stringstream ss;
-		ss << "Please try using data selection, averaging," << endl
-           << "'Reload' (to clear unneeded cache items)," << endl
+        ss << "Estimated cache exceeds limits." << endl
+           << "Please try using data selection, averaging," << endl
+           << "checking 'Reload' (to clear unneeded cache items)," << endl
 		   << "or letting other memory-intensive processes finish.";
 		throw(AipsError(ss.str()));
 	}

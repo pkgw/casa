@@ -1452,8 +1452,9 @@ void PlotMSIndexer::reportMeta(Double x, Double y, Bool masked,stringstream& ss)
 	ss << "Chan=";
 	Int ichan=getIndex0100(currChunk_,irel_);
     PlotMSAveraging& pmsave(plotmscache_->averaging());
+    Bool isMS = (plotmscache_->cacheType() == PlotMSCacheBase::MS);
 	if (plotmscache_->netAxesMask_[dataIndex](1)) {
-		if (pmsave.channel() && pmsave.channelValue()>1) {
+		if (isMS && pmsave.channel() && pmsave.channelValue()>1) {
             Vector<Int> chansPerBin = plotmscache_->getChansPerBin(currChunk_, ichan);
 			ss << "<" << chansPerBin[0] << "~" << chansPerBin[chansPerBin.size()-1] << ">";
 		}
@@ -1465,7 +1466,7 @@ void PlotMSIndexer::reportMeta(Double x, Double y, Bool masked,stringstream& ss)
 	ss << " ";
 
 	if (plotmscache_->netAxesMask_[dataIndex](1)) {
-		if (pmsave.channel() && pmsave.channelValue()>1) {
+		if (isMS && pmsave.channel() && pmsave.channelValue()>1) {
 	        ss << "Avg Freq=";
         } else {
 	        ss << "Freq=";
@@ -1475,10 +1476,10 @@ void PlotMSIndexer::reportMeta(Double x, Double y, Bool masked,stringstream& ss)
 		ss << "Freq=*        ";
     }
 
-    if (plotmscache_->cacheType()==PlotMSCacheBase::CAL)
-	    ss << "Poln=";
-    else
+    if (isMS)
 	    ss << "Corr=";
+    else
+	    ss << "Poln=";
 	if (plotmscache_->netAxesMask_[dataIndex](0))
 		ss << plotmscache_->polname(Int(plotmscache_->getCorr(currChunk_,getIndex1000(currChunk_,irel_))));
 	else
