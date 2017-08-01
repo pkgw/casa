@@ -654,10 +654,12 @@ void CalCache::loadCalChunks(ROCTIter& ci,
   case PMS::TSKY: { 
     casacore::Int spw = cti.thisSpw();
     casacore::Int scan = cti.thisScan();
+    casacore::Vector<casacore::Double> freqsGHz = cti.freq()/1e9;
     casacore::Vector<casacore::Double> curve(1, 0.0);
     if (plotmsAtm_) {
         curve.resize();    
-        curve = plotmsAtm_->calcOverlayCurve(spw, scan, (axis==PMS::ATM));
+        curve = plotmsAtm_->calcOverlayCurve(spw, scan, freqsGHz,
+                (axis==PMS::ATM));
     } 
     *atm_[chunk] = curve;
     break;

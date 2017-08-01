@@ -312,11 +312,36 @@ vector<PMS::DataColumn> PlotMSPlot::getCachedData(){
 vector<PMS::Axis> PlotMSPlot::getCachedAxes() {
 	PMS_PP_Cache* c = itsParams_.typedGroup<PMS_PP_Cache>();
 	PMS_PP_MSData* d = itsParams_.typedGroup<PMS_PP_MSData>();
+
+    // get default axes if not given by user
+    int xAxisCount = c->numXAxes();
+	int yAxisCount = c->numYAxes();
+	int count = xAxisCount + yAxisCount;
+	vector<PMS::Axis> axes( count );
+    PMS::Axis axis;
+    int i;
+	for(i = 0; i < xAxisCount; i++){
+        axis = c->xAxis(i);
+        if (axis == PMS::NONE) {
+            axis = getDefaultXAxis();
+            c->setXAxis(axis, i);
+        }
+		axes[i] = axis;
+	}
+	for(i = xAxisCount; i < count; i++){
+		uInt yIndex = i - xAxisCount;
+        axis = c->yAxis(yIndex);
+        if (axis == PMS::NONE) {
+            axis = PMS::DEFAULT_YAXIS;
+            c->setYAxis(axis, yIndex);
+        }
+	    axes[i] = axis;
+	}
+
+    // add ATM/TSKY yaxis "under the hood" if valid xaxis
     if (d->showAtm() || d->showTsky()) {
-        // add ATM/TSKY yaxis "under the hood" if valid xaxis
         PMS::Axis xaxis = c->xAxis();
-        bool validXAxis = (xaxis==PMS::CHANNEL || xaxis==PMS::FREQUENCY || 
-              xaxis==PMS::NONE);
+        bool validXAxis = (xaxis==PMS::CHANNEL || xaxis==PMS::FREQUENCY );
         if (!validXAxis) {
             d->setShowAtm(false);
             d->setShowTsky(false);
@@ -346,7 +371,7 @@ vector<PMS::Axis> PlotMSPlot::getCachedAxes() {
                 // set Display symbol color
                 PMS_PP_Display* disp = itsParams_.typedGroup<PMS_PP_Display>();
                 PlotSymbolPtr atmSymbol = disp->unflaggedSymbol(index);
-                atmSymbol->setSymbol("circle");
+                atmSymbol->setSymbol("autoscaling");
                 atmSymbol->setColor("#FF00FF");
                 disp->setUnflaggedSymbol(atmSymbol, index);
                 PlotSymbolPtr flaggedSymbol = disp->flaggedSymbol();
@@ -354,30 +379,6 @@ vector<PMS::Axis> PlotMSPlot::getCachedAxes() {
             }
         }
     }
-            
-	int xAxisCount = c->numXAxes();
-	int yAxisCount = c->numYAxes();
-	int count = xAxisCount + yAxisCount;
-	vector<PMS::Axis> axes( count );
-    PMS::Axis axis;
-    int i;
-	for(i = 0; i < xAxisCount; i++){
-        axis = c->xAxis(i);
-        if (axis == PMS::NONE) {
-            axis = getDefaultXAxis();
-            c->setXAxis(axis, i);
-        }
-		axes[i] = axis;
-	}
-	for(i = xAxisCount; i < count; i++){
-		uInt yIndex = i - xAxisCount;
-        axis = c->yAxis(yIndex);
-        if (axis == PMS::NONE) {
-            axis = PMS::DEFAULT_YAXIS;
-            c->setYAxis(axis, yIndex);
-        }
-	    axes[i] = axis;
-	}
 	return axes;
 }
 

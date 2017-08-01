@@ -47,9 +47,8 @@ PlotMSAtm::PlotMSAtm(casacore::String filename, PlotMSSelection& userSel,
         bool isMS):
     isMS_(isMS),
     ms_(NULL),
-    selms_(NULL),
-    bptable_(NULL),
-    selct_(NULL),
+    caltable_(NULL),
+    tableName_(""),
     telescopeName_(""),
     pwv_(0.0),
     airmass_(0.0) {
@@ -62,12 +61,14 @@ PlotMSAtm::PlotMSAtm(casacore::String filename, PlotMSSelection& userSel,
 
     getMeanWeather();
     getMedianPwv();
+    selms_ = new MeasurementSet();
+    selct_ = new NewCalTable();
 }
 
 PlotMSAtm::~PlotMSAtm() {
-    if (bptable_) {
-        delete bptable_;
-        bptable_ = NULL;
+    if (caltable_) {
+        delete caltable_;
+        caltable_ = NULL;
     }
     if (ms_) {
         delete ms_;
@@ -76,8 +77,10 @@ PlotMSAtm::~PlotMSAtm() {
 }
 
 void PlotMSAtm::setUpMS(casacore::String filename, PlotMSSelection& userSel) {
-    ms_ = new MeasurementSet(filename); // original ms
-    ms_ = applyMSSelection(userSel);    // now user-selected ms
+    ms_ = new MeasurementSet(filename);
+    tableName_ = ms_->tableName();
+    if (!userSel.isEmpty()) 
+        applyMSSelection(userSel, *ms_);
     ROMSColumns msCol(*ms_);
     telescopeName_ = msCol.observation().telescopeName().get(0);
     getMSTimes(); // for weather and pwv
@@ -85,12 +88,13 @@ void PlotMSAtm::setUpMS(casacore::String filename, PlotMSSelection& userSel) {
 
 void PlotMSAtm::setUpCalTable(casacore::String filename,
         PlotMSSelection& userSel) {
-    bptable_ = new NewCalTable(filename); // original table
-    bptable_ = applyCalSelection(userSel); // now user-selected table
-    ROCTColumns ctCol(*bptable_);
+    caltable_ = new NewCalTable(filename); // original table
+    getCalMS();
+    if (!userSel.isEmpty())
+        applyCalSelection(userSel, *caltable_); // now user-selected table
+    ROCTColumns ctCol(*caltable_);
     telescopeName_ = ctCol.observation().telescopeName().get(0);
     getCalTimes();
-    getCalMS();
 }
 
 void PlotMSAtm::getMSTimes() {
@@ -104,7 +108,7 @@ void PlotMSAtm::getMSTimes() {
 void PlotMSAtm::getCalTimes() {
     // unique times in TIME column of cal table;
     // nct could be original or selected cal table
-    ROCTMainColumns ctmc(*bptable_);
+    ROCTMainColumns ctmc(*caltable_);
     casacore::Vector<casacore::Double> times = ctmc.time().getColumn();
     getUniqueTimes(times);
 }
@@ -156,69 +160,59 @@ void PlotMSAtm::getUniqueFields(casacore::Vector<casacore::Int> allfields) {
 void PlotMSAtm::getCalMS() {
     // if caltable has keyword for ms name, sets ms_
     String msname("");
-    if (bptable_->keywordSet().fieldNumber("MSName") > -1) 
-        msname = bptable_->keywordSet().asString("MSName");
+    if (caltable_->keywordSet().fieldNumber("MSName") > -1) 
+        msname = caltable_->keywordSet().asString("MSName");
     if (!msname.empty()) {
-        casacore::Path path(bptable_->tableName());
+        casacore::Path path(caltable_->tableName());
         casacore::String fullpath = path.dirName() + "/" + msname;
         casacore::File msname(fullpath);
-        if (msname.exists() && msname.isDirectory())
+        if (msname.exists() && msname.isDirectory()) {
             ms_ = new MeasurementSet(fullpath);
+            tableName_ = ms_->tableName();
+        }
     }
 }
 
-MeasurementSet* PlotMSAtm::applyMSSelection(PlotMSSelection& selection) {
-    // apply selection to user-selected table
+void PlotMSAtm::applyMSSelection(PlotMSSelection& selection,
+        casacore::MeasurementSet& selms) {
     Vector<Vector<Slice> > chansel, corrsel;
-    MeasurementSet selms;
     selection.apply(*ms_, selms, chansel, corrsel);
-    return new MeasurementSet(selms);
 }
 
-NewCalTable* PlotMSAtm::applyCalSelection(PlotMSSelection& selection) {
-    // apply selection to user-selected table
+void PlotMSAtm::applyCalSelection(PlotMSSelection& selection,
+        NewCalTable& selct) {
     Vector<Vector<Slice> > chansel, corrsel;
-    NewCalTable selct;
-    selection.apply(*bptable_, selct, chansel, corrsel);
-    return new NewCalTable(selct);
+    selection.apply(*caltable_, selct, chansel, corrsel);
 }
 
 casacore::Vector<casacore::Double> PlotMSAtm::calcOverlayCurve(
-        casacore::Int spw, casacore::Int scan, bool atm) {
+        casacore::Int spw, casacore::Int scan,
+        const casacore::Vector<casacore::Double>& chanFreqs,
+        bool atm) {
     // Implements algorithm in CAS-9053 to get overlay curves
     // (atm or tsky) per spw + scan
     casacore::Vector<casacore::Double> curve(1, 0.0);
-    casacore::Array<casacore::Double> chanFreqPerSpw;
     PlotMSSelection pmsSel;
     pmsSel.setSpw(String::toString(spw));
     pmsSel.setScan(String::toString(scan));
     if (isMS_) {
-        selms_ = applyMSSelection(pmsSel);
+        applyMSSelection(pmsSel, *selms_);
         getMSFields();  // update fields for airmass calc
-        // get channel freqs from selected ms
-        ROMSColumns msCol(*selms_);
-        chanFreqPerSpw = msCol.spectralWindow().chanFreq().get(spw);
     } else {
-        selct_ = applyCalSelection(pmsSel);
+        applyCalSelection(pmsSel, *selct_);
         getCalFields();  // update fields for airmass calc
-        // get chan freqs from selected table
-        ROCTColumns ctCol(*selct_);
-        chanFreqPerSpw = ctCol.spectralWindow().chanFreq().get(spw);
     }
-    unsigned int numChan(chanFreqPerSpw.nelements());
+    unsigned int numChan(chanFreqs.nelements());
     if (numChan==1) return curve;
-    unsigned int chansForCalc(numChan), midChan(numChan/2);
-    // limit number of channels for calculation to <512 ?
-    //while (chansForCalc > 512)  chansForCalc /= 2;
-    chanFreqPerSpw /= 1.0e9; // in GHz
-    casacore::Double refFreq = 0.5 * (chanFreqPerSpw(IPosition(2, midChan-1, 0))
-        + chanFreqPerSpw(IPosition(2, midChan, 0)));
-    casacore::Double chanSep = (chanFreqPerSpw(IPosition(2, numChan-1, 0))
-        - chanFreqPerSpw(IPosition(2, 0, 0))) / (chansForCalc - 1);
-    if (chansForCalc % 2 == 0) refFreq -= chanSep*0.5;
+    unsigned int midChan(numChan/2);
+    casacore::Double refFreq = 0.5 * (chanFreqs(IPosition(2, midChan-1, 0))
+        + chanFreqs(IPosition(2, midChan, 0)));
+    casacore::Double chanSep = (chanFreqs(IPosition(2, numChan-1, 0))
+        - chanFreqs(IPosition(2, 0, 0))) / (numChan - 1);
+    if (numChan % 2 == 0) refFreq -= chanSep*0.5;
     // set atm parameters
-    unsigned int refChan((chansForCalc - 1) / 2);
-    atm::SpectralGrid* specGrid = new atm::SpectralGrid(chansForCalc, refChan,
+    unsigned int refChan((numChan - 1) / 2);
+    atm::SpectralGrid* specGrid = new atm::SpectralGrid(numChan, refChan,
         atm::Frequency(refFreq, "GHz"), atm::Frequency(chanSep, "GHz"));
     atm::AtmProfile* atmProfile = getAtmProfile();
     atm::RefractiveIndexProfile* refIdxProfile =
@@ -227,17 +221,17 @@ casacore::Vector<casacore::Double> PlotMSAtm::calcOverlayCurve(
     skyStatus->setUserWH2O(atm::Length(pwv_, "mm"));
     casacore::Vector<casacore::Double> dryOpacity, wetOpacity, 
         atmTransmission, TebbSky;
-    dryOpacity.resize(chansForCalc);
-    wetOpacity.resize(chansForCalc);
-    for (uInt chan=0; chan<chansForCalc; ++chan) {
+    dryOpacity.resize(numChan);
+    wetOpacity.resize(numChan);
+    for (uInt chan=0; chan<numChan; ++chan) {
         dryOpacity(chan) = refIdxProfile->getDryOpacity(0,chan).get("neper");
         wetOpacity(chan) = skyStatus->getWetOpacity(0, chan).get("mm-1");
     }
     airmass_ = computeMeanAirmass();
     atmTransmission = exp(-airmass_ * (wetOpacity + dryOpacity));
     if (!atm) {
-        TebbSky.resize(chansForCalc);
-        for (uInt chan=0; chan<chansForCalc; ++chan) {
+        TebbSky.resize(numChan);
+        for (uInt chan=0; chan<numChan; ++chan) {
             TebbSky(chan) = skyStatus->getTebbSky(0, chan).get("K");
         }
     }
@@ -274,18 +268,18 @@ void PlotMSAtm::getMedianPwv() {
     // Get pwv (precipitable water vapor) from MS subtable in mm
     casacore::Double pwv(0.0);
     // values from ASDM_CAL subtables if they exist
-    if (ms_) {
-        casacore::String msname(ms_->tableName()), subname;
-        casacore::Table mstab(msname), subtable;
+    if (!tableName_.empty()) {
+        casacore::String subname;
+        casacore::Table mstab(tableName_), subtable;
         casacore::Vector<casacore::Double> waterCol, timesCol;
         if (mstab.keywordSet().fieldNumber("ASDM_CALWVR") > -1) {
-            subname = msname + "::ASDM_CALWVR";
+            subname = tableName_ + "::ASDM_CALWVR";
             subtable = Table::openTable(subname);
             waterCol = ScalarColumn<casacore::Double>(subtable, "water").getColumn();
             timesCol = ScalarColumn<casacore::Double>(subtable, "startValidTime").getColumn();
             mstab.closeSubTables();
         } else if (mstab.keywordSet().fieldNumber("ASDM_CALATMOSPHERE") > -1) {
-            subname = msname + "::ASDM_CALATMOSPHERE";
+            subname = tableName_ + "::ASDM_CALATMOSPHERE";
             subtable = Table::openTable(subname);
             waterCol = ArrayColumn<casacore::Double>(subtable, "water").getColumn();
             timesCol = ScalarColumn<casacore::Double>(subtable, "startValidTime").getColumn();
@@ -316,12 +310,11 @@ void PlotMSAtm::getMeanWeather() {
     else pressure = 786.0;  // mb
 
     // values from WEATHER table if it exists
-    if (ms_) {
-        casacore::String msname(ms_->tableName()), subname;
-        casacore::Table mstab(msname), subtable;
+    if (!tableName_.empty()) {
+        casacore::Table mstab(tableName_);
         if (mstab.keywordSet().fieldNumber("WEATHER") > -1) {
-            subname = msname + "::WEATHER";
-            subtable = Table::openTable(subname);
+            casacore::String subname = tableName_ + "::WEATHER";
+            casacore::Table subtable = Table::openTable(subname);
             // get columns and temp. units
             casacore::Vector<casacore::Float> pressureCol, humidityCol, 
                 temperatureCol;
@@ -389,7 +382,7 @@ casacore::Double PlotMSAtm::getElevation(casacore::Int fieldId) {
         ROMSColumns msCol(*ms_);
         raDec = msCol.field().delayDir().get(fieldId);
     } else {
-        ROCTColumns ctCol(*bptable_);
+        ROCTColumns ctCol(*caltable_);
         raDec = ctCol.field().delayDir().get(fieldId);
     }
     casacore::Double ra = raDec(IPosition(2,0,0));

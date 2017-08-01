@@ -78,9 +78,13 @@ public:
     PlotMSAtm(casacore::String filename, PlotMSSelection& userSel, bool isMS);
     ~PlotMSAtm();
 
-    // returns curve vector (atm if atm=true, else tsky)
+    // Returns curve vector (atm if atm=true, else tsky);
+    // pass in frequencies (GHz) in case of channel-averaging
+    // (let VIVB2 do the work)
     casacore::Vector<casacore::Double> calcOverlayCurve(
-        casacore::Int spw, casacore::Int scan, bool atm);
+        casacore::Int spw, casacore::Int scan, 
+        const casacore::Vector<casacore::Double>& chanFreqs,
+        bool atm);
 
     inline casacore::Double getPwv() { return pwv_; }
     inline casacore::Double getAirmass() { return airmass_; }
@@ -102,8 +106,10 @@ private:
     void getCalMS();
 
     // for user selection then each chunk's spw and scan
-    casacore::MeasurementSet* applyMSSelection(PlotMSSelection& selection);
-    NewCalTable* applyCalSelection(PlotMSSelection& selection);
+    void applyMSSelection(PlotMSSelection& selection,
+            casacore::MeasurementSet& selms);
+    void applyCalSelection(PlotMSSelection& selection,
+            NewCalTable& selct);
 
     // calculated values
     void getMeanWeather();  // stored in weather_ Record
@@ -127,8 +133,8 @@ private:
 
     bool isMS_;
     casacore::MeasurementSet *ms_, *selms_; // selected MS for each spw/scan
-    NewCalTable *bptable_, *selct_;  // selected CT for each spw/scan
-    casacore::String telescopeName_;
+    NewCalTable *caltable_, *selct_;  // selected CT for each spw/scan
+    casacore::String tableName_, telescopeName_;
     casacore::Double pwv_, airmass_;
     casacore::Vector<casacore::Double> times_;
     casacore::Vector<casacore::Int> fields_;

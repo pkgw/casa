@@ -1752,10 +1752,13 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
     case PMS::TSKY: {
         casacore::Int spw = vb->spectralWindows()(0);
         casacore::Int scan = vb->scan()(0);
+        casacore::Array<casacore::Double> chanFreqGHz =
+            vb->getFrequencies(0)/1e9;
         casacore::Vector<casacore::Double> curve(1, 0.0);
         if (plotmsAtm_) {
             curve.resize();    
-            curve = plotmsAtm_->calcOverlayCurve(spw, scan, (axis==PMS::ATM));
+            curve = plotmsAtm_->calcOverlayCurve(spw, scan, chanFreqGHz,
+                    (axis==PMS::ATM));
         } 
         *atm_[vbnum] = curve;
         break;
