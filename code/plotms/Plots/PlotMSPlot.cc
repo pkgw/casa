@@ -314,28 +314,13 @@ vector<PMS::Axis> PlotMSPlot::getCachedAxes() {
 	PMS_PP_MSData* d = itsParams_.typedGroup<PMS_PP_MSData>();
 
     // get default axes if not given by user
-    int xAxisCount = c->numXAxes();
-	int yAxisCount = c->numYAxes();
-	int count = xAxisCount + yAxisCount;
-	vector<PMS::Axis> axes( count );
-    PMS::Axis axis;
-    int i;
-	for(i = 0; i < xAxisCount; i++){
-        axis = c->xAxis(i);
-        if (axis == PMS::NONE) {
-            axis = getDefaultXAxis();
-            c->setXAxis(axis, i);
-        }
-		axes[i] = axis;
+	for(uInt i=0; i<c->numXAxes(); i++){
+        if (c->xAxis(i) == PMS::NONE) 
+            c->setXAxis(getDefaultXAxis(), i);
 	}
-	for(i = xAxisCount; i < count; i++){
-		uInt yIndex = i - xAxisCount;
-        axis = c->yAxis(yIndex);
-        if (axis == PMS::NONE) {
-            axis = PMS::DEFAULT_YAXIS;
-            c->setYAxis(axis, yIndex);
-        }
-	    axes[i] = axis;
+	for(uInt i=0; i<c->numYAxes(); i++){
+        if (c->yAxis(i) == PMS::NONE) 
+            c->setYAxis(PMS::DEFAULT_YAXIS, i);
 	}
 
     // add ATM/TSKY yaxis "under the hood" if valid xaxis
@@ -350,9 +335,8 @@ vector<PMS::Axis> PlotMSPlot::getCachedAxes() {
             // add here for script client
             bool found(false);
             const vector<PMS::Axis> yAxes = c->yAxes();
-            PMS::Axis atmAxis;
-            if (d->showAtm()) atmAxis = PMS::ATM;
-            else atmAxis = PMS::TSKY;
+            PMS::Axis atmAxis(PMS::ATM);
+            if (!d->showAtm()) atmAxis = PMS::TSKY;
             for (uInt i=0; i<yAxes.size(); ++i) {
                 if (yAxes[i] == atmAxis) {
                     found=True;
@@ -360,7 +344,7 @@ vector<PMS::Axis> PlotMSPlot::getCachedAxes() {
                 }
             }
             if (!found) {
-                // add ATM to Cache axes
+                // add ATM/TSKY to Cache axes
                 int index = c->numXAxes();
                 c->setAxes(xaxis, atmAxis, c->xDataColumn(0), 
                         PMS::DEFAULT_DATACOLUMN, index);
@@ -379,6 +363,11 @@ vector<PMS::Axis> PlotMSPlot::getCachedAxes() {
             }
         }
     }
+	vector<PMS::Axis> axes;
+	for(uInt i=0; i<c->numXAxes(); i++)
+		axes.push_back(c->xAxis(i));
+	for(uInt i=0; i<c->numYAxes(); i++)
+		axes.push_back(c->yAxis(i));
 	return axes;
 }
 
