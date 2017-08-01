@@ -73,28 +73,10 @@ from impbcor_pg import impbcor_pg as impbcor
 # single dish tasks
 from sdbaseline_pg import  sdbaseline_pg as sdbaseline
 from sdcal_pg import  sdcal_pg as sdcal
-from sdgaincal_pg import  sdgaincal_pg as sdgaincal
 from sdfit_pg import  sdfit_pg as sdfit
-from sdimaging_pg import sdimaging_pg as sdimaging
 from sdfixscan_pg import sdfixscan_pg as sdfixscan
+from sdgaincal_pg import  sdgaincal_pg as sdgaincal
+from sdimaging_pg import sdimaging_pg as sdimaging
 from sdsmooth_pg import  sdsmooth_pg as sdsmooth
-### ASAP tasks ###
-from sdaverageold_pg import sdaverageold_pg as sdaverageold
-from sdbaselineold_pg import sdbaselineold_pg as sdbaselineold
-from sdbaseline2old_pg import sdbaseline2old_pg as sdbaseline2old
-from sdcalold_pg import sdcalold_pg as sdcalold
-from sdcal2old_pg import sdcal2old_pg as sdcal2old
-from sdcoaddold_pg import sdcoaddold_pg as sdcoaddold
-from sdfitold_pg import sdfitold_pg as sdfitold
-from sdflagold_pg import sdflagold_pg as sdflagold
-from sdflagmanagerold_pg import sdflagmanagerold_pg as sdflagmanagerold
-from sdgridold_pg import sdgridold_pg as sdgridold
-from sdlistold_pg import sdlistold_pg as sdlistold
-from sdmathold_pg import sdmathold_pg as sdmathold
-from sdplotold_pg import sdplotold_pg as sdplotold
-from sdreduceold_pg import sdreduceold_pg as sdreduceold
-from sdsaveold_pg import sdsaveold_pg as sdsaveold
-from sdscaleold_pg import sdscaleold_pg as sdscaleold
-from sdstatold_pg import sdstatold_pg as sdstatold
 
 # EOF

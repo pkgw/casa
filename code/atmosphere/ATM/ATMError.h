@@ -33,7 +33,7 @@
 #include <string>
 #include <stdarg.h>
 
-using namespace std;
+
 
 ATM_NAMESPACE_BEGIN
 
@@ -66,7 +66,7 @@ public:
    *  @post the declaration may have or may have not thrown an exception depending on the current
    *  tolerance about the severity level.
    */
-  Error(ErrorLevel errlev, const string &message);
+  Error(ErrorLevel errlev, const std::string &message);
 
   /** Declare the occurrence of an error
    *  @pre the default level of tolerance for an acceptable error is used or a different critical
@@ -82,8 +82,8 @@ public:
   /** Destructor */
   virtual ~Error();
 
-  void notify(ErrorLevel errlev, const string &message);
-  void notify(const string &message);
+  void notify(ErrorLevel errlev, const std::string &message);
+  void notify(const std::string &message);
 
   /** Setter to modify the critical current level of severity below which errors are tolerated.
    *  @param criticalErrlev critical limit: when errlev >= criticalErrlev an exception will be thrown
@@ -95,21 +95,21 @@ public:
    */
   static ErrorLevel getAcceptableLevel();
 
-  /** Accessor to the current limit in the form of a string
+  /** Accessor to the current limit in the form of a std::string
    */
-  static string getAcceptableLevelToString();
+  static std::string getAcceptableLevelToString();
 
   /** Accessor to the severity level of the error which has just been declared
    */
   static ErrorLevel getLevel();
 
-  /** Accessor to the severity level, in the form of a string, of the error which has just been declared
+  /** Accessor to the severity level, in the form of a std::string, of the error which has just been declared
    */
-  static string getLevelToString();
+  static std::string getLevelToString();
 
   /** Accessor to the error message for the error which has just been declared
    */
-  static string getErrorMessage();
+  static std::string getErrorMessage();
 
   /** Clear the stack of all the error messages which passed up to the last declaration which has
    *  finally triggered the exception
@@ -122,13 +122,13 @@ public:
   static void clearErrLev();
 
 private:
-  void printMessage(const string &message); //!< Print utility
+  void printMessage(const std::string &message); //!< Print utility
 
 private:
   static ErrorLevel acceptableErrorLevel; //!< Current acceptable level of severity
-  static string errorMessage_; //!< Error message
+  static std::string errorMessage_; //!< Error message
   static ErrorLevel errlev_; //!< Error level
-  string errorLog; //!< Error log (TBD)
+  std::string errorLog; //!< Error log (TBD)
 }; // class Error
 
 ATM_NAMESPACE_END

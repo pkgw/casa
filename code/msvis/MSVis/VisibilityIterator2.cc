@@ -231,7 +231,7 @@ VisBuffer2 *
 VisibilityIterator2::getVisBuffer ()
 {
     CheckImplementationPointerR ();
-    return impl_p->getVisBuffer();
+    return impl_p->getVisBuffer(this);
 }
 
 Bool
