@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" ?>
+<casaxml xmlns="http://casa.nrao.edu/schema/psetTypes.html"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://casa.nrao.edu/schema/casa.xsd
+file:///opt/casa/code/xmlcasa/xml/casa.xsd">
+
+
+<!-- This is the param set for sdsidebandsplit -->
+
+<task type="function" name="sdsidebandsplit" category="single dish" visibility="experimental">
+
+  <shortdescription>[EXPERIMENTAL] invoke sideband separation using FFT</shortdescription>
+
+  <description>[EXPERIMENTAL] SD sideband separation and supression task:
+        Invoke sideband separation / supression using FFT
+</description>
+
+  <input>
+<!--
+    <param type="stringArray" name="infiles"  mustexist="True">
+    <description>list of names of input SD Measurementset</description>
+    <value></value>
+    </param>
+ -->
+
+    <param type="stringArray" name="imagename"  mustexist="True">
+    <description>list of names of input images</description>
+    <value></value>
+    </param>
+
+    <param type="string" name="outfile">
+      <description>Prefix of output image name</description>
+      <value></value>
+    </param>
+
+    <param type="bool" name="overwrite">
+      <description>overwrite option</description>
+      <value>False</value>
+    </param>
+
+<!-- separation parameters -->
+    <param type="doubleArray" name="signalshift">
+      <description>a list of channel number shifts in signal side band</description>
+      <value></value>
+    </param>
+
+    <param type="doubleArray" name="imageshift">
+      <description>a list of channel number shifts in image side band</description>
+      <value></value>
+    </param>
+
+    <param type="bool" name="getbothside">
+	    <description>sideband separation (True) or supression (False)</description>
+            <value>False</value>
+    </param>
+
+    <param type="bool" name="otherside">
+	    <description>solve the other side and subtract the solution</description>
+            <value>False</value>
+    </param>
+
+    <param type="double" name="threshold">
+      <description>Rejection limit of solution</description>
+      <value>0.2</value>
+    </param>
+
+    </input>
+
+  <returns type="void"/>
+  <example>
+sidebandsplit()
+  </example>
+
+</task>
+
+</casaxml>

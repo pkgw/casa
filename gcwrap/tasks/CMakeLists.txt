@@ -101,6 +101,7 @@ sdfit.xml
 sdfixscan.xml
 sdgaincal.xml
 sdimaging.xml
+sdsidebandsplit.xml
 sdsmooth.xml
 setjy.xml
 ssoflux.xml

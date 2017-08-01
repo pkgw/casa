@@ -187,6 +187,7 @@ scripts/task_sdfit.py
 scripts/task_sdfixscan.py
 scripts/task_sdgaincal.py
 scripts/task_sdimaging.py
+scripts/task_sdsidebandsplit.py
 scripts/task_sdsmooth.py
 scripts/task_setjy.py
 scripts/task_ssoflux.py
