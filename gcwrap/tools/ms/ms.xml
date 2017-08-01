@@ -1579,7 +1579,7 @@ the ms definition itself. -->
 </method>
 
  
-   <method type="function" name="statistics">
+   <method type="function" name="statisticsold">
    <shortdescription>Get statistics on the selected measurement set</shortdescription>
    
   <keyword>statistics</keyword>
@@ -1649,6 +1649,9 @@ the ms definition itself. -->
   <returns type="record"/>
 
   <description>
+    DEPRECATED: Please use the ms::statistics() function in place of
+    ms::statisticsold().
+
     This function computes descriptive statistics on the measurement set.
     It returns the statistical values as a python dictionary.  The given 
     column name must be a numerical column.
@@ -1659,12 +1662,12 @@ the ms definition itself. -->
     
       
       ms.open("3C273XC1.MS")
-      ms.statistics(column="DATA", complex_value='amp', field="2")
+      ms.statisticsold(column="DATA", complex_value='amp', field="2")
     
   </example>
 </method>
 
-<method type="function" name="statistics2">
+<method type="function" name="statistics">
   <shortdescription>
     Get statistics on the selected measurement set
   </shortdescription>
@@ -1828,7 +1831,7 @@ the ms definition itself. -->
   <example>
 
     ms.open("3C273XC1.MS")
-    ms.statistics2(column="DATA", complex_value='amp', field="2")
+    ms.statistics(column="DATA", complex_value='amp', field="2")
 
   </example>
 </method>
