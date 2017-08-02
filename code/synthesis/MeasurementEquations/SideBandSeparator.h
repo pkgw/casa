@@ -93,10 +93,10 @@ protected:
 				 std::vector<float> &outvec);
 	  ////
 	  size_t setupShift();
-	  bool getImageCoordinate(const string& imagename, CoordinateSystem &csys, IPosition &npix);
-	  bool compareImageAxes(const string& imagename, const CoordinateSystem &refcsys, const IPosition &refnpix);
-	  bool getSpectraToSolve(const vector<SPIIF> &images, const Slicer &slicer,
-			  Matrix<float>& specMat, Matrix<bool>& maskMat, vector<uInt>& imgIdvec);
+	  bool getImageCoordinate(const string& imagename, casacore::CoordinateSystem &csys, casacore::IPosition &npix);
+	  bool compareImageAxes(const string& imagename, const casacore::CoordinateSystem &refcsys, const casacore::IPosition &refnpix);
+	  bool getSpectraToSolve(const vector<casa::SPIIF> &images, const casacore::Slicer &slicer,
+			  casacore::Matrix<float>& specMat, casacore::Matrix<bool>& maskMat, vector<casacore::uInt>& imgIdvec);
 
 	  /** Member variables **/
 	  // name of images
