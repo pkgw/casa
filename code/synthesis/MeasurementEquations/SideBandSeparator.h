@@ -12,13 +12,15 @@
 #include <string>
 #include <vector>
 // casacore
-#include <casa/aips.h>
-#include <casa/Utilities/CountedPtr.h>
-#include <casa/Arrays/Vector.h>
-#include <measures/Measures/MDirection.h>
-#include <coordinates/Coordinates/DirectionCoordinate.h>
-#include <coordinates/Coordinates/SpectralCoordinate.h>
-#include <scimath/Mathematics/FFTServer.h>
+#include <casacore/casa/aips.h>
+#include <casacore/casa/Utilities/CountedPtr.h>
+#include <casacore/casa/Arrays/Vector.h>
+#include <casacore/measures/Measures/MDirection.h>
+
+#include <casacore/coordinates/Coordinates/CoordinateSystem.h>
+#include <casacore/coordinates/Coordinates/DirectionCoordinate.h>
+#include <casacore/coordinates/Coordinates/SpectralCoordinate.h>
+#include <casacore/scimath/Mathematics/FFTServer.h>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
 
@@ -28,7 +30,7 @@ public:
 	  /**
 	   * constructors and a destructor
 	   **/
-	  SimpleSideBandSeparator(const const std::vector<std::string>& imagename);
+	  SimpleSideBandSeparator(const std::vector<std::string>& imagename);
 	  virtual ~SimpleSideBandSeparator();
 
 	  /**
@@ -61,7 +63,7 @@ protected:
 	  /** Initialize member variables **/
 	  void init();
 	  void initshift();
-	  void setImage(const const std::vector<std::string>& imagename);
+	  void setImage(const std::vector<std::string>& imagename);
 
 	  /** Return if the path exists (optionally, check file type) **/
 	  casacore::Bool checkFile(const std::string name, std::string type="");
@@ -70,7 +72,7 @@ protected:
 			      const std::vector<casacore::uInt> &tabIdvec,
 			      const bool signal = true);
 
-	  casacore::Vector<bool> collapseFlag(const casacore::Matrix<bool> &flagMat,
+	  casacore::Vector<bool> collapseMask(const casacore::Matrix<bool> &flagMat,
 				    const std::vector<casacore::uInt> &tabIdvec,
 				    const bool signal = true);
 	  void shiftSpectrum(const casacore::Vector<float> &invec, double shift,
@@ -88,6 +90,12 @@ protected:
 				 const std::vector<float> &invec,
 				 const std::vector<double> &shift,
 				 std::vector<float> &outvec);
+	  ////
+	  size_t setupShift();
+	  bool getImageCoordinate(const string& imagename, CoordinateSystem &csys, IPosition &npix);
+	  bool compareImageAxes(const string& imagename, const CoordinateSystem &refcsys, const IPosition &refnpix);
+	  bool getSpectraToSolve(const vector<SPIIF> &images, const Slicer &slicer,
+			  Matrix<float>& specMat, Matrix<bool>& maskMat, vector<uInt>& imgIdvec);
 
 	  /** Member variables **/
 	  // name of images
@@ -100,6 +108,7 @@ protected:
 	  double rejlimit_;
 
 	  casacore::FFTServer<casacore::Float, casacore::Complex> fftsf, fftsi;
+
 
 };
 

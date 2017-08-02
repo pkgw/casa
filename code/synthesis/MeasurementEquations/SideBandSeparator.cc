@@ -9,16 +9,19 @@
 #include <ctype.h>
 
 // cascore
-#include <casa/OS/File.h>
-#include <casa/Logging/LogIO.h>
-#include <casa/Quanta/QuantumHolder.h>
+#include <casacore/casa/OS/File.h>
+#include <casacore/casa/Logging/LogIO.h>
+#include <casacore/casa/Quanta/QuantumHolder.h>
 
-#include <measures/Measures/MFrequency.h>
-#include <measures/Measures/MCFrequency.h>
+#include <casacore/measures/Measures/MFrequency.h>
+#include <casacore/measures/Measures/MCFrequency.h>
 
-#include <tables/Tables/TableRow.h>
-#include <tables/Tables/TableRecord.h>
-#include <tables/Tables/TableVector.h>
+#include <casacore/tables/Tables/TableRow.h>
+#include <casacore/tables/Tables/TableRecord.h>
+#include <casacore/tables/Tables/TableVector.h>
+
+#include <imageanalysis/ImageAnalysis/ImageFactory.h>
+#include <imageanalysis/ImageAnalysis/ImageMetaData.h>
 
 #include <synthesis/MeasurementEquations/SideBandSeparator.h>
 
@@ -77,20 +80,83 @@ void SimpleSideBandSeparator::setImage(const vector<string>& imagename) {
 	  throw( AipsError("Could not find "+imagename[i]) );
 	}
   }
-  // check image axes
   LogIO os(LogOrigin("SimpleSideBandSeparator","setImage()", WHERE));
-  os << "Using the first image as the template" << LogIO::POST;
+  if (imageNames_.size() == 0)
+	  throw( AipsError("No image set for processing") );
 
+  // check image axes (npix, incr, ref, ndim)
+  os << "Image axes check. Using the first image as the template" << LogIO::POST;
+  CoordinateSystem csys0;
+  IPosition npix0;
+  if (!getImageCoordinate(imagename[0], csys0, npix0)) {
+	  throw( AipsError("Invalid image "+imagename[0]) );
+  }
+  {// Summary
+	  os << "Template image coordinate:" << LogIO::POST;
+	  os << "\tndim\t" << csys0.nWorldAxes() << LogIO::POST;
+	  os << "\tAxes\t" << csys0.worldAxisNames() << LogIO::POST;
+	  os << "\tnPix\t" << npix0 << LogIO::POST;
+	  os << "\tRefPix\t" << csys0.referencePixel() << LogIO::POST;
+	  os << "\tRefPValt" << csys0.referenceValue() << LogIO::POST;
+	  os << "\tIncr\t" << csys0.increment() << LogIO::POST;
+  }
+  for (size_t i = 1; i < imagename.size(); ++i){
+	  if(!compareImageAxes(imagename[i], csys0, npix0))
+		  throw( AipsError("Image axes mismatch: "+imagename[0]) );
+  }
+}
 
+bool SimpleSideBandSeparator::getImageCoordinate(const string& imagename, CoordinateSystem &csys, IPosition &npix) {
+	  LogIO os(LogOrigin("SimpleSideBandSeparator","setImage()", WHERE));
+	  auto ret = ImageFactory::fromFile(imagename);
+	  if (ret.first != nullptr) { //float image
+		  os << "Found float image" << LogIO::POST;
+		  npix = ret.first->shape();
+		  ImageMetaData immd(ret.first);
+		  vector<Int> myAxes;
+		  csys =  immd.coordsys(myAxes);
+		  return true;
+	  } else if (ret.second != nullptr) { // complex image
+		  os << "Found complex image" << LogIO::POST;
+		  return false;
+	  } else {
+		  os << LogIO::WARN << "Failed to open " << imagename << LogIO::POST;
+		  return false;
+	  }
+}
+
+bool SimpleSideBandSeparator::compareImageAxes(const string& imagename, const CoordinateSystem &refcsys, const IPosition &refnpix)
+{
+	CoordinateSystem csys;
+	IPosition npix;
+	if (!getImageCoordinate(imagename, csys, npix)) {
+		throw( AipsError("Invalid image "+imagename) );
+	}
+	uInt ndim = refcsys.nWorldAxes();
+	if (csys.nWorldAxes() != ndim || refnpix.size() != ndim || npix.size() != ndim) {
+		return false;
+	}
+	bool match = true;
+	constexpr Double frac_tol = 0.1;
+	for (uInt i = 0; i<refcsys.nWorldAxes(); ++i) {
+		Double tolerance = frac_tol*abs(refcsys.increment()[i]);
+		match &= (npix[i]==refnpix[i]); // npix
+		match &= (abs(csys.increment()[i]-refcsys.increment()[i]) < tolerance); // incr
+		match &= (abs(csys.referencePixel()[i]-refcsys.referencePixel()[i]) < frac_tol); // refpix
+		match &= (abs(csys.referenceValue()[i]-refcsys.referenceValue()[i]) < tolerance); // refval
+	}
+	return match;
 }
 
 void SimpleSideBandSeparator::setShift(const vector<double> &shift, const bool signal)
 {
   LogIO os(LogOrigin("SimpleSideBandSeparator","setShift()", WHERE));
+  if (shift.size() != imageNames_.size())
+	  throw( AipsError("The number of shift should match that of images") );
   vector<double> target = signal ? sigShift_ : imgShift_;
   target.resize(shift.size());
   for (unsigned int i = 0; i < shift.size(); i++)
-	  target[i] = shift[i];
+	  target[i] = - shift[i]; /// NOTE if spw shifts +3ch, need to shift back -3ch in operation.
 
   if (target.size() == 0) {
     os << "Channel shifts of " << (signal ? "SIGNAL" : "IMAGE") << " sideband are cleared." << LogIO::POST;
@@ -115,17 +181,165 @@ void SimpleSideBandSeparator::setThreshold(const double limit)
 };
 
 
-
-
+/// this function is data format dependent
 void SimpleSideBandSeparator::separate(const string& outfile, const bool overwrite)
 {
   LogIO os(LogOrigin("SimpleSideBandSeparator","separate()", WHERE));
-  os << "Actual sid band sepatartion should take place here!" << LogIO::POST;
+  string const signame = outfile + ".signalband";
+  string const imgname = outfile + ".imageband";
+  if (checkFile(signame, "d") && !overwrite) {
+		  throw( AipsError("Image "+signame+" already exists.") );
+  }
+  if (doboth_ && checkFile(imgname, "d") && !overwrite) {
+	  throw( AipsError("Image "+imgname+" already exists.") );
+  }
+
+  // set up channel shift of image and signal sideband
+  nshift_ = setupShift();
+  if (nshift_ < 2)
+    throw( AipsError("At least 2 IFs are necessary for convolution.") );
+  if (nshift_ != imageNames_.size())
+	    throw( AipsError("Internal error: nshift_ and image number differs.") );
+  // Now open images
+  vector<SPIIF> images(nshift_);
+  for (size_t i = 0; i < nshift_; ++i) {
+	  auto ret = ImageFactory::fromFile(imageNames_[i]);
+	  if (ret.first == nullptr)
+		  throw( AipsError("Float image not found in "+imageNames_[i]) );
+	  images[i] = ret.first;
+  }
+  // analyze axis of reference image
+  SPIIF refImage = images[0];
+  IPosition const npix = refImage->shape();
+  uInt const ndim = npix.size();
+  ImageMetaData const immd(refImage);
+  vector<Int> myAxes;
+  CoordinateSystem const csys =  immd.coordsys(myAxes);
+  if (!csys.hasSpectralAxis())
+	  throw( AipsError("Could not find spectral axis.") );
+  Int spax_id = csys.spectralAxisNumber();
+  nchan_ = npix[spax_id];
+  // prepare output image
+  SPIIF sigImg, imgImg;
+
+  sigImg = ImageFactory::createImage<Float>(signame, csys, npix, True, overwrite, nullptr);
+  if (doboth_) {
+	  imgImg = ImageFactory::createImage<Float>(imgname, csys, npix, True, overwrite, nullptr);
+  }
+
+  Matrix<float> specMat(nchan_, nshift_);
+  Matrix<bool> maskMat(nchan_, nshift_);
+  vector<float> sigSpec(nchan_), imgSpec(nchan_);
+  Vector<bool> sigMask(nchan_), imgMask(nchan_);
+  vector<uInt> imgIdvec;
+
+  //Generate FFTServer
+  fftsf.resize(IPosition(1, nchan_), FFTEnums::REALTOCOMPLEX);
+  fftsi.resize(IPosition(1, nchan_), FFTEnums::COMPLEXTOREAL);
+
+  /// Loop over image pixel and separate sideband
+  IPosition start(ndim), end(ndim), stride(ndim, 0);
+  for (int ipos = 0; ipos < npix.product()/nchan_; ipos++){
+	  imgIdvec.resize(0);
+	  // convert 1-D ipos to slicer in image coordinate
+	  uInt denominator = 1;
+	  for (uInt i = 0; i < ndim; ++i) {
+		  if ((Int) i == spax_id) {
+			  start(i) = 0;
+			  end(i) = nchan_;
+			  stride(i) = 1;
+			  denominator *= nchan_;
+		  }
+		  denominator *= npix[i];
+		  uInt pos = (ipos % denominator);
+		  start(i) = pos;
+		  end(i) = pos;
+	  }
+	  Slicer const specSlicer(start, end, stride);
+    // Get a set of spectra to solve
+    if (!getSpectraToSolve(images, specSlicer, specMat, maskMat, imgIdvec)){
+    	sigSpec.assign(nchan_, 0.0f);
+    	imgSpec.assign(nchan_, 0.0f);
+    	sigMask = false;
+    	imgMask = false;
+    } else {
+        // Solve signal sideband
+        sigSpec = solve(specMat, imgIdvec, true);
+        // apply channel flag
+        sigMask = collapseMask(maskMat, imgIdvec, true);
+        if (doboth_) {
+          imgSpec = solve(specMat, imgIdvec, false);
+          // apply channel flag
+          imgMask = collapseMask(maskMat, imgIdvec, false);
+        }
+    }
+    // now assign spec and mask to output image
+    sigImg->putSlice(Vector<Float>(sigSpec), start, stride);
+    sigImg->pixelMask().putSlice(sigMask, start, stride);
+    if (doboth_) {
+    	imgImg->putSlice(Vector<Float>(imgSpec), start, stride);
+    	imgImg->pixelMask().putSlice(imgMask, start, stride);
+    }
+  } // end of row loop
+  // Finally, save tables on disk
+  sigImg.reset();
+  imgImg.reset();
+
 }
 
 /////////////// PROTECTED FUNCTIONS //////////////////////
 
-Vector<bool> SimpleSideBandSeparator::collapseFlag(const Matrix<bool> &flagMat,
+bool SimpleSideBandSeparator::getSpectraToSolve(const vector<SPIIF> &images, const Slicer &slicer,
+		  Matrix<float>& specMat, Matrix<bool>& maskMat, vector<uInt>& imgIdvec){
+	imgIdvec.resize(0);
+	specMat.resize(nchan_, nshift_);
+	maskMat.resize(nchan_, nshift_);
+	Vector<float> spec(nchan_);
+	Vector<bool> mask(nchan_);
+	size_t nspec = 0;
+	for (size_t i = 0; i < images.size(); ++i) {
+		spec.reference(specMat.column(nspec));
+		mask.reference(maskMat.column(nspec));
+		images[i]->getSlice(spec, slicer, True);
+		images[i]->getMaskSlice(mask, slicer, True);
+		// check if there is valid data?
+
+		imgIdvec.push_back((uInt) i);
+		// do interpolation of masked chans?
+
+		// Liberate from reference
+		spec.unique();
+		mask.unique();
+	} // end of image loop
+	if (nspec < nshift_) {
+		specMat.resize(nchan_, nspec, true);
+		maskMat.resize(nchan_, nspec, true);
+	}
+	return nspec > 0;
+}
+
+size_t SimpleSideBandSeparator::setupShift()
+{
+	  LogIO os(LogOrigin("SimpleSideBandSeparator","setupShift()", WHERE));
+	if (sigShift_.size() > 0 && imgShift_.size() == 0) {
+		os << "Channel shift set only for signal sideband. Assuming the same shift in the opposite direction." << LogIO::POST;
+		imgShift_.resize(sigShift_.size());
+		for (size_t i = 0; i < sigShift_.size(); ++i) {
+			imgShift_[i] = - sigShift_[i];
+		}
+	} else if (sigShift_.size() == 0 && imgShift_.size() > 0) {
+		os << "Channel shift set only for image sideband. Assuming the same shift in the opposite direction." << LogIO::POST;
+		sigShift_.resize(imgShift_.size());
+		for (size_t i = 0; i < imgShift_.size(); ++i) {
+			sigShift_[i] = - imgShift_[i];
+		}
+	} else {
+		throw( AipsError("Channel shift was not been set.") );
+	}
+	return sigShift_.size();
+}
+
+Vector<bool> SimpleSideBandSeparator::collapseMask(const Matrix<bool> &flagMat,
 					 const vector<uInt> &tabIdvec,
 					 const bool signal)
 {
@@ -147,18 +361,19 @@ Vector<bool> SimpleSideBandSeparator::collapseFlag(const Matrix<bool> &flagMat,
     thisShift =  &sigShift_;
  }
 
-  Vector<bool> outflag(nchan_, false);
+  Vector<bool> outflag(nchan_, true);
   double tempshift;
-  Vector<bool> shiftvec(nchan_, false);
-  Vector<bool> accflag(nchan_, false);
+  Vector<bool> shiftvec(nchan_, true);
+  Vector<bool> accflag(nchan_, true);
   uInt shiftId;
   for (uInt i = 0 ; i < nspec; ++i) {
     shiftId = tabIdvec[i];
     tempshift = - thisShift->at(shiftId);
     shiftFlag(flagMat.column(i), tempshift, shiftvec);
-    // Now accumulate Flag
+    // Now accumulate Mask (true only if all data is valid)
     for (uInt j = 0 ; j < nchan_ ; ++j)
-      accflag[j] |= shiftvec[j];
+//      accflag[j] |= shiftvec[j];
+    	accflag[j] &= shiftvec[j];
   }
   outflag = accflag;
   // Shift back Flag
