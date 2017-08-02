@@ -11,14 +11,6 @@
 // cascore
 #include <casacore/casa/OS/File.h>
 #include <casacore/casa/Logging/LogIO.h>
-#include <casacore/casa/Quanta/QuantumHolder.h>
-
-#include <casacore/measures/Measures/MFrequency.h>
-#include <casacore/measures/Measures/MCFrequency.h>
-
-#include <casacore/tables/Tables/TableRow.h>
-#include <casacore/tables/Tables/TableRecord.h>
-#include <casacore/tables/Tables/TableVector.h>
 
 #include <imageanalysis/ImageAnalysis/ImageFactory.h>
 #include <imageanalysis/ImageAnalysis/ImageMetaData.h>

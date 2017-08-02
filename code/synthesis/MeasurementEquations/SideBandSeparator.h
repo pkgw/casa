@@ -13,14 +13,15 @@
 #include <vector>
 // casacore
 #include <casacore/casa/aips.h>
-#include <casacore/casa/Utilities/CountedPtr.h>
 #include <casacore/casa/Arrays/Vector.h>
-#include <casacore/measures/Measures/MDirection.h>
+#include <casacore/casa/Arrays/Matrix.h>
 
 #include <casacore/coordinates/Coordinates/CoordinateSystem.h>
 #include <casacore/coordinates/Coordinates/DirectionCoordinate.h>
 #include <casacore/coordinates/Coordinates/SpectralCoordinate.h>
 #include <casacore/scimath/Mathematics/FFTServer.h>
+
+#include <imageanalysis/ImageTypedefs.h>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
 
