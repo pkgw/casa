@@ -13,9 +13,19 @@ def visstat(vis=None,
             correlation=None,
             scan=None,
             array=None,
-            observation=None):
+            observation=None,
+            timeaverage=None,
+            timebin=None,
+            timespan=None,
+            maxuvwdistance=None,
+            disableparallel=None,
+            ddistart=None,
+            taql=None,
+            monolithic_processing=None,
+            intent=None,
+            reportingaxes=None):
 
-    casalog.origin('visstat')  
+    casalog.origin('visstat')
 
     mslocal = mstool()
 
@@ -36,25 +46,33 @@ def visstat(vis=None,
         scan=''
         array=''
         observation = ''
-        
+
     s = mslocal.statistics(column=col.upper(),
-                      complex_value=complex_type,
-                      useflags=useflags,
-                      spw=spw,
-                      field=field,
-                      baseline=antenna,
-                      uvrange=uvrange,
-                      time=timerange,
-                      correlation=correlation,
-                      scan=scan,
-                      array=array,
-                      obs=str(observation))
-    
+                           complex_value=complex_type,
+                           useflags=useflags,
+                           useweights=False,
+                           spw=spw,
+                           field=field,
+#                            feed="",
+                           baseline=antenna,
+                           uvrange=uvrange,
+                           time=timerange,
+                           correlation=correlation,
+                           scan=scan,
+                           intent=intent,
+                           array=array,
+                           obs=str(observation),
+                           reportingaxes=str(reportingaxes),
+                           timeaverage=timeaverage,
+                           timebin=timebin,
+                           timespan=timespan,
+                           maxuvwdistance=maxuvwdistance)
+
     mslocal.close()
 
     for stats in s.keys():
         casalog.post(stats + " values --- ", "NORMAL")
-        
+
         if s[stats]['npts'] > 0:
             casalog.post("         -- number of points [npts]:           " + str(int(round(s[stats]['npts']))), "NORMAL")
             casalog.post("         -- minimum value [min]:               " + str(s[stats]['min'  ]), "NORMAL")
@@ -65,17 +83,15 @@ def visstat(vis=None,
         casalog.post(stats + " statistics --- ", "NORMAL")
         if s[stats]['npts'] > 0:
                 casalog.post("        -- Mean of the values [mean]:                 " + str(s[stats]['mean']), "NORMAL")
-                casalog.post("        -- Variance of the values [var]:              " + str(s[stats]['var']), "NORMAL")
+                casalog.post("        -- Variance of the values [variance]:         " + str(s[stats]['variance']), "NORMAL")
                 casalog.post("        -- Standard deviation of the values [stddev]: " + str(s[stats]['stddev']), "NORMAL")
                 casalog.post("        -- Root mean square [rms]:                    " + str(s[stats]['rms']), "NORMAL")
                 casalog.post("        -- Median of the pixel values [median]:       " + str(s[stats]['median']), "NORMAL")
                 casalog.post("        -- Median of the deviations [medabsdevmed]:   " + str(s[stats]['medabsdevmed']), "NORMAL")
-                casalog.post("        -- Quartile [quartile]:                       " + str(s[stats]['quartile']), "NORMAL")
+                casalog.post("        -- First quartile [firstquartile]:            " + str(s[stats]['firstquartile']), "NORMAL")
+                casalog.post("        -- Third quartile [thirdquartile]:            " + str(s[stats]['thirdquartile']), "NORMAL")
         else:
             casalog.post(stats + " -- No valid points found", "WARN")
 
     return s
-
-
-        
 
