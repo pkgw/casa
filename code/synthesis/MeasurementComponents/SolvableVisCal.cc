@@ -495,7 +495,7 @@ void SolvableVisCal::setApply(const Record& apply) {
 
   // Make the interpolation engine
   MeasurementSet ms(msName());
-  ci_ = new CTPatchedInterp(*ct_,matrixType(),nPar(),tInterpType(),fInterpType(),fieldtype,ms,spwMap());
+  ci_ = new CTPatchedInterp(*ct_,matrixType(),nPar(),tInterpType(),fInterpType(),fieldtype,ms,spwMap(),cttifactoryptr());
 
   // Channel counting info 
   //  (soon will deprecate, I think, because there will be no need
@@ -540,7 +540,7 @@ void SolvableVisCal::setCallib(const Record& callib,
 	    << LogIO::POST;
 
   // Make the interpolation engine
-  cpp_ = new CLPatchPanel(calTableName(),selms,callib,matrixType(),nPar());
+  cpp_ = new CLPatchPanel(calTableName(),selms,callib,matrixType(),nPar(),cttifactoryptr());
 
   //  cpp_->listmappings();
 
@@ -1017,7 +1017,7 @@ void SolvableVisCal::setSimulate(VisSet& vs, Record& simpar, Vector<Double>& sol
       delete ci_;
 
     MeasurementSet ms(msName());
-    ci_=new CTPatchedInterp(*ct_,matrixType(),nPar(),tInterpType(),"linear","",ms,spwMap());
+    ci_=new CTPatchedInterp(*ct_,matrixType(),nPar(),tInterpType(),"linear","",ms,spwMap(),cttifactoryptr());
 
   }
 
