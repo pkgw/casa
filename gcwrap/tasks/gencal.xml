@@ -84,7 +84,7 @@
 
 	      <when param="caltype">
 		<equals value="tsys">
-		  <default param="uniform"><value type="bool">False</value></default>
+		  <default param="uniform"><value type="bool">True</value></default>
 		</equals>
 	      </when>
             </constraints>
