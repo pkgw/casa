@@ -39,6 +39,8 @@
 
 #include <CalAmpliRow.h>
 
+#include <CalAppPhaseRow.h>
+
 #include <CalAtmosphereRow.h>
 
 #include <CalBandpassRow.h>
@@ -84,6 +86,10 @@
 #include <DataDescriptionRow.h>
 
 #include <DelayModelRow.h>
+
+#include <DelayModelFixedParametersRow.h>
+
+#include <DelayModelVariableParametersRow.h>
 
 #include <DopplerRow.h>
 
@@ -167,6 +173,8 @@
 
 #include <CalAmpliTable.h>
 
+#include <CalAppPhaseTable.h>
+
 #include <CalAtmosphereTable.h>
 
 #include <CalBandpassTable.h>
@@ -212,6 +220,10 @@
 #include <DataDescriptionTable.h>
 
 #include <DelayModelTable.h>
+
+#include <DelayModelFixedParametersTable.h>
+
+#include <DelayModelVariableParametersTable.h>
 
 #include <DopplerTable.h>
 

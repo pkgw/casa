@@ -45,15 +45,7 @@
 	
 
 	
-#include <Interval.h>
-	
-
-	
 #include <Angle.h>
-	
-
-	
-#include <Tag.h>
 	
 
 	
@@ -62,6 +54,14 @@
 
 	
 #include <Frequency.h>
+	
+
+	
+#include <Tag.h>
+	
+
+	
+#include <Interval.h>
 	
 
 
@@ -113,6 +113,16 @@
 
 	
 
+	
+
+	
+
+	
+
+	
+
+	
+
 
 
 #include <ConversionException.h>
@@ -145,7 +155,7 @@ class CalPhaseRow;
  * Result of the phase calibration performed by TelCal.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of CalPhase </CAPTION>
@@ -217,14 +227,14 @@ class CalPhaseRow;
  * </TR>
 	
  * <TR>
- * <TD> numBaseline </TD> 
+ * <TD> numBaseline (\f$N_{Base}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of baselines. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numReceptor </TD> 
+ * <TD> numReceptor (\f$N_{Rece}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of receptors. </TD>
@@ -312,10 +322,46 @@ class CalPhaseRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> correctionValidity </TD> 
+ * <TD> correctionValidity</TD> 
  * <TD> vector<bool > </TD>
  * <TD>  numBaseline  </TD>
  * <TD>&nbsp; the deduced validity of atmospheric path length correction (from water vapor radiometers). </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> numAntenna(\f$N_{Ante}\f$)</TD> 
+ * <TD> int </TD>
+ * <TD>  &nbsp; </TD>
+ * <TD>&nbsp; the number of antennas. Defines the size singleAntennaName, phaseAnt, phaseAntRMS. One must pay attention to the fact that numBaseline and numAntenna must verify the the relation  : numBaseline == numAntenna * ( numAntenna - 1 )  / 2
+ </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> singleAntennaName</TD> 
+ * <TD> vector<string > </TD>
+ * <TD>  numAntenna  </TD>
+ * <TD>&nbsp; the ordered list of antenna names. The size of the array must be equal to the number of antennas. </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> refAntennaName</TD> 
+ * <TD> string </TD>
+ * <TD>  &nbsp; </TD>
+ * <TD>&nbsp;  the name of the antenna used as a reference to get the antenna-based phases. </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> phaseAnt</TD> 
+ * <TD> vector<vector<float > > </TD>
+ * <TD>  numReceptor, numAntenna  </TD>
+ * <TD>&nbsp; the antenna based phase solution averaged over the scan (one value per receptor per antenna). See singleAntennaName for the association of the values of this array with the antennas. </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> phaseAntRMS</TD> 
+ * <TD> vector<vector<float > > </TD>
+ * <TD>  numReceptor, numAntenna  </TD>
+ * <TD>&nbsp; the RMS of the phase fluctuations relative to the antenna based average phase (one value per receptor per antenna). See singleAntennaName for the association of the values of this array with the antennas. </TD>
  * </TR>
 	
 
@@ -655,6 +701,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 

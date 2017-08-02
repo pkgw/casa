@@ -41,19 +41,11 @@
 
 
 	
-#include <Angle.h>
-	
-
-	
 #include <Speed.h>
 	
 
 	
-#include <Tag.h>
-	
-
-	
-#include <Length.h>
+#include <ArrayTimeInterval.h>
 	
 
 	
@@ -61,11 +53,19 @@
 	
 
 	
+#include <Angle.h>
+	
+
+	
+#include <Length.h>
+	
+
+	
 #include <Humidity.h>
 	
 
 	
-#include <ArrayTimeInterval.h>
+#include <Tag.h>
 	
 
 	
@@ -137,7 +137,7 @@ class WeatherRow;
  * Weather station information.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of Weather </CAPTION>
@@ -169,98 +169,98 @@ class WeatherRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> pressure </TD> 
+ * <TD> pressure</TD> 
  * <TD> Pressure </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the ambient pressure. </TD>
  * </TR>
 	
  * <TR>
- * <TD> relHumidity </TD> 
+ * <TD> relHumidity</TD> 
  * <TD> Humidity </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the relative humidity. </TD>
  * </TR>
 	
  * <TR>
- * <TD> temperature </TD> 
+ * <TD> temperature</TD> 
  * <TD> Temperature </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the ambient temperature. </TD>
  * </TR>
 	
  * <TR>
- * <TD> windDirection </TD> 
+ * <TD> windDirection</TD> 
  * <TD> Angle </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the wind direction. </TD>
  * </TR>
 	
  * <TR>
- * <TD> windSpeed </TD> 
+ * <TD> windSpeed</TD> 
  * <TD> Speed </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the wind speed. </TD>
  * </TR>
 	
  * <TR>
- * <TD> windMax </TD> 
+ * <TD> windMax</TD> 
  * <TD> Speed </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the maximum wind speed </TD>
  * </TR>
 	
  * <TR>
- * <TD> dewPoint </TD> 
+ * <TD> dewPoint</TD> 
  * <TD> Temperature </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the dew point's value. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numLayer </TD> 
+ * <TD> numLayer(\f$N_{Laye}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; NLayer the number of layers in the temperature profile. </TD>
  * </TR>
 	
  * <TR>
- * <TD> layerHeight </TD> 
+ * <TD> layerHeight</TD> 
  * <TD> vector<Length > </TD>
  * <TD>  numLayer  </TD>
  * <TD>&nbsp; the height of each layer for the temperature profile. </TD>
  * </TR>
 	
  * <TR>
- * <TD> temperatureProfile </TD> 
+ * <TD> temperatureProfile</TD> 
  * <TD> vector<Temperature > </TD>
  * <TD>  numLayer  </TD>
  * <TD>&nbsp; the temperature on the atmosphere at each height. </TD>
  * </TR>
 	
  * <TR>
- * <TD> cloudMonitor </TD> 
+ * <TD> cloudMonitor</TD> 
  * <TD> Temperature </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the temperature of the cloud monitor. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numWVR </TD> 
+ * <TD> numWVR(\f$N_{WVR}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of WVR channels. </TD>
  * </TR>
 	
  * <TR>
- * <TD> wvrTemp </TD> 
+ * <TD> wvrTemp</TD> 
  * <TD> vector<Temperature > </TD>
  * <TD>  numWVR  </TD>
  * <TD>&nbsp; the observed temperature in each WVR channel. </TD>
  * </TR>
 	
  * <TR>
- * <TD> water </TD> 
+ * <TD> water</TD> 
  * <TD> double </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the water precipitable content. </TD>
@@ -542,6 +542,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 

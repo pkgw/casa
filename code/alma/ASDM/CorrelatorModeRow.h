@@ -94,7 +94,7 @@
 //#include <TableStreamReader.h>
 
 /*\file CorrelatorMode.h
-    \brief Generated from model's revision "1.64", branch "HEAD"
+    \brief Generated from model's revision "-1", branch ""
 */
 
 namespace asdm {
@@ -110,7 +110,7 @@ typedef void (CorrelatorModeRow::*CorrelatorModeAttributeFromText) (const string
 /**
  * The CorrelatorModeRow class is a row of a CorrelatorModeTable.
  * 
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  */
 class CorrelatorModeRow {

@@ -109,7 +109,7 @@ class SubscanRow;
  * Subscan-based information.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of Subscan </CAPTION>
@@ -177,14 +177,14 @@ class SubscanRow;
  * </TR>
 	
  * <TR>
- * <TD> numIntegration </TD> 
+ * <TD> numIntegration (\f$N_{Inte}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of integrations during the scan. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numSubintegration </TD> 
+ * <TD> numSubintegration (\f$N_{Subi}\f$)</TD> 
  * <TD> vector<int > </TD>
  * <TD>  numIntegration </TD> 
  * <TD> &nbsp;the number of subintegrations for each integration. </TD>
@@ -195,14 +195,14 @@ class SubscanRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> subscanMode </TD> 
+ * <TD> subscanMode</TD> 
  * <TD> SwitchingModeMod::SwitchingMode </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; identifies the data acquisition mode during the subscan. </TD>
  * </TR>
 	
  * <TR>
- * <TD> correlatorCalibration </TD> 
+ * <TD> correlatorCalibration</TD> 
  * <TD> CorrelatorCalibrationMod::CorrelatorCalibration </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; identifies the correlator calibration during the subscan. </TD>
@@ -497,6 +497,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 
