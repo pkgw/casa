@@ -61,7 +61,8 @@ public:
 		  const casacore::String& freqtype,
 		  const casacore::String& fieldtype,
 		  casacore::Vector<casacore::Int> spwmap=casacore::Vector<casacore::Int>(),
-		  casacore::Vector<casacore::Int> fldmap=casacore::Vector<casacore::Int>());
+		  casacore::Vector<casacore::Int> fldmap=casacore::Vector<casacore::Int>(),
+		  const CTTIFactoryPtr cttifactoryptr=&CTTimeInterp1::factory);
 
   // From NewCalTable and casacore::MS 
   CTPatchedInterp(NewCalTable& ct,
@@ -71,7 +72,8 @@ public:
 		  const casacore::String& freqtype,
 		  const casacore::String& fieldtype,
 		  const casacore::MeasurementSet& ms,
-		  casacore::Vector<casacore::Int> spwmap=casacore::Vector<casacore::Int>());
+		  casacore::Vector<casacore::Int> spwmap=casacore::Vector<casacore::Int>(),
+		  const CTTIFactoryPtr cttifactoryptr=&CTTimeInterp1::factory);
 
   // From NewCalTable and casacore::MSColumns 
   CTPatchedInterp(NewCalTable& ct,
@@ -81,7 +83,8 @@ public:
 		  const casacore::String& freqtype,
 		  const casacore::String& fieldtype,
 		  const casacore::ROMSColumns& mscol,
-		  casacore::Vector<casacore::Int> spwmap=casacore::Vector<casacore::Int>());
+		  casacore::Vector<casacore::Int> spwmap=casacore::Vector<casacore::Int>(),
+		  const CTTIFactoryPtr cttifactoryptr=&CTTimeInterp1::factory);
 
 
   // Destructor
@@ -234,6 +237,8 @@ private:
 
   casacore::Vector<casacore::Int> lastFld_,lastObs_;
 
+  // Pointer to the factory to use to create CTTimeInterp1s (or specializations)
+  CTTIFactoryPtr cttifactoryptr_;
 
 };
 

@@ -282,7 +282,7 @@ void MosaicFT::findConvFunction(const ImageInterface<Complex>& iimage,
     AipsrcValue<Int>::find (convSampling, "mosaic.oversampling", 10);
   }
   pbConvFunc_p->findConvFunction(iimage, vb, convSampling, interpVisFreq_p, convFunc, weightConvFunc_p, convSizePlanes_p, convSupportPlanes_p,
-		  convPolMap_p, convChanMap_p, convRowMap_p);
+				 convPolMap_p, convChanMap_p, convRowMap_p, False);
 
   // cerr << "MAX of convFunc " << max(abs(convFunc)) << endl;
   //For now only use one size and support

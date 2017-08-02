@@ -156,7 +156,7 @@ public:
                          const casacore::Bool useAutoCorr,
                          const casacore::Bool useDoublePrec,
                          const casacore::Float rotatePAStep,
-                         const casacore::String Stokes="I");
+                         const casacore::String Stokes="I", const casacore::Bool doConjBeam=false);
   casacore::CountedPtr<SIMapper> createSIMapper(casacore::String mappertype,  
 				      casacore::CountedPtr<SIImageStore> imagestore, //// make this inside !!!!!
 				      casacore::CountedPtr<refim::FTMachine> ftmachine,
@@ -166,6 +166,7 @@ public:
   bool makePB();
   bool makePrimaryBeam(PBMath& pbMath);
   void  andFreqSelection(const casacore::Int msId, const casacore::Int spwId,  const casacore::Double freqBeg, const casacore::Double freqEnd, const casacore::MFrequency::Types frame);
+  void andChanSelection(const casacore::Int msId, const casacore::Int spwId, const casacore::Int startchan, const casacore::Int endchan);
   void tuneChunk(const casacore::Int gmap);
    // Other Options
   //casacore::Block<const casacore::MeasurementSet *> mss_p;
@@ -174,6 +175,8 @@ public:
   std::vector<std::pair<casacore::Int, casacore::Double> >freqBegs_p;
   std::vector<std::pair<casacore::Int, casacore::Double> > freqEnds_p;
   std::vector<std::pair<casacore::Int, casacore::Double> > freqSpws_p;
+  //map <msid, map<spwid, vector(nchan, start)> >
+  std::map<casacore::Int, std::map<casacore::Int, casacore::Vector<casacore::Int> > >  channelSelections_p;
   //	///temporary variable as we carry that for tunechunk
   casacore::MFrequency::Types selFreqFrame_p;
 };
