@@ -235,7 +235,7 @@ inline void getSortIndex(casacore::Vector<T> in_data,
 	idx_vec.tovector(out_idx);
 
 	std::sort(out_idx.begin(), out_idx.end(),
-			[&in_data](size_t &i, size_t &j) -> bool {return in_data[i] < in_data[j];});
+			[&in_data](size_t const &i, size_t const &j) -> bool {return in_data[i] < in_data[j];});
 }
 }
 

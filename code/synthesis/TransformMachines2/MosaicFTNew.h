@@ -51,8 +51,8 @@ public:
   // <group>
   MosaicFTNew(SkyJones* sj, casacore::MPosition mloc, casacore::String stokes,
 	    casacore::Long cachesize, casacore::Int tilesize=16, 
-	      casacore::Bool usezero=true, casacore::Bool useDoublePrec=false):
-    MosaicFT(sj,mloc,stokes,cachesize,tilesize,usezero,useDoublePrec){}
+	      casacore::Bool usezero=true, casacore::Bool useDoublePrec=false, casacore::Bool useConjFreqBeam=false):
+    MosaicFT(sj,mloc,stokes,cachesize,tilesize,usezero,useDoublePrec, useConjFreqBeam){}
 
     refim::FTMachine* cloneFTM();
 

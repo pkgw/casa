@@ -129,6 +129,7 @@ viewer.xml
 wvrgcal.xml
 virtualconcat.xml
 vishead.xml
+visstatold.xml
 visstat.xml
 visstat2.xml
 widebandpbcor.xml
