@@ -508,20 +508,19 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	  if(vb.msId() != oldMsId_p){
 	    oldMsId_p=vb.msId();
-	    vi::VisibilityIterator2 *viloc=const_cast<vi::VisibilityIterator2 *>(vb.getVi());
 	    
 	    for (uInt k=0; k < itsMappers.nelements(); ++k){
 	      Record rec;
-	      String modImage=viloc->ms().getPartNames()[0];
-	      if(!((viloc->ms()).source().isNull()))
-		modImage=(viloc->ms()).source().tableName();
+	      String modImage=vb.ms().getPartNames()[0];
+	      if(!((vb.ms()).source().isNull()))
+		modImage=(vb.ms()).source().tableName();
 	      modImage=File::newUniqueName(modImage, "FT_MODEL").absoluteName();
 	      Bool iscomp=itsMappers[k]->getCLRecord(rec);
 	      if(iscomp || itsMappers[k]->getFTMRecord(rec, modImage)){
 
 		////Darn not implemented  
 		//static_cast<VisibilityIteratorImpl2 *>(viloc->getImpl())->writeModel(rec, //iscomp, true);
-              viloc->writeModel(rec, iscomp, true);
+		      const_cast<VisibilityIterator2*>(vb.getVi())->writeModel(rec, iscomp, true);
 				  //				  VisModelData::listModel(vb.getVisibilityIterator()->ms());
 			  }
 

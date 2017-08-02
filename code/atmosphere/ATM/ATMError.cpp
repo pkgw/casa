@@ -28,13 +28,13 @@
 #include <stdio.h>
 #include <iostream>
 
-using namespace std;
+
 
 ATM_NAMESPACE_BEGIN
 
 ErrorLevel Error::acceptableErrorLevel = SERIOUS; // default level to stop a process
 ErrorLevel Error::errlev_ = NOERROR;
-string Error::errorMessage_ = "";
+std::string Error::errorMessage_ = "";
 
 Error::Error()
 {
@@ -45,7 +45,7 @@ Error::Error(ErrorLevel errlev)
   acceptableErrorLevel = errlev;
 }
 
-Error::Error(ErrorLevel errlev, const string &message)
+Error::Error(ErrorLevel errlev, const std::string &message)
 {
   errlev_ = errlev;
   errorMessage_ = message;
@@ -62,14 +62,18 @@ Error::Error(ErrorLevel errlev, char *fmt, ...)
   vsprintf(buffer, fmt, args);
   errorMessage_ = buffer;
   printMessage(errorMessage_);
-  if(errlev >= acceptableErrorLevel) throw Error();
+  if(errlev >= acceptableErrorLevel)
+  {
+	  va_end(args);
+	  throw Error();
+  }
 }
 
 Error::~Error()
 {
 }
 
-void Error::notify(ErrorLevel errlev, const string &message)
+void Error::notify(ErrorLevel errlev, const std::string &message)
 {
   errlev_ = errlev;
   errorMessage_ = message;
@@ -78,10 +82,10 @@ void Error::notify(ErrorLevel errlev, const string &message)
   if(errlev >= acceptableErrorLevel) throw Error();
 }
 
-void Error::notify(const string &message)
+void Error::notify(const std::string &message)
 {
   errorMessage_ = message;
-  cout << message << endl;
+  std::cout << message << std::endl;
 }
 
 void Error::setAcceptableLevel(ErrorLevel errlev)
@@ -94,7 +98,7 @@ ErrorLevel Error::getLevel()
   return errlev_;
 }
 
-string Error::getLevelToString()
+std::string Error::getLevelToString()
 {
   if(errlev_ == MINOR) return "MINOR";
   if(errlev_ == WARNING) return "WARNING";
@@ -103,9 +107,9 @@ string Error::getLevelToString()
   return "";
 }
 
-string Error::getErrorMessage()
+std::string Error::getErrorMessage()
 {
-  string errorMessage = errorMessage_;
+  std::string errorMessage = errorMessage_;
   clearMessage();
   return errorMessage;
 }
@@ -127,7 +131,7 @@ ErrorLevel Error::getAcceptableLevel()
   return acceptableErrorLevel;
 }
 
-string Error::getAcceptableLevelToString()
+std::string Error::getAcceptableLevelToString()
 {
   if(acceptableErrorLevel == MINOR) return "MINOR";
   if(acceptableErrorLevel == WARNING) return "WARNING";
@@ -136,23 +140,23 @@ string Error::getAcceptableLevelToString()
   return "NOERROR";
 }
 
-void Error::printMessage(const string &message)
+void Error::printMessage(const std::string &message)
 {
   switch(errlev_) {
   case FATAL:
-    cout << "FATAL ERROR: " + message << endl;
+    std::cout << "FATAL ERROR: " + message << std::endl;
     break;
   case SERIOUS:
-    cout << "SERIOUS ERROR: " + message << endl;
+    std::cout << "SERIOUS ERROR: " + message << std::endl;
     break;
   case MINOR:
-    cout << "MINOR ERROR: " + message << endl;
+    std::cout << "MINOR ERROR: " + message << std::endl;
     break;
   case WARNING:
-    cout << "WARNING ERROR: " + message << endl;
+    std::cout << "WARNING ERROR: " + message << std::endl;
     break;
   default:
-    cout << "ERROR: " + message << endl;
+    std::cout << "ERROR: " + message << std::endl;
   }
 }
 
