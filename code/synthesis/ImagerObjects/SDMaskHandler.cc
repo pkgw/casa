@@ -2527,7 +2527,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       SubImage<Float> chanImage(image, sl, aspec, true);
       TempImage<Float>* tempChanImage = new TempImage<Float> (chanImage.shape(), chanImage.coordinates(), memoryToUse() );
       Array<Float> chanImageArr;
-      LatticeExpr<Float> chanMask(iif(chanImage > thresholds(ich),1.0, 0.0)); 
+      //LatticeExpr<Float> chanMask(iif(chanImage > thresholds(ich),1.0, 0.0)); 
+      LatticeExpr<Float> chanMask(iif(abs(chanImage) > thresholds(ich),1.0, 0.0)); 
       tempChanImage->copyData(chanMask);
       //tempChanImage->getSlice(chanImageArr, IPosition(4,0), chanImage.shape(),IPosition(4,1,1,1,1));
       tempChanImage->getSlice(chanImageArr, IPosition(2,0), chanImage.shape(),IPosition(2,1,1));
