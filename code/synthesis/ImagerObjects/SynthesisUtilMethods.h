@@ -355,6 +355,7 @@ public:
   casacore::Float smoothFactor;
   casacore::Float minBeamFrac;
   casacore::Float cutThreshold;
+  casacore::Int growIterations;
   int nMask;
   bool autoAdjust;
 
