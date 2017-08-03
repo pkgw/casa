@@ -455,7 +455,8 @@ void CLPPResult::resize(uInt nPar,uInt nFPar,uInt nChan,uInt nElem) {
 CLPatchPanel::CLPatchPanel(const String& ctname,
 			   const Record& callib,
 			   VisCalEnum::MatrixType mtype,
-			   Int nPar) :
+			   Int nPar,
+			   const CTTIFactoryPtr cttifactoryptr) :
   ct_(NewCalTable::createCT(ctname,Table::Old,Table::Memory)),
   ctasms_(NewCalTable::createCT(ctname,Table::Old,Table::Memory)),
   ms_(),
@@ -478,7 +479,8 @@ CLPatchPanel::CLPatchPanel(const String& ctname,
   nCTSpw_(ct_.spectralWindow().nrow()),
   nCTAnt_(ct_.antenna().nrow()),
   nCTElem_(0), // set non-trivially in ctor body
-  lastresadd_(nMSSpw_,NULL)
+  lastresadd_(nMSSpw_,NULL),
+  cttifactoryptr_(cttifactoryptr)
 
   //  elemMap_(),
   //  conjTab_(),
@@ -669,7 +671,7 @@ CLPatchPanel::CLPatchPanel(const String& ctname,
 	      ciname_[ici1]=ici0.print()+" rows="+String::toString(antselCT.nrow());
 	      Array<Float> r(clTres_[iclTres].result(thisMSant));
 	      Array<Bool> rf(clTres_[iclTres].resultFlag(thisMSant));
-	      ci_[ici1]=new CTTimeInterp1(antselCT,cls.tinterp,r,rf);
+	      ci_[ici1]=(*cttifactoryptr_)(antselCT,cls.tinterp,r,rf);
 	      //	      cout << "Creating: CT("<<ici1.print() << ") --> CT(" << ici0.print() << ")" << endl;
 
 
@@ -722,7 +724,8 @@ CLPatchPanel::CLPatchPanel(const String& ctname,
 			   const MeasurementSet& ms,
 			   const Record& callib,
 			   VisCalEnum::MatrixType mtype,
-			   Int nPar) :
+			   Int nPar,
+			   const CTTIFactoryPtr cttifactoryptr) :
   ct_(NewCalTable::createCT(ctname,Table::Old,Table::Memory)),
   ctasms_(), // null, in this context
   ms_(ms),
@@ -745,7 +748,8 @@ CLPatchPanel::CLPatchPanel(const String& ctname,
   nCTSpw_(ct_.spectralWindow().nrow()),
   nCTAnt_(ct_.antenna().nrow()),
   nCTElem_(0), // set non-trivially in ctor body
-  lastresadd_(nMSSpw_,NULL)
+  lastresadd_(nMSSpw_,NULL),
+  cttifactoryptr_(cttifactoryptr)
 
   //  elemMap_(),
   //  conjTab_(),
@@ -962,7 +966,7 @@ CLPatchPanel::CLPatchPanel(const String& ctname,
 	      ciname_[ici1]=ici0.print()+" rows="+String::toString(antselCT.nrow());
 	      Array<Float> r(clTres_[iclTres].result(thisMSant));
 	      Array<Bool> rf(clTres_[iclTres].resultFlag(thisMSant));
-	      ci_[ici1]=new CTTimeInterp1(antselCT,cls.tinterp,r,rf);
+	      ci_[ici1]=(*cttifactoryptr_)(antselCT,cls.tinterp,r,rf);
 	      // cout << "Creating: CT("<<ici1.print() << ") --> CT(" << ici0.print() << ")" << endl;
 
 

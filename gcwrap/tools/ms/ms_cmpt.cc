@@ -1003,20 +1003,27 @@ append(Array<T> &data, unsigned &current_length,
 
 
 ::casac::record*
-ms::statistics(const std::string& column,
-               const std::string& complex_value,
-               const bool useflags,
-               const std::string& spw,
-               const std::string& field,
-               const std::string& baseline,
-               const std::string& uvrange,
-               const std::string& time,
-               const std::string& correlation,
-               const std::string& scan,
-               const std::string& array,
-               const std::string& obs)
+ms::statisticsold(const std::string& column,
+                  const std::string& complex_value,
+                  const bool useflags,
+                  const std::string& spw,
+                  const std::string& field,
+                  const std::string& baseline,
+                  const std::string& uvrange,
+                  const std::string& time,
+                  const std::string& correlation,
+                  const std::string& scan,
+                  const std::string& array,
+                  const std::string& obs)
 {
-	*itsLog << LogOrigin("ms", "statistics");
+	*itsLog << LogOrigin("ms", "statisticsold");
+
+	*itsLog << LogIO::WARN
+			<< "The use of ms::statisticsold() is deprecated; this function "
+			<< "will be removed from CASA in a future version. "
+			<< "Calls to ms::statisticsold() should be replaced by calls to "
+			<< "ms::statistics()."
+			<< LogIO::POST;
 
 	::casac::record *retval(0);
 	try {
@@ -1448,7 +1455,7 @@ public:
 
 // Compute statistics using a given DataProvider, using iteration over vi2
 // chunks to implement reporting axes. The Statistics template parameter may be
-// any StatisticsAlgorithm class, although statistics2 always uses
+// any StatisticsAlgorithm class, although statistics always uses
 // ClassicalStatistics.
 //
 // Note that the format of the returned record has not been finalized, and may
@@ -1481,7 +1488,7 @@ doStatistics(
 	return fromRecord(result);
 }
 
-// Thin wrapper over doStatistics, provided because statistics2 requires
+// Thin wrapper over doStatistics, provided because statistics requires
 // ClassicalStatistics.
 template <class DataProvider>
 static ::casac::record *
@@ -1530,7 +1537,7 @@ reportingAxisIds(const string &s)
 	return result;
 }
 
-// Parse "timespan" string provided to statistics2 to determine whether
+// Parse "timespan" string provided to statistics to determine whether
 // statistics should span scans or subscans. The input string is expected to be
 // composed of the tokens "scan" or "state", separated by commas.
 static void
@@ -1588,26 +1595,26 @@ timespanBoundaries(const string &s, bool &spanScan, bool &spanSubscan)
 // TODO: how to handle WEIGHT, SIGMA and UVW columns?
 //
 ::casac::record*
-ms::statistics2(const std::string& column,
-                const std::string& complex_value,
-                bool useflags,
-                bool useweights,
-                const std::string& spw,
-                const std::string& field,
+ms::statistics(const std::string& column,
+               const std::string& complex_value,
+               bool useflags,
+               bool useweights,
+               const std::string& spw,
+               const std::string& field,
 //                const std::string& feed,
-                const std::string& baseline,
-                const std::string& uvrange,
-                const std::string& time,
-                const std::string& correlation,
-                const std::string& scan,
-                const std::string& intent,
-                const std::string& array,
-                const std::string& obs,
-                const std::string& reportingaxes,
-                bool timeaverage,
-                const std::string& timebin,
-                const std::string& timespan,
-                double maxuvwdistance)
+               const std::string& baseline,
+               const std::string& uvrange,
+               const std::string& time,
+               const std::string& correlation,
+               const std::string& scan,
+               const std::string& intent,
+               const std::string& array,
+               const std::string& obs,
+               const std::string& reportingaxes,
+               bool timeaverage,
+               const std::string& timebin,
+               const std::string& timespan,
+               double maxuvwdistance)
 {
 
 	// const std::array<Int,6> validSortColumnIds = {
@@ -1619,7 +1626,7 @@ ms::statistics2(const std::string& column,
 	//  MSMainEnums::PredefinedColumns::TIME
 	// };
 
-	*itsLog << LogOrigin("ms", "statistics2");
+	*itsLog << LogOrigin("ms", "statistics");
 
 	::casac::record *retval(0);
 	try {

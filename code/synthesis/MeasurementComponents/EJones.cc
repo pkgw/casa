@@ -179,7 +179,11 @@ void EGainCurve::setSpecify(const Record& specify) {
   const ROMSObservationColumns& obscol(mscol.observation());
 
   String telescope(obscol.telescopeName()(0));
-  if (telescope.contains("VLA")) {
+  if (specify.isDefined("infile")) {
+    gainCurveSrc_=specify.asString("infile");
+    if ( !Table::isReadable(gainCurveSrc_) )
+      throw(AipsError("Gain curve table "+gainCurveSrc_+" is unreadable or absent."));
+  } else if (telescope.contains("VLA")) {
     gainCurveSrc_=Aipsrc::aipsRoot() + "/data/nrao/VLA/GainCurves";
     if ( !Table::isReadable(gainCurveSrc_) )
       throw(AipsError("Gain curve table "+calTableName()+" is unreadable or absent."));
