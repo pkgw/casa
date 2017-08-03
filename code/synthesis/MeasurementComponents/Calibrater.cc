@@ -2480,7 +2480,8 @@ void Calibrater::specifycal(const String& type,
 			    const String& antenna,
 			    const String& pol,
 			    const Vector<Double>& parameter,
-			    const String& infile) {
+			    const String& infile,
+			    const Bool& uniform) {
 
   logSink() << LogOrigin("Calibrater","specifycal") << LogIO::NORMAL;
 
@@ -2499,6 +2500,7 @@ void Calibrater::specifycal(const String& type,
     specifyDesc.addField ("parameter", TpArrayDouble);
     specifyDesc.addField ("caltype",TpString);
     specifyDesc.addField ("infile",TpString);
+    specifyDesc.addField ("uniform",TpBool);
 
     // Create record with the requisite field values
     Record specify(specifyDesc);
@@ -2516,6 +2518,7 @@ void Calibrater::specifycal(const String& type,
     specify.define ("parameter",parameter);
     specify.define ("caltype",type);
     specify.define ("infile",infile);
+    specify.define ("uniform",uniform);
 
     // Now do it
     String utype=upcase(type);
@@ -4908,7 +4911,8 @@ void OldCalibrater::specifycal(const String& type,
 			       const String& antenna,
 			       const String& pol,
 			       const Vector<Double>& parameter,
-			       const String& infile) {
+			       const String& infile,
+			       const Bool& uniform) {
 
   logSink() << LogOrigin("Calibrater","specifycal") << LogIO::NORMAL;
 
@@ -4927,6 +4931,7 @@ void OldCalibrater::specifycal(const String& type,
     specifyDesc.addField ("parameter", TpArrayDouble);
     specifyDesc.addField ("caltype",TpString);
     specifyDesc.addField ("infile",TpString);
+    specifyDesc.addField ("uniform",TpBool);
 
     // Create record with the requisite field values
     Record specify(specifyDesc);
@@ -4944,6 +4949,7 @@ void OldCalibrater::specifycal(const String& type,
     specify.define ("parameter",parameter);
     specify.define ("caltype",type);
     specify.define ("infile",infile);
+    specify.define ("uniform",uniform);
 
     // Now do it
     String utype=upcase(type);
