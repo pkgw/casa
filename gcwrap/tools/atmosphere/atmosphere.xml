@@ -36,6 +36,26 @@ at = casac.atmosphere()
 </example>
 </method>
 
+<method type="function" name="close">
+   <shortdescription>Destroy the atmosphere tool</shortdescription>
+   
+<returns type="bool"/>
+<example>
+at.close()
+
+</example>
+</method>
+
+<method type="function" name="done">
+   <shortdescription>Destroy the atmosphere tool</shortdescription>
+   
+<returns type="bool"/>
+<example>
+at.done()
+
+</example>
+</method>
+
 <method type="function" name="getAtmVersion">
    <shortdescription>Returns the version of ATM library.
    </shortdescription>

@@ -44,6 +44,26 @@ casac::Quantity doTwoIdATMFuncQuantum(Func func, ClassType pobj, int nc, int spw
 template<typename Func>
 casac::Quantity doRIPThreeIdFuncQuantum(Func func, int nl, int nf, int spwid, std::string units);
 
+// clean-up members allocated by new
+inline void cleanUp() {
+    if (pSkyStatus != 0) {
+      delete pSkyStatus;
+      pSkyStatus = 0;
+    }
+    if (pRefractiveIndexProfile != 0) {
+      delete pRefractiveIndexProfile;
+      pRefractiveIndexProfile = 0;
+    }
+    if (pSpectralGrid != 0) {
+      delete pSpectralGrid;
+      pSpectralGrid = 0;
+    }
+    if (pAtmProfile != 0) {
+      delete pAtmProfile;
+      pAtmProfile = 0;
+    }
+};
+
 atm::AtmProfile *pAtmProfile;
 atm::SpectralGrid *pSpectralGrid;
 atm::RefractiveIndexProfile *pRefractiveIndexProfile;

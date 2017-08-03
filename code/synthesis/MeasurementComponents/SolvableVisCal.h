@@ -522,6 +522,10 @@ private:
   // Delete pointers
   void deleteSVC();
 
+  // Pointer to CTTimeInterp1 factory method (generic)
+  // SVC specializations may choose to specialize CTTimeInterp1, as needed,
+  //   and override this method accordingly (e.g., see FringeJones.h)
+  virtual CTTIFactoryPtr cttifactoryptr() { return &CTTimeInterp1::factory; };
 
   // Cal table name
   casacore::String calTableName_;

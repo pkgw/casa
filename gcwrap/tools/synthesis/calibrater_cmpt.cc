@@ -1024,7 +1024,8 @@ calibrater::specifycal(const std::string& caltable,
 		       const std::string& pol,
 		       const std::string& caltype, 
 		       const std::vector<double>& parameter,
-		       const std::string& infile ) {
+		       const std::string& infile,
+		       bool uniform) {
 
   if (!itsMS) {
     *itsLog << LogIO::SEVERE << "Must first open a MeasurementSet."
@@ -1038,7 +1039,7 @@ calibrater::specifycal(const std::string& caltable,
     LogIO os (LogOrigin ("calibrater", "specifycal"), logSink_p);
     os << "Beginning specifycal-----------------------" << LogIO::POST;
 
-    itsCalibrater->specifycal(caltype,caltable,time,spw,antenna,pol,parameter,infile);
+    itsCalibrater->specifycal(caltype,caltable,time,spw,antenna,pol,parameter,infile,uniform);
     
   } catch (AipsError x) {
     *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
