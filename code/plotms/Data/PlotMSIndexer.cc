@@ -1032,8 +1032,10 @@ void PlotMSIndexer::setMethod(CacheMemPtr& getmethod,PMS::Axis axis,
 		getmethod = &PlotMSCacheBase::getRHO0;
 		break;
 	case PMS::ATM:
-	case PMS::TSKY:
 		getmethod = &PlotMSCacheBase::getAtm;
+		break;
+	case PMS::TSKY:
+		getmethod = &PlotMSCacheBase::getTsky;
 		break;
 	default:
 		throw(AipsError("Can't find get method for "+PMS::axis(axis)+"."));

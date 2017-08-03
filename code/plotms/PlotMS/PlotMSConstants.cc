@@ -145,10 +145,11 @@ PMS::AxisUnit PMS::axisUnit(Axis axis) {
 	   	return KELVIN;
    case OPAC:
 	   return NEPERS;
-
-    case RHO:
+   case RHO:
        	return KILOMETERS;
-    default: return UNONE;
+   case ATM:
+        return PERCENT;
+   default: return UNONE;
     //The following axis have units which are proportion to Jansky, but are
     //time varying so Jansky is not accurate.  For now, we are not including
     //units with them.

@@ -53,6 +53,9 @@ PlotMSAxesTab::PlotMSAxesTab(PlotMSPlotTab* plotTab, PlotMSPlotter* parent) :
 
     // Connect widgets.
     connect(itsXWidget_, SIGNAL(axisChanged()), SIGNAL(changed()));
+    connect(noneRadio, SIGNAL(toggled(bool)), SIGNAL(changed()));
+    connect(atmRadio, SIGNAL(toggled(bool)), SIGNAL(changed()));
+    connect(tskyRadio, SIGNAL(toggled(bool)), SIGNAL(changed()));    
     connect(addYButton, SIGNAL(clicked()), this, SLOT(addYWidget()));
     connect(removeYButton, SIGNAL(clicked()), this, SLOT(removeYWidget()));
     connect(yAxisCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(yAxisSelected(int)));
@@ -203,6 +206,7 @@ void PlotMSAxesTab::getValue(PlotMSPlotParameters& params) const {
         d = params.typedGroup<PMS_PP_MSData>();
     }
     
+
     //The cache must have exactly as many x-axes as y-axes so we duplicate
     //the x-axis properties here.
     int yAxisCount = itsYWidgets_.size();
@@ -222,19 +226,17 @@ void PlotMSAxesTab::getValue(PlotMSPlotParameters& params) const {
     	a->setYRange(itsYWidgets_[i]->rangeCustom(), itsYWidgets_[i]->range(), i);
     }
 
-    bool showatm = d->showAtm();
-    bool showtsky = d->showTsky();
+    bool showatm(atmRadio->isChecked());
+    bool showtsky(tskyRadio->isChecked());
+    c->setShowAtm(showatm);
+    c->setShowTsky(showtsky);
     if (showatm || showtsky) {
-        // add ATM yaxis "under the hood" if valid xaxis for GUI client
-        PMS::Axis xaxis = c->xAxis();
-        PMS::Axis atmAxis;
-        if (xaxis==PMS::CHANNEL || 
-              xaxis==PMS::FREQUENCY || 
-              xaxis==PMS::NONE) {
+        // add ATM yaxis "under the hood" for GUI client
+        if (xAxis==PMS::CHANNEL || 
+            xAxis==PMS::FREQUENCY) { 
+            PMS::Axis atmAxis = (showatm ? PMS::ATM : PMS::TSKY);
             bool found(false);
             const vector<PMS::Axis> yAxes = c->yAxes();
-            if (showatm) atmAxis = PMS::ATM;
-            else atmAxis = PMS::TSKY;
             for (uInt i=0; i<yAxes.size(); ++i) {
                 if (yAxes[i] == atmAxis) {
                         found=True;
@@ -244,7 +246,7 @@ void PlotMSAxesTab::getValue(PlotMSPlotParameters& params) const {
             if (!found) {
                 // add axis to Cache axes
                 int index = c->numXAxes();
-                c->setAxes(xaxis, atmAxis, c->xDataColumn(0), PMS::DEFAULT_DATACOLUMN, index);
+                c->setAxes(xAxis, atmAxis, c->xDataColumn(0), PMS::DEFAULT_DATACOLUMN, index);
                 // set Axes positions
                 a->resize(index+1);
                 a->setAxes(a->xAxis(index-1), Y_RIGHT, index);
@@ -275,6 +277,10 @@ void PlotMSAxesTab::setValue(const PlotMSPlotParameters& params) {
             axesXRangeSet, axesXRange);
     //itsXWidget_->setValue(c->xAxis(), c->xDataColumn(), a->xAxis(),
     //        a->xRangeSet(), a->xRange());
+    bool atm(c->showAtm()), tsky(c->showTsky()), overlay(atm || tsky);
+    atmRadio->setChecked(atm);
+    tskyRadio->setChecked(tsky);
+    noneRadio->setChecked(!overlay);
     int yAxisCount = a->numYAxes();
     int yWidgetSize = itsYWidgets_.size();
     int minValue = qMin( yAxisCount, yWidgetSize );
@@ -351,6 +357,9 @@ void PlotMSAxesTab::update(const PlotMSPlot& plot) {
     highlightWidgetText(itsXWidget_->rangeLabel(), d->isSet() &&
                 (a->xRangeSet() != a2->xRangeSet() ||
                 (a->xRangeSet() && a->xRange() != a2->xRange())));
+
+    bool overlayChanged = (c->showAtm() != atmRadio->isChecked()) || (c->showTsky() != tskyRadio->isChecked());
+    highlightWidgetText(overlayLabel, overlayChanged);
     
     for ( int i = 0; i < yAxisCount; i++ ){
     	QLabel* axisLabel = itsYWidgets_[i]->axisLabel();

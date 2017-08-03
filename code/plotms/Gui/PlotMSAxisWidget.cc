@@ -47,8 +47,8 @@ PlotMSAxisWidget::PlotMSAxisWidget(PMS::Axis defaultAxis, int attachAxes,
     // Setup axes choices.
     const vector<String>& axes = PMS::axesStrings();
     String def = PMS::axis(defaultAxis);
-    // Hiding the last two axes from the user....
-    for(unsigned int i = 0; i < axes.size()-2; i++) {
+    // Hiding the last two axes (overlays) from the user....
+    for(unsigned int i = 0; i < axes.size()-3; i++) {
         chooser->addItem(axes[i].c_str());
         if(axes[i] == def) chooser->setCurrentIndex(i);
     }

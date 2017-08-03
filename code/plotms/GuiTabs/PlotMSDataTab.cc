@@ -68,10 +68,6 @@ PlotMSDataTab::PlotMSDataTab(PlotMSPlotTab* plotTab, PlotMSPlotter* parent) :
     connect(itsFileWidget_, SIGNAL(changed()), SIGNAL(changed()));
     connect(itsSelectionWidget_, SIGNAL(changed()), SIGNAL(changed()));
     connect(itsAveragingWidget_, SIGNAL(changed()), SIGNAL(changed()));
-    connect(ui.noneRadio, SIGNAL(toggled(bool)), SIGNAL(changed()));
-    connect(ui.atmRadio, SIGNAL(toggled(bool)), SIGNAL(changed()));
-    connect(ui.tskyRadio, SIGNAL(toggled(bool)), SIGNAL(changed()));
-
 }
 
 
@@ -104,22 +100,12 @@ void PlotMSDataTab::getValue(PlotMSPlotParameters& params) const {
     d->setFilename(itsFileWidget_->getFile());
     d->setSelection(itsSelectionWidget_->getValue());
     d->setAveraging(itsAveragingWidget_->getValue());
-    // don't have to check setting showatm since checkbox is only shown
-    // when atm is valid:
-    d->setShowAtm(ui.atmRadio->isChecked());
-    d->setShowTsky(ui.tskyRadio->isChecked());
 }
-
-
 
 void PlotMSDataTab::setValue(const PlotMSPlotParameters& params) {
     const PMS_PP_MSData* d = params.typedGroup<PMS_PP_MSData>();
     if(d == NULL) return;
     itsFileWidget_->setFile(d->filename());
-    bool atm(d->showAtm()), tsky(d->showTsky()), overlay(atm || tsky);
-    ui.atmRadio->setChecked(atm);
-    ui.tskyRadio->setChecked(tsky);
-    ui.noneRadio->setChecked(!overlay);
     itsSelectionWidget_->setValue(d->selection());
     itsAveragingWidget_->setValue(d->averaging());
 }
@@ -131,8 +117,6 @@ void PlotMSDataTab::update(const PlotMSPlot& plot) {
     const casacore::String filename = itsFileWidget_->getFile();
 
     highlightWidgetText(ui.locationLabel, itsFileWidget_->getFile() != d->filename());
-    bool overlayChanged = (d->showAtm() != ui.atmRadio->isChecked()) || (d->showTsky() != ui.tskyRadio->isChecked());
-    highlightWidgetText(ui.overlayLabel, overlayChanged);
     highlightWidgetText(ui.selectionLabel,
 	    itsSelectionWidget_->getValue().fieldsNotEqual(d->selection()));
     highlightWidgetText(ui.averagingLabel,

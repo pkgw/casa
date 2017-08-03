@@ -276,6 +276,7 @@ public:
   inline casacore::Double getPar(casacore::Int chnk,casacore::Int irel)  { return *(par_[chnk]->data()+irel); };
   inline casacore::Double getSnr(casacore::Int chnk,casacore::Int irel)  { return *(snr_[chnk]->data()+irel); };
   inline casacore::Double getAtm(casacore::Int chnk,casacore::Int irel) { return *(atm_[chnk]->data()+irel); };
+  inline casacore::Double getTsky(casacore::Int chnk,casacore::Int irel) { return *(tsky_[chnk]->data()+irel); };
 
   // Returns a list of channel numbers that were averaged together in that chunk
   inline casacore::Vector<casacore::Int> getChansPerBin(casacore::Int chnk,casacore::Int irel) { return (*chansPerBin_[chnk])[irel]; };
@@ -458,7 +459,7 @@ protected:
   casacore::Vector<casacore::Double> radialVelocity_, rho_;
   casacore::Vector<casacore::Double> az0_,el0_,ha0_,pa0_;
 
-  casacore::PtrBlock<casacore::Vector<casacore::Double>*> atm_;
+  casacore::PtrBlock<casacore::Vector<casacore::Double>*> atm_, tsky_;
 
   // for cal tables
   casacore::PtrBlock<casacore::Array<casacore::Float>*> par_, snr_;

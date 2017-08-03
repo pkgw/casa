@@ -803,12 +803,16 @@ void MSCache::loadChunks(vi::VisibilityIterator2& vi,
                             lastscan = thisscan;
                         }
                         thisspw = vb->spectralWindows()(0);
-                        if (((*atm_[chunk]).nelements()==1) &&
-                            (thisspw != lastspw)) {
-                            logWarn("load_cache", "Setting " + 
-                                PMS::axis(loadAxes[i]) + " for spw " +
-                                String::toString(thisspw) +
-                                " to zero because it has only one channel.");
+                        if (thisspw != lastspw) {
+                            uInt vectorsize = ( loadAxes[i]==PMS::ATM ?
+                                (*atm_[chunk]).nelements() :
+                                (*tsky_[chunk]).nelements());
+                            if (vectorsize==1) {
+                                logWarn("load_cache", "Setting " + 
+                                  PMS::axis(loadAxes[i]) + " for spw " +
+                                  String::toString(thisspw) +
+                                  " to zero because it has only one channel.");
+                            }
                             lastspw = thisspw;
                         }
                     }
@@ -1756,12 +1760,16 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
         casacore::Array<casacore::Double> chanFreqGHz =
             vb->getFrequencies(0)/1e9;
         casacore::Vector<casacore::Double> curve(1, 0.0);
+        bool isAtm = (axis==PMS::ATM);
         if (plotmsAtm_) {
             curve.resize();    
             curve = plotmsAtm_->calcOverlayCurve(spw, scan, chanFreqGHz,
-                    (axis==PMS::ATM));
-        } 
-        *atm_[vbnum] = curve;
+                    isAtm);
+        }
+        if (isAtm) 
+            *atm_[vbnum] = curve;
+        else
+            *tsky_[vbnum] = curve;
         break;
     }
 	default: {

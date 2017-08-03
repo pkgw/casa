@@ -391,8 +391,6 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 				ret.defineRecord(PARAM_SELECTION, d->selection().toRecord());
 				ret.defineRecord(PARAM_TRANSFORMATIONS, d->transformations().toRecord());
 				ret.defineRecord(PARAM_CALIBRATION, d->calibration().toRecord());
-				ret.define(PARAM_SHOWATM, d->showAtm());
-				ret.define(PARAM_SHOWTSKY, d->showTsky());
 			}
 
 			if(c != NULL) {
@@ -402,6 +400,8 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 				ret.define(PARAM_AXIS_Y, PMS::axis(c->yAxis()));
 				ret.define(PARAM_DATACOLUMN_Y,
 						PMS::dataColumn(c->yDataColumn()));
+				ret.define(PARAM_SHOWATM, c->showAtm());
+				ret.define(PARAM_SHOWTSKY, c->showTsky());
 			}
 
 			if (disp!=NULL)  {
@@ -519,22 +519,6 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 			ppdata->setCalibration(calib);
 		}
 
-		if(parameters.isDefined(PARAM_SHOWATM) &&
-				parameters.dataType(PARAM_SHOWATM) == TpBool)   {
-			bool show = parameters.asBool(PARAM_SHOWATM);
-			ppdata->setShowAtm(show);
-            if (ppdata->showAtm() != show)
-                logWarn("Parameter " + PARAM_SHOWATM + " not valid for input table type");
-		}
-
-		if(parameters.isDefined(PARAM_SHOWTSKY) &&
-				parameters.dataType(PARAM_SHOWTSKY) == TpBool)   {
-			bool show = parameters.asBool(PARAM_SHOWTSKY);
-			ppdata->setShowTsky(show);
-            if (ppdata->showTsky() != show)
-                logWarn("Parameter " + PARAM_SHOWTSKY + " not valid for input table type");
-		}
-
 		if(parameters.isDefined(PARAM_ITERATE) &&
 				parameters.dataType(PARAM_ITERATE) == TpRecord) {
 			PlotMSIterParam iter = ppiter->iterParam();
@@ -580,6 +564,18 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 				ppcache->setYDataColumn(dc, dataIndex);
 			}
 		}
+		if(parameters.isDefined(PARAM_SHOWATM) &&
+				parameters.dataType(PARAM_SHOWATM) == TpBool)   {
+			bool show = parameters.asBool(PARAM_SHOWATM);
+			ppcache->setShowAtm(show);
+		}
+
+		if(parameters.isDefined(PARAM_SHOWTSKY) &&
+				parameters.dataType(PARAM_SHOWTSKY) == TpBool)   {
+			bool show = parameters.asBool(PARAM_SHOWTSKY);
+			ppcache->setShowTsky(show);
+		}
+
 
 		if(parameters.isDefined(PARAM_CANVASTITLE) &&
 				parameters.dataType(PARAM_CANVASTITLE) == TpString)   {

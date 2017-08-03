@@ -311,7 +311,6 @@ vector<PMS::DataColumn> PlotMSPlot::getCachedData(){
 
 vector<PMS::Axis> PlotMSPlot::getCachedAxes() {
 	PMS_PP_Cache* c = itsParams_.typedGroup<PMS_PP_Cache>();
-	PMS_PP_MSData* d = itsParams_.typedGroup<PMS_PP_MSData>();
 
     // get default axes if not given by user
 	for(uInt i=0; i<c->numXAxes(); i++){
@@ -324,19 +323,18 @@ vector<PMS::Axis> PlotMSPlot::getCachedAxes() {
 	}
 
     // add ATM/TSKY yaxis "under the hood" if valid xaxis
-    if (d->showAtm() || d->showTsky()) {
+    if (c->showAtm() || c->showTsky()) {
         PMS::Axis xaxis = c->xAxis();
         bool validXAxis = (xaxis==PMS::CHANNEL || xaxis==PMS::FREQUENCY );
         if (!validXAxis) {
-            d->setShowAtm(false);
-            d->setShowTsky(false);
+            c->setShowAtm(false);
+            c->setShowTsky(false);
 		    itsParent_->showError("Overlays are valid only when xaxis is Channel or Frequency");
         } else {
             // add here for script client
             bool found(false);
             const vector<PMS::Axis> yAxes = c->yAxes();
-            PMS::Axis atmAxis(PMS::ATM);
-            if (!d->showAtm()) atmAxis = PMS::TSKY;
+            PMS::Axis atmAxis = (c->showAtm() ? PMS::ATM : PMS::TSKY);
             for (uInt i=0; i<yAxes.size(); ++i) {
                 if (yAxes[i] == atmAxis) {
                     found=True;
@@ -1983,13 +1981,10 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
 			for ( int i = 0; i < plotYAxisCount; i++ ){
                 PMS::Axis y = plotCacheParams->yAxis( i );
                 if (isCalTable && PMS::axisIsData(y)) y = getCalAxis(calType, y);
-                // Don't put ATM and TSKY in title
-                if (y!=PMS::ATM && y!=PMS::TSKY) {
-				    yAxes.push_back(y);
-				    yRefs.push_back(plotCacheBase.hasReferenceValue(yAxes[i]));
-				    yRefVals.push_back(plotCacheBase.referenceValue(yAxes[i]));
-				    yDatas.push_back(itsCache_->getYDataColumn(i));
-                }
+				yAxes.push_back(y);
+				yRefs.push_back(plotCacheBase.hasReferenceValue(yAxes[i]));
+				yRefVals.push_back(plotCacheBase.referenceValue(yAxes[i]));
+				yDatas.push_back(itsCache_->getYDataColumn(i));
 			}
 		}
 		title = canvParams->titleFormat().getLabel(x, yAxes, xref,

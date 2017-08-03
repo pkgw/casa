@@ -311,12 +311,16 @@ void CalCache::loadCalChunks(ROCTIter& ci,
                 lastscan = thisscan;
             }
             thisspw = ci.thisSpw();
-            if (((*atm_[chunk]).nelements()==1) &&
-                    (thisspw != lastspw)) {
-                logWarn("load_cache", "Setting " + 
-                    PMS::axis(loadAxes[i]) + " for spw " +
-                    String::toString(thisspw) +
-                    " to zero because it has only one channel.");
+            if (thisspw != lastspw) {
+                uInt vectorsize = ( loadAxes[i]==PMS::ATM ?
+                    (*atm_[chunk]).nelements() :
+                    (*tsky_[chunk]).nelements());
+                if (vectorsize==1) {
+                    logWarn("load_cache", "Setting " + 
+                        PMS::axis(loadAxes[i]) + " for spw " +
+                        String::toString(thisspw) +
+                        " to zero because it has only one channel.");
+                }
                 lastspw = thisspw;
             }
         }
@@ -656,12 +660,16 @@ void CalCache::loadCalChunks(ROCTIter& ci,
     casacore::Int scan = cti.thisScan();
     casacore::Vector<casacore::Double> freqsGHz = cti.freq()/1e9;
     casacore::Vector<casacore::Double> curve(1, 0.0);
+    bool isAtm = (axis==PMS::ATM);
     if (plotmsAtm_) {
         curve.resize();    
         curve = plotmsAtm_->calcOverlayCurve(spw, scan, freqsGHz,
-                (axis==PMS::ATM));
-    } 
-    *atm_[chunk] = curve;
+                isAtm);
+    }
+    if (isAtm)
+        *atm_[chunk] = curve;
+    else
+        *tsky_[chunk] = curve;
     break;
   }
   default:

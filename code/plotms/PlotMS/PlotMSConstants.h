@@ -136,7 +136,7 @@ public:
 	      "Gain Amplitude","Gain Phase","Gain Real","Gain Imag",
 	      "Delay","SwPower","Tsys","Opac", "SNR", "TEC",
 	      "Radial Velocity [km/s]", "Distance (rho) [km]", 
-          "Atm Transmission (%)", "Tsky", "None")
+          "Atm Transmission", "Tsky", "None")
 
     // </group>
               
@@ -183,10 +183,11 @@ public:
     PMS_ENUM1(AxisUnit, axesUnits, axesUnitStrings, axisUnit,
               UNONE, UDATETIME, GHERTZ, METERS_PER_SECOND, KILOMETERS_PER_SECOND,
               KILOMETERS, METERS, HOURS, WAVELENGTHS, DEGREES, NANOSECONDS, KELVIN,
-              NEPERS, SECONDS);
+              NEPERS, SECONDS, PERCENT);
     PMS_ENUM2(AxisUnit, axesUnits, axesUnitStrings, axisUnit,
               "", "hh:mm:ss", "GHz", "m/s", "km/s", "km", "m", "hours",
-              "<html>&lambda;</html>", "degrees", "ns", "K", "neper", "s");
+              "<html>&lambda;</html>", "degrees", "ns", "K", "neper", "s",
+              "%");
 
     // </group>
               
