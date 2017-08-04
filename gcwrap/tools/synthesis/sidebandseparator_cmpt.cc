@@ -43,7 +43,7 @@ sidebandseparator::open(const vector<string>& imagename)
     // In case already open, close it!
     close();
 
-    itsSep=new SimpleSideBandSeparator(imagename);
+    itsSep=new SideBandSeparatorII(imagename);
     if(itsSep !=0)
       rstat=true;
 

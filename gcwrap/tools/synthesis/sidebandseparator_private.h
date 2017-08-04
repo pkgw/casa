@@ -5,6 +5,6 @@
  *      Author: kana
  */
 
-casa::SimpleSideBandSeparator *itsSep;
+casa::SideBandSeparatorII *itsSep;
 casacore::LogIO *itsLog;
 

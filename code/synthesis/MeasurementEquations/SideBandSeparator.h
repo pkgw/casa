@@ -25,51 +25,87 @@
 
 namespace casa { //# NAMESPACE CASA - BEGIN
 
-class SimpleSideBandSeparator {
+/**
+ * The base class of side band separation algorithm using FFT.
+ * Data model independent functions are defined.
+ * Data model dependent functions should be defined in derived class.
+ **/
+class SideBandSeparatorBase {
 public:
 
 	  /**
-	   * constructors and a destructor
+	   * @brief The constructor
+	   *
+	   * @param[in] inputname	A vector of file names of input data
+	   *
 	   **/
-	  SimpleSideBandSeparator(const std::vector<std::string>& imagename);
-	  virtual ~SimpleSideBandSeparator();
+	  SideBandSeparatorBase(const std::vector<std::string>& inputname);
+	  /**
+	   * @brief The destructor
+	   **/
+	  virtual ~SideBandSeparatorBase();
 
 	  /**
-	   * Set the number of channels shifted in image side band
-	   * of each of scantable.
+	   * @brief Set the number of channels shifted in each input data
+	   *
+	   * @param[in] shift	The number of channels shifted in each input data.
+	   * The number of elements must be equal to the number of input data.
+	   * @param[in] signal	If true, the @a shift is interpreted as that of
+	   * signal sideband. If false, image sideband is assumed.
 	   **/
 	  void setShift(const std::vector<double> &shift, const bool signal = true);
 
 	  /**
-	   * Set rejection limit of solution.
+	   * @brief Set rejection limit of solution.
+	   *
+	   * @param[in] limit	Rejection limit of channels with poor solution.
 	   **/
 	  void setThreshold(const double limit);
 
 	  /**
-	   * Resolve both image and signal sideband when true is set.
+	   * @brief Resolve both image and signal sideband when true is set.
+	   *
+	   * @param[in] flag	if true, both singnal and image sidebands are
+	   * solved. If false, sideband suppression is invoked and only signal
+	   * sideband is solved.
 	   **/
 	  void solveBoth(const bool flag) { doboth_ = flag; };
 
 	  /**
-	   * Obtain spectra by subtracting the solution of the other sideband.
+	   * @brief Obtain spectra by subtracting the solution of the other sideband.
+	   *
+	   * This is an experimental feature to investigate the algorithm.
+	   *
+	   * @param[in] flag	if false, the solution of its own sideband is adopted.
+	   * if true, the solution is obtained for the other sideband and subtracted
+	   * from an average of observed spectrum.
 	   **/
 	  void solvefromOther(const bool flag) { otherside_ = flag; };
 
 	  /**
-	  * invoke sideband separation
+	  * @brief invoke sideband separation
+	  *
+	  * The function should be defined in derived class.
+	  *
+	  * @param[in] outfile	the prefix of output file names.
+	  * Suffixes which indicates sideband, i.e., 'signalband' and 'imageband',
+	  * are added to @a outfile .
+	  * @param[in] overwrite	if true overwrite existing output files.
+	  * if false, an error is raised if an output file already exists.
 	  **/
-	  void separate(const std::string& outfile, const bool overwrite);
+	  virtual void separate(const std::string& outfile, const bool overwrite) = 0;
 
 protected:
 	  /** Initialize member variables **/
 	  void init();
 	  void initshift();
-	  void setImage(const std::vector<std::string>& imagename);
+
+	  void setInput(const std::vector<std::string>& inputname);
 
 	  /** Return if the path exists (optionally, check file type) **/
 	  casacore::Bool checkFile(const std::string name, std::string type="");
 
-	  std::vector<float> solve(const casacore::Matrix<float> &specMat,
+	  casacore::Vector<float> solve(const casacore::Matrix<float> &specMat,
 			      const std::vector<casacore::uInt> &tabIdvec,
 			      const bool signal = true);
 
@@ -93,14 +129,10 @@ protected:
 				 std::vector<float> &outvec);
 	  ////
 	  size_t setupShift();
-	  bool getImageCoordinate(const string& imagename, casacore::CoordinateSystem &csys, casacore::IPosition &npix);
-	  bool compareImageAxes(const string& imagename, const casacore::CoordinateSystem &refcsys, const casacore::IPosition &refnpix);
-	  bool getSpectraToSolve(const vector<casa::SPIIF> &images, const casacore::Slicer &slicer,
-			  casacore::Matrix<float>& specMat, casacore::Matrix<bool>& maskMat, vector<casacore::uInt>& imgIdvec);
 
 	  /** Member variables **/
 	  // name of images
-	  std::vector<std::string> imageNames_;
+	  std::vector<std::string> inputNames_;
 	  // frequency and direction setup to select data.
 	  std::vector<double> sigShift_, imgShift_;
 	  unsigned int nshift_, nchan_;
@@ -111,8 +143,47 @@ protected:
 	  casacore::FFTServer<casacore::Float, casacore::Complex> fftsf, fftsi;
 
 
-};
+}; // SideBandSeparatorBase
 
+/**
+ * Data model dependent side band separator class.
+ * Input: CASA image
+ * Output : CASA image
+ **/
+class SideBandSeparatorII : public SideBandSeparatorBase {
+public:
+	  /**
+	   * @brief The constructor
+	   *
+	   * @param[in] inputname	A vector of file names of input data
+	   *
+	   **/
+	  SideBandSeparatorII(const std::vector<std::string>& imagename);
+	  /**
+	   * @brief The destructor
+	   **/
+	  virtual ~SideBandSeparatorII(){};
+
+	  /**
+	  * @brief invoke sideband separation
+	  *
+	  * @param[in] outfile	the prefix of output file names.
+	  * Suffixes which indicates sideband, i.e., 'signalband' and 'imageband',
+	  * are added to @a outfile .
+	  * @param[in] overwrite	if true overwrite existing output files.
+	  * if false, an error is raised if an output file already exists.
+	  **/
+	  virtual void separate(const std::string& outfile, const bool overwrite);
+//protected:
+private:
+	  void checkImage();
+
+	  bool getImageCoordinate(const string& imagename, casacore::CoordinateSystem &csys, casacore::IPosition &npix);
+	  bool compareImageAxes(const string& imagename, const casacore::CoordinateSystem &refcsys, const casacore::IPosition &refnpix);
+	  bool getSpectraToSolve(const vector<casa::SPIIF> &images, const casacore::Slicer &slicer,
+			  casacore::Matrix<float>& specMat, casacore::Matrix<bool>& maskMat, vector<casacore::uInt>& imgIdvec);
+
+};
 
 
 } //# NAMESPACE CASA - END

@@ -14,5 +14,5 @@ namespace casacore{
 
 namespace casa
 {
-  class SimpleSideBandSeparator;
+  class SideBandSeparatorII;
 }
