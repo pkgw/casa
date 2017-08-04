@@ -757,7 +757,7 @@ class PlotmsPageHeader:
         self.height_ratio = -1.0
         self.rows = -1
         self._analyze()
-        
+
     def _analyze(self):
         gray_img = self.color_img.min(axis=2)
         gray_xproj = gray_img.min(axis=1)
@@ -783,7 +783,7 @@ class PlotmsPageHeader:
 
     def empty(self):
         return self.height <= 0
-    
+
     def hasCorrectHeightRatio(self):
         return 0.10 <= self.height_ratio <= 0.30
 
@@ -792,11 +792,11 @@ class plotms_test_pageheader(plotms_test_base):
     def setUp(self):
         self.checkDisplay()
         self.setUpdata()
-        
+
     def tearDown(self):
         if not self.debug:
             self.tearDowndata()
-        
+
     def checkPageHeader(self,expected_rows):
         page_header = PlotmsPageHeader(self.plotfile_png)
         # Empty or not
@@ -816,8 +816,7 @@ class plotms_test_pageheader(plotms_test_base):
         err_msg = 'Page header: has wrong number of rows: '
         err_msg += '{:d} rows detected, {:d} rows expected'.format(page_header.rows,expected_rows)
         self.assertTrue(page_header.rows == expected_rows, err_msg)
-            
-       
+
     def test_pageheader_none(self):
         '''test_pageheader_none: no page header if no header items'''
         self.plotfile_png = os.path.join(self.outputDir, "testPageHeader01.png")
@@ -830,7 +829,6 @@ class plotms_test_pageheader(plotms_test_base):
         self.checkPlotfile(self.plotfile_png, 16000)
         self.checkPageHeader(expected_rows=0)
 
-        
     def test_pageheader_items01(self):
         '''test_pageheader_items01: filename,telescope,projid,observer'''
         self.plotfile_png = os.path.join(self.outputDir, "testPageHeader02.png")
@@ -842,7 +840,7 @@ class plotms_test_pageheader(plotms_test_base):
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_png, 22000)
         self.checkPageHeader(expected_rows=2)
-        
+
     def test_pageheader_items02(self):
         '''test_pageheader_items02: targpos,telescope,targname,observer,ycolumn'''
         self.plotfile_png = os.path.join(self.outputDir, "testPageHeader03.png")
@@ -854,7 +852,7 @@ class plotms_test_pageheader(plotms_test_base):
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_png, 26000)
         self.checkPageHeader(expected_rows=3)
-        
+
 # ------------------------------------------------------------------------------
 
 class plotms_test_display(plotms_test_base):
