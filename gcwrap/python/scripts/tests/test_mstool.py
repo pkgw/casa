@@ -244,10 +244,10 @@ class mstool_test_summary(mstool_test_base):
         self.assertTrue(self.ms.listhistory())
         print
 
-    def test_statistics(self): 
-        """test ms.statistics"""
+    def test_statisticsold(self): 
+        """test ms.statisticsold"""
         # Returns record (python dict)
-        stats = self.ms.statistics(column="DATA", complex_value='amp', 
+        stats = self.ms.statisticsold(column="DATA", complex_value='amp', 
                 field="2")["DATA"]
         self.assertEqual(stats['npts'], 1619352.0)
         self.assertAlmostEqual(stats['medabsdevmed'], 0.0122800)
@@ -263,10 +263,10 @@ class mstool_test_summary(mstool_test_base):
         self.assertAlmostEqual(stats['quartile'], 0.0254916)
         print
 
-    def test_statistics2(self): 
-        """test ms.statistics2"""
+    def test_statistics(self): 
+        """test ms.statistics"""
         # Returns record (python dict)
-        stats = self.ms.statistics2(column="DATA", complex_value='amp', field="2")
+        stats = self.ms.statistics(column="DATA", complex_value='amp', field="2")
         stats = stats['']
         self.assertTrue(stats['isMasked'])
         self.assertFalse(stats['isWeighted'])
