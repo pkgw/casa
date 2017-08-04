@@ -184,22 +184,34 @@ void ImageFactory::_centerRefPix(
 CoordinateSystem* ImageFactory::_makeCoordinateSystem(
     const Record& coordinates, const IPosition& shape
 ) {
-    std::unique_ptr<CoordinateSystem> pCS;
-    if (coordinates.nfields() == 1) { 
+    std::unique_ptr<CoordinateSystem> csys;
+    if (coordinates.nfields() == 1) {
         // must be a record as an element
         Record tmp(coordinates.asRecord(RecordFieldId(0)));
-        pCS.reset(CoordinateSystem::restore(tmp, ""));
+        csys.reset(CoordinateSystem::restore(tmp, ""));
     } 
     else {
-        pCS.reset(CoordinateSystem::restore(coordinates, ""));
+        csys.reset(CoordinateSystem::restore(coordinates, ""));
     }
     // Fix up any body longitude ranges...
     String errMsg;
-    ThrowIf(
-        ! CoordinateUtil::cylindricalFix(*pCS, errMsg, shape),
-        errMsg
-    ); 
-    return pCS.release();
+    if (csys->hasDirectionCoordinate()) {
+        auto axes = csys->directionAxesNumbers();
+        if (min(axes) >= 0) {
+            ThrowIf(
+                ! CoordinateUtil::cylindricalFix(*csys, errMsg, shape),
+                errMsg
+            );
+        }
+        else {
+            LogIO log(LogOrigin("ImageFactory", __func__));
+            log << LogIO::WARN << "Direction coordinate has at least one "
+                << "axis that has been removed, skipping cylindrical fix "
+                << "which is normally only important for imported image formats "
+                << "such as FITS" << LogIO::POST;
+        }
+    }
+    return csys.release();
 }
 
 SHARED_PTR<TempImage<Complex> > ImageFactory::complexFromFloat(
