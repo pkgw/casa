@@ -55,6 +55,16 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
             <value>False</value>
     </param>
 
+    <param type="double" name="refpix" subparam="true">
+        <description>reference pixel of spectral axis in image sideband</description>
+        <value>0.0</value>
+    </param>
+
+     <param type="string" name="refval" subparam="true">
+        <description>frequency at the reference pixel of spectral axis in image sideband (e.g., "100GHz")</description>
+        <value></value>
+    </param>
+ 
     <param type="bool" name="otherside">
 	    <description>solve the other side and subtract the solution</description>
             <value>False</value>
@@ -64,6 +74,17 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
       <description>Rejection limit of solution</description>
       <value>0.2</value>
     </param>
+
+<!-- CONSTRAINTS -->
+    <constraints>
+            <when param="getbothside">
+                <equals type="bool" value="False"/>
+                <equals type="bool" value="True">
+                    <default param="refpix"><value>0.0</value></default>
+                    <default param="refval"><value type="string"></value></default>
+                </equals>
+            </when>
+    </constraints>
 
     </input>
 

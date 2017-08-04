@@ -15,12 +15,14 @@
 #include <casacore/casa/aips.h>
 #include <casacore/casa/Arrays/Vector.h>
 #include <casacore/casa/Arrays/Matrix.h>
+#include <casacore/casa/Quanta/Quantum.h>
 
 #include <casacore/coordinates/Coordinates/CoordinateSystem.h>
 #include <casacore/coordinates/Coordinates/DirectionCoordinate.h>
 #include <casacore/coordinates/Coordinates/SpectralCoordinate.h>
 #include <casacore/scimath/Mathematics/FFTServer.h>
 
+// casa
 #include <imageanalysis/ImageTypedefs.h>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -174,14 +176,25 @@ public:
 	  * if false, an error is raised if an output file already exists.
 	  **/
 	  virtual void separate(const std::string& outfile, const bool overwrite);
-//protected:
+
+	  /**
+	   * @brief set frequency information of output image in image sideband
+	   *
+	   * @param[in] refpix	reference channel of image sideband
+	   * @param[in' refval	frequency in reference channel
+	   **/
+	  void setImageBandFrequency(const double refpix, const casacore::Quantity refval);
+
+	  //protected:
 private:
+	  void initLocal();
 	  void checkImage();
 
 	  bool getImageCoordinate(const string& imagename, casacore::CoordinateSystem &csys, casacore::IPosition &npix);
 	  bool compareImageAxes(const string& imagename, const casacore::CoordinateSystem &refcsys, const casacore::IPosition &refnpix);
 	  bool getSpectraToSolve(const vector<casa::SPIIF> &images, const casacore::Slicer &slicer,
 			  casacore::Matrix<float>& specMat, casacore::Matrix<bool>& maskMat, vector<casacore::uInt>& imgIdvec);
+	  double refFreqPix_, refFreqHz_;
 
 };
 

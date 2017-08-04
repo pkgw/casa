@@ -8,7 +8,8 @@ from taskinit import *
 #                     gridfunction, convsupport,truncate, gwidth, jwidth,
 #                     imsize, cell, phasecenter, ephemsrcname, pointingcolumn,
 #                     restfreq, stokes, minweight, clipminmax):
-def sdsidebandsplit(imagename, outfile, overwrite, signalshift, imageshift, getbothside, useother, threshold):
+def sdsidebandsplit(imagename, outfile, overwrite, signalshift, imageshift,
+                    getbothside, refpix, refval, useother, threshold):
     casalog.origin('sdsidebandsplit')
     
     separator = casac.sidebandseparator()
@@ -19,6 +20,13 @@ def sdsidebandsplit(imagename, outfile, overwrite, signalshift, imageshift, getb
             separator.setshift(imageshift, False)
         separator.setlimit(threshold)
         separator.setboth(getbothside)
+        if getbothside:
+            if refval == '':
+                qrefval = -1.0
+            else:
+                myqa = qatool()
+                qrefval = myqa.quantity(refval)
+            separator.set_imageband_frequency(refpix, qrefval)
         separator.setsolveother(useother)
         separator.separate(outfile, overwrite)
     finally:

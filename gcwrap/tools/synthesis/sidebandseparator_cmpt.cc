@@ -138,6 +138,22 @@ sidebandseparator::setboth(const bool getbothside)
 }
 
 bool
+sidebandseparator::set_imageband_frequency(const double refpix, const Quantity& refval)
+{
+  Bool rstat(false);
+  try {
+	  itsSep->setImageBandFrequency(refpix, casaQuantity(refval));
+  } catch  (AipsError x) {
+    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
+	    << LogIO::POST;
+    RETHROW(x);
+  }
+
+  return rstat;
+
+}
+
+bool
 sidebandseparator::setsolveother(const bool subtract_from_other)
 {
   Bool rstat(false);

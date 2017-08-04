@@ -20,10 +20,7 @@
   <description> 
   </description>
   
-  
-
-  
-  
+ 
 <method type="constructor" name="sidebandseparator">
   <shortdescription>Construct a sideband separator tool</shortdescription>
   <description>
@@ -110,6 +107,25 @@
     <param type="bool" name="getbothside">
       <description></description>
       <value>false</value>
+    </param>
+  </input>
+  <returns type="bool">Boolean</returns>
+  <example>    
+  </example>
+</method>
+
+<method type="function" name="set_imageband_frequency">
+  <shortdescription></shortdescription>
+  <description>
+  </description>
+  <input>    
+    <param type="double" direction="in" name="refpix">
+      <description></description>
+      <value>0.0</value>
+    </param>
+    <param type="double" direction="in" name="refval" units="Hz">
+      <description></description>
+      <value>-1.0</value>
     </param>
   </input>
   <returns type="bool">Boolean</returns>

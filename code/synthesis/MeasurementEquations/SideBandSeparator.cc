@@ -16,6 +16,7 @@
 #include <imageanalysis/ImageAnalysis/ImageMetaData.h>
 #include <imageanalysis/ImageAnalysis/ImageMaskAttacher.h>
 
+// casa
 #include <synthesis/MeasurementEquations/SideBandSeparator.h>
 
 using namespace std ;
@@ -573,8 +574,14 @@ Bool SideBandSeparatorBase::checkFile(const string name, string type)
 SideBandSeparatorII::SideBandSeparatorII(const std::vector<std::string>& imagename)
 : SideBandSeparatorBase (imagename)
 {
+	initLocal();
 	checkImage();
 };
+
+void SideBandSeparatorII::initLocal() {
+	refFreqPix_ = 0.0;
+	refFreqHz_ = -1.0;
+}
 
 void SideBandSeparatorII::checkImage() {
   LogIO os(LogOrigin("SideBandSeparatorBase","setImage()", WHERE));
@@ -644,6 +651,17 @@ bool SideBandSeparatorII::compareImageAxes(const string& imagename, const Coordi
 	return match;
 }
 
+void SideBandSeparatorII::setImageBandFrequency(const double refpix, const Quantity refval)
+{
+    LogIO os(LogOrigin("SideBandSeparatorBase","setImageBandFrequency()", WHERE));
+	double freq_hz = refval.getValue("Hz", True);
+	if (freq_hz < 0.0) throw( AipsError("Frequency should be positive") );
+	refFreqPix_ = refpix;
+	refFreqHz_ = freq_hz;
+	os << "Setting frequency axis of image band: " << refFreqHz_*1.e-9
+			<< "GHz at channel " << refFreqPix_ << LogIO::POST;
+}
+
 void SideBandSeparatorII::separate(const string& outfile, const bool overwrite)
 {
   LogIO os(LogOrigin("SideBandSeparatorBase","separate()", WHERE));
@@ -686,11 +704,27 @@ void SideBandSeparatorII::separate(const string& outfile, const bool overwrite)
   IPosition specArrayShape(ndim, 1), specVecShape(1, nchan_);
   specArrayShape[spax_id] = nchan_;
 
-  /*** prepare output image ***/
+  /*** prepare output image (data model dependent) ***/
   SPIIF sigImg, imgImg;
   sigImg = ImageFactory::createImage<Float>(signame, csys, npix, True, overwrite, nullptr);
   if (doboth_) {
-	  imgImg = ImageFactory::createImage<Float>(imgname, csys, npix, True, overwrite, nullptr);
+	  /*** define frequency coordinate of image sideband ***/
+	  CoordinateSystem imgcsys(csys);
+	  if (refFreqHz_ < 0.0) {
+		  os << LogIO::WARN << "Frequency information of image sideband is not set. Using the value of signal sideband" << LogIO::POST;
+	  } else {
+		  Int spax_id = imgcsys.spectralAxisNumber();
+		  Vector<Double> refpix = imgcsys.referencePixel();
+		  Vector<Double> refval = imgcsys.referenceValue();
+		  Vector<Double> incr = imgcsys.increment();
+		  refpix[spax_id] = refFreqPix_;
+		  refval[spax_id] = refFreqHz_;
+		  incr[spax_id] *= -1.0;
+		  imgcsys.setReferencePixel(refpix);
+		  imgcsys.setReferenceValue(refval);
+		  imgcsys.setIncrement(incr);
+	  }
+	  imgImg = ImageFactory::createImage<Float>(imgname, imgcsys, npix, True, overwrite, nullptr);
   }
 
   Matrix<float> specMat(nchan_, nshift_);
