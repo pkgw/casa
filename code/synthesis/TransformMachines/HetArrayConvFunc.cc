@@ -345,7 +345,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 					  Vector<Int>& convSupport,
 					  Vector<Int>& convFuncPolMap,
 					  Vector<Int>& convFuncChanMap,
-					  Vector<Int>& convFuncRowMap)
+					  Vector<Int>& convFuncRowMap,
+					  const Bool /*conjugateFreqFuncs*/)
   {
 
     storeImageParams(iimage,vb);

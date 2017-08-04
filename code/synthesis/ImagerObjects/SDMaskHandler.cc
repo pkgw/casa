@@ -735,6 +735,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                const Float& cutthreshold,
                                const Float& smoothfactor,
                                const Float& minbeamfrac, 
+                               const Int growiterations,
                                Float pblimit)
   {
     LogIO os( LogOrigin("SDMaskHandler","autoMask",WHERE) );
@@ -927,7 +928,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     }
     else if (alg==String("multithresh")) {
       autoMaskByMultiThreshold(*tempmask, *tempres, *temppsf, thestats, iterdone, itsSidelobeLevel, sidelobethreshold,
-                                          noisethreshold, lownoisethreshold, cutthreshold, smoothfactor, minbeamfrac);
+                                          noisethreshold, lownoisethreshold, cutthreshold, smoothfactor, minbeamfrac, growiterations);
     }
 
     // this did not work (it won't physically remove the mask from the image 
@@ -1294,7 +1295,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                           const Float& lowNoiseThresholdFactor,
                                           const Float& cutThreshold,
                                           const Float& smoothFactor,
-                                          const Float& minBeamFrac) 
+                                          const Float& minBeamFrac, 
+                                          const Int growIterations) 
   {
     LogIO os( LogOrigin("SDMaskHandler","autoMaskByMultiThreshold",WHERE) );
     Array<Double> rmss, maxs, mads;
@@ -1521,35 +1523,40 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     }
 
     // take stats on the current mask for setting flags for grow mask : if max < 1 for any spectral plane it will grow the previous mask
-    Record maskstats = calcImageStatistics(thenewmask, thenewmask, lelmask, 0, false);
+    //
+    //  Mod: 2017.07.26: modified get stats for prev mask, if channel contains no mask in prev mask it will set flag to skip the channel 
+    //Record maskstats = calcImageStatistics(thenewmask, thenewmask, lelmask, 0, false);
+    Record maskstats = calcImageStatistics(mask, mask, lelmask, 0, false);
     Array<Double> maskmaxs;
     maskstats.get(RecordFieldId("max"),maskmaxs);
     // per plane stats 
     IPosition arrshape = maskmaxs.shape();
     uInt naxis=arrshape.size();
     IPosition indx(naxis,0);
+    //os<<LogIO::NORMAL<<"arrshape="<<arrshape<<" indx="<<indx<<LogIO::POST;
+    //os<<LogIO::NORMAL<<"statshp="<<statshp<<LogIO::POST;
     // ignoring corr for now and assume first axis is channel
     Array<Bool> dogrow(arrshape);
+    dogrow.set(false);
     for (uInt i=0; i < arrshape(0); i++) {
       indx(0) = i;
-      /***
-      if (maskmaxs(indx) < 1.0 ) {
+      if (maskmaxs(indx) == 1.0 ) {
         dogrow(indx) = true;
       }
-      ***/
-      // set dogrow true for all chans (contraintMask should be able to handle skiping channels )
-      dogrow(indx) = true;
+    //  // set dogrow true for all chans (contraintMask should be able to handle skipping channels )
+    //  dogrow(indx) = true;
     }   
-    if (iterdone) {
+    if (iterdone && growIterations>0) {
        //cerr<<" iter done ="<<iterdone<<" grow mask..."<<endl;
-       os<<LogIO::NORMAL<<"Growing the previous mask "<<endl;
+       os<<LogIO::NORMAL<<"Growing the previous mask "<<LogIO::POST;
        //call growMask
        // corresponds to calcThresholdMask with lowNoiseThreshold...
        TempImage<Float> constraintMaskImage(res.shape(), res.coordinates(), memoryToUse()); 
        // constrainMask is 1/0 mask
        makeMaskByPerChanThreshold(res, constraintMaskImage, lowMaskThreshold);
        if(debug2) {
-         PagedImage<Float> beforepruneconstIm(res.shape(), res.coordinates(),"tmpBeforePruneConstraint-"+String::toString(iterdone)+".im");
+         os<< LogIO::NORMAL<<"saving constraint mask " << LogIO::POST;
+         PagedImage<Float> beforepruneconstIm(res.shape(), res.coordinates(),"tmpConstraint-"+String::toString(iterdone)+".im");
          beforepruneconstIm.copyData(constraintMaskImage);
        }
        // 2017.05.05: should done after multiply by binary dilation 
@@ -1582,13 +1589,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
        se(IPosition(2,2,1))=1.0;
        se(IPosition(2,1,2))=1.0;
        // nIteration for binary dilation 
-       Int niter=100; 
+       //Int niter=100;renamed to growIterations
        if(debug2) {
          PagedImage<Float> beforeBinaryDilationIm(res.shape(), res.coordinates(),"tmpBeforeBinaryDilation-"+String::toString(iterdone)+".im");
          //beforeBinaryDilationIm.copyData(constraintMaskImage);
          beforeBinaryDilationIm.copyData(mask);
        }
-       binaryDilation(mask, se, niter, constraintMask, dogrow, prevmask); 
+       binaryDilation(mask, se, growIterations, constraintMask, dogrow, prevmask); 
        if(debug2) {
          PagedImage<Float> afterBinaryDilationIm(res.shape(), res.coordinates(),"tmpAfterBinaryDilation-"+String::toString(iterdone)+".im");
          afterBinaryDilationIm.copyData(prevmask);
@@ -2613,11 +2620,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                       Array<Bool>& chanmask,
                       ImageInterface<Float>& outImage)
   {
-
       binaryDilationCore(inImage,structure,mask,chanmask,outImage);
       Int iter = 1;
+      ArrayLattice<Float> templattice(inImage.shape());
       while (iter < niteration) {
-        ArrayLattice<Float> templattice(inImage.shape());
         templattice.copyData(outImage);
         binaryDilationCore(templattice,structure,mask,chanmask,outImage); 
         iter++;
@@ -2640,6 +2646,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                        const Float& cutthreshold, 
                                        const Float& smoothfactor,
                                        const Float& minbeamfrac,
+                                       const Int growiterations,
                                        Float pblimit)
   { 
     LogIO os( LogOrigin("SDMaskHandler","autoMaskWithinPB",WHERE) );
@@ -2649,7 +2656,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // changed to do automask ater pb mask is generated so automask do stats within pb mask
     autoMask( imstore, iterdone, alg, threshold, fracofpeak, resolution, resbybeam, nmask, autoadjust, 
               sidelobethreshold, noisethreshold, lownoisethreshold, cutthreshold, smoothfactor, 
-              minbeamfrac, pblimit);
+              minbeamfrac, growiterations, pblimit);
 
     if( imstore->hasPB() )
       {

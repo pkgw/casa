@@ -495,7 +495,7 @@ void SolvableVisCal::setApply(const Record& apply) {
 
   // Make the interpolation engine
   MeasurementSet ms(msName());
-  ci_ = new CTPatchedInterp(*ct_,matrixType(),nPar(),tInterpType(),fInterpType(),fieldtype,ms,spwMap());
+  ci_ = new CTPatchedInterp(*ct_,matrixType(),nPar(),tInterpType(),fInterpType(),fieldtype,ms,spwMap(),cttifactoryptr());
 
   // Channel counting info 
   //  (soon will deprecate, I think, because there will be no need
@@ -540,7 +540,7 @@ void SolvableVisCal::setCallib(const Record& callib,
 	    << LogIO::POST;
 
   // Make the interpolation engine
-  cpp_ = new CLPatchPanel(calTableName(),selms,callib,matrixType(),nPar());
+  cpp_ = new CLPatchPanel(calTableName(),selms,callib,matrixType(),nPar(),cttifactoryptr());
 
   //  cpp_->listmappings();
 
@@ -1017,7 +1017,7 @@ void SolvableVisCal::setSimulate(VisSet& vs, Record& simpar, Vector<Double>& sol
       delete ci_;
 
     MeasurementSet ms(msName());
-    ci_=new CTPatchedInterp(*ct_,matrixType(),nPar(),tInterpType(),"linear","",ms,spwMap());
+    ci_=new CTPatchedInterp(*ct_,matrixType(),nPar(),tInterpType(),"linear","",ms,spwMap(),cttifactoryptr());
 
   }
 
@@ -6218,9 +6218,23 @@ void SolvableVisJones::fluxscale(const String& outfile,
 
     // sort user-specified fields
     Vector<Int> refField; refField = refFieldIn;
-    Vector<Int> tranField; tranField = tranFieldIn;
     Int nRef,nTran;
     nRef=genSort(refField,Sort::Ascending,(Sort::QuickSort | Sort::NoDuplicates));
+    // temp copy of tranFieldIn
+    std::vector<Int> tmpTranField;
+    tranFieldIn.tovector(tmpTranField);
+    for (Int iRef=0; iRef<nRef; iRef++) {
+        auto iidx = std::find(tmpTranField.begin(),tmpTranField.end(),refField(iRef));
+        if (iidx != tmpTranField.end()) { 
+          logSink() << "The reference field, "<<fldNames(*iidx)
+                    << " , is also listed in the transfer fields. "
+                    <<" It will be ignored for further scaling process."
+	             << LogIO::POST;
+          tmpTranField.erase(iidx);
+        }
+    }
+    //Vector<Int> tranField; tranField = tranFieldIn;
+    Vector<Int> tranField(tmpTranField);
     nTran=genSort(tranField,Sort::Ascending,(Sort::QuickSort | Sort::NoDuplicates));
 
     // make masks for ref/tran among available fields
