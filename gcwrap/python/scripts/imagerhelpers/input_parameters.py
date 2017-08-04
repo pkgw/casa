@@ -117,6 +117,7 @@ class ImagerParameters():
                  sidelobethreshold=5.0,
                  noisethreshold=3.0,
                  lownoisethreshold=3.0,
+                 negativethreshold=0.0,
                  smoothfactor=1.0,
                  minbeamfrac=0.3,
                  cutthreshold=0.01,
@@ -179,7 +180,7 @@ class ImagerParameters():
                                     'maskresolution':maskresolution, 'nmask':nmask,
                                     #'maskresolution':maskresolution, 'nmask':nmask,'autoadjust':autoadjust,
                                     'sidelobethreshold':sidelobethreshold, 'noisethreshold':noisethreshold,
-                                    'lownoisethreshold':lownoisethreshold, 'smoothfactor':smoothfactor,
+                                    'lownoisethreshold':lownoisethreshold, 'negativethreshold':negativethreshold,'smoothfactor':smoothfactor,
                                     'minbeamfrac':minbeamfrac, 'cutthreshold':cutthreshold,
                                     'interactive':interactive, 'startmodel':startmodel} }
 

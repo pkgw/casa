@@ -732,6 +732,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                const Float& sidelobethreshold,
                                const Float& noisethreshold, 
                                const Float& lownoisethreshold,
+                               const Float& negativethreshold,
                                const Float& cutthreshold,
                                const Float& smoothfactor,
                                const Float& minbeamfrac, 
@@ -927,7 +928,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     }
     else if (alg==String("multithresh")) {
       autoMaskByMultiThreshold(*tempmask, *tempres, *temppsf, thestats, iterdone, itsSidelobeLevel, sidelobethreshold,
-                                          noisethreshold, lownoisethreshold, cutthreshold, smoothfactor, minbeamfrac);
+                                          noisethreshold, lownoisethreshold, negativethreshold, cutthreshold, smoothfactor, minbeamfrac);
     }
 
     // this did not work (it won't physically remove the mask from the image 
@@ -1292,6 +1293,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                           const Float& sidelobeThresholdFactor,
                                           const Float& noiseThresholdFactor,
                                           const Float& lowNoiseThresholdFactor,
+                                          const Float& negativeThresholdFactor,
                                           const Float& cutThreshold,
                                           const Float& smoothFactor,
                                           const Float& minBeamFrac) 
@@ -1390,6 +1392,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Float sidelobeThreshold;
     Float noiseThreshold;
     Float lowNoiseThreshold;
+    Float negativeThreshold;
     // deal with stokes I only for now
     uInt ndim = mads.ndim();
     Int specAxis = CoordinateUtil::findSpectralAxis(res.coordinates());
@@ -1398,6 +1401,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Int nchan = res.shape()(specAxis);
     Vector<Float> maskThreshold(nchan);
     Vector<Float> lowMaskThreshold(nchan);
+    Vector<Float> negativeMaskThreshold(nchan);
     Vector<String> ThresholdType(nchan);
     Vector<Bool> pruned(nchan);
     for (uInt ich=0; ich < mads.nelements(); ich++) {
@@ -1415,12 +1419,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //if (modfactor != sidelobeThresholdFactor*sidelobeLevel) os<<LogIO::NORMAL<<" sidelobethreshld*sidelobeLevel ="<<sidelobeThresholdFactor*sidelobeLevel<<" appears to be high for automasking, adjusting this factor to "<<modfactor<<LogIO::POST;
       //sidelobeThreshold = modfactor * (Float)maxs(chindx); 
       //
+     
       noiseThreshold = noiseThresholdFactor * (Float)resRmss(chindx);
       lowNoiseThreshold = lowNoiseThresholdFactor * (Float)resRmss(chindx); 
+      negativeThreshold = negativeThresholdFactor * (Float)resRmss(chindx);
       maskThreshold(ich) = max(sidelobeThreshold, noiseThreshold);
       lowMaskThreshold(ich) = max(sidelobeThreshold, lowNoiseThreshold);
       ThresholdType(ich) = (maskThreshold(ich) == sidelobeThreshold? "sidelobe": "noise");
+      negativeMaskThreshold(ich) = (-1.0)*max(sidelobeThreshold, negativeThreshold); 
       os << LogIO::DEBUG1 <<" sidelobeTreshold="<<sidelobeThreshold<<" noiseThreshold="<<noiseThreshold<<" lowNoiseThreshold="<<lowNoiseThreshold<<LogIO::POST;
+      os << LogIO::DEBUG1 <<" negativeThreshold="<<negativeThreshold<<LogIO::POST;
       os << LogIO::NORMAL <<" Using "<<ThresholdType(ich)<<" threshold for chan "<<String::toString(ich)<<" threshold="<<maskThreshold(ich)<<LogIO::POST;
     }
 
@@ -1642,6 +1650,25 @@ namespace casa { //# NAMESPACE CASA - BEGIN
          PagedImage<Float> smoothedGrowedMask(res.shape(), res.coordinates(),"tmpSmoothedGrowMask-"+String::toString(iterdone)+".im");
          smoothedGrowedMask.copyData(prevmask);
        }
+    } //end - iterdone
+    
+    // 
+    TempImage<Float> thenegmask(res.shape(),res.coordinates(), memoryToUse());
+    thenegmask.set(0);
+    if (negativeThresholdFactor > 0) { 
+      os<<LogIO::NORMAL<<"Creating a mask for negative features. "<<LogIO::POST;
+      TempImage<Float> negativeMaskImage(res.shape(), res.coordinates(), memoryToUse()); 
+      makeMaskByPerChanThreshold(res, negativeMaskImage , negativeMaskThreshold);
+      SPIIF negmask = convolveMask( negativeMaskImage, modbeam);
+      makeMaskByPerChanThreshold(*negmask, thenegmask, cutThresholdValue); 
+      if (isEmptyMask(thenegmask) ){
+         os<<"No negative region was found by auotmask."<<LogIO::POST;
+      }
+      if (debug) {
+        PagedImage<Float> tempnegmask(TiledShape(thenegmask.shape()), thenegmask.coordinates(),"tmpNegMask.Im");
+        tempnegmask.copyData(thenegmask);
+      }
+
     }
 
     //for debug
@@ -1678,7 +1705,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //mask.copyData( (LatticeExpr<Float>)( iif((mask + thenewmask) > 0.0 && pixmask, 1.0, 0.0  ) ) );
       // add all masks (previous one, growed mask, current thresh mask)
       // mask = untouched prev mask, prevmask=modified prev mask by the grow func, thenewmask=mask by thresh on current residual 
-      mask.copyData( (LatticeExpr<Float>)( iif((mask+prevmask + thenewmask) > 0.0 && pixmask, 1.0, 0.0  ) ) );
+      mask.copyData( (LatticeExpr<Float>)( iif((mask+prevmask + thenewmask + thenegmask) > 0.0 && pixmask, 1.0, 0.0  ) ) );
+
       mask.clearCache();
       mask.unlock();
       mask.tempClose();
@@ -1687,7 +1715,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     else {
       //os <<"Lattice themask is created..."<<LogIO::POST;
       //LatticeExpr<Float> themask( iif( tempconvim > rmsthresh/afactor, 1.0, 0.0 ));
-      mask.copyData( (LatticeExpr<Float>)( iif((mask + thenewmask) > 0.0, 1.0, 0.0  ) ) );
+      mask.copyData( (LatticeExpr<Float>)( iif((mask + prevmask + thenewmask + thenegmask ) > 0.0, 1.0, 0.0  ) ) );
+
       os <<LogIO::DEBUG1 <<"Add previous mask and the new mask.."<<LogIO::POST;
     }
   }//end of autoMaskByMultiThreshold
@@ -2527,8 +2556,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       SubImage<Float> chanImage(image, sl, aspec, true);
       TempImage<Float>* tempChanImage = new TempImage<Float> (chanImage.shape(), chanImage.coordinates(), memoryToUse() );
       Array<Float> chanImageArr;
-      //LatticeExpr<Float> chanMask(iif(chanImage > thresholds(ich),1.0, 0.0)); 
-      LatticeExpr<Float> chanMask(iif(abs(chanImage) > thresholds(ich),1.0, 0.0)); 
+      LatticeExpr<Float> chanMask;
+      if (thresholds(ich) < 0) {
+         //LatticeExpr<Float> chanMask(iif(chanImage < thresholds(ich),1.0, 0.0)); 
+         chanMask = LatticeExpr<Float> (iif(chanImage < thresholds(ich),1.0, 0.0)); 
+      }
+      else {
+         //LatticeExpr<Float> chanMask(iif(chanImage > thresholds(ich),1.0, 0.0)); 
+         chanMask = LatticeExpr<Float> (iif(chanImage > thresholds(ich),1.0, 0.0)); 
+      }
       tempChanImage->copyData(chanMask);
       //tempChanImage->getSlice(chanImageArr, IPosition(4,0), chanImage.shape(),IPosition(4,1,1,1,1));
       tempChanImage->getSlice(chanImageArr, IPosition(2,0), chanImage.shape(),IPosition(2,1,1));
@@ -2643,6 +2679,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                        const Float& sidelobethreshold,
                                        const Float& noisethreshold, 
                                        const Float& lownoisethreshold,
+                                       const Float& negativethreshold,
                                        const Float& cutthreshold, 
                                        const Float& smoothfactor,
                                        const Float& minbeamfrac,
@@ -2654,7 +2691,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     os <<LogIO::DEBUG1<<"Calling autoMaskWithinPB .."<<LogIO::POST;
     // changed to do automask ater pb mask is generated so automask do stats within pb mask
     autoMask( imstore, iterdone, alg, threshold, fracofpeak, resolution, resbybeam, nmask, autoadjust, 
-              sidelobethreshold, noisethreshold, lownoisethreshold, cutthreshold, smoothfactor, 
+              sidelobethreshold, noisethreshold, lownoisethreshold, negativethreshold, cutthreshold, smoothfactor, 
               minbeamfrac, pblimit);
 
     if( imstore->hasPB() )

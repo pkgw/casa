@@ -114,6 +114,7 @@ public:
   // @param[in] sidlobethreshold Threshold factor in a multiplier of the sidelobe level
   // @param[in] noisethreshold Threshold factor in a multiplier of the rms noise
   // @param[in] lownoisethreshold Threshold factor in a multiplier of the rms noise used in the binary dilation
+  // @param[in] negativethreshold Threshold factor in a multiplier of the rms noise used to set threshold for negative features 
   // @param[in] cutthreshold Cut threshold factor for adjust a mask after smoothing of the mask
   // @param[in] smoothfactor Smoothing factor (multiplier of the beam)
   // @param[in] pblimit Primary beam cut off level
@@ -130,6 +131,7 @@ public:
                 const casacore::Float& sidelobethreshold=0.0,
                 const casacore::Float& noisethreshold=0.0, 
                 const casacore::Float& lownoisethreshold=0.0,
+                const casacore::Float& negativethreshold=0.0,
                 const casacore::Float& cutthreshold=0.0,
                 const casacore::Float& smoothfactor=0.0,
                 const casacore::Float& minbeamfrac=0.0, 
@@ -169,6 +171,7 @@ public:
                                           const casacore::Float& sidelobeThresholdFactor=3.0,
                                           const casacore::Float& noiseThresholdFactor=3.0,
                                           const casacore::Float& lowNoiseThresholdFactor=2.0,
+                                          const casacore::Float& negativeThresholdFactor=0.0,
                                           const casacore::Float& cutThreshold=0.01,
                                           const casacore::Float& smoothFactor=1.0,
                                           const casacore::Float& minBeamFrac=-1.0); 
@@ -251,6 +254,7 @@ public:
                         const casacore::Float& sidelobethreshold=0.0,
                         const casacore::Float& noisethreshold=0.0, 
                         const casacore::Float& lownoisethreshold=0.0,
+                        const casacore::Float& negativethreshold=0.0,
                         const casacore::Float& cutthreshold=0.0,
                         const casacore::Float& smoothfactor=0.0,
                         const casacore::Float& minbeamfrac=0.0, 
