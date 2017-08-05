@@ -121,6 +121,7 @@ class ImagerParameters():
                  smoothfactor=1.0,
                  minbeamfrac=0.3,
                  cutthreshold=0.01,
+                 growiterations=100,
 
 #                 usescratch=True,
 #                 readonly=True,
@@ -181,7 +182,7 @@ class ImagerParameters():
                                     #'maskresolution':maskresolution, 'nmask':nmask,'autoadjust':autoadjust,
                                     'sidelobethreshold':sidelobethreshold, 'noisethreshold':noisethreshold,
                                     'lownoisethreshold':lownoisethreshold, 'negativethreshold':negativethreshold,'smoothfactor':smoothfactor,
-                                    'minbeamfrac':minbeamfrac, 'cutthreshold':cutthreshold,
+                                    'minbeamfrac':minbeamfrac, 'cutthreshold':cutthreshold, 'growiterations':growiterations,
                                     'interactive':interactive, 'startmodel':startmodel} }
 
         ######### Iteration control. 

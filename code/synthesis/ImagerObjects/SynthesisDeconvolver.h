@@ -169,6 +169,7 @@ protected:
   casacore::Float itsMinBeamFrac;
   casacore::Float itsCutThreshold;
   casacore::Int itsIterDone;
+  casacore::Int itsGrowIterations;
   
   casacore::Bool itsIsMaskLoaded; // Try to get rid of this state variable ! 
   casacore::Bool itsIsInteractive;

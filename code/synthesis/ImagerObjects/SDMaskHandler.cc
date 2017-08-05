@@ -736,6 +736,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                const Float& cutthreshold,
                                const Float& smoothfactor,
                                const Float& minbeamfrac, 
+                               const Int growiterations,
                                Float pblimit)
   {
     LogIO os( LogOrigin("SDMaskHandler","autoMask",WHERE) );
@@ -928,7 +929,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     }
     else if (alg==String("multithresh")) {
       autoMaskByMultiThreshold(*tempmask, *tempres, *temppsf, thestats, iterdone, itsSidelobeLevel, sidelobethreshold,
-                                          noisethreshold, lownoisethreshold, negativethreshold, cutthreshold, smoothfactor, minbeamfrac);
+                                          noisethreshold, lownoisethreshold, negativethreshold, cutthreshold, smoothfactor,
+                                           minbeamfrac, growiterations);
     }
 
     // this did not work (it won't physically remove the mask from the image 
@@ -1296,7 +1298,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                           const Float& negativeThresholdFactor,
                                           const Float& cutThreshold,
                                           const Float& smoothFactor,
-                                          const Float& minBeamFrac) 
+                                          const Float& minBeamFrac, 
+                                          const Int growIterations) 
   {
     LogIO os( LogOrigin("SDMaskHandler","autoMaskByMultiThreshold",WHERE) );
     Array<Double> rmss, maxs, mads;
@@ -1552,7 +1555,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //  // set dogrow true for all chans (contraintMask should be able to handle skipping channels )
     //  dogrow(indx) = true;
     }   
-    if (iterdone) {
+    if (iterdone && growIterations>0) {
        //cerr<<" iter done ="<<iterdone<<" grow mask..."<<endl;
        os<<LogIO::NORMAL<<"Growing the previous mask "<<LogIO::POST;
        //call growMask
@@ -1595,13 +1598,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
        se(IPosition(2,2,1))=1.0;
        se(IPosition(2,1,2))=1.0;
        // nIteration for binary dilation 
-       Int niter=100; 
+       //Int niter=100;renamed to growIterations
        if(debug2) {
          PagedImage<Float> beforeBinaryDilationIm(res.shape(), res.coordinates(),"tmpBeforeBinaryDilation-"+String::toString(iterdone)+".im");
          //beforeBinaryDilationIm.copyData(constraintMaskImage);
          beforeBinaryDilationIm.copyData(mask);
        }
-       binaryDilation(mask, se, niter, constraintMask, dogrow, prevmask); 
+       binaryDilation(mask, se, growIterations, constraintMask, dogrow, prevmask); 
        if(debug2) {
          PagedImage<Float> afterBinaryDilationIm(res.shape(), res.coordinates(),"tmpAfterBinaryDilation-"+String::toString(iterdone)+".im");
          afterBinaryDilationIm.copyData(prevmask);
@@ -1660,13 +1663,31 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       TempImage<Float> negativeMaskImage(res.shape(), res.coordinates(), memoryToUse()); 
       makeMaskByPerChanThreshold(res, negativeMaskImage , negativeMaskThreshold);
       SPIIF negmask = convolveMask( negativeMaskImage, modbeam);
-      makeMaskByPerChanThreshold(*negmask, thenegmask, cutThresholdValue); 
+      // determine the cutthreshold value for negative mask
+      Record negmaskstats = calcImageStatistics(*negmask, *negmask, lelmask, 0, false);
+      Array<Double> negmaskmaxs;
+      negmaskstats.get(RecordFieldId("max"),negmaskmaxs);
+      Vector<Float> negCutThresholdValue(nchan);
+      for (uInt ich=0; ich < (uInt)nchan; ich++) {
+        if (ndim==1) {
+          chindx(0) = ich;
+        }
+        else {
+          chindx(1) = ich;
+        }
+        negCutThresholdValue(ich) = cutThreshold * negmaskmaxs(chindx);
+      }
+      makeMaskByPerChanThreshold(*negmask, thenegmask, negCutThresholdValue); 
       if (isEmptyMask(thenegmask) ){
          os<<"No negative region was found by auotmask."<<LogIO::POST;
       }
       if (debug) {
-        PagedImage<Float> tempnegmask(TiledShape(thenegmask.shape()), thenegmask.coordinates(),"tmpNegMask.Im");
+        PagedImage<Float> temppresmoothnegmask(TiledShape(negativeMaskImage.shape()), negativeMaskImage.coordinates(),"tmpPreSmoNegMask.im");
+        temppresmoothnegmask.copyData(negativeMaskImage); 
+        PagedImage<Float> tempnegmask(TiledShape(thenegmask.shape()), thenegmask.coordinates(),"tmpNegMask.im");
         tempnegmask.copyData(thenegmask);
+        PagedImage<Float> tempsmonegmask(TiledShape(thenegmask.shape()), thenegmask.coordinates(),"tmpSmoNegMask.im");
+        tempsmonegmask.copyData(*negmask);
       }
 
     }
@@ -2655,7 +2676,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                       Array<Bool>& chanmask,
                       ImageInterface<Float>& outImage)
   {
-
       binaryDilationCore(inImage,structure,mask,chanmask,outImage);
       Int iter = 1;
       ArrayLattice<Float> templattice(inImage.shape());
@@ -2683,6 +2703,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                        const Float& cutthreshold, 
                                        const Float& smoothfactor,
                                        const Float& minbeamfrac,
+                                       const Int growiterations,
                                        Float pblimit)
   { 
     LogIO os( LogOrigin("SDMaskHandler","autoMaskWithinPB",WHERE) );
@@ -2692,7 +2713,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // changed to do automask ater pb mask is generated so automask do stats within pb mask
     autoMask( imstore, iterdone, alg, threshold, fracofpeak, resolution, resbybeam, nmask, autoadjust, 
               sidelobethreshold, noisethreshold, lownoisethreshold, negativethreshold, cutthreshold, smoothfactor, 
-              minbeamfrac, pblimit);
+              minbeamfrac, growiterations, pblimit);
 
     if( imstore->hasPB() )
       {
