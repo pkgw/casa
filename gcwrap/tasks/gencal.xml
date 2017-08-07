@@ -80,9 +80,12 @@
                 <equals value="tecim">
                    <default param="infile"><value type="string"></value></default>
                 </equals>
-              </when>
-
-	      <when param="caltype">
+                <equals value="gc">
+                   <default param="infile"><value type="string"></value></default>
+                </equals>
+                <equals value="gceff">
+                   <default param="infile"><value type="string"></value></default>
+                </equals>
 		<equals value="tsys">
 		  <default param="uniform"><value type="bool">True</value></default>
 		</equals>
