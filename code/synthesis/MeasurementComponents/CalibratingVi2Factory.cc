@@ -131,7 +131,6 @@ vi::ViImplementation2 * CalibratingVi2Factory::createVi () const
   plainViI = new vi::VisibilityIteratorImpl2 (Block<const MeasurementSet*>(1,ms_p),
                                               iterpar_p.getSortColumns(),
                                               iterpar_p.getChunkInterval(),
-                                              vi::VbPlain,
                                               true); // writable!
   
   return this->createVi(plainViI);
@@ -159,7 +158,6 @@ vi::ViImplementation2 * CalibratingVi2Factory::createVi (vi::ViImplementation2 *
     vii2 = new vi::VisibilityIteratorImpl2 (Block<const MeasurementSet*>(1,ms_p),
                                             iterpar_p.getSortColumns(),
                                             iterpar_p.getChunkInterval(),
-                                            vi::VbPlain,
                                             true); // writable!
     
   // Create output VisibilityIterator

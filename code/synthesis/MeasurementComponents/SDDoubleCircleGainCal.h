@@ -23,12 +23,12 @@ public:
   virtual ~SDDoubleCircleGainCal();
 
   // Return type name as string (ditto)
-//  virtual casacore::String typeName() {
-//    return "SDGAIN_OTFD";
-//  }
-//  virtual casacore::String longTypeName() {
-//    return "SDGAIN_OTFD (Single Dish gain calibration for double circle fast scan";
-//  }
+  virtual casacore::String typeName() {
+    return "SDGAIN_OTFD";
+  }
+  virtual casacore::String longTypeName() {
+    return "SDGAIN_OTFD (Single Dish gain calibration for double circle fast scan";
+  }
 
   // Return the parameter type
   // so far single dish calibration is real
@@ -43,6 +43,13 @@ public:
   virtual void setSolve();
   virtual void setSolve(const casacore::Record& solve);
 
+  // This is the freq-dep version of G
+  //   (this is the ONLY fundamental difference from G)
+  virtual casacore::Bool freqDepPar() { return true; };
+
+  // Freq-dep Weight scaling
+  virtual casacore::Bool freqDepCalWt() { return true; };
+
   // Report solve info/params, e.g., for logging
   virtual casacore::String solveinfo();
 
@@ -52,6 +59,9 @@ public:
 
   // specific keepNCT
   virtual void keepNCT();
+
+protected:
+  virtual void syncWtScale();
 
 private:
   template<class Accessor>

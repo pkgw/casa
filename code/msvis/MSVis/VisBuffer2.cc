@@ -18,37 +18,10 @@ namespace casa {
 namespace vi {
 
 VisBuffer2 *
-VisBuffer2::factory (VisBufferType t, VisBufferOptions options)
+VisBuffer2::factory(VisBufferOptions options)
 {
-    return factory (nullptr, t, options);
+	return new VisBufferImpl2(options);
 }
-
-//VisBuffer2 *
-//VisBuffer2::factory (VisibilityIterator2 * vi, VisBufferType t, VisBufferOptions options)
-//{
-//    ViImplementation2 * viImpl = nullptr;
-//    if (vi){
-//        viImpl = vi->getImpl ();
-//    }
-//
-//    return factoryInternal (viImpl, t, options);
-//}
-
-VisBuffer2 *
-VisBuffer2::factory (ViImplementation2 * vi, VisBufferType t, VisBufferOptions options)
-{
-    VisBuffer2 * result = NULL;
-
-    if (t == VbPlain){
-        result = new VisBufferImpl2 (vi, options);
-    }
-    else{
-        ThrowIf (true, String::format ("Unknown or unsupported VisBuffer2 type: id=%d", t));
-    }
-
-    return result;
-}
-
 
 void
 VisBuffer2::associateWithVi2 (const VisibilityIterator2 * vi)

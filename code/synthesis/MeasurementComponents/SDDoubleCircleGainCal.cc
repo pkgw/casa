@@ -232,19 +232,16 @@ String SDDoubleCircleGainCal::solveinfo() {
 }
 
 void SDDoubleCircleGainCal::keepNCT() {
-  debuglog << "SDDoubleCircleGainCal::keepNCT" << debugpost;
   // Call parent to do general stuff
   GJones::keepNCT();
 
   if (prtlev()>4)
-    cout << " SVJ::keepNCT" << endl;
+    cout << " SDDoubleCircleGainCal::keepNCT" << endl;
 
   // Set proper antenna id
   Vector<Int> a1(nAnt());
   a1 = currAnt_;
   //indgen(a1);
-
-  debuglog << "antenna is " << a1 << debugpost;
 
   // We are adding to the most-recently added rows
   RefRows rows(ct_->nrow()-nElem(),ct_->nrow()-1,1);
@@ -252,6 +249,16 @@ void SDDoubleCircleGainCal::keepNCT() {
   // Write to table
   CTMainColumns ncmc(*ct_);
   ncmc.antenna1().putColumnCells(rows,a1);
+}
+
+void SDDoubleCircleGainCal::syncWtScale()
+{
+  currWtScale().resize(currJElem().shape());
+
+  // We use simple (pre-inversion) square of currJElem
+  Cube<Float> cWS(currWtScale());
+  cWS=real(currJElem()*conj(currJElem()));
+  cWS(!currJElemOK())=1.0;
 }
 
 void SDDoubleCircleGainCal::selfGatherAndSolve(VisSet& vs,
@@ -271,6 +278,13 @@ void SDDoubleCircleGainCal::selfGatherAndSolve(VisSet& vs,
   // Setup shape of solveAllRPar
   nElem() = 1;
   initSolvePar();
+
+  // re-initialize calibration solution to 0.0 and calibration flags to false
+  for (Int ispw=0;ispw<nSpw();++ispw) {
+    currSpw() = ispw;
+    solveAllParOK() = false;
+    solveAllCPar() = Complex(0.0);
+  }
 
   // Pick up OFF spectra using STATE_ID
   auto const msSel = vs.iter().ms();
@@ -479,20 +493,29 @@ void SDDoubleCircleGainCal::executeDoubleCircleGainCal(
     debuglog<< "number of gain " << numGain << debugpost;
 
     currSpw() = ispw;
+
+    // make sure storage and flag for calibration solution allocated
+    // for the current spw are properly initialized
+    solveAllCPar() = Complex(0.0);
+    solveAllParOK() = false;
+
     currField() = ifield;
     currAnt_ = iantenna;
-
-    solveAllParErr() = 0.1; // TODO
-    solveAllParSNR() = 1.0; // TODO
+    debuglog << "antenna is " << currAnt_ << debugpost;
 
     size_t numCorr = gain.shape()[0];
-    Slice corrSlice(0, numCorr);
-    Slice chanSlice(0, numChan);
+    Slice const chanSlice(0, numChan);
     for (size_t i = 0; i < numGain; ++i) {
       refTime() = gainTime[i];
-      //solveAllCPar() = gain(corrSlice, chanSlice, Slice(i, 1));
-      convertArray(solveAllCPar(), gain(corrSlice, chanSlice, Slice(i, 1)));
-      solveAllParOK() = !gain_flag(corrSlice, chanSlice, Slice(i, 1));
+      Slice const rowSlice(i, 1);
+      for (size_t iCorr = 0; iCorr < numCorr; ++iCorr) {
+        Slice const corrSlice(iCorr, 1);
+        auto cparSlice = solveAllCPar()(corrSlice, chanSlice, Slice(0, 1));
+        convertArray(cparSlice, gain(corrSlice, chanSlice, rowSlice));
+        solveAllParOK()(corrSlice, chanSlice, Slice(0, 1)) = !gain_flag(corrSlice, chanSlice, rowSlice);
+        solveAllParErr().yzPlane(iCorr) = 0.1; // TODO
+        solveAllParSNR().yzPlane(iCorr) = 1.0; // TODO
+      }
 
       keepNCT();
     }

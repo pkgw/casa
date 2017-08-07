@@ -19,7 +19,6 @@ def imreframe(imagename=None, output=None, outframe=None, epoch=None, restfreq=N
         me.doframe(me.observatory(c.telescope()))
         me.doframe(c.referencevalue('m', 'direction')['measure']['direction'])
         me.doframe(c.epoch())
-        reffreq=c.referencevalue('m', 'spectral')['measure']['spectral']['frequency']
         myret = c.findcoordinate('spectral')
         hasspec = myret['return']
         pixax = myret['pixel']
@@ -42,6 +41,7 @@ def imreframe(imagename=None, output=None, outframe=None, epoch=None, restfreq=N
             myia.done()
         else:
             c.setreferencecode(outframe, 'spectral', True)
+            reffreq=c.referencevalue('m', 'spectral')['measure']['spectral']['frequency']
             newreffreq=me.measure(reffreq, outframe)
             c.setreferencevalue(qa.tos(newreffreq['m0']), 'spectral')
             outname='_temp_regrid_image' if(output=='') else output

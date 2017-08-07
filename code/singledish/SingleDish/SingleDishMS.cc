@@ -36,9 +36,9 @@
 #include <tables/Tables/ScalarColumn.h>
 
 // for importasap and importnro
-#include <singledish/Filler/SingleDishMSFiller.h>
-#include <singledish/Filler/Scantable2MSReader.h>
-#include <singledish/Filler/NRO2MSReader.h>
+#include <singledishfiller/Filler/NRO2MSReader.h>
+#include <singledishfiller/Filler/Scantable2MSReader.h>
+#include <singledishfiller/Filler/SingleDishMSFiller.h>
 
 #define _ORIGIN LogOrigin("SingleDishMS", __func__, WHERE)
 
@@ -448,7 +448,7 @@ void SingleDishMS::format_selection(Record &selection) {
 
 }
 
-void SingleDishMS::get_data_cube_float(vi::VisBuffer2 const &vb,
+void SingleDishMS::get_data_cube_float(vi::VisBuffer2 const &vb, 
     Cube<Float> &data_cube) {
 //  if (in_column_ == MS::FLOAT_DATA) {
 //    data_cube = vb.visCubeFloat();
@@ -2079,7 +2079,7 @@ void SingleDishMS::applyBaselineTable(string const& in_column_name,
   }
 
   Block<Int> columns(1);
-  columns[0] = MS::TIME;
+  columns[0] = MS::DATA_DESC_ID;  // (CAS-9918, 2017/4/27 WK)   //columns[0] = MS::TIME;
   prepare_for_process(in_column_name, out_ms_name, columns, false);
   vi::VisibilityIterator2 *vi = sdh_->getVisIter();
   vi->setRowBlocking(kNRowBlocking);
@@ -2579,7 +2579,8 @@ void SingleDishMS::subtractBaselineVariable(string const& in_column_name,
                                             string const& out_bloutput_name,
                                             bool const& do_subtract,
                                             string const& in_spw,
-                                            string const& param_file) {
+                                            string const& param_file,
+					    bool const& verbose) {
 
   LogIO os(_ORIGIN);
   os << "Fitting and subtracting baseline using parameters in file "
@@ -2755,7 +2756,7 @@ void SingleDishMS::subtractBaselineVariable(string const& in_column_name,
             apply_mtx[0][ipol] = false;
             continue;
           }
-          if (true) {
+          if (verbose) {
             os << "Fitting Parameter" << LogIO::POST;
             os << "[ROW " << orig_rows[irow] << " (nchan " << num_chan << ")" << ", POL" << ipol << "]"
                 << LogIO::POST;

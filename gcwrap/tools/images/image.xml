@@ -1967,6 +1967,8 @@ of the image, and all pixels of other axes.
 This function creates a \casa\ \imagefile\ with the specified shape.  All
 the pixel values in the image are set to 0. One may create either an image
 with float valued pixels (type='f') or a complex valued image (type='c').
+To use a numpy array of values to create an image, use ia.fromarray().
+To make a 2-D image from a packaged FITS file, use ia.maketestimage().
 
 If {\stfaf outfile} is given, the image is written to the specified disk
 file.  If {\stfaf outfile} is unset, the Image \tool\ is associated with
@@ -1994,23 +1996,37 @@ The method returns True if successful, False otherwise.
 <example>
 
 """
-#
-print "\t----\t fromshape Ex 1 \t----"
-ia.fromshape('test2.data', [64,64,128], overwrite=true)
-mycs = ia.coordsys(axes=[0,2])
+# Create a 64 x 64 x 128 RA-Dec-Frequency image
+ia.fromshape('test2.data', [64,64,128], overwrite=True)
+mycs = ia.coordsys(axes=[0,1])
 ia.close()
+# create temporary image using first and third axes of
+# previously created image
 ia.fromshape(shape=[10, 20], csys=mycs.torecord())
 mycs.done()
 ia.close()
-#
 """
 
-
 The first example creates a zero-filled \imagefile\ named {\sff
-test.data} of shape [64,64,128].  If you examine the header with {\stff
+test2.data} of shape [64,64,128].  If you examine the header with {\stff
 ia.summary()} you will see the RA/DEC/Spectral coordinate information. 
-In the second example, a Coordinate System describing the first and third axes
+In the second example, a Coordinate System describing the first and second axes
 of the image {\sff test.data} is created and used to create a 2D temporary image.
+
+# create a 4-D image populated with noise with some interesting metadata
+ia.fromshape("noisy.im", [100, 100, 4, 20])
+# add the noise
+ia.addnoise()
+# add a beam
+ia.setrestoringbeam(major="4arcmin", minor="3arcmin", pa="20deg")
+# add brightness unit
+ia.setbrightnessunit("Jy/beam")
+ia.done()
+# set an interesting object name
+imd.open("noisy.im")
+imd.set("object","thor")
+imd.done()
+
 </example>
 </method>
 
@@ -2152,6 +2168,9 @@ ia.close()             # close to unlock disk image
     grid point in the output image. Interpolation of these output values is then used to compute values at
     non-grid-point pixels. The user may specify which interpolation algorithm to use for this computation
     using the interp parameter.
+    
+    The input image pixel mask is copied to the output image. If interpolation is performed, output pixels are
+    masked where the interpolation fails.
     
     ANCHORING THE GRID
     

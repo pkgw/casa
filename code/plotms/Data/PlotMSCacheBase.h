@@ -159,8 +159,6 @@ public:
 		    const PlotMSAveraging& averaging,
 		    const PlotMSTransformations& transformations,
 		    const PlotMSCalibration& calibration,
-            const PMS::Axis iteraxis,
-            const PMS::Axis coloraxis,
 		    /*PlotMSCacheThread**/ThreadCommunication* thread = NULL);
   
   // Clears the cache of all stored values.  This should be called when the

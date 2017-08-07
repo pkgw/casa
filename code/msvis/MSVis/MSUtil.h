@@ -58,7 +58,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			  const casacore::Double freqEnd,
 			  const casacore::Double freqStep,
 			  const casacore::MFrequency::Types freqframe=casacore::MFrequency::LSRK);
-
+	//Get the channel range in a spw  and a given frequency range in given frame
+     static void getChannelRangeFromFreqRange(casacore::Int& start,
+				  casacore::Int& nchan,
+				  const casacore::MeasurementSet& ms,
+				  const casacore::Int spw,
+				  const casacore::Double freqStart,
+				  const casacore::Double freqEnd,
+				  const casacore::Double freqStep,
+			    const casacore::MFrequency::Types freqframe= casacore::MFrequency::LSRK);
     // The following wil provide the range of frequency convered in the frame requested by the spw, channel selection 
  
     static void getFreqRangeInSpw( casacore::Double& freqStart,
@@ -68,7 +76,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			      const casacore::Vector<casacore::Int>& nchan,
 			      const casacore::MeasurementSet& ms, 
 			      const casacore::MFrequency::Types freqframe=casacore::MFrequency::LSRK,
-				   const casacore::Int fieldId=0);
+				   const casacore::Int fieldId=0, const casacore::Bool edge=true );
     //Return all the selected SPW types selected in the selected casacore::MS if the input ms
     //is a reference MS. Else it will return all the types in the  SPW table
     static casacore::Vector<casacore::String> getSpectralFrames(casacore::Vector<casacore::MFrequency::Types>& types, const casacore::MeasurementSet& ms);

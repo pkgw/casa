@@ -23,7 +23,7 @@ FinalTvi2::FinalTvi2 (ViImplementation2 * inputVi,
   ms_p (finalMs)
 {
     VisBufferOptions options = isWritable ? VbWritable : VbNoOptions;
-    setVisBuffer (createAttachedVisBuffer (VbPlain, options));
+    setVisBuffer (createAttachedVisBuffer (options));
 }
 
 FinalTvi2::~FinalTvi2 ()
