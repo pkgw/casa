@@ -1993,7 +1993,7 @@ HPX HEALPix grid.  -->
     </param>
     <param type="int" name="growiterations" subparam="true">
            <shortdescription>number of binary dilation iterations for growing the mask</shortdescription>
-           <value type="int">100</value>
+           <value type="int">75</value>
 <description>Sub-parameter for "auto-multithresh": Number of iterations to perform using binary dilation for growing the mask 
 </description>
     </param>
@@ -2539,7 +2539,7 @@ HPX HEALPix grid.  -->
          <default param="smoothfactor"><value>1.0</value></default>
          <default param="minbeamfrac"><value type="double">0.3</value></default>
          <default param="cutthreshold"><value>0.01</value></default>
-         <default param="growiterations"><value>100</value></default>
+         <default param="growiterations"><value>75</value></default>
        </equals>
    </when>
 

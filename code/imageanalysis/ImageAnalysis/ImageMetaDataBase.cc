@@ -164,9 +164,8 @@ const TableRecord ImageMetaDataBase::_miscInfo() const {
 
 
 CoordinateSystem ImageMetaDataBase::coordsys(
-	const vector<Int>& pixelAxes
+	const std::vector<Int>& pixelAxes
 ) const {
-
 	// Recover CoordinateSytem into a Record
 	auto cSys = _getCoords();
 	if (pixelAxes.empty()) {
@@ -174,37 +173,28 @@ CoordinateSystem ImageMetaDataBase::coordsys(
 	}
 	Record rec;
 	CoordinateSystem cSys2;
-
 	// Fish out the coordinate of the desired axes
 	uInt j = 0;
 	const Int nPixelAxes = cSys.nPixelAxes();
 	Vector<uInt> coordinates(cSys.nCoordinates(), uInt(0));
 	Int coord, axisInCoord;
 	for (const auto& axis: pixelAxes) {
-		//for (uInt i = 0; i < pixelAxes.size(); ++i) {
-		if (axis >= 0 && axis < nPixelAxes) {
-			cSys.findPixelAxis(coord, axisInCoord, uInt(axis));
-			if (coord != -1) {
-				coordinates(coord)++;
-				// Copy desired coordinate (once)
-				if (coordinates(coord) == 1) {
-					cSys2.addCoordinate(cSys.coordinate(coord));
-				}
-			}
-			else {
-				// Axis removed.  Better give up.
-				ThrowCc(
-					"Pixel axis " + String::toString(axis + 1)
-					+ " has been removed"
-				);
-			}
-		}
-		else {
-			ThrowCc(
-				"Specified pixel axis " + String::toString(axis + 1)
-				+ " is not a valid pixelaxis"
-			);
-		}
+	    ThrowIf (
+	        axis < 0 || axis >= nPixelAxes,
+	        "Specified zero-based pixel axis " + String::toString(axis)
+	        + " is not a valid pixel axis"
+	    );
+	    cSys.findPixelAxis(coord, axisInCoord, uInt(axis));
+	    ThrowIf(
+	        coord < 0,
+	        "Zero-based pixel axis " + String::toString(axis)
+	        + " has been removed"
+	    );
+	    coordinates(coord)++;
+	    // Copy desired coordinate (once)
+	    if (coordinates(coord) == 1) {
+	        cSys2.addCoordinate(cSys.coordinate(coord));
+	    }
 	}
 	// Find mapping.  Says where world axis i in cSys is in cSys2
 	Vector<Int> worldAxisMap, worldAxisTranspose;
@@ -213,35 +203,27 @@ CoordinateSystem ImageMetaDataBase::coordsys(
 		! cSys2.worldMap(worldAxisMap, worldAxisTranspose, refChange, cSys),
 		"Error finding world map because " + cSys2.errorMessage()
 	);
-
 	// Generate list of world axes to keep
 	Vector<Int> keepList(cSys.nWorldAxes());
 	Vector<Double> worldReplace;
 	j = 0;
-
 	for (const auto& axis: pixelAxes) {
-	// for (uInt i = 0; i < axes.nelements(); i++) {
 		if (axis >= 0 && axis < nPixelAxes) {
 			Int worldAxis = cSys.pixelAxisToWorldAxis(uInt(axis));
-			if (worldAxis >= 0) {
-				keepList(j++) = worldAxisMap(worldAxis);
-			}
-			else {
-				ThrowCc(
-					"World axis corresponding to pixel axis "
-					+ String::toString(axis + 1) + " has been removed"
-				);
-			}
+			ThrowIf(
+			    worldAxis < 0,
+			    "World axis corresponding to zero-based pixel axis "
+			    + String::toString(axis) + " has been removed"
+			);
+			keepList(j++) = worldAxisMap(worldAxis);
 		}
 	}
-
 	// Remove unwanted world (and pixel) axes.  Better would be to just
 	// remove the pixel axes and leave the world axes there...
 	if (j > 0) {
 		keepList.resize(j, true);
 		CoordinateUtil::removeAxes(cSys2, worldReplace, keepList, false);
 	}
-
 	// Copy the ObsInfo
 	cSys2.setObsInfo(cSys.obsInfo());
 	return cSys2;
