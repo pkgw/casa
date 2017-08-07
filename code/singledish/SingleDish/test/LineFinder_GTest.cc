@@ -199,26 +199,26 @@ TEST_F(LineFinderTest, LineFinding) {
  */
 TEST_F(LineFinderTest, LineFindingST) {
     string table_name = GetCasaDataPath()
-      + "regression/unittest/singledish/sd_analytic_type3-1.asap";
+      + "regression/unittest/singledish/sd_analytic_type3-1.ms";
 
     size_t row_idx = 0;
     cout << "Table: " << table_name << endl;
     cout << "idx: " << row_idx << endl;
     Table mytab(table_name, Table::Old);
     assert(row_idx<mytab.nrow());
-    ScalarColumn<unsigned int> flagRCol(mytab, "FLAGROW");
-    assert(flagRCol.get(row_idx)==0);
-    ArrayColumn<float> specCol(mytab, "SPECTRA");
-    ArrayColumn<uint8_t> flagCol(mytab, "FLAGTRA");
-    Vector<float> specvec(specCol.get(row_idx));
-    Vector<uint8_t> flagvec(flagCol.get(row_idx));
+    ScalarColumn<Bool> flagRCol(mytab, "FLAG_ROW");
+    assert(flagRCol.get(row_idx)==False);
+    ArrayColumn<Float> specCol(mytab, "FLOAT_DATA");
+    ArrayColumn<Bool> flagCol(mytab, "FLAG");
+    Vector<Float> specvec(specCol.get(row_idx));
+    Vector<Bool> flagvec(flagCol.get(row_idx));
     size_t num_data(specvec.nelements());
     cout << "nchan: " << num_data << endl;
     Vector<float> data(num_data);
     Vector<bool> mask(num_data);
     for (size_t i=0; i<num_data; ++i) {
-      data[i] = specvec[i];
-      mask[i] = (flagvec[i]==static_cast<uint8_t>(0));
+      data[i] = static_cast<float>(specvec[i]);
+      mask[i] = (flagvec[i]==False);
     }
     pair<size_t,size_t> edge(5,10);
     LineRangeList line_list = \
