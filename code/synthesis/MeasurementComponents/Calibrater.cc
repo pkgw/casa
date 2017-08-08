@@ -2358,6 +2358,7 @@ void Calibrater::fluxscale(const String& infile,
   // TBD: write inputs to MSHistory
   logSink() << LogOrigin("Calibrater","fluxscale") << LogIO::NORMAL3;
 
+  SolvableVisCal *fsvj_(NULL);
   try {
     // If infile is Calibration table
     if (Table::isReadable(infile) && 
@@ -2392,7 +2393,6 @@ void Calibrater::fluxscale(const String& infile,
       }
 
       // Construct proper SVC object
-      SolvableVisCal *fsvj_;
       if (caltype == "G Jones") {
 	fsvj_ = createSolvableVisCal("G",*msmc_p);
       } else if (caltype == "T Jones") {
@@ -2459,6 +2459,9 @@ void Calibrater::fluxscale(const String& infile,
 	      << x.getMesg()
 	      << LogIO::POST;
     
+    // Clean up
+    if (fsvj_) delete fsvj_;
+
     // Write to MS History table
     //    String message="Caught Exception: "+x.getMesg();
     //    MSHistoryHandler::addMessage(*ms_p, message, "calibrater", "", "calibrater::fluxscale()");
@@ -4622,6 +4625,7 @@ void OldCalibrater::fluxscale(const String& infile,
   // TBD: write inputs to MSHistory
   logSink() << LogOrigin("Calibrater","fluxscale") << LogIO::NORMAL3;
 
+  SolvableVisCal *fsvj_(NULL);
   try {
     // If infile is Calibration table
     if (Table::isReadable(infile) && 
@@ -4656,7 +4660,6 @@ void OldCalibrater::fluxscale(const String& infile,
       }
 
       // Construct proper SVC object
-      SolvableVisCal *fsvj_;
       if (caltype == "G Jones") {
 	fsvj_ = createSolvableVisCal("G",*vs_p);
       } else if (caltype == "T Jones") {
@@ -4723,6 +4726,9 @@ void OldCalibrater::fluxscale(const String& infile,
 	      << x.getMesg()
 	      << LogIO::POST;
     
+    // Clean up
+    if (fsvj_) delete fsvj_;
+
     // Write to MS History table
     //    String message="Caught Exception: "+x.getMesg();
     //    MSHistoryHandler::addMessage(*ms_p, message, "calibrater", "", "calibrater::fluxscale()");
