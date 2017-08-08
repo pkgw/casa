@@ -57,7 +57,7 @@ class simobserve_unittest_base(unittest.TestCase):
         ms.open(name)
         stats = ms.statistics(column, compval)
         ms.close()
-        return stats[column]
+        return stats[stats.keys()[0]]
 
     # TODO: need to check image axes
     def _check_imstats(self, name, ref, rtol=None, atol=None):
@@ -705,7 +705,7 @@ class simobserve_skycomp(simobserve_unittest_base):
     rtol_sdms = 4.0e-2   # SD MS
     rtol_intms = 1.5e-1  # INT MS (sum and mean give ~13% difference)
     # types of MS statistics tested
-    mskeys = ["rms", "min", "max", "stddev", "npts", "medabsdevmed", "quartile", "sumsq", "sum", "mean"]#, "median"
+    mskeys = ["rms", "min", "max", "stddev", "npts", "medabsdevmed", "firstquartile", "sumsq", "sum", "mean"]#, "median"
 
     # Reserved methods
     def setUp(self):
