@@ -2061,6 +2061,54 @@ vector<int> msmetadata::tdmspws() {
 	return vector<int>();
 }
 
+variant* msmetadata::timesforspws(const variant& spws) {
+    _FUNC(
+        auto type = spws.type();
+        std::vector<Int> myspws;
+        Int nspw = _msmd->nSpw(True);
+        if (type == variant::BOOLVEC) {
+            myspws.resize(nspw);
+            std::iota(myspws.begin(), myspws.end(), 0);
+        }
+        else if (type == variant::INT) {
+            auto spw = spws.toInt();
+            if (spw >= 0) {
+                myspws.push_back(spw);
+            }
+            else {
+                std::iota(myspws.begin(), myspws.end(), 0);
+            }
+        }
+        else if(type == variant::INTVEC) {
+            myspws = spws.toIntVec();
+            Vector<Int> test(myspws);
+            ThrowIf(min(test) < 0, "If spws is an array, all values must be non-negative");
+            ThrowIf(
+                max(test) >= nspw,
+                "Values in spws array must all be less than the number "
+                "of spectral windows, which is " + String::toString(nspw)
+            );
+        }
+        else {
+            ThrowCc("Unsupported type for spws");
+        }
+        variant ret;
+        auto vec = _msmd->getTimesForSpws(True);
+        if (myspws.size() == 1) {
+            auto spw = myspws[0];
+            return new variant(vector<Double>(vec[spw].begin(), vec[spw].end()));
+        }
+        else {
+            record x;
+            for (const auto& spw: myspws) {
+                vector<Double> times(vec[spw].begin(), vec[spw].end());
+                x[String::toString(spw)] = times;
+            }
+            return new variant(x);
+        }
+    )
+    return nullptr;
+}
 
 variant* msmetadata::transitions(int sourceid, int spw) {
     _FUNC(

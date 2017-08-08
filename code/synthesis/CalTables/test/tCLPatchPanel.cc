@@ -42,6 +42,9 @@
 // Test program for RIorAParray class.
 // </summary>
 
+using namespace casacore;
+using namespace casa;
+
 // Control verbosity
 #define CLPATCHPANELTEST_VERBOSE false
 
