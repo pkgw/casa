@@ -227,6 +227,16 @@ void ImageStatsCalculator::setDisk(Bool d) {
 void ImageStatsCalculator::_reportDetailedStats(
     const SPCIIF tempIm, const Record& retval
 ) {
+    auto nptsArr = retval.asArrayDouble("npts");
+    if (nptsArr.empty()) {
+        auto msg = "NO UNMASKED POINTS FOUND, NO STATISTICS WERE COMPUTED";
+        *_getLog() << LogIO::NORMAL << msg << LogIO::POST;
+        if (_getLogFile()) {
+            _writeLogfile(msg, false, false);
+        }
+        _closeLogfile();
+        return;
+    }
     const CoordinateSystem& csys = tempIm->coordinates();
     auto worldAxes = csys.worldAxisNames();
     auto imShape = tempIm->shape();
@@ -430,7 +440,7 @@ void ImageStatsCalculator::_reportDetailedStats(
                 arrayIndex[i] = position[axesMap[i]];
             }
         }
-        auto npts = retval.asArrayDouble("npts")(arrayIndex);
+        auto npts = nptsArr(arrayIndex);
         if (npts == 0) {
             // CAS-10183, do not log planes for which there are no good points
             continue;
