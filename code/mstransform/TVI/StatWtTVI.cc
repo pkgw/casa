@@ -387,7 +387,7 @@ void StatWtTVI::_setChanBinMap(const casacore::Quantity& binWidth) {
 }
 
 void StatWtTVI::_setChanBinMap(Int binWidth) {
-    ThrowIf(binWidth < 2, "Channel bin width must >= 2");
+    ThrowIf(binWidth < 1, "Channel bin width must be positive");
     MSMetaData msmd(&ms(), 100.0);
     auto nchans = msmd.nChans();
     auto nspw = nchans.size();
