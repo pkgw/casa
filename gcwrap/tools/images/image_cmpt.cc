@@ -125,19 +125,19 @@ image::image() : _log(), _imageF(), _imageC() {}
 // using a shared_ptr
 
 image::image(casacore::ImageInterface<casacore::Float> *inImage) :
-    _log(), _imageF(inImage), _imageC() {
+    _log(), _imageF(inImage), _imageC(), _doHistory(True) {
 }
 
 image::image(ImageInterface<Complex> *inImage) :
-    _log(), _imageF(), _imageC(inImage) {
+    _log(), _imageF(), _imageC(inImage), _doHistory(True) {
 }
 
 image::image(casa::SPIIF inImage) :
-    _log(), _imageF(inImage), _imageC() {
+    _log(), _imageF(inImage), _imageC(), _doHistory(True) {
 }
 
 image::image(casa::SPIIC inImage) :
-    _log(), _imageF(), _imageC(inImage) {
+    _log(), _imageF(), _imageC(inImage), _doHistory(True) {
 }
 
 image::~image() {}
@@ -1376,6 +1376,11 @@ bool image::detached() const {
         return true;
     }
     return false;
+}
+
+bool image::dohistory(bool enable) {
+    _doHistory = enable;
+    return True;
 }
 
 bool image::done(bool remove, bool verbose) {
@@ -4976,7 +4981,7 @@ String image::_quantityRecToString(const Record& q) {
 vector<int> image::shape() {
     _log << _ORIGIN;
     if (detached()) {
-        return vector<int>(0);
+        return vector<int>();
     }
     try {
         vector<int> rstat = _imageF
@@ -5157,15 +5162,28 @@ image* image::subimage(
             _log << LogIO::WARN << "outfile was not specified and wantreturn is false. "
                 << "The resulting image will be inaccessible" << LogIO::POST;
         }
-        vector<String> names = {
-            "outfile", "region", "mask", "dropdeg", "overwrite",
-            "list", "stretch", "wantreturn", "keepaxes"
-        };
-        vector<variant> values = {
-            outfile, region, vmask, dropDegenerateAxes,
-            overwrite, list, stretch, wantreturn, keepaxes
-        };
-        auto history = _newHistory(__func__, names, values);
+        vector<String> names;
+        vector<variant> values;
+        cout << "dohistory " << _doHistory << endl;
+        if (_doHistory) {
+            vector<String> n {
+                "outfile", "region", "mask", "dropdeg", "overwrite",
+                "list", "stretch", "wantreturn", "keepaxes"
+            };
+            vector<variant> v {
+                outfile, region, vmask, dropDegenerateAxes,
+                overwrite, list, stretch, wantreturn, keepaxes
+            };
+            names = n;
+            values = v;
+        }
+        /*
+        auto history = _doHistory
+            ? _newHistory(__func__, names, values)
+            : vector<String>();
+
+                auto msgs = _newHistory(__func__, names, values);
+                */
         if (_imageF) {
             auto im = _subimage<Float>(
                 SHARED_PTR<ImageInterface<Float> >(
@@ -5174,8 +5192,13 @@ image* image::subimage(
                 outfile, *regionRec, mask, dropDegenerateAxes,
                 overwrite, list, stretch, keepaxes
             );
-            ImageHistory<Float> hist(im);
-            hist.addHistory(_ORIGIN, history);
+            /*
+            if (_doHistory) {
+                ImageHistory<Float> hist(im);
+                hist.addHistory(_ORIGIN, history);
+            }
+            */
+            _addHistory(im, __func__, names, values);
             auto res = wantreturn ? new image(im) : nullptr;
             return res;
         }
@@ -5187,8 +5210,13 @@ image* image::subimage(
                 outfile, *regionRec, mask, dropDegenerateAxes,
                 overwrite, list, stretch, keepaxes
             );
-            ImageHistory<Complex> hist(im);
-            hist.addHistory(_ORIGIN, history);
+            /*
+            if (_doHistory) {
+                ImageHistory<Complex> hist(im);
+                hist.addHistory(_ORIGIN, history);
+            }
+            */
+            _addHistory(im, __func__, names, values);
             auto res = wantreturn ? new image(im) : nullptr;
             return res;
         }
@@ -5198,7 +5226,6 @@ image* image::subimage(
                 << LogIO::POST;
         RETHROW(x);
     }
-    // so eclipse doesn't complain
     return nullptr;
 }
 
@@ -5349,27 +5376,6 @@ bool image::tofits(
             dropdeg, deglast, dropstokes, stokeslast, wavelength,
             airwavelength, origin, stretch, history
         );
-        /*
-        if (history) {
-            vector<String> names {
-                "fitsfile", "velocity", "optical", "bitpix", "minpix",
-                "maxpix", "region", "mask", "overwrite",
-                "dropdeg", "deglast", "dropstokes", "stokeslast",
-                "wavelength", "airwavelength", "stretch", "history"
-            };
-            vector<variant> values {
-                fitsfile, velocity, optical, bitpix, minpix,
-                maxpix, region, vmask, overwrite,
-                dropdeg, deglast, dropstokes, stokeslast,
-                wavelength, airwavelength, stretch, history
-            };
-            auto newhist = _newHistory(__func__, names, values);
-            SPIIF myfits(new FITSImage(fitsfile));
-            ImageHistory<Float> myhist(myfits);
-            cout << "write history " << newhist << endl;
-            myhist.addHistory(_ORIGIN, newhist);
-        }
-        */
         return true;
     }
     catch (const AipsError& x) {
@@ -5640,10 +5646,45 @@ bool image::unlock() {
     return false;
 }
 
-void image::_addHistory(
-    const String& method, const vector<String>& names, const vector<variant>& values,
-    const vector<String>& appendMsgs, const std::set<String>& dontQuote
+template <class T> void image::_addHistory(
+    SPIIT image, const casacore::String& method, const vector<String>& names,
+    const std::vector<variant>& values,
+    const std::vector<casacore::String>& appendMsgs,
+    const std::set<casacore::String>& dontQuote
 ) {
+    if (! _doHistory) {
+        // history writing disabled
+        return;
+    }
+    auto msgs = _newHistory(method, names, values, dontQuote);
+    for (const auto& m: appendMsgs) {
+        msgs.push_back(m);
+    }
+    ImageHistory<T> ih(image);
+    ih.addHistory(method, msgs);
+}
+
+void image::_addHistory(
+    const casacore::String& method, const vector<casacore::String>& names,
+    const std::vector<casac::variant>& values,
+    const vector<casacore::String>& appendMsgs,
+    const std::set<casacore::String>& dontQuote
+) {
+    if (_imageF) {
+        _addHistory(
+            _imageF, method, names, values, appendMsgs, dontQuote
+        );
+    }
+    else {
+        _addHistory(
+            _imageC, method, names, values, appendMsgs, dontQuote
+        );
+    }
+    /*
+    if (! _doHistory) {
+        // history writing disabled
+        return;
+    }
     auto msgs = _newHistory(method, names, values, dontQuote);
     for (const auto& m: appendMsgs) {
         msgs.push_back(m);
@@ -5656,6 +5697,7 @@ void image::_addHistory(
         ImageHistory<Float> ih(_imageF);
         ih.addHistory(method, msgs);
     }
+    */
 }
 
 String image::_getMask(const variant& mask) {

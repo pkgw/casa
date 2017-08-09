@@ -34,6 +34,8 @@ std::auto_ptr<casa::ImageStatsCalculator> _stats;
 
 static const casacore::String _class;
 
+bool _doHistory = true;
+
 // static casacore::Bool _openFuncsRegistered;
 
 // Having private version of IS and IH means that they will
@@ -54,8 +56,16 @@ template<class T> image* _adddegaxes(
 );
 
 void _addHistory(
-    const casacore::String& method, const vector<casacore::String>& keys, const vector<variant>& vals,
-    const vector<casacore::String>& appendMsgs=vector<casacore::String>(),
+    const casacore::String& method, const std::vector<casacore::String>& keys,
+    const std::vector<casac::variant>& vals,
+    const std::vector<casacore::String>& appendMsgs=std::vector<casacore::String>(),
+    const std::set<casacore::String>& dontQuote=std::set<casacore::String>()
+);
+
+template <class T> void _addHistory(
+    SPIIT image, const casacore::String& method, const std::vector<casacore::String>& keys,
+    const std::vector<casac::variant>& vals,
+    const std::vector<casacore::String>& appendMsgs=std::vector<casacore::String>(),
     const std::set<casacore::String>& dontQuote=std::set<casacore::String>()
 );
 
@@ -134,9 +144,10 @@ static bool _isUnset(const variant& var);
 // because public method name() is not const
 casacore::String _name(bool strippath=false) const;
 
-static vector<casacore::String> _newHistory(
-	const string& method, const vector<casacore::String>& names,
-	const vector<variant>& values, const std::set<String>& dontQuote=std::set<String>()
+static std::vector<casacore::String> _newHistory(
+	const std::string& method, const std::vector<casacore::String>& names,
+	const std::vector<casac::variant>& values,
+	const std::set<String>& dontQuote=std::set<String>()
 );
 
 // the returned value of pixels will have either 0 or two elements, if 0 then the returned
