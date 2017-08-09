@@ -1006,7 +1006,7 @@ casa_find( CASACORE
                     casa/version.h
                     scimath/Mathematics/MatrixMathLA.h  # declares symbols defined in LAPACK
            INCLUDES_SUFFIXES casacore
-           LIBS ${casacore_libs}
+           LIBS ${casacore_libs} pthread
            PREFIX_HINTS ${casacore_prefix}
            CPP_VERSION CASACORE_VERSION
            RUN_VERSION "casacore::getVersionCASA()"
