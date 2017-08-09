@@ -818,6 +818,9 @@ the ms definition itself. -->
     </param>
    </input>
   <description>
+    DEPRECATED: Please use the ms::nrow2() function in place of
+    ms::nrow().
+
     This function returns the number of rows in the measurement
     set. If the optional argument selected is set to True, it returns
     the number of currently selected rows, otherwise it returns the 
@@ -834,9 +837,12 @@ the ms definition itself. -->
 </method>
 
    <method type="function" name="nrow2">
-   <shortdescription>Returns the number of rows in the measurement set</shortdescription>
+   <shortdescription>Returns the number of rows in the measurement set.
+        Use this method instead of the older nrow() method which is
+        marked for deprecation.
+       </shortdescription>
    
-  <keyword>nrow22</keyword>
+  <keyword>nrow2</keyword>
   <input>  
     
      <param type="bool" direction="in" name="selected">
@@ -1579,7 +1585,7 @@ the ms definition itself. -->
 </method>
 
  
-   <method type="function" name="statistics">
+   <method type="function" name="statisticsold">
    <shortdescription>Get statistics on the selected measurement set</shortdescription>
    
   <keyword>statistics</keyword>
@@ -1649,6 +1655,9 @@ the ms definition itself. -->
   <returns type="record"/>
 
   <description>
+    DEPRECATED: Please use the ms::statistics() function in place of
+    ms::statisticsold().
+
     This function computes descriptive statistics on the measurement set.
     It returns the statistical values as a python dictionary.  The given 
     column name must be a numerical column.
@@ -1659,12 +1668,12 @@ the ms definition itself. -->
     
       
       ms.open("3C273XC1.MS")
-      ms.statistics(column="DATA", complex_value='amp', field="2")
+      ms.statisticsold(column="DATA", complex_value='amp', field="2")
     
   </example>
 </method>
 
-<method type="function" name="statistics2">
+<method type="function" name="statistics">
   <shortdescription>
     Get statistics on the selected measurement set
   </shortdescription>
@@ -1828,7 +1837,7 @@ the ms definition itself. -->
   <example>
 
     ms.open("3C273XC1.MS")
-    ms.statistics2(column="DATA", complex_value='amp', field="2")
+    ms.statistics(column="DATA", complex_value='amp', field="2")
 
   </example>
 </method>
@@ -1857,6 +1866,9 @@ the ms definition itself. -->
   <returns type="record"/>
 
   <description>
+    DEPRECATED: Please use the ms::range2() function in place of
+    ms::range().
+
     This function will return the range of values in the currently
     selected measurement set for the items specified.  Possible items
     include most scalar columns, interferometer number
@@ -1914,7 +1926,10 @@ the ms definition itself. -->
 </method>
 
    <method type="function" name="range2">
-   <shortdescription>Get the range of values in the measurement set</shortdescription>
+   <shortdescription>Get the range of values in the measurement set.
+        Use this method instead of the older range() method which is
+        marked for deprecation.
+    </shortdescription>
    
   <keyword>range2</keyword>
   <input>
@@ -2193,6 +2208,9 @@ Date/Time:                         RR:                      RL:                 
   <returns type="bool"/>
 
   <description>
+    DEPRECATED: Please use the ms::selectinit2() function in place of
+    ms::selectinit().
+
     A measurement set can contain data with a variety of different
     shapes (as described in the overall description to this tool).  To
     allow functions to return data in fixed shape arrays you need to
@@ -2248,7 +2266,10 @@ Date/Time:                         RR:                      RL:                 
 </method>
 
    <method type="function" name="selectinit2">
-   <shortdescription>Initialize the selection of an ms</shortdescription>
+       <shortdescription>Initialize the selection of an ms
+        Use this method instead of the older selectinit() method which is
+        marked for deprecation.
+       </shortdescription>
    
   <keyword>selectinit2</keyword>
   <input>
@@ -2411,6 +2432,9 @@ Date/Time:                         RR:                      RL:                 
   <returns type="bool"/>
 
   <description>
+    DEPRECATED: Please use the ms::select2() function in place of
+    ms::select().
+
     This function will select a subset of the current measurement set
     based on the range of values for each field in the input
     record. The range function will return a record that can be
@@ -2467,7 +2491,10 @@ Date/Time:                         RR:                      RL:                 
 </method>
 
    <method type="function" name="select2">
-   <shortdescription>Select a subset of the measurement set.</shortdescription>
+       <shortdescription>Select a subset of the measurement set.
+        Use this method instead of the older select() method which is
+        marked for deprecation.
+       </shortdescription>
    
   <keyword>select</keyword>
   <input>
@@ -2549,6 +2576,9 @@ Date/Time:                         RR:                      RL:                 
   <returns type="bool"/>
 
   <description>
+    DEPRECATED: Please use the ms::selecttaql2() function in place of
+    ms::selecttaql().
+
     This function will select a subset of the current measurement set
     based on the standard TaQL selection string given.
 
@@ -2590,7 +2620,10 @@ Date/Time:                         RR:                      RL:                 
 </method>
 
    <method type="function" name="selecttaql2">
-   <shortdescription>Select a subset of the measurement set.</shortdescription>
+       <shortdescription>Select a subset of the measurement set.
+        Use this method instead of the older selecttaql() method which is
+        marked for deprecation.
+       </shortdescription>
    
   <keyword>selecttaql2</keyword>
   <input>
@@ -2674,6 +2707,9 @@ Date/Time:                         RR:                      RL:                 
   <returns type="bool"/>
 
   <description>
+    DEPRECATED: Please use the ms::selectchannel2() function in place of
+    ms::selectchannel().
+
     This function allows you to select a subset of the frequency
     channels in the current measurement set.  This function can also
     average, over frequency channels, prior to providing the values to
@@ -2693,10 +2729,16 @@ Date/Time:                         RR:                      RL:                 
     first input channel to use, the number of input channels to
     average into one output channel, and the increment in the input
     spectrum for the next output channel. All four parameters need to
-    be specified. 
+    be specified.
 
-    This function return True if the selection was successful, and False if
-    not. In the latter case an error message will also be sent to the
+    When all data to be averaged is unflagged, the result is the averaged
+    value and the corresponding flag is False.  When all data is flagged,
+    the result is set to zero and the corresponding flag is True.  When
+    data to be averaged is mixed (unflagged and flagged), only the
+    unflagged values are averaged and the flag is set to False.
+
+    This function return True if the selection was successful, and False
+    if not. In the latter case an error message will also be sent to the
     logger.
 
     You need to call <link anchor="ms:ms.selectinit.function">selectinit</link> before
@@ -2722,7 +2764,10 @@ Date/Time:                         RR:                      RL:                 
 </method>
 
    <method type="function" name="selectchannel2">
-   <shortdescription>Select and average frequency channels</shortdescription>
+       <shortdescription>Select and average frequency channels
+        Use this method instead of the older selectchannel() method which is
+        marked for deprecation.
+       </shortdescription>
    
   <keyword>selectchannel2</keyword>
   <input>
@@ -2775,6 +2820,12 @@ Date/Time:                         RR:                      RL:                 
     spectrum for the next output channel. All four parameters need to
     be specified. 
 
+    When all data to be averaged is unflagged, the result is the averaged
+    value and the corresponding flag is False.  When all data is flagged,
+    the result is set to zero and the corresponding flag is True.  When
+    data to be averaged is mixed (unflagged and flagged), only the
+    unflagged values are averaged and the flag is set to False.
+
     This function return True if the selection was successful, and False
     if not. In the latter case an error message will also be sent to the
     logger.
@@ -2816,6 +2867,9 @@ Date/Time:                         RR:                      RL:                 
   <returns type="bool"/>
 
   <description>
+      DEPRECATED: Please use the ms::selectpolarization2() function in place
+      of ms::selectpolarization().
+
     This function allows you to select a subset of the polarizations
     in the current measurement set.  This function can also setup
     conversion to different polarization representations.
@@ -2853,7 +2907,10 @@ Date/Time:                         RR:                      RL:                 
 </method>
 
    <method type="function" name="selectpolarization2">
-   <shortdescription>Selection and convertion of polarizations</shortdescription>
+       <shortdescription>Selection and conversion of polarizations.
+        Use this method instead of the older selectpolarization() method 
+        which is marked for deprecation.
+       </shortdescription>
    
   <keyword>selectpolarization2</keyword>
   <input>
@@ -3273,6 +3330,9 @@ Date/Time:                         RR:                      RL:                 
   </returns>
 
   <description>
+    DEPRECATED: Please use the ms::getdata2() function in place
+    of ms::getdata().
+
     This function will read the specified items from the currently
     selected measurement set and returns them in fields of a record.
     The main difference between this and direct access of the table,
@@ -3366,7 +3426,12 @@ Date/Time:                         RR:                      RL:                 
     time axis if the ifraxis is True or the row axis i.e., different
     interferometers and times may be averaged together. In the latter
     case, some of the coordinate information, like antenna_id, will
-    no longer make sense.
+    no longer make sense.  When all data to be averaged is unflagged, the
+    result is the averaged value and the corresponding flag is False.
+    When all data is flagged, the result is set to zero and the
+    corresponding flag is True.  When data to be averaged is mixed
+    (unflagged and flagged), only the unflagged values are averaged and
+    the flag is set to False.
 
     You need to call <link anchor="ms:ms.selectinit.function">selectinit</link> before
     calling this function. If you haven't then selectinit will be
@@ -3444,7 +3509,10 @@ for i in range(len(tcoord)):
 </method>
 
    <method type="function" name="getdata2">
-   <shortdescription>Read values from the measurement set.</shortdescription>
+       <shortdescription>Read values from the measurement set.
+        Use this method instead of the older getdata() method 
+        which is marked for deprecation.
+       </shortdescription>
    
   <keyword>getdata2</keyword>
   <input>
@@ -3572,7 +3640,12 @@ for i in range(len(tcoord)):
     time axis if the ifraxis is True or the row axis i.e., different
     interferometers and times may be averaged together. In the latter
     case, some of the coordinate information, like antenna_id, will
-    no longer make sense.
+    no longer make sense. When all data to be averaged is unflagged, the
+    result is the averaged value and the corresponding flag is False.
+    When all data is flagged, the result is set to zero and the
+    corresponding flag is True.  When data to be averaged is mixed
+    (unflagged and flagged), only the unflagged values are averaged and
+    the flag is set to False.
 
     You need to call <link anchor="ms:ms.selectinit2.function">selectinit2</link> before
     calling this function. If you haven't then selectinit2 will be
@@ -3663,6 +3736,9 @@ for i in range(len(tcoord)):
   <returns type="bool"/>
 
   <description>
+    DEPRECATED: Please use the ms::putdata2() function in place
+    of ms::putdata().
+
     This function allows you to write values from casapy variables back
     into the measurement set table. The main difference between this
     and directly accessing the table using the table tool is that this
@@ -3721,7 +3797,10 @@ for i in range(len(tcoord)):
 </method>
 
    <method type="function" name="putdata2">
-   <shortdescription>Write new values into the measurement set</shortdescription>
+       <shortdescription>Write new values into the measurement set.
+        Use this method instead of the older putdata() method 
+        which is marked for deprecation.
+       </shortdescription>
    
   <keyword>putdata2</keyword>
   <input>
@@ -4638,18 +4717,26 @@ from spwid 1 of the input data, starting at channel 4, and every
   <returns type="bool"/>
 
   <description>
+    DEPRECATED: Please use the ms::iterinit2() function in place
+    of ms::iterinit().
+
     Specify the columns to iterate over and the time interval to use
     for the TIME column iteration.  The columns are specified by their
-    MS column name.  Note that the following columns are always added
-    to the specified columns: array_id, field_id, data_desc_id and
-    time. This is so that the iterator can keep track of the
-    coordinates associated with the data (field direction, frequency
-    etc.) If you want to sort on these columns last instead of first
-    you need to include them in the columns specified. If you don't
-    want to sort on these columns at all, you can set
-    adddefaultsortcolumns to False.
-    You need to call <link anchor="ms:ms.selectinit.function">selectinit</link> before 
-    calling this.  See the example below.
+    MS column name and must contain scalar values.
+
+    Note that the following columns are always added to the specified
+    columns: array_id, field_id, data_desc_id and time. This is so that
+    the iterator can keep track of the coordinates associated with the
+    data (field direction, frequency, etc.). If you want to sort on these
+    columns last instead of first, you need to include them in the
+    columns specified. If you don't want to sort on these columns at
+    all, you can set adddefaultsortcolumns to False.
+
+    You may want to use iteration for a large dataset. After calling
+    iterinit, you must call iterorigin before attempting to retrieve data
+    with getdata.
+
+    You need to call <link anchor="ms:ms.selectinit.function">selectinit</link> before calling this.
   </description>
   <example>
     See the example for the <link anchor="ms:ms.iterend.function">iterend</link> function.
@@ -4657,7 +4744,10 @@ from spwid 1 of the input data, starting at channel 4, and every
 </method>
 
 <method type="function" name="iterinit2">
-   <shortdescription>Initialize for iteration over an ms</shortdescription>
+    <shortdescription>Initialize for iteration over an ms.
+        Use this method instead of the older iterinit() and niterinit()
+        methods which are marked for deprecation.
+    </shortdescription>
    
   <keyword>iterinit2</keyword>
   <input>
@@ -4687,17 +4777,21 @@ from spwid 1 of the input data, starting at channel 4, and every
   <description>
     Specify the columns to iterate over and the time interval to use
     for the TIME column iteration.  The columns are specified by their
-    MS column name.  Note that the following columns are always added
-    to the specified columns: array_id, field_id, data_desc_id and
-    time. This is so that the iterator can keep track of the coordinates
-    associated with the data (field direction, frequency etc.) If you
-    want to sort on these columns last instead of first you need to
-    include them in the columns specified. If you don't want to sort on
-    these columns at all, you can set adddefaultsortcolumns to False.
+    MS column name and must contain scalar values.
+
+    Note that the following default sort columns are always added to the
+    specified columns: array_id, field_id, data_desc_id and time. This is so
+    that the iterator can keep track of the coordinates associated with the
+    data (field direction, frequency, etc.). If you want to sort on these
+    columns last instead of first, you need to include them in the
+    columns specified. If you don't want to sort on these columns at
+    all, you can set adddefaultsortcolumns to False.
+
+    You may want to use iteration for a large dataset. After calling
+    iterinit2, you must call iterorigin2 before attempting to retrieve data
+    with getdata2.
     
-    You need to call <link
-        anchor="ms:ms.selectinit2.function">selectinit2</link> before
-    calling this.  See the example below.
+    You need to call <link anchor="ms:ms.selectinit2.function">selectinit2</link> before calling this.
   </description>
   <example>
     See the example for the <link anchor="ms:ms.iterend2.function">iterend2</link> function.
@@ -4711,11 +4805,13 @@ from spwid 1 of the input data, starting at channel 4, and every
   <returns type="bool"/>
 
   <description>
+    DEPRECATED: Please use the ms::iterorigin2() function in place
+    of ms::iterorigin().
+
     Set or reset the iterator to the start of the currently specified
-    iteration. You need to call this before attempting to retrieve
-    data with getdata. You can set the iteration back to the start
-    before you reach the end of the data.  You need to call iterinit
-    before calling this.  See the example below.
+    iteration. You need to call this after iterinit, before attempting to
+    retrieve data with getdata. You may also use iterorigin to set the
+    iteration back to the start before you reach the end of the data.
   </description>
   <example>
     See the example for the <link anchor="ms:ms.iterend.function">iterend</link> function.
@@ -4723,17 +4819,19 @@ from spwid 1 of the input data, starting at channel 4, and every
 </method>
 
 <method type="function" name="iterorigin2">
-   <shortdescription>Set the iterator to the start of the data.</shortdescription>
+    <shortdescription>Set the iterator to the start of the data.
+        Use this method instead of the older iterorigin() and niterorigin()
+        methods which are marked for deprecation.
+    </shortdescription>
    
   <keyword>iterorigin2</keyword>
   <returns type="bool"/>
 
   <description>
     Set or reset the iterator to the start of the currently specified
-    iteration. You may want to call this before attempting to retrieve
-    data with getdata2 for a large dataset. You can set the iteration
-    back to the start before you reach the end of the data.  You need to
-    call iterinit2 before calling this.  See the example below.
+    iteration.  You need to call this after iterinit2, before attempting to
+    retrieve data with getdata2. You may also use iterorigin2 to set the
+    iterator back to the start before you reach the end of the data.
   </description>
   <example>
     See the example for the <link anchor="ms:ms.iterend2.function">iterend2</link> function.
@@ -4750,11 +4848,14 @@ from spwid 1 of the input data, starting at channel 4, and every
 </returns>
 
   <description>
+    DEPRECATED: Please use the ms::iternext2() function in place
+    of ms::iternext().
+
     This sets the currently selected table (as accessed with getdata)
     to the next iteration. If there is no more data, the function
     returns False and the selection is reset to that before the
     iteration started.  You need to call iterinit and iterorigin
-    before calling this.  See the example below.
+    before calling this.
   </description>
   <example>
     See the example for the <link anchor="ms:ms.iterend.function">iterend</link> function.
@@ -4762,7 +4863,10 @@ from spwid 1 of the input data, starting at channel 4, and every
 </method>
 
    <method type="function" name="iternext2">
-   <shortdescription>Advance the iterator to the next lot of data</shortdescription>
+       <shortdescription>Advance the iterator to the next lot of data. 
+        Use this method instead of the older iternext() and niternext()
+        methods which are marked for deprecation.
+       </shortdescription>
    
   <keyword>iternext2</keyword>
   <returns type="bool">
@@ -4775,7 +4879,7 @@ from spwid 1 of the input data, starting at channel 4, and every
     to the next iteration. If there is no more data, the function
     returns False and the selection is reset to that before the
     iteration started.  You need to call iterinit2 and iterorigin2
-    before calling this.  See the example below.
+    before calling this.
   </description>
   <example>
     See the example for the <link anchor="ms:ms.iterend2.function">iterend2</link> function.
@@ -4792,6 +4896,9 @@ from spwid 1 of the input data, starting at channel 4, and every
   </returns>
 
   <description>
+    DEPRECATED: Please use the ms::iterend2() function in place
+    of ms::iterend().
+
     This sets the currently selected table (as accessed with
     <link anchor="ms:ms.getdata.function">getdata</link>) to the table that was selected
     before iteration started.  Use this to end the iteration
@@ -4820,7 +4927,10 @@ from spwid 1 of the input data, starting at channel 4, and every
 </method>
 
    <method type="function" name="iterend2">
-   <shortdescription>End the iteration and reset the selected table</shortdescription>
+       <shortdescription>End the iteration and reset the selected table.
+        Use this method instead of the older iterend() and niterend()
+        methods which are marked for deprecation.
+       </shortdescription>
    
   <keyword>iterend2</keyword>
   <returns type="bool">
@@ -4848,13 +4958,14 @@ from spwid 1 of the input data, starting at channel 4, and every
       ms.iterorigin2()
       rec=ms.getdata2(["u","v","data"])
       ms.iternext2()
+      rec=ms.getdata2(["u","v","data"])
       ms.iterend2()
     
     We open the MS, select an array and spectral window and then
     specify an iteration over interferometer and time, with a 60s time
     interval.  We then set the iterator to the start of the data and
-    get out some data. Finally we advance the iterator to the next lot
-    of data and then end the iteration.
+    get out some data. Then we advance the iterator to the next lot
+    of data, and finally end the iteration.
   </example>
 </method>
 
@@ -4977,6 +5088,9 @@ ms.tosdfits("myfile.sdfits")  # write SDFITS file
   <returns type="bool"/>
 
   <description> 
+    DEPRECATED: Please use the ms::continuumsub2() function in place
+    of ms::continuumsub().
+
 This function provides a means of continuum determination and
 subtraction by fitting a polynomial of desired order to a subset of
 channels in each time-averaged uv spectrum.  The fit is used to model
@@ -5019,7 +5133,7 @@ for editing based on the rms fit will be added in the near future.
  cb.close()
  ms.open('ngc5921.ms',nomodify=False);    # writable!
  ms.continuumsub(field=2,fitspw='0:5~9;50~59',
-                 solint=0.0,fitorder=1,mode='sub')
+                 solint=0.0,fitorder=1,mode='subtract')
  ms.done()
     
     This example will fit a linear continuum to channels 5-9 and 50-59 in 
@@ -5031,7 +5145,10 @@ for editing based on the rms fit will be added in the near future.
 </method>
 
    <method type="function" name="continuumsub2">
-   <shortdescription>Continuum fitting and subtraction in uv plane</shortdescription>
+       <shortdescription>Continuum fitting and subtraction in uv plane.
+        Use this method instead of the older continuumsub() method which is
+        marked for deprecation.
+       </shortdescription>
    
   <input>
     
@@ -5095,11 +5212,11 @@ For now, the only way to recover the un-subtracted CORRECTED_DATA column
 is to use calibrater.correct() again.
 
 Note that the MODEL_DATA and CORRECTED_DATA columns must be present
-for continuumsub to work correctly.  The function will warn the user
+for continuumsub2 to work correctly.  The function will warn the user
 if they are not present, and abort.  To add these scratch columns (for
 now), close the ms tool, then start a calibrater or an imager tool,
 which will add the scratch columns.  Then restart the ms tool, and try
-continuumsub again.
+continuumsub2 again.
 
 Options for shifting known bright sources to the phase center and
 for editing based on the rms fit will be added in the near future.
@@ -5113,7 +5230,7 @@ for editing based on the rms fit will be added in the near future.
  cb.close()
  ms.open('ngc5921.ms', nomodify=False);    # writable!
  ms.continuumsub2(field=2,fitspw='0:5~9;50~59',
-                 solint=0.0,fitorder=1,mode='sub')
+                 solint=0.0,fitorder=1,mode='subtract')
  ms.done()
     
     This example will fit a linear continuum to channels 5-9 and 50-59
@@ -5402,8 +5519,7 @@ in spectral window 1.
    <!-- ====================================================== -->
    <method type="function" name="ngetdata">
      <shortdescription>
-       Read values from the measurement set.  Use this method instead of
-       the older getdata() method which is marked for deprecation.
+       Read values from the measurement set.
      </shortdescription>
    
      <keyword>getdata</keyword>
@@ -5456,22 +5572,23 @@ in spectral window 1.
      </returns>
      
      <description>
-       This method extracs the data as specified in the items
+       DEPRECATED: Please use the ms::getdata2() function in place
+       of ms::ngetdata().
+
+       This method extracts the data as specified in the items
        parameter.  The data is returned as a record with each item
        as a separate key in the record (all in lower case).
 
        Unless the iterator was initialized with a niterinit(), this
        method initializes the iterator
-       as <link anchor="ms:ms.niteinit.function">niterinit([".."],0.0,0,False)</link>. 
+       as <link anchor="ms:ms.niterinit.function">niterinit([".."],0.0,0,False)</link>. 
      </description>
 
    </method>
    <!-- ====================================================== -->
    <method type="function" name="niterinit">
      <shortdescription>
-       Initialize for iteration over an ms.  Use
-       this method instead of the older iterinit() method which is
-       marked for deprecation.
+       Initialize for iteration over an ms.
      </shortdescription>
      
      <keyword>iterinit</keyword>
@@ -5511,20 +5628,23 @@ in spectral window 1.
      <returns type="bool"/>
      
      <description>
+       DEPRECATED: Please use the ms::iterinit2() function in place
+       of ms::niterinit().
      </description>
    </method>
    <!-- ====================================================== -->
    <method type="function" name="niterorigin">
      <shortdescription>
-       Set the iterator to the start of the data.  Use this method
-       instead of the older iterorigin() method which is marked for
-       deprecation.
+       Set the iterator to the start of the data.
      </shortdescription>
      
      <keyword>iteriorigin</keyword>
      <returns type="bool"/>
      
      <description>
+       DEPRECATED: Please use the ms::iterorigin2() function in place
+       of ms::niterorigin().
+
        Set or reset the iterator to the start of the currently
        specified iteration. You need to call this before attempting to
        iteratively retrieve data with ngetdata. You can set the
@@ -5542,9 +5662,7 @@ in spectral window 1.
    
    <method type="function" name="niternext">
      <shortdescription>
-       Advance the iterator to the next lot of data.  Use
-       this method instead of the older iternext() method which is
-       marked for deprecation.
+       Advance the iterator to the next lot of data.
      </shortdescription>
      
      <keyword>iternext</keyword>
@@ -5555,6 +5673,9 @@ in spectral window 1.
      </returns>
      
      <description>
+       DEPRECATED: Please use the ms::iternext2() function in place
+       of ms::niternext().
+
        This sets the currently selected table (as accessed with
        ngetdata) to the next iteration. If there is no more data, the
        function returns False.  You need to call iterinit and
@@ -5570,9 +5691,7 @@ in spectral window 1.
    
    <method type="function" name="niterend">
      <shortdescription>
-       Query if there are more iterations left in the iterator.  Use
-       this method instead of the older iterend() method which is marked
-       for deprecation.
+         Query if there are more iterations left in the iterator. 
      </shortdescription>
      
      <keyword>iterend</keyword>
@@ -5583,6 +5702,9 @@ in spectral window 1.
      </returns>
      
      <description>
+       DEPRECATED: Please use the ms::iterend2() function in place
+       of ms::niterend().
+
        The serves redundant purpose and is here only for backward
        compatibility.
        

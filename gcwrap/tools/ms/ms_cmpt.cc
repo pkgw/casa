@@ -282,6 +282,13 @@ std::vector<std::string> ms::getreferencedtables()
 int
 ms::nrow(const bool selected)
 {
+	*itsLog << LogOrigin("ms", "nrow");
+	*itsLog << LogIO::WARN
+			<< "The use of ms::nrow() is deprecated and will be "
+			<< "replaced by nrow2() in a future version. "
+            << "After deprecation, nrow2() will be renamed nrow(). "
+			<< LogIO::POST;
+
 	Int rstat(0);
 	try {
 		if(!detached()){
@@ -302,7 +309,7 @@ ms::nrow(const bool selected)
 int
 ms::nrow2(const bool selected)
 {
-	*itsLog << LogOrigin("ms", "nrow");
+	*itsLog << LogOrigin("ms", "nrow2");
 	Int rstat(0);
     try {
 		if(!detached()){
@@ -898,6 +905,13 @@ ms::writehistory(const std::string& message, const std::string& parms, const std
 ::casac::record*
 ms::range(const std::vector<std::string>& items, const bool useflags, const int blocksize)
 {
+	*itsLog << LogOrigin("ms", "range");
+	*itsLog << LogIO::WARN
+			<< "The use of ms::range() is deprecated and will be "
+			<< "replaced by range2() in a future version. "
+            << "After deprecation, range2() will be renamed range(). "
+			<< LogIO::POST;
+
 	::casac::record *retval(0);
 	try {
 		if(!detached()){
@@ -917,7 +931,7 @@ ms::range(const std::vector<std::string>& items, const bool useflags, const int 
 ::casac::record*
 ms::range2(const std::vector<std::string>& items, const bool useflags, const int blocksize)
 {
-	*itsLog << LogOrigin("ms", "range");
+	*itsLog << LogOrigin("ms", "range2");
 	::casac::record *retval(0);
 	try {
 		if(!detached()){
@@ -1003,20 +1017,27 @@ append(Array<T> &data, unsigned &current_length,
 
 
 ::casac::record*
-ms::statistics(const std::string& column,
-               const std::string& complex_value,
-               const bool useflags,
-               const std::string& spw,
-               const std::string& field,
-               const std::string& baseline,
-               const std::string& uvrange,
-               const std::string& time,
-               const std::string& correlation,
-               const std::string& scan,
-               const std::string& array,
-               const std::string& obs)
+ms::statisticsold(const std::string& column,
+                  const std::string& complex_value,
+                  const bool useflags,
+                  const std::string& spw,
+                  const std::string& field,
+                  const std::string& baseline,
+                  const std::string& uvrange,
+                  const std::string& time,
+                  const std::string& correlation,
+                  const std::string& scan,
+                  const std::string& array,
+                  const std::string& obs)
 {
-	*itsLog << LogOrigin("ms", "statistics");
+	*itsLog << LogOrigin("ms", "statisticsold");
+
+	*itsLog << LogIO::WARN
+			<< "The use of ms::statisticsold() is deprecated; this function "
+			<< "will be removed from CASA in a future version. "
+			<< "Calls to ms::statisticsold() should be replaced by calls to "
+			<< "ms::statistics()."
+			<< LogIO::POST;
 
 	::casac::record *retval(0);
 	try {
@@ -1448,7 +1469,7 @@ public:
 
 // Compute statistics using a given DataProvider, using iteration over vi2
 // chunks to implement reporting axes. The Statistics template parameter may be
-// any StatisticsAlgorithm class, although statistics2 always uses
+// any StatisticsAlgorithm class, although statistics always uses
 // ClassicalStatistics.
 //
 // Note that the format of the returned record has not been finalized, and may
@@ -1481,7 +1502,7 @@ doStatistics(
 	return fromRecord(result);
 }
 
-// Thin wrapper over doStatistics, provided because statistics2 requires
+// Thin wrapper over doStatistics, provided because statistics requires
 // ClassicalStatistics.
 template <class DataProvider>
 static ::casac::record *
@@ -1530,7 +1551,7 @@ reportingAxisIds(const string &s)
 	return result;
 }
 
-// Parse "timespan" string provided to statistics2 to determine whether
+// Parse "timespan" string provided to statistics to determine whether
 // statistics should span scans or subscans. The input string is expected to be
 // composed of the tokens "scan" or "state", separated by commas.
 static void
@@ -1588,26 +1609,26 @@ timespanBoundaries(const string &s, bool &spanScan, bool &spanSubscan)
 // TODO: how to handle WEIGHT, SIGMA and UVW columns?
 //
 ::casac::record*
-ms::statistics2(const std::string& column,
-                const std::string& complex_value,
-                bool useflags,
-                bool useweights,
-                const std::string& spw,
-                const std::string& field,
+ms::statistics(const std::string& column,
+               const std::string& complex_value,
+               bool useflags,
+               bool useweights,
+               const std::string& spw,
+               const std::string& field,
 //                const std::string& feed,
-                const std::string& baseline,
-                const std::string& uvrange,
-                const std::string& time,
-                const std::string& correlation,
-                const std::string& scan,
-                const std::string& intent,
-                const std::string& array,
-                const std::string& obs,
-                const std::string& reportingaxes,
-                bool timeaverage,
-                const std::string& timebin,
-                const std::string& timespan,
-                double maxuvwdistance)
+               const std::string& baseline,
+               const std::string& uvrange,
+               const std::string& time,
+               const std::string& correlation,
+               const std::string& scan,
+               const std::string& intent,
+               const std::string& array,
+               const std::string& obs,
+               const std::string& reportingaxes,
+               bool timeaverage,
+               const std::string& timebin,
+               const std::string& timespan,
+               double maxuvwdistance)
 {
 
 	// const std::array<Int,6> validSortColumnIds = {
@@ -1619,7 +1640,7 @@ ms::statistics2(const std::string& column,
 	//  MSMainEnums::PredefinedColumns::TIME
 	// };
 
-	*itsLog << LogOrigin("ms", "statistics2");
+	*itsLog << LogOrigin("ms", "statistics");
 
 	::casac::record *retval(0);
 	try {
@@ -2211,6 +2232,13 @@ Bool ms::checkinit() {
 bool
 ms::selectinit(const int datadescid, const bool reset)
 {
+	*itsLog << LogOrigin("ms", "selectinit");
+	*itsLog << LogIO::WARN
+			<< "The use of ms::selectinit() is deprecated and will be "
+			<< "replaced by selectinit2() in a future version. "
+            << "After deprecation, selectinit2() will be renamed selectinit()."
+			<< LogIO::POST;
+
 	Bool retval = False;
 	try {
 		Vector<Int> ddId(1, datadescid);
@@ -2270,6 +2298,13 @@ ms::selectinit2(const int datadescid, const bool resetsel)
 bool
 ms::select(const ::casac::record& items)
 {
+	*itsLog << LogOrigin("ms", "select");
+	*itsLog << LogIO::WARN
+			<< "The use of ms::select() is deprecated and will be "
+			<< "replaced by select2() in a future version. "
+            << "After deprecation, select2() will be renamed select(). "
+			<< LogIO::POST;
+
 	Bool retval = false;
 	try {
 		if(!detached()){
@@ -2289,7 +2324,7 @@ ms::select(const ::casac::record& items)
 bool
 ms::select2(const ::casac::record& items)
 {
-	*itsLog << LogOrigin("ms", "select");
+	*itsLog << LogOrigin("ms", "select2");
     // Use selecttaql and msselect for these selections
 	Bool retval = true;
 	try {
@@ -2405,6 +2440,13 @@ ms::select2(const ::casac::record& items)
 bool
 ms::selecttaql(const std::string& msselect)
 {
+	*itsLog << LogOrigin("ms", "selecttaql");
+	*itsLog << LogIO::WARN
+			<< "The use of ms::selecttaql() is deprecated and will be "
+			<< "replaced by selecttaql2() in a future version. "
+            << "After deprecation, selecttaql2() will be renamed selecttaql(). "
+			<< LogIO::POST;
+
 	Bool retval(False);
 	try {
 		if(!detached())
@@ -2421,7 +2463,7 @@ ms::selecttaql(const std::string& msselect)
 bool
 ms::selecttaql2(const std::string& taqlstr)
 {
-    *itsLog << LogOrigin("ms", "selecttaql");
+    *itsLog << LogOrigin("ms", "selecttaql2");
 	Bool retval(false);
 	try {
 		if(!detached()) {
@@ -2446,6 +2488,14 @@ ms::selecttaql2(const std::string& taqlstr)
 bool
 ms::selectchannel(const int nchan, const int start, const int width, const int inc)
 {
+	*itsLog << LogOrigin("ms", "selectchannel");
+	*itsLog << LogIO::WARN
+			<< "The use of ms::selectchannel() is deprecated and will be "
+			<< "replaced by selectchannel2() in a future version. "
+            << "After deprecation, selectchannel2() will be renamed "
+            << "selectchannel(). "
+			<< LogIO::POST;
+
 	Bool retval(false);
 	try {
 		if(!detached())
@@ -2548,6 +2598,14 @@ ms::selectchannel2(const int nchan, const int start, const int width, const int 
 bool
 ms::selectpolarization(const std::vector<std::string>& wantedpol)
 {
+	*itsLog << LogOrigin("ms", "selectpolarization");
+	*itsLog << LogIO::WARN
+			<< "The use of ms::selectpolarization() is deprecated and will be "
+			<< "replaced by selectpolarization2() in a future version. "
+            << "After deprecation, selectpolarization2() will be renamed "
+            << "selectpolarization(). "
+			<< LogIO::POST;
+
 	Bool retval(False);
 	try {
         if(!detached()) {
@@ -2566,12 +2624,12 @@ ms::selectpolarization(const std::vector<std::string>& wantedpol)
 bool
 ms::selectpolarization2(const std::vector<std::string>& wantedpol)
 {
-	*itsLog << LogOrigin("ms", "selectpolarization");
+	*itsLog << LogOrigin("ms", "selectpolarization2");
 	Bool retval(false);
 	try {
         if(!detached()) {
             if (checkinit()) {
-	            *itsLog << LogOrigin("ms", "selectpolarization");
+	            *itsLog << LogOrigin("ms", "selectpolarization2");
                 Record polnSelRec(Record::Variable);
                 String polnExpr = MSSelection::nameExprStr(wantedpol);
                 polnSelRec.define("polarization", polnExpr);
@@ -3457,6 +3515,12 @@ void ms::getIfrArray(Array<T>& inputarray, vi::VisBuffer2* vb2) {
 ::casac::record*
 ms::getdata(const std::vector<std::string>& items, const bool ifraxis, const int ifraxisgap, const int increment, const bool average)
 {
+	*itsLog << LogOrigin("ms", "getdata");
+	*itsLog << LogIO::WARN
+			<< "The use of ms::getdata() is deprecated and will be "
+			<< "replaced by getdata2() in a future version. "
+            << "After deprecation, getdata2() will be renamed getdata(). "
+			<< LogIO::POST;
 
 	::casac::record *retval(0);
 	try {
@@ -3502,10 +3566,11 @@ ms::getdata2(const std::vector<std::string>& items, const bool ifraxis, const in
             Vector<String> itemnames(items);
             Int axisgap = ifraxisgap;
 		    doingAveraging_p = average;
+            bool chanAverage = ((chansel_p.size() > 0) && (chansel_p[2] > 1));
 
             uInt nrows = itsSelectedMS->nrow();
             if (nrows == 0) {
-                *itsLog << LogIO::WARN << "Selected Table is empty - use selectinit" << LogIO::POST;
+                *itsLog << LogIO::WARN << "Selected table is empty - use selectinit2" << LogIO::POST;
 		        return retval;
 	        }
 
@@ -3539,36 +3604,31 @@ ms::getdata2(const std::vector<std::string>& items, const bool ifraxis, const in
             Bool noCorrectedCol = msc.correctedData().isNull();
             Bool noModelCol = msc.modelData().isNull();
             Bool noFloatCol = msc.floatData().isNull();
-            Bool do_flag_sum(False), do_axis_info(False), do_info_options(False),
-                 do_time(False), do_field(False), do_flag(False), do_weight(False);
+            Bool do_flag_sum(False), do_axis_info(False),
+                 do_info_options(False), do_time(False), do_field(False),
+                 do_flag(False), do_weight(False);
             Vector<Bool> info_options(3); // [ha, last, ut]
             for (uInt it=0; it<itemnames.size(); ++it) {
                 String name = downcase(itemnames(it));
-                if (name=="flag_sum") 
-                    do_flag_sum = True; // added later
-                if (name=="axis_info") 
-                    do_axis_info = True;
-                if (name=="time") 
-                    do_time = True; // needed for axis_info
-                if (name=="field_id") 
-                    do_field = True; // needed for info options
-                if (average) {
-                    if (name=="flag") do_flag = True;
-                    if (name=="weight") do_weight = True;
-                }
-                if (name=="ha" && ifraxis) {
+                if (name=="flag_sum") do_flag_sum = True; // added later
+                else if (name=="axis_info") do_axis_info = True;
+                else if (name=="time") do_time = True; // for axis_info
+                else if (name=="field_id") do_field = True; // for info options
+                else if (name=="flag") do_flag = True;
+                else if (name=="weight") do_weight = True;
+                else if (name=="ha" && ifraxis) {
                     do_info_options = True;
                     info_options(0) = True;
                     out.define(itemnames(it), info_options);
                     itemnames(it)="";
                 }
-                if (name=="last" && ifraxis) {
+                else if (name=="last" && ifraxis) {
                     do_info_options = True;
                     info_options(1) = True;
                     out.define(itemnames(it), info_options);
                     itemnames(it)="";
                 }
-                if (name=="ut" && ifraxis) {
+                else if (name=="ut" && ifraxis) {
                     do_info_options = True;
                     info_options(2) = True;
                     out.define(itemnames(it), info_options);
@@ -3614,10 +3674,18 @@ ms::getdata2(const std::vector<std::string>& items, const bool ifraxis, const in
                         out.define(itemnames(it), Array<Float>());
                         datacolOk = false;
                 }
-                // Don't need to "get" this now
-                if (!datacolOk) itemnames(it)="";
+                if (!datacolOk) {
+                    // Don't need to get this item now
+                    itemnames(it)="";
+                } else {
+                    // Need to get averaged data
+                    if (average && itemIsData(name))
+                        itemnames(it).prepend("avg_");
+                }
             } // for loop (itemnames)
 
+            // Add axes user did not request but are needed for other items
+            // (remove later)
             if (ifraxis && do_axis_info && !do_time) {
                 // need time for time_axis
                 size_t itemsSize = itemnames.size();
@@ -3630,17 +3698,28 @@ ms::getdata2(const std::vector<std::string>& items, const bool ifraxis, const in
                 itemnames.resize(itemsSize+1, True);
                 itemnames(itemsSize) = "field_id";
             }
-            if (average && !do_flag) {
-                size_t itemsSize = itemnames.size();
-                itemnames.resize(itemsSize+1, True);
-                itemnames(itemsSize) = "flag";
+            if (average || chanAverage) {
+                // Check if we still have data items that need averaging
+                // (and column exists)
+                bool needAvgData(false);
+                for (uInt it=0; it<itemnames.size(); ++it) {
+                    if (itemnames(it).startsWith("avg_")) {
+                        needAvgData = true;
+                        break;
+                    }
+                }
+                // add flag and weight items for averaging
+                if ((needAvgData || chanAverage) && !do_flag) {
+                    size_t itemsSize = itemnames.size();
+                    itemnames.resize(itemsSize+1, True);
+                    itemnames(itemsSize) = "flag";
+                }
+                if (needAvgData && !do_weight) {
+                    size_t itemsSize = itemnames.size();
+                    itemnames.resize(itemsSize+1, True);
+                    itemnames(itemsSize) = "weight";
+                }
             }
-            if (average && !do_weight) {
-                size_t itemsSize = itemnames.size();
-                itemnames.resize(itemsSize+1, True);
-                itemnames(itemsSize) = "weight";
-            }
-
 
             // iterate to next chunk or subchunk (if maxrows) and get items
             if (itsVI2) {
@@ -3695,17 +3774,54 @@ ms::getdata2(const std::vector<std::string>& items, const bool ifraxis, const in
                 } // checkinit 
             } // else (!VI2)
 
-            if (average) {
-                getAveragedValues(itemnames, out);
-                // remove or redefine flag field
-                if (!do_flag) out.removeField("flag");
-                else {
-                    if (out.isDefined("dataflag"))
-                        out.renameField("dataflag", "flag");
+
+            if (chanAverage && !average) {
+                // zero out flagged averaged data to duplicate old behavior
+                Array<Bool> flagArray = out.asArrayBool("flag");
+                IPosition datashape = flagArray.shape();
+                size_t nelements = flagArray.nelements();
+                IPosition onedim(1, nelements);
+                Array<Bool> flagVector = flagArray.reform(onedim);
+                for (uInt it=0; it<itemnames.size(); ++it) {
+                    String name = itemnames(it);
+                    if (!name.empty() && itemIsData(name)) {
+                        Int fieldnum = out.fieldNumber(name);
+                        if (out.type(fieldnum) == TpArrayFloat) {
+                            Array<Float> dataArray = out.asArrayFloat(name);
+                            Array<Float> dataVector = dataArray.reform(onedim);
+                            for (uInt i=0; i<nelements; ++i)
+                                if (flagVector(IPosition(1,i))) 
+                                    dataVector(IPosition(1,i)) = 0.0;
+                            dataArray = dataVector.reform(datashape);
+                            out.removeField(name);
+                            out.define(name, dataArray);
+                        } else {
+                            Array<Complex> dataArray = out.asArrayComplex(name);
+                            Array<Complex> dataVector = dataArray.reform(onedim);
+                            for (uInt i=0; i<nelements; ++i)
+                                if (flagVector(IPosition(1,i))) 
+                                    dataVector(IPosition(1,i)) = 0.0;
+                            dataArray = dataVector.reform(datashape);
+                            out.removeField(name);
+                            out.define(name, dataArray);
+                        }
+                    }
                 }
+                // remove flag field if not requested
+                if (!do_flag)
+                    if (out.isDefined("flag")) out.removeField("flag");
+            } 
+
+            if (average || chanAverage) {
+                if (average)
+                    getAveragedValues(itemnames, out);
+                // remove flag field if not requested
+                if (!do_flag)
+                    if (out.isDefined("flag")) out.removeField("flag");
                 // remove or redefine weight field
-                if (!do_weight) out.removeField("weight");
-                else {
+                if (!do_weight) {
+                    if (out.isDefined("weight")) out.removeField("weight");
+                } else {
                     Array<Float> weights = out.asArrayFloat("weight");
                     out.removeField("weight");
                     getWeightSum(weights);  // redefines weights array
@@ -3741,9 +3857,23 @@ ms::getdata2(const std::vector<std::string>& items, const bool ifraxis, const in
 	return retval;
 }
 
+bool ms::itemIsData(String item) {
+   bool isdata = (
+      (item.find("data") != string::npos) ||
+      (item.find("amplitude") != string::npos) ||
+      (item.find("phase") != string::npos) ||
+      (item.find("real") != string::npos) ||
+      (item.find("imaginary") != string::npos));
+   return isdata;
+}
+
 void ms::getAveragedValues(Vector<String> fieldnames, Record& rec) {
     for (uInt it=0; it<fieldnames.size(); ++it) {
         String field = fieldnames(it);
+        String recname(field);
+        // remove "avg_" from fieldname for switch but keep it in recname
+        if (!field.empty() && field.startsWith("avg_"))
+            field = field.substr(4, field.size()-4);
         MSS::Field fld = MSS::field(field);
         switch(fld) {
             case MSS::AMPLITUDE:
@@ -3751,34 +3881,75 @@ void ms::getAveragedValues(Vector<String> fieldnames, Record& rec) {
             case MSS::MODEL_AMPLITUDE:
             case MSS::RATIO_AMPLITUDE:
             case MSS::RESIDUAL_AMPLITUDE:
-            case MSS::OBS_RESIDUAL_AMPLITUDE:
+            case MSS::OBS_RESIDUAL_AMPLITUDE: {
+                Array<Complex> data = rec.asArrayComplex(recname);
+                Array<Bool> flags = rec.asArrayBool("flag");
+                Array<Float> weight = rec.asArrayFloat("weight");
+                Array<Bool> dataflag;
+                MSSelUtil2<Complex>::timeAverage(dataflag, data, flags, weight);
+                rec.removeField(recname);
+                rec.define(field, amplitude(data));
+                rec.removeField("flag");
+                rec.define("flag", dataflag);
+                }
+                break;
             case MSS::IMAGINARY:
             case MSS::CORRECTED_IMAGINARY:
             case MSS::MODEL_IMAGINARY:
             case MSS::RATIO_IMAGINARY:
             case MSS::RESIDUAL_IMAGINARY:
-            case MSS::OBS_RESIDUAL_IMAGINARY:
+            case MSS::OBS_RESIDUAL_IMAGINARY: {
+                Array<Complex> data = rec.asArrayComplex(recname);
+                Array<Bool> flags = rec.asArrayBool("flag");
+                Array<Float> weight = rec.asArrayFloat("weight");
+                Array<Bool> dataflag;
+                MSSelUtil2<Complex>::timeAverage(dataflag, data, flags, weight);
+                rec.removeField(recname);
+                rec.define(field, imag(data));
+                rec.define("flag", dataflag);
+                }
+                break;
             case MSS::PHASE:
             case MSS::CORRECTED_PHASE:
             case MSS::MODEL_PHASE:
             case MSS::RATIO_PHASE:
             case MSS::RESIDUAL_PHASE:
-            case MSS::OBS_RESIDUAL_PHASE:
+            case MSS::OBS_RESIDUAL_PHASE: {
+                Array<Complex> data = rec.asArrayComplex(recname);
+                Array<Bool> flags = rec.asArrayBool("flag");
+                Array<Float> weight = rec.asArrayFloat("weight");
+                Array<Bool> dataflag;
+                MSSelUtil2<Complex>::timeAverage(dataflag, data, flags, weight);
+                rec.removeField(recname);
+                rec.define(field, phase(data));
+                rec.define("flag", dataflag);
+                }
+                break;
             case MSS::REAL:
             case MSS::CORRECTED_REAL:
             case MSS::MODEL_REAL:
             case MSS::RATIO_REAL:
             case MSS::RESIDUAL_REAL:
-            case MSS::OBS_RESIDUAL_REAL:
-            case MSS::FLOAT_DATA: {
+            case MSS::OBS_RESIDUAL_REAL: {
+                Array<Complex> data = rec.asArrayComplex(recname);
                 Array<Bool> flags = rec.asArrayBool("flag");
                 Array<Float> weight = rec.asArrayFloat("weight");
-                Array<Float> data = rec.asArrayFloat(field);
+                Array<Bool> dataflag;
+                MSSelUtil2<Complex>::timeAverage(dataflag, data, flags, weight);
+                rec.removeField(recname);
+                rec.define(field, real(data));
+                rec.define("flag", dataflag);
+                }
+                break;
+            case MSS::FLOAT_DATA: {
+                Array<Float> data = rec.asArrayFloat(recname);
+                Array<Bool> flags = rec.asArrayBool("flag");
+                Array<Float> weight = rec.asArrayFloat("weight");
                 Array<Bool> dataflag;
                 MSSelUtil2<Float>::timeAverage(dataflag, data, flags, weight);
-                rec.removeField(field);
+                rec.removeField(recname);
                 rec.define(field, data);
-                rec.define("dataflag", dataflag);
+                rec.define("flag", dataflag);
                 }
                 break; 
             case MSS::DATA:
@@ -3787,14 +3958,14 @@ void ms::getAveragedValues(Vector<String> fieldnames, Record& rec) {
             case MSS::RATIO_DATA:
             case MSS::RESIDUAL_DATA:
             case MSS::OBS_RESIDUAL_DATA: {
+                Array<Complex> data = rec.asArrayComplex(recname);
                 Array<Bool> flags = rec.asArrayBool("flag");
                 Array<Float> weight = rec.asArrayFloat("weight");
-                Array<Complex> data = rec.asArrayComplex(field);
                 Array<Bool> dataflag;
                 MSSelUtil2<Complex>::timeAverage(dataflag, data, flags, weight);
-                rec.removeField(field);
+                rec.removeField(recname);
                 rec.define(field, data);
-                rec.define("dataflag", dataflag);
+                rec.define("flag", dataflag);
                 }
                 break;
             case MSS::ANTENNA1:
@@ -4180,11 +4351,16 @@ void ms::addTimeAxis(Record& out) {
     out.defineRecord(fieldname, axisInfoRec);
 }
 
-void ms::getitem(String item, vi::VisBuffer2* vb2, Record& outputRec, bool ifraxis) {
+void ms::getitem(String item, vi::VisBuffer2* vb2, Record& outputRec,
+        bool ifraxis) {
     String itemname = downcase(item);
     Bool fieldExists = outputRec.isDefined(item);
     Record intermediateValue(RecordInterface::Variable);
-    MSS::Field fld = MSS::field(itemname);
+    MSS::Field fld;
+    if (itemname.startsWith("avg_"))
+        fld = MSS::field(getbaseitem(itemname));
+    else
+        fld = MSS::field(itemname);
     switch(fld) {
 		case MSS::AMPLITUDE: {
             getitem("data", vb2, intermediateValue, ifraxis);
@@ -4609,9 +4785,29 @@ void ms::getitem(String item, vi::VisBuffer2* vb2, Record& outputRec, bool ifrax
     }
 }
 
+casacore::String ms::getbaseitem(String itemname) {
+    String baseItem;
+    // remove "avg_"
+    String derivedItem = itemname.substr(4, itemname.size()-4);
+    // base item is column + "data"
+    string::size_type columnEnd = derivedItem.find_last_of('_');
+    if (columnEnd == string::npos)
+        baseItem = "data";
+    else
+        baseItem = derivedItem.substr(0,columnEnd) + "_data";
+    return baseItem;
+}
+
 bool
 ms::putdata(const ::casac::record& items)
 {
+	*itsLog << LogOrigin("ms", "putdata");
+	*itsLog << LogIO::WARN
+			<< "The use of ms::putdata() is deprecated and will be "
+			<< "replaced by putdata2() in a future version. "
+            << "After deprecation, putdata2() will be renamed putdata(). "
+			<< LogIO::POST;
+
 	Bool rstat(False);
 	try {
 		if(!detached()){
@@ -4637,7 +4833,7 @@ ms::putdata2(const ::casac::record& items)
 		if(!detached()){
             // run some checks!
             if (nrow2(True)==0) {
-                *itsLog << LogIO::SEVERE << "Selected Table is empty - use selectinit"
+                *itsLog << LogIO::SEVERE << "Selected table is empty - use selectinit2"
 				    << LogIO::POST;
 		        return false;
 	        }
@@ -5559,6 +5755,13 @@ bool
 ms::iterinit(const std::vector<std::string>& columns, const double interval,
              const int maxrows, const bool adddefaultsortcolumns)
 {
+	*itsLog << LogOrigin("ms", "iterinit");
+	*itsLog << LogIO::WARN
+			<< "The use of ms::iterinit() is deprecated and will be "
+			<< "replaced by iterinit2() in a future version. "
+            << "After deprecation, iterinit2() will be renamed iterinit(). "
+			<< LogIO::POST;
+
 	Bool rstat(false);
 	try {
 		if(!detached()){
@@ -5581,7 +5784,7 @@ bool
 ms::iterinit2(const std::vector<std::string>& columns, const double interval,
              const int maxrows, const bool adddefaultsortcolumns)
 {
-	*itsLog << LogOrigin("ms", "iterinit");
+	*itsLog << LogOrigin("ms", "iterinit2");
 	Bool rstat(false);
 	try {
 		if (!detached()) {
@@ -5735,6 +5938,13 @@ bool ms::statwt2(const variant& timebin, const variant& chanbin) {
 bool
 ms::iterorigin()
 {
+	*itsLog << LogOrigin("ms", "iterorigin");
+	*itsLog << LogIO::WARN
+			<< "The use of ms::iterorigin() is deprecated and will be "
+			<< "replaced by iterorigin2() in a future version. "
+            << "After deprecation, iterorigin2() will be renamed iterorigin(). "
+			<< LogIO::POST;
+
 	Bool rstat(False);
 	try {
 		if(!detached())
@@ -5751,7 +5961,7 @@ ms::iterorigin()
 bool
 ms::iterorigin2()
 {
-	*itsLog << LogOrigin("ms", "iterorigin");
+	*itsLog << LogOrigin("ms", "iterorigin2");
 	Bool rstat(false);
 	try {
 		if(!detached()) {
@@ -5775,6 +5985,13 @@ ms::iterorigin2()
 bool
 ms::iternext()
 {
+	*itsLog << LogOrigin("ms", "iternext");
+	*itsLog << LogIO::WARN
+			<< "The use of ms::iternext() is deprecated and will be "
+			<< "replaced by iternext2() in a future version. "
+            << "After deprecation, iternext2() will be renamed iternext(). "
+			<< LogIO::POST;
+
 	Bool rstat(false);
 	try {
 		if(!detached())
@@ -5791,7 +6008,7 @@ ms::iternext()
 bool
 ms::iternext2()
 {
-	*itsLog << LogOrigin("ms", "iternext");
+	*itsLog << LogOrigin("ms", "iternext2");
 	Bool rstat(false);
 	try {
 		if(!detached()) {
@@ -5829,6 +6046,13 @@ ms::iternext2()
 bool
 ms::iterend()
 {
+	*itsLog << LogOrigin("ms", "iterend");
+	*itsLog << LogIO::WARN
+			<< "The use of ms::iterend() is deprecated and will be "
+			<< "replaced by iterend2() in a future version. "
+            << "After deprecation, iterend2() will be renamed iterend(). "
+			<< LogIO::POST;
+
 	Bool rstat(False);
 	try {
 		if(!detached())
@@ -5845,7 +6069,7 @@ ms::iterend()
 bool
 ms::iterend2()
 {
-	*itsLog << LogOrigin("ms", "iterend");
+	*itsLog << LogOrigin("ms", "iterend2");
 	Bool rstat(false);
 	try {
 		if(!detached())
@@ -5959,6 +6183,14 @@ bool ms::continuumsub(const ::casac::variant& field,
                       const int fitorder,
                       const std::string& mode)
 {
+	*itsLog << LogOrigin("ms", "continuumsub");
+	*itsLog << LogIO::WARN
+			<< "The use of ms::continuumsub() is deprecated and will be "
+			<< "replaced by continuumsub2() in a future version. "
+            << "After deprecation, continuumsub2() will be renamed "
+            << "continuumsub()."
+			<< LogIO::POST;
+
 	Bool rstat(false);
 	try {
 		*itsLog << LogOrigin("ms", "continuumsub");
@@ -5992,7 +6224,7 @@ bool ms::continuumsub2(const ::casac::variant& field,
 {
 	Bool rstat(False);
 	try {
-		*itsLog << LogOrigin("ms", "continuumsub");
+		*itsLog << LogOrigin("ms", "continuumsub2");
 		*itsLog << LogIO::NORMAL2 << "continuumsub starting" << LogIO::POST;
 
 		MSContinuumSubtractor sub(*itsMS);
@@ -6404,7 +6636,15 @@ ms::addephemcol(const casacore::MeasurementSet& appendedMS)
 bool
 ms::niterinit(const std::vector<std::string>& /*columns*/, const double interval,
               const int maxrows, const bool adddefaultsortcolumns)
-{
+{ 
+	*itsLog << LogOrigin("ms", "niterinit");
+	*itsLog << LogIO::WARN
+			<< "The use of ms::niterinit() is deprecated; this function "
+			<< "will be removed from CASA. "
+			<< "Calls to ms::niterinit() should be replaced by calls to "
+			<< "ms::iterinit2()."
+			<< LogIO::POST;
+
 	Bool rstat(false);
 	Block<Int> sort(1);
 	sort[0]=MS::TIME;
@@ -6432,6 +6672,14 @@ ms::niterinit(const std::vector<std::string>& /*columns*/, const double interval
 bool
 ms::niterorigin()
 {
+	*itsLog << LogOrigin("ms", "niterorigin");
+	*itsLog << LogIO::WARN
+			<< "The use of ms::niterorigin() is deprecated; this function "
+			<< "will be removed from CASA. "
+			<< "Calls to ms::niterorigin() should be replaced by calls to "
+			<< "ms::iterorigin2()."
+			<< LogIO::POST;
+
 	Bool rstat(false);
 	if (!detached())
 	{
@@ -6456,6 +6704,14 @@ ms::niterorigin()
 bool
 ms::niterend()
 {
+	*itsLog << LogOrigin("ms", "niterend");
+	*itsLog << LogIO::WARN
+			<< "The use of ms::niterend() is deprecated; this function "
+			<< "will be removed from CASA. "
+			<< "Calls to ms::niterend() should be replaced by calls to "
+			<< "ms::iterend2()."
+			<< LogIO::POST;
+
 	Bool rstat(false);
 	if (!detached())
 	{
@@ -6474,6 +6730,14 @@ ms::niterend()
 bool
 ms::niternext()
 {
+	*itsLog << LogOrigin("ms", "niternext");
+	*itsLog << LogIO::WARN
+			<< "The use of ms::niternext() is deprecated; this function "
+			<< "will be removed from CASA. "
+			<< "Calls to ms::niternext() should be replaced by calls to "
+			<< "ms::iternext2()."
+			<< LogIO::POST;
+
 	Bool rstat(false);
 	if (!detached())
 	{
@@ -6497,6 +6761,14 @@ ms::niternext()
 ::casac::record*
 ms::ngetdata(const std::vector<std::string>& items, const bool /*ifraxis*/, const int /*ifraxisgap*/, const int /*increment*/, const bool /*average*/)
 {
+	*itsLog << LogOrigin("ms", "ngetdata");
+	*itsLog << LogIO::WARN
+			<< "The use of ms::ngetdata() is deprecated; this function "
+			<< "will be removed from CASA. "
+			<< "Calls to ms::ngetdata() should be replaced by calls to "
+			<< "ms::getdata2()."
+			<< LogIO::POST;
+
 	try
 	{
 		if (itsVI == NULL)

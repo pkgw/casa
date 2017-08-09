@@ -1159,7 +1159,7 @@ protected:
   }
 
   virtual std::string GetRelativeDataPath() {
-    return "sdsave";
+    return "singledish";
   }
 
   void SetCorrTypeToStokes() {

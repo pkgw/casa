@@ -2362,6 +2362,7 @@ void Calibrater::fluxscale(const String& infile,
   // TBD: write inputs to MSHistory
   logSink() << LogOrigin("Calibrater","fluxscale") << LogIO::NORMAL3;
 
+  SolvableVisCal *fsvj_(NULL);
   try {
     // If infile is Calibration table
     if (Table::isReadable(infile) && 
@@ -2396,7 +2397,6 @@ void Calibrater::fluxscale(const String& infile,
       }
 
       // Construct proper SVC object
-      SolvableVisCal *fsvj_;
       if (caltype == "G Jones") {
 	fsvj_ = createSolvableVisCal("G",*msmc_p);
       } else if (caltype == "T Jones") {
@@ -2463,6 +2463,9 @@ void Calibrater::fluxscale(const String& infile,
 	      << x.getMesg()
 	      << LogIO::POST;
     
+    // Clean up
+    if (fsvj_) delete fsvj_;
+
     // Write to MS History table
     //    String message="Caught Exception: "+x.getMesg();
     //    MSHistoryHandler::addMessage(*ms_p, message, "calibrater", "", "calibrater::fluxscale()");
@@ -2484,7 +2487,8 @@ void Calibrater::specifycal(const String& type,
 			    const String& antenna,
 			    const String& pol,
 			    const Vector<Double>& parameter,
-			    const String& infile) {
+			    const String& infile,
+			    const Bool& uniform) {
 
   logSink() << LogOrigin("Calibrater","specifycal") << LogIO::NORMAL;
 
@@ -2503,6 +2507,7 @@ void Calibrater::specifycal(const String& type,
     specifyDesc.addField ("parameter", TpArrayDouble);
     specifyDesc.addField ("caltype",TpString);
     specifyDesc.addField ("infile",TpString);
+    specifyDesc.addField ("uniform",TpBool);
 
     // Create record with the requisite field values
     Record specify(specifyDesc);
@@ -2520,6 +2525,7 @@ void Calibrater::specifycal(const String& type,
     specify.define ("parameter",parameter);
     specify.define ("caltype",type);
     specify.define ("infile",infile);
+    specify.define ("uniform",uniform);
 
     // Now do it
     String utype=upcase(type);
@@ -4640,6 +4646,7 @@ void OldCalibrater::fluxscale(const String& infile,
   // TBD: write inputs to MSHistory
   logSink() << LogOrigin("Calibrater","fluxscale") << LogIO::NORMAL3;
 
+  SolvableVisCal *fsvj_(NULL);
   try {
     // If infile is Calibration table
     if (Table::isReadable(infile) && 
@@ -4674,7 +4681,6 @@ void OldCalibrater::fluxscale(const String& infile,
       }
 
       // Construct proper SVC object
-      SolvableVisCal *fsvj_;
       if (caltype == "G Jones") {
 	fsvj_ = createSolvableVisCal("G",*vs_p);
       } else if (caltype == "T Jones") {
@@ -4741,6 +4747,9 @@ void OldCalibrater::fluxscale(const String& infile,
 	      << x.getMesg()
 	      << LogIO::POST;
     
+    // Clean up
+    if (fsvj_) delete fsvj_;
+
     // Write to MS History table
     //    String message="Caught Exception: "+x.getMesg();
     //    MSHistoryHandler::addMessage(*ms_p, message, "calibrater", "", "calibrater::fluxscale()");
@@ -4929,7 +4938,8 @@ void OldCalibrater::specifycal(const String& type,
 			       const String& antenna,
 			       const String& pol,
 			       const Vector<Double>& parameter,
-			       const String& infile) {
+			       const String& infile,
+			       const Bool& uniform) {
 
   logSink() << LogOrigin("Calibrater","specifycal") << LogIO::NORMAL;
 
@@ -4948,6 +4958,7 @@ void OldCalibrater::specifycal(const String& type,
     specifyDesc.addField ("parameter", TpArrayDouble);
     specifyDesc.addField ("caltype",TpString);
     specifyDesc.addField ("infile",TpString);
+    specifyDesc.addField ("uniform",TpBool);
 
     // Create record with the requisite field values
     Record specify(specifyDesc);
@@ -4965,6 +4976,7 @@ void OldCalibrater::specifycal(const String& type,
     specify.define ("parameter",parameter);
     specify.define ("caltype",type);
     specify.define ("infile",infile);
+    specify.define ("uniform",uniform);
 
     // Now do it
     String utype=upcase(type);
