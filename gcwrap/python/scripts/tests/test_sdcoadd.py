@@ -37,7 +37,7 @@ class sdcoaddold_unittest_base:
             raise Exception("A scantable '%s' does not exists." % scanname)
         if not is_scantable(scanname):
             raise Exception("Input file '%s' is not a scantable." % scanname)
-    
+
         res = {}
         for tab in self.addedtabs + list(self.mergeids.values()):
             tb.open(scanname+"/"+tab)
@@ -64,7 +64,7 @@ class sdcoaddold_unittest_base:
             keylist = complist
         else:
             keylist = list(refdict.keys())
-        
+
         for key in keylist:
             self.assertTrue(key in testdict,\
                             msg="%s is not defined in the current results."\
@@ -86,7 +86,7 @@ class sdcoaddold_unittest_base:
                                     msg="%s[%d] differs: %s (expected: %s) " % \
                                     (key, i, str(testval[i]), str(refval[i])))
             del testval, refval
-            
+
 
     def _isInAllowedRange( self, testval, refval, reltol=1.0e-5 ):
         """
@@ -154,7 +154,7 @@ class sdcoaddold_basicTest( sdcoaddold_unittest_base, unittest.TestCase ):
     ref212523 = {"nMAIN": 24, "nFOCUS": 1, "nFREQUENCIES": 8, "nMOLECULES": 2,\
                  "SCANNOS": list(range(3)), "FOCUS_IDS": list(range(1)),\
                  "FREQ_IDS": list(range(8)),"MOLECULE_IDS": list(range(2))}
-    
+
     def setUp( self ):
         # copy input scantables
         for infile in self.inlist:
@@ -295,7 +295,7 @@ class sdcoaddold_mergeTest( sdcoaddold_unittest_base, unittest.TestCase ):
     # orions_calSave_2327.asap: nROW=16, IF=[0-7], scan=[23,27], MOL=[0], FOC=[0]
     inlist = []
     outname = "sdcoaddold_out.asap"
-    
+
     def setUp( self ):
         default(sdcoaddold)
 
@@ -337,7 +337,7 @@ class sdcoaddold_mergeTest( sdcoaddold_unittest_base, unittest.TestCase ):
         """Merge Test 2: proper merge of FREQUENCIES subtables"""
         self.inlist = ['orions_calSave_21if03.asap','orions_calSave_23.asap']
         self._copy_inputs()
-        
+
         infiles = self.inlist
         outfile = self.outname
         result = sdcoaddold(infiles=infiles,outfile=outfile)
@@ -423,7 +423,7 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
     within_tol = 0.99e3
     equal_tol = 1.0e3
     outof_tol = 1.01e3
-    
+
     def setUp( self ):
         default(sdcoaddold)
         self._copy_inputs()
@@ -443,7 +443,7 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
     def _verify(self, outfile, expected_main_nrow, expected_hist_nrow, expected_freq_nrow, expected_freqids, expected_ifnos, expected_molids=None):
         # outfile must exist
         self.assertTrue(os.path.exists(self.outfile),msg="No output written")
-        
+
         # test nrow of outfile MAIN
         tb.open(outfile)
         main_nrow = tb.nrows()
@@ -457,19 +457,19 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
         # test nrow of outfile HISTORY
         hist_nrow = self._nrow(outfile, 'HISTORY')
         self.assertTrue(hist_nrow >= expected_hist_nrow,
-                        msg="nHIST = %d (expected: >= %d)" % (hist_nrow, expected_hist_nrow))        
-        
+                        msg="nHIST = %d (expected: >= %d)" % (hist_nrow, expected_hist_nrow))
+
         # test nrow of outfile FREQUENCIES
         freq_nrow = self._nrow(outfile, 'FREQUENCIES')
         self.assertEqual(expected_freq_nrow, freq_nrow,
                          msg='number of FREQUENCIES rows differ')
-        
+
         # test FREQ_ID entries
         self.assertEqual(main_nrow, len(expected_freqids),
                          msg='invalid expected value for FREQ_ID')
         self.assertTrue(all(freqids == numpy.array(expected_freqids)),
                             msg='FREQ_ID entries differ')
-        
+
         # test IFNO entries
         self.assertEqual(main_nrow, len(expected_ifnos),
                          msg='invalid expected value for IFNO')
@@ -482,7 +482,7 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
                              msg='invalid expected value for MOLECULE_ID')
             self.assertTrue(all(molids == numpy.array(expected_molids)),
                             msg='MOLECULE_ID entries differ')
-        
+
 
     def _nrow(self, tables, subtable=None):
         nrow = 0
@@ -501,11 +501,11 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
                 for t in tables:
                     nrow += self._nrow(t, subtable)
         return nrow
-        
+
     def test_freqtol00( self ):
         """test_freqtol00: check if same freq[0], increment, and nchan is merged"""
         infiles = self.inlist
-        
+
         # edit self.inlist[1] so that it suites with testing purpose
         # 1. renumber IFNO in second tables according to FREQ_ID
         tb.open(infiles[1], nomodify=False)
@@ -531,7 +531,7 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
     def test_freqtol01( self ):
         """test_freqtol01: different freq[0] (within 1kHz) is merged"""
         infiles = self.inlist
-        
+
         # edit self.inlist[1] so that it suites with testing purpose
         # 1. renumber IFNO in second tables according tao FREQ_ID
         # 2. shift REFVAL by an amount within tolerance
@@ -545,7 +545,7 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
         tb.putcell('REFVAL', 1, refval)
         tb.close()
 
-        # expected nrows for outfile HISTORY 
+        # expected nrows for outfile HISTORY
         expected_hist_nrow = self._nrow(infiles, 'HISTORY')
 
         # run sdcoaddold
@@ -562,7 +562,7 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
     def test_freqtol02(self):
         """test_freqtol02: check if different freq[0] (equal to 1kHz) is merged"""
         infiles = self.inlist
-        
+
         # edit self.inlist[1] so that it suites with testing purpose
         # 1. renumber IFNO in second tables according tao FREQ_ID
         # 2. shift REFVAL by an amount equal to tolerance
@@ -576,7 +576,7 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
         tb.putcell('REFVAL', 1, refval)
         tb.close()
 
-        # expected nrows for outfile HISTORY 
+        # expected nrows for outfile HISTORY
         expected_hist_nrow = self._nrow(infiles, 'HISTORY')
 
         # run sdcoaddold
@@ -593,7 +593,7 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
     def test_freqtol03(self):
         """test_freqtol03: check if different freq[0] (out of 1kHz) is NOT merged"""
         infiles = self.inlist
-        
+
         # edit self.inlist[1] so that it suites with testing purpose
         # 1. renumber IFNO in second tables according tao FREQ_ID
         # 2. shift REFVAL by an amount out of tolerance
@@ -607,7 +607,7 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
         tb.putcell('REFVAL', 1, refval)
         tb.close()
 
-        # expected nrows for outfile HISTORY 
+        # expected nrows for outfile HISTORY
         expected_hist_nrow = self._nrow(infiles, 'HISTORY')
 
         # run sdcoaddold
@@ -624,7 +624,7 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
     def test_freqtol04(self):
         """test_freqtol04: check if different increment (within 1kHz) is merged"""
         infiles = self.inlist
-        
+
         # edit self.inlist[1] so that it suites with testing purpose
         # 1. renumber IFNO in second tables according tao FREQ_ID
         # 2. shift INCREMENT by an amount within tolerance
@@ -644,7 +644,7 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
         tb.putcell('REFPIX', 3, 0.0)
         tb.close()
 
-        # expected nrows for outfile HISTORY 
+        # expected nrows for outfile HISTORY
         expected_hist_nrow = self._nrow(infiles, 'HISTORY')
 
         # run sdcoaddold
@@ -661,7 +661,7 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
     def test_freqtol05(self):
         """test_freqtol05: check if different increment (equal to 1kHz) is merged"""
         infiles = self.inlist
-        
+
         # edit self.inlist[1] so that it suites with testing purpose
         # 1. renumber IFNO in second tables according tao FREQ_ID
         # 2. shift INCREMENT by an amount equal to tolerance
@@ -681,7 +681,7 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
         tb.putcell('REFPIX', 3, 0.0)
         tb.close()
 
-        # expected nrows for outfile HISTORY 
+        # expected nrows for outfile HISTORY
         expected_hist_nrow = self._nrow(infiles, 'HISTORY')
 
         # run sdcoaddold
@@ -698,7 +698,7 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
     def test_freqtol06(self):
         """test_freqtol06: check if different increment (out of 1kHz) is NOT merged"""
         infiles = self.inlist
-        
+
         # edit self.inlist[1] so that it suites with testing purpose
         # 1. renumber IFNO in second tables according tao FREQ_ID
         # 2. shift INCREMENT by an amount out of tolerance
@@ -718,7 +718,7 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
         tb.putcell('REFPIX', 3, 0.0)
         tb.close()
 
-        # expected nrows for outfile HISTORY 
+        # expected nrows for outfile HISTORY
         expected_hist_nrow = self._nrow(infiles, 'HISTORY')
 
         # run sdcoaddold
@@ -735,7 +735,7 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
     def test_freqtol07(self):
         """test_freqtol07: check if different refval/refpix but same freq[0] is merged"""
         infiles = self.inlist
-        
+
         # edit self.inlist[1] so that it suites with testing purpose
         # 1. renumber IFNO in second tables according tao FREQ_ID
         # 2. shift REFPIX and REFVAL
@@ -752,7 +752,7 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
         refpix += npix
         tb.close()
 
-        # expected nrows for outfile HISTORY 
+        # expected nrows for outfile HISTORY
         expected_hist_nrow = self._nrow(infiles, 'HISTORY')
 
         # run sdcoaddold
@@ -769,7 +769,7 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
     def test_freqtol08(self):
         """test_freqtol08: check if different nchan merges FREQUENCIES and FREQ_ID but does NOT IFNO"""
         infiles = self.inlist
-        
+
         # edit self.inlist[1] so that it suites with testing purpose
         # 1. renumber IFNO in second tables according tao FREQ_ID
         # 2. change nchan of target FREQ_ID
@@ -784,7 +784,7 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
         tsel.close()
         tb.close()
 
-        # expected nrows for outfile HISTORY 
+        # expected nrows for outfile HISTORY
         expected_hist_nrow = self._nrow(infiles, 'HISTORY')
 
         # run sdcoaddold
@@ -797,12 +797,12 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
         expected_freqids = [0, 0, 1, 1, 2, 2, 3, 3, 0, 0, 3, 3]
         expected_ifnos = [0, 0, 1, 1, 2, 2, 3, 3, 0, 0, 4, 4]
         self._verify(self.outfile, expected_main_nrow, expected_hist_nrow, expected_freq_nrow, expected_freqids, expected_ifnos)
-    
+
     def test_freqtol09( self ):
         """test_freqtol09: check if same freq[0], increment, and nchan is merged (order of infiles is reversed)"""
         # reverse an order of infiles
         infiles = self.inlist[::-1]
-        
+
         # edit self.inlist[0] so that it suites with testing purpose
         # 1. renumber IFNO in second tables according to FREQ_ID
         tb.open(infiles[0], nomodify=False)
@@ -828,7 +828,7 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
     def test_freqtol10(self):
         """test_freqtol10: check if different BASEFRAME causes exception"""
         infiles = self.inlist
-        
+
         # edit self.inlist[1] so that it suites with testing purpose
         # 1. renumber IFNO in second tables according tao FREQ_ID
         # 2. change BASEFRAME
@@ -840,7 +840,7 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
         tb.putkeyword('BASEFRAME', 'TOPO')
         tb.close()
 
-        # expected nrows for outfile HISTORY 
+        # expected nrows for outfile HISTORY
         expected_hist_nrow = self._nrow(infiles, 'HISTORY')
 
         # run sdcoaddold
@@ -851,12 +851,12 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
                              msg='Unexpected exception is thrown: \'%s\''%(str(e)))
         except Exception as e:
             self.fail('Unexpected exception is thrown: \'%s\''%(str(e)))
-            
-    
+
+
     def test_freqtol11(self):
         """test_freqtol11: check if different FRAME doesn't affect the process"""
         infiles = self.inlist
-        
+
         # edit self.inlist[1] so that it suites with testing purpose
         # 1. renumber IFNO in second tables according tao FREQ_ID
         # 2. change FRAME
@@ -868,7 +868,7 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
         tb.putkeyword('FRAME', 'TOPO')
         tb.close()
 
-        # expected nrows for outfile HISTORY 
+        # expected nrows for outfile HISTORY
         expected_hist_nrow = self._nrow(infiles, 'HISTORY')
 
         # run sdcoaddold
@@ -895,7 +895,7 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
     def test_freqtol12(self):
         """test_freqtol12: check if any small shift within double accuracy is not allowed by default"""
         infiles = self.inlist
-        
+
         # edit self.inlist[1] so that it suites with testing purpose
         # 1. renumber IFNO in second tables according tao FREQ_ID
         # 2. shift REFVAL by an amount out of tolerance
@@ -909,7 +909,7 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
         tb.putcell('REFVAL', 1, refval)
         tb.close()
 
-        # expected nrows for outfile HISTORY 
+        # expected nrows for outfile HISTORY
         expected_hist_nrow = self._nrow(infiles, 'HISTORY')
 
         # run sdcoaddold
@@ -922,11 +922,11 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
         expected_freqids = [0, 0, 1, 1, 2, 2, 3, 3, 0, 0, 4, 4]
         expected_ifnos = [0, 0, 1, 1, 2, 2, 3, 3, 0, 0, 4, 4]
         self._verify(self.outfile, expected_main_nrow, expected_hist_nrow, expected_freq_nrow, expected_freqids, expected_ifnos)
-        
+
     def test_freqtol13( self ):
         """test_freqtol13: check if exactly same FREQUENCIES entries are merged by default"""
         infiles = self.inlist
-        
+
         # edit self.inlist[1] so that it suites with testing purpose
         # 1. renumber IFNO in second tables according to FREQ_ID
         tb.open(infiles[1], nomodify=False)
@@ -948,11 +948,11 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
         expected_freqids = [0, 0, 1, 1, 2, 2, 3, 3, 0, 0, 3, 3]
         expected_ifnos = [0, 0, 1, 1, 2, 2, 3, 3, 0, 0, 3, 3]
         self._verify(self.outfile, expected_main_nrow, expected_hist_nrow, expected_freq_nrow, expected_freqids, expected_ifnos)
-    
+
     def test_freqtol14(self):
         """test_freqtol14: check if numeric tolerance value works as expected"""
         infiles = self.inlist
-        
+
         # edit self.inlist[1] so that it suites with testing purpose
         # 1. renumber IFNO in second tables according tao FREQ_ID
         # 2. shift INCREMENT by an amount equal to tolerance
@@ -972,7 +972,7 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
         tb.putcell('REFPIX', 3, 0.0)
         tb.close()
 
-        # expected nrows for outfile HISTORY 
+        # expected nrows for outfile HISTORY
         expected_hist_nrow = self._nrow(infiles, 'HISTORY')
 
         # run sdcoaddold
@@ -989,7 +989,7 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
     def test_freqtol15( self ):
         """test_freqtol15: check if single MOLECULE_ID is assigned to each IFNO when there are two MOLECULE_ID's that refers different rest frequencies"""
         infiles = self.inlist
-        
+
         # edit self.inlist[1] so that it suites with testing purpose
         # 1. renumber IFNO in second tables according to FREQ_ID
         # 2. renumber MOLECULE_ID and ID in MOLECULES table
@@ -1022,7 +1022,7 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
     def test_freqtol16( self ):
         """test_freqtol16: check if single MOLECULE_ID is assigned to each IFNO when there are two MOLECULE_ID's that refers same rest frequency"""
         infiles = self.inlist
-        
+
         # edit self.inlist[1] so that it suites with testing purpose
         # 1. renumber IFNO in second tables according to FREQ_ID
         # 2. renumber MOLECULE_ID and ID in MOLECULES table
@@ -1054,7 +1054,7 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
     def test_freqtol17(self):
         """test_freqtol17: fail if invalid value is given"""
         infiles = self.inlist
-        
+
         # run sdcoaddold
         try:
             result = sdcoaddold(infiles=infiles,outfile=self.outfile,freqtol='None')
@@ -1063,10 +1063,10 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
                              msg='Unexpected exception is thrown: \'%s\''%(str(e)))
         except Exception as e:
             self.fail('Unexpected exception is thrown: \'%s\''%(str(e)))
-            
-    
 
-        
+
+
+
 class sdcoaddold_storageTest( sdcoaddold_unittest_base, unittest.TestCase ):
     """
     Unit tests for task sdcoaddold. Test scantable sotrage and insitu
@@ -1183,7 +1183,7 @@ class sdcoaddold_storageTest( sdcoaddold_unittest_base, unittest.TestCase ):
                 casalog.post('%s after sdcoaddold: %s = %s'%(f,k,out[f][k]))
                 self.assertTrue(all(out[f][k]==ref[f][k]),
                                     msg='%s of %s may be modified by sdcoaddold'%(k,f))
-            
+
     # Actual tests
     def testMT( self ):
         """Storage Test MT: sdcoaddold on storage='memory' and insitu=T"""
@@ -1270,7 +1270,7 @@ class sdcoaddold_storageTest( sdcoaddold_unittest_base, unittest.TestCase ):
         print("Running test with storage='%s' and insitu=%s" % \
               (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
         result = sdcoaddold(infiles=infiles,outfile=outfile)
-        
+
         self.assertEqual(result,None)
         self.assertTrue(os.path.exists(outfile),msg="No output written")
         # Test merged scantable
@@ -1327,7 +1327,7 @@ class sdcoaddold_flagTest( sdcoaddold_unittest_base, unittest.TestCase ):
     num_repeat = 2
     inlist = ['flagtest.asap'] * num_repeat
     outname = "sdcoaddold_out.asap"
-    
+
     def setUp( self ):
         for infile in self.inlist:
             if os.path.exists(infile):
@@ -1377,7 +1377,7 @@ class sdcoaddold_flagTest( sdcoaddold_unittest_base, unittest.TestCase ):
             return list.index(value)
         except:
             return -1
-    
+
 def suite():
     return [sdcoaddold_basicTest, sdcoaddold_mergeTest,
             sdcoaddold_storageTest, sdcoaddold_freqtolTest,

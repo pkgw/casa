@@ -17,7 +17,7 @@ def widebandpbcor(vis='',
                   threshold='1mJy',
                   action='pbcor',
                   reffreq = '1.5GHz',
-                  pbmin=0.001, 
+                  pbmin=0.001,
                   field='',
                   spwlist=[0],
                   chanlist=[0],
@@ -26,8 +26,8 @@ def widebandpbcor(vis='',
    Wide-Band PB-correction.  Specify a list of spwids and channel numbers at which
    to compute primary beams. Supply weights to use for each beam.  All three lists
    spwlist, chanlist, weightlist must be of the same length.  It is enough to
-   make one PB per spw (middle channel). 
-   """   
+   make one PB per spw (middle channel).
+   """
    casalog.origin('widebandpbcor')
 
    casalog.post('widebandpbcor is a temporary task, meant for use until a widebandpbcor option is enabled from within the tclean task.','WARN')
@@ -41,8 +41,8 @@ def widebandpbcor(vis='',
    taylorlist=[]
    residuallist=[]
    for i in range(0,nterms):
-	taylorlist.append(imagename+'.image.tt'+str(i));
-	residuallist.append(imagename+'.residual.tt'+str(i));
+        taylorlist.append(imagename+'.image.tt'+str(i));
+        residuallist.append(imagename+'.residual.tt'+str(i));
         if(not os.path.exists(taylorlist[i])):
             casalog.post('Taylor-coeff Restored Image : ' + taylorlist[i] + ' not found.','SEVERE')
             return False
@@ -57,7 +57,7 @@ def widebandpbcor(vis='',
    imsize = [ ia.shape()[0], ia.shape()[1] ]
    iminfo = ia.summary()
    ia.close()
-   
+
    ## Get cell size
    cellx = str( abs (qa.convert( qa.quantity( iminfo['incr'][0] , iminfo['axisunits'][0] ) , 'arcsec' )['value'] ) ) + ' arcsec'
    celly = str( abs (qa.convert( qa.quantity( iminfo['incr'][1] , iminfo['axisunits'][1] ) , 'arcsec' )['value'] ) ) + ' arcsec'
@@ -130,7 +130,7 @@ def widebandpbcor(vis='',
            imlist.append(imagename+'.image.tt'+str(i))
            pblist.append(pbdirname+'/'+imagename+'.pb.tt'+str(i));
            imlistpbcor.append(imagename+'.pbcor.image.tt'+str(i));
-           
+
        # Calculate Taylor Coeffs from this cube
        ret = _calcTaylorFromCube(imtemplate=imagename+'.image.tt0',reffreq=reffreq,cubename=pbcubename,newtay=pblist, pbthreshold=pbthreshold, weightlist=weightlist);
        if ret==False:
@@ -169,7 +169,7 @@ def _calcPBAlpha(pbtay=[], pbthreshold=0.1,pbalphaname='pbalpha.im'):
     nterms = len(pbtay)
     if nterms<2:
         return False
-    
+
     if(os.path.exists(pbalphaname)):
        rmcmd = 'rm -rf ' + pbalphaname
        os.system(rmcmd)
@@ -213,7 +213,7 @@ def _makePBList(msname='',pbprefix='',field='',spwlist=[],chanlist=[], imsize=[]
          if(ret==False):
              casalog.post('Error in constructing PBs at the specified spw:chan of '+ sspw ,'SEVERE')
              return []
-         im.defineimage(nx=imsize[0],ny=imsize[1], cellx=cellx,celly=celly, 
+         im.defineimage(nx=imsize[0],ny=imsize[1], cellx=cellx,celly=celly,
                              nchan=1,start=chanlist[aspw], stokes='I',
                              mode='channel',spw=[spwlist[aspw]],phasecenter=phasecenter);
          im.setvp(dovp=True)
@@ -227,7 +227,7 @@ def _makePBList(msname='',pbprefix='',field='',spwlist=[],chanlist=[], imsize=[]
       casalog.post('Error in constructing PBs at the specified frequencies. Please check spwlist/chanlist','SEVERE','task_widebandpbcor')
       return []
    return pblist
-    
+
 
 ##############################################################################
 def _calcTaylorFromCube(imtemplate="",reffreq='1.42GHz',cubename="sim.pb",newtay=[],pbthreshold=0.0001,weightlist=[]):
@@ -250,7 +250,7 @@ def _calcTaylorFromCube(imtemplate="",reffreq='1.42GHz',cubename="sim.pb",newtay
        restfreq = csys.referencevalue()['numeric'][3]/1e+09; # convert more generally..
        freqincrement = csys.increment()['numeric'][3]/1e+09;
        freqlist = [];
-       for chan in range(0,shp[3]): 
+       for chan in range(0,shp[3]):
              freqlist.append(restfreq + chan * freqincrement);
    elif(csys.axiscoordinatetypes()[3] == 'Tabular'):
        freqlist = (csys.torecord()['tabular2']['worldvalues'])/1e+09;
@@ -309,9 +309,9 @@ def _calcTaylorFromCube(imtemplate="",reffreq='1.42GHz',cubename="sim.pb",newtay
      ptays[4].fill(0.0);
      ia.close();
      pstart=[0.0,0.0,0.0,0.0,0.0];
-   
+
    ##### Fit a nterms-term polynomial to each point !!!
-  
+
    # Linear fit
    ptays=_linfit(ptays, freqs, pbcube[:,:,0,:], weightarr, pbthreshold);
 
@@ -355,7 +355,7 @@ def _linfit(ptays, freqs, pcube, wts, pbthresh):
   if(len(freqs) != len(wts)):
       casalog.post('Mismatch in lengths of freqs : '+ len(freqs)+ ' and wts : '+ len(wts) , 'SEVERE');
       return ptays;
-  
+
   for ii in range(0,nterms):
     for jj in range(0,nterms):
        hess[ii,jj]= np.mean( freqs**(ii+jj) * wts);
@@ -368,7 +368,7 @@ def _linfit(ptays, freqs, pcube, wts, pbthresh):
   casalog.post('Inv Hess : ' + str(invhess), 'NORMAL')
 
   casalog.post('Calculating Taylor-coefficients for the PB spectrum', 'NORMAL')
-  
+
   for x in range(0,shp[0]):
     for y in range(0,shp[1]):
        if pcube[x,y,0] > pbthresh: # Calculate coeffs only where the largest beam is above thresh
@@ -380,7 +380,7 @@ def _linfit(ptays, freqs, pcube, wts, pbthresh):
     if(x%100 == 0):
        casalog.post('--- finished rows '+str(x)+ ' to '+ str(x+99), 'NORMAL');
 
-  return ptays;  
+  return ptays;
 
 #############
 
@@ -401,7 +401,7 @@ def _dividePB(nterms,pbcoeffs,targetpbs):
        det[abs(det)==0.0]=1.0;
        correctedpbs.append( pbcoeffs[0] * targetpbs[0] / det);
        correctedpbs.append( (-1*pbcoeffs[1]*targetpbs[0] + pbcoeffs[0] * targetpbs[1])/det );
-       
+
    if(nterms==3):
        det = pbcoeffs[0]**3;
        det[abs(det)==0.0]=1.0;
@@ -425,7 +425,7 @@ def _dividePBTaylor(imlist=[],pblist=[],imlistpbcor=[],pbthreshold=0.1):
 
    nterms = len(imlist)
 
-   # Read PB coefficient images   
+   # Read PB coefficient images
    pbcoeffs=[]
    for tay in range(0,nterms):
       if(not os.path.exists(pblist[tay])):
@@ -435,8 +435,8 @@ def _dividePBTaylor(imlist=[],pblist=[],imlistpbcor=[],pbthreshold=0.1):
       pbcoeffs.append(ia.getchunk());
       ia.close();
 
-   # Read Images to normalize   
-   inpimages=[];   
+   # Read Images to normalize
+   inpimages=[];
    for tay in range(0,nterms):
       if(not os.path.exists(imlist[tay])):
            casalog.post("Image Coeff " + imlist[tay] + " does not exist ", 'SEVERE');
@@ -447,10 +447,10 @@ def _dividePBTaylor(imlist=[],pblist=[],imlistpbcor=[],pbthreshold=0.1):
 
    # Divide the two polynomials.
    normedims = _dividePB(nterms,pbcoeffs,inpimages);
- 
+
    if(len(normedims)==0):
       casalog.post("Could not divide the beam",'SEVERE');
-      return False;    
+      return False;
 
    for tay in range(0,nterms):
       imtemp = imlist[0]
@@ -480,14 +480,14 @@ def  _compute_alpha_beta(imagename, nterms, taylorlist, residuallist, threshold,
    #if(os.path.exists(nameintensity)):
    #      rmcmd = 'rm -rf ' + nameintensity;
    #      os.system(rmcmd);
-   #print 'Creating new image : ', nameintensity   
+   #print 'Creating new image : ', nameintensity
    #cpcmd = 'cp -r ' + imtemplate + ' ' + nameintensity;
    #os.system(cpcmd);
 
    if(os.path.exists(namealpha)):
          rmcmd = 'rm -rf ' + namealpha;
          os.system(rmcmd);
-   casalog.post( 'Creating new image : ' + namealpha, 'NORMAL')   
+   casalog.post( 'Creating new image : ' + namealpha, 'NORMAL')
    cpcmd = 'cp -r ' + imtemplate + ' ' + namealpha;
    os.system(cpcmd);
 
@@ -495,7 +495,7 @@ def  _compute_alpha_beta(imagename, nterms, taylorlist, residuallist, threshold,
        if(os.path.exists(nameerror)):
              rmcmd = 'rm -rf ' + nameerror;
              os.system(rmcmd);
-       casalog.post( 'Creating new image : ' + nameerror , 'NORMAL' )   
+       casalog.post( 'Creating new image : ' + nameerror , 'NORMAL' )
        cpcmd = 'cp -r ' + imtemplate + ' ' + nameerror;
        os.system(cpcmd);
 
@@ -503,7 +503,7 @@ def  _compute_alpha_beta(imagename, nterms, taylorlist, residuallist, threshold,
      if(os.path.exists(namebeta)):
             rmcmd = 'rm -rf ' + namebeta;
             os.system(rmcmd);
-     casalog.post( 'Creating new image : ' +  namebeta, 'NORMAL') 
+     casalog.post( 'Creating new image : ' +  namebeta, 'NORMAL')
      cpcmd = 'cp -r ' + imtemplate + ' ' + namebeta;
      os.system(cpcmd);
 

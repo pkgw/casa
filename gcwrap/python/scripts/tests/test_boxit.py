@@ -38,7 +38,7 @@
 #
 # <prerequisite>
 # <ul>
-#   <li> <linkto class="boxit.py:description">imfit</linkto> 
+#   <li> <linkto class="boxit.py:description">imfit</linkto>
 # </ul>
 # </prerequisite>
 #
@@ -49,7 +49,7 @@
 # <synopsis>
 # boxit_test.py is a Python script that tests the correctness
 # boxit task in CASA.
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 # # This test was designed to run in the automated CASA unit test system.
@@ -78,7 +78,7 @@ from __main__ import *
 import shutil
 import unittest
 
-imagename = 'R1046_boxit' 
+imagename = 'R1046_boxit'
 msgs = ''
 exp_basic_rgn = "boxit_expected_basic.rgn"
 exp_basic_mask = "boxit_expected_basic.mask"
@@ -109,23 +109,23 @@ def compare_mask(expected_mask, got_mask, difference_image):
         return False
     pixels = ia.getchunk()
     ia.done()
-    return not pixels.any() 
+    return not pixels.any()
 
 
 class boxit_test(unittest.TestCase):
-    
+
     def setUp(self):
         if(os.path.exists(List[0])):
             for file in List:
                 os.system('rm -rf ' +file)
-                
+
         datapath=os.environ.get('CASAPATH').split()[0]+'/data/regression/boxit/'
         for file in List:
-            os.system('cp -r ' +datapath+file +' ' +file)        
-    
+            os.system('cp -r ' +datapath+file +' ' +file)
+
     def tearDown(self):
         for file in List:
-            os.system('rm -rf ' +file)                              
+            os.system('rm -rf ' +file)
 
     def test_basic(self):
         """Boxit: Basic test to ensure correct region file is being written"""
@@ -137,12 +137,12 @@ class boxit_test(unittest.TestCase):
         boxit(imagename=imagename, threshold=.5, regionfile=regionfile, maskname=mask)
         if (not compare_region(exp_basic_rgn, regionfile)):
             success = False
-            msgs += test + ": region file not correctly written" 
+            msgs += test + ": region file not correctly written"
         if (not compare_mask(exp_basic_mask, mask, 'basic_mask_diff')):
             success = False
             msgs += test + ": mask  not correctly written"
         self.assertTrue(success,msgs)
-        
+
     def test_minsize(self):
         """Boxit: Test of non-default minsize parameter"""
         success = True
@@ -158,7 +158,7 @@ class boxit_test(unittest.TestCase):
             success = False
             msgs += test + ": mask  not correctly written"
         self.assertTrue(success,msgs)
-        
+
     def test_diag(self):
         """Boxit: Test of non-default diag parameter"""
         success = True
@@ -174,7 +174,7 @@ class boxit_test(unittest.TestCase):
             success = False
             msgs += test + ": mask  not correctly written"
         self.assertTrue(success,msgs)
-    
+
     def test_boxstretch(self):
         """Boxit: Test of non-default boxstretch parameter"""
         success = True
@@ -190,7 +190,7 @@ class boxit_test(unittest.TestCase):
             success = False
             msgs += test + ": mask  not correctly written"
         self.assertTrue(success,msgs)
-       
+
     def test_CAS_2059(self):
         '''Boxit: CAS-2059 confirm that imagename can contain dashes'''
         test = "CAS-2059: confirm imagename can contain dashes"
@@ -203,11 +203,11 @@ class boxit_test(unittest.TestCase):
         boxit(imagename=myimagename+"/", threshold=.5, regionfile=regionfile, maskname=mask)
         if (not compare_region(exp_basic_rgn, regionfile)):
             success = False
-            msgs += test + ": region file not correctly written" 
+            msgs += test + ": region file not correctly written"
         if (not compare_mask(exp_basic_mask, mask, 'basic_mask_diff_2')):
             success = False
             msgs += test + ": mask  not correctly written"
-    
+
         self.assertTrue(success,msgs)
 
 

@@ -12,7 +12,7 @@ def virtualconcat(vislist,concatvis,freqtol,dirtol,respectname,
           visweightscale,keepcopy,copypointing):
     """
     Concatenate visibility data sets creating a Multi-MS.
-    
+
     Combine the input datasets into a Multi-MS.
     NOTE: The input datasets are moved into the Multi-MS and may be modified
     to account for subtable reference changes.
@@ -34,7 +34,7 @@ def virtualconcat(vislist,concatvis,freqtol,dirtol,respectname,
         default: ;; means always combine
         example: dirtol='1.arcsec' will not combine data for a field unless
         their phase center is less than 1 arcsec.
-    respectname -- If true, fields with a different name are not merged even if their 
+    respectname -- If true, fields with a different name are not merged even if their
                 direction agrees (within dirtol)
                 default: True
     visweightscale -- list of the weight scales to be applied to the individual MSs
@@ -56,7 +56,7 @@ def virtualconcat(vislist,concatvis,freqtol,dirtol,respectname,
         casalog.origin('virtualconcat')
         t = tbtool()
         m = mstool()
-        
+
         #break the reference between vis and vislist as we modify vis
         if(type(vislist)==str):
             vis=[vislist]
@@ -74,7 +74,7 @@ def virtualconcat(vislist,concatvis,freqtol,dirtol,respectname,
                     raise Exception('parameter visweightscale must only contain positive numbers')
                 elif factor!=1.:
                     doweightscale=True
-                    
+
         if((type(concatvis)!=str) or (len(concatvis.split()) < 1)):
             raise Exception('Parameter concatvis is invalid.')
 
@@ -98,8 +98,8 @@ def virtualconcat(vislist,concatvis,freqtol,dirtol,respectname,
             else:
                 namestuples.append( (times[0], name, 0) )
 
-        sorted_namestuples = sorted(namestuples, key=lambda msname: msname[0]) 
-    
+        sorted_namestuples = sorted(namestuples, key=lambda msname: msname[0])
+
         for i in range(0,len(vis)):
             sortedvis.append(sorted_namestuples[i][1])
             sortedvisweightscale.append(sorted_namestuples[i][2])
@@ -142,7 +142,7 @@ def virtualconcat(vislist,concatvis,freqtol,dirtol,respectname,
                     mastername = os.path.basename(os.path.dirname(os.path.realpath(elvis+'/ANTENNA')))
                     for mname in mses:
                         #print 'subms: ', mname
-                        vis.append(mname)                    
+                        vis.append(mname)
                         if doweightscale:
                             visweightscale.append(oldvisweightscale[i])
                         if os.path.basename(mname) == mastername:
@@ -175,7 +175,7 @@ def virtualconcat(vislist,concatvis,freqtol,dirtol,respectname,
             shutil.rmtree(tmptabname2, ignore_errors=True)
             shutil.move(vis[0]+'/POINTING', tmptabname)
             t.open(tmptabname)
-            if(t.nrows()>0): 
+            if(t.nrows()>0):
                 ttab = t.copy(newtablename=tmptabname2, deep=False, valuecopy=True, norows=True)
                 ttab.close()
                 t.close()
@@ -184,12 +184,12 @@ def virtualconcat(vislist,concatvis,freqtol,dirtol,respectname,
                 t.close()
                 casalog.post('***    Input POINTING table was already empty.', 'INFO')
                 shutil.move(tmptabname, tmptabname2)
-                
+
             for i in range(len(vis)): # replace the POINTING tables by the empty one
                 os.system('rm -rf '+vis[i]+'/POINTING')
                 shutil.copytree(tmptabname2, vis[i]+'/POINTING')
             shutil.rmtree(tmptabname2, ignore_errors=True)
-                    
+
         if(len(vis) >0): # (note: in case len is 1, we only copy, essentially)
             theconcatvis = vis[0]
             if(len(vis)==1):
@@ -198,7 +198,7 @@ def virtualconcat(vislist,concatvis,freqtol,dirtol,respectname,
 
         # Determine if scratch columns should be considered at all
         # by checking if any of the MSs has them.
-        
+
         considerscrcols = False
         needscrcols = []
         if ((type(theconcatvis)==str) and (os.path.exists(theconcatvis))):
@@ -206,7 +206,7 @@ def virtualconcat(vislist,concatvis,freqtol,dirtol,respectname,
             t.open(theconcatvis)
             if(t.colnames().count('CORRECTED_DATA')==1 or t.colnames().count('MODEL_DATA')==1):
                 considerscrcols = True  # there are scratch columns
-                
+
             needscrcols.append(t.colnames().count('CORRECTED_DATA')==0 or t.colnames().count('MODEL_DATA')==0)
             t.close()
         else:
@@ -218,18 +218,18 @@ def virtualconcat(vislist,concatvis,freqtol,dirtol,respectname,
 
             # check if all scratch columns are present
             t.open(elvis)
-            if(t.colnames().count('CORRECTED_DATA')==1 
+            if(t.colnames().count('CORRECTED_DATA')==1
                            or  t.colnames().count('MODEL_DATA')==1):
                 considerscrcols = True  # there are scratch columns
 
-            needscrcols.append(t.colnames().count('CORRECTED_DATA')==0 
+            needscrcols.append(t.colnames().count('CORRECTED_DATA')==0
                       or  t.colnames().count('MODEL_DATA')==0)
             t.close()
 
         # start actual work, file existence has already been checked
 
         if(considerscrcols and needscrcols[0]):
-            # create scratch cols            
+            # create scratch cols
             casalog.post('creating scratch columns in '+theconcatvis , 'INFO')
             _cb.open(theconcatvis) # calibrator-open creates scratch columns
             _cb.close()
@@ -252,11 +252,11 @@ def virtualconcat(vislist,concatvis,freqtol,dirtol,respectname,
 
         m.open(theconcatvis,nomodify=False)
         mmsmembers = [theconcatvis]
-    
+
         auxfile = 'concat_aux_'+str(time.time())
 
         i = 0
-        for elvis in vis : 
+        for elvis in vis :
             i = i + 1
 
             mmsmembers.append(elvis)
@@ -271,11 +271,11 @@ def virtualconcat(vislist,concatvis,freqtol,dirtol,respectname,
                     casalog.post('Will scale weights for this MS by factor '+str(wscale) , 'INFO')
 
             if(considerscrcols and needscrcols[i]):
-                # create scratch cols            
+                # create scratch cols
                 casalog.post('creating scratch columns for '+elvis, 'INFO')
                 _cb.open(elvis) # calibrator-open creates scratch columns
                 _cb.close()
-                
+
             m.virtconcatenate(msfile=elvis,
                       auxfilename=auxfile,
                       freqtol=freqtol,dirtol=dirtol,respectname=respectname,
@@ -317,15 +317,15 @@ def virtualconcat(vislist,concatvis,freqtol,dirtol,respectname,
         thesubtables.remove('SOURCE')
         thesubtables.remove('HISTORY')
         subtabs_to_omit = thesubtables
-        
+
         ph.makeMMS(concatvis, mmsmembers,
-				   True, # copy subtables from first to all other members 
+                                   True, # copy subtables from first to all other members
                    subtabs_to_omit) # excluding tables which will be linked
 
         # remove the remaining "hulls" of the emptied input MMSs (if there are any)
         for elvis in mmslist:
             shutil.rmtree(elvis)
-        
+
         if keepcopy:
             for elvis in originalvis:
                 shutil.move(tempdir+'/'+elvis, elvis)

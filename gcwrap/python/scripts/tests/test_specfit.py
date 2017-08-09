@@ -38,7 +38,7 @@
 #
 # <prerequisite>
 # <ul>
-#   <li> <linkto class="task_specfit.py:description">imcollapse</linkto> 
+#   <li> <linkto class="task_specfit.py:description">imcollapse</linkto>
 # </ul>
 # </prerequisite>
 #
@@ -48,20 +48,20 @@
 #
 # <synopsis>
 # Test the specfit task and the ia.fitprofile() method upon which it is built.
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_specfit[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the specfit task to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -162,7 +162,7 @@ def run_specfit(
     )
 
 class specfit_test(unittest.TestCase):
-    
+
     def setUp(self):
         shutil.copy(datapath + twogauss, twogauss)
         shutil.copy(datapath + polyim, polyim)
@@ -173,7 +173,7 @@ class specfit_test(unittest.TestCase):
         self.assertTrue(len(tb.showcache()) == 0)
 
     def checkImage(self, gotImage, expectedName):
-        expected = iatool()                                
+        expected = iatool()
         expected.open(expectedName)
         got = iatool()
         if type(gotImage) == str:
@@ -204,7 +204,7 @@ class specfit_test(unittest.TestCase):
         expectedCsys = expected.coordsys()
         diffPixels = gotCsys.referencepixel()['numeric'] - expectedCsys.referencepixel()['numeric']
         self.assertTrue(abs(diffPixels).max() == 0)
-        
+
         diffRef = gotCsys.referencevalue()['numeric'] - expectedCsys.referencevalue()['numeric']
         # fracDiffRef = (diffRef)/expectedCsys.referencevalue()['numeric'];
         self.assertTrue(abs(diffRef).max() == 0)
@@ -215,7 +215,7 @@ class specfit_test(unittest.TestCase):
 
     def test_exceptions(self):
         """specfit: Test various exception cases"""
-        
+
         def testit(
             imagename, box, region, chans, stokes,
             axis, mask, ngauss, poly, multifit, model,
@@ -263,20 +263,20 @@ class specfit_test(unittest.TestCase):
         # Exception if bogus chans string given #2
         testit(
             twogauss, "", "", "0-200", "", 2, "", 1, -1, False, "", ""
-        )        
-        # Exception if bogus stokes string given #1   
+        )
+        # Exception if bogus stokes string given #1
         testit(
             twogauss, "", "", "", "abc", 2, "", 1, -1, False, "", ""
-        )       
-        # Exception if bogus stokes string given #2 
+        )
+        # Exception if bogus stokes string given #2
         testit(
             twogauss, "", "", "", "v", 2, "", 1, -1, False, "", ""
-        )       
+        )
         # Exception if no gaussians and no polynomial specified
         testit(
             twogauss, "", "", "", "", 2, "", 0, -1, False, "", ""
-        )         
-        
+        )
+
     def test_1(self):
         """Tests of averaging over a region and then fitting"""
         imagename = twogauss
@@ -313,7 +313,7 @@ class specfit_test(unittest.TestCase):
 
             self.assertTrue(res["xUnit"] == "km/s")
             self.assertTrue(res["yUnit"] == "Jy")
- 
+
     def test_2(self):
         """ multipixel, two gaussian fit"""
         imagename = twogauss
@@ -346,7 +346,7 @@ class specfit_test(unittest.TestCase):
 
             self.assertTrue(res["xUnit"] == "km/s")
             self.assertTrue(res["yUnit"] == "Jy")
-            
+
     def test_3(self):
         """ Test two gaussian + one polynomial image"""
         imagename = polyim
@@ -408,7 +408,7 @@ class specfit_test(unittest.TestCase):
                     name = im + j
                     self.checkImage(name, datapath + name)
                     shutil.rmtree(name)
-                
+
     def test_4_5(self):
         """writing solution images for multipixel, two gaussian fit with mask - CAS-6134"""
         imagename = twogauss
@@ -448,7 +448,7 @@ class specfit_test(unittest.TestCase):
                 integral, integralerr
             )
             # running successfully validates that the fix worked
-            
+
     def test_5(self):
         """test results of multi-pixel one gaussian fit with estimates file"""
         imagename = twogauss
@@ -468,7 +468,7 @@ class specfit_test(unittest.TestCase):
             res = code(
                 imagename, box, region, chans,
                 stokes, axis, mask, ngauss, poly,
-                multifit, model, residual, 
+                multifit, model, residual,
                 estimates=estimates
             )
         # no tests yet, just confirm it runs to completion
@@ -492,7 +492,7 @@ class specfit_test(unittest.TestCase):
             res = code(
                 imagename, box, region, chans,
                 stokes, axis, mask, ngauss, poly,
-                multifit, model, residual, 
+                multifit, model, residual,
                 estimates=estimates
             )
             self.assertTrue(res['converged'] == 1)
@@ -528,7 +528,7 @@ class specfit_test(unittest.TestCase):
             res = code(
                 imagename, box, region, chans,
                 stokes, axis, mask, ngauss, poly,
-                multifit, model, residual, 
+                multifit, model, residual,
                 estimates=estimates
             )
             self.assertTrue(res['converged'] == 1)
@@ -544,7 +544,7 @@ class specfit_test(unittest.TestCase):
             self.assertTrue(res["xUnit"] == "km/s")
             self.assertTrue(res["yUnit"] == "Jy")
 
-            
+
     def test_stretch(self):
         """specfit : test mask stretch"""
         imagename = twogauss
@@ -584,7 +584,7 @@ class specfit_test(unittest.TestCase):
         """ Test two gaussian + one polynomial image with estimates"""
 
         estimates = datapath + "poly+2gauss_estimates.txt"
-        
+
         for code in [run_fitprofile, run_specfit]:
             res = code(
                 imagename=polyim, box="", region="", chans="",
@@ -632,15 +632,15 @@ class specfit_test(unittest.TestCase):
             gs["center"][0,0,0,0,0] = nanvalue
             gs["center"][0,0,0,0,1] = nanvalue
             self.assertTrue((gs["center"] == center).all())
-            
+
             gs["amp"][0,0,0,0,0] = nanvalue
             gs["amp"][0,0,0,0,1] = nanvalue
             self.assertTrue((abs(gs["amp"] - amp) < 1e-13).all())
-            
+
             gs["fwhm"][0,0,0,0,0] = nanvalue
             gs["fwhm"][0,0,0,0,1] = nanvalue
             self.assertTrue((abs(gs["fwhm"] - fwhm) < 1e-13).all())
-    
+
     def test_8a(self):
         """ Test two gaussian + one polynomial image with estimates"""
         imagename = "tg_poly.im"
@@ -682,14 +682,14 @@ class specfit_test(unittest.TestCase):
                 multifit=True, model="", residual="",
                 estimates=estimates
             )
-            self.assertTrue((res['ncomps'] == 3).all())                   
+            self.assertTrue((res['ncomps'] == 3).all())
             res = code(
                 imagename=imagename, box="", region="", chans="",
                 stokes="", axis=2, mask="", ngauss=0, poly=2,
                 multifit=True, model="", residual="",
                 pampest=[50, 10], pcenterest=[90, 30], pfwhmest=[10, 7]
-            )   
-            self.assertTrue((res['ncomps'] == 3).all())                   
+            )
+            self.assertTrue((res['ncomps'] == 3).all())
 
 
     def test_9(self):
@@ -707,7 +707,7 @@ class specfit_test(unittest.TestCase):
         self.assertTrue(pixels.shape == tuple(shape))
         self.assertTrue((pixels == 0).all())
         myim.done()
-        
+
     def test_10(self):
         """test results of non-multi-fit gaussian triplet"""
         imagename=datapath+gauss_triplet
@@ -718,7 +718,7 @@ class specfit_test(unittest.TestCase):
                 imagename=imagename, box="", region="", chans="",
                 stokes="", axis=2, mask="", ngauss=0, poly=-1,
                 multifit=False, model="", residual="", estimates="",
-                gmncomps=3, gmampest=[1.2, 0.8, 0.6], 
+                gmncomps=3, gmampest=[1.2, 0.8, 0.6],
                 gmcenterest=[20, 72, 100], gmfwhmest=[4, 4, 4],
                 gmampcon=gmampcon, gmcentercon=gmcentercon
             )
@@ -794,7 +794,7 @@ class specfit_test(unittest.TestCase):
                 centererr="centerErr", fwhm="fwhm",
                 fwhmerr="fwhmErr", amp="amp", amperr="ampErr",
                 integral="integral", integralerr="integralErr",
-                gmncomps=3, gmampest=[1.2, 0.1, 0.1], 
+                gmncomps=3, gmampest=[1.2, 0.1, 0.1],
                 gmcenterest=[20, 0, 100], gmfwhmest=[4, 4, 4],
                 gmampcon=gmampcon, gmcentercon=gmcentercon,
                 logfile=logfile
@@ -819,7 +819,7 @@ class specfit_test(unittest.TestCase):
         pcen = [30, 111]
         pfwhm = [4, 4]
         pfunc = ["l", "l"]
-        
+
         logfile = "two_lorentzian_fit.log"
         i = 1
         for code in [run_fitprofile, run_specfit]:
@@ -845,7 +845,7 @@ class specfit_test(unittest.TestCase):
             # appending, second time through size should double
             self.assertTrue(os.path.getsize(logfile) > 2e4*i)
             i = i+1
-            
+
     def test_13(self):
         """test setting solution parameter validities """
         imagename = datapath + invalid_fits
@@ -864,7 +864,7 @@ class specfit_test(unittest.TestCase):
                     exp = 6
                 self.assertTrue(res["valid"].sum() == exp)
             i = i+1
-          
+
     def test_14(self):
         imagename = datapath + birdie
         sigmaimage = "sigma.im"
@@ -937,7 +937,7 @@ class specfit_test(unittest.TestCase):
                             else:
                                 self.assertTrue(((mymax*myia.getchunk() - fullsigma)/fullsigma < 1e-7).all())
                             myia.remove()
-                
+
     def test_multiregion(self):
         """Test that multiple regions are supported - CAS-6115"""
         imagename = datapath + "simple.im"
@@ -1036,7 +1036,7 @@ class specfit_test(unittest.TestCase):
                 multifit, model, residual
             )
         )
-        
+
     def test_noinf(self):
         """Test that output images have infs and nans masked"""
         pixfit = specfit(

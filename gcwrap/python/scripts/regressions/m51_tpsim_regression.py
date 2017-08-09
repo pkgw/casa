@@ -12,8 +12,8 @@ startProc = time.clock()
 print('--Running sim_observe of M51 (total power) --')
 # configs are in the repository
 
-l=locals() 
-if "repodir" not in l: 
+l=locals()
+if "repodir" not in l:
     repodir=os.getenv("CASAPATH").split(' ')[0]
 
 print(casa['build'])
@@ -52,7 +52,7 @@ sdantlist = cfgdir+'aca.tp.cfg'
 sdant = 0
 
 # only tsys-manual is available so far
-#thermalnoise = ''   #w/o noise 
+#thermalnoise = ''   #w/o noise
 thermalnoise = 'tsys-manual'  #w/ noise
 t_sky = 263.0
 t_ground = t_sky
@@ -218,7 +218,7 @@ for ke in rskes:
     else:
         print("* FAILED %-5s  diff test, got % -11.5g instead of % -11.5g." % (ke, m51sd_diffstats[ke][0], diffstats[ke]), file=logfile)
         regstate = False
-        
+
 
 print('---', file=logfile)
 if regstate:
@@ -235,7 +235,7 @@ else:
 print('regression test for simdata of M51 (total power).', file=logfile)
 print('---', file=logfile)
 print('*********************************', file=logfile)
-    
+
 print('', file=logfile)
 print('********** Benchmarking **************', file=logfile)
 print('', file=logfile)
@@ -250,7 +250,7 @@ msfstat = os.stat(project+"/"+project+'.aca.tp.sd.ms')
 print('* Breakdown:                           *', file=logfile)
 print('*  generating visibilities took %8.3fs,' % (msfstat[8] - startTime), file=logfile)
 print('*************************************', file=logfile)
-    
+
 logfile.close()
-						    
+
 print('--Finished simdata of M51 (total power) regression--')

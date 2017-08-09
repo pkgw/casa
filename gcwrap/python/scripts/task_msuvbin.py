@@ -6,8 +6,8 @@ from casac import casac
 
 def msuvbin(vis=None, field=None, spw=None, taql=None, outvis=None, phasecenter=None, nx=None, ny=None, cell=None,
            ncorr=None, nchan=None, fstart=None, fstep=None, wproject=None, memfrac=None):
-    
-    casalog.origin('msuvbin ') 
+
+    casalog.origin('msuvbin ')
     cmd='msuvbin '
     pnames=msuvbin.__code__.co_varnames[:msuvbin.__code__.co_argcount]
     for p in pnames:

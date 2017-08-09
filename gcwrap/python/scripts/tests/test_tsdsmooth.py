@@ -45,10 +45,10 @@ class sdsmooth_test_base(unittest.TestCase):
     # Input
     infile_data = 'tsdsmooth_test.ms'
     infile_float = 'tsdsmooth_test_float.ms'
-    
+
     # task execution result
     result = None
-    
+
     @property
     def outfile(self):
         return self.infile.rstrip('/') + '_out'
@@ -74,7 +74,7 @@ class sdsmooth_test_base(unittest.TestCase):
         exception.
 
             exception_type: type of exception
-            exception_pattern: regex for inspecting exception message 
+            exception_pattern: regex for inspecting exception message
                                using re.search
         """
         def wrapper(func):
@@ -90,8 +90,8 @@ class sdsmooth_test_base(unittest.TestCase):
                 self.assertIsNotNone(re.search(exception_pattern, message), msg='error message \'%s\' is not expected.'%(message))
             return _wrapper
         return wrapper
-    
-    @staticmethod    
+
+    @staticmethod
     def weight_case(func):
         import functools
         @functools.wraps(func)
@@ -99,23 +99,23 @@ class sdsmooth_test_base(unittest.TestCase):
             with sdutil.tbmanager(self.infile) as tb:
                 for irow in range(tb.nrows()):
                     self.assertTrue(tb.iscelldefined('WEIGHT_SPECTRUM', irow))
-            
+
             # weight mode flag
             self.weight_propagation = True
-            
+
             func(self)
-            
+
         return wrapper
-    
+
     def run_test(self, *args, **kwargs):
         datacol_name = self.datacolumn.upper()
         weight_mode = hasattr(self, 'weight_propagation') and getattr(self, 'weight_propagation') is True
-        
+
         if 'kwidth' in kwargs:
             kwidth = kwargs['kwidth']
         else:
             kwidth = 5
-        
+
         self.result = sdsmooth(infile=self.infile, outfile=self.outfile, kernel='gaussian', datacolumn=self.datacolumn, **kwargs)
 
         # sanity check
@@ -156,7 +156,7 @@ class sdsmooth_test_base(unittest.TestCase):
             flag_out = tb.getvarcol('FLAG')
             if weight_mode is True:
                 weight_out = tb.getvarcol('WEIGHT_SPECTRUM')
-            
+
         # verify nrow
         self.assertEqual(nrow, expected_nrow, msg='Number of rows mismatch (expected %s actual %s)'%(expected_nrow, nrow))
 
@@ -168,7 +168,7 @@ class sdsmooth_test_base(unittest.TestCase):
             row_in[numpy.where(flg_in == True)] = 0.0
             row_out = data_out[key]
             self.assertEqual(row_in.shape, row_out.shape, msg='Shape mismatch in row %s'%(key))
-            
+
             npol, nchan, _ = row_out.shape
             kernel_array = gaussian_kernel(nchan, kwidth)
             expected = numpy.convolve(row_in[0,:,0], kernel_array, mode='same')
@@ -183,9 +183,9 @@ class sdsmooth_test_base(unittest.TestCase):
             self.assertTrue(all(diff < eps), msg='Failed to verify nonzero values: row %s'%(key))
             #print 'row_in', row_in[0,:,0].tolist()
             #print 'gaussian', kernel_array.tolist()
-            #print 'expected', expected.tolist() 
+            #print 'expected', expected.tolist()
             #print 'result', row_out[0,:,0].tolist()
-            
+
             # weight check if this is weight test
             if weight_mode is True:
                 #print 'Weight propagation test'
@@ -207,7 +207,7 @@ class sdsmooth_test_base(unittest.TestCase):
                 #print weight_expected[:,:10]
                 diff = numpy.abs((wgt_out - weight_expected) / weight_expected)
                 self.assertTrue(all(diff.flatten() < eps), msg='Failed to verify spectral weight: row %s'%(key))
-        
+
     def _setUp(self, files, task):
         for f in files:
             if os.path.exists(f):
@@ -220,14 +220,14 @@ class sdsmooth_test_base(unittest.TestCase):
         for f in files:
             if os.path.exists(f):
                 shutil.rmtree(f)
-                
+
     def setUp(self):
         self._setUp([self.infile], sdsmooth)
 
     def tearDown(self):
         self._tearDown([self.infile, self.outfile])
 
-class sdsmooth_test_fail(sdsmooth_test_base):   
+class sdsmooth_test_fail(sdsmooth_test_base):
     """
     Unit test for task sdsmooth.
 
@@ -241,24 +241,24 @@ class sdsmooth_test_fail(sdsmooth_test_base):
     """
     invalid_argument_case = sdsmooth_test_base.invalid_argument_case
     exception_case = sdsmooth_test_base.exception_case
-    
+
     infile = sdsmooth_test_base.infile_data
-    
+
     @invalid_argument_case
     def test_sdsmooth_fail01(self):
         """test_sdsmooth_fail01 --- default parameters (raises an error)"""
         self.result = sdsmooth()
-        
+
     @invalid_argument_case
     def test_sdsmooth_fail02(self):
         """test_sdsmooth_fail02 --- invalid kernel type"""
         self.result = sdsmooth(infile=self.infile, kernel='normal', outfile=self.outfile)
-        
+
     @exception_case(RuntimeError, 'Spw Expression: No match found for 3')
     def test_sdsmooth_fail03(self):
         """test_sdsmooth_fail03 --- invalid selection (empty selection result)"""
         self.result = sdsmooth(infile=self.infile, kernel='gaussian', outfile=self.outfile, spw='3')
-        
+
     @exception_case(Exception, 'sdsmooth_test\.ms_out exists\.')
     def test_sdsmooth_fail04(self):
         """test_sdsmooth_fail04 --- outfile exists (overwrite=False)"""
@@ -269,14 +269,14 @@ class sdsmooth_test_fail(sdsmooth_test_base):
     def test_sdsmooth_fail05(self):
         """test_sdsmooth_fail05 --- empty outfile"""
         self.result = sdsmooth(infile=self.infile, kernel='gaussian', outfile='')
-        
+
     @invalid_argument_case
     def test_sdsmooth_fail06(self):
         """test_sdsmooth_fail06 --- invalid data column name"""
         self.result = sdsmooth(infile=self.infile, outfile=self.outfile, kernel='gaussian', datacolumn='spectra')
 
 
-class sdsmooth_test_complex(sdsmooth_test_base):   
+class sdsmooth_test_complex(sdsmooth_test_base):
     """
     Unit test for task sdsmooth. Process MS having DATA column.
 
@@ -295,11 +295,11 @@ class sdsmooth_test_complex(sdsmooth_test_base):
     def test_sdsmooth_complex_fail01(self):
         """test_sdsmooth_complex_fail01 --- non-existing data column (FLOAT_DATA)"""
         self.result = sdsmooth(infile=self.infile, outfile=self.outfile, kernel='gaussian', datacolumn='float_data')
- 
+
     def test_sdsmooth_complex_gauss01(self):
         """test_sdsmooth_complex_gauss01 --- gaussian smoothing (kwidth 5)"""
         self.run_test(kwidth=5)
-        
+
     def test_sdsmooth_complex_gauss02(self):
         """test_sdsmooth_complex_gauss02 --- gaussian smoothing (kwidth 3)"""
         self.run_test(kwidth=3)
@@ -312,8 +312,8 @@ class sdsmooth_test_complex(sdsmooth_test_base):
         """test_sdsmooth_complex_overwrite --- overwrite existing outfile (overwrite=True)"""
         shutil.copytree(self.infile, self.outfile)
         self.run_test(kwidth=5, overwrite=True)
- 
-class sdsmooth_test_float(sdsmooth_test_base):   
+
+class sdsmooth_test_float(sdsmooth_test_base):
     """
     Unit test for task sdsmooth. Process MS having FLOAT_DATA column.
 
@@ -327,16 +327,16 @@ class sdsmooth_test_float(sdsmooth_test_base):
     exception_case = sdsmooth_test_base.exception_case
     infile = sdsmooth_test_base.infile_float
     datacolumn = 'float_data'
-    
+
     @exception_case(RuntimeError, 'Desired column \(DATA\) not found in the input MS')
     def test_sdsmooth_float_fail01(self):
         """test_sdsmooth_complex_fail01 --- non-existing data column (DATA)"""
         self.result = sdsmooth(infile=self.infile, outfile=self.outfile, kernel='gaussian', datacolumn='data')
-    
+
     def test_sdsmooth_float_gauss01(self):
         """test_sdsmooth_float_gauss01 --- gaussian smoothing (kwidth 5)"""
         self.run_test(kwidth=5)
-        
+
     def test_sdsmooth_float_gauss02(self):
         """test_sdsmooth_float_gauss02 --- gaussian smoothing (kwidth 3)"""
         self.run_test(kwidth=3)
@@ -350,7 +350,7 @@ class sdsmooth_test_float(sdsmooth_test_base):
         shutil.copytree(self.infile, self.outfile)
         self.run_test(kwidth=5, overwrite=True)
 
-class sdsmooth_test_weight(sdsmooth_test_base):   
+class sdsmooth_test_weight(sdsmooth_test_base):
     """
     Unit test for task sdsmooth. Verify weight propagation.
 
@@ -361,19 +361,19 @@ class sdsmooth_test_weight(sdsmooth_test_base):
     weight_case = sdsmooth_test_base.weight_case
     infile = sdsmooth_test_base.infile_data
     datacolumn = 'data'
-    
+
     def setUp(self):
         super(sdsmooth_test_weight, self).setUp()
-        
+
         # initialize WEIGHT_SPECTRUM
         with sdutil.cbmanager(self.infile) as cb:
             cb.initweights()
-        
+
     @weight_case
     def test_sdsmooth_weight_gauss01(self):
         """test_sdsmooth_weight_gauss01 --- gaussian smoothing (kwidth 5)"""
         self.run_test(kwidth=5)
-        
+
     @weight_case
     def test_sdsmooth_weight_gauss02(self):
         """test_sdsmooth_weight_gauss02 --- gaussian smoothing (kwidth 3)"""
@@ -390,7 +390,7 @@ class sdsmooth_test_boxcar(sdsmooth_test_base):
       in row1, pol1: 0 throughout.
     If input spectrum has delta-function-like feature, the
     expected output spectrum will be smoothing kernel itself.
-    As for the data at [row0, pol0], the output data will be: 
+    As for the data at [row0, pol0], the output data will be:
       kwidth==1 -> spec[100] = 1
       kwidth==2 -> spec[100,101] = 1/2 (=0.5)
       kwidth==3 -> spec[99,100,101] = 1/3 (=0.333...)
@@ -398,7 +398,7 @@ class sdsmooth_test_boxcar(sdsmooth_test_base):
       kwidth==5 -> spec[98,99,100,101,102] = 1/5 (=0.2)
       and so on.
     """
-    
+
     infile = 'tsdsmooth_delta.ms'
     datacolumn = 'float_data'
     centers = {'00': [100], '01': [0,2047], '10': [10,11], '11':[]}
@@ -410,7 +410,7 @@ class sdsmooth_test_boxcar(sdsmooth_test_base):
     def _getRightWidth(self, kwidth):
         assert(0 < kwidth)
         return kwidth/2
-    
+
     def _checkResult(self, spec, kwidth, centers, tol=5.0e-06):
         sys.stdout.write('testing kernel_width = '+str(kwidth)+'...')
         for i in range(len(spec)):
@@ -422,10 +422,10 @@ class sdsmooth_test_boxcar(sdsmooth_test_base):
             value = count/float(kwidth)
             self.assertTrue(((spec[i] - value) < tol), msg='Failed.')
         sys.stdout.write('OK.\n')
-    
+
     def setUp(self):
         super(sdsmooth_test_boxcar, self).setUp()
-        
+
     def test000(self):
         # testing kwidth from 1 to 5.
         for kwidth in range(1,6):
@@ -453,7 +453,7 @@ class sdsmooth_selection(sdsmooth_test_base, unittest.TestCase):
                     scan=("0~8", [0]),
                     pol=("YY", [1]))
     verbose = False
- 
+
     def _get_selection_string(self, key):
         if key not in list(self.selections.keys()):
             raise ValueError("Invalid selection parameter %s" % key)
@@ -482,13 +482,13 @@ class sdsmooth_selection(sdsmooth_test_base, unittest.TestCase):
         reference[spike_chan-2:spike_chan+3] = 0.2
         if self.verbose: print(("reference=%s" % str(reference)))
         return reference
-    
+
     def run_test(self, sel_param, datacolumn):
         inparams = self._get_selection_string(sel_param)
         inparams.update(self.common_param)
         sdsmooth(datacolumn=datacolumn, **inparams)
         self._test_result(inparams["outfile"], sel_param, datacolumn)
-        
+
     def _test_result(self, msname, sel_param, dcol, atol=1.e-5, rtol=1.e-5):
         # Make sure output MS exists
         self.assertTrue(os.path.exists(msname), "Could not find output MS")
@@ -515,7 +515,7 @@ class sdsmooth_selection(sdsmooth_test_base, unittest.TestCase):
                                     "Smoothed spectrum differs in row=%d, pol=%d" % (out_row, out_pol))
         finally:
             tb.close()
-        
+
 
     def testIntentF(self):
         """Test selection by intent (float_data)"""

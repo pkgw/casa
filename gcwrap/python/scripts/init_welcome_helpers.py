@@ -17,7 +17,7 @@ def immediate_exit_with_handlers(exit_status=0):
         # This could be done with atexit._run_exitfuncs(), but let's avoid
         # using one more protected function:
         for handler_tuple in reversed(atexit._exithandlers):
-            # Try/except is to avoid application process hanging when the 
+            # Try/except is to avoid application process hanging when the
             # background process (tcl in particular)
             # is already destroyed
             try:

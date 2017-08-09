@@ -19,15 +19,15 @@ from casa_stack_manip import stack_frame_find
 def simalma(
     project=None,
     dryrun=None,
-    skymodel=None, inbright=None, indirection=None, incell=None, 
+    skymodel=None, inbright=None, indirection=None, incell=None,
     incenter=None, inwidth=None,
     complist=None, compwidth=None,
     ########
     setpointings=None,
     ptgfile=None,
-    integration=None, direction=None, mapsize=None, 
+    integration=None, direction=None, mapsize=None,
     antennalist=None,
-    hourangle=None, 
+    hourangle=None,
     totaltime=None,
     ###
     tpnant = None,
@@ -38,7 +38,7 @@ def simalma(
     imsize=None, imdirection=None,cell=None,
     niter=None, threshold=None,
     graphics=None,
-    verbose=None, 
+    verbose=None,
     overwrite=None
     ):
 
@@ -58,8 +58,8 @@ def simalma(
         ###########################
         # preliminaries
         ###########################
-        
-        # Predefined parameters 
+
+        # Predefined parameters
         pbcoeff = 1.13 ##  PB defined as pbcoeff*lambda/d
         nyquist = 0.5/1.13 ## Nyquist spacing = PB*nyquist
         maptype_int = 'ALMA'
@@ -71,14 +71,14 @@ def simalma(
         # pbgridratio_tp = 0.25  # ->  would be gridratio_tp = 1/3.4
         # the grid spacing is defined in terms of lambda/d times these factors
         # ALMA OT uses lambda/d/sqrt(3)
-        gridratio_int = 1./pl.sqrt(3) # 0.5 is nyquist 
+        gridratio_int = 1./pl.sqrt(3) # 0.5 is nyquist
         gridratio_tp  = 1./3
 
         # number of 12m primary beams to pad the total power image during
-        # the gridding stage (i.e. even larger pad than the padding 
-        # added for the observation). 
-        tppad_npb = 2. 
-        
+        # the gridding stage (i.e. even larger pad than the padding
+        # added for the observation).
+        tppad_npb = 2.
+
         # weight of 7m data relative to 12m data
         weightratio_7_12 = 0.34
 
@@ -145,7 +145,7 @@ def simalma(
 
 
 
-        # filename parsing of cfg file here so that the project filenames 
+        # filename parsing of cfg file here so that the project filenames
         # can contain the cfg
         repodir = os.getenv("CASAPATH").split(' ')[0] + "/data/alma/simmos/"
 
@@ -212,14 +212,14 @@ def simalma(
                 msg("Your complist '"+complist+"' could not be found.",priority="warn")
             if len(skymodel)==0 and len(complist)==0:
                 msg("At least one of skymodel or complist must be set.",priority="error")
-                
+
             else:
                 msg("No sky input found.  At least one of skymodel or complist must exist.",priority="error")
 
 
         #-------------------------
         # Get model_size and model_center
-        # TODO: check if outmodel==inmodel works (just collect info)        
+        # TODO: check if outmodel==inmodel works (just collect info)
         if os.path.exists(skymodel):
             components_only=False
             outmodel = fileroot+"/"+project+"temp.skymodel"
@@ -291,7 +291,7 @@ def simalma(
                      msg("setting map size to "+str(model_size))
 
         if components_only:
-            # if map is greater tham model (defined from components) 
+            # if map is greater tham model (defined from components)
             # then use mapsize as modelsize
             if type(mapsize) == type([]):
                 map_asec = qa.convert(mapsize[0],"arcsec")['value']
@@ -331,13 +331,13 @@ def simalma(
         msg("  primary beam size: %s" % (qa.tos(PB12)),priority="info")
 
         # Pointing spacing of observations - define in terms of lambda/d
-        # to avoid ambiguities in primary beam definition. 
+        # to avoid ambiguities in primary beam definition.
         # it would be best for simobserve to accept the shorthand "LD"
         # but until it does that, we'll divide by pbcoeff and use "PB":
         # this is a fragile solution since it depends on pbcoeff being
         # the same in simalma and simobserve.
         pointingspacing = str(gridratio_int/pbcoeff)+"PB"
-        ptgspacing_tp = qa.tos(qa.mul(PB12sim, (gridratio_tp/pbcoeff))) 
+        ptgspacing_tp = qa.tos(qa.mul(PB12sim, (gridratio_tp/pbcoeff)))
 
 
 
@@ -349,7 +349,7 @@ def simalma(
 
 
         ###########################
-        # analyze antennalist(s) 
+        # analyze antennalist(s)
         ###########################
 
         if type(antennalist)==type(" "):
@@ -360,13 +360,13 @@ def simalma(
         msg(" ",priority="info")
         msg("="*60,priority="info")
         msg("You are requesting %i configurations:" % nconfigs,origin="simalma",priority="info")
-        
+
         configtypes=[] # ALMA, ACA, or ALMASD (latter is special case)
-        cycles=[] 
+        cycles=[]
         resols=[]
         tp_inconfiglist=False
 
-        # check filename consistency, get resolution, etc        
+        # check filename consistency, get resolution, etc
         for configfile in antennalist:
 
             isalma=0
@@ -380,14 +380,14 @@ def simalma(
                 if myutil.isquantity(res):
                     if qa.compare(res,"arcsec"):
                         res_arcsec=qa.convert(res,"arcsec")['value']
-                        
+
                 if res_arcsec>0:
                     resols.append(res_arcsec)
                 else:
                     msg("simalma cannot interpret the antennalist entry '"+configfile+"' as desired array and resolution e.g. ALMA;0.5arcsec",priority="ERROR")
 
             else:
-                # we can only verify explicit files right now, not 
+                # we can only verify explicit files right now, not
                 # configs specified as "ALMA;0.5arcsec"
                 #
                 configfile_short = (configfile.split("/"))[-1]
@@ -407,7 +407,7 @@ def simalma(
                     else:
                         psfsize = myutil.approxBeam(configfile,qa.convert(qa.quantity(model_center),'GHz')['value'])
                         resols.append(psfsize) # FWHM in arcsec
-            
+
             q = re.compile('CYCLE\d?\d')
             isCycle = q.search(configfile_short.upper())
             if isCycle:
@@ -443,7 +443,7 @@ def simalma(
                 s="simalma doesn't understand your antennalist entry '"+configfile_short+"'"
                 msg(s,origin="simalma",priority="error")
 #                raise ValueError,s
-            
+
         #-----------------------------
         # total power parameter:
         tptime_min=0.
@@ -504,21 +504,21 @@ def simalma(
                 else:
                     raise ValueError("Can't convert totaltime vector element '"+time+"' to minutes - example quantities: '1h', '20min','3600sec'")
                 totaltime_min.append(time_min)
-                
+
         if len(totaltime_min)!=len(antennalist):
             raise Exception("totaltime must either be the same length vector as antennalist or a scalar")
 
 
 
         #-----------------------------
-        # print out what's requested.  
+        # print out what's requested.
         antlist_tp=None
         for i in range(nconfigs):
             configfile=antennalist[i]
             msg("  ",priority="info")
             msg("  "+configfile+":",priority="info")
 
-            if configtypes[i]=="ALMA":                
+            if configtypes[i]=="ALMA":
                 msg("    12m ALMA array",priority="info")
             elif configtypes[i]=="ACA":
                 msg("    7m ACA array",priority="info")
@@ -548,7 +548,7 @@ def simalma(
                 msg("    This is a full ALMA configuration",priority="info")
             if cyclesInconsistent:
                 msg("    WARNING: Your choices of configurations mix different cycles and/or Full ALMA.  Assuming you know what you want.",priority="info")
-                
+
 
             if configtypes[i]=='ALMASD':
                 # imsize check for PB:
@@ -568,7 +568,7 @@ def simalma(
                 if is_array_type(model_cell):
                     cell_asec=qa.convert(model_cell[0],'arcsec')['value']
                 else:
-                    cell_asec=qa.convert(model_cell,'arcsec')['value']    
+                    cell_asec=qa.convert(model_cell,'arcsec')['value']
                 if cell_asec > 0.2*resols[i]:
                     if cell_asec >= resols[i]:
                         # XXX if not dryrun raise exception here
@@ -644,15 +644,15 @@ def simalma(
         if nconfigs < 1:
             msg("No interferometer configuration is requested. At least one interferometer configuration should be selected.", \
                 origin="simalma", priority="error")
-                                 
+
 
 # TODO check model_size against mapsize  - separately after this?
 
 
 
 
-                             
-                             
+
+
 
 
 
@@ -662,9 +662,9 @@ def simalma(
 
 
 #        ###########################
-#        # Resolve prefixes of simulation data (as defined in 
+#        # Resolve prefixes of simulation data (as defined in
 #        # simobserve and simanalyze)
-#        
+#
 #        pref_bl = get_data_prefix(antennalist, project)
 #        pref_aca = get_data_prefix(antlist_aca, project)
         # Resolve output names (as defined in simobserve and simanalyze)
@@ -678,7 +678,7 @@ def simalma(
 #            msname_aca = pref_aca+".ms"
 #            msname_tp = pref_tp+".sd.ms"
 #            #imagename_aca = pref_aca+".image"
-#        
+#
 #        imagename_tp = project+".sd.image"
 #        imagename_int = project+".concat.image"
 #        msname_concat = project+".concat.ms"
@@ -690,12 +690,12 @@ def simalma(
 
 
         ############################################################
-        # run simobserve 
+        # run simobserve
         msg("",priority="info")
         msg("="*60,priority="info")
         msg("simalma calls simobserve to simulate each component:",priority="info",origin="simalma")
 
-        # sort by res'l - save the ptgfile from the max res'l config 
+        # sort by res'l - save the ptgfile from the max res'l config
         # for use in TP pointing definition.
         resols=pl.array(resols)
         intorder=resols.argsort()
@@ -705,13 +705,13 @@ def simalma(
         step = 0
 
         for i in range(nconfigs):
-            if configtypes[i]=="ALMA":                
+            if configtypes[i]=="ALMA":
                 s="12m ALMA array"
             elif configtypes[i]=='ACA':
                 s="7m ACA array"
             else:
                 s="12m total power map"
-                
+
             if configtypes[i]!='ALMASD':
                 step += 1
 
@@ -769,7 +769,7 @@ def simalma(
                         raise Exception(simobserr)
                     finally:
                         casalog.origin('simalma')
-            
+
                 qimgsize_tp = None
 
         if tpnant>0 and tptime_min<=0:
@@ -782,7 +782,7 @@ def simalma(
             # ACA-TP  simulation - always do this last
             obsmode_sd = "sd"
             step += 1
-            
+
             msg(" ",priority="info")
             msg("-"*60, origin="simalma", priority="warn")
             msg(("Step %d: simulating Total Power" % step), origin="simalma", priority="warn")
@@ -796,8 +796,8 @@ def simalma(
                 msname_tp = pref_tp+".noisy.sd.ms"
             else:
                 msname_tp = pref_tp+".sd.ms"
-                
-        
+
+
             ###########################
             # Resolve pointing directions of ACA-TP.
             #
@@ -807,7 +807,7 @@ def simalma(
             # TP maps slightly larger region than ALMA-12m by adding 1 PB to
             # mapsize (pointing extent of ALMA-12m).
             #
-            # [II] if a list of pointing deirections are specified for the 
+            # [II] if a list of pointing deirections are specified for the
             # ALMA-12m observation (multiptg=T), TP pointings are defined as
             # rectangle areas of 2PB x 2PB centered at each pointing direction
             # of ALMA-12m. However, in some cases, it is more efficient to
@@ -834,7 +834,7 @@ def simalma(
                 del time
                 qx = qa.quantity(max(offsets[0])-min(offsets[0]),"deg")
                 qy = qa.quantity(max(offsets[1])-min(offsets[1]),"deg")
-                # map extent to cover all pointings + 2PB 
+                # map extent to cover all pointings + 2PB
                 mapx = qa.add(qa.mul(PB12,2.),qx)   # in the unit same as PB
                 mapy = qa.add(qa.mul(PB12,2.),qy)   # in the unit same as PB
                 mapsize_tp = [qa.tos(mapx), qa.tos(mapy)]
@@ -844,10 +844,10 @@ def simalma(
                                                        qa.tos(qa.mul(PB12,2.)),
                                                        "square", pointings[0])
                 npts_multi = npts * len(dirs_multi_tp)
-        
+
                 msg("Number of pointings to map vicinity of each direction = %d" % npts_multi)
                 del qptgspc_tp, dirs_multi_tp
-        
+
             # save imsize for TP image generation
 #            qimgsize_tp = [mapx, mapy]
             # for imaging later, we need to pad even more!
@@ -855,7 +855,7 @@ def simalma(
             mapy_im = qa.add(mapy, qa.mul(PB12,(2*tppad_npb)))
             qimgsize_tp = [mapx_im, mapy_im]
 
-        
+
             qptgspc_tp = qa.quantity(ptgspacing_tp)
             pbunit = PB12['unit']
             # number of pointings to map pointing region
@@ -865,7 +865,7 @@ def simalma(
                         * int(qa.convert(mapy, pbunit)['value'] \
                               / qa.convert(qptgspc_tp, pbunit)['value'])
             msg("Number of pointings to map a rect region = %d" % npts_rect, priority="DEBUG2")
-        
+
             if rectmode:
                 dir_tp = direction
                 npts_tp = npts_rect
@@ -880,7 +880,7 @@ def simalma(
                         dir_tp += myutil.calc_pointings2(qa.tos(qptgspc_tp),
                                                          qa.tos(locsize),
                                                          "square", dir)
-        
+
                     mapsize_tp = ["", ""]
                     #npts_tp = npts_multi
                     npts_tp = len(dir_tp)
@@ -892,8 +892,8 @@ def simalma(
                     msg("Multi-pointing mode: The total power antenna maps a region that covers all pointings", origin="simalma", priority='warn')
                     msg("- Center of poinings: %s" % center, origin="simalma", priority='warn')
                     msg("- Map size: [%s, %s]" % (mapsize_tp[0], mapsize_tp[1]), origin="simalma", priority='warn')
-        
-        
+
+
             # Scale integration time of TP (assure >= 1 visit per direction)
             tottime_tp = "%dmin" % tptime_min
             integration_tp = integration
@@ -901,7 +901,7 @@ def simalma(
                        / qa.convert(integration, 's')['value'])
             msg("Max number of dump in %s (integration %s): %d" % \
                 (tottime_tp, integration, ndump), origin="simalma")
-        
+
             if ndump < npts_tp:
                 t_scale = float(ndump)/float(npts_tp)
                 integration_tp = qa.tos(qa.mul(integration, t_scale))
@@ -913,7 +913,7 @@ def simalma(
                 #totsec = intsec['value']*npts_tp#+0.000000001)
                 ##tottime_tp = qa.tos(qa.convert(qa.quantity(totsec, "s"), iunit))
                 #tottime_tp = qa.tos(qa.quantity(totsec, "s"))
-        
+
             task_param = {}
             task_param['project'] = project
             task_param['skymodel'] = skymodel
@@ -946,7 +946,7 @@ def simalma(
             task_param['graphics'] = graphics
             task_param['verbose'] = verbose
             task_param['overwrite'] = overwrite
-            
+
             msg(" ",priority="info")
             msg("Simulating %d TP antennas" % tpnant, priority="info")
             for iant in range(tpnant):
@@ -966,7 +966,7 @@ def simalma(
                     mslist_tp = [msname_tp]
                 else:
                     # copy MSes
-                    orig_tp = fileroot + "/" + msname_tp 
+                    orig_tp = fileroot + "/" + msname_tp
                     suffix = (".Ant%d" % iant)
                     msg(" ",priority=v_priority)
                     msg("Renaming '%s' to '%s'" % (orig_tp, orig_tp+suffix), priority=v_priority)
@@ -1043,7 +1043,7 @@ def simalma(
                 elif cell != '':
                    # user-defined cell size
                    msg("The user defined cell size: %s" % cell, \
-                       priority=v_priority)                   
+                       priority=v_priority)
                    cell_tp = [qa.tos(cell), qa.tos(cell)]
                 else:
                    if model_cell == None:
@@ -1118,7 +1118,7 @@ def simalma(
 
                 imsize_tp = [max(imsize_tp[0], tmpimsize[0]), \
                              max(imsize_tp[1], tmpimsize[1])]
-                
+
                 msg("The image pixel size of TP: [%d, %d]" % \
                     (imsize_tp[0], imsize_tp[1]), \
                     priority=v_priority)
@@ -1164,7 +1164,7 @@ def simalma(
                     sdimaging(**task_param)
                 #del task_param
                 # TODO: scale TP image
-                
+
                 # Scale TP image
                 if dryrun: #emulate beam calc in sdimaging
                     bu = sdbeamutil.TheoreticalBeam()
@@ -1272,7 +1272,7 @@ def simalma(
                 else:
                     msname= pref+".ms"
                     imagename_int=pref+".image"
-                    
+
                 if dryrun:
                     vis_int = msname
                 else:
@@ -1311,10 +1311,10 @@ def simalma(
                     task_param['imsize'] = imsize
                 else:
                     task_param['imsize'] = int(qa.div(model_size[0],model_cell[0])['value'])
-                if len(imdirection)>0:                    
+                if len(imdirection)>0:
                     task_param['imdirection'] = imdirection
                 else:
-                    task_param['imdirection'] = model_refdir    
+                    task_param['imdirection'] = model_refdir
                 task_param['niter'] = niter
                 task_param['threshold'] = threshold
                 task_param['weighting'] = weighting
@@ -1350,7 +1350,7 @@ def simalma(
                 msg("-"*60, origin="simalma", priority="info")
                 msg("Step %d: concatenating interferometric visibilities." % step, origin="simalma", priority="info")
                 msg("-"*60, origin="simalma", priority="info")
-                
+
                 weights=pl.zeros(nconfig)+1
                 z=pl.where(configtypes=='ACA')[0]
                 if len(z)>0:
@@ -1378,7 +1378,7 @@ def simalma(
 
 
             ############################################################
-            # Image ALMA-BL + ACA-7m                
+            # Image ALMA-BL + ACA-7m
                 step += 1
                 msg(" ",priority="info")
                 msg("-"*60, origin="simalma", priority="info")
@@ -1388,7 +1388,7 @@ def simalma(
                 msg("  Auto-masking is under development for use in the ALMA pipeline and will be included here in a future release",priority="warn",origin="simalma")
                 msg("-"*60, origin="simalma", priority="info")
 
-                    
+
                 if dryrun:
                     vis_int = concatname+".ms"
                 else:
@@ -1411,10 +1411,10 @@ def simalma(
                     task_param['imsize'] = imsize
                 else:
                     task_param['imsize'] = int(qa.div(model_size[0],model_cell[0])['value'])
-                if len(imdirection)>0:                    
+                if len(imdirection)>0:
                     task_param['imdirection'] = imdirection
                 else:
-                    task_param['imdirection'] = model_refdir    
+                    task_param['imdirection'] = model_refdir
                 task_param['niter'] = niter
                 task_param['threshold'] = threshold
                 task_param['weighting'] = weighting
@@ -1482,7 +1482,7 @@ def simalma(
                 # regrid TP image
                 msg("inttemplate = imregrid(imagename = '"+highimage0+"', template='get')",priority=v_priority)
                 if not dryrun:
-                    inttemplate = imregrid(imagename = highimage0, template='get')         
+                    inttemplate = imregrid(imagename = highimage0, template='get')
                 msg("imregrid(imagename = '"+fileroot+"/"+imagename_tp+
                     "',interpolation='cubic',template = inttemplate, output = '"+regridimg+"')",priority="info")
                 if not dryrun:
@@ -1493,7 +1493,7 @@ def simalma(
                     if not os.path.exists(pbcov):
                         msg("The flux image '%s' is not found" \
                                 % pbcov, origin="simalma", priority="error")
-                
+
                 msg(" ",priority="info")
                 msg("Multiply total power image by interferometric sensitivity map:",priority=v_priority)
 #                msg("immath(imagename=['"+regridimg+"','"+pbcov+"'],expr='IM1*IM0',outfile='"+scaledimg+"')",priority="info")
@@ -1501,8 +1501,8 @@ def simalma(
 #                    immath(imagename=[regridimg, pbcov],
 #                           expr='IM1*IM0',outfile=scaledimg)
 #
-#                msg(" ",priority="info")                
-#                msg("Set total power image beam and brightness unit:",priority=v_priority)                                
+#                msg(" ",priority="info")
+#                msg("Set total power image beam and brightness unit:",priority=v_priority)
 #                msg("ia.open('"+fileroot+"/"+imagename_tp+"')",priority="info")
 #                msg("beam_tp = ia.restoringbeam()",priority="info")
 #                msg("bunit_tp = ia.brightnessunit()",priority="info")
@@ -1526,13 +1526,13 @@ def simalma(
 
                 msg("impbcor('"+regridimg+"', '"+pbcov+"', outfile='"+scaledimg+"',mode='multiply')",priority="info")
                 if not dryrun:
-                    from impbcor import impbcor 
+                    from impbcor import impbcor
                     impbcor(regridimg, pbcov, outfile=scaledimg,mode='multiply')
 
                 # de-pbcor the INT image
                 highimage = fileroot+"/"+imagename_int+".pbscaled"
                 #immath(imagename=[highimage0, pbcov],
-                #       expr='IM1/IM0',outfile=highimage)     
+                #       expr='IM1/IM0',outfile=highimage)
                 msg(" ",priority="info")
                 msg("Multiply interferometric image by sensitivity map (un-pbcor):",priority="info")
 #                msg("immath(imagename=['"+highimage0+"','"+pbcov+"'],expr='IM1*IM0',outfile='"+highimage+"')",priority="info")
@@ -1565,8 +1565,8 @@ def simalma(
 
 
 
-                    
-                    
+
+
                 # Feathering
                 task_param = {}
                 task_param['imagename'] = outimage0
@@ -1624,7 +1624,7 @@ def simalma(
                         grscreen = True
                     if graphics == "file":
                         grfile = True
-                    
+
                 if grscreen or grfile:
                     if grfile:
                         file = fileroot + "/" + project + ".combine.png"
@@ -1665,7 +1665,7 @@ def simalma(
                     discard = myutil.statim(fileroot+"/"+flatsky+".regrid.conv",disprange=disprange)
                     shutil.rmtree(fileroot+"/"+flatsky+".regrid")
                     shutil.rmtree(fileroot+"/"+flatsky+".regrid.conv")
-                    
+
                     # total power image
                     flattp = fileroot + "/" + imagename_tp + ".flat"
                     myutil.flatimage(fileroot+"/"+imagename_tp,verbose=verbose)

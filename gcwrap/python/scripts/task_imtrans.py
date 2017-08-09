@@ -49,7 +49,7 @@
 #
 # <synopsis>
 # imtrans transposes an image. It is built on top of ia.reorder()
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 # imtrans(imagename="myim.im", outfile="transposed.im", order="102")

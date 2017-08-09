@@ -83,24 +83,24 @@ class Cursors:  #namespace
 cursors = Cursors()
 
 
-class PlotFlag:   
+class PlotFlag:
 
     def __init__(self,mm,TPLP):
-	self.tb = mm.toolbar;
-	self.TPLP = TPLP;
+        self.tb = mm.toolbar;
+        self.TPLP = TPLP;
         self.canvas = self.tb.canvas;
 
-	self.lastrect = None;
-	self.flaglist = [];
-	self.flagregionlist = [];
-	self.axeslist = [];
+        self.lastrect = None;
+        self.flaglist = [];
+        self.flagregionlist = [];
+        self.axeslist = [];
 
-	self.region = None;
-	self.kpress = None;
-	self.panel = 0;
-	self.rows = 0;
-	self.cols = 0;
-	
+        self.region = None;
+        self.kpress = None;
+        self.panel = 0;
+        self.rows = 0;
+        self.cols = 0;
+
         # a dict from axes index to a list of view limits
 #self._views = Stack()
 #        self._positions = Stack()  # stack of subplot positions
@@ -114,7 +114,7 @@ class PlotFlag:
 #        self._button_pressed = None # determined by the button pressed at start
 #        self.mode = ''  # a mode string for the status bar
 #        self.set_history_buttons()
-        
+
 
     def press_flag(self, event):
         'the press mouse button in flag mode callback'
@@ -127,9 +127,9 @@ class PlotFlag:
             return
 
         x, y = event.x, event.y
-	self.panel = event.inaxes._num
-	self.rows = event.inaxes._rows
-	self.cols = event.inaxes._cols
+        self.panel = event.inaxes._num
+        self.rows = event.inaxes._rows
+        self.cols = event.inaxes._cols
 
         # push the current view to define home if stack is empty
         if self.tb._views.empty(): self.tb.push_current()
@@ -140,12 +140,12 @@ class PlotFlag:
                 ymin, ymax = a.get_ylim()
                 lim = xmin, xmax, ymin, ymax
                 self.tb._xypress = x, y, a, i, lim, a.transData.deepcopy()
-		self.region = event.xdata, event.ydata
+                self.region = event.xdata, event.ydata
 
                 break
-        
+
         self.tb.canvas.mpl_disconnect(self.tb._idDrag)
-	self.tb._idDrag=self.canvas.mpl_connect('motion_notify_event', self.flag_mouse_move)
+        self.tb._idDrag=self.canvas.mpl_connect('motion_notify_event', self.flag_mouse_move)
         self.tb.press(event)
 
 
@@ -156,9 +156,9 @@ class PlotFlag:
 
 
         lastx, lasty, a, ind, lim, trans = self.tb._xypress
-	lastxdata, lastydata = self.region
-	
-	# ignore singular clicks - 5 pixels is a threshold
+        lastxdata, lastydata = self.region
+
+        # ignore singular clicks - 5 pixels is a threshold
         if abs(x-lastx)<5 or abs(y-lasty)<5:
             self.tb._xypress = None
             self.tb.release(event)
@@ -166,12 +166,12 @@ class PlotFlag:
             return
 
         # mark rect
-	lastx, lasty = a.transData.inverse_xy_tup( (lastx, lasty) )
+        lastx, lasty = a.transData.inverse_xy_tup( (lastx, lasty) )
         x, y = a.transData.inverse_xy_tup( (x, y) )
-	Xmin,Xmax=a.get_xlim()
-	Ymin,Ymax=a.get_ylim()
+        Xmin,Xmax=a.get_xlim()
+        Ymin,Ymax=a.get_ylim()
 
-	if Xmin < Xmax:
+        if Xmin < Xmax:
             if x<lastx:  xmin, xmax = x, lastx
             else: xmin, xmax = lastx, x
             if xmin < Xmin: xmin=Xmin
@@ -193,23 +193,23 @@ class PlotFlag:
             if ymin > Ymin: ymin=Ymin
             if ymax < Ymax: ymax=Ymax
 
-	px1,py1 = a.transData.xy_tup( (xmin, ymin) )
-	px2,py2 = a.transData.xy_tup( (xmax, ymax) )
-	    
-	self.draw_rect(px1, py1, px2, py2, xmin, ymin, xmax, ymax, a)
-	print("Region to Flag on panel ", self.rows, self.cols, self.panel+1, ": ", xmin, ymin , "->" , xmax, ymax);
-		
-	#if a.get_aspect() == 'equal': a.set_aspect('equal',True)
-	#self.tb.draw()
+        px1,py1 = a.transData.xy_tup( (xmin, ymin) )
+        px2,py2 = a.transData.xy_tup( (xmax, ymax) )
+
+        self.draw_rect(px1, py1, px2, py2, xmin, ymin, xmax, ymax, a)
+        print("Region to Flag on panel ", self.rows, self.cols, self.panel+1, ": ", xmin, ymin , "->" , xmax, ymax);
+
+        #if a.get_aspect() == 'equal': a.set_aspect('equal',True)
+        #self.tb.draw()
         self.tb._xypress = None
         self.tb._button_pressed == None
 
         self.tb.push_current()
         self.tb.canvas.mpl_disconnect(self.tb._idDrag)
-	self.tb._idDrag=self.canvas.mpl_connect('motion_notify_event', self.tb.mouse_move)
+        self.tb._idDrag=self.canvas.mpl_connect('motion_notify_event', self.tb.mouse_move)
         self.tb.release(event)
-	
-	#self.TPLP.clickCoords([xmin,ymin,xmax,ymax])
+
+        #self.TPLP.clickCoords([xmin,ymin,xmax,ymax])
 
 
     def flag_mouse_move(self, event):
@@ -236,7 +236,7 @@ class PlotFlag:
                     x, y = event.x, event.y
                     lastx, lasty, a, ind, lim, trans= self.tb._xypress
                     self.tb.draw_rubberband(event, x, y, lastx, lasty)
-		    #print lastx,lasty,"->", x,y
+                    #print lastx,lasty,"->", x,y
             elif (self.tb._active=='PAN' and
                   self.tb._lastCursor != cursors.MOVE):
                 self.tb.set_cursor(cursors.MOVE)
@@ -247,7 +247,7 @@ class PlotFlag:
 
             try: s = event.inaxes.format_coord(event.xdata, event.ydata)
             except ValueError: pass
-            except OverflowError: pass            
+            except OverflowError: pass
             else:
                 if len(self.tb.mode):
                     self.tb.set_message('%s : %s' % (self.tb.mode, s))
@@ -257,13 +257,13 @@ class PlotFlag:
 
 
     def press_key(self,event):
-	#print event.key, event.xdata, event.ydata
-	if event.key=='alt' and len(self.flaglist)>0:
-	   #self.tb.canvas._tkcanvas.delete(self.flaglist[len(self.flaglist)-1]);
-	   self.flaglist.pop();
-	   self.flagregionlist.pop();
-	   self.axeslist.pop();
-	   #print self.flagregionlist
+        #print event.key, event.xdata, event.ydata
+        if event.key=='alt' and len(self.flaglist)>0:
+           #self.tb.canvas._tkcanvas.delete(self.flaglist[len(self.flaglist)-1]);
+           self.flaglist.pop();
+           self.flagregionlist.pop();
+           self.axeslist.pop();
+           #print self.flagregionlist
 
 
     def flag(self, *args):
@@ -272,7 +272,7 @@ class PlotFlag:
             self.tb._active = None
         else:
             self.tb._active = 'FLAG'
-	    self.erase_rects();
+            self.erase_rects();
 
         if self.tb._idPress is not None:
             self.tb._idPress=self.tb.canvas.mpl_disconnect(self.tb._idPress)
@@ -293,58 +293,58 @@ class PlotFlag:
 
 
     def draw_rect(self, x0, y0, x1, y1, x0data, y0data, x1data, y1data,a):
-	self.flagregionlist.append([x0data,y0data,x1data,y1data,self.panel+1,self.rows,self.cols]);
-	self.axeslist.append(a);
+        self.flagregionlist.append([x0data,y0data,x1data,y1data,self.panel+1,self.rows,self.cols]);
+        self.axeslist.append(a);
         height = self.tb.canvas.figure.bbox.height()
         y0 =  height-y0
         y1 =  height-y1
-	#self.tb.canvas._tkcanvas.delete(self.tb.lastrect)
+        #self.tb.canvas._tkcanvas.delete(self.tb.lastrect)
         #self.lastrect = self.tb.canvas.drawRectangle([x0, y0, x1, y1])
         self.lastrect = pl.plot([x0data, x1data, x1data, x0data, x0data],[y0data, y0data, y1data, y1data, y0data])
-	self.flaglist.append(self.lastrect);
+        self.flaglist.append(self.lastrect);
 
     def redraw_rects(self):
-	#for q in self.flaglist:
-	  #self.tb.canvas._tkcanvas.delete(q);
-	self.flaglist = [];
-	
-	#for q in self.flagregionlist:
-	for z in range(0,len(self.flagregionlist)):
-	  q = self.flagregionlist[z];
-	  a = self.axeslist[z];
+        #for q in self.flaglist:
+          #self.tb.canvas._tkcanvas.delete(q);
+        self.flaglist = [];
+
+        #for q in self.flagregionlist:
+        for z in range(0,len(self.flagregionlist)):
+          q = self.flagregionlist[z];
+          a = self.axeslist[z];
           x0=q[0]; y0=q[1]; x1=q[2]; y1=q[3];
           # map to new zoom limits (current fig co-ords)
-	  px0,py0 = a.transData.xy_tup( (x0, y0) )
-	  px1,py1 = a.transData.xy_tup( (x1, y1) )
+          px0,py0 = a.transData.xy_tup( (x0, y0) )
+          px1,py1 = a.transData.xy_tup( (x1, y1) )
 
-	  height = self.tb.canvas.figure.bbox.height()
-  	  py0 =  height-py0
-  	  py1 =  height-py1
+          height = self.tb.canvas.figure.bbox.height()
+          py0 =  height-py0
+          py1 =  height-py1
           self.lastrect = pl.plot([x0data, x1data, x1data, x0data, x0data],[y0data, y0data, y1data, y1data, y0data])
-	  self.flaglist.append(self.lastrect);
+          self.flaglist.append(self.lastrect);
 
-          
+
     def erase_rects(self):
-	#print "erase rects"
-	#for q in self.flaglist:
-	  #self.tb.canvas._tkcanvas.delete(q);
-	self.flaglist = [];
-	self.flagregionlist = [];
-	self.axeslist = [];
+        #print "erase rects"
+        #for q in self.flaglist:
+          #self.tb.canvas._tkcanvas.delete(q);
+        self.flaglist = [];
+        self.flagregionlist = [];
+        self.axeslist = [];
 
     def close(self):
-	#self.bb.forget();
-	#if self.tb._active == 'ZOOM':
-	#    self.erase_rects();
-	#if self.tb._active == 'PAN':
-	#    self.erase_rects();
-	
-	#print "number of flag regions :",len(self.flagregionlist)
-	    
+        #self.bb.forget();
+        #if self.tb._active == 'ZOOM':
+        #    self.erase_rects();
+        #if self.tb._active == 'PAN':
+        #    self.erase_rects();
+
+        #print "number of flag regions :",len(self.flagregionlist)
+
         if self.tb._active == 'FLAG':
             self.tb._active = None
-	
-	self.erase_rects();
+
+        self.erase_rects();
 
         if self.tb._idPress is not None:
             self.tb._idPress=self.tb.canvas.mpl_disconnect(self.tb._idPress)
@@ -354,27 +354,27 @@ class PlotFlag:
             self.tb._idRelease=self.tb.canvas.mpl_disconnect(self.tb._idRelease)
             self.tb.mode = ''
 
-	if self.kpress is not None:
-	    self.kpress = self.tb.canvas.mpl_disconnect(self.kpress)
+        if self.kpress is not None:
+            self.kpress = self.tb.canvas.mpl_disconnect(self.kpress)
 
-	    
+
         self.tb.set_message(self.tb.mode)
 
 
 
     def start(self):
-	##  Read the current xylims and in plotdata (of a flagdata), force these xylims.
-	##  Do similar thing for getting the flag boxes to rescale when zoomed.
-	#self.bb = self.tb._Button(text="FlagButton",file='hand.ppm',command=self.flag)
-	if self.tb._active == 'ZOOM':
-	    self.tb.zoom();
-	if self.tb._active == 'PAN':
-	    self.tb.pan();
+        ##  Read the current xylims and in plotdata (of a flagdata), force these xylims.
+        ##  Do similar thing for getting the flag boxes to rescale when zoomed.
+        #self.bb = self.tb._Button(text="FlagButton",file='hand.ppm',command=self.flag)
+        if self.tb._active == 'ZOOM':
+            self.tb.zoom();
+        if self.tb._active == 'PAN':
+            self.tb.pan();
         self.tb._active = 'FLAG'
         self.tb._idPress = self.tb.canvas.mpl_connect('button_press_event', self.press_flag)
         self.tb._idRelease = self.tb.canvas.mpl_connect('button_release_event', self.release_flag)
         self.tb.mode = 'Flag mode'
-	self.kpress = self.tb.canvas.mpl_connect('key_press_event', self.press_key)
+        self.kpress = self.tb.canvas.mpl_connect('key_press_event', self.press_key)
         self.tb.set_message(self.tb.mode)
 
 

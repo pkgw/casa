@@ -3,7 +3,7 @@
 # IRC+10216 13CS Reduction Script
 # using new sd tasks
 # Nod data
-# 
+#
 # tasks used
 # sdlistold
 # sdcalold
@@ -50,7 +50,7 @@ startProc = time.clock()
 #  1        4096 LSRK  45899.1486  12.2067945  49999.0303  45924.1481  RR  LL H213CO
 #  2        4096 LSRK  43857.1942  12.2067945  49999.0303  43882.1937  RR  LL 13CS
 #  3        4096 LSRK  48970.0031  12.2067945  49999.0303  48995.0026  RR  LL CS
-#  7        4096 LSRK  46226.6452  12.2067949  49999.0319  46251.6447  RR  LL 
+#  7        4096 LSRK  46226.6452  12.2067949  49999.0319  46251.6447  RR  LL
 #  17       4096 LSRK  45469.0638  12.2067955  49999.0343  45494.0633  RR  LL HC3N
 #  18       4096 LSRK  45280.5214  12.2067955  49999.0343  45305.5209  RR  LL HCC13CN
 #  19       4096 LSRK  44054.8331  12.2067955  49999.0343  44079.8326  RR  LL CH3OH
@@ -67,9 +67,9 @@ startProc = time.clock()
 
 asap_init()                             #load ASAP module
 
-					#scan numbers (zero-based) as compared to GBTIDL
-					#changes made to get to IRC+10216_rawACSmod
-					#  -- merge spectral windows with tolerance
+                                        #scan numbers (zero-based) as compared to GBTIDL
+                                        #changes made to get to IRC+10216_rawACSmod
+                                        #  -- merge spectral windows with tolerance
 
 # summary
 #default(sdlistold)
@@ -222,7 +222,7 @@ print('*  Spectrum rms '+str(curr_rms), file=logfile)
 if (diff_sum < 0.05): print('* Passed spectrum (line) sum test', file=logfile)
 print('*  Line integral '+str(curr_sum), file=logfile)
 if ((diff_max<0.05) & (diff_rms<0.05) & (diff_sum<0.05)):
-	regstate = True
+        regstate = True
         print('')
         print('Regression PASSED')
         print('')
@@ -230,7 +230,7 @@ if ((diff_max<0.05) & (diff_rms<0.05) & (diff_sum<0.05)):
         print('Passed Regression test for IRC-CS', file=logfile)
         print('---', file=logfile)
 else:
-	regstate = False
+        regstate = False
         print('')
         print('Regression FAILED')
         print('')

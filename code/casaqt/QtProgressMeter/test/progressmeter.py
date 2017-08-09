@@ -11,7 +11,7 @@ class ProgressMeter:
           self.value = min
           t = datetime.datetime.now()
           self.id = int(time.mktime(t.timetuple()))
-     
+
      def _update(self, val) :
           self.value = val
           fileHandle = open(progressFile, 'a')
@@ -25,7 +25,7 @@ class ProgressMeter:
           fileHandle.write(',')
           fileHandle.write(str(self.value))
           fileHandle.write('\n')
-          fileHandle.close() 
+          fileHandle.close()
 
      def busy(self) :
           #self.min = 0
@@ -36,7 +36,7 @@ class ProgressMeter:
           fileHandle.write(',')
           fileHandle.write(self.title)
           fileHandle.write(',0,0,1\n')
-          fileHandle.close() 
+          fileHandle.close()
 
      def done(self) :
           #self.min = 0
@@ -47,5 +47,5 @@ class ProgressMeter:
           fileHandle.write(',')
           fileHandle.write(self.title)
           fileHandle.write(',0,1,1\n')
-          fileHandle.close() 
+          fileHandle.close()
 

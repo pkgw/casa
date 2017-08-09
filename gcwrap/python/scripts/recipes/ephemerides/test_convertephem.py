@@ -5,7 +5,7 @@
 # and once in GEO. The test converts the TOPO ephemeris into GEO and compares
 # to the result from JPL Horizons. The agreement is mediocre:
 # RA differs on average by 1.7 arcsec, Dec by 0.4 arcsec, the radial velocity by 0.52 km/s
-# Maximum difference is not much larger: 3.1 arcsec in RA, 1.0 arcsec in Dec, 0.63 km/s in Radvel 
+# Maximum difference is not much larger: 3.1 arcsec in RA, 1.0 arcsec in Dec, 0.63 km/s in Radvel
 #
 # This is at least partially explained by the more accurate model behind the JPL ephemerides.
 #

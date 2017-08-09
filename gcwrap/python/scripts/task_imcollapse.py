@@ -50,7 +50,7 @@
 #
 # <synopsis>
 # imtrans collapses an image along a specified axis. It is built on top of ia.collapse()
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 # collapsed_image_tool = imcollapse(imagename="myim.im", outfile="collapsed.im", axis=2, function="variance", wantreturn=true)
@@ -74,8 +74,8 @@ def imcollapse(
     casalog.origin('imcollapse')
     try :
         if (len(outfile) == 0):
-            raise Exception("oufile must be specified") 
-        myia = iatool() 
+            raise Exception("oufile must be specified")
+        myia = iatool()
         if (not myia.open(imagename)):
             raise Exception("Cannot create image analysis tool using " + imagename)
         ia_tool = myia.collapse(

@@ -47,20 +47,20 @@
 #
 # <synopsis>
 # Test the ia.tofits() tool method
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/gcwrap/python/scripts/regressions/admin/runUnitTest.py test_ia_tofits[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the ia.tofits() tool method to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -73,13 +73,13 @@ from __main__ import *
 import unittest
 
 class ia_tofits_test(unittest.TestCase):
-    
+
     def setUp(self):
         self.myia = iatool()
-    
+
     def tearDown(self):
         self.myia.done()
-    
+
     def test_stretch(self):
         """ ia.tofits(): Test stretch parameter"""
         yy = self.myia
@@ -101,7 +101,7 @@ class ia_tofits_test(unittest.TestCase):
         )
         self.assertTrue(zz and type(zz) == type(True))
         yy.done()
-        
+
     def test_CAS3675(self):
         """ test fix for CAS 3675, outfile must be specified """
         name = "my.im"
@@ -110,7 +110,7 @@ class ia_tofits_test(unittest.TestCase):
         self.assertRaises(Exception, yy.tofits, overwrite=True)
         yy.done()
         self.assertFalse(exportfits(imagename=name, overwrite=True))
-    
+
     def test_multibeam(self):
         """Test exporting and importing an image with multiple beams"""
         myia = self.myia

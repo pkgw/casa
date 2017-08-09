@@ -10,7 +10,7 @@ def sdgridold(infiles, antenna, spw, scan, pol, gridfunction, convsupport, trunc
         worker.initialize()
         worker.execute()
         worker.finalize()
-        
+
 
 class sdgrid_worker(sdutil.sdtask_interface):
     def __init__(self, **kwargs):
@@ -61,7 +61,7 @@ class sdgrid_worker(sdutil.sdtask_interface):
 
         if self.plot:
             self.gridder.plot()
-            
+
     def __compile(self):
         # infiles
         if isinstance(self.infiles, str):
@@ -86,7 +86,7 @@ class sdgrid_worker(sdutil.sdtask_interface):
             if len(masklist) == 0:
                 raise ValueError("Invalid spectral window selection. Selection contains no data.")
             self.ifno = list(masklist.keys())[0]
-        
+
         # outfile
         self.outname = sdutil.get_default_outfile_name(self.infiles[0],
                                                        self.outfile,
@@ -94,7 +94,7 @@ class sdgrid_worker(sdutil.sdtask_interface):
         sdutil.assert_outfile_canoverwrite_or_nonexistent(self.outname,
                                                           'ASAP',
                                                           self.overwrite)
-        
+
         # nx and ny
         (self.nx, self.ny) = sdutil.get_nx_ny(self.npix)
 
@@ -126,7 +126,7 @@ class sdgrid_worker(sdutil.sdtask_interface):
         summary = self.__generate_summary(header='Grid Parameter Summary',
                                           params=params)
         casalog.post(summary, priority='DEBUG')
-        
+
     def __generate_summary(self, header, params):
         summary = header+':\n'
         for p in params:
@@ -155,6 +155,6 @@ class sdgrid_worker(sdutil.sdtask_interface):
                 raise ValueError("spw parameter should not contain channel selection.")
             elif mode.upper().startswith('W'):
                 casalog.post("Channel selection found in spw parameter. It would be ignored", priority='WARN')
-        
+
         return has_chan
 

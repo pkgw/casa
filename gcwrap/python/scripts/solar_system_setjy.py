@@ -36,15 +36,15 @@ from taskinit import gentools
 (tb,me)=gentools(['tb','me'])
 from casac import *
 qa = casac.quanta()
-HH = qa.constants('H')['value'] 
+HH = qa.constants('H')['value']
 KK = qa.constants('K')['value']
-CC = qa.constants('C')['value'] 
+CC = qa.constants('C')['value']
 
 
 class solar_system_setjy:
     def __init__(self):
         self.models={}
-    
+
 
     def solar_system_fd (self, source_name, MJDs, frequencies, observatory, casalog=None):
         '''
@@ -155,7 +155,7 @@ class solar_system_setjy:
             return [ statuses, fds, dfds, Rhats, directions ]
 
     #
-    # before calculating the models be sure that we have the ephemeris 
+    # before calculating the models be sure that we have the ephemeris
     # information.  otherwise don't waste our time calculating the model.
     # only really important for mars, but do it for them all.
     #
@@ -323,8 +323,8 @@ class solar_system_setjy:
             shifted_frequencies = MJD_shifted_frequencies[ii]
             if (capitalized_source_name in TIME_VARIABLE_BODIES):
                 [tstatuses,brightnesses,dbrightnesses] = self.brightness_time_int (capitalized_source_name,[MJDs[ii]], shifted_frequencies)
-                # modified by TT: take out an extra dimension (for times), to match the rest of the operation 
-                tstatuses = tstatuses[0] 
+                # modified by TT: take out an extra dimension (for times), to match the rest of the operation
+                tstatuses = tstatuses[0]
                 brightnesses = brightnesses[0]
                 dbrightnesses = dbrightnesses[0]
             else:
@@ -419,7 +419,7 @@ class solar_system_setjy:
         for field in fields:
             freqs.append(1.0e9*float(field))
     # model output lines look like:
-    #2010 01 01 00 00  55197.00000 189.2 195.8 198.9 201.2 203.7 204.9 205.9 207.1 207.8 208.5 209.8 213.0 214.6 214.8 214.5 
+    #2010 01 01 00 00  55197.00000 189.2 195.8 198.9 201.2 203.7 204.9 205.9 207.1 207.8 208.5 209.8 213.0 214.6 214.8 214.5
         modelMJDs = []
         modelTbs = []
         for line in ff:
@@ -518,7 +518,7 @@ class solar_system_setjy:
     #
     # should we print out the Tb we found?  not sure.  i have a
     # vague recollection that crystal requested it, but i'm not
-    # sure if it's really needed.  we'd have to back out the 
+    # sure if it's really needed.  we'd have to back out the
     # planck correction (along with the background), so it wouldn't
     # be trivial.
     #
@@ -598,7 +598,7 @@ class solar_system_setjy:
     #
     # should we print out the Tb we found?  not sure.  i have a
     # vague recollection that crystal requested it, but i'm not
-    # sure if it's really needed.  we'd have to back out the 
+    # sure if it's really needed.  we'd have to back out the
     # planck correction (along with the background), so it wouldn't
     # be trivial.  and here, we'd have to return a variable and
     # work on that.

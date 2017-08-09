@@ -14,7 +14,7 @@ class Direction:
             refcode, longitude_str, latitude_str = input.split()
 
         self._dirmeas = me.direction(refcode, longitude_str, latitude_str)
-        
+
         if self._dirmeas == {}:
             raise ValueError("Could not make a Direction from " + str(input))
 
@@ -24,9 +24,9 @@ class Direction:
 ##         else:
 ##             # Should throw an exception on error.
 ##             odm = Direction(offset)._dirmeas
-                
-        
-        
+
+
+
 class Ptcs:
     def __init__(self, input):
         """
@@ -34,14 +34,14 @@ class Ptcs:
         """
         self._ptcs     = -1  # Initialize to invalidity
         self._measinfo = -1
-        
+
         if type(input) == str and os.path.isdir(input):
             # input is a MS
             self._ptcs, self._measinfo =  getput_keyw('get', input,
                                                       ['FIELD', 'PHASE_DIR',
                                                        valref2direction_strs],
                                                       '')
-            
+
         elif input.__class__ == self.__class__:
             self._ptcs = input._ptcs
             self._measinfo = input._measinfo
@@ -66,7 +66,7 @@ class Ptcs:
 
     def __len__(self):
         return len(self._ptcs)
-		
+
     def __repr__(self):
         return "Ptcs((" + repr(self._ptcs) + ", " + repr(self._measinfo) + "))"
 

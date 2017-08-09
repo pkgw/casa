@@ -23,9 +23,9 @@
 #                        National Radio Astronomy Observatory
 #                        520 Edgemont Road
 #                        Charlottesville, VA 22903-2475 USA
-#   
+#
 # @author Shannon Jaeger
-# @version 
+# @version
 #############################################################################
 
 # Unit test for flagging capibilities.
@@ -77,17 +77,17 @@ def test_plotting( fnName='' ) :
     try:
         # Execute the command
         if ( not eval( fnName ) ) :
-            
+
             failedTests += [ str( numTests - 1 ) + ': ' + fnName ];
             numFailedTests += 1;
-            print('Execution FAILED for command ...') 
+            print('Execution FAILED for command ...')
             print('     ', fnName)
-        else: 
-            #print 'SUCCESSFUL execution of command ...' 
+        else:
+            #print 'SUCCESSFUL execution of command ...'
             #print '     ' + fnName
             numSuccessfulTests += 1;
     except:
-        print('EXCEPTION occured with command ...') 
+        print('EXCEPTION occured with command ...')
         print('     ', fnName)
         failedTests += [ str( numTests - 1 ) + ': ' + fnName ];
         numFailedTests +=1
@@ -106,10 +106,10 @@ def prompt_yesno( prompt ) :
         ans = input( "pompt" + ", (y,n) > " );
         ans = ans.upper();
         firstTime = True;
-        
+
     return ans[0];
 
-        
+
 
 ###############################################################################
 ### Function print_results()
@@ -124,9 +124,9 @@ def print_results() :
     print("\n List of FAILED commands" );
     for i in range (0,numFailedTests) :
         print(( failedTests[i] ));
-############################################################################ 
-        
-############################################################################ 
+############################################################################
+
+############################################################################
 ## Make sure the testing area is clean
 ##
 ## This is the rather complicated way of doing a rm *.png
@@ -139,7 +139,7 @@ for root, dirs, files in os.walk( '.', topdown=false ) :
 
 ############################################################################
 ## test clearflags()
-## 
+##
 test_plotting( "mp.open(ngc5921PATH)" );
 #test_plotting( "mp.clearflags()" );
 #test_plotting( "mp.close()" );
@@ -233,8 +233,8 @@ if ( not filecmp.cmp( 'flagTest4.png', 'data/flagTest1.png' ) ) :
 else :
     numSuccessfulTests += 1;
 
-    
-test_plotting( "mp.markregion(region=[55,58,0.0,2.0])" );    
+
+test_plotting( "mp.markregion(region=[55,58,0.0,2.0])" );
 test_plotting( "mp.unflagdata()" );
 pl.savefig( "flagTest5.png" );
 
@@ -264,7 +264,7 @@ else :
 #test_plotting( "mp.clearflags()" );
 ##Since clearflags doesn't work yet, we'll unflag everything.
 test_plotting( "mp.markregion(region=[0,80,0,70])"  );
-test_plotting( "mp.unflagdata()" );    
+test_plotting( "mp.unflagdata()" );
 #test_plotting( "mp.done()" );
 print("\n" );
 
@@ -329,7 +329,7 @@ test_plotting( "mp.markregion(region=[-40, 25, 110, 20 ] )" );
 #print( "purple antennas are shown: " );
 #print( "    4 -- just below antenna 2");
 #print( "   11 -- just below antenna 9");
-#raw_input( " PRESS return to continue > " ); 
+#raw_input( " PRESS return to continue > " );
 test_plotting( "mp.unflagdata()" );
 test_plotting( "mp.plotoptions( overplot=1, showflags=1 )" );
 #test_plotting( "mp.plot( type='array')" );
@@ -389,7 +389,7 @@ else :
 #ans = prompt_yesno( "Are the flagged areas still shown" );
 #numTests +=1;
 #if ( ans[0]=='N' ):
-#    numSuccessfulTests += 1;    
+#    numSuccessfulTests += 1;
 #else :
 #    failedTests += [ str( numTests - 1 ) + ': Flagged areas ARE shown'];
 #    numFailedTests += 1;
@@ -415,7 +415,7 @@ else :
 #ans = prompt_yesno( "Are both the flagged and unflagged areas shown" );
 #numTests +=1;
 #if ( ans[0]=='Y' ):
-#    numSuccessfulTests += 1;    
+#    numSuccessfulTests += 1;
 #else :
 #    failedTests += [ str( numTests - 1 ) + ': flagged and unflagged areas NOT shown'];
 #    numFailedTests += 1;
@@ -453,7 +453,7 @@ else :
 ##ans = prompt_yesno( "Are the flagged areas shown" );
 #numTests +=1;
 #if ( ans[0]=='n' or ans[0]=='N' ):
-#    numSuccessfulTests += 1;    
+#    numSuccessfulTests += 1;
 #else :
 #    failedTests += [ str( numTests - 1 ) + ': flagged ARE shown'];
 #    numFailedTests += 1;
@@ -471,12 +471,12 @@ if ( not filecmp.cmp( 'flagTest13.png', 'data/flagTest13.png' ) ) :
     numFailedTests += 1;
 else :
     numSuccessfulTests += 1;
-    
+
 #print( "Only the magenta unflagged areas should both be shown now." );
 ##ans = prompt_yesno( "Are the only the unflagged (magenta) areas shown" );
 #numTests +=1;
 #if ( ans[0]=='y' or ans[0]=='Y' ):
-#    numSuccessfulTests += 1;    
+#    numSuccessfulTests += 1;
 #else :
 #    failedTests += [ str( numTests - 1 ) + ': More then the uflagged areas shown'];
 #    numFailedTests += 1;
@@ -496,7 +496,7 @@ print("\n")
 print_results();
 
 
-############################################################################ 
+############################################################################
 ## Make sure the testing area is clean
 ##
 

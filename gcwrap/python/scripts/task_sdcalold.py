@@ -31,7 +31,7 @@ class sdcal_worker(sdutil.sdtask_template):
         sel = self.get_selector(sorg)
         sorg.set_selection(sel)
         self.assert_no_channel_selection_in_spw('warn')
-        
+
         # Copy scantable when usign disk storage not to modify
         # the original table.
         if is_scantable(self.infile) and self.is_disk_storage:
@@ -43,14 +43,14 @@ class sdcal_worker(sdutil.sdtask_template):
     def execute(self):
         engine = sdcal_engine(self)
         engine.initialize()
-        
+
         # apply inputs to scan
         self.set_to_scan()
 
         # Actual implementation is defined outside the class
         # since those are used in task_sdreduce.
         engine.execute()
-        
+
         # do opacity (atmospheric optical depth) correction
         sdutil.doopacity(self.scan, self.tau)
 
@@ -58,7 +58,7 @@ class sdcal_worker(sdutil.sdtask_template):
 
     def save(self):
         sdutil.save(self.scan, self.project, self.outform, self.overwrite)
-        
+
 
 class sdcal_engine(sdutil.sdtask_engine):
     def __init__(self, worker):
@@ -106,4 +106,4 @@ class sdcal_engine(sdutil.sdtask_engine):
         if self.plotpointings:
             marker.plot()
         self.worker.scan = marker.getresult()
-        
+

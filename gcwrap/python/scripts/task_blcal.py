@@ -3,18 +3,18 @@ import numpy as np
 from taskinit import *
 
 def blcal(vis=None,caltable=None,
-	  field=None,spw=None,intent=None,
-	  selectdata=None,timerange=None,uvrange=None,antenna=None,scan=None,
+          field=None,spw=None,intent=None,
+          selectdata=None,timerange=None,uvrange=None,antenna=None,scan=None,
           observation=None, msselect=None,
-	  solint=None,combine=None,freqdep=None,calmode=None,solnorm=None,
-	  gaintable=None,gainfield=None,interp=None,spwmap=None,
-	  parang=None):
+          solint=None,combine=None,freqdep=None,calmode=None,solnorm=None,
+          gaintable=None,gainfield=None,interp=None,spwmap=None,
+          parang=None):
 
-	#Python script
+        #Python script
 
-	try:
+        try:
 
-		mycb = cbtool()
+                mycb = cbtool()
 
                 casalog.origin('blcal')
                 if ((type(vis)==str) & (os.path.exists(vis))):
@@ -22,21 +22,21 @@ def blcal(vis=None,caltable=None,
                 else:
                         raise Exception('Visibility data set not found - please verify the name')
 
-		mycb.reset()
+                mycb.reset()
 
-		# Do data selection according to selectdata
-		if (selectdata):
-			# pass all data selection parameters in as specified
-			mycb.selectvis(time=timerange,spw=spw,scan=scan,field=field,
-				       intent=intent, observation=str(observation),
-				       baseline=antenna,uvrange=uvrange,chanmode='none',
-				       msselect=msselect);
-		else:
-			# selectdata=F, so time,scan,baseline,uvrange,msselect=''
-			# using spw and field specifications only
-			mycb.selectvis(time='',spw=spw,scan='',field=field,intent=intent,
-				       baseline='',uvrange='',chanmode='none',
-				       observation='', msselect='')
+                # Do data selection according to selectdata
+                if (selectdata):
+                        # pass all data selection parameters in as specified
+                        mycb.selectvis(time=timerange,spw=spw,scan=scan,field=field,
+                                       intent=intent, observation=str(observation),
+                                       baseline=antenna,uvrange=uvrange,chanmode='none',
+                                       msselect=msselect);
+                else:
+                        # selectdata=F, so time,scan,baseline,uvrange,msselect=''
+                        # using spw and field specifications only
+                        mycb.selectvis(time='',spw=spw,scan='',field=field,intent=intent,
+                                       baseline='',uvrange='',chanmode='none',
+                                       observation='', msselect='')
 
 
                 # Arrange apply of existing other calibrations
@@ -45,16 +45,16 @@ def blcal(vis=None,caltable=None,
                 if (gaintable!=['']):
                         ngaintab=len(gaintable)
                 ngainfld = len(gainfield)
-		nspwmap = len(spwmap)
-		ninterp = len(interp)
+                nspwmap = len(spwmap)
+                ninterp = len(interp)
 
-		# handle list of list issues with spwmap
-		if (nspwmap>0):
-			if (type(spwmap[0])!=list):
-				# first element not a list, only one spwmap specified
-				# make it a list of list
-				spwmap=[spwmap];
-				nspwmap=1;
+                # handle list of list issues with spwmap
+                if (nspwmap>0):
+                        if (type(spwmap[0])!=list):
+                                # first element not a list, only one spwmap specified
+                                # make it a list of list
+                                spwmap=[spwmap];
+                                nspwmap=1;
 
                 for igt in range(ngaintab):
                         if (gaintable[igt]!=''):
@@ -64,36 +64,36 @@ def blcal(vis=None,caltable=None,
                                 if (igt<ngainfld):
                                         thisgainfield=gainfield[igt]
 
-				# spwmap is null unless specifed
-				thisspwmap=[-1]
-				if (igt<nspwmap):
-					thisspwmap=spwmap[igt];
+                                # spwmap is null unless specifed
+                                thisspwmap=[-1]
+                                if (igt<nspwmap):
+                                        thisspwmap=spwmap[igt];
 
-				# interp is 'linear' unless specified
-				thisinterp='linear'
-				if (igt<ninterp):
-					if (interp[igt]==''):
-						interp[igt]=thisinterp
-					thisinterp=interp[igt]
-					
-				mycb.setapply(t=0.0,table=gaintable[igt],field=thisgainfield,
-					      calwt=True,spwmap=thisspwmap,interp=thisinterp)
+                                # interp is 'linear' unless specified
+                                thisinterp='linear'
+                                if (igt<ninterp):
+                                        if (interp[igt]==''):
+                                                interp[igt]=thisinterp
+                                        thisinterp=interp[igt]
+
+                                mycb.setapply(t=0.0,table=gaintable[igt],field=thisgainfield,
+                                              calwt=True,spwmap=thisspwmap,interp=thisinterp)
 
                 # ...and now the specialized terms
                 # (BTW, interp irrelevant for these, since they are evaluated)
 
-		# Apply parallactic angle, if requested
-		if parang: mycb.setapply(type='P')
+                # Apply parallactic angle, if requested
+                if parang: mycb.setapply(type='P')
 
-		# Set up the solve
-		if freqdep:
-			mycb.setsolve(type='MF',t=solint,combine=combine,refant='',table=caltable,apmode=calmode,solnorm=solnorm)
-		else:
-			mycb.setsolve(type='M',t=solint,combine=combine,refant='',table=caltable,apmode=calmode,solnorm=solnorm)
+                # Set up the solve
+                if freqdep:
+                        mycb.setsolve(type='MF',t=solint,combine=combine,refant='',table=caltable,apmode=calmode,solnorm=solnorm)
+                else:
+                        mycb.setsolve(type='M',t=solint,combine=combine,refant='',table=caltable,apmode=calmode,solnorm=solnorm)
 
-		mycb.solve()
-		mycb.close()
-	except Exception as instance:
-		print('*** Error ***',instance)
-		mycb.close()
-		raise Exception(instance)
+                mycb.solve()
+                mycb.close()
+        except Exception as instance:
+                print('*** Error ***',instance)
+                mycb.close()
+                raise Exception(instance)

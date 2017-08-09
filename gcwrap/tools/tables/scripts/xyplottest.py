@@ -131,9 +131,9 @@ xy.setplotoptions(plotsymbol='r,');
 xy.plot(type='uvdist');
 xy.setplotoptions(overplot=True, plotsymbol='b,');
 for ant in range(1,10):
-	xy.selectdata('FIELD_ID==0 && (ANTENNA1=='+str(ant)+' || ANTENNA2=='+str(ant)+')');
-	xy.plot('uvdist');
-	xy.setplotoptions(overplot=True,replacetopplot=True, plotsymbol='b,');
+        xy.selectdata('FIELD_ID==0 && (ANTENNA1=='+str(ant)+' || ANTENNA2=='+str(ant)+')');
+        xy.plot('uvdist');
+        xy.setplotoptions(overplot=True,replacetopplot=True, plotsymbol='b,');
         xy.plot(type='uvdist');
 
 ###########

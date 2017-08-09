@@ -13,16 +13,16 @@ def importatca (
     edge=8
     ):
     """Convert an RPFITS file into a CASA visibility file (MS).
-           The conversion of the RPFITS format into a measurement set.  
+           The conversion of the RPFITS format into a measurement set.
            This version has been tested for both old ATCA and CABB data.
-................          
+................
            Keyword arguments:
        files -- Name of input RPFITS file(s)
                default: none; example: file='2010-01-02_1234.c999'
 
 ....   vis -- Output ms name, note a postfix (.ms) is NOT appended to this name
                default: none
-               
+
 ....   options -- Processing options, comma separated list
                  birdie - flag parts of spectrum known to be bad
                  reweight - (pre-CABB) reweight lag spectrum to avoid ringing
@@ -51,10 +51,10 @@ def importatca (
 ....   fields -- List of field names to select
 ........ default: all
 
-....   edge -- Percentage of edge channels to flag. For combined zooms, this 
+....   edge -- Percentage of edge channels to flag. For combined zooms, this
                specifies the percentage for a single zoom
 ........ default: 8 (flags 4% of channels at lower and upper edge)
-            
+
         """
 
     # Python script
@@ -86,7 +86,7 @@ def importatca (
                 importatca.__code__.co_varnames[:importatca.__code__.co_argcount]
             param_vals = [eval(p) for p in param_names]
             write_history(
-                myaf, vis, 'importatca', param_names, 
+                myaf, vis, 'importatca', param_names,
                 param_vals, casalog
             )
         except Exception as instance:
@@ -95,7 +95,7 @@ def importatca (
         pass
     finally:
         if (myaf):
-            del myaf 
+            del myaf
         # -----------------------------------
         # end of importatca implementation
         # -----------------------------------

@@ -109,7 +109,7 @@ class sdstatold_unittest_base:
                 locstring = str(loc_range[0]) + unit
             elif len(loc_range) > 1:
                 locstring = '%s~%s' % (str(loc_range[0]), str(loc_range[1]))
-            
+
             if len(locstring) > 0:
                 if len(chanrange) > 0: chanrange += ';'
                 chanrange += locstring + unit
@@ -213,7 +213,7 @@ class sdstatold_unittest_base:
             for i in range(len(currval)):
                 self.assertTrue(self._isInAllowedRange(currval[i], refval[i], allowdiff),
                                 msg="'%s' of spectrum %d is different." % (stat, i))
-        
+
 
     def _compareFiles( self, testfile, reffile ):
         # test if baseline parameters are equal to the reference values
@@ -225,7 +225,7 @@ class sdstatold_unittest_base:
         self.assertTrue(listing.compare(testfile,reffile),
                         'New and reference files are different. %s != %s. '
                         %(testfile,reffile))
-        
+
 
 
 class sdstatold_basicTest( sdstatold_unittest_base, unittest.TestCase ):
@@ -292,7 +292,7 @@ class sdstatold_basicTest( sdstatold_unittest_base, unittest.TestCase ):
                  'max': 6.1298322677612305, 'median': 4.9097409248352051,
                  'stddev': 0.57094955444335938, 'sum': 695.0701904296875,
                  'mean': 5.0367403030395508}
-    minmaxchan_line2 = {'max_abscissa': {'value': 3048.0, 'unit': 'channel'}, 
+    minmaxchan_line2 = {'max_abscissa': {'value': 3048.0, 'unit': 'channel'},
                         'min_abscissa': {'value': 2951.0, 'unit': 'channel'}}
 
     # Reference baseline statistic values (masklist=linechan0, invertmask=True)
@@ -428,7 +428,7 @@ class sdstatold_basicTest( sdstatold_unittest_base, unittest.TestCase ):
         """Test 7: specify format """
         tid="07"
         reference = self.datapath+"refstat11"
-        
+
         outfile = self.outroot+tid+self.outsuff
         format = '3.5f'
 
@@ -478,7 +478,7 @@ class sdstatold_averageTest( sdstatold_unittest_base, unittest.TestCase ):
         tweight = 'tintsys'
         polaverage=False
         pweight = 'tsys'
-        
+
         currstat = sdstatold(infile=self.infile,outfile=outfile,pol=pol,
                            scanaverage=scanaverage,
                            timeaverage=timeaverage,tweight=tweight,
@@ -491,7 +491,7 @@ class sdstatold_averageTest( sdstatold_unittest_base, unittest.TestCase ):
                   'rms': [2.807967185974121, 3.020477533340454],
                   'stddev': [0.15738283097743988, 0.1712489128112793],
                   'sum': [22966.6953125, 24703.982421875]}
-        
+
         minmaxchan_all = {'max_abscissa': {'unit': 'channel', 'value': array([ 3044.,  8191.])},
                           'min_abscissa': {'unit': 'channel', 'value': array([ 0.,  0.])}}
 
@@ -513,7 +513,7 @@ class sdstatold_averageTest( sdstatold_unittest_base, unittest.TestCase ):
         tweight = 'tintsys'
         polaverage=False
         pweight = 'tsys'
-        
+
         currstat = sdstatold(infile=self.infile,outfile=outfile,pol=pol,
                            scanaverage=scanaverage,
                            timeaverage=timeaverage,tweight=tweight,
@@ -526,7 +526,7 @@ class sdstatold_averageTest( sdstatold_unittest_base, unittest.TestCase ):
                    'rms': 2.9092276096343994,
                    'stddev': 0.13401487469673157,
                    'sum': 23807.130859375}
-        
+
         minmaxchan_all = {'max_abscissa': {'unit': 'channel', 'value': 3045.0},
                           'min_abscissa': {'unit': 'channel', 'value': 0.0}}
 
@@ -547,7 +547,7 @@ class sdstatold_averageTest( sdstatold_unittest_base, unittest.TestCase ):
         tweight = 'tintsys'
         polaverage=True
         pweight = 'tsys'
-        
+
         currstat = sdstatold(infile=self.infile,outfile=outfile,
                            scanaverage=scanaverage,
                            timeaverage=timeaverage,tweight=tweight,
@@ -560,7 +560,7 @@ class sdstatold_averageTest( sdstatold_unittest_base, unittest.TestCase ):
                    'rms': 3.0028061866760254,
                    'stddev': 1.0198956727981567,
                    'sum': 23136.833984375}
-        
+
         minmaxchan_all = {'max_abscissa': {'unit': 'channel', 'value': 8186.0},
                           'min_abscissa': {'unit': 'channel', 'value': 8187.0}}
 
@@ -597,13 +597,13 @@ class sdstatold_restfreqTest( sdstatold_unittest_base, unittest.TestCase ):
            {'name': "IF2 Rest", 'value': qurf[1]}]
     #invalid quantities
     badq = ['45490.km','44.075bad']
-    
+
     # Reference line statistic values (masklist=linechan2, invertmask=False)
     ref_line2 = {'rms': 5.0687642097473145, 'min': 3.9442729949951172,
                  'max': 6.1298322677612305, 'median': 4.9097409248352051,
                  'stddev': 0.57094955444335938, 'sum': 695.0701904296875,
                  'mean': 5.0367403030395508}
-    minmaxchan_line2 = {'max_abscissa': {'value': 3048.0, 'unit': 'channel'}, 
+    minmaxchan_line2 = {'max_abscissa': {'value': 3048.0, 'unit': 'channel'},
                         'min_abscissa': {'value': 2951.0, 'unit': 'channel'}}
     # Reference line statistic values (masklist=linechan2, invertmask=False)
     ref_line02 = {'rms': [4.13174295425415, 5.0687642097473145],
@@ -823,7 +823,7 @@ class sdstatold_restfreqTest( sdstatold_unittest_base, unittest.TestCase ):
         # Comparing min/max pos (Need to invert order of ref/test vals for icomp)
         self._compareStats(self.minmaxchan_line02,currstat,compstats=list(self.minmaxchan_line2.keys()))
 
-        
+
 class sdstatold_storageTest( sdstatold_unittest_base, unittest.TestCase ):
     """
     Unit tests for task sdstatold. Test scantable sotrage and insitu
@@ -844,11 +844,11 @@ class sdstatold_storageTest( sdstatold_unittest_base, unittest.TestCase ):
                  'max': 6.1298322677612305, 'median': 4.9097409248352051,
                  'stddev': 0.57094955444335938, 'sum': 695.0701904296875,
                  'mean': 5.0367403030395508}
-    minmaxchan_line2 = {'max_abscissa': {'value': 3048.0, 'unit': 'channel'}, 
+    minmaxchan_line2 = {'max_abscissa': {'value': 3048.0, 'unit': 'channel'},
                         'min_abscissa': {'value': 2951.0, 'unit': 'channel'}}
-    minmaxvrf_line2 = {'max_abscissa': {'value': 43.993768228253309, 'unit': 'km/s'}, 
+    minmaxvrf_line2 = {'max_abscissa': {'value': 43.993768228253309, 'unit': 'km/s'},
                         'min_abscissa': {'value': 48.021228055013935, 'unit': 'km/s'}}
-    
+
     def setUp( self ):
         if os.path.exists(self.infile):
             shutil.rmtree(self.infile)
@@ -890,7 +890,7 @@ class sdstatold_storageTest( sdstatold_unittest_base, unittest.TestCase ):
         currstat = sdstatold(infile=self.infile,outfile=outfile,
                           spw=spw,restfreq=restfreq)
         # print "Statistics out of the current run:\n",currstat
-        
+
         sd.rcParams['scantable.storage'] = 'memory'
         spw = self._masklist_to_spw_string(self.linechan2, unit='',ifno=ifno)
         newinstat = sdstatold(infile=self.infile,outfile=outfile+'.newin',
@@ -925,7 +925,7 @@ class sdstatold_storageTest( sdstatold_unittest_base, unittest.TestCase ):
                           spw=spw)
         masklist = self._convert_masklist(self.linechan2,specunit,self.infile,
                                           spw=ifno,restfreq=restfreq[0])
-        
+
         sd.rcParams['scantable.storage'] = 'memory'
         sd.rcParams['insitu'] = False
         print("Running test with storage='%s' and insitu=%s" % \
@@ -935,7 +935,7 @@ class sdstatold_storageTest( sdstatold_unittest_base, unittest.TestCase ):
         currstat = sdstatold(infile=self.infile,outfile=outfile,
                           spw=spw,restfreq=restfreq)
         # print "Statistics out of the current run:\n",currstat
-        
+
         sd.rcParams['scantable.storage'] = 'memory'
         spw = self._masklist_to_spw_string(self.linechan2,unit='',ifno=ifno)
         newinstat = sdstatold(infile=self.infile,outfile=outfile+'.newin',
@@ -970,7 +970,7 @@ class sdstatold_storageTest( sdstatold_unittest_base, unittest.TestCase ):
                           spw=spw)
         masklist = self._convert_masklist(self.linechan2,specunit,self.infile,
                                           spw=ifno,restfreq=restfreq[0])
-        
+
         sd.rcParams['scantable.storage'] = 'disk'
         sd.rcParams['insitu'] = True
         print("Running test with storage='%s' and insitu=%s" % \
@@ -980,7 +980,7 @@ class sdstatold_storageTest( sdstatold_unittest_base, unittest.TestCase ):
         currstat = sdstatold(infile=self.infile,outfile=outfile,
                           spw=spw,restfreq=restfreq)
         # print "Statistics out of the current run:\n",currstat
-        
+
         sd.rcParams['scantable.storage'] = 'memory'
         spw = self._masklist_to_spw_string(self.linechan2,unit='',ifno=ifno)
         newinstat = sdstatold(infile=self.infile,outfile=outfile+'.newin',
@@ -1015,7 +1015,7 @@ class sdstatold_storageTest( sdstatold_unittest_base, unittest.TestCase ):
                           spw=spw)
         masklist = self._convert_masklist(self.linechan2,specunit,self.infile,
                                           spw=ifno,restfreq=restfreq[0])
-        
+
         sd.rcParams['scantable.storage'] = 'disk'
         sd.rcParams['insitu'] = False
         print("Running test with storage='%s' and insitu=%s" % \
@@ -1024,7 +1024,7 @@ class sdstatold_storageTest( sdstatold_unittest_base, unittest.TestCase ):
         currstat = sdstatold(infile=self.infile,outfile=outfile,
                           spw=spw,restfreq=restfreq)
         # print "Statistics out of the current run:\n",currstat
-        
+
         sd.rcParams['scantable.storage'] = 'memory'
         spw = self._masklist_to_spw_string(self.linechan2,unit='',ifno=ifno)
         newinstat = sdstatold(infile=self.infile,outfile=outfile+'.newin',
@@ -1139,7 +1139,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
     @property
     def task(self):
         return sdstatold
-    
+
     @property
     def spw_channel_selection(self):
         return True
@@ -1154,7 +1154,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         self.refstats_2chan = read_stats(self.datapath_ref+self.refstat_file_2chan)
         default(sdstatold)
         self.outname=self.prefix+self.postfix
-        
+
     def tearDown(self):
         if (os.path.exists(self.rawfile)):
             shutil.rmtree(self.rawfile)
@@ -1176,7 +1176,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
         self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
-        
+
     def test_scan_id_exact(self):
         """ test scan selection (scan='16')"""
         scan = '16'
@@ -1194,7 +1194,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
         self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
-        
+
     def test_scan_id_gt(self):
         """ test scan selection (scan='>16')"""
         scan = '>16'
@@ -1202,7 +1202,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,scan=scan)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res) 
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
 
     def test_scan_id_range(self):
         """ test scan selection (scan='16~17')"""
@@ -1242,7 +1242,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
         self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
-    
+
     def test_beam_id_exact(self):
         """ test beam selection (beam='11')"""
         beam='11'
@@ -1251,7 +1251,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
         self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
-        
+
     def test_beam_id_lt(self):
         """ test beam selection (beam='<13')"""
         beam='<13'
@@ -1260,7 +1260,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
         self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
-        
+
     def test_beam_id_gt(self):
         """ test beam selection (beam='>12')"""
         beam='>12'
@@ -1269,7 +1269,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
         self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
-    
+
     def test_beam_id_range(self):
         """ test beam selection (beam='12~13')"""
         beam='12~13'
@@ -1277,8 +1277,8 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,beam=beam)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)      
-        
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
+
     def test_beam_id_list(self):
         """ test beam selection (beam='11,13')"""
         beam='11,13'
@@ -1286,8 +1286,8 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,beam=beam)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)      
-   
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
+
     def test_beam_id_exprlist(self):
         """ test beam selection (beam='11,>12')"""
         beam='11,>12'
@@ -1295,7 +1295,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,beam=beam)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)          
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
 
     ####################
     # pol
@@ -1308,7 +1308,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
         self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
-        
+
     def test_pol_id_exact(self):
         """ test polno selection (pol='1')"""
         pol = '1'
@@ -1317,7 +1317,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
         self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
-        
+
     def test_pol_id_lt(self):
         """ test polno selection (pol='<1')"""
         pol = '<1'
@@ -1325,7 +1325,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,pol=pol)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res) 
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
 
     def test_pol_id_gt(self):
         """ test pol selection (pol='>0')"""
@@ -1334,8 +1334,8 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,pol=pol)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res) 
-        
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
+
     def test_pol_id_range(self):
         """ test pol selection (pol='0~1')"""
         pol = '0~1'
@@ -1347,13 +1347,13 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
 
     def test_pol_id_list(self):
         """ test pol selection (pol='0,1')"""
-        pol = '0,1' 
+        pol = '0,1'
         ref_idx = [0,1,2,3]
         currstats=self.run_task(infile=self.rawfile,pol=pol)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)  
-        
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
+
     def test_pol_id_exprlist(self):
         """test pol selection (pol='0,>0')"""
         pol = '0,>0'
@@ -1361,7 +1361,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,pol=pol)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res) 
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
 
     ####################
     # field
@@ -1373,8 +1373,8 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,field=field)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)  
-        
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
+
     def test_field_id_exact(self):
         """ test field selection (field='6')"""
         field = '6'
@@ -1382,8 +1382,8 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,field=field)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)  
-        
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
+
     def test_field_id_lt(self):
         """ test field selection (field='<6')"""
         field = '<6'
@@ -1391,8 +1391,8 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,field=field)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)  
-        
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
+
     def test_field_id_gt(self):
         """ test field selection (field='>7')"""
         field = '>7'
@@ -1400,8 +1400,8 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,field=field)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)  
-        
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
+
     def test_field_id_range(self):
         """ test field selection (field='6~8')"""
         field = '6~8'
@@ -1409,8 +1409,8 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,field=field)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)  
-        
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
+
     def test_field_id_list(self):
         """ test field selection (field='5,8')"""
         field = '5,8'
@@ -1418,8 +1418,8 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,field=field)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)  
-        
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
+
     def test_field_id_exprlist(self):
         """ test field selection (field='5,>7')"""
         field = '5,>7'
@@ -1427,8 +1427,8 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,field=field)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)  
-        
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
+
     def test_field_value_exact(self):
         """ test field selection (field='M30')"""
         field = 'M30'
@@ -1436,8 +1436,8 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,field=field)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)  
-        
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
+
     def test_field_value_pattern(self):
         """ test field selection (field='M*')"""
         field = 'M*'
@@ -1445,17 +1445,17 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,field=field)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)  
-        
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
+
     def test_field_value_list(self):
         """ test field selection (field='3C273,M30')"""
-        field = '3C273,M30'  
+        field = '3C273,M30'
         ref_idx = [2,3]
         currstats=self.run_task(infile=self.rawfile,field=field)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)  
-        
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
+
     def test_field_mix_exprlist(self):
         """ test field selection (field='<6,3*')"""
         field = '<6,3*'
@@ -1463,10 +1463,10 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,field=field)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)  
-        
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
+
     ####################
-    # spw 
+    # spw
     ####################
     def test_spw_id_default(self):
         """test spw selection (spw='')"""
@@ -1475,7 +1475,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,spw=spw)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)  
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
 
     def test_spw_id_exact(self):
         """ test spw selection (spw='23')"""
@@ -1484,8 +1484,8 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,spw=spw)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)  
-    
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
+
     def test_spw_id_lt(self):
         """ test spw selection (spw='<23')"""
         spw = '<23'
@@ -1494,7 +1494,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
         self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
-    
+
     def test_spw_id_gt(self):
         """ test spw selection (spw='>23')"""
         spw = '>23'
@@ -1502,8 +1502,8 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,spw=spw)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)  
-        
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
+
     def test_spw_id_range(self):
         """ test spw selection (spw='23~25')"""
         spw = '23~25'
@@ -1511,8 +1511,8 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,spw=spw)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)  
-        
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
+
     def test_spw_id_list(self):
         """ test spw selection (spw='21,25')"""
         spw = '21,25'
@@ -1520,8 +1520,8 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,spw=spw)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)  
-        
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
+
     def test_spw_id_exprlist(self):
         """ test spw selection (spw='23,>24')"""
         spw = '23,>24'
@@ -1529,8 +1529,8 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,spw=spw)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)  
-        
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
+
     def test_spw_id_pattern(self):
         """test spw selection (spw='*')"""
         spw='*'
@@ -1538,8 +1538,8 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,spw=spw)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)  
-        
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
+
     def test_spw_value_frequency(self):
         """test spw selection (spw='300.4~300.6GHz')"""
         spw = '300.4~300.6GHz' # IFNO=25 should be selected
@@ -1548,7 +1548,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
         self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
-    
+
     def test_spw_value_velocity(self):
         """test spw selection (spw='-30~30km/s')"""
         spw = '-30~30km/s'  # IFNO=23 should be selected
@@ -1556,8 +1556,8 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,spw=spw)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)  
-        
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
+
     def test_spw_mix_exprlist(self):
         """test spw selection (spw='25,-30~30km/s')"""
         spw = '25,-30~30km/s' # IFNO=23,25 should be selected
@@ -1566,7 +1566,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
         self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
- 
+
     ####################
     # spw (channel)
     ####################
@@ -1586,7 +1586,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,spw=spw)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats_chan,icomp=ref_idx,compstats=self.res)  
+        self._compareStats(currstats,self.refstats_chan,icomp=ref_idx,compstats=self.res)
 
     def test_spw_id_default_velocity(self):
         """test spw selection (spw=':-9.993081933332233~9.993081933365517km/s')"""
@@ -1604,8 +1604,8 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,spw=spw)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats_2chan,icomp=ref_idx,compstats=self.res)     
-        
+        self._compareStats(currstats,self.refstats_2chan,icomp=ref_idx,compstats=self.res)
+
     def test_spw_id_exact_channel(self):
         """test spw selection (spw='25:40~60')"""
         spw = '25:40~60'
@@ -1613,7 +1613,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,spw=spw)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats_chan,icomp=ref_idx,compstats=self.res)   
+        self._compareStats(currstats,self.refstats_chan,icomp=ref_idx,compstats=self.res)
 
     def test_spw_id_exact_frequency(self):
         """test spw selection (spw='25:300.490~300.510GHz')"""
@@ -1622,8 +1622,8 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,spw=spw)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats_chan,icomp=ref_idx,compstats=self.res)   
-        
+        self._compareStats(currstats,self.refstats_chan,icomp=ref_idx,compstats=self.res)
+
     def test_spw_id_exact_velocity(self):
         """test spw selection (spw='23:-9.993081933332233~9.993081933365517km/s')"""
         spw = '23:-9.993081933332233~9.993081933365517km/s'
@@ -1632,7 +1632,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
         self._compareStats(currstats,self.refstats_chan,icomp=ref_idx,compstats=self.res)
-        
+
     def test_spw_id_exact_list(self):
         """test spw selection (spw='25:40~60;61~80')"""
         spw = '25:40~60;61~80'
@@ -1640,8 +1640,8 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,spw=spw)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats_2chan,icomp=ref_idx,compstats=self.res) 
-        
+        self._compareStats(currstats,self.refstats_2chan,icomp=ref_idx,compstats=self.res)
+
     def test_spw_id_pattern_channel(self):
         """test spw selection (spw='*:300.490~300.510GHz')"""
         spw = '*:300.490~300.510GHz'
@@ -1650,7 +1650,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
         self._compareStats(currstats,self.refstats_chan,icomp=ref_idx,compstats=self.res)
-    
+
     def test_spw_id_pattern_frequency(self):
         """test spw selection (spw='*:40~60')"""
         spw = '*:40~60'
@@ -1658,7 +1658,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,spw=spw)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats_chan,icomp=ref_idx,compstats=self.res)     
+        self._compareStats(currstats,self.refstats_chan,icomp=ref_idx,compstats=self.res)
 
     def test_spw_id_pattern_velocity(self):
         """test spw selection (spw='*:-9.993081933332233~9.993081933365517km/s')"""
@@ -1676,7 +1676,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,spw=spw)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats_2chan,icomp=ref_idx,compstats=self.res) 
+        self._compareStats(currstats,self.refstats_2chan,icomp=ref_idx,compstats=self.res)
 
     def test_spw_value_frequency_channel(self):
         """test spw selection (spw='300.490~300.510GHz:40~60')"""
@@ -1712,7 +1712,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,spw=spw)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats_2chan,icomp=ref_idx,compstats=self.res) 
+        self._compareStats(currstats,self.refstats_2chan,icomp=ref_idx,compstats=self.res)
 
     def test_spw_value_velocity_channel(self):
         """test spw selection (spw='-9.993081933332233~9.993081933365517km/s:40~60')"""
@@ -1731,7 +1731,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
         self._compareStats(currstats,self.refstats_chan,icomp=ref_idx,compstats=self.res)
-        
+
     def test_spw_value_velocity_velocity(self):
         """test spw selection (spw='-50~50km/s:-10~10km/s')"""
         spw = '-50~50km/s:-10~10km/s'
@@ -1740,7 +1740,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
         self._compareStats(currstats,self.refstats_chan,icomp=ref_idx,compstats=self.res)
-  
+
     def test_spw_value_velocity_list(self):
         """test spw selection (spw='-9.993081933332233~9.993081933365517km/s:40~60;61~80')"""
         spw = '-9.993081933332233~9.993081933365517km/s:40~60;61~80'
@@ -1748,8 +1748,8 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,spw=spw)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats_2chan,icomp=ref_idx,compstats=self.res) 
-        
+        self._compareStats(currstats,self.refstats_2chan,icomp=ref_idx,compstats=self.res)
+
     def test_spw_id_list_channel(self):
         """test spw selection (spw='23:40~60,25:40~60')"""
         spw = '23:40~60,25:40~60'
@@ -1757,7 +1757,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,spw=spw)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats_chan,icomp=ref_idx,compstats=self.res) 
+        self._compareStats(currstats,self.refstats_chan,icomp=ref_idx,compstats=self.res)
 
     ####################
     # timerange
@@ -1769,7 +1769,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,timerange=timerange)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)  
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
 
     def test_timerange_value_exact(self):
         """test timerange selection (timerange='2011/11/11/02:32:03.47')"""
@@ -1778,7 +1778,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,timerange=timerange)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)  
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
 
     def test_timerange_value_lt(self):
         """test timerange selection (timerange='<2011/11/11/02:32:03.5')"""
@@ -1787,7 +1787,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,timerange=timerange)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)  
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
 
     def test_timerange_value_gt(self):
         """test timerange selection (timerange='>2011/11/11/02:34:02.47')"""
@@ -1796,8 +1796,8 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,timerange=timerange)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res) 
-         
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
+
     def test_timerange_value_range(self):
         """test timerange selection (timerange='2011/11/11/02:32:02.47~2011/11/11/02:32:04.97')"""
         timerange='2011/11/11/02:32:02.47~2011/11/11/02:32:04.97'
@@ -1805,7 +1805,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,timerange=timerange)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)  
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
 
     def test_timerange_value_interval(self):
         """test timerange selection (timerange='2011/11/11/02:34:02.5+0:0:01.0')"""
@@ -1814,7 +1814,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         currstats=self.run_task(infile=self.rawfile,timerange=timerange)
         liststats = [ key for key in list(currstats.keys()) if type(currstats[key])!= dict ]
         self.res=liststats
-        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)  
+        self._compareStats(currstats,self.refstats,icomp=ref_idx,compstats=self.res)
 
     ####################
     # Helper functions
@@ -1822,7 +1822,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
     def _get_rowidx_selected( self, name, tbsel={} ):
         """
         Returns a list of row idx selected in table.
-        
+
         name  : the name of scantable
         tbsel : a dictionary of table selection information.
                 The key should be column name and the value should be
@@ -1830,7 +1830,7 @@ class sdstatold_selection_syntax( selection_syntax.SelectionSyntaxTest,sdstatold
         """
         isthere=os.path.exists(name)
         self.assertEqual(isthere,True,
-                         msg='file %s does not exist'%(name))        
+                         msg='file %s does not exist'%(name))
         tb.open(name)
         if len(tbsel) == 0:
             idx=list(range(tb.nrows()))
@@ -1887,7 +1887,7 @@ class sdstatold_flagTest( sdstatold_unittest_base, unittest.TestCase ):
         if (os.path.exists(self.infile)):
             shutil.rmtree(self.infile)
         os.remove(self.reffile)
-        
+
     def testflag(self):
         """Test testflag: verify proper flag handling"""
         tid = "Flag"

@@ -2,7 +2,7 @@
 # $Id:$
 # Test Name:                                                                #
 #    Regression Test Script for the conjugatevis task
-#    
+#
 #                                                                           #
 #############################################################################
 import os
@@ -22,12 +22,12 @@ datapath=os.environ.get('CASAPATH').split()[0]+'/data/regression/unittest/concat
 
 # Pick up alternative data directory to run tests on MMSs
 testmms = False
-if 'TEST_DATADIR' in os.environ:   
+if 'TEST_DATADIR' in os.environ:
     testmms = True
     DATADIR = str(os.environ.get('TEST_DATADIR'))+'/concat/input/'
     if os.path.isdir(DATADIR):
         datapath = DATADIR
-    print('conjugatevis tests will use data from '+datapath)    
+    print('conjugatevis tests will use data from '+datapath)
 
 
 def checktable(thename, theexpectation):
@@ -47,12 +47,12 @@ def checktable(thename, theexpectation):
             if mycell[3] == 0:
                 in_agreement = (value == mycell[2])
             else:
-                in_agreement = ( abs(value - mycell[2]) < mycell[3]) 
+                in_agreement = ( abs(value - mycell[2]) < mycell[3])
         else:
             # it's an array
             # zero tolerance?
             if mycell[3] == 0:
-                in_agreement =  (value == mycell[2]).all() 
+                in_agreement =  (value == mycell[2]).all()
             else:
                 try:
                     in_agreement = (abs(value - mycell[2]) < mycell[3]).all()
@@ -70,10 +70,10 @@ def checktable(thename, theexpectation):
 
 
 ###########################
-# beginning of actual test 
+# beginning of actual test
 
 class test_conjugatevis(unittest.TestCase):
-    
+
     def setUp(self):
         res = None
 
@@ -88,14 +88,14 @@ class test_conjugatevis(unittest.TestCase):
         os.chdir(cpath)
 
         default(conjugatevis)
-        
+
     def tearDown(self):
         shutil.rmtree(msname,ignore_errors=True)
 
     def test1(self):
         '''Conjugatevis 1: '''
-        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }    
-        
+        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
+
         self.res = conjugatevis(vis='shortpart1.ms', spwlist=[5,7], outputvis=msname)
         self.assertEqual(self.res,None)
 
@@ -147,17 +147,17 @@ class test_conjugatevis(unittest.TestCase):
                 retValue['error_msgs']=retValue['error_msgs']+'Check of table '+name+' failed'
 
 
-class conjugatevis_cleanup(unittest.TestCase):           
+class conjugatevis_cleanup(unittest.TestCase):
     def setUp(self):
         pass
-    
+
     def tearDown(self):
         os.system('rm -rf *.ms')
 
     def testrun(self):
         '''Conjugatevis: Cleanup'''
         pass
-    
+
 def suite():
-    return [test_conjugatevis,conjugatevis_cleanup]        
-        
+    return [test_conjugatevis,conjugatevis_cleanup]
+

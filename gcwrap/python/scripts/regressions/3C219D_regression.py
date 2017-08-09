@@ -5,7 +5,7 @@
 #                                                                           #
 # Rationale for Inclusion:                                                  #
 #    It ensures that the task is working properly.                          #
-#                                                                           # 
+#                                                                           #
 # Features tested:                                                          #
 #    1) Is the task working properly?                                       #
 #    2) Is the task producing the same results as the reference?            #
@@ -42,7 +42,7 @@
 #    3C219D_CAL.UVFITS, rgn3C219D.rgn                                       #
 #                                                                           #
 # Description:                                                              #
-#    3C219 VLA data, D-configuration                                        #                               
+#    3C219 VLA data, D-configuration                                        #
 #                                                                           #
 # Author: Ed Fomalont                                                       #
 #                                                                           #
@@ -95,11 +95,11 @@ fitsfile = fitsdata
 vis=tmpfile
 antnamescheme = 'new'
 status = importuvfits()
-    
+
 if status == False:
     regstate=False
     raise Exception("Regression test failed for 3C219D in task \"%s\"" %(taskname))
-    
+
 #
 #=====================================================================
 #
@@ -118,7 +118,7 @@ status = listobs()
 if status == False:
     regstate=False
     raise Exception("Regression test failed for 3C219D in task \"%s\"" %(taskname))
-    
+
 #
 #=====================================================================
 #
@@ -136,7 +136,7 @@ status  = fixvis()
 if status == False:
     regstate=False
     raise Exception("Regression test failed for 3C219D in task \"%s\"" %(taskname))
-    
+
 #
 #=====================================================================
 #
@@ -158,8 +158,8 @@ if (a == False or b == False):
 
 print("original equinox: ", a['ptcs'][1]['MEASINFO']['Ref'])
 print("     new equinox: ", b['ptcs'][1]['MEASINFO']['Ref'])
-    
-    
+
+
 #
 #=====================================================================
 #
@@ -188,7 +188,7 @@ if status == False:
     regstate=False
     raise Exception("Regression test failed for 3C219D in task \"%s\"" %(taskname))
 
-    
+
 #
 #=====================================================================
 #
@@ -217,7 +217,7 @@ status = clean()
 if status == False:
     regstate=False
     raise Exception("Regression test failed for 3C219D in task \"%s\"" %(taskname))
-    
+
 #
 #=====================================================================
 #
@@ -248,7 +248,7 @@ status = clean()
 if status == False:
     regstate=False
     raise Exception("Regression test failed for 3C219D in task \"%s\"" %(taskname))
-    
+
 #
 #=====================================================================
 #
@@ -279,7 +279,7 @@ status = clean()
 if status == False:
     regstate=False
     raise Exception("Regression test failed for 3C219D in task \"%s\"" %(taskname))
-    
+
 #
 #=====================================================================
 #
@@ -298,7 +298,7 @@ status = immath()
 if status == None:
     regstate=False
     raise Exception("Regression test failed for 3C219D in task \"%s\"" %(taskname))
-    
+
 #
 #=====================================================================
 #
@@ -314,7 +314,7 @@ a1=imstat()
 if a1 == False:
     regstate=False
     raise Exception("Regression test failed for 3C219D in task \"%s\"" %(taskname))
-    
+
 #
 #=====================================================================
 #
@@ -332,7 +332,7 @@ immath()
 if status == None:
     regstate=False
     raise Exception("Regression test failed for 3C219D in task \"%s\"" %(taskname))
-    
+
 #
 #=====================================================================
 #
@@ -349,7 +349,7 @@ if a2 == False:
     regstate=False
     raise Exception("Regression test failed for 3C219D in task \"%s\"" %(taskname))
 
-    
+
 # Do regressions tests
 # Reference values:
 
@@ -357,10 +357,10 @@ ref1_rms=0.0005
 ref2_rms=0.0002
 
 print("difference between D-3scale.image and D-3scale_mos.image")
-print("diff:  rms = ",a1['rms'][0],";  minimum= ",a1['min'][0],": maximum= ",a1['max'][0])    
+print("diff:  rms = ",a1['rms'][0],";  minimum= ",a1['min'][0],": maximum= ",a1['max'][0])
 print("difference between D-1scale.image and D-1scale_mos.image")
-print("diff:  rms = ",a2['rms'][0],";  minimum= ",a2['min'][0],": maximum= ",a2['max'][0])    
-    
+print("diff:  rms = ",a2['rms'][0],";  minimum= ",a2['min'][0],": maximum= ",a2['max'][0])
+
 if((abs(ref1_rms-a1['rms']) > 0.001) or (abs(ref2_rms-a2['rms']) > 0.001)):
     print(abs(ref1_rms-a1['rms']))
     print(abs(ref2_rms-a2['rms']))
@@ -373,7 +373,7 @@ else:
     print('')
     print('Regression PASSED')
     print('')
-        
+
 
 #  End of 3C219D regression
 

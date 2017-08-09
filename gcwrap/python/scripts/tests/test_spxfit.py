@@ -38,7 +38,7 @@
 #
 # <prerequisite>
 # <ul>
-#   <li> <linkto class="task_specfit.py:description">spxfit</linkto> 
+#   <li> <linkto class="task_specfit.py:description">spxfit</linkto>
 # </ul>
 # </prerequisite>
 #
@@ -48,20 +48,20 @@
 #
 # <synopsis>
 # Test the spxfit task and the ia.fitprofile() method upon which it is built.
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_spxfit[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the spxfit task to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -153,7 +153,7 @@ def run_specfit(
     )
 
 class spxfit_test(unittest.TestCase):
-    
+
     def setUp(self):
         pass
 
@@ -180,7 +180,7 @@ class spxfit_test(unittest.TestCase):
             self.assertTrue((gotArray == expectedArray).all())
 
     def checkImage(self, gotImage, expectedName):
-        expected = iatool()                                
+        expected = iatool()
         self.assertTrue(expected.open(expectedName))
         got = iatool()
         if type(gotImage) == str:
@@ -196,7 +196,7 @@ class spxfit_test(unittest.TestCase):
         expectedCsys = expected.coordsys()
         diffPixels = gotCsys.referencepixel()['numeric'] - expectedCsys.referencepixel()['numeric']
         self.assertTrue(abs(diffPixels).max() == 0)
-        
+
         diffRef = gotCsys.referencevalue()['numeric'] - expectedCsys.referencevalue()['numeric']
         # fracDiffRef = (diffRef)/expectedCsys.referencevalue()['numeric'];
         self.assertTrue(abs(diffRef).max() == 0)
@@ -209,7 +209,7 @@ class spxfit_test(unittest.TestCase):
         """spxfit: Test various exception cases"""
         myia.fromshape("", [1,1,10])
         self.assertRaises(Exception, myia.fitprofile, poly=2, plpest=[1,2])
-        
+
     def test_plpfit(self):
         """ Test fitting a power logarithmic polynomial"""
         imagename = "spxfit.im"
@@ -226,7 +226,7 @@ class spxfit_test(unittest.TestCase):
             world = myia.toworld([0,0,i])['numeric'][2]
             zz[:,:,i] = myfn.f(world/1e9)
         myia.putchunk(zz)
-        
+
         for i in [0,1]:
             if i == 0:
                 rec = myia.fitprofile(ngauss=0, spxtype="plp", spxest=plpest)
@@ -240,8 +240,8 @@ class spxfit_test(unittest.TestCase):
                 rec = spxfit(imagename=imagename, spxtype="plp", spxest=[0.4, 3])
             sols = rec['plp']['solution'].ravel()
             self.assertTrue((abs(1 - sols/plpest) < 0.1e-7).all())
-            
-            
+
+
         myia.addnoise(pars=[0, 0.001])
         for i in [0, 1]:
             plpestoff = [0.4, 3]
@@ -286,7 +286,7 @@ class spxfit_test(unittest.TestCase):
                     ).all()
                 )
                 myia.done(remove=True)
-            
+
     def test_ltpfit(self):
         """ Test fitting a logarithmic transformed polynomial"""
         imagename = "ltpfit.im"
@@ -322,7 +322,7 @@ class spxfit_test(unittest.TestCase):
             self.assertTrue((abs(1 - sols/ltpest) < 0.1e-7).all())
             print('*** xUnit ' + rec['xUnit'])
             self.assertTrue(rec['xUnit'] == "Hz")
-        
+
         myia.addnoise(pars=[0, 0.001])
         for i in [0, 1]:
             ltpestoff = [0.4, 3]
@@ -365,7 +365,7 @@ class spxfit_test(unittest.TestCase):
                     ).all()
                 )
                 myia.done(remove=True)
-            
+
     def test_multi_image(self):
         """Test multi image support"""
         imagename1 = "concat1.im"
@@ -376,7 +376,7 @@ class spxfit_test(unittest.TestCase):
         inc[2] = 1e7
         csys.setincrement(inc)
         myia.setcoordsys(csys.torecord())
-        
+
         imagename2 = "concat2.im"
         myia.fromshape(imagename2,[2, 2, 100])
         csys = myia.coordsys()
@@ -403,17 +403,17 @@ class spxfit_test(unittest.TestCase):
         rec = spxfit(imagename=[imagename1, imagename2], spxtype="plp", spxest=[0.4, 3])
         sols = rec['plp']['solution'].ravel()
         self.assertTrue((abs(1 - sols/plpest) < 1e-9).all())
-        
+
         myia.open(imagename1)
         myia.addnoise(pars=[0, 0.001])
         myia.open(imagename2)
         myia.addnoise(pars=[0, 0.001])
-        
+
         plpestoff = [0.4, 3]
         rec = spxfit(imagename=[imagename1, imagename2], spxtype="plp", spxest=plpestoff)
         sols = rec['plp']['solution'].ravel()
         self.assertTrue((abs(1 - sols/plpest) < 1e-2).all())
-        
+
         plpsol = "plpsol.im"
         plperr = "plperr.im"
         plpestoff = [0.4, 2.2]
@@ -440,7 +440,7 @@ class spxfit_test(unittest.TestCase):
                  abs(myia.getchunk() - rec['plp']['error'][:,:,:,j]) < 1e-8
                 ).all()
             )
-        
+
     def test_output_mask(self):
         """ Test the the output solution image mask is correct"""
         im45 = datapath + "small_42GHz_map.image"
@@ -500,7 +500,7 @@ class spxfit_test(unittest.TestCase):
             del expec[i]
         for i in range(len(got)):
             self.assertTrue(got[i] == expec[i]);
-        
+
         for pixel in ([340, 265], [508,378]):
             box = str(pixel[0]) + "," + str(pixel[1])
             box = box + "," + box
@@ -519,7 +519,7 @@ class spxfit_test(unittest.TestCase):
             got = res2['direction'][0,0,0,0]
             expec = res['direction'][pixel[0],pixel[1],0,0]
             self.assertTrue(got == expec)
-        
+
 
     def test_ltpfit_with_negative_values(self):
         """Test fitting of ltp when y values are negative returns something reasonable because of auto masking"""
@@ -538,10 +538,10 @@ class spxfit_test(unittest.TestCase):
         res = myia.fitprofile(spxtype="ltp",spxest=[0, 3],div=f[0])
         myia.done()
         self.assertTrue(abs(res['ltp']['solution'][0][0][0][1] - 3) < 0.01 )
-        
 
 
-        
-        
+
+
+
 def suite():
     return [spxfit_test]

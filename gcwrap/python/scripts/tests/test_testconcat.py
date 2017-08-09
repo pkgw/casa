@@ -2,7 +2,7 @@
 # $Id:$
 # Test Name:                                                                #
 #    Regression Test Script for the testconcat task
-#    
+#
 #                                                                           #
 #############################################################################
 import os
@@ -35,12 +35,12 @@ def checktable(thename, theexpectation):
             if mycell[3] == 0:
                 in_agreement = (value == mycell[2])
             else:
-                in_agreement = ( abs(value - mycell[2]) < mycell[3]) 
+                in_agreement = ( abs(value - mycell[2]) < mycell[3])
         else:
             # it's an array
             # zero tolerance?
             if mycell[3] == 0:
-                in_agreement =  (value == mycell[2]).all() 
+                in_agreement =  (value == mycell[2]).all()
             else:
                 try:
                     in_agreement = (abs(value - mycell[2]) < mycell[3]).all()
@@ -58,10 +58,10 @@ def checktable(thename, theexpectation):
 
 
 ###########################
-# beginning of actual test 
+# beginning of actual test
 
 class test_testconcat(unittest.TestCase):
-    
+
     def setUp(self):
         res = None
 
@@ -76,14 +76,14 @@ class test_testconcat(unittest.TestCase):
         os.chdir(cpath)
 
         default(testconcat)
-        
+
     def tearDown(self):
         shutil.rmtree(msname,ignore_errors=True)
 
     def test1(self):
         '''Testconcat 1: 4 parts, same sources but different spws'''
-        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }    
-        
+        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
+
         self.res = testconcat(vis=['part1.ms','part2.ms','part3.ms','part4.ms'],testconcatvis=msname)
         self.assertEqual(self.res,None)
 
@@ -164,10 +164,10 @@ class test_testconcat(unittest.TestCase):
 
     def test2(self):
         '''Testconcat 2: 3 parts, different sources, different spws '''
-        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }    
+        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
         self.res = testconcat(vis=['part1.ms','part2-mod.ms','part3.ms'],testconcatvis=msname)
         self.assertEqual(self.res,None)
-        
+
         print(myname, ": Success! Now checking output ...")
         mscomponents = set(["table.dat",
                             "table.f0",
@@ -220,7 +220,7 @@ class test_testconcat(unittest.TestCase):
         shutil.copytree(msname,'test2.ms')
         print(myname, ": OK. Checking tables in detail ...")
         retValue['success']=True
-        
+
         # check source table
         name = "SOURCE"
         #             col name, row number, expected value, tolerance
@@ -246,7 +246,7 @@ class test_testconcat(unittest.TestCase):
 
     def test3(self):
         '''Testconcat 3: 3 parts, different sources, same spws'''
-        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }    
+        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
         self.res = testconcat(vis=['part1.ms','part2-mod2.ms','part3.ms'],testconcatvis=msname)
         self.assertEqual(self.res,None)
 
@@ -302,7 +302,7 @@ class test_testconcat(unittest.TestCase):
         shutil.copytree(msname,'test3.ms')
         print(myname, ": OK. Checking tables in detail ...")
         retValue['success']=True
-        
+
         # check source table
         name = "SOURCE"
         #             col name, row number, expected value, tolerance
@@ -324,12 +324,12 @@ class test_testconcat(unittest.TestCase):
         if not results:
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']+'Check of table '+name+' failed'
-    
+
 
     def test4(self):
         '''Testconcat 4: five MSs with identical sources but different time/intervals on them (CSV-268)'''
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
-        
+
         self.res = testconcat(vis = ['shortpart1.ms', 'shortpart2.ms', 'shortpart3.ms', 'shortpart4.ms', 'shortpart5.ms'],
                           testconcatvis = msname, copypointing=False)
         self.assertEqual(self.res,None)
@@ -386,8 +386,8 @@ class test_testconcat(unittest.TestCase):
         shutil.copytree(msname,'test4.ms')
         print(myname, ": OK. Checking tables in detail ...")
         retValue['success']=True
-        
-        
+
+
         # check source table
         name = "SOURCE"
         #             col name, row number, expected value, tolerance
@@ -433,7 +433,7 @@ class test_testconcat(unittest.TestCase):
         except:
             print("Expected error.")
             results = False
-        if results: 
+        if results:
             retValue['success']=False
             retValue['error_msgs']='SOURCE row 16 should not existCheck of table '+name+' failed'
         # check spw table
@@ -446,14 +446,14 @@ class test_testconcat(unittest.TestCase):
         if not results:
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']+'Check of table '+name+' failed'
-    
-                
+
+
         self.assertTrue(retValue['success'])
-        
+
     def test5(self):
         '''Testconcat 5: two MSs with different state table (CAS-2601)'''
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
-        
+
         self.res = testconcat(vis = ['A2256LC2_4.5s-1.ms','A2256LC2_4.5s-2.ms'],
                               testconcatvis = msname)
         self.assertEqual(self.res,None)
@@ -509,8 +509,8 @@ class test_testconcat(unittest.TestCase):
             shutil.rmtree('test5.ms',ignore_errors=True)
         shutil.copytree(msname,'test5.ms')
         print(myname, ": OK. Checking tables in detail ...")
-        retValue['success']=True        
-        
+        retValue['success']=True
+
         # check state table
         name = "STATE"
         #             col name, row number, expected value, tolerance
@@ -524,20 +524,20 @@ class test_testconcat(unittest.TestCase):
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']+'Check of table '+name+' failed'
             retValue['error_msgs']=retValue['error_msgs']+'Check of table '+name+' failed'
-                
+
         self.assertTrue(retValue['success'])
 
-class testconcat_cleanup(unittest.TestCase):           
+class testconcat_cleanup(unittest.TestCase):
     def setUp(self):
         pass
-    
+
     def tearDown(self):
-        os.system('rm -rf *.ms')   
+        os.system('rm -rf *.ms')
 
     def testrun(self):
         '''Testconcat: Cleanup'''
         pass
-    
+
 def suite():
-    return [test_testconcat,testconcat_cleanup]        
-        
+    return [test_testconcat,testconcat_cleanup]
+

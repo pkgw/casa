@@ -2,9 +2,9 @@ import os
 from taskinit import *
 
 def makemask(cleanbox=None,vis=None,imagename=None,mode=None,nchan=None,start=None,width=None,step=None,imsize=None,cell=None,phasecenter=None,stokes=None,field=None,spw=None):
-	"""Derive a mask image from a cleanbox blc, trc regions 
+        """Derive a mask image from a cleanbox blc, trc regions
 
-	Keyword arguments:
+        Keyword arguments:
         cleanbox -- Cleaning region:
                 default: [] defaults to inner quarter of image
                 Two specification types:
@@ -13,13 +13,13 @@ def makemask(cleanbox=None,vis=None,imagename=None,mode=None,nchan=None,start=No
                    cleans two regions defined by the pixel ranges
                 Filename with pixel values with ascii format:
                    <fieldid blc-x blc-y trc-x trc-y> on each line
-	----------------------------------------------------------------
+        ----------------------------------------------------------------
         vis -- Name of input visibility file (MS)
                 default: none; example: vis='ngc5921.ms'
         imagename -- Name of output mask image
                 default: none; example: imagename='ngc5921.mask'
-        mode -- Type of selection 
-                default: 'mfs'; example: mode='channel'; 
+        mode -- Type of selection
+                default: 'mfs'; example: mode='channel';
                 Options: 'mfs', channel'
         nchan -- Number of channels to select
                 default: -1 (all); example: nchan=45
@@ -28,7 +28,7 @@ def makemask(cleanbox=None,vis=None,imagename=None,mode=None,nchan=None,start=No
         width -- Channel width (value > 1 indicates channel averaging)
                 default=1; example: width=5
         step -- Step in channel number
-                default=1; example: step=2      
+                default=1; example: step=2
         imsize -- Image size in spatial pixels (x,y)
                 default = [256,256]; example: imsize=[512,512]
         cell -- Cell size in arcseconds (x,y)
@@ -37,7 +37,7 @@ def makemask(cleanbox=None,vis=None,imagename=None,mode=None,nchan=None,start=No
                 default: '' (imply field=0 as center); example: phasecenter=6
                 or phasecenter='J2000 19h30m00 -40d00m00'
         stokes -- Stokes parameters to image
-                default='I'; example: stokes='IQUV'; 
+                default='I'; example: stokes='IQUV';
                 Options: 'I','IV','IQU','IQUV'
        field -- Select field using field id(s) or field name(s).
                   [run listobs to obtain the list id's or names]
@@ -59,12 +59,12 @@ def makemask(cleanbox=None,vis=None,imagename=None,mode=None,nchan=None,start=No
                spw='0:0~10,1:20~30,2:1;2;3'; spw 0, channels 0-10,
                         spw 1, channels 20-30, and spw 2, channels, 1,2 and 3
 
-	"""
+        """
 
-	#Python script
+        #Python script
         casalog.origin('makemask')
 
-	try:
+        try:
 
                 if (field==''):
                         field='*'
@@ -120,7 +120,7 @@ def makemask(cleanbox=None,vis=None,imagename=None,mode=None,nchan=None,start=No
                                        spw=spwindex, phasecenter=findex)
                 else:
                         if(type(width) != int):
-                                raise TypeError("width has to be an integer with mode %s" %mode)                
+                                raise TypeError("width has to be an integer with mode %s" %mode)
                         if width==1: im.defineimage(nx=imsize[0],ny=imsize[1],cellx=cellx,celly=celly,mode=mode,nchan=nchan,start=start,step=width, phasecenter=phasecenter,spw=spwindex,stokes=stokes)
                         if width!=1:
                                 im.defineimage(nx=imsize[0],ny=imsize[1],cellx=cellx,celly=celly,mode=mode,nchan=nchan,start=start,step=width,phasecenter=phasecenter,spw=spwindex,stokes=stokes)
@@ -130,7 +130,7 @@ def makemask(cleanbox=None,vis=None,imagename=None,mode=None,nchan=None,start=No
                 if (type(cleanbox[0])==str): cleanbox=readboxfile(cleanbox)
 
                 im.regionmask(mask=imagename,boxes=cleanbox)
-		im.close()
-	except Exception as instance:
-		print('*** Error ***',instance)
+                im.close()
+        except Exception as instance:
+                print('*** Error ***',instance)
 

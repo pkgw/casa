@@ -47,20 +47,20 @@
 #
 # <synopsis>
 # Test for the ia.coordmeasures() tool method
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_coordmeasures[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the ia.coordmeasures() tool method to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -73,14 +73,14 @@ from __main__ import *
 import unittest
 
 class ia_coordmeasures_test(unittest.TestCase):
-    
+
     def setUp(self):
         self._myia = iatool()
-    
+
     def tearDown(self):
         self._myia.done()
         self.assertTrue(len(tb.showcache()) == 0)
-        
+
     def test_frame(self):
         """CAS-7927: Test returned frame is correct"""
         myia = self._myia
@@ -95,7 +95,7 @@ class ia_coordmeasures_test(unittest.TestCase):
         csys = myia.coordsys()
         csys.setconversiontype(direction='B1950', spectral='CMB')
         myia.setcoordsys(csys.torecord())
-        
+
         for i in range(4):
             if i == 0:
                 cm = myia.coordmeasures()
@@ -119,7 +119,7 @@ class ia_coordmeasures_test(unittest.TestCase):
         self.assertTrue(cm["measure"]["direction"]['m0']['value'] == 0, "wrong RA")
         self.assertTrue(cm["measure"]["direction"]['m1']['value'] == 0, "wrong Dec")
         self.assertTrue(cm["measure"]["direction"]['refer'] == "J2000", "wrong direction reference frame")
-        
+
         cm = myia.coordmeasures(dframe="cl", sframe="native")
         self.assertTrue(cm, "Unable to get coordmeasures")
         self.assertTrue(cm['measure']['spectral']['frequency']['m0']['value'] == 1.415e9, "wrong frequency")
@@ -135,7 +135,7 @@ class ia_coordmeasures_test(unittest.TestCase):
             cm["measure"]["direction"]['refer'] == "B1950",
             "wrong direction reference frame"
         )
-        
+
         cm = myia.coordmeasures(dframe="native", sframe="cl")
         self.assertTrue(cm, "Unable to get coordmeasures")
         self.assertTrue(abs(cm['measure']['spectral']['frequency']['m0']['value'] - 1416700650.52) < 0.1, "wrong frequency")
@@ -143,7 +143,7 @@ class ia_coordmeasures_test(unittest.TestCase):
         self.assertTrue(cm["measure"]["direction"]['m0']['value'] == 0, "wrong RA")
         self.assertTrue(cm["measure"]["direction"]['m1']['value'] == 0, "wrong Dec")
         self.assertTrue(cm["measure"]["direction"]['refer'] == "J2000", "wrong direction reference frame")
-        
+
         cm = myia.coordmeasures(dframe="GALACTIC", sframe="cl")
         self.assertTrue(cm, "Unable to get coordmeasures")
         self.assertTrue(
@@ -166,7 +166,7 @@ class ia_coordmeasures_test(unittest.TestCase):
             cm["measure"]["direction"]['refer'] == "GALACTIC",
             "wrong direction reference frame"
         )
-        
+
         cm = myia.coordmeasures(dframe="cl", sframe="LGROUP")
         self.assertTrue(cm, "Unable to get coordmeasures")
         self.assertTrue(
@@ -189,7 +189,7 @@ class ia_coordmeasures_test(unittest.TestCase):
             cm["measure"]["direction"]['refer'] == "B1950",
             "wrong direction reference frame"
         )
-        
+
         cm = myia.coordmeasures(dframe="GALACTIC", sframe="LGROUP")
         self.assertTrue(cm, "Unable to get coordmeasures")
         self.assertTrue(
@@ -212,11 +212,11 @@ class ia_coordmeasures_test(unittest.TestCase):
             cm["measure"]["direction"]['refer'] == "GALACTIC",
             "wrong direction reference frame"
         )
-        
+
         self.assertRaises(Exception, myia.coordmeasures, dframe="CL", sframe="BOGUS")
         self.assertRaises(Exception, myia.coordmeasures, dframe="BOGUS", sframe="CL")
 
         myia.done()
-        
+
 def suite():
     return [ia_coordmeasures_test]

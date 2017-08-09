@@ -9,34 +9,34 @@ from update_spw import update_spwchan
 import flaghelper as fh
 from parallel.parallel_data_helper import ParallelDataHelper
 
-def split(vis, 
-          outputvis, 
+def split(vis,
+          outputvis,
           keepmms,
           field,
-          spw, 
-          scan, 
-          antenna, 
+          spw,
+          scan,
+          antenna,
           correlation,
-          timerange, 
+          timerange,
           intent,
           array,
           uvrange,
           observation,
           feed,
-          datacolumn, 
+          datacolumn,
           keepflags,
-          width, 
-          timebin, 
-          combine 
+          width,
+          timebin,
+          combine
           ):
-    
+
     """Create a visibility subset from an existing visibility set"""
 
     casalog.origin('split')
-    
-    # Initialize the helper class  
-    pdh = ParallelDataHelper("split", locals()) 
-        
+
+    # Initialize the helper class
+    pdh = ParallelDataHelper("split", locals())
+
     # Validate input and output parameters
     try:
         pdh.setupIO()
@@ -46,11 +46,11 @@ def split(vis,
 
     # Input vis is an MMS
     if pdh.isParallelMS(vis) and keepmms:
-        
+
         retval = pdh.validateInputParams()
         if not retval['status']:
             raise Exception('Unable to continue with MMS processing')
-                        
+
         pdh.setupCluster('split')
 
         # Execute the jobs
@@ -59,38 +59,38 @@ def split(vis,
         except Exception as instance:
             casalog.post('%s'%instance,'ERROR')
             return False
-                    
+
         return True
-        
+
 
     # Create local copy of the MSTransform tool
     mtlocal = mttool()
 
     try:
-                    
-        # Gather all the parameters in a dictionary.        
+
+        # Gather all the parameters in a dictionary.
         config = {}
-        
+
         if keepflags:
             taqlstr = ''
         else:
             taqlstr = "NOT (FLAG_ROW OR ALL(FLAG))"
-        
+
         if type(correlation) == list:
             correlation = ', '.join(correlation)
             correlation = correlation.upper()
 
-        config = pdh.setupParameters(inputms=vis, outputms=outputvis, field=str(field), 
+        config = pdh.setupParameters(inputms=vis, outputms=outputvis, field=str(field),
                     spw=str(spw), array=str(array), scan=str(scan), antenna=str(antenna), correlation=correlation,
                     uvrange=uvrange,timerange=timerange, intent=intent, observation=str(observation),
                     feed=str(feed), taql=taqlstr)
 
         config['datacolumn'] = datacolumn
-        
+
         # Channel averaging
         chanaverage = False
         chanbin = width
-        
+
         # String type
         if isinstance(width, str):
             if width.isdigit():
@@ -98,10 +98,10 @@ def split(vis,
             else:
                 casalog.post('Parameter width is invalid. Using 1 as default', 'WARN')
                 chanbin = width = 1
-                
+
             if chanbin > 1:
                 chanaverage = True
-            
+
         # List type
         elif isinstance(width, list):
             if isinstance(width[0], str):
@@ -110,18 +110,18 @@ def split(vis,
                 else:
                     casalog.post('Parameter width is invalid. Using 1 as default', 'WARN')
                     chanbin = width = 1
-                                    
+
             # If any chanbin in list is > 1, chanaverage=True
             testbin = [i for i in chanbin if i > 1]
             if len(testbin) > 0:
                 chanaverage = True
-            
+
         # Any other type
         if not isinstance(chanbin,str) and not isinstance(chanbin,list):
             casalog.post('Original type(width) is %s'%type(chanbin),'DEBUG')
             if chanbin > 1:
                 chanaverage = True
-        
+
         if chanaverage:
             casalog.post('Parse channel averaging parameters')
             config['chanaverage'] = True
@@ -131,13 +131,13 @@ def split(vis,
             chanbin = fh.evaluateNumpyType(chanbin)
             casalog.post('Converted type(width) is %s'%type(chanbin),'DEBUG')
             config['chanbin'] = chanbin
-        
+
         # Time averaging
         timeaverage = False
         tb = qa.convert(qa.quantity(timebin), 's')['value']
         if tb > 0:
             timeaverage = True
-            
+
         if timeaverage:
             casalog.post('Parse time averaging parameters')
             config['timeaverage'] = True
@@ -145,16 +145,16 @@ def split(vis,
             config['timespan'] = combine
             config['maxuvwdistance'] = 0.0
 
-        # Configure the tool 
+        # Configure the tool
         casalog.post('%s'%config, 'DEBUG1')
         mtlocal.config(config)
-        
+
         # Open the MS, select the data and configure the output
         mtlocal.open()
 
         # Run the tool
-        mtlocal.run()        
-            
+        mtlocal.run()
+
         mtlocal.done()
 
     except Exception as instance:
@@ -166,8 +166,8 @@ def split(vis,
     mslocal = mstool()
 
     # Update the FLAG_CMD sub-table to reflect any spw/channels selection
-    # If the spw selection is by name or FLAG_CMD contains spw with names, skip the updating    
-    
+    # If the spw selection is by name or FLAG_CMD contains spw with names, skip the updating
+
     if ((spw != '') and (spw != '*')) or chanaverage == True:
         isopen = False
 
@@ -176,7 +176,7 @@ def split(vis,
             mytb.open(outputvis + '/FLAG_CMD', nomodify=False)
             isopen = True
             nflgcmds = mytb.nrows()
-            
+
             if nflgcmds > 0:
                 updateFlagCmd = False
 
@@ -190,8 +190,8 @@ def split(vis,
                         spwstr = re.search('^[^a-zA-Z]+$', cmd)
                         if spwstr != None and spwstr.string.__len__() > 0:
                             updateFlagCmd = True
-                            break                
-                
+                            break
+
 
                 if updateFlagCmd:
                     mademod = False
@@ -214,7 +214,7 @@ def split(vis,
                                 w = chanbin
                             for i in range(numspw):
                                 widths[i] = w
-    #                print 'widths =', widths 
+    #                print 'widths =', widths
                     for rownum in range(nflgcmds):
                         # Matches a bare number or a string quoted any way.
                         spwmatch = re.search(r'spw\s*=\s*(\S+)', cmds[rownum])
@@ -253,9 +253,9 @@ def split(vis,
 
                 else:
                     casalog.post('FLAG_CMD table contains spw selection by name. Will not update it!','DEBUG')
-                
+
             mytb.close()
-            
+
         except Exception as instance:
             if isopen:
                 mytb.close()
@@ -279,6 +279,6 @@ def split(vis,
         return False
 
     mslocal = None
-    
+
     return True
 

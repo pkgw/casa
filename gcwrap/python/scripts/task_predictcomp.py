@@ -49,13 +49,13 @@ def predictcomp(objname=None, standard=None, epoch=None,
              Subparameter of antennalist.
              Default: False (necessarily if antennalist is not specified)
              Examples: True (save to prefix + '.png')
-                       'myplot.png' (save to myplot.png) 
+                       'myplot.png' (save to myplot.png)
     symb: One of matplotlib's codes for plot symbols: .:,o^v<>s+xDd234hH|_
           default: '.'
     include0amp: Force the lower limit of the amplitude axis to 0.
                  Default: False
     include0bl: Force the lower limit of the baseline length axis to 0.
-    blunit: Unit of the baseline length 
+    blunit: Unit of the baseline length
     bl0flux: show zero baseline flux
     """
     retval = False
@@ -97,7 +97,7 @@ def predictcomp(objname=None, standard=None, epoch=None,
             ##     prefix += minfreqq['unit']
             ## prefix += "_"
         #    prefix = ''
-        
+
         #
         if not prefix:
           if not os.access("./",os.W_OK):
@@ -115,11 +115,11 @@ def predictcomp(objname=None, standard=None, epoch=None,
             else:
               rootdir = "./"
             if os.access(rootdir,os.W_OK):
-              os.makedirs(prefixdir) 
+              os.makedirs(prefixdir)
             else:
               casalog.post("No write access to "+rootdir+" to write cl file", "SEVERE")
               return False
-       
+
         # Get clist
         myim = imtool()
         if hasattr(myim, 'predictcomp'):
@@ -136,7 +136,7 @@ def predictcomp(objname=None, standard=None, epoch=None,
         if os.path.isdir(clist):
             # The spw0 is useless here, but it is added by FluxStandard for the sake of setjy.
             casalog.post('The component list was saved to ' + clist)
-            
+
             retval = {'clist': clist,
                       'objname': objname,
                       'standard': standard,

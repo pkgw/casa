@@ -35,21 +35,21 @@ def go(taskname=None):
 
 # from RR
 def announce_async_task(taskname):
-	"""Use the logger to herald the beginning of an asynchronous task."""
-	casalog.origin(taskname)
-	casalog.post('')
-	casalog.post('###############################################')
-	casalog.post('###  Begin Task: ' + taskname + ' ' * (27 - len(taskname)) + '###')
-	casalog.post("")
-	casalog.post("Use: ")
-	casalog.post("      tm.retrieve(return_value) # to retrieve the status")
-	casalog.post("")
-	
+        """Use the logger to herald the beginning of an asynchronous task."""
+        casalog.origin(taskname)
+        casalog.post('')
+        casalog.post('###############################################')
+        casalog.post('###  Begin Task: ' + taskname + ' ' * (27 - len(taskname)) + '###')
+        casalog.post("")
+        casalog.post("Use: ")
+        casalog.post("      tm.retrieve(return_value) # to retrieve the status")
+        casalog.post("")
+
 def write_task_obit(taskname):
-	"""Eulogize the task in the logger."""
-	casalog.post('###  End Task: ' + taskname + ' ' * (29 - len(taskname)) + '###')
-	casalog.post('###############################################')
-	casalog.post('')
+        """Eulogize the task in the logger."""
+        casalog.post('###  End Task: ' + taskname + ' ' * (29 - len(taskname)) + '###')
+        casalog.post('###############################################')
+        casalog.post('')
 
 
 def inp(taskname=None, page=False):
@@ -76,7 +76,7 @@ def inp(taskname=None, page=False):
                     sys.stderr = self.old_stderr
             #######################end class
             tempfile="__temp_input.casa"
-            temporal = open(tempfile, 'w')    
+            temporal = open(tempfile, 'w')
 
             with TemporaryRedirect(stdout=temporal):
                 inp(taskname, False)
@@ -143,27 +143,27 @@ def update_params(func, printtext=True, ipython_globals=None):
     ###check if task has defined a task_check_params function
 
     if (hascheck):
-	has_othertasks = 'task_location' in myf
-	if(has_othertasks) :
-	   has_task = myf['taskname'] in myf['task_location']
-	   if (has_task) :
-		pathname=myf['task_location'][myf['taskname']]
-	   else :
-	        pathname = os.environ.get('CASAPATH').split()[0]+'/'+os.environ.get('CASAPATH').split()[1]+'/xml'
+        has_othertasks = 'task_location' in myf
+        if(has_othertasks) :
+           has_task = myf['taskname'] in myf['task_location']
+           if (has_task) :
+                pathname=myf['task_location'][myf['taskname']]
+           else :
+                pathname = os.environ.get('CASAPATH').split()[0]+'/'+os.environ.get('CASAPATH').split()[1]+'/xml'
                 if not os.path.exists(pathname) :
                     pathname = os.environ.get('CASAPATH').split()[0]+'/xml'
                     if not os.path.exists(pathname) :
                         pathname = os.environ.get('CASAPATH').split()[0]+'/Resources/xml'
-                
-	else :
-	   pathname = os.environ.get('CASAPATH').split()[0]+'/'+os.environ.get('CASAPATH').split()[1]+'/xml'
+
+        else :
+           pathname = os.environ.get('CASAPATH').split()[0]+'/'+os.environ.get('CASAPATH').split()[1]+'/xml'
            if not os.path.exists(pathname) :
                pathname = os.environ.get('CASAPATH').split()[0]+'/xml'
                if not os.path.exists(pathname) :
                    pathname = os.environ.get('CASAPATH').split()[0]+'/Resources/xml'
                    if not os.path.exists(pathname) :
                        sys.exit("ERROR: casapy.py update_params() can not locate xml file for task %s" % (taskname))
-                       
+
         xmlfile=pathname+'/'+myf['taskname']+'.xml'
         if(os.path.exists(xmlfile)) :
             cu.setconstraints('file://'+xmlfile);
@@ -205,7 +205,7 @@ def update_params(func, printtext=True, ipython_globals=None):
                     noerror = obj.check_params(params[k],myf[params[k]],myf)
                 # RI this doesn't work with numpy arrays anymore.  Noone seems
                 # interested, so I'll be the red hen and try to fix it.
-                
+
                 #print 'params:', params[k], '; noerror:', noerror, '; myf[params]:', myf[params[k]]
                 myfparamsk=myf[params[k]]
                 if(type(myf[params[k]])==np.ndarray):
@@ -215,7 +215,7 @@ def update_params(func, printtext=True, ipython_globals=None):
                     print_params_col(params[k],myf[params[k]],obj.description(params[k]), 'ndpdef', 'black',noerror)
                 else:
                     print_params_col(params[k],myf[params[k]],obj.description(params[k]), 'ndpnondef', 'black', noerror)
-		itsparams[params[k]] = myf[params[k]]
+                itsparams[params[k]] = myf[params[k]]
         else:
             subdict=odict(paramval)
             ##printtext is False....called most probably to set
@@ -238,9 +238,9 @@ def update_params(func, printtext=True, ipython_globals=None):
                 ### have no meaning for this selection
                 for j in range(len(subdict)):
                     subkey=list(subdict[j].keys())
-                   
+
                     for kk in range(len(subkey)):
-                        
+
                         if( (subkey[kk] != 'value') & (subkey[kk] != 'notvalue') ):
                             #if user selecteddict
                             #does not have the key
@@ -285,7 +285,7 @@ def update_params(func, printtext=True, ipython_globals=None):
                     print_params_col(params[k],myf[params[k]],obj.description(params[k]),'dpdef','black', noerror)
                 else:
                     print_params_col(params[k],myf[params[k]],obj.description(params[k]),'dpnondef','black', noerror)
-		itsparams[params[k]] = myf[params[k]]
+                itsparams[params[k]] = myf[params[k]]
             for j in range(len(subkey)):
                 if((subkey[j] != valuekey) & (notchoice > -1)):
                     ###put default if not there
@@ -304,7 +304,7 @@ def update_params(func, printtext=True, ipython_globals=None):
                             print_params_col(subkey[j],myf[subkey[j]],obj.description(subkey[j],userval),'spdef',comment, noerror)
                         else:
                             print_params_col(subkey[j],myf[subkey[j]],obj.description(subkey[j],userval),'spnondef',comment, noerror)
-		        itsparams[params[k]] = myf[params[k]]                    
+                        itsparams[params[k]] = myf[params[k]]
     #
     # Verify the complete record, with errors being reported to the user
     #
@@ -312,7 +312,7 @@ def update_params(func, printtext=True, ipython_globals=None):
 
 ####function to print inputs with coloring
 ####colorparam 'blue'=> non-default, colorcomment 'green'=> can have sub params
-#### 'blue' => is a sub-parameter 
+#### 'blue' => is a sub-parameter
 # blue = \x1B[94m
 # bold = \x1B[1m
 # red  = \x1B[91m
@@ -451,7 +451,7 @@ def backupoldfile(thefile=''):
     import shutil
     import filecmp
     if(thefile=='' or (not os.path.exists(thefile))):
-        return 
+        return
     outpathdir = os.path.realpath(os.path.dirname(thefile))
     outpathfile = outpathdir + os.path.sep + os.path.basename(thefile)
     k=0
@@ -467,13 +467,13 @@ def backupoldfile(thefile=''):
     shutil.copy2(outpathfile, backupfile)
 
 def tput(taskname=None, outfile=''):
-	myf=stack_frame_find( )
-	if taskname == None: taskname = myf['taskname']
-	if type(taskname) != str:
-		taskname=taskname.__name__
-	myf['taskname'] = taskname
-	outfile = myf['taskname']+'.last'
-	saveinputs(taskname, outfile)
+        myf=stack_frame_find( )
+        if taskname == None: taskname = myf['taskname']
+        if type(taskname) != str:
+                taskname=taskname.__name__
+        myf['taskname'] = taskname
+        outfile = myf['taskname']+'.last'
+        saveinputs(taskname, outfile)
 
 def saveinputs(taskname=None, outfile='', myparams=None, ipython_globals=None, scriptstr=['']):
     #parameter_printvalues(arg_names,arg_values,arg_types)
@@ -515,7 +515,7 @@ def saveinputs(taskname=None, outfile='', myparams=None, ipython_globals=None, s
         if outfile=='': outfile=taskname+'.saved'
         if('__multibackup' in myf and myf['__multibackup']):
             backupoldfile(outfile)
-        
+
         ##make sure unfolded parameters get their default values
         myf['update_params'](func=myf['taskname'], printtext=False, ipython_globals=myf)
         ###
@@ -541,13 +541,13 @@ def saveinputs(taskname=None, outfile='', myparams=None, ipython_globals=None, s
                 print("********************************************************************************")
         f=list(zip(myf[taskname].__call__.__code__.co_varnames[1:],myf[taskname].__call__.__defaults__))
         scriptstring='#'+str(taskname)+'('
-	if myparams == None :
-		myparams = {}
+        if myparams == None :
+                myparams = {}
         l=0
         for j in range(len(f)):
             k=f[j][0]
-	    if k not in myparams and k != 'self' :
-		    myparams[k] = myf[taskname].parameters[k]
+            if k not in myparams and k != 'self' :
+                    myparams[k] = myf[taskname].parameters[k]
             if(k != 'self' and type(myparams[k])==str):
                 if ( myparams[k].count( '"' ) < 1 ):
                     # if the string doesn't contain double quotes then
@@ -579,7 +579,7 @@ def saveinputs(taskname=None, outfile='', myparams=None, ipython_globals=None, s
         scriptstring=scriptstring.rstrip()
         scriptstring=scriptstring.rstrip('\n')
         scriptstring=scriptstring.rstrip(',')
-        scriptstring=scriptstring+')'        
+        scriptstring=scriptstring+')'
         scriptstr.append(scriptstring)
         scriptstring=scriptstring.replace('        ', '')
         scriptstring=scriptstring.replace('\n', '')

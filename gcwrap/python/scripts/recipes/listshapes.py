@@ -7,7 +7,7 @@ try:
     from  casac import *  # No-op if already in casapy.
 except:
     import sys
-    
+
     casacpath = glob(os.sep.join(os.environ["CASAPATH"].split() +
                                  ['python', '2.*']))  # devs
     casacpath.sort()
@@ -58,7 +58,7 @@ def checkMSes(holderdict, dir, files):
     """
     Updates holderdict['msdict'] with a list of (ncorr, nchan)s for
     each MS in dir that matches holderdict['mspat'].
-    """        
+    """
     # Yup, ignore files.  It's just a os.path.walk()ism.
     mses = glob(os.path.join(dir, holderdict['mspat']))
 
@@ -69,9 +69,9 @@ def checkMSes(holderdict, dir, files):
     if not holderdict.get('msdict'):   # Initialize it so retval
         holderdict['msdict'] = {}      # can be tied to it.
     retval = holderdict['msdict']
-    
+
     #needed_items = holderdict.get('needed_items', {})
-    
+
     mytb = holderdict['mytb']
     incl_ddid = holderdict['incl_ddid']
 
@@ -97,7 +97,7 @@ def checkMSes(holderdict, dir, files):
                 print("Error", e, "from tb.open(", whichtab, ")")
             mytb.close()  # Just in case.
         return retval
-    
+
     for currms in mses:
         if currms[:2] == './':  # strip off leading ./, if present.
             currms = currms[2:]    # cosmetic.
@@ -111,12 +111,12 @@ def checkMSes(holderdict, dir, files):
             break
         num_corrs = mytb.getcol('NUM_CORR')
         mytb.close()
-        
+
         if not myopen(mytb, currms + '/SPECTRAL_WINDOW'):
             break
         num_chans = mytb.getcol('NUM_CHAN')
         mytb.close()
-        
+
         if not myopen(mytb, currms + '/DATA_DESCRIPTION'):
             break
 
@@ -146,4 +146,4 @@ if __name__ == '__main__':
         musthave = sys.argv[3:]
     msdict = listshapes(musthave, mspat, incl_ddid=incl_ddid)
     pprint.pprint(msdict)
-    
+

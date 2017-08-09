@@ -26,22 +26,22 @@ startProc=time.clock()
 
 # Project: AGBT02A_007_01
 # Observation: GBT(1 antennas)
-# 
+#
 #   Telescope Observation Date    Observer       Project
 #   GBT       [                   4.57539e+09, 4.5754e+09]Lockman        AGBT02A_007_01
 #   GBT       [                   4.57574e+09, 4.57575e+09]Lockman        AGBT02A_007_02
 #   GBT       [                   4.5831e+09, 4.58313e+09]Lockman        AGBT02A_031_12
-# 
+#
 # Thu Feb 1 23:15:15 2007    NORMAL ms::summary:
 # Data records: 76860       Total integration time = 7.74277e+06 seconds
 #    Observed from   22:05:41   to   12:51:56
-# 
+#
 # Thu Feb 1 23:15:15 2007    NORMAL ms::summary:
 # Fields: 2
 #   ID   Name          Right Ascension  Declination   Epoch
 #   0    FLS3a         17:18:00.00      +59.30.00.00  J2000
 #   1    FLS3b         17:18:00.00      +59.30.00.00  J2000
-# 
+#
 # Thu Feb 1 23:15:15 2007    NORMAL ms::summary:
 # Spectral Windows:  (2 unique spectral windows and 1 unique polarization setups)
 #   SpwID  #Chans Frame Ch1(MHz)    Resoln(kHz) TotBW(kHz)  Ref(MHz)    Corrs
@@ -61,60 +61,60 @@ os.environ['CASAPATH']=casapath
 print('--Import--')
 #Load MeasurementSet data into an ASAP scantable (this takes a while)
 storage_sav=sd.rcParams['scantable.storage']
-sd.rc('scantable',storage='disk')		# Note this enables handling of large datasets with limited memory
-#s=sd.scantable('FLS3_all_newcal_SP',false)	# the 'false' indicates that no averaging should be done - this is
-s=sd.scantable(datapath,average=False,getpt=False)	# the 'false' indicates that no averaging should be done - this is
-						# always the case for data that hasn't been calibrated
+sd.rc('scantable',storage='disk')               # Note this enables handling of large datasets with limited memory
+#s=sd.scantable('FLS3_all_newcal_SP',false)     # the 'false' indicates that no averaging should be done - this is
+s=sd.scantable(datapath,average=False,getpt=False)      # the 'false' indicates that no averaging should be done - this is
+                                                # always the case for data that hasn't been calibrated
 importproc=time.clock()
 importtime=time.time()
 
 print('--Split & Save--')
 # split out the data for the field of interest
-s0=s.get_scan('FLS3a*')				# get all scans with FLS3a source
-s0.save('FLS3a_HI.asap')			# save this data to an ASAP dataset on disk
-del s						# delete scantables that will not be used any further
+s0=s.get_scan('FLS3a*')                         # get all scans with FLS3a source
+s0.save('FLS3a_HI.asap')                        # save this data to an ASAP dataset on disk
+del s                                           # delete scantables that will not be used any further
 del s0
 splitproc=time.clock()
 splittime=time.time()
 
 print('--Calibrate--')
 s=sd.scantable('FLS3a_HI.asap',average=False)   # load in the saved ASAP dataset with FLS3a
-s.set_fluxunit('K')				# set the fluxunit to 'K'; ASAP currently doesn't know about
-						# the GBT and mislabels the data as 'Jy'
-scanns = s.getscannos()				# get a list of the scan numbers in the scantable
+s.set_fluxunit('K')                             # set the fluxunit to 'K'; ASAP currently doesn't know about
+                                                # the GBT and mislabels the data as 'Jy'
+scanns = s.getscannos()                         # get a list of the scan numbers in the scantable
 sn=list(scanns)
 print("No. scans to be processed:", len(scanns))
-res=sd.calfs(s,sn)				# Do a frequency switched calibration on the scans
+res=sd.calfs(s,sn)                              # Do a frequency switched calibration on the scans
 del s
 calproc=time.clock()
 caltime=time.time()
 
 print('--Save calibrated data--')
-res.save('FLS3a_calfs', 'MS2')			# Save the calibrated data to a MeasurementSet (CASA) format
+res.save('FLS3a_calfs', 'MS2')                  # Save the calibrated data to a MeasurementSet (CASA) format
 del res
 saveproc=time.clock()
 savetime=time.time()
 
 print('--Image data--')
-#CASA									#AIPS++
-myim.open('FLS3a_calfs')			#set the data			# myim:=imager('FLS3a_calfs_v4')
-myim.selectvis(nchan=901,start=30,step=1,	#choose a subset of the dataa   # myim.setdata(mode='channel',start=30,
-spw=0,field=0)							# step=1,nchan=901,fieldid=1,spwid=1)
-dir='J2000 17:18:29 +59.31.23'		#set map center			# dir=dm.direction('17h18m29s','+59d31m23s')
-myim.defineimage(nx=150,cellx='1.5arcmin',#define image parameters	# myim.setimage(150,150,cellx='1.5arcmin',
-phasecenter=dir,mode='channel',start=30, 				# celly='1.5arcmin',mode='channel',nchan=901,
-nchan=901,step=1,spw=0)							# start=30,step=1,phasecenter=dir,doshift=T,
-									# spwid=1)
+#CASA                                                                   #AIPS++
+myim.open('FLS3a_calfs')                        #set the data                   # myim:=imager('FLS3a_calfs_v4')
+myim.selectvis(nchan=901,start=30,step=1,       #choose a subset of the dataa   # myim.setdata(mode='channel',start=30,
+spw=0,field=0)                                                  # step=1,nchan=901,fieldid=1,spwid=1)
+dir='J2000 17:18:29 +59.31.23'          #set map center                 # dir=dm.direction('17h18m29s','+59d31m23s')
+myim.defineimage(nx=150,cellx='1.5arcmin',#define image parameters      # myim.setimage(150,150,cellx='1.5arcmin',
+phasecenter=dir,mode='channel',start=30,                                # celly='1.5arcmin',mode='channel',nchan=901,
+nchan=901,step=1,spw=0)                                                 # start=30,step=1,phasecenter=dir,doshift=T,
+                                                                        # spwid=1)
 # choose SD gridding, gridding cache size
-myim.setoptions(ftmachine='sd',cache=1000000000) 				# myim.setoptions(ftmachine='sd',gridfunction='SF')
-myim.setsdoptions(convsupport=4)						# myim.setsdoptions(convsupport=supportsize)
+myim.setoptions(ftmachine='sd',cache=1000000000)                                # myim.setoptions(ftmachine='sd',gridfunction='SF')
+myim.setsdoptions(convsupport=4)                                                # myim.setsdoptions(convsupport=supportsize)
 #make the image
-myim.makeimage(type='singledish',image='FLS3a_HI.image')			# myim.makeimage(image='test.image',type='singledish')
+myim.makeimage(type='singledish',image='FLS3a_HI.image')                        # myim.makeimage(image='test.image',type='singledish')
 imagetime=time.time()
-myim.close()								# myim.close()
-#ia.open('test.image')							# ia:=image('test.image')
-#ia.setbrightnessunit('K')						# ia.setbrightnessunit('K')
-#ia.close()								# ia.close()
+myim.close()                                                            # myim.close()
+#ia.open('test.image')                                                  # ia:=image('test.image')
+#ia.setbrightnessunit('K')                                              # ia.setbrightnessunit('K')
+#ia.close()                                                             # ia.close()
 imageproc=time.clock()
 imagetime = time.time()
 
@@ -155,19 +155,19 @@ if (diff_immax < 0.05): print('* Passed image max test ')
 print('*  Image max ',thistest_immax, file=logfile)
 if (diff_imrms < 0.05): print('* Passed image rms test ')
 print('*  Image rms ',thistest_imrms, file=logfile)
-if ((diff_immax<0.05) & (diff_imrms<0.05)): 
-	regstate=True
+if ((diff_immax<0.05) & (diff_imrms<0.05)):
+        regstate=True
         print('---', file=logfile)
         print('Passed Regression test for FLS3a HI', file=logfile)
         print('---', file=logfile)
-	print('')
-	print('Regression PASSED')
-	print('')
-else: 
-	regstate=False
-	print('')
-	print('Regression FAILED')
-	print('')
+        print('')
+        print('Regression PASSED')
+        print('')
+else:
+        regstate=False
+        print('')
+        print('Regression FAILED')
+        print('')
         print('----FAILED Regression test for FLS3a HI', file=logfile)
 print('*********************************', file=logfile)
 #

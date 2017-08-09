@@ -53,7 +53,7 @@ class sdbaseline2_worker(sdutil.sdtask_template):
         if self.blmode.lower()=='apply' and not os.path.exists(self.bltable):
             msg = "Baseline table '" + self.bltable + "' does not exists."
             raise Exception(msg)
-    
+
     def execute(self):
         engine = sdbaseline2_engine(self)
         engine.initialize()
@@ -62,14 +62,14 @@ class sdbaseline2_worker(sdutil.sdtask_template):
         if (self.scan.nchan()==1):
            s = "Cannot process the input data. It contains only single channel data."
            raise Exception(s)
-   
+
         # set various attributes to self.scan
         self.set_to_scan()
-        
+
         scanns = self.scan.getscannos()
         sn=list(scanns)
         casalog.post( "Number of scans to be processed: %d" % (len(sn)) )
-        
+
         engine.execute()
         engine.finalize()
 
@@ -91,7 +91,7 @@ class sdbaseline2_engine(sdutil.sdtask_engine):
 
     def initialize(self):
         pass
-    
+
     def execute(self):
         scan = self.worker.scan
         maskdict = scan.parse_spw_selection(self.spw)

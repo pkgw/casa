@@ -1,16 +1,16 @@
 ################################################
-#                                                                              
+#
 #           Regression/Benchmarking Script for wideband imaging with mosaicing               #
-#                                                                             
+#
 ################################################
-#                                        
+#
 # Data : Simulated wideband, two pointing mosaic, with PB rotation and squint.
 # Sky : Single flat-spectrum point source
 #
 # (1) CS with wideband A-projection
 # (2) MS-MFS with nterms=2 and wideband A-projection
 #
-#                                                                            
+#
 ################################################
 
 import time
@@ -45,7 +45,7 @@ msname = tempdir+'reg_mawproject_apr13.ms'
 
 
 def locclean( vis='', imagename='', field='', spw='', phasecenter='', nterms=1, reffreq='1.5GHz', gridmode='advancedaprojection', wbawp=True, aterm=True, mterm=True, psterm=False, conjbeams=True, painc=360, rotpainc=360.0, cfcache='', imsize=512, cell='10.0arcsec', niter=10, gain=0.5, minpb=1e-04, usescratch=True ):
-   
+
    im.open(msname,usescratch=usescratch);
    im.selectvis(spw=spw,field=field);
 
@@ -54,37 +54,37 @@ def locclean( vis='', imagename='', field='', spw='', phasecenter='', nterms=1, 
    residuals=[];
    if(nterms>1):
       for tt in range(0,nterms):
-	   models.append(imagename+'.model.tt'+str(tt));
-	   restoreds.append(imagename+'.image.tt'+str(tt));
-	   residuals.append(imagename+'.residual.tt'+str(tt));
-	   im.defineimage(nx=imsize,ny=imsize,
-			  cellx=cell,celly=cell,
+           models.append(imagename+'.model.tt'+str(tt));
+           restoreds.append(imagename+'.image.tt'+str(tt));
+           residuals.append(imagename+'.residual.tt'+str(tt));
+           im.defineimage(nx=imsize,ny=imsize,
+                          cellx=cell,celly=cell,
                           phasecenter = [phasecenter],
-			  nchan=1,stokes='I',mode='mfs')
+                          nchan=1,stokes='I',mode='mfs')
 #                          start='1.0GHz',step='2.0GHz');
-	   im.make(models[tt]);
+           im.make(models[tt]);
       algo = 'msmfs'
    else:
       models = [imagename+'.model'];
       restoreds = [imagename+'.image'];
       residuals = [imagename+'.residual'];
       im.defineimage(nx=imsize,ny=imsize,
-			  cellx=cell,celly=cell,
-			  nchan=1, 
+                          cellx=cell,celly=cell,
+                          nchan=1,
                           phasecenter = [phasecenter],
                           stokes='IV',mode='mfs')
       im.make(models[0]);
       algo = 'hogbom'
    im.weight(type='natural');
    im.settaylorterms(ntaylorterms=nterms,
-		     reffreq=(qa.convert(qa.unit(reffreq),"Hz"))['value']);
+                     reffreq=(qa.convert(qa.unit(reffreq),"Hz"))['value']);
    im.setscales(scalemethod='uservector',uservector=[0]);
    if(gridmode=='advancedaprojection'):
      im.setoptions(ftmachine='awproject',
-		   applypointingoffsets=False, 
-		   dopbgriddingcorrections=True, 
-		   cfcachedirname=cfcache, 
-		   pastep=painc, rotpastep=rotpainc,pblimit=minpb, 
+                   applypointingoffsets=False,
+                   dopbgriddingcorrections=True,
+                   cfcachedirname=cfcache,
+                   pastep=painc, rotpastep=rotpainc,pblimit=minpb,
                    psterm=psterm, aterm=aterm, wbawp=wbawp,mterm=mterm,conjbeams=conjbeams);
    else:
      im.setoptions(ftmachine="ft");
@@ -92,7 +92,7 @@ def locclean( vis='', imagename='', field='', spw='', phasecenter='', nterms=1, 
 #     im.makeimage(type='pb',image=imagename+'.pb');
 
    print('clean without mask');
-   im.clean(model=models,image=restoreds,residual=residuals,algorithm=algo,threshold='0.0Jy',niter=niter,interactive=False,npercycle=niter,gain=gain,mask=''); 
+   im.clean(model=models,image=restoreds,residual=residuals,algorithm=algo,threshold='0.0Jy',niter=niter,interactive=False,npercycle=niter,gain=gain,mask='');
 
    im.done();
 
@@ -138,7 +138,7 @@ else:
 #####################################################
    # Truth for v1.0 : 20Nov2012, r22088 : 512x512 image, aliasing errors exist, no PS term.
    # Test 1
-   # 17Dec2012 (SB): 
+   # 17Dec2012 (SB):
    #   Changeing correct_cs_intensity from 0.721199 to 0.80432087183.  code rev.  22329.
    #   AWProjectWBFT::pbFunc() returns 1.0 since division by avgPB in AWProjectFT::init2Vis()
    #   is not necessary (the normalization is done via the vectorized version of initi2Vis())
@@ -161,9 +161,9 @@ else:
    #correct_mtmfs_coeffpb_0 = 0.999975
    #correct_mtmfs_coeffpb_1 = 0.705602
 
-   # 10 Sept 2013 (UR). 
+   # 10 Sept 2013 (UR).
    ## Removed CF rotation (changed from 5.0 to 360.0), and using PB=sqrt(sum_pbsq)
-   ## Removed test for coeffPB_1, since this is no longer correct 
+   ## Removed test for coeffPB_1, since this is no longer correct
    # These are pixel values at the center of the source, pixel 256, 315
    # Test 1
    #correct_cs_intensity = 0.67087
@@ -198,7 +198,7 @@ else:
    # 28 Oct 2013 (UR). After fixing more PBSQ and sqrt errors.
    # These are pixel values at the center of the source, pixel 256, 315
 
-   # 29 Jan 2014 (SB): Added Stokes-V testing 
+   # 29 Jan 2014 (SB): Added Stokes-V testing
    # Test 1
    correct_cs_intensity = 0.6710
    #correct_cs_intensity_v = -0.0007073
@@ -234,18 +234,18 @@ else:
       midpix_v = ia.pixelvalue([256,315,1,0])
       ia.close();
       diff_cs_intensity = abs( midpix['value']['value'] - correct_cs_intensity )/ abs(correct_cs_intensity);
-      if(diff_cs_intensity<0.02): 
+      if(diff_cs_intensity<0.02):
          print('* Passed Test 1 : peak cs_intensity_I test ', file=logfile);
-      else: 
+      else:
          print('* FAILED Test 1 : peak cs_intensity_I test at the 2-percent level ', file=logfile)
-	 regstate = False;
+         regstate = False;
 
       diff_cs_intensity_v = abs( midpix_v['value']['value'] - correct_cs_intensity_v )/ abs(correct_cs_intensity_v);
-      if(diff_cs_intensity_v<0.02): 
+      if(diff_cs_intensity_v<0.02):
          print('* Passed Test 1 : peak cs_intensity_V test ', file=logfile);
-      else: 
+      else:
          print('* FAILED Test 1 : peak cs_intensity_V test at the 2-percent level ', file=logfile)
-	 regstate = False;
+         regstate = False;
 
       print('-- Test 1 : peak cs_intensity_I : ' + str(midpix['value']['value']) + ' (' + str(correct_cs_intensity) + ')', file=logfile);
       print('-- Test 1 : peak cs_intensity_V : ' + str(midpix_v['value']['value']) + ' (' + str(correct_cs_intensity_v) + ')', file=logfile);
@@ -262,11 +262,11 @@ else:
       midpix = ia.pixelvalue([256,315])
       ia.close();
       diff_cs_avgpb = abs( midpix['value']['value'] - correct_cs_avgpb )/ abs(correct_cs_avgpb);
-      if(diff_cs_avgpb<0.02): 
+      if(diff_cs_avgpb<0.02):
          print('* Passed Test 1 : peak cs_avgpb test ', file=logfile);
-      else: 
+      else:
          print('* FAILED Test 1 : peak cs_avgpb test at the 2-percent level ', file=logfile)
-	 regstate = False;
+         regstate = False;
       print('-- Test 1 : peak cs_avgpb : ' + str(midpix['value']['value']) + ' (' + str(correct_cs_avgpb) + ')', file=logfile);
    else:
       print('-- FAILED Test 1 : No cs_avgpb map generated', file=logfile);
@@ -288,11 +288,11 @@ else:
       midpix = ia.pixelvalue([256,315])
       ia.close();
       diff_mtmfs_intensity = abs( midpix['value']['value'] - correct_mtmfs_intensity )/ abs(correct_mtmfs_intensity);
-      if(diff_mtmfs_intensity<0.02): 
+      if(diff_mtmfs_intensity<0.02):
          print('* Passed Test 2 : peak mtmfs_intensity test ', file=logfile);
-      else: 
+      else:
          print('* FAILED Test 2 : peak mtmfs_intensity test at the 2-percent level ', file=logfile)
-	 regstate = False;
+         regstate = False;
       print('-- Test 2 : peak mtmfs_intensity : ' + str(midpix['value']['value']) + ' (' + str(correct_mtmfs_intensity) + ')', file=logfile);
    else:
       print('-- FAILED Test 2 : No mtmfs_intensity map generated', file=logfile);
@@ -307,11 +307,11 @@ else:
       midpix = ia.pixelvalue([256,315])
       ia.close();
       diff_mtmfs_alpha = abs( midpix['value']['value'] - correct_mtmfs_alpha )/ abs(correct_mtmfs_alpha);
-      if(diff_mtmfs_alpha<0.02): 
+      if(diff_mtmfs_alpha<0.02):
          print('* Passed Test 2 : peak mtmfs_alpha test ', file=logfile);
-      else: 
+      else:
          print('* FAILED Test 2 : peak mtmfs_alpha test at the 2-percent level ', file=logfile)
-	 regstate = False;
+         regstate = False;
       print('-- Test 2 : peak mtmfs_alpha : ' + str(midpix['value']['value']) + ' (' + str(correct_mtmfs_alpha) + ')', file=logfile);
    else:
       print('-- FAILED Test 2 : No mtmfs_alpha map generated', file=logfile);
@@ -326,11 +326,11 @@ else:
       midpix = ia.pixelvalue([256,315])
       ia.close();
       diff_mtmfs_avgPB_tt0 = abs( midpix['value']['value'] - correct_mtmfs_avgPB_tt0 )/ abs(correct_mtmfs_avgPB_tt0);
-      if(diff_mtmfs_avgPB_tt0<0.02): 
+      if(diff_mtmfs_avgPB_tt0<0.02):
          print('* Passed Test 2 : peak mtmfs_avgPB.tt0 test ', file=logfile);
-      else: 
+      else:
          print('* FAILED Test 2 : peak mtmfs_avgPB.tt0 test at the 2-percent level ', file=logfile)
-	 regstate = False;
+         regstate = False;
       print('-- Test 2 : peak mtmfs_avgPB.tt0 : ' + str(midpix['value']['value']) + ' (' + str(correct_mtmfs_avgPB_tt0) + ')', file=logfile);
    else:
       print('-- FAILED Test 2 : No mtmfs_avgPB.tt0 map generated', file=logfile);
@@ -345,11 +345,11 @@ else:
 #      midpix = ia.pixelvalue([256,315])
 #      ia.close();
 #      diff_mtmfs_coeffpb_1 = abs( midpix['value']['value'] - correct_mtmfs_coeffpb_1 )/ abs(correct_mtmfs_coeffpb_1);
-#      if(diff_mtmfs_coeffpb_1<0.02): 
+#      if(diff_mtmfs_coeffpb_1<0.02):
 #         print >>logfile,'* Passed Test 2 : peak mtmfs_coeffpb_1 test ';
-#      else: 
+#      else:
 #         print >>logfile,'* FAILED Test 2 : peak mtmfs_coeffpb_1 test at the 2-percent level '
-#	 regstate = False;
+#        regstate = False;
 #      print >>logfile,'-- Test 2 : peak mtmfs_coeffpb_1 : ' + str(midpix['value']['value']) + ' (' + str(correct_mtmfs_coeffpb_1) + ')';
 #   else:
 #      print >>logfile,'-- FAILED Test 2 : No mtmfs_coeffpb_1 map generated';

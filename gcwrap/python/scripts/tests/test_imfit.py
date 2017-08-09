@@ -38,7 +38,7 @@
 #
 # <prerequisite>
 # <ul>
-#   <li> <linkto class="imfit.py:description">imfit</linkto> 
+#   <li> <linkto class="imfit.py:description">imfit</linkto>
 # </ul>
 # </prerequisite>
 #
@@ -49,7 +49,7 @@
 # <synopsis>
 # imfit_test.py is a Python script that tests the correctness
 # of the ia.fitcomponents tool method and the imfit task in CASA.
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_imfit[test1,test2,...]
@@ -57,7 +57,7 @@
 #
 # <motivation>
 # To provide a test standard to the imfit task to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -97,7 +97,7 @@ decon_im = "decon_test.im"
 
 datapath=os.environ.get('CASAPATH').split()[0]+'/data/regression/unittest/imfit/'
 
-# are the two specified numeric values relatively close to each other? 
+# are the two specified numeric values relatively close to each other?
 def near (first, second, epsilon):
     if first == 0 and second == 0:
         return True
@@ -142,9 +142,9 @@ def count_matches(filename, match_string):
     return count
 
 class imfit_test(unittest.TestCase):
-    
+
     def setUp(self):
-        
+
         for f in [
             noisy_image, noisy_image_xx, expected_model, expected_residual, convolved_model,
             estimates_convolved, two_gaussians_image, two_gaussians_estimates,
@@ -186,7 +186,7 @@ class imfit_test(unittest.TestCase):
         def run_imfit():
             default('imfit')
             return imfit(imagename=noisy_image)
-    
+
         for i in [0 ,1]:
             if (i == 0):
                 code = run_fitcomponents
@@ -195,7 +195,7 @@ class imfit_test(unittest.TestCase):
                 code = run_imfit
                 method += test + "imfit: "
             self._check_results(code())
-            
+
     def _check_results(self, res):
             success = True
             global msgs
@@ -224,34 +224,34 @@ class imfit_test(unittest.TestCase):
                 msgs += method + "RA test failure, got " + str(got) + " expected " + str(expected) + "\n"
             # Dec test
             got = clist['component0']['shape']['direction']['m1']['value']
-            expected = 1.935825e-5 
+            expected = 1.935825e-5
             if (not near_abs(got, expected, epsilon)):
                 success = False
                 msgs += method + "Dec test failure, got " + str(got) + " expected " + str(expected) + "\n"
             # Major axis test
             got = clist['component0']['shape']['majoraxis']['value']
-            expected = 23.530022 
+            expected = 23.530022
             epsilon = 1e-6
             if (not near(got, expected, epsilon)):
                 success = False
                 msgs += method + "Major axis test failure, got " + str(got) + " expected " + str(expected) + "\n"
             # Minor axis test
             got = clist['component0']['shape']['minoraxis']['value']
-            expected = 18.862125  
+            expected = 18.862125
             if (not near(got, expected, epsilon)):
                 success = False
                 msgs += method + "Minor axis test failure, got " + str(got) + " expected " + str(expected) + "\n"
             # Position angle test
             got = clist['component0']['shape']['positionangle']['value']
             expected = 119.88185
-            epsilon = 1e-5 
+            epsilon = 1e-5
             if (not near_abs(got, expected, epsilon)):
                 success = False
                 msgs += method + "Position angle test failure, got " + str(got) + " expected " + str(expected) + "\n"
 
             self.assertTrue(success,msgs)
-        
-    
+
+
     def test_fit_using_box(self):
         '''Imfit: Fit using box'''
         for i in range(3):
@@ -271,7 +271,7 @@ class imfit_test(unittest.TestCase):
             elif (i == 2):
                 box = ''
                 region = 'mybox'
-    
+
             def run_fitcomponents():
                 myia = iatool()
                 myia.open(noisy_image)
@@ -283,7 +283,7 @@ class imfit_test(unittest.TestCase):
                 return imfit(imagename=noisy_image, box=box, region=region)
             for code in [run_fitcomponents, run_imfit]:
                 self._check_box_results(code())
-                
+
     def _check_box_results(self, res):
         epsilon = 1e-5
         clist = res['results']
@@ -388,7 +388,7 @@ class imfit_test(unittest.TestCase):
         test = "test_nonconvergence: "
         success = True
         global msgs
-    
+
         box = '0,0,20,20'
         def run_fitcomponents():
             myia = iatool()
@@ -399,15 +399,15 @@ class imfit_test(unittest.TestCase):
         def run_imfit():
             default('imfit')
             return imfit(imagename=noisy_image, box=box)
-    
+
         for code in [run_fitcomponents, run_imfit]:
             res = code()
             if (res['converged'][0]):
                 success = False
                 msgs += method + "fit unexpectedly converged\n"
-    
+
         self.assertTrue(success,msgs)
-    
+
     def test_fit_using_range(self):
         '''Imfit: Fit using range'''
         success = True
@@ -441,7 +441,7 @@ class imfit_test(unittest.TestCase):
                 includepix = []
                 excludepix = []
                 pixelmask = "mymask"
-    
+
             def run_fitcomponents():
                 myia = iatool()
                 myia.open(masked_image)
@@ -452,7 +452,7 @@ class imfit_test(unittest.TestCase):
             def run_imfit():
                 default('imfit')
                 return imfit(imagename=masked_image, mask=mask, includepix=includepix, excludepix=excludepix)
-    
+
             for code in [run_fitcomponents, run_imfit]:
                 res = code()
                 clist = res['results']
@@ -506,13 +506,13 @@ class imfit_test(unittest.TestCase):
                     success = False
                     msgs += test + "Position angle test failure, got " + str(got) + \
                         " expected " + str(expected) + "\n"
-    
+
         self.assertTrue(success,msgs)
-    
-    
-    # Test writing of residual and model images 
+
+
+    # Test writing of residual and model images
     def test_residual_and_model(self):
-        '''Imfit: Test residual and model'''        
+        '''Imfit: Test residual and model'''
         box="100,100,200,200"
         def run_fitcomponents(model, residual):
             myia = iatool()
@@ -534,12 +534,12 @@ class imfit_test(unittest.TestCase):
 
             res = code(model, residual)
             clist = res['results']
-    
+
             self.assertTrue(res['converged'][0])
             self.assertTrue(check_image(residual, expected_residual))
             self.assertTrue(check_image(model, expected_model))
-                
-                    
+
+
     # Test using initial estimates and fixed parameters
     def test_fit_using_estimates(self):
         '''Imfit: Test using estimates'''
@@ -560,7 +560,7 @@ class imfit_test(unittest.TestCase):
             )
         for code in [run_fitcomponents, run_imfit]:
             res = code()
-    
+
             clist = res['results']
             self.assertTrue(
                 res['converged'][0],
@@ -573,7 +573,7 @@ class imfit_test(unittest.TestCase):
             self.assertTrue(
                 near(got, expected, 0.01),
                 test + "I flux density test failure, got " + str(got) + " expected " + str(expected)
-            )                                                                  
+            )
             # Q flux test
             got = clist['component0']['flux']['value'][1]
             expected = 0
@@ -641,7 +641,7 @@ class imfit_test(unittest.TestCase):
         def run_imfit():
             default('imfit')
             return imfit(imagename=convolved_model, box=box)
-    
+
         for code in [run_fitcomponents, run_imfit]:
             res = code()
             clist = res['results']
@@ -651,12 +651,12 @@ class imfit_test(unittest.TestCase):
             got = error['latitude']['value']
             print("*** got ", got)
             self.assertTrue(abs(got) < 1e-6)
-    
+
             got = error['longitude']['value']
             self.assertTrue(abs(got) < 1e-6)
 
         self.assertTrue(success,msgs)
-    
+
     # test writing, appending, and overwriting log files
     def test_logfile(self):
         '''Imfit: Test logfile'''
@@ -673,7 +673,7 @@ class imfit_test(unittest.TestCase):
                         res = myia.fitcomponents(box=box, estimates=two_gaussians_estimates, logfile=logfile, append=append)
                     myia.done()
                     return res
-                
+
                 code = run_fitcomponents
             else:
                 def run_imfit(append=None):
@@ -687,8 +687,8 @@ class imfit_test(unittest.TestCase):
                         )
                 code = run_imfit
             res = code()
-            self.assertTrue(os.path.exists(logfile), "logfile was not written")       
-       
+            self.assertTrue(os.path.exists(logfile), "logfile was not written")
+
             self.assertTrue(
                 count_matches(logfile, "****** Fit performed") == 1,
                 "unexpected logfile"
@@ -720,7 +720,7 @@ class imfit_test(unittest.TestCase):
                 count_matches(logfile, "****** Fit performed") == 1,
                 "logfile not overwritten"
             )
-    
+
     # Test writing of a new estimates file
     def test_newestimates(self):
         '''Imfit: Test new estimates'''
@@ -743,17 +743,17 @@ class imfit_test(unittest.TestCase):
                     )
                 code = run_imfit
             res = code()
-    
-            self.assertTrue(os.path.exists(newestimates)) 
+
+            self.assertTrue(os.path.exists(newestimates))
             expec = datapath + expected_new_estimates
             expected_sha = hashlib.sha512(open(expec, 'r').read()).hexdigest()
-    
+
             got_sha = hashlib.sha512(open(newestimates, 'r').read()).hexdigest()
             self.assertTrue(
                 got_sha == expected_sha,
                 newestimates + " differs from " + expec
             )
-        
+
     ## Test imfit on various polarization planes
     def test_polarization_image(self):
         '''Imfit: Test polarization image'''
@@ -768,7 +768,7 @@ class imfit_test(unittest.TestCase):
         def run_imfit(stokes):
             default('imfit')
             return imfit(imagename=stokes_image, stokes=stokes)
-    
+
         stokes = ['I','Q','U','V']
         expectedFlux = [133.60641, 400.81921, 375.76801, -1157.92212]
         expectedRA = [1.2479113396, 1.2479113694, 1.2478908580, 1.2478908284]
@@ -776,7 +776,7 @@ class imfit_test(unittest.TestCase):
         expectedMaj = [7.992524398, 11.988806751, 8.991589959, 12.987878913]
         expectedMin = [5.994405977, 5.994395540, 4.995338093, 7.992524265]
         expectedPA = [40.083248, 160.083213, 50.082442, 135.08243]
-    
+
         for i in [0 ,1]:
             for j in range(len(stokes)):
                 if (i == 0):
@@ -786,50 +786,50 @@ class imfit_test(unittest.TestCase):
                     code = run_imfit
                     method += test + "imfit: "
                 res = code(stokes[j])
-    
+
                 clist = res['results']
                 if (not res['converged'][0]):
                     success = False
                     msgs += method + "fit did not converge unexpectedly for stokes " + stokes[j]
                 got = clist['component0']['flux']['value'][j]
-    
+
                 # flux density test
                 if (not near(got, expectedFlux[j], 1e-5)):
                     success = False
                     msgs += method + " " + str(stokes) + " flux density test failure, got " + str(got) + " expected " + str(expectedFlux[j]) + "\n"
-    
+
                 # RA test
                 got = clist['component0']['shape']['direction']['m0']['value']
                 if (not near_abs(got, expectedRA[j], 1e-8)):
                     success = False
                     msgs += method + "stokes " + stokes[j] + " RA test failure, got " + str(got) + " expected " + str(expectedRA[j]) + "\n"
-    
+
                 # Dec test
                 got = clist['component0']['shape']['direction']['m1']['value']
                 if (not near_abs(got, expectedDec[j], 1e-8)):
                     success = False
                     msgs += method + "stokes " + stokes[j] + " Dec test failure, got " + str(got) + " expected " + str(expectedDec[j]) + "\n"
-    
+
                 # Major axis test
                 got = clist['component0']['shape']['majoraxis']['value']
                 if (not near(got, expectedMaj[j], 1e-7)):
                     success = False
                     msgs += method + "stokes " + stokes[j] + " Major axis test failure, got " + str(got) + " expected " + str(expectedMaj[j]) + "\n"
-            
+
                 # Minor axis test
                 got = clist['component0']['shape']['minoraxis']['value']
                 if (not near(got, expectedMin[j], 1e-7)):
                     success = False
                     msgs += method + "stokes " + stokes[j] + " Minor axis test failure, got " + str(got) + " expected " + str(expectedMin[j]) + "\n"
-    
+
                 # Position angle test
                 got = clist['component0']['shape']['positionangle']['value']
                 if (not near_abs(got, expectedPA[j], 1e-5)):
                     success = False
                     msgs += method + "stokes " + stokes[j] + " Position angle test failure, got " + str(got) + " expected " + str(expectedPA[j]) + "\n"
-        
-        self.assertTrue(success,msgs)         
-    
+
+        self.assertTrue(success,msgs)
+
     def test_CAS_2318(self):
         "Verification of CAS-2318 fix"
         success = True
@@ -844,7 +844,7 @@ class imfit_test(unittest.TestCase):
         def run_imfit():
             default('imfit')
             return imfit(imagename=gauss_no_pol)
-        
+
         for code in [run_fitcomponents, run_imfit]:
 
             # Just the fact that an exception isn't thrown verifies the fix
@@ -864,7 +864,7 @@ class imfit_test(unittest.TestCase):
         def run_imfit():
             default('imfit')
             return imfit(imagename=jyperbeamkms, box=box)
-    
+
         for i in [0 ,1]:
             if (i == 0):
                 code = run_fitcomponents
@@ -939,7 +939,7 @@ class imfit_test(unittest.TestCase):
         def run_imfit():
             default('imfit')
             return imfit(imagename=jyperbeamkms, box=box)
-    
+
         for i in [0 ,1]:
             if (i == 0):
                 code = run_fitcomponents
@@ -1006,13 +1006,13 @@ class imfit_test(unittest.TestCase):
                 mycl.length() == 2,
                 str(code) + " didn't get 2 component as expected from table"
             )
-            
+
             mycl.done()
             shutil.rmtree(complist)
- 
+
     def test_CAS_2999(self):
         """Test multiplane fitting"""
-        
+
         method = "test_CAS_2999"
         test = "test_CAS_2999"
         imagename = multiplane_image
@@ -1059,7 +1059,7 @@ class imfit_test(unittest.TestCase):
 
     def test_zero_level(self):
         """Test zero level fitting"""
-        
+
         mycl = cltool()
         myia = iatool()
 
@@ -1074,10 +1074,10 @@ class imfit_test(unittest.TestCase):
         def run_imfit(imagename):
             default('imfit')
             return imfit(
-                imagename=imagename, 
+                imagename=imagename,
                 box="130,89,170,129", dooff=True, offset=0.0
             )
-        
+
         j = 0
         for code in (run_fitcomponents, run_imfit):
             for i in range(3):
@@ -1100,7 +1100,7 @@ class imfit_test(unittest.TestCase):
                 subim = myia.subimage(imagename)
                 subim.done()
                 myia.done()
-                            
+
                 res = code(imagename)
                 mycl.fromrecord(res["results"])
                 got = mycl.getfluxvalue(0)[0]
@@ -1131,19 +1131,19 @@ class imfit_test(unittest.TestCase):
                 epsilon = 1e-5
                 self.assertTrue(near(got, expected, epsilon))
                 mycl.done()
-                
+
                 got = res["zerooff"]["value"][0]
                 expected = off - 0.102277
                 self.assertTrue(near(got, expected, epsilon))
                 self.assertTrue(res['zerooff']['unit'] == "Jy/pixel")
 
                 mycl.done()
-                
+
                 j = j + 1
 
     def test_fix_zero_level(self):
         """Test fixing zero level offset"""
-        
+
         method = "test_fix_zero_level"
         test = method
         mycl = cltool()
@@ -1164,11 +1164,11 @@ class imfit_test(unittest.TestCase):
         def run_imfit(imagename):
             default('imfit')
             return imfit(
-                imagename=imagename, 
+                imagename=imagename,
                 box="130,89,170,129", dooff=True,
                 offset=offset, fixoffset=True
             )
-        for code in (run_fitcomponents, run_imfit):                    
+        for code in (run_fitcomponents, run_imfit):
             res = code(imagename)
             mycl.fromrecord(res["results"])
             got = mycl.getfluxvalue(0)[0]
@@ -1200,16 +1200,16 @@ class imfit_test(unittest.TestCase):
             epsilon = 1e-5
             self.assertTrue(near(got, expected, epsilon))
             mycl.done()
-                
+
             got = res["zerooff"]["value"][0]
             expected = offset
             self.assertTrue(near(got, expected, epsilon))
-            
+
             got = res["zeroofferr"]["value"][0]
             expected = 0
             self.assertTrue(near(got, expected, epsilon))
             mycl.done()
-                
+
             j = j + 1
 
     def test_stretch(self):
@@ -1314,7 +1314,7 @@ class imfit_test(unittest.TestCase):
         def run_imfit():
             default('imfit')
             return imfit(imagename=noisy_image_xx)
-    
+
         for i in [0 ,1]:
             if (i == 0):
                 code = run_fitcomponents
@@ -1348,40 +1348,40 @@ class imfit_test(unittest.TestCase):
                 msgs += method + "RA test failure, got " + str(got) + " expected " + str(expected) + "\n"
             # Dec test
             got = clist['component0']['shape']['direction']['m1']['value']
-            expected = 1.935825e-5 
+            expected = 1.935825e-5
             if (not near_abs(got, expected, epsilon)):
                 success = False
                 msgs += method + "Dec test failure, got " + str(got) + " expected " + str(expected) + "\n"
             # Major axis test
             got = clist['component0']['shape']['majoraxis']['value']
-            expected = 23.530022 
+            expected = 23.530022
             epsilon = 1e-6
             if (not near(got, expected, epsilon)):
                 success = False
                 msgs += method + "Major axis test failure, got " + str(got) + " expected " + str(expected) + "\n"
             # Minor axis test
             got = clist['component0']['shape']['minoraxis']['value']
-            expected = 18.862125  
+            expected = 18.862125
             if (not near(got, expected, epsilon)):
                 success = False
                 msgs += method + "Minor axis test failure, got " + str(got) + " expected " + str(expected) + "\n"
             # Position angle test
             got = clist['component0']['shape']['positionangle']['value']
             expected = 119.88185
-            epsilon = 1e-5 
+            epsilon = 1e-5
             if (not near_abs(got, expected, epsilon)):
                 success = False
                 msgs += method + "Position angle test failure, got " + str(got) + " expected " + str(expected) + "\n"
 
         self.assertTrue(success,msgs)
-        
+
     def test_multibeam(self):
         myia = iatool()
         myia.open(multibeam_image)
         # just confirm it finishes successfully
         res = myia.fitcomponents()
         self.assertTrue(res["converged"].all())
-        
+
     def test_strange_units(self):
         '''Imfit: Test strange units'''
         myia = iatool()
@@ -1403,7 +1403,7 @@ class imfit_test(unittest.TestCase):
         def run_imfit():
             default('imfit')
             return imfit(imagename=outname, box=box)
-    
+
         for i in [0 ,1]:
             if (i == 0):
                 code = run_fitcomponents
@@ -1412,7 +1412,7 @@ class imfit_test(unittest.TestCase):
                 code = run_imfit
                 method += test + "imfit: "
             self._check_box_results(code())
-            
+
     def test_multiple_boxes(self):
         """Test support for multiple boxes (CAS-4978)"""
         myia = iatool()
@@ -1421,7 +1421,7 @@ class imfit_test(unittest.TestCase):
         myia.fitcomponents(box="37,43,59,56,143,142,157,159", estimates=twogest)
         myia.done()
         imfit(imagename=twogim, box="37,43,59,56,143,142,157,159", estimates=twogest)
-        
+
     def test_region_selection(self):
         """Test region selection raised in CAS-5093"""
         # from George's tests
@@ -1439,14 +1439,14 @@ class imfit_test(unittest.TestCase):
         a = myia.fitcomponents(box="174, 164, 213, 206", chans="23", residual=residual)
         self.assertTrue(a['converged'])
         myia.done()
-        
+
     def test_circular_gaussian(self):
-        """Test convolved circular gaussian with noise doesn't throw exception (CAS-5211)""" 
+        """Test convolved circular gaussian with noise doesn't throw exception (CAS-5211)"""
         myia = iatool()
         myia.open(datapath + "circular_gaussian.im")
         self.assertTrue(myia.fitcomponents())
         myia.done()
-        
+
     def test_k_image(self):
         """Test brightness units = K, CAS-5711"""
         myia = iatool()
@@ -1460,14 +1460,14 @@ class imfit_test(unittest.TestCase):
         print("*** xx " + str(flux['error'][0]))
         self.assertTrue(near(flux['error'][0], 2.22688e-8, 1e-4))
         self.assertTrue(flux['unit'] == "K.rad.rad")
-        
+
         sub.setbrightnessunit("Jy/beam")
         zz = sub.fitcomponents()
         flux = zz['results']['component0']['flux']
         self.assertTrue(near(flux['value'][0], 60318.42427068, 1e-4))
         self.assertTrue(near(flux['error'][0], 4.6, 1e-1))
         self.assertTrue(flux['unit'] == "Jy")
-        
+
         sub.setrestoringbeam(remove=True)
         sub.setbrightnessunit("Jy/pixel")
         zz = sub.fitcomponents()
@@ -1475,7 +1475,7 @@ class imfit_test(unittest.TestCase):
         self.assertTrue(near(flux['value'][0], 12302316.98919902, 1e-4))
         self.assertTrue(near(flux['error'][0], 55, 1e-1))
         self.assertTrue(flux['unit'] == "Jy")
-        
+
         sub.setbrightnessunit("K")
         zz = sub.fitcomponents()
         flux = zz['results']['component0']['flux']
@@ -1483,11 +1483,11 @@ class imfit_test(unittest.TestCase):
         print("got ", flux['error'][0])
         self.assertTrue(near(flux['error'][0], 1.3e-9, 1e-1))
         self.assertTrue(flux['unit'] == "K.rad.rad")
-        
+
         sub.done()
 
         myia.done()
-        
+
     def test_rms(self):
         '''Test rms parameter'''
         box = "130,89,170,129"
@@ -1513,7 +1513,7 @@ class imfit_test(unittest.TestCase):
                 got = mycl.getfluxerror(0)[0]
                 print("*** got ", got)
                 self.assertTrue(abs(got - 224) < 1)
-            
+
     def _check_results2(self, res):
         clist = res['results']
         self.assertTrue(
@@ -1543,7 +1543,7 @@ class imfit_test(unittest.TestCase):
         )
         # Dec test
         got = clist['component0']['shape']['direction']['m1']['value']
-        expected = 1.935825e-5 
+        expected = 1.935825e-5
         self.assertTrue(
             near_abs(got, expected, epsilon),
             "Dec test failure, got " + str(got) + " expected " + str(expected)
@@ -1566,12 +1566,12 @@ class imfit_test(unittest.TestCase):
         # Position angle test
         got = clist['component0']['shape']['positionangle']['value']
         expected = 119.812966882
-        epsilon = 1e-5 
+        epsilon = 1e-5
         self.assertTrue(
             near_abs(got, expected, epsilon),
             "Position angle test failure, got " + str(got) + " expected " + str(expected)
         )
-            
+
     def test_deconvolved_dictionary(self):
         """Test deconvolved dictionary"""
         def _comp_lists(zz):
@@ -1586,7 +1586,7 @@ class imfit_test(unittest.TestCase):
             self.assertTrue((decon.getspectrum(0) == con.getspectrum(0)))
             self.assertFalse((decon.getshape(0) == con.getshape(0)))
             return [decon, con]
-            
+
         shutil.copytree(datapath + decon_im, decon_im)
         myia = iatool()
         myia.open(decon_im)
@@ -1609,7 +1609,7 @@ class imfit_test(unittest.TestCase):
         self.assertTrue(beaminfo['beamarcsec']['minor']['value'] == 180)
         self.assertTrue(abs(beaminfo['beampixels'] - 10.197810) < 1e-5)
         self.assertTrue(abs(beaminfo['beamster'] - 8.62897407e-7) < 1e-15)
-        
+
         self.assertTrue(comp['spectrum']['channel'] == 0)
         self.assertFalse(zz['results']['component0']['ispoint'])
         self.assertFalse(zz['deconvolved']['component0']['ispoint'])
@@ -1639,17 +1639,17 @@ class imfit_test(unittest.TestCase):
         )
         self.assertTrue(abs(cshape['majoraxis']['value'] - 292) < 1)
         self.assertTrue(abs(cshape['minoraxis']['value'] - 229) < 1)
-        
+
         decon.done()
         con.done()
         myia.done()
-        
+
     def test_uncertainties(self):
         """Test uncertainties, CAS-3476"""
         imagename = datapath + "uncertainties_fixture.im"
         myia = iatool()
         mycl = cltool()
-        
+
         def run_fitcomponents():
             myia = iatool()
             myia.open(imagename)
@@ -1668,11 +1668,11 @@ class imfit_test(unittest.TestCase):
             f = qa.div(err, val)
             f = qa.convert(f, "")
             return qa.getvalue(f)
-        
+
         # first channel has gaussian elongated along x axis
         # second channel has gaussian elongated along y axis
         # third channel has gaussian at PA = 60 (150 degrees wrt positive x pixel axis)
-        
+
         # uncorrelated noise, sqrt(2)/rho = 0.01329
         noisefwhm = "-1arcmin"
         rms = 0.1
@@ -1708,7 +1708,7 @@ class imfit_test(unittest.TestCase):
                     )
                     # arcsec
                     self.assertTrue(near(qa.getvalue(got), 1181, 1e-3))
-                    
+
                     got = qa.quantity(
                         res['deconvolved']['component0']['shape']['majoraxiserror']
                     )
@@ -1735,14 +1735,14 @@ class imfit_test(unittest.TestCase):
                 if chans == 2:
                     self.assertTrue(near(qa.getvalue(longerr), 6.10, 1e-2))
                     self.assertTrue(near(qa.getvalue(laterr), 4.48, 1e-3))
-                    
-                noisefwhm = "-1arcmin"        
-        
+
+                noisefwhm = "-1arcmin"
+
         # correlated noise for rms = 0.1 and noisefwhm="4arcmin"
         # sqrt(2)/rho(1.5, 1.5) = 0.069498
         # sqrt(2)/rho(2.5, 0.5) = 0.073398
         # sqrt(2)/rho(0.5, 2.5) = 0.065805
-        
+
         noisefwhm = "4arcmin"
         for chans in range(3):
             for code in [run_fitcomponents, run_imfit]:
@@ -1775,13 +1775,13 @@ class imfit_test(unittest.TestCase):
                 if chans == 2:
                     self.assertTrue(near(qa.getvalue(longerr), 33.46, 1e-3))
                     self.assertTrue(near(qa.getvalue(laterr), 23.68, 1e-3))
-                    
+
         # correlated noise for rms = 0.1 and noisefwhm not specified, image has beam
         # so noisefwhm used is sqrt(12.0) arcmin
         # sqrt(2)/rho(1.5, 1.5) = 0.062241
         # sqrt(2)/rho(2.5, 0.5) = 0.064904
         # sqrt(2)/rho(0.5, 2.5) = 0.059688
-        
+
         noisefwhm = ""
         for chans in range(3):
             for code in [run_fitcomponents, run_imfit]:
@@ -1807,7 +1807,7 @@ class imfit_test(unittest.TestCase):
                 longerr = qa.convert(direrr['longitude'], "arcsec")
                 laterr = qa.convert(direrr['latitude'], "arcsec")
                 if chans == 0:
-                    
+
                     self.assertTrue(near(qa.getvalue(longerr), 33.0745, 1e-3))
                     self.assertTrue(near(qa.getvalue(laterr), 15.2083, 1e-3))
                 if chans == 1:
@@ -1854,7 +1854,7 @@ class imfit_test(unittest.TestCase):
             myia.open(im)
             msgs = myia.history()
             myia.done()
-            self.assertTrue("ia.fitcomponents" in msgs[-2])    
+            self.assertTrue("ia.fitcomponents" in msgs[-2])
             self.assertTrue("ia.fitcomponents" in msgs[-1])
 
     def test_summary(self):
@@ -1870,6 +1870,6 @@ class imfit_test(unittest.TestCase):
         summary = "summary2.txt"
         zz = imfit(imagename=image, estimates=estimates, summary=summary)
         self.assertTrue(sum(1 for line in open(summary)) == 6, "summary line count")
-        
+
 def suite():
     return [imfit_test]

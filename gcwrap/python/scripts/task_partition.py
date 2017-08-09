@@ -15,11 +15,11 @@ def partition(vis,
            flagbackup,      # only for MMS
            datacolumn,
            field,
-           spw, 
-           scan, 
-           antenna, 
+           spw,
+           scan,
+           antenna,
            correlation,
-           timerange, 
+           timerange,
            intent,
            array,
            uvrange,
@@ -46,7 +46,7 @@ def partition(vis,
                     default: 'auto'
         flagbackup -- Backup the FLAG column of the output MMS
                    default: True
-                   
+
     datacolumn -- Which data column to use to create the output
                   default='data'; example: datacolumn='data'
                   Options: 'data', 'corrected', 'model', 'all',
@@ -77,7 +77,7 @@ def partition(vis,
             default '' (all).
     intent -- Select based on the scan intent.
                   default '' (all)
-    array -- (Sub)array IDs to select.     
+    array -- (Sub)array IDs to select.
              default '' (all).
     uvrange -- uv distance range to select.
                default '' (all).
@@ -86,10 +86,10 @@ def partition(vis,
     """
 
     casalog.origin('partition')
-    
-    # Initiate the helper class    
-    pdh = ParallelDataHelper('partition', locals()) 
-    
+
+    # Initiate the helper class
+    pdh = ParallelDataHelper('partition', locals())
+
     # Validate input and output parameters
     try:
         pdh.setupIO()
@@ -97,16 +97,16 @@ def partition(vis,
         casalog.post('%s'%instance,'ERROR')
         return False
 
-    if createmms:   
+    if createmms:
 
         if disableparallel:
             pdh.bypassParallelProcessing(1)
         else:
             pdh.bypassParallelProcessing(0)
-        
+
         # Get a cluster
         pdh.setupCluster(thistask='partition')
-            
+
         # Execute the jobs using cluster
         try:
             pdh.go()
@@ -114,12 +114,12 @@ def partition(vis,
         except Exception as instance:
             casalog.post('%s'%instance,'ERROR')
             return False
-                    
+
         # Create a backup of the flags that are in the MMS
         casalog.origin('partition')
         if flagbackup and os.path.exists(outputvis):
             casalog.post('Create a backup of the flags that are in the MMS')
-            fh.backupFlags(aflocal=None, msfile=outputvis, prename='partition')    
+            fh.backupFlags(aflocal=None, msfile=outputvis, prename='partition')
 
         return True
 
@@ -127,35 +127,35 @@ def partition(vis,
     # Create local copies of the MSTransform and ms tools
     mtlocal = casac.mstransformer()
     mslocal = mstool()
-        
+
     try:
-                    
-        # Gather all the parameters in a dictionary.        
+
+        # Gather all the parameters in a dictionary.
         config = {}
-        config = pdh.setupParameters(inputms=vis, outputms=outputvis, field=field, 
+        config = pdh.setupParameters(inputms=vis, outputms=outputvis, field=field,
                     spw=spw, array=array, scan=scan, antenna=antenna, correlation=correlation,
                     uvrange=uvrange,timerange=timerange, intent=intent, observation=str(observation),
                     feed=feed,taql=taql)
-        
+
         # ddistart will be used in the tool when re-indexing the spw table
         config['ddistart'] = ddistart
-        
+
         config['datacolumn'] = datacolumn
 
         # Configure the tool and all the parameters
-        
+
         casalog.post('%s'%config, 'DEBUG1')
         mtlocal.config(config)
-        
+
         # Open the MS, select the data and configure the output
         mtlocal.open()
-        
+
         # Run the tool
         casalog.post('Run the tool to partition the MS')
-        mtlocal.run()        
-            
+        mtlocal.run()
+
         mtlocal.done()
-                    
+
     except Exception as instance:
         mtlocal.done()
         casalog.post('%s'%instance,'ERROR')
@@ -175,5 +175,5 @@ def partition(vis,
         return False
 
     mslocal = None
-    
+
     return True

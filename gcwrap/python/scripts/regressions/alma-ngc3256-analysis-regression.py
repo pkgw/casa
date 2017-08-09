@@ -3,21 +3,21 @@
 # Test Name:                                                                #
 # ngc3256-analysis-regression.py                                            #
 # An ALMA Science Verification Data Analysis Regression                     #
-# using observations of NGC3256 from April 2011                             # 
-#                                                                           # 
+# using observations of NGC3256 from April 2011                             #
+#                                                                           #
 # Rationale for Inclusion:                                                  #
 #    Need tests of ALMA analysis chain with selfcal                         #
-#                                                                           # 
+#                                                                           #
 # Input data:                                                               #
 #     six MSs                                                               #
 #                                                                           #
 #############################################################################
 
 
-step_title = { 0 : 'Data preparation', 
+step_title = { 0 : 'Data preparation',
                1 : 'Generate caltables',
-	       2 : 'Apriori flagging',
-	       3 : 'Delay cal for antenna DV07',
+               2 : 'Apriori flagging',
+               3 : 'Delay cal for antenna DV07',
                4 : 'Apply wvr and delay cal tables, split out corrected data',
                5 : 'Apply tsys correction',
                6 : 'Concatenate',
@@ -116,7 +116,7 @@ def timing():
         casalog.post( '  '+str(thesteps[i])+'   '+str(steptime[i])+'  '+str(steptime[i]/totaltime*100.)
                       +' ['+step_title[thesteps[i]]+']', 'WARN')
 
-# default tarfile name containing the input MSs        
+# default tarfile name containing the input MSs
 mytarfile_name = 'NGC3256_Band3_UnCalibratedMSandTablesForReduction.tgz'
 # get the dataset name from the wrapper if possible
 mydict = locals()
@@ -153,9 +153,9 @@ if(mystep in thesteps):
                caltype='tsys',
                caltable='cal-tsys_'+name+'.calnew')
 
-	wvrgcal(vis=name+'.ms', caltable='cal-'+name+'.Wnew',  
+        wvrgcal(vis=name+'.ms', caltable='cal-'+name+'.Wnew',
                 toffset=-1, segsource=True,
-		tie=["Titan,1037-295,NGC3256"], statsource="1037-295",
+                tie=["Titan,1037-295,NGC3256"], statsource="1037-295",
                 smooth='2.88s')
 
     if makeplots:
@@ -176,8 +176,8 @@ if(mystep in thesteps):
     for name in basename:
         flagmanager(vis = name+'.ms', mode = 'restore', versionname = 'Original')
 
-	flagdata(vis=name+'.ms', flagbackup = False, mode = 'shadow')
-	flagdata(vis=name+'.ms',mode='manual', autocorr=True)
+        flagdata(vis=name+'.ms', flagbackup = False, mode = 'shadow')
+        flagdata(vis=name+'.ms',mode='manual', autocorr=True)
         flagdata(vis=name+'.ms', mode='manual', flagbackup = False, intent='*POINTING*')
         flagdata(vis=name+'.ms', mode='manual', flagbackup = False, intent='*ATMOSPHERE*')
 
@@ -191,9 +191,9 @@ if(mystep in thesteps):
     print('Step ', mystep, step_title[mystep])
 
     for i in range(3): # loop over the first three ms's
-	name=basename[i]
+        name=basename[i]
 
-	os.system('rm -rf cal-'+name+'_del.Knew')
+        os.system('rm -rf cal-'+name+'_del.Knew')
         gencal(vis=name+'.ms', caltable='cal-'+name+'_del.Knew',
                caltype='sbd', antenna='DV07', pol='X,Y', spw='1,3,5,7',
                parameter=[1.00, 1.10, -3.0, -3.0, -3.05, -3.05, -3.05, -3.05])
@@ -205,9 +205,9 @@ mystep = 4
 if(mystep in thesteps):
     print('Step ', mystep, step_title[mystep])
     for i in range(3): # loop over the first three data sets
-	name=basename[i]
-	applycal(vis=name+'.ms', flagbackup = False, spw='1,3,5,7',
-		 interp=['nearest','nearest'], gaintable=['cal-'+name+'_del.Knew', 'cal-'+name+'.Wnew'])
+        name=basename[i]
+        applycal(vis=name+'.ms', flagbackup = False, spw='1,3,5,7',
+                 interp=['nearest','nearest'], gaintable=['cal-'+name+'_del.Knew', 'cal-'+name+'.Wnew'])
 
     for i in range(3,6): # loop over the last three data sets
         name=basename[i]
@@ -215,8 +215,8 @@ if(mystep in thesteps):
                  interp='nearest', gaintable='cal-'+name+'.Wnew')
 
     for name in basename:
-	os.system('rm -rf '+name+'_K_WVR.ms*')
-	split(vis=name+'.ms', outputvis=name+'_K_WVR.ms',
+        os.system('rm -rf '+name+'_K_WVR.ms*')
+        split(vis=name+'.ms', outputvis=name+'_K_WVR.ms',
               datacolumn='corrected', spw='0~7')
 
         flagmanager(vis = name+'_K_WVR.ms', mode = 'save', versionname = 'Original')
@@ -229,19 +229,19 @@ if(mystep in thesteps):
     print('Step ', mystep, step_title[mystep])
 
     flagmanager(vis ='uid___A002_X1d54a1_X174_K_WVR.ms', mode = 'restore', versionname = 'Original')
-       
+
     flagdata(vis='uid___A002_X1d54a1_X174_K_WVR.ms', mode='manual',
              antenna='DV04', flagbackup = True, scan='4,5,9', spw='7')
 
     for name in basename:
 
-	for field in ['Titan','1037*','NGC*']:
-		applycal(vis=name+'_K_WVR.ms', spw='1,3,5,7', 
+        for field in ['Titan','1037*','NGC*']:
+                applycal(vis=name+'_K_WVR.ms', spw='1,3,5,7',
                          flagbackup = False, field=field, gainfield=field,
                          interp='linear,spline', gaintable=['cal-tsys_'+name+'.calnew'])
 
         os.system('rm -rf '+name+'_line.ms*')
-	split(vis=name+'_K_WVR.ms', outputvis=name+'_line.ms',
+        split(vis=name+'_K_WVR.ms', outputvis=name+'_line.ms',
               datacolumn='corrected', spw='1,3,5,7')
 
 
@@ -254,7 +254,7 @@ if(mystep in thesteps):
 
     comvis=[]
     for name in basename:
-	comvis.append(name+'_line.ms')
+        comvis.append(name+'_line.ms')
 
     os.system('rm -rf ngc3256_line.ms*')
     concat(vis=comvis, concatvis='ngc3256_line.ms')
@@ -273,7 +273,7 @@ if(mystep in thesteps):
     flagdata(vis='ngc3256_line.ms', flagbackup=True, spw='*:0~16,*:125~127')
 
     flagdata(vis = 'ngc3256_line.ms', flagbackup = True,
-	timerange='>2011/04/16/12:00:00', field='Titan')
+        timerange='>2011/04/16/12:00:00', field='Titan')
 
     fixplanets(vis='ngc3256_line.ms', field='Titan', fixuvw=True)
 
@@ -289,7 +289,7 @@ if(mystep in thesteps):
              correlation='', mode='manual',
              antenna='PM03', timerange='2011/04/17/02:15:00~02:15:50')
 
-    flagdata(vis='ngc3256_line.ms', flagbackup=True, spw='2,3', 
+    flagdata(vis='ngc3256_line.ms', flagbackup=True, spw='2,3',
              correlation='', mode='manual',
              antenna='PM03', timerange='2011/04/16/04:13:50~04:18:00')
 
@@ -325,16 +325,16 @@ if(mystep in thesteps):
 
     os.system('rm -rf cal-ngc3256.B1')
 
-    bandpass(vis = 'ngc3256_line.ms', caltable = 'cal-ngc3256.B1', 
+    bandpass(vis = 'ngc3256_line.ms', caltable = 'cal-ngc3256.B1',
              gaintable = 'cal-ngc3256.G1', timerange='<2011/04/16/15:00:00',
              field = '1037*', minblperant=3, minsnr=2, solint='inf', combine='scan,obs',
              bandtype='B', fillgaps=1, refant = therefant, solnorm = True)
-    
-    bandpass(vis = 'ngc3256_line.ms', caltable = 'cal-ngc3256.B1', 
+
+    bandpass(vis = 'ngc3256_line.ms', caltable = 'cal-ngc3256.B1',
              gaintable = 'cal-ngc3256.G1', timerange='>2011/04/16/15:00:00',
              field = '1037*', minblperant=3, minsnr=2, solint='inf', combine='scan,obs',
              bandtype='B', fillgaps=1, refant = therefant, solnorm = True, append=True)
-    
+
     if makeplots:
         plotbandpass(caltable = 'cal-ngc3256.B1', xaxis='freq', yaxis='phase', plotrange = [0,0,-70,70],
                      overlay='antenna', figfile='bandpass.B1.png', interactive=False)
@@ -349,7 +349,7 @@ mystep = 10
 if(mystep in thesteps):
     print('Step ', mystep, step_title[mystep])
 
-    setjy(vis='ngc3256_line.ms', field='Titan', standard='Butler-JPL-Horizons 2012', 
+    setjy(vis='ngc3256_line.ms', field='Titan', standard='Butler-JPL-Horizons 2012',
           spw='0,1,2,3', scalebychan=False, usescratch=False)
 
     timing()
@@ -363,13 +363,13 @@ if(mystep in thesteps):
             '*:16~112', field = '1037*,Titan', minsnr=1.0,
             solint= 'inf', selectdata=True, solnorm=False, refant = therefant,
             gaintable = 'cal-ngc3256.B1', calmode = 'ap')
-    
+
     if makeplots:
         plotcal(caltable = 'cal-ngc3256.G2', xaxis = 'time', yaxis = 'phase',
-                poln='X', plotsymbol='o', plotrange = [0,0,-180,180], iteration= 'spw', 
+                poln='X', plotsymbol='o', plotrange = [0,0,-180,180], iteration= 'spw',
                 figfile='cal-phase_vs_time_XX.G2.png', subplot = 221)
         plotcal(caltable = 'cal-ngc3256.G2', xaxis = 'time', yaxis = 'phase',
-                poln='Y', plotsymbol='o', plotrange = [0,0,-180,180], iteration= 'spw', 
+                poln='Y', plotsymbol='o', plotrange = [0,0,-180,180], iteration= 'spw',
                 figfile='cal-phase_vs_time_YY.G2.png', subplot = 221)
         plotcal(caltable = 'cal-ngc3256.G2', xaxis = 'time', yaxis = 'amp',
                 poln='X', plotsymbol='o', plotrange = [], iteration = 'spw',
@@ -410,24 +410,24 @@ if(mystep in thesteps):
     print('Step ', mystep, step_title[mystep])
 
     flagmanager(vis = 'ngc3256_line.ms', mode = 'restore', versionname = 'step12')
-    
-    flagdata(vis='ngc3256_line.ms', mode='manual',
-	timerange='2011/04/16/04:13:35~04:13:45', flagbackup = True)
-    
-    flagdata(vis='ngc3256_line.ms', mode='manual',
-	timerange='2011/04/16/05:21:13~05:21:19', flagbackup = True)
-    
-    flagdata(vis='ngc3256_line.ms', mode='manual',
-	timerange='2011/04/16/04:16:40~04:16:49', flagbackup = True)
-    
-    flagdata(vis='ngc3256_line.ms', mode='manual',
-	timerange='2011/04/16/04:14:00~04:17:10', antenna='PM03', flagbackup = True)
 
     flagdata(vis='ngc3256_line.ms', mode='manual',
-	timerange='2011/04/17/01:52:20~01:53:10', antenna='DV10', flagbackup = True)
-    
+        timerange='2011/04/16/04:13:35~04:13:45', flagbackup = True)
+
     flagdata(vis='ngc3256_line.ms', mode='manual',
-	timerange='2011/04/17/00:35:30~01:20:20', antenna='DV04', spw='3', flagbackup = True)
+        timerange='2011/04/16/05:21:13~05:21:19', flagbackup = True)
+
+    flagdata(vis='ngc3256_line.ms', mode='manual',
+        timerange='2011/04/16/04:16:40~04:16:49', flagbackup = True)
+
+    flagdata(vis='ngc3256_line.ms', mode='manual',
+        timerange='2011/04/16/04:14:00~04:17:10', antenna='PM03', flagbackup = True)
+
+    flagdata(vis='ngc3256_line.ms', mode='manual',
+        timerange='2011/04/17/01:52:20~01:53:10', antenna='DV10', flagbackup = True)
+
+    flagdata(vis='ngc3256_line.ms', mode='manual',
+        timerange='2011/04/17/00:35:30~01:20:20', antenna='DV04', spw='3', flagbackup = True)
 
     flagmanager(vis = 'ngc3256_line.ms', mode = 'save', versionname = 'step13')
 
@@ -441,22 +441,22 @@ if(mystep in thesteps):
     delmod('ngc3256_line.ms')
 
     os.system('rm -rf cal-ngc3256.G1n cal-ngc3256.B1n')
-    
+
     gaincal(vis='ngc3256_line.ms', caltable='cal-ngc3256.G1n', spw='*:40~80', field='1037*',
             selectdata=True, solint='int', refant=therefant, calmode='p')
 
 
-    bandpass(vis = 'ngc3256_line.ms', caltable = 'cal-ngc3256.B1n', 
+    bandpass(vis = 'ngc3256_line.ms', caltable = 'cal-ngc3256.B1n',
              gaintable = 'cal-ngc3256.G1n', timerange='<2011/04/16/15:00:00',
              field = '1037*', minblperant=3, minsnr=2, solint='inf', combine='scan,obs',
              bandtype='B', fillgaps=1, refant = therefant, solnorm = True)
-    
-    bandpass(vis = 'ngc3256_line.ms', caltable = 'cal-ngc3256.B1n', 
+
+    bandpass(vis = 'ngc3256_line.ms', caltable = 'cal-ngc3256.B1n',
              gaintable = 'cal-ngc3256.G1n', timerange='>2011/04/16/15:00:00',
              field = '1037*', minblperant=3, minsnr=2, solint='inf', combine='scan,obs',
              bandtype='B', fillgaps=1, refant = therefant, solnorm = True, append=True)
 
-    setjy(vis='ngc3256_line.ms', field='Titan', standard='Butler-JPL-Horizons 2012', 
+    setjy(vis='ngc3256_line.ms', field='Titan', standard='Butler-JPL-Horizons 2012',
           spw='0,1,2,3', usescratch=False)
 
     gaincal(vis = 'ngc3256_line.ms', caltable = 'cal-ngc3256.G2n', spw =
@@ -485,7 +485,7 @@ if(mystep in thesteps):
           gain=0.1, threshold='0.75mJy', psfmode='hogbom',
           interactive=False, mask=[62, 62, 67, 67], imsize=128,
           cell='1arcsec', weighting='briggs', robust=0.0, nterms=2)
-    
+
     calstat=imstat(imagename='result-phasecal_cont.image.tt0', region='', box='85,8,120,120')
     rmspcal=(calstat['rms'][0])
     print('>> rms in phase calibrator image: '+str(rmspcal))
@@ -522,8 +522,8 @@ if(mystep in thesteps):
     print('Step ', mystep, step_title[mystep])
 
     os.system('rm -rf result-ampcal_cont*')
-    clean(vis='ngc3256_line.ms', imagename='result-ampcal_cont', 
-          field='Titan', spw='0:20~120,1:20~120', mode='mfs', niter=200, 
+    clean(vis='ngc3256_line.ms', imagename='result-ampcal_cont',
+          field='Titan', spw='0:20~120,1:20~120', mode='mfs', niter=200,
           threshold='5mJy', psfmode='hogbom', mask=[62, 62, 67, 67], imsize=128,
           cell='1arcsec', weighting='briggs', robust=0.0)
 
@@ -564,7 +564,7 @@ if(mystep in thesteps):
     clean( vis='ngc3256_line_target.ms', imagename='result-ngc3256_cont',
            spw='0:20~53;71~120,1:70~120,2:20~120,3:20~120', psfmode='hogbom',
            mode='mfs', niter=500, threshold='0.3mJy', mask=[42,43,59,60],
-           imsize=100, cell='1arcsec', weighting='briggs', robust=0.0, 
+           imsize=100, cell='1arcsec', weighting='briggs', robust=0.0,
            interactive=False, usescratch=False)
 
     calstat=imstat(imagename='result-ngc3256_cont.image', region='', box='10,10,90,35')
@@ -595,14 +595,14 @@ if(mystep in thesteps):
             minblperant=3)
 
     if makeplots:
-        plotcal(caltable = 'cal-ngc3256_cont_30m.Gp', 
-                xaxis = 'time', yaxis = 'phase', 
+        plotcal(caltable = 'cal-ngc3256_cont_30m.Gp',
+                xaxis = 'time', yaxis = 'phase',
                 poln='X', plotsymbol='o', plotrange = [0,0,-180,180],
                 iteration = 'spw', figfile='cal-phase_vs_time_XX_30_Gp.png',
                 subplot = 221)
 
-        plotcal(caltable = 'cal-ngc3256_cont_30m.Gp', 
-                xaxis = 'time', yaxis = 'phase', 
+        plotcal(caltable = 'cal-ngc3256_cont_30m.Gp',
+                xaxis = 'time', yaxis = 'phase',
                 poln='Y', plotsymbol='o', plotrange = [0,0,-180,180],
                 iteration = 'spw', figfile='cal-phase_vs_time_YY_30_Gp.png',
                 subplot = 221)
@@ -619,12 +619,12 @@ if(mystep in thesteps):
 
     os.system('rm -rf result-ngc3256_cont_sc1*')
     clean(vis='ngc3256_line_target.ms', imagename='result-ngc3256_cont_sc1',
-          spw='0:20~53;71~120,1:70~120,2:20~120,3:20~120', psfmode='hogbom', 
-          mode='mfs', niter=500, threshold='0.13mJy', mask=[42,43,59,60], 
+          spw='0:20~53;71~120,1:70~120,2:20~120,3:20~120', psfmode='hogbom',
+          mode='mfs', niter=500, threshold='0.13mJy', mask=[42,43,59,60],
           imsize=100, cell='1arcsec', weighting='briggs', robust=0.0,
           interactive=False, usescratch=False)
 
-    calstat=imstat(imagename='result-ngc3256_cont_sc1.image', region='', 
+    calstat=imstat(imagename='result-ngc3256_cont_sc1.image', region='',
                    box='10,10,90,35')
     rmscontsc=(calstat['rms'][0])
     print('>> rms in continuum image: '+str(rmscontsc))
@@ -646,7 +646,7 @@ if(mystep in thesteps):
     print('Step ', mystep, step_title[mystep])
 
     uvcontsub(vis = 'ngc3256_line_target.ms',
-              fitspw='0:20~53;71~120,1:70~120,2:20~120,3:20~120', solint ='int', 
+              fitspw='0:20~53;71~120,1:70~120,2:20~120,3:20~120', solint ='int',
               fitorder = 1,
               combine='spw')
 
@@ -659,9 +659,9 @@ if(mystep in thesteps):
 
     os.system('rm -rf result-ngc3256_line_CO.*')
     clean(vis='ngc3256_line_target.ms.contsub', imagename='result-ngc3256_line_CO',
-          spw='0:38~87', mode='channel', start='', nchan=-1, width='', 
-          psfmode='hogbom', outframe='LSRK', restfreq='115.271201800GHz', 
-          mask=[53,50,87,83], niter=500, interactive=False, imsize=128, cell='1arcsec', 
+          spw='0:38~87', mode='channel', start='', nchan=-1, width='',
+          psfmode='hogbom', outframe='LSRK', restfreq='115.271201800GHz',
+          mask=[53,50,87,83], niter=500, interactive=False, imsize=128, cell='1arcsec',
           weighting='briggs', robust=0.0, threshold='5mJy')
 
     timing()
@@ -676,7 +676,7 @@ if(mystep in thesteps):
     sl.open('myresults.tbl')
     sl.list()
 
-    tb.open('myresults.tbl') 
+    tb.open('myresults.tbl')
     restfreq=tb.getcol('FREQUENCY')[0]
     tb.close()
 
@@ -696,21 +696,21 @@ if(mystep in thesteps):
               includepix=[0.035, 10000], outfile='result-ngc3256_CO1-0.mom2')
 
     if makeplots:
-        imview(contour={'file': 'result-ngc3256_CO1-0.mom0','levels': 
-                        [5,10,20,40,80,160],'base':0,'unit':1}, 
+        imview(contour={'file': 'result-ngc3256_CO1-0.mom0','levels':
+                        [5,10,20,40,80,160],'base':0,'unit':1},
                raster={'file': 'result-ngc3256_CO1-0.mom1','range': [2630,2920],
                        'colorwedge':True, 'colormap': 'Rainbow 2'}, out='result-CO_velfield.png')
-        
-        imview(contour={'file': 'result-ngc3256_CO1-0.mom1','levels': 
-                        [2650,2700,2750,2800,2850,2900],'base':0,'unit':1}, 
+
+        imview(contour={'file': 'result-ngc3256_CO1-0.mom1','levels':
+                        [2650,2700,2750,2800,2850,2900],'base':0,'unit':1},
                raster={'file': 'result-ngc3256_CO1-0.mom0', 'colorwedge':True,
-                       'colormap': 'Rainbow 2','scaling':-1.0,'range': [0.8,250]}, 
+                       'colormap': 'Rainbow 2','scaling':-1.0,'range': [0.8,250]},
                out='result-CO_map.png')
-        
-        imview(contour={'file': 'result-ngc3256_CO1-0.mom2','levels': 
-                        [20,30,40,50,60],'base':0,'unit':1}, 
+
+        imview(contour={'file': 'result-ngc3256_CO1-0.mom2','levels':
+                        [20,30,40,50,60],'base':0,'unit':1},
                raster={'file': 'result-ngc3256_CO1-0.mom2', 'colorwedge':True,
-                       'colormap': 'Greyscale 1','scaling':-1.0,'range': [0,74]}, 
+                       'colormap': 'Greyscale 1','scaling':-1.0,'range': [0,74]},
                out='result-CO_dispersion.png')
 
     timing()
@@ -741,12 +741,12 @@ if(mystep in thesteps):
                chans='5~18', axis='spectral', box='38,38,90,90',
                includepix=[0.005, 10000], outfile='result-ngc3256_CNhi.mom')
     if makeplots:
-        imview(contour={'file': 'result-ngc3256_CNhi.mom.integrated','range': []}, 
+        imview(contour={'file': 'result-ngc3256_CNhi.mom.integrated','range': []},
                raster={'file': 'result-ngc3256_CNhi.mom.weighted_coord',
                        'range': [2630,2920],'colorwedge':True,
                        'colormap': 'Rainbow 2'}, out='result-CNhi_velfield.png')
-        imview(contour={'file': 'result-ngc3256_CNhi.mom.weighted_coord','levels': 
-                        [2650,2700,2750,2800,2850,2900],'base':0,'unit':1}, 
+        imview(contour={'file': 'result-ngc3256_CNhi.mom.weighted_coord','levels':
+                        [2650,2700,2750,2800,2850,2900],'base':0,'unit':1},
                raster={'file': 'result-ngc3256_CNhi.mom.integrated','colorwedge':True,
                        'colormap': 'Rainbow 2'}, out='result-CNhi_map.png')
 
@@ -779,13 +779,13 @@ if(mystep in thesteps):
                includepix=[0.003, 10000], outfile='result-ngc3256_CNlo.mom')
 
     if makeplots:
-        imview(contour={'file': 'result-ngc3256_CNlo.mom.integrated','range': []}, 
+        imview(contour={'file': 'result-ngc3256_CNlo.mom.integrated','range': []},
                raster={'file': 'result-ngc3256_CNlo.mom.weighted_coord',
                        'range': [2630,2920],'colorwedge':True,
                        'colormap': 'Rainbow 2'}, out='result-CNlo_velfield.png')
-        
-        imview(contour={'file': 'result-ngc3256_CNlo.mom.weighted_coord','levels': 
-                        [2650,2700,2750,2800,2850,2900],'base':0,'unit':1}, 
+
+        imview(contour={'file': 'result-ngc3256_CNlo.mom.weighted_coord','levels':
+                        [2650,2700,2750,2800,2850,2900],'base':0,'unit':1},
                raster={'file': 'result-ngc3256_CNlo.mom.integrated','colorwedge':True,
                        'colormap': 'Rainbow 2'}, out='result-CNlo_map.png')
 
@@ -814,17 +814,17 @@ if(mystep in thesteps):
     #refrmscont    = 0.00032463966636
     #refpeakcont   = 0.00699360202998
     #refrmscontsc  = 7.81473427196e-05
-    #refpeakcontsc = 0.00983608141541 
+    #refpeakcontsc = 0.00983608141541
 
     # reference values obtained with this script using CASA stable r21621 (15 Oct 2012, DP)
     #refrmspcal    =  0.000963084050454
-    #refpeakpcal   =  1.87274956703    
-    #refrmstitan   =  0.00491269072518 
-    #refpeaktitan  =  0.361274719238   
+    #refpeakpcal   =  1.87274956703
+    #refrmstitan   =  0.00491269072518
+    #refpeaktitan  =  0.361274719238
     #refrmscont    =  0.000305994151859
-    #refpeakcont   =  0.00709502119571 
-    #refrmscontsc  =  7.5960662798e-05 
-    #refpeakcontsc =  0.00963686406612 
+    #refpeakcont   =  0.00709502119571
+    #refrmscontsc  =  7.5960662798e-05
+    #refpeakcontsc =  0.00963686406612
 
     # reference values obtained with this script using CASA 4.0.1 (12 Feb 2013, DP)
     #refrmspcal    =  0.000967486877926
@@ -840,21 +840,21 @@ if(mystep in thesteps):
     #refrmspcal    = 0.00101008242927
     #refpeakpcal   = 1.9241631031
     #refrmstitan   = 0.0050711822696
-    #refpeaktitan  = 0.372662633657 
+    #refpeaktitan  = 0.372662633657
     #refrmscont    = 0.000336007156875
-    #refpeakcont   = 0.00723568536341 
+    #refpeakcont   = 0.00723568536341
     #refrmscontsc  = 8.06680545793e-05
-    #refpeakcontsc = 0.0101557951421 
+    #refpeakcontsc = 0.0101557951421
 
     # reference values obtained with this script using CASA 4.3 (23 Apr 2014, GM)
     refrmspcal    = 0.00083721080
     refpeakpcal   = 1.925847530
     refrmstitan   = 0.00506945
-    refpeaktitan  = 0.37299222 
+    refpeaktitan  = 0.37299222
     refrmscont    = 0.00033599
-    refpeakcont   = 0.00723174 
+    refpeakcont   = 0.00723174
     refrmscontsc  = 8.00418566e-05
-    refpeakcontsc = 0.01018095 
+    refpeakcontsc = 0.01018095
 
 
 
@@ -924,7 +924,7 @@ if(mystep in thesteps):
         casalog.post('Results are different from expectations by more than 0.5 percent.', 'WARN')
     else:
         casalog.post( "\nAll peak and RMS values within 0.5 percent of the expectation.")
- 
+
     pngfiles = ['cal-tsys_per_spw_1_uid___A002_X1d54a1_X5.DV04.spw01.png',
                 'cal-tsys_per_spw_1_uid___A002_X1d54a1_X5.DV09.spw01.png',
                 'cal-tsys_per_spw_1_uid___A002_X1d54a1_X174.DV04.spw01.png',
@@ -1001,7 +1001,7 @@ if(mystep in thesteps):
         if not os.path.exists(pngfile):
             casalog.post('Plot file '+pngfile+' was not created!', 'WARN')
             passed = False
-            
+
     if not passed:
         raise Exception('Regression failed.')
 

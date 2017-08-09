@@ -21,10 +21,10 @@ from sdutil import tbmanager
 import asap as sd
 
 # Unit test of sdsaveold task.
-# 
+#
 # Currently, the test only examine if supported types of data can be
 # read, and if supporeted types of data can be written.
-# 
+#
 # The test on data selection and data averaging will not be done.
 
 ###
@@ -114,7 +114,7 @@ class sdsaveold_unittest_base:
                 line = f.readline()
             sp = numpy.array(sp)
             f.close()
-        return [n,sp]            
+        return [n,sp]
 
 
 ###
@@ -145,7 +145,7 @@ class sdsaveold_test0(unittest.TestCase,sdsaveold_unittest_base):
         """Test 000: Default parameters"""
         # argument verification error
         self.res=sdsaveold()
-        self.assertFalse(self.res)        
+        self.assertFalse(self.res)
 
 
 ###
@@ -191,7 +191,7 @@ class sdsaveold_test1(unittest.TestCase,sdsaveold_unittest_base):
         self.res=sdsaveold(infile=self.infile,outfile=self.outfile1,outform='MS2')
         self.assertEqual(self.res,None)
         self.assertTrue(self._compare(self.outfile1))
-        
+
     def test102(self):
         """Test 102: test to read scantable and to write as SDFITS"""
         self.res=sdsaveold(infile=self.infile,outfile=self.outfile2,outform='SDFITS')
@@ -203,7 +203,7 @@ class sdsaveold_test1(unittest.TestCase,sdsaveold_unittest_base):
         self.res=sdsaveold(infile=self.infile,outfile=self.outfile3,outform='ASCII')
         self.assertEqual(self.res,None)
         self.assertTrue(self._compare(self.outfile3))
-        
+
 
 ###
 # Test to read MS and write various types of format
@@ -243,13 +243,13 @@ class sdsaveold_test2(unittest.TestCase,sdsaveold_unittest_base):
         self.res=sdsaveold(infile=self.infile,outfile=self.outfile0,outform='ASAP')
         self.assertEqual(self.res,None)
         self.assertTrue(self._compare(self.outfile0))
-        
+
     def test201(self):
         """Test 201: test to read MS and to write as MS"""
         self.res=sdsaveold(infile=self.infile,outfile=self.outfile1,outform='MS2')
         self.assertEqual(self.res,None)
         self.assertTrue(self._compare(self.outfile1))
-        
+
     def test202(self):
         """Test 202: test to read MS and to write as SDFITS"""
         self.res=sdsaveold(infile=self.infile,outfile=self.outfile2,outform='SDFITS')
@@ -277,7 +277,7 @@ class sdsaveold_test2(unittest.TestCase,sdsaveold_unittest_base):
     def test205(self):
         """Test 205: test to read USB spectral window"""
         self.__spwtest()
-        
+
     def test206(self):
         """Test 206: test to read LSB spectral window"""
         tb.open('%s/SPECTRAL_WINDOW'%(self.infile),nomodify=False)
@@ -298,7 +298,7 @@ class sdsaveold_test2(unittest.TestCase,sdsaveold_unittest_base):
         self.__compareIncrement( self.outfile0, self.infile )
         self.res=sdsaveold(infile=self.outfile0,outfile=self.outfile1,outform='MS2')
         self.assertFalse(self.res,False)
-        self.__compareIncrement( self.outfile0, self.outfile1 )        
+        self.__compareIncrement( self.outfile0, self.outfile1 )
 
     def __compareIncrement(self,stdata,msdata):
         tb.open('%s/FREQUENCIES'%(stdata))
@@ -310,7 +310,7 @@ class sdsaveold_test2(unittest.TestCase,sdsaveold_unittest_base):
         for i in range(len(incr)):
             #print 'incr[%s]=%s,chanw[0][%s]=%s(diff=%s)'%(i,incr[i],i,chanw[0][i],(incr[i]-chanw[0][i]))
             self.assertEqual(incr[i],chanw[0][i])
-        
+
 ###
 # Test to read ATNF SDFITS and write various types of format
 ###
@@ -355,7 +355,7 @@ class sdsaveold_test3(unittest.TestCase,sdsaveold_unittest_base):
         self.res=sdsaveold(infile=self.infile,outfile=self.outfile1,outform='MS2')
         self.assertEqual(self.res,None)
         self.assertTrue(self._compare(self.outfile1))
-        
+
     def test302(self):
         """Test 302: test to read ATNF SDFITS and to write as SDFITS"""
         self.res=sdsaveold(infile=self.infile,outfile=self.outfile2,outform='SDFITS')
@@ -367,7 +367,7 @@ class sdsaveold_test3(unittest.TestCase,sdsaveold_unittest_base):
         self.res=sdsaveold(infile=self.infile,outfile=self.outfile3,outform='ASCII')
         self.assertEqual(self.res,None)
         self.assertTrue(self._compare(self.outfile3))
-        
+
 
 ###
 # Test to read GBT SDFITS and write various types of format
@@ -409,7 +409,7 @@ class sdsaveold_test4(unittest.TestCase,sdsaveold_unittest_base):
         self.res=sdsaveold(infile=self.infile,outfile=self.outfile1,outform='MS2')
         self.assertEqual(self.res,None)
         #self.assertTrue(self._compare(self.outfile1))
-        
+
     def test402(self):
         """Test 402: test to read GBT SDFITS and to write as SDFITS"""
         self.res=sdsaveold(infile=self.infile,outfile=self.outfile2,outform='SDFITS')
@@ -438,7 +438,7 @@ class sdsaveold_test4(unittest.TestCase,sdsaveold_unittest_base):
         if ( s.npol() != 1 ):
             return False
         return True
-        
+
 ###
 # Test to read NROFITS and write various types of format
 ###
@@ -479,7 +479,7 @@ class sdsaveold_test5(unittest.TestCase,sdsaveold_unittest_base):
         self.res=sdsaveold(infile=self.infile,outfile=self.outfile1,outform='MS2')
         self.assertEqual(self.res,None)
         #self.assertTrue(self._compare(self.outfile1))
-        
+
     def test502(self):
         """Test 502: test to read NROFITS and to write as SDFITS"""
         self.res=sdsaveold(infile=self.infile,outfile=self.outfile2,outform='SDFITS')
@@ -491,7 +491,7 @@ class sdsaveold_test5(unittest.TestCase,sdsaveold_unittest_base):
         self.res=sdsaveold(infile=self.infile,outfile=self.outfile3,outform='ASCII')
         self.assertEqual(self.res,None)
         #self.assertTrue(self._compare(self.outfile3))
-        
+
     def _compare(self,filename=''):
         """
         Check a few things for the data.
@@ -505,7 +505,7 @@ class sdsaveold_test5(unittest.TestCase,sdsaveold_unittest_base):
             return False
         if ( s.npol() != 1 ):
             return False
-        return True        
+        return True
 
 
 ###
@@ -515,7 +515,7 @@ class sdsaveold_test6( unittest.TestCase, sdsaveold_unittest_base ):
     """
     Test getpt parameter
 
-    1) import MS to Scantable format with getpt=True 
+    1) import MS to Scantable format with getpt=True
        1-1) check POINTING table keyword is missing
        1-2) export Scantable to MS format
        1-3) compare POINTING table
@@ -662,7 +662,7 @@ class sdsaveold_test7( sdsaveold_unittest_base, unittest.TestCase ):
             self.assertEqual(newrf[0], rfv,\
                              msg="Rest frequency differs(IFNO=%d): %f (expected: %f)" % (ifno, newrf[0], rfv))
             print("Rest frequency (IFNO=%d): %f (expected: %f)" % (ifno, newrf[0], rfv))
-    
+
     # Actual tests
     def test701( self ):
         """Test 701: restfreq (a float value)"""
@@ -1070,7 +1070,7 @@ class sdsaveold_storageTest( sdsaveold_unittest_base, unittest.TestCase ):
                     self.assertEqual(testval[key], rval, \
                                      msg = "%s differs: %s (expected: %s)" \
                                      % (key, str(testval[key]), rval))
-    
+
 
     # Actual tests
     def testMT( self ):
@@ -1223,7 +1223,7 @@ class sdsaveold_freq_labeling(unittest.TestCase,sdsaveold_unittest_base):
         cf_ref=tb.getvarcol('CHAN_FREQ')
         tb.putcol('MEAS_FREQ_REF',mfr)
         tb.close()
-        
+
         self.res=sdsaveold(infile=self.infile,outfile=self.outfile,outform='MS2')
         self.assertEqual(self.res,None)
 
@@ -1290,7 +1290,7 @@ class sdsaveold_flaggingMS(unittest.TestCase,sdsaveold_unittest_base):
                                 msg='all FLAG values must be False in row %s'%(irow))
         finally:
             tb.close()
-        
+
     def test_channelflag(self):
         """
         test_channelflag: test for channel flagged data. All the flags must be transferred properly.
@@ -1326,17 +1326,17 @@ class sdsaveold_flaggingMS(unittest.TestCase,sdsaveold_unittest_base):
                 self.assertTrue(all(flag.flatten()==False),
                                 msg='all FLAG values must be False in row %s'%(irow))
         finally:
-            tb.close()        
+            tb.close()
 
     def test_rowflag(self):
         """
-        test_rowflag: test for row flagged data. In this case, channel flags have to be set while row flags should not be set. 
+        test_rowflag: test for row flagged data. In this case, channel flags have to be set while row flags should not be set.
         """
         # put row flag to the first row
         tb.open(self.infile, nomodify=False)
         tb.putcell('FLAGROW', 0, 1)
-        tb.close()        
-        
+        tb.close()
+
         # execute task
         sdsaveold(infile=self.infile, outfile=self.outfile, outform='MS2')
 
@@ -1362,7 +1362,7 @@ class sdsaveold_flaggingMS(unittest.TestCase,sdsaveold_unittest_base):
                 self.assertTrue(all(flag.flatten()==False),
                                 msg='all FLAG values must be False in row %s'%(irow))
         finally:
-            tb.close()        
+            tb.close()
 
 ###
 # Test for scan number (CAS-5841)
@@ -1471,7 +1471,7 @@ class sdsaveold_test_splitant(unittest.TestCase,sdsaveold_unittest_base):
         s0 = sd.scantable(self.infile, False)
         s1 = sd.scantable(outsplitfile1, False)
         s2 = sd.scantable(outsplitfile2, False)
-        
+
         self.assertEqual(s0.nrow(), s1.nrow())
         self.assertEqual(s0.nrow(), s2.nrow())
 
@@ -1479,7 +1479,7 @@ class sdsaveold_test_splitant(unittest.TestCase,sdsaveold_unittest_base):
         s1sp0 = s1.get_spectrum(0)
         for i in range(len(s0sp0)):
             self.assertEqual(s0sp0[i], s1sp0[i])
-        
+
         del s0, s1, s2
 
 ###
@@ -1496,7 +1496,7 @@ class sdsaveold_selection_syntax(selection_syntax.SelectionSyntaxTest, sdsaveold
     @property
     def spw_channel_selection(self):
         return True
-    
+
     def setUp(self):
         if (not os.path.exists(self.infile)):
             shutil.copytree(self.datapath+self.infile, self.infile)
@@ -1534,11 +1534,11 @@ class sdsaveold_selection_syntax(selection_syntax.SelectionSyntaxTest, sdsaveold
             casalog.post('expected values = %s, actual values = %s'%(set(values[i]), set(cols[i])))
             self.assertEqual(set(values[i]), set(cols[i]))
         return outfile
-        
+
     def __exec_simple_test(self, param, expr, value_list, column, expected_nrow, regular_test=True):
         return self.__exec_complex_test([param], [expr], [value_list], [column],
                                         expected_nrow, regular_test)
-        
+
     def __exec_channelrange_test(self, iflist, channelrange, spw, expected_nrow, regular_test=True):
         outfile = self.__exec_simple_test('spw', spw, iflist, 'IFNO',
                                           expected_nrow, regular_test)
@@ -1583,7 +1583,7 @@ class sdsaveold_selection_syntax(selection_syntax.SelectionSyntaxTest, sdsaveold
                             msg='Unexpected exception was thrown: %s'%(str(e)))
             pos = str(e).find('sdsaveold doesn\'t support multiple channel range selection for spw.')
             self.assertNotEqual(pos, -1,
-                                msg='Unexpected exception was thrown: %s'%(str(e)))        
+                                msg='Unexpected exception was thrown: %s'%(str(e)))
 
     ### field selection syntax test ###
     def test_field_value_default(self):
@@ -1593,7 +1593,7 @@ class sdsaveold_selection_syntax(selection_syntax.SelectionSyntaxTest, sdsaveold
         fieldlist = ['M100__0', 'M100__1', 'M42__2']
 
         self.__exec_simple_test('field', field, fieldlist, 'FIELDNAME', expected_nrow)
-        
+
     def test_field_id_exact(self):
         """test_field_id_exact: Test field selection by id"""
         field = '1'
@@ -1601,7 +1601,7 @@ class sdsaveold_selection_syntax(selection_syntax.SelectionSyntaxTest, sdsaveold
         fieldlist = ['M100__1']
 
         self.__exec_simple_test('field', field, fieldlist, 'FIELDNAME', expected_nrow)
-    
+
     def test_field_id_lt(self):
         """test_field_id_lt: Test field selection by id (<N)"""
         field = '<1'
@@ -1641,7 +1641,7 @@ class sdsaveold_selection_syntax(selection_syntax.SelectionSyntaxTest, sdsaveold
         fieldlist = ['M100__0', 'M42__2']
 
         self.__exec_simple_test('field', field, fieldlist, 'FIELDNAME', expected_nrow)
-        
+
     def test_field_value_exact(self):
         """test_field_value_exact: Test field selection by name"""
         field = 'M100'
@@ -1665,13 +1665,13 @@ class sdsaveold_selection_syntax(selection_syntax.SelectionSyntaxTest, sdsaveold
         fieldlist = ['M100__0', 'M100__1', 'M42__2']
 
         self.__exec_simple_test('field', field, fieldlist, 'FIELDNAME', expected_nrow)
-       
+
     def test_field_mix_exprlist(self):
         """test_field_mix_exprlist: Test field selection by name and id"""
         field = '0,M4*'
         expected_nrow = 48
         fieldlist = ['M100__0', 'M42__2']
-        
+
         self.__exec_simple_test('field', field, fieldlist, 'FIELDNAME', expected_nrow)
 
     ### spw selection syntax test ###
@@ -1681,7 +1681,7 @@ class sdsaveold_selection_syntax(selection_syntax.SelectionSyntaxTest, sdsaveold
         spw = ''
         expected_nrow = 64
 
-        self.__exec_simple_test('spw', spw, iflist, 'IFNO', expected_nrow)        
+        self.__exec_simple_test('spw', spw, iflist, 'IFNO', expected_nrow)
 
     def test_spw_id_exact(self):
         """test_spw_id_exact: Test spw selection by id ('N')"""
@@ -1690,7 +1690,7 @@ class sdsaveold_selection_syntax(selection_syntax.SelectionSyntaxTest, sdsaveold
         expected_nrow = 16
 
         self.__exec_simple_test('spw', spw, iflist, 'IFNO', expected_nrow)
-        
+
     def test_spw_id_lt(self):
         """test_spw_id_lt: Test spw selection by id ('<N')"""
         iflist = [0,1]
@@ -1721,7 +1721,7 @@ class sdsaveold_selection_syntax(selection_syntax.SelectionSyntaxTest, sdsaveold
         spw = '*'
         expected_nrow = 64
 
-        self.__exec_simple_test('spw', spw, iflist, 'IFNO', expected_nrow)        
+        self.__exec_simple_test('spw', spw, iflist, 'IFNO', expected_nrow)
     def test_spw_id_list(self):
         """test_spw_id_list: Test spw selection by id ('N,M')"""
         iflist = [1,2,3]
@@ -1753,7 +1753,7 @@ class sdsaveold_selection_syntax(selection_syntax.SelectionSyntaxTest, sdsaveold
         expected_nrow = 16
 
         self.__exec_simple_test('spw', spw, iflist, 'IFNO', expected_nrow)
-        
+
     def test_spw_mix_exprlist(self):
         """test_spw_mix_exprlist: Test spw selection by id and frequency/velocity range"""
         iflist = [0,2,3]
@@ -1894,7 +1894,7 @@ class sdsaveold_selection_syntax(selection_syntax.SelectionSyntaxTest, sdsaveold
         # raise exception
         spw = '114.5~115.5GHz:0~100;200~400'
         self.__exec_exception_test(spw)
-        
+
     def test_spw_value_velocity_channel(self):
         """test_spw_value_velocity_channel: Test spw selection with channel range ('VEL0~VEL1:CH0~CH1')"""
         iflist = [0,1,2]
@@ -1953,7 +1953,7 @@ class sdsaveold_selection_syntax(selection_syntax.SelectionSyntaxTest, sdsaveold
         timelist = [55310.988761481472]
 
         self.__exec_simple_test('timerange', timerange, timelist, 'TIME', expected_nrow)
- 
+
     def test_timerange_value_range(self):
         """test_timerange_value_range: Test timerange selection by syntax 'T0~T1'"""
         timerange = '2010/04/24/23:13:00~2010/04/24/23:43:49'
@@ -1961,13 +1961,13 @@ class sdsaveold_selection_syntax(selection_syntax.SelectionSyntaxTest, sdsaveold
         timelist = [55310.967928148144, 55310.988761481472]
 
         self.__exec_simple_test('timerange', timerange, timelist, 'TIME', expected_nrow)
-        
+
     def test_timerange_value_lt(self):
         """test_timerange_value_lt: Test timerange selection by syntax '<T0'"""
         timerange = '<2010/04/24/23:13:00'
         expected_nrow = 16
         timelist = [55310.947094814808]
-        
+
         self.__exec_simple_test('timerange', timerange, timelist, 'TIME', expected_nrow)
 
     def test_timerange_value_gt(self):
@@ -2000,9 +2000,9 @@ class sdsaveold_selection_syntax(selection_syntax.SelectionSyntaxTest, sdsaveold
         scanlist = [1]
         scan = '%s'%(scanlist[0])
         expected_nrow = 16
-        
+
         self.__exec_simple_test('scan', scan, scanlist, 'SCANNO', expected_nrow)
-         
+
     def test_scan_id_lt(self):
         """test_scan_id_lt: Test scan selection by id ('<N')"""
         scanlist = [0,1]
@@ -2051,15 +2051,15 @@ class sdsaveold_selection_syntax(selection_syntax.SelectionSyntaxTest, sdsaveold
         expected_nrow = 64
 
         self.__exec_simple_test('pol', pol, pollist, 'POLNO', expected_nrow)
-        
+
     def test_pol_id_exact(self):
         """test_pol_id_exact: Test pol selection by id ('N')"""
         pollist = [1]
         pol = '%s'%(pollist[0])
         expected_nrow = 16
-        
+
         self.__exec_simple_test('pol', pol, pollist, 'POLNO', expected_nrow)
-        
+
     def test_pol_id_lt(self):
         """test_pol_id_lt: Test pol selection by id ('<N')"""
         pollist = [0,1]
@@ -2106,17 +2106,17 @@ class sdsaveold_selection_syntax(selection_syntax.SelectionSyntaxTest, sdsaveold
         beamlist = [0,1,2,3]
         beam = ''
         expected_nrow = 64
-        
+
         self.__exec_simple_test('beam', beam, beamlist, 'BEAMNO', expected_nrow)
-        
+
     def test_beam_id_exact(self):
         """test_beam_id_exact: Test beam selection by id ('N')"""
         beamlist = [1]
         beam = '%s'%(beamlist[0])
         expected_nrow = 16
-        
+
         self.__exec_simple_test('beam', beam, beamlist, 'BEAMNO', expected_nrow)
-        
+
     def test_beam_id_lt(self):
         """test_beam_id_lt: Test beam selection by id ('<N')"""
         beamlist = [0,1]
@@ -2206,7 +2206,7 @@ class sdsaveold_selection_syntax(selection_syntax.SelectionSyntaxTest, sdsaveold
         self.__exec_complex_test(['field', 'timerange'], [field, timerange],
                                  [fieldlist, timelist], ['FIELDNAME', 'TIME'],
                                  expected_nrow, regular_test=False)
-        
+
 
     def test_simultaneous4(self):
         """test_simultaneous4: Test simultaneous selection (spw, field and timerange)"""
@@ -2294,7 +2294,7 @@ class sdsaveold_scanrate(unittest.TestCase,sdsaveold_unittest_base):
                         msg='NUM_POLY is not correct.')
         self.assertTrue(all(dir_in.flatten() == dir_out_sorted.flatten()),
                         msg='DIRECTION value is not correct.')
-        
+
     def test_zero_scanrate(self):
         """test_zero_scanrate: Verify DIRECTION column shape is (2,1) if SCANRATE is all zero"""
         self._run_and_verify(self.infile)
@@ -2358,7 +2358,7 @@ class sdsaveold_weighting(sdsaveold_unittest_base, unittest.TestCase):
                                 msg = 'Failed for weight at %s'%(key))
                 self.assertTrue(all(sigma[key] == 1.0),
                                 msg = 'Failed for sigma at %s'%(key))
-    
+
     def verify(self):
         datadesc = 'DATA_DESCRIPTION'
         syscal = 'SYSCAL'
@@ -2368,21 +2368,21 @@ class sdsaveold_weighting(sdsaveold_unittest_base, unittest.TestCase):
             spwmap = {}
             for irow in range(tb.nrows()):
                 spwmap[irow] = tb.getcell('SPECTRAL_WINDOW_ID', irow)
-        
+
         # Tsys from SYSCAL table
         with tbmanager(os.path.join(self.outfile, syscal)) as tb:
             tsys = {}
             for irow in range(tb.nrows()):
                 tsys[tb.getcell('SPECTRAL_WINDOW_ID', irow)] = tb.getcell('TSYS_SPECTRUM', irow)
             #print tsys
-                
+
         # bandwidth from SPECTRAL_WINDOW table
         with tbmanager(os.path.join(self.outfile, spwin)) as tb:
             channelwidth = {}
             for irow in range(tb.nrows()):
                 channelwidth[irow] = tb.getcell('EFFECTIVE_BW', irow)
             #print channelwidth
-                
+
         # test MAIN
         with tbmanager(self.outfile) as tb:
             for irow in range(tb.nrows()):
@@ -2408,10 +2408,10 @@ class sdsaveold_weighting(sdsaveold_unittest_base, unittest.TestCase):
 
                 #print 'weight(%s) = %s (ref %s), diff_weight(%s) = %s'%(irow,weight,weight_ref,irow,diff_weight)
                 #print 'sigma(%s) = %s (ref %s), diff_sigma(%s) = %s'%(irow,sigma,sigma_ref,irow,diff_sigma)
-                
+
                 self.assertTrue(all(diff_weight < self.tol))
-                self.assertTrue(all(diff_sigma < self.tol))        
-                
+                self.assertTrue(all(diff_sigma < self.tol))
+
 class sdsaveold_weighting2(sdsaveold_unittest_base, unittest.TestCase):
     """
     Verify that fillweight option works fine for data with npol=1
@@ -2463,21 +2463,21 @@ class sdsaveold_weighting2(sdsaveold_unittest_base, unittest.TestCase):
             spwmap = {}
             for irow in range(tb.nrows()):
                 spwmap[irow] = tb.getcell('SPECTRAL_WINDOW_ID', irow)
-        
+
         # Tsys from SYSCAL table
         with tbmanager(os.path.join(self.outfile, syscal)) as tb:
             tsys = {}
             for irow in range(tb.nrows()):
                 tsys[irow] = tb.getcell('TSYS_SPECTRUM', irow)
             #print tsys
-                
+
         # bandwidth from SPECTRAL_WINDOW table
         with tbmanager(os.path.join(self.outfile, spwin)) as tb:
             channelwidth = {}
             for irow in range(tb.nrows()):
                 channelwidth[irow] = tb.getcell('EFFECTIVE_BW', irow)
             #print channelwidth
-                
+
         # test MAIN
         with tbmanager(self.outfile) as tb:
             for irow in range(tb.nrows()):
@@ -2506,7 +2506,7 @@ class sdsaveold_weighting2(sdsaveold_unittest_base, unittest.TestCase):
                 #print 'sigma(%s) = %s (ref %s), diff_sigma(%s) = %s'%(irow,sigma,sigma_ref,irow,diff_sigma)
 
                 self.assertTrue(all(diff_weight < self.tol))
-                self.assertTrue(all(diff_sigma < self.tol))        
+                self.assertTrue(all(diff_sigma < self.tol))
 
 
 class sdsaveold_flag(sdsaveold_unittest_base, unittest.TestCase):

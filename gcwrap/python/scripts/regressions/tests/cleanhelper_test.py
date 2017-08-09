@@ -21,7 +21,7 @@ def description():
 def data():
     ### return the data files that is needed by the regression script
     return []
-    
+
 def run( fetch=False ):
     #####locate the regression script
     lepath=locatescript('cleanhelper_regression.py')

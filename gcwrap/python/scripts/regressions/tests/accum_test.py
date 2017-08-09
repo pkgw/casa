@@ -37,7 +37,7 @@ def run( fetch=False ):
     if fetch:
         for f in data( ):
             copydata( f, os.getcwd( ) )
-    
+
     #####locate the regression script
     lepath=locatescript('accum_regression.py')
     gl['regstate']=True

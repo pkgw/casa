@@ -1247,7 +1247,7 @@ def coordsystest():
         # same presently
         #
         toworld = mycs.axesmap(toworld=True)
-	print(toworld)
+        print(toworld)
         if not len(toworld): fail()
         topixel = mycs.axesmap(toworld=False)
         if not len(topixel): fail()
@@ -1328,7 +1328,7 @@ def coordsystest():
         #
         freq = rv['numeric'][0]
         freqUnit = mycs.units();
-	print(freqUnit)
+        print(freqUnit)
         vel = mycs.frequencytovelocity(value=freq, frequnit=freqUnit[0],
                                        doppler='radio', velunit='km/s')
         if (abs(vel) > 1e-6):

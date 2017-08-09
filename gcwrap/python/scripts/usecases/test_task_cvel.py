@@ -67,12 +67,12 @@ if (testnumber in testlist):
         print("Testing default.")
         rval = cvel()
         if not rval:
-            print(myname, ': *** Error as expected ***')   
+            print(myname, ': *** Error as expected ***')
         else:
             print("Failed ...")
             failures +=1
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 2
@@ -87,12 +87,12 @@ if (testnumber in testlist):
         print("Only input vis set ...")
         rval = cvel(vis = 'myinput.ms')
         if not rval:
-            print(myname, ': *** Error as expected ***')   
+            print(myname, ': *** Error as expected ***')
         else:
             print("Failed ...")
             failures += 1
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 3
@@ -112,12 +112,12 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 64, 0)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 4
 if (testnumber in testlist):
-    myvis = vis_a        
+    myvis = vis_a
     os.system('rm -rf cvel-output.ms cvel-output.ms.deselected myinput.ms')
     os.system('cp -R ' + myvis + ' myinput.ms')
     default('cvel')
@@ -132,7 +132,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 64, 0)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 5
@@ -157,7 +157,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 2, 64, 0)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 6
@@ -183,7 +183,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 2, 64, 0)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 ## # Tests with more than one spectral window ###################
@@ -211,7 +211,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 2, 0)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 8
@@ -239,7 +239,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 1, 0)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 9
@@ -268,7 +268,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 1, 0)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 10
@@ -298,7 +298,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 1, 0)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 11
@@ -328,7 +328,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 1, 0)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 12
@@ -359,7 +359,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 2, 0)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 13
@@ -391,7 +391,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 2, 0)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 14
@@ -424,7 +424,7 @@ if (testnumber in testlist):
         verify_ms(omsname, 1, 2, 0)
         failures += 1
     except:
-        print(myname, ': *** Expected error ***')   
+        print(myname, ': *** Expected error ***')
 
 testnumber = 15
 if (testnumber in testlist):
@@ -454,7 +454,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 1, 0)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 16
@@ -485,7 +485,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 10, 0)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 17
@@ -517,7 +517,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 10, 0)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 18
@@ -549,7 +549,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 10, 0)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 19
@@ -577,7 +577,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 10, 0)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 20
@@ -605,7 +605,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 111, 0)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 21
@@ -633,7 +633,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 21, 0)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 22
@@ -661,7 +661,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 210, 0)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 23
@@ -695,7 +695,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 30, 0)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 24
@@ -728,7 +728,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 35, 0)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 25
@@ -764,7 +764,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 40, 0)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 26
@@ -800,7 +800,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 41, 0)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 27
@@ -824,7 +824,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 2440, 0)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 28
@@ -851,9 +851,9 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 30, 0)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
-        
+
 testnumber = 29
 if (testnumber in testlist):
     myvis = vis_e
@@ -878,7 +878,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 31, 0)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 30
@@ -902,7 +902,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 2443, 0)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 31
@@ -928,7 +928,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 2440, 0)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 32
@@ -955,7 +955,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 2440, 0)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 33
@@ -982,14 +982,14 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 128, 0)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 
 
 
 # Summary ########################################
-print("Tests = ", total)    
+print("Tests = ", total)
 print("Failures = ", failures)
 
 # empty test list if it was empty to start with

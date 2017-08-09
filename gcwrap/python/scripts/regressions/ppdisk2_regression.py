@@ -5,8 +5,8 @@
 import os, time
 
 # configs are in the repository
-l=locals() 
-if "repodir" not in l: 
+l=locals()
+if "repodir" not in l:
     repodir=os.getenv("CASAPATH").split(' ')[0]
 
 startTime = time.time()
@@ -99,7 +99,7 @@ ia.close()
 
 #refstats = { 'flux': 0.0359,
 #             'max': 6.1e-04,
-#             'min': -1.6e-04, 
+#             'min': -1.6e-04,
 #             'rms': 1.9e-04,
 #             'sigma': 1.4e-04 }
 # r38847
@@ -164,7 +164,7 @@ else:
 print('regression test for simdata of protoplanetary disk.', file=logfile)
 print('---', file=logfile)
 print('*********************************', file=logfile)
-    
+
 print('', file=logfile)
 print('********** Benchmarking **************', file=logfile)
 print('', file=logfile)
@@ -181,7 +181,7 @@ print('Wall processing  rate was: %8.3f MB/s.' % (17896.0 /
 ##                                                                         niter,
 ##                                                                         endTime - msfstat[8])
 print('*************************************', file=logfile)
-    
+
 logfile.close()
-						    
+
 print('--Finished simdata of input672GHz_50pc.image regression--')

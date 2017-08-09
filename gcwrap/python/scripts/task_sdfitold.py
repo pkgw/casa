@@ -11,7 +11,7 @@ def sdfitold(infile, antenna, fluxunit, telescopeparam, field, spw, restfreq, fr
         worker.initialize()
         worker.execute()
         worker.finalize()
-        
+
         return worker.result
 
 
@@ -25,7 +25,7 @@ class sdfit_worker(sdutil.sdtask_template):
     def initialize_scan(self):
         # load the data  without averaging
         sorg = sd.scantable(self.infile,average=False,antenna=self.antenna)
-                        
+
         # restorer
         self.restorer = sdutil.scantable_restore_factory(sorg,
                                                          self.infile,
@@ -68,10 +68,10 @@ class sdfit_worker(sdutil.sdtask_template):
 
         self.result = dict.fromkeys(['nfit','peak','cent','fwhm'],[])
         self.fitparams = []
-        
+
         if self.assert_no_channel_selection_in_spw(mode='result'):
             maskline_dict = self.scan.parse_spw_selection(self.spw)
-            
+
             valid_spw_list = []
             for (k,v) in list(maskline_dict.items()):
                 if len(v) > 0 and numpy.all(numpy.array(list(map(len, v))) > 0):
@@ -95,7 +95,7 @@ class sdfit_worker(sdutil.sdtask_template):
             self.maskline = []
             self.__set_linelist()
             self.__fit()
-                
+
     def save(self):
         # Store fit
         if ( self.outfile != '' ):
@@ -122,7 +122,7 @@ class sdfit_worker(sdutil.sdtask_template):
         if len(self.defaultmask) > 0: kw['mask'] = self.defaultmask
         self.fitter.set_scan(**kw)
         firstplot = True
-    
+
         for irow in range(scantab.nrow()):
             casalog.post( "start row %d" % (irow) )
             # check for FLAGROW
@@ -139,7 +139,7 @@ class sdfit_worker(sdutil.sdtask_template):
                 self.result['nfit']+=[-1]
                 self.__warn_fit_failed(scantab,irow,'No lines detected.')
                 continue
-                
+
             if ( self.fitmode == 'auto'):
                 # Auto mode - one comp per line region
                 # Overwriting user-supplied nfit
@@ -151,7 +151,7 @@ class sdfit_worker(sdutil.sdtask_template):
                 # Drop extra over numlines
                 numfit = min(len(comps),numlines)
             ncomps = sum(comps)
-        
+
             casalog.post( "Will fit %d components in %d regions" % (ncomps, numfit) )
 
             if numfit <= 0:
@@ -192,7 +192,7 @@ class sdfit_worker(sdutil.sdtask_template):
             if (irow < 16 and abs(self.plotlevel) > 0):
                 self.__plot(irow, goodfit, firstplot)
                 firstplot = False
-        
+
     def __initial_guess(self, scantab, dbw, numfit, comps, irow):
         llist = self.linelist[irow] if self.fitmode == 'auto' \
                 else self.linelist
@@ -201,7 +201,7 @@ class sdfit_worker(sdutil.sdtask_template):
             guesses = [[],[],[]]
             for x in llist:
                 x.sort()
-                casalog.post( "detected line: "+str(x) ) 
+                casalog.post( "detected line: "+str(x) )
                 msk = scantab.create_mask(x, row=irow)
                 guess = self.__get_initial_guess(scantab,msk,x,dbw,irow)
                 for i in range(3):
@@ -328,7 +328,7 @@ class sdfit_worker(sdutil.sdtask_template):
             # There is a user-supplied channel mask for lines
             self.defaultmask=scantab.create_mask(self.maskline,
                                                  invert=False)
-            
+
         # Use linefinder to find lines
         casalog.post( "Using linefinder" )
         fl=sd.linefinder()
@@ -359,12 +359,12 @@ class sdfit_worker(sdutil.sdtask_template):
             self.linelist.append(to_list_of_list(ll))
 
         # Done with linefinder
-        casalog.post( "Finished linefinder." )    
+        casalog.post( "Finished linefinder." )
 
     def __store_fit(self):
         outf = file(sdutil.get_abspath(self.outfile),'w')
 
-        #header 
+        #header
         header="#%-4s %-4s %-4s %-12s " %("SCAN", "IF", "POL", "Function")
         numparam=3     # gaussian fitting is assumed (max, center, fwhm)
         for i in range(numparam):
@@ -376,12 +376,12 @@ class sdfit_worker(sdutil.sdtask_template):
             dattmp=" %-4d %-4d %-4d " \
                     %(self.scan.getscan(i), self.scan.getif(i), self.scan.getpol(i))
             for j in range(len(self.fitparams[i])):
-                if ( self.fitparams[i][j][0]!=0.0): 
+                if ( self.fitparams[i][j][0]!=0.0):
                     datstr=dattmp+'%-12s '%('%s%d'%(self.fitfunc,j))
                     for k in range(len(self.fitparams[i][j])):
                         datstr+="%3.8f " %(self.fitparams[i][j][k])
                     outf.write(datstr+'\n')
-                        
+
         outf.close()
 
     def __init_plot(self):
@@ -389,7 +389,7 @@ class sdfit_worker(sdutil.sdtask_template):
         if n > 16:
             casalog.post( 'Only first 16 results are plotted.', priority = 'WARN' )
             n = 16
-        
+
         # initialize plotter
         from matplotlib import rc as rcp
         rcp('lines', linewidth=1)
@@ -400,8 +400,8 @@ class sdfit_worker(sdutil.sdtask_template):
         # set nrow and ncol (maximum 4x4)
         self.fitter._p.set_panels(rows=n, cols=0, ganged=False)
         casalog.post( 'nrow,ncol= %d,%d' % (self.fitter._p.rows, self.fitter._p.cols ) )
-        self.fitter._p.palette(0,["#777777", "#dddddd", "red", "orange", "purple", "green", "magenta", "cyan"])        
-        
+        self.fitter._p.palette(0,["#777777", "#dddddd", "red", "orange", "purple", "green", "magenta", "cyan"])
+
     def __plot(self, irow, fitted, firstplot=False ):
         if firstplot:
             labels = ['Spectrum', 'Selected Region', 'Residual', 'Fit']
@@ -428,7 +428,7 @@ class sdfit_worker(sdutil.sdtask_template):
             plot_line(myp,x,y,themask,label=labels[0],color=1)
             idx = 1
         themask = logical_not(themask)
-        
+
         # fitted region
         plot_line(myp,x,y,themask,label=labels[idx],color=0,scale=True)
 

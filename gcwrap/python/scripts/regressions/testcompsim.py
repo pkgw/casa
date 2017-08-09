@@ -2,12 +2,12 @@ startTime = time.time()
 startProc = time.clock()
 
 projname="cltest"
-import shutil 
+import shutil
 
 if os.path.exists(projname): shutil.rmtree(projname)
 
-l=locals() 
-if "repodir" not in l: 
+l=locals()
+if "repodir" not in l:
     repodir=os.getenv("CASAPATH").split(' ')[0]
 
 print(casa['build'])
@@ -16,7 +16,7 @@ datadir=repodir+"/data/regression/simdata/"
 if os.path.exists("6334.cl"): shutil.rmtree("6334.cl")
 shutil.copytree(datadir+"6334.cl","6334.cl")
 
-default("simobserve") 
+default("simobserve")
 project            =  projname
 complist           =  "6334.cl"
 compwidth          =  "1.875GHz"
@@ -47,7 +47,7 @@ inp()
 simobserve()
 
 
-default("simanalyze") 
+default("simanalyze")
 project            =  projname
 image              =  True
 vis                =  "default"
@@ -146,7 +146,7 @@ else:
 #print >> logfile, 'regression test for component-only simdata'
 #print >>logfile,'---'
 #print >>logfile,'*********************************'
-#    
+#
 #print >>logfile,''
 #print >>logfile,'********** Benchmarking **************'
 #print >>logfile,''
@@ -161,7 +161,7 @@ else:
 #print >>logfile,'*  deconvolution with %d iterations took %8.3fs.' % ( niter,
 #                                                                       endTime - msfstat[8])
 #print >>logfile,'*************************************'
-#    
+#
 #logfile.close()
 
 

@@ -9,7 +9,7 @@
 ##    Modified by gmoellen    2014/07/21  v2.1 (minor mods, mostly semantics)
 ##    Modified by J. E. Kooi  2014/09/17  v2.2 (minor mods, formating and
 ##                                              ~ Test for network connection
-##                                              ~ Heirarchy of IGS-related 
+##                                              ~ Heirarchy of IGS-related
 ##                                                data products added
 ##                                              ~ Added IGS RMS TEC maps
 ##                                              ~ Made IGS default data product)
@@ -19,9 +19,9 @@
 ##                                              approved general usage for
 ##                                              CASA 4.3)
 ##    Modified by J. E. Kooi   2015/01/29  v2.4 (Changed get_IGS_TEC to accept
-##                                              IONEX format data with ANY grid 
+##                                              IONEX format data with ANY grid
 ##                                              spacing in deg. and time res in min)
-##    Modified by J. E. Kooi   2015/03/2   v2.5 (Changed ztec_value for doplot = 
+##    Modified by J. E. Kooi   2015/03/2   v2.5 (Changed ztec_value for doplot =
 ##                                              True to plot a red bar over the VTEC
 ##                                              to show the observing session)
 ##
@@ -32,18 +32,18 @@
 ##
 ##
 ## The purpose of this python module is to retrieve vertical TEC/DTEC maps from
-## either IGS (housed on the CDDIS servers) or MAPGPS (housed on the Madrigal 
+## either IGS (housed on the CDDIS servers) or MAPGPS (housed on the Madrigal
 ## servers).
 ##
 ## **** Currently, the MAPGPS is "turned off" and modification of line 306 ****
 ## **** is required to turn this functionality back "on."                  ****
 ##
 ## The IGS Final Product maps represent a combined TEC map:
-## The different IGS Ionosphere Associate Analysis Centers IAAC TEC maps have 
+## The different IGS Ionosphere Associate Analysis Centers IAAC TEC maps have
 ## been computed with different approaches but with a common formal resolution
-## of 2 hours, 5 degrees, and 2.5 degrees in UT, longitude, and latitude 
-## (details can be found in e.g. Schaer, 1999; Feltens, 1998; 
-## Mannucci et al., 1998; Gao et al.; Hernandez-Pajares et al.,1999). The four 
+## of 2 hours, 5 degrees, and 2.5 degrees in UT, longitude, and latitude
+## (details can be found in e.g. Schaer, 1999; Feltens, 1998;
+## Mannucci et al., 1998; Gao et al.; Hernandez-Pajares et al.,1999). The four
 ## IAACs TEC maps have been combined in an IGS combination product using weights
 ## obtained by two IGS Ionosphere Associate Validation Centers (IAVCs) from the
 ## corresponding performances in reproducing STEC and differences of STEC (IAVCs
@@ -53,18 +53,18 @@
 ## The code has a hierarchy for IGS data products.  It will initially search for
 ## the IGS Final product data (available ~ 10-14 days after an observation) and,
 ## if unavailable, then the IGS Rapid Product (available in ~ 1-2 days) and,
-## if unavailable, then the JPL Rapid Product. 
+## if unavailable, then the JPL Rapid Product.
 ##
-## The MAPGPS maps are computed with no pre-applied ionosphere model and, in 
+## The MAPGPS maps are computed with no pre-applied ionosphere model and, in
 ## this sense, represent 'raw TEC data.' The benefit is that they have a formal
-## resolution of 5 minutes, 1.0 degree, and 1.0 degree in UT, longitude, and 
+## resolution of 5 minutes, 1.0 degree, and 1.0 degree in UT, longitude, and
 ## latitude (details can be found in Rideout & Coster, 2006).  The drawback is
 ## that the data is sparsely gridded in many locations (e.g., there are no GPS
 ## ground stations in the middle of the ocean) and there are sporadic gaps in
 ## the data at some locations (e.g., even over the United States).
 ##
 ## For now, users are encouraged to use the IGS Final Product maps instead of
-## MAPGPS products because there is data at all grid points and times, 
+## MAPGPS products because there is data at all grid points and times,
 ## making it easier to deal with in the code.  The code for MAPGPS is also set
 ## to make a 'patch' over North America and therefore is not a global map.
 ## However, the code is included and need only be uncommented.  Feel free to
@@ -78,15 +78,15 @@
 ##    (2) Optionally produces a vertical TEC/DTEC time series for the VLA
 ##
 ## !!!!! Important Note: In order to access the MAPGPS data, you must:
-##    (1) Have "madrigalWeb.py" and "globalDownload.py" and 
+##    (1) Have "madrigalWeb.py" and "globalDownload.py" and
 ##        "madrigal.head" in the working directory
 ##    (2) Provide your name, e-mail, and institution in the .create0 method to
 ##        access the Madrigal server
 ##
 ## References:
 ##
-##    Krankowski, A., & Sieradzki, R. 2013, in International GNSS Service 
-##        Technical Report, ed. R. Dach & Y. Jean, IGS Central Bureau 
+##    Krankowski, A., & Sieradzki, R. 2013, in International GNSS Service
+##        Technical Report, ed. R. Dach & Y. Jean, IGS Central Bureau
 ##        (Astronomical Institute:University of Bern), 157
 ##    Rideout, W., & Coster, A. 2006, GPS Solutions, 10, 219
 ##
@@ -128,7 +128,7 @@
 ##      > myname = 'John Doe'
 ##      > myemail = 'john-doe@place.edu'
 ##      > myplace = 'NRAO'
-##      > CASA_image,CASA_RMS_image = 
+##      > CASA_image,CASA_RMS_image =
 ##             tec_maps.create0(msname,'MAPGPS',True,'',myname,myemail,myplace)
 ##      > viewer(CASA_image)
 ##      > viewer(CASA_RMS_image)
@@ -164,19 +164,19 @@ def create(vis,doplot=False,imname=''):
 ## Inputs:
 ##    vis           type = string    Name of the measurement set for which to
 ##                                       acquire TEC/DTEC data
-##    doplot        type = boolean   When True, this will open a plot of the 
+##    doplot        type = boolean   When True, this will open a plot of the
 ##                                       interpolated TEC/DTEC at the VLA.
 ##    imname        type = string    Name of the output TEC Map optionally
 ##                                       specified by the user
 ##
 ## Returns:
-##    Opens a plot showing the zenith TEC/DTEC for the VLA 
+##    Opens a plot showing the zenith TEC/DTEC for the VLA
 ##    (if doplot = True) and the name of the CASA image file containing
 ##    the TEC map.
 ##
 ## =============================================================================
-    
-    Usage: 
+
+    Usage:
         The default use provides the IGS Product:
         > vis = 'visibilities.ms'
         > CASA_image,CASA_RMS_image = tec_maps.create(vis)
@@ -211,27 +211,27 @@ def create0(ms_name,tec_server='IGS',plot_vla_tec=False,im_name='',username='',u
 ##    ms_name       type = string    Name of the measurement set for which to
 ##                                       acquire TEC/DTEC data
 ##    tec_server    type = string    Server from which to retrieve TEC/DTEC
-##    plot_vla_tec  type = boolean   When True, this will open a plot of the 
+##    plot_vla_tec  type = boolean   When True, this will open a plot of the
 ##                                       interpolated TEC/DTEC at the VLA.
 ##    im_name       type = string    Name of the output TEC Map optionally
 ##                                       specified by the user
 ##    username      type = string    MAPGPS only: full name of user accessing
 ##                                       the site
 ##                                       ex: '<First> <Last>'
-##    user_email    type = string    MAPGPS only: e-mail address at which the 
+##    user_email    type = string    MAPGPS only: e-mail address at which the
 ##                                       user can be reached
 ##                                       ex: '<name>@<place>.com'
 ##    affiliation   type = string    MAPGPS only: user's affiliated institute
 ##                                       ex: 'NRAO'
 ##
 ## Returns:
-##    Opens a plot showing the zenith TEC/DTEC for the VLA 
+##    Opens a plot showing the zenith TEC/DTEC for the VLA
 ##    (if plot_vla_tec = True) and the name of the CASA image file containing
 ##    the TEC map.
 ##
 ## =============================================================================
-    
-    Usage: 
+
+    Usage:
         The default use provides the IGS Product:
         > msname = 'visibilities.ms'
         > CASA_image,CASA_RMS_image = tec_maps.create(msname)
@@ -252,7 +252,7 @@ def create0(ms_name,tec_server='IGS',plot_vla_tec=False,im_name='',username='',u
 
     t_min = min(obs_times)
     t_max = max(obs_times)
-    
+
     ## Calculate the reference time for the TEC map to be generated.
     ref_time  = 86400.*np.floor(t_min[0]/86400)
     ref_start = t_min[0]-ref_time
@@ -325,7 +325,7 @@ def create0(ms_name,tec_server='IGS',plot_vla_tec=False,im_name='',username='',u
         mad_file = ''
         mad_file = check_existence(mad_data_file)
         if username!='' and user_email!='' and affiliation!='':
-            if mad_file == '': 
+            if mad_file == '':
                 print('Retrieving the following MAPGPS files: '+begin_day+' to '+end_day)
                 begin_mdy = str(begin_day.split('/')[1])+'/'+str(begin_day.split('/')[2])+'/'+str(begin_day.split('/')[0])
                 end_mdy = str(end_day.split('/')[1])+'/'+str(end_day.split('/')[2])+'/'+str(end_day.split('/')[0])
@@ -339,9 +339,9 @@ def create0(ms_name,tec_server='IGS',plot_vla_tec=False,im_name='',username='',u
                 os.system('rm -rf '+unwanted_file+'.txt')
 
                 files = glob.glob(r''+workDir+'*.txt')
-                outfile = open(workDir+mad_data_file+'.txt','a')    
+                outfile = open(workDir+mad_data_file+'.txt','a')
                 for y in files:
-                    newfile = open(y,'r+')       
+                    newfile = open(y,'r+')
                     data = newfile.read()
                     newfile.close()
                     outfile.write(data)
@@ -363,7 +363,7 @@ def create0(ms_name,tec_server='IGS',plot_vla_tec=False,im_name='',username='',u
             print('You need to supply your username, e-mail, and affiliation to access the Madrigal server.')
             CASA_image = ''
             CASA_RMS_image = ''
-  
+
     ## Returns the name of the TEC image generated
     print('The following TEC map was generated: '+CASA_image+' & '+CASA_RMS_image)
     return CASA_image,CASA_RMS_image
@@ -382,11 +382,11 @@ def get_IGS_TEC(ymd_date):
 ## =============================================================================
 ##
 ## Inputs:
-##    ymd_date     type = string    The 'yyyy/mm/dd' date of observation for 
+##    ymd_date     type = string    The 'yyyy/mm/dd' date of observation for
 ##                                      which this will retrieve data
 ##
 ## Returns:
-##    points_long  type = integer   Total number of points in longitude (deg) 
+##    points_long  type = integer   Total number of points in longitude (deg)
 ##                                      in the TEC map
 ##    points_lat   type = integer   Total number of points in latitude (deg)
 ##                                      in the TEC map
@@ -395,7 +395,7 @@ def get_IGS_TEC(ymd_date):
 ##    incr_long    type = float     Increment by which longitude increases
 ##                                      IGS data:       5 deg
 ##                                      MAPGPS data:    1 deg
-##    incr_lat     type = float     Absolute value of the increment by which 
+##    incr_lat     type = float     Absolute value of the increment by which
 ##                                      latitude increases
 ##                                      IGS data:       2.5 deg
 ##                                      MAPGPS data:    1 deg
@@ -403,7 +403,7 @@ def get_IGS_TEC(ymd_date):
 ##                                      IGS data:       120 min
 ##                                      MAPGPS data:    5 min
 ##    num_maps     type = integer   Number of maps (or time samples) of TEC
-##    tec_array    type = array     4D array with axes consisting of 
+##    tec_array    type = array     4D array with axes consisting of
 ##                                      [TEC_type,long.,lat.,time] that gives
 ##                                      the TEC/DTEC in TECU
 ##    tec_type     type = string    Specifies the origin of TEC data as a
@@ -425,19 +425,19 @@ def get_IGS_TEC(ymd_date):
     if dayofyear < 100 and dayofyear >= 10:
         dayofyear = '0'+str(dayofyear)
 
-    ## Outputing the name of the IONEX file you require.  
+    ## Outputing the name of the IONEX file you require.
     igs_file = 'igsg'+str(dayofyear)+'0.'+str(list(str(year))[2])+''+str(list(str(year))[3])+'i'
 
     ## =========================================================================
     ##
-    ## This goes to the CDDIS website, and downloads and uncompresses the IGS 
+    ## This goes to the CDDIS website, and downloads and uncompresses the IGS
     ## file.  The preference is for the IGS Final product (IGSG), available
     ## ~ 12-14 days after data is collected (i.e. data for September 1 should
     ## be available by September 14).  If this file is not already in the
-    ## current working directory, it will retrieve it. If the file is 
+    ## current working directory, it will retrieve it. If the file is
     ## unavailable, it will try to retrieve the IGS Rapid Product (IGRG),
     ## released ~ 2-3 days after data is collected.  If this file is
-    ## unavailable, it will try to retrieve the JPL Rapid Product (JPRG), 
+    ## unavailable, it will try to retrieve the JPL Rapid Product (JPRG),
     ## released ~ 1 day after data is collected. While the 'uncompress' command
     ## is not necessary, it is the most straightforward on Linux.
     ##
@@ -450,7 +450,7 @@ def get_IGS_TEC(ymd_date):
         CDDIS = 'ftp://cddis.gsfc.nasa.gov/gnss/products/ionex'
         file_location = CDDIS+'/'+str(year)+'/'+str(dayofyear)+'/'
 
-        if does_exist == '':        
+        if does_exist == '':
             get_file = file_location+igs_file+'.Z'
             retrieve = test_connection(get_file)
             if retrieve == True:
@@ -461,7 +461,7 @@ def get_IGS_TEC(ymd_date):
                 igs_file = igs_file.replace('igs','igr')
 
                 does_exist = check_existence(igs_file)
-		if does_exist == '':
+                if does_exist == '':
                     print('Retrieving the following file instead: ', igs_file)
                     get_file = file_location+igs_file+'.Z'
                     retrieve = test_connection(get_file)
@@ -489,7 +489,7 @@ def get_IGS_TEC(ymd_date):
                         else:
                             pass
                 else:
-                    pass 
+                    pass
         else:
             pass
 
@@ -502,7 +502,7 @@ def get_IGS_TEC(ymd_date):
 
     ## =========================================================================
     ##
-    ## The following section reads the lines of the ionex file for 1 day 
+    ## The following section reads the lines of the ionex file for 1 day
     ## (13 maps total) into an array a[]. It also retrieves the thin-shell
     ## ionosphere height used by IGS, the lat./long. spacing, etc. for use
     ## later in this script.
@@ -515,7 +515,7 @@ def get_IGS_TEC(ymd_date):
     LongList = linestring.split('\n')
 
     ## Create two lists without the header and only with the TEC and DTEC maps (based on code from ionFR.py)
-    AddToList = 0 
+    AddToList = 0
     TECLongList = []
     DTECLongList = []
     for i in range(len(LongList)-1):
@@ -523,7 +523,7 @@ def get_IGS_TEC(ymd_date):
         if LongList[i].split()[-1] == 'MAP':
             if LongList[i].split()[-2] == 'RMS':
                 AddToList = 2
-        if AddToList == 1:	
+        if AddToList == 1:
             TECLongList.append(LongList[i])
         if AddToList == 2:
             DTECLongList.append(LongList[i])
@@ -552,7 +552,7 @@ def get_IGS_TEC(ymd_date):
     points_long = ((end_long - start_long)/incr_long) + 1
     points_lat = ((end_lat - start_lat)/incr_lat) + 1    ## Note that incr_lat is defined as '-' here
     number_of_rows = int(np.ceil(points_long/16))    ## Note there are 16 columns of data in IONEX format
-    
+
     ## 4-D array that will contain TEC & DTEC (a[0] and a[1], respectively) values
     a = np.zeros((2,points_long,points_lat,num_maps))
 
@@ -581,7 +581,7 @@ def get_IGS_TEC(ymd_date):
                                     a[Titer,counterLon,iLat,counterMaps-1] = UseList[i+3+row_iter+counterLat].split()[item]
                                     counterLon = counterLon + 1
                         if '-'+UseList[i+2+counterLat].split()[0].split('-')[1] == ''+str(newstartLat)+'':
-                            ## Adding to array a[] a line of Latitude TEC data. Same chunk as above but 
+                            ## Adding to array a[] a line of Latitude TEC data. Same chunk as above but
                             ## in this case we account for the TEC values at negative latitudes
                             counterLon = 0
                             for row_iter in range(number_of_rows):
@@ -595,14 +595,14 @@ def get_IGS_TEC(ymd_date):
     ## =========================================================================
     ##
     ## The section creates a new array that is a copy of a[], but with the lower
-    ## left-hand corner defined as the initial element (whereas a[] has the 
+    ## left-hand corner defined as the initial element (whereas a[] has the
     ## upper left-hand corner defined as the initial element).  This also
     ## accounts for the fact that IONEX data is in 0.1*TECU.
     ##
     ## =========================================================================
-    
+
     ## The native sampling of the IGS maps minutes
-    incr_time = 24*60/int(num_maps-1)    
+    incr_time = 24*60/int(num_maps-1)
     tec_array = np.zeros((2,points_long,points_lat,num_maps))
 
     for Titer in range(2):
@@ -625,7 +625,7 @@ def check_existence(file_prefix):
 ## and make the CASA table once.
 ##
 ## =============================================================================
-## 
+##
 ## Inputs:
 ##    file_prefix   type = string   This is the prefix for the file name to
 ##                                      search for in the current directorty
@@ -635,7 +635,7 @@ def check_existence(file_prefix):
 ##                                        ex:   August 6, 2011 is 'gps110806'
 ##
 ## Returns:
-##	The name of the file it located.
+##      The name of the file it located.
 ##
 ## =============================================================================
     """
@@ -667,7 +667,7 @@ def make_image(prefix,ref_long,ref_lat,ref_time,incr_long,incr_lat,incr_time,tec
     """
 ## =============================================================================
 ##
-## Creates a new image file with the TEC data and then returns the image name.  
+## Creates a new image file with the TEC data and then returns the image name.
 ## This also sets up the reference frame for use at the C++ level.
 ##
 ## =============================================================================
@@ -680,7 +680,7 @@ def make_image(prefix,ref_long,ref_lat,ref_time,incr_long,incr_lat,incr_time,tec
 ##                                   ex:     August 17, 2011 is 'gps110817g.001'
 ##    ref_long   type = float    Reference long. (deg) for setting coordinates
 ##    ref_lat    type = float    Reference lat. (deg) for setting coordinates
-##    ref_time   type = float    Reference time (s) for setting coordinates, 
+##    ref_time   type = float    Reference time (s) for setting coordinates,
 ##                                   UT 0 on the first day
 ##    incr_long  type = float    Increment by which longitude increases
 ##                                   IGS data:       5 deg
@@ -691,7 +691,7 @@ def make_image(prefix,ref_long,ref_lat,ref_time,incr_long,incr_lat,incr_time,tec
 ##    incr_time  type = float    Increment by which time increases
 ##                                   IGS data:       120 min
 ##                                   MAPGPS data:    5 min
-##    tec_array  type = array    3D array with axes consisting of 
+##    tec_array  type = array    3D array with axes consisting of
 ##                                   [long.,lat.,time] giving the TEC in TECU
 ##    tec_type   type = string   Specifies the origin of TEC data as a
 ##                                   CASA table keyword
@@ -743,7 +743,7 @@ def ztec_value(my_long,my_lat,points_long,points_lat,ref_long,ref_lat,incr_long,
 ##    my_lat       type = float      Lat. (deg) at which this interpolates TEC
 ##    points_long  type = integer    Total number of points in long. (deg)
 ##                                       in the TEC map
-##    points_lat   type = integer    Total number of points in lat. (deg) 
+##    points_lat   type = integer    Total number of points in lat. (deg)
 ##                                       in the TEC map
 ##    ref_long     type = float      Initial value for the longitude (deg)
 ##    ref_lat      type = float      Initial value for the latitude (deg)
@@ -759,13 +759,13 @@ def ztec_value(my_long,my_lat,points_long,points_lat,ref_long,ref_lat,incr_long,
 ##    ref_start    type = float      Beginning of observations (in seconds)
 ##    ref_end      type = float      End of observations (in seconds)
 ##    num_maps     type = integer    Number of maps (or time samples) of TEC
-##    tec_array    type = array      3D array with axes consisting of 
+##    tec_array    type = array      3D array with axes consisting of
 ##                                       [long.,lat.,time] giving TEC in TECU
 ##    PLOT         type = boolean    Determines whether to plot or return the
 ##                                       TEC time series of the local long./lat.
 ##
 ## Returns:
-##    site_tec     type = array      2D array containing the TEC/DTEC values 
+##    site_tec     type = array      2D array containing the TEC/DTEC values
 ##                                       for the local long./lat.
 ##
 ## =============================================================================
@@ -778,7 +778,7 @@ def ztec_value(my_long,my_lat,points_long,points_lat,ref_long,ref_lat,incr_long,
     for lon in range(int(points_long)):
         if (my_long > (ref_long + (n+1)*incr_long)  and my_long <= (ref_long + (n+2)*incr_long)) :
             lowerIndexLon =  n + 1
-            higherIndexLon = n + 2	
+            higherIndexLon = n + 2
         n = n + 1
     for lat in range(int(points_lat)):
         if (my_lat > (ref_lat + (m+1)*incr_lat)  and my_lat <= (ref_lat + (m+2)*incr_lat)) :
@@ -793,7 +793,7 @@ def ztec_value(my_long,my_lat,points_long,points_lat,ref_long,ref_lat,incr_long,
 
     site_tec = np.zeros((2,num_maps))
     for Titer in range(2):
-        for m in range(num_maps):			
+        for m in range(num_maps):
             site_tec[Titer,m] = (1.0-WLAT)*(1.0-WLON)*tec_array[Titer,lowerIndexLon,lowerIndexLat,m] +\
                                 WLON*(1.0-WLAT)*tec_array[Titer,higherIndexLon,lowerIndexLat,m] +\
                                 (1.0-WLON)*WLAT*tec_array[Titer,lowerIndexLon,higherIndexLat,m] +\
@@ -839,7 +839,7 @@ def test_connection(reference):
     try:
         response = urllib.request.urlopen(reference,timeout=5)
         return True
-    except urllib.error.URLError as err: 
+    except urllib.error.URLError as err:
         return False
 
 
@@ -864,9 +864,9 @@ def convert_MAPGPS_TEC(ms_name,mad_data_file,ref_time,ref_start,ref_end,plot_vla
 ##    ms_name         type = string    Name of the measurement set for which to
 ##                                         acquire TEC/DTEC data
 ##    mad_data_file   type = string    Name of the MAPGPS TEC/DTEC data table
-##    ref_time        type = float     Reference time (s) for setting the 
+##    ref_time        type = float     Reference time (s) for setting the
 ##                                         coordinates, UT 0 on the first day
-##    plot_vla_tec    type = boolean   When True, this will open a plot of the 
+##    plot_vla_tec    type = boolean   When True, this will open a plot of the
 ##                                         interpolated TEC/DTEC at the VLA.
 ##    im_name       type = string    Name of the output TEC Map optionally
 ##                                       specified by the user
@@ -955,7 +955,7 @@ def make_CASA_table(file_name):
 ## It requires the 'madrigal.head' file be in the working directory.
 ##
 ## =============================================================================
-## 
+##
 ## Inputs:
 ##    file_name    type = string    This is the full MAPGPS file name
 ##                                    MAPGPS form: 'gps'+'yy'+'mm'+'dd'+'.###'

@@ -14,7 +14,7 @@ def run(fetch=False) :
     if fetch:
         for f in data( ):
             copydata( f, os.getcwd( ) )
-    
+
     im.open('ic2233_1.ms')
     npix=1024
     im.selectvis(spw='0', nchan=[6], start=[0], step=[1])

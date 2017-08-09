@@ -18,7 +18,7 @@ def imcontsub(imagename=None,linefile=None,contfile=None,fitorder=None,region=No
         casalog.post("The linefile parameter is empty, consequently the"
                       +" spectral line image will NOT be\nsaved on disk.", \
                       'WARN')
-            
+
     if ( len( contfile ) > 0 ):
             if ( os.path.exists( contfile ) ):
                 casalog.post( 'Error: Unable to continue file '+contfile\
@@ -31,7 +31,7 @@ def imcontsub(imagename=None,linefile=None,contfile=None,fitorder=None,region=No
                       'WARN')
     if ( filesExist ):
         return False
-    
+
     _myia = iatool()
     _myia.open(imagename)
     mycsys = _myia.coordsys()
@@ -48,13 +48,13 @@ def imcontsub(imagename=None,linefile=None,contfile=None,fitorder=None,region=No
     channels = []
     if chans != None and len(chans) > 0:
         channels = myrg.selectedchannels(chans, _myia.shape())
-    
+
     try:
         # Now do the continuum subtraction.
         _myia.continuumsub(outline=linefile, outcont=contfile, region=reg,
                            channels=channels, fitorder=fitorder, overwrite=False)
         return True
-                
+
     except Exception as err:
         casalog.post( 'Error: Unable to perform continuum subtraction'+str(err), 'SEVERE' )
         raise
@@ -62,7 +62,7 @@ def imcontsub(imagename=None,linefile=None,contfile=None,fitorder=None,region=No
         _myia.done()
         if ( reg != None ):
             del reg
-        
+
     return True
 
 #
@@ -109,6 +109,6 @@ def _parse_chans( chanString='', min=0, max=0 ):
             retValue.append( i )
     else:
         raise Exception, "Invalid channel specification: "+str(values)
-    
+
     return retValue
 """

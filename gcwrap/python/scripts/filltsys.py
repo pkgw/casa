@@ -3,17 +3,17 @@
 # Copyright (c) NAOJ - National Astronomical Observatory of Japan, 2011
 # (in the framework of the ALMA collaboration).
 # All rights reserved.
-# 
+#
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 # Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
@@ -32,7 +32,7 @@ scaling={'GHz':1.0e-9,
 
 #
 # fillTsys( filename, specif, tsysif, mode )
-# 
+#
 # high level function to fill Tsys on spectral data
 #
 # Tsys is processed along the following three steps:
@@ -43,7 +43,7 @@ scaling={'GHz':1.0e-9,
 def fillTsys( filename, specif, tsysif=None, mode='linear', extrap=False, skipaveragedspw=True ):
     """
     high level function to fill Tsys on spectral data
-    
+
     Tsys is processed along the following three steps:
        1. average within scan
        2. if possible, linearly interpolate in time.
@@ -200,7 +200,7 @@ class TsysFillerBase( object ):
         beamno -- BEAMNO
         """
         self.beamno = beamno
-        
+
     def getScanAveragedTsys( self, ifno, scannos ):
         """
         Get Tsys averaged within scan
@@ -240,7 +240,7 @@ class TsysFillerBase( object ):
     def _search( self, tcol, t, startpos=0 ):
         """
         Simple search
-        
+
         Return minimum index that satisfies tcol[index] > t.
         If such index couldn't be found, return -1.
 
@@ -313,7 +313,7 @@ class SimpleTsysFiller( TsysFillerBase ):
         stab = self._select( ifno=self.ifno, polno=self.polno, beamno=self.beamno, srctype=srctype, exclude=True )
         ttab = self._select( ifno=self.ifno, polno=self.polno, beamno=self.beamno, srctype=srctype, exclude=False )
         # assume IFNO for channel averaged data is
-        # (IFNO for sp data)+1 
+        # (IFNO for sp data)+1
         tptab = self._select( ifno=self.ifno+1, polno=self.polno, beamno=self.beamno, srctype=srctype, exclude=True )
 
         # get scan numbers for calibration scan (Tsys)
@@ -359,7 +359,7 @@ class SimpleTsysFiller( TsysFillerBase ):
         stab.close()
         ttab.close()
         tptab.close()
-        
+
 #
 # class TsysFiller
 #
@@ -372,7 +372,7 @@ class SimpleTsysFiller( TsysFillerBase ):
 #    for pol in polnos:
 #        filler.setPolarization( pol )
 #        filler.fillScanAveragedTsys( mode=mode )
-# 
+#
 class TsysFiller( TsysFillerBase ):
     """
     Fill Tsys
@@ -405,7 +405,7 @@ class TsysFiller( TsysFillerBase ):
                 raise Exception( "Invalid specification of SPW for Tsys: it must cover SPW for target" )
         if not self.extend:
             self.extend = self.__checkChannels( self.abctsys, self.abcsp )
-        print('spectral IFNO %s: corresponding Tsys IFNO is %s'%(self.specif,self.tsysif)) 
+        print('spectral IFNO %s: corresponding Tsys IFNO is %s'%(self.specif,self.tsysif))
 
     def _setupTsysConfig( self ):
         """
@@ -464,7 +464,7 @@ class TsysFiller( TsysFillerBase ):
             return (redge,ledge)
         else:
             return (ledge,redge)
-    
+
     def _constructAbcissa( self, ifno ):
         """
         Construct abcissa array from REFPIX, REFVAL, INCREMENT
@@ -510,7 +510,7 @@ class TsysFiller( TsysFillerBase ):
     def getTsysAbcissa( self, unit='GHz' ):
         """
         Get abcissa for Tsys data
-        
+
         unit -- spectral unit
                 default: 'GHz'
                 options: 'channel', 'GHz', 'MHz', 'kHz', 'Hz'
@@ -644,5 +644,5 @@ class TsysFiller( TsysFillerBase ):
             atsys[i][len(abctsys)-ext1:] = b[i][-1]
             atsys[i][ext0:len(abctsys)-ext1] = b[i]
         return (abctsys,atsys)
-                
+
 

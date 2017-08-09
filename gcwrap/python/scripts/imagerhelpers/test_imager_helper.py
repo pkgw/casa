@@ -15,7 +15,7 @@ _cb = cbtool( )
 A set of helper functions for the tasks  tclean
 
 Summary...
-    
+
 '''
 
 import time
@@ -50,7 +50,7 @@ import inspect
 class TestHelpers():
      def __init__(self):
          self.epsilon = 0.05
-    
+
      def write_file(self,filename,str_text):
           """Save the string in a text file"""
           inp = filename
@@ -58,7 +58,7 @@ class TestHelpers():
           # remove file first
           if os.path.exists(inp):
                os.system('rm -f '+ inp)
-          # save to a file    
+          # save to a file
           with open(inp, 'w') as f:
                f.write(cmd)
           f.close()
@@ -98,9 +98,9 @@ class TestHelpers():
      def checkpeakres(self,summ,correctres):
           peakres = self.getpeakres(summ)
           out = True
-          if correctres == None and peakres != None: 
+          if correctres == None and peakres != None:
                out = False
-          if correctres != None and peakres == None: 
+          if correctres != None and peakres == None:
                out = False
           if out==True and peakres != None:
                if abs(correctres - peakres)/abs(correctres) > self.epsilon:
@@ -110,9 +110,9 @@ class TestHelpers():
      def checkmodflux(self,summ,correctmod):
           modflux = self.getmodflux(summ)
           out = True
-          if correctmod == None and modflux != None: 
+          if correctmod == None and modflux != None:
                out = False
-          if correctmod != None and modflux == None: 
+          if correctmod != None and modflux == None:
                out = False
           if out==True and modflux != None:
                if abs(correctmod - modflux)/abs(correctmod) > self.epsilon:
@@ -122,9 +122,9 @@ class TestHelpers():
 #     def checkiterdone(self,summ,correctiterdone):
 #          iters = self.getiterdone(summ)
 #          out=True
-#          if correctiterdone == None and iters != None: 
+#          if correctiterdone == None and iters != None:
 #               out = False
-#          if correctiterdone != None and iters == None: 
+#          if correctiterdone != None and iters == None:
 #               out = False
 #          if out==True and iters != None:
 #               if abs(correctiterdone - iters)/correctiterdone > self.epsilon:
@@ -164,7 +164,7 @@ class TestHelpers():
           testname = inspect.stack()[1][3]
           retres,peakres = self.checkpeakres(summ,correctres)
           retmod,modflux = self.checkmodflux(summ,correctmod)
-          
+
           pstr =  "[" + testname + "] PeakRes is " + str(peakres) + " ("+self.verdict(retres)+" : should be " + str(correctres) + ")\n"
           pstr = pstr + "[" + testname + "] Modflux is " + str(modflux) + " ("+self.verdict(retmod)+" : should be " + str(correctmod) + ")"
           print(pstr)
@@ -235,7 +235,7 @@ class TestHelpers():
 
           if tabcache==True:
                opentabs = tb.showcache()
-               if len(opentabs)>0 : 
+               if len(opentabs)>0 :
                     pstr += "["+inspect.stack()[1][3]+"] "+self.verdict(False) + ": Found open tables after run "
 
           if stopcode != None:
@@ -243,13 +243,13 @@ class TestHelpers():
                   stopstr = "["+inspect.stack()[1][3]+"] Stopcode is " + str(ret['stopcode']) + " (" + self.verdict(ret['stopcode']==stopcode)  +  " : should be " + str(stopcode) + ")\n"
                   print(stopstr)
                   pstr += stopstr
-                  
+
           if reffreq != None:
               if type(reffreq)==list:
                   for ii in reffreq:
                       if type(ii)==tuple and len(ii)==2:
                           pstr += self.checkreffreq(ii[0],ii[1])
-          
+
           return pstr
           #self.checkfinal(pstr)
 
@@ -261,9 +261,9 @@ class TestHelpers():
                     thisval = self.checkmodelchan(msname,val[0])
                     if val[1]==">":
                          ok = thisval > val[2]
-                    elif val[1]=="==":     
+                    elif val[1]=="==":
                          ok = abs( (thisval - val[2])/val[2] ) < self.epsilon
-                    elif val[1]=="<":     
+                    elif val[1]=="<":
                          ok = thisval < val[2]
                     else:
                          ok=False
@@ -283,15 +283,15 @@ class TestHelpers():
 
      def checkval(self,val, correctval, valname='Value', exact=False):
           testname = inspect.stack()[2][3]
-          
+
           out = True
 
           if numpy.isnan(val) or numpy.isinf(val):
                out=False
 
-          if correctval == None and val != None: 
+          if correctval == None and val != None:
                out = False
-          if correctval != None and val == None: 
+          if correctval != None and val == None:
                out = False
           if out==True and val != None:
                if exact==True:
@@ -340,22 +340,22 @@ class TestHelpers():
           else:
                if abs(theval)>self.epsilon:
                    if exact==False:
-                       if abs(readval - theval)/abs(theval) > self.epsilon: 
+                       if abs(readval - theval)/abs(theval) > self.epsilon:
                            res = False
                        else:
                            res = True
                    else:
-                       if abs(readval - theval) > 0.0: 
+                       if abs(readval - theval) > 0.0:
                            res = False
                        else:
                            res = True
-                       
+
                else:  ## this is to guard against exact zero... sort of.
-                  if abs(readval - theval) > self.epsilon: 
+                  if abs(readval - theval) > self.epsilon:
                        res = False
                   else:
                        res = True
-               
+
           pstr =  "[" + testname + "] " + imname + ": Value is " + str(readval) + " at " + str(thepos) + " (" + self.verdict(res) +" : should be " + str(theval) + " )"
           print(pstr)
           pstr=pstr+"\n"
@@ -381,7 +381,7 @@ class TestHelpers():
                   res = True
               else:
                   res = False
-              
+
           pstr =  "[" + testname + "] " + imname + ": Mask is " + str(readval) + " at " + str(thepos) + " (" + self.verdict(res) +" : should be " + str(theval) + " )"
           print(pstr)
           pstr=pstr+"\n"
@@ -408,7 +408,7 @@ class TestHelpers():
           print(pstr)
           pstr=pstr+"\n"
           return pstr
-   
+
      def checkspecframe(self,imname,frame, crval=0.0):
           testname = inspect.stack()[1][3]
           pstr = ""
@@ -418,16 +418,16 @@ class TestHelpers():
                baseframe = coordsys['spectral2']['system']
                basecrval = coordsys['spectral2']['wcs']['crval']
                if baseframe != frame:
-                    res = False 
+                    res = False
                else:
                     res = True
                     if crval!=0.0:
-                         if abs(basecrval - crval)/crval > 1.0e-6: 
+                         if abs(basecrval - crval)/crval > 1.0e-6:
                               res = False
                     else:
                          # skip the crval test
                          thecrval = ""
-               thecorrectans = frame + " "+ str(crval) 
+               thecorrectans = frame + " "+ str(crval)
                pstr =  "[" + testname + "] " + imname + ": Spec frame is " +\
                str(baseframe) + " with crval " + str(basecrval) + " (" +\
                self.verdict(res) +" : should be " + thecorrectans +" )"
@@ -435,7 +435,7 @@ class TestHelpers():
                pstr=pstr+"\n"
           #self.checkfinal(pstr)
           return pstr
-        
+
      def getcoordsys(self,imname):
          _ia.open(imname)
          csys = _ia.coordsys().torecord()
@@ -533,10 +533,10 @@ class TestHelpers():
           except Exception as e:
                self.nproc = 0
                return False
-          
+
 
      def getNParts(self,imprefix='', imexts=[]):
-          
+
           from mpi4casa.MPIInterface import MPIInterface as mpi_clustermanager
           try:
                self.nproc = len(mpi_clustermanager.getCluster()._cluster.get_engines())
@@ -544,7 +544,7 @@ class TestHelpers():
                self.nproc = 0
 
           if( self.nproc>0 ):
-               
+
                imlist=[];
                for imext in imexts:
                     for part in range(1,self.nproc+1):

@@ -18,15 +18,15 @@ import pickle
 def signflip (vis=None,column=None):
 
     tb.open(vis,nomodify=False)
-    
+
     scancol=tb.getcol('SCAN_NUMBER')
     minscan=min(scancol)
     maxscan=max(scancol)
-    
+
     ddidcol=tb.getcol('DATA_DESC_ID')
     minddid=min(ddidcol)
     maxddid=max(ddidcol)
-    
+
     for scan in range(minscan,maxscan+1):
         for ddid in range(minddid,maxddid+1):
             st=tb.query('SCAN_NUMBER=='+str(scan)+' && DATA_DESC_ID=='+str(ddid));
@@ -253,11 +253,11 @@ stagetime.append(currTime-prevTime)
 stagename.append('gaincal2')
 prevTime = currTime
 
-plotcal(caltable='leo2pt_regression.gcal2', yaxis='phase', 
+plotcal(caltable='leo2pt_regression.gcal2', yaxis='phase',
         iteration='antenna',subplot=321,antenna='0~5',
         showgui=F,figfile='leo2pt_regression.gcal2.p1.png')
 
-plotcal(caltable='leo2pt_regression.gcal2', yaxis='phase', 
+plotcal(caltable='leo2pt_regression.gcal2', yaxis='phase',
         iteration='antenna',subplot=321,antenna='6~11',
         showgui=F,figfile='leo2pt_regression.gcal2.p2.png')
 currTime=time.time()
@@ -507,8 +507,8 @@ stagename.append('cvel fld 3')
 prevTime = currTime
 
 #### Combine Leo-1 and Leo-2 fields
-#  2    NONE Leo-1        10:47:22.0000 +12.16.38.0000 J2000   2     301290 
-#  3    NONE Leo-2        10:46:45.0000 +11.50.38.0000 J2000   3     300960 
+#  2    NONE Leo-1        10:47:22.0000 +12.16.38.0000 J2000   2     301290
+#  3    NONE Leo-2        10:46:45.0000 +11.50.38.0000 J2000   3     300960
 print('---Concat field 2 and 3 (Leo-1 and Leo-2)---')
 concat(vis = ['leo2pt_regression.field2_chanbary.ms','leo2pt_regression.field3_chanbary.ms'],
        freqtol='150Hz',
@@ -600,13 +600,13 @@ prevTime = currTime
 #-------------------------------------------
 # Clean all at once with uvtaper
 #3klambda:
-#Fitted beam used in restoration: 137.297 by 58.0881 (arcsec) at pa 158.811 (deg) 
+#Fitted beam used in restoration: 137.297 by 58.0881 (arcsec) at pa 158.811 (deg)
 
 #2.2klambda
-#Fitted beam used in restoration: 153.274 by 66.2216 (arcsec) at pa 160.137 (deg) 
+#Fitted beam used in restoration: 153.274 by 66.2216 (arcsec) at pa 160.137 (deg)
 
 #1.6klambda
-#Fitted beam used in restoration: 180.444 by 79.4114 (arcsec) at pa 156.049 (deg) 
+#Fitted beam used in restoration: 180.444 by 79.4114 (arcsec) at pa 156.049 (deg)
 
 print('---Clean (ft mosaic tapered)---')
 clean(vis='leo2pt_regression.concat_chanbary.ms',
@@ -702,15 +702,15 @@ try:
     immoments(imagename='leo2pt_regression.concat_chanbary.taper1600.cleanmosft.image',
               moments=[1],includepix=[],
               chans='0',
-              outfile='leo2pt_regression.concat_chanbary.taper1600.cleanmosft.plane0.mom1') 
+              outfile='leo2pt_regression.concat_chanbary.taper1600.cleanmosft.plane0.mom1')
 except:
     pass
 
 # Do a moment one on channel 255 to check that the indexing is right
 try:
     immoments(imagename='leo2pt_regression.concat_chanbary.taper1600.cleanmosft.image',
-	  moments=[1],includepix=[],
-	  chans='255',
+          moments=[1],includepix=[],
+          chans='255',
           outfile='leo2pt_regression.concat_chanbary.taper1600.cleanmosft.plane255.mom1')
 except:
     pass
@@ -790,9 +790,9 @@ prevTime = currTime
 #
 #DS9 shape files for viewer
 #From ALFALFA
-#j2000; text 10:46:45.7  11:49:12   # text={M96} color=blue   
-#j2000; text 10:47:20.1  12:23:15   # text={205505} color=green  
-#j2000; text 10:46:41.3  12:19:37   # text={202027} color=cyan 
+#j2000; text 10:46:45.7  11:49:12   # text={M96} color=blue
+#j2000; text 10:47:20.1  12:23:15   # text={205505} color=green
+#j2000; text 10:46:41.3  12:19:37   # text={202027} color=cyan
 #From EVLA
 #j2000; text 10:46:05.7  12:08:03   # text={A} color=magenta
 #j2000; text 10:47:56.6  12:22:18   # text={B} color=yellow
@@ -984,7 +984,7 @@ else:
     regression['exist'] = True
 
     prev_results = regression['results']
-    
+
 #
 ##########################################################################
 # Calculate test values
@@ -1235,7 +1235,7 @@ for keys in resultlist:
             new_status = 'Failed'
         else:
             new_status = 'Passed'
-        
+
         results[keys]['prev'] = prev_val
         results[keys]['diff'] = new_diff
         results[keys]['status'] = new_status
@@ -1254,7 +1254,7 @@ for keys in resultlist:
             new_status = 'Failed'
         else:
             new_status = 'Passed'
-        
+
         results[keys]['prev'] = prev_val
         results[keys]['diff'] = new_diff
         results[keys]['status'] = new_status
@@ -1367,14 +1367,14 @@ if regression['exist']:
     print("  Regression results filled from "+regressfile, file=logfile)
     print("  Regression from version "+regression['version']+" on "+regression['date'], file=logfile)
     print("  Regression platform "+regression['host'], file=logfile)
-    
+
     print("  Regression results filled from "+regressfile)
     print("  Regression from version "+regression['version']+" on "+regression['date'])
     print("  Regression platform "+regression['host'])
     if 'aipspath' in regression:
         print("  Regression casapath "+regression['aipspath'], file=logfile)
         print("  Regression casapath "+regression['aipspath'])
-    
+
 else:
     print("  No previous regression file", file=logfile)
 
@@ -1399,7 +1399,7 @@ else:
     regstate=False
     print('----FAILED Regression test for LeoRing', file=logfile)
     print('----FAILED Regression test for LeoRing')
-    
+
 print('')
 print('Total wall clock time was: '+str(endTime - startTime))
 print('Total CPU        time was: '+str(endProc - startProc))
@@ -1473,7 +1473,7 @@ print("Done with regression for "+mydataset)
 #MeasurementSet Name:  /home/rishi/smyers/LeoRing/leo2pt.55183.452640752315.ms
 #MS Version 2
 #================================================================================
-#   Observer: leo2pt     Project: T.B.D.  
+#   Observer: leo2pt     Project: T.B.D.
 #Observation: EVLA
 #Data records: 745470       Total integration time = 11294 seconds
 #   Observed from   18-Dec-2009/10:51:51.5   to   18-Dec-2009/14:00:05.5 (UTC)
@@ -1508,37 +1508,37 @@ print("Done with regression for "+mydataset)
 #              13:36:24.5 - 13:41:29.5    26      3 Leo-2        20196  1        [0]
 #              13:41:30.5 - 13:44:37.5    27      1 J1042+1203   12408  1        [0]
 #              13:44:38.5 - 14:00:05.5    28      4 J1331+3030   61248  1        [0]
-#           (nVis = Total number of time/baseline visibilities per scan) 
+#           (nVis = Total number of time/baseline visibilities per scan)
 #Fields: 5
-#  ID   Code Name         RA            Decl           Epoch   SrcId nVis   
-#  0    NONE J1042+1203   10:42:44.6052 +12.03.31.2641 J2000   0     7722   
-#  1    D    J1042+1203   10:42:44.6052 +12.03.31.2641 J2000   1     74250  
-#  2    NONE Leo-1        10:47:22.0000 +12.16.38.0000 J2000   2     301290 
-#  3    NONE Leo-2        10:46:45.0000 +11.50.38.0000 J2000   3     300960 
-#  4    K    J1331+3030   13:31:08.2880 +30.30.32.9589 J2000   4     61248  
-#   (nVis = Total number of time/baseline visibilities per field) 
+#  ID   Code Name         RA            Decl           Epoch   SrcId nVis
+#  0    NONE J1042+1203   10:42:44.6052 +12.03.31.2641 J2000   0     7722
+#  1    D    J1042+1203   10:42:44.6052 +12.03.31.2641 J2000   1     74250
+#  2    NONE Leo-1        10:47:22.0000 +12.16.38.0000 J2000   2     301290
+#  3    NONE Leo-2        10:46:45.0000 +11.50.38.0000 J2000   3     300960
+#  4    K    J1331+3030   13:31:08.2880 +30.30.32.9589 J2000   4     61248
+#   (nVis = Total number of time/baseline visibilities per field)
 #Spectral Windows:  (1 unique spectral windows and 1 unique polarization setups)
-#  SpwID  #Chans Frame Ch1(MHz)    ChanWid(kHz)TotBW(kHz)  Ref(MHz)    Corrs   
-#  0         256 TOPO  1415.3756   7.8125      2000        1415.3756   RR  LL  
+#  SpwID  #Chans Frame Ch1(MHz)    ChanWid(kHz)TotBW(kHz)  Ref(MHz)    Corrs
+#  0         256 TOPO  1415.3756   7.8125      2000        1415.3756   RR  LL
 #Sources: 6
-#  ID   Name         SpwId RestFreq(MHz)  SysVel(km/s) 
-#  0    J1042+1203   0     -              -            
-#  1    J1042+1203   0     -              -            
-#  2    Leo-1        0     -              -            
-#  3    Leo-2        0     -              -            
-#  4    J1331+3030   0     -              -            
-#  5    J1331+3030   0     -              -            
+#  ID   Name         SpwId RestFreq(MHz)  SysVel(km/s)
+#  0    J1042+1203   0     -              -
+#  1    J1042+1203   0     -              -
+#  2    Leo-1        0     -              -
+#  3    Leo-2        0     -              -
+#  4    J1331+3030   0     -              -
+#  5    J1331+3030   0     -              -
 #Antennas: 12:
-#  ID   Name  Station   Diam.    Long.         Lat.         
-#  0    ea02  E02       25.0 m   -107.37.04.4  +33.54.01.1  
-#  1    ea03  E09       25.0 m   -107.36.45.1  +33.53.53.6  
-#  2    ea04  W01       25.0 m   -107.37.05.9  +33.54.00.5  
-#  3    ea05  W08       25.0 m   -107.37.21.6  +33.53.53.0  
-#  4    ea08  N01       25.0 m   -107.37.06.0  +33.54.01.8  
-#  5    ea09  E06       25.0 m   -107.36.55.6  +33.53.57.7  
-#  6    ea15  W06       25.0 m   -107.37.15.6  +33.53.56.4  
-#  7    ea19  W04       25.0 m   -107.37.10.8  +33.53.59.1  
-#  8    ea24  W05       25.0 m   -107.37.13.0  +33.53.57.8  
-#  9    ea25  N02       25.0 m   -107.37.06.2  +33.54.03.5  
-#  10   ea27  E03       25.0 m   -107.37.02.8  +33.54.00.5  
-#  11   ea28  N08       25.0 m   -107.37.07.5  +33.54.15.8  
+#  ID   Name  Station   Diam.    Long.         Lat.
+#  0    ea02  E02       25.0 m   -107.37.04.4  +33.54.01.1
+#  1    ea03  E09       25.0 m   -107.36.45.1  +33.53.53.6
+#  2    ea04  W01       25.0 m   -107.37.05.9  +33.54.00.5
+#  3    ea05  W08       25.0 m   -107.37.21.6  +33.53.53.0
+#  4    ea08  N01       25.0 m   -107.37.06.0  +33.54.01.8
+#  5    ea09  E06       25.0 m   -107.36.55.6  +33.53.57.7
+#  6    ea15  W06       25.0 m   -107.37.15.6  +33.53.56.4
+#  7    ea19  W04       25.0 m   -107.37.10.8  +33.53.59.1
+#  8    ea24  W05       25.0 m   -107.37.13.0  +33.53.57.8
+#  9    ea25  N02       25.0 m   -107.37.06.2  +33.54.03.5
+#  10   ea27  E03       25.0 m   -107.37.02.8  +33.54.00.5
+#  11   ea28  N08       25.0 m   -107.37.07.5  +33.54.15.8

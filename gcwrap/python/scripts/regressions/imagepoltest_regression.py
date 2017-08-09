@@ -90,7 +90,7 @@ def imagepoltest(which=None):
         else:
             stop('unhandled array shape in alleqnum')
         return True
-        
+
     def mean(x):
         result=0
         if len(x.shape)==2:
@@ -123,7 +123,7 @@ def imagepoltest(which=None):
         else:
             stop('unhandled array shape '+str(x.shape)+' in max_with_location')
         return max, loc
-    
+
     def test1():
         info('')
         info('')
@@ -287,7 +287,7 @@ def imagepoltest(which=None):
             stop('Stokes U values are wrong')
         if not s.done(): fail()
         #
-        s = po.stokesv();    
+        s = po.stokesv();
         if not s: fail()
         pixels = s.getchunk()
         if not alleqnum(pixels, stokes[3], 0.0001):
@@ -1231,7 +1231,7 @@ def imagepoltest(which=None):
         if not po.open(imname1): fail()
 
         #
-        # Depolarization ratio 
+        # Depolarization ratio
         #
         i1 = stokes1[0]
         i2 = stokes1[0]
@@ -1300,8 +1300,8 @@ def imagepoltest(which=None):
     print('')
     print('Regression PASSED')
     print('')
-    
-    
+
+
 
 #####################################################################
 #

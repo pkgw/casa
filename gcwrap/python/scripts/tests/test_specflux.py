@@ -47,20 +47,20 @@
 #
 # <synopsis>
 # Test for the ia.findsources() tool method
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_specflux[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the ia.findsources() tool method to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -77,13 +77,13 @@ im1 = datapath + "specflux1.im"
 im2 = datapath + "specflux2.im"
 
 class specflux_test(unittest.TestCase):
-    
+
     def setUp(self):
         pass
-    
+
     def tearDown(self):
         pass
-    
+
     def test_default(self):
         """Test default settings"""
         logfile = "log1"
@@ -92,7 +92,7 @@ class specflux_test(unittest.TestCase):
         logfile = "log2"
         self.assertTrue(specflux(im2, logfile=logfile))
         self._compare(logfile)
-        
+
     def test_box_chans(self):
         """test setting box and channel range"""
         logfile = "log3"
@@ -101,7 +101,7 @@ class specflux_test(unittest.TestCase):
         logfile = "log4"
         self.assertTrue(specflux(im2, box="10,10,19,19", chans="30~35", logfile=logfile))
         self._compare(logfile)
-        
+
     def test_box_chans_mask(self):
         """test setting box and chans with a mask"""
         logfile = "log5"
@@ -118,7 +118,7 @@ class specflux_test(unittest.TestCase):
             mask="'" + im2 + "'" + "<0", logfile=logfile)
         )
         self._compare(logfile)
-        
+
     def test_unit(self):
         """test setting spectral unit"""
         logfile = "log7"
@@ -127,7 +127,7 @@ class specflux_test(unittest.TestCase):
         logfile = "log8"
         self.assertTrue(specflux(im2, unit="kHz", logfile=logfile))
         self._compare(logfile)
-        
+
     def test_beam(self):
         """test setting beam info"""
         logfile = "log9"
@@ -137,7 +137,7 @@ class specflux_test(unittest.TestCase):
         self.assertTrue(specflux(im2, major="8arcmin", minor="6arcmin", logfile=logfile))
         # brightness unit is K, so setting beam should have no effect
         self._compare(logfile, "log2")
-        
+
     def _compare(self, gfile, efile=""):
         if not efile:
             efile = gfile
@@ -152,6 +152,6 @@ class specflux_test(unittest.TestCase):
                 myg == mye,
                 gfile + " mismatch: got: " + myg + " exp: " + mye
             )
- 
+
 def suite():
     return [specflux_test]

@@ -1,6 +1,6 @@
 #############################################################################
 ## $Id:$
-# Test Name:                                                                
+# Test Name:
 #  Narrow field imaging of small-diameter sources
 #
 #  The ms contains simulated data taken from the u-v coverage
@@ -66,7 +66,7 @@ if benchmarking:
 # Run clean
 #
 print('--Clean--')
-    
+
 taskname = 'clean'
 default(taskname)
 vis = msfile
@@ -78,7 +78,7 @@ mask = [[mask0],[mask1]]
 cell = '0.2arcsec'
 weighting = 'briggs'
 imagermode = 'csclean'
-restoringbeam = ['0.65','0.65','0.0deg'] 
+restoringbeam = ['0.65','0.65','0.0deg']
 stokes = 'IQUV'
 clean()
 
@@ -121,34 +121,34 @@ stokes='I'
 imagename = testdir+'MG_I_1.im'
 logfile = testdir+'MG_I_1.log'
 newestimates = testdir+'MG_I_1.est'
-imfit() 
+imfit()
 #!more MG_I_1.log
-#  Peak/Int should be about 1.00 Jy, nearly unresolved 
+#  Peak/Int should be about 1.00 Jy, nearly unresolved
 #
 
 print('--Imfit Q--')
 imagename = testdir+'MG_Q_1.im'
 logfile = testdir+'MG_Q_1.log'
 stokes='Q'
-imfit() 
+imfit()
 #!more MG_Q_1.log
-#  Peak/Int should be about 100 mJy, nearly unresolved 
+#  Peak/Int should be about 100 mJy, nearly unresolved
 #
 
 print('--Imfit U--')
 imagename = testdir+'MG_U_1.im'
 logfile = testdir+'MG_U_1.log'
 stokes='U'
-imfit() 
+imfit()
 #!more MG_U_1.log
-#  Peak/Int should be about -80 mJy, nearly unresolved 
+#  Peak/Int should be about -80 mJy, nearly unresolved
 #
 
 print('--Imfit V--')
 imagename = testdir+'MG_V_1.im'
 logfile = testdir+'MG_V_1.log'
 stokes='V'
-imfit() 
+imfit()
 #!more MG_V_1.log
 #  Pure noise, fit may blow up, but should not
 
@@ -162,27 +162,27 @@ apend = F
 stokes='I'
 imagename = testdir+'MG_I_0.im'
 logfile = testdir+'MG_I_0.log'
-imfit() 
+imfit()
 #!more MG_I_0.log
-#  Int should be about 0.5 Jy, size 1.5x0.5 in pa 30 
+#  Int should be about 0.5 Jy, size 1.5x0.5 in pa 30
 #
 
 print('--Imfit Q--')
 imagename = testdir+'MG_Q_0.im'
 logfile = testdir+'MG_Q_0.log'
 stokes='Q'
-imfit() 
+imfit()
 #!more MG_Q_0.log
-#  Int should be about -0.06 Jy, size 1.5x0.5 in pa 30 
+#  Int should be about -0.06 Jy, size 1.5x0.5 in pa 30
 #
 
 print('--Imfit U--')
 imagename = testdir+'MG_U_0.im'
 logfile = testdir+'MG_U_0.log'
 stokes='U'
-imfit() 
+imfit()
 #!more MG_Q_0.log
-#  Int should be about +0.03 Jy, size 1.5x0.5 in pa 30 
+#  Int should be about +0.03 Jy, size 1.5x0.5 in pa 30
 
 print('--Point double source--')
 print('--Imfit I--')
@@ -195,7 +195,7 @@ stokes='I'
 imagename = testdir+'MG_I_0.im'
 logfile = testdir+'Double_I_0.log'
 estimates = doubleI
-imfit() 
+imfit()
 #!more Double_I_0.log
 #  Peaks are 0.4 and 0.2, separated by 2.5 xpix and 1.0 ypix
 
@@ -204,6 +204,6 @@ imagename = testdir+'MG_U_0.im'
 logfile = testdir+'Double_U_0.log'
 estimates = doubleU
 stokes='U'
-imfit() 
+imfit()
 #!more Double_U_0.log
 #  Peaks are -0.02 and +0.04, separated by 2.5 xpix and 1.0 ypix

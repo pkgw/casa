@@ -2,10 +2,10 @@
 # $Id:$
 # Test Name:                                                                #
 # alma-titan-ephemeris-regression.py                                        #
-#                                                                           # 
+#                                                                           #
 # Rationale for Inclusion:                                                  #
 #    Need test of analysis of MS with ephemeris attached                    #
-#                                                                           # 
+#                                                                           #
 # Input data:                                                               #
 #     two MSs                                                               #
 #                                                                           #
@@ -15,9 +15,9 @@
 
 
 step_title = { 0 : 'fixplanets with ephemeris',
-	       1 : 'concat',
+               1 : 'concat',
                2 : 'selfcal',
-	       3 : 'cvel to outframe SOURCE',
+               3 : 'cvel to outframe SOURCE',
                4 : 'imaging',
                5 : 'verification of the regression results'
                }
@@ -78,7 +78,7 @@ def timing():
     for i in range(0, len(steptime)):
         casalog.post( '  '+str(thesteps[i])+'   '+str(steptime[i])+'  '+str(steptime[i]/totaltime*100.)
                       +' ['+step_title[thesteps[i]]+']', 'WARN')
-        
+
 
 # default ASDM dataset name
 myasdm_dataset_name = "X19d.ms.split.cal.titan.spw0"
@@ -92,10 +92,10 @@ if "asdm_dataset_name" in mydict:
         raise("Wrong input file 1")
 if "asdm_dataset2_name" in mydict:
     if(myasdm_dataset2_name != mydict["asdm_dataset2_name"]):
-        raise("Wrong input file 2")        
+        raise("Wrong input file 2")
 if "tsys_table" in mydict:
     if(myephemeris != mydict["ephemeris"]):
-        raise("Wrong input file 3")                
+        raise("Wrong input file 3")
 
 # ephemeris attachment
 mystep = 0
@@ -109,9 +109,9 @@ if(mystep in thesteps):
                    fixuvw=True)
 
         if(makeplots):
-            plotms(vis=name+'.ms.split.cal.titan.spw0', xaxis='time', yaxis='elevation', 
-		       averagedata=T, avgchannel='4000')
-            
+            plotms(vis=name+'.ms.split.cal.titan.spw0', xaxis='time', yaxis='elevation',
+                       averagedata=T, avgchannel='4000')
+
     timing()
 
 
@@ -186,7 +186,7 @@ if(mystep in thesteps):
           imsize=[216,216],cell="0.11arcsec",
           stokes="I",weighting="briggs",robust=0.5,
           interactive=False)
-    
+
 
     timing()
 
@@ -207,11 +207,11 @@ if(mystep in thesteps):
         print("ERROR: reference frame of SPW 0 in cvel_titan.ms should be REST==0 but is ", theframe)
         passed = False
 
-    # verify image properties 
+    # verify image properties
 
     # expectation values CASA 4.3
-    #exppeakm = 3.36615992 
-    #exprmsm = 1.13404071 
+    #exppeakm = 3.36615992
+    #exprmsm = 1.13404071
     #exppeakmb = 0.36783999
     #exprmsmb = 0.01991641
     #exppeakchan = 258
@@ -232,7 +232,7 @@ if(mystep in thesteps):
     imcollapse(imagename='titanline.image', function='sum', axes=[0,1], region="circle[[108pix,108pix],8pix]", outfile='collapsed')
     calstatx=imstat(imagename='collapsed')
     respeakchan=(calstatx['maxpos'][3])
-    
+
     calstatb=imstat(imagename='titanline.image', region="circle[[93pix,108pix],8pix]")
     resrmsmb=(calstatb['rms'][0])
     respeakmb=(calstatb['max'][0])

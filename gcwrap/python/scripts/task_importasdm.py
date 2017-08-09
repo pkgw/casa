@@ -12,7 +12,7 @@ def importasdm(
     vis=None,
     createmms=None,
     separationaxis=None,
-    numsubms=None,    
+    numsubms=None,
     corr_mode=None,
     srt=None,
     time_sampling=None,
@@ -53,10 +53,10 @@ def importasdm(
 
        vis       -- Root ms or scantable name, note a prefix (.ms or .asap) is NOT appended to this name
            default: none
-           
+
        createmms  -- Create a Multi-MS
            default: False
-           
+
        corr_mode -- correlation mode to be considered on input. Could
             be one or more of the following, ao, co, ac, or all
            default: all
@@ -70,7 +70,7 @@ def importasdm(
                             i, si, or all.
            default: all
 
-       ocorr_mode    -- output data for correlation mode AUTO_ONLY 
+       ocorr_mode    -- output data for correlation mode AUTO_ONLY
                             (ao) or CROSS_ONLY (co) or CROSS_AND_AUTO (ca)
            default: ca
 
@@ -81,32 +81,32 @@ def importasdm(
                        (faster import, smaller MS)
                  default: False
 
-       asis         --  creates verbatim copies of the ASDM tables in 
+       asis         --  creates verbatim copies of the ASDM tables in
                         the output measurement set. The value given to
                     this option must be a list of table names separated
-                    by space characters; the wildcard character '*' is 
+                    by space characters; the wildcard character '*' is
                             allowed in table names.
 
-       wvr_corrected_data -- specifies wich values are considered in the 
-                      ASDM binary data to fill the DATA column in 
-                      the MAIN table of the MS. Expected values for 
-                      this option are 'no' for the uncorrected data 
+       wvr_corrected_data -- specifies wich values are considered in the
+                      ASDM binary data to fill the DATA column in
+                      the MAIN table of the MS. Expected values for
+                      this option are 'no' for the uncorrected data
                       (this is the default), 'yes' for the corrected
-                      data and 'both' for corrected and uncorrected 
+                      data and 'both' for corrected and uncorrected
                       data. In the latter case, two measurement sets
-                      are created, one containing the uncorrected 
+                      are created, one containing the uncorrected
                       data and the other one, whose name is suffixed
-                      by '-wvr-corrected', containing the corrected 
+                      by '-wvr-corrected', containing the corrected
                       data.
 
-       scans --  processes only the scans specified in the option's value. This value is a semicolon 
-                 separated list of scan specifications. A scan specification consists in an exec bock index 
-                 followed by the character ':' followed by a comma separated list of scan indexes or scan 
-                 index ranges. A scan index is relative to the exec block it belongs to. Scan indexes are 
-                 1-based while exec blocks's are 0-based. "0:1" or "2:2~6" or "0:1,1:2~6,8;2:,3:24~30" "1,2" 
-                 are valid values for the option. "3:" alone will be interpreted as 'all the scans of the 
+       scans --  processes only the scans specified in the option's value. This value is a semicolon
+                 separated list of scan specifications. A scan specification consists in an exec bock index
+                 followed by the character ':' followed by a comma separated list of scan indexes or scan
+                 index ranges. A scan index is relative to the exec block it belongs to. Scan indexes are
+                 1-based while exec blocks's are 0-based. "0:1" or "2:2~6" or "0:1,1:2~6,8;2:,3:24~30" "1,2"
+                 are valid values for the option. "3:" alone will be interpreted as 'all the scans of the
                  exec block#3'. An scan index or a scan index range not preceded by an exec block index will
-                 be interpreted as 'all the scans with such indexes in all the exec blocks'.  By default 
+                 be interpreted as 'all the scans with such indexes in all the exec blocks'.  By default
                  all the scans are considered.
 
        ignore_time -- All the rows of the tables Feed, History, Pointing, Source, SysCal, CalDevice, SysPower,
@@ -134,7 +134,7 @@ def importasdm(
 
                  savecmds -- Save the online flags to an ASCII file.
                     default: False
-                    
+
                  outfile -- Filename to save the online flags.
                     default: ''
 
@@ -149,12 +149,12 @@ def importasdm(
 
        useversion -- Selects the version of asdm2MS to be used (presently only \'v3\' is available).
                      default: v3
-                     
+
        bdfflags -- Set the MS FLAG column according to the ASDM _binary_ flags
                    default: false
 
        with_pointing_correction -- add (ASDM::Pointing::encoder - ASDM::Pointing::pointingDirection)
-                 to the value to be written in MS::Pointing::direction 
+                 to the value to be written in MS::Pointing::direction
                    default: false
 
        remove_ref_undef -- if set to True then apply fixspwbackport on the resulting MSes.
@@ -163,12 +163,12 @@ def importasdm(
 
        polyephem_tabtimestep -- Timestep (days) for the tabulation of polynomial ephemerides. A value <= 0 disables tabulation.
                    Presently, VLA data can contain polynomial ephemerides. ALMA data uses tabulated values.
-                   default: 0.          
+                   default: 0.
 
         """
 
     # Python script
-    
+
     # make agentflagger tool local
     aflocal = casac.agentflagger()
 
@@ -218,7 +218,7 @@ def importasdm(
             execute_string = execute_string + ' --compression'
         elif lazy:
             execute_string = execute_string + ' --lazy'
-            
+
         if verbose:
             execute_string = execute_string + ' --verbose'
 #         if not overwrite and os.path.exists(viso):
@@ -234,7 +234,7 @@ def importasdm(
         vistoproc = [] # the output MSs to post-process
         if wvr_corrected_data == 'no' or wvr_corrected_data == 'both':
             vistoproc.append(viso)
-        if (wvr_corrected_data == 'yes' or wvr_corrected_data == 'both') : 
+        if (wvr_corrected_data == 'yes' or wvr_corrected_data == 'both') :
             vistoproc.append(visoc)
 
         for ff in vistoproc:
@@ -257,15 +257,15 @@ def importasdm(
                                      % dotFlagversion)
                         raise Exception("Found '%s' but can't overwrite it." \
                             % dotFlagversion)
-               
-        # Make outfile always a list             
+
+        # Make outfile always a list
         if isinstance(outfile, str):
-            if outfile == '': 
+            if outfile == '':
                 outfile = []
             else:
                 noutfile = [outfile]
                 outfile = noutfile
-            
+
         if savecmds:
             if len(outfile) == 0:
                 # Create default names for the online flags
@@ -278,13 +278,13 @@ def importasdm(
                 for myviso in vistoproc:
                     online_file = myviso.replace('.ms','_TEMP_cmd.txt')
                     outfile.append(online_file)
-                                     
+
             if not overwrite:
                 for of in outfile:
                     if os.path.exists(of):
                         raise Exception("Cannot overwrite online flags file '%s'; overwrite is set to False."% of)
-                
-            
+
+
         execute_string = execute_string + ' ' + asdm + ' ' + viso
 
         if showversion:
@@ -317,7 +317,7 @@ def importasdm(
 
         if showversion:
             return
-        
+
         #
         # Possibly remove the name of the measurement set expected to contain the corrected data from the list of of produced measurement
         # sets if it appears the filler did not find any corrected data.
@@ -329,28 +329,28 @@ def importasdm(
         #
         # Populate the HISTORY table of the MS with information about the context in which it's been created
         #
-        try: 
-            mslocal = mstool() 
-            param_names = importasdm.__code__.co_varnames[:importasdm.__code__.co_argcount] 
+        try:
+            mslocal = mstool()
+            param_names = importasdm.__code__.co_varnames[:importasdm.__code__.co_argcount]
             param_vals = [eval(p) for p in param_names]
 
             for myviso in vistoproc:
-                write_history(mslocal, myviso, 'importasdm', param_names, 
-                              param_vals, casalog) 
+                write_history(mslocal, myviso, 'importasdm', param_names,
+                              param_vals, casalog)
 
-        except Exception as instance: 
-            casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 
+        except Exception as instance:
+            casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
                          'WARN')
-            return False 
+            return False
 
         if mslocal:
-            mslocal = None 
-            
-        # 
+            mslocal = None
+
+        #
         # Do we apply fixspwbackport
         if remove_ref_undef :
             casalog.post('remove_ref_undef=True: fixspwbackport will be applied ...')
-            
+
             for myviso in vistoproc:
                 cmd = 'fixspwbackport ' + myviso
                 casalog.post('Running fixspwbackport standalone invoked as:')
@@ -365,13 +365,13 @@ def importasdm(
 
         # Binary Flag processing
         if bdfflags:
-            
+
             casalog.post('Parameter bdfflags==True: flags from the ASDM binary data will be used to set the MS flags ...')
-            
+
             bdffexecutable = 'bdflags2MS '
             bdffexecstring_base = bdffexecutable + ' -f ALL' + ' --ocm "' + ocorr_mode \
             + '" --logfile "' + casalog.logfile() + '"'
- 
+
             if len(scans) > 0:
                 bdffexecstring_base = bdffexecstring_base + ' --scans ' + scans
 
@@ -380,7 +380,7 @@ def importasdm(
 
             for myviso in vistoproc:
                 if myviso.find("wvr-corrected") != -1:
-                    options = " --wvr-corrected=True " 
+                    options = " --wvr-corrected=True "
                 else:
                     options = " "
 
@@ -398,7 +398,7 @@ def importasdm(
 
 
         theephemfields = ce.findattachedephemfields(myviso,field='*')
-        if len(theephemfields)>0: 
+        if len(theephemfields)>0:
             # until asdm2MS does this internally: recalc the UVW coordinates for ephem fields
             imt = imtool()
             imt.open(myviso, usescratch=False)
@@ -408,8 +408,8 @@ def importasdm(
         if convert_ephem2geo:
             for myviso in vistoproc:
                 ce.convert2geo(myviso, '*') # convert any attached ephemerides to GEO
-        
-        if len(theephemfields)>0: 
+
+        if len(theephemfields)>0:
             # also set the direction column in the SOURCE table
             tblocal.open(myviso+'/FIELD', nomodify=False)
             sourceids = tblocal.getcol('SOURCE_ID')
@@ -439,7 +439,7 @@ def importasdm(
             directions = []
             msmdlocal = casac.msmetadata()
             msmdlocal.open(myviso)
-            
+
             for fld in thesamplefields:
                 thedirmeas = msmdlocal.phasecenter(fld)
                 if thedirmeas['refer']!=sourceposref:
@@ -452,10 +452,10 @@ def importasdm(
                 directions.append([thedirmeas['m0']['value'], thedirmeas['m1']['value']])
                 thetime = me.epoch(v0=str(ftimes[fld])+'s', rf=ftimekw['MEASINFO']['Ref'])
                 casalog.post("Will set SOURCE direction for SOURCE_ID "+str(sourceids[fld])
-                             +" to ephemeris phase center for time "+str(thetime['m0']['value'])+" "+thetime['m0']['unit']+" "+thetime['refer']) 
+                             +" to ephemeris phase center for time "+str(thetime['m0']['value'])+" "+thetime['m0']['unit']+" "+thetime['refer'])
             #endfor
             msmdlocal.close()
-             
+
             # restore original PHASE_DIR
             tblocal.open(myviso+'/FIELD', nomodify=False)
             tblocal.putcol('PHASE_DIR', origphasedir)
@@ -475,8 +475,8 @@ def importasdm(
             #endfor
             tblocal.putcol('DIRECTION', sdirs) # write back corrected directions
             tblocal.close()
-                
-        #end if        
+
+        #end if
 
         ##############################################################################################3
         # CAS-7369 - Create an output Multi-MS (MMS)
@@ -486,16 +486,16 @@ def importasdm(
             fpars = partition.parameters
             for mypar in list(fpars.keys()):
                 fpars[mypar] = partition.itsdefault(mypar)
-                
+
             # Call the cluster for each MS
             for myviso in vistoproc:
                 casalog.origin('importasdm')
-                
+
                 # Move original MS to tempdir
                 tempname = myviso+'.temp.ms'
                 outputmms = myviso
                 shutil.move(myviso, tempname)
-                
+
                 # Get the proper column
                 datacolumn = 'DATA'
                 dcols = ['DATA', 'FLOAT_DATA']
@@ -503,23 +503,23 @@ def importasdm(
                     if len(th.getColDesc(tempname, dc)) > 0:
                         datacolumn = dc
                         break
-                    
+
                 fpars['datacolumn'] = datacolumn
-                    
+
                 casalog.post('Will create a Multi-MS for: '+myviso)
-                
+
                 fpars['vis'] =  tempname
-                fpars['flagbackup'] =  False 
+                fpars['flagbackup'] =  False
                 fpars['outputvis'] = outputmms
                 fpars['separationaxis'] = separationaxis
                 fpars['numsubms'] = numsubms
-                pdh = ParallelDataHelper('partition', fpars) 
-            
+                pdh = ParallelDataHelper('partition', fpars)
+
                 # Get a cluster
                 pdh.setupCluster(thistask='partition')
                 try:
                     pdh.go()
-                    
+
                     # Remove original MS
                     shutil.rmtree(tempname)
 
@@ -528,7 +528,7 @@ def importasdm(
                     shutil.move(tempname, myviso)
                     casalog.post('%s'%instance,'ERROR')
                     return False
-                
+
             casalog.origin('importasdm')
 
         # Create a .flagversions for the MS or MMS
@@ -540,26 +540,26 @@ def importasdm(
                             comment='Original flags at import into CASA',
                             merge='save')
                     aflocal.done()
-                
+
         # Importasdm Flag Parsing
         if os.access(asdm + '/Flag.xml', os.F_OK):
             # Find Flag.xml
             casalog.post('Found Flag.xml in SDM')
-            
+
             # Find Antenna.xml
             if os.access(asdm + '/Antenna.xml', os.F_OK):
                 casalog.post('Found Antenna.xml in SDM')
 
             else:
                 raise Exception('Failed to find Antenna.xml in SDM')
-            
+
             # Find SpectralWindow.xml
             if os.access(asdm + '/SpectralWindow.xml', os.F_OK):
                 casalog.post('Found SpectralWindow.xml in SDM')
 
             else:
                 raise Exception('Failed to find SpectralWindow.xml in SDM')
-                    
+
             #
             # Parse Flag.xml into flag dictionary
             #
@@ -567,7 +567,7 @@ def importasdm(
                 flagcmds = fh.parseXML(asdm, float(tbuff))
                 onlinekeys = list(flagcmds.keys())
                 nflags = onlinekeys.__len__()
-                                
+
                 # Apply flags to the MS
                 if nflags > 0:
                     idx = 0
@@ -587,29 +587,29 @@ def importasdm(
                             # Destroy the tool and de-attach the MS
                             aflocal.done()
                             # Save to FLAG_CMD table. APPLIED is set to True.
-                            fh.writeFlagCommands(myviso, flagcmds, True, '', '', True)       
+                            fh.writeFlagCommands(myviso, flagcmds, True, '', '', True)
                         else:
                             casalog.post('Will not apply flags to %s (apply_flags=False), use flagcmd to apply'%myviso)
 
                             # Write to FLAG_CMD, APPLIED is set to False
                             fh.writeFlagCommands(myviso, flagcmds, False, '', '', True)
-                    
+
                         # Save the flag cmds to an ASCII file
                         if savecmds:
                             # Save to standard filename
                             fh.writeFlagCommands(myviso, flagcmds, False, '', outfile[idx], False)
                             casalog.post('Saved %s flag commands to %s'%(nflags,outfile[idx]))
                             idx += 1
-                    
+
                 else:
                     casalog.post('There are no flag commands to process')
-                
+
         else:
             casalog.post('There is no Flag.xml in ASDM', 'WARN')
 
-        
+
         return
-    
+
     except Exception as instance:
 
         print('*** Error ***', instance)

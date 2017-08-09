@@ -1,5 +1,5 @@
 
-""" Script to run unit tests from the command line as: 
+""" Script to run unit tests from the command line as:
     casapy [casa-options] -c runUnitTest.py testname1 testname2 ...
     casapy [casa-options] -c runUnitTest.py testname1[test_r,test23] testname2...
     casapy [casa-options] -c runUnitTest.py --Help
@@ -7,11 +7,11 @@
     casapy [casa-options] -c runUnitTest.py --list
     casapy [casa-options] -c runUnitTest.py --file Tests.txt
     casapy [casa-options] -c runUnitTest.py --classes test_listobs
-    
+
     or from inside casapy:
-    runUnitTest.main(['testname']) 
+    runUnitTest.main(['testname'])
     runUnitTest.main()
-    
+
     NOTE: It will search for scripts in the casapy installation directory, which usually is in:
            <casa_install_dir>/python/2.6/tests"""
 
@@ -97,7 +97,7 @@ def list_tests():
     print('-----------------------')
     for t in readfile(LISTofTESTS):
         print(t)
-    
+
 
 def haslist(name):
     '''Check if specific list of tests have been requested'''
@@ -131,17 +131,17 @@ def readfile(FILE):
     if(not os.path.exists(FILE)):
         print('ERROR: List of tests does not exist')
         return []
-    
+
     List = []
     infile = open(FILE, "r")
     for newline in infile:
         if newline.__contains__('#'):
             continue
-        
+
         if newline.startswith('test'):
             words = newline.split()
             List.append(words[0])
-    
+
     infile.close()
     return List
 
@@ -160,46 +160,46 @@ def getclasses(testnames):
     tmpdir = '/tmp'
     try:
         os.chdir(tmpdir)
-        
+
         for filename in testnames:
             tt = UnitTest(filename)
             tt.copyTest(copyto=tmpdir)
 
             classes = tt.getTestClasses(filename)
             for c in classes:
-                pprint.pprint('Class '+c.__name__)       
+                pprint.pprint('Class '+c.__name__)
                 for attr, value in list(c.__dict__.items()):
                     if len(attr) >= len("test") and attr[:len("test")] == "test":
                         print(('\t%s'%c(attr)))
-                  
-            os.remove(filename+'.py')       
-            os.remove(filename+'.pyc')       
-        
+
+            os.remove(filename+'.py')
+            os.remove(filename+'.pyc')
+
         os.chdir(here)
     except:
         print(('--> ERROR: Cannot copy script to %s'%tmpdir))
         return
-    
 
-# Define which tests to run    
+
+# Define which tests to run
 whichtests = 0
-            
+
 
 def main(testnames=[]):
 
     # Global variable used by regression framework to determine pass/failure status
-    global regstate  
+    global regstate
     regstate = False
-        
+
     listtests = testnames
     if listtests == '--Help' or listtests == []:
         usage()
         sys.exit()
-        
+
     if listtests == '--list':
         list_tests()
-        sys.exit()        
-                
+        sys.exit()
+
     if listtests == 'all':
         whichtests = 0
         # Get the full list of tests from file
@@ -216,7 +216,7 @@ def main(testnames=[]):
                 raise Exception('List of tests is empty')
         else:
             raise Exception('List of tests does not exist')
-            
+
     else:
         # run specific tests
         whichtests = 1
@@ -225,7 +225,7 @@ def main(testnames=[]):
     # Directories
     PWD = os.getcwd()
     WDIR = PWD+'/nosedir/'
-    
+
     # Create a working directory
     workdir = WDIR
     print(('Creating work directory '+ workdir))
@@ -234,10 +234,10 @@ def main(testnames=[]):
     else:
         shutil.rmtree(workdir)
         os.makedirs(workdir)
-    
+
     # Move to working dir
     os.chdir(workdir)
-    
+
     # Create a directory for nose's xml files
     xmldir = WDIR+'xml/'
     if os.access(xmldir, os.F_OK) is False:
@@ -245,26 +245,26 @@ def main(testnames=[]):
     else:
         shutil.rmtree(xmldir)
         os.makedirs(xmldir)
-    
+
     print(("Starting unit tests for %s: " %(listtests)))
-    
+
     # ASSEMBLE and RUN the TESTS
     if not whichtests:
         '''Run all tests'''
         list = []
-        
+
         for f in listtests:
             try:
                 tests = UnitTest(f).getUnitTest()
                 list = list+tests
             except:
                 traceback.print_exc()
-                    
+
     elif (whichtests == 1):
         '''Run specific tests'''
         list = []
         for f in listtests:
-            if not haslist(f):                
+            if not haslist(f):
                 testcases = UnitTest(f).getUnitTest()
                 list = list+testcases
 
@@ -290,13 +290,13 @@ def main(testnames=[]):
                     testcases = testcases[offset:offset + chksz]
                 else:
                     testcases = UnitTest(ff).getUnitTest(tests)
-                list = list+testcases                
-                
+                list = list+testcases
+
         if (len(list) == 0):
             os.chdir(PWD)
             raise Exception('ERROR: There are no valid tests to run')
-                                                                     
-                
+
+
     # Run all tests and create a XML report
     xmlfile = xmldir+'nose.xml'
     try:
@@ -323,7 +323,7 @@ if __name__ == "__main__":
     ## flush output
     sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
     sys.stderr = os.fdopen(sys.stderr.fileno(), 'w', 0)
-    
+
     # Get command line arguments
     if "-c" in sys.argv:
         # If called with ... -c runUnitTest.py from the command line,
@@ -331,50 +331,50 @@ if __name__ == "__main__":
         i = sys.argv.index("-c")
         if len(sys.argv) >= i + 2 and \
                re.compile("runUnitTest\.py$").search(sys.argv[i + 1]):
-            
-        
+
+
             try:
                 # Get only this script options
                 opts,args=getopt.getopt(sys.argv[i+2:], "Halmgs:f:d:", ["Help","all","list","mem",
                                                                      "debug","classes=","file=",
                                                                      "datadir="])
-                
+
             except getopt.GetoptError as err:
                 # Print help information and exit:
                 print((str(err))) # will print something like "option -a not recognized"
                 usage()
                 os._exit(2)
-                
+
             # List of tests to run
             testnames = []
-            
+
             # Boolean for file with tests.
             # One could allow the use of --file with specific tests given in
             # the command line by removing this option and appending to the
             # testnames list in the args handling
             hasfile = False
             alltests = False
-            
+
             #If no option is given, show the Help page
             if opts == [] and args == []:
                 usage()
                 os._exit(0)
-                
-            
-            # All other options       
+
+
+            # All other options
             for o, a in opts:
                 if o in ("-H", "--Help"):
                     usage()
-                    os._exit(0) 
+                    os._exit(0)
                 if o in ("-l", "--list"):
                     list_tests()
                     os._exit(0)
-                if o in ("-s", "--classes"): 
+                if o in ("-s", "--classes"):
                     testnames.append(a)
                     getclasses(testnames)
                     os._exit(0)
                 if o in ("-m", "--mem"):
-                    # run specific tests in mem mode            
+                    # run specific tests in mem mode
                     MEM = 1
                 elif o in ("-g", "--debug"):
                     #Set the casalog to DEBUG
@@ -382,18 +382,18 @@ if __name__ == "__main__":
                 elif o in ("-d", "--datadir"):
                     # This will create an environmental variable called
                     # TEST_DATADIR that can be read by the tests to use
-                    # an alternative location for the data. This is used 
+                    # an alternative location for the data. This is used
                     # to test tasks with MMS data
                     # directory with test data
                     datadir = a
-                    if not os.path.isdir(datadir):                            
-                        raise Exception('Value of --datadir is not a directory -> '+datadir)  
-                    
+                    if not os.path.isdir(datadir):
+                        raise Exception('Value of --datadir is not a directory -> '+datadir)
+
                     # Set an environmental variable for the data directory
                     settestdir(datadir)
-                    if 'TEST_DATADIR' not in os.environ:    
-                        raise Exception('Could not create environmental variable TEST_DATADIR')                        
-                        
+                    if 'TEST_DATADIR' not in os.environ:
+                        raise Exception('Could not create environmental variable TEST_DATADIR')
+
                 elif o in ("-a", "--all"):
                     alltests = True
                     whichtests = 0
@@ -402,7 +402,7 @@ if __name__ == "__main__":
                 elif o in ("-f", "--file"):
                     hasfile = True
                     testnames = a
-                    
+
                 else:
                     assert False, "unhandled option"
 
@@ -410,17 +410,17 @@ if __name__ == "__main__":
             # Deal with other arguments
             if args != [] and not hasfile and not alltests:
                 testnames = args
-                                        
+
         else:
             testnames = []
-        
+
     else:
         # Not called with -c (but possibly execfile() from iPython)
         testnames = []
 
-                    
+
     try:
         main(testnames)
     except:
         traceback.print_exc()
-        
+

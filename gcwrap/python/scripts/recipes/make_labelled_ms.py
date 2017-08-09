@@ -9,7 +9,7 @@ def make_labelled_ms(srcms, outputms, labelbases, ow=False, debug=False,
     """
     Note: This has been more or less obsoleted by label_itered_ms and could
     probably be replaced by it after a little testing.
-    
+
     Transform one measurement set into another with the same (ideally small but
     nontrivial) shape and reference frames, but data set to a sequence
     according to labelbases.  The output MS is useful for testing tasks or
@@ -20,7 +20,7 @@ def make_labelled_ms(srcms, outputms, labelbases, ow=False, debug=False,
     Arguments:
 
     srcms:    The template MS.
-    
+
     outputms: The output MS.
 
     labelbases: A dictionary of quant: number pairs, where quant is an index to
@@ -35,7 +35,7 @@ def make_labelled_ms(srcms, outputms, labelbases, ow=False, debug=False,
     complex(0, 1)} The data column in the output will be complex(channel index,
     antenna1).
 
-	labelbases = {'SCAN_NUMBER': 1.0,
+        labelbases = {'SCAN_NUMBER': 1.0,
                       'FIELD_ID':    0.1,
                       'DATA_DESC_ID': complex(0, 1)}
         The data column in the output will go like complex(scan.field, spw) as
@@ -95,7 +95,7 @@ def make_labelled_ms(srcms, outputms, labelbases, ow=False, debug=False,
         return
 
     make_writable_recursively(outputms)
-        
+
     tb.open(outputms, nomodify=False)
 
     if whichdatacol not in tb.colnames():
@@ -141,10 +141,10 @@ def make_labelled_ms(srcms, outputms, labelbases, ow=False, debug=False,
         rowlabel = 0
         for q in rowcols:
             rowlabel += rowcols[q][rowind] * labelbases[q]
-					
+
         for polind in range(dat.shape[0]):
             pollabel = rowlabel + polbase * polind
-				
+
             for chanind in range(dat.shape[1]):
                 label = pollabel + chanind * chanbase
                 dat[polind, chanind, rowind] = label
@@ -183,7 +183,7 @@ def label_itered_ms(msname, labelbases, debug=False, datacol='DATA',
     Set datacol according to labelbases.  Like make_labelled_ms() except it
     modifies in place using ms iteration to handle MSes that are large and/or
     have multiple data shapes.
-    
+
     Arguments:
 
     msname:   The MS to be modified.
@@ -202,7 +202,7 @@ def label_itered_ms(msname, labelbases, debug=False, datacol='DATA',
     labelbases: labelbases = {'channel': 1.0, 'antenna1': complex(0, 1)} The
     data column in the output will be complex(channel index, antenna1).
 
-	labelbases = {'SCAN_NUMBER': 1.0,
+        labelbases = {'SCAN_NUMBER': 1.0,
                       'FIELD_ID':    0.1,
                       'DATA_DESC_ID': complex(0, 1)}
         The data column in the output will go like complex(scan.field, spw) as
@@ -246,7 +246,7 @@ def label_itered_ms(msname, labelbases, debug=False, datacol='DATA',
                      'EXCEPTION')
 
     make_writable_recursively(msname)
-        
+
     tb.open(msname)
     if datacol not in tb.colnames():
         casalog.post("Adding scratch columns to " + msname, 'INFO')
@@ -357,7 +357,7 @@ def label_itered_ms(msname, labelbases, debug=False, datacol='DATA',
     finally:
         ms.close()
         casalog.origin('')
-        
+
     return True
 
 def make_writable_recursively(dir):

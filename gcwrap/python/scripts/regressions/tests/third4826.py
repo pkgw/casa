@@ -26,7 +26,7 @@ def run(fetch=False):
     if fetch:
         for f in data( ):
             copydata( f, os.getcwd( ) )
-    
+
     #####locate the regression script
     lepath=locatescript('ngc4826_tutorial_regression.py')
     print('Script used is ',lepath)

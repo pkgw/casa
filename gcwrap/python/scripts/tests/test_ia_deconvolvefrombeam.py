@@ -43,20 +43,20 @@
 #
 # <synopsis>
 # Test the method ia.deconvolvefrombeam().
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_deconvolvefrombeam[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the method ia.deconvolvefrombeam() to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -74,13 +74,13 @@ def _near(got, exp, tol):
     return qa.abs(qa.div(qa.sub(qgot, qexp), qexp))["value"] < tol
 
 class ia_deconvolvefrombeam_test(unittest.TestCase):
-    
+
     def setUp(self):
         self.ia = iatool()
-    
+
     def tearDown(self):
         self.ia.done()
-    
+
     def test_multibeams(self):
         """ ia.deconvolvefrombeam(): Basic tests"""
         print("*** start ")
@@ -111,6 +111,6 @@ class ia_deconvolvefrombeam_test(unittest.TestCase):
             print("*** got " + str(fit["pa"]))
             print("*** exp " + str(epa[i]))
             self.assertTrue(_near(fit["pa"], epa[i], tol))
-        
+
 def suite():
     return [ia_deconvolvefrombeam_test]

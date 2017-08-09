@@ -31,7 +31,7 @@
 # </author>
 #
 # <summary>
-# CASA task for finding moments along a specified axis of a 
+# CASA task for finding moments along a specified axis of a
 # multi-dimentional CASA image.
 # contents
 # </summary>
@@ -54,8 +54,8 @@
 #
 # The various moments that can be calculated are described in detail
 # at http://casa.nrao.edu/docs/casaref/image.moments.html#x59-590001.1.1
-# 
-# </synopsis> 
+#
+# </synopsis>
 #
 # <example>
 # <srcblock>
@@ -68,10 +68,10 @@
 # immoments( imagename='myimage', axis='spec', stokes='I', box=[55,12,97,32], moment=-1 )
 #
 # # The following example uses a second file to use as a mask.
-# # The 0-moments, integrated values, are created on clean.im, but 
-# # the mask is based on all the data in  calibrated.im, all values 
+# # The 0-moments, integrated values, are created on clean.im, but
+# # the mask is based on all the data in  calibrated.im, all values
 # # about the threshold 0.5 are used to create the mask.
-# 
+#
 # immoments( 'clean.image', axis='spec', mask='calibrated.im>0.5', outfile='mom_withmask.im' )
 # </srblock>
 # </example>
@@ -104,7 +104,7 @@ def immoments(
               'remove it or change the output file name.')
         elif ( len( outfile ) ==  1 ):
             raise Exception('outfile is not specified but must be')
-        _myia.open(imagename) 
+        _myia.open(imagename)
         reg = _rg.frombcs(csys=_myia.coordsys().torecord(),
             shape=_myia.shape(), box=box, chans=chans, stokes=stokes,
             stokescontrol="a", region=region

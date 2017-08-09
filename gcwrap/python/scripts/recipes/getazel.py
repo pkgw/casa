@@ -16,18 +16,18 @@ def getazel(obs,srcname,srcCoord,date,tref):
     Input:
     observatory  observatory name known to CASA (e.g. 'ALMA')
     srcCoord     source coordinates (RA,Dec) with epoch in a string (e.g. 'J2000 17h45m0.0s -29d00m00.0s' )
-                 or known ephemeris source name 
+                 or known ephemeris source name
     date         date in a string (YYYY/MM/DD or YYYY-MM-DD)
     tref         time reference (tref='UTC-3' or 'CDT' for Chilean daylight saving time,
                                       'UTC-4' or 'CLT' for Chilean standard time,
                                       'LST', or 'UTC')
     Output:
-    vector of az values,el values,time,utctime 
-    TT - 2012.04.19 
+    vector of az values,el values,time,utctime
+    TT - 2012.04.19
     """
 # original 2010.02.02 TT
 # modified 2012.04.19 TT
- 
+
     t=qa.quantity(date)
     if t['unit'] != 'd':
         msg = 'Cannot decode date (format should a string with YYYY/MM/DD or YYYY-MM-DD)'
@@ -46,7 +46,7 @@ def getazel(obs,srcname,srcCoord,date,tref):
     tl = arange(1.,1455.,1) # go over a bit longer than a day
     tl /=1440.
     tm = t0+tl
-  
+
     obsMeas = me.observatory(obs)
     me.doframe(obsMeas)
 
@@ -54,7 +54,7 @@ def getazel(obs,srcname,srcCoord,date,tref):
     azar=zeros(len(tm))
     lastar=zeros(len(tm))
     retutc=zeros(len(tm))
-    
+
     (ep,ra,dec) = srcCoord.split(" ")[0:3]
 
     #coord = me.direction(ep,ra,dec)
@@ -65,7 +65,7 @@ def getazel(obs,srcname,srcCoord,date,tref):
         me.doframe(tim)
         last = me.measure(tim,'last')
         if dec=='':
-	  coord=me.direction(ra)
+          coord=me.direction(ra)
         else:
           coord=me.direction(ep,ra,dec)
 
@@ -77,11 +77,11 @@ def getazel(obs,srcname,srcCoord,date,tref):
           if tref=='LST':
             timref='last'
           else:
-            timref='utc' 
+            timref='utc'
           tmeridian=(riseset['rise'][timref]['m0']['value']+riseset['set'][timref]['m0']['value'])/2.
-          print("%s :Meridian passage: %s" % (srcname, qa.time(str(tmeridian)+'d')[0]+' ('+timref+')')) 
-          #print "Rise:",riseset['rise'] 
-          #print "Set:",riseset['set'] 
+          print("%s :Meridian passage: %s" % (srcname, qa.time(str(tmeridian)+'d')[0]+' ('+timref+')'))
+          #print "Rise:",riseset['rise']
+          #print "Set:",riseset['set']
         azar[i]=az
         elar[i]=el
         lastar[i]=last['m0']['value']

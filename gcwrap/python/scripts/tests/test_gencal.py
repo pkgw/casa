@@ -11,7 +11,7 @@ from taskinit import *
 import unittest
 
 '''
-Unit tests for gencal 
+Unit tests for gencal
 '''
 #
 # ToDo:
@@ -19,13 +19,13 @@ Unit tests for gencal
 # once more independent tests (e.g. comparison
 # the AIPS REWAY results) add reference mses
 # and do tests against them
-# 
+#
 
 datapath=os.environ.get('CASAPATH').split()[0]+'/data/regression/unittest/gencal/'
 
 # Pick up alternative data directory to run tests on MMSs
 testmms = False
-if 'TEST_DATADIR' in os.environ:   
+if 'TEST_DATADIR' in os.environ:
     DATADIR = str(os.environ.get('TEST_DATADIR'))+'/gencal/'
     if os.path.isdir(DATADIR):
         testmms = True
@@ -33,7 +33,7 @@ if 'TEST_DATADIR' in os.environ:
     else:
         print('WARN: directory '+DATADIR+' does not exist')
 
-print('gencal tests will use data from '+datapath)         
+print('gencal tests will use data from '+datapath)
 
 
 class gencal_antpostest(unittest.TestCase):
@@ -56,15 +56,15 @@ class gencal_antpostest(unittest.TestCase):
     def tearDown(self):
         if (os.path.exists(self.msfile)):
             shutil.rmtree(self.msfile)
-            
+
         shutil.rmtree(self.caltable,ignore_errors=True)
 
     def test_antpos_manual(self):
         """
-        gencal: test manual antenna position correction 
+        gencal: test manual antenna position correction
         """
         gencal(vis=self.msfile,
-               caltable=self.caltable, 
+               caltable=self.caltable,
                caltype='antpos',
                antenna='ea12,ea22',
                parameter=[-0.0072,0.0045,-0.0017, -0.0220,0.0040,-0.0190])
@@ -72,7 +72,7 @@ class gencal_antpostest(unittest.TestCase):
         self.assertTrue(os.path.exists(self.caltable))
 
         # ToDo:check generated caltable. Wait for new caltable
-        
+
         # Compare with reference file from the repository
         reference = self.reffile1
         self.assertTrue(th.compTables(self.caltable, reference, ['WEIGHT','OBSERVATION_ID']))
@@ -85,7 +85,7 @@ class gencal_antpostest(unittest.TestCase):
         import urllib.request, urllib.error, urllib.parse
         # current EVLA baseline correction URL
         evlabslncorrURL="http://www.vla.nrao.edu/cgi-bin/evlais_blines.cgi?Year="
-        try: 
+        try:
           urlaccess=urllib.request.urlopen(evlabslncorrURL+"2010")
           gencal(vis=self.msfile,
                  caltable=self.caltable,
@@ -94,9 +94,9 @@ class gencal_antpostest(unittest.TestCase):
                  parameter='')
 
           self.assertTrue(os.path.exists(self.caltable))
-          
+
           # ToDo: check for generated caltable
-          
+
           # Compare with reference file from the repository
           reference = self.reffile2
           self.assertTrue(th.compTables(self.caltable, reference, ['WEIGHT','OBSERVATION_ID']))

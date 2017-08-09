@@ -15,7 +15,7 @@
 import time
 import os
 
-# 
+#
 #=====================================================================
 #
 # This script has some interactive commands: scriptmode = True
@@ -248,21 +248,21 @@ if scriptmode:
 # see stuff like this in the terminal:
 #
 # jupiter6cm.usecase.clean1.image     (Jy/beam)
-# 
+#
 # n           Std Dev     RMS         Mean        Variance    Sum
-# 4712        0.003914    0.003927    0.0003205   1.532e-05   1.510     
-# 
+# 4712        0.003914    0.003927    0.0003205   1.532e-05   1.510
+#
 # Flux        Med |Dev|   IntQtlRng   Median      Min         Max
-# 0.09417     0.002646    0.005294    0.0001885   -0.01125    0.01503   
+# 0.09417     0.002646    0.005294    0.0001885   -0.01125    0.01503
 #
 #
 # On Jupiter:
 #
 # n           Std Dev     RMS         Mean        Variance    Sum
-# 3640        0.1007      0.1027      0.02023     0.01015     73.63     
-# 
+# 3640        0.1007      0.1027      0.02023     0.01015     73.63
+#
 # Flux        Med |Dev|   IntQtlRng   Median      Min         Max
-# 4.592       0.003239    0.007120    0.0001329   -0.01396    1.060     
+# 4.592       0.003239    0.007120    0.0001329   -0.01396    1.060
 #
 # Estimated dynamic range = 1.060 / 0.003927 = 270 (poor)
 #
@@ -495,21 +495,21 @@ if scriptmode:
     user_check=input('Return to continue script\n')
 
 # jupiter6cm.usecase.clean2.image     (Jy/beam)
-# 
+#
 # n           Std Dev     RMS         Mean        Variance    Sum
-# 5236        0.001389    0.001390    3.244e-05   1.930e-06   0.1699    
-# 
+# 5236        0.001389    0.001390    3.244e-05   1.930e-06   0.1699
+#
 # Flux        Med |Dev|   IntQtlRng   Median      Min         Max
-# 0.01060     0.0009064   0.001823    -1.884e-05  -0.004015   0.004892  
-# 
-# 
+# 0.01060     0.0009064   0.001823    -1.884e-05  -0.004015   0.004892
+#
+#
 # On Jupiter:
-# 
+#
 # n           Std Dev     RMS         Mean        Variance    Sum
-# 5304        0.08512     0.08629     0.01418     0.007245    75.21     
-# 
+# 5304        0.08512     0.08629     0.01418     0.007245    75.21
+#
 # Flux        Med |Dev|   IntQtlRng   Median      Min         Max
-# 4.695       0.0008142   0.001657    0.0001557   -0.004526   1.076     
+# 4.695       0.0008142   0.001657    0.0001557   -0.004526   1.076
 #
 # Estimated dynamic range = 1.076 / 0.001389 = 775 (better)
 #

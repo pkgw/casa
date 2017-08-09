@@ -37,11 +37,11 @@ def ic2233_reg():
 
     #os.system("rm -rf "+MYIMAGE+"*");
     if (REUSEREPOS==False):
-    	os.system("rm -rf "+THISHOME);
-    	os.mkdir(THISHOME);
-    	REPOSNAME = os.environ.get('CASAPATH').split()[0]
-    	PREFIX    = REPOSNAME + "/data/regression/ic2233/";
-    	FITSFILE  = PREFIX    + "ic2233.lband.fits";
+        os.system("rm -rf "+THISHOME);
+        os.mkdir(THISHOME);
+        REPOSNAME = os.environ.get('CASAPATH').split()[0]
+        PREFIX    = REPOSNAME + "/data/regression/ic2233/";
+        FITSFILE  = PREFIX    + "ic2233.lband.fits";
         ms.fromfits(fitsfile=FITSFILE,msfile=MSFILE);
         ms.done();
 
@@ -57,11 +57,11 @@ def ic2233_reg():
 
 #    tclean(vis=MSFILE,selectdata=True,field="0",spw="*:69~80",timerange="",uvrange="",antenna="",scan="",observation="",intent="",datacolumn="corrected",imagename=MYIMAGE,imsize=2048,cell="4arcsec",phasecenter="",stokes="IV",projection="SIN",startmodel="",specmode="mfs",reffreq="",nchan=-1,start="",width="",outframe="LSRK",veltype="radio",restfreq=[],interpolation="linear",gridder="awproject",facets=1,chanchunks=1,wprojplanes=1,vptable="",aterm=True,psterm=False,wbawp=True,conjbeams=True,cfcache="junk_newVR.cf",computepastep=360.0,rotatepastep=5.0,pblimit=0.2,normtype="flatnoise",deconvolver="hogbom",scales=[],nterms=2,smallscalebias=0.6,restoration=True,restoringbeam=[],pbcor=False,outlierfile="",weighting="natural",robust=0.5,npixels=0,uvtaper=[],niter=6000,gain=0.1,threshold=0.0,cycleniter=-1,cyclefactor=1.0,minpsffraction=0.05,maxpsffraction=0.8,interactive=True,usemask="user",mask="",pbmask=0.0,maskthreshold="",maskresolution="",nmask=0,autoadjust=False,restart=True,savemodel="none",calcres=True,calcpsf=True,parallel=False);
 
-        
+
 
 
     # im.open(MSFILE,usescratch=True);
-    
+
     # im.selectvis(nchan=NCHAN,start=CHSTART,step=1,spw=SPW,time=TIMERANGE);
     # im.defineimage(nx=IMSIZE,ny=IMSIZE,cellx=CELLSIZE,celly=CELLSIZE,stokes=STOKES,
     #                nchan=1,start=CHSTART,step=NCHAN-1,phasecenter=0);
@@ -89,7 +89,7 @@ def ic2233_reg():
 # StokesIRMS           = 0.00138986;
 
 # The following was changed to new values on Feb 23, 2010
-# StokesIPeak          = 0.86264914  
+# StokesIPeak          = 0.86264914
 # StokesIRMS           = 0.00138987
 
 # The following was changed to new values on Mar. 23, 2011
@@ -177,7 +177,7 @@ def stats():
 #        vbox=ia.setboxregion(blc=[0,0,1,0],trc=[2048,2048,1,0]);
         ibox = rg.box(blc=[0,0,0,0],trc=[2048,2048,0,0]);
         vbox = rg.box(blc=[0,0,1,0],trc=[2048,2048,1,0]);
-    
+
         istats=ia.statistics(region=ibox, list=True, verbose=True);
         vstats=ia.statistics(region=vbox, list=True, verbose=True);
 
@@ -223,7 +223,7 @@ def stats():
             (abs(dIRMS) < EPS) &
             (abs(dVMax) < EPS) &
             (abs(dVRMS) < EPS) &
-            (dIMaxPos==0).all() 
+            (dIMaxPos==0).all()
             #        (dVMaxPos==0).all()
             ):
             regstate=True;
@@ -237,7 +237,7 @@ def stats():
             print('Regression FAILED')
             print('')
             print("IC2233 Regression failed.", file=logfile);
-        
+
             print('', file=logfile)
             print('', file=logfile)
             print('********* Benchmarking *****************', file=logfile)
@@ -249,7 +249,7 @@ def stats():
         logfile.close();
         f=open(outfile, 'r')
         a=f.read()
-        f.close() 
+        f.close()
         casalog.post(a, origin="ic2233")
     except Exception as instance:
         print("###Error in ic2233 regression: ",instance);

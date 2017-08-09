@@ -44,9 +44,9 @@ default('flagdata')
 vis = 'ggtau_07feb97.ms'
 mode = 'list'
 cmd = ["field='0,1,3' spw='2:31~32'",
-	   "field='0' spw='2:33~34'",
-	   "field='3' antenna='1&3' spw='2:34~37'",
-	   "field='3' antenna='2&4' spw='2:34~37'"]
+           "field='0' spw='2:33~34'",
+           "field='3' antenna='1&3' spw='2:34~37'",
+           "field='3' antenna='2&4' spw='2:34~37'"]
 inpfile = cmd
 
 flagdata()
@@ -63,7 +63,7 @@ flagdata()
 
 # flag channels 250-256 for spectral window 7
 #flagdata(vis='ggtau_07feb97.ms',spwid=[6])
-	
+
 flagtime=time.time()
 
 #
@@ -77,40 +77,40 @@ setjy('ggtau_07feb97.ms',field='3',spw='2',scalebychan=False,fluxdensity=[1.55,0
 #preliminary time-dependent phase solutions to improve coherent average for bandpass solution
 default('gaincal')
 gaincal(vis='ggtau_07feb97.ms',caltable='ggtau.3mm.ph.gcal0',
-	field='1',spw='2:14~43',
-	gaintype='GSPLINE',calmode='p',splinetime=10000.,refant='1',phasewrap=260,
-	preavg=120)
+        field='1',spw='2:14~43',
+        gaintype='GSPLINE',calmode='p',splinetime=10000.,refant='1',phasewrap=260,
+        preavg=120)
 
 print('--bandpass (3mm)--')
 #derive bandpass calibration for 3mm LSB
 default('bandpass')
 bandpass(vis='ggtau_07feb97.ms',caltable='ggtau.3mm.bpoly',
-	 field='1',spw='2:3~62',
-	 bandtype='BPOLY',degamp=6,degphase=12,
-	 solnorm=False,maskcenter=4,maskedge=0,refant='1',
-	 gaintable='ggtau.3mm.ph.gcal0')
+         field='1',spw='2:3~62',
+         bandtype='BPOLY',degamp=6,degphase=12,
+         solnorm=False,maskcenter=4,maskedge=0,refant='1',
+         gaintable='ggtau.3mm.ph.gcal0')
 
 print('--gaincal phase (3mm)--')
 #derive new and better phase solutions for 3mm LSB
 default('gaincal')
 gaincal(vis='ggtau_07feb97.ms',caltable='ggtau.3mm.ph.gcal',
-	field='0,1,3',spw='2:2~61',
-	gaintype='GSPLINE',calmode='p',splinetime=10000.,refant='1',phasewrap=260,
-	gaintable='ggtau.3mm.bpoly',
-	preavg=0.)
+        field='0,1,3',spw='2:2~61',
+        gaintype='GSPLINE',calmode='p',splinetime=10000.,refant='1',phasewrap=260,
+        gaintable='ggtau.3mm.bpoly',
+        preavg=0.)
 
 #Apply all solutions derived so far, determine calibrator's flux densities by solving for T and using fluxscale
 default('gaincal')
 gaincal(vis='ggtau_07feb97.ms',caltable='ggtau.3mm.temp',
-	field='0,1,3',spw='2:2~61',
-	solint='600s',refant='1',
-	gaintype='T',
-	gaintable=['ggtau.3mm.ph.gcal','ggtau.3mm.bpoly'])
+        field='0,1,3',spw='2:2~61',
+        solint='600s',refant='1',
+        gaintype='T',
+        gaintable=['ggtau.3mm.ph.gcal','ggtau.3mm.bpoly'])
 
 #fluxscale
 default('fluxscale')
 fluxscale(vis='ggtau_07feb97.ms',caltable='ggtau.3mm.temp',fluxtable='ggtau.3mm.flux',
-	  reference='CRL618*',transfer='0415+379*,0528+134*')
+          reference='CRL618*',transfer='0415+379*,0528+134*')
 ### Flux density for 0415+379 (spw=3) is:     5.74898 +/-  0.0267088 Jy
 ### Flux density for 0528+134 (spw=3) is:     2.56862 +/-  0.011453  Jy
 calphase3mmtime=time.time()
@@ -123,32 +123,32 @@ setjy3mmtime=time.time()
 
 ## Amplitude calibration of 3mm LSB:
 ##
-##  phase solutions will be pre-applied as well as carried forward 
+##  phase solutions will be pre-applied as well as carried forward
 ##   to the output solution table.
 print('--gaincal amp (3mm)--')
 default('gaincal')
 gaincal(vis='ggtau_07feb97.ms',caltable='ggtau.3mm.amp.gcal',
-	field='0,1,3',spw='2:2~61',
-	gaintype='GSPLINE',calmode='a',splinetime=20000.,refant='1',phasewrap=260,
-	gaintable=['ggtau.3mm.ph.gcal','ggtau.3mm.bpoly'],preavg=2500.)
+        field='0,1,3',spw='2:2~61',
+        gaintype='GSPLINE',calmode='a',splinetime=20000.,refant='1',phasewrap=260,
+        gaintable=['ggtau.3mm.ph.gcal','ggtau.3mm.bpoly'],preavg=2500.)
 
 calamp3mmtime=time.time()
 
-## Correct the target source and all other 3mm LSB data: 
+## Correct the target source and all other 3mm LSB data:
 ##
 ##  note that only the 60 central channels will be calibrated
 ##   since the BPOLY solution is only defined for these
 default('applycal')
 applycal(vis='ggtau_07feb97.ms',
-	 spw='2',
-	 gaintable=['ggtau.3mm.ph.gcal','ggtau.3mm.amp.gcal','ggtau.3mm.bpoly'])
+         spw='2',
+         gaintable=['ggtau.3mm.ph.gcal','ggtau.3mm.amp.gcal','ggtau.3mm.bpoly'])
 correct3mmtime=time.time()
 
 # Split calibrater data
 print('--split calibrater--')
 default('split')
 split(vis='ggtau_07feb97.ms',outputvis='ggtau.cal.split.ms',
-	field='3',spw='2:0~63',datacolumn='model')
+        field='3',spw='2:0~63',datacolumn='model')
 splitcaltime=time.time()
 
 #Split calibrated target data
@@ -182,12 +182,12 @@ setjy(vis='ggtau_07feb97.ms',field='3',spw='18',scalebychan=False,fluxdensity=[2
 
 ###########################################################
 ## Get first cut phase solutions to improve S/N for BPass determination:
-## 
+##
 default('gaincal')
 gaincal(vis='ggtau_07feb97.ms',caltable='ggtau.1mm.ph.gcal0',
-	field='1',spw='10,14,18:14~43',
-	gaintype='GSPLINE',calmode='p',
-	splinetime=10000.,refant='1',phasewrap=260,preavg=120)
+        field='1',spw='10,14,18:14~43',
+        gaintype='GSPLINE',calmode='p',
+        splinetime=10000.,refant='1',phasewrap=260,preavg=120)
 
 ## Derive bandpass calibration for 1mm LSB:
 ##
@@ -195,10 +195,10 @@ gaincal(vis='ggtau_07feb97.ms',caltable='ggtau.1mm.ph.gcal0',
 print('--Bandpass solution (1mm)--')
 default('bandpass')
 bandpass(vis='ggtau_07feb97.ms',caltable='ggtau.1mm.bpoly',
-	 field='1',spw='10,14,18:2~61',
-	 bandtype='BPOLY',degamp=6,degphase=6,
-	 visnorm=False,solnorm=False,maskcenter=4,maskedge=0,refant='1',
-	 gaintable='ggtau.1mm.ph.gcal0')
+         field='1',spw='10,14,18:2~61',
+         bandtype='BPOLY',degamp=6,degphase=6,
+         visnorm=False,solnorm=False,maskcenter=4,maskedge=0,refant='1',
+         gaintable='ggtau.1mm.ph.gcal0')
 
 ## Determine phase solutions for 1mm LSB for all calibrators
 ##
@@ -209,9 +209,9 @@ bandpass(vis='ggtau_07feb97.ms',caltable='ggtau.1mm.bpoly',
 print('--Phase solutions--')
 default('gaincal')
 gaincal(vis='ggtau_07feb97.ms',caltable='ggtau.1mm.ph.gcal',
-	field='0,1,3',spw='10,14,18:2~61',
-	gaintype='GSPLINE',calmode='p',splinetime=10000.,refant='1',phasewrap=260,
-	gaintable=['ggtau.3mm.ph.gcal','ggtau.1mm.bpoly'],preavg=0.)
+        field='0,1,3',spw='10,14,18:2~61',
+        gaintype='GSPLINE',calmode='p',splinetime=10000.,refant='1',phasewrap=260,
+        gaintable=['ggtau.3mm.ph.gcal','ggtau.1mm.bpoly'],preavg=0.)
 
 ##  Apply all solutions derived so far, determine
 ##  calibrators' flux densities using a solve for T and
@@ -219,14 +219,14 @@ gaincal(vis='ggtau_07feb97.ms',caltable='ggtau.1mm.ph.gcal',
 print('--Solve for solutions, fluxscale--')
 default('gaincal')
 gaincal(vis='ggtau_07feb97.ms',caltable='ggtau.1mm.temp',
-	field='0,1,3',spw='10,14,18:2~61',
-	solint='600s',refant='1',gaintype='T',
-	gaintable=['ggtau.1mm.ph.gcal','ggtau.1mm.bpoly'])
+        field='0,1,3',spw='10,14,18:2~61',
+        solint='600s',refant='1',gaintype='T',
+        gaintable=['ggtau.1mm.ph.gcal','ggtau.1mm.bpoly'])
 #
 default('fluxscale')
 fluxscale(vis='ggtau_07feb97.ms',caltable='ggtau.1mm.temp',
-	  fluxtable='ggtau.1mm.flux',
-	  reference='CRL618*',transfer='0415+379*,0528+134*')
+          fluxtable='ggtau.1mm.flux',
+          reference='CRL618*',transfer='0415+379*,0528+134*')
 calphase1mmtime=time.time()
 
 ## Record flux values from logger window.  Manually insert
@@ -244,10 +244,10 @@ setjy1mmtime=time.time()
 ## Amplitude calibration of 1mm LSB:
 default('gaincal')
 gaincal(vis='ggtau_07feb97.ms',caltable='ggtau.1mm.amp.gcal',
-	field='0,1,3',spw='10,14,18:2~61',
-	gaintype='GSPLINE',calmode='a',splinetime=20000.,refant='1',phasewrap=260,
-	preavg=2500.,
-	gaintable=['ggtau.1mm.ph.gcal','ggtau.1mm.bpoly'])
+        field='0,1,3',spw='10,14,18:2~61',
+        gaintype='GSPLINE',calmode='a',splinetime=20000.,refant='1',phasewrap=260,
+        preavg=2500.,
+        gaintable=['ggtau.1mm.ph.gcal','ggtau.1mm.bpoly'])
 calamp1mmtime=time.time()
 
 ## Correct the target source and all other 1mm LSB continuum data:
@@ -256,13 +256,13 @@ calamp1mmtime=time.time()
 ##   BPOLY solution is not defined for them
 default('applycal')
 applycal(vis='ggtau_07feb97.ms',
-	 spw='10,14,18',
-	 gaintable=['ggtau.1mm.ph.gcal','ggtau.1mm.amp.gcal','ggtau.1mm.bpoly'])
+         spw='10,14,18',
+         gaintable=['ggtau.1mm.ph.gcal','ggtau.1mm.amp.gcal','ggtau.1mm.bpoly'])
 correct1mmtime=time.time()
 
 ## Split out calibrated target source 1 mm continuum data:
 split(vis='ggtau_07feb97.ms',outputvis='ggtau.1mm.split.ms',
-	field='2',spw='10;14;18:2~61',datacolumn='corrected')
+        field='2',spw='10;14;18:2~61',datacolumn='corrected')
 splitsrc1mmtime=time.time()
 
 print('--Image 1mm continuum--')
@@ -270,7 +270,7 @@ print('--Image 1mm continuum--')
 default('clean')
 clean(vis='ggtau.1mm.split.ms',imagename='ggtau.1mm',
       psfmode='clark',niter=100,gain=0.1,
-      mode='mfs', 
+      mode='mfs',
       spw='0,1,2:3~59',field='0',stokes='I',
       weighting='briggs',robust=0.5,cell=[0.1,0.1],imsize=[256,256])
 image1mmtime=time.time()
@@ -287,18 +287,18 @@ image1mmtime=time.time()
 print('--Cal HCO and split--')
 default('bandpass')
 bandpass(vis='ggtau_07feb97.ms',caltable='ggtau.hco.bpoly',
-	 field='1',spw='6:25~230',
-	 bandtype='BPOLY',degamp=1,degphase=1,visnorm=False,solnorm=False,
-	 maskcenter=40,maskedge=0,refant='1',
-	 gaintable='ggtau.3mm.ph.gcal0')
+         field='1',spw='6:25~230',
+         bandtype='BPOLY',degamp=1,degphase=1,visnorm=False,solnorm=False,
+         maskcenter=40,maskedge=0,refant='1',
+         gaintable='ggtau.3mm.ph.gcal0')
 
 default('applycal')
 applycal(vis='ggtau_07feb97.ms',
-	 spw='6',
-	 gaintable=['ggtau.3mm.ph.gcal','ggtau.3mm.amp.gcal','ggtau.hco.bpoly'])
+         spw='6',
+         gaintable=['ggtau.3mm.ph.gcal','ggtau.3mm.amp.gcal','ggtau.hco.bpoly'])
 default('split')
 split(vis='ggtau_07feb97.ms',outputvis='ggtau.hco.split.ms',
-	field='2',spw='6:25~230',datacolumn='corrected')
+        field='2',spw='6:25~230',datacolumn='corrected')
 hcocaltime=time.time()
 
 print('Image HCO--')
@@ -308,31 +308,31 @@ clean(vis='ggtau.hco.split.ms',imagename='ggtau.hco',
       spw='0',field='0',stokes='I',
       weighting='briggs',robust=0.5,cell=[0.2,0.2],imsize=[256,256],mode='channel')
    ### Emission in central channels is barely visible (too weak to image
-   ###  with only 1 day of data but you get the point).  
+   ###  with only 1 day of data but you get the point).
 imagehcotime=time.time()
 
 # 1mm 13CO(2-1) line calibration
  ### Note: during the continuum reduction above, bandpass and time-dependent
  ### phase and amplitude solutions were derived using the wider bandwidth 1 mm LSB
  ### continuum data. These can be applied directly to the line data.
- ### The bandpass solution for the wide, low-resolution continuum band 
+ ### The bandpass solution for the wide, low-resolution continuum band
  ### may not be ideal for the narrow, high-resolution line band.  If there
  ### is sufficient S/R on the bandpass calibrator in the narrow line band,
  ### a bandpass solution may be obtained for it as follows:
 print('--Cal CO and split--')
 default('bandpass')
 bandpass(vis='ggtau_07feb97.ms',caltable='ggtau.co.bpoly',
-	 field='1',spw='22:8~247',
-	 bandtype='BPOLY',degamp=1,degphase=1,visnorm=False,solnorm=False,
-	 maskcenter=4,maskedge=0,refant='1',
-	 gaintable='ggtau.1mm.ph.gcal0')
+         field='1',spw='22:8~247',
+         bandtype='BPOLY',degamp=1,degphase=1,visnorm=False,solnorm=False,
+         maskcenter=4,maskedge=0,refant='1',
+         gaintable='ggtau.1mm.ph.gcal0')
 default('applycal')
 applycal(vis='ggtau_07feb97.ms',
-	 spw='22',
-	 gaintable=['ggtau.1mm.ph.gcal','ggtau.1mm.amp.gcal','ggtau.co.bpoly'])
+         spw='22',
+         gaintable=['ggtau.1mm.ph.gcal','ggtau.1mm.amp.gcal','ggtau.co.bpoly'])
 default('split')
 split(vis='ggtau_07feb97.ms',outputvis='ggtau.co.split.ms',
-	field='2',spw='22:0~239',datacolumn='corrected')
+        field='2',spw='22:0~239',datacolumn='corrected')
 cocaltime=time.time()
 
 print('--Image CO--')
@@ -381,7 +381,7 @@ thistest_immax=statistics['max'][0]
 thistest_imrms=statistics['rms'][0]
 
 #calmax=1.55
-#src3mmmax=0.941    
+#src3mmmax=0.941
 src3mmmax=0.14297   # channel average
 #src1mmmax=17.333
 src1mmmax=1.6692    # channel average
@@ -482,12 +482,12 @@ print('--Image rms '+str(thistest_imrms)+' ('+str(imgrms)+')', file=logfile)
 
 #if ((diff_cal<0.05) & (diff_3mm<0.05) & (diff_1mm<0.05) & (diff_hco<0.05) & (diff_co<0.05) & (diff_immax<0.05) & (diff_imrms<0.05)):
 if ((diff_3mm<0.05) & (diff_1mm<0.05) & (diff_hco<0.05) & (diff_co<0.05) & (diff_immax<0.05) & (diff_imrms<0.05)):
-	regstate=True
+        regstate=True
         print('---', file=logfile)
         print('Passed Regression test for GG TAU', file=logfile)
         print('---', file=logfile)
 else:
-	regstate=False
+        regstate=False
         print('----FAILED Regression test for GG TAU', file=logfile)
 print('*********************************', file=logfile)
 

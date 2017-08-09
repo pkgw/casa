@@ -38,7 +38,7 @@
 #
 # <prerequisite>
 # <ul>
-#   <li> <linkto class="task_splattotable.py:description">splattotable</linkto> 
+#   <li> <linkto class="task_splattotable.py:description">splattotable</linkto>
 # </ul>
 # </prerequisite>
 #
@@ -48,20 +48,20 @@
 #
 # <synopsis>
 # Test the splattotable task and the sl.splattotable() method upon which it is built.
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_splattotable[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the splattotable task to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -88,13 +88,13 @@ def run_stttask(list, table):
 
 
 class splattotable_test(unittest.TestCase):
-    
+
     def setUp(self):
         datapath=os.environ.get('CASAPATH').split()[0]+'/data/regression/unittest/splattotable/'
         shutil.copy(datapath + good_list, good_list)
         shutil.copy(datapath + bad_list, bad_list)
 
-    
+
     def tearDown(self):
         os.remove(good_list)
         os.remove(bad_list)
@@ -102,7 +102,7 @@ class splattotable_test(unittest.TestCase):
 
     def test_exceptions(self):
         """splattotable: Test various exception cases"""
-        
+
         def testit(filenames, table):
             for i in [0,1]:
                 if (i==0):
@@ -112,13 +112,13 @@ class splattotable_test(unittest.TestCase):
 
         # blank output table name
         testit("list1.txt", "")
-        
-        # bad list 
+
+        # bad list
         testit("list2.txt", "myout");
-        
+
         # unwritable table
         testit("list1.txt", "/myout");
-        
+
 
     def test_good_list(self):
         """splattotable: Test converting a good list"""
@@ -131,12 +131,12 @@ class splattotable_test(unittest.TestCase):
                     newsl.done()
                 else:
                     self.assertTrue(run_stttask(filenames, table))
-                    
+
                 self.assertTrue(mytb.open(table))
             mytb.done()
-                    
+
         testit("list1.txt", "good_table")
-      
+
 
 def suite():
     return [splattotable_test]

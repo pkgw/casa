@@ -25,7 +25,7 @@ def temporary_file():
     yield filename
     if os.path.exists(filename):
         os.system('rm -rf %s'%(filename))
-    
+
 class sdflagmanagerold_test(unittest.TestCase):
     """
     Basic unit tests for task sdflagmanagerold.
@@ -135,7 +135,7 @@ class sdflagmanagerold_test(unittest.TestCase):
         newcomment = "renamed_first_version"
         result = sdflagmanagerold(infile=self.infile,mode="rename",oldname=oldname,versionname=newname,comment=newcomment)
         self.assertEqual(result, None, msg="The task returned '"+str(result)+"' instead of None")
-        
+
         vdatafile = self.vdatafileprefix+newname
         self.assertTrue(os.path.exists(vdatafile))
 
@@ -151,7 +151,7 @@ class sdflagmanagerold_test(unittest.TestCase):
     def _verify_version(self, expected_nversion, expected_versions, expected_comments):
         self.assertEqual(len(expected_versions), expected_nversion, msg='Invalid arguments for _verify_version (expected_versions)')
         self.assertEqual(len(expected_comments), expected_nversion, msg='Invalid arguments for _verify_version (expected_comments)')
-        
+
         items = self._get_version_list()
         if expected_nversion == 1:
             self.assertEqual(len(items), 1, msg="The FLAG_VERSION_LIST must contain just 1 version.")
@@ -160,7 +160,7 @@ class sdflagmanagerold_test(unittest.TestCase):
         for item, version, comment in zip(items, expected_versions, expected_comments):
             self.assertEqual(item[0], version, msg="Version name must be '%s'."%(version))
             self.assertEqual(item[1], comment, msg="Comment must be '%s'."%(comment))
-        
+
 
     def _verify_saved_flag(self, infile, flagdatafile):
         # export infile to MS to obtain expected FLAG and FLAG_ROW
@@ -204,7 +204,7 @@ class sdflagmanagerold_test(unittest.TestCase):
                 self.assertEqual(len(nonzero), len(expected_nonzero), msg='Row %s: FLAGTRA differ'%(irow))
                 if len(nonzero) > 0:
                     self.assertTrue(all(nonzero == expected_nonzero), msg='Row %s: FLAGTRA differ'%(irow))
-        
+
     def _get_flag_from_scantable(self, infile):
         with tbmanager(infile) as tb:
             tsort = tb.query('', sortlist='SCANNO,CYCLENO,IFNO,POLNO')

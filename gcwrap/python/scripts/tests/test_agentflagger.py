@@ -21,16 +21,16 @@ class test_base(unittest.TestCase):
                         "/data/regression/unittest/flagdata/" + self.vis + ' ' + self.vis)
 
         os.system('rm -rf ' + self.vis + '.flagversions')
-        
+
         self.unflag_table()
 
 
     def setUp_tsys_case(self):
         self.vis = "X7ef.tsys"
-         
+
         if os.path.exists(self.vis):
             print("The CalTable is already around, just unflag")
-            
+
         else:
             print("Moving data...")
             os.system('cp -r ' + \
@@ -86,7 +86,7 @@ class test_base(unittest.TestCase):
 
         os.system('rm -rf ' + self.vis + '.flagversions')
         self.unflag_table()
-        
+
     def setUp_float_data(self):
         '''Single-dish MS'''
         self.vis = "SDFloatColumn.ms"
@@ -101,7 +101,7 @@ class test_base(unittest.TestCase):
 
         os.system('rm -rf ' + self.vis + '.flagversions')
         self.unflag_table()
-        
+
     def unflag_table(self):
 
         aflocal = aftool()
@@ -116,7 +116,7 @@ class test_base(unittest.TestCase):
 
 class test_tsys(test_base):
     """AgentFlagger:: Test flagging tool with Tsys-based CalTable """
-    
+
     def setUp(self):
          self.setUp_tsys_case()
 
@@ -128,7 +128,7 @@ class test_tsys(test_base):
         aflocal.parseelevationparameters()
         aflocal.init()
         res = aflocal.run(writeflags=True)
-        aflocal.done() 
+        aflocal.done()
         self.assertEqual(res, {})
 
     def test_mixed_agents_tsys(self):
@@ -143,8 +143,8 @@ class test_tsys(test_base):
         aflocal.parsesummaryparameters(spw='1,3,5', fieldcnt=True)
         aflocal.init()
         res = aflocal.run(writeflags=True)
-        aflocal.done() 
-        
+        aflocal.done()
+
         # Check the summary dictionary with field breakdown
         fields = list(res['report0'].keys())
         fields.remove('name')
@@ -163,7 +163,7 @@ class test_tsys(test_base):
         self.assertEqual(fflags3, 0)
         self.assertEqual(fflags5, 32256)
         self.assertEqual(totalflags, 32256*2)
-        
+
     def test_manual_field_selection_agent_layer_for_tsys_CalTable(self):
         """AgentFlagger:: Manually flag a Tsys-based CalTable using flag agent selection engine for field """
         aflocal = aftool()
@@ -177,7 +177,7 @@ class test_tsys(test_base):
         aflocal.parseagentparameters(agentSummary)
         aflocal.init()
         summary = aflocal.run(writeflags=True)
-        aflocal.done() 
+        aflocal.done()
 
         self.assertEqual(summary['report0']['field']['3c279']['flagged'], 9216)
         self.assertEqual(summary['report0']['field']['Titan']['flagged'], 0)
@@ -197,7 +197,7 @@ class test_tsys(test_base):
         aflocal.parseagentparameters(agentSummary)
         aflocal.init()
         summary = aflocal.run(writeflags=True)
-        aflocal.done() 
+        aflocal.done()
 
         self.assertEqual(summary['report0']['antenna']['DV09']['flagged'], 14336)
         self.assertEqual(summary['report0']['antenna']['DV10']['flagged'], 0)
@@ -214,7 +214,7 @@ class test_tsys(test_base):
         aflocal.parsesummaryparameters()
         aflocal.init()
         summary = aflocal.run(writeflags=True)
-        aflocal.done() 
+        aflocal.done()
 
         self.assertEqual(summary['report0']['antenna']['DV09']['flagged'], 14336)
         self.assertEqual(summary['report0']['antenna']['DV10']['flagged'], 0)
@@ -231,7 +231,7 @@ class test_tsys(test_base):
         aflocal.parseagentparameters(agentManual)
         aflocal.init()
         summary = aflocal.run(writeflags=True)
-        aflocal.done() 
+        aflocal.done()
 
         aflocal.open(self.vis)
         aflocal.selectdata()
@@ -239,12 +239,12 @@ class test_tsys(test_base):
         aflocal.parseagentparameters(agentSummary)
         aflocal.init()
         summary = aflocal.run(writeflags=True)
-        aflocal.done() 
+        aflocal.done()
 
         self.assertEqual(summary['report0']['field']['3c279']['flagged'], 9216.0)
         self.assertEqual(summary['report0']['field']['Titan']['flagged'], 0)
         self.assertEqual(summary['report0']['field']['TW Hya']['flagged'], 0)
-        self.assertEqual(summary['report0']['field']['J1037-295=QSO']['flagged'], 0)        
+        self.assertEqual(summary['report0']['field']['J1037-295=QSO']['flagged'], 0)
 
     def test_manual_antenna_msSelection_layer_for_tsys_CalTable(self):
         """AgentFlagger:: Manually flag a Tsys-based CalTable using MSSelection for antenna"""
@@ -258,7 +258,7 @@ class test_tsys(test_base):
         aflocal.parseagentparameters(agentManual)
         aflocal.init()
         summary = aflocal.run(writeflags=True)
-        aflocal.done() 
+        aflocal.done()
 
         aflocal.open(self.vis)
         aflocal.selectdata()
@@ -266,11 +266,11 @@ class test_tsys(test_base):
         aflocal.parseagentparameters(agentSummary)
         aflocal.init()
         summary = aflocal.run(writeflags=True)
-        aflocal.done() 
+        aflocal.done()
 
         self.assertEqual(summary['report0']['antenna']['DV09']['flagged'], 14336)
         self.assertEqual(summary['report0']['antenna']['DV10']['flagged'], 0)
-        
+
     def test_clip_minmax_fparm_sol1(self):
         """AgentFlagger:: Test cliping first calibration solution product of FPARAM column using a minmax range """
         aflocal = aftool()
@@ -286,7 +286,7 @@ class test_tsys(test_base):
         aflocal.parseagentparameters(agentSummary)
         aflocal.init()
         summary = aflocal.run(writeflags=True)
-        aflocal.done() 
+        aflocal.done()
 
         self.assertEqual(summary['report0']['total'], 129024.0)
         self.assertEqual(summary['report0']['flagged'], 750.0)
@@ -310,7 +310,7 @@ class test_tsys(test_base):
         aflocal.parsesummaryparameters()
         aflocal.init()
         summary = aflocal.run(writeflags=True)
-        aflocal.done() 
+        aflocal.done()
         self.assertEqual(summary['report0']['total'], 129024)
         self.assertEqual(summary['report0']['flagged'], 750)
         self.assertEqual(summary['report0']['correlation']['Sol1']['flagged'], 750)
@@ -334,7 +334,7 @@ class test_tsys(test_base):
         aflocal.parseagentparameters(agentSummary)
         aflocal.init()
         summary = aflocal.run(writeflags=True)
-        aflocal.done() 
+        aflocal.done()
 
         self.assertEqual(summary['report0']['total'], 129024)
         self.assertEqual(summary['report0']['flagged'], 1500)
@@ -356,7 +356,7 @@ class test_tsys(test_base):
         aflocal.parseagentparameters(agentSummary)
         aflocal.init()
         summary = aflocal.run(writeflags=True)
-        aflocal.done() 
+        aflocal.done()
 
         self.assertEqual(summary['report0']['total'], 129024.0)
         self.assertEqual(summary['report0']['flagged'], 442.0)
@@ -380,7 +380,7 @@ class test_tsys(test_base):
         aflocal.parseagentparameters(agentSummary)
         aflocal.init()
         summary = aflocal.run(writeflags=True)
-        aflocal.done() 
+        aflocal.done()
 
         self.assertEqual(summary['report0']['total'], 129024.0)
         self.assertEqual(summary['report0']['flagged'], 1192.0)
@@ -404,7 +404,7 @@ class test_tsys(test_base):
         aflocal.parseagentparameters(agentSummary)
         aflocal.init()
         summary = aflocal.run(writeflags=True)
-        aflocal.done() 
+        aflocal.done()
 
         self.assertEqual(summary['report0']['total'], 129024.0)
         self.assertEqual(summary['report0']['flagged'], 1192.0)
@@ -428,7 +428,7 @@ class test_tsys(test_base):
         aflocal.parseagentparameters(agentSummary)
         aflocal.init()
         summary = aflocal.run(writeflags=True)
-        aflocal.done() 
+        aflocal.done()
 
         self.assertEqual(summary['report0']['total'], 129024.0)
         self.assertEqual(summary['report0']['flagged'], 126.0)
@@ -452,7 +452,7 @@ class test_tsys(test_base):
         aflocal.parseagentparameters(agentSummary)
         aflocal.init()
         summary = aflocal.run(writeflags=True)
-        aflocal.done() 
+        aflocal.done()
 
         self.assertEqual(summary['report0']['total'], 129024.0)
         self.assertEqual(summary['report0']['flagged'], 0.0)
@@ -476,7 +476,7 @@ class test_tsys(test_base):
         aflocal.parseagentparameters(agentSummary)
         aflocal.init()
         summary = aflocal.run(writeflags=True)
-        aflocal.done() 
+        aflocal.done()
 
         self.assertEqual(summary['report0']['total'], 129024.0)
         self.assertEqual(summary['report0']['flagged'], 1192.0)
@@ -485,7 +485,7 @@ class test_tsys(test_base):
         self.assertEqual(summary['report0']['correlation']['Sol2']['flagged'], 442.0)
         self.assertEqual(summary['report0']['correlation']['Sol2']['total'], 64512.0)
 
- 
+
     def test_clip_minmax_snr_all_for_tsys_CalTable(self):
         """AgentFlagger:: Test cliping all calibration solution products of SNR column using a minmax range for Tsys CalTable"""
         aflocal = aftool()
@@ -501,7 +501,7 @@ class test_tsys(test_base):
         aflocal.parseagentparameters(agentSummary)
         aflocal.init()
         summary = aflocal.run(writeflags=True)
-        aflocal.done() 
+        aflocal.done()
 
         self.assertEqual(summary['report0']['total'], 129024.0)
         self.assertEqual(summary['report0']['flagged'], 0.0)
@@ -513,7 +513,7 @@ class test_tsys(test_base):
 
 class test_bpass(test_base):
     """AgentFlagger:: Test flagging tool with Bpass-based CalTable """
-    
+
     def setUp(self):
         self.setUp_bpass_case()
 
@@ -526,7 +526,7 @@ class test_bpass(test_base):
         aflocal.parsesummaryparameters()
         aflocal.init()
         summary = aflocal.run(writeflags=True)
-        aflocal.done() 
+        aflocal.done()
         self.assertEqual(summary['report0']['flagged'], 11078.0, 'Should use CPARAM as the default column')
 
     def test_manual_field_selection_agent_layer_for_bpass_CalTable(self):
@@ -542,7 +542,7 @@ class test_bpass(test_base):
         aflocal.parseagentparameters(agentSummary)
         aflocal.init()
         summary = aflocal.run(writeflags=True)
-        aflocal.done() 
+        aflocal.done()
 
         self.assertEqual(summary['report0']['field']['3C286_A']['flagged'], 499200.0)
         self.assertEqual(summary['report0']['field']['3C286_B']['flagged'], 0)
@@ -562,7 +562,7 @@ class test_bpass(test_base):
         aflocal.parseagentparameters(agentSummary)
         aflocal.init()
         summary = aflocal.run(writeflags=True)
-        aflocal.done() 
+        aflocal.done()
 
         self.assertEqual(summary['report0']['antenna']['ea09']['flagged'], 48000.0)
         self.assertEqual(summary['report0']['antenna']['ea10']['flagged'], 0.0)
@@ -579,7 +579,7 @@ class test_bpass(test_base):
         aflocal.parseagentparameters(agentManual)
         aflocal.init()
         summary = aflocal.run(writeflags=True)
-        aflocal.done() 
+        aflocal.done()
 
         aflocal.open(self.vis)
         aflocal.selectdata()
@@ -587,7 +587,7 @@ class test_bpass(test_base):
         aflocal.parseagentparameters(agentSummary)
         aflocal.init()
         summary = aflocal.run(writeflags=True)
-        aflocal.done() 
+        aflocal.done()
 
         self.assertEqual(summary['report0']['field']['3C286_A']['flagged'], 499200.0)
         self.assertEqual(summary['report0']['field']['3C286_B']['flagged'], 0)
@@ -606,7 +606,7 @@ class test_bpass(test_base):
         aflocal.parseagentparameters(agentManual)
         aflocal.init()
         summary = aflocal.run(writeflags=True)
-        aflocal.done() 
+        aflocal.done()
 
         aflocal.open(self.vis)
         aflocal.selectdata()
@@ -614,7 +614,7 @@ class test_bpass(test_base):
         aflocal.parseagentparameters(agentSummary)
         aflocal.init()
         summary = aflocal.run(writeflags=True)
-        aflocal.done() 
+        aflocal.done()
 
         self.assertEqual(summary['report0']['antenna']['ea09']['flagged'], 48000.0)
         self.assertEqual(summary['report0']['antenna']['ea10']['flagged'], 0.0)
@@ -629,12 +629,12 @@ class test_bpass(test_base):
         aflocal.parsesummaryparameters()
         aflocal.init()
         summary = aflocal.run(writeflags=True)
-        aflocal.done() 
+        aflocal.done()
         self.assertEqual(summary['report0']['flagged'], 11175.0)
         self.assertEqual(summary['report0']['total'], 1248000)
         self.assertEqual(summary['report0']['correlation']['Sol1']['flagged'], 11136.0)
         self.assertEqual(summary['report0']['correlation']['Sol2']['flagged'], 39)
-        
+
     def test_clip_minmax_snr_all_for_bpass_CalTable(self):
         """AgentFlagger:: Test cliping all calibration solution products of SNR column using a minmax range for bpass CalTable"""
         aflocal = aftool()
@@ -650,7 +650,7 @@ class test_bpass(test_base):
         aflocal.parseagentparameters(agentSummary)
         aflocal.init()
         summary = aflocal.run(writeflags=True)
-        aflocal.done() 
+        aflocal.done()
 
         self.assertEqual(summary['report0']['total'], 1248000.0)
         self.assertEqual(summary['report0']['flagged'], 74371.0)
@@ -672,24 +672,24 @@ class test_bpass(test_base):
         aflocal.parseagentparameters(agentSummary)
         aflocal.init()
         summary = aflocal.run(writeflags=True)
-        aflocal.done() 
+        aflocal.done()
         self.assertEqual(summary['report0']['flagged'], 13197)
         self.assertEqual(summary['report0']['correlation']['Sol1']['flagged'], 0)
         self.assertEqual(summary['report0']['correlation']['Sol2']['flagged'], 13197)
 
     def test_tfcrop_cparam_sol1_extension(self):
-        """AgentFlagger:: Test tfcrop first calibration solution product of CPARAM column, 
+        """AgentFlagger:: Test tfcrop first calibration solution product of CPARAM column,
         and then extend to the other solution for bpass CalTable"""
         aflocal = aftool()
         datacolumn = "CPARAM"
         correlation = 'Sol1'
         aflocal.open(self.vis)
         aflocal.selectdata()
-        
+
         # Pre-clip data to avoid problems with near-zero values
         agentClip={'apply':True,'mode':'clip','clipzeros':True,'datacolumn':datacolumn,'correlation':correlation}
         aflocal.parseagentparameters(agentClip)
-        
+
         aflocal.parsetfcropparameters(datacolumn=datacolumn, correlation=correlation,
                                       extendflags=False)
         aflocal.parsesummaryparameters()
@@ -699,14 +699,14 @@ class test_bpass(test_base):
         aflocal.init()
         summary = aflocal.run(writeflags=True)
         aflocal.done()
-        
-        # flags from first summary, only tfcrop     
-        assert abs(summary['report0']['flagged'] - 30427) <= 5        
+
+        # flags from first summary, only tfcrop
+        assert abs(summary['report0']['flagged'] - 30427) <= 5
         assert abs(summary['report0']['correlation']['Sol1']['flagged'] - 30427) <= 5
-        
+
         # flags from second summary, tfcrop+extend
         assert abs(summary['report1']['flagged'] - 2*30427) <= 10
-        assert abs(summary['report1']['correlation']['Sol2']['flagged'] - 30427) <= 5        
+        assert abs(summary['report1']['correlation']['Sol2']['flagged'] - 30427) <= 5
 
     def test_antint_simple_for_bpass_CalTable(self):
         '''Test the antenna integrations flagging mode on a bpass-based CalTable
@@ -715,7 +715,7 @@ class test_bpass(test_base):
         aflocal = aftool()
         aflocal.open(self.vis)
         aflocal.selectdata()
-        
+
         agentUnflag = {'apply':True, 'mode':'unflag'}
         agentAntInt = {'apply': True, 'mode': 'antint', 'datacolumn': 'CPARAM',
                        'antint_ref_antenna': 'ea01', 'spw': '0', 'field': '0',
@@ -746,7 +746,7 @@ class test_MS(test_base):
 
     def test_null_intent_selection1(self):
         '''Agentflagger: handle unknown scan intent in list mode'''
-        
+
         aflocal = aftool()
         aflocal.open(self.vis)
         aflocal.selectdata()
@@ -761,7 +761,7 @@ class test_MS(test_base):
         self.assertEqual(summary['report0']['scan']['1']['flagged'], 192416)
         self.assertEqual(summary['report0']['scan']['8']['flagged'], 0)
         self.assertEqual(summary['report0']['flagged'], 192416)
-        
+
     def test_summarylist1(self):
         '''agentflagger: multiple summaries'''
         aflocal = aftool()
@@ -770,12 +770,12 @@ class test_MS(test_base):
         aflocal.parsesummaryparameters(name='summary_1')
         aflocal.parsemanualparameters(intent='FOCUS') # non-existing intent
         aflocal.parsesummaryparameters(name='summary_2')
-        aflocal.parsemanualparameters(spw='0') 
+        aflocal.parsemanualparameters(spw='0')
         aflocal.parsesummaryparameters(name='summary_3')
         aflocal.init()
         summary = aflocal.run()
         aflocal.done()
-        
+
         # It creates 2 reports per summary agent. One is type='summary',
         # the other is type='plotpoints'
         # jagonzal: Not anymore, now it creates only 1 report per summary
@@ -787,7 +787,7 @@ class test_MS(test_base):
         self.assertEqual(summary['report1']['flagged'], 0)
         self.assertEqual(summary['report2']['spw']['0']['flagged'], summary['report2']['spw']['0']['total'])
 
-             
+
 class test_display(test_base):
     """AgentFlagger:: Automatic test to check basic behaviour of display GUI using pause=False option """
 
@@ -861,7 +861,7 @@ class test_display(test_base):
         aflocal.init()
         summary = aflocal.run(writeflags=True)
         aflocal.done()
-        
+
         self.assertEqual(summary['report0']['spw:channel']['1:0']['flagged'], 1300)
         self.assertEqual(summary['report0']['spw:channel']['1:5']['flagged'], 1300)
         self.assertEqual(summary['report0']['spw:channel']['1:10']['flagged'], 1300)
@@ -869,7 +869,7 @@ class test_display(test_base):
         self.assertEqual(summary['report0']['spw:channel']['1:60']['flagged'], 1300)
         self.assertEqual(summary['report0']['spw:channel']['1:59']['flagged'], 0)
         self.assertEqual(summary['report0']['flagged'], 15*1300)
-        
+
     def test_display_float_data(self):
         '''AgentFlagger: Select spw, display and flag single-dish MS'''
         self.setUp_float_data()
@@ -884,11 +884,11 @@ class test_display(test_base):
         summary = aflocal.run(writeflags=True)
         aflocal.done()
         self.assertEqual(summary['report0']['flagged'], 2052)
-    
+
 
 # Dummy class which cleans up created files
 class cleanup(test_base):
-            
+
     def tearDown(self):
         os.system('rm -rf cal.fewscans.bpass*')
         os.system('rm -rf X7ef.tsys*')

@@ -44,7 +44,7 @@ def lsms(musthave=[], mspat="*[-_.][Mm][Ss]", combine='or', remind=True,
     """
     if type(musthave) == str:
         musthave = [s.replace(',', '') for s in musthave.split()]
-        
+
     listall = True
     if musthave:
         listall = False
@@ -65,7 +65,7 @@ def lsms(musthave=[], mspat="*[-_.][Mm][Ss]", combine='or', remind=True,
 
         for currms in mses:
             print_ms(currms, msdict[currms], listall, use_tb, remind)
-        
+
 
 def print_ms(currms, msdict, listall=False, use_tb=False, remind=True):
     """
@@ -126,7 +126,7 @@ def print_ms(currms, msdict, listall=False, use_tb=False, remind=True):
             notindefn.sort()
             if use_tb:
                 currmsstr += "  Not in MS def'n V. 2.0: "
-            currmsstr += ', '.join(notindefn) + "\n"                        
+            currmsstr += ', '.join(notindefn) + "\n"
 
     if currmsstr:
         if use_tb:
@@ -430,7 +430,7 @@ def find_needed_items(musthave=set([]), listall=False):
     """
     #print "musthave =", ", ".join(musthave)
     #print "listall =", listall
-    
+
     needed_subtables = musthave.intersection(possible_subtables)
     needed_items = {'anywhere': set([])}  # cols and keywords
     for mh in musthave:
@@ -439,7 +439,7 @@ def find_needed_items(musthave=set([]), listall=False):
             if mhparts[0] not in needed_items:
                 needed_items[mhparts[0]] = set([mhparts[1]])
             else:
-                needed_items.add(mhparts[1])           
+                needed_items.add(mhparts[1])
             if mhparts[0] != 'MAIN':
                 needed_subtables.add(mhparts[0])
         elif mh not in possible_subtables:
@@ -480,7 +480,7 @@ def find_needed_items(musthave=set([]), listall=False):
             musthave.difference_update(need_tb)
 
     return needed_subtables, needed_items, use_tb, mytb
-    
+
 
 
 def matchingMSes(musthave=[], mspat="*.ms", combine='or', doprint=False,
@@ -496,7 +496,7 @@ def matchingMSes(musthave=[], mspat="*.ms", combine='or', doprint=False,
     If freemem=True the return dict will NOT be updated.  Note that usually
     you want freemem == doprint.
     """
-        
+
     holderdict = {'musthave': set([s.upper() for s in musthave]),
                   'mspat':    mspat,
                   'msdict':   {},
@@ -515,7 +515,7 @@ def matchingMSes(musthave=[], mspat="*.ms", combine='or', doprint=False,
     holderdict['needed_items']     = nsit[1]
     holderdict['use_tb']           = nsit[2]
     holderdict['mytb']             = nsit[3]
-    
+
     splitatdoubleglob = mspat.split('**/')
     if len(splitatdoubleglob) > 1:
         if splitatdoubleglob[0] == '':
@@ -527,7 +527,7 @@ def matchingMSes(musthave=[], mspat="*.ms", combine='or', doprint=False,
 
     return holderdict['msdict'], holderdict['use_tb']
 
-        
+
 def checkMSes(holderdict, dir, files):
     """
     Updates holderdict['msdict'] with a list of MSes in dir that match
@@ -539,7 +539,7 @@ def checkMSes(holderdict, dir, files):
 
     If holderdict['freemem']=True holderdict['msdict'] will NOT be updated.
     Note that usually you want holderdict['freemem'] == holderdict['doprint'].
-    """        
+    """
     # Yup, ignore files.  It's just a os.path.walk()ism.
     mses = glob(os.path.join(dir, holderdict['mspat']))
 
@@ -553,18 +553,18 @@ def checkMSes(holderdict, dir, files):
         if not holderdict.get('msdict'):   # Initialize it so retval
             holderdict['msdict'] = {}      # can be tied to it.
         retval = holderdict['msdict']
-    
+
     needed_subtables = holderdict.get('needed_subtables', set([]))
     needed_items = holderdict.get('needed_items', {})
     use_tb  = holderdict.get('use_tb', False)
 
     if holderdict.get('mytb'):
         tb = holderdict['mytb']
-    
+
     for currms in mses:
         if currms[:2] == './':  # strip off leading ./, if present.
             currms = currms[2:]    # cosmetic.
-        
+
         retval[currms] = {'MAIN': {}}
         keep_currms = listall
 
@@ -598,7 +598,7 @@ def checkMSes(holderdict, dir, files):
                     else:
                         print("Error", e, "from tb.open(", currms, ")")
                     break
-                    
+
                 retval[currms]['MAIN']['cols'] = tb.colnames()
                 kws = set(tb.keywordnames())
                 retval[currms]['MAIN']['kws'] = kws.difference(possible_subtables)
@@ -637,7 +637,7 @@ def checkMSes(holderdict, dir, files):
                 elif st in needed_subtables:
                     keep_currms = False
                     break
-            
+
         if not keep_currms:
             del retval[currms]
         elif holderdict.get('doprint'):

@@ -40,7 +40,7 @@ def pixelmask2cleanmask(imagename='',maskname='mask0',maskimage='',usemasked=Fal
     if (usemasked):
         ia.set(1)
     else:
-        ia.set(0) 
+        ia.set(0)
     ia.close()
     #
     tb.open(maskimage,nomodify=False)

@@ -12,7 +12,7 @@ datapath = os.environ.get('CASAPATH').split()[0] +\
                             '/data/regression/unittest/listhistory/'
 
 testmms = False
-if 'TEST_DATADIR' in os.environ:   
+if 'TEST_DATADIR' in os.environ:
     DATADIR = str(os.environ.get('TEST_DATADIR'))+'/listhistory/'
     if os.path.isdir(DATADIR):
         testmms = True
@@ -20,7 +20,7 @@ if 'TEST_DATADIR' in os.environ:
     else:
         print('WARN: directory '+DATADIR+' does not exist')
 
-print('listhistory tests will use data from '+datapath)         
+print('listhistory tests will use data from '+datapath)
 
 class listhistory_test(unittest.TestCase):
 
@@ -34,40 +34,40 @@ class listhistory_test(unittest.TestCase):
             os.symlink(fpath, self.msfile)
         else:
             self.fail('Data does not exist -> '+fpath)
-            
+
     def tearDown(self):
         if os.path.lexists(self.msfile):
             os.unlink(self.msfile)
-        
+
     def test1(self):
         '''Test 1: Empty input should return False'''
         myms = ''
         res = listhistory(myms)
         self.assertFalse(res)
-        
+
     def test2(self):
         '''Test 2: Good input should return None'''
         res = listhistory(self.msfile)
         self.assertEqual(res,None)
-        
+
     def test3(self):
         '''Test 3: Compare length of reference and new lists'''
         logfile= "mylisth.log"
         newfile= "newlisth.log"
         open(logfile,"w").close
         casalog.setlogfile(logfile)
-        
+
         res = listhistory(self.msfile)
         cmd="sed -n \"/Begin Task/,/End Task/p\" %s > %s " %(logfile,newfile)
         print(cmd)
         os.system(cmd)
-    
+
         # Get the number of lines in file
         refnum=13
         if self.itismms:
             refnum = 36
 
-        cmd="wc -l %s |egrep \"[0-9]+\" -o" %newfile    
+        cmd="wc -l %s |egrep \"[0-9]+\" -o" %newfile
         print(cmd)
         output=subprocess.getoutput(cmd)
         num = int(output)
@@ -75,17 +75,17 @@ class listhistory_test(unittest.TestCase):
 
 
 class listhistory_cleanup(unittest.TestCase):
-    
+
     def tearDown(self):
         os.system('rm -rf *Itziar.*')
 
     def test_cleanup(self):
         '''listhistory: Cleanup'''
         pass
-        
+
 def suite():
     return [listhistory_test, listhistory_cleanup]
 
-               
-        
-        
+
+
+

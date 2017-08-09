@@ -11,20 +11,20 @@
 #        setnewbase=True (save pngs as new base for future regression)       #
 #    Switch these parameters before execfile as needed.                      #
 #                                                                            #
-# This script is to run in a writeable directory (it writes png files).      # 
-# It creates a directory named 'plotxy_regression' and three subdirectories  # 
+# This script is to run in a writeable directory (it writes png files).      #
+# It creates a directory named 'plotxy_regression' and three subdirectories  #
 # 'plot' , 'prev' and 'data'.  The 'plot' stores pngs from this regression.  #
 # The 'prev' stores pngs from previous regression. The 'data' store the      #
 # required test data.                                                        #
 #                                                                            #
-# The first time running this, it pulls data from known casa/data directory. # 
+# The first time running this, it pulls data from known casa/data directory. #
 # It then generates all pngs and save them into 'plot'                       #
 #                                                                            #
 # It is suggested to run subsequent regression from previously created       #
 # 'plotxy_regression' directory. Then (1) it pulls a dataset only if it is   #
 # not already in 'data' directory; (2) it generates new pngs and saves to    #
 # 'plot'; (3) it compares the corresponding pngs and writes the result;      #
-# (4) it saves generated pngs to 'prev' directory as a new baseline          # 
+# (4) it saves generated pngs to 'prev' directory as a new baseline          #
 #                                                                            #
 # It is often the case that you need to test only the current block issue.   #
 # You can do that by having the script in the 'test the current issue'       #
@@ -32,7 +32,7 @@
 #                                                                            #
 # example: <CASA>cd <path_to_regression>/plotxy_regression                   #
 #          <CASA>interactive=False                                           #
-#          <CASA>execfile('<path_to_this_script>/plotxy_regression.py')      # 
+#          <CASA>execfile('<path_to_this_script>/plotxy_regression.py')      #
 #                                                                            #
 # Output:                                                                    #
 #    plot files - plotxy_regression/plotxy.plot.name.png                     #
@@ -107,7 +107,7 @@ startdir=curpathlist[len(curpathlist)-1]
 
 
 #tstutl.stop("Test stop")
-#start the test from the dir name 'plotxy_regression' 
+#start the test from the dir name 'plotxy_regression'
 if (startdir!=testdir):
    #create new testdir
    tstutl.maketestdir(testdir)
@@ -137,7 +137,7 @@ else:
       bench=True
    else:
       bench=False
- 
+
 # Check whether or not to wait for user input
 global manual
 try:
@@ -190,7 +190,7 @@ else:
    #   os.kill(pid,9)
 
    #Turn off debug log
-   #casalog.filter('DEBUG2') 
+   #casalog.filter('DEBUG2')
 
 def plotfile(testName=""):
     return testplot+"/"+prefix+testName+'.png'
@@ -214,19 +214,19 @@ if bench:
 tstutl.note('########## Preparing test data... ##########',"INFO",this)
 msList=['NGC5921'
         ,'g19_12coall'
-        ,'G24_92A_11' 
+        ,'G24_92A_11'
         ,'polcal_20041110_cband_vla_calaips'
-        ,'3C84' 
-        ,'whysong' 
-        ,'coma' 
-        ,'m87test' 
+        ,'3C84'
+        ,'whysong'
+        ,'coma'
+        ,'m87test'
         ,'n4826_16apr98'
         #,'uid___X1eb_Xa30_X1'
         #,'uid___X1eb_X7888_X1'
         #,'uid___X1eb_Xa885_X1'
         ,'n2403'
         #,'3C273XC1'
-        ,'testPhase_sdm' 
+        ,'testPhase_sdm'
        ]
 
 taskname='importuvfits'
@@ -238,39 +238,39 @@ for k in range(len(msList)):
    # Set up the MS filename and save as new global variable
    dataName=msList[k]
    vis=testdata+'/'+dataName+'.ms'
-   
+
    if (not os.path.exists(vis)):
       fitsfile=pathname+dataName+'.fits'
       msfile=pathname+dataName+'.ms'
       if (os.path.exists(msfile)):
-         tstutl.note('copy msfile: '+msfile+'\n===========>'+vis,"INFO",this) 
-         shutil.copytree(msfile, vis) 
+         tstutl.note('copy msfile: '+msfile+'\n===========>'+vis,"INFO",this)
+         shutil.copytree(msfile, vis)
       elif (os.path.exists(fitsfile)):
          tstutl.note('import fitsfile: '+fitsfile+'\n===============>'+vis,"INFO",this)
-         importuvfits() 
+         importuvfits()
       else:
          tstutl.note(vis+" does not exist.","INFO",this)
          tstutl.note("Could not find "+fitsfile+" at "+pathname,"WARN",this)
          tstutl.note("Could not find "+msfile+" at "+pathname,'WARN',this)
          hasTestData=False
    else:
-      tstutl.note(vis+' found',"INFO",this) 
+      tstutl.note(vis+' found',"INFO",this)
 
 tstutl.note('Done preparing test data',"INFO",this)
 
 # Record import time
 if bench:
    importtime=time.time()
-   tstutl.note('Total data import time %.2f sec.' % (importtime - startTime),"INFO",this) 
+   tstutl.note('Total data import time %.2f sec.' % (importtime - startTime),"INFO",this)
 
 if not hasTestData:
    tstutl.stop('Required test data is not available. plotxy regression cannot continue')
-   
+
 taskname='plotxy'
 
 ###############################################################################
 ## 0. test the current issue                                                  #
-##   if the currentaffair=true, it stops after done this section of test      # 
+##   if the currentaffair=true, it stops after done this section of test      #
 ##   the test in this section is temporary and changes as neccessary          #
 ###############################################################################
 tstutl.note('########## current issues ##########',"INFO",this)
@@ -397,7 +397,7 @@ plotxy()
 # Record axis plot time
 if bench:
    importtime=time.time()
-   tstutl.note('Total time for xais plot (averaged): %.2f sec.' % (importtime - startTime),'INFO',this) 
+   tstutl.note('Total time for xais plot (averaged): %.2f sec.' % (importtime - startTime),'INFO',this)
 
 ##############################################################################
 # 2. plotxy non-average for all possible xy axes                             #
@@ -446,7 +446,7 @@ plotxy()
 # Record axis plot time
 if bench:
    importtime=time.time()
-   tstutl.note('Total time for axis plot (non-average): %.2f sec.' % (importtime - startTime),'INFO',this) 
+   tstutl.note('Total time for axis plot (non-average): %.2f sec.' % (importtime - startTime),'INFO',this)
 
 
 ###################################################################################
@@ -474,10 +474,10 @@ if bench:
 #####   title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ 'sec average)'
 #####   figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_iter_'+iteration
 #####   figfile=plotfile(figname)
-#####   tstutl.note('plot iteratrion: '+iteration+' '+title,'INFO',this) 
+#####   tstutl.note('plot iteratrion: '+iteration+' '+title,'INFO',this)
 #####   plotxy()
 #####   if (manual==True):
-#####      raw_input('mouse click on NEXT to iterate, press a key when done') 
+#####      raw_input('mouse click on NEXT to iterate, press a key when done')
 #####
 #####iteration=''
 #####subplot=111
@@ -488,33 +488,33 @@ if bench:
 #####plotxy(vis='data/3c129_6cm.ms', selectdata=True, correlation='RR LL',
 #####xaxis='uvdist',yaxis='amp', multicolor='both', iteration='field')
 #####if (manual==True):
-#####   raw_input('mouse click on NEXT to iterate, press a key when done') 
+#####   raw_input('mouse click on NEXT to iterate, press a key when done')
 #####
 #####plotxy(vis='data/3c129_6cm.ms', selectdata=True, correlation='RR LL',
 #####xaxis='uvdist',yaxis='amp', multicolor='both', iteration='baseline')
 #####if (manual==True):
-#####   raw_input('mouse click on NEXT to iterate, press a key when done') 
+#####   raw_input('mouse click on NEXT to iterate, press a key when done')
 #####
 #####plotxy(vis='data/3c129_6cm.ms', selectdata=True, correlation='RR LL',
 #####xaxis='uvdist',yaxis='amp', multicolor='both', iteration='scan')
 #####if (manual==True):
-#####   raw_input('mouse click on NEXT to iterate, press a key when done') 
+#####   raw_input('mouse click on NEXT to iterate, press a key when done')
 #####
 #####plotxy(vis='data/3c129_6cm.ms', selectdata=True, correlation='RR LL',
 #####xaxis='uvdist',yaxis='amp', multicolor='both', iteration='feed')
 #####if (manual==True):
-#####   raw_input('mouse click on NEXT to iterate, press a key when done') 
+#####   raw_input('mouse click on NEXT to iterate, press a key when done')
 #####
 #####plotxy(vis='data/3c129_6cm.ms', selectdata=True, correlation='RR LL',
 #####xaxis='uvdist',yaxis='amp', multicolor='both', iteration='antenna', field='0')
 #####if (manual==True):
-#####   raw_input('mouse click on NEXT to iterate, press a key when done') 
+#####   raw_input('mouse click on NEXT to iterate, press a key when done')
 #####
 #####'''
 ###### Record axis plot time
 #####if bench:
 #####   importtime=time.time()
-#####   tstutl.note('Total time for iteration plot (averaged): %.2f sec.' % (importtime - startTime),'INFO',this) 
+#####   tstutl.note('Total time for iteration plot (averaged): %.2f sec.' % (importtime - startTime),'INFO',this)
 #####
 #####
 ###################################################################################
@@ -556,7 +556,7 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average)'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 ######channel average by 2, timeaverage 0-70
@@ -570,7 +570,7 @@ if bench:
 #####   title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average)'
 #####   figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin
 #####   figfile=plotfile(figname)
-#####   tstutl.note('plot '+title,'INFO',this) 
+#####   tstutl.note('plot '+title,'INFO',this)
 #####   plotxy()
 #####
 ###################################################################################
@@ -605,7 +605,7 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+' sec average)'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_chan'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####width = '2'
@@ -615,7 +615,7 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average) spw=0,1,2,3'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_'+'chan_spw=0,1,2,3'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####spw = '4,5'
@@ -623,7 +623,7 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average) spw=4,5'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_'+'chan_spw=4,5'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####spw = '6,7'
@@ -631,7 +631,7 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average) spw=6,7'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_'+'chan_spw=6,7'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####spw = '0,1,2,3'
@@ -639,7 +639,7 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average) spw=0,1,2,3'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_'+'freq_spw=0,1,2,3'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####spw = '4,5'
@@ -647,7 +647,7 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average) spw=4,5'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_'+'freq_spw=4,5'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####spw = '6,7'
@@ -655,7 +655,7 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+' sec average) spw=6,7'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_'+'freq_spw=6,7'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####averagemode = 'vector'
@@ -668,7 +668,7 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+' sec average)'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_chan'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####spw = '0,1,2,3'
@@ -676,7 +676,7 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average) spw=0,1,2,3'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_'+'chan_spw=0,1,2,3'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####spw = '4,5'
@@ -684,7 +684,7 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average) spw=4,5'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_'+'chan_spw=4,5'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####spw = '6,7'
@@ -692,16 +692,16 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average) spw=6,7'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_'+'chan_spw=6,7'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
-######tstutl.note('test of non-average freq conversion disabled','WARN',this) 
+######tstutl.note('test of non-average freq conversion disabled','WARN',this)
 #####spw = '0,1,2,3'
 #####xaxis='frequency'
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average) spw=0,1,2,3'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_'+'freq_spw=0,1,2,3'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####spw = '4,5'
@@ -709,7 +709,7 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average) spw=4,5'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_'+'freq_spw=4,5'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####spw = '6,7'
@@ -717,7 +717,7 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average) spw=6,7'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_'+'freq_spw=6,7'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 ###################################################################################
@@ -753,7 +753,7 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average) field=2'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_'+'field=2'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####crossscans=false
@@ -762,7 +762,7 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average) field=2'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_'+'field=2'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####crossscans=true
@@ -771,7 +771,7 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average) field=2,crossscans=1'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_'+'field=2,crossscans=1'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####crossscans=false
@@ -780,7 +780,7 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average) field=2,crossscans=0'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_'+'field=2,crossscans=0'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####crossscans=true
@@ -789,7 +789,7 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average) field=2,crossscans=1'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_'+'field=2,crossscans=1'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####crossscans=true
@@ -799,7 +799,7 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average) field=2,crossscans=1,antenna=2&3'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_'+'field=2,crossscans=1,antenna=2&3'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 ######test cross baselines
@@ -831,14 +831,14 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average) field=2,RR,crossbls=1'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_'+'field=2,RR,crosssbls=1'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####crossbls=False
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average) field=2,RR,corssbls=0'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_'+'field=2,RR,crossscans=0'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####timebin='6000'
@@ -846,14 +846,14 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average) field=2,RR,crossbls=1'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_'+'field=2,RR,crosssbls=1'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####crossbls=False
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average) field=2,RR,corssbls=0'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_'+'field=2,RR,crossscans=0'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####timebin='60000'
@@ -861,14 +861,14 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average) field=2,RR,crossbls=1'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_'+'field=2,RR,crosssbls=1'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####crossbls=False
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average) field=2,RR,crossbls=0'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_'+'field=2,RR,crossblss=0'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####
@@ -903,7 +903,7 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' '+timebin+ ' sec average) crossscans=0'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_'+'crossscans=0'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####field = '2'
@@ -916,7 +916,7 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' '+timebin+ ' sec average) field=2,spw=2,crossscans=0'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_'+'field=2,spw=2,crossscans=0'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####crossscans=true
@@ -925,7 +925,7 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' '+timebin+ ' sec average) field=2,spw=2,crossscans=1'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_'+'field=2,spw=2,crossscans=1'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####crossscans=false
@@ -934,7 +934,7 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' '+timebin+ ' sec average) field=2,spw=2,crossscans=0'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_'+'field=2,spw=2,crossscans=0'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####crossscans=true
@@ -943,7 +943,7 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' '+timebin+ ' sec average) field=2,spw=2,crossscans=1'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_'+'field=2,spw=2,crossscans=1'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####crossscans=true
@@ -954,7 +954,7 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' '+timebin+ ' sec average) field=2,spw=2,antenna=2,crossscans=1'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_'+'field=2,spw=2,antenna=2,crossscans=1'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####crossscans=true
@@ -967,7 +967,7 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' '+timebin+ ' sec average) field=2,spw=2,antenna=2,3,crossscans=1'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_'+'field=2,spw=2,antenna=2,antenna=2,3,crossscans=1'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####crossscans=false
@@ -976,7 +976,7 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' '+timebin+ ' sec average) field=2,spw=2,antenna=2,3,crossscans=1'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_'+'field=2,spw=2,antenna=2,antenna=2,3,crossscans=1'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 ###################################################################################
@@ -1004,7 +1004,7 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average)'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'carat'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####default(taskname)
@@ -1022,7 +1022,7 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average)'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_uvrange'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####timebin='0'
@@ -1032,10 +1032,10 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average)'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_uvrange'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
-######test plotrange 
+######test plotrange
 #####default(taskname)
 #####dataset='NGC5921.ms'
 #####vis=testdata+'/'+dataset
@@ -1051,7 +1051,7 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average)'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_plotrangetime'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####plotrange=''
@@ -1059,7 +1059,7 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average)'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_plotrangedefault'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####'''
@@ -1082,14 +1082,14 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average)'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_2antenna_all_corr'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####crossbls=true
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average)'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_2antenna_all_corr_crossbls'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####crossbls=false
@@ -1097,21 +1097,21 @@ if bench:
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average)'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_2antenna_cross_corr'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####antenna='*&&&'
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average)'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_2antenna_self_corr'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####crossbls=true
 #####title=dataset+' '+yaxis+' vs '+xaxis+' ('+width+' chan '+timebin+ ' sec average)'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_2antenna_self_corr_crossbls'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####'''
 #####
@@ -1168,7 +1168,7 @@ if bench:
 #####title='spw=,averaged,uvdist'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_uvdist'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####spw="0,1"
@@ -1177,7 +1177,7 @@ if bench:
 #####title='spw=0,1,averaged,uvdist'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_uvdist_spw01'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####spw='0'
@@ -1187,7 +1187,7 @@ if bench:
 #####title='spw=0,averaged,uvdist'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_uvdist0'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####spw='1'
@@ -1197,7 +1197,7 @@ if bench:
 #####plotcolor='blue'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_uvdist1'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####spw='1'
@@ -1206,7 +1206,7 @@ if bench:
 #####title='spw=1,averaged,uvdist'
 #####plotcolor='blue'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####spw='0'
@@ -1216,7 +1216,7 @@ if bench:
 #####title='spw=0-1,averaged,uvdist'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_uvdist0over1'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####spw='0'
@@ -1226,7 +1226,7 @@ if bench:
 #####title='spw=0,averaged,uvdist'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_uvdist'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####spw='1'
@@ -1236,7 +1236,7 @@ if bench:
 #####title='spw=1-0,averaged,uvdist'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_uvdist1over0'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####timebin='0'
@@ -1248,7 +1248,7 @@ if bench:
 #####title='spw=1,0,non-averaged,uvdist'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_uvdist'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####spw='0'
@@ -1258,7 +1258,7 @@ if bench:
 #####title='spw=1,0,non-averaged,uvdist'
 ######figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_uvdist'
 ######figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 #####spw='1'
@@ -1268,7 +1268,7 @@ if bench:
 #####title='spw=1,0,non-averaged,uvdist'
 #####figname=dataset+'-'+yaxis+'_'+xaxis+'_'+width+'_'+timebin+'_uvdist1over1'
 #####figfile=plotfile(figname)
-#####tstutl.note('plot '+title,'INFO',this) 
+#####tstutl.note('plot '+title,'INFO',this)
 #####plotxy()
 #####
 ###################################################################################
@@ -1280,8 +1280,8 @@ if bench:
 #####
 #####tstutl.note('########## use mp tool (averaged) ##########','INFO',this)
 #####
-#####plotList = ['vischannel', 'visfreq', 'vistime', 'uvdist', 
-#####            'uvcoverage', 'viscorr', 'visvelocity', 'hourangle', 
+#####plotList = ['vischannel', 'visfreq', 'vistime', 'uvdist',
+#####            'uvcoverage', 'viscorr', 'visvelocity', 'hourangle',
 #####            'azimuth', 'elevation', 'parallacticangle', 'weight'
 #####           ]
 #####width='4'
@@ -1297,7 +1297,7 @@ if bench:
 #####   title=dataset+' '+plotname+' ('+width+' chan '+timebin+ ' sec average)'
 #####   figname=dataset+'_'+plotname+'_'+width+'_'+timebin+'.png'
 #####   figfile=plotfile(figname)
-#####   tstutl.note('plot '+title,'INFO',this) 
+#####   tstutl.note('plot '+title,'INFO',this)
 #####   mp.plot(plotname)
 #####   mp.savefig(figfile)
 #####
@@ -1320,9 +1320,9 @@ tstutl.note("There are %s plots in plot directory (this regression)" % newplot,'
 if (newplot==0 or oldplot==0):
    tstutl.note("There is no png files to compare","INFO",this)
 else:
-   
+
    cmplist=[]
-   
+
    for k in range(len(prevlist)):
       pplot=prevlist[k]
       hasnew=False
@@ -1334,7 +1334,7 @@ else:
          tstutl.note(pplot+' is not in %s directory' % testplot,'WARN',this)
       else:
          cmplist.append(pplot)
-   
+
    for k in range(len(thislist)):
       pplot=thislist[k]
       hasold=False
@@ -1352,12 +1352,12 @@ else:
                break;
          if (not already):
             cmplist.append(pplot)
-   
+
    if (len(cmplist)==0):
       tstutl.note("There is no same png files to compare")
    else:
       tstutl.note("There are %s png files to compare" % len(cmplist))
-   
+
    for k in range(len(cmplist)):
       pplot=testplot+'/'+cmplist[k]
       nplot=prevplot+'/'+cmplist[k]
@@ -1365,7 +1365,7 @@ else:
          tstutl.note(cmplist[k]+' is same','INFO',this)
       else:
          tstutl.note(cmplist[k]+' differs ','WARN',this)
-   
+
 ##############################################################################
 # 13. save png files                                                          #
 ##############################################################################
@@ -1374,11 +1374,11 @@ else:
 if (savebase and os.path.exists(testplot)):
    if (os.path.exists(prevplot)):
       tstutl.cleanup(prevplot)
-   shutil.copytree(testplot, prevplot) 
+   shutil.copytree(testplot, prevplot)
    tstutl.note("save plot files to prev as a new baseline",'INFO',this)
-   
+
 ##############################################################################
-#done with all the test 
+#done with all the test
 if bench:
     endTime = time.time()
     endProc = time.clock()

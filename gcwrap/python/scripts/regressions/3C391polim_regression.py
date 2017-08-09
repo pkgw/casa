@@ -8,8 +8,8 @@
 #    o starting from calibrated MS                                          #
 #    o currently only QU imaging with clarkstokes mode is performed         #
 #      mainly to test CAS-2219 fix                                          #
-#    o does multiscale clean                                                # 
-# Reference data:                                                           # 
+#    o does multiscale clean                                                #
+# Reference data:                                                           #
 #    o if savecurstats is defined and equal to True, image statistics will  #
 #      saved on a pickle file (this can be used to store to the data        #
 #      repository as a reference data in future regression run.             #
@@ -36,7 +36,7 @@ def difftest(diffval,tol):
 #-------------------------------------
 
 # use Pickle?
-# savecurstats will store the current 
+# savecurstats will store the current
 # regression results in pickle file
 loc = locals()
 if 'savecurstats' not in loc:
@@ -44,7 +44,7 @@ if 'savecurstats' not in loc:
 if savecurstats:
   import pickle
 if 'savelog' not in loc:
-  savelog=False    
+  savelog=False
 if savelog or savecurstats:
   import datetime
 
@@ -67,7 +67,7 @@ if os.path.exists(rootdatapath+msk):
 else:
   maskpath='./'+msk
 
-    
+
 #test working directory
 testdir = '3c391polim_regression'
 
@@ -91,7 +91,7 @@ except Exception as e:
 ##################
 refstats={}
 #
-# Q image 
+# Q image
 #*.image
 # on rishi (casapy-test 3.1.0 r13281)
 refstats['qim'] = {'blc': array([0, 0, 0, 0], dtype=int32),
@@ -113,7 +113,7 @@ refstats['qim'] = {'blc': array([0, 0, 0, 0], dtype=int32),
          'sum': array([-0.9933029]),
          'sumsq': array([ 0.00169583]),
          'trc': array([575, 575,   0,   0], dtype=int32),
-         'trcf': '18:48:36.407, -00.43.43.058, Q, 4.599e+09Hz'} 
+         'trcf': '18:48:36.407, -00.43.43.058, Q, 4.599e+09Hz'}
 # .residual
 refstats['qres'] = {'blc': array([0, 0, 0, 0], dtype=int32),
           'blcf': '18:50:12.253, -01.07.40.561, Q, 4.599e+09Hz',
@@ -182,7 +182,7 @@ refstats['ures'] = {'blc': array([0, 0, 1, 0], dtype=int32),
 regstate = True
 
 #############
-#regression # 
+#regression #
 #############
 try:
   startTime = time.time()
@@ -211,10 +211,10 @@ try:
 
   endTime = time.time()
   endProc = time.clock()
-except: 
-  print("Clean execution failed") 
-   
-else: 
+except:
+  print("Clean execution failed")
+
+else:
   # analysis
     print("***Analyze the results***")
     curstats={}
@@ -226,7 +226,7 @@ else:
     curstats['ures']=imstat(imagename=imagename, stokes='U')
 
     savelog=False
-    if savelog: 
+    if savelog:
       datestring=datetime.datetime.isoformat(datetime.datetime.today())
       outfile='3c391polimg.'+datestring+'.log'
       logfile=open(outfile,'w')
@@ -247,14 +247,14 @@ else:
         refdataused=refpath
       except (EOFError, pickle.UnpicklingError):
         raise e
-      f.close() 
-        
+      f.close()
+
     # tolerance 5%
-    tol = 0.05 
-    # as of Oct 21, 2010: it does not seem to pass with 5% for U residual test 
-    # on active (its ok for prerelease) on 32bit linux. So relax the value a bit 
-    # for now. 
-    tolres = 0.085 
+    tol = 0.05
+    # as of Oct 21, 2010: it does not seem to pass with 5% for U residual test
+    # on active (its ok for prerelease) on 32bit linux. So relax the value a bit
+    # for now.
+    tolres = 0.085
 
     # list of deviation evaluation
     # currently tests max flux density in cleaned image and sigma in residual image
@@ -263,7 +263,7 @@ else:
     diffqsigfrac=abs((curstats['qres']['sigma'][0] - refstats['qres']['sigma'][0])/refstats['qres']['sigma'][0])
     diffusigfrac=abs((curstats['ures']['sigma'][0] - refstats['ures']['sigma'][0])/refstats['ures']['sigma'][0])
 
-    # acutual tests 
+    # acutual tests
     tests={}
     tests['qmaxdiff']=difftest(diffqmaxfrac,tol)
     tests['qsigdiff']=difftest(diffqsigfrac,tolres)
@@ -274,7 +274,7 @@ else:
     print("***Logging the reulsts***")
     failcnts=0
     for k,v in list(tests.items()):
-      if v=='FAILED': 
+      if v=='FAILED':
         regstate=False
         failcnts+=1
     if regstate:
@@ -298,25 +298,25 @@ else:
     print('            08:44:43.0 - 08:49:43.0 9      4 3C391 C5 7843   9.62     [0]', file=logfile)
     print('            08:49:43.0 - 08:54:43.0 10     5 3C391 C6 7843   9.58     [0]', file=logfile)
     print('            08:54:43.0 - 08:59:38.5 11     6 3C391 C7 7843   9.58     [0]', file=logfile)
-    print('   (nVis = Total number of time/baseline visibilities per scan)', file=logfile) 
+    print('   (nVis = Total number of time/baseline visibilities per scan)', file=logfile)
     print('Fields: 7', file=logfile)
-    print('  ID   Code Name         RA Decl           Epoch   SrcId nVis', file=logfile)   
-    print('  0    NONE 3C391 C1     18:49:24.2440 -00.55.40.5800 J2000 0     7590', file=logfile)   
-    print('  1    NONE 3C391 C2     18:49:29.1490 -00.57.48.0000 J2000 1     7821', file=logfile)   
-    print('  2    NONE 3C391 C3     18:49:19.3390 -00.57.48.0000 J2000 2     7821', file=logfile)   
-    print('  3    NONE 3C391 C4     18:49:14.4340 -00.55.40.5800 J2000 3     7821', file=logfile)   
-    print('  4    NONE 3C391 C5     18:49:19.3390 -00.53.33.1600 J2000 4     7843', file=logfile)   
-    print('  5    NONE 3C391 C6     18:49:29.1490 -00.53.33.1600 J2000 5     7843', file=logfile)   
-    print('  6    NONE 3C391 C7     18:49:34.0540 -00.55.40.5800 J2000 6     7843', file=logfile)   
-    print('   (nVis = Total number of time/baseline visibilities per field)', file=logfile) 
+    print('  ID   Code Name         RA Decl           Epoch   SrcId nVis', file=logfile)
+    print('  0    NONE 3C391 C1     18:49:24.2440 -00.55.40.5800 J2000 0     7590', file=logfile)
+    print('  1    NONE 3C391 C2     18:49:29.1490 -00.57.48.0000 J2000 1     7821', file=logfile)
+    print('  2    NONE 3C391 C3     18:49:19.3390 -00.57.48.0000 J2000 2     7821', file=logfile)
+    print('  3    NONE 3C391 C4     18:49:14.4340 -00.55.40.5800 J2000 3     7821', file=logfile)
+    print('  4    NONE 3C391 C5     18:49:19.3390 -00.53.33.1600 J2000 4     7843', file=logfile)
+    print('  5    NONE 3C391 C6     18:49:29.1490 -00.53.33.1600 J2000 5     7843', file=logfile)
+    print('  6    NONE 3C391 C7     18:49:34.0540 -00.55.40.5800 J2000 6     7843', file=logfile)
+    print('   (nVis = Total number of time/baseline visibilities per field)', file=logfile)
     print('Spectral Windows:  (1 unique spectral windows and 1 unique polarization setups)', file=logfile)
-    print('  SpwID  #Chans Frame Ch1(MHz) ChanWid(kHz)TotBW(kHz) Ref(MHz)    Corrs', file=logfile)           
-    print('  0          64 TOPO  4536        2000 128000      4536 RR  RL  LR  LL ', file=logfile) 
+    print('  SpwID  #Chans Frame Ch1(MHz) ChanWid(kHz)TotBW(kHz) Ref(MHz)    Corrs', file=logfile)
+    print('  0          64 TOPO  4536        2000 128000      4536 RR  RL  LR  LL ', file=logfile)
     print('********************************************************************************', file=logfile)
     print(' ', file=logfile)
     print('******************************** Regression ************************************', file=logfile)
     print('*                                                                              *', file=logfile)
-    print('Q image test', file=logfile) 
+    print('Q image test', file=logfile)
     print('Peak flux density: %-10.5g (expected: %-10.5g, frac_diff:%-10.5g) %s' \
             % (curstats['qim']['max'][0], refstats['qim']['max'][0],\
                tests['qmaxdiff'][1], tests['qmaxdiff'][0]), file=logfile)
@@ -356,7 +356,7 @@ else:
     # for reference data
     if savecurstats:
       datestring=datetime.datetime.isoformat(datetime.datetime.today())
-      pickfile = '3c391polim.regression.'+datestring+'.pickle' 
+      pickfile = '3c391polim.regression.'+datestring+'.pickle'
       f = open(pickfile,'w')
       casapath=os.environ['CASAPATH'].split()
       if 'HOSTNAME' in os.environ:
@@ -364,10 +364,10 @@ else:
       elif len(casapath) >3:
         hostname=casapath[3]
       else:
-	hostname='unknown'
+        hostname='unknown'
       # check the environment that the script is running
       if casapath[1] =='darwin':
-        # darwin 
+        # darwin
         # use sw_vers to get OSX version ?
         os.system('/usr/bin/sw_vers >/tmp/osxverinfo.txt')
         fver=open('/tmp/osxverinfo.txt')
@@ -379,17 +379,17 @@ else:
           arch="running on %s (64bit linux)" % hostname
       else:
           # assume 32bit linux
-          arch ="running on %s (32bit linux)" % hostname 
+          arch ="running on %s (32bit linux)" % hostname
       #Pickling
       pickle.dump(arch,f)
       # stats are stored in this order
       statslist=['qim','qres','uim','ures']
       pickle.dump(statslist,f)
       for stats in statslist:
-        pickle.dump(curstats[stats],f) 
-      f.close() 
+        pickle.dump(curstats[stats],f)
+      f.close()
 
-    # just to be informative 
-    if savelog: 
+    # just to be informative
+    if savelog:
       print("Regression %s: " % msg)
       print("log output: %s" % outfile)

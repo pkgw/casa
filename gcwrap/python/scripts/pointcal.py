@@ -7,22 +7,22 @@ from parameter_check import *
 from casa_stack_manip import stack_frame_find
 
 def pointcal(vis=None,model=None,caltable=None,
-	     field=None,spw=None,
-	     selectdata=None,timerange=None,uvrange=None,antenna=None,scan=None,msselect=None,
-	     solint=None):
-	"""Solve for pointing error calibration:
+             field=None,spw=None,
+             selectdata=None,timerange=None,uvrange=None,antenna=None,scan=None,msselect=None,
+             solint=None):
+        """Solve for pointing error calibration:
 
-	This program is under development.  Please do not use.
+        This program is under development.  Please do not use.
 
-	Keyword arguments:
-	vis -- Name of input visibility file (MS)
-		default: <unset>; example: vis='ngc5921.ms'
-	model -- Name of input model (component list or image)
-		default: <unset>; example: model='ngc5921.im'
-	caltable -- Name of output Pointing calibration table
-		default: <unset>; example: caltable='ngc5921.gcal'
+        Keyword arguments:
+        vis -- Name of input visibility file (MS)
+                default: <unset>; example: vis='ngc5921.ms'
+        model -- Name of input model (component list or image)
+                default: <unset>; example: model='ngc5921.im'
+        caltable -- Name of output Pointing calibration table
+                default: <unset>; example: caltable='ngc5921.gcal'
 
-	--- Data Selection (see help par.selectdata for more detailed information)
+        --- Data Selection (see help par.selectdata for more detailed information)
 
        field -- Select field using field id(s) or field name(s).
                   [run listobs to obtain the list id's or names]
@@ -70,17 +70,17 @@ def pointcal(vis=None,model=None,caltable=None,
        scan -- Scan number range - New, under developement
        msselect -- Optional complex data selection (ignore for now)
 
-	solint --  Solution interval (sec)
-		default: 0.0 (scan based); example: solint=60.
+        solint --  Solution interval (sec)
+                default: 0.0 (scan based); example: solint=60.
 
-	"""
+        """
         myf=stack_frame_find( )
         myf['taskname']='pointcal'
-	###fill unfilled parameters with defaults
-	myf['update_params'](func=myf['taskname'], printtext=False)
-	####local params 
+        ###fill unfilled parameters with defaults
+        myf['update_params'](func=myf['taskname'], printtext=False)
+        ####local params
         cb = myf['cb']
-	selectantenna=myf['selectantenna']
+        selectantenna=myf['selectantenna']
         ###
         #Handle globals or user over-ride of arguments
         #
@@ -92,104 +92,104 @@ def pointcal(vis=None,model=None,caltable=None,
                         #user hasn't set it - use global/default
                         pass
                 else:
-			myf[key]=keyVal
+                        myf[key]=keyVal
                         #user has set it - use over-ride
 
         vis=myf['vis']
-	model=myf['model']
+        model=myf['model']
         caltable=myf['caltable']
         field=myf['field']
         spw=myf['spw']
         selectdata=myf['selectdata']
-	if (selectdata):
-		timerange=myf['timerange']
-		uvrange=myf['uvrange']
-		antenna=myf['antenna']
-		scan=myf['scan']
-		msselect=myf['msselect']
-	else:
-		timerange=''
-		uvrange=''
-		antenna=''
-		scan=''
-		msselect=''
+        if (selectdata):
+                timerange=myf['timerange']
+                uvrange=myf['uvrange']
+                antenna=myf['antenna']
+                scan=myf['scan']
+                msselect=myf['msselect']
+        else:
+                timerange=''
+                uvrange=''
+                antenna=''
+                scan=''
+                msselect=''
         solint=myf['solint']
 
         #Add type/menu/range error checking here
         arg_names=['vis','model','caltable',
-		   'field','spw',
-		   'selectdata','timerange','uvrange','antenna','scan','msselect',
-		   'solint']
+                   'field','spw',
+                   'selectdata','timerange','uvrange','antenna','scan','msselect',
+                   'solint']
         arg_values=[vis,model,caltable,
-		    field,spw,
-		    selectdata,timerange,uvrange,antenna,scan,msselect,
-		    solint]
+                    field,spw,
+                    selectdata,timerange,uvrange,antenna,scan,msselect,
+                    solint]
         arg_types=[str,str,str,
-		   str,str,
-		   bool,str,str,str,str,str,
-		   float]
+                   str,str,
+                   bool,str,str,str,str,str,
+                   float]
         try:
                 parameter_checktype(arg_names,arg_values,arg_types)
         except TypeError as e:
                 print("pointcal -- TypeError: ", e)
-		return
+                return
         except ValueError as e:
                 print("pointcal -- OptionError: ", e)
                 return
         ###
 
 
-	#Python script
-	#parameter_printvalues(arg_names,arg_values,arg_types)
-	try:
-		cb.setvi(old=True,quiet=True)
-		cb.open(vis)
-		cb.reset()
+        #Python script
+        #parameter_printvalues(arg_names,arg_values,arg_types)
+        try:
+                cb.setvi(old=True,quiet=True)
+                cb.open(vis)
+                cb.reset()
 
-		cb.selectvis(time=timerange,spw=spw,scan=scan,field=field,
-			     baseline=antenna,uvrange=uvrange,chanmode='none',
-			     nchan=nchan,start=start,step=step,
-			     msselect=msselect);
+                cb.selectvis(time=timerange,spw=spw,scan=scan,field=field,
+                             baseline=antenna,uvrange=uvrange,chanmode='none',
+                             nchan=nchan,start=start,step=step,
+                             msselect=msselect);
 
-		cb.setsolve2(type='POINTCAL',t=solint,refant='',table=caltable)
-		#cb.state()
-		cb.solve()
-		cb.close()
-	except Exception as instance:
-		print('*** Error ***',instance)
+                cb.setsolve2(type='POINTCAL',t=solint,refant='',table=caltable)
+                #cb.state()
+                cb.solve()
+                cb.close()
+        except Exception as instance:
+                print('*** Error ***',instance)
         saveinputs=myf['saveinputs']
         saveinputs('pointcal','pointcal.last')
 
 
 def pointcal_defaults(param=None):
         myf=stack_frame_find( )
-	a=odict()
+        a=odict()
         a['vis']=''
         a['model']=''
         a['caltable']=''
-	a['field']=''
-	a['spw']=''
+        a['field']=''
+        a['spw']=''
         a['selectdata']={1:{'value':False},
-			 0:odict([{'value':True},
-				  {'timerange':''},
-				  {'uvrange':''},
-				  {'antenna':''},
-				  {'scan':''},
-				  {'msselect':''}])
+                         0:odict([{'value':True},
+                                  {'timerange':''},
+                                  {'uvrange':''},
+                                  {'antenna':''},
+                                  {'scan':''},
+                                  {'msselect':''}])
                          }
         a['solint']=0.0
-	if(param == None):
-		myf['__set_default_parameters'](a)
-	elif(param == 'paramkeys'):
-		return list(a.keys())			    
+        if(param == None):
+                myf['__set_default_parameters'](a)
+        elif(param == 'paramkeys'):
+                return list(a.keys())
         else:
-		if(param in a):
-			return a[param]
+                if(param in a):
+                        return a[param]
 
 
 def pointcal_description(key='pointcal',subkey=None):
         desc={'pointcal': 'Solve for pointing error calibration:\n',
-	'vis': 'This program is under development.  Please do not use. \n\n\t\t\t\t\t\t Name of input visibility file (MS)',
+        'vis': 'This program is under development.  Please do not use. \n\n\t\t\t\t\t\t Name of input visibility file (MS)',
         'model': 'Name of input model (component list or image)',
         'caltable': 'Name of output Gain calibration table',
         'field': 'Select data based on field name or index',
@@ -204,6 +204,6 @@ def pointcal_description(key='pointcal',subkey=None):
         'gainselect': 'Select subset of calibration solutions from gaintable',
         'solint': 'Solution interval (sec)',
         }
-	if(key in desc):
-		return desc[key]
-	return ''
+        if(key in desc):
+                return desc[key]
+        return ''

@@ -47,20 +47,20 @@
 #
 # <synopsis>
 # Test for the ia.adddegaxes tool method
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_adddegaxes[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the ia.adddegaxes() tool method to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -73,17 +73,17 @@ from __main__ import *
 import unittest
 
 class ia_adddegaxes_test(unittest.TestCase):
-    
+
     def setUp(self):
         self._myia = iatool()
-    
+
     def tearDown(self):
         self._myia.done()
-    
+
     def test_general(self):
         """general tests"""
         myim = self._myia
-        
+
         for t in ('f', 'c'):
             # Make RA/DEC image
             imname = 'ia.fromshape.image_' + t
@@ -122,7 +122,7 @@ class ia_adddegaxes_test(unittest.TestCase):
             self.assertTrue(types[2] == 'Linear')
             self.assertTrue(mycs.done())
             self.assertTrue(myim2.done())
-            
+
             myim2 = myim.adddegaxes(tabular=True)
             self.assertTrue(myim2)
             s = myim2.shape()
@@ -155,7 +155,7 @@ class ia_adddegaxes_test(unittest.TestCase):
             self.assertTrue(myim2.done())
             self.assertTrue(mycs.done())
             self.assertTrue(myim.done())
-            
+
     def test_beams(self):
         """test hyperbeams get accounted for correctly"""
         myia = self._myia
@@ -176,7 +176,7 @@ class ia_adddegaxes_test(unittest.TestCase):
         self.assertTrue(beam["major"] == qa.quantity(major))
         self.assertTrue(beam["minor"] == qa.quantity(nminor))
         self.assertTrue(beam["positionangle"] == qa.quantity(pa))
-        
+
         deg.done()
 
     def test_history(self):
@@ -187,8 +187,8 @@ class ia_adddegaxes_test(unittest.TestCase):
         myia.done()
         msgs = deg.history()
         deg.done()
-        self.assertTrue("ia.adddegaxes" in msgs[-2])        
-        self.assertTrue("ia.adddegaxes" in msgs[-1])          
+        self.assertTrue("ia.adddegaxes" in msgs[-2])
+        self.assertTrue("ia.adddegaxes" in msgs[-1])
 
 def suite():
     return [ia_adddegaxes_test]

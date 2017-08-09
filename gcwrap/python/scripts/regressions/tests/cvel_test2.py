@@ -22,7 +22,7 @@ gl=sys._getframe(stacklevel).f_globals
 
 def run():
     #####locate the regression script
-    try: 
+    try:
         lepath=locatescript('cvel_regression2.py')
         print('Script used is ',lepath)
         exec(compile(open(lepath).read(), lepath, 'exec'), gl, pass_on)

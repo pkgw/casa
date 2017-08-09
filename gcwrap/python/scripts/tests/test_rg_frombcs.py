@@ -38,7 +38,7 @@
 #
 # <prerequisite>
 # <ul>
-#   <li> <linkto class="task_rg_frombcs.py:description">imtrans</linkto> 
+#   <li> <linkto class="task_rg_frombcs.py:description">imtrans</linkto>
 # </ul>
 # </prerequisite>
 #
@@ -48,20 +48,20 @@
 #
 # <synopsis>
 # Test the rg.frombcs method
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_rg_frombcs[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the rg.frombcs method to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -114,15 +114,15 @@ def recToList(rec):
     mykeys.sort()
     for k in mykeys:
         mylist.append(rec[k]['value'])
-    return mylist 
+    return mylist
 
 class rg_frombcs_test(unittest.TestCase):
-    
+
     def setUp(self):
         datapath=os.environ.get('CASAPATH').split()[0]+'/data/regression/unittest/rg.frombcs/'
         for im in [image, image_nospec, image_dironly]:
             shutil.copy(datapath + im, im)
-    
+
     def tearDown(self):
         for im in [image, image_nospec, image_dironly]:
             os.remove(im)
@@ -151,7 +151,7 @@ class rg_frombcs_test(unittest.TestCase):
         gottrc = recToList(myreg["trc"])
         exptrc = [1.24791339, 0.782577665, chan19, 4.0]
         self.compLists(gottrc, exptrc)
-        
+
     def test_single_stokes(self):
         """Test setting a single stokes"""
 
@@ -170,7 +170,7 @@ class rg_frombcs_test(unittest.TestCase):
 
     def test_continguous_stokes(self):
         """Test setting a contiguous stokes"""
-        
+
         box = ""
         chans = ""
         stokes = "QU"
@@ -198,10 +198,10 @@ class rg_frombcs_test(unittest.TestCase):
         self.compLists(gotblc, expblc);
         gottrc = recToList(myreg["trc"])
         exptrc = [1.24791339, 0.782577665, chan4, 4.0]
-        
+
     def test_contiguous_channels(self):
         """Test setting multiple continuous channels"""
-        
+
         box = ""
         chans = "0~4"
         stokes = ""
@@ -217,7 +217,7 @@ class rg_frombcs_test(unittest.TestCase):
 
     def test_single_box(self):
         """Test setting single box"""
-        
+
         box = "1,2,3,4"
         chans = ""
         stokes = ""
@@ -230,10 +230,10 @@ class rg_frombcs_test(unittest.TestCase):
         self.compLists(gotblc, expblc);
         gottrc = recToList(myreg["trc"])
         exptrc = [box3, box4, chan19, 4.0]
-        
+
     def test_region_record(self):
         """Test setting region record"""
-        
+
         box = ""
         chans = ""
         stokes = ""
@@ -252,21 +252,21 @@ class rg_frombcs_test(unittest.TestCase):
         )
         gotblc = recToList(myreg["blc"])
         for i in range(len(gotblc)):
-            gotblc[i] = gotblc[i] - 1 
+            gotblc[i] = gotblc[i] - 1
         gotblc = mycsys.toworld(gotblc)['numeric']
         expblc = [box1, box2, chan0, 1.0]
         self.compLists(gotblc, expblc);
         gottrc = recToList(myreg["trc"])
         for i in range(len(gottrc)):
-            gottrc[i] = gottrc[i] - 1 
+            gottrc[i] = gottrc[i] - 1
         gottrc = mycsys.toworld(gottrc)['numeric']
         exptrc = [box3, box4, chan19, 4.0]
         self.compLists(gottrc, exptrc);
 
-        
+
     def test_first_stokes(self):
         """Test setting first stokes"""
-        
+
         box = ""
         chans = ""
         stokes = ""
@@ -279,11 +279,11 @@ class rg_frombcs_test(unittest.TestCase):
         self.compLists(gotblc, expblc);
         gottrc = recToList(myreg["trc"])
         exptrc = [1.24791339, 0.782577665, chan19, 1.0]
-        
-        
+
+
     def test_multiple_boxes(self):
         """Test setting multiple boxes"""
-        
+
         stokes = ""
         chans = ""
         stokesControl = "a"
@@ -306,17 +306,17 @@ class rg_frombcs_test(unittest.TestCase):
         gottrc = recToList(myreg["regions"]["*1"]["regions"]["*1"]["trc"])
         exptrc = [box3, box4, chan19, 4.0]
         self.compLists(gottrc, exptrc);
-         
+
         gotblc = recToList(myreg["regions"]["*1"]["regions"]["*2"]["blc"])
         expblc = [box5, box6, chan0, 1.0]
         self.compLists(gotblc, expblc);
         gottrc = recToList(myreg["regions"]["*1"]["regions"]["*2"]["trc"])
         exptrc = [box7, box8, chan19, 4.0]
         self.compLists(gottrc, exptrc);
-        
+
     def test_set_multiple_stokes_ranges(self):
         """Test setting multiple stokes ranges"""
-        
+
         stokes = "IUV"
         chans = ""
         stokesControl = "a"
@@ -332,17 +332,17 @@ class rg_frombcs_test(unittest.TestCase):
         gottrc = recToList(myreg["regions"]["*1"]["trc"])
         exptrc = [1.24791339, 0.782577665, chan19, 1.0]
         self.compLists(gottrc, exptrc)
-        
+
         gotblc = recToList(myreg["regions"]["*2"]["blc"])
         expblc = [1.24795230, 0.782549990, chan0, 3.0]
         self.compLists(gotblc, expblc);
         gottrc = recToList(myreg["regions"]["*2"]["trc"])
         exptrc = [1.24791339, 0.782577665, chan19, 4.0]
         self.compLists(gottrc, exptrc)
-        
+
     def test_multiple_channel_ranges(self):
         """Test multiple channel ranges"""
-        
+
         stokes = ""
         chans = "<5,>=15"
         stokesControl = "a"
@@ -358,7 +358,7 @@ class rg_frombcs_test(unittest.TestCase):
         gottrc = recToList(myreg["regions"]["*1"]["trc"])
         exptrc = [1.24791339, 0.782577665, chan4, 4.0]
         self.compLists(gottrc, exptrc)
-        
+
         gotblc = recToList(myreg["regions"]["*2"]["blc"])
         expblc = [1.24795230, 0.782549990, chan15, 1.0]
         self.compLists(gotblc, expblc);
@@ -368,7 +368,7 @@ class rg_frombcs_test(unittest.TestCase):
 
     def test_multiple_boxes_channel_ranges_stokes_ranges(self):
         """Test multiple channel ranges, multiple stokes ranges, and multiple boxes"""
-        
+
         stokes = "IQV"
         chans = "<5,>=15"
         stokesControl = "a"
@@ -394,7 +394,7 @@ class rg_frombcs_test(unittest.TestCase):
         exptrc = [box7, box8, chan4, 4.0]
         self.compLists(gottrc, exptrc)
 
-        # box="5,6,7,8", chans="15-19", stokes="IQ" 
+        # box="5,6,7,8", chans="15-19", stokes="IQ"
         gotblc = recToList(myreg["regions"]["*1"]["regions"]["*1"]["regions"]["*2"]["blc"])
         expblc = [box5, box6, chan15, 1.0]
         self.compLists(gotblc, expblc)
@@ -402,7 +402,7 @@ class rg_frombcs_test(unittest.TestCase):
         exptrc = [box7, box8, chan19, 2.0]
         self.compLists(gottrc, exptrc)
 
-        # box="5,6,7,8", chans="0~4", stokes="IQ" 
+        # box="5,6,7,8", chans="0~4", stokes="IQ"
         gotblc = recToList(myreg["regions"]["*1"]["regions"]["*1"]["regions"]["*1"]["regions"]["*2"]["blc"])
         expblc = [box5, box6, chan0, 1.0]
         self.compLists(gotblc, expblc)
@@ -410,7 +410,7 @@ class rg_frombcs_test(unittest.TestCase):
         exptrc = [box7, box8, chan4, 2.0]
         self.compLists(gottrc, exptrc)
 
-        # box="1,2,3,4", chans="15-19", stokes="V" 
+        # box="1,2,3,4", chans="15-19", stokes="V"
         gotblc = recToList(
             myreg["regions"]["*1"]["regions"]["*1"]["regions"]["*1"]["regions"]["*1"]
             ["regions"]["*2"]["blc"]
@@ -424,7 +424,7 @@ class rg_frombcs_test(unittest.TestCase):
         exptrc = [box3, box4, chan19, 4.0]
         self.compLists(gottrc, exptrc)
 
-        # box="1,2,3,4", chans="0-4", stokes="V" 
+        # box="1,2,3,4", chans="0-4", stokes="V"
         gotblc = recToList(
             myreg["regions"]["*1"]["regions"]["*1"]["regions"]["*1"]["regions"]["*1"]
                 ["regions"]["*1"]["regions"]["*2"]["blc"]
@@ -438,7 +438,7 @@ class rg_frombcs_test(unittest.TestCase):
         exptrc = [box3, box4, chan4, 4.0]
         self.compLists(gottrc, exptrc)
 
-        # box="1,2,3,4", chans="15-19", stokes="IQ" 
+        # box="1,2,3,4", chans="15-19", stokes="IQ"
         gotblc = recToList(
             myreg["regions"]["*1"]["regions"]["*1"]["regions"]["*1"]["regions"]["*1"]
                 ["regions"]["*1"]["regions"]["*1"]["regions"]["*2"]["blc"]
@@ -452,7 +452,7 @@ class rg_frombcs_test(unittest.TestCase):
         exptrc = [box3, box4, chan19, 2.0]
         self.compLists(gottrc, exptrc)
 
-         # box="1,2,3,4", chans="0~4", stokes="IQ" 
+         # box="1,2,3,4", chans="0~4", stokes="IQ"
         gotblc = recToList(
             myreg["regions"]["*1"]["regions"]["*1"]["regions"]["*1"]["regions"]["*1"]
                 ["regions"]["*1"]["regions"]["*1"]["regions"]["*1"]["blc"]
@@ -511,7 +511,7 @@ class rg_frombcs_test(unittest.TestCase):
         self.compLists(gottrc, exptrc)
 
     def test_multiple_boxes_image_with_direction_coordinate_only(self):
-        """Test multiple boxes on image with direction coordinate only"""                        
+        """Test multiple boxes on image with direction coordinate only"""
 
         stokes = ""
         chans = ""
@@ -529,7 +529,7 @@ class rg_frombcs_test(unittest.TestCase):
         gottrc = recToList(myreg["regions"]["*2"]["trc"])
         exptrc = [box7, box8]
         self.compLists(gottrc, exptrc)
- 
+
         # box="1,2,3,4", stokes="IQ"
         gotblc = recToList(myreg["regions"]["*1"]["blc"])
         expblc = [box1, box2]
@@ -540,7 +540,7 @@ class rg_frombcs_test(unittest.TestCase):
 
     def test_region_text_string(self):
         """Test setting a region text string"""
-        
+
         region = "box[[1pix,2pix],[3pix,4pix]]\nbox[[5pix,6pix],[7pix,8pix]]\nbox[[9pix,10pix],[11pix,12pix]]"
         myreg = run_frombcs(
             image, "", "", "", "a", region

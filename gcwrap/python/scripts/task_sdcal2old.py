@@ -11,7 +11,7 @@ import sdutil
 @sdutil.asaptask_decorator
 def sdcal2old(infile, calmode, fraction, noff, width, elongated, tsysavg, tsysspw, applytable, interp, spwmap, field, spw, scan, pol, outfile, overwrite):
     casalog.post(str(locals()))
-    with sdutil.sdtask_manager(sdcal2_worker, locals()) as worker: 
+    with sdutil.sdtask_manager(sdcal2_worker, locals()) as worker:
         worker.initialize()
         worker.execute()
         worker.finalize()
@@ -33,7 +33,7 @@ class sdcal2_worker(sdutil.sdtask_template):
         # override initialize method
         self.parameter_check()
         self.initialize_scan()
-        
+
     def parameter_check(self):
         self.check_infile()
         sep = ','
@@ -99,7 +99,7 @@ class sdcal2_worker(sdutil.sdtask_template):
             raise Exception('Name of the apply table must be given.')
 
         if type(self.applytable) == str:
-            # string 
+            # string
             if not os.path.exists(self.applytable):
                 raise Exception('Apply table \'%s\' does not exist.'%(self.applytable))
         else:
@@ -126,14 +126,14 @@ class sdcal2_worker(sdutil.sdtask_template):
                 raise Exception('Interpolation type \'%s\' is invalid or not supported yet.'%(self.interp_time))
             if not re.match(valid_types,self.interp_freq):
                 raise Exception('Interpolation type \'%s\' is invalid or not supported yet.'%(self.interp_freq))
-            
+
     def check_spwmap(self):
         if not isinstance(self.spwmap, dict) or len(self.spwmap) == 0:
             raise Exception('spwmap must be non-empty dictionary.')
 
     def check_spwmap2(self):
         self.check_spwmap()
-            
+
     def check_tsysspw(self):
         pass
 
@@ -147,7 +147,7 @@ class sdcal2_worker(sdutil.sdtask_template):
 
     def initialize_scan(self):
         if self.insitu:
-            # update infile 
+            # update infile
             storage = sd.rcParams['scantable.storage']
             sd.rcParams['scantable.storage'] = 'disk'
             self.scan = sd.scantable(self.infile,average=False)
@@ -158,7 +158,7 @@ class sdcal2_worker(sdutil.sdtask_template):
         sel = self.get_selector(self.scan)
         self.scan.set_selection(sel)
         self.assert_no_channel_selection_in_spw('warn')
-    
+
     def execute(self):
         self.manager.set_data(self.scan)
         if self.dosky:
@@ -202,7 +202,7 @@ class sdcal2_worker(sdutil.sdtask_template):
         elif self.dotsys:
             outfile = sdutil.get_default_outfile_name(self.infile, self.outfile, '_tsys')
             self.manager.save_caltable(outfile)
-            
+
     def cleanup(self):
         self.manager.reset()
 

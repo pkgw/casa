@@ -27,7 +27,7 @@ from asap.scantable import is_scantable
 
 #
 # Unit test of sdmathold task.
-# 
+#
 
 ###
 # Base class for sdmathold unit test
@@ -38,7 +38,7 @@ class sdmathold_unittest_base:
     """
     taskname='sdmathold'
     datapath=os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/sdmath/'
-    
+
     def _checkfile( self, name ):
         isthere=os.path.exists(name)
         self.assertEqual(isthere,True,
@@ -52,7 +52,7 @@ class sdmathold_unittest_base:
             dim = dim + 1
             a = a[0]
         return dim
-    
+
     def _checkshape( self, sp, ref ):
         # check array dimension
         self.assertEqual( self._getdim(sp), self._getdim(ref),
@@ -71,7 +71,7 @@ class sdmathold_unittest_base:
         if len(idx) > 0:
             diff[idx]=sp[idx]
         return diff
-        
+
     def _compare( self, name, ref, factor, op, scale=1.0 ):
         self._checkfile( name )
         # get original nchan and nrow
@@ -90,7 +90,7 @@ class sdmathold_unittest_base:
         for irow in range(nrow):
             sp.append(tb.getcell('SPECTRA',irow))
             self.assertEqual(len(sp[irow]),rspchans[irow],
-                             msg='SPECTRA: number of channel mismatch in row%s'%(irow)) 
+                             msg='SPECTRA: number of channel mismatch in row%s'%(irow))
         tb.close()
         # check data
         valuetype=type(sp[0][0])
@@ -143,7 +143,7 @@ class sdmathold_unittest_base:
                 print(s, file=f)
         f.close()
         #os.system('cat %s'%name)
-                
+
     def _checkresult(self,r,l0,l1,op,scale=1.0):
         self._checkfile(r)
         tb.open(r)
@@ -167,7 +167,7 @@ class sdmathold_unittest_base:
 
         spl0*=scale
         spl1*=scale
-        
+
         if op=='+':
             spl=spl0+spl1
         elif op=='-':
@@ -188,7 +188,7 @@ class sdmathold_unittest_base:
     def _getspectra( self, name ):
         isthere=os.path.exists(name)
         self.assertEqual(isthere,True,
-                         msg='file %s does not exist'%(name))        
+                         msg='file %s does not exist'%(name))
         tb.open(name)
         sp=tb.getcol('SPECTRA').transpose()
         tb.close()
@@ -207,7 +207,7 @@ class sdmathold_test0(unittest.TestCase,sdmathold_unittest_base):
        - nrow = 2
        - nchan = 4 for spectral data
        - all spectral values are 1.0
-       
+
     """
     # Input and output names
     rawfile='sdmath0.asap'
@@ -236,7 +236,7 @@ class sdmathold_test0(unittest.TestCase,sdmathold_unittest_base):
         except Exception as e:
             pos=str(e).find('expr is undefined')
             self.assertNotEqual(pos,-1,
-                                msg='Unexpected exception was thrown: %s'%(str(e)))        
+                                msg='Unexpected exception was thrown: %s'%(str(e)))
 
     def test001(self):
         """Test 001: Empty varnames"""
@@ -249,7 +249,7 @@ class sdmathold_test0(unittest.TestCase,sdmathold_unittest_base):
         except Exception as e:
             pos=str(e).find('name \'V0\' is not defined')
             self.assertNotEqual(pos,-1,
-                                msg='Unexpected exception was thrown: %s'%(str(e)))        
+                                msg='Unexpected exception was thrown: %s'%(str(e)))
 
     def test002(self):
         """Test 002: Lack of some variables in varnames"""
@@ -262,8 +262,8 @@ class sdmathold_test0(unittest.TestCase,sdmathold_unittest_base):
         except Exception as e:
             pos=str(e).find('name \'V1\' is not defined')
             self.assertNotEqual(pos,-1,
-                                msg='Unexpected exception was thrown: %s'%(str(e)))       
-        
+                                msg='Unexpected exception was thrown: %s'%(str(e)))
+
     def test003(self):
         """Test 003: Specify existing output file"""
         os.system('cp -r %s %s'%(self.rawfile,self.outfile))
@@ -278,8 +278,8 @@ class sdmathold_test0(unittest.TestCase,sdmathold_unittest_base):
         except Exception as e:
             pos=str(e).find('Output file \'%s\' exists.'%(self.outfile))
             self.assertNotEqual(pos,-1,
-                                msg='Unexpected exception was thrown: %s'%(str(e)))       
-        
+                                msg='Unexpected exception was thrown: %s'%(str(e)))
+
     def test004(self):
         """Test 004: Bad operation (non-scantable is left side)"""
         ex='V0+V1'
@@ -293,7 +293,7 @@ class sdmathold_test0(unittest.TestCase,sdmathold_unittest_base):
         except Exception as e:
             pos=str(e).find('unsupported operand type(s) for +:')
             self.assertNotEqual(pos,-1,
-                                msg='Unexpected exception was thrown: %s'%(str(e)))       
+                                msg='Unexpected exception was thrown: %s'%(str(e)))
 
 
     def test005(self):
@@ -309,7 +309,7 @@ class sdmathold_test0(unittest.TestCase,sdmathold_unittest_base):
         except Exception as e:
             pos=str(e).find('\'float\' object has no attribute ')
             self.assertNotEqual(pos,-1,
-                                msg='Unexpected exception was thrown: %s'%(str(e)))       
+                                msg='Unexpected exception was thrown: %s'%(str(e)))
 
     def test006(self):
         """Test 006: non-conform array operation"""
@@ -324,7 +324,7 @@ class sdmathold_test0(unittest.TestCase,sdmathold_unittest_base):
         except Exception as e:
             pos=str(e).find('Vector size must be 1 or be same as number of channel.')
             self.assertNotEqual(pos,-1,
-                                msg='Unexpected exception was thrown: %s'%(str(e)))       
+                                msg='Unexpected exception was thrown: %s'%(str(e)))
 
     def test007(self):
         """Test 007: non-conform scantable operation"""
@@ -340,7 +340,7 @@ class sdmathold_test0(unittest.TestCase,sdmathold_unittest_base):
         except Exception as e:
             pos=str(e).find('arrays do not conform')
             self.assertNotEqual(pos,-1,
-                                msg='Unexpected exception was thrown: %s'%(str(e)))                   
+                                msg='Unexpected exception was thrown: %s'%(str(e)))
 
     def test008(self):
         """Test 008: non-conform ASCII text data"""
@@ -358,7 +358,7 @@ class sdmathold_test0(unittest.TestCase,sdmathold_unittest_base):
             pos=str(e).find('len(value) must be 1 or conform to scan.nrow()')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
-        
+
 
 ###
 # Test on scalar/array operation
@@ -373,7 +373,7 @@ class sdmathold_test1(unittest.TestCase,sdmathold_unittest_base):
        - nrow = 2
        - nchan = 4 for spectral data
        - all spectral values are 1.0
-       
+
     """
     # Input and output names
     rawfile='sdmath0.asap'
@@ -404,7 +404,7 @@ class sdmathold_test1(unittest.TestCase,sdmathold_unittest_base):
         self.assertEqual(res,None,
                          msg='Any error occurred during task execution')
         self._compare(self.outfile,self.rawfile,factor,op)
-        
+
     def test101(self):
         """Test 101: Subtraction of scalar"""
         op='-'
@@ -452,7 +452,7 @@ class sdmathold_test1(unittest.TestCase,sdmathold_unittest_base):
         self.assertEqual(res,None,
                          msg='Any error occurred during task execution')
         self._compare(self.outfile,self.rawfile,factor,op)
-        
+
     def test105(self):
         """Test 105: Subtraction of 1D array of [nchan]"""
         op='-'
@@ -500,7 +500,7 @@ class sdmathold_test1(unittest.TestCase,sdmathold_unittest_base):
         self.assertEqual(res,None,
                          msg='Any error occurred during task execution')
         self._compare(self.outfile,self.rawfile,factor,op)
-        
+
     def test109(self):
         """Test 109: Subtraction of 2D array of [nrow,1]"""
         op='-'
@@ -548,7 +548,7 @@ class sdmathold_test1(unittest.TestCase,sdmathold_unittest_base):
         self.assertEqual(res,None,
                          msg='Any error occurred during task execution')
         self._compare(self.outfile,self.rawfile,factor,op)
-        
+
     def test113(self):
         """Test 113: Subtraction of 2D array of [nrow,nchan]"""
         op='-'
@@ -565,7 +565,7 @@ class sdmathold_test1(unittest.TestCase,sdmathold_unittest_base):
         """Test 114: Multiplication of 2D array of [nrow,nchan]"""
         op='*'
         ex='V0'+op+'V1'
-        factor=[[0.1,0.3,0.5,0.7],[0.2,0.4,0.6,0.8]] 
+        factor=[[0.1,0.3,0.5,0.7],[0.2,0.4,0.6,0.8]]
         v={'V0': self.rawfile,
            'V1': factor}
         res=sdmathold(expr=ex,varnames=v,outfile=self.outfile,overwrite=True)
@@ -598,7 +598,7 @@ class sdmathold_test2(unittest.TestCase,sdmathold_unittest_base):
        - nrow = 2
        - nchan = 4 for spectral data
        - all spectral values are 1.0
-       
+
     """
     # Input and output names
     rawfile='sdmath0.asap'
@@ -613,7 +613,7 @@ class sdmathold_test2(unittest.TestCase,sdmathold_unittest_base):
         if (not os.path.exists(self.rawfile)):
             shutil.copytree(self.datapath+self.rawfile, self.rawfile)
         self._makedata(self.datafile,self.factor)
-        
+
         default(sdmathold)
 
     def tearDown(self):
@@ -631,7 +631,7 @@ class sdmathold_test2(unittest.TestCase,sdmathold_unittest_base):
         self.assertEqual(res,None,
                          msg='Any error occurred during task execution')
         self._compare(self.outfile,self.rawfile,self.factor,op)
-        
+
     def test201(self):
         """Test 201: Subtraction of ASCII text data"""
         op='-'
@@ -684,7 +684,7 @@ class sdmathold_test3(unittest.TestCase,sdmathold_unittest_base):
 
        - shape is identical with sdmath0.asap
        - all spectral values are 0.1
-       
+
     """
     # Input and output names
     rawfile0='sdmath0.asap'
@@ -699,7 +699,7 @@ class sdmathold_test3(unittest.TestCase,sdmathold_unittest_base):
             shutil.copytree(self.datapath+self.rawfile0, self.rawfile0)
         if (not os.path.exists(self.rawfile1)):
             shutil.copytree(self.datapath+self.rawfile1, self.rawfile1)
-        
+
         default(sdmathold)
 
     def tearDown(self):
@@ -772,7 +772,7 @@ class sdmathold_test4(unittest.TestCase,sdmathold_unittest_base):
 
        - shape is identical with sdmath0.asap
        - all spectral values are 0.1
-       
+
     """
     # Input and output names
     rawfile0='sdmath0.asap'
@@ -789,7 +789,7 @@ class sdmathold_test4(unittest.TestCase,sdmathold_unittest_base):
         if (not os.path.exists(self.rawfile1)):
             shutil.copytree(self.datapath+self.rawfile1, self.rawfile1)
         self._makedata(self.datafile,self.factor)
-        
+
         default(sdmathold)
 
     def tearDown(self):
@@ -944,7 +944,7 @@ class sdmathold_storageTest( unittest.TestCase,sdmathold_unittest_base ):
             if os.path.exists(infile):
                 shutil.rmtree(infile)
             shutil.copytree(self.datapath+infile, infile)
-        
+
         default(sdmathold)
 
     def tearDown( self ):
@@ -1007,7 +1007,7 @@ class sdmathold_storageTest( unittest.TestCase,sdmathold_unittest_base ):
             keylist = complist
         else:
             keylist = list(refdict.keys())
-        
+
         for key in keylist:
             self.assertTrue(key in testdict,\
                             msg="%s is not defined in the current results."\
@@ -1028,7 +1028,7 @@ class sdmathold_storageTest( unittest.TestCase,sdmathold_unittest_base ):
                                     msg="%s[%d] differs: %s (expected: %s) " % \
                                     (key, i, str(testval[i]), str(refval[i])))
             del testval, refval
-            
+
 
     def _isInAllowedRange( self, testval, refval, reltol=1.0e-5 ):
         """
@@ -1134,7 +1134,7 @@ class sdmathold_storageTest( unittest.TestCase,sdmathold_unittest_base ):
         v={'V0': self.rawfile,
            'V1': factor}
         outfile = self.outprefix+tid+self.outsuffix
-        
+
         # Backup units and coords of input scantable before run.
         initval = self._get_unit_coord(self.rawfile)
 
@@ -1164,7 +1164,7 @@ class sdmathold_storageTest( unittest.TestCase,sdmathold_unittest_base ):
         v={'V0': self.rawfile,
            'V1': factor}
         outfile = self.outprefix+tid+self.outsuffix
-        
+
         # Backup units and coords of input scantable before run.
         initval = self._get_unit_coord(self.rawfile)
 
@@ -1273,7 +1273,7 @@ class sdmathold_storageTest( unittest.TestCase,sdmathold_unittest_base ):
         self._comp_unit_coord(outfile,self.out_uc)
         # Compare units and coords of input scantable before/after run
         self._comp_unit_coord([self.rawfile, self.rawfile1],initval)
-        
+
     def testDF2( self ):
         """Storage Test DF2: Addition of two scantables on storage='disk' and insitu=F without converting spectral values"""
         # Operation of two scantables calls stmath._binaryop()
@@ -1308,7 +1308,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
     """
     Test selection syntax. Selection parameters to test are:
     field, spw (no channel selection), scan, pol
-    
+
     Data used for this test are sd_analytic_type1-3.asap (raw data)
     and sdmath_selection.asap.ref (reference data).
     The reference data are generated using the following expr parameter:
@@ -1323,11 +1323,11 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
     field_prefix = 'M100__'
 
     expr = '"' + rawfile + '"*"' + rawfile + '"+1.0'
-    
+
     @property
     def task(self):
         return sdmathold
-    
+
     @property
     def spw_channel_selection(self):
         return False
@@ -1365,7 +1365,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
         for irow in range(nrow):
             sp.append(tb.getcell('SPECTRA',irow))
             self.assertEqual(len(sp[irow]),len(rsp[irow]),
-                             msg='SPECTRA: number of channel mismatch in row%s'%(irow)) 
+                             msg='SPECTRA: number of channel mismatch in row%s'%(irow))
         tb.close()
         # check data
         valuetype=type(sp[0][0])
@@ -1448,7 +1448,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
         self.assertEqual(self.res,None,
                          msg='Any error occurred during calibration')
         self._comparecal_with_selection(outname, tbsel)
-    
+
     ####################
     # pol
     ####################
@@ -1469,7 +1469,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
         self.assertEqual(self.res,None,
                          msg='Any error occurred during calibration')
         self._comparecal_with_selection(outname, tbsel)
-    
+
     def test_pol_id_lt(self):
         """ test pol selection (pol='<1')"""
         outname=self.prefix+self.postfix
@@ -1479,7 +1479,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
         self.assertEqual(self.res,None,
                          msg='Any error occurred during calibration')
         self._comparecal_with_selection(outname, tbsel)
-    
+
     def test_pol_id_gt(self):
         """ test pol selection (pol='>0')"""
         outname=self.prefix+self.postfix
@@ -1489,7 +1489,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
         self.assertEqual(self.res,None,
                          msg='Any error occurred during calibration')
         self._comparecal_with_selection(outname, tbsel)
-    
+
     def test_pol_id_range(self):
         """ test pol selection (pol='0~1')"""
         outname=self.prefix+self.postfix
@@ -1499,7 +1499,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
         self.assertEqual(self.res,None,
                          msg='Any error occurred during calibration')
         self._comparecal_with_selection(outname, tbsel)
-    
+
     def test_pol_id_list(self):
         """ test pol selection (pol='0,1')"""
         outname=self.prefix+self.postfix
@@ -1509,7 +1509,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
         self.assertEqual(self.res,None,
                          msg='Any error occurred during calibration')
         self._comparecal_with_selection(outname, tbsel)
-    
+
     def test_pol_id_exprlist(self):
         """test pol selection (pol='<1,1')"""
         outname=self.prefix+self.postfix
@@ -1519,7 +1519,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
         self.assertEqual(self.res,None,
                          msg='Any error occurred during calibration')
         self._comparecal_with_selection(outname, tbsel)
-    
+
     ####################
     # field
     ####################
@@ -1540,7 +1540,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
         self.assertEqual(self.res,None,
                          msg='Any error occurred during calibration')
         self._comparecal_with_selection(outname, tbsel)
-    
+
     def test_field_id_lt(self):
         """ test field selection (field='<6')"""
         outname=self.prefix+self.postfix
@@ -1550,7 +1550,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
         self.assertEqual(self.res,None,
                          msg='Any error occurred during calibration')
         self._comparecal_with_selection(outname, tbsel)
-    
+
     def test_field_id_gt(self):
         """ test field selection (field='>7')"""
         outname=self.prefix+self.postfix
@@ -1560,7 +1560,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
         self.assertEqual(self.res,None,
                          msg='Any error occurred during calibration')
         self._comparecal_with_selection(outname, tbsel)
-    
+
     def test_field_id_range(self):
         """ test field selection (field='5~7')"""
         outname=self.prefix+self.postfix
@@ -1570,7 +1570,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
         self.assertEqual(self.res,None,
                          msg='Any error occurred during calibration')
         self._comparecal_with_selection(outname, tbsel)
-    
+
     def test_field_id_list(self):
         """ test field selection (field='5,7')"""
         outname=self.prefix+self.postfix
@@ -1580,7 +1580,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
         self.assertEqual(self.res,None,
                          msg='Any error occurred during calibration')
         self._comparecal_with_selection(outname, tbsel)
-    
+
     def test_field_id_exprlist(self):
         """ test field selection (field='<7,8')"""
         outname=self.prefix+self.postfix
@@ -1590,7 +1590,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
         self.assertEqual(self.res,None,
                          msg='Any error occurred during calibration')
         self._comparecal_with_selection(outname, tbsel)
-    
+
     def test_field_value_exact(self):
         """ test field selection (field='M100')"""
         outname=self.prefix+self.postfix
@@ -1600,7 +1600,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
         self.assertEqual(self.res,None,
                          msg='Any error occurred during calibration')
         self._comparecal_with_selection(outname, tbsel)
-    
+
     def test_field_value_pattern(self):
         """ test field selection (field='M*')"""
         outname=self.prefix+self.postfix
@@ -1610,7 +1610,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
         self.assertEqual(self.res,None,
                          msg='Any error occurred during calibration')
         self._comparecal_with_selection(outname, tbsel)
-    
+
     def test_field_value_list(self):
         """ test field selection (field='M30,3C273')"""
         outname=self.prefix+self.postfix
@@ -1620,7 +1620,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
         self.assertEqual(self.res,None,
                          msg='Any error occurred during calibration')
         self._comparecal_with_selection(outname, tbsel)
-    
+
     def test_field_mix_exprlist(self):
         """ test field selection (field='<7,3C273')"""
         outname=self.prefix+self.postfix
@@ -1630,9 +1630,9 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
         self.assertEqual(self.res,None,
                          msg='Any error occurred during calibration')
         self._comparecal_with_selection(outname, tbsel)
-    
+
     ####################
-    # spw 
+    # spw
     ####################
     def test_spw_id_default(self):
         """test spw selection (spw='')"""
@@ -1651,7 +1651,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
         self.assertEqual(self.res,None,
                          msg='Any error occurred during calibration')
         self._comparecal_with_selection(outname, tbsel)
-    
+
     def test_spw_id_lt(self):
         """ test spw selection (spw='<25')"""
         outname=self.prefix+self.postfix
@@ -1661,7 +1661,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
         self.assertEqual(self.res,None,
                          msg='Any error occurred during calibration')
         self._comparecal_with_selection(outname, tbsel)
-    
+
     def test_spw_id_gt(self):
         """ test spw selection (spw='>21')"""
         outname=self.prefix+self.postfix
@@ -1671,7 +1671,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
         self.assertEqual(self.res,None,
                          msg='Any error occurred during calibration')
         self._comparecal_with_selection(outname, tbsel)
-    
+
     def test_spw_id_range(self):
         """ test spw selection (spw='21~24')"""
         outname=self.prefix+self.postfix
@@ -1681,7 +1681,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
         self.assertEqual(self.res,None,
                          msg='Any error occurred during calibration')
         self._comparecal_with_selection(outname, tbsel)
-    
+
     def test_spw_id_list(self):
         """ test spw selection (spw='21,22,23,25')"""
         outname=self.prefix+self.postfix
@@ -1691,7 +1691,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
         self.assertEqual(self.res,None,
                          msg='Any error occurred during calibration')
         self._comparecal_with_selection(outname, tbsel)
-    
+
     def test_spw_id_exprlist(self):
         """ test spw selection (spw='<22,>24')"""
         outname=self.prefix+self.postfix
@@ -1701,7 +1701,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
         self.assertEqual(self.res,None,
                          msg='Any error occurred during calibration')
         self._comparecal_with_selection(outname, tbsel)
-    
+
     def test_spw_id_pattern(self):
         """test spw selection (spw='*')"""
         outname=self.prefix+self.postfix
@@ -1719,7 +1719,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
         self.assertEqual(self.res,None,
                          msg='Any error occurred during calibration')
         self._comparecal_with_selection(outname, tbsel)
-    
+
     def test_spw_value_velocity(self):
         """test spw selection (spw='-50~50km/s')"""
         outname=self.prefix+self.postfix
@@ -1729,7 +1729,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
         self.assertEqual(self.res,None,
                          msg='Any error occurred during calibration')
         self._comparecal_with_selection(outname, tbsel)
-    
+
     def test_spw_mix_exprlist(self):
         """test spw selection (spw='150~550km/s,>23')"""
         outname=self.prefix+self.postfix
@@ -1739,7 +1739,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
         self.assertEqual(self.res,None,
                          msg='Any error occurred during calibration')
         self._comparecal_with_selection(outname, tbsel)
-    
+
     ####################
     # Helper functions
     ####################
@@ -1749,7 +1749,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
         spref=self._getspectra_selected(self.reffile, tbsel)
 
         self._checkshape( sp, spref )
-        
+
         for irow in range(len(sp)):
             diff=self._diff(numpy.array(sp[irow]),numpy.array(spref[irow]))
             retval=numpy.all(diff<0.01)
@@ -1761,7 +1761,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
     def _getspectra_selected( self, name, tbsel={} ):
         """
         Returns an array of spectra in rows selected in table.
-        
+
         name  : the name of scantable
         tbsel : a dictionary of table selection information.
                 The key should be column name and the value should be
@@ -1769,7 +1769,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
         """
         isthere=os.path.exists(name)
         self.assertEqual(isthere,True,
-                         msg='file %s does not exist'%(name))        
+                         msg='file %s does not exist'%(name))
         tb.open(name)
         sp = []
         if len(tbsel) == 0:
@@ -1792,7 +1792,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
 class sdmathold_test_flag(sdmathold_unittest_base,unittest.TestCase):
     """
     Examine if flag information is handled properly.
-    
+
     Data used for this test are sdmath_flagtest[12].asap (input).
     """
     # Input and output names
@@ -1805,7 +1805,7 @@ class sdmathold_test_flag(sdmathold_unittest_base,unittest.TestCase):
     @property
     def task(self):
         return sdmathold
-    
+
     @property
     def spw_channel_selection(self):
         return False
@@ -1841,7 +1841,7 @@ class sdmathold_test_flag(sdmathold_unittest_base,unittest.TestCase):
         self.res=sdmathold(infiles=[self.infile1],expr=expr,outfile=outname)
         self.assertEqual(self.res,None, msg='Any error occurred during calibration')
         self._compare(outname, value)
-        
+
     def testflag02(self):
         """test flag handling in case of a scantable and an array"""
         with tbmanager(self.infile1) as tb: nchan = len(tb.getcell('SPECTRA', 0))
@@ -1854,7 +1854,7 @@ class sdmathold_test_flag(sdmathold_unittest_base,unittest.TestCase):
 
     def _compare(self, outfile, value=None):
         self._checkfile(outfile)
-        
+
         # read input and output data
         infile1 = self.infile1
         infile2 = self.infile2

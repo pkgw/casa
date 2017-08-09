@@ -55,7 +55,7 @@ def qufromgain(caltable,badspw=[],badant=[],fieldids=[],paoffset=None):
                 paoff[ispw]=135.
     else:
         paoff=paoffset
-    
+
     R=pl.zeros((nspw,nfld))
     Q=pl.zeros((nspw,nfld))
     U=pl.zeros((nspw,nfld))
@@ -95,11 +95,11 @@ def qufromgain(caltable,badspw=[],badant=[],fieldids=[],paoffset=None):
                 amps=pl.absolute(gains)
                 amps[amps==0.0]=1.0
                 ratio=amps[0,0,:]/amps[1,0,:]
-                
-                
+
+
                 # parang
                 parang=pl.zeros(len(times))
-                
+
                 for itim in range(len(times)):
                     tm=myme.epoch('UTC',str(times[itim])+'s')
                     last=myme.measure(tm,'LAST')['m0']['value']
@@ -107,7 +107,7 @@ def qufromgain(caltable,badspw=[],badant=[],fieldids=[],paoffset=None):
                     last*=24.0  # hours
                     ha=last-rah  # hours
                     har=ha*2.0*pi/24.0
-                    
+
                     parang[itim]=atan2( (cos(latr)*sin(har)),
                                         (sin(latr)*cos(decr)-cos(latr)*sin(decr)*cos(har)) )
 
@@ -121,13 +121,13 @@ def qufromgain(caltable,badspw=[],badant=[],fieldids=[],paoffset=None):
                 A[:,2]=pl.sin(2*parang[:,0])
 
                 fit=pl.lstsq(A,pl.square(ratio))
-               
+
                 amask=pl.ones(nants,dtype=bool)
                 if len(badant)>0:
                     amask[badant]=False
                 rsum=pl.sum(ratio[:,amask],1)
                 rsum/=pl.sum(amask)
-                
+
                 fit=pl.lstsq(A,pl.square(rsum))
 
                 R[ispw,ifld]=fit[0][0]

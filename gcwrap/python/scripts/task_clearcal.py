@@ -56,7 +56,7 @@ def clearcal(
         casalog.post('Updating the history in the output', 'DEBUG1')
         write_history(mslocal, vis, 'clearcal', param_names,
                       param_vals, casalog)
-        
+
     except Exception as instance:
 
         print('*** Error ***', instance)

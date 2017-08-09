@@ -47,20 +47,20 @@
 #
 # <synopsis>
 # Test the ia.histograms() tool method
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_histograms[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the ia.histograms() tool method to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -107,13 +107,13 @@ def alleqnum(x,num,tolerance=0):
 datapath = os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/ia_histograms/'
 
 class ia_histograms_test(unittest.TestCase):
-    
+
     def setUp(self):
         self._myia = iatool()
-    
+
     def tearDown(self):
         self._myia.done()
-    
+
     def test_general(self):
         """general tests"""
         # moved from imagetest_regression.py
@@ -131,7 +131,7 @@ class ia_histograms_test(unittest.TestCase):
             print('Caught expected Exception' + str(e))
             ok = False
         self.assertFalse(ok, 'Histograms unexpectedly did not fail (1)')
-        
+
         nbins = 25
         idx = nbins/2+1
         out = myim.histograms(nbins=nbins)
@@ -148,7 +148,7 @@ class ia_histograms_test(unittest.TestCase):
         ok = hists['counts'][0]==1 and hists['counts'][nbins-1]==1
         ok = ok and (hists['counts'][idx-1]==(imshape[0]*imshape[1]-2))
         self.assertTrue(ok, 'histogram counts wrong')
-        
+
         blc = [0,0]; trc = [4,4]
         r1 = rg.box(blc=blc, trc=trc)
         hists = myim.histograms(nbins=nbins, region=r1)
@@ -170,7 +170,7 @@ class ia_histograms_test(unittest.TestCase):
             ok = hists['counts'][0,j]==1 and hists['counts'][nbins-1,j]==1
             ok = ok and alleqnum(hists['counts'][idx-1],(imshape[0]-2),tolerance=0.0001)
         self.assertTrue(ok, 'Histograms values are wrong (3)')
-        
+
         hists = myim.histograms(includepix=[-5,5], nbins=25)
         self.assertTrue(hists, 'Histograms failed (4)')
         ok = hists['counts'][idx-1]==(imshape[0]*imshape[1]-(imshape[1]+imshape[1]))
@@ -179,7 +179,7 @@ class ia_histograms_test(unittest.TestCase):
         self.assertTrue(ok, 'Histograms values are wrong (4)')
         ok = ok and alleqnum(hists['counts'][idx:nbins],0,tolerance=0.0001)
         self.assertTrue(ok, 'Histograms values are wrong (4)')
-        
+
         hists = myim.histograms()
         self.assertTrue(hists, 'histograms failed (4)')
         hists = myim.histograms()
@@ -189,7 +189,7 @@ class ia_histograms_test(unittest.TestCase):
 
         ok = myim.done()
         self.assertTrue(ok, 'Done failed (1)')
-    
+
     def test_stretch(self):
         """ ia.histogram(): Test stretch parameter"""
         yy = iatool()
@@ -209,7 +209,7 @@ class ia_histograms_test(unittest.TestCase):
         )
         self.assertTrue(zz and type(zz) == type({}))
         yy.done()
-    
+
     def test_stats(self):
         """ test returned stats"""
         myia = iatool()
@@ -223,6 +223,6 @@ class ia_histograms_test(unittest.TestCase):
             self.assertTrue(abs(res['mean'][i] - numpy.mean(bb[:,:,i])) < 1e-7)
             self.assertTrue(abs(res['sigma'][i] - numpy.std(bb[:,:,i], ddof=1)) < 1e-7)
         myia.done()
-    
+
 def suite():
     return [ia_histograms_test]

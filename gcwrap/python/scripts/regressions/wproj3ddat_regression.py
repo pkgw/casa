@@ -6,7 +6,7 @@ import time
 benchmarking = True
 usedasync = False
 
-# 
+#
 # Set up some useful variables
 #
 # Get path to CASA home directory by stipping name from '$CASAPATH'
@@ -211,16 +211,16 @@ else:
         print('* FAILED image rms test', file=logfile)
     print('*  Image rms '+str(thistest_imrms), file=logfile)
 
-    if (passimmax and passimrms ): 
-	regstate=True
-	print('---', file=logfile)
-	print('Passed Regression test for wproj3ddat', file=logfile)
-	print('---', file=logfile)
-    else: 
-	regstate=False
-	print('---', file=logfile)
-	print('FAILED Regression test for wproj3ddat', file=logfile)
-	print('---', file=logfile)
+    if (passimmax and passimrms ):
+        regstate=True
+        print('---', file=logfile)
+        print('Passed Regression test for wproj3ddat', file=logfile)
+        print('---', file=logfile)
+    else:
+        regstate=False
+        print('---', file=logfile)
+        print('FAILED Regression test for wproj3ddat', file=logfile)
+        print('---', file=logfile)
     print('*********************************', file=logfile)
 
     print('', file=logfile)
@@ -240,7 +240,7 @@ else:
 
     print("")
     print("Done!")
-        
+
 #exit()
 #
 #=====================================================================

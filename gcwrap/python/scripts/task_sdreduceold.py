@@ -23,7 +23,7 @@ class sdreduce_worker(sdutil.sdtask_template):
     def initialize_scan(self):
         # instantiate scantable
         self.scan = sd.scantable(self.infile, average=False, antenna=self.antenna)
-        
+
         # restorer
         self.restorer = sdutil.scantable_restore_factory(self.scan,
                                                          self.infile,
@@ -32,7 +32,7 @@ class sdreduce_worker(sdutil.sdtask_template):
                                                          self.frame,
                                                          self.doppler,
                                                          self.restfreq)
-        
+
         # Apply selection
         self.scan.set_selection(self.get_selector())
 
@@ -52,7 +52,7 @@ class sdreduce_worker(sdutil.sdtask_template):
 ##                                              self.markonly, self.plotpointings,
 ##                                              self.verifycal)
 
-        # apply input parameters 
+        # apply input parameters
         self.set_to_scan()
 
         # opacity correction
@@ -74,7 +74,7 @@ class sdreduce_worker(sdutil.sdtask_template):
 ##         task_sdcalold.posterior_plot(self.scan, self.project, self.plotlevel)
         engine.finalize()
         del engine
-        
+
         # smoothing stage
         casalog.post( "" )
         casalog.post( "*** sdsmooth stage ***" )
@@ -89,7 +89,7 @@ class sdreduce_worker(sdutil.sdtask_template):
         else:
             casalog.post( "No smoothing was applied..." )
 
-            
+
         # baseline stage
         casalog.post( "" )
         casalog.post( "*** sdbaselineold stage ***")

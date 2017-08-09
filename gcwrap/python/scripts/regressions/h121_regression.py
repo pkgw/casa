@@ -36,53 +36,53 @@ setjy(vis=msfile1,spw='7',field='1',scalebychan=False,standard='manual',fluxdens
 ## calibration for 3mm LSB
 default('gaincal')
 gaincal(vis=msfile1,caltable='h121.3mm.ph.gcal0',
-	field='4',spw='7:8~55',
-	gaintype='GSPLINE',calmode='p',splinetime=10000.,
-	refant='1',phasewrap=260,preavg=120.)
+        field='4',spw='7:8~55',
+        gaintype='GSPLINE',calmode='p',splinetime=10000.,
+        refant='1',phasewrap=260,preavg=120.)
 
 print('--bandpass (3mm)--')
-#derive bandpass calibration 
+#derive bandpass calibration
 # solint value
 default('bandpass')
 bandpass(vis=msfile1,caltable='h121.3mm.bpoly',
-	 field='4',spw='7:8~55',
-	 bandtype='BPOLY',degamp=6,degphase=12,solnorm=False,
-	 maskcenter=6,maskedge=0,refant='1',
-	 gaintable='h121.3mm.ph.gcal0')
+         field='4',spw='7:8~55',
+         bandtype='BPOLY',degamp=6,degphase=12,solnorm=False,
+         maskcenter=6,maskedge=0,refant='1',
+         gaintable='h121.3mm.ph.gcal0')
 
 # 3mm CO Band
 default('gaincal')
 gaincal(vis=msfile1,caltable='2200.3mm.ph.gcal0',
-	field='0',spw='3:64~191',
-	gaintype='GSPLINE',calmode='p',splinetime=10000.,
-	refant='1',preavg=10.,phasewrap=260)
+        field='0',spw='3:64~191',
+        gaintype='GSPLINE',calmode='p',splinetime=10000.,
+        refant='1',preavg=10.,phasewrap=260)
 default('bandpass')
 bandpass(vis=msfile1,caltable='2200.3mm.bpoly',
-	 field='0',spw='3:8~247',
-	 bandtype='BPOLY',degamp=6,degphase=12,solnorm=False,
-	 maskcenter=6,maskedge=0,refant='1',
-	 gaintable='2200.3mm.ph.gcal0')
+         field='0',spw='3:8~247',
+         bandtype='BPOLY',degamp=6,degphase=12,solnorm=False,
+         maskcenter=6,maskedge=0,refant='1',
+         gaintable='2200.3mm.ph.gcal0')
 
 # Determine new and better phase solutions for 3mm LSB for all calibrators
 default('gaincal')
 gaincal(vis=msfile1,caltable='h121.3mm.ph.gcal',
-	field='0,1,2,4',spw='7:8~55',
-	gaintype='GSPLINE',calmode='p',splinetime=5000.,refant='1',
-	phasewrap=260,
-	gaintable='h121.3mm.bpoly',preavg=0.)
+        field='0,1,2,4',spw='7:8~55',
+        gaintype='GSPLINE',calmode='p',splinetime=5000.,refant='1',
+        phasewrap=260,
+        gaintable='h121.3mm.bpoly',preavg=0.)
 
-#Apply all solutions derived so far, determine calibrator's flux densities by solving for T 
+#Apply all solutions derived so far, determine calibrator's flux densities by solving for T
 #and use fluxscale
 default('gaincal')
 gaincal(vis=msfile1,caltable='h121.3mm.temp',
-	field='0,1,2,4',spw='7:8~55',
-	solint='600s',refant='1',gaintype='T',
-	gaintable=['h121.3mm.ph.gcal','h121.3mm.bpoly'])
+        field='0,1,2,4',spw='7:8~55',
+        solint='600s',refant='1',gaintype='T',
+        gaintable=['h121.3mm.ph.gcal','h121.3mm.bpoly'])
 
 #fluxscale
 default('fluxscale')
 fluxscale(vis=msfile1,caltable='h121.3mm.temp',fluxtable='h121.3mm.flux',
-	  reference='MWC349*',transfer='NRAO150*,2200+420*,0224+671*')
+          reference='MWC349*',transfer='NRAO150*,2200+420*,0224+671*')
 calphase3mmtime=time.time()
 #2200+420: 2.66
 #0224+671: 1.14
@@ -98,16 +98,16 @@ setjy3mmtime=time.time()
 
 ## Amplitude calibration of 3mm LSB:
 ##
-##  phase solutions will be pre-applied as well as carried forward 
+##  phase solutions will be pre-applied as well as carried forward
 ##   to the output solution table.
 print('--gaincal amp (3mm)--')
 default('gaincal')
 gaincal(vis=msfile1,caltable='h121.3mm.amp.gcal',
-	field='0,1,2,4',spw='7:8~55',
-	gaintype='GSPLINE',calmode='a',splinetime=20000.,refant='1',
-	phasewrap=260,
-	preavg=2500.,
-	gaintable=['h121.3mm.ph.gcal','h121.3mm.bpoly'])
+        field='0,1,2,4',spw='7:8~55',
+        gaintype='GSPLINE',calmode='a',splinetime=20000.,refant='1',
+        phasewrap=260,
+        preavg=2500.,
+        gaintable=['h121.3mm.ph.gcal','h121.3mm.bpoly'])
 calamp3mmtime=time.time()
 
 ## Correct the target source and all other 3mm LSB data
@@ -116,28 +116,28 @@ calamp3mmtime=time.time()
 ##   since the BPOLY solution is only defined for these
 default('applycal')
 applycal(vis=msfile1,
-	 spw='7',
-	 gaintable=['h121.3mm.ph.gcal','h121.3mm.amp.gcal','h121.3mm.bpoly'])
+         spw='7',
+         gaintable=['h121.3mm.ph.gcal','h121.3mm.amp.gcal','h121.3mm.bpoly'])
 # Correct Target CO (1-0)
 default('applycal')
 applycal(vis=msfile1,
-	 spw='3',
-	 gaintable=['h121.3mm.ph.gcal','h121.3mm.amp.gcal','2200.3mm.bpoly'])
+         spw='3',
+         gaintable=['h121.3mm.ph.gcal','h121.3mm.amp.gcal','2200.3mm.bpoly'])
 
 # Split calibrated target source data
 print('--split calibrater--')
 default('split')
 split(vis=msfile1,outputvis='h121.3mm.split.ms',
 #      field=3,spw=7,nchan=48,start=8,step=1,datacolumn='corrected')
-	field='3',spw='7:8~55',datacolumn='corrected')
+        field='3',spw='7:8~55',datacolumn='corrected')
 default('split')
 split(vis=msfile1,outputvis='nrao150.3mm.split.ms',
 #      field=4,spw=7,nchan=48,start=8,step=1,datacolumn='corrected')
-	field='4',spw='7:8~55',datacolumn='corrected')
+        field='4',spw='7:8~55',datacolumn='corrected')
 default('split')
 split(vis=msfile1,outputvis='h121.co10.split.ms',
 #      field=3,spw=3,nchan=240,start=8,step=1,datacolumn='corrected')
-	field='3',spw='3:8~247',datacolumn='corrected')
+        field='3',spw='3:8~247',datacolumn='corrected')
 splitsrctime=time.time()
 
 ## Get a first image the target source in 3 mm continuum emission:
@@ -170,54 +170,54 @@ setjy(vis=msfile2,spw='7',field='4',scalebychan=False,standard='manual',fluxdens
 ## calibration for 3mm LSB
 default('gaincal')
 gaincal(vis=msfile2,caltable='h121b.3mm.ph.gcal0',
-	field='1',spw='7:8~55',
-	gaintype='GSPLINE',calmode='p',splinetime=10000.,
-	refant='1',phasewrap=260,
-	preavg=120.)
+        field='1',spw='7:8~55',
+        gaintype='GSPLINE',calmode='p',splinetime=10000.,
+        refant='1',phasewrap=260,
+        preavg=120.)
 
 print('--bandpass (3mm)--')
-#derive bandpass calibration 
+#derive bandpass calibration
 # solint value
 default('bandpass')
 bandpass(vis=msfile2,caltable='h121b.3mm.bpoly',
-	 field='1',spw='7:8~55',
-	 bandtype='BPOLY',degamp=6,degphase=12,solnorm=False,
-	 maskcenter=6,maskedge=0,refant='1',
-	 gaintable='h121.3mm.ph.gcal0')
+         field='1',spw='7:8~55',
+         bandtype='BPOLY',degamp=6,degphase=12,solnorm=False,
+         maskcenter=6,maskedge=0,refant='1',
+         gaintable='h121.3mm.ph.gcal0')
 
 # 3mm CO Band
 default('gaincal')
 gaincal(vis=msfile2,caltable='2200b.3mm.ph.gcal0',
-	field='0',spw='3:64~191',
-	gaintype='GSPLINE',calmode='p',splinetime=10000.,
-	refant='1',preavg=10.,phasewrap=260)
+        field='0',spw='3:64~191',
+        gaintype='GSPLINE',calmode='p',splinetime=10000.,
+        refant='1',preavg=10.,phasewrap=260)
 default('bandpass')
 bandpass(vis=msfile2,caltable='2200b.3mm.bpoly',
-	 field='0',spw='3:8~247',
-	 bandtype='BPOLY',degamp=6,degphase=12,solnorm=False,
-	 maskcenter=6,maskedge=0,refant='1',
-	 gaintable='2200b.3mm.ph.gcal0')
+         field='0',spw='3:8~247',
+         bandtype='BPOLY',degamp=6,degphase=12,solnorm=False,
+         maskcenter=6,maskedge=0,refant='1',
+         gaintable='2200b.3mm.ph.gcal0')
 
 # Determine new and better phase solutions for 3mm LSB for all calibrators
 default('gaincal')
 gaincal(vis=msfile2,caltable='h121b.3mm.ph.gcal',
-	field='0,1,3,4',spw='7:8~55',
-	gaintype='GSPLINE',calmode='p',splinetime=5000.,refant='1',
-	phasewrap=260,
-	gaintable='h121b.3mm.bpoly',preavg=0.)
+        field='0,1,3,4',spw='7:8~55',
+        gaintype='GSPLINE',calmode='p',splinetime=5000.,refant='1',
+        phasewrap=260,
+        gaintable='h121b.3mm.bpoly',preavg=0.)
 
-#Apply all solutions derived so far, determine calibrator's flux densities by solving for T 
+#Apply all solutions derived so far, determine calibrator's flux densities by solving for T
 #and use fluxscale
 default('gaincal')
 gaincal(vis=msfile2,caltable='h121b.3mm.temp',
-	field='0,1,3,4',spw='7:8~55',
-	solint='600s',refant='1',gaintype='T',
-	gaintable=['h121b.3mm.ph.gcal','h121b.3mm.bpoly'])
+        field='0,1,3,4',spw='7:8~55',
+        solint='600s',refant='1',gaintype='T',
+        gaintable=['h121b.3mm.ph.gcal','h121b.3mm.bpoly'])
 
 #fluxscale
 default('fluxscale')
 fluxscale(vis=msfile2,caltable='h121b.3mm.temp',fluxtable='h121b.3mm.flux',
-	  reference='MWC349*',transfer='3C454*,2200+420*,0224+671*')
+          reference='MWC349*',transfer='3C454*,2200+420*,0224+671*')
 calphase3mmtime=time.time()
 #2200+420: 3.29
 #0224+671: 1.53
@@ -233,16 +233,16 @@ setjy3mmtime=time.time()
 
 ## Amplitude calibration of 3mm LSB:
 ##
-##  phase solutions will be pre-applied as well as carried forward 
+##  phase solutions will be pre-applied as well as carried forward
 ##   to the output solution table.
 print('--gaincal amp (3mm)--')
 default('gaincal')
 gaincal(vis=msfile2,caltable='h121b.3mm.amp.gcal',
-	field='0,1,3,4',spw='7:8~55',
-	gaintype='GSPLINE',calmode='a',splinetime=20000.,refant='1',
-	phasewrap=260,
-	preavg=2500.,
-	gaintable=['h121b.3mm.ph.gcal','h121b.3mm.bpoly'])
+        field='0,1,3,4',spw='7:8~55',
+        gaintype='GSPLINE',calmode='a',splinetime=20000.,refant='1',
+        phasewrap=260,
+        preavg=2500.,
+        gaintable=['h121b.3mm.ph.gcal','h121b.3mm.bpoly'])
 calamp3mmtime=time.time()
 
 ## Correct the target source and all other 3mm LSB data
@@ -251,28 +251,28 @@ calamp3mmtime=time.time()
 ##   since the BPOLY solution is only defined for these
 default('applycal')
 applycal(vis=msfile2,
-	 spw='7',
-	 gaintable=['h121b.3mm.ph.gcal','h121b.3mm.amp.gcal','h121b.3mm.bpoly'])
+         spw='7',
+         gaintable=['h121b.3mm.ph.gcal','h121b.3mm.amp.gcal','h121b.3mm.bpoly'])
 # Correct Target CO (1-0)
 default('applycal')
 applycal(vis=msfile2,
-	 spw='3',
-	 gaintable=['h121b.3mm.ph.gcal','h121b.3mm.amp.gcal','2200b.3mm.bpoly'])
+         spw='3',
+         gaintable=['h121b.3mm.ph.gcal','h121b.3mm.amp.gcal','2200b.3mm.bpoly'])
 
 # Split calibrated target source data
 print('--split calibrater--')
 default('split')
 split(vis=msfile2,outputvis='h121b.3mm.split.ms',
 #      field=2,spw=7,nchan=48,start=8,step=1,datacolumn='corrected')
-	field='2',spw='7:8~55',datacolumn='corrected')
+        field='2',spw='7:8~55',datacolumn='corrected')
 default('split')
 split(vis=msfile2,outputvis='0224b.3mm.split.ms',
 #      field=1,spw=7,nchan=48,start=8,step=1,datacolumn='corrected')
-	field='1',spw='7:8~55',datacolumn='corrected')
+        field='1',spw='7:8~55',datacolumn='corrected')
 default('split')
 split(vis=msfile2,outputvis='h121b.co10.split.ms',
 #      field=2,spw=3,nchan=240,start=8,step=1,datacolumn='corrected')
-	field='2',spw='3:8~247',datacolumn='corrected')	
+        field='2',spw='3:8~247',datacolumn='corrected')
 splitsrctime=time.time()
 
 ## Get a first image the target source in 3 mm continuum emission:
@@ -367,11 +367,11 @@ srcb=3.260
 #coa=0.4755
 #cob=0.4043
 #coc=0.3300
-# new values for CO images after cvel-clean param 
+# new values for CO images after cvel-clean param
 # unification (last relevant change r.14424)
-# The values are from the run on 64b RHEL(rishi), 
-# with active # r.14436. Lower max values but 
-# slightly better rms # as compared to ones get with casa3.1 
+# The values are from the run on 64b RHEL(rishi),
+# with active # r.14436. Lower max values but
+# slightly better rms # as compared to ones get with casa3.1
 #coa=0.4172
 cob=0.3712
 coc=0.3362
@@ -411,18 +411,18 @@ print('--3mm image max  '+str(cont3mmmax), file=logfile)
 
 
 if ((diff_3mma<0.05) & (diff_3mmb<0.05) & (diff_co10a<0.05) & (diff_co10b<0.05) & (diff_co10c<0.05) & (diff_cont<0.05)):
-	regstate=True
+        regstate=True
         print('---', file=logfile)
         print('Passed Regression test for H121', file=logfile)
         print('---', file=logfile)
-	print('')
-	print('Regression PASSED')
-	print('')
+        print('')
+        print('Regression PASSED')
+        print('')
 else:
         regstate=False
-	print('')
-	print('Regression FAILED')
-	print('')
+        print('')
+        print('Regression FAILED')
+        print('')
         print('----FAILED Regression test for H121', file=logfile)
 print('*********************************', file=logfile)
 

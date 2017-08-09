@@ -19,7 +19,7 @@ for i in range(nrows):
     tstutl.note(usage, "INFO", this)
 tstutl.note('******maclog regression test finish******','INFO',this)
 tstutl.note('*****************************************','INFO',this)
-tstutl.note('casalogger, in a test done on 2009-10-29  ','INFO',this) 
+tstutl.note('casalogger, in a test done on 2009-10-29  ','INFO',this)
 tstutl.note('with nrows=100000000 on a mac machine     ','INFO',this)
 tstutl.note('followed the logging to near 7,000,000 rows','INFO',this)
 tstutl.note('and quit when used 1.22G real memory and','INFO',this)

@@ -20,20 +20,20 @@ datapath = os.environ.get('CASAPATH').split()[0] + '/data/regression/exportasdm/
 
 # Pick up alternative data directory to run tests on MMSs
 testmms = False
-if 'TEST_DATADIR' in os.environ:   
+if 'TEST_DATADIR' in os.environ:
     testmms = True
     DATADIR = str(os.environ.get('TEST_DATADIR'))+'/clearstat/'
     if os.path.isdir(DATADIR):
         datapath = DATADIR
-    print('clearstat tests will use data from '+datapath)    
+    print('clearstat tests will use data from '+datapath)
 
 class clearstat_test(unittest.TestCase):
-    
+
     # Input names
     msfile = 'Itziar.ms'
     res = None
     img = 'n4826_tmom1.im'
-    
+
     def setUp(self):
         self.res = None
         default('clearstat')
@@ -41,14 +41,14 @@ class clearstat_test(unittest.TestCase):
             os.system('rm -rf ' + self.msfile)
         if(os.path.exists(self.img)):
             os.system('rm -rf ' + self.img)
-            
+
 #        shutil.copytree(os.environ.get('CASAPATH').split()[0] +\
 #                            '/data/regression/exportasdm/input/'+self.msfile, self.msfile)
         shutil.copytree(datapath +self.msfile, self.msfile)
-            
+
         imgpath = os.environ.get('CASAPATH').split()[0] + '/data/regression/ngc4826redux/reference/'
         shutil.copytree(imgpath+self.img, self.img)
-    
+
     def tearDown(self):
         os.system('rm -rf ' + self.msfile)
         os.system('rm -rf ' + self.img)
@@ -56,8 +56,8 @@ class clearstat_test(unittest.TestCase):
         tb.close()
         if(_ia.isopen == True):
             _ia.close()
-            
-        
+
+
     def test1(self):
         '''Test 1: Clear table read lock'''
         tb.open(self.msfile)
@@ -120,11 +120,11 @@ class clearstat_test(unittest.TestCase):
 
         self.assertTrue(tbreadlock==False and tbwritelock==False and lock[0]==False and lock[1]==False,
                         'Failed to clear locks on table and/or image')
-        
+
 
 
 def suite():
     return [clearstat_test]
-    
-    
-    
+
+
+

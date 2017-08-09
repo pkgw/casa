@@ -14,7 +14,7 @@ def sdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, mo
     with sdutil.sdtask_manager(sdimaging_worker, locals()) as worker:
         worker.initialize()
         worker.execute()
-        worker.finalize()    
+        worker.finalize()
 
 def is_string_type(val):
     """
@@ -65,7 +65,7 @@ class sdimaging_worker(sdutil.sdtask_template_imaging):
 
         casalog.post("mode='%s': start=%s, width=%s, nchan=%d" % \
                      (self.mode, self.start, self.width, self.nchan))
-        
+
 
         # check length of selection parameters
         if is_string_type(self.infiles):
@@ -92,7 +92,7 @@ class sdimaging_worker(sdutil.sdtask_template_imaging):
         if spw.strip() == '*': spw = ''
         # WORKAROUND for CAS-6422, i.e., ":X~Y" fails while "*:X~Y" works.
         if spw.startswith(":"): spw = '*' + spw
-        return spw        
+        return spw
 
     def __format_quantum_unit(self, data, unit):
         """
@@ -147,7 +147,7 @@ class sdimaging_worker(sdutil.sdtask_template_imaging):
             antenna = self.get_selection_param_for_ms(file_idx, self.antenna)
             if antenna == -1: antenna = ''
             scan = self.get_selection_param_for_ms(file_idx, self.scanno)
-            intent = self.get_selection_param_for_ms(file_idx, self.intent) 
+            intent = self.get_selection_param_for_ms(file_idx, self.intent)
             my_ms = gentools(['ms'])[0]
             sel_ids = my_ms.msseltoindex(vis=vis, spw=spw, field=field,
                                          baseline=antenna, scan=scan)
@@ -162,12 +162,12 @@ class sdimaging_worker(sdutil.sdtask_template_imaging):
                 try: spwinfo =  my_ms.getspectralwindowinfo()
                 except: raise
                 finally: my_ms.close()
-                
+
                 spwid = [int(idx) for idx in list(spwinfo.keys())]
             else:
                 raise RuntimeError("Invalid spw selction, %s ,for MS %d" (str(spw), file_idx))
-            
-            return {'field': fieldid, 'spw': spwid, 'baseline': baseline, 'scan': scanid, 'intent': intent, 'antenna1': sel_ids['antenna1']} 
+
+            return {'field': fieldid, 'spw': spwid, 'baseline': baseline, 'scan': scanid, 'intent': intent, 'antenna1': sel_ids['antenna1']}
         else:
             raise ValueError("Invalid file index, %d" % file_idx)
 
@@ -234,8 +234,8 @@ class sdimaging_worker(sdutil.sdtask_template_imaging):
             casalog.post("restfreq set to %s" % self.restfreq, "INFO")
         # REST_FREQUENCY column is optional (need retry if not exists)
         self.imager_param['restfreq'] = self.restfreq
-    
-        # 
+
+        #
         # spw (define representative spw id = spwid_ref)
         spwid_ref = selection_ids['spw'][0] if type(selection_ids['spw']) != int else selection_ids['spw']
         # Invalid spw selection should have handled at msselectiontoindex().
@@ -285,7 +285,7 @@ class sdimaging_worker(sdutil.sdtask_template_imaging):
                 raise Exception("Internal error of getting frequency frame of spw=%d." % spwid_ref)
         else:
             casalog.post("Using frequency frame defined by user, '%s'" % self.imager_param['outframe'])
-        
+
 #         # antenna
 #         in_antenna = self.antenna # backup for future use
 #         if type(self.antenna)==int:
@@ -372,7 +372,7 @@ class sdimaging_worker(sdutil.sdtask_template_imaging):
         srestf = self.imager_param['restfreq'] if is_string_type(self.imager_param['restfreq']) else "%fHz" % self.imager_param['restfreq']
         (imnchan, imstart, imwidth) = imhelper.setChannelizeDefault(self.mode, spwsel, self.field, self.nchan, self.start, self.width, self.imager_param['outframe'], self.veltype,self.imager_param['phasecenter'], srestf)
         del imhelper
-        
+
         # start and width
         if self.mode == 'velocity':
             startval = [self.imager_param['outframe'], imstart]
@@ -389,7 +389,7 @@ class sdimaging_worker(sdutil.sdtask_template_imaging):
         self.imager_param['step'] = widthval
         self.imager_param['nchan'] = imnchan #self.nchan
 
-        
+
 
     def execute(self):
         # imaging
@@ -406,7 +406,7 @@ class sdimaging_worker(sdutil.sdtask_template_imaging):
                                        nchan=-1, start=0, step=1,
                                        baseline=selection_ids['baseline'],
                                        scan=selection_ids['scan'],
-                                       intent=selection_ids['intent']) 
+                                       intent=selection_ids['intent'])
             if not ok:
                 raise ValueError("Selection is empty: you may want to review this MS selection")
         else:
@@ -427,10 +427,10 @@ class sdimaging_worker(sdutil.sdtask_template_imaging):
                                       intent=selection_ids['intent'])
                 # need to do this
                 self.is_imager_opened = True
-                
+
         # it should be called after infiles are registered to imager
         self._configure_map_property()
-        
+
         casalog.post("Using phasecenter \"%s\""%(self.imager_param['phasecenter']), "INFO")
 
         self.imager.defineimage(**self.imager_param)#self.__get_param())
@@ -480,21 +480,21 @@ class sdimaging_worker(sdutil.sdtask_template_imaging):
         ###Leaving the original logic to calculate the number of masked pixels via
         ###product of median of and min_weight (which i don't understand the logic)
         ### if one wanted to find how many pixel were masked one could easily count the
-        ### number of pixels set to false 
-        ### e.g  after masking self.outfile below one could just do this 
+        ### number of pixels set to false
+        ### e.g  after masking self.outfile below one could just do this
         ### nmasked_pixels=tb.calc('[select from "'+self.outfile+'"/mask0'+'"  giving [nfalse(PagedArray )]]')
         my_tb = gentools(['tb'])[0]
         nmask_pixels=0
         nchan=stat['trc'][3]+1
         casalog.filter('ERROR') ### hide the useless message of tb.calc
-    
-       
+
+
         ### doing it by channel to make sure it does not go out of memory
-        ####tab.calc try to load the whole chunk in ram 
+        ####tab.calc try to load the whole chunk in ram
         for k in range(nchan):
             nmask_pixels += my_tb.calc('[select from "'+weightfile+'"  giving [ntrue(map[,,,'+str(k)+'] <='+str(median_weight*self.minweight)+')]]')['0'][0]
         casalog.filter()  ####set logging back to normal
-        
+
         casalog.filter()  ####set logging back to normal
         imsize=numpy.product(my_ia.shape())
         my_ia.close()
@@ -507,7 +507,7 @@ class sdimaging_worker(sdutil.sdtask_template_imaging):
                     ( masked_fraction ),"INFO")
         casalog.post("The weight image '%s' is returned by this task, if the user wishes to assess the results in detail." \
                      % (weightfile), "INFO")
-        
+
         # Calculate theoretical beam size
         casalog.post("Calculating image beam size.")
         if self.gridfunction.upper() not in  ['SF']:
@@ -619,7 +619,7 @@ class sdimaging_worker(sdutil.sdtask_template_imaging):
         casalog.post("Calculating Pirimary beam size:")
         # CAS-5410 Use private tools inside task scripts
         my_qa = qatool()
-        
+
         pb_factor = 1.175
         # Reference frequency
         ref_freq = self.restfreq
@@ -666,13 +666,13 @@ class sdimaging_worker(sdutil.sdtask_template_imaging):
         # CAS-5410 Use private tools inside task scripts
         my_qa = qatool()
         ret_dict = {}
-        
+
         colname = self.pointingcolumn.upper()
 
         # MSs should be registered to imager
         if not self.is_imager_opened:
             raise RuntimeError('Internal error: imager should be opened here.')
-        
+
         if self.phasecenter == "":
             # defaut is J2000
             base_mref = 'J2000'
@@ -692,14 +692,14 @@ class sdimaging_worker(sdutil.sdtask_template_imaging):
                     base_mref = s
                     break
 
-        mapextent = self.imager.mapextent(ref=base_mref, movingsource=self.ephemsrcname, 
+        mapextent = self.imager.mapextent(ref=base_mref, movingsource=self.ephemsrcname,
                                           pointingcolumntouse=colname)
         if mapextent['status'] is True:
             qheight = my_qa.quantity(mapextent['extent'][1], 'rad')
             qwidth = my_qa.quantity(mapextent['extent'][0], 'rad')
             qcent0 = my_qa.quantity(mapextent['center'][0], 'rad')
             qcent1 = my_qa.quantity(mapextent['center'][1], 'rad')
-            scenter = '%s %s %s'%(base_mref, my_qa.formxxx(qcent0, 'hms'), 
+            scenter = '%s %s %s'%(base_mref, my_qa.formxxx(qcent0, 'hms'),
                                   my_qa.formxxx(qcent1, 'dms'))
 
             casalog.post("- Pointing center: %s" % scenter)
@@ -756,7 +756,7 @@ class sdimaging_worker(sdutil.sdtask_template_imaging):
         self.observation_table = sdutil.get_subtable_name(keys['OBSERVATION'])
         self.pointing_table = sdutil.get_subtable_name(keys['POINTING'])
         self.data_desc_table = sdutil.get_subtable_name(keys['DATA_DESCRIPTION'])
-        self.pointing_table = sdutil.get_subtable_name(keys['POINTING'])        
+        self.pointing_table = sdutil.get_subtable_name(keys['POINTING'])
 
     def _get_average_antenna_diameter(self, antenna):
         my_qa = qatool()

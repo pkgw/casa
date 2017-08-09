@@ -4,8 +4,8 @@ from taskinit import *
 import sdutil
 ms,sdms,tb = gentools(['ms','sdms','tb'])
 
-def sdsmooth(infile=None, datacolumn=None, antenna=None, 
-              field=None, spw=None, timerange=None, scan=None, 
+def sdsmooth(infile=None, datacolumn=None, antenna=None,
+              field=None, spw=None, timerange=None, scan=None,
               pol=None, intent=None, kernel=None, kwidth=None,
               outfile=None, overwrite=None):
 
@@ -15,13 +15,13 @@ def sdsmooth(infile=None, datacolumn=None, antenna=None,
         if len(outfile) == 0:
             errmsg = 'outfile is empty.'
             raise_exception(errmsg)
-        
+
         if (os.path.exists(outfile)) and (not overwrite):
             errmsg = outfile+' exists.'
             raise_exception(errmsg)
 
         sdms.open(infile)
-        sdms.set_selection(spw=spw, field=field, 
+        sdms.set_selection(spw=spw, field=field,
                            antenna=antenna,
                            timerange=timerange, scan=scan,
                            polarization=pol, intent=intent)

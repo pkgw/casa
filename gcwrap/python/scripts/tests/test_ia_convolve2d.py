@@ -38,7 +38,7 @@
 #
 # <prerequisite>
 # <ul>
-#   <li> <linkto class="task_imcollapse.py:description">imcollapse</linkto> 
+#   <li> <linkto class="task_imcollapse.py:description">imcollapse</linkto>
 # </ul>
 # </prerequisite>
 #
@@ -48,20 +48,20 @@
 #
 # <synopsis>
 # Test the imcollapse task and the ia.collapse() method upon which it is built.
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_imcollapse[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the imcollapse task to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -74,13 +74,13 @@ from __main__ import *
 import unittest
 
 class ia_convolve2d_test(unittest.TestCase):
-    
+
     def setUp(self):
         pass
-    
+
     def tearDown(self):
         pass
-    
+
     def test_stretch(self):
         """ ia.convolve2d(): Test stretch parameter"""
         yy = iatool()
@@ -93,7 +93,7 @@ class ia_convolve2d_test(unittest.TestCase):
         yy.addnoise()
         self.assertRaises(
             Exception,
-            yy.convolve2d, "", [0,1], "gaussian", "4arcmin", 
+            yy.convolve2d, "", [0,1], "gaussian", "4arcmin",
             "4arcmin", "0deg", mask=mymask + ">0", stretch=False
         )
         zz = yy.convolve2d(
@@ -103,6 +103,6 @@ class ia_convolve2d_test(unittest.TestCase):
         self.assertTrue(type(zz) == type(yy))
         yy.done()
         zz.done()
-        
+
 def suite():
     return [ia_convolve2d_test]

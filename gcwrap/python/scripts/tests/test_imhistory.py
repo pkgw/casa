@@ -47,20 +47,20 @@
 #
 # <synopsis>
 # Test for the imhistory task
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_imhistory[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the imhistory to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -75,11 +75,11 @@ import unittest
 class imhistory_test(unittest.TestCase):
     def setUp(self):
         self._myia = iatool()
-    
+
     def tearDown(self):
         self._myia.done()
         self.assertTrue(len(tb.showcache()) == 0)
-        
+
     def test_imhistory(self):
         """Test general functionality"""
         myia = self._myia
@@ -102,6 +102,6 @@ class imhistory_test(unittest.TestCase):
         for hh in h[1:2]:
             self.assertTrue("fromshape" in hh, "Incorrect message")
         self.assertTrue(msg in h[3], "Incorrect appended message")
- 
+
 def suite():
     return [imhistory_test]

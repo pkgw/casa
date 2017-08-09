@@ -32,4 +32,4 @@ def imsubimage(
             myia.done()
         if outia:
             outia.done()
-        
+

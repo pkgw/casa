@@ -15,9 +15,9 @@ def sdstatold(infile, antenna, fluxunit, telescopeparam, field, spw, restfreq, f
         worker.initialize()
         worker.execute()
         worker.finalize()
-        
+
         return worker.returnstats
-        
+
 
 class sdstat_worker(sdutil.sdtask_template):
     def __init__(self, **kwargs):
@@ -44,7 +44,7 @@ class sdstat_worker(sdutil.sdtask_template):
                                                          self.frame,
                                                          self.doppler,
                                                          self.restfreq)
-        
+
         # scantable selection
         self.set_selection(sorg)
 
@@ -95,7 +95,7 @@ class sdstat_worker(sdutil.sdtask_template):
         # backup spec unit
         unit_org = self.scan.get_unit()
         self.scan.set_unit('channel')
-        
+
         basesel = self.scan.get_selection()
         maskdict = {-1: []}
         if self.spw.strip() not in ['', '*']:
@@ -111,7 +111,7 @@ class sdstat_worker(sdutil.sdtask_template):
                 msg = "Working on IF%s" % (ifno)
                 if (self.interactive): print("===%s===" % (msg))
                 del msg
-            
+
             # set mask
             self.__set_mask()
 
@@ -171,14 +171,14 @@ class sdstat_worker(sdutil.sdtask_template):
         for key, val in list(self.returnstats.items()):
             if type(val)==list and len(val)==1:
                 self.returnstats[key] = val[0]
-    
+
     def __sort_stats_order(self, order):
         if len(self.returnstats[list(self.returnstats.keys())[0]]) != len(order):
             raise ValueError("Length of sort order list != statistics list.")
         idx = npargsort(order)
         for key, val in list(self.returnstats.items()):
             self.returnstats[key] = [val[i] for i in idx ]
-                
+
 
     def __calc_stats(self):
         usr = get_user()
@@ -197,7 +197,7 @@ class sdstat_worker(sdutil.sdtask_template):
 
         # calculate additional statistics (eqw and integrated intensity)
         self.__calc_eqw_and_integf()
-        
+
         if sd.rcParams['verbose']:
             # Print equivalent width
             out = self.__get_statstext('eqw', self.abclbl, 'eqw')
@@ -235,7 +235,7 @@ class sdstat_worker(sdutil.sdtask_template):
             # Single scantable only
             abcissa, lbl = self.scan.get_abcissa(rowno=0)
             dabc=abs(abcissa[-1] - abcissa[0])/float(len(abcissa)-1)
-        
+
             # Construct equivalent width (=sum/max)
             eqw = get_eqw(self.result['max'],
                           self.result['min'],
@@ -284,7 +284,7 @@ class sdstat_worker(sdutil.sdtask_template):
         else:
             # Full region
             casalog.post( 'Using full region' )
-        
+
     def __set_formatter(self):
         self.format_string=self.format.replace(' ','')
         if len(self.format_string)==0:
@@ -337,7 +337,7 @@ class sdstat_worker(sdutil.sdtask_template):
         if self.scan.npol(-1) > 1: out +=  ' Pol[%d] ' % (self.scan.getpol(irow))
         out += ('= %'+self.format_string) % (val) + '\n'
         out +=  "%s\n"%(separator)
-        return out 
+        return out
 
 def check_unit(unit_in,valid_unit=None,default_unit=None):
     # CAS-5410 Use private tools inside task scripts
@@ -359,7 +359,7 @@ def get_eqw(maxl, minl, suml, dabc):
         else:
             eqw = suml/minl*dabc
     return eqw
-    
+
 def get_integf(suml, dabc):
     if suml is None or dabc is None:
         return None

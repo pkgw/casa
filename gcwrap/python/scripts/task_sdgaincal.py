@@ -10,12 +10,12 @@ import types
 import sdutil
 
 
-def sdgaincal(infile=None, calmode=None, radius=None, smooth=None, 
-              antenna=None, field=None, spw=None, scan=None, intent=None, 
-              applytable=None, outfile='', overwrite=False): 
-    
+def sdgaincal(infile=None, calmode=None, radius=None, smooth=None,
+              antenna=None, field=None, spw=None, scan=None, intent=None,
+              applytable=None, outfile='', overwrite=False):
+
     casalog.origin('sdgaincal')
-    
+
     # Calibrator tool
     (mycb,) = gentools(['cb'])
 
@@ -23,32 +23,32 @@ def sdgaincal(infile=None, calmode=None, radius=None, smooth=None,
         # outfile must be specified
         if (outfile == '') or not isinstance(outfile, str):
             raise ValueError("outfile is empty.")
-        
+
         # overwrite check
         if os.path.exists(outfile) and not overwrite:
             raise RuntimeError(outfile + ' exists.')
-        
+
         # TODO: pre-application functionality is not supported yet
         if type(applytable) == list or \
           (isinstance(applytable, str) and len(applytable) > 0):
             msg = 'Pre-application of calibration solutions is not supported yet.'
             casalog.post(msg, priority='SEVERE')
             raise RuntimeError(msg)
-        
+
         # open MS
         if isinstance(infile, str) and os.path.exists(infile):
             mycb.setvi(old=True)
             mycb.open(filename=infile, compress=False, addcorr=False, addmodel=False)
         else:
             raise RuntimeError('infile not found - please verify the name')
-        
+
         # select data
         if isinstance(antenna, str) and len(antenna) > 0:
             baseline = '{ant}&&&'.format(ant=antenna)
         else:
             baseline = ''
         mycb.selectvis(spw=spw, scan=scan, field=field, intent=intent, baseline=baseline)
-        
+
         # set solve
         if calmode == 'doublecircle':
             if radius is None:
@@ -57,7 +57,7 @@ def sdgaincal(infile=None, calmode=None, radius=None, smooth=None,
                 rcenter = '%sarcsec'%(radius)
             else:
                 try:
-                    # if radius is a string only consists of numeric value without unit, 
+                    # if radius is a string only consists of numeric value without unit,
                     # it will succeed.
                     rcenter = '%sarcsec'%(float(radius))
                 except:
@@ -78,7 +78,7 @@ def sdgaincal(infile=None, calmode=None, radius=None, smooth=None,
         casalog.post(traceback.format_exc(), priority='DEBUG')
         casalog.post(errmsg(e), priority='SEVERE')
         raise e
-    
+
     finally:
         mycb.close()
 

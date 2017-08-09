@@ -37,14 +37,14 @@ from functools import reduce
 
 class SpwMap:
     """
-    This object is basically set up to hold the information needed 
+    This object is basically set up to hold the information needed
     """
     def __init__(self,calSpwId):
         self.calSpwId = calSpwId
         self.validFreqRange = []
         self.mapsToSpw = []
         self.bbNo = None
-        
+
 class SpwInfo:
     def __init__(self,msfile,spwId) :
         self.tb = taskinit.tbtool()
@@ -59,14 +59,14 @@ class SpwInfo:
         self.tb.open(self.tableName)
         self.parameters = self.tb.colnames()
         self.tb.close()
-        
+
     def setSpwId(self,spwId) :
         self.tb.open(self.tableName)
         self.values = {}
         for i in self.parameters :
             self.values[i] = self.tb.getcell(i,spwId)
         self.tb.close()
-    
+
 def areIdentical(spwInfo1,spwInfo2) :
     if len(spwInfo1.parameters) <= len(spwInfo2.parameters) :
         minState = spwInfo1 ; maxState = spwInfo2
@@ -90,13 +90,13 @@ def trimSpwmap(spwMap) :
             evenPoint = i
             break
     return spwMap[:i]
-        
-        
+
+
 def tsysspwmap(vis,tsystable,trim=True,relax=False, tsysChanTol=0):
     """
     Generate default spwmap for ALMA Tsys, including TDM->FDM associations
     Input:
-     vis        the target MeasurementSet 
+     vis        the target MeasurementSet
      tsystable  the input Tsys caltable (w/ TDM Tsys measurements)
      trim       if True (the default), return minimum-length spwmap;
                     otherwise the spwmap will be exhaustive and include
@@ -125,7 +125,7 @@ def tsysspwmap(vis,tsystable,trim=True,relax=False, tsysChanTol=0):
     localTb.open(tsystable)
     measuredTsysSpw = numpy.unique(localTb.getcol("SPECTRAL_WINDOW_ID"))
     localTb.close()
-    # Get the frequency ranges for the allowed 
+    # Get the frequency ranges for the allowed
     localTb.open("%s/SPECTRAL_WINDOW" % tsystable)
     for i in measuredTsysSpw:
         spwMap = SpwMap(i)
@@ -177,7 +177,7 @@ def tsysspwmap(vis,tsystable,trim=True,relax=False, tsysChanTol=0):
         if useSpw == None :
             useSpw = i
             spwWithoutMatch.append(i)
-        applyCalSpwMap.append(int(useSpw))        
+        applyCalSpwMap.append(int(useSpw))
     if len(spwWithoutMatch) != 0:
         taskinit.casalog.post('Found no match for following spw ids: '+str(spwWithoutMatch))
     if trim :
@@ -225,7 +225,7 @@ def fixsyscaltimes(vis,newinterval=2.0):
         nT=len(utimes)
         utimestamps=mypl.unique(mypl.floor(timestamps)-t0)
         nTS=len(utimestamps)
-        
+
         msg='In spw='+str(ispw)+' found '+str(nTS)+' Tsys measurements with '+str(nT)+' TIMEs...'
         if nT==nTS:
             msg+='OK.'
@@ -233,7 +233,7 @@ def fixsyscaltimes(vis,newinterval=2.0):
 
         else:
             msg+=' which is too many, so fixing it:'
-            print(msg) 
+            print(msg)
 
             for uts in utimestamps:
                 mask = ((mypl.floor(timestamps))-t0==uts)
@@ -278,7 +278,7 @@ def calantsub(incaltable,outcaltable='',
     standard MS selection manner (comma-separated integers in a string),
     except no channel selection is supported.
 
-    The ant parameter specifies one or more antenna indices 
+    The ant parameter specifies one or more antenna indices
     (comma-separated in a string) for which solutions are to be
     replaced.  The subant parameter lists the antenna indices
     from which the substitute solutions are to be obtained. E.g.,
@@ -286,11 +286,11 @@ def calantsub(incaltable,outcaltable='',
     antenna id 6 to be copied to antenna id 5, id 8 to id 5 and id 10
     to id 7.  The number of antennas specified in ant and subant
     must match.
-    
+
     """
 
     import pylab as mypl
-    
+
     # trap insufficient ant subant specifications
     if len(ant)==0 or len(subant)==0:
         raise Exception("Must specify at least one ant and subant.")
@@ -382,7 +382,7 @@ def calantsub(incaltable,outcaltable='',
                 if stsub.nrows()!=stant.nrows():
                     raise Exception("In spw "+str(ispw)+" antenna ids "+str(antlist[ia])+" and "+str(sublist[ia])+" have a different number of solutions.")
 
-                # substitute values 
+                # substitute values
                 for col in collist:
                     stant.putcol(col,stsub.getcol(col))
 
@@ -396,7 +396,7 @@ def calantsub(incaltable,outcaltable='',
 def editIntentscsv(intentcsv, dryrun=False, verbose=False):
     """
     Reads a list of parameters from a csv text file and runs editIntents on them.
-    File format: 
+    File format:
     # any number of comment lines
     vis,field,scan,"WVR,BANDPASS"
     vis,field,,'FLUX,WVR'
@@ -412,7 +412,7 @@ def editIntentscsv(intentcsv, dryrun=False, verbose=False):
         return
     f = open(intentcsv,'r')
     lines = f.readlines()
-    f.close() 
+    f.close()
     for originalLine in lines:
         if (originalLine[0] == '#'): continue
         line = originalLine.replace("'",'"').replace(' ','')
@@ -440,10 +440,10 @@ def editIntentscsv(intentcsv, dryrun=False, verbose=False):
             else:
                 print("Could not find requested measurement set: ", vis)
 
-def editIntents(msName='', field='', scan='', newintents='', 
+def editIntents(msName='', field='', scan='', newintents='',
                 append=False, verbose=True):
     """
-    Change the observation intents for a specified field.  
+    Change the observation intents for a specified field.
     Inputs:
     * field: required argument (integer or string ID, or name)
     * scan: optional, can be a single integer, integer list, or comma-delimited string list
@@ -460,11 +460,11 @@ def editIntents(msName='', field='', scan='', newintents='',
     - T. Hunter
     """
     validIntents = ['AMPLITUDE','ATMOSPHERE','BANDPASS','CHECK_SOURCE',
-                    'DELAY','FLUX','FOCUS', 'PHASE','POINTING', 
-                    'SIDEBAND_RATIO', 'TARGET','WVR', 'CALIBRATE_AMPLI', 
+                    'DELAY','FLUX','FOCUS', 'PHASE','POINTING',
+                    'SIDEBAND_RATIO', 'TARGET','WVR', 'CALIBRATE_AMPLI',
                     'CALIBRATE_ATMOSPHERE', 'CALIBRATE_BANDPASS',
                     'CALIBRATE_DELAY', 'CALIBRATE_FLUX', 'CALIBRATE_FOCUS',
-                    'CALIBRATE_PHASE', 'CALIBRATE_POINTING', 
+                    'CALIBRATE_PHASE', 'CALIBRATE_POINTING',
                     'CALIBRATE_SIDEBAND_RATIO','OBSERVE_TARGET',
                     'CALIBRATE_WVR', 'OBSERVE_CHECK_SOURCE'
                     ]
@@ -497,7 +497,7 @@ def editIntents(msName='', field='', scan='', newintents='',
     else:
         desiredintents = newintents
     desiredintentsList = desiredintents.split(',')
-        
+
     for intent in desiredintentsList:
         if ((intent in validIntents)==False):
             print("Invalid intent = %s.  Valid intents = %s" % (intent,validIntents))
@@ -511,7 +511,7 @@ def editIntents(msName='', field='', scan='', newintents='',
         foundField = True
         if verbose:
             print('FIELD_ID %s has name %s' % (id, name))
-        if scan == '': 
+        if scan == '':
             s = mytb.query('FIELD_ID==%s' % id)
             if verbose:
                 print("Got %d rows in the ms matching field=%s" % (s.nrows(),id))

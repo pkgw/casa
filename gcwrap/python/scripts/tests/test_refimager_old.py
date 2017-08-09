@@ -47,12 +47,12 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
                                        imsize=[512,512],\
                                        cell=['10.0arcsec','10.0arcsec'],\
                                        phasecenter="J2000 19:59:28.500 +40.44.01.50",\
-                                       ftmachine='awprojectft', 
+                                       ftmachine='awprojectft',
                                        startmodel='', weighting='natural',\
                                        aterm=True, psterm=False, mterm=True,\
-                                       wbawp = False, 
+                                       wbawp = False,
                                        cfcache = "perm.mytest0.cube.cfcache.mos",
-                                       dopointing = False, dopbcorr = True, conjbeams = True, 
+                                       dopointing = False, dopbcorr = True, conjbeams = True,
                                        computepastep =360.0, rotatepastep =5.0,\
                                        deconvolver='hogbom',\
                                        #pblimit=0.1,normtype='flatsky',
@@ -78,15 +78,15 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
                ## readonly
                0:{'readonly':True,  'usescratch':True, 'deconvolver':'hogbom', 'ntaylorterms':1, 'mtype':'default'},
                ## readonly
-               1:{'readonly':True,  'usescratch':False, 'deconvolver':'hogbom', 'ntaylorterms':1, 'mtype':'default'}, 
+               1:{'readonly':True,  'usescratch':False, 'deconvolver':'hogbom', 'ntaylorterms':1, 'mtype':'default'},
                ## save model column in last major cycle
-               2:{'readonly':False,  'usescratch':True, 'deconvolver':'hogbom', 'ntaylorterms':1, 'mtype':'default'}, 
+               2:{'readonly':False,  'usescratch':True, 'deconvolver':'hogbom', 'ntaylorterms':1, 'mtype':'default'},
                ## save virtual model in last major cycleexit
-               3:{'readonly':False,  'usescratch':False, 'deconvolver':'hogbom', 'ntaylorterms':1, 'mtype':'default'}, 
+               3:{'readonly':False,  'usescratch':False, 'deconvolver':'hogbom', 'ntaylorterms':1, 'mtype':'default'},
                ## Multi-term test : save model column in last major cycle
-               4:{'readonly':False,  'usescratch':True, 'deconvolver':'mtmfs', 'ntaylorterms':2, 'mtype':'multiterm'}, 
+               4:{'readonly':False,  'usescratch':True, 'deconvolver':'mtmfs', 'ntaylorterms':2, 'mtype':'multiterm'},
                ## Multi-term test : save virtual model in last major cycle
-               5:{'readonly':False,  'usescratch':False, 'deconvolver':'mtmfs', 'ntaylorterms':2, 'mtype':'multiterm'} 
+               5:{'readonly':False,  'usescratch':False, 'deconvolver':'mtmfs', 'ntaylorterms':2, 'mtype':'multiterm'}
                }
 
           ###  Note : 2 or 3 has a bug. When trying to read the virtual model (in plotms), the plotted values are
@@ -116,7 +116,7 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
           casalog.post("==================================");
           casalog.post("Test 21 image-field, mfs --- Multiple Stokes planes -- Clark.");
           casalog.post("==================================");
-          
+
           paramList = ImagerParameters(msname='DataTest/point_stokes.ms',field='0',spw='0',\
                                        usescratch=True,readonly=True,\
                                        mode='mfs',\
@@ -136,7 +136,7 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
           casalog.post("==================================");
           casalog.post("Test 20 MFS 1 term + multiscale");
           casalog.post("==================================");
-          
+
           paramList = ImagerParameters(msname='DataTest/eptwochan.ms',field='0',spw='0:0',\
                                        usescratch=True,readonly=True,\
                                        mode='mfs',\
@@ -203,7 +203,7 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
                                        restoringbeam=restoringbeam,
                                        interactive=interactive,mask=mask)
 
-     if(testnum==17): ## mode=cubedata 
+     if(testnum==17): ## mode=cubedata
           casalog.post("==================================");
           casalog.post("Test 17 image-field, cubedata --- No runtime dopper corrections");
           #casalog.post("==================================");
@@ -229,7 +229,7 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
           casalog.post("==================================");
           casalog.post("Test 16 image-fields, mfs (one with nterms=1. one with nterms=2).");
           casalog.post("==================================");
-          
+
           write_file('out16.txt', 'imagename=mytest1\nnchan=1\nimsize=[80,80]\ncell=[8.0arcsec,8.0arcsec]\nphasecenter=J2000 19:58:40.895 +40.55.58.543\nntaylorterms=2\nmtype=multiterm\nreffreq=1.5GHz\ndeconvolver=mtmfs')
           paramList = ImagerParameters(msname='DataTest/twopoints_twochan.ms',\
                                        field='0',spw='0',\
@@ -238,7 +238,7 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
                                        mode='mfs',\
                                        imagename='mytest0', nchan=1,\
                                        imsize=[100,100],\
-                                       cell=['8.0arcsec','8.0arcsec'], 
+                                       cell=['8.0arcsec','8.0arcsec'],
                                        phasecenter="J2000 19:59:28.500 +40.44.01.50",\
                                        ftmachine='gridft', startmodel='', weighting='natural',\
                                        deconvolver='hogbom',\
@@ -246,12 +246,12 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
                                        threshold=threshold,loopgain=loopgain,\
                                         restoringbeam=restoringbeam,
                                       interactive=interactive,mask=mask)
-     
+
      if(testnum==15):  ## 2 image-fields, mfs, Overlapping models. Both multi-term
           casalog.post("==================================");
           casalog.post("Test 15 two overlapping image-fields, mfs, both multi term");
           casalog.post("==================================");
-          
+
           write_file('out15.txt', 'imagename=mytest1\nnchan=1\nimsize=[200,200]\ncell=[8.0arcsec,8.0arcsec]\nphasecenter=J2000 19:59:02.426 +40.51.14.559\n')
           paramList = ImagerParameters(msname='DataTest/twopoints_twochan.ms',\
                                        field='0',spw='0',\
@@ -262,7 +262,7 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
                                        deconvolver='mtmfs',\
                                        imagename='mytest0', nchan=1,\
                                        imsize=[100,100],\
-                                       cell=['8.0arcsec','8.0arcsec'], 
+                                       cell=['8.0arcsec','8.0arcsec'],
                                        phasecenter="J2000 19:58:39.580 +40.55.55.931",\
                                        ftmachine='gridft', startmodel='', weighting='natural',\
                                        niter=niter,cycleniter=cycleniter,\
@@ -275,7 +275,7 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
           casalog.post("==================================");
           casalog.post("Test 14 two overlapping image-fields, mfs, single term");
           casalog.post("==================================");
-          
+
           write_file('out14.txt', 'imagename=mytest1\nnchan=1\nimsize=[200,200]\ncell=[8.0arcsec,8.0arcsec]\nphasecenter=J2000 19:59:02.426 +40.51.14.559')
           paramList = ImagerParameters(msname='DataTest/twopoints_twochan.ms',\
                                        field='0',spw='0',\
@@ -284,7 +284,7 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
                                        mode='mfs',\
                                        imagename='mytest0', nchan=1,\
                                        imsize=[100,100],\
-                                       cell=['8.0arcsec','8.0arcsec'], 
+                                       cell=['8.0arcsec','8.0arcsec'],
                                        phasecenter="J2000 19:58:39.580 +40.55.55.931",\
                                        ftmachine='gridft', startmodel='', weighting='natural',\
                                        deconvolver='hogbom',\
@@ -311,16 +311,16 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
           #mvstart=me.radialvelocity('BARY',qa.quantity("-59976.1km/s"))
           mvstart=me.radialvelocity('BARY',qa.quantity("11977.6km/s"))
           #dop = me.todoppler('radio',mfstart,qa.quantity('1.0GHz'))
-          mfstart10=me.frequency('LSRK',qa.quantity(" 1.17999GHz"))                                                        
-          dop = me.todoppler('radio',mfstart10,qa.quantity('1.25GHz'))                                              
-          #1chan width 
+          mfstart10=me.frequency('LSRK',qa.quantity(" 1.17999GHz"))
+          dop = me.todoppler('radio',mfstart10,qa.quantity('1.25GHz'))
+          #1chan width
           #qvwidth = qa.quantity("11991.700km/s")
           qvwidth = qa.quantity("4796.7km/s")
           mvwidth = me.radialvelocity('TOPO',qvwidth)
 
           # restf = 1.25GHz
           # vel range: 59961.1 -  -31174.7 km/s (lsrk/radio)
-          #            74952.3 -  -28238.3 km/s (lsrk/optical)  
+          #            74952.3 -  -28238.3 km/s (lsrk/optical)
 
           testList = {
                       0:{'imagename':'Cubetest_chandefstdefwidth','spw':'0','start':0,'width':1,'outframe':'LSRK',
@@ -331,8 +331,8 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
                         'desc':'channel, default start, width=2, LSRK'},
                       3:{'imagename':'Cubetest_chanst5wd1','spw':'0','start':5,'width':1, 'outframe':'LSRK',
                         'desc':'channel, start=5, default width, LSRK'},
-                      # this will result in blank channnel images (calcChanFreqs requires start and width in channel       
-                      # mode to be given in chan index                                                                 
+                      # this will result in blank channnel images (calcChanFreqs requires start and width in channel
+                      # mode to be given in chan index
                       4:{'imagename':'Cubetest_chandefstwd1spwsel','spw':'0:5~19','start':0,'width':1, 'outframe':'LSRK',
                         'desc':'channel, spw=0:5~19, LSRK'},
                       5:{'imagename':'Cubetest_freqdefstwd2','spw':'0','start':'','width':'40MHz','outframe':'TOPO',
@@ -351,7 +351,7 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
                         'desc':'velocity, start=\'11991.7km/s\', default width, TOPO'},
                      12:{'imagename':'Cubetest_velst10defwdbary','spw':'0','start':'11977.6km/s','width':'','outframe':'BARY',
                         'desc':'velocity, start=\'11977.6km/s\', default width, BARY'},
-                     # currently 13 is not quite properly working, investigating - 2014.08.27 TT 
+                     # currently 13 is not quite properly working, investigating - 2014.08.27 TT
                      #13:{'imagename':'Cubetest_optvelst10defwdlsrk','spw':'0','start':'-49962.6km/s','width':'4234.40km/s',
                      ##13:{'imagename':'Cubetest_optvelst10defwdlsrk','spw':'0','start':'-49962.6km/s','width':'5500.0km/s',
                      ##13:{'imagename':'Cubetest_optvelst10defwdlsrk','spw':'0','start':'74952.3km/s','width':'5500.0km/s',
@@ -426,12 +426,12 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
                                        cell=['10.0arcsec','10.0arcsec'],\
                                        phasecenter="J2000 19:59:28.500 +40.44.01.50",\
                                        ntaylorterms=2,mtype='multiterm',restfreq=['1.5GHz'],\
-                                       ftmachine='awprojectft', 
+                                       ftmachine='awprojectft',
                                        startmodel='', weighting='natural',\
                                        aterm=True, psterm=False, mterm=True,\
-                                       wbawp = True, 
+                                       wbawp = True,
                                        cfcache = "perm.wb.nt2.mytest0.cfcache",\
-                                       dopointing = False, dopbcorr = True, conjbeams = True, 
+                                       dopointing = False, dopbcorr = True, conjbeams = True,
                                        computepastep =360.0, rotatepastep =360.0,#5.0,\
                                        deconvolver='mtmfs',\
                                        pblimit=0.1,normtype='flatnoise',
@@ -444,7 +444,7 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
           casalog.post("==================================");
           casalog.post("Test 11 image-field, mfs --- WB AWP (single term)");
           casalog.post("==================================");
-          ## Note : For this test, if doMajor peak comes to 0.006 instead of 0.69, 
+          ## Note : For this test, if doMajor peak comes to 0.006 instead of 0.69,
           ##           it means unnormalized weight is being used (refilled perhaps but not normed).
           paramList = ImagerParameters(msname='DataTest/reg_mawproject.ms',
                                        field='1',scan='',
@@ -454,12 +454,12 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
                                        imsize=[512,512],\
                                        cell=['10.0arcsec','10.0arcsec'],\
                                        phasecenter="J2000 19:59:28.500 +40.44.01.50",\
-                                       ftmachine='awprojectft', 
+                                       ftmachine='awprojectft',
                                        startmodel='', weighting='natural',\
                                        aterm=True, psterm=False, mterm=True,\
-                                       wbawp = True, 
+                                       wbawp = True,
                                        cfcache = "perm.wb.mytest0.cfcache",\
-                                       dopointing = False, dopbcorr = True, conjbeams = True, 
+                                       dopointing = False, dopbcorr = True, conjbeams = True,
                                        computepastep =360.0, rotatepastep =5.0,\
                                        deconvolver='hogbom',\
                                        pblimit=0.1,normtype='flatnoise',
@@ -482,12 +482,12 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
                                        cell=['10.0arcsec','10.0arcsec'],\
                                        phasecenter="J2000 19:59:28.500 +40.44.01.50",\
                                        stokes='V',\
-                                       ftmachine='awprojectft', 
+                                       ftmachine='awprojectft',
                                        startmodel='', weighting='natural',\
                                        aterm=True, psterm=False, mterm=True,\
-                                       wbawp = False, 
+                                       wbawp = False,
                                        cfcache = "perm.mytest0.cfcache.mos",#.offcenter",\
-                                       dopointing = False, dopbcorr = True, conjbeams = True, 
+                                       dopointing = False, dopbcorr = True, conjbeams = True,
                                        computepastep =360.0, rotatepastep =5.0,\
                                        deconvolver='hogbom',\
                                        #pblimit=0.1,normtype='flatsky',
@@ -501,7 +501,7 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
           casalog.post("==================================");
           casalog.post("Test 9 : Image domain mosaic for single-term");
           casalog.post("==================================");
-          
+
           paramList = ImagerParameters(msname='DataTest/reg_mawproject.ms',\
                                        field='',spw='1',scan='',\
 #                                       usescratch=True,readonly=True,\
@@ -521,12 +521,12 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
                                        threshold=threshold,loopgain=loopgain,\
                                        restoringbeam=restoringbeam,
                                        interactive=interactive,mask=mask)
- 
+
      if(testnum==8):  # MTMFS + Facets
           casalog.post("==================================");
           casalog.post("Test 8 : 1 image-field, mfs, nt=1, 2x2 facets ");
           casalog.post("==================================");
-          
+
           paramList = ImagerParameters(msname='DataTest/twopoints_twochan.ms',field='0',spw='0',\
                                        usescratch=True,readonly=True,\
                                        mode='mfs',\
@@ -543,11 +543,11 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
                                        interactive=interactive,mask=mask)
 
 
-     if(testnum==7):  # MTMFS 
+     if(testnum==7):  # MTMFS
           casalog.post("==================================");
           casalog.post("Test 7 : 1 image-field, mfs, With ntaylorterms=2 ");
           casalog.post("==================================");
-          
+
 #          paramList = ImagerParameters(msname='DataTest/eptwochan.ms',field='0',spw='*',\
           paramList = ImagerParameters(msname='DataTest/twopoints_twochan.ms',field='0',spw='0',\
                                        usescratch=True,readonly=True,\
@@ -572,7 +572,7 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
           casalog.post("==================================");
           casalog.post("Test 6 : 1 image-field, mfs, nt=1, 2x2 facets ");
           casalog.post("==================================");
-          
+
           paramList = ImagerParameters(msname='DataTest/twopoints_twochan.ms',field='0',spw='0',\
                                        usescratch=True,readonly=True,\
                                        mode='mfs',\
@@ -599,7 +599,7 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
                                        mode='mfs',\
                                        imagename='mytest0', nchan=1,\
                                        imsize=[100,100],\
-                                       cell=['8.0arcsec','8.0arcsec'], 
+                                       cell=['8.0arcsec','8.0arcsec'],
                                        phasecenter="J2000 19:59:28.500 +40.44.01.50",\
                                        ftmachine='gridft', startmodel='', weighting='natural',\
                                        deconvolver='hogbom',\
@@ -613,7 +613,7 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
           casalog.post("==================================");
           casalog.post("Test 4 image-fields, one cube, one mfs --- Imaging.");
           casalog.post("==================================");
-          
+
           write_file('out4.txt', 'imagename=mytest1\nnchan=1\nimsize=[80,80]\ncell=[8.0arcsec,8.0arcsec]\nphasecenter=J2000 19:58:40.895 +40.55.58.543\nmode=mfs\nstart=1.0GHz\nwidth=2.0GHz')
           paramList = ImagerParameters(msname='DataTest/twopoints_twochan.ms',\
                                        field='0',spw='0',\
@@ -626,7 +626,7 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
                                        #start=0, width=1,
                                        outframe='TOPO',\
                                        imsize=[100,100],\
-                                       cell=['8.0arcsec','8.0arcsec'], 
+                                       cell=['8.0arcsec','8.0arcsec'],
                                        phasecenter="J2000 19:59:28.500 +40.44.01.50",\
                                        ftmachine='gridft', startmodel='', weighting='natural',\
                                        deconvolver='hogbom',\
@@ -636,12 +636,12 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
                                        interactive=interactive,mask=mask)
 
 
-     
+
      if(testnum==3):  ## 2 image-fields, mfs --- Imaging.
           casalog.post("==================================");
           casalog.post("Test 3 image-fields, mfs --- Imaging.");
           casalog.post("==================================");
-          
+
           if len(mask)==0:
                write_file('out3.txt', 'imagename=mytest1\nnchan=1\nimsize=[80,80]\ncell=[8.0arcsec,8.0arcsec]\nphasecenter=J2000 19:58:40.895 +40.55.58.543')
           else:
@@ -653,7 +653,7 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
                                        mode='mfs',\
                                        imagename='mytest0', nchan=1,\
                                        imsize=[100,100],\
-                                       cell=['8.0arcsec','8.0arcsec'], 
+                                       cell=['8.0arcsec','8.0arcsec'],
                                        phasecenter="J2000 19:59:28.500 +40.44.01.50",\
                                        ftmachine='gridft', startmodel='', weighting='natural',\
                                        deconvolver='hogbom',\
@@ -661,13 +661,13 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
                                        threshold=threshold,loopgain=loopgain,\
                                        restoringbeam=restoringbeam,
                                        interactive=interactive,mask=mask)
-     
-     
+
+
      if(testnum==2):  ## 1 image-field, cube --- Imaging.
           casalog.post("==================================");
           casalog.post("Test 2 image-field, cube --- Imaging.");
           casalog.post("==================================");
-          
+
           paramList = ImagerParameters(msname='DataTest/point_twospws.ms', field='0',spw='',\
                                        usescratch=True,readonly=True,\
                                        mode='cube',\
@@ -681,13 +681,13 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
                                        threshold=threshold,loopgain=loopgain,\
                                        restoringbeam=restoringbeam,
                                        interactive=interactive,mask=mask)
-     
+
 
      if(testnum==1):  ## 1 image-field, mfs --- Imaging.
           casalog.post("==================================");
           casalog.post("Test 1 image-field, mfs --- Imaging.");
           casalog.post("==================================");
-          
+
           paramList = ImagerParameters(msname='DataTest/point_twospws.ms',field='0',spw='0',\
                                        usescratch=True,readonly=True,\
                                        mode='mfs',\
@@ -803,7 +803,7 @@ def doMinor( params = [None,False,False,False] , doplot=True ):
     pminor=params[2]
 
     if pminor==False:
-         imager = PySynthesisImager(params[0]) 
+         imager = PySynthesisImager(params[0])
     else:
          imager = PyParallelDeconvolver(params[0])
 
@@ -836,7 +836,7 @@ def doMinor( params = [None,False,False,False] , doplot=True ):
 def doRestore( params = [None,False,False,False] ):
 
     pminor=params[2]
-    imager = PySynthesisImager(params[0]) 
+    imager = PySynthesisImager(params[0])
     imager.initializeDeconvolvers()
     imager.restoreImages()
     imager.deleteTools()
@@ -845,7 +845,7 @@ def doRestore( params = [None,False,False,False] ):
 def doSetjy( params = [None,False,False,False] ):
 
     pminor=params[2]
-    imager = PySynthesisImager(params[0]) 
+    imager = PySynthesisImager(params[0])
     imager.initializeDeconvolvers()
 
     imager.predictModel()
@@ -862,7 +862,7 @@ def write_file(filename,str_text):
     # remove file first
     if os.path.exists(inp):
         os.system('rm -f '+ inp)
-    # save to a file    
+    # save to a file
     with open(inp, 'w') as f:
         f.write(cmd)
     f.close()
@@ -888,7 +888,7 @@ def toolTestMajorCycle( testnum=1 ):
 
      PStool.gatherpsfweight( )
      PStool.gatherresidual( )
-     
+
      PStool.dividepsfbyweight()
      PStool.divideresidualbyweight()
 
@@ -935,10 +935,10 @@ def toolTestMajorCycle2( testnum=1 ):
      for fld in range(0, nfld):
           PStool[fld].gatherpsfweight( )
           PStool[fld].gatherresidual( )
-     
+
           PStool[fld].dividepsfbyweight()
           PStool[fld].divideresidualbyweight()
-          
+
      SItool.done()
 
      for fld in range(0, nfld):
@@ -965,7 +965,7 @@ def checkDataPartitioningCode():
      print(synu.contdatapartition( selpars , 2))
 
      print(synu.cubedatapartition( selpars, 2))
-     
+
      print(synu.cubeimagepartition( impars, 2))
 
      synu.done()
@@ -983,10 +983,10 @@ def checkDataPartitioningCode():
 
      # The output dictionary should be indexed as follows ( for 2 nodes, and 2 MSs )
      #{ '0' : { 'ms0' : { 'msname':xxx1, 'spw':yyy1 } ,
-     #            'ms1' : { 'msname':xxx2, 'spw':yyy1 } 
+     #            'ms1' : { 'msname':xxx2, 'spw':yyy1 }
      #         }
      #  '1' : { 'ms0' : { 'msname':xxx1, 'spw':yyy2 } ,
-     #            'ms1' : { 'msname':xxx2, 'spw':yyy2 } 
+     #            'ms1' : { 'msname':xxx2, 'spw':yyy2 }
      #        }
      # }
      #
@@ -1018,7 +1018,7 @@ def checkPars():
      synu.done()
 
 def testImageCoordinates( testnum=1, testid=0):
-    
+
     multitest=False
     if testnum==13: multitest=True
     if multitest and testid==-1: testid=list(range(21))
@@ -1040,9 +1040,9 @@ def testImageCoordinates( testnum=1, testid=0):
         ia.done()
         #print selpars
         nchan = impars['nchan']
-        if (nchan!=imsummary['shape'][3]): 
-          print("No. of image channel =%s while nchan asked is %s" % (imsummary['shape'][3], nchan)) 
-        checkimcoord(outcsys,selpars,impars) 
+        if (nchan!=imsummary['shape'][3]):
+          print("No. of image channel =%s while nchan asked is %s" % (imsummary['shape'][3], nchan))
+        checkimcoord(outcsys,selpars,impars)
 
 def checkimcoord(csys,selpars,impars):
     """
@@ -1055,10 +1055,10 @@ def checkimcoord(csys,selpars,impars):
     specframes={0:'REST',1:'LSRK',2:'LSRD',3:'BARY',4:'GEO',5:'TOPO',6:'GALACTO',7:'LGROUP',8:'CMB',64:'Undefined'}
 
     msname=selpars['ms0']['msname']
-    selspw=selpars['ms0']['spw'] 
-    selfield=selpars['ms0']['field'] 
+    selspw=selpars['ms0']['spw']
+    selfield=selpars['ms0']['field']
     if selspw=='': selspw='*'
-    ms.open(msname)    
+    ms.open(msname)
     sel={}
     sel['spw']=selspw
     sel['field']=selfield
@@ -1075,7 +1075,7 @@ def checkimcoord(csys,selpars,impars):
     chansel = selected['channel'][0][1]
     chanselend = selected['channel'][0][2]
     #print "start freq=",chanfreqs[chansel]
-    #print "csys=",csys 
+    #print "csys=",csys
     # kower edge freq
     descendingfreq = False
     if chanw[0] < 0:
@@ -1106,7 +1106,7 @@ def checkimcoord(csys,selpars,impars):
         widthval = qa.quantity(width)['value']
         if (descendingfreq and widthval < 0) or (not descendingfreq and widthval > 0):
           reversechanorder=True
-          
+
     #print "descendingfreq=",descendingfreq
     #print "reversechanorder=",reversechanorder
     needfreqconv=False
@@ -1128,7 +1128,7 @@ def checkimcoord(csys,selpars,impars):
     # conversion layer- this should be LSRK by default
     convframe=specCoord['conversion']['system']
     obsdate=csys['obsdate']
-    # if image channel reversed, check last channel 
+    # if image channel reversed, check last channel
     if reversechanorder:
       imch0=imch0+iminc*(impars['nchan']-1)
     # check frames
@@ -1143,8 +1143,8 @@ def checkimcoord(csys,selpars,impars):
     if type(start)==int:
       if start>=chansel:
         if type(width)==int and width > 0:
-          range = start + width - 1   
-          startfreq = (chanfreqs[range] + chanfreqs[start]) /2.0 
+          range = start + width - 1
+          startfreq = (chanfreqs[range] + chanfreqs[start]) /2.0
         else:
           startfreq=chanfreqs[start]
       else:
@@ -1152,7 +1152,7 @@ def checkimcoord(csys,selpars,impars):
         startfreq = chanfreqs[start]
     else:
       if type(start)==str:
-      # start parameter 
+      # start parameter
         if start=="":
           freq0q = qa.quantity(str(chanfreqs[chansel])+'Hz')
         elif start.count('Hz') !=0:
@@ -1168,13 +1168,13 @@ def checkimcoord(csys,selpars,impars):
             freq0q = start['m0']
           else:
             freq0q = vfconv(str(start['m0']['value'])+start['m0']['unit'], mframe, restf, veltype)['m0']
-            vmode = True  
+            vmode = True
         else:
           if start['unit'].count('Hz') != 0:
             freq0q = start
           elif start['unit'].count('m/s') != 0:
             freq0q = vfconv(str(start['value'])+start['unit'],outframe,restf,veltype)['m0']
-            vmode = True  
+            vmode = True
 
       # step(width)
       qhalfw = 0
@@ -1182,7 +1182,7 @@ def checkimcoord(csys,selpars,impars):
         if width.count('Hz') != 0:
           qhalfw = qa.div(qa.quantity(width),2)
         elif width.count('m/s') != 0:
-          qhalfw = qa.div(qa.quantity(width),2) 
+          qhalfw = qa.div(qa.quantity(width),2)
           vmode = True
 
       if qhalfw:
@@ -1199,14 +1199,14 @@ def checkimcoord(csys,selpars,impars):
             if (fstedge > floedge and not descendingfreq) or (fstedge < floedge and descendingfreq):
               qvelcen = qa.sub(vfconv(str(floedge)+'Hz',outframe, restf,veltype)['m0'],qhalfw)
             else:
-              qvelcen = qvst 
+              qvelcen = qvst
           else:
             if (fstedge < floedge and not descendingfreq) or (fstedge > floedge and descendingfreq):
               # shift start to fit into data....
               #qvelcen = qa.add(qa.quantity(start),qhalfw)
               qvelcen = qa.add(vfconv(str(floedge)+'Hz',outframe, restf,veltype)['m0'],qhalfw)
             else:
-              qvelcen = qvst 
+              qvelcen = qvst
           qstfreq = vfconv(str(qvelcen['value'])+qvelcen['unit'], outframe, restf, veltype)['m0']
           startfreq = qa.convert(qstfreq,'Hz')['value']
         else:
@@ -1220,7 +1220,7 @@ def checkimcoord(csys,selpars,impars):
           startfreq = qa.convert(qstfreq,'Hz')['value']
       else:
         startfreq = qa.convert(freq0q,'Hz')['value']
-        
+
     #print "startfreq=",startfreq
     if needfreqconv:
       #print "converting image ch0 freq to freq in dataframe=",dataframe
@@ -1232,11 +1232,11 @@ def checkimcoord(csys,selpars,impars):
       #print "imch0=", imch0
       imch0conv=me.measure(me.frequency(imframe,str(imch0)+'Hz'),dataframe)['m0']['value']
     #print "dataframe=",dataframe, " outframe=",outframe, " imframe=",imframe
-    if (abs(imch0conv-startfreq)/startfreq < 0.0001):      
+    if (abs(imch0conv-startfreq)/startfreq < 0.0001):
       if (reversechanorder):
-        print("OK, image last chan freq match with the data selections and start specification: start freq=", startfreq) 
+        print("OK, image last chan freq match with the data selections and start specification: start freq=", startfreq)
       else:
-        print("OK, image ch0 freq match with the data selections and start specification: start freq=", startfreq) 
+        print("OK, image ch0 freq match with the data selections and start specification: start freq=", startfreq)
     else:
       print("Error, image ch0 freq does not match with the data selections+start specification, imch0(in %s)=%s start freq=%s" % (dataframe,imch0conv,startfreq))
 
@@ -1255,7 +1255,7 @@ def vfconv(velorfreqstr, frame, restfstr, veltype):
     else:
       print("Error! cannot convert ", velorfreqstr)
     return retvf
-    
+
 
 #def testmakeimage():
 #     params = getparams( testnum=1 )

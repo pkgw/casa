@@ -34,7 +34,7 @@ def fillfakevis(myvis):
             for k in range(len(thevis[j])): # loop over freq
                 thevis[j][k] = thefreqs[k][thespwid]/myfactor - myoffset
         mytb.putcell(mycol, i, thevis)
-        
+
     mytb.close()
 
 ####################
@@ -80,8 +80,8 @@ def createtestdata():
 
     makedescend('desc-'+thevis)
 
-    fillfakevis(thevis) 
-    fillfakevis('desc-'+thevis) 
+    fillfakevis(thevis)
+    fillfakevis('desc-'+thevis)
 
     ###################
 
@@ -112,8 +112,8 @@ def createtestdata():
 
     makedescend('desc-'+thevis)
 
-    fillfakevis(thevis) 
-    fillfakevis('desc-'+thevis) 
+    fillfakevis(thevis)
+    fillfakevis('desc-'+thevis)
 
     ###################
 
@@ -145,8 +145,8 @@ def createtestdata():
 
     makedescend('desc-'+thevis)
 
-    fillfakevis(thevis) 
-    fillfakevis('desc-'+thevis) 
+    fillfakevis(thevis)
+    fillfakevis('desc-'+thevis)
 
 
     ###########
@@ -179,7 +179,7 @@ def createtestdata():
 
     makedescend('desc-'+thevis)
 
-    fillfakevis(thevis) 
+    fillfakevis(thevis)
     fillfakevis('desc-'+thevis)
 
     #######################
@@ -200,8 +200,8 @@ def makedescend(myvis):
 
     for i in range(mytb.nrows()):
         for j in range(thenumchan[i]):
-            thefreqs[j][i] = theoldfreqs[thenumchan[i]-1-j][i] 
-            
+            thefreqs[j][i] = theoldfreqs[thenumchan[i]-1-j][i]
+
         thereffreq[i] = thefreqs[0][i]
 
     mytb.putcol('CHAN_FREQ', thefreqs)
@@ -221,7 +221,7 @@ def testvisibs(myvis, threshold):
     mytb = tbtool()
 
     rval = True
-    
+
     mycvis = 'cvelled-'+myvis
 
     os.system('rm -rf '+mycvis)
@@ -260,7 +260,7 @@ def testvisibs(myvis, threshold):
         print("Failed in ", count, " of ", mytb.nrows() , " cases (", count/(0.01*mytb.nrows()), "%)")
 
     mytb.close()
-    
+
     return rval
 
 ###################
@@ -272,12 +272,12 @@ tolerance = 0.005 # (= max tolerated error as fraction of channel width)
 
 passed = True
 
-for mname in ['AB_no_overlap.ms', 'AB_overlap.ms', 'BA_no_overlap.ms', 'BA_overlap.ms']: 
+for mname in ['AB_no_overlap.ms', 'AB_overlap.ms', 'BA_no_overlap.ms', 'BA_overlap.ms']:
     for prefix in ['', 'desc-']:
         rval = testvisibs(prefix+mname, tolerance)
         print(rval)
         passed = passed and rval
-    
+
 if passed:
     print("PASSED")
 else:

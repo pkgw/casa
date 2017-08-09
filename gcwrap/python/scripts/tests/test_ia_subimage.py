@@ -38,7 +38,7 @@
 #
 # <prerequisite>
 # <ul>
-#   <li> <linkto class="ia.subimage:description">ia.subimage</linkto> 
+#   <li> <linkto class="ia.subimage:description">ia.subimage</linkto>
 # </ul>
 # </prerequisite>
 #
@@ -48,20 +48,20 @@
 #
 # <synopsis>
 # Test the ia.subimage tool method
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_subimage[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the ia.subimage tool method to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -77,10 +77,10 @@ import numpy
 datapath = os.environ.get('CASAPATH').split()[0]+'/data/regression/unittest/imsubimage/'
 
 class ia_subimage_test(unittest.TestCase):
-    
+
     def setUp(self):
         self.myia = iatool()
-    
+
     def tearDown(self):
         self.myia.done()
         # FIXME need to figure out why this table is left open when test_stretch throws
@@ -169,9 +169,9 @@ class ia_subimage_test(unittest.TestCase):
             )
         subim.done()
         myia.done()
-        
+
         # CAS-5282
-        
+
         imagename = datapath + "50beams.im"
         outfile = "test_beams1.im"
         imsubimage(
@@ -183,7 +183,7 @@ class ia_subimage_test(unittest.TestCase):
         myia.open(outfile)
         beams = myia.restoringbeam()
         self.assertTrue(len(beams['beams']) == 12)
-        
+
     def test_complex(self):
         """Test complex valued image support"""
         myia = self.myia
@@ -230,7 +230,7 @@ class ia_subimage_test(unittest.TestCase):
         self.assertTrue(myia.getchunk(getmask=True)[:,:,:,2].all())
         self.assertFalse(myia.getchunk(getmask=True)[:,:,:,1].any())
         myia.done()
-        
+
         region = "box[[2pix,2pix],[6pix,6pix]])"
         box = "10,10,12,12"
         imsubimage(
@@ -240,7 +240,7 @@ class ia_subimage_test(unittest.TestCase):
         myia.open(outfile)
         self.assertTrue((myia.shape() == numpy.array([11, 11, 20, 4])).all())
         myia.done()
-        
+
         imsubimage(
             imagename=imagename, box=box, outfile=outfile, overwrite=True, region=region,
             chans="5~10"
@@ -261,7 +261,7 @@ class ia_subimage_test(unittest.TestCase):
         self.assertTrue((zz.shape() == [10, 20, 30]).all())
         zz = myia.subimage("", dropdeg=True, keepaxes=[0])
         self.assertTrue((zz.shape() == [10, 20, 30]).all())
-        
+
         imagename = "keep.im"
         myia.fromshape(imagename, [10, 20, 1, 1])
         zz = myia.subimage("", dropdeg=False)
@@ -278,7 +278,7 @@ class ia_subimage_test(unittest.TestCase):
         self.assertTrue((zz.shape() == [10, 20, 1]).all())
         zz.done()
         myia.done()
-        
+
         outfile = "keep_out.im"
         imsubimage(imagename, outfile=outfile, dropdeg=False, overwrite=True)
         zz.open(outfile)
@@ -311,7 +311,7 @@ class ia_subimage_test(unittest.TestCase):
         myia.fromshape("zz",[20, 20])
         myia = myia.subimage()
         msgs = myia.history()
-        myia.done()       
+        myia.done()
         self.assertTrue("ia.subimage" in msgs[-2])
         self.assertTrue("ia.subimage" in msgs[-1])
 

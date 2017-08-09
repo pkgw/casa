@@ -5,11 +5,11 @@ def statwt2(vis, timebin, chanbin):
     try:
         myms = mstool()
         myms.open(vis, nomodify=False)
-        myms.statwt2(timebin=timebin, chanbin=chanbin) 
+        myms.statwt2(timebin=timebin, chanbin=chanbin)
         return True
     except Exception as instance:
         casalog.post( '*** Error ***'+str(instance), 'SEVERE' )
         raise
     finally:
         myms.done()
-    
+

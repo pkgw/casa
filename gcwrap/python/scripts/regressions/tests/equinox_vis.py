@@ -12,8 +12,8 @@ def description():
 def data():
     """As I understand it, this must return the filenames of needed input data."""
     return ['0420+417.ms']
-    
-    
+
+
 def run( fetch=False ):
     """Run the tasks and compare the results."""
 
@@ -21,7 +21,7 @@ def run( fetch=False ):
     if fetch:
         for f in data( ):
             copydata( f, os.getcwd( ) )
-    
+
     nsigma    = 3.0
     advice    = None
     lazy      = True
@@ -52,14 +52,14 @@ def conv_dirstr(orig_dirstr, newframe):
     lon = qa.formxxx(converted_dirmeas['m0'], format='hms')
     lat = qa.formxxx(converted_dirmeas['m1'], format='dms')
     return "%s %s %s" % (converted_dirmeas['refer'], lon, lat)
-    
+
 
 def run_tasks(origvis='0420+417.ms', advice=None, lazy=True,
               equinoxes=['B1950_VLA', 'B1950', 'J2000', 'BMEAN', 'BTRUE',
                          'APP', 'JMEAN', 'JTRUE'],
               convert_phasecenter=False):
     """
-    Fill the peaks dictionary by running fixvis, clean, and imfit for 
+    Fill the peaks dictionary by running fixvis, clean, and imfit for
     equinoxes, and the original one.
     """
     if not advice:
@@ -98,12 +98,12 @@ def run_tasks(origvis='0420+417.ms', advice=None, lazy=True,
 
             if convert_phasecenter:
                 advice[4] = conv_dirstr(origphasecenter, equinox)
-                
+
             peaks[equinox] = getpeak(outputvis, advice)
 
             if convert_phasecenter:
                 advice[4] = origphasecenter
-                
+
         except Exception as e:
             print("Error", e, "trying to test equinox", equinox)
     return peaks
@@ -112,7 +112,7 @@ def getpeak(vis, advice):
     """Clean vis and find the peak of the resulting image."""
     print("Getting peak of", vis)
     pixsize = str(advice[2]['value']) + advice[2]['unit']
-    npix = advice[1]    
+    npix = advice[1]
 
     imroot = vis.replace('.ms', '')
     for ext in ['image', 'psf', 'residual', 'model', 'flux']:
@@ -142,7 +142,7 @@ def direction_var(direction):
     dirvars = [qa.convert(direction['error'][way],
                           'arcsec')['value']**2 for way in ['latitude', 'longitude']]
     return sum(dirvars)
-    
+
 
 def compare(peaks, nsigma=3.0):
     origdir = peaks['original']['shape']['direction']
@@ -170,7 +170,7 @@ def compare(peaks, nsigma=3.0):
                 errmsg = "The %s peak is %.1g\" away from the original peak.\n" % (equinox,
                                                            dist_from_original['value'])
                 errmsg += " (%.1f x the tolerance)" % (dist_from_original['value']
-                                                       / septol) 
+                                                       / septol)
                 raise Exception(errmsg)
 
             # I in Jy
@@ -192,7 +192,7 @@ def compare(peaks, nsigma=3.0):
 
     return result
 
-        
+
 def cmp_shape_param(peaks, equinox, q, nsigma):
     """
     Compare shape parameter q ('majoraxis', 'minoraxis', or 'positionangle') in

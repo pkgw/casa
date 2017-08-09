@@ -5,8 +5,8 @@ q1 = qa.quantity([8.57132661e+09, 1.71426532e+10], 'km/s')
 q1
 print(qa.convert(q1, 'pc/h'));
 #
-print(qa.quantity('5.4km/s'))          
-print(qa.quantity(qa.unit('5.4km/s'))) 
+print(qa.quantity('5.4km/s'))
+print(qa.quantity(qa.unit('5.4km/s')))
 #
 #q1 = qa.unit("5s 5.4km/s") #can't handle string vector using qh.fromString
 #q1
@@ -27,13 +27,13 @@ qa.compare(q1,qa.unit('3km'))
 #
 #: q1 = qa.unit(array("5s 5.4km/s", 3, 2))
 #: length(q1)
-#6 
+#6
 #: q1[1]
-#[value=5, unit=s] 
+#[value=5, unit=s]
 #: q1[2]
-#[value=5.4, unit=km/s] 
+#[value=5.4, unit=km/s]
 #: q1[6]
-#[value=5.4, unit=km/s] 
+#[value=5.4, unit=km/s]
 #: q1::
 #[id=quant, shape=[3 2] ]
 #
@@ -46,7 +46,7 @@ qa.quantity('5jul1998')
 qa.quantity('5jul1998/12:')
 qa.quantity('-30.12.2')
 qa.quantity('2:2:10')
-qa.unit('23h3m2.2s')  
+qa.unit('23h3m2.2s')
 #
 a = qa.quantity('today');        # 1 Get the time now
 print(a)

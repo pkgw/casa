@@ -10,7 +10,7 @@ import unittest
 import testhelper as th
 
 class exportasdm_test(unittest.TestCase):
-    
+
     #vis_a = 'ngc4826.ms'
     vis_b = 'test.ms'
     vis_c = 'M100-X220-shortened.ms'
@@ -22,8 +22,8 @@ class exportasdm_test(unittest.TestCase):
     vis_i = 'asdm.ms'
     out = 'exportasdm-output.asdm'
     rval = False
-    
-    def setUp(self):    
+
+    def setUp(self):
         self.rval = False
         #if(not os.path.exists(vis_a)):
         #    importuvfits(fitsfile=os.environ['CASADATA']+'/regression/ngc4826/fitsfiles/ngc4826.ll.fits5', vis=vis_a)
@@ -32,12 +32,12 @@ class exportasdm_test(unittest.TestCase):
         if(not os.path.exists(self.vis_c)):
             os.system('cp -R '+os.environ['CASAPATH'].split()[0]+'/data/regression/exportasdm/input/M100-X220-shortened.ms .')
         if(not os.path.exists(self.vis_d)):
-            importuvfits(fitsfile=os.environ['CASAPATH'].split()[0]+'/data/regression/ngc4826/fitsfiles/ngc4826.ll.fits5', 
+            importuvfits(fitsfile=os.environ['CASAPATH'].split()[0]+'/data/regression/ngc4826/fitsfiles/ngc4826.ll.fits5',
                          vis=self.vis_d)
         if(not os.path.exists(self.vis_e)):
             os.system('cp -R '+os.environ['CASAPATH'].split()[0]+'/data/regression/cvel/input/g19_d2usb_targets_line-shortened.ms .')
         if(not os.path.exists(self.vis_f)):
-            os.system('cp -R '+os.environ['CASAPATH'].split()[0]+'/data/regression/exportasdm/input/Itziar.ms .')            
+            os.system('cp -R '+os.environ['CASAPATH'].split()[0]+'/data/regression/exportasdm/input/Itziar.ms .')
         if(not os.path.exists(self.vis_g)):
             os.system('cp -R '+os.environ['CASAPATH'].split()[0]+'/data/regression/exportasdm/input/M51.ms .')
         if(not os.path.exists(self.vis_h)):
@@ -46,7 +46,7 @@ class exportasdm_test(unittest.TestCase):
         if(not os.path.exists(self.vis_i)):
             os.system('ln -sf '+os.environ['CASAPATH'].split()[0]+'/data/regression/asdm-import/input/uid___A002_X72bc38_X000')
             importasdm('uid___A002_X72bc38_X000', vis = 'asdm.ms', scans='0:2')
-            
+
         default(exportasdm)
 
     def tearDown(self):
@@ -105,19 +105,19 @@ class exportasdm_test(unittest.TestCase):
             print("Note: Test of XML well-formedness not possible since xmllint not available.")
         else:
             print("Note: xml validation not possible since ASDM DTDs (schemas) not yet online.")
-            
+
         if(not os.path.exists(asdmname+"/ASDMBinary")):
             print("ASDM binary directory "+asdmname+"/ASDMBinary doesn't exist.")
             isOK = False
-    
+
         if(withPointing and not os.path.exists(asdmname+"/Pointing.bin")):
             print("ASDM binary file "+asdmname+"/Pointing.bin doesn't exist.")
             isOK = False
-    
+
         if (not isOK):
             raise Exception
 
-# Test cases    
+# Test cases
     def test1(self):
         '''Test 1: Testing default'''
         myvis = self.vis_b
@@ -313,8 +313,8 @@ class exportasdm_test2(unittest.TestCase):
     vis_g = 'M51.ms'
     vis_h = 'xosro2ref.ms'
     vis_i = 'asdm.ms'
-    
-    def setUp(self):  
+
+    def setUp(self):
         pass
 
     def tearDown(self):
@@ -327,7 +327,7 @@ class exportasdm_test2(unittest.TestCase):
         shutil.rmtree(self.vis_h,ignore_errors=True)
         shutil.rmtree(self.vis_i,ignore_errors=True)
         os.system('rm -rf test*exportasdm*.asdm')
-    
+
     def test1a(self):
         '''Exportasdm: Cleanup'''
         pass

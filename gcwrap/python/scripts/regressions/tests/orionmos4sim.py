@@ -27,7 +27,7 @@ def run(fetch=False):
     if fetch:
         for f in data( ):
             copydata( f, os.getcwd( ) )
-    
+
     #####locate the regression script
     lepath=locatescript('run_orionmos4sim.py')
     print('Script used is ',lepath)

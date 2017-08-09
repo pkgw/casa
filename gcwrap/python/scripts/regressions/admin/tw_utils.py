@@ -22,15 +22,15 @@ class htmlPub:
                 os.write(self.fd,'<body>\n')
 
         def doHeader(self,header,mode):
-		if mode==0:
+                if mode==0:
                  s='Performance test from'
                  ss=os.path.basename(header)
                  os.write(self.fd,'<h2>%s %s</h2>'%(s,ss[:-4]))
-		elif mode==1:
-	 	 os.write(self.fd,'<h2>%s</h2>'%(header))
+                elif mode==1:
+                 os.write(self.fd,'<h2>%s</h2>'%(header))
 
         def doBlk(self, body1, body2, image_path,header=''):
-		if header=='': self.doHeader(image_path,0)
+                if header=='': self.doHeader(image_path,0)
                 else: self.doHeader(header,1)
 
                 for x in body1:

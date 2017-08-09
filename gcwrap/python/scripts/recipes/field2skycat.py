@@ -68,6 +68,6 @@ def field2skycat(msname='', skycat='',fieldpattern=''):
     c.table.putcol('Long', longi)
     c.table.putcol('Lat', lati)
     c.table.putcolkeyword(columnname='Long', keyword='UNIT', value='deg')
-    c.table.putcolkeyword(columnname='Lat', keyword='UNIT', value='deg')                     
+    c.table.putcolkeyword(columnname='Lat', keyword='UNIT', value='deg')
     c.table.putinfo({'type':'Skycatalog'})
     c.table.done()

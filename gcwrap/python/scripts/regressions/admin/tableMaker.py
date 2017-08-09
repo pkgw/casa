@@ -1,6 +1,6 @@
 #a class for making html tables of results
 import os
-import time 
+import time
 import string
 import shutil
 import inspect
@@ -15,7 +15,7 @@ class tableMaker:
   stacklevel=0
   for k in range(len(a)):
       if (string.find(a[k][1], 'ipython console') > 0):
-          stacklevel=k     
+          stacklevel=k
   myf=sys._getframe(stacklevel).f_globals
   self.header=header
   self.footer=footer
@@ -23,7 +23,7 @@ class tableMaker:
   self.pagename=thedir+'/result-'+time.strftime('%Y_%m_%d_%H_%M.html')
 
   #self.pagename='result-test.html'
-  #if access(self.pagename,F_OK): 
+  #if access(self.pagename,F_OK):
   # remove(self.pagename)
   # print 'removing old junk'
   self.oldarchive(thedir)
@@ -37,18 +37,18 @@ class tableMaker:
   os.write(self.fd, '<p><A HREF="%s">%s</A>\n<p>'%('archive.html','ARCHIVE OF PREVIOUS RUNS'))
   os.write(self.fd, '<CENTER><TABLE border="1" cellpadding=5 summary="Quick view over tests."><CAPTION><EM>Summary  of Tests on %s --  %s -- %s</EM></CAPTION>\n'%(os.uname()[0],os.uname()[1], myf['casalog'].version()) )
   os.write(self.fd, '<TR><TH align=middle>Test Name<TH align=middle>Image Name<TH align=middle>Quick Result<TH align=middle> Status <TH align=middle> Link to results\n')
- 
+
  def addRows(self,stuff): #values has two components, number+status
   #print stuff
-  
+
   for i in stuff:
    if(i[2]==1): status='<font color="green">Passed</font>'
    elif (i[2]==2): status='<font color="blue">Unknown</font>'
    else: status='<font color="red">Failed</font>'
 #   link='<A HREF="file:///%s">%s</A>\n'%(i[3],i[3])
-   link='<A HREF="%s">%s</A>\n'%(i[3],i[3]) 
+   link='<A HREF="%s">%s</A>\n'%(i[3],i[3])
    s='<TR><TD>%s<TD>%s<TD>%s<TD>%s<TD>%s\n'%(i[0],i[4],i[1],status,link)
-   os.write(self.fd,s) 
+   os.write(self.fd,s)
 
  def done(self):
   os.write(self.fd, '</CENTER></TABLE>\n')

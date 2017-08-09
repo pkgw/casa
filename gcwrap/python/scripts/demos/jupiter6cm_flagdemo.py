@@ -12,7 +12,7 @@
 import time
 import os
 
-# 
+#
 #=====================================================================
 #
 # This script has some interactive commands: scriptmode = True
@@ -95,12 +95,12 @@ listobs()
 # You should get in your logger window and in the casa.log file
 # something like:
 #
-#    Observer: FLUX99     Project:   
+#    Observer: FLUX99     Project:
 # Observation: VLA
-# 
+#
 # Data records: 2021424       Total integration time = 85133.2 seconds
 #    Observed from   23:15:27   to   22:54:20
-# 
+#
 #    ObservationID = 0         ArrayID = 0
 #   Date        Timerange                Scan  FldId FieldName      SpwIds
 #   15-Apr-1999/23:15:26.7 - 23:16:10.0     1      0 0137+331       [0, 1]
@@ -196,87 +196,87 @@ listobs()
 #               22:12:13.3 - 22:14:00.1    91      2 0542+498       [0, 1]
 #               22:28:33.3 - 22:30:19.9    92      4 VENUS          [0, 1]
 #               22:53:33.3 - 22:54:19.9    93      0 0137+331       [0, 1]
-# 
+#
 # Fields: 13
-#   ID   Name          Right Ascension  Declination   Epoch   
-#   0    0137+331      01:37:41.30      +33.09.35.13  J2000   
-#   1    0813+482      08:13:36.05      +48.13.02.26  J2000   
-#   2    0542+498      05:42:36.14      +49.51.07.23  J2000   
-#   3    0437+296      04:37:04.17      +29.40.15.14  J2000   
-#   4    VENUS         04:06:54.11      +22.30.35.91  J2000   
-#   5    0521+166      05:21:09.89      +16.38.22.05  J2000   
-#   6    1411+522      14:11:20.65      +52.12.09.14  J2000   
-#   7    1331+305      13:31:08.29      +30.30.32.96  J2000   
-#   8    MARS          14:21:41.37      -12.21.49.45  J2000   
-#   9    NGC7027       21:07:01.59      +42.14.10.19  J2000   
-#   10   NEPTUNE       20:26:01.14      -18.54.54.21  J2000   
-#   11   URANUS        21:15:42.83      -16.35.05.59  J2000   
-#   12   JUPITER       00:55:34.04      +04.45.44.71  J2000   
-# 
+#   ID   Name          Right Ascension  Declination   Epoch
+#   0    0137+331      01:37:41.30      +33.09.35.13  J2000
+#   1    0813+482      08:13:36.05      +48.13.02.26  J2000
+#   2    0542+498      05:42:36.14      +49.51.07.23  J2000
+#   3    0437+296      04:37:04.17      +29.40.15.14  J2000
+#   4    VENUS         04:06:54.11      +22.30.35.91  J2000
+#   5    0521+166      05:21:09.89      +16.38.22.05  J2000
+#   6    1411+522      14:11:20.65      +52.12.09.14  J2000
+#   7    1331+305      13:31:08.29      +30.30.32.96  J2000
+#   8    MARS          14:21:41.37      -12.21.49.45  J2000
+#   9    NGC7027       21:07:01.59      +42.14.10.19  J2000
+#   10   NEPTUNE       20:26:01.14      -18.54.54.21  J2000
+#   11   URANUS        21:15:42.83      -16.35.05.59  J2000
+#   12   JUPITER       00:55:34.04      +04.45.44.71  J2000
+#
 # Spectral Windows: (2 unique spectral windows and 1 unique polarization setups)
-#   SpwID  #Chans Frame Ch1(MHz)    Resoln(kHz) TotBW(kHz)  Ref(MHz)    Corrs           
-#   0           1 TOPO  4885.1      50000       50000       4885.1      RR  RL  LR  LL  
-#   1           1 TOPO  4835.1      50000       50000       4835.1      RR  RL  LR  LL  
-# 
+#   SpwID  #Chans Frame Ch1(MHz)    Resoln(kHz) TotBW(kHz)  Ref(MHz)    Corrs
+#   0           1 TOPO  4885.1      50000       50000       4885.1      RR  RL  LR  LL
+#   1           1 TOPO  4835.1      50000       50000       4835.1      RR  RL  LR  LL
+#
 # Feeds: 28: printing first row only
 #   Antenna   Spectral Window     # Receptors    Polarizations
 #   1         -1                  2              [         R, L]
-# 
+#
 # Antennas: 27:
-#   ID   Name  Station   Diam.    Long.         Lat.         
-#   0    1     VLA:W9    25.0 m   -107.37.25.1  +33.53.51.0  
-#   1    2     VLA:N9    25.0 m   -107.37.07.8  +33.54.19.0  
-#   2    3     VLA:N3    25.0 m   -107.37.06.3  +33.54.04.8  
-#   3    4     VLA:N5    25.0 m   -107.37.06.7  +33.54.08.0  
-#   4    5     VLA:N2    25.0 m   -107.37.06.2  +33.54.03.5  
-#   5    6     VLA:E1    25.0 m   -107.37.05.7  +33.53.59.2  
-#   6    7     VLA:E2    25.0 m   -107.37.04.4  +33.54.01.1  
-#   7    8     VLA:N8    25.0 m   -107.37.07.5  +33.54.15.8  
-#   8    9     VLA:E8    25.0 m   -107.36.48.9  +33.53.55.1  
-#   9    10    VLA:W3    25.0 m   -107.37.08.9  +33.54.00.1  
-#   10   11    VLA:N1    25.0 m   -107.37.06.0  +33.54.01.8  
-#   11   12    VLA:E6    25.0 m   -107.36.55.6  +33.53.57.7  
-#   12   13    VLA:W7    25.0 m   -107.37.18.4  +33.53.54.8  
-#   13   14    VLA:E4    25.0 m   -107.37.00.8  +33.53.59.7  
-#   14   15    VLA:N7    25.0 m   -107.37.07.2  +33.54.12.9  
-#   15   16    VLA:W4    25.0 m   -107.37.10.8  +33.53.59.1  
-#   16   17    VLA:W5    25.0 m   -107.37.13.0  +33.53.57.8  
-#   17   18    VLA:N6    25.0 m   -107.37.06.9  +33.54.10.3  
-#   18   19    VLA:E7    25.0 m   -107.36.52.4  +33.53.56.5  
-#   19   20    VLA:E9    25.0 m   -107.36.45.1  +33.53.53.6  
-#   21   22    VLA:W8    25.0 m   -107.37.21.6  +33.53.53.0  
-#   22   23    VLA:W6    25.0 m   -107.37.15.6  +33.53.56.4  
-#   23   24    VLA:W1    25.0 m   -107.37.05.9  +33.54.00.5  
-#   24   25    VLA:W2    25.0 m   -107.37.07.4  +33.54.00.9  
-#   25   26    VLA:E5    25.0 m   -107.36.58.4  +33.53.58.8  
-#   26   27    VLA:N4    25.0 m   -107.37.06.5  +33.54.06.1  
-#   27   28    VLA:E3    25.0 m   -107.37.02.8  +33.54.00.5  
-# 
+#   ID   Name  Station   Diam.    Long.         Lat.
+#   0    1     VLA:W9    25.0 m   -107.37.25.1  +33.53.51.0
+#   1    2     VLA:N9    25.0 m   -107.37.07.8  +33.54.19.0
+#   2    3     VLA:N3    25.0 m   -107.37.06.3  +33.54.04.8
+#   3    4     VLA:N5    25.0 m   -107.37.06.7  +33.54.08.0
+#   4    5     VLA:N2    25.0 m   -107.37.06.2  +33.54.03.5
+#   5    6     VLA:E1    25.0 m   -107.37.05.7  +33.53.59.2
+#   6    7     VLA:E2    25.0 m   -107.37.04.4  +33.54.01.1
+#   7    8     VLA:N8    25.0 m   -107.37.07.5  +33.54.15.8
+#   8    9     VLA:E8    25.0 m   -107.36.48.9  +33.53.55.1
+#   9    10    VLA:W3    25.0 m   -107.37.08.9  +33.54.00.1
+#   10   11    VLA:N1    25.0 m   -107.37.06.0  +33.54.01.8
+#   11   12    VLA:E6    25.0 m   -107.36.55.6  +33.53.57.7
+#   12   13    VLA:W7    25.0 m   -107.37.18.4  +33.53.54.8
+#   13   14    VLA:E4    25.0 m   -107.37.00.8  +33.53.59.7
+#   14   15    VLA:N7    25.0 m   -107.37.07.2  +33.54.12.9
+#   15   16    VLA:W4    25.0 m   -107.37.10.8  +33.53.59.1
+#   16   17    VLA:W5    25.0 m   -107.37.13.0  +33.53.57.8
+#   17   18    VLA:N6    25.0 m   -107.37.06.9  +33.54.10.3
+#   18   19    VLA:E7    25.0 m   -107.36.52.4  +33.53.56.5
+#   19   20    VLA:E9    25.0 m   -107.36.45.1  +33.53.53.6
+#   21   22    VLA:W8    25.0 m   -107.37.21.6  +33.53.53.0
+#   22   23    VLA:W6    25.0 m   -107.37.15.6  +33.53.56.4
+#   23   24    VLA:W1    25.0 m   -107.37.05.9  +33.54.00.5
+#   24   25    VLA:W2    25.0 m   -107.37.07.4  +33.54.00.9
+#   25   26    VLA:E5    25.0 m   -107.36.58.4  +33.53.58.8
+#   26   27    VLA:N4    25.0 m   -107.37.06.5  +33.54.06.1
+#   27   28    VLA:E3    25.0 m   -107.37.02.8  +33.54.00.5
+#
 # Tables:
-#    MAIN                 2021424 rows     
-#    ANTENNA                   28 rows     
-#    DATA_DESCRIPTION           2 rows     
-#    DOPPLER             <absent>  
-#    FEED                      28 rows     
-#    FIELD                     13 rows     
-#    FLAG_CMD             <empty>  
-#    FREQ_OFFSET         <absent>  
-#    HISTORY                 7058 rows     
-#    OBSERVATION                1 row      
-#    POINTING                2604 rows     
-#    POLARIZATION               1 row      
-#    PROCESSOR            <empty>  
+#    MAIN                 2021424 rows
+#    ANTENNA                   28 rows
+#    DATA_DESCRIPTION           2 rows
+#    DOPPLER             <absent>
+#    FEED                      28 rows
+#    FIELD                     13 rows
+#    FLAG_CMD             <empty>
+#    FREQ_OFFSET         <absent>
+#    HISTORY                 7058 rows
+#    OBSERVATION                1 row
+#    POINTING                2604 rows
+#    POLARIZATION               1 row
+#    PROCESSOR            <empty>
 #    SOURCE               <empty> (see FIELD)
-#    SPECTRAL_WINDOW            2 rows     
-#    STATE                <empty>  
-#    SYSCAL              <absent>  
-#    WEATHER             <absent>  
+#    SPECTRAL_WINDOW            2 rows
+#    STATE                <empty>
+#    SYSCAL              <absent>
+#    WEATHER             <absent>
 
-# 
+#
 #=====================================================================
 # Data Examination and Flagging
 #=====================================================================
-# 
+#
 # Use Plotxy to interactively flag the data
 #
 print('--Plotxy--')
@@ -371,7 +371,7 @@ xaxis = 'time'
 spw = '1'
 correlation = ''
 
-# Note that the strings like antenna='9' first try to match the 
+# Note that the strings like antenna='9' first try to match the
 # NAME which we see in listobs was the number '9' for ID=8.
 # So be careful here (why naming antennas as numbers is bad).
 antenna = '9'
@@ -461,7 +461,7 @@ iteration = 'antenna'
 
 plotxy()
 
-# As you step through, you will see that Antenna 9 (ID=8) is often 
+# As you step through, you will see that Antenna 9 (ID=8) is often
 # bad in this spw. If you box and do Locate (or remember from
 # 0137+331) its probably a bad time.
 

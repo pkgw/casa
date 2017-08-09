@@ -70,7 +70,7 @@ class ia_deviation_test(unittest.TestCase):
     def setUp(self):
         self.res = None
         self._myia = iatool()
-    
+
     def tearDown(self):
         self._myia.done()
         self.assertTrue(len(tb.showcache()) == 0)
@@ -104,7 +104,7 @@ class ia_deviation_test(unittest.TestCase):
         got = self._myia.getchunk()
         self._myia.done()
         self._compare(got, expec, "imstatimage test 1")
-        
+
     def test002(self):
         """Every pixel is a grid point with an offset, so should be the same result
         as test001"""
@@ -123,7 +123,7 @@ class ia_deviation_test(unittest.TestCase):
         self._myia.open(ref1)
         self._myia.done()
         zz.done()
-        
+
     def test003(self):
         """Every third pixel is a grid point"""
         grid = [3,3]
@@ -142,7 +142,7 @@ class ia_deviation_test(unittest.TestCase):
             self._myia.open(ref3)
         self._myia.done()
         zz.done()
-        
+
     def test005(self):
         """Every third pixel is a grid point, using anchor [2,2]"""
         anchor = [2,2]
@@ -202,7 +202,7 @@ class ia_deviation_test(unittest.TestCase):
         got = res.getchunk()
         res.done()
         self._myia.done()
-        self.assertTrue(numpy.all(numpy.isclose(got, expec)), "ref val as anchor compare") 
+        self.assertTrue(numpy.all(numpy.isclose(got, expec)), "ref val as anchor compare")
 
 def suite():
     return [ia_deviation_test]

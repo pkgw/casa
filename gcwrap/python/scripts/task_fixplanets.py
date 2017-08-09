@@ -16,9 +16,9 @@ def fixplanets(vis, field, fixuvw=False, direction='', refant=0, reftime='first'
 
     Input Parameters
     vis        -- Name of the input visibility set
-    
+
     field      -- field selection string
-    
+
     fixuvw     -- recalc uvw coordinates? (default: False)
 
     direction  -- if set, don't use pointing table but set direction to this value.
@@ -42,11 +42,11 @@ def fixplanets(vis, field, fixuvw=False, direction='', refant=0, reftime='first'
     reftime    -- if using pointing table information, use it from this timestamp
                   default: 'first'
                   examples: 'median' will use the median timestamp for the given field
-		              using only the unflagged maintable rows 
+                              using only the unflagged maintable rows
                             '2012/07/11/08:41:32' will use the given timestamp (must be
                             within the observaton time)
     """
-    
+
     casalog.origin('fixplanets')
 
     mst = mstool()
@@ -55,7 +55,7 @@ def fixplanets(vis, field, fixuvw=False, direction='', refant=0, reftime='first'
 
     try:
         fields = mst.msseltoindex(vis=vis,field=field)['field']
-        numfields = 0 
+        numfields = 0
         if(len(fields) == 0):
             casalog.post( "Field selection returned zero results.", 'WARN')
             return True
@@ -68,14 +68,14 @@ def fixplanets(vis, field, fixuvw=False, direction='', refant=0, reftime='first'
 
         fixplanetstemp = 'fixplanetstemp-'+os.path.basename(vis) # temp file name
         fixplanetstemp2 = 'fixplanetstemp2-'+os.path.basename(vis) # temp file name
-        
+
         for fld in fields:
             thenewra_rad = 0.
             thenewdec_rad = 0.
             thenewref = -1
             thenewrefstr = ''
             theephemeris = ''
-            
+
             if(direction==''): # use information from the pointing table
                 # find median timestamp for this field in the main table
                 shutil.rmtree(fixplanetstemp, ignore_errors=True)
@@ -133,7 +133,7 @@ def fixplanets(vis, field, fixuvw=False, direction='', refant=0, reftime='first'
                         casalog.post( "No pointing table rows for field "+field, 'NORMAL')
                         tbt.close()
                         shutil.rmtree(fixplanetstemp, ignore_errors=True)
-                        return True        
+                        return True
                     shutil.rmtree(fixplanetstemp, ignore_errors=True)
                     if (thefirsttime<=thetime and thetime<=thelasttime):
                         casalog.post( "GIVEN TIME "+reftime+" == "+str(thetime), 'NORMAL')
@@ -151,7 +151,7 @@ def fixplanets(vis, field, fixuvw=False, direction='', refant=0, reftime='first'
                     casalog.post( "Antenna selection returned zero results.", 'WARN')
                     return False
                 antid = int(antids[0])
-                casalog.post('Using antenna id '+str(antid)+' as reference antenna.', 'NORMAL') 
+                casalog.post('Using antenna id '+str(antid)+' as reference antenna.', 'NORMAL')
                 tbt.open(vis+'/ANTENNA')
                 flgcol = tbt.getcol('FLAG_ROW')
                 tbt.close()
@@ -182,7 +182,7 @@ def fixplanets(vis, field, fixuvw=False, direction='', refant=0, reftime='first'
                         casalog.post( "Will try without requiring TRACKING==True ...", 'NORMAL')
                         shutil.rmtree(fixplanetstemp2, ignore_errors=True)
                         ttb3 = tbt.query('NEARABS(TIME,'+str(thetime)+',INTERVAL/2.) AND ANTENNA_ID=='
-                                         +str(antid), 
+                                         +str(antid),
                                          name=fixplanetstemp2)
                         nr = ttb3.nrows()
                         ttb3.close()
@@ -249,7 +249,7 @@ def fixplanets(vis, field, fixuvw=False, direction='', refant=0, reftime='first'
                             else: # not a file, assume it is a CASA table
                                 theephemeris = dirstr[0]
                                 casalog.post('Will use ephemeris table '+theephemeris+' with offset (0,0)', 'NORMAL')
-                            
+
                             thenewra_rad = 0.
                             thenewdec_rad = 0.
 
@@ -318,7 +318,7 @@ def fixplanets(vis, field, fixuvw=False, direction='', refant=0, reftime='first'
             casalog.post("FIELD table PHASE_DIR, DELAY_DIR, and REFERENCE_DIR columns changed for field "+str(fld)+".", 'NORMAL')
 
             if(theephemeris==''):
-                
+
                 if ('EPHEMERIS_ID' in tbt.colnames()) and (tbt.getcell('EPHEMERIS_ID',fld)>=0): # originally an ephemeris was used
                     eidc = tbt.getcol('EPHEMERIS_ID')
                     eidc[fld] = -1
@@ -368,7 +368,7 @@ def fixplanets(vis, field, fixuvw=False, direction='', refant=0, reftime='first'
                                      +" set to "+str(thenewref)+" ("+thenewrefstr+")", 'NORMAL')
                     else:
                         casalog.post("FIELD table direction reference frame entries for field "+str(fld)
-                                     +" unchanged.", 'NORMAL')                        
+                                     +" unchanged.", 'NORMAL')
             else: # we are working with an ephemeris
                 try:
                     mst.open(vis, nomodify=False)
@@ -383,7 +383,7 @@ def fixplanets(vis, field, fixuvw=False, direction='', refant=0, reftime='first'
                                      'SEVERE')
                     return False
 
-            if(fixuvw and (oldrefcol!=[]) and (thenewref>0)): 
+            if(fixuvw and (oldrefcol!=[]) and (thenewref>0)):
                 # modify reference of phase dir for fixuvw
                 pcol = tbt.getcol('PhaseDir_Ref')
                 pcol[fld] = 0 # J2000
@@ -404,7 +404,7 @@ def fixplanets(vis, field, fixuvw=False, direction='', refant=0, reftime='first'
             sdir = tbt.getcol('DIRECTION')
             newsdir = sdir
             sname = tbt.getcol('NAME')
-                
+
             for i in range(0,tbt.nrows()):
                 if(sname[i]==planetname):
                     #print 'i old dir ', i, " ", sdir[0][i], sdir[1][i]
@@ -426,14 +426,14 @@ def fixplanets(vis, field, fixuvw=False, direction='', refant=0, reftime='first'
             for i in range(numfields):
                 if (i in fields):
                     fldids.append(i)
-                    
+
             imt = imtool()
             imt.open(vis, usescratch=False)
             imt.calcuvw(fldids, refcode='J2000', reuse=False)
             imt.close()
             imt = None
 
-            if((oldrefcol!=[]) and (thenewref>0)): 
+            if((oldrefcol!=[]) and (thenewref>0)):
                 tbt.open(vis+'/FIELD', nomodify=False)
                 tbt.putcol('PhaseDir_Ref', oldrefcol)
                 tbt.close()

@@ -34,12 +34,12 @@ def checktable(thename, theexpectation):
             if mycell[3] == 0:
                 in_agreement = (value == mycell[2])
             else:
-                in_agreement = ( abs(value - mycell[2]) < mycell[3]) 
+                in_agreement = ( abs(value - mycell[2]) < mycell[3])
         else:
             # it's an array
             # zero tolerance?
             if mycell[3] == 0:
-                in_agreement =  (value == mycell[2]).all() 
+                in_agreement =  (value == mycell[2]).all()
             else:
                 try:
                     in_agreement = (abs(value - mycell[2]) < mycell[3]).all()
@@ -57,10 +57,10 @@ def checktable(thename, theexpectation):
 
 
 ###########################
-# beginning of actual test 
+# beginning of actual test
 
 class test_createmultims(unittest.TestCase):
-    
+
     def setUp(self):
         res = None
 
@@ -74,15 +74,15 @@ class test_createmultims(unittest.TestCase):
                 shutil.copytree(mymsname, cpath+'/'+mymsname)
         os.chdir(cpath)
 
-        
+
     def tearDown(self):
         pass
         shutil.rmtree(msname,ignore_errors=True)
 
     def test1(self):
         '''Test_createmultims 1: 4 parts, same sources but different spws'''
-        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }    
-        
+        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
+
         shutil.rmtree(msname,ignore_errors=True)
 
         self.res = ms.createmultims(msname,
@@ -105,18 +105,18 @@ class test_createmultims(unittest.TestCase):
         self.assertEqual(ldict[3]['MS'].split('/').pop(), 'part4.ms')
 
 
-class testcreatemultims_cleanup(unittest.TestCase):           
+class testcreatemultims_cleanup(unittest.TestCase):
     def setUp(self):
         pass
-    
+
     def tearDown(self):
         pass
-        os.system('rm -rf *.ms')   
+        os.system('rm -rf *.ms')
 
     def testrun(self):
         '''Test_createmultims: Cleanup'''
         pass
-    
+
 def suite():
-    return [test_createmultims,testcreatemultims_cleanup]        
-        
+    return [test_createmultims,testcreatemultims_cleanup]
+

@@ -35,13 +35,13 @@ datapath = os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/sp
 
 # Pick up alternative data directory to run tests on MMSs
 testmms = False
-if 'TEST_DATADIR' in os.environ:   
+if 'TEST_DATADIR' in os.environ:
     testmms = True
     DATADIR = str(os.environ.get('TEST_DATADIR'))
     if os.path.isdir(DATADIR):
         datapath = DATADIR+'/split/'
 
-print('oldsplit tests will use data from '+datapath)         
+print('oldsplit tests will use data from '+datapath)
 
 
 def check_eq(val, expval, tol=None):
@@ -96,7 +96,7 @@ def slurp_table(tabname):
         retval['cols'][col] = entry
     tb.close()
     return retval
-    
+
 def compare_tables(tabname, exptabname, tol=None):
     """
     Raises a ValueError if the contents of tabname are not the same as those
@@ -118,7 +118,7 @@ def compare_tables(tabname, exptabname, tol=None):
             if thingy not in ('dataManagerGroup', 'dataManagerType'):
                 if tabentry['desc'][thingy] != exptabdict['cols'][col]['desc'][thingy]:
                     raise ValueError(thingy + ' differs in the descriptions of ' + col + ' in ' + tabname + ' and ' + exptabname)
-                
+
         check_eq(tabentry['data'], exptabdict['cols'][col]['data'])
 
 
@@ -141,7 +141,7 @@ class SplitChecker(unittest.TestCase):
     # self.records.  This quirk is a result of unittest.TestCase's preference
     # for starting from scratch, and tearing down afterwards, for each test.
     # That's exactly what SplitChecker is avoiding.
-    
+
     def setUp(self):
         if self.need_to_initialize:
             self.initialize()
@@ -178,15 +178,15 @@ class SplitChecker(unittest.TestCase):
             ##         if os.path.exists(oms):
             ##             print "rming", oms
             ##             #shutil.rmtree(oms)
-    
+
     def initialize(self):
         # The realization that need_to_initialize needs to be
         # a class variable more or less came from
         # http://www.gossamer-threads.com/lists/python/dev/776699
         self.__class__.need_to_initialize = False
-                
+
         inpms = self.inpms
-    
+
         if not os.path.exists(inpms):
             # Copying is technically unnecessary for split, but self.inpms is
             # shared by other tests, so making it readonly might break them.
@@ -217,12 +217,12 @@ class split_test_tav(SplitChecker):
     inpms = '../../0420+417/0420+417.ms'
     if datapath.count('unittest_mms')==1:
         inpms = '0420+417.ms'
-        
+
     corrsels = ['', 'rr, ll', 'rl, lr', 'rr', 'll']
     records = {}
     #n_tests = 20
     #n_tests_passed = 0
-    
+
     def do_split(self, corrsel):
         outms = 'tav' + re.sub(',\s*', '', corrsel) + '.ms'
         record = {'ms': outms}
@@ -255,17 +255,17 @@ class split_test_tav(SplitChecker):
         """Subtables, time avg. RR, LL"""
         self.check_subtables('rr, ll', [(2, 1)])
         #self.__class__.n_tests_passed += 1
-        
+
     def test_sts_rllr(self):
         """Subtables, time avg. RL, LR"""
         self.check_subtables('rl, lr', [(2, 1)])
         #self.__class__.n_tests_passed += 1
-        
+
     def test_sts_rr(self):
         """Subtables, time avg. RR"""
         self.check_subtables('rr', [(1, 1)])
         #self.__class__.n_tests_passed += 1
-        
+
     def test_sts_ll(self):
         """Subtables, time avg. LL"""
         self.check_subtables('ll', [(1, 1)])
@@ -280,7 +280,7 @@ class split_test_tav(SplitChecker):
     ##     Cannot slice out RR, RL, LL
     ##     """
     ##     self.assertFalse(self.doSplit('rr, rl, ll'))
-        
+
     def test_data(self):
         """DATA[2],   time avg. without correlation selection"""
         check_eq(self.records['']['data'],
@@ -290,7 +290,7 @@ class split_test_tav(SplitChecker):
                               [ 0.14404297-0.04763794j]]),
                  0.0001)
         #self.__class__.n_tests_passed += 1
-        
+
     def test_data_rrll(self):
         """DATA[2],   time avg. RR, LL"""
         check_eq(self.records['rr, ll']['data'],
@@ -306,7 +306,7 @@ class split_test_tav(SplitChecker):
                               [-0.00381106-0.00066403j]]),
                  0.0001)
         #self.__class__.n_tests_passed += 1
-        
+
     def test_data_rr(self):
         """DATA[2],   time avg. RR"""
         check_eq(self.records['rr']['data'],
@@ -362,27 +362,27 @@ class split_test_tav(SplitChecker):
                  numpy.array([0.00168478, 0.00179394,
                               0.00182574, 0.00194404]),
                  0.0001)
-        
+
     def test_sigma_rrll(self):
         """SIGMA[7], time avg. RR, LL"""
         check_eq(self.records['rr, ll']['sigma'],
                  numpy.array([0.00168478, 0.00194404]),
                  0.0001)
         #self.__class__.n_tests_passed += 1
-        
+
     def test_sigma_rllr(self):
         """SIGMA[7], time avg. RL, LR"""
         check_eq(self.records['rl, lr']['sigma'],
                  numpy.array([0.00179394, 0.00182574]),
                  0.0001)
         #self.__class__.n_tests_passed += 1
-        
+
     def test_sigma_rr(self):
         """SIGMA[7], time avg. RR"""
         check_eq(self.records['rr']['sigma'],
                  numpy.array([0.00168478]),
                  0.0001)
-        
+
     def test_sigma_ll(self):
         """SIGMA[7], time avg. LL"""
         check_eq(self.records['ll']['sigma'],
@@ -400,7 +400,7 @@ class split_test_cav(SplitChecker):
     records = {}
     #n_tests = 12
     #n_tests_passed = 0
-    
+
     def do_split(self, corrsel):
         outms = 'cav' + re.sub(',\s*', '', corrsel) + '.ms'
         record = {'ms': outms}
@@ -434,7 +434,7 @@ class split_test_cav(SplitChecker):
         """Subtables, chan avg. RR"""
         self.check_subtables('rr', [(1, 4)])
         #self.__class__.n_tests_passed += 1
-        
+
     def test_sts_ll(self):
         """Subtables, chan avg. LL"""
         self.check_subtables('ll', [(1, 4)])
@@ -449,7 +449,7 @@ class split_test_cav(SplitChecker):
                                 4.483857-43.986446j, 10.1733-19.4007j]]),
                  0.0005)
         #self.__class__.n_tests_passed += 1
-        
+
     def test_data_rr(self):
         """DATA[2],   chan avg. RR"""
         check_eq(self.records['rr']['data'],
@@ -486,12 +486,12 @@ class split_test_cav(SplitChecker):
         """SIGMA[7], chan avg. without correlation selection"""
         check_eq(self.records['']['sigma'],
                  numpy.array([0.57735026, 0.57735026]), 0.0001)
-        
+
     def test_sigma_rr(self):
         """SIGMA[7], chan avg. RR"""
         check_eq(self.records['rr']['sigma'],
                  numpy.array([0.57735026]), 0.0001)
-        
+
     def test_sigma_ll(self):
         """SIGMA[7], chan avg. LL"""
         check_eq(self.records['ll']['sigma'],
@@ -508,7 +508,7 @@ class split_test_cav5(SplitChecker):
     records = {}
     #n_tests = 12
     #n_tests_passed = 0
-    
+
     def do_split(self, corrsel):
         outms = 'cav' + re.sub(',\s*', '', corrsel) + '.ms'
         record = {'ms': outms}
@@ -552,7 +552,7 @@ class split_test_cav5(SplitChecker):
                                10.60328102-11.62711906j]]),
                  0.0005)
         #self.__class__.n_tests_passed += 1
-        
+
     def test_data_ll(self):
         """DATA[2],   chan avg. LL"""
         check_eq(self.records['ll']['data'],
@@ -578,7 +578,7 @@ class split_test_cav5(SplitChecker):
         """SIGMA[7], chan avg. without correlation selection"""
         check_eq(self.records['']['sigma'],
                  numpy.array([0.44721359, 0.44721359]), 0.0001)
-        
+
     def test_sigma_ll(self):
         """SIGMA[7], chan avg. LL"""
         check_eq(self.records['ll']['sigma'],
@@ -590,7 +590,7 @@ class split_test_cdsp(SplitChecker):
     corrsels = ['cas-3307.ms', 'bogusCDSP.ms']  # MSes, not corr selections.
     inpms = corrsels[0]                         # This variable is not used.
     records = {}
-    
+
     def initialize(self):
         # The realization that need_to_initialize needs to be
         # a class variable more or less came from
@@ -733,11 +733,11 @@ class split_test_cst(SplitChecker):
             raise e
         self.records[inpms] = record
         return splitran
-            
+
 
 #    def tearDown(self):
 #        shutil.rmtree(self.outms, ignore_errors=True)
-        
+
     def test_cst(self):
         """
         Check that only the good part of a SOURCE subtable with some nonsense made it through
@@ -756,7 +756,7 @@ class split_test_cst(SplitChecker):
                               'ExecBlock uid://A002/Xb4eec/X1',
                               'ExecBlock uid://A002/Xb506c/X1']))
         check_eq(self.records[self.inpms]['lastmainobsid'], 2)
-        
+
 
 class split_test_state(unittest.TestCase):
     """
@@ -817,7 +817,7 @@ class split_test_cavcd(unittest.TestCase):
     """
     Checks that the CORRECTED_DATA column can be channel averaged.
     """
-    inpms = '../../split/labelled_by_time+ichan.ms'    
+    inpms = '../../split/labelled_by_time+ichan.ms'
     if datapath.count('unittest_mms')==1:
         inpms = 'labelled_by_time+ichan.ms'
 
@@ -826,13 +826,13 @@ class split_test_cavcd(unittest.TestCase):
     def setUp(self):
         try:
             shutil.rmtree(self.outms, ignore_errors=True)
-        
+
             if not os.path.exists(self.inpms):
                 # Copying is technically unnecessary for split,
                 # but self.inpms is shared by other tests, so making
                 # it readonly might break them.
                 shutil.copytree(datapath + self.inpms, self.inpms)
-                
+
             print("\n\tSplitting", self.inpms)
             splitran = oldsplit(self.inpms, self.outms, datacolumn='corrected',
                              field='', spw='', width=4,
@@ -894,7 +894,7 @@ class split_test_genericsubtables(unittest.TestCase):
         for subtab in ('ASDM_CALWVR', 'ASDM_CALDELAY', 'DATA_DESCRIPTION',
                        'POINTING', 'SYSCAL'):
             assert subtab in kws
- 
+
 class split_test_singchan(unittest.TestCase):
     """
     Check selecting a single channel with the spw:chan syntax
@@ -930,7 +930,7 @@ class split_test_singchan(unittest.TestCase):
     def tearDown(self):
         # Leaves an empty viewertest dir in nosedir
         shutil.rmtree(self.inpms, ignore_errors=True)
-        
+
         shutil.rmtree(self.outms, ignore_errors=True)
 
     def test_singchan(self):
@@ -943,7 +943,7 @@ class split_test_singchan(unittest.TestCase):
         tb.open(self.outms)
         data_sp = tb.getcell('DATA', 3)
         tb.close()
-        
+
         # For all correlations, compare output channel 0 to input channel 25.
         check_eq(data_sp[:,0], data_orig[:,25], 0.0001)
 
@@ -1035,7 +1035,7 @@ class split_test_almapol(SplitChecker):
             raise e
         self.records[corrsel] = record
         return splitran
-            
+
     def test_almapol(self):
         """Can we select corrs when WVR data is in spw 0?"""
         for corrsel in self.corrsels:
@@ -1047,7 +1047,7 @@ class split_test_almapol(SplitChecker):
         for corrsel in self.corrsels:
             check_eq(self.records[corrsel]['nsid'][0], 8)
             check_eq(self.records[corrsel]['nsid'][1], 9)
-            
+
     def test_nspos(self):
         """Did NS_WX_STATION_POS get copied?"""
         for corrsel in self.corrsels:
@@ -1055,7 +1055,7 @@ class split_test_almapol(SplitChecker):
                      numpy.array([2225262.12, -5440307.30, -2480962.57]), 0.01)
             check_eq(self.records[corrsel]['nspos'][1],
                      numpy.array([2224782.10, -5440330.29, -2481339.08]), 0.01)
-            
+
 
 class split_test_unorderedpolspw(SplitChecker):
     """
@@ -1347,7 +1347,7 @@ class split_test_optswc(SplitChecker):
         """List of SW cols after averaging, but no selection."""
         check_eq(self.records[('', '3')]['colnames'],
                  self.expcols)
-        
+
     def test_bbcno_noavg(self):
         """Can we get BBC1?"""
         check_eq(self.records[('1:12~115', '1')]['bbc_no'], 1)
@@ -1356,7 +1356,7 @@ class split_test_optswc(SplitChecker):
         """Can we get any BBC if we average?"""
         check_eq(self.records[('', '3')]['bbc_no'], 0)
 
-        
+
 class split_test_tav_then_cvel(SplitChecker):
     need_to_initialize = True
     # doppler01fine-01.ms was altered by
@@ -1371,7 +1371,7 @@ class split_test_tav_then_cvel(SplitChecker):
     records = {}
     #n_tests = 6
     #n_tests_passed = 0
-    
+
     def do_split(self, corrsel):
         tavms = 'doppler01fine-01-10s.ms'
         cvms  = 'doppler01fine-01-10s-cvel.ms'
@@ -1824,4 +1824,4 @@ def suite():
             split_test_tav_then_cvel, split_test_genericsubtables,
             split_test_sw_and_fc, split_test_cavcd, split_test_almapol,
             split_test_wttosig, split_test_fc]
-    
+

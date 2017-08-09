@@ -99,10 +99,10 @@ def commongrid(vis=[], spws=[], widths=[],
     startfreqs = []
     nchans = []
     widths = []
-    
+
     for i in range(0,len(spws)):
         chanwidth = fabs(grids[0][i][0]-grids[0][i][1])
-        
+
         widths.append(chanwidth)
 
         startfreqs.append(max(minfreqs[i]))
@@ -134,4 +134,4 @@ def commongrid(vis=[], spws=[], widths=[],
     rval['nchans'] = nchans
 
     return rval
-    
+

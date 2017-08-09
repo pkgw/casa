@@ -20,7 +20,7 @@ Unit tests for task csvclean. It tests the following parameters:
     phasecenter:   non-default and invalid values
     weighting:     unsupported value; non-default values
     restoringbeam: non-default values
-    
+
     Other tests: check the value of a pixel.
 '''
 class csvclean_test1(unittest.TestCase):
@@ -35,7 +35,7 @@ class csvclean_test1(unittest.TestCase):
         self.res = None
         if (os.path.exists(self.fits)):
             os.system('rm -rf '+ self.fits)
-            
+
         datapath = os.environ.get('CASAPATH').split()[0] + '/data/regression/ngc5921/'
         shutil.copyfile(datapath+self.fits, self.fits)
         importuvfits(fitsfile=self.fits, vis=self.msfile)
@@ -46,16 +46,16 @@ class csvclean_test1(unittest.TestCase):
             shutil.rmtree(self.msfile)
 
         os.system('rm -rf ' + self.img+'*')
-     
+
 
     def getpixval(self,img,pixel):
         _ia.open(img)
         px = _ia.pixelvalue(pixel)
         _ia.close()
         return px['value']['value']
-    
+
     def verify_stats(self,stats):
-        results = {'success': True, 'msgs': "", 'error_msgs': '' }            
+        results = {'success': True, 'msgs': "", 'error_msgs': '' }
         # Reference statistical values
         ref = {'flux': ([-1.28087772]),
                'max': ([ 0.00011397]),
@@ -66,16 +66,16 @@ class csvclean_test1(unittest.TestCase):
                'sigma': ([  4.08681795e-05]),
                'sum': ([-2.96193832]),
                'sumsq': ([ 0.00045264])}
-        
+
         for r in ref:
             diff = abs(ref[r] - stats[r][0])
             if (diff > 10e-5):
                 results['success']=False
                 results['error_msgs']=results['error_msgs']\
                      +"\nError: Statistics failed for %s. "%r
-                
+
                 print('expected %s=%s, got %s=%s'%(r,stats[r], r,ref[r]))
-                
+
         return results
 
     def verify_field(self,image,phasecenter):
@@ -89,7 +89,7 @@ class csvclean_test1(unittest.TestCase):
         dec = summary['refval'][1]
         RA = qa.time(qa.quantity(ra,'rad'))
         DEC = qa.time(qa.quantity(dec,'rad'))
-        
+
         # compare RA and DEC with what comes from listobs
         ms.open(self.msfile)
         info = ms.summary(True)
@@ -102,7 +102,7 @@ class csvclean_test1(unittest.TestCase):
             mDEC = qa.time(qa.quantity(dec,'rad'))
 #            if ((RA != mRA) or (DEC != mDEC)):
 #                print 'ERROR: MS: RA=%s, DEC=%s and IMG: RA=%s, DEC=%s'%(mRA,mDEC,RA,DEC)
-#                return False            
+#                return False
         elif (type(phasecenter) == str):
             for i in range(3):
                 fieldid = 'field_'+str(i)
@@ -116,61 +116,61 @@ class csvclean_test1(unittest.TestCase):
         if ((RA != mRA) or (DEC != mDEC)):
             print('ERROR: MS: RA=%s, DEC=%s and IMG: RA=%s, DEC=%s'%(mRA,mDEC,RA,DEC))
             return False
-        
+
         return True
-        
+
     def test1(self):
         '''Csvclean 1: Default values'''
         self.res = csvclean()
         self.assertFalse(self.res)
-        
+
     def test2(self):
         """Csvclean 2: Wrong input should return False"""
         msfile = 'badfilename'
         self.res = csvclean(vis=msfile, imagename=self.img)
         self.assertFalse(self.res)
-        
+
     def test3(self):
         """Csvclean 3: Good input should return True"""
         self.res = csvclean(vis=self.msfile,imagename=self.img)
         self.assertTrue(self.res)
-        
+
     def test4(self):
         """Csvclean 4: Check if output exists"""
         self.res = csvclean(vis=self.msfile,imagename=self.img)
         self.assertTrue(os.path.exists(self.img+'.image'))
-        
+
     def test5(self):
         """Csvclean 5: Wrong field type"""
         self.res = csvclean(vis=self.msfile,imagename=self.img,field=0)
         self.assertFalse(self.res)
-        
+
     def test6(self):
         """Csvclean 6: Non-default field value"""
         self.res = csvclean(vis=self.msfile,imagename=self.img,field='2')
         self.assertTrue(self.res)
-        self.assertTrue(os.path.exists(self.img+'.image'))           
-        
+        self.assertTrue(os.path.exists(self.img+'.image'))
+
     def test7(self):
         """Csvclean 7: Wrong spw value"""
         self.res = csvclean(vis=self.msfile,imagename=self.img,spw='10')
         self.assertFalse(os.path.exists(self.img+'.image'))
-       
+
     def test8(self):
         """Csvclean 8: Non-default spw value"""
         self.res = csvclean(vis=self.msfile,imagename=self.img,spw='0')
         self.assertTrue(os.path.exists(self.img+'.image'))
-                     
+
     def test9(self):
         """Csvclean 9: Wrong niter type"""
         self.res = csvclean(vis=self.msfile,imagename=self.img,niter='1')
         self.assertFalse(self.res)
-        
+
     def test10(self):
         """Csvclean 10: Non-default niter values"""
         for n in range(10,400,50):
             self.res = csvclean(vis=self.msfile,imagename=self.img,niter=n)
-            self.assertTrue(self.res,'Failed for niter = %s' %n)    
+            self.assertTrue(self.res,'Failed for niter = %s' %n)
 
     def test11(self):
         """Csvclean 11: Zero value of imsize"""
@@ -188,15 +188,15 @@ class csvclean_test1(unittest.TestCase):
         self.res = csvclean(vis=self.msfile,imagename=self.img, cell=12.5)
         self.assertTrue(self.res,'Task returned %s'%self.res)
         self.assertTrue(os.path.exists(self.img+'.image'))
-                
+
     def test14(self):
         '''Csvclean 14: Unsupported weighting mode'''
         self.res = csvclean(vis=self.msfile,imagename=self.img, weighting='median')
         self.assertFalse(self.res)
-        
+
     def test15(self):
         '''Csvclean 15: Non-default weighting uniform'''
-        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }            
+        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
         weights = ['natural','uniform','briggs','radial']
         for w in weights:
             out = self.img+'.'+w
@@ -205,12 +205,12 @@ class csvclean_test1(unittest.TestCase):
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']\
                      +"\nError: Failed to create image=%s when weighting=%s."%(out+'.image',w)
-                     
+
         self.assertTrue(retValue['success'],retValue['error_msgs'])
-       
+
     def test16(self):
         '''Csvclean 16: Test parameter restoringbeam'''
-        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }            
+        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
         p = ['0.5arcsec','0.25arcsec','0.3']
         out = 'myimg'
         self.res = csvclean(vis=self.msfile,imagename=out, imsize=500,restoringbeam='0.5arcsec')
@@ -235,7 +235,7 @@ class csvclean_test1(unittest.TestCase):
             retValue['error_msgs']=retValue['error_msgs']\
                      +"\nError: Failed to create image=%s when restoringbeam=%s."%(out+'.image',beam)
         os.system('rm -rf myimg.image')
-        
+
         self.assertTrue(retValue['success'],retValue['error_msgs'])
 
     def test17(self):
@@ -247,19 +247,19 @@ class csvclean_test1(unittest.TestCase):
         _ia.close()
         print(stats)
         retValue = self.verify_stats(stats)
-        
-        ####Forcing True 
+
+        ####Forcing True
         retValue['success']=True
 
         self.assertTrue(retValue['success'],retValue['error_msgs'])
-        
+
     def test18(self):
         '''Csvclean 18: Choose a non-default phasecenter'''
         phc = 2
         im = self.img+'.image'
         self.res = csvclean(vis=self.msfile,imagename=self.img,imsize=[100,100],
                             niter=10,phasecenter=phc)
-        
+
         retValue = self.verify_field(im,phc)
         self.assertTrue(retValue,'MS and image coordinates of phasecenter are not the same')
 
@@ -269,7 +269,7 @@ class csvclean_test1(unittest.TestCase):
         im = self.img+'.image'
         self.res = csvclean(vis=self.msfile,imagename=self.img,imsize=[100,100],
                             niter=10,phasecenter=phc)
-        
+
         self.assertFalse(self.res,'Phasecenter does not exist and should return an error.')
 
     def test20(self):
@@ -279,7 +279,7 @@ class csvclean_test1(unittest.TestCase):
         im = self.img+'.image'
         self.res = csvclean(vis=self.msfile,imagename=self.img,imsize=[100,100],
                             niter=10,phasecenter=phc)
-        
+
         retValue = self.verify_field(im,coord)
         self.assertTrue(retValue,'MS and image coordinates of phasecenter are not the same')
 

@@ -47,20 +47,20 @@
 #
 # <synopsis>
 # Test the ia.decompose() method.
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_decompose[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the ia.decompose tool method to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -73,13 +73,13 @@ from __main__ import *
 import unittest
 
 class ia_decompose_test(unittest.TestCase):
-    
+
     def setUp(self):
         pass
-    
+
     def tearDown(self):
         pass
-    
+
     def test_stretch(self):
         """ ia.decompose(): Test stretch parameter"""
         yy = iatool()
@@ -100,6 +100,6 @@ class ia_decompose_test(unittest.TestCase):
         )
         self.assertTrue(type(zz) == type({}))
         yy.done()
-        
+
 def suite():
     return [ia_decompose_test]

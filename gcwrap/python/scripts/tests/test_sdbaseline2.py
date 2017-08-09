@@ -86,7 +86,7 @@ class BlparamFileParser( FileReader ):
         self.parseCoeff()
         self.parseRms()
         return
-        
+
     def parseCoeff( self ):
         self.__coeff = []
         nrow = self.nrow()
@@ -113,7 +113,7 @@ class BlparamFileParser( FileReader ):
                 idx = self.index( self.__rtxt, idx )
                 self.__rms.append( self.__parseRms( idx ) )
             except:
-                break   
+                break
         return
 
     def __parseCoeff( self, idx ):
@@ -128,7 +128,7 @@ def parseCoeff( txt ):
     for c in clist:
         ret.append( float( c.split('=')[1] ) )
     return ret
-    
+
 def parseRms( txt ):
     t = txt.lstrip().rstrip( '\n' )[6:]
     return float( t )
@@ -175,7 +175,7 @@ class sdbaseline2old_unittest_base:
         else:
             keylist = list(refstat.keys())
             #keylist = self.complist
-        
+
         for key in keylist:
             self.assertTrue(key in currstat,\
                             msg="%s is not defined in the current results."\
@@ -216,7 +216,7 @@ class sdbaseline2old_unittest_base:
                                     (key, i, str(currval[i]), str(refval[i])))
             del currval, refval
 
-            
+
     def _isInAllowedRange( self, testval, refval, reltol=1.e-2 ):
         """
         Check if a test value is within permissive relative difference from refval.
@@ -256,7 +256,7 @@ class sdbaseline2old_unittest_base:
         # TO DO: compare only "Fitter range" and "Baseline parameters"
         self._checkfile(out)
         self._checkfile(reference)
-        
+
         blparse_out = BlparamFileParser( out )
         blparse_out.parse()
         coeffs_out = blparse_out.coeff()
@@ -330,7 +330,7 @@ class sdbaseline2old_unittest_base:
         #print str(res)
         #print '***********************************************'
         return res
-            
+
 
 class sdbaseline2old_basicTest( sdbaseline2old_unittest_base, unittest.TestCase ):
     """
@@ -363,7 +363,7 @@ class sdbaseline2old_basicTest( sdbaseline2old_unittest_base, unittest.TestCase 
                  'stddev': [1.0337495803833008, 0.9509031176567078,
                             0.950781524181366, 1.1025519371032715]}
     files = [infile, inbltable]
-    
+
     def setUp( self ):
         for file in self.files:
             if os.path.exists(file):
@@ -409,7 +409,7 @@ class sdbaseline2old_basicTest( sdbaseline2old_unittest_base, unittest.TestCase 
         # sdbaseline2old returns None if it runs successfully
         self.assertEqual(result,None,
                          msg="The task returned '"+str(result)+"' instead of None")
-        
+
         self._compareStats(outfile, self.reference)
 
     def test03( self ):
@@ -509,7 +509,7 @@ class sdbaseline2old_maskTest( sdbaseline2old_unittest_base, unittest.TestCase )
     # reference values for specunit='GHz'
     ref_pol0if0f = {'linemaxpos': 4102.0, 'linesum': 103.81603241,
                     'linemax': 1.6132903099060059,
-                    'baserms': 0.150215059519, 
+                    'baserms': 0.150215059519,
                     'basestd': 0.150225445628}
     ref_pol0if2f = {'linemaxpos': 3045.0, 'linesum': 127.797515869,
                     'linemax': 2.0308537483215332,
@@ -525,7 +525,7 @@ class sdbaseline2old_maskTest( sdbaseline2old_unittest_base, unittest.TestCase )
                     'linemax': 2.0264592170715332,
                     'baserms': 0.13150280714035034,
                     'basestd': 0.13151165843009949}
-     
+
     def setUp( self ):
         if os.path.exists(self.infile):
             shutil.rmtree(self.infile)
@@ -626,7 +626,7 @@ class sdbaseline2old_maskTest( sdbaseline2old_unittest_base, unittest.TestCase )
         spw = ','.join(['0:%s'%(';'.join(map(self._get_range_in_string,self.blchan0))), '2:%s'%(';'.join(map(self._get_range_in_string,self.blchan2)))])
 
         print("spw =", spw)
-        
+
         pol = '0'
 
         result = sdbaseline2old(infile=infile,maskmode=mode,
@@ -685,7 +685,7 @@ class sdbaseline2old_maskTest( sdbaseline2old_unittest_base, unittest.TestCase )
         spw = '2:%s'%(';'.join([x + specunit for x in [self._get_range_in_string(m) for m in masklist]]))
         pol = '0'
         print("spw =", spw)
-        
+
         result = sdbaseline2old(infile=infile,maskmode=mode,
                             outfile=outfile,spw=spw,pol=pol)
         # sdbaseline2old returns None if it runs successfully
@@ -720,7 +720,7 @@ class sdbaseline2old_maskTest( sdbaseline2old_unittest_base, unittest.TestCase )
         pol = '0'
         spw = ','.join([x + specunit for x in masklist.split(',')])
         print("spw = ", spw)
-        
+
         result = sdbaseline2old(infile=infile,maskmode=mode,
                             outfile=outfile,spw=spw,pol=pol)
         # sdbaseline2old returns None if it runs successfully
@@ -786,9 +786,9 @@ class sdbaseline2old_maskTest( sdbaseline2old_unittest_base, unittest.TestCase )
         print("masklist =", masklist)
         spw = '2:%s'%(';'.join([x + specunit for x in [self._get_range_in_string(m) for m in masklist]]))
         pol = '0'
-        
+
         print("spw =", spw)
-        
+
         result = sdbaseline2old(infile=infile,maskmode=mode,
                             outfile=outfile,spw=spw,pol=pol)
         # sdbaseline2old returns None if it runs successfully
@@ -817,7 +817,7 @@ class sdbaseline2old_maskTest( sdbaseline2old_unittest_base, unittest.TestCase )
         pol = '0'
 
         print("spw =", spw)
-        
+
         result = sdbaseline2old(infile=infile,maskmode=mode,
                             outfile=outfile,spw=spw,pol=pol)
         # sdbaseline2old returns None if it runs successfully
@@ -950,14 +950,14 @@ class sdbaseline2old_maskTest( sdbaseline2old_unittest_base, unittest.TestCase )
         del linmax, linmaxpos, linesum, blrms, blstd
         print('Current run (IF',ispw,'):',retdic)
         return retdic
- 
+
 
 class sdbaseline2old_multi_IF_test( sdbaseline2old_unittest_base, unittest.TestCase ):
     """
     Unit tests for task sdbaseline2old. No interactive testing.
 
     This test intends to check whether sdbaseline2old task works fine
-    for data that has multiple IFs whose nchan differ each other. 
+    for data that has multiple IFs whose nchan differ each other.
 
     The list of tests:
     test0 --- test multi IF data input
@@ -989,7 +989,7 @@ class sdbaseline2old_multi_IF_test( sdbaseline2old_unittest_base, unittest.TestC
         order = 1
         outfile = self.outroot+".asap"
         blparamfile = outfile+self.blparamfile_suffix
-        
+
         result = sdbaseline2old(infile=infile,maskmode=mode,outfile=outfile,blfunc=blfunc,order=order)
         self.assertEqual(result, None, msg="The task returned '"+str(result)+"' instead of None")
         self._compareBLparam(blparamfile,self.datapath+self.refblparamfile)
@@ -1039,7 +1039,7 @@ class sdbaseline2old_storageTest( sdbaseline2old_unittest_base, unittest.TestCas
     #pollist = [1]
     spw = '2'
     pol = '1'
-    
+
     blparamfile_suffix = '_blparam.txt'
     blreffile = sdbaseline2old_unittest_base.datapath+'refblparam02'
 
@@ -1186,7 +1186,7 @@ class sdbaseline2old_storageTest( sdbaseline2old_unittest_base, unittest.TestCas
         self._compareStats(outfile,self.refstat)
 
 class sdbaseline2old_selection_syntax(selection_syntax.SelectionSyntaxTest):
-    
+
     # Data path of input/output
     datapath=os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/singledish/'
     # Input and output names
@@ -1214,7 +1214,7 @@ class sdbaseline2old_selection_syntax(selection_syntax.SelectionSyntaxTest):
     tol_partial = 1.0e-3
     tol_full = 1.0e-5
     tol_coeff = 1.0e-6
-    
+
     @property
     def task(self):
         return sdbaseline2old
@@ -1242,7 +1242,7 @@ class sdbaseline2old_selection_syntax(selection_syntax.SelectionSyntaxTest):
     def _flag_lines(self):
         s = sd.scantable(self.infile, average=False)
         nrow = s.nrow()
-        
+
         # flag lines
         self.assertEqual(nrow, len(self.line_location))
         for i in range(nrow):
@@ -1272,7 +1272,7 @@ class sdbaseline2old_selection_syntax(selection_syntax.SelectionSyntaxTest):
         self.assertTrue(os.path.isdir(self.outfile))
         self.assertTrue(os.path.exists(self.blparamfile))
         self.assertTrue(os.path.isfile(self.blparamfile))
-        
+
         s = sd.scantable(self.outfile, average=False)
         nrow = s.nrow()
         spw_selection = s.parse_spw_selection(spw)
@@ -1332,7 +1332,7 @@ class sdbaseline2old_selection_syntax(selection_syntax.SelectionSyntaxTest):
                 polno = int(s[3])
                 coeffs = list(map(float, s[6:-2]))
                 yield (scanno, beamno, ifno, polno), coeffs
-        
+
     def __exec_complex_test(self, params, exprs, values, columns, expected_nrow, regular_test=True):
         num_param = len(params)
         test_name = self._get_test_name(regular_test)
@@ -1373,13 +1373,13 @@ class sdbaseline2old_selection_syntax(selection_syntax.SelectionSyntaxTest):
         else:
             spw = ''
         self.__test_result(spw)
-                          
+
         return outfile
 
     def __exec_simple_test(self, param, expr, value_list, column, expected_nrow, regular_test=True):
         return self.__exec_complex_test([param], [expr], [value_list], [column],
                                         expected_nrow, regular_test)
-    
+
     def prepare(func):
         import functools
         @functools.wraps(func)
@@ -1399,7 +1399,7 @@ class sdbaseline2old_selection_syntax(selection_syntax.SelectionSyntaxTest):
         fieldlist = ['M100__5', 'M100__6', 'M30__7', '3C273__8']
 
         self.__exec_simple_test('field', field, fieldlist, 'FIELDNAME', expected_nrow)
-        
+
     @prepare
     def test_field_id_exact(self):
         """test_field_id_exact: Test field selection by id"""
@@ -1408,7 +1408,7 @@ class sdbaseline2old_selection_syntax(selection_syntax.SelectionSyntaxTest):
         fieldlist = ['M100__5']
 
         self.__exec_simple_test('field', field, fieldlist, 'FIELDNAME', expected_nrow)
-        
+
     @prepare
     def test_field_id_lt(self):
         """test_field_id_lt: Test field selection by id (<N)"""
@@ -1499,7 +1499,7 @@ class sdbaseline2old_selection_syntax(selection_syntax.SelectionSyntaxTest):
         spwlist = [21, 23, 25]
 
         self.__exec_simple_test('spw', spw, spwlist, 'IFNO', expected_nrow)
-        
+
     @prepare
     def test_spw_id_exact(self):
         """test_spw_id_exact: Test spw selection by id ('N')"""
@@ -1508,7 +1508,7 @@ class sdbaseline2old_selection_syntax(selection_syntax.SelectionSyntaxTest):
         spwlist = [23]
 
         self.__exec_simple_test('spw', spw, spwlist, 'IFNO', expected_nrow)
-        
+
     @prepare
     def test_spw_id_lt(self):
         """test_spw_id_lt: Test spw selection by id ('<N')"""
@@ -1758,7 +1758,7 @@ class sdbaseline2old_selection_syntax(selection_syntax.SelectionSyntaxTest):
         spwlist = [21,25]
 
         self.__exec_simple_test('spw', spw, spwlist, 'IFNO', expected_nrow)
-        
+
     ### timerange selection syntax test ###
     @prepare
     def test_timerange_value_default(self):
@@ -1887,7 +1887,7 @@ class sdbaseline2old_selection_syntax(selection_syntax.SelectionSyntaxTest):
         pollist = [0,1]
 
         self.__exec_simple_test('pol', pol, pollist, 'POLNO', expected_nrow)
-        
+
     @prepare
     def test_pol_id_exact(self):
         """test_pol_id_exact: Test pol selection by id ('N')"""
@@ -1896,7 +1896,7 @@ class sdbaseline2old_selection_syntax(selection_syntax.SelectionSyntaxTest):
         pollist = [1]
 
         self.__exec_simple_test('pol', pol, pollist, 'POLNO', expected_nrow)
-        
+
     @prepare
     def test_pol_id_lt(self):
         """test_pol_id_lt: Test pol selection by id ('<N')"""
@@ -1950,7 +1950,7 @@ class sdbaseline2old_flagTest( unittest.TestCase ):
        (2) if a channel is flagged, it will not be used for baseline calculation,
            but the baseline subtraction at the channel should be made.
        (3) no flag values themselves should be modified.
-           
+
     The list of tests:
     testFlagPoly01     --- test polynomial fitting with maskmode = 'list'
     testFlagPoly02     --- test polynomial fitting with maskmode = 'auto'
@@ -1968,7 +1968,7 @@ class sdbaseline2old_flagTest( unittest.TestCase ):
                 # to small channel numbers. enough for this testing.
     # Data path of input/output
     datapath = os.environ.get('CASAPATH').split()[0] + \
-              '/data/regression/unittest/sdbaseline2/'    
+              '/data/regression/unittest/sdbaseline2/'
     # Input and output names
     infile_01 = 'sdbaseline2_flagtest_withoutnoise.asap'
     infile_02 = 'sdbaseline2_flagtest_withnoise.asap'
@@ -1998,7 +1998,7 @@ class sdbaseline2old_flagTest( unittest.TestCase ):
         infile = self.infile_01
         mode = "list"
         outfile = self.outroot+self.tid+".asap"
-        
+
         result = sdbaseline2old(infile=infile,maskmode=mode,outfile=outfile,blfunc='poly',order=0)
         self.assertEqual(result, None, msg="The task returned '"+str(result)+"' instead of None")
         self._checkResult(infile, outfile, self.tol01)
@@ -2009,7 +2009,7 @@ class sdbaseline2old_flagTest( unittest.TestCase ):
         infile = self.infile_02
         mode = "auto"
         outfile = self.outroot+self.tid+".asap"
-        
+
         result = sdbaseline2old(infile=infile,maskmode=mode,outfile=outfile,blfunc='poly',order=0)
         self.assertEqual(result, None, msg="The task returned '"+str(result)+"' instead of None")
         self._checkResult(infile, outfile, self.tol02)
@@ -2020,7 +2020,7 @@ class sdbaseline2old_flagTest( unittest.TestCase ):
         infile = self.infile_01
         mode = "list"
         outfile = self.outroot+self.tid+".asap"
-        
+
         result = sdbaseline2old(infile=infile,maskmode=mode,outfile=outfile,blfunc='chebyshev',order=0)
         self.assertEqual(result, None, msg="The task returned '"+str(result)+"' instead of None")
         self._checkResult(infile, outfile, self.tol01)
@@ -2031,7 +2031,7 @@ class sdbaseline2old_flagTest( unittest.TestCase ):
         infile = self.infile_02
         mode = "auto"
         outfile = self.outroot+self.tid+".asap"
-        
+
         result = sdbaseline2old(infile=infile,maskmode=mode,outfile=outfile,blfunc='chebyshev',order=0)
         self.assertEqual(result, None, msg="The task returned '"+str(result)+"' instead of None")
         self._checkResult(infile, outfile, self.tol02)
@@ -2042,7 +2042,7 @@ class sdbaseline2old_flagTest( unittest.TestCase ):
         infile = self.infile_01
         mode = "list"
         outfile = self.outroot+self.tid+".asap"
-        
+
         result = sdbaseline2old(infile=infile,maskmode=mode,outfile=outfile,blfunc='cspline',npiece=1)
         self.assertEqual(result, None, msg="The task returned '"+str(result)+"' instead of None")
         self._checkResult(infile, outfile, self.tol01)
@@ -2053,7 +2053,7 @@ class sdbaseline2old_flagTest( unittest.TestCase ):
         infile = self.infile_02
         mode = "auto"
         outfile = self.outroot+self.tid+".asap"
-        
+
         result = sdbaseline2old(infile=infile,maskmode=mode,outfile=outfile,blfunc='cspline',npiece=1)
         self.assertEqual(result, None, msg="The task returned '"+str(result)+"' instead of None")
         self._checkResult(infile, outfile, self.tol02)
@@ -2064,7 +2064,7 @@ class sdbaseline2old_flagTest( unittest.TestCase ):
         infile = self.infile_01
         mode = "list"
         outfile = self.outroot+self.tid+".asap"
-        
+
         result = sdbaseline2old(infile=infile,maskmode=mode,outfile=outfile,blfunc='sinusoid')
         self.assertEqual(result, None, msg="The task returned '"+str(result)+"' instead of None")
         self._checkResult(infile, outfile, self.tol01)
@@ -2075,7 +2075,7 @@ class sdbaseline2old_flagTest( unittest.TestCase ):
         infile = self.infile_02
         mode = "auto"
         outfile = self.outroot+self.tid+".asap"
-        
+
         result = sdbaseline2old(infile=infile,maskmode=mode,outfile=outfile,blfunc='sinusoid')
         self.assertEqual(result, None, msg="The task returned '"+str(result)+"' instead of None")
         self._checkResult(infile, outfile, self.tol02)
@@ -2096,7 +2096,7 @@ class sdbaseline2old_flagTest( unittest.TestCase ):
         #check if the values of row-flagged spectra are not changed
         for i in range(2):
             self.assertTrue(all(inspec[i]==outspec[i]))
-            
+
         #check if flagged channels are (1) excluded from fitting, but are
         #(2) the targets of baseline subtraction.
         #  if the difference values between the input and output spectra
@@ -2106,7 +2106,7 @@ class sdbaseline2old_flagTest( unittest.TestCase ):
         # values is examined if it is close enough to 1.0.
         #print '***************'+str(abs((inspec[2]-outspec[2]).mean()-1.0))
         self.assertTrue(abs((inspec[2]-outspec[2]).mean()-1.0) < tol)
-        
+
         #check if flag values are not changed in the output file.
         for i in range(len(inchnf)):
             self.assertTrue(all(inchnf[i]==outchnf[i]))
@@ -2114,7 +2114,7 @@ class sdbaseline2old_flagTest( unittest.TestCase ):
 
 def suite():
     return [sdbaseline2old_basicTest,
-            #sdbaseline2old_maskTest, 
+            #sdbaseline2old_maskTest,
             #sdbaseline2old_multi_IF_test, sdbaseline2old_storageTest,
             #sdbaseline2old_selection_syntax, sdbaseline2old_flagTest
             ]

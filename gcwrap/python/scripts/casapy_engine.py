@@ -18,8 +18,8 @@ try:
 except ImportError as e:
    print('Failed to load IPython: ', e)
    exit(1)
-   
-   
+
+
 try:
     import matplotlib
 except ImportError as e:
@@ -28,12 +28,12 @@ except ImportError as e:
 
 
 try:
-    import casac 
+    import casac
 except ImportError as e:
     print("failed to load casa:\n", e)
     sys.exit(1)
-    
-    
+
+
 from asap_init import *
 
 
@@ -65,7 +65,7 @@ casa = { 'build': {
              'root': None
          },
          'flags': { },
-         'files': { 
+         'files': {
              'logfile': os.getcwd( ) + '/casa-'+time.strftime("%Y%m%d-%H%M%S", time.gmtime())+'.log'
          },
          'state' : { 'startup': True }
@@ -96,7 +96,7 @@ else :
 # Setup helper paths
 if os.path.exists( __casapath__ + "/bin/casapyinfo") :
     casa['helpers']['info'] = __casapath__ + "/bin/casapyinfo"
-    
+
 
 if os.uname()[0]=='Darwin' :
     casa_path = os.environ['CASAPATH'].split()
@@ -114,7 +114,7 @@ if os.uname()[0]=='Darwin' :
         # In the distro of the app then the apps dir is not there and you find things in MacOS
         if not os.path.exists(casa['helpers']['logger']) :
             casa['helpers']['logger'] = casa_path[0]+'/Resources/Logger.app/Contents/MacOS/casalogger'
-            
+
 
 ## ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 ## ensure default initialization occurs before this point...

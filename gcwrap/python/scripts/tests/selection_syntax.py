@@ -46,7 +46,7 @@ class SelectionSyntaxTest(unittest.TestCase, metaclass=abc.ABCMeta):
     will check whether the test is properly implemented in
     terms of its intent.
     """
-        
+
     infile = None
 
     @abc.abstractproperty
@@ -73,12 +73,12 @@ class SelectionSyntaxTest(unittest.TestCase, metaclass=abc.ABCMeta):
     def test_field_value_default(self):
         """test_field_value_default: Test default value for field"""
         self._default_test()
-        
+
     @skipUnlessHasParam('field')
     def test_field_id_exact(self):
         """test_field_id_exact: Test field selection by id"""
         self._default_test()
-        
+
     @skipUnlessHasParam('field')
     def test_field_id_lt(self):
         """test_field_id_lt: Test field selection by id (<N)"""
@@ -129,12 +129,12 @@ class SelectionSyntaxTest(unittest.TestCase, metaclass=abc.ABCMeta):
     def test_spw_id_default(self):
         """test_spw_id_default: Test default value for spw"""
         self._default_test()
-        
+
     @skipUnlessHasParam('spw')
     def test_spw_id_exact(self):
         """test_spw_id_exact: Test spw selection by id ('N')"""
         self._default_test()
-        
+
     @skipUnlessHasParam('spw')
     def test_spw_id_lt(self):
         """test_spw_id_lt: Test spw selection by id ('<N')"""
@@ -210,31 +210,31 @@ class SelectionSyntaxTest(unittest.TestCase, metaclass=abc.ABCMeta):
     def test_spw_id_exact_channel(self):
         """test_spw_id_exact_channel: Test spw selection with channel range ('N:CH0~CH1')"""
         self._default_test()
-        
+
     @skipIfNoChannelSelection
     @skipUnlessHasParam('spw')
     def test_spw_id_exact_frequency(self):
         """test_spw_id_exact_frequency: Test spw selection with channel range ('N:FREQ0~FREQ1')"""
         self._default_test()
-        
+
     @skipIfNoChannelSelection
     @skipUnlessHasParam('spw')
     def test_spw_id_exact_velocity(self):
         """test_spw_id_exact_velocity: Test spw selection with channel range ('N:VEL0~VEL1')"""
         self._default_test()
-        
+
     @skipIfNoChannelSelection
     @skipUnlessHasParam('spw')
     def test_spw_id_exact_list(self):
         """test_spw_id_exact_list: Test spw selection with channel range ('N:CH0~CH1;CH2~CH3')"""
         self._default_test()
-        
+
     @skipIfNoChannelSelection
     @skipUnlessHasParam('spw')
     def test_spw_id_pattern_channel(self):
         """test_spw_id_pattern_channel: Test spw selection with channel range ('*:CH0~CH1')"""
         self._default_test()
-        
+
     @skipIfNoChannelSelection
     @skipUnlessHasParam('spw')
     def test_spw_id_pattern_frequency(self):
@@ -306,13 +306,13 @@ class SelectionSyntaxTest(unittest.TestCase, metaclass=abc.ABCMeta):
     def test_spw_id_list_channel(self):
         """test_spw_id_list_channel: Test spw selection with channnel range ('ID0:CH0~CH1,ID1:CH2~CH3')"""
         self._default_test()
-        
+
     ### timerange selection syntax test ###
     @skipUnlessHasParam('timerange')
     def test_timerange_value_default(self):
         """test_timerange_value_default: Test default value for timerange"""
         self._default_test()
-        
+
     @skipUnlessHasParam('timerange')
     def test_timerange_value_exact(self):
         """test_timerange_value_exact: Test timerange selection by syntax 'T0'"""
@@ -343,12 +343,12 @@ class SelectionSyntaxTest(unittest.TestCase, metaclass=abc.ABCMeta):
     def test_scan_id_default(self):
         """test_scan_id_default: Test default value for scan"""
         self._default_test()
-        
+
     @skipUnlessHasParam('scan')
     def test_scan_id_exact(self):
         """test_scan_id_exact: Test scan selection by id ('N')"""
         self._default_test()
-        
+
     @skipUnlessHasParam('scan')
     def test_scan_id_lt(self):
         """test_scan_id_lt: Test scan selection by id ('<N')"""
@@ -379,12 +379,12 @@ class SelectionSyntaxTest(unittest.TestCase, metaclass=abc.ABCMeta):
     def test_pol_id_default(self):
         """test_pol_id_default: Test default value for pol"""
         self._default_test()
-        
+
     @skipUnlessHasParam('pol')
     def test_pol_id_exact(self):
         """test_pol_id_exact: Test pol selection by id ('N')"""
         self._default_test()
-        
+
     @skipUnlessHasParam('pol')
     def test_pol_id_lt(self):
         """test_pol_id_lt: Test pol selection by id ('<N')"""
@@ -415,12 +415,12 @@ class SelectionSyntaxTest(unittest.TestCase, metaclass=abc.ABCMeta):
     def test_beam_id_default(self):
         """test_beam_id_default: Test default value for beam"""
         self._default_test()
-        
+
     @skipUnlessHasParam('beam')
     def test_beam_id_exact(self):
         """test_beam_id_exact: Test beam selection by id ('N')"""
         self._default_test()
-        
+
     @skipUnlessHasParam('beam')
     def test_beam_id_lt(self):
         """test_beam_id_lt: Test beam selection by id ('<N')"""
@@ -527,7 +527,7 @@ class SelectionSyntaxTest(unittest.TestCase, metaclass=abc.ABCMeta):
         casalog.post('%s: channel_selection=%s'%(func_name, channel_selection))
 
         # Test 1: target parameter must be set unless the test is 'default'
-        #         otherwise test fails            
+        #         otherwise test fails
         if psubtype != 'default' or channel_selection is not None:
             self.assertIn(param, list(kwargs.keys()),
                           msg='parameter \'%s\' must be specified'%(param))
@@ -545,7 +545,7 @@ class SelectionSyntaxTest(unittest.TestCase, metaclass=abc.ABCMeta):
             if pattern is not None:
                 self.assertNotEqual(re.match(pattern, param_value), None,
                                     msg='parameter \'%s\' gets invalid value \'%s\''%(param, param_value))
-        
+
         # execute task here
         d = kwargs.copy()
         #task_string = '%s(%s)'%(self.task.__name__, ','.join(['%s=\'%s\''%(k,v) for (k,v) in d.items()]))
@@ -554,4 +554,4 @@ class SelectionSyntaxTest(unittest.TestCase, metaclass=abc.ABCMeta):
 
         # return result
         return result
-            
+

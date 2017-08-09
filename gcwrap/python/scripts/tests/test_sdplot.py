@@ -121,7 +121,7 @@ class sdplotold_unittest_base:
         for key, val in add.items():
             retdic[key] = val
         return retdic
-        
+
 
     # compare two dictionaries
     def _compareDictVal( self, testdict, refdict, reltol=1.0e-5, complist=None ):
@@ -132,7 +132,7 @@ class sdplotold_unittest_base:
             keylist = complist
         else:
             keylist = list(refdict.keys())
-        
+
         for key in keylist:
             self.assertTrue(key in testdict,\
                             msg="%s is not defined in the current results."\
@@ -153,7 +153,7 @@ class sdplotold_unittest_base:
                                     msg="%s[%d] differs: %s (expected: %s) " % \
                                     (key, i, str(testval[i]), str(refval[i])))
             del testval, refval
-            
+
     def _isInAllowedRange( self, testval, refval, reltol=1.0e-5 ):
         """
         Check if a test value is within permissive relative difference from refval.
@@ -185,14 +185,14 @@ class sdplotold_unittest_base:
             return list(input)
         else:
             return [input]
-    
+
 #####
 # Tests on bad parameters and exceptions
 #####
 class sdplotold_errorTest( sdplotold_unittest_base, unittest.TestCase ):
     """
     Test bad input parameters and exceptions
-    
+
     The list of tests:
       test_default    --- default parameters (raises an error)
 
@@ -323,7 +323,7 @@ class sdplotold_errorTest( sdplotold_unittest_base, unittest.TestCase ):
 class sdplotold_basicTest( sdplotold_unittest_base, unittest.TestCase ):
     """
     Test plot parameters only. Least data filterings and no averaging.
-    
+
     The list of tests:
       testplot01-03 --- possible plot types
       testplot04-07 --- possible axes (spectral plotting)
@@ -369,7 +369,7 @@ class sdplotold_basicTest( sdplotold_unittest_base, unittest.TestCase ):
                 msg = "Unable to create directory, "+self.prevdir+".\n"
                 msg += "Plot figures will remain in "+self.currdir
                 casalog.post(msg,'WARN')
-        
+
         default(sdplotold)
 
     def tearDown( self ):
@@ -1014,7 +1014,7 @@ class sdplotold_storageTest( sdplotold_unittest_base, unittest.TestCase ):
     """
     Unit tests of task sdplotold. Test scantable sotrage and insitu
     parameters
-    
+
     The list of tests:
     testMT  --- storage = 'memory', insitu = True
     testMF  --- storage = 'memory', insitu = False
@@ -1067,7 +1067,7 @@ class sdplotold_storageTest( sdplotold_unittest_base, unittest.TestCase ):
                 msg = "Unable to create directory, "+self.prevdir+".\n"
                 msg += "Plot figures will remain in "+self.currdir
                 casalog.post(msg,'WARN')
-        
+
         default(sdplotold)
 
     def tearDown( self ):
@@ -1147,7 +1147,7 @@ class sdplotold_storageTest( sdplotold_unittest_base, unittest.TestCase ):
         """Storage Test MT: storage='memory' and insitu=T"""
         tid="MT"
         outfile = self.figroot+tid+self.figsuff
-        
+
         # Backup units and coords of input scantable before run.
         initval = self._get_unit_coord(self.infile)
 
@@ -1171,7 +1171,7 @@ class sdplotold_storageTest( sdplotold_unittest_base, unittest.TestCase ):
         """Storage Test MF: storage='memory' and insitu=F"""
         tid="MF"
         outfile = self.figroot+tid+self.figsuff
-        
+
         # Backup units and coords of input scantable before run.
         initval = self._get_unit_coord(self.infile)
 
@@ -1195,7 +1195,7 @@ class sdplotold_storageTest( sdplotold_unittest_base, unittest.TestCase ):
         """Storage Test DT: storage='disk' and insitu=T"""
         tid="DT"
         outfile = self.figroot+tid+self.figsuff
-        
+
         # Backup units and coords of input scantable before run.
         initval = self._get_unit_coord(self.infile)
 
@@ -1219,7 +1219,7 @@ class sdplotold_storageTest( sdplotold_unittest_base, unittest.TestCase ):
         """Storage Test DF: storage='disk' and insitu=F"""
         tid="DF"
         outfile = self.figroot+tid+self.figsuff
-        
+
         # Backup units and coords of input scantable before run.
         initval = self._get_unit_coord(self.infile)
 
@@ -1245,7 +1245,7 @@ class sdplotold_storageTest( sdplotold_unittest_base, unittest.TestCase ):
 class sdplotold_gridTest( sdplotold_unittest_base, unittest.TestCase ):
     """
     Unit tests of task sdplotold. Test plottype='grid'
-    
+
     The list of tests:
     testgrid01 - 08 --- test gridding
     testgrid09 - 11 --- test plot range
@@ -1298,7 +1298,7 @@ class sdplotold_gridTest( sdplotold_unittest_base, unittest.TestCase ):
                 msg = "Unable to create directory, "+self.prevdir+".\n"
                 msg += "Plot figures will remain in "+self.currdir
                 casalog.post(msg,'WARN')
-        
+
         default(sdplotold)
 
     def tearDown( self ):
@@ -1519,7 +1519,7 @@ class sdplotold_gridTest( sdplotold_unittest_base, unittest.TestCase ):
         outfile = self.figroot+tid+self.figsuff
         subplot = self.subplot
         colormap = "orange pink"
-        
+
         result = sdplotold(infile=self.infile, pol=self.pol,
                         plottype=self.type, subplot=subplot,
                         colormap=colormap,
@@ -1538,7 +1538,7 @@ class sdplotold_gridTest( sdplotold_unittest_base, unittest.TestCase ):
         outfile = self.figroot+tid+self.figsuff
         subplot = self.subplot
         linestyles = "dashdot"
-        
+
         result = sdplotold(infile=self.infile, pol=self.pol,
                         plottype=self.type, subplot=subplot,
                         linestyles=linestyles,
@@ -1557,7 +1557,7 @@ class sdplotold_gridTest( sdplotold_unittest_base, unittest.TestCase ):
         outfile = self.figroot+tid+self.figsuff
         subplot = self.subplot
         linewidth=3
-        
+
         result = sdplotold(infile=self.infile, pol=self.pol,
                         plottype=self.type, subplot=subplot,
                         linewidth=linewidth,
@@ -1575,7 +1575,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
     """
     Test selection syntax. Selection parameters to test are:
     field, spw (no channel selection), scan, pol, beam
-    
+
     The dataset used for this test is sd_analytic_type1-3.asap.
     """
     # Input and output names
@@ -1586,7 +1586,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
 
     def _get_selection_plot_info( self, is_field=None ):
         if is_field is None: is_field = False
-        
+
         retdic = {}
         titles = []
         npanel = len(sd.plotter._plotter.subplots)
@@ -1609,7 +1609,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         retdic['title'] = titles
 
         return retdic
-    
+
     def _set_selection_plot_info( self, fields, which_param=None ):
         retdic = {}
         flist = []
@@ -1640,7 +1640,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
                         flist.append(sfield)
             else:
                 flist.append(str(field))
-                
+
         flist.sort()
         retdic['title'] = flist
         return retdic
@@ -1648,7 +1648,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
     @property
     def task(self):
         return sdplotold
-    
+
     @property
     def spw_channel_selection(self):
         return False
@@ -1680,7 +1680,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info()
         refinfo = self._set_selection_plot_info([15,16,17])
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_scan_id_exact(self):
         """ test scan selection (scan='15')"""
         scan='15'
@@ -1689,7 +1689,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info()
         refinfo = self._set_selection_plot_info([15])
         self._compareDictVal(outinfo, refinfo)
-        
+
     def test_scan_id_lt(self):
         """ test scan selection (scan='<17')"""
         scan = '<17'
@@ -1698,7 +1698,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info()
         refinfo = self._set_selection_plot_info([15,16])
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_scan_id_gt(self):
         """ test scan selection (scan='>15')"""
         scan = '>15'
@@ -1707,7 +1707,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info()
         refinfo = self._set_selection_plot_info([16,17])
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_scan_id_range(self):
         """ test scan selection (scan='15~16')"""
         scan = '15~16'
@@ -1716,7 +1716,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info()
         refinfo = self._set_selection_plot_info([15,16])
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_scan_id_list(self):
         """ test scan selection (scan='15,17')"""
         scan = '15,17'
@@ -1725,7 +1725,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info()
         refinfo = self._set_selection_plot_info([15,17])
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_scan_id_exprlist(self):
         """ test scan selection (scan='<16, 17')"""
         scan = '<16, 17'
@@ -1734,7 +1734,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info()
         refinfo = self._set_selection_plot_info([15,17])
         self._compareDictVal(outinfo, refinfo)
-    
+
     ####################
     # pol
     ####################
@@ -1746,7 +1746,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info()
         refinfo = self._set_selection_plot_info([0,1], 'pol')
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_pol_id_exact(self):
         """ test pol selection (pol='1')"""
         pol = '1'
@@ -1755,7 +1755,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info()
         refinfo = self._set_selection_plot_info([1], 'pol')
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_pol_id_lt(self):
         """ test pol selection (pol='<1')"""
         outname=self.prefix+self.postfix
@@ -1765,7 +1765,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info()
         refinfo = self._set_selection_plot_info([0], 'pol')
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_pol_id_gt(self):
         """ test pol selection (pol='>0')"""
         pol = '>0'
@@ -1774,7 +1774,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info()
         refinfo = self._set_selection_plot_info([1], 'pol')
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_pol_id_range(self):
         """ test pol selection (pol='0~1')"""
         pol = '0~1'
@@ -1783,7 +1783,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info()
         refinfo = self._set_selection_plot_info([0,1], 'pol')
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_pol_id_list(self):
         """ test pol selection (pol='0,1')"""
         pol = '0,1'
@@ -1792,7 +1792,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info()
         refinfo = self._set_selection_plot_info([0,1], 'pol')
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_pol_id_exprlist(self):
         """test pol selection (pol='<1,1')"""
         pol='<1,1'
@@ -1813,7 +1813,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info(True)
         refinfo = self._set_selection_plot_info([5,6,7,8], 'field')
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_field_id_exact(self):
         """ test field selection (field='6')"""
         field = '6'
@@ -1840,7 +1840,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info(True)
         refinfo = self._set_selection_plot_info([8], 'field')
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_field_id_range(self):
         """ test field selection (field='5~7')"""
         field = '5~7'
@@ -1849,7 +1849,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info(True)
         refinfo = self._set_selection_plot_info([5,6,7], 'field')
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_field_id_list(self):
         """ test field selection (field='5,7')"""
         field = '5,7'
@@ -1867,7 +1867,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info(True)
         refinfo = self._set_selection_plot_info([6,8], 'field')
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_field_value_exact(self):
         """ test field selection (field='M100')"""
         field = 'M100'
@@ -1876,7 +1876,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info(True)
         refinfo = self._set_selection_plot_info(['M100'], 'field')
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_field_value_pattern(self):
         """ test field selection (field='M*')"""
         field = 'M*'
@@ -1885,7 +1885,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info(True)
         refinfo = self._set_selection_plot_info(['M100','M30'], 'field')
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_field_value_list(self):
         """ test field selection (field='M30,3C273')"""
         field = 'M30,3C273'
@@ -1894,7 +1894,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info(True)
         refinfo = self._set_selection_plot_info(['M30','3C273'], 'field')
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_field_mix_exprlist(self):
         """ test field selection (field='<7,3C273')"""
         field = '<7,3C273'
@@ -1903,9 +1903,9 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info(True)
         refinfo = self._set_selection_plot_info([6,'3C273'], 'field')
         self._compareDictVal(outinfo, refinfo)
-    
+
     ####################
-    # spw 
+    # spw
     ####################
     def test_spw_id_default(self):
         """test spw selection (spw='')"""
@@ -1915,7 +1915,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info()
         refinfo = self._set_selection_plot_info([20,21,22,23,24,25])
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_spw_id_exact(self):
         """ test spw selection (spw='21')"""
         spw = '21'
@@ -1924,7 +1924,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info()
         refinfo = self._set_selection_plot_info([21])
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_spw_id_lt(self):
         """ test spw selection (spw='<25')"""
         spw = '<25'
@@ -1933,7 +1933,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info()
         refinfo = self._set_selection_plot_info([20,21,22,23,24])
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_spw_id_gt(self):
         """ test spw selection (spw='>21')"""
         spw = '>21'
@@ -1942,7 +1942,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info()
         refinfo = self._set_selection_plot_info([22,23,24,25])
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_spw_id_range(self):
         """ test spw selection (spw='21~24')"""
         spw = '21~24'
@@ -1951,7 +1951,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info()
         refinfo = self._set_selection_plot_info([21,22,23,24])
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_spw_id_list(self):
         """ test spw selection (spw='21,22,23,25')"""
         spw = '21,22,23,25'
@@ -1960,7 +1960,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info()
         refinfo = self._set_selection_plot_info([21,22,23,25])
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_spw_id_exprlist(self):
         """ test spw selection (spw='<22,>24')"""
         spw = '<22,>24'
@@ -1969,7 +1969,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info()
         refinfo = self._set_selection_plot_info([20,21,25])
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_spw_id_pattern(self):
         """test spw selection (spw='*')"""
         spw='*'
@@ -1978,7 +1978,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info()
         refinfo = self._set_selection_plot_info([20,21,22,23,24,25])
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_spw_value_frequency(self):
         """test spw selection (spw='299.5~310GHz')"""
         spw = '299.5~310GHz'
@@ -1987,7 +1987,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info()
         refinfo = self._set_selection_plot_info([22,23,24,25])
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_spw_value_velocity(self):
         """test spw selection (spw='-50~50km/s')"""
         spw = '-50~50km/s'
@@ -1996,7 +1996,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info()
         refinfo = self._set_selection_plot_info([22,23])
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_spw_mix_exprlist(self):
         """test spw selection (spw='150~550km/s,>23')"""
         spw = '150~550km/s,>23'
@@ -2005,7 +2005,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info()
         refinfo = self._set_selection_plot_info([20,21,24,25])
         self._compareDictVal(outinfo, refinfo)
-    
+
     ####################
     # beam
     ####################
@@ -2017,7 +2017,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info()
         refinfo = self._set_selection_plot_info([11,12,13])
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_beam_id_exact(self):
         """ test beam selection (beam='12')"""
         beam='12'
@@ -2026,7 +2026,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info()
         refinfo = self._set_selection_plot_info([12])
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_beam_id_lt(self):
         """test beam selection (beam='<13')"""
         beam='<13'
@@ -2035,7 +2035,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info()
         refinfo = self._set_selection_plot_info([11,12])
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_beam_id_gt(self):
         """test beam selection (beam='>11')"""
         beam='>11'
@@ -2044,7 +2044,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info()
         refinfo = self._set_selection_plot_info([12,13])
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_beam_id_range(self):
         """test beam selection (beam='12~13')"""
         beam='12~13'
@@ -2053,7 +2053,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info()
         refinfo = self._set_selection_plot_info([12,13])
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_beam_id_list(self):
         """test beam selection (beam='11,13')"""
         beam='11,13'
@@ -2062,7 +2062,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         outinfo = self._get_selection_plot_info()
         refinfo = self._set_selection_plot_info([11,13])
         self._compareDictVal(outinfo, refinfo)
-    
+
     def test_beam_id_exprlist(self):
         """test beam selection (beam='<12,>12')"""
         beam='<12,>12'
@@ -2076,7 +2076,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
 class sdplotold_flagTest(sdplotold_unittest_base,unittest.TestCase):
     """
     Test flag handling in sdplotold
-    
+
     The dataset used for this test is testgrid4chan.1point.asap
     | ROW | SCAN | POL | SPECTRA (all IF=2, 4chans)
     |  0  |   0  |  0  | [10,10,10,10]
@@ -2103,7 +2103,7 @@ class sdplotold_flagTest(sdplotold_unittest_base,unittest.TestCase):
         self.masked_spec = []
         for sp in self.spec:
             self.masked_spec.append(numpy.ma.masked_array(sp, False))
-        
+
         default(sdplotold)
 
     def tearDown( self ):
@@ -2116,25 +2116,25 @@ class sdplotold_flagTest(sdplotold_unittest_base,unittest.TestCase):
         """test row flag in plottype='spectra'"""
         self._flag_table(row=[0,3])
         self.run_test(self.masked_spec, 'spectra')
-        
+
     def test_spectraCflag(self):
         """test channel flag in plottype='spectra'"""
         self._flag_table(row=[1,2], chan=[[1,2]])
         self.run_test(self.masked_spec, 'spectra')
-        
+
     def test_gridRflag(self):
         """test row flag in plottype='grid'"""
         self._flag_table(row=[0])
         refdata = [ self.masked_spec[2] ]
         self.run_test(refdata, 'grid', subplot=11)
-        
+
     def test_gridCflag(self):
         """test channel flag in plottype='grid'"""
         self._flag_table(row=[0], chan=[[1,2]])
         self._flag_table(row=[2], chan=[[2,3]])
         refdata = [ numpy.ma.masked_array([5.5,1,0,10], [0,0,1,0]) ]
         self.run_test(refdata, 'grid', subplot=11)
-        
+
     def test_azelRflag(self):
         """test row flag in plottype='azel'"""
         self._flag_table(row=[0])
@@ -2148,7 +2148,7 @@ class sdplotold_flagTest(sdplotold_unittest_base,unittest.TestCase):
         refdata = [ numpy.ma.masked_array(el*self.to_deg, mask),
                     numpy.ma.masked_array(az*self.to_deg, mask) ]
         self.run_test(refdata, 'azel')
-        
+
     def test_azelCflag(self):
         """test channel flag in plottype='azel'"""
         self._flag_table(row=[0], chan=[[0,3]]) # flag all channels
@@ -2163,7 +2163,7 @@ class sdplotold_flagTest(sdplotold_unittest_base,unittest.TestCase):
         refdata = [ numpy.ma.masked_array(el*self.to_deg, mask),
                     numpy.ma.masked_array(az*self.to_deg, mask) ]
         self.run_test(refdata, 'azel')
-        
+
     def test_pointingRflag(self):
         """test row flag in plottype='pointing'"""
         self._flag_table(row=[0]) # flag all chans
@@ -2175,7 +2175,7 @@ class sdplotold_flagTest(sdplotold_unittest_base,unittest.TestCase):
         # stack='r' is not supported (pol=0 is in rows = 0, 2)
         refdata = [ numpy.ma.masked_array([dec[i] for i in [0,2]], [1, 0]) ]
         self.run_test(refdata, 'pointing', pol='0')
-        
+
     def test_pointingCflag(self):
         """test channel flag in plottype='pointing'"""
         self._flag_table(row=[0], chan=[[1,2]])
@@ -2198,7 +2198,7 @@ class sdplotold_flagTest(sdplotold_unittest_base,unittest.TestCase):
         mask = [ 1, 0 ]
         refdata = [ numpy.ma.masked_array(data, mask) ]
         self.run_test(refdata, 'totalpower', stack='i')
-        
+
     def test_totalpowerCflag(self):
         """test channel flag in plottype='totalpower'"""
         self._flag_table(row=[0], chan=[[1,2]])

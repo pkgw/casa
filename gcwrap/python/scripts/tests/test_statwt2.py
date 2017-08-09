@@ -43,7 +43,7 @@ class statwt2_test(unittest.TestCase):
         mytb.done()
         dst = "ngc5921.split.ms"
         for i in [0,1]:
-            shutil.copytree(src, dst) 
+            shutil.copytree(src, dst)
             myms = mstool()
             if i == 0:
                 myms.open(dst, nomodify=False)
@@ -79,8 +79,8 @@ class statwt2_test(unittest.TestCase):
                 else:
                     self.assertTrue(numpy.all(flag[:,:,row] == expflag[:,:,row]), "FLAGs don't match")
                     self.assertTrue(frow[row] == expfrow[row], "FLAG_ROW doesn't match")
-            shutil.rmtree(dst) 
-           
+            shutil.rmtree(dst)
+
     def test_timebin(self):
         """ Test time binning"""
         dst = "ngc5921.split.timebin.ms"
@@ -89,7 +89,7 @@ class statwt2_test(unittest.TestCase):
         rtol = 1e-7
         for timebin in ["300s", 10]:
             for i in [0, 1]:
-                shutil.copytree(src, dst) 
+                shutil.copytree(src, dst)
                 myms = mstool()
                 if i == 0:
                     myms.open(dst, nomodify=False)
@@ -114,7 +114,7 @@ class statwt2_test(unittest.TestCase):
         dst = "ngc5921.split.ms"
         for i in [0,1]:
             for chanbin in ["195.312kHz", 8]:
-                shutil.copytree(src, dst) 
+                shutil.copytree(src, dst)
                 myms = mstool()
                 if i == 0:
                     myms.open(dst, nomodify=False)

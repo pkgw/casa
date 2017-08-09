@@ -83,49 +83,49 @@ class test_base(unittest.TestCase):
         self.vis = 'CAS-6733.ms'
         if os.path.exists(self.vis):
            self.cleanup()
-            
+
         os.system('cp -RL '+datapath + self.vis +' '+ self.vis)
-        default(mstransform)  
-        
+        default(mstransform)
+
     def setUp_CAS_6941(self):
 
         self.vis = 'CAS-6941.ms'
         if os.path.exists(self.vis):
            self.cleanup()
-            
+
         os.system('cp -RL '+datapath + self.vis +' '+ self.vis)
-        default(mstransform) 
-        
+        default(mstransform)
+
     def setUp_sub_tables_alma(self):
 
         self.vis = 'test-subtables-alma.ms'
         if os.path.exists(self.vis):
            self.cleanup()
-            
+
         os.system('cp -RL '+datapath + self.vis +' '+ self.vis)
-        default(mstransform)                
-                           
+        default(mstransform)
+
     def createMMS(self, msfile, axis='auto',scans='',spws='', numms='auto'):
         '''Create MMSs for tests with input MMS'''
         prefix = msfile.rstrip('.ms')
         if not os.path.exists(msfile):
             os.system('cp -RL '+datapath + msfile +' '+ msfile)
-        
+
         # Create an MMS for the tests
         self.testmms = prefix + ".test.mms"
         default(mstransform)
-        
+
         if os.path.exists(self.testmms):
             os.system("rm -rf " + self.testmms)
-            
+
         print("................. Creating test MMS ..................")
         mstransform(vis=msfile, outputvis=self.testmms, datacolumn='data',
                     createmms=True,separationaxis=axis, scan=scans, spw=spws, numsubms=numms)
-        
+
 
     def cleanup(self):
         os.system('rm -rf '+ self.vis)
-        
+
 class test_base_compare(test_base):
 
     def setUp(self):
@@ -180,7 +180,7 @@ class test_base_compare(test_base):
         # CAS-5172 (jagonzal): Commenting this out because cvel and mstransform produce different SORUCE subtable
         # For some reason cvel removes sources which are not present in any row of the main table even if the
         # user does not specify field selection
-        #self.assertTrue(th.compTables(self.outvis_sorted+'/SOURCE',self.refvis_sorted+'/SOURCE', 
+        #self.assertTrue(th.compTables(self.outvis_sorted+'/SOURCE',self.refvis_sorted+'/SOURCE',
         #                              ['POSITION','TRANSITION','REST_FREQUENCY','SYSVEL','SOURCE_MODEL'],0.000001,"absolute"))
 
         # Special case for OBSERVATION which contains many un-defined columns
@@ -203,7 +203,7 @@ class test_base_compare(test_base):
         self.compare_subtables()
 
         # Compare columns from main table
-        self.compare_main_table_columns(startrow,nrow,rowincr)        
+        self.compare_main_table_columns(startrow,nrow,rowincr)
 
 
 class test_mms_transformations(test_base):
@@ -257,7 +257,7 @@ class test_mms_transformations(test_base):
         default(cvel)
         cvel(vis=self.vis, outputvis='combcvel14.ms', spw='0:60~63,1:60~63')
         ret = th.verifyMS('combcvel14.ms', 1, 68, 0)
-        self.assertTrue(ret[0],ret[1])        
+        self.assertTrue(ret[0],ret[1])
 
     def test_regrid1_3(self):
         '''mstransform: Default regridms with spw selection using input MMS'''
@@ -376,14 +376,14 @@ class test_mms_transformations(test_base):
 
         # spw=5 should be spw=1 after consolidation, with 10 channels
         ret = th.verifyMS(self.outputms, 7, 10, 1, ignoreflags=True)
-        
+
     def test_CAS6206(self):
         '''mstransform: verify that all columns are re-indexed in SPW sub-table'''
         self.outputmms='test.mms'
         self.outputms='assoc.ms'
         self.setUp_CAS_5013()
         mstransform(vis=self.vis, outputvis=self.outputmms,createmms=True, datacolumn='corrected')
-        
+
         # Check that optional ASSOC_SPW_ID is the same in input and output
         tblocal = tbtool()
         tblocal.open(self.vis+'/SPECTRAL_WINDOW',nomodify=True)
@@ -393,10 +393,10 @@ class test_mms_transformations(test_base):
         out_assoc = tblocal.iscelldefined('ASSOC_SPW_ID',0)
         tblocal.close()
         self.assertEqual(in_assoc, out_assoc, 'Error in SPW sub-table creation; ASSOC_SPW_ID is different')
-        
+
         # if SPW sub-table is not correct, the next step might fail
         self.assertTrue(mstransform(vis=self.outputmms, outputvis=self.outputms, hanning=True, datacolumn='data'))
-        
+
 
 class test_mms_freqavg(test_base):
     '''Tests for frequency averaging'''
@@ -592,7 +592,7 @@ class test_mms_parallel(test_base):
 
         # spw=5 should be spw=1 after consolidation, with 10 channels
         ret = th.verifyMS(self.outputms, 7, 10, 1, ignoreflags=True)
-        
+
         # Check the FEED table
         out_feed_spw = th.getVarCol(self.outputms+'/FEED', 'SPECTRAL_WINDOW_ID')
         self.assertEqual(len(list(out_feed_spw.keys())), 20)
@@ -733,10 +733,10 @@ class test_mms_spw_poln(test_base):
         self.assertEqual(spw_col['r2'][0], 0,'Error re-indexing SPECTRAL_WINDOW_ID of DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r3'][0], 1,'Error re-indexing SPECTRAL_WINDOW_ID of DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r4'][0], 2,'Error re-indexing SPECTRAL_WINDOW_ID of DATA_DESCRIPTION table')
-        
+
         in_feed_tb = th.getVarCol(self.vis+'/FEED', 'SPECTRAL_WINDOW_ID')
         out_feed_tb = th.getVarCol(self.outputms+'/FEED', 'SPECTRAL_WINDOW_ID')
-        
+
         # Check the FEED table
         th.compTables(self.vis+'/FEED', self.outputms+'/FEED', ['FOCUS_LENGTH'])
 
@@ -762,7 +762,7 @@ class test_mms_spw_poln(test_base):
         self.assertEqual(spw_col['r1'][0], 0,'Error re-indexing SPECTRAL_WINDOW_ID of DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r2'][0], 0,'Error re-indexing SPECTRAL_WINDOW_ID of DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r3'][0], 1,'Error re-indexing SPECTRAL_WINDOW_ID of DATA_DESCRIPTION table')
-        
+
         # Check the FEED table
         out_feed_spw = th.getVarCol(self.outputms+'/FEED', 'SPECTRAL_WINDOW_ID')
         self.assertEqual(out_feed_spw['r1'],[0])
@@ -778,16 +778,16 @@ class test_mms_spw_poln(test_base):
         # spw 0 should not be processed. The selection should happen before the MMS work
         mstransform(vis=self.vis, outputvis=self.outputms, datacolumn='data', correlation='RR,LL',
                     createmms=True, separationaxis='auto')
-        
+
         msmdt = msmdtool()
         msmdt.open(self.outputms)
         out_dds = msmdt.datadescids()
         msmdt.done()
-        
+
         ref = [0,1]
         for i in out_dds:
             self.assertEqual(out_dds[i], ref[i])
-        
+
         pol_col = th.getVarCol(self.outputms+'/POLARIZATION','NUM_CORR')
         self.assertEqual(pol_col['r1'][0], 0,'Error in NUM_CORR of POLARIZATION table')
         self.assertEqual(pol_col['r2'][0], 0,'Error in NUM_CORR of POLARIZATION table')
@@ -801,7 +801,7 @@ class test_mms_spw_poln(test_base):
         # Check the FEED table
 #        out_feed_spw = th.getVarCol(self.outputms+'/FEED', 'SPECTRAL_WINDOW_ID')
 #        self.assertEqual(len(out_feed_spw.keys()), 52)
-        
+
         # listobs, listpartition should not fail
         listobs(self.outputms, listfile='3c_1.obs')
         self.assertTrue(os.path.exists('3c_1.obs'), 'Probable error in sub-table re-indexing')
@@ -809,47 +809,47 @@ class test_mms_spw_poln(test_base):
         self.assertTrue(os.path.exists('3c_2.obs'), 'Probable error in sub-table re-indexing')
 
 
-      
+
 class test_mms_input(test_base):
     '''Tests when vis is an MMS'''
-    
+
     def setUp(self):
         self.setUp_4ants()
-        
+
     def tearDown(self):
         os.system('rm -rf '+ self.vis)
         os.system('rm -rf '+ self.outputms)
-        
+
     def test_MMS1(self):
         '''mstransform: input MMS should be the same as output MMS'''
-        
+
         # Create an MMS in the setup
         self.createMMS(self.vis, axis='scan', spws='0,1')
-                
+
         # Create another MS and compare. They should be the same
         self.outputms = 'thesame.mms'
         mstransform(vis=self.testmms, outputvis=self.outputms, datacolumn='data')
-        
+
         self.assertTrue(ParallelDataHelper.isParallelMS(self.outputms),'Output is not an MMS')
-                
+
         # Sort the MSs so that they can be compared
         myms = mstool()
-        
+
         myms.open(self.testmms)
         myms.sort('input_sorted.ms',['OBSERVATION_ID','ARRAY_ID','SCAN_NUMBER','FIELD_ID','DATA_DESC_ID','ANTENNA1','ANTENNA2','TIME'])
         myms.done()
-        
+
         myms.open(self.outputms)
         myms.sort('output_sorted.ms',['OBSERVATION_ID','ARRAY_ID','SCAN_NUMBER','FIELD_ID','DATA_DESC_ID','ANTENNA1','ANTENNA2','TIME'])
         myms.done()
 
         # Compare both tables. Ignore the DATA column and compare it in next line
-        self.assertTrue(th.compTables('input_sorted.ms','output_sorted.ms', 
+        self.assertTrue(th.compTables('input_sorted.ms','output_sorted.ms',
                                       ['FLAG_CATEGORY','FLAG','WEIGHT_SPECTRUM','SIGMA_SPECTRUM','DATA']))
-        
+
         # Compare the DATA column
         self.assertTrue(th.compVarColTables('input_sorted.ms','output_sorted.ms','DATA'))
-        
+
         # The separation axis should be copied to the output MMS
         in_sepaxis = ph.axisType(self.testmms)
         out_sepaxis = ph.axisType(self.outputms)
@@ -859,23 +859,23 @@ class test_mms_input(test_base):
         '''mstransform: Split MMS in parallel'''
         # Create an MMS in the setup. It creates self.testmms
         self.createMMS(self.vis, axis='scan', spws='0,1')
-        
+
         self.outputms = 'scan30.mms'
         mstransform(vis=self.testmms, outputvis=self.outputms, datacolumn='data', scan='30')
-        
+
         self.assertTrue(ParallelTaskHelper.isParallelMS(self.outputms),'Output is not an MMS')
-        
+
         mslocal = mstool()
         mslocal.open(self.outputms)
         sublist = mslocal.getreferencedtables()
         self.assertEqual(len(sublist), 1)
-        
+
         # Test DD table
         msmdt = msmdtool()
         msmdt.open(self.outputms)
         out_dds = msmdt.datadescids()
         msmdt.done()
-        
+
         ref = [0,1]
         for i in out_dds:
             self.assertEqual(out_dds[i], ref[i])
@@ -884,28 +884,28 @@ class test_mms_input(test_base):
         in_sepaxis = ph.axisType(self.testmms)
         out_sepaxis = ph.axisType(self.outputms)
         self.assertEqual(in_sepaxis, out_sepaxis, 'AxisTypes from input and output MMS do not match')
-            
+
     def test_MMS_as_monolithicMS(self):
         '''mstransform: MMS should be processed as a monolithic MS'''
         # Create an MMS in the setup. It creates self.testmms
         self.createMMS(self.vis, axis='spw', spws='2,4,6')
-        
+
         self.outputms = 'monolithicMMS.mms'
         # Treat MMS as a monolithic MS and create an output MMS with different separation axis.
         mstransform(vis=self.testmms, outputvis=self.outputms, datacolumn='data', combinespws=True)
         self.assertTrue(ParallelDataHelper.isParallelMS(self.outputms),'Output should be an MMS')
-        
+
         # The separation axis should be copied to the output MMS
         in_sepaxis = ph.axisType(self.testmms)
         out_sepaxis = ph.axisType(self.outputms)
-        self.assertNotEqual(in_sepaxis, out_sepaxis, 'AxisTypes from input and output MMS should not match')        
+        self.assertNotEqual(in_sepaxis, out_sepaxis, 'AxisTypes from input and output MMS should not match')
 
         ret = th.verifyMS(self.outputms, 1, 320, 0)
         self.assertTrue(ret[0],ret[1])
 
         listobs(self.outputms, listfile='list1.obs')
         self.assertTrue(os.path.exists('list1.obs'), 'Probable error in sub-table re-indexing')
-        
+
     def test_monolithic_combspw1_1(self):
         '''mstransform: Combine four spws into one using a monolithic-MMS'''
         self.createMMS(self.vis, axis='spw',spws='0~3')
@@ -919,17 +919,17 @@ class test_mms_input(test_base):
 
         listobs(self.outputms, listfile='list2.obs')
         self.assertTrue(os.path.exists('list2.obs'), 'Probable error in sub-table re-indexing')
-        
+
     def test_timespan_scan_axis(self):
         '''mstransform: timeaverage=True, timespan=scan, separationaxis=scan'''
         self.createMMS(self.vis, axis='scan',spws='10')
         self.outputms = "spanscan_scan.mms"
         # subMSs do not have all scans (30,31). Treat MMS as a monolithic MS
-        mstransform(vis=self.testmms, outputvis=self.outputms, datacolumn='data',timeaverage=True, 
+        mstransform(vis=self.testmms, outputvis=self.outputms, datacolumn='data',timeaverage=True,
                     timebin='100s',timespan='scan')
         self.assertTrue(ParallelDataHelper.isParallelMS(self.outputms),'Output should be an MMS')
         self.assertEqual(ph.axisType(self.outputms),'spw')
-        
+
         mymsmd = msmdtool()
         mymsmd.open(self.outputms)
         t30 = mymsmd.exposuretime(30)['value']
@@ -937,16 +937,16 @@ class test_mms_input(test_base):
         mymsmd.close()
         self.assertEqual(t30, 100)
         self.assertEqual(t31, 79)
-        
+
     def test_timespan_spw_axis(self):
         '''mstransform: timeaverage=True, timespan=scan, separationaxis=spw'''
         self.createMMS(self.vis, axis='spw',spws='1,3')
         self.outputms = "spanscan_spw.mms"
-        mstransform(vis=self.testmms, outputvis=self.outputms, datacolumn='data',timeaverage=True, 
+        mstransform(vis=self.testmms, outputvis=self.outputms, datacolumn='data',timeaverage=True,
                     timebin='100s',timespan='scan')
         self.assertTrue(ParallelDataHelper.isParallelMS(self.outputms),'Output should be an MMS')
         self.assertEqual(ph.axisType(self.outputms),'spw')
-        
+
         mymsmd = msmdtool()
         mymsmd.open(self.outputms)
         t30 = mymsmd.exposuretime(30)['value']
@@ -954,7 +954,7 @@ class test_mms_input(test_base):
         mymsmd.close()
         self.assertEqual(t30, 100)
         self.assertEqual(t31, 79)
-        
+
     def test_combspws_timespan_error(self):
         '''mstransform: combinespws=True, timespan=scan axis=auto timebin=40s'''
         self.createMMS(self.vis, axis='auto',spws='1,3', numms=4)
@@ -968,16 +968,16 @@ class test_mms_input(test_base):
         nspw = mymsmd.nspw()
         mymsmd.close()
         self.assertEqual(nspw,1)
-        
+
     def test_combspws_timespan(self):
         '''mstransform: combinespws=True, timespan=scan axis=auto'''
         self.createMMS(self.vis, axis='auto',spws='3')
         self.outputms = "2transformations.mms"
-        # This should work. 
+        # This should work.
         mstransform(vis=self.testmms, outputvis=self.outputms, datacolumn='data',
                         combinespws=True, timeaverage=True, timebin='40s',timespan='scan')
         self.assertFalse(ParallelDataHelper.isParallelMS(self.outputms),'Output should be an MS')
-      
+
     def test_combspws_timespan_fail(self):
         '''mstransform: combinespws=True, timespan=scan axis=auto timebin=200s'''
         self.createMMS(self.vis, axis='auto',spws='3')
@@ -1003,10 +1003,10 @@ class test_mms_input(test_base):
             mstransform(vis=self.testmms, outputvis=self.outputms, datacolumn='data',
                         combinespws=True, timeaverage=True, timebin='20s',timespan='scan')
             self.assertTrue((ParallelDataHelper.isParallelMS(self.outputms),'Output should be an MMS'))
-        
+
         except Exception as instance:
             print('This error should have not happened %s'%instance)
-        
+
     def test_combspws_timespan_spw_axis_error(self):
         '''mstransform: combinespws=True, timespan=scan axis=spw'''
         self.createMMS(self.vis, axis='spw',scans='30',spws='10,11')
@@ -1020,7 +1020,7 @@ class test_mms_input(test_base):
         nspw = mymsmd.nspw()
         mymsmd.close()
         self.assertEqual(nspw,1)
-        
+
     def test_combspws_timespan_scan_axis(self):
         '''mstransform: combinespws=True, timespan=scan axis=scan'''
         self.createMMS(self.vis, axis='scan',spws='0')
@@ -1030,7 +1030,7 @@ class test_mms_input(test_base):
             mstransform(vis=self.testmms, outputvis=self.outputms, datacolumn='data',
                         combinespws=True, timeaverage=True, timebin='20s',timespan='scan')
             self.assertTrue((ParallelDataHelper.isParallelMS(self.outputms),'Output should be an MMS'))
-        
+
         except Exception as instance:
             print('Expected error: %s'%instance)
 
@@ -1039,23 +1039,23 @@ class test_mms_input(test_base):
         '''mstransform: Split MMS in parallel. Check WEIGHT shape when selecting correlation'''
         # Create an MMS in the setup. It creates self.testmms
         self.createMMS(self.vis, axis='scan', spws='0,1')
-        
+
         self.outputms = 'corrRR_LL.mms'
         mstransform(vis=self.testmms, outputvis=self.outputms, datacolumn='data', correlation='RR,LL',spw='0')
-        
+
         self.assertTrue(ParallelTaskHelper.isParallelMS(self.outputms),'Output is not an MMS')
-        
+
         mslocal = mstool()
         mslocal.open(self.outputms)
         sublist = mslocal.getreferencedtables()
         self.assertEqual(len(sublist), 2)
-        
+
         # Test DD table
         msmdt = msmdtool()
         msmdt.open(self.outputms)
         out_dds = msmdt.datadescids()
         msmdt.done()
-        
+
         ref = [0]
         for i in out_dds:
             self.assertEqual(out_dds[i], ref[i])
@@ -1074,14 +1074,14 @@ class test_mms_input(test_base):
 
 class test_mms_output(test_base):
     '''Tests for outputMMS and transformations'''
-    
+
     def setUp(self):
         self.setUp_4ants()
 
     def tearDown(self):
         os.system('rm -rf '+ self.vis)
         os.system('rm -rf '+ self.outputms)
-    
+
     def test_output_mms1(self):
         '''mstransform: combinespws=True, output axis=auto. Expect error.'''
         self.outputms = 'outmms1.mms'
@@ -1118,116 +1118,116 @@ class test_mms_output(test_base):
 
 class test_vla_mixed_polarizations_mms(test_base):
     '''Test behaviour of mstransform in split mode when the input MMS contains mixed VLA correlations XY/LR'''
-    
+
     def setUp(self):
-                
-        self.setUp_CAS_6733()    
-        
+
+        self.setUp_CAS_6733()
+
     def tearDown(self):
         os.system('rm -rf '+ self.vis)
         os.system('rm -rf '+ self.outputms)
-    
+
     def test_vla_mixed_polarizations_mms1(self):
-        
+
         self.outputms = 'test_vla_mixed_polarizations_1.mms'
-        
+
         # scan=14 should have only circular polarizations in pol id 1
         mstransform(vis=self.vis,outputvis=self.outputms,scan='16',datacolumn='DATA', createmms=True,
                     separationaxis='spw',spw='16~18')
-        
+
         # Check that DDI sub-table is consistent with POLARIZATION sub-table
         mytb = tbtool()
         mytb.open(self.outputms + '/POLARIZATION')
         npols = mytb.nrows()
         mytb.close()
-        
+
         mytb = tbtool()
         mytb.open(self.outputms + '/DATA_DESCRIPTION')
         polIds = mytb.getcol('POLARIZATION_ID')
         spwIds = mytb.getcol('SPECTRAL_WINDOW_ID')
-        mytb.close()    
+        mytb.close()
         for id in polIds:
             self.assertTrue(id in range(npols),'PolarizationId in DATA_DESCRIPTION not consistent with POLARIZATION table')
-            
+
         mytb.open(self.outputms + '/SPECTRAL_WINDOW')
         nspw = mytb.nrows()
-        mytb.close()        
+        mytb.close()
         self.assertEqual(max(spwIds), nspw-1, 'SPW index does not match consolidated SPW subtable')
-         
-#        self.assertTrue(all(polIds < npols), 'PolarizationId in DATA_DESCRIPTION not consistent with POLARIZATION table') 
-        
+
+#        self.assertTrue(all(polIds < npols), 'PolarizationId in DATA_DESCRIPTION not consistent with POLARIZATION table')
+
         # Check that flagdata can run properly with output MS
         summary = flagdata(vis=self.outputms,mode='summary')
-        self.assertTrue('correlation' in summary, 'Flagdata failure due to missformated MS') 
+        self.assertTrue('correlation' in summary, 'Flagdata failure due to missformated MS')
 
     def test_vla_mixed_polarizations_mms2(self):
-        
+
         self.outputms = 'test_vla_mixed_polarizations_2.mms'
-        
+
         mstransform(vis=self.vis,outputvis=self.outputms,scan='16',datacolumn='DATA', createmms=True,
                     separationaxis='spw',spw='16~18',correlation='XX')
-        
+
         # Check that DDI sub-table is consistent with POLARIZATION sub-table
         mytb = tbtool()
         mytb.open(self.outputms + '/POLARIZATION')
         npols = mytb.nrows()
         mytb.close()
-        
+
         mytb = tbtool()
         mytb.open(self.outputms + '/DATA_DESCRIPTION')
         polIds = mytb.getcol('POLARIZATION_ID')
-        mytb.close()    
+        mytb.close()
         for id in polIds:
             self.assertTrue(id in range(npols),'PolarizationId in DATA_DESCRIPTION not consistent with POLARIZATION table')
-        
-#        self.assertTrue(all(polIds < npols), 'PolarizationId in DATA_DESCRIPTION not consistent with POLARIZATION table') 
-        
+
+#        self.assertTrue(all(polIds < npols), 'PolarizationId in DATA_DESCRIPTION not consistent with POLARIZATION table')
+
         # Check that flagdata can run properly with output MS
         summary = flagdata(vis=self.outputms,mode='summary')
-        self.assertTrue('correlation' in summary, 'Flagdata failure due to missformated MS') 
-        
-        
+        self.assertTrue('correlation' in summary, 'Flagdata failure due to missformated MS')
+
+
 class test_alma_wvr_correlation_products_mms(test_base):
     '''Test behaviour of mstransform in split mode when the input MS contains ALMA WVR correlation products'''
-    
+
     def setUp(self):
-                
+
         self.setUp_CAS_6941()
-        
+
     def tearDown(self):
         os.system('rm -rf '+ self.vis)
         os.system('rm -rf '+ self.outputms)
-    
+
     def test_alma_wvr_correlation_products_mms1(self):
-        
+
         self.outputms = 'test_alma_wvr_correlation_products_1.mms'
         # Only spw=2 exist in MS
         mstransform(vis=self.vis,outputvis=self.outputms,spw='0,1,2',datacolumn='DATA',createmms=True)
-        
+
         # Check that POLARIZATION sub-table is properly sorted
         mytb = tbtool()
         mytb.open(self.outputms + '/POLARIZATION')
         numCorr = mytb.getcol('NUM_CORR')
-        mytb.close()    
-        
-        self.assertEqual(numCorr[0],2,'POLARIZATION table miss-sorted')         
-        self.assertEqual(numCorr[1],1, 'POLARIZATION table miss-sorted')         
-        
+        mytb.close()
+
+        self.assertEqual(numCorr[0],2,'POLARIZATION table miss-sorted')
+        self.assertEqual(numCorr[1],1, 'POLARIZATION table miss-sorted')
+
         # Check that flagdata can run properly with output MS
         summary = flagdata(vis=self.outputms,mode='summary')
-        self.assertTrue('correlation' in summary, 'Flagdata failure due to missformated MS')   
-        
+        self.assertTrue('correlation' in summary, 'Flagdata failure due to missformated MS')
+
 
 class test_otf_calibration(test_base_compare):
     '''Check that corrected data produce otf by mstransform is the same as produced otf by applycal'''
-            
+
     def setUp(self):
-        
+
         super(test_otf_calibration,self).setUp()
-        
+
         if os.path.exists('ngc5921_regression'): os.system('rm -rf ' + 'ngc5921_regression')
         os.system('cp -RL '+ datapath + 'ngc5921_regression .')
-        
+
         self.previs = 'ngc5921_regression/ngc5921.ms'
         self.vis = 'ngc5921.mms'
         self.outvis = 'mst_otf_calibration.mms'
@@ -1235,84 +1235,84 @@ class test_otf_calibration(test_base_compare):
         self.outvis_sorted = 'mst_otf_calibration_sorted.mms'
         self.refvis_sorted = 'mst_otf_calibration_sorted.ms'
         self.auxfile = 'ngc5921_regression/ngc5921_callib.txt'
-        
-        default(mstransform) 
-        
+
+        default(mstransform)
+
         if MPIEnvironment.is_mpi_enabled:
-            
+
             # Change current working directory
             self.client = MPICommandClient()
             self.client.set_log_mode('redirect')
-            self.client.start_services()      
-        
+            self.client.start_services()
+
             # Prepare list of servers
             self.server_list = []
             server_list = self.client.get_server_status()
             for server in server_list:
                 if not server_list[server]['timeout']:
-                    self.server_list.append(server_list[server]['rank'])         
-                
-            # Change current working directory        
+                    self.server_list.append(server_list[server]['rank'])
+
+            # Change current working directory
             self.client.push_command_request("os.chdir('%s')" % os.getcwd(),True,self.server_list)
-        
+
     def tearDown(self):
-        
+
         super(test_otf_calibration,self).tearDown()
         os.system('rm -rf '+ 'ngc5921_regression')
         os.system('rm -rf '+ self.outvis)
-        
-    #@unittest.skip('Skip until CAS-8051:Problems with cal library in selected MS contexts is fixed.')        
+
+    #@unittest.skip('Skip until CAS-8051:Problems with cal library in selected MS contexts is fixed.')
     def test_otf_calibration_mst_vs_applycal_split2(self):
-        
+
         # First part ms
         partition(vis=self.previs,outputvis=self.vis)
-        
+
         # Apply OTF calibration
         mstransform(vis=self.vis,outputvis=self.outvis,docallib=True,callib=self.auxfile,createmms=True,datacolumn='all')
-        
+
         # Apply OTF calibration on original MS
         mstransform(vis=self.previs,outputvis=self.refvis,docallib=True,callib=self.auxfile,datacolumn='all')
-        
+
         # Compare results
         self.generate_tolerance_map()
-        self.post_process()  
-       
-        
+        self.post_process()
+
+
 class test_no_reindexing(test_base):
     '''Test using no-reindexing feature'''
-    
+
     def setUp(self):
-        
-        # Fetch data        
+
+        # Fetch data
         self.setUp_sub_tables_alma()
-        
+
         # Define filenames
         self.previs = 'test-subtables-alma.ms'
         self.vis = 'test-subtables-alma.mms'
         self.outvis = 'test_no_reindexing_noreidnex.mms'
-        
+
         # First part ms
-        partition(vis=self.previs,outputvis=self.vis)     
-        
+        partition(vis=self.previs,outputvis=self.vis)
+
     def tearDown(self):
         os.system('rm -rf '+ self.previs)
         os.system('rm -rf '+ self.vis)
         os.system('rm -rf '+ self.outvis)
-    
-    def test_regrid_SPWs_separately_with_no_reindexing(self):   
-        
+
+    def test_regrid_SPWs_separately_with_no_reindexing(self):
+
         # Run mstransform
         mstransform(vis=self.vis,outputvis=self.outvis,regridms=True,datacolumn='ALL',correlation='XX',
                     field='SXDF-NB1006-4',spw='1:10~20,2:30~40',outframe='lsrk',reindex=False)
-        
+
         # Verify that sub-tables have not been reindex
         spw_col = th.getVarCol(self.outvis+'/DATA_DESCRIPTION', 'SPECTRAL_WINDOW_ID')
         self.assertEqual(list(spw_col.keys()).__len__(), 4, 'Wrong number of rows in DDI table')
         self.assertEqual(spw_col['r1'][0], 0,'Error, DATA_DESCRIPTION tablehas been re-index')
         self.assertEqual(spw_col['r2'][0], 1,'Error, DATA_DESCRIPTION tablehas been re-index')
         self.assertEqual(spw_col['r3'][0], 2,'Error, DATA_DESCRIPTION tablehas been re-index')
-        self.assertEqual(spw_col['r4'][0], 3,'Error, DATA_DESCRIPTION tablehas been re-index')        
-       
+        self.assertEqual(spw_col['r4'][0], 3,'Error, DATA_DESCRIPTION tablehas been re-index')
+
 
 # Cleanup class
 class Cleanup(test_base):

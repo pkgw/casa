@@ -23,23 +23,23 @@ def CheckUVWForNan(ms='', fix=False):
         tb.putcol('UVW', uvw)
         tb.putcol('FLAG_ROW', flg)
     tb.done()
-     
+
 ##########################################
 def CheckColsForNan(msname='',fix=False,colnames=[],timeinterval=1000):
     """
     Check for NaNs in specified columns of the MS.
-    ms : Name of MS. 
-    fix : False/True : If True, 
+    ms : Name of MS.
+    fix : False/True : If True,
                              For data/corrected_data, set the corresponding value to zero and
                                        flag to True in the FLAG column
                              For weight, weight_spectrum, set the corresponding value to zero
                              For all other columns, do not fix/change anything.
     colnames : ['data','weight'] :  MS Column names on which to check for NaNs
-    timeinterval : 1000 : timerange in seconds, to decide chunk sizes while iterating 
-                                   through the MS (remember, chunks of this size are read 
+    timeinterval : 1000 : timerange in seconds, to decide chunk sizes while iterating
+                                   through the MS (remember, chunks of this size are read
                                    into python).
     Alternate (recommended) way to flag NaNs from data columns :
-        flagdata(vis=ms, mode='clip')    
+        flagdata(vis=ms, mode='clip')
     """
     ms = casac.ms()
 
@@ -49,20 +49,20 @@ def CheckColsForNan(msname='',fix=False,colnames=[],timeinterval=1000):
     # Iterate through the dataset in chunks defined by
     # a time interval of 1000 seconds.
     ms.iterinit(interval=timeinterval);
-    
+
     ## Initialize the ms iterator
     ms.iterorigin();
-    
+
     ## Iterate until the end of the MS is reached.
     counter=0;
     moretodo=True;
-    while moretodo: 
+    while moretodo:
         counter=counter+1;
-        
-        print('Chunk : ', counter) 
+
+        print('Chunk : ', counter)
 
         resdat = ms.getdata(items=colnames);
-  
+
         for cname in colnames:
             shp = resdat[cname].shape
             nancount = np.isnan( resdat[cname] )
@@ -83,10 +83,10 @@ def CheckColsForNan(msname='',fix=False,colnames=[],timeinterval=1000):
                         print('Setting value for column : ', cname , ' to zero')
                     else:
                         print("Cannot fix. Please use 'CheckUVWForNan()' for UVW column")
-          
-          
+
+
         moretodo = ms.iternext();
-          
+
     ## Close the MS
     ms.close();
-          
+

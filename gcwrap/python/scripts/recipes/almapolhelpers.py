@@ -71,7 +71,7 @@ def bandpa(name):
 
 
 def qufromgain(caltable,badspw=[],paoffset=0.0):
-    
+
     if paoffset!=0.0:
         print("NB: default band position angle will be offset by "+str(paoffset)+"deg.")
 
@@ -130,7 +130,7 @@ def qufromgain(caltable,badspw=[],paoffset=0.0):
                 ants=st.getcol('ANTENNA1')
 
                 nants=ants.max()+1
-                    
+
                 # times
                 time0=86400.0*floor(times[0]/86400.0)
                 rtimes=times-time0
@@ -139,12 +139,12 @@ def qufromgain(caltable,badspw=[],paoffset=0.0):
                 amps=pl.absolute(gains)
                 amps[amps==0.0]=1.0
                 ratio=amps[0,0,:]/amps[1,0,:]
-                
+
                 ratio.resize(nrows/nants,nants)
-                
+
                 # parang
                 parang=pl.zeros(len(times))
-                
+
                 for itim in range(len(times)):
                     tm=myme.epoch('UTC',str(times[itim])+'s')
                     last=myme.measure(tm,'LAST')['m0']['value']
@@ -152,7 +152,7 @@ def qufromgain(caltable,badspw=[],paoffset=0.0):
                     last*=24.0  # hours
                     ha=last-rah  # hours
                     har=ha*2.0*pi/24.0
-                    
+
                     parang[itim]=atan2( (cos(latr)*sin(har)),
                                         (sin(latr)*cos(decr)-cos(latr)*sin(decr)*cos(har)) )
 
@@ -170,7 +170,7 @@ def qufromgain(caltable,badspw=[],paoffset=0.0):
                 ants0=list(range(nants))
                 rsum=pl.sum(ratio[:,ants0],1)
                 rsum/=len(ants0)
-                
+
                 fit=pl.lstsq(A,pl.square(rsum))
                 R[ispw,ifld]=fit[0][0]
                 Q[ispw,ifld]=fit[0][1]/R[ispw,ifld]/2.0
@@ -179,7 +179,7 @@ def qufromgain(caltable,badspw=[],paoffset=0.0):
                 X=0.5*atan2(U[ispw,ifld],Q[ispw,ifld])*180/pi
 
                 print('Fld=',ifld,'Spw=',ispw,'(B='+str(bandnames[ispw])+', PA offset='+str(bandpa(bandnames[ispw])*180/pi+paoffset)+'deg)','Gx/Gy=',R[ispw,ifld],'Q=',Q[ispw,ifld],'U=',U[ispw,ifld],'P=',P,'X=',X)
-                
+
             else:
                 mask[ispw,ifld]=False
 
@@ -257,7 +257,7 @@ def xyamb(xytab,qu,xyout=''):
 
     stokes=[1.0,QUm[0],QUm[1],0.0]
     print('Returning the following Stokes vector: '+str(stokes))
-    
+
     return stokes
 
 
@@ -425,7 +425,7 @@ def fillsplitconcat(asdms,outvis,spw='',intent='',field='',dotsys=False,dowvr=Fa
         else:
             # the filled ms is what we will concat
             splitlist.append(fillms)
-    
+
     if len(splitlist)>1:
         print('Concat-ing: ',splitlist,' to ',outvis)
         concat(vis=splitlist,concatvis=outvis)
@@ -468,7 +468,7 @@ def scanbystate(vis,undo=False):
 
     mytb.putcol('SCAN_NUMBER',scans)
     mytb.close()
-    
-    
+
+
 
 

@@ -7,21 +7,21 @@ from taskinit import *
 from parallel.parallel_data_helper import ParallelDataHelper
 import testhelper as th
 
-def hanningsmooth(vis=None, 
+def hanningsmooth(vis=None,
                    outputvis=None,
                    keepmms=None,
                    field=None,
-                   spw=None, 
-                   scan=None, 
-                   antenna=None, 
+                   spw=None,
+                   scan=None,
+                   antenna=None,
                    correlation=None,
-                   timerange=None, 
+                   timerange=None,
                    intent=None,
                    array=None,
                    uvrange=None,
                    observation=None,
                    feed=None,
-                   datacolumn=None, 
+                   datacolumn=None,
                    ):
 
     """Hanning smooth frequency channel data to remove Gibbs ringing
@@ -29,10 +29,10 @@ def hanningsmooth(vis=None,
     """
 
     casalog.origin('hanningsmooth')
-    
-    
-    # Initiate the helper class    
-    pdh = ParallelDataHelper("hanningsmooth", locals()) 
+
+
+    # Initiate the helper class
+    pdh = ParallelDataHelper("hanningsmooth", locals())
 
     # Validate input and output parameters
     try:
@@ -43,10 +43,10 @@ def hanningsmooth(vis=None,
 
     # Input vis is an MMS
     if pdh.isParallelMS(vis) and keepmms:
-        
-        if not pdh.validateInputParams():        
+
+        if not pdh.validateInputParams():
             raise Exception('Unable to continue with MMS processing')
-                        
+
         pdh.setupCluster('hanningsmooth')
 
         # Execute the jobs
@@ -55,7 +55,7 @@ def hanningsmooth(vis=None,
         except Exception as instance:
             casalog.post('%s'%instance,'ERROR')
             return False
-                    
+
         return True
 
 
@@ -66,16 +66,16 @@ def hanningsmooth(vis=None,
     mslocal = mstool()
 
     try:
-                    
-        # Gather all the parameters in a dictionary.        
+
+        # Gather all the parameters in a dictionary.
         config = {}
-        
-        config = pdh.setupParameters(inputms=vis, outputms=outputvis, field=field, 
+
+        config = pdh.setupParameters(inputms=vis, outputms=outputvis, field=field,
                     spw=spw, array=array, scan=scan, antenna=antenna, correlation=correlation,
                     uvrange=uvrange,timerange=timerange, intent=intent, observation=observation,
                     feed=feed)
-        
-        
+
+
         # Check if CORRECTED column exists, when requested
         datacolumn = datacolumn.upper()
         if datacolumn == 'CORRECTED':
@@ -83,26 +83,26 @@ def hanningsmooth(vis=None,
             if th.getColDesc(vis,dc) == {}:
                 casalog.post('Input CORRECTED_DATA does not exist. Will use DATA','WARN')
                 datacolumn = 'DATA'
-             
+
         casalog.post('Will use datacolumn = %s'%datacolumn, 'DEBUG')
         config['datacolumn'] = datacolumn
-        
+
         # Call MSTransform framework with hanning=True
         config['hanning'] = True
 
-        # Configure the tool 
+        # Configure the tool
         casalog.post('%s'%config, 'DEBUG1')
         mtlocal.config(config)
-        
+
         # Open the MS, select the data and configure the output
         mtlocal.open()
-        
+
         # Run the tool
         casalog.post('Apply Hanning smoothing on data')
-        mtlocal.run()        
-            
+        mtlocal.run()
+
         mtlocal.done()
-                    
+
     except Exception as instance:
         mtlocal.done()
         casalog.post('%s'%instance,'ERROR')
@@ -121,7 +121,6 @@ def hanningsmooth(vis=None,
         return False
 
     mslocal = None
-    
+
     return True
- 
- 
+

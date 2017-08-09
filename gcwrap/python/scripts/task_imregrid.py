@@ -75,7 +75,7 @@ def imregrid(
                     axestoregrid.sort()
                 if (len(shape) == 1 and shape[0] == -1):
                     shape = _imregrid_handle_default_shape(
-                        imshape, image_csys, template_csys, 
+                        imshape, image_csys, template_csys,
                         axestoregrid, tempshape, axes
                     )
                 template_ia.done()
@@ -103,7 +103,7 @@ def imregrid(
         except Exception as instance:
             # The error message has already been logged by ia.regrid()
             return False
-        
+
     except Exception as instance:
         casalog.post("Error: " + str(instance), "SEVERE")
         raise instance
@@ -114,7 +114,7 @@ def imregrid(
             _tmp.done()
         if csys:
             csys.done()
-            
+
 def _imregrid_to_new_ref_frame(
     _myia, imagename, template, output,
     axes, shape, overwrite
@@ -192,12 +192,12 @@ def _imregrid_to_new_ref_frame(
             + " pixels so no pixels are cut off in the rotation",
             "NORMAL"
         )
-        _myia = _myia.pad("", pad, wantreturn=True) 
+        _myia = _myia.pad("", pad, wantreturn=True)
         shape = _myia.shape()
         newrefpix = csys.referencepixel()['numeric']
         newrefpix[diraxes[0]] = newrefpix[diraxes[0]] + pad
         newrefpix[diraxes[1]] = newrefpix[diraxes[1]] + pad
-        csys.setreferencepixel(newrefpix)            
+        csys.setreferencepixel(newrefpix)
     casalog.post(
         "Will rotate direction coordinate by "
         + qa.tos(qa.convert(angle, "deg"))
@@ -207,16 +207,16 @@ def _imregrid_to_new_ref_frame(
     rot.rotatebeam(angle=angle)
     rot.setcoordsys(csys.torecord())
     # now crop
-                
+
     casalog.post("Cropping masked image boundaries", "NORMAL")
     cropped = rot.crop(outfile=output, axes=diraxes, overwrite=overwrite)
-    cropped.done()   
+    cropped.done()
     rot.done()
     _myia.done()
     return True
 
 def _imregrid_handle_default_shape(
-    imshape, image_csys, template_csys, 
+    imshape, image_csys, template_csys,
     axestoregrid, tempshape, original_axes
 ):
     # CAS-4959, output shape should have template shape
@@ -257,7 +257,7 @@ def _imregrid_handle_default_shape(
                     del axestoregrid[atr_count]
                 else:
                     shape[i] = tempshape[template_axis]
-                 
+
                 break
             atr_count += 1;
     if (
@@ -289,6 +289,6 @@ def _imregrid_handle_default_shape(
             shape[stokes_axis] = imshape[stokes_axis]
     return shape
 
-    
-        
-        
+
+
+

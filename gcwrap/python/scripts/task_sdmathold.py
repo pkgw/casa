@@ -12,7 +12,7 @@ def sdmathold(infiles, expr, varnames, antenna, fluxunit, telescopeparam, field,
         worker.initialize()
         worker.execute()
         worker.finalize()
-        
+
 
 class sdmath_worker(sdutil.sdtask_template):
     def __init__(self, **kwargs):
@@ -20,7 +20,7 @@ class sdmath_worker(sdutil.sdtask_template):
 
     def initialize_scan(self):
         pass
-    
+
     def initialize(self):
         # completely override initialize
 
@@ -30,7 +30,7 @@ class sdmath_worker(sdutil.sdtask_template):
 
         # check spw
         self.assert_no_channel_selection_in_spw('warn')
-        
+
         # check outfile
         if (self.outfile.strip() == ''):
             raise Exception("'outfile' must be specified.")
@@ -50,7 +50,7 @@ class sdmath_worker(sdutil.sdtask_template):
         for i in range(len(self.infiles)):
             infile_key = 'IN' + str(i)
             varnames[infile_key] = self.infiles[i]
-        
+
         for key in list(varnames.keys()):
             regex = re.compile( key )
             if isinstance( varnames[key], str ):
@@ -60,7 +60,7 @@ class sdmath_worker(sdutil.sdtask_template):
 
         # default flux unit
         fluxunit_now = self.fluxunit
-        
+
         # set filename list
         self.__parse()
 
@@ -87,7 +87,7 @@ class sdmath_worker(sdutil.sdtask_template):
                 except ValueError as e:
                     isfactor = False
                     del line
-                
+
             if isfactor:
                 # variable
                 scanlist[skey] = sdutil.read_factor_file(self.filenames[i])
@@ -128,11 +128,11 @@ class sdmath_worker(sdutil.sdtask_template):
         for i in range(len(self.infiles)):
             infile_key = 'IN' + str(i)
             del varnames[infile_key]
-        
+
     def save(self):
         # avoid to call set_fluxunit
         del self.fluxunit
-        
+
         self.set_to_scan()
 
         sdutil.save(self.scan, self.outfile, self.outform, self.overwrite)
@@ -152,4 +152,4 @@ class sdmath_worker(sdutil.sdtask_template):
         for fname in fnames:
            fnamestr=p.sub('',fname)
            self.filenames.append(fnamestr)
-           
+

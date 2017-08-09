@@ -7,7 +7,7 @@
 #    It ensures that the the mosaic is successfully created                 #
 #    taking into account the outliers. The data has been                    #
 #    already calibrated.                                                    #
-#                                                                           # 
+#                                                                           #
 # Features tested:                                                          #
 #    1) Is the task working properly?                                       #
 #    2) Is the task producing the same results as the reference?            #
@@ -74,29 +74,29 @@ if benchmarking:
 # Import the data from FITS to MS
 #
 try:
-    
+
     print('--Import--')
-    
+
     # Safest to start from task defaults
     default('importuvfits')
-    
+
     # Set up the MS filename and save as new global variable
     msfile = prefix + '.ms'
-    
+
     # Set up image names
     nimage = 'wf_h'
     wimage = 'wf_x'
-    
+
     # Use task importuvfits
     fitsfile = fitsdata
     vis = msfile
     antnamescheme="new"
     importuvfits()
-    
+
     # Record import time
     if benchmarking:
         importtime = time.time()
-   
+
     #
     #=====================================================================
     #
@@ -120,8 +120,8 @@ try:
     # Record clean completion time
     if benchmarking:
         clean1time = time.time()
-    
-    
+
+
     #
     #=====================================================================
     #
@@ -141,12 +141,12 @@ try:
     weighting = 'briggs'
     usescratch = False
     async = False
-    clean()  
-    
+    clean()
+
     # Record clean completion time
     if benchmarking:
         clean2time = time.time()
-    
+
     # It will create the following files:
     #wf_h_0.flux, wf_h_0.image, wf_h_0.model, wf_h_0.psf
     #wf_h_1.flux, wf_h_1.image, wf_h_1.model, wf_h_1.psf
@@ -157,7 +157,7 @@ try:
     # and for the widefield case:
     # wf_x.flux, wf_x.image, wf_x.model, wf_x.residual, wf_x.mask
     # wf_x.psf
-       
+
     # Get statistics of individual images
     print('--Imstat--')
     default('imstat')
@@ -167,27 +167,27 @@ try:
     print("")
     print(' Wide-field results ')
     print(' =============== ')
-    
+
     print('')
     print(' --Regression Tests--')
     print('')
-    
+
     sumnpts = 0
     for i in range(5):
         imagename = nimage+'_%s'%i+'.image'
         nstats = imstat()
-        
-        # Compare the number of points in wide-field 
+
+        # Compare the number of points in wide-field
         # image and in individual images
         print(nstats['max'][0])
         print(nstats['min'][0])
 #        sumnpts += nstats['npts'][0]
-    
+
 #    print "sum_n_npts=%s, w_npts=%s" %(sumnpts,wstats['npts'][0])
     print('wide-field stats')
     print(wstats['max'][0])
     print(wstats['min'][0])
-     
+
     # Pull the max from the nstats dictionary
     # created above using imstat
 #    thistest_immax=nstats['max'][0]

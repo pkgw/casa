@@ -38,7 +38,7 @@
 #
 # <prerequisite>
 # <ul>
-#   <li> <linkto class="image:description">ia.imageconcat()</linkto> 
+#   <li> <linkto class="image:description">ia.imageconcat()</linkto>
 # </ul>
 # </prerequisite>
 #
@@ -49,7 +49,7 @@
 # <synopsis>
 # test_ia_imageconcat.py is a Python script that tests the correctness
 # of the ia.imageconcat() tool method.
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_imageconcat[test1,test2,...]
@@ -57,7 +57,7 @@
 #
 # <motivation>
 # To provide a test standard to the ia.imageconcat() method to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -72,7 +72,7 @@ from __main__ import *
 import unittest
 
 class ia_imageconcat_test(unittest.TestCase):
-    
+
     def setUp(self):
         self._myia = iatool()
 
@@ -108,13 +108,13 @@ class ia_imageconcat_test(unittest.TestCase):
         print("*** here 2")
 
         # first image has no beam while second does
-        sub1.setbrightnessunit("Jy/pixel") 
+        sub1.setbrightnessunit("Jy/pixel")
         sub2.setrestoringbeam(major=major, minor=minor, pa=pa)
         sub2.setbrightnessunit("Jy/beam")
         self.assertRaises(Exception, myia.imageconcat, "", [im1, im2])
         concat = myia.imageconcat("", [im1, im2], relax=True)
         self.assertTrue((concat.shape() == shape).all())
-        
+
         # first image has a single beam, second has per plane beams
         sub1.setbrightnessunit("Jy/beam")
         sub1.setrestoringbeam(major=major, minor=minor, pa=pa)
@@ -124,7 +124,7 @@ class ia_imageconcat_test(unittest.TestCase):
             major=major2, minor=minor2, pa=pa2,
             channel=0, polarization=-1
         )
-        
+
         sub2.setrestoringbeam(
             major=major3, minor=minor3, pa=pa3,
             channel=5, polarization=-1
@@ -144,7 +144,7 @@ class ia_imageconcat_test(unittest.TestCase):
                 self.assertTrue(qa.eq(qa.quantity(beam["major"]), major2))
                 self.assertTrue(qa.eq(qa.quantity(beam["minor"]), minor2))
                 self.assertTrue(qa.eq(qa.quantity(beam["positionangle"]), pa2))
-                
+
         # both images have a single beam which is the same
         sub1.setbrightnessunit("Jy/beam")
         sub1.setrestoringbeam(major=major, minor=minor, pa=pa)
@@ -156,7 +156,7 @@ class ia_imageconcat_test(unittest.TestCase):
         self.assertTrue(qa.eq(qa.quantity(beam["major"]), major))
         self.assertTrue(qa.eq(qa.quantity(beam["minor"]), minor))
         self.assertTrue(qa.eq(qa.quantity(beam["positionangle"]), pa))
-        
+
         # both images have single, unequal beams
         sub1.setbrightnessunit("Jy/beam")
         sub1.setrestoringbeam(major=major, minor=minor, pa=pa)
@@ -174,7 +174,7 @@ class ia_imageconcat_test(unittest.TestCase):
                 self.assertTrue(qa.eq(qa.quantity(beam["major"]), major2))
                 self.assertTrue(qa.eq(qa.quantity(beam["minor"]), minor2))
                 self.assertTrue(qa.eq(qa.quantity(beam["positionangle"]), pa2))
-        
+
         # first image has per plane beams, second has single beam
         sub2.setbrightnessunit("Jy/beam")
         sub2.setrestoringbeam(remove=True)
@@ -204,7 +204,7 @@ class ia_imageconcat_test(unittest.TestCase):
                 self.assertTrue(qa.eq(qa.quantity(beam["major"]), major))
                 self.assertTrue(qa.eq(qa.quantity(beam["minor"]), minor))
                 self.assertTrue(qa.eq(qa.quantity(beam["positionangle"]), pa))
-                
+
         # both images have a single beam which is the same
         sub1.setbrightnessunit("Jy/beam")
         sub1.setrestoringbeam(remove=True)
@@ -217,7 +217,7 @@ class ia_imageconcat_test(unittest.TestCase):
         self.assertTrue(qa.eq(qa.quantity(beam["major"]), major))
         self.assertTrue(qa.eq(qa.quantity(beam["minor"]), minor))
         self.assertTrue(qa.eq(qa.quantity(beam["positionangle"]), pa))
-        
+
     def test_basic(self):
         """Test basic functionality"""
         myia = self._myia
@@ -225,7 +225,7 @@ class ia_imageconcat_test(unittest.TestCase):
         names = []
         for i in range(5):
             name = "chan_" + str(i)
-            names.append(name) 
+            names.append(name)
             subi = myia.subimage(name, region=rg.box([0, 0, i], [0, 0,i]))
             got = subi.toworld([0 ,0, 0])['numeric'][2]
             expec = myia.toworld([0 ,0, i])['numeric'][2]
@@ -236,7 +236,7 @@ class ia_imageconcat_test(unittest.TestCase):
             got = concat.toworld([0 ,0, i])['numeric'][2]
             expec = myia.toworld([0 ,0, i])['numeric'][2]
             self.assertTrue(got == expec)
-            
+
         self.assertRaises(
             Exception, myia.imageconcat, outfile="blah.im", infiles=[names[0], names[1], names[3]]
         )
@@ -249,7 +249,7 @@ class ia_imageconcat_test(unittest.TestCase):
             got = concat.toworld([0 ,0, i])['numeric'][2]
             expec = myia.toworld([0 ,0, k])['numeric'][2]
             self.assertTrue(got == expec)
-            
+
         concat = myia.imageconcat(
             infiles=[names[0], names[1], names[3], names[4]],
             relax=True
@@ -262,7 +262,7 @@ class ia_imageconcat_test(unittest.TestCase):
             self.assertTrue(got == expec)
         concat.done()
         myia.done()
-        
+
     def test_reorder(self):
         """Test reorder param functionality"""
         myia = self._myia
@@ -270,7 +270,7 @@ class ia_imageconcat_test(unittest.TestCase):
         names = []
         for i in range(5):
             name = "reorder_" + str(i)
-            names.append(name) 
+            names.append(name)
             subi = myia.subimage(name, region=rg.box([0, 0, i], [0, 0,i]))
             got = subi.toworld([0 ,0, 0])['numeric'][2]
             expec = myia.toworld([0 ,0, i])['numeric'][2]
@@ -279,7 +279,7 @@ class ia_imageconcat_test(unittest.TestCase):
             bb[:] = i
             subi.putchunk(bb)
             subi.done()
-            
+
         concat = myia.imageconcat(
             infiles=[names[1], names[3], names[2]], reorder=True
         )

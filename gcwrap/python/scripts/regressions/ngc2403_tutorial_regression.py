@@ -47,7 +47,7 @@ import time
 import os
 import pickle
 
-# 
+#
 #=====================================================================
 #
 # This script has some interactive commands: scriptmode = True
@@ -146,7 +146,7 @@ if benchmarking:
 #=====================================================================
 #
 
-    
+
 default('flagdata')
 
 vis=msfile
@@ -639,7 +639,7 @@ default('uvcontsub')
 
 vis      = splitfile
 field    = '0'
-fitspw   = '0:21~30;92~111' 
+fitspw   = '0:21~30;92~111'
 fitorder = 1
 
 saveinputs('uvcontsub',prefix+'.saved.uvcontsub')
@@ -700,7 +700,7 @@ if scriptmode:
     print("")
     print(" display dirty image of chan 32")
     print("")
-    
+
     default('viewer')
 
     infile = outdirty+'.image'
@@ -789,7 +789,7 @@ if scriptmode:
     print("")
     print(" display continuum-free channels")
     print("")
-    
+
     default('viewer')
 
     infile = outname+'.image'
@@ -804,7 +804,7 @@ if scriptmode:
 # display image header
 #=====================================================================
 #
-# 
+#
 print("--imhead--")
 print("")
 print(" We will need to specify a subset of this cube, so let's explore the")
@@ -997,7 +997,7 @@ try:
     offlinerms = offlinestat['sigma'][0]
 except:
     offlinerms = 0.0
-    
+
 try:
     momzero_max = momzerostat['max'][0]
 except:
@@ -1074,7 +1074,7 @@ else:
     regression['exist'] = True
 
     prev_results = regression['results']
-    
+
 #
 ##########################################################################
 #
@@ -1149,7 +1149,7 @@ if benchmarking:
     stages[16] = ['stat',(stat2time-clean2time)]
     stages[17] = ['moments',(moments2time-stat2time)]
     stages[18] = ['momstat',(momstat2time-moments2time)]
-    
+
     new_regression['timing']['stages'] = stages
 
 #
@@ -1230,7 +1230,7 @@ for keys in resultlist:
             new_status = 'Failed'
         else:
             new_status = 'Passed'
-        
+
         results[keys]['prev'] = prev_val
         results[keys]['diff'] = new_diff
         results[keys]['status'] = new_status
@@ -1249,7 +1249,7 @@ for keys in resultlist:
             new_status = 'Failed'
         else:
             new_status = 'Passed'
-        
+
         results[keys]['prev'] = prev_val
         results[keys]['diff'] = new_diff
         results[keys]['status'] = new_status
@@ -1339,7 +1339,7 @@ else:
     print('Regression FAILED')
     print('')
     print('----FAILED Regression test for NGC 2403')
-    
+
 #
 ##########################################################################
 # Print benchmarking etc.
@@ -1365,7 +1365,7 @@ if benchmarking:
     for i in range(nstages):
         print('* %16s * time was: %10.3f ' % tuple(stages[i]))
         print('* %16s * time was: %10.3f ' % tuple(stages[i]), file=logfile)
-    
+
     print('************************************************', file=logfile)
     print('imager-b (2008-07-24) wall time was: 2740 seconds', file=logfile)
     print('imager-b (2008-07-24) CPU  time was: 1792 seconds', file=logfile)

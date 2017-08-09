@@ -11,7 +11,7 @@ from tw_utils import *
 from matplotlib.font_manager import  FontProperties
 
 #### usage: python profileplot.py testname RESULT_DIR \
-####               webpage_abspath asciidata processname 
+####               webpage_abspath asciidata processname
 t=[0]
 y11=[0]
 y22=[0]
@@ -111,10 +111,10 @@ def getmem(pid):
 
     if os.uname()[0] == "Linux":
         cmd = 'top -b -d 1 -n2 | grep -E "^Cpu" | tail -1'
-        (errorcode, a) = subprocess.getstatusoutput(cmd)   
+        (errorcode, a) = subprocess.getstatusoutput(cmd)
         if len(a)==0 or errorcode != 0:
             return -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0
-        
+
         cpu_us = re.sub('.*[ :]', '', re.sub('%.*', '', a.split(',')[0]))
         cpu_sy = re.sub('.*[ :]', '', re.sub('%.*', '', a.split(',')[1]))
         cpu_id = re.sub('.*[ :]', '', re.sub('%.*', '', a.split(',')[3]))
@@ -125,7 +125,7 @@ def getmem(pid):
         (errorcode, a) = subprocess.getstatusoutput(cmd)
         if len(a)==0 or errorcode != 0:
             return -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0
-        
+
         cpu_us = re.sub('.*[ :]', '', re.sub('%.*', '', a.split(',')[0]))
         cpu_sy = re.sub('.*[ :]', '', re.sub('%.*', '', a.split(',')[1]))
         cpu_id = re.sub('.*[ :]', '', re.sub('%.*', '', a.split(',')[2]))
@@ -156,14 +156,14 @@ fd.write('#time(s) memory_virtual(Mbytes) memory_resident(Mbytes) no_filedesc CP
 i=0
 
 while True:
-	y1,y2,nfile, cpu_us, cpu_sy, cpu_id, cpu_wa = getmem(casapy_pid)
-    	if (y1 > 0.0):
-        	time.sleep(2.0)
+        y1,y2,nfile, cpu_us, cpu_sy, cpu_id, cpu_wa = getmem(casapy_pid)
+        if (y1 > 0.0):
+                time.sleep(2.0)
                 tt = time.time()-t1
-	        t.append(tt)
+                t.append(tt)
 
-		y11.append(y1)
-		y22.append(y2)
+                y11.append(y1)
+                y22.append(y2)
                 numfile.append(nfile)
                 fd.write(str(int(round(tt, 0))) + ' ' + \
                          str(int(round(y1/1024, 0))) + ' ' + \
@@ -174,9 +174,9 @@ while True:
                          str(cpu_id) + ' ' + \
                          str(cpu_wa) + '\n')
                 fd.flush()
-	else:
+        else:
 
-		#sleep(10.0)
-		time.sleep(3.0)
-	i+=1
-	
+                #sleep(10.0)
+                time.sleep(3.0)
+        i+=1
+

@@ -7,7 +7,7 @@ from parallel.parallel_task_helper import ParallelTaskHelper
 
 
 def listpartition(vis=None, createdict=None, listfile=None):
-    
+
     """List information about an MMS data set in the logger:
 
        Keyword arguments:
@@ -18,10 +18,10 @@ def listpartition(vis=None, createdict=None, listfile=None):
                default: False
        listfile -- save the output to a file
              default: ''. Example: listfile="mylist.txt"
-             
+
         The task also returns a dictionary with scan summary information
-        for each sub-MS. 
-                      
+        for each sub-MS.
+
 
        """
 
@@ -29,7 +29,7 @@ def listpartition(vis=None, createdict=None, listfile=None):
 
     mslocal = casac.ms()
     mslocal1 = casac.ms()
-            
+
 
     try:
         if (type(vis) == str) & os.path.exists(vis):
@@ -37,38 +37,38 @@ def listpartition(vis=None, createdict=None, listfile=None):
         else:
             raise Exception('Visibility data set not found - please verify the name')
 
-        # Check output filename existence 
+        # Check output filename existence
         if listfile != '':
             if (type(listfile) == str) & os.path.exists(listfile):
                 raise Exception('Output file \'%s\' already exists'%listfile)
-            
+
             casalog.post('Will save output to \'%s\''%listfile)
             ffout = open(listfile, 'w')
-            
-                
+
+
         # Is it a multi-MS?
         ismms = mslocal.ismultims()
-        
+
         # List of MSs to process
         mslist = []
-        
+
         # It is a multi-MS
         if ismms:
             mslist = mslocal.getreferencedtables()
             mslist.sort()
             sname = 'Sub-MS'
-            
+
             # Get the AxisType of the MMS
             axis = ph.axisType(vis)
             if axis == '':
                 axis = 'unknown'
-                
+
             casalog.post('This is a Multi-MS with separation axis = '+axis)
 
         else:
             mslist.append(vis)
             sname = 'MS'
-            
+
         # Close top MS
         mslocal.close()
 
@@ -76,25 +76,25 @@ def listpartition(vis=None, createdict=None, listfile=None):
         # of the list of subMSs. It adds the nrows of all sub-scans of a scan.
         try:
             outdict = {}
-            outdict = ph.getScanSpwSummary(mslist) 
+            outdict = ph.getScanSpwSummary(mslist)
         except Exception as instance:
             casalog.post('%s'%instance,'ERROR')
 
         # Now loop through the dictionary to print the information
         if list(outdict.keys()) == []:
             casalog.post('Error in processing dictionaries','ERROR')
-        
+
         indices = list(outdict.keys())
         indices.sort()
-            
+
         counter = 0
         for index in indices:
-            
+
             # Get data
-            MS = outdict[index]['MS']            
+            MS = outdict[index]['MS']
             SIZE = outdict[index]['size']
             SCAN = outdict[index]['scanId']
-                        
+
             # Sort scans for more optimal printing
             # Print information per scan
             firstscan = True
@@ -104,30 +104,30 @@ def listpartition(vis=None, createdict=None, listfile=None):
                 SPW = outdict[index]['scanId'][myscan]['spwIds']
                 NCHAN = outdict[index]['scanId'][myscan]['nchans']
                 NROWS = outdict[index]['scanId'][myscan]['nrows']
-                
+
                 # Get maximum widths
                 smxw = getWidth(outdict, 'spw')
                 cmxw = getWidth(outdict, 'channel')
-                
+
                 # Create format
                 fhdr = '%-'+str(len(MS)+2)+'s' + '%-6s' + '%-'+str(smxw+2)+'s' + \
                         '%-'+str(cmxw+2)+'s' + '%-8s' + '%-6s'
-    
-                
+
+
                 # Print header
                 text = ''
                 if counter == 0:
-                    text = text + fhdr % (sname,'Scan','Spw','Nchan','Nrows','Size')  
-                    text = text + '\n'                  
+                    text = text + fhdr % (sname,'Scan','Spw','Nchan','Nrows','Size')
+                    text = text + '\n'
                 counter += 1
-                
+
                 # Print first scan
                 if firstscan:
-                    text = text + fhdr % (MS, myscan, SPW, NCHAN, NROWS, SIZE)   
+                    text = text + fhdr % (MS, myscan, SPW, NCHAN, NROWS, SIZE)
                 else:
                     text = text + fhdr % ('', myscan, SPW, NCHAN, NROWS, '')
-                
-                firstscan = False            
+
+                firstscan = False
 
                 # Print to a file
                 if listfile != '':
@@ -135,26 +135,26 @@ def listpartition(vis=None, createdict=None, listfile=None):
                 else:
                     # Print to the logger
                     casalog.post(text)
-                                
-                
-        if listfile != '':    
+
+
+        if listfile != '':
             ffout.close()
-                                        
-     
+
+
         # Return the scan dictionary
         if createdict:
             return outdict
-        
+
         return {}
-            
+
     except Exception as instance:
 #        mslocal.close()
         print('*** Error ***', instance)
-    
 
-           
+
+
 def getWidth(adict, par):
-    
+
     width = 0
     for aa in list(adict.keys()):
         scans = list(adict[aa]['scanId'].keys())
@@ -165,7 +165,7 @@ def getWidth(adict, par):
                 length = len(mystr)
                 if length > width:
                     width = length
-                    
+
             elif par == 'channel':
                 chans = adict[aa]['scanId'][bb]['nchans']
                 mystr = str(chans)
@@ -174,6 +174,6 @@ def getWidth(adict, par):
                     width = length
     if width < 5:
         width = 5
-        
+
     return width
 

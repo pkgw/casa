@@ -46,14 +46,14 @@
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_calcmask[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the ia.calcmask() task to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -66,7 +66,7 @@ from __main__ import *
 import unittest
 
 class ia_calcmask_test(unittest.TestCase):
-    
+
     def setUp(self):
        pass
     def tearDown(self):
@@ -92,7 +92,7 @@ class ia_calcmask_test(unittest.TestCase):
                     self.assertFalse(mask[i, j])
                 else:
                     self.assertTrue(mask[i, j])
-                    
+
         im1 = "mycomplexmask.im"
         myia.fromshape(im1, [2, 2], type='c')
         bb = myia.getchunk()
@@ -110,7 +110,7 @@ class ia_calcmask_test(unittest.TestCase):
                     self.assertFalse(mask[i, j])
                 else:
                     self.assertTrue(mask[i, j])
-        
+
     def test_history(self):
         """Test history is written"""
         myia = iatool()

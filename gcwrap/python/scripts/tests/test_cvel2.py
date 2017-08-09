@@ -14,14 +14,14 @@ datapath = os.environ.get('CASAPATH').split()[0] + "/data/regression/"
 
 # Pick up alternative data directory to run tests on MMSs
 testmms = False
-if 'TEST_DATADIR' in os.environ:   
+if 'TEST_DATADIR' in os.environ:
     DATADIR = str(os.environ.get('TEST_DATADIR'))+'/cvel/'
     if os.path.isdir(DATADIR):
         testmms = True
         datapath = DATADIR
 
-print('cvel2 tests will use data from '+datapath)     
-    
+print('cvel2 tests will use data from '+datapath)
+
 if 'BYPASS_PARALLEL_PROCESSING' in os.environ:
     ParallelTaskHelper.bypassParallelProcessing(1)
 
@@ -74,7 +74,7 @@ def verify_ms(msname, expnumspws, expnumchan, inspw, expchanfreqs=[]):
 
 class test_base(unittest.TestCase):
 #    forcereload=False
-    
+
     def setUp_vis_a(self):
         # 308 scans, spw=0, data
         if testmms:
@@ -82,14 +82,14 @@ class test_base(unittest.TestCase):
         elif (not os.path.exists(vis_a)):
             importuvfits(fitsfile=os.environ.get('CASAPATH').split()[0] + '/data/regression/ngc4826/fitsfiles/ngc4826.ll.fits5', # 10 MB
                          vis=vis_a)
-            
+
     def setUp_vis_b(self):
         # 308 scans, spw=0, data
         if testmms:
             os.system('cp -RL ' + datapath + vis_b + ' .')
         elif(not os.path.exists(vis_b)):
             os.system('cp -R '+os.environ.get('CASAPATH').split()[0] + '/data/regression/fits-import-export/input/test.ms .') # 27 MB
-    
+
     def setUp_vis_c(self):
         # 93 scans, spw=0,1, data
         if testmms:
@@ -117,7 +117,7 @@ class test_base(unittest.TestCase):
             os.system('cp -RL ' + datapath + vis_f + ' .')
         elif(not os.path.exists(vis_f)):
             os.system('cp -R '+os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/cvel/test_cvel1.ms .') # 39 MB
-            
+
     def setUp_vis_g(self):
         if testmms:
             os.system('cp -RL ' + datapath + vis_g + ' .')
@@ -151,7 +151,7 @@ class test_base(unittest.TestCase):
             myms.addephemeris(0,os.environ.get('CASAPATH').split()[0]+'/data/ephemerides/JPL-Horizons/Jupiter_54708-55437dUTC.tab',
                             'Jupiter_54708-55437dUTC', 0)
             myms.close()
-    
+
     def setUp_4ants(self):
         # data set with spw=0~15, 64 channels each in TOPO
         self.vis = "Four_ants_3C286.ms"
@@ -165,20 +165,20 @@ class test_base(unittest.TestCase):
     def setUp_mms_vis_c(self):
         # 93 scans, spw=0,1
         if (not os.path.exists(vis_c)):
-            os.system('cp -R '+os.environ.get('CASAPATH').split()[0] + '/data/regression/cvel/input/jupiter6cm.demo-thinned.ms .') 
+            os.system('cp -R '+os.environ.get('CASAPATH').split()[0] + '/data/regression/cvel/input/jupiter6cm.demo-thinned.ms .')
 
     def createMMS(self, msfile, axis='auto',scans='',spws='', fields='', numms=64):
         '''Create MMSs for tests with input MMS'''
         prefix = msfile[:-len('.ms')]
-        
+
         # Create an MMS for the tests
         self.testmms = "cvel_input_test.mms"
         default(partition)
-        
+
         if os.path.exists(self.testmms):
             os.system("rm -rf " + self.testmms)
             os.system("rm -rf " + self.testmms +'.flagversions')
-            
+
         print("................. Creating test MMS ..................")
         partition(vis=msfile, outputvis=self.testmms,flagbackup=False, separationaxis=axis, scan=scans, spw=spws, field=fields,
                   numsubms=numms)
@@ -186,8 +186,8 @@ class test_base(unittest.TestCase):
 class cvel2_test(test_base):
 
     def tearDown(self):
-        os.system('rm -rf cvel-output.ms cvel-output.ms.deselected myinput.ms cvel_input_test.mms')   
-    
+        os.system('rm -rf cvel-output.ms cvel-output.ms.deselected myinput.ms cvel_input_test.mms')
+
     def test1(self):
         '''cvel2 1: Testing default - expected error'''
         self.setUp_vis_b()
@@ -197,7 +197,7 @@ class cvel2_test(test_base):
             cvel2()
         except Exception:
             print('Expected error!')
-    
+
     def test2(self):
         '''cvel2 2: Only input vis set - expected error'''
         self.setUp_vis_b()
@@ -207,7 +207,7 @@ class cvel2_test(test_base):
             cvel2(vis = 'myinput.ms')
         except Exception:
             print('Expected error!')
-            
+
     def test3(self):
         '''cvel2 3: Input and output vis set'''
         self.setUp_vis_b()
@@ -217,11 +217,11 @@ class cvel2_test(test_base):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 64, 0)
         self.assertTrue(ret[0],ret[1])
-            
+
     def test4(self):
         '''cvel2 4: I/O vis set, more complex input vis, one field selected'''
         self.setUp_vis_a()
-        myvis = vis_a        
+        myvis = vis_a
         os.system('ln -sf ' + myvis + ' myinput.ms')
         rval = cvel2(vis = 'myinput.ms', outputvis = outfile, field = '1')
         self.assertNotEqual(rval,False)
@@ -260,21 +260,21 @@ class cvel2_test(test_base):
             passall = True
             )
         self.assertNotEqual(rval,False)
-        
+
         # Simulate the passall=True. This MS has fields 0~6
         desel = outfile+'.deselected'
         split(vis='myinput.ms',outputvis=desel,field='0,2,3,4,5,6',spw='0',datacolumn='all')
         mslocal = mstool()
         mslocal.open(outfile, nomodify=False)
-        mslocal.concatenate(msfile=desel)            
+        mslocal.concatenate(msfile=desel)
         mslocal.close()
         ret = (verify_ms(outfile, 2, 32, 0))
         self.assertTrue(ret[0],ret[1])
 
     ## # Tests with more than one spectral window ###################
-    
+
     def test7(self):
-        '''cvel2 7: I/O vis set, input vis with two spws, one field selected, 2 spws selected, 
+        '''cvel2 7: I/O vis set, input vis with two spws, one field selected, 2 spws selected,
            passall = False'''
         self.setUp_vis_c()
         myvis = vis_c
@@ -291,7 +291,7 @@ class cvel2_test(test_base):
         self.assertTrue(ret[0],ret[1])
 
     def test8(self):
-        '''cvel2 8: I/O vis set, input vis with two spws, one field selected, 2 spws selected, 
+        '''cvel2 8: I/O vis set, input vis with two spws, one field selected, 2 spws selected,
            passall = False, regridding 1'''
         self.setUp_vis_c()
         myvis = vis_c
@@ -308,9 +308,9 @@ class cvel2_test(test_base):
         self.assertNotEqual(rval,False)
         ret = (verify_ms(outfile, 1, 1, 0))
         self.assertTrue(ret[0],ret[1])
-   
+
     def test9(self):
-        '''cvel2 9: I/O vis set, input vis with two spws, one field selected, 2 spws selected, 
+        '''cvel2 9: I/O vis set, input vis with two spws, one field selected, 2 spws selected,
            passall = False, regridding 2'''
         self.setUp_vis_c()
         myvis = vis_c
@@ -328,7 +328,7 @@ class cvel2_test(test_base):
         self.assertNotEqual(rval,False)
         ret = (verify_ms(outfile, 1, 1, 0))
         self.assertTrue(ret[0],ret[1])
-    
+
     def test10(self):
         '''cvel210: I/O vis set, input vis with two spws, one field selected, 2 spws selected, passall = False, regridding 3...'''
         self.setUp_vis_c()
@@ -349,9 +349,9 @@ class cvel2_test(test_base):
         ret = verify_ms(outfile, 1, 1, 0)
         self.assertTrue(ret[0],ret[1])
 
-    
+
     def test11(self):
-        '''cvel2 11: I/O vis set, input vis with two spws, one field selected, 
+        '''cvel2 11: I/O vis set, input vis with two spws, one field selected,
            2 spws selected, passall = False, regridding 4...'''
         self.setUp_vis_c()
         myvis = vis_c
@@ -373,7 +373,7 @@ class cvel2_test(test_base):
         self.assertTrue(ret[0],ret[1])
 
     def test12(self):
-        '''cvel2 12: Input and output vis set, input vis with two spws, two fields selected, 
+        '''cvel2 12: Input and output vis set, input vis with two spws, two fields selected,
            2 spws selected, passall = False, regridding 5...'''
         self.setUp_vis_c()
         myvis = vis_c
@@ -393,9 +393,9 @@ class cvel2_test(test_base):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 2, 0)
         self.assertTrue(ret[0],ret[1])
-    
+
     def test13(self):
-        '''cvel2 13: I/O vis set, input vis with one spw, one field selected, one spw selected, 
+        '''cvel2 13: I/O vis set, input vis with one spw, one field selected, one spw selected,
            passall = False, regridding 6...'''
         self.setUp_vis_a()
         myvis = vis_a
@@ -416,9 +416,9 @@ class cvel2_test(test_base):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 2, 0)
         self.assertTrue(ret[0],ret[1])
-    
+
     def test14(self):
-        '''cvel2 14: I/O vis set, input vis with one spws, one field selected, one spws selected, 
+        '''cvel2 14: I/O vis set, input vis with one spws, one field selected, one spws selected,
            passall = False, non-existing phase center...'''
         self.setUp_vis_a()
         myvis = vis_a
@@ -442,7 +442,7 @@ class cvel2_test(test_base):
             self.assertTrue(ret[0],ret[1])
         except:
             print("*** Expected error ***")
-    
+
     def test15(self):
         '''cvel2 15: I/O vis set, input vis with two spws, one field selected, 2 spws selected, passall = False, regridding 8...'''
         self.setUp_vis_c()
@@ -463,7 +463,7 @@ class cvel2_test(test_base):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 1, 0)
         self.assertTrue(ret[0],ret[1])
-    
+
     def test16(self):
         '''cvel2 16: I/O vis set, input vis with one spw, two fields selected, passall = False, regridding 9...'''
         self.setUp_vis_a()
@@ -484,7 +484,7 @@ class cvel2_test(test_base):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 10, 0)
         self.assertTrue(ret[0],ret[1])
-    
+
     def test17(self):
         '''cvel2 17: I/O vis set, input vis with one spw, two fields selected, passall = False, regridding 9...'''
         self.setUp_vis_a()
@@ -505,7 +505,7 @@ class cvel2_test(test_base):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 10, 0)
         self.assertTrue(ret[0],ret[1])
-        
+
     def test18(self):
         '''cvel2 18: I/O vis set, input vis with one spw, two fields selected, passall = False, regridding 9...'''
         self.setUp_vis_a()
@@ -527,7 +527,7 @@ class cvel2_test(test_base):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 10, 0)
         self.assertTrue(ret[0],ret[1])
-    
+
     def test19(self):
         '''cvel2 19: SMA input MS, 24 spws to combine, channel mode, 10 output channels'''
         self.setUp_vis_d()
@@ -545,7 +545,7 @@ class cvel2_test(test_base):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 10, 0)
         self.assertTrue(ret[0],ret[1])
-    
+
     def test20(self):
         '''cvel2 20: SMA input MS, 24 spws to combine, channel mode, 111 output channels'''
         self.setUp_vis_d()
@@ -563,7 +563,7 @@ class cvel2_test(test_base):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 111, 0)
         self.assertTrue(ret[0],ret[1])
-    
+
     def test21(self):
         '''cvel2 21: SMA input MS, 24 spws to combine, frequency mode, 21 output channels'''
         self.setUp_vis_d()
@@ -581,7 +581,7 @@ class cvel2_test(test_base):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 21, 0)
         self.assertTrue(ret[0],ret[1])
-    
+
     def test22(self):
         '''cvel2 22: SMA input MS, 24 spws to combine, frequency mode, 210 output channels, negative width'''
         self.setUp_vis_d()
@@ -600,7 +600,7 @@ class cvel2_test(test_base):
         ret = verify_ms(outfile, 1, 210, 0)
         self.assertTrue(ret[0],ret[1])
         os.system('mv '+outfile+' xxx.ms')
-    
+
     def test23(self):
         '''cvel2 23: SMA input MS, 24 spws to combine, radio velocity mode, 30 output channels'''
         self.setUp_vis_d()
@@ -623,7 +623,7 @@ class cvel2_test(test_base):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 30, 0)
         self.assertTrue(ret[0],ret[1])
-    
+
     def test24(self):
         '''cvel2 24: SMA input MS, 24 spws to combine, radio velocity mode, 35 output channels'''
         self.setUp_vis_d()
@@ -646,7 +646,7 @@ class cvel2_test(test_base):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 35, 0)
         self.assertTrue(ret[0],ret[1])
-    
+
     def test25(self):
         '''cvel2 25: SMA input MS, 24 spws to combine, optical velocity mode, 40 output channels'''
         self.setUp_vis_d()
@@ -672,7 +672,7 @@ class cvel2_test(test_base):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 40, 0)
         self.assertTrue(ret[0],ret[1])
-    
+
     def test26(self):
         '''cvel2 26: SMA input MS, 24 spws to combine, optical velocity mode, 40 output channels'''
         self.setUp_vis_d()
@@ -698,7 +698,7 @@ class cvel2_test(test_base):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 41, 0)
         self.assertTrue(ret[0],ret[1])
-    
+
     def test27(self):
         '''cvel2 27: SMA input MS, 24 spws to combine, scratch columns, no regridding'''
         self.setUp_vis_d()
@@ -712,7 +712,7 @@ class cvel2_test(test_base):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 2440, 0)
         self.assertTrue(ret[0],ret[1])
-    
+
     def test28(self):
         '''cvel2 28: SMA input MS, 24 spws to combine, scratch columns, channel mode, 30 channels'''
         self.setUp_vis_d()
@@ -729,7 +729,7 @@ class cvel2_test(test_base):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 30, 0)
         self.assertTrue(ret[0],ret[1])
-            
+
     def test29(self):
         '''cvel2 29: SMA input MS, 24 spws to combine, scratch columns, channel mode, 31 channels'''
         self.setUp_vis_d()
@@ -746,7 +746,7 @@ class cvel2_test(test_base):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 31, 0)
         self.assertTrue(ret[0],ret[1])
-    
+
     def test30(self):
         '''cvel2 30: SMA input MS, 24 spws to combine, scratch columns, mode channel_b, no regridding'''
         self.setUp_vis_d()
@@ -757,11 +757,11 @@ class cvel2_test(test_base):
             outputvis = outfile,
             mode="channel_b"
             )
-        
+
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 2425, 0)
         self.assertTrue(ret[0],ret[1])
-    
+
     def test31(self):
         '''cvel2 31: SMA input MS, 24 spws to combine, scratch columns, mode channel, frame trafo'''
         self.setUp_vis_d()
@@ -817,7 +817,7 @@ class cvel2_test(test_base):
         self.setUp_vis_e()
 #         os.system('ls -l '+vis_e)
 #         os.path.exists(vis_e+'/SORTED_TABLE')
-# 
+#
 # #        myvis = vis_e
 # #        os.system('ln -sf ' + myvis + ' myinput.ms')
 #         rval = cvel2(
@@ -936,10 +936,10 @@ class cvel2_test(test_base):
         a = mytb.getcell('CHAN_FREQ')
         c =  qa.constants('c')['value']
         mytb.close()
-        
-        restf = a[0] 
-        bv1 = c * (restf-a[5])/restf 
-        bv2 = c * (restf-a[4])/restf 
+
+        restf = a[0]
+        bv1 = c * (restf-a[5])/restf
+        bv2 = c * (restf-a[4])/restf
         wv = abs(bv2-bv1)
         b = numpy.array([a[3], a[4], a[5]])
         rval = cvel2(
@@ -966,9 +966,9 @@ class cvel2_test(test_base):
         c =  qa.constants('c')['value']
         mytb.close()
 
-        restf = a[0] 
-        bv1 = c * (restf-a[3])/restf 
-        bv2 = c * (restf-a[4])/restf 
+        restf = a[0]
+        bv1 = c * (restf-a[3])/restf
+        bv2 = c * (restf-a[4])/restf
         wv = abs(bv2-bv1)
         b = numpy.array([a[3], a[4], a[5]])
         rval = cvel2(
@@ -994,14 +994,14 @@ class cvel2_test(test_base):
         a = mytb.getcell('CHAN_FREQ')
         c =  qa.constants('c')['value']
         mytb.close()
-        
-        restf = a[0] 
-        bv1 = c * (restf-a[5])/a[5] 
-        bv2 = c * (restf-a[4])/a[4] 
+
+        restf = a[0]
+        bv1 = c * (restf-a[5])/a[5]
+        bv2 = c * (restf-a[4])/a[4]
         wv = abs(bv2-bv1+1.)
         bv2 = bv1 + wv
         bv3 = bv2 + wv
-        a4 = restf/(bv2/c+1.)        
+        a4 = restf/(bv2/c+1.)
         a3 = restf/(bv3/c+1.)
         b = numpy.array([a3, a4, a[5]])
         rval = cvel2(
@@ -1027,14 +1027,14 @@ class cvel2_test(test_base):
         a = mytb.getcell('CHAN_FREQ')
         c =  qa.constants('c')['value']
         mytb.close()
-        
-        restf = a[0] 
-        bv1 = c * (restf-a[5])/a[5] 
-        bv2 = c * (restf-a[4])/a[4] 
+
+        restf = a[0]
+        bv1 = c * (restf-a[5])/a[5]
+        bv2 = c * (restf-a[4])/a[4]
         wv = abs(bv2-bv1+1.)
         bv2 = bv1 + wv
         bv3 = bv2 + wv
-        a4 = restf/(bv2/c+1.)        
+        a4 = restf/(bv2/c+1.)
         a3 = restf/(bv3/c+1.)
         b = numpy.array([a3, a4, a[5]])
         rval = cvel2(
@@ -1217,7 +1217,7 @@ class cvel2_test(test_base):
             interpolation = 'linear',
             outframe = 'CMB'
             )
-        
+
         mytb.open(outfile+'/SPECTRAL_WINDOW')
         a = mytb.getcell('CHAN_FREQ')
         b = numpy.array(a)
@@ -1257,7 +1257,7 @@ class cvel2_test(test_base):
             interpolation = 'linear',
             outframe = 'BARY'
             )
-        
+
         mytb.open(outfile+'/SPECTRAL_WINDOW')
         a = mytb.getcell('CHAN_FREQ')
         b = numpy.array(a)
@@ -1297,7 +1297,7 @@ class cvel2_test(test_base):
             interpolation = 'linear',
             outframe = 'CMB'
             )
-        
+
         mytb.open(outfile+'/SPECTRAL_WINDOW')
         a = mytb.getcell('CHAN_FREQ')
         b = numpy.array(a)
@@ -1332,7 +1332,7 @@ class cvel2_test(test_base):
                 outframe = 'SOURCE'
                 )
         self.assertTrue(rval)
-        
+
     def test_mms_heuristics1(self):
         '''cvel2 : MMS heuristic tests'''
         self.setUp_mms_vis_c()
@@ -1352,7 +1352,7 @@ class cvel2_test(test_base):
                 )
         except Exception:
             print('Expected error!')
-        
+
     def test_mms_heuristics2(self):
         '''cvel2 : MMS heuristic tests'''
         self.setUp_mms_vis_c()
@@ -1372,12 +1372,12 @@ class cvel2_test(test_base):
                 )
         except Exception:
             print('Expected error!')
-             
+
     def test_mms_heuristics3(self):
         '''cvel2 : MMS heuristic tests'''
         self.setUp_mms_vis_c()
         self.createMMS(vis_c, axis='auto', scans='8,11', spws='0,1')
-        
+
         # It should create an output MS
         rval = cvel2(
             vis = self.testmms,
@@ -1397,12 +1397,12 @@ class cvel2_test(test_base):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 2, 0)
         self.assertTrue(ret[0],ret[1])
-        
-        
+
+
 class cleanup(unittest.TestCase):
     def setUp(self):
         pass
-    
+
     def tearDown(self):
         # It will ignore errors in case files don't exist
         shutil.rmtree(vis_a,ignore_errors=True)
@@ -1411,11 +1411,11 @@ class cleanup(unittest.TestCase):
         shutil.rmtree(vis_d,ignore_errors=True)
         shutil.rmtree(vis_e,ignore_errors=True)
         shutil.rmtree(vis_f,ignore_errors=True)
-        
+
     def test_cleanup(self):
         '''cvel2: Cleanup'''
         pass
-        
+
 
 
 def suite():

@@ -29,7 +29,7 @@ class me_test_cometdist(Ganymede):
     def test_cometdist(self):
         """Is the distance to Ganymede just right?"""
         check_eq(me.cometdist(), {'unit': 'AU', 'value': 5.1241}, 0.001)
-            
+
 class me_test_cometangdiam(Ganymede):
     def test_cometangdiam(self):
         """Is Ganymede's angular diameter correct?"""

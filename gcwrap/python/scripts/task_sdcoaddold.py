@@ -21,7 +21,7 @@ class sdcoadd_worker(sdutil.sdtask_template):
         if self.nfile < 2:
             raise Exception('Need at least two data file names')
         super(sdcoadd_worker,self).initialize()
-            
+
     def initialize_scan(self):
         self.scanlist = [sd.scantable(f,average=False,antenna=self.antenna)
                          for f in self.infiles]
@@ -48,6 +48,6 @@ class sdcoadd_worker(sdutil.sdtask_template):
 
     def save(self):
         sdutil.save(self.scan, self.project, self.outform, self.overwrite)
-        
+
     def cleanup(self):
         pass

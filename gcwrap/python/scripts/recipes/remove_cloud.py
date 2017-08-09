@@ -1,5 +1,5 @@
 """
-Fit a constant tau component to the 4 ALMA WVR channels, 
+Fit a constant tau component to the 4 ALMA WVR channels,
 then remove this from the 4 temperature measurements tsrc(0-3)
 
 Based on rem_cloud.py by B. Dent version 12 Aug 2015, see ALMA CSV-3189
@@ -16,7 +16,7 @@ import os
 import math
 import time
 
-def rmc_func1(x,a,b,c):    
+def rmc_func1(x,a,b,c):
     return a*(x-b)**2+c
 
 def rmc_weighted_avg_and_std(values, weights):
@@ -31,7 +31,7 @@ def rmc_weighted_avg_and_std(values, weights):
 
 def rmc_approxCalc(tsrc0, tsrc1, tsrc2, tsrc3,
                    m_el, Tamb, verb=False):
-    
+
     m_el=m_el/57.295   # convert to radians
     mean_pwt=0.0; raw_mean_pwt=0.0
 
@@ -48,7 +48,7 @@ def rmc_approxCalc(tsrc0, tsrc1, tsrc2, tsrc3,
 
     pw=[0.0,0.0,0.0,0.0];     pw_noc=[0.0,0.0,0.0,0.0]
     site="AOS"
-    
+
     # set up fitting constants depending on the site:
     if site == "OSF":   # constants:
        tau0=[0.024,0.02,0.009,0.01]
@@ -118,14 +118,14 @@ def rmc_approxCalc(tsrc0, tsrc1, tsrc2, tsrc3,
         tauc_r[2]=0.5
         tauc_r[3]=1.0
         tauc_r[4]=3.0
-    
+
         it_stop=0
         for it in range(5):
             for i1 in range(4):
                 pwt[i1]=-((pl.log(tel[i1])+tau0[i1])+tauc_r[it])/r[i1]
 
             mean_pwt,std_pwt_r[it]=rmc_weighted_avg_and_std(pwt, wt)   # get std of 4 values, using weights (should weight down channels 0,1 a lot)
-            
+
         if min(std_pwt_r)==std_pwt_r[4]:
             if verb:
                 casalog.post('  tauc is too large - setting to max', 'INFO')
@@ -169,15 +169,15 @@ def rmc_approxCalc(tsrc0, tsrc1, tsrc2, tsrc3,
                 except:
                     a2=tau_arr[nmin]
                     casalog.post('  Fitting failed, using approximation (minimum)', 'INFO')
-                   
+
 
                 tau_constant=a2
             else:
                 tau_constant=0.0
-            
+
         # re-estimate pwv, after removing additional tau_constant component.
-        # (could add extra factor 1/(1-tau) in measured line abs. 
-        # because it's absorbed by the continuum atmopheric abs ... 
+        # (could add extra factor 1/(1-tau) in measured line abs.
+        # because it's absorbed by the continuum atmopheric abs ...
         # although maybe not
         # if they are colocated - this needs some radiative transfer...)
 
@@ -194,7 +194,7 @@ def rmc_approxCalc(tsrc0, tsrc1, tsrc2, tsrc3,
             casalog.post('  pw_noc 0-3: '+str(pw_noc), 'INFO')
             casalog.post('  tsrc 0-3  : '+str(tsrc0)+', '+str(tsrc1)+', '+str(tsrc2)+', '+str(tsrc3), 'INFO')
             casalog.post('  tsrcn 0-3 : '+str(tsrcn[0])+', '+str(tsrcn[1])+', '+str(tsrcn[2])+', '+str(tsrcn[3]), 'INFO')
- 
+
         #  estimate weighted mean pwv, with and without cloud component:
         # first estimate
         ws=0.0
@@ -213,7 +213,7 @@ def rmc_approxCalc(tsrc0, tsrc1, tsrc2, tsrc3,
 
         # for i in range(4):
         #    pw[i]=pw[i]*math.sin(m_el)
-    else: # pwv <= 0.5  
+    else: # pwv <= 0.5
         tau_constant=0.0
         ws=0.0
         for i in range(4):
@@ -221,7 +221,7 @@ def rmc_approxCalc(tsrc0, tsrc1, tsrc2, tsrc3,
         pwv_los=ws/np.sum(wt)
         pwv_z=pwv_los*math.sin(m_el)
         pwv_z_noc=pwv_z
-        
+
     return pwv_z,pwv_z_noc,tau_constant,tsrcn
 
 
@@ -230,8 +230,8 @@ def remove_cloud(vis=None, correct_ms=False, offsetstable='', verbose=False, dop
     Parameters:
        vis - MS with WVR data included (imported ALMA data)
        correct_ms - do the corrections to the wvr data in the MS (default False)
-       offsetstable - store processing results (Temp offsets) in this table (default '' = don't store) 
-       verbose - control terminal output (default False) 
+       offsetstable - store processing results (Temp offsets) in this table (default '' = don't store)
+       verbose - control terminal output (default False)
        doplot - generate diagnostic plots in subdirectory vis+'_remove_cloud_plots' (default False)
     Example:
        remove_cloud(vis='uid___A002_X....', True, 'myoffsets')
@@ -254,7 +254,7 @@ def remove_cloud(vis=None, correct_ms=False, offsetstable='', verbose=False, dop
                          +'\nCannot proceed when option correct_ms==True.', 'SEVERE')
             return False
 
-    if not type(offsetstable)==str: 
+    if not type(offsetstable)==str:
         casalog.post('Invalid parameter offsetstable.', 'SEVERE')
         return False
 
@@ -272,9 +272,9 @@ def remove_cloud(vis=None, correct_ms=False, offsetstable='', verbose=False, dop
         os.system('rm -rf '+plotdir+'; mkdir '+plotdir)
 
     mytb = tbtool()
-    
+
     # get basic info
-        
+
     mytb.open(vis+'/ANTENNA')
     nant=mytb.nrows()
     antnames=mytb.getcol('NAME')
@@ -311,7 +311,7 @@ def remove_cloud(vis=None, correct_ms=False, offsetstable='', verbose=False, dop
     if offsetstable!='':
         try:
             os.system('echo "0 0 0 0 0 0" > mydummy.txt')
-            ok = mytb.fromascii(offsetstable, sep=" ", columnnames=['TIME','ANTENNA','OFFSETS'], datatypes=['D', 'I', 'D4'], 
+            ok = mytb.fromascii(offsetstable, sep=" ", columnnames=['TIME','ANTENNA','OFFSETS'], datatypes=['D', 'I', 'D4'],
                                 asciifile='mydummy.txt')
             mytb.close()
         except:
@@ -328,9 +328,9 @@ def remove_cloud(vis=None, correct_ms=False, offsetstable='', verbose=False, dop
         dooffsets=True
 
     if correct_ms:
-	mytb.open(vis,nomodify=False)
+        mytb.open(vis,nomodify=False)
     else:
-	mytb.open(vis,nomodify=True)    # dont modify 
+        mytb.open(vis,nomodify=True)    # dont modify
 
     tsrcn=np.zeros(4)
     # values for each ant
@@ -360,7 +360,7 @@ def remove_cloud(vis=None, correct_ms=False, offsetstable='', verbose=False, dop
 
             # got temps, now convert to pwv
 
-            pwvna[isam],pwvn_noca[isam],tau_con[isam],tsrcn=rmc_approxCalc(tsrc[0], tsrc[1], tsrc[2], tsrc[3], m_el, Tamb, 
+            pwvna[isam],pwvn_noca[isam],tau_con[isam],tsrcn=rmc_approxCalc(tsrc[0], tsrc[1], tsrc[2], tsrc[3], m_el, Tamb,
                                                                            verbose)
             if dooffsets:
                 for it in range(4):
@@ -380,12 +380,12 @@ def remove_cloud(vis=None, correct_ms=False, offsetstable='', verbose=False, dop
             ants = np.empty(nsamples)
             ants.fill(iant)
             tbo.putcol('ANTENNA', ants, startrow)
-            
+
 
         if correct_ms:
             casalog.post('   Writing new values for antenna '+str(iant)+' to Main table of '+vis, 'INFO')
             tb1.putcol('DATA',temp)
-        
+
         tb1.close()
 
         # now outputs to the screen the medians of the samples
@@ -444,10 +444,10 @@ def remove_cloud(vis=None, correct_ms=False, offsetstable='', verbose=False, dop
         tbo.putkeyword('TAUC_STDEV', tauc_std_all)
 
         tbo.close()
-        
+
         casalog.post(' Saved remove_cloud results to '+offsetstable, 'INFO')
 
 
     return True
 
-  
+

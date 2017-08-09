@@ -39,7 +39,7 @@ class CasaRegression:
         tempfile.tempdir = temppath
         self._path['tmp'] = temppath
         self._status = ''
-        self._rerun = False			### set to true to avoid the download/install and reuse the last download
+        self._rerun = False                     ### set to true to avoid the download/install and reuse the last download
 
 
     # individual regression
@@ -48,7 +48,7 @@ class CasaRegression:
 
     def set_smtp( self, host ):
         self._state['smtp-host'] = host
-        
+
     # regression suite
     def clean_casaroot( self ):
 
@@ -142,10 +142,10 @@ class CasaRegression:
                     break
             if not found:
                 raise RuntimeError('could not match checksum with download...')
-    
+
             if not os.path.exists(self._path['casa']):
                 os.mkdir(self._path['casa'],0o755)
-    
+
             p = subprocess.Popen( [ "/bin/tar", '-C', self._path['casa'], '-x', '--strip-components', '1', '-f', f ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
             for line in p.stdout:
                 print("tar> " + line.rstrip( ))
@@ -290,12 +290,12 @@ class CasaRegression:
                                             '--eval=' + self._path['casa'] + '/build/init.pl',
                                             '--tmpdir=' + self._path['tmp'], '-c',
                                             "publish_summary.runTest( '" + script + "', WORKING_DIR='"+self._path['test']+'/pubsum'+"', RESULT_DIR='"+self._path['output']+"', RESULT_SUBDIR='"+script+"', REDIRECT=False" + PYPROFILE + " )" ] ))
-	    p = subprocess.Popen( [ casapy, '-cd', self._path['test'],
+            p = subprocess.Popen( [ casapy, '-cd', self._path['test'],
                                 '--eval=' + self._path['casa'] + '/build/init.pl',
                                 '--tmpdir=' + self._path['tmp'], '-c',
                                 "publish_summary.runTest( '" + script + "', WORKING_DIR='"+self._path['test']+'/pubsum'+"', RESULT_DIR='"+self._path['output']+"', RESULT_SUBDIR='"+script+"', REDIRECT=False" + PYPROFILE + " )" ],
                               stdout=subprocess.PIPE, stderr=subprocess.STDOUT );
-	
+
 
         log = open( self._path['log'], 'w' );
         for line in p.stdout:
@@ -316,12 +316,12 @@ class CasaRegression:
             line = line.rstrip( )
             if line.startswith("Regression PASSED"):
                 self._state['result'] = 'pass'
-	    elif line == 'OK':
-		# from UNIT TEST
-		self._state['result'] = 'pass'
-	    elif line.startswith("OK (SKIP="):
-		#from UNIT TEST (special cases with skipped tests)
-		self._state['result'] = 'pass'
+            elif line == 'OK':
+                # from UNIT TEST
+                self._state['result'] = 'pass'
+            elif line.startswith("OK (SKIP="):
+                #from UNIT TEST (special cases with skipped tests)
+                self._state['result'] = 'pass'
             elif line == 'status = pass # execution status':
                 # from publish_summary
                 self._state['result'] = 'pass'
@@ -371,7 +371,7 @@ class CasaRegression:
         #    maildb = gdbm.open(self._state['maildb'],"c")
         #    maildb['*' + self._state['stamp']] = "malfunction" + divider + str(self._state['script']) + divider + self._state['master'] + divider + self._state['master-email'] + divider + logfile
         #    maildb.close( )
-            
+
 
     # individual regression
     def result( self ):
@@ -389,7 +389,7 @@ class CasaRegression:
         #summary_email_list="drs@nrao.edu"
         summary_email_recipients = summary_email_list.split(';;')
         summary_email_recipients.append(self._state['master-email'])
-        
+
         ###
         ### web-published reports should have the jenkins '/userContent/' in the path...
         ### otherwise, we'll assume it's a local file...
@@ -498,7 +498,7 @@ class CasaRegression:
                 version_re = re.compile(r"([0-9]+)\.([0-9]+)\.([0-9]+)\s+([0-9]+).*?")
                 for line in open(version_file,'r'):
                     if line.startswith('#'):
-                        continue			# comment
+                        continue                        # comment
                     else:
                         m = re.match(version_re,line);
                         if m is not None:

@@ -326,7 +326,7 @@ inpfile=flagcmds
 #antenna   = [''  , 'VA09', ''   , 'VA14', 'VA15']
 #timerange = [''  , ''    , '2003/05/02/21:40:58~2003/05/02/22:01:30', \
 #                           '2003/05/02/18:50:50~2003/05/02/19:13:30', \
-#                           '2003/05/02/22:38:49~2003/05/02/22:39:11'] 
+#                           '2003/05/02/22:38:49~2003/05/02/22:39:11']
 #spw       = [''  , ''    , ''   , ''    , '0'   ]
 
 
@@ -350,7 +350,7 @@ if benchmarking:
 print('--Setjy--')
 default('setjy')
 
-setjy(vis=msfile1,field='0542+498_1',modimage=modelim,scalebychan=False,standard='Perley-Taylor 99') 
+setjy(vis=msfile1,field='0542+498_1',modimage=modelim,scalebychan=False,standard='Perley-Taylor 99')
 setjy(vis=msfile1,field='0542+498_2',modimage=modelim,scalebychan=False,standard='Perley-Taylor 99')
 
 # Record setjy completion time
@@ -390,14 +390,14 @@ default('gaincal')
 
 gtable1 = prefix1 + '.1.gcal'
 gaincal(vis=msfile1,caltable=gtable1,
-	field='0,12,14',spw='0:4~58', gaintype='G',
-	solint='int',combine='',refant='VA27',minsnr=2.,
+        field='0,12,14',spw='0:4~58', gaintype='G',
+        solint='int',combine='',refant='VA27',minsnr=2.,
         gaintable=[opactable,gcurvetable],interp=['',''])
 
 gtable2 = prefix1 + '.2.gcal'
 gaincal(vis=msfile1,caltable=gtable2,
-	field='6,13,15',spw='1:4~58', gaintype='G',
-	solint='int',combine='',refant='VA27',
+        field='6,13,15',spw='1:4~58', gaintype='G',
+        solint='int',combine='',refant='VA27',
         gaintable=[opactable,gcurvetable],interp=['',''])
 
 # gaincal calibration completion time
@@ -414,14 +414,14 @@ default('bandpass')
 
 btable1 = prefix1 + '.1.bcal'
 bandpass(vis=msfile1,caltable=btable1,
-	 field='0',spw='0',
-	 gaintable=[opactable,gcurvetable,gtable1],interp=['','','nearest'],
-	 refant='VA27',solint='inf',combine='scan')
+         field='0',spw='0',
+         gaintable=[opactable,gcurvetable,gtable1],interp=['','','nearest'],
+         refant='VA27',solint='inf',combine='scan')
 btable2 = prefix1 + '.2.bcal'
 bandpass(vis=msfile1,caltable=btable2,
-	 field='6',spw='1',
-	 gaintable=[opactable,gcurvetable,gtable2],interp=['','','nearest'],
-	 refant='VA27',solint='inf',combine='scan')
+         field='6',spw='1',
+         gaintable=[opactable,gcurvetable,gtable2],interp=['','','nearest'],
+         refant='VA27',solint='inf',combine='scan')
 
 # bandpass calibration completion time
 if benchmarking:
@@ -438,10 +438,10 @@ default('fluxscale')
 
 ftable1 = prefix1 + '.1.fcal'
 fluxscale(vis=msfile1,caltable=gtable1,fluxtable=ftable1,
-	  reference='0542+498_1',transfer=['0336+323_1', '0319+415_1'])
+          reference='0542+498_1',transfer=['0336+323_1', '0319+415_1'])
 ftable2 = prefix1 + '.2.fcal'
 fluxscale(vis=msfile1,caltable=gtable2,fluxtable=ftable2,
-	  reference='0542+498_2',transfer=['0336+323_2', '0319+415_2'])
+          reference='0542+498_2',transfer=['0336+323_2', '0319+415_2'])
 
 # Record fluxscale completion time
 if benchmarking:
@@ -457,13 +457,13 @@ print('--ApplyCal--')
 default('applycal')
 
 applycal(vis=msfile1,
-	 field='0~5',spw='0',
-	 gaintable=[opactable,gcurvetable,ftable1,btable1],
-	 gainfield=['','','0'],calwt=False)
+         field='0~5',spw='0',
+         gaintable=[opactable,gcurvetable,ftable1,btable1],
+         gainfield=['','','0'],calwt=False)
 applycal(vis=msfile1,
-	 field='6~11',spw='1',
-	 gaintable=[opactable,gcurvetable,ftable2,btable2],
-	 gainfield=['','','6'],calwt=False)
+         field='6~11',spw='1',
+         gaintable=[opactable,gcurvetable,ftable2,btable2],
+         gainfield=['','','6'],calwt=False)
 
 # Record applycal completion time
 if benchmarking:
@@ -608,14 +608,14 @@ mode = 'list'
 
 #default('flagdata')
 #flagdata(vis=msfile2,mode='manualflag',
-#	 antenna='15',
-#	 timerange='2003/05/08/00:00:00~2003/05/08/20:00:00')
+#        antenna='15',
+#        timerange='2003/05/08/00:00:00~2003/05/08/20:00:00')
 
 #
 #  antenna '22' has a bad scan 144
 #flagdata(vis=msfile2,mode='manualflag',
-#	 antenna='6,22',
-#	 scan='144')
+#        antenna='6,22',
+#        scan='144')
 
 #
 #
@@ -693,13 +693,13 @@ default('gaincal')
 
 gtable2_1 = prefix2 + '.1.gcal'
 gaincal(vis=msfile2,caltable=gtable2_1,
-	field='0,12,14',spw='0:4~58', gaintype='G',
-	solint='int',combine='',refant='VA27',
+        field='0,12,14',spw='0:4~58', gaintype='G',
+        solint='int',combine='',refant='VA27',
         gaintable=[opactable2,gcurvetable2],interp=['',''])
 gtable2_2 = prefix2 + '.2.gcal'
 gaincal(vis=msfile2,caltable=gtable2_2,
-	field='6,13,15',spw='1:4~58', gaintype='G',
-	solint='int',combine='',refant='VA27',
+        field='6,13,15',spw='1:4~58', gaintype='G',
+        solint='int',combine='',refant='VA27',
         gaintable=[opactable2,gcurvetable2],interp=['',''])
 
 # gaincal calibration completion time
@@ -717,16 +717,16 @@ default('bandpass')
 
 btable2_1 = prefix2 + '.1.bcal'
 bandpass(vis=msfile2,caltable=btable2_1,
-	 field='0',spw='0',
-	 gaintable=[opactable2,gcurvetable2,gtable2_1],interp=['','','nearest'],
-	 refant='VA27',
-	 solint='inf',combine='scan')
+         field='0',spw='0',
+         gaintable=[opactable2,gcurvetable2,gtable2_1],interp=['','','nearest'],
+         refant='VA27',
+         solint='inf',combine='scan')
 btable2_2 = prefix2 + '.2.bcal'
 bandpass(vis=msfile2,caltable=btable2_2,
-	 field='6',spw='1',
-	 gaintable=[opactable2,gcurvetable2,gtable2_2],interp=['','','nearest'],
-	 refant='VA27',
-	 solint='inf',combine='scan')
+         field='6',spw='1',
+         gaintable=[opactable2,gcurvetable2,gtable2_2],interp=['','','nearest'],
+         refant='VA27',
+         solint='inf',combine='scan')
 
 # bandpass calibration completion time
 if benchmarking:
@@ -743,10 +743,10 @@ default('fluxscale')
 
 ftable2_1 = prefix2 + '.1.fcal'
 fluxscale(vis=msfile2, caltable=gtable2_1, fluxtable=ftable2_1,
-	  reference='0542+498_1',transfer=['0336+323_1', '0319+415_1'])
+          reference='0542+498_1',transfer=['0336+323_1', '0319+415_1'])
 ftable2_2 = prefix2 + '.2.fcal'
 fluxscale(vis=msfile2, caltable=gtable2_2, fluxtable=ftable2_2,
-	  reference='0542+498_2',transfer=['0336+323_2', '0319+415_2'])
+          reference='0542+498_2',transfer=['0336+323_2', '0319+415_2'])
 
 # Record fluxscale completion time
 if benchmarking:
@@ -763,13 +763,13 @@ print('--ApplyCal--')
 default('applycal')
 
 applycal(vis=msfile2,
-	 field='0~5',spw='0',
-	 gaintable=[opactable2,gcurvetable2,ftable2_1,btable2_1],
-	 gainfield=['','','0'],calwt=False)
+         field='0~5',spw='0',
+         gaintable=[opactable2,gcurvetable2,ftable2_1,btable2_1],
+         gainfield=['','','0'],calwt=False)
 applycal(vis=msfile2,
-	 field='6~11',spw='1',
-	 gaintable=[opactable2,gcurvetable2,ftable2_2,btable2_2],
-	 gainfield=['','','6'],calwt=False)
+         field='6~11',spw='1',
+         gaintable=[opactable2,gcurvetable2,ftable2_2,btable2_2],
+         gainfield=['','','6'],calwt=False)
 
 
 # Record applycal completion time
@@ -913,7 +913,7 @@ if doimage:
     scales = [0, 3, 10]
     interpolation = 'nearest'
     async = False
-    
+
     clean()
 
 # Record imager completion time
@@ -934,7 +934,7 @@ if doimage:
     mom0blueoutfile = prefix+'.src.tmom0.blu'
     mom0alloutfile = prefix+'.src.tmom0.all'
     mom1alloutfile = prefix+'.src.tmom1.all'
-    
+
     imagename = imimage
     moments = [0]
     axis = 'spec'
@@ -1023,7 +1023,7 @@ if doimage:
     ia.close()
 # 7499.6601 (n1333_both.ms)
 
-# test values 
+# test values
 cal1_2may=4.56 # (channel averaged)
 cal2_2may=4.00 # (channel averaged)
 cal1_8may=5.72 # (channel averaged)
@@ -1103,7 +1103,7 @@ else:
             regstate = False
         else:
             for x in [sys.stdout, logfile]: print('* Did not do image max test', file=x)
-            
+
     for x in [sys.stdout, logfile]: print('*   Image max '+str(thistest_immax)+' ('+str(immax)+')', file=x)
     if (diff_imrms < 0.05):
         for x in [sys.stdout, logfile]: print('* Passed image rms test                *', file=x)
@@ -1117,14 +1117,14 @@ else:
     #if ((diff_cal1_2may<0.05) & (diff_cal2_2may<0.05) &
     #    (diff_cal1_8may<0.05) & (diff_cal2_8may<0.05) &
     #    (diff_src_2may<0.05) & (diff_src_8may<0.05) &
-    #    (diff_immax<0.05) & (diff_imrms<0.05)): 
+    #    (diff_immax<0.05) & (diff_imrms<0.05)):
     if regstate:
         for x in [sys.stdout, logfile]: print('---', file=x)
-	for x in [sys.stdout, logfile]: print('Passed Regression test for NGC1333', file=x)
-	for x in [sys.stdout, logfile]: print('---', file=x)
+        for x in [sys.stdout, logfile]: print('Passed Regression test for NGC1333', file=x)
+        for x in [sys.stdout, logfile]: print('---', file=x)
         tstutl.note("Passed Regression test for NGC1333","NORMAL")
-    else: 
-	for x in [sys.stdout, logfile]: print('----FAILED Regression test for NGC1333', file=x)
+    else:
+        for x in [sys.stdout, logfile]: print('----FAILED Regression test for NGC1333', file=x)
         tstutl.note("FAILED Regression test for NGC1333","SEVERE")
     for x in [sys.stdout, logfile]: print('*********************************', file=x)
     for x in [sys.stdout, logfile]: print('', file=x)

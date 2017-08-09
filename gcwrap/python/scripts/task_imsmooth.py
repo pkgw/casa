@@ -43,13 +43,13 @@
 #
 # <synopsis>
 # task_imsmooth.py is a Python script providing an easy to use task
-# for smoothing an image. 
+# for smoothing an image.
 #
 # The convolv2d function of the image tool is used to do the work,
 # a description of this function can be found at
 # http://casa.nrao.edu/docs/casaref/image.convolve2d.html#x27-270001.1.1
-# 
-# </synopsis> 
+#
+# </synopsis>
 #
 # <example>
 # <srcblock>
@@ -93,7 +93,7 @@ def imsmooth(
             err = "beam cannot be a non-empty string"
             casalog.post(err, "SEVERE")
             raise Exception(err)
-        beam = {}    
+        beam = {}
 
     # First check to see if the output file exists.  If it
     # does then we abort.  CASA doesn't allow files to be
@@ -124,8 +124,8 @@ def imsmooth(
             minor=str(minor)+'arcsec'
         if isinstance(pa, (int, float)):
             pa=str(pa)+'deg'
-        
-    try:       
+
+    try:
         if ( gkernel or ckernel):
             _myia.open(imagename)
             if ckernel:
@@ -147,7 +147,7 @@ def imsmooth(
                     raise Exception("Minor axis must be specified")
                 if not pa:
                     raise Exception("Position angle must be specified")
-       
+
             retia = _myia.convolve2d(
                 axes=[0,1], region=reg, major=major,
                 minor=minor, pa=pa, outfile=outfile,
@@ -191,17 +191,17 @@ def imsmooth(
             _myia.open(imagename)
             retia = _myia.convolve(
                 outfile=outfile, kernel=kimage, scale=scale, region=reg,
-                mask=mask, overwrite=overwrite, stretch=stretch 
+                mask=mask, overwrite=overwrite, stretch=stretch
             )
             return True
         else:
             casalog.post( 'Unrecognized kernel type: ' + kernel, 'SEVERE' )
             return False
-        
+
     except Exception as instance:
         casalog.post("Exception: " + str(instance), 'SEVERE')
         return False
     finally:
         _myia.done()
         retia.done()
-    
+

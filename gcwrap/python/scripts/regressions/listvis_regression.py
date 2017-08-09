@@ -4,16 +4,16 @@
 # Regression test for task listvis.
 #
 # Current number of test scenarios: 4
-# 
+#
 # The testing is performed by comparing the listvis output at runtime
-# with "standards" contained in the data repository.  "Metadata" (all 
+# with "standards" contained in the data repository.  "Metadata" (all
 # output that is not a floating point number) is compared character by
 # character; any difference will cause the test to fail.  "Data" (all
-# floating point numbers in output) are assumed to be sequential 
-# amplitude-phase pairs and are required to be equal to within a 
-# minimum precision value specified below in this script.  
+# floating point numbers in output) are assumed to be sequential
+# amplitude-phase pairs and are required to be equal to within a
+# minimum precision value specified below in this script.
 #
-# Measurement sets are built from scratch using functions defined in this 
+# Measurement sets are built from scratch using functions defined in this
 # script.
 
 import time
@@ -31,7 +31,7 @@ automate = True # set to false for testing or debugging
 regressionDir = 'listvis_regression'
 if (not os.path.exists(regressionDir)): os.mkdir(regressionDir)
 
-if(automate): 
+if(automate):
     print("Running in automated mode.")
     print("  - All MS data will be rebuilt from scratch.")
     print("  - All test files will be removed after testing.")
@@ -44,7 +44,7 @@ else:
 #=============================================================================
 def load_ngc4826(prefix,msname):
     ##########################################################################
-    #                                                                        
+    #
     # Clear out previous run results
     print("Removing files and directories: ngc4826.tutorial.*")
     os.system('rm -rf '+prefix+'ngc4826.tutorial.*')
@@ -59,20 +59,20 @@ def load_ngc4826(prefix,msname):
     # Helfer, Thornley, Regan, et al., 2003, ApJS, 145, 259                  #
     #
     # 16apr98
-    #	source=ngc4826
-    #	phasecal=1310+323
-    #	fluxcal=3c273, Flux = 23 Jy on 16apr98
-    #	passcal= none - data were observed with online bandpass correction.
+    #   source=ngc4826
+    #   phasecal=1310+323
+    #   fluxcal=3c273, Flux = 23 Jy on 16apr98
+    #   passcal= none - data were observed with online bandpass correction.
     #
-    # NOTE: This data has been filled into MIRIAD, line-length correction 
-    #	done, and then exported as separate files for each source.
-    #	3c273 was not line length corrected since it was observed
-    #	for such a short amount of time that it did not need it.  
+    # NOTE: This data has been filled into MIRIAD, line-length correction
+    #   done, and then exported as separate files for each source.
+    #   3c273 was not line length corrected since it was observed
+    #   for such a short amount of time that it did not need it.
     #
-    # From miriad: source Vlsr = 408; delta V is 20 km/s 
+    # From miriad: source Vlsr = 408; delta V is 20 km/s
     #
     # NOTE: This data contains correlations of only one polarization, 'YY'.
-    # The antennas contain 'X' and 'Y' feeds, but the 'X' data was not 
+    # The antennas contain 'X' and 'Y' feeds, but the 'X' data was not
     # correlated.
     #
     ##########################################################################
@@ -87,7 +87,7 @@ def load_ngc4826(prefix,msname):
     print("Starting from the uvfits files exported by miriad")
     print("The USB spectral windows were written separately by miriad for 16apr98")
 
-    pathName = os.environ.get('CASAPATH').split()[0] 
+    pathName = os.environ.get('CASAPATH').split()[0]
     localData = pathName + '/data/regression/ngc4826/'
     importuvfits(fitsfile= localData + 'fitsfiles/3c273.fits5',        vis=prefix+'ngc4826.tutorial.3c273.5.ms')
     importuvfits(fitsfile= localData + 'fitsfiles/3c273.fits6',        vis=prefix+'ngc4826.tutorial.3c273.6.ms')
@@ -149,7 +149,7 @@ def load_jupiter6cm(prefix,msname):
     # [ http://casa.nrao.edu/casatraining.shtml#scripts ]
 
     # Clean up old files
-    os.system('rm -rf '+prefix+'*')    
+    os.system('rm -rf '+prefix+'*')
     # This is the output MS file name
     msfile = msname
 
@@ -173,7 +173,7 @@ def load_jupiter6cm(prefix,msname):
 
 testNum = 0
 
-##########################################################################                                                                        
+##########################################################################
 # TEST1
 # Using ngc4826 data.  This data contains multiple spectral windows with
 # variable numbers of channels; only one correlation, YY.
@@ -184,7 +184,7 @@ print("* TEST " + str(testNum) + ": using ngc4826 tutorial data")
 print("")
 
 prefix = regressionDir+'/test'+str(testNum)+'/'
-msname = prefix+"ngc4826.tutorial.ms"  
+msname = prefix+"ngc4826.tutorial.ms"
 outputFilename = prefix+'listvis.ngc4826.short.out'
 localData = pathName + '/data/regression/ngc4826/'
 standardFilename = localData+'listvis.short.out'
@@ -226,8 +226,8 @@ if (lt.runTests(outputFilename,standardFilename,'1.000',comparefilename)):
 else:
     print("failed listvis output test")
     testFailed +=1
-    
-##########################################################################                                                                        
+
+##########################################################################
 # TEST 2 - NGC4826 defaults
 # Run listvis using default values.  Using ngc4826 data from above.
 #
@@ -252,12 +252,12 @@ if (not lt.resetData([msname], automate)):
     print("Using data from test 1.")
 else:
     print("Building data from scratch.")
-    msname = prefix+"ngc4826.tutorial.ms"  
+    msname = prefix+"ngc4826.tutorial.ms"
     load_ngc4826(prefix,msname) # Build data from scratch
 
 default(listvis)
 vis                 = msname #  Name of input visibility file
-spw                 = '0'    #  Do not list too much 
+spw                 = '0'    #  Do not list too much
 listfile            = outputFilename        #  Output file
 go(listvis)
 
@@ -269,7 +269,7 @@ else:
     print("failed listvis output test")
     testFailed +=1
 
-##########################################################################                                                                        
+##########################################################################
 # TEST - jupiter6cm
 # Run listvis using all available (non-default) parameters.
 #
@@ -279,7 +279,7 @@ print("* TEST " + str(testNum) + ": jupiter 6cm test, use all available paramete
 print("")
 
 prefix = regressionDir+'/test'+str(testNum)+'/'
-msname = prefix+"jupiter6cm.demo.ms"  
+msname = prefix+"jupiter6cm.demo.ms"
 outputFilename = prefix+'listvis.jupiter6cm.nondefault.out'
 localData = pathName + '/data/regression/jupiter6cm/'
 standardFilename = localData+'listvis.nondefault.out'
@@ -321,7 +321,7 @@ else:
     print("failed listvis output test")
     testFailed +=1
 
-##########################################################################                                                                        
+##########################################################################
 # TEST - jupiter6cm, mostly defaults
 # Run listvis using mostly default values.  Some selection is required;
 # otherwise the output file will be 227MB!
@@ -342,7 +342,7 @@ if (not lt.resetData([msname], automate)):
     print("Using data from previous test.")
 else:
     print("Building data from scratch.")
-    msname = prefix+"jupiter6cm.demo.ms"  
+    msname = prefix+"jupiter6cm.demo.ms"
     load_jupiter6cm(prefix,msname) # Build data from scratch
 
 default(listvis)
@@ -360,7 +360,7 @@ else:
     print("failed listvis output test")
     testFailed +=1
 
-##########################################################################                                                                        
+##########################################################################
 # TEST 5
 # Using single dish data OrionS_rawACSmod.  This data contains multiple
 # numbers of channels and DATA_FLOAT column (CAS-2138)
@@ -371,7 +371,7 @@ print("* TEST " + str(testNum) + ": using single dish data OrionS_rawACSmod")
 print("")
 
 prefix = regressionDir+'/test'+str(testNum)+'/'
-msname = prefix+"OrionS_rawACSmod"  
+msname = prefix+"OrionS_rawACSmod"
 outputFilename = prefix+'listvis.orion.short.out'
 localData = pathName + '/data/regression/ATST5/OrionS/'
 standardFilename = localData+'listvis.orionshort.out'
@@ -406,7 +406,7 @@ else:
     print("failed listvis output test")
     testFailed +=1
 
-##########################################################################                                                                        
+##########################################################################
 # Test complete, summarize.
 #
 
@@ -432,5 +432,5 @@ if (testFailed > 0):
     regstate = False
 else:
     regstate = True
-    
+
 endTime = time.time()

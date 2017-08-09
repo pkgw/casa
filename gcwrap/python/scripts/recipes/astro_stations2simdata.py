@@ -37,7 +37,7 @@ def astro_stations2simdata(aststatfn):
     mysim = simutil()
     pdbi['itrf'] = mysim.locxyz2itrf(dms2d(pdbi['lat']), dms2d(pdbi['long']),
                                      locz=pdbi['alt'])
-    
+
     statdict = {}
     asf = open(aststatfn, 'r')
     line = asf.readline()         # Skip 1st line.

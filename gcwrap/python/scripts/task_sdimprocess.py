@@ -26,7 +26,7 @@ def create_4d_image(infile, outfile):
             outimage = ia.subimage(outfile=outfile)
     finally:
         ia.close()
-        
+
     return outimage
 
 
@@ -36,7 +36,7 @@ def sdimprocess(infiles, mode, numpoly, beamsize, smoothsize, direction, maskwid
         worker.initialize()
         worker.execute()
         worker.finalize()
-    
+
 class sdimprocess_worker(sdutil.sdtask_interface):
     def __init__(self, **kwargs):
         super(sdimprocess_worker,self).__init__(**kwargs)
@@ -49,7 +49,7 @@ class sdimprocess_worker(sdutil.sdtask_interface):
 
     def initialize(self):
         self.parameter_check()
-        
+
         # temporary filename
         tmpstr = time.ctime().replace( ' ', '_' ).replace( ':', '_' )
         self.tmpmskname = 'masked.'+tmpstr+'.im'
@@ -100,7 +100,7 @@ class sdimprocess_worker(sdutil.sdtask_interface):
             # check input file
             if type(self.infiles) == list:
                 if len(self.infiles) != 1:
-                    raise Exception("infiles allows only one input file for pressed-out method.") 
+                    raise Exception("infiles allows only one input file for pressed-out method.")
                 else:
                     self.infiles = self.infiles[0]
             # check direction
@@ -184,12 +184,12 @@ class sdimprocess_worker(sdutil.sdtask_interface):
         bminor = qsmoothsize
         pa = qa.quantity(0.0, 'deg')
         # masked channels are replaced by zero and convolved here.
-        self.convimage = self.image.convolve2d( outfile=self.tmppolyname, major=bmajor, minor=bminor, pa=pa, 
+        self.convimage = self.image.convolve2d( outfile=self.tmppolyname, major=bmajor, minor=bminor, pa=pa,
                                                 overwrite=True )
         self.convimage.done()
 
         # get dTij (original - smoothed)
-        self.convimage = ia.imagecalc(outfile=self.tmpconvname, 
+        self.convimage = ia.imagecalc(outfile=self.tmpconvname,
                                       pixels='"{org}" - "{conv}"'.format(org=self.tmpmskname,
                                                                          conv=self.tmppolyname),
                                       overwrite=True)
@@ -203,7 +203,7 @@ class sdimprocess_worker(sdutil.sdtask_interface):
         else:
             raise Exception("Sorry, the task don't support inclined scan with respect to horizontal or vertical axis, right now.")
         # Replace duplicated method ia.fitpolynomial with
-        # ia.fitprofile 
+        # ia.fitprofile
         #polyimage = convimage.fitpolynomial( fitfile=tmppolyname, axis=fitaxis, order=numpoly, overwrite=True )
         #polyimage.done()
         if os.path.exists( self.tmppolyname ):
@@ -227,7 +227,7 @@ class sdimprocess_worker(sdutil.sdtask_interface):
             polyimage.maskhandler('delete', name=temp_maskname)
 
         # subtract fitted image from original map
-        subtracted = ia.imagecalc(outfile=self.outfile, 
+        subtracted = ia.imagecalc(outfile=self.outfile,
                                   pixels='"{org}" - "{fit}"'.format(org=self.infiles,
                                                                     fit=self.tmppolyname),
                                   overwrite=self.overwrite)
@@ -265,12 +265,12 @@ class sdimprocess_worker(sdutil.sdtask_interface):
                 get_trc = lambda i, j: [nx-1, ny-1, i, j]
                 imshape2 = imshape[2]
                 imshape3 = imshape[3]
-            else: # ndim == 2 
+            else: # ndim == 2
                 get_blc = lambda i, j: [0,0]
                 get_trc = lambda i, j: [nx-1, ny-1]
                 imshape2 = 1
                 imshape3 = 1
-                
+
             for i3 in range(imshape3):
                 for i2 in range(imshape2):
                     blc = get_blc(i2, i3)
@@ -281,7 +281,7 @@ class sdimprocess_worker(sdutil.sdtask_interface):
                                                           mslice.reshape(nx,ny),
                                                           axis, order)
                     modelimg.putchunk(model, blc)
-                
+
             # the fit model image itself is free from invalid pixels
             modelimg.calcmask('T', asdefault=True)
         except: raise
@@ -357,20 +357,20 @@ class sdimprocess_worker(sdutil.sdtask_interface):
                 masks.append(self.maskwidth[i%len(self.maskwidth)])
         for i in range(len(masks)):
             masks[i] = 0.01 * masks[i]
-        
+
         # mask
         for i in range(nfile):
             self.realimage = create_4d_image(self.infiles[i], self.tmprealname[i])
             self.imagimage = self.realimage.subimage(outfile=self.tmpimagname[i])
-            
+
             # replace masked pixels with 0.0
             if not self.realimage.getchunk(getmask=True).all():
                 casalog.post("Replacing masked pixels with 0.0 in %d-th image" % (i))
                 self.realimage.replacemaskedpixels(0.0)
             self.realimage.close()
             self.imagimage.close()
-          
-        # Below working images are all 4D regardless of dimension of input images  
+
+        # Below working images are all 4D regardless of dimension of input images
         # image shape for temporary images (always 4D)
         ia.open(self.tmprealname[0])
         imshape = ia.shape()
@@ -443,7 +443,7 @@ class sdimprocess_worker(sdutil.sdtask_interface):
             """
             if abs(numpy.sin(dirs[i]*dtor)) < eps:
                 # direction is around 0 deg
-                maskw = 0.5 * nx * masks[i] 
+                maskw = 0.5 * nx * masks[i]
                 for ix in range(nx):
                     for iy in range(ny):
                         dd = abs( float(ix) - 0.5 * (nx-1) )
@@ -474,7 +474,7 @@ class sdimprocess_worker(sdutil.sdtask_interface):
                             cosd = numpy.cos(0.5*numpy.pi*dd/maskw)
                             weights[i][ix][iy] = 1.0 - cosd * cosd
                         if weights[i][ix][iy] == 0.0:
-                            weights[i][ix][iy] += eps*0.01 
+                            weights[i][ix][iy] += eps*0.01
             """
             # shift
             xshift = -((ny-1)/2)
@@ -542,7 +542,7 @@ class sdimprocess_worker(sdutil.sdtask_interface):
                 del pixval, pixifft
         if maskedvalue is not None:
             self.realimage.putchunk(self.realimage.getchunk()+maskedvalue)
-            
+
         # put result into outimage
         chunk = self.realimage.getchunk()
         outimage.putchunk(chunk.reshape(imshape_out))
@@ -552,7 +552,7 @@ class sdimprocess_worker(sdutil.sdtask_interface):
             if len(maskstr) > 0: maskstr += " || "
             maskstr += ("mask('%s')" % (name))
         outimage.calcmask(maskstr,name="basketweaving",asdefault=True)
-        
+
         self.realimage.close()
         self.imagimage.close()
         outimage.close()
@@ -589,4 +589,4 @@ class sdimprocess_worker(sdutil.sdtask_interface):
         if len(existing_files) > 0:
             cu = utilstool()
             cu.removetable(existing_files)
-    
+

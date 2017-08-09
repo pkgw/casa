@@ -33,7 +33,7 @@ def dict_to_table(indict, tablepath, kwkeys=[], colkeys=[], info=None, keepcolor
               'phang': {'comment': 'phase angle',
                         'data': {'unit': 'deg',
                                  'value': array([37.30, 37.33, 37.36])}}}
-                                 
+
     # Produces a table with, in order, a measure column (date), two bare
     # columns (delta and obs_code), and a commented quantity column (phang).
     # The comment goes in the 'comment' field of the column description.
@@ -64,7 +64,7 @@ def dict_to_table(indict, tablepath, kwkeys=[], colkeys=[], info=None, keepcolor
             if hasattr(barecol, 'has_key') and 'unit' in barecol and 'value' in barecol:
                 barecol = barecol['value']
         return barecol
-        
+
     # Divvy up the known keywords and columns, if present, preserving the
     # requested order.
     for kw in kwkeys:
@@ -108,11 +108,11 @@ def dict_to_table(indict, tablepath, kwkeys=[], colkeys=[], info=None, keepcolor
     for c in cols:
         #print "Setting coldesc for", c
         data = indict[c]  # Place to find the valueType.
-        
+
         if hasattr(data, 'has_key'):
             #print "comment =", data.get('comment', '')
             coldesc['comment'] = data.get('comment', '')
-            
+
         data = get_bare_col(data)
         valtype = str(type(data[0]))[7:-2]
         if valtype == 'str':
@@ -123,7 +123,7 @@ def dict_to_table(indict, tablepath, kwkeys=[], colkeys=[], info=None, keepcolor
         # Use double (not float!) for columns that will be read by MeasIERS.
         if valtype == 'float':
             valtype = 'double'
-            
+
         coldesc['valueType'] = valtype
 
         tabdesc[c] = coldesc.copy()
@@ -149,7 +149,7 @@ def dict_to_table(indict, tablepath, kwkeys=[], colkeys=[], info=None, keepcolor
         mytb = tbtool()
         tmpfname='_tmp_fake.dat'
         if keepcolorder:
-            # try to keep order of cols 
+            # try to keep order of cols
             # Ugly, but since tb.create() cannot accept odered dictionary
             # for tabledesc, I cannot find any other way to keep column order.
             # * comment for each column will not be filled
@@ -160,12 +160,12 @@ def dict_to_table(indict, tablepath, kwkeys=[], colkeys=[], info=None, keepcolor
             szarr=szarr.replace(']','')
             szarr=szarr.replace(',','')
             scollist=''
-            sdtypes='' 
+            sdtypes=''
             for c in cols:
-                scollist+=c+' '   
+                scollist+=c+' '
                 vt=tabdesc[c]['valueType']
                 if vt=='string':
-                   sdtypes+='A '    
+                   sdtypes+='A '
                 elif vt=='integer':
                    sdtypes+='I '
                 elif vt=='double':
@@ -176,14 +176,14 @@ def dict_to_table(indict, tablepath, kwkeys=[], colkeys=[], info=None, keepcolor
             f.write(sdtypes+'\n')
             f.write(szarr)
             f.close()
-            mytb.fromascii(tablepath,tmpfname,sep=' ')     
+            mytb.fromascii(tablepath,tmpfname,sep=' ')
             # close and re-open since tb.fromascii(nomodify=False) has not
             # implemented yet
-            mytb.close() 
-            os.remove(tmpfname) 
+            mytb.close()
+            os.remove(tmpfname)
             mytb.open(tablepath, nomodify=False)
             mytb.removerows(0)
-        else: 
+        else:
             mytb.create(tablepath, tabdesc)
         if type(info) == dict:
             mytb.putinfo(info)
@@ -200,7 +200,7 @@ def dict_to_table(indict, tablepath, kwkeys=[], colkeys=[], info=None, keepcolor
             if type(data)==dict and me.ismeasure(data):
                 mytb.putcolkeyword(c, 'MEASINFO', {'Ref': data['refer'],
                                                    'type': data['type']})
-                data = data['m0']   # = quantity         
+                data = data['m0']   # = quantity
             # if qa.isquantity(data) can't be trusted.
             if hasattr(data, 'has_key') and 'unit' in data and 'value' in data:
                 mytb.putcolkeyword(c, 'QuantumUnits',

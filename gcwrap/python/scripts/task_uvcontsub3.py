@@ -87,7 +87,7 @@ def uvcontsub3(vis, fitspw, combine, fitorder, field, spw,
     # Write history to output MS, not the input ms.
     try:
         param_names = uvcontsub3.__code__.co_varnames[:uvcontsub3.__code__.co_argcount]
-        param_vals = [eval(p) for p in param_names]   
+        param_vals = [eval(p) for p in param_names]
         retval &= write_history(myms, outputvis, 'uvcontsub3', param_names, param_vals,
                                 casalog)
     except Exception as instance:
@@ -142,7 +142,7 @@ def uvcontsub3(vis, fitspw, combine, fitorder, field, spw,
                     casalog.post('Updating FLAG_CMD', 'INFO')
                     mytb.putcol('COMMAND', cmds)
 
-            
+
         except Exception as instance:
             casalog.post("*** Error \'%s\' updating FLAG_CMD" % (instance),
                          'SEVERE')

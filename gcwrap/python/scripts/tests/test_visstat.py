@@ -6,7 +6,7 @@ import os
 import shutil
 import unittest
 
-#     Functional tests of visstat 
+#     Functional tests of visstat
 
 epsilon = 0.0001
 
@@ -18,13 +18,13 @@ datapath = os.environ.get('CASAPATH').split()[0] + "/data/regression/unittest/vi
 
 # Pick up alternative data directory to run tests on MMSs
 testmms = False
-if 'TEST_DATADIR' in os.environ:   
+if 'TEST_DATADIR' in os.environ:
     DATADIR = str(os.environ.get('TEST_DATADIR'))+'/visstat/'
     if os.path.isdir(DATADIR):
         testmms = True
         datapath = DATADIR
 
-print('visstat tests will use data from '+datapath)         
+print('visstat tests will use data from '+datapath)
 
 class visstat_test(unittest.TestCase):
     def setUp(self):
@@ -33,7 +33,7 @@ class visstat_test(unittest.TestCase):
         self.msfile = "ngc5921.ms"
         if(not os.path.exists(self.msfile)):
             shutil.copytree(datapath+self.msfile, self.msfile)
-            
+
         default('visstat')
 
     def tearDown(self):
@@ -41,7 +41,7 @@ class visstat_test(unittest.TestCase):
 
     def test1(self):
         '''Visstat 1: Default values'''
-        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }            
+        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
         expected = {self.msfile:
                     {'DATA': {'max': 73.75,
                               'mean': 4.8371031336376049,
@@ -55,8 +55,8 @@ class visstat_test(unittest.TestCase):
                               'sum': 12871502.415990865,
                               'sumsq': 776391995.30866611,
                               'var': 268.37019512552371}}}
-            
-        
+
+
         s = visstat(vis=self.msfile, axis='amp', datacolumn='data')
 
         if list(s.keys()) != list(expected[self.msfile].keys()):
@@ -66,7 +66,7 @@ class visstat_test(unittest.TestCase):
                             (expected[self.msfile], s)
 #            raise Exception("Wrong dictionary keys. Expected %s, got %s" % \
 #                            (expected[self.msfile], s))
-                            
+
         # Detailed check of values, column=DATA
         print("Expected =", expected[self.msfile])
         print("Got =", s)
@@ -95,18 +95,18 @@ class visstat_test(unittest.TestCase):
 
         self.assertTrue(retValue['success'],retValue['error_msgs'])
 
-    def test2(self):     
+    def test2(self):
         '''Visstat 2: Check channel selections'''
-        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }            
+        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
         for ch in [1, 2, 4, 7, 13, 62]:
           for corr in ['ll', 'rr', 'll,rr']:
             print("Call with spw='0:1~"+str(ch)+"', correlation="+corr)
             s = visstat(vis=self.msfile, axis='amp', datacolumn='data', spw='0:1~'+str(ch), correlation=corr)
             print(s)
-            n_expected = 2660994/63 * ch   
+            n_expected = 2660994/63 * ch
             if corr in ['ll', 'rr']:
                 n_expected /= 2
-            
+
             n = int(s['DATA']['npts'])
             print("Checking npts: %s vs %s" % (n, n_expected))
             if n != n_expected:
@@ -115,11 +115,11 @@ class visstat_test(unittest.TestCase):
                      +"\nError:"+str(n_expected) + " points expected, but npts = " + str(n)
 #                raise Exception(str(n_expected) + " points expected, but npts = " + str(n))
 
-        self.assertTrue(retValue['success'],retValue['error_msgs'])        
+        self.assertTrue(retValue['success'],retValue['error_msgs'])
 
     def test3(self):
         '''Visstat 3: Test on different columns and axis'''
-        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }            
+        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
         print("Create scratch columns.")
         if testmms:
             clearcal(self.msfile)
@@ -139,7 +139,7 @@ class visstat_test(unittest.TestCase):
         print(cols)
         cols.remove('DATA')
         have_corr = False
-	if('CORRECTED_DATA' in cols):
+        if('CORRECTED_DATA' in cols):
             cols.remove('CORRECTED_DATA')
             have_corr = True
         have_model = False
@@ -154,16 +154,16 @@ class visstat_test(unittest.TestCase):
 
         for col in cols:
             data_cols = ['']
-	    print('col ',col)
-	    print('cplx ',cplx)
+            print('col ',col)
+            print('cplx ',cplx)
             if col in cplx:
                 data_cols = ['data'] # not supported: 'residual'
                 if have_corr:
                     data_cols.append('corrected')
                 if have_model:
                     data_cols.append('model')
-                
-	    print(data_cols)
+
+            print(data_cols)
             for dc in data_cols:
                 print("Call with axis =", col, "; datacolumn =", dc)
                 if dc != '':
@@ -192,7 +192,7 @@ class visstat_test(unittest.TestCase):
                         retValue['error_msgs']=retValue['error_msgs']\
                         +"\nError: Missing key " + col.upper() + " in result"
 #                        raise Exception("Missing key " + col.upper() + " in result")
-                    
+
                     if dc != '' and not dc.upper() in list(s.keys()):
                         retValue['success']=False
                         retValue['error_msgs']=retValue['error_msgs']\
@@ -205,7 +205,7 @@ class visstat_test(unittest.TestCase):
 
     def test4(self):
         '''Visstat 4: Test of special cases'''
-        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }            
+        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
         for a in range(1, 5):
             s = visstat(vis=self.msfile, axis='ANTENNA1', antenna=str(a)+'&26')
             print("antenna =", a, "; mean = ", s['ANTENNA1']['mean'])
@@ -224,9 +224,9 @@ class visstat_test(unittest.TestCase):
 
         for scan in range(1, 8):
             s = visstat(vis=self.msfile, axis='SCAN_NUMBER', scan=str(scan))
-            
+
             print("scan =", scan, "; mean = ", s['SCAN_NUMBER']['mean'])
-            if abs(s['SCAN_NUMBER']['mean'] - scan) > epsilon:        
+            if abs(s['SCAN_NUMBER']['mean'] - scan) > epsilon:
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']\
                 +"\nError: Failed for scan = "+str(scan)
@@ -236,7 +236,7 @@ class visstat_test(unittest.TestCase):
 
     def test5(self):
         '''Visstat 5: Test that flagging impact statistics'''
-        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }            
+        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
 
         s = visstat(vis=self.msfile, axis='scan_number', scan='>=1')
         print("min = ", s['SCAN_NUMBER']['min'])
@@ -286,16 +286,16 @@ class visstat_cleanup(unittest.TestCase):
 
     def setUp(self):
         pass
-    
+
     def tearDown(self):
         # It will ignore errors in case the files don't exist
         shutil.rmtree(self.msfile,ignore_errors=True)
-        
+
     def test1a(self):
         '''Visstat: Cleanup'''
         pass
 
 def suite():
     return [visstat_test]
-    
-    
+
+

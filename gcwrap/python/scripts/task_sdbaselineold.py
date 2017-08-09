@@ -28,11 +28,11 @@ class sdbaseline_worker(sdutil.sdtask_template):
         if (self.npiece <= 0) and (self.blfunc == 'cspline'):
             msg = 'The parameter npiece must be greater than 0. Exit without baselining.'
             casalog.post(msg, priority='SEVERE')
-            raise Exception(msg)            
+            raise Exception(msg)
 
     def initialize_scan(self):
         sorg = sd.scantable(self.infile, average=False, antenna=self.antenna)
-        
+
         sel = self.get_selector(sorg)
         sorg.set_selection(sel)
         del sel
@@ -53,16 +53,16 @@ class sdbaseline_worker(sdutil.sdtask_template):
         if (self.scan.nchan()==1):
            s = "Cannot process the input data. It contains only single channel data."
            raise Exception(s)
-   
+
         # set various attributes to self.scan
         self.set_to_scan()
-        
+
         scanns = self.scan.getscannos()
         sn=list(scanns)
         casalog.post( "Number of scans to be processed: %d" % (len(sn)) )
-        
+
         sdutil.doopacity(self.scan, self.tau)
-    
+
         engine.execute()
         engine.finalize()
 
@@ -106,12 +106,12 @@ class sdbaseline_engine(sdutil.sdtask_engine):
         for (k,v) in list(maskdict.items()):
             if len(v) > 0 and numpy.all(numpy.array(list(map(len, v))) > 0):
                 valid_spw_list.append(k)
-        
+
         basesel = scan.get_selection()
 
         # configure baseline function and its parameters
         self.__configure_baseline()
-        
+
         for ifno in valid_spw_list:
             lmask = maskdict[ifno]
             sif = str(ifno)
@@ -157,7 +157,7 @@ class sdbaseline_engine(sdutil.sdtask_engine):
         ifs_new = list(set(ifs_org) & set(valid_spw_list))
         basesel.set_ifs(ifs_new)
         scan.set_selection(basesel)
-            
+
     def finalize(self):
         if ( abs(self.plotlevel) > 0 ):
             pltfile=self.project+'_bsspec.eps'
@@ -180,7 +180,7 @@ class sdbaseline_engine(sdutil.sdtask_engine):
         keys = getattr(self, '%s_keys'%(self.blfunc.lower()))
         for k in keys:
             self.params[k] = getattr(self,k)
-            
+
         # parameters for clipping
         keys = getattr(self, 'clip_keys')
         for k in keys:
@@ -223,7 +223,7 @@ class sdbaseline_engine(sdutil.sdtask_engine):
                 else: # interact
                     mtitles = []
                 ctitles = ['clipThresh', 'clipNIter']
-                    
+
                 fkeys = getattr(self, '%s_keys'%(self.blfunc))
                 mkeys = getattr(self, '%s_keys'%(self.maskmode))
 
@@ -242,12 +242,12 @@ class sdbaseline_engine(sdutil.sdtask_engine):
                     info.append([mtitles[i],getattr(self,mkeys[i])])
 
                 separator = "#"*60 + "\n"
-                
+
                 f.write(separator)
                 for i in range(len(info)):
                     f.write('%12s: %s\n'%tuple(info[i]))
                 f.write(separator)
                 f.close()
         else:
-            self.blfile = ""        
+            self.blfile = ""
 

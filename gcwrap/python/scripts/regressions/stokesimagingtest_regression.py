@@ -3,25 +3,25 @@
 #           Regression/Test Script for Stokes-Selection in Imager and Clean                #
 #                                                                                                                         #
 #######################################################
-#                                                                                                                         
-#  (1) Given a 'true' [I,Q,U,V] vector, 
+#
+#  (1) Given a 'true' [I,Q,U,V] vector,
 #       simulate MSs for [RR,RL,LR,LL], [RR,LL], [RR],[LL], [XX,XY,YX,YY], [XX,YY], [XX], [YY].
-#  (2) Test all possible options, some valid, some not : ['I','Q','U','V', 'IV', 'QU', 'IQ', 'UV', 
+#  (2) Test all possible options, some valid, some not : ['I','Q','U','V', 'IV', 'QU', 'IQ', 'UV',
 #          'IQU', 'IUV', 'IQUV', 'RR', 'LL', 'RL','LR', 'RRLL','RLLR','XX','YY','XY','YX','XXYY','XYYX']
-#  (3) For runs that produce an output image, the resulting output (peak pixel value) 
-#       is compared with the 'true' [I,Q,U,V,RR,LL,XX,YY]. 
+#  (3) For runs that produce an output image, the resulting output (peak pixel value)
+#       is compared with the 'true' [I,Q,U,V,RR,LL,XX,YY].
 #  (4) Counts of 'pass' and 'fail' are, in the end, compared and used to detect regression.
 #       Note : This script tests both valid and invalid options.
 #
-#                                                                                                                           
+#
 ######################################################
-#                                                                                                                            
-# More tests that will appear here in the future 
-# (See JIRA CAS 2587 : https://bugs.nrao.edu/browse/CAS-2587 ) :                            
-#                                                                               
+#
+# More tests that will appear here in the future
+# (See JIRA CAS 2587 : https://bugs.nrao.edu/browse/CAS-2587 ) :
+#
 # (1) Tests with partially flagged data
 # (2) Tests with different minor-cycle algorithms
-#                                                                              
+#
 ######################################################
 
 import time
@@ -52,7 +52,7 @@ def makeMS(choice='RL_all',stokesvals=[1.0,1.0,0.0,0.0],parentpath='.'):
     feedtype='perfect R L';
   if(choice=='XY_all'):
     basename = dirname+"/point_linXY"
-    msstokes='XX XY YX YY'; 
+    msstokes='XX XY YX YY';
     feedtype='perfect X Y';
   if(choice=='RL_par'):
     basename = dirname+"/point_parRL"
@@ -60,23 +60,23 @@ def makeMS(choice='RL_all',stokesvals=[1.0,1.0,0.0,0.0],parentpath='.'):
     feedtype='perfect R L';
   if(choice=='XY_par'):
     basename = dirname+"/point_parXY"
-    msstokes='XX YY'; 
+    msstokes='XX YY';
     feedtype='perfect X Y';
   if(choice=='XX_only'):
     basename = dirname+"/point_onlyXX"
-    msstokes='XX'; 
+    msstokes='XX';
     feedtype='perfect X Y';
   if(choice=='YY_only'):
     basename = dirname+"/point_onlyYY"
-    msstokes='YY'; 
+    msstokes='YY';
     feedtype='perfect X Y';
   if(choice=='RR_only'):
     basename = dirname+"/point_onlyRR"
-    msstokes='RR'; 
+    msstokes='RR';
     feedtype='perfect R L';
   if(choice=='LL_only'):
     basename = dirname+"/point_onlyLL"
-    msstokes='LL'; 
+    msstokes='LL';
     feedtype='perfect R L';
 
   msname = basename + '.ms';
@@ -98,10 +98,10 @@ def makeMS(choice='RL_all',stokesvals=[1.0,1.0,0.0,0.0],parentpath='.'):
 
   sm.open(ms=msname);
   sm.setconfig(telescopename='VLA',x=x.tolist(),y=y.tolist(),z=z.tolist(),dishdiameter=d,
-	       mount=['alt-az'], antname=an,
-	       coordsystem='local',referencelocation=me.observatory('VLA'));
+               mount=['alt-az'], antname=an,
+               coordsystem='local',referencelocation=me.observatory('VLA'));
   sm.setspwindow(spwname="LBand",freq="1.0GHz",deltafreq='500MHz',
-		 freqresolution='2MHz',nchannels=3,stokes=msstokes);
+                 freqresolution='2MHz',nchannels=3,stokes=msstokes);
   sm.setfeed(mode=feedtype,pol=['']);
   ra0="19:59:28.500";
   dec0="+40.44.01.50";
@@ -126,11 +126,11 @@ def makeMS(choice='RL_all',stokesvals=[1.0,1.0,0.0,0.0],parentpath='.'):
   ###cl.open();
   refRA = qa.unit(ra0);
   refDEC = qa.unit(dec0);
-  cl.addcomponent(flux=stokesvals,fluxunit="Jy", 
-                            dir=me.direction(rf='J2000', 
+  cl.addcomponent(flux=stokesvals,fluxunit="Jy",
+                            dir=me.direction(rf='J2000',
                             v0=qa.add(refRA,"0.0arcmin"),v1=qa.add(refDEC,"0.0arcmin")),
-		            shape="point",freq='1.5GHz',
-		            spectrumtype="spectral index",index=0.0);
+                            shape="point",freq='1.5GHz',
+                            spectrumtype="spectral index",index=0.0);
   cl.rename(filename=clname);
   cl.close();
 
@@ -211,7 +211,7 @@ def convertToStokes(stokesvals=[]):
    slist['YY']= ( slist['I'] - slist['Q'] );
    slist['XY']= ( slist['U'] + complex(0,slist['V']) );
    slist['YX']= ( slist['U'] - complex(0,slist['V']) );
-   return slist;   
+   return slist;
 
 ##############################
 
@@ -224,7 +224,7 @@ def doAllChecks(stokesvals=[],parentpath='.'):
 
  msnames = {'RL_all':'Point/point_linRL.ms' , 'RL_par':'Point/point_parRL.ms' , 'RR_only':'Point/point_onlyRR.ms' ,'LL_only':'Point/point_onlyLL.ms' ,'XY_all':'Point/point_linXY.ms' ,'XY_par':'Point/point_parXY.ms' ,'XX_only':'Point/point_onlyXX.ms' ,'YY_only':'Point/point_onlyYY.ms' }
 
- ## Select what tests to run. 
+ ## Select what tests to run.
  #soptions = ['I','IV','IQU','IQUV'];
  #choicelist=['XY_all'];
 

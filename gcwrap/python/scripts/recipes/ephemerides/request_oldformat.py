@@ -50,7 +50,7 @@ asteroids = {'ceres':        1,
              '52 europa':   52,
              'cybele':      65,
              'sylvia':      87, # Has two moons.
-             'davida':     511,             
+             'davida':     511,
              'interamnia': 704}
 
 planets_and_moons = {'mercury':    199,
@@ -84,7 +84,7 @@ planets_and_moons = {'mercury':    199,
                      'pan':        618,
                      # I've been to Ymir, so I have a soft spot for it, but it
                      # has an unknown radius (2010).
-                     #'ymir':       619, 
+                     #'ymir':       619,
                      'uranus':     799,
                      'ariel':      701,
                      'umbriel':    702,
@@ -186,11 +186,11 @@ def request_from_JPL(objnam, enddate,
         The increment between dates in the ephemeris.  casapy's setjy
         task and me tool automatically interpolate.  It can be a (time) quantity
         or a string (which will be interpreted as if it were a quantity).
-        
+
         Unlike the JPL email interface, this does not need it to be an integer
         number of time units.  request_from_JPL() will do its best to convert
         it to fit JPL's required format.
-        
+
         Default: 1 Earth day.
     get_axis_orientation:
         Request the orientation of the object's polar axis relative to the line
@@ -199,7 +199,7 @@ def request_from_JPL(objnam, enddate,
         True or False
         Defaults to whether or not objnam is in should_have_orientation.
     get_axis_ang_orientation:
-        Request the angular orientation (position angle and angular distance from 
+        Request the angular orientation (position angle and angular distance from
         sub-observer point) of the object's polar axis relative to the line
         of sight.
         True or False (by default it is included)
@@ -246,10 +246,10 @@ def request_from_JPL(objnam, enddate,
             get_sub_long = True
         else:
             get_sub_long = False
-    
-    if not return_address:    
+
+    if not return_address:
         fqdn = socket.getfqdn()
-    
+
         # Only use the top two levels, i.e. eso.org and nrao.edu, not
         # (faraday.)cv.nrao.edu.
         domain = '.'.join(fqdn.split('.')[-2:])
@@ -294,7 +294,7 @@ def request_from_JPL(objnam, enddate,
         # SITE_COORD='E.lon,lat,height' (in deg and km)
         # e.g for ALMA
         # SITE_COORD='-67.7549290,-23.022886,5.05680'
-        
+
     # 500@399: 399=earth 500=body center (==g@399==geo)
     center = '500@399'
 
@@ -342,7 +342,7 @@ def request_from_JPL(objnam, enddate,
         print("Translating date_incr from", date_incr, end=' ')
         date_incr = "%.0f %s" % (n_time_units, time_unit)
         print("to", date_incr)
-    
+
     instructions = "\n".join(["!$$SOF",
                               "COMMAND= '%s'" % objnum,
                               'CENTER= ' + center,

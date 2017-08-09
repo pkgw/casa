@@ -3,356 +3,356 @@ import numpy
 from taskinit import *
 
 def wvrgcal(vis=None, caltable=None, toffset=None, segsource=None,
-	    sourceflag=None, tie=None, nsol=None, disperse=None, 
-	    wvrflag=None, statfield=None, statsource=None, smooth=None,
-	    scale=None, spw=None, wvrspw=None,
-	    reversespw=None,  cont=None, maxdistm=None,
-	    minnumants=None, mingoodfrac=None, usefieldtab=None, 
-	    refant=None, offsetstable=None):
-	"""
-	Generate a gain table based on Water Vapour Radiometer data.
-	Returns a dictionary containing the RMS of the path length variation
-	with time towards that antenna (RMS) and the discrepency between the RMS
-	path length calculated separately for different WVR channels (Disc.).
+            sourceflag=None, tie=None, nsol=None, disperse=None,
+            wvrflag=None, statfield=None, statsource=None, smooth=None,
+            scale=None, spw=None, wvrspw=None,
+            reversespw=None,  cont=None, maxdistm=None,
+            minnumants=None, mingoodfrac=None, usefieldtab=None,
+            refant=None, offsetstable=None):
+        """
+        Generate a gain table based on Water Vapour Radiometer data.
+        Returns a dictionary containing the RMS of the path length variation
+        with time towards that antenna (RMS) and the discrepency between the RMS
+        path length calculated separately for different WVR channels (Disc.).
 
-        															
-	  vis -- Name of input visibility file											
-	              default: none; example: vis='ngc5921.ms'									
-																
-	  caltable -- Name of output gain calibration table									
-	              default: none; example: caltable='ngc5921.wvr'								
-																
-	  toffset -- Time offset (sec) between interferometric and WVR data							
-	             default: 0 (ALMA default for cycle 1, for cycle 0 it was -1)											
-																
-	  segsource -- Do a new coefficient calculation for each source								
-	             default: True												
-																
-	  tie -- Prioritise tieing the phase of these sources as well as possible						
-	         (requires segsource=True)											
-	             default: [] example: ['3C273,NGC253', 'IC433,3C279']							
-																
-	  sourceflag -- Flag the WVR data for these source(s) as bad and do not produce corrections for it			
-	               (requires segsource=True)										
-	               default: [] (none) example: ['3C273']									
-																
-	  nsol -- Number of solutions for phase correction coefficients during this observation.				
-	          By default only one set of coefficients is generated for the entire observation. 				
-	          If more sets are requested, then they will be evenly distributed in time throughout 				
-	          the observation. Values > 1 require segsource=False.								
-	             default: 1													
-																
-	  disperse -- Apply correction for dispersion										
-	             default: False												
-																
-	  wvrflag -- Regard the WVR data for these antenna(s) as bad and use interpolated values instead		
-	               default: [] (none) example: ['DV03','DA05','PM02']           						
-																
-	  statfield -- Compute the statistics (Phase RMS, Disc) on this field only						
-	               default: '' (all) 											
-																
-	  statsource -- Compute the statistics (Phase RMS, Disc) on this source only						
-	               default: '' (all)             										
-																
-	  smooth -- Smooth the calibration solution on the given timescale 
-	             default: '' (no smoothing), example: '3s' smooth on a timescale of 3 seconds
-		     
-	  scale -- Scale the entire phase correction by this factor								
-	             default: 1. (no scaling)											
+
+          vis -- Name of input visibility file
+                      default: none; example: vis='ngc5921.ms'
+
+          caltable -- Name of output gain calibration table
+                      default: none; example: caltable='ngc5921.wvr'
+
+          toffset -- Time offset (sec) between interferometric and WVR data
+                     default: 0 (ALMA default for cycle 1, for cycle 0 it was -1)
+
+          segsource -- Do a new coefficient calculation for each source
+                     default: True
+
+          tie -- Prioritise tieing the phase of these sources as well as possible
+                 (requires segsource=True)
+                     default: [] example: ['3C273,NGC253', 'IC433,3C279']
+
+          sourceflag -- Flag the WVR data for these source(s) as bad and do not produce corrections for it
+                       (requires segsource=True)
+                       default: [] (none) example: ['3C273']
+
+          nsol -- Number of solutions for phase correction coefficients during this observation.
+                  By default only one set of coefficients is generated for the entire observation.
+                  If more sets are requested, then they will be evenly distributed in time throughout
+                  the observation. Values > 1 require segsource=False.
+                     default: 1
+
+          disperse -- Apply correction for dispersion
+                     default: False
+
+          wvrflag -- Regard the WVR data for these antenna(s) as bad and use interpolated values instead
+                       default: [] (none) example: ['DV03','DA05','PM02']
+
+          statfield -- Compute the statistics (Phase RMS, Disc) on this field only
+                       default: '' (all)
+
+          statsource -- Compute the statistics (Phase RMS, Disc) on this source only
+                       default: '' (all)
+
+          smooth -- Smooth the calibration solution on the given timescale
+                     default: '' (no smoothing), example: '3s' smooth on a timescale of 3 seconds
+
+          scale -- Scale the entire phase correction by this factor
+                     default: 1. (no scaling)
 
           spw -- List of the spectral window IDs for which solutions should be saved into the caltable
-	             default: [] (all spectral windows), example [17,19,21,23]
+                     default: [] (all spectral windows), example [17,19,21,23]
 
           wvrspw -- List of the spectral window IDs from which the WVR data should be taken
-	             default: [] (all WVR spectral windows), example [0]
-																
-	  reversespw -- Reverse the sign of the correction for the listed SPWs							
-	                (only needed for early ALMA data before Cycle 0)								
-	             default: '' (none), example: reversespw='0~2,4'; spectral windows 0,1,2,4					
-																
-	  cont -- Estimate the continuum (e.g., due to clouds)									
+                     default: [] (all WVR spectral windows), example [0]
+
+          reversespw -- Reverse the sign of the correction for the listed SPWs
+                        (only needed for early ALMA data before Cycle 0)
+                     default: '' (none), example: reversespw='0~2,4'; spectral windows 0,1,2,4
+
+          cont -- Estimate the continuum (e.g., due to clouds)
                      default: False
 
           maxdistm -- maximum distance (m) an antenna may have to be considered for being part
-	              of the <=3 antenna set for interpolation of a solution for a flagged antenna
-		      default: 500
+                      of the <=3 antenna set for interpolation of a solution for a flagged antenna
+                      default: 500
 
           minnumants -- minimum number of near antennas required for interpolation
-	                default: 2
+                        default: 2
 
           mingoodfrac -- If the fraction of unflagged data for an antenna is below this value (0. to 1.),
-	                 the antenna is flagged.
-			 default: 0.8
+                         the antenna is flagged.
+                         default: 0.8
 
           usefieldtab -- derive the antenna AZ/EL values from the FIELD rather than the POINTING table
-	                 default: False
+                         default: False
 
-	  refant -- use the WVR data from this antenna for calculating the dT/dL parameters (can give ranked list)
-	              default: '' (use the first good or interpolatable antenna), 
-                      examples: 'DA45' - use DA45 
+          refant -- use the WVR data from this antenna for calculating the dT/dL parameters (can give ranked list)
+                      default: '' (use the first good or interpolatable antenna),
+                      examples: 'DA45' - use DA45
                                 ['DA45','DV51'] - use DA45 and if that is not good, use DV51 instead
 
-	  offsetstable -- subtract the temperature offsets in this table from the WVR measurements before
-	             using them to calculate the phase corrections
-		     default: '' (do not apply any offsets)
-		     examples: 'uid___A002_Xabd867_X2277.cloud_offsets' use the given table
+          offsetstable -- subtract the temperature offsets in this table from the WVR measurements before
+                     using them to calculate the phase corrections
+                     default: '' (do not apply any offsets)
+                     examples: 'uid___A002_Xabd867_X2277.cloud_offsets' use the given table
 
         """
-	#Python script
+        #Python script
 
-	# make ms tool local 
-	mst = casac.ms()
+        # make ms tool local
+        mst = casac.ms()
 
-	try:
-		casalog.origin('wvrgcal')
+        try:
+                casalog.origin('wvrgcal')
 
-		if not (type(vis)==str) or not (os.path.exists(vis)):
-			raise Exception('Visibility data set not found - please verify the name')
-		
-		if (caltable == ""):
-			raise Exception("Must provide output calibration table name in parameter caltable.")            
-		
-		if os.path.exists(caltable):
-			raise Exception("Output caltable %s already exists - will not overwrite." % caltable)
+                if not (type(vis)==str) or not (os.path.exists(vis)):
+                        raise Exception('Visibility data set not found - please verify the name')
 
-		execute_string=  '--ms ' + vis
+                if (caltable == ""):
+                        raise Exception("Must provide output calibration table name in parameter caltable.")
 
-		smoothing = -1
-		if (type(smooth)==str and smooth!=''):
-			smoothing = qa.convert(qa.quantity(smooth), 's')['value']
-			execute_string+= ' --output ' + caltable + '_unsmoothed'
-		else:
-			execute_string+= ' --output ' + caltable
+                if os.path.exists(caltable):
+                        raise Exception("Output caltable %s already exists - will not overwrite." % caltable)
 
-		
-		execute_string+= ' --toffset ' + str(toffset)
+                execute_string=  '--ms ' + vis
 
-		if nsol>1:
-			if not segsource:
-				execute_string+= ' --nsol ' + str(nsol)
-			else:
-				raise Exception("In order to use nsol>1, segsource must be set to False." % caltable)
-		if segsource:
-			execute_string+= ' --segsource'
-
-		if segsource and (len(sourceflag)>0):
-			for src in sourceflag:
-				if not (type(src)==int or type(src)==str):
-					raise Exception("List elements of parameter sourceflag must be int or string.")
-				if (src != ''):
-					execute_string += ' --sourceflag \"'+str(src)+'\"'
-
-		if segsource and (len(tie)>0):
-			for i in range(0,len(tie)):
-				src = tie[i]
-				if not (type(src)==str):
-					raise Exception("List elements of parameter tie must be strings.")
-				if (src != ''):
-					execute_string += ' --tie '
-					execute_string += '\"'+str(src)+'\"'
-					if not (i==len(tie)-1):
-						execute_string += ' '
-						
-		if (len(spw)>0):
-			for myspw in spw:
-				if not (type(myspw)==int):
-					raise Exception("List elements of parameter spw must be int.")
-				if (myspw>=0):
-					execute_string += ' --spw '+str(myspw)
-
-		if (len(wvrspw)>0):
-			for myspw in wvrspw:
-				if not (type(myspw)==int):
-					raise Exception("List elements of parameter wvrspw must be int.")
-				if (myspw>=0):
-					execute_string += ' --wvrspw '+str(myspw)
-			
-
-		if not (reversespw==''):
-			spws = mst.msseltoindex(vis=vis,spw=reversespw)['spw']
-			for id in spws:
-				execute_string += ' --reversespw '+str(id)
-
-		if disperse:
-			dispdirpath = os.getenv('WVRGCAL_DISPDIR', '')
-			if not os.path.exists(dispdirpath+'/libair-ddefault.csv'):
-				path1 = dispdirpath
-				dispdirpath = os.getenv("CASAPATH").split(' ')[0] + "/data/alma/wvrgcal"
-				if not os.path.exists(dispdirpath+'/libair-ddefault.csv'):
-					raise Exception("Dispersion table libair-ddefault.csv not found in path "\
-					      +"given by WVRGCAL_DISPDIR nor in \""+dispdirpath+"\"")
-				
-				os.putenv('WVRGCAL_DISPDIR', dispdirpath)
-				
-			execute_string+= ' --disperse'
-			casalog.post('Using dispersion table '+dispdirpath+'/libair-ddefault.csv')
-
-		if cont:
-			if not segsource:
-				execute_string+= ' --cont'
-			else:
-				raise Exception("cont and segsource are not permitted to be True at the same time.")
-
-		if usefieldtab:
-			execute_string+= ' --usefieldtab'
-				
-		if offsetstable!='' and type(offsetstable)==str:
-			execute_string+= ' --offsets '+offsetstable
-
-		if (len(wvrflag)>0):
-			for ant in wvrflag:
-				if not (type(ant)==int or type(ant)==str):
-					raise Exception("List elements of parameter wvrflag must be int or string.")
-				if (ant != ''):
-					execute_string += ' --wvrflag \"'+str(ant)+'\"'
-		if (type(refant)!=list):
-			refant = [refant]
-		if (len(refant)>0):
-			for ant in refant:
-				if not (type(ant)==int or type(ant)==str):
-					raise Exception("Parameter refant must be int or string or a list of them.")
-				if (ant != ''):
-					execute_string += ' --refant \"'+str(ant)+'\"'
-
-		if not (statfield==None or statfield=="") and type(statfield)==str:
-			execute_string += ' --statfield \"'+ statfield + '\"'
-
-		if not (statsource==None or statsource=="") and type(statsource)==str:
-			execute_string += ' --statsource \"'+ statsource + '\"'
-
-		if (scale != 1.):
-			execute_string+= ' --scale ' + str(scale)
-		
-		if (maxdistm>=0.):
-			execute_string+= ' --maxdistm ' + str(maxdistm)
-		
-		if (minnumants>=0):
-			execute_string+= ' --minnumants ' + str(minnumants)
-		
-		if (0.<=mingoodfrac and mingoodfrac<=1.):
-			execute_string+= ' --mingoodfrac ' + str(mingoodfrac)
-
-		theexecutable = 'wvrgcal'
-
-		execute_string = theexecutable+' '+execute_string
-
-		casalog.post('Running '+theexecutable+' standalone invoked as:')
-		casalog.post(execute_string)
-		print(execute_string)
-
-		templogfile = 'wvrgcal_tmp_'+str(numpy.random.randint(1E6,1E8))
-		if not os.access(".", os.W_OK):
-			import tempfile
-			templogfile = tempfile.gettempdir()+"/"+templogfile
-			
-        	rval = os.system(execute_string + " > "+ templogfile)
-
-		fp = file(templogfile)
-		loglines = fp.readlines()
-		fp.close()
-
-		# prepare variables for parsing log lines to extract info table
-		hfound = False
-		hend = False
-		namel = []
-		wvrl = []
-		flagl = []
-		rmsl = []
-		discl = []
-		parsingok = True
-		
-		for ll in loglines:
-			casalog.post(ll.expandtabs())
-			if hfound:
-				if "Expected performance" in ll:
-					hend = True
-				elif not hend:
-					vals = ll.split()
-					wvrv = False
-					flagv = False
-					rmsv = 0.
-					discv = 0.
-					if(len(vals)!=6):
-						casalog.post('Error parsing wvrgcal info table.line: '+ll,'WARN')
-						parsingok=False
-					else:
-						if vals[2]=='Yes':
-							wvrv=True
-						else:
-							wvrv=False
-						if vals[3]=='Yes':
-							flagv=True
-						else:
-							flagv=False
-					try:
-						rmsv = float(vals[4])
-					except:
-						casalog.post('Error parsing RMS value in info table line: '+ll,'WARN')
-						rmsv = -1.
-						parsingok=False
-					try:
-						discv = float(vals[5])
-					except:
-						casalog.post('Error parsing Disc. value in info table line: '+ll,'WARN')
-						discv = -1.
-						parsingok=False
-
-					namel.append(vals[1])
-					wvrl.append(wvrv)
-					flagl.append(flagv)
-					rmsl.append(rmsv)
-					discl.append(discv)
-
-					
-			elif (rval==0) and (not hend) and ("Disc (um)" in ll):
-				hfound = True
-
-		# end for ll
-
-		os.system('rm -rf '+templogfile)
+                smoothing = -1
+                if (type(smooth)==str and smooth!=''):
+                        smoothing = qa.convert(qa.quantity(smooth), 's')['value']
+                        execute_string+= ' --output ' + caltable + '_unsmoothed'
+                else:
+                        execute_string+= ' --output ' + caltable
 
 
-		taskrval = { 'Name': namel,
-			     'WVR': wvrl,
-			     'Flag': flagl,
-			     'RMS_um': rmsl,
-			     'Disc_um': discl,
-			     'rval': rval,
-			     'success': False}
+                execute_string+= ' --toffset ' + str(toffset)
 
-		for k in range(len(namel)):
-			if(flagl[k] and rmsl[k]==0. and discl[k]==0.):
-				casalog.post('Solution for flagged antenna '+namel[k]
-					     +' could not be interpolated due to insufficient number of near antennas. Was set to unity.',
-					     'WARN')
+                if nsol>1:
+                        if not segsource:
+                                execute_string+= ' --nsol ' + str(nsol)
+                        else:
+                                raise Exception("In order to use nsol>1, segsource must be set to False." % caltable)
+                if segsource:
+                        execute_string+= ' --segsource'
 
-		if (rval==0) and parsingok:
-			taskrval['success'] = True
-		
+                if segsource and (len(sourceflag)>0):
+                        for src in sourceflag:
+                                if not (type(src)==int or type(src)==str):
+                                        raise Exception("List elements of parameter sourceflag must be int or string.")
+                                if (src != ''):
+                                        execute_string += ' --sourceflag \"'+str(src)+'\"'
 
-		if(rval == 0):
-			if (smoothing>0):
-				mycb = cbtool()
-				mycb.open(filename=vis, compress=False, addcorr=False, addmodel=False)
-				mycb.smooth(tablein=caltable+'_unsmoothed', tableout=caltable,
-					    smoothtype='mean', smoothtime=smoothing)
-				mycb.close()
-			return taskrval
-		else:
-			rcode = os.WEXITSTATUS(rval)
-			if(rcode == 127):
-				raise Exception("wvrgcal executable not available.")
-			elif(rcode == 255):
-				casalog.post(theexecutable+' terminated with exit status '+str(rcode),'SEVERE')
-				return taskrval
-			elif(rcode == 134 or rval==1):
-				casalog.post(theexecutable+' terminated with exit status '+str(rcode),'WARN')
-				casalog.post("No useful input data.",'SEVERE')
-				return taskrval
-			else:
-				casalog.post(theexecutable+' terminated with exit status '+str(rcode),'WARN')
-				return taskrval
-	
-	except Exception as instance:
-		print('*** Error *** ',instance)
-		raise Exception(instance)
+                if segsource and (len(tie)>0):
+                        for i in range(0,len(tie)):
+                                src = tie[i]
+                                if not (type(src)==str):
+                                        raise Exception("List elements of parameter tie must be strings.")
+                                if (src != ''):
+                                        execute_string += ' --tie '
+                                        execute_string += '\"'+str(src)+'\"'
+                                        if not (i==len(tie)-1):
+                                                execute_string += ' '
+
+                if (len(spw)>0):
+                        for myspw in spw:
+                                if not (type(myspw)==int):
+                                        raise Exception("List elements of parameter spw must be int.")
+                                if (myspw>=0):
+                                        execute_string += ' --spw '+str(myspw)
+
+                if (len(wvrspw)>0):
+                        for myspw in wvrspw:
+                                if not (type(myspw)==int):
+                                        raise Exception("List elements of parameter wvrspw must be int.")
+                                if (myspw>=0):
+                                        execute_string += ' --wvrspw '+str(myspw)
+
+
+                if not (reversespw==''):
+                        spws = mst.msseltoindex(vis=vis,spw=reversespw)['spw']
+                        for id in spws:
+                                execute_string += ' --reversespw '+str(id)
+
+                if disperse:
+                        dispdirpath = os.getenv('WVRGCAL_DISPDIR', '')
+                        if not os.path.exists(dispdirpath+'/libair-ddefault.csv'):
+                                path1 = dispdirpath
+                                dispdirpath = os.getenv("CASAPATH").split(' ')[0] + "/data/alma/wvrgcal"
+                                if not os.path.exists(dispdirpath+'/libair-ddefault.csv'):
+                                        raise Exception("Dispersion table libair-ddefault.csv not found in path "\
+                                              +"given by WVRGCAL_DISPDIR nor in \""+dispdirpath+"\"")
+
+                                os.putenv('WVRGCAL_DISPDIR', dispdirpath)
+
+                        execute_string+= ' --disperse'
+                        casalog.post('Using dispersion table '+dispdirpath+'/libair-ddefault.csv')
+
+                if cont:
+                        if not segsource:
+                                execute_string+= ' --cont'
+                        else:
+                                raise Exception("cont and segsource are not permitted to be True at the same time.")
+
+                if usefieldtab:
+                        execute_string+= ' --usefieldtab'
+
+                if offsetstable!='' and type(offsetstable)==str:
+                        execute_string+= ' --offsets '+offsetstable
+
+                if (len(wvrflag)>0):
+                        for ant in wvrflag:
+                                if not (type(ant)==int or type(ant)==str):
+                                        raise Exception("List elements of parameter wvrflag must be int or string.")
+                                if (ant != ''):
+                                        execute_string += ' --wvrflag \"'+str(ant)+'\"'
+                if (type(refant)!=list):
+                        refant = [refant]
+                if (len(refant)>0):
+                        for ant in refant:
+                                if not (type(ant)==int or type(ant)==str):
+                                        raise Exception("Parameter refant must be int or string or a list of them.")
+                                if (ant != ''):
+                                        execute_string += ' --refant \"'+str(ant)+'\"'
+
+                if not (statfield==None or statfield=="") and type(statfield)==str:
+                        execute_string += ' --statfield \"'+ statfield + '\"'
+
+                if not (statsource==None or statsource=="") and type(statsource)==str:
+                        execute_string += ' --statsource \"'+ statsource + '\"'
+
+                if (scale != 1.):
+                        execute_string+= ' --scale ' + str(scale)
+
+                if (maxdistm>=0.):
+                        execute_string+= ' --maxdistm ' + str(maxdistm)
+
+                if (minnumants>=0):
+                        execute_string+= ' --minnumants ' + str(minnumants)
+
+                if (0.<=mingoodfrac and mingoodfrac<=1.):
+                        execute_string+= ' --mingoodfrac ' + str(mingoodfrac)
+
+                theexecutable = 'wvrgcal'
+
+                execute_string = theexecutable+' '+execute_string
+
+                casalog.post('Running '+theexecutable+' standalone invoked as:')
+                casalog.post(execute_string)
+                print(execute_string)
+
+                templogfile = 'wvrgcal_tmp_'+str(numpy.random.randint(1E6,1E8))
+                if not os.access(".", os.W_OK):
+                        import tempfile
+                        templogfile = tempfile.gettempdir()+"/"+templogfile
+
+                rval = os.system(execute_string + " > "+ templogfile)
+
+                fp = file(templogfile)
+                loglines = fp.readlines()
+                fp.close()
+
+                # prepare variables for parsing log lines to extract info table
+                hfound = False
+                hend = False
+                namel = []
+                wvrl = []
+                flagl = []
+                rmsl = []
+                discl = []
+                parsingok = True
+
+                for ll in loglines:
+                        casalog.post(ll.expandtabs())
+                        if hfound:
+                                if "Expected performance" in ll:
+                                        hend = True
+                                elif not hend:
+                                        vals = ll.split()
+                                        wvrv = False
+                                        flagv = False
+                                        rmsv = 0.
+                                        discv = 0.
+                                        if(len(vals)!=6):
+                                                casalog.post('Error parsing wvrgcal info table.line: '+ll,'WARN')
+                                                parsingok=False
+                                        else:
+                                                if vals[2]=='Yes':
+                                                        wvrv=True
+                                                else:
+                                                        wvrv=False
+                                                if vals[3]=='Yes':
+                                                        flagv=True
+                                                else:
+                                                        flagv=False
+                                        try:
+                                                rmsv = float(vals[4])
+                                        except:
+                                                casalog.post('Error parsing RMS value in info table line: '+ll,'WARN')
+                                                rmsv = -1.
+                                                parsingok=False
+                                        try:
+                                                discv = float(vals[5])
+                                        except:
+                                                casalog.post('Error parsing Disc. value in info table line: '+ll,'WARN')
+                                                discv = -1.
+                                                parsingok=False
+
+                                        namel.append(vals[1])
+                                        wvrl.append(wvrv)
+                                        flagl.append(flagv)
+                                        rmsl.append(rmsv)
+                                        discl.append(discv)
+
+
+                        elif (rval==0) and (not hend) and ("Disc (um)" in ll):
+                                hfound = True
+
+                # end for ll
+
+                os.system('rm -rf '+templogfile)
+
+
+                taskrval = { 'Name': namel,
+                             'WVR': wvrl,
+                             'Flag': flagl,
+                             'RMS_um': rmsl,
+                             'Disc_um': discl,
+                             'rval': rval,
+                             'success': False}
+
+                for k in range(len(namel)):
+                        if(flagl[k] and rmsl[k]==0. and discl[k]==0.):
+                                casalog.post('Solution for flagged antenna '+namel[k]
+                                             +' could not be interpolated due to insufficient number of near antennas. Was set to unity.',
+                                             'WARN')
+
+                if (rval==0) and parsingok:
+                        taskrval['success'] = True
+
+
+                if(rval == 0):
+                        if (smoothing>0):
+                                mycb = cbtool()
+                                mycb.open(filename=vis, compress=False, addcorr=False, addmodel=False)
+                                mycb.smooth(tablein=caltable+'_unsmoothed', tableout=caltable,
+                                            smoothtype='mean', smoothtime=smoothing)
+                                mycb.close()
+                        return taskrval
+                else:
+                        rcode = os.WEXITSTATUS(rval)
+                        if(rcode == 127):
+                                raise Exception("wvrgcal executable not available.")
+                        elif(rcode == 255):
+                                casalog.post(theexecutable+' terminated with exit status '+str(rcode),'SEVERE')
+                                return taskrval
+                        elif(rcode == 134 or rval==1):
+                                casalog.post(theexecutable+' terminated with exit status '+str(rcode),'WARN')
+                                casalog.post("No useful input data.",'SEVERE')
+                                return taskrval
+                        else:
+                                casalog.post(theexecutable+' terminated with exit status '+str(rcode),'WARN')
+                                return taskrval
+
+        except Exception as instance:
+                print('*** Error *** ',instance)
+                raise Exception(instance)

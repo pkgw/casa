@@ -64,7 +64,7 @@ else :
 #             'xml': __casapath__ + "/xml"
 #         },
 #         'flags': { },
-#         'files': { 
+#         'files': {
 #             'logfile': _os.getcwd( ) + '/casa-'+time.strftime("%Y%m%d-%H%M%S", time.gmtime())+'.log'
 #         },
 #         'state' : {

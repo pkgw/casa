@@ -47,20 +47,20 @@
 #
 # <synopsis>
 # Test for the ia.continuumsub tool method
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_continuumsub[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the ia.continuumsub() tool method to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -73,13 +73,13 @@ from __main__ import *
 import unittest
 
 class ia_continuumsub_test(unittest.TestCase):
-    
+
     def setUp(self):
         self._myia = iatool()
-    
+
     def tearDown(self):
         self._myia.done()
-        
+
     def test_beams(self):
         """test per plane beams get accounted for correctly"""
         myia = self._myia
@@ -122,8 +122,8 @@ class ia_continuumsub_test(unittest.TestCase):
         for x in [outline, outcont]:
             myia.open(x)
             msgs = myia.history()
-            myia.done() 
-            self.assertTrue("ia.continuumsub" in msgs[-6]) 
+            myia.done()
+            self.assertTrue("ia.continuumsub" in msgs[-6])
             self.assertTrue("ia.continuumsub" in msgs[-7])
 
 def suite():

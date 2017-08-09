@@ -38,7 +38,7 @@
 #
 # <prerequisite>
 # <ul>
-#   <li> <linkto class="task_imcollapse.py:description">impbcor</linkto> 
+#   <li> <linkto class="task_imcollapse.py:description">impbcor</linkto>
 # </ul>
 # </prerequisite>
 #
@@ -48,20 +48,20 @@
 #
 # <synopsis>
 # Test the impbcor task and the ia.pbcor() method upon which it is built.
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_impbcor[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the impbcor task to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -79,8 +79,8 @@ co1_1 = "pbtest1_co1.fits"
 co1_2 = "pbtest1_co2.im"
 
 im2 = "pb2_im.fits"
-pb2 = "pb2_pb.fits"  
-co2 = "pb2_co.im"  
+pb2 = "pb2_pb.fits"
+co2 = "pb2_co.im"
 
 pb4 = "CAS_5096template.im"
 
@@ -115,15 +115,15 @@ def run_impbcor(
     )
 
 class impbcor_test(unittest.TestCase):
-    
+
     def setUp(self):
-        
+
         for f in data:
             if os.path.isdir(datapath + f):
                 shutil.copytree(datapath + f, f)
             else:
                 shutil.copy(datapath + f, f)
-    
+
     def tearDown(self):
         for f in data:
             if os.path.isdir(f):
@@ -133,7 +133,7 @@ class impbcor_test(unittest.TestCase):
             self.assertTrue(len(tb.showcache()) == 0)
 
     def checkImage(self, gotImage, expectedName):
-        expected = iatool()                                
+        expected = iatool()
         expected.open(expectedName)
         got = iatool()
         if type(gotImage) == str:
@@ -167,7 +167,7 @@ class impbcor_test(unittest.TestCase):
 
     def test_exceptions(self):
         """impbcor: Test various exception cases"""
-        
+
         def testit(
             imagename, pbimage, outfile, overwrite, region,
             box, chans, stokes, mask, mode, cutoff, wantreturn
@@ -270,7 +270,7 @@ class impbcor_test(unittest.TestCase):
                         stokes=stokes, mask=mask, mode=mode,
                         cutoff=cutoff
                     )
-                            
+
                     self.assertTrue(type(mytool) == type(ia))
                     self.checkImage(mytool, expected)
                     self.checkImage(outfile, expected)
@@ -305,7 +305,7 @@ class impbcor_test(unittest.TestCase):
             chans="", stokes="", mask="", mode="d",
             cutoff=0.001
         )
-    
+
     def test_3(self):
         """impbcor: Test full image divide with cutoff. Primary beam is 2 D, image is 4 D"""
         self._testit(
@@ -348,7 +348,7 @@ class impbcor_test(unittest.TestCase):
                     imagename=im2, pbimage=pb2, outfile="blahblah", mask=mymask + ">0", stretch=True
                 )
                 self.assertTrue(zz)
-        
+
     def test_diff_spectral_coordinate(self):
         """Verify fix that a different spectral coordinates in target and template don't matter, CAS-5096"""
         imagename = datapath + "CAS_5096target.im"
@@ -370,7 +370,7 @@ class impbcor_test(unittest.TestCase):
         myia.done()
         msgs = zz.history()
         zz.done()
-        self.assertTrue("ia.pbcor" in msgs[-2])    
+        self.assertTrue("ia.pbcor" in msgs[-2])
         self.assertTrue("ia.pbcor" in msgs[-1])
 
 def suite():

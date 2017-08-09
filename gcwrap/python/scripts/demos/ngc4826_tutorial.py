@@ -43,7 +43,7 @@ pl.clf()
 
 #
 ##########################################################################
-#                                                                        
+#
 # Clear out previous run results
 os.system('rm -rf ngc4826.tutorial.*')
 
@@ -57,22 +57,22 @@ print('')
 #
 ##########################################################################
 #
-# 
+#
 ##########################################################################
 #
 # N4826 - BIMA SONG Data
 # 16apr98
-#	source=ngc4826
-#	phasecal=1310+323
-#	fluxcal=3c273, Flux = 23 Jy on 16apr98
-#	passcal= none - data were observed with online bandpass correction.
+#       source=ngc4826
+#       phasecal=1310+323
+#       fluxcal=3c273, Flux = 23 Jy on 16apr98
+#       passcal= none - data were observed with online bandpass correction.
 #
-# NOTE: This data has been filled into MIRIAD, line-length correction 
-#	done, and then exported as separate files for each source.
-#	3c273 was not line length corrected since it was observed
-#	for such a short amount of time that it did not need it.  
+# NOTE: This data has been filled into MIRIAD, line-length correction
+#       done, and then exported as separate files for each source.
+#       3c273 was not line length corrected since it was observed
+#       for such a short amount of time that it did not need it.
 #
-# From miriad: source Vlsr = 408; delta V is 20 km/s 
+# From miriad: source Vlsr = 408; delta V is 20 km/s
 #
 ##########################################################################
 # Import and concatenate sources
@@ -125,21 +125,21 @@ print('--Concat--')
 default('concat')
 
 concat(vis=['ngc4826.tutorial.3c273.5.ms',
-	    'ngc4826.tutorial.3c273.6.ms',
-	    'ngc4826.tutorial.3c273.7.ms',
-	    'ngc4826.tutorial.3c273.8.ms',
-	    'ngc4826.tutorial.1310+323.ll.9.ms',
-	    'ngc4826.tutorial.1310+323.ll.10.ms',
-	    'ngc4826.tutorial.1310+323.ll.11.ms',
-	    'ngc4826.tutorial.1310+323.ll.12.ms',
-	    'ngc4826.tutorial.1310+323.ll.13.ms',
-	    'ngc4826.tutorial.1310+323.ll.14.ms',
-	    'ngc4826.tutorial.1310+323.ll.15.ms',
-	    'ngc4826.tutorial.1310+323.ll.16.ms',
-	    'ngc4826.tutorial.ngc4826.ll.5.ms',
-	    'ngc4826.tutorial.ngc4826.ll.6.ms',
-	    'ngc4826.tutorial.ngc4826.ll.7.ms',
-	    'ngc4826.tutorial.ngc4826.ll.8.ms'],
+            'ngc4826.tutorial.3c273.6.ms',
+            'ngc4826.tutorial.3c273.7.ms',
+            'ngc4826.tutorial.3c273.8.ms',
+            'ngc4826.tutorial.1310+323.ll.9.ms',
+            'ngc4826.tutorial.1310+323.ll.10.ms',
+            'ngc4826.tutorial.1310+323.ll.11.ms',
+            'ngc4826.tutorial.1310+323.ll.12.ms',
+            'ngc4826.tutorial.1310+323.ll.13.ms',
+            'ngc4826.tutorial.1310+323.ll.14.ms',
+            'ngc4826.tutorial.1310+323.ll.15.ms',
+            'ngc4826.tutorial.1310+323.ll.16.ms',
+            'ngc4826.tutorial.ngc4826.ll.5.ms',
+            'ngc4826.tutorial.ngc4826.ll.6.ms',
+            'ngc4826.tutorial.ngc4826.ll.7.ms',
+            'ngc4826.tutorial.ngc4826.ll.8.ms'],
        concatvis='ngc4826.tutorial.ms',
        freqtol="",dirtol="1arcsec",async=False)
 
@@ -194,7 +194,7 @@ concat(vis=['ngc4826.tutorial.3c273.5.ms',
 #       'ngc4826.tutorial.1310+323.ll.13.ms',
 #       'ngc4826.tutorial.1310+323.ll.14.ms',
 #       'ngc4826.tutorial.1310+323.ll.15.ms',
-#       'ngc4826.tutorial.1310+323.ll.16.ms',	    
+#       'ngc4826.tutorial.1310+323.ll.16.ms',
 #       'ngc4826.tutorial.ngc4826.ll.5.ms',
 #       'ngc4826.tutorial.ngc4826.ll.6.ms',
 #       'ngc4826.tutorial.ngc4826.ll.7.ms',
@@ -220,7 +220,7 @@ spwid.setfield(-1,int)
 tb.putcol('SPECTRAL_WINDOW_ID',spwid)
 tb.close()
 
-# This ensures that the rest freq will be found for all spws. 
+# This ensures that the rest freq will be found for all spws.
 
 #
 ##########################################################################
@@ -272,7 +272,7 @@ default(plotxy)
 #plotxy(vis='ngc4826.tutorial.ms',xaxis='uvdist',yaxis='amp',field='0',spw='0~3',
 #       averagemode='vector',width='1000',
 #       selectplot=True,title='Field 0 SPW 0~3')
-#	
+#
 # Pause script if you are running in scriptmode
 #user_check=raw_input('Return to continue script\n')
 
@@ -339,14 +339,14 @@ user_check=input('Return to continue script\n')
 # You could set up a Python loop to do all the N4826 fields, like this:
 #
 #for fld in range(2,9):
-#	field = str(fld)
-#	plotxy(vis='ngc4826.tutorial.ms',xaxis='velocity',yaxis='amp',field=field,spw=spw,
-#	       averagemode='vector',timebin='1e7',crossscans=True,
-#	       selectplot=True,newplot=False,title='Field '+field+' SPW '+spw)
+#       field = str(fld)
+#       plotxy(vis='ngc4826.tutorial.ms',xaxis='velocity',yaxis='amp',field=field,spw=spw,
+#              averagemode='vector',timebin='1e7',crossscans=True,
+#              selectplot=True,newplot=False,title='Field '+field+' SPW '+spw)
 #
-#	print "Nominally, Mark Region around outliers and Flag"
-#	# Pause script if you are running in scriptmode
-#	user_check=raw_input('Return to continue script\n')
+#       print "Nominally, Mark Region around outliers and Flag"
+#       # Pause script if you are running in scriptmode
+#       user_check=raw_input('Return to continue script\n')
 
 # Back to first field.
 # You can also have it iterate over baselines, using Next to advance
@@ -358,7 +358,7 @@ user_check=input('Return to continue script\n')
 #       averagemode='vector',timebin='1e7',crossscans=True,
 #       iteration='baseline',
 #       selectplot=True,newplot=False,title='Field 0 SPW 0~3')
-#	
+#
 # Pause script if you are running in scriptmode
 #user_check=raw_input('Return to continue script\n')
 
@@ -401,7 +401,7 @@ print("Flagging bad correlator field 8 antenna 3&9 spw 15 all channels")
 print("  timerange 1998/04/16/06:19:00.0~1998/04/16/06:20:00.0")
 print("")
 
-flagdata(vis='ngc4826.tutorial.ms', mode='manualflag', field='8', spw='15', antenna='3&9', 
+flagdata(vis='ngc4826.tutorial.ms', mode='manualflag', field='8', spw='15', antenna='3&9',
          timerange='1998/04/16/06:19:00.0~1998/04/16/06:20:00.0')
 
 #
@@ -409,7 +409,7 @@ flagdata(vis='ngc4826.tutorial.ms', mode='manualflag', field='8', spw='15', ante
 #
 # NOTE: this is already flagged in the data so do nothing more here
 #flagdata(vis='ngc4826.tutorial.ms', mode='manualflag', antenna='6',
-#	 timerange='1998/04/16/09:42:39.0~1998/04/16/10:24:46.0')
+#        timerange='1998/04/16/09:42:39.0~1998/04/16/10:24:46.0')
 
 #
 #
@@ -486,9 +486,9 @@ print('Using solint=inf combining over spw')
 print('Output table ngc4826.tutorial.16apr98.gcal')
 
 gaincal(vis='ngc4826.tutorial.ms', caltable='ngc4826.tutorial.16apr98.gcal',
-	field='0,1', spw='0~11', gaintype='G', minsnr=2.0,
-	refant='ANT5', gaincurve=False, opacity=0.0,
-	solint='inf', combine='spw')
+        field='0,1', spw='0~11', gaintype='G', minsnr=2.0,
+        refant='ANT5', gaincurve=False, opacity=0.0,
+        solint='inf', combine='spw')
 
 #
 ##########################################################################
@@ -503,8 +503,8 @@ print('Transferring flux of 3C273 to sources: 1310+323')
 print('Output table ngc4826.tutorial.16apr98.fcal')
 
 fluxscale(vis='ngc4826.tutorial.ms', caltable='ngc4826.tutorial.16apr98.gcal',
-	  fluxtable='ngc4826.tutorial.16apr98.fcal',
-	  reference='3C273', transfer=['1310+323'])
+          fluxtable='ngc4826.tutorial.16apr98.fcal',
+          reference='3C273', transfer=['1310+323'])
 
 # Flux density for 1310+323 is: 1.48 +/- 0.016 (SNR = 90.6, nAnt= 8)
 #
@@ -519,7 +519,7 @@ plotcal(caltable='ngc4826.tutorial.16apr98.fcal', yaxis='amp', field='')
 print('')
 print('Plotting final scaled gain calibration table')
 print('First amp vs. time for all fields ')
-	
+
 # Pause script if you are running in scriptmode
 user_check=input('Return to continue script\n')
 
@@ -544,17 +544,17 @@ user_check=input('Return to continue script\n')
 #
 # Correct the calibrater/target source data:
 # Use new parm spwmap to apply gain solutions derived from spwid1
-# to all other spwids... 
+# to all other spwids...
 print('--Applycal--')
 default('applycal')
 
 print('Applying calibration table ngc4826.tutorial.16apr98.fcal to data')
 
 applycal(vis='ngc4826.tutorial.ms',
-	 field='', spw='',
-	 gaincurve=False, opacity=0.0, 
+         field='', spw='',
+         gaincurve=False, opacity=0.0,
          gaintable='ngc4826.tutorial.16apr98.fcal',
-	 spwmap=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
+         spwmap=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
 
 #
 ##########################################################################
@@ -576,20 +576,20 @@ default(plotxy)
 #print ""
 #print "Look for outliers, flag them if there are any bad ones"
 #print ""
-	
+
 # Pause script if you are running in scriptmode
 #user_check=raw_input('Return to continue script\n')
 
 # You can also plot all the N4826 fields 2 through 8, for example using a loop:
 
 #for fld in range(2,9):
-#	field = str(fld)
-#	plotxy(vis='ngc4826.tutorial.ms',xaxis='velocity',yaxis='amp',
+#       field = str(fld)
+#       plotxy(vis='ngc4826.tutorial.ms',xaxis='velocity',yaxis='amp',
 #              field=field,spw='11~15',
-#	       averagemode='vector',datacolumn='corrected',
-#	       selectplot=True,newplot=False,title='Field '+field+' SPW 11~15')
-#	
-#	user_check=raw_input('Return to continue script\n')
+#              averagemode='vector',datacolumn='corrected',
+#              selectplot=True,newplot=False,title='Field '+field+' SPW 11~15')
+#
+#       user_check=raw_input('Return to continue script\n')
 
 # Now here we time-average the data, plotting versus velocity
 
@@ -599,7 +599,7 @@ default(plotxy)
 #       selectplot=True,newplot=False,title='Field '+field+' SPW '+spw)
 #print ""
 #print 'Final Spectrum field '+field+' spw '+spw+' TimeAverage Corrected Data'
-	
+
 # Pause script if you are running in scriptmode
 #user_check=raw_input('Return to continue script\n')
 
@@ -623,7 +623,7 @@ default(plotxy)
 #       selectplot=True,newplot=False,title='Field '+field+' SPW '+spw)
 #
 #print 'OverPlotting field '+field+' spw '+spw+' TimeChanAverage Original Data in red'
-	
+
 ## Pause script if you are running in scriptmode
 #user_check=raw_input('Return to continue script\n')
 
@@ -690,7 +690,7 @@ split(vis='ngc4826.tutorial.ms',
 #default('clean')
 #
 #
-#clean(vis='ngc4826.tutorial.16apr98.1310+323.split.ms', 
+#clean(vis='ngc4826.tutorial.16apr98.1310+323.split.ms',
 #      imagename='ngc4826.tutorial.16apr98.cal.clean',
 #      cell=[1.,1.],imsize=[256,256],
 #      field='0',spw='0~7',threshold=10.,
@@ -715,7 +715,7 @@ split(vis='ngc4826.tutorial.ms',
 #
 #          F5 (field 5)         F6 (field 6)
 #
-# 4x64 channels = 256 channels 
+# 4x64 channels = 256 channels
 #
 # Primary Beam should be about 1.6' FWHM (7m dishes, 2.7mm wavelength)
 # Resolution should be about 5-8"
@@ -848,9 +848,9 @@ momoneimage = 'ngc4826.tutorial.16apr98.moments.mom1'
 print("Calculating Moments 0,1 for PBcor image")
 
 immoments(imagename='ngc4826.tutorial.16apr98.src.clean.pbcor',
-	  moments=0,axis=3,
-	  chans='7~28',
-          outfile='ngc4826.tutorial.16apr98.moments.integrated') 
+          moments=0,axis=3,
+          chans='7~28',
+          outfile='ngc4826.tutorial.16apr98.moments.integrated')
 
 # TUTORIAL NOTES: For moment 0 we use the image corrected for the
 # mosaic response to get correct integrated flux densities. However,
@@ -866,9 +866,9 @@ immoments(imagename='ngc4826.tutorial.16apr98.src.clean.pbcor',
 # flux cutoff to produce sensible results.
 
 immoments(imagename='ngc4826.tutorial.16apr98.src.clean.image',
-	  moments=1,axis=3,includepix=[0.2,1000.0],
-	  chans='7~28',
-          outfile='ngc4826.tutorial.16apr98.moments.mom1') 
+          moments=1,axis=3,includepix=[0.2,1000.0],
+          chans='7~28',
+          outfile='ngc4826.tutorial.16apr98.moments.mom1')
 
 # Now view the resulting images
 viewer('ngc4826.tutorial.16apr98.moments.integrated')
@@ -940,19 +940,19 @@ print("Found moment 1 median = "+str(momonestat['median'][0]))
 
 #print '--ImMoments (masked)--'
 #print 'Creating masked moment 0 image ngc4826.tutorial.16apr98.moments.integratedmasked'
-#	
+#
 #immoments(imagename='ngc4826.tutorial.16apr98.src.clean.pbcor.masked',
 #          moments=0,axis=3,
-#	   chans='7~28',
-#	   outfile='ngc4826.tutorial.16apr98.moments.integratedmasked') 
+#          chans='7~28',
+#          outfile='ngc4826.tutorial.16apr98.moments.integratedmasked')
 #
 #print 'Creating masked moment 1 image ngc4826.tutorial.16apr98.moments.mom1masked'
 #
 #immoments(imagename='ngc4826.tutorial.16apr98.src.clean.pbcor.masked',
 #          moments=1,axis=3,
-#	   includepix=[0.2,1000.0],
-#	   chans='7~28',
-#	   outfile='ngc4826.tutorial.16apr98.moments.mom1masked') 
+#          includepix=[0.2,1000.0],
+#          chans='7~28',
+#          outfile='ngc4826.tutorial.16apr98.moments.mom1masked')
 
 # Now view the resulting images
 #viewer('ngc4826.tutorial.16apr98.moments.integratedmasked')

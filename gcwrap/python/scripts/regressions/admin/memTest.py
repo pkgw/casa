@@ -15,12 +15,12 @@ import sys
 
 def nice_classname(obj):
     """Returns a nice name for class object or class instance.
-    
+
         >>> nice_classname(Exception()) # doctest: +ELLIPSIS
         '...Exception'
         >>> nice_classname(Exception)
         'exceptions.Exception'
-    
+
     """
     if inspect.isclass(obj):
         cls_name = obj.__name__
@@ -84,7 +84,7 @@ class MemTest(nose.plugins.xunit.Xunit):
         self.error_report_file.write(
             '<?xml version="1.0" encoding="%s"?>'
             '<testsuites>' % self.encoding)
-        
+
         self.error_report_file.write(''.join(self.errorlist))
         self.error_report_file.write('</testsuites>')
         self.error_report_file.close()
@@ -119,7 +119,7 @@ class MemTest(nose.plugins.xunit.Xunit):
         if errorcode == 0:
             self._resident_memory = n
         else:
-            self._resident_memory = 0           
+            self._resident_memory = 0
 
     def stopContext(self, context):
         try:
@@ -195,7 +195,7 @@ class MemTest(nose.plugins.xunit.Xunit):
              })
         self.errorlist.append(write_message(self._fileleak, self._memoryleak))
         self.errorlist.append('</testsuite>')
-        
+
     def addSuccess(self, test, capt=None):
         """Add success output to Xunit report.
         """

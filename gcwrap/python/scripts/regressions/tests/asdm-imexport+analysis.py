@@ -48,9 +48,9 @@ def run( fetch=False ):
     if fetch:
         for f in data( ):
             copydata( f, os.getcwd( ) )
-    
+
     #####locate the regression script
-    try: 
+    try:
         lepath=locatescript('alma_asdm+reimported-asdm_sf.py')
         print('Script used is ',lepath)
         exec(compile(open(lepath).read(), lepath, 'exec'), gl, pass_on)

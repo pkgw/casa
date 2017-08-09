@@ -10,14 +10,14 @@ rg=casac.regionmanager()
 def automask(image='', maskimage='', fracofpeak=0, rmsthresh=3.0, resolution=None, twopass=False):
     """
     image : dirty image or residual to mask
-    maskimage: name of mask to create. If already existant has to be same shape 
+    maskimage: name of mask to create. If already existant has to be same shape
     and coordsys as image
     fracofpeak : Fraction of peak to use as masking threshold (a number between 0 and 1)
                        if 0  then rmsthresh or  a value based on the rms of the image is used
     rmsthresh : Threshold in sigma  to use; default is 3 sigma
-    resolution: if image has no restoring beam ..this value is used for resolution of 
+    resolution: if image has no restoring beam ..this value is used for resolution of
                      image (e.g '4arcsec')
-    twopass: set to True if faint fluffy stuff is wanted else false if a less agressive masking 
+    twopass: set to True if faint fluffy stuff is wanted else false if a less agressive masking
     is needed especially a multi pass masking after some cleaning
 
     """
@@ -48,7 +48,7 @@ def automask(image='', maskimage='', fracofpeak=0, rmsthresh=3.0, resolution=Non
         rms=stat['rms'][0]*rmsthresh
     else:
         rms=stat['rms'][0]*3.0
-    
+
     ib=iaim.rebin('__rebin.image', [numpix, numpix, 1, 1], overwrite=True)
     ib.done()
     ib.open('__rebin.image')
@@ -63,14 +63,14 @@ def automask(image='', maskimage='', fracofpeak=0, rmsthresh=3.0, resolution=Non
     convpix=str(numpix/2)+'pix' if(twopass) else str(numpix)+'pix'
     ig=ie.convolve2d(outfile='__newmask2.image', major=convpix, minor=convpix, pa='0deg', overwrite=True)
     ie.remove(done=True, verbose=False)
-    ratiostr='3.0' if(twopass) else '2.0' 
+    ratiostr='3.0' if(twopass) else '2.0'
 #    print 'pixels=', 'iif(__newmask.image > '+str(stat['rms'][0])+'/'+ratiostr+', 1.0, 0.0)'
     ig.done()
     ih=iamask.imagecalc(outfile='__newmask.image', pixels='iif(__newmask2.image > '+str(rms)+'/'+ratiostr+', 1.0, 0.0)')
 #    print ih.statistics()
     ih.done()
     iamask.removefile('__newmask2.image')
-    
+
     if(not os.path.exists(maskimage)):
         iamask.fromimage(outfile=maskimage, infile=image)
         iamask.open(maskimage)
@@ -81,7 +81,7 @@ def automask(image='', maskimage='', fracofpeak=0, rmsthresh=3.0, resolution=Non
         ih.done()
         iamask.removefile('__newmask.image')
         os.rename('__newmask2.image', '__newmask.image')
-   
+
     iamask.open(maskimage)
 #    print iamask.statistics()
     iamask.calc(pixels='iif(__newmask.image > 0.0, 1.0 ,0)')
@@ -97,8 +97,8 @@ def automask(image='', maskimage='', fracofpeak=0, rmsthresh=3.0, resolution=Non
         iaim.open(image)
         iaim.maskhandler('set', '')
         iaim.done()
-        rg.deletefromtable(image, 'mulligatawni') 
-   
+        rg.deletefromtable(image, 'mulligatawni')
+
 
 def automask2(image='', maskimage=''):
     iaim.open(image)
@@ -121,7 +121,7 @@ def automask2(image='', maskimage=''):
         if(iscube):
             cubeblc=ret['blc'][j,2]
             cubetrc=ret['trc'][j,2]
-            #print 'cubeblc-trc', cubeblc, cubetrc 
+            #print 'cubeblc-trc', cubeblc, cubetrc
             arr[ret['blc'][j,0]:ret['trc'][j,0], ret['blc'][j,1]:ret['trc'][j,1], 0, cubeblc:cubetrc]=ret['components'][j,0]
         else:
              arr[ret['blc'][j,0]:ret['trc'][j,0], ret['blc'][j,1]:ret['trc'][j,1], 0, 0]=ret['components'][j,0]

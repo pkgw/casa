@@ -74,7 +74,7 @@ def verify_asdm(asdmname, withPointing):
                 isOK = False
 
     print("Note: xml validation not possible since ASDM DTDs (schemas) not yet online.")
-        
+
     if(not os.path.exists(asdmname+"/ASDMBinary")):
         print("ASDM binary directory "+asdmname+"/ASDMBinary doesn't exist.")
         isOK = False
@@ -86,7 +86,7 @@ def verify_asdm(asdmname, withPointing):
     if (not isOK):
         raise Exception
 
-# Test cases    
+# Test cases
 
 keeptestlist = True
 
@@ -116,12 +116,12 @@ if (testnumber in testlist):
         print("Testing default.")
         rval = exportasdm()
         if not rval:
-            print(myname, ': *** Error as expected ***')   
+            print(myname, ': *** Error as expected ***')
         else:
             print("Failed ...")
             failures +=1
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 
@@ -149,7 +149,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv exportasdm-output.asdm '+omsname)
         verify_asdm(omsname, False)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 3
@@ -174,7 +174,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv exportasdm-output.asdm '+omsname)
         verify_asdm(omsname, True)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 4
@@ -200,7 +200,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv exportasdm-output.asdm '+omsname)
         verify_asdm(omsname, False)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 5
@@ -221,12 +221,12 @@ if (testnumber in testlist):
             )
         print("rval is ", rval)
         if not rval:
-            print(myname, ': *** Error as expected ***')   
+            print(myname, ': *** Error as expected ***')
         else:
             print("Failed ...")
             failures +=1
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 testnumber = 6
@@ -252,12 +252,12 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv exportasdm-output.asdm '+omsname)
         verify_asdm(omsname, True)
     except:
-        print(myname, ': *** Unexpected error ***')   
+        print(myname, ': *** Unexpected error ***')
         failures += 1
 
 
 # Summary ########################################
-print("Tests = ", total)    
+print("Tests = ", total)
 print("Failures = ", failures)
 
 # empty test list if it was empty to start with

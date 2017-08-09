@@ -40,8 +40,8 @@ EPS       = 1e-5  # Logical "zero"
 def pipeline_regression():
     global regstate
     #global MIN_CASA_REVISION
-        
-    
+
+
     #revision = int(casadef.subversion_revision)
     #if MIN_CASA_REVISION > revision:
     #    msg = ('Minimum CASA revision for the pipeline is r%s, '
@@ -51,25 +51,25 @@ def pipeline_regression():
     #    print msg
     #    regstate = False
     #    raise EnvironmentError(msg)
-    
-    
-    
+
+
+
     #ASDM      = "/export/home/icarus_2/awells/CASA_stable/data/regression/foo/vla_pipeline_data/rawdata/13A-537.sb24066356.eb24324502.56514.05971091435"
     ASDM = rootdatapath  + "13A-537.sb24066356.eb24324502.56514.05971091435"
     try:
         import pipeline.recipes.hifv as hifv
     except ImportError as e:
         print(e)
-        
-    
+
+
     #Check to see if the ASDM exists
     if not os.path.exists(ASDM):
         print("Unable to open ASDM " + ASDM)
-	regstate=False
+        regstate=False
         raise IOError
     else:
         print("Using " + ASDM)
-    
+
     #Run the CASA VLA Pipeline standard recipe
     try:
         hifv.hifv([ASDM], importonly=False)
@@ -93,18 +93,18 @@ def run():
 
 def stats():
     global startTime, endTime, startProc, endProc, regstate, standard_context_file
-    
+
     datestring=datetime.datetime.isoformat(datetime.datetime.today())
     outfile='vlapipeline.'+datestring+'.log'
     logfile=open(outfile,'w')
-    
+
     try:
         import pipeline
     except ImportError as e:
         print(e)
         print("Unable to import the CASA pipeline", file=logfile)
         regstate=False
-    
+
     try:
         #Open context
         context = pipeline.Pipeline(context='last').context
@@ -113,7 +113,7 @@ def stats():
         print("VLA pipeline context created.")
         print("Context verification - VLA pipeline regression PASSED.", file=logfile)
         print("Context verification - VLA pipeline regression PASSED.")
-        
+
     except Exception as e:
         regstate=False
         print("VLA pipeline context NOT created.", file=logfile)
@@ -131,7 +131,7 @@ def stats():
         fluxlist = context.results[12].read()[0].flux_densities
         rtol=1.0e-5  #Relative Tolerance
         atol=1.0e-8  #Absolute Tolerance
-        
+
         #Open context "standard" for comparison
         #Test commit
         #standard_context = pipeline.Pipeline(context=standard_file+'.context', path_overrides={'name':standard_file, 'output_dir':os.getcwd()}).context
@@ -140,17 +140,17 @@ def stats():
         #value_compare = 0.716367318068  #CASA 4.5
         #value_compare = 0.717857716108  #CASA 4.6
         #value_compare = 0.716364780148  #CASA 4.6.144 r36095, pipeline r36209 (trunk)
-        #value_compare = 0.718457023749  #CASA-test 5.0.11-DEV (r38177) 
+        #value_compare = 0.718457023749  #CASA-test 5.0.11-DEV (r38177)
         value_compare = 0.71857779577  #CASA-prerelease 5.0.0-187, pipeline r40156
-        
+
         #result_bool = np.isclose(fluxlist[0][0], standard_fluxlist[0][0], rtol=rtol, atol=atol, equal_nan=False)
         result_bool = np.isclose(fluxlist[0][0], value_compare, rtol=rtol, atol=atol, equal_nan=False)
-        
+
         print("Accepted test value is: ", value_compare, " from CASA 4.6.144 r36095 and pipeline r36150 (trunk)", file=logfile)
         print("Accepted test value is: ", value_compare, " from CASA 4.6.144 r36095 and pipeline r36209 (trunk)")
         print("Regression generated value is: ", fluxlist[0][0], file=logfile)
         print("Regression generated value is: ", fluxlist[0][0])
-        
+
         if (result_bool):
             regstate=True
             print("hifv_fluxboot values match within relative tolerance of 1.0e-05 and absolute tolerance of 1.0e-08", file=logfile)
@@ -165,7 +165,7 @@ def stats():
             print("hifv_fluxboot test FAILED.")
             print(e, file=logfile)
             print(e)
-        
+
     except Exception as e:
         regstate=False
         print("hifv_fluxboot values are not within tolerances.", file=logfile)
@@ -177,14 +177,14 @@ def stats():
 
     '''
     #Test flagging values
-    #Test flagging statistics from the final applycal stage 
+    #Test flagging statistics from the final applycal stage
     try:
         #Open context of regression pipeline run
         context = pipeline.Pipeline(context='last').context
         flagsummary= context.results[14].read()[0].flagsummary
-        
+
         #Open context "standard" for comparison
-        
+
         standard_context = pipeline.Pipeline(context=standard_file+'.context', path_overrides={'name':standard_file, 'output_dir':os.getcwd()}).context
         standard_flagsummary = standard_context.results[14].read()[0].flagsummary
         try:
@@ -202,7 +202,7 @@ def stats():
             print "hifv_applycals test FAILED."
             print >>logfile, e
             print e
-            
+
 
     except Exception, e:
         regstate=False
@@ -230,6 +230,6 @@ if __name__ == "__main__":
     main()
     print("Regstate:" , regstate)
     if regstate:
-    	print("Regression PASSED")
+        print("Regression PASSED")
     else:
-    	print("Regression FAILED")
+        print("Regression FAILED")

@@ -166,7 +166,7 @@ class PartitionHelperTest(unittest.TestCase,
         # Set up this test by creating a few variables we need
         self.dataDir='dataDir'
         self.outputBase='outputBase'
-        
+
         # ========================================================
         # Check the case where we have more spw than subMS
         self._arg['numsubms'] = 8
@@ -217,7 +217,7 @@ class PartitionHelperTest(unittest.TestCase,
                 'scan': str(idx % 2),
                 'spw': str(idx/2)}))
         self.checkCommandList(commandList)
-        
+
         # Check the case of not passing in any scans (but not needing them)
         self._arg['numsubms'] = 8
         self.setSPWList(list(range(16)))
@@ -255,7 +255,7 @@ class PartitionHelperTest(unittest.TestCase,
 
     def testCreatePrimarySplitCommand(self):
         # Particularly the single MS command
-        
+
         pass
 
     def testSelectMS(self):
@@ -307,7 +307,7 @@ class PartitionHelperTest(unittest.TestCase,
 
         if len(self._executionList) != 0:
             self.fail("Found %d uexpected job(s)" % len(self._executionList))
-            
+
     def setScanList(self, scanList):
         self.testScanList = scanList
 
@@ -324,7 +324,7 @@ class PartitionHelperTest(unittest.TestCase,
         Override the method of the Helper class for testing purposes
         '''
         return self.testSPWList
-    
+
     def _selectMS(self, doCalibrationSelection = False):
         '''
         Override the method of the helper class for testing purposes
@@ -333,7 +333,7 @@ class PartitionHelperTest(unittest.TestCase,
         if not doCalibrationSelection and self._calScanList is not None:
             if self._selectionScanList is None:
                 self._selectionScanList = self._getScanList()
-                
+
                 for scan in self._calScanList:
                     self._selectionScanList.remove(scan)
 
@@ -348,7 +348,7 @@ class PartitionHelperTest(unittest.TestCase,
 def suite():
     return [PartitionHelperTest]
 
-    
+
 if __name__ == '__main__':
     testSuite = []
     for testClass in suite():

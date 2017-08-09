@@ -6,7 +6,7 @@ print("me.epoch('utc','today')")
 print(me.epoch('utc','today'))
 print("\n____Testing me.direction()____")
 print("me.direction('j2000','5h20m','-30.2deg')")
-print(me.direction('j2000','5h20m','-30.2deg')) 
+print(me.direction('j2000','5h20m','-30.2deg'))
 print("\n____Testing me.gettype()____")
 print("a = me.direction('j2000','5h20m','-30.2deg')")
 a = me.direction('j2000','5h20m','-30.2deg')
@@ -35,5 +35,5 @@ print(me.getvalue(a)['m1'])
 #print a
 #print "Expect
 #print " [type=direction, refer=J2000, m1=[value=[0.523598776 0.698131701] , unit=rad],"
-#print "	 m0=[unit=rad, value=[0.174532925 0.34906585] ]]"
+#print "         m0=[unit=rad, value=[0.174532925 0.34906585] ]]"
 #print "___try as an r_array"

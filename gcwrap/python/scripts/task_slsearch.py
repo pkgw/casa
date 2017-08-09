@@ -49,7 +49,7 @@
 #
 # <synopsis>
 # slsearch searches a spectral line table. It is built on sl.search().
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 # newsl = slsearch(table="mysplatlist.tbl")
@@ -68,7 +68,7 @@ def slsearch(
     species=None, reconly=None, chemnames=None,
     qns=None, intensity=None, smu2=None,
     loga=None, el=None, eu=None, rrlinclude=None,
-    rrlonly=None, verbose=None, logfile=None, 
+    rrlonly=None, verbose=None, logfile=None,
     append=None
 ):
     casalog.origin('slsearch')
@@ -86,7 +86,7 @@ def slsearch(
             verbose=verbose, logfile=logfile,
             append=append
         )
-            
+
         if (not newsl):
             raise Exception("Exception when running sl.search()")
         return True

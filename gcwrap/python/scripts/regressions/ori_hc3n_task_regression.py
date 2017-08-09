@@ -1,7 +1,7 @@
 ###############################
 #
 # ORION-S HC3N Reduction Script
-# using SD tasks 
+# using SD tasks
 # Position-Switched data
 # Formatted for wide screen (150
 # characters wide)
@@ -62,12 +62,12 @@ startProc = time.clock()
 # Scans: 25-28  Setup 2 SiO et al
 
 asap_init()                             #load ASAP module
-					#Orion-S (SiO line reduction only)
-					#Notes:
-					#scan numbers (zero-based) as compared to GBTIDL
+                                        #Orion-S (SiO line reduction only)
+                                        #Notes:
+                                        #scan numbers (zero-based) as compared to GBTIDL
 
-					#changes made to get to OrionS_rawACSmod
-					#modifications to label sig/ref positions
+                                        #changes made to get to OrionS_rawACSmod
+                                        #modifications to label sig/ref positions
 #os.environ['CASAPATH'] = casapath
 
 
@@ -82,19 +82,19 @@ else:
    localplotlevel = 0
 
 # calibartion and averaging
-# calibrate position-switched HC3N scans (IF=0) 
+# calibrate position-switched HC3N scans (IF=0)
 default(sdcalold)
 infile = 'OrionS_rawACSmod'
-fluxunit = 'K' 
+fluxunit = 'K'
 calmode = 'ps'
 #scanlist = [21,22,23,24]
 scan = '21~24'
 #iflist = [0]
 spw = '0'
-tau = 0.09         # do opacity correction 
+tau = 0.09         # do opacity correction
 overwrite = True
-plotlevel = localplotlevel  
-sdcalold() 
+plotlevel = localplotlevel
+sdcalold()
 # output
 localoutfile = infile+'_cal'
 
@@ -108,7 +108,7 @@ timeaverage = True # average in time
 tweight = 'tintsys' # weighted by integ time and Tsys for time averaging
 scanaverage = False
 polaverage = True  # average polarization
-pweight = 'tsys'   # weighted by Tsys for pol. averaging 
+pweight = 'tsys'   # weighted by Tsys for pol. averaging
 #smoothing
 # do boxcar smoothing with channel width=5
 kernel = 'boxcar'
@@ -134,10 +134,10 @@ overwrite = True
 plotlevel = localplotlevel
 sdbaselineold()
 localoutfile = infile+'_bs'
-#sd.plotter.plot(spave)			# plot						# baseline
+#sd.plotter.plot(spave)                 # plot                                          # baseline
 
 #plotting the reslut
-#plot the spectrum and save to a postscript file 
+#plot the spectrum and save to a postscript file
 if doplot:
    default(sdplotold)
    infile = localoutfile
@@ -173,7 +173,7 @@ xstat
 # 'rms': 0.34947043657302856,
 # 'stddev': 0.27483600378036499,
 # 'sum': 65.148056030273438}
-# 
+#
 # Regression values of CASA 2.3(#6654)+ASAP 2.2.0(#1448)
 # on 64bit REL5.2 (2008/12/01)
 #{'eqw': 70.858384499609528,
@@ -189,20 +189,20 @@ curr_sum = xstat['sum']
 # fitting
 default(sdfitold)
 infile = localoutfile
-#sd.plotter.plot(spave)			# plot spectrum
+#sd.plotter.plot(spave)                 # plot spectrum
 fitmode = 'list'
-#maskline = [3928,4255]	# create region around line			# gregion,[4000,4200]
-spw = '*:3928~4255'	# create region around line			# gregion,[4000,4200]
+#maskline = [3928,4255] # create region around line                     # gregion,[4000,4200]
+spw = '*:3928~4255'     # create region around line                     # gregion,[4000,4200]
 nfit = 1
 plotlevel = localplotlevel
 outfile = 'orions_hc3n_fit.txt'
 xstat = sdfitold()
-xstat  # print fit statistics 
+xstat  # print fit statistics
 #{'cent': [[4091.243408203125, 0.55986660718917847]],
 # 'fwhm': [[70.907455444335938, 1.318385124206543]],
 # 'nfit': 1,
 # 'peak': [[0.80756759643554688, 0.013003586791455746]]}
-# 
+#
 # Regression values of CASA 2.3(#6654)+ASAP 2.2.0(#1448)
 # on 64bit REL5.2 (2008/12/01)
 #{'cent': [[[4091.24755859375, 0.55954688787460327]]],
@@ -252,16 +252,16 @@ if (diff_rms < 0.05): print('* Passed spectrum rms test ', file=logfile)
 print('*  Spectrum rms '+str(curr_rms), file=logfile)
 if (diff_sum < 0.05): print('* Passed spectrum (line) sum test', file=logfile)
 print('*  Line integral '+str(curr_sum), file=logfile)
-if ((diff_max<0.05) & (diff_rms<0.05) & (diff_sum<0.05)): 
-	regstate = True
+if ((diff_max<0.05) & (diff_rms<0.05) & (diff_sum<0.05)):
+        regstate = True
         print('---', file=logfile)
         print('Passed Regression test for OrionS-HC3N', file=logfile)
         print('---', file=logfile)
         print('')
         print('Regression PASSED')
         print('')
-else: 
-	regstate = False
+else:
+        regstate = False
         print('----FAILED Regression test for OrionS-HC3N', file=logfile)
         print('')
         print('Regression FAILED')

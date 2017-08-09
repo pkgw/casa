@@ -23,9 +23,9 @@
 #                        National Radio Astronomy Observatory
 #                        520 Edgemont Road
 #                        Charlottesville, VA 22903-2475 USA
-#   
+#
 # @author Dirk Petry
-# @version 
+# @version
 #############################################################################
 # regridspw unit test
 import os;
@@ -129,7 +129,7 @@ def testcenchanfreq(newcenchan):
 
 if(not os.path.exists('ngc4826.tutorial.ngc4826.ll.5.ms')):
     importuvfits(fitsfile=os.environ['CASADATA']+'/regression/ngc4826/fitsfiles/ngc4826.ll.fits5', vis='ngc4826.tutorial.ngc4826.ll.5.ms')
-    
+
 numerrors = 0
 total = 0
 
@@ -333,7 +333,7 @@ if dooutframes:
     print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms', 1, 3)
-    
+
     total += 1
     testnum = testbasenum + 7
     print(">>>> Test ", testnum)
@@ -501,7 +501,7 @@ if dooutframes:
     print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms', 1, 3)
-    
+
     total += 1
     testnum = testbasenum + 20
     print(">>>> Test ", testnum)
@@ -557,7 +557,7 @@ if dooutframes:
     print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms', 1, 3)
-    
+
     total += 1
     testnum = testbasenum + 25
     print(">>>> Test ", testnum)
@@ -588,7 +588,7 @@ if dooutframes:
 if dofreqmode:
     testbasenum = 300
     # test freq mode
-    
+
     total += 1
     testnum = testbasenum + 1
     print(">>>> Test ", testnum)
@@ -611,7 +611,7 @@ if dofreqmode:
     numerrors += verifytabs(7)
     cenchanfreq = 114973628113.0
     numerrors += testcenchanfreq(3)
-    numerrors += verifySPWcolumn("TOTAL_BANDWIDTH",21.*1562500.)    
+    numerrors += verifySPWcolumn("TOTAL_BANDWIDTH",21.*1562500.)
 
     total += 1
     testnum = testbasenum + 3
@@ -622,7 +622,7 @@ if dofreqmode:
     ms.regridspw(outframe="LSRK",mode="freq", center=114965815613.0, bandwidth=10*1562500., chanwidth=2*1562500.)
     ms.close()
     numerrors += verifytabs(5)
-    numerrors += verifySPWcolumn("TOTAL_BANDWIDTH",10.*1562500.)    
+    numerrors += verifySPWcolumn("TOTAL_BANDWIDTH",10.*1562500.)
 
     total += 1
     testnum = testbasenum + 4
@@ -634,7 +634,7 @@ if dofreqmode:
     ms.close()
     numerrors += verifytabs(3)
     numerrors += testcenchanfreq(1)
-    numerrors += verifySPWcolumn("TOTAL_BANDWIDTH",9.*1562500.)    
+    numerrors += verifySPWcolumn("TOTAL_BANDWIDTH",9.*1562500.)
 
     total += 1
     testnum = testbasenum + 5
@@ -731,7 +731,7 @@ if dovradmode:
     ms.close()
     numerrors += verifytabs(32)
     numerrors += verifySPWcolumn("TOTAL_BANDWIDTH",64*1562500.)
-    
+
 
     total += 1
     testnum = testbasenum + 2
@@ -817,7 +817,7 @@ if dovradmode:
     print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print('ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=11*cw, chanwidth=61*cw,restfreq=rest)') 
+    print('ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=11*cw, chanwidth=61*cw,restfreq=rest)')
     ms.regridspw(outframe="LSRK",mode="vrad", center=0., bandwidth=11*cw, chanwidth=61*cw,restfreq=rest)
     ms.close()
     numerrors += verifytabs(1)
@@ -865,7 +865,7 @@ if dovoptmode:
     ms.close()
     numerrors += verifytabs(31)
     numerrors += verifySPWcolumn("TOTAL_BANDWIDTH", 96917193.0)
-    
+
 
     total += 1
     testnum = testbasenum + 2
@@ -948,7 +948,7 @@ if dovoptmode:
     print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print('ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=11*cw, chanwidth=61*cw,restfreq=rest)') 
+    print('ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=11*cw, chanwidth=61*cw,restfreq=rest)')
     ms.regridspw(outframe="LSRK",mode="vopt", center=0., bandwidth=11*cw, chanwidth=61*cw,restfreq=rest)
     ms.close()
     numerrors += verifytabs(1)
@@ -996,7 +996,7 @@ if dowavemode:
     ms.close()
     numerrors += verifytabs(31)
     numerrors += verifySPWcolumn("TOTAL_BANDWIDTH",96917193.0)
-    
+
 
     total += 1
     testnum = testbasenum + 2
@@ -1082,7 +1082,7 @@ if dowavemode:
     print(">>>> Test ", testnum)
     casalog.post(">>>> Test "+str(testnum))
     initms('test.ms',0, 15)
-    print('ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=11*cw, chanwidth=61*cw)') 
+    print('ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=11*cw, chanwidth=61*cw)')
     ms.regridspw(outframe="LSRK",mode="wave", center=regcentl, bandwidth=11*cw, chanwidth=61*cw)
     ms.close()
     numerrors += verifytabs(1)
@@ -1244,4 +1244,4 @@ if dowildstuff:
 print("-- end regridspw test ---------------------")
 print(total, " tests")
 print(numerrors, " errors total.")
-    
+

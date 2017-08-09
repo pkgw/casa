@@ -24,12 +24,12 @@ def calstat(caltable=None,
     s = tb.statistics(column=col.upper(),
                       complex_value=complex_type,
                       useflags=useflags)
-        
+
     tb.close()
 
     for stats in list(s.keys()):
         casalog.post(stats + " values --- ", "NORMAL")
-        
+
         if s[stats]['npts'] > 0:
             casalog.post("         -- number of points [npts]:           " + str(int(round(s[stats]['npts']))), "NORMAL")
             casalog.post("         -- minimum value [min]:               " + str(s[stats]['min'  ]), "NORMAL")

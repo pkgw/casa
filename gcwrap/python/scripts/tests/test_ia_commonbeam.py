@@ -36,7 +36,7 @@
 #
 # <prerequisite>
 # <ul>
-#   <li> <linkto class="task_imcollapse.py:description">ia.commonbeam()</linkto> 
+#   <li> <linkto class="task_imcollapse.py:description">ia.commonbeam()</linkto>
 # </ul>
 # </prerequisite>
 #
@@ -46,20 +46,20 @@
 #
 # <synopsis>
 # Test the ia.commonbeam() method.
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_commonbeam[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the ia.commonbeam() method to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -76,19 +76,19 @@ import unittest
 
 
 class ia_commonbeam_test(unittest.TestCase):
-    
+
     def setUp(self):
         pass
-    
+
     def tearDown(self):
         pass
-    
+
     def test_nobeam(self):
         """ test having no beam throws an exception"""
         ia.fromshape("", [2,2,2])
         self.assertRaises(Exception, ia.commonbeam)
         ia.done()
-        
+
     def test_enclosingbeam(self):
         """ test case where one beam in the set encloses the others"""
         ia.fromshape("", [2,2,2])
@@ -103,7 +103,7 @@ class ia_commonbeam_test(unittest.TestCase):
         self.assertTrue(x['minor'] == minor)
         self.assertTrue(x['pa'] == pa)
         ia.done()
-        
+
     def test_onebeam(self):
         """ test global beam case"""
         ia.fromshape("", [2,2,2])
@@ -116,7 +116,7 @@ class ia_commonbeam_test(unittest.TestCase):
         self.assertTrue(x['minor'] == minor)
         self.assertTrue(x['pa'] == pa)
         ia.done()
-        
+
     def test_overlappingbeams(self):
         """ test case where one beam does not enclose the other"""
         ia.fromshape("", [2,2,2])
@@ -130,7 +130,7 @@ class ia_commonbeam_test(unittest.TestCase):
         self.assertTrue(x['minor']['value'] < 3.292)
         self.assertTrue(abs(x['pa']['value'] - 30) < 1e-7 )
         ia.done()
-        
-        
+
+
 def suite():
     return [ia_commonbeam_test]

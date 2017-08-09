@@ -2,11 +2,11 @@
 # $Id:$
 # Test Name:                                                                #
 #    Regression Test Script for the FITS-IDI import to MS                   #
-#    
+#
 #                                                                           #
 # Rationale for Inclusion:                                                  #
 #    The conversion of FITS-IDI to MS needs to be verified.                 #
-#                                                                           # 
+#                                                                           #
 # Features tested:                                                          #
 #    1) Is the import performed without raising exceptions                  #
 #    2) Do all expected tables exist                                        #
@@ -53,7 +53,7 @@ def checktable(thename, theexpectation):
             if mycell[3] == 0:
                 in_agreement = (value == mycell[2])
             else:
-                in_agreement = ( abs(value - mycell[2]) < mycell[3]) 
+                in_agreement = ( abs(value - mycell[2]) < mycell[3])
         else:
             if isinstance(value, str):
                 in_agreement = value == mycell[2]
@@ -61,7 +61,7 @@ def checktable(thename, theexpectation):
                 # it's an array
                 # zero tolerance?
                 if mycell[3] == 0:
-                    in_agreement =  (value == mycell[2]).all() 
+                    in_agreement =  (value == mycell[2]).all()
                 else:
                     try:
                         in_agreement = (abs(value - mycell[2]) < mycell[3]).all()
@@ -79,10 +79,10 @@ def checktable(thename, theexpectation):
 
 
 ###########################
-# beginning of actual test 
+# beginning of actual test
 
 class test_importfitsidi(unittest.TestCase):
-    
+
     def setUp(self):
         res = None
 
@@ -92,16 +92,16 @@ class test_importfitsidi(unittest.TestCase):
                 os.remove(fname)
             shutil.copy(datapath + fname, fname)
         default(importfitsidi)
-        
+
     def tearDown(self):
         for fname in my_dataset_names:
             os.remove(fname)
         shutil.rmtree(msname,ignore_errors=True)
         shutil.rmtree(msname+'.flagversions',ignore_errors=True)
-        
+
     def test1(self):
         '''fitsidi-import: Test good input'''
-        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }    
+        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
 
         self.res = importfitsidi(my_dataset_names[0], msname,  scanreindexgap_s=100., constobsid=True)
         print(myname, ": Success! Now checking output ...")
@@ -158,7 +158,7 @@ class test_importfitsidi(unittest.TestCase):
             ms.close()
             print(myname, ": OK. Checking tables in detail ...")
             retValue['success']=True
-    
+
             # check main table first
             name = ""
             #             col name, row number, expected value, tolerance
@@ -186,7 +186,7 @@ class test_importfitsidi(unittest.TestCase):
             if not results:
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+'Check of table '+name+' failed'
-    
+
             expected = [
                          ['UVW',       638, [171529.37575288, -786712.70341456, 210321.20978818], 1E-8],
                          ['EXPOSURE',  638,  2.0, 1E-8],
@@ -211,7 +211,7 @@ class test_importfitsidi(unittest.TestCase):
             if not results:
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+'Check of table '+name+' failed'
-            
+
             name = "ANTENNA"
             expected = [ ['OFFSET',       1, [ 0.,  0.,  0.], 0],
                          ['POSITION',     1, [ 3370605.8469,  711917.6732,  5349830.8438], 0.0001],
@@ -221,7 +221,7 @@ class test_importfitsidi(unittest.TestCase):
             if not results:
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+'Check of table '+name+' failed'
-            
+
             name = "SPECTRAL_WINDOW"
             expected = [ ['NUM_CHAN',        7, 16, 0],
                          ['TOTAL_BANDWIDTH', 7, 8E6, 0],
@@ -237,12 +237,12 @@ class test_importfitsidi(unittest.TestCase):
             if not results:
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+'Check of table '+name+' failed'
-                
+
         self.assertTrue(retValue['success'])
 
     def test2(self):
         '''fitsidi-import: Test good input, list of two input files'''
-        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }    
+        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
 
         self.res = importfitsidi([my_dataset_names[1],my_dataset_names[2]], msname)
         print(myname, ": Success! Now checking output ...")
@@ -299,7 +299,7 @@ class test_importfitsidi(unittest.TestCase):
             ms.close()
             print(myname, ": OK. Checking tables in detail ...")
             retValue['success']=True
-    
+
             # check main table first
             name = ""
             #             col name, row number, expected value, tolerance
@@ -327,7 +327,7 @@ class test_importfitsidi(unittest.TestCase):
             if not results:
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+'Check of table '+name+' failed'
-    
+
             expected = [
                          ['UVW',       638, [171529.37575288, -786712.70341456, 210321.20978818], 1E-8],
                          ['EXPOSURE',  638,  2.0, 1E-8],
@@ -352,7 +352,7 @@ class test_importfitsidi(unittest.TestCase):
             if not results:
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+'Check of table '+name+' failed'
-            
+
             name = "ANTENNA"
             expected = [ ['OFFSET',       1, [ 0.,  0.,  0.], 0],
                          ['POSITION',     1, [ 3370605.8469,  711917.6732,  5349830.8438], 0.0001],
@@ -362,7 +362,7 @@ class test_importfitsidi(unittest.TestCase):
             if not results:
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+'Check of table '+name+' failed'
-            
+
             name = "SPECTRAL_WINDOW"
             expected = [ ['NUM_CHAN',        7, 16, 0],
                          ['TOTAL_BANDWIDTH', 7, 8E6, 0],
@@ -378,12 +378,12 @@ class test_importfitsidi(unittest.TestCase):
             if not results:
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+'Check of table '+name+' failed'
-                
+
         self.assertTrue(retValue['success'])
 
     def test3(self):
         '''fitsidi-import: Test antenna name and multi uvtable'''
-        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }    
+        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
 
         self.res = importfitsidi(my_dataset_names[3], msname)
         print(myname, ": Success! Now checking output ...")
@@ -440,10 +440,10 @@ class test_importfitsidi(unittest.TestCase):
             ms.close()
             print(myname, ": OK. Checking tables in detail ...")
             retValue['success']=True
-    
+
             # check main table first
             name = ""
-            
+
             #             col name, row number, expected value, tolerance
             # this is the first row of the second uv table
             expected = [
@@ -455,8 +455,8 @@ class test_importfitsidi(unittest.TestCase):
             if not results:
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+'Check of table '+name+' failed'
-    
-            
+
+
             name = "ANTENNA"
             expected = [ ['OFFSET',       1, [ 0.,  0.,  0.], 0],
                          ['POSITION',     1, [ 3859711.503, -201995.077, 5056134.251], 0.001],
@@ -467,7 +467,7 @@ class test_importfitsidi(unittest.TestCase):
             if not results:
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+'Check of table '+name+' failed'
-            
+
             name = "SPECTRAL_WINDOW"
             expected = [ ['NUM_CHAN',        3, 512, 0],
                          ['TOTAL_BANDWIDTH', 3, 128e+6, 0],
@@ -668,14 +668,14 @@ class test_importfitsidi(unittest.TestCase):
             if not results:
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+'Check of table '+name+' failed'
-                
+
         self.assertTrue(retValue['success'])
 
     def test4(self):
         '''fitsidi-import: Test good input, list of two input files, constobsid and scanreindexing'''
-        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }    
+        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
 
-        self.res = importfitsidi([my_dataset_names[1],my_dataset_names[2]], msname, 
+        self.res = importfitsidi([my_dataset_names[1],my_dataset_names[2]], msname,
                                  constobsid=True, scanreindexgap_s=1.5)
         print(myname, ": Success! Now checking output ...")
         mscomponents = set(["table.dat",
@@ -731,7 +731,7 @@ class test_importfitsidi(unittest.TestCase):
             ms.close()
             print(myname, ": OK. Checking tables in detail ...")
             retValue['success']=True
-    
+
             # check main table first
             name = ""
             #             col name, row number, expected value, tolerance
@@ -761,7 +761,7 @@ class test_importfitsidi(unittest.TestCase):
             if not results:
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+'Check of table '+name+' failed'
-    
+
             expected = [
                          ['UVW',       638, [171529.37575288, -786712.70341456, 210321.20978818], 1E-8],
                          ['EXPOSURE',  638,  2.0, 1E-8],
@@ -788,16 +788,16 @@ class test_importfitsidi(unittest.TestCase):
             if not results:
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+'Check of table '+name+' failed'
-            
+
             tb.open(msname+'/OBSERVATION')
             nr = tb.nrows()
             tb.close()
             if not nr==1:
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+'Check of table OBSERVATION failed'
-                
+
         self.assertTrue(retValue['success'])
-                
-    
+
+
 def suite():
     return [test_importfitsidi]

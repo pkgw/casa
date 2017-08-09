@@ -4,7 +4,7 @@ import shutil
 
 def rmfit(
     imagename, rm, rmerr, pa0, pa0err, nturns, chisq,
-    sigma, rmfg, rmmax, maxpaerr, 
+    sigma, rmfg, rmmax, maxpaerr,
 ):
     casalog.origin('prom')
     myia = iatool()
@@ -39,10 +39,10 @@ def rmfit(
         if (myia):
             myia.done()
         if (mypo):
-            mypo.done()          
+            mypo.done()
         if len(tmpim) > 0:
             try:
                 shutil.rmtree(tmpim)
             except Exception as e:
                 print("Could not remove " + tmpim + " because " + str(e))
-            
+

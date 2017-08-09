@@ -6,34 +6,34 @@ def deconvolve(imagename,model,psf,alg,niter,gain,threshold,mask,scales,sigma,ta
     """ deconvolve: Image based deconvolver. The psf provided is
     deconvolved out of the image provided.
 
-    	Keyword arguments:
-    	imagename -- Name of input image to be deconvoled
-    	model     -- Name of output to store found model, a.k.a clean components
-    	psf       -- Name of psf image to use e.g  psf='mypsf.image' .
-     	             But if the psf has 3 parameter, then
-       		     a gaussian psf is assumed with the values representing
+        Keyword arguments:
+        imagename -- Name of input image to be deconvoled
+        model     -- Name of output to store found model, a.k.a clean components
+        psf       -- Name of psf image to use e.g  psf='mypsf.image' .
+                     But if the psf has 3 parameter, then
+                     a gaussian psf is assumed with the values representing
                      the major , minor and position angle  values
                      e.g  psf=['3arcsec', '2.5arcsec', '10deg']
-    	alg       -- algorithm to use clark, hogbom or multiscale or mem. if multiscale 
-       	             the parameter scale is used to define the number of scales.
-    	niter     -- Number of iteration
-    	gain      -- CLEAN gain parameter; fraction to remove from peak (< 1.0)
-    	threshold -- deconvolution stopping threshold: if no peak above
-       	             found above this level 
-    	mask      -- mask image (same shape as image and psf) to limit region
-       	             where deconvoltion is to occur
-    	------parameters useful for multiscale only
-    	scales     -- parameter needed for multiscale clean. default value [0,3,10]
-    	------parameters useful for mem only
-    	sigma     -- Estimated noise for image
-    	targetflux -- Target total flux in image 
-    	prior     -- Prior image to guide mem
+        alg       -- algorithm to use clark, hogbom or multiscale or mem. if multiscale
+                     the parameter scale is used to define the number of scales.
+        niter     -- Number of iteration
+        gain      -- CLEAN gain parameter; fraction to remove from peak (< 1.0)
+        threshold -- deconvolution stopping threshold: if no peak above
+                     found above this level
+        mask      -- mask image (same shape as image and psf) to limit region
+                     where deconvoltion is to occur
+        ------parameters useful for multiscale only
+        scales     -- parameter needed for multiscale clean. default value [0,3,10]
+        ------parameters useful for mem only
+        sigma     -- Estimated noise for image
+        targetflux -- Target total flux in image
+        prior     -- Prior image to guide mem
 
     """
-    
-    
+
+
     casalog.origin('deconvolve')
-        
+
     tmppsf=''
     tmpImagename=''
     if(len(psf)==0):
@@ -81,7 +81,7 @@ def deconvolve(imagename,model,psf,alg,niter,gain,threshold,mask,scales,sigma,ta
                imagename=tmpImagename
         tmppsf=model+'.psf'
         dc.open(imagename,psf='', warn=False)
-        print() 
+        print()
         dc.makegaussian(tmppsf,bmaj=psf[0],bmin=psf[1],
                         bpa=psf[2], normalize=False)
         dc.close()
@@ -102,29 +102,29 @@ def deconvolve(imagename,model,psf,alg,niter,gain,threshold,mask,scales,sigma,ta
         raise Exception('****algorithm %s is not known****'%alg)
     dc.restore(model=model, image=model+'.restored')
     dc.residual(model=model, image=model+'.residual')
-    dc.close()    
+    dc.close()
     #if(len(tmppsf) != 0):
     #    os.system('rm -rf '+tmppsf)
     if(len(tmpImagename) != 0):
         #os.system('rm -rf '+tmpImagename)
         ia.removefile(tmpImagename)
     tb.clearlocks()
-   
+
 # helper function to add degenerate axes
 def _add_axes(inImage):
         tmpim=''
         tmpim2=''
         outImage=''
-	ok=ia.open(inImage)
+        ok=ia.open(inImage)
         if ok:
             tmpim='__decon_tmp_im'
             csys=ia.coordsys()
-            isStokes=csys.findcoordinate('stokes')['return'] 
-            isSpectral=csys.findcoordinate('spectral')['return'] 
+            isStokes=csys.findcoordinate('stokes')['return']
+            isSpectral=csys.findcoordinate('spectral')['return']
             if not isStokes:
                 ia.open(inImage)
                 ib=ia.adddegaxes(tmpim, stokes="I", overwrite=True)
-                ia.close() 
+                ia.close()
                 ib.done()
                 if not isSpectral:
                     tmpim2='__decon_tmp_im2'
@@ -142,7 +142,7 @@ def _add_axes(inImage):
                 ib.done()
                 outImage=tmpim
             else:
-                outImage=inImage 
-            return outImage 
+                outImage=inImage
+            return outImage
         else:
            return False

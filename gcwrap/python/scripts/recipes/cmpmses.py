@@ -28,7 +28,7 @@ def cmptabs(tab1, tab2):
             return 0
         else:
             return 1
-    
+
     for col in colnames:
         cols = [-1, -1]      # Default to a semi-invalid code.
         for i in range(2):

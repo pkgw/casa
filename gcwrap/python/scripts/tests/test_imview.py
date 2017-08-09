@@ -45,7 +45,7 @@
 # </etymology>
 #
 # <synopsis>
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 # </example>
@@ -67,7 +67,7 @@ from taskinit import *
 from tasks import imview
 
 class imview_test(unittest.TestCase):
-    
+
     @classmethod
     def setUpClass(self):
         """creating test images"""
@@ -89,7 +89,7 @@ class imview_test(unittest.TestCase):
     #def tearDownClass(self):
     #    """removing test images"""
     #    shutil.rmtree(self.linim)
-        
+
     def test_xbm(self):
         """Test production of Xbm file"""
         imview(self.linim,out=self.outfiles['xbm'])

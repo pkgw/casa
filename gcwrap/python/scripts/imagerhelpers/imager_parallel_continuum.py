@@ -14,15 +14,15 @@ from imagerhelpers.parallel_imager_helper import PyParallelImagerHelper
 '''
 An implementation of parallel continuum imaging, using synthesisxxxx tools
 
-Datasets are partitioned by row and major cycles are parallelized. 
+Datasets are partitioned by row and major cycles are parallelized.
 Gathers and normalization are done before passing the images to a
 non-parallel minor cycle. The output model image is them scattered to
 all the nodes for the next parallel major cycle.
 
 There are N synthesisimager objects.
 There is 1 instance per image field, of the normalizer and deconvolver.
-There is 1 iterbot. 
-    
+There is 1 iterbot.
+
 '''
 
 #############################################
@@ -50,7 +50,7 @@ class PyParallelContSynthesisImager(PySynthesisImager):
     ### TEMPORARY switch for CAS-9977.
     ##
     def initializeImagers(self):
-        ### Init all imagers only with 'csys'. 
+        ### Init all imagers only with 'csys'.
         ## There is no coord system mismatch
         ## There is startmodel confusion. Non 'startmodel' runs are all OK.
         self.initializeImagers_Old()
@@ -72,12 +72,12 @@ class PyParallelContSynthesisImager(PySynthesisImager):
             ##self.toolsi = casac.synthesisimager()
 
             #
-            # Select data. 
+            # Select data.
             #
             for mss in sorted( self.selpars.keys() ):
                 self.toolsi.selectdata( thisSelPars[mss] )
 
-            # Defineimage. 
+            # Defineimage.
             # This makes the global csys. Get csys to distribute to other nodes
             # It also sets 'startmodel' if available (this is later scattered to nodes)
             for fld in range(0,self.NF):
@@ -125,10 +125,10 @@ class PyParallelContSynthesisImager(PySynthesisImager):
                     if 'startmodel' in tmpimpars:
                         tmpimpars.pop('startmodel')
 
-                    joblist.append( self.PH.runcmd("toolsi.defineimage( impars=" + str( nimpars[str(fld)] ) 
+                    joblist.append( self.PH.runcmd("toolsi.defineimage( impars=" + str( nimpars[str(fld)] )
                                                    + ", gridpars=" + str( ngridpars[str(fld)] )   + ")", node ) )
             self.PH.checkJobs(joblist);
-        
+
 #############################################
 
     def initializeImagers_New(self):
@@ -151,7 +151,7 @@ class PyParallelContSynthesisImager(PySynthesisImager):
         # print "CFCACHE = ",cfCacheName,cfcExists;
         # print "##########################################"
 
-       
+
         # Start one imager on MAIN node
         self.toolsi = casac.synthesisimager()
 
@@ -296,14 +296,14 @@ class PyParallelContSynthesisImager(PySynthesisImager):
             tmpimpars = nimpars[str(fld)]
             if partialSelPars==False and 'startmodel' in tmpimpars:
                 tmpimpars.pop('startmodel')
-            joblist.append( self.PH.runcmd("toolsi.defineimage( impars=" + str( tmpimpars ) 
+            joblist.append( self.PH.runcmd("toolsi.defineimage( impars=" + str( tmpimpars )
                                                + ", gridpars=" + str( ngridpars[str(fld)] )   + ")", nodes[0] ) )
-            #joblist.append( self.PH.runcmdcheck("fullcoords = toolsi.getcsys()") ) 
+            #joblist.append( self.PH.runcmdcheck("fullcoords = toolsi.getcsys()") )
             self.PH.checkJobs(joblist);
             self.PH.runcmdcheck("fullcoords = toolsi.getcsys()")
             fullcoords = self.PH.pullval("fullcoords", nodes[0] )
             self.coordsyspars[str(fld)] = fullcoords[1]
-         
+
         # do for the rest of nodes
         joblist=[];
         for node in nodes[1:]:
@@ -320,10 +320,10 @@ class PyParallelContSynthesisImager(PySynthesisImager):
                 tmpimpars = nimpars[str(fld)]
                 if partialSelPars==False and 'startmodel' in tmpimpars:
                     tmpimpars.pop('startmodel')
-                joblist.append( self.PH.runcmd("toolsi.defineimage( impars=" + str( tmpimpars ) 
+                joblist.append( self.PH.runcmd("toolsi.defineimage( impars=" + str( tmpimpars )
                                                + ", gridpars=" + str( ngridpars[str(fld)] )   + ")", node ) )
         self.PH.checkJobs(joblist);
-        
+
 #############################################
 
     def initializeImagers_Old(self):
@@ -398,7 +398,7 @@ class PyParallelContSynthesisImager(PySynthesisImager):
 
         ## If only one field, do the get/gather/set of the weight density.
         if self.NF == 1 and self.allimpars['0']['stokes']=="I":   ## Remove after gridded wts appear for all fields correctly (i.e. new FTM).
-   
+
           if self.weightpars['type'] != 'natural' :  ## For natural, this array isn't created at all.
                                                                        ## Remove when we switch to new FTM
 
@@ -430,7 +430,7 @@ class PyParallelContSynthesisImager(PySynthesisImager):
 
     def deleteCluster(self):
          self.PH.takedownCluster()
-    
+
 # #############################################
     def dryGridding_New(self):
         dummy=['']
@@ -457,7 +457,7 @@ class PyParallelContSynthesisImager(PySynthesisImager):
     def fillCFCache(self):
         #print "-----------------------fillCFCache------------------------------------"
         # cflist=[f for f in os.listdir(self.allgridpars['cfcache']) if re.match(r'CFS*', f)];
-        # partCFList = 
+        # partCFList =
         allcflist = self.PH.partitionCFCacheList(self.allgridpars['0']);
         cfcPath = "\""+str(self.allgridpars['0']['cfcache'])+"\"";
         ftmname = "\""+str(self.allgridpars['0']['gridder'])+"\"";

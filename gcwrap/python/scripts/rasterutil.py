@@ -36,7 +36,7 @@ def selection_manager(scantab, original_selection, **kwargs):
     scantab.set_selection(sel)
     yield scantab
     scantab.set_selection(original_selection)
-    
+
 class Raster(object):
     def __init__(self, scantab):
         self.scantab = scantab
@@ -67,7 +67,7 @@ class Raster(object):
     def nominal_spw(self):
         if hasattr(self, '_nominal_spw') and getattr(self, '_nominal_spw') is not None:
             return self._nominal_spw
-        
+
         self._nominal_spw = None
         with selection_manager(self.scantab, self.original_selection, types=0) as s:
             spw_list = s.getifnos()
@@ -95,7 +95,7 @@ class Raster(object):
 
     def reset_selection(self):
         self.scantab.set_selection(self.original_selection)
-    
+
     def detect(self, spw=None, pol=None):
         if spw is None:
             self.spw = self.nominal_spw
@@ -181,7 +181,7 @@ class Raster(object):
         else:
             self.mjd_range_raster = tmp_mjd_range
             self.mjd_range_nomargin_raster = tmp_mjd_range_nomargin
-            
+
     def asscantable(self, rowid=None, rasterid=None):
         s = sd.scantable(self.infile, average=False)
         sel = self.asselector(rowid=rowid, rasterid=rasterid)
@@ -202,7 +202,7 @@ class Raster(object):
 
     def asselector(self, rowid=None, rasterid=None, input_selector=None):
         taql = self.astaql(rowid=rowid, rasterid=rasterid)
-        
+
         if input_selector is None:
             sel = sd.selector(query=taql)
         else:
@@ -223,7 +223,7 @@ class Raster(object):
             rastermode : detect either a raster vist ('raster') or
                          raster scan row ('row')
         """
-        if rastermode.upper() == 'RASTER': (rowid, rasterid) = (None, idx) 
+        if rastermode.upper() == 'RASTER': (rowid, rasterid) = (None, idx)
         elif rastermode.upper() == 'ROW': (rowid, rasterid) = (idx, None)
         else: raise ValueError("Invalid rastermode (should be 'row' or 'raster'")
         taql = self.astaql(rowid=rowid,rasterid=rasterid)
@@ -233,7 +233,7 @@ class Raster(object):
 
         with selection_manager(self.scantab, self.original_selection, query=taql) as s:
             dirs = numpy.array([s.get_directionval(i) for i in range(s.nrow())]).transpose()
-   
+
         pl.clf()
         pl.plot(alldir[0], alldir[1], 'o', color='#aaaaaa', markeredgewidth=0)
         pl.plot(dirs[0], dirs[1], 'o', color='g')
@@ -321,7 +321,7 @@ def _detect_gap_raster(timestamp, alldir, row_gap=None, threshold_row=None, thre
         #inner product of poiting gap and rotated median pointing gap of the first raster row
         dd0 = alldir[:,1:]-alldir[:,:-1]
         dd = numpy.dot(dd_row_rot, dd0)
-        
+
         ppgap = []
         for i in row_gaplist:
             if (i > 0) and (i < row_gaplist[-1]):
@@ -365,7 +365,7 @@ def _get_sampling(alldir,row_gap_idx):
     pa_rad = numpy.arctan(numpy.median(dtan))
     if (len(row_gap_idx) <= 2): # no gap detected
         return alongScan, 0.0, pa_rad*180./numpy.pi
-        
+
     # orthogonal unit vector
     uvec = [numpy.cos(pa_rad+numpy.pi*0.5), numpy.sin(pa_rad+numpy.pi*0.5)]
     # direction vector at row gap

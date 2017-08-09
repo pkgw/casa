@@ -1,6 +1,6 @@
 # calculate calibrator flux from the the flux standard models
 # (for non-SS, e.g. quasars etc) in the CASA data repository
-# 
+#
 # To get flux densities of corresponding channel frequencies
 # in an MS use calcfluxes_fromStandard
 #
@@ -17,14 +17,14 @@ def calcfluxes_fromStandard(sourcename, standard, vis, spw=-1):
     print flux densities for all channel frequencies in the specified spw
     for the flux calibrator in the flux standard.
     - calls calclux_fromStandard(sourcename, fGHz, standard)
-    
+
     sourcename: calibrator source name (as defined in the standard)
-    standard:   name of the standard 
-                 (currently only support: 
+    standard:   name of the standard
+                 (currently only support:
                   - non-time variable "Perley-Butler 2013"
                  )
     vis:        MS name
-    spw:        spw ids in list or -1 (all) 
+    spw:        spw ids in list or -1 (all)
     '''
     (tb,) = gentools(['tb'])
     print("vis=",vis)
@@ -34,11 +34,11 @@ def calcfluxes_fromStandard(sourcename, standard, vis, spw=-1):
     else:
         raise TypeError("vis:%s does not exist" % vis)
     if spw==-1:
-        selspws = list(range(nspw)) 
+        selspws = list(range(nspw))
     else:
-        selspws = spw 
-    print("spw chanFreq(GHz) flux density") 
-    for ispw in selspws: 
+        selspws = spw
+    print("spw chanFreq(GHz) flux density")
+    for ispw in selspws:
         chanfreqs = tb.getcell('CHAN_FREQ',ispw)
         for f in chanfreqs:
             fGHz=f/1.0e9
@@ -49,7 +49,7 @@ def calcfluxes_fromStandard(sourcename, standard, vis, spw=-1):
     tb.close()
 
 
- 
+
 def calcflux_fromStandard(sourcename, freq, standard, epoch=''):
     '''
     freq (in GHz)
@@ -58,7 +58,7 @@ def calcflux_fromStandard(sourcename, freq, standard, epoch=''):
     '''
     from numpy import poly1d as p1d
     (tb,) = gentools(['tb'])
-    rootdatapath = os.environ['CASAPATH'].split()[0]+"/data" 
+    rootdatapath = os.environ['CASAPATH'].split()[0]+"/data"
     dbpath = rootdatapath+"/nrao/VLA/standards"
     timvarsrcs = ['3C48','3C138','3C147']
     sname = sourcename.upper()
@@ -72,7 +72,7 @@ def calcflux_fromStandard(sourcename, freq, standard, epoch=''):
                raise Execption("cannot find "+sname+"_coeffs data")
 
            p = p1d(coeffs[::-1])
-           
+
         else:
            print("time variable source is not supported yet for this test")
 
@@ -92,6 +92,6 @@ def calcflux_fromStandard(sourcename, freq, standard, epoch=''):
         tb.close()
 
     else:
-        print("support for the standard "+standard+" has not been implemeted...")      
+        print("support for the standard "+standard+" has not been implemeted...")
 
     return 10.0**p(log10(freq/f0))

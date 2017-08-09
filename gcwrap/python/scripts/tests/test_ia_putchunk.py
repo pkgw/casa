@@ -46,20 +46,20 @@
 #
 # <synopsis>
 # Test for the ia.putchunk tool method
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_putchunk[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the ia.putchunk() tool method to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -72,21 +72,21 @@ from __main__ import *
 import unittest
 
 class ia_putchunk_test(unittest.TestCase):
-    
+
     def setUp(self):
         self._myia = iatool()
-    
+
     def tearDown(self):
         self._myia.done()
         self.assertTrue(len(tb.showcache()) == 0)
-        
+
     def test_fromshape(self):
         """Test general functionality"""
         myia = self._myia
         shape = [2,3,4]
         fval = 2.7
         cval = 8.6-5.4j
-        
+
         # complex valued image
         myia.fromshape("", shape, type='c')
         bb = myia.getchunk()
@@ -117,6 +117,6 @@ class ia_putchunk_test(unittest.TestCase):
         myia.done()
         self.assertTrue("ia.putchunk" in msgs[-2])
         self.assertTrue("ia.putchunk" in msgs[-1])
-        
+
 def suite():
     return [ia_putchunk_test]

@@ -7,7 +7,7 @@ def listobs(
     array, observation, verbose, listfile,
     listunfl, cachesize, overwrite
 ):
-    
+
     """List data set summary in the logger:
 
        Lists following properties of a measurement set:
@@ -36,7 +36,7 @@ def listobs(
             myms.open(thems=vis, check=True)
         else:
             raise Exception('Visibility data set not found - please verify the name')
-                
+
         sel = {}
         if (selectdata):
             sel['spw'] = spw

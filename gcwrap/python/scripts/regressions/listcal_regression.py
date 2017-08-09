@@ -56,14 +56,14 @@ def load_ngc4826(prefix,msname,caltable):
     # This data is from the BIMA Survey of Nearby Galaxies (BIMA SONG)       #
     # Helfer, Thornley, Regan, et al., 2003, ApJS, 145, 259                  #
     # 16apr98
-    #	source=ngc4826
-    #	phasecal=1310+323
-    #	fluxcal=3c273, Flux = 23 Jy on 16apr98
-    #	passcal= none - data were observed with online bandpass correction.
+    #   source=ngc4826
+    #   phasecal=1310+323
+    #   fluxcal=3c273, Flux = 23 Jy on 16apr98
+    #   passcal= none - data were observed with online bandpass correction.
     # NOTE: This data has been filled into MIRIAD, line-length correction
-    #	done, and then exported as separate files for each source.
-    #	3c273 was not line length corrected since it was observed
-    #	for such a short amount of time that it did not need it.
+    #   done, and then exported as separate files for each source.
+    #   3c273 was not line length corrected since it was observed
+    #   for such a short amount of time that it did not need it.
     # From miriad: source Vlsr = 408; delta V is 20 km/s
     # NOTE: This data contains correlations of only one polarization, 'YY'.
     # The antennas contain 'X' and 'Y' feeds, but the 'X' data was not

@@ -1,7 +1,7 @@
 ###############################
 #
 # ORION-S SiO Reduction Script
-# using SD tasks 
+# using SD tasks
 # Position-Switched data
 #
 # used tasks
@@ -21,7 +21,7 @@ import os
 os.system('rm -rf OrionS_rawACSmod OrionS_rawACSmod_cal OrionS_rawACSmod_cal_sm OrionS_rawACSmod_cal_sm_bs orions_sio_reducedSCAN0_CYCLE0_BEAM0_IF0.txt orions_sio_reduced.eps orions_sio_fit.txt')
 
 #enable/disable plotting
-doplot = False 
+doplot = False
 
 casapath = os.environ['CASAPATH']
 datapath = casapath.split()[0]+'/data/regression/ATST5/OrionS/OrionS_rawACSmod'
@@ -61,12 +61,12 @@ startProc = time.clock()
 # Scans: 25-28  Setup 2 SiO et al
 
 asap_init()                             #load ASAP module
-					#Orion-S (SiO line reduction only)
-					#Notes:
-					#scan numbers (zero-based) as compared to GBTIDL
+                                        #Orion-S (SiO line reduction only)
+                                        #Notes:
+                                        #scan numbers (zero-based) as compared to GBTIDL
 
-					#changes made to get to OrionS_rawACSmod
-					#modifications to label sig/ref positions
+                                        #changes made to get to OrionS_rawACSmod
+                                        #modifications to label sig/ref positions
 #os.environ['CASAPATH'] = casapath
 
 
@@ -81,19 +81,19 @@ else:
    localplotlevel = 0
 
 # calibartion
-# calibrate position-switched CH3OH scans (IF=15) 
+# calibrate position-switched CH3OH scans (IF=15)
 default(sdcalold)
 infile = 'OrionS_rawACSmod'
-fluxunit = 'K' 
+fluxunit = 'K'
 calmode = 'ps'
 #scanlist = [25,26,27,28]
 scanlist = '25,26,27,28'
 #iflist = [15]
 spw = '15'
-tau = 0.09         # do opacity correction 
+tau = 0.09         # do opacity correction
 overwrite = True
-plotlevel = localplotlevel  
-sdcalold() 
+plotlevel = localplotlevel
+sdcalold()
 # output
 localoutfile = infile+'_cal'
 
@@ -129,10 +129,10 @@ overwrite = True
 plotlevel = localplotlevel
 sdbaselineold()
 localoutfile = infile+'_bs'
-#sd.plotter.plot(spave)			# plot						# baseline
+#sd.plotter.plot(spave)                 # plot                                          # baseline
 
 #plotting the reslut
-#plot the spectrum and save to a postscript file 
+#plot the spectrum and save to a postscript file
 if doplot:
    default(sdplotold)
    infile = localoutfile
@@ -167,15 +167,15 @@ curr_mean = xstat['mean']
 # fitting
 default(sdfitold)
 infile = localoutfile
-#sd.plotter.plot(spave)			# plot spectrum
+#sd.plotter.plot(spave)                 # plot spectrum
 fitmode = 'list'
-#maskline = [3900,4300]	# create region around line
-spw = '*:3900~4300'	# create region around line
+#maskline = [3900,4300] # create region around line
+spw = '*:3900~4300'     # create region around line
 nfit = 1
 plotlevel = localplotlevel
 outfile = 'orions_sio_fit.txt'
 xstat = sdfitold()
-xstat  # print fit statistics 
+xstat  # print fit statistics
 
 # Save the spectrum
 # in different formats
@@ -220,16 +220,16 @@ if (diff_rms < 0.05): print('* Passed spectrum rms test ', file=logfile)
 print('*  Spectrum rms '+str(curr_rms), file=logfile)
 if (diff_sum < 0.05): print('* Passed spectrum (line) sum test', file=logfile)
 print('*  Line integral '+str(curr_sum), file=logfile)
-if ((diff_max<0.05) & (diff_rms<0.05) & (diff_sum<0.05)): 
-	regstate = True
+if ((diff_max<0.05) & (diff_rms<0.05) & (diff_sum<0.05)):
+        regstate = True
         print('---', file=logfile)
         print('Passed Regression test for OrionS-SiO', file=logfile)
         print('---', file=logfile)
         print('')
         print('Regression PASSED')
         print('')
-else: 
-	regstate = False
+else:
+        regstate = False
         print('----FAILED Regression test for OrionS-SiO', file=logfile)
         print('')
         print('Regression FAILED')

@@ -65,7 +65,7 @@ class TheoreticalBeam:
             return my_qa.getvalue(val)*cell_size_arcsec
         else: raise ValueError("Invalid width %s" % str(val))
 
-    
+
     def set_antenna(self, diam, blockage="0.0m", taper=10):
         """
         set parameters to construct antenna beam
@@ -248,7 +248,7 @@ class TheoreticalBeam:
             convolutionPixelSize = minsize/support_min
         if fwhm_arcsec > support_fwhm*convolutionPixelSize:
             convolutionPixelSize = min(fwhm_arcsec/support_fwhm,minsize/10.)
-        
+
         if (self.taper < 0.1):
             # Airly disk
             return self.buildAiryDisk(fwhm_arcsec, 3., convolutionPixelSize,
@@ -396,7 +396,7 @@ class TheoreticalBeam:
             return result[0]
         else:
             return result
-    
+
     ### GAUSS ###
     def get_gauss_kernel(self, axis, truncate, gwidth, cell_arcsec):
         """
@@ -519,7 +519,7 @@ class TheoreticalBeam:
         """
         argument = np.pi*np.abs(x)/jwidth
         np.seterr(invalid='ignore') # prevent warning for central point
-        result = scipy.special.j1(argument) / argument 
+        result = scipy.special.j1(argument) / argument
         np.seterr(invalid='warn')
         for i in range(len(x)):
             if (abs(x[i]) < 1e-8):
@@ -527,14 +527,14 @@ class TheoreticalBeam:
         return result
 
     def gjincGauss(self, x, gwidth):
-        return (np.exp(-np.log(2)*(x/float(gwidth))**2))  
+        return (np.exp(-np.log(2)*(x/float(gwidth))**2))
 
     ### Airly disk ###
     def get_pb_kernel(self, axis,diam,ref_freq, epsilon=0.0):
         """
         Return Airy Disk array defined by the axis, diameter, reference frequency
         and ratio of central hole and antenna diameter
-        
+
         axis: x-axis values
         diameter: antenna diameter in unit of m
         reference frequency: the reference frequency of the image
@@ -549,7 +549,7 @@ class TheoreticalBeam:
         ratio = fwhm/airyfwhm
         tempaxis = axis/ratio
         a = self.rootAiryIntensity(tempaxis, epsilon)
-        return a**2        
+        return a**2
 
     def buildAiryDisk(self, fwhm, xaxisLimitInUnitsOfFwhm, convolutionPixelSize,
                       truncate=False, obscuration=0.75,diameter=12.0):
@@ -597,7 +597,7 @@ class TheoreticalBeam:
         else:
             a = 2*spspec.j1(myxaxis)/myxaxis  # simpler formula for epsilon=0
         return(a)
-    
+
     def trunc(self, result):
         """
         Truncates a list at the first null on both sides of the center,
@@ -627,11 +627,11 @@ class TheoreticalBeam:
         """Migrated from AnalysisUtils (revision 1.2204, 2015/02/18)"""
         return (y - self.gauss(x,parameters))
 
-    def gaussfit(self, x, y, showplot=False, minlevel=0, verbose=False, 
+    def gaussfit(self, x, y, showplot=False, minlevel=0, verbose=False,
                  title=None, truncate=False):
         """
-        Fits a 1D Gaussian assumed to be centered at x=0 with amp=1 to the 
-        specified data, with an option to truncate it at some level.   
+        Fits a 1D Gaussian assumed to be centered at x=0 with amp=1 to the
+        specified data, with an option to truncate it at some level.
         Returns the FWHM and truncation point.
         Migrated from AnalysisUtils (revision 1.2204, 2015/02/18)
         """
@@ -668,7 +668,7 @@ class TheoreticalBeam:
         else:
             fwhm = bestParameters
         return(fwhm,truncate)
-    
+
 def findFWHM(x,y,level=0.5, s=0):
     """
     Measures the FWHM of the specified profile.  This works
@@ -697,13 +697,13 @@ def findFWHM(x,y,level=0.5, s=0):
         errmsg = "Unsupported FWHM search in CASA. More than two corssings (%d) at level %f (%f %% of peak)." % (len(result), halfmax, level)
         raise Exception(errmsg)
 
-def primaryBeamArcsec(frequency, diameter, obscuration, taper, 
+def primaryBeamArcsec(frequency, diameter, obscuration, taper,
                       showEquation=True, use2007formula=True, fwhmfactor=None):
     """
     Implements the Baars formula: b*lambda / D.
-      if use2007formula==False, use the formula from ALMA Memo 456        
+      if use2007formula==False, use the formula from ALMA Memo 456
       if use2007formula==True, use the formula from Baars 2007 book
-        (see au.baarsTaperFactor)     
+        (see au.baarsTaperFactor)
       In either case, the taper value is expected to be entered as positive.
         Note: if a negative value is entered, it is converted to positive.
     The effect of the central obstruction on the pattern is also accounted for
@@ -734,13 +734,13 @@ def primaryBeamArcsec(frequency, diameter, obscuration, taper,
         casalog.post("Coefficient from %s for a -%.1fdB edge taper and obscuration ratio=%g/%g = %.3f*lambda/D" % (formula, taper, obscuration, diameter, b))
     return(b*lambdaMeters*3600*180/(diameter*np.pi))
 
-def effectiveTaper(fwhmFactor=1.16, diameter=12, obscuration=0.75, 
+def effectiveTaper(fwhmFactor=1.16, diameter=12, obscuration=0.75,
                    use2007formula=True):
     """
     The inverse of (Baars formula multiplied by the central
     obstruction factor).  Converts an observed value of the constant X in
     the formula FWHM=X*lambda/D into a taper in dB (positive value).
-    if use2007formula == False, use Equation 18 from ALMA Memo 456     
+    if use2007formula == False, use Equation 18 from ALMA Memo 456
     if use2007formula == True, use Equation 4.13 from Baars 2007 book
     -- Todd Hunter
     Migrated from AnalysisUtils (revision 1.2204, 2015/02/18)

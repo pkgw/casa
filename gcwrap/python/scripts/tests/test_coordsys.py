@@ -38,7 +38,7 @@
 #
 # <prerequisite>
 # <ul>
-#   <li> <linkto class="task_specfit.py:description">imcollapse</linkto> 
+#   <li> <linkto class="task_specfit.py:description">imcollapse</linkto>
 # </ul>
 # </prerequisite>
 #
@@ -48,20 +48,20 @@
 #
 # <synopsis>
 # Test the specfit task and the ia.fitprofile() method upon which it is built.
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_coordsys[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the specfit task to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -78,14 +78,14 @@ myim = "center_0.fits"
 datapath=os.environ.get('CASAPATH').split()[0]+'/data/regression/unittest/coordsys/'
 
 class coordsys_test(unittest.TestCase):
-    
+
     def setUp(self):
         shutil.copy(datapath + myim, myim)
-        
+
     def tearDown(self):
         os.remove(myim)
         self.assertTrue(len(tb.showcache()) == 0)
-        
+
     def test_CAS_2724(self):
         myia = iatool()
         myia.open(myim)
@@ -96,7 +96,7 @@ class coordsys_test(unittest.TestCase):
         """Test constructors"""
         x = coordsystool()
         x = cstool()
-        
+
     def test_findaxisbyname(self):
         myia = iatool()
         myia.fromshape("", [4, 4, 4, 4])
@@ -106,14 +106,14 @@ class coordsys_test(unittest.TestCase):
         self.assertTrue(csys.findaxisbyname("ri") == 0)
         self.assertRaises(Exception, csys.findaxisbyname, "ra", False)
         self.assertTrue(csys.findaxisbyname("ra", True) == 0)
-        
+
     def test_transpose(self):
         """Test the transpose() method"""
         myia = iatool()
         myia.fromshape("", [4, 4, 4, 4])
         csys = myia.coordsys()
         myia.done()
-        
+
         orig = csys.names()
         self.assertTrue(csys.transpose([3,2,1,0]))
         new = csys.names()
@@ -121,7 +121,7 @@ class coordsys_test(unittest.TestCase):
         self.assertTrue(orig[1] == new[2])
         self.assertTrue(orig[2] == new[1])
         self.assertTrue(orig[3] == new[0])
-        
+
     def test_findaxis(self):
         """Test the findaxis() method"""
         myia = iatool()
@@ -138,7 +138,7 @@ class coordsys_test(unittest.TestCase):
         got = csys.findaxis(True, 3)
         self.assertTrue(got == {'axisincoordinate': 0, 'coordinate': 2})
         myia.done()
-        
+
     def test_findcoordinate(self):
         """Test the findcoordinate() method"""
         myia = iatool()
@@ -164,6 +164,6 @@ class coordsys_test(unittest.TestCase):
             got['return'] and (got['pixel'] == [2]).all()
             and (got['world'] == [2]).all()
         )
-        
+
 def suite():
     return [coordsys_test]

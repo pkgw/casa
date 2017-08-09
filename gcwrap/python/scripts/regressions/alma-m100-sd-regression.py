@@ -42,7 +42,7 @@ for name in [rawname, listname, msname, blname]:
 casapath = os.environ['CASAPATH']
 datapath = casapath.split()[0]+'/data/regression/alma-sd/M100/'+rawname
 print('Copying ASDM from '+datapath)
-shutil.copytree(datapath, rawname) 
+shutil.copytree(datapath, rawname)
 
 startTime=time.time()
 startProc=time.clock()
@@ -88,8 +88,8 @@ listobs()
 
 
 
-# Initial inspection of the data with plotms task. 
-# First plot amplitude versus channel, 
+# Initial inspection of the data with plotms task.
+# First plot amplitude versus channel,
 # averaging over time in order to speed up the plotting process.
 
 default(plotms)
@@ -180,8 +180,8 @@ sdbaseline()
 sdbaselineproc = time.clock()
 sdbaselinetime = time.time()
 
-# Plot the calibrated spectra, using the plotms task. 
-# The commands below will plot one spectrum per scan, spw and polarization. 
+# Plot the calibrated spectra, using the plotms task.
+# The commands below will plot one spectrum per scan, spw and polarization.
 
 for i in target_spws:
     for antname  in ['PM03', 'PM04', 'CM03', 'CM05']:
@@ -293,7 +293,7 @@ immoments(imagename = 'M100_SD_cube_CM_03_05.image',moments = [0],axis = 'spectr
 
 
 
-## Export data as fits  
+## Export data as fits
 
 os.system('rm -rf M100_SD_*.fits')
 exportfits(imagename='M100_SD_cube_PM_03_04.image', fitsimage='M100_SD_cube_PM_03_04.image.fits')
@@ -416,7 +416,7 @@ logfile=open(outfile,'w')
 print >>logfile,' *  diff_immax',diff_immax
 print >>logfile,' *  diff_immin',diff_immin
 print >>logfile,' *  diff_imrms',diff_imrms
-print >>logfile,' *  diff_imflux',diff_imflux 
+print >>logfile,' *  diff_imflux',diff_imflux
 print >>logfile,' *  diff_immean',diff_immean
 print >>logfile,' *  diff_immedian',diff_immedian
 print >>logfile,' *  diff_imnpts',diff_imnpts
@@ -438,7 +438,7 @@ else :
     test_status = False
     print('* FAILED image maxpos test')
 print('*  Image maxpos', thistest_immaxpos, file=logfile)
-    
+
 
 if all(thistest_imminpos == imminpos):
     print('* Passed image minpos test')
@@ -447,21 +447,21 @@ else:
     print('* FAILED image minpos test')
 print('*  Image minpos', thistest_imminpos, file=logfile)
 
-if (diff_immax < 0.01): 
+if (diff_immax < 0.01):
     print('* Passed image max test ')
 else:
     test_status = False
     print('* FAILED image max test ')
 print('*  Image max ',thistest_immax, file=logfile)
 
-if (diff_immin < 0.01): 
+if (diff_immin < 0.01):
     print('* Passed image min test ')
 else:
     test_status = False
     print('* FAILED image min test ')
 print('*  Image min ',thistest_immin, file=logfile)
 
-if (diff_imrms < 0.01): 
+if (diff_imrms < 0.01):
     print('* Passed image rms test ')
 else:
     test_status = False
@@ -494,7 +494,7 @@ if (diff_imnpts< 0.01):
 else:
     print('* FAILED image npts test ')
     test_status = False
-print('*  Image npts ',thistest_imnpts, file=logfile) 
+print('*  Image npts ',thistest_imnpts, file=logfile)
 
 if (diff_imsum< 0.01):
     print('* Passed image sum test ')
@@ -540,7 +540,7 @@ if (test_status):
     print('')
     print('Regression PASSED')
     print('')
-else: 
+else:
     regstate=False
     print('')
     print('Regression FAILED')

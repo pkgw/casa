@@ -11,7 +11,7 @@ import unittest
 '''
 Unit tests for task vishead. It tests the following modes:
     list, summary, get, put
-    
+
  This example shows how to run it manually from within casapy.
  runUnitTest.main(['test_imhead'])
 
@@ -24,7 +24,7 @@ datapath=os.environ.get('CASAPATH').split()[0]+'/data/regression/unittest/vishea
 
 # Pick up alternative data directory to run tests on MMSs
 testmms = False
-if 'TEST_DATADIR' in os.environ:   
+if 'TEST_DATADIR' in os.environ:
     DATADIR = str(os.environ.get('TEST_DATADIR'))+'/vishead/'
     if os.path.isdir(DATADIR):
         testmms = True
@@ -32,7 +32,7 @@ if 'TEST_DATADIR' in os.environ:
     else:
         print('WARN: directory '+DATADIR+' does not exist')
 
-print('vishead tests will use data from '+datapath)         
+print('vishead tests will use data from '+datapath)
 
 input_file = 'n4826_16apr98.ms'  # 128 channels
 #if testmms:
@@ -84,7 +84,7 @@ def is_true(x):
 
 # Unittest class
 class vishead_test(unittest.TestCase):
-    
+
     def setUp(self):
         if(os.path.exists(input_file)):
             os.system('rm -rf ' +input_file)
@@ -95,14 +95,14 @@ class vishead_test(unittest.TestCase):
     def tearDown(self):
         if os.path.exists(input_file):
             os.system('rm -rf ' +input_file)
-        
+
     def test_list(self):
         '''Vishead: List mode'''
         t = tester()
-    
+
         #os.system('pwd')
         #os.system('find ./pointingtest.ms -type f | xargs cksum | grep OBSERVATION | grep -v svn')
-        
+
         t.start("vishead( '" + input_file + "', 'list', [])")
         orig_hdr = vishead(input_file, 'list', [])  # default listitems seems to work when
                                                     # run manually, but not from here.
@@ -111,7 +111,7 @@ class vishead_test(unittest.TestCase):
         t.end(type(orig_hdr) == type({'key1':'val1', 'key2':'val2'})
               and orig_hdr['source_name'][0][2] == 'NGC4826',
               "... is a bad header")
-    
+
     def test_summary(self):
         '''Vishead: Summary mode'''
         t = tester()
@@ -123,11 +123,11 @@ class vishead_test(unittest.TestCase):
         '''Vishead: Test put/get modes'''
         t = tester()
         orig_hdr = vishead(input_file, 'list', [])
-        
+
         # Test the set/get value routines.  All of them
         for keyword in orig_hdr:
             print("List value of %s:" % (keyword), orig_hdr[keyword])
-            
+
             # Test getting.
             valref = vishead(input_file, mode='get', hdkey=keyword, hdindex='')
             print("Read value:     ", valref)
@@ -135,7 +135,7 @@ class vishead_test(unittest.TestCase):
             for j in range(2):
                 t.start("get " + keyword + "[%d]" % j)
                 val = valref[j]
-                
+
                 # numpy array comparison returns a list of booleans
                 # therefore we have to manually traverse (sigh...) larger data
                 # structures containing numpy arrays, in order to check
@@ -152,7 +152,7 @@ class vishead_test(unittest.TestCase):
                     are_equal = are_equal.all()
                 t.end(are_equal, \
                       "Got "+str(val)+", expected "+str(orig_hdr[keyword][j]))
-                
+
             # Test putting.
             # Put does not yet use the ref part of valref.
             val = valref[0]
@@ -161,50 +161,50 @@ class vishead_test(unittest.TestCase):
                 'with variable length arrays, don\'t try to write that')
                 # because the task doesn't support it
                 continue
-    
+
             if len(val) == 1:
                 if type(val[0]) == numpy.string_:
                     myval = 'the_coolest_' + val[0]
                 else:
                     myval = 42.0 + val[0]
-                    
+
                 t.start("put/get " + keyword)
                 print("New value:      ", myval)
                 vishead(input_file, mode='put', hdkey=keyword, hdindex='', hdvalue=myval)
-                
+
                 newval = vishead(input_file, mode='get', hdkey=keyword, hdindex='')[0]
                 print("Read new value: ", newval)
-                
+
                 t.end(newval == myval, "Got "+str(newval)+", expected "+str(myval))
             else:
                 # read/write full column
                 all_values = vishead(input_file, mode='get', hdkey=keyword)[0]
                 vishead(input_file, mode='put', hdkey=keyword, hdindex='', hdvalue=all_values)
-                
+
                 i = 0
                 for e in val:
                     if type(e) == numpy.string_:
                         myval = 'the_coolest_' + e
                     else:
                         myval = 42.0 + e
-        
+
                     t.start("put/get " + keyword + '[' + str(i) + ']')
-                    
+
                     print("New value:      ", myval)
                     vishead(input_file, mode='put', hdkey=keyword, hdindex=str(i),
                             hdvalue=myval)
-                    
+
                     newval = vishead(input_file, mode='get', hdkey=keyword, hdindex=str(i))[0]
                     print("Read new value: ", newval)
-                    
+
                     t.end(newval == myval, "Got "+str(newval)+", expected "+str(myval))
-                    
+
                     i += 1
-            
+
             #imhead( input_file, 'put', 'object', val['value'] )
-        
+
         t.done()
-    
+
 
 def suite():
     return [vishead_test]

@@ -45,7 +45,7 @@ class builder:
 
     def __init__(self):
         self.temp = False
-        
+
     def chdir(self, *texts):
         self.do("", "cd ", *texts)
 
@@ -70,7 +70,7 @@ class sh_builder(builder):
         builder.__init__(self);
         self.type = type
         self.file = open(file, 'w')
-        # Do not write to the script immediately. 
+        # Do not write to the script immediately.
         # First accumulate all commands and variable definitions,
         # then finally (in __del__) write the variable definitons
         # before the commands.
@@ -85,9 +85,9 @@ class sh_builder(builder):
         self.file.write("\n")
 
     def __del__(self):
-        
+
         # Time to flush
-        
+
         # First define variables
         for (n,v) in self.definitions.items():
             self.file.write('%s=%s\n' % (n, v))
@@ -192,7 +192,7 @@ class exe_builder(builder):
         self.type = type
         self.dry = dry         # dry run (true/false)
         self.outfile = None
-    
+
     # Output of next command goes here
     def set_outfile(self, outfile):
         self.outfile = outfile
@@ -240,7 +240,7 @@ class exe_builder(builder):
             f = open(self.outfile, "w")
             f.write('[Dry run] - Output of ' + cmd + '\n')
             f.close()
-        
+
     def comment(self, *comment):
         pass
 
@@ -275,7 +275,7 @@ class exe_and_doc_builder(builder):
             os.system("mkdir -p " + dir)
         else:
             os.system("rm -rf " + dir + "/*")
-        
+
         self.html = html_builder(dir + '/build.html', oss, arch, type)
         self.sh   =   sh_builder(dir + '/build.sh', type)
         self.exe  = exe_builder(dry = dry, type = type)
@@ -299,7 +299,7 @@ class exe_and_doc_builder(builder):
         self.html.comment(comment, *texts)
         self.exe.comment(comment, *texts)
         self.sh.comment(comment, *texts)
-    
+
     def chdir(self, *texts):
         self.html.chdir(*texts)
         self.exe.chdir(*texts)
@@ -363,7 +363,7 @@ def build_casa(b, url, revision, type, ops, architecture):
            else:
                third_party = "darwin10-64b.tar.bz2"
                d = "https://svn.cv.nrao.edu/casa/osx_distro/developers/10.6/"
-               
+
            if False:
                b.do("", "curl " + d + third_party + " -o " + third_party)
            else:
@@ -389,7 +389,7 @@ def build_casa(b, url, revision, type, ops, architecture):
                b.do("", "mkdir ", coredir)
                b.chdir(coredir)
                b.do("", "tar jxf ../" + third_party)
-               
+
                b.do("Workaround for CAS-2071, do not use the Qt in 3rd-party:",
                     "rm -rf ", prefix, "/../", third, "/include/Qt*")
 
@@ -404,13 +404,13 @@ def build_casa(b, url, revision, type, ops, architecture):
 
            if architecture == "10.5":
                b.do("", "hdiutil attach ./qt-sdk-mac-opensource-2009.02.dmg -mountroot .")
-           
+
                b.comment("If you did not install Qt already, do 'sudo installer -package Qt\ SDK/QtSDK.mpkg/ -target .'")
                b.comment("Password:")
                b.comment("installer: Package name is Qt SDK")
                b.comment("installer: Installing at base path /")
                b.comment("installer: The install was successful.")
-           
+
            else:
                b.comment("If you did not already, install gfortran")
                b.comment("'sudo installer -pkg " + gfortran + " -target /'")
@@ -435,10 +435,10 @@ def build_casa(b, url, revision, type, ops, architecture):
             b.do("", "echo \"gpgkey=https://svn.cv.nrao.edu/casa/RPM-GPG-KEY-casa http://ww.jpackage.org/jpackage.asc http://svn.cv.nrao.edu/casa/repo/el5/RPM-GPG-KEY-EPEL\" >> casa.repo")
             b.do("Move the file to /etc/yum.repos.d/ as superuser", "sudo mv casa.repo /etc/yum.repos.d/")
             b.do("Your yum configuration should now look like this,", "cat /etc/yum.repos.d/casa.repo")
-                        
+
             b.do("Remove this package if you have it installed (which is to avoid conflicts with qt434-devel-4.3.4),",
                  "sudo yum -y erase qt4-devel")
-            
+
             b.comment("Install all required development packages. Either answer yes when prompted, or pass the -y flag to yum.")
             if False:
                 # Brute force
@@ -447,7 +447,7 @@ def build_casa(b, url, revision, type, ops, architecture):
                 b.do("", "sudo yum -y install antlr-c++-devel antlr-c++-shared casapy-boost casapy-boost-devel casapy-ccmtools casapy-ccmtools-python casapy-ccmtools-shared casapy-python casapy-python-devel cfitsio-devel dbus-c++ fftw3 fftw3-devel qt434-devel qt434-qwt-devel rpfits tix tix-devel wcslib xerces-c xerces-c-devel aatm aatm-devel dbus-c++-devel blas-devel lapack lapack-devel pgplot pgplot-devel cmake")
 
             # It should cause packages to be installed only from the casa RPM
-            # repository. If there were conflicts with other repositories, you 
+            # repository. If there were conflicts with other repositories, you
             # might need to b.do("", "sudo rm -f /etc/yum.repos.d/*") and start over
 
             b.comment("Create the directory where you want to build CASA. Here we choose to build everything in /opt/casa. You could also create a subdirectory in your home directory, but be aware that if have an NFS mounted home directory, all the file I/O that the build system is going to do, will be somewhat slower.")
@@ -475,7 +475,7 @@ def build_casa(b, url, revision, type, ops, architecture):
     if ops == "Darwin":
         b.comment("It is essential that 3rd-party/bin comes before other stuff in your $PATH:")
         b.set_env('PATH', prefix, "/../", third, "/bin:$PATH")
-        
+
         if architecture == "10.5":
             b.comment("This is a workaround for QWT and CASACore libraries not containing the right rpaths (Note: Do not define the environment variable named DYLD_LIBRARY_PATH or something else might break.)")
             qwtdir = "qwt-5.2.0"
@@ -512,7 +512,7 @@ def build_casa(b, url, revision, type, ops, architecture):
 
         b.do("This directory must already exist, or the WCSLIB build will fail",
              "mkdir -p ../", builddir, "/bin")
-        
+
         b.comment("Compile WCSLIB, make sure that . is in the PATH, or the build will fail")
         b.set_env('PATH', "$PATH:.")
         b.do("", "./configure --prefix=", prefix, "/", builddir, " F77=gfortran FFLAGS=-fPIC CFLAGS=-fPIC")
@@ -521,11 +521,11 @@ def build_casa(b, url, revision, type, ops, architecture):
         b.chdir("..")
 
     b.chdir(prefix)
-        
+
     if type != "test":
         b.comment("Check out CASACore's sources.")
         b.svn_exe(url + "/casacore", revision, "casacore")
-    
+
     if type == "full":
         b.comment("We need parts of CASA's data repository, ", prefix, "/data/geodetic and ", prefix, "/data/ephemerides, in order to build CASACore.")
         if ops == "Darwin":
@@ -542,12 +542,12 @@ def build_casa(b, url, revision, type, ops, architecture):
 
 
     b.chdir("casacore")
-    
+
     if architecture == "x86_64":
         extra_cpp_flags = platform('extra_cpp_flags', ' -DAIPS_64B')
     else:
         extra_cpp_flags = platform('extra_cpp_flags', '')
-     
+
     if type == "test":
       if False:
         b.do("", "scons -j ", threads, " test")
@@ -586,7 +586,7 @@ def build_casa(b, url, revision, type, ops, architecture):
         b.chdir("build")
         b.do("Invoke CMake. The argument to cmake is the path to your source directory, in this case the parent directory", "cmake ..")
         b.chdir("..")
-   
+
     if type != "test":
         b.chdir("build")
         b.do("", "make -j ", threads, " VERBOSE=on")
@@ -625,7 +625,7 @@ def build_casa(b, url, revision, type, ops, architecture):
 
         b.comment("which will summarize near the end if your build is okay or if there were any problems.")
         #
-        # Does not seem to return here... 
+        # Does not seem to return here...
         #
         #b.do("", "rm -f $HOME/XUnit.tar.gz")
         #b.chdir("nosexml")
@@ -687,8 +687,8 @@ def main(argv):
         prefix = "/opt/casa/code"
     if not dry:
         os.system("svn info " + prefix + " | egrep \"^Revision\" | awk '{print $2}' > " + os.getenv('HOME') + "/documentation/revision.txt")
-        
-    return 0          
+
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

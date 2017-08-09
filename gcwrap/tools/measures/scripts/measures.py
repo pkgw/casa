@@ -8,26 +8,26 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 
 
- 
+
         <tool name="measures" module="measures">
         <shortdescription>measures tool</shortdescription>
-       
+
 
 <keyword>measures</keyword>
 
 <code>
-	<include>xmlcasa/measures/measures_forward.h</include>
+        <include>xmlcasa/measures/measures_forward.h</include>
 <private>
-	#include <xmlcasa/measures/measures_private.h>
+        #include <xmlcasa/measures/measures_private.h>
 </private>
 </code>
 
 
 
-<!-- 
+<!--
    <method type="constructor" name="measures">
    <shortdescription>Construct measures tool</shortdescription>
-   
+
 <input>
 
      <param xsi:type="string" direction="in" name="host">
@@ -51,13 +51,13 @@ host you are running on).
 -->
 
 
- 
+
    <method type="function" name="dirshow">
    <shortdescription>
 <!-- Format a direction using globally set formats -->
 Show direction measure as a string.
    </shortdescription>
-   
+
 <input>
 
      <param xsi:type="any" direction="in" name="v">
@@ -90,7 +90,7 @@ print(me.dirshow(me.direction('venus')))
 
 
 
- 
+
    <method type="function" name="show">
    <shortdescription> Show a measure as a string
    </shortdescription>
@@ -98,7 +98,7 @@ print(me.dirshow(me.direction('venus')))
 %%Format a measure using globally set formats
 -->
 
-   
+
 <input>
 
      <param xsi:type="any" direction="in" name="v">
@@ -116,9 +116,9 @@ print(me.dirshow(me.direction('venus')))
 show will convert a measure to a string.
 <!--
 %% , using the formats set
-%%globally for various types of variables (see 
+%%globally for various types of variables (see
 %%<link anchor="quanta:quanta.setformat.function">setformat</link>
-%%). 
+%%).
 -->
 All measures are catered for (at this moment {\em direction, position, epoch,
 radialvelocity, frequency, doppler, baseline, uvw, earthmagnetic} ).
@@ -138,21 +138,21 @@ print(me.show(me.frequency('lsrk', qa.constants('HI')), refcode=false))
 </example>
 <!--
 %%#: qa.setformat('freq', 'keV')
-%%#T 
+%%#T
 %%#: me.show(me.frequency('lsrk', qa.constants('HI')))
-%%#5.87432838e-09 keV LSRK 
+%%#5.87432838e-09 keV LSRK
 -->
 <!--
-%%#5.87432838e-09 keV 
+%%#5.87432838e-09 keV
 -->
 </method>
 
 
 
- 
+
    <method type="function" name="epoch">
    <shortdescription>define an epoch measure</shortdescription>
-   
+
 <input>
 
      <param xsi:type="string" direction="in" name="rf">
@@ -206,7 +206,7 @@ See <link anchor="quanta">quantity</link> for possible time formats.
 """
 #
 print("\t----\t epoch Ex 2 \t----")
-print(me.epoch('utc','today')) 
+print(me.epoch('utc','today'))
 #{'m0': {'value': 54048.861237743055, 'unit': 'd'},
 # 'refer': 'UTC',
 # 'type': 'epoch'}
@@ -218,11 +218,11 @@ print(me.epoch('utc','today'))
 
 
 
- 
- 
+
+
    <method type="function" name="direction">
    <shortdescription>define a direction measure</shortdescription>
-   
+
 <input>
 
      <param xsi:type="string" direction="in" name="rf">
@@ -253,14 +253,14 @@ print(me.epoch('utc','today'))
 <shortdescription>direction measure</shortdescription>
 </returns>
 <description>
-direction defines a direction measure from the CLI. It has to specify a 
+direction defines a direction measure from the CLI. It has to specify a
 reference code, direction quantity values (see introduction for the action on a
 scalar quantity with either a vector or scalar value),
 <!-- , and when a vector of
 quantities is given), -->
 and optionally it can specify an
 offset, which in itself has to be a direction. Allowable reference codes are:
-{\em J2000 JMEAN JTRUE APP B1950 BMEAN BTRUE GALACTIC HADEC AZEL 
+{\em J2000 JMEAN JTRUE APP B1950 BMEAN BTRUE GALACTIC HADEC AZEL
 SUPERGAL ECLIPTIC MECLIPTIC TECLIPTIC MERCURY
 VENUS MARS JUPITER SATURN URANUS NEPTUNE PLUTO MOON SUN COMET}.\\
 Note that additional ones may become available. Check in \casa\ with:
@@ -277,7 +277,7 @@ print(me.listcodes(me.direction()))
 #'SUN', 'MOON', 'COMET']}
 #
 """
-\end{verbatim}  
+\end{verbatim}
 The direction quantity values should be longitude(angle) and
 latitude(angle) (none needed for planets: the frame epoch defines coordinates).
 See <link anchor="quanta">quantity</link> for possible angle formats.
@@ -303,10 +303,10 @@ print(me.direction('mars'))
 \end{verbatim}
 </example>
 </method>
- 
+
    <method type="function" name="getvalue">
    <shortdescription>get the value of a measure</shortdescription>
-   
+
 <input>
 
      <param xsi:type="any" direction="in" name="v">
@@ -334,10 +334,10 @@ print(me.getvalue(b))
 \end{verbatim}
 </example>
 </method>
- 
+
    <method type="function" name="gettype">
    <shortdescription>get the type of a measure</shortdescription>
-   
+
 <input>
 
      <param xsi:type="any" direction="in" name="v">
@@ -365,10 +365,10 @@ print(me.gettype(b))
 \end{verbatim}
 </example>
 </method>
- 
+
    <method type="function" name="getref">
    <shortdescription>get the reference code of a measure</shortdescription>
-   
+
 <input>
 
      <param xsi:type="any" direction="in" name="v">
@@ -398,10 +398,10 @@ print(me.getref(b))
 \end{verbatim}
 </example>
 </method>
- 
+
    <method type="function" name="getoffset">
    <shortdescription>get the offset of a measure</shortdescription>
-   
+
 <input>
 
      <param xsi:type="any" direction="in" name="v">
@@ -415,7 +415,7 @@ print(me.getref(b))
 </returns>
 <description>
 getoff gets the actual offset of the measure (as a measure) or F if no offset
-given. 
+given.
 </description>
 <example>
 \begin{verbatim}
@@ -437,10 +437,10 @@ print(me.getoffset(b))
 \end{verbatim}
 </example>
 </method>
- 
+
    <method type="function" name="cometname">
    <shortdescription>get the current comet name</shortdescription>
-   
+
 <input>
 </input>
 <returns xsi:type="string"/>
@@ -461,10 +461,10 @@ print(me.cometname())
 \end{verbatim}
 </example>
 </method>
- 
+
    <method type="function" name="comettype">
    <shortdescription>get the current comet table type</shortdescription>
-   
+
 <input>
 </input>
 <returns xsi:type="string"/>
@@ -483,10 +483,10 @@ print(me.comettype())
 \end{verbatim}
 </example>
 </method>
- 
+
    <method type="function" name="comettopo">
    <shortdescription>get the current comet table coordinates</shortdescription>
-   
+
 <input>
 </input>
 <returns xsi:type="any"><any type="record"/>
@@ -509,10 +509,10 @@ print(me.comettopo())
 \end{verbatim}
 </example>
 </method>
- 
+
    <method type="function" name="framecomet">
    <shortdescription>set the current comet table</shortdescription>
-   
+
 <input>
 
      <param xsi:type="string" direction="in" name="v">
@@ -552,11 +552,11 @@ print(me.measure(me.direction('comet'),'app'))
 
 
 
- 
- 
+
+
    <method type="function" name="position">
    <shortdescription>define a position measure</shortdescription>
-   
+
 <input>
 
      <param xsi:type="string" direction="in" name="rf">
@@ -593,7 +593,7 @@ print(me.measure(me.direction('comet'),'app'))
 <any type="record"/>
 </returns>
 <description>
-position defines a position measure from the CLI. It has to specify a 
+position defines a position measure from the CLI. It has to specify a
 reference code, position quantity values (see introduction for the action on a
 scalar quantity with either a vector or scalar value),
 <!-- and when a vector of
@@ -601,9 +601,9 @@ quantities is given), -->
 and optionally it can specify an
 offset, which in itself has to be a position. Allowable reference codes are:
 {\em WGS84 ITRF} (World Geodetic System and International Terrestrial
-Reference Frame).\\               
+Reference Frame).\\
 Note that additional ones may become available. Check in \casa\ with:
-\begin{verbatim}            
+\begin{verbatim}
 """
 #
 print("\t----\t position Ex 1 \t----")
@@ -611,7 +611,7 @@ print(me.listcodes(me.position()))
 #{'normal': ['ITRF', 'WGS84'], 'extra': []}
 #
 """
-\end{verbatim}                                               
+\end{verbatim}
  The position quantity values should be either longitude
 (angle), latitude(angle) and height(length); or x,y,z (length).
 See <link anchor="quanta">quantity</link> for possible angle formats.
@@ -638,10 +638,10 @@ print(me.observatory('ATCA'))
 \end{verbatim}
 </example>
 </method>
- 
+
    <method type="function" name="observatory">
    <shortdescription>get position of an observatory</shortdescription>
-   
+
 <input>
 
      <param xsi:type="string" direction="in" name="name">
@@ -677,10 +677,10 @@ print(me.observatory('ATCA'))
 \end{verbatim}
 </example>
 </method>
- 
+
    <method type="function" name="obslist">
    <shortdescription>get a list of known observatories</shortdescription>
-   
+
 <returns xsi:type="string">
 <shortdescription>position measure</shortdescription>
 </returns>
@@ -704,10 +704,10 @@ print(me.obslist())
 \end{verbatim}
 </example>
 </method>
- 
+
    <method type="function" name="linelist">
    <shortdescription>get a list of known spectral lines</shortdescription>
-   
+
 <returns xsi:type="string"/>
 <description>
 linelist will give you a string with a space separated list of spectral lines
@@ -731,10 +731,10 @@ print(me.linelist())
 \end{verbatim}
 </example>
 </method>
- 
+
    <method type="function" name="spectralline">
    <shortdescription>get frequency of a spectral line</shortdescription>
-   
+
 <input>
 
      <param xsi:type="string" direction="in" name="name">
@@ -761,13 +761,13 @@ print(me.spectralline('HI'))
 \end{verbatim}
 </example>
 </method>
- 
+
    <method type="function" name="sourcelist">
    <shortdescription>get a list of known sources</shortdescription>
-   
+
 <returns xsi:type="string"/>
 <description>
-sourcelist will give you a string with the space separated list of sources 
+sourcelist will give you a string with the space separated list of sources
 known in the Sources table.
 </description>
 <!-- (see <link anchor="measuresdata">measuresdata</link> module). -->
@@ -784,10 +784,10 @@ print(me.sourcelist()[0:62])
 \end{verbatim}
 </example>
 </method>
- 
+
    <method type="function" name="source">
    <shortdescription>get direction of a source</shortdescription>
-   
+
 <input>
 
      <param xsi:type="any" direction="in" name="name">
@@ -824,11 +824,11 @@ print(me.source('1934-638'))
 
 
 
- 
- 
+
+
    <method type="function" name="frequency">
    <shortdescription>define a frequency measure</shortdescription>
-   
+
 <input>
 
      <param xsi:type="string" direction="in" name="rf">
@@ -853,7 +853,7 @@ print(me.source('1934-638'))
 <any type="record"/>
 </returns>
 <description>
-frequency defines a frequency measure from the CLI. It has to specify a 
+frequency defines a frequency measure from the CLI. It has to specify a
 reference code, frequency quantity value (see introduction for the action on a
 scalar quantity with either a vector or scalar value),
 <!-- and when a vector of
@@ -905,11 +905,11 @@ print(me.frequency('lsrk','21cm'))
 
 
 
- 
- 
+
+
    <method type="function" name="doppler">
    <shortdescription>define a doppler measure</shortdescription>
-   
+
 <input>
 
      <param xsi:type="string" direction="in" name="rf">
@@ -934,7 +934,7 @@ print(me.frequency('lsrk','21cm'))
 <any type="record"/>
 </returns>
 <description>
-doppler defines a doppler measure from the CLI. It has to specify a 
+doppler defines a doppler measure from the CLI. It has to specify a
 reference code, doppler quantity value (see introduction for the action on a
 scalar quantity with either a vector or scalar value),
 <!-- and when a vector of
@@ -943,7 +943,7 @@ and optionally it can specify an offset,
 which in itself has to be a doppler. Allowable reference codes are:
 {\em RADIO Z RATIO BETA GAMMA OPTICAL TRUE RELATIVISTIC}.\\
 Note that additional ones may become available. Check in \casa\ with:
-\begin{verbatim}   
+\begin{verbatim}
 """
 #
 print("\t----\t doppler Ex 1 \t----")
@@ -978,11 +978,11 @@ print(me.doppler('radio',qa.mul(qa.quantity('0.4'),qa.constants('c'))))
 
 
 
- 
- 
+
+
    <method type="function" name="radialvelocity">
    <shortdescription>define a radialvelocity measure</shortdescription>
-   
+
 <input>
 
      <param xsi:type="string" direction="in" name="rf">
@@ -1008,17 +1008,17 @@ print(me.doppler('radio',qa.mul(qa.quantity('0.4'),qa.constants('c'))))
 </returns>
 <description>
 radialvelocity defines a radialvelocity measure from the CLI. It has to
-specify a reference code, radialvelocity quantity value (see introduction for 
+specify a reference code, radialvelocity quantity value (see introduction for
 the action on a
 scalar quantity with either a vector or scalar value),
 <!-- and when a vector of
 quantities is given), -->
 and optionally it
-can specify an offset, which in itself has to be a radialvelocity. 
+can specify an offset, which in itself has to be a radialvelocity.
 Allowable reference codes are:
-{\em LSRK LSRD BARY GEO TOPO GALACTO LGROUP CMB}.\\                          
+{\em LSRK LSRD BARY GEO TOPO GALACTO LGROUP CMB}.\\
 Note that additional ones may become available. Check in \casa\ with:
-\begin{verbatim}                                                    
+\begin{verbatim}
 """
 #
 print("\t----\t radialvelocity Ex 1 \t----")
@@ -1050,10 +1050,10 @@ print(me.radialvelocity('lsrk','20km/s'))
 
 
 
- 
+
    <method type="function" name="uvw">
    <shortdescription>define a uvw measure</shortdescription>
-   
+
 <input>
 
      <param xsi:type="string" direction="in" name="rf">
@@ -1090,13 +1090,13 @@ print(me.radialvelocity('lsrk','20km/s'))
 <any type="record" />
 </returns>
 <description>
-uvw defines a uvw measure from the CLI. It has to specify a 
+uvw defines a uvw measure from the CLI. It has to specify a
 reference code, uvw quantity values (see introduction for the action on a
 scalar quantity with either a vector or scalar value), <!-- and when
 a vector of quantities is given), --> and optionally it can specify an
 offset, which in itself has to be a uvw. Allowable reference codes are
 ITRF and the direction ones.\\
-Note that additional ones may become available. Check in \casa\ with: 
+Note that additional ones may become available. Check in \casa\ with:
 \begin{verbatim}
 """
 #
@@ -1145,10 +1145,10 @@ print(me.measure(me.uvw('itrf','30deg','40deg','10m'), 'j2000'))
 
 
 
- 
+
    <method type="function" name="touvw">
    <shortdescription>calculate a uvw measure from a baseline</shortdescription>
-   
+
 <input>
 
      <param xsi:type="any" direction="in" name="v">
@@ -1177,7 +1177,7 @@ print(me.measure(me.uvw('itrf','30deg','40deg','10m'), 'j2000'))
 touvw calculates a uvw measure from a baseline. <!-- The baseline can
 consist of a vector of actual baseline positions. -->  Note that the
 baseline does not have to be a proper {\em baseline}, but can be a
-series of positions (to call positions baselines see 
+series of positions (to call positions baselines see
 <link anchor="measures:measures.asbaseline.function">asbaseline</link> ) for speed reasons:
 operations are linear and can be done on positions, which are
 converted to baseline values at the end (with
@@ -1239,11 +1239,11 @@ An example with more than one value:
 \begin{verbatim}
 #
 sb = me.baseline('itrf',qa.unit([10,50],'m'),qa.unit([20,100],'m'),
-		qa.unit([30,150],'m'))
+                qa.unit([30,150],'m'))
 print me.touvw(sb,d,x); print d; print x;
 #[type=uvw, refer=J2000, m2=[value=[37.4165739 187.082869] , unit=m],
-#	    m1=[unit=rad, value=[-0.743811234 -0.743811234] ],
-#	    m0=[unit=rad, value=[2.50094148 2.50094148] ]] 
+#           m1=[unit=rad, value=[-0.743811234 -0.743811234] ],
+#           m0=[unit=rad, value=[2.50094148 2.50094148] ]]
 #[value=[[1:3,]
 #    0.00025643414  0.0012821707
 #    0.00143537137  0.00717685684
@@ -1252,51 +1252,51 @@ print me.touvw(sb,d,x); print d; print x;
 #    -22.0746793 -110.373397
 #    16.45792    82.2895998
 #    -25.334668  -126.67334], unit=m]
-print me.getvalue(me.touvw(sb))          
+print me.getvalue(me.touvw(sb))
 #[*7=[unit=rad, value=[2.50094148 2.50094148] ],
-#	        *8=[unit=rad, value=[-0.743811234 -0.743811234] ],
-#		 *9=[value=[37.4165739 187.082869] , unit=m]] 
+#               *8=[unit=rad, value=[-0.743811234 -0.743811234] ],
+#                *9=[value=[37.4165739 187.082869] , unit=m]]
 print me.getvalue(me.touvw(sb))[1]
-#[unit=rad, value=[2.50094148 2.50094148] ] 
+#[unit=rad, value=[2.50094148 2.50094148] ]
 print qa.getvalue(me.getvalue(me.touvw(sb))[1])[2]
-#2.50094148 
+#2.50094148
 print me.doframe(me.epoch('utc','today'))
-#T 
+#T
 print me.expand(sb)
 #[type=baseline, refer=ITRF, m2=[value=149.666295, unit=m],
-#		 m1=[unit=rad, value=0.930274014],
-#		 m0=[unit=rad, value=1.10714872]] 
+#                m1=[unit=rad, value=0.930274014],
+#                m0=[unit=rad, value=1.10714872]]
 print me.expand(sb,x)
-#[type=baseline, refer=ITRF, m2=[value=149.666295, unit=m], 
-#		m1=[unit=rad, value=0.930274014], 
-#		m0=[unit=rad, value=1.10714872]] 
+#[type=baseline, refer=ITRF, m2=[value=149.666295, unit=m],
+#               m1=[unit=rad, value=0.930274014],
+#               m0=[unit=rad, value=1.10714872]]
 print x
 #[value=[[1:3,]
 #    40
 #    80
-#    120], unit=m] 
+#    120], unit=m]
 print me.expand(me.touvw(sb),x); x
-#[type=uvw, refer=J2000, m2=[value=149.666295, unit=m], 
-#	   m1=[unit=rad, value=-0.654614537], 
-#	   m0=[unit=rad, value=2.32532487]] 
+#[type=uvw, refer=J2000, m2=[value=149.666295, unit=m],
+#          m1=[unit=rad, value=-0.654614537],
+#          m0=[unit=rad, value=2.32532487]]
 #[value=[[1:3,]
 #    -81.3219596
 #     86.5043397
-#    -91.124849], unit=m] 
-print me.touvw(me.expand(sb),xyz=x); x  
-#[type=uvw, refer=J2000, m2=[value=149.666295, unit=m], 
-#	   m1=[unit=rad, value=-0.654614537], 
-#	   m0=[unit=rad, value=2.32532487]] 
+#    -91.124849], unit=m]
+print me.touvw(me.expand(sb),xyz=x); x
+#[type=uvw, refer=J2000, m2=[value=149.666295, unit=m],
+#          m1=[unit=rad, value=-0.654614537],
+#          m0=[unit=rad, value=2.32532487]]
 #[value=[[1:3,]
 #    -81.3219596
 #    86.5043397
-#    -91.124849], unit=m] 
+#    -91.124849], unit=m]
 a = me.touvw(sb, xyz=x)#; x
 print a
 #[value=[[1:3,]
 #    -20.3304899 -101.652449
 #    21.6260849  108.130425
-#    -22.7812122 -113.906061], unit=m] 
+#    -22.7812122 -113.906061], unit=m]
 #
 \end{verbatim}
 -->
@@ -1305,10 +1305,10 @@ print a
 
 
 
- 
+
    <method type="function" name="expand">
    <shortdescription>expand n positions to n*(n-1)/2 baselines</shortdescription>
-   
+
 <input>
 
      <param xsi:type="any" direction="in" name="v">
@@ -1352,13 +1352,13 @@ print(me.expand(b))
 sb = me.baseline('itrf',qa.unit([10,50],'m'),qa.unit([20,100],'m'),
 +    qa.unit([30,150],'m'))
 print me.expand(sb,x); x
-[type=baseline, refer=ITRF, m2=[value=149.666295, unit=m], 
-		m1=[unit=rad, value=0.930274014], 
-		m0=[unit=rad, value=1.10714872]] 
+[type=baseline, refer=ITRF, m2=[value=149.666295, unit=m],
+                m1=[unit=rad, value=0.930274014],
+                m0=[unit=rad, value=1.10714872]]
 [value=[[1:3,]
     40
     80
-    120], unit=m] 
+    120], unit=m]
 -
 -->
 </example>
@@ -1366,10 +1366,10 @@ print me.expand(sb,x); x
 
 
 
- 
+
    <method type="function" name="earthmagnetic">
    <shortdescription>define an earthmagnetic measure</shortdescription>
-   
+
 <input>
 
      <param xsi:type="string" direction="in" name="rf">
@@ -1407,7 +1407,7 @@ print me.expand(sb,x); x
 </returns>
 <description>
 earthmagnetic defines an earthmagnetic measure from the CLI. It needs
-a reference code, earthmagnetic quantity values 
+a reference code, earthmagnetic quantity values
 (see introduction for the action on a
 scalar quantity with either a vector or scalar value) <!-- and when a vector
 of quantities is given) --> if the reference code is not
@@ -1448,10 +1448,10 @@ print(me.measure(me.earthmagnetic('igrf'), 'j2000'))
 
 
 
- 
+
    <method type="function" name="baseline">
    <shortdescription>define a baseline measure</shortdescription>
-   
+
 <input>
 
      <param xsi:type="string" direction="in" name="rf">
@@ -1488,7 +1488,7 @@ print(me.measure(me.earthmagnetic('igrf'), 'j2000'))
 <any type="record"/>
 </returns>
 <description>
-baseline defines a baseline measure from the CLI. It has to specify a 
+baseline defines a baseline measure from the CLI. It has to specify a
 reference code, baseline quantity values (see introduction for the action on a
 scalar quantity with either a vector or scalar value, and when a vector of
 quantities is given), and optionally it can specify an
@@ -1539,10 +1539,10 @@ print(me.measure(me.baseline('itrf','30deg','40deg','10m'), 'J2000'))
 
 
 
- 
+
    <method type="function" name="asbaseline">
    <shortdescription>define a baseline from a position measure</shortdescription>
-   
+
 <input>
 
      <param xsi:type="any" direction="in" name="pos">
@@ -1585,34 +1585,34 @@ sb = me.position('itrf',qa.unit([10,50],'m'),qa.unit([20,100],'m'),
 + qa.unit([30,150],'m'));
 print b; print sb;
 [type=position, refer=ITRF, m2=[value=37.4165739, unit=m],
-		 m1=[unit=rad, value=0.930274014],
-		 m0=[unit=rad, value=1.10714872]]
+                 m1=[unit=rad, value=0.930274014],
+                 m0=[unit=rad, value=1.10714872]]
 [type=position, refer=ITRF, m2=[value=[37.4165739 187.082869] , unit=m],
-	 m1=[unit=rad, value=[0.930274014 0.930274014] ],
-	 m0=[unit=rad, value=[1.10714872 1.10714872] ]]
+         m1=[unit=rad, value=[0.930274014 0.930274014] ],
+         m0=[unit=rad, value=[1.10714872 1.10714872] ]]
 print b; print me.asbaseline(b); print sb; print me.asbaseline(sb)
-[type=position, refer=ITRF, m2=[value=37.4165739, unit=m], 
-		m1=[unit=rad, value=0.930274014], 
-		m0=[unit=rad, value=1.10714872]]
-[type=baseline, refer=ITRF, m2=[value=37.4165739, unit=m], 
-		m1=[unit=rad, value=0.930274014], 
-		m0=[unit=rad, value=1.10714872]]
-[type=position, refer=ITRF, m2=[value=[37.4165739 187.082869] , unit=m], 
-	 m1=[unit=rad, value=[0.930274014 0.930274014] ], 
-	 m0=[unit=rad, value=[1.10714872 1.10714872] ]]
-[type=baseline, refer=ITRF, m2=[value=[37.4165739 187.082869] , unit=m], 
-	 m1=[unit=rad, value=[0.930274014 0.930274014] ], 
-	 m0=[unit=rad, value=[1.10714872 1.10714872] ]]
+[type=position, refer=ITRF, m2=[value=37.4165739, unit=m],
+                m1=[unit=rad, value=0.930274014],
+                m0=[unit=rad, value=1.10714872]]
+[type=baseline, refer=ITRF, m2=[value=37.4165739, unit=m],
+                m1=[unit=rad, value=0.930274014],
+                m0=[unit=rad, value=1.10714872]]
+[type=position, refer=ITRF, m2=[value=[37.4165739 187.082869] , unit=m],
+         m1=[unit=rad, value=[0.930274014 0.930274014] ],
+         m0=[unit=rad, value=[1.10714872 1.10714872] ]]
+[type=baseline, refer=ITRF, m2=[value=[37.4165739 187.082869] , unit=m],
+         m1=[unit=rad, value=[0.930274014 0.930274014] ],
+         m0=[unit=rad, value=[1.10714872 1.10714872] ]]
 -->
 </example>
 </method>
 
 
 
- 
+
    <method type="function" name="listcodes">
    <shortdescription>get known reference codes</shortdescription>
-   
+
 <input>
 
      <param xsi:type="any" direction="in" name="ms">
@@ -1659,10 +1659,10 @@ print(me.listcodes(a))
 
 
 
- 
+
    <method type="function" name="measure">
    <shortdescription>convert a measure to another reference</shortdescription>
-   
+
 <input>
 
      <param xsi:type="any" direction="in" name="v">
@@ -1717,19 +1717,19 @@ needed please ask an enhancement. -->
 """
 #
 print("\t----\t measure Ex 1 \t----")
-a = me.epoch('utc','today') 			        # a time
+a = me.epoch('utc','today')                             # a time
 print(a)
 #{'m0': {'value': 54054.872957673608, 'unit': 'd'},
 # 'refer': 'UTC',
 # 'type': 'epoch'}
 print(me.doframe(me.source('1934-638')))
-print(me.measure(a, 'tai'))					# convert to IAT
+print(me.measure(a, 'tai'))                                     # convert to IAT
 #{'m0': {'value': 54054.873339618054, 'unit': 'd'},
 # 'refer': 'TAI',
 # 'type': 'epoch'}
-print(me.doframe(a))						# set time in frame
+print(me.doframe(a))                                            # set time in frame
 #True
-print(me.doframe(me.observatory('ALMA')))			# set position in frame
+print(me.doframe(me.observatory('ALMA')))                       # set position in frame
 #True
 b=me.direction('j2000', qa.toangle('0h'), '-30deg')  # a direction
 print(b)
@@ -1737,7 +1737,7 @@ print(b)
 # 'm1': {'value': -0.52359877559829882, 'unit': 'rad'},
 # 'refer': 'J2000',
 # 'type': 'direction'}
-print(me.measure(b, 'azel'))					# convert to AZEL
+print(me.measure(b, 'azel'))                                    # convert to AZEL
 #{'m0': {'value': 1.9244096810822324, 'unit': 'rad'},
 # 'm1': {'value': 0.76465385681363052, 'unit': 'rad'},
 # 'refer': 'AZEL',
@@ -1781,23 +1781,23 @@ print(me.measure(m,'lsrd'))
 # Make a list of frequencies to be converted
 a=qa.unit([1,1.1,1.2,1.3],'GHz')
 print a
-[value=[1 1.1 1.2 1.3] , unit=GHz] 
+[value=[1 1.1 1.2 1.3] , unit=GHz]
 # Make a frequency measure. Although any can be used, it is advisable
 # to use an element of the list, to make sure all units are correct
-print m=me.frequency('lsrk',qa.unit(qa.getvalue(a)[1], qa.getunit(a))) 
+print m=me.frequency('lsrk',qa.unit(qa.getvalue(a)[1], qa.getunit(a)))
 # Convert all
 print me.measure(m,'lsrd',qv=a)
-[type=frequency, refer=LSRD, m0=[value=999995118, unit=Hz]] 
+[type=frequency, refer=LSRD, m0=[value=999995118, unit=Hz]]
 # And check
 print a
-[value=[0.999995118 1.09999463 1.19999414 1.29999365] , unit=GHz] 
+[value=[0.999995118 1.09999463 1.19999414 1.29999365] , unit=GHz]
 -->
 </example>
 </method>
- 
+
    <method type="function" name="doframe">
    <shortdescription>save a measure as frame reference</shortdescription>
-   
+
 <input>
 
      <param xsi:type="any" direction="in" name="v">
@@ -1818,36 +1818,36 @@ should be set if one of the reference types involved in the conversion is as
 in the following lists.\\
 {\em Epoch}
 \begin{verbatim}
- UTC		
+ UTC
  TAI
- LAST	position
- LMST 	position
- GMST1 
- GAST 
- UT1 
- UT2 
- TDT 
- TCG 
- TDB 
+ LAST   position
+ LMST   position
+ GMST1
+ GAST
+ UT1
+ UT2
+ TDT
+ TCG
+ TDB
  TCD
-\end{verbatim} 
+\end{verbatim}
 {\em Direction}
 \begin{verbatim}
  J2000
- JMEAN		epoch 
- JTRUE 		epoch
- APP 		epoch
- B1950 
- BMEAN 		epoch
- BTRUE 		epoch
- GALACTIC 	
- HADEC 		epoch	position
- AZEL		epoch 	position
+ JMEAN          epoch
+ JTRUE          epoch
+ APP            epoch
+ B1950
+ BMEAN          epoch
+ BTRUE          epoch
+ GALACTIC
+ HADEC          epoch   position
+ AZEL           epoch   position
  SUPERGALACTIC
  ECLIPTIC
  MECLIPTIC      epoch
- TECLIPTIC	epoch
- PLANET		epoch   [position]
+ TECLIPTIC      epoch
+ PLANET         epoch   [position]
 \end{verbatim}
 {\em Position}
 \begin{verbatim}
@@ -1856,31 +1856,31 @@ in the following lists.\\
 \end{verbatim}
 {\em Radial Velocity}
 \begin{verbatim}
- LSRK 		direction
- LSRD 		direction
- BARY 		direction
- GEO 		direction	epoch
- TOPO 		direction	epoch	position
- GALACTO	direction
+ LSRK           direction
+ LSRD           direction
+ BARY           direction
+ GEO            direction       epoch
+ TOPO           direction       epoch   position
+ GALACTO        direction
 \end{verbatim}
 {\em Doppler}
 \begin{verbatim}
- RADIO 
- OPTICAL 
- Z 
- RATIO 
- RELATIVISTIC 
- BETA 
+ RADIO
+ OPTICAL
+ Z
+ RATIO
+ RELATIVISTIC
+ BETA
  GAMMA
 \end{verbatim}
 {\em Frequency}
 \begin{verbatim}
- REST 		direction			radialvelocity
- LSRK 		direction
- LSRD 		direction
- BARY 		direction
- GEO 		direction	epoch
- TOPO 		direction	epoch	position
+ REST           direction                       radialvelocity
+ LSRK           direction
+ LSRD           direction
+ BARY           direction
+ GEO            direction       epoch
+ TOPO           direction       epoch   position
  GALACTO
 \end{verbatim}
 </description>
@@ -1889,22 +1889,22 @@ in the following lists.\\
 """
 #
 print("\t----\t doframe Ex 1 \t----")
-a = me.epoch('utc', 'today') 			# a time
+a = me.epoch('utc', 'today')                    # a time
 print(a)
 #{'m0': {'value': 54054.91671484954, 'unit': 'd'},
 # 'refer': 'UTC',
 # 'type': 'epoch'}
-print(me.doframe(a))					# set time in frame
+print(me.doframe(a))                                    # set time in frame
 #True
 #
 """
 \end{verbatim}
 </example>
 </method>
- 
+
    <method type="function" name="framenow">
    <shortdescription>set the active frame time at now</shortdescription>
-   
+
 <input>
 </input>
 <returns xsi:type="bool"/>
@@ -1918,9 +1918,9 @@ The different frame values necessary are described in the
 """
 #
 print("\t----\t framenow Ex 1 \t----")
-print(me.framenow())			# specify now as frame reference
+print(me.framenow())                    # specify now as frame reference
 #True
-print(me.showframe())	        # and show the current frame
+print(me.showframe())           # and show the current frame
 #'Frame: Epoch: 54054::22:01:42.2880'
 #
 """
@@ -1930,10 +1930,10 @@ print(me.showframe())	        # and show the current frame
 -->
 </example>
 </method>
- 
+
    <method type="function" name="showframe">
    <shortdescription>show the currently active frame reference</shortdescription>
-   
+
 <input>
 </input>
 <returns xsi:type="string"/>
@@ -1944,7 +1944,7 @@ terminal. <!-- if no GUI active, or a forcing argument {\em F} is given.--> The
 different frame values necessary are described in the
 <link anchor="measures:measures.doframe.function">doframe</link> function.
 The frame is
-displayed on the terminal using the formatting as done for the 
+displayed on the terminal using the formatting as done for the
 <link anchor="measures:measures.show.function">show</link> function.
 </description>
 <example>
@@ -1952,9 +1952,9 @@ displayed on the terminal using the formatting as done for the
 """
 #
 print("\t----\t showframe Ex 1 \t----")
-print(me.doframe(me.epoch('utc','today')))		# specify now as frame reference
-#T 
-print(me.showframe())				# and show the current frame
+print(me.doframe(me.epoch('utc','today')))              # specify now as frame reference
+#T
+print(me.showframe())                           # and show the current frame
 #'Frame: Epoch: 54054::22:01:42.2880'
 #
 """
@@ -1963,12 +1963,12 @@ print(me.showframe())				# and show the current frame
 T -->
 </example>
 </method>
- 
- 
+
+
    <method type="function" name="toradialvelocity">
    <shortdescription>convert a doppler type value to a real
 radial velocity</shortdescription>
-   
+
 <input>
 
      <param xsi:type="string" direction="in" name="rf">
@@ -2008,10 +2008,10 @@ print(me.toradialvelocity('topo',a))
 \end{verbatim}
 </example>
 </method>
- 
+
    <method type="function" name="tofrequency">
    <shortdescription>convert a doppler type value to a frequency</shortdescription>
-   
+
 <input>
 
      <param xsi:type="string" direction="in" name="rf">
@@ -2057,11 +2057,11 @@ print(me.tofrequency('lsrk',a,qa.constants('HI')))
 \end{verbatim}
 </example>
 </method>
- 
+
    <method type="function" name="todoppler">
    <shortdescription>convert a frequency or radialvelocity measure
 to a doppler measure</shortdescription>
-   
+
 <input>
 
      <param xsi:type="string" direction="in" name="rf">
@@ -2107,11 +2107,11 @@ print(me.todoppler('radio', f, qa.constants('HI'))) # give doppler, using HI res
 \end{verbatim}
 </example>
 </method>
- 
+
    <method type="function" name="torestfrequency">
    <shortdescription>convert a frequency and doppler measure
 to a rest frequency</shortdescription>
-   
+
 <input>
 
      <param xsi:type="any" direction="in" name="v0">
@@ -2138,7 +2138,7 @@ rest frequency.
 """
 #
 print("\t----\t torestfrequency Ex 1 \t----")
-dp = me.doppler('radio', '2196.24984km/s')  # a measured doppler speed 
+dp = me.doppler('radio', '2196.24984km/s')  # a measured doppler speed
 print(dp)
 #{'m0': {'value': 2196249.8399999999, 'unit': 'm/s'},
 # 'refer': 'RADIO',
@@ -2157,10 +2157,10 @@ print(me.torestfrequency(f, dp))                   # the corresponding rest freq
 \end{verbatim}
 </example>
 </method>
- 
+
    <method type="function" name="rise">
    <shortdescription>get rise and set sidereal time</shortdescription>
-   
+
 <input>
 
      <param xsi:type="any" direction="in" name="crd">
@@ -2175,7 +2175,7 @@ print(me.torestfrequency(f, dp))                   # the corresponding rest freq
      </param>
 </input>
 <returns xsi:type="any">
-<shortdescription>record with rise and set siodereal time quantities; or a 2 element 
+<shortdescription>record with rise and set siodereal time quantities; or a 2 element
 string with below or above</shortdescription>
 <any type="record"/>
 </returns>
@@ -2189,17 +2189,17 @@ used.
 # NOT IMPLEMENTED
 print "\t----\t rise Ex 1 \t----"
 print me.rise(me.direction('sun'))
-#[rise=[value=267.12445, unit=deg], set=[value=439.029964, unit=deg]] 
+#[rise=[value=267.12445, unit=deg], set=[value=439.029964, unit=deg]]
 print qa.form.long(me.rise(me.direction('sun')).rise)
-#17:48:29.868 
+#17:48:29.868
 #
 \end{verbatim}
 </example>
 </method>
- 
+
    <method type="function" name="riseset">
    <shortdescription>get rise and set times </shortdescription>
-   
+
 <input>
 
      <param xsi:type="any" direction="in" name="crd">
@@ -2229,26 +2229,26 @@ record, with 'last' and 'utc' fields showing the rise and set times as epochs.
 \begin{verbatim}
 # NOT IMPLEMENTED
 print "\t----\t riseset Ex 1 \t----"
-print me.riseset(me.direction('sun'))                     
+print me.riseset(me.direction('sun'))
 #[solved=T,
 # rise=[last=[type=epoch, refer=LAST, m0=[value=0.0731388605, unit=d]],
 #       utc=[type=epoch, refer=UTC, m0=[value=52085.8964, unit=d]]],
 # set=[last=[type=epoch, refer=LAST, m0=[value=0.455732593, unit=d]],
-#       utc=[type=epoch, refer=UTC, m0=[value=52086.2779, unit=d]]]] 
-print me.riseset(me.direction('sun'), qa.unit('80deg'))                     
+#       utc=[type=epoch, refer=UTC, m0=[value=52086.2779, unit=d]]]]
+print me.riseset(me.direction('sun'), qa.unit('80deg'))
 #[solved=F,
 # rise=[last=below, utc=below],
-# set=[last=below, utc=below]] 
-print qa.form.long(me.riseset(me.direction('sun')).rise.utc.m0)  
-#21:30:47.439 
+# set=[last=below, utc=below]]
+print qa.form.long(me.riseset(me.direction('sun')).rise.utc.m0)
+#21:30:47.439
 #
 \end{verbatim}
 </example>
 </method>
- 
+
    <method type="function" name="posangle">
    <shortdescription>get position angle of two directions</shortdescription>
-   
+
 <input>
 
      <param xsi:type="any" direction="in" name="m1">
@@ -2267,7 +2267,7 @@ print qa.form.long(me.riseset(me.direction('sun')).rise.utc.m0)
 <description>
 posangle will give the position angle from a direction to another. I.e. the
 angle in a direction between the direction to the North pole and the other
-direction. 
+direction.
 </description>
 <example>
 \begin{verbatim}
@@ -2295,10 +2295,10 @@ print(me.posangle(a,b))
 [value=7.99647705, unit=deg] ??? -->
 </example>
 </method>
- 
+
    <method type="function" name="separation">
    <shortdescription>get separation angle between two directions</shortdescription>
-   
+
 <input>
 
      <param xsi:type="any" direction="in" name="m1">
@@ -2343,10 +2343,10 @@ print(me.separation(a,c))
 
 
 
- 
+
    <method type="function" name="addxvalue">
    <shortdescription>get some additional measure information</shortdescription>
-   
+
 <input>
      <param xsi:type="any" direction="in" name="a">
      <any type="record"/>
@@ -2386,7 +2386,7 @@ print(me.addxvalue(me.epoch('utc','today')))
 
    <method type="function" name="type">
    <shortdescription>type of tool</shortdescription>
-   
+
 <input>
 </input>
 <returns xsi:type="string"/>
@@ -2407,12 +2407,12 @@ print(me.type())
 </method>
 
 
- 
 
- 
+
+
    <method type="function" name="done">
    <shortdescription>free resources used by tool.</shortdescription>
-   
+
 <input>
 </input>
 <returns xsi:type="bool"/>
@@ -2440,7 +2440,7 @@ print(me.done())
 
    <method type="function" name="ismeasure">
    <shortdescription>Check if measure</shortdescription>
-   
+
 <input>
      <param xsi:type="any" direction="in" name="v">
      <any type="record"/>

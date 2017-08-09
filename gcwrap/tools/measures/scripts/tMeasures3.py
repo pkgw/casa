@@ -3,9 +3,9 @@ import math
 # Test function
 #
 #tmeasures():
-#	"""measures and quanta test result
+#       """measures and quanta test result
 #
-#	Returns boolean"""
+#       Returns boolean"""
 #
 # final result
 #
@@ -15,55 +15,55 @@ import math
 #
 
 def qtst(a0, a1, txt='', prec=1e-12):
-	"""quantity test
+        """quantity test
 
-	Returns boolean"""
-	result = true
-	if abs(qa.canon(a0)['value'] - qa.canon(a1)['value']) > prec or qa.canon(a0)['unit'] != qa.canon(a1)['unit']: 
-		print('tmeasures error for',txt,'--',a0,':',a1)
-		result = false
-	return result
+        Returns boolean"""
+        result = true
+        if abs(qa.canon(a0)['value'] - qa.canon(a1)['value']) > prec or qa.canon(a0)['unit'] != qa.canon(a1)['unit']:
+                print('tmeasures error for',txt,'--',a0,':',a1)
+                result = false
+        return result
 
 def vtst(a0, a1, txt='', prec=1e-12):
-	"""value test
+        """value test
 
-	Returns boolean"""
-	result = true
-	if (abs(a0-a1) > prec):
-		print('tmeasures error for',txt,'--',a0,':',a1)
-		result = false;
-	return result
-     
+        Returns boolean"""
+        result = true
+        if (abs(a0-a1) > prec):
+                print('tmeasures error for',txt,'--',a0,':',a1)
+                result = false;
+        return result
+
 def stst(a0, a1, txt=''):
-	"""string test
+        """string test
 
-	Returns boolean"""
-	result = true
-	if a0 != a1:
-		print('tmeasures error for',txt,'--',a0,':',a1)
-		result = false;
-	return result;
+        Returns boolean"""
+        result = true
+        if a0 != a1:
+                print('tmeasures error for',txt,'--',a0,':',a1)
+                result = false;
+        return result;
 
 def ttst(a0, txt=''):
-	"""true test
+        """true test
 
 
-	Returns boolean"""
-	result = true
-	if not a0:
-		print('tmeasures error for',txt,'--',a0)
-		result = false;
-	return result
+        Returns boolean"""
+        result = true
+        if not a0:
+                print('tmeasures error for',txt,'--',a0)
+                result = false;
+        return result
 
 def ftst(a0, txt=''):
-	"""false test
+        """false test
 
-	Returns boolean"""
-	result = true
-	if (a0):
-		print('tmeasures error for',txt,'--',a0)
-		result = false;
-	return result;
+        Returns boolean"""
+        result = true
+        if (a0):
+                print('tmeasures error for',txt,'--',a0)
+                result = false;
+        return result;
 
 #
 # Test routines
@@ -128,10 +128,10 @@ ob = me.observatory('atca');
 ttst(me.ismeasure(ob),'observatory');
 ob = me.measure(ob,'itrf');
 #if (me.ismeasure(ob)):
-#	print qtst(ob['m0'],qa.unit('-4750915.837m'),'observatory',prec=0.5);
-#	print qtst(ob['m1'],qa.unit('2792906.182m'),'observatory',prec=0.5);
-#	print qtst(ob['m2'],qa.unit('-3200483.747m'),'observatory',prec=0.5);
-	
+#       print qtst(ob['m0'],qa.unit('-4750915.837m'),'observatory',prec=0.5);
+#       print qtst(ob['m1'],qa.unit('2792906.182m'),'observatory',prec=0.5);
+#       print qtst(ob['m2'],qa.unit('-3200483.747m'),'observatory',prec=0.5);
+
 #print stst(split(me.obslist())[1],'ATCA','obslist');
 qtst(qa.constants('pi'),qa.quantity(math.pi),'constants');
 #print stst(me.myupc('abC4d'),'ABC4D','myupc');
@@ -157,17 +157,17 @@ d0 = me.direction('jup');
 d0 = me.measure(d0,'j20');
 ttst(me.ismeasure(d0),'direction');
 if (me.ismeasure(d0)):
-	qtst(d0['m0'],qa.unit('-0.6410274987rad'),'direction',prec=1e-8);
-	qtst(d0['m1'],qa.unit('-0.2697987142rad'),'direction',prec=1e-8);
+        qtst(d0['m0'],qa.unit('-0.6410274987rad'),'direction',prec=1e-8);
+        qtst(d0['m1'],qa.unit('-0.2697987142rad'),'direction',prec=1e-8);
 
 ##
 p0 = me.position('itrf','-4750915.837m','2792906.182m','-3200483.747m');
 ttst(me.ismeasure(p0),'position');
 p0 = me.measure(p0,'itrf');
 #if (me.ismeasure(p0)):
-#	print qtst(p0['m0'],qa.unit('-4750915.837m'),'position',prec=1e-8);
-#	print qtst(p0['m1'],qa.unit('2792906.182m'),'position',prec=1e-8);
-#	print qtst(p0['m2'],qa.unit('-3200483.747m'),'position',prec=1e-8);
+#       print qtst(p0['m0'],qa.unit('-4750915.837m'),'position',prec=1e-8);
+#       print qtst(p0['m1'],qa.unit('2792906.182m'),'position',prec=1e-8);
+#       print qtst(p0['m2'],qa.unit('-3200483.747m'),'position',prec=1e-8);
 
 #
 qtst(qa.toangle(d),d,'toangle');

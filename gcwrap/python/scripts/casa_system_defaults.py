@@ -30,7 +30,7 @@ casa = { 'helpers': {
              'xml': None
          },
          'flags': { },
-         'files': { 
+         'files': {
              'logfile': os.getcwd( ) + '/casa-'+__curtime+'.log',
              'iplogfile': os.getcwd( ) + '/ipython-'+__curtime+'.log'
          },

@@ -5,7 +5,7 @@
 # an MS subtable and column.  The keywords should correspond to FITS keywords
 # whenever possible.
 #
-# The name vishead is a misnomer because casa tables do not have headers in the 
+# The name vishead is a misnomer because casa tables do not have headers in the
 # sense that FITS files do.  The name derives from the IMHEAD, GETHEAD
 # and PUTHEAD verbs in AIPS.
 #
@@ -50,10 +50,10 @@ def vishead(vis, mode=None, listitems=None, hdkey=None, hdindex=None, hdvalue=No
         # Keywords from SPECTRAL_WINDOW TABLE
         #   not sure if all of these can freely edited by
         #   the user without messing up the MS' internal consistency...
-        
+
         #don't allow change  'meas_freq_ref' :['SPECTRAL_WINDOW', 'MEAS_FREQ_REF'],
         #don't allow change  'ref_frequency' :['SPECTRAL_WINDOW', 'REF_FREQUENCY'],
-        
+
         #per channel 'chan_freq' :['SPECTRAL_WINDOW', 'CHAN_FREQ'],
 
         #per channel 'chan_width' :['SPECTRAL_WINDOW', 'CHAN_WIDTH'],
@@ -61,7 +61,7 @@ def vishead(vis, mode=None, listitems=None, hdkey=None, hdindex=None, hdvalue=No
         #per channel 'effective_bw' :['SPECTRAL_WINDOW', 'EFFECTIVE_BW'],
         #'resolution' :['SPECTRAL_WINDOW', 'RESOLUTION'],
         'freq_group_name' :['SPECTRAL_WINDOW', 'FREQ_GROUP_NAME', digest],
-        # don't allow change: 'total_bandwidth' :['SPECTRAL_WINDOW', 'TOTAL_BANDWIDTH'],        
+        # don't allow change: 'total_bandwidth' :['SPECTRAL_WINDOW', 'TOTAL_BANDWIDTH'],
         'spw_name' :['SPECTRAL_WINDOW', 'NAME', digest],
 
         # Keywords from SOURCE TABLE
@@ -70,7 +70,7 @@ def vishead(vis, mode=None, listitems=None, hdkey=None, hdindex=None, hdvalue=No
 
         #MS_VERSION (probably not)
     }
-    
+
     try:
         # In list mode, list the keywords.
         if mode == 'list' or mode == '':
@@ -93,12 +93,12 @@ def vishead(vis, mode=None, listitems=None, hdkey=None, hdindex=None, hdvalue=No
                             casalog.post(key + ': ' + str(kwtuple[2](values[key])),
                                          'INFO')
                         else:
-                            casalog.post(key + ': ' + str(values[key]), 'INFO')  
+                            casalog.post(key + ': ' + str(values[key]), 'INFO')
                     else:
                         casalog.post(key + ': <undefined>', 'INFO')
                 else:
                     casalog.post("Unrecognized item: " + key, 'WARN')
-                    
+
             return values
 
         # In summary mode, just list the MS basic info.
@@ -110,7 +110,7 @@ def vishead(vis, mode=None, listitems=None, hdkey=None, hdindex=None, hdvalue=No
 
         # In GET/PUT mode, focus on 1 particular bit of MS data
         elif (mode=='get' or mode=='put'):
-            if(hdkey not in keywords): 
+            if(hdkey not in keywords):
                 raise Exception("hdkey " + str(hdkey) +" is not a recognized keyword. Your options are " + str(list(keywords.keys())))
 
             # get/put the data specified by hdkey

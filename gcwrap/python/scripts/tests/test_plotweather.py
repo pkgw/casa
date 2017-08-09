@@ -20,7 +20,7 @@ Unit tests for task plotweather. It tests the following parameters:
 datapath = os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/listobs/'
 
 # Read the data sets from another directory
-if 'TEST_DATADIR' in os.environ:  
+if 'TEST_DATADIR' in os.environ:
     DATADIR = str(os.environ.get('TEST_DATADIR'))+'/listobs/'
     if os.path.isdir(DATADIR):
         datapath = DATADIR
@@ -43,7 +43,7 @@ class plotweather_test(unittest.TestCase):
         if (os.path.exists(self.msfile)):
             shutil.rmtree(self.msfile)
         shutil.copytree(datapath+self.msfile, self.msfile)
-    
+
     def tearDown(self):
         if (os.path.exists(self.msfile)):
             shutil.rmtree(self.msfile)
@@ -51,18 +51,18 @@ class plotweather_test(unittest.TestCase):
             os.remove(self.fig)
         if (os.path.exists(self.defaultFig)):
             os.remove(self.defaultFig)
-        
+
     def test0(self):
         '''Test 0: Default parameters'''
         opac = plotweather()
         self.assertIsNone(opac)
-       
+
     def test1(self):
         '''Test 1: Bad input file'''
         badmsfile = 'badfile.ms'
         opac = plotweather(vis=badmsfile)
         self.assertIsNone(opac)
-        
+
     def test2(self):
         '''Test 2: ms with no weather, no plot '''
         if (os.path.exists(self.msNoWeatherfile)):
@@ -75,7 +75,7 @@ class plotweather_test(unittest.TestCase):
         self.assertFalse(os.path.exists(self.fig))
         if (os.path.exists(self.msNoWeatherfile)):
             shutil.rmtree(self.msNoWeatherfile)
-        
+
     def test3(self):
         '''Test 3: Good input file and output exists'''
         res = plotweather(vis=self.msfile, plotName=self.fig)
@@ -121,20 +121,20 @@ class plotweather_test(unittest.TestCase):
         opac = plotweather(vis=self.msfile, plotName=plot)
         self.assertTrue(os.path.exists(plot))
         os.remove(plot)
-        
+
     def test9(self):
         '''Test 9: svg output format'''
         plot = '/tmp/plotweathertest.svg'
         opac = plotweather(vis=self.msfile, plotName=plot)
         self.assertTrue(os.path.exists(plot))
         os.remove(plot)
-        
+
 def suite():
     return [plotweather_test]
 
-        
-        
-        
-        
-        
+
+
+
+
+
 

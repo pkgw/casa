@@ -14,7 +14,7 @@ def imrebin(
             break
     if not valid:
         for i in range(len(factor)):
-            factor[i] = int(factor[i])   
+            factor[i] = int(factor[i])
         casalog.post(
             "factor is not an int array, it will be adjusted to "
                 + str(factor),
@@ -50,4 +50,4 @@ def imrebin(
             outia.done()
         if myrg:
             myrg.done()
-                
+

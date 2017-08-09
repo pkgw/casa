@@ -4,7 +4,7 @@
 # Note: alternate way to get the diameter is via
 # solar_system_setjy.py but may return slightly different
 # value even with the same ephemeris table
- 
+
 import glob
 import os
 import taskinit
@@ -16,20 +16,20 @@ def ssobjangdiam(srcName, epoch, ephemdata="",unit=""):
     ephemdata: ephemeris data (default = "", look up the standard ~/alma/JPL_Horizons in the data repo
     unit: unit for the output ang. diam.
     """
-  
+
     defaultDataPath = os.getenv("CASAPATH").split()[0] + "/data/ephemerides/JPL-Horizons/"
     me = taskinit.metool()
     qa = taskinit.qatool()
     if ephemdata!="":
        datapath = ephemdata
     else:
-       mjd = me.epoch("utc",epoch)['m0']['value'] 
+       mjd = me.epoch("utc",epoch)['m0']['value']
        datapath = findEphemTable(defaultDataPath, srcName, mjd)
 
     me.framecomet(datapath)
     me.doframe(me.epoch("utc", epoch))
     me.doframe(me.observatory("ALMA"))
-   
+
     angdiamrad= me.cometangdiam()
     if unit=="" or unit=="rad":
         angdiam = angdiamrad
@@ -51,13 +51,13 @@ def findEphemTable(datapath,srcName, mjd):
         (obj, mjdrangestr,therest) = tbname.split('_')
         mjdrange = mjdrangestr.strip('dUTC')
         if obj.upper() == srcName.upper():
-            startmjd = float(mjdrange.split('-')[0]) 
-            endmjd = float(mjdrange.split('-')[1]) 
+            startmjd = float(mjdrange.split('-')[0])
+            endmjd = float(mjdrange.split('-')[1])
             if startmjd <= mjd and endmjd > mjd:
-               thetable = t 
+               thetable = t
                break
-      
+
     if thetable == "":
         raise IOError("Input epoch(mjd) = %s is out of the ranges of available ephemeris tables" % mjd)
     return thetable
-                   
+

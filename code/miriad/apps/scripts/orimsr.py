@@ -1,7 +1,7 @@
 #####
 #
 # Fill, Calibrate and Test Map a standard short CARMA fringetest
-# 
+#
 # you exectute this script from within casapy using
 #    execfile('fringecal.py')
 #
@@ -64,11 +64,11 @@ def simple(ms=None):
           cell=[1.,1.],
           imsize=[128,128],
           field='0',
-          threshold=10., 
+          threshold=10.,
           psfmode='hogbom',
 #          psfmode='clark',
 #          spw='4',
-#          mode='channel', nchan=-1, 
+#          mode='channel', nchan=-1,
 #          mode='channel', nchan=-1, start=0, width=1,
 #
 #          spw='4~5',
@@ -120,7 +120,7 @@ def bigtest():
         print hms_0,hms_1
         simpletimeclean('orimsr_ww',hms_0+","+hms_1)
         hms_0 = hms_1
-        
+
 
 if __name__ == '__main__':
     #mysplit('vis3.ms')
@@ -135,7 +135,7 @@ if __name__ == '__main__':
     #mysplit(vis)
     #simple(vis+'3')
     #simple(vis)
-    # 
+    #
     #simple('orimsr_c1w4.ms')
     #simple('orimsr_c1.ms')
     #simple('orimsr_11.ms')

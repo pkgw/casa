@@ -13,8 +13,8 @@ import pylab as pl
 # root name of files produced:
 rt="cln_w3oh"
 
-l=locals() 
-if "analonly" not in l: 
+l=locals()
+if "analonly" not in l:
     analonly=False
 if not analonly:
     print("foobar")
@@ -31,16 +31,16 @@ outfile    = rt + datestring + '.log'
 logfile    = open(outfile, 'w')
 print('Writing output to ' + outfile + "\n")
 
-l=locals() 
-if "repodir" not in l: 
+l=locals()
+if "repodir" not in l:
     repodir=os.getenv("CASAPATH").split(' ')[0]
 
 print('I think the data repository is at '+repodir)
 datadir=repodir+"/data/regression/cvel/input/"
 
 # just do python part, not full on clean
-if "pyonly" not in l: 
-    pyonly=False 
+if "pyonly" not in l:
+    pyonly=False
 
 # Unset this if you want to run all tests.
 pyonly=True
@@ -133,7 +133,7 @@ def imstats(image):
     return (ch0,del1,wid,del2,nch,chn,fit)
 
 # function to swap first/last for vel results, for new convention of vel means
-# _increasing_ vel by default 
+# _increasing_ vel by default
 def swapvel(stats):
     return (stats[5], -stats[1], -stats[2], -stats[3], stats[4], stats[0], stats[6])
 
@@ -225,7 +225,7 @@ for te in tests:
     if 'sta' in te:
         sta=te['sta']
     elif 'shift' in te:
-        start=ch0_ms + te['shift']       
+        start=ch0_ms + te['shift']
         sta="%f kHz" % start
     else:
         sta=''
@@ -235,7 +235,7 @@ for te in tests:
 
     if pyonly:
         try:
-            st = imset.setChannelizeDefault(te['mode'],spw,"",nchan,sta,wid,outframe,vtype,"",str(reffreq_ms)+'kHz')        
+            st = imset.setChannelizeDefault(te['mode'],spw,"",nchan,sta,wid,outframe,vtype,"",str(reffreq_ms)+'kHz')
             # (localnchan, localstart, localwidth)=imset.setChannelization(mode,spw,field,nchan,start,width,outframe,veltype,restfreq)
         except:
             st = (-1,"","")
@@ -259,7 +259,7 @@ for te in tests:
             if 'shift' in te:
                 # shift back:
                 shift=te['shift']
-                st=(st[0]-shift, st[1],st[2],st[3],st[4], st[5]-shift, st[6]-shift)                
+                st=(st[0]-shift, st[1],st[2],st[3],st[4], st[5]-shift, st[6]-shift)
 
             if toplot.count(te['name'])>0:
                 ia.open(rt+'_'+te['name']+'.image')
@@ -292,7 +292,7 @@ fmt="%-"+str(lth)+"s"
 if pyonly:
     yo = fmt+" nchan   chan0                        width "
 else:
-    yo = fmt+" chan0 (kHz)       ch1-ch0    width      chn-(n-1)  n   lastchan          fit peak" 
+    yo = fmt+" chan0 (kHz)       ch1-ch0    width      chn-(n-1)  n   lastchan          fit peak"
 
 
 # print "regular" stats:
@@ -352,12 +352,12 @@ if pyonly:
                     w = qa.convert(stats[i][2],'kHz')['value']
                 else:
                     f0=ch0_ms + wid_ms*stats[i][1]
-                    w=wid_ms*stats[i][2]    
+                    w=wid_ms*stats[i][2]
             print(fmt % sname[i], "%4i ch %15f %16fkHz" % (stats[i][0], (f0-ch0_ms)/wid_ms, w))
             print(fmt % sname[i], "%4i ch %15f %16fkHz" % (stats[i][0], (f0-ch0_ms)/wid_ms, w), file=logfile)
         else:
             print(fmt % sname[i], " FAIL")
-            print(fmt % sname[i], " FAIL", file=logfile)    
+            print(fmt % sname[i], " FAIL", file=logfile)
 else:
     print(fmt % sname[0], "%15.7f %10.7f %10.7f %10.7f %4i %16.7f %16.7f" % stats[0])
     print(fmt % sname[0], "%15.7f %10.7f %10.7f %10.7f %4i %16.7f %16.7f" % stats[0], file=logfile)
@@ -372,8 +372,8 @@ else:
         else:
             print(fmt % sname[i], " FAIL")
             print(fmt % sname[i], " FAIL", file=logfile)
-        
-        
+
+
 # regress
     regstate=True
 
@@ -392,7 +392,7 @@ else:
                 regstate = False
 
 
-        
+
 
 print('---', file=logfile)
 if regstate:
@@ -408,7 +408,7 @@ else:
 print('regression test for clean chan/spw', file=logfile)
 print('---', file=logfile)
 print('*********************************', file=logfile)
-    
+
 endTime = time.time()
 endProc = time.clock()
 
@@ -422,5 +422,5 @@ print('Wall processing  rate was: %8.3f MB/s.' % (17896.0 /
 
 
 logfile.close()
-                            
+
 print('--Finished clean chan/spw--')

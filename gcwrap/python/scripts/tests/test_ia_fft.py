@@ -47,20 +47,20 @@
 #
 # <synopsis>
 # Test the ia.fft() method.
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_fft[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the ia.fft tool method to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -73,13 +73,13 @@ from __main__ import *
 import unittest
 
 class ia_fft_test(unittest.TestCase):
-    
+
     def setUp(self):
         pass
-    
+
     def tearDown(self):
         self.assertTrue(len(tb.showcache()) == 0)
-    
+
     def test_stretch(self):
         """ ia.fft(): Test stretch parameter"""
         yy = iatool()
@@ -100,7 +100,7 @@ class ia_fft_test(unittest.TestCase):
         )
         self.assertTrue(type(zz) == type(False))
         yy.done()
-        
+
     def test_delta(self):
         """Test fft of delta function"""
         myia = iatool()
@@ -128,8 +128,8 @@ class ia_fft_test(unittest.TestCase):
                 got = myia.getchunk()
                 myia.done()
                 self.assertTrue((got == expec).all())
-                
-                
+
+
     def test_regression(self):
         """Was regression test in imagetest"""
 
@@ -172,7 +172,7 @@ class ia_fft_test(unittest.TestCase):
         b1 = c.real
         b2 = c.imag
         b3 = abs(c)  # sqrt( real(x)^2 + imag(x)^2 )
-        
+
         ok =im1.remove(True) and im2.remove(True) and im3.remove(True) and im4.remove(True)
         self.assertTrue(ok)
         #
@@ -194,13 +194,13 @@ class ia_fft_test(unittest.TestCase):
         a2 = im2.getchunk()
         a3 = im3.getchunk()
         a4 = im4.getchunk()
-    
+
         p = testim.getchunk()
         c = fft2(p)
         b1 = c.real
         b2 = c.imag
         b3 = abs(c)
-       
+
         ok = testim.done() and im1.done() and im2.done() and im3.done() and im4.done()
         self.assertTrue(ok)
 
@@ -217,6 +217,6 @@ class ia_fft_test(unittest.TestCase):
             myia.done()
             self.assertTrue("ia.fft" in msgs[-2])
             self.assertTrue("ia.fft" in msgs[-1])
-        
+
 def suite():
     return [ia_fft_test]

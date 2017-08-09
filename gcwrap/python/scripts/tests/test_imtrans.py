@@ -38,7 +38,7 @@
 #
 # <prerequisite>
 # <ul>
-#   <li> <linkto class="task_imtrans.py:description">imtrans</linkto> 
+#   <li> <linkto class="task_imtrans.py:description">imtrans</linkto>
 # </ul>
 # </prerequisite>
 #
@@ -48,20 +48,20 @@
 #
 # <synopsis>
 # Test the imtrans task and the ia.reorder() method upon which it is built.
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_imtrans[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the imtrans task to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -89,18 +89,18 @@ def run_imtrans(imagename, outfile, order):
 
 
 class imtrans_test(unittest.TestCase):
-    
+
     def setUp(self):
         datapath=os.environ.get('CASAPATH').split()[0]+'/data/regression/unittest/imtrans/'
         shutil.copy(datapath + good_image, good_image)
-    
+
     def tearDown(self):
         os.remove(good_image)
         self.assertTrue(len(tb.showcache()) == 0)
 
     def test_exceptions(self):
         """imtrans: Test various exception cases"""
-        
+
         def testit(imagename, outfile, order):
             for i in [0,1]:
                 if (i==0):
@@ -110,12 +110,12 @@ class imtrans_test(unittest.TestCase):
 
         # blank imagename
         testit("", "blah", "012")
-        
+
         # not enough specified axes
         testit(good_image, "blah", "01")
         testit(good_image, "blah", 10)
         testit(good_image, "blah", ["r", "d"])
-        
+
         # too many specified axes
         testit(good_image, "blah", "0123")
         testit(good_image, "blah", 1230)
@@ -126,7 +126,7 @@ class imtrans_test(unittest.TestCase):
         testit(good_image, "blah", ["r", "d", "s"])
         testit(good_image, "blah", ["r", "d", "r"])
         testit(good_image, "blah", 103)
-        
+
     def test_straight_copy(self):
         """No actual transposing"""
         imagename = good_image
@@ -216,7 +216,7 @@ class imtrans_test(unittest.TestCase):
         myia.done()
         msgs = kk.history()
         kk.done()
-        self.assertTrue("ia.transpose" in msgs[-2])    
+        self.assertTrue("ia.transpose" in msgs[-2])
         self.assertTrue("ia.transpose" in msgs[-1])
 
     def test_imageinfo(self):

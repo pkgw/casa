@@ -17,7 +17,7 @@ def impv(
             pa = ""
         elif mymode.startswith('l'):
             if (
-                len(center) == 0 
+                len(center) == 0
                 or (
                     not isinstance(length, (int, float))
                     and len(length) == 0

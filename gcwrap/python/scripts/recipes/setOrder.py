@@ -11,11 +11,11 @@
 ###
 ###  -- Antenna1,2 are the fastest-varying axes.
 ###  -- Data are by-default internally partitioned on field, spw, array (or observation).
-###  -- For each field/spw/observation, data is accessed in "buffers" that 
+###  -- For each field/spw/observation, data is accessed in "buffers" that
 ###     contain all baselines for one timestep.
 ###
 ###  To check if an MS is in the correct order, open it in
-###  'casabrowser', and check the ANTENNA1, ANTENNA2, 
+###  'casabrowser', and check the ANTENNA1, ANTENNA2,
 ###  DATA_DESC_ID,  FIELD_ID, ARRAY_ID, and TIME columns.
 ###
 #####################################
@@ -35,21 +35,21 @@ def setToCasaOrder(inputMS='',outputMS=''):
   CASA prefers data in which ANTENNA1,ANTENNA2 are the fastest-varying axes.
 
   To check if your MS is in the correct order (and if you need this or not),
-  open the MS using 'casabrowser' or 'browsetable()', and look at the 
+  open the MS using 'casabrowser' or 'browsetable()', and look at the
   ANTENNA1, ANTENNA2, DATA_DESC_ID,  FIELD_ID, ARRAY_ID, and TIME columns.
   The sort order in the MS should be apparant from the indices in these columns.
 
-  Re-sorting makes the most difference in some cases when UVFITS files 
+  Re-sorting makes the most difference in some cases when UVFITS files
   written out of AIPS are read into CASA via importuvfits. Often, SPW (data_desc_id)
-  is the fastest-varying index, and this is the worst-possible case for the CASA 
-  data-access pattern. 
-  Note : This is due to a difference in the choice of default sort order 
+  is the fastest-varying index, and this is the worst-possible case for the CASA
+  data-access pattern.
+  Note : This is due to a difference in the choice of default sort order
             in AIPS and CASA, which the importuvfits task currently ignores.
 
-  This script will create a temporary reference-MS (a list of row indices containing the 
+  This script will create a temporary reference-MS (a list of row indices containing the
   mapping from the input to output MSs) called 'tmpreftable.tab' in the current
   working directory. Therefore, please do not run two instances of this script in
-  the same directory. 
+  the same directory.
 
  """
   ## Make a local table tool

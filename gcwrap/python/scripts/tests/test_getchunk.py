@@ -38,7 +38,7 @@
 #
 # <prerequisite>
 # <ul>
-#   <li> <linkto class="imfit.py:description">imfit</linkto> 
+#   <li> <linkto class="imfit.py:description">imfit</linkto>
 # </ul>
 # </prerequisite>
 #
@@ -49,7 +49,7 @@
 # <synopsis>
 # imfit_test.py is a Python script that tests the correctness
 # of the ia.fitcomponents tool method and the imfit task in CASA.
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_imfit[test1,test2,...]
@@ -57,7 +57,7 @@
 #
 # <motivation>
 # To provide a test standard to the imfit task to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -81,7 +81,7 @@ datapath = os.environ.get('CASAPATH').split()[0]+'/data/regression/unittest/getc
 myia = iatool()
 
 class getchunk_test(unittest.TestCase):
-    
+
     def setUp(self):
         os.system('cp -r ' +datapath + image + ' ' + image)
 
@@ -100,7 +100,7 @@ class getchunk_test(unittest.TestCase):
         # if the last statement didn't throw an exception, then that's proof enough
         # the fix worked, but just for kicks...
         self.assertTrue(chunk[0][0][0] > 1973 and chunk[0][0][0] < 1974)
-        
+
     def test_getprofile(self):
         """Tests for ia.getprofile()"""
         imagename = "prof.im"
@@ -119,12 +119,12 @@ class getchunk_test(unittest.TestCase):
         expecoptical = csys.frequencytovelocity(expecworld, doppler="optical")
         c = 2.99792458e+08
         expecm = c/expecworld
-        
+
         vacwavemicrons = expecm*1e6
         vacwave2 = vacwavemicrons*vacwavemicrons
         idx_refrac = 1. + 1e-6 * (287.6155 + 1.62887/vacwave2 + 0.01360/vacwave2/vacwave2)
         expecairwavem = vacwavemicrons/idx_refrac/1e6
-        
+
         csys = csys.torecord()
         shape = myia.shape()
         r1 = ""
@@ -136,7 +136,7 @@ class getchunk_test(unittest.TestCase):
         )
         reg2 = rg.fromtext(
             box + " range=[10pix,15pix]", csys=csys, shape=shape
-        )              
+        )
         regs = {'reg1': reg1, 'reg2': reg2}
         r3 = rg.makeunion(regs)
         veltypes = ["ra", "o", "re", "b"]
@@ -220,7 +220,7 @@ class getchunk_test(unittest.TestCase):
                         else:
                             self.assertEqual(res['xUnit'], unit)
         myia.done()
-        
+
         myimd = imdtool()
         myimd.open(imagename)
         rfreq = myimd.get("restfreq")
@@ -233,7 +233,7 @@ class getchunk_test(unittest.TestCase):
             spectype="radio", restfreq=rfreq
         )
         self.assertTrue((res['coords'] == expecradio).all())
-       
+
         res = myia.getprofile(
             function="mean", axis=2,
             restfreq=rfreq, frame="cmb"
@@ -246,7 +246,7 @@ class getchunk_test(unittest.TestCase):
             expeccmb[i] = csys.toworld([0, 0, i])['numeric'][2]
         self.assertTrue((res['coords'] == expeccmb).all())
         myia.done()
-        
+
     def test_flux(self):
         """Test the function='flux' option in ia.getprofile()"""
         myia = iatool()
@@ -284,7 +284,7 @@ class getchunk_test(unittest.TestCase):
                 region=rg.box([0, 0, 0, 0], [9, 9, 0, 4])
             )
         )
-        
+
     def test_CAS7553(self):
         """verify CAS7553, error no longer occurs when getprofile axis is degenerate"""
         myia = iatool()

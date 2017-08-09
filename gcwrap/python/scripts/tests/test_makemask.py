@@ -7,7 +7,7 @@ from tasks import *
 from taskinit import *
 from __main__ import default
 """
-Unit tests for task makemask 
+Unit tests for task makemask
 
 """
 
@@ -21,29 +21,29 @@ _ia = iatool( )
 class makemaskTestBase(unittest.TestCase):
     """ base class for makemask unit test"""
     def compareimpix(self,refimage,inimage,evalmask=False):
-	"""
-	do pixel by pixel comparison of the cube image
-	returns true if identical in terms of pixel values
-	and shape (does not check coordinates)
-	"""
-	_ia.open(refimage)
-	refdata=_ia.getchunk(getmask=evalmask)
-	refshp=list(_ia.shape())
-	_ia.close()
-	_ia.open(inimage)
-	indata=_ia.getchunk(getmask=evalmask)
-	inshp=list(_ia.shape())
-	_ia.close()
-	if inshp==refshp:
-	    for i in range(inshp[3]):
-		for j in range(inshp[2]):
-		    for k in range(inshp[1]):
-			for l in range(inshp[0]):
-			    if not indata[l][k][j][i]==refdata[l][k][j][i]:
-				return False
-	return True
+        """
+        do pixel by pixel comparison of the cube image
+        returns true if identical in terms of pixel values
+        and shape (does not check coordinates)
+        """
+        _ia.open(refimage)
+        refdata=_ia.getchunk(getmask=evalmask)
+        refshp=list(_ia.shape())
+        _ia.close()
+        _ia.open(inimage)
+        indata=_ia.getchunk(getmask=evalmask)
+        inshp=list(_ia.shape())
+        _ia.close()
+        if inshp==refshp:
+            for i in range(inshp[3]):
+                for j in range(inshp[2]):
+                    for k in range(inshp[1]):
+                        for l in range(inshp[0]):
+                            if not indata[l][k][j][i]==refdata[l][k][j][i]:
+                                return False
+        return True
 
- 
+
 class test_copy(makemaskTestBase):
     """test copy mode"""
 
@@ -60,7 +60,7 @@ class test_copy(makemaskTestBase):
     outimage3='ngc5921.cube2.copyinimage.mask'
     outimage4='ngc5921.cube2.copy.mask'
     outimage5='3x3b.image'
-   
+
     refimage4=datapath+'reference/ngc5921.copytest4.ref.mask'
     refimage6=datapath+'reference/ngc5921.copytest6.ref.mask'
 
@@ -80,8 +80,8 @@ class test_copy(makemaskTestBase):
                 if os.path.isdir(img):
                     shutil.rmtree(img)
         else:
-            print("debugging mode: clean-up did not performed") 
-        
+            print("debugging mode: clean-up did not performed")
+
     def test1_copyimagemask(self):
         """ (copy mode) testcopy1: copying an image mask (1/0 mask) to a new image mask"""
         try:
@@ -89,10 +89,10 @@ class test_copy(makemaskTestBase):
         except Exception as e:
             print("\nError running makemask")
             raise e
-        
-        self.assertTrue(os.path.exists(self.outimage1))           
-        self.assertTrue(self.compareimpix(self.inimage,self.outimage1))           
-         
+
+        self.assertTrue(os.path.exists(self.outimage1))
+        self.assertTrue(self.compareimpix(self.inimage,self.outimage1))
+
     def test2_copyimagemask(self):
         """ (copy mode) testcopy2: copying an image mask (1/0 mask) to an existing image as a T/F mask"""
         shutil.copytree(self.inimage,self.outimage1)
@@ -103,9 +103,9 @@ class test_copy(makemaskTestBase):
         except Exception as e:
             print("\nError running makemask")
             raise e
-       
-        self.assertTrue(os.path.exists(self.outimage1))           
-        self.assertTrue(self.compareimpix(self.inimage,self.outimage1))           
+
+        self.assertTrue(os.path.exists(self.outimage1))
+        self.assertTrue(self.compareimpix(self.inimage,self.outimage1))
         _ia.open(self.outimage1)
         masknames=_ia.maskhandler('get')
         if masknames.count('masknew')==1:
@@ -122,21 +122,21 @@ class test_copy(makemaskTestBase):
         except Exception as e:
             print("\nError running makemask")
             raise e
-         
+
         self.assertTrue(os.path.exists(self.outimage2))
-        # check by converting the output back to a 1/0 mask to see if it 
+        # check by converting the output back to a 1/0 mask to see if it
         # is identical to the input 1/0 mask.
         if os.path.exists(self.outimage2):
             _ia.open(self.outimage2)
             masknames=_ia.maskhandler('get')
             if masknames.count('masknew')==1:
                 pixelmask2cleanmask(self.outimage2,'masknew','_tmp_im',False)
-                self.assertTrue(self.compareimpix(self.inimage,'_tmp_im')) 
+                self.assertTrue(self.compareimpix(self.inimage,'_tmp_im'))
                 shutil.rmtree('_tmp_im')
             _ia.done()
 
     def test4_copyimagemask(self):
-        """ (copy mode) testcopy4: copying an image mask (1/0 amsk) to a new image with different coordinates(regrid)""" 
+        """ (copy mode) testcopy4: copying an image mask (1/0 amsk) to a new image with different coordinates(regrid)"""
         try:
             makemask(mode='copy',inpimage=self.inimage2,inpmask=self.inimage, output=self.outimage4)
         except Exception as e:
@@ -144,7 +144,7 @@ class test_copy(makemaskTestBase):
             raise e
 
         self.assertTrue(os.path.exists(self.outimage4))
-        self.assertTrue(self.compareimpix(self.outimage4,self.refimage4)) 
+        self.assertTrue(self.compareimpix(self.outimage4,self.refimage4))
 
     def test5_copyimagemask(self):
         """ (copy mode) testcopy5: copying a region txt to a new image with a copy of inpimage and store the mask as an in-image(T/F) mask"""
@@ -155,12 +155,12 @@ class test_copy(makemaskTestBase):
 
         try:
             makemask(mode='copy',inpimage=self.inimage2,
-                     inpmask='ellipse [[13:30:15.79110, +030.13.51.8986], [340.4877arcsec, 299.4327arcsec], 0.00000000deg]', 
+                     inpmask='ellipse [[13:30:15.79110, +030.13.51.8986], [340.4877arcsec, 299.4327arcsec], 0.00000000deg]',
                      output=self.outimage3+':newmask')
         except Exception as e:
             print("\nError running makemask")
             raise e
-           
+
         self.assertTrue(os.path.exists(self.outimage3))
         if os.path.exists(self.outimage3):
           _ia.open(self.outimage3)
@@ -173,7 +173,7 @@ class test_copy(makemaskTestBase):
           _ia.close()
 
     def test6_copyimagemask(self):
-        """ (copy mode) testcopy6: copying an internal mask to a new image mask with different coordinates(regrid)""" 
+        """ (copy mode) testcopy6: copying an internal mask to a new image mask with different coordinates(regrid)"""
         # use cube2's coord. and shape and cube1's intrenal mask
         #shutil.copytree(self.inimage2,self.outimage1)
         try:
@@ -184,11 +184,11 @@ class test_copy(makemaskTestBase):
 
         self.assertTrue(os.path.exists(self.outimage4))
         self.assertTrue(self.compareimpix(self.outimage4,self.refimage6))
-        
+
 
 
     def test7_copyimagemask(self):
-        """ (copy mode) testcopy7: copying an internal mask of one image to a new internal mask in a new image """ 
+        """ (copy mode) testcopy7: copying an internal mask of one image to a new internal mask in a new image """
         # Note: The pixel values of inpimage is copied to the new image
         #shutil.copytree(self.inimage,self.outimage1)
         try:
@@ -199,12 +199,12 @@ class test_copy(makemaskTestBase):
 
         self.assertTrue(os.path.exists(self.outimage1))
         if os.path.exists(self.outimage1):
-            self.assertTrue(self.compareimpix(self.inimage4,self.outimage1)) 
+            self.assertTrue(self.compareimpix(self.inimage4,self.outimage1))
             _ia.open(self.outimage1)
             masknames=_ia.maskhandler('get')
             _ia.close()
             if masknames.count('newmask')==1:
-                self.assertTrue(self.compareimpix(self.inimage3,self.outimage1,True)) 
+                self.assertTrue(self.compareimpix(self.inimage3,self.outimage1,True))
 
 
     def test8_copyimagemask(self):
@@ -214,9 +214,9 @@ class test_copy(makemaskTestBase):
         except Exception as e:
             print("\nError running makemask")
             raise e
-        
-        self.assertTrue(os.path.exists(self.outimage1))           
-        self.assertTrue(self.compareimpix(self.inimage5,self.outimage1))           
+
+        self.assertTrue(os.path.exists(self.outimage1))
+        self.assertTrue(self.compareimpix(self.inimage5,self.outimage1))
 
 
     def test9_copyimagemask(self):
@@ -231,14 +231,14 @@ class test_copy(makemaskTestBase):
         except Exception as e:
             print("\nError running makemask")
             raise e
-             
-        self.assertTrue(os.path.exists(self.outimage1))           
-        self.assertTrue(self.compareimpix(inpmaskname,self.outimage1))           
+
+        self.assertTrue(os.path.exists(self.outimage1))
+        self.assertTrue(self.compareimpix(inpmaskname,self.outimage1))
         if not debug:
             if os.path.isdir(inpimagename):
-                shutil.rmtree(inpimagename) 
+                shutil.rmtree(inpimagename)
             if os.path.isdir(inpmaskname):
-                shutil.rmtree(inpmaskname) 
+                shutil.rmtree(inpmaskname)
 
     def test10_copyimagemask(self):
         """ (copy mode) testcopy10: copying a small image with an internal mask
@@ -248,9 +248,9 @@ class test_copy(makemaskTestBase):
         except Exception as e:
             print("\nError running makemask")
             raise e
-        
-        self.assertTrue(os.path.exists(self.outimage5))           
-        self.assertTrue(self.compareimpix(self.inimage5,self.outimage5))           
+
+        self.assertTrue(os.path.exists(self.outimage5))
+        self.assertTrue(self.compareimpix(self.inimage5,self.outimage5))
 
 
 class test_merge(makemaskTestBase):
@@ -363,7 +363,7 @@ class test_merge(makemaskTestBase):
           masknames=_ia.maskhandler('get')
           if masknames.count('newmask')==1:
               pixelmask2cleanmask(self.outimage1,'newmask','_tmp_im',False)
-              self.assertTrue(self.compareimpix(self.refimage3,'_tmp_im')) 
+              self.assertTrue(self.compareimpix(self.refimage3,'_tmp_im'))
               shutil.rmtree('_tmp_im')
           _ia.done()
         #self.assertTrue(self.compareimpix(self.refimage3,self.outimage1))
@@ -371,7 +371,7 @@ class test_merge(makemaskTestBase):
     def test5_mergemasks(self):
         """ (copy mode) mergetest5: same as mergetest1 but uses full paths
         -merging image mask (1/0 mask) and T/F mask and  overwrite to an
-        existing image(1/0) mask (verification of CAS-8865 fix)"""     
+        existing image(1/0) mask (verification of CAS-8865 fix)"""
 
         #Only overwrapped regions is valid (whenever T/F mask involved)
         try:
@@ -442,7 +442,7 @@ class test_expand(makemaskTestBase):
     #    """ (expand mode) test2: an image mask from continuum clean to a cube mask with outfreqs by channel indices with existing ouput image(over-written)"""
     #    # this is probably not recommended the resultant mask is added to the existing outimage which already have mask in some channels.
     #    # this works while inpimage here is a continuum mask image and not a correct template, since the output image exist it will use
-    #    # as is when inpmask is a continuum image. 
+    #    # as is when inpmask is a continuum image.
     #    try:
     #        shutil.copytree(self.inimage2,self.outimage)
     #        makemask(mode='expand',inpimage=self.inimage,inpmask=self.inimage, output=self.outimage, outfreqs=[4,5,6,7],overwrite=True)
@@ -473,7 +473,7 @@ class test_expand(makemaskTestBase):
         # will be the same range as test2 will be masked (ch4,5,6,7) and one in original output mask (ch9)
         try:
             shutil.copytree(self.inimage2,self.outimage)
-            makemask(mode='expand',inpimage=self.inimage,inpmask=self.inimage, output=self.outimage, 
+            makemask(mode='expand',inpimage=self.inimage,inpmask=self.inimage, output=self.outimage,
               outfreqs='1413.007MHz~1413.08MHz',overwrite=True)
             #shutil.copytree(self.outimage,'test3result.im')
         except Exception as e:
@@ -487,7 +487,7 @@ class test_expand(makemaskTestBase):
     def test4_expandmask(self):
         """ (expand mode) test4: an image mask from continuum clean to a cube mask with outfreqs by a velocity range"""
         try:
-            makemask(mode='expand',inpimage=self.inimage,inpmask=self.inimage, output=self.outimage, 
+            makemask(mode='expand',inpimage=self.inimage,inpmask=self.inimage, output=self.outimage,
               outfreqs='1561.62km/s~1546.16km/s',overwrite=True)
             #shutil.copytree(self.outimage,'test4result.im')
         except Exception as e:
@@ -499,10 +499,10 @@ class test_expand(makemaskTestBase):
 
     def test5_expandmask(self):
         """ (expand mode) test5: an image mask from a cube mask to another cube that sepecified by a template"""
-        # pick up a channel with a mask in inpimagei(20ch-cube), and copy and expand the mask to 
+        # pick up a channel with a mask in inpimagei(20ch-cube), and copy and expand the mask to
         # another cube (chan width=2, 10ch-cube) - corresponds to ch 4,5,6,7 of outimage
         try:
-            makemask(mode='expand',inpimage=self.inimage3, inpmask=self.inimage2, inpfreqs='1413.029MHz~1413.229MHz', 
+            makemask(mode='expand',inpimage=self.inimage3, inpmask=self.inimage2, inpfreqs='1413.029MHz~1413.229MHz',
               output=self.outimage3, outfreqs='1413.117MHz~1413.263MHz')
             #shutil.copytree(self.outimage3,'test5result.im')
         except Exception as e:
@@ -517,7 +517,7 @@ class test_expand(makemaskTestBase):
         # mask at chan 4, 1561.62km/s lsrk 1413.01MHz (will drop the empty channel planes)
         # expand to chan 2 - 6
         try:
-            makemask(mode='expand',inpimage=self.inimage3,inpmask=self.inimage4+':maskoo', inpfreqs='1561km/s~1556km/s', 
+            makemask(mode='expand',inpimage=self.inimage3,inpmask=self.inimage4+':maskoo', inpfreqs='1561km/s~1556km/s',
               output=self.outimage3, outfreqs='1559.04km/s~1517.82km/s')
             #shutil.copytree(self.outimage3,'test6result.im')
         except Exception as e:
@@ -534,11 +534,11 @@ class test_expand(makemaskTestBase):
         # expand to chan 2 - 6
         # The output file inimage3 contains mask at chan 1 since only the channel range 2-6 is choosen by outfreqs
         # chan1 will be unmodified and the original mask at chan 1 will remaine in the output file.
-        
+
         # make a copy of cube2
         shutil.copytree(self.inimage3,self.outimage3)
         try:
-            makemask(mode='expand',inpimage=self.inimage2,inpmask=self.inimage4+':maskoo', inpfreqs='1561km/s~1556km/s', 
+            makemask(mode='expand',inpimage=self.inimage2,inpmask=self.inimage4+':maskoo', inpfreqs='1561km/s~1556km/s',
               output=self.outimage3, outfreqs='1559.04km/s~1517.82km/s',overwrite=True)
             #shutil.copytree(self.outimage3,'test6result.im')
         except Exception as e:
@@ -554,7 +554,7 @@ class test_expand(makemaskTestBase):
         # expand to chan 2 - 6
         #shutil.copytree(self.inimage3,self.outimage3)
         try:
-            makemask(mode='expand',inpimage=self.inimage3,inpmask=self.inimage4+':maskoo', inpfreqs='1561km/s~1556km/s', 
+            makemask(mode='expand',inpimage=self.inimage3,inpmask=self.inimage4+':maskoo', inpfreqs='1561km/s~1556km/s',
               output=self.outimage3+":newmask", outfreqs='1559.04km/s~1517.82km/s',overwrite=True)
             #shutil.copytree(self.outimage3,'test6result.im')
         except Exception as e:
@@ -567,7 +567,7 @@ class test_expand(makemaskTestBase):
           masknames=_ia.maskhandler('get')
           if masknames.count('newmask')==1:
               pixelmask2cleanmask(self.outimage3,'newmask','_tmp_im',False)
-              self.assertTrue(self.compareimpix(self.refimage4,'_tmp_im')) 
+              self.assertTrue(self.compareimpix(self.refimage4,'_tmp_im'))
               shutil.rmtree('_tmp_im')
           _ia.done()
 

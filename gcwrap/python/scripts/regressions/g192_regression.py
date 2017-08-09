@@ -17,8 +17,8 @@ datapath=os.environ.get('CASAPATH').split()[0] +'/data/regression/ATST1/G192/'
 
 default('importvla')
 importvla(archivefiles=[datapath + 'AS758_C030425.xp1',datapath+'AS758_C030425.xp2',datapath+'AS758_C030425.xp3',datapath+'AS758_C030426.xp4',datapath+'AS758_C030426.xp5'],
-	  vis='g192_a.ms',bandname='K',frequencytol=10000000.0)
-importtime = time.time() 
+          vis='g192_a.ms',bandname='K',frequencytol=10000000.0)
+importtime = time.time()
 print('--Observation summary--')
 default('listobs')
 listobs(vis='g192_a.ms')
@@ -42,33 +42,33 @@ print('--Gaincal--')
 #Select data for gain calibrators and drop outer channesl that may bias the solution
 default('gaincal')
 gaincal(vis='g192_a.ms',caltable='g192_a.gcal',
-	field='0,2,3,4',spw='0:3~117', gaintype='G',
-	solint='inf',combine='',refant='VA05',
-	gaintable=['g192_a.opac'])
+        field='0,2,3,4',spw='0:3~117', gaintype='G',
+        solint='inf',combine='',refant='VA05',
+        gaintable=['g192_a.opac'])
 gaintime = time.time()
 print('--Bandpass--')
-#Select bandpass calibrator. Arrange to solve for a single solution over the entire observation 
+#Select bandpass calibrator. Arrange to solve for a single solution over the entire observation
 default('bandpass')
 bandpass(vis='g192_a.ms',caltable='g192_a.bcal',
-	 field='3',  
-	 gaintable=['g192_a.opac','g192_a.gcal'],gainfield=['','3'],interp=['','nearest'],
-	 solint='inf',combine='scan',
-	 refant='VA05')
+         field='3',
+         gaintable=['g192_a.opac','g192_a.gcal'],gainfield=['','3'],interp=['','nearest'],
+         solint='inf',combine='scan',
+         refant='VA05')
 bptime = time.time()
 print('--Fluxscale--')
 #Transfer the flux density scale from the flux calibrator to the gain calibrators
 #Solutions are written to a table (g192_a.fluxcal) on disk.
 default('fluxscale')
 fluxscale(vis='g192_a.ms',caltable='g192_a.gcal',fluxtable='g192_a.fluxcal',
-	  reference=['1331+305'],transfer=['0530+135','05309+13319'])
+          reference=['1331+305'],transfer=['0530+135','05309+13319'])
 fstime = time.time()
 
 print('--Correct--')
 #Apply calibration solutions to the data
 default('applycal')
 applycal(vis='g192_a.ms',
-	 field='0,1,2', 
-	 gaintable=['g192_a.opac','g192_a.fluxcal','g192_a.bcal'],gainfield=['','0,2']);
+         field='0,1,2',
+         gaintable=['g192_a.opac','g192_a.fluxcal','g192_a.bcal'],gainfield=['','0,2']);
 correcttime = time.time()
 
 print('--Split (Cal/src data)--')
@@ -76,18 +76,18 @@ print('--Split (Cal/src data)--')
 default('split')
 split(vis='g192_a.ms',outputvis='g192_cal.split.ms',
  #     field=4,spw=0,nchan=100,start=9,step=1,datacolumn='CORRECTED_DATA')
-	field='4',spw='0:9~108',datacolumn='corrected')
+        field='4',spw='0:9~108',datacolumn='corrected')
 splitcaltime = time.time()
 default('split')
 split(vis='g192_a.ms',outputvis='g192_src.split.ms',
 #      field=1,spw=0,nchan=100,start=9,step=1,datacolumn='CORRECTED_DATA')
-	field='1',spw='0:9~108',datacolumn='corrected')
+        field='1',spw='0:9~108',datacolumn='corrected')
 splitsrctime = time.time()
 
 print('--Flag bad time range--')
 #flag data in the specified time range for the source and spw
-flagdata(vis="g192_src.split.ms", field="0", spw="0", 
-	  timerange="2003/04/26/02:45:00.0~2003/04/26/02:46:30.0")
+flagdata(vis="g192_src.split.ms", field="0", spw="0",
+          timerange="2003/04/26/02:45:00.0~2003/04/26/02:46:30.0")
 flagsrctime=time.time()
 
 print('--Clean src line--')
@@ -110,7 +110,7 @@ print('--Contsub (image plane)--')
 #do image plane continuum subtraction; channels specified will be used to make a continuum image: g192_cont.im
 ia.open(infile='g192_a2.image')
 myim=ia.continuumsub(outline='g192.line.im',outcont='g192.cont.im',
-		     channels=list(range(0,1)),fitorder=0)
+                     channels=list(range(0,1)),fitorder=0)
 x=myim.statistics(list=False, verbose=True)
 thistest_con=x['rms'][0]
 ia.close()
@@ -139,9 +139,9 @@ ia.open('g192_a2.image')
 # get the second value in the dictionary (statsout)
 statistics=ia.statistics(list=True, verbose=True)
 ia.close()
-# note thistest_immax will be a list with one value 
+# note thistest_immax will be a list with one value
 thistest_immax=statistics['max']
-# note thistest_imrms will be a list with one value 
+# note thistest_imrms will be a list with one value
 thistest_imrms=statistics['rms']
 
 calmax=2.7573
@@ -167,11 +167,11 @@ print('********** Data Summary *********', file=logfile)
 print('*    Observer: unavailable     Project: AS758                               *', file=logfile)
 print('* Observation: VLA(27 antennas)                                             *', file=logfile)
 print('*   Telescope Observation Date    Observer       Project                    *', file=logfile)
-print('*   VLA       [              4.55803e+09, 4.55803e+09]unavailable    AS758  *', file=logfile) 
-print('*   VLA       [              4.55803e+09, 4.55803e+09]unavailable    AS758  *', file=logfile)       
-print('*   VLA       [              4.55803e+09, 4.55803e+09]unavailable    AS758  *', file=logfile)      
-print('*   VLA       [              4.55803e+09, 4.55804e+09]unavailable    AS758  *', file=logfile)     
-print('*   VLA       [              4.55804e+09, 4.55804e+09]unavailable    AS758  *', file=logfile)     
+print('*   VLA       [              4.55803e+09, 4.55803e+09]unavailable    AS758  *', file=logfile)
+print('*   VLA       [              4.55803e+09, 4.55803e+09]unavailable    AS758  *', file=logfile)
+print('*   VLA       [              4.55803e+09, 4.55803e+09]unavailable    AS758  *', file=logfile)
+print('*   VLA       [              4.55803e+09, 4.55804e+09]unavailable    AS758  *', file=logfile)
+print('*   VLA       [              4.55804e+09, 4.55804e+09]unavailable    AS758  *', file=logfile)
 print('* Data records: 1200015       Total integration time = 19347.5 seconds      *', file=logfile)
 print('*    Observed from   25-Apr-2003/22:03:38   to   26-Apr-2003/03:26:05       *', file=logfile)
 print('* Fields: 6                                                                 *', file=logfile)
@@ -194,53 +194,53 @@ print('*                               *', file=logfile)
 
 regstate=True
 if (diff_cal < 0.05):
-	print('* Passed cal max amplitude test *', file=logfile)
+        print('* Passed cal max amplitude test *', file=logfile)
 else:
-	regstate=False
-	print('* Failed cal max amplitude test *', file=logfile)
+        regstate=False
+        print('* Failed cal max amplitude test *', file=logfile)
 print('   Cal max amp '+str(thistest_cal)+' ('+str(calmax)+')', file=logfile)
 
 if (diff_src < 0.05):
-	print('* Passed src max amplitude test *', file=logfile)
+        print('* Passed src max amplitude test *', file=logfile)
 else:
-	regstate=False
-	print('* Failed src max amplitude test *', file=logfile)
+        regstate=False
+        print('* Failed src max amplitude test *', file=logfile)
 print('   Src max amp '+str(thistest_src)+' ('+str(srcmax)+')', file=logfile)
 
 if (diff_con < 0.05):
-	print('* Passed contsub rms test         *', file=logfile)
+        print('* Passed contsub rms test         *', file=logfile)
 else:
-	regstate=False
-	print('* Failed contsub rms test         *', file=logfile)
+        regstate=False
+        print('* Failed contsub rms test         *', file=logfile)
 print('   Contsub rms '+str(thistest_con)+' ('+str(contsubrms)+')', file=logfile)
 
 if (diff_immax < 0.05):
-	print('* Passed image max test         *', file=logfile)
+        print('* Passed image max test         *', file=logfile)
 else:
-	regstate=False
-	print('* Failed image max test         *', file=logfile)
+        regstate=False
+        print('* Failed image max test         *', file=logfile)
 print('   Image max '+str(thistest_immax)+' ('+str(immax)+')', file=logfile)
 
 if (diff_imrms < 0.05):
-	print('* Passed image rms test         *', file=logfile)
+        print('* Passed image rms test         *', file=logfile)
 else:
-	regstate=False
-	print('* Failed image rms test         *', file=logfile)
+        regstate=False
+        print('* Failed image rms test         *', file=logfile)
 print('   Image rms '+str(thistest_imrms)+' ('+str(imrms)+')', file=logfile)
 
 
 if (regstate):
-	print('---', file=logfile)
-	print('Passed Regression test for G192', file=logfile)
-	print('---', file=logfile)
-	print('')
-	print('Regression PASSED')
-	print('')
-else: 
-	print('')
-	print('Regression FAILED')
-	print('')
-	print('----FAILED Regression test for G192', file=logfile)
+        print('---', file=logfile)
+        print('Passed Regression test for G192', file=logfile)
+        print('---', file=logfile)
+        print('')
+        print('Regression PASSED')
+        print('')
+else:
+        print('')
+        print('Regression FAILED')
+        print('')
+        print('----FAILED Regression test for G192', file=logfile)
 print('*********************************', file=logfile)
 
 print('', file=logfile)

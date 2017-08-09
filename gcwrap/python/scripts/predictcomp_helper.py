@@ -23,12 +23,12 @@ def predictSolarObjectCompList(objname, epoch, freqs, prefix):
     for freq in freqs:
       minf = freq-freqinc
       maxf = freq+freqinc
-      freqlist.append([minf,maxf]) 
+      freqlist.append([minf,maxf])
     #mepoch = myme.epoch('UTC', epoch)
     if epoch['m0']['value']==0.0:
         casalog.post('Invalid epoch, '+str(epoch['m0']['value'])+str(epoch['m0']['unit']),'SEVERE');
         raise Exception("Error")
-    epochv = epoch['m0']['value'] 
+    epochv = epoch['m0']['value']
 
 
     # turn user input epoch to mjd
@@ -40,14 +40,14 @@ def predictSolarObjectCompList(objname, epoch, freqs, prefix):
     ss_setjy=SSSetjy.solar_system_setjy()
     (errcodes, fluxes, fluxerrs, sizes, dirs)=\
        ss_setjy.solar_system_fd(source_name=objname, MJDs=[epochv], frequencies=freqlist, observatory=observatory, casalog=casalog)
-  
+
     #print "fluxes from ss_setjy=",fluxes
     #if errcodes[0][0] > 0:
     #    raise ValueError("cannot determined flux")
-    
-    reterr=testerrs(errcodes[0],objname) 
-    if reterr == 2: 
-        #raise Exception, "Error" 
+
+    reterr=testerrs(errcodes[0],objname)
+    if reterr == 2:
+        #raise Exception, "Error"
         casalog.post("Flux densities cannot be determined","SEVERE")
         raise Exception
 
@@ -70,16 +70,16 @@ def predictSolarObjectCompList(objname, epoch, freqs, prefix):
         try:
             shutil.rmtree(clname)
         except:
-            print("shutil.rmtree failed") 
+            print("shutil.rmtree failed")
     index= 2.0
     sptype = 'spectral index'
     #index= 0.0
     #sptype = 'constant'
-    
+
     #print "fluxes=",fluxes
     #print "fluxerrs-=",fluxerrs
     #print "sizes=",sizes
-    #print "dirs=",dirs 
+    #print "dirs=",dirs
     mycl.addcomponent(flux=fluxes[0][0],fluxunit='Jy', polarization="Stokes", dir=dirs[0],
          shape='disk', majoraxis=str(sizes[0][0])+'arcsec', minoraxis=str(sizes[0][1])+'arcsec',
     #     positionangle=str(sizes[0][2])+'arcsec', freq=['LSRK',str(freqs[0])+'Hz'],

@@ -29,4 +29,4 @@ def imfit(
         raise instance
     finally:
         myia.done()
-        
+

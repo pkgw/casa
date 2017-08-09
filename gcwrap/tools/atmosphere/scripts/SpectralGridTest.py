@@ -26,8 +26,8 @@ print("Frequency range: from ", at.getMinFreq()['value'][0], " to ", at.getMaxFr
 print("Channel frequency and number for the first spectral window:")
 n = at.getNumChan()
 for i in range(n):
-	cf = at.getChanFreq(i)
-	#print i, " channel: ", i-rc+1, " freq: ", cf['value'][0], cf['unit']
+        cf = at.getChanFreq(i)
+        #print i, " channel: ", i-rc+1, " freq: ", cf['value'][0], cf['unit']
 print("Expect an error here")
 at.getNumChan(1)  # spwId is 0-based.
 
@@ -65,8 +65,8 @@ print("Channel frequency and number for the first spectral window:")
 n = at.getNumChan()
 rc = at.getRefChan()
 for i in range(n):
-	cf = at.getChanFreq(i)
-	print(i, " channel: ", i-rc+1, " freq: ", cf['value'][0], cf['unit'])
+        cf = at.getChanFreq(i)
+        print(i, " channel: ", i-rc+1, " freq: ", cf['value'][0], cf['unit'])
 
 print()
 print("Test 2:")

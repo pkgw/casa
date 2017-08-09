@@ -22,8 +22,8 @@ p = at.getProfile()
 print("layer\taltitude\tthickness\ttemperature\twatermassdensity\tpressure")
 height = 0
 for i in range(at.getNumLayers()):
-	height += p[1]['value'][i]
-	print(i, '\t', height, '\t', p[1]['value'][i],'\t', p[2]['value'][i],'\t', p[3]['value'][i],'\t', p[5]['value'][i])
+        height += p[1]['value'][i]
+        print(i, '\t', height, '\t', p[1]['value'][i],'\t', p[2]['value'][i],'\t', p[3]['value'][i],'\t', p[5]['value'][i])
 print()
 
 att = 2
@@ -35,8 +35,8 @@ p = at.getProfile()
 print("layer\taltitude\tthickness\ttemperature\twatermassdensity\tpressure")
 height = 0
 for i in range(at.getNumLayers()):
-	height += p[1]['value'][i]
-	print(i, '\t', height, '\t', p[1]['value'][i],'\t', p[2]['value'][i],'\t', p[3]['value'][i],'\t', p[5]['value'][i])
+        height += p[1]['value'][i]
+        print(i, '\t', height, '\t', p[1]['value'][i],'\t', p[2]['value'][i],'\t', p[3]['value'][i],'\t', p[5]['value'][i])
 print()
 
 att = 3
@@ -48,9 +48,9 @@ p = at.getProfile()
 print("layer\taltitude\tthickness\ttemperature\twatermassdensity\tpressure")
 height = 0
 for i in range(at.getNumLayers()):
-	height += p[1]['value'][i]
-	print(i, '\t', height, '\t', p[1]['value'][i],'\t', p[2]['value'][i],'\t', p[3]['value'][i],'\t', p[5]['value'][i])
-print() 
+        height += p[1]['value'][i]
+        print(i, '\t', height, '\t', p[1]['value'][i],'\t', p[2]['value'][i],'\t', p[3]['value'][i],'\t', p[5]['value'][i])
+print()
 
 att = 4
 myatm=at.initAtmProfile(alt, tmp, pre, mxA, hum, wvl, dpr, dpm, h0, att)
@@ -61,8 +61,8 @@ p = at.getProfile()
 print("layer\taltitude\tthickness\ttemperature\twatermassdensity\tpressure")
 height = 0
 for i in range(at.getNumLayers()):
-	height += p[1]['value'][i]
-	print(i, '\t', height, '\t', p[1]['value'][i],'\t', p[2]['value'][i],'\t', p[3]['value'][i],'\t', p[5]['value'][i])
+        height += p[1]['value'][i]
+        print(i, '\t', height, '\t', p[1]['value'][i],'\t', p[2]['value'][i],'\t', p[3]['value'][i],'\t', p[5]['value'][i])
 print()
 
 att = 5
@@ -74,6 +74,6 @@ p = at.getProfile()
 print("layer\taltitude\tthickness\ttemperature\twatermassdensity\tpressure")
 height = 0
 for i in range(at.getNumLayers()):
-	height += p[1]['value'][i]
-	print(i, '\t', height, '\t', p[1]['value'][i],'\t', p[2]['value'][i],'\t', p[3]['value'][i],'\t', p[5]['value'][i])
+        height += p[1]['value'][i]
+        print(i, '\t', height, '\t', p[1]['value'][i],'\t', p[2]['value'][i],'\t', p[3]['value'][i],'\t', p[5]['value'][i])
 exit()

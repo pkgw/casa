@@ -1,11 +1,11 @@
 #
-# Run this script to create the MMS data needed to run the Python unit tests 
-# of some tasks. This script will try to find the location of the data repository 
-# based on the value of CASAPATH. The MSs will be read from the unittest directory 
-# of the data repository. The output MMSs will be created in the local directory 
-# under unittest_mms/<taskname>. The MMS directory will be removed if the command 
+# Run this script to create the MMS data needed to run the Python unit tests
+# of some tasks. This script will try to find the location of the data repository
+# based on the value of CASAPATH. The MSs will be read from the unittest directory
+# of the data repository. The output MMSs will be created in the local directory
+# under unittest_mms/<taskname>. The MMS directory will be removed if the command
 # is repeated for the same task.
-# 
+#
 
 
 import os
@@ -19,7 +19,7 @@ from taskinit import tbtool, mstool
 import partitionhelper as ph
 
 # ---------- ADD NEW TASKS HERE ----------------
-# These tasks have been verified to work on MMS. 
+# These tasks have been verified to work on MMS.
 TASKLIST = [
             'bandpass',
             'concat', # shared with virtualconcat
@@ -69,22 +69,22 @@ def usage():
     print(' 1) Create MMS for all tasks, except flagdata and fluxscale')
     print('          make_mmsdata --ignore flagdata fluxscale')
     print(' 2) Create MMS for all tasks except setjy and use separation axis scan and numsubms=8')
-    print('          make_mmsdata --axis=scan --numsubms=8 --ignore setjy') 
+    print('          make_mmsdata --axis=scan --numsubms=8 --ignore setjy')
     print('====================================================================================')
 
 
 def selectList(nolist):
     '''Return the subtracted list of tasks
        nolist --> list of tasks to ignore'''
-    
+
     newlist = []
     for t in TASKLIST:
         if t not in nolist:
             newlist.append(t)
-            
+
     return newlist
-    
-    
+
+
 # Function to call partitionhelper.convertToMMS()
 def mmstest(mytask, axis, subms):
 
@@ -93,36 +93,36 @@ def mmstest(mytask, axis, subms):
     MMSPATH = './unittest_mms/'+mytask
 
     print('--------- Will create MMS data for test_'+mytask)
-    
-    ph.convertToMMS(inpdir=INPPATH, mmsdir=MMSPATH, 
+
+    ph.convertToMMS(inpdir=INPPATH, mmsdir=MMSPATH,
                     axis=axis, numsubms=subms, cleanup=True)
 
-      
+
 # Location of the data repository
 if 'CASAPATH' not in os.environ:
     print('ERROR: Could not find variable CASAPATH')
     os._exit(2)
-    
+
 
 def main(thislist, axis='auto', numsubms=4):
-    
+
     if thislist == []:
         print('Need list of tasks to run.')
         usage()
         os._exit(0)
-        
+
     print("Will create MMS for the following tasks %s"%thislist)
     print()
-    
+
     # Loop through task list
     for t in thislist:
         if t not in TASKLIST:
             print('ERROR: task '+t+' is not in TASKLIST. Run this script with -l for the full list.')
             os._exit(0)
-            
+
  #       if t == 'flagdata':
 #            axis='scan'
-            
+
         mmstest(t, axis, numsubms)
 
     from tasks import partition,importuvfits
@@ -132,8 +132,8 @@ def main(thislist, axis='auto', numsubms=4):
 #        # You need to run partition by hand to create an MMS for the single-dish data set
 #        SDPATH = DATAPATH + 'unittest/listvis/'
 #        SDMMS = './unittest_mms/listvis/'
-#    
-#        partition(vis=SDPATH+'OrionS_rawACSmod', outputvis=SDMMS+'OrionS_rawACSmod.mms', 
+#
+#        partition(vis=SDPATH+'OrionS_rawACSmod', outputvis=SDMMS+'OrionS_rawACSmod.mms',
 #                  datacolumn='float_data', createmms=True, flagbackup=False)
 
     if 'split' in thislist:
@@ -144,7 +144,7 @@ def main(thislist, axis='auto', numsubms=4):
                        'split/labelled_by_time+ichan.ms']
         for myms in specialcase:
             shutil.rmtree(SPLITMMSPATH+os.path.basename(myms), ignore_errors=True)
-            partition(vis=DATAPATH+myms, outputvis=SPLITMMSPATH+os.path.basename(myms), 
+            partition(vis=DATAPATH+myms, outputvis=SPLITMMSPATH+os.path.basename(myms),
                       datacolumn='all', flagbackup=False)
 
         # workaround for a partition shortcoming: column keywords not copied
@@ -188,7 +188,7 @@ def main(thislist, axis='auto', numsubms=4):
             else:
                 os.symlink(CONCATPATH+d, d)
         os.chdir(origwd)
-        
+
     if ('cvel' in thislist):
 
         CVELPATH = DATAPATH + 'ngc4826/fitsfiles/'
@@ -196,10 +196,10 @@ def main(thislist, axis='auto', numsubms=4):
         mmsdir = MMSPATH+'ngc4826.mms'
         tempdir = 'makemmsdirtemp'
         os.system('mkdir '+tempdir)
-        importuvfits(fitsfile=CVELPATH+'ngc4826.ll.fits5',vis=tempdir+'/ngc4826.ms') 
+        importuvfits(fitsfile=CVELPATH+'ngc4826.ll.fits5',vis=tempdir+'/ngc4826.ms')
         partition(vis=tempdir+'/ngc4826.ms',outputvis=MMSPATH+'ngc4826.mms',separationaxis='scan',flagbackup=False,datacolumn='all')
-        os.system('rm -rf '+tempdir)      
-        
+        os.system('rm -rf '+tempdir)
+
         CVELPATH = DATAPATH + 'cvel/input/'
         cvelfiles =['jupiter6cm.demo-thinned.ms','g19_d2usb_targets_line-shortened-thinned.ms','evla-highres-sample-thinned.ms']
         MMSPATH = './unittest_mms/cvel/'
@@ -210,7 +210,7 @@ def main(thislist, axis='auto', numsubms=4):
             os.chdir(MMSPATH)
             os.system('ln -s '+ mmsname + ' ' + cvelms)
             os.chdir(thisdir)
-            
+
         # Create the jup.mms file
         mmsname = 'jup.mms'
         output = MMSPATH+mmsname
@@ -243,7 +243,7 @@ def main(thislist, axis='auto', numsubms=4):
         mslocal.addephemeris(0,os.environ.get('CASAPATH').split()[0]+'/data/ephemerides/JPL-Horizons/Jupiter_54708-55437dUTC.tab',
                         'Jupiter_54708-55437dUTC', 0)
         mslocal.close()
-        
+
         CVELMS = DATAPATH + 'fits-import-export/input/test.ms'
         MMSPATH = './unittest_mms/cvel/'
         thisdir = os.getcwd()
@@ -251,7 +251,7 @@ def main(thislist, axis='auto', numsubms=4):
         os.chdir(MMSPATH)
         os.system('ln -s test.mms test.ms')
         os.chdir(thisdir)
-                
+
     if ('fixvis' in thislist):
         MSPATH = os.environ.get('CASAPATH').split()[0]+'/data/regression/0420+417/'
         MSNAME = MSPATH + '0420+417.ms'
@@ -264,67 +264,67 @@ def main(thislist, axis='auto', numsubms=4):
         os.system('ln -s 0420+417.mms 0420+417.ms')
         os.chdir(thisdir)
 
-    
+
 if __name__ == "__main__":
 
-    # Get command line arguments    
+    # Get command line arguments
     if "-c" in sys.argv:
         # It is called with casapy ... -c make_mmsdata.py from the command line,
         i = sys.argv.index("-c")
         if len(sys.argv) >= i + 2 and \
                re.compile("make_mmsdata\.py$").search(sys.argv[i + 1]):
-                    
+
             try:
                 # Get only this script options
                 opts,args=getopt.getopt(sys.argv[i+2:], "ailx:n:", ["all", "ignore","list","axis=","numsubms="])
-                
+
             except getopt.GetoptError as err:
                 # Print help information and exit:
                 print(str(err)) # will print something like "option -a not recognized"
                 usage()
                 os._exit(2)
-                
+
             # List of tests to run
             tasknames = []
-            
+
             axis = 'auto'
             numsubms = 4
-#            parallel = False            
+#            parallel = False
             ignore = False
             all = False
-            
+
             # Print help and exit
             if opts == [] and args == []:
                 usage()
                 os._exit(0)
-            
+
             elif opts != []:
                 for o, a in opts:
 
                     if o in ("x", "--axis"):
                         axis = a
                         continue
-                    
+
                     if o in ("n", "--numsubms"):
                         numsubms = int(a)
                         continue
-                    
+
                     if o in ("-a", "--all"):
                         all = True
                         tasknames = TASKLIST
                         break
-                                        
+
                     elif o in ("-i", "--ignore"):
                         # From all tasks, it will ignore the ones given in args
                         ignore = True
                         all = True
                         break
-                    
+
                     elif o in ("-l", "--list"):
                         print('List of tasks to create MMS for:')
                         pprint.pprint(TASKLIST)
-                        os._exit(0)          
-                                  
+                        os._exit(0)
+
                     else:
                         assert False, "unhandled option"
 
@@ -333,22 +333,22 @@ if __name__ == "__main__":
                 print("ERROR: --ignore needs a list of tasks.")
                 usage()
                 os._exit(0)
-                
+
 #            if args != [] and all and ignore:
 #                # From all tasks, ignore the ones given in args
 #                tasknames = selectList(args)
-                
+
             if args != []:
                 if not all:
                     tasknames = args
                 if ignore:
                     tasknames = selectList(args)
-                
-    try:                 
+
+    try:
         main(tasknames, axis, numsubms)
     except:
         traceback.print_exc()
-    
+
 # Use cases:
 # 1) run on all tasks in TASKLIST with default parameters
 #     make_mmsdata.py --all
@@ -366,6 +366,6 @@ if __name__ == "__main__":
 
 
 
-  
-    
-    
+
+
+

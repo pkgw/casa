@@ -49,7 +49,7 @@
 #
 # <synopsis>
 # impbcor corrects and image for primary beam attenuation. It is built on top of ia.pbcor()
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 # pbcorrected_image_tool = impbcor(imagename="myim.im", pbimage="mypb.im", outfile="corrected.im", wantreturn=true)
@@ -89,4 +89,4 @@ def impbcor(
     finally:
         if (myia):
             myia.done()
-        
+

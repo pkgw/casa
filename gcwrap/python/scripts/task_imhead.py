@@ -131,8 +131,8 @@ def imhead(
             return False
         finally:
             myimd.done()
-            
+
         casalog.post('Unknown imhead mode ' + str(mode), 'SEVERE')
         return False
-                
-        
+
+

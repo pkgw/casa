@@ -15,7 +15,7 @@ def visstat(vis=None,
             array=None,
             observation=None):
 
-    casalog.origin('visstat')  
+    casalog.origin('visstat')
 
     mslocal = mstool()
 
@@ -36,7 +36,7 @@ def visstat(vis=None,
         scan=''
         array=''
         observation = ''
-        
+
     s = mslocal.statistics(column=col.upper(),
                       complex_value=complex_type,
                       useflags=useflags,
@@ -49,12 +49,12 @@ def visstat(vis=None,
                       scan=scan,
                       array=array,
                       obs=str(observation))
-    
+
     mslocal.close()
 
     for stats in list(s.keys()):
         casalog.post(stats + " values --- ", "NORMAL")
-        
+
         if s[stats]['npts'] > 0:
             casalog.post("         -- number of points [npts]:           " + str(int(round(s[stats]['npts']))), "NORMAL")
             casalog.post("         -- minimum value [min]:               " + str(s[stats]['min'  ]), "NORMAL")
@@ -77,5 +77,5 @@ def visstat(vis=None,
     return s
 
 
-        
+
 

@@ -101,8 +101,8 @@ sdlist()
 #--------------------------------------------------------------------------------
 # Scan Table Summary
 #--------------------------------------------------------------------------------
-#Beams:         1   
-#IFs:           26  
+#Beams:         1
+#IFs:           26
 #Polarisations: 2   (linear)
 #Channels:      8192
 #
@@ -116,9 +116,9 @@ sdlist()
 #Abcissa:       Channel
 #Selection:     none
 #
-#Scan Source         Time      Integration       
+#Scan Source         Time      Integration
 #     Beam    Position (J2000)
-#          IF       Frame   RefVal          RefPix    Increment   
+#          IF       Frame   RefVal          RefPix    Increment
 #--------------------------------------------------------------------------------
 #  20 OrionS_psr     01:45:58    4 x       30.0s
 #        0    05:15:13.5 -05.24.08.2
@@ -288,8 +288,8 @@ sdlist()
 #--------------------------------------------------------------------------------
 # Scan Table Summary
 #--------------------------------------------------------------------------------
-#Beams:         1   
-#IFs:           26  
+#Beams:         1
+#IFs:           26
 #Polarisations: 1   (linear)
 #Channels:      8192
 #
@@ -303,11 +303,11 @@ sdlist()
 #Abcissa:       Channel
 #Selection:     none
 #
-#Scan Source         Time      Integration       
+#Scan Source         Time      Integration
 #     Beam    Position (J2000)
-#          IF       Frame   RefVal          RefPix    Increment   
+#          IF       Frame   RefVal          RefPix    Increment
 #--------------------------------------------------------------------------------
-#   0 OrionS_ps      01:52:05    1 x    08:00.5 
+#   0 OrionS_ps      01:52:05    1 x    08:00.5
 #        0    05:35:13.5 -05.24.08.2
 #            0      LSRK   4.5489354e+10   4096    6104.233
 #

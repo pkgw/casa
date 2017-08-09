@@ -24,7 +24,7 @@ _potential_data_directories = ( "/opt/casa/data",
                                 "/export/data/casa" )
 
 REGRESSION_DATA = [x for x in [y+"/regression" for y in _potential_data_directories] if os.access(x,os.F_OK)]
-                      
+
 
 if not os.access(TESTS_DIR, os.F_OK):
     if os.access(CASA_DIR+'/lib64', os.F_OK):
@@ -63,56 +63,56 @@ def _find_script_path( name ):
 # ---------------------------------------------------------------------
 if __name__ == "__main__":
     # Get command line arguments
-    
+
     if "-c" in sys.argv:
         # If called with ... -c runUnitTest.py from the command line,
         # then parse the command line parameters
         i = sys.argv.index("-c")
         if len(sys.argv) >= i + 2 and \
                re.compile("runRegressionTest\.py$").search(sys.argv[i + 1]):
-            
-        
+
+
             try:
                 # Get only this script options
                 opts,args=getopt.getopt(sys.argv[i+2:], "Halmgs:f:d:", ["Help","all","list","mem",
                                                                      "debug","classes=","file=",
                                                                      "datadir="])
-                
+
             except getopt.GetoptError as err:
                 # Print help information and exit:
                 print(str(err)) # will print something like "option -a not recognized"
                 os._exit(2)
-                
+
             # List of tests to run
             testnames = []
-            
+
             # Boolean for file with tests.
             # One could allow the use of --file with specific tests given in
             # the command line by removing this option and appending to the
             # testnames list in the args handling
             hasfile = False
             alltests = False
-            
+
             #If no option is given, show the Help page
             if opts == [] and args == []:
                 print("no arguments given...")
                 os._exit(1)
-                
-            
-            # All other options       
+
+
+            # All other options
             for o, a in opts:
                 if o in ("-H", "--Help"):
                     usage()
-                    os._exit(0) 
+                    os._exit(0)
                 if o in ("-l", "--list"):
                     list_tests()
                     os._exit(0)
-                if o in ("-s", "--classes"): 
+                if o in ("-s", "--classes"):
                     testnames.append(a)
                     getclasses(testnames)
                     os._exit(0)
                 if o in ("-m", "--mem"):
-                    # run specific tests in mem mode            
+                    # run specific tests in mem mode
                     MEM = 1
                 elif o in ("-g", "--debug"):
                     #Set the casalog to DEBUG
@@ -120,18 +120,18 @@ if __name__ == "__main__":
                 elif o in ("-d", "--datadir"):
                     # This will create an environmental variable called
                     # TEST_DATADIR that can be read by the tests to use
-                    # an alternative location for the data. This is used 
+                    # an alternative location for the data. This is used
                     # to test tasks with MMS data
                     # directory with test data
                     datadir = a
-                    if not os.path.isdir(datadir):                            
-                        raise Exception('Value of --datadir is not a directory -> '+datadir)  
-                    
+                    if not os.path.isdir(datadir):
+                        raise Exception('Value of --datadir is not a directory -> '+datadir)
+
                     # Set an environmental variable for the data directory
                     settestdir(datadir)
-                    if 'TEST_DATADIR' not in os.environ:    
-                        raise Exception('Could not create environmental variable TEST_DATADIR')                        
-                        
+                    if 'TEST_DATADIR' not in os.environ:
+                        raise Exception('Could not create environmental variable TEST_DATADIR')
+
                 elif o in ("-a", "--all"):
                     alltests = True
                     whichtests = 0
@@ -140,7 +140,7 @@ if __name__ == "__main__":
                 elif o in ("-f", "--file"):
                     hasfile = True
                     testnames = a
-                    
+
                 else:
                     assert False, "unhandled option"
 
@@ -148,10 +148,10 @@ if __name__ == "__main__":
             # Deal with other arguments
             if args != [] and not hasfile and not alltests:
                 testnames = args
-                                        
+
         else:
             testnames = []
-        
+
     else:
         # Not called with -c (but possibly execfile() from iPython)
         testnames = []

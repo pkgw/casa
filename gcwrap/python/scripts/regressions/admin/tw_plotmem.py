@@ -42,20 +42,20 @@ i=0
 #while (1) :
 #while i<100:
 while i< 10000:
-	y1,y2=getmem(procnam)
-    	if (y1 > 0.0):
-        	sleep(2.0)
-	        t.append(time()-t1)
-        	if( y1 > 2.5e9): y1=2.5e9
-        	if(y2 > 2.5e9): y2=2.5e9
-		y11.append(y1)
-		y22.append(y2)
-	else:
-       		print('no ', procnam)
-		#sleep(10.0)
-		sleep(3.0)
-	i+=1
-	print(i)
+        y1,y2=getmem(procnam)
+        if (y1 > 0.0):
+                sleep(2.0)
+                t.append(time()-t1)
+                if( y1 > 2.5e9): y1=2.5e9
+                if(y2 > 2.5e9): y2=2.5e9
+                y11.append(y1)
+                y22.append(y2)
+        else:
+                print('no ', procnam)
+                #sleep(10.0)
+                sleep(3.0)
+        i+=1
+        print(i)
 plot(t,y11,lw=2)
 plot(t,y22,lw=2)
 if max(y11)>=max(y22): axis([0.9*min(t),1.1*max(t),0.9*min(y11),1.1*max(y11)])

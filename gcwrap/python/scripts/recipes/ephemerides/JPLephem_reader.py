@@ -1,7 +1,7 @@
 """
 casapy functions for converting ASCII ephemerides from JPL-Horizons into
 CASA tables and installing them where casapy can find them.
-                    
+
 jplfiles_to_repository() puts it all together, so it is most likely the
 function you want.
 
@@ -27,7 +27,7 @@ from dict_to_table import dict_to_table
 # Sample lines:
 #  Date__(UT)__HR:MN     R.A.___(ICRF/J2000.0)___DEC Ob-lon Ob-lat Sl-lon Sl-lat   NP.ang   NP.dist               r        rdot            delta      deldot    S-T-O   L_s
 #  2010-May-01 00:00     09 01 43.1966 +19 04 28.673 286.52  18.22 246.99  25.34 358.6230      3.44  1.661167637023  -0.5303431 1.28664311447968  15.7195833  37.3033   84.50
-# 
+#
 # some mod to label names and comments so that they corresponds to
 # JPL-Horizons naming comvension
 cols = {
@@ -82,7 +82,7 @@ cols = {
     'NP_DEC': {'header': r'N\.Pole-DC',
                'comment': 'North Pole declination',
                'pat':    r'(?P<NP_DEC>([-+]?\d+ \d+ )?[-+]?\d+\.\d+)'},
-    
+
     'r': {'header': 'r',
           'comment': 'heliocentric distance',
           'unit':    'AU',
@@ -144,7 +144,7 @@ def readJPLephem(fmfile,version=''):
     # Setup the regexps.
 
     # Headers (one time only things)
-    
+
     # Dictionary of quantity label: regexp pattern pairs that will be searched
     # for once.  The matching quantity will go in retdict[label].  Only a
     # single quantity (group) will be retrieved per line.
@@ -177,7 +177,7 @@ def readJPLephem(fmfile,version=''):
         headers[hk]['pat'] = re.compile(headers[hk]['pat'])
 
     # Data ("the rows of the table")
-    
+
     # need date, r (heliocentric distance), delta (geocentric distance), and phang (phase angle).
     # (Could use the "dot" time derivatives for Doppler shifting, but it's
     # likely unnecessary.)
@@ -260,7 +260,7 @@ def readJPLephem(fmfile,version=''):
             in_data = True
         else:
             #print "line =", line
-            #print "looking for", 
+            #print "looking for",
             for hk in headers:
                 if hk not in retdict:
                     matchobj = re.search(headers[hk]['pat'], line)
@@ -355,7 +355,7 @@ def readJPLephem(fmfile,version=''):
                     retdict[hk] = {'unit': unit, 'value': value}
                 else:
                     del retdict[hk]
-                    
+
     # The rotation period might depend on the orbital period ("Synchronous"),
     # so handle it after all the other headers have been done.
     if 'rot_per' in retdict:
@@ -381,7 +381,7 @@ def readJPLephem(fmfile,version=''):
                 except:
                     print("Error parsing the rotation period from")
                     print(rpstr)
-    
+
     if 'ang_sep' in retdict['data']:
         retdict['data']['obs_code'] = {'comment': 'Obscuration code'}
     for dk in retdict['data']:
@@ -421,7 +421,7 @@ def readJPLephem(fmfile,version=''):
     if version=='':
         version='0003.0001'
     #retdict['VS_VERSION'] = '0003.0001'
-    retdict['VS_VERSION'] = version 
+    retdict['VS_VERSION'] = version
     if 'VS_CREATE' in retdict:
         dt = time.strptime(retdict['VS_CREATE'], "%b %d %H:%M:%S %Y")
     else:
@@ -443,7 +443,7 @@ def readJPLephem(fmfile,version=''):
         retdict['posrefsys']='ICRF/J2000.0'
     if cols['RA']['comment'].count('B1950'):
         retdict['posrefsys']='FK4/B1950.0'
-      
+
     return retdict
 
 def convert_radec(radec_col):
@@ -465,7 +465,7 @@ def convert_radec(radec_col):
                 angstrlist[i] = dms.replace(' ', 'm') + 's'
         else:                                                  # R.A.
             for i in range(nrows):
-                angstrlist[i] = angstrlist[i].replace(' ', ':')        
+                angstrlist[i] = angstrlist[i].replace(' ', ':')
 
         # Do first conversion to get unit.
         try:
@@ -493,7 +493,7 @@ def get_num_from_str(fstr, wanted="float"):
 
     wanted: an optional label for the type of number you wanted.
             Only used for distinguishing error messages.
-            
+
     Example:
     >>> from JPLephem_reader import get_num_from_str
     >>> get_num_from_str('  Sidereal rot. period  =    58.6462 d  ')
@@ -591,13 +591,13 @@ def datestrs_to_MJDs(cdsdict):
 
     # Convert to FITS format, otherwise qa.totime() will silently drop the hours.
     datestrlist = [d.replace(' ', 'T') for d in datestrlist]
-    
+
     timeq = {}
     # Do first conversion to get unit.
     firsttime = qa.totime(datestrlist[0])
     timeq['unit'] = firsttime['unit']
     timeq['value'] = [firsttime['value']]
-    
+
     for datestr in datestrlist[1:]:
         timeq['value'].append(qa.totime(datestr)['value'])
 
@@ -634,7 +634,7 @@ def ephem_dict_to_table(fmdict, tablepath='', prefix=''):
     if not tablepath:
         tablepath = construct_tablepath(fmdict, prefix)
         print("Writing to", tablepath)
-       
+
     # safe gaurd from zapping current directory by dict_to_table()
     if tablepath=='.' or tablepath=='./' or tablepath.isspace():
         raise Exception("Invalid tablepath: "+tablepath)
@@ -646,7 +646,7 @@ def ephem_dict_to_table(fmdict, tablepath='', prefix=''):
         outdict = fmdict.copy() # Yes, I want a shallow copy.
         #kws = fmdict.keys()
         # reorder the keywords
-        okws=['VS_CREATE','VS_DATE','VS_TYPE', 'VS_VERSION', 'NAME', 'MJD0', 'dMJD', 
+        okws=['VS_CREATE','VS_DATE','VS_TYPE', 'VS_VERSION', 'NAME', 'MJD0', 'dMJD',
               'GeoDist', 'GeoLat', 'GeoLong', 'obsloc', 'posrefsys','earliest','latest',
               'radii','meanrad','orb_per','data']
         oldkws = list(fmdict.keys())
@@ -655,7 +655,7 @@ def ephem_dict_to_table(fmdict, tablepath='', prefix=''):
             if oldkws.count(ik):
               kws.append(ik)
               oldkws.remove(ik)
-        kws+=oldkws 
+        kws+=oldkws
         kws.remove('data')
         collist = list(outdict['data'].keys())
 
@@ -676,7 +676,7 @@ def ephem_dict_to_table(fmdict, tablepath='', prefix=''):
             if c in collist:
                 collist.remove(c)
                 collist.insert(0, c)
-        
+
         clashing_cols = [c for c in collist if c in kws]
         if clashing_cols:
             raise ValueError('The input dictionary lists ' + ', '.join(clashing_cols) + ' as both keyword(s) and column(s)')

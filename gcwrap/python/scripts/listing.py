@@ -9,11 +9,11 @@ import os, sys, re, math, decimal
 #=============================================================================
 # METHOD: compare
 #
-# Compare the listvis output (test) with the listvis STANDARD.  
+# Compare the listvis output (test) with the listvis STANDARD.
 #
 # Parameters:
 #   test     = list of strings
-#   STANDARD = list of strings.  
+#   STANDARD = list of strings.
 #
 def compare(test, standard):
     testFile = open(test,'r')
@@ -63,7 +63,7 @@ def diffFiles(testOut, standardOut, prefix=""):
 def runTests(test, standard, precision, prefix):
 
     equal = True
-    
+
     # Test metadata
     print("  1. Checking that metadata agree.")
     if (diffMetadata(test,standard,prefix=prefix)):
@@ -71,7 +71,7 @@ def runTests(test, standard, precision, prefix):
     else:
         print("  Metadata do not agree!")
         equal = False
-    
+
     # Test data (floats)
     print("  2. Checking that data agree to within allowed imprecision...")
     print("     Allowed visibility imprecision is " + precision)
@@ -88,7 +88,7 @@ def runTests(test, standard, precision, prefix):
 #=============================================================================
 # METHOD: diffMetadata
 #
-# Compare all metadata.  Actually, this compares all non-float, non-space 
+# Compare all metadata.  Actually, this compares all non-float, non-space
 # data in the two files passed by filename.
 #
 # Parameters:
@@ -105,7 +105,7 @@ def diffMetadata(testOut, standardOut, prefix=""):
     unwanted = ((re.compile(r"[ |]([+-]?[0-9]*\.[0-9]+)"), 'x'), # floats
                 (re.compile(r' '),                          ''), # spaces
                 (re.compile(r'-+'),                       '-+')) # dashes
-    
+
     def filter_out_unwanted(filename, unwanted):
         """
         Given a filename and a tuple of (pattern, substitution)
@@ -121,14 +121,14 @@ def diffMetadata(testOut, standardOut, prefix=""):
             newList.append(filtered)
         fileobj.close()
         return newList
-            
+
     testList = filter_out_unwanted(testOut, unwanted)
     stndList = filter_out_unwanted(standardOut, unwanted)
 
     # If everything after filtering is equal, return True
     if testList == stndList:
         return True
-    
+
     # else... do the rest
     print("  - Writing differences to ", diffOut)
     temp = sys.stdout
@@ -138,26 +138,26 @@ def diffMetadata(testOut, standardOut, prefix=""):
     countDiff = 0 # Count number of different lines
 
     nlines = min(len(testList),len(stndList))
- 
+
     #for linenum in range(len(testList)):
     for linenum in range(nlines):
         if ( testList[linenum] != stndList[linenum] ):
             countDiff += 1
-            print("- (line ", linenum, ") Non-float data differs:") 
+            print("- (line ", linenum, ") Non-float data differs:")
             printDiff(stndList[linenum],testList[linenum])
 
     ndiffl = 0
     if nlines < len(stndList):
       ndiffl = len(stndList)-nlines
-      print(" missing %s lines" % ndiffl) 
+      print(" missing %s lines" % ndiffl)
     if nlines == len(stndList):
       ndiffl = len(testList)-nlines
-      print(" extra %s lines" % ndiffl) 
+      print(" extra %s lines" % ndiffl)
 
     countDiff += ndiffl
     print("")
     print("SUMMARY (diffMetadata): ")
-    print(" %10i = Total number of lines with non-float differences" % countDiff) 
+    print(" %10i = Total number of lines with non-float differences" % countDiff)
 
     # Restore stdout
     #sys.stdout = sys.__stdout__
@@ -175,7 +175,7 @@ def diffMetadata(testOut, standardOut, prefix=""):
 def diffAmpPhsFloat(test, standard, prefix="", precision="1e-6"):
 
     # Preliminary messages
-    floatOut = prefix + '.diffAmpPhsFloat'  
+    floatOut = prefix + '.diffAmpPhsFloat'
     print("  - Comparing float content of output.")
     #print "  - Assuming all floats are Amplitude-Phase pairs!"
     print("  - Writing to " + floatOut)
@@ -206,7 +206,7 @@ def diffAmpPhsFloat(test, standard, prefix="", precision="1e-6"):
     precision = decimal.Decimal(precision) # Allowed precision
 
     # For each line, compare Amp-Phs in both files
-    
+
     for linenum in range(min(10, len(testList))):
         # Generate a list of all floats
         tFloatList = floatPat.findall(testList[linenum])
@@ -220,17 +220,17 @@ def diffAmpPhsFloat(test, standard, prefix="", precision="1e-6"):
             printDiff(standardList[linenum],testList[linenum])
             continue
         # Number of floats per line should be even
-        #elif ( len(tFloatList) % 2 ): 
+        #elif ( len(tFloatList) % 2 ):
             #print "- (line ", linenum, ") Odd number of floats! All must be Amp-Phs pairs!"
         #    continue
             #print "stopping listing.diffAmpPhsFloat now!"
-            #return 
-        
+            #return
+
         # Compare all Amp-Phs pairs on this line
         for i in range(len(tFloatList)/2):
 
             # If the Amp or Phs not exactly equal
-            if ( ( tFloatList[i*2] != sFloatList[i*2] ) or 
+            if ( ( tFloatList[i*2] != sFloatList[i*2] ) or
                  ( tFloatList[i*2+1] != sFloatList[i*2+1] ) ):
 
                 countUnequal += 1
@@ -267,7 +267,7 @@ def diffAmpPhsFloat(test, standard, prefix="", precision="1e-6"):
                     num1 = remove_exp(num1)
                     sigFigs = digitPattern.findall(num1)
                     if (len(sigFigs) < minSigFigs): minSigFigs = len(sigFigs)
-                                    
+
                 # Compute difference of real and imaginary parts
                 re_diff = (sre - tre)
                 im_diff = (sim - tim)
@@ -275,17 +275,17 @@ def diffAmpPhsFloat(test, standard, prefix="", precision="1e-6"):
                 # Compute the amplitude of the difference
                 amp_diff = str(math.sqrt( re_diff**2 + im_diff**2 ))
                 amp_diff = decimal.Decimal(amp_diff)
-                
+
                 # If necessary, reduce amp_diff to minimum sig figs
-                #   I do this by taking advantage of the decimal module, 
+                #   I do this by taking advantage of the decimal module,
                 #   which can output and input a tuple.
                 #   * I truncate the number. Rounding would be better,
                 #     I just have not implemented it yet.
                 adTup = amp_diff.as_tuple()
                 digits_adTup = len(adTup[1])
                 if (digits_adTup > minSigFigs):
-                    amp_diff = decimal.Decimal( (adTup[0], 
-                                                 adTup[1][0:minSigFigs], 
+                    amp_diff = decimal.Decimal( (adTup[0],
+                                                 adTup[1][0:minSigFigs],
                                                  adTup[2]+(digits_adTup-minSigFigs) ) )
 
                 # Keep track of the maximum Amp difference between both files
@@ -296,7 +296,7 @@ def diffAmpPhsFloat(test, standard, prefix="", precision="1e-6"):
                     if (countBigDif == 0): printDiff("","",[standard,test]) # Print header info
                     equal = False # test evaluates false
                     countBigDif += 1
-                    print("- (line ", linenum, ") Amp,Phs differ by more than precision:") 
+                    print("- (line ", linenum, ") Amp,Phs differ by more than precision:")
                     printDiff(standardList[linenum],testList[linenum])
                     print("  (Amp,Phs): (", samp,",",sphs_deg,") , (",tamp,",",tphs_deg,")")
                     print("  ( Re, Im): (", sre ,",",sim ,") , (",tre ,",",tim ,")")
@@ -318,11 +318,11 @@ def diffAmpPhsFloat(test, standard, prefix="", precision="1e-6"):
     #sys.stdout = sys.__stdout__
     sys.stdout.close()
     sys.stdout = temp
-    
+
     # cleanup
     testFile.close()
     standardFile.close()
-    
+
     return equal
 
 #=============================================================================
@@ -350,7 +350,7 @@ def printDiff(s1, s2, filenames=[]):
 # Parameters:
 #   outputFile = string; file to be removed
 def removeOut(outputFile):
-    if (os.path.exists(outputFile)): 
+    if (os.path.exists(outputFile)):
         print("Removing old test file " + outputFile)
         os.remove(outputFile)
 #=============================================================================
@@ -370,20 +370,20 @@ def removeOut(outputFile):
 #   msname = list of strings; Names of Tables that will be created
 #
 def resetData(msname, automate=True):
-    
+
     reset_for_test = " "
 
     # If running in automated mode, always refresh data
-    if (automate): 
+    if (automate):
         return True
-    
+
     # Does the data already exist?
     for dataFile in msname:
         if (not os.path.exists(dataFile)): return True
 
     # If data exists, prompt for user direction
-    while ( ( reset_for_test[0] != "y" and 
-              reset_for_test[0] != "n" and 
+    while ( ( reset_for_test[0] != "y" and
+              reset_for_test[0] != "n" and
               reset_for_test[0] != "\n" ) ):
         for dataFile in msname:
             sys.stdout.write("  " + dataFile+"\n")
@@ -416,7 +416,7 @@ def listcalFix(listcalOut):
 # repository and we want to keep these files small.
 #
 # Parameters:
-#   N = integer; beginning with line one, print every Nth line of the 
+#   N = integer; beginning with line one, print every Nth line of the
 #                 original file
 def reduce(filename, N):
 
@@ -429,10 +429,10 @@ def reduce(filename, N):
     rangeL = list(range(len(listing)))
 
     # picks holds the indices of listing that I want to keep
-    def f(x): 
+    def f(x):
         return x % (N-1) == 0
     picks = list(filter(f,rangeL))
-    
+
     reducedListing = [ listing[i] for i in picks ]
 
     #for i in range(20): print reducedListing[i]
@@ -467,14 +467,14 @@ def reduce(filename, N):
 ##     print "Sign difference = ", signDiff
 ##     print "Absolute difference = ", absDiff
 ##     print "Relative difference = ", relDiff
-## 
+##
 ##     diffDict['diffOrd'].append(diffOrd)
 ##     diffDict['digits'].append(digits)
 ##     diffDict['signDiff'].append(signDiff)
 ##     diffDict['absDiff'].append(absDiff)
 ##     diffDict['relDiff'].append(relDiff)
-## 
-##     return 
-## 
+##
+##     return
+##
 ## #=============================================================================
 

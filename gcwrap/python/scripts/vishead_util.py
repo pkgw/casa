@@ -20,14 +20,14 @@ def getput_keyw(mode, vis, key, hdindex, hdvalue='', hdref=None):
             if i < 0:
                 # allowed by python, but...
                 raise Exception("Illegal index " + str(i))
-            
+
             value = tb.getcell(col, i)  # throws exception if index too large
         except (ValueError, TypeError):   # This is almost certainly from
             if(tb.isvarcol(col)):         # int('') or int(None).  Default
                 value = tb.getvarcol(col) # to returning the full column.
             else:
                 value = tb.getcol(col)
-            
+
     elif mode == 'put':
         if(tb.isvarcol(col)):
             tb.close()
@@ -60,11 +60,11 @@ def getput_keyw(mode, vis, key, hdindex, hdvalue='', hdref=None):
                 # therefore let c still be a numpy array
 
                 c[i] = hdvalue
-                
+
                 tb.putcol(col, c)
             else:
                 tb.putcol(col, hdvalue)  # hdvalue expected to be an array
-                                
+
         value = None
     else:
         tb.close()
@@ -72,7 +72,7 @@ def getput_keyw(mode, vis, key, hdindex, hdvalue='', hdref=None):
 
     #print "Will return", value
 
-    tb.close()    
+    tb.close()
     return value, colinfo
 
 
@@ -122,14 +122,14 @@ def getrefunits(d, defunits=None):
     except:
         print("d =", d)
     return rsys, d.get('QuantumUnits', defunits)
-    
+
 def valref2direction_strs(valreftuple):
     """
     Splits a (values, ref_desc) pair and passes it on to dict2direction_strs().
     """
     coordsys, angunits = getrefunits(valreftuple[1], ('rad', 'rad'))
     return dict2direction_strs(valreftuple[0], csys=coordsys, units=angunits)
-    
+
 def secArray2localDate(secArray, timesys='UTC', timeunit='s'):
     """
     Given an array containing a float assumed to be timesys timeunits, returns a

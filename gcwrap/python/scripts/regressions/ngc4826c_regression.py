@@ -27,7 +27,7 @@ print('--Feather--')
 #    NRAO 12m OTF image (Moment 0): n4826_12mmom0.im
 default('feather')
 feather('n4826_tfeather.im',datapath+'n4826_mom0.im',datapath+'n4826_12mmom0.im')
-feathertime = time.time() 
+feathertime = time.time()
 #combo: Max:1.533498e+02        Flux:1.523515e+03 Jy    rms:1.187669e+01
 #Pcombo:Max:1.511604e+02        Flux:2.016790e+03 Jy    rms:1.873132e+01
 #BIMA:  Max:1.627327e+02        Flux:1.035314e+04 Jy    rms:1.587101e+01
@@ -129,7 +129,7 @@ out_ia.close()
 #### deconvolve SD image with a guess of PB with msclean
 dc.open('n4826_t12motf.chregrid.im', psf='')
 dc.makegaussian('n12m_gaussian.im' ,bmaj='55arcsec', bmin='55arcsec', bpa='0deg',
-		normalize=false)
+                normalize=false)
 dc.close()
 dc.open('n4826_t12motf.chregrid.im', psf='n12m_gaussian.im')
 dc.setscales(scalemethod='uservector', uservector=[10., 40.])
@@ -292,7 +292,7 @@ print(status[diff_f2 < 0.05], 'Feather 2 image max test', file=logfile)
 print('*--  Feather 2: Image max '+str(feather2_immax)+','+str(f2_max), file=logfile)
 print(status[diff_f3 < 0.05], 'Feather 3 image max test', file=logfile)
 print('*--  Feather 3: Image max '+str(feather3_immax)+','+str(f3_max), file=logfile)
-print(status[diff_jc1 < 0.05], 'Joint Deconvolution 1 image max test', file=logfile) 
+print(status[diff_jc1 < 0.05], 'Joint Deconvolution 1 image max test', file=logfile)
 print('*--  Joint Decon1: Image max '+str(jc1_immax)+','+str(jc1_max), file=logfile)
 print(status[diff_jc2 < 0.05], 'Joint Deconvolution 2 image max test', file=logfile)
 print('*--  Joint Decon2: Image max '+str(jc2_immax)+','+str(jc2_max), file=logfile)
@@ -314,20 +314,20 @@ if (diff_f1 < 0.05 and
     diff_f1f < 0.05 and
     diff_f2f < 0.05 and
     diff_f3f < 0.05 and
-    diff_jc1f < 0.05): 
-	regstate=True
-	print('---', file=logfile)
-	print('Passed Regression test for NGC4826', file=logfile)
-	print('---', file=logfile)
-	print('')
-	print('Regression PASSED')
-	print('')
-else: 
-	regstate=False
-	print('')
-	print('Regression FAILED')
-	print('')
-	print('----FAILED Regression test for NGC4826', file=logfile)
+    diff_jc1f < 0.05):
+        regstate=True
+        print('---', file=logfile)
+        print('Passed Regression test for NGC4826', file=logfile)
+        print('---', file=logfile)
+        print('')
+        print('Regression PASSED')
+        print('')
+else:
+        regstate=False
+        print('')
+        print('Regression FAILED')
+        print('')
+        print('----FAILED Regression test for NGC4826', file=logfile)
 print('*********************************', file=logfile)
 
 print('', file=logfile)

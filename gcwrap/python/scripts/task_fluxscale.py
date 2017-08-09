@@ -63,14 +63,14 @@ def fluxscale(vis=None,caltable=None,fluxtable=None,reference=None,transfer=None
 
        gainthreshold -- % deviation threshold from the median gain to be used flux scaling derivation
 
-       antenna -- Select antennas to be used to derive flux scaling 
+       antenna -- Select antennas to be used to derive flux scaling
 
        timerange -- Select timerage to be used to derive flux scaling with given antenna selection
 
        scan -- Select scans to be used to derived flux scaling with given antenna selection
 
-       incremental -- Create an incremental caltable containing only the gain correction 
-                    factors. 
+       incremental -- Create an incremental caltable containing only the gain correction
+                    factors.
                default: False; (older behavior, produces flux scaled gain table)
 
        fitorder -- the order of spectral fitting when solutions for multiple spws are available
@@ -87,7 +87,7 @@ def fluxscale(vis=None,caltable=None,fluxtable=None,reference=None,transfer=None
                mycb.open(filename=vis,compress=False,addcorr=False,addmodel=False)
                output = mycb.fluxscale(tablein=caltable,tableout=fluxtable,reference=reference,
                               transfer=transfer,listfile=listfile,append=append,
-			      refspwmap=refspwmap,gainthreshold=gainthreshold,antenna=antenna,
+                              refspwmap=refspwmap,gainthreshold=gainthreshold,antenna=antenna,
                               timerange=timerange,scan=scan,
                               incremental=incremental,fitorder=fitorder,display=display)
                mycb.close()
@@ -112,44 +112,44 @@ def fluxscale(vis=None,caltable=None,fluxtable=None,reference=None,transfer=None
 
 
 def writeResultsHistory(myms, vis, mycasalog, indict):
-    """                                                 
+    """
       write returned output of fluxscale to HISTORY subtable of the parent ms
-    """                                                                      
-    isOpen = False                                                           
-    try:                                                                     
-        myms.open(vis)                                                       
-        isOpen = True                                                        
+    """
+    isOpen = False
+    try:
+        myms.open(vis)
+        isOpen = True
 
         mainkeys = list(indict.keys())
 
         spwids = indict['spwID']
-        freqs = indict['freq']  
+        freqs = indict['freq']
         msg0 = "Fluxscale results *****"
         myms.writehistory(message=msg0, origin='fluxscale')
-        for ky in mainkeys:                                
-            try:                                           
-                fieldid = int(ky)                          
-            except:                                        
-                fieldid = None                             
+        for ky in mainkeys:
+            try:
+                fieldid = int(ky)
+            except:
+                fieldid = None
 
             if fieldid!=None:
                 fdict = indict[ky]
-                fname = fdict['fieldName']   
-                fitF = fdict['fitFluxd']     
+                fname = fdict['fieldName']
+                fitF = fdict['fitFluxd']
                 fitFerr = fdict['fitFluxdErr']
                 fitRefFreq = fdict['fitRefFreq']
-                spix = fdict['spidx']           
-                spixerr = fdict['spidxerr']     
-                msg1 = fname+"(field id="+ky+") " 
+                spix = fdict['spidx']
+                spixerr = fdict['spidxerr']
+                msg1 = fname+"(field id="+ky+") "
                 myms.writehistory(message=msg1, origin='fluxscale')
-                for ispw in spwids:                                
-                    strspw = str(ispw)                             
-                    spwfdict = fdict[strspw]                       
-                    flux = spwfdict['fluxd']                       
-                    fluxerr = spwfdict['fluxdErr']                 
-                    freq = freqs[ispw]                             
-                    fvalbase = 1.0                                 
-                    funit=''                                       
+                for ispw in spwids:
+                    strspw = str(ispw)
+                    spwfdict = fdict[strspw]
+                    flux = spwfdict['fluxd']
+                    fluxerr = spwfdict['fluxdErr']
+                    freq = freqs[ispw]
+                    fvalbase = 1.0
+                    funit=''
                     if freq>1.e9:
                         fvalbase = 1.e9
                         funit = 'GHz'

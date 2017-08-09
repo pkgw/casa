@@ -18,5 +18,5 @@ casa['build'] = {  'time': casadef.build_time,
 casa['source'] = { 'url': casadef.subversion_url,
                    'revision': casadef.subversion_revision }
 ###########################################################################
-         
+
 procmgr = _procmgr( )

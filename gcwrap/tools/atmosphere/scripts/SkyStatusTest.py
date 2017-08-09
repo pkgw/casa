@@ -35,11 +35,11 @@ at.initSpectralWindow(nb,fC,fW,fR)
 at.setUserWH2O(qa.quantity(1.0,'mm'))
 print("getUserWH2O()=", (at.getUserWH2O())['value'][0], (at.getUserWH2O())['unit'])
 for i in range(at.getNumSpectralWindows()):
-	for j in range(at.getNumChan(i)):
-		print("Frequency: ", at.getChanFreq(j,i)['value'][0], at.getChanFreq(j,i)['unit'])
-		print("Wet opacity:", at.getWetOpacity(j,i)['value'][0], at.getWetOpacity(j,i)['unit'], " for ", at.getUserWH2O()['value'][0], at.getUserWH2O()['unit'], " H2O")
-		print("Dry opacity:", at.getDryOpacity(j,i), " nepers")
-		print("Sky brightness:", at.getAverageTebbSky(j)['value'][0], at.getAverageTebbSky(j)['unit'])
+        for j in range(at.getNumChan(i)):
+                print("Frequency: ", at.getChanFreq(j,i)['value'][0], at.getChanFreq(j,i)['unit'])
+                print("Wet opacity:", at.getWetOpacity(j,i)['value'][0], at.getWetOpacity(j,i)['unit'], " for ", at.getUserWH2O()['value'][0], at.getUserWH2O()['unit'], " H2O")
+                print("Dry opacity:", at.getDryOpacity(j,i), " nepers")
+                print("Sky brightness:", at.getAverageTebbSky(j)['value'][0], at.getAverageTebbSky(j)['unit'])
 print("")
 wh2o=qa.quantity(0.45,'mm')
 print("(INPUT CHANGE) water vapor column:", wh2o['value'], wh2o['unit'])
@@ -72,13 +72,13 @@ print("water vapor column: ", at.getUserWH2O()['value'][0], at.getUserWH2O()['un
 print("Air mass: ", at.getAirMass())
 print("")
 for i in range(at.getNumChan(0)):
-	print("Freq:", at.getChanFreq(i)['value'][0], at.getChanFreq(i)['unit'], "/ T_EBB=", at.getTebbSky(i)['value'][0], at.getTebbSky(i)['unit'])
+        print("Freq:", at.getChanFreq(i)['value'][0], at.getChanFreq(i)['unit'], "/ T_EBB=", at.getTebbSky(i)['value'][0], at.getTebbSky(i)['unit'])
 
 at.setAirMass(1.0)
 at.setUserWH2O(qa.quantity(0.45,"mm"))
 print("water vapor column:", at.getUserWH2O()['value'][0], at.getUserWH2O()['unit'])
 print("Air mass          :", at.getAirMass())
 for i in range(at.getNumChan(0)):
-	print("Freq: ", at.getChanFreq(i)['value'][0], at.getChanFreq(i)['unit'], "/ T_EBB=", at.getTebbSky(i)['value'][0], at.getTebbSky(i)['unit'])
+        print("Freq: ", at.getChanFreq(i)['value'][0], at.getChanFreq(i)['unit'], "/ T_EBB=", at.getTebbSky(i)['value'][0], at.getTebbSky(i)['unit'])
 
 exit()

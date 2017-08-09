@@ -4,11 +4,11 @@ from taskinit import *
 from parameter_check import *
 
 def clearstat():
-	"""Clear all read/write locks on tables. This can be used if a task has
-	indicated that it is trying to get a lock on a file.
+        """Clear all read/write locks on tables. This can be used if a task has
+        indicated that it is trying to get a lock on a file.
 
-	"""
-	try:
-		tb.clearlocks()
-	except Exception as instance:
-		print('*** Error ***',instance)
+        """
+        try:
+                tb.clearlocks()
+        except Exception as instance:
+                print('*** Error ***',instance)

@@ -76,7 +76,7 @@ def specflux(
                     "WARN"
                 )
         rec = myia.getprofile(
-            axis=axis, function="flux", region=reg, 
+            axis=axis, function="flux", region=reg,
             mask=mask, unit=unit, stretch=stretch
         )
         xunit = rec['xUnit']
@@ -120,7 +120,7 @@ def specflux(
             agg_title = "Sum"
         if len(real_func) > 0:
             zz = myia.getprofile(
-                axis=axis, function=real_func, region=reg, 
+                axis=axis, function=real_func, region=reg,
                 mask=mask, unit=unit, stretch=stretch
             )
             vals = zz['values']
@@ -138,13 +138,13 @@ def specflux(
             freq_unit = xunit
         if need_vel:
             vels = myia.getprofile(
-                axis=axis, function="flux", region=reg, 
+                axis=axis, function="flux", region=reg,
                 mask=mask, unit="km/s", stretch=stretch
             )['coords']
             vel_unit = "km/s"
         if need_freq:
             freqs = myia.getprofile(
-                axis=axis, function="flux", region=reg, 
+                axis=axis, function="flux", region=reg,
                 mask=mask, unit="MHz", stretch=stretch
             )['coords']
             freq_unit = "MHz"
@@ -162,7 +162,7 @@ def specflux(
         header += " " + flux_col + "\n"
         planes = rec['planes']
         npix = rec['npix']
-            
+
         for i in range(len(rec['values'])):
             header += "%9d %25d " % (planes[i], npix[i])
             header += freq_spec % (freqs[i]) + " "

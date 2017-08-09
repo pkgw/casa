@@ -48,7 +48,7 @@
 #
 # <synopsis>
 # splattotable converts a splatalogue spectral line list to a CASA table. It is built on sl.splattotable.
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 # newsl = splattotable("mysplatlist.txt", "mynewsl.tbl", true)

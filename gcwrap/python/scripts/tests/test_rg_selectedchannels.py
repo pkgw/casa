@@ -45,20 +45,20 @@
 #
 # <synopsis>
 # Test the rg.selectectedchannels() method
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_rg_selectectedchannels[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the rg.selectectedchannels() method to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -71,10 +71,10 @@ from __main__ import *
 import unittest
 
 class rg_selectedchannels_test(unittest.TestCase):
-    
+
     def setUp(self):
         pass
-    
+
     def tearDown(self):
         self.assertTrue(len(tb.showcache()) == 0)
 
@@ -89,7 +89,7 @@ class rg_selectedchannels_test(unittest.TestCase):
             "range=[1415MHz, 1415.1MHz]", shape
         )
         myia.done()
-        
+
     def test_no_overlap(self):
         """ Test selection outside of image"""
         myia = iatool()
@@ -101,7 +101,7 @@ class rg_selectedchannels_test(unittest.TestCase):
             "range=[1315MHz, 1315.1MHz]", shape
         )
         myia.done()
-        
+
     def test_range(self):
         """ Test range"""
         myia = iatool()
@@ -114,13 +114,13 @@ class rg_selectedchannels_test(unittest.TestCase):
         self.assertTrue((chans == [10, 11, 12]).all())
         chans = rg.selectedchannels("range=[1415.002MHz, 1415MHz]", shape)
         self.assertTrue((chans == [10, 11, 12]).all())
-        
+
         chans = rg.selectedchannels("range=[1414MHz,1415.002MHz]", shape)
         self.assertTrue((chans == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]).all())
-        
+
         chans = rg.selectedchannels("range=[1415MHz,1415.2MHz]", shape)
         self.assertTrue((chans == [10, 11, 12, 13, 14, 15, 16, 17, 18, 19]).all())
-         
-         
+
+
 def suite():
     return [rg_selectedchannels_test]

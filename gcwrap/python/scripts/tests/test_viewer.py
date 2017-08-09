@@ -33,10 +33,10 @@ class viewer_test1(unittest.TestCase):
         default(viewer)
         if (os.path.exists(self.img)):
             os.system('rm -rf ' + self.img)
-            
+
         datapath = os.environ.get('CASAPATH').split()[0] + '/data/demo/Images/'
         shutil.copytree(datapath+self.img, self.img)
-    
+
     def tearDown(self):
         if (os.path.exists(self.img)):
             os.system('rm -rf ' + self.img)
@@ -59,7 +59,7 @@ class viewer_test1(unittest.TestCase):
         outfile='test01.png'
         viewer(infile=self.img,outfile=outfile,gui=False)
         self.assertEqual(self.getchecksum(outfile),'e55d704ed0694d59dbf1fb0c01f299f8')
-        
+
     def test2(self):
         '''Viewer 2: create png (default size, channel 3)'''
         outfile='test02.png'
@@ -71,13 +71,13 @@ class viewer_test1(unittest.TestCase):
         outfile='test03.png'
         viewer(infile=self.img,outfile=outfile,channel=3,zoom=2,gui=False)
         self.assertEqual(self.getchecksum(outfile),'994937a15c8e0949bf640aa575a04bd7')
-        
+
     def test4(self):
         '''Viewer 4: create png (default size, channel 3, outscale=3)'''
         outfile='test04.png'
         viewer(infile=self.img,outfile=outfile,channel=3,outscale=3.0,gui=False)
         self.assertEqual(self.getchecksum(outfile),'1cc14fc0a82deb87755b5f45c0dcc352')
-        
+
 
 def suite():
     ## test requires X11 virtual frame buffer...

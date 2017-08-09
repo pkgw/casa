@@ -19,7 +19,7 @@ class sdlistold_test(unittest.TestCase):
     test01   --- valid input filename and save output as a text file
     test02   --- test overwrite=True
     test03   --- test overwrite=False
-    test04   --- verify correct handling of flag information 
+    test04   --- verify correct handling of flag information
     """
     # Data path of input/output
     datapath=os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/sdlist/'
@@ -68,7 +68,7 @@ class sdlistold_test(unittest.TestCase):
         self.assertEqual(result,None,
                          msg="The task returned '"+str(result)+"' instead of None")
         self._compareOutFile(outfile,self.datapath+self.reffile)
-        
+
     def test02(self):
         """Test 2: Test overwrite=True"""
         tid = "02"
@@ -86,7 +86,7 @@ class sdlistold_test(unittest.TestCase):
         self.assertEqual(result,None,
                          msg="The task returned '"+str(result)+"' instead of None")
         self._compareOutFile(outfile,self.datapath+self.reffile)
-        
+
     def test03(self):
         """Test 3: Test overwrite=False"""
         tid = "03"

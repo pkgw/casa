@@ -11,7 +11,7 @@ def sdaverageold(infile, antenna, field, spw, scan, pol, timeaverage, tweight, s
         worker.initialize()
         worker.execute()
         worker.finalize()
-        
+
 
 class sdaverage_worker(sdutil.sdtask_template):
     def __init__(self, **kwargs):
@@ -46,7 +46,7 @@ class sdaverage_worker(sdutil.sdtask_template):
         elif self.kernel!='hanning' and self.kwidth<=0:
             errstr = "kernel should be > 0"
             raise Exception(errstr)
-    
+
     def execute(self):
         # set various attributes to self.scan
         self.set_to_scan()
@@ -117,4 +117,4 @@ class sdsmooth_engine(sdutil.sdtask_engine):
         if ( abs(self.plotlevel) > 0 ):
             pltfile=self.project+'_smspec.eps'
             sdutil.plot_scantable(self.worker.scan, pltfile, self.plotlevel, 'Smoothed spectra')
-        
+

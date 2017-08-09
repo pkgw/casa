@@ -21,10 +21,10 @@ try:
     from .testutils import copytree_ignore_subversion
 except:
     from tests.testutils import copytree_ignore_subversion
-    
+
 from sdutil import tbmanager
-    
-# to rethrow exception 
+
+# to rethrow exception
 import inspect
 g = stack_frame_find( )
 g['__rethrow_casa_exceptions'] = True
@@ -33,7 +33,7 @@ import asap as sd
 
 #
 # Unit test of sdcal task.
-# 
+#
 
 ###
 # Base class for sdcal unit test
@@ -45,24 +45,24 @@ class sdcal2old_unittest_base:
     taskname='sdcal2old'
     datapath=os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/sdcal2/'
     tolerance=1.0e-15
-    
+
     def _checkfile(self, name):
         isthere=os.path.exists(name)
         self.assertEqual(isthere,True,
                          msg='output file %s was not created because of the task failure'%(name))
-        
+
 
     def _getspectra( self, name ):
         isthere=os.path.exists(name)
         self.assertEqual(isthere,True,
-                         msg='file %s does not exist'%(name))        
+                         msg='file %s does not exist'%(name))
         tb.open(name)
         sp=tb.getcol('SPECTRA').transpose()
         tb.close()
         return sp
 
     def _checkshape( self, sp, ref ):
-        # check array dimension 
+        # check array dimension
         self.assertEqual( sp.ndim, ref.ndim,
                           msg='array dimension differ' )
         # check number of spectra
@@ -79,7 +79,7 @@ class sdcal2old_unittest_base:
         if len(idx) > 0:
             diff[idx]=sp[idx]
         return diff
-        
+
 
 ###
 # Base class for calibration test
@@ -157,13 +157,13 @@ class sdcal2old_caltest_base(sdcal2old_unittest_base):
                     diff=self._diff(sp,spref)
                     self.assertTrue(numpy.all(diff < 0.01),
                                     msg='Tsys is wrong (irow=%s): maxdiff=%s'%(irow,diff.max()) )
-                
+
         except Exception as e:
             raise e
         finally:
             tout.close()
             tref.close()
-        
+
 
 ###
 # Test if the task raises exception properly
@@ -209,7 +209,7 @@ class sdcal2old_exceptions(sdcal2old_unittest_base,unittest.TestCase):
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
         """
-        
+
     def test_exception01(self):
         """test_exception01: apply calibration without skytable"""
         try:
@@ -364,7 +364,7 @@ class sdcal2old_skycal_ps(sdcal2old_caltest_base,unittest.TestCase):
         sdcal2old(infile=self.rawfile,calmode=self.calmode,outfile=self.outfile)
 
         self._comparecal(self.outfile, self.skytable)
-        
+
     def test_skycal_ps01(self):
         """test_skycal_ps01: Sky calibration for calmode='ps' (ALMA), overwrite existing table"""
         if (not os.path.exists(self.skytable)):
@@ -380,7 +380,7 @@ class sdcal2old_skycal_ps(sdcal2old_caltest_base,unittest.TestCase):
         self.assertTrue(os.path.exists(defaultname),
                         msg='Failed to generate default outfile name.')
         self._comparecal(defaultname, self.skytable)
-        
+
 ###
 # Test sky calibration (calmode='otf')
 ###
@@ -415,7 +415,7 @@ class sdcal2old_skycal_otf(sdcal2old_caltest_base,unittest.TestCase):
         sdcal2old(infile=self.rawfile,calmode=self.calmode,outfile=self.skytable)
 
         self._comparecal(self.skytable, self.skytable_ref)
-        
+
     def test_skycal_otf01(self):
         """test_skycal_otf01: Sky calibration for calmode='otf' (ALMA), overwrite existing table"""
         if (not os.path.exists(self.skytable_ref)):
@@ -437,7 +437,7 @@ class sdcal2old_skycal_otf(sdcal2old_caltest_base,unittest.TestCase):
         sdcal2old(infile=self.rawfile,calmode=self.calmode,outfile=self.outfile)
 
         self._compare(self.outfile, self.outfile_ref, False)
-       
+
 ###
 # Test sky calibration (calmode='otfraster')
 ###
@@ -472,7 +472,7 @@ class sdcal2old_skycal_otfraster(sdcal2old_caltest_base,unittest.TestCase):
         sdcal2old(infile=self.rawfile,calmode=self.calmode,outfile=self.outfile)
 
         self._comparecal(self.outfile, self.skytable_ref)
-        
+
     def test_skycal_otfraster01(self):
         """test_skycal_otfraster01: Sky calibration for calmode='otfraster' (ALMA), overwrite existing table"""
         if (not os.path.exists(self.skytable_ref)):
@@ -480,7 +480,7 @@ class sdcal2old_skycal_otfraster(sdcal2old_caltest_base,unittest.TestCase):
         sdcal2old(infile=self.rawfile,calmode=self.calmode,outfile=self.outfile,overwrite=True)
 
         self._comparecal(self.outfile, self.skytable_ref)
-        
+
     def test_skycal_otfraster02(self):
         """test_skycal_otfraster02: Sky calibration for calmode='otfraster' (ALMA), apply existing sky table"""
         self.calmode='apply'
@@ -494,7 +494,7 @@ class sdcal2old_skycal_otfraster(sdcal2old_caltest_base,unittest.TestCase):
         sdcal2old(infile=self.rawfile,calmode=self.calmode,outfile=self.outfile)
 
         self._compare(self.outfile, self.outfile_ref, False)
-        
+
 ###
 # Test Tsys calibration (calmode='tsys')
 ###
@@ -510,7 +510,7 @@ class sdcal2old_tsyscal(sdcal2old_caltest_base,unittest.TestCase):
     tsystable=prefix+'.tsys'
     calmode='tsys'
     tsysspw='1'#[1]
-    
+
     def setUp(self):
         self.res=None
         for f in [self.rawfile, self.tsystable]:
@@ -529,7 +529,7 @@ class sdcal2old_tsyscal(sdcal2old_caltest_base,unittest.TestCase):
         sdcal2old(infile=self.rawfile,calmode=self.calmode,tsysspw=self.tsysspw,outfile=self.outfile)
 
         self._comparecal(self.outfile, self.tsystable, 'TSYS')
-        
+
     def test_tsyscal01(self):
         """test_tsyscal01: Tsys calibration, overwrite existing table"""
         if (not os.path.exists(self.tsystable)):
@@ -565,7 +565,7 @@ class sdcal2old_tsyscal_average(sdcal2old_caltest_base,unittest.TestCase):
     tsystable=prefix+'.tsysavg'
     calmode='tsys'
     tsysspw='1'#[1]
-    
+
     def setUp(self):
         self.res=None
         for f in [self.rawfile, self.tsystable]:
@@ -676,7 +676,7 @@ class sdcal2old_applycal(sdcal2old_caltest_base,unittest.TestCase):
     calmode='apply'
     tsysspw='1'#[1]
     spwmap={1:[5,6]}
-    
+
     def setUp(self):
         self.res=None
         for f in [self.rawfile, self.skytable, self.tsystable]:
@@ -698,7 +698,7 @@ class sdcal2old_applycal(sdcal2old_caltest_base,unittest.TestCase):
         sdcal2old(infile=self.rawfile,calmode=self.calmode,applytable=[self.skytable,self.tsystable],spwmap=self.spwmap,outfile=self.outfile)
 
         self._compare(self.outfile, self.reftables[0], True)
-        
+
     def test_applycal01(self):
         """test_applycal01: apply existing skytable (ps)"""
         sdcal2old(infile=self.rawfile,calmode=self.calmode,applytable=self.skytable,spwmap=self.spwmap,outfile=self.outfile)
@@ -757,7 +757,7 @@ class sdcal2old_test_selection(selection_syntax.SelectionSyntaxTest,
     """
     Test selection syntax. Selection parameters to test are:
     field, spw (no channel selection), scan, pol
-    
+
     Data used for this test are sd_analytic_type1-3.asap (raw data)
     and sd_analytic_type1-3_ref.asap (reference data).
 
@@ -775,11 +775,11 @@ class sdcal2old_test_selection(selection_syntax.SelectionSyntaxTest,
     applytable=[tsys_table,sky_table]
     spwmap={'20':[21],'22':[23],'24':[25]}
     field_prefix = 'M100__'
-    
+
     @property
     def task(self):
         return sdcal2old
-    
+
     @property
     def spw_channel_selection(self):
         return False
@@ -1063,7 +1063,7 @@ class sdcal2old_test_selection(selection_syntax.SelectionSyntaxTest,
         self._comparecal_with_selection(outname, tbsel)
 
     ####################
-    # spw 
+    # spw
     ####################
     def test_spw_id_default(self):
         #test spw selection (spw='')
@@ -1182,7 +1182,7 @@ class sdcal2old_test_selection(selection_syntax.SelectionSyntaxTest,
         sp=self._getspectra(name)
         spref=self._getspectra_selected(self.reffile, tbsel)
         self._checkshape( sp, spref )
-        
+
         for irow in range(sp.shape[0]):
             diff=self._diff(sp[irow],spref[irow])
             for i in range(len(diff)):
@@ -1199,7 +1199,7 @@ class sdcal2old_test_selection(selection_syntax.SelectionSyntaxTest,
     def _getspectra_selected( self, name, tbsel={} ):
         """
         Returns an array of spectra in rows selected in table.
-        
+
         name  : the name of scantable
         tbsel : a dictionary of table selection information.
                 The key should be column name and the value should be
@@ -1207,7 +1207,7 @@ class sdcal2old_test_selection(selection_syntax.SelectionSyntaxTest,
         """
         isthere=os.path.exists(name)
         self.assertEqual(isthere,True,
-                         msg='file %s does not exist'%(name))        
+                         msg='file %s does not exist'%(name))
         tb.open(name)
         if len(tbsel) == 0:
             sp=tb.getcol('SPECTRA').transpose()
@@ -1252,7 +1252,7 @@ class sdcal2old_flag_base(sdcal2old_caltest_base, unittest.TestCase):
     14  | 10 (tsys) | 0          | ch 10 flagged    | spurious at ch 10
     """
     tol = 1.0e-6
-    
+
     def _calculate_row(self, timestamp, generator, average):
         yield timestamp.mean()
         result = list(generator)
@@ -1264,7 +1264,7 @@ class sdcal2old_flag_base(sdcal2old_caltest_base, unittest.TestCase):
             flag[:] = 0
         yield flag
         yield data
-    
+
     def _expected_caltable(self, srctype, colname, average=False):
         #print srctype, colname
         with tbmanager(self.rawfile) as tb:
@@ -1295,7 +1295,7 @@ class sdcal2old_flag_base(sdcal2old_caltest_base, unittest.TestCase):
         # table should have two rows
         row0 = tuple(self._calculate_row(timestamp[:3], gen_result(flagrow[:3], flagtra[:,:3], data[:,:3]), average))
         row1 = tuple(self._calculate_row(timestamp[3:], gen_result(flagrow[3:], flagtra[:,3:], data[:,3:]), average))
-        
+
         return [row0, row1]
 
     def _msg(self, row, channel, name, val, ref):
@@ -1307,16 +1307,16 @@ class sdcal2old_flag_base(sdcal2old_caltest_base, unittest.TestCase):
             msg = header + ': ' + msg
         #print msg
         return msg
-    
+
     def _is_equal(self, name, val, ref, row=None, channel=None):
         self.assertEqual(val, ref, msg=self._msg(row, channel, name, val, ref))
 
     def _absdiff(self, val, ref):
         return abs((val - ref) / ref) if ref != 0.0 else abs(val - ref)
-    
+
     def _is_diff_lt_tol(self, name, val, ref, row=None, channel=None):
         self.assertLess(self._absdiff(val, ref), self.tol, msg=self._msg(row, channel, name, val, ref))
-    
+
     def _verify_caltable(self, outfile, expected):
         # file existence check
         self.assertTrue(os.path.exists(outfile), msg='Output file \'%s\' didn\'t created.'%(outfile))
@@ -1329,12 +1329,12 @@ class sdcal2old_flag_base(sdcal2old_caltest_base, unittest.TestCase):
         self._is_equal('number of rows', nrow, len(expected))
         self.assertTrue('FLAGTRA' in colnames, msg='Column FLAGTRA doesn\'t exist')
         self.assertTrue('SPECTRA' in colnames or 'TSYS' in colnames, msg='Column SPECTRA or TSYS doesn\'t exist')
-        
+
         if 'SPECTRA' in colnames:
             datacol = 'SPECTRA'
         else:
             datacol = 'TSYS'
-            
+
         with tbmanager(outfile) as tb:
             data = tb.getcol(datacol)
             flag = tb.getcol('FLAGTRA')
@@ -1366,7 +1366,7 @@ class sdcal2old_flag_base(sdcal2old_caltest_base, unittest.TestCase):
             nrow_expected = tsel.nrows()
             time_expected = tsel.getcol('TIME')
             tsel.close()
-        
+
         # get calibrated data
         with tbmanager(outfile) as tb:
             time_result = tb.getcol('TIME')
@@ -1375,7 +1375,7 @@ class sdcal2old_flag_base(sdcal2old_caltest_base, unittest.TestCase):
             spectra_result = tb.getcol('SPECTRA')
             tsys_result = tb.getcol('TSYS')
         nchan,nrow_result = flagtra_result.shape
-        
+
         # check number of rows
         self._is_equal('number of rows', nrow_result, nrow_expected)
 
@@ -1405,7 +1405,7 @@ class sdcal2old_flag_base(sdcal2old_caltest_base, unittest.TestCase):
                 self._is_equal('flag', flag[ichan], cal_flag[ichan], row=irow, channel=ichan)
                 self._is_diff_lt_tol('Tsys', tsys[ichan], cal_tsys[ichan], row=irow, channel=ichan)
                 self._is_diff_lt_tol('spectral data', data[ichan], cal_data[ichan], row=irow, channel=ichan)
-        
+
     def _expected_calibration(self, expected_sky, expected_tsys):
         with tbmanager(self.rawfile) as tb:
             tsel = tb.query('SRCTYPE==0')
@@ -1428,7 +1428,7 @@ class sdcal2old_flag_base(sdcal2old_caltest_base, unittest.TestCase):
                         yield data[0,ichan]
                     elif flag[1,ichan] == 0:
                         yield data[1,ichan]
-                        
+
             calflag = lambda fl_on, fl_sky: numpy.array([128 if f != 0 else 0 for f in (fl_on + fl_sky)])
             t_sky = retrieve(0, expected_sky)
             fl_sky = retrieve(1, expected_sky)
@@ -1448,12 +1448,12 @@ class sdcal2old_flag_base(sdcal2old_caltest_base, unittest.TestCase):
             flag = calflag(fl, fl_sky.sum(axis=0))
             itsys = numpy.ones(len(calibrated), dtype=float) * scalar_tsys
             return (flag, calibrated, itsys)
-            
+
         for irow in range(nrow):
             yield gen_calibration(time_result[irow], flagtra_result[:,irow], spectra_result[:,irow], expected_sky, expected_tsys)
-            
 
-        
+
+
 
 ###
 # Test Sky calibration flag handling
@@ -1466,12 +1466,12 @@ class sdcal2old_skycal_flag(sdcal2old_flag_base):
     """
     rawfile = 'sdcal2_testflag.asap'
     prefix = 'sdcal2old_skycal_flag'
-    
+
     def setUp(self):
         self.res=None
         for f in [self.rawfile]:
             copytree_ignore_subversion(self.datapath, f)
-        
+
         default(sdcal2old)
 
     def tearDown(self):
@@ -1501,7 +1501,7 @@ class sdcal2old_tsyscal_flag(sdcal2old_flag_base):
     """
     rawfile='sdcal2_testflag.asap'
     prefix = 'sdcal2old_tsyscal_flag'
-    
+
     def setUp(self):
         self.res=None
         for f in [self.rawfile]:
@@ -1530,7 +1530,7 @@ class sdcal2old_tsyscal_flag(sdcal2old_flag_base):
         sdcal2old(infile=self.rawfile, calmode='tsys', tsysspw='22', tsysavg=average, outfile=outfile)
 
         self._verify_caltable(outfile, self._expected_caltable(11, 'TSYS', average))
-        
+
 ###
 # Test applycal flag handling
 ###
@@ -1560,7 +1560,7 @@ class sdcal2old_applycal_flag(sdcal2old_flag_base):
             flagrow = tsel.getcol('FLAGROW')
             tsel.close()
         return flagrow
-        
+
     def test_applycal_flag(self):
         outfile = self.prefix + '_cal'
         average = False
@@ -1572,7 +1572,7 @@ class sdcal2old_applycal_flag(sdcal2old_flag_base):
         self._verify_applycal(outfile, self._expected_caltable(1, 'SPECTRA'),
                               self._expected_caltable(11, 'TSYS', average),
                               expected_flagrow)
-    
+
 class sdcal2old_applycal_flag2(sdcal2old_flag_base):
     """
     Test list
@@ -1586,7 +1586,7 @@ class sdcal2old_applycal_flag2(sdcal2old_flag_base):
     tsys_empty = 'sd_analytic_type1-3.asap_tsys.empty'
     tsys_invalid = 'sd_analytic_type1-3.asap_tsys.invalid'
     spwmap = {'24': [25], '20': [21], '22': [23]}
-    
+
     def setUp(self):
         self.res=None
         for f in [self.rawfile]:
@@ -1620,7 +1620,7 @@ class sdcal2old_applycal_flag2(sdcal2old_flag_base):
         for table in tables:
             copytree_ignore_subversion(self.datapath, table)
             self.assertTrue(os.path.exists(table))
-        return tables 
+        return tables
 
     def get_flag(self, table):
         with tbmanager(table) as tb:
@@ -1629,7 +1629,7 @@ class sdcal2old_applycal_flag2(sdcal2old_flag_base):
             flagrow = tsel.getcol('FLAGROW')
             tsel.close()
         return flagrow, flag
-        
+
     def _verify_flag(self, infile, outfile, flagged):
         frref, flref = self.get_flag(infile)
         fr, fl = self.get_flag(outfile)
@@ -1646,7 +1646,7 @@ class sdcal2old_applycal_flag2(sdcal2old_flag_base):
         sdcal2old(infile=self.rawfile, outfile=outfile, calmode='apply',
                spwmap=self.spwmap, applytable=applytable)
         self._verify_flag(self.rawfile, outfile, flagged)
-        
+
     def test_validsky_validtsys(self):
         """test_validsky_validtsys:"""
         self._test('valid', 'valid', False)
@@ -1658,7 +1658,7 @@ class sdcal2old_applycal_flag2(sdcal2old_flag_base):
     def test_validsky_emptytsys(self):
         """test_validsky_emptytsys"""
         self._test('valid', 'empty', True)
-    
+
     def test_validsky_invalidtsys(self):
         """test_validsky_invalidtsys"""
         self._test('valid', 'invalid', True)
@@ -1674,7 +1674,7 @@ class sdcal2old_applycal_flag2(sdcal2old_flag_base):
     def test_invalidsky_invalidtsys(self):
         """test_invalidsky_invalidtsys"""
         self._test('invalid', 'invalid', True)
-        
+
     def test_emptysky_validtsys(self):
         """test_emptysky_validtsys"""
         self._test('empty', 'valid', True)

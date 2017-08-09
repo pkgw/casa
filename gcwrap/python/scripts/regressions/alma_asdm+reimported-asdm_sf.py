@@ -4,10 +4,10 @@
 #    Regression Test Script for ASDM version 1 import to MS                 #
 #    and the "inverse filler" task exportasdm, and subsequent               #
 #    data analysis.                                                         #
-#                                                                           # 
+#                                                                           #
 # Rationale for Inclusion:                                                  #
 #    The conversion of ASDM to MS and back needs to be verified.            #
-#                                                                           # 
+#                                                                           #
 # Features tested:                                                          #
 #    1) Is the import performed without raising exceptions?                 #
 #    2) Do all expected tables exist?                                       #
@@ -73,14 +73,14 @@ def checktable(thename, theexpectation):
             if mycell[3] == 0:
                 in_agreement = (value == mycell[2])
             else:
-                in_agreement = ( abs(value - mycell[2]) < mycell[3]) 
+                in_agreement = ( abs(value - mycell[2]) < mycell[3])
         else:
             # it's an array
             # zero tolerance?
             if mycell[3] == 0:
-                in_agreement =  (value == mycell[2]).all() 
+                in_agreement =  (value == mycell[2]).all()
             else:
-                in_agreement = (abs(value - mycell[2]) < mycell[3]).all() 
+                in_agreement = (abs(value - mycell[2]) < mycell[3]).all()
         if not in_agreement:
             print(myname, ":  Error in MS subtable", thename, ":")
             print("     column ", mycell[0], " row ", mycell[1], " contains ", value)
@@ -144,7 +144,7 @@ def verify_asdm(asdmname, withPointing):
         print("Note: Test of XML well-formedness not possible since xmllint not available.")
     else:
         print("Note: xml validation not possible since ASDM DTDs (schemas) not yet online.")
-        
+
     if(not os.path.exists(asdmname+"/ASDMBinary")):
         print("ASDM binary directory "+asdmname+"/ASDMBinary doesn't exist.")
         isOK = False
@@ -161,14 +161,14 @@ def analyseASDM(basename, caltablename0, genwvr=True):
     # Reduction of NGC3256 Band 6
     # M. Zwaan, May 2010
     # D. Petry, May 2010
-    
+
     # We ignore flux calibration for now.
     # The script does bandpass, gain calibration (gaincal), WVR correction and a delay corrections.
     # Calibration tables are applied with applycal and images of the calibrator and the
     # galaxy are made.
 
     isOK = True
-    
+
     msname=basename+'.ms'
     contimage=basename+'_cont'
     lineimage=basename+'_line'
@@ -182,11 +182,11 @@ def analyseASDM(basename, caltablename0, genwvr=True):
     avspw=["0:17~118","1:17~118"] # which channels to average for the gain calibration
     delay=[0,-8] # there is an 8ns delay problem in the second BB
 
-        
+
     # Find the asdm
     asdm=basename
     os.system('rm -rf '+bname+'_* '+msn)
-    print(">> Importing the asdm: ", asdm, " as measurement set: ",msn) 
+    print(">> Importing the asdm: ", asdm, " as measurement set: ",msn)
     importasdm(
         asdm=asdm,
         vis=msn,
@@ -205,9 +205,9 @@ def analyseASDM(basename, caltablename0, genwvr=True):
         wvrgcal(vis=msn, caltable=caltablename0, segsource=False, toffset=-2, reversespw='0~7')
     else:
         print(">> Reusing existing WVR caltable ", caltablename0)
-    
+
     # Delay correction
-    
+
     # Could have done this for both spw simultanesouly
     print("\n>> 8ns delay corrections: Calculate K tables")
     for i in range(2):
@@ -223,14 +223,14 @@ def analyseASDM(basename, caltablename0, genwvr=True):
             )
 
     # Bandpass and Gain calibration
-    
-    # Bandpass calibration with 'bandpass' 
-	
+
+    # Bandpass calibration with 'bandpass'
+
     print(">> Find B solutions")
     for i in range(2):
         print(">> SPW: ",i)
         os.system('rm -rf '+caltablename+'_spw'+str(i)+'.B')
-        
+
         # Use the bright phase calibrator for the bandpass
         bandpass(
             vis=msn,
@@ -261,9 +261,9 @@ def analyseASDM(basename, caltablename0, genwvr=True):
         plotrange=[0,0,0,0.02]
         figfile=caltablename+"_bandpass.png"
         plotcal()
-        
+
     # For GSPLINE solutions, have to do it for different spws separately
-    
+
     print(">> Find G solutions")
     for i in range(2):
         print(">> SPW: ",i)
@@ -300,7 +300,7 @@ def analyseASDM(basename, caltablename0, genwvr=True):
             spwmap=[[wvrspw],[i],[i]],
             combine="",refant="0",minblperant=2,minsnr=-1,solnorm=False,
             gaintype="G",calmode="ap",
-            )	
+            )
 
 
     print(">> Find GSPLINE solutions, using WVR corrections")
@@ -326,7 +326,7 @@ def analyseASDM(basename, caltablename0, genwvr=True):
             npointaver=2,
             preavg=300,
             calmode="ap",
-            )	
+            )
 
 
     print("\n>> Plot the solutions: small points: uncorrected")
@@ -348,16 +348,16 @@ def analyseASDM(basename, caltablename0, genwvr=True):
 
 
     # Apply the gain calibrations
-    
+
     # Have to apply the G_WVR table and the WVR table simultaneously
     # Or just the G table
     # (Do not apply just the G_WVR table or G and WVR tables)
-    
+
     # Use spwmap to apply to all spws
     # Use spwmap=[[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0]]
     # for the unsplit ms.
     # There are eight numbers because wvr has four spws, although only one is shown in listobs
-    
+
     print(">> Apply the G and WVR solutions to",msn)
     for i in range (2):
         print(">> SPW: ",i)
@@ -382,24 +382,24 @@ def analyseASDM(basename, caltablename0, genwvr=True):
 
     rms = [0.,0.]
     peak = [0.,0.]
-    
+
     for i in range (2):
-        
+
         # tb.open(msn0+'/FIELD')
         # coords= tb.getcol('PHASE_DIR')
         # calCoords=coords[:,:,int(calfield)]
         # calRa=qa.formxxx(str(float(calCoords[0]))+'rad','hms')
         # calDec=qa.formxxx(str(float(calCoords[1]))+'rad','dms')
-        
+
         # print ">> The coordinates of the phase calibrator are:", calRa,",",calDec
-        
+
         calimage=caltablename+"cal_spw"+str(i)
-        
+
         os.system('rm -rf '+calimage+'.*')
-	
+
         print("\n>> Clean the phase calibrator, spw",str(i))
         print(">> The imagename is",calimage)
-        
+
         default(clean)
         clean(
             vis=msn,
@@ -417,7 +417,7 @@ def analyseASDM(basename, caltablename0, genwvr=True):
             imsize=[600, 600],
             cell=['0.2arcsec','0.2arcsec']
             )
-        
+
         calstat=imstat(imagename=calimage+".image",region="",box="100,100,240,500")
         rms[i]=(calstat['rms'][0])
         print(">> rms in calibrator image: "+str(rms[i]))
@@ -433,15 +433,15 @@ def analyseASDM(basename, caltablename0, genwvr=True):
     reference_peak = [0.999954, 1.0001681]
 
     for i in range(2):
-        print(">> image rms ", i, " is ", rms[i], " expected value is ", reference_rms[i]) 
+        print(">> image rms ", i, " is ", rms[i], " expected value is ", reference_rms[i])
         if(abs(rms[i] - reference_rms[i])/reference_rms[i] > 0.01):
-            print(">> ERROR.") 
+            print(">> ERROR.")
             isOK = False
-        print(">> image peak ", i, " is ", peak[i], " expected value is ", reference_peak[i]) 
+        print(">> image peak ", i, " is ", peak[i], " expected value is ", reference_peak[i])
         if(abs(peak[i] - reference_peak[i])/reference_peak[i] > 0.01):
-            print(">> ERROR.") 
+            print(">> ERROR.")
             isOK = False
-            
+
     if (isOK):
         print('')
         print('Regression PASSED')
@@ -455,7 +455,7 @@ def analyseASDM(basename, caltablename0, genwvr=True):
 
 
 ###########################
-# beginning of actual test 
+# beginning of actual test
 
 part1 = True
 
@@ -535,7 +535,7 @@ else:
         checktable(name, expected)
 
         expected = [
-                     ['UVW',       557, [-172.89958856,  -80.72977367,   63.39288203], 1E-6], # based on geodetic data r3846 
+                     ['UVW',       557, [-172.89958856,  -80.72977367,   63.39288203], 1E-6], # based on geodetic data r3846
                      ['EXPOSURE',  557, 6.048, 0],
                      ['DATA',      557,
                       [[ -4.17647697e-03 +3.08606686e-05j,  -1.18642126e-03 +7.54371868e-05j,
@@ -673,7 +673,7 @@ else:
                       ]
                      ]
         checktable(name, expected)
-        
+
         name = "ANTENNA"
         expected = [ ['OFFSET',       1, [ 0.,  0.,  0.], 0],
                      #['POSITION',     1, [2224600.1130,  -5440364.6494, -2481417.4709], 0.001],
@@ -681,7 +681,7 @@ else:
                      ['DISH_DIAMETER',1, 12.0, 0]
                      ]
         checktable(name, expected)
-        
+
         name = "POINTING"
         expected = [ ['DIRECTION',       10, [[-0.97039579],[ 0.88554736]], 1E-7],
                      ['INTERVAL',        10, 0.048, 0],
@@ -697,7 +697,7 @@ if (not part1):
     print("Part 1 failed.")
 
 part2 = True
-        
+
 myvis = myms_dataset_name
 os.system('rm -rf exportasdm-output.asdm myinput.ms')
 os.system('cp -R ' + myvis + ' myinput.ms')
@@ -718,9 +718,9 @@ try:
     os.system('rm -rf '+asdmname+'; mv exportasdm-output.asdm '+asdmname)
     verify_asdm(asdmname, True)
 except:
-    print(myname, ': *** Unexpected error exporting MS to ASDM, regression failed ***')   
+    print(myname, ': *** Unexpected error exporting MS to ASDM, regression failed ***')
     raise
-    
+
 try:
     print("Reimporting the created ASDM ....")
     importasdm(asdm=asdmname, vis=reimp_msname, wvr_corrected_data='no', useversion='v3')
@@ -740,9 +740,9 @@ try:
         print("Numbers of integrations disagree.")
         part2 = False
 except:
-    print(myname, ': *** Unexpected error reimporting the exported ASDM, regression failed ***')   
+    print(myname, ': *** Unexpected error reimporting the exported ASDM, regression failed ***')
     part2 = False
-    
+
 #############
 # Now import an ASDM and do a serious analysis
 
@@ -756,11 +756,11 @@ part3 = True
 try:
     rval = analyseASDM(myasdm_dataset2_name, mywvr_correction_file)
 except:
-    print(myname, ': *** Unexpected error analysing ASDM, regression failed ***')   
+    print(myname, ': *** Unexpected error analysing ASDM, regression failed ***')
     part3 = False
 
 if(not rval):
-    print(myname, ': *** Unexpected error analysing ASDM, regression failed ***')   
+    print(myname, ': *** Unexpected error analysing ASDM, regression failed ***')
     part3 = False
 
 #############
@@ -779,14 +779,14 @@ if dopart4:
     try:
         # os.system('rm -rf '+myasdm_dataset2_name+'-re-exported*')
         os.system('rm -rf '+myasdm_dataset2_name+'-re-exported* '+myasdm_dataset2_name+'-split*')
-        
+
         # use only the actual visibility data, not the WVR data
         split(vis=myasdm_dataset2_name+'.ms',
               outputvis=myasdm_dataset2_name+'-split.ms',
               datacolumn='data',
               spw='0~3'
               )
-        
+
         rval = exportasdm(
 #            vis = myasdm_dataset2_name+'.ms',
             vis = myasdm_dataset2_name+'-split.ms',
@@ -801,7 +801,7 @@ if dopart4:
             raise Exception
         verify_asdm(myasdm_dataset2_name+'-re-exported', True)
     except:
-        print(myname, ': *** Unexpected error re-exporting MS to ASDM, regression failed ***')   
+        print(myname, ': *** Unexpected error re-exporting MS to ASDM, regression failed ***')
         raise
 
 #############
@@ -810,18 +810,18 @@ if dopart4:
     print()
     print('===================================================================')
     print("Serious analysis of an exported and re-imported ASDM ...")
-    
+
     rval = True
     try:
         rval = analyseASDM(myasdm_dataset2_name+'-re-exported', mywvr_correction_file,
                            False # do not regenerate the WVR table
                            )
     except:
-        print(myname, ': *** Unexpected error analysing re-exported ASDM, regression failed ***')   
+        print(myname, ': *** Unexpected error analysing re-exported ASDM, regression failed ***')
         part4 = False
-        
+
     if(not rval):
-        print(myname, ': *** Unexpected error analysing re-exported ASDM, regression failed ***')   
+        print(myname, ': *** Unexpected error analysing re-exported ASDM, regression failed ***')
         part4 = False
 
 # end if dopart4
@@ -848,7 +848,7 @@ if dopart4:
     else:
         print("Part 4: serious analysis of an exported and re-imported ASDM passed.")
 else:
-        print("Part 4: serious analysis of an exported and re-imported ASDM not executed.")    
+        print("Part 4: serious analysis of an exported and re-imported ASDM not executed.")
 
 if(not (part1 and part2 and part3 and part4)):
     print("Regression failed.")

@@ -3,109 +3,109 @@ import shutil
 from taskinit import *
 
 def cvel(vis, outputvis,
-	 passall, field, spw, selectdata, antenna, timerange, scan, array,
-	 mode, nchan, start, width, interpolation,
-	 phasecenter, restfreq, outframe, veltype, hanning):
+         passall, field, spw, selectdata, antenna, timerange, scan, array,
+         mode, nchan, start, width, interpolation,
+         phasecenter, restfreq, outframe, veltype, hanning):
 
     """ regrid an MS to a new spectral window / channel structure or frame
-    
-         vis -- Name of input visibility file
-               default: none; example: vis='ngc5921.ms'    
-    
-         outputvis -- Name of output measurement set (required)
-                 default: none; example: vis='ngc5921-regridded.ms'    
 
-         passall --  if False, data not meeting the selection on field or spw 
-                 is omitted; if True, data not meeting the selection 
+         vis -- Name of input visibility file
+               default: none; example: vis='ngc5921.ms'
+
+         outputvis -- Name of output measurement set (required)
+                 default: none; example: vis='ngc5921-regridded.ms'
+
+         passall --  if False, data not meeting the selection on field or spw
+                 is omitted; if True, data not meeting the selection
                  is passed through without modification
-                 default: False; example: 
+                 default: False; example:
                  field='NGC5921'
-                 passall=False : only data from NGC5921 is included in output MS, 
+                 passall=False : only data from NGC5921 is included in output MS,
                            no data from other fields (e.g. 1331+305) is included
-                 passall=True : data from NGC5921 is transformed by cvel, all other 
-                           fields are passed through unchanged 
-    
+                 passall=True : data from NGC5921 is transformed by cvel, all other
+                           fields are passed through unchanged
+
          field -- Select fields in MS.  Use field id(s) or field name(s).
                     ['go listobs' to obtain the list id's or names]
                 default: ''= all fields
                 If field string is a non-negative integer, it is assumed to
-                    be a field index otherwise, it is assumed to be a 
+                    be a field index otherwise, it is assumed to be a
                     field name
                 field='0~2'; field ids 0,1,2
                 field='0,4,5~7'; field ids 0,4,5,6,7
                 field='3C286,3C295'; field named 3C286 and 3C295
                 field = '3,4C*'; field id 3, all names starting with 4C
-    
+
          spw --Select spectral window/channels
                 NOTE: This selects the data passed as the INPUT to mode
                 default: ''=all spectral windows and channels
                   spw='0~2,4'; spectral windows 0,1,2,4 (all channels)
                   spw='0:5~61'; spw 0, channels 5 to 61
                   spw='<2';   spectral windows less than 2 (i.e. 0,1)
-                  spw='0,10,3:3~45'; spw 0,10 all channels, spw 3, 
+                  spw='0,10,3:3~45'; spw 0,10 all channels, spw 3,
                                      channels 3 to 45.
                   spw='0~2:2~6'; spw 0,1,2 with channels 2 through 6 in each.
-                  spw='0:0~10;15~60'; spectral window 0 with channels 
+                  spw='0:0~10;15~60'; spectral window 0 with channels
                                       0-10,15-60
                   spw='0:0~10,1:20~30,2:1;2;3'; spw 0, channels 0-10,
                         spw 1, channels 20-30, and spw 2, channels, 1,2 and 3
-    
+
          selectdata -- Other data selection parameters
                 default: True
-    
+
          selectdata=True expandable parameters
-    
+
                 antenna -- Select data based on antenna/baseline
                     default: '' (all)
-                    If antenna string is a non-negative integer, it is 
+                    If antenna string is a non-negative integer, it is
                       assumed to be an antenna index, otherwise, it is
                       considered an antenna name.
-                    antenna='5&6'; baseline between antenna index 5 and 
+                    antenna='5&6'; baseline between antenna index 5 and
                                    index 6.
-                    antenna='VA05&VA06'; baseline between VLA antenna 5 
+                    antenna='VA05&VA06'; baseline between VLA antenna 5
                                          and 6.
                     antenna='5&6;7&8'; baselines 5-6 and 7-8
                     antenna='5'; all baselines with antenna index 5
-                    antenna='05'; all baselines with antenna number 05 
+                    antenna='05'; all baselines with antenna number 05
                                   (VLA old name)
-                    antenna='5,6,9'; all baselines with antennas 5,6,9 
+                    antenna='5,6,9'; all baselines with antennas 5,6,9
                                      index numbers
-    
+
                 timerange  -- Select data based on time range:
                    default = '' (all); examples,
                     timerange = 'YYYY/MM/DD/hh:mm:ss~YYYY/MM/DD/hh:mm:ss'
-                    Note: if YYYY/MM/DD is missing date defaults to first 
+                    Note: if YYYY/MM/DD is missing date defaults to first
                           day in data set
                     timerange='09:14:0~09:54:0' picks 40 min on first day
-                    timerange= '25:00:00~27:30:00' picks 1 hr to 3 hr 
+                    timerange= '25:00:00~27:30:00' picks 1 hr to 3 hr
                                30min on NEXT day
-                    timerange='09:44:00' pick data within one integration 
+                    timerange='09:44:00' pick data within one integration
                                of time
                     timerange='>10:24:00' data after this time
-    
+
                 scan -- Scan number range.
                     default: '' (all)
                     example: scan='1~5'
-                    Check 'go listobs' to insure the scan numbers are in 
+                    Check 'go listobs' to insure the scan numbers are in
                           order.
-    
+
                 array -- Select data by (sub)array indices
                     default: '' (all); example:
-                    array='0~2'; arrays 0 to 2 
-    
+                    array='0~2'; arrays 0 to 2
+
           mode -- Frequency Specification:
                  NOTE: See examples below:
                  default: 'channel'
                    mode = 'channel'; Use with nchan, start, width to specify
                            output spw.  See examples below
-                   mode = 'velocity', means channels are specified in 
+                   mode = 'velocity', means channels are specified in
                         velocity.
-                   mode = 'frequency', means channels are specified in 
+                   mode = 'frequency', means channels are specified in
                         frequency.
-    
-          mode expandable parameters 
-                 Start, width are given in units of channels, frequency 
-                    or velocity as indicated by mode 
+
+          mode expandable parameters
+                 Start, width are given in units of channels, frequency
+                    or velocity as indicated by mode
                  nchan -- Number of channels in output spw
                    default: -1 = all channels; example: nchan=3
                  start -- Start input channel (relative-0)
@@ -118,73 +118,73 @@ def cvel(vis, outputvis,
 
              examples:
                  spw = '0,1'; mode = 'channel'
-                    will produce a single spw containing all channels in spw 
+                    will produce a single spw containing all channels in spw
                          0 and 1
                  spw='0:5~28^2'; mode = 'channel'
-                    will produce a single spw made with channels 
+                    will produce a single spw made with channels
                          (5,7,9,...,25,27)
                  spw = '0'; mode = 'channel': nchan=3; start=5; width=4
                     will produce an spw with 3 output channels
                     new channel 1 contains data from channels (5+6+7+8)
                     new channel 2 contains data from channels (9+10+11+12)
                     new channel 3 contains data from channels (13+14+15+16)
-                 spw = '0:0~63^3'; mode='channel'; nchan=21; start = 0; 
+                 spw = '0:0~63^3'; mode='channel'; nchan=21; start = 0;
                      width = 1
                     will produce an spw with 21 channels
                     new channel 1 contains data from channel 0
                     new channel 2 contains data from channel 2
                     new channel 21 contains data from channel 61
-                 spw = '0:0~40^2'; mode = 'channel'; nchan = 3; start = 
+                 spw = '0:0~40^2'; mode = 'channel'; nchan = 3; start =
                      5; width = 4
                     will produce an spw with three output channels
                     new channel 1 contains channels (5,7)
                     new channel 2 contains channels (13,15)
                     new channel 3 contains channels (21,23)
-    
+
           phasecenter -- direction measure  or fieldid for the mosaic center
                  default: '' => first field selected ; example: phasecenter=6
                  or phasecenter='J2000 19h30m00 -40d00m00'
-    
+
           restfreq -- Specify rest frequency to use for output image
                  default='' Occasionally it is necessary to set this (for
                  example some VLA spectral line data).  For example for
                  NH_3 (1,1) put restfreq='23.694496GHz'
-    
+
           outframe -- output reference frame (not case-sensitive)
                possible values: LSRK, LSRD, BARY, GALACTO, LGROUP, CMB, GEO, TOPO or SOURCE
-               default='' (keep original reference frame) ; example: outframe='BARY' 
-    
+               default='' (keep original reference frame) ; example: outframe='BARY'
+
           veltype -- definition of velocity (in mode)
                  default = 'radio'
-    
+
           hanning -- if true, Hanning smooth frequency channel data before regridding
                  to remove Gibbs ringing
                  default = False
-    
+
     """
-    
+
 
     #Python script
 
-    # make ms and tb tool local 
+    # make ms and tb tool local
     ms = casac.ms()
     tb = casac.table()
 
     try:
-	casalog.origin('cvel')
+        casalog.origin('cvel')
 
-	if not ((type(vis)==str) & (os.path.exists(vis))):
-	    raise Exception('Visibility data set not found - please verify the name')
+        if not ((type(vis)==str) & (os.path.exists(vis))):
+            raise Exception('Visibility data set not found - please verify the name')
 
         if (outputvis == ""):
-	    raise Exception("Must provide output data set name in parameter outputvis.")            
-	
-	if os.path.exists(outputvis):
-	    raise Exception("Output MS %s already exists - will not overwrite." % outputvis)
+            raise Exception("Must provide output data set name in parameter outputvis.")
+
+        if os.path.exists(outputvis):
+            raise Exception("Output MS %s already exists - will not overwrite." % outputvis)
 
         if (os.path.exists(outputvis+".flagversions")):
             raise Exception("The flagversions \"%s.flagversions\" for the output MS already exist. Please delete." % outputvis)
-			    
+
         # Handle selectdata explicitly
         #  (avoid hidden globals)
         if (selectdata==False):
@@ -193,8 +193,8 @@ def cvel(vis, outputvis,
             antenna=''
             scan=''
 
-	if(type(antenna) == list):
-	    antenna = ', '.join([str(ant) for ant in antenna])
+        if(type(antenna) == list):
+            antenna = ', '.join([str(ant) for ant in antenna])
 
         if (field == ''):
             field = '*'
@@ -273,7 +273,7 @@ def cvel(vis, outputvis,
             if(not(width=="") and (qa.quantity(width)['unit'].find('Hz') < 0)):
                 ms.close()
                 raise TypeError("width parameter %s is not a valid frequency quantity " %width)
-            
+
         elif(mode=='velocity'):
             ## reset the default values
             if(start==0):
@@ -292,12 +292,12 @@ def cvel(vis, outputvis,
         elif(mode=='channel' or mode=='channel_b'):
             if((type(width) != int) or (type(start) != int)):
                 ms.close()
-                raise TypeError("start and width have to be integers with mode = %s" %mode)            
+                raise TypeError("start and width have to be integers with mode = %s" %mode)
 
 
         ## check if preaveraging is necessary
         dopreaverage=False
-        preavwidth = [1]        
+        preavwidth = [1]
 
         thespwsel = ms.msseltoindex(vis=vis, spw=spw)['spw']
         thefieldsel = ms.msseltoindex(vis=vis, field=field)['field']
@@ -313,7 +313,7 @@ def cvel(vis, outputvis,
                                           phasec=newphasecenter, restfreq=restfreq,
                                           outframe=outframe, veltype=veltype, verbose=False)
                 if(len(outgridw1)>1):
-                    widthratio = abs((outgrid[1]-outgrid[0])/(outgridw1[1]-outgridw1[0]))                    
+                    widthratio = abs((outgrid[1]-outgrid[0])/(outgridw1[1]-outgridw1[0]))
                     if(widthratio>=2.0): # do preaverage
                         tmpavwidth.append( int(widthratio+0.001) )
                         dopreaverage=True
@@ -325,7 +325,7 @@ def cvel(vis, outputvis,
 
         ms.close()
 
-        # if in channel mode and preaveraging, 
+        # if in channel mode and preaveraging,
         if(dopreaverage and (mode=='channel' or mode=='channel_b')):
             if(max(preavwidth)==1):
                 dopreaverage = False
@@ -352,7 +352,7 @@ def cvel(vis, outputvis,
                                'widths > or = 2x the native channel width, please use '
                                'mstransform, clean, or tclean for larger regridding. '
                                'All earlier versions of CASA also have this issue.')
-            
+
         # determine parameter "datacolumn"
         tb.open(vis)
         allcols = tb.colnames()
@@ -394,9 +394,9 @@ def cvel(vis, outputvis,
                 ms.open(outputvis+'TMP')
             else:
                 ms.open(vis)
-                
+
             casalog.post("Creating preaveraged SubMS using widths "+str(preavwidth), 'INFO')
-            ms.split(outputms=outputvis, 
+            ms.split(outputms=outputvis,
                      whichcol=datacolumn, step=preavwidth)
             ms.close()
 
@@ -418,7 +418,7 @@ def cvel(vis, outputvis,
                 hanning = False
                 ms.open(outputvis+'TMP')
                 casalog.post("Creating preaveraged SubMS using widths "+str(preavwidth), 'INFO')
-                ms.split(outputms=outputvis, 
+                ms.split(outputms=outputvis,
                          whichcol=datacolumn, step=preavwidth)
                 ms.close()
             else:
@@ -439,12 +439,12 @@ def cvel(vis, outputvis,
             shutil.copytree(vis,outputvis)
 
         # Combine and if necessary regrid it
-	ms.open(outputvis, nomodify=False)
+        ms.open(outputvis, nomodify=False)
 
         message = "Using " + phasecentername + " as common direction for the output reference frame."
         casalog.post(message, 'INFO')
 
-	if not ms.cvel(mode=mode, nchan=nchan, start=start, width=width,
+        if not ms.cvel(mode=mode, nchan=nchan, start=start, width=width,
                        interp=interpolation,
                        phasec=newphasecenter, restfreq=restfreq,
                        outframe=outframe, veltype=veltype, hanning=hanning):
@@ -479,9 +479,9 @@ def cvel(vis, outputvis,
                         spwdesel += ","
                     spwdesel += str(i)
 
-            if not (fielddesel == "" and spwdesel == ""):        
+            if not (fielddesel == "" and spwdesel == ""):
                 # split out the data not selected by the conditions on field and spw
-                # from the original MS and join it to the output MS 
+                # from the original MS and join it to the output MS
 
                 # need to do this in two steps
                 # I) field == "*" and deselected spws
@@ -529,34 +529,34 @@ def cvel(vis, outputvis,
                     if not rval:
                         raise Exception("Error in attaching passed-through data ...")
 
-	# Write history to output MS
+        # Write history to output MS
         ms.open(outputvis, nomodify=False)
-	ms.writehistory(message='taskname=cvel', origin='cvel')
-	ms.writehistory(message='vis         = "'+str(vis)+'"',
-			origin='cvel')
-	ms.writehistory(message='outputvis   = "'+str(outputvis)+'"',
-			origin='cvel')
-	ms.writehistory(message='passall     = "'+str(passall)+'"',
-			origin='cvel')
-	ms.writehistory(message='field       = "'+str(field)+'"',
-			origin='cvel')
-	ms.writehistory(message='spw         = '+str(spw), origin='cvel')
-	ms.writehistory(message='antenna     = "'+str(antenna)+'"',
-			origin='cvel')
-	ms.writehistory(message='timerange   = "'+str(timerange)+'"',
-			origin='cvel')
-	ms.writehistory(message='mode        = '+str(mode), origin='cvel')
-	ms.writehistory(message='nchan       = '+str(nchan), origin='cvel')
-	ms.writehistory(message='start       = '+str(start), origin='cvel')
-	ms.writehistory(message='width       = '+str(width), origin='cvel')
-	ms.writehistory(message='interpolation = '+str(interpolation), origin='cvel')
-	ms.writehistory(message='outframe    = "'+str(outframe)+'"',
-			origin='cvel')
-	ms.writehistory(message='phasecenter = "'+ str(phasecentername) +'"',
-			origin='cvel')
-	ms.writehistory(message='hanning   = "'+str(hanning)+'"',
-			origin='cvel')
-	ms.close()
+        ms.writehistory(message='taskname=cvel', origin='cvel')
+        ms.writehistory(message='vis         = "'+str(vis)+'"',
+                        origin='cvel')
+        ms.writehistory(message='outputvis   = "'+str(outputvis)+'"',
+                        origin='cvel')
+        ms.writehistory(message='passall     = "'+str(passall)+'"',
+                        origin='cvel')
+        ms.writehistory(message='field       = "'+str(field)+'"',
+                        origin='cvel')
+        ms.writehistory(message='spw         = '+str(spw), origin='cvel')
+        ms.writehistory(message='antenna     = "'+str(antenna)+'"',
+                        origin='cvel')
+        ms.writehistory(message='timerange   = "'+str(timerange)+'"',
+                        origin='cvel')
+        ms.writehistory(message='mode        = '+str(mode), origin='cvel')
+        ms.writehistory(message='nchan       = '+str(nchan), origin='cvel')
+        ms.writehistory(message='start       = '+str(start), origin='cvel')
+        ms.writehistory(message='width       = '+str(width), origin='cvel')
+        ms.writehistory(message='interpolation = '+str(interpolation), origin='cvel')
+        ms.writehistory(message='outframe    = "'+str(outframe)+'"',
+                        origin='cvel')
+        ms.writehistory(message='phasecenter = "'+ str(phasecentername) +'"',
+                        origin='cvel')
+        ms.writehistory(message='hanning   = "'+str(hanning)+'"',
+                        origin='cvel')
+        ms.close()
 
         return True
 
@@ -566,6 +566,6 @@ def cvel(vis, outputvis,
         if os.path.exists(outputvis+".spwCombined"):
             casalog.post("Deleting temporary output files ...", 'INFO')
             shutil.rmtree(outputvis+".spwCombined")
-	raise Exception(instance)
-    
+        raise Exception(instance)
+
 

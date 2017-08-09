@@ -47,20 +47,20 @@
 #
 # <synopsis>
 # Test for the ia.fromarray tool method
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_fromarray[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the ia.fromarray() tool method to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -74,14 +74,14 @@ import unittest
 import numpy
 
 class ia_fromarray_test(unittest.TestCase):
-    
+
     def setUp(self):
         self._myia = iatool()
-    
+
     def tearDown(self):
         self._myia.done()
         self.assertTrue(len(tb.showcache()) == 0)
-        
+
     def test_fromarray(self):
         """Test general functionality"""
         myia = self._myia
@@ -111,6 +111,6 @@ class ia_fromarray_test(unittest.TestCase):
         msgs = myia.history()
         self.assertTrue("ia.fromarray" in msgs[-2])
         self.assertTrue("ia.fromarray" in msgs[-1])
-        
+
 def suite():
     return [ia_fromarray_test]

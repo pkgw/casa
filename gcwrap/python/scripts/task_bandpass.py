@@ -4,135 +4,135 @@ from callibrary import *
 from taskinit import *
 
 def bandpass(vis=None,caltable=None,
-	     field=None,spw=None,intent=None,
-	     selectdata=None,timerange=None,uvrange=None,antenna=None,scan=None,
+             field=None,spw=None,intent=None,
+             selectdata=None,timerange=None,uvrange=None,antenna=None,scan=None,
              observation=None,msselect=None,
-	     solint=None,combine=None,refant=None,minblperant=None,
-	     minsnr=None,solnorm=None,
-	     bandtype=None,smodel=None,
-	     append=None,fillgaps=None,
-	     degamp=None,degphase=None,visnorm=None,
-	     maskcenter=None,maskedge=None,
-	     docallib=None,callib=None,
-	     gaintable=None,gainfield=None,interp=None,spwmap=None,
-	     parang=None):
+             solint=None,combine=None,refant=None,minblperant=None,
+             minsnr=None,solnorm=None,
+             bandtype=None,smodel=None,
+             append=None,fillgaps=None,
+             degamp=None,degphase=None,visnorm=None,
+             maskcenter=None,maskedge=None,
+             docallib=None,callib=None,
+             gaintable=None,gainfield=None,interp=None,spwmap=None,
+             parang=None):
 
-	#Python script
+        #Python script
         casalog.origin('bandpass')
 
-	try:
-		mycb=cbtool()
-		
-		# Revert to old VI for BPOLY
-		if (bandtype=='BPOLY'):
-			mycb.setvi(old=True,quiet=False);
+        try:
+                mycb=cbtool()
 
-                if ((type(vis)==str) & (os.path.exists(vis))):    
+                # Revert to old VI for BPOLY
+                if (bandtype=='BPOLY'):
+                        mycb.setvi(old=True,quiet=False);
+
+                if ((type(vis)==str) & (os.path.exists(vis))):
                         mycb.open(filename=vis,compress=False,addcorr=False,addmodel=False)
                 else:
                         raise Exception('Visibility data set not found - please verify the name')
-		mycb.reset()
+                mycb.reset()
 
-		# Do data selection according to selectdata
-		casalog.post("NB: bandpass automatically excludes auto-correlations.")
-		if (selectdata):
-			# insist no ACs
-			if len(msselect)>0:
-				msselect='('+msselect+') && ANTENNA1!=ANTENNA2'
-			else:
-				msselect='ANTENNA1!=ANTENNA2'
-			# pass all data selection parameters in as specified
-			mycb.selectvis(time=timerange,spw=spw,scan=scan,field=field,
-				       intent=intent, observation=str(observation),
-				       baseline=antenna,uvrange=uvrange,chanmode='none',
-				       msselect=msselect);
-		else:
-			# selectdata=F, so time,scan,baseline,uvrange,msselect=''
-			# using spw and field specifications only
-			# also insist no ACs
-			mycb.selectvis(time='',spw=spw,scan='',field=field,intent=intent,
-				       observation='', baseline='',uvrange='',chanmode='none',
-				       msselect='ANTENNA1!=ANTENNA2');
+                # Do data selection according to selectdata
+                casalog.post("NB: bandpass automatically excludes auto-correlations.")
+                if (selectdata):
+                        # insist no ACs
+                        if len(msselect)>0:
+                                msselect='('+msselect+') && ANTENNA1!=ANTENNA2'
+                        else:
+                                msselect='ANTENNA1!=ANTENNA2'
+                        # pass all data selection parameters in as specified
+                        mycb.selectvis(time=timerange,spw=spw,scan=scan,field=field,
+                                       intent=intent, observation=str(observation),
+                                       baseline=antenna,uvrange=uvrange,chanmode='none',
+                                       msselect=msselect);
+                else:
+                        # selectdata=F, so time,scan,baseline,uvrange,msselect=''
+                        # using spw and field specifications only
+                        # also insist no ACs
+                        mycb.selectvis(time='',spw=spw,scan='',field=field,intent=intent,
+                                       observation='', baseline='',uvrange='',chanmode='none',
+                                       msselect='ANTENNA1!=ANTENNA2');
 
 
-		# set the model, if specified
-		if (len(smodel)>0):
-			mycb.setptmodel(smodel);
-		
+                # set the model, if specified
+                if (len(smodel)>0):
+                        mycb.setptmodel(smodel);
 
-		# Arrange applies....
 
-		if docallib:
-			# by cal library from file
-			mycallib=callibrary()
-			mycallib.read(callib)
-			mycb.setcallib(mycallib.cld)
+                # Arrange applies....
 
-		else:
+                if docallib:
+                        # by cal library from file
+                        mycallib=callibrary()
+                        mycallib.read(callib)
+                        mycb.setcallib(mycallib.cld)
 
-			# by traditional parameters
+                else:
 
-			ngaintab = 0;
-			if (gaintable!=['']):
-				ngaintab=len(gaintable)
+                        # by traditional parameters
 
-			ngainfld = len(gainfield)
-			nspwmap = len(spwmap)
-			ninterp = len(interp)
+                        ngaintab = 0;
+                        if (gaintable!=['']):
+                                ngaintab=len(gaintable)
 
-			# handle list of list issues with spwmap
-			if (nspwmap>0):
-				if (type(spwmap[0])!=list):
-					# first element not a list, only one spwmap specified
-					# make it a list of list
-					spwmap=[spwmap];
-					nspwmap=1;
+                        ngainfld = len(gainfield)
+                        nspwmap = len(spwmap)
+                        ninterp = len(interp)
 
-			for igt in range(ngaintab):
-				if (gaintable[igt]!=''):
+                        # handle list of list issues with spwmap
+                        if (nspwmap>0):
+                                if (type(spwmap[0])!=list):
+                                        # first element not a list, only one spwmap specified
+                                        # make it a list of list
+                                        spwmap=[spwmap];
+                                        nspwmap=1;
 
-					# field selection is null unless specified
-					thisgainfield=''
-					if (igt<ngainfld):
-						thisgainfield=gainfield[igt]
-					
-					# spwmap is null unless specifed
-					thisspwmap=[-1]
-					if (igt<nspwmap):
-						thisspwmap=spwmap[igt];
+                        for igt in range(ngaintab):
+                                if (gaintable[igt]!=''):
 
-					# interp is 'linear' unless specified
-					thisinterp='linear'
-					if (igt<ninterp):
-						if (interp[igt]==''):
-							interp[igt]=thisinterp;
-						thisinterp=interp[igt];
-					
-					mycb.setapply(t=0.0,table=gaintable[igt],field=thisgainfield,
-						      calwt=True,spwmap=thisspwmap,interp=thisinterp)
+                                        # field selection is null unless specified
+                                        thisgainfield=''
+                                        if (igt<ngainfld):
+                                                thisgainfield=gainfield[igt]
 
-		# ...and now the specialized terms
-		# (BTW, interp irrelevant for these, since they are evaluated)
+                                        # spwmap is null unless specifed
+                                        thisspwmap=[-1]
+                                        if (igt<nspwmap):
+                                                thisspwmap=spwmap[igt];
 
-		# Apply parallactic angle, if requested
-		if parang: mycb.setapply(type='P')
+                                        # interp is 'linear' unless specified
+                                        thisinterp='linear'
+                                        if (igt<ninterp):
+                                                if (interp[igt]==''):
+                                                        interp[igt]=thisinterp;
+                                                thisinterp=interp[igt];
 
-		# set up for solving (
-		if (bandtype=='B'):
-			mycb.setsolve(type='B',t=solint,combine=combine,refant=refant,minblperant=minblperant,
-				    solnorm=solnorm,minsnr=minsnr,table=caltable,append=append,fillgaps=fillgaps)
-		elif (bandtype=='BPOLY'):
-			mycb.setsolvebandpoly(refant=refant,table=caltable,append=append,
-					    t=solint,combine=combine,
-					    degamp=degamp,degphase=degphase,visnorm=visnorm,
-					    solnorm=solnorm,maskcenter=maskcenter,maskedge=maskedge)
+                                        mycb.setapply(t=0.0,table=gaintable[igt],field=thisgainfield,
+                                                      calwt=True,spwmap=thisspwmap,interp=thisinterp)
 
-		mycb.solve()
-		mycb.close()
+                # ...and now the specialized terms
+                # (BTW, interp irrelevant for these, since they are evaluated)
 
-	except Exception as instance:
-		print('*** Error ***', instance)
-		mycb.close()
-		casalog.post("Error in bandpass: %s" % str(instance), "SEVERE")
-		raise Exception("Error in bandpass: "+str(instance))
+                # Apply parallactic angle, if requested
+                if parang: mycb.setapply(type='P')
+
+                # set up for solving (
+                if (bandtype=='B'):
+                        mycb.setsolve(type='B',t=solint,combine=combine,refant=refant,minblperant=minblperant,
+                                    solnorm=solnorm,minsnr=minsnr,table=caltable,append=append,fillgaps=fillgaps)
+                elif (bandtype=='BPOLY'):
+                        mycb.setsolvebandpoly(refant=refant,table=caltable,append=append,
+                                            t=solint,combine=combine,
+                                            degamp=degamp,degphase=degphase,visnorm=visnorm,
+                                            solnorm=solnorm,maskcenter=maskcenter,maskedge=maskedge)
+
+                mycb.solve()
+                mycb.close()
+
+        except Exception as instance:
+                print('*** Error ***', instance)
+                mycb.close()
+                casalog.post("Error in bandpass: %s" % str(instance), "SEVERE")
+                raise Exception("Error in bandpass: "+str(instance))
 

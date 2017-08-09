@@ -19,8 +19,8 @@ default('importvla')
 importvla(archivefiles=[datapath+'AP314_A950519.xp1',
                         datapath+'AP314_A950519.xp2',
                         datapath+'AP314_A950519.xp3'],
-	  vis='ngc7538.ms', bandname='K', frequencytol=10000000.0)
-importtime = time.time() 
+          vis='ngc7538.ms', bandname='K', frequencytol=10000000.0)
+importtime = time.time()
 print('--Observation summary--')
 listobs(vis='ngc7538.ms')
 #listtime = time.time()
@@ -42,29 +42,29 @@ gencaltime = time.time()
 print('--Gaincal--')
 default('gaincal')
 gaincal(vis='ngc7538.ms', caltable='ap314.gcal',
-	field='<2', spw='0~1:2~56', gaintype='G',
-	solint='inf', combine='', refant='VA19',
-	gaintable=['ap314.opac'])
+        field='<2', spw='0~1:2~56', gaintype='G',
+        solint='inf', combine='', refant='VA19',
+        gaintable=['ap314.opac'])
 gaintime = time.time()
 print('--Bandpass--')
 default('bandpass')
 bandpass(vis='ngc7538.ms', caltable='1328.bcal',
-	 field='0',
-	 gaintable=['ap314.opac','ap314.gcal'], interp=['','nearest'],
-	 refant='VA19')
+         field='0',
+         gaintable=['ap314.opac','ap314.gcal'], interp=['','nearest'],
+         refant='VA19')
 bptime = time.time()
 print('--Fluxscale--')
 default('fluxscale')
 fluxscale(vis='ngc7538.ms', caltable='ap314.gcal', fluxtable='ap314.fluxcal',
-	  reference=['1328+307'], transfer=['2229+695'])
+          reference=['1328+307'], transfer=['2229+695'])
 fstime = time.time()
 print('--Apply Cal--')
 default('applycal')
 applycal(vis='ngc7538.ms',
-	 field='1~5',
-	 gaintable=['ap314.opac','ap314.fluxcal', '1328.bcal'],
-	 gainfield=['','1'])
-	 
+         field='1~5',
+         gaintable=['ap314.opac','ap314.fluxcal', '1328.bcal'],
+         gainfield=['','1'])
+
 correcttime = time.time()
 
 print('--Split (fluxcal data)--')
@@ -74,14 +74,14 @@ split(vis='ngc7538.ms', outputvis='ngc7538_cal.split.ms',
 
 print('--Split (continuum)--')
 default('split')
-# This _averages_ 
+# This _averages_
 split(vis='ngc7538.ms', outputvis='ngc7538d.cont.ms',
       field='3',spw='0:2~56',width=[55], datacolumn='corrected')
 
 print('--Split (mf cont,)--')
 default('split')
 split(vis='ngc7538.ms', outputvis='ngc7538.cont.ms',
-	field='3,4,5',spw='0:2~56',width=[55], datacolumn='corrected')
+        field='3,4,5',spw='0:2~56',width=[55], datacolumn='corrected')
 print('--Split (bandcal data)--')
 default('split')
 split(vis='ngc7538.ms', outputvis='2229.cont2.ms',
@@ -148,9 +148,9 @@ ia.open('ngc7538d.cube.image')
 # get the second value in the dictionary (statsout)
 statistics=ia.statistics(list=True, verbose=True)
 ia.close()
-# note thistest_immax will be a list with one value 
+# note thistest_immax will be a list with one value
 thistest_immax=statistics['max'][0]
-# note thistest_imrms will be a list with one value 
+# note thistest_imrms will be a list with one value
 thistest_imrms=statistics['rms'][0]
 
 cal_max=2.413
@@ -205,14 +205,14 @@ print(passfail[diff_immax < 0.05], 'image max test         *', file=logfile)
 print('* Image max '+str(thistest_immax), file=logfile)
 print(passfail[diff_imrms < 0.05], 'image rms test         *', file=logfile)
 print('* Image rms '+str(thistest_imrms), file=logfile)
-if ((diff_src<0.05) & (diff_cal<0.05) & (diff_immax<0.05) & (diff_imrms<0.05)): 
-	regstate=True
-	print('---', file=logfile)
-	print('Passed Regression test for NGC7538', file=logfile)
-	print('---', file=logfile)
-else: 
-	regstate=False
-	print('----FAILED Regression test for NGC7538', file=logfile)
+if ((diff_src<0.05) & (diff_cal<0.05) & (diff_immax<0.05) & (diff_imrms<0.05)):
+        regstate=True
+        print('---', file=logfile)
+        print('Passed Regression test for NGC7538', file=logfile)
+        print('---', file=logfile)
+else:
+        regstate=False
+        print('----FAILED Regression test for NGC7538', file=logfile)
 print('*********************************', file=logfile)
 
 print('', file=logfile)

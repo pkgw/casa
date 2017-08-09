@@ -19,7 +19,7 @@ import asap as sd
 
 #
 # Unit test of sdscaleold task.
-# 
+#
 
 ###
 # Base class for sdscaleold unit test
@@ -30,7 +30,7 @@ class sdscaleold_unittest_base:
     """
     taskname='sdscaleold'
     datapath=os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/sdscale/'
-    
+
     def _checkfile( self, name ):
         isthere=os.path.exists(name)
         self.assertEqual(isthere,True,
@@ -58,7 +58,7 @@ class sdscaleold_unittest_base:
             sp.append(tb.getcell('SPECTRA',irow))
             tsys.append(tb.getcell('TSYS',irow))
             self.assertEqual(len(sp[irow]),rspchans[irow],
-                             msg='SPECTRA: number of channel mismatch in row%s'%(irow)) 
+                             msg='SPECTRA: number of channel mismatch in row%s'%(irow))
             self.assertEqual(len(tsys[irow]),rtsyschans[irow],
                              msg='TSYS: number of channel mismatch in row%s'%(irow))
         tb.close()
@@ -117,7 +117,7 @@ class sdscaleold_unittest_base:
                 self.assertEqual(ret,True,
                                  msg='TSYS: data differ in row%s'%(irow))
 
-                
+
 ###
 # Test on bad parameter settings
 ###
@@ -133,7 +133,7 @@ class sdscaleold_test0(unittest.TestCase,sdscaleold_unittest_base):
        - 1 Tsys value for each spectrum
        - all spectral values are 1.0
        - all Tsys values are 1.0
-       
+
     """
     # Input and output names
     rawfile='sdscale1.asap'
@@ -156,7 +156,7 @@ class sdscaleold_test0(unittest.TestCase,sdscaleold_unittest_base):
         """Test 000: Default parameters"""
         # argument verification error
         res=sdscaleold()
-        self.assertFalse(res)        
+        self.assertFalse(res)
 
     def test001(self):
         """Test 001: Existing outfile with overwrite=False"""
@@ -181,7 +181,7 @@ class sdscaleold_test0(unittest.TestCase,sdscaleold_unittest_base):
             pos=str(e).find('Vector size must be 1 or be same as number of channel.')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
-        
+
     def test003(self):
         """Test 003: Try to scale non-conform Tsys"""
         factor=[1.0,2.0,3.0,4.0]
@@ -210,13 +210,13 @@ class sdscaleold_test1(unittest.TestCase,sdscaleold_unittest_base):
        - all Tsys values are 1.0
 
     scaletsys=True should be working.
-       
+
     """
     # Input and output names
     rawfile='sdscale0.asap'
     prefix=sdscaleold_unittest_base.taskname+'Test1'
     outfile=prefix+'.asap'
-    
+
     def setUp(self):
         self.res=None
         if (not os.path.exists(self.rawfile)):
@@ -312,19 +312,19 @@ class sdscaleold_test2(unittest.TestCase,sdscaleold_unittest_base):
     status:
 
        - nrow = 2
-       - nchan = 4 
+       - nchan = 4
        - 1 Tsys value for each spectrum
        - all spectral values are 1.0
        - all Tsys values are 1.0
 
     scaletsys=True should be working.
-       
+
     """
     # Input and output names
     rawfile='sdscale1.asap'
     prefix=sdscaleold_unittest_base.taskname+'Test2'
     outfile=prefix+'.asap'
-    
+
     def setUp(self):
         self.res=None
         if (not os.path.exists(self.rawfile)):
@@ -354,7 +354,7 @@ class sdscaleold_test2(unittest.TestCase,sdscaleold_unittest_base):
         self.assertEqual(res,None,
                          msg='Any error occurred during calibration')
         self._compare(self.outfile,self.rawfile,factor,scaletsys)
-        
+
     def test202(self):
         """Test 202: 1D array factor with Tsys scaling (must fail)"""
         factor = [2.0,3.0,4.0,5.0]
@@ -433,13 +433,13 @@ class sdscaleold_test3(unittest.TestCase,sdscaleold_unittest_base):
        - all Tsys values are 1.0
 
     scaletsys=True should be working.
-       
+
     """
     # Input and output names
     rawfile='sdscale2.asap'
     prefix=sdscaleold_unittest_base.taskname+'Test3'
     outfile=prefix+'.asap'
-    
+
     def setUp(self):
         self.res=None
         if (not os.path.exists(self.rawfile)):
@@ -469,7 +469,7 @@ class sdscaleold_test3(unittest.TestCase,sdscaleold_unittest_base):
         self.assertEqual(res,None,
                          msg='Any error occurred during calibration')
         self._compare(self.outfile,self.rawfile,factor,scaletsys)
-        
+
     def test302(self):
         """Test 302: 1D array factor with Tsys scaling (must fail)"""
         factor = [2.0,3.0,4.0,5.0]
@@ -549,13 +549,13 @@ class sdscaleold_test4(unittest.TestCase,sdscaleold_unittest_base):
        - all Tsys values are 1.0
 
     scaletsys=True should be working.
-       
+
     """
     # Input and output names
     rawfile='sdscale3.asap'
     prefix=sdscaleold_unittest_base.taskname+'Test4'
     outfile=prefix+'.asap'
-    
+
     def setUp(self):
         self.res=None
         if (not os.path.exists(self.rawfile)):
@@ -641,7 +641,7 @@ class sdscaleold_test4(unittest.TestCase,sdscaleold_unittest_base):
         except Exception as e:
             pos=str(e).find('SPECTRA and TSYS must conform in shape if you want to apply operation on Tsys.')
             self.assertNotEqual(pos,-1,
-                                msg='Unexpected exception was thrown: %s'%(str(e)))            
+                                msg='Unexpected exception was thrown: %s'%(str(e)))
 
     def test407(self):
         """Test 407: 2D array ([nrow,nchan]) factor without Tsys scaling"""
@@ -670,8 +670,8 @@ class sdscaleold_testflag(unittest.TestCase,sdscaleold_unittest_base):
        - all tsys values are 1.0
 
     if a spectrum is row-flagged, scaling must not be applied on the spectrum.
-    as for spectra which are not row-flagged, scaling must be applied to the 
-    spectra/tsys values for all channels regardless of channel-flag values. 
+    as for spectra which are not row-flagged, scaling must be applied to the
+    spectra/tsys values for all channels regardless of channel-flag values.
     """
     # Input and output names
     rawfile='sdscale_flagtest.asap'
@@ -725,7 +725,7 @@ class sdscaleold_testflag(unittest.TestCase,sdscaleold_unittest_base):
                 chanflag = tb.getcell('FLAGTRA', i)
                 chanflag_ref = self.cflag_orig if self.rowid_cflag_orig[i] else numpy.zeros(self.nchan_orig, numpy.int32)
                 self.assertTrue(all(chanflag==chanflag_ref))
-        
+
     def _check_values(self, scaletsys):
         """check spectra and tsys values"""
         with tbmanager(self.outfile) as tb:

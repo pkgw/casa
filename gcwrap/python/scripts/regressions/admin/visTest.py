@@ -17,43 +17,43 @@ class VisTest:
 
         import shutil
         self.msTool=casac.ms()
-        self.msTool.open(msName)             
-	self.write=write
-	self.msName=msName
+        self.msTool.open(msName)
+        self.write=write
+        self.msName=msName
 
-	if self.write:
+        if self.write:
          self.resultDir=resultDir+strftime('/%Y_%m_%d/')
          if os.access(self.resultDir,os.F_OK) is False:
           print(self.resultDir+' directory DNE, so am making one!')
           os.mkdir(self.resultDir)
-         else: 
+         else:
           print(self.resultDir+' directory exists; will add to it!')
-	 self.imDir=imDir
-	 if os.access(imDir,os.F_OK) is False:
-	  print(imDir+' directory DNE, so am making one!')
-	  os.mkdir(imDir)
-	 else: 
-	  print(imDir+' directory exists; will add to it!')
+         self.imDir=imDir
+         if os.access(imDir,os.F_OK) is False:
+          print(imDir+' directory DNE, so am making one!')
+          os.mkdir(imDir)
+         else:
+          print(imDir+' directory exists; will add to it!')
 
          t=localtime( time() )
          self.fname='Regression-%s-%s-%s-%s-%s-%s.html'%(t[0],t[1],t[2],t[3],t[4],t[5])
-	 self.html=self.resultDir+self.fname
+         self.html=self.resultDir+self.fname
          self.body1=[]
          self.body2=[]
          self.htmlPub=htmlPub(self.html,'Measurement Set tests')
         else:
-	 print('stats-only mode; will not write to html file!')
+         print('stats-only mode; will not write to html file!')
 
 
     def simple_stats(self,sigma=10):
-        # likely improvements later: iterate through spws, 
+        # likely improvements later: iterate through spws,
 
         # add a conformity test, for nrows etc
-        
+
         ampstats=self.msTool.statistics("DATA","amp")
         phastats=self.msTool.statistics("DATA","phase")
 
-	if self.write:
+        if self.write:
             listnam=string.split(self.msTool.name(), '/')
             imnam=listnam[len(listnam)-2]+'_'+listnam[len(listnam)-1]
             saveDir=self.imDir+imnam+'-ampuv.png'
@@ -66,18 +66,18 @@ class VisTest:
         if(ampstats['DATA']['rms'] > 2*sigma): returnFlag=-1
         return ampstats['DATA']['rms'], ampstats['DATA']['max'], ampstats['DATA']['min'], phastats['DATA']['rms'], phastats['DATA']['max'], phastats['DATA']['min'], returnFlag
         # return rms1, max1, min1, returnFlag
-        
+
     def done(self) :
-	if self.write:
-       	 self.htmlPub.doFooter()
-	 print('webpage construction successful!')
-	 print('images in '+os.path.abspath(self.imDir))
-	 print('webpage at '+os.path.abspath(self.html))
+        if self.write:
+         self.htmlPub.doFooter()
+         print('webpage construction successful!')
+         print('images in '+os.path.abspath(self.imDir))
+         print('webpage at '+os.path.abspath(self.html))
          return '%s'%(os.path.abspath(self.html))
         else: #return 0 if no writing of file is done
          return 'none'
 
     def ampuv(self,saveDir):
         plotms(self.msName,xaxis="uvdist",avgchannel="all",coloraxis="baseline",plotfile=saveDir)
-        
+
 

@@ -38,7 +38,7 @@
 #
 # <prerequisite>
 # <ul>
-#   <li> <linkto class="imfit.py:description">imfit</linkto> 
+#   <li> <linkto class="imfit.py:description">imfit</linkto>
 # </ul>
 # </prerequisite>
 #
@@ -49,7 +49,7 @@
 # <synopsis>
 # imfit_test.py is a Python script that tests the correctness
 # of the ia.fitcomponents tool method and the imfit task in CASA.
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 # # This test was designed to run in the automated CASA test system.
@@ -65,7 +65,7 @@
 #
 # <motivation>
 # To provide a test standard to the imfit task to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -77,13 +77,13 @@ from __main__ import *
 import unittest
 
 class componentlist_test(unittest.TestCase):
-    
+
     def setUp(self):
         return
 
     def tearDown(self):
         return
- 
+
     def test_summarize(self):
         """Test the cl.summarize() method"""
         # make me a list
@@ -106,6 +106,6 @@ class componentlist_test(unittest.TestCase):
         mycl.setflux(0, value=mycl.getfluxvalue(0), error=ferror)
         got = mycl.getfluxerror(0)
         self.assertTrue((got == ferror).all())
-        
+
 def suite():
     return [componentlist_test]

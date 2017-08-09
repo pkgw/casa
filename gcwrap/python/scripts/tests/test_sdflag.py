@@ -29,7 +29,7 @@ def selection_to_list(row):
                 for i in range(s[0], s[1]+1):
                     yield i
     l = set(_selection_to_list(row))
-    return list(l)    
+    return list(l)
 
 class sdflagold_unittest_base:
     """
@@ -282,7 +282,7 @@ class sdflagold_test_flagged_data(unittest.TestCase):
 
     def __verify_channelflag(self, masklist, unflag):
         nrow, flagrow, flagtra = self._prepare_for_verify()
-        
+
         # check flagged area
         flag_value = 0 if unflag else 128
         for irow in range(nrow):
@@ -300,10 +300,10 @@ class sdflagold_test_flagged_data(unittest.TestCase):
                 # flag should be updated
                 for m in _masklist:
                     print('row %s: setting value 128 to range %s'%(irow,m))
-                    expected[m[0]:m[1]+1] = flag_value                        
+                    expected[m[0]:m[1]+1] = flag_value
             self.assertTrue(all(flagtra[:,irow] == expected), msg='Row %s: FLAGTRA differ'%(irow))
-        
-    
+
+
     def _verify_channelflag(self, spw, unflag=False):
         maskdict = self._get_maskdict(spw)
         # data only contain IFNO 0
@@ -335,7 +335,7 @@ class sdflagold_test_flagged_data(unittest.TestCase):
 
     def _verify_rowflag(self, row, unflag):
         rowlist = selection_to_list(row)
-        
+
         nrow, flagrow, flagtra = self._prepare_for_verify()
 
         # check flagged data
@@ -350,7 +350,7 @@ class sdflagold_test_flagged_data(unittest.TestCase):
             else:
                 expected = self.flagrow_org[irow]
             self.assertEqual(flagrow[irow], expected, msg='Row %s: FLAGROW differ (result %s expected %s)'%(irow,flagrow[irow],expected))
-            
+
 
     def test_channel_flag(self):
         """test_channel_flag: channel flagging (unflag=False)"""
@@ -382,7 +382,7 @@ class sdflagold_test_flagged_data(unittest.TestCase):
 
         self._verify_channelflag(spw, unflag)
 
- 
+
     def test_row_flag(self):
         """test_row_flag:: row flagging (unflag=False)"""
         infile = self.infile
@@ -502,7 +502,7 @@ class sdflagold_test_timerange(unittest.TestCase):
         del scan
         self.assertTrue(all(flag_row_expected==flag_row),
                         msg='FLAGROW is different from expected value: %s (expected: %s)'%(flag_row, flag_row_expected))
-        
+
     def test01(self):
         """timerange test01: test row flagging with selection by timerange 'T0~T1'"""
         # first two rows should be flagged
@@ -512,7 +512,7 @@ class sdflagold_test_timerange(unittest.TestCase):
 
         # verification
         self.verify(self.infile, flag_row_expected)
-        
+
     def test02(self):
         """timerange test02: test row flagging with selection by timerange 'T0'"""
         # only second row should be flagged
@@ -571,7 +571,7 @@ class sdflagold_test_timerange(unittest.TestCase):
         table.open(self.infile, nomodify=False)
         table.putcell('SRCNAME', 3, 'SDFLAG2_TEST')
         table.close()
-        
+
         # only fourth row should be flagged
         timerange = '>2006/01/19/02:42:00'
         field = 'SDFLAG2*'
@@ -590,7 +590,7 @@ class sdflagold_test_timerange(unittest.TestCase):
 
         # verification
         self.verify(self.infile, flag_row_expected)
-        
+
     def test09(self):
         """timerange test09: test row flagging with selection by timerange '>T0'"""
         # fourth and subsequent rows should be flagged
@@ -624,7 +624,7 @@ class sdflagold_test_timerange(unittest.TestCase):
         table.putcell('TIME', 0, mjd0)
         table.putcell('TIME', 1, mjd1)
         table.close()
-        
+
         # first two rows should be flagged
         timerange = '%s~%s'%(T0,T1)
         flag_row_expected = numpy.array([True, True, False, False, False, False], dtype=bool)
@@ -642,7 +642,7 @@ class sdflagold_test_timerange(unittest.TestCase):
         flagrow[:] = 1
         table.putcol('FLAGROW', flagrow)
         table.close()
-        
+
         # all rows are flagged
         T0 = '2006/01/19/01:52:05'
         T1 = '2006/01/19/02:08:45'
@@ -652,8 +652,8 @@ class sdflagold_test_timerange(unittest.TestCase):
 
         # verification
         self.verify(self.infile, flag_row_expected)
-        
-        
+
+
 class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
                        sdflagold_unittest_base,unittest.TestCase):
     """
@@ -670,11 +670,11 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
     #flagchan = ( (80,90), (60,70), (40,50), (20,30) )
     #selchan = ()
     outfile = ''
-    
+
     @property
     def task(self):
         return sdflagold
-    
+
     @property
     def spw_channel_selection(self):
         return True
@@ -717,7 +717,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         row = '2'
         ref_row = [2]
         self.res=self.run_task(infile=self.rawfile,row=row,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_row_id_lt(self):
         """test row selection (row='<2')"""
@@ -768,7 +768,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         ref_chanlist = ( (20,30), (80,90) )
         self.res=sdflagold(infile=self.rawfile,scan=scan,spw=spw,mode=self.mode,outfile=self.outfile,outform='ASAP')
         self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)
-    
+
     def test_chanflag_pol(self):
         """test channel flagging with pol selection (pol='1', spw='*:20~30;80~90')"""
         pol = '1'
@@ -777,7 +777,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         ref_chanlist = ( (20,30), (80,90) )
         self.res=sdflagold(infile=self.rawfile, pol=pol,spw=spw, mode=self.mode,outfile=self.outfile,outform='ASAP')
         self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)
-    
+
     def test_chanflag_beam(self):
         """test channel flagging with beam selection (beam='13', spw='*:20~30;80~90')"""
         beam = '13'
@@ -786,7 +786,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         ref_chanlist = ( (20,30), (80,90) )
         self.res=sdflagold(infile=self.rawfile, beam=beam,spw=spw, mode=self.mode,outfile=self.outfile,outform='ASAP')
         self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)
-    
+
     def test_chanflag_field(self):
         """test channel flagging with field selection (field='M*', spw='*:20~30;80~90')"""
         field = 'M*'
@@ -795,7 +795,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         ref_chanlist = ( (20,30), (80,90) )
         self.res=sdflagold(infile=self.rawfile, field=field,spw=spw, mode=self.mode,outfile=self.outfile,outform='ASAP')
         self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)
-    
+
     def test_chanflag_timerange(self):
         """test channel flagging with timerange selection (timerange='2011/11/11/02:33:03.47', spw='*:20~30;80~90')"""
         timerange = '2011/11/11/02:33:03.47'
@@ -804,7 +804,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         ref_chanlist = ( (20,30), (80,90) )
         self.res=sdflagold(infile=self.rawfile, timerange=timerange,spw=spw, mode=self.mode,outfile=self.outfile,outform='ASAP')
         self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)
-    
+
     ####################
     # scan
     ####################
@@ -824,42 +824,42 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         scan = '16'
         ref_row = [1,2]
         self.res=self.run_task(infile=self.rawfile,scan=scan,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_scan_id_lt(self):
         """test scan selection (scan='<16')"""
         scan = '<16'
         ref_row = [0]
         self.res=self.run_task(infile=self.rawfile,scan=scan,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_scan_id_gt(self):
         """test scan selection (scan='>16')"""
         scan = '>16'
         ref_row = [3]
         self.res=self.run_task(infile=self.rawfile,scan=scan,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_scan_id_range(self):
         """test scan selection (scan='16~17')"""
         scan = '16~17'
         ref_row = [1,2,3]
         self.res=self.run_task(infile=self.rawfile,scan=scan,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_scan_id_list(self):
         """test scan selection (scan='15,17')"""
         scan = '15,17'
         ref_row = [0,3]
         self.res=self.run_task(infile=self.rawfile,scan=scan,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_scan_id_exprlist(self):
         """test scan selection (scan='15,>16')"""
         scan = '15,>16'
         ref_row = [0,3]
         self.res=self.run_task(infile=self.rawfile,scan=scan,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     ####################
     # beam
@@ -880,42 +880,42 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         beam = '13'
         ref_row = [2,3]
         self.res=self.run_task(infile=self.rawfile,beam=beam,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_beam_id_lt(self):
         """test beam selection (beam='<12')"""
         beam = '<12'
         ref_row = [0]
         self.res=self.run_task(infile=self.rawfile,beam=beam,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_beam_id_gt(self):
         """test beam selection (beam='>12')"""
         beam = '>12'
         ref_row = [2,3]
         self.res=self.run_task(infile=self.rawfile,beam=beam,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_beam_id_range(self):
         """test beam selection (beam='11~12')"""
         beam = '11~12'
         ref_row = [0,1]
         self.res=self.run_task(infile=self.rawfile,beam=beam,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_beam_id_list(self):
         """test beam selection (beam='11,12')"""
         beam = '11,12'
         ref_row = [0,1]
         self.res=self.run_task(infile=self.rawfile,beam=beam,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_beam_id_exprlist(self):
         """test beam selection (beam='<12,13')"""
         beam = '<12,13'
         ref_row = [0,2,3]
         self.res=self.run_task(infile=self.rawfile,beam=beam,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     ####################
     # pol
@@ -936,21 +936,21 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         pol = '1'
         ref_row = [1,3]
         self.res=self.run_task(infile=self.rawfile,pol=pol,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_pol_id_lt(self):
         """test pol selection (pol='<1')"""
         pol = '<1'
         ref_row = [0,2]
         self.res=self.run_task(infile=self.rawfile,pol=pol,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_pol_id_gt(self):
         """test pol selection (pol='>0')"""
         pol = '>0'
         ref_row = [1,3]
         self.res=self.run_task(infile=self.rawfile,pol=pol,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_pol_id_range(self):
         """test pol selection (pol='0~1')"""
@@ -958,7 +958,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         # it's possible to flag all rows if user explicitly specify IDs
         ref_row = [0,1,2,3]
         self.res=self.run_task(infile=self.rawfile,pol=pol,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_pol_id_list(self):
         """test pol selection (pol='0,1')"""
@@ -966,7 +966,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         # it's possible to flag all rows if user explicitly specify IDs
         ref_row = [0,1,2,3]
         self.res=self.run_task(infile=self.rawfile,pol=pol,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_pol_id_exprlist(self):
         """test pol selection (pol='1,<1')"""
@@ -974,7 +974,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         # it's possible to flag all rows if user explicitly specify IDs
         ref_row = [0,1,2,3]
         self.res=self.run_task(infile=self.rawfile,pol=pol,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     ####################
     # field
@@ -995,73 +995,73 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         field = '6'
         ref_row = [1]
         self.res=self.run_task(infile=self.rawfile,field=field,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_field_id_lt(self):
         """test field selection (field='<6')"""
         field = '<6'
         ref_row = [0]
         self.res=self.run_task(infile=self.rawfile,field=field,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_field_id_gt(self):
         """test field selection (field='>7')"""
         field = '>7'
         ref_row = [3]
         self.res=self.run_task(infile=self.rawfile,field=field,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_field_id_range(self):
         """test field selection (field='6~8')"""
         field = '6~8'
         ref_row = [1,2,3]
         self.res=self.run_task(infile=self.rawfile,field=field,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_field_id_list(self):
         """test field selection (field='5,8')"""
         field = '5,8'
         ref_row = [0,3]
         self.res=self.run_task(infile=self.rawfile,field=field,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_field_id_exprlist(self):
         """test field selection (field='5,>7')"""
         field = '5,>7'
         ref_row = [0,3]
         self.res=self.run_task(infile=self.rawfile,field=field,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_field_value_exact(self):
         """test field selection (field='M30')"""
         field = 'M30'
         ref_row = [2]
         self.res=self.run_task(infile=self.rawfile,field=field,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_field_value_pattern(self):
         """test field selection (field='M*')"""
         field = 'M*'
         ref_row = [0,1,2]
         self.res=self.run_task(infile=self.rawfile,field=field,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_field_value_list(self):
         """test field selection (field='3C273,M30')"""
         field = '3C273,M30'
         ref_row = [2,3]
         self.res=self.run_task(infile=self.rawfile,field=field,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_field_mix_exprlist(self):
         """test field selection (field='<6,3*')"""
         field = '<6,3*'
         ref_row = [0,3]
         self.res=self.run_task(infile=self.rawfile,field=field,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     ####################
-    # spw 
+    # spw
     ####################
     def test_spw_id_default(self):
         """test spw selection (spw='', all channels) This should raise error."""
@@ -1079,42 +1079,42 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         spw = '23'
         ref_row = [0,3]
         self.res=self.run_task(infile=self.rawfile,spw=spw,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_spw_id_lt(self):
         """test spw selection (spw='<23', all channels)"""
         spw = '<23'
         ref_row = [2]
         self.res=self.run_task(infile=self.rawfile,spw=spw,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_spw_id_gt(self):
         """test spw selection (spw='>23', all channels)"""
         spw = '>23'
         ref_row = [1]
         self.res=self.run_task(infile=self.rawfile,spw=spw,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_spw_id_range(self):
         """test spw selection (spw='23~25', all channels)"""
         spw = '23~25'
         ref_row = [0,1,3]
         self.res=self.run_task(infile=self.rawfile,spw=spw,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_spw_id_list(self):
         """test spw selection (spw='21,25', all channels)"""
         spw = '21,25'
         ref_row = [1,2]
         self.res=self.run_task(infile=self.rawfile,spw=spw,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_spw_id_exprlist(self):
         """test spw selection (spw='23,>24', all channels)"""
         spw = '23,>24'
         ref_row = [0,1,3]
         self.res=self.run_task(infile=self.rawfile,spw=spw,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_spw_id_pattern(self):
         """test spw selection (spw='*', all channels)  This should raise error."""
@@ -1122,21 +1122,21 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         # it's possible to flag all rows if user explicitly specify IDs
         ref_row = [0,1,2,3]
         self.res=self.run_task(infile=self.rawfile,spw=spw,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_spw_value_frequency(self):
         """test spw selection (spw='299.52~300.47GHz', all channels)"""
         spw = '299.52~300.47GHz' # IFNO=23 will be selected
         ref_row = [0,3]
         self.res=self.run_task(infile=self.rawfile,spw=spw,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_spw_value_velocity(self):
         """test spw selection (spw='-510.~470.km/s', all channels)"""
         spw = '-510.~470km/s' # IFNO=23,25 will be selected
         ref_row = [0,1,3]
         self.res=self.run_task(infile=self.rawfile,spw=spw,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_spw_mix_exprlist(self):
         """test spw selection (spw='25,0~501km/s', all channels)"""
@@ -1144,7 +1144,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         ref_row = [0,1,2,3]
         # it's possible to flag all rows if user explicitly specify IDs
         self.res=self.run_task(infile=self.rawfile,spw=spw,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     #########################
     # spw with channel range
@@ -1163,7 +1163,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         ref_row = [2]
         ref_chanlist = [ (40,50) ]
         self.res=self.run_task(infile=self.rawfile,spw=spw,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)        
+        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)
 
     def test_spw_id_default_velocity(self):
         """test spw selection w/ channel selection (spw=':-519.650~-509.640km/s')"""
@@ -1171,7 +1171,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         ref_row = [1]
         ref_chanlist = [ (60,70) ]
         self.res=self.run_task(infile=self.rawfile,spw=spw,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)        
+        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)
 
     def test_spw_id_default_list(self):
         """test spw selection w/ channel selection (spw=':20~30;80~90')"""
@@ -1179,7 +1179,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         ref_row = [0,1,2,3]
         ref_chanlist = ( (20,30), (80,90) )
         self.res=self.run_task(infile=self.rawfile,spw=spw,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)        
+        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)
 
     def test_spw_id_exact_channel(self):
         """test spw selection w/ channel selection (spw='23:40~60')"""
@@ -1187,7 +1187,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         ref_row = [0,3]
         ref_chanlist = [ (40,60) ]
         self.res=self.run_task(infile=self.rawfile,spw=spw,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)        
+        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)
 
     def test_spw_id_exact_frequency(self):
         """test spw selection w/ channel selection (spw='21:299.490~299.500GHz')"""
@@ -1195,7 +1195,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         ref_row = [2]
         ref_chanlist = [ (40,50) ]
         self.res=self.run_task(infile=self.rawfile,spw=spw,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)        
+        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)
 
     def test_spw_id_exact_velocity(self):
         """test spw selection w/ channel selection (spw='25:-519.650~-509.640km/s')"""
@@ -1203,7 +1203,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         ref_row = [1]
         ref_chanlist = [ (60,70) ] # IFNO=25, channel=60~70 will be selected
         self.res=self.run_task(infile=self.rawfile,spw=spw,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)        
+        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)
 
     def test_spw_id_exact_list(self):
         """test spw selection w/ channel selection (spw='25:20~30;80~90')"""
@@ -1211,7 +1211,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         ref_row = [1]
         ref_chanlist = ( (20,30), (80,90) )
         self.res=self.run_task(infile=self.rawfile,spw=spw,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)        
+        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)
 
     def test_spw_id_pattern_channel(self):
         """test spw selection w/ channel selection (spw='*:40~60')"""
@@ -1219,7 +1219,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         ref_row = [0,1,2,3]
         ref_chanlist = [ (40,60) ]
         self.res=self.run_task(infile=self.rawfile,spw=spw,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)        
+        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)
 
     def test_spw_id_pattern_frequency(self):
         """test spw selection w/ channel selection (spw='*:299.490~299.500GHz')"""
@@ -1227,7 +1227,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         ref_row = [2]
         ref_chanlist = [ (40,50) ]
         self.res=self.run_task(infile=self.rawfile,spw=spw,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)        
+        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)
 
     def test_spw_id_pattern_velocity(self):
         """test spw selection w/ channel selection (spw='*:-519.650~-509.640km/s')"""
@@ -1235,7 +1235,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         ref_row = [1]
         ref_chanlist = [ (60,70) ]
         self.res=self.run_task(infile=self.rawfile,spw=spw,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)        
+        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)
 
     def test_spw_id_pattern_list(self):
         """test spw selection w/ channel selection (spw='*:20~30;80~90')"""
@@ -1243,7 +1243,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         ref_row = [0,1,2,3]
         ref_chanlist = ( (20,30), (80,90) )
         self.res=self.run_task(infile=self.rawfile,spw=spw,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)        
+        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)
 
     def test_spw_value_frequency_channel(self):
         """test spw selection w/ channel selection (spw='299.490~299.510GHz:40~50')"""
@@ -1251,7 +1251,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         ref_row = [2]
         ref_chanlist = [ (40,50) ]
         self.res=self.run_task(infile=self.rawfile,spw=spw,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)        
+        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)
 
     def test_spw_value_frequency_frequency(self):
         """test spw selection w/ channel selection (spw='299.490~299.510GHz:299.490~299.500GHz')"""
@@ -1259,7 +1259,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         ref_row = [2]
         ref_chanlist = [ (40,50) ]
         self.res=self.run_task(infile=self.rawfile,spw=spw,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)        
+        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)
 
     def test_spw_value_frequency_velocity(self):
         """test spw selection w/ channel selection (spw='300.49~300.51GHz:-519.650~-509.640km/s')"""
@@ -1267,7 +1267,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         ref_row = [1]
         ref_chanlist = [ (60,70) ]
         self.res=self.run_task(infile=self.rawfile,spw=spw,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)        
+        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)
 
     def test_spw_value_frequency_list(self):
         """test spw selection w/ channel selection (spw='300.49~300.51GHz:20~30;80~90')"""
@@ -1275,7 +1275,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         ref_row = [1]
         ref_chanlist = ( (20,30), (80,90) )
         self.res=self.run_task(infile=self.rawfile,spw=spw,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)        
+        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)
 
     def test_spw_value_velocity_channel(self):
         """test spw selection w/ channel selection (spw='-30~30km/s:40~60')"""
@@ -1283,7 +1283,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         ref_row = [0,3]
         ref_chanlist = [ (40,60) ]
         self.res=self.run_task(infile=self.rawfile,spw=spw,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)        
+        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)
 
     def test_spw_value_velocity_frequency(self):
         """test spw selection w/ channel selection (spw='490~510km/s:299.490~299.500GHz')"""
@@ -1291,7 +1291,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         ref_row = [2]
         ref_chanlist = [ (40,50) ]
         self.res=self.run_task(infile=self.rawfile,spw=spw,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)        
+        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)
 
     def test_spw_value_velocity_velocity(self):
         """test spw selection w/ channel selection (spw='-510~-490km/s:-519.650~-509.640km/s')"""
@@ -1299,7 +1299,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         ref_row = [1]
         ref_chanlist = [ (60,70) ]
         self.res=self.run_task(infile=self.rawfile,spw=spw,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)        
+        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)
 
     def test_spw_value_velocity_list(self):
         """test spw selection w/ channel selection (spw='-510~-490km/s:20~30;80~90')"""
@@ -1307,7 +1307,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         ref_row = [1]
         ref_chanlist = ( (20,30), (80,90) )
         self.res=self.run_task(infile=self.rawfile,spw=spw,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)        
+        self._test_flag(self.rawfile, ref_row, chanlist=ref_chanlist)
 
     def test_spw_id_list_channel(self):
         """test spw selection w/ channel selection (spw='21:40~50,25:60~70')"""
@@ -1355,35 +1355,35 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         timerange = '2011/11/11/02:33:03.47' # SCANNO=16 will be selected
         ref_row = [1,2]
         self.res=self.run_task(infile=self.rawfile,timerange=timerange,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_timerange_value_lt(self):
         """test timerange selection (timerange='<2011/11/11/02:33:03.47')"""
         timerange = '<2011/11/11/02:33:03.47' # SCANNO=15 will be selected
         ref_row = [0]
         self.res=self.run_task(infile=self.rawfile,timerange=timerange,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_timerange_value_gt(self):
         """test timerange selection (timerange='>2011/11/11/02:33:03.5')"""
         timerange = '>2011/11/11/02:33:03.5' # SCANNO=17 will be selected
         ref_row = [3]
         self.res=self.run_task(infile=self.rawfile,timerange=timerange,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_timerange_value_range(self):
         """test timerange selection (timerange='2011/11/11/02:33:03.47~02:34:03.48')"""
         timerange = '2011/11/11/02:33:03.47~02:34:03.48' # SCANNO=16,17 will be selected
         ref_row = [1,2,3]
         self.res=self.run_task(infile=self.rawfile,timerange=timerange,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
     def test_timerange_value_interval(self):
         """test timerange selection (timerange='2011/11/11/02:33:03.47+00:01:00.1')"""
         timerange = '2011/11/11/02:33:03.47+00:01:00.1' # SCANNO=16,17 will be selected
         ref_row = [1,2,3]
         self.res=self.run_task(infile=self.rawfile,timerange=timerange,mode=self.mode,outfile=self.outfile,outform='ASAP')
-        self._test_flag(self.rawfile, ref_row)        
+        self._test_flag(self.rawfile, ref_row)
 
 
     ####################
@@ -1401,7 +1401,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         if not os.path.exists(name):
             self.fail("Scantable '%s' does not exist." % data)
         if chanlist is None: chanlist = []
-        
+
         tb.open(name)
         flagtra = tb.getcol("FLAGTRA").transpose()
         flagrow = tb.getcol("FLAGROW")
@@ -1447,10 +1447,10 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
             schan = curr_range[0]
             echan = curr_range[1]
             ret_array[schan:echan+1] = True
-        
+
         return ret_array
-            
-        
+
+
 def suite():
     return [sdflagold_test, sdflagold_test_flagged_data,
             sdflagold_test_timerange, sdflagold_selection]

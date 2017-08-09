@@ -47,20 +47,20 @@
 #
 # <synopsis>
 # Test for the ia.restoringbeam() and ia.setrestoringbeam() tool methods
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_restoringbeam[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the ia.restoringbeam and ia.setrestoringbeam() tool methods to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -73,13 +73,13 @@ from __main__ import *
 import unittest
 
 class ia_restoringbeam_test(unittest.TestCase):
-    
+
     def setUp(self):
         self._myia = iatool()
-    
+
     def tearDown(self):
         self._myia.done()
-    
+
     def test_global_beam(self):
         """Test adding, deleting, and setting beams"""
         myia = self._myia
@@ -149,7 +149,7 @@ class ia_restoringbeam_test(unittest.TestCase):
                             Exception, myia.restoringbeam,
                             channel=chan, polarization=pol
                         )
-                        
+
     def test_copy_beams(self):
         """Test copy beamset option - CAS-5435"""
         myia = self._myia
@@ -219,7 +219,7 @@ class ia_restoringbeam_test(unittest.TestCase):
         source.done()
         myia.setrestoringbeam(imagename=imagename)
         self._compareBeams(myia, imagename)
-        
+
         source.fromshape(
             imagename, shape=[5,5, nstokes, 1],
             overwrite=True
@@ -235,7 +235,7 @@ class ia_restoringbeam_test(unittest.TestCase):
         source.done()
         myia.setrestoringbeam(imagename=imagename)
         self._compareBeams(myia, imagename)
-        
+
         source.fromshape(
             imagename, shape=[5,5, nchan],
             overwrite=True
@@ -251,7 +251,7 @@ class ia_restoringbeam_test(unittest.TestCase):
         source.done()
         myia.setrestoringbeam(imagename=imagename)
         self._compareBeams(myia, imagename)
-        
+
         source.fromshape(
             imagename, shape=[5,5, nchan, 1],
             overwrite=True
@@ -267,10 +267,10 @@ class ia_restoringbeam_test(unittest.TestCase):
         source.done()
         myia.setrestoringbeam(imagename=imagename)
         self._compareBeams(myia, imagename)
-        
+
         myia.done()
-        
-        
+
+
     def _compareBeams(self, target, imagename):
         source = iatool()
         source.open(imagename)
@@ -299,7 +299,7 @@ class ia_restoringbeam_test(unittest.TestCase):
                 expec = source.restoringbeam(channel=sc, polarization=p)
                 self.assertTrue(got == expec)
         source.done()
-        
+
     def test_rotate(self):
         """Test rotating beam"""
         myia = self._myia
@@ -350,6 +350,6 @@ class ia_restoringbeam_test(unittest.TestCase):
         myia.done()
         self.assertTrue("ia.setrestoringbeam" in msgs[-2])
         self.assertTrue("ia.setrestoringbeam" in msgs[-1])
-        
+
 def suite():
     return [ia_restoringbeam_test]

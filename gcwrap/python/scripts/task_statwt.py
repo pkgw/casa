@@ -11,7 +11,7 @@ def statwt(vis, dorms, byantenna, sepacs, fitspw, fitcorr, combine,
     try:
         myms = mstool()
         mytb = tbtool()
-        
+
         # parameter check for those not fully implemeted
         # (should be taken out once implemented)
         if byantenna:
@@ -20,7 +20,7 @@ def statwt(vis, dorms, byantenna, sepacs, fitspw, fitcorr, combine,
           raise ValueError("fitcorr is not supported yet")
         if timebin !='0s' and timebin !='-1s':
           raise ValueError("timebin is not supported yet")
-                     
+
         datacol = 'DATA'
         mytb.open(vis)
         colnames  = mytb.colnames()
@@ -31,10 +31,10 @@ def statwt(vis, dorms, byantenna, sepacs, fitspw, fitcorr, combine,
             if datacol in colnames:
                 break
         if datacol == 'junk':
-            raise ValueError(vis + " does not have a data column")        
+            raise ValueError(vis + " does not have a data column")
 
         if datacolumn == 'float_data':
-           raise ValueError("float_data is not yet supported") 
+           raise ValueError("float_data is not yet supported")
 
         if datacolumn == 'corrected' and datacol == 'DATA': # no CORRECTED_DATA case (fall back to DATA)
            casalog.post("No %s column found, using %s column" % (datacolumn.upper()+'_DATA', datacol),'WARN')
@@ -45,10 +45,10 @@ def statwt(vis, dorms, byantenna, sepacs, fitspw, fitcorr, combine,
            else:
                datacolumn_name=datacolumn.upper()
            casalog.post("Using %s column to determine visibility scatter" % datacolumn_name)
-       
+
         if ':' in spw:
             casalog.post('The channel selection part of spw will be ignored.', 'WARN')
-        
+
         if len(correlation)>0:
             correlation=''
             casalog.post('Correlation selection in statwt has been disabled as of CASA v4.5', 'WARN')
@@ -75,7 +75,7 @@ def statwt(vis, dorms, byantenna, sepacs, fitspw, fitcorr, combine,
                                     casalog)
         except Exception as instance:
             casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
-                         'WARN')        
+                         'WARN')
     return retval
-        
-    
+
+

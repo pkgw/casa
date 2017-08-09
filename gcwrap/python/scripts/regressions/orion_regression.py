@@ -30,7 +30,7 @@ print('--Feather--')
 #    VLA Orion mosaic image : orion_vlamem.im
 #    GBT OTF image : orion.gbt.im
 feather('orion_tfeather.im',datapath+'orion_vlamem.im',datapath+'orion.gbt.im')
-feathertime = time.time() 
+feathertime = time.time()
 #GBT:   Max:5.129806e+01        Flux:2.425065e+02 Jy    rms:1.277546e+01
 #VLA:   Max:8.340111e-01        Flux:1.891523e+02 Jy    rms:1.099514e-01
 
@@ -111,7 +111,7 @@ clean(vis='orion.ms',
       stokes='I',
       weighting='briggs',
       robust=-1.0,
-      pbcor=True,      
+      pbcor=True,
       minpb=0.1)
 sdmodelmstime = time.time()
 ###combo: Max:1.195286e+00        Flux:2.873779e+02 Jy    rms:9.069330e-02
@@ -144,55 +144,55 @@ sdmodelmemtime=time.time()
 #### DO joint deconvolution
 ######
 def joint_deconvolve(datapath):
-	print('--Joint deconvolution --')
+        print('--Joint deconvolution --')
 
-	#Regrid GBT image onto synth imaging coordinates
-	ia.open('orion_tsdms.image')
-	csys = ia.coordsys()
-	ia.close()
-	ia.open(datapath+'orion.gbt.im')
-	ib=ia.regrid(outfile='orion_tgbt_regrid.im',shape=[300,300,1,1], axes=[0,1],
-		  csys=csys.torecord(),overwrite=True, asvelocity=False)
-	ib.setcoordsys(csys.torecord())
-	ia.close()
-	ib.done()
+        #Regrid GBT image onto synth imaging coordinates
+        ia.open('orion_tsdms.image')
+        csys = ia.coordsys()
+        ia.close()
+        ia.open(datapath+'orion.gbt.im')
+        ib=ia.regrid(outfile='orion_tgbt_regrid.im',shape=[300,300,1,1], axes=[0,1],
+                  csys=csys.torecord(),overwrite=True, asvelocity=False)
+        ib.setcoordsys(csys.torecord())
+        ia.close()
+        ib.done()
 
-	#Deconvolve GBT image
-	# Sigh.  dc.open will warn about the lack of a PSF, but I can't seem to
-	# define a PSF before calling dc.open.
-	dc.open('orion_tgbt_regrid.im', psf='', warn=False)
-	#make gaussian for PSF (best guess for GBT beam based on beamsize
-	#report in GBT image)
-	dc.makegaussian('gbt_gau.im',bmaj='55arcsec',bmin='55arcsec',
-			bpa='0deg',normalize=False)
-	dc.close()
-	os.system("rm -rf orion_tjoint3")
-	dc.open('orion_tgbt_regrid.im',psf='gbt_gau.im')
-	dc.setscales(scalemethod='uservector',uservector=[30.,50.,100.])
-	dc.clean(algorithm='fullmsclean',model='orion_tjoint3',niter=30,
-		 gain=0.3,mask=datapath+'orion.mask6',threshold='0.5Jy')
-	dc.close()
-	#default('clean')
-	#ia.open('orion_tjoint3')
-	#ia.calc(pixels='orion_tjoint3*"'+datapath+'orion.mask6"')
-	#ia.close()
+        #Deconvolve GBT image
+        # Sigh.  dc.open will warn about the lack of a PSF, but I can't seem to
+        # define a PSF before calling dc.open.
+        dc.open('orion_tgbt_regrid.im', psf='', warn=False)
+        #make gaussian for PSF (best guess for GBT beam based on beamsize
+        #report in GBT image)
+        dc.makegaussian('gbt_gau.im',bmaj='55arcsec',bmin='55arcsec',
+                        bpa='0deg',normalize=False)
+        dc.close()
+        os.system("rm -rf orion_tjoint3")
+        dc.open('orion_tgbt_regrid.im',psf='gbt_gau.im')
+        dc.setscales(scalemethod='uservector',uservector=[30.,50.,100.])
+        dc.clean(algorithm='fullmsclean',model='orion_tjoint3',niter=30,
+                 gain=0.3,mask=datapath+'orion.mask6',threshold='0.5Jy')
+        dc.close()
+        #default('clean')
+        #ia.open('orion_tjoint3')
+        #ia.calc(pixels='orion_tjoint3*"'+datapath+'orion.mask6"')
+        #ia.close()
 
-	im.open('orion.ms')
-	im.selectvis(field=[2,3,4,5,6,7,8,9,10],spw=[0,1])
-	im.defineimage(nx=300,cellx='2arcsec',phasecenter=6,spw=[0,1])
-	im.setvp(dovp=True)
-	#im.setscales(scalemethod='uservector',uservector=[0,3,10,30,100])
-	im.setscales(scalemethod='uservector',uservector=[0,3,10,30,100])
-	###if clean component for large scale goes negative continue to use
-	##that scale
-	im.setoptions(ftmachine='ft', padding=1.2)
-	im.setmfcontrol(stoplargenegatives=-1, cyclefactor=5.0, cyclespeedup=500, flatnoise=False)
-	im.weight(type='briggs',rmode='norm',robust=-1,mosaic=True)
-	im.clean(algorithm='mfmultiscale', model='orion_tjoint3',
-		 image='orion_tjoint3.image', gain=0.3, niter=4000,
-		 mask='', threshold='4mJy')
-	im.close()
-	return time.time()
+        im.open('orion.ms')
+        im.selectvis(field=[2,3,4,5,6,7,8,9,10],spw=[0,1])
+        im.defineimage(nx=300,cellx='2arcsec',phasecenter=6,spw=[0,1])
+        im.setvp(dovp=True)
+        #im.setscales(scalemethod='uservector',uservector=[0,3,10,30,100])
+        im.setscales(scalemethod='uservector',uservector=[0,3,10,30,100])
+        ###if clean component for large scale goes negative continue to use
+        ##that scale
+        im.setoptions(ftmachine='ft', padding=1.2)
+        im.setmfcontrol(stoplargenegatives=-1, cyclefactor=5.0, cyclespeedup=500, flatnoise=False)
+        im.weight(type='briggs',rmode='norm',robust=-1,mosaic=True)
+        im.clean(algorithm='mfmultiscale', model='orion_tjoint3',
+                 image='orion_tjoint3.image', gain=0.3, niter=4000,
+                 mask='', threshold='4mJy')
+        im.close()
+        return time.time()
 
 jointmemtime = joint_deconvolve(datapath)
 
@@ -207,15 +207,15 @@ logfile = open(outfile, 'w')
 
 test_results = {}
 for k, fn in (('Feather 1',           'orion_tfeather.im'),
-	      ('Feather 2',           'orion_tfeather2.im'),
-	      ('SD Model (MS)',       'orion_tsdms.image'),
-	      ('SD Model (MEM)',      'orion_tsdmem.image'),
-	      ('Joint Deconvolution', 'orion_tjoint3.image')):
-	if ia.open(fn):
-		test_results[k] = ia.statistics(list=True, verbose=True)
-		ia.close()
-	else:
-		print("Could not open", fn, "for reading!", file=logfile)
+              ('Feather 2',           'orion_tfeather2.im'),
+              ('SD Model (MS)',       'orion_tsdms.image'),
+              ('SD Model (MEM)',      'orion_tsdmem.image'),
+              ('Joint Deconvolution', 'orion_tjoint3.image')):
+        if ia.open(fn):
+                test_results[k] = ia.statistics(list=True, verbose=True)
+                ia.close()
+        else:
+                print("Could not open", fn, "for reading!", file=logfile)
 
 print('', file=logfile)
 print('********** Data Summary *********', file=logfile)
@@ -269,62 +269,62 @@ print('', file=logfile)
 print('********** Regression ***********', file=logfile)
 print('*                               *', file=logfile)
 
-#              Test name          Stat type Expected  Label irregularities 
+#              Test name          Stat type Expected  Label irregularities
 test_descs = (('Feather 1',           'max',  0.780,  ' '),
-	      ('Feather 2',           'max',  0.978,  ' '),
-	      ('SD Model (MS)',       'max',  1.14),
-	      ('SD Model (MEM)',      'max',  0.906),
-	      ('Joint Deconvolution', 'max',  1.10, '', 'Joint Decon1'), # 1.014
-	      ('Feather 1',           'flux', 242.506,  ' '),
-	      ('Feather 2',           'flux', 242.506,  ' '),
-	      ('SD Model (MS)',       'flux', 347, ' ', 'SD Model (MS)', 'SD Model MS'),
-	      ('SD Model (MEM)',      'flux', 286, '', 'SD Model (MEM)', 'Joint Deconvolution'),
-	      ('Joint Deconvolution', 'flux', 272, '', 'Joint Decon2')) # 360.468
+              ('Feather 2',           'max',  0.978,  ' '),
+              ('SD Model (MS)',       'max',  1.14),
+              ('SD Model (MEM)',      'max',  0.906),
+              ('Joint Deconvolution', 'max',  1.10, '', 'Joint Decon1'), # 1.014
+              ('Feather 1',           'flux', 242.506,  ' '),
+              ('Feather 2',           'flux', 242.506,  ' '),
+              ('SD Model (MS)',       'flux', 347, ' ', 'SD Model (MS)', 'SD Model MS'),
+              ('SD Model (MEM)',      'flux', 286, '', 'SD Model (MEM)', 'Joint Deconvolution'),
+              ('Joint Deconvolution', 'flux', 272, '', 'Joint Decon2')) # 360.468
 
 def log_test_result(test_results, testdesc, logfile):
-	"""Append testdesc to logfile and return whether or not the test was
-	successful."""
-	result = test_results[testdesc[0]][testdesc[1]][0]
-	reldiff = abs(1.0 - result / testdesc[2])
-	if reldiff < 0.05:
-		print('* Passed', end=' ', file=logfile)
-		print('* Alright', end=' ')
-		retval = True
-	else:
-		print('! FAILED', end=' ', file=logfile)
-		print('#####FAILED')
-		retval = False
+        """Append testdesc to logfile and return whether or not the test was
+        successful."""
+        result = test_results[testdesc[0]][testdesc[1]][0]
+        reldiff = abs(1.0 - result / testdesc[2])
+        if reldiff < 0.05:
+                print('* Passed', end=' ', file=logfile)
+                print('* Alright', end=' ')
+                retval = True
+        else:
+                print('! FAILED', end=' ', file=logfile)
+                print('#####FAILED')
+                retval = False
 
-	# RR 4/18/2009: I think this complication might stem from a bug in the
-	# original version of the script, but since it is a regression script I
-	# am hesitant to change the output.
-	if len(testdesc) > 5:
-		title1 = testdesc[5]
-	else:
-		title1 = testdesc[0]
-	if len(testdesc) > 4:
-		title2 = testdesc[4]
-	else:
-		title2 = testdesc[0]
-	title2 += ':'
-	if testdesc[1] == 'max':
-		title1 += ' image max'
-		title2 += ' Image max'
-	else:
-		title1 += ' ' + testdesc[1]
-		title2 += ' ' + testdesc[1].title()
-	if len(testdesc) > 3:
-		title2 += testdesc[3]
-		
-	print(title1, 'test', file=logfile)
-	print(title1, 'test')
-	print('*--  ' + title2 + str(result) + ',' + str(testdesc[2]), file=logfile)
-	print('*--  ' + title2 + str(result) + ',' + str(testdesc[2]))
-	return retval
+        # RR 4/18/2009: I think this complication might stem from a bug in the
+        # original version of the script, but since it is a regression script I
+        # am hesitant to change the output.
+        if len(testdesc) > 5:
+                title1 = testdesc[5]
+        else:
+                title1 = testdesc[0]
+        if len(testdesc) > 4:
+                title2 = testdesc[4]
+        else:
+                title2 = testdesc[0]
+        title2 += ':'
+        if testdesc[1] == 'max':
+                title1 += ' image max'
+                title2 += ' Image max'
+        else:
+                title1 += ' ' + testdesc[1]
+                title2 += ' ' + testdesc[1].title()
+        if len(testdesc) > 3:
+                title2 += testdesc[3]
+
+        print(title1, 'test', file=logfile)
+        print(title1, 'test')
+        print('*--  ' + title2 + str(result) + ',' + str(testdesc[2]), file=logfile)
+        print('*--  ' + title2 + str(result) + ',' + str(testdesc[2]))
+        return retval
 
 regstate = True
 for td in test_descs:
-	regstate &= log_test_result(test_results, td, logfile)
+        regstate &= log_test_result(test_results, td, logfile)
 
 if regstate:
         print('---', file=logfile)

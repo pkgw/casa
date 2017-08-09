@@ -2,7 +2,7 @@
 #                                                                        #
 # Demo Script for NGC 4826 (BIMA line data)                              #
 #                                                                        #
-# (with additions for Multi-MS testing, DP 2012)                         # 
+# (with additions for Multi-MS testing, DP 2012)                         #
 #                                                                        #
 # Converted by  STM 2008-05-27 (Beta Patch 2.0) new tasking/clean/cal    #
 # Updated by     CB 2008-05-30                  start from raw data      #
@@ -76,7 +76,7 @@ usemms_step   = 0 # at concat
 usefieldwise = True
 
 
-def makefieldwisemms(msname):    
+def makefieldwisemms(msname):
     casalog.post('******* Making field-wise MMS. *******', "INFO", 'makefieldwisemms')
     print('******* Making field-wise MMS. *******')
     os.system('rm -rf temp.ms; mv '+msname+' temp.ms')
@@ -123,7 +123,7 @@ scriptprefix='ngc4826_tutorial_regression'
 
 #
 ##########################################################################
-#                                                                        
+#
 # Clear out previous run results
 os.system('rm -rf ngc4826.tutorial.*')
 
@@ -138,22 +138,22 @@ print('')
 #
 ##########################################################################
 #
-# 
+#
 ##########################################################################
 #
 # N4826 - BIMA SONG Data
 # 16apr98
-#	source=ngc4826
-#	phasecal=1310+323
-#	fluxcal=3c273, Flux = 23 Jy on 16apr98
-#	passcal= none - data were observed with online bandpass correction.
+#       source=ngc4826
+#       phasecal=1310+323
+#       fluxcal=3c273, Flux = 23 Jy on 16apr98
+#       passcal= none - data were observed with online bandpass correction.
 #
-# NOTE: This data has been filled into MIRIAD, line-length correction 
-#	done, and then exported as separate files for each source.
-#	3c273 was not line length corrected since it was observed
-#	for such a short amount of time that it did not need it.  
+# NOTE: This data has been filled into MIRIAD, line-length correction
+#       done, and then exported as separate files for each source.
+#       3c273 was not line length corrected since it was observed
+#       for such a short amount of time that it did not need it.
 #
-# From miriad: source Vlsr = 408; delta V is 20 km/s 
+# From miriad: source Vlsr = 408; delta V is 20 km/s
 #
 #
 ##########################################################################
@@ -310,7 +310,7 @@ if benchmarking:
 #       'ngc4826.tutorial.1310+323.ll.13.ms',
 #       'ngc4826.tutorial.1310+323.ll.14.ms',
 #       'ngc4826.tutorial.1310+323.ll.15.ms',
-#       'ngc4826.tutorial.1310+323.ll.16.ms',	    
+#       'ngc4826.tutorial.1310+323.ll.16.ms',
 #       'ngc4826.tutorial.ngc4826.ll.5.ms',
 #       'ngc4826.tutorial.ngc4826.ll.6.ms',
 #       'ngc4826.tutorial.ngc4826.ll.7.ms',
@@ -337,7 +337,7 @@ if benchmarking:
 ##tb.putcol('SPECTRAL_WINDOW_ID',spwid)
 ##tb.close()
 
-# This ensures that the rest freq will be found for all spws. 
+# This ensures that the rest freq will be found for all spws.
 
 #
 ##########################################################################
@@ -377,34 +377,34 @@ if benchmarking:
     list2time=time.time()
 
 # Fields: 9
-# ID   Code Name          Right Ascension  Declination   Epoch   
-# 0         3C273         12:29:06.70      +02.03.08.60  J2000   
-# 1         1310+323      13:10:28.66      +32.20.43.78  J2000   
-# 2         NGC4826       12:56:44.24      +21.41.05.10  J2000   
-# 3         NGC4826       12:56:41.08      +21.41.05.10  J2000   
-# 4         NGC4826       12:56:42.66      +21.41.43.20  J2000   
-# 5         NGC4826       12:56:45.82      +21.41.43.20  J2000   
-# 6         NGC4826       12:56:47.39      +21.41.05.10  J2000   
-# 7         NGC4826       12:56:45.82      +21.40.27.00  J2000   
-# 8         NGC4826       12:56:42.66      +21.40.27.00  J2000   
+# ID   Code Name          Right Ascension  Declination   Epoch
+# 0         3C273         12:29:06.70      +02.03.08.60  J2000
+# 1         1310+323      13:10:28.66      +32.20.43.78  J2000
+# 2         NGC4826       12:56:44.24      +21.41.05.10  J2000
+# 3         NGC4826       12:56:41.08      +21.41.05.10  J2000
+# 4         NGC4826       12:56:42.66      +21.41.43.20  J2000
+# 5         NGC4826       12:56:45.82      +21.41.43.20  J2000
+# 6         NGC4826       12:56:47.39      +21.41.05.10  J2000
+# 7         NGC4826       12:56:45.82      +21.40.27.00  J2000
+# 8         NGC4826       12:56:42.66      +21.40.27.00  J2000
 # Spectral Windows:
 # SpwID  #Chans Frame Ch1(MHz)    ChanWid(kHz)TotBW(kHz)  Ref(MHz)    Corrs
-# 0          64 LSRK  115108.478  1562.5      100000      115108.478  YY  
-# 1          64 LSRK  115198.615  1562.5      100000      115198.615  YY  
-# 2          64 LSRK  115288.478  1562.5      100000      115288.478  YY  
-# 3          64 LSRK  115378.615  1562.5      100000      115378.615  YY  
-# 4          32 LSRK  114974.256  3125        100000      114974.256  YY  
-# 5          32 LSRK  115074.393  3125        100000      115074.393  YY  
-# 6          32 LSRK  115174.256  3125        100000      115174.256  YY  
-# 7          32 LSRK  115274.393  3125        100000      115274.393  YY  
-# 8          32 LSRK  115374.256  3125        100000      115374.256  YY  
-# 9          32 LSRK  115474.392  3125        100000      115474.392  YY  
-# 10         32 LSRK  115574.255  3125        100000      115574.255  YY  
-# 11         32 LSRK  115674.392  3125        100000      115674.392  YY  
-# 12         64 LSRK  114950.191  1562.5      100000      114950.191  YY  
-# 13         64 LSRK  115040.205  1562.5      100000      115040.205  YY  
-# 14         64 LSRK  115129.946  1562.5      100000      115129.946  YY  
-# 15         64 LSRK  115219.96   1562.5      100000      115219.96   YY  
+# 0          64 LSRK  115108.478  1562.5      100000      115108.478  YY
+# 1          64 LSRK  115198.615  1562.5      100000      115198.615  YY
+# 2          64 LSRK  115288.478  1562.5      100000      115288.478  YY
+# 3          64 LSRK  115378.615  1562.5      100000      115378.615  YY
+# 4          32 LSRK  114974.256  3125        100000      114974.256  YY
+# 5          32 LSRK  115074.393  3125        100000      115074.393  YY
+# 6          32 LSRK  115174.256  3125        100000      115174.256  YY
+# 7          32 LSRK  115274.393  3125        100000      115274.393  YY
+# 8          32 LSRK  115374.256  3125        100000      115374.256  YY
+# 9          32 LSRK  115474.392  3125        100000      115474.392  YY
+# 10         32 LSRK  115574.255  3125        100000      115574.255  YY
+# 11         32 LSRK  115674.392  3125        100000      115674.392  YY
+# 12         64 LSRK  114950.191  1562.5      100000      114950.191  YY
+# 13         64 LSRK  115040.205  1562.5      100000      115040.205  YY
+# 14         64 LSRK  115129.946  1562.5      100000      115129.946  YY
+# 15         64 LSRK  115219.96   1562.5      100000      115219.96   YY
 
 #
 ##########################################################################
@@ -504,7 +504,7 @@ if benchmarking:
 #           averagemode='vector',timebin='1e7',crossscans=True,
 #           iteration='baseline',
 #           selectplot=True,newplot=False,title='Field 0 SPW 0~3')
-	
+
     # Pause script if you are running in scriptmode
 #    user_check=raw_input('Return to continue script\n')
 
@@ -531,7 +531,7 @@ if benchmarking:
 #           selectplot=True,newplot=False,title='Field 8 SPW 12~15',
 #           interactive=False,
 #           figfile='ngc4826.tutorial.ms.plotxy.field2.amptime.noavg.png')
-    
+
 if benchmarking:
     plotxy2time=time.time()
 
@@ -566,7 +566,7 @@ print("Flagging bad correlator field 8 antenna 3&9 spw 15 all channels")
 print("  timerange 1998/04/16/06:19:00.0~1998/04/16/06:20:00.0")
 print("")
 
-flagdata(vis='ngc4826.tutorial.ms', mode='manual', field='8', spw='15', antenna='3&9', 
+flagdata(vis='ngc4826.tutorial.ms', mode='manual', field='8', spw='15', antenna='3&9',
          timerange='1998/04/16/06:19:00.0~1998/04/16/06:20:00.0')
 
 #
@@ -574,7 +574,7 @@ flagdata(vis='ngc4826.tutorial.ms', mode='manual', field='8', spw='15', antenna=
 #
 # NOTE: this is already flagged in the data so do nothing more here
 #flagdata(vis='ngc4826.tutorial.ms', mode='manualflag', antenna='6',
-#	 timerange='1998/04/16/09:42:39.0~1998/04/16/10:24:46.0')
+#        timerange='1998/04/16/09:42:39.0~1998/04/16/10:24:46.0')
 
 #
 #
@@ -672,9 +672,9 @@ print('Using solint=inf combining over spw')
 print('Output table ngc4826.tutorial.16apr98.gcal')
 
 gaincal(vis='ngc4826.tutorial.ms', caltable='ngc4826.tutorial.16apr98.gcal',
-	field='0,1', spw='0~11', gaintype='G', minsnr=2.0,
-	refant='ANT5',
-	solint='inf', combine='spw')
+        field='0,1', spw='0~11', gaintype='G', minsnr=2.0,
+        refant='ANT5',
+        solint='inf', combine='spw')
 
 if benchmarking:
     gaincal2time=time.time()
@@ -699,8 +699,8 @@ print('Transferring flux of 3C273 to sources: 1310+323')
 print('Output table ngc4826.tutorial.16apr98.fcal')
 
 fluxscale(vis='ngc4826.tutorial.ms', caltable='ngc4826.tutorial.16apr98.gcal',
-	  fluxtable='ngc4826.tutorial.16apr98.fcal',
-	  reference='3C273', transfer=['1310+323'])
+          fluxtable='ngc4826.tutorial.16apr98.fcal',
+          reference='3C273', transfer=['1310+323'])
 
 # Flux density for 1310+323 is: 1.48 +/- 0.016 (SNR = 90.6, nAnt= 8)
 
@@ -727,7 +727,7 @@ if scriptmode:
     print('')
     print('Plotting final scaled gain calibration table')
     print('First amp vs. time for all fields ')
-	
+
     # Pause script if you are running in scriptmode
     user_check=input('Return to continue script\n')
 
@@ -758,16 +758,16 @@ if benchmarking:
 #
 # Correct the calibrater/target source data:
 # Use new parm spwmap to apply gain solutions derived from spwid1
-# to all other spwids... 
+# to all other spwids...
 print('--Applycal--')
 default('applycal')
 
 print('Applying calibration table ngc4826.tutorial.16apr98.fcal to data')
 
 applycal(vis='ngc4826.tutorial.ms',
-	 field='', spw='',
+         field='', spw='',
          gaintable='ngc4826.tutorial.16apr98.fcal',
-	 spwmap=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
+         spwmap=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
 
 if benchmarking:
     correct2time=time.time()
@@ -800,20 +800,20 @@ if (usemms_step==6):
 #print ""
 #print "Look for outliers, flag them if there are any bad ones"
 #print ""
-	
+
 # Pause script if you are running in scriptmode
 #user_check=raw_input('Return to continue script\n')
 
 # You can also plot all the N4826 fields 2 through 8, for example using a loop:
 
 #for fld in range(2,9):
-#	field = str(fld)
-#	plotxy(vis='ngc4826.tutorial.ms',xaxis='velocity',yaxis='amp',
+#       field = str(fld)
+#       plotxy(vis='ngc4826.tutorial.ms',xaxis='velocity',yaxis='amp',
 #              field=field,spw='11~15',
-#	       averagemode='vector',datacolumn='corrected',
-#	       selectplot=True,newplot=False,title='Field '+field+' SPW 11~15')
-#	
-#	user_check=raw_input('Return to continue script\n')
+#              averagemode='vector',datacolumn='corrected',
+#              selectplot=True,newplot=False,title='Field '+field+' SPW 11~15')
+#
+#       user_check=raw_input('Return to continue script\n')
 
 # Now here we time-average the data, plotting versus velocity
 
@@ -823,7 +823,7 @@ if (usemms_step==6):
 #       selectplot=True,newplot=False,title='Field '+field+' SPW '+spw)
 #print ""
 #print 'Final Spectrum field '+field+' spw '+spw+' TimeAverage Corrected Data'
-	
+
 # Pause script if you are running in scriptmode
 #user_check=raw_input('Return to continue script\n')
 
@@ -847,7 +847,7 @@ if (usemms_step==6):
 #       selectplot=True,newplot=False,title='Field '+field+' SPW '+spw)
 #
 #print 'OverPlotting field '+field+' spw '+spw+' TimeChanAverage Original Data in red'
-	
+
 ## Pause script if you are running in scriptmode
 #user_check=raw_input('Return to continue script\n')
 
@@ -919,7 +919,7 @@ if benchmarking:
 #default('clean')
 #
 #
-#clean(vis='ngc4826.tutorial.16apr98.1310+323.split.ms', 
+#clean(vis='ngc4826.tutorial.16apr98.1310+323.split.ms',
 #      imagename='ngc4826.tutorial.16apr98.cal.clean',
 #      cell=[1.,1.],imsize=[256,256],
 #      field='0',spw='0~7',threshold=10.,
@@ -959,7 +959,7 @@ if (usemms_step==7):
 #
 #          F5 (field 5)         F6 (field 6)
 #
-# 4x64 channels = 256 channels 
+# 4x64 channels = 256 channels
 #
 # Primary Beam should be about 1.6' FWHM (7m dishes, 2.7mm wavelength)
 # Resolution should be about 5-8"
@@ -1182,9 +1182,9 @@ print("Calculating Moments 0,1 for PBcor image")
 # to collapse along, the spectral axis=3
 
 immoments(imagename='ngc4826.tutorial.16apr98.src.clean.pbcor',
-	  moments=[0],
-	  chans='6~27',
-          outfile='ngc4826.tutorial.16apr98.moments.integrated') 
+          moments=[0],
+          chans='6~27',
+          outfile='ngc4826.tutorial.16apr98.moments.integrated')
 
 # TUTORIAL NOTES: For moment 0 we use the image corrected for the
 # mosaic response to get correct integrated flux densities. However,
@@ -1200,9 +1200,9 @@ immoments(imagename='ngc4826.tutorial.16apr98.src.clean.pbcor',
 # flux cutoff to produce sensible results.
 
 immoments(imagename='ngc4826.tutorial.16apr98.src.clean.image',
-	  moments=[1],includepix=[0.2,1000.0],
-	  chans='6~27',
-          outfile='ngc4826.tutorial.16apr98.moments.mom1') 
+          moments=[1],includepix=[0.2,1000.0],
+          chans='6~27',
+          outfile='ngc4826.tutorial.16apr98.moments.mom1')
 
 # Now view the resulting images
 if scriptmode:
@@ -1213,7 +1213,7 @@ if scriptmode:
     print("Change the colorscale to get better image")
     print("You can also Open and overlay Contours of Moment-1 ngc4826.tutorial.16apr98.moments.mom1")
     print("Close the viewer when done")
-    
+
     # Pause script if you are running in scriptmode
     user_check=input('Return to continue script\n')
 
@@ -1223,15 +1223,15 @@ try:
     immoments(imagename='ngc4826.tutorial.16apr98.src.clean.image',
               moments=[1],includepix=[],
               chans='0',
-              outfile='ngc4826.tutorial.16apr98.moments.plane0.mom1') 
+              outfile='ngc4826.tutorial.16apr98.moments.plane0.mom1')
 except:
     pass
 
 # Do a moment one on channel 35 to check that the indexing is right
 try:
     immoments(imagename='ngc4826.tutorial.16apr98.src.clean.image',
-	  moments=[1],includepix=[],
-	  chans='35',
+          moments=[1],includepix=[],
+          chans='35',
           outfile='ngc4826.tutorial.16apr98.moments.plane35.mom1')
 except:
     pass
@@ -1340,19 +1340,19 @@ ms.close()
 
 #print '--ImMoments (masked)--'
 #print 'Creating masked moment 0 image ngc4826.tutorial.16apr98.moments.integratedmasked'
-#	
+#
 #immoments(imagename='ngc4826.tutorial.16apr98.src.clean.pbcor.masked',
 #          moments=0,axis=3,
-#	   planes='6~27',
-#	   outfile='ngc4826.tutorial.16apr98.moments.integratedmasked') 
+#          planes='6~27',
+#          outfile='ngc4826.tutorial.16apr98.moments.integratedmasked')
 #
 #print 'Creating masked moment 1 image ngc4826.tutorial.16apr98.moments.mom1masked'
 #
 #immoments(imagename='ngc4826.tutorial.16apr98.src.clean.pbcor.masked',
 #          moments=1,axis=3,
-#	   includepix=[0.2,1000.0],
-#	   planes='6~27',
-#	   outfile='ngc4826.tutorial.16apr98.moments.mom1masked') 
+#          includepix=[0.2,1000.0],
+#          planes='6~27',
+#          outfile='ngc4826.tutorial.16apr98.moments.mom1masked')
 
 # Now view the resulting images
 #viewer('ngc4826.tutorial.16apr98.moments.integratedmasked')
@@ -1416,7 +1416,7 @@ if benchmarking:
 #model_pbcor_sum = 76.960971
 
 #New values STM 2008-12-01 Patch3.0 (released version)
-#for 400x400 clean 
+#for 400x400 clean
 #testdate = '2008-12-01 (STM)'
 #testvers = 'CASA Version 2.3.0 Rev 6654'
 #clean_image_max = 1.481322
@@ -1433,7 +1433,7 @@ if benchmarking:
 #model_pbcor_sum = 70.417830
 
 #New values STM 2009-02-25 Patch3.1
-#for 400x400 clean 
+#for 400x400 clean
 #testdate = '2009-02-25 (STM)'
 #testvers = 'CASA Version 2.3.1 Rev 6826'
 #clean_image_max = 1.481322
@@ -1489,7 +1489,7 @@ if benchmarking:
 ## #new values for flat noise clean
 ## testdate = '2009-12-02 (STM)'
 ## testvers = 'CASA Version 3.0.1 Rev 10130'
-## clean_image_max = 1.465047 
+## clean_image_max = 1.465047
 ## clean_offsrc_rms = 0.058497
 ## clean_offline_rms = 0.055416
 ## clean_momentzero_max = 163.726852
@@ -1655,7 +1655,7 @@ else:
     regression['exist'] = True
 
     prev_results = regression['results']
-    
+
 #
 ##########################################################################
 # Calculate regression values
@@ -1680,7 +1680,7 @@ try:
     offlinerms = offlinestat['sigma'][0]
 except:
     offlinerms = 0.0
-    
+
 try:
     momzero_max = momzerostat['max'][0]
 except:
@@ -1889,7 +1889,7 @@ for keys in resultlist:
             new_status = 'Failed'
         else:
             new_status = 'Passed'
-        
+
         results[keys]['prev'] = prev_val
         results[keys]['diff'] = new_diff
         results[keys]['status'] = new_status
@@ -1944,7 +1944,7 @@ if benchmarking:
     stages[12] = ['clean',(clean2time-split2time)]
     stages[13] = ['math/stat',(math2time-clean2time)]
     stages[14] = ['moments',(moments2time-math2time)]
-    
+
     new_regression['timing']['stages'] = stages
 
 #
@@ -2032,14 +2032,14 @@ if regression['exist']:
     print("  Regression results filled from "+regressfile, file=logfile)
     print("  Regression from version "+regression['version']+" on "+regression['date'], file=logfile)
     print("  Regression platform "+regression['host'], file=logfile)
-    
+
     print("  Regression results filled from "+regressfile)
     print("  Regression from version "+regression['version']+" on "+regression['date'])
     print("  Regression platform "+regression['host'])
     if 'aipspath' in regression:
         print("  Regression casapath "+regression['aipspath'], file=logfile)
         print("  Regression casapath "+regression['aipspath'])
-    
+
 else:
     print("  No previous regression file", file=logfile)
 
@@ -2070,7 +2070,7 @@ else:
     print('')
     print('Regression FAILED')
     print('')
-    
+
 #
 ##########################################################################
 # Print benchmarking etc.
@@ -2096,7 +2096,7 @@ if benchmarking:
     for i in range(nstages):
         print('* %16s * time was: %10.3f ' % tuple(stages[i]))
         print('* %16s * time was: %10.3f ' % tuple(stages[i]), file=logfile)
-    
+
     print('************************************************', file=logfile)
     print('sandrock (2008-06-17) wall time was: 377 seconds', file=logfile)
     print('sandrock (2008-06-17) CPU  time was: 312 seconds', file=logfile)

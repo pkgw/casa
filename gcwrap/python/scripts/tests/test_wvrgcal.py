@@ -41,7 +41,7 @@ class wvrgcal_test(unittest.TestCase):
 ## 4   'wvrgcalctest_segsource.W': '--segsource',
 ## 5   'wvrgcalctest_wvrflag1.W': '--wvrflag DV03',
 ## 6   'wvrgcalctest_wvrflag2.W': '--wvrflag DV03 --wvrflag PM02',
-## 7   'wvrgcalctest_reverse.W': '--reverse', 
+## 7   'wvrgcalctest_reverse.W': '--reverse',
 ## 8   'wvrgcalctest_reversespw.W': '--reversespw 1', ................... test4
 ## 9   'wvrgcalctest_smooth.W':'smooth 3 seconds',........................ test5
 ## 10   'wvrgcalctest_scale.W':'--scale 0.8', ............................ test6
@@ -53,12 +53,12 @@ class wvrgcal_test(unittest.TestCase):
 ## 16   'wvrgcalctest_nsol.W':'--nsol 5' ..................................test11
 ## 17   'wvrgcalctest_disperse.W':'--disperse', .......................... test12
 
-    makeref = False # set this to true to generate new reference tables 
+    makeref = False # set this to true to generate new reference tables
 
     out = 'mycaltable.wvr'
     rval = False
-    
-    def setUp(self):    
+
+    def setUp(self):
         self.rval = False
 
         if(not os.path.exists(self.vis_f)):
@@ -93,7 +93,7 @@ class wvrgcal_test(unittest.TestCase):
 
 
 
-# Test cases    
+# Test cases
     def test1(self):
         '''Test 1: Testing default'''
         self.rval = wvrgcal()
@@ -188,10 +188,10 @@ class wvrgcal_test(unittest.TestCase):
         self.assertTrue(os.path.exists(self.out))
         self.assertTrue(os.path.exists(self.out+'_unsmoothed'))
         smoothcal(vis = "myinput.ms",
-		  tablein = self.out+'_unsmoothed',
-		  caltable = self.out+'_ref',
-		  smoothtype = 'mean',
-		  smoothtime = 3.)
+                  tablein = self.out+'_unsmoothed',
+                  caltable = self.out+'_ref',
+                  smoothtype = 'mean',
+                  smoothtime = 3.)
         if(self.rval):
             self.rval = th.compTables(self.out+'_ref', self.out, ['WEIGHT'], # ignore WEIGHT because it is empty
                                       0.01) # tolerance 1 % to accomodate differences between Linux and Mac OSX
@@ -338,7 +338,7 @@ class wvrgcal_test(unittest.TestCase):
         os.system('cp -R ' + myvis + ' myinput.ms')
 
         flagdata(vis="myinput.ms", spw='0', mode='manual')
-        
+
         os.system('rm -rf '+self.out)
         rvaldict = wvrgcal(vis="myinput.ms", caltable=self.out, disperse=True, toffset=-1.)
 
@@ -360,7 +360,7 @@ class wvrgcal_test(unittest.TestCase):
         flagdata(vis="myinput.ms", timerange='09:10:11~09:10:15', antenna='DV14&&*', mode='manual')
         #flagdata(vis="myinput.ms", scan='2', mode='manual')
         split(vis='myinput.ms', outputvis='myinput2.ms', datacolumn='data', keepflags=False)
-        
+
         rvaldict = wvrgcal(vis="myinput.ms", caltable='comp.W', toffset=0.)
         rvaldict2 = wvrgcal(vis="myinput2.ms", caltable='comp2.W', toffset=0.)
 
@@ -372,11 +372,11 @@ class wvrgcal_test(unittest.TestCase):
         if(self.rval):
             rvaldict2['Disc_um'][14]= 64.299999999999997 # The value for antenna14 is the only one expected to be different
             rvaldict2['RMS_um'][14]= 55.600000000000001 # The value for antenna14 is the only one expected to be different
-            
+
             self.rval = (rvaldict==rvaldict2)
-               
+
         self.assertTrue(self.rval)
-        
+
 
     def test15(self):
         '''Test 15:  wvrgcal4quasar_10s.ms, one antenna flagged'''
@@ -393,7 +393,7 @@ class wvrgcal_test(unittest.TestCase):
         fr[2] = True
         tb.putcol('FLAG_ROW', fr)
         tb.close()
-        
+
         rvaldict2 = wvrgcal(vis="myinput.ms", caltable='comp.W', toffset=-1.)
 
         print(rvaldict)
@@ -438,7 +438,7 @@ class wvrgcal_test(unittest.TestCase):
                         self.rval=False
                         print("CPARAM for antenna 1 has value ", c[i], " expected (1+0j).")
                         break
-            
+
         self.assertTrue(self.rval)
 
     def test17(self):
@@ -452,7 +452,7 @@ class wvrgcal_test(unittest.TestCase):
 
         flagdata(vis='myinput.ms', mode='manual', antenna='DA41&&*')
         flagdata(vis='myinput.ms', mode='manual', antenna='CM01&&*', scan='1') # antenna 0, scan 1 only!
-        
+
         rvaldict2 = wvrgcal(vis="myinput.ms", caltable='comp.W', toffset=-1., mingoodfrac=0.5)
 
         print(rvaldict)
@@ -466,10 +466,10 @@ class wvrgcal_test(unittest.TestCase):
                                                        # to make following test pass if all else agrees.
             rvaldict2['Flag'][2]=True # by the same logic as above
             rvaldict2['RMS_um'][2]=66.900000000000006 # by the same logic as above
-            for mykey in ['Name', 'WVR', 'RMS_um', 'Disc_um']:  
+            for mykey in ['Name', 'WVR', 'RMS_um', 'Disc_um']:
                 print(mykey+" "+str(rvaldict[mykey]==rvaldict2[mykey]))
             self.rval = (rvaldict==rvaldict2)
-               
+
         self.assertTrue(self.rval)
 
     def test18(self):
@@ -483,7 +483,7 @@ class wvrgcal_test(unittest.TestCase):
 
         flagdata(vis='myinput.ms', mode='manual', antenna='DA41&&*')
         flagdata(vis='myinput.ms', mode='manual', antenna='DV12&&*', timerange='9:10:12~9:10:13,9:12:31~9:12:32') # antenna 12, a few non-contiguous scans!
-        
+
         rvaldict2 = wvrgcal(vis="myinput.ms", caltable='comp.W', toffset=-1.)
 
         print(rvaldict)
@@ -497,10 +497,10 @@ class wvrgcal_test(unittest.TestCase):
                                                        # to make following test pass if all else agrees.
             rvaldict2['Flag'][12]=False # by the same logic as above
             rvaldict2['RMS_um'][12]=66.0 # by the same logic as above
-            for mykey in ['Name', 'WVR', 'RMS_um', 'Disc_um']:  
+            for mykey in ['Name', 'WVR', 'RMS_um', 'Disc_um']:
                 print(mykey+" "+str(rvaldict[mykey]==rvaldict2[mykey]))
             self.rval = (rvaldict==rvaldict2)
-               
+
         self.assertTrue(self.rval)
 
     def test19(self):
@@ -552,7 +552,7 @@ class wvrgcal_test(unittest.TestCase):
             self.rval = th.compcaltabnumcol(self.out, 'comp.W', 1E-6, colname1='CPARAM', colname2="CPARAM", testspw=5)
         if(self.rval):
             self.rval = th.compcaltabnumcol(self.out, 'comp.W', 1E-6, colname1='CPARAM', colname2="CPARAM", testspw=7)
-               
+
         self.assertTrue(self.rval)
 
     def test21(self):

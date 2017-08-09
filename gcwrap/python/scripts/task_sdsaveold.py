@@ -13,7 +13,7 @@ def sdsaveold(infile, splitant, antenna, getpt, field, spw, timerange, scan, pol
         worker.initialize()
         worker.execute()
         worker.finalize()
-        
+
 
 class sdsave_worker(sdutil.sdtask_template):
     def __init__(self, **kwargs):
@@ -25,13 +25,13 @@ class sdsave_worker(sdutil.sdtask_template):
         self.restore = False
         self.molids = None
         self.rfset = (self.restfreq != '') and (self.restfreq != [])
-        
+
     def initialize_scan(self):
         if self.splitant:
             if not is_ms(self.infile):
                 msg = 'input data must be in MS format'
                 raise Exception(msg)
-            
+
             import datetime
             dt = datetime.datetime.now()
             self.temp_prefix = "temp-sdsaveold" + dt.strftime("%Y%m%d%H%M%S")
@@ -50,7 +50,7 @@ class sdsave_worker(sdutil.sdtask_template):
 
                 # retrieve antenna names
                 self.antenna_names.append(split_infile.split('.')[1])
-            
+
         else:
             scan = sd.scantable(self.infile,
                                 average=False,
@@ -73,12 +73,12 @@ class sdsave_worker(sdutil.sdtask_template):
 
                 # channel range selection
                 self.__dochannelrange(work_scan)
-                
+
                 # set rest frequency
                 casalog.post('restore=%s'%(self.restore))
                 if self.rfset:
                     work_scan.set_restfreqs(sdutil.normalise_restfreq(self.restfreq))
-        
+
         else:
             # Apply averaging
  #           self.original_scan = self.scan
@@ -98,7 +98,7 @@ class sdsave_worker(sdutil.sdtask_template):
 
             # channel range selection
             self.__dochannelrange(self.scan)
-                    
+
             # set rest frequency
             casalog.post('restore=%s'%(self.restore))
             if self.rfset:
@@ -131,7 +131,7 @@ class sdsave_worker(sdutil.sdtask_template):
 
             if self.outform == 'MS2' and self.fillweight:
                 _fillweight(self.project)
-            
+
     def cleanup(self):
         if hasattr(self,'restore') and self.restore:
             casalog.post( "Restoring MOLECULE_ID column in %s "%self.infile )
@@ -220,7 +220,7 @@ def _fillweight(vis):
             with sdutil.tbmanager(vis, nomodify=False) as tb:
                 if 'CORRECTED_DATA' in tb.colnames():
                     tb.removecols('CORRECTED_DATA')
-        
+
     else:
         # initweights failed so reset WEIGHT and SIGMA to 1.0
         _resetweight(vis)

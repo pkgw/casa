@@ -8,7 +8,7 @@ import time
 def benchmark(func, args, kwargs, nreps=5, nperrep=1):
     """
     Run func(*args, **kwargs) nreps times and report how much CPU time it took.
-    
+
     args: a tuple of the positional parameters to pass to func.  Remember that
           (single_item) doesn't cut it - use (single_item,) as in
           benchmark(listvis, (vis,), 7).  (When benchmarking interactive cases

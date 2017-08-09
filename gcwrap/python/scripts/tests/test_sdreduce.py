@@ -91,7 +91,7 @@ class BlparamFileParser( FileReader ):
         self.parseCoeff()
         self.parseRms()
         return
-        
+
     def parseCoeff( self ):
         self.__coeff = []
         nrow = self.nrow()
@@ -118,7 +118,7 @@ class BlparamFileParser( FileReader ):
                 idx = self.index( self.__rtxt, idx )
                 self.__rms.append( self.__parseRms( idx ) )
             except:
-                break   
+                break
         return
 
     def __parseCoeff( self, idx ):
@@ -133,7 +133,7 @@ def parseCoeff( txt ):
     for c in clist:
         ret.append( float( c.split('=')[1] ) )
     return ret
-    
+
 def parseRms( txt ):
     t = txt.lstrip().rstrip( '\n' )[6:]
     return float( t )
@@ -166,7 +166,7 @@ class sdreduceold_test(unittest.TestCase):
     test03    --- explicitly specify all parameters
     test04-07 --- do one of calibration, average, baseline, or smooth
     test08-10 --- skip one of of calibration and average, baseline, or smooth
-    
+
     Note: input data (infile0) is generated from a single dish regression data,
     'OrionS_rawACSmod', as follows:
       default(sdsave)
@@ -271,7 +271,7 @@ class sdreduceold_test(unittest.TestCase):
                    'min_abc': 7623.0}
         teststat = self._row0_stats(outfile)
         self._teststats0(teststat,refstat)
-        
+
 
     def test03(self):
         """
@@ -526,7 +526,7 @@ class sdreduceold_selection(selection_syntax.SelectionSyntaxTest,
     @property
     def task(self):
         return sdreduceold
-    
+
     @property
     def spw_channel_selection(self):
         return True
@@ -537,7 +537,7 @@ class sdreduceold_selection(selection_syntax.SelectionSyntaxTest,
             if os.path.exists(name): shutil.rmtree(name)
             shutil.copytree(self.sddatapath+name, name)
         os.system( 'rm -rf '+self.prefix+'*' )
-        
+
         default(sdreduceold)
         self.calmode = 'none'
         self.average = False
@@ -823,7 +823,7 @@ class sdreduceold_selection(selection_syntax.SelectionSyntaxTest,
         self._compare_with_tophat(self.outname, self.ref_data, ref_idx)
 
     ####################
-    # spw 
+    # spw
     ####################
     def test_spw_id_default(self):
         """test spw selection (spw='', all channels)"""
@@ -1227,7 +1227,7 @@ class sdreduceold_selection(selection_syntax.SelectionSyntaxTest,
             self.kwidth = 5
             self.ref_data = self.refval_sm
 
-    
+
     def _compare_with_tophat(self, name, ref_data, ref_idx=[], precision = 1.e-6):
         self._checkfile( name )
         sout = sd.scantable(name,average=False)
@@ -1248,7 +1248,7 @@ class sdreduceold_selection(selection_syntax.SelectionSyntaxTest,
             rdiff = self._get_array_relative_diff(y, yana, precision)
             rdiff_max = max(abs(rdiff))
             self.assertTrue(rdiff_max < precision, "Maximum relative difference %f > %f" % (rdiff_max, precision))
-    
+
     def _create_tophat_array(self, nchan, chanlist, valuelist):
         array_types = (tuple, list, numpy.ndarray)
         # check for inputs
@@ -1300,13 +1300,13 @@ class sdreduceold_selection(selection_syntax.SelectionSyntaxTest,
 class sdreduceold_test_average_flag(unittest.TestCase):
     """
     ### This is a copy of test_sdavearge.sdaverage_test_average_flag ###
-    
+
     Test flag information handling.
 
     Data is sdaverage_testflag.asap
 
     Summary of the data:
-    ROW | FLAGROW    | FLAGTRA          | SPECTRA 
+    ROW | FLAGROW    | FLAGTRA          | SPECTRA
      0  | 0          | ch 10~11 flagged | spurious at ch 10~11
      1  | 1 (flagged)| all 0            | spurious at ch 10
      2  | 0          | ch 10,40 flagged | spurious at ch 10,40
@@ -1340,7 +1340,7 @@ class sdreduceold_test_average_flag(unittest.TestCase):
     def tearDown(self):
         if (os.path.exists(self.rawfile)):
             shutil.rmtree(self.rawfile)
-        
+
         os.system( 'rm -rf '+self.prefix+'*' )
 
     def _get_data(self, filename, optional=[]):
@@ -1364,7 +1364,7 @@ class sdreduceold_test_average_flag(unittest.TestCase):
             msg = head + ': ' + msg
         #print msg
         return msg
-    
+
     def _assert_equal(self, val, ref, col, isshape=False, row=None, channel=None):
         msg = self._message_for_assert(val, ref, col, isshape, row, channel)
         self.assertEqual(val, ref, msg=msg)
@@ -1372,14 +1372,14 @@ class sdreduceold_test_average_flag(unittest.TestCase):
     def _assert_less(self, val, tol, col, isshape=False, row=None, channel=None):
         msg = self._message_for_assert(val, tol, col, isshape, row, channel, refistol=True)
         self.assertLess(val, tol, msg=msg)
-        
-    
+
+
     def _verify_shape(self, expected_nrow, expected_nchan, flagrow, flagtra, spectra):
         expected_shape = (expected_nchan,expected_nrow,)
         self._assert_equal(len(flagrow), expected_nrow, 'FLAGROW', isshape=True)
         self._assert_equal(list(flagtra.shape), list(expected_shape), 'FLAGTRA', isshape=True)
         self._assert_equal(list(spectra.shape), list(expected_shape), 'SPECTRA', isshape=True)
-       
+
     def _verify_average(self, outfile):
         # get data before averaging
         flagrow_org, flagtra_org, spectra_org, interval_org = self._get_data(self.rawfile, ['INTERVAL'])
@@ -1410,7 +1410,7 @@ class sdreduceold_test_average_flag(unittest.TestCase):
         flagtra_expected = numpy.array(list(gen_averaged_channelflag(flagrow_org, flagtra_org)))
         for ichan in range(nchan):
             self._assert_equal(flagtra_expected[ichan], flagtra[ichan], 'FLAGTRA', row=0, channel=ichan)
-        
+
         # verify SPECTRA
         def gen_averaged_spectra(rflag, chflag, data, weight):
             nchan, nrow = data.shape
@@ -1475,12 +1475,12 @@ class sdreduceold_test_average_flag(unittest.TestCase):
                 # neighbors. Tolerance is set to loose value to avoid false
                 # failue due to unexpected behavior of FFT based smoothing.
                 tol = 1.0e1
-                
+
                 sp_expected = sp_ref.copy()
                 sp_expected[:] = sp_ref[0]
                 diff = abs((sp - sp_expected) / sp_expected)
                 self._assert_less(max(diff), tol, 'SPECTRA', row=irow)
-        
+
     def _verify_regrid(self, outfile, chanwidth):
         flagrow_org, flagtra_org, spectra_org = self._get_data(self.rawfile)
         flagrow, flagtra, spectra = self._get_data(outfile)
@@ -1498,7 +1498,7 @@ class sdreduceold_test_average_flag(unittest.TestCase):
             width = int(w)
             for i in range(0, nchan, width):
                 yield 0 if any(flag[i:i+w] == 0) else 128
-                
+
         def gen_spectra(sp, flag, w):
             nchan = len(sp)
             width = int(w)
@@ -1509,7 +1509,7 @@ class sdreduceold_test_average_flag(unittest.TestCase):
                 if sumf == 0.0:
                     yield 0.0
                 else:
-                    yield sum(s * f) / sum(f) 
+                    yield sum(s * f) / sum(f)
 
         # verify
         for irow in range(nrow):
@@ -1530,7 +1530,7 @@ class sdreduceold_test_average_flag(unittest.TestCase):
                                                   flagtra_org[:,irow],
                                                   chanwidth)))
             sp = spectra[:,irow]
-            
+
             # ignore FLAG_ROW, all rows are processed
             tol = 1.0e-6
 
@@ -1566,7 +1566,7 @@ class sdreduceold_test_average_flag(unittest.TestCase):
 
         outfile = self.prefix + '.asap'
         sdreduceold(infile=self.rawfile, outfile=outfile, calmode='none', average=True, timeaverage=True, tweight='tint', kernel='none', blfunc='none')
-        
+
         flagrow_in, flagtra_in, spectra_in, interval_in = self._get_data(self.rawfile, ['INTERVAL'])
         flagrow_out, flagtra_out, spectra_out, interval_out = self._get_data(outfile, ['INTERVAL'])
 
@@ -1655,14 +1655,14 @@ class sdreduceold_test_baseline_flag(sdreduceold_unittest_base, unittest.TestCas
     """
     ### This is a copy of test_sdbaseline.sdbaseline_flagTest, plus some
     modifications for sdreduceold ###
-    
+
     Unit tests for task sdbaseline. No interactive testing.
     This test is to verify the proper flag handling in sdbaseline that
        (1) for row-flagged spectra, neither fitting nor subtraction should be executed.
        (2) if a channel is flagged, it will not be used for baseline calculation,
            but the baseline subtraction at the channel should be made.
        (3) no flag values themselves should be modified.
-           
+
     The list of tests:
     testFlagPoly01     --- test polynomial fitting with maskmode = 'list'
     testFlagPoly02     --- test polynomial fitting with maskmode = 'auto'
@@ -1681,7 +1681,7 @@ class sdreduceold_test_baseline_flag(sdreduceold_unittest_base, unittest.TestCas
                 # to small channel numbers. enough for this testing.
     # Data path of input/output
     datapath = os.environ.get('CASAPATH').split()[0] + \
-              '/data/regression/unittest/sdbaseline/'    
+              '/data/regression/unittest/sdbaseline/'
     # Input and output names
     infile_01    = 'sdbaseline_flagtest_const.asap'
     infile_02    = 'sdbaseline_flagtest_gauss_plateauxonmask.asap'
@@ -1726,7 +1726,7 @@ class sdreduceold_test_baseline_flag(sdreduceold_unittest_base, unittest.TestCas
         infile = self.infile_01
         mode = "list"
         outfile = self.outroot+self.tid+".asap"
-        
+
         result = sdreduceold(infile=infile,maskmode=mode,outfile=outfile,blfunc='poly',order=0,calmode='none',average=False,kernel='none')
         self.assertEqual(result, None, msg="The task returned '"+str(result)+"' instead of None")
         self._checkResult(infile, outfile, self.tol01)
@@ -1737,7 +1737,7 @@ class sdreduceold_test_baseline_flag(sdreduceold_unittest_base, unittest.TestCas
         infile = self.infile_02
         mode = "auto"
         outfile = self.outroot+self.tid+".asap"
-        
+
         result = sdreduceold(infile=infile,maskmode=mode,outfile=outfile,blfunc='poly',order=0,calmode='none',average=False,kernel='none')
         self.assertEqual(result, None, msg="The task returned '"+str(result)+"' instead of None")
         self._checkResult(infile, outfile, self.tol02)
@@ -1748,7 +1748,7 @@ class sdreduceold_test_baseline_flag(sdreduceold_unittest_base, unittest.TestCas
         infile = self.infile_01
         mode = "list"
         outfile = self.outroot+self.tid+".asap"
-        
+
         result = sdreduceold(infile=infile,maskmode=mode,outfile=outfile,blfunc='chebyshev',order=0,calmode='none',average=False,kernel='none')
         self.assertEqual(result, None, msg="The task returned '"+str(result)+"' instead of None")
         self._checkResult(infile, outfile, self.tol01)
@@ -1759,7 +1759,7 @@ class sdreduceold_test_baseline_flag(sdreduceold_unittest_base, unittest.TestCas
         infile = self.infile_02
         mode = "auto"
         outfile = self.outroot+self.tid+".asap"
-        
+
         result = sdreduceold(infile=infile,maskmode=mode,outfile=outfile,blfunc='chebyshev',order=0,calmode='none',average=False,kernel='none')
         self.assertEqual(result, None, msg="The task returned '"+str(result)+"' instead of None")
         self._checkResult(infile, outfile, self.tol02)
@@ -1770,7 +1770,7 @@ class sdreduceold_test_baseline_flag(sdreduceold_unittest_base, unittest.TestCas
         infile = self.infile_01
         mode = "list"
         outfile = self.outroot+self.tid+".asap"
-        
+
         result = sdreduceold(infile=infile,maskmode=mode,outfile=outfile,blfunc='cspline',npiece=1,calmode='none',average=False,kernel='none')
         self.assertEqual(result, None, msg="The task returned '"+str(result)+"' instead of None")
         self._checkResult(infile, outfile, self.tol01)
@@ -1781,7 +1781,7 @@ class sdreduceold_test_baseline_flag(sdreduceold_unittest_base, unittest.TestCas
         infile = self.infile_02
         mode = "auto"
         outfile = self.outroot+self.tid+".asap"
-        
+
         result = sdreduceold(infile=infile,maskmode=mode,outfile=outfile,blfunc='cspline',npiece=1,calmode='none',average=False,kernel='none')
         self.assertEqual(result, None, msg="The task returned '"+str(result)+"' instead of None")
         self._checkResult(infile, outfile, self.tol02)
@@ -1792,7 +1792,7 @@ class sdreduceold_test_baseline_flag(sdreduceold_unittest_base, unittest.TestCas
         infile = self.infile_01
         mode = "list"
         outfile = self.outroot+self.tid+".asap"
-        
+
         result = sdreduceold(infile=infile,maskmode=mode,outfile=outfile,blfunc='sinusoid',calmode='none',average=False,kernel='none')
         self.assertEqual(result, None, msg="The task returned '"+str(result)+"' instead of None")
         self._checkResult(infile, outfile, self.tol01)
@@ -1803,7 +1803,7 @@ class sdreduceold_test_baseline_flag(sdreduceold_unittest_base, unittest.TestCas
         infile = self.infile_02
         mode = "auto"
         outfile = self.outroot+self.tid+".asap"
-        
+
         result = sdreduceold(infile=infile,maskmode=mode,outfile=outfile,blfunc='sinusoid',calmode='none',average=False,kernel='none')
         self.assertEqual(result, None, msg="The task returned '"+str(result)+"' instead of None")
         self._checkResult(infile, outfile, self.tol02)
@@ -1811,7 +1811,7 @@ class sdreduceold_test_baseline_flag(sdreduceold_unittest_base, unittest.TestCas
     def testFlagFFT(self):
         """
         check if FFT used in sinusoidal baselining properly handles flag info
-        
+
         checking is done by comparing the baseline fitting results from two
         input data, defined as 'infile_spk' and 'infile_int'. 'infile_spk'
         has six spiky features in its spectra at ch 2,22,42,62,82,and 97 and
@@ -1841,7 +1841,7 @@ class sdreduceold_test_baseline_flag(sdreduceold_unittest_base, unittest.TestCas
         # TO DO: compare only "Fitter range" and "Baseline parameters"
         self._checkfile(out)
         self._checkfile(reference)
-        
+
         blparse_out = BlparamFileParser( out )
         blparse_out.parse()
         coeffs_out = blparse_out.coeff()
@@ -1878,7 +1878,7 @@ class sdreduceold_test_baseline_flag(sdreduceold_unittest_base, unittest.TestCas
         #check if the values of row-flagged spectra are not changed
         for i in range(2):
             self.assertTrue(all(inspec[i]==outspec[i]))
-            
+
         #check if flagged channels are (1) excluded from fitting, but are
         #(2) the targets of baseline subtraction.
         #  if the difference values between the input and output spectra
@@ -1888,7 +1888,7 @@ class sdreduceold_test_baseline_flag(sdreduceold_unittest_base, unittest.TestCas
         # values is examined if it is close enough to 1.0.
         #print '***************'+str(abs((inspec[2]-outspec[2]).mean()-1.0))
         self.assertTrue(abs((inspec[2]-outspec[2]).mean()-1.0) < tol)
-        
+
         #check if flag values are not changed in the output file.
         for i in range(len(inchnf)):
             self.assertTrue(all(inchnf[i]==outchnf[i]))
@@ -1939,7 +1939,7 @@ class sdreduceold_test_cal_psalma_flag(test_sdcal.sdcalold_caltest_base,unittest
         spref=self._getspectra(reffile)
 
         self._checkshape( sp, spref )
-        
+
         for irow in range(sp.shape[0]):
             diff=self._diff(sp[irow],spref[irow])
             retval=numpy.all(diff<0.01)

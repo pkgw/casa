@@ -45,14 +45,14 @@ class importnro_test(unittest.TestCase):
         shutil.copy(self.infile, self.outfile)
         with self.assertRaisesRegex(RuntimeError, '.* exists\.$') as cm:
             importnro(infile=self.infile, outputvis=self.outfile, overwrite=False)
-    
+
     def test_invaliddata(self):
         """test_invaliddata: Invalid data check"""
         with open(self.infile, 'wb') as f: f.write('AA')
         #os.remove(os.path.join(self.infile, 'table.info'))
         with self.assertRaisesRegex(RuntimeError, '.* is not a valid NOSTAR data\.$') as cm:
             importnro(infile=self.infile, outputvis=self.outfile, overwrite=False)
-    
+
     def test_normal(self):
         """test_normal: Normal data import"""
         ret = importnro(infile=self.infile, outputvis=self.outfile, overwrite=True)
@@ -61,14 +61,14 @@ class importnro_test(unittest.TestCase):
             # to check if outfile is valid MS
             myms.open(self.outfile)
             myms.close()
-            
+
         except Exception as e:
             print(e)
             self.fail('outputvis is not a valid ms')
-        
+
         # check weight initialization
         self._check_weights(self.outfile)
-        
+
     def _check_weights(self, vis):
         _tb = gentools(['tb'])[0]
         take_diff = lambda actual, expected: numpy.abs((actual - expected) / expected)
@@ -77,13 +77,13 @@ class importnro_test(unittest.TestCase):
             _tb.open(os.path.join(vis, 'DATA_DESCRIPTION'))
             spwids = _tb.getcol('SPECTRAL_WINDOW_ID')
             _tb.close()
-            
+
             _tb.open(os.path.join(vis, 'SPECTRAL_WINDOW'))
             nrow = _tb.nrows()
             g = (numpy.mean(_tb.getcell('EFFECTIVE_BW', irow)) for irow in range(nrow))
             effbws = numpy.fromiter(g, dtype=float)
             _tb.close()
-            
+
             _tb.open(vis)
             nrow = _tb.nrows()
             for irow in range(nrow):

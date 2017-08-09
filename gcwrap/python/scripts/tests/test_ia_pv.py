@@ -46,20 +46,20 @@
 #
 # <synopsis>
 # Test the ia.pv() tool method
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_pv[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the ia.pv() tool method to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -102,14 +102,14 @@ def run_impv(
 
 
 class ia_pv_test(unittest.TestCase):
-    
+
     def setUp(self):
         self.ia = iatool()
-    
+
     def tearDown(self):
         #pass
         self.assertTrue(len(tb.showcache()) == 0)
-    
+
     def test_pv(self):
         """ ia.pv(): Test pv()"""
         myia = self.ia
@@ -218,8 +218,8 @@ class ia_pv_test(unittest.TestCase):
                 # in the input image were arcmin
                 self.assertTrue((abs(gotinc - expinc) < 1e-5).all())
                 pv.done()
-            
-            
+
+
             # width > 1
             for i in range(5):
                 outfile = "test_pv_1_" + str(code) + str(i)
@@ -257,7 +257,7 @@ class ia_pv_test(unittest.TestCase):
                 self.assertTrue((got == expec).all())
                 self.assertTrue(pv.getchunk(getmask=True).all())
                 pv.done()
-        
+
     def test_stretch(self):
         """ia.pv(): Test stretch parameter"""
         yy = iatool()
@@ -292,10 +292,10 @@ class ia_pv_test(unittest.TestCase):
                  mask=mymask + ">0", stretch=True
             )
         )
-    
+
     def test_CAS_2996(self):
         """ia.pv(): Test issues raised in CAS-2996"""
-        # the only tests necessary here are to ensure ia.pv() runs 
+        # the only tests necessary here are to ensure ia.pv() runs
         # successfully for the provided inputs
         # calculate stats to make sure region determination code doesn't segfault (CAS-4881)
         print("*** aa")
@@ -339,7 +339,7 @@ class ia_pv_test(unittest.TestCase):
         myia.open(outfile)
         self.assertTrue(myia.coordsys().units()[0] == unit)
         myia.done()
-        
+
     def test_fits(self):
         """ia.pv(): Test exporting and importing to/from FITS"""
         myia = self.ia
@@ -358,7 +358,7 @@ class ia_pv_test(unittest.TestCase):
         got = myia.coordsys().names()
         myia.done()
         self.assertTrue(got == expec)
-        
+
     def test_mask(self):
         """Verify fix of mask defect in CAS-5520"""
         myia = self.ia
@@ -390,8 +390,8 @@ class ia_pv_test(unittest.TestCase):
                 imagename=datapath + 'CAS-6043.im', outfile="CAS-6043.out.im",
                 start=[187,348], end=[228,383]
             )
-        ) 
-        
+        )
+
     def test_pa(self):
         """Test that when pa is given, the start of the slice is at pa and end is at pa-180deg"""
         myia = self.ia
@@ -399,7 +399,7 @@ class ia_pv_test(unittest.TestCase):
         expec = myia.getchunk()
         myia.done()
         imagename = datapath + "pv_patest.im"
-        
+
         for length in [19, "19arcmin"]:
             for center in [
                 [9,9], ["00h00m4s", "-0d1m"], "00:00:04 -0d1m",
@@ -419,7 +419,7 @@ class ia_pv_test(unittest.TestCase):
                 got = myia.getchunk()
                 myia.done()
                 self.assertTrue(abs(got/expec - 1).max() < 1e-6)
-                
+
     def test_CAS7765(self):
         """CAS-7765, successful completion is all that is necessary to indicate verification"""
         myia = self.ia

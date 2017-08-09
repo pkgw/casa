@@ -86,7 +86,7 @@ class compositenumber:
 
 class simutil:
     """
-    simutil contains methods to facilitate simulation. 
+    simutil contains methods to facilitate simulation.
     To use these, create a simutil instance e.g.
      CASA> from simutil import simutil
      CASA> u=simutil()
@@ -109,7 +109,7 @@ class simutil:
         if show:
             pl.ion() # creates a fig if ness
         else:
-            pl.ioff() 
+            pl.ioff()
         pl.clf()
 
         if multi!=0:
@@ -139,7 +139,7 @@ class simutil:
 
     ###########################################################
 
-    def endfig(self,show=True,filename=""): # set margins to smaller, save to file if required        
+    def endfig(self,show=True,filename=""): # set margins to smaller, save to file if required
         ax=pl.gca()
         l=ax.get_xticklabels()
         pl.setp(l,fontsize="x-small")
@@ -150,14 +150,14 @@ class simutil:
         if len(filename)>0:
             pl.savefig(filename)
         pl.ioff()
-        
 
-        
+
+
     ###########################################################
 
     def msg(self, s, origin=None, priority=None):
         # everything goes to logger with priority=priority
-        # priority error: raise an exception, 
+        # priority error: raise an exception,
         # casa 5.0.0: default is now no term unless toterm=True
         # priority warn: change color to magenta, send to terminal
         # priority info: change color to green, send to terminal
@@ -173,25 +173,25 @@ class simutil:
         # 35    Magenta
         # 36    Cyan
         # 37    White
-        
+
         clr=""
         if self.verbose:
-            toterm=True     
+            toterm=True
         else:
             toterm=False
-    
+
         if priority==None:
             priority="INFO"
         else:
             priority=priority.upper()
-            #toterm=True 
+            #toterm=True
             if priority=="INFO":
                 clr="\x1b[32m"
             elif priority.count("WARN")>0:
-                clr="\x1b[35m"                
+                clr="\x1b[35m"
                 #toterm=True
                 if self.verbose: priority="INFO" # otherwise casalog will spew to term also.
-            elif priority=="ERROR":                
+            elif priority=="ERROR":
                 clr="\x1b[31m"
                 toterm=False  # casalog spews severe to term already
             else:
@@ -221,7 +221,7 @@ class simutil:
 
         if priority=="ERROR":
             raise Exception(s)
-        else:            
+        else:
             if origin==None:
                 origin="simutil"
             casalog.post(s,priority=priority,origin=origin)
@@ -235,10 +235,10 @@ class simutil:
             if self.report.name == self.reportfile:
                 return True
             else:
-                return False                
+                return False
         except:
             return False
-    
+
 
     def openreport(self):
         try:
@@ -249,13 +249,13 @@ class simutil:
                 self.report=open(self.reportfile,"w")
         except:
             self.msg("Can't open reportfile because it's not defined",priority="ERROR",origin="simutil")
-               
+
 
     def closereport(self):
         self.report.close()
-        
 
-    
+
+
 
 
     ###########################################################
@@ -311,17 +311,17 @@ class simutil:
                 uvw = tb.getcol("UVW")
                 tb.close()
                 if uvw.all() == 0.:
-                    istp = True 
+                    istp = True
         except:
             if halt:
                 self.msg("can't understand the file '"+str(s)+"'",priority="error")
             return False
-        if not istp: 
+        if not istp:
             if halt:
                 self.msg("input file '"+str(s)+"' is not a totalpower ms",priority="error")
             return False
         return True
-        
+
 
 
     ###########################################################
@@ -331,7 +331,7 @@ class simutil:
         pix=self.cellsize(image)  # cell positive by convention
         pixarea=abs(qa.convert(pix[0],'arcsec')['value']*
                     qa.convert(pix[1],'arcsec')['value'])
-        ia.open(image)       
+        ia.open(image)
         imunit=ia.brightnessunit()
         if imunit == 'Jy/beam':
             bm=ia.restoringbeam()
@@ -352,12 +352,12 @@ class simutil:
         plarr=pl.zeros(1)
         badim=False
         if type(im_min)==type([]) or type(im_min)==type(plarr):
-            if len(im_min)<1: 
+            if len(im_min)<1:
                 badim=True
                 im_min=0.
         im_max=stats['max']*toJypix
         if type(im_max)==type([]) or type(im_max)==type(plarr):
-            if len(im_max)<1: 
+            if len(im_max)<1:
                 badim=True
                 im_max=1.
         imsize=ia.shape()[0:2]
@@ -365,7 +365,7 @@ class simutil:
         stats=ia.statistics(region=reg1,verbose=False,list=False)
         im_rms=stats['rms']*toJypix
         if type(im_rms)==type([]) or type(im_rms)==type(plarr):
-            if len(im_rms)==0: 
+            if len(im_rms)==0:
                 badim=True
                 im_rms=0.
         data_array=ia.getchunk([-1,-1,1,1],[-1,-1,1,1],[1],[],True,True,False)
@@ -373,7 +373,7 @@ class simutil:
         tdata_array=pl.transpose(data_array)
         ttrans_array=tdata_array.tolist()
         ttrans_array.reverse()
-        
+
         # get and apply mask
         mask_array=ia.getchunk([-1,-1,1,1],[-1,-1,1,1],[1],[],True,True,True)
         mask_array=pl.array(mask_array)
@@ -388,8 +388,8 @@ class simutil:
             pixsize=[qa.convert(pix[0],'arcsec')['value'],qa.convert(pix[1],'arcsec')['value']]
             xextent=imsize[0]*abs(pixsize[0])*0.5
             yextent=imsize[1]*abs(pixsize[1])*0.5
-            if self.verbose: 
-                self.msg("plotting %fx%f\" im with %fx%f\" pix" % 
+            if self.verbose:
+                self.msg("plotting %fx%f\" im with %fx%f\" pix" %
                          (xextent,yextent,pixsize[0],pixsize[1]),origin="statim")
             xextent=[xextent,-xextent]
             yextent=[-yextent,yextent]
@@ -403,12 +403,12 @@ class simutil:
             imhist=ia.histograms(cumu=True,nbins=nbin)#['histout']
             ii=0
             lowcounts=imhist['counts'][ii]
-            while imhist['counts'][ii]<0.005*lowcounts and ii<nbin: 
+            while imhist['counts'][ii]<0.005*lowcounts and ii<nbin:
                 ii=ii+1
             lowvalue=imhist['values'][ii]
             ii=nbin-1
             highcounts=imhist['counts'][ii]
-            while imhist['counts'][ii]>0.995*highcounts and ii>0 and 0.995*highcounts>lowcounts: 
+            while imhist['counts'][ii]>0.995*highcounts and ii>0 and 0.995*highcounts>lowcounts:
                 ii=ii-1
             highvalue=imhist['values'][ii]
         if disprange != None:
@@ -426,7 +426,7 @@ class simutil:
                 highvalue=disprange  # assume if scalar passed its the max
 
         if plot:
-            img=pl.imshow(ttrans_array,interpolation='bilinear',cmap=pl.cm.jet,extent=xextent+yextent,vmax=highvalue,vmin=lowvalue)            
+            img=pl.imshow(ttrans_array,interpolation='bilinear',cmap=pl.cm.jet,extent=xextent+yextent,vmax=highvalue,vmin=lowvalue)
             ax=pl.gca()
             #l=ax.get_xticklabels()
             #pl.setp(l,fontsize="x-small")
@@ -455,16 +455,16 @@ class simutil:
 
     ###########################################################
 
-    def calc_pointings2(self, spacing, size, maptype="hex", direction=None, relmargin=0.5, beam=0.):   
+    def calc_pointings2(self, spacing, size, maptype="hex", direction=None, relmargin=0.5, beam=0.):
         """
         If direction is a list, simply returns direction and the number of
         pointings in it.
-        
+
         Otherwise, returns a hexagonally packed list of pointings separated by
-        spacing and fitting inside an area specified by direction and mapsize, 
+        spacing and fitting inside an area specified by direction and mapsize,
         as well as the number of pointings.  The hexagonal packing starts with a
         horizontal row centered on direction, and the other rows alternate
-        being horizontally offset by a half spacing.  
+        being horizontally offset by a half spacing.
         """
         # make size 2-dimensional and ensure it is quantity
         if type(size) != type([]):
@@ -484,7 +484,7 @@ class simutil:
 
         # direction is always a list of strings (defined by .xml)
         if type(direction)==type([]):
-            if len(direction) > 1:                
+            if len(direction) > 1:
                 if self.verbose: self.msg("you are inputing the precise pointings in 'direction' - if you want to calculate a mosaic, give a single direction string and set maptype",priority="warn")
                 return direction
             else: direction=direction[0]
@@ -496,12 +496,12 @@ class simutil:
         shorttype=str.upper(maptype[0:3])
 #        if not shorttype=="HEX":
 #            self.msg("can't calculate map of maptype "+maptype,priority="error")
-        if shorttype == "HEX": 
+        if shorttype == "HEX":
             # this is hexagonal grid - Kana will add other types here
             self.isquantity(spacing)
             spacing  = qa.quantity(spacing)
             yspacing = qa.mul(0.866025404, spacing)
-            
+
             xsize=qa.quantity(size[0])
             ysize=qa.quantity(size[1])
 
@@ -518,7 +518,7 @@ class simutil:
                 evencols = ncols                                    #  O O O
                 ncolstomin = 0.5 * (ncols - 0.5)
             else:
-                evencols = ncols - 1                                #  O O 
+                evencols = ncols - 1                                #  O O
                 ncolstomin = 0.5 * (ncols - 1)                      # O O O
             pointings = []
 
@@ -527,7 +527,7 @@ class simutil:
             for row in range(0, nrows):         # xrange stops early.
                 xspacing = qa.mul(1.0 / pl.cos(qa.convert(y, 'rad')['value']),spacing)
                 ystr = qa.formxxx(y, format='dms',prec=5)
-                
+
                 if row % 2:                             # Odd
                     xmin = qa.sub(centx, qa.mul(ncolstomin, xspacing))
                     stopcolp1 = ncols
@@ -545,7 +545,7 @@ class simutil:
             self.isquantity(spacing)
             spacing  = qa.quantity(spacing)
             yspacing = spacing
-    
+
             xsize=qa.quantity(size[0])
             ysize=qa.quantity(size[1])
 
@@ -568,13 +568,13 @@ class simutil:
 
                 xmin = qa.sub(centx, qa.mul(ncolstomin, xspacing))
                 stopcolp1 = ncols
-        
+
                 for col in range(0, stopcolp1):        # xrange stops early.
                     x = qa.formxxx(qa.add(xmin, qa.mul(col, xspacing)),
                                    format='hms',prec=5)
                     pointings.append("%s%s %s" % (epoch, x, ystr))
                 y = qa.sub(y, yspacing)
-        if shorttype == "ALM": 
+        if shorttype == "ALM":
             # OT algorithm
             self.isquantity(spacing)
             spacing  = qa.quantity(spacing)
@@ -589,7 +589,7 @@ class simutil:
             if str.upper(maptype[0:8]) == 'ALMA2012':
                 x,y = self.getTrianglePoints(xsize_asec, ysize_asec, angle, spacing_asec)
             else:
-                if beam<=0: 
+                if beam<=0:
                     beam=spacing_asec*pbcoeff*pl.sqrt(3) # ASSUMES ALMA default and arcsec
                 x,y = self.getTriangularTiling(xsize_asec, ysize_asec, angle, spacing_asec, beam)
 
@@ -602,7 +602,7 @@ class simutil:
                 ystr = qa.formxxx(y1, format='dms',prec=5)
                 xstr = qa.formxxx(qa.add(centx, str(x[nx-i-1]/ycos)+"arcsec"), format='hms',prec=5)
                 pointings.append("%s%s %s" % (epoch, xstr, ystr))
-            
+
 
         # if could not fit any pointings, then return single pointing
         if(len(pointings)==0):
@@ -629,21 +629,21 @@ class simutil:
         and scan time (optional,in sec).
         Parameter:
              filename:  (str) the name of input file
-       
+
         The input file (ASCII) should contain at least 3 fields separated
         by a space which specify positions with epoch, ra and dec (in dms
         or hms).
         The optional field, time, shoud be a list of decimal numbers
         which specifies integration time at each position in second.
         The lines which start with '#' is ignored and can be used
-        as comment lines. 
-        
+        as comment lines.
+
         Example of an input file:
         #Epoch     RA          DEC      TIME(optional)
         J2000 23h59m28.10 -019d52m12.35 10.0
         J2000 23h59m32.35 -019d52m12.35 10.0
         J2000 23h59m36.61 -019d52m12.35 60.0
-        
+
         """
         f=open(filename)
         line= '  '
@@ -653,10 +653,10 @@ class simutil:
         # add option of different epoch in a header line like read_antenna?
 
         while (len(line)>0):
-            try: 
+            try:
                 line=f.readline()
                 if (not line.startswith('#')) and (not line.startswith("RA")) and (not line.startswith("--")):
-                ### it could be the new OT format                    
+                ### it could be the new OT format
                     if (line.find('SEXAGESIMAL')>0):
                         splitline = line.split(',')
                         if len(splitline)>4:
@@ -696,10 +696,10 @@ class simutil:
         self.msg("read in %i pointing(s) from file" % len(pointings),origin="read_pointings")
         self.pointings=pointings
         #self.direction=pointings
-                
+
         return len(pointings), pointings, time
 
-    
+
 
 
 
@@ -711,13 +711,13 @@ class simutil:
         """
         write pointing list to file containing epoch, ra, dec,
         and scan time (optional,in sec).
-        
+
         Example of an output file:
         #Epoch     RA          DEC      TIME(optional)
         J2000 23h59m28.10 -019d52m12.35 10.0
         J2000 23h59m32.35 -019d52m12.35 10.0
         J2000 23h59m36.61 -019d52m12.35 60.0
-        
+
         """
         f=open(filename,"write")
         f.write('#Epoch     RA          DEC      TIME[sec]\n')
@@ -739,8 +739,8 @@ class simutil:
             f.write(pointings[i]+"  "+str(time[i])+"\n")
 
         f.close()
-        return 
-    
+        return
+
 
 
     ###########################################################
@@ -805,7 +805,7 @@ class simutil:
         avgy = 0.0
         xx=[]
         yy=[]
-        for drn in directions:            
+        for drn in directions:
             epoch, x, y = self.direction_splitter(drn)
             # in principle direction_splitter returns directions in degrees,
             # but can we be sure?
@@ -861,7 +861,7 @@ class simutil:
             epoch = ''
         # x, y = map(qa.toangle, dirl[-2:])
         x=qa.toangle(dirl[1])
-        # qa is stupid when it comes to dms vs hms, and assumes hms with colons and dms for periods.  
+        # qa is stupid when it comes to dms vs hms, and assumes hms with colons and dms for periods.
         decstr=dirl[2]
         # parse with regex to get three numbers and reinstall them as dms
         q=re.compile('([+-]?\d+).(\d+).(\d+\.?\d*)')
@@ -886,7 +886,7 @@ class simutil:
         if direction == None:
             direction=self.direction
         if type(direction) == type([]):
-            direction=self.average_direction(direction)[0]            
+            direction=self.average_direction(direction)[0]
         dirl = direction.split()
         if len(dirl) == 3:
             refcode = dirl[0] + ' '
@@ -925,7 +925,7 @@ class simutil:
             nwraps = pl.floor(0.5 + float(dang) / period)
             ang -= nwraps * period
         return ang
-    
+
 
 
 
@@ -944,11 +944,11 @@ class simutil:
         """
         Noise temperature and efficiencies for several telescopes:
               ALMA, ACA, EVLA, VLA, and SMA
-        Input: telescope name, frequency as a quantity string "300GHz", 
+        Input: telescope name, frequency as a quantity string "300GHz",
                dish diameter (optional - knows diameters for arrays above)
-               epsilon = rms surface accuracy in microns (also optional - 
+               epsilon = rms surface accuracy in microns (also optional -
                    this method contains the spec values for each telescope)
-        Output: eta_p phase efficieny (from Ruze formula), 
+        Output: eta_p phase efficieny (from Ruze formula),
                 eta_s spill (main beam) efficiency,
                 eta_b geometrical blockage efficiency,
                 eta_t taper efficiency,
@@ -961,15 +961,15 @@ class simutil:
 
         if telescope==None: telescope=self.telescopename
         telescope=str.upper(telescope)
-        
+
         obs =['ALMASD','ALMA','ACA','EVLA','VLA','SMA']
         d   =[ 12.    ,12.   ,7.   ,25.   ,25.  , 6. ]
         ds  =[ 0.75   ,0.75  ,0.75 ,0.364 ,0.364,0.35] # subreflector size for ACA?
         eps =[ 25.    ,25.   ,20.  ,300   ,300  ,15. ] # antenna surface accuracy
-        
+
         cq  =[ 0.845, 0.845,  0.88,  0.79, 0.86, 0.88] # correlator eff
         # SMA is from Wright http://astro.berkeley.edu/~wright/obsrms.py
-        # ALMA includes quantization eff of 0.96    
+        # ALMA includes quantization eff of 0.96
         # VLA includes additional waveguide loss from correlator loss of 0.809
         # EVLA is probably optimistic
 
@@ -978,33 +978,33 @@ class simutil:
         # t_cmb=2.73
         # eta_q*eta_corr = 0.88*.961
         # eta_ap = 0.72*eta_ruze
-        
+
         if obs.count(telescope)>0:
             iobs=obs.index(telescope)
         else:
             if self.verbose: self.msg("I don't know much about "+telescope+" so I'm going to use ALMA specs")
             iobs=1 # ALMA is the default ;)
-            
+
         if diam==None: diam=d[iobs]
         diam_subreflector=ds[iobs]
         if self.verbose: self.msg("subreflector diameter="+str(diam_subreflector),origin="noisetemp")
 
-        # blockage efficiency.    
+        # blockage efficiency.
         eta_b = 1.-(diam_subreflector/diam)**2
 
-        # spillover efficiency.    
+        # spillover efficiency.
         eta_s = 0.95 # these are ALMA values
-        # taper efficiency.    
+        # taper efficiency.
         #eta_t = 0.86 # these are ALMA values
         eta_t = 0.819 # 20100914 OT value
         eta_t = 0.72
 
-        # Ruze phase efficiency.    
+        # Ruze phase efficiency.
         if epsilon==None: epsilon = eps[iobs] # microns RMS
         if freq==None:
             freq_ghz=qa.convert(qa.quantity(self.centerfreq),'GHz')
             bw_ghz=qa.convert(qa.quantity(self.bandwidth),'GHz')
-        else:            
+        else:
             freq_ghz=qa.convert(qa.quantity(freq),'GHz')
         eta_p = pl.exp(-(4.0*3.1415926535*epsilon*freq_ghz.get("value")/2.99792458e5)**2)
         if self.verbose: self.msg("ruze phase efficiency for surface accuracy of "+str(epsilon)+"um = " + str(eta_p) + " at "+str(freq),origin="noisetemp")
@@ -1012,18 +1012,18 @@ class simutil:
         # antenna efficiency
         # eta_a = eta_p*eta_s*eta_b*eta_t
 
-        # correlator quantization efficiency.    
+        # correlator quantization efficiency.
         eta_q = cq[iobs]
 
-        # Receiver radiation temperature in K.         
+        # Receiver radiation temperature in K.
         if telescope=='ALMA' or telescope=='ACA' or telescope=='ALMASD':
             # ALMA-40.00.00.00-001-A-SPE.pdf
             # http://www.eso.org/sci/facilities/alma/system/frontend/
 
-            # lower limits 
-#           f0=[ 31, 67, 84, 125, 162, 211, 275, 385, 602, 787, 950] 
+            # lower limits
+#           f0=[ 31, 67, 84, 125, 162, 211, 275, 385, 602, 787, 950]
             # go to higher band in gaps
-            f0=[ 31, 45, 84, 116, 162, 211, 275, 373, 500, 720, 950] 
+            f0=[ 31, 45, 84, 116, 162, 211, 275, 373, 500, 720, 950]
             # 80% spec
 #           t0=[ 17, 30, 37, 51, 65, 83, 147, 196, 175, 230]
             # cycle 1 OT values 7/12
@@ -1055,7 +1055,7 @@ class simutil:
                     f0=[0.30,0.34,1.73,5,8.8,15.4,24,50]
                     t0=[165,  56,  44,   34,  110, 110, 110]
                     flim=[0.305,50]
-                    if self.verbose: self.msg("using old VLA Rx specs",origin="noisetemp")                    
+                    if self.verbose: self.msg("using old VLA Rx specs",origin="noisetemp")
                 else:
                     if telescope=='SMA':
                         # f0=[212.,310.,383.,660.]
@@ -1069,10 +1069,10 @@ class simutil:
                         t0=[200,200]
                         flim=[0,5000]
 
-        obsfreq=freq_ghz.get("value")        
+        obsfreq=freq_ghz.get("value")
         # z=pl.where(abs(obsfreq-pl.array(f0)) == min(abs(obsfreq-pl.array(f0))))
         # t_rx=t0[z[0]]
-        
+
         if obsfreq<flim[0]:
             t_rx=t0[0]
             self.msg("observing freqency is lower than expected for "+telescope,priority="warn",origin="noise")
@@ -1090,8 +1090,8 @@ class simutil:
             self.msg("interpolated receiver temp="+str(t_rx),origin="noise")
 
         return eta_p, eta_s, eta_b, eta_t, eta_q, t_rx
-    
-    
+
+
 
 
 
@@ -1103,7 +1103,7 @@ class simutil:
                    doimnoise=None,
                    integration=None,debug=None,
                    method="tsys-atm",tau0=None,t_sky=None):
-        
+
         if qa.convert(elevation,"deg")['value']<3:
             self.msg("Elevation < ALMA limit of 3 deg",priority="error")
             return False
@@ -1121,7 +1121,7 @@ class simutil:
                     cu.removetable(xx[k])
                 else:
                     os.remove(xx[k])
- 
+
         msfile=tmpname+".ms"
         sm.open(msfile)
 
@@ -1129,14 +1129,14 @@ class simutil:
         if antennalist==None:
             if telescope==None:
                 self.msg("Telescope name has not been set.",priority="error")
-                return False 
+                return False
             if diam==None:
                 self.msg("Antenna diameter has not been set.",priority="error")
                 return False
             if nant==None:
                 self.msg("Number of antennas has not been set.",priority="error")
                 return False
-               
+
             found=False
             t=telescope.upper()
             for l in pl.arange(len(t)-1)+2:
@@ -1184,8 +1184,8 @@ class simutil:
             # diam is only used as a test below, not quantitatively
             diam = pl.average(stnd)
             antnames=padnames
-            
- 
+
+
         if (telescope==None or diam==None):
             self.msg("Telescope name or antenna diameter have not been set.",priority="error")
             return False
@@ -1193,7 +1193,7 @@ class simutil:
         # copied from task_simdata:
 
         self.setcfg(sm, telescope, stnx, stny, stnz, stnd, padnames, posobs)
-                
+
         model_nchan=1
         # RI TODO isquantity checks
         model_width=qa.quantity(bandwidth) # note: ATM uses band center
@@ -1202,9 +1202,9 @@ class simutil:
         model_start=qa.quantity(freq)
 
         stokes, feeds = self.polsettings(telescope)
-        sm.setspwindow(spwname="band1", freq=qa.tos(model_start), 
-                       deltafreq=qa.tos(model_width), 
-                       freqresolution=qa.tos(model_width), 
+        sm.setspwindow(spwname="band1", freq=qa.tos(model_start),
+                       deltafreq=qa.tos(model_width),
+                       freqresolution=qa.tos(model_width),
                        nchannels=model_nchan, stokes=stokes)
         sm.setfeed(mode=feeds, pol=[''])
 
@@ -1214,30 +1214,30 @@ class simutil:
         obslat=qa.convert(posobs['m1'],'deg')
         dec=qa.add(obslat, qa.add(qa.quantity("90deg"),qa.mul(elevation,-1)))
 
-        sm.setfield(sourcename="src1", 
+        sm.setfield(sourcename="src1",
                     sourcedirection="J2000 00:00:00.00 "+qa.angle(dec)[0],
                     calcode="OBJ", distance='0m')
         reftime = me.epoch('TAI', "2012/01/01/00:00:00")
         if integration==None:
-            integration=qa.mul(etime,0.01)        
+            integration=qa.mul(etime,0.01)
         self.msg("observing for "+qa.tos(etime)+" with integration="+qa.tos(integration))
-        sm.settimes(integrationtime=integration, usehourangle=True, 
+        sm.settimes(integrationtime=integration, usehourangle=True,
                     referencetime=reftime)
 
         sm.observe(sourcename="src1", spwname="band1",
                    starttime=qa.quantity(0, "s"),
                    stoptime=qa.quantity(etime));
-        
+
         sm.setdata()
         sm.setvp()
-        
+
         eta_p, eta_s, eta_b, eta_t, eta_q, t_rx = self.noisetemp(telescope=telescope,freq=freq)
         eta_a = eta_p * eta_s * eta_b * eta_t
-        if self.verbose: 
+        if self.verbose:
             self.msg('antenna efficiency    = ' + str(eta_a),origin="noise")
             self.msg('spillover efficiency  = ' + str(eta_s),origin="noise")
             self.msg('correlator efficiency = ' + str(eta_q),origin="noise")
-        
+
         if pwv==None:
             # RI TODO choose based on freq octile
             pwv=2.0
@@ -1250,7 +1250,7 @@ class simutil:
 
         if telescope=='ALMA' and (qa.convert(freq,"GHz")['value'])>600.:
             rxtype=1 # DSB
-        
+
         if method=="tsys-atm":
             sm.setnoise(spillefficiency=eta_s,correfficiency=eta_q,
                         antefficiency=eta_a,trx=t_rx,
@@ -1268,13 +1268,13 @@ class simutil:
             else:
                 self.msg("Unknown calculation method "+method,priority="error")
                 return False
-        
+
         if doimnoise:
             sm.corrupt()
 
         sm.done()
 
-        
+
         if doimnoise:
             cellsize=qa.quantity(6.e3/250./qa.convert(model_start,"GHz")["value"],"arcsec")  # need better cell determination - 250m?!
             cellsize=[cellsize,cellsize]
@@ -1291,16 +1291,16 @@ class simutil:
         else:
             imnoise=0.
 
-        nint = qa.convert(etime,'s')['value'] / qa.convert(integration,'s')['value'] 
+        nint = qa.convert(etime,'s')['value'] / qa.convert(integration,'s')['value']
         nbase= 0.5*nant*(nant-1)
-                
+
         if os.path.exists(tmpname+".T.cal"):
             tb.open(tmpname+".T.cal")
             gain=tb.getcol("CPARAM")
             flag=tb.getcol("FLAG")
             # RI TODO average instead of first?
             tb.done()
-            # gain is per ANT so square for per baseline;  
+            # gain is per ANT so square for per baseline;
             # pick a gain from about the middle of the track
             # needs to be unflagged!
             z=pl.where(flag[0][0]==False)[0]
@@ -1323,7 +1323,7 @@ class simutil:
         if doimnoise:
             return theoreticalnoise , imnoise
         else:
-            return theoreticalnoise 
+            return theoreticalnoise
 
 
     def setcfg(self, mysm, telescope, x, y, z, diam,
@@ -1362,7 +1362,7 @@ class simutil:
                                        # 'GROUND'.
 
         if not mysm.setconfig(telescopename=telescope, x=x, y=y, z=z,
-                              dishdiameter=diam.tolist(), 
+                              dishdiameter=diam.tolist(),
                               mount=[mounttype], padname=padnames,
                               coordsystem='global', referencelocation=posobs):
             mysm.close()
@@ -1392,10 +1392,10 @@ class simutil:
         # useHourAngle_p means simulate at transit
         # TODO: put in reftime parameter, parse 2012/05/21, 2012/05/21/transit,
         # and 2012/05/21/22:05:00 separately.
-        
+
         ds=self.direction_splitter(direction)  # if list, returns average
         src=me.direction(ds[0],ds[1],ds[2])
-    
+
         me.done()
         posobs=me.observatory(telescope)
         if len(posobs)<=0:
@@ -1403,11 +1403,11 @@ class simutil:
                 self.msg("simutil::ephemeris needs either a known observatory or an explicitly specified cofa measure",priority="error")
             posobs=cofa
         me.doframe(posobs)
-    
+
         time=me.epoch('TAI',date)
         me.doframe(time)
 
-        # what is HA of source at refdate? 
+        # what is HA of source at refdate?
         offset_ha=qa.convert((me.measure(src,'hadec'))['m0'],'h')
         peak=me.epoch("TAI",qa.add(date,qa.mul(-1,offset_ha)))
         peaktime_float=peak['m0']['value']
@@ -1415,7 +1415,7 @@ class simutil:
             # offset the reftime to be at transit:
             time=peak
             me.doframe(time)
-                        
+
         reftime_float=time['m0']['value']
         reftime_floor=pl.floor(time['m0']['value'])
         refdate_str=qa.time(qa.totime(str(reftime_floor)+'d'),form='dmy')[0]
@@ -1448,7 +1448,7 @@ class simutil:
         times=[]
         az=[]
         el=[]
-    
+
         for i in range(ntime):
             times.append(time['m0']['value'])
             me.doframe(time)
@@ -1456,13 +1456,13 @@ class simutil:
             az.append(qa.convert(azel['m0'],'deg')['value'])
             el.append(qa.convert(azel['m1'],'deg')['value'])
             time['m0']['value']+=timeinc
-    
+
 #        self.msg(" ref="+date,origin='ephemeris')
 #        self.msg("rise="+qa.time(rise['m0'],form='dmy')[0],origin='ephemeris')
 #        self.msg(" set="+qa.time(settime['m0'],form='dmy')[0],origin='ephemeris')
-    
+
         pl.plot((pl.array(times)-reftime_floor)*24,el)
-#        peak=(rise['m0']['value']+settime['m0']['value'])/2        
+#        peak=(rise['m0']['value']+settime['m0']['value'])/2
 #        self.msg("peak="+qa.time('%fd' % peak,form='dmy'),origin='ephemeris')
         self.msg("peak="+qa.time('%fd' % reftime_float,form='dmy')[0],origin='ephemeris')
 
@@ -1516,28 +1516,28 @@ class simutil:
 
     ###########################################################
     #==========================================================
-    
+
     def readantenna(self, antab=None):
         """
         Helper function to read antenna configuration file; example:
              # observatory=FOO
              # COFA=-67.75,-23.02
              # coordsys=LOC (local tangent plane)
-             # x     y    z      diam  name 
+             # x     y    z      diam  name
               20.  -20.   28.8   12.0  A12S
               20.   20.   28.8   12.0  A12N
              -20.  -20.   28.8    7.0  A07S
              -20.   20.   28.8    7.0  A07N
-        lines beginning with "#" will be interpreted as header key=value 
-           pairs if they contain "=", and as comments otherwise        
+        lines beginning with "#" will be interpreted as header key=value
+           pairs if they contain "=", and as comments otherwise
         for the observatory name, one can check the known observatories list
            me.obslist
         if an unknown observatory is specified, then one either must
-           use absolute positions (coordsys XYZ,UTM), or 
-           specify COFA= lon,lat 
-        coordsys can be XYZ=earth-centered, 
+           use absolute positions (coordsys XYZ,UTM), or
+           specify COFA= lon,lat
+        coordsys can be XYZ=earth-centered,
            UTM=easting,northing,alt, or LOC=xoffset,yoffset,height
-           
+
         returns: earth-centered x,y,z, diameter, name, observatory_name, observatory_measure_dictionary
 
         """
@@ -1553,7 +1553,7 @@ class simutil:
         line='    '
         params={}
         while (len(line)>0):
-            try: 
+            try:
                 line=f.readline()
                 if line.startswith('#'):
                     line=line[1:]
@@ -1577,8 +1577,8 @@ class simutil:
                         if len(splitline)>4:
                             id.append(splitline[4])
                         else:
-                            id.append('A%02d'%nant)                            
-                        nant+=1                 
+                            id.append('A%02d'%nant)
+                        nant+=1
             except:
                 break
         f.close()
@@ -1603,14 +1603,14 @@ class simutil:
             if t[0:l] in me.obslist(): found=True
         if found:
             posobs=me.measure(me.observatory(self.telescopename),'WGS84')
-            
+
         if "COFA" in params:
             obs_latlon=params["COFA"].split(",")
             cofa_lon=float(obs_latlon[0])
             cofa_lat=float(obs_latlon[1])
             cofa_alt=0.
             posobs=me.position("WGS84",qa.quantity(cofa_lon,"deg"),qa.quantity(cofa_lat,"deg"),qa.quantity(cofa_alt,"m"))
-            if found: 
+            if found:
                 self.msg("antenna config file specifies COFA but a known observatory "+self.telescopename+", so ignoring specified COFA.",priority="warn")
         elif not found:
             if params["coordsys"].upper()[0:3]=="LOC":
@@ -1618,10 +1618,10 @@ class simutil:
                 return -1
             else:
                 # we have absolute coords, so can create the posobs from their
-                # average at the end 
+                # average at the end
                 posobs={}
 
-            
+
 
         if (params["coordsys"].upper()=="XYZ"):
         ### earth-centered XYZ i.e. ITRF in casa
@@ -1634,7 +1634,7 @@ class simutil:
             stnz=[]
             if (params["coordsys"].upper()=="UTM"):
         ### expect easting, northing, elevation in m
-                self.msg("Antenna locations in UTM; will read from file easting, northing, elevation in m",origin="readantenna") 
+                self.msg("Antenna locations in UTM; will read from file easting, northing, elevation in m",origin="readantenna")
                 if "zone" in params:
                     zone=params["zone"]
                 else:
@@ -1651,18 +1651,18 @@ class simutil:
                 else:
                     self.msg("You must specify hemisphere=N|S in your antenna file",origin="readantenna",priority="error")
                     return -1
-                
+
                 vsave=self.verbose
                 for i in range(len(inx)):
                     x,y,z = self.utm2xyz(inx[i],iny[i],inz[i],int(zone),datum,nors)
-                    if i==1: 
+                    if i==1:
                         self.verbose=False
                     stnx.append(x)
                     stny.append(y)
                     stnz.append(z)
                 self.verbose=vsave
             else:
-                if (params["coordsys"].upper()[0:3]=="LOC"):                    
+                if (params["coordsys"].upper()[0:3]=="LOC"):
                     obslat=qa.convert(posobs['m1'],'deg')['value']
                     obslon=qa.convert(posobs['m0'],'deg')['value']
                     obsalt=qa.convert(posobs['m2'],'m')['value']
@@ -1672,7 +1672,7 @@ class simutil:
                         x,y,z = self.locxyz2itrf(obslat,obslon,obsalt,inx[i],iny[i],inz[i])
                         stnx.append(x)
                         stny.append(y)
-                        stnz.append(z)                
+                        stnz.append(z)
 
         if len(posobs)<=0:
             # we had absolute coords but unknown telescope and no COFA
@@ -1682,7 +1682,7 @@ class simutil:
             cofa_lat,cofa_lon,cofa_alt=self.xyz2long(cofa_x,cofa_y,cofa_z,'WGS84')
             posobs=me.position("WGS84",qa.quantity(cofa_lon,"rad"),qa.quantity(cofa_lat,"rad"),qa.quantity(cofa_alt,"m"))
 
-                    
+
         return (stnx, stny, stnz, pl.array(ind), id, self.telescopename, posobs)
 
 
@@ -1716,7 +1716,7 @@ class simutil:
         ********** symbols and definitions ***********************
         latitude positive north, longitude positive west.
         all angles are in radian measure.
-        
+
         input:
         n,e       are northing and easting coordinates respectively
         er        is the semi-major axis of the ellipsoid
@@ -1734,15 +1734,15 @@ class simutil:
         lat,lon   are lat. and long. respectively
         conv      is convergence
         kp        point scale factor
-        
+
         the formula used in this subroutine gives geodetic accuracy
         within zones of 7 degrees in east-west extent.  within state
         transverse mercator projection zones, several minor terms of
         the equations may be omitted (see a separate ngs publication).
         if programmed in full, the subroutine can be used for
-        computations in surveys extending over two zones.        
+        computations in surveys extending over two zones.
         """
-        
+
         om=(n-fn+so)/(r*sf)  # (northing - flag_north + distance_from_equator)
         cosom=pl.cos(om)
         foot=om+pl.sin(om)*cosom*(v0+v2*cosom*cosom+v4*cosom**4+v6*cosom**6)
@@ -1764,7 +1764,7 @@ class simutil:
         lat=foot+b2*qs*(1.+qs*(b4+b6*qs))
         l=b1*q*(1.+qs*(b3+qs*(b5+b7*qs)))
         lon=-l/cosf+cm
-        
+
         # compute scale factor
         fi=lat
         lam = lon
@@ -1772,28 +1772,28 @@ class simutil:
         cosfi=pl.cos(fi)
         l1=(lam-cm)*cosfi
         ls=l1*l1
-        
+
         tn=sinfi/cosfi
         ts=tn*tn
-        
+
         # convergence
         c1=-tn
         c3=(1.+3.*ets+2.*ets**2)/3.
         c5=(2.-ts)/15.
         conv=c1*l1*(1.+ls*(c3+c5*ls))
-        
+
         # point scale factor
         f2=(1.+ets)/2.
         f4=(5.-4.*ts+ets*( 9.-24.*ts))/12.
         kp=sf*(1.+f2*ls*(1.+f4*ls))
-        
+
         return lat,lon,conv,kp
 
 
 
 
     def tconpc(self,sf,orlim,er,esq,rf):
-        
+
         """
         transverse mercator projection               ***
         conversion of grid coords to geodetic coords
@@ -1802,12 +1802,12 @@ class simutil:
         ********** symbols and definitions ***********************
         input:
         rf is the reciprocal flattening of ellipsoid
-        esq = e squared (eccentricity?)    
+        esq = e squared (eccentricity?)
         er is the semi-major axis for grs-80
         sf is the scale factor at the cm
         orlim is the southernmost parallel of latitude for which the
         northing coord is zero at the cm
-        
+
         output:
         eps
         so is the meridional distance (times the sf) from the
@@ -1817,7 +1817,7 @@ class simutil:
         determination of meridional dist. from latitude
         **********************************************************
         """
-        
+
         f=1./rf
         eps=esq/(1.-esq)
         pr=(1.-f)*er
@@ -1825,7 +1825,7 @@ class simutil:
         en2=en*en
         en3=en*en*en
         en4=en2*en2
-        
+
         c2=-3.*en/2.+9.*en3/16.
         c4=15.*en2/16.-15.*en4/32.
         c6=-35.*en3/48.
@@ -1834,7 +1834,7 @@ class simutil:
         u2=8.*(c4-4.*c6+10.*c8)
         u4=32.*(c6-6.*c8)
         u6=128.*c8
-        
+
         c2=3.*en/2.-27.*en3/32.
         c4=21.*en2/16.-55.*en4/32.
         c6=151.*en3/96.
@@ -1843,30 +1843,30 @@ class simutil:
         v2=8.*(c4-4.*c6+10.*c8)
         v4=32.*(c6-6.*c8)
         v6=128.*c8
-        
+
         r=er*(1.-en)*(1.-en*en)*(1.+2.25*en*en+(225./64.)*en4)
         cosor=pl.cos(orlim)
         omo=orlim+pl.sin(orlim)*cosor*(u0+u2*cosor*cosor+u4*cosor**4+u6*cosor**6)
         so=sf*r*omo
-        
+
         return eps,r,so,v0,v2,v4,v6
-    
-    
-    
-    
-    
+
+
+
+
+
     def getdatum(self,datumcode,verbose=False):
         """
         local datums and ellipsoids;
         input: datam code e.g. 'WGS84','SAM56'
         output:
           dx, dy, dz [m] - offsets from ITRF x,y,z i.e. one would take local earth-centered xyz coordinates, add dx,dy,dz to get wgs84 earth-centered
-          
+
           er = equatorial radius of the ellipsoid (semi-major axis) [m]
-          rf = reciprocal of flatting of the ellipsoid        
-        """        
+          rf = reciprocal of flatting of the ellipsoid
+        """
         # set equatorial radius and inverse flattening
-        
+
         ellipsoids={'AW':[6377563.396,299.3249647  ,'Airy 1830'                     ],
                     'AM':[6377340.189,299.3249647  ,'Modified Airy'                 ],
                     'AN':[6378160.0  ,298.25       ,'Australian National'           ],
@@ -1881,22 +1881,22 @@ class simutil:
                     'SA':[6378160.0  ,298.25       ,'South American 1969'           ],
                     'WD':[6378135.0  ,298.26       ,'World Geodetic System 1972'    ],
                     'WE':[6378137.0  ,298.257223563,'World Geodetic System 1984'    ]}
-        
+
         datums={
-            'AGD66' :[-133, -48, 148,'AN','Australian Geodetic Datum 1966'], 
-            'AGD84' :[-134, -48, 149,'AN','Australian Geodetic Datum 1984'], 
-            'ASTRO' :[-104,-129, 239,'IN','Camp Area Astro (Antarctica)'  ], 
-            'CAPE'  :[-136,-108,-292,'CD','CAPE (South Africa)'           ], 
-            'ED50'  :[ -87, -98,-121,'IN','European 1950'                 ], 
-            'ED79'  :[ -86, -98,-119,'IN','European 1979'                 ], 
-            'GRB36' :[ 375,-111, 431,'AW','Great Britain 1936'            ], 
+            'AGD66' :[-133, -48, 148,'AN','Australian Geodetic Datum 1966'],
+            'AGD84' :[-134, -48, 149,'AN','Australian Geodetic Datum 1984'],
+            'ASTRO' :[-104,-129, 239,'IN','Camp Area Astro (Antarctica)'  ],
+            'CAPE'  :[-136,-108,-292,'CD','CAPE (South Africa)'           ],
+            'ED50'  :[ -87, -98,-121,'IN','European 1950'                 ],
+            'ED79'  :[ -86, -98,-119,'IN','European 1979'                 ],
+            'GRB36' :[ 375,-111, 431,'AW','Great Britain 1936'            ],
             'HAWAII':[  89,-279,-183,'IN','Hawaiian Hawaii (Old)'         ],
             'KAUAI' :[  45,-290,-172,'IN','Hawaiian Kauai (Old)'          ],
             'MAUI'  :[  65,-290,-190,'IN','Hawaiian Maui (Old)'           ],
             'OAHU'  :[  56,-284,-181,'IN','Hawaiian Oahu (Old)'           ],
             'INDIA' :[ 289, 734, 257,'EA','Indian'                        ],
             'NAD83' :[   0,   0,   0,'RF','N. American 1983'              ],
-            'CANADA':[ -10, 158, 187,'CC','N. American Canada 1927'       ], 
+            'CANADA':[ -10, 158, 187,'CC','N. American Canada 1927'       ],
             'ALASKA':[  -5, 135, 172,'CC','N. American Alaska 1927'       ],
             'NAD27' :[  -8, 160, 176,'CC','N. American Conus 1927'        ],
             'CARIBB':[  -7, 152, 178,'CC','N. American Caribbean'         ],
@@ -1907,23 +1907,23 @@ class simutil:
             'CAMPO' :[-148, 136,  90,'IN','S. American Campo Inchauspe (Argentina)'],
             'WGS72' :[   0, 0  , 4.5,'WD','World Geodetic System - 72'    ],
             'WGS84' :[   0, 0  ,   0,'WE','World Geodetic System - 84'    ]}
-        
+
         if datumcode not in datums:
             self.msg("unknown datum %s" % datumcode,priority="error")
             return -1
-        
+
         datum=datums[datumcode]
         ellipsoid=datum[3]
-        
+
         if ellipsoid not in ellipsoids:
             self.msg("unknown ellipsoid %s" % ellipsoid,priority="error")
             return -1
-        
+
         if verbose:
             self.msg("Using %s datum with %s ellipsoid" % (datum[4],ellipsoids[ellipsoid][2]),origin="getdatum")
         return datum[0],datum[1],datum[2],ellipsoids[ellipsoid][0],ellipsoids[ellipsoid][1]
-    
-    
+
+
 
 
 
@@ -1935,7 +1935,7 @@ class simutil:
         converted from Fortran by R. Indebetouw Jan 2009.
         orig. source: https://www.ngs.noaa.gov/TOOLS/program_descriptions.html
         ri also added other datums and ellipsoids in a helper function
-        
+
         header from original UTMS fortran program:
         *     this program was originally written by e. carlson
         *     subroutines tmgrid, tconst, tmgeod, tconpc,
@@ -1982,21 +1982,21 @@ class simutil:
         * anyone as being other than a government program.                    *
         *                                                                     *
         ***********************************************************************
-        
+
         this is the driver program to compute latitudes and longitudes from
         the utms for each zone
-        
+
         input:
         northing, easting
         zone, datum
         nors=N/S
-        
+
         determined according to datum:
         er = equatorial radius of the ellipsoid (semi-major axis) [m]
         rf = reciprocal of flatting of the ellipsod [unitless]
         f  =
         esq= e squared
-        
+
         calculated according to longitude and zone:
         rad = radian conversion factor
         cm = central meridian ( computed using the longitude)
@@ -2007,18 +2007,18 @@ class simutil:
         so = meridional distance (multiplied by scale factor )
         from the equator to the southernmost parallel of latitude
         ( always zero for utm)
-        
+
         """
-        
+
         rad=180./pl.pi
-        
+
         offx,offy,offz,er,rf = self.getdatum(datum,verbose=self.verbose)
 
         f=1./rf
         esq=(2*f-f*f)
-        
+
         # find the central meridian if the zone number is less than 30
-        
+
         if zone < 30 :   # ie W long - this code uses W=positive lon
             iz=zone
             icm=(183-(6*iz))
@@ -2031,30 +2031,30 @@ class simutil:
             cm= float(icm)/rad
             ucm=(icm+3)/rad
             lcm=(icm-3)/rad
-            
+
         tol=(5./60.)/rad
-        
+
         if nors == 'S':
             fn= 10000000.
         else:
             fn=0.
-    
+
         fe=500000.0
         sf=0.9996
         orlim=0.0
-        
+
         found=0
 
         # precompute parameters for this zone:
         eps,r,so,v0,v2,v4,v6 = self.tconpc(sf,orlim,er,esq,rf)
-        
+
         # compute the latitudes and longitudes:
         lat,lon,conv,kp = self.tmgeod(north,east,eps,cm,fe,sf,so,r,v0,v2,v4,v6,fn,er,esq)
-        
+
         # do the test to see if the longitude is within 5 minutes
-        # of the boundaries for the zone and if so	compute	the
+        # of the boundaries for the zone and if so      compute the
         # north and easting for the adjacent zone
-        
+
         # if abs(ucm-lam) < tol:
         #     cm=float(icm+6)/rad
         #     iz=iz-1
@@ -2062,7 +2062,7 @@ class simutil:
         #         iz=60
         #     found=found+1
         #     lat,lon,conv,kp = tmgeod(n,e,eps,cm,fe,sf,so,r,v0,v2,v4,v6,fn,er,esq)
-        # 
+        #
         # if abs(lcm-lam) < tol:
         #     cm=float(icm-6)/rad
         #     iz=iz+1
@@ -2070,25 +2070,25 @@ class simutil:
         #         iz=1
         #     lat,lon,conv,kp = tmgeod(n,e,eps,cm,fe,sf,so,r,v0,v2,v4,v6,fn,er,esq)
         #     found=found+1
-        
+
         # *** convert to more usual convention of negative lon = W
         lon=-lon
 
         if self.verbose:
             self.msg(" longitude, latitude = %s %s; conv,kp = %f,%f" % (qa.angle(qa.quantity(lon,"rad"),prec=8)[0],qa.angle(qa.quantity(lat,"rad"),prec=8)[0],conv,kp),origin="utm2long")
-        
+
         return lon,lat
 
 
 
-    
+
     def long2xyz(self,lon,lat,elevation,datum):
         """
-        Returns the nominal ITRF (X, Y, Z) coordinates [m] for a point at 
-        geodetic latitude and longitude [radians] and elevation [m].  
+        Returns the nominal ITRF (X, Y, Z) coordinates [m] for a point at
+        geodetic latitude and longitude [radians] and elevation [m].
         The ITRF frame used is not the official ITRF, just a right
         handed Cartesian system with X going through 0 latitude and 0 longitude,
-        and Z going through the north pole.  
+        and Z going through the north pole.
         orig. source: http://www.oc.nps.edu/oc2902w/coord/llhxyz.htm
         """
 
@@ -2097,9 +2097,9 @@ class simutil:
         dx,dy,dz,er,rf = self.getdatum(datum,verbose=False)
 
         f=1./rf
-        esq=2*f-f**2    
+        esq=2*f-f**2
         nu=er/pl.sqrt(1.-esq*(pl.sin(lat))**2)
-        
+
         x=(nu+elevation)*pl.cos(lat)*pl.cos(lon) +dx
         y=(nu+elevation)*pl.cos(lat)*pl.sin(lon) +dy
         z=((1.-esq)*nu+elevation)*pl.sin(lat)  +dz
@@ -2107,18 +2107,18 @@ class simutil:
         # https://www.ngs.noaa.gov/cgi-bin/xyz_getxyz.prl
         # S231200.0          W0674800.0     0.0000
         # >    2216194.4188 -5430618.6472 -2497092.5213 GRS80
-        
+
         return x,y,z
-    
-    
+
+
     def xyz2long(self,x,y,z,datum):
         """
-        Given ITRF Earth-centered (X, Y, Z) coordinates [m] for a point, 
+        Given ITRF Earth-centered (X, Y, Z) coordinates [m] for a point,
         returns geodetic latitude and longitude [radians] and elevation [m]
         The ITRF frame used is not the official ITRF, just a right
         handed Cartesian system with X going through 0 latitude and 0 longitude,
-        and Z going through the north pole.  
-        Elevation is measured relative to the closest point to 
+        and Z going through the north pole.
+        Elevation is measured relative to the closest point to
         the (latitude, longitude) on the WGS84 reference
         ellipsoid.
         orig. source: http://www.iausofa.org/2013_1202_C/sofa/gc2gde.html
@@ -2126,14 +2126,14 @@ class simutil:
         # http://www.iausofa.org/
         # http://www.iausofa.org/2013_1202_C/sofa/gc2gde.html
 
-        dx,dy,dz,er,rf = self.getdatum(datum,verbose=False)        
+        dx,dy,dz,er,rf = self.getdatum(datum,verbose=False)
         f=1./rf
 
         # Validate ellipsoid parameters.
         if ( f < 0.0 or f >= 1.0 ): return -1,-1,-1
         if ( er <= 0.0 ): return -1,-1,-1
 
-        #Functions of ellipsoid parameters (with further validation of f). 
+        #Functions of ellipsoid parameters (with further validation of f).
         e2 = (2.0 - f) * f
         e4t = e2*e2 * 1.5
         ec2 = 1.0 - e2 # = 1-esq = (1-f)**2
@@ -2149,7 +2149,7 @@ class simutil:
             lon = pl.arctan2(y-dx, x-dx)
         else:
             lon = 0.
-            
+
         # Prepare Newton correction factors.
         s0 = abs(z-dz) / er
         c0 = ec * r / er
@@ -2167,16 +2167,16 @@ class simutil:
         lat = pl.arctan2(s1,cc)
         height = (r*cc + abs(z-dz)*s1 - er*pl.sqrt(ec2*s1**2 + cc**2))/pl.sqrt(s1**2 + cc**2)
 
-        # Restore sign of latitude. 
+        # Restore sign of latitude.
         if (z-dz) < 0:  lat = -lat
 
         return lon,lat,height
 
 
     def xyz2long_old(self,x,y,z,datum):
-        
+
         dx,dy,dz,er,rf = self.getdatum(datum,verbose=False)
-        
+
         f=1./rf
 
         b= ((x-dx)**2 + (y-dy)**2) / er**2
@@ -2210,18 +2210,18 @@ class simutil:
         lat=pl.arctan2(y0,x0)
         lon=pl.arctan2(y-dy,x-dx)
         #print x-dx,y-dy,z-dz,x0,y0
-                
+
         return lon,lat
 
 
     def utm2xyz(self,easting,northing,elevation,zone,datum,nors):
         """
-        Returns the nominal ITRF (X, Y, Z) coordinates [m] for a point at 
-        UTM easting, northing, elevation [m], and zone of a given 
+        Returns the nominal ITRF (X, Y, Z) coordinates [m] for a point at
+        UTM easting, northing, elevation [m], and zone of a given
         datum (e.g. 'WGS84') and north/south flag ("N" or "S").
         The ITRF frame used is not the official ITRF, just a right
         handed Cartesian system with X going through 0 latitude and 0 longitude,
-        and Z going through the north pole.  
+        and Z going through the north pole.
         """
 
         lon,lat = self.utm2long(easting,northing,zone,datum,nors)
@@ -2232,9 +2232,9 @@ class simutil:
 
     def locxyz2itrf(self, lat, longitude, alt, locx=0.0, locy=0.0, locz=0.0):
         """
-        Returns the nominal ITRF (X, Y, Z) coordinates [m] for a point at 
-        "local" (x, y, z) [m] measured at geodetic latitude lat and longitude 
-        longitude (degrees) and altitude of the reference point of alt.  
+        Returns the nominal ITRF (X, Y, Z) coordinates [m] for a point at
+        "local" (x, y, z) [m] measured at geodetic latitude lat and longitude
+        longitude (degrees) and altitude of the reference point of alt.
         The ITRF frame used is not the official ITRF, just a right
         handed Cartesian system with X going through 0 latitude and 0 longitude,
         and Z going through the north pole.  The "local" (x, y, z) are measured
@@ -2248,17 +2248,17 @@ class simutil:
         b = 6356752.3142   # WGS84 polar semimajor axis
         ae = pl.arccos(b / a)
         N = a / pl.sqrt(1.0 - (pl.sin(ae) * sphi)**2)
-    
+
         # Now you see the connection between the Old Ones and Antarctica...
         Nploczcphimlocysphi = (N + locz+alt) * pl.cos(phi) - locy * sphi
-    
+
         clmb = pl.cos(lmbda)
         slmb = pl.sin(lmbda)
-    
+
         x = Nploczcphimlocysphi * clmb - locx * slmb
         y = Nploczcphimlocysphi * slmb + locx * clmb
         z = (N * (b / a)**2 + locz+alt) * sphi + locy * pl.cos(phi)
-    
+
         return x, y, z
 
 
@@ -2266,16 +2266,16 @@ class simutil:
 
     def itrf2loc(self, x,y,z, cx,cy,cz):
         """
-        Given Earth-centered ITRF (X, Y, Z) coordinates [m] 
-        and the Earth-centered coords of the center of array, 
-        Returns local (x, y, z) [m] relative to the center of the array, 
-        oriented with x and y tangent to the closest point 
+        Given Earth-centered ITRF (X, Y, Z) coordinates [m]
+        and the Earth-centered coords of the center of array,
+        Returns local (x, y, z) [m] relative to the center of the array,
+        oriented with x and y tangent to the closest point
         at the COFA (latitude, longitude) on the WGS84 reference
         ellipsoid, with z normal to the ellipsoid and y pointing north.
         """
         clon,clat,h = self.xyz2long(cx,cy,cz,'WGS84')
         ccoslon=pl.cos(clon)
-        csinlon=pl.sin(clon)        
+        csinlon=pl.sin(clon)
         csinlat=pl.sin(clat)
         ccoslat=pl.cos(clat)
         import types
@@ -2298,7 +2298,7 @@ class simutil:
             lat[i] = (-csinlon*xtrans) + (ccoslon*ytrans)
             lon[i] = (-csinlat*ccoslon*xtrans) - (csinlat*csinlon*ytrans) + ccoslat*ztrans
             el[i] = (ccoslat*ccoslon*xtrans) + (ccoslat*csinlon*ytrans) + csinlat*ztrans
-            
+
         return lat,lon,el
 
 
@@ -2307,10 +2307,10 @@ class simutil:
 
     def itrf2locname(self, x,y,z, obsname):
         """
-        Given Earth-centered ITRF (X, Y, Z) coordinates [m] 
+        Given Earth-centered ITRF (X, Y, Z) coordinates [m]
         and the name of an known array (see me.obslist()),
-        Returns local (x, y, z) [m] relative to the center of the array, 
-        oriented with x and y tangent to the closest point 
+        Returns local (x, y, z) [m] relative to the center of the array,
+        oriented with x and y tangent to the closest point
         at the COFA (latitude, longitude) on the WGS84 reference
         ellipsoid, with z normal to the ellipsoid and y pointing north.
         """
@@ -2335,23 +2335,23 @@ class simutil:
 
     def plotants(self,x,y,z,d,name):
         # given globals
-        
+
         cx=pl.mean(x)
         cy=pl.mean(y)
         cz=pl.mean(z)
         lat,lon,el = self.itrf2loc(x,y,z,cx,cy,cz)
         n=lat.__len__()
-        
+
         dolam=0
         # TODO convert to klam: (d too)
         ###
-                
+
         rg=max(lat)-min(lat)
         r2=max(lon)-min(lon)
         if r2>rg:
             rg=r2
         if max(d)>0.01*rg:
-            pl.plot(lat,lon,',')            
+            pl.plot(lat,lon,',')
             #print max(d),ra
             for i in range(n):
                 pl.gca().add_patch(pl.Circle((lat[i],lon[i]),radius=0.5*d[i],fc="#dddd66"))
@@ -2359,7 +2359,7 @@ class simutil:
                     pl.text(lat[i],lon[i],name[i],horizontalalignment='center',verticalalignment='center')
         else:
             pl.plot(lat,lon,'o',c="#dddd66")
-            if n<10: 
+            if n<10:
                 for i in range(n):
                     pl.text(lat[i],lon[i],name[i],horizontalalignment='center',fontsize=8)
 
@@ -2444,12 +2444,12 @@ class simutil:
 
     ##################################################################
     # fit modelimage into a 4 coordinate image defined by the parameters
-    
+
     # TODO spectral extrapolation and regridding using innchan ****
 
-    def modifymodel(self, inimage, outimage, 
+    def modifymodel(self, inimage, outimage,
                 inbright,indirection,incell,incenter,inwidth,innchan,
-                flatimage=False):  # if nonzero, create mom -1 image 
+                flatimage=False):  # if nonzero, create mom -1 image
 
         # new ia tool
         in_ia=ia.newimagefromfile(inimage)
@@ -2468,7 +2468,7 @@ class simutil:
 
 
 
-        # brightness scaling 
+        # brightness scaling
         if (inbright=="unchanged") or (inbright==""):
             scalefactor=1.
         else:
@@ -2503,7 +2503,7 @@ class simutil:
             in_ia.close()
             self.msg("Your input model has fewer than 2 dimensions.  Can't proceed",priority="error")
             return False
-        if in_nax==2:            
+        if in_nax==2:
             arr=arr.reshape([arr.shape[0],arr.shape[1],1])
             in_shape=arr.shape
             in_nax=in_shape.__len__() # which should be 3
@@ -2537,7 +2537,7 @@ class simutil:
         model_cell=""
         # look for direction coordinate, with two pixel axes:
         if in_dir['return']:
-            in_ndir = in_dir['pixel'].__len__() 
+            in_ndir = in_dir['pixel'].__len__()
             if in_ndir != 2:
                 self.msg("Mal-formed direction coordinates in modelimage. Discarding and using first two pixel axes for RA and Dec.")
                 axmap[0]=0 # direction in first two pixel axes
@@ -2581,7 +2581,7 @@ class simutil:
             axassigned[1]=0
 
 
-        # try to parse direction using splitter function and override model_refdir 
+        # try to parse direction using splitter function and override model_refdir
         if type(indirection)==type([]):
             if len(indirection) > 1:
                 in_ia.close()
@@ -2604,12 +2604,12 @@ class simutil:
                 in_ia.close()
                 self.msg("Cannot determine reference direction in model image.  Valid 'indirection' parameter must be provided.",priority="error")
                 return False
-        
+
 
         # override model_cell?
         cell_replaced=False
         if self.isquantity(incell[0],halt=False):
-            if qa.compare(incell[0],"1arcsec"): 
+            if qa.compare(incell[0],"1arcsec"):
                 model_cell=incell
                 cell_replaced=True
                 if self.verbose: self.msg("replacing existing model cell size with incell",origin="setup model")
@@ -2624,7 +2624,7 @@ class simutil:
                 return False
 
 
-     
+
         if self.verbose:
             self.msg("model image shape="+str(in_shape),origin="setup model")
             self.msg("model pixel = %8.2e x %8.2e arcsec" % (model_cell[0]['value'],model_cell[1]['value']),origin="setup model")
@@ -2660,13 +2660,13 @@ class simutil:
             model_width=qa.quantity(model_width,in_csys.units(type="spectral")[0])
             model_specrefval=qa.quantity(model_specrefval,in_csys.units(type="spectral")[0])
             add_spectral_coord=False
-            if self.verbose: self.msg("Spectral Coordinate %i parsed" % axmap[3],origin="setup model")                
+            if self.verbose: self.msg("Spectral Coordinate %i parsed" % axmap[3],origin="setup model")
         else:
-            # need to add one to the coordsys 
-            add_spectral_coord=True 
+            # need to add one to the coordsys
+            add_spectral_coord=True
 
 
-        if add_spectral_coord:                        
+        if add_spectral_coord:
             # find first unused axis - probably at end, but just in case its not:
             i=0
             extra_axis=-1
@@ -2687,7 +2687,7 @@ class simutil:
         # override specrefval?
         specref_replaced=False
         if self.isquantity(incenter,halt=False):
-            if qa.compare(incenter,"1Hz"): 
+            if qa.compare(incenter,"1Hz"):
                 if (qa.quantity(incenter))['value']>=0:
                     model_specrefval=incenter
                     model_specrefpix=pl.floor(model_nchan*0.5)
@@ -2707,7 +2707,7 @@ class simutil:
         # override inwidth?
         width_replaced=False
         if self.isquantity(inwidth,halt=False):
-            if qa.compare(inwidth,"1Hz"): 
+            if qa.compare(inwidth,"1Hz"):
                 if (qa.quantity(inwidth))['value']>=0:
                     model_width=inwidth
                     width_replaced=True
@@ -2741,18 +2741,18 @@ class simutil:
             #else:
             foo=in_stk['pixel'][0]
             if in_stk['pixel'].__len__() > 1:
-                self.msg("you seem to have two stokes axes",priority="warn")                
+                self.msg("you seem to have two stokes axes",priority="warn")
             axmap[2]=foo
             axassigned[foo]=2
             if in_shape[foo]>4:
                 in_ia.close()
                 self.msg("you appear to have more than 4 Stokes components - please edit your header and/or parameters",priority="error")
-                return False                        
+                return False
             add_stokes_coord=False
             if self.verbose: self.msg("Stokes Coordinate %i parsed" % axmap[2],origin="setup model")
         else:
-            # need to add one to the coordsys 
-            add_stokes_coord=True 
+            # need to add one to the coordsys
+            add_stokes_coord=True
 
 
 
@@ -2768,30 +2768,30 @@ class simutil:
                 self.msg("I can't find an unused axis to make Stokes [%i %i %i %i] " % (axassigned[0],axassigned[1],axassigned[2],axassigned[3]),priority="error",origin="setup model")
                 return False
             axmap[2]=extra_axis
-            axassigned[extra_axis]=2                            
+            axassigned[extra_axis]=2
 
             if arr.shape[extra_axis]>4:
                 in_ia.close()
                 self.msg("you have %i Stokes parameters in your potential Stokes axis %i.  something is wrong." % (arr.shape[extra_axis],extra_axis),priority="error")
                 return False
             if self.verbose: self.msg("Adding Stokes Coordinate",origin="setup model")
-            if arr.shape[extra_axis]==4:                    
+            if arr.shape[extra_axis]==4:
                 model_stokes="IQUV"
-            if arr.shape[extra_axis]==3:                    
+            if arr.shape[extra_axis]==3:
                 model_stokes="IQV"
                 self.msg("setting IQV Stokes parameters from the 4th axis of you model.  If that's not what you want, then edit the header",origin="setup model",priority="warn")
-            if arr.shape[extra_axis]==2:                    
+            if arr.shape[extra_axis]==2:
                 model_stokes="IQ"
                 self.msg("setting IQ Stokes parameters from the 4th axis of you model.  If that's not what you want, then edit the header",origin="setup model",priority="warn")
-            if arr.shape[extra_axis]<=1:                    
+            if arr.shape[extra_axis]<=1:
                 model_stokes="I"
 
 
 
 
         # ========================================
-        # now we should have 4 assigned pixel axes, and model_cell, model_refdir, model_nchan, 
-        # model_stokes all set 
+        # now we should have 4 assigned pixel axes, and model_cell, model_refdir, model_nchan,
+        # model_stokes all set
         out_nstk=len(model_stokes)
         if self.verbose:
             self.msg("axis map for model image = %i %i %i %i" %
@@ -2800,17 +2800,17 @@ class simutil:
         modelshape=[in_shape[axmap[0]], in_shape[axmap[1]],out_nstk,model_nchan]
         if outimage!=inimage:
             ia.fromshape(outimage,modelshape,overwrite=True)
-            modelcsys=ia.coordsys()        
+            modelcsys=ia.coordsys()
         else:
-            modelcsys=in_ia.coordsys()        
+            modelcsys=in_ia.coordsys()
         modelcsys.setunits(['rad','rad','','Hz'])
         modelcsys.setincrement([qa.convert(model_cell[0],modelcsys.units()[0])['value'],    # already -1
                                 qa.convert(model_cell[1],modelcsys.units()[1])['value']],
                                 type="direction")
 
         dirm=self.dir_s2m(model_refdir)
-        lonq=dirm['m0'] 
-        latq=dirm['m1'] 
+        lonq=dirm['m0']
+        latq=dirm['m1']
         modelcsys.setreferencecode(dirm['refer'],type="direction")
         if len(model_projpars)>0:
             modelcsys.setprojection(parameters=model_projpars.tolist(),type=model_projection)
@@ -2821,7 +2821,7 @@ class simutil:
              qa.convert(latq,modelcsys.units()[1])['value']],
             type="direction")
         modelcsys.setreferencepixel(model_refpix,"direction")
-        if self.verbose: 
+        if self.verbose:
             self.msg("sky model image direction = "+model_refdir,origin="setup model")
             self.msg("sky model image increment = "+str(model_cell[0]),origin="setup model")
 
@@ -2831,7 +2831,7 @@ class simutil:
         modelcsys.setincrement(qa.convert(model_width,modelcsys.units()[3])['value'],type="spectral")
 
 
-        # first assure that the csys has the expected order 
+        # first assure that the csys has the expected order
         expected=['Direction', 'Direction', 'Stokes', 'Spectral']
         if modelcsys.axiscoordinatetypes() != expected:
             in_ia.close()
@@ -2851,17 +2851,17 @@ class simutil:
             ia.setcoordsys(modelcsys.torecord())
             ia.done()
             ia.open(outimage)
-        
+
         # now rearrange the pixel axes if ness.
         for ax in range(4):
             if axmap[ax] != ax:
                 if self.verbose: self.msg("swapping input axes %i with %i" % (ax,axmap[ax]),origin="setup model")
-                arr=arr.swapaxes(ax,axmap[ax])                        
+                arr=arr.swapaxes(ax,axmap[ax])
                 tmp=axmap[ax]
                 axmap[ax]=ax
-                axmap[tmp]=tmp                
+                axmap[tmp]=tmp
 
-        
+
         # there's got to be a better way to remove NaNs:
         if outimage!=inimage:
             for i0 in range(arr.shape[0]):
@@ -2872,7 +2872,7 @@ class simutil:
                             if foo!=foo: arr[i0,i1,i2,i3]=0.0
 
         if self.verbose and outimage!=inimage:
-            self.msg("model array minmax= %e %e" % (arr.min(),arr.max()),origin="setup model")        
+            self.msg("model array minmax= %e %e" % (arr.min(),arr.max()),origin="setup model")
             self.msg("scaling model brightness by a factor of %f" % scalefactor,origin="setup model")
             self.msg("image channel width = %8.2e GHz" % qa.convert(model_width,'GHz')['value'],origin="setup model")
             if arr.nbytes > 5e7:
@@ -2919,7 +2919,7 @@ class simutil:
                 mstoimage=mstoimage[0]
         else:
             ms0=mstoimage
-        
+
         if os.path.exists(ms0):
             tb.open(ms0+"/SPECTRAL_WINDOW")
             if tb.nrows() > 1:
@@ -2934,7 +2934,7 @@ class simutil:
             chanmode="mfs"
         else:
             chanmode="channel"
-        
+
         psfmode="clark"
         ftmachine="ft"
 
@@ -2944,7 +2944,7 @@ class simutil:
         #    imagermode=""
         if cleanmode=="mosaic":
             imagermode="mosaic"
-            ftmachine="mosaic" 
+            ftmachine="mosaic"
 
         # in 3.4 clean doesn't accept just any imsize
         from cleanhelper import cleanhelper
@@ -2958,7 +2958,7 @@ class simutil:
         if((optsize[0] != imsize[0]) or (nksize!=1 and optsize[1] != imsize[1])):
             self.msg(str(imsize)+' is not an acceptable imagesize, will use '+str(optsize)+" instead",priority="warn")
             imsize=optsize
-                
+
         if not interactive:
             interactive=False
         # print clean inputs no matter what, so user can use them.
@@ -2966,7 +2966,7 @@ class simutil:
         cleanlast=open(imagename+".clean.last","write")
         cleanlast.write('taskname            = "clean"\n')
 
-        #self.msg("clean inputs:")        
+        #self.msg("clean inputs:")
         if self.verbose: self.msg(" ")
         if type(mstoimage)==type([]):
             cleanstr="clean(vis="+str(mstoimage)+",imagename='"+imagename+"'"
@@ -3045,9 +3045,9 @@ class simutil:
         else:
             cleanlast.write('robust                  = 0.0\n');
             robust=0.
-            
+
         taper=False
-        if len(outertaper) >0:            
+        if len(outertaper) >0:
             taper=True
             if type(outertaper) == type([]):
                 if len(outertaper[0])==0:
@@ -3058,7 +3058,7 @@ class simutil:
             cleanlast.write('outertaper              = "'+str(outertaper)+'"\n');
             cleanstr=cleanstr+",uvtaper=True,outertaper="+str(outertaper)+",innertaper=[]"
         else:
-            uvtaper=False            
+            uvtaper=False
             cleanlast.write('uvtaper                 = False\n');
             cleanlast.write('outertaper              = []\n');
             cleanstr=cleanstr+",uvtaper=False"
@@ -3081,7 +3081,7 @@ class simutil:
         cleanlast.write('nterms                  = 1\n');
         cleanlast.write('reffreq                 = ""\n');
         cleanlast.write('chaniter                = False\n');
-        cleanstr=cleanstr+")"        
+        cleanstr=cleanstr+")"
         if self.verbose:
             # RI TODO assumed origin is simanalyze
             self.msg(cleanstr,priority="warn",origin="simanalyze")
@@ -3089,12 +3089,12 @@ class simutil:
             self.msg(cleanstr,priority="info",origin="simanalyze")
         cleanlast.write("#"+cleanstr+"\n")
         cleanlast.close()
-        
+
         if not dryrun:
             casalog.filter("ERROR")
-            clean(vis=mstoimage, imagename=imagename, mode=chanmode, 
+            clean(vis=mstoimage, imagename=imagename, mode=chanmode,
               niter=niter, threshold=threshold, selectdata=False, nchan=nchan,
-              psfmode=psfmode, imagermode=imagermode, ftmachine=ftmachine, 
+              psfmode=psfmode, imagermode=imagermode, ftmachine=ftmachine,
               imsize=imsize, cell=list(map(qa.tos,cell)), phasecenter=imcenter,
               stokes=stokes, weighting=weighting, robust=robust,
               interactive=interactive,
@@ -3113,7 +3113,7 @@ class simutil:
     ###################################################
 
     def flatimage(self,image,complist="",verbose=False):
-        # flat output 
+        # flat output
         ia.open(image)
         imsize=ia.shape()
         imcsys=ia.coordsys()
@@ -3137,7 +3137,7 @@ class simutil:
             flat_ia = ia.newimagefromimage(infile=image,outfile=flat,dropdeg=True,overwrite=True)
             flat_ia.close()
 
-            # seems no way to just drop the spectral and keep the stokes. 
+            # seems no way to just drop the spectral and keep the stokes.
             if nstokes<=1:
                 os.rename(flat,flat+".tmp")
                 ia.open(flat+".tmp")
@@ -3158,13 +3158,13 @@ class simutil:
         imcsys.done()
         del imcsys
 
-        # add components 
+        # add components
         if len(complist)>0:
             ia.open(flat)
             if not os.path.exists(complist):
                 self.msg("sky component list "+str(complist)+" not found in flatimage",priority="error")
             cl.open(complist)
-            ia.modify(cl.torecord(),subtract=False) 
+            ia.modify(cl.torecord(),subtract=False)
             cl.done()
             ia.done()
 
@@ -3182,7 +3182,7 @@ class simutil:
         outflatshape=ia.shape()
         # and beam TODO is beam the same in flat as a cube?
         beam=ia.restoringbeam()
-        ia.done()            
+        ia.done()
 
         ia.open(modelflat)
         modelflatcs=ia.coordsys()
@@ -3191,8 +3191,8 @@ class simutil:
         tmpxx=ia.regrid(outfile=modelregrid+'.tmp', overwrite=True,
                   csys=outflatcs.torecord(),shape=outflatshape, asvelocity=False)
         # ia.regrid assumes a surface brightness, or more accurately doesnt
-        # pay attention to units at all, so we now have to scale 
-        # by the pixel size to have the right values in jy/pixel, 
+        # pay attention to units at all, so we now have to scale
+        # by the pixel size to have the right values in jy/pixel,
 
         # get pixel size from model image coordsys
         tmpxx.done()
@@ -3218,14 +3218,14 @@ class simutil:
         incellx=qa.mul(incellx,abs(xform[0,0]))
         incelly=qa.mul(incelly,abs(xform[1,1]))
         cell = [qa.convert(incellx,'arcsec'),qa.convert(incelly,'arcsec')]
-        
+
         # image scaling
         factor  = (qa.convert(cell[0],"arcsec")['value'])
-        factor *= (qa.convert(cell[1],"arcsec")['value']) 
-        factor /= (qa.convert(model_cell[0],"arcsec")['value']) 
-        factor /= (qa.convert(model_cell[1],"arcsec")['value'])         
-        imrr = ia.imagecalc(modelregrid, 
-                            "'%s'*%g" % (modelregrid+'.tmp',factor), 
+        factor *= (qa.convert(cell[1],"arcsec")['value'])
+        factor /= (qa.convert(model_cell[0],"arcsec")['value'])
+        factor /= (qa.convert(model_cell[1],"arcsec")['value'])
+        imrr = ia.imagecalc(modelregrid,
+                            "'%s'*%g" % (modelregrid+'.tmp',factor),
                             overwrite = True)
         shutil.rmtree(modelregrid+".tmp")
         if self.verbose:
@@ -3233,12 +3233,12 @@ class simutil:
 
         # add unresolved components in Jy/pix
         # don't do this if you've already done it in flatimage()!
-        if (os.path.exists(complist)):            
+        if (os.path.exists(complist)):
             cl.open(complist)
             imrr.modify(cl.torecord(),subtract=False)
             cl.done()
-            
-        imrr.done()    
+
+        imrr.done()
         ia.done()
         del imrr
 
@@ -3249,7 +3249,7 @@ class simutil:
         tmpcnv=ia.convolve2d(convolved,major=beam['major'],minor=beam['minor'],
                       pa=beam['positionangle'],overwrite=True)
         ia.done()
-        
+
         #tmpcnv.open(convolved)
         tmpcnv.setbrightnessunit("Jy/beam")
         tmpcnv.setrestoringbeam(beam=beam)
@@ -3270,7 +3270,7 @@ class simutil:
         # different names.  Wikipedia uses ones from Baytron, a now defunct company
         # that made test equipment.
         elif freq > 75:    # used as a visual sensor for experimental autonomous vehicles
-            band = 'W' 
+            band = 'W'
         elif freq > 50:    # Very strongly absorbed by atmospheric O2,
             band = 'V'     # which resonates at 60 GHz.
         elif freq >= 40:
@@ -3330,18 +3330,18 @@ class simutil:
 
 #######################################
 # ALMA calcpointings
-        
-    def applyRotate(self, x, y, tcos, tsin):     
+
+    def applyRotate(self, x, y, tcos, tsin):
         return tcos*x-tsin*y, tsin*x+tcos*y
-    
+
     def isEven(self, num):
         return (num % 2) == 0
 
-    # this was the only algorithm in Cycle 0 - for Cycle 1 it was 
-    # recast as BaseTriangularTiling.getPointings(), the width>height 
+    # this was the only algorithm in Cycle 0 - for Cycle 1 it was
+    # recast as BaseTriangularTiling.getPointings(), the width>height
     # case statement was removed, and BaseTriangularTiling was supplemented by
     # ShiftTriangularTiling.getPointings()
-    def getTrianglePoints(self, width, height, angle, spacing):        
+    def getTrianglePoints(self, width, height, angle, spacing):
         tcos = pl.cos(angle*pl.pi/180)
         tsin = pl.sin(angle*pl.pi/180)
 
@@ -3351,7 +3351,7 @@ class simutil:
         if (width >= height):
             wSpacing = spacing
             hSpacing = (pl.sqrt(3.) / 2) * spacing
-      
+
             nwEven = int(pl.floor((width / 2) / wSpacing))
             nwOdd  = int(pl.floor((width / 2) / wSpacing + 0.5))
             nh     = int(pl.floor((height / 2) / hSpacing))
@@ -3361,7 +3361,7 @@ class simutil:
                     for iw in pl.array(list(range(nwEven*2+1)))-nwEven:
                         x,y = self.applyRotate(iw*wSpacing, ih*hSpacing, tcos, tsin)
                         xx.append(x)
-                        yy.append(y)          
+                        yy.append(y)
                 else:
                     for iw in pl.array(list(range(nwOdd*2+1)))-nwOdd:
                         x,y = self.applyRotate((iw+0.5)*wSpacing, ih*hSpacing, tcos, tsin)
@@ -3370,22 +3370,22 @@ class simutil:
         else:
             wSpacing = (pl.sqrt(3) / 2) * spacing
             hSpacing = spacing
-      
+
             nw     = int(pl.floor((width / 2) / wSpacing))
             nhEven = int(pl.floor((height / 2) / hSpacing))
             nhOdd  = int(pl.floor((height / 2) / hSpacing + 0.5))
 
-            for iw in pl.array(list(range(nw*2+1)))-nw:                
+            for iw in pl.array(list(range(nw*2+1)))-nw:
                 if (self.isEven(iw)):
                     for ih in pl.array(list(range(nhEven*2+1)))-nhEven:
                         x,y = self.applyRotate(iw*wSpacing, ih*hSpacing, tcos, tsin)
                         xx.append(x)
-                        yy.append(y)          
-                else:                    
+                        yy.append(y)
+                else:
                     for ih in pl.array(list(range(nhOdd*2+1)))-nhOdd:
                         x,y = self.applyRotate(iw*wSpacing, (ih+0.5)*hSpacing, tcos, tsin)
                         xx.append(x)
-                        yy.append(y)          
+                        yy.append(y)
         return xx,yy
 
 
@@ -3404,7 +3404,7 @@ class simutil:
             height=longlength
             shortside=height
             angle=angle+90
-        
+
         # which tiling? Base or Shifted (OT getTiling)
         vSpacing = (pl.sqrt(3) / 2) * spacing
         n = pl.ceil(shortside / vSpacing)
@@ -3429,7 +3429,7 @@ class simutil:
 
         wSpacing = spacing
         hSpacing = (pl.sqrt(3.) / 2) * spacing
-      
+
         nwEven = int(pl.floor((width / 2) / wSpacing))
         nwEven += self.needsFiller(width, wSpacing, pb, nwEven*2+1)
 
@@ -3450,7 +3450,7 @@ class simutil:
                     x,y = self.applyRotate((iw+0.5)*wSpacing, ih*hSpacing, tcos, tsin)
                     xx.append(x)
                     yy.append(-y)
-        
+
         return xx,yy
 
 
@@ -3465,7 +3465,7 @@ class simutil:
 
         wSpacing = spacing
         hSpacing = (pl.sqrt(3.) / 2) * spacing
-      
+
         nwEven = int(pl.floor((width / 2) / wSpacing + 0.5))
         nwEven += self.needsFiller(width, wSpacing, pb, nwEven*2)
 
@@ -3480,13 +3480,13 @@ class simutil:
                 for iw in pl.array(list(range(nwEven*2)))-nwEven:
                     x,y = self.applyRotate((iw+0.5)*wSpacing, (ih+0.5)*hSpacing, tcos, tsin)
                     xx.append(x)
-                    yy.append(-y)          
+                    yy.append(-y)
             else:
                 for iw in pl.array(list(range(nwOdd*2+1)))-nwOdd:
                     x,y = self.applyRotate(iw*wSpacing, (ih+0.5)*hSpacing, tcos, tsin)
                     xx.append(x)
                     yy.append(-y)
-        
+
         return xx,yy
 
 
@@ -3503,7 +3503,7 @@ class simutil:
         cz=pl.mean(stnz)
         nAntennas=len(stnx)
         lat,lon,el = self.itrf2loc(stnx,stny,stnz,cx,cy,cz)
-        
+
         #l = {}
         #neighborlist = []
         maxlength = 0
@@ -3520,7 +3520,7 @@ class simutil:
                 #mylengths[i][j] = (x**2 + y**2 + z**2)**0.5
                 mylengths[k]=(x**2 + y**2 + z**2)**0.5
                 k=k+1
-        
+
         return mylengths
 
 
@@ -3534,7 +3534,7 @@ class simutil:
 
         return 0.2997924/freq/ninety*3600.*180/pl.pi # lambda/b converted to arcsec
 
-        
+
 ######################
     def sfBeam1d(self,beam="", cell="", convsupport=-1, sampling=""):
         """
@@ -3542,7 +3542,7 @@ class simutil:
         Migrated codes from gjinc.sfBeam() in analysisUtil module
         by Todd Hunter.
         Note: this is simplified version of the function.
-        
+
         Paramters:
            beam        : Antenna primary beam (quantity)
            cell        : Cell size of image (quantity)
@@ -3556,7 +3556,7 @@ class simutil:
         import scipy.special as spspec
         import scipy.signal as spsig
         import scipy.interpolate as spintrp
-        
+
         if not qa.compare(beam, "rad"):
             raise ValueError("beam should be a quantity of antenna primary beam size (angle)")
         if not qa.compare(cell, "rad"):

@@ -11,7 +11,7 @@ from parallel.parallel_task_helper import ParallelTaskHelper
 from casa_stack_manip import stack_frame_find
 import flaghelper as fh
 
-# to rethrow exception 
+# to rethrow exception
 import inspect
 g = stack_frame_find( )
 g['__rethrow_casa_exceptions'] = True
@@ -21,15 +21,15 @@ datapath = os.environ.get('CASAPATH').split()[0] + "/data/regression/unittest/fl
 
 # Pick up alternative data directory to run tests on MMSs
 testmms = False
-if 'TEST_DATADIR' in os.environ:   
+if 'TEST_DATADIR' in os.environ:
     DATADIR = str(os.environ.get('TEST_DATADIR'))+'/flagdata/'
     if os.path.isdir(DATADIR):
         testmms = True
         datapath = DATADIR
 
-print('flagmanager tests will use data from '+datapath)         
+print('flagmanager tests will use data from '+datapath)
 
-# jagonzal (CAS-4287): Add a cluster-less mode to by-pass parallel processing for MMSs as requested 
+# jagonzal (CAS-4287): Add a cluster-less mode to by-pass parallel processing for MMSs as requested
 if 'BYPASS_PARALLEL_PROCESSING' in os.environ:
     ParallelTaskHelper.bypassParallelProcessing(1)
 
@@ -38,7 +38,7 @@ aflocal = aftool()
 
 # Base class which defines setUp functions for importing different data sets
 class test_base(unittest.TestCase):
-    
+
     def setUp_flagdatatest(self):
         '''VLA data set, scan=2500~2600 spw=0 1 chan, RR,LL'''
         self.vis = "flagdatatest.ms"
@@ -52,7 +52,7 @@ class test_base(unittest.TestCase):
             os.system('cp -r '+datapath + self.vis +' '+ self.vis)
 
         os.system('rm -rf ' + self.vis + '.flagversions')
-        
+
         default(flagdata)
 
     def setUp_bpass_case(self):
@@ -66,7 +66,7 @@ class test_base(unittest.TestCase):
                         os.environ.get('CASAPATH').split()[0] +
                         "/data/regression/unittest/flagdata/" + self.vis + ' ' + self.vis)
 
-        os.system('rm -rf ' + self.vis + '.flagversions')        
+        os.system('rm -rf ' + self.vis + '.flagversions')
         default(flagdata)
 
     def unflag_ms(self):
@@ -80,14 +80,14 @@ class test_base(unittest.TestCase):
 
 
 class test_flagmanager1(test_base):
-    
+
     def setUp(self):
         os.system("rm -rf flagdatatest.ms*") # test1 needs a clean start
         self.setUp_flagdatatest()
-        
+
     def test1m(self):
         '''flagmanager test1m: mode=list, flagbackup=True/False'''
-        self.unflag_ms()        
+        self.unflag_ms()
 
         flagmanager(vis=self.vis, mode='list')
         aflocal.open(self.vis)
@@ -106,19 +106,19 @@ class test_flagmanager1(test_base):
         aflocal.open(self.vis)
         self.assertEqual(len(aflocal.getflagversionlist()), 3)
         aflocal.done()
-        
+
         newname = 'Ha! The best version ever!'
 
-        flagmanager(vis=self.vis, mode='rename', oldname='flagdata_1', versionname=newname, 
+        flagmanager(vis=self.vis, mode='rename', oldname='flagdata_1', versionname=newname,
                     comment='This is a *much* better name')
         flagmanager(vis=self.vis, mode='list')
         aflocal.open(self.vis)
         self.assertEqual(len(aflocal.getflagversionlist()), 3)
         aflocal.done()
-        
+
         self.assertTrue(os.path.exists(self.vis+'.flagversions/flags.'+newname),
                         'Flagversion file does not exist: flags.'+newname)
-        
+
         # Specific for MMS
         if testmms:
             areg = self.vis+'/SUBMSS/*flagversions*'
@@ -126,18 +126,18 @@ class test_flagmanager1(test_base):
             print('Check for .flagversions in the wrong place.')
             self.assertEqual(glob.glob(areg), [], 'There should not be any .flagversions in the'
                                                 ' SUBMSS directory')
-            
+
 
     def test2m(self):
         """flagmanager test2m: Create, then restore autoflag"""
 
-        self.unflag_ms()        
+        self.unflag_ms()
 
         flagdata(vis=self.vis, mode='summary')
         flagmanager(vis=self.vis)
-        
+
         flagdata(vis=self.vis, mode='manual', antenna="2", flagbackup=True)
-        
+
         flagmanager(vis=self.vis)
         ant2 = flagdata(vis=self.vis, mode='summary')['flagged']
 
@@ -159,38 +159,38 @@ class test_flagmanager1(test_base):
 
     def test_CAS2701(self):
         """flagmanager: Do not allow flagversions with empty versionname''"""
-                  
+
         try:
-            flagmanager(vis = self.vis,mode = "save",versionname = "")     
+            flagmanager(vis = self.vis,mode = "save",versionname = "")
         except IOError as e:
             print('Expected exception: %s'%e)
-        
+
     def test_rename(self):
         '''flagmanager: do not overwrite an existing versionname'''
-        
+
         # Create a flagbackup
         flagdata(vis=self.vis, mode='manual', antenna="2", flagbackup=True)
         fname = 'flagdata_1'
         self.assertTrue(os.path.exists(self.vis+'.flagversions/flags.'+fname),
                         'Flagversions file does not exist: flags.'+fname)
-        
+
         # Rename it
         newname = 'Rename_Me'
-        flagmanager(vis=self.vis, mode='rename', oldname=fname, versionname=newname, 
+        flagmanager(vis=self.vis, mode='rename', oldname=fname, versionname=newname,
                     comment='CAS-3080')
         self.assertTrue(os.path.exists(self.vis+'.flagversions/flags.'+newname),
                         'Flagversions file does not exist: flags.'+newname)
-        
+
         self.assertFalse(os.path.exists(self.vis+'.flagversions/flags.'+fname),
                         'Flagversions file shuold not exist: flags.'+fname)
-       
+
     def test_caltable_flagbackup(self):
         '''Flagmanager:: cal table mode=list, flagbackup=True/False'''
         # Need a fresh start
         os.system('rm -rf cal.fewscans.bpass*')
         self.setUp_bpass_case()
-        self.unflag_ms()        
-       
+        self.unflag_ms()
+
         flagmanager(vis=self.vis, mode='list')
         aflocal.open(self.vis)
         self.assertEqual(len(aflocal.getflagversionlist()), 2)
@@ -207,46 +207,46 @@ class test_flagmanager1(test_base):
         aflocal.open(self.vis)
         self.assertEqual(len(aflocal.getflagversionlist()), 3)
         aflocal.done()
-        
+
         newname = 'Ha! The best version ever!'
 
-        flagmanager(vis=self.vis, mode='rename', oldname='flagdata_1', versionname=newname, 
+        flagmanager(vis=self.vis, mode='rename', oldname='flagdata_1', versionname=newname,
                     comment='This is a *much* better name')
         flagmanager(vis=self.vis, mode='list')
         aflocal.open(self.vis)
         self.assertEqual(len(aflocal.getflagversionlist()), 3)
         aflocal.done()
-        
+
         self.assertTrue(os.path.exists(self.vis+'.flagversions/flags.'+newname),
-                        'Flagversion file does not exist: flags.'+newname)        
+                        'Flagversion file does not exist: flags.'+newname)
 
     def test_save(self):
         '''flagmanager: CAS-3080, do not overwrite an existing versionname'''
-        
+
         # Create a flagbackup
         flagdata(vis=self.vis, mode='manual', antenna="2", flagbackup=True)
         fname = 'flagdata_1'
         self.assertTrue(os.path.exists(self.vis+'.flagversions/flags.'+fname),
                         'Flagversions file does not exist: flags.'+fname)
-        
+
         # Rename
         newname = 'Do_Not_Overwrite_Me'
         print ('Rename versionname to Do_Not_Overwrite_Me')
         flagmanager(vis=self.vis, mode='save', versionname=newname)
         self.assertTrue(os.path.exists(self.vis+'.flagversions/flags.'+newname),
                         'Flagversions file does not exist: flags.'+newname)
-        
+
         print('Move existing versionname to temporary name')
         flagmanager(vis=self.vis, mode='save', versionname=newname)
         flagmanager(vis=self.vis, mode='list')
         lf = os.listdir(self.vis+'.flagversions')
         self.assertTrue([s for s in lf if '.old.' in s])
         self.assertEqual(len(lf), 4)
-        
 
-# Cleanup class 
+
+# Cleanup class
 class cleanup(test_base):
-    
+
     def tearDown(self):
         os.system('rm -rf flagdatatest.*ms*')
 
@@ -261,4 +261,4 @@ def suite():
 
 
 
- 
+

@@ -17,7 +17,7 @@ _ia = iatool( )
 
 #
 # Unit test of sdimprocess task.
-# 
+#
 
 ### Utility
 def drop_stokes_axis(imagename, outimagename):
@@ -32,7 +32,7 @@ def drop_stokes_axis(imagename, outimagename):
                              keepaxes=[0,1,3])
     subimage.close()
     myia.close()
-    
+
 def drop_deg_axes(imagename, outimagename):
     """
     create 2d image from 4d.
@@ -45,7 +45,7 @@ def drop_deg_axes(imagename, outimagename):
                              keepaxes=[0,1])
     subimage.close()
     myia.close()
-    
+
 ###
 # Base class for sdimprocess unit test
 ###
@@ -55,7 +55,7 @@ class sdimprocess_unittest_base:
     """
     taskname='sdimprocess'
     datapath=os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/sdimprocess/'
-    
+
     def _checkfile( self, name ):
         isthere=os.path.exists(name)
         self.assertEqual(isthere,True,
@@ -72,7 +72,7 @@ class sdimprocess_unittest_base:
         outshape = _ia.shape()
         outaxistypes = _ia.coordsys().axiscoordinatetypes()
         _ia.close()
-        
+
         self.assertEqual(len(inshape), len(outshape))
         self.assertTrue(numpy.all(inshape == outshape))
         self.assertEqual(inaxistypes, outaxistypes)
@@ -88,7 +88,7 @@ class sdimprocess_unittest_base:
         incr_dec = qa.quantity(abs(increments[axis_dec]), units[axis_dec])
         area = qa.convert(incr_ra, 'arcsec')['value'] * qa.convert(incr_dec, 'arcsec')['value']
         return area * ref['sum']
-        
+
     def _checkstats(self,name,ref):
         self._checkfile(name)
         _ia.open(name)
@@ -99,7 +99,7 @@ class sdimprocess_unittest_base:
             ref['flux'] = self._flux(_ia.coordsys(), ref)
 
         _ia.close()
-        
+
         for key in list(stats.keys()):
         #for key in self.keys:
             message='statistics \'%s\' does not match: %s'%(key,str(stats[key]))
@@ -111,7 +111,7 @@ class sdimprocess_unittest_base:
                 ret=numpy.allclose(stats[key],ref[key])
                 self.assertEqual(ret,True,
                                  msg=message)
-                
+
 ###
 # Test on bad parameter settings
 ###
@@ -152,7 +152,7 @@ class sdimprocess_test0(unittest.TestCase,sdimprocess_unittest_base):
         except Exception as e:
             pos=str(e).find('infiles should be a list of input images for Basket-Weaving.')
             self.assertNotEqual(pos,-1,
-                                msg='Unexpected exception was thrown: %s'%(str(e)))        
+                                msg='Unexpected exception was thrown: %s'%(str(e)))
 
     def test002(self):
         """Test 002: direction is not given for Basket-Weaving"""
@@ -163,7 +163,7 @@ class sdimprocess_test0(unittest.TestCase,sdimprocess_unittest_base):
         except Exception as e:
             pos=str(e).find('direction must have at least two different direction.')
             self.assertNotEqual(pos,-1,
-                                msg='Unexpected exception was thrown: %s'%(str(e)))        
+                                msg='Unexpected exception was thrown: %s'%(str(e)))
 
     def test003(self):
         """Test 003: Multiple images are given for Press"""
@@ -174,7 +174,7 @@ class sdimprocess_test0(unittest.TestCase,sdimprocess_unittest_base):
         except Exception as e:
             pos=str(e).find('infiles allows only one input file for pressed-out method.')
             self.assertNotEqual(pos,-1,
-                                msg='Unexpected exception was thrown: %s'%(str(e)))        
+                                msg='Unexpected exception was thrown: %s'%(str(e)))
 
     def test004(self):
         """Test 004: direction is not given for Press"""
@@ -185,7 +185,7 @@ class sdimprocess_test0(unittest.TestCase,sdimprocess_unittest_base):
         except Exception as e:
             pos=str(e).find('direction allows only one direction for pressed-out method.')
             self.assertNotEqual(pos,-1,
-                                msg='Unexpected exception was thrown: %s'%(str(e)))        
+                                msg='Unexpected exception was thrown: %s'%(str(e)))
 
     def test005(self):
         """Test 005: Existing output image file"""
@@ -197,10 +197,10 @@ class sdimprocess_test0(unittest.TestCase,sdimprocess_unittest_base):
         except Exception as e:
             pos=str(e).find('%s already exists'%(self.outfile))
             self.assertNotEqual(pos,-1,
-                                msg='Unexpected exception was thrown: %s'%(str(e)))        
+                                msg='Unexpected exception was thrown: %s'%(str(e)))
         except Exception as e:
             self.assertTrue(False,
-                            msg='Unexpected exception was thrown: %s'%(str(e)))        
+                            msg='Unexpected exception was thrown: %s'%(str(e)))
 
     def test006(self):
         """Test 006: Zero beamsize for Press"""
@@ -211,10 +211,10 @@ class sdimprocess_test0(unittest.TestCase,sdimprocess_unittest_base):
         except Exception as e:
             pos=str(e).find('Gaussian2DParam')
             self.assertNotEqual(pos,-1,
-                                msg='Unexpected exception was thrown: %s'%(str(e)))        
+                                msg='Unexpected exception was thrown: %s'%(str(e)))
         except Exception as e:
             self.assertTrue(False,
-                            msg='Unexpected exception was thrown: %s'%(str(e)))        
+                            msg='Unexpected exception was thrown: %s'%(str(e)))
 
 ###
 # Test on Pressed method
@@ -223,7 +223,7 @@ class sdimprocess_test1(unittest.TestCase,sdimprocess_unittest_base):
     """
     Test on Pressed method.
 
-    Test data, scan_x.im, is artificial data, which is 
+    Test data, scan_x.im, is artificial data, which is
 
        - 128x128 in R.A. and Dec.
        - 1 polarization component (Stokes I)
@@ -232,7 +232,7 @@ class sdimprocess_test1(unittest.TestCase,sdimprocess_unittest_base):
        - 1% random noise
        - scanning noise in horizontal direction
        - smoothed by Gaussian kernel of FWHM of 10 pixel
-       
+
     """
     # Input and output names
     rawfile='scan_x.im'
@@ -360,7 +360,7 @@ class sdimprocess_test1(unittest.TestCase,sdimprocess_unittest_base):
         mask_out = _ia.getchunk(getmask=True)
         _ia.close()
         self.assertTrue((mask_out==mask_in).all(), "Unexpected mask in output image.")
-        
+
     def test100_3d(self):
         """Test 100_3d: Pressed method using whole pixels for 3D image"""
         drop_stokes_axis(self.rawfile, self.rawfilemod)
@@ -389,7 +389,7 @@ class sdimprocess_test1(unittest.TestCase,sdimprocess_unittest_base):
                   'trcf': '23:51:31.537, +02.07.01.734, 1.415e+09Hz'}
         self._check_shape(self.rawfilemod, self.outfile)
         self._checkstats(self.outfile,refstats)
-        
+
     def test100_2d(self):
         """Test 100_2d: Pressed method using whole pixels for 2D image"""
         drop_deg_axes(self.rawfile, self.rawfilemod)
@@ -425,8 +425,8 @@ class sdimprocess_test1(unittest.TestCase,sdimprocess_unittest_base):
 class sdimprocess_test2(unittest.TestCase,sdimprocess_unittest_base):
     """
     Test on FFT based Basket-Weaving
-    
-    Test data, scan_x.im and scan_y.im, are artificial data, which is 
+
+    Test data, scan_x.im and scan_y.im, are artificial data, which is
 
        - 128x128 in R.A. and Dec.
        - 1 polarization component (Stokes I)
@@ -436,7 +436,7 @@ class sdimprocess_test2(unittest.TestCase,sdimprocess_unittest_base):
        - scanning noise in horizontal direction (scan_x.im)
          or vertical direction (scan_y.im)
        - smoothed by Gaussian kernel of FWHM of 10 pixel
-       
+
     """
     # Input and output names
     rawfiles=['scan_x.im','scan_y.im']
@@ -599,7 +599,7 @@ class sdimprocess_test2(unittest.TestCase,sdimprocess_unittest_base):
                   'trcf': '23:51:31.537, +02.07.01.734, I, 1.415e+09Hz'}
         self._check_shape(self.rawfiles[0], self.outfile)
         self._checkstats(self.outfile,refstats)
-        
+
     def test200_3d(self):
         """Test 200_3d: FFT based Basket-Weaving using whole pixels for 3D image"""
         for infile, outfile in zip(self.rawfiles, self.rawfilesmod):
@@ -627,7 +627,7 @@ class sdimprocess_test2(unittest.TestCase,sdimprocess_unittest_base):
                   'trcf': '23:51:31.537, +02.07.01.734, 1.415e+09Hz'}
         self._check_shape(self.rawfilesmod[0], self.outfile)
         self._checkstats(self.outfile,refstats)
-        
+
     def test200_2d(self):
         """Test 200_2d: FFT based Basket-Weaving using whole pixels for 2D image"""
         for infile, outfile in zip(self.rawfiles, self.rawfilesmod):

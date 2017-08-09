@@ -14,7 +14,7 @@ def importmiriad (
     """Convert a Miriad visibility file into a CASA visibility file (MS).
            The conversion of the Miriad visibility format into a measurement set.  This version
            has been tested for both ATNF and CARMA Miriad files.
-................          
+................
            Keyword arguments:
         mirfile -- Name of input Miriad visibility file (directory)
                default: none; example: mirfile='mydata.uv'
@@ -36,11 +36,11 @@ def importmiriad (
 
 ....   wide    -- (CARMA only) specify the window averages to use
 ........ default: all
-........ 
+........
 ....   debug  -- specify level of debug messages (0,1,2,3)
                  default: 0 (=None)
 
-           
+
         """
 
     # Python script
@@ -62,7 +62,7 @@ def importmiriad (
                 importmiriad.__code__.co_varnames[:importmiriad.__code__.co_argcount]
             param_vals = [eval(p) for p in param_names]
             write_history(
-                mymf, vis, 'importmiriad', param_names, 
+                mymf, vis, 'importmiriad', param_names,
                 param_vals, casalog
             )
         except Exception as instance:
@@ -71,7 +71,7 @@ def importmiriad (
         pass
     finally:
         if (mymf):
-            del mymf 
+            del mymf
         # -----------------------------------
         # end of importmiriad implementation
         # -----------------------------------

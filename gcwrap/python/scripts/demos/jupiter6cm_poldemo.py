@@ -20,7 +20,7 @@
 import time
 import os
 
-# 
+#
 #=====================================================================
 #
 # This script has some interactive commands: scriptmode = True
@@ -277,7 +277,7 @@ if scriptmode:
 # See CASA User Reference Manual:
 # http://casa.nrao.edu/docs/casaref/imagepol-Tool.html
 #
-# Make an imagepol tool and open the clean image 
+# Make an imagepol tool and open the clean image
 po = casac.imagepol()
 po.open(polimage)
 # Use complexlinpol to make a Q+iU image

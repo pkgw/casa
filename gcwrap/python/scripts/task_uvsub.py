@@ -23,21 +23,21 @@ def uvsub(vis=None,reverse=False):
                 default: false; example: reverse=true
 
         uvsub(vis='ngc5921.ms', reverse=false)
- 
+
         """
 
-	#Python script
-	#
-	try:
-		casalog.origin('uvsub')
-		if ((type(vis)==str) & (os.path.exists(vis))):
-			ms.open(thems=vis,nomodify=False)
-		else:
-			raise Exception('Visibility data set not found - please verify the name')
-		        return
-		ms.uvsub(reverse)
-		ms.close()
-		return
-	except Exception as instance:
-		print('*** Error ***',instance)
-		return
+        #Python script
+        #
+        try:
+                casalog.origin('uvsub')
+                if ((type(vis)==str) & (os.path.exists(vis))):
+                        ms.open(thems=vis,nomodify=False)
+                else:
+                        raise Exception('Visibility data set not found - please verify the name')
+                        return
+                ms.uvsub(reverse)
+                ms.close()
+                return
+        except Exception as instance:
+                print('*** Error ***',instance)
+                return

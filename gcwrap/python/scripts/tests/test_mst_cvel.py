@@ -10,24 +10,24 @@ from tasks import *
 from taskinit import *
 import unittest
 
-myname = 'test_cvel' 
+myname = 'test_cvel'
 
-vis_a = 'ngc4826.ms' 
+vis_a = 'ngc4826.ms'
 # vis_a DATA col, spw=0, 64 channels in LSRK
 
-vis_b = 'test.ms' 
+vis_b = 'test.ms'
 # vis_b DATA col, spw=0, 64 channels in LSRK
 
-vis_c = 'jupiter6cm.demo-thinned.ms' 
+vis_c = 'jupiter6cm.demo-thinned.ms'
 # vis_c DATA col
 
-vis_d = 'g19_d2usb_targets_line-shortened-thinned.ms' 
+vis_d = 'g19_d2usb_targets_line-shortened-thinned.ms'
 # vis_d ALL cols, spw=0~23 128 channel each in LSRK, field=0,1
 
-vis_e = 'evla-highres-sample-thinned.ms' 
+vis_e = 'evla-highres-sample-thinned.ms'
 # vis_e DATA col, spw=0,1, 256 channels each, TOPO
 
-vis_f = 'test_cvel1.ms' 
+vis_f = 'test_cvel1.ms'
 # vis_f DATA col
 
 outfile = 'cvel-output.ms'
@@ -69,10 +69,10 @@ def verify_ms(msname, expnumspws, expnumchan, inspw, expchanfreqs=[]):
 
 class cvel_test(unittest.TestCase):
 
-    def setUp(self):    
+    def setUp(self):
         default('mstransform')
         forcereload=False
-        
+
         if(forcereload or not os.path.exists(vis_a)):
             shutil.rmtree(vis_a, ignore_errors=True)
             importuvfits(fitsfile=os.environ['CASAPATH'].split()[0]+'/data/regression/ngc4826/fitsfiles/ngc4826.ll.fits5', # 10 MB
@@ -102,30 +102,30 @@ class cvel_test(unittest.TestCase):
 
 
     def tearDown(self):
-        os.system('rm -rf cvel-output.ms cvel-output.ms.deselected myinput.ms')  
-        
-    
+        os.system('rm -rf cvel-output.ms cvel-output.ms.deselected myinput.ms')
+
+
     def test1(self):
         '''mstransform 1: Testing default - expected error'''
         myvis = vis_b
         os.system('ln -sf ' + myvis + ' myinput.ms')
-        try: 
+        try:
             rval = mstransform()
             self.assertFalse(rval)
         except:
             print("Expected error!!")
-    
+
     def test2(self):
         '''mstransform 2: Only input vis set - expected error'''
         myvis = vis_b
         os.system('ln -sf ' + myvis + ' myinput.ms')
-        try: 
+        try:
             rval = mstransform(vis = 'myinput.ms')
             self.assertEqual(rval,None)
         except:
             print('Expected error!!')
-            
-                
+
+
     def test3(self):
         '''mstransform 3: Input and output vis set'''
         myvis = vis_b
@@ -134,10 +134,10 @@ class cvel_test(unittest.TestCase):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 64, 0)
         self.assertTrue(ret[0],ret[1])
-    
+
     def test4(self):
         '''mstransform 4: I/O vis set, more complex input vis, one field selected'''
-        myvis = vis_a        
+        myvis = vis_a
         os.system('ln -sf ' + myvis + ' myinput.ms')
         rval = mstransform(vis = 'myinput.ms', outputvis = outfile, field = '1', datacolumn='DATA')
         self.assertNotEqual(rval,False)
@@ -187,9 +187,9 @@ class cvel_test(unittest.TestCase):
 #        self.assertTrue(ret[0],ret[1])
 
     ## # Tests with more than one spectral window ###################
-    
+
     def test7(self):
-        '''mstransform 7: I/O vis set, input vis with two spws, one field selected, 2 spws selected, 
+        '''mstransform 7: I/O vis set, input vis with two spws, one field selected, 2 spws selected,
            passall = False'''
         myvis = vis_c
         os.system('ln -sf ' + myvis + ' myinput.ms')
@@ -213,7 +213,7 @@ class cvel_test(unittest.TestCase):
         self.assertTrue(ret[0],ret[1])
 
     def test8(self):
-        '''mstransform 8: I/O vis set, input vis with two spws, one field selected, 2 spws selected, 
+        '''mstransform 8: I/O vis set, input vis with two spws, one field selected, 2 spws selected,
            passall = False, regridding 1'''
         myvis = vis_c
         os.system('ln -sf ' + myvis + ' myinput.ms')
@@ -240,9 +240,9 @@ class cvel_test(unittest.TestCase):
         self.assertNotEqual(rval,False)
         ret = (verify_ms(outfile, 1, 1, 0))
         self.assertTrue(ret[0],ret[1])
-   
+
     def test9(self):
-        '''mstransform 9: I/O vis set, input vis with two spws, one field selected, 2 spws selected, 
+        '''mstransform 9: I/O vis set, input vis with two spws, one field selected, 2 spws selected,
            passall = False, regridding 2'''
         myvis = vis_c
         os.system('ln -sf ' + myvis + ' myinput.ms')
@@ -271,7 +271,7 @@ class cvel_test(unittest.TestCase):
         self.assertNotEqual(rval,False)
         ret = (verify_ms(outfile, 1, 1, 0))
         self.assertTrue(ret[0],ret[1])
-    
+
     def test10(self):
         '''mstransform10: I/O vis set, input vis with two spws, one field selected, 2 spws selected, passall = False, regridding 3...'''
         myvis = vis_c
@@ -299,14 +299,14 @@ class cvel_test(unittest.TestCase):
             nchan = 1,
             start = '4.8351GHz',
             width = '50MHz'
-            )        
+            )
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 1, 0)
         self.assertTrue(ret[0],ret[1])
 
-    
+
     def test11(self):
-        '''mstransform 11: I/O vis set, input vis with two spws, one field selected, 
+        '''mstransform 11: I/O vis set, input vis with two spws, one field selected,
            2 spws selected, passall = False, regridding 4...'''
         myvis = vis_c
         os.system('ln -sf ' + myvis + ' myinput.ms')
@@ -340,7 +340,7 @@ class cvel_test(unittest.TestCase):
         self.assertTrue(ret[0],ret[1])
 
     def test12(self):
-        '''mstransform 12: Input and output vis set, input vis with two spws, two fields selected, 
+        '''mstransform 12: Input and output vis set, input vis with two spws, two fields selected,
            2 spws selected, passall = False, regridding 5...'''
         myvis = vis_c
         os.system('ln -sf ' + myvis + ' myinput.ms')
@@ -373,9 +373,9 @@ class cvel_test(unittest.TestCase):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 2, 0)
         self.assertTrue(ret[0],ret[1])
-    
+
     def test13(self):
-        '''mstransform 13: I/O vis set, input vis with one spws, one field selected, one spws selected, 
+        '''mstransform 13: I/O vis set, input vis with one spws, one field selected, one spws selected,
            passall = False, regridding 6...'''
         myvis = vis_a
         os.system('ln -sf ' + myvis + ' myinput.ms')
@@ -409,9 +409,9 @@ class cvel_test(unittest.TestCase):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 2, 0)
         self.assertTrue(ret[0],ret[1])
-    
+
     def test14(self):
-        '''mstransform 14: I/O vis set, input vis with one spws, one field selected, one spws selected, 
+        '''mstransform 14: I/O vis set, input vis with one spws, one field selected, one spws selected,
            passall = False, non-existing phase center...'''
         myvis = vis_a
         os.system('ln -sf ' + myvis + ' myinput.ms')
@@ -448,7 +448,7 @@ class cvel_test(unittest.TestCase):
             self.assertTrue(ret[0],ret[1])
         except:
             print("*** Expected error ***")
-    
+
     def test15(self):
         '''mstransform 15: I/O vis set, input vis with two spws, one field selected, 2 spws selected, passall = False, regridding 8...'''
         myvis = vis_c
@@ -482,7 +482,7 @@ class cvel_test(unittest.TestCase):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 1, 0)
         self.assertTrue(ret[0],ret[1])
-    
+
     def test16(self):
         '''mstransform 16: I/O vis set, input vis with one spw, two fields selected, passall = False, regridding 9...'''
         myvis = vis_a
@@ -515,7 +515,7 @@ class cvel_test(unittest.TestCase):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 10, 0)
         self.assertTrue(ret[0],ret[1])
-    
+
     def test17(self):
         '''mstransform 17: I/O vis set, input vis with one spw, two fields selected, passall = False, regridding 9...'''
         myvis = vis_a
@@ -548,7 +548,7 @@ class cvel_test(unittest.TestCase):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 10, 0)
         self.assertTrue(ret[0],ret[1])
-        
+
     def test18(self):
         '''mstransform 18: I/O vis set, input vis with one spw, two fields selected, passall = False, regridding 9...'''
         myvis = vis_a
@@ -583,7 +583,7 @@ class cvel_test(unittest.TestCase):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 10, 0)
         self.assertTrue(ret[0],ret[1])
-    
+
     def test19(self):
         '''mstransform 19: SMA input MS, 24 spws to combine, channel mode, 10 output channels'''
         myvis = vis_d
@@ -612,7 +612,7 @@ class cvel_test(unittest.TestCase):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 10, 0)
         self.assertTrue(ret[0],ret[1])
-    
+
     def test20(self):
         '''mstransform 20: SMA input MS, 24 spws to combine, channel mode, 111 output channels'''
         myvis = vis_d
@@ -641,7 +641,7 @@ class cvel_test(unittest.TestCase):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 111, 0)
         self.assertTrue(ret[0],ret[1])
-    
+
     def test21(self):
         '''mstransform 21: SMA input MS, 24 spws to combine, frequency mode, 21 output channels'''
         myvis = vis_d
@@ -670,7 +670,7 @@ class cvel_test(unittest.TestCase):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 21, 0)
         self.assertTrue(ret[0],ret[1])
-    
+
     def test22(self):
         '''mstransform 22: SMA input MS, 24 spws to combine, frequency mode, 210 output channels, negative width'''
         myvis = vis_d
@@ -700,7 +700,7 @@ class cvel_test(unittest.TestCase):
         ret = verify_ms(outfile, 1, 210, 0)
         self.assertTrue(ret[0],ret[1])
         os.system('mv '+outfile+' xxx.ms')
-    
+
     def test23(self):
         '''mstransform 23: SMA input MS, 24 spws to combine, radio velocity mode, 30 output channels'''
         myvis = vis_d
@@ -736,7 +736,7 @@ class cvel_test(unittest.TestCase):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 30, 0)
         self.assertTrue(ret[0],ret[1])
-    
+
     def test24(self):
         '''mstransform 24: SMA input MS, 24 spws to combine, radio velocity mode, 35 output channels'''
         myvis = vis_d
@@ -772,7 +772,7 @@ class cvel_test(unittest.TestCase):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 35, 0)
         self.assertTrue(ret[0],ret[1])
-    
+
     def test25(self):
         '''mstransform 25: SMA input MS, 24 spws to combine, optical velocity mode, 40 output channels'''
         myvis = vis_d
@@ -811,7 +811,7 @@ class cvel_test(unittest.TestCase):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 40, 0)
         self.assertTrue(ret[0],ret[1])
-    
+
     def test26(self):
         '''mstransform 26: SMA input MS, 24 spws to combine, optical velocity mode, 40 output channels'''
         myvis = vis_d
@@ -850,7 +850,7 @@ class cvel_test(unittest.TestCase):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 41, 0)
         self.assertTrue(ret[0],ret[1])
-    
+
     def test27(self):
         '''mstransform 27: SMA input MS, 24 spws to combine, scratch columns, no regridding'''
         myvis = vis_d
@@ -867,7 +867,7 @@ class cvel_test(unittest.TestCase):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 2440, 0)
         self.assertTrue(ret[0],ret[1])
-    
+
     def test28(self):
         '''Cvel 28: SMA input MS, 24 spws to combine, scratch columns, channel mode, 30 channels'''
         myvis = vis_d
@@ -894,7 +894,7 @@ class cvel_test(unittest.TestCase):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 30, 0)
         self.assertTrue(ret[0],ret[1])
-            
+
     def test29(self):
         '''Cvel 29: SMA input MS, 24 spws to combine, scratch columns, channel mode, 31 channels'''
         myvis = vis_d
@@ -921,7 +921,7 @@ class cvel_test(unittest.TestCase):
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 31, 0)
         self.assertTrue(ret[0],ret[1])
-    
+
     def test30(self):
         '''Cvel 30: SMA input MS, 24 spws to combine, scratch columns, mode channel_b, no regridding'''
         myvis = vis_d
@@ -939,11 +939,11 @@ class cvel_test(unittest.TestCase):
             regridms = True,
             mode="channel_b"
             )
-        
+
         self.assertNotEqual(rval,False)
         ret = verify_ms(outfile, 1, 2425, 0)
         self.assertTrue(ret[0],ret[1])
-    
+
     def test31(self):
         '''Cvel 31: SMA input MS, 24 spws to combine, scratch columns, mode channel, frame trafo'''
         myvis = vis_d
@@ -1173,10 +1173,10 @@ class cvel_test(unittest.TestCase):
         a = tb.getcell('CHAN_FREQ')
         c =  qa.constants('c')['value']
         tb.close()
-        
-        restf = a[0] 
-        bv1 = c * (restf-a[5])/restf 
-        bv2 = c * (restf-a[4])/restf 
+
+        restf = a[0]
+        bv1 = c * (restf-a[5])/restf
+        bv2 = c * (restf-a[4])/restf
         wv = abs(bv2-bv1)
         b = numpy.array([a[3], a[4], a[5]])
 #        rval = cvel(
@@ -1214,9 +1214,9 @@ class cvel_test(unittest.TestCase):
         c =  qa.constants('c')['value']
         tb.close()
 
-        restf = a[0] 
-        bv1 = c * (restf-a[3])/restf 
-        bv2 = c * (restf-a[4])/restf 
+        restf = a[0]
+        bv1 = c * (restf-a[3])/restf
+        bv2 = c * (restf-a[4])/restf
         wv = abs(bv2-bv1)
         b = numpy.array([a[3], a[4], a[5]])
 #        rval = cvel(
@@ -1253,14 +1253,14 @@ class cvel_test(unittest.TestCase):
         a = tb.getcell('CHAN_FREQ')
         c =  qa.constants('c')['value']
         tb.close()
-        
-        restf = a[0] 
-        bv1 = c * (restf-a[5])/a[5] 
-        bv2 = c * (restf-a[4])/a[4] 
+
+        restf = a[0]
+        bv1 = c * (restf-a[5])/a[5]
+        bv2 = c * (restf-a[4])/a[4]
         wv = abs(bv2-bv1+1.)
         bv2 = bv1 + wv
         bv3 = bv2 + wv
-        a4 = restf/(bv2/c+1.)        
+        a4 = restf/(bv2/c+1.)
         a3 = restf/(bv3/c+1.)
         b = numpy.array([a3, a4, a[5]])
 #        rval = cvel(
@@ -1297,14 +1297,14 @@ class cvel_test(unittest.TestCase):
         a = tb.getcell('CHAN_FREQ')
         c =  qa.constants('c')['value']
         tb.close()
-        
-        restf = a[0] 
-        bv1 = c * (restf-a[5])/a[5] 
-        bv2 = c * (restf-a[4])/a[4] 
+
+        restf = a[0]
+        bv1 = c * (restf-a[5])/a[5]
+        bv2 = c * (restf-a[4])/a[4]
         wv = abs(bv2-bv1+1.)
         bv2 = bv1 + wv
         bv3 = bv2 + wv
-        a4 = restf/(bv2/c+1.)        
+        a4 = restf/(bv2/c+1.)
         a3 = restf/(bv3/c+1.)
         b = numpy.array([a3, a4, a[5]])
 #        rval = cvel(
@@ -1565,7 +1565,7 @@ class cvel_test(unittest.TestCase):
             interpolation = 'linear',
             outframe = 'CMB'
             )
-        
+
         tb.open(outfile+'/SPECTRAL_WINDOW')
         a = tb.getcell('CHAN_FREQ')
         b = numpy.array(a)
@@ -1630,7 +1630,7 @@ class cvel_test(unittest.TestCase):
             interpolation = 'linear',
             outframe = 'BARY'
             )
-        
+
         tb.open(outfile+'/SPECTRAL_WINDOW')
         a = tb.getcell('CHAN_FREQ')
         b = numpy.array(a)
@@ -1695,7 +1695,7 @@ class cvel_test(unittest.TestCase):
             interpolation = 'linear',
             outframe = 'CMB'
             )
-         
+
         tb.open(outfile+'/SPECTRAL_WINDOW')
         a = tb.getcell('CHAN_FREQ')
         b = numpy.array(a)
@@ -1737,7 +1737,7 @@ class cvel_test(unittest.TestCase):
 class cleanup(unittest.TestCase):
     def setUp(self):
         pass
-    
+
     def tearDown(self):
         # It will ignore errors in case files don't exist
         shutil.rmtree(vis_a,ignore_errors=True)
@@ -1746,11 +1746,11 @@ class cleanup(unittest.TestCase):
         shutil.rmtree(vis_d,ignore_errors=True)
         shutil.rmtree(vis_e,ignore_errors=True)
         shutil.rmtree(vis_f,ignore_errors=True)
-        
+
     def test_cleanup(self):
         '''Cvel: Cleanup'''
         pass
-        
+
 
 
 def suite():

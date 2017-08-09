@@ -47,20 +47,20 @@
 #
 # <synopsis>
 # Test for the ia.convertflux tool method
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_convertflux[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the ia.convertflux() tool method to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -73,13 +73,13 @@ from __main__ import *
 import unittest
 
 class ia_convertflux_test(unittest.TestCase):
-    
+
     def setUp(self):
         self._myia = iatool()
-    
+
     def tearDown(self):
         self._myia.done()
-        
+
     def test_beams(self):
         """test per plane beams get accounted for correctly"""
         myia = self._myia
@@ -102,7 +102,7 @@ class ia_convertflux_test(unittest.TestCase):
         exp = qa.quantity("2Jy")
         self.assertTrue(got["unit"] == exp["unit"])
         self.assertTrue(abs(got["value"] - exp["value"])/exp["value"] < 1e-7)
-        
+
         got = myia.convertflux("1Jy","1arcsec","1arcsec",topeak=True, polarization=1)
         exp = qa.quantity("20Jy/beam")
         self.assertTrue(got["unit"] == exp["unit"])
@@ -113,7 +113,7 @@ class ia_convertflux_test(unittest.TestCase):
         self.assertTrue(got["unit"] == exp["unit"])
         self.assertTrue(abs(got["value"] - exp["value"])/exp["value"] < 1e-7)
 
-        
+
 
 def suite():
     return [ia_convertflux_test]

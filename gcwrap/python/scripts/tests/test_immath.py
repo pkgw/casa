@@ -40,7 +40,7 @@
 #
 # <prerequisite>
 # <ul>
-#   <li> <linkto class="immath.py:description">immath</linkto> 
+#   <li> <linkto class="immath.py:description">immath</linkto>
 # </ul>
 # </prerequisite>
 #
@@ -57,7 +57,7 @@
 #
 # In the immath task ????
 #
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 # # This test was designed to run in the automated CASA test system.
@@ -71,7 +71,7 @@
 #
 # <motivation>
 # To provide a test standard to the immath task to try and ensure
-# coding changes do not break the 
+# coding changes do not break the
 # </motivation>
 #
 # <todo>
@@ -122,14 +122,14 @@ im9im = 'immath9.im'
 im10im = 'immath10.im'
 
 IQU_im = '3C129IQU.im'
-IQUV_im = '3C129IQUV.im' 
+IQUV_im = '3C129IQUV.im'
 POLA_im = '3C129_POLA.im'
-POLL_im = '3C129_POLL.im'  
-POLT_im = '3C129_POLT.im'  
+POLL_im = '3C129_POLL.im'
+POLT_im = '3C129_POLT.im'
 Q_im = '3C129Q.im'
 QU_im = '3C129QU.im'
-U_im = '3C129U.im'  
-UV_im = '3C129UV.im'  
+U_im = '3C129U.im'
+UV_im = '3C129UV.im'
 V_im = '3C129V.im'
 thresh_mask = '30uJy_thresh_mask.tbl'
 
@@ -151,7 +151,7 @@ def _getPixelValue( imageName, point ):
     _ia.open( imageName );
     retValue = _ia.pixelvalue( point );
     _ia.close();
-    
+
     if len( retValue ) < 1 :
         # Create an exception
         msg = str( "Unable to obtain value at: " ) + str(point) + str( " from file " ) + imageName
@@ -205,22 +205,22 @@ def make_data(imshape):
 ####################################################################
 
 class immath_test1(unittest.TestCase):
-    
+
     def setUp(self):
         if(os.path.exists(imageList[0])):
             for img in imageList:
                 os.system('rm -rf ' +img)
-            
+
         for img in imageList:
             os.system('cp -RL ' +datapath + img +' ' + img)
-            
+
 
     def tearDown(self):
         for img in imageList:
             os.system('rm -rf ' +img)
             os.system('rm -rf input_test*')
         self.assertTrue(len(tb.showcache()) == 0)
-                       
+
     def test_input2(self):
         '''Immath 2: Test bad input file'''
         #######################################################################
@@ -232,7 +232,7 @@ class immath_test1(unittest.TestCase):
         #######################################################################
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
         casalog.post( "The IMAGENAME parameter tests will cause errors to occur, do not be alarmed", 'WARN' )
-    
+
         result = None
         try:
             results = immath( 'junk', outfile='input_test1' )
@@ -258,7 +258,7 @@ class immath_test1(unittest.TestCase):
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                     +"\nError: Unable to do math on "+imageList[0]
-            
+
         if (  not os.path.exists( 'input_test2' ) or results == None ):
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
@@ -293,13 +293,13 @@ class immath_test1(unittest.TestCase):
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                     +"\nError: Unable to do math on image "+imageList[0]
-            
+
         if (  not os.path.exists( 'input_test4' ) or results == None ):
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                     +"\nError: 'input_test4' output file was not created."
-    
-    
+
+
         #######################################################################
         # Testing the outfile parameter.
         #    1. Bad file, file already exists, exception should be thrown
@@ -307,7 +307,7 @@ class immath_test1(unittest.TestCase):
         #    3. Good file name, a file should be
         #######################################################################
         casalog.post( "The OUTFILE parameter tests will cause errors to occur, do not be alarmed", 'WARN' )
-    
+
         results = None
         try:
             results = immath( imageList[0], outfile='input_test4', expr='IM0*1' )
@@ -338,21 +338,21 @@ class immath_test1(unittest.TestCase):
                        +"\nError: output file, 'input_test5', was not created."
 
         self.assertTrue(retValue['success'],retValue['error_msgs'])
-    
+
         #######################################################################
         # Testing the mode parameter.
         #    TODO
         #    Valid modes are: evalexpr, spix, pola, poli
         #    Invalid ???
         #######################################################################
-          
+
     def test_input8(self):
         '''Immath 8: Test bad region parameter'''
         #######################################################################
         # Testing REGION parameter
         # Expects a file containing a region record, as created by the viewer.
         # Tests include bad file name, file with bad content, and good file.
-        ####################################################################### 
+        #######################################################################
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
         casalog.post( "The REGION parameter tests will cause errors to occur, do not be alarmed", 'WARN' )
 
@@ -361,8 +361,8 @@ class immath_test1(unittest.TestCase):
             shutil.rmtree( 'immath_results.im' )
         except:
             pass
-        
-        results=None    
+
+        results=None
         try:
             results = immath( imageList[1], region='garbage.rgn' )
         except:
@@ -374,19 +374,19 @@ class immath_test1(unittest.TestCase):
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']\
                               +"\nError: Bad region file, 'garbage.rgn', was not reported as missing."+"\nREsults: "+str(results)
-    
+
         try:
             filename = os.getcwd() + sep + 'garbage.rgn'
             fp=open( filename, 'w' )
             fp.writelines('This file does NOT contain a valid CASA region specification\n')
             fp.close()
-    
+
             results=None
             # First remove the default results file
             try:
                 shutil.rmtree( 'immath_results.im' )
             except:
-                pass        
+                pass
             try:
                 results = immath( imageList[1], region=filename )
             except:
@@ -405,7 +405,7 @@ class immath_test1(unittest.TestCase):
             raise Exception(err)
 
         self.assertTrue(retValue['success'],retValue['error_msgs'])
-    
+
     def test_input9(self):
         '''Immath 9: Test good region parameter'''
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
@@ -421,15 +421,15 @@ class immath_test1(unittest.TestCase):
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                  +"\nError: Unable to do math with region file "+imageList[1]
-            
+
         if ( not os.path.exists('input_test12') or results==None or results==False ):
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                   +"\nError: output file 'input_test12', was not created."\
                   +"\n  RESULTS "+str(results)
 
-        self.assertTrue(retValue['success'],retValue['error_msgs'])            
-    
+        self.assertTrue(retValue['success'],retValue['error_msgs'])
+
     def test_input10(self):
         '''Immath 10: Test bad x and y box values'''
         #######################################################################
@@ -445,13 +445,13 @@ class immath_test1(unittest.TestCase):
         #######################################################################
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
         casalog.post( "The BOX parameter tests will cause errors to occur, do not be alarmed", 'WARN' )
-        
+
         results = None
         # First remove the default results file
         try:
             shutil.rmtree( 'immath_results.im' )
         except:
-            pass    
+            pass
         try:
             results = immath( imageList[0], box='-3,0,254,254', expr='IM0' )
         except:
@@ -462,7 +462,7 @@ class immath_test1(unittest.TestCase):
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']\
                      +"\nError: Bad box value, 'x=-3', was not reported as bad."
-    
+
         results = None
         # First remove the default results file
         try:
@@ -479,7 +479,7 @@ class immath_test1(unittest.TestCase):
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']\
                      +"\nError: Bad box value, 'y=-3', was not reported as bad."
-    
+
         results = None
         # First remove the default results file
         try:
@@ -497,13 +497,13 @@ class immath_test1(unittest.TestCase):
                 retValue['error_msgs']=retValue['error_msgs']\
                      +"\nError: Bad box value, 'x=-2', was not reported."\
                      +"\n\tRESULTS: "+str(results)
-    
+
         results = None
         # First remove the default results file
         try:
             shutil.rmtree( 'immath_results.im' )
         except:
-            pass    
+            pass
         try:
             results = immath( imageList[0], box='0,-2,254,254', expr='IM0' )
         except:
@@ -521,7 +521,7 @@ class immath_test1(unittest.TestCase):
         try:
             shutil.rmtree( 'immath_results.im' )
         except:
-            pass    
+            pass
         try:
             results = immath( imageList[0], box='0,0,256,254', expr='IM0' )
         except:
@@ -532,13 +532,13 @@ class immath_test1(unittest.TestCase):
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']\
                    +"\nError: Bad box value, 'x=256', was not reported as bad."
-    
+
         results = None
         # First remove the default results file
         try:
             shutil.rmtree( 'immath_results.im' )
         except:
-            pass    
+            pass
         try:
             results = immath( imageList[0], box='0,0,254,256', expr='IM0' )
         except:
@@ -556,7 +556,7 @@ class immath_test1(unittest.TestCase):
         try:
             shutil.rmtree( 'immath_results.im' )
         except:
-            pass    
+            pass
         try:
             results = immath( imageList[0], box='0, 0,266,200', expr='IM0' )
         except:
@@ -567,14 +567,14 @@ class immath_test1(unittest.TestCase):
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']\
                     +"\nError: Bad box value, 'x=266', was not reported as bad."
-    
-    
+
+
         results = None
         # First remove the default results file
         try:
             shutil.rmtree( 'immath_results.im' )
         except:
-            pass    
+            pass
         try:
             results = immath( imageList[0], box='0,0,254,266', expr='IM0' )
         except:
@@ -585,7 +585,7 @@ class immath_test1(unittest.TestCase):
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']\
                     +"\nError: Bad box value, 'y=266', was not reported as bad."
-    
+
         self.assertTrue(retValue['success'],retValue['error_msgs'])
 
     def test_input12(self):
@@ -599,14 +599,14 @@ class immath_test1(unittest.TestCase):
         #######################################################################
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
         casalog.post( "The CHANS parameter tests will cause errors to occur, do not be alarmed", 'WARN' )
-        
+
         results = None
         # First remove the default results file
         try:
             shutil.rmtree( 'immath_results.im' )
         except:
-            pass    
-        try: 
+            pass
+        try:
             results = immath( imageList[0], chans='-5', expr='IM0' )
         except:
             pass
@@ -616,13 +616,13 @@ class immath_test1(unittest.TestCase):
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']\
                      +"\nError: Bad channel value, '-5', was not reported."
-    
+
         results = None
         # First remove the default results file
         try:
             shutil.rmtree( 'immath_results.im' )
         except:
-            pass    
+            pass
         try:
             results = immath( imageList[0], chans='-2', expr='IM0' )
         except:
@@ -634,13 +634,13 @@ class immath_test1(unittest.TestCase):
                 retValue['error_msgs']=retValue['error_msgs']\
                        +"\nError: Bad channel value, '-2', was not reported."\
                        +"\n\tRESULTS: "+str(results)
-    
+
         results = None
         # First remove the default results file
         try:
             shutil.rmtree( 'immath_results.im' )
         except:
-            pass    
+            pass
         try:
             results = immath( imageList[0], chans='-18', expr='IM0' )
         except:
@@ -651,7 +651,7 @@ class immath_test1(unittest.TestCase):
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']\
                         +"\nError: Bad channel value of -18 was not reported."
-    
+
         results = None
         # First remove the default results file
         try:
@@ -668,13 +668,13 @@ class immath_test1(unittest.TestCase):
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']\
                         +"\nError: Bad channel value of 47 was not reported."
-    
+
         results = None
         # First remove the default results file
         try:
             shutil.rmtree( 'immath_results.im' )
         except:
-            pass    
+            pass
         try:
             results = immath( imageList[0], chans='46', expr='IM0' )
         except:
@@ -691,7 +691,7 @@ class immath_test1(unittest.TestCase):
     def test_input13(self):
         '''Immath 12: Test selection of channels'''
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
-        results = None            
+        results = None
         try:
             print("immath( imagename="+imageList[0]+", varnames='A', expr='A', chans='22~35', outfile='input_test14' )")
             results = immath( imagename=imageList[0], chans='22~35', expr='A', varnames='A', outfile='input_test14' )
@@ -699,12 +699,12 @@ class immath_test1(unittest.TestCase):
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                        +"\nError: Unable to do image math on chans=22~35 only "
-        if ( not os.path.exists( 'input_test14' ) or results==None or results==False ): 
+        if ( not os.path.exists( 'input_test14' ) or results==None or results==False ):
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                      +"\nError: output file, 'input_test14', was not created."\
                      +"\n\tResults: "+str(results)
-        
+
         results = None
         try:
             results = immath( imageList[0], expr='IM0', chans='0', outfile='input_test15' )
@@ -712,12 +712,12 @@ class immath_test1(unittest.TestCase):
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                        +"\nError: Unable to do image math with chans=0 only"
-        if ( not os.path.exists( 'input_test15' ) or results==None or results==False ): 
+        if ( not os.path.exists( 'input_test15' ) or results==None or results==False ):
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                      +"\nError: output file 'input_test15`' was not created."\
                      +"\nRESULT: "+str(results)
-    
+
         results=None
         try:
             results = immath( imageList[0], chans='39', expr='IM0', outfile='input_test16' )
@@ -725,12 +725,12 @@ class immath_test1(unittest.TestCase):
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                        +"\nError: Unable to do image math with chans=39 only"
-        if ( not os.path.exists( 'input_test16' ) or results==None or results==False ): 
+        if ( not os.path.exists( 'input_test16' ) or results==None or results==False ):
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                      +"\nError: output file 'input_test16' was not created."
 
-        self.assertTrue(retValue['success'],retValue['error_msgs'])    
+        self.assertTrue(retValue['success'],retValue['error_msgs'])
 
     def test_input14(self):
         '''Immath 13: Test STOKES parameter, values: I, Q, yellow'''
@@ -740,13 +740,13 @@ class immath_test1(unittest.TestCase):
         #######################################################################
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
         casalog.post( "The STOKES parameter tests will cause errors to occur, do not be alarmed", 'WARN' )
-        
+
         results=None
         # First remove the default results file
         try:
             shutil.rmtree( 'immath_results.im' )
         except:
-            pass    
+            pass
         try:
             results = immath( imageList[0], stokes='Q', expr='IM0' )
         except:
@@ -757,13 +757,13 @@ class immath_test1(unittest.TestCase):
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']\
                        +"\nError: Bad stokes value, 'Q', was not reported."
-                
+
         results=None
         # First remove the default results file
         try:
             shutil.rmtree( 'immath_results.im' )
         except:
-            pass    
+            pass
         try:
             results = immath( imageList[0], stokes='yellow', expr='IM0' )
         except:
@@ -774,7 +774,7 @@ class immath_test1(unittest.TestCase):
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']\
                      +"\nError: Bad stokes value, 'yellow', was not reported."
-    
+
         results = None
         try:
             results = immath( imageList[0], stokes='I', outfile='input_test17', expr='IM0' )
@@ -786,18 +786,18 @@ class immath_test1(unittest.TestCase):
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                      +"\nError: output file 'input_test17' was not created."
-    
-    
-        self.assertTrue(retValue['success'],retValue['error_msgs'])    
-    
 
-class immath_test2(unittest.TestCase):   
+
+        self.assertTrue(retValue['success'],retValue['error_msgs'])
+
+
+class immath_test2(unittest.TestCase):
 
     def setUp(self):
         if(os.path.exists(imageList2[0])):
             for img in imageList2:
                 shutil.rmtree(img)
-                
+
         # FIXME: add links to repository
         for img in imageList2:
             self.assertTrue(os.path.exists(datapath + img))
@@ -822,7 +822,7 @@ class immath_test2(unittest.TestCase):
         me.done()
         cache_tables = tb.showcache()
         self.assertTrue(len(cache_tables) == 0)
-                       
+
     def copy_img(self):
         '''Copy images to local disk'''
         for img in imageList3:
@@ -832,7 +832,7 @@ class immath_test2(unittest.TestCase):
         '''Remove images from disk'''
         for img in imageList3:
             os.system('rm -rf ' +img)
-        
+
     ####################################################################
     # Testing various math expression.
     #
@@ -845,13 +845,13 @@ class immath_test2(unittest.TestCase):
     def test_expr1(self):
         '''Immath expr1: Testing various math expressions'''
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
-        casalog.post( "Starting immath INPUT/OUTPUT tests.", 'NORMAL2' )            
-        
+        casalog.post( "Starting immath INPUT/OUTPUT tests.", 'NORMAL2' )
+
         ################        TEST 1          ###################
         # Test to see if all the points of a single image are doubled.
         # Note that we a few values from the input and output images to see
         # if we truly doubled each value.
-    
+
         casalog.post( "Testing the doubling of every value in an image.", 'NORMAL2' )
         results=None
         try:
@@ -861,7 +861,7 @@ class immath_test2(unittest.TestCase):
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                      +'\nError: Failed to create "doubled image" on '+imageList2[0]
-            
+
         if (  not os.path.exists( 'expr_test1' ) or results == None ):
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
@@ -875,10 +875,10 @@ class immath_test2(unittest.TestCase):
             got = myia.getchunk()
             myia.done()
             self.assertTrue((expected == got).all(), "got not equal to expected for doubling pixel values")
-            
+
 
         self.assertTrue(retValue['success'],retValue['error_msgs'])
-                
+
     def _create_expr_test2(self):
         outimage='expr_test2'
         if (os.path.exists(outimage)):
@@ -898,22 +898,22 @@ class immath_test2(unittest.TestCase):
         # future.  The commented out immath() calls use LEL
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
         casalog.post( "**** Testing extraction of a single plane.", 'NORMAL2' )
-    
+
         # First test that we can extract a plane from the bigger image.
         # Checking the size of the resulting image and a few of the
         # points to make sure they are from the correct plane.
         outimage='expr_test2'
 
         results=None
-        try:    
+        try:
             results = self._create_expr_test2()
             #immath( outimage, 'evalexpr', str('"')+image1+str('"[INDEXIN(4,[5])]' ) );
         except Exception as e:
-            casalog.post( "Exception occured getting image slice ... "+str(e), 'DEBUG1')        
+            casalog.post( "Exception occured getting image slice ... "+str(e), 'DEBUG1')
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                      +'\nError: Failed to create image" slice on '+imageList2[0]
-            
+
         if (  not os.path.exists( outimage ) or results == None ):
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
@@ -939,10 +939,10 @@ class immath_test2(unittest.TestCase):
                 myia.open(outimage)
                 got = myia.getchunk()
                 myia.done()
-                self.assertTrue((got == expected).all()) 
-                
+                self.assertTrue((got == expected).all())
+
         self.assertTrue(retValue['success'],retValue['error_msgs'])
-    
+
     def test_expr3(self):
         '''Immath expr3: Add plane to an image'''
         # We know how to make a subimage so now lets actually add this plane
@@ -970,9 +970,9 @@ class immath_test2(unittest.TestCase):
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                     +"\nError: Unable to get shape of image "+outimage
-        
+
         self.assertTrue((size == [256, 256, 1, 46]).all())
-        
+
         myia = iatool()
         myia.open("expr_test2")
         chunk1 = myia.getchunk()
@@ -987,8 +987,8 @@ class immath_test2(unittest.TestCase):
         self.assertTrue((got - expected < 0.000001 ).all())
 
         self.assertTrue(retValue['success'],retValue['error_msgs'])
-    
-    
+
+
     ####################################################################
     # Testing various the various polarization modes for data
     # correctness.
@@ -1023,7 +1023,7 @@ class immath_test2(unittest.TestCase):
         myia.open(outfile)
         self.assertTrue(myia.coordsys().stokes()[0] == 'Ptotal')
         myia.done()
-        
+
         # linear polarization intensity
         outfile = 'linear_pol_intensity_test'
         self.assertTrue(immath(imagename=imList[0:2], outfile=outfile, mode='poli' ))
@@ -1032,14 +1032,14 @@ class immath_test2(unittest.TestCase):
         myia.done()
         imList = ['pol_test_Q.im', 'pol_test_U.im']
         self.assertTrue(immath( imagename=imList, outfile='pol_test2', mode='pola' ))
- 
+
     # verification of fix to CAS-1678
     # https://bugs.aoc.nrao.edu/browse/CAS-1678
     def test_many_images(self):
         '''Immath: verification of fix to CAS-1678'''
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
         casalog.post( "Starting immath many (>9) image test.", 'NORMAL2' )
-    
+
         self.copy_img()
         imagename = [
             'immath0.im', 'immath1.im', 'immath2.im', 'immath3.im', 'immath4.im', 'immath5.im',
@@ -1061,12 +1061,12 @@ class immath_test2(unittest.TestCase):
                     retValue['error_msgs'] += "\n Full image sum not correctly calculated"
             else:
                 retValue['success'] = False
-                retValue['error_msgs'] += "\nimmath returned False for full image sum"            
+                retValue['error_msgs'] += "\nimmath returned False for full image sum"
         except:
             retValue['success'] = False
             retValue['error_msgs'] += "\nFull image calculation threw an exception: " + str(sys.exc_info()[0])
-    
-        shutil.rmtree(outfile)        
+
+        shutil.rmtree(outfile)
         try:
             # subimage image test
             outfile = 'subimage_sum.im'
@@ -1089,14 +1089,14 @@ class immath_test2(unittest.TestCase):
         self.rm_img()
         shutil.rmtree(outfile)
         self.assertTrue(retValue['success'],retValue['error_msgs'])
-    
-    
+
+
     # fixed setting trc brokenness with a kludge (as, given the state of the pre-existing code, was the best that could be done)
     def test_CAS_1910_fix(self):
         '''Immath: verification of fix to CAS-1910'''
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
         try:
-    
+
             if (
                 not immath(
                     imagename=cas1910_im, outfile='cas-1910_out.im',
@@ -1111,7 +1111,7 @@ class immath_test2(unittest.TestCase):
             retValue['error_msgs'] += "\nimmath threw exception for setting box correctly (CAS-1910)"
 
         self.assertTrue(retValue['success'],retValue['error_msgs'])
-    
+
     # cas-1452
     def test_one_function(self):
         '''Immath: verification of fix to CAS-1452'''
@@ -1127,9 +1127,9 @@ class immath_test2(unittest.TestCase):
                 shutil.rmtree('cas-1452_out_' + f + '.im')
             except:
                 pass
-            
+
             outfile = 'cas-1452_out_' + f + '.im'
-            expr = f + "(\'" + imagename + "\')" 
+            expr = f + "(\'" + imagename + "\')"
             self.assertTrue(
                 immath(
                     imagename=imagename, outfile=outfile,
@@ -1142,12 +1142,12 @@ class immath_test2(unittest.TestCase):
             maxdiff = numpy.abs(got - expected).max()
             self.assertTrue( maxdiff <= 1e-7)
             os.system('rm -rf ' + outfile)
-    
+
         #except:
         #    retValue['success'] = False
         #    retValue['error_msgs'] += "\nimmath threw exception for " + f + " calculation"
         self.assertTrue(retValue['success'],retValue['error_msgs'])
-    
+
     def test_CAS_1830_fix(self):
         '''Immath: verification of fix to CAS-1830'''
         test = "cas_1830_fix_test"
@@ -1177,14 +1177,14 @@ class immath_test2(unittest.TestCase):
 class immath_test3(unittest.TestCase):
 
     def setUp(self):
-            
+
         for img in imageList4:
             shutil.copytree(datapath + img, img)
-    
+
     def tearDown(self):
         for img in imageList4:
-            shutil.rmtree(img)     
-        
+            shutil.rmtree(img)
+
         os.system('rm -rf pola*')
         os.system('rm -rf poli*')
         # FIXME need to figure out how to close this table correctly
@@ -1192,7 +1192,7 @@ class immath_test3(unittest.TestCase):
         if (len(cache_tables) > 0):
             for table in cache_tables:
                 self.assertTrue(table.rfind("/IERSeop97") >= 0)
-        
+
 
     def _comp(self, imagename, mode, outfile, expected, epsilon, polithresh=''):
         self.assertTrue(immath(imagename=imagename, outfile=outfile, mode=mode, polithresh=polithresh))
@@ -1209,10 +1209,10 @@ class immath_test3(unittest.TestCase):
                 print("maxdiff " + str(maxdiff))
                 print("maxdiffrel " + str(maxdiffrel))
 
-                
-            self.assertTrue((diff == 0).all())     
+
+            self.assertTrue((diff == 0).all())
         else:
-            self.assertTrue((numpy.abs(diff)/got < epsilon).all())        
+            self.assertTrue((numpy.abs(diff)/got < epsilon).all())
 
     def test_CAS2120(self):
         '''immath: verification of old functionality and similar new functionality introduced by CAS-2120'''
@@ -1223,7 +1223,7 @@ class immath_test3(unittest.TestCase):
 
         # POLA
         mode = 'pola'
-        
+
         myia = iatool()
 
         myia.open(POLA_im)
@@ -1231,20 +1231,20 @@ class immath_test3(unittest.TestCase):
         myia.done()
 
         # pola the old way
-        self._comp([Q_im, U_im], mode, 'pola_1.im', expected, epsilon)  
+        self._comp([Q_im, U_im], mode, 'pola_1.im', expected, epsilon)
 
         # test that order of Q, U doesn't matter
-        self._comp([U_im, Q_im], mode, 'pola_2.im', expected, epsilon)  
+        self._comp([U_im, Q_im], mode, 'pola_2.im', expected, epsilon)
         outfile = 'pola_2.im'
 
         # test making pola image from multi-stokes image
-        self._comp(IQUV_im, mode, 'pola_3.im', expected, epsilon)  
+        self._comp(IQUV_im, mode, 'pola_3.im', expected, epsilon)
 
         # test making pola image from multi-stokes image without V
-        self._comp(IQU_im, mode, 'pola_4.im', expected, epsilon)  
+        self._comp(IQU_im, mode, 'pola_4.im', expected, epsilon)
 
         # test making pola image from multi-stokes image without I and V
-        self._comp(QU_im, mode, 'pola_5.im', expected, epsilon)  
+        self._comp(QU_im, mode, 'pola_5.im', expected, epsilon)
 
         # no Q, this should fail
         outfile = 'pola6.im'
@@ -1278,7 +1278,7 @@ class immath_test3(unittest.TestCase):
         self._comp(QU_im, mode, outfile, expected, epsilon, polithresh='30uJy/beam')
         mask_tbl = outfile + os.sep + 'mask0'
         self.assertTrue(os.path.exists(mask_tbl))
-        
+
         mytb = tbtool()
         mytb.open(thresh_mask)
         col = 'PagedArray'
@@ -1301,19 +1301,19 @@ class immath_test3(unittest.TestCase):
         myia.done()
 
         # linear polarization the old way
-        self._comp([Q_im, U_im], mode, 'poli_1.im', poll, epsilon)  
+        self._comp([Q_im, U_im], mode, 'poli_1.im', poll, epsilon)
 
         # Q, U order shouldn't matter
-        self._comp([Q_im, U_im], mode, 'poli_2.im', poll, epsilon)  
+        self._comp([Q_im, U_im], mode, 'poli_2.im', poll, epsilon)
 
         # new way, one multi-stokes image
-        self._comp(IQU_im, mode, 'poli_3.im', poll, epsilon)  
+        self._comp(IQU_im, mode, 'poli_3.im', poll, epsilon)
 
         # new way, one multi-stokes image with only Q and U
-        self._comp(QU_im, mode, 'poli_4.im', poll, epsilon)  
-       
-        # poli for IQUV image will produce a total, not linear, polarization image 
-        self._comp([Q_im, U_im, V_im], mode, 'poli_5.im', polt, epsilon)  
+        self._comp(QU_im, mode, 'poli_4.im', poll, epsilon)
+
+        # poli for IQUV image will produce a total, not linear, polarization image
+        self._comp([Q_im, U_im, V_im], mode, 'poli_5.im', polt, epsilon)
         self._comp(IQUV_im, mode, 'poli_6.im', polt, epsilon)
 
         # fail, no U
@@ -1376,10 +1376,10 @@ class immath_test3(unittest.TestCase):
                 expr="1*IM0", mask="mask3.im > 5", stretch=False
             )
         )
-        
+
     def test21(self):
         """Test moved from imagetest regreesion"""
-        
+
         myia = iatool()
         # Define some arrays to be stored in the test images.
         # Define 2 local symbols to hold the results.
@@ -1407,16 +1407,16 @@ class immath_test3(unittest.TestCase):
         imname2 = 'im.2'
         im2 = myia.newimagefromarray(imname2, a2)
         self.assertTrue(im2)
-        
+
         im2.done()
-        
+
         # Form a simple expression and check if the result is correct.
         #global_iet_im1.done()
         ex = '"'+imname1+'" + "'+imname2+'"'
         outf = 'ex1.1'
         global_iet_ex1 = myia.imagecalc(outfile=outf, pixels=ex, overwrite=True)
         self.assertTrue(global_iet_ex1)
-            
+
         pixels = global_iet_ex1.getchunk()
         self.assertTrue(abs(pixels - sum).all() < .0001)
 
@@ -1427,15 +1427,15 @@ class immath_test3(unittest.TestCase):
         global_iet_ex1.done() #need to close before re-opening
         ex2 = myia.imagecalc(pixels='"'+outf+'" - "'+imname1+'"')
         self.assertTrue(ex2)
-            
+
         pixels = ex2.getregion()
         mask = ex2.getregion(getmask=True)
         self.assertTrue(len(pixels) > 0 and len(mask) > 0)
         ok = ex2.done()
         self.assertTrue(abs(pixels - a2).all() < 0.0001)
-            
+
         self.assertTrue(mask.all())
-        
+
 
         # Define a region as a global symbol.
         # Use it in an expression using the $-notation.
@@ -1445,10 +1445,10 @@ class immath_test3(unittest.TestCase):
         #ex3 = imagecalc(pixels='$global_iet_im1[$global_iet_reg1]')
         ex3all = myia.imagecalc(pixels='"'+imname1+'"')
         self.assertTrue(ex3all)
-           
+
         ex3 = ex3all.subimage(region=global_iet_reg1)
         self.assertTrue(ex3)
-          
+
         ok = ex3all.done()
         pixels = ex3.getregion()
         mask = ex3.getregion(getmask=True)
@@ -1457,7 +1457,7 @@ class immath_test3(unittest.TestCase):
         #if not alleq(pixels, a1[3:6,4:9], tolerance=0.0001):
         self.assertTrue(abs(pixels - a1[2:6,3:9]).all() < 0.0001)
         self.assertTrue(mask.all())
-        
+
         ##    if (len(names) != 0) {
         ##      global_iet_im1.done()
         ##      fail ("imageexprtest: there is a mask in '$im1[$reg1]'")
@@ -1477,9 +1477,9 @@ class immath_test3(unittest.TestCase):
 
         a1mod2 = a1 % 2 == 0
         self.assertTrue((mask == a1mod2).all())
-        
+
         self.assertTrue(len(names) == 0)
-         
+
         # Move the image to test if its mask table can still be found
         # and if the default mask was set.
         imname5= 'im.5'
@@ -1488,18 +1488,18 @@ class immath_test3(unittest.TestCase):
         ex = '"'+imname5+'"'
         ex3 = myia.imagecalc(pixels=ex)
         self.assertTrue(ex3)
-            
+
         pixels = ex3.getregion()
         mask = ex3.getregion(getmask=True)
         ok = ex3.done()
         self.assertTrue(abs(pixels - a1).all() <0.0001)
-         
+
         self.assertTrue((mask==a1mod2).all())
 
         # Now issue some incorrect expressions.
         ex = '"'+imname1+'"+'+'"im..2"'
         self.assertRaises(Exception, myia.imagecalc, pixels=ex)
-       
+
 
         ex = '"'+imname2+'" - max("'+imname1+'", "'+imname2+'", "'+imname1+'")'
         self.assertRaises(Exception, myia.imagecalc, pixels=ex)
@@ -1509,7 +1509,7 @@ class immath_test3(unittest.TestCase):
         # Remove the image files created.
         # Note that im.4 has been moved into im.1.
         ok = global_iet_im1.done()
-      
+
     def test_complex(self):
         """Test creating and manipulating complex images"""
         myia = iatool()
@@ -1527,7 +1527,7 @@ class immath_test3(unittest.TestCase):
         zz = myia.imagecalc("", complexim + "+" + complexim2)
         self.assertTrue(type(zz.getchunk()[0,0]) == numpy.complex128)
         zz.done()
-        
+
     def test_8(self):
         """Tests moved from imagetest regression, some are probably useless"""
         myia = iatool()
@@ -1536,14 +1536,14 @@ class immath_test3(unittest.TestCase):
         imname3 = 'imagecalc.image'
         imshape = [10,20,5]
         data = make_data(imshape)
-        
+
         self.assertRaises(
             Exception, myia.imagecalc, outfile=imname3,
             pixels='i_like_doggies'
         )
-       
+
         myim = myia.newimagefromarray(outfile=imname, pixels=data)
-        
+
         stats = myim.statistics(force=True, list=False)
         myim.done()
         #
@@ -1557,7 +1557,7 @@ class immath_test3(unittest.TestCase):
         self.assertRaises(
             Exception, myia.imagecalc, outfile=imname3, pixels=ex
         )
-        
+
         # Need the double quotes because of / in expression
         ex = '"'+imname+'"'+'+'+'"'+imname+'"'
         myim = myia.imagecalc(outfile=imname3, pixels=ex)
@@ -1571,7 +1571,7 @@ class immath_test3(unittest.TestCase):
         )
         myia.close()  # needed to remove table lock preventing myim.done
         myim.remove(done=True)
-        
+
     def test_complex_calc(self):
         """Test ia.calc on complex images"""
         myia = iatool()
@@ -1592,7 +1592,7 @@ class immath_test3(unittest.TestCase):
 
         #myia.fromshape(im4, shape, type='f')
         #self.assertRaises(Exception, myia.calc, im1 + '+' + im2)
-        
+
     def test_CAS6896(self):
         """Verify CAS-6896, user can choose from which image to copy metadata"""
         myia = iatool()
@@ -1678,6 +1678,6 @@ class immath_test3(unittest.TestCase):
 
 def suite():
     return [immath_test1, immath_test2, immath_test3]
-    
-    
-    
+
+
+

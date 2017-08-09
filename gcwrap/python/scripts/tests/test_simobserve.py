@@ -9,7 +9,7 @@ import unittest
 
 import numpy
 import glob
-# to rethrow exception 
+# to rethrow exception
 from casa_stack_manip import stack_frame_find
 glb = stack_frame_find( )
 if '__rethrow_casa_exceptions' in glb:
@@ -20,7 +20,7 @@ else:
 
 #
 # Unit test of simobserve task.
-# 
+#
 class simobserve_unittest_base(unittest.TestCase):
     """
     Base class of simobserve unit test.
@@ -342,7 +342,7 @@ class simobserve_sky(simobserve_unittest_base):
         currms = self.project + "/" + \
                  self._get_data_prefix(sdantlist,self.project)+".sd.ms"
         self._check_msstats(currms,self.refms_sd)
-        
+
 
     def testSky_intObs(self):
         """Test skymodel simulation: only observation (INT)"""
@@ -430,11 +430,11 @@ class simobserve_sky(simobserve_unittest_base):
         self.assertTrue(res)
         # compare outputs
         currpref = self.project + "/" + \
-                 self._get_data_prefix(antennalist,self.project)        
+                 self._get_data_prefix(antennalist,self.project)
         self._check_imstats(currpref+".skymodel", self.refmodel)
         self._check_ptgfile(currpref+".ptg.txt", self.refpref_int+".ptg.txt")
         self._check_msstats(currpref+".ms",self.refms_int)
-    
+
 
 ########################################################################
 #
@@ -480,7 +480,7 @@ class simobserve_comp(simobserve_unittest_base):
 
     def tearDown(self):
         if self.teardown and os.path.exists(self.project):
-            shutil.rmtree(self.project)        
+            shutil.rmtree(self.project)
         #pass
 
     # Tests of complist simulations
@@ -590,7 +590,7 @@ class simobserve_comp(simobserve_unittest_base):
 #         currms = self.project + "/" + \
 #                  self._get_data_prefix(sdantlist,self.project)+".sd.ms"
 #         self._check_msstats(currms,self.refms_sd)
-        
+
 
     def testComp_intObs(self):
         """Test complist simulation: only observation (INT)"""
@@ -727,7 +727,7 @@ class simobserve_skycomp(simobserve_unittest_base):
 
     def tearDown(self):
         if self.teardown and os.path.exists(self.project):
-            shutil.rmtree(self.project)        
+            shutil.rmtree(self.project)
         #pass
 
     # Tests of skymodel + components list simulations
@@ -845,7 +845,7 @@ class simobserve_skycomp(simobserve_unittest_base):
 #         currms = self.project + "/" + \
 #                  self._get_data_prefix(sdantlist,self.project)+".sd.ms"
 #         self._check_msstats(currms,self.refms_sd,rtol=self.rtol_sdms)
-        
+
 
     def testSC_intObs(self):
         """Test skymodel + complist simulation: only observation (INT)"""
@@ -934,7 +934,7 @@ class simobserve_skycomp(simobserve_unittest_base):
         self._check_imstats(currpref+".skymodel.flat", self.refmodel)
         self._check_ptgfile(currpref+".ptg.txt", self.refpref_int+".ptg.txt")
         self._check_msstats(currpref+".ms",self.refms_int,rtol=self.rtol_intms)
-    
+
 
 ########################################################################
 #
@@ -974,7 +974,7 @@ class simobserve_noise(simobserve_unittest_base):
         for simdir in [self.project, self.project_int]:
             if os.path.exists(simdir):
                 shutil.rmtree(simdir)
-            
+
         self._copy_input(self.indata)
         default(simobserve)
 
@@ -1067,7 +1067,7 @@ class simobserve_noise(simobserve_unittest_base):
                         msg=self.prevmsg % (msnoise, refval))
         self.assertTrue(abs((msnoise-ananoise)/ananoise) < 1.e-1, \
                         msg=self.anamsg % (msnoise, ananoise))
-        
+
     def testNZ_sdMan_dnu(self):
         """Test SD thermal noise (tsys-manual): inwidth='1MHz'"""
         thermalnoise="tsys-manual"
@@ -1124,7 +1124,7 @@ class simobserve_noise(simobserve_unittest_base):
                         msg=self.prevmsg % (msnoise, refval))
         self.assertTrue(abs((msnoise-ananoise)/ananoise) < 1.e-1, \
                         msg=self.anamsg % (msnoise, ananoise))
-        
+
     def testNZ_sdMan_el(self):
         """Test SD thermal noise (tsys-manual): elevation = 60 deg"""
         thermalnoise="tsys-manual"
@@ -1339,7 +1339,7 @@ class simobserve_noise(simobserve_unittest_base):
                 retDict['noisy'] = mslist[0]
             else:
                 return None
-        
+
         if os.path.exists(prefix+".ms"):
             retDict["original"] = prefix+".ms"
         elif os.path.exists(prefix+".sd.ms"):
@@ -1483,18 +1483,18 @@ class simobserve_badinputs(simobserve_unittest_base):
 
     failmsg = "The task must throw exception"
     errmsg = "Unexpected exception was thrown: %s"
-    
+
     # Reserved methods of unit tests
     def setUp(self):
         if (os.path.exists(self.project)):
             shutil.rmtree(self.project)
-        
+
         for data in self.indata:
             if os.path.exists(data):
                 os.system("rm -rf %s" % data)
             os.system("cp -r %s %s" % (self.datapath+data, data))
 
-        # task must rethrow exception 
+        # task must rethrow exception
         glb['__rethrow_casa_exceptions'] = True
 
         default(simobserve)
@@ -1532,7 +1532,7 @@ class simobserve_badinputs(simobserve_unittest_base):
             pos=str(e).find("No such file or directory: ''")
             msg =  self.errmsg % str(e)
             self.assertNotEqual(pos,-1,msg=msg)
-        
+
 
     def testBad_skymodel(self):
         """Test bad skymodel name"""
@@ -1558,7 +1558,7 @@ class simobserve_badinputs(simobserve_unittest_base):
             pos=str(e).find("Unable to open lattice.")
             msg =  self.errmsg % str(e)
             self.assertNotEqual(pos,-1,msg=msg)
-        
+
     def testBad_inbright(self):
         """Test bad inbright"""
         inbright=self.badquant
@@ -1604,7 +1604,7 @@ class simobserve_badinputs(simobserve_unittest_base):
                          incenter=incenter,graphics=self.graphics)
         self.assertTrue(res)
         # Need to compare MS with one generated with J2000
-        
+
     def testBad_inwidth(self):
         """Test bad inwidth"""
         # Negaitve and non-frequency quantity are ignored
@@ -1627,7 +1627,7 @@ class simobserve_badinputs(simobserve_unittest_base):
             pos=str(e).find("No sky input found")
             msg =  self.errmsg % str(e)
             self.assertNotEqual(pos,-1,msg=msg)
-        
+
     def test_notComp(self):
         """Test non-components list complist"""
         complist=self.inimage
@@ -1653,7 +1653,7 @@ class simobserve_badinputs(simobserve_unittest_base):
             pos=str(e).find("Quantum::operator- unequal units 'GHz, 'arcsec'")
             msg =  self.errmsg % str(e)
             self.assertNotEqual(pos,-1,msg=msg)
-        
+
     def testBad_ptgfile(self):
         """Test bad ptgfile name"""
         setpointings=False
@@ -1676,7 +1676,7 @@ class simobserve_badinputs(simobserve_unittest_base):
         f.write("#This is bad pointing file\nsome bad data written")
         f.close()
         del f
-        
+
         setpointings=False
         ptgfile = fname
         try:
@@ -1700,7 +1700,7 @@ class simobserve_badinputs(simobserve_unittest_base):
         except Exception as e:
             pos=str(e).find('Failed AlwaysAssert qIntTime.getValue("s")>=0')
             msg =  self.errmsg % str(e)
-            self.assertNotEqual(pos,-1,msg=msg)        
+            self.assertNotEqual(pos,-1,msg=msg)
 
     def testBad_direction(self):
         """Test bad direction ('J3000' is defaulted to 'J2000')"""
@@ -1724,7 +1724,7 @@ class simobserve_badinputs(simobserve_unittest_base):
         except Exception as e:
             pos=str(e).find("can't interpret '%s' as a CASA quantity" % self.badquant)
             msg =  self.errmsg % str(e)
-            self.assertNotEqual(pos,-1,msg=msg)        
+            self.assertNotEqual(pos,-1,msg=msg)
 
     def testBad_maptype(self):
         """Test bad maptype"""
@@ -1737,7 +1737,7 @@ class simobserve_badinputs(simobserve_unittest_base):
         except Exception as e:
             pos=str(e).find("Parameter verification failed")
             msg =  self.errmsg % str(e)
-            self.assertNotEqual(pos,-1,msg=msg)        
+            self.assertNotEqual(pos,-1,msg=msg)
 
 
     def testBad_spacing(self):
@@ -1751,7 +1751,7 @@ class simobserve_badinputs(simobserve_unittest_base):
         except Exception as e:
             pos=str(e).find("can't interpret '%s' as a CASA quantity" % pointingspacing)
             msg =  self.errmsg % str(e)
-            self.assertNotEqual(pos,-1,msg=msg)        
+            self.assertNotEqual(pos,-1,msg=msg)
 
 
     def testBad_obsmode(self):
@@ -1765,7 +1765,7 @@ class simobserve_badinputs(simobserve_unittest_base):
         except Exception as e:
             pos=str(e).find("Parameter verification failed")
             msg =  self.errmsg % str(e)
-            self.assertNotEqual(pos,-1,msg=msg)        
+            self.assertNotEqual(pos,-1,msg=msg)
 
     def testBad_antennalist(self):
         """Test bad antennalist name"""
@@ -1778,7 +1778,7 @@ class simobserve_badinputs(simobserve_unittest_base):
         except Exception as e:
             pos=str(e).find("Couldn't find antennalist")
             msg =  self.errmsg % str(e)
-            self.assertNotEqual(pos,-1,msg=msg)        
+            self.assertNotEqual(pos,-1,msg=msg)
 
     def testBad_caldirection(self):
         """Test bad caldirection ('J3000' is defaulted to 'J2000')"""
@@ -1804,7 +1804,7 @@ class simobserve_badinputs(simobserve_unittest_base):
         except Exception as e:
             pos=str(e).find("can't interpret '%s' as a CASA quantity" % calflux)
             msg =  self.errmsg % str(e)
-            self.assertNotEqual(pos,-1,msg=msg)        
+            self.assertNotEqual(pos,-1,msg=msg)
 
     def testBad_sdantlist(self):
         """Test bad sdantlist name"""
@@ -1819,7 +1819,7 @@ class simobserve_badinputs(simobserve_unittest_base):
         except Exception as e:
             pos=str(e).find("Couldn't find antennalist")
             msg =  self.errmsg % str(e)
-            self.assertNotEqual(pos,-1,msg=msg)        
+            self.assertNotEqual(pos,-1,msg=msg)
 
     # simobserve automatically defaults a bad ID number to 0.
     # therefore testing non-numeric 'sdant' here
@@ -1838,7 +1838,7 @@ class simobserve_badinputs(simobserve_unittest_base):
         except Exception as e:
             pos=str(e).find("Parameter verification failed")
             msg =  self.errmsg % str(e)
-            self.assertNotEqual(pos,-1,msg=msg)        
+            self.assertNotEqual(pos,-1,msg=msg)
 
     def testBad_refdate(self):
         """Test bad refdate"""
@@ -1855,7 +1855,7 @@ class simobserve_badinputs(simobserve_unittest_base):
         except Exception as e:
             pos=str(e).find("Invalid reference date")
             msg =  self.errmsg % str(e)
-            self.assertNotEqual(pos,-1,msg=msg)        
+            self.assertNotEqual(pos,-1,msg=msg)
 
     def testBad_hourangle(self):
         """Test bad hourangle"""
@@ -1872,7 +1872,7 @@ class simobserve_badinputs(simobserve_unittest_base):
         except Exception as e:
             pos=str(e).find("Cannot interpret your hourangle parameter %s as a time quantity" % hourangle)
             msg =  self.errmsg % str(e)
-            self.assertNotEqual(pos,-1,msg=msg)        
+            self.assertNotEqual(pos,-1,msg=msg)
 
     # casapy crashes for totaltime < 0
     def testBad_totaltime(self):
@@ -1890,7 +1890,7 @@ class simobserve_badinputs(simobserve_unittest_base):
         except Exception as e:
             pos=str(e).find("Negative totaltime is not allowed")
             msg =  self.errmsg % str(e)
-            self.assertNotEqual(pos,-1,msg=msg)        
+            self.assertNotEqual(pos,-1,msg=msg)
 
     def testBad_noisetype(self):
         """Test bad thermalnoise type"""
@@ -1903,7 +1903,7 @@ class simobserve_badinputs(simobserve_unittest_base):
         except Exception as e:
             pos=str(e).find("Parameter verification failed")
             msg =  self.errmsg % str(e)
-            self.assertNotEqual(pos,-1,msg=msg)        
+            self.assertNotEqual(pos,-1,msg=msg)
 
     def testBad_pwv(self):
         """Test bad user_pwv"""
@@ -1917,7 +1917,7 @@ class simobserve_badinputs(simobserve_unittest_base):
         except Exception as e:
             pos=str(e).find("Parameter verification failed")
             msg =  self.errmsg % str(e)
-            self.assertNotEqual(pos,-1,msg=msg)        
+            self.assertNotEqual(pos,-1,msg=msg)
 
     def testBad_Tground(self):
         """Test bad t_ground"""
@@ -1931,7 +1931,7 @@ class simobserve_badinputs(simobserve_unittest_base):
         except Exception as e:
             pos=str(e).find("Parameter verification failed")
             msg =  self.errmsg % str(e)
-            self.assertNotEqual(pos,-1,msg=msg)        
+            self.assertNotEqual(pos,-1,msg=msg)
 
     def testBad_Tsky(self):
         """Test bad t_sky"""
@@ -1945,7 +1945,7 @@ class simobserve_badinputs(simobserve_unittest_base):
         except Exception as e:
             pos=str(e).find("Parameter verification failed")
             msg =  self.errmsg % str(e)
-            self.assertNotEqual(pos,-1,msg=msg)        
+            self.assertNotEqual(pos,-1,msg=msg)
 
     def testBad_tau0(self):
         """Test bad tau0"""
@@ -1959,7 +1959,7 @@ class simobserve_badinputs(simobserve_unittest_base):
         except Exception as e:
             pos=str(e).find("Parameter verification failed")
             msg =  self.errmsg % str(e)
-            self.assertNotEqual(pos,-1,msg=msg)        
+            self.assertNotEqual(pos,-1,msg=msg)
 
     def testBad_leakage(self):
         """Test bad leakage"""
@@ -1972,8 +1972,8 @@ class simobserve_badinputs(simobserve_unittest_base):
         except Exception as e:
             pos=str(e).find("Parameter verification failed")
             msg =  self.errmsg % str(e)
-            self.assertNotEqual(pos,-1,msg=msg)        
-    
+            self.assertNotEqual(pos,-1,msg=msg)
+
     def testBad_graphics(self):
         """Test bad graphics selection"""
         graphics = self.badname
@@ -1985,8 +1985,8 @@ class simobserve_badinputs(simobserve_unittest_base):
         except Exception as e:
             pos=str(e).find("Parameter verification failed")
             msg =  self.errmsg % str(e)
-            self.assertNotEqual(pos,-1,msg=msg)        
-        
+            self.assertNotEqual(pos,-1,msg=msg)
+
 
 def suite():
     return [simobserve_sky, simobserve_comp, simobserve_skycomp,

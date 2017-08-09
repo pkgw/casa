@@ -16,7 +16,7 @@ startTime = time.time()
 startProc = time.clock()
 
 
-# Baseline-based calibration of N1333 calibrater  
+# Baseline-based calibration of N1333 calibrater
 # VLA baseline 3-17 02-May-2003
 #           MeasurementSet Name:  B0319_0317.ms      MS Version 2
 #
@@ -77,20 +77,20 @@ blcal(vis='B0319_0317.ms',caltable='B0319.MFt',
       freqdep=True)
 default('applycal')
 applycal(vis='B0319_0317.ms',
-	 gaintable=['B0319.Mt','B0319.MFt'])
+         gaintable=['B0319.Mt','B0319.MFt'])
 calibratetime=time.time()
 
 #Examine the calibration solutions
 default('plotcal')
 plotcal(caltable='B0319.Mt',yaxis='phase',subplot=121,plotsymbol='bo',clearpanel='All')
 plotcal(caltable='B0319.Mt',yaxis='amp',subplot=122,plotsymbol='bo',
-	overplot=True,clearpanel='Auto')
+        overplot=True,clearpanel='Auto')
 
 default('plotcal')
 plotcal(caltable='B0319.MFt',yaxis='phase',
-	subplot=121,plotsymbol='bo',clearpanel='All')
+        subplot=121,plotsymbol='bo',clearpanel='All')
 plotcal(caltable='B0319.MFt',yaxis='amp',
-	subplot=122,plotsymbol='bo',overplot=True,clearpanel='Auto')
+        subplot=122,plotsymbol='bo',overplot=True,clearpanel='Auto')
 plotcaltime=time.time()
 
 #default('plotcal')
@@ -100,7 +100,7 @@ plotcaltime=time.time()
 # uv model fit the data
 default('uvmodelfit')
 uvmodelfit(vis='B0319_0317.ms',niter=5,comptype='P',
-	   sourcepar=[0.5,.1,.1],outfile='test.cl')
+           sourcepar=[0.5,.1,.1],outfile='test.cl')
 uvmodelfittime=time.time()
 
 # now use component list to generate model data
@@ -171,19 +171,19 @@ if (diff_mod<0.05): print('* Passed Model data test', file=logfile)
 print('* Model data mean'+str(thistest_mod)+','+str(model_amp), file=logfile)
 
 if (diff_mod<0.05):
-	regstate=True
-	print('---', file=logfile)
-	print('Passed Regression test for B0319', file=logfile)
-	print('---', file=logfile)
+        regstate=True
+        print('---', file=logfile)
+        print('Passed Regression test for B0319', file=logfile)
+        print('---', file=logfile)
         print('')
         print('Regression PASSED')
         print('')
 else:
-	regstate=False
+        regstate=False
         print('')
         print('Regression FAILED')
         print('')
-	print('----FAILED Regression test for B0319', file=logfile)
+        print('----FAILED Regression test for B0319', file=logfile)
 print('*********************************', file=logfile)
 
 print('', file=logfile)

@@ -47,20 +47,20 @@
 #
 # <synopsis>
 # Test for the ia.addnoise() tool method
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_addnoise[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the ia.addnoise() tool method to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -73,14 +73,14 @@ from __main__ import *
 import unittest
 
 class ia_addnoise_test(unittest.TestCase):
-    
+
     def setUp(self):
         self._myia = iatool()
-    
+
     def tearDown(self):
         self._myia.done()
         self.assertTrue(len(tb.showcache()) == 0)
-        
+
     def test_history(self):
         """Test history is added to image"""
         myia = self._myia

@@ -46,20 +46,20 @@
 #
 # <synopsis>
 # Test the ia.pad() tool method
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_pad[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the ia.pad() tool method to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -73,13 +73,13 @@ import unittest
 import numpy
 
 class ia_pad_test(unittest.TestCase):
-    
+
     def setUp(self):
         self.ia = iatool()
-    
+
     def tearDown(self):
         pass
-    
+
     def test_pad(self):
         """ ia.pad(): Test pad()"""
         myia = self.ia
@@ -113,7 +113,7 @@ class ia_pad_test(unittest.TestCase):
             got = pad.toworld([np, np, 0])['numeric']
 
             self.assertTrue((abs(got - exp) < 1e-8).all())
-            
+
             # checks for not masking pixels
             pad = myia.pad(npixels=np, padmask=True)
             got = pad.shape()
@@ -128,7 +128,7 @@ class ia_pad_test(unittest.TestCase):
             self.assertTrue((abs(got - exp) < 1e-8).all())
             exp = myia.toworld([0, 0, 0])['numeric']
             got = pad.toworld([np, np, 0])['numeric']
-            
+
             # checks for not masking pixels and setting to value
             pad = myia.pad(npixels=np, padmask=True, value=1)
             got = pad.shape()
@@ -146,7 +146,7 @@ class ia_pad_test(unittest.TestCase):
             self.assertTrue((abs(got - exp) < 1e-8).all())
             exp = myia.toworld([0, 0, 0])['numeric']
             got = pad.toworld([np, np, 0])['numeric']
-            
+
     def test_stretch(self):
         """ ia.pad(): Test stretch parameter"""
         yy = iatool()
@@ -171,22 +171,22 @@ class ia_pad_test(unittest.TestCase):
 
     def test_mask(self):
         """Test that mask is preserved"""
-        
+
         def _check():
             data = pad.getchunk()
             self.assertTrue((data[0, :] == 0).all())
             self.assertTrue((data[:, 0] == 0).all())
             self.assertTrue((data[padsize-1, :] == 0).all())
             self.assertTrue((data[:, padsize-1] == 0).all())
-            self.assertTrue((data[1:padsize-1, 1:padsize-1] == myia.getchunk()).all()) 
+            self.assertTrue((data[1:padsize-1, 1:padsize-1] == myia.getchunk()).all())
             mask = pad.getchunk(getmask=True)
             self.assertTrue((mask[0, :] == False).all())
             self.assertTrue((mask[:, 0] == False).all())
             self.assertTrue((mask[padsize-1, :] == False).all())
             self.assertTrue((mask[:, padsize-1] == False).all())
-            self.assertTrue((mask[1:padsize-1, 1:padsize-1] == expec).all()) 
-        
-        
+            self.assertTrue((mask[1:padsize-1, 1:padsize-1] == expec).all())
+
+
         myia = iatool()
         imagename = "xyz.im"
         n = 20
@@ -215,7 +215,7 @@ class ia_pad_test(unittest.TestCase):
 
         pad.done()
         myia.done()
-    
+
     def test_history(self):
         """Verify history writing"""
         myia = iatool()

@@ -17,7 +17,7 @@ try:
 except:
     import tests.selection_syntax as selection_syntax
 
-# to rethrow exception 
+# to rethrow exception
 g = stack_frame_find( )
 g['__rethrow_casa_exceptions'] = True
 from sdcalold import sdcalold
@@ -25,7 +25,7 @@ import asap as sd
 
 #
 # Unit test of sdcalold task.
-# 
+#
 
 ###
 # Base class for sdcalold unit test
@@ -42,12 +42,12 @@ class sdcalold_unittest_base:
         isthere=os.path.exists(name)
         self.assertEqual(isthere,True,
                          msg='output file %s was not created because of the task failure'%(name))
-        
+
 
     def _getspectra( self, name ):
         isthere=os.path.exists(name)
         self.assertEqual(isthere,True,
-                         msg='file %s does not exist'%(name))        
+                         msg='file %s does not exist'%(name))
         tb.open(name)
         sp=tb.getcol('SPECTRA').transpose()
         tb.close()
@@ -56,7 +56,7 @@ class sdcalold_unittest_base:
     def _getflags( self, name ):
         isthere=os.path.exists(name)
         self.assertEqual(isthere,True,
-                         msg='file %s does not exist'%(name))        
+                         msg='file %s does not exist'%(name))
         tb.open(name)
         cflag=tb.getcol('FLAGTRA').transpose()
         rflag=tb.getcol('FLAGROW')
@@ -64,7 +64,7 @@ class sdcalold_unittest_base:
         return cflag, rflag
 
     def _checkshape( self, sp, ref ):
-        # check array dimension 
+        # check array dimension
         self.assertEqual( sp.ndim, ref.ndim,
                           msg='array dimension differ' )
         # check number of spectra
@@ -81,7 +81,7 @@ class sdcalold_unittest_base:
         if len(idx) > 0:
             diff[idx]=sp[idx]
         return diff
-        
+
 
 ###
 # Base class for calibration test
@@ -99,7 +99,7 @@ class sdcalold_caltest_base(sdcalold_unittest_base):
         spref=self._getspectra(self.reffile)
 
         self._checkshape( sp, spref )
-        
+
         for irow in range(sp.shape[0]):
             diff=self._diff(sp[irow],spref[irow])
             retval=numpy.all(diff<0.01)
@@ -126,7 +126,7 @@ class sdcalold_edgemarker_base(sdcalold_unittest_base):
             s = line.split()
             ret.append( [float(s[0]),float(s[1])] )
         return numpy.array(ret).transpose()
-    
+
     def _checkmarker( self, name, refdata ):
         # refdata shape is (2,noff)
         noff = refdata.shape[1]
@@ -138,7 +138,7 @@ class sdcalold_edgemarker_base(sdcalold_unittest_base):
         dir = tsel.getcol('DIRECTION')
         tsel.close()
         tb.close()
-        
+
         self.assertEqual( 2*noff, dir.shape[1], # refdata store only POLNO==0
                           msg='number of OFF differ: %s (should be %s)'%(dir.shape[1],2*noff) )
 
@@ -177,7 +177,7 @@ class sdcalold_test0(sdcalold_unittest_base,unittest.TestCase):
         # argument verification error
         self.res=sdcalold()
         self.assertFalse(self.res)
-        
+
     def test001(self):
         """Test 001: Invalid calibration mode"""
         # argument verification error
@@ -198,17 +198,17 @@ class sdcalold_test0(sdcalold_unittest_base,unittest.TestCase):
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
         finally:
-            os.system( 'rm -rf %s'%outfile )        
+            os.system( 'rm -rf %s'%outfile )
 
 
 
 ###
-# Test GBT position switch calibration 
+# Test GBT position switch calibration
 ###
 class sdcalold_test1(sdcalold_caltest_base,unittest.TestCase):
     """
-    Test GBT position switch calibration 
-    
+    Test GBT position switch calibration
+
     Data is taken from OrionS_rawACSmod and created by the following
     script:
 
@@ -253,12 +253,12 @@ class sdcalold_test1(sdcalold_caltest_base,unittest.TestCase):
         self._comparecal(outname)
 
 ###
-# Test GBT nodding calibration 
+# Test GBT nodding calibration
 ###
 class sdcalold_test2(sdcalold_caltest_base,unittest.TestCase):
     """
-    Test GBT nodding calibration 
-    
+    Test GBT nodding calibration
+
     Data is taken from IRC+10216_rawACSmod and created by the following
     script:
 
@@ -304,12 +304,12 @@ class sdcalold_test2(sdcalold_caltest_base,unittest.TestCase):
         self._comparecal(outname)
 
 ###
-# Test GBT frequency switch calibration 
+# Test GBT frequency switch calibration
 ###
 class sdcalold_test3(sdcalold_caltest_base,unittest.TestCase):
     """
-    Test GBT frequency switch calibration 
-    
+    Test GBT frequency switch calibration
+
     Data is taken from FLS3_all_newcal_SP and created by the following
     script:
 
@@ -353,14 +353,14 @@ class sdcalold_test3(sdcalold_caltest_base,unittest.TestCase):
         self.assertEqual(self.res,None,
                          msg='Any error occurred during calibration')
         self._comparecal(outname)
-        
+
 ###
 # Test quotient
 ###
 class sdcalold_test4(sdcalold_caltest_base,unittest.TestCase):
     """
     Test quotient.
-    
+
     Data is taken from MOPS.rpf, which is included in ASAP package
     for testing, and created by the following script:
 
@@ -408,8 +408,8 @@ class sdcalold_test4(sdcalold_caltest_base,unittest.TestCase):
 class sdcalold_test5(sdcalold_caltest_base,unittest.TestCase):
     """
     Test ALMA position switch calibration (OTF raster with OFF scan)
-    
-    Data is taken from uid___A002_X8ae1b_X1 (DV01) and created by 
+
+    Data is taken from uid___A002_X8ae1b_X1 (DV01) and created by
     the following script:
 
     asap_init()
@@ -458,10 +458,10 @@ class sdcalold_test5(sdcalold_caltest_base,unittest.TestCase):
 ###
 class sdcalold_test_edgemarker_generic(sdcalold_edgemarker_base,unittest.TestCase):
     """
-    Test edgemarker function that is available for calmode='otf'. 
+    Test edgemarker function that is available for calmode='otf'.
 
     Here, data will not be calibrated and only edge marking process
-    will be executed. 
+    will be executed.
     """
     # Input and output names
     rawfile='lissajous.asap'
@@ -493,7 +493,7 @@ class sdcalold_test_edgemarker_generic(sdcalold_edgemarker_base,unittest.TestCas
         outname = self.prefix+'.asap'
         self.res = sdcalold(infile=self.rawfile,calmode='otf',markonly=True,outfile=outname,outform='ASAP')
         refdir = self._readref( self.reffiles[0] )
-        self._checkfile( outname ) 
+        self._checkfile( outname )
         self._checkmarker( outname, refdir )
 
     def testEdgeMarkerGeneric1(self):
@@ -503,16 +503,16 @@ class sdcalold_test_edgemarker_generic(sdcalold_edgemarker_base,unittest.TestCas
         outname = self.prefix+'.asap'
         self.res = sdcalold(infile=self.rawfile,calmode='otf',fraction='3%',markonly=True,outfile=outname,outform='ASAP')
         refdir = self._readref( self.reffiles[1] )
-        self._checkfile( outname ) 
+        self._checkfile( outname )
         self._checkmarker( outname, refdir )
 
 
 class sdcalold_test_edgemarker_raster(sdcalold_edgemarker_base,unittest.TestCase):
     """
-    Test edgemarker function that is available for calmode='otfraster'. 
+    Test edgemarker function that is available for calmode='otfraster'.
 
     Here, data will not be calibrated and only edge marking process
-    will be executed. 
+    will be executed.
     """
     # Input and output names
     rawfile='raster.asap'
@@ -544,7 +544,7 @@ class sdcalold_test_edgemarker_raster(sdcalold_edgemarker_base,unittest.TestCase
         outname = self.prefix+'.asap'
         self.res = sdcalold(infile=self.rawfile,calmode='otfraster',markonly=True,outfile=outname,outform='ASAP')
         refdir = self._readref( self.reffiles[0] )
-        self._checkfile( outname ) 
+        self._checkfile( outname )
         self._checkmarker( outname, refdir )
 
     def testEdgeMarkerRaster1(self):
@@ -554,7 +554,7 @@ class sdcalold_test_edgemarker_raster(sdcalold_edgemarker_base,unittest.TestCase
         outname = self.prefix+'.asap'
         self.res = sdcalold(infile=self.rawfile,calmode='otfraster',noff=1,markonly=True,outfile=outname,outform='ASAP')
         refdir = self._readref( self.reffiles[1] )
-        self._checkfile( outname ) 
+        self._checkfile( outname )
         self._checkmarker( outname, refdir )
 
 class sdcalold_test_selection(selection_syntax.SelectionSyntaxTest,
@@ -593,11 +593,11 @@ class sdcalold_test_selection(selection_syntax.SelectionSyntaxTest,
             {'value': 30, 'channel': (80,80)},)
     baseline = ( (1.0, ), (0.2, 0.02), (2.44, -0.048, 0.0004),
                 (-3.096, 0.1536, -0.00192, 8.0e-6) )
-    
+
     @property
     def task(self):
         return sdcalold
-    
+
     @property
     def spw_channel_selection(self):
         return False
@@ -610,12 +610,12 @@ class sdcalold_test_selection(selection_syntax.SelectionSyntaxTest,
 
         default(sdcalold)
         self.outname=self.prefix+self.postfix
-        
+
     def tearDown(self):
         if (os.path.exists(self.rawfile)):
             shutil.rmtree(self.rawfile)
         os.system( 'rm -rf '+self.prefix+'*' )
-    
+
     ####################
     # Additional tests
     ####################
@@ -856,7 +856,7 @@ class sdcalold_test_selection(selection_syntax.SelectionSyntaxTest,
         self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
 
     ####################
-    # spw 
+    # spw
     ####################
     def test_spw_id_default(self):
         """test spw selection (spw='')"""
@@ -988,7 +988,7 @@ class sdcalold_test_selection(selection_syntax.SelectionSyntaxTest,
             rdiff = self._get_array_relative_diff(y,yana)
             rdiff_max = max(abs(rdiff))
             self.assertTrue(rdiff_max < precision, "Maximum relative difference %f > %f" % (rdiff_max, precision))
-    
+
     def _create_tophat_array(self, nchan, chanlist, valuelist):
         array_types = (tuple, list, numpy.ndarray)
         # check for inputs
@@ -1049,7 +1049,7 @@ class sdcalold_test_selection(selection_syntax.SelectionSyntaxTest,
 class sdcalold_testFlagPSALMA(sdcalold_caltest_base,unittest.TestCase):
     """
     Test flag handling in ALMA position switch calibration
-    
+
     Data file: calpsALMA_flagtest[_rowflagged].asap
     - six artificial spectra with constant time interval
     - the only ON-source spectrum is at the middle in time
@@ -1124,7 +1124,7 @@ class sdcalold_testFlagPSALMA(sdcalold_caltest_base,unittest.TestCase):
         spref=self._getspectra(reffile)
 
         self._checkshape( sp, spref )
-        
+
         for irow in range(sp.shape[0]):
             diff=self._diff(sp[irow],spref[irow])
             retval=numpy.all(diff<0.01)
@@ -1168,7 +1168,7 @@ class sdcalold_testFlagPSALMA(sdcalold_caltest_base,unittest.TestCase):
 class sdcalold_testFlagPSGBT(sdcalold_caltest_base,unittest.TestCase):
     #""
     Test flag handling in GBT position switch calibration
-    
+
     Data file: calpsGBT_flagtest[_rowflagged].asap
     - six artificial spectra with constant time interval
     - the only ON-source spectrum is at the middle in time
@@ -1243,7 +1243,7 @@ class sdcalold_testFlagPSGBT(sdcalold_caltest_base,unittest.TestCase):
         spref=self._getspectra(reffile)
 
         self._checkshape( sp, spref )
-        
+
         for irow in xrange(sp.shape[0]):
             diff=self._diff(sp[irow],spref[irow])
             retval=numpy.all(diff<0.01)
@@ -1275,11 +1275,11 @@ class sdcalold_testFlagPSGBT(sdcalold_caltest_base,unittest.TestCase):
 class sdcalold_testFlagOTF(sdcalold_caltest_base,unittest.TestCase):
     """
     Test flag handling in calibrating ALMA OTF data (lissajous scan)
-    
+
     Data file: lissajous_flagtest.asap
     - ON spectrum at irow=100 is row-flagged. Calibration must
       not be applied to this spectrum so the output value of this
-      spectrum (about 8 or 9) must not be modified. 
+      spectrum (about 8 or 9) must not be modified.
     - ON spectrum at irow=101 is channel-flagged. This spectrum
       must be calibrated.
     - The spectra at irow=40 and 41, which are to be marked as
@@ -1355,11 +1355,11 @@ class sdcalold_testFlagOTF(sdcalold_caltest_base,unittest.TestCase):
 class sdcalold_testFlagOTFRASTER(sdcalold_caltest_base,unittest.TestCase):
     """
     Test flag handling in calibrating ALMA OTF raster data
-    
+
     Data file: raster_flagtest.asap
     - ON spectrum at irow=50 is row-flagged. Calibration must
       not be applied to this spectrum so the output value of this
-      spectrum (about 8 or 9) must not be modified. 
+      spectrum (about 8 or 9) must not be modified.
     - ON spectrum at irow=51 is channel-flagged. This spectrum
       must be calibrated.
     - The spectra at irow=60 and 61, which are to be marked as

@@ -1,25 +1,25 @@
 ###############################
-# Regression 
-# 
+# Regression
+#
 ###############################
-DO_G192			= True#False
-DO_H121			= True
-DO_L02D			= True
-DO_NGC5921		= True
-DO_NGC7538		= False
+DO_G192                 = True#False
+DO_H121                 = True
+DO_L02D                 = True
+DO_NGC5921              = True
+DO_NGC7538              = False
 #----------
-DO_NGC1333		= False
-DO_NGC4826		= False
+DO_NGC1333              = False
+DO_NGC4826              = False
 #---------
-DO_NGC4826C		= True#False
-DO_ORION		= True
+DO_NGC4826C             = True#False
+DO_ORION                = True
 #---------
-DO_B0319		= True#False
+DO_B0319                = True#False
 #---------
-DO_ORI_SIO_TASK		= True
-DO_IRC_HC3N_TASK	= True
-DO_IRC_CS_TASK		= True
-DO_FLS3A_HI		= True
+DO_ORI_SIO_TASK         = True
+DO_IRC_HC3N_TASK        = True
+DO_IRC_CS_TASK          = True
+DO_FLS3A_HI             = True
 #---------
 DO_COORDSYSTEST         = True
 DO_IMAGEPOLTEST         = True
@@ -38,7 +38,7 @@ pathname=os.environ.get('CASAPATH').split()[0]
 libIndex=pathname.find('lib')
 
 if (libIndex !=-1):
-    # Copy test scripts from an installed package directory. 
+    # Copy test scripts from an installed package directory.
     scriptpath=pathname+'/lib/python2.6/regressions'
 else:
     # Copy test scripts from the source directory.

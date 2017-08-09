@@ -19,18 +19,18 @@ def concatephem(ephems=[], outputephem=''):
     same time grid, list of input ephemerides is ordered in time.
 
     ephems - List of the ephemeris tables to be concatenated
-            default: 
+            default:
     outputephem - Name of the output ephemeris to be created from the concatenation
             If empty, concatephem will only perform a dryrun.
             default: ''
-    
+
     """
     mytb = tbtool()
     starts = []
     ends = []
     stepsizes = []
     hasoverlap_with_previous = []
-    gap_to_previous = [] # negative entry means overlap   
+    gap_to_previous = [] # negative entry means overlap
     shouldconcat_with_previous = []
     canconcat_with_previous = []
 
@@ -72,13 +72,13 @@ def concatephem(ephems=[], outputephem=''):
         canconcat_with_previous.append(False)
         hasoverlap_with_previous.append(False)
         gap_to_previous.append(0)
-        if i>0: 
+        if i>0:
             if (abs(stepsizes[i] - stepsizes[i-1-backstep])/stepsizes[i] < stepsize_rel_tolerance) \
                     and abs(stepsizes[i] - stepsizes[i-1-backstep]) < stepsize_abs_tolerance_d:
                 casalog.post( 'Ephemerides '+str(i-1-backstep)+' and '+str(i)+' have same step size.', 'INFO')
                 if starts[i-1-backstep] <= starts[i]:
                     casalog.post( 'Ephemeris '+str(i-1-backstep)+' begins before '+str(i), 'INFO')
-                    if ends[i-1-backstep] < ends[i]: 
+                    if ends[i-1-backstep] < ends[i]:
                         casalog.post( 'Ephemeris '+str(i-1-backstep)+' ends before '+str(i), 'INFO')
                         shouldconcat_with_previous[i] = True
                         numsteps_to_add = (starts[i]-ends[i-1-backstep])/stepsizes[i] - 1
@@ -117,9 +117,9 @@ def concatephem(ephems=[], outputephem=''):
         casalog.post( 'Creating output ephemeris ...', 'INFO')
 
         os.system('cp -R '+ephems[0]+' '+outputephem)
-        
+
         mytb2 = tbtool()
-        
+
         try:
             mytb.open(outputephem, nomodify=False)
         except:
@@ -180,7 +180,7 @@ def concatephem(ephems=[], outputephem=''):
 
 
 def findephems(vis=[], field=''):
-    
+
     """
        findephems
 
@@ -275,12 +275,12 @@ def concatreplaceephem(vis=[], field='', commontime=False):
              default: False - do not modify the FIELD table TIME column
 
     """
-      
+
     ephemfield = field
     thetabs = findephems(vis, ephemfield)
 
     if not (type(commontime)==bool) and not (type(commontime)==float):
-        raise Exception('ERROR: parameter commontime must be bool or float')	
+        raise Exception('ERROR: parameter commontime must be bool or float')
 
     if thetabs != [] and not ('' in thetabs):
         tmptab = os.path.basename(thetabs[0])+'.concattmp'
@@ -288,13 +288,13 @@ def concatreplaceephem(vis=[], field='', commontime=False):
         if os.path.exists(tmptab):
             for targettab in thetabs:
                 if not os.path.exists(targettab):
-                    raise Exception('Internal ERROR: ephemeris '+targettab+' does not exist')	
+                    raise Exception('Internal ERROR: ephemeris '+targettab+' does not exist')
                 os.system('rm -rf '+targettab)
                 os.system('cp -R '+tmptab+' '+targettab)
         else:
             casalog.post('ERROR while concatenating ephemerides for field '+str(ephemfield), 'SEVERE')
             raise Exception('Concatenation of ephemerides for field '+str(ephemfield)+' failed.')
-        
+
         os.system('rm -rf '+tmptab)
 
         if type(commontime)==float or commontime==True:
@@ -307,7 +307,7 @@ def concatreplaceephem(vis=[], field='', commontime=False):
                 mytb.open(thevis+'/FIELD', nomodify=False)
                 thenames = mytb.getcol('NAME')
                 thetimes = mytb.getcol('TIME')
-                
+
                 for i in range(0,len(thenames)):
                     if (thenames[i]==ephemfield):
                         if thecommontime==True and thevis==vis[0]:

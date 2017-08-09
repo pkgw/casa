@@ -143,15 +143,15 @@ def converttopoephem2geo(tablename='', outtablename='', overwrite=True):
             casalog.post('Output table '+outtablename+' already exists.', 'WARN')
             return False
         os.system('cp -R '+tablename+' '+outtablename)
-        
+
     try:
         tbt.open(outtablename, nomodify=False)
         tbt.putcol('RA', newra)
         tbt.putcol('DEC', newdec)
         tbt.putcol('RadVel', newradvel)
-        tbt.putkeyword('GeoDist', 0.) 
+        tbt.putkeyword('GeoDist', 0.)
         tbt.putkeyword('GeoLat', 0.)
-        tbt.putkeyword('GeoLong', 0.) 
+        tbt.putkeyword('GeoLong', 0.)
         tbt.putkeyword('obsloc', 'GEOCENTRIC')
         tbt.putkeyword('posrefsys', newposref)
         tbt.close()
@@ -162,7 +162,7 @@ def converttopoephem2geo(tablename='', outtablename='', overwrite=True):
             os.system('rm -rf '+tablename)
             os.system('mv '+safetycopyname+' '+tablename)
         return False
-    
+
     if overwrite and outtablename==tablename:
         os.system('rm -rf '+safetycopyname)
 
@@ -189,7 +189,7 @@ def findattachedephemfields(vis='',field='*'):
 
     tbt.close()
     return thefields
-        
+
 def convert2geo(vis='', field=''):
 
     """
@@ -222,13 +222,13 @@ def convert2geo(vis='', field=''):
                     casalog.post('Found ephemeris '+ephemname+' for field '+str(fld), 'INFO')
 
         tbt.close()
-        
+
         if len(theephstoconvert)==0:
             casalog.post('No ephemerides attached.', 'INFO')
         else:
             for theeph in theephstoconvert:
                 if converttopoephem2geo(theeph, theeph, overwrite=True):
-                    casalog.post('Converted '+theeph+' to GEO.', 'INFO') 
+                    casalog.post('Converted '+theeph+' to GEO.', 'INFO')
                 else:
                     casalog.post('Error converting '+theeph+' to GEO.', 'WARN')
                     rval = False

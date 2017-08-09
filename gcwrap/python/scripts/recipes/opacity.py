@@ -13,7 +13,7 @@
 # To access this function, type (at the CASA prompt):
 #
 # from recipes.opacity import opacal
-# or 
+# or
 # execfile(casadef.python_library_directory+'/recipes/opacity.py')
 #
 # MHW, Feb 2016
@@ -46,7 +46,7 @@ def opacal(vis,calname,asap=True,interpolate=0,height=200):
   if (time.size==0):
     print("Error: no data in WEATHER table, cannot calculate opacities")
     return
-    
+
   # check array name
   mytb.open(vis+'/OBSERVATION')
   tel=mytb.getcell('TELESCOPE_NAME',0)
@@ -57,7 +57,7 @@ def opacal(vis,calname,asap=True,interpolate=0,height=200):
   pfac=1.0
   if (tel=='ATCA'):
     pfac=0.975
-  
+
   # create opac table and read the frequencies, extend opac table to fit an
   # entry for each timestamp
   if (calname==""):
@@ -70,7 +70,7 @@ def opacal(vis,calname,asap=True,interpolate=0,height=200):
   nchan=mytb.getcol('NUM_CHAN')
   mytb.close()
   nf=1
-  if (interpolate): 
+  if (interpolate):
     nf=max(2,interpolate)
   f=pl.zeros(nf*fref.size)
   print("Using %i frequencies to calculate opacity for each spectral window" % nf)
@@ -126,11 +126,11 @@ def opacal(vis,calname,asap=True,interpolate=0,height=200):
     mytb.putinfo(info)
   mytb.flush()
   mytb.close()
-    
+
   if (nf>1):
     # Fix spectral window table
     mytb.open(calname+'/SPECTRAL_WINDOW',nomodify=False)
-    
+
     mytb.putcol('CHAN_FREQ',(1e9*fout).reshape([nf,-1],order='F'))
     cw=pl.zeros(nf*bw.size)
     for i in range(nf):
@@ -143,7 +143,7 @@ def opacal(vis,calname,asap=True,interpolate=0,height=200):
     mytb.putcol('NUM_CHAN',nc)
     mytb.close()
   return calname
-  
+
 
 def asapatm(fGHz,tempK,humi,press,height):
   """Use the asap (=miriad) atmosphere model to calculate the opacity
@@ -155,8 +155,8 @@ def asapatm(fGHz,tempK,humi,press,height):
   fHz=[f*1.e9 for f in fGHz]
   op=atm.get_opacities(fHz)
   op=pl.array(op)
-  return(fGHz,op)  
-  
+  return(fGHz,op)
+
 # Fill out Narrabri/ATCA parameters similar to those used in Miriad opacGet
 def atm(freqGHz,temp,humi,press,height):
   """Use the ATM model in CASA to calculate the opacity given the

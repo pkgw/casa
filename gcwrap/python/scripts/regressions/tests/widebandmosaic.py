@@ -17,7 +17,7 @@ gl=sys._getframe(stacklevel).f_globals
 def description():
     return "Images simulated wideband data with WB-A-Projection with CS-Clean in one test, and MT-MFS-Clean in another."
 
-# Copy the Data ? Yes. 
+# Copy the Data ? Yes.
 def doCopy():
     return [1];
 
@@ -33,7 +33,7 @@ def run(fetch=False):
     if fetch:
         for f in data( ):
             copydata( f, os.getcwd( ) )
-    
+
     #####locate the regression script
     lepath=locatescript('widebandmosaic_regression.py')
     print('Script used is ',lepath)

@@ -70,7 +70,7 @@ class sdaverageold_smoothtest_base(sdaverageold_unittest_base):
     datapath = os.environ.get('CASAPATH').split()[0] + \
                '/data/regression/unittest/sdsmooth/'
     postfix='.sm.asap'
-    
+
     ### helper function to calculate necessary stat
     def _getStats(self,filename, linechan=None, basechan=None):
         if not linechan: linechan = self.linechan
@@ -115,14 +115,14 @@ class sdaverageold_avetest_base(sdaverageold_unittest_base):
     def _getspectra( self, name ):
         isthere=os.path.exists(name)
         self.assertEqual(isthere,True,
-                         msg='file %s does not exist'%(name))        
+                         msg='file %s does not exist'%(name))
         tb.open(name)
         sp=tb.getcol('SPECTRA').transpose()
         tb.close()
         return sp
 
     def _checkshape( self, sp, ref ):
-        # check array dimension 
+        # check array dimension
         self.assertEqual( sp.ndim, ref.ndim,
                           msg='array dimension differ' )
         # check number of spectra
@@ -139,7 +139,7 @@ class sdaverageold_avetest_base(sdaverageold_unittest_base):
         if len(idx) > 0:
             diff[idx]=sp[idx]
         return diff
-        
+
     def _split( self, s ):
         pos0=s.find('[')+1
         pos1=s.find(']')
@@ -182,7 +182,7 @@ class sdaverageold_avetest_base(sdaverageold_unittest_base):
         sp=numpy.array(sp)
 
         return (scans, pols, sp)
-    
+
 
     def _compare( self, name1, name2 ):
         self._checkfile(name1)
@@ -203,7 +203,7 @@ class sdaverageold_avetest_base(sdaverageold_unittest_base):
         self.assertEqual( retval, True,
                           msg='SCANNO is wrong' )
         del s
-        
+
         for irow in range(sp.shape[0]):
             diff=self._diff(sp[irow],sp0[irow])
             retval=numpy.all(diff<0.01)
@@ -222,7 +222,7 @@ class sdaverageold_badinputs(sdaverageold_unittest_base,unittest.TestCase):
 
     badname = "bad"
     badquant = "5bad"
-    
+
     def setUp(self):
         if os.path.exists(self.inname):
             shutil.rmtree(self.inname)
@@ -284,7 +284,7 @@ class sdaverageold_badinputs(sdaverageold_unittest_base,unittest.TestCase):
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
         finally:
-            os.system( 'rm -rf %s'%outfile )        
+            os.system( 'rm -rf %s'%outfile )
 
 
 class sdaverageold_smoothTest(sdaverageold_smoothtest_base,unittest.TestCase):
@@ -472,7 +472,7 @@ class sdaverageold_smoothTest(sdaverageold_smoothtest_base,unittest.TestCase):
         nch_old = scan.nchan(scan.getif(0))
         scan.set_unit(oldunit)
         del scan
-        
+
         outfile = self.outroot+tid+'.asap'
         kernel = 'regrid'
         chanwidth = str(self.regridw)
@@ -498,7 +498,7 @@ class sdaverageold_smoothTest(sdaverageold_smoothtest_base,unittest.TestCase):
         nch_new = len(sc_new)
         ch0_new = sc_new[0]
         incr_new = (sc_new[nch_new-1]-sc_new[0])/float(nch_new-1)
-        
+
         self.assertEqual(nch_new,numpy.ceil(nch_old/self.regridw))
         self.assertAlmostEqual((ch0_new-refsc['ch0'])/refsc['ch0'],0.,places=5)
         self.assertAlmostEqual((incr_new-refsc['incr'])/refsc['incr'],0.,places=5)
@@ -518,7 +518,7 @@ class sdaverageold_smoothTest(sdaverageold_smoothtest_base,unittest.TestCase):
         scan.set_unit(oldunit)
         del scan
         chw_new = chw_old*self.regridw
-        
+
         outfile = self.outroot+tid+'.asap'
         kernel = 'regrid'
         chanwidth = qa.tos(qa.quantity(chw_new,unit))
@@ -544,7 +544,7 @@ class sdaverageold_smoothTest(sdaverageold_smoothtest_base,unittest.TestCase):
         nch_new = len(sc_new)
         ch0_new = sc_new[0]
         incr_new = (sc_new[nch_new-1]-sc_new[0])/float(nch_new-1)
-        
+
         self.assertEqual(nch_new,numpy.ceil(nch_old/self.regridw))
         self.assertAlmostEqual((ch0_new-refsc['ch0'])/refsc['ch0'],0.,places=5)
         self.assertAlmostEqual((incr_new-refsc['incr'])/refsc['incr'],0.,places=5)
@@ -590,7 +590,7 @@ class sdaverageold_smoothTest(sdaverageold_smoothtest_base,unittest.TestCase):
         nch_new = len(sc_new)
         ch0_new = sc_new[0]
         incr_new = (sc_new[nch_new-1]-sc_new[0])/float(nch_new-1)
-        
+
         self.assertEqual(nch_new,numpy.ceil(nch_old/self.regridw))
         self.assertAlmostEqual((ch0_new-refsc['ch0'])/refsc['ch0'],0.,places=5)
         self.assertAlmostEqual((incr_new-refsc['incr'])/refsc['incr'],0.,places=5)
@@ -605,7 +605,7 @@ class sdaverageold_smoothTest(sdaverageold_smoothtest_base,unittest.TestCase):
         nch_old = scan.nchan(scan.getif(0))
         scan.set_unit(oldunit)
         del scan
-        
+
         outfile = self.outroot+tid+'.asap'
         kernel = 'regrid'
         chanwidth = str(-self.regridw)
@@ -638,7 +638,7 @@ class sdaverageold_smoothTest(sdaverageold_smoothtest_base,unittest.TestCase):
         nch_new = len(sc_new)
         ch0_new = sc_new[0]
         incr_new = (sc_new[nch_new-1]-sc_new[0])/float(nch_new-1)
-        
+
         self.assertEqual(nch_new,numpy.ceil(nch_old/self.regridw))
         self.assertAlmostEqual((ch0_new-refsc['ch0'])/refsc['ch0'],0.,places=5)
         self.assertAlmostEqual((incr_new-refsc['incr'])/refsc['incr'],0.,places=5)
@@ -657,7 +657,7 @@ class sdaverageold_smoothTest(sdaverageold_smoothtest_base,unittest.TestCase):
         scan.set_unit(oldunit)
         del scan
         chw_new = chw_old*(-self.regridw)
-        
+
         outfile = self.outroot+tid+'.asap'
         kernel = 'regrid'
         chanwidth = qa.tos(qa.quantity(chw_new,unit))
@@ -690,7 +690,7 @@ class sdaverageold_smoothTest(sdaverageold_smoothtest_base,unittest.TestCase):
         nch_new = len(sc_new)
         ch0_new = sc_new[0]
         incr_new = (sc_new[nch_new-1]-sc_new[0])/float(nch_new-1)
-        
+
         self.assertEqual(nch_new,numpy.ceil(nch_old/self.regridw))
         self.assertAlmostEqual((ch0_new-refsc['ch0'])/refsc['ch0'],0.,places=5)
         self.assertAlmostEqual((incr_new-refsc['incr'])/refsc['incr'],0.,places=5)
@@ -743,7 +743,7 @@ class sdaverageold_smoothTest(sdaverageold_smoothtest_base,unittest.TestCase):
         nch_new = len(sc_new)
         ch0_new = sc_new[0]
         incr_new = (sc_new[nch_new-1]-sc_new[0])/float(nch_new-1)
-        
+
         self.assertEqual(nch_new,numpy.ceil(nch_old/self.regridw))
         self.assertAlmostEqual((ch0_new-refsc['ch0'])/refsc['ch0'],0.,places=5)
         self.assertAlmostEqual((incr_new-refsc['incr'])/refsc['incr'],0.,places=5)
@@ -780,8 +780,8 @@ class sdaverageold_smoothTest(sdaverageold_smoothtest_base,unittest.TestCase):
             self.assertEqual(res_mask, flag_line,
                              "unexpected flag range (row %d)" % irow)
         del scan
-        
-        
+
+
         # unflag line channels
         sdflagold(infile=outfile, mode='manual', spw=flag_line_str, unflag=True)
 
@@ -967,7 +967,7 @@ class sdaverageold_storageTest( sdaverageold_smoothtest_base, unittest.TestCase 
         scan.set_unit(oldunit)
         del scan
         chw_new = chw_old*self.regridw
-        
+
         outfile = self.outroot+tid+'.asap'
         kernel = 'regrid'
         chanwidth = qa.tos(qa.quantity(chw_new,unit))
@@ -999,7 +999,7 @@ class sdaverageold_storageTest( sdaverageold_smoothtest_base, unittest.TestCase 
         nch_new = len(sc_new)
         ch0_new = sc_new[0]
         incr_new = (sc_new[nch_new-1]-sc_new[0])/float(nch_new-1)
-        
+
         self.assertEqual(nch_new,numpy.ceil(nch_old/self.regridw))
         self.assertAlmostEqual((ch0_new-self.rgrefsc['ch0'])/self.rgrefsc['ch0'],0.,places=5)
         self.assertAlmostEqual((incr_new-self.rgrefsc['incr'])/self.rgrefsc['incr'],0.,places=5)
@@ -1019,7 +1019,7 @@ class sdaverageold_storageTest( sdaverageold_smoothtest_base, unittest.TestCase 
         scan.set_unit(oldunit)
         del scan
         chw_new = chw_old*self.regridw
-        
+
         outfile = self.outroot+tid+'.asap'
         kernel = 'regrid'
         chanwidth = qa.tos(qa.quantity(chw_new,unit))
@@ -1051,7 +1051,7 @@ class sdaverageold_storageTest( sdaverageold_smoothtest_base, unittest.TestCase 
         nch_new = len(sc_new)
         ch0_new = sc_new[0]
         incr_new = (sc_new[nch_new-1]-sc_new[0])/float(nch_new-1)
-        
+
         self.assertEqual(nch_new,numpy.ceil(nch_old/self.regridw))
         self.assertAlmostEqual((ch0_new-self.rgrefsc['ch0'])/self.rgrefsc['ch0'],0.,places=5)
         self.assertAlmostEqual((incr_new-self.rgrefsc['incr'])/self.rgrefsc['incr'],0.,places=5)
@@ -1071,7 +1071,7 @@ class sdaverageold_storageTest( sdaverageold_smoothtest_base, unittest.TestCase 
         scan.set_unit(oldunit)
         del scan
         chw_new = chw_old*self.regridw
-        
+
         outfile = self.outroot+tid+'.asap'
         kernel = 'regrid'
         chanwidth = qa.tos(qa.quantity(chw_new,unit))
@@ -1103,7 +1103,7 @@ class sdaverageold_storageTest( sdaverageold_smoothtest_base, unittest.TestCase 
         nch_new = len(sc_new)
         ch0_new = sc_new[0]
         incr_new = (sc_new[nch_new-1]-sc_new[0])/float(nch_new-1)
-        
+
         self.assertEqual(nch_new,numpy.ceil(nch_old/self.regridw))
         self.assertAlmostEqual((ch0_new-self.rgrefsc['ch0'])/self.rgrefsc['ch0'],0.,places=5)
         self.assertAlmostEqual((incr_new-self.rgrefsc['incr'])/self.rgrefsc['incr'],0.,places=5)
@@ -1123,7 +1123,7 @@ class sdaverageold_storageTest( sdaverageold_smoothtest_base, unittest.TestCase 
         scan.set_unit(oldunit)
         del scan
         chw_new = chw_old*self.regridw
-        
+
         outfile = self.outroot+tid+'.asap'
         kernel = 'regrid'
         chanwidth = qa.tos(qa.quantity(chw_new,unit))
@@ -1155,7 +1155,7 @@ class sdaverageold_storageTest( sdaverageold_smoothtest_base, unittest.TestCase 
         nch_new = len(sc_new)
         ch0_new = sc_new[0]
         incr_new = (sc_new[nch_new-1]-sc_new[0])/float(nch_new-1)
-        
+
         self.assertEqual(nch_new,numpy.ceil(nch_old/self.regridw))
         self.assertAlmostEqual((ch0_new-self.rgrefsc['ch0'])/self.rgrefsc['ch0'],0.,places=5)
         self.assertAlmostEqual((incr_new-self.rgrefsc['incr'])/self.rgrefsc['incr'],0.,places=5)
@@ -1183,7 +1183,7 @@ class sdaverageold_test6(sdaverageold_avetest_base,unittest.TestCase):
               'polaverage.ref1',
               'polaverage.ref2',
               'polaverage.ref3']
-    
+
     def setUp(self):
         self.res=None
         if (not os.path.exists(self.rawfile)):
@@ -1209,7 +1209,7 @@ class sdaverageold_test6(sdaverageold_avetest_base,unittest.TestCase):
         self.assertEqual(self.res,None,
                          msg='Any error occurred during polarization averaging')
         self._compare(outname,self.reffiles[0])
-        
+
     def test601(self):
         """Test 601: test polarization average with pweight='var' (no scan average)"""
         outname=self.prefix+self.postfix
@@ -1225,7 +1225,7 @@ class sdaverageold_test6(sdaverageold_avetest_base,unittest.TestCase):
         self.assertEqual(self.res,None,
                          msg='Any error occurred during polarization averaging')
         self._compare(outname,self.reffiles[2])
-        
+
     def test603(self):
         """Test 603: test polarization average with pweight='tsys' (no scan average)"""
         outname=self.prefix+self.postfix
@@ -1283,7 +1283,7 @@ class sdaverageold_test7(sdaverageold_avetest_base,unittest.TestCase):
         self.assertEqual(self.res,None,
                          msg='Any error occurred during time averaging')
         self._compare(outname,self.reffiles[0])
-        
+
     def test701(self):
         """Test 701: test time average with tweight='var' (no scan average)"""
         outname=self.prefix+self.postfix
@@ -1291,7 +1291,7 @@ class sdaverageold_test7(sdaverageold_avetest_base,unittest.TestCase):
         self.assertEqual(self.res,None,
                          msg='Any error occurred during time averaging')
         self._compare(outname,self.reffiles[1])
-        
+
     def test702(self):
         """Test 702: test time average with tweight='tsys' (scan average)"""
         outname=self.prefix+self.postfix
@@ -1299,7 +1299,7 @@ class sdaverageold_test7(sdaverageold_avetest_base,unittest.TestCase):
         self.assertEqual(self.res,None,
                          msg='Any error occurred during time averaging')
         self._compare(outname,self.reffiles[2])
-        
+
     def test703(self):
         """Test 703: test time average with tweight='tsys' (no scan average)"""
         outname=self.prefix+self.postfix
@@ -1307,7 +1307,7 @@ class sdaverageold_test7(sdaverageold_avetest_base,unittest.TestCase):
         self.assertEqual(self.res,None,
                          msg='Any error occurred during time averaging')
         self._compare(outname,self.reffiles[3])
-        
+
     def test704(self):
         """Test 704: test time average with tweight='tint' (scan average)"""
         outname=self.prefix+self.postfix
@@ -1315,7 +1315,7 @@ class sdaverageold_test7(sdaverageold_avetest_base,unittest.TestCase):
         self.assertEqual(self.res,None,
                          msg='Any error occurred during time averaging')
         self._compare(outname,self.reffiles[4])
-        
+
     def test705(self):
         """Test 705: test time average with tweight='tint' (no scan average)"""
         outname=self.prefix+self.postfix
@@ -1323,7 +1323,7 @@ class sdaverageold_test7(sdaverageold_avetest_base,unittest.TestCase):
         self.assertEqual(self.res,None,
                          msg='Any error occurred during time averaging')
         self._compare(outname,self.reffiles[5])
-        
+
     def test706(self):
         """Test 706: test time average with tweight='tintsys' (scan average)"""
         outname=self.prefix+self.postfix
@@ -1331,7 +1331,7 @@ class sdaverageold_test7(sdaverageold_avetest_base,unittest.TestCase):
         self.assertEqual(self.res,None,
                          msg='Any error occurred during time averaging')
         self._compare(outname,self.reffiles[6])
-        
+
     def test707(self):
         """Test 707: test time average with tweight='tintsys' (no scan average)"""
         outname=self.prefix+self.postfix
@@ -1339,7 +1339,7 @@ class sdaverageold_test7(sdaverageold_avetest_base,unittest.TestCase):
         self.assertEqual(self.res,None,
                          msg='Any error occurred during time averaging')
         self._compare(outname,self.reffiles[7])
-        
+
     def test708(self):
         """Test 708: test time average with tweight='median' (scan average)"""
         outname=self.prefix+self.postfix
@@ -1347,7 +1347,7 @@ class sdaverageold_test7(sdaverageold_avetest_base,unittest.TestCase):
         self.assertEqual(self.res,None,
                          msg='Any error occurred during time averaging')
         self._compare(outname,self.reffiles[8])
-        
+
     def test709(self):
         """Test 709: test time average with tweight='median' (no scan average)"""
         outname=self.prefix+self.postfix
@@ -1355,7 +1355,7 @@ class sdaverageold_test7(sdaverageold_avetest_base,unittest.TestCase):
         self.assertEqual(self.res,None,
                          msg='Any error occurred during time averaging')
         self._compare(outname,self.reffiles[9])
-        
+
 
 ###
 # Test mixed operation (cal+average,time+pol average,...)
@@ -1368,7 +1368,7 @@ class sdaverageold_test8(sdaverageold_avetest_base,unittest.TestCase):
        - calibration + polarization average
        - time average + polarzation average
        - channelrange parameter
-       
+
     """
     # Input and output names
     rawfile='calpsGBT.asap'
@@ -1407,7 +1407,7 @@ class sdaverageold_test8(sdaverageold_avetest_base,unittest.TestCase):
         self.assertEqual(self.res,None,
                          msg='Any error occurred during averaging')
         self._compare(outname,self.reffiles[2])
-        
+
 ###
 # Test averageall parameter
 ###
@@ -1421,7 +1421,7 @@ class sdaverageold_test9(sdaverageold_avetest_base,unittest.TestCase):
 
        - nchan = 8192, resolution = 6104.23 Hz
        - nchan = 8192, resolution = 12208.5 Hz
-       
+
     """
     # Input and output names
     rawfile='averageall.asap'
@@ -1590,7 +1590,7 @@ class sdaverageold_test_flag(sdaverageold_avetest_base,unittest.TestCase):
         refinner = {'max': 2.0, 'min': 2.0, 'sum': 4002.0}
         outstat = sdstatold(outname, spw='*:3000~5000')
         self._comp_stat(outstat, refinner)
-        outstat = sdstatold(outname, spw='*:0~2999;5001~8192')        
+        outstat = sdstatold(outname, spw='*:0~2999;5001~8192')
         self._comp_stat(outstat, refedge)
 
     def testFlag03(self):
@@ -1634,7 +1634,7 @@ class sdaverageold_test_flag(sdaverageold_avetest_base,unittest.TestCase):
         refinner = {'max': 2.0, 'min': 2.0, 'sum': 4002.0}
         outstat = sdstatold(outname, spw='*:3000~5000')
         self._comp_stat(outstat, refinner)
-        outstat = sdstatold(outname, spw='*:0~2999;5001~8192')        
+        outstat = sdstatold(outname, spw='*:0~2999;5001~8192')
         self._comp_stat(outstat, refedge)
 
 
@@ -1650,11 +1650,11 @@ class sdaverageold_avetest_selection(selection_syntax.SelectionSyntaxTest,
     ref_save = ( (5.5,), (1.5,), (3.5,), (10,0.1), (20,-0.1), (20,0.1), (30,-0.1) )
     ref_tave = ( (5.5,), (2.5,), (15,0.1), (25,-0.1) )
     ref_pave = ( (5.5,), (2.5,), (20.,) )
-    
+
     @property
     def task(self):
         return sdaverageold
-    
+
     @property
     def spw_channel_selection(self):
         return False
@@ -1916,7 +1916,7 @@ class sdaverageold_avetest_selection(selection_syntax.SelectionSyntaxTest,
         self._compare_with_polynomial(self.outname, self.refdata, ref_idx)
 
     ####################
-    # spw 
+    # spw
     ####################
     def test_spw_id_default(self):
         """test spw selection (spw='', timeaverage)"""
@@ -2050,8 +2050,8 @@ class sdaverageold_avetest_selection(selection_syntax.SelectionSyntaxTest,
             rdiff = self._get_array_relative_diff(y,yana)
             rdiff_max = max(abs(rdiff))
             self.assertTrue(rdiff_max < precision, "Maximum relative difference %f > %f" % (rdiff_max, precision))
-                
-            
+
+
     def _create_ploynomial_array(self, coeff, x):
         """ Create an array from a list of polynomial coefficients and x-array"""
         xarr = numpy.array(x)
@@ -2060,7 +2060,7 @@ class sdaverageold_avetest_selection(selection_syntax.SelectionSyntaxTest,
             ai = coeff[idim]
             yarr += ai*xarr**idim
         return yarr
-        
+
 
 class sdaverageold_smoothtest_selection(selection_syntax.SelectionSyntaxTest,
                                      sdaverageold_smoothtest_base,
@@ -2078,11 +2078,11 @@ class sdaverageold_smoothtest_selection(selection_syntax.SelectionSyntaxTest,
               {'value': 2.0, 'channel': (37,41)},
               {'value': 4.0, 'channel': (57,61)},
               {'value': 6.0, 'channel': (77,81)},)
-    
+
     @property
     def task(self):
         return sdaverageold
-    
+
     @property
     def spw_channel_selection(self):
         return False
@@ -2091,7 +2091,7 @@ class sdaverageold_smoothtest_selection(selection_syntax.SelectionSyntaxTest,
         self.res=None
         if (not os.path.exists(self.rawfile)):
             shutil.copytree(self.sddatapath+self.rawfile, self.rawfile)
-        
+
         default(sdaverageold)
         self.scanaverage = False
         self.timeaverage = False
@@ -2293,7 +2293,7 @@ class sdaverageold_smoothtest_selection(selection_syntax.SelectionSyntaxTest,
         self._compare_with_tophat(self.outname, self.refval, ref_idx)
 
     ####################
-    # spw 
+    # spw
     ####################
     def test_spw_id_default(self):
         """test spw selection (spw='', boxcar)"""
@@ -2395,7 +2395,7 @@ class sdaverageold_smoothtest_selection(selection_syntax.SelectionSyntaxTest,
             rdiff = self._get_array_relative_diff(y, yana, precision)
             rdiff_max = max(abs(rdiff))
             self.assertTrue(rdiff_max < precision, "Maximum relative difference %f > %f" % (rdiff_max, precision))
-    
+
     def _create_tophat_array(self, nchan, chanlist, valuelist):
         array_types = (tuple, list, numpy.ndarray)
         # check for inputs
@@ -2444,7 +2444,7 @@ class sdaverageold_test_weighting_tint(unittest.TestCase):
     def tearDown(self):
         if (os.path.exists(self.rawfile)):
             shutil.rmtree(self.rawfile)
-        
+
         os.system( 'rm -rf '+self.prefix+'*' )
 
     def verify(self, outfile, weight_tsys):
@@ -2476,7 +2476,7 @@ class sdaverageold_test_weighting_tint(unittest.TestCase):
         outfile = self.prefix + '_tintsys.asap'
         res = sdaverageold(infile=self.rawfile, outfile=outfile, timeaverage=True, tweight='tint')
         self.verify(outfile, weight_tsys=True)
-        
+
 ###
 # Test flag information handling
 ###
@@ -2487,7 +2487,7 @@ class sdaverageold_test_average_flag(unittest.TestCase):
     Data is sdaverageold_testflag.asap
 
     Summary of the data:
-    ROW | FLAGROW    | FLAGTRA          | SPECTRA 
+    ROW | FLAGROW    | FLAGTRA          | SPECTRA
      0  | 0          | ch 10~11 flagged | spurious at ch 10~11
      1  | 1 (flagged)| all 0            | spurious at ch 10
      2  | 0          | ch 10,40 flagged | spurious at ch 10,40
@@ -2521,7 +2521,7 @@ class sdaverageold_test_average_flag(unittest.TestCase):
     def tearDown(self):
         if (os.path.exists(self.rawfile)):
             shutil.rmtree(self.rawfile)
-        
+
         os.system( 'rm -rf '+self.prefix+'*' )
 
     def _get_data(self, filename, optional=[]):
@@ -2545,7 +2545,7 @@ class sdaverageold_test_average_flag(unittest.TestCase):
             msg = head + ': ' + msg
         #print msg
         return msg
-    
+
     def _assert_equal(self, val, ref, col, isshape=False, row=None, channel=None):
         msg = self._message_for_assert(val, ref, col, isshape, row, channel)
         self.assertEqual(val, ref, msg=msg)
@@ -2553,14 +2553,14 @@ class sdaverageold_test_average_flag(unittest.TestCase):
     def _assert_less(self, val, tol, col, isshape=False, row=None, channel=None):
         msg = self._message_for_assert(val, tol, col, isshape, row, channel, refistol=True)
         self.assertLess(val, tol, msg=msg)
-        
-    
+
+
     def _verify_shape(self, expected_nrow, expected_nchan, flagrow, flagtra, spectra):
         expected_shape = (expected_nchan,expected_nrow,)
         self._assert_equal(len(flagrow), expected_nrow, 'FLAGROW', isshape=True)
         self._assert_equal(list(flagtra.shape), list(expected_shape), 'FLAGTRA', isshape=True)
         self._assert_equal(list(spectra.shape), list(expected_shape), 'SPECTRA', isshape=True)
-       
+
     def _verify_average(self, outfile):
         # get data before averaging
         flagrow_org, flagtra_org, spectra_org, interval_org = self._get_data(self.rawfile, ['INTERVAL'])
@@ -2591,7 +2591,7 @@ class sdaverageold_test_average_flag(unittest.TestCase):
         flagtra_expected = numpy.array(list(gen_averaged_channelflag(flagrow_org, flagtra_org)))
         for ichan in range(nchan):
             self._assert_equal(flagtra_expected[ichan], flagtra[ichan], 'FLAGTRA', row=0, channel=ichan)
-        
+
         # verify SPECTRA
         def gen_averaged_spectra(rflag, chflag, data, weight):
             nchan, nrow = data.shape
@@ -2656,12 +2656,12 @@ class sdaverageold_test_average_flag(unittest.TestCase):
                 # neighbors. Tolerance is set to loose value to avoid false
                 # failue due to unexpected behavior of FFT based smoothing.
                 tol = 1.0e1
-                
+
                 sp_expected = sp_ref.copy()
                 sp_expected[:] = sp_ref[0]
                 diff = abs((sp - sp_expected) / sp_expected)
                 self._assert_less(max(diff), tol, 'SPECTRA', row=irow)
-        
+
     def _verify_regrid(self, outfile, chanwidth):
         flagrow_org, flagtra_org, spectra_org = self._get_data(self.rawfile)
         flagrow, flagtra, spectra = self._get_data(outfile)
@@ -2679,7 +2679,7 @@ class sdaverageold_test_average_flag(unittest.TestCase):
             width = int(w)
             for i in range(0, nchan, width):
                 yield 0 if any(flag[i:i+w] == 0) else 128
-                
+
         def gen_spectra(sp, flag, w):
             nchan = len(sp)
             width = int(w)
@@ -2690,7 +2690,7 @@ class sdaverageold_test_average_flag(unittest.TestCase):
                 if sumf == 0.0:
                     yield 0.0
                 else:
-                    yield sum(s * f) / sum(f) 
+                    yield sum(s * f) / sum(f)
 
         # verify
         for irow in range(nrow):
@@ -2711,7 +2711,7 @@ class sdaverageold_test_average_flag(unittest.TestCase):
                                                   flagtra_org[:,irow],
                                                   chanwidth)))
             sp = spectra[:,irow]
-            
+
             # ignore FLAG_ROW, all rows are processed
             tol = 1.0e-6
 
@@ -2748,7 +2748,7 @@ class sdaverageold_test_average_flag(unittest.TestCase):
         outfile = self.prefix + '.asap'
 
         sdaverageold(infile=self.rawfile, outfile=outfile, timeaverage=True, tweight='tint')
-        
+
         flagrow_in, flagtra_in, spectra_in, interval_in = self._get_data(self.rawfile, ['INTERVAL'])
         flagrow_out, flagtra_out, spectra_out, interval_out = self._get_data(outfile, ['INTERVAL'])
 
@@ -2774,7 +2774,7 @@ class sdaverageold_test_average_flag(unittest.TestCase):
 
         # INTERVAL must be a sum of all rows
         self.assertEqual(interval_out, interval_in.sum(), msg='INTERVAL: value differ')
-        
+
 
     def test_average_novaliddata_scan(self):
         """test_avearge_novaliddata_scan: test if the task handles the data that has several scans and one scan is fully flagged"""
@@ -2827,7 +2827,7 @@ class sdaverageold_test_average_flag(unittest.TestCase):
 
         self._verify_regrid(outfile, chanwidth)
 
-    
+
 
 def suite():
     return [sdaverageold_badinputs, sdaverageold_smoothTest, sdaverageold_storageTest,

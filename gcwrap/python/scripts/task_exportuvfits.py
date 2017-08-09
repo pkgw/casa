@@ -3,7 +3,7 @@ from taskinit import *
 
 def exportuvfits(
     vis, fitsfile, datacolumn, field, spw, antenna, time,
-    avgchan, writesyscal, multisource, combinespw, 
+    avgchan, writesyscal, multisource, combinespw,
     writestation, padwithflags, overwrite
 ):
     casalog.origin('exportuvfits')

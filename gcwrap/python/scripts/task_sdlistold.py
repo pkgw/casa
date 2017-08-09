@@ -20,4 +20,4 @@ class sdlist_worker(sdutil.sdtask_template):
     def execute(self):
         self.scan._summary(self.outfile)
 
-   
+

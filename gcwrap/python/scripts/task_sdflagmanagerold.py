@@ -12,7 +12,7 @@ def sdflagmanagerold(infile, mode, versionname, oldname, comment, merge):
         worker.initialize()
         worker.execute()
         worker.finalize()
-    
+
 
 class sdflagmanager_worker(sdutil.sdtask_template):
     def __init__(self, **kwargs):
@@ -32,7 +32,7 @@ class sdflagmanager_worker(sdutil.sdtask_template):
 
     def initialize_scan(self):
         self.scan = sd.scantable(self.infile_abs, average=False)
-        
+
         # CAS-5410 Use private tools inside task scripts
 #        fg = gentools(['fg'])[0]
 #        fg.done()

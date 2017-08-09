@@ -8,57 +8,57 @@ rcParams = matplotlib.rcParams
 from matplotlib._pylab_helpers import Gcf
 
 cursord = {
-    cursors.MOVE: "fleur",    
+    cursors.MOVE: "fleur",
     cursors.HAND: "hand2",
     cursors.POINTER: "arrow",
     cursors.SELECT_REGION: "tcross",
     }
 
-class PlotFlag:   
+class PlotFlag:
     """
-    (1) Start the internal python interpreter... 
-    and make the 'pylab' module from the main python/casapy namespace 
-    visible inside it. ( done inside TPPlotter )  Note that 'pylab' is the 
+    (1) Start the internal python interpreter...
+    and make the 'pylab' module from the main python/casapy namespace
+    visible inside it. ( done inside TPPlotter )  Note that 'pylab' is the
     only module of casapy that is visible from this internal interpreter.
-    
-    (2) figmanager = pl.get_current_fig_manager() 
-    -> This gets a handle to the current window, canvas, toolbar.
-    	
-    (3) Create the python-C++ call-back module -> PyBind. 
-        ( description in tables/implement/TablePlot/PlotterGlobals.cc )
-	
-    (3) TablePlotTkAgg.py  implements a python class called 'PlotFlag'
-        which takes an instance of 'PyBind' and 'figmanager' and makes 
-	the connection between the two.
 
-	- Additional buttons are placed in the toolbar, and their callbacks
-	  defined to call methods of PyBind.
-	- The toolbar event-loop is captured - by explicitly disconnecting
-	  previous bindings, and re-defining them for 'pan','zoom','mark-region'
-	  modes. (need to do all three, to get them to interact properly with each other)
-	- Some Canvas events are also redefined to allow mark-region boxes to
-	  automatically resize and move around, when the window is resized or
-	  when in pan or zoom modes. ( This is needed to allow flagging with
-	  zooming ).
-	 
+    (2) figmanager = pl.get_current_fig_manager()
+    -> This gets a handle to the current window, canvas, toolbar.
+
+    (3) Create the python-C++ call-back module -> PyBind.
+        ( description in tables/implement/TablePlot/PlotterGlobals.cc )
+
+    (3) TablePlotTkAgg.py  implements a python class called 'PlotFlag'
+        which takes an instance of 'PyBind' and 'figmanager' and makes
+        the connection between the two.
+
+        - Additional buttons are placed in the toolbar, and their callbacks
+          defined to call methods of PyBind.
+        - The toolbar event-loop is captured - by explicitly disconnecting
+          previous bindings, and re-defining them for 'pan','zoom','mark-region'
+          modes. (need to do all three, to get them to interact properly with each other)
+        - Some Canvas events are also redefined to allow mark-region boxes to
+          automatically resize and move around, when the window is resized or
+          when in pan or zoom modes. ( This is needed to allow flagging with
+          zooming ).
+
     (4) Back to the internal python interpreter. The following steps are carried out.
         -> figmanager = pl.get_current_fig_manager()
-	-> import PyBind
-	-> from TablePlotTkagg import PlotFlag
-	-> pf = PlotFlag( PyBind )
-	-> pf.setup_custom_features( figmanager )
+        -> import PyBind
+        -> from TablePlotTkagg import PlotFlag
+        -> pf = PlotFlag( PyBind )
+        -> pf.setup_custom_features( figmanager )
 
-	----> All binding is complete at this point.
-	----> All other logic is to ensure things like... make sure new buttons are
-	      added only when needed... make sure they *are* added when needed... and
-	      this has to keep up with the native TkAgg matplotlib backend's
-	      whimsical decisions of when to create a new figure and when not to.
-	
+        ----> All binding is complete at this point.
+        ----> All other logic is to ensure things like... make sure new buttons are
+              added only when needed... make sure they *are* added when needed... and
+              this has to keep up with the native TkAgg matplotlib backend's
+              whimsical decisions of when to create a new figure and when not to.
+
     """
     def __init__(self,PyBind):
         #print "Init PlotFlag"
-	self.PyBind = PyBind;
-	self.newtoolbar = True;
+        self.PyBind = PyBind;
+        self.newtoolbar = True;
         self.quitted = False;
 
     def sub(self):
@@ -69,173 +69,173 @@ class PlotFlag:
     def setup_custom_features(self,cfigman):
         if (rcParams['backend'].lower() == 'agg'):
             return
-	self.toolbar = cfigman.toolbar;
+        self.toolbar = cfigman.toolbar;
         self.canvas = self.toolbar.canvas;
-	self.window = cfigman.window;
-	self.figmanager = cfigman;
+        self.window = cfigman.window;
+        self.figmanager = cfigman;
         self.figmanager.window.wm_title("CASA Plotter");
         self.figmanager.window.protocol("WM_DELETE_WINDOW", self.sub);
-	
-	if self.newtoolbar is True:
-		# Add new buttons
-		self.add_buttons();
-		
-		# Reconfigure buttons.
-		self.configure_buttons();
 
-		self.newtoolbar = False;
+        if self.newtoolbar is True:
+                # Add new buttons
+                self.add_buttons();
 
-	# Toolbar parameters
-	self.panel=0;
+                # Reconfigure buttons.
+                self.configure_buttons();
+
+                self.newtoolbar = False;
+
+        # Toolbar parameters
+        self.panel=0;
         self.rows=0;
         self.cols=0;
-	
-	# Canvas parameters
-	self.regionlist=[];
-	self.panelregionlist=[];
-	self.axeslist=[];
+
+        # Canvas parameters
+        self.regionlist=[];
+        self.panelregionlist=[];
+        self.axeslist=[];
         self.erase_rects();
 
-	# Re-Make event bindings
+        # Re-Make event bindings
         self.canvas.keyvald.update({65307 : 'escape'});
-	self.canvas.mpl_disconnect(self.toolbar._idDrag)
-	self.toolbar._idDrag=self.canvas.mpl_connect('motion_notify_event', self.mouse_move)
-	self.canvas._tkcanvas.bind("<KeyRelease>", self.key_release);
-	self.canvas._tkcanvas.bind("<Configure>", self.resize);
+        self.canvas.mpl_disconnect(self.toolbar._idDrag)
+        self.toolbar._idDrag=self.canvas.mpl_connect('motion_notify_event', self.mouse_move)
+        self.canvas._tkcanvas.bind("<KeyRelease>", self.key_release);
+        self.canvas._tkcanvas.bind("<Configure>", self.resize);
         self.canvas._tkcanvas.bind("<Destroy>", self.destroy);
         #self.window.bind("<Destroy>", self.destroy);
 
 
     def plotflag_cleanup(self):
-	self.canvas._tkcanvas.bind("<Destroy>", None);
+        self.canvas._tkcanvas.bind("<Destroy>", None);
 
     def set_cursor(self, cursor):
         self.toolbar.set_cursor(cursor);
         #self.toolbar.window.configure(cursor=cursord[cursor]);
 
     def _NewButton(self, frame, text, file, command, side=Tk.LEFT):
-	#file = os.path.join(rcParams['datapath'], 'images', file)
-	#file = '/opt/casa/stable/darwin/python/2.5' + file;
-	#im = Tk.PhotoImage(master=frame, file=file)
+        #file = os.path.join(rcParams['datapath'], 'images', file)
+        #file = '/opt/casa/stable/darwin/python/2.5' + file;
+        #im = Tk.PhotoImage(master=frame, file=file)
         if(os.uname()[0] == 'Darwin'):
                 b = Tk.Button(master=frame, text=text, command=command)
         else:
                 b = Tk.Button(master=frame, text=text, padx=2, pady=2, command=command)
-	#master=frame, text=text, padx=2, pady=2, image=im, command=command)
-	#b._ntimage = im
-	b.pack(side=side)
+        #master=frame, text=text, padx=2, pady=2, image=im, command=command)
+        #b._ntimage = im
+        b.pack(side=side)
         return b
 
     def add_buttons(self):
-	#self.newframe = Tk.Frame()
-	self.newframe = Tk.Frame(master=self.window)
-	bside = Tk.LEFT;
-        self.toolbar.bMarkRegion = self._NewButton( frame=self.newframe, 
-                                            text="Mark Region", 
-				            file="markregion.ppm",
-					    #file="markregion2.ppm",
-					    command=self.markregion,
-					    side=bside)
-	self.toolbar.bFlag = self._NewButton(frame=self.newframe,
-			             text="Flag", 
-				     file="flag4.ppm",
-				     command=None,
-				     side=bside)
-	
-	self.toolbar.bUnflag = self._NewButton(frame=self.newframe,
-	                               text="Unflag", 
-				       file="unflag4.ppm",
-				       command=None,
-				       side=bside)
-	
-	self.toolbar.bLocate = self._NewButton(frame=self.newframe,
-	                               text="Locate", 
-				       file="locate4.ppm",
-				       command=None,
-				       side=bside)
-	
-	self.toolbar.bIterNext = self._NewButton(frame=self.newframe,
-	                               text=" Next ", 
-				       file="locate4.ppm",
-				       command=None,
-				       side=bside)
-	
+        #self.newframe = Tk.Frame()
+        self.newframe = Tk.Frame(master=self.window)
+        bside = Tk.LEFT;
+        self.toolbar.bMarkRegion = self._NewButton( frame=self.newframe,
+                                            text="Mark Region",
+                                            file="markregion.ppm",
+                                            #file="markregion2.ppm",
+                                            command=self.markregion,
+                                            side=bside)
+        self.toolbar.bFlag = self._NewButton(frame=self.newframe,
+                                     text="Flag",
+                                     file="flag4.ppm",
+                                     command=None,
+                                     side=bside)
+
+        self.toolbar.bUnflag = self._NewButton(frame=self.newframe,
+                                       text="Unflag",
+                                       file="unflag4.ppm",
+                                       command=None,
+                                       side=bside)
+
+        self.toolbar.bLocate = self._NewButton(frame=self.newframe,
+                                       text="Locate",
+                                       file="locate4.ppm",
+                                       command=None,
+                                       side=bside)
+
+        self.toolbar.bIterNext = self._NewButton(frame=self.newframe,
+                                       text=" Next ",
+                                       file="locate4.ppm",
+                                       command=None,
+                                       side=bside)
+
         self.toolbar.bClear =None;
         #self.toolbar.bClear = self._NewButton(frame=self.newframe,
-        #                               text=" Clear ", 
-        #			       file="locate4.ppm",
-        #			       command=None,
-        #			       side=bside)
-	
-	self.toolbar.bQuit = self._NewButton(frame=self.newframe,
-	                               text=" Quit ", 
-				       file="locate4.ppm",
-				       command=None,
-				       side=bside)
-	self.toolbar.bMarkRegion.config(background='lightblue');
-	self.toolbar.bFlag.config(background='lightblue');
-	self.toolbar.bUnflag.config(background='lightblue');
-	self.toolbar.bLocate.config(background='lightblue');
-	self.toolbar.bIterNext.config(background='lightblue',state='disabled');
-        #self.toolbar.bClear.config(background='lightblue');
-	self.toolbar.bQuit.config(background='lightblue');
+        #                               text=" Clear ",
+        #                              file="locate4.ppm",
+        #                              command=None,
+        #                              side=bside)
 
-	self.newframe.pack(side=Tk.BOTTOM,fill=Tk.BOTH);
+        self.toolbar.bQuit = self._NewButton(frame=self.newframe,
+                                       text=" Quit ",
+                                       file="locate4.ppm",
+                                       command=None,
+                                       side=bside)
+        self.toolbar.bMarkRegion.config(background='lightblue');
+        self.toolbar.bFlag.config(background='lightblue');
+        self.toolbar.bUnflag.config(background='lightblue');
+        self.toolbar.bLocate.config(background='lightblue');
+        self.toolbar.bIterNext.config(background='lightblue',state='disabled');
+        #self.toolbar.bClear.config(background='lightblue');
+        self.toolbar.bQuit.config(background='lightblue');
+
+        self.newframe.pack(side=Tk.BOTTOM,fill=Tk.BOTH);
         #self.newframe.pack_propagate();
 
     def configure_buttons(self):
-	self.toolbar.bHome.config(command=self.home);
-	self.toolbar.bForward.config(command=self.forward);
-	self.toolbar.bBack.config(command=self.back);
-	self.toolbar.bsubplot.config(command=self.configure_subplots);
-	self.toolbar.bPan.config(command=self.pan);
-	self.toolbar.bZoom.config(command=self.zoom);
-	self.toolbar.bMarkRegion.config(command=self.markregion);
-	self.toolbar.bFlag.config(command=self.flag);
-	self.toolbar.bUnflag.config(command=self.unflag);
-	self.toolbar.bLocate.config(command=self.locate);
-	self.toolbar.bIterNext.config(command=self.iterplotnext);
+        self.toolbar.bHome.config(command=self.home);
+        self.toolbar.bForward.config(command=self.forward);
+        self.toolbar.bBack.config(command=self.back);
+        self.toolbar.bsubplot.config(command=self.configure_subplots);
+        self.toolbar.bPan.config(command=self.pan);
+        self.toolbar.bZoom.config(command=self.zoom);
+        self.toolbar.bMarkRegion.config(command=self.markregion);
+        self.toolbar.bFlag.config(command=self.flag);
+        self.toolbar.bUnflag.config(command=self.unflag);
+        self.toolbar.bLocate.config(command=self.locate);
+        self.toolbar.bIterNext.config(command=self.iterplotnext);
         #self.toolbar.bClear.config(command=self.clearplot);
-	self.toolbar.bQuit.config(command=self.quit);
-	#self.toolbar.bIterstop.config(command=self.iterplotstop);
+        self.toolbar.bQuit.config(command=self.quit);
+        #self.toolbar.bIterstop.config(command=self.iterplotstop);
         ### comment the next line when Wes updates matplotlib.
         #self.toolbar.bsave.config(command=self.savefig);
 
     def flag(self, *args):
-	self.operate(1);
+        self.operate(1);
 
     def unflag(self, *args):
-	self.operate(0);
+        self.operate(0);
 
     def locate(self, *args):
-	self.operate(2);
+        self.operate(2);
 
     def operate(self, flag=1):
-	#print '** Record the following regions'
-	#for pr in self.canvas.panelregionlist:
-		#print 'Region on panel [%(r)d,%(c)d,%(p)d] : [%(t1).3f, %(t2).3f, %(t3).3f, %(t4).3f] '%{'r':pr[5],'c':pr[6], 'p':pr[4],'t1':pr[0],'t2':pr[2], 't3':pr[1], 't4':pr[3]};
-	self.PyBind.markregion(self.panelregionlist);
+        #print '** Record the following regions'
+        #for pr in self.canvas.panelregionlist:
+                #print 'Region on panel [%(r)d,%(c)d,%(p)d] : [%(t1).3f, %(t2).3f, %(t3).3f, %(t4).3f] '%{'r':pr[5],'c':pr[6], 'p':pr[4],'t1':pr[0],'t2':pr[2], 't3':pr[1], 't4':pr[3]};
+        self.PyBind.markregion(self.panelregionlist);
         self.erase_rects();
-	if( flag is 1 ):
-		#print "**Flag !!";
-		self.PyBind.flagdata();
-	if( flag is 0 ):
-		#print "**UnFlag !!";
-		self.PyBind.unflagdata();
-	if( flag is 2 ):
-		#print "**Locate !!";
-		self.PyBind.locatedata();
+        if( flag is 1 ):
+                #print "**Flag !!";
+                self.PyBind.flagdata();
+        if( flag is 0 ):
+                #print "**UnFlag !!";
+                self.PyBind.unflagdata();
+        if( flag is 2 ):
+                #print "**Locate !!";
+                self.PyBind.locatedata();
 
     def iterplotnext(self, *args):
-	self.PyBind.iterplotnext();
+        self.PyBind.iterplotnext();
 
     def iterplotstop(self, *args):
-	self.PyBind.iterplotstop();
+        self.PyBind.iterplotstop();
 
     def clearplot(self, *args):
-	#print 'Gui::calling clearplot'
-	self.PyBind.clearplot();
-	#print 'Gui::finished clearplot'
+        #print 'Gui::calling clearplot'
+        self.PyBind.clearplot();
+        #print 'Gui::finished clearplot'
 
     def savefig(self, *args):
         import time;
@@ -246,86 +246,86 @@ class PlotFlag:
     def enable_iter_button(self):
         if (rcParams['backend'].lower() == 'agg'):
             return
-	if( self.toolbar.bIterNext is not None ):
-		self.toolbar.bIterNext.config(state='normal');
+        if( self.toolbar.bIterNext is not None ):
+                self.toolbar.bIterNext.config(state='normal');
 
     def disable_iter_button(self):
         if (rcParams['backend'].lower() == 'agg'):
             return
-	if( self.toolbar.bIterNext is not None ):
-		self.toolbar.bIterNext.config(state='disabled');
+        if( self.toolbar.bIterNext is not None ):
+                self.toolbar.bIterNext.config(state='disabled');
 
     def enable_markregion_button(self):
         if (rcParams['backend'].lower() == 'agg'):
             return
-	if( self.toolbar.bMarkRegion is not None ):
-		self.toolbar.bMarkRegion.config(state='normal');
+        if( self.toolbar.bMarkRegion is not None ):
+                self.toolbar.bMarkRegion.config(state='normal');
 
     def disable_markregion_button(self):
         if (rcParams['backend'].lower() == 'agg'):
             return
-	if( self.toolbar.bMarkRegion is not None ):
-		self.toolbar.bMarkRegion.config(state='disabled');
+        if( self.toolbar.bMarkRegion is not None ):
+                self.toolbar.bMarkRegion.config(state='disabled');
 
     def enable_flag_button(self):
         if (rcParams['backend'].lower() == 'agg'):
             return
-	if( self.toolbar.bFlag is not None ):
-		self.toolbar.bFlag.config(state='normal');
+        if( self.toolbar.bFlag is not None ):
+                self.toolbar.bFlag.config(state='normal');
 
     def disable_flag_button(self):
         if (rcParams['backend'].lower() == 'agg'):
             return
-	if( self.toolbar.bFlag is not None ):
-		self.toolbar.bFlag.config(state='disabled');
+        if( self.toolbar.bFlag is not None ):
+                self.toolbar.bFlag.config(state='disabled');
 
     def enable_unflag_button(self):
         if (rcParams['backend'].lower() == 'agg'):
             return
-	if( self.toolbar.bUnflag is not None ):
-		self.toolbar.bUnflag.config(state='normal');
+        if( self.toolbar.bUnflag is not None ):
+                self.toolbar.bUnflag.config(state='normal');
 
     def disable_unflag_button(self):
         if (rcParams['backend'].lower() == 'agg'):
             return
-	if( self.toolbar.bUnflag is not None ):
-		self.toolbar.bUnflag.config(state='disabled');
+        if( self.toolbar.bUnflag is not None ):
+                self.toolbar.bUnflag.config(state='disabled');
 
     def enable_locate_button(self):
         if (rcParams['backend'].lower() == 'agg'):
             return
-	if( self.toolbar.bLocate is not None ):
-		self.toolbar.bLocate.config(state='normal');
+        if( self.toolbar.bLocate is not None ):
+                self.toolbar.bLocate.config(state='normal');
 
     def disable_locate_button(self):
         if (rcParams['backend'].lower() == 'agg'):
             return
-	if( self.toolbar.bLocate is not None ):
-		self.toolbar.bLocate.config(state='disabled');
+        if( self.toolbar.bLocate is not None ):
+                self.toolbar.bLocate.config(state='disabled');
 
     def enable_clear_button(self):
         if (rcParams['backend'].lower() == 'agg'):
             return
-	if( self.toolbar.bClear is not None ):
-		self.toolbar.bClear.config(state='normal');
+        if( self.toolbar.bClear is not None ):
+                self.toolbar.bClear.config(state='normal');
 
     def disable_clear_button(self):
         if (rcParams['backend'].lower() == 'agg'):
             return
-	if( self.toolbar.bClear is not None ):
-		self.toolbar.bClear.config(state='disabled');
+        if( self.toolbar.bClear is not None ):
+                self.toolbar.bClear.config(state='disabled');
 
     def enable_quit_button(self):
         if (rcParams['backend'].lower() == 'agg'):
             return
-	if( self.toolbar.bQuit is not None ):
-		self.toolbar.bQuit.config(state='normal');
+        if( self.toolbar.bQuit is not None ):
+                self.toolbar.bQuit.config(state='normal');
 
     def disable_quit_button(self):
         if (rcParams['backend'].lower() == 'agg'):
             return
-	if( self.toolbar.bQuit is not None ):
-		self.toolbar.bQuit.config(state='disabled');
+        if( self.toolbar.bQuit is not None ):
+                self.toolbar.bQuit.config(state='disabled');
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
         if (rcParams['backend'].lower() == 'agg'):
@@ -343,8 +343,8 @@ class PlotFlag:
 
 
     def draw_rect(self, x0, y0, x1, y1, x0data, y0data, x1data, y1data,a,panel,rows,cols):
-       	self.panelregionlist.append([x0data,y0data,x1data,y1data,panel+1,rows,cols]);
-	self.axeslist.append(a);
+        self.panelregionlist.append([x0data,y0data,x1data,y1data,panel+1,rows,cols]);
+        self.axeslist.append(a);
         ### workaround for matplotlib API changes
         #height = self.canvas.figure.bbox.height()  #0.91.4
         #height = self.canvas.figure.bbox.height    #>=0.98
@@ -361,21 +361,21 @@ class PlotFlag:
         #print "erase rects"
         if (rcParams['backend'].lower() == 'agg'):
             return
-	for q in self.regionlist:
-	  self.canvas._tkcanvas.delete(q);
-	self.regionlist = [];
-	self.panelregionlist = [];
-	self.axeslist = [];
+        for q in self.regionlist:
+          self.canvas._tkcanvas.delete(q);
+        self.regionlist = [];
+        self.panelregionlist = [];
+        self.axeslist = [];
 
 
     def redraw_rects(self):
-	for q in self.regionlist:
-	  self.canvas._tkcanvas.delete(q);
-	self.regionlist = [];
-	
-	for z in range(0,len(self.panelregionlist)):
-	  q = self.panelregionlist[z];
-	  a = self.axeslist[z];
+        for q in self.regionlist:
+          self.canvas._tkcanvas.delete(q);
+        self.regionlist = [];
+
+        for z in range(0,len(self.panelregionlist)):
+          q = self.panelregionlist[z];
+          a = self.axeslist[z];
           x0=q[0]; y0=q[1]; x1=q[2]; y1=q[3];
           # map to new zoom limits (current fig co-ords)
           ### workaround for matplotlib API changes
@@ -391,18 +391,18 @@ class PlotFlag:
           #height = self.canvas.figure.bbox.height()   #0.91
           #height = self.canvas.figure.bbox.height     #>=0.98
           height = self.get_bbox_size(self.canvas.figure.bbox,"height") #workaround
-  	  py0 =  height-py0
-  	  py1 =  height-py1
+          py0 =  height-py0
+          py1 =  height-py1
           if(os.uname()[0] == 'Darwin'):
                rect = self.canvas._tkcanvas.create_rectangle(px0, py0, px1, py1, width=2,outline='black')
           else:
                rect = self.canvas._tkcanvas.create_rectangle(px0, py0, px1, py1, width=2,fill='black',stipple='gray50',outline='black')
-	  self.regionlist.append(rect);
+          self.regionlist.append(rect);
 
     def resize(self, event):
-	#print 'canvas resize'
-	self.canvas.resize(event);
-	self.redraw_rects();
+        #print 'canvas resize'
+        self.canvas.resize(event);
+        self.redraw_rects();
 
     def destroy(self,*args):
         #print 'Gui::destroy.'
@@ -421,45 +421,45 @@ class PlotFlag:
         self.PyBind.quit(closewin);
 
     def key_release(self, event):
-	#print 'key release'
-	self.canvas.key_release(event);
+        #print 'key release'
+        self.canvas.key_release(event);
         key = self.canvas._get_key(event);
-	if(key=='escape'):
-		numreg = len(self.regionlist);
-		if(numreg>0):
-			self.canvas._tkcanvas.delete(self.regionlist[numreg-1]);
-			self.regionlist.pop();
-			self.panelregionlist.pop();
-			self.axeslist.pop();
+        if(key=='escape'):
+                numreg = len(self.regionlist);
+                if(numreg>0):
+                        self.canvas._tkcanvas.delete(self.regionlist[numreg-1]);
+                        self.regionlist.pop();
+                        self.panelregionlist.pop();
+                        self.axeslist.pop();
 
 
     def home(self, *args):
         'restore the original view'
         if (rcParams['backend'].lower() == 'agg'):
             return
-	self.toolbar.home();
-	self.redraw_rects();
+        self.toolbar.home();
+        self.redraw_rects();
 
     def back(self, *args):
         'move back up the view lim stack'
         if (rcParams['backend'].lower() == 'agg'):
             return
-	self.toolbar.back();
-	self.redraw_rects();
+        self.toolbar.back();
+        self.redraw_rects();
 
     def forward(self, *args):
         'move forward in the view lim stack'
         if (rcParams['backend'].lower() == 'agg'):
             return
-	self.toolbar.forward();
-	self.redraw_rects();
+        self.toolbar.forward();
+        self.redraw_rects();
 
     def configure_subplots(self):
-	'configure subplots'
+        'configure subplots'
         if (rcParams['backend'].lower() == 'agg'):
             return
-	self.toolbar.configure_subplots();
-	self.redraw_rects();
+        self.toolbar.configure_subplots();
+        self.redraw_rects();
 
 
     def markregion(self, *args):
@@ -467,13 +467,13 @@ class PlotFlag:
         if (rcParams['backend'].lower() == 'agg'):
             return
         if self.toolbar._active == 'MARKREGION':
-	    #self.toolbar._active = None
+            #self.toolbar._active = None
             self.erase_rects();
-	    self.update_relief(newmode=None);
+            self.update_relief(newmode=None);
         else:
-	    #self.toolbar._active = 'MARKREGION'
-	    self.update_relief(newmode='MARKREGION');
-	    
+            #self.toolbar._active = 'MARKREGION'
+            self.update_relief(newmode='MARKREGION');
+
 
         if self.toolbar._idPress is not None:
             self.toolbar._idPress=self.canvas.mpl_disconnect(self.toolbar._idPress)
@@ -506,9 +506,9 @@ class PlotFlag:
             self.toolbar._button_pressed=3
         else:
             self.toolbar._button_pressed=None
-	    return
-	
-	# Check that the click is inside the canvas.
+            return
+
+        # Check that the click is inside the canvas.
 
         x, y = event.x, event.y
 
@@ -526,10 +526,10 @@ class PlotFlag:
                 #self.toolbar._xypress.append(( x, y, a, i, lim, a.transData.deepcopy() ))  #0.91.4
                 #self.toolbar._xypress.append(( x, y, a, i, lim, a.transData.frozen() ))    #>=0.98
                 self.toolbar._xypress.append(( x, y, a, i, lim, self.copy_trans(a.transData)))  #workaround
-		one, two, three = event.inaxes.get_geometry()
-		self.panel = three-1
-		self.rows = one
-		self.cols = two
+                one, two, three = event.inaxes.get_geometry()
+                self.panel = three-1
+                self.rows = one
+                self.cols = two
 
         self.toolbar.press(event)
 
@@ -586,11 +586,11 @@ class PlotFlag:
         #px2,py2 = a.transData.xy_tup( (xmax, ymax) )     #0.91.4
         #px2,py2 = a.transData.transform( (xmax, ymax) )  #>=0.98
         px2,py2 = self.get_xy(a.transData, (xmax, ymax) ) #workaround
-	    
-	self.draw_rect(px1, py1, px2, py2, xmin, ymin, xmax, ymax, a, self.panel, self.rows, self.cols)
+
+        self.draw_rect(px1, py1, px2, py2, xmin, ymin, xmax, ymax, a, self.panel, self.rows, self.cols)
         #print 'Region on panel [%(r)d,%(c)d,%(p)d] : [%(t1).3f, %(t2).3f, %(t3).3f, %(t4).3f] '%{'r':self.rows,'c':self.cols, 'p':self.panel+1,'t1':xmin,'t2':xmax, 't3':ymin, 't4':ymax};
-        
-                
+
+
         #self.toolbar.draw()
         self.toolbar._xypress = None
         self.toolbar._button_pressed = None
@@ -604,11 +604,11 @@ class PlotFlag:
         if (rcParams['backend'].lower() == 'agg'):
             return
         if self.toolbar._active == 'ZOOM':
-	    #self.toolbar._active = None
-	    self.update_relief(newmode=None);
+            #self.toolbar._active = None
+            self.update_relief(newmode=None);
         else:
-	    #self.toolbar._active = 'ZOOM'
-	    self.update_relief(newmode='ZOOM');
+            #self.toolbar._active = 'ZOOM'
+            self.update_relief(newmode='ZOOM');
 
         if self.toolbar._idPress is not None:
             self.toolbar._idPress=self.canvas.mpl_disconnect(self.toolbar._idPress)
@@ -740,7 +740,7 @@ class PlotFlag:
                 a.set_ylim((y1, y2))
 
         self.toolbar.draw()
-	self.redraw_rects();
+        self.redraw_rects();
         self.toolbar._xypress = None
         self.toolbar._button_pressed = None
 
@@ -756,11 +756,11 @@ class PlotFlag:
             return
 
         if self.toolbar._active == 'PAN':
-	    #self.toolbar._active = None
-	    self.update_relief(newmode=None);
+            #self.toolbar._active = None
+            self.update_relief(newmode=None);
         else:
-	    #self.toolbar._active = 'PAN'
-	    self.update_relief(newmode='PAN');
+            #self.toolbar._active = 'PAN'
+            self.update_relief(newmode='PAN');
 
         if self.toolbar._idPress is not None:
             self.toolbar._idPress = self.canvas.mpl_disconnect(self.toolbar._idPress)
@@ -833,7 +833,7 @@ class PlotFlag:
         self.toolbar.push_current()
         self.toolbar.release(event)
         self.toolbar.draw()
-	self.redraw_rects();
+        self.redraw_rects();
 
 
     def drag_pan(self, event):
@@ -936,7 +936,7 @@ class PlotFlag:
                     return
             a.set_xlim(xmin, xmax)
             a.set_ylim(ymin, ymax)
-	    self.redraw_rects();
+            self.redraw_rects();
 
         self.toolbar.dynamic_update()
 
@@ -992,20 +992,20 @@ class PlotFlag:
         if (rcParams['backend'].lower() == 'agg'):
             return
         if self.toolbar._active == 'ZOOM':
-	    self.toolbar.bZoom.config(relief='raised');
+            self.toolbar.bZoom.config(relief='raised');
         if self.toolbar._active == 'PAN':
-	    self.toolbar.bPan.config(relief='raised');
+            self.toolbar.bPan.config(relief='raised');
         if self.toolbar._active == 'MARKREGION':
-	    self.toolbar.bMarkRegion.config(relief='raised');
-         
-	self.toolbar._active = newmode;
+            self.toolbar.bMarkRegion.config(relief='raised');
+
+        self.toolbar._active = newmode;
 
         if self.toolbar._active == 'ZOOM':
-	    self.toolbar.bZoom.config(relief='sunken');
+            self.toolbar.bZoom.config(relief='sunken');
         if self.toolbar._active == 'PAN':
-	    self.toolbar.bPan.config(relief='sunken');
+            self.toolbar.bPan.config(relief='sunken');
         if self.toolbar._active == 'MARKREGION':
-	    self.toolbar.bMarkRegion.config(relief='sunken');
+            self.toolbar.bMarkRegion.config(relief='sunken');
 
 
     #### Workarounds for Matplotlib version handling (ugly) ####
@@ -1025,9 +1025,9 @@ class PlotFlag:
         (x,y) = xxx_todo_changeme1
         return self.switch_func(trans,["xy_tup","transform"],(x,y))
 
-    def copy_trans(self,trans): 
+    def copy_trans(self,trans):
         return self.switch_func(trans,["deepcopy","frozen"])
-        
+
     def get_bbox_size(self,obj,func=""):
         return self.get_called_or_attr(obj,func)
 
@@ -1044,7 +1044,7 @@ class PlotFlag:
     def get_called_or_attr(self,obj,func="",*args,**kwargs):
         """
         Returns a result from function call if it's callable.
-        If not callable, returns the attribute or False (non-existent). 
+        If not callable, returns the attribute or False (non-existent).
         """
         #if not hasattr(obj,func): return False
         #else: called=getattr(obj,func)
@@ -1053,5 +1053,5 @@ class PlotFlag:
         except: return None
         if callable(called): return called(*args,**kwargs)
         else: return called
-        
-        
+
+

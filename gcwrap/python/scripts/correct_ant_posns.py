@@ -2,7 +2,7 @@ import urllib.request, urllib.error, urllib.parse
 import datetime
 import re
 from taskinit import *
-# for getting a single tool in gentools 
+# for getting a single tool in gentools
 (tb,)=gentools(['tb'])
 
 def correct_ant_posns (vis_name, print_offsets=False):
@@ -16,8 +16,8 @@ def correct_ant_posns (vis_name, print_offsets=False):
     runs silently.
 
     A list is returned where the first element is the returned error
-    code, the second element is a string of the antennas, and the 
-    third element is a list of antenna Bx,By,Bz offsets.  An example 
+    code, the second element is a string of the antennas, and the
+    third element is a list of antenna Bx,By,Bz offsets.  An example
     return list might look like:
     [ 0, 'ea01,ea19', [0.0184, -0.0065, 0.005, 0.0365, -0.0435, 0.0543] ]
 
@@ -64,8 +64,8 @@ def correct_ant_posns (vis_name, print_offsets=False):
       else:
           #send to casalogger
           casalog.post('Currently only work for EVLA observations',"WARN")
-      return [1, '', []] 
-    
+      return [1, '', []]
+
     time_range = tb.getcol('TIME_RANGE')
     tb.close()
     MJD_start_time = time_range[0][0] / 86400
@@ -173,7 +173,7 @@ def correct_ant_posns (vis_name, print_offsets=False):
                 ant_ind = ii
                 break
         if ((ant_ind == -1) or (ant_num_sta[6])):
-# the antenna in this correction isn't in the observation, or is done, 
+# the antenna in this correction isn't in the observation, or is done,
 # so skip it
             pass
         ant_num_sta = ant_num_stas[ant_ind]

@@ -28,7 +28,7 @@ class sdflag_worker(sdutil.sdtask_template):
 
     def parameter_check(self):
         # by default, the task overwrite infile
-        if len(self.outfile)==0: 
+        if len(self.outfile)==0:
             self.project = self.infile
         else:
             self.project = self.outfile
@@ -36,7 +36,7 @@ class sdflag_worker(sdutil.sdtask_template):
         sdutil.assert_outfile_canoverwrite_or_nonexistent(self.project,
                                                           self.outform,
                                                           self.overwrite)
-        
+
         #check the format of the infile
         filename = sdutil.get_abspath(self.infile)
         if isinstance(self.infile, str):
@@ -48,7 +48,7 @@ class sdflag_worker(sdutil.sdtask_template):
                 informat = 'SDFITS'
         else:
             informat = 'UNDEFINED'
-                
+
         # Check the formats of infile and outfile are identical when overwrite=True.
         # (CAS-3096). If not, print warning message and exit.
         outformat = self.outform.upper()
@@ -70,7 +70,7 @@ class sdflag_worker(sdutil.sdtask_template):
 
         # check whether any flag operation is done or not
         self.anyflag = False
-        
+
     def initialize_scan(self):
         sorg = sd.scantable(self.infile,average=False,antenna=self.antenna)
 
@@ -91,7 +91,7 @@ class sdflag_worker(sdutil.sdtask_template):
         if len(self.rasterrow) > 0:
             selector = self.select_by_raster(selector)
         self.scan.set_selection(selector)
-        
+
     def execute(self):
         self.set_to_scan()
         # backup spec unit
@@ -175,7 +175,7 @@ class sdflag_worker(sdutil.sdtask_template):
                 self.rowlist = list(range(self.scan.nrow()))
             else:
                 self.rowlist = self.scan.parse_idx_selection('row',self.row)
-            
+
             self.do_row_flag()
         self.anyflag = True
 
@@ -189,7 +189,7 @@ class sdflag_worker(sdutil.sdtask_template):
             val = getattr(sel,'get_%ss'%(key))()
             params['%ss'%(key)] = val if len(val)>0 else list(getattr(self.scan,'get%snos'%(key))())
         #print "input parameters:\n", params
-        self.scan._add_history( "sdflagold", params ) 
+        self.scan._add_history( "sdflagold", params )
 
     def do_clip(self):
         casalog.post('Number of spectra to be flagged: %d\nApplying clipping...'%(self.scan.nrow()))
@@ -282,7 +282,7 @@ class sdflag_worker(sdutil.sdtask_template):
 
             labels = ['spec','flag','prev']
         self.myp.release()
-        
+
         #Apply flag
         if self.plotlevel > 0 and sd.rcParams['plotter.gui']:
             ans=input("Apply %s (y/N)?: " % ('unflag' if self.unflag else 'flag'))
@@ -292,7 +292,7 @@ class sdflag_worker(sdutil.sdtask_template):
 
         # update self.docmdflag
         self.docmdflag = (ans.upper() == 'Y')
-    
+
     def posterior_plot(self):
         #Plot the result
         #print "Showing only the first spectrum..."
@@ -312,7 +312,7 @@ class sdflag_worker(sdutil.sdtask_template):
             pltfile=self.project+'_flag.eps'
             self.myp.save(pltfile)
         self.myp.release()
-    
+
     def __init_plotter(self):
         colormap = ["green","red","#dddddd","#777777"]
         self.myp = sdutil.get_plotter(self.plotlevel)

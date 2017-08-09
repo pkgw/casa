@@ -43,20 +43,20 @@
 #
 # <synopsis>
 # Test the method ia.deconvolvecomponentlist().
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_deconvolvecomponentlist[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the method ia.deconvolvecomponentlist() to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -74,15 +74,15 @@ def _near(got, exp, tol):
     return qa.abs(qa.div(qa.sub(qgot, qexp), qexp))["value"] < tol
 
 class ia_deconvolvecomponentlist_test(unittest.TestCase):
-    
+
     def setUp(self):
         self.ia = iatool()
         self.cl = cltool()
-    
+
     def tearDown(self):
         self.ia.done()
         self.cl.done()
-    
+
     def test_multibeams(self):
         """ ia.deconvolvecomponentlist(): Test multi beams"""
         myia = self.ia
@@ -91,7 +91,7 @@ class ia_deconvolvecomponentlist_test(unittest.TestCase):
             flux=1, dir=["J2000", "2h0m0s", "40d0m0s"], shape="gauss",
             majoraxis="4arcsec", minoraxis="3arcsec", positionangle="20deg"
         )
-        
+
         myia.fromshape("", [2, 2, 2])
         mycs = myia.coordsys()
         mycs.setunits(["deg","deg",""])
@@ -131,6 +131,6 @@ class ia_deconvolvecomponentlist_test(unittest.TestCase):
             self.assertTrue(_near(shape["minoraxis"], emin[i], tol))
             print("*** pa " + str(shape["positionangle"]))
             self.assertTrue(_near(shape["positionangle"], epa[i], tol))
-        
+
 def suite():
     return [ia_deconvolvecomponentlist_test]

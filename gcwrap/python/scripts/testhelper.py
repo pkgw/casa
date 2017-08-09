@@ -14,10 +14,10 @@ import math
 A set of common helper functions for unit tests:
    compTables - compare two CASA tables
    compVarColTables - Compare a variable column of two tables
-   DictDiffer - a class with methods to take a difference of two 
+   DictDiffer - a class with methods to take a difference of two
                 Python dictionaries
-   verify_ms - Function to verify spw and channels information in an MS   
-   create_input - Save the string in a text file with the given name           
+   verify_ms - Function to verify spw and channels information in an MS
+   create_input - Save the string in a text file with the given name
 '''
 
 def phasediffabsdeg(c1, c2):
@@ -39,7 +39,7 @@ def compTables(referencetab, testtab, excludecols, tolerance=0.001, mode="percen
 
     """
     compTables - compare two CASA tables
-    
+
        referencetab - the table which is assumed to be correct
 
        testtab - the table which is to be compared to referencetab
@@ -48,7 +48,7 @@ def compTables(referencetab, testtab, excludecols, tolerance=0.001, mode="percen
 
        tolerance - permitted fractional difference (default 0.001 = 0.1 percent)
 
-       mode - comparison is made as "percentage", "absolute", "phaseabsdeg" (for complex numbers = difference of the phases in degrees)  
+       mode - comparison is made as "percentage", "absolute", "phaseabsdeg" (for complex numbers = difference of the phases in degrees)
     """
 
     rval = True
@@ -64,9 +64,9 @@ def compTables(referencetab, testtab, excludecols, tolerance=0.001, mode="percen
         for c in cnames:
             if c in excludecols:
                 continue
-            
-            print("\nTesting column " + c) 
-            
+
+            print("\nTesting column " + c)
+
             a = 0
             try:
                 a = tb.getcol(c,startrow=startrow,nrow=nrow,rowincr=rowincr)
@@ -127,7 +127,7 @@ def compTables(referencetab, testtab, excludecols, tolerance=0.001, mode="percen
                                 print("Row=" + str(i))
                                 print("Reference file value: " + str(a[i]))
                                 print("Input file value: " + str(b[i]))
-                                if (mode=="percentage"):   
+                                if (mode=="percentage"):
                                     print("tolerance in % should be " + str(100*abs(a[i]-b[i])/abs(a[i])))
                                 else:
                                     print("absolute tolerance should be " + str(abs(a[i]-b[i])))
@@ -171,29 +171,29 @@ def compTables(referencetab, testtab, excludecols, tolerance=0.001, mode="percen
                                             if (mode=="percentage"):
                                                 print("Tolerance in % should be " + str(100*abs(a[i][j][k]-b[i][j][k])/abs(a[i][j][k])))
                                             elif (mode=="absolute"):
-                                                print("Absolute tolerance should be " + str(abs(a[i][j][k]-b[i][j][k])))                     
+                                                print("Absolute tolerance should be " + str(abs(a[i][j][k]-b[i][j][k])))
                                             elif (mode=="phaseabsdeg"):
                                                 print("Phase tolerance in degrees should be " + str(phasediffabsdeg(a[i][j][k],b[i][j][k])))
                                             else:
                                                 print("Unknown comparison mode: ",mode)
                                             differs = True
                                             rval = False
-                                            break                                          
-                                            
+                                            break
+
                         else:
                             print("Unknown data type: ",type(a[i]))
                             differs = True
                             rval = False
                             break
-                
-                if not differs: print("Column " + c + " PASSED") 
+
+                if not differs: print("Column " + c + " PASSED")
     finally:
         tb.close()
         tb2.close()
 
     return rval
 
-    
+
 def compVarColTables(referencetab, testtab, varcol, tolerance=0.):
     '''Compare a variable column of two tables.
        referencetab  --> a reference table
@@ -201,7 +201,7 @@ def compVarColTables(referencetab, testtab, varcol, tolerance=0.):
        varcol        --> the name of a variable column (str)
        Returns True or False.
     '''
-    
+
     retval = True
     tb2 = casac.table()
 
@@ -218,7 +218,7 @@ def compVarColTables(referencetab, testtab, varcol, tolerance=0.):
                 retval = False
             else:
                 for therow in range(tb.nrows()):
-            
+
                     rdata = tb.getcell(col,therow)
                     tdata = tb2.getcell(col,therow)
 
@@ -256,18 +256,18 @@ def compVarColTables(referencetab, testtab, varcol, tolerance=0.):
         finally:
             tb.close()
             tb2.close()
-    
+
     else:
         print('Columns are not varcolumns.')
         retval = False
 
     if retval:
         print('Column %s of %s and %s agree'%(col,referencetab, testtab))
-        
+
     return retval
 
-    
-        
+
+
 class DictDiffer(object):
     """
     Calculate the difference between two dictionaries as:
@@ -284,11 +284,11 @@ class DictDiffer(object):
         self.set_current, self.set_past = set(current_dict.keys()), set(past_dict.keys())
         self.intersect = self.set_current.intersection(self.set_past)
     def added(self):
-        return self.set_current - self.intersect 
+        return self.set_current - self.intersect
     def removed(self):
-        return self.set_past - self.intersect 
+        return self.set_past - self.intersect
     def changed(self):
-        return set(o for o in self.intersect if self.past_dict[o] != self.current_dict[o])            
+        return set(o for o in self.intersect if self.past_dict[o] != self.current_dict[o])
     def unchanged(self):
         return set(o for o in self.intersect if self.past_dict[o] == self.current_dict[o])
 
@@ -302,7 +302,7 @@ def verifyMS(msname, expnumspws, expnumchan, inspw, expchanfreqs=[], ignoreflags
        expchanfreqs  --> numpy array with expected channel frequencies
        ignoreflags   --> do not check the FLAG column
            Returns a list with True or False and a state message'''
-    
+
     msg = ''
     tb.open(msname+'/SPECTRAL_WINDOW')
     nc = tb.getcell("NUM_CHAN", inspw)
@@ -315,7 +315,7 @@ def verifyMS(msname, expnumspws, expnumchan, inspw, expchanfreqs=[], ignoreflags
         tb.open(msname)
         dimdata = tb.getcell("FLAG", 0)[0].size
         tb.close()
-        
+
     if not (nr==expnumspws):
         msg =  "Found "+str(nr)+", expected "+str(expnumspws)+" spectral windows in "+msname
         return [False,msg]
@@ -347,43 +347,43 @@ def getChannels(msname, spwid, chanlist):
        spwid        --> spw ID
        chanlist     --> list of channel indices
     Return a numpy array, the same size of chanlist, with the frequencies'''
-    
+
     try:
         try:
             tb.open(msname+'/SPECTRAL_WINDOW')
         except:
             print('Cannot open table '+msname+'SPECTRAL_WINDOW')
-            
+
         cf = tb.getcell("CHAN_FREQ", spwid)
-        
+
         # Get only the requested channels
         b = [cf[i] for i in chanlist]
         selchans = np.array(b)
-    
+
     finally:
         tb.close()
-        
+
     return selchans
-    
-    
+
+
 def getColDesc(table, colname):
     '''Get the description of a column in a table
        table    --> name of table or MS
        colname  --> column name
     Return a dictionary with the column description'''
-    
+
     coldesc = {}
     try:
         try:
-            tb.open(table)            
+            tb.open(table)
             tcols = tb.colnames()
             if tcols.__contains__(colname):
                 coldesc = tb.getcoldesc(colname)
         except:
-            pass                        
+            pass
     finally:
         tb.close()
-        
+
     return coldesc
 
 def getVarCol(table, colname):
@@ -391,7 +391,7 @@ def getVarCol(table, colname):
        table    --> name of table or MS
        colname  --> column name
     Return the column as a dictionary'''
-    
+
     col = {}
     try:
         try:
@@ -402,30 +402,30 @@ def getVarCol(table, colname):
 
     finally:
         tb.close()
-        
+
     return col
-   
+
 def createInput(str_text, filename):
     '''Save the string in a text file with the given name
     str_text    --> string to save
     filename    --> name of the file to save
             It will remove the filename if it exist!'''
-    
-    inp = filename    
+
+    inp = filename
     cmd = str_text
-    
+
     # remove file first
     if os.path.exists(inp):
         os.system('rm -f '+ inp)
-    
+
     try:
-        # save to a file    
+        # save to a file
         with open(inp, 'w') as f:
             f.write(cmd)
-            
-    finally:  
+
+    finally:
         f.close()
-    
+
     return
 
 def calculateHanning(dataB,data,dataA):
@@ -442,20 +442,20 @@ def getTileShape(mydict, column='DATA'):
        in the dictionary from data managers (tb.getdminfo).
        mydict --> dictionary from tb.getdminfo()
        column --> column where to look for TileShape'''
-    
+
     tsh = {}
     for key, value in list(mydict.items()):
         if mydict[key]['COLUMNS'][0] == column:
              # Dictionary for requested column
             hyp = mydict[key]['SPEC']['HYPERCUBES']
-                    
+
              # This is the HYPERCUBES dictionary
             for hk in list(hyp.keys()):
                 tsh = hyp[hk]['TileShape']
                 break
-                    
+
             break
-    
+
     return tsh
 
 def checkwithtaql(taqlstring):
@@ -494,7 +494,7 @@ def compcaltabnumcol(cal1, cal2, tolerance, colname1='CPARAM', colname2="CPARAM"
 
     return rval
 
-                    
+
 def compmsmainnumcol(vis1, vis2, tolerance, colname1='DATA', colname2="DATA"):
     print("Comparing column "+colname1+" of MS "+vis1)
     print("     with column "+colname2+" of MS "+vis2)
@@ -526,21 +526,21 @@ def compmsmainboolcol(vis1, vis2, colname1='FLAG', colname2='FLAG'):
     return rval
 
 def compareSubTables(input,reference,order=None,excluded_cols=[]):
-    
+
     tbinput = tbtool()
     tbinput.open(input)
     if order is not None:
         tbinput_sorted = tbinput.taql("SELECT * from " + input + " order by " + order)
     else:
         tbinput_sorted = tbinput
-    
+
     tbreference = tbtool()
     tbreference.open(reference)
     if order is not None:
         tbreference_sorted = tbreference.taql("SELECT * from " + reference + " order by " + order)
     else:
         tbreference_sorted = tbreference
-    
+
     columns = tbinput.colnames()
     for col in columns:
         if not col in excluded_cols:
@@ -552,12 +552,12 @@ def compareSubTables(input,reference,order=None,excluded_cols=[]):
                 del tbinput
                 del tbreference
                 return (False,col)
-    
+
     tbinput.close()
     tbreference.close()
     del tbinput
     del tbreference
-    
+
     return (True,"OK")
 
 def getColShape(table,col,start_row=0,nrow=1,row_inc=1):
@@ -568,9 +568,9 @@ def getColShape(table,col,start_row=0,nrow=1,row_inc=1):
         start_row  --    start row (default 0)
         nrow       --    number of rows to read (default 1)
         row_inc    --    increment of rows to read (default 1)
-        
+
         Return a list of strings with the shape of each row in the column.
-    
+
     """
 
     col_shape = []
@@ -584,7 +584,7 @@ def getColShape(table,col,start_row=0,nrow=1,row_inc=1):
 
     finally:
         tblocal.close()
-            
+
     return col_shape
 
 
@@ -606,7 +606,7 @@ def findTemplate(testname,refimage,copy=False):
     except:
         datapaths=[]
     datapaths.append(os.environ.get('CASAPATH').split()[0]+"/data/")
-    possibilities=[x+'/regression/'+testname+'/'+refimage for x in datapaths]+[x+'/regression/'+testname+'/reference/'+refimage for x in datapaths] 
+    possibilities=[x+'/regression/'+testname+'/'+refimage for x in datapaths]+[x+'/regression/'+testname+'/reference/'+refimage for x in datapaths]
 
     #print possibilities
     from itertools import dropwhile
@@ -623,7 +623,7 @@ def findTemplate(testname,refimage,copy=False):
 
 def compImages(im0,im1,keys=['flux','min','max','maxpos','rms'],tol=1e-4,verbose=False):
     """
-    compare two images using imstat and the specified keys, 
+    compare two images using imstat and the specified keys,
     to a tolerance tol, and printing the comparison if verbose==True
     note that the string keys like 'blcf' will fail
     """
@@ -634,7 +634,7 @@ def compImages(im0,im1,keys=['flux','min','max','maxpos','rms'],tol=1e-4,verbose
     ims=[im0,im1]
     s=[]
     for i in range(2):
-        if not os.access(ims[i],F_OK): 
+        if not os.access(ims[i],F_OK):
             print(ims[i]+" not found")
             return False
         myia.open(ims[1])
@@ -653,8 +653,8 @@ def compImages(im0,im1,keys=['flux','min','max','maxpos','rms'],tol=1e-4,verbose
 
 def compMS(ms0,ms1,keys=['mean','min','max','rms'],ap="amp",tol=1e-4,verbose=False):
     """
-    compare two MS using ms.statistics on amp or phase as specified, 
-    and the specified keys, 
+    compare two MS using ms.statistics on amp or phase as specified,
+    and the specified keys,
     to a tolerance tol, and printing the comparison if verbose==True
     """
     from os import F_OK
@@ -664,7 +664,7 @@ def compMS(ms0,ms1,keys=['mean','min','max','rms'],ap="amp",tol=1e-4,verbose=Fal
     mss=[ms0,ms1]
     s=[]
     for i in range(2):
-        if not os.access(mss[i],F_OK): 
+        if not os.access(mss[i],F_OK):
             print(mss[i]+" not found")
             return False
         myms.open(mss[1])
@@ -679,8 +679,8 @@ def compMS(ms0,ms1,keys=['mean','min','max','rms'],ap="amp",tol=1e-4,verbose=Fal
         if verbose:
             print(("%7s: "%k),s0,s1)
     return status
-        
-    
+
+
 
 
 

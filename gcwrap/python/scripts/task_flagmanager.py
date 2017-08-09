@@ -24,51 +24,51 @@ def flagmanager(
         if mode == 'list':
             aflocal.getflagversionlist()
             print('See logger for flag versions for this MS')
-            
+
         elif mode == 'save':
             if versionname == '':
                 raise IOError("Illegal empty versionname: ''")
-            
+
             newdir = vis+'.flagversions/flags.'+versionname
             if os.path.exists(newdir):
                 tt = int(time.time())
                 tmpname = versionname+'.old.'+str(tt)
                 casalog.post("Version name \'%s\' already exist. Will rename it to %s"%(versionname,tmpname), 'WARN')
-                
+
                 tmpdir = newdir+'.old.'+str(tt)
                 # Rename existing versionname to old name
                 os.rename(newdir, tmpdir)
-    
+
                 # Edit entry in .flagversions/FLAG_VERSION_LIST
                 # For realistic usecases, this file is short enough to keep in memory
                 file = vis + '.flagversions/FLAG_VERSION_LIST'
                 fd = open(file)
                 lines = fd.readlines()
                 fd.close()
-    
+
                 for i in range(len(lines)):
                     if (lines[i])[:len(versionname) + 3] == versionname + ' : ':
                         lines[i] = tmpname + ' : ' + comment + '\n'
                         break
-    
+
                 fd = open(file, 'w')
                 fd.writelines(lines)
-                fd.close()                                
-            
+                fd.close()
+
             casalog.post('Save current flagversions to ' + versionname)
             aflocal.saveflagversion(versionname=versionname,
                                     comment=comment, merge=merge)
         elif mode == 'restore':
             if versionname == '':
                 raise Exception("Illegal versionname: ''")
-            
+
             casalog.post('Restore flagversions ' + versionname)
             aflocal.restoreflagversion(versionname=versionname,
                     merge=merge)
         elif mode == 'delete':
             if versionname == '':
                 raise Exception("Illegal versionname: ''")
-            
+
             aflocal.deleteflagversion(versionname=versionname)
         elif mode == 'rename':
             if versionname == '':
@@ -82,7 +82,7 @@ def flagmanager(
             newdir = vis + '.flagversions/flags.' + versionname
             if not os.path.isdir(olddir):
                 raise Exception('No such flagversions: ' + str(oldname))
-            
+
             if os.path.exists(newdir):
                 raise Exception('Flagversions ' + str(versionname) \
                     + ' already exists!')
@@ -107,10 +107,10 @@ def flagmanager(
             fd = open(file, 'w')
             fd.writelines(lines)
             fd.close()
-            
+
         else:
             raise Exception('Unknown mode' + str(mode))
-        
+
         aflocal.done()
     except Exception as instance:
 #        print '*** Error ***', instance

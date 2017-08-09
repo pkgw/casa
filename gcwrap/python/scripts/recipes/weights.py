@@ -39,7 +39,7 @@ def scaleweights(vis="", field=[], spw="", scale=1., dotime=False):
     myscale = scale
     myfields = field
     mytb=taskinit.tbtool()
-    
+
     mytb.open(myvis)
     w = mytb.getcol("WEIGHT")
     dd = mytb.getcol("DATA_DESC_ID")
@@ -51,7 +51,7 @@ def scaleweights(vis="", field=[], spw="", scale=1., dotime=False):
 
     mytb.open(myvis+"/DATA_DESCRIPTION")
     mydds = []
-    
+
     for i in range(0,mytb.nrows()):
         if(mytb.getcell("SPECTRAL_WINDOW_ID", i)!=myspw):
             continue
@@ -72,7 +72,7 @@ def scaleweights(vis="", field=[], spw="", scale=1., dotime=False):
                     w[i][row] *= myscale
                     if dotime:
                         w[i][row] *= (2*tt[row])  # include 2 factor, too
-            
+
         mytb.open(myvis, nomodify=False)
         mytb.putcol("WEIGHT", w)
         mytb.close()
@@ -102,7 +102,7 @@ def getavweight(vis="", field=[], spw=""):
     myspw = spw
     myfields = field
     mytb=taskinit.tbtool()
-    
+
     mytb.open(myvis)
     w = mytb.getcol("WEIGHT")
     dd = mytb.getcol("DATA_DESC_ID")
@@ -111,7 +111,7 @@ def getavweight(vis="", field=[], spw=""):
 
     mytb.open(myvis+"/DATA_DESCRIPTION")
     mydds = []
-    
+
     for i in range(0,mytb.nrows()):
         if(mytb.getcell("SPECTRAL_WINDOW_ID", i)!=myspw):
             continue
@@ -142,7 +142,7 @@ def getavweight(vis="", field=[], spw=""):
 
     return rval
 
-    
+
 def abschanwidth(vis="", spw=""):
 
     """
@@ -158,12 +158,12 @@ def abschanwidth(vis="", spw=""):
     myvis = vis
     myspw = spw
     mytb=taskinit.tbtool()
-    
+
     mytb.open(myvis+"/SPECTRAL_WINDOW")
     if(spw>=mytb.nrows() or spw<0):
         print("Error: spw out of range. Min is 0. Max is ", mytb.nrows()-1)
         return 0
-        
+
     mychw = mytb.getcell("CHAN_WIDTH",spw)[0]
     mytb.close()
 
@@ -184,12 +184,12 @@ def getnch(vis="", spw=""):
     myvis = vis
     myspw = spw
     mytb=taskinit.tbtool()
-    
+
     mytb.open(myvis+"/SPECTRAL_WINDOW")
     if(spw>=mytb.nrows() or spw<0):
         print("Error: spw out of range. Min is 0. Max is ", mytb.nrows()-1)
         return 0
-        
+
     mynch = mytb.getcell("NUM_CHAN",spw)
     mytb.close()
 
@@ -217,7 +217,7 @@ def adjustweights(vis="", field="", refspws=[], spws=[]):
     myvis = vis
     myfield = int(field)
     mytb=taskinit.tbtool()
-    
+
     if (vis=="" or myfield=="" or refspws==[] or spws==[] or not type(refspws)==list or not type(spws)==list):
         print("Usage: adjustweights(vis, field, refspws, spws)")
         print("       refspws and spws are of type list,")
@@ -250,11 +250,11 @@ def adjustweights(vis="", field="", refspws=[], spws=[]):
         avw = getavweight(myvis, [myfield], spw)
         if(avw==0.):
             print("Error: average weight of spw ", spw, " is zero (could also mean no data).")
-            return False    
+            return False
         print("Spw ", spw, ", channelwidth ", cw, ", av. weight ", avw)
         avweights.append(avw)
 
-    # get avweight and chanwidth from ref spws    
+    # get avweight and chanwidth from ref spws
     ravweight = 0.
     for spw in refspws:
         avw = getavweight(myvis, [myfield], spw)
@@ -300,7 +300,7 @@ def adjustweights2(vis="", field="", spws=[]):
     myvis = vis
     myfield = int(field)
     mytb=taskinit.tbtool()
-    
+
     if (vis=="" or myfield=="" or spws==[] or not type(spws)==list):
         print("Usage: adjustweights2(vis, field, spws)")
         print("       spws are of type list,")
@@ -321,7 +321,7 @@ def adjustweights2(vis="", field="", spws=[]):
         nc = getnch(myvis, spw)
         if(nc==0):
             print("Error: nch of spw ", spw, " is zero (could also mean no data).")
-            return False    
+            return False
         nch.append(nc)
 
         print("Spw ", spw, ", channelwidth", cw, ", nchan ", nc)

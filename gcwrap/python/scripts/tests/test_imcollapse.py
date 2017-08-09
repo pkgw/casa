@@ -38,7 +38,7 @@
 #
 # <prerequisite>
 # <ul>
-#   <li> <linkto class="task_imcollapse.py:description">imcollapse</linkto> 
+#   <li> <linkto class="task_imcollapse.py:description">imcollapse</linkto>
 # </ul>
 # </prerequisite>
 #
@@ -48,20 +48,20 @@
 #
 # <synopsis>
 # Test the imcollapse task and the ia.collapse() method upon which it is built.
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_imcollapse[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the imcollapse task to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -106,7 +106,7 @@ def run_imcollapse(
     )
 
 class imcollapse_test(unittest.TestCase):
-    
+
     def setUp(self):
         shutil.copy(datapath + good_image, good_image)
         self.tabular_spectral_image = datapath + "longZax"
@@ -116,7 +116,7 @@ class imcollapse_test(unittest.TestCase):
         self.assertTrue(len(tb.showcache()) == 0)
 
     def checkImage(self, gotImage, expectedName):
-        expected = iatool()                                
+        expected = iatool()
         expected.open(expectedName)
         got = iatool()
         if type(gotImage) == str:
@@ -146,7 +146,7 @@ class imcollapse_test(unittest.TestCase):
 
     def test_exceptions(self):
         """imcollapse: Test various exception cases"""
-        
+
         bogus = "mybogus.im"
         def testit(
             imagename, function, axes, outfile, region,
@@ -301,7 +301,7 @@ class imcollapse_test(unittest.TestCase):
                         "", "", "", False
                     )
                 )
-        
+
     def test_6(self):
         """imcollapse: memory only images can be collapsed"""
         mytool = run_collapse(
@@ -311,7 +311,7 @@ class imcollapse_test(unittest.TestCase):
         mytool2 = mytool.collapse("mean", 3)
         expected = [3, 3, 1, 1]
         self.assertTrue(all(mytool2.shape() == expected))
- 
+
     def test_7(self):
         """imcollapse: verify collapsing along multiple axes works"""
         expected = "collapse_avg_0_1.fits"
@@ -383,7 +383,7 @@ class imcollapse_test(unittest.TestCase):
                             self.assertTrue(npts == 26)
                         else:
                             self.assertTrue(npts == 24)
-                            
+
     def test_median(self):
         """Test median when collapsing along multiple axes"""
         myia = iatool()
@@ -403,17 +403,17 @@ class imcollapse_test(unittest.TestCase):
         self.assertTrue(bb[0, 0, 1] == 13)
         self.assertTrue(bb[0, 0, 2] == 14)
         collapsed.done()
-        
+
         collapsed = myia.collapse(
             axes=[0, 1], function="median",
-            mask=imagename + "<14 || " + imagename + ">16" 
+            mask=imagename + "<14 || " + imagename + ">16"
         )
         bb = collapsed.getchunk()
         self.assertTrue(bb[0, 0, 0] == 10.5)
         self.assertTrue(bb[0, 0, 1] == 11.5)
         self.assertTrue(bb[0, 0, 2] == 14)
         collapsed.done()
-        
+
         myia.fromshape("", [20, 20, 5])
         reg = rg.fromtext(
             "circle [[10pix, 10pix], 5pix]", csys=myia.coordsys().torecord(),
@@ -448,7 +448,7 @@ class imcollapse_test(unittest.TestCase):
             self.assertTrue((got == exp).all())
             mytool.done()
             zz.done()
-            
+
     def test_region(self):
         """ imcollapse: Test region"""
         myia = iatool()
@@ -465,7 +465,7 @@ class imcollapse_test(unittest.TestCase):
             expec[i, 0, :] = i+1
         got = res.getchunk()
         self.assertTrue((expec == got).all())
-        
+
     def test_stretch(self):
         """ imcollapse: Test stretch parameter"""
         yy = iatool()
@@ -492,7 +492,7 @@ class imcollapse_test(unittest.TestCase):
                     "", maskim + ">0", False, stretch=True
                 )
                 self.assertTrue(res)
-            
+
     def test_CAS3737(self):
         """ imcollapse: test tabular spectral axis has correct collapsed reference value """
         image = self.tabular_spectral_image
@@ -516,7 +516,7 @@ class imcollapse_test(unittest.TestCase):
             mytool.done()
             frac = got/expected - 1
             self.assertTrue(frac < 1e-6 and frac > -1e-6)
-        
+
     def test_beams(self):
         """test per plane beams"""
         myia = iatool()
@@ -547,7 +547,7 @@ class imcollapse_test(unittest.TestCase):
     def test_complex(self):
         """Test support for complex valued images"""
         myia = iatool()
-        
+
         myia.fromshape("", [2, 2, 2], type='c')
         bb = myia.getchunk()
         counter = 0
@@ -561,7 +561,7 @@ class imcollapse_test(unittest.TestCase):
         got = col.subimage(dropdeg=True).getchunk()
         exp = numpy.min(bb, 2)
         self.assertTrue((got == exp).all())
-        
+
         col = myia.collapse("mean", [2])
         got = col.subimage(dropdeg=True).getchunk()
         exp = numpy.average(bb, 2)
@@ -569,7 +569,7 @@ class imcollapse_test(unittest.TestCase):
 
         myia.done()
         col.done()
-        
+
     def test_flux(self):
         """Test flux function"""
         myia = iatool()
@@ -592,7 +592,7 @@ class imcollapse_test(unittest.TestCase):
                 self.assertTrue(abs(bb[0,0,i] - 9.806027) < 1e-5)
         col.done()
         myia.done()
-        
+
     def test_sqrtsum(self):
         """Test sqrtsum function"""
         myia = iatool()
@@ -612,7 +612,7 @@ class imcollapse_test(unittest.TestCase):
         bb = zz.getchunk()
         self.assertTrue(bb[0, 0, 0] == 0)
         self.assertTrue(abs(bb[0, 0, 1] - 2*sqrt(2)) < 1e-6)
-        
+
     def test_sqrtsum_npix(self):
         """Test sqrtsum function"""
         myia = iatool()
@@ -632,7 +632,7 @@ class imcollapse_test(unittest.TestCase):
         bb = zz.getchunk()
         self.assertTrue(bb[0, 0, 0] == 0)
         self.assertTrue(abs(bb[0, 0, 1] - 0.5*sqrt(2)) < 1e-6)
-        
+
     def test_sqrtsum_npix_beam(self):
         """Test sqrtsum function"""
         myia = iatool()
@@ -653,7 +653,7 @@ class imcollapse_test(unittest.TestCase):
         bb = zz.getchunk()
         self.assertTrue(bb[0, 0, 0] == 0)
         self.assertTrue(abs(bb[0, 0, 1] - 0.27735632) < 1e-6)
-        
+
     def test_history(self):
         """Test history record is written"""
         myia = iatool()

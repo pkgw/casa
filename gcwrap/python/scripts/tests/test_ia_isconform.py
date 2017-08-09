@@ -38,7 +38,7 @@
 #
 # <prerequisite>
 # <ul>
-#   <li> <linkto class="task_ia_isconform.py:description">ia.isconform</linkto> 
+#   <li> <linkto class="task_ia_isconform.py:description">ia.isconform</linkto>
 # </ul>
 # </prerequisite>
 #
@@ -48,20 +48,20 @@
 #
 # <synopsis>
 # Test the ia.isconform method.
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_isconform[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the ia.isconform method to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -84,7 +84,7 @@ class ia_isconform_test(unittest.TestCase):
         self._myia = iatool()
         self._myia.maketestimage()
 
-    
+
     def tearDown(self):
         self._myia.done()
         del self._myia
@@ -92,26 +92,26 @@ class ia_isconform_test(unittest.TestCase):
     def test_unattached(self):
         self._myia.done()
         self.assertRaises(Exception, self._myia.isconform("x"))
-        
+
     def test_trueness(self):
         self.assertTrue(self._myia.isconform(fits))
-        
+
     def test_diffaxes(self):
         _newia = self._myia.adddegaxes(spectral=True)
         self.assertFalse(_newia.isconform(fits))
-      
+
     def test_diffaxes(self):
         _cs = self._myia.coordsys()
         names = _cs.names()
         _cs.setnames([names[1], names[0]])
         self._myia.setcoordsys(_cs.torecord())
         self.assertFalse(self._myia.isconform(fits))
-      
+
     def test_diffincrements(self):
         _cs = self._myia.coordsys()
         _cs.setincrement([0.1,0.1])
         self._myia.setcoordsys(_cs.torecord())
         self.assertFalse(self._myia.isconform(fits))
-        
+
 def suite():
     return [ia_isconform_test]

@@ -47,20 +47,20 @@
 #
 # <synopsis>
 # Test the ia.decimate() method.
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_decimate[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the ia.decimate() tool method to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -74,13 +74,13 @@ import unittest
 import numpy
 
 class ia_decimate_test(unittest.TestCase):
-    
+
     def setUp(self):
         pass
-    
+
     def tearDown(self):
         self.assertTrue(len(tb.showcache()) == 0)
-    
+
     def test_stretch(self):
         """ ia.decimate(): Test stretch parameter"""
         yy = iatool()
@@ -102,7 +102,7 @@ class ia_decimate_test(unittest.TestCase):
         self.assertTrue(type(zz) == type(yy))
         yy.done()
         zz.done()
-        
+
     def test_methods(self):
         """Test straight aggregation methods"""
         myia = iatool()
@@ -124,23 +124,23 @@ class ia_decimate_test(unittest.TestCase):
                 expec[2] += 1
             print("method ",method)
             self.assertTrue((zz.shape() == expec).all())
-            
+
             inc = myia.coordsys()
             outc = zz.coordsys()
             expec = inc.increment()['numeric']
             expec[2] *= factor
             got = outc.increment()['numeric']
             self.assertTrue((expec == got).all())
-            
+
             expec = inc.referencepixel()['numeric']
             expec[2] /= factor
             got = outc.referencepixel()['numeric']
             self.assertTrue((expec == got).all())
-            
+
             expec = inc.referencevalue()['numeric']
             got = outc.referencevalue()['numeric']
             self.assertTrue((expec == got).all())
-            
+
             for i in range(10):
                 blc = [0, 0, i*factor, 0]
                 trc = shape - 1
@@ -163,7 +163,7 @@ class ia_decimate_test(unittest.TestCase):
                 self.assertTrue((expmask == got).all())
             myia.done()
             zz.done()
-            
+
     def test_multiple_regions(self):
         """Test multiple region support"""
         myia = iatool()
@@ -187,7 +187,7 @@ class ia_decimate_test(unittest.TestCase):
 
         bb.done()
         myia.done()
-        
+
     def test_history(self):
         """Verify history writing"""
         myia = iatool()
@@ -196,8 +196,8 @@ class ia_decimate_test(unittest.TestCase):
         myia.done()
         msgs = bb.history()
         bb.done()
-        self.assertTrue("ia.decimate" in msgs[-2])        
-        self.assertTrue("ia.decimate" in msgs[-1])        
-        
+        self.assertTrue("ia.decimate" in msgs[-2])
+        self.assertTrue("ia.decimate" in msgs[-1])
+
 def suite():
     return [ia_decimate_test]

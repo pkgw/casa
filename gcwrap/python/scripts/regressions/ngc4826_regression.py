@@ -12,30 +12,30 @@ import sys
 
 #N4826 - BIMA SONG Data
 #16apr98
-#	source=ngc4826
-#	phasecal=1310+323
-#	fluxcal=3c273, Flux = 23 Jy on 16apr98
-#	passcal= none - apparently, this is considered optional... odd
+#       source=ngc4826
+#       phasecal=1310+323
+#       fluxcal=3c273, Flux = 23 Jy on 16apr98
+#       passcal= none - apparently, this is considered optional... odd
 #22apr98
-#	source=ngc4826
-#	phasecal=1230+123
-#	fluxcal=3c273, Flux = 23 Jy on 22apr98
-#	passcal= none
+#       source=ngc4826
+#       phasecal=1230+123
+#       fluxcal=3c273, Flux = 23 Jy on 22apr98
+#       passcal= none
 #
-## miriad: source Vlsr = 408; delta is 20 km/s 
+## miriad: source Vlsr = 408; delta is 20 km/s
 #
-#NOTE: This data has been filled into MIRIAD, line-length correction 
-#	done, and then exported as separate files for each source.
-#	3c273 was not line length corrected since it was observed
-#	for such a short amount of time that it did not need it.  
+#NOTE: This data has been filled into MIRIAD, line-length correction
+#       done, and then exported as separate files for each source.
+#       3c273 was not line length corrected since it was observed
+#       for such a short amount of time that it did not need it.
 #
 ###########################################################
 ## Fill Data:
 ##
 
  # miriad files copied from /home/cluster3/jmcmulli/ALMATST2/Data/N4826/
- #	98apr16/ has 1310+323.ll/  3c273/  ngc4826.ll/
- #	98apr22/ has 1230+123.ll/  3c273/  ngc4826.ll/
+ #      98apr16/ has 1310+323.ll/  3c273/  ngc4826.ll/
+ #      98apr22/ has 1230+123.ll/  3c273/  ngc4826.ll/
 
 ###########################################################
 ##          Mosaic field spacing looks like:
@@ -46,7 +46,7 @@ import sys
 ##
 ##          F5 (fieldid 6)         F6 (fieldid 7)
 ##
-## 4x64 channels = 256 channels 
+## 4x64 channels = 256 channels
 ##
 ## Primary Beam should be about 1.6' FWHM (7m dishes, 2.7mm wavelength)
 ## Resolution should be about 5-8"
@@ -83,10 +83,10 @@ setjy1time=time.time()
 print('--flag data - 22apr97--')
 default('flagdata')
 #flagdata(vis="n4826_22apr.ms",
-#	 antennaid=-1,baseline=[-1],chans=[-1],
-#	 clipfunction="ABS",clipcorr="YY",
-#	 clipminmax=[0.0, 80.0],
-#	 fieldid=-1,field="",spwid=-1,timerange="",unflag=False)
+#        antennaid=-1,baseline=[-1],chans=[-1],
+#        clipfunction="ABS",clipcorr="YY",
+#        clipminmax=[0.0, 80.0],
+#        fieldid=-1,field="",spwid=-1,timerange="",unflag=False)
 flagdata(vis="n4826_22apr.ms", mode='clip',
                 correlation='ABS_YY',
                 clipminmax=[0.0,80.0],
@@ -97,29 +97,29 @@ flag1time=time.time()
 print('--gaincal - 22par98--')
 default('gaincal')
 gaincal(vis='n4826_22apr.ms',caltable='n4826_22apr.gcal',
-	field='0,1',spw='0', gaintype='G',
-	minsnr=2.0,
-	refant='ANT5',solint='inf',combine='obsid')
+        field='0,1',spw='0', gaintype='G',
+        minsnr=2.0,
+        refant='ANT5',solint='inf',combine='obsid')
 gaincal1time=time.time()
 ## Transfer the flux density scale:
 print('--fluxscale - 22apr98--')
 default('fluxscale')
 fluxscale(vis='n4826_22apr.ms',caltable='n4826_22apr.gcal',
-	  fluxtable='n4826_22apr.fcal',
-	  reference='3C273-F0',transfer=['1230+123-F0']); 
+          fluxtable='n4826_22apr.fcal',
+          reference='3C273-F0',transfer=['1230+123-F0']);
 fluxscale1time=time.time()
 #
 ## Correct the calibrater/target source data:
-## Use spwmap to apply gain solutions derived from spwid1 to all other spwids... 
+## Use spwmap to apply gain solutions derived from spwid1 to all other spwids...
 ##
 print('--correct 22apr98--')
 default('applycal')
 applycal(vis='n4826_22apr.ms',
-	field='1',spw='0',
-	gaintable='n4826_22apr.fcal')
+        field='1',spw='0',
+        gaintable='n4826_22apr.fcal')
 applycal(vis='n4826_22apr.ms',
-	field='2~8',spw='1~4',
-	gaintable='n4826_22apr.fcal',spwmap=[0])
+        field='2~8',spw='1~4',
+        gaintable='n4826_22apr.fcal',spwmap=[0])
 correct1time=time.time()
 
 ## Split out calibrated target source  and calibrater data:
@@ -131,7 +131,7 @@ split(vis='n4826_22apr.ms',outputvis='gcal.split.ms',
 default('split')
 split(vis='n4826_22apr.ms',outputvis='src.split.ms',
 #      field=[2,3,4,5,6,7,8],spw=[1,2,3,4],nchan=64,start=0,step=1,
-	field='2~8',spw='1~4:0~63',
+        field='2~8',spw='1~4:0~63',
       datacolumn='corrected')
 split1time=time.time()
 
@@ -197,33 +197,33 @@ flagdata2time=time.time()
 print('--gaincal - 16apr98 --')
 default('gaincal')
 gaincal(vis='n4826_16apr.ms',caltable='n4826_16apr.gcal',
-	field='0,1',spw='0,1', gaintype='G',
-	minsnr=2.0,
-	refant='ANT5',solint='inf',combine='obsid')
+        field='0,1',spw='0,1', gaintype='G',
+        minsnr=2.0,
+        refant='ANT5',solint='inf',combine='obsid')
 gaincal2time=time.time()
  #     Found 14 good G Jones solutions.
 ## Transfer the flux density scale:
 print('--fluxscale - 16apr98 --')
 default('fluxscale')
 fluxscale(vis='n4826_16apr.ms',caltable='n4826_16apr.gcal',
-	  fluxtable='n4826_16apr.fcal',
-	  reference='3C273-F0',transfer=['1310+323-F0'],refspwmap=[0,0]);
+          fluxtable='n4826_16apr.fcal',
+          reference='3C273-F0',transfer=['1310+323-F0'],refspwmap=[0,0]);
 fluxscale2time=time.time()
 #  Found reference field(s): 3C273-F0
 #  Found transfer field(s):  1310+323-F0
 # Spw=2 will be referenced to spw=1
-# Flux density for 1310+323-F0 in SpW=2 (ref SpW=1) is: 
-	  #1.47184 +/- 0.00787043 (SNR = 187.009)
+# Flux density for 1310+323-F0 in SpW=2 (ref SpW=1) is:
+          #1.47184 +/- 0.00787043 (SNR = 187.009)
 ## Correct the calibrater/target source data:
 ## Use new parm spwmap to apply gain solutions derived from spwid1
-## to all other spwids... 
+## to all other spwids...
 print('--correct - 16apr98 --')
 default('applycal')
 applycal(vis='n4826_16apr.ms',
-	field='1',spw='1',
+        field='1',spw='1',
         gaintable='n4826_16apr.fcal')
 applycal(vis='n4826_16apr.ms',
-	field='2~8',spw='2~5',
+        field='2~8',spw='2~5',
         gaintable='n4826_16apr.fcal',spwmap=[1])
 correct2time=time.time()
 ## Split out calibrated target source  and calibrater data:
@@ -235,24 +235,24 @@ split(vis='n4826_16apr.ms',outputvis='gcala.split.ms',
 default('split')
 split(vis='n4826_16apr.ms',outputvis='srca.split.ms',
 #      field=[2,3,4,5,6,7,8],spw=[2,3,4,5],nchan=64,start=0,step=1,
-	field='2~8',spw='2~5:0~63',
+        field='2~8',spw='2~5:0~63',
       datacolumn='corrected')
 split2time=time.time()
 
 # Extra flagging
 #flagdata(vis="srca.split.ms",
-#	 antennaid=[5],baseline=[-1],chans=[-1],
-#	 clipfunction="ABS",clipcorr="I",clipminmax=[0.0, 0.0],
-#	 fieldid=[-1],field="",spwid=-1,
-#	 timerange=['16-APR-1998/09:42:39.0', '16-APR-1998/10:24:46.0'],
-#	 unflag=False)
+#        antennaid=[5],baseline=[-1],chans=[-1],
+#        clipfunction="ABS",clipcorr="I",clipminmax=[0.0, 0.0],
+#        fieldid=[-1],field="",spwid=-1,
+#        timerange=['16-APR-1998/09:42:39.0', '16-APR-1998/10:24:46.0'],
+#        unflag=False)
 default('flagdata')
 flagdata(vis="srca.split.ms", mode='clip',
-	 antenna='5',
+         antenna='5',
          correlation="ABS_I",
          clipminmax=[0.0,0.0],
          clipoutside=True,
-	 timerange='1998/04/16/09:42:39.0~1998/04/16/10:24:46.0')
+         timerange='1998/04/16/09:42:39.0~1998/04/16/10:24:46.0')
 #setclip=["ABS I",[0.0,0.0],True],
 
 ## Image the calibrater data:
@@ -296,12 +296,12 @@ ms.close()
 #miriad:source velocity is 408; delta is 20 km/s; 24 maps
 default('clean')
 clean(vis='n4826_tboth.ms',imagename='tmosaic',
-	 nchan=30,start=46,width=4,
-	 spw='0~2',field='0~6',interpolation='nearest',
-	 cell=[1.,1.],imsize=[256,256],
-	 stokes='I',mode='channel',
-	 psfmode='clark',niter=500,imagermode='mosaic',ftmachine='mosaic',scaletype='SAULT',
-	 cyclefactor=3, usescratch=False)
+         nchan=30,start=46,width=4,
+         spw='0~2',field='0~6',interpolation='nearest',
+         cell=[1.,1.],imsize=[256,256],
+         stokes='I',mode='channel',
+         psfmode='clark',niter=500,imagermode='mosaic',ftmachine='mosaic',scaletype='SAULT',
+         cyclefactor=3, usescratch=False)
 
 ia.open(infile='tmosaic.image');
 mom0_ia = ia.moments(outfile='n4826_tmom0.im',
@@ -310,7 +310,7 @@ mom0_ia = ia.moments(outfile='n4826_tmom0.im',
 mom0_ia.close()
 mom1_ia = ia.moments(outfile='n4826_tmom1.im',
                      moments=1,axis=3,includepix=[0.007,1000.0],
-                     mask='indexin(3,[3:24])') 
+                     mask='indexin(3,[3:24])')
 ia.close()
 mom1_ia.close()
 
@@ -439,13 +439,13 @@ for x in [sys.stdout, logfile]: print('*', statstrs[diff_imrms<0.08], 'image rms
 for x in [sys.stdout, logfile]: print('--Image rms '+str(thistest_imrms)+', '+str(imrms), file=x)
 
 if ((diff_cal22apr<0.08) & (diff_src22apr<0.08) & (diff_cal16apr<0.08) & (diff_src16apr<0.08) &(diff_src<0.08) & (diff_immax<0.08) & (diff_imrms<0.08)):
-	regstate=True
-	for x in [sys.stdout, logfile]: print('---', file=x)
-	for x in [sys.stdout, logfile]: print('Passed Regression test for NGC 4826 Mosaic', file=x)
-	for x in [sys.stdout, logfile]: print('---', file=x)
+        regstate=True
+        for x in [sys.stdout, logfile]: print('---', file=x)
+        for x in [sys.stdout, logfile]: print('Passed Regression test for NGC 4826 Mosaic', file=x)
+        for x in [sys.stdout, logfile]: print('---', file=x)
 else:
-	regstate=False
-	for x in [sys.stdout, logfile]: print('----FAILED Regression test for NGC 4826 Mosaic', file=x)
+        regstate=False
+        for x in [sys.stdout, logfile]: print('----FAILED Regression test for NGC 4826 Mosaic', file=x)
 for x in [sys.stdout, logfile]: print('*********************************', file=x)
 for x in [sys.stdout, logfile]: print('', file=x)
 for x in [sys.stdout, logfile]: print('********* Benchmarking *****************', file=x)

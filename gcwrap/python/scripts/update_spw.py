@@ -45,15 +45,15 @@ def update_spw(spw, spwmap=None):
     '1,4;5:8~10'
     >>> update_spw('0~3,5;6:1~7;11~13,7~9:0~3,11,7~8:6~8', None)[0]
     '0~3,4;5:1~7;11~13,6~8:0~3,9,6~7:6~8'
-    
+
     # Let's say we want updates of both fitspw and spw, but fitspw and spw
     # are disjoint (in spws).
     >>> fitspw = '1~10:5~122,15~22:5~122'
     >>> spw = '6~14'
-    
+
     #  Initialize spwmap with the union of them.
     >>> spwmap = update_spw(join_spws(fitspw, spw), None)[1]
-    
+
     >>> myfitspw = update_spw(fitspw, spwmap)[0]
     >>> myfitspw
     '0~9:5~122,14~21:5~122'
@@ -69,7 +69,7 @@ def update_spw(spw, spwmap=None):
         return '', {}
 
     # A list of [spw, chan] pairs.  The chan parts will not be changed.
-    spwchans = [] 
+    spwchans = []
 
     make_spwmap = False
     if not spwmap:
@@ -92,8 +92,8 @@ def update_spw(spw, spwmap=None):
                     start, end = list(map(int, sgrp.split('~')))
                     spws.update(list(range(start, end + 1)))
                 else:
-                    spws.add(int(sgrp))        
-    
+                    spws.add(int(sgrp))
+
     for c in spw:
         if c == ',':               # Start new [spw, chan] pair.
             # Store old one.
@@ -114,7 +114,7 @@ def update_spw(spw, spwmap=None):
 
     # print "spwchans =", spwchans
     # print "spws =", spws
-        
+
     # Update spw (+ fitspw)
     if make_spwmap:
         i = 0
@@ -194,7 +194,7 @@ def spwchan_to_sets(vis, spw):
     # working on adding some flexibility to ms.msseltoindex.
     if not os.path.isdir(vis):
         raise ValueError(str(vis) + ' is not a valid MS.')
-        
+
     sets = {}
     try:
         scharr = ms.msseltoindex(vis, spw=spw)['channel']
@@ -236,7 +236,7 @@ def set_to_chanstr(chanset, totnchan=None):
     totnchan: the total number of channels for the input spectral window, used
               to abbreviate the return string.
 
-    It returns '' for the empty set and '*' if 
+    It returns '' for the empty set and '*' if
 
     Examples:
     >>> from update_spw import set_to_chanstr
@@ -299,7 +299,7 @@ def set_to_chanstr(chanset, totnchan=None):
     elif len(mylist) > 0:
         retstr = str(mylist[0])
     return retstr
-        
+
 def sets_to_spwchan(spwsets, nchans={}):
     """
     Returns a spw:chan selection string for a dict of sets of selected
@@ -566,7 +566,7 @@ def spw_to_dict(spw, spwdict={}, conv_multiranges=True):
                 if s not in myspwdict:
                     myspwdict[s] = set([])
                 if myspwdict[s] != '':
-                    myspwdict[s].update(charange)        
+                    myspwdict[s].update(charange)
 
     for c in spw:
         if c == ',' or (inspw and c == ';'):  # Start new [spw, chan] pair.
@@ -610,7 +610,7 @@ def join_spws(spw1, spw2, span_semicolon=True):
     """
     if not spw1 or not spw2:
         return ''
-        
+
     spwdict = spw_to_dict(spw1, {})
     spwdict = spw_to_dict(spw2, spwdict)
 
@@ -713,7 +713,7 @@ def subtract_spws(spw1, spw2):
         spwset1 = set(spw_to_dict(spw1, {}).keys())  # spws are the keys, chan
         spwset2 = set(spw_to_dict(spw2, {}).keys())  # ranges are the values.
         return spwset1.difference(spwset2)
-    
+
 if __name__ == '__main__':
     import doctest, sys
     doctest.testmod(verbose=True)

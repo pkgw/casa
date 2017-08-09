@@ -2,11 +2,11 @@
 # $Id:$
 # Test Name:                                                                #
 #    Regression Test Script for ASDM version 1.2, 1.3 import to MS          #
-#    and the "inverse filler" task exportasdm 
+#    and the "inverse filler" task exportasdm
 #                                                                           #
 # Rationale for Inclusion:                                                  #
 #    The conversion of ASDM to MS and back needs to be verified.            #
-#                                                                           # 
+#                                                                           #
 # Features tested:                                                          #
 #    1) Is the import performed without raising exceptions                  #
 #    2) Do all expected tables exist                                        #
@@ -70,14 +70,14 @@ def checktable(thename, theexpectation):
             if mycell[3] == 0:
                 in_agreement = (value == mycell[2])
             else:
-                in_agreement = ( abs(value - mycell[2]) < mycell[3]) 
+                in_agreement = ( abs(value - mycell[2]) < mycell[3])
         else:
             # it's an array
             # zero tolerance?
             if mycell[3] == 0:
-                in_agreement =  (value == mycell[2]).all() 
+                in_agreement =  (value == mycell[2]).all()
             else:
-                in_agreement = (abs(value - mycell[2]) < mycell[3]).all() 
+                in_agreement = (abs(value - mycell[2]) < mycell[3]).all()
         if not in_agreement:
             print(myname, ":  Error in MS subtable", thename, ":")
             print("     column ", mycell[0], " row ", mycell[1], " contains ", value)
@@ -137,7 +137,7 @@ def verify_asdm(asdmname, withPointing):
                 isOK = False
 
     print("Note: xml validation not possible since ASDM DTDs (schemas) not yet online.")
-        
+
     if(not os.path.exists(asdmname+"/ASDMBinary")):
         print("ASDM binary directory "+asdmname+"/ASDMBinary doesn't exist.")
         isOK = False
@@ -167,7 +167,7 @@ class test_base(unittest.TestCase):
         datapath=os.environ.get('CASAPATH').split()[0]+'/data/regression/unittest/flagdata/'
         if(not os.path.lexists(self.asdm)):
             os.system('ln -s '+datapath+self.asdm +' '+self.asdm)
-            
+
         default(importasdm)
 
 
@@ -176,7 +176,7 @@ class test_base(unittest.TestCase):
         datapath=os.environ.get('CASAPATH').split()[0]+'/data/regression/unittest/importasdm/'
         if(not os.path.lexists(self.asdm)):
             os.system('ln -s '+datapath+self.asdm +' '+self.asdm)
-            
+
         default(importasdm)
 
     def setUp_acaex(self):
@@ -214,7 +214,7 @@ class test_base(unittest.TestCase):
     def setUp_SD(self):
         res = None
         # Single-dish ASDM, 1 scan, 9 spws, 4 antennas, 10 baselines,  4 auto-corrs + cross
-        myasdmname = 'uid___A002_X6218fb_X264'  
+        myasdmname = 'uid___A002_X6218fb_X264'
 
         datapath=os.environ.get('CASAPATH').split()[0]+'/data/regression/alma-sd/M100/'
         os.system('ln -sf '+datapath+myasdmname)
@@ -222,15 +222,15 @@ class test_base(unittest.TestCase):
 
 
 ###########################
-# beginning of actual test 
-        
+# beginning of actual test
+
 class asdm_import8(test_base):
     '''Test importasdm with Multi-MS'''
-    
+
     def setUp(self):
         self.setUp_12mex()
         self.setUp_acaex()
-        
+
     def tearDown(self):
         for myasdmname in ['uid___A002_X71e4ae_X317_short', 'uid___A002_X72bc38_X000']:
             os.system('rm -f '+myasdmname) # a link
@@ -245,7 +245,7 @@ class asdm_import8(test_base):
 
         importasdm(myasdmname, createmms=True)
         self.assertTrue(ParallelDataHelper.isParallelMS(themsname), 'Output is not a Multi-MS')
-        
+
     def test_mms2(self):
         '''test_mms2: Create an MMS with default name and lazy=True'''
         myasdmname = 'uid___A002_X71e4ae_X317_short'
@@ -263,17 +263,17 @@ class asdm_import8(test_base):
                    process_flags=False)
         self.assertTrue(ParallelDataHelper.isParallelMS(themsname), 'Output is not a Multi-MS')
         self.assertEqual(ph.axisType(themsname), 'spw', 'Separation axis of MMS should be spw')
-        
+
     def test_mms4(self):
         '''test_mms4: Create MMS, lazy=True, with separationaxis=scan and scans selection in ASDM'''
-        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }    
+        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
 
         myasdmname = 'uid___A002_X72bc38_X000'
         themsname = myasdmname + ".ms"
 
         # only the first 3 scans to save time
         importasdm(myasdmname, vis=themsname, lazy=True, scans='0:1~3', createmms=True, separationaxis='scan',
-                   process_flags=False) 
+                   process_flags=False)
         self.assertTrue(ParallelDataHelper.isParallelMS(themsname), 'Output is not a Multi-MS')
         self.assertEqual(ph.axisType(themsname), 'scan', 'Separation axis of MMS should be scan')
         print(myname, ": Success! Now checking output ...")
@@ -323,7 +323,7 @@ class asdm_import8(test_base):
         else:
             mslocal.close()
             print(myname, ": OK. Checking tables in detail ...")
-    
+
             importasdm(asdm=myasdmname, vis='reference.ms', lazy=False, overwrite=True, scans='0:1~3',
                         createmms=True, separationaxis='scan', process_flags=False)
 
@@ -356,7 +356,7 @@ class asdm_import8(test_base):
                                  "SPECTRAL_WINDOW",
                                  "STATE",
                                  "SYSCAL"]:
-                    
+
                     print("\n*** Subtable ",subtname)
                     excllist = []
                     if subtname=='SOURCE':
@@ -365,21 +365,21 @@ class asdm_import8(test_base):
                         excllist=['TANT_SPECTRUM', 'TANT_TSYS_SPECTRUM']
                     if subtname=='SPECTRAL_WINDOW':
                         excllist=['CHAN_FREQ', 'CHAN_WIDTH', 'EFFECTIVE_BW', 'RESOLUTION']
-                        for colname in excllist: 
+                        for colname in excllist:
                             retValue['success'] = th.compVarColTables('reference.ms/SPECTRAL_WINDOW',
                                                                       themsname+'/SPECTRAL_WINDOW', colname, 0.01) and retValue['success']
-                        
-                    try:    
+
+                    try:
                         retValue['success'] = th.compTables('reference.ms/'+subtname,
-                                                            themsname+'/'+subtname, excllist, 
+                                                            themsname+'/'+subtname, excllist,
                                                             0.01) and retValue['success']
                     except:
                         retValue['success'] = False
                         print("ERROR for table ", subtname)
-            
-        print(retValue)    
+
+        print(retValue)
         self.assertTrue(retValue['success'],retValue['error_msgs'])
-        
+
     @unittest.skip('Skip until a suitable ASDM is found to run this test')
     def test_mms5(self):
         '''test_mms5: Create 2 MMS, 2 flagversions and 2 online flag files'''
@@ -388,7 +388,7 @@ class asdm_import8(test_base):
         wvrmsname = myasdmname+'-wvr-corrected.ms'
         flagfile1 = myasdmname+'_cmd.txt'
         flagfile2 = myasdmname+'-wvr-corrected'+'_cmd.txt'
-        
+
         importasdm(myasdmname, vis=themsname, lazy=True, scans='0:1~4', wvr_corrected_data='both', savecmds=True,
                    createmms=True)
         self.assertTrue(ParallelDataHelper.isParallelMS(themsname), 'Output is not a Multi-MS')
@@ -396,10 +396,10 @@ class asdm_import8(test_base):
         self.assertTrue(os.path.exists(flagfile1))
         self.assertTrue(os.path.exists(flagfile2))
 
-        
+
     def test_mms6(self):
         '''test_mms6: Create MMS and lazy=True'''
-        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }    
+        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
         myasdmname = 'uid___A002_X71e4ae_X317_short'
         themsname = myasdmname+".ms"
         flagfile = myasdmname+'_cmd.txt'
@@ -455,9 +455,9 @@ class asdm_import8(test_base):
             mslocal.asdmref("./moved_"+myasdmname)
             mslocal.close()
             os.system("mv "+myasdmname+" moved_"+myasdmname)
-            
+
             mslocal.open(themsname)
-            
+
         except:
             print(myname, ": Error  Cannot open MS table", themsname)
             retValue['success']=False
@@ -465,7 +465,7 @@ class asdm_import8(test_base):
         else:
             mslocal.close()
             print(myname, ": OK. Checking tables in detail ...")
-    
+
             importasdm(asdm="moved_"+myasdmname, vis='reference.ms', lazy=False, overwrite=True, scans='0:1~3', createmms=True)
 
             if(os.path.exists('reference.ms')):
@@ -482,7 +482,7 @@ class asdm_import8(test_base):
                     print("ERROR: WEIGHT does not agree with reference.")
                 else:
                     print("WEIGHT columns agree.")
-                    
+
                 retValueTmp2 = th.checkwithtaql("select from [select from reference.ms orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t1, [select from "
                                             +themsname+" orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t2 where (not all(t1.FLAG==t2.FLAG)) ") == 0
                 if not retValueTmp2:
@@ -504,7 +504,7 @@ class asdm_import8(test_base):
                                  "SPECTRAL_WINDOW",
                                  "STATE",
                                  "SYSCAL"]:
-                    
+
                     print("\n*** Subtable ",subtname)
                     excllist = []
                     if subtname=='SOURCE':
@@ -519,29 +519,29 @@ class asdm_import8(test_base):
                                                                           themsname+'/SPECTRAL_WINDOW', colname, 0.01) and retValue['success']
                     if subtname=='POLARIZATION':
                         excllist=['CORR_TYPE', 'CORR_PRODUCT']
-                        for colname in excllist: 
+                        for colname in excllist:
                             retValue['success'] = th.compVarColTables('reference.ms/POLARIZATION',
                                                                       themsname+'/POLARIZATION', colname, 0.01) and retValue['success']
-                    try:    
+                    try:
                         retValue['success'] = th.compTables('reference.ms/'+subtname,
-                                                            themsname+'/'+subtname, excllist, 
+                                                            themsname+'/'+subtname, excllist,
                                                             0.01) and retValue['success']
                     except:
                         retValue['success'] = False
                         print("ERROR for table ", subtname)
 
         os.system("mv moved_"+myasdmname+" "+myasdmname)
-                
+
         self.assertTrue(retValue['success'],retValue['error_msgs'])
-        
+
     def test_mms7(self):
         '''Asdm-import: Test good 12 m ASDM with mixed pol/channelisation input with default filler in lazy mode with reading the BDF flags. Output MMS'''
-        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }    
+        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
 
         myasdmname = 'uid___A002_X71e4ae_X317_short'
         themsname = myasdmname+".ms"
 
-        self.res = importasdm(myasdmname, vis=themsname, lazy=True, bdfflags=True, createmms=True) 
+        self.res = importasdm(myasdmname, vis=themsname, lazy=True, bdfflags=True, createmms=True)
         self.assertEqual(self.res, None)
         print(myname, ": Success! Now checking output ...")
         mscomponents = set(["ANTENNA/table.dat",
@@ -590,7 +590,7 @@ class asdm_import8(test_base):
         else:
             mslocal.close()
             print(myname, ": OK. Checking tables in detail ...")
-    
+
             importasdm(asdm=myasdmname, vis='reference.ms', lazy=True, overwrite=True, bdfflags=False, createmms=True)
 
             if(os.path.exists('reference.ms')):
@@ -621,7 +621,7 @@ class asdm_import8(test_base):
                                  "SPECTRAL_WINDOW",
                                  "STATE",
                                  "SYSCAL"]:
-                    
+
                     print("\n*** Subtable ",subtname)
                     excllist = []
                     if subtname=='SOURCE':
@@ -636,27 +636,27 @@ class asdm_import8(test_base):
                                                                           themsname+'/SPECTRAL_WINDOW', colname, 0.01) and retValue['success']
                     if subtname=='POLARIZATION':
                         excllist=['CORR_TYPE', 'CORR_PRODUCT']
-                        for colname in excllist: 
+                        for colname in excllist:
                             retValue['success'] = th.compVarColTables('reference.ms/POLARIZATION',
                                                                       themsname+'/POLARIZATION', colname, 0.01) and retValue['success']
-                    try:    
+                    try:
                         retValue['success'] = th.compTables('reference.ms/'+subtname,
-                                                            themsname+'/'+subtname, excllist, 
+                                                            themsname+'/'+subtname, excllist,
                                                             0.01) and retValue['success']
                     except:
                         retValue['success'] = False
                         print("ERROR for table ", subtname)
-            
-                
+
+
         self.assertTrue(retValue['success'],retValue['error_msgs'])
-        
+
 
 class asdm_import9(test_base):
     '''Test importasdm with spw selection in online flags'''
-    
+
     def setUp(self):
         self.setUp_flags()
-       
+
     def tearDown(self):
         for myasdmname in ['test_uid___A002_X997a62_X8c-short']:
             os.system('rm -f '+myasdmname) # a link
@@ -678,10 +678,10 @@ class asdm_import9(test_base):
 
 class asdm_import10(test_base):
     '''Test importasdm with single-dish data'''
-    
+
     def setUp(self):
         self.setUp_SD()
-       
+
     def tearDown(self):
         for myasdmname in ['uid___A002_X6218fb_X264']:
             os.system('rm -f '+myasdmname) # a link
@@ -695,7 +695,7 @@ class asdm_import10(test_base):
 
         # The ocorr_mode='ao' option will create a FLOAT_DATA column instead of DATA
         importasdm(myasdmname, vis=themsname, ocorr_mode='ao', createmms=True, scans='1')
-        self.assertTrue(ParallelDataHelper.isParallelMS(themsname), 'Output is not a Multi-MS')        
+        self.assertTrue(ParallelDataHelper.isParallelMS(themsname), 'Output is not a Multi-MS')
         self.assertTrue(len(th.getColDesc(themsname, 'FLOAT_DATA')) > 0)
 
     def test_sd_data_mms(self):
@@ -714,14 +714,14 @@ class asdm_import10(test_base):
 
         # Create a single-dish MMS with auto and cross correlations
         importasdm(myasdmname, vis=themsname, ocorr_mode='ca', createmms=True, scans='1', separationaxis='baseline')
-        self.assertTrue(ParallelDataHelper.isParallelMS(themsname), 'Output is not a Multi-MS')        
+        self.assertTrue(ParallelDataHelper.isParallelMS(themsname), 'Output is not a Multi-MS')
         self.assertTrue(len(th.getColDesc(themsname, 'DATA')) > 0)
-        
+
         md = msmdtool()
         md.open(themsname)
         bsl = md.baselines()
-        md.close()      
-        
+        md.close()
+
         # Check if all baselines are in there
         self.assertTrue(bsl.all(), 'Not all baselines are in the MMS')
 
@@ -732,18 +732,18 @@ class asdm_import10(test_base):
 
         # The ocorr_mode='ao' option will create a FLOAT_DATA column instead of DATA
         importasdm(myasdmname, vis=themsname, ocorr_mode='ao', createmms=True, scans='1', separationaxis='baseline', numsubms=4)
-        self.assertTrue(ParallelDataHelper.isParallelMS(themsname), 'Output is not a Multi-MS')        
+        self.assertTrue(ParallelDataHelper.isParallelMS(themsname), 'Output is not a Multi-MS')
         self.assertTrue(len(th.getColDesc(themsname, 'FLOAT_DATA')) > 0)
-        
+
         md = msmdtool()
         md.open(themsname)
         bsl = md.baselines()
         md.close()
-        
+
         #diagnoals give the auto-corrs
         ac = bsl.diagonal()
         self.assertTrue(ac.all(), 'Not all auto-correlations are there')
-        
+
         # Take the dictionary and compare with original MS
         thisdict = listpartition(vis=themsname, createdict=True)
         self.assertEqual(len(list(thisdict.keys())), 4, 'There should be 4 subMSs in output MMS')
@@ -751,26 +751,26 @@ class asdm_import10(test_base):
 
 class asdm_import11(test_base):
     '''Test importasdm with MMS and ephemerides data'''
-    
+
     def setUp(self):
         self.setUp_eph()
-       
+
     def tearDown(self):
         pass
 #        for myasdmname in ['uid___A002_X997a62_X8c-short']:
 ##            os.system('rm -f '+myasdmname) # a link
 #            shutil.rmtree(myasdmname+".ms",ignore_errors=True)
 #            shutil.rmtree(myasdmname+'.ms.flagversions',ignore_errors=True)
-            
+
     def test_mms_ephem(self):
         '''Asdm-import: Test good 12 m ASDM with Ephemeris table in lazy mode and MMS'''
-        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }    
+        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
 
         myasdmname = 'uid___A002_X997a62_X8c-short'
         themsname = myasdmname+".ms"
 
-        self.res = importasdm(myasdmname, vis=themsname, lazy=True, convert_ephem2geo=True, 
-                              process_pointing=False, flagbackup=False, createmms=True) 
+        self.res = importasdm(myasdmname, vis=themsname, lazy=True, convert_ephem2geo=True,
+                              process_pointing=False, flagbackup=False, createmms=True)
         self.assertEqual(self.res, None)
         print(myname, ": Success! Now checking output ...")
         mscomponents = set(["FIELD/table.dat",
@@ -818,14 +818,14 @@ class asdm_import11(test_base):
                 retValue['error_msgs']=retValue['error_msgs']+' posrefsys keyword is not ICRF/ICRS '+themsname+'\n'
             else:
                 print(myname, ": OK.")
- 
+
 
         self.assertTrue(retValue['success'],retValue['error_msgs'])
-        
+
 def suite():
     return [asdm_import8,
             asdm_import9,
             asdm_import10,
-            asdm_import11]        
-        
-    
+            asdm_import11]
+
+

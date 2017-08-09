@@ -38,7 +38,7 @@
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_constructors[test1,test2,...]
 #
 # </example>
@@ -53,13 +53,13 @@ import unittest
 import numpy as np
 
 class ia_constructors_test(unittest.TestCase):
-    
+
     def setUp(self):
         pass
-    
+
     def tearDown(self):
         pass
-    
+
     def test_newimagefromarray(self):
         """ test repeated call of newimagefromarray doesn't segfault, CAS-5646"""
         my_image = np.zeros([128,128,16])
@@ -77,7 +77,7 @@ class ia_constructors_test(unittest.TestCase):
         )
         myia.done()
         zz.done()
-        self.assertTrue(len(tb.showcache()) == 0) 
+        self.assertTrue(len(tb.showcache()) == 0)
 
     def test_history(self):
         """verify history writing"""
@@ -87,7 +87,7 @@ class ia_constructors_test(unittest.TestCase):
         ary = myia.getchunk()
         myia = myia.newimagefromarray(pixels=ary, csys=csys.torecord())
         msgs = myia.history()
-        myia.done()       
+        myia.done()
         self.assertTrue("ia.newimagefromarray" in msgs[-2])
         self.assertTrue("ia.newimagefromarray" in msgs[-1])
 
@@ -96,7 +96,7 @@ class ia_constructors_test(unittest.TestCase):
         myia = iatool()
         myia = myia.newimagefromshape(shape=[20,20])
         msgs = myia.history()
-        myia.done()       
+        myia.done()
         self.assertTrue("ia.newimagefromshape" in msgs[-2])
         self.assertTrue("ia.newimagefromshape" in msgs[-1])
 

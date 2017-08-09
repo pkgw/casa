@@ -10,11 +10,11 @@
 #
 # (2) Post-deconvolution PB-correction, on the output of (1)
 #     - checks output peak corrected intensity, spectral index and curvature.
-#                                                                              # 
+#                                                                              #
 ################################################################################
-#                                                                              # 
+#                                                                              #
 # More tests that will appear here in the future :                             #
-#                                                                              # 
+#                                                                              #
 # (2) MS-MFS with wide-band primary-beam correction                            #
 # (3) MS-MFS on extended emission : DONE                                             #
 # (4) MS-MFS with mosaicing                                                    #
@@ -99,7 +99,7 @@ if(not regstate):
    print('* Data file VLA_multifrequency_3C286.ms cannot be found', file=logfile);
 else:
    # (6) : (V2.5) This is the truth (for active, 19Jan2012) - wrote coefficient residuals to the output residual image, instead of using them only for alpha,beta calculations
-   # Changes from previous numbers 'active r17725' are mainly 'noise' levels. 
+   # Changes from previous numbers 'active r17725' are mainly 'noise' levels.
    correct_sigma = 0.00126019103471;
    correct_sumsq = 1.6652231052;
    correct_intensity = 14.8404045105;
@@ -108,7 +108,7 @@ else:
    ## Added on 13 Sep 2012
    correct_pbcor_intensity = 0.234191760421
    ##correct_pbcor_alpha = -0.910139858723
-   
+
    ## Changed to use actual VLA models (not EVLA ones)
    correct_pbcor_alpha = -0.872
 
@@ -149,7 +149,7 @@ else:
    #correct_intensity = 14.838494;
    #correct_alpha = -0.47109225;
    #correct_beta = -0.12466369;
-   
+
    # Residual rms noise and sum-sq (total power)
    if(os.path.exists('reg_3C286.residual.tt0')):
       ia.open('reg_3C286.residual.tt0');
@@ -159,31 +159,31 @@ else:
       diff_sumsq = abs( (stats['sumsq'][0]) - correct_sumsq )/correct_sumsq;
       if(diff_sigma<0.05):
          print('* Passed residual sigma test ', file=logfile);
-      else: 
+      else:
          print('* FAILED residual sigma test ', file=logfile)
-	 regstate = False;
+         regstate = False;
       print('-- residual sigma : ' + str((stats['sigma'][0])) + ' (' + str(correct_sigma) + ')', file=logfile);
-      if(diff_sumsq<0.05): 
+      if(diff_sumsq<0.05):
          print('* Passed residual total-power test ', file=logfile);
-      else: 
+      else:
          print('* FAILED residual total-power test ', file=logfile)
-	 regstate = False
+         regstate = False
       print('-- residual sumsq : ' + str((stats['sumsq'][0])) + ' (' + str(correct_sumsq) + ')', file=logfile);
    else:
       print(' FAILED : No residual image generated.', file=logfile)
       regstate = False;
-   
+
    # Intensity
    if(os.path.exists('reg_3C286.image.tt0')):
       ia.open('reg_3C286.image.tt0');
       midpix = ia.pixelvalue([npix/2,npix/2])
       ia.close();
       diff_intensity = abs( midpix['value']['value'] - correct_intensity )/ abs(correct_intensity);
-      if(diff_intensity<0.02): 
+      if(diff_intensity<0.02):
          print('* Passed peak intensity test ', file=logfile);
-      else: 
+      else:
          print('* FAILED peak intensity test ', file=logfile)
-	 regstate = False;
+         regstate = False;
       print('-- peak intensity : ' + str(midpix['value']['value']) + ' (' + str(correct_intensity) + ')', file=logfile);
    else:
       print('-- FAILED : No intensity map generated', file=logfile);
@@ -195,11 +195,11 @@ else:
       midpix = ia.pixelvalue([npix/2,npix/2])
       ia.close();
       diff_alpha = abs( midpix['value']['value'] - correct_alpha )/ abs(correct_alpha);
-      if(diff_alpha<0.02): 
+      if(diff_alpha<0.02):
          print('* Passed spectral index test ', file=logfile);
-      else: 
+      else:
          print('* FAILED spectral index test ', file=logfile)
-	 regstate = False;
+         regstate = False;
       print('-- spectral index : ' + str(midpix['value']['value']) + ' (' + str(correct_alpha) + ')', file=logfile);
    else:
       print('-- FAILED : No spectral index map generated', file=logfile);
@@ -211,11 +211,11 @@ else:
       midpix = ia.pixelvalue([npix/2,npix/2])
       ia.close();
       diff_beta = abs( midpix['value']['value'] - correct_beta )/ abs(correct_beta);
-      if(diff_beta<0.02): 
+      if(diff_beta<0.02):
          print('* Passed spectral curvature test ', file=logfile);
-      else: 
+      else:
          print('* FAILED spectral curvature test ', file=logfile)
-	 regstate = False;
+         regstate = False;
       print('-- spectral curvature : ' + str(midpix['value']['value']) + ' (' + str(correct_beta) + ')', file=logfile);
    else:
       print('-- FAILED : No spectral curvature map generated', file=logfile);
@@ -227,11 +227,11 @@ else:
       offpix = ia.pixelvalue([304,542])
       ia.close();
       diff_int = abs( offpix['value']['value'] - correct_pbcor_intensity )/ abs(correct_pbcor_intensity);
-      if(diff_int<0.02): 
+      if(diff_int<0.02):
          print('* Passed widebandpbcor intensity test ', file=logfile);
-      else: 
+      else:
          print('* FAILED widebandpbcor intensity test ', file=logfile)
-	 regstate = False;
+         regstate = False;
       print('-- pb-corrected intensity : ' + str(offpix['value']['value']) + ' (' + str(correct_pbcor_intensity) + ')', file=logfile);
    else:
       print('-- FAILED : No pb-corrected intensity map generated', file=logfile);
@@ -243,11 +243,11 @@ else:
       offpix = ia.pixelvalue([304,542])
       ia.close();
       diff_alpha = abs( offpix['value']['value'] - correct_pbcor_alpha )/ abs(correct_pbcor_alpha);
-      if(diff_alpha<0.02): 
+      if(diff_alpha<0.02):
          print('* Passed widebandpbcor alpha test ', file=logfile);
-      else: 
+      else:
          print('* FAILED widebandpbcor alpha test ', file=logfile)
-	 regstate = False;
+         regstate = False;
       print('-- pb-corrected spectral index : ' + str(offpix['value']['value']) + ' (' + str(correct_pbcor_alpha) + ')', file=logfile);
    else:
       print('-- FAILED : No pb-corrected spectral index map generated', file=logfile);

@@ -79,11 +79,11 @@ def qufromgain(gt,badspw=[]):
                 amps=pl.absolute(gains)
                 amps[amps==0.0]=1.0
                 ratio=amps[0,0,:]/amps[1,0,:]
-                
-                
+
+
                 # parang
                 parang=pl.zeros(len(times))
-                
+
                 for itim in range(len(times)):
                     tm=me.epoch('UTC',str(times[itim])+'s')
                     last=me.measure(tm,'LAST')['m0']['value']
@@ -91,7 +91,7 @@ def qufromgain(gt,badspw=[]):
                     last*=24.0  # hours
                     ha=last-rah  # hours
                     har=ha*2.0*pi/24.0
-                    
+
                     parang[itim]=atan2( (cos(latr)*sin(har)),
                                         (sin(latr)*cos(decr)-cos(latr)*sin(decr)*cos(har)) )
 
@@ -110,7 +110,7 @@ def qufromgain(gt,badspw=[]):
                 Uant=fit[0][2]/fit[0][0]/2
                 Pant=pl.sqrt(Qant*Qant + Uant*Uant)
                 Xant=0.5*pl.arctan2(Uant,Qant)*180/pi
-                
+
                 print('By antenna:')
                 print(' R = ', Rant,pl.mean(Rant))
                 print(' Q = ', Qant,pl.mean(Qant))
@@ -120,11 +120,11 @@ def qufromgain(gt,badspw=[]):
 
                 pl.plot(Qant,Uant,',')
 
-                
+
                 ants0=list(range(nants))
                 rsum=pl.sum(ratio[:,ants0],1)
                 rsum/=len(ants0)
-                
+
                 fit=pl.lstsq(A,pl.square(rsum))
 
                 R[ispw,ifld]=fit[0][0]
@@ -190,7 +190,7 @@ def xyamb(xy,qu,xyout=''):
     QUm=pl.mean(QU[:,P>0],1)
     QUe=pl.std(QU[:,P>0],1)
     print('mean ambiguity-resolved fractional QU:',QUm,' +/- ',QUe)
-    
+
     return pl.array([1.0,QUm[0],QUm[1],0.0])
 
 
@@ -214,7 +214,7 @@ def dxy(dtab,xtab,dout):
         st.close()
         tb.close()
         #print ' x.shape = ',x.shape, len(x)
-        
+
         if (len(x)>0):
 
             tb.open(dout,nomodify=F)
@@ -222,7 +222,7 @@ def dxy(dtab,xtab,dout):
             d=st.getcol('CPARAM')
             #print ' d.shape = ',d.shape, len(d), d.shape==x.shape
 
-        
+
             # the following assumes all antennas and chans same in both tables.
 
             if (len(d)>0):
@@ -241,7 +241,7 @@ def dxy(dtab,xtab,dout):
             print('  No X solutions for this spw')
 
 
- 
+
 def zeromeanD(dtab,dout):
 
     os.system('cp -rf '+dtab+' '+dout)

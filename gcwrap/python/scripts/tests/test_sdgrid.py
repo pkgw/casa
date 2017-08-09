@@ -26,7 +26,7 @@ import asap as sd
 
 #
 # Unit test of sdgridold task.
-# 
+#
 
 ###
 # Base class for sdimaging unit test
@@ -53,7 +53,7 @@ class sdgridold_unittest_base(object):
             dim = dim + 1
             a = a[0]
         return dim
-    
+
     def _checkshape( self, sp, ref ):
         # check array dimension
         self.assertEqual( self._getdim(sp), self._getdim(ref),
@@ -71,7 +71,7 @@ class sdgridold_unittest_base(object):
         if len(idx) > 0:
             diff[idx]=sp[idx]
         return diff
-        
+
     def getdata(self):
         with tbmanager(self.outfile) as tb:
             self.data = tb.getcol('SPECTRA')
@@ -220,7 +220,7 @@ class sdgridold_failure_case(sdgridold_unittest_base,unittest.TestCase):
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
 
-        
+
 
 ###
 # Test simple gridding
@@ -269,7 +269,7 @@ class sdgridold_single_integ(sdgridold_unittest_base,unittest.TestCase):
         # pol1 must be 1.0
         pol1=self.data[0,nonzeropix[1]]
         self.check(1.0,pol1)
-        
+
 
     def test101(self):
         """Test101: SF kernel"""
@@ -292,7 +292,7 @@ class sdgridold_single_integ(sdgridold_unittest_base,unittest.TestCase):
             self.check(10.0,pol0)
             pol1=self.data[0,nonzeropix[i+1]]
             self.check(1.0,pol1)
-        
+
 
     def test102(self):
         """Test102: Gaussian kernel"""
@@ -309,7 +309,7 @@ class sdgridold_single_integ(sdgridold_unittest_base,unittest.TestCase):
         nonzeropix_ref=numpy.array([218, 219, 220, 221, 222, 223, 250, 251, 252, 253, 254, 255, 256, 257, 258, 259, 284, 285, 286, 287, 288, 289, 290, 291, 292, 293, 318, 319, 320, 321, 322, 323, 324, 325, 326, 327, 354, 355, 356, 357, 358, 359])
         #nonzeropix_ref=self.generateNonzeroPix(npol,npix,width)
         self.nonzero(nonzeropix_ref,nonzeropix)
-        
+
         # pol0 must be 10.0 while pol1 must be 1.0
         for i in range(0,len(nonzeropix),npol):
             pol0=self.data[0,nonzeropix[i]]
@@ -332,14 +332,14 @@ class sdgridold_single_integ(sdgridold_unittest_base,unittest.TestCase):
         nonzeropix_ref=numpy.array([252, 253, 254, 255, 256, 257, 286, 287, 288, 289, 290, 291, 320, 321, 322, 323, 324, 325])
         #nonzeropix_ref=self.generateNonzeroPix(npol,npix,width)
         self.nonzero(nonzeropix_ref,nonzeropix)
-        
+
         # pol0 must be 10.0 while pol1 must be 1.0
         for i in range(0,len(nonzeropix),npol):
             pol0=self.data[0,nonzeropix[i]]
             self.check(10.0,pol0)
             pol1=self.data[0,nonzeropix[i+1]]
             self.check(1.0,pol1)
-        
+
 
 ###
 # Test clipminmax
@@ -349,7 +349,7 @@ class sdgridold_clipping(sdgridold_unittest_base,unittest.TestCase):
     Test clipminmax
     """
     rawfile='testimage1chan.1point.asap'
-    
+
     def setUp(self):
         if os.path.exists(self.rawfile):
             shutil.rmtree(self.rawfile)
@@ -380,7 +380,7 @@ class sdgridold_clipping(sdgridold_unittest_base,unittest.TestCase):
         self.assertEqual(res,None,
                          msg='Any error occurred during gridding')
         self.getdata()
-        
+
         # center is only nonzero pixel
         npol=1
         width=1
@@ -392,7 +392,7 @@ class sdgridold_clipping(sdgridold_unittest_base,unittest.TestCase):
         # pol0 must be 1.0
         pol0=self.data[0,nonzeropix[0]]
         self.check(1.0,pol0)
-        
+
 
 ###
 # Test for flag
@@ -403,7 +403,7 @@ class sdgridold_flagging(sdgridold_unittest_base,unittest.TestCase):
     test300. test channel flag
     test301. test row flag
     test302. test row flag (all rows of a pol flagged)
-    test303. test combination of channel and row flags 
+    test303. test combination of channel and row flags
 
     Input data has 2 pol x 4channels x 2 rows.
     [How to generate input data]
@@ -427,7 +427,7 @@ class sdgridold_flagging(sdgridold_unittest_base,unittest.TestCase):
     rawfile='testgrid4chan.1point.asap'
     outfile='sdgridold_flagging.asap'
     nchan = 4
-    
+
     def setUp(self):
         if os.path.exists(self.rawfile):
             shutil.rmtree(self.rawfile)
@@ -443,7 +443,7 @@ class sdgridold_flagging(sdgridold_unittest_base,unittest.TestCase):
 
     def test300(self):
         """Test 300: Test channel flagging"""
-        # channel flag pol0 data chan=0~1 @row0 and chan=1~2@row1 
+        # channel flag pol0 data chan=0~1 @row0 and chan=1~2@row1
         tb.open(self.rawfile,nomodify=False)
         subtb = tb.query("POLNO==0")
         for irow in range(subtb.nrows()):
@@ -530,7 +530,7 @@ class sdgridold_flagging(sdgridold_unittest_base,unittest.TestCase):
         self.assertEqual(res,None,
                          msg='Any error occurred during gridding')
         self._test_results(self.outfile, refdata)
-    
+
     def _test_results(self, filename, refdata):
         # assert output file is generated
         self._checkfile(filename)
@@ -574,7 +574,7 @@ class sdgridold_weighting(sdgridold_unittest_base,unittest.TestCase):
     Test various weighting: UNIFORM, TSYS, TINTSYS
     """
     rawfile='testimage1chan.1point.asap'
-    
+
     def setUp(self):
         if os.path.exists(self.rawfile):
             shutil.rmtree(self.rawfile)
@@ -615,7 +615,7 @@ class sdgridold_weighting(sdgridold_unittest_base,unittest.TestCase):
         # pol0 must be 5.5 (={10.0+1.0}/{1.0+1.0}
         pol0=self.data[0,nonzeropix[0]]
         self.check(5.5,pol0)
-        
+
     def test401(self):
         """Test 401: test TINT weighting"""
         # modify INTERVAL
@@ -644,7 +644,7 @@ class sdgridold_weighting(sdgridold_unittest_base,unittest.TestCase):
         # pol0 must be 4.0 (={10.0*0.5+1.0*1.0}/{0.5+1.0})
         pol0=self.data[0,nonzeropix[0]]
         self.check(4.0,pol0)
-        
+
 
     def test402(self):
         """Test402: test TSYS weighting"""
@@ -674,7 +674,7 @@ class sdgridold_weighting(sdgridold_unittest_base,unittest.TestCase):
         # pol0 must be 4.0 (={10.0*0.5+1.0*1.0}/{0.5+1.0})
         pol0=self.data[0,nonzeropix[0]]
         self.check(4.0,pol0)
-        
+
 
     def test403(self):
         """Test403: test TINTSYS weighting"""
@@ -708,7 +708,7 @@ class sdgridold_weighting(sdgridold_unittest_base,unittest.TestCase):
         # pol0 must be 2.8 (={10.0*0.5*0.5+1.0*1.0*1.0}/{0.5*0.5+1.0*1.0})
         pol0=self.data[0,nonzeropix[0]]
         self.check(2.8,pol0)
-        
+
 ###
 # Test grid map data
 ###
@@ -750,7 +750,7 @@ class sdgridold_map(sdgridold_unittest_base,unittest.TestCase):
         #self.check(0.625,pol0)
         #self.check(0.5,pol0)
         self.check(0.6666666667,pol0)
-        
+
         pol1=self.data[0,nonzeropix[1]]
         #self.check(0.0625,pol1)
         #self.check(0.05,pol1)
@@ -800,7 +800,7 @@ class sdgridold_map(sdgridold_unittest_base,unittest.TestCase):
         self.assertEqual(res,None,
                          msg='Any error occurred during gridding')
         self.getdata()
-        
+
         # default width for GAUSS is 4
         width=3
         npol=2
@@ -834,7 +834,7 @@ class sdgridold_map(sdgridold_unittest_base,unittest.TestCase):
         self.assertEqual(res,None,
                          msg='Any error occurred during gridding')
         self.getdata()
-        
+
         # default width for GAUSS is 4
         width=3
         npol=2
@@ -859,7 +859,7 @@ class sdgridold_dec_correction(sdgridold_unittest_base,unittest.TestCase):
     Test DEC correction factor for horizontal (R.A.) auto grid setting.
     """
     rawfile='testimage1chan.1point.asap'
-    
+
     def setUp(self):
         if os.path.exists(self.rawfile):
             shutil.rmtree(self.rawfile)
@@ -910,7 +910,7 @@ class sdgridold_grid_center(sdgridold_unittest_base,unittest.TestCase):
     Test to change center for gridding
     """
     rawfile='testimage1chan.1point.asap'
-    
+
     def setUp(self):
         if os.path.exists(self.rawfile):
             shutil.rmtree(self.rawfile)
@@ -941,7 +941,7 @@ class sdgridold_grid_center(sdgridold_unittest_base,unittest.TestCase):
                          msg='Any error occurred during gridding')
 
         self.getdata()
-        
+
         # center is only nonzero pixel
         npol=2
         width=1
@@ -972,7 +972,7 @@ class sdgridold_grid_center(sdgridold_unittest_base,unittest.TestCase):
                          msg='Any error occurred during gridding')
 
         self.getdata()
-        
+
         # center is only nonzero pixel
         npol=2
         width=1
@@ -985,7 +985,7 @@ class sdgridold_grid_center(sdgridold_unittest_base,unittest.TestCase):
         #print nonzeropix_ref
         #print nonzeropix
         self.nonzero(nonzeropix_ref,nonzeropix)
-    
+
 class sdgridold_selection(selection_syntax.SelectionSyntaxTest,
                        sdgridold_unittest_base,unittest.TestCase):
     """
@@ -1002,11 +1002,11 @@ class sdgridold_selection(selection_syntax.SelectionSyntaxTest,
 
     gfunc='box'
     npix=1
-    
+
     @property
     def task(self):
         return sdgridold
-    
+
     @property
     def spw_channel_selection(self):
         return False
@@ -1039,7 +1039,7 @@ class sdgridold_selection(selection_syntax.SelectionSyntaxTest,
         for irow in range(nrow):
             sp.append(tb.getcell('SPECTRA',irow))
             self.assertEqual(len(sp[irow]),len(rsp[irow]),
-                             msg='SPECTRA: number of channel mismatch in row%s'%(irow)) 
+                             msg='SPECTRA: number of channel mismatch in row%s'%(irow))
         tb.close()
         # check data
         valuetype=type(sp[0][0])
@@ -1068,8 +1068,8 @@ class sdgridold_selection(selection_syntax.SelectionSyntaxTest,
             for irow in range(nrow):
                 sp.append(tb.getcell('SPECTRA',irow))
                 self.assertEqual(len(sp[irow]),len(rsp[irow]),
-                                 msg='SPECTRA: number of channel mismatch in row%s'%(irow)) 
-        
+                                 msg='SPECTRA: number of channel mismatch in row%s'%(irow))
+
         # check data
         valuetype=type(sp[0][0])
         #print ''
@@ -1092,7 +1092,7 @@ class sdgridold_selection(selection_syntax.SelectionSyntaxTest,
         tbsel = {'SCANNO': [0], 'IFNO': [23]}
         tbselref = {'SCANNO': [15,16,17], 'IFNO': [23]}
         self._comparecal_with_selection(self.outname, tbsel, self.reffile, tbselref)
-    
+
     def test_scan_id_exact(self):
         """ test scan selection (scan='15')"""
         scan = '15'
@@ -1119,7 +1119,7 @@ class sdgridold_selection(selection_syntax.SelectionSyntaxTest,
         tbsel = {'SCANNO': [0], 'IFNO': [23]}
         tbselref = {'SCANNO': [16,17], 'IFNO': [23]}
         self._comparecal_with_selection(self.outname, tbsel, self.reffile, tbselref)
-    
+
     def test_scan_id_range(self):
         """ test scan selection (scan='15~16')"""
         scan = '15~16'
@@ -1128,7 +1128,7 @@ class sdgridold_selection(selection_syntax.SelectionSyntaxTest,
         tbsel = {'SCANNO': [0], 'IFNO': [23]}
         tbselref = {'SCANNO': [15,16], 'IFNO': [23]}
         self._comparecal_with_selection(self.outname, tbsel, self.reffile, tbselref)
-    
+
     def test_scan_id_list(self):
         """ test scan selection (scan='15,17')"""
         scan = '15,17'
@@ -1137,7 +1137,7 @@ class sdgridold_selection(selection_syntax.SelectionSyntaxTest,
         tbsel = {'SCANNO': [0], 'IFNO': [23]}
         tbselref = {'SCANNO': [15,17], 'IFNO': [23]}
         self._comparecal_with_selection(self.outname, tbsel, self.reffile, tbselref)
-    
+
     def test_scan_id_exprlist(self):
         """ test scan selection (scan='<16, 17')"""
         scan = '<16, 17'
@@ -1165,7 +1165,7 @@ class sdgridold_selection(selection_syntax.SelectionSyntaxTest,
         self.assertEqual(self.res,None, msg='Any error occurred during calibration')
         tbsel = {'POLNO': [1], 'IFNO': [23]}
         self._comparecal_with_selection(self.outname, tbsel)
-    
+
     def test_pol_id_lt(self):
         """ test pol selection (pol='<1')"""
         pol = '<1'
@@ -1181,7 +1181,7 @@ class sdgridold_selection(selection_syntax.SelectionSyntaxTest,
         self.assertEqual(self.res,None, msg='Any error occurred during calibration')
         tbsel = {'POLNO': [1], 'IFNO': [23]}
         self._comparecal_with_selection(self.outname, tbsel)
-    
+
     def test_pol_id_range(self):
         """ test pol selection (pol='0~1')"""
         pol = '0~1'
@@ -1189,7 +1189,7 @@ class sdgridold_selection(selection_syntax.SelectionSyntaxTest,
         self.assertEqual(self.res,None, msg='Any error occurred during calibration')
         tbsel = {'POLNO': [0,1], 'IFNO': [23]}
         self._comparecal_with_selection(self.outname, tbsel)
-    
+
     def test_pol_id_list(self):
         """ test pol selection (pol='0,1')"""
         pol = '0,1'
@@ -1197,7 +1197,7 @@ class sdgridold_selection(selection_syntax.SelectionSyntaxTest,
         self.assertEqual(self.res,None, msg='Any error occurred during calibration')
         tbsel = {'POLNO': [0,1], 'IFNO': [23]}
         self._comparecal_with_selection(self.outname, tbsel)
-    
+
     def test_pol_id_exprlist(self):
         """test pol selection (pol='<1,1')"""
         pol = '<1,1'
@@ -1205,7 +1205,7 @@ class sdgridold_selection(selection_syntax.SelectionSyntaxTest,
         self.assertEqual(self.res,None, msg='Any error occurred during calibration')
         tbsel = {'POLNO': [0,1], 'IFNO': [23]}
         self._comparecal_with_selection(self.outname, tbsel)
-    
+
     ####################
     # spw
     #
@@ -1253,7 +1253,7 @@ class sdgridold_selection(selection_syntax.SelectionSyntaxTest,
     def test_spw_id_pattern(self):
         """test spw selection (spw='*')"""
         pass
-    
+
     def test_spw_value_frequency(self):
         """test spw selection (spw='300~400GHz')"""
         spw='300~400GHz'
@@ -1261,7 +1261,7 @@ class sdgridold_selection(selection_syntax.SelectionSyntaxTest,
         self.assertEqual(self.res,None, msg='Any error occurred during calibration')
         tbsel = {'IFNO': [25]}
         self._comparecal_with_selection(self.outname, tbsel)
-    
+
     def test_spw_value_velocity(self):
         """test spw selection (spw='-50~50km/s')"""
         spw='-50~50km/s'
@@ -1273,7 +1273,7 @@ class sdgridold_selection(selection_syntax.SelectionSyntaxTest,
     def test_spw_mix_exprlist(self):
         """test spw selection (spw='150~550km/s,>23')"""
         pass
-    
+
     ####################
     # Helper functions
     ####################
@@ -1285,7 +1285,7 @@ class sdgridold_selection(selection_syntax.SelectionSyntaxTest,
         spref=self._getspectra_selected(ref, tbselref)
 
         self._checkshape( sp, spref )
-        
+
         for irow in range(len(sp)):
             diff=self._diff(numpy.array(sp[irow]),numpy.array(spref[irow]))
             retval=numpy.all(diff<0.01)
@@ -1297,7 +1297,7 @@ class sdgridold_selection(selection_syntax.SelectionSyntaxTest,
     def _getspectra_selected( self, name, tbsel={} ):
         """
         Returns an array of spectra in rows selected in table.
-        
+
         name  : the name of scantable
         tbsel : a dictionary of table selection information.
                 The key should be column name and the value should be

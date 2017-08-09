@@ -50,7 +50,7 @@
 #
 # <synopsis>
 # specfit fits models to 1-d profiles. It is built on top of ia.fitprofile()
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 # specfit(imagename="myline.im", ngauss=2, poly=3, model="mymodel.im", multi=true, residual="myresid.im")
@@ -66,15 +66,15 @@
 from taskinit import *
 
 def specfit(
-	imagename=None, box=None, region=None, chans=None,
-	stokes=None, axis=None, mask=None, ngauss=None,
-	poly=None, estimates=None, minpts=None, multifit=None,
-	model=None, residual=None, amp=None, amperr=None,
-	center=None, centererr=None, fwhm=None, fwhmerr=None,
-	integral=None, integralerr=None, wantreturn=None,
-	stretch=None, logresults=None, pampest=None,
-	pcenterest=None, pfwhmest=None, pfix=None,
-	gmncomps=None, gmampcon=None, gmcentercon=None,
+        imagename=None, box=None, region=None, chans=None,
+        stokes=None, axis=None, mask=None, ngauss=None,
+        poly=None, estimates=None, minpts=None, multifit=None,
+        model=None, residual=None, amp=None, amperr=None,
+        center=None, centererr=None, fwhm=None, fwhmerr=None,
+        integral=None, integralerr=None, wantreturn=None,
+        stretch=None, logresults=None, pampest=None,
+        pcenterest=None, pfwhmest=None, pfix=None,
+        gmncomps=None, gmampcon=None, gmcentercon=None,
     gmfwhmcon=None, gmampest=None, gmcenterest=None,
     gmfwhmest=None, gmfix=None, logfile=None, append=None,
     pfunc=None, goodamprange=None, goodcenterrange=None,
@@ -87,36 +87,36 @@ def specfit(
         if (not myia.open(imagename)):
             raise Exception("Cannot create image analysis tool using " + imagename)
         retval = myia.fitprofile(
-			box=box, region=region, chans=chans,
-			stokes=stokes, axis=axis, mask=mask,
-			ngauss=ngauss, poly=poly,
-			estimates=estimates, minpts=minpts,
-			multifit=multifit, model=model,
-			residual=residual, amp=amp, amperr=amperr,
-			center=center, centererr=centererr,
-			fwhm=fwhm, fwhmerr=fwhmerr,
-			integral=integral, integralerr=integralerr,
-			stretch=stretch, logresults=logresults,
-			pampest=pampest, pcenterest=pcenterest,
-			pfwhmest=pfwhmest, pfix=pfix,
-			gmncomps=gmncomps, gmampcon=gmampcon,
-			gmcentercon=gmcentercon, gmfwhmcon=gmfwhmcon,
-			gmampest=gmampest, gmcenterest=gmcenterest,
-			gmfwhmest=gmfwhmest, gmfix=gmfix, logfile=logfile,
-			append=append, pfunc=pfunc, goodamprange=goodamprange,
-			goodcenterrange=goodcenterrange, goodfwhmrange=goodfwhmrange,
-			sigma=sigma, outsigma=outsigma
-		)
+                        box=box, region=region, chans=chans,
+                        stokes=stokes, axis=axis, mask=mask,
+                        ngauss=ngauss, poly=poly,
+                        estimates=estimates, minpts=minpts,
+                        multifit=multifit, model=model,
+                        residual=residual, amp=amp, amperr=amperr,
+                        center=center, centererr=centererr,
+                        fwhm=fwhm, fwhmerr=fwhmerr,
+                        integral=integral, integralerr=integralerr,
+                        stretch=stretch, logresults=logresults,
+                        pampest=pampest, pcenterest=pcenterest,
+                        pfwhmest=pfwhmest, pfix=pfix,
+                        gmncomps=gmncomps, gmampcon=gmampcon,
+                        gmcentercon=gmcentercon, gmfwhmcon=gmfwhmcon,
+                        gmampest=gmampest, gmcenterest=gmcenterest,
+                        gmfwhmest=gmfwhmest, gmfix=gmfix, logfile=logfile,
+                        append=append, pfunc=pfunc, goodamprange=goodamprange,
+                        goodcenterrange=goodcenterrange, goodfwhmrange=goodfwhmrange,
+                        sigma=sigma, outsigma=outsigma
+                )
     except Exception as instance:
         casalog.post( str( '*** Error ***') + str(instance), 'SEVERE')
         retval = None
     myia.done()
     if (wantreturn):
-    	return retval
+        return retval
     else:
-    	if (retval):
-    	   del retval
-    	return None
+        if (retval):
+           del retval
+        return None
 
 
 

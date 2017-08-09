@@ -47,20 +47,20 @@
 #
 # <synopsis>
 # Test for the ia.fromimage() tool method
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_fromimage[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the ia.fromimage() tool method to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -74,14 +74,14 @@ import unittest
 import numpy
 
 class ia_fromimage_test(unittest.TestCase):
-    
+
     def setUp(self):
         self._myia = iatool()
-    
+
     def tearDown(self):
         self._myia.done()
         self.assertTrue(len(tb.showcache()) == 0)
-        
+
     def test_history(self):
         """test writing of history"""
         myia = self._myia
@@ -93,6 +93,6 @@ class ia_fromimage_test(unittest.TestCase):
         myia.done()
         self.assertTrue("ia.fromimage" in msgs[-2])
         self.assertTrue("ia.fromimage" in msgs[-1])
-        
+
 def suite():
     return [ia_fromimage_test]

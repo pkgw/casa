@@ -45,7 +45,7 @@
 # </etymology>
 #
 # <synopsis>
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 # </example>
@@ -67,7 +67,7 @@ from taskinit import *
 from tasks import msview
 
 class msview_test(unittest.TestCase):
-    
+
     def checkDisplay(self):
         self.assertGreater(len(self.display), 0, 'DISPLAY not set, cannot run test')
 
@@ -86,7 +86,7 @@ class msview_test(unittest.TestCase):
     #def tearDownClass(self):
     #    """removing test images"""
     #    shutil.rmtree(self.testms)
-        
+
     def setUp(self):
         self.checkDisplay()
 

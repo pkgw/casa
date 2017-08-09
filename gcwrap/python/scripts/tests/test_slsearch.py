@@ -38,7 +38,7 @@
 #
 # <prerequisite>
 # <ul>
-#   <li> <linkto class="task_slsearch.py:description">slsearch</linkto> 
+#   <li> <linkto class="task_slsearch.py:description">slsearch</linkto>
 # </ul>
 # </prerequisite>
 #
@@ -48,20 +48,20 @@
 #
 # <synopsis>
 # Test the slsearch task and the sl.search() method upon which it is built.
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_slsearch[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the slsearch task to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -99,7 +99,7 @@ def run_search(
         raise
     finally:
         mysl.done()
-   
+
 
 def run_slsearch(
     table, outfile, freqrange, species, reconly,
@@ -122,7 +122,7 @@ def run_slsearch(
 _mycount = 0
 
 class slsearch_test(unittest.TestCase):
-    
+
     def _testit(
         self, table, outfile, freqrange, species, reconly,
         chemnames, qns, intensity, smu2, loga, el,
@@ -137,7 +137,7 @@ class slsearch_test(unittest.TestCase):
                 mysl = run_search(table, outfile,
                     freqrange, species, reconly, chemnames,
                     qns, intensity, smu2, loga, el, eu,
-                    rrlinclude, rrlonly, verbose, logfile, 
+                    rrlinclude, rrlonly, verbose, logfile,
                     append
                 )
             else:
@@ -162,7 +162,7 @@ class slsearch_test(unittest.TestCase):
                 shutil.rmtree(outfile)
             mytb.done()
 
-    
+
     def setUp(self):
         datapath=os.environ.get('CASAPATH').split()[0]+'/data/regression/unittest/slsearch/'
         shutil.copytree(datapath + good_table, good_table)
@@ -176,7 +176,7 @@ class slsearch_test(unittest.TestCase):
         def testit(
             table, outfile, freqrange, species, reconly,
             chemnames, qns, intensity, smu2, loga, el,
-            eu, rrlinclude, rrlonly, verbose, logfile, 
+            eu, rrlinclude, rrlonly, verbose, logfile,
             append
         ):
             for i in [0, 1]:
@@ -185,7 +185,7 @@ class slsearch_test(unittest.TestCase):
                         Exception, run_search, table, outfile,
                         freqrange, species, reconly, chemnames,
                         qns, intensity, smu2, loga, el, eu,
-                        rrlinclude, rrlonly, verbose, logfile, 
+                        rrlinclude, rrlonly, verbose, logfile,
                         append
                     )
                     self.assertTrue(len(tb.showcache()) == 0)
@@ -245,7 +245,7 @@ class slsearch_test(unittest.TestCase):
             loga=[-1], el=[-1], eu=[-1], rrlinclude=True, rrlonly=False,
             verbose=False, logfile="", append=True, nrows=67858
         )
-        
+
     def test_freqrange(self):
         """ test various settings of the freqrange parameter"""
 
@@ -277,7 +277,7 @@ class slsearch_test(unittest.TestCase):
             loga=[-1], el=[-1], eu=[-1], rrlinclude=True, rrlonly=False,
             verbose=False, logfile="", append=True, nrows=81
         )
-        
+
     def test_chemnames(self):
         """ test various settings of the chemnames parameter"""
 

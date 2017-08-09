@@ -2,7 +2,7 @@
 # $Id:$
 # Test Name:                                                                #
 #    Unit Test Script for the virtualconcat task
-#    
+#
 #                                                                           #
 #############################################################################
 import os
@@ -26,7 +26,7 @@ testmms=False
 
 def checktable(thename, theexpectation, multims=False):
     global msname, myname
-    if multims:        
+    if multims:
         tb.open(msname+"/SUBMSS/"+thename)
     else:
         tb.open(msname+"/"+thename)
@@ -44,12 +44,12 @@ def checktable(thename, theexpectation, multims=False):
             if mycell[3] == 0:
                 in_agreement = (value == mycell[2])
             else:
-                in_agreement = ( abs(value - mycell[2]) < mycell[3]) 
+                in_agreement = ( abs(value - mycell[2]) < mycell[3])
         else:
             # it's an array
             # zero tolerance?
             if mycell[3] == 0:
-                in_agreement =  (value == mycell[2]).all() 
+                in_agreement =  (value == mycell[2]).all()
             else:
                 try:
                     in_agreement = (abs(value - mycell[2]) < mycell[3]).all()
@@ -67,10 +67,10 @@ def checktable(thename, theexpectation, multims=False):
 
 
 ###########################
-# beginning of actual test 
+# beginning of actual test
 
 class test_virtualconcat(unittest.TestCase):
-    
+
     def setUp(self):
         global testmms
         res = None
@@ -78,7 +78,7 @@ class test_virtualconcat(unittest.TestCase):
         datapath=os.environ.get('CASAPATH').split()[0]+'/data/regression/unittest/concat/input/'
         # Pick up alternative data directory to run tests on MMSs
         testmms = False
-        if 'TEST_DATADIR' in os.environ:   
+        if 'TEST_DATADIR' in os.environ:
             testmms = True
             print("\nTesting on MMSs ...\n")
             DATADIR = str(os.environ.get('TEST_DATADIR'))
@@ -95,14 +95,14 @@ class test_virtualconcat(unittest.TestCase):
         os.chdir(cpath)
 
         default(virtualconcat)
-        
+
     def tearDown(self):
         shutil.rmtree(msname,ignore_errors=True)
 
     def test1(self):
         '''Virtualconcat 1: 4 parts, same sources but different spws'''
-        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }    
-        
+        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
+
         self.res = virtualconcat(vis=['part1.ms','part2.ms','part3.ms','part4.ms'],concatvis=msname)
         self.assertEqual(self.res,None)
 
@@ -152,7 +152,7 @@ class test_virtualconcat(unittest.TestCase):
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
         self.res = virtualconcat(vis=['part1.ms','part2-mod.ms','part3.ms'],concatvis=msname, visweightscale=[3.,2.,1.], keepcopy=True)
         self.assertEqual(self.res,None)
-        
+
         print(myname, ": Now checking output MS ", msname)
         try:
             ms.open(msname)
@@ -225,7 +225,7 @@ class test_virtualconcat(unittest.TestCase):
 
     def test3(self):
         '''Virtualconcat 3: 3 parts, different sources, same spws'''
-        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }    
+        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
         self.res = virtualconcat(vis=['part1.ms','part2-mod2.ms','part3.ms'],concatvis=msname)
         self.assertEqual(self.res,None)
 
@@ -273,7 +273,7 @@ class test_virtualconcat(unittest.TestCase):
     def test4(self):
         '''Virtualconcat 4: five MSs with identical sources but different time/intervals on them (CSV-268)'''
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
-        
+
         self.res = virtualconcat(vis = ['shortpart1.ms', 'shortpart2.ms', 'shortpart3.ms', 'shortpart4.ms', 'shortpart5.ms'],
                           concatvis = msname)
         self.assertEqual(self.res,None)
@@ -293,8 +293,8 @@ class test_virtualconcat(unittest.TestCase):
             shutil.copytree(msname,'test4.ms', True)
             print(myname, ": OK. Checking tables in detail ...")
             retValue['success']=True
-        
-    
+
+
             # check source table
             name = "SOURCE"
             #             col name, row number, expected value, tolerance
@@ -340,7 +340,7 @@ class test_virtualconcat(unittest.TestCase):
             except:
                 print("Expected error.")
                 results = False
-            if results: 
+            if results:
                 retValue['success']=False
                 retValue['error_msgs']='SOURCE row 16 should not existCheck of table '+name+' failed'
             # check spw table
@@ -353,14 +353,14 @@ class test_virtualconcat(unittest.TestCase):
             if not results:
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+'Check of table '+name+' failed'
-    
-                
+
+
         self.assertTrue(retValue['success'])
-        
+
     def test5(self):
         '''Virtualconcat 5: two MSs with different state table (CAS-2601)'''
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
-        
+
         self.res = virtualconcat(vis = ['A2256LC2_4.5s-1.ms','A2256LC2_4.5s-2.ms'],
                           concatvis = msname)
         self.assertEqual(self.res,None)
@@ -378,8 +378,8 @@ class test_virtualconcat(unittest.TestCase):
                 shutil.rmtree('test5.ms',ignore_errors=True)
             shutil.copytree(msname,'test5.ms', True)
             print(myname, ": OK. Checking tables in detail ...")
-            retValue['success']=True        
-    
+            retValue['success']=True
+
             # check state table
             name = "STATE"
             #             col name, row number, expected value, tolerance
@@ -393,13 +393,13 @@ class test_virtualconcat(unittest.TestCase):
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+'Check of table '+name+' failed'
                 retValue['error_msgs']=retValue['error_msgs']+'Check of table '+name+' failed'
-                
+
         self.assertTrue(retValue['success'])
 
     def test6(self):
         '''Virtualconcat 6: two MSs with different state table and feed table'''
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
-        
+
         self.res = virtualconcat(vis = ['A2256LC2_4.5s-1.ms','A2256LC2_4.5s-2b.ms'],
                           concatvis = msname)
         self.assertEqual(self.res,None)
@@ -418,8 +418,8 @@ class test_virtualconcat(unittest.TestCase):
                 shutil.rmtree('test6.ms',ignore_errors=True)
             shutil.copytree(msname,'test6.ms', True)
             print(myname, ": OK. Checking tables in detail ...")
-            retValue['success']=True        
-    
+            retValue['success']=True
+
             # check FEED table
             name = "FEED"
             #             col name, row number, expected value, tolerance
@@ -434,13 +434,13 @@ class test_virtualconcat(unittest.TestCase):
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+'Check of table '+name+' failed'
                 retValue['error_msgs']=retValue['error_msgs']+'Check of table '+name+' failed'
-                
+
         self.assertTrue(retValue['success'])
 
     def test7(self):
         '''Virtualconcat 7: two MSs with different antenna table such that baseline label reversal becomes necessary'''
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
-        
+
         self.res = virtualconcat(vis = ['sim7.ms','sim8.ms'],
                           concatvis = msname)
         self.assertEqual(self.res,None)
@@ -459,8 +459,8 @@ class test_virtualconcat(unittest.TestCase):
                 shutil.rmtree('test7.ms',ignore_errors=True)
             shutil.copytree(msname,'test7.ms', True)
             print(myname, ": OK. Checking tables in detail ...")
-            retValue['success']=True        
-    
+            retValue['success']=True
+
             # check Main table
             tb.open('test7.ms')
             ant1 = tb.getcol('ANTENNA1')
@@ -478,7 +478,7 @@ class test_virtualconcat(unittest.TestCase):
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+'Check of table '+name+' failed'
                 retValue['error_msgs']=retValue['error_msgs']+'Check of table '+name+' failed'
-                
+
         self.assertTrue(retValue['success'])
 
     def test8(self):
@@ -488,7 +488,7 @@ class test_virtualconcat(unittest.TestCase):
         os.system('rm -rf ref'+msname)
         concat(vis = ['sim7.ms','sim8.ms'],
                concatvis = "ref"+msname, copypointing=False)
-        
+
         self.res = virtualconcat(vis = ['sim7.ms','sim8.ms'],
                           concatvis = msname, copypointing=False)
         self.assertEqual(self.res,None)
@@ -507,14 +507,14 @@ class test_virtualconcat(unittest.TestCase):
                 shutil.rmtree('test8.ms',ignore_errors=True)
             shutil.copytree(msname,'test8.ms', True)
             print(myname, ": OK. Checking tables in detail ...")
-            retValue['success']=True        
-    
+            retValue['success']=True
+
             # check Main table
             tb.open("ref"+msname)
             ant1ref = tb.getcol('ANTENNA1')
             ant2ref = tb.getcol('ANTENNA2')
-            tb.close()            
-            
+            tb.close()
+
             tb.open('test8.ms')
             ant1 = tb.getcol('ANTENNA1')
             ant2 = tb.getcol('ANTENNA2')
@@ -531,12 +531,12 @@ class test_virtualconcat(unittest.TestCase):
                     print("Found disagreement in ANTENNA1 in row ", i, ": ", ant1, " ", ant1ref)
                     result = False
                     break
-                    
+
                 if(ant2[i]!=ant2ref[i]):
                     print("Found disagreement in ANTENNA2 in row ", i, ": ", ant2, " ", ant2ref)
                     result = False
                     break
-                
+
             if result:
                 print(myname, ": OK. Checking pointing table ...")
 
@@ -550,7 +550,7 @@ class test_virtualconcat(unittest.TestCase):
             if not result:
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+'Check of tables main and/or pointing failed'
-                
+
         self.assertTrue(retValue['success'])
 
 
@@ -617,7 +617,7 @@ class test_virtualconcat(unittest.TestCase):
                 retValue['error_msgs']=retValue['error_msgs']+'Check of table '+name+' failed'
 
         self.assertTrue(retValue['success'])
-        
+
     def test10(self):
         '''Virtualconcat 10: 3 parts, different sources, same spws, different scratch columns: yes, no, no'''
         global testmms
@@ -692,7 +692,7 @@ class test_virtualconcat(unittest.TestCase):
             shutil.rmtree('allparts.ms', ignore_errors=True)
             shutil.rmtree('allparts.mms', ignore_errors=True)
             os.system('rm -f ms.txt mms.txt')
-        
+
             thebeginning = time.time()
             concat(vis=['part1.ms','part2.ms','part3.ms','part4.ms'], concatvis='allparts.ms')
             theend = time.time()
@@ -702,7 +702,7 @@ class test_virtualconcat(unittest.TestCase):
             virtualconcat(vis=['part1.ms','part2.ms','part3.ms','part4.ms'], concatvis='allparts.mms')
             theend = time.time()
             print("duration using virtualconcat (s) =", theend-thebeginning)
-        
+
             listobs(vis='allparts.ms', listfile='ms.txt')
             shutil.rmtree('allparts.ms')
             shutil.move('allparts.mms', 'allparts.ms') # to get same file name
@@ -716,7 +716,7 @@ class test_virtualconcat(unittest.TestCase):
     def test12(self):
         '''Virtualconcat 12: two MSs with different antenna tables, copypointing=True (default)'''
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
-        
+
         self.res = virtualconcat(vis = ['sim7.ms','sim8.ms'],
                           concatvis = msname, copypointing=True)
         self.assertEqual(self.res,None)
@@ -735,7 +735,7 @@ class test_virtualconcat(unittest.TestCase):
                 shutil.rmtree('test12.ms',ignore_errors=True)
             shutil.copytree(msname,'test12.ms', True)
             print(myname, ": OK. Checking tables in detail ...")
-            retValue['success']=True        
+            retValue['success']=True
 
             result = True
             tb.open('test12.ms/POINTING')
@@ -747,12 +747,12 @@ class test_virtualconcat(unittest.TestCase):
             if not result:
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+'Check of pointing table failed'
-                
+
         self.assertTrue(retValue['success'])
 
     def test13(self):
         '''Virtualconcat 13: 3 parts, SD data, one non-concurrent, two concurrent (CAS-5316)'''
-        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }    
+        retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
         self.res = virtualconcat(vis=['X39a.pm03.scan3.ms', 'X425.pm03.scan4.ms', 'X425.pm04.scan4.ms'],concatvis=msname)
         self.assertEqual(self.res, None)
 
@@ -782,17 +782,17 @@ class test_virtualconcat(unittest.TestCase):
 
 
 
-class virtualconcat_cleanup(unittest.TestCase):           
+class virtualconcat_cleanup(unittest.TestCase):
     def setUp(self):
         pass
-    
+
     def tearDown(self):
         os.system('rm -rf *.ms')
 
     def testrun(self):
         '''Virtualconcat: Cleanup'''
         pass
-    
+
 def suite():
-    return [test_virtualconcat,virtualconcat_cleanup]        
-        
+    return [test_virtualconcat,virtualconcat_cleanup]
+

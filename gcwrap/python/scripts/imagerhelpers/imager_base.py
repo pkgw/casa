@@ -12,7 +12,7 @@ import copy
 A set of helper functions for tclean.
 
 Summary...
-    
+
 '''
 
 #############################################
@@ -44,7 +44,7 @@ class PySynthesisImager:
             self.stopMinor[str(immod)]=1.0
         ## Number of nodes. This gets set for parallel runs
         ## It can also be used serially to process the major cycle in pieces.
-        self.NN = 1 
+        self.NN = 1
         ## for debug mode automask incrementation only
         self.ncycle = 0
 #        isvalid = self.checkParameters()
@@ -69,13 +69,13 @@ class PySynthesisImager:
             self.dryGridding();
             self.fillCFCache();
             self.reloadCFCache();
-        
+
 #############################################
     def initializeImagers(self):
-        
+
         ## Initialize the tool for the current node
         self.SItool = casac.synthesisimager()
- 
+
         ##print 'impars ', self.allimpars['0']['specmode'], 'frame', self.allimpars['0']['outframe']
         ## Send in selection parameters for all MSs in the list.
         for mss in sorted( (self.allselpars).keys() ):
@@ -88,7 +88,7 @@ class PySynthesisImager:
 #        nimpars = copy.deepcopy(self.allimpars)
 #        for fld in range(0,self.NF):
 #            self.SItool.defineimage( **( nimpars[str(fld)]  ) )
-        
+
         # If cfcache directory already exists, assume that it is
         # usable and is correct.  makeCFCache call then becomes a
         # NoOp.
@@ -100,7 +100,7 @@ class PySynthesisImager:
         for fld in range(0,self.NF):
             #print "self.allimpars=",self.allimpars,"\n"
             self.SItool.defineimage( self.allimpars[str(fld)] , self.allgridpars[str(fld)] )
-    
+
         # For cube imaging:  align the data selections and image setup
         if self.allimpars['0']['specmode'] != 'mfs' and self.allimpars['0']['specmode'] != 'cubedata':
             self.SItool.tuneselectdata()
@@ -176,7 +176,7 @@ class PySynthesisImager:
          self.SDtools=[]
          self.PStools=[]
          self.IBtool=None
-    
+
 #############################################
 
     def deleteTools(self):
@@ -191,9 +191,9 @@ class PySynthesisImager:
 
     def hasConverged(self):
         # Merge peak-res info from all fields to decide iteration parameters
-         self.IBtool.resetminorcycleinfo() 
+         self.IBtool.resetminorcycleinfo()
          for immod in range(0,self.NF):
-              initrec =  self.SDtools[immod].initminorcycle() 
+              initrec =  self.SDtools[immod].initminorcycle()
               self.IBtool.mergeinitrecord( initrec );
 
 #         # Run interactive masking (and threshold/niter editors)
@@ -208,16 +208,16 @@ class PySynthesisImager:
              stopreasons = ['iteration limit', 'threshold', 'force stop','no change in peak residual across two major cycles', 'peak residual increased by more than 5 times from the previous major cycle','peak residual increased by more than 5 times from the minimum reached','zero mask']
              casalog.post("Reached global stopping criterion : " + stopreasons[stopflag-1], "INFO")
 
-             # revert the current automask to the previous one 
+             # revert the current automask to the previous one
              #if self.iterpars['interactive']:
              for immod in range(0,self.NF):
                      if self.alldecpars[str(immod)]['usemask'].count('auto')>0:
                         prevmask = self.allimpars[str(immod)]['imagename']+'.prev.mask'
                         if os.path.isdir(prevmask):
-                          # Try to force rmtree even with an error as an nfs mounted disk gives an error 
+                          # Try to force rmtree even with an error as an nfs mounted disk gives an error
                           #shutil.rmtree(self.allimpars[str(immod)]['imagename']+'.mask')
                           shutil.rmtree(self.allimpars[str(immod)]['imagename']+'.mask', ignore_errors=True)
-                          # For NFS mounted disk it still leave .nfs* file(s) 
+                          # For NFS mounted disk it still leave .nfs* file(s)
                           if os.path.isdir(self.allimpars[str(immod)]['imagename']+'.mask'):
                               import glob
                               if glob.glob(self.allimpars[str(immod)]['imagename']+'.mask/.nfs*'):
@@ -229,7 +229,7 @@ class PySynthesisImager:
                                       else:
                                           shutil.copy2(src,dst)
                               shutil.rmtree(prevmask)
-                          else: 
+                          else:
                               shutil.move(prevmask,self.allimpars[str(immod)]['imagename']+'.mask')
                           casalog.post("[" + str(self.allimpars[str(immod)]['imagename']) + "] : Reverting output mask to one that was last used ", "INFO")
 
@@ -240,8 +240,8 @@ class PySynthesisImager:
         # Setup mask for each field ( input mask, and automask )
         maskchanged = False
         for immod in range(0,self.NF):
-            maskchanged = maskchanged | self.SDtools[immod].setupmask() 
-        
+            maskchanged = maskchanged | self.SDtools[immod].setupmask()
+
         # Run interactive masking (and threshold/niter editors), if interactive=True
         maskchanged = maskchanged | self.runInteractiveGUI2()
 
@@ -287,7 +287,7 @@ class PySynthesisImager:
 
         ### Gather PSFs (if needed) and normalize by weight
         for immod in range(0,self.NF):
-            self.PStools[immod].gatherpsfweight() 
+            self.PStools[immod].gatherpsfweight()
             self.PStools[immod].dividepsfbyweight()
 
 #############################################
@@ -295,7 +295,7 @@ class PySynthesisImager:
     def runMajorCycle(self):
         for immod in range(0,self.NF):
             self.PStools[immod].dividemodelbyweight()
-            self.PStools[immod].scattermodel() 
+            self.PStools[immod].scattermodel()
 
         if self.IBtool != None:
             lastcycle = (self.IBtool.cleanComplete(lastcyclecheck=True) > 0)
@@ -307,7 +307,7 @@ class PySynthesisImager:
             self.IBtool.endmajorcycle()
         ### Gather residuals (if needed) and normalize by weight
         for immod in range(0,self.NF):
-            self.PStools[immod].gatherresidual() 
+            self.PStools[immod].gatherresidual()
             self.PStools[immod].divideresidualbyweight()
             self.PStools[immod].multiplymodelbyweight()
 
@@ -315,10 +315,10 @@ class PySynthesisImager:
     def predictModel(self):
         for immod in range(0,self.NF):
             self.PStools[immod].dividemodelbyweight()
-            self.PStools[immod].scattermodel() 
+            self.PStools[immod].scattermodel()
 
         self.predictModelCore()
-        ###return the model images back to whatever state they were 
+        ###return the model images back to whatever state they were
         for immod in range(0,self.NF):
             self.PStools[immod].multiplymodelbyweight()
 ##        self.SItool.predictmodel();
@@ -337,13 +337,13 @@ class PySynthesisImager:
         self.cfcachepars['cflist']=cflist;
 
         #self.SItool.fillcfcache(**(self.cfcachepars), self.allgridpars['0']['gridder'],cfcName);
-        
+
         self.SItool.fillcfcache(cflist, self.allgridpars['0']['gridder'],
                                 cfcName,
                                 self.allgridpars['0']['psterm'],
                                 self.allgridpars['0']['aterm'],
                                 self.allgridpars['0']['conjbeams']);
-                  
+
 #############################################
     def reloadCFCache(self):
         self.SItool.reloadcfcache();
@@ -352,7 +352,7 @@ class PySynthesisImager:
     def makePB(self):
         self.makePBCore()
         for immod in range(0,self.NF):
-            self.PStools[immod].normalizeprimarybeam() 
+            self.PStools[immod].normalizeprimarybeam()
 
 #############################################
     def makePBCore(self):
@@ -364,12 +364,12 @@ class PySynthesisImager:
     def setWeighting(self):
         ## Set weighting parameters, and all pars common to all fields.
         self.SItool.setweighting( **(self.weightpars) )
-        
+
  #       print "get set density from python"
  #       self.SItool.getweightdensity()
  #       self.SItool.setweightdensity()
 
-        
+
 #############################################
 ## Overloaded for parallel runs
     def makePSFCore(self):
@@ -393,12 +393,12 @@ class PySynthesisImager:
         iterbotrec = self.IBtool.getminorcyclecontrols()
         ##print "Minor Cycle controls : ", iterbotrec
 
-        self.IBtool.resetminorcycleinfo() 
+        self.IBtool.resetminorcycleinfo()
 
         #
         # Run minor cycle
         self.ncycle+=1
-        for immod in range(0,self.NF):  
+        for immod in range(0,self.NF):
             if self.stopMinor[str(immod)]<3 :
                 exrec = self.SDtools[immod].executeminorcycle( iterbotrecord = iterbotrec )
                 #print '.... iterdone for ', immod, ' : ' , exrec['iterdone']
@@ -408,7 +408,7 @@ class PySynthesisImager:
                     tempmaskname = self.allimpars[str(immod)]['imagename']+'.autothresh'+str(self.ncycle)
                     if os.path.isdir(maskname):
                         shutil.copytree(maskname, tempmaskname)
-                
+
                 # Some what duplicated as above but keep a copy of the previous mask
                 # for interactive automask to revert to it if the current mask
                 # is not used (i.e. reached deconvolution stopping condition).
@@ -454,66 +454,66 @@ class PySynthesisImager:
         if minarr.size==0:
             casalog.post("Zero iteration: no summary plot is generated.", "WARN")
         else:
-	    iterlist = minarr[0,:]
-	    eps=0.0
-	    peakresstart=[]
-	    peakresend=[]
-	    modfluxstart=[]
-	    modfluxend=[]
-	    itercountstart=[]
-	    itercountend=[]
-	    peakresstart.append( minarr[1,:][0] )
-	    modfluxstart.append( minarr[2,:][0] )
-	    itercountstart.append( minarr[0,:][0] + eps )
-	    peakresend.append( minarr[1,:][0] )
-	    modfluxend.append( minarr[2,:][0] )
-	    itercountend.append( minarr[0,:][0] + eps )
-	    for ii in range(0,len(iterlist)-1):
-		if iterlist[ii]==iterlist[ii+1]:
-		    peakresend.append( minarr[1,:][ii] )
-		    peakresstart.append( minarr[1,:][ii+1] ) 
-		    modfluxend.append( minarr[2,:][ii] )
-		    modfluxstart.append( minarr[2,:][ii+1] )
-		    itercountend.append( iterlist[ii]-eps )
-		    itercountstart.append( iterlist[ii]+eps )
+            iterlist = minarr[0,:]
+            eps=0.0
+            peakresstart=[]
+            peakresend=[]
+            modfluxstart=[]
+            modfluxend=[]
+            itercountstart=[]
+            itercountend=[]
+            peakresstart.append( minarr[1,:][0] )
+            modfluxstart.append( minarr[2,:][0] )
+            itercountstart.append( minarr[0,:][0] + eps )
+            peakresend.append( minarr[1,:][0] )
+            modfluxend.append( minarr[2,:][0] )
+            itercountend.append( minarr[0,:][0] + eps )
+            for ii in range(0,len(iterlist)-1):
+                if iterlist[ii]==iterlist[ii+1]:
+                    peakresend.append( minarr[1,:][ii] )
+                    peakresstart.append( minarr[1,:][ii+1] )
+                    modfluxend.append( minarr[2,:][ii] )
+                    modfluxstart.append( minarr[2,:][ii+1] )
+                    itercountend.append( iterlist[ii]-eps )
+                    itercountstart.append( iterlist[ii]+eps )
 
-	    peakresend.append( minarr[1,:][len(iterlist)-1] )
-	    modfluxend.append( minarr[2,:][len(iterlist)-1] )
-	    itercountend.append( minarr[0,:][len(iterlist)-1] + eps )
+            peakresend.append( minarr[1,:][len(iterlist)-1] )
+            modfluxend.append( minarr[2,:][len(iterlist)-1] )
+            itercountend.append( minarr[0,:][len(iterlist)-1] + eps )
 
     #        pl.plot( iterlist , minarr[1,:] , 'r.-' , label='peak residual' , linewidth=1.5, markersize=8.0)
     #        pl.plot( iterlist , minarr[2,:] , 'b.-' , label='model flux' )
     #        pl.plot( iterlist , minarr[3,:] , 'g--' , label='cycle threshold' )
 
-	    pl.plot( itercountstart , peakresstart , 'r.--' , label='peak residual (start)')
-	    pl.plot( itercountend , peakresend , 'r.-' , label='peak residual (end)',linewidth=2.5)
-	    pl.plot( itercountstart , modfluxstart , 'b.--' , label='model flux (start)' )
-	    pl.plot( itercountend , modfluxend , 'b.-' , label='model flux (end)',linewidth=2.5 )
-	    pl.plot( iterlist , minarr[3,:] , 'g--' , label='cycle threshold', linewidth=2.5 )
-	    maxval = amax( minarr[1,:] )
-	    maxval = max( maxval, amax( minarr[2,:] ) )
-	    
-	    bcols = ['b','g','r','y','c']
-	    minv=1
-	    niterdone = len(minarr[4,:])
-	  
-	    if len(summ['summarymajor'].shape)==1 and summ['summarymajor'].shape[0]>0 :       
-		pl.vlines(summ['summarymajor'],0,maxval, label='major cycles', linewidth=2.0)
+            pl.plot( itercountstart , peakresstart , 'r.--' , label='peak residual (start)')
+            pl.plot( itercountend , peakresend , 'r.-' , label='peak residual (end)',linewidth=2.5)
+            pl.plot( itercountstart , modfluxstart , 'b.--' , label='model flux (start)' )
+            pl.plot( itercountend , modfluxend , 'b.-' , label='model flux (end)',linewidth=2.5 )
+            pl.plot( iterlist , minarr[3,:] , 'g--' , label='cycle threshold', linewidth=2.5 )
+            maxval = amax( minarr[1,:] )
+            maxval = max( maxval, amax( minarr[2,:] ) )
 
-	    pl.hlines( summ['threshold'], 0, summ['iterdone'] , linestyle='dashed' ,label='threshold')
-	
-	    pl.xlabel( 'Iteration Count' )
-	    pl.ylabel( 'Peak Residual (red), Model Flux (blue)' )
+            bcols = ['b','g','r','y','c']
+            minv=1
+            niterdone = len(minarr[4,:])
 
-	    ax = pl.axes()
-	    box = ax.get_position()
-	    ax.set_position([box.x0, box.y0, box.width, box.height*0.8])
+            if len(summ['summarymajor'].shape)==1 and summ['summarymajor'].shape[0]>0 :
+                pl.vlines(summ['summarymajor'],0,maxval, label='major cycles', linewidth=2.0)
 
-	    pl.legend(loc='lower center', bbox_to_anchor=(0.5, 1.05),
-		      ncol=3, fancybox=True, shadow=True)
+            pl.hlines( summ['threshold'], 0, summ['iterdone'] , linestyle='dashed' ,label='threshold')
 
-	    pl.savefig('summaryplot_'+str(fignum)+'.png')
-	    pl.ion()
+            pl.xlabel( 'Iteration Count' )
+            pl.ylabel( 'Peak Residual (red), Model Flux (blue)' )
+
+            ax = pl.axes()
+            box = ax.get_position()
+            ax.set_position([box.x0, box.y0, box.width, box.height*0.8])
+
+            pl.legend(loc='lower center', bbox_to_anchor=(0.5, 1.05),
+                      ncol=3, fancybox=True, shadow=True)
+
+            pl.savefig('summaryplot_'+str(fignum)+'.png')
+            pl.ion()
 
         return summ;
 

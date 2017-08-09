@@ -13,7 +13,7 @@ from casa_stack_manip import stack_frame_find
 
 from initweights import initweights
 
-# to rethrow exception 
+# to rethrow exception
 import inspect
 g = stack_frame_find( )
 exception_stat = g['__rethrow_casa_exceptions'] if '__rethrow_casa_exceptions' in g else False
@@ -52,7 +52,7 @@ class initweights_common(unittest.TestCase):
                 shutil.rmtree(name)
             # copy a new ones
             shutil.copytree(self.datapath+name, name)
-    
+
     def tearDown(self):
         # remove list of files
         for name in self.templist:
@@ -336,7 +336,7 @@ class initweights_tsys_base(initweights_common):
     def testTsysLC(self):
         """Test wtmode='tsys', interp='linear,cspline'"""
         self._runTest('tsys', False, list(self.tsys_funcs.keys()), 'linear,cspline')
-        
+
     def testTinttsysNN(self):
         """Test wtmode='tinttsys', interp='nearest,nearest'"""
         self._runTest('tinttsys', False, list(self.tsys_funcs.keys()), 'nearest,nearest')
@@ -348,7 +348,7 @@ class initweights_tsys_base(initweights_common):
     def testTinttsysLC(self):
         """Test wtmode='tinttsys', interp='linear,cspline'"""
         self._runTest('tinttsys', False, list(self.tsys_funcs.keys()), 'nearest,nearest')
-        
+
     def testTsysNNSp(self):
         """Test wtmode='tsys', interp='nearest,nearest', dowtsp=True"""
         self._runTest('tsys', True, list(self.tsys_funcs.keys()), 'nearest,nearest')
@@ -360,7 +360,7 @@ class initweights_tsys_base(initweights_common):
     def testTsysLCSp(self):
         """Test wtmode='tsys', interp='linear,cspline', dowtsp=True"""
         self._runTest('tsys', True, list(self.tsys_funcs.keys()), 'linear,cspline')
-        
+
     def testTinttsysNNSp(self):
         """Test wtmode='tinttsys', interp='nearest,nearest', dowtsp=True"""
         self._runTest('tinttsys', True, list(self.tsys_funcs.keys()), 'nearest,nearest')
@@ -372,7 +372,7 @@ class initweights_tsys_base(initweights_common):
     def testTinttsysLCSp(self):
         """Test wtmode='tinttsys', interp='linear,cspline', dowtsp=True"""
         self._runTest('tinttsys', True, list(self.tsys_funcs.keys()), 'nearest,nearest')
-        
+
 class initweights_tsys_map(initweights_common):
     """
     Tests of mode ='tsys' and 'tinittsys' with spw mapping.
@@ -398,7 +398,7 @@ class initweights_tsys_map(initweights_common):
                    11: [[50.0, 2.451581269919098e-3], [55.0, 2.451581269919098e-3]],
                    13: [[55.0, 0.0, 6.010250723018137e-07], [60.0, 0.0, 6.010250723018137e-07]],
                    15: [[65.0],[70.0]]}
-    exposure = {'tsys': [34.56], 'sci': [424.368, 160.272]} 
+    exposure = {'tsys': [34.56], 'sci': [424.368, 160.272]}
     chw = {'tsys': 1.5625e7, 'sci': 486486.}
 
     def _get_interpolated_wtsp(self, mode, spw, nchan, interplist, irow, dowtsp):
@@ -440,7 +440,7 @@ class initweights_tsys_map(initweights_common):
     def testTsysMapLC(self):
         """Test spwmap wtmode='tsys', interp='linear,cspline'"""
         self._runTest('tsys', False, [1,3,5,7,9,11,13,15], 'linear,cspline',self.spwmap)
-        
+
     def testTinttsysMapNN(self):
         """Test spwmap wtmode='tinttsys', interp='nearest,nearest'"""
         self._runTest('tinttsys', False, [1,3,5,7,15], 'nearest,nearest',self.spwmap)
@@ -452,7 +452,7 @@ class initweights_tsys_map(initweights_common):
     def testTinttsysMapLC(self):
         """Test spwmap wtmode='tinttsys', interp='linear,cspline'"""
         self._runTest('tinttsys', False, [1,3,5,7,9,11,13,15], 'linear,cspline',self.spwmap)
-        
+
     def testTsysMapNNSp(self):
         """Test spwmap wtmode='tsys', interp='nearest,nearest', dowtsp=True"""
         self._runTest('tsys', True, [1,3,5,7,9,15], 'nearest,nearest',self.spwmap)
@@ -464,7 +464,7 @@ class initweights_tsys_map(initweights_common):
     def testTsysMapLCSp(self):
         """Test spwmap wtmode='tsys', interp='linear,cspline', dowtsp=True"""
         self._runTest('tsys', True, [1,3,5,7,9,11,13,15], 'linear,cspline',self.spwmap)
-        
+
     def testTinttsysMapNNSp(self):
         """Test spwmap wtmode='tinttsys', interp='nearest,nearest', dowtsp=True"""
         self._runTest('tinttsys', True, [1,3,5,7,9,15], 'nearest,nearest',self.spwmap)
@@ -488,7 +488,7 @@ class initweights_base(initweights_common):
     """
     inputms = 'weight_inconsistent.ms'
     templist = [ inputms ]
-    exposure = {0: [34.56], 1: [424.368, 160.272]} 
+    exposure = {0: [34.56], 1: [424.368, 160.272]}
     chw = {0: 1.5625e7, 1: 486486.}
     valid_spw = [0,1]
     sigma = 2.0

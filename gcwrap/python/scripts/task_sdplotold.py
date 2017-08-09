@@ -33,7 +33,7 @@ class sdplot_worker(sdutil.sdtask_template):
 
         # check spw
         self.assert_no_channel_selection_in_spw('warn')
-        
+
         # A scantable selection
         sel = self.get_selector(sorg)
         if len(self.raster) > 0:
@@ -98,7 +98,7 @@ class sdplot_worker(sdutil.sdtask_template):
         kw['colorby'] = colbydict[self.stack[0].lower()]
         kw['showline'] = self.scanpattern
         sd.plotter.plotpointing2(**kw)
-        
+
         self.__print_header(asaplot=False)
 
     def plot_azel(self):
@@ -131,7 +131,7 @@ class sdplot_worker(sdutil.sdtask_template):
         sdutil.set_doppler(self.scan, self.doppler)
 
         if self.scan.nchan()==1:
-            errmsg="Trying to plot the continuum/total power data in 'spectra' mode, please use other plottype options" 
+            errmsg="Trying to plot the continuum/total power data in 'spectra' mode, please use other plottype options"
             raise Exception(errmsg)
 
         # Smooth the spectrum (if desired)
@@ -155,7 +155,7 @@ class sdplot_worker(sdutil.sdtask_template):
     def plot_spectra(self):
         asaplot=True
         if self.scan.nchan()==1:
-            errmsg="Trying to plot the continuum/total power data in 'spectra' mode, please use other plottype options" 
+            errmsg="Trying to plot the continuum/total power data in 'spectra' mode, please use other plottype options"
             raise Exception(errmsg)
 
         # Smooth the spectrum (if desired)
@@ -167,7 +167,7 @@ class sdplot_worker(sdutil.sdtask_template):
 
         # Set colormap, linestyles, and linewidth of plots
         self.__setup_plotter()
-        
+
         # The actual plotting
         sd.plotter.set_data(self.scan,refresh=refresh)
         sd.plotter.plot()
@@ -213,7 +213,7 @@ class sdplot_worker(sdutil.sdtask_template):
             if isinstance(uls,str) and len(uls) > 0: lines = uls
             del uls
         else:
-            # multi color plot. 
+            # multi color plot.
             lines = None
 
         if isinstance(self.linewidth,int) or isinstance (self.linewidth,float):
@@ -259,7 +259,7 @@ class sdplot_worker(sdutil.sdtask_template):
         # legend position
         loc=1
         if self.plotstyle: loc=self.legendloc
-        sd.plotter.set_legend(mode=loc,refresh=refresh) 
+        sd.plotter.set_legend(mode=loc,refresh=refresh)
 
     def __overlay_linecatalog(self):
         # Use jpl catalog for now (later allow custom catalogs)
@@ -342,7 +342,7 @@ class sdplot_worker(sdutil.sdtask_template):
             #(mapcenter,cellx,celly) = self.__calc_center_and_cell(mapcenter, cellx, celly)
             (mapcenter,cellx,celly) = self.__get_center_and_cell(nx, ny, mapcenter, cellx, celly)
         return (nx,ny,cellx,celly,mapcenter)
-        
+
     def __get_mapsize(self):
         if self.subplot < 11:
             casalog.post("Setting default subplot layout (1x1).",priority="WARN")

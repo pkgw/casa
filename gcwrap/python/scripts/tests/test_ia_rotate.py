@@ -47,20 +47,20 @@
 #
 # <synopsis>
 # Test the ia.rotate() tool method
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_rotate[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the ia.rotate() tool method to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -76,13 +76,13 @@ import numpy
 datapath = os.environ.get('CASAPATH').split()[0]+ '/data/regression/unittest/ia_rotate/'
 
 class ia_rotate_test(unittest.TestCase):
-    
+
     def setUp(self):
         pass
-    
+
     def tearDown(self):
         pass
-    
+
     def test_stretch(self):
         """ ia.rotate(): Test stretch parameter"""
         yy = iatool()
@@ -104,7 +104,7 @@ class ia_rotate_test(unittest.TestCase):
         self.assertTrue(zz and type(zz) == type(yy))
         yy.done()
         zz.done()
-        
+
     def test_basic(self):
         """verify basic rotation works"""
         myia = iatool()
@@ -116,7 +116,7 @@ class ia_rotate_test(unittest.TestCase):
         expec = myia.getchunk()
         myia.done()
         self.assertTrue(numpy.abs(got - expec).max() < 10e-22)
-        
+
     def test_history(self):
         """Verify history is written"""
         myia = iatool()
@@ -128,6 +128,6 @@ class ia_rotate_test(unittest.TestCase):
         rot.done()
         self.assertTrue("ia.rotate" in msgs[-2])
         self.assertTrue("ia.rotate" in msgs[-1])
-    
+
 def suite():
     return [ia_rotate_test]

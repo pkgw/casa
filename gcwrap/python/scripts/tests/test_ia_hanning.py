@@ -47,20 +47,20 @@
 #
 # <synopsis>
 # Test the ia.hanning() tool method
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_hanning[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the ia.hanning() tool method to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -73,13 +73,13 @@ from __main__ import *
 import unittest
 
 class ia_hanning_test(unittest.TestCase):
-    
+
     def setUp(self):
         pass
-    
+
     def tearDown(self):
         self.assertTrue(len(tb.showcache()) == 0)
-    
+
     def test_stretch(self):
         """ ia.hanning(): Test stretch parameter"""
         yy = iatool()
@@ -100,7 +100,7 @@ class ia_hanning_test(unittest.TestCase):
         self.assertTrue(type(zz) == type(yy))
         yy.done()
         zz.done()
-    
+
     def test_regression(self):
         """Tests moved from imagetest regression"""
         # Make image
@@ -148,9 +148,9 @@ class ia_hanning_test(unittest.TestCase):
         self.assertTrue(pixels2[0,0]==0 and pixels2[1,0]==0)
         self.assertTrue(pixels2[2,0]==0)
         self.assertTrue(pixels2[3,0]==0.25)
-        
+
         self.assertTrue(myim2.done())
-        
+
         self.assertTrue(myim.done())
 
     def test_general(self):
@@ -235,7 +235,7 @@ class ia_hanning_test(unittest.TestCase):
                             self.assertTrue((got == expec).all())
                             han.done()
         myia.done()
-            
+
     def test_history(self):
         """Test history records are written"""
         myia = iatool()
@@ -244,8 +244,8 @@ class ia_hanning_test(unittest.TestCase):
         myia.done()
         msgs = bb.history()
         bb.done()
-        self.assertTrue("ia.hanning" in msgs[-4])    
-        self.assertTrue("ia.hanning" in msgs[-3])        
-    
+        self.assertTrue("ia.hanning" in msgs[-4])
+        self.assertTrue("ia.hanning" in msgs[-3])
+
 def suite():
     return [ia_hanning_test]

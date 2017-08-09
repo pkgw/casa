@@ -36,12 +36,12 @@ def applycal(
 
     # Take care of the trivial parallelization
     if ParallelTaskHelper.isParallelMS(vis):
-        
+
         # Back up the flags, if requested (and if necessary)
         if flagbackup and applymode != 'calonly' and applymode != 'trial':
             fh.backupFlags(aflocal=None, msfile=vis, prename='applycal')
             flagbackup = False
-        
+
         # To be safe convert file names to absolute paths.
         gaintable = ParallelTaskHelper.findAbsPath(gaintable)
         helper = ParallelTaskHelper('applycal', locals())

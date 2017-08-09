@@ -11,7 +11,7 @@ def plotcomp(compdict, showplot=True, wantdict=False, symb=',',
 
     """
     Given a dict including
-    
+
     {'clist': component list,
      'objname': objname,
      'epoch': epoch,
@@ -28,7 +28,7 @@ def plotcomp(compdict, showplot=True, wantdict=False, symb=',',
 
     If antennalist is not found as is, it will look for antennalist in
     os.getenv('CASAPATH').split(' ')[0] + '/data/alma/simmos/'.
-    
+
     showplot: Whether or not to show the plot on screen.
 
     If wantdict is True, it returns a dictionary with the amplitudes and
@@ -131,7 +131,7 @@ def plotcomp(compdict, showplot=True, wantdict=False, symb=',',
 
         # Only 1 polarization is wanted for now.
         stokes, feeds = su.polsettings(telescopename, 'RR')
-        
+
         casalog.post("stokes, feeds: %s, %s" % (stokes, feeds))
         fband = su.bandname(compdict['freqs (GHz)'][0])
         chaninc = 1.0
@@ -139,9 +139,9 @@ def plotcomp(compdict, showplot=True, wantdict=False, symb=',',
         if nchan > 1:
             chaninc = (compdict['freqs (GHz)'][-1] - compdict['freqs (GHz)'][0]) / (nchan - 1)
         mysm.setspwindow(spwname=fband,
-                         freq=str(compdict['freqs (GHz)'][0]) + 'GHz', 
-                         deltafreq=str(chaninc) + 'GHz', 
-                         freqresolution='1Hz', 
+                         freq=str(compdict['freqs (GHz)'][0]) + 'GHz',
+                         deltafreq=str(chaninc) + 'GHz',
+                         freqresolution='1Hz',
                          nchannels=nchan, refcode="LSRK",
                          stokes=stokes)
         mysm.setfeed(mode=feeds, pol=[''])
@@ -152,7 +152,7 @@ def plotcomp(compdict, showplot=True, wantdict=False, symb=',',
                       calcode="OBJ", distance='0m')
         mysm.settimes(integrationtime="1s", usehourangle=False,
                       referencetime=epoch)
-        
+
         # this only creates blank uv entries
         mysm.observe(sourcename=objname, spwname=fband,
                    starttime="-0.5s", stoptime="0.5s", project=objname)
@@ -168,7 +168,7 @@ def plotcomp(compdict, showplot=True, wantdict=False, symb=',',
 
         mytb = tbtool()
         mytb.open(tempms)
-        data = mytb.getcol('DATA')[0]       # Again, only 1 polarization for now. 
+        data = mytb.getcol('DATA')[0]       # Again, only 1 polarization for now.
         data = abs(data)
         baselines = mytb.getcol('UVW')[:2,:]  # Drop w.
         datablunit = mytb.getcolkeywords('UVW')['QuantumUnits']
@@ -196,10 +196,10 @@ def plotcomp(compdict, showplot=True, wantdict=False, symb=',',
         #    casalog.post('Sorry, not showing the plot is not yet implemented',
         #                 'WARN')
 
-        if showplot: 
+        if showplot:
           pl.ion()
         pl.clf()
-        pl.ioff() 
+        pl.ioff()
         nfreqs = len(compdict['freqs (GHz)'])
         for freqnum in range(nfreqs):
             freq = compdict['freqs (GHz)'][freqnum]
@@ -224,11 +224,11 @@ def plotcomp(compdict, showplot=True, wantdict=False, symb=',',
             if len(compdict['freqs (GHz)']) == 1:
                 titletxt+='\n bl0 flux:%.3f Jy' % bl0flux
             else:
-                titletxt+='\n bl0 flux:%.3f Jy @ %s GHz' % (bl0flux, compdict['freqs (GHz)'][0]) 
+                titletxt+='\n bl0 flux:%.3f Jy @ %s GHz' % (bl0flux, compdict['freqs (GHz)'][0])
         pl.legend(loc='best', title=titletxt)
         #pl.legend(loc='best', title='($%.0f^\circ$ az, $%.0f^\circ$ el)' % azeldegs)
         y_formatter=matplotlib.ticker.ScalarFormatter(useOffset=False)
-        pl.axes().yaxis.set_major_formatter(y_formatter) 
+        pl.axes().yaxis.set_major_formatter(y_formatter)
         if showplot:
           pl.ion()
           pl.draw()
@@ -262,7 +262,7 @@ def mepoch_to_str(mepoch, showdate=True, showtime=True, showmjd=True):
         fmt += '%(year)d-%(month)02d-%(monthday)02d'
     if showtime:
         if fmt:
-            fmt += '/'            
+            fmt += '/'
         fmt += '%(hour)02d:%(min)02d:%(sec)02d %(tz)s'
         tdic['tz'] = mepoch['refer']
     if showmjd:

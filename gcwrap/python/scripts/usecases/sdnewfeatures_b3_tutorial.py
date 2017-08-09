@@ -1,7 +1,7 @@
 # This script shows examples of features
 # added recently (mostly) for P3 developement
 #
-# 2008-09-25 TT 
+# 2008-09-25 TT
 #
 
 # load single dish module
@@ -13,9 +13,9 @@ import sys
 
 # include total power plotting demo using sdplot
 # FOR THE DEMO DATA SET USED HERE, PLOTTING
-# WILL BE VERY SLOW. 
+# WILL BE VERY SLOW.
 # To skip this set tpdemo2=False
-tpdemo2 = False 
+tpdemo2 = False
 
 #get test data
 #default datapaths for the two datasets used in this script
@@ -34,13 +34,13 @@ files=['orion_pscal', 'orion_pscal_if0_3000_5000', 'orion_pscal_bs_if0_blparam.t
 for f in files:
     if os.path.isdir(f) or os.path.isfile(f):
         os.system('rm -rf %s' % f)
-       
+
 if os.path.isdir(datapath1+datafile1):
     os.system('mkdir %s;cp -r %s/[!.svn]*  ./%s' % (datafile1, datapath1+datafile1, datafile1))
 else:
     if not os.path.isdir(datafile1):
        print("Data file, %s, not found." % datafile1)
-       sys.exit() 
+       sys.exit()
 
 ################
 # 1. sdcal #
@@ -149,7 +149,7 @@ print("*** Done sdbaseline ****\n")
 # IF[0] = 0.166
 #--------------------------------------------------
 print("* Saved the fit paramters and rms after baseline fit")
-print("!cat %s" % outfile+'_blparam.txt') 
+print("!cat %s" % outfile+'_blparam.txt')
 # fitting parameters are stored in
 # <outfile>_blparam.txt
 os.system('cat %s' % outfile+'_blparam.txt')
@@ -189,11 +189,11 @@ sdfile='orion_pscal_bs_if0'
 specunit='channel'
 maskflag=[[0,100],[2000,3000]]
 flagmode='flag'
-plotlevel=1 
+plotlevel=1
 inp(sdflag)
 pause=input('\n* Hit Return to continue ')
 print("* Run sdflag...\n")
-print("* Type y when asked to apply flag.") 
+print("* Type y when asked to apply flag.")
 
 sdflag()
 print("*** Done sdflag ****\n")
@@ -202,9 +202,9 @@ print("*** Done sdflag ****\n")
 desc="\n" \
      "* NEW FEATURE: restore\n" \
      "* get flag masks applied to the data"
-print(desc)      
+print(desc)
 # NEW FEATURE:
-# check flagged region(s)  
+# check flagged region(s)
 default(sdflag)
 sdfile='orion_pscal_bs_if0_f'
 flagmode='restore'
@@ -227,7 +227,7 @@ print("*** Done sdflag ****\n")
 #unflag
 desc="\n" \
      "* Try unflag...\n" \
-     "* Set flagmode='unflag' \n" 
+     "* Set flagmode='unflag' \n"
 print(desc)
 sdfile='orion_pscal_bs_if0_f'
 flagmode='unflag'
@@ -236,7 +236,7 @@ plotlevel=1
 inp(sdflag)
 pause=input('\n* Hit Return to continue ')
 print("\n* Run sdflag...\n")
-print("* Type y when asked to apply flag.") 
+print("* Type y when asked to apply flag.")
 sdflag()
 print("*** Done sdflag ****\n")
 
@@ -302,7 +302,7 @@ desc="\n" \
      "* NEW FEATURE:\n"\
      "* click left mouse button on one of the lines, a pop-up window will\n" \
      "* appear to display spectral data values as you move the mouse along\n" \
-     "*  horizontal direction while keep holding the left mouse button.\n" 
+     "*  horizontal direction while keep holding the left mouse button.\n"
 print(desc)
 
 pause=input('\n* Hit Return to continue ')
@@ -398,8 +398,8 @@ desc="\n" \
      "* Specify by statfile parameter\n"
 print(desc)
 # 2. an option to set mask for evalulating statistics interactively
-# 3 integrated intensity 
-#   currently only show in the screeen but not included in 
+# 3 integrated intensity
+#   currently only show in the screeen but not included in
 #   returned dictionary
 default(sdstat)
 sdfile='orion_pscal'
@@ -493,7 +493,7 @@ print("*** Done sdstat ****\n")
 # You will also see these information is saved
 # in orion_hc3n_stat.txt
 
-  
+
 print("\n###############\n Tool changes \n###############")
 
 
@@ -504,14 +504,14 @@ desc="\n" \
      "*\n" \
      "* For example, \n"\
      "s=sd.scantable('orion_pscal') \n" \
-     "restfreqs=s.get_restfreqs() \n" 
+     "restfreqs=s.get_restfreqs() \n"
 print(desc)
 
 s=sd.scantable('orion_pscal')
 restfreqs=s.get_restfreqs()
 desc="* Returned rest frequencies are in a dictionary, and only list\n" \
      "* one(s) current used.\n";
-print(desc) 
+print(desc)
 print("restfreqs=", restfreqs)
 
 pause=input('\n* Hit Return to continue ')

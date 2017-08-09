@@ -35,4 +35,4 @@ def specsmooth(
             myia.done()
         if outia:
             outia.done()
-        
+

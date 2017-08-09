@@ -9,8 +9,8 @@ import unittest
 '''
 Unit tests for task fixvis.
 
-Features tested:                                                       
-  1. Do converted directions in the FIELD table have the right shape? 
+Features tested:
+  1. Do converted directions in the FIELD table have the right shape?
   2. Does the phase center shifting result in the expected shifts?
   3. Does the distances parameter work
 
@@ -33,7 +33,7 @@ class fixvis_test1(unittest.TestCase):
         default(fixvis)
         shutil.rmtree(outms, ignore_errors=True)
         shutil.rmtree(outms2, ignore_errors=True)
-        
+
     def tearDown(self):
         shutil.rmtree(inpms)
         shutil.rmtree(inpms2)
@@ -95,9 +95,9 @@ class fixvis_test1(unittest.TestCase):
                 record_error('Error: Cannot get FIELD directions.', retValue)
             else:
                 tb.close()
-                
+
         self.assertTrue(retValue['success'])
-        
+
     def _fixvis_and_get_stats(self, phasecent, dist=""):
         refcode = 'J2000'
         shutil.rmtree(outms2, ignore_errors=True)
@@ -178,7 +178,7 @@ class fixvis_test1(unittest.TestCase):
         except:
             print("*** Unexpected error ***")
             self.assertFalse(True)
-                                             
+
         self.assertTrue(mystats0['maxposf']=='18:00:02.309, -29.59.29.999, I, 2.26e+11Hz' and
                         (mystats0['maxpos']==[64,64,0,0]).all() and
                         mystats1['maxposf']=='18:00:02.333, -30.59.29.999, I, 2.26e+11Hz' and
@@ -199,7 +199,7 @@ class fixvis_test1(unittest.TestCase):
             self.res = fixvis(vis=outms2, outputvis=outms2, field='0', refcode=refcode,
                               phasecenter=phc, datacolumn='DATA,CORRECTED')
             self.assertTrue(self.res)
-            mystats0 = self._get_stats(0, 'testy') 
+            mystats0 = self._get_stats(0, 'testy')
 
         except:
             print("*** Unexpected error ***")
@@ -274,10 +274,10 @@ class fixvis_test1(unittest.TestCase):
             self.res = fixvis(vis='test9tmp.ms', outputvis=outms2, field='1', refcode=refcode,
                               phasecenter=phc, datacolumn='DATA')
             self.assertTrue(self.res)
-            
+
             mystats0 = self._get_stats(0, 'testy')
             mystats1 = self._get_stats(1, 'testz')
-            
+
         except:
             print("*** Unexpected error ***")
             self.assertFalse(True)
@@ -305,10 +305,10 @@ class fixvis_test1(unittest.TestCase):
             self.res = fixvis(vis='test9tmp.ms', outputvis=outms2, field='1', refcode=refcode,
                               phasecenter=phc)
             self.assertTrue(self.res)
-            
+
             mystats0 = self._get_stats(0, 'testy')
             mystats1 = self._get_stats(1, 'testz')
-            
+
         except:
             print("*** Unexpected error ***")
             self.assertFalse(True)
@@ -331,11 +331,11 @@ class fixvis_test1(unittest.TestCase):
             self.res = fixvis(inpms2, outms3, field='0', refcode=refcode,
                               phasecenter='J2000 18h00m02.3092s -29d49m29.9987s') # 10 arcmin off
             self.assertTrue(self.res)
-            
+
             self.res = fixvis(outms3, outms2, field='0', refcode=refcode,
                               phasecenter='J2000 18h00m02.3092s -29d59m29.9987s') # == original pos.
             self.assertTrue(self.res)
-            
+
             mystats = self._get_stats(0, 'testy')
             shutil.rmtree(outms3, ignore_errors=True)
         except:
@@ -376,6 +376,6 @@ class fixvis_test1(unittest.TestCase):
                         (mystats['maxpos'] == [64, 64, 0, 0]).all())
 
 
-    
+
 def suite():
-    return [fixvis_test1]        
+    return [fixvis_test1]

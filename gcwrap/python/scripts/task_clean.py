@@ -20,20 +20,20 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
 
     #Python script
     casalog.origin('clean')
-    casalog.post('nchan='+str(nchan)+' start='+str(start)+' width='+str(width))  
+    casalog.post('nchan='+str(nchan)+' start='+str(start)+' width='+str(width))
     #If using new FT-Machines, do not use the on-the-fly model_data columns.
     # if (gridmode == 'advancedaprojection'):
     #     raise Exception, 'This mode is not yet ready for use'
-    
+
     if gridmode == 'advancedaprojection' and usescratch==False:
         casalog.post('Forcing usescratch=True for new FTMs. This is temporary.', 'WARN')
         usescratch=True
-    
-    #######################################################################  
+
+    #######################################################################
     #
     # start of the big cube treatment
     #
-    #######################################################################  
+    #######################################################################
     #paralist=[vis, imagename,outlierfile, field, spw, selectdata, \
     #         timerange, uvrange, antenna, scan, observation, intent, mode, gridmode, \
     #         wprojplanes, facets, cfcache, painc, epjtable, \
@@ -53,19 +53,19 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
     if allowchunk and (mode=='velocity' or mode=='frequency' or mode=='channel') \
        and not interactive:
 
-	casalog.post('analysing intended channalization...')
+        casalog.post('analysing intended channalization...')
         imCln=imtool()
         imset=cleanhelper(imCln, vis, usescratch, casalog)
 
         (npage, localstart, localwidth)=imset.setChannelizeNonDefault(mode,
                 spw, field,nchan,start,width,outframe,veltype,phasecenter, restfreq)
-	casalog.post('start='+str(localstart)+' width='+str(localwidth)+' nchan='+str(npage))
+        casalog.post('start='+str(localstart)+' width='+str(localwidth)+' nchan='+str(npage))
         del imCln
- 
-        try: 
+
+        try:
             # estimate the size of the image
             import subprocess
-    
+
             nstokes=len(stokes)
             casalog.post('imsize='+str(imsize)+' nstokes='+str(nstokes))
 
@@ -73,9 +73,9 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
                 npixel=imsize[0]*imsize[0]
             else:
                 npixel=imsize[0]*imsize[1]
-    
+
             volumn=4*nstokes*npage*npixel
-            
+
 
             av=cu.hostinfo()['memory']['available']
             casalog.post('mem available: '+str(int(av/1024))+'M')
@@ -122,20 +122,20 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
                         st=qa.convert(ta, 'm/s')['value']
                         ed=qa.convert(wd, 'm/s')['value']
                         st=str(st+k*tchan*ed)+'m/s'
-                        
-                    #print imname, tchan, st, localwidth 
+
+                    #print imname, tchan, st, localwidth
 
                     os.system('rm -rf '+imname+'*')
                     try:
                         clean(vis=vis,imagename=imname,outlierfile=outlierfile,field=field,
                               spw=spw,selectdata=selectdata,timerange=timerange,uvrange=uvrange,
                               antenna=antenna,scan=scan, observation=str(observation),intent=intent,
-                              mode=mode, resmooth=resmooth, gridmode=gridmode, 
+                              mode=mode, resmooth=resmooth, gridmode=gridmode,
                               wprojplanes=wprojplanes,facets=facets,cfcache=cfcache,rotpainc=rotpainc, painc=painc,
                               psterm=psterm,aterm=aterm,mterm=mterm,wbawp=wbawp,conjbeams=conjbeams,
                               epjtable=epjtable,interpolation=interpolation,niter=niter,
                               gain=gain,
-                              threshold=threshold,psfmode=psfmode,imagermode=imagermode, 
+                              threshold=threshold,psfmode=psfmode,imagermode=imagermode,
                               ftmachine=ftmachine,mosweight=mosweight,scaletype=scaletype,
                               multiscale=multiscale,negcomponent=negcomponent,
                               smallscalebias=smallscalebias,interactive=interactive,
@@ -159,17 +159,17 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
 
                 for i in ['.image', '.flux', '.model', '.psf', '.residual', '.mask']:
                     if((len(subimg) > 0) and  os.path.exists(subimg[0]+i)):
-                        casalog.post('concate '+bigimg+'_*'+i+' to '+bigimg+i)   
+                        casalog.post('concate '+bigimg+'_*'+i+' to '+bigimg+i)
                         os.system('rm -rf '+bigimg+i)
                         inf=''
                         for j in range(len(subimg)):
-                            inf+=' '+subimg[j]+i   
+                            inf+=' '+subimg[j]+i
                         bigim=ia.imageconcat(outfile=bigimg+i, infiles=inf, relax=True)
                         bigim.done()
                         ia.close()
                         os.system('rm -rf '+inf)
 
-                return    
+                return
             else:
                 casalog.post('will clean the cube in a single chunk')
                 #nchan=npage
@@ -179,16 +179,16 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
         except:
             raise
 
-    else: 
+    else:
         casalog.post('Use default channelization for clean')
-    #######################################################################  
+    #######################################################################
     #
     # end of big cube treatment
     #
-    #######################################################################  
+    #######################################################################
 
 
-    casalog.post('clean image: '+str(imagename)) 
+    casalog.post('clean image: '+str(imagename))
 
 
     applyoffsets=False;
@@ -211,7 +211,7 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
         scan=''
         observation = ''
         intent=''
-       
+
     try:
         # Create a new imager tool
         imCln=imtool();
@@ -272,11 +272,11 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
         if dochaniter:
             imset.makeTemplateCubes(imagename,outlierfile, field, spw, selectdata,
                                     timerange, uvrange, antenna, scan, str(observation),intent,
-                                    mode, facets, cfcache, 
-                                    interpolation, imagermode, localFTMachine, mosweight, 
+                                    mode, facets, cfcache,
+                                    interpolation, imagermode, localFTMachine, mosweight,
                                     localnchan, localstart, localwidth, outframe, veltype,
                                     imsize, cell,  phasecenter, restfreq, stokes, weighting,
-                                    robust, uvtaper, outertaper, innertaper, modelimage, 
+                                    robust, uvtaper, outertaper, innertaper, modelimage,
                                     restoringbeam, usescratch, noise, npixels, padding)
 
             nchaniter=localnchan
@@ -285,7 +285,7 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
                imgname=imagename[0]+'.image'
                finalimagename=imagename
             else:
-               try: 
+               try:
                   if int(list(imset.imageids.values())[0])==0:
                       # must be using outlier file with old syntax
                       imgname=imagename+'_'+list(imset.imageids.values())[0]+'.image'
@@ -309,7 +309,7 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
             nchaniter=1
             finalimagename=''
             tmppath=''
-         
+
         # loop over channels for per-channel clean
         for j in range(nchaniter):
             if dochaniter:
@@ -349,7 +349,7 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
             phasecenters=[]
             parms={}
             rootname=''
-            # 
+            #
             newformat=False
             # make a copy of the input, mask, modelimage (will be modified)
             if type(modelimage)==str:
@@ -372,12 +372,12 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
                     rootname = ''
                 else:
                     rootname = imagename
-                
+
                 # combine with the task parameter input
                 if dochaniter:
                     # imagename is already combined
-                   if type(imagename)!=list: 
-                       raise Exception("imagename=%s expected to be a list." % imagename) 
+                   if type(imagename)!=list:
+                       raise Exception("imagename=%s expected to be a list." % imagename)
                    else:
                        imageids=imagename
                        if newformat:
@@ -389,9 +389,9 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
                                phasecenters=phaseceneter
                            else:
                                phasecenters.append(phasecenter)
-                else:     
+                else:
                     if type(imagename) == str:
-                        if newformat: 
+                        if newformat:
                             imageids.append(imagename)
                             imsizes.append(imsize)
                             phasecenters.append(phasecenter)
@@ -399,12 +399,12 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
                         imageids=imagename
                         imsizes=imsize
                         phasecenters=phasecenter
-                # for mask, modelimage  task input 
-                # turn them into list or list of list 
+                # for mask, modelimage  task input
+                # turn them into list or list of list
                 if(loc_mask == []):  ## UU
                     loc_mask = [''];   ## UU
                 if type(loc_mask) !=  list:
-                    loc_mask=[loc_mask] 
+                    loc_mask=[loc_mask]
                 elif type(loc_mask[0]) != list:
                     loc_mask=[loc_mask]
 
@@ -424,11 +424,11 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
 
 
                 # now append readoutlier content
-                for indx, name in enumerate(f_imageids): 
+                for indx, name in enumerate(f_imageids):
                     if not dochaniter:
-                        imageids.append(name)    
-                    imsizes.append(f_imsizes[indx])    
-                    phasecenters.append(f_phasecenters[indx])    
+                        imageids.append(name)
+                    imsizes.append(f_imsizes[indx])
+                    phasecenters.append(f_phasecenters[indx])
                     if newformat:
                         loc_mask.append(f_masks[indx])
                         #modelimage.append(f_modelimages[indx])
@@ -438,24 +438,24 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
                         if indx!=0:
                             #modelimage.append(f_modelimages[indx])
                             loc_modelimage.append(f_modelimages[indx])
-                    
+
                 nfield=len(imageids)
                 if nfield > 1:
                     multifield=True
                     #check if number of elements for each list matches
                     if len(imsizes) != nfield:
-                        raise Exception("Mismatch in number of imsizes for %s image fields" % nfield) 
+                        raise Exception("Mismatch in number of imsizes for %s image fields" % nfield)
                     if len(phasecenters) != nfield:
-                        raise Exception("Mismatch in number of phasecenters for %s image fields" % nfield) 
+                        raise Exception("Mismatch in number of phasecenters for %s image fields" % nfield)
                     # check of mask and modelimage need to be done later...
-                   
+
                     # check for dulplicated entry
                     for imname in imageids:
                         if (imageids.count(imname)!=1):
-                           raise Exception("Duplicate entry for imagename=%s" % imname) 
+                           raise Exception("Duplicate entry for imagename=%s" % imname)
             else:
-                
-                imsizes=[imsize[0], imsize[0]] if ((len(imsize)==1) and numpy.isscalar(imsize[0])) else imsize 
+
+                imsizes=[imsize[0], imsize[0]] if ((len(imsize)==1) and numpy.isscalar(imsize[0])) else imsize
                 phasecenters=phasecenter
                 imageids=imagename
             casalog.post("imsizes="+str(imsizes)+" imageids="+str(imageids), 'DEBUG1')
@@ -467,34 +467,34 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
             for ksize in range(len(tmpsize)):
                 nksize=len(tmpsize[ksize])
                 optsize[0]=cleanhelper.getOptimumSize(tmpsize[ksize][0])
-                if nksize==1: # imsize can be a single element 
+                if nksize==1: # imsize can be a single element
                     optsize[1]=optsize[0]
                 else:
                     optsize[1]=cleanhelper.getOptimumSize(tmpsize[ksize][1])
                 if((optsize[0] != tmpsize[ksize][0]) or (nksize!=1 and optsize[1] != tmpsize[ksize][1])):
-                       raise ValueError(str(tmpsize[ksize])+' is not an acceptable imagesize, try '+str(optsize)) 
+                       raise ValueError(str(tmpsize[ksize])+' is not an acceptable imagesize, try '+str(optsize))
            #
            # Moved getAlgorithm() to here so that multifield is set using outlier file.
            #
             if(psfmode=='clark' and not (stokes=="I" or stokes=="IQUV" or stokes=="IV")):
                 psfmode='clarkstokes'
 
-            localAlgorithm = getAlgorithm(psfmode, imagermode, gridmode, mode, 
+            localAlgorithm = getAlgorithm(psfmode, imagermode, gridmode, mode,
                                           multiscale, multifield, facets, nterms,
                                           'clark');
 
 
-            ###PBCOR or not 
+            ###PBCOR or not
             sclt='SAULT'
             makepbim=False
             if (scaletype=='PBCOR') or (scaletype=='pbcor'):
                 sclt='NONE'
                 imCln.setvp(dovp=True)
-            else: 
-                if imagermode != 'mosaic': 
-                    makepbim=True 
+            else:
+                if imagermode != 'mosaic':
+                    makepbim=True
                 # scaletype is 'SAULT' so use default sclt
-                # regardless of pbcor is T/F 
+                # regardless of pbcor is T/F
                 #elif pbcor:        # mosaic and pbcor=true
                 #    sclt='NONE'     # do the division in c++
             ###always setvp for mosaic mode
@@ -507,8 +507,8 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
                 imstart=localstart
                 visnchan=-1
                 visstart=0
-            
-            # data selection only 
+
+            # data selection only
             imset.datsel(field=field, spw=spw,
                          timerange=timerange, uvrange=uvrange,
                          antenna=antenna,
@@ -522,7 +522,7 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
                                     field=field, phasecenters=phasecenters,
                                     names=imageids, facets=facets,
                                     outframe=outframe, veltype=veltype,
-                                    makepbim=makepbim, checkpsf=dochaniter) 
+                                    makepbim=makepbim, checkpsf=dochaniter)
 
             # weighting and tapering
             imset.datweightfilter(field=field, spw=spw,
@@ -538,7 +538,7 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
                                   start=visstart, width=1)
 
 # Do data selection and wieghting,papering all at once.
-# This does not work for multims input  
+# This does not work for multims input
 #            imset.datselweightfilter(field=field, spw=spw,
 #                                     timerange=timerange, uvrange=uvrange,
 #                                     antenna=antenna, scan=scan,
@@ -550,7 +550,7 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
 #                                     calready=calready, nchan=visnchan,
 #                                     start=visstart, width=1)
 #
-            # make maskimage 
+            # make maskimage
             if maskimage=='':
                 maskimage=imset.imagelist[0]+'.mask'
 
@@ -566,13 +566,13 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
                 #for img in sorted(imset.maskimages):
                 for img in list(imset.maskimages.keys()):
                     maskimage.append(imset.maskimages[img])
-	    casalog.post('Used mask(s) : ' + str(loc_mask) + ' to create mask image(s) : ' + str(maskimage),'INFO');
+            casalog.post('Used mask(s) : ' + str(loc_mask) + ' to create mask image(s) : ' + str(maskimage),'INFO');
 
             if dochaniter:
                 imset.checkpsf(chanslice)
                 if imset.skipclean: # for chaniter=T, and if the channel is flagged.
                     imset.makeEmptyimages()
-                    casalog.post('No valid data, skip CLEANing this channel','WARN') 
+                    casalog.post('No valid data, skip CLEANing this channel','WARN')
 
             imCln.setoptions(ftmachine=localFTMachine,
                              wprojplanes=wprojplanes,
@@ -624,18 +624,18 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
                   if(not os.path.exists( modname ) ):
                             if( not os.path.exists(  imset.imagelist[k] ) ):
                                     raise Exception("Internal task error. Model image " + imset.imagelist[k] + " does not exist");
-                            shutil.copytree( imset.imagelist[k] , modname );		
+                            shutil.copytree( imset.imagelist[k] , modname );
                             casalog.post("No model found. Making empty initial model : "+modname);
                   else:
-		            casalog.post("Found and starting from existing model on disk : "+modname);
+                            casalog.post("Found and starting from existing model on disk : "+modname);
 
 
-            # (3) print 'Add user-specified model images to the default ones on disk';           
+            # (3) print 'Add user-specified model images to the default ones on disk';
             imset.convertAllModelImages(loc_modelimage, mode, nterms, dochaniter, j, tmppath);
 
             # (4) print "Delete the template images made per field.";
             for k in range(len(imset.imagelist)):
-                     ia.open( imset.imagelist[k] ); 
+                     ia.open( imset.imagelist[k] );
                      ia.remove(verbose=False);
                      ia.close();
 
@@ -662,7 +662,7 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
                 if(pbcor):
                     raise Exception('Primary-beam correction is currently not supported with nterms>1')
 
-		casalog.post('Running MS-MFS with '+str(nterms)+' Taylor-terms on dataset : ' + str(vis));
+                casalog.post('Running MS-MFS with '+str(nterms)+' Taylor-terms on dataset : ' + str(vis));
             ###########################################################
 
             if len(multiscale) > 0:
@@ -722,8 +722,8 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
                 pbcov_image = imset.imagelist[0] + '.flux'
                 if localFTMachine == 'mosaic':
                     pbcov_image += '.pbcoverage'
-                maskimage = imset.make_mask_from_threshhold(pbcov_image, maskimg) 
-            if not imset.skipclean: 
+                maskimage = imset.make_mask_from_threshhold(pbcov_image, maskimg)
+            if not imset.skipclean:
 #                print "imager.clean() starts"
 #                if(os.path.exists(residualimage[0])):
 #                    imset.setReferenceFrameLSRK( residualimage[0] )
@@ -733,14 +733,14 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
                             image=restoredimage, psfimage=psfimage,
                             mask=maskimage, interactive=interactive,
                             npercycle=npercycle)
-		
+
                 #In the interactive mode, deconvlution can be skipped and in that case
                 #psf is not generated. So check if all psfs are there if not, generate
 #                if interactive:
 #                    if nterms==1:
 #                        for psfim in psfimage:
 #                            if not os.path.isdir(psfim):
-#                                imCln.approximatepsf(psf=psfim) 
+#                                imCln.approximatepsf(psf=psfim)
 #                    else:
 #                        casalog.post('Multi-term PSFs not made','WARN')
 
@@ -748,10 +748,10 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
                     for psfim in psfimage:
                             if not os.path.isdir(psfim):
                                 if nterms==1:
-                                    imCln.approximatepsf(psf=psfim) 
+                                    imCln.approximatepsf(psf=psfim)
                                 else:
                                     casalog.post('Multi-term PSF '+psfim+' not made','WARN')
-            
+
             if dochaniter and not imset.skipclean :
                 imset.storeCubeImages(finalimagename,imset.imagelist,j,imagermode)
 
@@ -761,7 +761,7 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
             ###### CAS-6676 : for nterms>1, internal images are in LSRK, but for nterms=1
             ######                  they're 'dataframe'=TOPO.  The mask needs to be in the correct
             ######                  frame for re-use when restarting clean.
-            if nterms==1 :  
+            if nterms==1 :
                 imset.setFrameConversionForMasks()
             if(resmooth):
                 for k in range(len(modelimages)):
@@ -782,9 +782,9 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
             fluxscale_image = '\'' + newimage + '.flux'  + '\'';
             # model also need to do freqframe conversion
             model           = newimage + '.model'
-            
+
             pbcov_image=fluxscale_image
-            # convert .flux image, which may not be correct outframe if 
+            # convert .flux image, which may not be correct outframe if
             # it was made from im tool, to correct outframe
             # do if for model
             #imset.convertImageFreqFrame([model])

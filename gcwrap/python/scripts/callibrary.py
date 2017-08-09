@@ -73,9 +73,9 @@ class callibrary(object):
                      fldmap=gainfield[itab] if itab<len(gainfield) else '',
                      spwmap=spwmap[itab] if itab<len(spwmap) else []
                      )
-            
 
-    # 
+
+    #
     def add(self,caltable,
             field='',intent='',spw='',obs='',
             tinterp='',finterp='',reach='',calwt=True,
@@ -114,7 +114,7 @@ class callibrary(object):
             if (len(antmap)>0):
                 if not isinstance(antmap[0],list):
                     antmap=[antmap]  # nested list
-            
+
             igt=0
             for ct in caltable:
                 self.parsetorec(caltable=ct,
@@ -138,7 +138,7 @@ class callibrary(object):
                             tinterp=tinterp,finterp=finterp,
                             reach=reach,calwt=calwt,
                             obsmap=obsmap,fldmap=fldmap,spwmap=spwmap,antmap=antmap)
-            
+
     def parsetorec(self,caltable,
                    field='',intent='',spw='',obs='',
                    tinterp='linear',finterp='',reach='',calwt=True,
@@ -212,7 +212,7 @@ class callibrary(object):
         fw="w"
         if append:
             fw="a"
-        
+
         f=open(filename,fw)
         keys0=list(self.cld.keys())
         keys0.sort()
@@ -279,7 +279,7 @@ class callibrary(object):
                     # A nominally parsable line, apparently
 
                     # reduce whitespace to only singles
-                    line2=' '.join(line2.split())  
+                    line2=' '.join(line2.split())
 
                     # absorb remaining spaces adjacent to =
                     line2=line2.replace(' =','=')
@@ -291,13 +291,13 @@ class callibrary(object):
 
                     # add parsetorec() command syntax
                     parsecmd='self.parsetorec('+line2+')'
-                    
+
                     # cope with bool recognition for calwt
-                    parsecmd=parsecmd.replace('calwt=T,','calwt=True,') 
+                    parsecmd=parsecmd.replace('calwt=T,','calwt=True,')
                     parsecmd=parsecmd.replace('calwt=T)','calwt=True)')
                     parsecmd=parsecmd.replace('calwt=F,','calwt=False,')
                     parsecmd=parsecmd.replace('calwt=F)','calwt=False)')
-                    
+
                     # execute, and trap/report any errors that occur
                     try:
                         exec(parsecmd)
@@ -313,7 +313,7 @@ class callibrary(object):
 
 def applycaltocallib(filename,append=False,field='',spw='',intent='',
                      gaintable='',gainfield='',interp='',spwmap=[],calwt=True):
-    
+
     if len(filename)<1:
         raise Exception('Please specify a filename')
 

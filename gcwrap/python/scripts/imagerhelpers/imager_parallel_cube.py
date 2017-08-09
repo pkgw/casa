@@ -19,16 +19,16 @@ PySynthesisImagers independently per frequency chunk.
 Iteration control is not synchronized,  interactive mask drawing can't be done.
 Reference concatenation of all the image products is done at the end.
 
-There are N PySynthesisImager objects, each with their own 
-synthesisimager, deconvolvers, normalizers and iterbot. 
-   
+There are N PySynthesisImager objects, each with their own
+synthesisimager, deconvolvers, normalizers and iterbot.
+
 '''
 
 #############################################
 # Parallelize both the major and minor cycle for Cube imaging
 # Run a separate instance of PySynthesisImager on each node.
 #### ( later, use the live-object interface of ImStore to reference-break the cubes )
-#### For nprocesses > nnodes, run the whole 'clean' loop multiple times. 
+#### For nprocesses > nnodes, run the whole 'clean' loop multiple times.
 #############################################
 class PyParallelCubeSynthesisImager():
 
@@ -45,7 +45,7 @@ class PyParallelCubeSynthesisImager():
         self.decpars = params.getDecPars()
         self.iterpars = params.getIterPars()
         alldataimpars={}
-         
+
         self.PH = PyParallelImagerHelper()
         self.NN = self.PH.NN
         self.NF = len(list(allimagepars.keys()))
@@ -63,7 +63,7 @@ class PyParallelCubeSynthesisImager():
             self.SItool.selectdata( allselpars[mss] )
         for fid in sorted( allimagepars.keys() ):
             self.SItool.defineimage( allimagepars[fid], self.allgridpars[fid] )
-            # insert coordsys record in imagepars 
+            # insert coordsys record in imagepars
             # partionCubeSelection works per field ...
             allimagepars[fid]['csys'] = self.SItool.getcsys()
             if allimagepars[fid]['nchan'] == -1:
@@ -74,14 +74,14 @@ class PyParallelCubeSynthesisImager():
         #for kk in alldataimpars.keys():
         #    print "KEY : ", kk , " --->", alldataimpars[kk].keys()
 
-        # reorganize allselpars and allimpars for partitioned data        
+        # reorganize allselpars and allimpars for partitioned data
         synu = casac.synthesisutils()
         self.allselpars={}
         self.allimpars={}
         ###print "self.listOfNodes=",self.listOfNodes
         # Repack the data/image parameters per node
         #  - internally it stores zero-based node ids
-        #  
+        #
         for ipart in self.listOfNodes:
             # convert to zero-based indexing for nodes
             nodeidx = str(ipart-1)
@@ -96,20 +96,20 @@ class PyParallelCubeSynthesisImager():
                         selparsPerNode[tnode][ky] = alldataimpars[fid][nodeidx][ky].copy();
                         if alldataimpars[fid][nodeidx][ky]['spw']=='-1':
                             selparsPerNode[tnode][ky]['spw']=''
-                        else: 
+                        else:
                             # remove chan selections (will be adjusted by tuneSelectData)
                             newspw=selparsPerNode[tnode][ky]['spw']
                             newspwlist = newspw.split(',')
                             spwsOnly = ''
                             for sp in newspwlist:
                                 if spwsOnly!='': spwsOnly+=','
-                                spwsOnly+=sp.split(':')[0]   
+                                spwsOnly+=sp.split(':')[0]
                             selparsPerNode[tnode][ky]['spw']=spwsOnly
 
                 imparsPerNode[tnode][fid] = allimagepars[fid].copy()
                 imparsPerNode[tnode][fid]['csys'] = alldataimpars[fid][nodeidx]['coordsys'].copy()
                 imparsPerNode[tnode][fid]['nchan'] = alldataimpars[fid][nodeidx]['nchan']
-##                imparsPerNode[tnode][fid]['imagename'] = imparsPerNode[tnode][fid]['imagename'] + '.n'+str(tnode) 
+##                imparsPerNode[tnode][fid]['imagename'] = imparsPerNode[tnode][fid]['imagename'] + '.n'+str(tnode)
                 imparsPerNode[tnode][fid]['imagename'] = self.PH.getpartimagename( imparsPerNode[tnode][fid]['imagename'], ipart )
 
                 # skip this for now (it is not working properly, but should not affect results without this)
@@ -120,7 +120,7 @@ class PyParallelCubeSynthesisImager():
 
         #print "****** SELPARS in init **********", self.allselpars
         #print "****** SELIMPARS in init **********", self.allimpars
-        
+
         joblist=[]
         #### MPIInterface related changes
         #for node in range(0,self.NN):
@@ -287,7 +287,7 @@ class PyParallelCubeSynthesisImager():
                 fullconcatimname = distpath+'/'+concatimname
                 for node in self.listOfNodes:
                     #rootimname=self.allinimagepars[str(immod)]['imagename']+'.n'+str(node)
-                    #fullimname =  self.PH.getpath(node) + '/' + rootimname 
+                    #fullimname =  self.PH.getpath(node) + '/' + rootimname
                     fullimname = self.PH.getpartimagename( self.allinimagepars[str(immod)]['imagename']  , node )
                     if (os.path.exists(fullimname+'.'+ext)):
                         subimliststr+=fullimname+'.'+ext+' '
@@ -301,12 +301,12 @@ class PyParallelCubeSynthesisImager():
                         except:
                             casalog.post("Cleaning up the existing file named "+fullconcatimname,"DEBUG")
                             os.remove(fullconcatimname)
-                    cmd = 'imageconcat inimages='+subimliststr+' outimage='+"'"+fullconcatimname+"'"+' type='+type      
+                    cmd = 'imageconcat inimages='+subimliststr+' outimage='+"'"+fullconcatimname+"'"+' type='+type
                     # run virtual concat
                     ret=os.system(cmd)
                     if ret!=0:
                         casalog.post("concatenation of "+concatimname+" failed","WARN")
-             
+
 
 
     def getSummary(self):

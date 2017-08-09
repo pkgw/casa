@@ -2,7 +2,7 @@
 
 import os
 import shutil
-import numpy as np       
+import numpy as np
 
 from __main__ import default
 from tasks import *
@@ -17,8 +17,8 @@ class caltabconvert_test(unittest.TestCase):
     ref2 = 'multisource_unittest_reference-newformat.wvr'
     out = 'mycaltable.wvr'
     rval = False
-    
-    def setUp(self):    
+
+    def setUp(self):
         self.rval = False
 
         if(not os.path.exists(self.vis_f)):
@@ -34,7 +34,7 @@ class caltabconvert_test(unittest.TestCase):
         os.system('rm -rf ' + self.out)
 
 
-# Test cases    
+# Test cases
     def test1(self):
         '''Test 1: Testing default'''
         self.rval = caltabconvert()
@@ -57,7 +57,7 @@ class caltabconvert_test(unittest.TestCase):
             self.rval = self.rval and th.compTables(self.ref2+'/FIELD', self.out+'/FIELD', [])
 
             self.rval = self.rval and th.compTables(self.ref2+'/SPECTRAL_WINDOW', self.out+'/SPECTRAL_WINDOW', ['CHAN_FREQ'])
-                                                          
+
 
         self.assertTrue(self.rval)
 

@@ -20,11 +20,11 @@ Features tested:
      even when fitorder = 4.
 '''
 datapath = os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest'
-uvcdatadir = 'uvcontsub' 
+uvcdatadir = 'uvcontsub'
 
 # Pick up alternative data directory to run tests on MMSs
 testmms = False
-if 'TEST_DATADIR' in os.environ:   
+if 'TEST_DATADIR' in os.environ:
     testmms = True
     DATADIR = str(os.environ.get('TEST_DATADIR'))
     if os.path.isdir(DATADIR):
@@ -67,17 +67,17 @@ if 'BYPASS_PARALLEL_PROCESSING' in os.environ:
 class UVContsubUnitTestBase(unittest.TestCase):
     """
     uvcontsub unittest base class (refactored)
-    """  
+    """
     def initialize(self,inpms):
         """
-        initialize 
+        initialize
         """
 
         global testmms
 
         if testmms:
             print("Testing on MMSs.")
-        
+
         self.inpms = uvcdatadir+'/'+inpms
         if not os.path.exists(uvcdatadir):
             os.system('mkdir '+ uvcdatadir)
@@ -86,40 +86,40 @@ class UVContsubUnitTestBase(unittest.TestCase):
             try:
                 shutil.copytree(datapath + '/' + self.inpms, self.inpms)
             except Exception as e:
-                raise Exception("Missing input MS: " + datapath + '/' + self.inpms) 
+                raise Exception("Missing input MS: " + datapath + '/' + self.inpms)
 
 
     def cleanup(self):
         """
         clean up the test dir
-        """ 
+        """
         if os.path.exists(self.inpms):
             shutil.rmtree(self.inpms)
 
 
     def check_eq(self, val, expval, tol=None):
         """Checks that val matches expval within tol."""
-	if type(val) == dict:
-	    for k in val:
-		check_eq(val[k], expval[k], tol)
-	else:
-	    try:
-		if tol and hasattr(val, '__rsub__'):
-		    are_eq = abs(val - expval) < tol
-		else:
-		    are_eq = val == expval
-		if hasattr(are_eq, 'all'):
-		    are_eq = are_eq.all()
-		if not are_eq:
-		    raise ValueError('!=')
-	    except ValueError:
-		errmsg = "%r != %r" % (val, expval)
-		if (len(errmsg) > 66): # 66 = 78 - len('ValueError: ')
-		    errmsg = "\n%r\n!=\n%r" % (val, expval)
-		raise ValueError(errmsg)
-	    except Exception as e:
-		print("Error comparing", val, "to", expval)
-		raise e
+        if type(val) == dict:
+            for k in val:
+                check_eq(val[k], expval[k], tol)
+        else:
+            try:
+                if tol and hasattr(val, '__rsub__'):
+                    are_eq = abs(val - expval) < tol
+                else:
+                    are_eq = val == expval
+                if hasattr(are_eq, 'all'):
+                    are_eq = are_eq.all()
+                if not are_eq:
+                    raise ValueError('!=')
+            except ValueError:
+                errmsg = "%r != %r" % (val, expval)
+                if (len(errmsg) > 66): # 66 = 78 - len('ValueError: ')
+                    errmsg = "\n%r\n!=\n%r" % (val, expval)
+                raise ValueError(errmsg)
+            except Exception as e:
+                print("Error comparing", val, "to", expval)
+                raise e
 
 
 #class zeroth(UVContChecker):
@@ -178,7 +178,7 @@ class zeroth(UVContsubUnitTestBase):
         print("Non-empty pointing table (for MMS case)")
         self.assertEqual(pnrows['cont'], 1)
         self.assertEqual(pnrows['contsub'], 1)
-        
+
 #class fourth(UVContChecker):
 class fourth(UVContsubUnitTestBase):
 
@@ -187,9 +187,9 @@ class fourth(UVContsubUnitTestBase):
 
     def tearDown(self):
         self.cleanup()
- 
+
     def test_fourth(self):
- 
+
         infitorder=4                    # fitorder
         record = {}
         try:
@@ -273,7 +273,7 @@ class combspw(UVContsubUnitTestBase):
 
     def setUp(self):
         self.initialize('combspw.ms')
-    
+
     def tearDown(self):
         self.cleanup()
 
@@ -283,31 +283,31 @@ class combspw(UVContsubUnitTestBase):
         record = {}
         for infitorder in fitorders:
             record[infitorder]={}
-	    try:
-		print("\nRunning uvcontsub")
-		uvran = uvcontsub(self.inpms, fitspw='1~10:5~122,15~22:5~122',
-				   spw='6~14', combine='spw',
-				   fitorder=infitorder, want_cont=False
-				   )
-	    except Exception as e:
-		print("Error running uvcontsub")
-		raise e
+            try:
+                print("\nRunning uvcontsub")
+                uvran = uvcontsub(self.inpms, fitspw='1~10:5~122,15~22:5~122',
+                                   spw='6~14', combine='spw',
+                                   fitorder=infitorder, want_cont=False
+                                   )
+            except Exception as e:
+                print("Error running uvcontsub")
+                raise e
 
-	    specms = self.inpms + '.contsub'
-	    tb.open(specms)
-	    record[infitorder]['contsub'] = tb.getcell('DATA', 52)[0][73]
-	    tb.close()
-	    shutil.rmtree(specms)
-	    #self.__class__.records[corrsel] = record
-	    #return uvran
-	    self.assertEqual(uvran,True)
+            specms = self.inpms + '.contsub'
+            tb.open(specms)
+            record[infitorder]['contsub'] = tb.getcell('DATA', 52)[0][73]
+            tb.close()
+            shutil.rmtree(specms)
+            #self.__class__.records[corrsel] = record
+            #return uvran
+            self.assertEqual(uvran,True)
 
         print("combspw fitorder=0 line estimate")
         self.check_eq(record[0]['contsub'], -6.2324+17.9865j, 0.001)
 
         print("combspw fitorder=1 line estimate")
         self.check_eq(record[1]['contsub'], -6.2533+17.6584j, 0.001)
-    
+
 
 class excludechans(UVContsubUnitTestBase):
     """Test excludechans """
@@ -325,9 +325,9 @@ class excludechans(UVContsubUnitTestBase):
         pnrows = {}
         try:
             print("\nRunning uvcontsub")
-           
+
             uvran = uvcontsub(self.inpms, fitspw='0:6~17', #'0:0~5;18~23'
-                               excludechans=True, fitorder=0, 
+                               excludechans=True, fitorder=0,
                                want_cont=True)
         except Exception as e:
             print("Error running uvcontsub")
@@ -371,38 +371,38 @@ class excludechans2(UVContsubUnitTestBase):
 
     def setUp(self):
         self.initialize('combspw.ms')
-    
+
     def tearDown(self):
         self.cleanup()
 
     def test_excludechans2(self):
         record = {}
         infitspw = '1:0~5;10~15;123~127,3:0~5;11~15;123~127,2:0~5;10~15;123~127'
-	try:
-	    print("\nRunning uvcontsub")
-	    uvran = uvcontsub(self.inpms, fitspw=infitspw,
-				   spw='1~3', want_cont=False, excludechans=True)
-	except Exception as e:
-	    print("Error running uvcontsub")
-	    raise e
+        try:
+            print("\nRunning uvcontsub")
+            uvran = uvcontsub(self.inpms, fitspw=infitspw,
+                                   spw='1~3', want_cont=False, excludechans=True)
+        except Exception as e:
+            print("Error running uvcontsub")
+            raise e
 
-	specms = self.inpms + '.contsub'
+        specms = self.inpms + '.contsub'
         # TODO: add value tests?
-	#tb.open(specms)
-	#record[infitorder]['contsub'] = tb.getcell('DATA', 52)[0][73]
-	#tb.close()
-	#shutil.rmtree(specms)
-	#self.__class__.records[corrsel] = record
-	#return uvran
-	self.assertEqual(uvran,True)
+        #tb.open(specms)
+        #record[infitorder]['contsub'] = tb.getcell('DATA', 52)[0][73]
+        #tb.close()
+        #shutil.rmtree(specms)
+        #self.__class__.records[corrsel] = record
+        #return uvran
+        self.assertEqual(uvran,True)
 
         #print "combspw fitorder=0 line estimate"
         #self.check_eq(record[0]['contsub'], -6.2324+17.9865j, 0.001)
 
         #print "combspw fitorder=1 line estimate"
         #self.check_eq(record[1]['contsub'], -6.2533+17.6584j, 0.001)
-    
-    
+
+
 class freqrangeselection(UVContsubUnitTestBase):
     """Test frequency range fitspw """
     # test excludechans=True, otherwise the result should be identical
@@ -420,7 +420,7 @@ class freqrangeselection(UVContsubUnitTestBase):
         try:
             print("\nRunning uvcontsub")
 
-            uvran = uvcontsub(self.inpms, 
+            uvran = uvcontsub(self.inpms,
                                fitspw='*:1412665073.7687755~1412787144.0812755Hz;1413104526.8937755~1413226597.2062755Hz',
                                fitorder=0,
                                want_cont=True)
@@ -463,6 +463,6 @@ class freqrangeselection(UVContsubUnitTestBase):
         self.assertEqual(pnrows['contsub'], 1)
 
 
-    
+
 def suite():
     return [zeroth, fourth, combspw, excludechans, excludechans2, freqrangeselection]

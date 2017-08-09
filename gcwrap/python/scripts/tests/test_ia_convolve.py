@@ -38,7 +38,7 @@
 #
 # <prerequisite>
 # <ul>
-#   <li> <linkto class="task_imcollapse.py:description">imcollapse</linkto> 
+#   <li> <linkto class="task_imcollapse.py:description">imcollapse</linkto>
 # </ul>
 # </prerequisite>
 #
@@ -48,20 +48,20 @@
 #
 # <synopsis>
 # Test the imcollapse task and the ia.collapse() method upon which it is built.
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_imcollapse[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the imcollapse task to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -78,13 +78,13 @@ import unittest
 
 
 class ia_convolve_test(unittest.TestCase):
-    
+
     def setUp(self):
         pass
-    
+
     def tearDown(self):
         pass
-    
+
     def test_stretch(self):
         """ ia.convolve(): Test stretch parameter"""
         yy = iatool()
@@ -124,6 +124,6 @@ class ia_convolve_test(unittest.TestCase):
         zz.done()
         self.assertTrue("convolve" in msgs[-2])
         self.assertTrue("convolve" in msgs[-1])
-        
+
 def suite():
     return [ia_convolve_test]

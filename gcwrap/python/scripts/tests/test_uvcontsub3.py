@@ -19,7 +19,7 @@ Features tested:
      even when fitorder = 4.
 '''
 datapath = os.environ.get('CASAPATH').split()[0] + '/data/regression/'
-uvcdatadir = 'unittest/uvcontsub/' 
+uvcdatadir = 'unittest/uvcontsub/'
 
 # eliminated dependence on test_split (TT)
 #class UVContChecker(SplitChecker):
@@ -75,7 +75,7 @@ class UVContsub3UnitTestBase(unittest.TestCase):
         if os.path.exists(self.inpms):
             shutil.rmtree(self.inpms)
 
-    
+
 
     def check_eq(self, val, expval, tol=None):
         """Checks that val matches expval within tol."""
@@ -112,7 +112,7 @@ class zeroth(UVContsub3UnitTestBase):
         self.cleanup()
 
     def test_zeroth(self):
-        
+
         record={}
         infitorder = 0
 
@@ -136,13 +136,13 @@ class zeroth(UVContsub3UnitTestBase):
         print("Continuum-subtracted data in line region")
         self.check_eq(record['contsub'][:,9],   # RR, LL
                  numpy.array([87.+26.j, 31.+20.j]), 0.0001)
-        
+
 class fourth(UVContsub3UnitTestBase):
     """Test forth order fit"""
 
     def setUp(self):
         self.initialize(uvcdatadir + 'known4.ms')
-    
+
     def tearDown(self):
         self.cleanup()
 
@@ -223,13 +223,13 @@ class combspw(UVContsub3UnitTestBase):
             tb.close()
             shutil.rmtree(specms)
             self.assertTrue(uvran)
- 
+
         print("combspw fitorder=0 line estimate")
         self.check_eq(record[0]['contsub'], -6.2324+17.9865j, 0.001)
 
         print("combspw fitorder=1 line estimate")
         self.check_eq(record[1]['contsub'], -6.2533+17.6584j, 0.001)
-        
+
 class knowncombspw(UVContsub3UnitTestBase):
     """Test combine spw with a know line"""
 
@@ -254,13 +254,13 @@ class knowncombspw(UVContsub3UnitTestBase):
             raise e
         specms = self.inpms + '.contsub'
         tb.open(specms)
-        
+
         # Same data, different row number as compared to uvcontsub or the input MS.
-        
+
         record['blue'] = tb.getcell('DATA',  7)[0]
         record['line'] = tb.getcell('DATA', 37)[0]
         record['red']  = tb.getcell('DATA', 61)[0]
-        
+
         tb.close()
         shutil.rmtree(specms)
         self.assertTrue(uvran)
@@ -354,6 +354,6 @@ class knowncombspw(UVContsub3UnitTestBase):
                                -1.98423862e-04 -7.75127411e-02j,
                                -2.08497047e-04 -8.49704742e-02j,
                                -2.11834908e-04 -9.24243927e-02j]), 0.001)
-        
+
 def suite():
     return [zeroth, fourth, combspw, knowncombspw]

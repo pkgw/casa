@@ -32,8 +32,8 @@ def ft(vis=None,field=None,spw=None,model=None,nterms=None,reffreq=None,complist
        nterms -- Number of terms used to model the sky frequency dependence
                  default: 1
                  example : nterms=3  represents a 2nd order Taylor-polynomial in frequency
-                           and is to be used along with 3 model-image names. 
-		           model=['xxx.image.tt0','xxx.image.tt1', 'xxx.image.tt2']
+                           and is to be used along with 3 model-image names.
+                           model=['xxx.image.tt0','xxx.image.tt1', 'xxx.image.tt2']
           reffreq -- Reference-frequency about which this Taylor-expansion is defined.
        complist -- Name of component list
                default: None; ; example: complist='test.cl'
@@ -51,16 +51,16 @@ def ft(vis=None,field=None,spw=None,model=None,nterms=None,reffreq=None,complist
                        im.open(vis, usescratch=usescratch)
                else:
                        raise Exception('Visibility data set not found - please verify the name')
-	
+
                # Select data
                im.selectvis(field=field,spw=spw)
-	       
+
                # Define image co-ordinates (all defaults)
                #im.defineimage()
 
                # Check 'model'. The 'xml' allows a variant => do the checking here.
                if( (not type(model)==str) and (not (type(model)==list) ) ) :
-		       raise Exception('The model image must be a string or a list of strings (or \'\' or [])');
+                       raise Exception('The model image must be a string or a list of strings (or \'\' or [])');
 
                # If model is a single string, make it a list
                if( type(model)==str ):
@@ -85,32 +85,32 @@ def ft(vis=None,field=None,spw=None,model=None,nterms=None,reffreq=None,complist
 
                # If nterms>1, then check that len(model)=nterms [ no multifield for now ]
                # Call im.settaylorterms()
-               #               
+               #
                if (nterms > 1) :
-		       if(type(model)==str or (not (type(model)==list and len(model)==nterms)) ):
-			       raise Exception('For nterms>1, please provide a list of nterms model-image names');
-		       # parse the reference-frequency field.
+                       if(type(model)==str or (not (type(model)==list and len(model)==nterms)) ):
+                               raise Exception('For nterms>1, please provide a list of nterms model-image names');
+                       # parse the reference-frequency field.
                        qat=qatool();
                        try:
-		          rff=qat.canonical(reffreq);
-		       except Exception as instance:
+                          rff=qat.canonical(reffreq);
+                       except Exception as instance:
                           print('*** Error *** In conversion of reffreq=\'',reffreq,'\' to a numerical value');
                           raise Exception(instance)
                        reffreqVal=rff['value'];  # This is the frequency in Hz
-		       if(reffreqVal==0.0):   # if unspecified, set the default from the model image
-			       ia.open(model[0]);
-			       icsys = ia.coordsys();
-			       ia.close();
+                       if(reffreqVal==0.0):   # if unspecified, set the default from the model image
+                               ia.open(model[0]);
+                               icsys = ia.coordsys();
+                               ia.close();
                                reffreqVal=icsys.referencevalue(type='spectral')['numeric'][0];
-			       casalog.post('Using reference frequency from model image : '+str(reffreqVal)+' Hz');
-		       else:
-		               casalog.post('Using reference frequency : '+str(reffreqVal)+' Hz');
-		       # set nterms and ref-freq
-		       im.settaylorterms(ntaylorterms=nterms,reffreq=reffreqVal)
+                               casalog.post('Using reference frequency from model image : '+str(reffreqVal)+' Hz');
+                       else:
+                               casalog.post('Using reference frequency : '+str(reffreqVal)+' Hz');
+                       # set nterms and ref-freq
+                       im.settaylorterms(ntaylorterms=nterms,reffreq=reffreqVal)
 
                # Just checking...
-	       if (nterms < 1) :
-		       raise Exception('nterms must be greater than or equal to 1');
+               if (nterms < 1) :
+                       raise Exception('nterms must be greater than or equal to 1');
 
 
                # Do the forward transform and close.

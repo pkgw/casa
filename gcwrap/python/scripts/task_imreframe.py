@@ -45,8 +45,8 @@ def imreframe(imagename=None, output=None, outframe=None, epoch=None, restfreq=N
             newreffreq=me.measure(reffreq, outframe)
             c.setreferencevalue(qa.tos(newreffreq['m0']), 'spectral')
             outname='_temp_regrid_image' if(output=='') else output
-            shp=myia.shape()             
-            ib=myia.regrid(outfile=outname, shape=shp, csys=c.torecord(), 
+            shp=myia.shape()
+            ib=myia.regrid(outfile=outname, shape=shp, csys=c.torecord(),
                            axes=pixax, overwrite=True, asvelocity=False)
             ib.setcoordsys(c.torecord())
             if(output==''):
@@ -55,11 +55,11 @@ def imreframe(imagename=None, output=None, outframe=None, epoch=None, restfreq=N
             myia.done()
             ib.done()
         return True
-        
+
     except Exception as instance:
         if('myia' in locals()):
             myia.close()
         if('ib' in locals()):
             ib.close()
         raise instance
- 
+

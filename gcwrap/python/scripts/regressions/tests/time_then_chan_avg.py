@@ -41,9 +41,9 @@ expected = {
 #                                                     4.50010633+2.j,  4.50010633+3.j,
 #                                                     4.50010633+4.j,  4.50010633+5.j,
 #                                                     4.50010633+6.j,  4.50010633+7.j]]), 0.005),
-                        ('DATA', 1): (numpy.array([[ 6.33345938+0.j,  6.33345938+1.j,  
-                                                     6.33345938+2.j,  6.33345938+3.j,                                                                   
-                                                     6.33345938+4.j,  6.33345938+5.j,  
+                        ('DATA', 1): (numpy.array([[ 6.33345938+0.j,  6.33345938+1.j,
+                                                     6.33345938+2.j,  6.33345938+3.j,
+                                                     6.33345938+4.j,  6.33345938+5.j,
                                                      6.33345938+6.j,  6.33345938+7.j]]), 0.005),
                         ('TIME', 1): (4715114710.4857559, 0.01),
                         ('EXPOSURE', 1): 20.971519947052002,
@@ -66,7 +66,7 @@ expected = {
                         ('FEED2', 9): 0,
 #                        ('DATA', 1): (numpy.array([[ 4.50010633+0.5j,  4.50010633+2.5j,
 #                                                     4.50010633+4.5j, 4.50010633+6.5j]]),0.005),
-                        ('DATA', 1): (numpy.array([[6.33345938+0.5j,  6.33345938+2.5j,  6.33345938+4.5j,                                                                          
+                        ('DATA', 1): (numpy.array([[6.33345938+0.5j,  6.33345938+2.5j,  6.33345938+4.5j,
                                                     6.33345938+6.5j ]]),0.005),
                         ('TIME', 1): (4715114710.4857559, 0.01),
                         ('EXPOSURE', 1): 20.971519947052002,
@@ -370,11 +370,11 @@ def isquantized(val):
 
 def data():
     """As I understand it, this must return the filenames of needed input data."""
-    
+
     # Just in case order matters.
     inplist = list(expected.keys())
     inplist.sort()
-    
+
     #return ['split/' + inpms for inpms in inplist]
     return inplist
 
@@ -384,7 +384,7 @@ def run(fetch=False):
     if fetch:
         for f in data( ):
             copydata( f, os.getcwd( ) )
-    
+
     input_mses = data()
     badcells = {}
     for input_ms in input_mses:
@@ -458,7 +458,7 @@ def run(fetch=False):
                             tol = 0.005 * expent
                         else:
                             usetol = False
-                            
+
                         gotval = tb.getcell(col, row)
                         if hasattr(gotval, 'flatten') and gotval.size == 1:
                             gotval = gotval.flatten()[0]
@@ -484,7 +484,7 @@ def run(fetch=False):
         pp = pprint.PrettyPrinter(indent=0, width=80)
         pp.pprint(badcells)
         raise Exception("There were unexpected values in the averaged MSes.  Check the log.")
-    
+
     print('')
     print('Regression PASSED')
     print('')
@@ -523,7 +523,7 @@ def time_then_chan_avg(inms, tbin, chanbin, outms="", zaptemp=True,
     tms = troot + ".ms"
 
     funnyshapes = False
-    
+
     try:
         # Do time averaging.
         if (chanselstr.find(':') > -1) and ((chanselstr.find(',') > -1) or

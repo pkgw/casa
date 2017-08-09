@@ -47,7 +47,7 @@ class sdfitold_unittest_base:
             for outfile in self.outputs:
                 #print 'removing %s...'%(outfile)
                 os.system('rm -rf %s'%(outfile))
-    
+
     def _check_file( self, filename, fail=True ):
         """
         Check if filename exists.
@@ -120,7 +120,7 @@ class sdfitold_unittest_base:
                 self.assertLessEqual(diff, tol,
                                      msg='%s (%s): result differ (expected %s, actual %s)'%(properties[irow % nprop], irow, e[irow], r[irow]))
 
-    
+
 class sdfitold_test(sdfitold_unittest_base, unittest.TestCase):
     """
     Unit tests for task sdfitold. No interactive testing.
@@ -140,7 +140,7 @@ class sdfitold_test(sdfitold_unittest_base, unittest.TestCase):
                        (cen1=3000,fwhm1=1000,ampl1=10,cen2=6000,fwhm2=100,ampl2=10) : separated
     testLorentzian04 --- test fitting a combination of broad and narrow Lorentzian profiles
                        (cen1=4000,fwhm1=1000,ampl1=10,cen2=4700,fwhm2=100,ampl2=10) : overlapped
-    
+
     Note: (1) the rms noise is 1.0 for all data.
 
     created 21/04/2011 by Wataru Kawasaki
@@ -157,7 +157,7 @@ class sdfitold_test(sdfitold_unittest_base, unittest.TestCase):
         fitfunc = "gauss"
         fitmode = "list"
         nfit = 1
-        
+
         res = sdfitold(infile=infile,scan=scan,fitfunc=fitfunc,fitmode=fitmode,nfit=nfit)
         self.assertNotEqual(res, None, msg="The task returned None. Fit failed.")
 
@@ -183,7 +183,7 @@ class sdfitold_test(sdfitold_unittest_base, unittest.TestCase):
         fitmode = "list"
         #maskline = [0,2000]
         nfit = 1
-        
+
         res = sdfitold(infile=infile,spw=spw,scan=scan,fitfunc=fitfunc,fitmode=fitmode,nfit=nfit)
         self.assertNotEqual(res, None, msg="The task returned None. Fit failed.")
 
@@ -207,7 +207,7 @@ class sdfitold_test(sdfitold_unittest_base, unittest.TestCase):
         fitfunc = "gauss"
         fitmode = "list"
         nfit = 1
-        
+
         res = sdfitold(infile=infile,scan=scan,fitfunc=fitfunc,fitmode=fitmode,nfit=nfit)
         self.assertNotEqual(res, None, msg="The task returned None. Fit failed.")
 
@@ -233,7 +233,7 @@ class sdfitold_test(sdfitold_unittest_base, unittest.TestCase):
         fitmode = "list"
         #maskline = [[2000,4000],[5500,6500]]
         nfit = [1,1]
-        
+
         res = sdfitold(infile=infile,spw=spw,scan=scan,fitfunc=fitfunc,fitmode=fitmode,nfit=nfit)
         self.assertNotEqual(res, None, msg="The task returned None. Fit failed.")
 
@@ -262,7 +262,7 @@ class sdfitold_test(sdfitold_unittest_base, unittest.TestCase):
         fitmode = "list"
         #maskline = [[3000,4400],[4500,5000]]
         nfit = [1,1]
-        
+
         res = sdfitold(infile=infile,spw=spw,scan=scan,fitfunc=fitfunc,fitmode=fitmode,nfit=nfit)
         self.assertNotEqual(res, None, msg="The task returned None. Fit failed.")
 
@@ -289,7 +289,7 @@ class sdfitold_test(sdfitold_unittest_base, unittest.TestCase):
         fitfunc = "lorentz"
         fitmode = "list"
         nfit = 1
-        
+
         res = sdfitold(infile=infile,scan=scan,fitfunc=fitfunc,fitmode=fitmode,nfit=nfit)
         self.assertNotEqual(res, None, msg="The task returned None. Fit failed.")
 
@@ -315,14 +315,14 @@ class sdfitold_test(sdfitold_unittest_base, unittest.TestCase):
         fitmode = "list"
         #maskline = [0,2000]
         nfit = 1
-        
+
         res = sdfitold(infile=infile,spw=spw,scan=scan,fitfunc=fitfunc,fitmode=fitmode,nfit=nfit)
         self.assertNotEqual(res, None, msg="The task returned None. Fit failed.")
 
         ans = {'cent': [[500.0]],
                'fwhm': [[1000.0]],
                'peak': [[10.0]]}
-        
+
         """ the result (RHEL5 64bit)
         ref = {'cent': [[[500.99105834960938, 2.8661653995513916]]],
                'fwhm': [[[995.85455322265625, 9.5194911956787109]]],
@@ -339,7 +339,7 @@ class sdfitold_test(sdfitold_unittest_base, unittest.TestCase):
         fitfunc = "lorentz"
         fitmode = "list"
         nfit = 1
-        
+
         res = sdfitold(infile=infile,scan=scan,fitfunc=fitfunc,fitmode=fitmode,nfit=nfit)
         self.assertNotEqual(res, None, msg="The task returned None. Fit failed.")
 
@@ -365,7 +365,7 @@ class sdfitold_test(sdfitold_unittest_base, unittest.TestCase):
         fitmode = "list"
         #maskline = [[2000,4000],[5500,6500]]
         nfit = [1,1]
-        
+
         res = sdfitold(infile=infile,spw=spw,scan=scan,fitfunc=fitfunc,fitmode=fitmode,nfit=nfit)
         self.assertNotEqual(res, None, msg="The task returned None. Fit failed.")
 
@@ -394,14 +394,14 @@ class sdfitold_test(sdfitold_unittest_base, unittest.TestCase):
         fitmode = "list"
         #maskline = [[3000,4400],[4500,5000]]
         nfit = [1,1]
-        
+
         res = sdfitold(infile=infile,spw=spw,scan=scan,fitfunc=fitfunc,fitmode=fitmode,nfit=nfit)
         self.assertNotEqual(res, None, msg="The task returned None. Fit failed.")
 
         ans = {'cent': [[4000.0, 4700.0]],
                'fwhm': [[1000.0, 100.0]],
                'peak': [[10.0, 10.0]]}
-        
+
         """ the result (RHEL5 64bit)
         ref = {'cent': [[[3995.85693359375, 3.0016641616821289],
                          [4699.53271484375, 0.82658475637435913]]],
@@ -423,7 +423,7 @@ class sdfitold_test(sdfitold_unittest_base, unittest.TestCase):
 
                 #check if result is consistent with answer in 3-sigma level
                 threshold = 3.0
-                
+
                 within_errorrange = (abs(ans - val) <= abs(err * threshold))
                 self.assertTrue(within_errorrange)
 
@@ -447,10 +447,10 @@ class sdfitold_test_exceptions(sdfitold_unittest_base, unittest.TestCase):
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
 
 class sdfitold_selection_syntax(sdfitold_unittest_base, selection_syntax.SelectionSyntaxTest):
-    
+
     # Data path of input/output
     datapath=os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/singledish/'
-    
+
     # Input and output names
     infile_convolve = 'sd_analytic_type3-1.asap'
     infile_shift = 'sd_analytic_type4-1.asap'
@@ -491,10 +491,10 @@ class sdfitold_selection_syntax(sdfitold_unittest_base, selection_syntax.Selecti
     fit_ref = {infile_convolve: fit_ref_convolve,
                infile_shift: fit_ref_shift,
                infile_duplicate: fit_ref_duplicate}
-    
+
     # tolerance
     tol = 1.0e-7
-    
+
     @property
     def task(self):
         return sdfitold
@@ -508,7 +508,7 @@ class sdfitold_selection_syntax(sdfitold_unittest_base, selection_syntax.Selecti
         s = sd.scantable(infile, average=False)
         self.assertTrue(infile in self.fit_ref)
         fit_ref = self.fit_ref[infile]
-            
+
         for irow in range(len(rows)):
             row = rows[irow]
             scanno = s.getscan(row)
@@ -532,7 +532,7 @@ class sdfitold_selection_syntax(sdfitold_unittest_base, selection_syntax.Selecti
                 # check fwhm
                 fwhm = result_ret['fwhm'][irow][icomp][0]
                 self.assertEqual(fwhm, comp[2])
-        
+
         for (k,v) in list(result_out.items()):
             ref = fit_ref[k]
 
@@ -561,7 +561,7 @@ class sdfitold_selection_syntax(sdfitold_unittest_base, selection_syntax.Selecti
                   'fitmode': 'list',
                   'outfile': outfile,
                   'overwrite': True}
-        
+
         for i in range(num_param):
             kwargs[params[i]] = exprs[i]
 
@@ -575,7 +575,7 @@ class sdfitold_selection_syntax(sdfitold_unittest_base, selection_syntax.Selecti
         result_out = self.read_result(outfile)
 
         self.__test_result(infile, result, result_out, rows)
-                          
+
         return outfile
 
     def __exec_simple_test(self, infile, param, expr, rows, regular_test=True):
@@ -591,7 +591,7 @@ class sdfitold_selection_syntax(sdfitold_unittest_base, selection_syntax.Selecti
         rows = [0,1,2,3]
 
         self.__exec_complex_test(infile, ['field', 'spw'], [field, spw], rows)
-        
+
     def test_field_id_exact(self):
         """test_field_id_exact: Test field selection by id"""
         infile = self.infile_convolve
@@ -600,7 +600,7 @@ class sdfitold_selection_syntax(sdfitold_unittest_base, selection_syntax.Selecti
         rows = [0]
 
         self.__exec_complex_test(infile, ['field', 'spw'], [field, spw], rows)
-        
+
     def test_field_id_lt(self):
         """test_field_id_lt: Test field selection by id (<N)"""
         infile = self.infile_convolve
@@ -690,7 +690,7 @@ class sdfitold_selection_syntax(sdfitold_unittest_base, selection_syntax.Selecti
         rows = [0,1,2,3]
 
         self.__exec_simple_test(infile, 'spw', spw, rows)
-        
+
     def test_spw_id_exact(self):
         """test_spw_id_exact: Test spw selection by id ('N')"""
         infile = self.infile_shift
@@ -698,7 +698,7 @@ class sdfitold_selection_syntax(sdfitold_unittest_base, selection_syntax.Selecti
         rows = [2]
 
         self.__exec_simple_test(infile, 'spw', spw, rows)
-        
+
     def test_spw_id_lt(self):
         """test_spw_id_lt: Test spw selection by id ('<N')"""
         infile = self.infile_shift
@@ -754,7 +754,7 @@ class sdfitold_selection_syntax(sdfitold_unittest_base, selection_syntax.Selecti
         rows = [2]
 
         self.__exec_simple_test(infile, 'spw', spw, rows)
-        
+
     def test_spw_value_velocity(self):
         """test_spw_value_velocity: Test spw selection by velocity range ('VEL0~VEL1')"""
         infile = self.infile_shift
@@ -811,7 +811,7 @@ class sdfitold_selection_syntax(sdfitold_unittest_base, selection_syntax.Selecti
         rows = [1]
 
         self.__exec_simple_test(infile, 'spw', spw, rows)
-        
+
     def test_spw_id_exact_frequency(self):
         """test_spw_id_exact_frequency: Test spw selection with channel range ('N:FREQ0~FREQ1')"""
         infile = self.infile_convolve
@@ -819,7 +819,7 @@ class sdfitold_selection_syntax(sdfitold_unittest_base, selection_syntax.Selecti
         rows = [1]
 
         self.__exec_simple_test(infile, 'spw', spw, rows)
-        
+
     def test_spw_id_exact_velocity(self):
         """test_spw_id_exact_velocity: Test spw selection with channel range ('N:VEL0~VEL1')"""
         infile = self.infile_convolve
@@ -835,7 +835,7 @@ class sdfitold_selection_syntax(sdfitold_unittest_base, selection_syntax.Selecti
         rows = [0,3]
 
         self.__exec_simple_test(infile, 'spw', spw, rows)
-        
+
     def test_spw_id_pattern_channel(self):
         """test_spw_id_pattern_channel: Test spw selection with channel range ('*:CH0~CH1')"""
         infile = self.infile_shift
@@ -843,7 +843,7 @@ class sdfitold_selection_syntax(sdfitold_unittest_base, selection_syntax.Selecti
         rows = [0,1,2,3]
 
         self.__exec_simple_test(infile, 'spw', spw, rows)
-        
+
     def test_spw_id_pattern_frequency(self):
         """test_spw_id_pattern_frequency: Test spw selection with channel range ('*:FREQ0~FREQ1')"""
         infile = self.infile_convolve
@@ -865,7 +865,7 @@ class sdfitold_selection_syntax(sdfitold_unittest_base, selection_syntax.Selecti
         infile = self.infile_duplicate
         spw = '*:40~60;65~85'
         rows = [0,1,2,3]
-        
+
         self.__exec_simple_test(infile, 'spw', spw, rows)
 
     def test_spw_value_frequency_channel(self):
@@ -958,7 +958,7 @@ class sdfitold_selection_syntax(sdfitold_unittest_base, selection_syntax.Selecti
         rows = [0]
 
         self.__exec_complex_test(infile, ['scan', 'spw'], [scan, spw], rows)
-       
+
     def test_scan_id_lt(self):
         """test_scan_id_lt: Test scan selection by id ('<N')"""
         infile = self.infile_convolve
@@ -1165,14 +1165,14 @@ class sdfitold_average(sdfitold_unittest_base, unittest.TestCase):
         result = self._execute_task(timeaverage=False, scanaverage=False, polaverage=True)
         expected = {(0,0,0): [81.0, 20.0, 5.0]}
         self._verify(expected)
-        
+
 
     def testaverageTFT(self):
         """testaverageTFT: test average (timeaverage=True, scanaverage=False, polaverage=True)"""
         result = self._execute_task(timeaverage=True, scanaverage=False, polaverage=True)
         expected = {(0,0,0): [81.0, 20.0, 5.0]}
         self._verify(expected)
-    
+
 class sdfitold_flag(sdfitold_unittest_base, unittest.TestCase):
     """
     Test flag handling in sdfitold
@@ -1284,7 +1284,7 @@ class sdfitold_flag(sdfitold_unittest_base, unittest.TestCase):
         # two lines would be detected if not flagged
         self._run_test(refdata,infile=infile,spw=spw,
                       fitmode=fitmode,nfit=[],box_size=box_size)
-        
+
     def testRowFlagList(self):
         """test row flag with fitmode='list'"""
         fitmode='list'
@@ -1350,7 +1350,7 @@ class sdfitold_flag(sdfitold_unittest_base, unittest.TestCase):
         pol='0'
         (tave, save, pave) = (True, False, False)
         infile = self.avefile
-        self._flag_table(infile, row=[0,5]) 
+        self._flag_table(infile, row=[0,5])
         refdata = {(0,0,0): [40.0, 20.0, 5.0]}
         self._run_test(refdata,infile=infile,spw=spw,pol=pol,
                        timeaverage=tave,scanaverage=save,polaverage=pave)

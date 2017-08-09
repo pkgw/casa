@@ -26,7 +26,7 @@ def taskhelp(scrap=None):
         widestftlen = max([len(ft) for ft in foundtasks])
         fmt = "%%-%ds : %%s" % widestftlen
         for ft in foundtasks:
-            print(fmt % (ft, tasksum[ft]))            
+            print(fmt % (ft, tasksum[ft]))
 def toolhelp():
     """ List all tools with one-line description: """
     print(' ')
@@ -79,16 +79,16 @@ def tasklist():
         count4 = len(allcat[col4])
         maxcount = max([count1, count2, count3, count4])
         taskrow = ''
-	print()
+        print()
         print('%-18.18s  %-18.18s  %-18.18s  %-18.18s'% (col1.capitalize(), col2.capitalize(), col3.capitalize(), col4.capitalize()))
-	print('------------------  ------------------  ------------------  ------------------')
+        print('------------------  ------------------  ------------------  ------------------')
         for i in range(0, maxcount) :
             if(i<count1) :
                 task1 = allcat[col1][i]
             else :
                 task1 = ' '
             if(i<count2) :
-                task2 = allcat[col2][i] 
+                task2 = allcat[col2][i]
             else :
                 task2 = ' '
             if(i<count3) :

@@ -26,7 +26,7 @@ def imdev(
             interp=interp, stattype=stattype, statalg=statalg,
             zscore=zscore, maxiter=maxiter
         )
-        zz.done() 
+        zz.done()
         return True
     except Exception as instance:
         casalog.post( '*** Error ***'+str(instance), 'SEVERE' )

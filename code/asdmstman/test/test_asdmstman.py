@@ -55,13 +55,13 @@ else:
 
     print "SPEED TEST 1: split"
     importasdm(asdm=asdmname, vis=asdmname+'.ms-orig')
-    
+
     os.system('rm -rf from*stman*.ms')
-    
+
     # access table to rule out caching differences
     tb.open(asdmname+'.ms')
     tb.close()
-    
+
     mytime1 = time.time()
     split(vis=asdmname+'.ms', datacolumn='DATA', outputvis='fromasdmstman.ms')
     mytime1 = time.time() - mytime1
@@ -73,7 +73,7 @@ else:
     mytimeb1 = time.time()
     split(vis=asdmname+'.ms-orig', datacolumn='DATA', outputvis='fromstman.ms')
     mytimeb1 = time.time() - mytimeb1
-    
+
     mytime2 = time.time()
     split(vis=asdmname+'.ms', datacolumn='DATA', outputvis='fromasdmstman2.ms')
     mytime2 = time.time() - mytime2
@@ -91,7 +91,7 @@ else:
     tb.open(asdmname+'.ms')
     # access table on some other column first
     a = tb.getcol('TIME')
-    
+
     mytimeg1 = time.time()
     g1 = tb.getvarcol('DATA')
     mytimeg1 = time.time()-mytimeg1

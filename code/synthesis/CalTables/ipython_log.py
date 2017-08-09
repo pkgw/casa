@@ -5,4 +5,4 @@
 #log# It is safe to make manual edits below here.
 #log#-----------------------------------------------------------------------
 execfile('/users/kgolap/python/findreplace.py')
-exit 
+exit

@@ -20,7 +20,7 @@ def run(fetch=False):
     if fetch:
         for f in data( ):
             copydata( f, os.getcwd( ) )
-    
+
     #####locate the regression script
     lepath=locatescript('polcal_20080224_cband_regression.py')
     print('Script used is ',lepath)
@@ -30,6 +30,6 @@ def run(fetch=False):
     print('regstate =', gl['regstate'])
     if not gl['regstate']:
         raise Exception('regstate = False')
-    
+
 ###resturn the images that will be templated and compared in future runs
     return []

@@ -11,12 +11,12 @@ import unittest
 Unit tests for task oldhanningsmooth. It tests the following parameters:
     vis:   wrong and correct values
     vis:   check that output column is created
-    
-    Other tests: check that theoretical and calculated values of column CORRECTED_DATA 
+
+    Other tests: check that theoretical and calculated values of column CORRECTED_DATA
                  are the same.
 '''
 class oldhanningsmooth_test(unittest.TestCase):
-    
+
     # Input and output names
     msfile = 'ngc5921_ut.ms'
     res = None
@@ -27,7 +27,7 @@ class oldhanningsmooth_test(unittest.TestCase):
         default(oldhanningsmooth)
         datapath = os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/hanningsmooth/'
         shutil.copytree(datapath+self.msfile, self.msfile)
-    
+
     def tearDown(self):
         if (os.path.exists(self.msfile)):
             os.system('rm -rf ' + self.msfile)
@@ -35,14 +35,14 @@ class oldhanningsmooth_test(unittest.TestCase):
             os.system('rm -rf cvelngc.ms')
         if (os.path.exists(self.out)):
             os.system('rm -rf ' + self.out)
-        
+
         shutil.rmtree('mynewms.ms',ignore_errors=True)
 
     def test0(self):
         '''Test 0: Default values'''
         self.res = oldhanningsmooth()
         self.assertFalse(self.res)
-        
+
     def test1(self):
         """Test 1: Wrong input MS should return False"""
         msfile = 'badmsfile'
@@ -55,7 +55,7 @@ class oldhanningsmooth_test(unittest.TestCase):
         self.assertEqual(self.res,None)
         cd = th.getColDesc(self.msfile, 'CORRECTED_DATA')
         self.assertTrue(len(cd))
-        
+
     def test3(self):
         '''Test 3: Theoretical and calculated values should be the same with datacolumn==CORRECTED'''
 
@@ -80,11 +80,11 @@ class oldhanningsmooth_test(unittest.TestCase):
         data_col = th.getVarCol(self.msfile, 'DATA')
         corr_col = th.getVarCol(self.msfile, 'CORRECTED_DATA')
         nrows = len(corr_col)
-        
+
       # Loop over every 2nd row,pol and get the data for each channel
         max = 1e-05
         for i in range(1,nrows,2) :
-            row = 'r%s'%i            
+            row = 'r%s'%i
             # polarization is 0-1
             for pol in range(0,2) :
                 # array's channels is 0-63
@@ -93,10 +93,10 @@ class oldhanningsmooth_test(unittest.TestCase):
                     data = data_col[row][pol][chan]
                     dataB = data_col[row][pol][chan-1]
                     dataA = data_col[row][pol][chan+1]
-        
+
                     Smoothed = th.calculateHanning(dataB,data,dataA)
                     CorData = corr_col[row][pol][chan]
-                    
+
                     # Check the difference
                     self.assertTrue(abs(CorData-Smoothed) < max )
 
@@ -109,7 +109,7 @@ class oldhanningsmooth_test(unittest.TestCase):
         self.assertTrue(flag_col['r1'][0][1] == [False])
         self.assertTrue(flag_col['r1'][0][61] == [False])
         self.assertTrue(flag_col['r1'][0][62] == [False])
-        
+
         data_col = th.getVarCol(self.msfile, 'DATA')
         self.res = oldhanningsmooth(vis=self.msfile,datacolumn='data')
         corr_col = th.getVarCol(self.msfile, 'DATA')
@@ -121,11 +121,11 @@ class oldhanningsmooth_test(unittest.TestCase):
         self.assertTrue(flag_col['r1'][0][1] == [False])
         self.assertTrue(flag_col['r1'][0][61] == [False])
         self.assertTrue(flag_col['r1'][0][62] == [True])
-        
+
       # Loop over every 2nd row,pol and get the data for each channel
         max = 1e-05
         for i in range(1,nrows,2) :
-            row = 'r%s'%i            
+            row = 'r%s'%i
             # polarization is 0-1
             for pol in range(0,2) :
                 # array's channels is 0-63
@@ -134,10 +134,10 @@ class oldhanningsmooth_test(unittest.TestCase):
                     data = data_col[row][pol][chan]
                     dataB = data_col[row][pol][chan-1]
                     dataA = data_col[row][pol][chan+1]
-        
+
                     Smoothed = th.calculateHanning(dataB,data,dataA)
                     CorData = corr_col[row][pol][chan]
-                    
+
                     # Check the difference
                     self.assertTrue(abs(CorData-Smoothed) < max )
 
@@ -151,7 +151,7 @@ class oldhanningsmooth_test(unittest.TestCase):
     def test6(self):
         '''Test 6: Flagging should be correct with datacolumn==ALL'''
         clearcal(vis=self.msfile)
-        
+
       # check correct flagging (just for one row as a sample)
         flag_col = th.getVarCol(self.msfile, 'FLAG')
         self.assertTrue(flag_col['r1'][0][0] == [False])
@@ -171,7 +171,7 @@ class oldhanningsmooth_test(unittest.TestCase):
     def test7(self):
         '''Test 7: Flagging should be correct when hanning smoothing within cvel (no transform)'''
         clearcal(vis=self.msfile)
-        
+
       # check correct flagging (just for one row as a sample)
         flag_col = th.getVarCol(self.msfile, 'FLAG')
         self.assertTrue(flag_col['r1'][0][0] == [False])
@@ -191,7 +191,7 @@ class oldhanningsmooth_test(unittest.TestCase):
     def test8(self):
         '''Test 8: Flagging should be correct when hanning smoothing within cvel (with transform)'''
         clearcal(vis=self.msfile)
-        
+
       # check correct flagging (just for one row as a sample)
         flag_col = th.getVarCol(self.msfile, 'FLAG')
         self.assertTrue(flag_col['r1'][0][0] == [False])
@@ -209,7 +209,7 @@ class oldhanningsmooth_test(unittest.TestCase):
         self.assertTrue(flag_col['r1'][0][60] == [False])
         self.assertTrue(flag_col['r1'][0][61] == [True])
         self.assertTrue(flag_col['r1'][0][62] == [True])
-            
+
 def suite():
     return [oldhanningsmooth_test]
 

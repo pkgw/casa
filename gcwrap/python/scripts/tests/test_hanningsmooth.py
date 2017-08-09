@@ -18,13 +18,13 @@ datapath = os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/ha
 
 # Pick up alternative data directory to run tests on MMSs
 testmms = False
-if 'TEST_DATADIR' in os.environ:   
+if 'TEST_DATADIR' in os.environ:
     DATADIR = str(os.environ.get('TEST_DATADIR'))+'/hanningsmooth/'
     if os.path.isdir(DATADIR):
         testmms = True
         datapath = DATADIR
 
-print('hanningsmooth tests will use data from '+datapath)         
+print('hanningsmooth tests will use data from '+datapath)
 
 class test_base(unittest.TestCase):
 
@@ -33,21 +33,21 @@ class test_base(unittest.TestCase):
         self.msfile = 'ngc5921_ut.ms'
         if testmms:
             self.msfile = 'ngc5921_ut.mms'
-            
+
         if (not os.path.exists(self.msfile)):
             shutil.copytree(datapath+self.msfile, self.msfile)
-            
+
         default(hanningsmooth)
-    
+
     def setUp_almams(self):
         # MS with DATA and CORRECTED_DATA
         self.msfile = 'ALMA-data-mst-science-testing-CAS-5013-one-baseline-one-timestamp.ms'
         if testmms:
             self.msfile = 'ALMA-data-mst-science-testing-CAS-5013-one-baseline-one-timestamp.mms'
-            
+
         if (not os.path.exists(self.msfile)):
             shutil.copytree(datapath+self.msfile, self.msfile)
-            
+
         default(hanningsmooth)
 
     def createMMS(self, msfile, column='data', axis='auto',scans='',spws=''):
@@ -55,28 +55,28 @@ class test_base(unittest.TestCase):
         prefix = msfile.rstrip('.ms')
         if not os.path.exists(msfile):
             os.system('cp -RL '+datapath + msfile +' '+ msfile)
-        
+
         # Create an MMS for the tests
         self.testmms = prefix + ".test.mms"
         default(mstransform)
-        
+
         if os.path.exists(self.testmms):
             os.system("rm -rf " + self.testmms)
-            
+
         print("................. Creating test MMS ..................")
         partition(vis=msfile, outputvis=self.testmms, datacolumn=column,
                     createmms=True,separationaxis=axis, scan=scans, spw=spws)
 
 
 class hanningsmooth_test1(test_base):
-    
+
     def setUp(self):
         self.setUp_ngc5921()
 
     def tearDown(self):
         if (os.path.exists(self.outputms)):
-            shutil.rmtree(self.outputms,ignore_errors=True)        
-        
+            shutil.rmtree(self.outputms,ignore_errors=True)
+
     def test1(self):
         """hanningsmooth - Test 1: Wrong input MS should raise an exception"""
         msfile = 'badmsfile'
@@ -85,14 +85,14 @@ class hanningsmooth_test1(test_base):
             hanningsmooth(vis=msfile)
         except exceptions.RuntimeError as instance:
             print('Expected error: %s'%instance)
-        
+
     def test2(self):
         '''hanningsmooth - Test 2: Check that output MS is created'''
         self.outputms = 'hann2.ms'
         hanningsmooth(vis=self.msfile, outputvis=self.outputms, datacolumn='corrected')
         # Smoothed data should be saved in DATA column of outupt MS
         self.assertTrue(os.path.exists(self.outputms))
-                
+
     def test3(self):
         '''hanningsmooth - Test 3: Check theoretical and calculated values on non-existing CORRECTED column'''
         self.outputms = 'hann3.ms'
@@ -117,11 +117,11 @@ class hanningsmooth_test1(test_base):
         data_col = th.getVarCol(self.msfile, 'DATA')
         corr_col = th.getVarCol(self.outputms, 'DATA')
         nrows = len(corr_col)
-        
+
       # Loop over every 2nd row,pol and get the data for each channel
         max = 1e-05
         for i in range(1,nrows,2) :
-            row = 'r%s'%i            
+            row = 'r%s'%i
             # polarization is 0-1
             for pol in range(0,2) :
                 # array's channels is 0-63
@@ -130,24 +130,24 @@ class hanningsmooth_test1(test_base):
                     data = data_col[row][pol][chan]
                     dataB = data_col[row][pol][chan-1]
                     dataA = data_col[row][pol][chan+1]
-        
+
                     Smoothed = th.calculateHanning(dataB,data,dataA)
                     CorData = corr_col[row][pol][chan]
-                    
+
                     # Check the difference
                     self.assertTrue(abs(CorData-Smoothed) < max )
 
     def test4(self):
         '''hanningsmooth - Test 4: Theoretical and calculated values should be the same for MMS-case'''
-    
+
         # Split the input to decrease the running time
         split(self.msfile, outputvis='splithan.ms',scan='1,2',datacolumn='data')
         self.msfile = 'splithan.ms'
-        
+
         # create a test MMS. It creates self.testmms
         self.createMMS(self.msfile)
         self.outputms = 'hann4.mms'
-        
+
       # check correct flagging (just for one row as a sample)
         mslocal = mstool()
         mslocal.open(self.msfile)
@@ -159,8 +159,8 @@ class hanningsmooth_test1(test_base):
         self.assertTrue(flag_col['r1'][0][1] == [False])
         self.assertTrue(flag_col['r1'][0][61] == [False])
         self.assertTrue(flag_col['r1'][0][62] == [False])
-        
-        data_col = th.getVarCol(self.msfile, 'DATA')        
+
+        data_col = th.getVarCol(self.msfile, 'DATA')
         hanningsmooth(vis=self.testmms, outputvis=self.outputms, datacolumn='data', keepmms=True)
         self.assertTrue(ParallelDataHelper.isParallelMS(self.outputms), 'Output should be an MMS')
 
@@ -169,7 +169,7 @@ class hanningsmooth_test1(test_base):
         mslocal.sort('sorted.mms',['OBSERVATION_ID','ARRAY_ID','SCAN_NUMBER','FIELD_ID','DATA_DESC_ID','ANTENNA1','ANTENNA2','TIME'])
         mslocal.close()
         self.outputms = 'sorted.mms'
-        
+
         corr_col = th.getVarCol(self.outputms, 'DATA')
         nrows = len(corr_col)
 
@@ -179,11 +179,11 @@ class hanningsmooth_test1(test_base):
         self.assertTrue(flag_col['r1'][0][1] == [False])
         self.assertTrue(flag_col['r1'][0][61] == [False])
         self.assertTrue(flag_col['r1'][0][62] == [True])
-        
+
       # Loop over every 2nd row,pol and get the data for each channel
         max = 1e-05
         for i in range(1,nrows,2) :
-            row = 'r%s'%i            
+            row = 'r%s'%i
             # polarization is 0-1
             for pol in range(0,2) :
                 # array's channels is 0-63
@@ -192,17 +192,17 @@ class hanningsmooth_test1(test_base):
                     data = data_col[row][pol][chan]
                     dataB = data_col[row][pol][chan-1]
                     dataA = data_col[row][pol][chan+1]
-        
+
                     Smoothed = th.calculateHanning(dataB,data,dataA)
                     CorData = corr_col[row][pol][chan]
-                    
+
                     # Check the difference
                     self.assertTrue(abs(CorData-Smoothed) < max )
 
     def test6(self):
         '''hanningsmooth - Test 6: Flagging should be correct with datacolumn==ALL'''
         self.outputms = 'hann6.ms'
-        
+
       # check correct flagging (just for one row as a sample)
         flag_col = th.getVarCol(self.msfile, 'FLAG')
         self.assertTrue(flag_col['r1'][0][0] == [False])
@@ -223,7 +223,7 @@ class hanningsmooth_test1(test_base):
         '''hanningsmooth - Test 7: Flagging should be correct when hanning smoothing within cvel (no transform)'''
         self.outputms = 'cvelngc.ms'
         clearcal(vis=self.msfile)
-        
+
       # check correct flagging (just for one row as a sample)
         flag_col = th.getVarCol(self.msfile, 'FLAG')
         self.assertTrue(flag_col['r1'][0][0] == [False])
@@ -243,7 +243,7 @@ class hanningsmooth_test1(test_base):
     def test8(self):
         '''hanningsmooth - Test 8: Flagging should be correct when hanning smoothing within mstransform (with regrid)'''
         self.outputms = 'cvelngc.ms'
-        
+
       # check correct flagging (just for one row as a sample)
         flag_col = th.getVarCol(self.msfile, 'FLAG')
         self.assertTrue(flag_col['r1'][0][0] == [False])
@@ -267,34 +267,34 @@ class hanningsmooth_test1(test_base):
 
 
 class hanningsmooth_test2(test_base):
-    
+
     def setUp(self):
         self.setUp_almams()
 
     def tearDown(self):
         if (os.path.exists(self.outputms)):
-            shutil.rmtree(self.outputms,ignore_errors=True)       
-             
+            shutil.rmtree(self.outputms,ignore_errors=True)
+
     def test_default_cols(self):
         '''hanningsmooth: Default datacolumn=all and MMS output'''
-        
+
         self.createMMS(self.msfile,column='all')
         self.outputms = 'hannall.ms'
 
         hanningsmooth(vis=self.testmms, outputvis=self.outputms)
         self.assertTrue(ParallelDataHelper.isParallelMS(self.outputms), 'Output should be an MMS')
-        
+
         # Should have all scratch columns in output
         cd = th.getColDesc(self.outputms, 'DATA')
         self.assertGreater(len(cd), 0, 'DATA column does not exist')
         cc = th.getColDesc(self.outputms, 'CORRECTED_DATA')
         self.assertGreater(len(cc), 0, 'CORRECTED_DATA does not exist')
-        
+
         # Now repeat the above steps but create an output MS by setting keepmms=False
         os.system('rm -rf '+self.outputms)
         hanningsmooth(vis=self.testmms, outputvis=self.outputms, keepmms=False)
         self.assertFalse(ParallelDataHelper.isParallelMS(self.outputms), 'Output should be a normal MS')
-        
+
         # Should have all scratch columns in output
         cd = th.getColDesc(self.outputms, 'DATA')
         self.assertGreater(len(cd), 0, 'DATA column does not exist')
@@ -311,16 +311,16 @@ class hanningsmooth_test2(test_base):
         self.assertTrue(flag_col['r1'][0][1] == [False])
         self.assertTrue(flag_col['r1'][0][3838] == [False])
         self.assertTrue(flag_col['r1'][0][3839] == [False])
-        
+
         # input column
-        data_col = th.getVarCol(self.msfile, 'CORRECTED_DATA') 
-               
+        data_col = th.getVarCol(self.msfile, 'CORRECTED_DATA')
+
         hanningsmooth(vis=self.msfile, outputvis=self.outputms, datacolumn='corrected')
-        
+
         # output smoothed column
         corr_col = th.getVarCol(self.outputms, 'DATA')
         nrows = len(corr_col)
-        
+
       # check correct flagging after (just for one row as a sample)
         flag_col = th.getVarCol(self.outputms, 'FLAG')
         self.assertTrue(flag_col['r1'][0][0] == [True])
@@ -331,7 +331,7 @@ class hanningsmooth_test2(test_base):
       # Loop over every 2nd row,pol and get the data for each channel
         max = 1e-04
         for i in range(1,nrows,2) :
-            row = 'r%s'%i            
+            row = 'r%s'%i
             # polarization is 0-1
             for pol in range(0,2) :
                 # array's channels is 0-3840
@@ -340,12 +340,12 @@ class hanningsmooth_test2(test_base):
                     data = data_col[row][pol][chan]
                     dataB = data_col[row][pol][chan-1]
                     dataA = data_col[row][pol][chan+1]
-        
+
                     Smoothed = th.calculateHanning(dataB,data,dataA)
                     CorData = corr_col[row][pol][chan]
-                    
+
                     # Check the difference
-                    self.assertTrue(abs(CorData-Smoothed) < max, 
+                    self.assertTrue(abs(CorData-Smoothed) < max,
                                     'CorData=%s Smoothed=%s in row=%s pol=%s chan=%s'%(CorData,Smoothed,row,pol,chan))
 
 
@@ -354,11 +354,11 @@ class Cleanup(test_base):
     def tearDown(self):
         shutil.rmtree('ngc5921_ut.ms', ignore_errors=True)
         shutil.rmtree('ALMA-data-mst-science-testing-CAS-5013-one-baseline-one-timestamp.ms', ignore_errors=True)
-        
+
     def test_runTest(self):
         '''hanningsmooth: Cleanup'''
         pass
-            
+
 def suite():
     return [hanningsmooth_test1,hanningsmooth_test2,Cleanup]
 

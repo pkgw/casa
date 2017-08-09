@@ -12,7 +12,7 @@ import copy
 A set of helper functions for the tasks  tclean
 
 Summary...
-    
+
 '''
 
 #############################################
@@ -50,7 +50,7 @@ class PyParallelImagerHelper():
             cflist=[f for f in os.listdir(cfcName) if re.match(r'CFS*', f)];
         nCF = len(cflist);
         nProcs=len(self.nodeList);
-        
+
         if (nProcs > nCF):
             n=nCF;
         else:
@@ -77,7 +77,7 @@ class PyParallelImagerHelper():
 
     #     nCF = len(cflist);
     #     nProcs=len(self.nodeList);
-        
+
     #     print "########################################################"
     #     print "nCF = ",nCF," nProcs = ",nProcs," NodeList=",self.nodeList;
     #     print "########################################################"
@@ -90,8 +90,8 @@ class PyParallelImagerHelper():
     #     nUsed=0; i=1;
     #     while (nUsed < nCF):
     #         m = nUsed+n0;
-    #         if (m > nCF): 
-    #     	m=nCF;
+    #         if (m > nCF):
+    #           m=nCF;
     #         allcfs[i]=cflist[nUsed:m];
     #         nUsed = m;
     #         if (i >= nProcs):
@@ -100,7 +100,7 @@ class PyParallelImagerHelper():
     #     if (nUsed < nCF):
     #         allcfs[nProcs].append(cflist[i]);
     #     return allcfs;
-            
+
 #############################################
 ## Very rudimentary partitioning - only for tests. The actual code needs to go here.
     def partitionContDataSelection(self,oneselpars={}):
@@ -150,7 +150,7 @@ class PyParallelImagerHelper():
 
         # * Terminal: Client logs + Server logs
         # * casapy-<timestamp>.log: Client logs
-        # * casapy-<timestamp>.log-server-<rank>-host-<hostname>-pid-<pid>: Server logs 
+        # * casapy-<timestamp>.log-server-<rank>-host-<hostname>-pid-<pid>: Server logs
         mpi_clustermanager.set_log_mode('redirect');
 
         self.sc=mpi_clustermanager.getCluster()
@@ -183,7 +183,7 @@ class PyParallelImagerHelper():
     def checkJobs(self,joblist=[]):
         #### MPIInterface related changes
         numcpu = len(self.nodeList)
-        
+
         if len(joblist)==0:
              joblist = list(range(numcpu))
              #for k in range(numcpu):
@@ -255,7 +255,7 @@ class PyParallelImagerHelper():
             os.mkdir( workdir )
 
         return workdir
-                                    
+
 #############################################
     def getpartimagename(self, imagename, nodeid):
         return self.getworkdir(imagename,nodeid) + '/' + imagename + '.n'+str(nodeid)

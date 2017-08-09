@@ -3,7 +3,7 @@
 mydata = os.getenv('CASADATA')+"/regression/ATST2/NGC4826/n4826_16apr98.ms/3c273a.ms"
 mysampleoutput = os.getenv('CASADATA')+"/regression/tabletest/output/sample-toasciifmt.txt"
 #mysampleoutput = "./sample-toasciifmt.txt"
-os.system('rm -f myfile?.*') 
+os.system('rm -f myfile?.*')
 tb.open(mydata+'/SOURCE')
 allok = 0
 print('case 1: normal use')
@@ -64,14 +64,14 @@ print('case 11: head and ascii file not writable')
 try:
     tb.toasciifmt(asciifile='/', headerfile='/')
 except:
-    print('Error as expected in case 11') 
+    print('Error as expected in case 11')
     allok += 1
     print("... passed")
 print('case 12: header not writable')
 try:
     tb.toasciifmt(asciifile='/')
 except:
-    print('Error as expected in case 12') 
+    print('Error as expected in case 12')
     allok += 1
     print("... passed")
 os.system('cat myfile?.* > myfileX.txt')
@@ -81,10 +81,10 @@ if (res == 0):
     print("... passed file comparison")
 
 numtests = 13
-    
+
 if( allok == numtests ):
         print('Test passed')
-        os.system('rm -f myfile?.*')    
+        os.system('rm -f myfile?.*')
 else:
     print('Failed. Only ',allok,' of ',numtests,' passed.')
     print('Test output not deleted.')

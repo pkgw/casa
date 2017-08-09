@@ -79,13 +79,13 @@ class procmgr(Thread):
             else:
                 out = file(os.devnull,'a')
             self.__proc = Popen( self.__cmd, stderr=out, stdout=out, stdin=subprocess.PIPE )
-            self.__watchdog = Popen( [ '/bin/bash','-c', 
+            self.__watchdog = Popen( [ '/bin/bash','-c',
                                        'while kill -0 %d > /dev/null 2>&1; do sleep 1; kill -0 %d > /dev/null 2>&1 || kill -9 %d > /dev/null 2>&1; done' % \
                                      (self.__proc.pid, os.getpid( ), self.__proc.pid) ] )
 
             self.stdin = self.__proc.stdin
             self.pid = self.__proc.pid
-      
+
             if self.__output_option is output_option.PIPE:
                 self.stdout = self.__proc.stdout
                 self.stderr = self.__proc.stderr
@@ -134,7 +134,7 @@ class procmgr(Thread):
         if self.__running == False: return None
         if tag in self.__procs:
             return self.__procs[tag]
-        return None        
+        return None
 
     def shutdown(self):
         """stops all managed processes"""

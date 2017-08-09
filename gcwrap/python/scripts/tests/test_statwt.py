@@ -20,7 +20,7 @@ Unit tests for statwt
 # once more independent tests (e.g. comparison
 # the AIPS REWAY results) add reference mses
 # and do tests against them
-# 
+#
 class statwt_test(unittest.TestCase):
 
     # Input and output names
@@ -55,7 +55,7 @@ class statwt_test(unittest.TestCase):
         # use 2*nchan here because we used real and imag
         var = (1./(2*nchan-1))*dev2
         return var.real
-        
+
     def calcwt(self,selrow,selcorr,datcol,flagcol):
         """
         calc weight,sigma from the data
@@ -70,9 +70,9 @@ class statwt_test(unittest.TestCase):
         dmean = mdspec.mean()
         var = self.calcVariance(mdspec)
         sig = numpy.sqrt(var)
-        rms = numpy.sqrt(dmean*dmean.conjugate()+var) 
+        rms = numpy.sqrt(dmean*dmean.conjugate()+var)
         return (var,sig,rms)
-    
+
     def test_default(self):
         """
         test default case
@@ -89,14 +89,14 @@ class statwt_test(unittest.TestCase):
         fg = tb.getcol('FLAG')
         nr = tb.nrows()
         tb.close()
-       
-        # Compare 10 randomly selected rows of weight and 
+
+        # Compare 10 randomly selected rows of weight and
         # sigma columns with calculated statistics from the data
         #random.seed()
         #randomRowList=random.sample(xrange(nr),10)
         #for i in random.sample(xrange(nr),10):
         #    icorr = random.randint(0,1)
-        
+
         # do it for all rows!
         for i in range(nr):
             icorr = 0

@@ -47,20 +47,20 @@
 #
 # <synopsis>
 # Test the ia.rebin() tool method
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_rebin[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the ia.rebin() tool method to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -106,14 +106,14 @@ def alleqnum(x,num,tolerance=0):
 
 
 class ia_rebin_test(unittest.TestCase):
-    
+
     def setUp(self):
         self._myia = iatool()
-    
+
     def tearDown(self):
         self._myia.done()
         self.assertTrue(len(tb.showcache()) == 0)
-    
+
     def test_stretch(self):
         """ ia.rebin(): Test stretch parameter"""
         yy = iatool()
@@ -130,7 +130,7 @@ class ia_rebin_test(unittest.TestCase):
             yy.rebin, outfile="", bin=[2,2,1,1],
             mask=mymask + ">0", stretch=False
         )
-        
+
         zz = yy.rebin(
             outfile="", bin=[2,2,1,1],
             mask=mymask + ">0", stretch=True
@@ -155,12 +155,12 @@ class ia_rebin_test(unittest.TestCase):
         print("shape " + str(yy.shape()))
         self.assertTrue((yy.shape() == [100, 100, 1, 10]).all())
         yy.done()
-        
-        
+
+
     def test_general(self):
         """ ia.rebin(): General tests"""
         # tests moved from imagetest_regression.py and modified
-        
+
         myia = self._myia
         shp2 = [20,40]
         d2 = myia.makearray(1.0, [shp2[0], shp2[1]])
@@ -168,7 +168,7 @@ class ia_rebin_test(unittest.TestCase):
         imagename = "st.im"
         myim2 = myia.newimagefromarray(outfile=imagename, pixels=d2)
         self.assertTrue(myim2)
-        
+
         outfile = "gk.im"
         try:
             myim2b = True
@@ -176,21 +176,21 @@ class ia_rebin_test(unittest.TestCase):
         except Exception as e:
             myim2b = False
         self.assertFalse(myim2b)
-        
+
         self.assertFalse(
             imrebin(
                 imagename=imagename, outfile=outfile,
                 factor=[-100,2], overwrite=True
             )
         )
-        
+
         myim2b = myim2.rebin("", bin=[2,2])
         self.assertTrue(myim2b)
         p = myim2b.getchunk()
         self.assertTrue(alleqnum(p,1.0,tolerance=0.0001))
-    
+
         self.assertTrue(myim2.done() and myim2b.done())
-        
+
         self.assertTrue(
             imrebin(
                 imagename=imagename, outfile=outfile, overwrite=True,
@@ -231,7 +231,7 @@ class ia_rebin_test(unittest.TestCase):
                 factor=[2,2,2]
             )
         )
-        
+
     def test_crop(self):
         """Test crop parameter"""
         myia = self._myia
@@ -269,7 +269,7 @@ class ia_rebin_test(unittest.TestCase):
         myia.open(outfile)
         self.assertTrue((myia.shape() == [4,4]).all())
         myia.done()
-   
+
     def test_box(self):
         """Test use of box"""
         myia = self._myia
@@ -286,7 +286,7 @@ class ia_rebin_test(unittest.TestCase):
         myia.open(outfile)
         self.assertTrue((myia.shape() == [4,4,1]).all())
         myia.done()
-        
+
     def test_dropdeg2(self):
         """ axes that become degenerate when regridded are dropped if dropdeg=True: CAS-5836"""
         myia = self._myia
@@ -305,6 +305,6 @@ class ia_rebin_test(unittest.TestCase):
         myia.open(outfile)
         self.assertTrue((myia.shape() == [20,20]).all())
         myia.done()
- 
+
 def suite():
     return [ia_rebin_test]

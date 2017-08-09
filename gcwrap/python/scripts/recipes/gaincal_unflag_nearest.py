@@ -5,12 +5,12 @@ from casa import table as tb
 
 def fill_flagged_soln(caltable='', doplot=False):
     """
-    This is to replace the gaincal solution of flagged/failed solutions by the nearest valid 
+    This is to replace the gaincal solution of flagged/failed solutions by the nearest valid
     one.
-    If you do not do that and applycal blindly with the table your data gets 
+    If you do not do that and applycal blindly with the table your data gets
     flagged between  calibration runs that have a bad/flagged solution at one edge.
-    Can be pretty bad when you calibrate every hour or more 
-    (when you are betting on self-cal) of observation (e.g L-band of the EVLA)..one can 
+    Can be pretty bad when you calibrate every hour or more
+    (when you are betting on self-cal) of observation (e.g L-band of the EVLA)..one can
     lose the whole hour of good data without realizing !
     """
     tb.open(caltable, nomodify=False)
@@ -24,7 +24,7 @@ def fill_flagged_soln(caltable='', doplot=False):
     maxdd=np.max(dd)
     npol=len(gain[:,0,0])
     nchan=len(gain[0,:,0])
-    
+
     k=1
     if(doplot):
         pl.ion()
@@ -70,7 +70,7 @@ def fill_flagged_soln(caltable='', doplot=False):
         pl.twinx()
         pl.plot(t[(ant==k)], abs(gain[0,0,(ant==k)]), 'go')
         pl.title('antenna='+str(k))
-     
+
     ###
     tb.putcol('FLAG', flg)
     tb.putcol('SOLUTION_OK', sol)

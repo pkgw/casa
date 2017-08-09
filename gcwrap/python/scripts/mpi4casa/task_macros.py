@@ -1,18 +1,18 @@
 #!/usr/bin/env python
 from taskinit import * # casalog, casautils, etc
 import sys, inspect, string # To navigate and access stack frames
-import os # To handle files and environmental variables 
+import os # To handle files and environmental variables
 import odict # To handle parameters dictionary
 
 def update_params(func, printtext=True):
-    
+
     a = inspect.stack()
     stacklevel = 0
     for k in range(len(a)):
         if a[k][1] == "<string>" or (string.find(a[k][1], 'ipython console') > 0 or string.find(a[k][1],"casapy.py") > 0):
             stacklevel = k
     myf = sys._getframe(stacklevel).f_globals
-    
+
     # Set task to the one being called
     myf['taskname'] = func
     obj = myf[func]
@@ -24,7 +24,7 @@ def update_params(func, printtext=True):
         hascheck = False
 
     noerror = True
-    
+
     # Check if task has defined a task_check_params function
     if (hascheck):
         has_othertasks = 'task_location' in myf
@@ -53,7 +53,7 @@ def update_params(func, printtext=True):
         if(type(paramval) == dict):
             if(0 in paramval):
                 notdict = False
-        
+
         if (notdict):
             if(params[k] not in myf):
                 myf.update({params[k]:paramval})
@@ -88,7 +88,7 @@ def update_params(func, printtext=True):
                 for j in range(len(subdict)):
                     subkey = list(subdict[j].keys())
                     for kk in range(len(subkey)):
-                        
+
                         if((subkey[kk] != 'value') & (subkey[kk] != 'notvalue')):
                             #if user selecteddict
                             #does not have the key
@@ -96,11 +96,11 @@ def update_params(func, printtext=True):
                             if((subkey[kk] not in userdict) and (not subkeyupdated[subkey[kk]])):
                                 myf.update({subkey[kk]:subdict[j][subkey[kk]]})
                                 subkeyupdated[subkey[kk]] = True
-                                
+
                     ###put default if not there
                             if(subkey[kk] not in myf):
                                 myf.update({subkey[kk]:subdict[j][subkey[kk]]})
-                        
+
             ### need to do default when user has not set val
             if(params[k] not in myf):
                 if('notvalue' in paramval[0]):

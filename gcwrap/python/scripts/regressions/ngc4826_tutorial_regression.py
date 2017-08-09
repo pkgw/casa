@@ -93,15 +93,15 @@ print('')
 #
 # N4826 - BIMA SONG Data
 # 16apr98
-#	source=ngc4826
-#	phasecal=1310+323
-#	fluxcal=3c273, Flux = 23 Jy on 16apr98
-#	passcal= none - data were observed with online bandpass correction.
+#       source=ngc4826
+#       phasecal=1310+323
+#       fluxcal=3c273, Flux = 23 Jy on 16apr98
+#       passcal= none - data were observed with online bandpass correction.
 #
 # NOTE: This data has been filled into MIRIAD, line-length correction
-#	done, and then exported as separate files for each source.
-#	3c273 was not line length corrected since it was observed
-#	for such a short amount of time that it did not need it.
+#       done, and then exported as separate files for each source.
+#       3c273 was not line length corrected since it was observed
+#       for such a short amount of time that it did not need it.
 #
 # From miriad: source Vlsr = 408; delta V is 20 km/s
 #
@@ -168,21 +168,21 @@ print('--Concat--')
 default('concat')
 
 concat(vis=['ngc4826.tutorial.3c273.5.ms',
-	    'ngc4826.tutorial.3c273.6.ms',
-	    'ngc4826.tutorial.3c273.7.ms',
-	    'ngc4826.tutorial.3c273.8.ms',
-	    'ngc4826.tutorial.1310+323.ll.9.ms',
-	    'ngc4826.tutorial.1310+323.ll.10.ms',
-	    'ngc4826.tutorial.1310+323.ll.11.ms',
-	    'ngc4826.tutorial.1310+323.ll.12.ms',
-	    'ngc4826.tutorial.1310+323.ll.13.ms',
-	    'ngc4826.tutorial.1310+323.ll.14.ms',
-	    'ngc4826.tutorial.1310+323.ll.15.ms',
-	    'ngc4826.tutorial.1310+323.ll.16.ms',
-	    'ngc4826.tutorial.ngc4826.ll.5.ms',
-	    'ngc4826.tutorial.ngc4826.ll.6.ms',
-	    'ngc4826.tutorial.ngc4826.ll.7.ms',
-	    'ngc4826.tutorial.ngc4826.ll.8.ms'],
+            'ngc4826.tutorial.3c273.6.ms',
+            'ngc4826.tutorial.3c273.7.ms',
+            'ngc4826.tutorial.3c273.8.ms',
+            'ngc4826.tutorial.1310+323.ll.9.ms',
+            'ngc4826.tutorial.1310+323.ll.10.ms',
+            'ngc4826.tutorial.1310+323.ll.11.ms',
+            'ngc4826.tutorial.1310+323.ll.12.ms',
+            'ngc4826.tutorial.1310+323.ll.13.ms',
+            'ngc4826.tutorial.1310+323.ll.14.ms',
+            'ngc4826.tutorial.1310+323.ll.15.ms',
+            'ngc4826.tutorial.1310+323.ll.16.ms',
+            'ngc4826.tutorial.ngc4826.ll.5.ms',
+            'ngc4826.tutorial.ngc4826.ll.6.ms',
+            'ngc4826.tutorial.ngc4826.ll.7.ms',
+            'ngc4826.tutorial.ngc4826.ll.8.ms'],
        concatvis='ngc4826.tutorial.ms',
        freqtol="",dirtol="1arcsec")
 
@@ -498,7 +498,7 @@ flagdata(vis='ngc4826.tutorial.ms', mode='manual', field='8', spw='15', antenna=
 #
 # NOTE: this is already flagged in the data so do nothing more here
 #flagdata(vis='ngc4826.tutorial.ms', mode='manualflag', antenna='6',
-#	 timerange='1998/04/16/09:42:39.0~1998/04/16/10:24:46.0')
+#        timerange='1998/04/16/09:42:39.0~1998/04/16/10:24:46.0')
 
 #
 #
@@ -583,15 +583,15 @@ print('Output table ngc4826.tutorial.16apr98.gcal')
 
 # spws 0-3  (as 0)
 gaincal(vis='ngc4826.tutorial.ms', caltable='ngc4826.tutorial.16apr98.gcal',
-	field='0,1', spw='0~3', gaintype='G', minsnr=2.0,
-	refant='ANT5',
-	solint='inf', combine='spw')
+        field='0,1', spw='0~3', gaintype='G', minsnr=2.0,
+        refant='ANT5',
+        solint='inf', combine='spw')
 
-# append spws 4-11  (as 4) 
+# append spws 4-11  (as 4)
 gaincal(vis='ngc4826.tutorial.ms', caltable='ngc4826.tutorial.16apr98.gcal',
-	field='0,1', spw='4~11', gaintype='G', minsnr=2.0,
-	refant='ANT5',
-	solint='inf', combine='spw',append=True)
+        field='0,1', spw='4~11', gaintype='G', minsnr=2.0,
+        refant='ANT5',
+        solint='inf', combine='spw',append=True)
 
 if benchmarking:
     gaincal2time=time.time()
@@ -611,8 +611,8 @@ print('Output table ngc4826.tutorial.16apr98.fcal')
 # refer spw 4 to spw 0
 
 fluxscale(vis='ngc4826.tutorial.ms', caltable='ngc4826.tutorial.16apr98.gcal',
-	  fluxtable='ngc4826.tutorial.16apr98.fcal',
-	  reference='3C273', transfer=['1310+323'],refspwmap=[0,0,0,0,0])
+          fluxtable='ngc4826.tutorial.16apr98.fcal',
+          reference='3C273', transfer=['1310+323'],refspwmap=[0,0,0,0,0])
 
 # Flux density for 1310+323 is: 1.48 +/- 0.016 (SNR = 90.6, nAnt= 8)
 
@@ -669,9 +669,9 @@ default('applycal')
 print('Applying calibration table ngc4826.tutorial.16apr98.fcal to data')
 
 applycal(vis='ngc4826.tutorial.ms',
-	 field='', spw='',
+         field='', spw='',
          gaintable='ngc4826.tutorial.16apr98.fcal',
-	 spwmap=[0,0,0,0,4,4,4,4,4,4,4,4,4,4,4,4])
+         spwmap=[0,0,0,0,4,4,4,4,4,4,4,4,4,4,4,4])
 
 if benchmarking:
     correct2time=time.time()
@@ -703,13 +703,13 @@ if benchmarking:
 # You can also plot all the N4826 fields 2 through 8, for example using a loop:
 
 #for fld in range(2,9):
-#	field = str(fld)
-#	plotxy(vis='ngc4826.tutorial.ms',xaxis='velocity',yaxis='amp',
+#       field = str(fld)
+#       plotxy(vis='ngc4826.tutorial.ms',xaxis='velocity',yaxis='amp',
 #              field=field,spw='11~15',
-#	       averagemode='vector',datacolumn='corrected',
-#	       selectplot=True,newplot=False,title='Field '+field+' SPW 11~15')
+#              averagemode='vector',datacolumn='corrected',
+#              selectplot=True,newplot=False,title='Field '+field+' SPW 11~15')
 #
-#	user_check=raw_input('Return to continue script\n')
+#       user_check=raw_input('Return to continue script\n')
 
 # Now here we time-average the data, plotting versus velocity
 
@@ -1067,8 +1067,8 @@ print("Calculating Moments 0,1 for PBcor image")
 # to collapse along, the spectral axis=3
 
 immoments(imagename='ngc4826.tutorial.16apr98.src.clean.pbcor',
-	  moments=[0],
-	  chans='6~27',
+          moments=[0],
+          chans='6~27',
           outfile='ngc4826.tutorial.16apr98.moments.integrated')
 
 # TUTORIAL NOTES: For moment 0 we use the image corrected for the
@@ -1085,8 +1085,8 @@ immoments(imagename='ngc4826.tutorial.16apr98.src.clean.pbcor',
 # flux cutoff to produce sensible results.
 
 immoments(imagename='ngc4826.tutorial.16apr98.src.clean.image',
-	  moments=[1],includepix=[0.2,1000.0],
-	  chans='6~27',
+          moments=[1],includepix=[0.2,1000.0],
+          chans='6~27',
           outfile='ngc4826.tutorial.16apr98.moments.mom1')
 
 # Now view the resulting images
@@ -1115,8 +1115,8 @@ except:
 # Do a moment one on channel 35 to check that the indexing is right
 try:
     immoments(imagename='ngc4826.tutorial.16apr98.src.clean.image',
-	  moments=[1],includepix=[],
-	  chans='35',
+          moments=[1],includepix=[],
+          chans='35',
           outfile='ngc4826.tutorial.16apr98.moments.plane35.mom1')
 except:
     pass
@@ -1228,16 +1228,16 @@ ms.close()
 #
 #immoments(imagename='ngc4826.tutorial.16apr98.src.clean.pbcor.masked',
 #          moments=0,axis=3,
-#	   planes='6~27',
-#	   outfile='ngc4826.tutorial.16apr98.moments.integratedmasked')
+#          planes='6~27',
+#          outfile='ngc4826.tutorial.16apr98.moments.integratedmasked')
 #
 #print 'Creating masked moment 1 image ngc4826.tutorial.16apr98.moments.mom1masked'
 #
 #immoments(imagename='ngc4826.tutorial.16apr98.src.clean.pbcor.masked',
 #          moments=1,axis=3,
-#	   includepix=[0.2,1000.0],
-#	   planes='6~27',
-#	   outfile='ngc4826.tutorial.16apr98.moments.mom1masked')
+#          includepix=[0.2,1000.0],
+#          planes='6~27',
+#          outfile='ngc4826.tutorial.16apr98.moments.mom1masked')
 
 # Now view the resulting images
 #viewer('ngc4826.tutorial.16apr98.moments.integratedmasked')

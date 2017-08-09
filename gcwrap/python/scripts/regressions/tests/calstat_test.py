@@ -29,7 +29,7 @@ def run( fetch=False ):
     if fetch:
         for f in data( ):
             copydata( f, os.getcwd( ) )
-    
+
     expected = {'ggtau.3mm.ph.gcal0':
                 {'SPLINE_KNOTS_PHASE':{'rms': 4362063360.0,
                                        'medabsdevmed': 13056.0,
@@ -70,7 +70,7 @@ def run( fetch=False ):
             if list(s.keys()) != list(expected[caltable].keys()):
                 raise Exception("Wrong dictionary keys. Expected %s, got %s" % \
                                 (expected[caltable], s))
-                            
+
             print("Expected =", expected[caltable])
             print("Got = ", s)
             if 'SPLINE_KNOTS_PHASE' not in s:
@@ -92,11 +92,11 @@ def run( fetch=False ):
                     print("Ignoring this known problem on 64bit!")
                     failed = False
 
-                    
+
                 if failed:
                     raise Exception("Numbers differ, expected %s, got %s" % \
                                     (str(expected[caltable]['SPLINE_KNOTS_PHASE'][e]), str(s['SPLINE_KNOTS_PHASE'][e])))
-                
+
         tb.open(caltable)
         cols = tb.colnames()
         tb.close()
@@ -130,7 +130,7 @@ def run( fetch=False ):
             data_cols = ['']
             if col in cplx:
                 data_cols = ['gain', 'scale_factor']
-                
+
             for dc in data_cols:
                 print("Call with caltable =", caltable, "; axis =", col, "; datacolumn =", dc)
                 if dc != '':

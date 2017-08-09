@@ -21,7 +21,7 @@ class ImageTest:
         self.imTool.open(imageName) #open('tables/squint_corr.restored')
 
         # fix up images that don't have CASA-canonical stokes and spec:
-        # assume for now that direction is in 01 at least, 
+        # assume for now that direction is in 01 at least,
         mycs=self.imTool.coordsys()
         findstok=mycs.findcoordinate("stokes")
         if not findstok['return']:
@@ -37,7 +37,7 @@ class ImageTest:
         else:
             mystokpix=findstok['pixel']
 
-        findspec=mycs.findcoordinate("spectral")    
+        findspec=mycs.findcoordinate("spectral")
         if not findspec['return']:
             myImagename=imageName+".s"
             self.imTool.adddegaxes(spectral=True,outfile=myImagename,overwrite=True)
@@ -49,7 +49,7 @@ class ImageTest:
             mycs.done()
             mycs=self.imTool.coordsys()
         else:
-            myspecpix=findspec['pixel']                    
+            myspecpix=findspec['pixel']
 
         curr_order=[mystokpix,myspecpix]
         if curr_order != [2,3]:
@@ -57,46 +57,46 @@ class ImageTest:
             self.imTool.transpose(order="01%1i%1i" % (mystokpix,myspecpix),outfile=myImagename,overwrite=True)
             shutil.rmtree(imageName)
             shutil.move(myImagename,imageName)
-            self.imTool.open(imageName)                    
-            
+            self.imTool.open(imageName)
+
         self.rgTool=casac.regionmanager()
         self.qaTool=casac.quanta()
-	self.getArr() #instead make explicit call to getArr()
-	self.write=write
-	self.imageName=imageName
+        self.getArr() #instead make explicit call to getArr()
+        self.write=write
+        self.imageName=imageName
         self.iterate=0 #for multiple cubeFit() tests
 
-	if self.write:
+        if self.write:
          self.resultDir=resultDir+strftime('/%Y_%m_%d/')
          if os.access(self.resultDir,os.F_OK) is False:
           print(self.resultDir+' directory DNE, so am making one!')
           os.mkdir(self.resultDir)
-         else: 
+         else:
           print(self.resultDir+' directory exists; will add to it!')
-	 self.imDir=imDir
-	 if os.access(imDir,os.F_OK) is False:
-	  print(imDir+' directory DNE, so am making one!')
-	  os.mkdir(imDir)
-	 else: 
-	  print(imDir+' directory exists; will add to it!')
+         self.imDir=imDir
+         if os.access(imDir,os.F_OK) is False:
+          print(imDir+' directory DNE, so am making one!')
+          os.mkdir(imDir)
+         else:
+          print(imDir+' directory exists; will add to it!')
 
          t=localtime( time() )
          self.fname='Regression-%s-%s-%s-%s-%s-%s.html'%(t[0],t[1],t[2],t[3],t[4],t[5])
-	 self.html=self.resultDir+self.fname
+         self.html=self.resultDir+self.fname
          self.body1=[]
          self.body2=[]
          self.htmlPub=htmlPub(self.html,'Image tests')
         else:
-	 print('stats-only mode; will not write to html file!')
+         print('stats-only mode; will not write to html file!')
 
     def changeImage(self, imageName):
         self.imTool.open(imageName) #open('tables/squint_corr.restored')
-	self.getArr() #instead make explicit call to getArr()
-	self.imageName=imageName
+        self.getArr() #instead make explicit call to getArr()
+        self.imageName=imageName
 
     def getArr(self):
-	d=self.imTool.getchunk(axes=[],dropdeg=False)
-	self.b=pylab.array(d)
+        d=self.imTool.getchunk(axes=[],dropdeg=False)
+        self.b=pylab.array(d)
 
 
     def simple_stats(self,sigma=10,plane=0):
@@ -104,20 +104,20 @@ class ImageTest:
         rmsmax=0
         rms1=0
         chan=0
-        
+
         for k in range(0,nchan/2+1):
             rms1=pylab.rms_flat(self.b[:,:,plane,k])
             if(rms1 > rmsmax):
                 rmsmax=rms1
                 chan=k
-        
-	rms1=rmsmax
-	min1,max1=self.min_max(self.b[:,:,plane,chan])
+
+        rms1=rmsmax
+        min1,max1=self.min_max(self.b[:,:,plane,chan])
         self.show(self.b[:,:,plane,chan])
-	if self.write:
-	 header='Channel %d pol %d from image %s'%(chan,plane,self.imageName)
+        if self.write:
+         header='Channel %d pol %d from image %s'%(chan,plane,self.imageName)
          body1=['The image generated with pylab:']
-	 body2=['maximum: %f'%(max1),'minimum: %f'%(min1),'rms: %f'%(rms1)]
+         body2=['maximum: %f'%(max1),'minimum: %f'%(min1),'rms: %f'%(rms1)]
          #saveDir=self.imDir+self.fname[11:-5]+'-channel%d-pol%d.png'%(chan,plane)
          listnam=string.split(self.imTool.name(strippath=False), '/')
          imnam=listnam[len(listnam)-2]+'_'+listnam[len(listnam)-1]
@@ -137,7 +137,7 @@ class ImageTest:
        if image[x,y]>max: max=image[x,y]
        if image[x,y]<min: min=image[x,y]
      return min,max
-			
+
     def p_min_max(self,n=5): #returns positions of n brightest pixels
         b=self.b
         s=numarray.shape(b)
@@ -152,7 +152,7 @@ class ImageTest:
             y_p=0
             for x in range(s[0]):
               for y in range(s[1]):
- 	       if [x,y] not in avoid:
+               if [x,y] not in avoid:
                 v=b[x,y,0,0]
                 if v>max:
                  max=v
@@ -165,11 +165,11 @@ class ImageTest:
         return val,xp,yp
 
     def done(self) :
-	if self.write:
-       	 self.htmlPub.doFooter()
-	 print('webpage construction successful!')
-	 print('images in '+os.path.abspath(self.imDir))
-	 print('webpage at '+os.path.abspath(self.html))
+        if self.write:
+         self.htmlPub.doFooter()
+         print('webpage construction successful!')
+         print('images in '+os.path.abspath(self.imDir))
+         print('webpage at '+os.path.abspath(self.html))
          return '%s'%(os.path.abspath(self.html))
         else: #return 0 if no writing of file is done
          return 'none'
@@ -187,7 +187,7 @@ class ImageTest:
      self.m[x,y,0]=v
 
 
-    def bmodel(self, XY=None, plane=0): 
+    def bmodel(self, XY=None, plane=0):
         shp=self.imTool.shape()
         result=[]
         blc=[int(0),int(0),int(plane),int(0)]
@@ -197,7 +197,7 @@ class ImageTest:
         self.show(dat)
         a={'return':{}}
         residual = 'framework.resid.tmp'
-        
+
         try:
             a = self.imTool.fitcomponents(region=reg, residual=residual)
             if (not a['converged']):
@@ -254,7 +254,7 @@ class ImageTest:
                 self.htmlPub.doBlk(body1, body2, saveDir,header)
         return result, rms
 
-    def _retryFit(self, shp, plane, residual):	
+    def _retryFit(self, shp, plane, residual):
         ###lets limit the region and try again
         blc=[int(0.45*shp[0]),int(0.45*shp[1]) ,plane,0]
         trc=[int(0.55*shp[0]),int(0.55*shp[1]) ,plane,0]
@@ -294,8 +294,8 @@ class ImageTest:
      print('stats for fits:')
      #rms=pylab.rms_flat(self.m[:,:,0])
      #min1,max1=self.min_max(self.m[:,:,0])
-     for i in range(len(r)): 
-      self.show(self.m[:,:,0]) 
+     for i in range(len(r)):
+      self.show(self.m[:,:,0])
       sigmaX=pylab.sqrt(1/(2*r[i][0][4]))
       sigmaY=pylab.sqrt(1/(2*r[i][0][2]))
       if(XY==None):
@@ -345,8 +345,8 @@ class ImageTest:
      return rms
 
     def findPeaks(self,y,x,plane=0): #note inversion in x,y coord
- 			     #use like findPeaks(x,y)
-			     #inversion should be self-consistent if take output as [x,y]
+                             #use like findPeaks(x,y)
+                             #inversion should be self-consistent if take output as [x,y]
      r=50 #search 'radius'
      rms=pylab.rms_flat(self.b[:,:,plane,0])
      thold=rms #limit of pixels to be considered
@@ -406,14 +406,14 @@ class ImageTest:
      x=[]
      y=[]
      if(XY != None):
-         for n in XY:    
+         for n in XY:
              x.append(n[0])
              y.append(n[1])
      else:
          x=None
          y=None
      data,x0,y0=self.findPeaks(x,y,plane)
-         
+
      tparam=[]
      result=[]
      for i in range(len(data)): #len(data) is number of fits to be made
@@ -433,11 +433,11 @@ class ImageTest:
     def ishow(self,plane=0): #show current image
      pylab.clf()
      image=self.b[:,:,plane,0]
-     zmin=-2.0*pylab.rms_flat(image) 
+     zmin=-2.0*pylab.rms_flat(image)
      zmax=5.0*pylab.rms_flat(image)
      pylab.imshow(image,interpolation='bilinear', origin='lower', cmap=pylab.cm.Greys, vmin=zmin, vmax=zmax)
      pylab.colorbar()
- 
+
     def mshow(self):  #show currentmodel
      pylab.clf()
      image=self.m[:,:,0]
@@ -445,7 +445,7 @@ class ImageTest:
      zmax=5.0*pylab.rms_flat(image)
      pylab.imshow(image,interpolation='bilinear', origin='lower', cmap=pylab.cm.Greys, vmin=zmin, vmax=zmax)
      pylab.colorbar()
-     
+
     def rshow(self): #show current residual
      pylab.clf()
      image=self.resid
@@ -474,7 +474,7 @@ class ImageTest:
       for j in range(s[1]):
        c[i].append(0.0)
      c=pylab.array(c)
-     for i in range(s[0]): 
+     for i in range(s[0]):
       for j in range(s[1]):
        try:
         dx=i-x
@@ -536,7 +536,7 @@ class ImageTest:
       y.append(image[x0,y0,0,n])
      pylab.clf()
      return x,y
-  
+
     def cubePeaks(self,image,x,y):
      dataMax=[]
      dataMin=[]
@@ -550,12 +550,12 @@ class ImageTest:
      #find max point
      for n in x:
       if y[n]>maxY:
-       maxX=n 
+       maxX=n
        maxY=y[n]
      xp[0]=xp[1]=maxX
      dataMax.append((xp[0],y[xp[0]]))
      #input data on each side of peak
-     try: 
+     try:
       while y[xp[0]]>mean: #mean->tHold #ensures ~1 point before max
        xp[0]-=1
        dataMax.append((xp[0],y[xp[0]]))
@@ -597,7 +597,7 @@ class ImageTest:
         ib.done()
         XY,fwhm=self.fitCube2(x,y)
         return XY,fwhm
-        
+
     def auto_fitCube(self,image,verbose=0):
      x,y=[],[]
      xlist,ylist=[],[]
@@ -622,16 +622,16 @@ class ImageTest:
        rms=pylab.rms_flat(y)
        diff=abs(pylab.max(y)-rms)
        if(diff > max_diff):
-           max_diff,xp,yp=diff,i,j 
+           max_diff,xp,yp=diff,i,j
  #      if rms>max_rms:
  #          max_rms,xp,yp=rms,i,j
  #          if verbose: print i,j,rms
      print('optimum fit to [%d,%d]   rms=%.6f'%(xp,yp,max_rms))
      XY,fwhm=self.fitCube2(xp,yp)
      return XY,fwhm
-     
+
     def fitCube(self,image,x0,y0,fit=True): #fits all layers of cube at pixel x0,y0
- 	                           #fits min/max peaks w/ gaussian                            
+                                   #fits min/max peaks w/ gaussian
      x,y=self.drill(image,x0,y0)
      result=[]
      if fit:
@@ -700,7 +700,7 @@ class ImageTest:
         if j>tmax: tmax=j
         if j<tmin: tmin=j
        s1=pylab.arange(tmin,tmax,0.1)
-       for j in s1: 
+       for j in s1:
         t1.append(tw_func.gauss(result[0][0],j))
        pylab.plot(s1,t1,'k.-.') #plot for min peak
       if maxFitted:
@@ -740,12 +740,12 @@ class ImageTest:
          XY.append([-1., -1.])
          fwhm.append(-1)
          fwhm.append(-1)
-     
+
      for i in range(len(result)):
          sigma=pylab.sqrt(1/(2*result[i][0][2]))
          fwhm.append(2.355*sigma)
          XY.append([result[i][0][3],result[i][0][0]])
-     
+
          return XY,fwhm
 
     def fitCube2(self,x0,y0):
@@ -759,7 +759,7 @@ class ImageTest:
             if (os.path.exists(x)):
                 myia.open(x)
                 myia.remove()
-                myia.close()        
+                myia.close()
         retval=self.imTool.fitprofile(box=box, ngauss=1, model=model, residual=resid)
         myia.open(model)
         theFit = myia.getchunk().flatten()
@@ -771,10 +771,10 @@ class ImageTest:
             if (os.path.exists(x)):
                 myia.open(x)
                 myia.remove()
-                myia.close()        
+                myia.close()
         result.append([retval['gs']['amp'].flatten()[0], retval['gs']['center'].flatten()[0], retval['gs']['fwhm'].flatten()[0]])
         result.append([retval['gs']['ampErr'].flatten()[0], retval['gs']['centerErr'].flatten()[0], retval['gs']['fwhmErr'].flatten()[0]])
-        s='fit at [%d,%d]\n\tFWHM: %f \n\peak: %f \t with errors: %f, %f '%(x0,y0, result[0][2], result[0][0], result[1][2], result[1][0]) 
+        s='fit at [%d,%d]\n\tFWHM: %f \n\peak: %f \t with errors: %f, %f '%(x0,y0, result[0][2], result[0][0], result[1][2], result[1][0])
         print(s)
         if self.write: self.body2.append('<pre>%s</pre>'%s)
         data=self.imTool.getchunk(blc=[int(x0),int(y0)], trc=[int(x0),int(y0)], dropdeg=True)
@@ -797,5 +797,5 @@ class ImageTest:
         for i in range(len(result)):
             fwhm.append(result[i][2])
             XY.append([result[i][0],result[i][1]])
-             
+
         return XY, fwhm

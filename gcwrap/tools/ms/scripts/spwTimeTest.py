@@ -17,7 +17,7 @@ endTime1=time.time();
 default();
 startTime2=time.time();
 for i in range(0,23):
-	plotxy( subplot=212, vis='/Users/shannonjaeger/casa/testdata/ggtau_07feb97.ms', xaxis='uvdist', datacolumn='residual', overplot=true, spw=str(i) );
+        plotxy( subplot=212, vis='/Users/shannonjaeger/casa/testdata/ggtau_07feb97.ms', xaxis='uvdist', datacolumn='residual', overplot=true, spw=str(i) );
 endTime2=time.time();
 
 

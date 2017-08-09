@@ -83,7 +83,7 @@ import time
 import os
 
 scriptmode = True
-# 
+#
 # Set up some useful variables
 #
 # Get to path to the CASA home and stip off the name
@@ -147,13 +147,13 @@ listobs()
 #
 # MeasurementSet Name:  /home/sandrock2/smyers/Testing2/Sep07/ngc5921.usecase.ms
 # MS Version 2
-# 
-# Observer: TEST     Project:   
+#
+# Observer: TEST     Project:
 # Observation: VLA
-# 
+#
 # Data records: 22653       Total integration time = 5280 seconds
 #    Observed from   09:19:00   to   10:47:00
-# 
+#
 #    ObservationID = 0         ArrayID = 0
 #   Date        Timerange                Scan  FldId FieldName      SpwIds
 #   13-Apr-1995/09:19:00.0 - 09:24:30.0     1      0 1331+30500002_0  [0]
@@ -163,71 +163,71 @@ listobs()
 #               10:22:00.0 - 10:23:00.0     5      1 1445+09900002_0  [0]
 #               10:26:00.0 - 10:43:00.0     6      2 N5921_2        [0]
 #               10:45:30.0 - 10:47:00.0     7      1 1445+09900002_0  [0]
-# 
+#
 # Fields: 3
-#   ID   Code Name          Right Ascension  Declination   Epoch   
-#   0    C    1331+30500002_013:31:08.29      +30.30.32.96  J2000   
-#   1    A    1445+09900002_014:45:16.47      +09.58.36.07  J2000   
-#   2         N5921_2       15:22:00.00      +05.04.00.00  J2000   
-# 
+#   ID   Code Name          Right Ascension  Declination   Epoch
+#   0    C    1331+30500002_013:31:08.29      +30.30.32.96  J2000
+#   1    A    1445+09900002_014:45:16.47      +09.58.36.07  J2000
+#   2         N5921_2       15:22:00.00      +05.04.00.00  J2000
+#
 # Spectral Windows:  (1 unique spectral windows and 1 unique polarization setups)
-#   SpwID  #Chans Frame Ch1(MHz)    Resoln(kHz) TotBW(kHz)  Ref(MHz)    Corrs   
-#   0          63 LSRK  1412.68608  24.4140625  1550.19688  1413.44902  RR  LL  
-# 
+#   SpwID  #Chans Frame Ch1(MHz)    Resoln(kHz) TotBW(kHz)  Ref(MHz)    Corrs
+#   0          63 LSRK  1412.68608  24.4140625  1550.19688  1413.44902  RR  LL
+#
 # Feeds: 28: printing first row only
 #   Antenna   Spectral Window     # Receptors    Polarizations
 #   1         -1                  2              [         R, L]
-# 
+#
 # Antennas: 27:
-#   ID   Name  Station   Diam.    Long.         Lat.         
-#   0    1     VLA:N7    25.0 m   -107.37.07.2  +33.54.12.9  
-#   1    2     VLA:W1    25.0 m   -107.37.05.9  +33.54.00.5  
-#   2    3     VLA:W2    25.0 m   -107.37.07.4  +33.54.00.9  
-#   3    4     VLA:E1    25.0 m   -107.37.05.7  +33.53.59.2  
-#   4    5     VLA:E3    25.0 m   -107.37.02.8  +33.54.00.5  
-#   5    6     VLA:E9    25.0 m   -107.36.45.1  +33.53.53.6  
-#   6    7     VLA:E6    25.0 m   -107.36.55.6  +33.53.57.7  
-#   7    8     VLA:W8    25.0 m   -107.37.21.6  +33.53.53.0  
-#   8    9     VLA:N5    25.0 m   -107.37.06.7  +33.54.08.0  
-#   9    10    VLA:W3    25.0 m   -107.37.08.9  +33.54.00.1  
-#   10   11    VLA:N4    25.0 m   -107.37.06.5  +33.54.06.1  
-#   11   12    VLA:W5    25.0 m   -107.37.13.0  +33.53.57.8  
-#   12   13    VLA:N3    25.0 m   -107.37.06.3  +33.54.04.8  
-#   13   14    VLA:N1    25.0 m   -107.37.06.0  +33.54.01.8  
-#   14   15    VLA:N2    25.0 m   -107.37.06.2  +33.54.03.5  
-#   15   16    VLA:E7    25.0 m   -107.36.52.4  +33.53.56.5  
-#   16   17    VLA:E8    25.0 m   -107.36.48.9  +33.53.55.1  
-#   17   18    VLA:W4    25.0 m   -107.37.10.8  +33.53.59.1  
-#   18   19    VLA:E5    25.0 m   -107.36.58.4  +33.53.58.8  
-#   19   20    VLA:W9    25.0 m   -107.37.25.1  +33.53.51.0  
-#   20   21    VLA:W6    25.0 m   -107.37.15.6  +33.53.56.4  
-#   21   22    VLA:E4    25.0 m   -107.37.00.8  +33.53.59.7  
-#   23   24    VLA:E2    25.0 m   -107.37.04.4  +33.54.01.1  
-#   24   25    VLA:N6    25.0 m   -107.37.06.9  +33.54.10.3  
-#   25   26    VLA:N9    25.0 m   -107.37.07.8  +33.54.19.0  
-#   26   27    VLA:N8    25.0 m   -107.37.07.5  +33.54.15.8  
-#   27   28    VLA:W7    25.0 m   -107.37.18.4  +33.53.54.8  
-# 
+#   ID   Name  Station   Diam.    Long.         Lat.
+#   0    1     VLA:N7    25.0 m   -107.37.07.2  +33.54.12.9
+#   1    2     VLA:W1    25.0 m   -107.37.05.9  +33.54.00.5
+#   2    3     VLA:W2    25.0 m   -107.37.07.4  +33.54.00.9
+#   3    4     VLA:E1    25.0 m   -107.37.05.7  +33.53.59.2
+#   4    5     VLA:E3    25.0 m   -107.37.02.8  +33.54.00.5
+#   5    6     VLA:E9    25.0 m   -107.36.45.1  +33.53.53.6
+#   6    7     VLA:E6    25.0 m   -107.36.55.6  +33.53.57.7
+#   7    8     VLA:W8    25.0 m   -107.37.21.6  +33.53.53.0
+#   8    9     VLA:N5    25.0 m   -107.37.06.7  +33.54.08.0
+#   9    10    VLA:W3    25.0 m   -107.37.08.9  +33.54.00.1
+#   10   11    VLA:N4    25.0 m   -107.37.06.5  +33.54.06.1
+#   11   12    VLA:W5    25.0 m   -107.37.13.0  +33.53.57.8
+#   12   13    VLA:N3    25.0 m   -107.37.06.3  +33.54.04.8
+#   13   14    VLA:N1    25.0 m   -107.37.06.0  +33.54.01.8
+#   14   15    VLA:N2    25.0 m   -107.37.06.2  +33.54.03.5
+#   15   16    VLA:E7    25.0 m   -107.36.52.4  +33.53.56.5
+#   16   17    VLA:E8    25.0 m   -107.36.48.9  +33.53.55.1
+#   17   18    VLA:W4    25.0 m   -107.37.10.8  +33.53.59.1
+#   18   19    VLA:E5    25.0 m   -107.36.58.4  +33.53.58.8
+#   19   20    VLA:W9    25.0 m   -107.37.25.1  +33.53.51.0
+#   20   21    VLA:W6    25.0 m   -107.37.15.6  +33.53.56.4
+#   21   22    VLA:E4    25.0 m   -107.37.00.8  +33.53.59.7
+#   23   24    VLA:E2    25.0 m   -107.37.04.4  +33.54.01.1
+#   24   25    VLA:N6    25.0 m   -107.37.06.9  +33.54.10.3
+#   25   26    VLA:N9    25.0 m   -107.37.07.8  +33.54.19.0
+#   26   27    VLA:N8    25.0 m   -107.37.07.5  +33.54.15.8
+#   27   28    VLA:W7    25.0 m   -107.37.18.4  +33.53.54.8
+#
 # Tables:
-#    MAIN                   22653 rows     
-#    ANTENNA                   28 rows     
-#    DATA_DESCRIPTION           1 row      
-#    DOPPLER             <absent>  
-#    FEED                      28 rows     
-#    FIELD                      3 rows     
-#    FLAG_CMD             <empty>  
-#    FREQ_OFFSET         <absent>  
-#    HISTORY                  273 rows     
-#    OBSERVATION                1 row      
-#    POINTING                 168 rows     
-#    POLARIZATION               1 row      
-#    PROCESSOR            <empty>  
-#    SOURCE                     3 rows     
-#    SPECTRAL_WINDOW            1 row      
-#    STATE                <empty>  
-#    SYSCAL              <absent>  
-#    WEATHER             <absent>  
-# 
+#    MAIN                   22653 rows
+#    ANTENNA                   28 rows
+#    DATA_DESCRIPTION           1 row
+#    DOPPLER             <absent>
+#    FEED                      28 rows
+#    FIELD                      3 rows
+#    FLAG_CMD             <empty>
+#    FREQ_OFFSET         <absent>
+#    HISTORY                  273 rows
+#    OBSERVATION                1 row
+#    POINTING                 168 rows
+#    POLARIZATION               1 row
+#    PROCESSOR            <empty>
+#    SOURCE                     3 rows
+#    SPECTRAL_WINDOW            1 row
+#    STATE                <empty>
+#    SYSCAL              <absent>
+#    WEATHER             <absent>
+#
 #
 #=====================================================================
 #
@@ -384,7 +384,7 @@ else:
     # Now send final plot to file in PNG format (via .png suffix)
     figfile = caltable + '.plotcal.png'
     plotcal()
-    
+
 #=====================================================================
 #
 # Gain calibration
@@ -656,7 +656,7 @@ else:
     # Now send final plot to file in PNG format (via .png suffix)
     figfile = vis + '.plotxy.png'
     plotxy()
-    
+
 
 #=====================================================================
 #
@@ -811,7 +811,7 @@ srcsplitms = vis + '.contsub'
 #clean()
 
 #dirtyimage = imname+'.image'
- 
+
 # Get the dirty image cube statistics
 #dirtystats = imstat(dirtyimage)
 
@@ -971,7 +971,7 @@ box = ''
 
 cubestats = imstat()
 
-# Statistics will printed to the terminal, and the output 
+# Statistics will printed to the terminal, and the output
 # parameter will contain a dictionary of the statistics
 
 #=====================================================================

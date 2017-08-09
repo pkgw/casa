@@ -1,7 +1,7 @@
 ###############################################
 # Regression Script for simdata of a 2d image #
 ###############################################
- 
+
 import os, time
 
 #modelname="M51HA.MODEL"
@@ -21,8 +21,8 @@ startProc = time.clock()
 print('--Running simulation of M51 (ALMA-12m INT + ACA-7m INT + 12m TP) --')
 # configs are in the repository
 
-l=locals() 
-if "repodir" not in l: 
+l=locals()
+if "repodir" not in l:
     repodir=os.getenv("CASAPATH").split(' ')[0]
 
 print(casa['build'])
@@ -67,7 +67,7 @@ totaltime = '3600s'
 antennalist="alma;0.5arcsec"
 
 if noise:
-    thermalnoise = 'tsys-atm'  #w/ noise 
+    thermalnoise = 'tsys-atm'  #w/ noise
     user_pwv=3.0
 else:
     thermalnoise=""
@@ -118,7 +118,7 @@ sdant = 0
 #antennalist=""
 
 if noise:
-    thermalnoise = 'tsys-atm'  #w/ noise 
+    thermalnoise = 'tsys-atm'  #w/ noise
     user_pwv=3.0
 else:
     thermalnoise=""
@@ -170,7 +170,7 @@ totaltime = '3' # times through the map
 antennalist="aca.i.cfg"
 
 if noise:
-    thermalnoise = 'tsys-atm'  #w/ noise 
+    thermalnoise = 'tsys-atm'  #w/ noise
     user_pwv=3.0
 else:
     thermalnoise=""
@@ -336,19 +336,19 @@ regstate=regstate and th.compImages(newImage,templateImage,verbose=verbose)
 #             'min':  1e-2,
 #             'rms':  1e-2,
 #             'sigma': 1e-2}
-# 
+#
 # import datetime
 # datestring = datetime.datetime.isoformat(datetime.datetime.today())
 # outfile    = project+"/"+project + '.' + datestring + '.log'
 # logfile    = open(outfile, 'w')
-# 
+#
 # print 'Writing regression output to ' + outfile + "\n"
 # print >> logfile,casa['build']
-# 
+#
 # loghdr = """
 # ********** Regression *****************
 # """
-# 
+#
 # print >> logfile, loghdr
 
 # more info
@@ -364,8 +364,8 @@ regstate=regstate and th.compImages(newImage,templateImage,verbose=verbose)
 # #print >> logfile, "Noisy MS, phase stats:"
 # #print >> logfile, ms.statistics('DATA','phase')
 # #ms.close()
-# 
-# 
+#
+#
 # regstate = True
 # rskes = refstats.keys()
 # rskes.sort()
@@ -376,7 +376,7 @@ regstate=regstate and th.compImages(newImage,templateImage,verbose=verbose)
 #     else:
 #         print >> logfile, "* FAILED %-5s image test, got % -11.5g instead of % -11.5g." % (ke, m51both_stats[ke][0], refstats[ke])
 #         regstate = False
-# 
+#
 # rskes = diffstats.keys()
 # rskes.sort()
 # for ke in rskes:
@@ -386,7 +386,7 @@ regstate=regstate and th.compImages(newImage,templateImage,verbose=verbose)
 #     else:
 #         print >> logfile, "* FAILED %-5s  diff test, got % -11.5g instead of % -11.5g." % (ke, m51both_diffstats[ke][0], diffstats[ke])
 #         regstate = False
-# 
+#
 # print >> logfile,'---'
 if regstate:
 #    print >> logfile, 'Passed',
@@ -402,7 +402,7 @@ else:
 #print >> logfile, 'regression test for simdata of M51 (ALMA-12m INT + ACA-7m INT + 12m TP).'
 #print >>logfile,'---'
 #print >>logfile,'*********************************'
-#    
+#
 #print >>logfile,''
 #print >>logfile,'********** Benchmarking **************'
 #print >>logfile,''
@@ -416,7 +416,7 @@ else:
 #print >>logfile,'* Breakdown:                           *'
 #print >>logfile,'*  generating visibilities took %8.3fs,' % (msfstat[8] - startTime)
 #print >>logfile,'*************************************'
-#    
+#
 #logfile.close()
-#						    
+#
 #print '--Finished simdata of M51 (total power+interferometric) regression--'

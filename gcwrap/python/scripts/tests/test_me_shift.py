@@ -9,7 +9,7 @@ class me_shift_test(unittest.TestCase):
 
     def setUp(self):
         pass
-    
+
     def tearDown(self):
         pass
 
@@ -29,6 +29,6 @@ class me_shift_test(unittest.TestCase):
         self.assertTrue(got['m0']['value'] == v['m0']['value'])
         expec = qa.sub(v['m1'], '20arcmin')
         self.assertTrue(abs(got['m1']['value']/expec['value'] - 1) < 1e-7)
-        
+
 def suite():
     return [me_shift_test]

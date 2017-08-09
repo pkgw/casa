@@ -24,7 +24,7 @@ def checkms(msname, expectedNrows, antnamescheme='new', autocorrRows = 0):
        gives the number of rows with ANTENNA1==ANTENNA2
 
        returns (T/F, status string) status string is non-empty when the return value is F'''
-    
+
     # check the MAIN table first
     if not os.path.isdir(msname):
         status = "%s does not exist or is not a directory" % msname
@@ -131,7 +131,7 @@ class importvla_test_1(unittest.TestCase):
         importvla(archivefiles=[self.datapath+'AT166_1',
                                 self.datapath+'AT166_2',
                                 self.datapath+'AT166_3'],
-                  vis=self.msfile, 
+                  vis=self.msfile,
                   starttime='1994/7/25/07:34:00',
                   stoptime='1994/7/25/07:40:00',
                   antnamescheme='old')
@@ -160,7 +160,7 @@ class importvla_test_1(unittest.TestCase):
         importvla(archivefiles=[self.datapath+'AT166_1',
                                 self.datapath+'AT166_2',
                                 self.datapath+'AT166_3'],
-                  vis=self.msfile, 
+                  vis=self.msfile,
                   starttime='1994/7/25/07:34:00',
                   stoptime='1994/7/25/07:40:00',
                   antnamescheme='old',applytsys=False)
@@ -192,7 +192,7 @@ class importvla_test_1(unittest.TestCase):
         fref = tblocal.getcol('REF_FREQUENCY')
         tblocal.close()
         self.assertTrue(((fref >= 13.5e9) & (fref <= 16.3e9)).all(),'REF_FREQUENCY is outside of expected range (13.5-16.3 GHz) in %s.' % (self.msfile))
-        
+
     def test_checkms(self):
         '''Internal test of checkms function, this should never fail.'''
 
@@ -275,7 +275,7 @@ class importvla_test_2(unittest.TestCase):
 
         (msOK, status) = checkms(self.msfile,expectedRows)
         self.assertTrue(msOK,('Check of initial, wide frequencytol, MS failed : ' + status))
-        
+
         # second pass, default frequencytol results in 2 SWs
         rmMS(self.msfile)
         importvla(archivefiles=[self.datapath+'AS758_C030426.xp5'],
@@ -304,7 +304,7 @@ class importvla_test_2(unittest.TestCase):
 
         (msOK, status) = checkms(self.msfile,expectedRows)
         self.assertTrue(msOK,('Check of default autocorr, MS failed : ' + status))
-        
+
         # second pass, autocorr=True
         rmMS(self.msfile)
         importvla(archivefiles=[self.datapath+'AS758_C030425.xp1'],

@@ -14,7 +14,7 @@
 import time
 import os
 
-# 
+#
 #=====================================================================
 #
 # This script has some interactive commands: scriptmode = True
@@ -134,7 +134,7 @@ vis = msfile
 
 #
 # 1331+305 = 3C286 is our primary calibrator
-field = '1331+305'     
+field = '1331+305'
 
 # Setjy knows about this source so we dont need anything more
 
@@ -145,7 +145,7 @@ setjy()
 #
 # 1331+305  spwid=  0  [I=7.462, Q=0, U=0, V=0] Jy, (Perley-Taylor 99)
 # 1331+305  spwid=  1  [I=7.51, Q=0, U=0, V=0] Jy, (Perley-Taylor 99)
-# 
+#
 
 print("Look in logger for the fluxes (should be 7.462 and 7.510 Jy)")
 
@@ -242,13 +242,13 @@ print('--PlotCal--')
 default('plotcal')
 
 showgui = True
-    
+
 caltable = ftable
 multiplot = True
 yaxis = 'amp'
 
 showgui = True
-    
+
 plotcal()
 
 print("")
@@ -287,7 +287,7 @@ plotcal()
 if (dopolcal):
     print('--Polcal (D)--')
     default('polcal')
-    
+
     print("Solve for polarization leakage on 0137+331")
     print("Pretend it has unknown polarization")
 
@@ -299,7 +299,7 @@ if (dopolcal):
     # use settings from gaincal
     gaincurve = usegaincurve
     opacity = gainopacity
-    
+
     # Output table
     caltable = ptable
 
@@ -325,7 +325,7 @@ if (dopolcal):
 
     #saveinputs('polcal',calprefix+'.polcal.saved')
     polcal()
-    
+
     #=====================================================================
     #
     # List polcal solutions
@@ -337,16 +337,16 @@ if (dopolcal):
     print("Listing calibration to file "+listfile)
 
     listcal()
-    
+
     #=====================================================================
     #
     # Plot polcal solutions
     #
     print('--Plotcal (PolD)--')
-    
+
     iteration = ''
     showgui = False
-    
+
     xaxis = 'real'
     yaxis = 'imag'
     figfile = caltable + '.plotcal.reim.png'
@@ -381,58 +381,58 @@ if (dopolcal):
     # First set the model
     print('--Setjy--')
     default('setjy')
-        
+
     vis = msfile
-        
+
     print("Use setjy to set IQU fluxes of "+polxfield)
     field = polxfield
-    
+
     for spw in usespwlist:
         fluxdensity = polxiquv[spw]
-        
+
         #saveinputs('setjy',calprefix+'.setjy.polspw.'+spw+'.saved')
         setjy()
-    
+
     #
     # Polarization (X-term) calibration
     #
     print('--PolCal (X)--')
     default('polcal')
-    
+
     print("Polarization R-L Phase Calibration (linear approx)")
-    
+
     vis = msfile
-    
+
     # Start with the G and D tables
     gaintable = [gtable,ptable]
-    
+
     # use settings from gaincal
     gaincurve = usegaincurve
     opacity = gainopacity
-    
+
     # Output table
     caltable = xtable
 
     # previously set with setjy
     field = polxfield
     spw = ''
-    
+
     selectdata=False
-    
+
     # Solve for Chi
     poltype = 'X'
     solint = 'inf'
     combine = 'scan'
-    
+
     # reference antenna
     refant = calrefant
-    
+
     # minimum SNR 3
     minsnr = 3
-    
+
     #saveinputs('polcal',calprefix+'.polcal.X.saved')
     polcal()
-    
+
 #=====================================================================
 # Apply the Calibration
 #=====================================================================
@@ -441,26 +441,26 @@ if (dopolcal):
 #
 # print '--Accum--'
 # default('accum')
-# 
+#
 # print "This will interpolate the gains onto Jupiter"
-# 
+#
 # vis = msfile
-# 
+#
 # tablein = ''
 # incrtable = ftable
 # calfield = '1331+305, 0137+331'
-# 
+#
 # # set the name for the output interpolated caltable
 # caltable = atable
-# 
+#
 # print "Output cumulative gain table will be "+atable
-# 
+#
 # # linear interpolation
 # interp = 'linear'
-# 
+#
 # # make 10s entries
 # accumtime = 10.0
-# 
+#
 # accum()
 #
 # NOTE: bypassing this during testing

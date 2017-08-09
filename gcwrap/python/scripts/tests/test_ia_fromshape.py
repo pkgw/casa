@@ -47,20 +47,20 @@
 #
 # <synopsis>
 # Test for the ia.fromshape tool method
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_fromshape[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the ia.fromshape() tool method to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -73,14 +73,14 @@ from __main__ import *
 import unittest
 
 class ia_fromshape_test(unittest.TestCase):
-    
+
     def setUp(self):
         self._myia = iatool()
-    
+
     def tearDown(self):
         self._myia.done()
         self.assertTrue(len(tb.showcache()) == 0)
-        
+
     def test_fromshape(self):
         """Test general functionality"""
         myia = self._myia
@@ -95,15 +95,15 @@ class ia_fromshape_test(unittest.TestCase):
             myia.done()
             myia.open(outfile)
             self.assertTrue((myia.shape() == shape).all())
-        
+
     def test_history(self):
         """Test history records are written"""
         myia = self._myia
         myia.fromshape("", [10,10])
         msgs = myia.history()
         myia.done()
-        self.assertTrue("ia.fromshape" in msgs[-2])        
-        self.assertTrue("ia.fromshape" in msgs[-1])        
-        
+        self.assertTrue("ia.fromshape" in msgs[-2])
+        self.assertTrue("ia.fromshape" in msgs[-1])
+
 def suite():
     return [ia_fromshape_test]

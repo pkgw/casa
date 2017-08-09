@@ -13,7 +13,7 @@ import time
 datapath = os.environ.get('CASAPATH').split()[0] + "/data/regression/unittest/"
 
 # Read the data sets from another directory
-if 'TEST_DATADIR' in os.environ:  
+if 'TEST_DATADIR' in os.environ:
     DATADIR = str(os.environ.get('TEST_DATADIR'))
     if os.path.isdir(DATADIR):
         datapath = DATADIR
@@ -95,36 +95,36 @@ class plotcal_test_base(unittest.TestCase):
             os.remove(plotfile)
         except OSError:  # "No such file or directory"
             pass
-            
+
 # ------------------------------------------------------------------------
- 
+
 class test_basic(plotcal_test_base):
     ''' Test basic calibration plots '''
 
     def test_btable_plot(self):
         '''test_btable_plot: plot B table'''
         self.setUpBtable()
-        plotcal(caltable=self.Btable, showgui=False, figfile=self.fig) 
+        plotcal(caltable=self.Btable, showgui=False, figfile=self.fig)
         self.checkPlotfile(self.fig, 75000)
-        
+
     def test_gtable_plot(self):
         '''test_gtable_plot: plot G table'''
         self.setUpGtable()
-        plotcal(caltable=self.Gtable, showgui=False, figfile=self.fig) 
+        plotcal(caltable=self.Gtable, showgui=False, figfile=self.fig)
         self.checkPlotfile(self.fig, 20000)
-        
+
     def test_ttable_plot(self):
         '''test_ttable_plot: plot T table'''
         self.setUpTtable()
-        plotcal(caltable=self.Ttable, showgui=False, figfile=self.fig) 
+        plotcal(caltable=self.Ttable, showgui=False, figfile=self.fig)
         self.checkPlotfile(self.fig, 15000)
-        
+
     def test_tsys_plot(self):
         '''test_tsys_plot: plot TSYS table'''
         self.setUpTSYStable()
-        plotcal(caltable=self.TSYStable, showgui=False, figfile=self.fig) 
+        plotcal(caltable=self.TSYStable, showgui=False, figfile=self.fig)
         self.checkPlotfile(self.fig, 35000)
-        
+
 # ------------------------------------------------------------------------
 
 class test_axes(plotcal_test_base):
@@ -137,8 +137,8 @@ class test_axes(plotcal_test_base):
                  'scan', 'amp', 'phase', 'real', 'imag', 'snr', 'delay',
                  'spgain']
         for axis in xaxes:
-            print("Testing", axis) 
-            plotcal(caltable=self.Gtable, xaxis=axis, showgui=False, 
+            print("Testing", axis)
+            plotcal(caltable=self.Gtable, xaxis=axis, showgui=False,
                     figfile=self.fig)
             # invalid axes for G table
             if axis in ['tsys', 'delay', 'spgain']:
@@ -153,8 +153,8 @@ class test_axes(plotcal_test_base):
         yaxes = ['amp', 'phase', 'real', 'imag', 'snr', 'antenna', 'antenna1',
                  'antenna2', 'scan', 'tsys', 'delay', 'spgain', 'tec']
         for axis in yaxes:
-            print("Testing", axis) 
-            plotcal(caltable=self.Gtable, yaxis=axis, showgui=False, 
+            print("Testing", axis)
+            plotcal(caltable=self.Gtable, yaxis=axis, showgui=False,
                     figfile=self.fig)
             # invalid axes for G table
             if axis in ['tsys', 'delay', 'spgain', 'tec']:
@@ -169,12 +169,12 @@ class test_axes(plotcal_test_base):
         self.setUpTSYStable()
         # tsys table works
         plotcal(caltable=self.TSYStable, yaxis='tsys', xaxis='antenna',
-                showgui=False, figfile=self.fig) 
+                showgui=False, figfile=self.fig)
         self.checkPlotfile(self.fig, 20000)
         self.removePlotfile()
         # this should fail! -- no figfile
         plotcal(caltable=self.Gtable, yaxis='tsys', xaxis='antenna',
-                showgui=False, figfile=self.fig) 
+                showgui=False, figfile=self.fig)
         self.checkNoPlotfile(self.fig)
 
     def test_xaxis_yaxis(self):
@@ -199,7 +199,7 @@ class test_selection(plotcal_test_base):
         # plotcal works with either (plots 1st or 2nd axis)
         for poln in polns:
             print("Select poln", poln)
-            plotcal(caltable=self.Btable, poln=poln, showgui=False, 
+            plotcal(caltable=self.Btable, poln=poln, showgui=False,
                     figfile=self.fig)
             self.checkPlotfile(self.fig, 60000)
             self.removePlotfile()
@@ -211,7 +211,7 @@ class test_selection(plotcal_test_base):
         fields = ['0', '1', '2']
         for field in fields:
             print("Select field", field)
-            plotcal(caltable=self.Btable, field=field, showgui=False, 
+            plotcal(caltable=self.Btable, field=field, showgui=False,
                     figfile=self.fig)
             if field=='0':
                 self.checkPlotfile(self.fig, 20000)
@@ -223,7 +223,7 @@ class test_selection(plotcal_test_base):
         '''test antenna selection'''
         self.setUpBtable()
         self.setUpBms()
-        plotcal(caltable=self.Btable, antenna='VA04,VA08,VA12,VA16', 
+        plotcal(caltable=self.Btable, antenna='VA04,VA08,VA12,VA16',
                 showgui=False, figfile=self.fig)
         self.checkPlotfile(self.fig, 30000)
 
@@ -239,7 +239,7 @@ class test_selection(plotcal_test_base):
         '''test timerange selection'''
         self.setUpBtable()
         self.setUpBms()
-        plotcal(caltable=self.Btable, 
+        plotcal(caltable=self.Btable,
                 timerange="1995/04/13/09:15:00~1995/04/13/09:25:00",
                 showgui=False, figfile=self.fig)
         self.checkPlotfile(self.fig, 75000)
@@ -252,24 +252,24 @@ class test_iter_subplot(plotcal_test_base):
     def test_iter_ant(self):
         '''test antenna iteration with B table'''
         self.setUpBtable()
-        plotcal(caltable=self.Btable, iteration='antenna', 
+        plotcal(caltable=self.Btable, iteration='antenna',
                 showgui=False, figfile=self.fig)
         self.checkPlotfile(self.fig, 15000)
         self.removePlotfile()
         # 3 rows, 2 columns
-        plotcal(caltable=self.Btable, iteration='antenna', 
+        plotcal(caltable=self.Btable, iteration='antenna',
                 showgui=False, figfile=self.fig, subplot=321)
         self.checkPlotfile(self.fig, 55000)
 
     def test_iter_field(self):
         '''test field iteration with G table'''
         self.setUpGtable()
-        plotcal(caltable=self.Gtable, iteration='field', 
+        plotcal(caltable=self.Gtable, iteration='field',
                 showgui=False, figfile=self.fig)
         self.checkPlotfile(self.fig, 20000)
         self.removePlotfile()
         # 3 rows, 1 column
-        plotcal(caltable=self.Gtable, iteration='field', 
+        plotcal(caltable=self.Gtable, iteration='field',
                 showgui=False, figfile=self.fig, subplot=311)
         self.checkPlotfile(self.fig, 50000)
 
@@ -333,7 +333,7 @@ class test_plot_options(plotcal_test_base):
                 plotcolor='red', markersize=7.0, fontsize=15.0,
                 figfile=self.fig)
         self.checkPlotfile(self.fig, 60000)
-        
+
 # ------------------------------------------------------------------------
 
 class test_formats(plotcal_test_base):
@@ -345,7 +345,7 @@ class test_formats(plotcal_test_base):
         self.setUpGtable()
         format = "/tmp/testplotcal.eps"
         self.removePlotfile(format)
-        plotcal(caltable=self.Gtable, showgui=False, figfile=format) 
+        plotcal(caltable=self.Gtable, showgui=False, figfile=format)
         self.checkPlotfile(format, 40000)
         self.removePlotfile(format)
 
@@ -354,7 +354,7 @@ class test_formats(plotcal_test_base):
         self.setUpGtable()
         format = "/tmp/testplotcal.pdf"
         self.removePlotfile(format)
-        plotcal(caltable=self.Gtable, showgui=False, figfile=format) 
+        plotcal(caltable=self.Gtable, showgui=False, figfile=format)
         self.checkPlotfile(format, 15000)
         self.removePlotfile(format)
 
@@ -363,7 +363,7 @@ class test_formats(plotcal_test_base):
         self.setUpGtable()
         format = "/tmp/testplotcal.png"
         self.removePlotfile(format)
-        plotcal(caltable=self.Gtable, showgui=False, figfile=format) 
+        plotcal(caltable=self.Gtable, showgui=False, figfile=format)
         self.checkPlotfile(format, 20000)
         self.removePlotfile(format)
 
@@ -372,7 +372,7 @@ class test_formats(plotcal_test_base):
         self.setUpGtable()
         format = "/tmp/testplotcal.ps"
         self.removePlotfile(format)
-        plotcal(caltable=self.Gtable, showgui=False, figfile=format) 
+        plotcal(caltable=self.Gtable, showgui=False, figfile=format)
         self.checkPlotfile(format, 40000)
         self.removePlotfile(format)
 
@@ -381,7 +381,7 @@ class test_formats(plotcal_test_base):
         self.setUpGtable()
         format = "/tmp/testplotcal.raw"
         self.removePlotfile(format)
-        plotcal(caltable=self.Gtable, showgui=False, figfile=format) 
+        plotcal(caltable=self.Gtable, showgui=False, figfile=format)
         self.checkPlotfile(format, 1900000)
         self.removePlotfile(format)
 
@@ -390,7 +390,7 @@ class test_formats(plotcal_test_base):
         self.setUpGtable()
         format = "/tmp/testplotcal.rgba"
         self.removePlotfile(format)
-        plotcal(caltable=self.Gtable, showgui=False, figfile=format) 
+        plotcal(caltable=self.Gtable, showgui=False, figfile=format)
         self.checkPlotfile(format, 1900000)
         self.removePlotfile(format)
 
@@ -399,7 +399,7 @@ class test_formats(plotcal_test_base):
         self.setUpGtable()
         format = "/tmp/testplotcal.svg"
         self.removePlotfile(format)
-        plotcal(caltable=self.Gtable, showgui=False, figfile=format) 
+        plotcal(caltable=self.Gtable, showgui=False, figfile=format)
         self.checkPlotfile(format, 75000)
         self.removePlotfile(format)
 
@@ -408,7 +408,7 @@ class test_formats(plotcal_test_base):
         self.setUpGtable()
         format = "/tmp/testplotcal.svgz"
         self.removePlotfile(format)
-        plotcal(caltable=self.Gtable, showgui=False, figfile=format) 
+        plotcal(caltable=self.Gtable, showgui=False, figfile=format)
         self.checkPlotfile(format, 10000)
         self.removePlotfile(format)
 
@@ -422,4 +422,4 @@ def suite():
             test_plot_options,
             test_formats
            ]
- 
+

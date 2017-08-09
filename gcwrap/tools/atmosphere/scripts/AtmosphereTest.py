@@ -25,8 +25,8 @@ p = at.getProfile()
 print("altitude\tthickness\ttemperature\twatermassdensity\tpressure")
 alt = 0
 for i in range(at.getNumLayers()):
-	alt += p[1]['value'][i]
-	print(alt, '\t', p[1]['value'][i],'\t', p[2]['value'][i],'\t', p[3]['value'][i],'\t', p[5]['value'][i])
+        alt += p[1]['value'][i]
+        print(alt, '\t', p[1]['value'][i],'\t', p[2]['value'][i],'\t', p[3]['value'][i],'\t', p[5]['value'][i])
 
 print()
 print("Test of initSpectralWindow()")
@@ -64,16 +64,16 @@ n=at.getNumChan(0)
 print(nb, " bands ", n, "channels(s)")
 print("Test: Opacity getOpacitySpec")
 for s in range(at.getNumSpectralWindows()):
-	print("band", s)
-	for i in range(n):
-		print(" - dryOpacity ", at.getDryOpacitySpec(s)[1][i], " wet Opacity ", at.getWetOpacitySpec(s)[1]['value'][i],at.getWetOpacitySpec(s)[1]['unit'])
+        print("band", s)
+        for i in range(n):
+                print(" - dryOpacity ", at.getDryOpacitySpec(s)[1][i], " wet Opacity ", at.getWetOpacitySpec(s)[1]['value'][i],at.getWetOpacitySpec(s)[1]['unit'])
 print("")
 print("Test of SkyBrightness calculations")
 at.setAirMass(1.51)
 at.setSkyBackgroundTemperature(qa.quantity(2.73,'K'))
 at.setUserWH2O(qa.quantity(4.05,'mm'))
 for s in range(at.getNumSpectralWindows()):
-	for i in range(n):
-		print("Band", s, " channel ", i, "TebbSky = ", at.getTebbSky(i,s)['value'][0], at.getTebbSky()['unit'])
+        for i in range(n):
+                print("Band", s, " channel ", i, "TebbSky = ", at.getTebbSky(i,s)['value'][0], at.getTebbSky()['unit'])
 print("")
 exit()

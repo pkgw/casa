@@ -19,17 +19,17 @@ import os
 
 #N4826 - BIMA SONG Data
 #16apr98
-#	source=ngc4826
-#	phasecal=1310+323
-#	fluxcal=3c273, Flux = 23 Jy on 16apr98
-#	passcal= none - apparently, this is considered optional... odd
+#       source=ngc4826
+#       phasecal=1310+323
+#       fluxcal=3c273, Flux = 23 Jy on 16apr98
+#       passcal= none - apparently, this is considered optional... odd
 
-## miriad: source Vlsr = 408; delta is 20 km/s 
+## miriad: source Vlsr = 408; delta is 20 km/s
 
-#NOTE: This data has been filled into MIRIAD, line-length correction 
-#	done, and then exported as separate files for each source.
-#	3c273 was not line length corrected since it was observed
-#	for such a short amount of time that it did not need it.  
+#NOTE: This data has been filled into MIRIAD, line-length correction
+#       done, and then exported as separate files for each source.
+#       3c273 was not line length corrected since it was observed
+#       for such a short amount of time that it did not need it.
 #
 
 #                                                                        #
@@ -42,7 +42,7 @@ import os
 ##
 ##          F5 (fieldid 6)         F6 (fieldid 7)
 ##
-## 4x64 channels = 256 channels 
+## 4x64 channels = 256 channels
 ##
 ## Primary Beam should be about 1.6' FWHM (7m dishes, 2.7mm wavelength)
 ## Resolution should be about 5-8"
@@ -131,9 +131,9 @@ default('gaincal')
 gcaltable = prefix + '.16apr98.gcal'
 
 gaincal(vis=msfile, caltable=gcaltable,
-	field='0,1',spw='0,1', gaintype='G',
-	minsnr=2.0,
-	refant='ANT5',gaincurve=False,opacity=0.0,solint='inf',combine='')
+        field='0,1',spw='0,1', gaintype='G',
+        minsnr=2.0,
+        refant='ANT5',gaincurve=False,opacity=0.0,solint='inf',combine='')
 
 gaincal2time=time.time()
 
@@ -150,15 +150,15 @@ default('fluxscale')
 fcaltable = prefix + '.16apr98.fcal'
 
 fluxscale(vis=msfile, caltable=gcaltable,
-	  fluxtable=fcaltable,
-	  reference='3C273-F0',transfer=['1310+323-F0'],refspwmap=[0,0]);
+          fluxtable=fcaltable,
+          reference='3C273-F0',transfer=['1310+323-F0'],refspwmap=[0,0]);
 
 fluxscale2time=time.time()
 
 # Found reference field(s): 3C273-F0
 # Found transfer field(s):  1310+323-F0
 # Spw=2 will be referenced to spw=1
-# Flux density for 1310+323-F0 in SpW=2 (ref SpW=1) is: 
+# Flux density for 1310+323-F0 in SpW=2 (ref SpW=1) is:
 #    1.47184 +/- 0.00787043 (SNR = 187.009)
 
 #
@@ -166,16 +166,16 @@ fluxscale2time=time.time()
 #
 # Correct the calibrater/target source data:
 # Use new parm spwmap to apply gain solutions derived from spwid1
-# to all other spwids... 
+# to all other spwids...
 print('--Applycal (16apr98)--')
 default('applycal')
 
 applycal(vis=msfile,
-	field='1', spw='1',
+        field='1', spw='1',
         gaincurve=False, opacity=0.0, gaintable=fcaltable)
 
 applycal(vis=msfile,
-	field='2~8',spw='2~5',
+        field='2~8',spw='2~5',
         gaincurve=False, opacity=0.0, gaintable=fcaltable, spwmap=[1])
 
 correct2time=time.time()
@@ -191,7 +191,7 @@ default('split')
 calsplitms = prefix + '.16apr98.cal.split.ms'
 
 split(vis=msfile, outputvis=calsplitms,
-	field='1',spw='1:0~1',datacolumn='corrected')
+        field='1',spw='1:0~1',datacolumn='corrected')
 
 default('split')
 
@@ -212,12 +212,12 @@ print('--More Flagdata (16apr98)--')
 default('flagdata')
 
 flagdata(vis=srcsplitms, mode='manualflag',
-	 antenna='5',
+         antenna='5',
          clipexpr="ABS I",
          clipminmax=[0.0,0.0],
          clipoutside=True,
-	 timerange='1998/04/16/09:42:39.0~1998/04/16/10:24:46.0',
-	 unflag=False)
+         timerange='1998/04/16/09:42:39.0~1998/04/16/10:24:46.0',
+         unflag=False)
 #setclip=["ABS I",[0.0,0.0],True],
 
 #
@@ -276,12 +276,12 @@ momzeroimage = momfile + '.integrated'
 momoneimage = momfile + '.weighted_coord'
 
 immoments(imagename=srcclnimage,
-	  moments=0,axis=3,includepix=[0.070,1000.0],
-	  planes='4~25',outfile=momzeroimage) 
+          moments=0,axis=3,includepix=[0.070,1000.0],
+          planes='4~25',outfile=momzeroimage)
 
 immoments(imagename=srcclnimage,
-	  moments=1,axis=3,includepix=[0.007,1000.0],
-	  planes='4~25',outfile=momoneimage) 
+          moments=1,axis=3,includepix=[0.007,1000.0],
+          planes='4~25',outfile=momoneimage)
 
 endProc=time.clock()
 endTime=time.time()
@@ -433,15 +433,15 @@ print('--Image rms '+str(thistest_imrms)+','+str(imrms), file=logfile)
 
 if ((diff_cal16apr<0.08) &(diff_src16apr<0.08) &(diff_calmax16<0.08) &(diff_srcmax16<0.08)
     &(diff_offrms16<0.08) &(diff_immax<0.08) &(diff_imrms<0.08) ):
-	regstate=True
-	print('---', file=logfile)
-	print('Passed Regression test for NGC 4826 Mosaic', file=logfile)
-	print('---', file=logfile)
-	print('Passed Regression test for NGC 4826 Mosaic')
+        regstate=True
+        print('---', file=logfile)
+        print('Passed Regression test for NGC 4826 Mosaic', file=logfile)
+        print('---', file=logfile)
+        print('Passed Regression test for NGC 4826 Mosaic')
 else:
-	regstate=False
-	print('----FAILED Regression test for NGC 4826 Mosaic', file=logfile)
-	print('----FAILED Regression test for NGC 4826 Mosaic')
+        regstate=False
+        print('----FAILED Regression test for NGC 4826 Mosaic', file=logfile)
+        print('----FAILED Regression test for NGC 4826 Mosaic')
 print('*********************************', file=logfile)
 print('', file=logfile)
 print('********* Benchmarking *****************', file=logfile)
@@ -462,23 +462,23 @@ logfile.close()
 #
 # MeasurementSet Name:  /home/sandrock/smyers/Testing/Patch2/N4826/ngc4826.demo.16apr98.ms
 # MS Version 2
-# 
-#    Observer:      Project: t108c115.n48  
+#
+#    Observer:      Project: t108c115.n48
 # Observation: BIMA
-# 
-#   Telescope Observation Date    Observer       Project        
-#   BIMA      [                   4.39941e+09, 4.39942e+09]               t108c115.n48   
-#   BIMA      [                   4.39942e+09, 4.39944e+09]               t108c115.n48   
-#   BIMA      [                   4.39942e+09, 4.39944e+09]               t108c115.n48   
-#   BIMA      [                   4.39942e+09, 4.39944e+09]               t108c115.n48   
-#   BIMA      [                   4.39942e+09, 4.39944e+09]               t108c115.n48   
+#
+#   Telescope Observation Date    Observer       Project
+#   BIMA      [                   4.39941e+09, 4.39942e+09]               t108c115.n48
+#   BIMA      [                   4.39942e+09, 4.39944e+09]               t108c115.n48
+#   BIMA      [                   4.39942e+09, 4.39944e+09]               t108c115.n48
+#   BIMA      [                   4.39942e+09, 4.39944e+09]               t108c115.n48
+#   BIMA      [                   4.39942e+09, 4.39944e+09]               t108c115.n48
 # Data records: 142155       Total integration time = 28464 seconds
 #    Observed from   03:33:53   to   11:28:17
-# 
+#
 #    ObservationID = 0         ArrayID = 0
 #   Date        Timerange                Scan  FldId FieldName      SpwIds
 #   16-Apr-1998/03:33:53.1 - 03:48:02.0     1      0 3C273-F0       [0]
-# 
+#
 #    ObservationID = 1         ArrayID = 0
 #   Date        Timerange                Scan  FldId FieldName      SpwIds
 #   16-Apr-1998/03:56:19.6 - 04:01:34.5     1      1 1310+323-F0    [1]
@@ -493,7 +493,7 @@ logfile.close()
 #               10:00:35.0 - 10:05:50.1    10      1 1310+323-F0    [1]
 #               10:40:40.7 - 10:45:55.7    11      1 1310+323-F0    [1]
 #               11:20:49.7 - 11:28:17.0    12      1 1310+323-F0    [1]
-# 
+#
 #    ObservationID = 2         ArrayID = 0
 #   Date        Timerange                Scan  FldId FieldName      SpwIds
 #   16-Apr-1998/04:04:30.6 - 04:04:30.6     1      2 NGC4826-F0     [2, 3, 4, 5]
@@ -804,7 +804,7 @@ logfile.close()
 #               11:16:33.3 - 11:16:33.3    11      6 NGC4826-F4     [2, 3, 4, 5]
 #               11:17:39.1 - 11:17:39.1    11      7 NGC4826-F5     [2, 3, 4, 5]
 #               11:18:43.1 - 11:18:43.1    11      8 NGC4826-F6     [2, 3, 4, 5]
-# 
+#
 #    ObservationID = 3         ArrayID = 0
 #   Date        Timerange                Scan  FldId FieldName      SpwIds
 #   16-Apr-1998/03:56:19.6 - 04:01:34.5     1      1 1310+323-F0    [1]
@@ -819,7 +819,7 @@ logfile.close()
 #               10:00:35.0 - 10:05:50.1    10      1 1310+323-F0    [1]
 #               10:40:40.7 - 10:45:55.7    11      1 1310+323-F0    [1]
 #               11:20:49.7 - 11:28:17.0    12      1 1310+323-F0    [1]
-# 
+#
 #    ObservationID = 4         ArrayID = 0
 #   Date        Timerange                Scan  FldId FieldName      SpwIds
 #   16-Apr-1998/04:04:30.6 - 04:04:30.6     1      2 NGC4826-F0     [2, 3, 4, 5]
@@ -1131,60 +1131,60 @@ logfile.close()
 #               11:17:39.1 - 11:17:39.1    11      7 NGC4826-F5     [2, 3, 4, 5]
 #               11:18:43.1 - 11:18:43.1    11      8 NGC4826-F6     [2, 3, 4, 5]
 # Fields: 9
-#   ID   Code Name          Right Ascension  Declination   Epoch   
-#   0         3C273-F0      12:29:06.70      +02.03.08.60  J2000   
-#   1         1310+323-F0   13:10:28.66      +32.20.43.78  J2000   
-#   2         NGC4826-F0    12:56:44.24      +21.41.05.10  J2000   
-#   3         NGC4826-F1    12:56:41.08      +21.41.05.10  J2000   
-#   4         NGC4826-F2    12:56:42.66      +21.41.43.20  J2000   
-#   5         NGC4826-F3    12:56:45.82      +21.41.43.20  J2000   
-#   6         NGC4826-F4    12:56:47.40      +21.41.05.10  J2000   
-#   7         NGC4826-F5    12:56:45.82      +21.40.27.00  J2000   
-#   8         NGC4826-F6    12:56:42.66      +21.40.27.00  J2000   
+#   ID   Code Name          Right Ascension  Declination   Epoch
+#   0         3C273-F0      12:29:06.70      +02.03.08.60  J2000
+#   1         1310+323-F0   13:10:28.66      +32.20.43.78  J2000
+#   2         NGC4826-F0    12:56:44.24      +21.41.05.10  J2000
+#   3         NGC4826-F1    12:56:41.08      +21.41.05.10  J2000
+#   4         NGC4826-F2    12:56:42.66      +21.41.43.20  J2000
+#   5         NGC4826-F3    12:56:45.82      +21.41.43.20  J2000
+#   6         NGC4826-F4    12:56:47.40      +21.41.05.10  J2000
+#   7         NGC4826-F5    12:56:45.82      +21.40.27.00  J2000
+#   8         NGC4826-F6    12:56:42.66      +21.40.27.00  J2000
 # Spectral Windows:  (6 unique spectral windows and 1 unique polarization setups)
 #   SpwID  #Chans Frame Ch1(MHz)    ChanWid(kHz)TotBW(kHz)  Ref(MHz)    Corrs
-#   0           1 LSRD  115138.579  400000.006  400000.006  115271.2    YY  
-#   1           1 LSRD  115217.017  800000.072  800000.072  115271.2    YY  
-#   2          64 LSRD  114950.387  1562.5      100000      115271.2    YY  
-#   3          64 LSRD  115040.402  1562.5      100000      115271.2    YY  
-#   4          64 LSRD  115130.143  1562.5      100000      115271.2    YY  
-#   5          64 LSRD  115220.157  1562.5      100000      115271.2    YY  
+#   0           1 LSRD  115138.579  400000.006  400000.006  115271.2    YY
+#   1           1 LSRD  115217.017  800000.072  800000.072  115271.2    YY
+#   2          64 LSRD  114950.387  1562.5      100000      115271.2    YY
+#   3          64 LSRD  115040.402  1562.5      100000      115271.2    YY
+#   4          64 LSRD  115130.143  1562.5      100000      115271.2    YY
+#   5          64 LSRD  115220.157  1562.5      100000      115271.2    YY
 # Feeds: 10: printing first row only
 #   Antenna   Spectral Window     # Receptors    Polarizations
 #   1         -1                  1              [         X]
 # Antennas: 10:
-#   ID   Name  Station   Diam.    Long.         Lat.         
-#   0    ANT1  UNKNOWN   6.0  m   -121.28.08.0  +40.37.38.5  
-#   1    ANT2  UNKNOWN   6.0  m   -121.28.09.0  +40.37.37.1  
-#   2    ANT3  UNKNOWN   6.0  m   -121.28.08.0  +40.37.38.9  
-#   3    ANT4  UNKNOWN   6.0  m   -121.28.07.8  +40.37.37.1  
-#   4    ANT5  UNKNOWN   6.0  m   -121.28.05.9  +40.37.37.1  
-#   5    ANT6  UNKNOWN   6.0  m   -121.28.08.2  +40.37.37.1  
-#   6    ANT7  UNKNOWN   6.0  m   -121.28.06.4  +40.37.37.1  
-#   7    ANT8  UNKNOWN   6.0  m   -121.28.08.0  +40.37.37.9  
-#   8    ANT9  UNKNOWN   6.0  m   -121.28.09.3  +40.37.37.1  
-#   9    ANT10 UNKNOWN   6.0  m   -121.28.08.0  +40.37.37.3  
-# 
-# 
+#   ID   Name  Station   Diam.    Long.         Lat.
+#   0    ANT1  UNKNOWN   6.0  m   -121.28.08.0  +40.37.38.5
+#   1    ANT2  UNKNOWN   6.0  m   -121.28.09.0  +40.37.37.1
+#   2    ANT3  UNKNOWN   6.0  m   -121.28.08.0  +40.37.38.9
+#   3    ANT4  UNKNOWN   6.0  m   -121.28.07.8  +40.37.37.1
+#   4    ANT5  UNKNOWN   6.0  m   -121.28.05.9  +40.37.37.1
+#   5    ANT6  UNKNOWN   6.0  m   -121.28.08.2  +40.37.37.1
+#   6    ANT7  UNKNOWN   6.0  m   -121.28.06.4  +40.37.37.1
+#   7    ANT8  UNKNOWN   6.0  m   -121.28.08.0  +40.37.37.9
+#   8    ANT9  UNKNOWN   6.0  m   -121.28.09.3  +40.37.37.1
+#   9    ANT10 UNKNOWN   6.0  m   -121.28.08.0  +40.37.37.3
+#
+#
 # Tables:
-#    MAIN                  142155 rows     
-#    ANTENNA                   10 rows     
-#    DATA_DESCRIPTION           6 rows     
-#    DOPPLER              <empty>  
-#    FEED                      10 rows     
-#    FIELD                      9 rows     
-#    FLAG_CMD             <empty>  
-#    FREQ_OFFSET         <absent>  
-#    HISTORY                  155 rows     
-#    OBSERVATION                5 rows     
-#    POINTING             <empty>  
-#    POLARIZATION               1 row      
-#    PROCESSOR                  1 row      
-#    SOURCE                     5 rows     
-#    SPECTRAL_WINDOW            6 rows     
-#    STATE                      1 row      
-#    SYSCAL                    20 rows     
-#    WEATHER             <absent>  
+#    MAIN                  142155 rows
+#    ANTENNA                   10 rows
+#    DATA_DESCRIPTION           6 rows
+#    DOPPLER              <empty>
+#    FEED                      10 rows
+#    FIELD                      9 rows
+#    FLAG_CMD             <empty>
+#    FREQ_OFFSET         <absent>
+#    HISTORY                  155 rows
+#    OBSERVATION                5 rows
+#    POINTING             <empty>
+#    POLARIZATION               1 row
+#    PROCESSOR                  1 row
+#    SOURCE                     5 rows
+#    SPECTRAL_WINDOW            6 rows
+#    STATE                      1 row
+#    SYSCAL                    20 rows
+#    WEATHER             <absent>
 #
 ###  End Task: listobs  ###
 ###########################

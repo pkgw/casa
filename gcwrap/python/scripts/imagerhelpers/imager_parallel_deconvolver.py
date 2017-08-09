@@ -15,7 +15,7 @@ from imagerhelpers.parallel_imager_helper import PyParallelImagerHelper
 A set of helper functions for the tasks  tclean
 
 Summary...
-    
+
 '''
 
 #############################################
@@ -35,7 +35,7 @@ class PyParallelDeconvolver(PySynthesisImager):
         if self.NF != self.NN:
              print('For now, cannot handle nfields != nnodes. Will implement round robin allocation later.')
              print('Using only ', self.NN, ' fields and nodes')
-             
+
 
 #############################################
     def initializeDeconvolvers(self):
@@ -50,11 +50,11 @@ class PyParallelDeconvolver(PySynthesisImager):
 #############################################
     def deleteDeconvolvers(self):
          self.PH.runcmd("toolsd.done()")
-              
+
 #############################################
     def restoreImages(self):
          self.PH.runcmdcheck("toolsd.restore()")
- 
+
 #############################################
     def pbcorImages(self):
          self.PH.runcmdcheck("toolsd.pbcor()")

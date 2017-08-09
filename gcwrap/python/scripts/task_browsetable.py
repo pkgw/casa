@@ -44,7 +44,7 @@ def browsetable(tablename=None, mightedit=None,
                         colnames.remove(c.upper())
                 if type(sortlist) == list:
                     sortlist = ', '.join(sortlist)
-                   
+
                 # ft.browse won't work unless ft is given a name.  This does NOT
                 # appear to cause more than about 116 kB to be written to disk,
                 # but it does mean that the directory needs to be removed
@@ -55,7 +55,7 @@ def browsetable(tablename=None, mightedit=None,
                 ftname = tempfile.mkdtemp(prefix=tablename + '_filtered_', dir=tempdir)
                 #print "ftname =", ftname
                 casalog.post('Using ' + ftname + ' as the filtered table.')
-               
+
                 ft = t.query(taql, ftname, sortlist=sortlist.upper(),
                              columns=', '.join(colnames))
                 #print "ft.name() =", ft.name()

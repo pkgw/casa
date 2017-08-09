@@ -26,18 +26,18 @@ def listsdm(sdm=None):
         rowfid = rownode.getElementsByTagName("scanNumber")
         fid = int(rowfid[0].childNodes[0].nodeValue)
         scandict[fid] = {}
-        
+
         # number of subscans
         rowsubs = rownode.getElementsByTagName("numSubscan")
         if len(rowsubs) == 0:
             # EVLA and old ALMA data
             rowsubs = rownode.getElementsByTagName("numSubScan")
         nsubs = int(rowsubs[0].childNodes[0].nodeValue)
-        
+
         # intents
         rownint = rownode.getElementsByTagName("numIntent")
         nint = int(rownint[0].childNodes[0].nodeValue)
-        
+
         rowintents = rownode.getElementsByTagName("scanIntent")
         sint = str(rowintents[0].childNodes[0].nodeValue)
         sints = sint.split()
@@ -48,7 +48,7 @@ def listsdm(sdm=None):
                 rint = intent
             else:
                 rint += ' '+intent
-        
+
         # start and end times in mjd ns
         rowstart = rownode.getElementsByTagName("startTime")
         start = int(rowstart[0].childNodes[0].nodeValue)
@@ -62,11 +62,11 @@ def listsdm(sdm=None):
         t = qa.quantity(endmjd,'d')
         endtime = qa.time(t,form="ymd",prec=8)[0]
         endTimeShort.append(qa.time(t,prec=8)[0])
-        
+
         # source name
         rowsrc = rownode.getElementsByTagName("sourceName")
         src = str(rowsrc[0].childNodes[0].nodeValue)
-        
+
         scandict[fid]['start'] = starttime
         scandict[fid]['end'] = endtime
         timestr = starttime+'~'+endtime
@@ -82,17 +82,17 @@ def listsdm(sdm=None):
     mainConfigList = []
     fieldIdList = []
     for rownode in rowlist:
-        
+
         # get the scan numbers
         rowfid = rownode.getElementsByTagName("scanNumber")
         fid = int(rowfid[0].childNodes[0].nodeValue)
         mainScanList.append(fid)
-        
+
         # get the configuration description
         rowconfig = rownode.getElementsByTagName("configDescriptionId")
         config = str(rowconfig[0].childNodes[0].nodeValue)
         mainConfigList.append(config)
-        
+
         # get the field ID
         rowfieldid = rownode.getElementsByTagName("fieldId")
         fieldid = string.split(str(rowfieldid[0].childNodes[0].nodeValue), '_')[1]
@@ -105,16 +105,16 @@ def listsdm(sdm=None):
     configDescList = []
     dataDescList = []
     for rownode in rowlist:
-        
+
         # get the configuration description
         rowConfigDesc = rownode.getElementsByTagName("configDescriptionId")
         configDesc = str(rowConfigDesc[0].childNodes[0].nodeValue)
         configDescList.append(configDesc)
-        
+
         # make a list of the data description IDs:
         rowNumDataDesc = rownode.getElementsByTagName("numDataDescription")
         numDataDesc = int(rowNumDataDesc[0].childNodes[0].nodeValue)
-        
+
         rowDataDesc = rownode.getElementsByTagName("dataDescriptionId")
         dataDescStr = str(rowDataDesc[0].childNodes[0].nodeValue)
         dataDescSplit = dataDescStr.split()
@@ -130,12 +130,12 @@ def listsdm(sdm=None):
     dataDescElList = []
     spwIdDataDescList = []
     for rownode in rowlist:
-        
+
         # get the data description ID, make another list:
         rowDataDescEl = rownode.getElementsByTagName("dataDescriptionId")
         dataDescEl = str(rowDataDescEl[0].childNodes[0].nodeValue)
         dataDescElList.append(dataDescEl)
-        
+
         # get the related spectral window ID:
         rowSpwIdDataDesc = rownode.getElementsByTagName("spectralWindowId")
         spwIdDataDesc = str(rowSpwIdDataDesc[0].childNodes[0].nodeValue)
@@ -156,7 +156,7 @@ def listsdm(sdm=None):
     chanWidthList = []
     basebandList = []
     for rownode in rowlist:
-        
+
         # get the various row values:
         rowSpwId = rownode.getElementsByTagName("spectralWindowId")
         rowNChan = rownode.getElementsByTagName("numChan")
@@ -166,7 +166,7 @@ def listsdm(sdm=None):
         # For ALMA
         rowChanWidthArr = rownode.getElementsByTagName("chanWidthArray")
         rowBaseband = rownode.getElementsByTagName("basebandName")
-        
+
         # convert to values or strings and append to the relevant lists:
         spwId = str(rowSpwId[0].childNodes[0].nodeValue)
         spwIdList.append(spwId)
@@ -202,7 +202,7 @@ def listsdm(sdm=None):
         rowCode = rownode.getElementsByTagName("code")
         rowCoords = rownode.getElementsByTagName("referenceDir")
         rowSrcId = rownode.getElementsByTagName("sourceId")
-        
+
         # convert to values or strings and append to relevent lists:
         fieldList.append(int(string.split(str(rowField[0].childNodes[0].nodeValue),'_')[1]))
         fieldNameList.append(str(rowName[0].childNodes[0].nodeValue))
@@ -216,7 +216,7 @@ def listsdm(sdm=None):
         DecDMS = qa.formxxx(DecInp, format='dms')
         fieldRAList.append(RAHMS)
         fieldDecList.append(DecDMS)
-        fieldSrcIDList.append(int(rowSrcId[0].childNodes[0].nodeValue))    
+        fieldSrcIDList.append(int(rowSrcId[0].childNodes[0].nodeValue))
 
     # read Antenna.xml
     xmlAnt = minidom.parse(sdm+'/Antenna.xml')
@@ -230,7 +230,7 @@ def listsdm(sdm=None):
         rowAntName = rownode.getElementsByTagName("name")
         rowDishDiam = rownode.getElementsByTagName("dishDiameter")
         rowStation = rownode.getElementsByTagName("stationId")
-        
+
         # convert and append
         antList.append(int(string.split(str(rowAnt[0].childNodes[0].nodeValue), '_')[1]))
         antNameList.append(str(rowAntName[0].childNodes[0].nodeValue))
@@ -248,7 +248,7 @@ def listsdm(sdm=None):
         rowStatId = rownode.getElementsByTagName("stationId")
         rowStatName = rownode.getElementsByTagName("name")
         rowStatPos = rownode.getElementsByTagName("position")
-        
+
         # convert and append
         statIdList.append(str(rowStatId[0].childNodes[0].nodeValue))
         statNameList.append(str(rowStatName[0].childNodes[0].nodeValue))
@@ -261,7 +261,7 @@ def listsdm(sdm=None):
         qLat = pos['m1']
         statLatList.append(qa.formxxx(qLat, 'dms', prec=0))
         statLonList.append(qa.formxxx(qLon, 'dms', prec=0))
-    
+
     # associate antennas with stations:
     assocStatList = []
     for station in stationList:
@@ -297,7 +297,7 @@ def listsdm(sdm=None):
         rFreqTempList = []
         cWidthTempList = []
         bbandTempList = []
-        
+
         for dDesc in dataDescList[i]:
             el = np.where(np.array(dataDescElList) == dDesc)[0]
             spwIdN = spwIdDataDescList[el]
@@ -312,7 +312,7 @@ def listsdm(sdm=None):
         rFreqOrd.append(rFreqTempList)
         cWidthOrd.append(cWidthTempList)
         bbandOrd.append(bbandTempList)
-    
+
     # add this info to the scan dictionary:
     for scanNum in scandict:
         spwOrdList = []
@@ -337,7 +337,7 @@ def listsdm(sdm=None):
         scandict[scanNum]['reffreq'] = rFreqOrdList
         scandict[scanNum]['chanwidth'] = cWidthOrdList
         scandict[scanNum]['baseband'] = bbandOrdList
-            
+
     # report informatio to the logger
     casalog.origin('listsdm')
     casalog.post("================================================================================")
@@ -368,21 +368,21 @@ def listsdm(sdm=None):
 
     for i in range(0, len(spwIdList)):
         casalog.post("  %s   %s    %s  %s     %s    %s" % (string.split(spwIdList[i], '_')[1].ljust(4), str(nChanList[i]).ljust(4), str(refFreqList[i]/1e6).ljust(8), str(np.array(chanWidthList[i])/1e3).ljust(8), str(np.array(chanWidthList[i])*nChanList[i]/1e6).ljust(8), basebandList[i].ljust(8)))
-    
+
     casalog.post(" ")
     casalog.post("Field information:")
     casalog.post("  FldID  Code   Name             RA            Dec             SrcID")
 
     for i in range(0, len(fieldList)):
-        casalog.post("  %s  %s %s  %s %s %s" % (str(fieldList[i]).ljust(5), fieldCodeList[i].ljust(6), fieldNameList[i].ljust(15), fieldRAList[i].ljust(13), fieldDecList[i].ljust(15), str(fieldSrcIDList[i]).ljust(5)))    
-    
+        casalog.post("  %s  %s %s  %s %s %s" % (str(fieldList[i]).ljust(5), fieldCodeList[i].ljust(6), fieldNameList[i].ljust(15), fieldRAList[i].ljust(13), fieldDecList[i].ljust(15), str(fieldSrcIDList[i]).ljust(5)))
+
     casalog.post(" ")
     casalog.post("Antennas (%i):" % len(antList))
     casalog.post("  ID    Name   Station   Diam.(m)  Lat.          Long.")
 
     for i in range(0, len(antList)):
         casalog.post("  %s %s %s     %s     %s  %s " % (str(antList[i]).ljust(5), antNameList[i].ljust(6), assocStatList[i].ljust(5), str(dishDiamList[i]).ljust(5), statLatList[i].ljust(12), statLonList[i].ljust(12)))
-    
+
     # return the scan dictionary
     return scandict
 

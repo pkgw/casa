@@ -5,7 +5,7 @@ from  casac import *
 
 tb = casac.table()
 
-# main function 
+# main function
 def dataformat(dataname):
     """
     find(guess) the data format of the input data
@@ -13,8 +13,8 @@ def dataformat(dataname):
     fullly.
     Currently check if it is MS, ALMA/EVLA SDM with its version,
     ASAP scantable with its version, CASA image, some kind of
-    FITS, or ASCII text. 
-    """    
+    FITS, or ASCII text.
+    """
     isMS = False
     isASDM = False
     isASAP = False
@@ -24,7 +24,7 @@ def dataformat(dataname):
 
     # directory?
     if(subprocess.getoutput('file '+dataname).count('directory')):
-        # check for MS, ASDM, scantable..., CASA image, ... 
+        # check for MS, ASDM, scantable..., CASA image, ...
         # try to ms.open
         try:
             checkms(dataname)
@@ -48,10 +48,10 @@ def dataformat(dataname):
                          elif tb.colnames()=='map' and \
                            any([k=='coords' for k in tb.keywordnames()]):
                              isCASAimage=True
-                             dataformat ="CASA image" 
+                             dataformat ="CASA image"
 
                          # todo: check for component?
-    
+
                          tb.close()
         finally:
             if isMS:
@@ -68,7 +68,7 @@ def dataformat(dataname):
     elif(subprocess.getoutput('file '+dataname).count('text')):
          dataformat='ASCII'
     elif(subprocess.getoutput('file '+dataname).count('FITS')):
-         print("Probably some kind of FITS (e.g. image fits,  uvfits, etc)") 
+         print("Probably some kind of FITS (e.g. image fits,  uvfits, etc)")
          dataformat='FITS'
 
     return dataformat
@@ -99,8 +99,8 @@ def checkms(dname):
             raise Exception
         else:
             isMS=True
-    return 
-    
+    return
+
 
 def checkasdm(dname):
     """
@@ -130,12 +130,12 @@ def checkasdm(dname):
         isASDM=False
         isEVLA=False
 
-    return (isASDM,isEVLA,version)     
+    return (isASDM,isEVLA,version)
 
 
 def checkscantable(dname):
     """
-    check if the input data is ASAP Scantable 
+    check if the input data is ASAP Scantable
     """
     scantables = set(["table.dat",
                       "FREQUENCIES/table.dat",
@@ -145,11 +145,11 @@ def checkscantable(dname):
                       "MOLECULES/table.dat",
                       "HISTORY/table.dat",
                       "FIT/table.dat"
-                      ]) 
+                      ])
     for dat in scantables:
         if not os.path.exists(dname+'/'+dat):
             raise Exception
     tb.open(dname)
     version=tb.getkeyword('VERSION')
     tb.close()
-    return (True, str(version)) 
+    return (True, str(version))

@@ -1,4 +1,4 @@
-casalog.filter('DEBUG2') 
+casalog.filter('DEBUG2')
 
 default('plotxy')
 vis='ngc5921.ms'

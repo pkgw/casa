@@ -13,7 +13,7 @@ import copy
 A set of helper functions for the tasks  tclean
 
 Summary...
-    
+
 '''
 
 
@@ -23,7 +23,7 @@ Summary...
 ######################################################
 
 class ImagerParameters():
-    def __init__(self, 
+    def __init__(self,
 
                  ## Data Selection
                  msname='',
@@ -38,30 +38,30 @@ class ImagerParameters():
                  datacolumn='corrected',
 
                  ## Image Definition
-                 imagename='', 
-                 imsize=[1,1], 
+                 imagename='',
+                 imsize=[1,1],
                  cell=[10.0,10.0],
                  phasecenter='',
                  stokes='I',
                  projection='SIN',
-                 startmodel='', 
+                 startmodel='',
 
                  ## Spectral Parameters
-                 specmode='mfs', 
+                 specmode='mfs',
                  reffreq='',
-                 nchan=1, 
-                 start='', 
+                 nchan=1,
+                 start='',
                  width='',
-                 outframe='LSRK', 
-                 veltype='radio', 
+                 outframe='LSRK',
+                 veltype='radio',
                  restfreq=[''],
-                 sysvel='', 
+                 sysvel='',
                  sysvelframe='',
                  interpolation='nearest',
 
                  gridder="standard",
-#                 ftmachine='gridft', 
-                 facets=1, 
+#                 ftmachine='gridft',
+                 facets=1,
                  chanchunks=1,
 
                  wprojplanes=1,
@@ -78,20 +78,20 @@ class ImagerParameters():
                  conjbeams = True,
                  computepastep =360.0,
                  rotatepastep =360.0,
-                 
+
                  pblimit=0.01,
                  normtype='flatnoise',
 
                  outlierfile='',
                  restart=True,
 
-                 weighting='natural', 
+                 weighting='natural',
                  robust=0.5,
                  npixels=0,
                  uvtaper=[],
 
-                 niter=0, 
-                 cycleniter=0, 
+                 niter=0,
+                 cycleniter=0,
                  loopgain=0.1,
                  threshold='0.0Jy',
                  cyclefactor=1.0,
@@ -141,23 +141,23 @@ class ImagerParameters():
 #                           'usescratch':usescratch, 'readonly':readonly}
 
         ## Imaging/deconvolution parameters
-        ## The outermost dictionary index is image field. 
+        ## The outermost dictionary index is image field.
         ## The '0' or main field's parameters come from the task parameters
         ## The outlier '1', '2', ....  parameters come from the outlier file
         self.outlierfile = outlierfile
         ## Initialize the parameter lists with the 'main' or '0' field's parameters
         ######### Image definition
-        self.allimpars = { self.defaultKey :{'imagename':imagename, 'nchan':nchan, 'imsize':imsize, 
+        self.allimpars = { self.defaultKey :{'imagename':imagename, 'nchan':nchan, 'imsize':imsize,
                                  'cell':cell, 'phasecenter':phasecenter, 'stokes': stokes,
                                  'specmode':specmode, 'start':start, 'width':width, 'veltype':veltype,
-                                 'nterms':nterms,'restfreq':restfreq, 
+                                 'nterms':nterms,'restfreq':restfreq,
                                  'outframe':outframe, 'reffreq':reffreq, 'sysvel':sysvel, 'sysvelframe':sysvelframe,
                                  'projection':projection,
                                  'restart':restart, 'startmodel':startmodel,'deconvolver':deconvolver}    }
         ######### Gridding
         self.allgridpars = { self.defaultKey :{'gridder':gridder,
-                                   'aterm': aterm, 'psterm':psterm, 'mterm': mterm, 'wbawp': wbawp, 
-                                   'cfcache': cfcache,'dopointing':dopointing, 'dopbcorr':dopbcorr, 
+                                   'aterm': aterm, 'psterm':psterm, 'mterm': mterm, 'wbawp': wbawp,
+                                   'cfcache': cfcache,'dopointing':dopointing, 'dopbcorr':dopbcorr,
                                    'conjbeams':conjbeams, 'computepastep':computepastep,
                                    'rotatepastep':rotatepastep, #'mtype':mtype, # 'weightlimit':weightlimit,
                                    'facets':facets,'chanchunks':chanchunks,
@@ -173,8 +173,8 @@ class ImagerParameters():
                                  'deconvolver':deconvolver}     }
 
         ######### Deconvolution
-        self.alldecpars = { self.defaultKey: { 'id':0, 'deconvolver':deconvolver, 'nterms':nterms, 
-                                    'scales':scales, 'scalebias':scalebias, 'restoringbeam':restoringbeam, 'usemask':usemask, 
+        self.alldecpars = { self.defaultKey: { 'id':0, 'deconvolver':deconvolver, 'nterms':nterms,
+                                    'scales':scales, 'scalebias':scalebias, 'restoringbeam':restoringbeam, 'usemask':usemask,
                                     'mask':mask, 'pbmask':pbmask, 'maskthreshold':maskthreshold,
                                     'maskresolution':maskresolution, 'nmask':nmask,
                                     #'maskresolution':maskresolution, 'nmask':nmask,'autoadjust':autoadjust,
@@ -183,13 +183,13 @@ class ImagerParameters():
                                     'minbeamfrac':minbeamfrac, 'cutthreshold':cutthreshold,
                                     'interactive':interactive, 'startmodel':startmodel} }
 
-        ######### Iteration control. 
-        self.iterpars = { 'niter':niter, 'cycleniter':cycleniter, 'threshold':threshold, 
+        ######### Iteration control.
+        self.iterpars = { 'niter':niter, 'cycleniter':cycleniter, 'threshold':threshold,
                           'loopgain':loopgain, 'interactive':interactive,
-                          'cyclefactor':cyclefactor, 'minpsffraction':minpsffraction, 
+                          'cyclefactor':cyclefactor, 'minpsffraction':minpsffraction,
                           'maxpsffraction':maxpsffraction, 'savemodel':savemodel}
 
-        ######### CFCache params. 
+        ######### CFCache params.
         self.cfcachepars = {'cflist': cflist};
 
 
@@ -250,7 +250,7 @@ class ImagerParameters():
         #casalog.origin('refimagerhelper.checkParameters')
         casalog.post('Verifying Input Parameters')
         # Init the error-string
-        errs = "" 
+        errs = ""
         errs += self.checkAndFixSelectionPars()
         errs += self.makeImagingParamLists()
         errs += self.checkAndFixIterationPars()
@@ -260,7 +260,7 @@ class ImagerParameters():
             if(self.allimpars['0']['specmode']=='cubedata'):
                 self.allselpars[mss]['outframe']='Undefined'
 
-        ### MOVE this segment of code to the constructor so that it's clear which parameters go where ! 
+        ### MOVE this segment of code to the constructor so that it's clear which parameters go where !
         ### Copy them from 'impars' to 'normpars' and 'decpars'
         self.iterpars['allimages']={}
         for immod in list(self.allimpars.keys()) :
@@ -277,7 +277,7 @@ class ImagerParameters():
         self.fixIntParam(self.alldecpars,'nterms')
         self.fixIntParam(self.allgridpars,'facets')
         self.fixIntParam(self.allgridpars,'chanchunks')
- 
+
         ## If there are errors, print a message and exit.
         if len(errs) > 0:
 #            casalog.post('Parameter Errors : \n' + errs,'WARN')
@@ -312,7 +312,7 @@ class ImagerParameters():
             for par in selkeys:
                 if type( self.allselpars[par] ) != list:
                     self.allselpars[par] = [ self.allselpars[par]  ]
-                    
+
             # Check that all are the same length as nvis
             # If not, and if they're single, replicate them nvis times
             nvis = len(self.allselpars['msname'])
@@ -324,7 +324,7 @@ class ImagerParameters():
                     if len( self.allselpars[par] ) == 1:
                         for ms in range(1,nvis):
                             self.allselpars[par].append( self.allselpars[par][0] )
-                    
+
 
             # Now, all parameters are lists of strings each of length 'nvis'.
             # Put them into separate dicts per MS.
@@ -348,14 +348,14 @@ class ImagerParameters():
     def makeImagingParamLists(self ):
         errs=""
 
-        ## Multiple images have been specified. 
+        ## Multiple images have been specified.
         ## (1) Parse the outlier file and fill a list of imagedefinitions
         ## OR (2) Parse lists per input parameter into a list of parameter-sets (imagedefinitions)
         ### The code below implements (1)
         outlierpars=[]
         parseerrors=""
         if len(self.outlierfile)>0:
-            outlierpars,parseerrors = self.parseOutlierFile(self.outlierfile) 
+            outlierpars,parseerrors = self.parseOutlierFile(self.outlierfile)
 
         if len(parseerrors)>0:
             errs = errs + "Errors in parsing outlier file : " + parseerrors
@@ -412,30 +412,30 @@ class ImagerParameters():
                     if not os.path.exists( dirname ):
                         casalog.post('Making directory : ' + dirname, 'INFO')
                         os.mkdir( dirname )
-                    
-            ### Check for name increments 
+
+            ### Check for name increments
             #if self.reusename == False:
 
             if self.allimpars['0']['restart'] == False:   # Later, can change this to be field dependent too.
                 ## Get a list of image names for all fields (to sync name increment ids across fields)
                 inpnamelist={}
                 for immod in list(self.allimpars.keys()) :
-                    inpnamelist[immod] = self.allimpars[immod]['imagename'] 
+                    inpnamelist[immod] = self.allimpars[immod]['imagename']
 
                 newnamelist = self.incrementImageNameList( inpnamelist )
 
                 if len(newnamelist) != len(list(self.allimpars.keys())) :
                     casalog.post('Internal Error : Non matching list lengths in refimagerhelper::handleImageNames. Not updating image names','WARN')
-                else : 
+                else :
                     for immod in list(self.allimpars.keys()) :
                         self.allimpars[immod]['imagename'] = newnamelist[immod]
-                
+
     def checkAndFixIterationPars(self ):
         errs=""
 
         # Bother checking only if deconvolution iterations are requested
         if self.iterpars['niter']>0:
-            # Make sure cycleniter is less than or equal to niter. 
+            # Make sure cycleniter is less than or equal to niter.
             if self.iterpars['cycleniter']<=0 or self.iterpars['cycleniter'] > self.iterpars['niter']:
                 if self.iterpars['interactive']==False:
                     self.iterpars['cycleniter'] = self.iterpars['niter']
@@ -444,7 +444,7 @@ class ImagerParameters():
 
         return errs
 
-    def checkAndFixNormPars(self):  
+    def checkAndFixNormPars(self):
         errs=""
 
 #        for modelid in self.allnormpars.keys():
@@ -475,7 +475,7 @@ class ImagerParameters():
             aline = oneline.replace('\n','')
 #            aline = oneline.replace(' ','').replace('\n','')
             if len(aline)>0 and aline.find('#')!=0:
-                parpair = aline.split("=")  
+                parpair = aline.split("=")
                 parpair[0] = parpair[0].replace(' ','')
                 #print parpair
                 if len(parpair) != 2:
@@ -578,7 +578,7 @@ class ImagerParameters():
                     idstr = ( iname[nlen+1:len(iname)] ).split('.')[0]
                     if idstr.isdigit() :
                         val = eval(idstr)
-                        if val > maxid : 
+                        if val > maxid :
                             maxid = val
             newimagename = dirname[2:] + prefix + '_' + str(maxid+1)
 
@@ -590,7 +590,7 @@ class ImagerParameters():
         dirnames={}
         prefixes={}
 
-        for immod in list(inpnamelist.keys()) : 
+        for immod in list(inpnamelist.keys()) :
             imagename = inpnamelist[immod]
             dirname = '.'
             prefix = imagename
@@ -605,14 +605,14 @@ class ImagerParameters():
 
 
         maxid=0
-        for immod in list(inpnamelist.keys()) : 
+        for immod in list(inpnamelist.keys()) :
             prefix = prefixes[immod]
             inamelist = [fn for fn in os.listdir(dirnames[immod]) if any([fn.startswith(prefix)])];
             nlen = len(prefix)
 
-            if len(inamelist)==0 : 
+            if len(inamelist)==0 :
                 locmax=0
-            else: 
+            else:
                 locmax=1
 
             cleanext = ['.image','.residual','.model','.psf','.sumwt','.tt0']
@@ -626,28 +626,28 @@ class ImagerParameters():
                         if idstr.isdigit() :
                             val = eval(idstr)
                             incremented=True
-                            if val > locmax : 
+                            if val > locmax :
                                 locmax = val
                     elif startind==-1:
                         if ext=='.tt0':
-                           # need one more pass to extract rootname 
+                           # need one more pass to extract rootname
                            rootname,ext = os.path.splitext(rootname)
                         if rootname==prefix:
                             # the file name with root file name only
                             incremented=True
-                             
-            if not incremented: 
-                locmax = 0; 
+
+            if not incremented:
+                locmax = 0;
             if locmax > maxid:
                 maxid = locmax
 
-        
+
         newimagenamelist={}
-        for immod in list(inpnamelist.keys()) : 
-            if maxid==0 : 
+        for immod in list(inpnamelist.keys()) :
+            if maxid==0 :
                 newimagenamelist[immod] = inpnamelist[immod]
             else:
-                newimagenamelist[immod] = dirnames[immod][2:] + prefixes[immod] + '_' + str(maxid+1) 
+                newimagenamelist[immod] = dirnames[immod][2:] + prefixes[immod] + '_' + str(maxid+1)
 
 #        print 'Input : ',  inpnamelist
 #        print 'Dirs : ', dirnames

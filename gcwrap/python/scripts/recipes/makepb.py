@@ -13,15 +13,15 @@ from tasks import imregrid
 from numpy import fabs
 
 def makePB(vis='',field='',spw='',timerange='',uvrange='',antenna='',observation='',intent='',scan='', imtemplate='',outimage='',pblimit=0.2):
-    
-    """ Make a PB image using the imager tool, onto a specified image coordinate system 
+
+    """ Make a PB image using the imager tool, onto a specified image coordinate system
 
          This function can be used along with tclean to make .pb images for gridders that
          do not already do it (i.e. other than mosaic, awproject)
 
-         This script takes an image to use as a template coordinate system, 
-         attempts to set up an identical coordinate system with the old imager tool, 
-         makes a PB for the telescope listed in the MS observation subtable, and 
+         This script takes an image to use as a template coordinate system,
+         attempts to set up an identical coordinate system with the old imager tool,
+         makes a PB for the telescope listed in the MS observation subtable, and
          regrids it (just in case) to the target coordinate system). This can be used for
          single fields and mosaics.
 
@@ -76,16 +76,16 @@ def makePB(vis='',field='',spw='',timerange='',uvrange='',antenna='',observation
     im.close()
 
     if mfreqref == 64: # skip this step if the frame is 'Undefined'
- 
+
         shutil.copytree(outimage+'.tmp', outimage)
-   
+
     else:
-    
+
         print('MAKEPB : Regrid to desired coordinate system')
-    
+
         imregrid(imagename=outimage+'.tmp', template=imtemplate,output=outimage,overwrite=True,asvelocity=False)
 
-    
+
 
     shutil.rmtree(outimage+'.tmp')
 

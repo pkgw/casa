@@ -260,7 +260,7 @@ def imagedemo():
         note(e, "SEVERE")
         raise RuntimeError("Failed to make directory " + demodir)
     #
-    # Manufacture some data   
+    # Manufacture some data
     #
     nx = 10; ny = 20; nz = 5
     data = ia.makearray(0, [nx,ny,nz])
@@ -713,9 +713,9 @@ def imagetest(which=None, size=[32,32,8]):
         history2 = myim2.history(False);
         #Behaviour of history logged in FITS changed (2007/10/02)
         #Grab just the messages (indices 2, 4, 6, ...)
-	#
-	# funny things are happening here with move to casacore
-	#
+        #
+        # funny things are happening here with move to casacore
+        #
         history3=[]
         for i in range(len(history2)/2 - 1):
             history3.append(history2[2*(i+1)])
@@ -749,12 +749,12 @@ def imagetest(which=None, size=[32,32,8]):
         if not cs2:
             fail('coordsys 1 failed in coordcheck')
         shape2=[]
-	tmp = im1.shape()
-	print(tmp)
+        tmp = im1.shape()
+        print(tmp)
         for i in axes:
             shape2.append(tmp[i])
-	    print(tmp[i])
-	print('shape2 is ', type(shape2), shape2)
+            print(tmp[i])
+        print('shape2 is ', type(shape2), shape2)
         ok = ia.fromshape(imname, shape2, cs2.torecord())
         if not ok:
             fail('ia.fromshape 1 failed in coordcheck');
@@ -947,7 +947,7 @@ def imagetest(which=None, size=[32,32,8]):
         # Do histograms
         info('Find histograms')
         ok = man.histograms()
-	print(ok)
+        print(ok)
         if not ok: fail()
         stuff = ok['counts']
         info('')
@@ -1050,7 +1050,7 @@ def imagetest(which=None, size=[32,32,8]):
         padshape = [imshape[0]+2,imshape[1]+2,imshape[2]+2]
         man3 = ia.newimagefromshape(shape=padshape)
         stats1 = man3.statistics()
-        ok = man3.insert(infile=man.name(False), locate=[2,2,2]) 
+        ok = man3.insert(infile=man.name(False), locate=[2,2,2])
         if not ok:
             stop('insert 1 fails')
         stats2 = man3.statistics()
@@ -1162,7 +1162,7 @@ def imagetest(which=None, size=[32,32,8]):
         #
         return cleanup(testdir)
 
-        
+
     def test2():
         #
         # Test constructors
@@ -1222,14 +1222,14 @@ def imagetest(which=None, size=[32,32,8]):
             stop('Delete 1 of', imname, ' failed')
 
         #
-	try:
+        try:
            note('Expect SEVERE error here')
            myim = ia.newimagefromshape(shape=[10,20], csys='xyz')
            if myim and myim.name()!="none":
                stop('ia.fromshape constructor 4 unexpectedly did not fail')
            else:
                note('Expected SEVERE error occurred')
-	except Exception as e:
+        except Exception as e:
             note('Caught expected Exception')
             myim = False
         myim = ia.newimagefromshape(shape=[10,20], csys=csys.torecord())
@@ -1288,7 +1288,7 @@ def imagetest(which=None, size=[32,32,8]):
 
         ###
         return cleanup(testdir)
-        
+
     def test3():
         info('')
         info('')
@@ -1340,11 +1340,11 @@ def imagetest(which=None, size=[32,32,8]):
             stop('Delete 1 of '+imname+' failed')
         #
         note('Expect SEVERE error here')
-	try :
+        try :
            myim = ia.newimagefromarray(outfile=imname, pixels=data, csys='xyz')
            if myim.isopen():
                stop('ia.fromarray constructor 3 unexpectedly did not fail')
-	except Exception as e :
+        except Exception as e :
             note('Caught expected Exception')
 
         myim = ia.newimagefromarray(pixels=data, csys=csys.torecord())
@@ -1364,7 +1364,7 @@ def imagetest(which=None, size=[32,32,8]):
         ###
         return cleanup(testdir)
 
-        
+
     def test4():
         info('')
         info('')
@@ -1430,7 +1430,7 @@ def imagetest(which=None, size=[32,32,8]):
         ###
         return cleanup(testdir)
 
-        
+
     def test5():
         info('')
         info('')
@@ -1511,7 +1511,7 @@ def imagetest(which=None, size=[32,32,8]):
         if not myim.done(): fail()
         ###
         return cleanup(testdir)
-        
+
     def test6():
         info('')
         info('')
@@ -1589,7 +1589,7 @@ def imagetest(which=None, size=[32,32,8]):
 
         ###
         return cleanup(testdir)
-        
+
     def test7():
         #
         # Test  constructors
@@ -1831,7 +1831,7 @@ def imagetest(which=None, size=[32,32,8]):
         ok = myim.unlock()
         if not ok:
             stop('Unlock failed (1)')
-	ok = myim.haslock()
+        ok = myim.haslock()
         if not len(ok):
             stop('haslock failed (2)')
         if (ok[0]!=False or ok[1]!=False):
@@ -1861,7 +1861,7 @@ def imagetest(which=None, size=[32,32,8]):
         info('          shape, name, rename,  ')
         info('          delete, persistent    ')
         info('-------')
-        
+
         # Make the directory
         testdir = 'imagetest_temp'
         if not cleanup(testdir):
@@ -2363,7 +2363,7 @@ def imagetest(which=None, size=[32,32,8]):
             if not ok:
                 stop('Done 1 fails')
         return cleanup(testdir)
-    
+
     def test13():
         # Test methods
         #   getregion, putregion, set, replacemaskedpixels
@@ -2637,11 +2637,11 @@ def imagetest(which=None, size=[32,32,8]):
                 stop('putregion 9 failed')
             pixels = ia.makearray(0.0, [sh[0], sh[1]])
             # Pad with degenerate axes
-	    print(sh)
-	    print("shape", sh[0], sh[1])
-	    print(type(sh[0]))
-	    print(type(sh[1]))
-	    print("pixels", pixels)
+            print(sh)
+            print("shape", sh[0], sh[1])
+            print(type(sh[0]))
+            print(type(sh[1]))
+            print("pixels", pixels)
             ok = myim.putregion(pixels=pixels, usemask=False)
             if not ok:
                 stop('putregion 10 failed')
@@ -2759,11 +2759,11 @@ def imagetest(which=None, size=[32,32,8]):
             ok = myim.set()
             if ok:
                 stop('set 3 unexpectedly did not fail')
-	    try :
+            try :
                note('Expect Warning message here')
                ok = myim.set(region='doggies')
-	    except Exception as e:
-	       ok = False
+            except Exception as e:
+               ok = False
             if ok:
                 stop('set 4 unexpectedly did not fail')
             try:
@@ -3232,7 +3232,7 @@ def imagetest(which=None, size=[32,32,8]):
         ok = myim.done()
         if not ok:
             stop('Done 2 fails')
-            
+
         ###
         return cleanup(testdir)
 
@@ -3632,7 +3632,7 @@ def imagetest(which=None, size=[32,32,8]):
         ok = myim.putchunk(pixels)
         if not ok:
             stop('putchunk 1 failed')
-        # 
+        #
         try:
             note('Expect SEVERE error and Exception here - 1')
             kernel = ia.makearray(0.0,[3,3])
@@ -4455,7 +4455,7 @@ def imagetest(which=None, size=[32,32,8]):
         if not myim2: stop('convolve2d 4 failed')
         if not myim2.done(): stop ('done 4 failed')
         if not myim.done(): stop('done 5 failed')
-        """ 
+        """
         I have no idea why anyone would want to do this, this is nonsensical and
         even though convolve2d() used to complete with these parameters, the resulting
         image had no meaning. convolve2d() does not work correctly for non-square pixels,
@@ -4649,7 +4649,7 @@ def imagetest(which=None, size=[32,32,8]):
         f1 = 100.0
         cl1 = gaussian(f1, qmaj, qmin, qpa, dir=d1)
         if not cl1: fail()
-	cl1Point = cltool()
+        cl1Point = cltool()
         cl1Point.simulate(1)
         ok = cl1Point.setflux(0, cl1.getfluxvalue(0))
         if not ok: fail()
@@ -4950,7 +4950,7 @@ def imagetest(which=None, size=[32,32,8]):
         if not ok: fail()
         #
         return cleanup(testdir)
-           
+
     def test34():
         info('')
         info('')
@@ -5189,7 +5189,7 @@ def imagetest(which=None, size=[32,32,8]):
         info('')
         info('')
         info('Test 39 - fitprofile')
-        y = [ 
+        y = [
             8.30588e-19,1.16698e-17,1.50353e-16,1.77636e-15,1.92451e-14,
             1.91198e-13,1.74187e-12,1.45519e-11,1.1148e-10,7.83146e-10,
             5.045e-09,2.98023e-08,1.6144e-07,8.01941e-07,3.65297e-06,
@@ -5326,7 +5326,7 @@ def imagetest(which=None, size=[32,32,8]):
     print('')
     print('Regression PASSED')
     print('')
-    
+
 imagedemo()
 
 Benchmarking = True

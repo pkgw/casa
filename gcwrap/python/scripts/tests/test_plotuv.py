@@ -22,21 +22,21 @@ class plotuv_test(unittest.TestCase):
     def setUp(self):
         self.res = None
         default(plotuv)
-    
+
     def tearDown(self):
         pass
-        
+
     def test0(self):
        '''Test 0: Default parameters'''
        self.res = plotuv()
-       self.assertFalse(self.res)  
-       
+       self.assertFalse(self.res)
+
     def test1(self):
         '''Test 1: Bad input file'''
         msfile = 'badfile'
         self.res = plotuv(vis=msfile)
         self.assertFalse(self.res)
-        
+
     def test2(self):
         '''Test 2: Good input file and output exists'''
         if os.uname()[0] == "Darwin" and \
@@ -51,13 +51,13 @@ class plotuv_test(unittest.TestCase):
             expfig = '.'.join(expfigparts[:-1]) + '_fld0.' + expfigparts[-1]
             self.assertTrue(os.path.exists(expfig))
             os.unlink(expfig)
-        
+
 def suite():
     return [plotuv_test]
 
-        
-        
-        
-        
-        
+
+
+
+
+
 

@@ -32,7 +32,7 @@ def importuvfits(fitsfile, vis, antnamescheme=None):
             casalog.post("")
             myms.fromfits(vis, fitsfile, antnamescheme=antnamescheme)
             myms.close()
-        except Exception as instance: 
+        except Exception as instance:
             casalog.post( str( '*** Error ***') + str(instance), 'SEVERE')
             raise
         # Write the args to HISTORY.
@@ -41,7 +41,7 @@ def importuvfits(fitsfile, vis, antnamescheme=None):
                 importuvfits.__code__.co_varnames[:importuvfits.__code__.co_argcount]
             param_vals = [eval(p) for p in param_names]
             write_history(
-                myms, vis, 'importuvfits', param_names, 
+                myms, vis, 'importuvfits', param_names,
                 param_vals, casalog
             )
         except Exception as instance:
@@ -51,6 +51,6 @@ def importuvfits(fitsfile, vis, antnamescheme=None):
     finally:
         if (myms):
             #myms.close()
-            del myms 
+            del myms
 
 

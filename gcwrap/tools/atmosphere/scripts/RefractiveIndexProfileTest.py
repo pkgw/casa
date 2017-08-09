@@ -31,12 +31,12 @@ at.initSpectralWindow(nb,fC,fW,fR)
 do=at.getDryOpacitySpec()
 rchan=at.getRefChan()
 print()
-print("Total Dry Opacity at ", fC['value'][0], fC['unit'], " for 1.0 air mass: ", at.getDryOpacity()) 
+print("Total Dry Opacity at ", fC['value'][0], fC['unit'], " for 1.0 air mass: ", at.getDryOpacity())
 print()
 print("Total Dry Cont Opacity at ", fC['value'][0], fC['unit'], " for 1.0 air mass: ", at.getDryContOpacity())
-print("Total O2 lines Opacity at ", fC['value'][0], fC['unit'], " for 1.0 air mass: ", at.getO2LinesOpacity()) 
-print("Total O3 lines Opacity at ", fC['value'][0], fC['unit'], " for 1.0 air mass: ", at.getO3LinesOpacity()) 
-print("Total CO lines Opacity at ", fC['value'][0], fC['unit'], " for 1.0 air mass: ", at.getCOLinesOpacity()) 
+print("Total O2 lines Opacity at ", fC['value'][0], fC['unit'], " for 1.0 air mass: ", at.getO2LinesOpacity())
+print("Total O3 lines Opacity at ", fC['value'][0], fC['unit'], " for 1.0 air mass: ", at.getO3LinesOpacity())
+print("Total CO lines Opacity at ", fC['value'][0], fC['unit'], " for 1.0 air mass: ", at.getCOLinesOpacity())
 print("Total N2O lines Opacity at ", fC['value'][0], fC['unit'], " for 1.0 air mass: ", at.getN2OLinesOpacity())
 print()
 wo=at.getWetOpacitySpec()
@@ -72,7 +72,7 @@ print("New ground temperature:", new_tmp['value'], new_tmp['unit'])
 print(at.updateAtmProfile(alt, new_tmp, pre, hum, wvl, h0))
 print("Absorption Profile with this new temperature.  Summary of results:")
 do=at.getDryOpacitySpec()
-print("Total Dry Opacity at ", fC['value'][0], fC['unit'], " for 1.0 air mass: ", at.getDryOpacity()) 
+print("Total Dry Opacity at ", fC['value'][0], fC['unit'], " for 1.0 air mass: ", at.getDryOpacity())
 wo=at.getWetOpacitySpec()
 print("Total Wet Opacity at ", fC['value'][0], fC['unit'], " for 1.0 air mass: ", at.getWetOpacity()['value'][0] / w['value'][0], at.getWetOpacity()['unit'])
 print("Total Dispersive Delay at ", fC['value'][0], fC['unit'], " for 1.0 air mass: ", at.getDispersivePathLength()['value'][0] /  w['value'][0], " meters per mm of water vapor")
@@ -92,21 +92,21 @@ print("There are now ", numSpw, " spectral windows")
 print("Absorption profiles including this new spectral window.  Summary of results:")
 print("Total Dry Opacity at ", fC['value'][0], fC['unit'], " GHz for 1.0 air mass: ", at.getDryOpacity())
 for spwid in range(numSpw):
-	numCh = at.getNumChan(spwid)
-	print("Spectral window ", spwid, " has ", numCh, " frequency channels")
-	for n in range(numCh):
-		freq = at.getChanFreq(n, spwid)
-		print("Total Wet Opacity at ", freq['value'][0], freq['unit'], " for 1.0 air mass: ", at.getWetOpacity(n,spwid)['value'][0] / w['value'][0], at.getWetOpacity()['unit'])
-		#print "Total Dispersive Delay at ", freq['value'][0], freq['unit'], " for 1.0 air mass: ", (at.getDispersivePathLength(n,spwid)['value'][0])/(w['value'][0]), " meters per mm of water vapor (", ((100*at.getDispersivePathLength(n,spwid)['value'][0])/(w['value'][0]))/(at.getNonDispersivePathLength(n,spwid)['value'][0]/w['value'][0]), "% of the Non-dispersive one )"
-		#print "Total Dispersive Phase Delay at ", freq['value'][0], freq['unit'], " for 1.0 air mass: ", (at.getDispersivePhaseDelay(n,spwid)['value'][0])/(w['value'][0]), " degrees per mm of water vapor (", ((100*at.getDispersivePhaseDelay(n,spwid)['value'][0])/(w['value'][0]))/(at.getNonDispersivePhaseDelay(n,spwid)['value'][0]/w['value'][0]), "% of the Non-dispersive one )"
-		print("(your actual water vapor column is ", w['value'][0], w['unit'], " of water vapor).")
-		print("")
+        numCh = at.getNumChan(spwid)
+        print("Spectral window ", spwid, " has ", numCh, " frequency channels")
+        for n in range(numCh):
+                freq = at.getChanFreq(n, spwid)
+                print("Total Wet Opacity at ", freq['value'][0], freq['unit'], " for 1.0 air mass: ", at.getWetOpacity(n,spwid)['value'][0] / w['value'][0], at.getWetOpacity()['unit'])
+                #print "Total Dispersive Delay at ", freq['value'][0], freq['unit'], " for 1.0 air mass: ", (at.getDispersivePathLength(n,spwid)['value'][0])/(w['value'][0]), " meters per mm of water vapor (", ((100*at.getDispersivePathLength(n,spwid)['value'][0])/(w['value'][0]))/(at.getNonDispersivePathLength(n,spwid)['value'][0]/w['value'][0]), "% of the Non-dispersive one )"
+                #print "Total Dispersive Phase Delay at ", freq['value'][0], freq['unit'], " for 1.0 air mass: ", (at.getDispersivePhaseDelay(n,spwid)['value'][0])/(w['value'][0]), " degrees per mm of water vapor (", ((100*at.getDispersivePhaseDelay(n,spwid)['value'][0])/(w['value'][0]))/(at.getNonDispersivePhaseDelay(n,spwid)['value'][0]/w['value'][0]), "% of the Non-dispersive one )"
+                print("(your actual water vapor column is ", w['value'][0], w['unit'], " of water vapor).")
+                print("")
 print("=====================")
 for spwid in range(numSpw):
-	numCh = at.getNumChan(spwid)
-	print("Spectral window ", spwid, " has ", numCh, " frequency channels")
-	for n in range(numCh):
-		freq = at.getChanFreq(n, spwid)
-		#print "Total Dispersive Phase Delay at ", freq['value'][0], freq['unit'], " for 1.0 air mass: ", (at.getDispersivePhaseDelay(n,spwid)['value'][0])/(w['value'][0]), " degrees per mm of water vapor (", ((100*at.getDispersivePhaseDelay(n,spwid)['value'][0])/(w['value'][0]))/(at.getNonDispersivePhaseDelay(n,spwid)['value'][0]/w['value'][0]), "% of the Non-dispersive one )"
-		print("")
+        numCh = at.getNumChan(spwid)
+        print("Spectral window ", spwid, " has ", numCh, " frequency channels")
+        for n in range(numCh):
+                freq = at.getChanFreq(n, spwid)
+                #print "Total Dispersive Phase Delay at ", freq['value'][0], freq['unit'], " for 1.0 air mass: ", (at.getDispersivePhaseDelay(n,spwid)['value'][0])/(w['value'][0]), " degrees per mm of water vapor (", ((100*at.getDispersivePhaseDelay(n,spwid)['value'][0])/(w['value'][0]))/(at.getNonDispersivePhaseDelay(n,spwid)['value'][0]/w['value'][0]), "% of the Non-dispersive one )"
+                print("")
 exit()

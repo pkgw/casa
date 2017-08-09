@@ -6,7 +6,7 @@ def cl2skycat(componentlist='', skycat=''):
     """
     Converts a componentlist dictionary or componnent list file on disk
     to  a skycatalog to overlay on image in the viewer
-    
+
     """
     qa=c.quanta
     cl=c.casac.componentlist()
@@ -51,6 +51,6 @@ def cl2skycat(componentlist='', skycat=''):
     c.table.putcol('Lat', lati)
     c.table.putcol('FluxValue', fluxval)
     c.table.putcolkeyword(columnname='Long', keyword='UNIT', value='deg')
-    c.table.putcolkeyword(columnname='Lat', keyword='UNIT', value='deg')                     
+    c.table.putcolkeyword(columnname='Lat', keyword='UNIT', value='deg')
     c.table.putinfo({'type':'Skycatalog'})
     c.table.done()

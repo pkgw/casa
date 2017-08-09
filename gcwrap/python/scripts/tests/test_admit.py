@@ -197,7 +197,7 @@ class admit_test_Project(admit_test_base):
         task = admit.Flow11_AT()
         task.setkey("file", "Flow11.dat")
         tid2 = self.project.addtask(task, [(tid1,0)])
- 
+
         keyfile = '/tmp/test_showsetkeys.%s' % os.getpid()
         self.project.showsetkey(keyfile)
         self.assertTrue(os.path.isfile(keyfile))
@@ -297,7 +297,7 @@ class admit_test_Project(admit_test_base):
         self.assertEqual(task2._stale, True)
 
 # -----------------------------------------------------------------------
- 
+
 class admit_test_AT(admit_test_base):
     """ Test basic Admit Task (AT) class functionality """
     # admit/admit/test/unittest_AT.py
@@ -313,18 +313,18 @@ class admit_test_AT(admit_test_base):
         at = AT({'alias': 'b'})
         bdpout = len(at)
         self.assertEqual(bdpout, 0)  ## should have no output bdp
- 
+
     def test_AT_len2(self):
         """ test AT len2() """
         at = AT({'alias': 'c'})
         tuple = at.len2() # bdp_in and bdp_out tuple
         self.assertEqual(tuple, (0,0))  ## should be (0,0)
- 
+
     def test_AT_version(self):
         """ test AT _version """
         at = AT({'alias': 'd'})
         self.assertEqual(at._version, '0.0.0')
- 
+
     def test_AT_logginglevel(self):
         """ test AT setlogginglevel and getlogginglevel methods """
         # CRITICAL    50
@@ -333,7 +333,7 @@ class admit_test_AT(admit_test_base):
         level = at.getlogginglevel()
         self.assertEqual(level, 50)
         self.assertEqual(level, logging.CRITICAL)
- 
+
     def test_AT_effectivelevel(self):
         """ test AT seteffectivelevel and geteffectivelevel methods """
         at = AT({'alias': 'f'})
@@ -356,7 +356,7 @@ class admit_test_AT(admit_test_base):
         self.assertEqual(basedir, "/tmp/")
         fullpath = at.dir("test.test")
         self.assertEqual(fullpath, "/tmp/test.test")
- 
+
     def test_AT_mkext(self):
         """ test AT mkext() """
         at = AT({'alias': 'k'})
@@ -367,7 +367,7 @@ class admit_test_AT(admit_test_base):
         self.assertEqual(t1, "x-k.z")
         self.assertEqual(t2, "x-k.z")
         self.assertEqual(t3, "x-a.z")
- 
+
     def test_AT_enabled(self):
         """ test AT enabled() """
         at = AT({'alias': 'm'})
@@ -381,13 +381,13 @@ class admit_test_AT(admit_test_base):
 
         at.markUpToDate()
         self.assertFalse(at.isstale())
- 
+
     def test_AT_markChanged(self):
         """ test AT markChanged() """
         at = AT({'alias': 'p'})
         at.markChanged()
         self.assertTrue(at._stale)
- 
+
     def test_AT_projectID(self):
         """ test AT setProject(), getProject(), id() """
         at = AT({'alias': 'q'})
@@ -399,7 +399,7 @@ class admit_test_AT(admit_test_base):
         self.assertEqual(at.getProject(), 2)
         # now strip out the project id from _taskid
         self.assertEqual(at.id(True), tid)
- 
+
     def test_AT_mkdir(self):
         """ test AT mkdir() """
         at = AT({'alias': 's'})
@@ -408,7 +408,7 @@ class admit_test_AT(admit_test_base):
         at.mkdir(tmpdir)
         self.assertTrue(os.path.exists(tmpdir))
         os.rmdir(tmpdir)
- 
+
         # test with relative path
         basedir = at.baseDir("/tmp/")
         tail = "test2_%d" % os.getpid()
@@ -416,7 +416,7 @@ class admit_test_AT(admit_test_base):
         at.mkdir(tail)
         self.assertTrue(os.path.exists(tmpdir))
         os.rmdir(tmpdir)
- 
+
     def test_AT_key(self):
         """ test AT setkey(), getkey(), and haskey() """
         at = AT({'alias': 't', 'test_key': 'at_test'})
@@ -434,11 +434,11 @@ class admit_test_AT(admit_test_base):
 
         # test getkey()
         self.assertEqual(at.getkey(key), "TEST")
- 
+
         # test {key:val} way of setting a key
         at.setkey(name={key:"TEST2"})
         self.assertEqual(at.getkey(key), "TEST2")
- 
+
     def test_AT_isAutoAlias(self):
         """ test AT isAutoAlias() """
         at = AT()
@@ -466,7 +466,7 @@ class admit_test_AT(admit_test_base):
         bdp = BDP()
         # should be None without raising an exception
         self.assertIsNone(at.checktype(bdp))
-    
+
     # test set_bdp_in, addinput, clearinput, set_bdp_out
     # addoutput, clearoutput, __contains__, __iter__, __getitem__
     def test_AT_bdp(self):
@@ -477,17 +477,17 @@ class admit_test_AT(admit_test_base):
         # input bdp
         at.set_bdp_in([(BDP,1, bt.REQUIRED)])
         self.assertEqual(len(at._bdp_in), 1)
- 
+
         at.clearinput()
         self.assertIsNone(at._bdp_in[0])
- 
+
         at.addinput(BDP())
         self.assertIsNotNone(at._bdp_in[0])
-         
+
         # output bdp
         at.set_bdp_out([(BDP,1)])
         self.assertEqual(len(at._bdp_out), 1)
- 
+
         # test clearoutput
         at.clearoutput()
         self.assertIsNone(at._bdp_out[0])
@@ -512,7 +512,7 @@ class admit_test_AT(admit_test_base):
         self.assertIsInstance(item1, admit.File_BDP)
 
 # -----------------------------------------------------------------------
- 
+
 class admit_test_FM(admit_test_base2):
     """ Test basic Admit Flow Manager (FM) functionality """
     # admit/admit/test/unittest_FM.py
@@ -576,7 +576,7 @@ class admit_test_FM(admit_test_base2):
         # check class types of the tasks
         self.assertIsInstance(tasks[0], admit.File_AT)
         self.assertIsInstance(tasks[1], admit.FlowMN_AT)
- 
+
         # check the number of tasks
         self.assertEqual(len(fm), 2)
 
@@ -713,7 +713,7 @@ class admit_test_FM(admit_test_base2):
             os.remove(scriptfile)
 
 # -----------------------------------------------------------------------
- 
+
 class admit_test_multiflow(admit_test_base2):
     """ Test Admit multiflow project manager """
     # admit/admit/test/unittest_multiflow1.py
@@ -775,7 +775,7 @@ class admit_test_multiflow(admit_test_base2):
         mflow.run()
 
 # -----------------------------------------------------------------------
- 
+
 def suite():
     if admit_import:
         return [admit_test_Project,
@@ -784,5 +784,5 @@ def suite():
                 admit_test_multiflow
                ]
     else:
-        return [] 
- 
+        return []
+

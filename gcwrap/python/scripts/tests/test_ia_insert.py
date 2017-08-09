@@ -46,20 +46,20 @@
 #
 # <synopsis>
 # Test the ia.insert() tool method
-# </synopsis> 
+# </synopsis>
 #
 # <example>
 #
 # This test runs as part of the CASA python unit test suite and can be run from
 # the command line via eg
-# 
+#
 # `echo $CASAPATH/bin/casa | sed -e 's$ $/$'` --nologger --log2term -c `echo $CASAPATH | awk '{print $1}'`/code/xmlcasa/scripts/regressions/admin/runUnitTest.py test_ia_insert[test1,test2,...]
 #
 # </example>
 #
 # <motivation>
 # To provide a test standard for the ia.insert() tool method to ensure
-# coding changes do not break the associated bits 
+# coding changes do not break the associated bits
 # </motivation>
 #
 
@@ -73,13 +73,13 @@ import unittest
 import numpy
 
 class ia_insert_test(unittest.TestCase):
-    
+
     def setUp(self):
         self.ia = iatool()
-    
+
     def tearDown(self):
         self.assertTrue(len(tb.showcache()) == 0)
-    
+
     def test_insert(self):
         """ ia.insert(): Test insert()"""
         myia = self.ia
@@ -113,8 +113,8 @@ class ia_insert_test(unittest.TestCase):
         self.assertTrue(myia.insert(infile=insert))
         msgs = myia.history()
         myia.done()
-        self.assertTrue("ia.insert" in msgs[-2]) 
+        self.assertTrue("ia.insert" in msgs[-2])
         self.assertTrue("ia.insert" in msgs[-1])
-   
+
 def suite():
     return [ia_insert_test]
