@@ -148,7 +148,7 @@ if doplot:
    #sd.plotter.axhline(color='r',linewidth=2) # zline                                       # zline
    sdplotold()
 else:
-   print "Plotting the result is skipped."
+   print("Plotting the result is skipped.")
 
 # statistics
 default(sdstatold)
@@ -212,37 +212,37 @@ datestring = datetime.datetime.isoformat(datetime.datetime.today())
 outfile = 'irc.cs.task'+datestring+'.log'
 logfile = open(outfile,'w')
 
-print >>logfile,''
-print >>logfile,'********** Regression ***********'
-print >>logfile,'*                               *'
-if (diff_max < 0.05): print >>logfile,'* Passed spectrum max test '
-print >>logfile,'*  Spectrum max '+str(curr_max)
-if (diff_rms < 0.05): print >>logfile,'* Passed spectrum rms test '
-print >>logfile,'*  Spectrum rms '+str(curr_rms)
-if (diff_sum < 0.05): print >>logfile,'* Passed spectrum (line) sum test'
-print >>logfile,'*  Line integral '+str(curr_sum)
+print('', file=logfile)
+print('********** Regression ***********', file=logfile)
+print('*                               *', file=logfile)
+if (diff_max < 0.05): print('* Passed spectrum max test ', file=logfile)
+print('*  Spectrum max '+str(curr_max), file=logfile)
+if (diff_rms < 0.05): print('* Passed spectrum rms test ', file=logfile)
+print('*  Spectrum rms '+str(curr_rms), file=logfile)
+if (diff_sum < 0.05): print('* Passed spectrum (line) sum test', file=logfile)
+print('*  Line integral '+str(curr_sum), file=logfile)
 if ((diff_max<0.05) & (diff_rms<0.05) & (diff_sum<0.05)):
 	regstate = True
-        print ''
-        print 'Regression PASSED'
-        print ''
-        print >>logfile,'---'
-        print >>logfile,'Passed Regression test for IRC-CS'
-        print >>logfile,'---'
+        print('')
+        print('Regression PASSED')
+        print('')
+        print('---', file=logfile)
+        print('Passed Regression test for IRC-CS', file=logfile)
+        print('---', file=logfile)
 else:
 	regstate = False
-        print ''
-        print 'Regression FAILED'
-        print ''
-        print >>logfile,'----FAILED Regression test for IRC-CS'
-print >>logfile,'*********************************'
+        print('')
+        print('Regression FAILED')
+        print('')
+        print('----FAILED Regression test for IRC-CS', file=logfile)
+print('*********************************', file=logfile)
 
-print >>logfile,''
-print >>logfile,''
-print >>logfile,'********* Benchmarking *****************'
-print >>logfile,'*                                      *'
-print >>logfile,'Total wall clock time was: '+str(endTime - startTime)
-print >>logfile,'Total CPU        time was: '+str(endProc - startProc)
+print('', file=logfile)
+print('', file=logfile)
+print('********* Benchmarking *****************', file=logfile)
+print('*                                      *', file=logfile)
+print('Total wall clock time was: '+str(endTime - startTime), file=logfile)
+print('Total CPU        time was: '+str(endProc - startProc), file=logfile)
 #print 'Processing rate MB/s  was: ', 35.1/(endTime - startTime)
 
 logfile.close()

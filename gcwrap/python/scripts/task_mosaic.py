@@ -26,7 +26,7 @@ def mosaic(vis,imagename,mode,alg,imsize,cell,phasecenter,stokes,niter,gain,thre
 		imMos=imtool()
 		casalog.origin('mosaic')
 		if((len(imagename)==0) or (imagename.isspace())):
-			raise Exception, 'Cannot proceed with blank imagename'
+			raise Exception('Cannot proceed with blank imagename')
                 if (field==''):
                         field='*'
 
@@ -40,7 +40,7 @@ def mosaic(vis,imagename,mode,alg,imsize,cell,phasecenter,stokes,niter,gain,thre
 					if(len(ms.msseltoindex(vis, field=phasecenter)['field']) > 0):
 						tmppc=ms.msseltoindex(vis, field=phasecenter)['field'][0]
 					##succesful must be string like '0' or 'NGC*'
-				except Exception, instance:
+				except Exception as instance:
 					##failed must be a string 'J2000 18h00m00 10d00m00'
 					tmppc=phasecenter
 				phasecenter=tmppc
@@ -55,7 +55,7 @@ def mosaic(vis,imagename,mode,alg,imsize,cell,phasecenter,stokes,niter,gain,thre
                 if ((type(vis)==str) & (os.path.exists(vis))):
                         imMos.open(vis, usescratch=mosweight)
                 else:
-                        raise Exception, 'Visibility data set not found - please verify the name'
+                        raise Exception('Visibility data set not found - please verify the name')
 		imMos.setvp(dovp=True)
                 if ((type(imsize)==int)):
                         imsize=[imsize,imsize]
@@ -73,24 +73,24 @@ def mosaic(vis,imagename,mode,alg,imsize,cell,phasecenter,stokes,niter,gain,thre
 			celly=qa.quantity(cell[1], 'arcsec')
 
 
-		print 'phasecenter= ', phasecenter
+		print('phasecenter= ', phasecenter)
 		#parameter_printvalues(arg_names,arg_values,arg_types)
 		if(mode=='frequency'):
 			##check that start and step have units
 			if(qa.quantity(start)['unit'].find('Hz') < 1):
-				raise TypeError, "start parameter is not a valid frequency quantity "
+				raise TypeError("start parameter is not a valid frequency quantity ")
 			if(qa.quantity(width)['unit'].find('Hz') < 1):
-				raise TypeError, "start parameter is not a valid frequency quantity "	
+				raise TypeError("start parameter is not a valid frequency quantity ")	
                 elif(mode=='velocity'):
                         ##check that start and step have units
                         if(qa.quantity(start)['unit'].find('m/s') < 0):
-                                raise TypeError, "start parameter is not a valid velocity quantity "
+                                raise TypeError("start parameter is not a valid velocity quantity ")
                         if(qa.quantity(width)['unit'].find('m/s') < 0):
-                                raise TypeError, "start parameter is not a valid velocity quantity "
+                                raise TypeError("start parameter is not a valid velocity quantity ")
 		else:
 			if((type(width) != int) 
 			   or (type(start) != int)):
-				raise TypeError, "start, width have to be  integers with mode %s" %mode
+				raise TypeError("start, width have to be  integers with mode %s" %mode)
 
 		imMos.defineimage(nx=imsize[0],ny=imsize[1],cellx=cellx,celly=celly,mode=mode,nchan=nchan,start=start,step=width,phasecenter=phasecenter,spw=spwindex,stokes=stokes, restfreq=restfreq)
 
@@ -117,7 +117,7 @@ def mosaic(vis,imagename,mode,alg,imsize,cell,phasecenter,stokes,niter,gain,thre
                         if setcleanbox :
                                 mask=[imagename+'.cleanbox.mask']
                                 if(os.path.exists(mask[0])):
-					print 'mask',mask[0], 'exists on disk, will add new mask to it'
+					print('mask',mask[0], 'exists on disk, will add new mask to it')
                                         casalog.post('mask '+mask[0]+' exists on disk, will add new mask to it', 'WARN')
                                 imMos.regionmask(mask=mask[0], boxes=cleanbox)
 
@@ -167,7 +167,7 @@ def mosaic(vis,imagename,mode,alg,imsize,cell,phasecenter,stokes,niter,gain,thre
 		#	ia.close()
 
 
-	except Exception, instance:
-		print '*** Error *** ',instance
-		raise Exception, instance
+	except Exception as instance:
+		print('*** Error *** ',instance)
+		raise Exception(instance)
 

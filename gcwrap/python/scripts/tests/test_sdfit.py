@@ -16,7 +16,7 @@ import asap as sd
 from sdfitold import sdfitold
 
 try:
-    import selection_syntax
+    from . import selection_syntax
 except:
     import tests.selection_syntax as selection_syntax
 
@@ -80,7 +80,7 @@ class sdfitold_unittest_base:
                 fwhm = float(s[6])
                 key = (scanno, ifno, polno)
                 #self.assertFalse(result.has_key(key))
-                if result.has_key(key):
+                if key in result:
                     result[key].extend([peak, center, fwhm])
                 else:
                     result[key] = [peak, center, fwhm]
@@ -106,8 +106,8 @@ class sdfitold_unittest_base:
         tol = 1.0e-4
         properties = ['peak', 'cent', 'fwhm']
         nprop = len(properties)
-        for key in expected.keys():
-            self.assertTrue(result.has_key(key),
+        for key in list(expected.keys()):
+            self.assertTrue(key in result,
                             msg='result does\'t have key %s'%(list(key)))
             e = expected[key]
             r = result[key]
@@ -115,7 +115,7 @@ class sdfitold_unittest_base:
             nr = len(r)
             self.assertEqual(nr, ne,
                              msg='%s: number of row mismatch (expected %s, actual %s)'%(list(key), ne/nprop, nr/nprop))
-            for irow in xrange(len(e)):
+            for irow in range(len(e)):
                 diff = abs((r[irow] - e[irow])/e[irow])
                 self.assertLessEqual(diff, tol,
                                      msg='%s (%s): result differ (expected %s, actual %s)'%(properties[irow % nprop], irow, e[irow], r[irow]))
@@ -440,7 +440,7 @@ class sdfitold_test_exceptions(sdfitold_unittest_base, unittest.TestCase):
             res = sdfitold(infile=self.infile_gaussian,spw='99')
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             #pos=str(e).find('Invalid spectral window selection. Selection contains no data.')
             pos=str(e).find('No valid spw.')
             self.assertNotEqual(pos,-1,
@@ -506,10 +506,10 @@ class sdfitold_selection_syntax(sdfitold_unittest_base, selection_syntax.Selecti
     def __test_result(self, infile, result_ret, result_out, rows):
         casalog.post('result=%s'%(result_ret))
         s = sd.scantable(infile, average=False)
-        self.assertTrue(self.fit_ref.has_key(infile))
+        self.assertTrue(infile in self.fit_ref)
         fit_ref = self.fit_ref[infile]
             
-        for irow in xrange(len(rows)):
+        for irow in range(len(rows)):
             row = rows[irow]
             scanno = s.getscan(row)
             ifno = s.getif(row)
@@ -520,7 +520,7 @@ class sdfitold_selection_syntax(sdfitold_unittest_base, selection_syntax.Selecti
             # check nfit
             nfit = result_ret['nfit'][0]
             self.assertEqual(nfit, len(ref))
-            for icomp in xrange(len(ref)):
+            for icomp in range(len(ref)):
                 comp = ref[icomp]
                 # check peak
                 peak = result_ret['peak'][irow][icomp][0]
@@ -533,11 +533,11 @@ class sdfitold_selection_syntax(sdfitold_unittest_base, selection_syntax.Selecti
                 fwhm = result_ret['fwhm'][irow][icomp][0]
                 self.assertEqual(fwhm, comp[2])
         
-        for (k,v) in result_out.items():
+        for (k,v) in list(result_out.items()):
             ref = fit_ref[k]
 
             self.assertEqual(len(v), 3 * len(ref))
-            for icomp in xrange(len(ref)):
+            for icomp in range(len(ref)):
                 offset = icomp * 3
                 _ref = ref[icomp]
                 # check peak
@@ -553,7 +553,7 @@ class sdfitold_selection_syntax(sdfitold_unittest_base, selection_syntax.Selecti
         test_name = self._get_test_name(regular_test)
         outfile = '.'.join([self.prefix, test_name])
         #print 'outfile=%s'%(outfile)
-        casalog.post('%s: %s'%(test_name, ','.join(['%s = \'%s\''%(params[i],exprs[i]) for i in xrange(num_param)])))
+        casalog.post('%s: %s'%(test_name, ','.join(['%s = \'%s\''%(params[i],exprs[i]) for i in range(num_param)])))
         nfit = [1,1] if infile == self.infile_duplicate else [1]
         kwargs = {'infile': infile,
                   'nfit': nfit,
@@ -562,7 +562,7 @@ class sdfitold_selection_syntax(sdfitold_unittest_base, selection_syntax.Selecti
                   'outfile': outfile,
                   'overwrite': True}
         
-        for i in xrange(num_param):
+        for i in range(num_param):
             kwargs[params[i]] = exprs[i]
 
         regular_test = False
@@ -1114,8 +1114,8 @@ class sdfitold_average(sdfitold_unittest_base, unittest.TestCase):
         tol = 1.0e-4
         properties = ['peak', 'cent', 'fwhm']
         nprop = len(properties)
-        for key in expected.keys():
-            self.assertTrue(result.has_key(key),
+        for key in list(expected.keys()):
+            self.assertTrue(key in result,
                             msg='result does\'t have key %s'%(list(key)))
             e = expected[key]
             r = result[key]
@@ -1123,7 +1123,7 @@ class sdfitold_average(sdfitold_unittest_base, unittest.TestCase):
             nr = len(r)
             self.assertEqual(nr, ne,
                              msg='%s: number of row mismatch (expected %s, actual %s)'%(list(key), ne/nprop, nr/nprop))
-            for irow in xrange(len(e)):
+            for irow in range(len(e)):
                 diff = abs((r[irow] - e[irow])/e[irow])
                 self.assertLessEqual(diff, tol,
                                      msg='%s (%s): result differ (expected %s, actual %s)'%(properties[irow % nprop], irow, e[irow], r[irow]))
@@ -1201,14 +1201,14 @@ class sdfitold_flag(sdfitold_unittest_base, unittest.TestCase):
 
     def _run_test(self, refdata, **kwargs):
         # construct task parameters
-        if not kwargs.has_key('infile'):
+        if 'infile' not in kwargs:
             self.fail("infile is not specified")
         predefined = ['outfile', 'spw', 'fitmode', 'nfit',
                       'tweight', 'pweight']
         for p in predefined:
             if not hasattr(self, p):
                 self.fail("Internal error: %s not defined in class" % p)
-            if not kwargs.has_key(p): kwargs[p] = getattr(self, p)
+            if p not in kwargs: kwargs[p] = getattr(self, p)
         # save flag for comparison
         tbname = kwargs['infile']
         self._check_file(tbname)

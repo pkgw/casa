@@ -31,7 +31,7 @@ class sdgrid_worker(sdutil.sdtask_interface):
 
         if self.gridfunction.upper() == 'PB':
             msg='Sorry. PB gridding is not implemented yet.'
-            raise Exception, msg
+            raise Exception(msg)
         elif self.gridfunction.upper() == 'BOX':
             casalog.post('convsupport is automatically set to -1 for BOX gridding.', priority='WARN')
             self.convsupport = -1
@@ -84,8 +84,8 @@ class sdgrid_worker(sdutil.sdtask_interface):
         else:
             masklist = tmpst.parse_spw_selection(self.spw)
             if len(masklist) == 0:
-                raise ValueError, "Invalid spectral window selection. Selection contains no data."
-            self.ifno = masklist.keys()[0]
+                raise ValueError("Invalid spectral window selection. Selection contains no data.")
+            self.ifno = list(masklist.keys())[0]
         
         # outfile
         self.outname = sdutil.get_default_outfile_name(self.infiles[0],
@@ -152,7 +152,7 @@ class sdgrid_worker(sdutil.sdtask_interface):
         #has_chan = has_chan or len(quantap.findall(self.spw))
         if has_chan:
             if mode.upper().startswith('E'):
-                raise ValueError, "spw parameter should not contain channel selection."
+                raise ValueError("spw parameter should not contain channel selection.")
             elif mode.upper().startswith('W'):
                 casalog.post("Channel selection found in spw parameter. It would be ignored", priority='WARN')
         

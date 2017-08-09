@@ -14,7 +14,7 @@ def casalogger(logfile=''):
     from casa_system import procmgr
 
     if logfile == '':
-        if casa.has_key('files') and casa['files'].has_key('logfile') :
+        if 'files' in casa and 'logfile' in casa['files'] :
             logfile = casa['files']['logfile']
         else:
             casa['files']['logfile'] = os.getcwd( ) + '/casa.log'
@@ -31,12 +31,12 @@ def casalogger(logfile=''):
         procmgr.create("logger",[casa['helpers']['logger'],logfile])
 
     else:
-        print 'Unrecognized OS: No logger available'
+        print('Unrecognized OS: No logger available')
 
 
 thelogfile = ''
 
-if casa['files'].has_key('logfile') :
+if 'logfile' in casa['files'] :
     thelogfile = casa['files']['logfile']
 if casa['flags'].nologfile:
     thelogfile = 'null'
@@ -44,10 +44,10 @@ if casa['flags'].nologfile:
 deploylogger = True
 
 if not os.access('.', os.W_OK) :
-    print
-    print "********************************************************************************"
-    print "Warning: no write permission in current directory, no log files will be written."
-    print "********************************************************************************"
+    print()
+    print("********************************************************************************")
+    print("Warning: no write permission in current directory, no log files will be written.")
+    print("********************************************************************************")
     deploylogger = False
     thelogfile = 'null'
 
@@ -95,5 +95,5 @@ casalog.setglobal(True)
 try:
     casalog.post("CASA Version " + casa['build']['version'])
 except:
-    print "Error: the logfile is not writable"
+    print("Error: the logfile is not writable")
     sys.exit(1)

@@ -59,26 +59,26 @@ def run( fetch=False ):
 
     for caltable in caltables:
 
-        print "Testing with data", caltable, "..."
+        print("Testing with data", caltable, "...")
 
-        if expected.has_key(caltable):
+        if caltable in expected:
 
             default(calstat)
             axis='spline_knots_phase'
             s = calstat(caltable=caltable, axis=axis)
 
-            if s.keys() != expected[caltable].keys():
+            if list(s.keys()) != list(expected[caltable].keys()):
                 raise Exception("Wrong dictionary keys. Expected %s, got %s" % \
                                 (expected[caltable], s))
                             
-            print "Expected =", expected[caltable]
-            print "Got = ", s
-            if not s.has_key('SPLINE_KNOTS_PHASE'):
+            print("Expected =", expected[caltable])
+            print("Got = ", s)
+            if 'SPLINE_KNOTS_PHASE' not in s:
                 raise Exception("Dictionary returned from calstat does not have key SPLINE_KNOTS_PHASE")
 
-            for e in expected[caltable]['SPLINE_KNOTS_PHASE'].keys():
-                print "Checking %s: %s vs %s" % \
-                    (e, expected[caltable]['SPLINE_KNOTS_PHASE'][e], s['SPLINE_KNOTS_PHASE'][e])
+            for e in list(expected[caltable]['SPLINE_KNOTS_PHASE'].keys()):
+                print("Checking %s: %s vs %s" % \
+                    (e, expected[caltable]['SPLINE_KNOTS_PHASE'][e], s['SPLINE_KNOTS_PHASE'][e]))
                 failed = False
                 if expected[caltable]['SPLINE_KNOTS_PHASE'][e] == 0:
                     if s['SPLINE_KNOTS_PHASE'][e] != 0:
@@ -89,7 +89,7 @@ def run( fetch=False ):
 
                 # Remove these 3 lines of code, once CAS-1671 is solved
                 if failed == True and e in ['var', 'stddev']:
-                    print "Ignoring this known problem on 64bit!"
+                    print("Ignoring this known problem on 64bit!")
                     failed = False
 
                     
@@ -104,7 +104,7 @@ def run( fetch=False ):
         cplx = ['amp', 'amplitude', 'phase', 'imag', 'imaginary', 'real']
         for x in cplx:
             cols.append(x)
-        print cols
+        print(cols)
         # remove complex columns
         cols.remove('GAIN')
         if 'SCALE_FACTOR' in cols: cols.remove('SCALE_FACTOR')
@@ -124,7 +124,7 @@ def run( fetch=False ):
 
         cols = [x.lower() for x in cols]
 
-        print "Trying these column names", cols
+        print("Trying these column names", cols)
 
         for col in cols:
             data_cols = ['']
@@ -132,7 +132,7 @@ def run( fetch=False ):
                 data_cols = ['gain', 'scale_factor']
                 
             for dc in data_cols:
-                print "Call with caltable =", caltable, "; axis =", col, "; datacolumn =", dc
+                print("Call with caltable =", caltable, "; axis =", col, "; datacolumn =", dc)
                 if dc != '':
                     s = calstat(caltable=caltable, axis=col, datacolumn=dc)
                 else:
@@ -144,7 +144,7 @@ def run( fetch=False ):
                         raise Exception("Error! " + str(s))
                 elif not type(s) is dict:
                     raise Exception("Error! Return value " + str(s) + " is not a dictionary")
-    print ''
-    print 'Regression PASSED'
-    print ''
+    print('')
+    print('Regression PASSED')
+    print('')
     return []

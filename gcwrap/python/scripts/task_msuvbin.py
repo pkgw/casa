@@ -9,7 +9,7 @@ def msuvbin(vis=None, field=None, spw=None, taql=None, outvis=None, phasecenter=
     
     casalog.origin('msuvbin ') 
     cmd='msuvbin '
-    pnames=msuvbin.func_code.co_varnames[:msuvbin.func_code.co_argcount]
+    pnames=msuvbin.__code__.co_varnames[:msuvbin.__code__.co_argcount]
     for p in pnames:
         pval=eval(p)
         if(not ((pval == '') or (pval ==None))):
@@ -21,7 +21,7 @@ def msuvbin(vis=None, field=None, spw=None, taql=None, outvis=None, phasecenter=
                 cmd=cmd+' '+p+'='+str(pval)
 
 ##############3
-    print 'command ', cmd
+    print('command ', cmd)
 
 ############
     os.system(cmd)

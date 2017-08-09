@@ -81,7 +81,7 @@ def makemask(cleanbox=None,vis=None,imagename=None,mode=None,nchan=None,start=No
                 if ((type(vis)==str) & (os.path.exists(vis))):
                         im.open(vis)
                 else:
-                        raise Exception, 'Visibility data set not found - please verify the name'
+                        raise Exception('Visibility data set not found - please verify the name')
                 if ((type(imsize)==int)):
                         imsize=[imsize,imsize]
                 if ((type(cell)==int) | (type(cell)==float) | (type(cell)==str)):
@@ -101,9 +101,9 @@ def makemask(cleanbox=None,vis=None,imagename=None,mode=None,nchan=None,start=No
                 if(mode=='frequency'):
                         ##check that start and step have units
                         if(qa.quantity(start)['unit'].find('Hz') < 1):
-                                raise TypeError, "start parameter is not a valid frequency quantity "
+                                raise TypeError("start parameter is not a valid frequency quantity ")
                         if(qa.quantity(step)['unit'].find('Hz') < 1):
-                                raise TypeError, "start parameter is not a valid frequency quantity "
+                                raise TypeError("start parameter is not a valid frequency quantity ")
                         im.defineimage(nx=imsize[0], ny=imsize[1], cellx=cellx,
                                        celly=celly, stokes=stokes, mode=mode,
                                        nchan=nchan, start=start, step=step,
@@ -111,16 +111,16 @@ def makemask(cleanbox=None,vis=None,imagename=None,mode=None,nchan=None,start=No
                 elif(mode=='velocity'):
                         ##check that start and step have units
                         if(qa.quantity(start)['unit'].find('m/s') < 0):
-                                raise TypeError, "start parameter is not a valid velocity quantity "
+                                raise TypeError("start parameter is not a valid velocity quantity ")
                         if(qa.quantity(step)['unit'].find('m/s') < 0):
-                                raise TypeError, "start parameter is not a valid velocity quantity "
+                                raise TypeError("start parameter is not a valid velocity quantity ")
                         im.defineimage(nx=imsize[0], ny=imsize[1], cellx=cellx,
                                        celly=celly, stokes=stokes, mode=mode,
                                        nchan=nchan, start=start, step=step,
                                        spw=spwindex, phasecenter=findex)
                 else:
                         if(type(width) != int):
-                                raise TypeError, "width has to be an integer with mode %s" %mode                
+                                raise TypeError("width has to be an integer with mode %s" %mode)                
                         if width==1: im.defineimage(nx=imsize[0],ny=imsize[1],cellx=cellx,celly=celly,mode=mode,nchan=nchan,start=start,step=width, phasecenter=phasecenter,spw=spwindex,stokes=stokes)
                         if width!=1:
                                 im.defineimage(nx=imsize[0],ny=imsize[1],cellx=cellx,celly=celly,mode=mode,nchan=nchan,start=start,step=width,phasecenter=phasecenter,spw=spwindex,stokes=stokes)
@@ -131,6 +131,6 @@ def makemask(cleanbox=None,vis=None,imagename=None,mode=None,nchan=None,start=No
 
                 im.regionmask(mask=imagename,boxes=cleanbox)
 		im.close()
-	except Exception, instance:
-		print '*** Error ***',instance
+	except Exception as instance:
+		print('*** Error ***',instance)
 

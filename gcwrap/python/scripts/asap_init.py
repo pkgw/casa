@@ -12,7 +12,7 @@ def asap_init():
     print('*** Loading ATNF ASAP Package...')
     import asap as sd
     #print('*** ... ASAP (%s rev#%s) import complete ***' % (sd.__version__,sd.__revision__))
-    print('*** ... ASAP (rev#%s) import complete ***' % (sd.__revision__))
+    print(('*** ... ASAP (rev#%s) import complete ***' % (sd.__revision__)))
     os.environ['CASAPATH']=casapath
     from sdimaging_cli import sdimaging_cli as sdimaging
     from sdimprocess_cli import sdimprocess_cli as sdimprocess

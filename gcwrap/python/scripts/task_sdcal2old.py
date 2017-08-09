@@ -172,7 +172,7 @@ class sdcal2_worker(sdutil.sdtask_template):
             if len(self.tsysspw) > 0:
                 casalog.post('Testing new tsysspw specification: %s'%(self.tsysspw))
                 tsysspw_dict = {}
-                for (k,v) in self.scan.parse_spw_selection(self.tsysspw).items():
+                for (k,v) in list(self.scan.parse_spw_selection(self.tsysspw).items()):
                     tsysspw_dict[str(k)] = numpy.array(v).flatten().tolist()
                 casalog.post('tsysspw_dict=%s'%(tsysspw_dict))
                 self.manager.set_tsys_spw_withrange(tsysspw_dict, self.tsysavg)
@@ -188,7 +188,7 @@ class sdcal2_worker(sdutil.sdtask_template):
                 self.manager.set_time_interpolation(self.interp_time)
             if len(self.interp_freq) > 0:
                 self.manager.set_freq_interpolation(self.interp_freq)
-            for (k,v) in self.spwmap.items():
+            for (k,v) in list(self.spwmap.items()):
                 self.manager.set_tsys_transfer(int(k),list(v))
             self.manager.apply(self.insitu, True)
 
@@ -232,7 +232,7 @@ class sdcal2_worker(sdutil.sdtask_template):
                 try:
                     self.scan.set_selection(sel)
                     self.tsysspw = ','.join(map(str,self.scan.getifnos()))
-                except Exception, e:
+                except Exception as e:
                     casalog.post('Exception: %s'%(e))
                     self.tsysspw = ''
                 finally:

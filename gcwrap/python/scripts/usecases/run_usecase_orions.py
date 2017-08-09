@@ -414,12 +414,12 @@ off_stat
 #You see it has some keywords for the various
 #stats.  We want the standard deviation about
 #the mean, or 'stddev'
-print "The off-line std. deviation = ",off_stat['stddev']
+print("The off-line std. deviation = ",off_stat['stddev'])
 # which should give
 # The off-line std. deviation =  0.0474953278899
 
 # or better formatted (using Python I/O formatting)
-print "The off-line std. deviation = %5.3f K" % (off_stat['stddev'])
+print("The off-line std. deviation = %5.3f K" % (off_stat['stddev']))
 # which should give
 # The off-line std. deviation = 0.047 K
 
@@ -445,13 +445,13 @@ line_stat
 #  'sum': 68.135047912597656}
 
 # of particular interest are the max value
-print "The on-line maximum = %5.3f K" % (line_stat['max'])
+print("The on-line maximum = %5.3f K" % (line_stat['max']))
 # which gives
 # The on-line maximum = 0.929 K
 
 # and the estimated equivalent width (in channels)
 # which is the sum/max
-print "The estimated equivalent width = %5.1f channels" % (line_stat['eqw'])
+print("The estimated equivalent width = %5.1f channels" % (line_stat['eqw']))
 # which gives
 # The estimated equivalent width =  73.3 channels
 
@@ -503,10 +503,10 @@ fit_stat
 #  'peak': [[0.81080442667007446, 0.016420882195234299]]}
 #
 # So you can write them out or test them:
-print "The line-fit parameters were:"
-print "      maximum = %6.3f +/- %6.3f K" % (fit_stat['peak'][0][0],fit_stat['peak'][0][1])
-print "       center = %6.1f +/- %6.1f channels" % (fit_stat['cent'][0][0],fit_stat['cent'][0][1])
-print "         FWHM = %6.2f +/- %6.2f channels" % (fit_stat['fwhm'][0][0],fit_stat['fwhm'][0][1])
+print("The line-fit parameters were:")
+print("      maximum = %6.3f +/- %6.3f K" % (fit_stat['peak'][0][0],fit_stat['peak'][0][1]))
+print("       center = %6.1f +/- %6.1f channels" % (fit_stat['cent'][0][0],fit_stat['cent'][0][1]))
+print("         FWHM = %6.2f +/- %6.2f channels" % (fit_stat['fwhm'][0][0],fit_stat['fwhm'][0][1]))
 #
 # Which gives:
 # The line-fit parameters were:
@@ -535,10 +535,10 @@ fit_stat_kms
 #  'peak': [[0.81080895662307739, 0.0092909494414925575]]}
 
 
-print "The line-fit parameters were:"
-print "      maximum = %6.3f +/- %6.3f K" % (fit_stat_kms['peak'][0][0],fit_stat_kms['peak'][0][1])
-print "       center = %6.2f +/- %6.2f km/s" % (fit_stat_kms['cent'][0][0],fit_stat_kms['cent'][0][1])
-print "         FWHM = %6.4f +/- %6.4f km/s" % (fit_stat_kms['fwhm'][0][0],fit_stat_kms['fwhm'][0][1])
+print("The line-fit parameters were:")
+print("      maximum = %6.3f +/- %6.3f K" % (fit_stat_kms['peak'][0][0],fit_stat_kms['peak'][0][1]))
+print("       center = %6.2f +/- %6.2f km/s" % (fit_stat_kms['cent'][0][0],fit_stat_kms['cent'][0][1]))
+print("         FWHM = %6.4f +/- %6.4f km/s" % (fit_stat_kms['fwhm'][0][0],fit_stat_kms['fwhm'][0][1]))
 
 # The line-fit parameters were:
 #       maximum =  0.811 +/-  0.009 K

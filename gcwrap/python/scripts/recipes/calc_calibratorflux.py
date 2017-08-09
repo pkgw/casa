@@ -27,24 +27,24 @@ def calcfluxes_fromStandard(sourcename, standard, vis, spw=-1):
     spw:        spw ids in list or -1 (all) 
     '''
     (tb,) = gentools(['tb'])
-    print "vis=",vis
+    print("vis=",vis)
     if os.path.exists(vis):
         tb.open(vis+'/SPECTRAL_WINDOW')
         nspw = tb.nrows()
     else:
         raise TypeError("vis:%s does not exist" % vis)
     if spw==-1:
-        selspws = range(nspw) 
+        selspws = list(range(nspw)) 
     else:
         selspws = spw 
-    print "spw chanFreq(GHz) flux density" 
+    print("spw chanFreq(GHz) flux density") 
     for ispw in selspws: 
         chanfreqs = tb.getcell('CHAN_FREQ',ispw)
         for f in chanfreqs:
             fGHz=f/1.0e9
             flx = calcflux_fromStandard(sourcename,fGHz,standard)
 
-            print ispw, fGHz, flx
+            print(ispw, fGHz, flx)
 
     tb.close()
 
@@ -69,12 +69,12 @@ def calcflux_fromStandard(sourcename, freq, standard, epoch=''):
            try:
                coeffs = tb.getcell(sname+"_coeffs",0)
            except:
-               raise Execption, "cannot find "+sname+"_coeffs data"
+               raise Execption("cannot find "+sname+"_coeffs data")
 
            p = p1d(coeffs[::-1])
            
         else:
-           print "time variable source is not supported yet for this test"
+           print("time variable source is not supported yet for this test")
 
         tb.close()
 
@@ -84,7 +84,7 @@ def calcflux_fromStandard(sourcename, freq, standard, epoch=''):
         try:
            coeffs = tb.getcell(sname+"_coeffs",0)
         except:
-           raise Execption, "cannot find "+sname+"_coeffs data"
+           raise Execption("cannot find "+sname+"_coeffs data")
 
         modcoeffs = coeffs[::-1]
         modcoeffs[-1] = log10(modcoeffs[-1])
@@ -92,6 +92,6 @@ def calcflux_fromStandard(sourcename, freq, standard, epoch=''):
         tb.close()
 
     else:
-        print "support for the standard "+standard+" has not been implemeted..."      
+        print("support for the standard "+standard+" has not been implemeted...")      
 
     return 10.0**p(log10(freq/f0))

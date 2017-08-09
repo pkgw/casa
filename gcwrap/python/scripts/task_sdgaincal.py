@@ -22,14 +22,14 @@ def sdgaincal(infile=None, calmode=None, radius=None, smooth=None,
     try:
         # outfile must be specified
         if (outfile == '') or not isinstance(outfile, str):
-            raise ValueError, "outfile is empty."
+            raise ValueError("outfile is empty.")
         
         # overwrite check
         if os.path.exists(outfile) and not overwrite:
             raise RuntimeError(outfile + ' exists.')
         
         # TODO: pre-application functionality is not supported yet
-        if type(applytable) == types.ListType or \
+        if type(applytable) == list or \
           (isinstance(applytable, str) and len(applytable) > 0):
             msg = 'Pre-application of calibration solutions is not supported yet.'
             casalog.post(msg, priority='SEVERE')
@@ -40,7 +40,7 @@ def sdgaincal(infile=None, calmode=None, radius=None, smooth=None,
             mycb.setvi(old=True)
             mycb.open(filename=infile, compress=False, addcorr=False, addmodel=False)
         else:
-            raise RuntimeError, 'infile not found - please verify the name'
+            raise RuntimeError('infile not found - please verify the name')
         
         # select data
         if isinstance(antenna, str) and len(antenna) > 0:
@@ -73,7 +73,7 @@ def sdgaincal(infile=None, calmode=None, radius=None, smooth=None,
         ## reporting calibration solution
         #reportsolvestats(mycb.activityrec());
 
-    except Exception, e:
+    except Exception as e:
         import traceback
         casalog.post(traceback.format_exc(), priority='DEBUG')
         casalog.post(errmsg(e), priority='SEVERE')

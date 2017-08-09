@@ -31,7 +31,7 @@ def signflip (vis=None,column=None):
         for ddid in range(minddid,maxddid+1):
             st=tb.query('SCAN_NUMBER=='+str(scan)+' && DATA_DESC_ID=='+str(ddid));
             if (st.nrows()>0):
-                print 'scan=',scan, ' ddid=',ddid, ' rows=',st.nrows()
+                print('scan=',scan, ' ddid=',ddid, ' rows=',st.nrows())
                 d=tb.getcol(column)
                 d=pl.conjugate(d)
                 tb.putcol(column,d)
@@ -62,10 +62,10 @@ datestring=datetime.datetime.isoformat(datetime.datetime.today())
 
 outfile='out.'+prefix+'.'+datestring+'.log'
 logfile=open(outfile,'w')
-print 'Opened log file '+outfile
+print('Opened log file '+outfile)
 
-print >>logfile,'Processing SDM data for project '+regressname
-print >>logfile,'Script '+scriptvers
+print('Processing SDM data for project '+regressname, file=logfile)
+print('Script '+scriptvers, file=logfile)
 
 # Some date and version info
 myvers = casalog.version()
@@ -75,10 +75,10 @@ mycwd = os.getcwd()
 myos = os.uname()
 
 # Print version info to outfile
-print >>logfile,'CASA '+myvers+' on host '+myhost+' running '+str(os.uname()[0]+os.uname()[2])
-print >>logfile,'at '+datestring
-print >>logfile,''
-print >>logfile,''
+print('CASA '+myvers+' on host '+myhost+' running '+str(os.uname()[0]+os.uname()[2]), file=logfile)
+print('at '+datestring, file=logfile)
+print('', file=logfile)
+print('', file=logfile)
 
 stagename = []
 stagetime = []
@@ -95,7 +95,7 @@ prevTime = startTime
 # ftp://ftp.aoc.nrao.edu/pub/smyers/LeoRing/leo2pt.55183.452640752315.tgz
 # or
 # http://casa.nrao.edu/Data/EVLA/LeoRing/leo2pt.55183.452640752315.tgz
-print '---ImportASDM---'
+print('---ImportASDM---')
 sdmfile = 'leo2pt.55183.452640752315'
 msfile = 'leo2pt_regression.ms'
 importasdm(asdm='leo2pt.55183.452640752315',vis='leo2pt_regression.ms',ocorr_mode='co')
@@ -118,7 +118,7 @@ fillsize = float( fstr.split("\t")[0] )
 
 # Now flag on the unaveraged data
 #
-print '---Flagdata (Off-source timeranges)---'
+print('---Flagdata (Off-source timeranges)---')
 cmd = ["field='0' timerange='<10:52:02'",
        "field='4' timerange='13:44:38~13:47:57'"]
 flagdata(vis='leo2pt_regression.ms',mode='list', inpfile=cmd)
@@ -129,7 +129,7 @@ stagename.append('flagtime')
 prevTime = currTime
 
 # Antenna 5, 15 supposedly bad
-print '---Flagdata (bad antennas)---'
+print('---Flagdata (bad antennas)---')
 cmd = ["antenna='ea05'","antenna='ea15'"]
 flagdata(vis='leo2pt_regression.ms',mode='list', inpfile=cmd)
 #flagdata(vis='leo2pt_regression.ms',mode='manualflag',antenna=['ea05','ea15'])
@@ -139,7 +139,7 @@ stagename.append('flagants')
 prevTime = currTime
 
 #
-print '---Flagdata (quack)---'
+print('---Flagdata (quack)---')
 flagdata(vis='leo2pt_regression.ms',mode='quack',quackinterval=20.0)
 currTime=time.time()
 stagetime.append(currTime-prevTime)
@@ -147,7 +147,7 @@ stagename.append('quack')
 prevTime = currTime
 
 #
-print '---Flagdata (clip zeroes)---'
+print('---Flagdata (clip zeroes)---')
 flagdata(vis='leo2pt_regression.ms',mode='clip', clipzeros=True, clipoutside=False, correlation='ABS_RR,LL')
 #flagdata(vis='leo2pt_regression.ms',mode='manualflag',clipminmax=[0.0,1.0E-8],clipoutside=F,clipexpr='ABS RR')
 #flagdata(vis='leo2pt_regression.ms',mode='manualflag',clipminmax=[0.0,1.0E-8],clipoutside=F,clipexpr='ABS LL')
@@ -158,7 +158,7 @@ prevTime = currTime
 
 # Now split the data averaging to 10s
 #
-print '---Split (10s average)---'
+print('---Split (10s average)---')
 datafile = 'leo2pt_regression.split10sec.ms'
 split(vis='leo2pt_regression.ms',outputvis='leo2pt_regression.split10sec.ms',datacolumn='data',timebin='10s')
 currTime=time.time()
@@ -173,11 +173,11 @@ f.close()
 splitsize = float( fstr.split("\t")[0] )
 
 # Change from EVLA to VLA
-print '---Vishead---'
+print('---Vishead---')
 vishead(vis='leo2pt_regression.split10sec.ms',mode='put',hdkey='telescope',hdvalue='VLA')
 
 # Create and initialize scratch columns
-print '---Clearcal---'
+print('---Clearcal---')
 clearcal(vis='leo2pt_regression.split10sec.ms')
 currTime=time.time()
 stagetime.append(currTime-prevTime)
@@ -190,7 +190,7 @@ fstr = f.readline()
 f.close()
 clearsize = float( fstr.split("\t")[0] )
 
-print '---Listobs---'
+print('---Listobs---')
 listobs('leo2pt_regression.split10sec.ms')
 currTime=time.time()
 stagetime.append(currTime-prevTime)
@@ -198,7 +198,7 @@ stagename.append('listobs')
 prevTime = currTime
 
 #### first gaincal on bandpass calibrator (temp)
-print '---Gaincal 1 (phase-only)---'
+print('---Gaincal 1 (phase-only)---')
 gaincal(vis='leo2pt_regression.split10sec.ms',caltable='leo2pt_regression.gcal1',
         field='4',gaintype='G',calmode='p',refant='ea02',
         solint='int',spw='0:118~137')
@@ -220,7 +220,7 @@ stagename.append('plot gcal1')
 prevTime = currTime
 
 #### bandpass
-print '---Bandpass---'
+print('---Bandpass---')
 bandpass(vis='leo2pt_regression.split10sec.ms',caltable='leo2pt_regression.bcal',
          field='4',spw='',gaintable='leo2pt_regression.gcal1',
          interp=['nearest'],
@@ -243,7 +243,7 @@ stagename.append('plot bcal1')
 prevTime = currTime
 
 #### final phasecal
-print '---Gaincal 2 (phase-only)---'
+print('---Gaincal 2 (phase-only)---')
 gaincal(vis='leo2pt_regression.split10sec.ms',caltable='leo2pt_regression.gcal2',
         gaintable='leo2pt_regression.bcal', interp='nearest',
         field='1,4',gaintype='G',calmode='p',refant='ea02',
@@ -267,7 +267,7 @@ prevTime = currTime
 
 #### final ampcal
 
-print '---Table (change field name)---'
+print('---Table (change field name)---')
 # For this to work had to change the Field name for field 4
 # from J1331+3030 to 1331+305
 tb.open('leo2pt_regression.split10sec.ms/FIELD',nomodify=False)
@@ -277,14 +277,14 @@ st.done()
 tb.close()
 
 # Calculates 14.7461Jy
-print '---Setjy---'
+print('---Setjy---')
 setjy(vis='leo2pt_regression.split10sec.ms',field='4',modimage='3C286_L.im',scalebychan=False,standard='Perley-Taylor 99')
 currTime=time.time()
 stagetime.append(currTime-prevTime)
 stagename.append('setjy')
 prevTime = currTime
 
-print '---Gaincal 3 (amp-only)---'
+print('---Gaincal 3 (amp-only)---')
 gaincal(vis='leo2pt_regression.split10sec.ms',caltable='leo2pt_regression.gcal3',
         gaintable=['leo2pt_regression.bcal','leo2pt_regression.gcal2'],
         interp=['nearest','nearest'],
@@ -307,7 +307,7 @@ stagetime.append(currTime-prevTime)
 stagename.append('plot gcal3')
 prevTime = currTime
 
-print '---Fluxscale---'
+print('---Fluxscale---')
 fluxscale(vis='leo2pt_regression.split10sec.ms',caltable='leo2pt_regression.gcal3',
           fluxtable='leo2pt_regression.fscale',reference='4')
 currTime=time.time()
@@ -328,7 +328,7 @@ stagename.append('plot fluxscale')
 prevTime = currTime
 
 #### final applycal
-print '---Applycal (field 1)---'
+print('---Applycal (field 1)---')
 applycal(vis='leo2pt_regression.split10sec.ms',spw='', field='1',
          gaintable=['leo2pt_regression.bcal','leo2pt_regression.gcal2','leo2pt_regression.fscale'],
          interp=['nearest','nearest','nearest'],gainfield=['4','1','1'])
@@ -337,7 +337,7 @@ stagetime.append(currTime-prevTime)
 stagename.append('applycal 1')
 prevTime = currTime
 
-print '---Applycal (field 2,3)---'
+print('---Applycal (field 2,3)---')
 # transfer amp+phase from field 1 to field 2,3
 applycal(vis='leo2pt_regression.split10sec.ms',spw='', field='2,3',
          gaintable=['leo2pt_regression.bcal','leo2pt_regression.gcal2','leo2pt_regression.fscale'],
@@ -347,7 +347,7 @@ stagetime.append(currTime-prevTime)
 stagename.append('applycal 2,3')
 prevTime = currTime
 
-print '---Applycal (field 4)---'
+print('---Applycal (field 4)---')
 applycal(vis='leo2pt_regression.split10sec.ms',spw='', field='4',
          gaintable=['leo2pt_regression.bcal','leo2pt_regression.gcal2','leo2pt_regression.fscale'],
          interp=['nearest','nearest','nearest'],gainfield=['4','4','4'])
@@ -357,7 +357,7 @@ stagename.append('applycal 4')
 prevTime = currTime
 
 #### split calibrated data
-print '---Split (field 1)---'
+print('---Split (field 1)---')
 split(vis='leo2pt_regression.split10sec.ms',outputvis='leo2pt_regression.field1.ms',
       datacolumn='corrected',field='1')
 currTime=time.time()
@@ -365,7 +365,7 @@ stagetime.append(currTime-prevTime)
 stagename.append('split field 1')
 prevTime = currTime
 
-print '---Split (field 2)---'
+print('---Split (field 2)---')
 split(vis='leo2pt_regression.split10sec.ms',outputvis='leo2pt_regression.field2.ms',
       datacolumn='corrected',field='2')
 currTime=time.time()
@@ -373,7 +373,7 @@ stagetime.append(currTime-prevTime)
 stagename.append('split field 2')
 prevTime = currTime
 
-print '---Split (field 3)---'
+print('---Split (field 3)---')
 split(vis='leo2pt_regression.split10sec.ms',outputvis='leo2pt_regression.field3.ms',
       datacolumn='corrected',field='3')
 currTime=time.time()
@@ -381,7 +381,7 @@ stagetime.append(currTime-prevTime)
 stagename.append('split field 3')
 prevTime = currTime
 
-print '---Split (field 4)---'
+print('---Split (field 4)---')
 split(vis='leo2pt_regression.split10sec.ms',outputvis='leo2pt_regression.field4.ms',
       datacolumn='corrected',field='4')
 currTime=time.time()
@@ -389,7 +389,7 @@ stagetime.append(currTime-prevTime)
 stagename.append('split field 4')
 prevTime = currTime
 
-print '---Split (all)---'
+print('---Split (all)---')
 split(vis='leo2pt_regression.split10sec.ms',outputvis='leo2pt_regression.all.ms',
       datacolumn='corrected',field='1~4')
 currTime=time.time()
@@ -398,42 +398,42 @@ stagename.append('split all')
 prevTime = currTime
 
 #### flip signs
-print '---Signflip (field 1)---'
+print('---Signflip (field 1)---')
 signflip('leo2pt_regression.field1.ms','DATA')
 currTime=time.time()
 stagetime.append(currTime-prevTime)
 stagename.append('signflip 1')
 prevTime = currTime
 
-print '---Signflip (field 2)---'
+print('---Signflip (field 2)---')
 signflip('leo2pt_regression.field2.ms','DATA')
 currTime=time.time()
 stagetime.append(currTime-prevTime)
 stagename.append('signflip 2')
 prevTime = currTime
 
-print '---Signflip (field 3)---'
+print('---Signflip (field 3)---')
 signflip('leo2pt_regression.field3.ms','DATA')
 currTime=time.time()
 stagetime.append(currTime-prevTime)
 stagename.append('signflip 3')
 prevTime = currTime
 
-print '---Signflip (field 4)---'
+print('---Signflip (field 4)---')
 signflip('leo2pt_regression.field4.ms','DATA')
 currTime=time.time()
 stagetime.append(currTime-prevTime)
 stagename.append('signflip 4')
 prevTime = currTime
 
-print '---Signflip (all)---'
+print('---Signflip (all)---')
 signflip('leo2pt_regression.all.ms','DATA')
 currTime=time.time()
 stagetime.append(currTime-prevTime)
 stagename.append('signflip all')
 prevTime = currTime
 
-print '---ExportUVFITS---'
+print('---ExportUVFITS---')
 fitsfile = 'leo2pt_regression.all.uvfits'
 exportuvfits(vis='leo2pt_regression.all.ms',fitsfile='leo2pt_regression.all.uvfits',
              datacolumn='data',multisource=True)
@@ -457,19 +457,19 @@ fitssize = float( fstr.split("\t")[0] )
 #
 # Get MS stats
 #
-print '---Visstat (J1042+1203)---'
+print('---Visstat (J1042+1203)---')
 visstat_cal=visstat('leo2pt_regression.field1.ms')
 vismean_cal=visstat_cal['DATA']['mean']
-print "Found vis mean on J1042+1203 = "+str(vismean_cal)
+print("Found vis mean on J1042+1203 = "+str(vismean_cal))
 currTime=time.time()
 stagetime.append(currTime-prevTime)
 stagename.append('visstat fld 1')
 prevTime = currTime
 
-print '---Visstat (1331+305)---'
+print('---Visstat (1331+305)---')
 visstat_3c286=visstat('leo2pt_regression.field4.ms')
 vismean_3c286=visstat_3c286['DATA']['mean']
-print "Found vis mean on 1331+305 = "+str(vismean_3c286)
+print("Found vis mean on 1331+305 = "+str(vismean_3c286))
 currTime=time.time()
 stagetime.append(currTime-prevTime)
 stagename.append('visstat fld 4')
@@ -478,7 +478,7 @@ prevTime = currTime
 ##########################################################################
 #First cvel to bary
 
-print '---Cvel (field 2)---'
+print('---Cvel (field 2)---')
 cvel(vis='leo2pt_regression.field2.ms',
      outputvis ='leo2pt_regression.field2_chanbary.ms',
      mode='channel',nchan=-1,start=0,width=1,
@@ -492,7 +492,7 @@ stagetime.append(currTime-prevTime)
 stagename.append('cvel fld 2')
 prevTime = currTime
 
-print '---Cvel (field 3)---'
+print('---Cvel (field 3)---')
 cvel(vis='leo2pt_regression.field3.ms',
      outputvis ='leo2pt_regression.field3_chanbary.ms',
      mode='channel',nchan=-1,start=0,width=1,
@@ -509,7 +509,7 @@ prevTime = currTime
 #### Combine Leo-1 and Leo-2 fields
 #  2    NONE Leo-1        10:47:22.0000 +12.16.38.0000 J2000   2     301290 
 #  3    NONE Leo-2        10:46:45.0000 +11.50.38.0000 J2000   3     300960 
-print '---Concat field 2 and 3 (Leo-1 and Leo-2)---'
+print('---Concat field 2 and 3 (Leo-1 and Leo-2)---')
 concat(vis = ['leo2pt_regression.field2_chanbary.ms','leo2pt_regression.field3_chanbary.ms'],
        freqtol='150Hz',
        concatvis = 'leo2pt_regression.concat_chanbary.ms')
@@ -521,7 +521,7 @@ prevTime = currTime
 #listobs('leo2pt_regression.concat_chanbary.ms')
 
 #  combine with center at 10:47:03.50 +12.03.38.0000
-print '---Clean (dirty mosaic)---'
+print('---Clean (dirty mosaic)---')
 clean(vis='leo2pt_regression.concat_chanbary.ms',
       imagename='leo2pt_regression.concat_chanbary.dirtymos',
       imsize=[500,500],cell=[12.0,12.0],niter=0,
@@ -540,14 +540,14 @@ prevTime = currTime
 #
 # Statistics on dirty image cube
 #
-print '--ImStat (Dirty cube)--'
+print('--ImStat (Dirty cube)--')
 dirtystat = imstat('leo2pt_regression.concat_chanbary.dirtymos.image')
-print "Found dirty image max = "+str(dirtystat['max'][0])
-print "Found dirty image rms = "+str(dirtystat['sigma'][0])
+print("Found dirty image max = "+str(dirtystat['max'][0]))
+print("Found dirty image rms = "+str(dirtystat['sigma'][0]))
 
 dirtyoff = imstat('leo2pt_regression.concat_chanbary.dirtymos.image',
                  chans='',box='175,190,210,230')
-print "Found off-source dirty image rms = "+str(dirtyoff['sigma'][0])
+print("Found off-source dirty image rms = "+str(dirtyoff['sigma'][0]))
 
 currTime=time.time()
 stagetime.append(currTime-prevTime)
@@ -556,7 +556,7 @@ prevTime = currTime
 
 #-------------------------------------------
 # Clean all at once
-print '---Clean (ft mosaic)---'
+print('---Clean (ft mosaic)---')
 clean(vis='leo2pt_regression.concat_chanbary.ms',
       imagename='leo2pt_regression.concat_chanbary.cleanmosft',
       imsize=[500,500],cell=[12.0,12.0],
@@ -578,19 +578,19 @@ prevTime = currTime
 #
 # Statistics on clean image cube
 #
-print '--ImStat (Clean cube)--'
+print('--ImStat (Clean cube)--')
 cleanstat = imstat('leo2pt_regression.concat_chanbary.cleanmosft.image')
-print "Found clean image max = "+str(cleanstat['max'][0])
-print "Found clean image rms = "+str(cleanstat['sigma'][0])
+print("Found clean image max = "+str(cleanstat['max'][0]))
+print("Found clean image rms = "+str(cleanstat['sigma'][0]))
 
 offstat = imstat('leo2pt_regression.concat_chanbary.cleanmosft.image',
                  chans='',box='175,190,210,230')
-print "Found off-source clean image rms = "+str(offstat['sigma'][0])
+print("Found off-source clean image rms = "+str(offstat['sigma'][0]))
 
 # Statistics on clean model
-print '--ImStat (Clean model)--'
+print('--ImStat (Clean model)--')
 modstat = imstat('leo2pt_regression.concat_chanbary.cleanmosft.model')
-print "Found total model flux = "+str(modstat['sum'][0])
+print("Found total model flux = "+str(modstat['sum'][0]))
 
 currTime=time.time()
 stagetime.append(currTime-prevTime)
@@ -608,7 +608,7 @@ prevTime = currTime
 #1.6klambda
 #Fitted beam used in restoration: 180.444 by 79.4114 (arcsec) at pa 156.049 (deg) 
 
-print '---Clean (ft mosaic tapered)---'
+print('---Clean (ft mosaic tapered)---')
 clean(vis='leo2pt_regression.concat_chanbary.ms',
       imagename='leo2pt_regression.concat_chanbary.taper1600.cleanmosft',
       imsize=[400,400],cell=[20.0,20.0],
@@ -629,19 +629,19 @@ prevTime = currTime
 #
 # Statistics on clean image cube
 #
-print '--ImStat (Clean tapered image)--'
+print('--ImStat (Clean tapered image)--')
 taperstat = imstat('leo2pt_regression.concat_chanbary.taper1600.cleanmosft.image')
-print "Found tapered image max = "+str(taperstat['max'][0])
-print "Found tapered image rms = "+str(taperstat['sigma'][0])
+print("Found tapered image max = "+str(taperstat['max'][0]))
+print("Found tapered image rms = "+str(taperstat['sigma'][0]))
 
 taperoff = imstat('leo2pt_regression.concat_chanbary.taper1600.cleanmosft.image',
                  chans='',box='175,190,210,230')
-print "Found off-source tapered image rms = "+str(taperoff['sigma'][0])
+print("Found off-source tapered image rms = "+str(taperoff['sigma'][0]))
 
 # Statistics on tapered clean model
-print '--ImStat (Clean tapered model)--'
+print('--ImStat (Clean tapered model)--')
 tapermod = imstat('leo2pt_regression.concat_chanbary.taper1600.cleanmosft.model')
-print "Found total tapered model flux = "+str(tapermod['sum'][0])
+print("Found total tapered model flux = "+str(tapermod['sum'][0]))
 
 currTime=time.time()
 stagetime.append(currTime-prevTime)
@@ -650,7 +650,7 @@ prevTime = currTime
 
 ##########################################################################
 #Moment 0
-print '---Immoments (0)---'
+print('---Immoments (0)---')
 immoments(imagename='leo2pt_regression.concat_chanbary.taper1600.cleanmosft.image',
           moments=[0],axis='spectral',
           excludepix=[-1000.,0.015],
@@ -666,7 +666,7 @@ ia.maskhandler('delete','mask0')
 ia.close()
 
 #Moment 1
-print '---Immoments (1)---'
+print('---Immoments (1)---')
 immoments(imagename='leo2pt_regression.concat_chanbary.taper1600.cleanmosft.image',
           moments=[1],axis='spectral',
           excludepix=[-1000.,0.025],
@@ -681,22 +681,22 @@ prevTime = currTime
 #
 # Statistics on moment images
 #
-print '--ImStat (Moment images)--'
+print('--ImStat (Moment images)--')
 momzerostat=imstat('leo2pt_regression.concat_chanbary.taper1600.cleanmosft.moment0')
 try:
-    print "Found moment 0 max = "+str(momzerostat['max'][0])
-    print "Found moment 0 rms = "+str(momzerostat['rms'][0])
+    print("Found moment 0 max = "+str(momzerostat['max'][0]))
+    print("Found moment 0 rms = "+str(momzerostat['rms'][0]))
 except:
     pass
 
 momonestat=imstat('leo2pt_regression.concat_chanbary.taper1600.cleanmosft.moment1')
 try:
-    print "Found moment 1 median = "+str(momonestat['median'][0])
+    print("Found moment 1 median = "+str(momonestat['median'][0]))
 except:
     pass
 
 # Get velocities of first and last planes of cube
-print '---Immoments (chans 0 and 255)---'
+print('---Immoments (chans 0 and 255)---')
 # Do a moment one on channel 0 to check that the indexing is right
 try:
     immoments(imagename='leo2pt_regression.concat_chanbary.taper1600.cleanmosft.image',
@@ -722,14 +722,14 @@ vel255=0.0
 
 try:
     momoneplane0=imstat('leo2pt_regression.concat_chanbary.taper1600.cleanmosft.plane0.mom1')
-    print "Found plane 0 moment 1 value = "+str(momoneplane0['median'][0])
+    print("Found plane 0 moment 1 value = "+str(momoneplane0['median'][0]))
 except:
     pass
 
 
 try:
     momoneplane255=imstat('leo2pt_regression.concat_chanbary.taper1600.cleanmosft.plane255.mom1')
-    print "Found plane 255 moment 1 value = "+str(momoneplane255['median'][0])
+    print("Found plane 255 moment 1 value = "+str(momoneplane255['median'][0]))
 except:
     pass
 
@@ -746,7 +746,7 @@ prevTime = currTime
 ##########################################################################
 #
 # Manually correct for mosaic response pattern using .image/.flux images
-print '--ImMath (PBcor)--'
+print('--ImMath (PBcor)--')
 immath(outfile='leo2pt_regression.concat_chanbary.taper1600.cleanmosft.pbcor',
        imagename=['leo2pt_regression.concat_chanbary.taper1600.cleanmosft.image',
                   'leo2pt_regression.concat_chanbary.taper1600.cleanmosft.flux'],
@@ -765,20 +765,20 @@ prevTime = currTime
 #
 # Statistics on PBcor image cube
 #
-print '--ImStat (PBcor cube)--'
+print('--ImStat (PBcor cube)--')
 pbcorstat = imstat('leo2pt_regression.concat_chanbary.taper1600.cleanmosft.pbcor')
-print "Found pbcor image max = "+str(pbcorstat['max'][0])
+print("Found pbcor image max = "+str(pbcorstat['max'][0]))
 
 pbcoroffstat = imstat('leo2pt_regression.concat_chanbary.taper1600.cleanmosft.pbcor',
                       chans='',box='175,190,210,230')
-print "Found pbcor off-source rms = "+str(pbcoroffstat['sigma'][0])
+print("Found pbcor off-source rms = "+str(pbcoroffstat['sigma'][0]))
 
 #
 # Statistics on PBcor model cube
 #
-print '--ImStat (PBcor model)--'
+print('--ImStat (PBcor model)--')
 pbcormodstat = imstat('leo2pt_regression.concat_chanbary.taper1600.cleanmosft.pbcormod')
-print "Found total model flux = "+str(pbcormodstat['sum'][0])
+print("Found total model flux = "+str(pbcormodstat['sum'][0]))
 
 currTime=time.time()
 stagetime.append(currTime-prevTime)
@@ -809,12 +809,12 @@ prevTime = currTime
 
 #----------------------------
 #Make spectrum at M96
-print '---Imval (M96)---'
+print('---Imval (M96)---')
 myval = imval('leo2pt_regression.concat_chanbary.taper1600.cleanmosft.image',box='210,156,210,156')
 M96_sparr = myval['data']
 
 ia.open('leo2pt_regression.concat_chanbary.taper1600.cleanmosft.image')
-chlist = range(256)
+chlist = list(range(256))
 fqlist = []
 #find ra,dec
 mys = ia.toworld([210,156,0,0],'s')
@@ -832,14 +832,14 @@ fqarr = pl.array(fqlist)
 #convert to GHz from Hz
 M96_fqarr = fqarr*1.0E-9
 
-print 'LeoRing spectrum at M96 : ',M96_ra,' ',M96_dec
+print('LeoRing spectrum at M96 : ',M96_ra,' ',M96_dec)
 currTime=time.time()
 stagetime.append(currTime-prevTime)
 stagename.append('imval m96')
 prevTime = currTime
 
 # Now use matplotlib to plot this spectrum
-print '---Matplotlib M96---'
+print('---Matplotlib M96---')
 pl.plot(M96_fqarr, M96_sparr, linewidth=1.0)
 pl.ylim(-0.04,1.4)
 pl.xlim(23.6,26.7)
@@ -856,10 +856,10 @@ pl.close()
 outfile = 'leo2pt_regression.M96_spectrum.txt'
 specfile=open(outfile,'w')
 
-print >>specfile,'#EVLA Leo Ring at M96 = 10:46:45.7 11d49m12s'
-print >>specfile,'#256 points: BARYvelocity(km/s) FluxDensity(Jy/beam)'
+print('#EVLA Leo Ring at M96 = 10:46:45.7 11d49m12s', file=specfile)
+print('#256 points: BARYvelocity(km/s) FluxDensity(Jy/beam)', file=specfile)
 for i in chlist:
-    print >>specfile,'%10.7f %12.6f' % (M96_fqarr[i], M96_sparr[i])
+    print('%10.7f %12.6f' % (M96_fqarr[i], M96_sparr[i]), file=specfile)
 
 specfile.close()
 currTime=time.time()
@@ -921,7 +921,7 @@ canonical['version'] = testvers
 canonical['user'] = 'smyers'
 canonical['host'] = 'rishi'
 canonical['cwd'] = '/home/rishi2/smyers/3.0.1/LeoRing/'
-print "Using internal regression from "+canonical['version']+" on "+canonical['date']
+print("Using internal regression from "+canonical['version']+" on "+canonical['date'])
 
 canonical_results = {}
 canonical_results['dirty_image_max'] = {}
@@ -961,7 +961,7 @@ canonical_results['model_pbcor_sum']['value'] = model_pbcor_sum
 
 canonical['results'] = canonical_results
 
-print "Canonical Regression (default) from "+canonical['date']
+print("Canonical Regression (default) from "+canonical['date'])
 
 #
 # Try and load previous results from regression file
@@ -973,14 +973,14 @@ prev_results = {}
 try:
     fr = open(regressfile,'r')
 except:
-    print "No previous regression results file "+regressfile
+    print("No previous regression results file "+regressfile)
     regression['exist'] = False
 else:
     u = pickle.Unpickler(fr)
     regression = u.load()
     fr.close()
-    print "Regression results filled from "+regressfile
-    print "Regression from version "+regression['version']+" on "+regression['date']
+    print("Regression results filled from "+regressfile)
+    print("Regression from version "+regression['version']+" on "+regression['date'])
     regression['exist'] = True
 
     prev_results = regression['results']
@@ -990,8 +990,8 @@ else:
 # Calculate test values
 ##########################################################################
 #
-print '--Calculate Results--'
-print ''
+print('--Calculate Results--')
+print('')
 
 try:
     dirtymax = dirtystat['max'][0]
@@ -1221,7 +1221,7 @@ resultlist = ['dirty_image_max','dirty_image_offsrc_max',
 
 for keys in resultlist:
     res = results[keys]
-    if prev_results.has_key(keys):
+    if keys in prev_results:
         # This is a known regression
         prev = prev_results[keys]
         new_val = res['value']
@@ -1240,7 +1240,7 @@ for keys in resultlist:
         results[keys]['diff'] = new_diff
         results[keys]['status'] = new_status
         results[keys]['test'] = 'Last'
-    elif canonical_results.has_key(keys):
+    elif keys in canonical_results:
         # Go back to canonical values
         prev = canonical_results[keys]
         new_val = res['value']
@@ -1324,11 +1324,11 @@ p = pickle.Pickler(f)
 p.dump(new_regression)
 f.close()
 
-print ""
-print "Regression result dictionary saved in "+pickfile
-print ""
-print "Use Pickle to retrieve these"
-print ""
+print("")
+print("Regression result dictionary saved in "+pickfile)
+print("")
+print("Use Pickle to retrieve these")
+print("")
 
 # e.g.
 # f = open(pickfile)
@@ -1342,8 +1342,8 @@ print ""
 # Printing out results
 ##########################################################################
 #
-print ''
-print >>logfile,''
+print('')
+print('', file=logfile)
 
 # Print out comparison:
 res = {}
@@ -1356,117 +1356,117 @@ resultlist = ['dirty_image_max','dirty_image_offsrc_max',
               'model_clean_sum','model_taper_sum','model_pbcor_sum']
 
 # First versus canonical values
-print >>logfile,'---'
-print >>logfile,'Regression versus previous values:'
-print >>logfile,'---'
-print '---'
-print 'Regression versus previous values:'
-print '---'
+print('---', file=logfile)
+print('Regression versus previous values:', file=logfile)
+print('---', file=logfile)
+print('---')
+print('Regression versus previous values:')
+print('---')
 
 if regression['exist']:
-    print >>logfile,"  Regression results filled from "+regressfile
-    print >>logfile,"  Regression from version "+regression['version']+" on "+regression['date']
-    print >>logfile,"  Regression platform "+regression['host']
+    print("  Regression results filled from "+regressfile, file=logfile)
+    print("  Regression from version "+regression['version']+" on "+regression['date'], file=logfile)
+    print("  Regression platform "+regression['host'], file=logfile)
     
-    print "  Regression results filled from "+regressfile
-    print "  Regression from version "+regression['version']+" on "+regression['date']
-    print "  Regression platform "+regression['host']
-    if regression.has_key('aipspath'):
-        print >>logfile,"  Regression casapath "+regression['aipspath']
-        print "  Regression casapath "+regression['aipspath']
+    print("  Regression results filled from "+regressfile)
+    print("  Regression from version "+regression['version']+" on "+regression['date'])
+    print("  Regression platform "+regression['host'])
+    if 'aipspath' in regression:
+        print("  Regression casapath "+regression['aipspath'], file=logfile)
+        print("  Regression casapath "+regression['aipspath'])
     
 else:
-    print >>logfile,"  No previous regression file"
+    print("  No previous regression file", file=logfile)
 
-print ""
-print >>logfile,""
+print("")
+print("", file=logfile)
 
 final_status = 'Passed'
 for keys in resultlist:
     res = results[keys]
-    print '--%30s : %12.6f was %12.6f %4s %12.6f (%6s) %s ' % ( res['name'], res['value'], res['prev'], res['op'], res['diff'], res['status'], res['test'] )
-    print >>logfile,'--%30s : %12.6f was %12.6f %4s %12.6f (%6s) %s ' % ( res['name'], res['value'], res['prev'], res['op'], res['diff'], res['status'], res['test'] )
+    print('--%30s : %12.6f was %12.6f %4s %12.6f (%6s) %s ' % ( res['name'], res['value'], res['prev'], res['op'], res['diff'], res['status'], res['test'] ))
+    print('--%30s : %12.6f was %12.6f %4s %12.6f (%6s) %s ' % ( res['name'], res['value'], res['prev'], res['op'], res['diff'], res['status'], res['test'] ), file=logfile)
     if res['status']=='Failed':
         final_status = 'Failed'
 
 if (final_status == 'Passed'):
     regstate=True
-    print >>logfile,'---'
-    print >>logfile,'Passed Regression test for LeoRing'
-    print >>logfile,'---'
-    print 'Passed Regression test for LeoRing'
+    print('---', file=logfile)
+    print('Passed Regression test for LeoRing', file=logfile)
+    print('---', file=logfile)
+    print('Passed Regression test for LeoRing')
 else:
     regstate=False
-    print >>logfile,'----FAILED Regression test for LeoRing'
-    print '----FAILED Regression test for LeoRing'
+    print('----FAILED Regression test for LeoRing', file=logfile)
+    print('----FAILED Regression test for LeoRing')
     
-print ''
-print 'Total wall clock time was: '+str(endTime - startTime)
-print 'Total CPU        time was: '+str(endProc - startProc)
-print >>logfile,''
-print >>logfile,'Total wall clock time was: '+str(endTime - startTime)
-print >>logfile,'Total CPU        time was: '+str(endProc - startProc)
+print('')
+print('Total wall clock time was: '+str(endTime - startTime))
+print('Total CPU        time was: '+str(endProc - startProc))
+print('', file=logfile)
+print('Total wall clock time was: '+str(endTime - startTime), file=logfile)
+print('Total CPU        time was: '+str(endProc - startProc), file=logfile)
 
-print ''
-print 'Canonical wall clock time was: '+str(2354.63)+' on 2010-01-29 (rishi)'
-print 'Canonical CPU        time was: '+str(2354.63)+' on 2010-01-29 (rishi)'
-print >>logfile,''
-print >>logfile,'Canonical wall clock time was: '+str(2354.63)+' on 2010-01-29 (rishi)'
-print >>logfile,'Canonical CPU        time was: '+str(2354.63)+' on 2010-01-29 (rishi)'
+print('')
+print('Canonical wall clock time was: '+str(2354.63)+' on 2010-01-29 (rishi)')
+print('Canonical CPU        time was: '+str(2354.63)+' on 2010-01-29 (rishi)')
+print('', file=logfile)
+print('Canonical wall clock time was: '+str(2354.63)+' on 2010-01-29 (rishi)', file=logfile)
+print('Canonical CPU        time was: '+str(2354.63)+' on 2010-01-29 (rishi)', file=logfile)
 
-print ''
-print 'SDM datasize (MB)               : '+str(datasize_raw)
-print 'Filled MS datasize (MB)         : '+str(datasize_fill)
-print >>logfile,''
-print >>logfile,'SDM datasize (MB)               : '+str(datasize_raw)
-print >>logfile,'Filled MS datasize (MB)         : '+str(datasize_fill)
+print('')
+print('SDM datasize (MB)               : '+str(datasize_raw))
+print('Filled MS datasize (MB)         : '+str(datasize_fill))
+print('', file=logfile)
+print('SDM datasize (MB)               : '+str(datasize_raw), file=logfile)
+print('Filled MS datasize (MB)         : '+str(datasize_fill), file=logfile)
 
-print 'Split MS datasize (MB)          : '+str(datasize_split)
-print >>logfile,'Split MS datasize (MB)          : '+str(datasize_split)
+print('Split MS datasize (MB)          : '+str(datasize_split))
+print('Split MS datasize (MB)          : '+str(datasize_split), file=logfile)
 
-print 'Clearcal MS datasize (MB)       : '+str(datasize_clear)
-print >>logfile,'Clearcal MS datasize (MB)       : '+str(datasize_clear)
+print('Clearcal MS datasize (MB)       : '+str(datasize_clear))
+print('Clearcal MS datasize (MB)       : '+str(datasize_clear), file=logfile)
 
-print 'Final MS datasize (MB)          : '+str(datasize_final)
-print >>logfile,'Clearcal MS datasize (MB)       : '+str(datasize_final)
+print('Final MS datasize (MB)          : '+str(datasize_final))
+print('Clearcal MS datasize (MB)       : '+str(datasize_final), file=logfile)
 
-print 'Export UVFITS datasize (MB)     : '+str(datasize_fits)
-print >>logfile,'Export UVFITS datasize (MB)     : '+str(datasize_fits)
+print('Export UVFITS datasize (MB)     : '+str(datasize_fits))
+print('Export UVFITS datasize (MB)     : '+str(datasize_fits), file=logfile)
 
-print 'Reported sizes are in MB from "du -ms" (1024x1024 bytes)'
-print >>logfile,'Reported sizes are in MB from "du -ms" (1024x1024 bytes)'
+print('Reported sizes are in MB from "du -ms" (1024x1024 bytes)')
+print('Reported sizes are in MB from "du -ms" (1024x1024 bytes)', file=logfile)
 
-print ''
-print >>logfile,''
+print('')
+print('', file=logfile)
 
-print 'Net SDMtoMS filling I/O rate MB/s   : '+str((datasize_raw+datasize_fill)/fillTime)
-print >>logfile,'Net SDMtoMS filling I/O rate MB/s   : '+str((datasize_raw+datasize_fill)/fillTime)
+print('Net SDMtoMS filling I/O rate MB/s   : '+str((datasize_raw+datasize_fill)/fillTime))
+print('Net SDMtoMS filling I/O rate MB/s   : '+str((datasize_raw+datasize_fill)/fillTime), file=logfile)
 
-print 'Net Splitting I/O rate MB/s was     : '+str((datasize_fill+datasize_split)/splitTime)
-print >>logfile,'Net Splitting I/O rate MB/s was     : '+str((datasize_fill+datasize_split)/splitTime)
+print('Net Splitting I/O rate MB/s was     : '+str((datasize_fill+datasize_split)/splitTime))
+print('Net Splitting I/O rate MB/s was     : '+str((datasize_fill+datasize_split)/splitTime), file=logfile)
 
-print 'Net Clearcal I/O rate MB/s was      : '+str((datasize_ms)/clearTime)
-print >>logfile,'Net Clearcal I/O rate MB/s was      : '+str((datasize_ms)/clearTime)
+print('Net Clearcal I/O rate MB/s was      : '+str((datasize_ms)/clearTime))
+print('Net Clearcal I/O rate MB/s was      : '+str((datasize_ms)/clearTime), file=logfile)
 
-print 'Net MStoUVFITS export I/O rate MB/s : '+str((datasize_final+datasize_fits)/exportTime)
-print >>logfile,'Net MStoUVFITS export I/O rate MB/s : '+str((datasize_final+datasize_fits)/exportTime)
-print ''
-print >>logfile,''
-print 'Net SDM processing rate MB/s        : '+str(datasize_raw/(endTime - startTime))
-print >>logfile,'Net SDM processing rate MB/s        : '+str(datasize_raw/(endTime - startTime))
-print 'Net MS processing rate MB/s         : '+str(datasize_ms/(endTime - startTime))
-print >>logfile,'Net MS processing rate MB/s         : '+str(datasize_ms/(endTime - startTime))
+print('Net MStoUVFITS export I/O rate MB/s : '+str((datasize_final+datasize_fits)/exportTime))
+print('Net MStoUVFITS export I/O rate MB/s : '+str((datasize_final+datasize_fits)/exportTime), file=logfile)
+print('')
+print('', file=logfile)
+print('Net SDM processing rate MB/s        : '+str(datasize_raw/(endTime - startTime)))
+print('Net SDM processing rate MB/s        : '+str(datasize_raw/(endTime - startTime)), file=logfile)
+print('Net MS processing rate MB/s         : '+str(datasize_ms/(endTime - startTime)))
+print('Net MS processing rate MB/s         : '+str(datasize_ms/(endTime - startTime)), file=logfile)
 
-print '* Breakdown:                               *'
-print >>logfile,'* Breakdown:                               *'
+print('* Breakdown:                               *')
+print('* Breakdown:                               *', file=logfile)
 
 for i in range(nstages):
-    print '* %40s * time was: %10.3f ' % (stagename[i],stagetime[i])
-    print >>logfile,'* %40s * time was: %10.3f ' % (stagename[i],stagetime[i])
+    print('* %40s * time was: %10.3f ' % (stagename[i],stagetime[i]))
+    print('* %40s * time was: %10.3f ' % (stagename[i],stagetime[i]), file=logfile)
 
 logfile.close()
 
-print "Done with regression for "+mydataset
+print("Done with regression for "+mydataset)
 # End of script
 #
 #================================================================================

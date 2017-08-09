@@ -7,7 +7,7 @@ def statwt2(vis, timebin, chanbin):
         myms.open(vis, nomodify=False)
         myms.statwt2(timebin=timebin, chanbin=chanbin) 
         return True
-    except Exception, instance:
+    except Exception as instance:
         casalog.post( '*** Error ***'+str(instance), 'SEVERE' )
         raise
     finally:

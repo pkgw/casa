@@ -59,11 +59,11 @@ class PartitionHelperTest(unittest.TestCase,
         #=======================================================
         # Check the simple case of more scans than subMSs
         self._arg['numsubms'] = 8
-        self.setScanList(range(16))
+        self.setScanList(list(range(16)))
         self._createScanSeparationCommands()
 
         commandList = []
-        for idx in xrange(8):
+        for idx in range(8):
             outputvis = '%s/%s.%04d.ms' %  (self.dataDir,self.outputBase,idx)
             commandList.append(JobData('partition',{
                 'outputvis': outputvis,
@@ -73,11 +73,11 @@ class PartitionHelperTest(unittest.TestCase,
         #=======================================================
         # Check the case of fewer scans than subMSs
         self._arg['numsubms'] = 8
-        self.setScanList(range(6))
+        self.setScanList(list(range(6)))
         self._createScanSeparationCommands()
 
         commandList = []
-        for idx in xrange(6):
+        for idx in range(6):
             outputvis = '%s/%s.%04d.ms' %  (self.dataDir,self.outputBase,idx)
             commandList.append(JobData('partition',{
                 'outputvis': outputvis,
@@ -87,18 +87,18 @@ class PartitionHelperTest(unittest.TestCase,
         # =======================================================
         # Check the case of the cal Scans being defined
         self._arg['numsubms'] = 8
-        self.setScanList(range(32))
+        self.setScanList(list(range(32)))
 
         # Do A Selection to populat the calScanList
         self._selectMS(True)
         self._calScanList = self._getScanList()
 
         # Reset the local Scan list
-        self.setScanList(range(32))
+        self.setScanList(list(range(32)))
         self._createScanSeparationCommands()
 
         commandList = []
-        for idx in xrange(8):
+        for idx in range(8):
             outputvis = '%s/%s.%04d.ms' %  (self.dataDir,self.outputBase,idx)
             commandList.append(JobData('partition',{
                 'outputvis': outputvis,
@@ -113,11 +113,11 @@ class PartitionHelperTest(unittest.TestCase,
 
         # Check the simple case of more spws than subMSs
         self._arg['numsubms'] = 8
-        self.setSPWList(range(16))
+        self.setSPWList(list(range(16)))
         self._createSPWSeparationCommands()
 
         commandList = []
-        for idx in xrange(8):
+        for idx in range(8):
             outputvis = '%s/%s.%04d.ms' %  (self.dataDir,self.outputBase,idx)
             commandList.append(JobData('partition',{
                 'outputvis': outputvis,
@@ -127,11 +127,11 @@ class PartitionHelperTest(unittest.TestCase,
 
         # Check the case of fewer spws than subMSs
         self._arg['numsubms'] = 8
-        self.setSPWList(range(6))
+        self.setSPWList(list(range(6)))
         self._createSPWSeparationCommands()
 
         commandList = []
-        for idx in xrange(6):
+        for idx in range(6):
             outputvis = '%s/%s.%04d.ms' %  (self.dataDir,self.outputBase,idx)
             commandList.append(JobData('partition',{
                 'outputvis': outputvis,
@@ -141,24 +141,24 @@ class PartitionHelperTest(unittest.TestCase,
         #=======================================================
         # Check the case of the cal Scans being defined
         self._arg['numsubms'] = 8
-        self.setScanList(range(32))
-        self.setSPWList(range(16))
+        self.setScanList(list(range(32)))
+        self.setSPWList(list(range(16)))
 
         # Do A Selection to populate the calScanList
         self._selectMS(True)
         self._calScanList = self._getScanList()
 
         # Reset the local Scan list
-        self.setScanList(range(32))
+        self.setScanList(list(range(32)))
         self._createSPWSeparationCommands()
 
         commandList = []
-        for idx in xrange(8):
+        for idx in range(8):
             outputvis = '%s/%s.%04d.ms' %  (self.dataDir,self.outputBase,idx)
             commandList.append(JobData('partition',{
                 'outputvis': outputvis,
                 'spw' : self.listToCasaString([2*idx, 2*idx+1]),
-                'scan': self.listToCasaString(range(1,32,2))}))
+                'scan': self.listToCasaString(list(range(1,32,2)))}))
         self.checkCommandList(commandList)
 
 
@@ -170,14 +170,14 @@ class PartitionHelperTest(unittest.TestCase,
         # ========================================================
         # Check the case where we have more spw than subMS
         self._arg['numsubms'] = 8
-        self.setSPWList(range(16))
-        self.setScanList(range(10))
+        self.setSPWList(list(range(16)))
+        self.setScanList(list(range(10)))
         self._createDefaultSeparationCommands()
 
         # Set up the expected output, Note there is no selection for
         # the CalScans so we do not expect a Scan output
         commandList = []
-        for idx in xrange(8):
+        for idx in range(8):
             outputvis = '%s/%s.%04d.ms' %  (self.dataDir,self.outputBase,idx)
             commandList.append(JobData('partition',{
                 'outputvis': outputvis,
@@ -187,30 +187,30 @@ class PartitionHelperTest(unittest.TestCase,
         # ========================================================
         # Check the case of not enough spws
         self._arg['numsubms'] = 16
-        self.setSPWList(range(4))
-        self.setScanList(range(12))
+        self.setSPWList(list(range(4)))
+        self.setScanList(list(range(12)))
         self._createDefaultSeparationCommands()
 
         # Set up the expected output
         commandList = []
-        for idx in xrange(16):
+        for idx in range(16):
             outputvis = '%s/%s.%04d.ms' %  (self.dataDir,self.outputBase,idx)
             commandList.append(JobData('partition',{
                 'outputvis': outputvis,
-                'scan': self.listToCasaString(range((idx%4)*3,((idx%4)+1)*3)),
+                'scan': self.listToCasaString(list(range((idx%4)*3,((idx%4)+1)*3))),
                 'spw': str(idx/4)}))
         self.checkCommandList(commandList)
 
         # ========================================================
         # Check the case of not being able to make the number of submss
         self._arg['numsubms'] = 48
-        self.setSPWList(range(15))
-        self.setScanList(range(2))
+        self.setSPWList(list(range(15)))
+        self.setScanList(list(range(2)))
         self._createDefaultSeparationCommands()
 
          # Set up the expected output
         commandList = []
-        for idx in xrange(30):
+        for idx in range(30):
             outputvis = '%s/%s.%04d.ms' %  (self.dataDir,self.outputBase,idx)
             commandList.append(JobData('partition',{
                 'outputvis': outputvis,
@@ -220,12 +220,12 @@ class PartitionHelperTest(unittest.TestCase,
         
         # Check the case of not passing in any scans (but not needing them)
         self._arg['numsubms'] = 8
-        self.setSPWList(range(16))
+        self.setSPWList(list(range(16)))
         self._createDefaultSeparationCommands()
 
         # Set up the expected output
         commandList = []
-        for idx in xrange(8):
+        for idx in range(8):
             outputvis = '%s/%s.%04d.ms' %  (self.dataDir,self.outputBase,idx)
             commandList.append(JobData('partition',{
                 'outputvis': outputvis,
@@ -236,13 +236,13 @@ class PartitionHelperTest(unittest.TestCase,
         # ========================================================
         # Check the case of not passing any scans (but needing them)
         self._arg['numsubms'] = 16
-        self.setSPWList(range(4))
-        self.setScanList(range(4))
+        self.setSPWList(list(range(4)))
+        self.setScanList(list(range(4)))
         self._createDefaultSeparationCommands()
 
         # Set up the expected output
         commandList = []
-        for idx in xrange(16):
+        for idx in range(16):
             outputvis = '%s/%s.%04d.ms' %  (self.dataDir,self.outputBase,idx)
             commandList.append(JobData('partition',{
                 'outputvis': outputvis,

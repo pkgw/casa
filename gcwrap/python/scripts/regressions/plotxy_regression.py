@@ -1393,9 +1393,9 @@ tstutl.note('*****************************************','INFO',this)
 #sys.stderr=saveerr
 #logfile.close()
 
-print ''
-print 'Regression PASSED'
-print ''
+print('')
+print('Regression PASSED')
+print('')
 
 ##############################################################################
 '''

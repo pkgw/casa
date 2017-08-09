@@ -11,14 +11,14 @@ def skipUnlessHasParam(param):
         @functools.wraps(func)
         def _wrapper(*args, **kwargs):
             task = args[0].task
-            task_args = inspect.getargs(task.func_code).args
+            task_args = inspect.getargs(task.__code__).args
             if isinstance(param, str):
                 condition = param in task_args
                 reason = '%s doesn\'t have parameter \'%s\''%(task.__name__, param)
             else:
                 # should be a list
                 condition = all([p in task_args for p in param])
-                reason = '%s doesn\'t have parameter %s'%(task.__name__, map(lambda x: '\'' + str(x) + '\'', param))
+                reason = '%s doesn\'t have parameter %s'%(task.__name__, ['\'' + str(x) + '\'' for x in param])
             return unittest.skipUnless(condition, reason)(func)(*args, **kwargs)
         return _wrapper
     return wrapper
@@ -33,7 +33,7 @@ def skipIfNoChannelSelection(func):
         return unittest.skipUnless(condition, reason)(func)(*args, **kwargs)
     return wrapper
 
-class SelectionSyntaxTest(unittest.TestCase):
+class SelectionSyntaxTest(unittest.TestCase, metaclass=abc.ABCMeta):
     """
     Base class for data selection syntax unit test.
 
@@ -46,7 +46,6 @@ class SelectionSyntaxTest(unittest.TestCase):
     will check whether the test is properly implemented in
     terms of its intent.
     """
-    __metaclass__ = abc.ABCMeta
         
     infile = None
 
@@ -530,13 +529,13 @@ class SelectionSyntaxTest(unittest.TestCase):
         # Test 1: target parameter must be set unless the test is 'default'
         #         otherwise test fails            
         if psubtype != 'default' or channel_selection is not None:
-            self.assertIn(param, kwargs.keys(),
+            self.assertIn(param, list(kwargs.keys()),
                           msg='parameter \'%s\' must be specified'%(param))
 
         # Test 2: appropriate value must be set for target parameter
         #         otherwise test fails
         if psubtype == 'default' and channel_selection is None:
-            self.assertTrue((param not in kwargs.keys()) or len(kwargs[param]) == 0,
+            self.assertTrue((param not in list(kwargs.keys())) or len(kwargs[param]) == 0,
                             msg='parameter \'%s\' must be default'%(param))
         else:
             param_value = kwargs[param]

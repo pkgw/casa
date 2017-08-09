@@ -87,7 +87,7 @@ tstutl.maketestdir(testdir)
 # Import the data from FITS to MS
 #
 #try:
-print '--Importuvfits--'
+print('--Importuvfits--')
 status = True
 taskname = 'importuvfits'
 default(taskname)
@@ -98,7 +98,7 @@ status = importuvfits()
     
 if status == False:
     regstate=False
-    raise Exception, "Regression test failed for 3C219D in task \"%s\"" %(taskname)
+    raise Exception("Regression test failed for 3C219D in task \"%s\"" %(taskname))
     
 #
 #=====================================================================
@@ -108,7 +108,7 @@ if status == False:
 #  2 IF's, Field 1,2,3 = 3C219, 3C219NE, 3C219SW
 #          Field 0 = 0917+449 main calibrator
 #          Field 4 = 3C286 flux/pol calibrator
-print '--Listobs--'
+print('--Listobs--')
 status = True
 taskname = 'listobs'
 default(taskname)
@@ -117,14 +117,14 @@ status = listobs()
 
 if status == False:
     regstate=False
-    raise Exception, "Regression test failed for 3C219D in task \"%s\"" %(taskname)
+    raise Exception("Regression test failed for 3C219D in task \"%s\"" %(taskname))
     
 #
 #=====================================================================
 #
 #  Change data equinox to J2000
 #
-print '--Fixvis--'
+print('--Fixvis--')
 status = True
 taskname = 'fixvis'
 default (taskname)
@@ -135,14 +135,14 @@ status  = fixvis()
 
 if status == False:
     regstate=False
-    raise Exception, "Regression test failed for 3C219D in task \"%s\"" %(taskname)
+    raise Exception("Regression test failed for 3C219D in task \"%s\"" %(taskname))
     
 #
 #=====================================================================
 #
 #  Compare equinox before and after
 #
-print '--Vishead--'
+print('--Vishead--')
 taskname = 'vishead'
 default (vishead)
 mode = 'list'
@@ -154,10 +154,10 @@ b=vishead()
 
 if (a == False or b == False):
     regstate=False
-    raise Exception, "Regression test failed for 3C219D in task \"%s\"" %(taskname)
+    raise Exception("Regression test failed for 3C219D in task \"%s\"" %(taskname))
 
-print "original equinox: ", a['ptcs'][1]['MEASINFO']['Ref']
-print "     new equinox: ", b['ptcs'][1]['MEASINFO']['Ref']
+print("original equinox: ", a['ptcs'][1]['MEASINFO']['Ref'])
+print("     new equinox: ", b['ptcs'][1]['MEASINFO']['Ref'])
     
     
 #
@@ -165,7 +165,7 @@ print "     new equinox: ", b['ptcs'][1]['MEASINFO']['Ref']
 #
 #  Normal clean Image field 1 (3C219)
 #
-print '--Clean 1-field, 1 scale--'
+print('--Clean 1-field, 1 scale--')
 status = True
 taskname = 'clean'
 default(taskname)
@@ -186,7 +186,7 @@ status = clean()
 
 if status == False:
     regstate=False
-    raise Exception, "Regression test failed for 3C219D in task \"%s\"" %(taskname)
+    raise Exception("Regression test failed for 3C219D in task \"%s\"" %(taskname))
 
     
 #
@@ -194,7 +194,7 @@ if status == False:
 #
 #  Multi-scale Image field 1 (3C219)
 #
-print '--Clean 1-field, multi-scale--'
+print('--Clean 1-field, multi-scale--')
 status = True
 taskname = 'clean'
 default(taskname)
@@ -216,7 +216,7 @@ status = clean()
 
 if status == False:
     regstate=False
-    raise Exception, "Regression test failed for 3C219D in task \"%s\"" %(taskname)
+    raise Exception("Regression test failed for 3C219D in task \"%s\"" %(taskname))
     
 #
 #=====================================================================
@@ -224,7 +224,7 @@ if status == False:
 #  Mosaic on fields 1,2,3
 # 3C219+3C219NE+3C219SW
 #
-print '--Clean 3-field mosaic, 1 scale--'
+print('--Clean 3-field mosaic, 1 scale--')
 status = True
 taskname = 'clean'
 default(taskname)
@@ -247,14 +247,14 @@ status = clean()
 
 if status == False:
     regstate=False
-    raise Exception, "Regression test failed for 3C219D in task \"%s\"" %(taskname)
+    raise Exception("Regression test failed for 3C219D in task \"%s\"" %(taskname))
     
 #
 #=====================================================================
 #
 #  Multi-scale mosaic
 #
-print '--Clean 3-field mosaic, multi-scale--'
+print('--Clean 3-field mosaic, multi-scale--')
 status = True
 taskname = 'clean'
 default(taskname)
@@ -278,14 +278,14 @@ status = clean()
 
 if status == False:
     regstate=False
-    raise Exception, "Regression test failed for 3C219D in task \"%s\"" %(taskname)
+    raise Exception("Regression test failed for 3C219D in task \"%s\"" %(taskname))
     
 #
 #=====================================================================
 #
 #  Make difference images of multi-scale
 #
-print '--Immath--'
+print('--Immath--')
 status = True
 taskname = 'immath'
 default (taskname)
@@ -297,7 +297,7 @@ status = immath()
 
 if status == None:
     regstate=False
-    raise Exception, "Regression test failed for 3C219D in task \"%s\"" %(taskname)
+    raise Exception("Regression test failed for 3C219D in task \"%s\"" %(taskname))
     
 #
 #=====================================================================
@@ -313,7 +313,7 @@ a1=imstat()
 
 if a1 == False:
     regstate=False
-    raise Exception, "Regression test failed for 3C219D in task \"%s\"" %(taskname)
+    raise Exception("Regression test failed for 3C219D in task \"%s\"" %(taskname))
     
 #
 #=====================================================================
@@ -331,7 +331,7 @@ immath()
 
 if status == None:
     regstate=False
-    raise Exception, "Regression test failed for 3C219D in task \"%s\"" %(taskname)
+    raise Exception("Regression test failed for 3C219D in task \"%s\"" %(taskname))
     
 #
 #=====================================================================
@@ -347,7 +347,7 @@ a2=imstat()
 
 if a2 == False:
     regstate=False
-    raise Exception, "Regression test failed for 3C219D in task \"%s\"" %(taskname)
+    raise Exception("Regression test failed for 3C219D in task \"%s\"" %(taskname))
 
     
 # Do regressions tests
@@ -356,23 +356,23 @@ if a2 == False:
 ref1_rms=0.0005
 ref2_rms=0.0002
 
-print "difference between D-3scale.image and D-3scale_mos.image"
-print "diff:  rms = ",a1['rms'][0],";  minimum= ",a1['min'][0],": maximum= ",a1['max'][0]    
-print "difference between D-1scale.image and D-1scale_mos.image"
-print "diff:  rms = ",a2['rms'][0],";  minimum= ",a2['min'][0],": maximum= ",a2['max'][0]    
+print("difference between D-3scale.image and D-3scale_mos.image")
+print("diff:  rms = ",a1['rms'][0],";  minimum= ",a1['min'][0],": maximum= ",a1['max'][0])    
+print("difference between D-1scale.image and D-1scale_mos.image")
+print("diff:  rms = ",a2['rms'][0],";  minimum= ",a2['min'][0],": maximum= ",a2['max'][0])    
     
 if((abs(ref1_rms-a1['rms']) > 0.001) or (abs(ref2_rms-a2['rms']) > 0.001)):
-    print abs(ref1_rms-a1['rms'])
-    print abs(ref2_rms-a2['rms'])
+    print(abs(ref1_rms-a1['rms']))
+    print(abs(ref2_rms-a2['rms']))
     regstate=False
-    print ''
-    print 'Regression FAILED'
-    print ''
-    raise Exception, 'Regression test failed for 3C219D. Absolute differences are larger than 1e-03.'
+    print('')
+    print('Regression FAILED')
+    print('')
+    raise Exception('Regression test failed for 3C219D. Absolute differences are larger than 1e-03.')
 else:
-    print ''
-    print 'Regression PASSED'
-    print ''
+    print('')
+    print('Regression PASSED')
+    print('')
         
 
 #  End of 3C219D regression

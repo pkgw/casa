@@ -170,7 +170,7 @@ def predictcomp(objname=None, standard=None, epoch=None,
             casalog.post("There was an error in making the component list.",
                          'SEVERE')
 
-    except Exception, instance:
+    except Exception as instance:
         casalog.post(str(instance), 'SEVERE')
-        raise Exception, instance
+        raise Exception(instance)
     return retval

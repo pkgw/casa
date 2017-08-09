@@ -2,7 +2,7 @@
 Using tools with timeit seems to be a real pain, so this is a simpler
 alternative, although likely a little less accurate.
 """
-from __future__ import print_function
+
 import time
 
 def benchmark(func, args, kwargs, nreps=5, nperrep=1):
@@ -25,11 +25,11 @@ def benchmark(func, args, kwargs, nreps=5, nperrep=1):
     meantime = 0.0
     maxtime =  0.0
     print("Run", end='')
-    for i in xrange(nreps):
-        print i + 1,
+    for i in range(nreps):
+        print(i + 1, end='')
         sys.stdout.flush()
         t0 = time.time()
-        for j in xrange(nperrep):
+        for j in range(nperrep):
             dummy = func(*args, **kwargs)
         wallclocktime = (time.time() - t0) / float(nperrep)
         meantime += (wallclocktime - meantime) / (i + 1.0)

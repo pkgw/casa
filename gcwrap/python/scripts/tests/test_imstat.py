@@ -36,7 +36,7 @@ class imstat_test(unittest.TestCase):
         mytype = type(resold)
         self.assertTrue(mytype == type(resnew), helpstr + ": types differ")
         if mytype == dict:
-            for k in resold.keys():
+            for k in list(resold.keys()):
                 self._compare(resold[k], resnew[k], helpstr)
         elif mytype == numpy.ndarray:
             oldarray = resold.ravel()
@@ -369,7 +369,7 @@ class imstat_test(unittest.TestCase):
         myia = self._myia
         shape = [15, 20, 4, 10]
         myia.fromshape("", shape)
-        xx = numpy.array(range(shape[0]*shape[1]))
+        xx = numpy.array(list(range(shape[0]*shape[1])))
         xx.resize(shape[0], shape[1])
         myia.putchunk(xx, replicate=True)
         myia.setbrightnessunit("Jy/pixel")
@@ -383,15 +383,15 @@ class imstat_test(unittest.TestCase):
                             trc=[shape[0]-1, shape[1]-1, i, j]
                         )
                     )
-                    self.assertTrue(len(got.keys()) == len(exp.keys()))
-                    for k in got.keys():
+                    self.assertTrue(len(list(got.keys())) == len(list(exp.keys())))
+                    for k in list(got.keys()):
                         if (type(got[k]) == type(got["rms"])):
                             if (k != "blc" and k != "trc"):
                                 self.assertTrue((got[k] == exp[k][0][0]).all())
                             
         axes = [0, 1]
         exp = myia.statistics(axes=axes)
-        self.assertFalse(exp.has_key("flux"))
+        self.assertFalse("flux" in exp)
         check(myia, axes, exp)
         myia.setbrightnessunit("Jy/beam")
         self.assertTrue(myia.brightnessunit() == "Jy/beam")
@@ -403,7 +403,7 @@ class imstat_test(unittest.TestCase):
         )
         self.assertTrue(myia.brightnessunit() == "Jy/beam")
         exp = myia.statistics(axes=axes)
-        self.assertTrue(exp.has_key("flux"))
+        self.assertTrue("flux" in exp)
         check(myia, axes, exp)
         myia.setrestoringbeam(remove=True)
         self.assertTrue(
@@ -413,7 +413,7 @@ class imstat_test(unittest.TestCase):
             )
         )
         exp = myia.statistics(axes=axes)
-        self.assertTrue(exp.has_key("flux"))
+        self.assertTrue("flux" in exp)
         check(myia, axes, exp)
         nmajor = qa.add(major, qa.quantity("0.1arcmin"))
         self.assertTrue(
@@ -423,7 +423,7 @@ class imstat_test(unittest.TestCase):
             )
         )
         exp = myia.statistics(axes=axes)
-        self.assertTrue(exp.has_key("flux"))
+        self.assertTrue("flux" in exp)
         self.assertTrue(
             abs(1 - qa.getvalue(nmajor)*exp["flux"][1][1]/(qa.getvalue(major)*exp["flux"][0][0]))
             < 1e-7
@@ -472,7 +472,7 @@ class imstat_test(unittest.TestCase):
         
     def test_hingesfences(self):
         """Test hinges-fences algorithm"""
-        data = range(100)
+        data = list(range(100))
         myia = self._myia
         imagename = "hftest.im"
         myia.fromarray(imagename, data)
@@ -484,7 +484,7 @@ class imstat_test(unittest.TestCase):
             else:
                 hfall = imstat(imagename=imagename, algorithm="h")
                 hf0 = imstat(imagename=imagename, algorithm="h", fence=0)
-            for k in classic.keys():
+            for k in list(classic.keys()):
                 if type(classic[k]) == numpy.ndarray:
                     if k == 'sigma':
                         self.assertTrue((abs(hfall[k]/classic[k] - 1) < 1e-15).all())
@@ -499,7 +499,7 @@ class imstat_test(unittest.TestCase):
     
     def test_fithalf(self):
         """Test fit to half algorithm"""
-        data = numpy.array(range(100))
+        data = numpy.array(list(range(100)))
         data = data*data
         myia = self._myia
         imagename = "fhtest.im"

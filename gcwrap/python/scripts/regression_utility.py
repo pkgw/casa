@@ -15,7 +15,7 @@ def note(message, priority="INFO", origin="regression_utility", ntime=None, post
     #if not ntime:  #if (ntime==None):
     #    ntime=time.asctime()
     #print ntime, priority, origin, message
-    if postcli: print message
+    if postcli: print(message)
     casalog.postLocally(message, priority, origin)
 ###
 def info(message):
@@ -26,12 +26,12 @@ def info(message):
 def fail(message=""):
     casalog.postLocally(message, priority="SEVERE", origin='regression_utility')
     #print message
-    raise RuntimeError, message
+    raise RuntimeError(message)
 
 ###
 def stop(message=""):
     note(message ,priority='SEVERE', origin='regression_utility')
-    raise RuntimeError, message
+    raise RuntimeError(message)
 
 ###
 def cleanup(dir):
@@ -40,7 +40,7 @@ def cleanup(dir):
         def errFunc(raiser, problemPath, excInfo):
             #print raiser.__name__,'failed on',problemPath
             note(raiser.__name__+'failed on'+problemPath,"SEVERE")
-            raise RuntimeError, "Cleanup of " + dir + " fails!"
+            raise RuntimeError("Cleanup of " + dir + " fails!")
         shutil.rmtree(dir,0,errFunc)
     return True
 
@@ -51,6 +51,6 @@ def maketestdir(testdir):
         return False
     try:
         os.mkdir(testdir)
-    except IOError, e:
+    except IOError as e:
         note(e, "SEVERE")
-        raise RuntimeError, "mkdir " + testdir + " fails!"
+        raise RuntimeError("mkdir " + testdir + " fails!")

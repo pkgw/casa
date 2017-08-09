@@ -36,7 +36,7 @@ class callibrary(object):
                gaintable='',gainfield='',interp='',spwmap=[],calwt=False):
 
         if len(gaintable)<1:
-            raise Exception, 'Please specify at least a gaintable.'
+            raise Exception('Please specify at least a gaintable.')
 
         # insist all cal params are lists
         #  NB: data selection params are _not_ lists
@@ -163,7 +163,7 @@ class callibrary(object):
 
     def addrec(self,crec,calwt):
 
-        ctname=crec.keys()[0]
+        ctname=list(crec.keys())[0]
 
         irec=0
         if (ctname in self.cld):
@@ -173,7 +173,7 @@ class callibrary(object):
             # prefer already-set calwt
             calwt0=self.cld[ctname]["calwt"]
             if calwt!=calwt0:
-                print 'WARNING: For caltable=\''+ctname+'\' using already-set calwt='+str(calwt0)+'.'
+                print('WARNING: For caltable=\''+ctname+'\' using already-set calwt='+str(calwt0)+'.')
         else:
             # ctname does not yet exist, add it
             self.cld[ctname] = {}
@@ -183,77 +183,77 @@ class callibrary(object):
         self.cld[ctname][str(irec)]=crec[ctname]
 
     def list(self):
-        print 'There are '+str(len(self.cld))+' caltables in the cal library:'
-        keys=self.cld.keys()
+        print('There are '+str(len(self.cld))+' caltables in the cal library:')
+        keys=list(self.cld.keys())
         keys.sort()
         for ct in keys:
-            print ct+': calwt='+str(self.cld[ct]['calwt'])+str(' (')+str(len(self.cld[ct])-1)+str(' instance[s]):')
-            for ims in self.cld[ct].keys():
+            print(ct+': calwt='+str(self.cld[ct]['calwt'])+str(' (')+str(len(self.cld[ct])-1)+str(' instance[s]):'))
+            for ims in list(self.cld[ct].keys()):
                 if (isinstance(self.cld[ct][ims],dict)):
-                    print ' field=\''+str(self.cld[ct][ims]['field'])+'\'',
-                    print ' intent=\''+str(self.cld[ct][ims]['intent'])+'\'',
-                    print ' spw=\''+str(self.cld[ct][ims]['spw'])+'\'',
-                    print ' obs=\''+str(self.cld[ct][ims]['obs'])+'\''
-                    print '  tinterp=\''+str(self.cld[ct][ims]['tinterp'])+'\'',
-                    print ' finterp=\''+str(self.cld[ct][ims]['finterp'])+'\''
+                    print(' field=\''+str(self.cld[ct][ims]['field'])+'\'', end=' ')
+                    print(' intent=\''+str(self.cld[ct][ims]['intent'])+'\'', end=' ')
+                    print(' spw=\''+str(self.cld[ct][ims]['spw'])+'\'', end=' ')
+                    print(' obs=\''+str(self.cld[ct][ims]['obs'])+'\'')
+                    print('  tinterp=\''+str(self.cld[ct][ims]['tinterp'])+'\'', end=' ')
+                    print(' finterp=\''+str(self.cld[ct][ims]['finterp'])+'\'')
                     #print ' reach=\''+str(self.cld[ct][ims]['reach'])+'\''
-                    print '  obsmap='+str(self.cld[ct][ims]['obsmap']),
-                    print ' fldmap='+str(self.cld[ct][ims]['fldmap']),
-                    print ' spwmap='+str(self.cld[ct][ims]['spwmap']),
-                    print ' antmap='+str(self.cld[ct][ims]['antmap'])
+                    print('  obsmap='+str(self.cld[ct][ims]['obsmap']), end=' ')
+                    print(' fldmap='+str(self.cld[ct][ims]['fldmap']), end=' ')
+                    print(' spwmap='+str(self.cld[ct][ims]['spwmap']), end=' ')
+                    print(' antmap='+str(self.cld[ct][ims]['antmap']))
 
 
     def write(self,filename,append=False):
         if len(filename)<1:
-            raise Exception, 'Please specify a filename'
+            raise Exception('Please specify a filename')
         if len(self.cld)<1:
-            raise Exception, 'There is no cal library to write'
+            raise Exception('There is no cal library to write')
 
         fw="w"
         if append:
             fw="a"
         
         f=open(filename,fw)
-        keys0=self.cld.keys()
+        keys0=list(self.cld.keys())
         keys0.sort()
         for ct in keys0:
             ict0=self.cld[ct]
-            keys1=ict0.keys()
+            keys1=list(ict0.keys())
             keys1.sort()
             for ims in keys1:
                 ict1=ict0[ims]
                 if isinstance(ict1,dict):
-                    print >>f, 'caltable=\''+ct+'\'',
-                    print >>f, 'calwt='+str(ict0['calwt']),
+                    print('caltable=\''+ct+'\'', end=' ', file=f)
+                    print('calwt='+str(ict0['calwt']), end=' ', file=f)
                     if len(ict1['field'])>0:
-                        print >>f, 'field=\''+str(ict1['field'])+'\'',
+                        print('field=\''+str(ict1['field'])+'\'', end=' ', file=f)
                     if len(ict1['intent'])>0:
-                        print >>f, 'intent=\''+str(ict1['intent'])+'\'',
+                        print('intent=\''+str(ict1['intent'])+'\'', end=' ', file=f)
                     if len(ict1['spw'])>0:
-                        print >>f, 'spw=\''+str(ict1['spw'])+'\'',
+                        print('spw=\''+str(ict1['spw'])+'\'', end=' ', file=f)
                     if len(ict1['obs'])>0:
-                        print >>f, 'obs=\''+str(ict1['obs'])+'\'',
+                        print('obs=\''+str(ict1['obs'])+'\'', end=' ', file=f)
 
                     if len(ict1['tinterp'])>0:
-                        print >>f, 'tinterp=\''+str(ict1['tinterp'])+'\'',
+                        print('tinterp=\''+str(ict1['tinterp'])+'\'', end=' ', file=f)
                     if len(ict1['finterp'])>0:
-                        print >>f, 'finterp=\''+str(ict1['finterp'])+'\'',
+                        print('finterp=\''+str(ict1['finterp'])+'\'', end=' ', file=f)
                     if len(ict1['reach'])>0:
-                        print >>f, 'reach=\''+str(ict1['reach'])+'\'',
+                        print('reach=\''+str(ict1['reach'])+'\'', end=' ', file=f)
 
                     if len(ict1['obsmap'])>0:
-                        print >>f, 'obsmap='+str(ict1['obsmap']),
+                        print('obsmap='+str(ict1['obsmap']), end=' ', file=f)
                     if len(ict1['fldmap'])>0:
                         if isinstance(ict1['fldmap'],str):
-                            print >>f, 'fldmap=\''+str(ict1['fldmap'])+'\'',
+                            print('fldmap=\''+str(ict1['fldmap'])+'\'', end=' ', file=f)
                         else:
-                            print >>f, 'fldmap='+str(ict1['fldmap']),
+                            print('fldmap='+str(ict1['fldmap']), end=' ', file=f)
                     if len(ict1['spwmap'])>0:
-                        print >>f, 'spwmap='+str(ict1['spwmap']),
+                        print('spwmap='+str(ict1['spwmap']), end=' ', file=f)
                     if len(ict1['antmap'])>0:
-                        print >>f, 'antmap='+str(ict1['antmap']),
+                        print('antmap='+str(ict1['antmap']), end=' ', file=f)
 
-                    print >>f, ''
+                    print('', file=f)
 
         f.close()
 
@@ -274,7 +274,7 @@ class callibrary(object):
             if len(line2)>0:
                 if line2[0]=='#':
                     # Ignore lines that are comments (or turned off with #)
-                    print 'Found comment (not parsed): ',line2
+                    print('Found comment (not parsed): ',line2)
                 else:
                     # A nominally parsable line, apparently
 
@@ -303,9 +303,9 @@ class callibrary(object):
                         exec(parsecmd)
                     except Exception as errline:
                         self.clear()
-                        print 'Error: ',errline
-                        print 'Problem parsing cal library line (check for typos): "'+line+'"'
-                        raise Exception, 'Problem parsing cal library line (check for typos): '+line
+                        print('Error: ',errline)
+                        print('Problem parsing cal library line (check for typos): "'+line+'"')
+                        raise Exception('Problem parsing cal library line (check for typos): '+line)
 
     def compare(self,other):
         return self.cld==other.cld
@@ -315,10 +315,10 @@ def applycaltocallib(filename,append=False,field='',spw='',intent='',
                      gaintable='',gainfield='',interp='',spwmap=[],calwt=True):
     
     if len(filename)<1:
-        raise Exception, 'Please specify a filename'
+        raise Exception('Please specify a filename')
 
     if len(gaintable)<1:
-        raise Exception, 'No caltable specified in gaintable'
+        raise Exception('No caltable specified in gaintable')
 
     c=callibrary()
     c.addold(field=field,spw=spw,intent=intent,gaintable=gaintable,
@@ -344,8 +344,8 @@ def testcallib1():
           tinterp=['nearest','linear'],ctfield=['0',''])
     c1.add(caltable=['B','phase','flux'],field='2',
           finterp=['nearest','linear'],ctfield=['0','3,4'])
-    print ''
-    print 'c1: -----------------------------------------------'
+    print('')
+    print('c1: -----------------------------------------------')
     c1.list()
 
     c2=callibrary()
@@ -355,8 +355,8 @@ def testcallib1():
           tinterp='linear',ctfield='')
     c2.add(gaintable='phase',field='2',
           tinterp='linear',ctfield='3,4')
-    print ''
-    print 'c2: -----------------------------------------------'
+    print('')
+    print('c2: -----------------------------------------------')
     c2.list()
 
     return (c1,c2)
@@ -376,7 +376,7 @@ def testcallib2():
     c2=callibrary()
     c2.read('testcallib2.txt')
 
-    print 'Cal libraries match?', c2.cld==c1.cld
+    print('Cal libraries match?', c2.cld==c1.cld)
 
     return (c1,c2)
 

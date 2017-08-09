@@ -1,7 +1,7 @@
 import os
 import sys
 import shutil
-import commands
+import subprocess
 import numpy
 from __main__ import default
 from tasks import *
@@ -154,7 +154,7 @@ class cleanhelper_test(unittest.TestCase):
         """[Cleanhelper newreadoutlier test (reader for new outlier file format with irregular line breaks)]"""
         imageids, imsizes, phasecenters, masks, models, paramdic, newformat=self.imset.newreadoutlier(self.newoutlierfile)
         # the reference outlier file contains each field's paramaters per line
-        print "Using ", self.newoutlierfile
+        print("Using ", self.newoutlierfile)
         f = open(self.newoutlierreffile,'r')
         lines=f.readlines()
         f.close()
@@ -162,9 +162,9 @@ class cleanhelper_test(unittest.TestCase):
         for elm in lines:
           if len(elm.split())!=0 and elm.split()[0]!='#' :
             cnt +=1
-        print "N fields=",cnt
+        print("N fields=",cnt)
         #print "imsizes=",imsizes," phasecenters=",phasecenters
-        print "len(imsizes)=",len(imsizes), " len(imageids)=",len(imageids)
+        print("len(imsizes)=",len(imsizes), " len(imageids)=",len(imageids))
         if len(imsizes) == len(phasecenters) == len(imageids) == len(masks) == len(models) == cnt:
           self.res=True
         else:
@@ -174,10 +174,10 @@ class cleanhelper_test(unittest.TestCase):
     def testNewreadoutlier2(self):
         """[Cleanhelper newreadoutlier test2 (reader for new outlier file format with a large number (129) of outliers)]"""
         imageids, imsizes, phasecenters, masks, models, paramdic, newformat=self.imset.newreadoutlier(self.newoutlierfile2)
-        print "Using ", self.newoutlierfile2
+        print("Using ", self.newoutlierfile2)
         noutliers=129
         #print "imsizes=",imsizes," phasecenters=",phasecenters
-        print "len(imsizes)=",len(imsizes), " len(imageids)=",len(imageids)
+        print("len(imsizes)=",len(imsizes), " len(imageids)=",len(imageids))
         if len(imsizes) == len(phasecenters) == len(imageids) == len(masks) == len(models) == noutliers:
           self.res=True
         else:
@@ -192,7 +192,7 @@ class cleanhelper_test(unittest.TestCase):
         self.run_defineimages()
         self.imset.makemultifieldmask2(mmask)
         #self.imset.makemultifieldmask3(mmask)
-        for imgroot,maskimg in self.imset.maskimages.iteritems():
+        for imgroot,maskimg in self.imset.maskimages.items():
           self.assertTrue(os.path.exists(maskimg))
           retval=self.comparemask(maskimg, self.refpath+'ref-'+maskimg)
           if retval:
@@ -208,7 +208,7 @@ class cleanhelper_test(unittest.TestCase):
         self.run_defineimages()
         #self.imset.makemultifieldmask3(maskobject=self.outlierfile,newformat=False)
         self.imset.makemultifieldmask2(maskobject=self.outlierfile,newformat=False)
-        for imgroot,maskimg in self.imset.maskimages.iteritems():
+        for imgroot,maskimg in self.imset.maskimages.items():
           self.assertTrue(os.path.exists(maskimg))
           retval=self.comparemask(maskimg,self.refpath+'ref-'+maskimg)
           if retval:
@@ -221,7 +221,7 @@ class cleanhelper_test(unittest.TestCase):
     def testMakemaskimagebox(self):
         """[Cleanhelper makemaskimage test: 2 boxes]"""
         self.run_defineimages(sf=True)
-        print "int boxes test"
+        print("int boxes test")
         ibmask=[[100,85,120,95],[145,145,155,155]]
         maskimage=self.imset.imagelist[0]+'.0.mask'
         self.imset.makemaskimage(outputmask=maskimage,imagename=self.imset.imagelist[0],maskobject=ibmask)
@@ -232,7 +232,7 @@ class cleanhelper_test(unittest.TestCase):
         os.system('rm -rf ' + self.imset.imagelist[0]+'*')
         #
         retval=False
-        print "float box and int box test"
+        print("float box and int box test")
         fibmask=[[100.0,85.0,120.0,95.0],[145,145,155,155]]
         self.imset.makemaskimage(outputmask=maskimage,imagename=self.imset.imagelist[0],maskobject=fibmask)
         self.assertTrue(os.path.exists(maskimage)," float +int box maskimage does not exist")
@@ -241,7 +241,7 @@ class cleanhelper_test(unittest.TestCase):
         os.system('rm -rf ' + self.imset.imagelist[0]+'*')
         #
         retval=False
-        print "numpy.int boxes test"
+        print("numpy.int boxes test")
         import numpy as np
         box1=[np.int_(i) for i in ibmask[0]] 
         box2=[np.int_(i) for i in ibmask[1]] 
@@ -253,7 +253,7 @@ class cleanhelper_test(unittest.TestCase):
         os.system('rm -rf ' + self.imset.imagelist[0]+'*')
         #
         retval=False
-        print "numpy.float boxes test"
+        print("numpy.float boxes test")
         box1=[np.float_(i) for i in fibmask[0]]
         box2=[np.float_(i) for i in fibmask[1]]
         numpyfloatmask=[box1,box2]
@@ -308,7 +308,7 @@ class cleanhelper_test(unittest.TestCase):
         random.seed(time.time())
         factorList = [2,3,5,7]
 
-        for i in xrange(100):
+        for i in range(100):
             x = random.randint(100,1000000)
             y = cleanhelper.getOptimumSize(x)
             self.assertTrue(y>=x,"input=%s output=%s" % (x,y))

@@ -59,7 +59,7 @@ def checktable(thename, theexpectation):
     if thename == "":
         thename = "MAIN"
     for mycell in theexpectation:
-        print myname, ": comparing ", mycell
+        print(myname, ": comparing ", mycell)
         value = tblocal.getcell(mycell[0], mycell[1])
         # see if value is array
         try:
@@ -79,21 +79,21 @@ def checktable(thename, theexpectation):
             else:
                 in_agreement = (abs(value - mycell[2]) < mycell[3]).all() 
         if not in_agreement:
-            print myname, ":  Error in MS subtable", thename, ":"
-            print "     column ", mycell[0], " row ", mycell[1], " contains ", value
-            print "     expected value is ", mycell[2]
+            print(myname, ":  Error in MS subtable", thename, ":")
+            print("     column ", mycell[0], " row ", mycell[1], " contains ", value)
+            print("     expected value is ", mycell[2])
             tblocal.close()
             return False
     tblocal.close()
-    print myname, ": table ", thename, " as expected."
+    print(myname, ": table ", thename, " as expected.")
     return True
 
 #########################
 
 def verify_asdm(asdmname, withPointing):
-    print "Verifying asdm ", asdmname
+    print("Verifying asdm ", asdmname)
     if(not os.path.exists(asdmname)):
-        print "asdm ", asdmname, " doesn't exist."
+        print("asdm ", asdmname, " doesn't exist.")
         raise Exception
     # test for the existence of all obligatory tables
     allTables = [ "Antenna.xml",
@@ -127,23 +127,23 @@ def verify_asdm(asdmname, withPointing):
     for fileName in allTables:
         filePath = asdmname+'/'+fileName
         if(not os.path.exists(filePath)):
-            print "ASDM table file ", filePath, " doesn't exist."
+            print("ASDM table file ", filePath, " doesn't exist.")
             isOK = False
         else:
             # test if well formed
             rval = os.system('xmllint --noout '+filePath)
             if(rval !=0):
-                print "Table ", filePath, " is not a well formed XML document."
+                print("Table ", filePath, " is not a well formed XML document.")
                 isOK = False
 
-    print "Note: xml validation not possible since ASDM DTDs (schemas) not yet online."
+    print("Note: xml validation not possible since ASDM DTDs (schemas) not yet online.")
         
     if(not os.path.exists(asdmname+"/ASDMBinary")):
-        print "ASDM binary directory "+asdmname+"/ASDMBinary doesn't exist."
+        print("ASDM binary directory "+asdmname+"/ASDMBinary doesn't exist.")
         isOK = False
 
     if(withPointing and not os.path.exists(asdmname+"/Pointing.bin")):
-        print "ASDM binary file "+asdmname+"/Pointing.bin doesn't exist."
+        print("ASDM binary file "+asdmname+"/Pointing.bin doesn't exist.")
         isOK = False
 
     if (not isOK):
@@ -276,7 +276,7 @@ class asdm_import8(test_base):
                    process_flags=False) 
         self.assertTrue(ParallelDataHelper.isParallelMS(themsname), 'Output is not a Multi-MS')
         self.assertEqual(ph.axisType(themsname), 'scan', 'Separation axis of MMS should be scan')
-        print myname, ": Success! Now checking output ..."
+        print(myname, ": Success! Now checking output ...")
         mscomponents = set(["ANTENNA/table.dat",
                             "DATA_DESCRIPTION/table.dat",
                             "FEED/table.dat",
@@ -308,21 +308,21 @@ class asdm_import8(test_base):
                             ])
         for name in mscomponents:
             if not os.access(themsname+"/"+name, os.F_OK):
-                print myname, ": Error  ", themsname+"/"+name, "doesn't exist ..."
+                print(myname, ": Error  ", themsname+"/"+name, "doesn't exist ...")
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+themsname+'/'+name+' does not exist'
             else:
-                print myname, ": ", name, "present."
-        print myname, ": MS exists. All tables present. Try opening as MS ..."
+                print(myname, ": ", name, "present.")
+        print(myname, ": MS exists. All tables present. Try opening as MS ...")
         try:
             mslocal.open(themsname)
         except:
-            print myname, ": Error  Cannot open MS table", themsname
+            print(myname, ": Error  Cannot open MS table", themsname)
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']+'Cannot open MS table '+themsname
         else:
             mslocal.close()
-            print myname, ": OK. Checking tables in detail ..."
+            print(myname, ": OK. Checking tables in detail ...")
     
             importasdm(asdm=myasdmname, vis='reference.ms', lazy=False, overwrite=True, scans='0:1~3',
                         createmms=True, separationaxis='scan', process_flags=False)
@@ -331,15 +331,15 @@ class asdm_import8(test_base):
                 retValue['success'] = th.checkwithtaql("select from [select from reference.ms orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t1, [select from "
                                                     +themsname+" orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t2 where (not all(near(t1.DATA,t2.DATA, 1.e-06)))") == 0
                 if not retValue['success']:
-                    print "ERROR: DATA does not agree with reference."
+                    print("ERROR: DATA does not agree with reference.")
                 else:
-                    print "DATA columns agree."
+                    print("DATA columns agree.")
                 retValueTmp = th.checkwithtaql("select from [select from reference.ms orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t1, [select from "
                                             +themsname+" orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t2 where (not all(t1.FLAG==t2.FLAG)) ") == 0
                 if not retValueTmp:
-                    print "ERROR: FLAG does not agree with reference."
+                    print("ERROR: FLAG does not agree with reference.")
                 else:
-                    print "FLAG columns agree."
+                    print("FLAG columns agree.")
 
                 retValue['success'] = retValue['success'] and retValueTmp
 
@@ -357,7 +357,7 @@ class asdm_import8(test_base):
                                  "STATE",
                                  "SYSCAL"]:
                     
-                    print "\n*** Subtable ",subtname
+                    print("\n*** Subtable ",subtname)
                     excllist = []
                     if subtname=='SOURCE':
                         excllist=['POSITION', 'TRANSITION', 'REST_FREQUENCY', 'SYSVEL']
@@ -375,9 +375,9 @@ class asdm_import8(test_base):
                                                             0.01) and retValue['success']
                     except:
                         retValue['success'] = False
-                        print "ERROR for table ", subtname
+                        print("ERROR for table ", subtname)
             
-        print retValue    
+        print(retValue)    
         self.assertTrue(retValue['success'],retValue['error_msgs'])
         
     @unittest.skip('Skip until a suitable ASDM is found to run this test')
@@ -409,7 +409,7 @@ class asdm_import8(test_base):
         self.assertEqual(self.res, None)
         self.assertTrue(ParallelDataHelper.isParallelMS(themsname), 'Output is not a Multi-MS')
         self.assertTrue(os.path.exists(flagfile))
-        print myname, ": Success! Now checking output ..."
+        print(myname, ": Success! Now checking output ...")
         mscomponents = set(["ANTENNA/table.dat",
                             "DATA_DESCRIPTION/table.dat",
                             "FEED/table.dat",
@@ -441,16 +441,16 @@ class asdm_import8(test_base):
                             ])
         for name in mscomponents:
             if not os.access(themsname+"/"+name, os.F_OK):
-                print myname, ": Error  ", themsname+"/"+name, "doesn't exist ..."
+                print(myname, ": Error  ", themsname+"/"+name, "doesn't exist ...")
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+themsname+'/'+name+' does not exist'
             else:
-                print myname, ": ", name, "present."
-        print myname, ": MS exists. All tables present. Try opening as MS ..."
+                print(myname, ": ", name, "present.")
+        print(myname, ": MS exists. All tables present. Try opening as MS ...")
         try:
             mslocal.open(themsname)
             mslocal.close()
-            print  myname, ": MS can be opened. Now testing the changing of the asdmref ..."
+            print(myname, ": MS can be opened. Now testing the changing of the asdmref ...")
             mslocal.open(themsname)
             mslocal.asdmref("./moved_"+myasdmname)
             mslocal.close()
@@ -459,12 +459,12 @@ class asdm_import8(test_base):
             mslocal.open(themsname)
             
         except:
-            print myname, ": Error  Cannot open MS table", themsname
+            print(myname, ": Error  Cannot open MS table", themsname)
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']+'Cannot open MS table '+themsname
         else:
             mslocal.close()
-            print myname, ": OK. Checking tables in detail ..."
+            print(myname, ": OK. Checking tables in detail ...")
     
             importasdm(asdm="moved_"+myasdmname, vis='reference.ms', lazy=False, overwrite=True, scans='0:1~3', createmms=True)
 
@@ -472,23 +472,23 @@ class asdm_import8(test_base):
                 retValue['success'] = th.checkwithtaql("select from [select from reference.ms orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t1, [select from "
                                                     +themsname+" orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t2 where (not all(near(t1.DATA,t2.DATA, 1.e-06)))") == 0
                 if not retValue['success']:
-                    print "ERROR: DATA does not agree with reference."
+                    print("ERROR: DATA does not agree with reference.")
                 else:
-                    print "DATA columns agree."
+                    print("DATA columns agree.")
 
                 retValueTmp = th.checkwithtaql("select from [select from reference.ms orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t1, [select from "
                                                     +themsname+" orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t2 where (not all(near(t1.WEIGHT,t2.WEIGHT, 1.e-06)))") == 0
                 if not retValueTmp:
-                    print "ERROR: WEIGHT does not agree with reference."
+                    print("ERROR: WEIGHT does not agree with reference.")
                 else:
-                    print "WEIGHT columns agree."
+                    print("WEIGHT columns agree.")
                     
                 retValueTmp2 = th.checkwithtaql("select from [select from reference.ms orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t1, [select from "
                                             +themsname+" orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t2 where (not all(t1.FLAG==t2.FLAG)) ") == 0
                 if not retValueTmp2:
-                    print "ERROR: FLAG does not agree with reference."
+                    print("ERROR: FLAG does not agree with reference.")
                 else:
-                    print "FLAG columns agree."
+                    print("FLAG columns agree.")
 
                 retValue['success'] = retValue['success'] and retValueTmp and retValueTmp2
 
@@ -505,7 +505,7 @@ class asdm_import8(test_base):
                                  "STATE",
                                  "SYSCAL"]:
                     
-                    print "\n*** Subtable ",subtname
+                    print("\n*** Subtable ",subtname)
                     excllist = []
                     if subtname=='SOURCE':
                         excllist=['POSITION', 'TRANSITION', 'REST_FREQUENCY', 'SYSVEL']
@@ -528,7 +528,7 @@ class asdm_import8(test_base):
                                                             0.01) and retValue['success']
                     except:
                         retValue['success'] = False
-                        print "ERROR for table ", subtname
+                        print("ERROR for table ", subtname)
 
         os.system("mv moved_"+myasdmname+" "+myasdmname)
                 
@@ -543,7 +543,7 @@ class asdm_import8(test_base):
 
         self.res = importasdm(myasdmname, vis=themsname, lazy=True, bdfflags=True, createmms=True) 
         self.assertEqual(self.res, None)
-        print myname, ": Success! Now checking output ..."
+        print(myname, ": Success! Now checking output ...")
         mscomponents = set(["ANTENNA/table.dat",
                             "DATA_DESCRIPTION/table.dat",
                             "FEED/table.dat",
@@ -575,21 +575,21 @@ class asdm_import8(test_base):
                             ])
         for name in mscomponents:
             if not os.access(themsname+"/"+name, os.F_OK):
-                print myname, ": Error  ", themsname+"/"+name, "doesn't exist ..."
+                print(myname, ": Error  ", themsname+"/"+name, "doesn't exist ...")
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+themsname+'/'+name+' does not exist'
             else:
-                print myname, ": ", name, "present."
-        print myname, ": MS exists. All tables present. Try opening as MS ..."
+                print(myname, ": ", name, "present.")
+        print(myname, ": MS exists. All tables present. Try opening as MS ...")
         try:
             mslocal.open(themsname)
         except:
-            print myname, ": Error  Cannot open MS table", themsname
+            print(myname, ": Error  Cannot open MS table", themsname)
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']+'Cannot open MS table '+themsname
         else:
             mslocal.close()
-            print myname, ": OK. Checking tables in detail ..."
+            print(myname, ": OK. Checking tables in detail ...")
     
             importasdm(asdm=myasdmname, vis='reference.ms', lazy=True, overwrite=True, bdfflags=False, createmms=True)
 
@@ -597,15 +597,15 @@ class asdm_import8(test_base):
                 retValue['success'] = th.checkwithtaql("select from [select from reference.ms orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t1, [select from "
                                                     +themsname+" orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t2 where (not all(near(t1.DATA,t2.DATA, 1.e-06)))") == 0
                 if not retValue['success']:
-                    print "ERROR: DATA does not agree with reference."
+                    print("ERROR: DATA does not agree with reference.")
                 else:
-                    print "DATA columns agree."
+                    print("DATA columns agree.")
                 retValueTmp = th.checkwithtaql("select from [select from reference.ms orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t1, [select from "
                                             +themsname+" orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t2 where (not all(t1.FLAG==t2.FLAG)) ") != 0
                 if not retValueTmp:
-                    print "ERROR: FLAG columns do agree with reference but they shouldn't."
+                    print("ERROR: FLAG columns do agree with reference but they shouldn't.")
                 else:
-                    print "FLAG columns do not agree as expected."
+                    print("FLAG columns do not agree as expected.")
 
                 retValue['success'] = retValue['success'] and retValueTmp
 
@@ -622,7 +622,7 @@ class asdm_import8(test_base):
                                  "STATE",
                                  "SYSCAL"]:
                     
-                    print "\n*** Subtable ",subtname
+                    print("\n*** Subtable ",subtname)
                     excllist = []
                     if subtname=='SOURCE':
                         excllist=['POSITION', 'TRANSITION', 'REST_FREQUENCY', 'SYSVEL']
@@ -645,7 +645,7 @@ class asdm_import8(test_base):
                                                             0.01) and retValue['success']
                     except:
                         retValue['success'] = False
-                        print "ERROR for table ", subtname
+                        print("ERROR for table ", subtname)
             
                 
         self.assertTrue(retValue['success'],retValue['error_msgs'])
@@ -746,7 +746,7 @@ class asdm_import10(test_base):
         
         # Take the dictionary and compare with original MS
         thisdict = listpartition(vis=themsname, createdict=True)
-        self.assertEqual(len(thisdict.keys()), 4, 'There should be 4 subMSs in output MMS')
+        self.assertEqual(len(list(thisdict.keys())), 4, 'There should be 4 subMSs in output MMS')
 
 
 class asdm_import11(test_base):
@@ -772,28 +772,28 @@ class asdm_import11(test_base):
         self.res = importasdm(myasdmname, vis=themsname, lazy=True, convert_ephem2geo=True, 
                               process_pointing=False, flagbackup=False, createmms=True) 
         self.assertEqual(self.res, None)
-        print myname, ": Success! Now checking output ..."
+        print(myname, ": Success! Now checking output ...")
         mscomponents = set(["FIELD/table.dat",
                             "FIELD/EPHEM0_Mars_57034.9.tab",
                             "FIELD/EPHEM1_Titania_57034.9.tab"
                             ])
         for name in mscomponents:
             if not os.access(themsname+"/"+name, os.F_OK):
-                print myname, ": Error  ", themsname+"/"+name, "doesn't exist ..."
+                print(myname, ": Error  ", themsname+"/"+name, "doesn't exist ...")
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+themsname+'/'+name+' does not exist'
             else:
-                print myname, ": ", name, "present."
-        print myname, ": MS exists. All relevant tables present. Try opening as MS ..."
+                print(myname, ": ", name, "present.")
+        print(myname, ": MS exists. All relevant tables present. Try opening as MS ...")
         try:
             mslocal.open(themsname)
         except:
-            print myname, ": Error  Cannot open MS table", themsname
+            print(myname, ": Error  Cannot open MS table", themsname)
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']+'Cannot open MS table '+themsname
         else:
             mslocal.close()
-            print myname, ": OK."
+            print(myname, ": OK.")
 
         for name in ["FIELD/EPHEM0_Mars_57034.9.tab",
                      "FIELD/EPHEM1_Titania_57034.9.tab"]:
@@ -803,21 +803,21 @@ class asdm_import11(test_base):
             geodist = kw['GeoDist'] # (km above reference ellipsoid)
             geolat = kw['GeoLat'] # (deg)
             geolong = kw['GeoLong'] # (deg)
-            print myname, ": Testing if ephemeris ", name, " was converted to GEO ..."
+            print(myname, ": Testing if ephemeris ", name, " was converted to GEO ...")
             if not (geodist==geolat==geolong==0.):
-                print myname, ": ERROR."
+                print(myname, ": ERROR.")
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+' Ephemeris was not converted to GEO for '+themsname+'\n'
             else:
-                print myname, ": OK."
+                print(myname, ": OK.")
             prsys = kw['posrefsys']
-            print myname, ": Testing if posrefsys was set correctly ..."
+            print(myname, ": Testing if posrefsys was set correctly ...")
             if not (prsys=="ICRF/ICRS"):
-                print myname, ": ERROR."
+                print(myname, ": ERROR.")
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+' posrefsys keyword is not ICRF/ICRS '+themsname+'\n'
             else:
-                print myname, ": OK."
+                print(myname, ": OK.")
  
 
         self.assertTrue(retValue['success'],retValue['error_msgs'])

@@ -21,7 +21,7 @@ import regression_utility as tstutl
 
 startTime = time.time()
 
-print "BEGIN: listcal_regression.py"
+print("BEGIN: listcal_regression.py")
 
 testPassed = 0
 testFailed = 0
@@ -32,11 +32,11 @@ regressionDir = 'listcal_regression'
 if (not os.path.exists(regressionDir)): os.mkdir(regressionDir)
 
 if(automate):
-    print "Running in automated mode."
-    print "  - All MS data will be rebuilt from scratch."
-    print "  - All test files will be removed after testing."
+    print("Running in automated mode.")
+    print("  - All MS data will be rebuilt from scratch.")
+    print("  - All test files will be removed after testing.")
 else:
-    print "Running in non-automated mode!"
+    print("Running in non-automated mode!")
 
 # For testing:
 # casalog.filter('DEBUG2')
@@ -73,10 +73,10 @@ def load_ngc4826(prefix,msname,caltable):
     # [ http://casa.nrao.edu/Tutorial/SIworkshop2008/Scripts/ngc4826_tutorial.py ]
     # USB spectral windows written separately by miriad for 16apr98
     # Assumes these are in sub-directory called "fitsfiles" of working directory
-    print '--Importuvfits (16apr98)--'
+    print('--Importuvfits (16apr98)--')
     default('importuvfits')
-    print "Starting from the uvfits files exported by miriad"
-    print "The USB spectral windows were written separately by miriad for 16apr98"
+    print("Starting from the uvfits files exported by miriad")
+    print("The USB spectral windows were written separately by miriad for 16apr98")
     pathName = os.environ.get('CASAPATH').split()[0]
     localData = pathName + '/data/regression/ngc4826/'
     importuvfits(fitsfile= localData + 'fitsfiles/3c273.fits5',        vis=prefix+'ngc4826.tutorial.3c273.5.ms')
@@ -96,7 +96,7 @@ def load_ngc4826(prefix,msname,caltable):
     importuvfits(fitsfile= localData + 'fitsfiles/ngc4826.ll.fits7',   vis=prefix+'ngc4826.tutorial.ngc4826.ll.7.ms')
     importuvfits(fitsfile= localData + 'fitsfiles/ngc4826.ll.fits8',   vis=prefix+'ngc4826.tutorial.ngc4826.ll.8.ms')
     ##########################################################################
-    print '--Concat--'
+    print('--Concat--')
     default('concat')
     concat(vis=[prefix+'ngc4826.tutorial.3c273.5.ms',
                 prefix+'ngc4826.tutorial.3c273.6.ms',
@@ -118,7 +118,7 @@ def load_ngc4826(prefix,msname,caltable):
            freqtol="",dirtol="1arcsec")
     ##########################################################################
     # Fix up the MS (temporary, changes to importfits underway)
-    print '--Fixing up spw rest frequencies in MS--'
+    print('--Fixing up spw rest frequencies in MS--')
     vis=msname
     tb.open(vis+'/SOURCE',nomodify=False)
     spwid=tb.getcol('SPECTRAL_WINDOW_ID')
@@ -131,35 +131,35 @@ def load_ngc4826(prefix,msname,caltable):
     ##########################################################################
     # 16 APR Calibration
     ##########################################################################
-    print '--Clearcal--'
-    print 'Create scratch columns and initialize in '+msname
+    print('--Clearcal--')
+    print('Create scratch columns and initialize in '+msname)
     # Force create/initialize of scratch columns
     # NOTE: plotxy will not run properly without this step.
     clearcal(vis=msname)
     # But this data is relatively clean, and flagging will not improve results.
     ##########################################################################
     # Flag end channels
-    print '--Flagdata--'
+    print('--Flagdata--')
     default('flagdata')
-    print ""
-    print "Flagging edge channels in all spw"
-    print "  0~3:0~1;62~63 , 4~11:0~1;30~31, 12~15:0~1;62~63 "
-    print ""
+    print("")
+    print("Flagging edge channels in all spw")
+    print("  0~3:0~1;62~63 , 4~11:0~1;30~31, 12~15:0~1;62~63 ")
+    print("")
     flagdata(vis=msname, mode='manual',
              spw='0~3:0;1;62;63,4~11:0;1;30;31,12~15:0;1;62;63')
     # Flag correlator glitch
-    print ""
-    print "Flagging bad correlator field 8 antenna 3&9 spw 15 all channels"
-    print "  timerange 1998/04/16/06:19:00.0~1998/04/16/06:20:00.0"
-    print ""
+    print("")
+    print("Flagging bad correlator field 8 antenna 3&9 spw 15 all channels")
+    print("  timerange 1998/04/16/06:19:00.0~1998/04/16/06:20:00.0")
+    print("")
     flagdata(vis=msname, mode='manual', field='8', spw='15', antenna='3&9', timerange='1998/04/16/06:19:00.0~1998/04/16/06:20:00.0')
-    print "Completed pre-calibration flagging"
+    print("Completed pre-calibration flagging")
     ##########################################################################
     # Use Flagmanager to save a copy of the flags so far
-    print '--Flagmanager--'
+    print('--Flagmanager--')
     default('flagmanager')
-    print "Now will use flagmanager to save a copy of the flags we just made"
-    print "These are named myflags"
+    print("Now will use flagmanager to save a copy of the flags we just made")
+    print("These are named myflags")
     flagmanager(vis=msname,mode='save',versionname='myflags',
                 comment='My flags',merge='replace')
     ##########################################################################
@@ -172,20 +172,20 @@ def load_ngc4826(prefix,msname,caltable):
     # We will use VLA-like G (per-scan) calibration:
     ##########################################################################
     # Set the flux density of 3C273 to 23 Jy
-    print '--Setjy (3C273)--'
+    print('--Setjy (3C273)--')
     default('setjy')
     setjy(vis=msname,field='0',fluxdensity=[23.0,0.,0.,0.],spw='0~3',scalebychan=False,standard='manual')
     # Not really necessary to set spw but you get lots of warning messages if
     # you don't
     ##########################################################################
     # Gain calibration
-    print '--Gaincal--'
+    print('--Gaincal--')
     default('gaincal')
     # This should be combining all spw for the two calibrators for single
     # scan-based solutions
-    print 'Gain calibration for fields 0,1 and spw 0~11'
-    print 'Using solint=inf combining over spw'
-    print 'Output table ngc4826.tutorial.16apr98.gcal'
+    print('Gain calibration for fields 0,1 and spw 0~11')
+    print('Using solint=inf combining over spw')
+    print('Output table ngc4826.tutorial.16apr98.gcal')
     gaincal(vis=msname, caltable=caltable,
             field='0,1', spw='0~11', gaintype='G', minsnr=2.0,
             refant='ANT5',
@@ -403,13 +403,13 @@ def load_jupiter6cm(prefix,msname,caltable):
     # Data Import and List
     #=====================================================================
     # Import the data from FITS to MS
-    print '--Import--'
+    print('--Import--')
     # Safest to start from task defaults
     default('importuvfits')
-    print "Use importuvfits to read UVFITS and make an MS"
+    print("Use importuvfits to read UVFITS and make an MS")
     # Set up the MS filename and save as new global variable
     msfile = prefix + '.ms'
-    print "MS will be called "+msfile
+    print("MS will be called "+msfile)
     # Use task importuvfits
     fitsfile = fitsdata
     vis = msfile
@@ -423,10 +423,10 @@ def load_jupiter6cm(prefix,msname,caltable):
     #=====================================================================
     # Set the fluxes of the primary calibrator(s)
     #
-    print '--Setjy--'
+    print('--Setjy--')
     default('setjy')
 
-    print "Use setjy to set flux of 1331+305 (3C286)"
+    print("Use setjy to set flux of 1331+305 (3C286)")
 
     vis = msfile
 
@@ -448,17 +448,17 @@ def load_jupiter6cm(prefix,msname,caltable):
     # 1331+305  spwid=  1  [I=7.51, Q=0, U=0, V=0] Jy, (Perley-Taylor 99)
     #
 
-    print "Look in logger for the fluxes (should be 7.462 and 7.510 Jy)"
+    print("Look in logger for the fluxes (should be 7.462 and 7.510 Jy)")
 
     #
     #=====================================================================
     #
     # Make gaincurve table
     #
-    print '--Gencal(gc)--'
+    print('--Gencal(gc)--')
     default('gencal')
 
-    print "Making gaincurve table for use in subsequent operations"
+    print("Making gaincurve table for use in subsequent operations")
 
     vis = msfile
 
@@ -474,19 +474,19 @@ def load_jupiter6cm(prefix,msname,caltable):
     #
     # Initial gain calibration
     #
-    print '--Gaincal--'
+    print('--Gaincal--')
     default('gaincal')
 
-    print "Solve for antenna gains on 1331+305 and 0137+331"
-    print "We have 2 single-channel continuum spw"
-    print "Do not want bandpass calibration"
+    print("Solve for antenna gains on 1331+305 and 0137+331")
+    print("We have 2 single-channel continuum spw")
+    print("Do not want bandpass calibration")
 
     vis = msfile
 
     # set the name for the output gain caltable
     caltable = gtable
 
-    print "Output gain cal table will be "+gtable
+    print("Output gain cal table will be "+gtable)
 
     # Gain calibrators are 1331+305 and 0137+331 (FIELD_ID 7 and 0)
     # We have 2 IFs (SPW 0,1) with one channel each
@@ -522,17 +522,17 @@ def load_jupiter6cm(prefix,msname,caltable):
     #
     # Bootstrap flux scale
     #
-    print '--Fluxscale--'
+    print('--Fluxscale--')
     default('fluxscale')
 
-    print "Use fluxscale to rescale gain table to make new one"
+    print("Use fluxscale to rescale gain table to make new one")
 
     vis = msfile
 
     # set the name for the output rescaled caltable
     fluxtable = ftable
 
-    print "Output scaled gain cal table is "+ftable
+    print("Output scaled gain cal table is "+ftable)
 
     # point to our first gain cal table
     caltable = gtable
@@ -557,7 +557,7 @@ def load_jupiter6cm(prefix,msname,caltable):
     #---------------------------------------------------------------------
     # Plot calibration
     #
-    print '--PlotCal--'
+    print('--PlotCal--')
     default('plotcal')
 
     showgui = True
@@ -570,14 +570,14 @@ def load_jupiter6cm(prefix,msname,caltable):
 
     plotcal()
 
-    print ""
-    print "-------------------------------------------------"
-    print "Plotcal"
-    print "Looking at amplitude in cal-table "+caltable
+    print("")
+    print("-------------------------------------------------")
+    print("Plotcal")
+    print("Looking at amplitude in cal-table "+caltable)
 
     # Pause script if you are running in scriptmode
     if scriptmode:
-        user_check=raw_input('Return to continue script\n')
+        user_check=input('Return to continue script\n')
 
     #
     # Now go back and plot to file
@@ -587,14 +587,14 @@ def load_jupiter6cm(prefix,msname,caltable):
     yaxis = 'amp'
 
     figfile = caltable + '.plotcal.amp.png'
-    print "Plotting calibration to file "+figfile
+    print("Plotting calibration to file "+figfile)
     #saveinputs('plotcal',caltable.plotcal.amp.saved')
     plotcal()
 
     yaxis = 'phase'
 
     figfile = caltable + '.plotcal.phase.png'
-    print "Plotting calibration to file "+figfile
+    print("Plotting calibration to file "+figfile)
     #saveinputs('plotcal',caltable.plotcal.phase.saved')
     plotcal()
 
@@ -604,11 +604,11 @@ def load_jupiter6cm(prefix,msname,caltable):
     #=====================================================================
     #
     if (dopolcal):
-        print '--Polcal (D)--'
+        print('--Polcal (D)--')
         default('polcal')
 
-        print "Solve for polarization leakage on 0137+331"
-        print "Pretend it has unknown polarization"
+        print("Solve for polarization leakage on 0137+331")
+        print("Pretend it has unknown polarization")
 
         vis = msfile
 
@@ -645,11 +645,11 @@ def load_jupiter6cm(prefix,msname,caltable):
         #
         # List polcal solutions
         #
-        print '--Listcal (PolD)--'
+        print('--Listcal (PolD)--')
 
         listfile = caltable + '.list'
 
-        print "Listing calibration to file "+listfile
+        print("Listing calibration to file "+listfile)
 
         listcal()
 
@@ -657,7 +657,7 @@ def load_jupiter6cm(prefix,msname,caltable):
         #
         # Plot polcal solutions
         #
-        print '--Plotcal (PolD)--'
+        print('--Plotcal (PolD)--')
 
         iteration = ''
         showgui = False
@@ -665,28 +665,28 @@ def load_jupiter6cm(prefix,msname,caltable):
         xaxis = 'real'
         yaxis = 'imag'
         figfile = caltable + '.plotcal.reim.png'
-        print "Plotting calibration to file "+figfile
+        print("Plotting calibration to file "+figfile)
         #saveinputs('plotcal',caltable+'.plotcal.reim.saved')
         plotcal()
 
         xaxis = 'antenna'
         yaxis = 'amp'
         figfile = caltable + '.plotcal.antamp.png'
-        print "Plotting calibration to file "+figfile
+        print("Plotting calibration to file "+figfile)
         #saveinputs('plotcal',caltable+'.plotcal.antamp.saved')
         plotcal()
 
         xaxis = 'antenna'
         yaxis = 'phase'
         figfile = caltable + '.plotcal.antphase.png'
-        print "Plotting calibration to file "+figfile
+        print("Plotting calibration to file "+figfile)
         #saveinputs('plotcal',caltable+'.plotcal.antphase.saved')
         plotcal()
 
         xaxis = 'antenna'
         yaxis = 'snr'
         figfile = caltable + '.plotcal.antsnr.png'
-        print "Plotting calibration to file "+figfile
+        print("Plotting calibration to file "+figfile)
         #saveinputs('plotcal',caltable+'.plotcal.antsnr.saved')
         plotcal()
 
@@ -694,12 +694,12 @@ def load_jupiter6cm(prefix,msname,caltable):
         # Do Chi (X) pol angle calibration
         #=====================================================================
         # First set the model
-        print '--Setjy--'
+        print('--Setjy--')
         default('setjy')
 
         vis = msfile
 
-        print "Use setjy to set IQU fluxes of "+polxfield
+        print("Use setjy to set IQU fluxes of "+polxfield)
         field = polxfield
 
         scalebychan=False
@@ -713,10 +713,10 @@ def load_jupiter6cm(prefix,msname,caltable):
         #
         # Polarization (X-term) calibration
         #
-        print '--PolCal (X)--'
+        print('--PolCal (X)--')
         default('polcal')
 
-        print "Polarization R-L Phase Calibration (linear approx)"
+        print("Polarization R-L Phase Calibration (linear approx)")
 
         vis = msfile
 
@@ -758,13 +758,13 @@ testNum = 0
 #
 
 testNum += 1
-print ""
-print "* TEST " + str(testNum) + ": default test; using ngc4826 tutorial data and calibration"
-print """
+print("")
+print("* TEST " + str(testNum) + ": default test; using ngc4826 tutorial data and calibration")
+print("""
 - This data has multiple spws with variable numbers of channels.
 - This data has only one correlation, YY
 > Using default input values where possible
-"""
+""")
 
 prefix = regressionDir+'/test'+str(testNum)+'/'
 msname = prefix+"ngc4826.tutorial.ms"
@@ -774,10 +774,10 @@ standardFileName = localData + 'listcal.default.out2'
 
 # Use existing data or load data from scratch?
 if (not lt.resetData([msname,caltableName], automate)):
-    print "Using preexisting data."
+    print("Using preexisting data.")
     lt.removeOut(outputFilename)
 else:
-    print "Building data from scratch."
+    print("Building data from scratch.")
     tstutl.maketestdir(prefix) # create test dir, overwrite preexisting
     load_ngc4826(prefix,msname,caltableName) # Build data from scratch
 
@@ -798,10 +798,10 @@ lt.listcalFix(outputFilename)
 
 compareFilename = prefix + 'compare'
 if (lt.runTests(outputFilename,standardFileName,'1.000',compareFilename)):
-    print "Passed listcal output test"
+    print("Passed listcal output test")
     testPassed +=1
 else:
-    print "FAILED listcal output test"
+    print("FAILED listcal output test")
     testFailed +=1
 
 ##########################################################################
@@ -809,13 +809,13 @@ else:
 # Using ngc4826 data from above.
 #
 testNum += 1
-print ""
-print "* TEST " + str(testNum) + ": using ngc4826 tutorial data and calibration."
-print """
+print("")
+print("* TEST " + str(testNum) + ": using ngc4826 tutorial data and calibration.")
+print("""
 - Using same data as above
 > Using all non-default values where possible
 
-"""
+""")
 
 prefix = regressionDir+'/test'+str(testNum)+'/'
 tstutl.maketestdir(prefix)
@@ -837,38 +837,38 @@ go(listcal)
 lt.listcalFix(outputFilename)
 
 if (lt.runTests(outputFilename,standardFileName,'1.000',compareFilename)):
-    print "Passed listcal output test"
+    print("Passed listcal output test")
     testPassed +=1
 else:
-    print "FAILED listcal output test"
+    print("FAILED listcal output test")
     testFailed +=1
 
 ##########################################################################
 # Test complete, summarize.
 #
 
-print ""
-print "* listcal regression test complete"
-print "SUMMARY:"
-print "  number of tests PASSED: " + str(testPassed)
-print "  number of tests FAILED: " + str(testFailed)
-print ""
+print("")
+print("* listcal regression test complete")
+print("SUMMARY:")
+print("  number of tests PASSED: " + str(testPassed))
+print("  number of tests FAILED: " + str(testFailed))
+print("")
 
 if testFailed > 0:
-    print ''
-    print 'Regression FAILED'
-    print ''
+    print('')
+    print('Regression FAILED')
+    print('')
 else:
-    print ''
-    print 'Regression PASSED'
-    print ''
+    print('')
+    print('Regression PASSED')
+    print('')
 
 # # If running in automated mode, remove all data files.
 # if (automate):
 #     print "Removing all listcal_regression files..."
 #     os.system('rm -f '+regressionDir) # remove all listcal output
 
-print "END: listcal_regression.py"
+print("END: listcal_regression.py")
 
 if (testFailed > 0):
     regstate=False

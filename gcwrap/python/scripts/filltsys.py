@@ -285,10 +285,10 @@ class SimpleTsysFiller( TsysFillerBase ):
         """
         super(SimpleTsysFiller,self).__init__( filename )
         self.ifno = ifno
-        print 'IFNO to be processed: %s'%(self.ifno)
+        print('IFNO to be processed: %s'%(self.ifno))
         self.skip_channelaveraged = skip_channelaveraged
         if skip_channelaveraged is True:
-            print 'SimpleTsysFiller: skip channel averaged spws (%s)'%(self.ifno + 1)
+            print('SimpleTsysFiller: skip channel averaged spws (%s)'%(self.ifno + 1))
 
     def getPolarizations( self ):
         """
@@ -308,7 +308,7 @@ class SimpleTsysFiller( TsysFillerBase ):
         interpolated Tsys is used to fill TSYS field for
         spectral data.
         """
-        print 'POLNO=%s,BEAMNO=%s'%(self.polno,(self.beamno if self.beamno is not None else 'all'))
+        print('POLNO=%s,BEAMNO=%s'%(self.polno,(self.beamno if self.beamno is not None else 'all')))
         srctype = [10,11]
         stab = self._select( ifno=self.ifno, polno=self.polno, beamno=self.beamno, srctype=srctype, exclude=True )
         ttab = self._select( ifno=self.ifno, polno=self.polno, beamno=self.beamno, srctype=srctype, exclude=False )
@@ -320,7 +320,7 @@ class SimpleTsysFiller( TsysFillerBase ):
         calscans = numpy.unique( ttab.getcol('SCANNO') )
         calscans.sort()
         nscan = len(calscans)
-        print 'nscan = ', nscan
+        print('nscan = ', nscan)
 
         # get scan averaged Tsys and time
         atsys = self.getScanAveragedTsys( self.ifno, calscans )
@@ -328,12 +328,12 @@ class SimpleTsysFiller( TsysFillerBase ):
 
         # warning
         if len(caltime) == 1:
-            print 'WARN: There is only one ATM cal session. No temporal interpolation will be done.'
+            print('WARN: There is only one ATM cal session. No temporal interpolation will be done.')
 
         # process all rows
         nrow = stab.nrows()
         cleat = 0
-        for irow in xrange(nrow):
+        for irow in range(nrow):
             #print 'process row %s'%(irow)
             t = stab.getcell( 'TIME', irow )
             if t < caltime[0]:
@@ -393,7 +393,7 @@ class TsysFiller( TsysFillerBase ):
         self.extend = extrap
         self.skip_channelaveraged = skip_channelaveraged
         if skip_channelaveraged is True:
-            print 'TsysFiller: skip channel averaged spws (%s)'%(self.specif + 1)
+            print('TsysFiller: skip channel averaged spws (%s)'%(self.specif + 1))
         if tsysif is None:
             self.tsysif = None
             self.abctsys = None
@@ -405,7 +405,7 @@ class TsysFiller( TsysFillerBase ):
                 raise Exception( "Invalid specification of SPW for Tsys: it must cover SPW for target" )
         if not self.extend:
             self.extend = self.__checkChannels( self.abctsys, self.abcsp )
-        print 'spectral IFNO %s: corresponding Tsys IFNO is %s'%(self.specif,self.tsysif) 
+        print('spectral IFNO %s: corresponding Tsys IFNO is %s'%(self.specif,self.tsysif)) 
 
     def _setupTsysConfig( self ):
         """
@@ -416,7 +416,7 @@ class TsysFiller( TsysFillerBase ):
         ftab=self.table.getkeyword('FREQUENCIES').split()[-1]
         ifnos = numpy.unique(self.table.getcol('IFNO'))
         nif = len(ifnos)
-        for i in xrange(nif):
+        for i in range(nif):
             tbsel=self.table.query('IFNO==%s'%(i))
             if tbsel.nrows() == 0:
                 continue
@@ -530,7 +530,7 @@ class TsysFiller( TsysFillerBase ):
         averaged and interpolated Tsys is used to fill
         TSYS field for spectral data.
         """
-        print 'POLNO=%s,BEAMNO=%s'%(self.polno,(self.beamno if self.beamno is not None else 'all'))
+        print('POLNO=%s,BEAMNO=%s'%(self.polno,(self.beamno if self.beamno is not None else 'all')))
         stab = self._select( ifno=self.specif, polno=self.polno, beamno=self.beamno, srctype=[10,11], exclude=True )
         ttab = self._select( ifno=self.tsysif, polno=self.polno, beamno=self.beamno, srctype=[10,11], exclude=False )
         # assume IFNO for channel averaged data is
@@ -541,7 +541,7 @@ class TsysFiller( TsysFillerBase ):
         calscans = numpy.unique( ttab.getcol('SCANNO') )
         calscans.sort()
         nscan = len(calscans)
-        print 'nscan = ', nscan
+        print('nscan = ', nscan)
 
         # get scan averaged Tsys and time
         atsys = self.getScanAveragedTsys( self.tsysif, calscans )
@@ -549,7 +549,7 @@ class TsysFiller( TsysFillerBase ):
 
         # warning
         if len(caltime) == 1:
-            print 'WARN: There is only one ATM cal session. No temporal interpolation will be done.'
+            print('WARN: There is only one ATM cal session. No temporal interpolation will be done.')
 
         # extend tsys if necessary
         if self.extend:
@@ -560,7 +560,7 @@ class TsysFiller( TsysFillerBase ):
         # process all rows
         nrow = stab.nrows()
         cleat = 0
-        for irow in xrange(nrow):
+        for irow in range(nrow):
             #print 'process row %s'%(irow)
             t = stab.getcell( 'TIME', irow )
             if t < caltime[0]:
@@ -631,15 +631,15 @@ class TsysFiller( TsysFillerBase ):
             return (a,b)
         #print 'ext0=%s,ext1=%s'%(ext0,ext1)
         abctsys = numpy.zeros(len(a)+ext0+ext1,dtype=a.dtype)
-        for i in xrange(ext0):
+        for i in range(ext0):
             abctsys[i] = a[0] - incr * (ext0-i)
-        for i in xrange(ext1):
+        for i in range(ext1):
             abctsys[i+len(a)+ext0] = a[-1] + incr * (1+i)
         abctsys[ext0:len(abctsys)-ext1] = a
         #print 'aref[0]=%s,abctsys[0]=%s'%(aref[0],abctsys[0])
         #print 'aref[-1]=%s,abctsys[-1]=%s'%(aref[-1],abctsys[-1])
         atsys = numpy.zeros( (len(b),len(abctsys)), dtype=type(b[0][0]) )
-        for i in xrange(len(b)):
+        for i in range(len(b)):
             atsys[i][0:ext0] = b[i][0]
             atsys[i][len(abctsys)-ext1:] = b[i][-1]
             atsys[i][ext0:len(abctsys)-ext1] = b[i]

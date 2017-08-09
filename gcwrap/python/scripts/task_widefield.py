@@ -20,7 +20,7 @@ def widefield(vis, imagename, outlierfile, field, spw, selectdata, timerange, uv
 				vis=vis[0]
 		multifield=False
 		if(multims):
-			print ' multiple ms not handle for now'
+			print(' multiple ms not handle for now')
 			return
 
 
@@ -28,7 +28,7 @@ def widefield(vis, imagename, outlierfile, field, spw, selectdata, timerange, uv
 			multifield=True
 		else:
 			if((type(phasecenter) == list) and (len(phasecenter) >1)):
-				raise TypeError, 'Number of phasecenters has be equal to number of images'
+				raise TypeError('Number of phasecenters has be equal to number of images')
 			
 	
 
@@ -102,10 +102,10 @@ def widefield(vis, imagename, outlierfile, field, spw, selectdata, timerange, uv
 		if(multims):
 			if(type(spw) == list):
 				if(len(spw) != len(vis)):
-					raise ValueError, 'Number of spw selection should match number of data sets'
+					raise ValueError('Number of spw selection should match number of data sets')
 			if(type(field) == list):
 				if(len(field) != len(vis)):
-					raise ValueError, 'Number of field selection should match number of data sets'
+					raise ValueError('Number of field selection should match number of data sets')
 			for k in range(len(vis)):
 				spws=spw
 				if(type(spw) != list):
@@ -118,7 +118,7 @@ def widefield(vis, imagename, outlierfile, field, spw, selectdata, timerange, uv
 				else:
 					fields=field[k]
 				if(not os.path.exists(vis[k])):
-					raise Exception, 'Visibility data %s set not found - please verify the name'%vis[k]
+					raise Exception('Visibility data %s set not found - please verify the name'%vis[k])
 				im1.selectvis(vis=vis[k], spw=spws, field=fields)
 		elif ((type(vis)==str) & (os.path.exists(vis))):
 			imset.datselweightfilter(field=field, spw=spw,
@@ -132,7 +132,7 @@ def widefield(vis, imagename, outlierfile, field, spw, selectdata, timerange, uv
 						 calready=calready)
                 ############End of Data Selection
                 else:
-                        raise Exception, 'Visibility data set not found - please verify the name'
+                        raise Exception('Visibility data set not found - please verify the name')
 
 
 ###deal with masks
@@ -192,7 +192,7 @@ def widefield(vis, imagename, outlierfile, field, spw, selectdata, timerange, uv
 			multiscale=[]
 		if((type(multiscale)==list) and (len(multiscale)>0)):
 			if(facets >1):
-				raise Exception, 'multiscale with facets > 1 not allowed for now'
+				raise Exception('multiscale with facets > 1 not allowed for now')
 			alg='mfmultiscale' 
 			im1.setscales(scalemethod='uservector',
 					uservector=multiscale)
@@ -215,7 +215,7 @@ def widefield(vis, imagename, outlierfile, field, spw, selectdata, timerange, uv
 		del im1
 	#	del ms1
 	
-        except Exception, instance:
-		print '*** Error *** ',instance
-		raise Exception, instance
+        except Exception as instance:
+		print('*** Error *** ',instance)
+		raise Exception(instance)
 

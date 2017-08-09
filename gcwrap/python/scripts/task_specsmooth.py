@@ -9,9 +9,9 @@ def specsmooth(
     outia = None
     try:
         if (not myia.open(imagename)):
-            raise Exception, "Cannot create image analysis tool using " + imagename
+            raise Exception("Cannot create image analysis tool using " + imagename)
         if (len(outfile) == 0):
-            raise Exception, "outfile must be specified."
+            raise Exception("outfile must be specified.")
         function = function.lower()
         drop = len(dmethod) > 0
         if (function.startswith("b")):
@@ -27,7 +27,7 @@ def specsmooth(
         else:
             raise Exception("Unsupported convolution function " + function)
         return True
-    except Exception, instance:
+    except Exception as instance:
         casalog.post( str( '*** Error ***') + str(instance), 'SEVERE')
         raise
     finally:

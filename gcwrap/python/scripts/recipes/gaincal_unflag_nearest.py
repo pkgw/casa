@@ -33,7 +33,7 @@ def fill_flagged_soln(caltable='', doplot=False):
         pl.plot(t[(ant==k)], flg[0,0,(ant==k)], 'r+')
         pl.twinx()
         pl.plot(t[(ant==k)], abs(gain[0,0,(ant==k)]), 'go')
-    print 'maxant', maxant
+    print('maxant', maxant)
     numflag=0.0
     for k in range(maxant+1):
         for j in range (maxdd+1):
@@ -60,7 +60,7 @@ def fill_flagged_soln(caltable='', doplot=False):
             gain[:,:,(ant==k) & (dd==j)]=subgain
 
 
-    print 'numflag', numflag
+    print('numflag', numflag)
     if(doplot):
         pl.figure(2)
         k=1

@@ -28,27 +28,27 @@ dataset_name_orig = 'W3OH_MC.UVFITS'
 
 # get the dataset name from the wrapper if possible
 mydict = locals()
-if mydict.has_key("dataset_name"):
+if "dataset_name" in mydict:
     dataset_name_orig = mydict["dataset_name"]
 
 def isnear(a,b,p):
-    print "  ", a, b
+    print("  ", a, b)
     if(a==b):
-        print "  exactly equal"
+        print("  exactly equal")
         return True
     dev = abs(a-b)
-    print "  deviation = ", dev
+    print("  deviation = ", dev)
     if(dev<=p):
         return True
     return False
 
 def isrnear(a,b,p):
-    print "  ", a, b
+    print("  ", a, b)
     if(a==b):
-        print "  exactly equal"
+        print("  exactly equal")
         return True
     rdev = abs(a-b)/abs(max(a,b))
-    print "  relative deviation = ", rdev
+    print("  relative deviation = ", rdev)
     if(rdev<=p):
         return True
     return False
@@ -212,7 +212,7 @@ for frame in frames_to_do:
     cvel_imvals['frequency'][frame] = imval(iname+'.image', box=testregion)
 
     ia.open(iname+'.image')
-    chlist = range(freqmodenchan[frame])
+    chlist = list(range(freqmodenchan[frame]))
     fqlist = []
     #find spectral coordinates
     for i in chlist:
@@ -261,7 +261,7 @@ for frame in frames_to_do:
     cleanonly_imvals['frequency'][frame] = imval(iname+'.image', box=testregion)
 
     ia.open(iname+'.image')
-    chlist = range(freqmodenchan[frame])
+    chlist = list(range(freqmodenchan[frame]))
     fqlist = []
     #find spectral coordinates
     for i in chlist:
@@ -329,7 +329,7 @@ for frame in frames_to_do:
     cvel_imvals['radio velocity'][frame] = imval(iname+'.image', box=testregion)
 
     ia.open(iname+'.image')
-    chlist = range(freqmodenchan[frame])
+    chlist = list(range(freqmodenchan[frame]))
     fqlist = []
     #find spectral coordinates
     for i in chlist:
@@ -378,7 +378,7 @@ for frame in frames_to_do:
     cleanonly_imvals['radio velocity'][frame] = imval(iname+'.image', box=testregion)
 
     ia.open(iname+'.image')
-    chlist = range(freqmodenchan[frame])
+    chlist = list(range(freqmodenchan[frame]))
     fqlist = []
     #find spectral coordinates
     for i in chlist:
@@ -447,7 +447,7 @@ for frame in frames_to_do:
     cvel_imvals['optical velocity'][frame] = imval(iname+'.image', box=testregion)
 
     ia.open(iname+'.image')
-    chlist = range(freqmodenchan[frame])
+    chlist = list(range(freqmodenchan[frame]))
     fqlist = []
     #find spectral coordinates
     for i in chlist:
@@ -497,7 +497,7 @@ for frame in frames_to_do:
     cleanonly_imvals['optical velocity'][frame] = imval(iname+'.image', box=testregion)
 
     ia.open(iname+'.image')
-    chlist = range(freqmodenchan[frame])
+    chlist = list(range(freqmodenchan[frame]))
     fqlist = []
     #find spectral coordinates
     for i in chlist:
@@ -536,20 +536,20 @@ for frame in frames_to_do:
         pl.savefig('testcvelclean'+frame+mode[0]+'.png',format='png')
         pl.close()
         
-        for chan in mode_imstats.keys():
+        for chan in list(mode_imstats.keys()):
             isok = true
             c1 = cleanonly_imstats[mode][chan][frame]['max']
             c2 = cvel_imstats[mode][chan][frame]['max']
-            print "Testing ", frame, ", ",  mode, ", Hanning ", dohanning[frame], ", box ", testregion, ", channel ", chan, " ..."
+            print("Testing ", frame, ", ",  mode, ", Hanning ", dohanning[frame], ", box ", testregion, ", channel ", chan, " ...")
             if(abs(c1-c2) > maxdev):
                 maxdev = abs(c1-c2)
                 maxdevat = mode+" mode for output frame "+frame\
                            +":\n    cvel+clean finds max flux in channel "+str(chan)+" to be "+str(c2)\
                            +"\n    clean-only finds max flux in channel "+str(chan)+" to be "+str(c1)
             if not (isnear(c1,c2, tolerance) or isrnear(c1,c2, rtolerance)):
-                print " ** Problem in ", mode, " mode for output frame ", frame, ":"
-                print "     cvel+clean finds max flux in channel ", chan, " to be ", c2
-                print "     clean-only finds max flux in channel ", chan, " to be ", c1
+                print(" ** Problem in ", mode, " mode for output frame ", frame, ":")
+                print("     cvel+clean finds max flux in channel ", chan, " to be ", c2)
+                print("     clean-only finds max flux in channel ", chan, " to be ", c1)
                 passed = False
                 isok = False
                 problems +=1
@@ -560,25 +560,25 @@ for frame in frames_to_do:
             s1 = cleanonly_imstats[mode][chan][frame]['maxposf']
             s2 = cvel_imstats[mode][chan][frame]['maxposf']
             if(not s1 == s2):
-                print " ** Problem in ", mode, " mode for output frame ", frame, ":"
-                print "     cvel+clean finds world coordinates for channel ", chan, " to be ", s2
-                print "     clean-only finds world coordinates for channel ", chan, " to be ", s1
+                print(" ** Problem in ", mode, " mode for output frame ", frame, ":")
+                print("     cvel+clean finds world coordinates for channel ", chan, " to be ", s2)
+                print("     clean-only finds world coordinates for channel ", chan, " to be ", s1)
                 passed = False
                 isok = False
                 problems +=1
             else:
-                print "  World coordinates identical == ", s2
+                print("  World coordinates identical == ", s2)
 
             if isok:
-                print "... OK"      
+                print("... OK")      
 
 if(numpoints > 0.):
-    print numpoints, " spectral points compared, average deviation = ", avdev/numpoints, " Jy"
-    print "   maximum deviation = ", maxdev, " in ", maxdevat 
+    print(numpoints, " spectral points compared, average deviation = ", avdev/numpoints, " Jy")
+    print("   maximum deviation = ", maxdev, " in ", maxdevat) 
                     
 if passed:
-    print "PASSED"
+    print("PASSED")
 else:
-    print "Execution successful but found ", problems, " issues in analysis of results."
-    print "FAILED"
+    print("Execution successful but found ", problems, " issues in analysis of results.")
+    print("FAILED")
     raise

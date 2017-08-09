@@ -41,7 +41,7 @@ from taskinit import mstool, cbtool
 
 datadir = os.environ.get('CASAPATH').split()[0]+'/data/regression/'
 datafile = os.path.join(datadir, "unittest/listobs/ngc5921_ut.ms")
-print 'ms tool tests will use data from '+ datafile
+print('ms tool tests will use data from '+ datafile)
 
 class mstool_test_base(unittest.TestCase):
     
@@ -111,7 +111,7 @@ class mstool_test_ms(mstool_test_base):
         self.assertEqual(self.ms.name(), os.path.join(os.getcwd(), self.testms))
         self.assertEqual(self.ms.nrow(), 22653)
         self.assertEqual(self.ms.getreferencedtables(), [self.ms.name()])
-        print
+        print()
 
     def test_getfielddirmeas(self): 
         """test ms.getfielddirmeas"""
@@ -119,13 +119,13 @@ class mstool_test_ms(mstool_test_base):
         delayDir = self.ms.getfielddirmeas("DELAY_DIR", 0)
         self.assertAlmostEqual(delayDir['m0']['value'], -2.7439276)
         self.assertAlmostEqual(delayDir['m1']['value'], 0.53248521)
-        print
+        print()
 
     def test_asdmref(self): 
         """test ms.asdmref"""
         # empty string if no ASDM reference
         self.assertEqual(self.ms.asdmref(), "")
-        print
+        print()
 
 # ------------------------------------------------------------------------------
 
@@ -149,8 +149,8 @@ class mstool_test_concat(mstool_test_base):
         self.assertTrue(self.ms.ismultims())
         # For multims returns path to SUBMSS as a list
         refTable = os.path.join(self.outputMS, "SUBMSS/ngc7538.ms")
-        self.assertEquals(self.ms.getreferencedtables(), [refTable])
-        print
+        self.assertEqual(self.ms.getreferencedtables(), [refTable])
+        print()
 
     def test_concatenate(self): 
         """test ms.concatenate"""
@@ -160,7 +160,7 @@ class mstool_test_concat(mstool_test_base):
         self.ms.open(self.testms)
         # test MS originally had 22653 rows
         self.assertEqual(self.ms.nrow(), 49329)
-        print
+        print()
 
     def test_testconcatenate(self): 
         """test ms.testconcatenate"""
@@ -168,7 +168,7 @@ class mstool_test_concat(mstool_test_base):
         self.assertEqual(len(self.ms.range(["fields"])['fields']), 3)
         self.ms.testconcatenate(self.testms2, '1GHz', '1arcsec')
         self.assertEqual(len(self.ms.range(["fields"])['fields']), 6)
-        print
+        print()
 
     def test_virtconcatenate(self): 
         """test ms.virtconcatenate"""
@@ -176,7 +176,7 @@ class mstool_test_concat(mstool_test_base):
         self.ms.virtconcatenate(self.testms2, 'ngcaux.dat', '1GHz', '1arcsec')
         self.assertEqual(len(self.ms.range(["fields"])['fields']), 6)
         self.removeFile('ngcaux.dat')
-        print
+        print()
 
 # ------------------------------------------------------------------------------
 
@@ -199,7 +199,7 @@ class mstool_test_summary(mstool_test_base):
         self.assertAlmostEqual(summary['IntegrationTime'], 5310.000972747803)
         self.assertAlmostEqual(summary['BeginTime'], 49820.38802083069)
         self.assertAlmostEqual(summary['EndTime'], 49820.44947917527)
-        print
+        print()
 
     def test_getscansummary(self): 
         """test ms.getscansummary"""
@@ -213,7 +213,7 @@ class mstool_test_summary(mstool_test_base):
         self.assertEqual(scan7['IntegrationTime'], 30.0)
         self.assertAlmostEqual(scan7['BeginTime'], 49820.44826388359)
         self.assertAlmostEqual(scan7['EndTime'], 49820.449305564165)
-        print
+        print()
 
     def test_getspectralwindowinfo(self): 
         """test ms.getspectralwindowinfo"""
@@ -230,19 +230,19 @@ class mstool_test_summary(mstool_test_base):
         self.assertAlmostEqual(spw0['TotalWidth'], 1550196.875)
         self.assertAlmostEqual(spw0['Chan1Freq'], 1412665073.7687755)
         self.assertAlmostEqual(spw0['RefFreq'], 1413428013.2219005)
-        print
+        print()
 
     def test_listhistory(self): 
         """test ms.listhistory"""
         # Lists history table in logger, returns bool
         self.assertTrue(self.ms.listhistory())
-        print
+        print()
 
     def test_writehistory(self): 
         """test ms.writehistory"""
         self.assertTrue(self.ms.writehistory('an arbitrary history message'))
         self.assertTrue(self.ms.listhistory())
-        print
+        print()
 
     def test_statistics(self): 
         """test ms.statistics"""
@@ -261,7 +261,7 @@ class mstool_test_summary(mstool_test_base):
         self.assertAlmostEqual(stats['stddev'], 15.9185447)
         self.assertAlmostEqual(stats['var'], 253.4000652)
         self.assertAlmostEqual(stats['quartile'], 0.0254916)
-        print
+        print()
 
     def test_statistics2(self): 
         """test ms.statistics2"""
@@ -287,7 +287,7 @@ class mstool_test_summary(mstool_test_base):
         self.assertAlmostEqual(stats['variance'], 253.4000652)
         self.assertAlmostEqual(stats['firstquartile'], 0.0163202)
         self.assertAlmostEqual(stats['thirdquartile'], 0.0418118)
-        print
+        print()
 
     def test_range2(self): 
         """test ms.range"""
@@ -300,7 +300,7 @@ class mstool_test_summary(mstool_test_base):
         self.assertAlmostEqual(ranges['uvdist'][1], 1020.32003137)
         self.assertAlmostEqual(ranges['amplitude'][0], 2.21305218e-05)
         self.assertAlmostEqual(ranges['amplitude'][1], 7.37500000e+01)
-        print
+        print()
 
     def test_lister(self): 
         """test ms.lister"""
@@ -313,7 +313,7 @@ class mstool_test_summary(mstool_test_base):
         self.assertEqual(len(f.readlines()), 30784)
         f.close()
         self.removeFile('lister.txt')
-        print
+        print()
 
     def test_metadata(self): 
         """test ms.metadata"""
@@ -323,7 +323,7 @@ class mstool_test_summary(mstool_test_base):
         # other msmetadata functions tested in test_msmd
         self.assertEqual(msmd.nspw(), 1)
         msmd.done()
-        print
+        print()
 
 # ------------------------------------------------------------------------------
 
@@ -340,7 +340,7 @@ class mstool_test_select(mstool_test_base):
         self.assertTrue(self.ms.selectinit())
         # this MS only has one DDID so no selection done
         self.assertEqual(self.ms.nrow(), 22653)
-        print
+        print()
 
     def test_selectinit2(self): 
         """test ms.selectinit2, ms.nrow2"""
@@ -348,7 +348,7 @@ class mstool_test_select(mstool_test_base):
         # this MS only has one DDID so no selection done
         self.assertEqual(self.ms.nrow2(False), 22653)
         self.assertEqual(self.ms.nrow2(True), 22653)
-        print
+        print()
 
     def test_msselect(self): 
         """test ms.msselect, ms.msselectedindices, ms.reset"""
@@ -366,7 +366,7 @@ class mstool_test_select(mstool_test_base):
         self.ms.reset()
         self.assertEqual(self.ms.nrow(), 22653)
         self.assertEqual(self.ms.msselectedindices()['field'].size, 0)
-        print
+        print()
 
     def test_select(self): 
         """test ms.select"""
@@ -376,7 +376,7 @@ class mstool_test_select(mstool_test_base):
         self.ms.select({'antenna1':antsel})
         # range for antenna is list of sel antennas, not min/max
         testing.assert_array_equal(self.ms.range(['antenna1'])['antenna1'], antsel)
-        print
+        print()
 
     def test_select2(self): 
         """test ms.select2"""
@@ -386,7 +386,7 @@ class mstool_test_select(mstool_test_base):
         self.ms.select2({'antenna1':antsel})
         # range for antenna is list of sel antennas, not min/max
         testing.assert_array_equal(self.ms.range2(['antenna1'])['antenna1'], antsel)
-        print
+        print()
 
     def test_selecttaql(self): 
         """test ms.selecttaql"""
@@ -394,7 +394,7 @@ class mstool_test_select(mstool_test_base):
         # select one antenna1
         self.ms.selecttaql('ANTENNA1==3')
         testing.assert_array_equal(self.ms.range(["antenna1"])['antenna1'], [3])
-        print
+        print()
 
     def test_selecttaql2(self): 
         """test ms.selecttaql2"""
@@ -402,7 +402,7 @@ class mstool_test_select(mstool_test_base):
         self.ms.selecttaql2('ANTENNA1==3')
         # range returns array of size 1, antennaId 3
         testing.assert_array_equal(self.ms.range2(["antenna1"])['antenna1'], [3])
-        print
+        print()
 
     def test_selectchannel(self): 
         """test ms.selectchannel"""
@@ -424,10 +424,10 @@ class mstool_test_select(mstool_test_base):
         self.assertAlmostEqual(rec['data'][0][0][0], (62.093727111816406+0j))
 
         # test invalid selection
-        print "\nTest invalid channel selection:"
+        print("\nTest invalid channel selection:")
         self.ms.selectinit(reset=True)
         self.assertFalse(self.ms.selectchannel(128,2,5,3))
-        print
+        print()
 
     def test_selectchannel2(self):
         """test ms.selectchannel2"""
@@ -450,10 +450,10 @@ class mstool_test_select(mstool_test_base):
         self.assertAlmostEqual(rec['data'][0][2][0], (70.219131469726562+0j))
 
         # test invalid selection
-        print "\nTest invalid channel selection:"
+        print("\nTest invalid channel selection:")
         self.ms.selectinit2(reset=True)
         self.assertFalse(self.ms.selectchannel2(2,128,5,3))
-        print
+        print()
 
     def test_selectpolarization(self): 
         """test ms.selectpolarization"""
@@ -475,7 +475,7 @@ class mstool_test_select(mstool_test_base):
         testing.assert_array_equal(rec["axis_info"]["corr_axis"], ["XX"])
         self.assertEqual(rec['data'].shape[0], 1)
         self.assertAlmostEqual(rec['data'][0][0][0], (2.7459716796875+0j))
-        print
+        print()
 
     def test_selectpolarization2(self): 
         """test ms.selectpolarization2"""
@@ -497,14 +497,14 @@ class mstool_test_select(mstool_test_base):
         testing.assert_array_equal(rec["axis_info"]["corr_axis"], ["XX"])
         self.assertEqual(rec['data'].shape[0], 1)
         self.assertAlmostEqual(rec['data'][0][0][0], (2.7459716796875+0j))
-        print
+        print()
 
     def test_msseltoindex(self): 
         """test ms.msseltoindex"""
         # select field id 2
         rec = self.ms.msseltoindex(self.testms, field="N*")
         self.assertEqual(rec['field'], [2])
-        print
+        print()
 
 # ------------------------------------------------------------------------------
 
@@ -533,7 +533,7 @@ class mstool_test_transform(mstool_test_base):
         self.assertEqual(spwinfo['NumChan'], 16)  # was 63
         self.assertAlmostEqual(spwinfo['ChanWidth'], 48828.125) # was 24414.0625
         self.assertAlmostEqual(spwinfo['TotalWidth'], 781250.0) # was 1550196.875
-        print
+        print()
 
     def test_cvel(self): 
         """test ms.cvel"""
@@ -552,7 +552,7 @@ class mstool_test_transform(mstool_test_base):
         self.assertAlmostEqual(spwinfo['TotalWidth'], 1513671.875) # was 1550196.875
         self.assertAlmostEqual(spwinfo['RefFreq'], 1412677280.8000255) # was 1413428013.2219005
         self.assertAlmostEqual(spwinfo['Chan1Freq'], 1412677280.8000255) # was 1412665073.7687755
-        print
+        print()
 
     def test_cvelfreqs(self): 
         """test ms.cvelfreqs"""
@@ -568,7 +568,7 @@ class mstool_test_transform(mstool_test_base):
         self.assertEqual(len(centers), 31)
         self.assertAlmostEqual(centers[0], 1412677280.8000255)
         self.assertAlmostEqual(centers[30], 1414142124.5500255)
-        print
+        print()
 
     def test_statwt(self): 
         """test ms.statwt"""
@@ -584,7 +584,7 @@ class mstool_test_transform(mstool_test_base):
         # orig weight=378.0, sigma=0.0514344
         self.assertAlmostEqual(rec['weight'][0][0], .0101575451)
         self.assertAlmostEqual(rec['sigma'][0][0], 9.9221458)
-        print
+        print()
 
     def test_continuumsub_uvsub(self): 
         """test ms.continuumsub, uvsub, contsub"""
@@ -622,7 +622,7 @@ class mstool_test_transform(mstool_test_base):
         self.ms.close()
         self.removeMS(contsubms)
         self.ms.open(self.testms) # prevent SEVERE ms::detached errors in cleanup
-        print
+        print()
 
     def test_continuumsub2(self): 
         """test ms.continuumsub2"""
@@ -648,7 +648,7 @@ class mstool_test_transform(mstool_test_base):
         self.ms.close()
         self.removeMS(subms)
         self.ms.open(self.testms) # prevent SEVERE ms::detached errors in cleanup
-        print
+        print()
 
     def test_hanningsmooth(self): 
         """test ms.hanningsmooth"""
@@ -663,18 +663,18 @@ class mstool_test_transform(mstool_test_base):
         self.ms.open(self.testms) # prevent SEVERE ms::detached errors in cleanup
         # orig data was 3.15738129616+0j
         self.assertAlmostEqual(rec['data'][0][0][0], (14.5159635544+0j))
-        print
+        print()
 
     # No tests for these functions:
     def xtest_moments(self): 
         """test ms.moments"""
         # No test: this function does not exist in ms_cmpt.cc!
-        print
+        print()
 
     def xtest_addephemeris(self): 
         """test ms.addephemeris"""
         # No test: no ephemeris sources in test MS
-        print
+        print()
 
 # ------------------------------------------------------------------------------
 
@@ -713,7 +713,7 @@ class mstool_test_dataIO(mstool_test_base):
         self.ms.close()
         self.removeMS(putms)
         self.ms.open(self.testms) # reopen for tearDown
-        print
+        print()
 
     def test_getdata2_putdata2(self): 
         """test ms.getdata2, putdata2"""
@@ -751,7 +751,7 @@ class mstool_test_dataIO(mstool_test_base):
         self.ms.close()
         self.removeMS(putms)
         self.ms.open(self.testms) # reopen for tearDown
-        print
+        print()
 
     def test_getdata_args(self): 
         """test ms.getdata ifraxis, increment, and average"""
@@ -783,7 +783,7 @@ class mstool_test_dataIO(mstool_test_base):
         rec = self.ms.getdata(['data'], ifraxis=True, average=True)
         self.assertEqual(rec['data'].shape, (ncorr, nchan, nIfr))
         testing.assert_array_almost_equal(rec['data'][0][0][:5], exp_data2, 8)
-        print
+        print()
 
     def test_getdata2_args(self): 
         """test ms.getdata2 ifraxis, increment, and average"""
@@ -814,7 +814,7 @@ class mstool_test_dataIO(mstool_test_base):
         rec = self.ms.getdata2(['data'], ifraxis=True, average=True)
         self.assertEqual(rec['data'].shape, (ncorr, nchan, nIfr))
         testing.assert_array_almost_equal(rec['data'][0][0][:5], exp_data2, 8)
-        print
+        print()
 
     def test_ngetdata(self): 
         """test ms.ngetdata"""
@@ -822,7 +822,7 @@ class mstool_test_dataIO(mstool_test_base):
         rec = self.ms.ngetdata(['data', 'flag'])
         self.assertAlmostEqual(rec['data'][0][0][0], (3.15738129616+0j))
         self.assertEqual(rec['flag'][0][0][0], 0)
-        print
+        print()
 
 # ------------------------------------------------------------------------------
 
@@ -851,7 +851,7 @@ class mstool_test_sort(mstool_test_base):
         self.ms.open(self.testms) # prevent SEVERE ms::detached errors in cleanup
         # ms is already time-sorted!
         testing.assert_array_equal(rec0['time'], rec1['time'])
-        print
+        print()
 
     def test_sort(self): 
         """test ms.sort"""
@@ -869,7 +869,7 @@ class mstool_test_sort(mstool_test_base):
         # check that antennas were sorted
         self.assertEqual(rec['antenna1'][1], 0)
         self.assertEqual(rec['antenna2'][2], 0)
-        print
+        print()
 
 # ------------------------------------------------------------------------------
 
@@ -897,7 +897,7 @@ class mstool_test_subms(mstool_test_base):
         # check values
         field0 = rec['field_id']
         self.assertTrue((field0 == 0).all())
-        print
+        print()
 
     def test_split_averaging(self): 
         """test ms.split time averaging"""
@@ -909,7 +909,7 @@ class mstool_test_subms(mstool_test_base):
         self.ms.close()
         self.removeMS('subms.ms')
         self.ms.open(self.testms) # for teardown
-        print
+        print()
 
     def test_partition(self): 
         """test ms.partition"""
@@ -922,7 +922,7 @@ class mstool_test_subms(mstool_test_base):
         self.ms.close()
         self.removeMS('partition.ms')
         self.ms.open(self.testms) # for teardown
-        print
+        print()
 
     def xtest_partition_averaging(self): 
         """test ms.partition time averaging"""
@@ -935,7 +935,7 @@ class mstool_test_subms(mstool_test_base):
         self.ms.close()
         self.removeMS('partition.ms')
         self.ms.open(self.testms) # for teardown
-        print
+        print()
 
 # ------------------------------------------------------------------------------
 
@@ -964,7 +964,7 @@ class mstool_test_iter(mstool_test_base):
             self.assertEqual(rec['scan_number'][0], scannum)
             self.assertEqual(rec["data"].shape[2], rows[scannum-1])
         self.ms.iterend()
-        print
+        print()
 
     def test_iteration2_columns(self): 
         """test ms.iter2 functions with sort columns"""
@@ -983,7 +983,7 @@ class mstool_test_iter(mstool_test_base):
             self.assertEqual(rec['scan_number'][0], scannum)
             self.assertEqual(rec["data"].shape[2], rows[scannum-1])
         self.ms.iterend2()
-        print
+        print()
 
     def test_iteration_interval(self): 
         """test ms.iter interval parameter"""
@@ -1006,7 +1006,7 @@ class mstool_test_iter(mstool_test_base):
             lasttime = thistime
         self.ms.iterend()
         self.assertEqual(nchunk, totalchunks)
-        print
+        print()
 
     def test_iteration2_interval(self): 
         """test ms.iter2 interval parameter"""
@@ -1029,7 +1029,7 @@ class mstool_test_iter(mstool_test_base):
             lasttime = thistime
         self.ms.iterend2()
         self.assertEqual(nchunk, totalchunks)
-        print
+        print()
 
     def test_iteration_maxrows(self): 
         """test ms.iter maxrows parameter"""
@@ -1051,7 +1051,7 @@ class mstool_test_iter(mstool_test_base):
                 self.assertEqual(rec["data"].shape[2], maxrows)
         self.ms.iterend()
         self.assertEqual(nchunk, totalchunks)
-        print
+        print()
 
     def test_iteration2_maxrows(self): 
         """test ms.iter2 maxrows parameter"""
@@ -1073,7 +1073,7 @@ class mstool_test_iter(mstool_test_base):
                 self.assertEqual(rec["data"].shape[2], maxrows)
         self.ms.iterend2()
         self.assertEqual(nchunk, totalchunks)
-        print
+        print()
 
     def test_niteration(self): 
         """test ms.niter"""
@@ -1086,7 +1086,7 @@ class mstool_test_iter(mstool_test_base):
             got_rows.append(rec['rows'][0])
             self.ms.niternext()
         self.assertEqual(got_rows, exp_rows)
-        print
+        print()
 
     def xtest_niteration_interval(self): 
         """test ms.niter interval parameter"""
@@ -1105,7 +1105,7 @@ class mstool_test_iter(mstool_test_base):
                 self.assertAlmostEqual(thistime - lasttime, interval, 2)
             lasttime = thistime
             self.ms.niternext()
-        print
+        print()
 
     def test_niteration_rows(self): 
         """test ms.niter rows parameter"""
@@ -1121,7 +1121,7 @@ class mstool_test_iter(mstool_test_base):
             rec = self.ms.ngetdata(['rows'])
             self.assertEqual(len(rec['rows']), maxrows+1)
             self.ms.niternext()
-        print
+        print()
 
 # ------------------------------------------------------------------------------
 """ DEPRECATED *buffer methods since they depend on MSSelector
@@ -1227,7 +1227,7 @@ class mstool_test_fits(mstool_test_base):
         self.removeMS(fitsms)
         self.removeFile(testfits)
         self.ms.open(self.testms) # for teardown
-        print
+        print()
 
 # ------------------------------------------------------------------------------
 

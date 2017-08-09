@@ -66,11 +66,11 @@ def asaptask_decorator(func):
         try:
             # execute task 
             retval = func(*args, **kwargs)
-        except Exception, e:
+        except Exception as e:
             traceback_info = format_trace(traceback.format_exc())
             casalog.post(traceback_info,'SEVERE')
             casalog.post(str(e),'ERROR')
-            raise Exception, e
+            raise Exception(e)
         return retval
     return wrapper
 
@@ -101,11 +101,11 @@ def sdtask_decorator(func):
         try:
             # execute task 
             retval = func(*args, **kwargs)
-        except Exception, e:
+        except Exception as e:
             traceback_info = format_trace(traceback.format_exc())
             casalog.post(traceback_info,'SEVERE')
             casalog.post(str(e),'ERROR')
-            raise Exception, e
+            raise Exception(e)
         return retval
     return wrapper
 
@@ -116,7 +116,7 @@ def format_trace(s):
     while wexists:
         ss = retval.split('\n')
         wexists = False
-        for i in xrange(len(ss)):
+        for i in range(len(ss)):
             if re.match(regex,ss[i]):
                 ss = ss[:i] + ss[i+2:]
                 wexists = True
@@ -142,7 +142,7 @@ class sdtask_manager(object):
         else:
             return True
 
-class sdtask_interface(object):
+class sdtask_interface(object, metaclass=abc.ABCMeta):
     """
     The sdtask_interface defines a common interface for sdtask_worker
     class. All worker classes can be used as follows:
@@ -156,10 +156,9 @@ class sdtask_interface(object):
     Derived classes must implement the above three methods: initialize(),
     execute(), and finalize().
     """
-    __metaclass__ = abc.ABCMeta
     
     def __init__(self, **kwargs):
-        for (k,v) in kwargs.items():
+        for (k,v) in list(kwargs.items()):
             setattr(self, k, v)
         # special treatment for selection parameters
         select_params = ['scan', 'pol','beam']
@@ -184,7 +183,7 @@ class sdtask_interface(object):
     def finalize(self):
         raise NotImplementedError('finalize is abstract method')
 
-class sdtask_template(sdtask_interface):
+class sdtask_template(sdtask_interface, metaclass=abc.ABCMeta):
     """
     The sdtask_template is a template class for standard worker
     class of non-imaging sdtasks. It partially implement initialize()
@@ -195,7 +194,6 @@ class sdtask_template(sdtask_interface):
     to do any task specific parameter check in initialize().
     For finalize(), derived classes can implement save() and cleanup().
     """
-    __metaclass__ = abc.ABCMeta
 
     def __init__(self, **kwargs):
         super(sdtask_template,self).__init__(**kwargs)
@@ -287,7 +285,7 @@ class sdtask_template(sdtask_interface):
             if hasattr(self,'scan') and isinstance(self.scan, scantable):
                 scantb = self.scan
             else:
-                raise Exception, "Internal Error. No valid scantable."
+                raise Exception("Internal Error. No valid scantable.")
         
         attributes = ['scanno','spw','polno','beamno','field']
         for a in attributes:
@@ -303,8 +301,8 @@ class sdtask_template(sdtask_interface):
             masklist = scantb.parse_spw_selection(self.spw, restfreq=rfreq,
                                                   frame=frame, doppler=doppler)
             if len(masklist) == 0:
-                raise ValueError, "Invalid spectral window selection. Selection contains no data."
-            self.iflist = masklist.keys()
+                raise ValueError("Invalid spectral window selection. Selection contains no data.")
+            self.iflist = list(masklist.keys())
         self.pollist = scantb.parse_idx_selection("POL",self.polno)
         self.beamlist = scantb.parse_idx_selection("BEAM",self.beamno)
         
@@ -343,7 +341,7 @@ class sdtask_template(sdtask_interface):
             if hasattr(self,'scan') and isinstance(self.scan, scantable):
                 scantb = self.scan
             else:
-                raise Exception, "Internal Error. No valid scantable."
+                raise Exception("Internal Error. No valid scantable.")
     
         if base_selector is None:
             selector = sd.selector()
@@ -420,7 +418,7 @@ class sdtask_template(sdtask_interface):
             if hasattr(self,'scan') and isinstance(self.scan, scantable):
                 scantb = self.scan
             else:
-                raise Exception, "Internal Error. No valid scantable."
+                raise Exception("Internal Error. No valid scantable.")
         in_ifno = scantb.getifnos()
         # apply selection
         scantb.set_selection(self.get_selector(scantb))
@@ -454,7 +452,7 @@ class sdtask_template(sdtask_interface):
         #has_chan = has_chan or len(quantap.findall(self.spw))
         if has_chan:
             if mode.upper().startswith('E'):
-                raise ValueError, "spw parameter should not contain channel selection."
+                raise ValueError("spw parameter should not contain channel selection.")
             elif mode.upper().startswith('W'):
                 casalog.post("Channel selection found in spw parameter. It would be ignored", priority='WARN')
         
@@ -473,7 +471,7 @@ class sdtask_template(sdtask_interface):
             if hasattr(self,'restfreq'):
                 rfset = self.restfreq not in ['',[]]
                 if self.specunit == 'km/s':
-                    if len(self.scan.get_restfreqs().values()[0]) == 0 and not rfset:
+                    if len(list(self.scan.get_restfreqs().values())[0]) == 0 and not rfset:
                         raise Exception('Restfreq must be given')
                     if rfset:
                         rf = self.restfreq if not hasattr(self, 'selected_restfreq') else self.selected_restfreq
@@ -548,7 +546,7 @@ class sdtask_template_imaging(sdtask_interface):
         for idx in range(len(self.infiles)):
             if not is_ms(self.infiles[idx]):
                 msg='input data sets must be in MS format'
-                raise Exception, msg
+                raise Exception(msg)
         
         self.parameter_check()
         self.compile()
@@ -591,7 +589,7 @@ class sdtask_engine(sdtask_interface):
 
         # copy worker attributes except scan
         # use worker.scan to access scantable
-        for (k,v) in self.worker.__dict__.items():
+        for (k,v) in list(self.worker.__dict__.items()):
             if k != 'scan':
                 setattr(self, k, v)
         #super(sdtask_engine,self).__init__(**self.worker.__dict__)
@@ -605,12 +603,12 @@ def expand_path(filename):
 
 def assert_infile_exists(infile=None):
     if (infile == ""):
-        raise Exception, "infile is undefined"
+        raise Exception("infile is undefined")
 
     filename = get_abspath(infile)
     if not os.path.exists(filename):
         mesg = "File '%s' not found." % (infile)
-        raise Exception, mesg
+        raise Exception(mesg)
 
 
 def get_default_outfile_name(infile=None, outfile=None, suffix=None):
@@ -626,7 +624,7 @@ def assert_outfile_canoverwrite_or_nonexistent(outfile=None, outform=None, overw
         filename = get_abspath(outfile)
         if os.path.exists(filename):
             mesg = "Output file '%s' exists." % (outfile)
-            raise Exception, mesg
+            raise Exception(mesg)
 
 
 def get_listvalue(value):
@@ -663,38 +661,38 @@ def combine_masklist(masklist1, masklist2, mode='and'):
             [[10,14],[21,99],[121,140],[200,220]] for mode='xor'.
     """
     max_idx = 0
-    for i in xrange(len(masklist1)):
+    for i in range(len(masklist1)):
         max_elem = int(max(masklist1[i][0], masklist1[i][1]))
         if max_elem > max_idx: max_idx = max_elem
-    for i in xrange(len(masklist2)):
+    for i in range(len(masklist2)):
         max_elem = int(max(masklist2[i][0], masklist2[i][1]))
         if max_elem > max_idx: max_idx = max_elem
     numblist = max_idx + 1
     blist1 = [False]*numblist
-    for i in xrange(len(masklist1)):
+    for i in range(len(masklist1)):
         min_elem = int(min(masklist1[i][0], masklist1[i][1]))
         max_elem = int(max(masklist1[i][0], masklist1[i][1]))
-        for j in xrange(min_elem, max_elem+1):
+        for j in range(min_elem, max_elem+1):
             blist1[j] = True
     blist2 = [False]*numblist
-    for i in xrange(len(masklist2)):
+    for i in range(len(masklist2)):
         min_elem = int(min(masklist2[i][0], masklist2[i][1]))
         max_elem = int(max(masklist2[i][0], masklist2[i][1]))
-        for j in xrange(min_elem, max_elem+1):
+        for j in range(min_elem, max_elem+1):
             blist2[j] = True
     blist3 = []
     if mode == 'and':
-        for i in xrange(len(blist1)):
+        for i in range(len(blist1)):
             blist3.append(blist1[i] and blist2[i])
     elif mode == 'or':
-        for i in xrange(len(blist1)):
+        for i in range(len(blist1)):
             blist3.append(blist1[i] or blist2[i])
     elif mode == 'xor':
-        for i in xrange(len(blist1)):
+        for i in range(len(blist1)):
             blist3.append(blist1[i] ^ blist2[i])
     heads = []
     tails = []
-    for i in xrange(len(blist3)):
+    for i in range(len(blist3)):
         if (i == 0):
             if blist3[i]: heads.append(0)
         else:
@@ -705,9 +703,9 @@ def combine_masklist(masklist1, masklist2, mode='and'):
         if (i == len(blist3)-1) and blist3[i]:
             tails.append(i)
     if len(heads) != len(tails):
-        raise Exception, "Internal error: heads and tails of resulting masklist have different length."
+        raise Exception("Internal error: heads and tails of resulting masklist have different length.")
     res = []
-    for i in xrange(len(heads)):
+    for i in range(len(heads)):
         res.append([heads[i], tails[i]])
 
     return res
@@ -716,14 +714,14 @@ def get_restfreq_in_Hz(s_restfreq):
     qatl = casac.quanta()
     if not qatl.isquantity(s_restfreq):
         mesg = "Input value is not a quantity: %s" % (str(s_restfreq))
-        raise Exception, mesg
+        raise Exception(mesg)
     if qatl.compare(s_restfreq,'Hz'):
         return qatl.convert(s_restfreq, 'Hz')['value']
     elif qatl.quantity(s_restfreq)['unit'] == '':
         return float(s_restfreq)
     else:
         mesg = "wrong unit of restfreq."
-        raise Exception, mesg
+        raise Exception(mesg)
 ###############################################################
 # def get_restfreq_in_Hz(s_restfreq):
 #     value = 0.0
@@ -777,7 +775,7 @@ def get_restfreq_in_Hz(s_restfreq):
 def normalise_restfreq(in_restfreq):
     if isinstance(in_restfreq, float):
         return in_restfreq
-    elif isinstance(in_restfreq, int) or isinstance(in_restfreq, long):
+    elif isinstance(in_restfreq, int) or isinstance(in_restfreq, int):
         return float(in_restfreq)
     elif isinstance(in_restfreq, str):
         return get_restfreq_in_Hz(in_restfreq)
@@ -785,14 +783,14 @@ def normalise_restfreq(in_restfreq):
         if isinstance(in_restfreq, numpy.ndarray):
             if len(in_restfreq.shape) > 1:
                 mesg = "given in numpy.ndarray, in_restfreq must be 1-D."
-                raise Exception, mesg
+                raise Exception(mesg)
         
         res = []
-        for i in xrange(len(in_restfreq)):
+        for i in range(len(in_restfreq)):
             elem = in_restfreq[i]
             if isinstance(elem, float):
                 res.append(elem)
-            elif isinstance(elem, int) or isinstance(elem, long):
+            elif isinstance(elem, int) or isinstance(elem, int):
                 res.append(float(elem))
             elif isinstance(elem, str):
                 res.append(get_restfreq_in_Hz(elem))
@@ -811,11 +809,11 @@ def normalise_restfreq(in_restfreq):
                     res.append(dictelem)
             else:
                 mesg = "restfreq elements must be float, int, or string."
-                raise Exception, mesg
+                raise Exception(mesg)
         return res
     else:
         mesg = "wrong type of restfreq given."
-        raise Exception, mesg
+        raise Exception(mesg)
 
 def set_restfreq(s, restfreq):
     rfset = (restfreq != '') and (restfreq != [])
@@ -990,13 +988,13 @@ def doaverage(s, scanaverage, timeaverage, tweight, polaverage, pweight,
     if ( timeaverage ):
         if tweight=='none':
             errmsg = "Please specify weight type of time averaging"
-            raise Exception,errmsg
+            raise Exception(errmsg)
         stave=sd.average_time(s,weight=tweight,scanav=scanaverage,compel=averageall)
         # Now average over polarizations;
         if ( polaverage ):
             if pweight=='none':
                 errmsg = "Please specify weight type of polarization averaging"
-                raise Exception,errmsg
+                raise Exception(errmsg)
             np = len(stave.getpolnos())
             if ( np > 1 ):
                 sret=stave.average_pol(weight=pweight)
@@ -1017,7 +1015,7 @@ def doaverage(s, scanaverage, timeaverage, tweight, polaverage, pweight,
         if ( polaverage ):
             if pweight=='none':
                 errmsg = "Please specify weight type of polarization averaging"
-                raise Exception,errmsg
+                raise Exception(errmsg)
             np = s.npol()
             if ( np > 1 ):
                 if not scanaverage:
@@ -1145,7 +1143,7 @@ def init_interactive_mask(s, masklist, invert=False):
 
 def get_interactive_mask(obj, purpose=None):
     # Wait for user to finish mask selection
-    finish=raw_input("Press return %s.\n"%(purpose))
+    finish=input("Press return %s.\n"%(purpose))
     return obj.get_mask()
 
 def finalize_interactive_mask(obj):
@@ -1198,13 +1196,13 @@ def get_map_center(c,frame='J2000',unit='rad'):
                 map_center = 'J2000 '+c
             elif len(s) == 3:
                 if s[0].upper() != 'J2000':
-                    raise ValueError, 'Currently only J2000 is supported'
+                    raise ValueError('Currently only J2000 is supported')
                 map_center = c
             else:
-                raise ValueError, 'Invalid map center: %s'%(c)
+                raise ValueError('Invalid map center: %s'%(c))
     else:
         l = [frame]
-        for i in xrange(2):
+        for i in range(2):
             if isinstance(c[i], str):
                 l.append(c[i])
             else:
@@ -1228,7 +1226,7 @@ def read_factor_file(filename):
             split_line = line.split()
             nelem = len(split_line)
             factor = [0] * nelem
-            for j in xrange(nelem):
+            for j in range(nelem):
                 factor[j] = float(split_line[j])
             factor_list.append(factor)
     return factor_list
@@ -1273,11 +1271,11 @@ def get_full_description(date_string, year='YYYY', month='MM', day='DD', hour='h
             
     values = default_values[:7-len(elements_list)] + elements_list
 
-    return template.safe_substitute(**dict(zip(keys, values)))
+    return template.safe_substitute(**dict(list(zip(keys, values))))
 
 def to_datetime(date):
     date_elements_list = split_date_string(date, full=False)
-    date_list = map(int, date_elements_list[:-1]) + [float(date_elements_list[-1])]
+    date_list = list(map(int, date_elements_list[:-1])) + [float(date_elements_list[-1])]
     t = datetime.datetime(date_list[0], date_list[1], date_list[2],
                           date_list[3], date_list[4], int(date_list[5]),
                           int((date_list[5]-int(date_list[5]))*1e6))
@@ -1285,7 +1283,7 @@ def to_datetime(date):
 
 def to_timedelta(delta):
     delta_elements_list = split_date_string(delta, full=False)
-    delta_list = map(int, delta_elements_list[:-1]) + [float(delta_elements_list[-1])]
+    delta_list = list(map(int, delta_elements_list[:-1])) + [float(delta_elements_list[-1])]
     while len(delta_list) < 3:
         delta_list.insert(0, 0)
     dummy1 = datetime.datetime(1999, 1, 1)
@@ -1397,17 +1395,17 @@ def parse_idx_selection(s, id_min, id_max):
         elif item.startswith('>'):
             v = int(item[1:])
             if v <= id_max:
-                l.extend(range(v,id_max+1))
+                l.extend(list(range(v,id_max+1)))
         elif item.startswith('<'):
             v = int(item[1:])
             if v >= id_min:
-                l.extend(range(id_min,v+1))
+                l.extend(list(range(id_min,v+1)))
         elif re.match('^[0-9]+~[0-9]+$', item):
-            v = map(int, item.split('~'))
+            v = list(map(int, item.split('~')))
             id_from = max(id_min, v[0])
             id_to = min(id_max, v[1])
             if id_from <= id_to:
-                l.extend(range(id_from,id_to+1))
+                l.extend(list(range(id_from,id_to+1)))
     return l
 
 def get_spwids(selection, infile=None):
@@ -1417,7 +1415,7 @@ def get_spwids(selection, infile=None):
     spw_list = selection['spw']
     if len(spw_list) == 0:
         if infile is None:
-            raise Exception, "infile is needed when selection['spw'] is empty."
+            raise Exception("infile is needed when selection['spw'] is empty.")
         with tbmanager(os.path.join(infile, 'DATA_DESCRIPTION')) as tb:
             spw_list = tb.getcol('SPECTRAL_WINDOW_ID')
 
@@ -1443,7 +1441,7 @@ def get_spwchs(selection, infile):
     #     '3:1024:100;200;250;350,4:2048:0;2047'.
 
     with tbmanager(os.path.join(infile, 'SPECTRAL_WINDOW')) as tb:
-        nchanmap = dict(((str(i),str(tb.getcell('NUM_CHAN',i))) for i in xrange(tb.nrows())))
+        nchanmap = dict(((str(i),str(tb.getcell('NUM_CHAN',i))) for i in range(tb.nrows())))
 
     ch_info = selection['channel']
     exist_spw = selection['spw'].tolist()
@@ -1453,7 +1451,7 @@ def get_spwchs(selection, infile):
             exist_spw.index(item[0])
             spwid = str(item[0])
             try:
-                d.keys().index(spwid)
+                list(d.keys()).index(spwid)
                 d[spwid].append(str(item[1]))
             except:
                 d[spwid] = [str(item[1])]
@@ -1461,7 +1459,7 @@ def get_spwchs(selection, infile):
         except:
             pass
     l = []
-    for key in d.keys():
+    for key in list(d.keys()):
         l.append(':'.join([key, nchanmap[key], ';'.join(d[key])]))
     return ','.join(l)
 
@@ -1536,7 +1534,7 @@ def get_ms_sampling_arcsec(msname, spw='', antenna='', field='',
     msmd_loc.open(msname)
     badtime_idx = [] # id of rows with out corresponding pointing
     direction_raw = []
-    for i in xrange(len(row_idx)):
+    for i in range(len(row_idx)):
         try:
             pointing = msmd_loc.pointingdirection(row_idx[i],True,(row_idx[i] if initial_guess else 0))
         except:
@@ -1549,7 +1547,7 @@ def get_ms_sampling_arcsec(msname, spw='', antenna='', field='',
     # adjust time and row_gap for rows without valid pointing
     for i in badtime_idx:
         times.pop(i)
-        for j in xrange(len(row_gap)):
+        for j in range(len(row_gap)):
             if i <= row_gap[j]:
                 row_gap[j] -=1
     #direction_raw = [ msmd_loc.pointingdirection(idx,True,(idx if initial_guess else 0))['antenna1']['pointingdirection'] for idx in row_idx ]
@@ -1562,7 +1560,7 @@ def get_ms_sampling_arcsec(msname, spw='', antenna='', field='',
         msmd_loc.close()
         ra_rad = []
         dec_rad = []
-        for idx in xrange(len(times)):
+        for idx in range(len(times)):
             me_loc.doframe(me_loc.epoch('mjd',qa_loc.quantity(times[idx]/86400.,'d')))
             dir_in = me_loc.direction(inframe, direction_raw[idx]['m0'],
                                      direction_raw[idx]['m1'])
@@ -1601,29 +1599,29 @@ def parse_wavenumber_param(wn):
             _check_positive_or_zero(val)
             val = [int(val[0]), int(val[1])]
             val.sort()
-            res = [i for i in xrange(val[0], val[1]+1)]
+            res = [i for i in range(val[0], val[1]+1)]
         elif '~' in wn:                          # case 'a~b' : return [a,a+1,...,b-1,b]
             val = wn.split('~')
             _check_positive_or_zero(val)
             val = [int(val[0]), int(val[1])]
             val.sort()
-            res = [i for i in xrange(val[0], val[1]+1)]
+            res = [i for i in range(val[0], val[1]+1)]
         elif wn[:2] == '<=' or wn[:2] == '=<':   # cases '<=a','=<a' : return [0,1,...,a-1,a]
             val = wn[2:]
             _check_positive_or_zero(val)
-            res = [i for i in xrange(int(val)+1)]
+            res = [i for i in range(int(val)+1)]
         elif wn[-2:] == '>=' or wn[-2:] == '=>': # cases 'a>=','a=>' : return [0,1,...,a-1,a]
             val = wn[:-2]
             _check_positive_or_zero(val)
-            res = [i for i in xrange(int(val)+1)]
+            res = [i for i in range(int(val)+1)]
         elif wn[0] == '<':                       # case '<a' :         return [0,1,...,a-2,a-1]
             val = wn[1:]
             _check_positive_or_zero(val, False)
-            res = [i for i in xrange(int(val))]
+            res = [i for i in range(int(val))]
         elif wn[-1] == '>':                      # case 'a>' :         return [0,1,...,a-2,a-1]
             val = wn[:-1]
             _check_positive_or_zero(val, False)
-            res = [i for i in xrange(int(val))]
+            res = [i for i in range(int(val))]
         elif wn[:2] == '>=' or wn[:2] == '=>':   # cases '>=a','=>a' : return [a,-999], which is
                                                  #                     then interpreted in C++
                                                  #                     side as [a,a+1,...,a_nyq]

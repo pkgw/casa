@@ -1,5 +1,5 @@
 import os
-import commands
+import subprocess
 import math
 import shutil
 import string
@@ -122,7 +122,7 @@ class PyParallelContSynthesisImager(PySynthesisImager):
 
                     ## Pop out the startmodel, as it would already have been created on the main node,.
                     tmpimpars = nimpars[str(fld)]
-                    if tmpimpars.has_key('startmodel'):
+                    if 'startmodel' in tmpimpars:
                         tmpimpars.pop('startmodel')
 
                     joblist.append( self.PH.runcmd("toolsi.defineimage( impars=" + str( nimpars[str(fld)] ) 
@@ -294,7 +294,7 @@ class PyParallelContSynthesisImager(PySynthesisImager):
             if self.NN>1:
                 nimpars[str(fld)]['imagename'] = self.PH.getpartimagename( nimpars[str(fld)]['imagename'], nodes[0] )
             tmpimpars = nimpars[str(fld)]
-            if partialSelPars==False and tmpimpars.has_key('startmodel'):
+            if partialSelPars==False and 'startmodel' in tmpimpars:
                 tmpimpars.pop('startmodel')
             joblist.append( self.PH.runcmd("toolsi.defineimage( impars=" + str( tmpimpars ) 
                                                + ", gridpars=" + str( ngridpars[str(fld)] )   + ")", nodes[0] ) )
@@ -318,7 +318,7 @@ class PyParallelContSynthesisImager(PySynthesisImager):
 
 
                 tmpimpars = nimpars[str(fld)]
-                if partialSelPars==False and tmpimpars.has_key('startmodel'):
+                if partialSelPars==False and 'startmodel' in tmpimpars:
                     tmpimpars.pop('startmodel')
                 joblist.append( self.PH.runcmd("toolsi.defineimage( impars=" + str( tmpimpars ) 
                                                + ", gridpars=" + str( ngridpars[str(fld)] )   + ")", node ) )
@@ -410,9 +410,9 @@ class PyParallelContSynthesisImager(PySynthesisImager):
             self.PH.checkJobs( joblist )
 
            ## gather weightdensity and sum and scatter
-            print "******************************************************"
-            print " gather and scatter now "
-            print "******************************************************"
+            print("******************************************************")
+            print(" gather and scatter now ")
+            print("******************************************************")
             for immod in range(0,self.NF):
                 self.PStools[immod].gatherweightdensity()
                 self.PStools[immod].scatterweightdensity()
@@ -450,7 +450,7 @@ class PyParallelContSynthesisImager(PySynthesisImager):
         joblist=[];
         for node in self.listOfNodes:
             cmd = "toolsi.reloadcfcache()";
-            print "CMD = ",node," ",cmd;
+            print("CMD = ",node," ",cmd);
             joblist.append(self.PH.runcmd(cmd,node));
         self.PH.checkJobs(joblist);
 #############################################

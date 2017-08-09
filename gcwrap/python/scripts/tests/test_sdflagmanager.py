@@ -145,7 +145,7 @@ class sdflagmanagerold_test(unittest.TestCase):
         def gen_version():
             with open(self.vlistfile, 'r') as f:
                 for line in f:
-                    yield map(lambda x: x.strip(), line.split(':'))
+                    yield [x.strip() for x in line.split(':')]
         return list(gen_version())
 
     def _verify_version(self, expected_nversion, expected_versions, expected_comments):
@@ -181,7 +181,7 @@ class sdflagmanagerold_test(unittest.TestCase):
         self.assertEqual(flag.shape, expected_flag.shape, msg='shape of FLAG differ')
 
         nrow = len(flag_row)
-        for irow in xrange(nrow):
+        for irow in range(nrow):
             self.assertEqual(flag_row[irow], expected_flag_row[irow], msg='Row %s: FLAG_ROW differ'%(irow))
             self.assertTrue(all(flag[:,:,irow].flatten() == expected_flag[:,:,irow].flatten()), msg='Row %s: FLAG differ'%(irow))
 
@@ -191,7 +191,7 @@ class sdflagmanagerold_test(unittest.TestCase):
         self.assertEqual(flag.shape, expected_flag.shape, msg='shape of FLAGTRA differ')
 
         nrow = len(flagrow)
-        for irow in xrange(nrow):
+        for irow in range(nrow):
             # effect of CAS-5545: FLAGROW is always 0
             #self.assertEqual(flagrow[irow] == 0, expected_flagrow[irow] == 0, msg='Row %s: FLAGROW differ (result %s, expected %s)'%(irow, flagrow[irow], expected_flagrow[irow]))
             self.assertEqual(flagrow[irow], 0, msg='Row %s: FLAGROW must be 0 (result %s)'%(irow, flagrow[irow]))

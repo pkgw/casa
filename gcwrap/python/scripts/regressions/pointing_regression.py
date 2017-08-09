@@ -95,35 +95,35 @@ try:
     outfile=REGNAME+'-'+datestring+'.log'
     logfile=open(outfile,'w')
 
-    print >>logfile, "Pointing solution statistics:";
-    print >>logfile, "-------------------------------------------------";
-    print >>logfile, "Res. Max = ",dMax, "  Res. Var = ",dVar, "  Res. Min = ",dMin, "  Res. Mean = ",dMean;
-    print >>logfile, "";
+    print("Pointing solution statistics:", file=logfile);
+    print("-------------------------------------------------", file=logfile);
+    print("Res. Max = ",dMax, "  Res. Var = ",dVar, "  Res. Min = ",dMin, "  Res. Mean = ",dMean, file=logfile);
+    print("", file=logfile);
 
     if ((abs(dMax) < EPS) &
         (abs(dVar) < EPS) &
         (abs(dMin) < EPS)):
         regstate=True;
-        print >>logfile,REGNAME+" Regression passed.";
-        print ''
-        print 'Regression PASSED'
-        print ''
+        print(REGNAME+" Regression passed.", file=logfile);
+        print('')
+        print('Regression PASSED')
+        print('')
     else:
         regstate=False;
-        print >>logfile,REGNAME+" Regression failed.";
-        print ''
-        print 'Regression FAILED'
-        print ''
+        print(REGNAME+" Regression failed.", file=logfile);
+        print('')
+        print('Regression FAILED')
+        print('')
 
-    print >>logfile,''
-    print >>logfile,''
-    print >>logfile,'********* Benchmarking *****************'
-    print >>logfile,'*                                      *'
-    print >>logfile,'Total wall clock time was: ', endTime - startTime
-    print >>logfile,'Total CPU        time was: ', endProc - startProc
+    print('', file=logfile)
+    print('', file=logfile)
+    print('********* Benchmarking *****************', file=logfile)
+    print('*                                      *', file=logfile)
+    print('Total wall clock time was: ', endTime - startTime, file=logfile)
+    print('Total CPU        time was: ', endProc - startProc, file=logfile)
 
 
     logfile.close();
 
-except Exception, instance:
-    print "###Error in pointing regression: ", instance;
+except Exception as instance:
+    print("###Error in pointing regression: ", instance);

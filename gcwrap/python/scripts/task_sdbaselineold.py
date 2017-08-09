@@ -52,7 +52,7 @@ class sdbaseline_worker(sdutil.sdtask_template):
         # check if the data contains spectra
         if (self.scan.nchan()==1):
            s = "Cannot process the input data. It contains only single channel data."
-           raise Exception, s
+           raise Exception(s)
    
         # set various attributes to self.scan
         self.set_to_scan()
@@ -103,8 +103,8 @@ class sdbaseline_engine(sdutil.sdtask_engine):
         # parse string masklist
         maskdict = scan.parse_spw_selection(self.spw)
         valid_spw_list = []
-        for (k,v) in maskdict.items():
-            if len(v) > 0 and numpy.all(numpy.array(map(len, v)) > 0):
+        for (k,v) in list(maskdict.items()):
+            if len(v) > 0 and numpy.all(numpy.array(list(map(len, v))) > 0):
                 valid_spw_list.append(k)
         
         basesel = scan.get_selection()
@@ -122,7 +122,7 @@ class sdbaseline_engine(sdutil.sdtask_engine):
                 del sel
                 msg = "Working on IF%s" % (sif)
                 casalog.post(msg)
-                if (self.maskmode == 'interact'): print "===%s===" % (msg)
+                if (self.maskmode == 'interact'): print("===%s===" % (msg))
                 del msg
 
             msk = None
@@ -232,19 +232,19 @@ class sdbaseline_engine(sdutil.sdtask_engine):
                         ['Flux Unit', self.worker.scan.get_fluxunit()],
                         ['Abscissa', self.worker.scan.get_unit()],
                         ['Function', self.blfunc]]
-                for i in xrange(len(ftitles)):
+                for i in range(len(ftitles)):
                     info.append([ftitles[i],getattr(self,fkeys[i])])
                 if blf != 'poly':
-                    for i in xrange(len(ctitles)):
+                    for i in range(len(ctitles)):
                         info.append([ctitles[i],self.clip_keys[i]])
                 info.append(['Mask mode', self.maskmode])
-                for i in xrange(len(mtitles)):
+                for i in range(len(mtitles)):
                     info.append([mtitles[i],getattr(self,mkeys[i])])
 
                 separator = "#"*60 + "\n"
                 
                 f.write(separator)
-                for i in xrange(len(info)):
+                for i in range(len(info)):
                     f.write('%12s: %s\n'%tuple(info[i]))
                 f.write(separator)
                 f.close()

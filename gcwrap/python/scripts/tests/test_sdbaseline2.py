@@ -16,7 +16,7 @@ from sdstatold import sdstatold
 from sdutil import tbmanager
 
 try:
-    import selection_syntax
+    from . import selection_syntax
 except:
     import tests.selection_syntax as selection_syntax
 
@@ -76,7 +76,7 @@ class BlparamFileParser( FileReader ):
 
     def _nrow( self ):
         self.__nrow = 0
-        for i in xrange(self.nline()):
+        for i in range(self.nline()):
             if self.getline( i ) == self.__ctxt:
                 self.__nrow += 1
         return self.__nrow
@@ -173,24 +173,24 @@ class sdbaseline2old_unittest_base:
         if complist:
             keylist = complist
         else:
-            keylist = refstat.keys()
+            keylist = list(refstat.keys())
             #keylist = self.complist
         
         for key in keylist:
-            self.assertTrue(currstat.has_key(key),\
+            self.assertTrue(key in currstat,\
                             msg="%s is not defined in the current results."\
                             % key)
-            self.assertTrue(refstat.has_key(key),\
+            self.assertTrue(key in refstat,\
                             msg="%s is not defined in the reference data."\
                             % key)
             refval = refstat[key]
             currval = currstat[key]
             # Quantum values
             if isinstance(refval,dict):
-                if refval.has_key('unit') and currval.has_key('unit'):
+                if 'unit' in refval and 'unit' in currval:
                     if printstat:
-                        print "Comparing unit of '%s': %s (current run), %s (reference)" %\
-                              (key,currval['unit'],refval['unit'])
+                        print("Comparing unit of '%s': %s (current run), %s (reference)" %\
+                              (key,currval['unit'],refval['unit']))
                     self.assertEqual(refval['unit'],currval['unit'],\
                                      "The units of '%s' differs: %s (expected: %s)" % \
                                      (key, currval['unit'], refval['unit']))
@@ -202,8 +202,8 @@ class sdbaseline2old_unittest_base:
             currval = self._to_list(currval)
             refval = self._to_list(refval)
             if printstat:
-                print "Comparing '%s': %s (current run), %s (reference)" %\
-                      (key,str(currval),str(refval))
+                print("Comparing '%s': %s (current run), %s (reference)" %\
+                      (key,str(currval),str(refval)))
             self.assertTrue(len(currval)==len(refval),"Number of elemnets in '%s' differs." % key)
             for i in range(len(currval)):
                 if isinstance(refval[i],str):
@@ -266,13 +266,13 @@ class sdbaseline2old_unittest_base:
         coeffs_ref = blparse_ref.coeff()
         rms_ref = blparse_ref.rms()
         allowdiff = 0.01
-        print 'Check baseline parameters:'
-        for irow in xrange(len(rms_out)):
-            print 'Row %s:'%(irow)
-            print '   Reference rms  = %s'%(rms_ref[irow])
-            print '   Calculated rms = %s'%(rms_out[irow])
-            print '   Reference coeffs  = %s'%(coeffs_ref[irow])
-            print '   Calculated coeffs = %s'%(coeffs_out[irow])
+        print('Check baseline parameters:')
+        for irow in range(len(rms_out)):
+            print('Row %s:'%(irow))
+            print('   Reference rms  = %s'%(rms_ref[irow]))
+            print('   Calculated rms = %s'%(rms_out[irow]))
+            print('   Reference coeffs  = %s'%(coeffs_ref[irow]))
+            print('   Calculated coeffs = %s'%(coeffs_out[irow]))
             r0 = rms_ref[irow]
             r1 = rms_out[irow]
             rdiff = ( r1 - r0 ) / r0
@@ -280,11 +280,11 @@ class sdbaseline2old_unittest_base:
                             msg='row %s: rms is different'%(irow))
             c0 = coeffs_ref[irow]
             c1 = coeffs_out[irow]
-            for ic in xrange(len(c1)):
+            for ic in range(len(c1)):
                 rdiff = ( c1[ic] - c0[ic] ) / c0[ic]
                 self.assertTrue((abs(rdiff)<allowdiff),
                                 msg='row %s: coefficient for order %s is different'%(irow,ic))
-        print ''
+        print('')
 
     def _checkBaselineTable(self, outbltable, refbltable):
         key_list_scalar = ['apply','func_type','rms']
@@ -310,7 +310,7 @@ class sdbaseline2old_unittest_base:
             self.assertTrue(all(dout[key]==dref[key]),
                             msg='inconsistent values for key %s'%(key))
         for key in key_list_array:
-            for i in xrange(len(dout[key])):
+            for i in range(len(dout[key])):
                 self.assertTrue(all(dout[key][i]==dref[key][i]),
                                 msg='inconsistent values for key %s at row %s'%(key, i))
 
@@ -323,7 +323,7 @@ class sdbaseline2old_unittest_base:
                 res[key] = tb.getcol(key.upper())
             for key in key_list_array:
                 res[key] = []
-                for i in xrange(tb.nrows()):
+                for i in range(tb.nrows()):
                     res[key].append(tb.getcell(key.upper(), i))
 
         #print '******** ' + bltable + ' : = '
@@ -421,7 +421,7 @@ class sdbaseline2old_basicTest( sdbaseline2old_unittest_base, unittest.TestCase 
 
         try:
             result = sdbaseline2old(infile=infile, outfile=outfile, overwrite=False)
-        except Exception, e:
+        except Exception as e:
             pos = str(e).find("Output file 'Dummy_Empty.asap' exists.")
             self.assertNotEqual(pos, -1, msg='Unexpected exception was thrown: %s'%(str(e)))
         finally:
@@ -440,8 +440,8 @@ class sdbaseline2old_basicTest( sdbaseline2old_unittest_base, unittest.TestCase 
         try:
             result = sdbaseline2old(infile=infile, outfile=outfile, overwrite=False,
                                  blmode=blmode, bltable=bltable, blparam=blparam)
-        except Exception, e:
-            print str(e)
+        except Exception as e:
+            print(str(e))
             pos = str(e).find("Output baseline table 'Dummy_Empty.bltable' exists.")
             self.assertNotEqual(pos, -1, msg='Unexpected exception was thrown: %s'%(str(e)))
         finally:
@@ -459,7 +459,7 @@ class sdbaseline2old_basicTest( sdbaseline2old_unittest_base, unittest.TestCase 
         try:
             result = sdbaseline2old(infile=infile, outfile=outfile, spw=spw,
                                  blmode=blmode, blparam=blparam)
-        except Exception, e:
+        except Exception as e:
             pos = str(e).find('No valid spw.')
             self.assertNotEqual(pos, -1, msg='Unexpected exception was thrown: %s'%(str(e)))
 
@@ -551,7 +551,7 @@ class sdbaseline2old_maskTest( sdbaseline2old_unittest_base, unittest.TestCase )
         spw = '0:%s,2:%s'%(masklist,masklist)
         pol = '0'
 
-        print "spw =", spw
+        print("spw =", spw)
 
         result = sdbaseline2old(infile=infile,maskmode=mode,
                             outfile=outfile,spw=spw,pol=pol)
@@ -576,7 +576,7 @@ class sdbaseline2old_maskTest( sdbaseline2old_unittest_base, unittest.TestCase )
         spw = '2:%s'%(';'.join(map(self._get_range_in_string,self.blchan2)))
         pol = '0'
 
-        print "spw =", spw
+        print("spw =", spw)
 
         result = sdbaseline2old(infile=infile,maskmode=mode,
                             outfile=outfile,spw=spw,pol=pol)
@@ -600,7 +600,7 @@ class sdbaseline2old_maskTest( sdbaseline2old_unittest_base, unittest.TestCase )
         spw = '0:%s,2:%s'%(range_in_string,range_in_string)
         pol = '0'
 
-        print "spw =", spw
+        print("spw =", spw)
 
         result = sdbaseline2old(infile=infile,maskmode=mode,
                             outfile=outfile,spw=spw,pol=pol)
@@ -625,7 +625,7 @@ class sdbaseline2old_maskTest( sdbaseline2old_unittest_base, unittest.TestCase )
         #masklist = "0:200~3979;4152~7599, 2:200~2959;3120~7599"
         spw = ','.join(['0:%s'%(';'.join(map(self._get_range_in_string,self.blchan0))), '2:%s'%(';'.join(map(self._get_range_in_string,self.blchan2)))])
 
-        print "spw =", spw
+        print("spw =", spw)
         
         pol = '0'
 
@@ -654,9 +654,9 @@ class sdbaseline2old_maskTest( sdbaseline2old_unittest_base, unittest.TestCase )
         iflist = [2]
 
         masklist = self._get_chanval(infile,self.search,specunit,spw=iflist[0],addedge=True)
-        print "masklist =", masklist
+        print("masklist =", masklist)
         spw = '2:%s%s'%(self._get_range_in_string(masklist[0]),specunit)
-        print "spw =", spw
+        print("spw =", spw)
 
         pol = '0'
         result = sdbaseline2old(infile=infile,maskmode=mode,
@@ -680,11 +680,11 @@ class sdbaseline2old_maskTest( sdbaseline2old_unittest_base, unittest.TestCase )
         pollist=[0]
 
         masklist = self._get_chanval(infile,self.blchan2,specunit,spw=iflist[0],addedge=True)
-        print "masklist =", masklist
+        print("masklist =", masklist)
 
-        spw = '2:%s'%(';'.join(map(lambda x: x + specunit, [self._get_range_in_string(m) for m in masklist])))
+        spw = '2:%s'%(';'.join([x + specunit for x in [self._get_range_in_string(m) for m in masklist]]))
         pol = '0'
-        print "spw =", spw
+        print("spw =", spw)
         
         result = sdbaseline2old(infile=infile,maskmode=mode,
                             outfile=outfile,spw=spw,pol=pol)
@@ -708,18 +708,18 @@ class sdbaseline2old_maskTest( sdbaseline2old_unittest_base, unittest.TestCase )
 
         sblrange=[]
         chanlist = (self.search, self.search)
-        for i in xrange(len(iflist)):
+        for i in range(len(iflist)):
             sblrange.append("")
             mlist = self._get_chanval(infile,chanlist[i],specunit,spw=iflist[i],addedge=True)
             for valrange in mlist:
                 if len(sblrange[i]): sblrange[i] += ";"
                 sblrange[i] += self._get_range_in_string(valrange)
         masklist = "0:"+sblrange[0]+", 2:"+sblrange[1]
-        print "masklist =", masklist
+        print("masklist =", masklist)
 
         pol = '0'
-        spw = ','.join(map(lambda x: x + specunit, masklist.split(',')))
-        print "spw = ", spw
+        spw = ','.join([x + specunit for x in masklist.split(',')])
+        print("spw = ", spw)
         
         result = sdbaseline2old(infile=infile,maskmode=mode,
                             outfile=outfile,spw=spw,pol=pol)
@@ -746,18 +746,18 @@ class sdbaseline2old_maskTest( sdbaseline2old_unittest_base, unittest.TestCase )
 
         sblrange=[]
         chanlist = (self.blchan0, self.blchan2)
-        for i in xrange(len(iflist)):
+        for i in range(len(iflist)):
             sblrange.append("")
             mlist = self._get_chanval(infile,chanlist[i],specunit,spw=iflist[i],addedge=True)
             for valrange in mlist:
                 if len(sblrange[i]): sblrange[i] += ";"
                 sblrange[i] += self._get_range_in_string(valrange)
         masklist = "0:"+sblrange[0]+", 2:"+sblrange[1]
-        print "masklist =", masklist
+        print("masklist =", masklist)
 
         pol = '0'
-        spw = ','.join([';'.join(map(lambda x: x + specunit, m.split(';'))) for m in masklist.split(',')])
-        print "spw = ", spw
+        spw = ','.join([';'.join([x + specunit for x in m.split(';')]) for m in masklist.split(',')])
+        print("spw = ", spw)
 
         result = sdbaseline2old(infile=infile,maskmode=mode,
                             outfile=outfile,spw=spw,pol=pol)
@@ -783,11 +783,11 @@ class sdbaseline2old_maskTest( sdbaseline2old_unittest_base, unittest.TestCase )
         pollist=[0]
 
         masklist = self._get_chanval(infile,self.search,specunit,spw=iflist[0],addedge=True)
-        print "masklist =", masklist
-        spw = '2:%s'%(';'.join(map(lambda x: x + specunit, [self._get_range_in_string(m) for m in masklist])))
+        print("masklist =", masklist)
+        spw = '2:%s'%(';'.join([x + specunit for x in [self._get_range_in_string(m) for m in masklist]]))
         pol = '0'
         
-        print "spw =", spw
+        print("spw =", spw)
         
         result = sdbaseline2old(infile=infile,maskmode=mode,
                             outfile=outfile,spw=spw,pol=pol)
@@ -810,13 +810,13 @@ class sdbaseline2old_maskTest( sdbaseline2old_unittest_base, unittest.TestCase )
         pollist=[0]
 
         masklist = self._get_chanval(infile,self.blchan2,specunit,spw=iflist[0],addedge=True)
-        print "masklist =", masklist
+        print("masklist =", masklist)
 
         masklist.reverse()
-        spw = '2:%s'%(';'.join(map(lambda x: x + specunit,[self._get_range_in_string(m) for m in masklist])))
+        spw = '2:%s'%(';'.join([x + specunit for x in [self._get_range_in_string(m) for m in masklist]]))
         pol = '0'
 
-        print "spw =", spw
+        print("spw =", spw)
         
         result = sdbaseline2old(infile=infile,maskmode=mode,
                             outfile=outfile,spw=spw,pol=pol)
@@ -840,18 +840,18 @@ class sdbaseline2old_maskTest( sdbaseline2old_unittest_base, unittest.TestCase )
 
         sblrange=[]
         chanlist = (self.search, self.search)
-        for i in xrange(len(iflist)):
+        for i in range(len(iflist)):
             sblrange.append("")
             mlist = self._get_chanval(infile,chanlist[i],specunit,spw=iflist[i],addedge=True)
             for valrange in mlist:
                 if len(sblrange[i]): sblrange[i] += ";"
                 sblrange[i] += self._get_range_in_string(valrange)
         masklist = "0:"+sblrange[0]+", 2:"+sblrange[1]
-        print "masklist =", masklist
+        print("masklist =", masklist)
 
         pol = '0'
-        spw = ','.join(map(lambda x: x + specunit, masklist.split(',')))
-        print "spw =", spw
+        spw = ','.join([x + specunit for x in masklist.split(',')])
+        print("spw =", spw)
 
         result = sdbaseline2old(infile=infile,maskmode=mode,
                             outfile=outfile,spw=spw,pol=pol)
@@ -878,18 +878,18 @@ class sdbaseline2old_maskTest( sdbaseline2old_unittest_base, unittest.TestCase )
 
         sblrange=[]
         chanlist = (self.blchan0, self.blchan2)
-        for i in xrange(len(iflist)):
+        for i in range(len(iflist)):
             sblrange.append("")
             mlist = self._get_chanval(infile,chanlist[i],specunit,spw=iflist[i],addedge=True)
             for valrange in mlist:
                 if len(sblrange[i]): sblrange[i] += ";"
                 sblrange[i] += self._get_range_in_string(valrange)
         masklist = "0:"+sblrange[0]+", 2:"+sblrange[1]
-        print "masklist =", masklist
+        print("masklist =", masklist)
 
         pol = '0'
-        spw = ','.join([';'.join(map(lambda x: x + specunit, m.split(';'))) for m in masklist.split(',')])
-        print "spw = ", spw
+        spw = ','.join([';'.join([x + specunit for x in m.split(';')]) for m in masklist.split(',')])
+        print("spw = ", spw)
 
         result = sdbaseline2old(infile=infile,maskmode=mode,
                             outfile=outfile,spw=spw,pol=pol)
@@ -948,7 +948,7 @@ class sdbaseline2old_maskTest( sdbaseline2old_unittest_base, unittest.TestCase )
         retdic = {'linemax': linmax, 'linemaxpos': linmaxpos,
                   'linesum': linesum, 'baserms': blrms, 'basestd': blstd}
         del linmax, linmaxpos, linesum, blrms, blstd
-        print 'Current run (IF',ispw,'):',retdic
+        print('Current run (IF',ispw,'):',retdic)
         return retdic
  
 
@@ -1072,20 +1072,20 @@ class sdbaseline2old_storageTest( sdbaseline2old_unittest_base, unittest.TestCas
 
         sd.rcParams['scantable.storage'] = 'memory'
         sd.rcParams['insitu'] = True
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
         result = sdbaseline2old(infile=self.infile,maskmode=self.mode,outfile=outfile,
                             spw=self.spw,pol=self.pol)
 
         # sdbaseline2old returns None if it runs successfully
         self.assertEqual(result,None,
                          msg="The task returned '"+str(result)+"' instead of None")
-        print "Testing OUTPUT statistics and baseline parameters"
+        print("Testing OUTPUT statistics and baseline parameters")
         self._compareBLparam(outfile+self.blparamfile_suffix,self.blreffile)
         self._compareStats(outfile,self.refstat)
         # Test input data
         newinstat = self._getStats(self.infile)
-        print "Comparing INPUT statistics before/after calculations"
+        print("Comparing INPUT statistics before/after calculations")
         self._compareStats(newinstat,initstat)
 
     def testMF( self ):
@@ -1097,20 +1097,20 @@ class sdbaseline2old_storageTest( sdbaseline2old_unittest_base, unittest.TestCas
 
         sd.rcParams['scantable.storage'] = 'memory'
         sd.rcParams['insitu'] = False
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
         result = sdbaseline2old(infile=self.infile,maskmode=self.mode,outfile=outfile,
                             spw=self.spw,pol=self.pol)
 
         # sdbaseline2old returns None if it runs successfully
         self.assertEqual(result,None,
                          msg="The task returned '"+str(result)+"' instead of None")
-        print "Testing OUTPUT statistics and baseline parameters"
+        print("Testing OUTPUT statistics and baseline parameters")
         self._compareBLparam(outfile+self.blparamfile_suffix,self.blreffile)
         self._compareStats(outfile,self.refstat)
         # Test input data
         newinstat = self._getStats(self.infile)
-        print "Comparing INPUT statistics before/after calculations"
+        print("Comparing INPUT statistics before/after calculations")
         self._compareStats(newinstat,initstat)
 
     def testDT( self ):
@@ -1122,20 +1122,20 @@ class sdbaseline2old_storageTest( sdbaseline2old_unittest_base, unittest.TestCas
 
         sd.rcParams['scantable.storage'] = 'disk'
         sd.rcParams['insitu'] = True
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
         result = sdbaseline2old(infile=self.infile,maskmode=self.mode,outfile=outfile,
                             spw=self.spw,pol=self.pol)
 
         # sdbaseline2old returns None if it runs successfully
         self.assertEqual(result,None,
                          msg="The task returned '"+str(result)+"' instead of None")
-        print "Testing OUTPUT statistics and baseline parameters"
+        print("Testing OUTPUT statistics and baseline parameters")
         self._compareBLparam(outfile+self.blparamfile_suffix,self.blreffile)
         self._compareStats(outfile,self.refstat)
         # Test input data
         newinstat = self._getStats(self.infile)
-        print "Comparing INPUT statistics before/after calculations"
+        print("Comparing INPUT statistics before/after calculations")
         self._compareStats(newinstat,initstat)
 
     def testDF( self ):
@@ -1147,20 +1147,20 @@ class sdbaseline2old_storageTest( sdbaseline2old_unittest_base, unittest.TestCas
 
         sd.rcParams['scantable.storage'] = 'disk'
         sd.rcParams['insitu'] = False
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
         result = sdbaseline2old(infile=self.infile,maskmode=self.mode,outfile=outfile,
                             spw=self.spw,pol=self.pol)
 
         # sdbaseline2old returns None if it runs successfully
         self.assertEqual(result,None,
                          msg="The task returned '"+str(result)+"' instead of None")
-        print "Testing OUTPUT statistics and baseline parameters"
+        print("Testing OUTPUT statistics and baseline parameters")
         self._compareBLparam(outfile+self.blparamfile_suffix,self.blreffile)
         self._compareStats(outfile,self.refstat)
         # Test input data
         newinstat = self._getStats(self.infile)
-        print "Comparing INPUT statistics before/after calculations"
+        print("Comparing INPUT statistics before/after calculations")
         self._compareStats(newinstat,initstat)
 
 
@@ -1173,15 +1173,15 @@ class sdbaseline2old_storageTest( sdbaseline2old_unittest_base, unittest.TestCas
 
         sd.rcParams['scantable.storage'] = 'disk'
         sd.rcParams['insitu'] = True
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
         result = sdbaseline2old(infile=infile,maskmode=self.mode,outfile=outfile,
                             spw=self.spw,pol=self.pol,overwrite=True)
 
         # sdbaseline2old returns None if it runs successfully
         self.assertEqual(result,None,
                          msg="The task returned '"+str(result)+"' instead of None")
-        print "Testing OUTPUT statistics and baseline parameters"
+        print("Testing OUTPUT statistics and baseline parameters")
         self._compareBLparam(outfile+self.blparamfile_suffix,self.blreffile)
         self._compareStats(outfile,self.refstat)
 
@@ -1245,7 +1245,7 @@ class sdbaseline2old_selection_syntax(selection_syntax.SelectionSyntaxTest):
         
         # flag lines
         self.assertEqual(nrow, len(self.line_location))
-        for i in xrange(nrow):
+        for i in range(nrow):
             line = self.line_location[i]
             line_mask = s.create_mask([line,line], row=i)
             s.flag(line_mask, row=i)
@@ -1256,7 +1256,7 @@ class sdbaseline2old_selection_syntax(selection_syntax.SelectionSyntaxTest):
         # check if data is edited as expected
         s = sd.scantable(self.infile, average=False)
         self.assertEqual(nrow, s.nrow())
-        for i in xrange(nrow):
+        for i in range(nrow):
             idx = numpy.where(numpy.array(s.get_mask(i)) == False)[0]
             self.assertEqual(1, len(idx))
             self.assertEqual(self.line_location[i], idx[0])
@@ -1285,12 +1285,12 @@ class sdbaseline2old_selection_syntax(selection_syntax.SelectionSyntaxTest):
         #   - check if resulting spectral data have small value
         #   - check if fit coefficients are equal to reference values
         blparam_list = list(self.__read_blparamfile())
-        for i in xrange(nrow):
+        for i in range(nrow):
             mask = numpy.logical_not(s.get_mask(i))
             sp = numpy.ma.masked_array(s._getspectrum(i),mask)
             ifno = s.getif(i)
             nchan = s.nchan(ifno)
-            chrange = [map(int, l) for l in spw_selection[ifno]]
+            chrange = [list(map(int, l)) for l in spw_selection[ifno]]
             if len(chrange) == 1 and chrange[0] == 0 \
                     and chrange[1] == nchan - 1:
                 tol = self.tol_full
@@ -1305,18 +1305,18 @@ class sdbaseline2old_selection_syntax(selection_syntax.SelectionSyntaxTest):
                 self.assertLess(maxdiff, tol)
 
             (key, coeffs) = blparam_list[i]
-            self.assertTrue(self.fit_ref.has_key(key))
+            self.assertTrue(key in self.fit_ref)
             self.assertEqual(self.order+1, len(coeffs))
             ref_coeff = self.fit_ref[key]
             ncoeff = len(ref_coeff)
-            for j in xrange(ncoeff):
+            for j in range(ncoeff):
                 ref = ref_coeff[j]
                 val = coeffs[j]
                 diff = abs((val - ref)/ref)
                 casalog.post('ref: %s, val: %s, diff: %s'%(ref, val, diff))
                 self.assertLess(diff, tol)
             casalog.post('coeffs=%s'%(coeffs))
-            for j in xrange(ncoeff, self.order+1):
+            for j in range(ncoeff, self.order+1):
                 casalog.post('coeffs[%s]: %s (%s)'%(j,coeffs[j],abs(coeffs[j])))
                 self.assertLess(abs(coeffs[j]), self.tol_coeff)
 
@@ -1330,7 +1330,7 @@ class sdbaseline2old_selection_syntax(selection_syntax.SelectionSyntaxTest):
                 beamno = int(s[1])
                 ifno = int(s[2])
                 polno = int(s[3])
-                coeffs = map(float, s[6:-2])
+                coeffs = list(map(float, s[6:-2]))
                 yield (scanno, beamno, ifno, polno), coeffs
         
     def __exec_complex_test(self, params, exprs, values, columns, expected_nrow, regular_test=True):
@@ -1339,7 +1339,7 @@ class sdbaseline2old_selection_syntax(selection_syntax.SelectionSyntaxTest):
         #outfile = '.'.join([self.prefix, test_name])
         outfile = self.outfile
         #print 'outfile=%s'%(outfile)
-        casalog.post('%s: %s'%(test_name, ','.join(['%s = \'%s\''%(params[i],exprs[i]) for i in xrange(num_param)])))
+        casalog.post('%s: %s'%(test_name, ','.join(['%s = \'%s\''%(params[i],exprs[i]) for i in range(num_param)])))
         kwargs = {'infile': self.infile,
                   'outfile': self.outfile,
                   'outform': 'ASAP',
@@ -1349,7 +1349,7 @@ class sdbaseline2old_selection_syntax(selection_syntax.SelectionSyntaxTest):
                   'maskmode': 'list',
                   'bloutput': True,
                   'blformat': 'csv'}
-        for i in xrange(num_param):
+        for i in range(num_param):
             kwargs[params[i]] = exprs[i]
 
         if regular_test:
@@ -1358,12 +1358,12 @@ class sdbaseline2old_selection_syntax(selection_syntax.SelectionSyntaxTest):
             sdbaseline2old(**kwargs)
 
         tb.open(outfile)
-        cols = [tb.getcol(columns[i]) for i in xrange(num_param)]
+        cols = [tb.getcol(columns[i]) for i in range(num_param)]
         nrow = tb.nrows()
         tb.close()
         casalog.post('expected nrow = %s, actual nrow = %s'%(expected_nrow, nrow))
         self.assertEqual(expected_nrow, nrow)
-        for i in xrange(num_param):
+        for i in range(num_param):
             casalog.post('expected values = %s, actual values = %s'%(set(values[i]), set(cols[i])))
             self.assertEqual(set(values[i]), set(cols[i]))
 
@@ -2094,7 +2094,7 @@ class sdbaseline2old_flagTest( unittest.TestCase ):
         tb.close()
 
         #check if the values of row-flagged spectra are not changed
-        for i in xrange(2):
+        for i in range(2):
             self.assertTrue(all(inspec[i]==outspec[i]))
             
         #check if flagged channels are (1) excluded from fitting, but are
@@ -2108,7 +2108,7 @@ class sdbaseline2old_flagTest( unittest.TestCase ):
         self.assertTrue(abs((inspec[2]-outspec[2]).mean()-1.0) < tol)
         
         #check if flag values are not changed in the output file.
-        for i in xrange(len(inchnf)):
+        for i in range(len(inchnf)):
             self.assertTrue(all(inchnf[i]==outchnf[i]))
         self.assertTrue(all(inrowf==outrowf))
 

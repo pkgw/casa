@@ -39,12 +39,12 @@ def opacal(vis,calname,asap=True,interpolate=0,height=200):
     press = mytb.getcol('PRESSURE') #Pa
     temp = mytb.getcol('TEMPERATURE') # C (sometimes returns Kelvin)
     hum = mytb.getcol('REL_HUMIDITY') # %
-  except Exception, e:
-    print "Error: Cannot read required data from WEATHER table"
+  except Exception as e:
+    print("Error: Cannot read required data from WEATHER table")
     return
   mytb.close()
   if (time.size==0):
-    print "Error: no data in WEATHER table, cannot calculate opacities"
+    print("Error: no data in WEATHER table, cannot calculate opacities")
     return
     
   # check array name
@@ -73,7 +73,7 @@ def opacal(vis,calname,asap=True,interpolate=0,height=200):
   if (interpolate): 
     nf=max(2,interpolate)
   f=pl.zeros(nf*fref.size)
-  print "Using %i frequencies to calculate opacity for each spectral window" % nf
+  print("Using %i frequencies to calculate opacity for each spectral window" % nf)
   if (interpolate):
     for i in range(nf):
       f[i::nf]=fref-bw/2+i*bw/(nf-1)
@@ -90,7 +90,7 @@ def opacal(vis,calname,asap=True,interpolate=0,height=200):
   # work out opacity for each time stamp in weather table and
   # write values to opacity table
   op=pl.zeros(nr*nf)
-  print "Opacity table will have %i times with %i ants*spws each" % (time.size,nr)
+  print("Opacity table will have %i times with %i ants*spws each" % (time.size,nr))
   for i in range(0,time.size):
     mytb.putcol('TIME',time[i]*pl.ones(nr,float),i*nr,nr)
     mytb.putcol('SPECTRAL_WINDOW_ID',spw,i*nr,nr)

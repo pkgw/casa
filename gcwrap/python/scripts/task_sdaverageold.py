@@ -21,7 +21,7 @@ class sdaverage_worker(sdutil.sdtask_template):
     def initialize_scan(self):
         sorg=sd.scantable(self.infile,average=False,antenna=self.antenna)
         if not (isinstance(sorg,Scantable)):
-            raise Exception, 'infile=%s is not found' % self.infile
+            raise Exception('infile=%s is not found' % self.infile)
 
         # A scantable selection
         #sel = self.get_selector()
@@ -42,10 +42,10 @@ class sdaverage_worker(sdutil.sdtask_template):
         if not doave and (self.kernel=='' or self.kernel=='none'):
             errstr = "Neither averaging nor smoothing parameter is set. No operation to be done."
             #errstr = "kernel need to be specified"
-            raise Exception, errstr
+            raise Exception(errstr)
         elif self.kernel!='hanning' and self.kwidth<=0:
             errstr = "kernel should be > 0"
-            raise Exception, errstr
+            raise Exception(errstr)
     
     def execute(self):
         # set various attributes to self.scan
@@ -95,7 +95,7 @@ class sdsmooth_engine(sdutil.sdtask_engine):
         if self.kernel == 'regrid':
             if not qa.isquantity(self.chanwidth):
                 errstr = "Invalid quantity chanwidth "+self.chanwidth
-                raise Exception, errstr
+                raise Exception(errstr)
             qchw = qa.quantity(self.chanwidth)
             oldUnit = scan.get_unit()
             if qchw['unit'] in ("", "channel", "pixel"):
@@ -105,7 +105,7 @@ class sdsmooth_engine(sdutil.sdtask_engine):
                 scan.set_unit(qchw['unit'])
             else:
                 errstr = "Invalid dimension of quantity chanwidth "+self.chanwidth
-                raise Exception, errstr
+                raise Exception(errstr)
             casalog.post( "Regridding spectra in width "+self.chanwidth )
             scan.regrid_channel(width=qchw['value'],plot=self.verify,insitu=True)
             scan.set_unit(oldUnit)

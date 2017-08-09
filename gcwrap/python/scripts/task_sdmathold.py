@@ -26,7 +26,7 @@ class sdmath_worker(sdutil.sdtask_template):
 
         # check expr
         if self.expr=='':
-            raise Exception, 'expr is undefined'
+            raise Exception('expr is undefined')
 
         # check spw
         self.assert_no_channel_selection_in_spw('warn')
@@ -51,7 +51,7 @@ class sdmath_worker(sdutil.sdtask_template):
             infile_key = 'IN' + str(i)
             varnames[infile_key] = self.infiles[i]
         
-        for key in varnames.keys():
+        for key in list(varnames.keys()):
             regex = re.compile( key )
             if isinstance( varnames[key], str ):
                 self.expr = regex.sub( '\"%s\"' % varnames[key], self.expr )
@@ -84,7 +84,7 @@ class sdmath_worker(sdutil.sdtask_template):
                     isfactor = True
                     vtmp = float( line[0] )
                     del line
-                except ValueError, e:
+                except ValueError as e:
                     isfactor = False
                     del line
                 

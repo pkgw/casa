@@ -73,12 +73,12 @@ class sdfit_worker(sdutil.sdtask_template):
             maskline_dict = self.scan.parse_spw_selection(self.spw)
             
             valid_spw_list = []
-            for (k,v) in maskline_dict.items():
-                if len(v) > 0 and numpy.all(numpy.array(map(len, v)) > 0):
+            for (k,v) in list(maskline_dict.items()):
+                if len(v) > 0 and numpy.all(numpy.array(list(map(len, v))) > 0):
                     valid_spw_list.append(k)
 
             sel_org = self.scan.get_selection()
-            for irow in xrange(self.scan.nrow()):
+            for irow in range(self.scan.nrow()):
                 scantab = self.scan.get_row(irow, insitu=False)
                 spw = scantab.getif(0)
                 if not spw in valid_spw_list:
@@ -144,7 +144,7 @@ class sdfit_worker(sdutil.sdtask_template):
                 # Auto mode - one comp per line region
                 # Overwriting user-supplied nfit
                 numfit = numlines
-                comps = [1 for i in xrange(numlines)]
+                comps = [1 for i in range(numlines)]
             else:
                 # Get number of things to fit from nfit list
                 comps = self.nfit if isinstance(self.nfit,list) else [self.nfit]
@@ -204,11 +204,11 @@ class sdfit_worker(sdutil.sdtask_template):
                 casalog.post( "detected line: "+str(x) ) 
                 msk = scantab.create_mask(x, row=irow)
                 guess = self.__get_initial_guess(scantab,msk,x,dbw,irow)
-                for i in xrange(3):
+                for i in range(3):
                     guesses[i] = guesses[i] + [guess[i]]
         else:
             guess = self.__get_initial_guess(scantab,self.defaultmask,[],dbw,irow)
-            guesses = [[guess[i]] for i in xrange(3)]
+            guesses = [[guess[i]] for i in range(3)]
 
         # Guesses using max, cen, and fwhm=0.7*eqw
         # NOTE: should there be user options here?
@@ -218,7 +218,7 @@ class sdfit_worker(sdutil.sdtask_template):
             if ( comps[i] == 1 ):
                 # use guess
                 #getattr(self.fitter,'set_%s_parameters'%(self.fitfunc))(maxl[i], cenl[i], fwhm[i], component=n)
-                guess = (guesses[k][i] for k in xrange(3))
+                guess = (guesses[k][i] for k in range(3))
                 getattr(self.fitter,'set_%s_parameters'%(self.fitfunc))(*guess, component=n)
             n += comps[i]
 
@@ -228,11 +228,11 @@ class sdfit_worker(sdutil.sdtask_template):
         linerange = [int(chan) for chan in linerange]
         if len(linerange) == 0:
             data = ma.masked_array(sp,[ (not val) for val in msk])
-            mx = ma.masked_array(range(len(sp)), data.mask)
+            mx = ma.masked_array(list(range(len(sp))), data.mask)
         else:
             data = ma.masked_array(sp[linerange[0]:linerange[1]+1],
-                                   [ (not msk[idx]) for idx in xrange(linerange[0],linerange[1]+1) ])
-            mx = ma.masked_array(xrange(linerange[0],linerange[1]+1),
+                                   [ (not msk[idx]) for idx in range(linerange[0],linerange[1]+1) ])
+            mx = ma.masked_array(range(linerange[0],linerange[1]+1),
                                  data.mask)
         maxl = data.max()
         suml = data.sum()
@@ -258,7 +258,7 @@ class sdfit_worker(sdutil.sdtask_template):
         errors = parameters['errors']
         for i in range(ncomps):
             offset = i*nkeys
-            for j in xrange(nkeys):
+            for j in range(nkeys):
                 key = keys[j]
                 retl[key] = retl[key] + [[params[offset+j],\
                                           errors[offset+j]]]
@@ -304,12 +304,12 @@ class sdfit_worker(sdutil.sdtask_template):
         if self.nlines < 1:
             msg='No channel is selected. Exit without fittinging.'
             raise Exception(msg)
-        print '%d region(s) is selected as a linemask' % self.nlines
-        print 'The final mask list ('+scantab._getabcissalabel()+') ='+str(self.linelist)
-        print 'Number of line(s) to fit: nfit =',self.nfit
-        ans=raw_input('Do you want to reassign nfit? [N/y]: ')
+        print('%d region(s) is selected as a linemask' % self.nlines)
+        print('The final mask list ('+scantab._getabcissalabel()+') ='+str(self.linelist))
+        print('Number of line(s) to fit: nfit =',self.nfit)
+        ans=input('Do you want to reassign nfit? [N/y]: ')
         if (ans.upper() == 'Y'):
-            ans=input('Input nfit = ')
+            ans=eval(input('Input nfit = '))
             if type(ans) == list: self.nfit = ans
             elif type(ans) == int: self.nfit = [ans]
             else:
@@ -367,18 +367,18 @@ class sdfit_worker(sdutil.sdtask_template):
         #header 
         header="#%-4s %-4s %-4s %-12s " %("SCAN", "IF", "POL", "Function")
         numparam=3     # gaussian fitting is assumed (max, center, fwhm)
-        for i in xrange(numparam):
+        for i in range(numparam):
             header+='%-12s '%('P%d'%(i))
         outf.write(header+'\n')
 
         #data
-        for i in xrange(len(self.fitparams)):
+        for i in range(len(self.fitparams)):
             dattmp=" %-4d %-4d %-4d " \
                     %(self.scan.getscan(i), self.scan.getif(i), self.scan.getpol(i))
-            for j in xrange(len(self.fitparams[i])):
+            for j in range(len(self.fitparams[i])):
                 if ( self.fitparams[i][j][0]!=0.0): 
                     datstr=dattmp+'%-12s '%('%s%d'%(self.fitfunc,j))
-                    for k in xrange(len(self.fitparams[i][j])):
+                    for k in range(len(self.fitparams[i][j])):
                         datstr+="%3.8f " %(self.fitparams[i][j][k])
                     outf.write(datstr+'\n')
                         

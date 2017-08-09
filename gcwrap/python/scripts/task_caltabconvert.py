@@ -42,6 +42,6 @@ def caltabconvert( caltabold=None, vis=None, ptype=None, caltabnew=None ):
 		success = caltab_convert2( caltabold=caltabold, ms=vis,
 		    pType=ptype, caltabnew=caltabnew )
 		return success
-	except Exception, instance:
-		print '*** Error ***', instance
-		raise Exception, instance
+	except Exception as instance:
+		print('*** Error ***', instance)
+		raise Exception(instance)

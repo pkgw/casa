@@ -103,7 +103,7 @@ def imhead(
                 return True
             elif mode.startswith('s'):
                 return myia.summary(verbose=verbose)
-        except Exception, instance:
+        except Exception as instance:
             casalog.post(str('*** Error *** ') + str(instance), 'SEVERE')
             raise
         finally:
@@ -126,7 +126,7 @@ def imhead(
                 return myimd.list(True)
             elif mode.startswith('p'):
                 return myimd.set(hdkey, hdvalue)
-        except Exception, instance:
+        except Exception as instance:
             casalog.post(str('*** Error *** ') + str(instance), 'SEVERE')
             return False
         finally:

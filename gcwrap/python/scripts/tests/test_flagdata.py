@@ -17,8 +17,8 @@ import flaghelper as fh
 
 def test_eq(result, total, flagged):
 
-    print "%s of %s data was flagged, expected %s of %s" % \
-    (result['flagged'], result['total'], flagged, total)
+    print("%s of %s data was flagged, expected %s of %s" % \
+    (result['flagged'], result['total'], flagged, total))
     assert result['total'] == total, \
                "%s data in total; %s expected" % (result['total'], total)
     assert result['flagged'] == flagged, \
@@ -47,16 +47,16 @@ datapath = os.environ.get('CASAPATH').split()[0] + "/data/regression/unittest/fl
 
 # Pick up alternative data directory to run tests on MMSs
 testmms = False
-if os.environ.has_key('TEST_DATADIR'):   
+if 'TEST_DATADIR' in os.environ:   
     DATADIR = str(os.environ.get('TEST_DATADIR'))+'/flagdata/'
     if os.path.isdir(DATADIR):
         testmms = True
         datapath = DATADIR
 
-print 'flagdata tests will use data from '+datapath         
+print('flagdata tests will use data from '+datapath)         
 
 # jagonzal (CAS-4287): Add a cluster-less mode to by-pass parallel processing for MMSs as requested 
-if os.environ.has_key('BYPASS_PARALLEL_PROCESSING'):
+if 'BYPASS_PARALLEL_PROCESSING' in os.environ:
     ParallelTaskHelper.bypassParallelProcessing(1)
 
 # Local copy of the agentflagger tool
@@ -70,9 +70,9 @@ class test_base(unittest.TestCase):
         self.vis = "flagdatatest.ms"
 
         if os.path.exists(self.vis):
-            print "The MS is already around, just unflag"
+            print("The MS is already around, just unflag")
         else:
-            print "Moving data..."
+            print("Moving data...")
             os.system('cp -RH '+datapath + self.vis +' '+ self.vis)
 
         os.system('rm -rf ' + self.vis + '.flagversions')
@@ -94,7 +94,7 @@ class test_base(unittest.TestCase):
             
         os.system('rm -rf ' + self.vis + '.flagversions')
         
-        print "Unflag the MS"
+        print("Unflag the MS")
         flagdata(vis=self.vis, mode='unflag', flagbackup=False)
         default(flagdata)
 
@@ -103,9 +103,9 @@ class test_base(unittest.TestCase):
         self.vis = "uid___A002_X30a93d_X43e_small.ms"
 
         if os.path.exists(self.vis):
-            print "The MS is already around, just unflag"
+            print("The MS is already around, just unflag")
         else:
-            print "Moving data..."
+            print("Moving data...")
             os.system('cp -RH '+datapath + self.vis +' '+ self.vis)
 
         os.system('rm -rf ' + self.vis + '.flagversions')
@@ -118,9 +118,9 @@ class test_base(unittest.TestCase):
         self.vis = "Four_ants_3C286.ms"
 
         if os.path.exists(self.vis):
-            print "The MS is already around, just unflag"
+            print("The MS is already around, just unflag")
         else:
-            print "Moving data..."
+            print("Moving data...")
             os.system('cp -RH '+datapath + self.vis +' '+ self.vis)
 
         os.system('rm -rf ' + self.vis + '.flagversions')
@@ -132,9 +132,9 @@ class test_base(unittest.TestCase):
         self.vis = "shadowAPP.ms"
 
         if os.path.exists(self.vis):
-            print "The MS is already around, just unflag"
+            print("The MS is already around, just unflag")
         else:
-            print "Moving data..."
+            print("Moving data...")
             os.system('cp -RH '+datapath + self.vis +' '+ self.vis)
 
         os.system('rm -rf ' + self.vis + '.flagversions')
@@ -146,9 +146,9 @@ class test_base(unittest.TestCase):
         self.vis = "shadowtest_part.ms"
 
         if os.path.exists(self.vis):
-            print "The MS is already around, just unflag"
+            print("The MS is already around, just unflag")
         else:
-            print "Moving data..."
+            print("Moving data...")
             os.system('cp -RH '+datapath + self.vis +' '+ self.vis)
 
         os.system('rm -rf ' + self.vis + '.flagversions')
@@ -159,9 +159,9 @@ class test_base(unittest.TestCase):
         self.vis = "multiobs.ms"
 
         if os.path.exists(self.vis):
-            print "The MS is already around, just unflag"
+            print("The MS is already around, just unflag")
         else:
-            print "Moving data..."
+            print("Moving data...")
             os.system('cp -RH '+datapath + self.vis +' '+ self.vis)
 
         os.system('rm -rf ' + self.vis + '.flagversions')
@@ -173,9 +173,9 @@ class test_base(unittest.TestCase):
         self.vis = "testmwa.ms"
 
         if os.path.exists(self.vis):
-            print "The MS is already around, just unflag"
+            print("The MS is already around, just unflag")
         else:
-            print "Moving data..."
+            print("Moving data...")
             os.system('cp -RH '+datapath + self.vis +' '+ self.vis)
 
         os.system('rm -rf ' + self.vis + '.flagversions')
@@ -187,9 +187,9 @@ class test_base(unittest.TestCase):
         self.vis = "four_rows_weight_spectrum.ms"
 
         if os.path.exists(self.vis):
-            print "The MS is already around, just unflag"
+            print("The MS is already around, just unflag")
         else:
-            print "Moving data..."
+            print("Moving data...")
             os.system('cp -RH '+datapath + self.vis +' '+ self.vis)
 
         os.system('rm -rf ' + self.vis + '.flagversions')
@@ -210,7 +210,7 @@ class test_base(unittest.TestCase):
             
         os.system('rm -rf ' + self.vis + '.flagversions')
         
-        print "Unflag the MS"
+        print("Unflag the MS")
 
         os.system('rm -rf ' + self.vis + '.flagversions')
         self.unflag_ms()
@@ -220,10 +220,10 @@ class test_base(unittest.TestCase):
         self.vis = "X7ef.tsys"
          
         if os.path.exists(self.vis):
-            print "The CalTable is already around, just unflag"
+            print("The CalTable is already around, just unflag")
             
         else:
-            print "Moving data..."
+            print("Moving data...")
             os.system('cp -RH ' + \
                         os.environ.get('CASAPATH').split()[0] +
                         "/data/regression/unittest/flagdata/" + self.vis + ' ' + self.vis)
@@ -236,9 +236,9 @@ class test_base(unittest.TestCase):
         self.vis = "cal.fewscans.bpass"
 
         if os.path.exists(self.vis):
-            print "The CalTable is already around, just unflag"
+            print("The CalTable is already around, just unflag")
         else:
-            print "Moving data..."
+            print("Moving data...")
             os.system('cp -RH ' + \
                         os.environ.get('CASAPATH').split()[0] +
                         "/data/regression/unittest/flagdata/" + self.vis + ' ' + self.vis)
@@ -252,9 +252,9 @@ class test_base(unittest.TestCase):
         self.vis = "ap314.gcal"
 
         if os.path.exists(self.vis):
-            print "The CalTable is already around, just unflag"
+            print("The CalTable is already around, just unflag")
         else:
-            print "Moving data..."
+            print("Moving data...")
             os.system('cp -RH ' + \
                         os.environ.get('CASAPATH').split()[0] +
                         "/data/regression/unittest/flagdata/" + self.vis + ' ' + self.vis)
@@ -271,9 +271,9 @@ class test_base(unittest.TestCase):
         self.vis = "msweight.ms"
         
         if os.path.exists(self.vis):
-            print "The MS is already around, just unflag"
+            print("The MS is already around, just unflag")
         else:
-            print "Moving data..."
+            print("Moving data...")
             os.system('cp -RH ' + datapath + inpvis + ' ' + self.vis)
 
         os.system('rm -rf ' + self.vis + '.flagversions')
@@ -286,9 +286,9 @@ class test_base(unittest.TestCase):
         
         self.vis = 'uid___A002_X72c4aa_X8f5_scan21_spw18_field2_corrXX.ms'
         if os.path.exists(self.vis):
-            print "The MS is already around, just unflag"
+            print("The MS is already around, just unflag")
         else:
-            print "Moving data..."
+            print("Moving data...")
             os.system('cp -RH ' + datapath + self.vis + ' ' + self.vis)
 
         # Copy the online flags file
@@ -314,7 +314,7 @@ class test_base(unittest.TestCase):
         summary_list = []
         
         # Extract only the type 'summary' reports
-        nreps = report_list.keys()
+        nreps = list(report_list.keys())
         for rep in range(len(nreps)):
             repname = 'report'+str(rep);
             if(report_list[repname]['type']=='summary'):
@@ -611,17 +611,17 @@ class test_rflag(test_base):
         achan51, achan52, achan51rl = getcounts()
         
         if chan51['flagged']/chan51['total']>0.5 and achan51['flagged']/achan51['total']==1.0 :
-            print 'Channel 51 had more than 50% and got extended. PASS'
+            print('Channel 51 had more than 50% and got extended. PASS')
         else:
             self.fail('Channel 51 failed')
 
         if chan52['flagged']/chan52['total']<50.0 and achan52['flagged']/achan52['total']==chan52['flagged']/chan52['total']:
-            print 'Channel 52 had less than 50% and did not get extended. PASS'
+            print('Channel 52 had less than 50% and did not get extended. PASS')
         else:
             self.fail('Channel 52 failed') 
 
         if chan51rl['flagged']/chan51rl['total']<0.5 and achan51rl['flagged']/achan51rl['total']==1.0:
-            print 'Channel 51 in RL had less than 50% but got completely flagged because Channel 51 in LL got extended. PASS'
+            print('Channel 51 in RL had less than 50% but got completely flagged because Channel 51 in LL got extended. PASS')
         else:
             self.fail('Channel 51 extendpols failed') 
 
@@ -723,14 +723,14 @@ class test_msselection(test_base):
 
     def test_simple(self):
         '''flagdata: select only cross-correlations'''
-        baselines = flagdata(vis = self.vis, mode="summary", antenna="VA09", basecnt=True)['baseline'].keys()
+        baselines = list(flagdata(vis = self.vis, mode="summary", antenna="VA09", basecnt=True)['baseline'].keys())
         assert "VA09&&VA09" not in baselines
         assert "VA09&&VA10" in baselines
         assert "VA09&&VA11" in baselines
         assert "VA10&&VA10" not in baselines
         assert "VA10&&VA11" not in baselines
 
-        baselines = flagdata(vis = self.vis, mode="summary", antenna="VA09,VA10", basecnt=True)['baseline'].keys()
+        baselines = list(flagdata(vis = self.vis, mode="summary", antenna="VA09,VA10", basecnt=True)['baseline'].keys())
         assert "VA09&&VA09" not in baselines
         assert "VA09&&VA10" in baselines
         assert "VA09&&VA11" in baselines
@@ -739,14 +739,14 @@ class test_msselection(test_base):
 
     def test_amp(self):
         '''flagdata: select only cross-correlations'''
-        baselines = flagdata(vis = self.vis, mode="summary", antenna="VA09,VA10&",basecnt=True)['baseline'].keys()
+        baselines = list(flagdata(vis = self.vis, mode="summary", antenna="VA09,VA10&",basecnt=True)['baseline'].keys())
         assert "VA09&&VA09" not in baselines
         assert "VA09&&VA10" in baselines
         assert "VA09&&VA11" not in baselines
         assert "VA10&&VA10" not in baselines
         assert "VA10&&VA11" not in baselines
 
-        baselines = flagdata(vis = self.vis, mode="summary", antenna="VA09&VA10",basecnt=True)['baseline'].keys()
+        baselines = list(flagdata(vis = self.vis, mode="summary", antenna="VA09&VA10",basecnt=True)['baseline'].keys())
         assert "VA09&&VA09" not in baselines
         assert "VA09&&VA10" in baselines
         assert "VA09&&VA11" not in baselines
@@ -814,8 +814,8 @@ class test_msselection(test_base):
         # Try to flag
         try:
             flagdata(self.vis, mode='list', inpfile=flagsfile, flagbackup=False)
-        except Exception, instance:
-            print 'Expected RuntimeError error: %s'%instance
+        except Exception as instance:
+            print('Expected RuntimeError error: %s'%instance)
 
         # should flag spws 1,2,9,10
         s = flagdata(self.vis, mode='summary')
@@ -831,8 +831,8 @@ class test_msselection(test_base):
         # Try to flag. Only spw=0 exists
         try:
             flagdata(self.vis, spw='0,32,33', flagbackup=False)
-        except Exception, instance:
-            print 'Expected RuntimeError error: %s'%instance
+        except Exception as instance:
+            print('Expected RuntimeError error: %s'%instance)
 
         # Only spw 0 should be flagged
         s = flagdata(self.vis, mode='summary')
@@ -907,21 +907,21 @@ class test_statistics_queries(test_base):
         flagdata(vis=self.vis, antenna='VA14', savepars=False, flagbackup=False)
         flagdata(vis=self.vis, field='1', savepars=False, flagbackup=False)
         s = flagdata(vis=self.vis, mode='summary', minrel=0.9, spwchan=True, basecnt=True)
-        assert s['antenna'].keys() == ['VA14']
-        assert 'VA05&&VA09' in s['baseline'].keys()
+        assert list(s['antenna'].keys()) == ['VA14']
+        assert 'VA05&&VA09' in list(s['baseline'].keys())
         assert set(s['spw:channel'].keys()) == set(['0:17', '0:18', '0:19'])
-        assert s['correlation'].keys() == ['LL']  # LL
-        assert s['field'].keys() == ['1445+09900002_0']
+        assert list(s['correlation'].keys()) == ['LL']  # LL
+        assert list(s['field'].keys()) == ['1445+09900002_0']
         assert set(s['scan'].keys()) == set(['2', '4', '5', '7']) # field 1
         s = flagdata(vis=self.vis, mode='summary', maxrel=0.8)
         assert set(s['field'].keys()) == set(['1331+30500002_0', 'N5921_2'])
         s = flagdata(vis=self.vis, mode='summary', minabs=400000)
         assert set(s['scan'].keys()) == set(['3', '6'])
         s = flagdata(vis=self.vis, mode='summary', minabs=400000, maxabs=450000)
-        assert s['scan'].keys() == ['3']
+        assert list(s['scan'].keys()) == ['3']
 
     def test_chanavg0(self):
-        print "Test of channel average"
+        print("Test of channel average")
         flagdata(vis=self.vis, mode='clip',channelavg=False, clipminmax=[30., 60.], correlation='ABS_RR',
                  savepars=False, flagbackup=False)
         res = flagdata(vis=self.vis, mode='summary')
@@ -1594,8 +1594,8 @@ class test_list_file(test_base):
         try:
             flagdata(vis=self.vis, mode='list', inpfile=filename, action='', savepars=True,
                   outfile=outname)
-        except Exception, instance:
-            print 'Expected IOError error: %s'%instance
+        except Exception as instance:
+            print('Expected IOError error: %s'%instance)
         
         # It should fail above and not create an output file
         self.assertFalse(os.path.exists(outname))
@@ -1620,7 +1620,7 @@ class test_list_file(test_base):
             if ( ind > 0 ):
                  flagcount = flagcount - summary_reps[ind-1]['flagged'];
          
-            print "Summary ", ind , "(" , summary_reps[ind]['name']  , ") :  Flagged : " , flagcount , " out of " , totalcount ;   
+            print("Summary ", ind , "(" , summary_reps[ind]['name']  , ") :  Flagged : " , flagcount , " out of " , totalcount) ;   
          
         self.assertEqual(summary_reps[0]['flagged'],238140, 'Should show only scan=2 flagged')    
         self.assertEqual(summary_reps[1]['flagged']-summary_reps[0]['flagged'],0, 'Should not flag any zeros')    
@@ -1664,8 +1664,8 @@ class test_list_file(test_base):
         try:
             res = flagdata(vis=self.vis, mode='list', inpfile=filename, flagbackup=False)
             
-        except exceptions.IOError, instance:
-            print 'Expected error!'
+        except exceptions.IOError as instance:
+            print('Expected error!')
         
     def test_file_scan_list(self):
         '''flagdata: select a scan by giving a list value. Expect error.'''
@@ -1679,8 +1679,8 @@ class test_list_file(test_base):
         try:
             res = flagdata(vis=self.vis, mode='list', inpfile=filename, flagbackup=False)
             
-        except exceptions.IOError, instance:
-            print 'Expected error!'
+        except exceptions.IOError as instance:
+            print('Expected error!')
                
     def test_file_overwrite_true(self):
         '''flagdata: Use savepars and overwrite=True'''
@@ -2331,8 +2331,8 @@ class test_tsys(test_base):
         '''Flagdata: unsupported scan selection'''
         try:
             flagdata(vis=self.vis, scan='2', flagbackup=False)
-        except exceptions.RuntimeError, instance:
-            print 'Expected error: %s'%instance
+        except exceptions.RuntimeError as instance:
+            print('Expected error: %s'%instance)
 
     def test_default_fparam(self):
         '''Flagdata: default data column FPARAM'''
@@ -2647,8 +2647,8 @@ class test_bandpass(test_base):
         '''Flagdata: unkonwn scan selection in cal tables'''
         try:
             flagdata(vis=self.vis, scan='1', flagbackup=False)
-        except exceptions.RuntimeError, instance:
-            print 'Expected error: %s'%instance
+        except exceptions.RuntimeError as instance:
+            print('Expected error: %s'%instance)
 
     def test_default_cparam(self):
         '''Flagdata: flag CPARAM as the default column'''

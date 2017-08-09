@@ -29,7 +29,7 @@ def plotuv(vis=None, field=None, antenna=None, spw=None, observation=None, array
     try:
         uvplotinfo = UVPlotInfo(vis, spw, field, antenna, observation, array,
                                 ncycles, colors, symb, figfile, maxnpts)
-    except Exception, e:
+    except Exception as e:
         casalog.post("Error plotting the UVWs of %s:" % vis, 'SEVERE')
         casalog.post("%s" % e, 'SEVERE')
         return False
@@ -41,7 +41,7 @@ def plotuv(vis=None, field=None, antenna=None, spw=None, observation=None, array
             fldnav.next("dummy")
         else:
             retval = plotfield(uvplotinfo.selindices['field'][0], uvplotinfo)
-    except Exception, e:
+    except Exception as e:
         casalog.post("Error plotting the UVWs of %s:" % vis, 'SEVERE')
         casalog.post("%s" % e, 'SEVERE')
         return False
@@ -54,8 +54,8 @@ class UVPlotInfo:
         self.ncolors = ncycles * len(colors)
         try:
             self.symbs = [c + symb for c in colors]
-        except Exception, e:
-            raise ValueError, "Exception %s forming the plot symbols out of %s and %s" % (e, colors, symb)
+        except Exception as e:
+            raise ValueError("Exception %s forming the plot symbols out of %s and %s" % (e, colors, symb))
         self.nsymbs = len(self.symbs)
         self.maxnpts = maxnpts
         try:
@@ -64,8 +64,8 @@ class UVPlotInfo:
                 figfileparts = figfile.split('.')
                 self.ext = '.' + figfileparts[-1]
                 self.figfile = '.'.join(figfileparts[:-1]) + '_fld'
-        except Exception, e:
-            raise ValueError, "Exception %s parsing figfile" % e
+        except Exception as e:
+            raise ValueError("Exception %s parsing figfile" % e)
 
         self.vis = vis
         self.title = vis
@@ -105,7 +105,7 @@ class UVPlotInfo:
                 self.tb.open(vis + '/FIELD')
                 fldnamarr = self.tb.getcol('NAME')
                 self.tb.close()
-                for i in xrange(len(fldnamarr)):
+                for i in range(len(fldnamarr)):
                     self.fldnames[i] = fldnamarr[i]
             self.subtitle = ''
             if spw != '*' or antenna != '*' or observation:
@@ -117,8 +117,8 @@ class UVPlotInfo:
                 if observation:
                     subtitles.append("observation='%s'" % observation)
                 self.subtitle = '(' + ', '.join(subtitles) + ')'
-        except Exception, e:
-            raise ValueError, "Exception %s parsing the selection." % e
+        except Exception as e:
+            raise ValueError("Exception %s parsing the selection." % e)
 
         try:
             self.tb.open(vis + '/SPECTRAL_WINDOW')
@@ -132,8 +132,8 @@ class UVPlotInfo:
                 self.tb.close()
             else:
                 self.dd_to_spw = [0]
-        except Exception, e:
-            raise ValueError, "Exception %s getting the frequencies from %s" % (e, vis)
+        except Exception as e:
+            raise ValueError("Exception %s getting the frequencies from %s" % (e, vis))
 
 def plotfield(fld, uvplotinfo, debug=False):
     """Plot the selected baselines of fld."""
@@ -234,7 +234,7 @@ def plotfield(fld, uvplotinfo, debug=False):
             else:
                 ntoplot = snbl
             if ntoplot < snbl:
-                uvinds = [((snbl - 1) * uvi) / (ntoplot - 1) for uvi in xrange(ntoplot)]
+                uvinds = [((snbl - 1) * uvi) / (ntoplot - 1) for uvi in range(ntoplot)]
                 casalog.post("(max, min)(uvinds) = %g, %g" % (max(uvinds), min(uvinds)),
                              'DEBUG1')
                 casalog.post("len(uvw[0]) = %d" % len(uvw[0]), 'DEBUG1')
@@ -254,7 +254,7 @@ def plotfield(fld, uvplotinfo, debug=False):
             casalog.post("nchans: %d" % nchans, 'DEBUG1')
             if ncolsspanned > 1:
                 cinds = [((nchans - 1) * c) / (ncolsspanned - 1) for c in
-                         xrange(ncolsspanned)]
+                         range(ncolsspanned)]
             else:
                 cinds = [nchans / 2]
             wvlngths = 2.9978e8 / uvplotinfo.chfs[chfkey].flatten()[cinds]
@@ -264,16 +264,16 @@ def plotfield(fld, uvplotinfo, debug=False):
             # single spw.  This way a channel will only blot out the plot where
             # either it really does have a much higher density than the others
             # or all the channels overlap.
-            perm = pl.array(range(ncolsspanned - 1, -1, -1))
+            perm = pl.array(list(range(ncolsspanned - 1, -1, -1)))
             if debug:
-                print "****s:", s
-                print "perm:", perm
-                print "ntoplot:", ntoplot
-                print "ncolsspanned:", ncolsspanned
-                print "minci:", minci
+                print("****s:", s)
+                print("perm:", perm)
+                print("ntoplot:", ntoplot)
+                print("ncolsspanned:", ncolsspanned)
+                print("minci:", minci)
             for si in perm:
                 if debug:
-                    print '(perm + si) % ncolsspanned =', (perm + si) % ncolsspanned
+                    print('(perm + si) % ncolsspanned =', (perm + si) % ncolsspanned)
                 for ci in (perm + si) % ncolsspanned:
                     symb = uvplotinfo.symbs[(ci + minci) % uvplotinfo.nsymbs]
                     wvlngth = wvlngths[ci]
@@ -328,7 +328,7 @@ class NavField:
             self.bnext = Button(axnext, 'Next fld >',
                                 color=self.inactivecolor,
                                 hovercolor=self.activecolor)
-            self.bnext.on_clicked(self.next)
+            self.bnext.on_clicked(self.__next__)
         if self.fld > 0:
             axprev = pl.axes(self.prevloc)
             self.bprev = Button(axprev, '< Prev fld',
@@ -351,7 +351,7 @@ class NavField:
             self.fld += 1
             didplot = self._do_plot()
         if not didplot:
-            print "You are on the last field with any selected baselines."
+            print("You are on the last field with any selected baselines.")
             self.fld = startfld
             #plotfield(self.pltinfo.selindices['field'][self.fld],
             #          self.pltinfo, self.mytb)
@@ -363,7 +363,7 @@ class NavField:
             self.fld -= 1
             didplot = self._do_plot()
         if not didplot:
-            print "You are on the first field with any selected baselines."
+            print("You are on the first field with any selected baselines.")
             self.fld = startfld
             #plotfield(self.pltinfo.selindices['field'][self.fld],
             #          self.pltinfo, self.mytb)

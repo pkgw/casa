@@ -16,8 +16,8 @@ def cmptabs(tab1, tab2):
     tb.close()
 
     if colnames2 !=  colnames:
-        print tab1, "has cols", str(colnames)
-        print tab2, "has cols", str(colnames2)
+        print(tab1, "has cols", str(colnames))
+        print(tab2, "has cols", str(colnames2))
         return 1
 
     del colnames2
@@ -31,13 +31,13 @@ def cmptabs(tab1, tab2):
     
     for col in colnames:
         cols = [-1, -1]      # Default to a semi-invalid code.
-        for i in xrange(2):
+        for i in range(2):
             tb.open(tabs[i])
             try:
                 if tb.iscelldefined(col):    # col in colnames does not
                     cols[i] = tb.getcol(col) # imply col is valid.
             except:
-                print "Error getting", tabs[i], " col =", col
+                print("Error getting", tabs[i], " col =", col)
                 return 1
             finally:
                 tb.close()
@@ -45,7 +45,7 @@ def cmptabs(tab1, tab2):
         if hasattr(diff, 'any'):
             diff = diff.any()
         if diff:
-            print col, "differs"
+            print(col, "differs")
             return 1
     return 0
 
@@ -62,22 +62,22 @@ def cmpmses(ms1, ms2, subtabs_to_check=['ANTENNA', 'DATA_DESCRIPTION', 'FEED',
     """
     mses = (ms1, ms2)
     kws = []
-    for i in xrange(2):
+    for i in range(2):
         tb.open(mses[i])
         kws.append(tb.keywordnames())
         tb.close()
     if kws[0] != kws[1]:
-        print "They have different keyword sets."
+        print("They have different keyword sets.")
         return 1
     for kw in kws_to_check:
         kwvals = ['', '']
-        for i in xrange(2):
+        for i in range(2):
             if kw in kws[i]:
                 tb.open(mses[i])
                 kwvals[i] = tb.getkeyword(kw)
                 tb.close()
         if kwvals[0] != kwvals[1]:
-            print kw, "differs"
+            print(kw, "differs")
             return 1
     for subtab in subtabs_to_check:
         if subtab in kws[0]:

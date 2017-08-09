@@ -30,7 +30,7 @@ class sdsave_worker(sdutil.sdtask_template):
         if self.splitant:
             if not is_ms(self.infile):
                 msg = 'input data must be in MS format'
-                raise Exception, msg
+                raise Exception(msg)
             
             import datetime
             dt = datetime.datetime.now()
@@ -144,7 +144,7 @@ class sdsave_worker(sdutil.sdtask_template):
             sel_org = scantab.get_selection()
             channelrange_dic = scantab.parse_spw_selection(self.spw)
             valid_spw_list = []
-            for (k,v) in channelrange_dic.items():
+            for (k,v) in list(channelrange_dic.items()):
                 casalog.post('k=%s, v=%s'%(k,v), priority='DEBUG')
                 unique_list = []
                 for item in map(list, v):
@@ -155,7 +155,7 @@ class sdsave_worker(sdutil.sdtask_template):
                     raise SyntaxError('sdsaveold doesn\'t support multiple channel range selection for spw.')
                 elif len(unique_list) == 0:
                     raise SyntaxError('Invalid channel range specification')
-                elif numpy.any(numpy.array(map(len, unique_list)) == 0):
+                elif numpy.any(numpy.array(list(map(len, unique_list))) == 0):
                     # empty channel range
                     continue
                 nchan = scantab.nchan(k)
@@ -207,7 +207,7 @@ def _fillweight(vis):
                     interval = tbvis.getcol('INTERVAL')[0]
                 tbcal.putcol('TIME', tbcal.getcol('TIME') + 0.5*interval)
             applycal(vis=vis, docallib=False, gaintable=[caltable], applymode='calonly')
-        except Exception, e:
+        except Exception as e:
             # Tsys application failed so that reset WEIGHT and SIGMA to 1.0
             _resetweight(vis)
             raise e
@@ -231,7 +231,7 @@ def _resetweight(vis):
     with sdutil.tbmanager(vis, nomodify=False) as tb:
         for column in ['WEIGHT', 'SIGMA']:
             values = tb.getvarcol(column)
-            for v in values.values():
+            for v in list(values.values()):
                 v[:] = 1.0
             tb.putvarcol(column, values)
 

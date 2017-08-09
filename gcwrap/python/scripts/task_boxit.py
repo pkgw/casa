@@ -114,8 +114,8 @@ def boxit(imagename, regionfile, threshold, maskname, chanrange, polrange, minsi
         if writemask:
             outputmask = myia.getchunk()
             outputmask.fill(False)
-        for i3 in xrange(n4, n3):
-            for i2 in xrange(n1, n2):
+        for i3 in range(n4, n3):
+            for i2 in range(n1, n2):
                 regions = {}
                 boxRecord = {}
                 if len(shape)==2:
@@ -188,7 +188,7 @@ def boxit(imagename, regionfile, threshold, maskname, chanrange, polrange, minsi
             myia.done()
         f.close()
         return True
-    except Exception, instance:
+    except Exception as instance:
         casalog.post( str( '*** Error *** ') + str(instance), 'SEVERE')
         raise
     finally:

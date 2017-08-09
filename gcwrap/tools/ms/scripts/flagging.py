@@ -80,15 +80,15 @@ def test_plotting( fnName='' ) :
             
             failedTests += [ str( numTests - 1 ) + ': ' + fnName ];
             numFailedTests += 1;
-            print 'Execution FAILED for command ...' 
-            print '     ', fnName
+            print('Execution FAILED for command ...') 
+            print('     ', fnName)
         else: 
             #print 'SUCCESSFUL execution of command ...' 
             #print '     ' + fnName
             numSuccessfulTests += 1;
     except:
-        print 'EXCEPTION occured with command ...' 
-        print '     ', fnName
+        print('EXCEPTION occured with command ...') 
+        print('     ', fnName)
         failedTests += [ str( numTests - 1 ) + ': ' + fnName ];
         numFailedTests +=1
 
@@ -102,8 +102,8 @@ def prompt_yesno( prompt ) :
     ans = '';
     while( len(ans) < 1 or not ( ans[0] == 'Y' or ans[0] == 'N' ) ) :
         if ( not firstTime ) :
-            print( "Invalid answer: " + ans + ". Please answer yes or no" );
-        ans = raw_input( "pompt" + ", (y,n) > " );
+            print(( "Invalid answer: " + ans + ". Please answer yes or no" ));
+        ans = input( "pompt" + ", (y,n) > " );
         ans = ans.upper();
         firstTime = True;
         
@@ -118,12 +118,12 @@ def prompt_yesno( prompt ) :
 def print_results() :
     print("#############################################################################");
     print("                                 TEST REULTS\n" );
-    print("Number of Tests:               %3d" % numTests );
-    print("Number of SUCCESSFUL tests:    %3d" % numSuccessfulTests );
-    print("Number of FAILED tests:        %3d" % numFailedTests );
+    print(("Number of Tests:               %3d" % numTests ));
+    print(("Number of SUCCESSFUL tests:    %3d" % numSuccessfulTests ));
+    print(("Number of FAILED tests:        %3d" % numFailedTests ));
     print("\n List of FAILED commands" );
     for i in range (0,numFailedTests) :
-        print( failedTests[i] );
+        print(( failedTests[i] ));
 ############################################################################ 
         
 ############################################################################ 

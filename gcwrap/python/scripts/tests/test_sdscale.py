@@ -43,7 +43,7 @@ class sdscaleold_unittest_base:
         nrow0=tb.nrows()
         rspchans=[]
         rtsyschans=[]
-        for irow in xrange(nrow0):
+        for irow in range(nrow0):
             rspchans.append(len(tb.getcell('SPECTRA',irow)))
             rtsyschans.append(len(tb.getcell('TSYS',irow)))
         tb.close()
@@ -54,7 +54,7 @@ class sdscaleold_unittest_base:
                          msg='number of rows mismatch')
         sp=[]
         tsys=[]
-        for irow in xrange(nrow):
+        for irow in range(nrow):
             sp.append(tb.getcell('SPECTRA',irow))
             tsys.append(tb.getcell('TSYS',irow))
             self.assertEqual(len(sp[irow]),rspchans[irow],
@@ -66,7 +66,7 @@ class sdscaleold_unittest_base:
         valuetype=type(sp[0][0])
         if type(factor) is not list:
             # scalar factor
-            for irow in xrange(nrow):
+            for irow in range(nrow):
                 arrs = numpy.ones(rspchans[irow],dtype=valuetype)*factor
                 ret=numpy.allclose(arrs,sp[irow])
                 self.assertEqual(ret,True,
@@ -80,7 +80,7 @@ class sdscaleold_unittest_base:
         elif type(factor[0]) is not list:
             # 1D array factor
             factor = numpy.array(factor)
-            for irow in xrange(nrow):
+            for irow in range(nrow):
                 ret=numpy.allclose(factor,sp[irow])
                 self.assertEqual(ret,True,
                                  msg='SPECTRA: data differ in row%s'%(irow))
@@ -92,7 +92,7 @@ class sdscaleold_unittest_base:
                                  msg='TSYS: data differ in row%s'%(irow))
         elif len(factor[0]) == 1:
             # 2D array with shape [nrow,1]
-            for irow in xrange(nrow):
+            for irow in range(nrow):
                 arrs = numpy.ones(rspchans[irow],dtype=valuetype)*factor[irow]
                 ret=numpy.allclose(arrs,sp[irow])
                 self.assertEqual(ret,True,
@@ -105,7 +105,7 @@ class sdscaleold_unittest_base:
                                  msg='TSYS: data differ in row%s'%(irow))
         else:
             # 2D array with shape [nrow,nchan]
-            for irow in xrange(nrow):
+            for irow in range(nrow):
                 arrs = numpy.array(factor[irow])
                 ret=numpy.allclose(arrs,sp[irow])
                 self.assertEqual(ret,True,
@@ -165,7 +165,7 @@ class sdscaleold_test0(unittest.TestCase,sdscaleold_unittest_base):
             res=sdscaleold(infile=self.rawfile,factor=2.0,outfile=self.outfile)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('Output file \'%s\' exists.'%(self.outfile))
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
@@ -177,7 +177,7 @@ class sdscaleold_test0(unittest.TestCase,sdscaleold_unittest_base):
             res=sdscaleold(infile=self.rawfile,factor=factor,scaletsys=False,outfile=self.outfile)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('Vector size must be 1 or be same as number of channel.')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
@@ -189,7 +189,7 @@ class sdscaleold_test0(unittest.TestCase,sdscaleold_unittest_base):
             res=sdscaleold(infile=self.rawfile,factor=factor,scaletsys=True,outfile=self.outfile)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('SPECTRA and TSYS must conform in shape if you want to apply operation on Tsys.')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
@@ -363,7 +363,7 @@ class sdscaleold_test2(unittest.TestCase,sdscaleold_unittest_base):
             res=sdscaleold(infile=self.rawfile,factor=factor,scaletsys=scaletsys,outfile=self.outfile)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('SPECTRA and TSYS must conform in shape if you want to apply operation on Tsys.')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
@@ -403,7 +403,7 @@ class sdscaleold_test2(unittest.TestCase,sdscaleold_unittest_base):
             res=sdscaleold(infile=self.rawfile,factor=factor,scaletsys=scaletsys,outfile=self.outfile)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('SPECTRA and TSYS must conform in shape if you want to apply operation on Tsys.')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
@@ -478,7 +478,7 @@ class sdscaleold_test3(unittest.TestCase,sdscaleold_unittest_base):
             res=sdscaleold(infile=self.rawfile,factor=factor,scaletsys=scaletsys,outfile=self.outfile)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('ArrayColumn::getColumn cannot be done for column SPECTRA; the array shapes vary: Table array conformance error')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
@@ -491,7 +491,7 @@ class sdscaleold_test3(unittest.TestCase,sdscaleold_unittest_base):
             res=sdscaleold(infile=self.rawfile,factor=factor,scaletsys=scaletsys,outfile=self.outfile)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('All spectra in the input scantable must have the same number of channel for vector operation.')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
@@ -594,7 +594,7 @@ class sdscaleold_test4(unittest.TestCase,sdscaleold_unittest_base):
             res=sdscaleold(infile=self.rawfile,factor=factor,scaletsys=scaletsys,outfile=self.outfile)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('ArrayColumn::getColumn cannot be done for column SPECTRA; the array shapes vary: Table array conformance error')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
@@ -607,7 +607,7 @@ class sdscaleold_test4(unittest.TestCase,sdscaleold_unittest_base):
             res=sdscaleold(infile=self.rawfile,factor=factor,scaletsys=scaletsys,outfile=self.outfile)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('All spectra in the input scantable must have the same number of channel for vector operation.')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
@@ -638,7 +638,7 @@ class sdscaleold_test4(unittest.TestCase,sdscaleold_unittest_base):
             res=sdscaleold(infile=self.rawfile,factor=factor,scaletsys=scaletsys,outfile=self.outfile)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('SPECTRA and TSYS must conform in shape if you want to apply operation on Tsys.')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))            
@@ -714,14 +714,14 @@ class sdscaleold_testflag(unittest.TestCase,sdscaleold_unittest_base):
             self.nchan_orig = len(tb.getcell('FLAGTRA', 0))
             self.rowid_rflag_orig = tb.getcol('FLAGROW')
             cfraw = tb.getcol('FLAGTRA').sum(axis=0)
-            self.rowid_cflag_orig = [cfraw[i] > 0 for i in xrange(len(cfraw))]
+            self.rowid_cflag_orig = [cfraw[i] > 0 for i in range(len(cfraw))]
             self.cflag_orig = tb.getcell('FLAGTRA', numpy.where(self.rowid_cflag_orig)[0][0])
 
     def _check_flags_no_change(self):
         """check if no changes applied on flag values"""
         with tbmanager(self.outfile) as tb:
             self.assertTrue(all(tb.getcol('FLAGROW')==self.rowid_rflag_orig))
-            for i in xrange(tb.nrows()):
+            for i in range(tb.nrows()):
                 chanflag = tb.getcell('FLAGTRA', i)
                 chanflag_ref = self.cflag_orig if self.rowid_cflag_orig[i] else numpy.zeros(self.nchan_orig, numpy.int32)
                 self.assertTrue(all(chanflag==chanflag_ref))
@@ -729,7 +729,7 @@ class sdscaleold_testflag(unittest.TestCase,sdscaleold_unittest_base):
     def _check_values(self, scaletsys):
         """check spectra and tsys values"""
         with tbmanager(self.outfile) as tb:
-            for irow, col in itertools.product(xrange(tb.nrows()), ['SPECTRA', 'TSYS']):
+            for irow, col in itertools.product(range(tb.nrows()), ['SPECTRA', 'TSYS']):
                 data = tb.getcell(col, irow)
                 data_ref = numpy.ones(self.nchan_orig, numpy.float)
                 if self.rowid_rflag_orig[irow] == 0:

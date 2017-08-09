@@ -24,5 +24,5 @@ def listvis(vis, options, datacolumn, field,spw, selectdata, antenna, timerange,
                     average, showflags, "", pagerows, listfile)
         myms.close()
     except Exception as instance:
-        print('*** Error in listvis *** ', instance)
+        print(('*** Error in listvis *** ', instance))
     

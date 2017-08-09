@@ -1,5 +1,5 @@
 import os
-import commands
+import subprocess
 import math
 import shutil
 import string
@@ -27,14 +27,14 @@ class PyParallelDeconvolver(PySynthesisImager):
         PySynthesisImager.__init__(self,params)
 
         self.PH = PyParallelImagerHelper()
-        self.NF = len( allimpars.keys() )
+        self.NF = len( list(allimpars.keys()) )
         self.listOfNodes = self.PH.getNodeList();
         #### MPIInterface related changes
         #self.NN = self.PH.NN
         self.NN = len(self.listOfNodes);
         if self.NF != self.NN:
-             print 'For now, cannot handle nfields != nnodes. Will implement round robin allocation later.'
-             print 'Using only ', self.NN, ' fields and nodes'
+             print('For now, cannot handle nfields != nnodes. Will implement round robin allocation later.')
+             print('Using only ', self.NN, ' fields and nodes')
              
 
 #############################################
@@ -76,7 +76,7 @@ class PyParallelDeconvolver(PySynthesisImager):
 
         # Check with the iteration controller about convergence.
         stopflag = self.IBtool.cleanComplete()
-        print 'Converged : ', stopflag
+        print('Converged : ', stopflag)
         if( stopflag>0 ):
             stopreasons = ['iteration limit', 'threshold', 'force stop','no change in peak residual across two major cycles', 'peak residual increased by more than 5 times from the previous major cycle','peak residual increased by more than 5 times from the minimum reached']
             casalog.post("Reached global stopping criterion : " + stopreasons[stopflag-1], "INFO")

@@ -12,7 +12,7 @@ def imfit(
     myia = iatool()
     try:
         if (not myia.open(imagename)):
-            raise Exception, "Cannot create image analysis tool using " + imagename
+            raise Exception("Cannot create image analysis tool using " + imagename)
         result_dict = myia.fitcomponents(
             box=box, region=region, chans=chans, stokes=stokes,
             mask=mask, includepix=includepix,
@@ -24,7 +24,7 @@ def imfit(
             rms=rms, noisefwhm=noisefwhm, summary=summary
         )
         return result_dict
-    except Exception, instance:
+    except Exception as instance:
         casalog.post( str( '*** Error ***') + str(instance), 'SEVERE')
         raise instance
     finally:

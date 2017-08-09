@@ -16,7 +16,7 @@ class Direction:
         self._dirmeas = me.direction(refcode, longitude_str, latitude_str)
         
         if self._dirmeas == {}:
-            raise ValueError, "Could not make a Direction from " + str(input)
+            raise ValueError("Could not make a Direction from " + str(input))
 
 ##     def __iadd__(self, offset):
 ##         if hasattr(offset, '_dirmeas'):
@@ -47,13 +47,13 @@ class Ptcs:
             self._measinfo = input._measinfo
         elif type(input) in (tuple, list):
             # (ptcs, measinfo) list or tuple
-            if type(input[0]) == dict and input[0].has_key('r1'):
+            if type(input[0]) == dict and 'r1' in input[0]:
                 self._ptcs = input[0]
-            if type(input[1]) == dict and input[1].has_key('MEASINFO') and input[1].has_key('QuantumUnits'):
+            if type(input[1]) == dict and 'MEASINFO' in input[1] and 'QuantumUnits' in input[1]:
                 self._measinfo = input[1]
 
         if self._ptcs == -1 or self._measinfo == -1:
-            raise ValueError, "Could not make a Ptcs from " + str(input)
+            raise ValueError("Could not make a Ptcs from " + str(input))
 
     def __getitem__(self, index):
         k = 'r' + str(index + 1)

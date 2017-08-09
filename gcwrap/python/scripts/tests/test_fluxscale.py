@@ -22,15 +22,15 @@ datapath = os.environ.get('CASAPATH').split()[0] +\
 
 # Pick up alternative data directory to run tests on MMSs
 testmms = False
-if os.environ.has_key('TEST_DATADIR'):   
+if 'TEST_DATADIR' in os.environ:   
     DATADIR = str(os.environ.get('TEST_DATADIR'))+'/fluxscale/'
     if os.path.isdir(DATADIR):
         testmms = True
         datapath = DATADIR
     else:
-        print 'WARN: directory '+DATADIR+' does not exist'
+        print('WARN: directory '+DATADIR+' does not exist')
 
-print 'fluxscale tests will use data from '+datapath         
+print('fluxscale tests will use data from '+datapath)         
 
     
 class fluxscale1_test(unittest.TestCase):
@@ -188,8 +188,8 @@ class fluxscale1_test(unittest.TestCase):
         try:
           thisdict = fluxscale(vis=self.msfile, caltable=gtable, fluxtable=outtable, reference='1331*',
                   transfer='1445*', antenna='!24', timerange='>1995/04/13/09:38:00', incremental=True)
-        except exceptions.RuntimeError, instance:
-          print "Expected exception raised:",instance
+        except exceptions.RuntimeError as instance:
+          print("Expected exception raised:",instance)
 
     def test_antennaselwithscan(self):
         '''Fluxscale test 1.6: antenna selection with scan selection test'''

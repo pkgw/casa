@@ -24,7 +24,7 @@ def checktable(thename, theexpectation):
     mytb = tbtool()
     mytb.open(msname+"/"+thename)
     for mycell in theexpectation:
-        print myname, ": comparing ", mycell
+        print(myname, ": comparing ", mycell)
         value = mytb.getcell(mycell[0], mycell[1])
         # see if value is array
         try:
@@ -47,13 +47,13 @@ def checktable(thename, theexpectation):
                 except:
                     in_agreement = False
         if not in_agreement:
-            print myname, ":  Error in MS subtable", thename, ":"
-            print "     column ", mycell[0], " row ", mycell[1], " contains ", value
-            print "     expected value is ", mycell[2]
+            print(myname, ":  Error in MS subtable", thename, ":")
+            print("     column ", mycell[0], " row ", mycell[1], " contains ", value)
+            print("     expected value is ", mycell[2])
             mytb.close()
             return False
     mytb.close()
-    print myname, ": table ", thename, " as expected."
+    print(myname, ": table ", thename, " as expected.")
     return True
 
 
@@ -71,7 +71,7 @@ class test_testconcat(unittest.TestCase):
         os.chdir(datapath)
         for mymsname in sorted(glob.glob("*.ms")):
             if not mymsname in filespresent:
-                print "Copying ", mymsname
+                print("Copying ", mymsname)
                 shutil.copytree(mymsname, cpath+'/'+mymsname)
         os.chdir(cpath)
 
@@ -87,7 +87,7 @@ class test_testconcat(unittest.TestCase):
         self.res = testconcat(vis=['part1.ms','part2.ms','part3.ms','part4.ms'],testconcatvis=msname)
         self.assertEqual(self.res,None)
 
-        print myname, ": Success! Now checking output ..."
+        print(myname, ": Success! Now checking output ...")
         mscomponents = set(["table.dat",
                             "table.f0",
                             "table.f1",
@@ -127,16 +127,16 @@ class test_testconcat(unittest.TestCase):
                             ])
         for name in mscomponents:
             if not os.access(msname+"/"+name, os.F_OK):
-                print myname, ": Error  ", msname+"/"+name, "doesn't exist ..."
+                print(myname, ": Error  ", msname+"/"+name, "doesn't exist ...")
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+msname+'/'+name+' does not exist'
             else:
-                print myname, ": ", name, "present."
-        print myname, ": pseudo-MS exists. All tables present."
+                print(myname, ": ", name, "present.")
+        print(myname, ": pseudo-MS exists. All tables present.")
         if 'test1.ms' in glob.glob("*.ms"):
             shutil.rmtree('test1.ms',ignore_errors=True)
         shutil.copytree(msname,'test1.ms')
-        print myname, ": OK. Checking tables in detail ..."
+        print(myname, ": OK. Checking tables in detail ...")
         retValue['success']=True
 
         # check source table
@@ -168,7 +168,7 @@ class test_testconcat(unittest.TestCase):
         self.res = testconcat(vis=['part1.ms','part2-mod.ms','part3.ms'],testconcatvis=msname)
         self.assertEqual(self.res,None)
         
-        print myname, ": Success! Now checking output ..."
+        print(myname, ": Success! Now checking output ...")
         mscomponents = set(["table.dat",
                             "table.f0",
                             "table.f1",
@@ -208,17 +208,17 @@ class test_testconcat(unittest.TestCase):
                             ])
         for name in mscomponents:
             if not os.access(msname+"/"+name, os.F_OK):
-                print myname, ": Error  ", msname+"/"+name, "doesn't exist ..."
+                print(myname, ": Error  ", msname+"/"+name, "doesn't exist ...")
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+msname+'/'+name+' does not exist'
             else:
-                print myname, ": ", name, "present."
-        print myname, ": MS exists. All tables present."
+                print(myname, ": ", name, "present.")
+        print(myname, ": MS exists. All tables present.")
 
         if 'test2.ms' in glob.glob("*.ms"):
             shutil.rmtree('test2.ms',ignore_errors=True)
         shutil.copytree(msname,'test2.ms')
-        print myname, ": OK. Checking tables in detail ..."
+        print(myname, ": OK. Checking tables in detail ...")
         retValue['success']=True
         
         # check source table
@@ -250,7 +250,7 @@ class test_testconcat(unittest.TestCase):
         self.res = testconcat(vis=['part1.ms','part2-mod2.ms','part3.ms'],testconcatvis=msname)
         self.assertEqual(self.res,None)
 
-        print myname, ": Success! Now checking output ..."
+        print(myname, ": Success! Now checking output ...")
         mscomponents = set(["table.dat",
                             "table.f0",
                             "table.f1",
@@ -290,17 +290,17 @@ class test_testconcat(unittest.TestCase):
                             ])
         for name in mscomponents:
             if not os.access(msname+"/"+name, os.F_OK):
-                print myname, ": Error  ", msname+"/"+name, "doesn't exist ..."
+                print(myname, ": Error  ", msname+"/"+name, "doesn't exist ...")
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+msname+'/'+name+' does not exist'
             else:
-                print myname, ": ", name, "present."
-        print myname, ": MS exists. All tables present."
+                print(myname, ": ", name, "present.")
+        print(myname, ": MS exists. All tables present.")
 
         if 'test3.ms' in glob.glob("*.ms"):
             shutil.rmtree('test3.ms',ignore_errors=True)
         shutil.copytree(msname,'test3.ms')
-        print myname, ": OK. Checking tables in detail ..."
+        print(myname, ": OK. Checking tables in detail ...")
         retValue['success']=True
         
         # check source table
@@ -334,7 +334,7 @@ class test_testconcat(unittest.TestCase):
                           testconcatvis = msname, copypointing=False)
         self.assertEqual(self.res,None)
 
-        print myname, ": Success! Now checking output ..."
+        print(myname, ": Success! Now checking output ...")
         mscomponents = set(["table.dat",
                             "table.f0",
                             "table.f1",
@@ -374,17 +374,17 @@ class test_testconcat(unittest.TestCase):
                             ])
         for name in mscomponents:
             if not os.access(msname+"/"+name, os.F_OK):
-                print myname, ": Error  ", msname+"/"+name, "doesn't exist ..."
+                print(myname, ": Error  ", msname+"/"+name, "doesn't exist ...")
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+msname+'/'+name+' does not exist'
             else:
-                print myname, ": ", name, "present."
-        print myname, ": MS exists. All tables present."
+                print(myname, ": ", name, "present.")
+        print(myname, ": MS exists. All tables present.")
 
         if 'test4.ms' in glob.glob("*.ms"):
             shutil.rmtree('test4.ms',ignore_errors=True)
         shutil.copytree(msname,'test4.ms')
-        print myname, ": OK. Checking tables in detail ..."
+        print(myname, ": OK. Checking tables in detail ...")
         retValue['success']=True
         
         
@@ -427,11 +427,11 @@ class test_testconcat(unittest.TestCase):
             ['SOURCE_ID',           16, 0, 100000],
             ['SPECTRAL_WINDOW_ID',  16, 0, 100000]
             ]
-        print "The following should fail: SOURCE row 16 should not exist"
+        print("The following should fail: SOURCE row 16 should not exist")
         try:
             results = checktable(name, expected)
         except:
-            print "Expected error."
+            print("Expected error.")
             results = False
         if results: 
             retValue['success']=False
@@ -458,7 +458,7 @@ class test_testconcat(unittest.TestCase):
                               testconcatvis = msname)
         self.assertEqual(self.res,None)
 
-        print myname, ": Success! Now checking output ..."
+        print(myname, ": Success! Now checking output ...")
         mscomponents = set(["table.dat",
                             "table.f0",
                             "table.f1",
@@ -498,17 +498,17 @@ class test_testconcat(unittest.TestCase):
                             ])
         for name in mscomponents:
             if not os.access(msname+"/"+name, os.F_OK):
-                print myname, ": Error  ", msname+"/"+name, "doesn't exist ..."
+                print(myname, ": Error  ", msname+"/"+name, "doesn't exist ...")
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+msname+'/'+name+' does not exist'
             else:
-                print myname, ": ", name, "present."
-        print myname, ": MS exists. All tables present."
+                print(myname, ": ", name, "present.")
+        print(myname, ": MS exists. All tables present.")
 
         if 'test5.ms' in glob.glob("*.ms"):
             shutil.rmtree('test5.ms',ignore_errors=True)
         shutil.copytree(msname,'test5.ms')
-        print myname, ": OK. Checking tables in detail ..."
+        print(myname, ": OK. Checking tables in detail ...")
         retValue['success']=True        
         
         # check state table

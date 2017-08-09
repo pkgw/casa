@@ -10,7 +10,7 @@ import re
 import math
 
 try:
-    import selection_syntax
+    from . import selection_syntax
 except:
     import tests.selection_syntax as selection_syntax
 
@@ -26,7 +26,7 @@ def selection_to_list(row):
                 yield int(elem)
             elif re.match('^[0-9]+~[0-9]+$', elem):
                 s = [int(e) for e in elem.split('~')]
-                for i in xrange(s[0], s[1]+1):
+                for i in range(s[0], s[1]+1):
                     yield i
     l = set(_selection_to_list(row))
     return list(l)    
@@ -93,7 +93,7 @@ class sdflagold_test(unittest.TestCase):
 
         scan = sd.scantable(filename=infile, average=False)
         maskdict = scan.parse_spw_selection(spw)
-        maskflag = maskdict[maskdict.keys()[0]]
+        maskflag = maskdict[list(maskdict.keys())[0]]
         ansmask = scan.create_mask(maskflag, invert=True)
         for i in range (scan.nrow()):
             mask = scan.get_mask(i)
@@ -217,7 +217,7 @@ class sdflagold_test(unittest.TestCase):
         mode = 'manual'
         try:
             result = sdflagold(infile=infile, mode=mode, spw=spw)
-        except Exception, e:
+        except Exception as e:
             pos = str(e).find('No valid spw.')
             self.assertNotEqual(pos, -1, msg='Unexpected exception was thrown: %s'%(str(e)))
 
@@ -285,7 +285,7 @@ class sdflagold_test_flagged_data(unittest.TestCase):
         
         # check flagged area
         flag_value = 0 if unflag else 128
-        for irow in xrange(nrow):
+        for irow in range(nrow):
             # row flags should not be affected
             self.assertEqual(flagrow[irow], self.flagrow_org[irow], msg='Row %s: FLAGROW differ (result %s expected %s)'%(irow,flagrow[irow],self.flagrow_org[irow]))
 
@@ -299,7 +299,7 @@ class sdflagold_test_flagged_data(unittest.TestCase):
                     _masklist = masklist[irow]
                 # flag should be updated
                 for m in _masklist:
-                    print 'row %s: setting value 128 to range %s'%(irow,m)
+                    print('row %s: setting value 128 to range %s'%(irow,m))
                     expected[m[0]:m[1]+1] = flag_value                        
             self.assertTrue(all(flagtra[:,irow] == expected), msg='Row %s: FLAGTRA differ'%(irow))
         
@@ -321,14 +321,14 @@ class sdflagold_test_flagged_data(unittest.TestCase):
         def gen_clipped(spectra, threshold):
             rms = lambda x: math.sqrt(x.std()**2 + x.mean()**2)
             nrow = spectra.shape[1]
-            for irow in xrange(nrow):
+            for irow in range(nrow):
                 sp = spectra[:,irow]
                 _threshold = abs(threshold) * rms(sp)
                 yield numpy.where(abs(sp) > _threshold)[0]
         clipped_channels = list(gen_clipped(spectra, threshold))
 
         # map to masklist
-        masklist = map(lambda x: [[y,y] for y in x], clipped_channels)
+        masklist = [[[y,y] for y in x] for x in clipped_channels]
 
         self.__verify_channelflag(masklist, unflag)
 
@@ -340,7 +340,7 @@ class sdflagold_test_flagged_data(unittest.TestCase):
 
         # check flagged data
         flag_value = 0 if unflag else 1
-        for irow in xrange(nrow):
+        for irow in range(nrow):
             # channel flags should not be affected
             self.assertTrue(all(flagtra[:,irow] == self.flagtra_org[:,irow]), msg='Row %s: FLAGTRA differ'%(irow))
 
@@ -485,7 +485,7 @@ class sdflagold_test_timerange(unittest.TestCase):
         table = gentools(['tb'])[0]
         table.open(self.infile, nomodify=False)
         time_column = table.getcol('TIME')
-        for irow in xrange(table.nrows()):
+        for irow in range(table.nrows()):
             time_column[irow] += irow * 1000.0 / 86400.0
         table.putcol('TIME', time_column)
         table.close()
@@ -498,7 +498,7 @@ class sdflagold_test_timerange(unittest.TestCase):
 
     def verify(self, data, flag_row_expected):
         scan = sd.scantable(self.infile, average=False)
-        flag_row = numpy.array([scan._getflagrow(i) for i in xrange(scan.nrow())], dtype=bool)
+        flag_row = numpy.array([scan._getflagrow(i) for i in range(scan.nrow())], dtype=bool)
         del scan
         self.assertTrue(all(flag_row_expected==flag_row),
                         msg='FLAGROW is different from expected value: %s (expected: %s)'%(flag_row, flag_row_expected))
@@ -706,7 +706,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         try:
             self.res=self.run_task(infile=self.rawfile,row=row,mode=self.mode,outfile=self.outfile,outform='ASAP')
             self.fail('The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('Trying to flag whole scantable.')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
@@ -814,7 +814,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         try:
             self.res=self.run_task(infile=self.rawfile,scan=scan,mode=self.mode,outfile=self.outfile,outform='ASAP')
             self.fail('The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('Trying to flag whole scantable.')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
@@ -870,7 +870,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         try:
             self.res=self.run_task(infile=self.rawfile,beam=beam,mode=self.mode,outfile=self.outfile,outform='ASAP')
             self.fail('The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('Trying to flag whole scantable.')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
@@ -926,7 +926,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         try:
             self.res=self.run_task(infile=self.rawfile,pol=pol,mode=self.mode,outfile=self.outfile,outform='ASAP')
             self.fail('The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('Trying to flag whole scantable.')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
@@ -985,7 +985,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         try:
             self.res=self.run_task(infile=self.rawfile,field=field,mode=self.mode,outfile=self.outfile,outform='ASAP')
             self.fail('The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('Trying to flag whole scantable.')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
@@ -1069,7 +1069,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         try:
             self.res=self.run_task(infile=self.rawfile,spw=spw,mode=self.mode,outfile=self.outfile,outform='ASAP')
             self.fail('The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('Trying to flag whole scantable.')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
@@ -1325,8 +1325,8 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         for fr in flagrow:
             self.assertEqual(fr, 0, "FLAGROW should be all 0")
         print("Testing FLAGROW")
-        for irow in xrange(self.ntbrow):
-            if irow in ref_dict.keys(): currlist = ref_dict[irow]
+        for irow in range(self.ntbrow):
+            if irow in list(ref_dict.keys()): currlist = ref_dict[irow]
             else: currlist = []
             flag = flagtra[irow]
             # convert flagtra to bool list
@@ -1345,7 +1345,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         try:
             self.res=self.run_task(infile=self.rawfile,timerange=timerange,mode=self.mode,outfile=self.outfile,outform='ASAP')
             self.fail('The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('Trying to flag whole scantable.')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
@@ -1411,13 +1411,13 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         idx_flagrow = rowlist if len(chanlist) == 0 else []
         # compare FLAGROW
         # create reference flagrow array
-        ref_flagrow = [ 0 for idx in xrange(self.ntbrow) ]
+        ref_flagrow = [ 0 for idx in range(self.ntbrow) ]
         for irow in idx_flagrow: ref_flagrow[irow] = 1
         print("Testing FLAGROW")
         self._exact_compare_array(flagrow, ref_flagrow)
         # compare FLAGTRA
         print("Testing FLAGTRA")
-        for irow in xrange(self.ntbrow):
+        for irow in range(self.ntbrow):
             flag = flagtra[irow]
             # convert flagtra to bool list
             bflag = [ True if f!=0 else False for f in flag ]
@@ -1428,7 +1428,7 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
 
     def _exact_compare_array(self, data, reference):
         self.assertEqual(len(data), len(reference), "Number of elements in two arrays are different.")
-        for idx in xrange(len(data)):
+        for idx in range(len(data)):
             self.assertEqual(data[idx], reference[idx], "Value in idx=%d differs: %s (expected: %s)" % (idx, str(data[idx]), str(reference[idx])) )
 
     def _get_bool_array(self, nelements, masklist=None):
@@ -1439,8 +1439,8 @@ class sdflagold_selection(selection_syntax.SelectionSyntaxTest,
         """
         self.assertTrue(nelements>0, "Internal error. Length of array should be positive value")
         if masklist is None: masklist=[]
-        ret_array = numpy.array([ False for idx in xrange(nelements) ])
-        for irange in xrange(len(masklist)):
+        ret_array = numpy.array([ False for idx in range(nelements) ])
+        for irange in range(len(masklist)):
             curr_range = masklist[irange]
             if len(curr_range) < 2:
                 self.fail("Internal error. masklist should be a list of 2 elements array.")

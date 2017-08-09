@@ -1,4 +1,4 @@
-from __future__ import with_statement
+
 from contextlib import contextmanager
 from glob import glob
 import os
@@ -25,16 +25,16 @@ def list_autocorr(mspat="*[-_.][Mm][Ss]"):
     if mses:
         msdict = find_autocorr(mses)
         if msdict:
-            print "F MS"
-            print "- --"
-            mses = msdict.keys()
+            print("F MS")
+            print("- --")
+            mses = list(msdict.keys())
             mses.sort()
             for m in mses:
-                print msdict[m], m
+                print(msdict[m], m)
         else:
-            print "No autocorrelations found."
+            print("No autocorrelations found.")
     else:
-        print "Nothing matching", mspat, "was found."
+        print("Nothing matching", mspat, "was found.")
 
 
 @contextmanager

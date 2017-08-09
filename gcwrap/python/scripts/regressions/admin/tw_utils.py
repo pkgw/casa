@@ -11,7 +11,7 @@ import os
 
 class htmlPub:
         def __init__(self,file,title='Performance tests'):
-                self.fd=os.open(file,os.O_CREAT|os.O_WRONLY,0644)
+                self.fd=os.open(file,os.O_CREAT|os.O_WRONLY,0o644)
                 self.title = title
                 self.doTitle()
 

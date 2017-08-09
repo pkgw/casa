@@ -88,36 +88,36 @@ datapath=os.environ.get('CASAPATH').split()[0]+'/data/regression/unittest/rg.fro
 
 def deep_equality(a, b):
     if (type(a) != type(b)):
-        print "types don't match, a is a " + str(type(a)) + " b is a " + str(type(b))
+        print("types don't match, a is a " + str(type(a)) + " b is a " + str(type(b)))
         return False
     if (type(a) == dict):
-        if (a.keys() != b.keys()):
-            print "keys don't match, a is " + str(a.keys()) + " b is " + str(b.keys())
+        if (list(a.keys()) != list(b.keys())):
+            print("keys don't match, a is " + str(list(a.keys())) + " b is " + str(list(b.keys())))
             return False
-        for k in a.keys():
+        for k in list(a.keys()):
             if (
                 k == "telescope" or k == "observer"
                 or k == "telescopeposition"
             ):
                 continue
             elif (not deep_equality(a[k], b[k])):
-                print "dictionary member inequality a[" + str(k) \
-                    + "] is " + str(a[k]) + " b[" + str(k) + "] is " + str(b[k])
+                print("dictionary member inequality a[" + str(k) \
+                    + "] is " + str(a[k]) + " b[" + str(k) + "] is " + str(b[k]))
                 return False
         return True
     if (type(a) == float):
         if not (a == b or abs((a-b)/a) <= 1e-6):
-            print "float mismatch, a is " + str(a) + ", b is " + str(b)
+            print("float mismatch, a is " + str(a) + ", b is " + str(b))
         return a == b or abs((a-b)/a) <= 1e-6
     if (type(a) == numpy.ndarray):
         if (a.shape != b.shape):
-            print "shape mismatch a is " + str(a.shape) + " b is " + str(b.shape)
+            print("shape mismatch a is " + str(a.shape) + " b is " + str(b.shape))
             return False
         x = a.tolist()
         y = b.tolist()
         for i in range(len(x)):
             if (not deep_equality(x[i], y[i])):
-                print "array element mismatch, x is " + str(x[i]) + " y is " + str(y[i])
+                print("array element mismatch, x is " + str(x[i]) + " y is " + str(y[i]))
                 return False
         return True
     return a == b
@@ -200,7 +200,7 @@ class rg_fromtextfile_test(unittest.TestCase):
             "circle[[20pix,20pix],6pix],range=[1pix,3pix]",
             shape, csys.torecord()
         )
-        self.assertTrue(len(zz.keys()) > 0)
+        self.assertTrue(len(list(zz.keys())) > 0)
 
     def test_CAS_4425(self):
         """ Verify CAS-4425 (pixel units now accounted for in range and no units throws exception)"""

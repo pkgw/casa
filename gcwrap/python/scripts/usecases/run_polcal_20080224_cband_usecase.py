@@ -228,10 +228,10 @@ pcalmodel['2202+422'] = pcalfield
 #
 # Set the polmodel from pcalmodel
 #
-print '--Setting up Polarization models--'
+print('--Setting up Polarization models--')
 
 polmodel = {}
-for field in pcalmodel.keys() :
+for field in list(pcalmodel.keys()) :
     spwmodel = {}
     # the RLPD is atan2(U,Q) so Q=I*P/I*cos(RLPD)  U=I*P/I*sin(RLPD)
     for spw in usespwlist:
@@ -256,8 +256,8 @@ for field in pcalmodel.keys() :
     
     polmodel[field] = spwmodel
 
-print "Created polmodel dictionary"
-print polmodel
+print("Created polmodel dictionary")
+print(polmodel)
 #
 #=====================================================================
 # Data Import and List
@@ -267,10 +267,10 @@ if ( importmode == 'vla' ):
     #
     # Import the data from VLA Export to MS
     #
-    print '--ImportVLA--'
+    print('--ImportVLA--')
     default('importvla')
     
-    print "Use importvla to read VLA Export and make an MS"
+    print("Use importvla to read VLA Export and make an MS")
     
     archivefiles = datafile
     vis = msfile
@@ -285,10 +285,10 @@ elif ( importmode == 'fits' ):
     #
     # Import the data from VLA Export to MS
     #
-    print '--ImportUVFITS--'
+    print('--ImportUVFITS--')
     default('importuvfits')
     
-    print "Use importuvfits to read UVFITS and make an MS"
+    print("Use importuvfits to read UVFITS and make an MS")
     
     fitsfile = datafile
     vis = msfile
@@ -300,8 +300,8 @@ else:
     #
     # Copy from msfile
     #
-    print '--MS Copy--'
-    print "Copying "+datafile+" to "+msfile
+    print('--MS Copy--')
+    print("Copying "+datafile+" to "+msfile)
     
     os.system('cp -r '+datafile+' '+msfile)
     vis = msfile
@@ -309,9 +309,9 @@ else:
 #
 #=====================================================================
 #
-print '--Listobs--'
+print('--Listobs--')
 
-print "List summary of MS"
+print("List summary of MS")
 
 listobs()
 
@@ -424,10 +424,10 @@ if ( myquackinterval > 0.0 ):
     #
     # First quack the data
     #
-    print '--Flagdata--'
+    print('--Flagdata--')
     default('flagdata')
     
-    print "Quacking scan beginnings using interval "+str(myquackinterval)
+    print("Quacking scan beginnings using interval "+str(myquackinterval))
     
     vis = msfile
     correlation = ''
@@ -445,7 +445,7 @@ if ( myquackinterval > 0.0 ):
     #
     default('flagmanager')
     
-    print "Now will use flagmanager to save the flags"
+    print("Now will use flagmanager to save the flags")
     
     vis = msfile
     mode = 'save'
@@ -459,10 +459,10 @@ if ( myquackinterval > 0.0 ):
 
 #
 if (flagants != '' and not flagants.isspace() ):
-    print '--Flagdata--'
+    print('--Flagdata--')
     default('flagdata')
     
-    print "Flag all data to AN "+flagants
+    print("Flag all data to AN "+flagants)
     
     vis = msfile
     correlation = ''
@@ -479,7 +479,7 @@ if (flagants != '' and not flagants.isspace() ):
     #
     default('flagmanager')
     
-    print "Now will use flagmanager to save the flags"
+    print("Now will use flagmanager to save the flags")
     
     vis = msfile
     mode = 'save'
@@ -499,12 +499,12 @@ if (flagants != '' and not flagants.isspace() ):
 # Set the fluxes of the primary calibrator(s)
 #
 if ( setjymode == 'flux' ):
-    print '--Setjy--'
+    print('--Setjy--')
     default('setjy')
     
     vis = msfile
     
-    print "Use setjy to set flux of "+fluxcalfield+" to point model"
+    print("Use setjy to set flux of "+fluxcalfield+" to point model")
     field = fluxcalfield
     spw = usespw
 
@@ -514,12 +514,12 @@ if ( setjymode == 'flux' ):
     # Loop over spw
     for spw in usespwlist:
         fluxdensity = fcalmodel[fluxcalfield][spw]
-        print "Setting SPW "+spw+" to "+str(fluxdensity)
+        print("Setting SPW "+spw+" to "+str(fluxdensity))
         saveinputs('setjy',prefix+'.setjy.'+spw+'.saved')
         setjy()
 
 elif ( setjymode == 'ft' ):
-    print '--FT--'
+    print('--FT--')
 
     default('ft')
     vis = msfile
@@ -527,17 +527,17 @@ elif ( setjymode == 'ft' ):
 
     for spw in usespwlist:
         model = fluxcaldir + fluxcalmodel+'_'+spw+'_IQUV.model'
-        print "Use FT to set model"+model
+        print("Use FT to set model"+model)
         saveinputs('ft',prefix+'.ft.0.saved')
         ft()
     
 else:
-    print '--Setjy--'
+    print('--Setjy--')
     default('setjy')
     
     vis = msfile
     
-    print "Use setjy to set flux of "+fluxcalfield
+    print("Use setjy to set flux of "+fluxcalfield)
     field = fluxcalfield
     spw = usespw
 
@@ -556,22 +556,22 @@ else:
     #  SETJY     '0137+331        ' IF =  1 FLUX = 5.4054 (Jy calcd)
     #  SETJY     '0137+331        ' IF =  2 FLUX = 5.4585 (Jy calcd)
     
-    print "Look in logger for the fluxes (should be 5.405 and 5.458 Jy)"
+    print("Look in logger for the fluxes (should be 5.405 and 5.458 Jy)")
 
 #=====================================================================
 #
 # Initial gain calibration
 #
-print '--Gaincal--'
+print('--Gaincal--')
 default('gaincal')
 
-print "Solve for antenna gains on sources "+gaincalfield
-print "We have 2 single-channel continuum spw"
+print("Solve for antenna gains on sources "+gaincalfield)
+print("We have 2 single-channel continuum spw")
 
 vis = msfile
 
 # set the name for the output gain caltable
-print "Output gain table name is "+gtable
+print("Output gain table name is "+gtable)
 caltable = gtable
 
 # All fields are calibrators
@@ -579,7 +579,7 @@ caltable = gtable
 
 # Assemble field string from gaincalfield list
 field = fieldgain
-print "Calibrating using fields "+field
+print("Calibrating using fields "+field)
 
 # Calibrate these spw
 spw = usespw
@@ -611,11 +611,11 @@ gaincal()
 #
 # List gain calibration
 #
-print '--Listcal--'
+print('--Listcal--')
 
 listfile = caltable + '.list'
 
-print "Listing calibration to file "+listfile
+print("Listing calibration to file "+listfile)
 
 listcal()
 
@@ -624,10 +624,10 @@ listcal()
 #
 # Bootstrap flux scale
 #
-print '--Fluxscale--'
+print('--Fluxscale--')
 default('fluxscale')
 
-print "Use fluxscale to rescale gain table to make new one"
+print("Use fluxscale to rescale gain table to make new one")
 
 vis = msfile
 
@@ -635,7 +635,7 @@ vis = msfile
 ftable = prefix + '.fluxscale'
 fluxtable = ftable
 
-print "Output scaled gain cal table is "+ftable
+print("Output scaled gain cal table is "+ftable)
 
 # point to our first gain cal table
 caltable = gtable
@@ -676,12 +676,12 @@ fluxscale()
 #
 # List fluxscale table
 #
-print '--Listcal--'
+print('--Listcal--')
 
 caltable = ftable
 listfile = caltable + '.list'
 
-print "Listing calibration to file "+listfile
+print("Listing calibration to file "+listfile)
 
 listcal()
 
@@ -689,7 +689,7 @@ listcal()
 #
 # Plot final gain calibration
 #
-print '--Plotcal--'
+print('--Plotcal--')
 
 iteration = ''
 showgui = False
@@ -697,21 +697,21 @@ showgui = False
 xaxis = 'time'
 yaxis = 'amp'
 figfile = caltable + '.plot.amp.png'
-print "Plotting calibration to file "+figfile
+print("Plotting calibration to file "+figfile)
 saveinputs('plotcal',prefix+'.plotcal.fluxscale.amp.saved')
 plotcal()
 
 xaxis = 'time'
 yaxis = 'phase'
 figfile = caltable + '.plot.phase.png'
-print "Plotting calibration to file "+figfile
+print("Plotting calibration to file "+figfile)
 saveinputs('plotcal',prefix+'.plotcal.fluxscale.phase.saved')
 plotcal()
 
 xaxis = 'antenna'
 yaxis = 'amp'
 figfile = caltable + '.plot.antamp.png'
-print "Plotting calibration to file "+figfile
+print("Plotting calibration to file "+figfile)
 saveinputs('plotcal',prefix+'.plotcal.fluxscale.antamp.saved')
 plotcal()
 
@@ -721,12 +721,12 @@ if ( setpolmodel and polcalmode.count('X') > 0 ):
     #
     # Now run setjy to (re)set model for polxfield
     #
-    print '--Setjy--'
+    print('--Setjy--')
     default('setjy')
 
     vis = msfile
     
-    print "Use setjy to set IQU fluxes of "+polxfield
+    print("Use setjy to set IQU fluxes of "+polxfield)
     field = polxfield
 
     for spw in usespwlist:
@@ -740,10 +740,10 @@ if ( setpolmodel and polcalmode.count('X') > 0 ):
 #
 # Polarization (D-term) calibration
 #
-print '--PolCal--'
+print('--PolCal--')
 default('polcal')
 
-print "Polarization D-term Calibration (linear approx) on "+polcalfield
+print("Polarization D-term Calibration (linear approx) on "+polcalfield)
 
 vis = msfile
 
@@ -790,11 +790,11 @@ polcal()
 #
 # List polcal solutions
 #
-print '--Listcal--'
+print('--Listcal--')
 
 listfile = caltable + '.list'
 
-print "Listing calibration to file "+listfile
+print("Listing calibration to file "+listfile)
 
 listcal()
 
@@ -802,7 +802,7 @@ listcal()
 #
 # Plot polcal solutions
 #
-print '--Plotcal--'
+print('--Plotcal--')
 
 iteration = ''
 showgui = False
@@ -810,28 +810,28 @@ showgui = False
 xaxis = 'real'
 yaxis = 'imag'
 figfile = caltable + '.plot.reim.png'
-print "Plotting calibration to file "+figfile
+print("Plotting calibration to file "+figfile)
 saveinputs('plotcal',prefix+'.plotcal.polcal.d.reim.saved')
 plotcal()
 
 xaxis = 'antenna'
 yaxis = 'amp'
 figfile = caltable + '.plot.antamp.png'
-print "Plotting calibration to file "+figfile
+print("Plotting calibration to file "+figfile)
 saveinputs('plotcal',prefix+'.plotcal.polcal.d.antamp.saved')
 plotcal()
 
 xaxis = 'antenna'
 yaxis = 'phase'
 figfile = caltable + '.plot.antphase.png'
-print "Plotting calibration to file "+figfile
+print("Plotting calibration to file "+figfile)
 saveinputs('plotcal',prefix+'.plotcal.polcal.d.antphase.saved')
 plotcal()
 
 xaxis = 'antenna'
 yaxis = 'snr'
 figfile = caltable + '.plot.antsnr.png'
-print "Plotting calibration to file "+figfile
+print("Plotting calibration to file "+figfile)
 saveinputs('plotcal',prefix+'.plotcal.polcal.d.antsnr.saved')
 plotcal()
 
@@ -840,7 +840,7 @@ plotcal()
 #=====================================================================
 #
 dopolx = False
-if ( pcalmodel.has_key(polxfield) ):
+if ( polxfield in pcalmodel ):
     dopolx = True
 
     if ( setpolmodel and not polcalmode.count('X') > 0 ):
@@ -850,12 +850,12 @@ if ( pcalmodel.has_key(polxfield) ):
         # Now run setjy if we havent already
         #
     
-        print '--Setjy--'
+        print('--Setjy--')
         default('setjy')
         
         vis = msfile
         
-        print "Use setjy to set IQU fluxes of "+polxfield
+        print("Use setjy to set IQU fluxes of "+polxfield)
         field = polxfield
         
         for spw in usespwlist:
@@ -870,10 +870,10 @@ if ( pcalmodel.has_key(polxfield) ):
     #
     # Polarization (X-term) calibration
     #
-    print '--PolCal--'
+    print('--PolCal--')
     default('polcal')
     
-    print "Polarization R-L Phase Calibration (linear approx)"
+    print("Polarization R-L Phase Calibration (linear approx)")
     
     vis = msfile
     
@@ -930,7 +930,7 @@ if ( pcalmodel.has_key(polxfield) ):
     #
     # Plot polcal solutions
     #
-    print '--Plotcal--'
+    print('--Plotcal--')
     
     xaxis = 'antenna'
     yaxis = 'phase'
@@ -939,14 +939,14 @@ if ( pcalmodel.has_key(polxfield) ):
     showgui = False
     figfile = caltable + '.plot.png'
     
-    print "Plotting calibration to file "+figfile
+    print("Plotting calibration to file "+figfile)
     saveinputs('plotcal',prefix+'.plotcal.polcal.x.antphase.saved')
     plotcal()
 
 else:
     if (polxfield != '' and not polxfield.isspace() ):
-        print "DO NOT HAVE PCALMODEL FOR "+polxfield
-        print "PCALMODEL = ",pcalmodel
+        print("DO NOT HAVE PCALMODEL FOR "+polxfield)
+        print("PCALMODEL = ",pcalmodel)
 
 
 #=====================================================================
@@ -956,11 +956,11 @@ else:
 #
 # First using gaincalfield
 #
-print '--ApplyCal--'
+print('--ApplyCal--')
 default('applycal')
 
-print "This will apply the calibration to the DATA"
-print "Fills CORRECTED_DATA"
+print("This will apply the calibration to the DATA")
+print("Fills CORRECTED_DATA")
 
 vis = msfile
 
@@ -984,7 +984,7 @@ parang = True
 # use the list of gain calibrators, apply to themselves
 field = fieldgain
 gainselect = field
-print "Applying calibration to gain calibrators "+field
+print("Applying calibration to gain calibrators "+field)
 
 saveinputs('applycal',prefix+'.applycal.saved')
 applycal()
@@ -995,7 +995,7 @@ if ( len(targets) > 0 ):
     #
     # Assemble field string from target list
     field = fieldtargets
-    print "Applying calibration to targets "+field
+    print("Applying calibration to targets "+field)
     
     saveinputs('applycal',prefix+'.applycal.targets.saved')
     applycal()
@@ -1005,7 +1005,7 @@ if ( len(targets) > 0 ):
 #
 # Now write out the corrected data
 #
-print '--Split--'
+print('--Split--')
 default('split')
 
 vis = msfile
@@ -1025,7 +1025,7 @@ spw = ''
 # pick off the CORRECTED_DATA column
 datacolumn = 'corrected'
 
-print "Split CORRECTED_DATA into DATA in new ms "+srcsplitms
+print("Split CORRECTED_DATA into DATA in new ms "+srcsplitms)
 
 saveinputs('split',prefix+'.split.saved')
 split()
@@ -1035,7 +1035,7 @@ split()
 #
 # Plot up the visibilities for the main calibrators
 #
-print '--Plotxy--'
+print('--Plotxy--')
 default('plotxy')
 
 vis = srcsplitms
@@ -1094,7 +1094,7 @@ for src in srclist:
     
     for spwid in usespwlist:
 
-        print '-- Clean '+src+' spw '+spwid+' --'
+        print('-- Clean '+src+' spw '+spwid+' --')
         default('clean')
     
         field = src
@@ -1107,7 +1107,7 @@ for src in srclist:
         imname1 = prefix + '.' + src + '.' + spwid + '.clean'
         imagename = imname1
         
-        print "  Output images will be prefixed with "+imname1
+        print("  Output images will be prefixed with "+imname1)
         
         # Set up the output continuum image (single plane mfs)
         mode = 'mfs'
@@ -1298,23 +1298,23 @@ for src in srclist:
 # Report Final Stats
 #=====================================================================
 #
-print 'Results for '+prefix+' :'
-print ""
+print('Results for '+prefix+' :')
+print("")
 
 import datetime
 datestring=datetime.datetime.isoformat(datetime.datetime.today())
 
 outfile = 'out.'+prefix+'.'+datestring+'.log'
 logfile=open(outfile,'w')
-print >>logfile,'Results for '+prefix+' :'
-print >>logfile,""
+print('Results for '+prefix+' :', file=logfile)
+print("", file=logfile)
 
-if ( polmodel.has_key(polxfield) ):
+if ( polxfield in polmodel ):
     # Check RL phase offset on X calibrator
-    print "R-L phase residual from image of "+polxfield
-    print ""
-    print >>logfile,"R-L phase residual from image of "+polxfield+" :"
-    print >>logfile,""
+    print("R-L phase residual from image of "+polxfield)
+    print("")
+    print("R-L phase residual from image of "+polxfield+" :", file=logfile)
+    print("", file=logfile)
     
     src = polxfield
     rlcor = {}
@@ -1331,8 +1331,8 @@ if ( polmodel.has_key(polxfield) ):
         rlcor[spwid] = rlpcor
         rlpcor_deg = rlpcor*180.0/pl.pi
         
-        print "R-L Phase Correction SPW "+spwid+" = %7.2f deg" % rlpcor_deg
-        print >>logfile,"R-L Phase Correction SPW "+spwid+" = %7.2f deg" % rlpcor_deg
+        print("R-L Phase Correction SPW "+spwid+" = %7.2f deg" % rlpcor_deg)
+        print("R-L Phase Correction SPW "+spwid+" = %7.2f deg" % rlpcor_deg, file=logfile)
     
 
 #
@@ -1340,18 +1340,18 @@ if ( polmodel.has_key(polxfield) ):
 #
 # Loop over sources and spw
 #
-print ""
-print "Final Stats:"
-print ""
+print("")
+print("Final Stats:")
+print("")
 
-print >>logfile,""
-print >>logfile,"Final Stats:"
-print >>logfile,""
+print("", file=logfile)
+print("Final Stats:", file=logfile)
+print("", file=logfile)
 
 for src in srclist:
 
-    print "Source "+src+" :"
-    print >>logfile,"Source "+src+" :"
+    print("Source "+src+" :")
+    print("Source "+src+" :", file=logfile)
 
     for spwid in usespwlist:
 
@@ -1373,10 +1373,10 @@ for src in srclist:
         rlpd_deg = rlpd*180.0/pl.pi
 
         #print '  spw %s CASA I = %7.3f Q = %7.3f U = %7.3f V = %7.3f ' % (spwid,ipol,qpol,upol,vpol)
-        print '  spw %s CASA I = %7.3f P = %7.3f F = %7.4f X = %7.2f deg' % (spwid,ipol,ppol,fpol,rlpd_deg)
-        print >>logfile,'  spw %s CASA I = %7.3f P = %7.3f F = %7.4f X = %7.2f deg' % (spwid,ipol,ppol,fpol,rlpd_deg)
+        print('  spw %s CASA I = %7.3f P = %7.3f F = %7.4f X = %7.2f deg' % (spwid,ipol,ppol,fpol,rlpd_deg))
+        print('  spw %s CASA I = %7.3f P = %7.3f F = %7.4f X = %7.2f deg' % (spwid,ipol,ppol,fpol,rlpd_deg), file=logfile)
 
-        if (aipsmodel.has_key(src)):
+        if (src in aipsmodel):
             iflx = aipsmodel[src][spwid][0]/1000.0
             fflx = aipsmodel[src][spwid][1]
             rlaips_deg = aipsmodel[src][spwid][2]
@@ -1387,13 +1387,13 @@ for src in srclist:
             uflx = pflx*sin(rlaips)
             vflx = 0.0
             
-            print '  spw %s AIPS I = %7.3f P = %7.3f F = %7.4f X = %7.2f deg' % (spwid,iflx,pflx,fflx,rlaips_deg)
-            print >>logfile,'  spw %s AIPS I = %7.3f P = %7.3f F = %7.4f X = %7.2f deg' % (spwid,iflx,pflx,fflx,rlaips_deg)
+            print('  spw %s AIPS I = %7.3f P = %7.3f F = %7.4f X = %7.2f deg' % (spwid,iflx,pflx,fflx,rlaips_deg))
+            print('  spw %s AIPS I = %7.3f P = %7.3f F = %7.4f X = %7.2f deg' % (spwid,iflx,pflx,fflx,rlaips_deg), file=logfile)
     
     
     # Done with spw
-    print ""
-    print >>logfile,""
+    print("")
+    print("", file=logfile)
 
 # Should see something like:
 #
@@ -1445,7 +1445,7 @@ for src in srclist:
 # Done
 #
 logfile.close()
-print "Results are in "+outfile
+print("Results are in "+outfile)
 
 #
 #=====================================================================
@@ -1458,10 +1458,10 @@ p.dump(clnmodel)
 p.dump(polmodel)
 f.close()
 
-print ""
-print "Dictionaries clnmodel,polmodel saved in "+pickfile
-print "Use Pickle to retrieve"
-print ""
+print("")
+print("Dictionaries clnmodel,polmodel saved in "+pickfile)
+print("Use Pickle to retrieve")
+print("")
 
 # e.g.
 # f = open(pickfile)
@@ -1470,5 +1470,5 @@ print ""
 # polmodel = u.load()
 # f.close()
 
-print ""
-print "Completed Processing"
+print("")
+print("Completed Processing")

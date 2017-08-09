@@ -113,7 +113,7 @@ class sdplot_worker(sdutil.sdtask_template):
                      "p": "pol", "b": "beam", "r": ""}
         colorby = colbydict[self.stack[0].lower()]
         if colorby == "":
-            raise ValueError, ("stack mode = '%s' is not supported by plottype='%s'" % (self.stack, self.plottype))
+            raise ValueError("stack mode = '%s' is not supported by plottype='%s'" % (self.stack, self.plottype))
         sd.plotter.plottp(self.scan, colorby)
 
         self.__print_header(asaplot=False)
@@ -132,7 +132,7 @@ class sdplot_worker(sdutil.sdtask_template):
 
         if self.scan.nchan()==1:
             errmsg="Trying to plot the continuum/total power data in 'spectra' mode, please use other plottype options" 
-            raise Exception,errmsg
+            raise Exception(errmsg)
 
         # Smooth the spectrum (if desired)
         self.__dosmooth()
@@ -156,7 +156,7 @@ class sdplot_worker(sdutil.sdtask_template):
         asaplot=True
         if self.scan.nchan()==1:
             errmsg="Trying to plot the continuum/total power data in 'spectra' mode, please use other plottype options" 
-            raise Exception,errmsg
+            raise Exception(errmsg)
 
         # Smooth the spectrum (if desired)
         self.__dosmooth()

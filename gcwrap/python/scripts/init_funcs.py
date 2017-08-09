@@ -8,12 +8,12 @@ def selectfield(vis,minstring):
 	stringlist=list()
 
         fldlist=minstring.split()#split string into elements
-	print 'fldlist is ',fldlist
+	print('fldlist is ',fldlist)
         for fld in fldlist:     #loop over fields
                 _iter=fields.__iter__() #create iterator for fieldnames
                 while 1:
                         try:
-                                x=_iter.next() # has first value of field name
+                                x=next(_iter) # has first value of field name
                         except StopIteration:
                                 break
                         #
@@ -21,7 +21,7 @@ def selectfield(vis,minstring):
 				indexlist.append(fields.index(x))
 				stringlist.append(x)
 
-	print 'Selected fields are: ',stringlist
+	print('Selected fields are: ',stringlist)
         return indexlist
 
 def selectantenna(vis,minstring):
@@ -42,8 +42,8 @@ def selectantenna(vis,minstring):
                 except ValueError:
                         pass
 
-	print 'Selected reference antenna: ',stringlist
-	print 'indexlist: ',indexlist
+	print('Selected reference antenna: ',stringlist)
+	print('indexlist: ',indexlist)
         return indexlist[0]
 
 def readboxfile(boxfile):
@@ -120,6 +120,6 @@ def xmlpath( ):
 		elif os.path.exists(__casapath__ + "/xml"):
 			xmlpath.path = __casapath__ + "/xml"
 		else:
-			raise RuntimeError, "Unable to find the XML constraints directory in your CASAPATH"
+			raise RuntimeError("Unable to find the XML constraints directory in your CASAPATH")
 		
 	return xmlpath.path

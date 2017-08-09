@@ -43,14 +43,14 @@ class importnro_test(unittest.TestCase):
     def test_overwrite(self):
         """test_overwrite: File existence check"""
         shutil.copy(self.infile, self.outfile)
-        with self.assertRaisesRegexp(RuntimeError, '.* exists\.$') as cm:
+        with self.assertRaisesRegex(RuntimeError, '.* exists\.$') as cm:
             importnro(infile=self.infile, outputvis=self.outfile, overwrite=False)
     
     def test_invaliddata(self):
         """test_invaliddata: Invalid data check"""
         with open(self.infile, 'wb') as f: f.write('AA')
         #os.remove(os.path.join(self.infile, 'table.info'))
-        with self.assertRaisesRegexp(RuntimeError, '.* is not a valid NOSTAR data\.$') as cm:
+        with self.assertRaisesRegex(RuntimeError, '.* is not a valid NOSTAR data\.$') as cm:
             importnro(infile=self.infile, outputvis=self.outfile, overwrite=False)
     
     def test_normal(self):
@@ -62,8 +62,8 @@ class importnro_test(unittest.TestCase):
             myms.open(self.outfile)
             myms.close()
             
-        except Exception, e:
-            print e
+        except Exception as e:
+            print(e)
             self.fail('outputvis is not a valid ms')
         
         # check weight initialization
@@ -80,13 +80,13 @@ class importnro_test(unittest.TestCase):
             
             _tb.open(os.path.join(vis, 'SPECTRAL_WINDOW'))
             nrow = _tb.nrows()
-            g = (numpy.mean(_tb.getcell('EFFECTIVE_BW', irow)) for irow in xrange(nrow))
+            g = (numpy.mean(_tb.getcell('EFFECTIVE_BW', irow)) for irow in range(nrow))
             effbws = numpy.fromiter(g, dtype=float)
             _tb.close()
             
             _tb.open(vis)
             nrow = _tb.nrows()
-            for irow in xrange(nrow):
+            for irow in range(nrow):
                 weight = _tb.getcell('WEIGHT', irow)
                 sigma = _tb.getcell('SIGMA', irow)
                 interval = _tb.getcell('INTERVAL', irow)

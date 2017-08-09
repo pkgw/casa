@@ -13,7 +13,7 @@ import string
 from casa_stack_manip import stack_frame_find
 
 try:
-    import selection_syntax
+    from . import selection_syntax
 except:
     import tests.selection_syntax as selection_syntax
 
@@ -100,7 +100,7 @@ class sdcalold_caltest_base(sdcalold_unittest_base):
 
         self._checkshape( sp, spref )
         
-        for irow in xrange(sp.shape[0]):
+        for irow in range(sp.shape[0]):
             diff=self._diff(sp[irow],spref[irow])
             retval=numpy.all(diff<0.01)
             maxdiff=diff.max()
@@ -142,7 +142,7 @@ class sdcalold_edgemarker_base(sdcalold_unittest_base):
         self.assertEqual( 2*noff, dir.shape[1], # refdata store only POLNO==0
                           msg='number of OFF differ: %s (should be %s)'%(dir.shape[1],2*noff) )
 
-        for irow in xrange(2*noff):
+        for irow in range(2*noff):
             idx = int(irow) / 2
             diff = self._diff( dir[:,irow], refdata[:,idx] )
             self.assertEqual( numpy.all(diff<0.01), True,
@@ -193,7 +193,7 @@ class sdcalold_test0(sdcalold_unittest_base,unittest.TestCase):
             self.res=sdcalold(infile=self.rawfile,outfile=outfile,overwrite=False)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('Output file \'%s\' exists.'%(outfile))
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
@@ -969,13 +969,13 @@ class sdcalold_test_selection(selection_syntax.SelectionSyntaxTest,
         sout = sd.scantable(name,average=False)
         nrow = sout.nrow()
         if len(ref_idx) == 0:
-            ref_idx = range(nrow)
+            ref_idx = list(range(nrow))
 
         self.assertEqual(nrow,len(ref_idx),"The rows in output table differs from the expected value.")
         for irow in range(nrow):
             y = sout._getspectrum(irow)
             nchan = len(y)
-            x = numpy.array( range(nchan) )
+            x = numpy.array( list(range(nchan)) )
             # analytic solution
             coeff = ref_bl[ ref_idx[irow] ]
             yana = self._create_ploynomial_array(coeff, x)
@@ -1125,7 +1125,7 @@ class sdcalold_testFlagPSALMA(sdcalold_caltest_base,unittest.TestCase):
 
         self._checkshape( sp, spref )
         
-        for irow in xrange(sp.shape[0]):
+        for irow in range(sp.shape[0]):
             diff=self._diff(sp[irow],spref[irow])
             retval=numpy.all(diff<0.01)
             maxdiff=diff.max()
@@ -1137,7 +1137,7 @@ class sdcalold_testFlagPSALMA(sdcalold_caltest_base,unittest.TestCase):
         cfref,rfref = self._getflags(reffile)
         self._checkshape(cfout, cfref)
         self.assertTrue(len(rfout)==len(rfref))
-        for irow in xrange(cfout.shape[0]):
+        for irow in range(cfout.shape[0]):
             self.assertTrue((cfout[irow]==cfref[irow]).all())
             self.assertTrue((rfout==rfref).all())
 

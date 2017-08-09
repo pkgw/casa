@@ -21,7 +21,7 @@ def initweights(vis=None,wtmode=None,tsystable=None,gainfield=None,interp=None,s
         if ((type(vis)==str) & (os.path.exists(vis))):
             if wtmode.upper().find("TSYS") > -1:
                 if not os.path.exists(tsystable):
-                    raise Exception, 'Tsys calibration table %s not found' % tsystable
+                    raise Exception('Tsys calibration table %s not found' % tsystable)
                 if len(spwmap)==0:
                     spwmap=[-1]
                 if interp=="":
@@ -32,7 +32,7 @@ def initweights(vis=None,wtmode=None,tsystable=None,gainfield=None,interp=None,s
             mycb.initweights(wtmode=wtmode,dowtsp=dowtsp,tsystable=tsystable,gainfield=gainfield,interp=interp,spwmap=spwmap)
             mycb.close()
         else:
-            raise Exception, 'Visibility data set not found - please verify the name'
+            raise Exception('Visibility data set not found - please verify the name')
 
         #write history
         ms.open(vis,nomodify=False)
@@ -42,5 +42,5 @@ def initweights(vis=None,wtmode=None,tsystable=None,gainfield=None,interp=None,s
         ms.writehistory(message='dowtsp      = "'+str(dowtsp)+'"',origin='initweights')
         ms.close()
 
-    except Exception, instance:
-        print '*** Error ***',instance
+    except Exception as instance:
+        print('*** Error ***',instance)

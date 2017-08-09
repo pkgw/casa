@@ -11,7 +11,7 @@ import unittest
 import numpy
 
 try:
-    import selection_syntax
+    from . import selection_syntax
 except:
     import tests.selection_syntax as selection_syntax
 
@@ -91,11 +91,11 @@ class sdaverageold_smoothtest_base(sdaverageold_unittest_base):
         return retdic
 
     def _compareDictVal(self,testdict, refdict,places=4):
-        for stat, refval in refdict.iteritems():
-            self.assertTrue(testdict.has_key(stat),
+        for stat, refval in refdict.items():
+            self.assertTrue(stat in testdict,
                             msg = "'%s' is not defined in the current run" % stat)
-            print "Comparing '%s': %f (current run), %f (reference)" % \
-                  (stat,testdict[stat],refval)
+            print("Comparing '%s': %f (current run), %f (reference)" % \
+                  (stat,testdict[stat],refval))
             self.assertAlmostEqual(testdict[stat],refval,places=places)
 
 
@@ -204,7 +204,7 @@ class sdaverageold_avetest_base(sdaverageold_unittest_base):
                           msg='SCANNO is wrong' )
         del s
         
-        for irow in xrange(sp.shape[0]):
+        for irow in range(sp.shape[0]):
             diff=self._diff(sp[irow],sp0[irow])
             retval=numpy.all(diff<0.01)
             self.assertEqual( retval, True,
@@ -243,7 +243,7 @@ class sdaverageold_badinputs(sdaverageold_unittest_base,unittest.TestCase):
         try:
             res = sdaverageold()
             self.fail("The task must throw exception.")
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find("Neither averaging nor smoothing parameter is set.")
 
     def testBad_kernel(self):
@@ -265,7 +265,7 @@ class sdaverageold_badinputs(sdaverageold_unittest_base,unittest.TestCase):
                            kernel=kernel,chanwidth=chanwidth)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('Invalid quantity chanwidth 5bad')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
@@ -279,7 +279,7 @@ class sdaverageold_badinputs(sdaverageold_unittest_base,unittest.TestCase):
                                 outfile=outfile,overwrite=False)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('Output file \'%s\' exists.'%(outfile))
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
@@ -435,7 +435,7 @@ class sdaverageold_smoothTest(sdaverageold_smoothtest_base,unittest.TestCase):
         outfile = self.outroot+tid+'.asap'
 
         # the fist run with hanning smooth
-        print "The 1st run of sdaverageold (hanning smooth)"
+        print("The 1st run of sdaverageold (hanning smooth)")
         result1 =sdaverageold(infile=self.infile,kernel='hanning',outfile=outfile)
         self.assertEqual(result1,None,
                          msg="The task returned '"+str(result1)+"' instead of None for the 1st run")
@@ -445,7 +445,7 @@ class sdaverageold_smoothTest(sdaverageold_smoothtest_base,unittest.TestCase):
         # overwrite 'outfile'
         # the second run with kernel = 'gaussian'
         kernel = 'gaussian'
-        print "The 2nd run of sdaverageold (OVERWRITE with Gaussian smooth)"
+        print("The 2nd run of sdaverageold (OVERWRITE with Gaussian smooth)")
         result2 =sdaverageold(infile=self.infile,outfile=outfile,
                           kernel=kernel,overwrite=True)
         self.assertEqual(result2,None,
@@ -857,8 +857,8 @@ class sdaverageold_storageTest( sdaverageold_smoothtest_base, unittest.TestCase 
 
         sd.rcParams['scantable.storage'] = 'memory'
         sd.rcParams['insitu'] = True
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
 
         initval = self._getStats(self.infile)
         result =sdaverageold(infile=self.infile,outfile=outfile,
@@ -866,11 +866,11 @@ class sdaverageold_storageTest( sdaverageold_smoothtest_base, unittest.TestCase 
         self.assertEqual(result,None,
                          msg="The task returned '"+str(result)+"' instead of None")
         # Test input data
-        print "Comparing INPUT statistics before/after smoothing"
+        print("Comparing INPUT statistics before/after smoothing")
         newinval = self._getStats(self.infile)
         self._compareDictVal(newinval, initval)
         # Test output data
-        print "Testing OUTPUT statistics"
+        print("Testing OUTPUT statistics")
         testval = self._getStats(outfile)
         self._compareDictVal(testval, self.smrefdic)
 
@@ -883,8 +883,8 @@ class sdaverageold_storageTest( sdaverageold_smoothtest_base, unittest.TestCase 
 
         sd.rcParams['scantable.storage'] = 'memory'
         sd.rcParams['insitu'] = False
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
 
         initval = self._getStats(self.infile)
         result =sdaverageold(infile=self.infile,outfile=outfile,
@@ -892,11 +892,11 @@ class sdaverageold_storageTest( sdaverageold_smoothtest_base, unittest.TestCase 
         self.assertEqual(result,None,
                          msg="The task returned '"+str(result)+"' instead of None")
         # Test input data
-        print "Comparing INPUT statistics before/after smoothing"
+        print("Comparing INPUT statistics before/after smoothing")
         newinval = self._getStats(self.infile)
         self._compareDictVal(newinval, initval)
         # Test output data
-        print "Testing OUTPUT statistics"
+        print("Testing OUTPUT statistics")
         testval = self._getStats(outfile)
         self._compareDictVal(testval, self.smrefdic)
 
@@ -909,8 +909,8 @@ class sdaverageold_storageTest( sdaverageold_smoothtest_base, unittest.TestCase 
 
         sd.rcParams['scantable.storage'] = 'disk'
         sd.rcParams['insitu'] = True
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
 
         initval = self._getStats(self.infile)
         result =sdaverageold(infile=self.infile,outfile=outfile,
@@ -918,11 +918,11 @@ class sdaverageold_storageTest( sdaverageold_smoothtest_base, unittest.TestCase 
         self.assertEqual(result,None,
                          msg="The task returned '"+str(result)+"' instead of None")
         # Test input data
-        print "Comparing INPUT statistics before/after smoothing"
+        print("Comparing INPUT statistics before/after smoothing")
         newinval = self._getStats(self.infile)
         self._compareDictVal(newinval, initval)
         # Test output data
-        print "Testing OUTPUT statistics"
+        print("Testing OUTPUT statistics")
         testval = self._getStats(outfile)
         self._compareDictVal(testval, self.smrefdic)
 
@@ -935,8 +935,8 @@ class sdaverageold_storageTest( sdaverageold_smoothtest_base, unittest.TestCase 
 
         sd.rcParams['scantable.storage'] = 'disk'
         sd.rcParams['insitu'] = False
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
 
         initval = self._getStats(self.infile)
         result =sdaverageold(infile=self.infile,outfile=outfile,
@@ -944,11 +944,11 @@ class sdaverageold_storageTest( sdaverageold_smoothtest_base, unittest.TestCase 
         self.assertEqual(result,None,
                          msg="The task returned '"+str(result)+"' instead of None")
         # Test input data
-        print "Comparing INPUT statistics before/after smoothing"
+        print("Comparing INPUT statistics before/after smoothing")
         newinval = self._getStats(self.infile)
         self._compareDictVal(newinval, initval)
         # Test output data
-        print "Testing OUTPUT statistics"
+        print("Testing OUTPUT statistics")
         testval = self._getStats(outfile)
         self._compareDictVal(testval, self.smrefdic)
 
@@ -974,8 +974,8 @@ class sdaverageold_storageTest( sdaverageold_smoothtest_base, unittest.TestCase 
 
         sd.rcParams['scantable.storage'] = 'memory'
         sd.rcParams['insitu'] = True
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
 
         initval = self._getStats(self.infile,self.linechan,self.basechan)
         result =sdaverageold(infile=self.infile,outfile=outfile,
@@ -983,11 +983,11 @@ class sdaverageold_storageTest( sdaverageold_smoothtest_base, unittest.TestCase 
         self.assertEqual(result,None,
                          msg="The task returned '"+str(result)+"' instead of None")
         # Test input data
-        print "Comparing INPUT statistics before/after smoothing"
+        print("Comparing INPUT statistics before/after smoothing")
         newinval = self._getStats(self.infile,self.linechan,self.basechan)
         self._compareDictVal(newinval, initval)
         # Test output data
-        print "Testing OUTPUT statistics"
+        print("Testing OUTPUT statistics")
         testval = self._getStats(outfile,self.reglinech,self.regbasech)
         self._compareDictVal(testval, self.rgrefdic)
         # spectral coordinate check
@@ -1026,8 +1026,8 @@ class sdaverageold_storageTest( sdaverageold_smoothtest_base, unittest.TestCase 
 
         sd.rcParams['scantable.storage'] = 'memory'
         sd.rcParams['insitu'] = False
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
 
         initval = self._getStats(self.infile,self.linechan,self.basechan)
         result =sdaverageold(infile=self.infile,outfile=outfile,
@@ -1035,11 +1035,11 @@ class sdaverageold_storageTest( sdaverageold_smoothtest_base, unittest.TestCase 
         self.assertEqual(result,None,
                          msg="The task returned '"+str(result)+"' instead of None")
         # Test input data
-        print "Comparing INPUT statistics before/after smoothing"
+        print("Comparing INPUT statistics before/after smoothing")
         newinval = self._getStats(self.infile,self.linechan,self.basechan)
         self._compareDictVal(newinval, initval)
         # Test output data
-        print "Testing OUTPUT statistics"
+        print("Testing OUTPUT statistics")
         testval = self._getStats(outfile,self.reglinech,self.regbasech)
         self._compareDictVal(testval, self.rgrefdic)
         # spectral coordinate check
@@ -1078,8 +1078,8 @@ class sdaverageold_storageTest( sdaverageold_smoothtest_base, unittest.TestCase 
 
         sd.rcParams['scantable.storage'] = 'disk'
         sd.rcParams['insitu'] = True
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
 
         initval = self._getStats(self.infile,self.linechan,self.basechan)
         result =sdaverageold(infile=self.infile,outfile=outfile,
@@ -1087,11 +1087,11 @@ class sdaverageold_storageTest( sdaverageold_smoothtest_base, unittest.TestCase 
         self.assertEqual(result,None,
                          msg="The task returned '"+str(result)+"' instead of None")
         # Test input data
-        print "Comparing INPUT statistics before/after smoothing"
+        print("Comparing INPUT statistics before/after smoothing")
         newinval = self._getStats(self.infile,self.linechan,self.basechan)
         self._compareDictVal(newinval, initval)
         # Test output data
-        print "Testing OUTPUT statistics"
+        print("Testing OUTPUT statistics")
         testval = self._getStats(outfile,self.reglinech,self.regbasech)
         self._compareDictVal(testval, self.rgrefdic)
         # spectral coordinate check
@@ -1130,8 +1130,8 @@ class sdaverageold_storageTest( sdaverageold_smoothtest_base, unittest.TestCase 
 
         sd.rcParams['scantable.storage'] = 'disk'
         sd.rcParams['insitu'] = False
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
 
         initval = self._getStats(self.infile,self.linechan,self.basechan)
         result =sdaverageold(infile=self.infile,outfile=outfile,
@@ -1139,11 +1139,11 @@ class sdaverageold_storageTest( sdaverageold_smoothtest_base, unittest.TestCase 
         self.assertEqual(result,None,
                          msg="The task returned '"+str(result)+"' instead of None")
         # Test input data
-        print "Comparing INPUT statistics before/after smoothing"
+        print("Comparing INPUT statistics before/after smoothing")
         newinval = self._getStats(self.infile,self.linechan,self.basechan)
         self._compareDictVal(newinval, initval)
         # Test output data
-        print "Testing OUTPUT statistics"
+        print("Testing OUTPUT statistics")
         testval = self._getStats(outfile,self.reglinech,self.regbasech)
         self._compareDictVal(testval, self.rgrefdic)
         # spectral coordinate check
@@ -1472,7 +1472,7 @@ class sdaverageold_test9(sdaverageold_avetest_base,unittest.TestCase):
         redge=[rvin[2]+ic[0]*(8191-rpin[2]+0.5),
                rvin[0]+ic[1]*(8191-rpin[0]+0.5)]
         eps = 1.0e-15
-        for i in xrange(2):
+        for i in range(2):
             self.assertEqual(ic[i],icout[i],
                              msg='INCREMENT for FREQ_ID=%s differ'%(i))
             fmin=rvout[i]-icout[i]*(rpout[i]+0.5)
@@ -1538,7 +1538,7 @@ class sdaverageold_test_flag(sdaverageold_avetest_base,unittest.TestCase):
             data = sdstatold(infile=data)
         elif type(data)!=dict:
             self.fail(msg="Internal Error: invalid data given to calculate statistics.")
-        for key, refvals in refstat.items():
+        for key, refvals in list(refstat.items()):
             refvals = self._to_list(refvals)
             testvals = self._to_list(data[key])
             for idx in range(len(refvals)):
@@ -2037,12 +2037,12 @@ class sdaverageold_avetest_selection(selection_syntax.SelectionSyntaxTest,
         sout = sd.scantable(name,average=False)
         nrow = sout.nrow()
         if len(ref_idx) == 0:
-            ref_idx = range(nrow)
+            ref_idx = list(range(nrow))
 
         self.assertEqual(nrow,len(ref_idx),"The rows in output table differs from the expected value.")
         for irow in range(nrow):
             y = sout._getspectrum(irow)
-            x = numpy.array( range(len(y)) )
+            x = numpy.array( list(range(len(y))) )
             # analytic solution
             coeff = ref_data[ ref_idx[irow] ]
             yana = self._create_ploynomial_array(coeff, x)
@@ -2380,7 +2380,7 @@ class sdaverageold_smoothtest_selection(selection_syntax.SelectionSyntaxTest,
         sout = sd.scantable(name,average=False)
         nrow = sout.nrow()
         if len(ref_idx) == 0:
-            ref_idx = range(nrow)
+            ref_idx = list(range(nrow))
 
         self.assertEqual(nrow,len(ref_idx),"The rows in output table differs from the expected value.")
         for irow in range(nrow):
@@ -2586,19 +2586,19 @@ class sdaverageold_test_average_flag(unittest.TestCase):
         # verify FLAGTRA
         def gen_averaged_channelflag(rflag, chflag):
             nchan, nrow = chflag.shape
-            for ichan in xrange(nchan):
+            for ichan in range(nchan):
                 yield 0 if any(rflag + chflag[ichan] == 0) else 128
         flagtra_expected = numpy.array(list(gen_averaged_channelflag(flagrow_org, flagtra_org)))
-        for ichan in xrange(nchan):
+        for ichan in range(nchan):
             self._assert_equal(flagtra_expected[ichan], flagtra[ichan], 'FLAGTRA', row=0, channel=ichan)
         
         # verify SPECTRA
         def gen_averaged_spectra(rflag, chflag, data, weight):
             nchan, nrow = data.shape
-            for ichan in xrange(nchan):
+            for ichan in range(nchan):
                 dsum = 0.0
                 wsum = 0.0
-                for irow in xrange(nrow):
+                for irow in range(nrow):
                     if rflag[irow] == 0 and chflag[ichan,irow] == 0:
                         dsum += weight[irow] * data[ichan,irow]
                         wsum += weight[irow]
@@ -2611,7 +2611,7 @@ class sdaverageold_test_average_flag(unittest.TestCase):
                                                                  spectra_org,
                                                                  interval_org)))
         tol = 1.0e-7
-        for ichan in xrange(nchan):
+        for ichan in range(nchan):
             if flagtra[ichan] == 0:
                 sp = spectra[ichan]
                 ex = spectra_expected[ichan]
@@ -2619,7 +2619,7 @@ class sdaverageold_test_average_flag(unittest.TestCase):
                 #print ichan, diff
                 self._assert_less(diff, tol, 'SPECTRA', row=0, channel=ichan)
             else:
-                print 'Skip channel %s since it is flagged'%(ichan)
+                print('Skip channel %s since it is flagged'%(ichan))
 
     def _verify_smooth(self, outfile):
         flagrow_org, flagtra_org, spectra_org = self._get_data(self.rawfile)
@@ -2631,7 +2631,7 @@ class sdaverageold_test_average_flag(unittest.TestCase):
 
         nchan, nrow = spectra.shape
 
-        for irow in xrange(nrow):
+        for irow in range(nrow):
             # FLAGROW should not be modified
             rflag_ref = flagrow_org[irow]
             rflag = flagrow[irow]
@@ -2640,7 +2640,7 @@ class sdaverageold_test_average_flag(unittest.TestCase):
             # FLAGTRA should not be modified
             flag_ref = flagtra[:,irow]
             flag = flagtra[:,irow]
-            for ichan in xrange(nchan):
+            for ichan in range(nchan):
                 self._assert_equal(flag_ref[ichan], flag[ichan], 'FLAGTRA', row=irow, channel=ichan)
 
             # verify SPECTRA
@@ -2648,7 +2648,7 @@ class sdaverageold_test_average_flag(unittest.TestCase):
             sp = spectra[:,irow]
             if rflag != 0:
                 # flagged row should not be processed
-                for ichan in xrange(nchan):
+                for ichan in range(nchan):
                     self._assert_equal(sp_ref[ichan], sp[ichan], 'SPECTRA', row=irow, channel=ichan)
             else:
                 # Here, what should be tested is spurious data (at flagged
@@ -2677,13 +2677,13 @@ class sdaverageold_test_average_flag(unittest.TestCase):
         def gen_flagtra(flag, w):
             nchan = len(flag)
             width = int(w)
-            for i in xrange(0, nchan, width):
+            for i in range(0, nchan, width):
                 yield 0 if any(flag[i:i+w] == 0) else 128
                 
         def gen_spectra(sp, flag, w):
             nchan = len(sp)
             width = int(w)
-            for i in xrange(0, nchan, width):
+            for i in range(0, nchan, width):
                 s = sp[i:i+w]
                 f = [1.0 if _f == 0 else 0.0 for _f in flag[i:i+w]]
                 sumf = sum(f)
@@ -2693,7 +2693,7 @@ class sdaverageold_test_average_flag(unittest.TestCase):
                     yield sum(s * f) / sum(f) 
 
         # verify
-        for irow in xrange(nrow):
+        for irow in range(nrow):
             # FLAGROW should not be modified
             rflag_ref = flagrow_org[irow]
             rflag = flagrow[irow]
@@ -2703,7 +2703,7 @@ class sdaverageold_test_average_flag(unittest.TestCase):
             flag_ref = numpy.array(list(gen_flagtra(flagtra_org[:,irow], chanwidth)))
             flag = flagtra[:,irow]
             #print irow, flag_ref, flag
-            for ichan in xrange(nchan):
+            for ichan in range(nchan):
                 self._assert_equal(flag_ref[ichan], flag[ichan], 'FLAGTRA', row=irow, channel=ichan)
 
             # verify SPECTRA
@@ -2715,7 +2715,7 @@ class sdaverageold_test_average_flag(unittest.TestCase):
             # ignore FLAG_ROW, all rows are processed
             tol = 1.0e-6
 
-            for ichan in xrange(nchan):
+            for ichan in range(nchan):
                 val = sp[ichan]
                 ref = sp_ref[ichan]
                 if ref == 0.0:
@@ -2793,7 +2793,7 @@ class sdaverageold_test_average_flag(unittest.TestCase):
         #spectra_expected = spectra_in.take(valid_rows, axis=1)
         # if all data are flagged, FLAGTRA will be all 128
         flagtra_expected = flagtra_in.copy()
-        for irow in xrange(len(flagrow_in)):
+        for irow in range(len(flagrow_in)):
             if flagrow_in[irow] != 0:
                 flagtra_expected[:,irow] = 128
         spectra_expected = spectra_in

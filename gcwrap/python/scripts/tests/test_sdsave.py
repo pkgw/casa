@@ -12,7 +12,7 @@ import time
 import numpy
 
 try:
-    import selection_syntax
+    from . import selection_syntax
 except:
     import tests.selection_syntax as selection_syntax
 
@@ -99,8 +99,8 @@ class sdsaveold_unittest_base:
             sp=numpy.array(s._getspectrum(0))
             del s
         else:
-            import commands
-            wcout=commands.getoutput('ls '+st[0]+'*.txt'+' | wc')
+            import subprocess
+            wcout=subprocess.getoutput('ls '+st[0]+'*.txt'+' | wc')
             n=int(wcout.split()[0])*self.npol
             filein=st[0]+'_SCAN%d_CYCLE%d_IF%d.txt'%(self.scanno,self.cycleno,self.ifno)
             self._checkfile(filein)
@@ -268,7 +268,7 @@ class sdsaveold_test2(unittest.TestCase,sdsaveold_unittest_base):
             self.res=sdsaveold(infile=self.infile,antenna='ROSWELL',outfile=self.outfile0,outform='ASAP')
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             # the task failed to import data so that failed to open output file
             pos=str(e).find('Failed to open file')
             self.assertNotEqual(pos,-1,
@@ -307,7 +307,7 @@ class sdsaveold_test2(unittest.TestCase,sdsaveold_unittest_base):
         tb.open('%s/SPECTRAL_WINDOW'%(msdata))
         chanw=tb.getcol('CHAN_WIDTH')
         tb.close()
-        for i in xrange(len(incr)):
+        for i in range(len(incr)):
             #print 'incr[%s]=%s,chanw[0][%s]=%s(diff=%s)'%(i,incr[i],i,chanw[0][i],(incr[i]-chanw[0][i]))
             self.assertEqual(incr[i],chanw[0][i])
         
@@ -590,7 +590,7 @@ class sdsaveold_test6( unittest.TestCase, sdsaveold_unittest_base ):
         _tb2.close()
         del _tb1, _tb2
         if len(badcols) != 0:
-            print 'Bad column: %s'%(badcols)
+            print('Bad column: %s'%(badcols))
             ret = False
         return ret
 
@@ -661,7 +661,7 @@ class sdsaveold_test7( sdsaveold_unittest_base, unittest.TestCase ):
             #self.assertTrue(len(newrf)==1,msg="IFNO=%d has multiple rest frequencies: %s" % (ifno,str(newrf)))
             self.assertEqual(newrf[0], rfv,\
                              msg="Rest frequency differs(IFNO=%d): %f (expected: %f)" % (ifno, newrf[0], rfv))
-            print "Rest frequency (IFNO=%d): %f (expected: %f)" % (ifno, newrf[0], rfv)
+            print("Rest frequency (IFNO=%d): %f (expected: %f)" % (ifno, newrf[0], rfv))
     
     # Actual tests
     def test701( self ):
@@ -672,13 +672,13 @@ class sdsaveold_test7( sdsaveold_unittest_base, unittest.TestCase ):
         iflist = self.iflist
         restfreq = self.frf[1]
 
-        print "Setting restfreq = %s (%s)" % (str(restfreq), str(type(restfreq)))
+        print("Setting restfreq = %s (%s)" % (str(restfreq), str(type(restfreq))))
         result = sdsaveold(infile=infile,outfile=outfile,\
                         spw=self.spw,restfreq=restfreq)
 
         self.assertEqual(result,None)
         self.assertTrue(os.path.exists(outfile),msg="No output written")
-        print "Testing rest frequencies of output scantable"
+        print("Testing rest frequencies of output scantable")
         self._check_restfreq(outfile, restfreq, iflist)
 
     def test702( self ):
@@ -689,13 +689,13 @@ class sdsaveold_test7( sdsaveold_unittest_base, unittest.TestCase ):
         iflist = self.iflist
         restfreq = self.irf[1]
 
-        print "Setting restfreq = %s (%s)" % (str(restfreq), str(type(restfreq)))
+        print("Setting restfreq = %s (%s)" % (str(restfreq), str(type(restfreq))))
         result = sdsaveold(infile=infile,outfile=outfile,\
                         spw=self.spw,restfreq=restfreq)
 
         self.assertEqual(result,None)
         self.assertTrue(os.path.exists(outfile),msg="No output written")
-        print "Testing rest frequencies of output scantable"
+        print("Testing rest frequencies of output scantable")
         self._check_restfreq(outfile, restfreq, iflist)
 
     def test703( self ):
@@ -706,13 +706,13 @@ class sdsaveold_test7( sdsaveold_unittest_base, unittest.TestCase ):
         iflist = self.iflist
         restfreq = self.qurf[1]
 
-        print "Setting restfreq = %s" % (str(restfreq))
+        print("Setting restfreq = %s" % (str(restfreq)))
         result = sdsaveold(infile=infile,outfile=outfile,\
                         spw=self.spw,restfreq=restfreq)
 
         self.assertEqual(result,None)
         self.assertTrue(os.path.exists(outfile),msg="No output written")
-        print "Testing rest frequencies of output scantable"
+        print("Testing rest frequencies of output scantable")
         self._check_restfreq(outfile, restfreq, iflist)
 
     def test704( self ):
@@ -723,13 +723,13 @@ class sdsaveold_test7( sdsaveold_unittest_base, unittest.TestCase ):
         iflist = self.iflist
         restfreq = self.qrf[1]
 
-        print "Setting restfreq = %s (%s)" % (str(restfreq), str(type(restfreq)))
+        print("Setting restfreq = %s (%s)" % (str(restfreq), str(type(restfreq))))
         result = sdsaveold(infile=infile,outfile=outfile,\
                         spw=self.spw,restfreq=restfreq)
 
         self.assertEqual(result,None)
         self.assertTrue(os.path.exists(outfile),msg="No output written")
-        print "Testing rest frequencies of output scantable"
+        print("Testing rest frequencies of output scantable")
         self._check_restfreq(outfile, restfreq, iflist)
 
     def test711( self ):
@@ -740,13 +740,13 @@ class sdsaveold_test7( sdsaveold_unittest_base, unittest.TestCase ):
         iflist = self.iflist
         restfreq = [ self.frf[1] ]
 
-        print "Setting restfreq = %s" % (str(restfreq))
+        print("Setting restfreq = %s" % (str(restfreq)))
         result = sdsaveold(infile=infile,outfile=outfile,\
                         spw=self.spw,restfreq=restfreq)
 
         self.assertEqual(result,None)
         self.assertTrue(os.path.exists(outfile),msg="No output written")
-        print "Testing rest frequencies of output scantable"
+        print("Testing rest frequencies of output scantable")
         self._check_restfreq(outfile, restfreq, iflist)
 
     def test712( self ):
@@ -757,13 +757,13 @@ class sdsaveold_test7( sdsaveold_unittest_base, unittest.TestCase ):
         iflist = self.iflist
         restfreq = [ self.irf[1] ]
 
-        print "Setting restfreq = %s" % (str(restfreq))
+        print("Setting restfreq = %s" % (str(restfreq)))
         result = sdsaveold(infile=infile,outfile=outfile,\
                         spw=self.spw,restfreq=restfreq)
 
         self.assertEqual(result,None)
         self.assertTrue(os.path.exists(outfile),msg="No output written")
-        print "Testing rest frequencies of output scantable"
+        print("Testing rest frequencies of output scantable")
         self._check_restfreq(outfile, restfreq, iflist)
 
     def test713( self ):
@@ -774,13 +774,13 @@ class sdsaveold_test7( sdsaveold_unittest_base, unittest.TestCase ):
         iflist = self.iflist
         restfreq = [ self.qurf[1] ]
 
-        print "Setting restfreq = %s" % (str(restfreq))
+        print("Setting restfreq = %s" % (str(restfreq)))
         result = sdsaveold(infile=infile,outfile=outfile,\
                         spw=self.spw,restfreq=restfreq)
 
         self.assertEqual(result,None)
         self.assertTrue(os.path.exists(outfile),msg="No output written")
-        print "Testing rest frequencies of output scantable"
+        print("Testing rest frequencies of output scantable")
         self._check_restfreq(outfile, restfreq, iflist)
 
     def test714( self ):
@@ -791,13 +791,13 @@ class sdsaveold_test7( sdsaveold_unittest_base, unittest.TestCase ):
         iflist = self.iflist
         restfreq = [ self.qrf[1] ]
 
-        print "Setting restfreq = %s" % (str(restfreq))
+        print("Setting restfreq = %s" % (str(restfreq)))
         result = sdsaveold(infile=infile,outfile=outfile,\
                         spw=self.spw,restfreq=restfreq)
 
         self.assertEqual(result,None)
         self.assertTrue(os.path.exists(outfile),msg="No output written")
-        print "Testing rest frequencies of output scantable"
+        print("Testing rest frequencies of output scantable")
         self._check_restfreq(outfile, restfreq, iflist)
 
     def test715( self ):
@@ -808,13 +808,13 @@ class sdsaveold_test7( sdsaveold_unittest_base, unittest.TestCase ):
         iflist = self.iflist
         restfreq = [ self.drf[1] ]
 
-        print "Setting restfreq = %s" % (str(restfreq))
+        print("Setting restfreq = %s" % (str(restfreq)))
         result = sdsaveold(infile=infile,outfile=outfile,\
                         spw=self.spw,restfreq=restfreq)
 
         self.assertEqual(result,None)
         self.assertTrue(os.path.exists(outfile),msg="No output written")
-        print "Testing rest frequencies of output scantable"
+        print("Testing rest frequencies of output scantable")
         self._check_restfreq(outfile, restfreq, iflist)
 
     def test721( self ):
@@ -825,13 +825,13 @@ class sdsaveold_test7( sdsaveold_unittest_base, unittest.TestCase ):
         iflist = self.iflist
         restfreq = self.frf
 
-        print "Setting restfreq = %s" % (str(restfreq))
+        print("Setting restfreq = %s" % (str(restfreq)))
         result = sdsaveold(infile=infile,outfile=outfile,\
                         spw=self.spw,restfreq=restfreq)
 
         self.assertEqual(result,None)
         self.assertTrue(os.path.exists(outfile),msg="No output written")
-        print "Testing rest frequencies of output scantable"
+        print("Testing rest frequencies of output scantable")
         self._check_restfreq(outfile, restfreq, iflist)
 
     def test722( self ):
@@ -842,13 +842,13 @@ class sdsaveold_test7( sdsaveold_unittest_base, unittest.TestCase ):
         iflist = self.iflist
         restfreq = self.irf
 
-        print "Setting restfreq = %s" % (str(restfreq))
+        print("Setting restfreq = %s" % (str(restfreq)))
         result = sdsaveold(infile=infile,outfile=outfile,\
                         spw=self.spw,restfreq=restfreq)
 
         self.assertEqual(result,None)
         self.assertTrue(os.path.exists(outfile),msg="No output written")
-        print "Testing rest frequencies of output scantable"
+        print("Testing rest frequencies of output scantable")
         self._check_restfreq(outfile, restfreq, iflist)
 
     def test723( self ):
@@ -859,13 +859,13 @@ class sdsaveold_test7( sdsaveold_unittest_base, unittest.TestCase ):
         iflist = self.iflist
         restfreq = self.qurf
 
-        print "Setting restfreq = %s" % (str(restfreq))
+        print("Setting restfreq = %s" % (str(restfreq)))
         result = sdsaveold(infile=infile,outfile=outfile,\
                         spw=self.spw,restfreq=restfreq)
 
         self.assertEqual(result,None)
         self.assertTrue(os.path.exists(outfile),msg="No output written")
-        print "Testing rest frequencies of output scantable"
+        print("Testing rest frequencies of output scantable")
         self._check_restfreq(outfile, restfreq, iflist)
 
     def test724( self ):
@@ -876,13 +876,13 @@ class sdsaveold_test7( sdsaveold_unittest_base, unittest.TestCase ):
         iflist = self.iflist
         restfreq = self.qrf
 
-        print "Setting restfreq = %s" % (str(restfreq))
+        print("Setting restfreq = %s" % (str(restfreq)))
         result = sdsaveold(infile=infile,outfile=outfile,\
                         spw=self.spw,restfreq=restfreq)
 
         self.assertEqual(result,None)
         self.assertTrue(os.path.exists(outfile),msg="No output written")
-        print "Testing rest frequencies of output scantable"
+        print("Testing rest frequencies of output scantable")
         self._check_restfreq(outfile, restfreq, iflist)
 
     def test725( self ):
@@ -893,13 +893,13 @@ class sdsaveold_test7( sdsaveold_unittest_base, unittest.TestCase ):
         iflist = self.iflist
         restfreq = self.drf
 
-        print "Setting restfreq = %s" % (str(restfreq))
+        print("Setting restfreq = %s" % (str(restfreq)))
         result = sdsaveold(infile=infile,outfile=outfile,\
                         spw=self.spw,restfreq=restfreq)
 
         self.assertEqual(result,None)
         self.assertTrue(os.path.exists(outfile),msg="No output written")
-        print "Testing rest frequencies of output scantable"
+        print("Testing rest frequencies of output scantable")
         self._check_restfreq(outfile, restfreq[0], iflist)
 
     def test731( self ):
@@ -910,13 +910,13 @@ class sdsaveold_test7( sdsaveold_unittest_base, unittest.TestCase ):
         iflist = self.iflist
         restfreq = self.badq[0]
 
-        print "Setting restfreq = %s" % (str(restfreq))
+        print("Setting restfreq = %s" % (str(restfreq)))
         try:
             result = sdsaveold(infile=infile,outfile=outfile,\
                                 spw=self.spw,restfreq=restfreq)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('wrong unit of restfreq')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
@@ -929,13 +929,13 @@ class sdsaveold_test7( sdsaveold_unittest_base, unittest.TestCase ):
         iflist = self.iflist
         restfreq = [ self.badq[1] ]
 
-        print "Setting restfreq = %s" % (str(restfreq))
+        print("Setting restfreq = %s" % (str(restfreq)))
         try:
             result = sdsaveold(infile=infile,outfile=outfile,\
                                 spw=self.spw,restfreq=restfreq)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             #pos=str(e).find('Input value is not a quantity: ')
             pos = str(e).find('wrong unit of restfreq.')
             self.assertNotEqual(pos,-1,
@@ -950,14 +950,14 @@ class sdsaveold_test7( sdsaveold_unittest_base, unittest.TestCase ):
         iflist = self.iflist
         restfreq = self.badq
 
-        print "Setting restfreq = %s" % (str(restfreq))
+        print("Setting restfreq = %s" % (str(restfreq)))
         try:
             result = sdsaveold(infile=infile,outfile=outfile,\
                                 spw=self.spw,restfreq=restfreq)
 
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('wrong unit of restfreq')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
@@ -1040,14 +1040,14 @@ class sdsaveold_storageTest( sdsaveold_unittest_base, unittest.TestCase ):
             testval = test
         else:
             msg = "Invalid test value (should be either dict or file name)."
-            raise Exception, msg
+            raise Exception(msg)
         #print "Test data = ", testval
         #print "Ref data =  ", refval
         if not type(refval) == dict:
-            raise Exception, "The reference data should be a dictionary"
-        for key, rval in refval.iteritems():
-            if not testval.has_key(key):
-                raise KeyError, "Test data does not have key, '%s'" % key
+            raise Exception("The reference data should be a dictionary")
+        for key, rval in refval.items():
+            if key not in testval:
+                raise KeyError("Test data does not have key, '%s'" % key)
             if type(rval) in [list, tuple, numpy.ndarray]:
                 self.assertEqual(len(testval[key]), len(rval), \
                                  msg = "Number of elements in '%s' differs." % key)
@@ -1087,17 +1087,17 @@ class sdsaveold_storageTest( sdsaveold_unittest_base, unittest.TestCase ):
 
         sd.rcParams['scantable.storage'] = 'memory'
         sd.rcParams['insitu'] = True
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
         result = sdsaveold(infile=infile,outfile=outfile,\
                         spw=self.spw,pol=self.pol,restfreq=restfreq)
 
         self.assertEqual(result,None)
         self.assertTrue(os.path.exists(outfile),msg="No output written")
-        print "Testing output scantable"
+        print("Testing output scantable")
         self._compare_scantable_params(outfile,self.refout)
 
-        print "Comparing input scantable before/after run"
+        print("Comparing input scantable before/after run")
         self._compare_scantable_params(infile,initval)
 
 
@@ -1115,17 +1115,17 @@ class sdsaveold_storageTest( sdsaveold_unittest_base, unittest.TestCase ):
 
         sd.rcParams['scantable.storage'] = 'memory'
         sd.rcParams['insitu'] = False
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
         result = sdsaveold(infile=infile,outfile=outfile,\
                         spw=self.spw,pol=self.pol,restfreq=restfreq)
 
         self.assertEqual(result,None)
         self.assertTrue(os.path.exists(outfile),msg="No output written")
-        print "Testing output scantable"
+        print("Testing output scantable")
         self._compare_scantable_params(outfile,self.refout)
 
-        print "Comparing input scantable before/after run"
+        print("Comparing input scantable before/after run")
         self._compare_scantable_params(infile,initval)
 
 
@@ -1143,17 +1143,17 @@ class sdsaveold_storageTest( sdsaveold_unittest_base, unittest.TestCase ):
 
         sd.rcParams['scantable.storage'] = 'disk'
         sd.rcParams['insitu'] = True
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
         result = sdsaveold(infile=infile,outfile=outfile,\
                         spw=self.spw,pol=self.pol,restfreq=restfreq)
 
         self.assertEqual(result,None)
         self.assertTrue(os.path.exists(outfile),msg="No output written")
-        print "Testing output scantable"
+        print("Testing output scantable")
         self._compare_scantable_params(outfile,self.refout)
 
-        print "Comparing input scantable before/after run"
+        print("Comparing input scantable before/after run")
         self._compare_scantable_params(infile,initval)
 
 
@@ -1171,17 +1171,17 @@ class sdsaveold_storageTest( sdsaveold_unittest_base, unittest.TestCase ):
 
         sd.rcParams['scantable.storage'] = 'disk'
         sd.rcParams['insitu'] = False
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
         result = sdsaveold(infile=infile,outfile=outfile,\
                         spw=self.spw,pol=self.pol,restfreq=restfreq)
 
         self.assertEqual(result,None)
         self.assertTrue(os.path.exists(outfile),msg="No output written")
-        print "Testing output scantable"
+        print("Testing output scantable")
         self._compare_scantable_params(outfile,self.refout)
 
-        print "Comparing input scantable before/after run"
+        print("Comparing input scantable before/after run")
         self._compare_scantable_params(infile,initval)
 
 ###
@@ -1232,7 +1232,7 @@ class sdsaveold_freq_labeling(unittest.TestCase,sdsaveold_unittest_base):
         cf=tb.getvarcol('CHAN_FREQ')
         tb.close()
 
-        for k in cf.keys():
+        for k in list(cf.keys()):
             v=cf[k]
             r=cf_ref[k]
             maxdiff=abs((v-r)/r).max()
@@ -1281,7 +1281,7 @@ class sdsaveold_flaggingMS(unittest.TestCase,sdsaveold_unittest_base):
         # verification
         try:
             tb.open(self.outfile)
-            for irow in xrange(tb.nrows()):
+            for irow in range(tb.nrows()):
                 flag_row = tb.getcell('FLAG_ROW', irow)
                 flag = tb.getcell('FLAG', irow)
                 self.assertFalse(flag_row,
@@ -1318,7 +1318,7 @@ class sdsaveold_flaggingMS(unittest.TestCase,sdsaveold_unittest_base):
                             msg='FLAG values for first polarization must be True in row %s'%(irow))
             self.assertTrue(all(flag[1:].flatten()==False),
                             msg='FLAG values for other polarizations must be False in row %s'%(irow))
-            for irow in xrange(1, tb.nrows()):
+            for irow in range(1, tb.nrows()):
                 flag_row = tb.getcell('FLAG_ROW', irow)
                 flag = tb.getcell('FLAG', irow)
                 self.assertFalse(flag_row,
@@ -1354,7 +1354,7 @@ class sdsaveold_flaggingMS(unittest.TestCase,sdsaveold_unittest_base):
             self.assertTrue(all(flag[1:].flatten()==False),
                             msg='FLAG values for other polarizations must be False in row %s'%(irow))
 
-            for irow in xrange(1, tb.nrows()):
+            for irow in range(1, tb.nrows()):
                 flag_row = tb.getcell('FLAG_ROW', irow)
                 flag = tb.getcell('FLAG', irow)
                 self.assertFalse(flag_row,
@@ -1408,8 +1408,8 @@ class sdsaveold_scan_number(unittest.TestCase,sdsaveold_unittest_base):
         tb.open(self.outfile)
         scan_number = numpy.unique(tb.getcol('SCANNO'))
         tb.close()
-        print 'scan_number_org=', scan_number_org
-        print 'scan_number=', scan_number
+        print('scan_number_org=', scan_number_org)
+        print('scan_number=', scan_number)
         self.assertEqual(len(scan_number_org), len(scan_number))
         self.assertTrue(all(scan_number_org == scan_number))
 
@@ -1425,8 +1425,8 @@ class sdsaveold_scan_number(unittest.TestCase,sdsaveold_unittest_base):
         tb.open(self.outvis)
         scan_number = numpy.unique(tb.getcol('SCAN_NUMBER'))
         tb.close()
-        print 'scan_number_org=', scan_number_org
-        print 'scan_number=', scan_number
+        print('scan_number_org=', scan_number_org)
+        print('scan_number=', scan_number)
         self.assertEqual(len(scan_number_org), len(scan_number))
         self.assertTrue(all(scan_number_org == scan_number))
 
@@ -1512,11 +1512,11 @@ class sdsaveold_selection_syntax(selection_syntax.SelectionSyntaxTest, sdsaveold
         test_name = self._get_test_name(regular_test)
         outfile = '.'.join([self.prefix, test_name])
         #print 'outfile=%s'%(outfile)
-        casalog.post('%s: %s'%(test_name, ','.join(['%s = \'%s\''%(params[i],exprs[i]) for i in xrange(num_param)])))
+        casalog.post('%s: %s'%(test_name, ','.join(['%s = \'%s\''%(params[i],exprs[i]) for i in range(num_param)])))
         kwargs = {'infile': self.infile,
                   'outfile': outfile,
                   'overwrite': True}
-        for i in xrange(num_param):
+        for i in range(num_param):
             kwargs[params[i]] = exprs[i]
 
         if regular_test:
@@ -1525,12 +1525,12 @@ class sdsaveold_selection_syntax(selection_syntax.SelectionSyntaxTest, sdsaveold
             sdsaveold(**kwargs)
 
         tb.open(outfile)
-        cols = [tb.getcol(columns[i]) for i in xrange(num_param)]
+        cols = [tb.getcol(columns[i]) for i in range(num_param)]
         nrow = tb.nrows()
         tb.close()
         casalog.post('expected nrow = %s, actual nrow = %s'%(expected_nrow, nrow))
         self.assertEqual(expected_nrow, nrow)
-        for i in xrange(num_param):
+        for i in range(num_param):
             casalog.post('expected values = %s, actual values = %s'%(set(values[i]), set(cols[i])))
             self.assertEqual(set(values[i]), set(cols[i]))
         return outfile
@@ -1551,7 +1551,7 @@ class sdsaveold_selection_syntax(selection_syntax.SelectionSyntaxTest, sdsaveold
         s_org.set_unit('GHz')
         s.set_unit('GHz')
         if type(channelrange[0]) is not list:
-            channelrange = [channelrange for i in xrange(len(iflist))]
+            channelrange = [channelrange for i in range(len(iflist))]
         for (ifno,chrange) in zip(iflist,channelrange):
             sel = sd.selector()
             sel.set_ifs(ifno)
@@ -1578,7 +1578,7 @@ class sdsaveold_selection_syntax(selection_syntax.SelectionSyntaxTest, sdsaveold
             sdsaveold(infile=self.infile, spw=spw, outfile=outfile, overwrite=True)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             self.assertTrue(isinstance(e, SyntaxError),
                             msg='Unexpected exception was thrown: %s'%(str(e)))
             pos = str(e).find('sdsaveold doesn\'t support multiple channel range selection for spw.')
@@ -2353,7 +2353,7 @@ class sdsaveold_weighting(sdsaveold_unittest_base, unittest.TestCase):
         with tbmanager(self.outfile) as tb:
             weight = tb.getvarcol('WEIGHT')
             sigma  = tb.getvarcol('SIGMA')
-            for key in weight.keys():
+            for key in list(weight.keys()):
                 self.assertTrue(all(weight[key] == 1.0),
                                 msg = 'Failed for weight at %s'%(key))
                 self.assertTrue(all(sigma[key] == 1.0),
@@ -2366,26 +2366,26 @@ class sdsaveold_weighting(sdsaveold_unittest_base, unittest.TestCase):
         # DATA_DESC_ID mapping from DATA_DESCRIPTION table
         with tbmanager(os.path.join(self.outfile, datadesc)) as tb:
             spwmap = {}
-            for irow in xrange(tb.nrows()):
+            for irow in range(tb.nrows()):
                 spwmap[irow] = tb.getcell('SPECTRAL_WINDOW_ID', irow)
         
         # Tsys from SYSCAL table
         with tbmanager(os.path.join(self.outfile, syscal)) as tb:
             tsys = {}
-            for irow in xrange(tb.nrows()):
+            for irow in range(tb.nrows()):
                 tsys[tb.getcell('SPECTRAL_WINDOW_ID', irow)] = tb.getcell('TSYS_SPECTRUM', irow)
             #print tsys
                 
         # bandwidth from SPECTRAL_WINDOW table
         with tbmanager(os.path.join(self.outfile, spwin)) as tb:
             channelwidth = {}
-            for irow in xrange(tb.nrows()):
+            for irow in range(tb.nrows()):
                 channelwidth[irow] = tb.getcell('EFFECTIVE_BW', irow)
             #print channelwidth
                 
         # test MAIN
         with tbmanager(self.outfile) as tb:
-            for irow in xrange(tb.nrows()):
+            for irow in range(tb.nrows()):
                 ddid = tb.getcell('DATA_DESC_ID', irow)
                 spwid = spwmap[ddid]
                 (npol,nchan) = tb.getcell('FLAG', irow).shape
@@ -2396,7 +2396,7 @@ class sdsaveold_weighting(sdsaveold_unittest_base, unittest.TestCase):
                 weight_ref = numpy.ones(npol, dtype=float) * (df * dt)
                 sigma_ref = 1.0 / numpy.sqrt(weight_ref)
                 # apply Tsys correction
-                if tsys.has_key(spwid):
+                if spwid in tsys:
                     meantsys = tsys[spwid].mean(axis=1)
                     weight_ref /= (meantsys * meantsys)
 
@@ -2448,7 +2448,7 @@ class sdsaveold_weighting2(sdsaveold_unittest_base, unittest.TestCase):
         with tbmanager(self.outfile) as tb:
             weight = tb.getvarcol('WEIGHT')
             sigma  = tb.getvarcol('SIGMA')
-            for key in weight.keys():
+            for key in list(weight.keys()):
                 self.assertTrue(all(weight[key] == 1.0),
                                 msg = 'Failed for weight at %s'%(key))
                 self.assertTrue(all(sigma[key] == 1.0),
@@ -2461,26 +2461,26 @@ class sdsaveold_weighting2(sdsaveold_unittest_base, unittest.TestCase):
         # DATA_DESC_ID mapping from DATA_DESCRIPTION table
         with tbmanager(os.path.join(self.outfile, datadesc)) as tb:
             spwmap = {}
-            for irow in xrange(tb.nrows()):
+            for irow in range(tb.nrows()):
                 spwmap[irow] = tb.getcell('SPECTRAL_WINDOW_ID', irow)
         
         # Tsys from SYSCAL table
         with tbmanager(os.path.join(self.outfile, syscal)) as tb:
             tsys = {}
-            for irow in xrange(tb.nrows()):
+            for irow in range(tb.nrows()):
                 tsys[irow] = tb.getcell('TSYS_SPECTRUM', irow)
             #print tsys
                 
         # bandwidth from SPECTRAL_WINDOW table
         with tbmanager(os.path.join(self.outfile, spwin)) as tb:
             channelwidth = {}
-            for irow in xrange(tb.nrows()):
+            for irow in range(tb.nrows()):
                 channelwidth[irow] = tb.getcell('EFFECTIVE_BW', irow)
             #print channelwidth
                 
         # test MAIN
         with tbmanager(self.outfile) as tb:
-            for irow in xrange(tb.nrows()):
+            for irow in range(tb.nrows()):
                 ddid = tb.getcell('DATA_DESC_ID', irow)
                 spwid = spwmap[ddid]
                 (npol,nchan) = tb.getcell('FLAG', irow).shape
@@ -2491,7 +2491,7 @@ class sdsaveold_weighting2(sdsaveold_unittest_base, unittest.TestCase):
                 weight_ref = numpy.ones(npol, dtype=float) * (df * dt)
                 sigma_ref = 1.0 / numpy.sqrt(weight_ref)
                 # apply Tsys correction
-                if tsys.has_key(irow):
+                if irow in tsys:
                     meantsys = tsys[irow].mean(axis=1)
                     weight_ref /= (meantsys * meantsys)
 
@@ -2559,11 +2559,11 @@ class sdsaveold_flag(sdsaveold_unittest_base, unittest.TestCase):
             self.nchan_orig = len(tb.getcell('FLAGTRA', 0))
             self.rowid_rflag_orig = tb.getcol('FLAGROW')
             cfraw = tb.getcol('FLAGTRA').sum(axis=0)
-            self.rowid_cflag_orig = [cfraw[i] > 0 for i in xrange(len(cfraw))]
+            self.rowid_cflag_orig = [cfraw[i] > 0 for i in range(len(cfraw))]
             self.cflag_orig = tb.getcell('FLAGTRA', numpy.where(self.rowid_cflag_orig)[0][0])
             self.field_id_list_new = []
             fldname = tb.getcol('FIELDNAME')
-            for i in xrange(len(fldname)):
+            for i in range(len(fldname)):
                 self.field_id_list_new.append(int(fldname[i].split('__')[1]))
 
     def _verifyflag(self, outfile, is_scantable=True):
@@ -2571,7 +2571,7 @@ class sdsaveold_flag(sdsaveold_unittest_base, unittest.TestCase):
             self.assertTrue(tb.nrows() == self.nrow_orig)
             if is_scantable:
                 self.assertTrue(all(tb.getcol('FLAGROW') == self.rowid_rflag_orig))
-            for i in xrange(tb.nrows()):
+            for i in range(tb.nrows()):
                 if is_scantable:
                     mask = tb.getcell('FLAGTRA', i)
                     mask_ref = self.cflag_orig if self.rowid_cflag_orig[i] else numpy.zeros(self.nchan_orig, numpy.int32)
@@ -2583,7 +2583,7 @@ class sdsaveold_flag(sdsaveold_unittest_base, unittest.TestCase):
                     if self.rowid_rflag_orig[indata_irow]:
                         mask_ref = numpy.array([True]*self.nchan_orig)
                     elif self.rowid_cflag_orig[indata_irow]:
-                        mask_ref = [self.cflag_orig[i] > 0 for i in xrange(len(self.cflag_orig))]
+                        mask_ref = [self.cflag_orig[i] > 0 for i in range(len(self.cflag_orig))]
 
                 self.assertTrue(all(mask == mask_ref))
 

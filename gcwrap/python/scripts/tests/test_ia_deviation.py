@@ -36,7 +36,7 @@ class ia_deviation_test(unittest.TestCase):
         mytype = type(resold)
         self.assertTrue(mytype == type(resnew), helpstr + ": types differ")
         if mytype == dict:
-            for k in resold.keys():
+            for k in list(resold.keys()):
                 self._compare(resold[k], resnew[k], helpstr)
         elif mytype == numpy.ndarray:
             oldarray = resold.ravel()

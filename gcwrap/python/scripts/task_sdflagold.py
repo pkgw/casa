@@ -59,14 +59,14 @@ class sdflag_worker(sdutil.sdtask_template):
             msg = "The input and output data format must be identical when "
             msg += "their names are identical and overwrite=True. "
             msg += "%s and %s given for input and output, respectively." % (informat, outformat)
-            raise Exception, msg
+            raise Exception(msg)
 
         # check restfreq
         self.rfset = (self.restfreq != '') and (self.restfreq != [])
         self.restore = self.rfset
 
         if self.mode.lower()[0] not in self.valid_modes:
-            raise Exception, "Invalide mode, '%s'" % self.mode
+            raise Exception("Invalide mode, '%s'" % self.mode)
 
         # check whether any flag operation is done or not
         self.anyflag = False
@@ -109,7 +109,7 @@ class sdflag_worker(sdutil.sdtask_template):
         maskdict = {-1: []}
         if self.spw != '' and self.spw.strip() != '*':
             maskdict = self.scan.parse_spw_selection(self.spw)
-        for ifno, masklist in maskdict.items():
+        for ifno, masklist in list(maskdict.items()):
             if ifno > -1:
                 sel = sd.selector(basesel)
                 sel.set_ifs([ifno])
@@ -118,7 +118,7 @@ class sdflag_worker(sdutil.sdtask_template):
                 msg = "Working on IF%s" % (ifno)
                 if (self.mode.lower().startswith('i')):
                     # interactive mode
-                    print "===%s===" % (msg)
+                    print("===%s===" % (msg))
                 del msg
 
             mask_array = self.scan.create_mask(masklist) if len(masklist) > 0 else [True]
@@ -127,7 +127,7 @@ class sdflag_worker(sdutil.sdtask_template):
                 # channel flag
                 self.masks = mask_array
             else:
-                self.masks = [False for i in xrange(self.scan.nchan())]
+                self.masks = [False for i in range(self.scan.nchan())]
             # Pring warnings if channel range selection is found in mode!='manual'
             if (len(self.masklist) > 0) and \
                    not self.mode.lower().startswith('m'):
@@ -151,7 +151,7 @@ class sdflag_worker(sdutil.sdtask_template):
         self.scan.set_unit(unit_org)
 
         if not self.anyflag:
-            raise Exception, 'No flag operation. Finish without saving'
+            raise Exception('No flag operation. Finish without saving')
 
         if abs(self.plotlevel) > 0:
             self.posterior_plot()
@@ -172,7 +172,7 @@ class sdflag_worker(sdutil.sdtask_template):
                 self.scan.set_selection(None)
             if len(self.row) == 0:
                 # select all rows
-                self.rowlist = range(self.scan.nrow())
+                self.rowlist = list(range(self.scan.nrow()))
             else:
                 self.rowlist = self.scan.parse_idx_selection('row',self.row)
             
@@ -214,7 +214,7 @@ class sdflag_worker(sdutil.sdtask_template):
         #guiflagger.set_legend(loc=1,refresh=False)
         guiflagger.set_showflagged(self.showflagged)
         guiflagger.plot(self.scan)
-        finish=raw_input("Press enter to finish interactive flagging:")
+        finish=input("Press enter to finish interactive flagging:")
         guiflagger._plotter.unmap()
         ismodified = guiflagger._ismodified
         guiflagger._plotter = None
@@ -254,7 +254,7 @@ class sdflag_worker(sdutil.sdtask_template):
         labels = ['Spectrum','current flag masks','previously flagged data']
         masklist =  [ None,      None,                None]
         idefaultmask = logical_not(array(self.masks))
-        for row in xrange(np):
+        for row in range(np):
             self.myp.subplot(row)
             x = self.scan._getabcissa(row)
             y = self.scan._getspectrum(row)
@@ -275,7 +275,7 @@ class sdflag_worker(sdutil.sdtask_template):
             else:
                 masklist[1] = idefaultmask
             masklist[0] = logical_not(logical_and(masklist[1],masklist[2]))
-            for i in xrange(3):
+            for i in range(3):
                 plot_data(self.myp,x,y,masklist[i],i,labels[i])
             xlim=[min(x),max(x)]
             self.myp.axes.set_xlim(xlim)
@@ -285,7 +285,7 @@ class sdflag_worker(sdutil.sdtask_template):
         
         #Apply flag
         if self.plotlevel > 0 and sd.rcParams['plotter.gui']:
-            ans=raw_input("Apply %s (y/N)?: " % ('unflag' if self.unflag else 'flag'))
+            ans=input("Apply %s (y/N)?: " % ('unflag' if self.unflag else 'flag'))
         else:
             casalog.post("Applying selected flags")
             ans = 'Y'
@@ -325,7 +325,7 @@ class sdflag_worker(sdutil.sdtask_template):
         selection_map = {'scans': 'scanlist',
                          'ifs': 'iflist',
                          'pols': 'pollist'}
-        for a, b in selection_map.items():
+        for a, b in list(selection_map.items()):
             if hasattr(self, a):
                 setattr(self, b, getattr(self, a))
 

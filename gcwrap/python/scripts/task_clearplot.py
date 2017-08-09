@@ -8,7 +8,7 @@ def clearplot():
 	"""
 	try:
 		pl.ion()
-		print "Calling tp.clearplot()"
+		print("Calling tp.clearplot()")
 		ok=tp.clearplot(0,0,0)
-	except Exception, instance:
-		print '*** Error ***',instance
+	except Exception as instance:
+		print('*** Error ***',instance)

@@ -100,7 +100,7 @@ class sdstat_worker(sdutil.sdtask_template):
         maskdict = {-1: []}
         if self.spw.strip() not in ['', '*']:
             maskdict = self.scan.parse_spw_selection(self.spw)
-        for ifno, masklist in maskdict.items():
+        for ifno, masklist in list(maskdict.items()):
             self.masklist = masklist
             if ifno > -1:
                 sel = sd.selector(basesel)
@@ -109,7 +109,7 @@ class sdstat_worker(sdutil.sdtask_template):
                 rootidx += list(self.scan._get_root_row_idx())
                 del sel
                 msg = "Working on IF%s" % (ifno)
-                if (self.interactive): print "===%s===" % (msg)
+                if (self.interactive): print("===%s===" % (msg))
                 del msg
             
             # set mask
@@ -135,7 +135,7 @@ class sdstat_worker(sdutil.sdtask_template):
         if len(rootidx) > 0:
             self.__sort_stats_order(rootidx)
         # return values instead of lists if nrow = 1.
-        if len(self.returnstats[ self.returnstats.keys()[0] ]) == 1:
+        if len(self.returnstats[ list(self.returnstats.keys())[0] ]) == 1:
             self.__stats_list_to_val()
         # reshape statsdict for return
         for k in ['min','max']:
@@ -168,15 +168,15 @@ class sdstat_worker(sdutil.sdtask_template):
             self.restorer.restore()
 
     def __stats_list_to_val(self):
-        for key, val in self.returnstats.items():
+        for key, val in list(self.returnstats.items()):
             if type(val)==list and len(val)==1:
                 self.returnstats[key] = val[0]
     
     def __sort_stats_order(self, order):
-        if len(self.returnstats[self.returnstats.keys()[0]]) != len(order):
-            raise ValueError, "Length of sort order list != statistics list."
+        if len(self.returnstats[list(self.returnstats.keys())[0]]) != len(order):
+            raise ValueError("Length of sort order list != statistics list.")
         idx = npargsort(order)
-        for key, val in self.returnstats.items():
+        for key, val in list(self.returnstats.items()):
             self.returnstats[key] = [val[i] for i in idx ]
                 
 
@@ -251,8 +251,8 @@ class sdstat_worker(sdutil.sdtask_template):
         """ merge self.result to self.returnstat """
         if len(self.result) == 0:
             return
-        for key, val in self.result.items():
-            if self.returnstats.has_key(key):
+        for key, val in list(self.result.items()):
+            if key in self.returnstats:
                 self.returnstats[key] += list(val)
             else:
                 self.returnstats[key] = list(val)
@@ -267,7 +267,7 @@ class sdstat_worker(sdutil.sdtask_template):
                                                purpose='to calculate statistics')
             msks = self.scan.get_masklist(self.msk)
             if len(msks) < 1:
-                raise Exception, 'No channel is selected. Exit without calculation.'
+                raise Exception('No channel is selected. Exit without calculation.')
             lbl=self.scan.get_unit()
             casalog.post( 'final mask list ('+lbl+') = '+str(msks) )
 
@@ -279,7 +279,7 @@ class sdstat_worker(sdutil.sdtask_template):
             msks=self.scan.get_masklist(self.msk)
             if len(msks) < 1:
                 del self.msk, msks
-                raise Exception, 'Selected mask lists are out of range. Exit without calculation.'
+                raise Exception('Selected mask lists are out of range. Exit without calculation.')
             del msks
         else:
             # Full region
@@ -316,7 +316,7 @@ class sdstat_worker(sdutil.sdtask_template):
         if isinstance(val,list):
             ns = len(val)
             irow = 0
-            for i in xrange(ns):
+            for i in range(ns):
                 if val[i] is not None:
                     while self.scan._is_all_chan_flagged(irow):
                         irow += 1

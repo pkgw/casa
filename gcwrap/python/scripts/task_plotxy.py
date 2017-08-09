@@ -285,7 +285,7 @@ def plotxy(vis=None,xaxis=None,yaxis=None,datacolumn=None,iteration=None,
 
             mp.open(vis, doVel, restfreq, frame, doppler)
         else:
-            raise Exception, 'Visibility data set not found - please verify the name'
+            raise Exception('Visibility data set not found - please verify the name')
 
         # If the user wants the plot window cleared then clear it.
         removeoldplots=False
@@ -327,7 +327,7 @@ def plotxy(vis=None,xaxis=None,yaxis=None,datacolumn=None,iteration=None,
            if (yaxis.lower()==timeaxis[t]):
               ytime=True
         if (xtime and ytime): 
-           raise Exception, 'Sorry. it cannot plot '+yaxis+' vs. '+xaxis
+           raise Exception('Sorry. it cannot plot '+yaxis+' vs. '+xaxis)
     
         #if (xaxis=='chan' and connect=='chan'):
         #   connect='none'
@@ -394,13 +394,13 @@ def plotxy(vis=None,xaxis=None,yaxis=None,datacolumn=None,iteration=None,
             nChan=int(width)
         except:
             width='1'
-            print "Found invalid width value, replaced with width='1'"
+            print("Found invalid width value, replaced with width='1'")
 
         try: 
             fTime=float(timebin)
         except:
             timebin='0'
-            print "Found invalid timebin value, replaced with timebin='0'"
+            print("Found invalid timebin value, replaced with timebin='0'")
 
         if (averagemode=='scalar'): 
             if (not (xaxis=='amp' or yaxis=='amp')):
@@ -426,7 +426,7 @@ def plotxy(vis=None,xaxis=None,yaxis=None,datacolumn=None,iteration=None,
         elif (average=='correlation'):
             chanavemode='vectorstep';
         elif (average!='' and average!='none' ):
-            raise Exception, 'Unrecognized average selection'
+            raise Exception('Unrecognized average selection')
 
         if (averagemode==''):
             averagemode='vector'
@@ -445,7 +445,7 @@ def plotxy(vis=None,xaxis=None,yaxis=None,datacolumn=None,iteration=None,
                       averagevel=doVel)
         # check if averaging was okay
         if (not ok):
-            raise Exception, 'Failure occured when averaging data!'
+            raise Exception('Failure occured when averaging data!')
 
         #print "scan=", scan, "uvrange=", uvrange
         if (selectdata):
@@ -460,14 +460,14 @@ def plotxy(vis=None,xaxis=None,yaxis=None,datacolumn=None,iteration=None,
                       time='')            
         # check if data selection was okay
         if (not ok):
-            raise Exception, 'Data selection resulted in no data!'
+            raise Exception('Data selection resulted in no data!')
 
         ok=mp.extendflag(extendcorr=extendcorr,extendchan=extendchan,
                       extendspw=extendspw,extendant=extendant,
                       extendtime=extendtime)
         # check if flag extension was okay
         if (not ok):
-            raise Exception, 'Fail to set flag extension!'
+            raise Exception('Fail to set flag extension!')
 
         if (xaxis=='real' or xaxis=='imag' or
                     xaxis=='phase' or xaxis=='amp'):
@@ -480,7 +480,7 @@ def plotxy(vis=None,xaxis=None,yaxis=None,datacolumn=None,iteration=None,
                       xvalue=xaxis,yvalue=yaxis,
                       iteration=iteration)
                 if (not ok):
-                    raise Exception, 'No data selected - please check inputs'
+                    raise Exception('No data selected - please check inputs')
             elif (yaxis=='weight'):
                 ok=mp.plotxy(x='data',y=yaxis,
                                       xcolumn=datacolumn,ycolumn=datacolumn,
@@ -492,7 +492,7 @@ def plotxy(vis=None,xaxis=None,yaxis=None,datacolumn=None,iteration=None,
                                       xvalue='amp',yvalue=yaxis,
                                       iteration=iteration)
             else:
-                raise Exception, 'Must be data versus data plot - illegal yaxis'
+                raise Exception('Must be data versus data plot - illegal yaxis')
 
         elif ((yaxis=='real' or yaxis=='imag' or 
                        yaxis=='phase' or yaxis=='amp' or yaxis=='weight') and 
@@ -519,19 +519,19 @@ def plotxy(vis=None,xaxis=None,yaxis=None,datacolumn=None,iteration=None,
                                      xvalue='amp',yvalue=yaxis,
                                      iteration=iteration)
             if (not ok):
-                raise Exception, 'No data selected - please check inputs'
+                raise Exception('No data selected - please check inputs')
         
         else:
             # something vs something plot
             #print 'something vs. something plot ************ '
             if (xaxis=='chan' or yaxis=='chan'): 
-                raise Exception, 'Channel can not be selected versus non-data values'
+                raise Exception('Channel can not be selected versus non-data values')
             if (xaxis=='freq' or yaxis=='freq'): 
-                raise Exception, 'Frequency can not be selected versus non-data values'
+                raise Exception('Frequency can not be selected versus non-data values')
             if (xaxis=='velo' or yaxis=='velo'): 
-                raise Exception, 'Velocity can not be selected versus non-data values'
+                raise Exception('Velocity can not be selected versus non-data values')
             if (yaxis=='time'):
-                raise Exception, 'yaxis=time is not currently supported'
+                raise Exception('yaxis=time is not currently supported')
             if (xaxis=='u'): 
                                 ok=mp.plot('uvcoverage')
             if (xaxis=='x'): 
@@ -540,15 +540,15 @@ def plotxy(vis=None,xaxis=None,yaxis=None,datacolumn=None,iteration=None,
                 #print 'getting to the right spot'
                 ok=mp.plotxy(x=xaxis,y=yaxis)
             if (not ok):
-                raise Exception, 'No data selected - please check inputs'
+                raise Exception('No data selected - please check inputs')
         if ( len(iteration) > 0 ):
             mp.iterplotnext()
 
         if ( len(figfile) > 0 ) :
             mp.savefig( figfile ); 
 
-    except Exception, instance:
-        print 'INFO ', instance
+    except Exception as instance:
+        print('INFO ', instance)
 
     # Close the MS to avoid table locks.  This doesn't close the
     # plot window but frees the MS to be used by other CASA tools
@@ -560,7 +560,7 @@ def plotxy(vis=None,xaxis=None,yaxis=None,datacolumn=None,iteration=None,
     
     endProc=time.clock()
     endTime=time.time()
-    print 'Total process time %.2f sec.' % (endProc - startProc)
-    print 'Total wall clock time %.2f sec.' % (endTime - startTime)
+    print('Total process time %.2f sec.' % (endProc - startProc))
+    print('Total wall clock time %.2f sec.' % (endTime - startTime))
 
 

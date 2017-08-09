@@ -24,7 +24,7 @@ def imreframe(imagename=None, output=None, outframe=None, epoch=None, restfreq=N
         pixax = myret['pixel']
         worldax = myret['world']
         if(not hasspec):
-            raise Exception, 'Could not find spectral axis'
+            raise Exception('Could not find spectral axis')
         if(outframe != ''):
             c.setconversiontype(spectral=outframe)
         if(restfreq != ''):
@@ -56,7 +56,7 @@ def imreframe(imagename=None, output=None, outframe=None, epoch=None, restfreq=N
             ib.done()
         return True
         
-    except Exception, instance:
+    except Exception as instance:
         if('myia' in locals()):
             myia.close()
         if('ib' in locals()):

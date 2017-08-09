@@ -11,12 +11,12 @@ import unittest
 #from numpy import array
 
 try:
-    import selection_syntax
+    from . import selection_syntax
 except:
     import tests.selection_syntax as selection_syntax
 
 try:
-    import test_sdcal
+    from . import test_sdcal
 except:
     import tests.test_sdcal as test_sdcal
 
@@ -81,7 +81,7 @@ class BlparamFileParser( FileReader ):
 
     def _nrow( self ):
         self.__nrow = 0
-        for i in xrange(self.nline()):
+        for i in range(self.nline()):
             if self.getline( i ) == self.__ctxt:
                 self.__nrow += 1
         return self.__nrow
@@ -205,12 +205,12 @@ class sdreduceold_test(unittest.TestCase):
         for stat in stats:
             statdict[stat] = scan.stats(stat,mask=mask,row=0)[0]
         del scan
-        print "\nCurrent run: "+str(statdict)
+        print("\nCurrent run: "+str(statdict))
         return statdict
 
     def _teststats0(self,teststat,refstat):
-        for stat, refval in refstat.iteritems():
-            self.assertTrue(teststat.has_key(stat),
+        for stat, refval in refstat.items():
+            self.assertTrue(stat in teststat,
                             msg = "'%s' is not defined in the current run" % stat)
             allowdiff = 0.01
             reldiff = (teststat[stat]-refval)/refval
@@ -1233,7 +1233,7 @@ class sdreduceold_selection(selection_syntax.SelectionSyntaxTest,
         sout = sd.scantable(name,average=False)
         nrow = sout.nrow()
         if len(ref_idx) == 0:
-            ref_idx = range(nrow)
+            ref_idx = list(range(nrow))
 
         self.assertEqual(nrow,len(ref_idx),"The rows in output table differs from the expected value.")
         for irow in range(nrow):
@@ -1405,19 +1405,19 @@ class sdreduceold_test_average_flag(unittest.TestCase):
         # verify FLAGTRA
         def gen_averaged_channelflag(rflag, chflag):
             nchan, nrow = chflag.shape
-            for ichan in xrange(nchan):
+            for ichan in range(nchan):
                 yield 0 if any(rflag + chflag[ichan] == 0) else 128
         flagtra_expected = numpy.array(list(gen_averaged_channelflag(flagrow_org, flagtra_org)))
-        for ichan in xrange(nchan):
+        for ichan in range(nchan):
             self._assert_equal(flagtra_expected[ichan], flagtra[ichan], 'FLAGTRA', row=0, channel=ichan)
         
         # verify SPECTRA
         def gen_averaged_spectra(rflag, chflag, data, weight):
             nchan, nrow = data.shape
-            for ichan in xrange(nchan):
+            for ichan in range(nchan):
                 dsum = 0.0
                 wsum = 0.0
-                for irow in xrange(nrow):
+                for irow in range(nrow):
                     if rflag[irow] == 0 and chflag[ichan,irow] == 0:
                         dsum += weight[irow] * data[ichan,irow]
                         wsum += weight[irow]
@@ -1430,7 +1430,7 @@ class sdreduceold_test_average_flag(unittest.TestCase):
                                                                  spectra_org,
                                                                  interval_org)))
         tol = 1.0e-7
-        for ichan in xrange(nchan):
+        for ichan in range(nchan):
             if flagtra[ichan] == 0:
                 sp = spectra[ichan]
                 ex = spectra_expected[ichan]
@@ -1438,7 +1438,7 @@ class sdreduceold_test_average_flag(unittest.TestCase):
                 #print ichan, diff
                 self._assert_less(diff, tol, 'SPECTRA', row=0, channel=ichan)
             else:
-                print 'Skip channel %s since it is flagged'%(ichan)
+                print('Skip channel %s since it is flagged'%(ichan))
 
     def _verify_smooth(self, outfile):
         flagrow_org, flagtra_org, spectra_org = self._get_data(self.rawfile)
@@ -1450,7 +1450,7 @@ class sdreduceold_test_average_flag(unittest.TestCase):
 
         nchan, nrow = spectra.shape
 
-        for irow in xrange(nrow):
+        for irow in range(nrow):
             # FLAGROW should not be modified
             rflag_ref = flagrow_org[irow]
             rflag = flagrow[irow]
@@ -1459,7 +1459,7 @@ class sdreduceold_test_average_flag(unittest.TestCase):
             # FLAGTRA should not be modified
             flag_ref = flagtra[:,irow]
             flag = flagtra[:,irow]
-            for ichan in xrange(nchan):
+            for ichan in range(nchan):
                 self._assert_equal(flag_ref[ichan], flag[ichan], 'FLAGTRA', row=irow, channel=ichan)
 
             # verify SPECTRA
@@ -1467,7 +1467,7 @@ class sdreduceold_test_average_flag(unittest.TestCase):
             sp = spectra[:,irow]
             if rflag != 0:
                 # flagged row should not be processed
-                for ichan in xrange(nchan):
+                for ichan in range(nchan):
                     self._assert_equal(sp_ref[ichan], sp[ichan], 'SPECTRA', row=irow, channel=ichan)
             else:
                 # Here, what should be tested is spurious data (at flagged
@@ -1496,13 +1496,13 @@ class sdreduceold_test_average_flag(unittest.TestCase):
         def gen_flagtra(flag, w):
             nchan = len(flag)
             width = int(w)
-            for i in xrange(0, nchan, width):
+            for i in range(0, nchan, width):
                 yield 0 if any(flag[i:i+w] == 0) else 128
                 
         def gen_spectra(sp, flag, w):
             nchan = len(sp)
             width = int(w)
-            for i in xrange(0, nchan, width):
+            for i in range(0, nchan, width):
                 s = sp[i:i+w]
                 f = [1.0 if _f == 0 else 0.0 for _f in flag[i:i+w]]
                 sumf = sum(f)
@@ -1512,7 +1512,7 @@ class sdreduceold_test_average_flag(unittest.TestCase):
                     yield sum(s * f) / sum(f) 
 
         # verify
-        for irow in xrange(nrow):
+        for irow in range(nrow):
             # FLAGROW should not be modified
             rflag_ref = flagrow_org[irow]
             rflag = flagrow[irow]
@@ -1522,7 +1522,7 @@ class sdreduceold_test_average_flag(unittest.TestCase):
             flag_ref = numpy.array(list(gen_flagtra(flagtra_org[:,irow], chanwidth)))
             flag = flagtra[:,irow]
             #print irow, flag_ref, flag
-            for ichan in xrange(nchan):
+            for ichan in range(nchan):
                 self._assert_equal(flag_ref[ichan], flag[ichan], 'FLAGTRA', row=irow, channel=ichan)
 
             # verify SPECTRA
@@ -1534,7 +1534,7 @@ class sdreduceold_test_average_flag(unittest.TestCase):
             # ignore FLAG_ROW, all rows are processed
             tol = 1.0e-6
 
-            for ichan in xrange(nchan):
+            for ichan in range(nchan):
                 val = sp[ichan]
                 ref = sp_ref[ichan]
                 if ref == 0.0:
@@ -1617,7 +1617,7 @@ class sdreduceold_test_average_flag(unittest.TestCase):
         #spectra_expected = spectra_in.take(valid_rows, axis=1)
         # if all data are flagged, FLAGTRA will be all 128
         flagtra_expected = flagtra_in.copy()
-        for irow in xrange(len(flagrow_in)):
+        for irow in range(len(flagrow_in)):
             if flagrow_in[irow] != 0:
                 flagtra_expected[:,irow] = 128
         spectra_expected = spectra_in
@@ -1849,18 +1849,18 @@ class sdreduceold_test_baseline_flag(sdreduceold_unittest_base, unittest.TestCas
         blparse_ref.parse()
         coeffs_ref = blparse_ref.coeff()
         allowdiff = 0.02
-        print 'Check baseline parameters:'
-        for irow in xrange(len(blparse_out.rms())):
-            print 'Row %s:'%(irow)
-            print '   Reference coeffs  = %s'%(coeffs_ref[irow])
-            print '   Calculated coeffs = %s'%(coeffs_out[irow])
+        print('Check baseline parameters:')
+        for irow in range(len(blparse_out.rms())):
+            print('Row %s:'%(irow))
+            print('   Reference coeffs  = %s'%(coeffs_ref[irow]))
+            print('   Calculated coeffs = %s'%(coeffs_out[irow]))
             c0 = coeffs_ref[irow]
             c1 = coeffs_out[irow]
-            for ic in xrange(len(c1)):
+            for ic in range(len(c1)):
                 rdiff = ( c1[ic] - c0[ic] ) / c0[ic]
                 self.assertTrue((abs(c0[ic])<0.05) or (abs(rdiff)<allowdiff),
                                 msg='row %s: coefficient for order %s is different'%(irow,ic))
-        print ''
+        print('')
 
     def _checkResult(self, infile, outfile, tol):
         tb.open(infile)
@@ -1876,7 +1876,7 @@ class sdreduceold_test_baseline_flag(sdreduceold_unittest_base, unittest.TestCas
         tb.close()
 
         #check if the values of row-flagged spectra are not changed
-        for i in xrange(2):
+        for i in range(2):
             self.assertTrue(all(inspec[i]==outspec[i]))
             
         #check if flagged channels are (1) excluded from fitting, but are
@@ -1890,7 +1890,7 @@ class sdreduceold_test_baseline_flag(sdreduceold_unittest_base, unittest.TestCas
         self.assertTrue(abs((inspec[2]-outspec[2]).mean()-1.0) < tol)
         
         #check if flag values are not changed in the output file.
-        for i in xrange(len(inchnf)):
+        for i in range(len(inchnf)):
             self.assertTrue(all(inchnf[i]==outchnf[i]))
         self.assertTrue(all(inrowf==outrowf))
 
@@ -1940,7 +1940,7 @@ class sdreduceold_test_cal_psalma_flag(test_sdcal.sdcalold_caltest_base,unittest
 
         self._checkshape( sp, spref )
         
-        for irow in xrange(sp.shape[0]):
+        for irow in range(sp.shape[0]):
             diff=self._diff(sp[irow],spref[irow])
             retval=numpy.all(diff<0.01)
             maxdiff=diff.max()

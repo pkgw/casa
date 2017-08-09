@@ -10,5 +10,5 @@ def clearstat():
 	"""
 	try:
 		tb.clearlocks()
-	except Exception, instance:
-		print '*** Error ***',instance
+	except Exception as instance:
+		print('*** Error ***',instance)

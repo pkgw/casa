@@ -19,13 +19,13 @@ class sdcal_worker(sdutil.sdtask_template):
         self.suffix = '_cal'
         # Nothing to be done when calmode='none' and tau=0.0
         if self.calmode=='none' and self.tau==0.0:
-            raise Exception, "No operation to be done for calmode='none' and tau=0.0. Exiting task."
+            raise Exception("No operation to be done for calmode='none' and tau=0.0. Exiting task.")
 
     def initialize_scan(self):
         sorg=sd.scantable(self.infile,average=False,antenna=self.antenna)
 
         if not isinstance(sorg,Scantable):
-            raise Exception, 'Scantable data %s, is not found'
+            raise Exception('Scantable data %s, is not found')
 
         # A scantable selection
         sel = self.get_selector(sorg)

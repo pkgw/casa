@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import thread # To handle service threads like monitoring
+import _thread # To handle service threads like monitoring
 import time # To handle sleep times
 import traceback # To pretty-print tracebacks
 import os
@@ -7,10 +7,10 @@ import os
 from taskinit import casalog
 
 # Import MPIEnvironment static class
-from MPIEnvironment import MPIEnvironment
+from .MPIEnvironment import MPIEnvironment
 
 # Import MPICommunicator singleton
-from MPICommunicator import MPICommunicator
+from .MPICommunicator import MPICommunicator
 
 
 class MPIMonitorServer: 
@@ -27,13 +27,13 @@ class MPIMonitorServer:
         if not MPIEnvironment.is_mpi_enabled:
             msg = "MPI is not enabled"
             casalog.post(msg,"SEVERE",casalog_call_origin)
-            raise Exception,msg
+            raise Exception(msg)
         
         # Check if MPIMonitorServer can be instantiated
         if MPIEnvironment.is_mpi_client:
             msg = "MPIMonitorServer cannot be instantiated at master MPI process"
             casalog.post(msg,"SEVERE",casalog_call_origin)
-            raise Exception,msg  
+            raise Exception(msg)  
         
         # Check whether we already have a MPIMonitorServer singleton instance
         if MPIMonitorServer.__instance is None:
@@ -161,7 +161,7 @@ class MPIMonitorServer:
             
             try:
                 self.__ping_status_request_handler_service_on = True
-                self.__ping_status_request_handler_service_thread = thread.start_new_thread(self.__ping_status_request_handler_service, ())
+                self.__ping_status_request_handler_service_thread = _thread.start_new_thread(self.__ping_status_request_handler_service, ())
             except Exception as instance:
                 self.__ping_status_request_handler_service_on = False
                 self.__ping_status_request_handler_service_running = False
@@ -221,7 +221,7 @@ class MPIMonitorServer:
             if keyword is None:
                 return dict(self.__status)
             # If keyword is provided check existence and return the mapped value
-            elif self.__status.has_key(keyword):
+            elif keyword in self.__status:
                 return self.__status[keyword]
             else:
                 casalog.post("Status keyword %s not defined" % str(keyword),"WARN",casalog_call_origin)
@@ -231,7 +231,7 @@ class MPIMonitorServer:
             
             casalog_call_origin = "MPIMonitorServer::set_status"
 
-            if self.__status.has_key(keyword):
+            if keyword in self.__status:
                 self.__status[keyword] = value
             else:
                 casalog.post("Status keyword %s not defined" % str(keyword),"WARN",casalog_call_origin)          

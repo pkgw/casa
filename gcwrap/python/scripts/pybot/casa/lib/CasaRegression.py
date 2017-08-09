@@ -2,11 +2,11 @@
 import os
 import re
 import sys
-import gdbm
+import dbm.gnu
 import time
 import shutil
 import subprocess
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import tempfile
 import smtplib
 from email.mime.text import MIMEText
@@ -35,7 +35,7 @@ class CasaRegression:
         if os.path.exists(temppath) and not os.path.isdir(temppath):
             raise RuntimeError("temp directory(" + temppath + ") exists but is not a directory...")
         if not os.path.exists(temppath):
-            os.mkdir(temppath,0755)
+            os.mkdir(temppath,0o755)
         tempfile.tempdir = temppath
         self._path['tmp'] = temppath
         self._status = ''
@@ -55,11 +55,11 @@ class CasaRegression:
         if self._rerun:
             return
 
-        if os.environ.has_key('__PYBOT_CASA_PRECONFIG__'):
+        if '__PYBOT_CASA_PRECONFIG__' in os.environ:
             return
 
-        for k, v in self._path.iteritems( ):
-            print str(k) + " -> " + str(v)
+        for k, v in self._path.items( ):
+            print(str(k) + " -> " + str(v))
         if ( not self._path['casa'].startswith(self._path['top']) or self._path['casa'] == self._path['top'] ) :
             raise RuntimeError('casa root (' + self._path['casa'] + ') must be a subdirectory of top dir (' + self._path['top'] +')...')
         if os.path.exists(self._path['casa']):
@@ -74,7 +74,7 @@ class CasaRegression:
             else:
                 shutil.rmtree(self._path['testbase'])
 
-        os.makedirs(self._path['testbase'],0755)
+        os.makedirs(self._path['testbase'],0o755)
 
 
     # regression suite
@@ -94,7 +94,7 @@ class CasaRegression:
         if self._rerun:
             return
 
-        if os.environ.has_key('__PYBOT_CASA_PRECONFIG__'):
+        if '__PYBOT_CASA_PRECONFIG__' in os.environ:
             return
 
         cleanup = [ ]
@@ -113,17 +113,17 @@ class CasaRegression:
             ### as they are prone to being overwritten...
             cs = os.tmpnam( ) + '.' + str.join('.',sumvec[1].split('.')[1:])
             f = os.tmpnam( ) + '.' + str.join('.',urlvec[1].split('.')[1:])
-            print "fetching " +  sumvec[1] + " as " + cs + " ..."
+            print("fetching " +  sumvec[1] + " as " + cs + " ...")
             shutil.copyfile(sumvec[1],cs)
             cleanup.append(cs)
-            print "fetching " + urlvec[1] + " as " + f + " ..."
+            print("fetching " + urlvec[1] + " as " + f + " ...")
             shutil.copyfile(urlvec[1],f)
             cleanup.append(f)
         else:
-            print "fetching " + sumvec[0] + "..."
-            (cs,ch) = urllib.urlretrieve(sumvec[0])
-            print "fetching " + urlvec[0] + "..."
-            (f,fh) = urllib.urlretrieve(urlvec[0])
+            print("fetching " + sumvec[0] + "...")
+            (cs,ch) = urllib.request.urlretrieve(sumvec[0])
+            print("fetching " + urlvec[0] + "...")
+            (f,fh) = urllib.request.urlretrieve(urlvec[0])
 
         try:
             calculated = ''
@@ -144,11 +144,11 @@ class CasaRegression:
                 raise RuntimeError('could not match checksum with download...')
     
             if not os.path.exists(self._path['casa']):
-                os.mkdir(self._path['casa'],0755)
+                os.mkdir(self._path['casa'],0o755)
     
             p = subprocess.Popen( [ "/bin/tar", '-C', self._path['casa'], '-x', '--strip-components', '1', '-f', f ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
             for line in p.stdout:
-                print "tar> " + line.rstrip( )
+                print("tar> " + line.rstrip( ))
             p.wait( )
         finally:
             while len(cleanup) > 0:
@@ -165,12 +165,12 @@ class CasaRegression:
             return
 
         casaroot = self._path['casa'] + '/build'
-        if os.environ.has_key('__PYBOT_CASA_PRECONFIG__'):
-            print "creating " + casaroot + "/init.sh"
+        if '__PYBOT_CASA_PRECONFIG__' in os.environ:
+            print("creating " + casaroot + "/init.sh")
             f = open(casaroot + "/init.sh",'w')
             f.write( "export __PYBOT_CASA_PRECONFIG__=\"" + os.environ['__PYBOT_CASA_PRECONFIG__'] + "\"\n" )
             f.close( )
-            print "creating " + casaroot + "/init.pl"
+            print("creating " + casaroot + "/init.pl")
             f = open(casaroot + "/init.pl",'w')
             f.write( "$ENV{'__PYBOT_CASA_PRECONFIG__'} = '" + os.environ['__PYBOT_CASA_PRECONFIG__'] + "';\n" )
             f.close( )
@@ -186,7 +186,7 @@ class CasaRegression:
                 raise RuntimeError('data directory (' + datalink +') exists and is of an unknown type...')
         os.symlink(datadir,datalink)
 
-        print "creating " + casaroot + "/init.sh"
+        print("creating " + casaroot + "/init.sh")
         f = open(casaroot + "/init.sh",'w')
         f.write( "export CASAPATH=\"%s linux-x86_64\"\n" % casaroot )
         f.write( "export LD_LIBRARY_PATH=%s/linux-x86_64/lib\n" % casaroot )
@@ -195,7 +195,7 @@ class CasaRegression:
         f.write( "export __CASAPY_TASKDIR=%s/linux-x86_64/python/2.6\n" % casaroot )
         f.close( )
 
-        print "creating " + casaroot + "/init.pl"
+        print("creating " + casaroot + "/init.pl")
         f = open(casaroot + "/init.pl",'w')
         f.write( "$ENV{'CASAPATH'} = '%s linux-x86_64';\n" % casaroot )
         f.write( "$ENV{'LD_LIBRARY_PATH'} = '%s/linux-x86_64/lib';\n" % casaroot )
@@ -207,7 +207,7 @@ class CasaRegression:
 
     def initialize_version( self ):
         versions = [ ]
-        if os.environ.has_key('__PYBOT_CASA_PRECONFIG__'):
+        if '__PYBOT_CASA_PRECONFIG__' in os.environ:
             versions = os.environ['__PYBOT_CASA_PRECONFIG__'].split( )
         else:
             casainit = self._path['casa'] + '/build/init.pl'
@@ -222,7 +222,7 @@ class CasaRegression:
 
         if len(versions) != 2:
             raise RuntimeError("could not find casapy version number")
-        print "version: " + str(versions[0]) + " revision: " + str(versions[1])
+        print("version: " + str(versions[0]) + " revision: " + str(versions[1]))
         out = open(self._path['output'] + "/version.txt", "w")
         out.write( 'VERSION> ' + str(versions[0]) + " " + str(versions[1]) + "\n" )
         out.close( )
@@ -247,7 +247,7 @@ class CasaRegression:
             else:
                 raise RuntimeError('test directory (' + self._path['test'] +') exists and is of an unknown type...')
 
-        os.mkdir(self._path['test'],0755);
+        os.mkdir(self._path['test'],0o755);
 
         if False:
             pyroot = self._path['casa'] + '/build/linux-x86_64/python/2.6'
@@ -255,14 +255,14 @@ class CasaRegression:
             for root, dirs, files in os.walk(pyroot):
                 if script in files:
                     script_path = root + '/' + script
-                    print "copying " + script_path + " to " + self._path['test']
+                    print("copying " + script_path + " to " + self._path['test'])
                     shutil.copy(script_path,self._path['test'])
                     break
             if not script_path:
                 raise RuntimeError('could not find regression script: ' + script)
 
         self._path['log'] = self._path['test'] + "/execution-log.txt";
-        print "execution log: " + self._path['log']
+        print("execution log: " + self._path['log'])
         casapy = self._path['bin'] + '/xvfb-casapy'
 
         if py_prof:
@@ -271,25 +271,25 @@ class CasaRegression:
         else:
             PYPROFILE = ", PY_PROFILE=False"
 
-        print "starting: " + casapy
-        print "(CasaRegression.py) current directory: " + os.getcwd( )
+        print("starting: " + casapy)
+        print("(CasaRegression.py) current directory: " + os.getcwd( ))
 
         #CALL TEST SCRIPT (Determine if a regression test or a unit test to determine the proper test method)
         #UNIT TEST
         if script.startswith("test_"):
-            print "invoking " + " ".join( [ casapy,'-cd', self._path['test'],
+            print("invoking " + " ".join( [ casapy,'-cd', self._path['test'],
                                           '--eval=' + self._path['casa'] + '/build/init.pl',
-                                          '--tmpdir=' + self._path['tmp'], '-c', "runUnitTest.main(['" + script + "'])" ] )
+                                          '--tmpdir=' + self._path['tmp'], '-c', "runUnitTest.main(['" + script + "'])" ] ))
             p = subprocess.Popen( [ casapy,'-cd', self._path['test'],
                                   '--eval=' + self._path['casa'] + '/build/init.pl',
                                   '--tmpdir=' + self._path['tmp'], '-c', "runUnitTest.main(['" + script + "'])" ],
                                   stdout=subprocess.PIPE, stderr=subprocess.STDOUT );
         #REGRESSION TEST
         else:
-            print "invoking " + " ".join( [ casapy, '-cd', self._path['test'],
+            print("invoking " + " ".join( [ casapy, '-cd', self._path['test'],
                                             '--eval=' + self._path['casa'] + '/build/init.pl',
                                             '--tmpdir=' + self._path['tmp'], '-c',
-                                            "publish_summary.runTest( '" + script + "', WORKING_DIR='"+self._path['test']+'/pubsum'+"', RESULT_DIR='"+self._path['output']+"', RESULT_SUBDIR='"+script+"', REDIRECT=False" + PYPROFILE + " )" ] )
+                                            "publish_summary.runTest( '" + script + "', WORKING_DIR='"+self._path['test']+'/pubsum'+"', RESULT_DIR='"+self._path['output']+"', RESULT_SUBDIR='"+script+"', REDIRECT=False" + PYPROFILE + " )" ] ))
 	    p = subprocess.Popen( [ casapy, '-cd', self._path['test'],
                                 '--eval=' + self._path['casa'] + '/build/init.pl',
                                 '--tmpdir=' + self._path['tmp'], '-c',
@@ -299,7 +299,7 @@ class CasaRegression:
 
         log = open( self._path['log'], 'w' );
         for line in p.stdout:
-            print line.rstrip( )
+            print(line.rstrip( ))
             log.write(line)
 
     # individual regression
@@ -341,22 +341,22 @@ class CasaRegression:
                 self._state['condition'] = re.match(r"\[result:exit condition\]\s+(.*)",line).group(1)
         log.close( )
 
-        for k, v in self._state.iteritems( ):
-            print str(k) + " -> " + str(v)
+        for k, v in self._state.items( ):
+            print(str(k) + " -> " + str(v))
 
         divider = ";;"
         self._state['stamp'] = str(self._state['script']).split('.')[0] + ":" + self._state['time']
-        statedb = gdbm.open(self._state['statedb'],"c")
-        statedb[self._state['stamp']] = (str(self._state['result']) if self._state.has_key('result') else "malfunction") + divider + \
-                                        (str(self._state['time:wall']) if self._state.has_key('time:wall') else "0") + divider + \
-                                        (str(self._state['time:cpu']) if self._state.has_key('time:cpu') else "0")
+        statedb = dbm.gnu.open(self._state['statedb'],"c")
+        statedb[self._state['stamp']] = (str(self._state['result']) if 'result' in self._state else "malfunction") + divider + \
+                                        (str(self._state['time:wall']) if 'time:wall' in self._state else "0") + divider + \
+                                        (str(self._state['time:cpu']) if 'time:cpu' in self._state else "0")
         statedb.close( )
-        if not self._state.has_key('result'):
-            maildb = gdbm.open(self._state['maildb'],"c")
+        if 'result' not in self._state:
+            maildb = dbm.gnu.open(self._state['maildb'],"c")
             maildb[self._state['stamp']] = "malfunction" + divider + str(self._state['script']) + divider + self._state['master'] + divider + self._state['master-email'] + divider + logfile
             maildb.close( )
         elif self._state['result'] != 'pass':
-            maildb = gdbm.open(self._state['maildb'],"c")
+            maildb = dbm.gnu.open(self._state['maildb'],"c")
             maildb[self._state['stamp']] = "fail" + divider + str(self._state['script']) + divider + str(maintainer) + divider + str(email) + divider + logfile
             maildb.close( )
 
@@ -375,7 +375,7 @@ class CasaRegression:
 
     # individual regression
     def result( self ):
-        if not self._state.has_key('result'):
+        if 'result' not in self._state:
             raise RuntimeError('The test script ' + str(self._state['script']) + ' malfunctioned...')
         elif self._state['result'] != 'pass':
             raise RuntimeError('The execution of ' + str(self._state['script']) + ' failed...')
@@ -407,7 +407,7 @@ class CasaRegression:
         fp.close( )
 
         s = smtplib.SMTP(self._state['smtp-host'])
-        maildb = gdbm.open(maildb_path,"c")
+        maildb = dbm.gnu.open(maildb_path,"c")
 
         ###
         ### send email to regression owners...
@@ -510,7 +510,7 @@ class CasaRegression:
             if major and minor and bug and svn:
                 p = subprocess.Popen( [ self._path['bin'] + "/cbtdistro", '--version', major + "." + minor + "." + bug + "." + svn ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
                 for line in p.stdout:
-                    print "cbt> " + line.rstrip( )
+                    print("cbt> " + line.rstrip( ))
                 p.wait( )
 
         ###
@@ -521,8 +521,8 @@ class CasaRegression:
         ### processing the report because the html report is *only* generated after the
         ### final pybot actions take places (since these may add to the log)...
         ###
-        print self._path['bin'] + "/postprocess-report " + "[DELAY:120]::" + report_path
+        print(self._path['bin'] + "/postprocess-report " + "[DELAY:120]::" + report_path)
         p = subprocess.Popen( [ self._path['bin'] + "/postprocess-report", "[DELAY:120]::" + report_path ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
         for line in p.stdout:
-            print "postprocess> " + line.rstrip( )
+            print("postprocess> " + line.rstrip( ))
         p.wait( )

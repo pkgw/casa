@@ -5,13 +5,13 @@ from taskinit import casalog # Import casalog
 import time # To calculate elapsed times
 
 # Import MPIEnvironment static class
-from MPIEnvironment import MPIEnvironment
+from .MPIEnvironment import MPIEnvironment
 
 # Import MPICommandClient static class
-from MPICommandClient import MPICommandClient
+from .MPICommandClient import MPICommandClient
 
 # Import MPIMonitorClient singleton
-from MPIMonitorClient import MPIMonitorClient
+from .MPIMonitorClient import MPIMonitorClient
 
 
 
@@ -30,13 +30,13 @@ class MPIInterfaceCore:
         if not MPIEnvironment.is_mpi_enabled:
             msg = "MPI is not enabled"
             casalog.post(msg,"SEVERE",casalog_call_origin)
-            raise Exception,msg
+            raise Exception(msg)
         
         # Check if MPIInterfaceCore can be instantiated
         if not MPIEnvironment.is_mpi_client:
             msg = "MPIInterfaceCore can only be instantiated at master MPI process"
             casalog.post(msg,"SEVERE",casalog_call_origin)
-            raise Exception,msg
+            raise Exception(msg)
         
         # Check whether we already have a MPIInterfaceCore singleton instance
         if MPIInterfaceCore.__instance is None:
@@ -263,13 +263,13 @@ class MPIInterface:
         if not MPIEnvironment.is_mpi_enabled:
             msg = "MPI is not enabled"
             casalog.post(msg,"SEVERE",casalog_call_origin)
-            raise Exception,msg
+            raise Exception(msg)
         
         # Check if MPIInterface can be instantiated
         if not MPIEnvironment.is_mpi_client:
             msg = "MPIInterface can only be instantiated at master MPI process"
             casalog.post(msg,"SEVERE",casalog_call_origin)
-            raise Exception,msg
+            raise Exception(msg)
         
         # Check whether we already have a MPIInterface singleton instance
         if MPIInterface.__instance is None:
@@ -316,7 +316,7 @@ class MPIInterface:
         
         col_width = [max(len(x) for x in col) for col in zip(*table)]
         for line in table:
-            print "| " + " | ".join("{:{}}".format(x, col_width[i]) for i, x in enumerate(line)) + " |"       
+            print("| " + " | ".join("{:{}}".format(x, col_width[i]) for i, x in enumerate(line)) + " |")       
     
     
     

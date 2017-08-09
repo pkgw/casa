@@ -1,3 +1,4 @@
+import atexit
 import os
 import traceback
 
@@ -13,26 +14,26 @@ if casa['flags'].execute:
         ## non-qualified path
         __paths_to_check = [ "./", casa['dirs']['python'] + '/' ]
 
-    __candidates = filter( os.path.isfile, map(lambda dir: dir + casa['flags'].execute[0], __paths_to_check) )
+    __candidates = list(filter( os.path.isfile, [dir + casa['flags'].execute[0] for dir in __paths_to_check] ))
 
     if len(__candidates) > 0:
         # Run file with filename given in the command line
         try:
             with redirect_argv(casa['flags'].execute):
-                execfile(__candidates[0])
+                exec(compile(open(__candidates[0]).read(), __candidates[0], 'exec'))
 
-        except NameError, err:
+        except NameError as err:
             if str(err) == "name 'T' is not defined" or \
                str(err) == "name 'F' is not defined" or \
                str(err) == "name 'true' is not defined" or \
                str(err) == "name 'false' is not defined" :
-                print "------------------------------------------------------------------------------"
-                print "Warning: CASA no longer defines T/true and F/false as synonyms for True/False"
-                print "------------------------------------------------------------------------------"
+                print("------------------------------------------------------------------------------")
+                print("Warning: CASA no longer defines T/true and F/false as synonyms for True/False")
+                print("------------------------------------------------------------------------------")
                 traceback.print_exc()
                 immediate_exit_with_handlers(1)
 
-        except Exception, err:
+        except Exception as err:
             traceback.print_exc()
             immediate_exit_with_handlers(1)
 
@@ -41,7 +42,7 @@ if casa['flags'].execute:
     else:
         try:
             exec(casa['flags'].execute[0])
-        except Exception, err:
+        except Exception as err:
             traceback.print_exc()
             os._exit(0)
 
@@ -78,7 +79,7 @@ else:
             except:
                 pass
 
-    sys.exitfunc = ___protect_exit(sys.exitfunc)
+    atexit.register(___protect_exit(sys.exitfunc))
 
     from casa_builtin import enable_builtin_protection, register_builtin
 
@@ -102,5 +103,5 @@ else:
     enable_builtin_protection()
     _blue = '\033[94m'
     _end = '\033[0m'
-    print "Enter " + _blue + "doc('start')" + _end + " for help getting started with CASA..."
+    print("Enter " + _blue + "doc('start')" + _end + " for help getting started with CASA...")
     #print "CASA Version " + casa['build']['version'] + "\n  Compiled on: " + casa['build']['time']

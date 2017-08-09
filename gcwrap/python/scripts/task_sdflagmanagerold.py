@@ -22,7 +22,7 @@ class sdflagmanager_worker(sdutil.sdtask_template):
     def parameter_check(self):
         availablemodes = ['list', 'save', 'restore', 'delete', 'rename']
         if not (self.mode in availablemodes):
-            raise Exception, "Unknown mode" + str(mode)
+            raise Exception("Unknown mode" + str(mode))
 
         namer = filenamer('sdflagmanagerold', self.infile_abs)
         self.msfile = namer.configure_name(kind='temp',suffix='ms')
@@ -89,7 +89,7 @@ def domanage(infilename, mode, versionname, oldname, comment, merge):
         # if backupms and backupmsfver exist, rename them back
         # to msfilename and msfilename.flagversions, respectively
     else:
-        raise Exception, "Unknown mode" + str(mode)
+        raise Exception("Unknown mode" + str(mode))
 
 
 class filenamer(object):

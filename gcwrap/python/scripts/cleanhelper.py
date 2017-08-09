@@ -1,6 +1,6 @@
 from  casac import *
 import os
-import commands
+import subprocess
 import math
 import pdb
 import numpy
@@ -104,7 +104,7 @@ class cleanhelper:
         if ((type(vis)==str) & (os.path.exists(vis))):
             self.im.open(vis, usescratch=usescratch)
         else:
-            raise Exception, 'Visibility data set not found - please verify the name'
+            raise Exception('Visibility data set not found - please verify the name')
         self.phasecenter=''
         self.spwindex=-1
         self.fieldindex=-1
@@ -122,7 +122,7 @@ class cleanhelper:
             if ((type(self.vis[0])==str) & (os.path.exists(self.vis[0]))):
                 pass
             else:
-                raise Exception, 'Visibility data set not found - please verify the name'
+                raise Exception('Visibility data set not found - please verify the name')
         self.phasecenter=''
         self.spwindex=-1
         self.fieldindex=-1
@@ -160,7 +160,7 @@ class cleanhelper:
             spectable=self.getsubtable(visname, "SPECTRAL_WINDOW")
             tb.open(spectable)
             chanfreqs=tb.getvarcol('CHAN_FREQ')
-            kys = chanfreqs.keys()
+            kys = list(chanfreqs.keys())
             selspws=mssel['spw']
             # find extreme freq in each selected spw
             minmax0=0.
@@ -203,7 +203,7 @@ class cleanhelper:
         elif ((type(cell)==str) or (type(cell)==int) or (type(cell)==float)):
             cell=[cell, cell]
         elif (type(cell) != list):
-            raise TypeError, "parameter cell %s is not understood" % str(cell)
+            raise TypeError("parameter cell %s is not understood" % str(cell))
         cellx=qa.quantity(cell[0], 'arcsec')
         celly=qa.quantity(cell[1], 'arcsec')
         if(cellx['unit']==''):
@@ -217,31 +217,31 @@ class cleanhelper:
         elif(type(imsize)==int):
             imsize=[imsize, imsize]
         elif(type(imsize) != list):
-            raise TypeError, "parameter imsize %s is not understood" % str(imsize)
+            raise TypeError("parameter imsize %s is not understood" % str(imsize))
             
 	elstart=start
         if(mode=='frequency'):
         ##check that start and step have units
             if(qa.quantity(start)['unit'].find('Hz') < 0):
-                raise TypeError, "start parameter %s is not a valid frequency quantity " % str(start)
+                raise TypeError("start parameter %s is not a valid frequency quantity " % str(start))
             ###make sure we respect outframe
             if(self.usespecframe != ''):
                 elstart=me.frequency(self.usespecframe, start)
             if(qa.quantity(width)['unit'].find('Hz') < 0):
-                raise TypeError, "width parameter %s is not a valid frequency quantity " % str(width)	
+                raise TypeError("width parameter %s is not a valid frequency quantity " % str(width))	
         elif(mode=='velocity'): 
         ##check that start and step have units
             if(qa.quantity(start)['unit'].find('m/s') < 0):
-                raise TypeError, "start parameter %s is not a valid velocity quantity " % str(start)
+                raise TypeError("start parameter %s is not a valid velocity quantity " % str(start))
             ###make sure we respect outframe
             if(self.usespecframe != ''):
                 elstart=me.radialvelocity(self.usespecframe, start)
             if(qa.quantity(width)['unit'].find('m/s') < 0):
-                raise TypeError, "width parameter %s is not a valid velocity quantity " % str(width)	
+                raise TypeError("width parameter %s is not a valid velocity quantity " % str(width))	
         else:
             if((type(width) != int) or 
                (type(start) != int)):
-                raise TypeError, "start (%s), width (%s) have to be integers with mode %s" % (str(start),str(width),mode)
+                raise TypeError("start (%s), width (%s) have to be integers with mode %s" % (str(start),str(width),mode))
 
         # changes related multims handling added below (TT)
         # multi-mses are sorted internally (stored in self.sortedvislist and
@@ -275,11 +275,11 @@ class cleanhelper:
                                 tmppc = int(ms.msseltoindex(self.vis[i],
                                                     field=phasecenter)['field'][0])
                                 #print "tmppc,i=", tmppc, i
-                        except Exception, instance:
+                        except Exception as instance:
                              pass
 
                     ##succesful must be string like '0' or 'NGC*'
-                except Exception, instance:
+                except Exception as instance:
                     ##failed must be a string 'J2000 18h00m00 10d00m00'
                     tmppc = phasecenter
                 phasecenter = tmppc
@@ -371,9 +371,9 @@ class cleanhelper:
         if((len(phasecenters)) != (len(imsizes))):
             errmsg = "Mismatch between the number of phasecenters (%d), image sizes (%d) , and images (%d)" % (len(phasecenters), len(imsizes), self.nimages)
             self._casalog.post(errmsg, 'SEVERE')
-            raise ValueError, errmsg
+            raise ValueError(errmsg)
         self.skipclean=False
-        lerange=range(self.nimages)
+        lerange=list(range(self.nimages))
         lerange.reverse()
         for n in lerange:
             self.defineimages(list(imsizes[n]), cell, stokes, mode, spw, nchan,
@@ -457,7 +457,7 @@ class cleanhelper:
         and it is assumed that definemultiimages creates 
         empty images (self.imagelist). 
         """ 
-        lerange=range(self.nimages)
+        lerange=list(range(self.nimages))
         for n in lerange:
             os.system('cp -r '+self.imagelist[n]+' '+self.imagelist[n]+'.image')
             os.system('cp -r '+self.imagelist[n]+' '+self.imagelist[n]+'.residual')
@@ -475,7 +475,7 @@ class cleanhelper:
          to be removed after task_widefield is gone)
         """
         if((len(self.maskimages)==(len(self.imagelist)))):
-            if(not self.maskimages.has_key(self.imagelist[0])):
+            if(self.imagelist[0] not in self.maskimages):
                 self.maskimages={}
         else:
             self.maskimages={}
@@ -487,25 +487,25 @@ class cleanhelper:
             maskobject=[maskobject]
         if(type(maskobject) != list):
             ##don't know what to do with this
-            raise TypeError, 'Dont know how to deal with mask object'
+            raise TypeError('Dont know how to deal with mask object')
         n=0
         for masklets in maskobject:
             if(type(masklets)==str):
                     if(os.path.exists(masklets)):
-                        if(commands.getoutput('file '+masklets).count('directory')):
+                        if(subprocess.getoutput('file '+masklets).count('directory')):
                             self.maskimages[self.imagelist[n]]=masklets
                             n=n+1
-                        elif(commands.getoutput('file '+masklets).count('text')):
+                        elif(subprocess.getoutput('file '+masklets).count('text')):
                             masktext.append(masklets)
                         else:
-                            raise TypeError, 'Can only read text mask files or mask images'
+                            raise TypeError('Can only read text mask files or mask images')
                     else:
-                       raise TypeError, masklets+' seems to be non-existant' 
+                       raise TypeError(masklets+' seems to be non-existant') 
         if(len(masktext) > 0):
             circles, boxes=self.readmultifieldboxfile(masktext)
             if(len(self.maskimages)==0):
                 for k in range(len(self.imageids)):
-                    if(not self.maskimages.has_key(self.imagelist[k])):
+                    if(self.imagelist[k] not in self.maskimages):
                         self.maskimages[self.imagelist[k]]=self.imagelist[k]+'.mask'
             for k in range(len(self.imageids)):
                 ###initialize mask if its not there yet
@@ -515,14 +515,14 @@ class cleanhelper:
                     ia.open(self.maskimages[self.imagelist[k]])
                     ia.set(pixels=0.0)
                     ia.done(verbose=False)
-                if(circles.has_key(self.imageids[k]) and boxes.has_key(self.imageids[k])):
+                if(self.imageids[k] in circles and self.imageids[k] in boxes):
                     self.im.regiontoimagemask(mask=self.maskimages[self.imagelist[k]],
                                               boxes=boxes[self.imageids[k]],
                                               circles=circles[self.imageids[k]])
-                elif(circles.has_key(self.imageids[k])):
+                elif(self.imageids[k] in circles):
                     self.im.regiontoimagemask(mask=self.maskimages[self.imagelist[k]],
                                               circles=circles[self.imageids[k]])
-                elif(boxes.has_key(self.imageids[k])):
+                elif(self.imageids[k] in boxes):
                     self.im.regiontoimagemask(mask=self.maskimages[self.imagelist[k]],
                                               boxes=boxes[self.imageids[k]])
                 else:
@@ -567,7 +567,7 @@ class cleanhelper:
         """
         #print "Inside makemultifieldmask2"
         if((len(self.maskimages)==(len(self.imagelist)))):
-            if(not self.maskimages.has_key(self.imagelist[0])):
+            if(self.imagelist[0] not in self.maskimages):
                 self.maskimages=odict()
         else:
             self.maskimages=odict()
@@ -586,7 +586,7 @@ class cleanhelper:
             maskobject=[maskobject]
         if(type(maskobject) != list):
             ##don't know what to do with this
-            raise TypeError, 'Dont know how to deal with maskobject with type: %s' % type(maskobject)
+            raise TypeError('Dont know how to deal with maskobject with type: %s' % type(maskobject))
         #if(type(maskobject[0])==int or type(maskobject[0])==float):
         if(numpy.issubdtype(type(maskobject[0]),int) or numpy.issubdtype(type(maskobject[0]),float)):
             maskobject=[maskobject] 
@@ -599,7 +599,7 @@ class cleanhelper:
         # define maskimages
         if(len(self.maskimages)==0):
             for k in range(len(self.imageids)):
-                if(not self.maskimages.has_key(self.imagelist[k])):
+                if(self.imagelist[k] not in self.maskimages):
                     self.maskimages[self.imagelist[k]]=self.imagelist[k]+'.mask'
         # initialize maskimages - create empty maskimages
         # --- use outframe or dataframe for mask creation
@@ -648,8 +648,8 @@ class cleanhelper:
             for masklets in maskobject[maskid]:
                 if type(masklets)==str:
                     if (os.path.exists(masklets) and 
-                        (not commands.getoutput('file '+masklets).count('directory')) and
-                        (not commands.getoutput('file '+masklets).split(':')[-1].count('data'))):
+                        (not subprocess.getoutput('file '+masklets).count('directory')) and
+                        (not subprocess.getoutput('file '+masklets).split(':')[-1].count('data'))):
                            # extract boxfile name
                         masktext.append(masklets)
 
@@ -690,11 +690,11 @@ class cleanhelper:
 	#for maskid in range(len(self.maskimages)):
 
 	# === boxfile handling ====
-	for maskid in self.maskimages.keys(): 
+	for maskid in list(self.maskimages.keys()): 
 	    # for handling old format
 	    #if nmaskobj <= maskid:
 	    # add circles,boxes back
-	    maskindx = self.maskimages.keys().index(maskid)
+	    maskindx = list(self.maskimages.keys()).index(maskid)
 	    if len(circles) != 0:
 		for key in circles:
 		    if  (newformat and maskid==key) or \
@@ -705,9 +705,9 @@ class cleanhelper:
 			   incircles=circles[key]
 			# put in imagelist order
 			if len(incircles)>1 and isinstance(incircles[0],list):
-			    updatedmaskobject[self.imagelist.values().index(maskid)].extend(incircles)
+			    updatedmaskobject[list(self.imagelist.values()).index(maskid)].extend(incircles)
 			else:
-			    updatedmaskobject[self.imagelist.values().index(maskid)].append(incircles)
+			    updatedmaskobject[list(self.imagelist.values()).index(maskid)].append(incircles)
 	    if len(boxes) != 0:
 		for key in boxes:
 		    #try: 
@@ -724,9 +724,9 @@ class cleanhelper:
 			# put in imagelist order
 			# take out extra []
 			if len(inboxes)>1 and isinstance(inboxes[0],list):
-			   updatedmaskobject[self.imagelist.values().index(maskid)].extend(inboxes)
+			   updatedmaskobject[list(self.imagelist.values()).index(maskid)].extend(inboxes)
 			else:
-			   updatedmaskobject[self.imagelist.values().index(maskid)].append(inboxes)
+			   updatedmaskobject[list(self.imagelist.values()).index(maskid)].append(inboxes)
 	# === boxfile handling ====
 
         # do maskimage creation (call makemaskimage)
@@ -741,7 +741,7 @@ class cleanhelper:
 #            self.makemaskimage(outputmask=self.maskimages[self.imagelist[maskid]], 
 #            imagename=self.imagelist[maskid], maskobject=updatedmaskobject[maskid], slice=slice)
 
-        for key in self.maskimages.keys():
+        for key in list(self.maskimages.keys()):
             if(os.path.exists(self.maskimages[key])):
                 ia.open(self.maskimages[key])
                 fsum=ia.statistics(verbose=False,list=False)['sum']
@@ -833,7 +833,7 @@ class cleanhelper:
         
         if(type(maskobject) != list):
             ##don't know what to do with this
-            raise TypeError, 'Dont know how to deal with maskobject'
+            raise TypeError('Dont know how to deal with maskobject')
         if(numpy.issubdtype(type(maskobject[0]),numpy.int) or \
             numpy.issubdtype(type(maskobject[0]),numpy.float)):
             # check and convert if list consist of python int or float  
@@ -843,9 +843,9 @@ class cleanhelper:
             for masklets in maskobject:
                 if(type(masklets)==str): ## Can be a file name, or an explicit region-string
                     if(os.path.exists(masklets)):
-                        if(commands.getoutput('file '+masklets).count('directory')):
+                        if(subprocess.getoutput('file '+masklets).count('directory')):
                             maskimage.append(masklets)
-                        elif(commands.getoutput('file '+masklets).count('text')):
+                        elif(subprocess.getoutput('file '+masklets).count('text')):
                             masktext.append(masklets)
                         else:
                             tablerecord.append(masklets)
@@ -883,7 +883,7 @@ class cleanhelper:
         else:
             self.im.make(outputmask)
             if len(self.imagelist)>1:
-                raise Exception, "Multifield case - requires initial mask images but undefined."   
+                raise Exception("Multifield case - requires initial mask images but undefined.")   
 
         # respect dataframe or outframe
         if self.usespecframe=='': 
@@ -958,9 +958,9 @@ class cleanhelper:
                 try:
                     reg.update({tabl:rg.fromfiletorecord(filename=tabl, verbose=False)})
                 except:
-                    raise Exception,'Region-file (binary) format not recognized. Please check. If box-file, please start the file with \'#boxfile\' on the first line';
+                    raise Exception('Region-file (binary) format not recognized. Please check. If box-file, please start the file with \'#boxfile\' on the first line');
             if(len(reg)==1):
-                reg=reg[reg.keys()[0]]
+                reg=reg[list(reg.keys())[0]]
             else:
                 reg=rg.makeunion(reg)
             self.im.regiontoimagemask(mask=outputmask, region=reg)
@@ -990,7 +990,7 @@ class cleanhelper:
                         mreg = rg.fromtextfile(filename=textfile,shape=mshp,csys=mcsys.torecord());
                         self.im.regiontoimagemask(mask=outputmask, region=mreg);
                     except:
-                        raise Exception,'Region-file (text) format not recognized. Please check. If box-file, please start the file with \'#boxfile\' on the first line, and have at-least one valid box in it';
+                        raise Exception('Region-file (text) format not recognized. Please check. If box-file, please start the file with \'#boxfile\' on the first line, and have at-least one valid box in it');
         ### Make masks from inline lists of pixel coordinates
         if((type(masklist)==list) and (len(masklist) > 0)):
             self.im.regiontoimagemask(mask=outputmask, boxes=masklist)
@@ -1005,7 +1005,7 @@ class cleanhelper:
                     mreg = rg.fromtext(text=textlet,shape=mshp,csys=mcsys.torecord());
                     self.im.regiontoimagemask(mask=outputmask, region=mreg);
                 except:
-                    raise Exception,'\''+textlet+'\' is not recognized as a text file on disk or as a region string';
+                    raise Exception('\''+textlet+'\' is not recognized as a text file on disk or as a region string');
         ### Make mask from an image-mask
         if(os.path.exists(imagename) and (len(rg.namesintable(imagename)) !=0)):
             regs=rg.namesintable(imagename)
@@ -1054,7 +1054,7 @@ class cleanhelper:
         if(len(self.fieldindex)==0):
             fieldtab=self.getsubtable(self.vis, 'FIELD')
             tb.open(fieldtab)
-            self.fieldindex=range(tb.nrows())
+            self.fieldindex=list(range(tb.nrows()))
             tb.close()
         #weighting and tapering should be done together
         if(weighting=='natural'):
@@ -1145,7 +1145,7 @@ class cleanhelper:
         """
         outparams={}
         if type(params)==dict:
-          for param,val in params.items():
+          for param,val in list(params.items()):
             msg = 'The number of %s list given in list does not match with the number of vis list given.' % param
             if type(val)==list:
               if len(val)==nvis:
@@ -1154,14 +1154,14 @@ class cleanhelper:
                 if len(val)==1:
                   outval=val[0]
                 else:
-                  raise Exception, msg
+                  raise Exception(msg)
               outparams[param]=outval
             else:
               #has to be a string
               outparams[param]=val
           return outparams
         else:
-          raise Exception, 'params must be a dictionary'
+          raise Exception('params must be a dictionary')
  
     # weighting/filtering part of datselweightfilter.
     # The scan parameter is not actually used, so observation is not included
@@ -1212,7 +1212,7 @@ class cleanhelper:
         self.im.weight(type=weighting,rmode=rmode,robust=robust, 
                          npixels=npixels, noise=qa.quantity(noise,'Jy'), mosaic=mosweight)
      
-        if((uvtaper==True) and (type(outertaper) in (str, int, float, long))):
+        if((uvtaper==True) and (type(outertaper) in (str, int, float, int))):
             outertaper=[outertaper]
         if((uvtaper==True) and (type(outertaper)==list) and (len(outertaper) > 0)):
             if(len(outertaper)==1):
@@ -1278,7 +1278,7 @@ class cleanhelper:
         k=0
         for modim in modelimages:
             if not os.path.exists(modim):
-                raise Exception, "Model image file name="+modim+" does not exist."
+                raise Exception("Model image file name="+modim+" does not exist.")
 
             ia.open(modim)
             modelosname='modelos_'+str(k) 
@@ -1434,7 +1434,7 @@ class cleanhelper:
                         line=line.replace('\'',' ')
                         splitline=line.split() 
                         if len(splitline) != 13:
-                           raise TypeError, 'Error reading worldbox file'      
+                           raise TypeError('Error reading worldbox file')      
                         #
                         refframe=self.csys['direction0']['conversionSystem']
                         if refframe.find('_VLA')>0:
@@ -1534,7 +1534,7 @@ class cleanhelper:
 
         f.close()
         if(len(temprec)==1):
-            polyg=temprec[temprec.keys()[0]]
+            polyg=temprec[list(temprec.keys())[0]]
         elif (len(temprec) > 1):
             #polyg=rg.dounion(temprec)
             polyg=rg.makeunion(temprec)
@@ -1708,7 +1708,7 @@ class cleanhelper:
                         elif line.split()[0]!='#':
                             content0+=line     
                 except:
-                    print "Unkown error while reading the file", outlierfile
+                    print("Unkown error while reading the file", outlierfile)
                     break
         if oldformat:
             if noOldOutlierFileSupport:
@@ -1753,7 +1753,7 @@ class cleanhelper:
         #print "pars=",pars
         dparm ={}
         indx=0
-        for key in pars.keys():
+        for key in list(pars.keys()):
             # do parsing
             parstr = pars[key]
             # clean up extra white spaces
@@ -1775,7 +1775,7 @@ class cleanhelper:
             for pv in parm.split():
                 if pv.find('=') != -1:
                     if ipar >= len(values):
-                        raise Exception, TypeError("mismath in no. parameters in parsing outlier file.")
+                        raise Exception(TypeError("mismath in no. parameters in parsing outlier file."))
                     (k,v) = pv.split('=')
                     # fix a string to proper litral value
                     # take out any commas at end which will
@@ -1791,16 +1791,16 @@ class cleanhelper:
         # mask is passed to other function for forther processing
         if not oldformat:
             #pack them by parameter name
-            for fld in dparm.keys():
+            for fld in list(dparm.keys()):
                 # before process, check if it contains all required keys
                 # namely, imagename, phasecenter, imsize
                 #print "dparm[",fld,"]=",dparm[fld]
-                if not (dparm[fld].has_key("imagename") and\
-                        dparm[fld].has_key("phasecenter") and\
-                        dparm[fld].has_key("imsize")):
-                    raise Exception, TypeError("Missing one or more of the required parameters: \
-                     imagename, phasecenter, and imsize in the outlier file. Please check the input outlier file.") 
-                for key in dparm[fld].keys():  
+                if not ("imagename" in dparm[fld] and\
+                        "phasecenter" in dparm[fld] and\
+                        "imsize" in dparm[fld]):
+                    raise Exception(TypeError("Missing one or more of the required parameters: \
+                     imagename, phasecenter, and imsize in the outlier file. Please check the input outlier file.")) 
+                for key in list(dparm[fld].keys()):  
                     if key == "imagename":
                         imageids.append(dparm[fld][key])
                     if key == "phasecenter":
@@ -1817,9 +1817,9 @@ class cleanhelper:
                             modelimages.append([dparm[fld][key]])
                         else:
                             modelimages.append(dparm[fld][key])
-                if not dparm[fld].has_key("mask"):
+                if "mask" not in dparm[fld]:
                     masks.append([])
-                if not dparm[fld].has_key("modelimage"):
+                if "modelimage" not in dparm[fld]:
                     modelimages.append('')
                 
                  
@@ -1957,8 +1957,8 @@ class cleanhelper:
         A utility function to return a quantity in string
         (currently only used in setChannelization which is deprecated)
         """
-        if not q.has_key('unit'):
-            raise TypeError, "Does not seems to be quantity"
+        if 'unit' not in q:
+            raise TypeError("Does not seems to be quantity")
         return str(q['value'])+q['unit']
 
     def convertvf(self,vf,frame,field,restf,veltype='radio'):
@@ -1980,7 +1980,7 @@ class cleanhelper:
             docalcf=False
         else:
             if vf !=0:
-                raise TypeError, "Unrecognized unit for the velocity or frequency parameter"
+                raise TypeError("Unrecognized unit for the velocity or frequency parameter")
         ##fldinds=ms.msseltoindex(self.vis, field=field)['field'].tolist()
         fldinds=ms.msseltoindex(self.vis[self.sortedvisindx[0]], field=field)['field'].tolist()
         if(len(fldinds) == 0):
@@ -1995,12 +1995,12 @@ class cleanhelper:
             if nfld >= fldid0:
               srcid=tb.getcell('SOURCE_ID',fldid0)
             else:
-              raise TypeError, ("Cannot set REST_FREQUENCY from the data: "+
+              raise TypeError("Cannot set REST_FREQUENCY from the data: "+
                   "no SOURCE corresponding field ID=%s, please supply restfreq" % fldid0)
             tb.close()
             # SOUECE_ID in FIELD table = -1 if no SOURCE table
             if srcid==-1:
-                raise TypeError, "Rest frequency info is not supplied"
+                raise TypeError("Rest frequency info is not supplied")
             #tb.open(self.vis+'/SOURCE')
             sourcetab=self.getsubtable(self.vis[self.sortedvisindx[0]], 'SOURCE')
             tb.open(sourcetab)
@@ -2010,18 +2010,18 @@ class cleanhelper:
             if nsrc > 0:
               rfreq=tb2.getcell('REST_FREQUENCY',0)
             else:
-              raise TypeError, ("Cannot set REST_FREQUENCY from the data: "+
+              raise TypeError("Cannot set REST_FREQUENCY from the data: "+
                    " no SOURCE corresponding field ID=%s, please supply restfreq" % fldid0)
             tb2.close()
             if(rfreq<=0):
-                raise TypeError, "Rest frequency does not seems to be properly set, check the data"
+                raise TypeError("Rest frequency does not seems to be properly set, check the data")
         else:
             if type(restf)==str: restf=[restf]
             if(qa.quantity(restf[0])['unit'].find('Hz') > -1):
                 rfreq=[qa.convert(qa.quantity(restf[0]),'Hz')['value']] 
                 #print "using user input rest freq=",rfreq
             else:
-                raise TypeError, "Unrecognized unit or type for restfreq"
+                raise TypeError("Unrecognized unit or type for restfreq")
         if(vf==0):
             # assume just want to get a restfrequecy from the data
             ret=str(rfreq[0])+'Hz'
@@ -2097,13 +2097,13 @@ class cleanhelper:
         
         if(type(start)==int or type(start)==float):
             if(start > len(chanfreqs1d)):
-                raise TypeError, "Start channel is outside the data range"
+                raise TypeError("Start channel is outside the data range")
             startf = chanfreqs1d[start]
         elif(type(start)==str):
             if(qa.quantity(start)['unit'].find('Hz') > -1):
                 startf=qa.convert(qa.quantity(start),'Hz')['value']
             else:
-                raise TypeError, "Unrecognized start parameter"
+                raise TypeError("Unrecognized start parameter")
         if(type(width)==int or type(width)==float):
             if(type(start)==int or type(start)==float):
                 #finc=(chanfreqs1d[start+1]-chanfreqs1d[start])*width
@@ -2133,7 +2133,7 @@ class cleanhelper:
             else:
                 bw=chanfreqs1d[-1]-chanfreqs1d[start]
             if(bw < 0):
-                raise TypeError, "Start parameter is outside the data range"
+                raise TypeError("Start parameter is outside the data range")
             if(qa.quantity(width)['unit'].find('Hz') > -1):
                 qnchan=qa.convert(qa.div(qa.quantity(bw,'Hz'),qa.quantity(width)))
                 #DP loc_nchan=int(math.ceil(qnchan['value']))+1
@@ -2244,14 +2244,14 @@ class cleanhelper:
               srcid=tb.getcell('SOURCE_ID',selfield[0])
             else:
               if mode=='velocity':
-                raise TypeError, ("Cannot set REST_FREQUENCY from the data: "+
+                raise TypeError("Cannot set REST_FREQUENCY from the data: "+
                   "no SOURCE corresponding field ID=%s, please supply restfreq" % selfield[0])
           finally:
             tb.close()
           #SOUECE_ID in FIELD table = -1 if no SOURCE table
           if srcid==-1:
             if mode=='velocity':
-              raise TypeError, "Rest frequency info is not supplied"
+              raise TypeError("Rest frequency info is not supplied")
           try:
             srctab=self.getsubtable(invis, 'SOURCE')
             tb.open(srctab)
@@ -2263,11 +2263,11 @@ class cleanhelper:
                 restf=str(rfqs[0])+'Hz'
               else:
                 if mode=='velocity':  
-                  raise TypeError, ("Cannot set REST_FREQUENCY from the data: "+
+                  raise TypeError("Cannot set REST_FREQUENCY from the data: "+
                     "REST_FREQUENCY entry for ID %s in SOURCE table is empty, please supply restfreq" % srcid)    
             else:
               if mode=='velocity':
-                raise TypeError, ("Cannot set REST_FREQUENCY from the data: "+
+                raise TypeError("Cannot set REST_FREQUENCY from the data: "+
                  "no SOURCE corresponding field ID=%s, please supply restfreq" % selfield[0])
           finally:
             tb.close()
@@ -2284,7 +2284,7 @@ class cleanhelper:
         #  newfreqs=chanfreqs
         #else:
           # obstime not included here
-        if debug: print "before ms.cvelfreqs (start,width,nchan)===>",start, width, nchan
+        if debug: print("before ms.cvelfreqs (start,width,nchan)===>",start, width, nchan)
         try:
             newfreqs=ms.cvelfreqs(spwids=selspw,fieldids=selfield,mode=mode,nchan=nchan,
                               start=start,width=width,phasec=inphasec, restfreq=restf,
@@ -2320,19 +2320,19 @@ class cleanhelper:
                     newfreqs=(numpy.array(newfreqs)[startchan:endchan]).tolist()
         except:
             pass
-        if debug: print "Mode, Start, width after cvelfreqs =",mode, start,width 
+        if debug: print("Mode, Start, width after cvelfreqs =",mode, start,width) 
         if type(newfreqs)==list and len(newfreqs) ==0:
-          raise TypeError, ("Output frequency grid cannot be calculated: "+
+          raise TypeError("Output frequency grid cannot be calculated: "+
                  " please check start and width parameters")
         if debug:
           if len(newfreqs)>1:
-            print "FRAME=",self.usespecframe
-            print "newfreqs[0]===>",newfreqs[0]
-            print "newfreqs[1]===>",newfreqs[1]
-            print "newfreqs[-1]===>",newfreqs[-1]
-            print "len(newfreqs)===>",len(newfreqs)
+            print("FRAME=",self.usespecframe)
+            print("newfreqs[0]===>",newfreqs[0])
+            print("newfreqs[1]===>",newfreqs[1])
+            print("newfreqs[-1]===>",newfreqs[-1])
+            print("len(newfreqs)===>",len(newfreqs))
           else:
-            print "newfreqs=",newfreqs
+            print("newfreqs=",newfreqs)
 
         # set output number of channels
         if nchan ==1:
@@ -2417,7 +2417,7 @@ class cleanhelper:
             finc = chanres[0]
           else:
             finc = newfreqs[1]-newfreqs[0]
-            if debug: print "finc(newfreqs1-newfreqs0)=",finc
+            if debug: print("finc(newfreqs1-newfreqs0)=",finc)
           if mode=="frequency":
             # It seems that this is no longer necessary... TT 2013-08-12
             #if descendingnewfreqs:
@@ -2444,7 +2444,7 @@ class cleanhelper:
                 retwidth = qa.tos(qa.sub(v0, v1))
           else:
             retwidth=1
-          if debug: print "setChan retwidth=",retwidth
+          if debug: print("setChan retwidth=",retwidth)
         return retnchan, retstart, retwidth
 
     def setChannelizeNonDefault(self, mode,spw,field,nchan,start,width,frame,
@@ -2469,7 +2469,7 @@ class cleanhelper:
         freqs=set()
         wset=[]
         chunk=spw.split(',')
-        for i in xrange(len(chunk)):
+        for i in range(len(chunk)):
             #print chunk[i], '------'
             ck=chunk[i].strip()
             if len(ck)==0:
@@ -2480,7 +2480,7 @@ class cleanhelper:
     
             if len(wc)==2:
                 sec=wc[1].split(';')
-                for k in xrange(len(sec)):
+                for k in range(len(sec)):
                     chans=sec[k].strip()
                     sep=chans.split('^')
                     se=sep[0].strip()
@@ -2533,11 +2533,11 @@ class cleanhelper:
         nr=tb.nrows()
         for i in range(len(wset)):
             if wset[i][0]==-1:
-                w=range(nr)
+                w=list(range(nr))
             elif wset[i][0]<nr:
                 w=[wset[i][0]]
             else:
-                w=range(0)
+                w=list(range(0))
             for j in w:
                 chanfreqs=tb.getcell('CHAN_FREQ', j)
                 if wset[i][2]==-1:
@@ -2671,14 +2671,14 @@ class cleanhelper:
                     if(len(ms.msseltoindex(self.vis[self.sortedvisindx[0]], field=pc)['field']) > 0):
                         #tmpdir  = int(ms.msseltoindex(self.vis,field=pc)['field'][0])
                         tmpdir  = int(ms.msseltoindex(self.vis[self.sortedvisindx[0]],field=pc)['field'][0])
-                except Exception, instance:
+                except Exception as instance:
                     tmpdir = pc
                 dir = tmpdir
         if type(dir)==str:
             try:
                 mrf, ra, dec = dir.split()
-            except Exception, instance:
-                raise TypeError, "Error in a string format  for phasecenter"
+            except Exception as instance:
+                raise TypeError("Error in a string format  for phasecenter")
             mdir = me.direction(mrf, ra, dec)
         else:
             #tb.open(self.vis+'/FIELD')
@@ -2736,7 +2736,7 @@ class cleanhelper:
         for k in range(len(chaninds)):
             spwinds.append(chaninds[k][0])
         if(len(spwinds) == 0):
-            raise Exception, 'unable to parse spw parameter '+spw;
+            raise Exception('unable to parse spw parameter '+spw);
             
         # the first selected spw 
         spw0=spwinds[0]
@@ -2800,7 +2800,7 @@ class cleanhelper:
             imcsys=ia.coordsys().torecord()
             ia.close()
             # for optical velocity mode, the image will be in tabular form.
-            if imcsys['spectral2'].has_key('tabular'):
+            if 'tabular' in imcsys['spectral2']:
               key='tabular'
             else:
               key='wcs'
@@ -3065,7 +3065,7 @@ class cleanhelper:
                 #self.convertmodelimage(modelimages=chanmodimg,
                 #                        outputmodel=self.imagelist.values()[0]+'.model')
                 self.convertmodelimage(modelimages=chanmodimg,
-                                        outputmodel=self.imagelist.values()[indx]+'.model', imindex=indx)
+                                        outputmodel=list(self.imagelist.values())[indx]+'.model', imindex=indx)
                 chanmodimg=[]
                 indx+=1
             else:
@@ -3078,7 +3078,7 @@ class cleanhelper:
                 #self.convertmodelimage(modelimages=chanmodimg,
                 #                        outputmodel=self.imagelist.values()[0]+'.model')
                 self.convertmodelimage(modelimages=chanmodimg,
-                                        outputmodel=self.imagelist.values()[indx]+'.model',imindex=indx)
+                                        outputmodel=list(self.imagelist.values())[indx]+'.model',imindex=indx)
             # clean up temporary channel model image
             self.cleanupTempFiles(chanmodimg)
 
@@ -3087,7 +3087,7 @@ class cleanhelper:
         wrapper function for convertmodelimage for all different cases
         """
         if (type(modelimage)!=str and type(modelimage)!=list):
-                    raise Exception,'modelimage must be a string or a list of strings';
+                    raise Exception('modelimage must be a string or a list of strings');
         #spectralline modes
         if (not mode=='mfs') or (mode=='mfs' and nterms==1):
             if (not all(img=='' or img==[] or img==[''] for img in modelimage)):
@@ -3101,10 +3101,10 @@ class cleanhelper:
                     #print "Run convertmodelimage for this list : ", self.imagelist, " with these models : ", modelimage;
                     for j in range(len(self.imagelist)):
                         self._casalog.post("Use modelimages: "+str(modelimage[j])+" to create a combined modelimage: " \
-                                           +self.imagelist.values()[j]+".model", 'DEBUG1')
+                                           +list(self.imagelist.values())[j]+".model", 'DEBUG1')
                         if modelimage[j] != '' and modelimage[j] != []:
                             self.convertmodelimage(modelimages=modelimage[j],
-                                    outputmodel=self.imagelist.values()[j]+'.model',imindex=j)
+                                    outputmodel=list(self.imagelist.values())[j]+'.model',imindex=j)
 
         # elif .......
         # put mfs with nterms>1 case here
@@ -3123,7 +3123,7 @@ class cleanhelper:
         wrapper function for convertmodelimage for all different cases
         """
         if (type(modelimage)!=str and type(modelimage)!=list):
-                    raise Exception,'modelimage must be a string or a list of strings';
+                    raise Exception('modelimage must be a string or a list of strings');
         if (not all(img=='' or img==[] or img==[''] for img in modelimage)):
              if dochaniter:
                     self.defineChaniterModelimages(modelimage,chan,tmppath)
@@ -3148,7 +3148,7 @@ class cleanhelper:
                     # if only one field, then modelimage must be a list of strings. convert to list of list of str
                     # if multiple fields, then model image : list of list of strings
                     if nfld != len(modelimage):
-                       raise Exception,'Model images must be same length as fields : '+str(nfld) + str(modelimage);
+                       raise Exception('Model images must be same length as fields : '+str(nfld) + str(modelimage));
 
                     for fld in range(nfld):
                        modsforfield = modelimage[fld]; # a list
@@ -3187,7 +3187,7 @@ class cleanhelper:
         imagext = ['.image','.model','.flux','.residual','.psf','.mask']
         if imagermode=='mosaic':
             imagext.append('.flux.pbcoverage')
-        lerange=range(self.nimages)
+        lerange=list(range(self.nimages))
         for n in lerange:
             cubeimagerootname=cubeimageroot[n]
             chanimagerootname=chanimageroot[n]
@@ -3249,7 +3249,7 @@ class cleanhelper:
         #print 'maskimages.keys : ', self.maskimages.keys()
         #print 'imagelist : ', self.imagelist
 
-        for key in self.imagelist.keys():
+        for key in list(self.imagelist.keys()):
              imgmask = self.imagelist[key]+'.mask'
              img = self.imagelist[key]+'.image'
              if not os.path.exists(img):
@@ -3290,7 +3290,7 @@ class cleanhelper:
         if(minOrMax=="common"):
             ia.open(restored)
             beam=ia.restoringbeam();
-            if(not beam.has_key('nChannels')):
+            if('nChannels' not in beam):
                 return 
             combeam=ia.commonbeam()
             ia.done()
@@ -3317,7 +3317,7 @@ class cleanhelper:
         ###############for min or max
         ia.open(restored)
         beams=ia.restoringbeam()
-        if(not beams.has_key('beams')):
+        if('beams' not in beams):
            ########already has one beam only
             ia.done()
             return
@@ -3415,7 +3415,7 @@ def getFTMachine(gridmode, imagermode, mode, wprojplanes, userftm):
 #    ftm = userftm;
     ftm='ft';
     if((gridmode != '') and (imagermode=='mosaic')):
-           raise Exception, pwd.getpwuid(os.getuid())[4].split()[0]+ " gridmode='"+gridmode + "' combined with " + "imagermode='"+imagermode + "' is not supported yet" 
+           raise Exception(pwd.getpwuid(os.getuid())[4].split()[0]+ " gridmode='"+gridmode + "' combined with " + "imagermode='"+imagermode + "' is not supported yet") 
     if ((gridmode == 'widefield') and(wprojplanes > 1 or wprojplanes==-1)): ftm = 'wproject';
     elif (gridmode == 'aprojection'):                    ftm = 'awproject';
     elif (gridmode == 'advancedaprojection'):            ftm = 'awproject';
@@ -3445,13 +3445,13 @@ def getAlgorithm(psfmode, imagermode, gridmode, mode,
         alg = 'msmfs';
         if(imagermode == 'mosaic'): 
             ##print 'Multi-Term MFS with a mosaic is experimental'
-            raise Exception, 'msmfs (nterms>1) not allowed with imagermode=' + imagermode + '. For now, msmfs automatically performs cs-clean type iterations';
+            raise Exception('msmfs (nterms>1) not allowed with imagermode=' + imagermode + '. For now, msmfs automatically performs cs-clean type iterations');
         if (multifield): 
 		addMultiField = True;
         if facets > 1:
-            raise Exception, 'msmfs (nterms>1) with facets>1 is not yet available'
+            raise Exception('msmfs (nterms>1) with facets>1 is not yet available')
     if( (mode=='mfs') and (nterms<1) ):
-         raise Exception, 'nterms must be > 0';
+         raise Exception('nterms must be > 0');
 
 #    if (gridmode == 'widefield'): alg='mfclark';
 
@@ -3459,7 +3459,7 @@ def getAlgorithm(psfmode, imagermode, gridmode, mode,
         addMultiField=True;
         if (facets > 1):
             if(alg.count('multiscale') > 0):
-                raise Exception, 'multiscale with facets > 1 not allowed for now';
+                raise Exception('multiscale with facets > 1 not allowed for now');
             if (psfmode==''): psfmode='clark';
             if((psfmode == 'clark') or (psfmode == 'hogbom')):
                 alg='wf'+psfmode;

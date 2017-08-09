@@ -24,15 +24,15 @@ try:
 	im.done()
 
 	time2=time.time();
-	print 'Time taken for wproject= ', (time2-time1)/60,'mins'
+	print('Time taken for wproject= ', (time2-time1)/60,'mins')
 except Exception:
-	print("Unexpected error:", sys.exc_info())
+	print(("Unexpected error:", sys.exc_info()))
 	regstate= False
 
 if(regstate):
-   	print ''
-   	print 'Regression PASSED'
+   	print('')
+   	print('Regression PASSED')
 else:
-   	print ''
-   	print 'Regression FAILED'
+   	print('')
+   	print('Regression FAILED')
 

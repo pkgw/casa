@@ -13,7 +13,7 @@ import string
 from casa_stack_manip import stack_frame_find
 
 try:
-    import selection_syntax
+    from . import selection_syntax
 except:
     import tests.selection_syntax as selection_syntax
 
@@ -78,7 +78,7 @@ class sdmathold_unittest_base:
         tb.open(ref)
         nrow0=tb.nrows()
         rspchans=[]
-        for irow in xrange(nrow0):
+        for irow in range(nrow0):
             rspchans.append(len(tb.getcell('SPECTRA',irow)))
         tb.close()
         # check shape
@@ -87,15 +87,15 @@ class sdmathold_unittest_base:
         self.assertEqual(nrow,2,
                          msg='number of rows mismatch')
         sp=[]
-        for irow in xrange(nrow):
+        for irow in range(nrow):
             sp.append(tb.getcell('SPECTRA',irow))
             self.assertEqual(len(sp[irow]),rspchans[irow],
                              msg='SPECTRA: number of channel mismatch in row%s'%(irow)) 
         tb.close()
         # check data
         valuetype=type(sp[0][0])
-        print ''
-        for irow in xrange(nrow):
+        print('')
+        for irow in range(nrow):
             if type(factor) is not list:
                 f = factor
             elif type(factor[0]) is not list:
@@ -105,9 +105,9 @@ class sdmathold_unittest_base:
             else:
                 f = factor[irow]
             arrs = self._getref( numpy.ones(rspchans[irow],dtype=valuetype)*scale, op, f )
-            print 'irow=%s'%(irow)
-            print '   arrs=%s'%(arrs)
-            print '   sp=%s'%(sp[irow])
+            print('irow=%s'%(irow))
+            print('   arrs=%s'%(arrs))
+            print('   sp=%s'%(sp[irow]))
             ret=numpy.allclose(arrs,sp[irow])
             self.assertEqual(ret,True,
                              msg='SPECTRA: data differ in row%s'%(irow))
@@ -131,16 +131,16 @@ class sdmathold_unittest_base:
     def _makedata(self,name,factor):
         f=open(name,'w')
         if type(factor) is not list:
-            print >> f, '%s'%factor
+            print('%s'%factor, file=f)
         elif type(factor[0]) is not list:
-            for irow in xrange(len(factor)):
-                print >> f, '%s'%factor[irow]
+            for irow in range(len(factor)):
+                print('%s'%factor[irow], file=f)
         else:
-            for irow in xrange(len(factor)):
+            for irow in range(len(factor)):
                 s=''
-                for icol in xrange(len(factor[irow])):
+                for icol in range(len(factor[irow])):
                     s+='%s '%factor[irow][icol]
-                print >> f, s
+                print(s, file=f)
         f.close()
         #os.system('cat %s'%name)
                 
@@ -176,12 +176,12 @@ class sdmathold_unittest_base:
             spl=spl0*spl1
         else: # op=='/'
             spl=spl0/spl1
-        print ''
-        for irow in xrange(nrow):
+        print('')
+        for irow in range(nrow):
             ret=numpy.allclose(spr[irow],spl[irow])
-            print 'irow=%s'%(irow)
-            print '   spr=%s'%(spr[irow])
-            print '   spl=%s'%(spl[irow])
+            print('irow=%s'%(irow))
+            print('   spr=%s'%(spr[irow]))
+            print('   spl=%s'%(spl[irow]))
             self.assertEqual(ret,True,
                              msg='SPECTRA: data differ in row%s'%(irow))
 
@@ -233,7 +233,7 @@ class sdmathold_test0(unittest.TestCase,sdmathold_unittest_base):
             res=sdmathold()
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('expr is undefined')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))        
@@ -246,7 +246,7 @@ class sdmathold_test0(unittest.TestCase,sdmathold_unittest_base):
             res=sdmathold(expr=ex,varnames=v,outfile=self.outfile)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('name \'V0\' is not defined')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))        
@@ -259,7 +259,7 @@ class sdmathold_test0(unittest.TestCase,sdmathold_unittest_base):
             res=sdmathold(expr=ex,varnames=v,outfile=self.outfile)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('name \'V1\' is not defined')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))       
@@ -275,7 +275,7 @@ class sdmathold_test0(unittest.TestCase,sdmathold_unittest_base):
             res=sdmathold(expr=ex,varnames=v,outfile=self.outfile,overwrite=False)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('Output file \'%s\' exists.'%(self.outfile))
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))       
@@ -290,7 +290,7 @@ class sdmathold_test0(unittest.TestCase,sdmathold_unittest_base):
             res=sdmathold(expr=ex,varnames=v,outfile=self.outfile,overwrite=True)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('unsupported operand type(s) for +:')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))       
@@ -306,7 +306,7 @@ class sdmathold_test0(unittest.TestCase,sdmathold_unittest_base):
             res=sdmathold(expr=ex,varnames=v,outfile=self.outfile,overwrite=True)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('\'float\' object has no attribute ')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))       
@@ -321,7 +321,7 @@ class sdmathold_test0(unittest.TestCase,sdmathold_unittest_base):
             res=sdmathold(expr=ex,varnames=v,outfile=self.outfile,overwrite=True)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('Vector size must be 1 or be same as number of channel.')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))       
@@ -337,7 +337,7 @@ class sdmathold_test0(unittest.TestCase,sdmathold_unittest_base):
             res=sdmathold(expr=ex,varnames=v,outfile=self.outfile,overwrite=True)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('arrays do not conform')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))                   
@@ -354,7 +354,7 @@ class sdmathold_test0(unittest.TestCase,sdmathold_unittest_base):
             res=sdmathold(expr=ex,varnames=v,outfile=self.outfile,overwrite=True)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('len(value) must be 1 or conform to scan.nrow()')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
@@ -995,8 +995,8 @@ class sdmathold_storageTest( unittest.TestCase,sdmathold_unittest_base ):
 
         after = self._get_uclist(stlist)
         for i in range(len(stlist)):
-            print "Comparing units and coordinates of '%s'" %\
-                  stlist[i]
+            print("Comparing units and coordinates of '%s'" %\
+                  stlist[i])
             self._compareDictVal(after[i],before[i])
 
     def _compareDictVal( self, testdict, refdict, reltol=1.0e-5, complist=None ):
@@ -1006,13 +1006,13 @@ class sdmathold_storageTest( unittest.TestCase,sdmathold_unittest_base ):
         if complist:
             keylist = complist
         else:
-            keylist = refdict.keys()
+            keylist = list(refdict.keys())
         
         for key in keylist:
-            self.assertTrue(testdict.has_key(key),\
+            self.assertTrue(key in testdict,\
                             msg="%s is not defined in the current results."\
                             % key)
-            self.assertTrue(refdict.has_key(key),\
+            self.assertTrue(key in refdict,\
                             msg="%s is not defined in the reference data."\
                             % key)
             testval = self._to_list(testdict[key])
@@ -1079,8 +1079,8 @@ class sdmathold_storageTest( unittest.TestCase,sdmathold_unittest_base ):
 
         sd.rcParams['scantable.storage'] = 'memory'
         sd.rcParams['insitu'] = True
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
         res = sdmathold(expr=ex,varnames=v,outfile=outfile,\
                      fluxunit=self.out_uc['flunit'])
 
@@ -1109,8 +1109,8 @@ class sdmathold_storageTest( unittest.TestCase,sdmathold_unittest_base ):
 
         sd.rcParams['scantable.storage'] = 'memory'
         sd.rcParams['insitu'] = True
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
         res = sdmathold(expr=ex,varnames=v,outfile=outfile,\
                      fluxunit=self.out_uc['flunit'],\
                      telescopeparam='FIX')
@@ -1140,8 +1140,8 @@ class sdmathold_storageTest( unittest.TestCase,sdmathold_unittest_base ):
 
         sd.rcParams['scantable.storage'] = 'memory'
         sd.rcParams['insitu'] = False
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
         res = sdmathold(expr=ex,varnames=v,outfile=outfile,\
                      fluxunit=self.out_uc['flunit'])
 
@@ -1170,8 +1170,8 @@ class sdmathold_storageTest( unittest.TestCase,sdmathold_unittest_base ):
 
         sd.rcParams['scantable.storage'] = 'memory'
         sd.rcParams['insitu'] = False
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
         res = sdmathold(expr=ex,varnames=v,outfile=outfile,\
                      fluxunit=self.out_uc['flunit'],\
                      telescopeparam='FIX')
@@ -1201,8 +1201,8 @@ class sdmathold_storageTest( unittest.TestCase,sdmathold_unittest_base ):
 
         sd.rcParams['scantable.storage'] = 'disk'
         sd.rcParams['insitu'] = True
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
         res = sdmathold(expr=ex,varnames=v,outfile=outfile,\
                      fluxunit=self.out_uc['flunit'])
 
@@ -1231,8 +1231,8 @@ class sdmathold_storageTest( unittest.TestCase,sdmathold_unittest_base ):
 
         sd.rcParams['scantable.storage'] = 'disk'
         sd.rcParams['insitu'] = True
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
         res = sdmathold(expr=ex,varnames=v,outfile=outfile,\
                      fluxunit=self.out_uc['flunit'],\
                      telescopeparam='FIX')
@@ -1261,8 +1261,8 @@ class sdmathold_storageTest( unittest.TestCase,sdmathold_unittest_base ):
 
         sd.rcParams['scantable.storage'] = 'disk'
         sd.rcParams['insitu'] = False
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
         res = sdmathold(expr=ex,varnames=v,outfile=outfile,\
                      fluxunit=self.out_uc['flunit'])
 
@@ -1289,8 +1289,8 @@ class sdmathold_storageTest( unittest.TestCase,sdmathold_unittest_base ):
 
         sd.rcParams['scantable.storage'] = 'disk'
         sd.rcParams['insitu'] = False
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
         res = sdmathold(expr=ex,varnames=v,outfile=outfile,\
                      fluxunit=self.out_uc['flunit'],\
                      telescopeparam='FIX')
@@ -1354,7 +1354,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
         tb.open(ref)
         nrow0=tb.nrows()
         rsp=[]
-        for irow in xrange(nrow0):
+        for irow in range(nrow0):
             rsp.append(tb.getcell('SPECTRA',irow))
         tb.close()
         # check shape
@@ -1362,7 +1362,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
         nrow=tb.nrows()
         self.assertEqual(nrow,nrow0,msg='number of rows mismatch')
         sp=[]
-        for irow in xrange(nrow):
+        for irow in range(nrow):
             sp.append(tb.getcell('SPECTRA',irow))
             self.assertEqual(len(sp[irow]),len(rsp[irow]),
                              msg='SPECTRA: number of channel mismatch in row%s'%(irow)) 
@@ -1370,7 +1370,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
         # check data
         valuetype=type(sp[0][0])
         #print ''
-        for irow in xrange(nrow):
+        for irow in range(nrow):
             #print 'irow=%s'%(irow)
             #print '  rsp=%s'%(rsp[irow])
             #print '   sp=%s'%(sp[irow])
@@ -1750,7 +1750,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
 
         self._checkshape( sp, spref )
         
-        for irow in xrange(len(sp)):
+        for irow in range(len(sp)):
             diff=self._diff(numpy.array(sp[irow]),numpy.array(spref[irow]))
             retval=numpy.all(diff<0.01)
             maxdiff=diff.max()
@@ -1777,7 +1777,7 @@ class sdmathold_test_selection(selection_syntax.SelectionSyntaxTest,
                 sp.append(tb.getcell('SPECTRA', i).tolist())
         else:
             command = ''
-            for key, val in tbsel.items():
+            for key, val in list(tbsel.items()):
                 if len(command) > 0:
                     command += ' AND '
                 command += ('%s in %s' % (key, str(val)))
@@ -1845,7 +1845,7 @@ class sdmathold_test_flag(sdmathold_unittest_base,unittest.TestCase):
     def testflag02(self):
         """test flag handling in case of a scantable and an array"""
         with tbmanager(self.infile1) as tb: nchan = len(tb.getcell('SPECTRA', 0))
-        value = range(nchan)
+        value = list(range(nchan))
         expr = 'IN0+'+str(value)
         outname=self.prefix+self.postfix
         self.res=sdmathold(infiles=[self.infile1],expr=expr,outfile=outname)
@@ -1877,13 +1877,13 @@ class sdmathold_test_flag(sdmathold_unittest_base,unittest.TestCase):
             rflagref = numpy.array(numpy.logical_or(rflag[infile1], rflag[infile2]), dtype='int32')
             cflagref = numpy.array(numpy.logical_or(cflag[infile1], cflag[infile2]), dtype='int32')
             dataref  = data[infile1]
-            for i in xrange(nrows[infile1]):
+            for i in range(nrows[infile1]):
                 if rflagref[i] == 0: dataref[i] += data[infile2][i]
         else:
             rflagref = rflag[infile1]
             cflagref = cflag[infile1]/128
             dataref  = data[infile1]
-            for i in xrange(nrows[infile1]):
+            for i in range(nrows[infile1]):
                 if rflagref[i] == 0: dataref[i] += value
 
         self.assertEqual(nrows[outfile], nrows[infile1])

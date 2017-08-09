@@ -93,6 +93,6 @@ def ssoflux(vis=None,field=None,spw=None,modimage=None,fluxdensity=None,standard
          ## ms.writehistory(message='standard    = "'+str(standard)+'"',origin='ssoflux')
          ## ms.close()
 
-       except Exception, instance:
-              print '*** Error ***',instance
+       except Exception as instance:
+              print('*** Error ***',instance)
 

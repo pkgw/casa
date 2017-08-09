@@ -12,7 +12,7 @@ measures_comment = {}
 #
 
 def position():
-        print 'POSITION'
+        print('POSITION')
 	test=me.position('wgs84',qa.quantity(30.,'deg'),qa.quantity(40.,'deg'),qa.quantity(10.,'m'))
 	test=me.position('itrf')
         d={'POSITION': True}
@@ -21,7 +21,7 @@ def position():
         measures_comment.update(comment)
 
 def epoch():
-        print 'EPOCH'
+        print('EPOCH')
         #
         test=me.epoch('utc','today')
         d={'EPOCH': True}
@@ -30,7 +30,7 @@ def epoch():
         measures_comment.update(comment)
 
 def direction():
-        print 'DIRECTION'
+        print('DIRECTION')
         #
 	test=me.direction("j2000",qa.quantity(30.,"deg"),qa.quantity(40.,"deg"))
         test=me.direction('venus') #try URM example
@@ -43,7 +43,7 @@ def direction():
         measures_comment.update(comment)
 
 def listcodes():
-	print 'LISTCODES'
+	print('LISTCODES')
        #
         test=me.listcodes(me.epoch('utc'))
         d={'LISTCODES': True}
@@ -52,7 +52,7 @@ def listcodes():
         measures_comment.update(comment)
 
 def sourcelist():
-        print 'SOURCELIST'
+        print('SOURCELIST')
         #
         test=me.sourcelist()
         d={'SOURCELIST': True}
@@ -61,7 +61,7 @@ def sourcelist():
         measures_comment.update(comment)
 
 def linelist():
-        print 'LINELIST'
+        print('LINELIST')
         #
         test=me.linelist()
         d={'LINELIST': True}
@@ -70,7 +70,7 @@ def linelist():
         measures_comment.update(comment)
 
 def obslist():
-        print 'OBSLIST'
+        print('OBSLIST')
         #
         test=me.obslist()
         d={'OBSLIST': True}
@@ -79,7 +79,7 @@ def obslist():
         measures_comment.update(comment)
 
 def spectralline():
-        print 'SPECTRALLINE'
+        print('SPECTRALLINE')
         #
         test=me.spectralline()
         d={'SPECTRALLINE': True}
@@ -88,7 +88,7 @@ def spectralline():
         measures_comment.update(comment)
 
 def framenow():
-        print 'FRAMENOW'
+        print('FRAMENOW')
         #
         test=me.framenow()
         d={'FRAMENOW': test}
@@ -97,7 +97,7 @@ def framenow():
         measures_comment.update(comment)
 
 def showframe():
-        print 'SHOWFRAME'
+        print('SHOWFRAME')
         #
 	me.doframe(me.epoch('utc',qa.quantity(53938.0504,'d')))
         test=me.showframe()
@@ -107,7 +107,7 @@ def showframe():
         measures_comment.update(comment)
 
 def dirshow():
-        print 'DIRSHOW'
+        print('DIRSHOW')
         #
         x=me.direction('azel')  # use defaults
 	test=me.dirshow(x)
@@ -117,7 +117,7 @@ def dirshow():
         measures_comment.update(comment)
 
 def doframe():
-        print 'DOFRAME'
+        print('DOFRAME')
         #
 	a=me.epoch('utc',qa.quantity(53937.7213,'d'))
 	test=me.doframe(a)
@@ -127,7 +127,7 @@ def doframe():
         measures_comment.update(comment)
 
 def framecomet():
-        print 'FRAMECOMET'
+        print('FRAMECOMET')
         #
 	test=me.framecomet('VGEO')
 	#me.showframe()
@@ -139,7 +139,7 @@ def framecomet():
         measures_comment.update(comment)
 
 def cometname():
-        print 'COMETNAME'
+        print('COMETNAME')
         #
 	test=me.framecomet('VGEO')
         test=me.cometname()
@@ -149,7 +149,7 @@ def cometname():
         measures_comment.update(comment)
 
 def comettype():
-        print 'COMETTYPE'
+        print('COMETTYPE')
         #
 	test=me.framecomet('VGEO')
         test=me.comettype()
@@ -159,7 +159,7 @@ def comettype():
         measures_comment.update(comment)
 
 def comettopo():
-        print 'COMETTOPO'
+        print('COMETTOPO')
         #
 	test=me.framecomet('VGEO')
         test=me.comettopo()
@@ -169,7 +169,7 @@ def comettopo():
         measures_comment.update(comment)
 
 def rise():
-        print 'RISE'
+        print('RISE')
         #
         test=me.rise(me.direction('sun'))
         d={'RISE': False}
@@ -178,7 +178,7 @@ def rise():
         measures_comment.update(comment)
 
 def riseset():
-        print 'RISESET'
+        print('RISESET')
         #
         test=me.riseset(me.direction('sun'))
         d={'RISESET': False}
@@ -187,7 +187,7 @@ def riseset():
         measures_comment.update(comment)
 
 def baseline():
-        print 'BASELINE'
+        print('BASELINE')
         #
         test=me.baseline('itrf')
 	test=me.baseline('itrf',qa.quantity(30.,'deg'),qa.quantity(40.,'deg'),qa.quantity(10.,'m'))
@@ -198,7 +198,7 @@ def baseline():
         measures_comment.update(comment)
 
 def expand():
-        print 'EXPAND'
+        print('EXPAND')
         x=me.uvw('itrf',qa.quantity(30.,'deg'),qa.quantity(40.,'deg'),qa.quantity(10.,'m'))
         test=me.expand(x)
 	me.doframe(me.observatory('atca'))
@@ -215,7 +215,7 @@ def expand():
 
 
 def separation():
-        print 'SEPARATION'
+        print('SEPARATION')
         #
 	a=me.direction('j2000',qa.quantity(0.,'deg'),qa.quantity(70.,'deg'))
 	b=me.direction('j2000',qa.quantity(0.,'deg'),qa.quantity(80.,'deg'))
@@ -227,7 +227,7 @@ def separation():
         measures_comment.update(comment)
 
 def posangle():
-        print 'POSANGLE'
+        print('POSANGLE')
         #
 	a=me.direction('j2000',qa.quantity(0.,'deg'),qa.quantity(70.,'deg'))
 	b=me.direction('j2000',qa.quantity(0.,'deg'),qa.quantity(80.,'deg'))
@@ -241,7 +241,7 @@ def posangle():
         measures_comment.update(comment)
 
 def radialvelocity():
-        print 'RADIALVELOCITY'
+        print('RADIALVELOCITY')
         #
         test=me.radialvelocity('lsrk',qa.quantity(20.,'km/s')) #try URM example
         test=me.radialvelocity('lsrk')  # use defaults
@@ -252,7 +252,7 @@ def radialvelocity():
         measures_comment.update(comment)
 
 def doppler():
-        print 'DOPPLER'
+        print('DOPPLER')
         #
 	test=me.doppler('radio',qa.quantity(0.4,''))
         test=me.doppler('radio',qa.quantity(1.2e8,'m/s')) #try URM example
@@ -264,7 +264,7 @@ def doppler():
         measures_comment.update(comment)
 
 def frequency():
-        print 'FREQUENCY'
+        print('FREQUENCY')
         #
         test=me.frequency('lsrk',qa.quantity(1410,'MHz')) #try URM example
         d={'FREQUENCY': True}
@@ -273,7 +273,7 @@ def frequency():
         measures_comment.update(comment)
 
 def uvw():
-        print 'UVW'
+        print('UVW')
         #
 	test=me.uvw('itrf',qa.quantity(30.,'deg'),qa.quantity(40.,'deg'),qa.quantity(10.,'m'))
         test=me.uvw('itrf') #try URM example
@@ -283,7 +283,7 @@ def uvw():
         measures_comment.update(comment)
 
 def earthmagnetic():
-        print 'EARTHMAGNETIC'
+        print('EARTHMAGNETIC')
         #
         test=me.earthmagnetic('igrf') #try URM example
 	#me.measure(me.earthmagnetic('igrf'),'j2000') #missing frame info?
@@ -293,7 +293,7 @@ def earthmagnetic():
         measures_comment.update(comment)
 
 def source():
-        print 'SOURCE'
+        print('SOURCE')
         #
 	#me.source?
 	test=me.source()
@@ -305,7 +305,7 @@ def source():
         measures_comment.update(comment)
 
 def observatory():
-        print 'OBSERVATORY'
+        print('OBSERVATORY')
         #
 	#me.observatory?
 	me.observatory()
@@ -317,7 +317,7 @@ def observatory():
         measures_comment.update(comment)
 
 def done():
-        print 'DONE'
+        print('DONE')
         #
         test=me.done()
         d={'DONE': test}
@@ -326,7 +326,7 @@ def done():
         measures_comment.update(comment)
 
 def todoppler():
-        print 'TODOPPLER'
+        print('TODOPPLER')
 	f=me.frequency('lsrk',qa.quantity(1410.,'MHz'))
 	frest=me.frequency('rest',qa.quantity(1420.40575,'MHz'))
         t=me.todoppler('radio',f,frest)
@@ -337,7 +337,7 @@ def todoppler():
         measures_comment.update(comment)
 
 def tofrequency():
-        print 'TOFREQUENCY'
+        print('TOFREQUENCY')
 	f=me.doppler('radio',qa.quantity(0.4,''))
 	frest=me.frequency('rest',qa.quantity(1420.40575,'MHz'))
 	me.tofrequency('lsrk',f,frest)
@@ -347,7 +347,7 @@ def tofrequency():
         measures_comment.update(comment)
 
 def torestfrequency():
-        print 'TORESTFREQUENCY'
+        print('TORESTFREQUENCY')
         #x=me.frequency('lsrk')
         #test=me.torestfrequency('topo',x)
 	dp=me.doppler('radio',qa.quantity(2196.2498,'km/s'))
@@ -359,7 +359,7 @@ def torestfrequency():
         measures_comment.update(comment)
 
 def toradialvelocity():
-        print 'TORADIALVELOCITY'
+        print('TORADIALVELOCITY')
 	a=me.doppler('radio',qa.quantity(119916983.,'m/s'))
         test=me.toradialvelocity('topo',a)
         d={'TORADIALVELOCITY': True}
@@ -368,7 +368,7 @@ def toradialvelocity():
         measures_comment.update(comment)
 
 def touvw():
-        print 'TOUVW'
+        print('TOUVW')
         #x=me.uvw('J2000')
         #test=me.touvw('B1950',x)
 	me.doframe(me.observatory('atca'))
@@ -385,7 +385,7 @@ def touvw():
         measures_comment.update(comment)
 
 def measure():
-        print 'MEASURE'
+        print('MEASURE')
 	x=me.epoch('utc',qa.quantity(53937.7655,'d'))
 	test=me.measure(x,'tai')
         d={'MEASURE': True}
@@ -394,7 +394,7 @@ def measure():
         measures_comment.update(comment)
 
 def getvalue():
-        print 'GETVALUE'
+        print('GETVALUE')
 	x=me.direction('j2000',qa.quantity(0.,'deg'),qa.quantity(80.,'deg'))
 	test=me.getvalue(x)
 	#print test.value, test.units
@@ -404,7 +404,7 @@ def getvalue():
         measures_comment.update(comment)
 
 def gettype():
-        print 'GETTYPE'
+        print('GETTYPE')
 	x=me.direction('j2000',qa.quantity(0.,'deg'),qa.quantity(80.,'deg'))
 	me.gettype(x)
         d={'GETTYPE': True}
@@ -413,7 +413,7 @@ def gettype():
         measures_comment.update(comment)
 
 def getref():
-        print 'GETREF'
+        print('GETREF')
 	x=me.direction('j2000',qa.quantity(0.,'deg'),qa.quantity(80.,'deg'))
 	test=me.getref(x)
         d={'GETREF': True}
@@ -422,7 +422,7 @@ def getref():
         measures_comment.update(comment)
 
 def getoffset():
-        print 'GETOFFSET'
+        print('GETOFFSET')
 	x=me.direction('j2000',qa.quantity(0.,'deg'),qa.quantity(80.,'deg'))
 	test=me.getoffset(x)
         x=me.epoch('utc')
@@ -433,7 +433,7 @@ def getoffset():
         measures_comment.update(comment)
 
 def show():
-        print 'SHOW'
+        print('SHOW')
 	me.show(me.frequency('lsrk',qa.quantity(1421.,'MHz')))
         x=me.epoch('utc')
         me.measure(x,'tai')
@@ -444,7 +444,7 @@ def show():
         measures_comment.update(comment)
 
 def addxvalue():
-        print 'ADDXVALUE'
+        print('ADDXVALUE')
         #
 	a=me.observatory('atca')
 	test=me.addxvalue(a)
@@ -455,7 +455,7 @@ def addxvalue():
         measures_comment.update(comment)
 
 def asbaseline():
-        print 'ASBASELINE'
+        print('ASBASELINE')
         #
 	a = me.epoch('utc',qa.quantity(53937.7652,'d'))
 	me.measure(a,'tai')
@@ -571,19 +571,19 @@ def measures_interface():
 	if (UVW):		uvw()
 	
         timing.finish()
-        print 'Measures interface time is: ',timing.milli()/1000.
+        print('Measures interface time is: ',timing.milli()/1000.)
 
         return True
 
 measures_interface()
 
-print '---'
-print 'Measures: '
-print '   Working: ',measures_results.values().count(True)
-print '   Fail:    ',measures_results.values().count(False)
-print '---'
+print('---')
+print('Measures: ')
+print('   Working: ',list(measures_results.values()).count(True))
+print('   Fail:    ',list(measures_results.values()).count(False))
+print('---')
 format = "%15s %7s %35s"
-for k,v,c in zip(measures_results.keys(),measures_results.values(),measures_comment.values()):
-	print format % (k,v,c)
-print '---'
-print ''
+for k,v,c in zip(list(measures_results.keys()),list(measures_results.values()),list(measures_comment.values())):
+	print(format % (k,v,c))
+print('---')
+print('')

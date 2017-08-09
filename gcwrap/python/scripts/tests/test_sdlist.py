@@ -104,7 +104,7 @@ class sdlistold_test(unittest.TestCase):
             result = sdlistold(infile=infile,outfile=outfile,overwrite=False)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('Output file \'%s\' exists.'%(outfile))
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
@@ -135,7 +135,7 @@ class sdlistold_test(unittest.TestCase):
         import re
         import string
         found_flaggedrow = [False, False]
-        for i in xrange(len(rowinfo)):
+        for i in range(len(rowinfo)):
             rowinfo_tmp = re.sub(r' +', ' ', rowinfo[i])
             rowinfo_elem = re.sub(r', +', ',', rowinfo_tmp).split(' ')
             rowinfo_if = rowinfo_elem[1]

@@ -39,7 +39,7 @@ def oldhanningsmooth(vis=None, datacolumn=None, outputvis=None):
         
         if os.path.exists(outputvis):
             ms.close()
-            raise Exception, "Output MS %s already exists - will not overwrite." % outputvis
+            raise Exception("Output MS %s already exists - will not overwrite." % outputvis)
 
         if(type(outputvis)==str and not outputvis==''):
             newvis = outputvis
@@ -55,7 +55,7 @@ def oldhanningsmooth(vis=None, datacolumn=None, outputvis=None):
         if ((type(newvis)==str) & (os.path.exists(newvis))):
             ms.open(thems=newvis,nomodify=False)
         else:
-            raise Exception, 'Visibility data set not found - please verify the name'
+            raise Exception('Visibility data set not found - please verify the name')
         
         ms.hanningsmooth(datacolumn=str.lower(datacolumn))
         
@@ -66,6 +66,6 @@ def oldhanningsmooth(vis=None, datacolumn=None, outputvis=None):
         ms.writehistory(message='outputvis   = "'+str(outputvis)+'"',origin='oldhanningsmooth')
         ms.close()
         
-    except Exception, instance:
-        print '*** Error ***',instance
+    except Exception as instance:
+        print('*** Error ***',instance)
         return

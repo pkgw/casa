@@ -25,7 +25,7 @@
 import os
 import sys
 import shutil
-import commands
+import subprocess
 from __main__ import default
 from tasks import importevla, flagdata, flagcmd
 from taskinit import *
@@ -38,7 +38,7 @@ def checktable(msname, thename, theexpectation):
     if thename == "":
         thename = "MAIN"
     for mycell in theexpectation:
-        print myname, ": comparing ", mycell
+        print(myname, ": comparing ", mycell)
         value = tb.getcell(mycell[0], mycell[1])
         # see if value is array
         try:
@@ -58,13 +58,13 @@ def checktable(msname, thename, theexpectation):
             else:
                 in_agreement = (abs(value - mycell[2]) < mycell[3]).all() 
         if not in_agreement:
-            print myname, ":  Error in MS subtable", thename, ":"
-            print "     column ", mycell[0], " row ", mycell[1], " contains ", value
-            print "     expected value is ", mycell[2]
+            print(myname, ":  Error in MS subtable", thename, ":")
+            print("     column ", mycell[0], " row ", mycell[1], " contains ", value)
+            print("     expected value is ", mycell[2])
             tb.close()
             return False
     tb.close()
-    print myname, ": table ", thename, " as expected."
+    print(myname, ": table ", thename, " as expected.")
     return True
 
 
@@ -94,7 +94,7 @@ class importevla_test(unittest.TestCase):
         msname = 'xosro1.ms'
 #        self.res = importevla(asdm=self.asdm, scans='3')
         self.res = importevla(asdm=self.asdm, vis=msname, scans='2')
-        print myname, ": Success! Now checking output ..."
+        print(myname, ": Success! Now checking output ...")
         mscomponents = set(["table.dat",
 #                            "table.f0",
                             "table.f1",
@@ -141,21 +141,21 @@ class importevla_test(unittest.TestCase):
                             ])
         for name in mscomponents:
             if not os.access(msname+"/"+name, os.F_OK):
-                print myname, ": Error  ", msname+"/"+name, "doesn't exist ..."
+                print(myname, ": Error  ", msname+"/"+name, "doesn't exist ...")
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+msname+'/'+name+' does not exist'
             else:
-                print myname, ": ", name, "present."
-        print myname, ": MS exists. All tables present. Try opening as MS ..."
+                print(myname, ": ", name, "present.")
+        print(myname, ": MS exists. All tables present. Try opening as MS ...")
         try:
             ms.open(msname)
         except:
-            print myname, ": Error  Cannot open MS table", tablename
+            print(myname, ": Error  Cannot open MS table", tablename)
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']+'Cannot open MS table '+tablename
         else:
             ms.close()
-            print myname, ": OK. Checking tables in detail ..."
+            print(myname, ": OK. Checking tables in detail ...")
     
             # check main table first
             name = ""
@@ -227,7 +227,7 @@ class importevla_test(unittest.TestCase):
 
         msname2 = 'polyuranus.ms'
         self.res = importevla(asdm=asdmname2, vis=msname2, scans='0:5')
-        print myname, ": Success! Now checking output ..."
+        print(myname, ": Success! Now checking output ...")
         mscomponents = set(["table.dat",
                             "table.f1",
                             "table.f2",
@@ -274,28 +274,28 @@ class importevla_test(unittest.TestCase):
                             ])
         for name in mscomponents:
             if not os.access(msname2+"/"+name, os.F_OK):
-                print myname, ": Error  ", msname2+"/"+name, "doesn't exist ..."
+                print(myname, ": Error  ", msname2+"/"+name, "doesn't exist ...")
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+msname2+'/'+name+' does not exist'
             else:
-                print myname, ": ", name, "present."
-        print myname, ": MS exists. All tables present. Try opening as MS ..."
+                print(myname, ": ", name, "present.")
+        print(myname, ": MS exists. All tables present. Try opening as MS ...")
         try:
             ms.open(msname2)
         except:
-            print myname, ": Error  Cannot open MS table", tablename
+            print(myname, ": Error  Cannot open MS table", tablename)
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']+'Cannot open MS table '+tablename
         else:
             ms.close()
-            print myname, ": OK. Checking tables in detail ..."
+            print(myname, ": OK. Checking tables in detail ...")
     
             ms.open(msname2)
             mssum = ms.summary()
             ms.close()
 
             if(mssum['scan_5']['0']['FieldName']=='URANUS' and mssum['field_2']['direction']['m0']['value']==0.3783275670495854):
-                print myname, ": MS summary as expected."
+                print(myname, ": MS summary as expected.")
                 retValue['success']=True
             else:
                 retValue['success']=False

@@ -55,7 +55,7 @@ def specflux(
         myia.open(imagename)
         try:
             axis = myia.coordsys().axiscoordinatetypes().index("Spectral")
-        except Exception, instance:
+        except Exception as instance:
             raise Exception("Image does not have a spectral coordinate, cannot proceed")
         csys=myia.coordsys()
         reg = myrg.frombcs(
@@ -86,7 +86,7 @@ def specflux(
         header = "# " + imagename + ", " + wreg + "\n"
         beamrec = myia.restoringbeam()
         if beamrec:
-            if beamrec.has_key("major"):
+            if "major" in beamrec:
                 beamsize = myia.beamarea()
                 header += "# beam size: " + str(beamsize['arcsec2'])
                 header += " arcsec2, " + str(beamsize["pixels"]) + " pixels\n"
@@ -174,7 +174,7 @@ def specflux(
             with open(logfile, "w") as myfile:
                 myfile.write(header)
         return True
-    except Exception, instance:
+    except Exception as instance:
         casalog.post( str( '*** Error ***') + str(instance), 'SEVERE')
         raise
     finally:

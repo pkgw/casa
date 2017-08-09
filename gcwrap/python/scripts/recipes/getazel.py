@@ -31,7 +31,7 @@ def getazel(obs,srcname,srcCoord,date,tref):
     t=qa.quantity(date)
     if t['unit'] != 'd':
         msg = 'Cannot decode date (format should a string with YYYY/MM/DD or YYYY-MM-DD)'
-        raise Exception, msg
+        raise Exception(msg)
     if tref=='UTC-3' or tref=='CDT': # chile daylight saving time
         tshft=-3/24.0
     elif tref=='UTC-4' or tref=='CLT': # chile standard time
@@ -40,7 +40,7 @@ def getazel(obs,srcname,srcCoord,date,tref):
         tshft=0.0
     t0=t['value']
     t0 -= tshft
-    print "TO = ",t0
+    print("TO = ",t0)
     # coaser time (maybe better if called from plotting script for many sources
     #tl = arange(1.,1455.,15) # go over a bit longer than a day
     tl = arange(1.,1455.,1) # go over a bit longer than a day
@@ -79,7 +79,7 @@ def getazel(obs,srcname,srcCoord,date,tref):
           else:
             timref='utc' 
           tmeridian=(riseset['rise'][timref]['m0']['value']+riseset['set'][timref]['m0']['value'])/2.
-          print "%s :Meridian passage: %s" % (srcname, qa.time(str(tmeridian)+'d')[0]+' ('+timref+')') 
+          print("%s :Meridian passage: %s" % (srcname, qa.time(str(tmeridian)+'d')[0]+' ('+timref+')')) 
           #print "Rise:",riseset['rise'] 
           #print "Set:",riseset['set'] 
         azar[i]=az

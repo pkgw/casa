@@ -13,7 +13,7 @@ import string
 from casa_stack_manip import stack_frame_find
 
 try:
-    import selection_syntax
+    from . import selection_syntax
 except:
     import tests.selection_syntax as selection_syntax
 
@@ -91,7 +91,7 @@ class sdgridold_unittest_base(object):
         msggt = 'There are zero pixels that should be nonzero'
         self.assertEqual(len(refpix),len(resultpix),
                          msg=(msglt if len(refpix) < len(resultpix) else msggt))
-        for i in xrange(len(refpix)):
+        for i in range(len(refpix)):
             self.assertEqual(refpix[i],resultpix[i],
                              msg='Index doesn\'t match: ref %s, result %s'%(refpix[i],resultpix[i]))
 
@@ -100,11 +100,11 @@ class sdgridold_unittest_base(object):
         start=(npix-1)/2-(width-1)
         end=(npix-1)/2+(width-1)
         #print 'start=',start,',end=',end
-        for i in xrange(start,end+1):
+        for i in range(start,end+1):
             tweak=npol if (width>=4 and (i==start or i==end)) else 0
             ifrom=npol*npix*i+npol*start+tweak
             ito=ifrom+npol*2*(width-1)-2*tweak
-            index+=range(ifrom,ito+npol)
+            index+=list(range(ifrom,ito+npol))
         #print 'index=',index
         #nonzeropix_ref=(numpy.zeros(len(index),int),numpy.array(index))
         nonzeropix_ref=numpy.array(index)
@@ -157,7 +157,7 @@ class sdgridold_failure_case(sdgridold_unittest_base,unittest.TestCase):
             res=sdgridold(infiles=self.rawfile,spw=self.badid,npix=16,cell='20arcsec',outfile=self.outfile)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             #pos=str(e).find('No corresponding rows for given selection: SPW %s'%(self.badid))
             pos=str(e).find('No valid spw')
             self.assertNotEqual(pos,-1,
@@ -169,7 +169,7 @@ class sdgridold_failure_case(sdgridold_unittest_base,unittest.TestCase):
             res=sdgridold(infiles=self.rawfile,pol=self.badid,npix=16,cell='20arcsec',outfile=self.outfile)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('Empty pol')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
@@ -193,7 +193,7 @@ class sdgridold_failure_case(sdgridold_unittest_base,unittest.TestCase):
             res=sdgridold(infiles=self.rawfile,npix=16,cell='20arcsec',outfile=self.outfile,overwrite=False)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('Output file \'%s\' exists.'%(self.outfile))
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
@@ -215,7 +215,7 @@ class sdgridold_failure_case(sdgridold_unittest_base,unittest.TestCase):
             res=sdgridold(infiles=self.rawfile,npix=16,cell='20arcsec',outfile=self.outfile,center='Invalid format')
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('Empty QuantumHolder argument for asQuantumDouble')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
@@ -287,7 +287,7 @@ class sdgridold_single_integ(sdgridold_unittest_base,unittest.TestCase):
         self.nonzero(nonzeropix_ref,nonzeropix)
 
         # pol0 must be 10.0 while pol1 must be 1.0
-        for i in xrange(0,len(nonzeropix),npol):
+        for i in range(0,len(nonzeropix),npol):
             pol0=self.data[0,nonzeropix[i]]
             self.check(10.0,pol0)
             pol1=self.data[0,nonzeropix[i+1]]
@@ -311,7 +311,7 @@ class sdgridold_single_integ(sdgridold_unittest_base,unittest.TestCase):
         self.nonzero(nonzeropix_ref,nonzeropix)
         
         # pol0 must be 10.0 while pol1 must be 1.0
-        for i in xrange(0,len(nonzeropix),npol):
+        for i in range(0,len(nonzeropix),npol):
             pol0=self.data[0,nonzeropix[i]]
             self.check(10.0,pol0)
             pol1=self.data[0,nonzeropix[i+1]]
@@ -334,7 +334,7 @@ class sdgridold_single_integ(sdgridold_unittest_base,unittest.TestCase):
         self.nonzero(nonzeropix_ref,nonzeropix)
         
         # pol0 must be 10.0 while pol1 must be 1.0
-        for i in xrange(0,len(nonzeropix),npol):
+        for i in range(0,len(nonzeropix),npol):
             pol0=self.data[0,nonzeropix[i]]
             self.check(10.0,pol0)
             pol1=self.data[0,nonzeropix[i+1]]
@@ -790,7 +790,7 @@ class sdgridold_map(sdgridold_unittest_base,unittest.TestCase):
                    9.89488559e-04,   4.63147834e-03,   4.63147851e-04,
                    1.54954410e-04,   1.54954414e-05]
         nonzerodata=numpy.take(self.data,nonzeropix,axis=1).squeeze()
-        for i in xrange(len(nonzerodata)):
+        for i in range(len(nonzerodata)):
             self.check(refdata[i],nonzerodata[i])
 
     def test502(self):
@@ -824,7 +824,7 @@ class sdgridold_map(sdgridold_unittest_base,unittest.TestCase):
          1.37290766e-03,   1.37290757e-04,   3.63217224e-03,
          3.63217230e-04,   1.37290766e-03,   1.37290757e-04]
         nonzerodata=numpy.take(self.data,nonzeropix,axis=1).squeeze()
-        for i in xrange(len(nonzerodata)):
+        for i in range(len(nonzerodata)):
             self.check(refdata[i],nonzerodata[i])
 
     def test503(self):
@@ -848,7 +848,7 @@ class sdgridold_map(sdgridold_unittest_base,unittest.TestCase):
                    0.0818698, 0.00818698, 0.0337296, 0.00337296, 0.0818698,
                    0.00818698, 0.0337296, 0.00337296]
         nonzerodata=numpy.take(self.data,nonzeropix,axis=1).squeeze()
-        for i in xrange(len(nonzerodata)):
+        for i in range(len(nonzerodata)):
             self.check(refdata[i],nonzerodata[i])
 
 ###
@@ -1028,7 +1028,7 @@ class sdgridold_selection(selection_syntax.SelectionSyntaxTest,
         tb.open(ref)
         nrow0=tb.nrows()
         rsp=[]
-        for irow in xrange(nrow0):
+        for irow in range(nrow0):
             rsp.append(tb.getcell('SPECTRA',irow))
         tb.close()
         # check shape
@@ -1036,7 +1036,7 @@ class sdgridold_selection(selection_syntax.SelectionSyntaxTest,
         nrow=tb.nrows()
         self.assertEqual(nrow,nrow0,msg='number of rows mismatch')
         sp=[]
-        for irow in xrange(nrow):
+        for irow in range(nrow):
             sp.append(tb.getcell('SPECTRA',irow))
             self.assertEqual(len(sp[irow]),len(rsp[irow]),
                              msg='SPECTRA: number of channel mismatch in row%s'%(irow)) 
@@ -1044,7 +1044,7 @@ class sdgridold_selection(selection_syntax.SelectionSyntaxTest,
         # check data
         valuetype=type(sp[0][0])
         #print ''
-        for irow in xrange(nrow):
+        for irow in range(nrow):
             #print 'irow=%s'%(irow)
             #print '  rsp=%s'%(rsp[irow])
             #print '   sp=%s'%(sp[irow])
@@ -1058,14 +1058,14 @@ class sdgridold_selection(selection_syntax.SelectionSyntaxTest,
         rsp=[]
         with tbmanager(ref) as tb:
             nrow0=tb.nrows()
-            for irow in xrange(nrow0):
+            for irow in range(nrow0):
                 rsp.append(tb.getcell('SPECTRA',irow))
         # check shape
         sp=[]
         with tbmanager(name) as tb:
             nrow=tb.nrows()
             self.assertEqual(nrow,nrow0,msg='number of rows mismatch')
-            for irow in xrange(nrow):
+            for irow in range(nrow):
                 sp.append(tb.getcell('SPECTRA',irow))
                 self.assertEqual(len(sp[irow]),len(rsp[irow]),
                                  msg='SPECTRA: number of channel mismatch in row%s'%(irow)) 
@@ -1073,7 +1073,7 @@ class sdgridold_selection(selection_syntax.SelectionSyntaxTest,
         # check data
         valuetype=type(sp[0][0])
         #print ''
-        for irow in xrange(nrow):
+        for irow in range(nrow):
             #print 'irow=%s'%(irow)
             #print '  rsp=%s'%(rsp[irow])
             #print '   sp=%s'%(sp[irow])
@@ -1286,7 +1286,7 @@ class sdgridold_selection(selection_syntax.SelectionSyntaxTest,
 
         self._checkshape( sp, spref )
         
-        for irow in xrange(len(sp)):
+        for irow in range(len(sp)):
             diff=self._diff(numpy.array(sp[irow]),numpy.array(spref[irow]))
             retval=numpy.all(diff<0.01)
             maxdiff=diff.max()
@@ -1314,7 +1314,7 @@ class sdgridold_selection(selection_syntax.SelectionSyntaxTest,
                     sp.append(tb.getcell('SPECTRA', i).tolist())
             else:
                 command = ''
-                for key, val in tbsel.items():
+                for key, val in list(tbsel.items()):
                     if len(command) > 0:
                         command += ' AND '
                     command += ('%s in %s' % (key, str(val)))

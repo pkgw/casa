@@ -1,30 +1,30 @@
-print "\n____Testing me.type()____"
-print "me.type()"
-print me.type()
-print "\n____Testing me.epoch()____"
-print "me.epoch('utc','today')"
-print me.epoch('utc','today')
-print "\n____Testing me.direction()____"
-print "me.direction('j2000','5h20m','-30.2deg')"
-print me.direction('j2000','5h20m','-30.2deg') 
-print "\n____Testing me.gettype()____"
-print "a = me.direction('j2000','5h20m','-30.2deg')"
+print("\n____Testing me.type()____")
+print("me.type()")
+print(me.type())
+print("\n____Testing me.epoch()____")
+print("me.epoch('utc','today')")
+print(me.epoch('utc','today'))
+print("\n____Testing me.direction()____")
+print("me.direction('j2000','5h20m','-30.2deg')")
+print(me.direction('j2000','5h20m','-30.2deg')) 
+print("\n____Testing me.gettype()____")
+print("a = me.direction('j2000','5h20m','-30.2deg')")
 a = me.direction('j2000','5h20m','-30.2deg')
-print "me.gettype(a)"
-print me.gettype(a)
-print "\n____Testing me.getoffset()____"
-print "me.getoffset(a)"
-print me.getoffset(a)
-print "\n____Testing me.getref()____"
-print "me.getref(a)"
-print me.getref(a)
-print "\n____Testing me.getvalue()____"
-print "me.getvalue(a)"
-print me.getvalue(a)
-print "me.getvalue(a)['m0']"
-print me.getvalue(a)['m0']
-print "me.getvalue(a)['m1']"
-print me.getvalue(a)['m1']
+print("me.gettype(a)")
+print(me.gettype(a))
+print("\n____Testing me.getoffset()____")
+print("me.getoffset(a)")
+print(me.getoffset(a))
+print("\n____Testing me.getref()____")
+print("me.getref(a)")
+print(me.getref(a))
+print("\n____Testing me.getvalue()____")
+print("me.getvalue(a)")
+print(me.getvalue(a))
+print("me.getvalue(a)['m0']")
+print(me.getvalue(a)['m0'])
+print("me.getvalue(a)['m1']")
+print(me.getvalue(a)['m1'])
 #print "___try as a scalar quantity with multiple values"
 #print "a = me.direction('j2000', qa.quantity([10,20],'deg'), qa.quantity([30,40], 'deg'))"
 #a = me.direction('j2000', qa.quantity([10,20],'deg'), qa.quantity([30,40], 'deg'))

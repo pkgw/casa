@@ -24,13 +24,13 @@ uvcdatadir = 'uvcontsub'
 
 # Pick up alternative data directory to run tests on MMSs
 testmms = False
-if os.environ.has_key('TEST_DATADIR'):   
+if 'TEST_DATADIR' in os.environ:   
     testmms = True
     DATADIR = str(os.environ.get('TEST_DATADIR'))
     if os.path.isdir(DATADIR):
         datapath = DATADIR
 
-if os.environ.has_key('BYPASS_PARALLEL_PROCESSING'):
+if 'BYPASS_PARALLEL_PROCESSING' in os.environ:
     ParallelTaskHelper.bypassParallelProcessing(1)
 
 #Commented out for refactoring (eliminated test_split dependence)
@@ -76,7 +76,7 @@ class UVContsubUnitTestBase(unittest.TestCase):
         global testmms
 
         if testmms:
-            print "Testing on MMSs."
+            print("Testing on MMSs.")
         
         self.inpms = uvcdatadir+'/'+inpms
         if not os.path.exists(uvcdatadir):
@@ -85,8 +85,8 @@ class UVContsubUnitTestBase(unittest.TestCase):
         if not os.path.exists(self.inpms):
             try:
                 shutil.copytree(datapath + '/' + self.inpms, self.inpms)
-            except Exception, e:
-                raise Exception, "Missing input MS: " + datapath + '/' + self.inpms 
+            except Exception as e:
+                raise Exception("Missing input MS: " + datapath + '/' + self.inpms) 
 
 
     def cleanup(self):
@@ -111,14 +111,14 @@ class UVContsubUnitTestBase(unittest.TestCase):
 		if hasattr(are_eq, 'all'):
 		    are_eq = are_eq.all()
 		if not are_eq:
-		    raise ValueError, '!='
+		    raise ValueError('!=')
 	    except ValueError:
 		errmsg = "%r != %r" % (val, expval)
 		if (len(errmsg) > 66): # 66 = 78 - len('ValueError: ')
 		    errmsg = "\n%r\n!=\n%r" % (val, expval)
-		raise ValueError, errmsg
-	    except Exception, e:
-		print "Error comparing", val, "to", expval
+		raise ValueError(errmsg)
+	    except Exception as e:
+		print("Error comparing", val, "to", expval)
 		raise e
 
 
@@ -137,12 +137,12 @@ class zeroth(UVContsubUnitTestBase):
         record = {}
         pnrows = {}
         try:
-            print "\nRunning uvcontsub"
+            print("\nRunning uvcontsub")
             uvran = uvcontsub(self.inpms, fitspw='0:0~5;18~23',
                                fitorder=0, want_cont=True
                                )
-        except Exception, e:
-            print "Error running uvcontsub"
+        except Exception as e:
+            print("Error running uvcontsub")
             raise e
 
 
@@ -159,23 +159,23 @@ class zeroth(UVContsubUnitTestBase):
         #return uvran
         self.assertEqual(uvran,True)
 
-        print "Continuum estimate in line-free region"
+        print("Continuum estimate in line-free region")
         self.check_eq(record['cont'][:,3],   # RR, LL
                  numpy.array([ 2.+3.j,  4.+5.j]), 0.0001)
 
-        print "Continuum estimate in line region"
+        print("Continuum estimate in line region")
         self.check_eq(record['cont'][:,13],
                  numpy.array([ 2.+3.j,  4.+5.j]), 0.0001)
 
-        print "Continuum-subtracted data in line-free region"
+        print("Continuum-subtracted data in line-free region")
         self.check_eq(record['contsub'][:,21],   # RR, LL
                  numpy.array([ 0.+0.j,  0.+0.j]), 0.0001)
 
-        print "Continuum-subtracted data in line region"
+        print("Continuum-subtracted data in line region")
         self.check_eq(record['contsub'][:,9],   # RR, LL
                  numpy.array([87.+26.j, 31.+20.j]), 0.0001)
 
-        print "Non-empty pointing table (for MMS case)"
+        print("Non-empty pointing table (for MMS case)")
         self.assertEqual(pnrows['cont'], 1)
         self.assertEqual(pnrows['contsub'], 1)
         
@@ -193,12 +193,12 @@ class fourth(UVContsubUnitTestBase):
         infitorder=4                    # fitorder
         record = {}
         try:
-            print "\nRunning uvcontsub"
+            print("\nRunning uvcontsub")
             uvran = uvcontsub(self.inpms, fitspw='0:0~5;18~23',
                                fitorder=infitorder, want_cont=True
                                )
-        except Exception, e:
-            print "Error running uvcontsub"
+        except Exception as e:
+            print("Error running uvcontsub")
             raise e
 
 
@@ -212,7 +212,7 @@ class fourth(UVContsubUnitTestBase):
         #return uvran
         self.assertEqual(uvran,True)
 
-        print "Continuum estimate"
+        print("Continuum estimate")
         self.check_eq(record['cont'],   # [[RR], [LL]]
                  numpy.array([[20.00000-10.j,      12.50660-10.00000j,
                                 7.10324-10.00000j,  3.35941-10.j,
@@ -240,7 +240,7 @@ class fourth(UVContsubUnitTestBase):
                               -38.21845+5.j,      -50.00000+5.j]]),
                  0.0001)
 
-        print "Continuum-subtracted data"
+        print("Continuum-subtracted data")
         self.check_eq(record['contsub'],   # [[RR], [LL]]
                  numpy.array([[0.00000+0.00000j,    0.00000+0.00000j,
                                0.00000+0.00000j,    0.00000+0.00000j,
@@ -284,13 +284,13 @@ class combspw(UVContsubUnitTestBase):
         for infitorder in fitorders:
             record[infitorder]={}
 	    try:
-		print "\nRunning uvcontsub"
+		print("\nRunning uvcontsub")
 		uvran = uvcontsub(self.inpms, fitspw='1~10:5~122,15~22:5~122',
 				   spw='6~14', combine='spw',
 				   fitorder=infitorder, want_cont=False
 				   )
-	    except Exception, e:
-		print "Error running uvcontsub"
+	    except Exception as e:
+		print("Error running uvcontsub")
 		raise e
 
 	    specms = self.inpms + '.contsub'
@@ -302,10 +302,10 @@ class combspw(UVContsubUnitTestBase):
 	    #return uvran
 	    self.assertEqual(uvran,True)
 
-        print "combspw fitorder=0 line estimate"
+        print("combspw fitorder=0 line estimate")
         self.check_eq(record[0]['contsub'], -6.2324+17.9865j, 0.001)
 
-        print "combspw fitorder=1 line estimate"
+        print("combspw fitorder=1 line estimate")
         self.check_eq(record[1]['contsub'], -6.2533+17.6584j, 0.001)
     
 
@@ -324,13 +324,13 @@ class excludechans(UVContsubUnitTestBase):
         record = {}
         pnrows = {}
         try:
-            print "\nRunning uvcontsub"
+            print("\nRunning uvcontsub")
            
             uvran = uvcontsub(self.inpms, fitspw='0:6~17', #'0:0~5;18~23'
                                excludechans=True, fitorder=0, 
                                want_cont=True)
-        except Exception, e:
-            print "Error running uvcontsub"
+        except Exception as e:
+            print("Error running uvcontsub")
             raise e
 
 
@@ -347,23 +347,23 @@ class excludechans(UVContsubUnitTestBase):
         #return uvran
         self.assertEqual(uvran,True)
 
-        print "Continuum estimate in line-free region"
+        print("Continuum estimate in line-free region")
         self.check_eq(record['cont'][:,3],   # RR, LL
                  numpy.array([ 2.+3.j,  4.+5.j]), 0.0001)
 
-        print "Continuum estimate in line region"
+        print("Continuum estimate in line region")
         self.check_eq(record['cont'][:,13],
                  numpy.array([ 2.+3.j,  4.+5.j]), 0.0001)
 
-        print "Continuum-subtracted data in line-free region"
+        print("Continuum-subtracted data in line-free region")
         self.check_eq(record['contsub'][:,21],   # RR, LL
                  numpy.array([ 0.+0.j,  0.+0.j]), 0.0001)
 
-        print "Continuum-subtracted data in line region"
+        print("Continuum-subtracted data in line region")
         self.check_eq(record['contsub'][:,9],   # RR, LL
                  numpy.array([87.+26.j, 31.+20.j]), 0.0001)
 
-        print "Non-empty pointing table (for MMS case)"
+        print("Non-empty pointing table (for MMS case)")
         self.assertEqual(pnrows['cont'], 1)
         self.assertEqual(pnrows['contsub'], 1)
 
@@ -379,11 +379,11 @@ class excludechans2(UVContsubUnitTestBase):
         record = {}
         infitspw = '1:0~5;10~15;123~127,3:0~5;11~15;123~127,2:0~5;10~15;123~127'
 	try:
-	    print "\nRunning uvcontsub"
+	    print("\nRunning uvcontsub")
 	    uvran = uvcontsub(self.inpms, fitspw=infitspw,
 				   spw='1~3', want_cont=False, excludechans=True)
-	except Exception, e:
-	    print "Error running uvcontsub"
+	except Exception as e:
+	    print("Error running uvcontsub")
 	    raise e
 
 	specms = self.inpms + '.contsub'
@@ -418,14 +418,14 @@ class freqrangeselection(UVContsubUnitTestBase):
         record = {}
         pnrows = {}
         try:
-            print "\nRunning uvcontsub"
+            print("\nRunning uvcontsub")
 
             uvran = uvcontsub(self.inpms, 
                                fitspw='*:1412665073.7687755~1412787144.0812755Hz;1413104526.8937755~1413226597.2062755Hz',
                                fitorder=0,
                                want_cont=True)
-        except Exception, e:
-            print "Error running uvcontsub"
+        except Exception as e:
+            print("Error running uvcontsub")
             raise e
 
 
@@ -442,23 +442,23 @@ class freqrangeselection(UVContsubUnitTestBase):
         #return uvran
         self.assertEqual(uvran,True)
 
-        print "Continuum estimate in line-free region"
+        print("Continuum estimate in line-free region")
         self.check_eq(record['cont'][:,3],   # RR, LL
                  numpy.array([ 2.+3.j,  4.+5.j]), 0.0001)
 
-        print "Continuum estimate in line region"
+        print("Continuum estimate in line region")
         self.check_eq(record['cont'][:,13],
                  numpy.array([ 2.+3.j,  4.+5.j]), 0.0001)
 
-        print "Continuum-subtracted data in line-free region"
+        print("Continuum-subtracted data in line-free region")
         self.check_eq(record['contsub'][:,21],   # RR, LL
                  numpy.array([ 0.+0.j,  0.+0.j]), 0.0001)
 
-        print "Continuum-subtracted data in line region"
+        print("Continuum-subtracted data in line region")
         self.check_eq(record['contsub'][:,9],   # RR, LL
                  numpy.array([87.+26.j, 31.+20.j]), 0.0001)
 
-        print "Non-empty pointing table (for MMS case)"
+        print("Non-empty pointing table (for MMS case)")
         self.assertEqual(pnrows['cont'], 1)
         self.assertEqual(pnrows['contsub'], 1)
 

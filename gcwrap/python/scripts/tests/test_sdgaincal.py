@@ -12,7 +12,7 @@ import unittest
 from sdgaincal import sdgaincal
 
 try:
-    from testutils import copytree_ignore_subversion
+    from .testutils import copytree_ignore_subversion
 except:
     from tests.testutils import copytree_ignore_subversion
 
@@ -58,8 +58,8 @@ class sdgaincal_test_base(unittest.TestCase):
                           'scan': '',
                           'applytable': ''}
         retval = {}
-        for (k,v) in default_params.items():
-            if params.has_key(k):
+        for (k,v) in list(default_params.items()):
+            if k in params:
                 retval[k] = params[k]
             else:
                 retval[k] = v
@@ -141,7 +141,7 @@ class sdgaincal_test_base(unittest.TestCase):
                     t.close()
                 ma = numpy.ma.masked_array(fparam, flag)
                 mean_gain = ma.mean(axis=2)
-                print mean_gain
+                print(mean_gain)
                 self.assertTrue(numpy.all((numpy.abs(mean_gain) - 1.0) < 0.01))
                 
             
@@ -175,7 +175,7 @@ class sdgaincal_fail_test(sdgaincal_test_base):
         self.assertEqual(result, False)
         
     def _test_except_regex(self, exception_type, pattern, **params):
-        with self.assertRaisesRegexp(exception_type, pattern) as cm:
+        with self.assertRaisesRegex(exception_type, pattern) as cm:
             self.run_task(**params)
         
     def test_fail01(self):
@@ -238,7 +238,7 @@ class sdgaincal_const_test(sdgaincal_test_base):
         self.assertEqual(nrow, 0)
         
     def _verify_fparam_and_flag(self, table):
-        for irow in xrange(table.nrows()):
+        for irow in range(table.nrows()):
             fparam = table.getcell('CPARAM', irow).real
             self.assertTrue(numpy.all(fparam == 1.0))
                 
@@ -293,7 +293,7 @@ class sdgaincal_variable_test(sdgaincal_test_base):
             ref_nrow = reftable.nrows()
             self.assertEqual(nrow, ref_nrow)
             
-            for irow in xrange(nrow):
+            for irow in range(nrow):
                 ref_fparam = reftable.getcell('CPARAM', irow).real
                 fparam = table.getcell('CPARAM', irow).real
                 self.assertTrue(numpy.all(ref_fparam == fparam))

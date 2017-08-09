@@ -58,7 +58,7 @@ casapath=os.environ['CASAPATH']
 import asap as sd
 os.environ['CASAPATH']=casapath
 
-print '--Import--'
+print('--Import--')
 #Load MeasurementSet data into an ASAP scantable (this takes a while)
 storage_sav=sd.rcParams['scantable.storage']
 sd.rc('scantable',storage='disk')		# Note this enables handling of large datasets with limited memory
@@ -68,7 +68,7 @@ s=sd.scantable(datapath,average=False,getpt=False)	# the 'false' indicates that 
 importproc=time.clock()
 importtime=time.time()
 
-print '--Split & Save--'
+print('--Split & Save--')
 # split out the data for the field of interest
 s0=s.get_scan('FLS3a*')				# get all scans with FLS3a source
 s0.save('FLS3a_HI.asap')			# save this data to an ASAP dataset on disk
@@ -77,25 +77,25 @@ del s0
 splitproc=time.clock()
 splittime=time.time()
 
-print '--Calibrate--'
+print('--Calibrate--')
 s=sd.scantable('FLS3a_HI.asap',average=False)   # load in the saved ASAP dataset with FLS3a
 s.set_fluxunit('K')				# set the fluxunit to 'K'; ASAP currently doesn't know about
 						# the GBT and mislabels the data as 'Jy'
 scanns = s.getscannos()				# get a list of the scan numbers in the scantable
 sn=list(scanns)
-print "No. scans to be processed:", len(scanns)
+print("No. scans to be processed:", len(scanns))
 res=sd.calfs(s,sn)				# Do a frequency switched calibration on the scans
 del s
 calproc=time.clock()
 caltime=time.time()
 
-print '--Save calibrated data--'
+print('--Save calibrated data--')
 res.save('FLS3a_calfs', 'MS2')			# Save the calibrated data to a MeasurementSet (CASA) format
 del res
 saveproc=time.clock()
 savetime=time.time()
 
-print '--Image data--'
+print('--Image data--')
 #CASA									#AIPS++
 myim.open('FLS3a_calfs')			#set the data			# myim:=imager('FLS3a_calfs_v4')
 myim.selectvis(nchan=901,start=30,step=1,	#choose a subset of the dataa   # myim.setdata(mode='channel',start=30,
@@ -148,48 +148,48 @@ outfile='fls3a.hi.'+datestring+'.log'
 logfile=open(outfile,'w')
 
 
-print >>logfile,''
-print >>logfile,'********** Regression ***********'
-print >>logfile,'*                               *'
-if (diff_immax < 0.05): print '* Passed image max test '
-print >>logfile,'*  Image max ',thistest_immax
-if (diff_imrms < 0.05): print '* Passed image rms test '
-print >>logfile,'*  Image rms ',thistest_imrms
+print('', file=logfile)
+print('********** Regression ***********', file=logfile)
+print('*                               *', file=logfile)
+if (diff_immax < 0.05): print('* Passed image max test ')
+print('*  Image max ',thistest_immax, file=logfile)
+if (diff_imrms < 0.05): print('* Passed image rms test ')
+print('*  Image rms ',thistest_imrms, file=logfile)
 if ((diff_immax<0.05) & (diff_imrms<0.05)): 
 	regstate=True
-        print >>logfile,'---'
-        print >>logfile,'Passed Regression test for FLS3a HI'
-        print >>logfile,'---'
-	print ''
-	print 'Regression PASSED'
-	print ''
+        print('---', file=logfile)
+        print('Passed Regression test for FLS3a HI', file=logfile)
+        print('---', file=logfile)
+	print('')
+	print('Regression PASSED')
+	print('')
 else: 
 	regstate=False
-	print ''
-	print 'Regression FAILED'
-	print ''
-        print >>logfile,'----FAILED Regression test for FLS3a HI'
-print >>logfile,'*********************************'
+	print('')
+	print('Regression FAILED')
+	print('')
+        print('----FAILED Regression test for FLS3a HI', file=logfile)
+print('*********************************', file=logfile)
 #
-print >>logfile,''
-print >>logfile,''
-print >>logfile,'********* Benchmarking *****************'
-print >>logfile,'*                                      *'
-print >>logfile,'Total wall clock time was: '+str(endTime - startTime)
-print >>logfile,'Total CPU        time was: '+str(endProc - startProc)
-print >>logfile,'Processing rate MB/s  was: '+str(4100/(endTime - startTime))
-print >>logfile,'* Breakdown: '
-print >>logfile,'*   import       time was: '+str(importtime-startTime)
-print >>logfile,'*            CPU time was: '+str(importproc-startProc)
-print >>logfile,'*   split        time was: '+str(splittime-importtime)
-print >>logfile,'*            CPU time was: '+str(splitproc-importproc)
-print >>logfile,'*   calibration  time was: '+str(caltime-splittime)
-print >>logfile,'*            CPU time was: '+str(calproc-splitproc)
-print >>logfile,'*   save         time was: '+str(savetime-caltime)
-print >>logfile,'*            CPU time was: '+str(saveproc-calproc)
-print >>logfile,'*   image        time was: '+str(imagetime-savetime)
-print >>logfile,'*            CPU time was: '+str(imageproc-saveproc)
-print >>logfile,'****************************************'
+print('', file=logfile)
+print('', file=logfile)
+print('********* Benchmarking *****************', file=logfile)
+print('*                                      *', file=logfile)
+print('Total wall clock time was: '+str(endTime - startTime), file=logfile)
+print('Total CPU        time was: '+str(endProc - startProc), file=logfile)
+print('Processing rate MB/s  was: '+str(4100/(endTime - startTime)), file=logfile)
+print('* Breakdown: ', file=logfile)
+print('*   import       time was: '+str(importtime-startTime), file=logfile)
+print('*            CPU time was: '+str(importproc-startProc), file=logfile)
+print('*   split        time was: '+str(splittime-importtime), file=logfile)
+print('*            CPU time was: '+str(splitproc-importproc), file=logfile)
+print('*   calibration  time was: '+str(caltime-splittime), file=logfile)
+print('*            CPU time was: '+str(calproc-splitproc), file=logfile)
+print('*   save         time was: '+str(savetime-caltime), file=logfile)
+print('*            CPU time was: '+str(saveproc-calproc), file=logfile)
+print('*   image        time was: '+str(imagetime-savetime), file=logfile)
+print('*            CPU time was: '+str(imageproc-saveproc), file=logfile)
+print('****************************************', file=logfile)
 
 
 logfile.close()

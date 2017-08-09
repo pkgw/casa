@@ -38,41 +38,41 @@ def find(matchstring=None):
 		# taskfiles = ['accum.py','simdata.py','applycal.py','bandpass.py','blcal.py','browsetable.py','clean.py','clearcal.py','clearplot.py','clearstat.py','concat.py','deconvolve.py','exportfits.py','exportuvfits.py','feather.py','filecatalog.py','flagdata.py','flagmanager.py','fluxscale.py','ft.py','gaincal.py','imhead.py','immoments.py','importasdm.py','importfits.py','importgmrt.py','importuvfits.py','importvla.py','invert.py','listcal.py','listhistory.py','listobs.py','makemask.py','mosaic.py','plotants.py','plotcal.py','plotms.py','plotxy.py','regridimage.py','setjy.py','smoothcal.py','split.py','uvcontsub.py','uvmodelfit.py','viewer.py']
 
 		taskfiles = []
-		for key in tasksum.keys() :
+		for key in list(tasksum.keys()) :
 		    taskfiles.append(key+'.py')
 		mydir = _ip.magic("sc -l = pwd")[0]
 		os.chdir(filepath)
 
-		print 'Found in:'
-		print '-----------'
-		print ''
+		print('Found in:')
+		print('-----------')
+		print('')
 
-		print 'Task Names:'
+		print('Task Names:')
 		for i in taskfiles:
 			found=i.find(matchstring)
 			if (found>=0):
-				print '\t ',i.rstrip('.py')
+				print('\t ',i.rstrip('.py'))
 
-                print 'Parameter Names:'
+                print('Parameter Names:')
 
                 paramstring='grep "def " parameter_dictionary.py | grep '+matchstring
                 parameternames=_ip.magic("sc -l ="+paramstring)
                 for i in parameternames:
                         temp1=i.lstrip('\tdef ')
                         temp2=temp1.rstrip('():')
-                        print '\t ',temp2
+                        print('\t ',temp2)
 		
-		print 'Tasks (documentation, parameters)'
+		print('Tasks (documentation, parameters)')
 
 		for i in taskfiles:
 		#for i in ['accum.py','applycal.py','bandpass.py','blcal.py']:
 			mystring='grep -l '+matchstring+' '+i
 			grepfile = _ip.magic("sc -l ="+mystring)[0]
 			task = grepfile.rstrip('.py')
-			if (task!=''): print '\t ',task
+			if (task!=''): print('\t ',task)
 
 		os.chdir(mydir)
 
        else:
-                raise Exception, 'Bad input string - try again'
+                raise Exception('Bad input string - try again')
 

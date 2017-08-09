@@ -469,7 +469,7 @@ class slsearch_test(unittest.TestCase):
 
         num_lines = sum(1 for line in open(logfile))
         # append (twice)
-        self.assertEquals(num_lines, 5822)
+        self.assertEqual(num_lines, 5822)
         self._testit(
             table=good_table, outfile="", freqrange=[0, 100], species=[],
             reconly=True, chemnames=[], qns=[],
@@ -479,7 +479,7 @@ class slsearch_test(unittest.TestCase):
         )
         self.assertTrue(os.path.exists(logfile))
         num_lines = sum(1 for line in open(logfile))
-        self.assertEquals(num_lines, 3*5822)
+        self.assertEqual(num_lines, 3*5822)
         os.remove(logfile)
 
 

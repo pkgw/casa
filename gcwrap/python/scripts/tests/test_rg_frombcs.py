@@ -110,7 +110,7 @@ def run_frombcs(imagename, box, chans, stokes, stokes_control, region=""):
 
 def recToList(rec):
     mylist = []
-    mykeys = rec.keys()
+    mykeys = list(rec.keys())
     mykeys.sort()
     for k in mykeys:
         mylist.append(rec[k]['value'])
@@ -129,8 +129,8 @@ class rg_frombcs_test(unittest.TestCase):
 
     def compLists(self, got, exp):
         epsilon = 1e-8
-        print "got " + str(got)
-        print "exp " + str(exp)
+        print("got " + str(got))
+        print("exp " + str(exp))
         for i in range(len(got)):
             fracDiff = abs((got[i]-exp[i])/exp[i]);
             self.assertTrue(fracDiff < epsilon)

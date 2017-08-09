@@ -21,14 +21,14 @@ def xmlpath( ):
         elif os.path.exists(__casapath__ + "/xml"):
             xmlpath.path = __casapath__ + "/xml"
         else:
-            raise RuntimeError, "Unable to find the XML constraints directory in your CASAPATH"
+            raise RuntimeError("Unable to find the XML constraints directory in your CASAPATH")
 
     return xmlpath.path
 ####----------------------------------------------------------
 
 casa = find_casa( )
 
-if casa.has_key('state') and casa['state'].has_key('init_version') and casa['state']['init_version'] > 0:
+if 'state' in casa and 'init_version' in casa['state'] and casa['state']['init_version'] > 0:
 
     #
     ##allow globals for taskby default
@@ -94,7 +94,7 @@ else:
 
         myf=sys._getframe(stacklevel).f_globals
 
-        if myf.has_key('casa') and myf['casa'].has_key('files') and myf['casa']['files'].has_key('logfile') :
+        if 'casa' in myf and 'files' in myf['casa'] and 'logfile' in myf['casa']['files'] :
             logger.setlogfile(myf['casa']['files']['logfile'])
 
 
@@ -240,14 +240,14 @@ else:
         """
         if not hasattr(myms, 'writehistory'):
             if debug:
-                print "write_history(myms, %s, %s): myms is not an ms tool" % (vis, tname)
+                print("write_history(myms, %s, %s): myms is not an ms tool" % (vis, tname))
             return False
         retval = True
         isopen = False
         try:
             if not myclog and hasattr(casalog, 'post'):
                 myclog = casalog
-        except Exception, instance:
+        except Exception as instance:
             # There's no logger to complain to, and I don't want to exit
             # just because of that.
             pass
@@ -263,7 +263,7 @@ else:
                 vestr += casa['source']['url'].split('/')[-2]
                 vestr += ' rev. ' + casa['source']['revision']
                 vestr += ' ' + casa['build']['time']
-            except Exception, instance:
+            except Exception as instance:
                 if hasattr(myclog, 'version'):
                     # Now give it a try.
                     vestr += myclog.version()
@@ -272,7 +272,7 @@ else:
             myms.writehistory(message=vestr, origin=tname)
 
             # Write the arguments.
-            for argnum in xrange(len(param_names)):
+            for argnum in range(len(param_names)):
                 msg = "%-11s = " % param_names[argnum]
                 val = param_vals[argnum]
                 if type(val) == str:
@@ -281,7 +281,7 @@ else:
                 if type(val) == str:
                     msg += '"'
                 myms.writehistory(message=msg, origin=tname)
-        except Exception, instance:
+        except Exception as instance:
             if hasattr(myclog, 'post'):
                 myclog.post("*** Error \"%s\" updating HISTORY of %s" % (instance, vis),
                             'SEVERE')
@@ -295,15 +295,15 @@ else:
 
     # setup viewer tool
     # jagonzal (CAS-4322): Don't load viewer at the engine level
-    if not os.environ.has_key('CASA_ENGINE'):
+    if 'CASA_ENGINE' not in os.environ:
         try:
             ving = viewertool.viewertool( False )
-            if casa['flags'].has_key('--nogui') :
+            if '--nogui' in casa['flags'] :
                 vi = ving
             else:
                 vi = viewertool.viewertool( True )
         except :
-            print "Unable to start viewer, maybe no dbus available?"
+            print("Unable to start viewer, maybe no dbus available?")
 
     defaultsdir = {}
     defaultsdir['alma'] = casa['dirs']['xml'] + '/almadefaults.xml'
@@ -320,12 +320,12 @@ else:
         stringlist=list()
 
         fldlist=minstring.split()#split string into elements
-        print 'fldlist is ',fldlist
+        print('fldlist is ',fldlist)
         for fld in fldlist:     #loop over fields
             _iter=fields.__iter__() #create iterator for fieldnames
             while 1:
                 try:
-                    x=_iter.next() # has first value of field name
+                    x=next(_iter) # has first value of field name
                 except StopIteration:
                     break
                 #
@@ -333,7 +333,7 @@ else:
                     indexlist.append(fields.index(x))
                     stringlist.append(x)
 
-        print 'Selected fields are: ',stringlist
+        print('Selected fields are: ',stringlist)
         return indexlist
 
     def selectantenna(vis,minstring):
@@ -354,8 +354,8 @@ else:
             except ValueError:
                 pass
 
-        print 'Selected reference antenna: ',stringlist
-        print 'indexlist: ',indexlist
+        print('Selected reference antenna: ',stringlist)
+        print('indexlist: ',indexlist)
         return indexlist[0]
 
     def readboxfile(boxfile):

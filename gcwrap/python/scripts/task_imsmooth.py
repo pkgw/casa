@@ -118,11 +118,11 @@ def imsmooth(
     # If the values given are integers we assume they are given in
     # arcsecs and alter appropriately
     if not ikernel:
-        if isinstance(major, (int, long, float)):
+        if isinstance(major, (int, float)):
             major=str(major)+'arcsec'
-        if isinstance(minor, (int, long, float)):
+        if isinstance(minor, (int, float)):
             minor=str(minor)+'arcsec'
-        if isinstance(pa, (int, long, float)):
+        if isinstance(pa, (int, float)):
             pa=str(pa)+'deg'
         
     try:       
@@ -139,14 +139,14 @@ def imsmooth(
                 pa = ""
                 targetres = True
             if (beam and (major or minor or pa)):
-                raise Exception, "You may specify only beam or the set of major/minor/pa"
+                raise Exception("You may specify only beam or the set of major/minor/pa")
             if not beam:
                 if not major:
-                    raise Exception, "Major axis must be specified"
+                    raise Exception("Major axis must be specified")
                 if not minor:
-                    raise Exception, "Minor axis must be specified"
+                    raise Exception("Minor axis must be specified")
                 if not pa:
-                    raise Exception, "Position angle must be specified"
+                    raise Exception("Position angle must be specified")
        
             retia = _myia.convolve2d(
                 axes=[0,1], region=reg, major=major,
@@ -158,7 +158,7 @@ def imsmooth(
 
         elif (bkernel ):
             if not major or not minor:
-                raise Exception, "Both major and minor must be specified."
+                raise Exception("Both major and minor must be specified.")
             # BOXCAR KERNEL
             #
             # Until convolve2d supports boxcar we will need to
@@ -198,7 +198,7 @@ def imsmooth(
             casalog.post( 'Unrecognized kernel type: ' + kernel, 'SEVERE' )
             return False
         
-    except Exception, instance:
+    except Exception as instance:
         casalog.post("Exception: " + str(instance), 'SEVERE')
         return False
     finally:

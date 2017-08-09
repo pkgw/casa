@@ -20,14 +20,14 @@ Unit tests for task plotweather. It tests the following parameters:
 datapath = os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/listobs/'
 
 # Read the data sets from another directory
-if os.environ.has_key('TEST_DATADIR'):  
+if 'TEST_DATADIR' in os.environ:  
     DATADIR = str(os.environ.get('TEST_DATADIR'))+'/listobs/'
     if os.path.isdir(DATADIR):
         datapath = DATADIR
     else:
-        print 'WARN: directory '+DATADIR+' does not exist'
+        print('WARN: directory '+DATADIR+' does not exist')
 
-print 'plotweather tests will use data from '+datapath
+print('plotweather tests will use data from '+datapath)
 
 class plotweather_test(unittest.TestCase):
 

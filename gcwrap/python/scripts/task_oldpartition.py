@@ -25,18 +25,17 @@ class PartitionHelper(ParallelTaskHelper):
         '''
         ParallelTaskHelper.initialize(self)
 
-        for (arg,value) in self._arg.items():
+        for (arg,value) in list(self._arg.items()):
             if value == None:
                 self._arg[arg] = ''
 
                               
         # Since we are here we know that the outputvis should not be ''
         if self._arg['outputvis'] == '':
-            raise ValueError, "An output vis was required."
+            raise ValueError("An output vis was required.")
         if os.path.exists(self._arg['outputvis']): 
-                raise ValueError, \
-                      "Vis directory for output (%s) already exists" %\
-                      self._arg['outputvis']
+                raise ValueError("Vis directory for output (%s) already exists" %\
+                      self._arg['outputvis'])
             
         # Find the absolute path to the outputvis
         self._arg['outputvis'] = os.path.abspath(self._arg['outputvis'])
@@ -171,7 +170,7 @@ class PartitionHelper(ParallelTaskHelper):
         numSubMS = min(len(scanList),numSubMS)
         
         partitionedScans = self.__partition(scanList, numSubMS)
-        for output in xrange(numSubMS):
+        for output in range(numSubMS):
             mmsCmd = copy.copy(self._arg)
             mmsCmd['createmms'] = False
             mmsCmd['calmsselection'] = 'none'  
@@ -190,7 +189,7 @@ class PartitionHelper(ParallelTaskHelper):
         numSubMS = min(len(spwList),numSubMS)
 
         partitionedSPWs = self.__partition(spwList,numSubMS)
-        for output in xrange(numSubMS):
+        for output in range(numSubMS):
             mmsCmd = copy.copy(self._arg)
             mmsCmd['createmms'] = False
             mmsCmd['calmsselection'] = 'none'
@@ -233,7 +232,7 @@ class PartitionHelper(ParallelTaskHelper):
         partitionedSpws  = self.__partition(spwList,numSpwPartitions)
         partitionedScans = self.__partition(scanList,numScanPartitions)
 
-        for output in xrange(numSpwPartitions*numScanPartitions):
+        for output in range(numSpwPartitions*numScanPartitions):
             mmsCmd = copy.copy(self._arg)
             mmsCmd['createmms'] = False
             mmsCmd['calmsselection'] = 'none'
@@ -256,29 +255,29 @@ class PartitionHelper(ParallelTaskHelper):
         calibration criteria.  If scanList is not None then it used as the
         scan selectior criteria.
         '''
-        print "Start of Select MS"
+        print("Start of Select MS")
         if self._msTool is None:
             # Open up the msTool
             self._msTool = mstool()
             self._msTool.open(self._arg['vis'])    
         else:
             self._msTool.reset()
-        print "MS Tool Initialized"
+        print("MS Tool Initialized")
             
-        print "Getting Selection Filter"
+        print("Getting Selection Filter")
         selectionFilter = self._getSelectionFilter()
-        print "Selection Filter Complete"
+        print("Selection Filter Complete")
         
         if not doCalibrationSelection and self._calScanList is not None:
-            print "Augmenting Cal Selection"
+            print("Augmenting Cal Selection")
             # We need to augment the selection to remove cal scans
             if self._selectionScanList is None:
                 # Generate the selection scan list if needed
                 if selectionFilter is not None:
                     self._msTool.msselect(selectionFilter)
-                print "Getting Scan List"
+                print("Getting Scan List")
                 self._selectionScanList = self._getScanList()
-                print "Scan List Complete"
+                print("Scan List Complete")
                 
                 for scan in self._calScanList:
                     self._selectionScanList.remove(scan)
@@ -289,17 +288,17 @@ class PartitionHelper(ParallelTaskHelper):
             selectionFilter['scan'] = ParallelTaskHelper.listToCasaString\
                                       (self._selectionScanList)
 
-        print "Doing Primary Selection"
+        print("Doing Primary Selection")
         if selectionFilter is not None:
-            print selectionFilter
+            print(selectionFilter)
             self._msTool.msselect(selectionFilter)
-        print "Primary Selection Complete"
+        print("Primary Selection Complete")
 
         if doCalibrationSelection:
-            print "Doing Calibration Selection"
+            print("Doing Calibration Selection")
             calFilter = self._getCalibrationFilter()
             self._msTool.msselect(calFilter)
-            print "Calibration Selection Complete"
+            print("Calibration Selection Complete")
 
 
     def _getSPWList(self):
@@ -312,7 +311,7 @@ class PartitionHelper(ParallelTaskHelper):
         
         # Now get the list of SPWs in the selected ms
         ddInfo = self._msTool.getspectralwindowinfo()
-        spwList = [info['SpectralWindowId'] for info in ddInfo.values()]
+        spwList = [info['SpectralWindowId'] for info in list(ddInfo.values())]
 
         # Return a unique sorted list:
         sorted = list(set(spwList))
@@ -331,7 +330,7 @@ class PartitionHelper(ParallelTaskHelper):
         scanList = [int(scan) for scan in scanSummary]
 
         if len(scanList) == 0:
-            raise ValueError, "No Scans present in the created MS."
+            raise ValueError("No Scans present in the created MS.")
 
         return scanList
 
@@ -348,11 +347,11 @@ class PartitionHelper(ParallelTaskHelper):
 
             # restore POINTING and SYSCAL
             if self.pwriteaccess and not self.pointingisempty:
-                print "restoring POINTING"
+                print("restoring POINTING")
                 os.system('rm -rf '+self.ptab) # remove empty copy
                 os.system('mv '+self.dataDir+'/POINTING '+self.ptab)
             if self.swriteaccess and not self.syscalisempty:
-                print "restoring SYSCAL"
+                print("restoring SYSCAL")
                 os.system('rm -rf '+self.stab) # remove empty copy
                 os.system('mv '+self.dataDir+'/SYSCAL '+self.stab)
             
@@ -368,7 +367,7 @@ class PartitionHelper(ParallelTaskHelper):
                 # A Cal MS was created in the data directory, see if it was
                 # successful, if so build a multi-MS
                 if os.path.exists(self._arg['calmsname']):
-                    raise ValueError, "Output MS already exists"
+                    raise ValueError("Output MS already exists")
                 self._msTool.createmultims(self._arg['calmsname'],
                          [self.dataDir +'/%s.cal.ms'%self.outputBase])
             
@@ -395,7 +394,7 @@ class PartitionHelper(ParallelTaskHelper):
                 shutil.rmtree(mastersubms+'/POINTING', ignore_errors=True)
                 shutil.copytree(self.ptab, mastersubms+'/POINTING') # master subms gets a full copy of the original
             if self.makepointinglinks:
-                for i in xrange(1,len(subMSList)):
+                for i in range(1,len(subMSList)):
                     theptab = subMSList[i]+'/POINTING'
                     shutil.rmtree(theptab, ignore_errors=True)
                     os.symlink('../'+os.path.basename(mastersubms)+'/POINTING', theptab)
@@ -407,7 +406,7 @@ class PartitionHelper(ParallelTaskHelper):
                 shutil.rmtree(mastersubms+'/SYSCAL', ignore_errors=True)
                 shutil.copytree(self.stab, mastersubms+'/SYSCAL') # master subms gets a full copy of the original
             if self.makesyscallinks:
-                for i in xrange(1,len(subMSList)):
+                for i in range(1,len(subMSList)):
                     thestab = subMSList[i]+'/SYSCAL'
                     shutil.rmtree(thestab, ignore_errors=True)
                     os.symlink('../'+os.path.basename(mastersubms)+'/SYSCAL', thestab)
@@ -472,7 +471,7 @@ class PartitionHelper(ParallelTaskHelper):
         
         division = len(lst)/float(n)
         return [ lst[int(round(division * i)):
-                     int(round(division * (i+1)))] for i in xrange(int(n))]
+                     int(round(division * (i+1)))] for i in range(int(n))]
 
 
 def oldpartition(vis,
@@ -571,23 +570,22 @@ def oldpartition(vis,
     
     # Start by going through and checking all the parameters
     if not isinstance(vis, str) or not os.path.exists(vis):
-        raise ValueError, \
-              'Visibility data set (%s) not found - please verify the name' % \
-              vis
+        raise ValueError('Visibility data set (%s) not found - please verify the name' % \
+              vis)
     
     # SMC: The outputvis must be given
     # NOTE: added print statement because the exception msgs are
     # not being printed at this moment.
     if not outputvis or outputvis.isspace():
-        print 'Please specify outputvis'
-        raise ValueError, 'Please specify outputvis'
+        print('Please specify outputvis')
+        raise ValueError('Please specify outputvis')
 
     outputvis = outputvis.rstrip('/')
     
     if outputvis != '' and os.path.exists(outputvis):
-        print 'Output MS %s already exists - will not overwrite.'%outputvis
-        raise ValueError, "Output MS %s already exists - will not overwrite."%\
-              outputvis
+        print('Output MS %s already exists - will not overwrite.'%outputvis)
+        raise ValueError("Output MS %s already exists - will not overwrite."%\
+              outputvis)
     if isinstance(antenna,list):
         antenna = ', '.join([str(ant) for ant in antenna])
     if isinstance(spw, list):
@@ -606,8 +604,8 @@ def oldpartition(vis,
 
     if calmsselection in ['auto','manual']:
         if os.path.exists(calmsname):
-            raise ValueError, ("Output calibration MS %s already exists "+\
-                               "will not overwrite." ) % calmsname
+            raise ValueError(("Output calibration MS %s already exists "+\
+                               "will not overwrite." ) % calmsname)
 
     if createmms or not \
            ((calmsselection in ['auto','manual']) ^ (outputvis != '')):
@@ -641,17 +639,17 @@ def oldpartition(vis,
                          intent=scanintent,
                          obs=str(observation))
         msTool.close()
-    except Exception, instance:
+    except Exception as instance:
         casalog.post("*** Error \'%s\' captured in partition" % (instance),'WARN')
         msTool.close()
 
     # Write history to output MS, not the input ms.
     try:
-        param_names = oldpartition.func_code.co_varnames[:oldpartition.func_code.co_argcount]
+        param_names = oldpartition.__code__.co_varnames[:oldpartition.__code__.co_argcount]
         param_vals = [eval(p) for p in param_names]
         write_history(msTool, outputvis, 'oldpartition', param_names,
                       param_vals, casalog)
-    except Exception, instance:
+    except Exception as instance:
         casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
                      'WARN')
 

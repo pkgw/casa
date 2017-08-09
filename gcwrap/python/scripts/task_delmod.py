@@ -27,7 +27,7 @@ def delmod(vis=None,otf=None,field=None,scr=None):
 			_cb.delmod(otf=otf,field=field,scr=scr)
 			_cb.close()
 		else:
-                        raise Exception, 'Visibility data set not found - please verify the name'
+                        raise Exception('Visibility data set not found - please verify the name')
 
         	#write history
         	_ms.open(vis,nomodify=False)
@@ -37,5 +37,5 @@ def delmod(vis=None,otf=None,field=None,scr=None):
 		_ms.writehistory(message='scr         = "'+str(scr)+'"',origin='delmod')
 		_ms.close()
 
-	except Exception, instance:
-		print '*** Error ***',instance
+	except Exception as instance:
+		print('*** Error ***',instance)

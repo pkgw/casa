@@ -34,12 +34,12 @@ class sdcoaddold_unittest_base:
         data in scantable for later verifications
         """
         if not os.path.exists(scanname):
-            raise Exception, "A scantable '%s' does not exists." % scanname
+            raise Exception("A scantable '%s' does not exists." % scanname)
         if not is_scantable(scanname):
-            raise Exception, "Input file '%s' is not a scantable." % scanname
+            raise Exception("Input file '%s' is not a scantable." % scanname)
     
         res = {}
-        for tab in self.addedtabs + self.mergeids.values():
+        for tab in self.addedtabs + list(self.mergeids.values()):
             tb.open(scanname+"/"+tab)
             res["n"+tab] = tb.nrows()
             tb.close()
@@ -47,7 +47,7 @@ class sdcoaddold_unittest_base:
         # open main table
         tb.open(scanname)
         res["nMAIN"] = tb.nrows()
-        for col in ["SCANNO"] + self.mergeids.keys():
+        for col in ["SCANNO"] + list(self.mergeids.keys()):
             res[col+"S"] = list(set(tb.getcol(col)))
         tb.close()
         return res
@@ -63,13 +63,13 @@ class sdcoaddold_unittest_base:
         if complist:
             keylist = complist
         else:
-            keylist = refdict.keys()
+            keylist = list(refdict.keys())
         
         for key in keylist:
-            self.assertTrue(testdict.has_key(key),\
+            self.assertTrue(key in testdict,\
                             msg="%s is not defined in the current results."\
                             % key)
-            self.assertTrue(refdict.has_key(key),\
+            self.assertTrue(key in refdict,\
                             msg="%s is not defined in the reference data."\
                             % key)
             testval = self._to_list(testdict[key])
@@ -143,8 +143,8 @@ class sdcoaddold_basicTest( sdcoaddold_unittest_base, unittest.TestCase ):
     # but the same IDs are assigned ... requires proper addition of IDs by
     # checking of subtable rows)
     ref2125 = {"nMAIN": 16, "nFOCUS": 1, "nFREQUENCIES": 8, "nMOLECULES": 2,\
-               "SCANNOS": range(2), "FOCUS_IDS": range(1),\
-               "FREQ_IDS": range(8),"MOLECULE_IDS": range(2)}
+               "SCANNOS": list(range(2)), "FOCUS_IDS": list(range(1)),\
+               "FREQ_IDS": list(range(8)),"MOLECULE_IDS": list(range(2))}
     # merge result of scan 21, 25, and 23
     # - scan 21 & 25: no overlap in IF and MOL_ID but the same IDs
     #   are assigned ... requires proper addition of IDs by checking of
@@ -152,8 +152,8 @@ class sdcoaddold_basicTest( sdcoaddold_unittest_base, unittest.TestCase ):
     # - scan 21 & 23: perfect overlap in IF and MOL_ID ... requires no
     #   adding of existing IDs by checking subtable rows.
     ref212523 = {"nMAIN": 24, "nFOCUS": 1, "nFREQUENCIES": 8, "nMOLECULES": 2,\
-                 "SCANNOS": range(3), "FOCUS_IDS": range(1),\
-                 "FREQ_IDS": range(8),"MOLECULE_IDS": range(2)}
+                 "SCANNOS": list(range(3)), "FOCUS_IDS": list(range(1)),\
+                 "FREQ_IDS": list(range(8)),"MOLECULE_IDS": list(range(2))}
     
     def setUp( self ):
         # copy input scantables
@@ -175,7 +175,7 @@ class sdcoaddold_basicTest( sdcoaddold_unittest_base, unittest.TestCase ):
             result = sdcoaddold()
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('Need at least two data file names')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
@@ -188,7 +188,7 @@ class sdcoaddold_basicTest( sdcoaddold_unittest_base, unittest.TestCase ):
         self.assertEqual(result,None)
         # test merged scantable
         outname = self.inlist[0]+"_coadd"
-        print outname
+        print(outname)
         self.assertTrue(os.path.exists(outname),msg="No output written")
         merged = self._get_scantable_params(outname)
         self._test_merged_scantable(merged, self.ref2125)
@@ -230,7 +230,7 @@ class sdcoaddold_basicTest( sdcoaddold_unittest_base, unittest.TestCase ):
             result2 = sdcoaddold(infiles=infiles,outfile=outfile)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('Output file \'%s\' exists.'%(outfile))
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
@@ -272,7 +272,7 @@ class sdcoaddold_basicTest( sdcoaddold_unittest_base, unittest.TestCase ):
             result = sdcoaddold(infiles=infiles,outfile=outfile)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, e:
+        except Exception as e:
             pos=str(e).find('Need at least two data file names')
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(e)))
@@ -347,9 +347,9 @@ class sdcoaddold_mergeTest( sdcoaddold_unittest_base, unittest.TestCase ):
         merged = self._get_scantable_params(outfile)
         # check FREQ_ID
         self.assertEqual(merged["nFREQUENCIES"],4,msg="nFREQUENCIES is not correct")
-        self.assertTrue(merged["FREQ_IDS"]==range(4),\
+        self.assertTrue(merged["FREQ_IDS"]==list(range(4)),\
                         msg="FREQ_IDS = %s (expected: %s)" % \
-                        (str(merged["FREQ_IDS"]), str(range(4))))
+                        (str(merged["FREQ_IDS"]), str(list(range(4)))))
         # check main row number
         self.assertEqual(merged["nMAIN"],12,msg="nMAIN is not correct")
 
@@ -368,13 +368,13 @@ class sdcoaddold_mergeTest( sdcoaddold_unittest_base, unittest.TestCase ):
         merged = self._get_scantable_params(outfile)
         # check MOLECULE subtables
         self.assertEqual(merged["nMOLECULES"],2,msg="nMOLECULES is wrong")
-        self.assertTrue(merged["MOLECULE_IDS"]==range(2),\
+        self.assertTrue(merged["MOLECULE_IDS"]==list(range(2)),\
                         msg="MOLECULE_IDS = %s (expected: %s)" % \
-                        (str(merged["MOLECULE_IDS"]), str(range(2))))
+                        (str(merged["MOLECULE_IDS"]), str(list(range(2)))))
         # check main row number
         self.assertEqual(merged["nMAIN"],20,msg="nMAIN is wrong")
         # check FREQ_ID
-        refFID = range(8)
+        refFID = list(range(8))
         self.assertEqual(merged["nFREQUENCIES"],len(refFID),\
                          msg="nFREQUENCIES is wrong")
         self.assertTrue(merged["FREQ_IDS"]==refFID,\
@@ -846,10 +846,10 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
         # run sdcoaddold
         try:
             result = sdcoaddold(infiles=infiles,outfile=self.outfile,freqtol=self.freqtol)
-        except RuntimeError, e:
+        except RuntimeError as e:
             self.assertNotEqual(str(e).find('BASEFRAME is not identical'), -1,
                              msg='Unexpected exception is thrown: \'%s\''%(str(e)))
-        except Exception, e:
+        except Exception as e:
             self.fail('Unexpected exception is thrown: \'%s\''%(str(e)))
             
     
@@ -1058,10 +1058,10 @@ class sdcoaddold_freqtolTest( sdcoaddold_unittest_base, unittest.TestCase ):
         # run sdcoaddold
         try:
             result = sdcoaddold(infiles=infiles,outfile=self.outfile,freqtol='None')
-        except RuntimeError, e:
+        except RuntimeError as e:
             self.assertNotEqual(str(e).find('Failed to convert freqTol string to quantity'), -1,
                              msg='Unexpected exception is thrown: \'%s\''%(str(e)))
-        except Exception, e:
+        except Exception as e:
             self.fail('Unexpected exception is thrown: \'%s\''%(str(e)))
             
     
@@ -1096,8 +1096,8 @@ class sdcoaddold_storageTest( sdcoaddold_unittest_base, unittest.TestCase ):
     # but the same IDs are assigned ... requires proper addition of IDs by
     # checking of subtable rows)
     ref2125 = {"nMAIN": 16, "nFOCUS": 1, "nFREQUENCIES": 8, "nMOLECULES": 2,\
-               "SCANNOS": range(2), "FOCUS_IDS": range(1),\
-               "FREQ_IDS": range(8),"MOLECULE_IDS": range(2)}
+               "SCANNOS": list(range(2)), "FOCUS_IDS": list(range(1)),\
+               "FREQ_IDS": list(range(8)),"MOLECULE_IDS": list(range(2))}
 
     def setUp( self ):
         # copy input scantables
@@ -1146,7 +1146,7 @@ class sdcoaddold_storageTest( sdcoaddold_unittest_base, unittest.TestCase ):
         retlist = []
         for scanname in stlist:
             retlist.append(self._get_unit_coord(scanname))
-        print retlist
+        print(retlist)
         return retlist
 
     def _comp_unit_coord( self, stlist, before):
@@ -1163,8 +1163,8 @@ class sdcoaddold_storageTest( sdcoaddold_unittest_base, unittest.TestCase ):
 
         after = self._get_uclist(stlist)
         for i in range(len(stlist)):
-            print "Comparing units and coordinates of '%s'" %\
-                  stlist[i]
+            print("Comparing units and coordinates of '%s'" %\
+                  stlist[i])
             self._compareDictVal(after[i],before[i])
 
     def _get_ids(self, infiles):
@@ -1177,8 +1177,8 @@ class sdcoaddold_storageTest( sdcoaddold_unittest_base, unittest.TestCase ):
         return id_dict
 
     def _compare_ids(self, out, ref):
-        for f in out.keys():
-            for k in out[f].keys():
+        for f in list(out.keys()):
+            for k in list(out[f].keys()):
                 casalog.post('%s before sdcoaddold: %s = %s'%(f,k,ref[f][k]))
                 casalog.post('%s after sdcoaddold: %s = %s'%(f,k,out[f][k]))
                 self.assertTrue(all(out[f][k]==ref[f][k]),
@@ -1201,8 +1201,8 @@ class sdcoaddold_storageTest( sdcoaddold_unittest_base, unittest.TestCase ):
 
         sd.rcParams['scantable.storage'] = 'memory'
         sd.rcParams['insitu'] = True
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
         result = sdcoaddold(infiles=infiles,outfile=outfile)
 
         self.assertEqual(result,None)
@@ -1234,8 +1234,8 @@ class sdcoaddold_storageTest( sdcoaddold_unittest_base, unittest.TestCase ):
 
         sd.rcParams['scantable.storage'] = 'memory'
         sd.rcParams['insitu'] = False
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
         result = sdcoaddold(infiles=infiles,outfile=outfile)
 
         self.assertEqual(result,None)
@@ -1267,8 +1267,8 @@ class sdcoaddold_storageTest( sdcoaddold_unittest_base, unittest.TestCase ):
 
         sd.rcParams['scantable.storage'] = 'disk'
         sd.rcParams['insitu'] = True
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
         result = sdcoaddold(infiles=infiles,outfile=outfile)
         
         self.assertEqual(result,None)
@@ -1300,8 +1300,8 @@ class sdcoaddold_storageTest( sdcoaddold_unittest_base, unittest.TestCase ):
 
         sd.rcParams['scantable.storage'] = 'disk'
         sd.rcParams['insitu'] = False
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
         result = sdcoaddold(infiles=infiles,outfile=outfile)
 
         self.assertEqual(result,None)
@@ -1354,12 +1354,12 @@ class sdcoaddold_flagTest( sdcoaddold_unittest_base, unittest.TestCase ):
             self.nchan_orig = len(tb.getcell('FLAGTRA', 0))
             self.rowid_rflag_orig = numpy.array([])
             rflag = tb.getcol('FLAGROW')
-            for i in xrange(self.num_repeat):
+            for i in range(self.num_repeat):
                 self.rowid_rflag_orig = numpy.r_[self.rowid_rflag_orig, rflag]
             self.rowid_cflag_orig = numpy.array([])
             cfraw = tb.getcol('FLAGTRA').sum(axis=0)
-            cflag = numpy.array([cfraw[i] > 0 for i in xrange(len(cfraw))])
-            for i in xrange(self.num_repeat):
+            cflag = numpy.array([cfraw[i] > 0 for i in range(len(cfraw))])
+            for i in range(self.num_repeat):
                 self.rowid_cflag_orig = numpy.r_[self.rowid_cflag_orig, cflag]
             self.cflag_orig = tb.getcell('FLAGTRA', numpy.where(self.rowid_cflag_orig)[0][0])
 
@@ -1367,7 +1367,7 @@ class sdcoaddold_flagTest( sdcoaddold_unittest_base, unittest.TestCase ):
         with tbmanager(outfile) as tb:
             self.assertEqual(tb.nrows(), self.nrow_orig * self.num_repeat)
             self.assertTrue(all(tb.getcol('FLAGROW')==self.rowid_rflag_orig))
-            for i in xrange(tb.nrows()):
+            for i in range(tb.nrows()):
                 mask = tb.getcell('FLAGTRA', i)
                 mask_ref = self.cflag_orig if self.rowid_cflag_orig[i] else numpy.zeros(self.nchan_orig, numpy.int32)
                 self.assertTrue(all(mask == mask_ref))

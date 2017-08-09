@@ -19,7 +19,7 @@ class sdcoadd_worker(sdutil.sdtask_template):
     def initialize(self):
         self.nfile = len(self.infiles)
         if self.nfile < 2:
-            raise Exception, 'Need at least two data file names'
+            raise Exception('Need at least two data file names')
         super(sdcoadd_worker,self).initialize()
             
     def initialize_scan(self):

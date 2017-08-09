@@ -61,7 +61,7 @@ class sdbaseline2_worker(sdutil.sdtask_template):
         # check if the data contains spectra
         if (self.scan.nchan()==1):
            s = "Cannot process the input data. It contains only single channel data."
-           raise Exception, s
+           raise Exception(s)
    
         # set various attributes to self.scan
         self.set_to_scan()
@@ -108,12 +108,12 @@ class sdbaseline2_engine(sdutil.sdtask_engine):
             self.params['bltable'] = self.bltable
             self.params['blinfo'] = self.blparam
             if isinstance(self.params['blinfo'], list):
-                for i in xrange(len(self.params['blinfo'])):
+                for i in range(len(self.params['blinfo'])):
                     blinfo = self.params['blinfo'][i]
                     ifno = scan.getif(blinfo['row'])
-                    if maskdict.has_key(ifno):
+                    if ifno in maskdict:
                         in_masklist = maskdict[ifno]
-                        if blinfo.has_key('masklist'):
+                        if 'masklist' in blinfo:
                             blinfo['masklist'] = sdutil.combine_masklist(in_masklist, blinfo['masklist'])
                         else:
                             blinfo['masklist'] = in_masklist

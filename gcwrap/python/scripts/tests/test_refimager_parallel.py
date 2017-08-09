@@ -12,7 +12,7 @@
 import os
 import sys
 import shutil
-import commands
+import subprocess
 import numpy
 from __main__ import default
 from tasks import *
@@ -113,7 +113,7 @@ class test_cont(testref_base_parallel):
                self.checkfinal(report)
 
           else:
-               print "MPI is not enabled. This test will be skipped"
+               print("MPI is not enabled. This test will be skipped")
 
 ###################################################
 
@@ -156,7 +156,7 @@ class test_cont(testref_base_parallel):
                self.checkfinal(report1+report2)
  
           else:
-               print "MPI is not enabled. This test will be skipped"
+               print("MPI is not enabled. This test will be skipped")
  
 ###################################################
 ###################################################
@@ -217,7 +217,7 @@ class test_cont(testref_base_parallel):
                self.checkfinal(report1+report2)
  
           else:
-               print "MPI is not enabled. This test will be skipped"
+               print("MPI is not enabled. This test will be skipped")
  
 ###################################################
 
@@ -225,9 +225,9 @@ class test_cont(testref_base_parallel):
           """ [cont] Test_cont_mtmfs_aproj : MT-MFS with aprojection gridder (checks .weight.pb). Data and CFCache parallelization """
 
           if self.th.checkMPI() == True:
-               print "This test is currently empty"
+               print("This test is currently empty")
           else:
-               print "MPI is not enabled. This test will be skipped"
+               print("MPI is not enabled. This test will be skipped")
  
 ###################################################
 
@@ -276,7 +276,7 @@ class test_cube(testref_base_parallel):
                self.checkfinal(report1+report2)
 
           else:
-               print "MPI is not enabled. This test will be skipped"
+               print("MPI is not enabled. This test will be skipped")
 
 ###################################################
      def test_cube_highthreshold(self):
@@ -320,6 +320,6 @@ class test_cube(testref_base_parallel):
                self.checkfinal(report1+report2)
 
           else:
-               print "MPI is not enabled. This test will be skipped"
+               print("MPI is not enabled. This test will be skipped")
 
 ###################################################

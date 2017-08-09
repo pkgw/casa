@@ -12,7 +12,7 @@ from matplotlib import pylab as pl
 from casa_stack_manip import stack_frame_find
 
 try:
-    import selection_syntax
+    from . import selection_syntax
 except:
     import tests.selection_syntax as selection_syntax
 
@@ -118,7 +118,7 @@ class sdplotold_unittest_base:
                         isinstance(add, dict),\
                         "Need to specify two dictionaries to merge")
         retdic = base.copy()
-        for key, val in add.iteritems():
+        for key, val in add.items():
             retdic[key] = val
         return retdic
         
@@ -131,13 +131,13 @@ class sdplotold_unittest_base:
         if complist:
             keylist = complist
         else:
-            keylist = refdict.keys()
+            keylist = list(refdict.keys())
         
         for key in keylist:
-            self.assertTrue(testdict.has_key(key),\
+            self.assertTrue(key in testdict,\
                             msg="%s is not defined in the current results."\
                             % key)
-            self.assertTrue(refdict.has_key(key),\
+            self.assertTrue(key in refdict,\
                             msg="%s is not defined in the reference data."\
                             % key)
             testval = self._to_list(testdict[key])
@@ -239,7 +239,7 @@ class sdplotold_errorTest( sdplotold_unittest_base, unittest.TestCase ):
                           outfile=self.outfile,overwrite=False)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, err:
+        except Exception as err:
             pos=str(err).find("Output file '%s' exists." % self.outfile)
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(err)))
@@ -252,7 +252,7 @@ class sdplotold_errorTest( sdplotold_unittest_base, unittest.TestCase ):
             result = sdplotold(infile=self.infile,spw=spw)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, err:
+        except Exception as err:
             #pos=str(err).find("Selection contains no data. Not applying it.")
             pos=str(err).find("No valid spw.")
             self.assertNotEqual(pos,-1,
@@ -280,7 +280,7 @@ class sdplotold_errorTest( sdplotold_unittest_base, unittest.TestCase ):
             result = sdplotold(infile=self.infile,plottype=type,linecat=linecat)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, err:
+        except Exception as err:
             pos=str(err).find("No match.")
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(err)))
@@ -293,7 +293,7 @@ class sdplotold_errorTest( sdplotold_unittest_base, unittest.TestCase ):
             result = sdplotold(infile=self.infile,plottype=type,stack=stack)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, err:
+        except Exception as err:
             pos=str(err).find("Invalid mode")
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(err)))
@@ -311,7 +311,7 @@ class sdplotold_errorTest( sdplotold_unittest_base, unittest.TestCase ):
                             stack=stack)
             self.assertTrue(False,
                             msg='The task must throw exception')
-        except Exception, err:
+        except Exception as err:
             pos=str(err).find("stack mode = '%s' is not supported by plottype='%s'" % (stack, plottype))
             self.assertNotEqual(pos,-1,
                                 msg='Unexpected exception was thrown: %s'%(str(err)))
@@ -1118,13 +1118,13 @@ class sdplotold_storageTest( sdplotold_unittest_base, unittest.TestCase ):
 
         after = self._get_uclist(stlist)
         for i in range(len(stlist)):
-            print "Testing units and coordinates of '%s'" %\
-                  stlist[i]
+            print("Testing units and coordinates of '%s'" %\
+                  stlist[i])
             self._compareDictVal(after[i],before[i])
 
     def _check_axlabel( self, axlist, refval ):
         ip = 0
-        print "Testing axes labels [expected: x = %s, y = %s]" % (refval['x'],refval['y'])
+        print("Testing axes labels [expected: x = %s, y = %s]" % (refval['x'],refval['y']))
         for ax in axlist:
             xlab = ax.get_xlabel()
             ylab = ax.get_ylabel()
@@ -1153,8 +1153,8 @@ class sdplotold_storageTest( sdplotold_unittest_base, unittest.TestCase ):
 
         sd.rcParams['scantable.storage'] = 'memory'
         sd.rcParams['insitu'] = True
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
         result = sdplotold(infile=self.infile,specunit=self.specunit,\
                         fluxunit=self.fluxunit,frame=self.frame,\
                         doppler=self.doppler,stack=self.stack,panel=self.panel,\
@@ -1177,8 +1177,8 @@ class sdplotold_storageTest( sdplotold_unittest_base, unittest.TestCase ):
 
         sd.rcParams['scantable.storage'] = 'memory'
         sd.rcParams['insitu'] = False
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
         result = sdplotold(infile=self.infile,specunit=self.specunit,\
                         fluxunit=self.fluxunit,frame=self.frame,\
                         doppler=self.doppler,stack=self.stack,panel=self.panel,\
@@ -1201,8 +1201,8 @@ class sdplotold_storageTest( sdplotold_unittest_base, unittest.TestCase ):
 
         sd.rcParams['scantable.storage'] = 'disk'
         sd.rcParams['insitu'] = True
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
         result = sdplotold(infile=self.infile,specunit=self.specunit,\
                         fluxunit=self.fluxunit,frame=self.frame,\
                         doppler=self.doppler,stack=self.stack,panel=self.panel,\
@@ -1225,8 +1225,8 @@ class sdplotold_storageTest( sdplotold_unittest_base, unittest.TestCase ):
 
         sd.rcParams['scantable.storage'] = 'disk'
         sd.rcParams['insitu'] = False
-        print "Running test with storage='%s' and insitu=%s" % \
-              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu']))
+        print("Running test with storage='%s' and insitu=%s" % \
+              (sd.rcParams['scantable.storage'], str(sd.rcParams['insitu'])))
         result = sdplotold(infile=self.infile,specunit=self.specunit,\
                         fluxunit=self.fluxunit,frame=self.frame,\
                         doppler=self.doppler,stack=self.stack,panel=self.panel,\
@@ -1590,7 +1590,7 @@ class sdplotold_selectionTest(selection_syntax.SelectionSyntaxTest,sdplotold_uni
         retdic = {}
         titles = []
         npanel = len(sd.plotter._plotter.subplots)
-        for i in xrange(npanel):
+        for i in range(npanel):
             ttmp = sd.plotter._plotter.subplots[i]['axes'].get_title().upper().strip()
             if is_field:
                 title = ttmp.split('(')[1].split(')')[0].strip()
@@ -2258,12 +2258,12 @@ class sdplotold_flagTest(sdplotold_unittest_base,unittest.TestCase):
     def run_test(self, refdata, plottype, **kwargs):
         verbose = False
         # construct task parameters
-        self.assertFalse(kwargs.has_key('plottype'), "Internal error. plot type should be defined as argument")
+        self.assertFalse('plottype' in kwargs, "Internal error. plot type should be defined as argument")
         params = kwargs
         params['plottype'] = plottype
         predefs = ['infile', 'panel', 'stack']
         for par in predefs:
-            if not params.has_key(par) and hasattr(self, par):
+            if par not in params and hasattr(self, par):
                 params[par] = getattr(self, par)
         # save flag for comparison
         tbname = params['infile']
@@ -2278,7 +2278,7 @@ class sdplotold_flagTest(sdplotold_unittest_base,unittest.TestCase):
         fig = pl.gcf()
         panels =  fig.axes
         npanel = len(panels)
-        if verbose: print("number of pannels: %d (expected: %d)." % (npanel, len(refdata)))
+        if verbose: print(("number of pannels: %d (expected: %d)." % (npanel, len(refdata))))
         self.assertEqual(npanel, len(refdata),
                          "Number of panels differs: %d (expected: %d)." % \
                          (npanel, len(refdata)))
@@ -2287,11 +2287,11 @@ class sdplotold_flagTest(sdplotold_unittest_base,unittest.TestCase):
             nline = len(lines)
             spref = refdata[i]
             nref = 0 if spref.mask.all() else 1
-            if verbose: print("number of lines in panel %d = %d (expected: %d)" % (i, nline, nref))
+            if verbose: print(("number of lines in panel %d = %d (expected: %d)" % (i, nline, nref)))
             self.assertEqual(nline, nref, "number of lines in panel %d differs: %d (expected: %d)" % (i, nline, nref))
             for il in range(nline):
                 spec = lines[il].get_ydata()
-                if verbose: print("spectra=%s (expected: %s)" % (str(spec), str(spref)))
+                if verbose: print(("spectra=%s (expected: %s)" % (str(spec), str(spref))))
                 self.assertTrue(self._compare_mased_array(spec, spref),
                                 "spectral data differs (panel=%d line=%d)" % (i, il))
         # make sure FLAGTRA and FLAGROW are not changed

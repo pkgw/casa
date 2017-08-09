@@ -1,7 +1,7 @@
-from __future__ import print_function
+
 
 import os
-if os.environ.has_key('LD_PRELOAD'):
+if 'LD_PRELOAD' in os.environ:
     del os.environ['LD_PRELOAD']
 import sys
 import time
@@ -180,7 +180,7 @@ casa = { 'build': {
 ## ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 ## set up casa root
 ## ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-if os.environ.has_key('CASAPATH') :
+if 'CASAPATH' in os.environ :
     __casapath__ = os.environ['CASAPATH'].split(' ')[0]
     __casaarch__ = os.environ['CASAPATH'].split(' ')[1]
     if not os.path.exists(__casapath__ + "/data") :
@@ -231,7 +231,7 @@ else :
         elif os.path.exists(__casapath__ + "/xml"):
             casa['dirs']['xml'] = __casapath__ + "/xml"
         else:
-            raise RuntimeError, "Unable to find the XML constraints directory in your CASAPATH"
+            raise RuntimeError("Unable to find the XML constraints directory in your CASAPATH")
 
 
 ## ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -353,12 +353,12 @@ while len(a) > 0:
     else :
         casa['flags'][c] = ''
 
-if casa['flags'].has_key('--logfile') :
+if '--logfile' in casa['flags'] :
     casa['files']['logfile'] = casa['flags']['--logfile']	## user specifies a log file
-if casa['flags'].has_key('--nologfile') :
+if '--nologfile' in casa['flags'] :
     casa['files'].pop('logfile')				## user indicates no log file
 
-if casa['flags'].has_key('--help') :
+if '--help' in casa['flags'] :
 	print("Options are: ")
 	print("   --rcdir directory")
 	print("   --logfile logfilename")
@@ -382,7 +382,7 @@ if os.uname()[0]=='Darwin' :
     if not os.path.exists(casa['helpers']['viewer']) :
         casa['helpers']['viewer'] = casa_path[0]+'/MacOS/casaviewer'
 
-    if casa['flags'].has_key('--maclogger') :
+    if '--maclogger' in casa['flags'] :
         casa['helpers']['logger'] = 'console'
     else:
         casa['helpers']['logger'] = casa_path[0]+'/'+casa_path[1]+'/apps/casalogger.app/Contents/MacOS/casalogger'
@@ -401,7 +401,7 @@ if os.uname()[0]=='Darwin' :
 ## ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 if os.path.exists( casa['dirs']['rc'] + '/prelude.py' ) :
     try:
-        execfile ( casa['dirs']['rc'] + '/prelude.py' )
+        exec(compile(open( casa['dirs']['rc'] + '/prelude.py' ).read(), casa['dirs']['rc'] + '/prelude.py', 'exec'))
     except:
         print(str(sys.exc_info()[0]) + ": " + str(sys.exc_info()[1]))
         print('Could not execute initialization file: ' + casa['dirs']['rc'] + '/prelude.py')
@@ -446,14 +446,14 @@ if casa['helpers']['dbus'] is not None :
 ipythonenv  = casa['dirs']['rc'] + '/ipython'
 ipythonpath = casa['dirs']['rc'] + '/ipython'
 try :
-   os.makedirs(ipythonpath, 0755)
+   os.makedirs(ipythonpath, 0o755)
 except :
    pass
 ###check IPYTHONDIR is defined by user and make it if not there
-if(not os.environ.has_key('IPYTHONDIR')):
+if('IPYTHONDIR' not in os.environ):
     os.environ['IPYTHONDIR']=ipythonpath
 if(not os.path.exists(os.environ['IPYTHONDIR'])):
-    os.makedirs(os.environ['IPYTHONDIR'], 0755)
+    os.makedirs(os.environ['IPYTHONDIR'], 0o755)
 
 os.environ['__CASARCDIR__']=casa['dirs']['rc']
 
@@ -470,13 +470,13 @@ if matplotlib.get_backend() == "MacOSX" :
 # Check if the display environment is set if not
 # switch the backend to Agg only if it's TkAgg
 #
-if not os.environ.has_key('DISPLAY') and matplotlib.get_backend() == "TkAgg" :
+if 'DISPLAY' not in os.environ and matplotlib.get_backend() == "TkAgg" :
    matplotlib.use('Agg')
 
 #
 # If the user has requested pipeline through a command line option set
 # to use AGG
-if casa['flags'].has_key('--pipeline'):
+if '--pipeline' in casa['flags']:
     matplotlib.use('Agg')
 
 #
@@ -499,7 +499,7 @@ def casalogger(logfile=''):
     """
 
     if logfile == '':
-        if casa.has_key('files') and casa['files'].has_key('logfile') :
+        if 'files' in casa and 'logfile' in casa['files'] :
             logfile = casa['files']['logfile']
         else:
             casa['files']['logfile'] = os.getcwd( ) + '/casa.log'
@@ -530,14 +530,14 @@ showconsole = False
 
 thelogfile = ''
 
-showconsole = casa['flags'].has_key('--log2term')
-if casa['files'].has_key('logfile') :
+showconsole = '--log2term' in casa['flags']
+if 'logfile' in casa['files'] :
     thelogfile = casa['files']['logfile']
-if casa['flags'].has_key('--nologfile') :
+if '--nologfile' in casa['flags'] :
     thelogfile = 'null'
 
 deploylogger = True
-if casa['flags'].has_key('--nolog') :
+if '--nolog' in casa['flags'] :
     print("--nolog is deprecated, please use --nologger")
     deploylogger = False
 
@@ -549,10 +549,10 @@ if not os.access('.', os.W_OK) :
     deploylogger = False
     thelogfile = 'null'
     
-if casa['flags'].has_key('--nologger') :
+if '--nologger' in casa['flags'] :
     deploylogger = False
 
-if casa['flags'].has_key('--nogui') :
+if '--nogui' in casa['flags'] :
     deploylogger = False
 
 #print 'thelogfile:', thelogfile
@@ -588,7 +588,7 @@ def go(taskname=None):
     myf = sys._getframe(len(inspect.stack())-1).f_globals
     if taskname==None: taskname=myf['taskname']
     oldtaskname=taskname
-    if(myf.has_key('taskname')):
+    if('taskname' in myf):
         oldtaskname=myf['taskname']
     #myf['taskname']=taskname
     if type(taskname)!=str:
@@ -596,7 +596,7 @@ def go(taskname=None):
         myf['taskname']=taskname
     try:
         parameter_checktype(['taskname'],[taskname],str)
-    except TypeError, e:
+    except TypeError as e:
         print("go -- TypeError: ",e)
         return
     fulltaskname=taskname+'()'
@@ -619,7 +619,7 @@ def selectfield(vis,minstring):
         _iter=fields.__iter__() #create iterator for fieldnames
         while 1:
             try:
-                x=_iter.next() # has first value of field name
+                x=next(_iter) # has first value of field name
             except StopIteration:
                 break
             #
@@ -723,7 +723,7 @@ def inp(taskname=None, page=False):
             return
         ####
         myf=sys._getframe(len(inspect.stack())-1).f_globals
-        if((taskname==None) and (not myf.has_key('taskname'))):
+        if((taskname==None) and ('taskname' not in myf)):
             print('No task name defined for inputs display')
             return
         if taskname==None: taskname=myf['taskname']
@@ -742,11 +742,11 @@ def inp(taskname=None, page=False):
             return
 
         ###Check if task exists by checking if task_defaults is defined
-        if ( not myf.has_key(taskname) and
+        if ( taskname not in myf and
              str(type(myf[taskname])) != "<type 'instance'>" and
              not hasattr(myf[taskname],"defaults") ):
-            raise TypeError, "task %s is not defined " %taskname
-        if(myf.has_key('__last_taskname')):
+            raise TypeError("task %s is not defined " %taskname)
+        if('__last_taskname' in myf):
             myf['__last_taskname']=taskname
         else:
             myf.update({'__last_taskname':taskname})
@@ -780,9 +780,9 @@ def update_params(func, printtext=True, ipython_globals=None):
     ###check if task has defined a task_check_params function
 
     if (hascheck):
-	has_othertasks = myf.has_key('task_location')
+	has_othertasks = 'task_location' in myf
 	if(has_othertasks) :
-	   has_task = myf['task_location'].has_key(myf['taskname'])
+	   has_task = myf['taskname'] in myf['task_location']
 	   if (has_task) :
 		pathname=myf['task_location'][myf['taskname']]
 	   else :
@@ -826,14 +826,14 @@ def update_params(func, printtext=True, ipython_globals=None):
         ###if a dictionary with key 0, 1 etc then need to peel-open
         ###parameters
         if(type(paramval)==dict):
-            if(paramval.has_key(0)):
+            if(0 in paramval):
                 notdict=False
-        if(myf.has_key(params[k])):
+        if(params[k] in myf):
             itsparams.update({params[k]:myf[params[k]]})
         else:
             itsparams.update({params[k]:obj.itsdefault(params[k])})
         if (notdict ):
-            if(not myf.has_key(params[k])):
+            if(params[k] not in myf):
                 myf.update({params[k]:paramval})
                 itsparams.update({params[k]:paramval})
             if(printtext):
@@ -864,17 +864,17 @@ def update_params(func, printtext=True, ipython_globals=None):
                 for somekey in paramval:
                     somedict=dict(paramval[somekey])
                     subkeyupdated.update(dict.fromkeys(somedict, False))
-                    if(somedict.has_key('value') and myf.has_key(params[k])):
+                    if('value' in somedict and params[k] in myf):
                         if(somedict['value']==myf[params[k]]):
                             userdict=somedict
-                    elif(somedict.has_key('notvalue') and myf.has_key(params[k])):
+                    elif('notvalue' in somedict and params[k] in myf):
                         if(somedict['notvalue']!=myf[params[k]]):
                             userdict=somedict
                 ###The behaviour is to use the task.defaults
                 ### for all non set parameters and parameters that
                 ### have no meaning for this selection
                 for j in range(len(subdict)):
-                    subkey=subdict[j].keys()
+                    subkey=list(subdict[j].keys())
                    
                     for kk in range(len(subkey)):
                         
@@ -882,8 +882,8 @@ def update_params(func, printtext=True, ipython_globals=None):
                             #if user selecteddict
                             #does not have the key
                             ##put default
-                            if(userdict.has_key(subkey[kk])):
-                                if(myf.has_key(subkey[kk])):
+                            if(subkey[kk] in userdict):
+                                if(subkey[kk] in myf):
                                     itsparams.update({subkey[kk]:myf[subkey[kk]]})
                                 else:
                                     itsparams.update({subkey[kk]:userdict[subkey[kk]]})
@@ -892,8 +892,8 @@ def update_params(func, printtext=True, ipython_globals=None):
                                 itsparams.update({subkey[kk]:itsdef(params[k], None, itsparams[params[k]], subkey[kk])})
                                 subkeyupdated[subkey[kk]]=True
             ### need to do default when user has not set val
-            if(not myf.has_key(params[k])):
-                if(paramval[0].has_key('notvalue')):
+            if(params[k] not in myf):
+                if('notvalue' in paramval[0]):
                     itsparams.update({params[k]:paramval[0]['notvalue']})
                     myf.update({params[k]:paramval[0]['notvalue']})
                 else:
@@ -904,7 +904,7 @@ def update_params(func, printtext=True, ipython_globals=None):
             notchoice=-1
             valuekey='value'
             for j in range(len(subdict)):
-                if(subdict[j].has_key('notvalue')):
+                if('notvalue' in subdict[j]):
                     valuekey='notvalue'
                     if(subdict[j]['notvalue'] != userval):
                         notchoice=j;
@@ -914,7 +914,7 @@ def update_params(func, printtext=True, ipython_globals=None):
                         choice=j
                         notchoice=j
                         break
-            subkey=subdict[choice].keys()
+            subkey=list(subdict[choice].keys())
             if(hascheck):
                 noerror=obj.check_params(params[k],userval,myf)
             if(printtext):
@@ -926,7 +926,7 @@ def update_params(func, printtext=True, ipython_globals=None):
             for j in range(len(subkey)):
                 if((subkey[j] != valuekey) & (notchoice > -1)):
                     ###put default if not there
-                    if(not myf.has_key(subkey[j])):
+                    if(subkey[j] not in myf):
                         myf.update({subkey[j]:subdict[choice][subkey[j]]})
                     paramval=subdict[choice][subkey[j]]
                     if (j==(len(subkey)-1)):
@@ -1058,7 +1058,7 @@ def print_params_col(param=None, value=None, comment='', colorparam=None,
 def __set_default_parameters(b):
     myf=sys._getframe(len(inspect.stack())-1).f_globals
     a=b
-    elkey=a.keys()
+    elkey=list(a.keys())
     for k in range(len(a)):
         if (type(a[elkey[k]]) != dict):
             myf[elkey[k]]=a[elkey[k]]
@@ -1068,17 +1068,17 @@ def __set_default_parameters(b):
             subdict=a[elkey[k]]
             ##clear out variables of other options if they exist
             for j in range(1,len(subdict)):
-                subkey=subdict[j].keys()
+                subkey=list(subdict[j].keys())
                 for kk in range(len(subkey)):
                     if((subkey[kk] != 'value') & (subkey[kk] != 'notvalue') ):
-                        if(myf.has_key(subkey[kk])):
+                        if(subkey[kk] in myf):
                             del myf[subkey[kk]]
             ###
-            if(subdict[0].has_key('notvalue')):
+            if('notvalue' in subdict[0]):
                 myf[elkey[k]]=subdict[0]['notvalue']
             else:
                 myf[elkey[k]]=subdict[0]['value']
-            subkey=subdict[0].keys()
+            subkey=list(subdict[0].keys())
             for j in range(0, len(subkey)):
                 if((subkey[j] != 'value') & (subkey[j] != 'notvalue')):
                     myf[subkey[j]]=subdict[0][subkey[j]]
@@ -1139,17 +1139,17 @@ def saveinputs(taskname=None, outfile='', myparams=None, ipython_globals=None, s
 
         ###Check if task exists by checking if task_defaults is defined
         obj = False
-        if ( not myf.has_key(taskname) and
+        if ( taskname not in myf and
              str(type(myf[taskname])) != "<type 'instance'>" and
              not hasattr(myf[taskname],"defaults") ):
-            raise TypeError, "task %s is not defined " %taskname
+            raise TypeError("task %s is not defined " %taskname)
         else:
             obj = myf[taskname]
 
         if taskname==None: taskname=myf['taskname']
         myf['taskname']=taskname
         if outfile=='': outfile=taskname+'.saved'
-        if(myf.has_key('__multibackup') and myf['__multibackup']):
+        if('__multibackup' in myf and myf['__multibackup']):
             backupoldfile(outfile)
         
         ##make sure unfolded parameters get their default values
@@ -1175,14 +1175,14 @@ def saveinputs(taskname=None, outfile='', myparams=None, ipython_globals=None, s
                 else:
                     print("         inputs because given file (%s) is a dir..." % outpathfile)
                 print("********************************************************************************")
-        f=zip(myf[taskname].__call__.func_code.co_varnames[1:],myf[taskname].__call__.func_defaults)
+        f=list(zip(myf[taskname].__call__.__code__.co_varnames[1:],myf[taskname].__call__.__defaults__))
         scriptstring='#'+str(taskname)+'('
 	if myparams == None :
 		myparams = {}
         l=0
         for j in range(len(f)):
             k=f[j][0]
-	    if not myparams.has_key(k) and k != 'self' :
+	    if k not in myparams and k != 'self' :
 		    myparams[k] = myf[taskname].parameters[k]
             if(k != 'self' and type(myparams[k])==str):
                 if ( myparams[k].count( '"' ) < 1 ):
@@ -1207,7 +1207,7 @@ def saveinputs(taskname=None, outfile='', myparams=None, ipython_globals=None, s
             ###the following applies: "It would be nice if one
             ### could tell the system to NOT recall
             ### previous non-default settings sometimes."
-            if(not myf['casaglobals'] and myf.has_key(k)):
+            if(not myf['casaglobals'] and k in myf):
                 del myf[k]
             l=l+1
             if l%5==0:
@@ -1241,10 +1241,10 @@ def default(taskname=None):
             myf['taskname']=taskname
 
         ###Check if task exists by checking if task_defaults is defined
-        if ( not myf.has_key(taskname) and
+        if ( taskname not in myf and
              str(type(myf[taskname])) != "<type 'instance'>" and
              not hasattr(myf[taskname],"defaults") ):
-            raise TypeError, "task %s is not defined " %taskname
+            raise TypeError("task %s is not defined " %taskname)
         eval(myf['taskname']+'.defaults()')
 
         casalog.origin('default')
@@ -1324,7 +1324,7 @@ import platform
 ##
 
 if (platform.architecture()[0]=='64bit'):
-    if os.environ.has_key('DISPLAY') and os.environ['DISPLAY']!="" and not casa['flags'].has_key('--nogui'):
+    if 'DISPLAY' in os.environ and os.environ['DISPLAY']!="" and '--nogui' not in casa['flags']:
         pl.ioff( )
         pl.clf( )
         pl.ion( )
@@ -1364,7 +1364,7 @@ home=os.environ['HOME']
 #
 # If the pipeline is there and the user requested it, load the pipeline tasks
 #
-if casa['flags'].has_key('--pipeline'):
+if '--pipeline' in casa['flags']:
     if casa['dirs']['pipeline'] is not None:
         sys.path.insert(0,casa['dirs']['pipeline'])
         import pipeline
@@ -1381,7 +1381,7 @@ if casa['flags'].has_key('--pipeline'):
 ## ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 if os.path.exists( casa['dirs']['rc'] + '/init.py' ) :
     try:
-        execfile ( casa['dirs']['rc'] + '/init.py' )
+        exec(compile(open( casa['dirs']['rc'] + '/init.py' ).read(), casa['dirs']['rc'] + '/init.py', 'exec'))
     except:
         print(str(sys.exc_info()[0]) + ": " + str(sys.exc_info()[1]))
         print('Could not execute initialization file: ' + casa['dirs']['rc'] + '/init.py')
@@ -1394,9 +1394,9 @@ startup()
 #pathname=os.environ.get('CASAPATH').split()[0]
 #uname=os.uname()
 #unameminusa=str.lower(uname[0])
-print '------------------------------------------------------------------------------------------'
-print casa
-print '------------------------------------------------------------------------------------------'
+print('------------------------------------------------------------------------------------------')
+print(casa)
+print('------------------------------------------------------------------------------------------')
 fullpath = casa['dirs']['python'] + '/assignmentFilter.py'
 casalog.origin('casa')
 
@@ -1417,7 +1417,7 @@ pydoc.help = casaDocHelper(sys.stdin, sys.stdout)
 
 fullpath=casa['dirs']['python'] + '/assignmentFilter.py'
 
-if os.environ.has_key('__CASAPY_PYTHONDIR'):
+if '__CASAPY_PYTHONDIR' in os.environ:
     fullpath=os.environ['__CASAPY_PYTHONDIR'] + '/assignmentFilter.py'
 
 ipythonlog = 'ipython-'+time.strftime("%Y%m%d-%H%M%S", time.gmtime())+'.log'
@@ -1431,7 +1431,7 @@ ipythonlog = 'ipython-'+time.strftime("%Y%m%d-%H%M%S", time.gmtime())+'.log'
 #    sys.exit(1) 
 
    
-if casa['flags'].has_key('-c') :
+if '-c' in casa['flags'] :
     print('will execute script',casa['flags']['-c'])
     if os.path.exists( casa['dirs']['rc']+'/ipython/ipy_user_conf.py' ) :
         if os.path.exists( casa['flags']['-c'] ) :
@@ -1510,9 +1510,9 @@ casalog.version()
 ### Try loading ASAP
 try:
     asap_init()
-except ImportError, e:
+except ImportError as e:
     casalog.post("%s\nCould not load ASAP. sd* tasks will not be available." % e,'WARN')
-except Exception, instance:
+except Exception as instance:
     casalog.post("Could not load ASAP. sd* tasks will not be available.",'WARN')
     casalog.post(str(instance),'WARN',origin="asap_init")
 ##
@@ -1527,7 +1527,7 @@ if MPIEnvironment.is_mpi_enabled:
     mpi_comunicator = MPICommunicator()    
     # Post MPI related info
     casalog.post(MPIEnvironment.mpi_info_msg,"INFO","casapy" )
-elif os.environ.has_key('OMPI_COMM_WORLD_SIZE'):
+elif 'OMPI_COMM_WORLD_SIZE' in os.environ:
     casalog.post("Error initializing MPI environment: %s" % MPIEnvironment.mpi_error_msg,"WARN","casapy" )
 
 casa['state']['startup'] = False
@@ -1553,7 +1553,7 @@ import shutil
 ###
 ### append user's originial path...
 ###
-if os.environ.has_key('_PYTHONPATH'):
+if '_PYTHONPATH' in os.environ:
     sys.path.extend(os.getenv('_PYTHONPATH').split(':'))
 
 ###
@@ -1576,7 +1576,7 @@ except Exception as e:
     print("*** exception={0}\n***".format (e))
 
 ipshell.mainloop( )
-if(os.uname()[0] == 'Darwin') and type(casa) == "<type 'dict'>" and casa['flags'].has_key('--maclogger') :
+if(os.uname()[0] == 'Darwin') and type(casa) == "<type 'dict'>" and '--maclogger' in casa['flags'] :
     os.system("osascript -e 'tell application \"Console\" to quit'")
 for pid in logpid: 
     #print 'pid: ',pid

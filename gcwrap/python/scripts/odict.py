@@ -28,7 +28,7 @@ class odict(UserDict):
         return dict
 
     def items(self):
-        return zip(self._keys, self.values())
+        return list(zip(self._keys, list(self.values())))
 
     def keys(self):
         return self._keys
@@ -50,8 +50,8 @@ class odict(UserDict):
 
     def update(self, dict):
         UserDict.update(self, dict)
-        for key in dict.keys():
+        for key in list(dict.keys()):
             if key not in self._keys: self._keys.append(key)
 
     def values(self):
-        return map(self.get, self._keys)
+        return list(map(self.get, self._keys))

@@ -7,7 +7,7 @@ from tableMaker import *
 import time
 import os
 import shutil
-import commands
+import subprocess
 import sys
 import signal
 import pdb
@@ -42,12 +42,12 @@ TESTS_DIR = SCRIPT_REPOS
 stack_frame_find()['TESTS_DIR']=TESTS_DIR
 # because casapy releases have a different directory structure
 #print 'KEYS of stack frame', stack_frame_find().keys()
-print "PYVER        - ", PYVER
-print "AIPS_DIR     - ", AIPS_DIR
-print "SCRIPT_REPOS - ", SCRIPT_REPOS
-print "--------------------------------------------------------------------------------"
+print("PYVER        - ", PYVER)
+print("AIPS_DIR     - ", AIPS_DIR)
+print("SCRIPT_REPOS - ", SCRIPT_REPOS)
+print("--------------------------------------------------------------------------------")
 os.system("ls " + SCRIPT_REPOS)
-print "--------------------------------------------------------------------------------"
+print("--------------------------------------------------------------------------------")
 
 
 
@@ -91,7 +91,7 @@ class runTest:
         self.tester.setWorkingDir(WORKING_DIR)
         self.resultsubdir = ''
 
-        print SCRIPT_REPOS
+        print(SCRIPT_REPOS)
 
         if((len(tests)==1) and (tests[0]=='all')):
             self.numTests=self.tester.locateTests()
@@ -129,9 +129,9 @@ class runTest:
                 os.remove(self.resultsubdir+'/'+logfilename)
 
             # redirect stdout and stderr and casalog
-            print 'Run test '+testName
+            print('Run test '+testName)
             if REDIRECT:
-                print "Redirect stdout/stderr to", self.resultsubdir+'/'+logfilename
+                print("Redirect stdout/stderr to", self.resultsubdir+'/'+logfilename)
                 save_stdout = sys.stdout
                 save_stderr = sys.stderr
                 fsock = open(self.resultsubdir+'/'+logfilename, 'w')
@@ -175,15 +175,14 @@ class runTest:
 
                 short_description = self.tester.getDescription(testName, k)
                 if short_description != None and short_description.find("'") >= 0:
-                    print >> sys.stderr, \
-                          "Warning: Short description contains ': '%s'" % \
-                          short_description
+                    print("Warning: Short description contains ': '%s'" % \
+                          short_description, file=sys.stderr)
                     short_description = short_description.replace("'", "")
 
                 try:
                     self.op_init(CPP_PROFILE)
                     time1=time.time()
-                    mem1 = commands.getoutput('env -i ps -p ' + str(os.getpid()) + ' -o rss | tail -1')
+                    mem1 = subprocess.getoutput('env -i ps -p ' + str(os.getpid()) + ' -o rss | tail -1')
                     if prof:
                         #prof.runctx("(leResult, leImages)=self.tester.runtests(testName, k, dry)", globals(), locals())
                         #prof.runctx("(leResult, leImages)=self.tester.runtests(testName, k, dry)", gl, lo)
@@ -197,20 +196,20 @@ class runTest:
                 except:
                     leResult=[]
                     exec_success = False
-                    print >> sys.stderr, "%s failed, dumping traceback:" % testName
+                    print("%s failed, dumping traceback:" % testName, file=sys.stderr)
                     traceback.print_exc() # print and swallow exception
 
-                mem2 = commands.getoutput('env -i ps -p ' + str(os.getpid()) + ' -o rss | tail -1')
+                mem2 = subprocess.getoutput('env -i ps -p ' + str(os.getpid()) + ' -o rss | tail -1')
                 time2=time.time()
                 time2=(time2-time1)/60.0
 
-                print "Net memory allocated:", (int(mem2) - int(mem1))/1024, "MB"
+                print("Net memory allocated:", (int(mem2) - int(mem1))/1024, "MB")
 
                 if prof:
                     try:
                         prof.dump_stats(self.resultsubdir+'/cProfile.profile')
                     except:
-                        print >> sys.stderr, "Failed to write profiling data!"
+                        print("Failed to write profiling data!", file=sys.stderr)
 
                 self.op_done(CPP_PROFILE)
 
@@ -229,28 +228,28 @@ class runTest:
                             if REDIRECT:
                                 fsock.write(f + ': ' + line.rstrip( ))
                             else:
-                                print f + ': ' + line.rstrip( )
+                                print(f + ': ' + line.rstrip( ))
 
                 #
                 # Report and deal with out of diskspace
                 #
-                space_left = commands.getoutput( \
+                space_left = subprocess.getoutput( \
                     "df -kP " + self.tester.workingDirectory + \
                     " | awk '{print $4}' | tail -1")
-                space_left_h = commands.getoutput( \
+                space_left_h = subprocess.getoutput( \
                     "df -hP " + self.tester.workingDirectory + \
                     " | awk '{print $4}' | tail -1")
-                space_used = commands.getoutput( \
+                space_used = subprocess.getoutput( \
                     "du -kc " + self.tester.workingDirectory + \
                     " | tail -1 | awk '{print $1}'")
-                space_used_h = commands.getoutput( \
+                space_used_h = subprocess.getoutput( \
                     "du -hc " + self.tester.workingDirectory + \
                     " | tail -1 | awk '{print $1}'")
 
                 if int(space_left) < 1000*1000:
-                    print >> sys.stderr, "Warning: Only " + \
+                    print("Warning: Only " + \
                           space_left_h + ' disk space left, ' + \
-                          space_used_h + ' used'
+                          space_used_h + ' used', file=sys.stderr)
                     # Clean up early, so that this infrastructure can continue
                     if not exec_success and cleanup:
                         self.tester.cleanup()
@@ -282,12 +281,12 @@ class runTest:
 
                 # Figure out data repository version
                 if os.system("which svnversion >/dev/null") == 0:
-                    (errorcode, datasvnr) = commands.getstatusoutput('cd '+DATA_REPOS[0]+' && svnversion 2>&1 | grep -vi warning')
+                    (errorcode, datasvnr) = subprocess.getstatusoutput('cd '+DATA_REPOS[0]+' && svnversion 2>&1 | grep -vi warning')
                 else:
                     errorcode = 1
                 if errorcode != 0 or datasvnr == "exported":
                     # If that didn't work, look at ./version in the toplevel dir
-                    (errorcode, datasvnr) = commands.getstatusoutput( \
+                    (errorcode, datasvnr) = subprocess.getstatusoutput( \
                         'cd '+DATA_REPOS[0]+" && grep -E 'Rev:' version" \
                         )
                     if errorcode != 0:
@@ -310,7 +309,7 @@ class runTest:
                     try:
                         process_file = open(process_data, "r")
                     except:
-                        print "Warning: Failed to open file:", process_data
+                        print("Warning: Failed to open file:", process_data)
                         process_file = None
                 else:
                     process_file = None
@@ -333,8 +332,8 @@ class runTest:
                                       str(cpu_id)     + ',' + \
                                       str(cpu_wa)     + ';'
                             except:
-                                print >> sys.stderr, "Error parsing %s:%d: '%s'" % \
-                                      (process_data, lineno, line)
+                                print("Error parsing %s:%d: '%s'" % \
+                                      (process_data, lineno, line), file=sys.stderr)
                     process_file.close()
                     exec_result['resource'] = mem, "time(s),virtual(Mbytes),resident(Mbytes),nfiledesc,cpu_us,cpu_sy,cpu_id,cpu_wa"
 
@@ -348,29 +347,29 @@ class runTest:
                     if retemplate:
                         if os.access(templateImage, os.F_OK):
                             shutil.rmtree(templateImage)
-                    print 'TemplateImage '+templateImage
-                    print 'theImage '+leResult[j]
-                    print 'theImage '+leImages[j]
+                    print('TemplateImage '+templateImage)
+                    print('theImage '+leResult[j])
+                    print('theImage '+leImages[j])
 
                     product_exists  = os.access(leResult[j], os.F_OK)
                     template_exists = os.access(templateImage, os.F_OK)
 
                     if product_exists and retemplate:
-                        print 'Create template from', leResult[j]
+                        print('Create template from', leResult[j])
                         if not os.path.isdir(TEMPLATE_RESULT_DIR+"/"+testName):
                             os.mkdir(TEMPLATE_RESULT_DIR+"/"+testName)
                         shutil.copytree(leResult[j], templateImage)
 
                     if not product_exists:
-                        print >> sys.stderr, leResult[j], 'missing!'
+                        print(leResult[j], 'missing!', file=sys.stderr)
                         exec_success = False
                         whatToTest[leResult[j]] = []
 
                     if not template_exists:
-                        print >> sys.stderr, templateImage, 'missing!'
+                        print(templateImage, 'missing!', file=sys.stderr)
 
                     for leQualityTest in whatToTest[leResult[j]] :
-                        print leResult[j]+' WHAT : ', whatToTest[leResult[j]]
+                        print(leResult[j]+' WHAT : ', whatToTest[leResult[j]])
                         self.result=self.result_common.copy()
                         self.result['version'] = 1, "version of this file"
                         self.result['type'] = leQualityTest, "test type"
@@ -436,12 +435,12 @@ class runTest:
                     casalog.setlogfile("casa.log")
                     os.system("sed 's/^/casa.log: /' "+testlog+" >> "+self.resultsubdir+'/'+logfilename)
 
-                print "Unexpected error:", sys.exc_info()[0]
+                print("Unexpected error:", sys.exc_info()[0])
                 raise
 
         # end for k...
 
-        print "Created ", self.resultsubdir
+        print("Created ", self.resultsubdir)
 
 
     def op_init(self, oprofile):
@@ -476,7 +475,7 @@ class runTest:
         quickresult='<pre>'
         ##do only the 'I' subtraction
         for k in range(1):
-            print 'POL TEST ', k, 'numpol ', numPol
+            print('POL TEST ', k, 'numpol ', numPol)
             out1, rms1 = a.bmodel(plane=k)
             out2, rms2 = b.bmodel(plane=k)
  #           rms1=a.subtract(plane=k)
@@ -513,7 +512,7 @@ class runTest:
                     status=0
             else:
                 quickresult+=('Image fitting did not converge \n')
-                print >> sys.stderr, 'Image fitting did not converge'
+                print('Image fitting did not converge', file=sys.stderr)
                 status=2
         ### Do a simple stats for pol Q,U,V
         for k in range(1, numPol):
@@ -693,15 +692,15 @@ class runTest:
                     self.result['type'][0])
         filename = filename.replace("--", "-")
 
-        print "Writing file", filename
+        print("Writing file", filename)
         try:
             self.logfd=open(filename, "w")
         except:
-            print "Could not open file", filename
+            print("Could not open file", filename)
             raise
-        for k, v in self.result.iteritems():
+        for k, v in self.result.items():
             # too much output for time/mem stats:
-            print k, "=", str(v[0])[0:100], "#", v[1]
+            print(k, "=", str(v[0])[0:100], "#", v[1])
             self.logfd.write("%-20s = %-40s # %-20s\n" % (k, v[0], v[1]))
         self.logfd.close()
 
@@ -711,32 +710,32 @@ class runTest:
         MACH = os.uname()[4]
         if OS == 'SunOS':
             OS='Solaris'
-            ARCH=commands.getoutput("uname -p")
+            ARCH=subprocess.getoutput("uname -p")
             #return "%s %s (%s %s)" % (OS,REV,ARCH, commands.getoutput("uname -v"))
             return "%s %s" % (OS, MACH), \
-                   "%s (%s %s)" % (REV,ARCH, commands.getoutput("uname -v"))
+                   "%s (%s %s)" % (REV,ARCH, subprocess.getoutput("uname -v"))
         elif OS == "AIX":
             return "%s %s" % (OS, MACH), \
-                   "%s (%s)" % (commands.getoutput("oslevel"),
-                                commands.getoutput("oslevel -r"))
+                   "%s (%s)" % (subprocess.getoutput("oslevel"),
+                                subprocess.getoutput("oslevel -r"))
         elif OS == "Linux" or OS == "Darwin":
             KERNEL=REV
             if os.path.isfile("/etc/redhat-release"):
-                DIST = commands.getoutput("head -1 /etc/redhat-release")
+                DIST = subprocess.getoutput("head -1 /etc/redhat-release")
             elif os.path.isfile("/etc/SUSE-release"):
-                DIST = commands.getoutput("head -1 /etc/SUSE-release")
+                DIST = subprocess.getoutput("head -1 /etc/SUSE-release")
             elif os.path.isfile("/etc/SuSE-release"):
-                DIST = commands.getoutput("head -1 /etc/SuSE-release")
+                DIST = subprocess.getoutput("head -1 /etc/SuSE-release")
             elif os.path.isfile("/etc/mandrake-release"):
-                DIST = commands.getoutput("head -1 /etc/mandrake-release")
+                DIST = subprocess.getoutput("head -1 /etc/mandrake-release")
             elif os.path.isfile("/etc/lsb-release"):
                 DIST = \
-                     commands.getoutput("grep DISTRIB_ID /etc/lsb-release | sed 's/.*=\s*//'") + \
-                     ' release ' + commands.getoutput("grep DISTRIB_RELEASE /etc/lsb-release | sed 's/.*=\s*//'") + \
-                     ' (' + commands.getoutput("grep DISTRIB_CODENAME /etc/lsb-release | sed 's/.*=\s*//'") + \
+                     subprocess.getoutput("grep DISTRIB_ID /etc/lsb-release | sed 's/.*=\s*//'") + \
+                     ' release ' + subprocess.getoutput("grep DISTRIB_RELEASE /etc/lsb-release | sed 's/.*=\s*//'") + \
+                     ' (' + subprocess.getoutput("grep DISTRIB_CODENAME /etc/lsb-release | sed 's/.*=\s*//'") + \
                      ')'
             elif os.path.isfile("/etc/debian_version"):
-                DIST = commands.getoutput("head -1 /etc/debian_version")
+                DIST = subprocess.getoutput("head -1 /etc/debian_version")
             else:
                 DIST = "???"
 
@@ -748,12 +747,12 @@ class runTest:
                 WORDSIZE = "??"
 
             if OS == "Darwin":
-                if commands.getoutput("sysctl  -n hw.optional.x86_64").find("1") >= 0:
+                if subprocess.getoutput("sysctl  -n hw.optional.x86_64").find("1") >= 0:
                     WORDSIZE = "64"
                 else:
                     WORDSIZE = "32"
 
-                vers = commands.getoutput("/usr/bin/sw_vers -productVersion")
+                vers = subprocess.getoutput("/usr/bin/sw_vers -productVersion")
                 if vers.find("10.4") >= 0:
                     name = "Tiger"
                 elif vers.find("10.5") >= 0:
@@ -765,9 +764,9 @@ class runTest:
                 else :
                     name = "Unknown Mac OSX"
 
-                DIST = commands.getoutput("/usr/bin/sw_vers -productName") + " " + \
+                DIST = subprocess.getoutput("/usr/bin/sw_vers -productName") + " " + \
                        vers + " (" + name + " " + \
-                       commands.getoutput("/usr/bin/sw_vers -buildVersion") + ")"
+                       subprocess.getoutput("/usr/bin/sw_vers -buildVersion") + ")"
 
             return "%s %s %s-bit" % (OS, MACH, WORDSIZE), DIST
             #return "%s %s %s (%s %s %s)" % (OS, DIST, REV, PSEUDONAME, KERNEL, MACH)
@@ -806,7 +805,7 @@ class logger:
             self.bol = (len(txt) > 0 and txt[-1] == '\n');
             # note: doesn't handle \n in the middle of a string
 
-        except Exception, e:
+        except Exception as e:
             # should not happen
             sys.__stderr__.write(str(e) + " -- " + txt + "\n")
 
