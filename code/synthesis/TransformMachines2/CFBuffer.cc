@@ -497,6 +497,8 @@ namespace casa{
   {
     Int index;
     SynthesisUtils::nearestValue(freqValues_p, freqVal, index);
+    if (index > 10)
+      cerr << "######CFB: " << freqValues_p << " " << freqVal << endl;
     return index;
     // // The algorithm below has a N*log(N) cost.
     // Vector<Double> diff = fabs(freqValues_p - freqVal);
@@ -541,8 +543,8 @@ namespace casa{
 	Int spw=(Int)freqSelection(i,0);
 	Double fmin=freqSelection(i,1), fmax=freqSelection(i,2), finc=freqSelection(i,3);
 	Int nchan = (Int)((fmax-fmin)/finc + 1);
-	freqNdxMap_p[spw].resize(nchan);
-	conjFreqNdxMap_p[spw].resize(nchan);
+	freqNdxMap_p[spw].resize(nchan,True);
+	conjFreqNdxMap_p[spw].resize(nchan,True);
 	for (Int c=0;c<nchan;c++)
 	  {
 	    Double freq=fmin+c*finc;
@@ -553,11 +555,12 @@ namespace casa{
       }
 
     
-    // cerr << "CFBuffer::initMaps: " 
-    // 	 << freqSelection << endl
-    // 	 << freqValues_p << endl
-    // 	 << freqNdxMap_p << endl
-    // 	 << conjFreqNdxMap_p << endl;
+    cerr << "CFBuffer::initMaps: " 
+	 << nChan_p << " " << nW_p << " " << nPol_p << endl
+    	 << freqSelection << endl
+    	 << freqValues_p << endl
+    	 << freqNdxMap_p << endl
+    	 << conjFreqNdxMap_p << endl;
 
   }
 
