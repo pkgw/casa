@@ -3405,6 +3405,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                 err+= "cutthreshold must be a float or double";
             }
           }
+        if( inrec.isDefined("growiterations"))
+          {
+            if (inrec.dataType("growiterations")==TpInt) {
+                err+= readVal(inrec, String("growiterations"), growIterations );
+            }
+            else {
+                err+= "growiterations must be an integer\n";
+            }
+          } 
         if( inrec.isDefined("restoringbeam") )     
 	  {
 	    String errinfo("");
@@ -3572,6 +3581,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     decpar.define("smoothfactor",smoothFactor);
     decpar.define("minbeamfrac",minBeamFrac);
     decpar.define("cutthreshold",cutThreshold);
+    decpar.define("growiterations",growIterations);
     decpar.define("interactive",interactive);
 
     return decpar;

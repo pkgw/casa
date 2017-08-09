@@ -250,7 +250,8 @@ class Calibrater
 			  const casacore::String& antenna,
 			  const casacore::String& pol,
 			  const casacore::Vector<casacore::Double>& parameter,
-			  const casacore::String& infile);
+			  const casacore::String& infile,
+			  const casacore::Bool& uniform);
 
   // casacore::Smooth  calibration (using casacore::MSSelection syntax
   virtual casacore::Bool smooth(const casacore::String& infile,
@@ -511,7 +512,8 @@ class OldCalibrater : public Calibrater
 			  const casacore::String& antenna,
 			  const casacore::String& pol,
 			  const casacore::Vector<casacore::Double>& parameter,
-			  const casacore::String& infile);
+			  const casacore::String& infile,
+			  const casacore::Bool& uniform);
 
   // casacore::Smooth  calibration (using casacore::MSSelection syntax
   // NB: uses *vs_p to create SVC
