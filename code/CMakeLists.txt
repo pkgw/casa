@@ -561,7 +561,7 @@ if( NOT RE_CMAKE )
 	set( casaroot ${casaroot} CACHE PATH "toplevel casa directory" FORCE )
     else()
         set( CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX} CACHE PATH "casa architecture directory" FORCE )
-	set( casaroot ${CMAKE_INSTALL_PREFIX}/.. CACHE PATH "toplevel casa directory" FORCE )
+	set( casaroot ${CMAKE_INSTALL_PREFIX}/lib/casa CACHE PATH "toplevel casa directory" FORCE )
    endif(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 endif()
 
