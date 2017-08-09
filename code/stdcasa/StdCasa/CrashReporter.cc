@@ -286,7 +286,7 @@ CrashReporter::initializeFromApplication (const char * applicationArg0)
         // a "slash".
 
         std::regex spaces (" +");
-        exePath = regex_replace (exePath, spaces, "/");
+        exePath = regex_replace (exePath, spaces, std::string("/"));
 
         exePath += "/bin/bogusExe";
 
