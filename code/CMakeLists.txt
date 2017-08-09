@@ -1284,7 +1284,7 @@ casa_find( RPFITS
 casa_find( READLINE 
   VERSION 4.3
   INCLUDES readline/readline.h #depends on <cstdio> to compile
-  LIBS readline ncurses
+  LIBS readline ncursesw
   PREFIX_HINTS ${READLINE_ROOT_DIR}
   CPP_VERSION "RL_VERSION_MAJOR << '.' << RL_VERSION_MINOR"
   RUN_VERSION rl_library_version
