@@ -1065,12 +1065,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL Linux AND GSL_LIBRARIES)
     endif( )
 endif( )
 
-# Java
-casa_find( Java
-  VERSION 1.5
-  PROGRAMS java
-  PROG_VERSION "-version")
-
 if ( ${dbusxx} STREQUAL dbus-c++ )
   # C++ DBus
   #
