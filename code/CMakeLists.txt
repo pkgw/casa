@@ -36,8 +36,6 @@ if (UseCcache)
     endif(CCACHE_FOUND)
 endif()
 
-add_definitions ("-DUseCasacoreNamespace")
-
 set( CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/install )
 
 execute_process( COMMAND svn info
@@ -1004,7 +1002,6 @@ endif()
 casa_find( CASACORE
            VERSION 2.0.2
            PREFIX_HINTS ${CASACORE_ROOT_DIR} ${Boost_INCLUDE_DIR}
-           DEFINITIONS "-DUseCasacoreNamespace"
            INCLUDES casa/aips.h
                     casa/version.h
                     scimath/Mathematics/MatrixMathLA.h  # declares symbols defined in LAPACK
