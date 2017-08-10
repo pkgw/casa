@@ -39,8 +39,6 @@ endif()
 
 set( CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/install )
 
-add_definitions ("-DUseCasacoreNamespace")
-
 execute_process( COMMAND svn info
                    RESULT_VARIABLE SVNINFOSTATUS
                    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
@@ -510,13 +508,8 @@ endif()
 
 set( CMAKE_MODULE_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS} )
 
-if( NOT CMAKE_CXX_FLAGS )
-  set( CMAKE_CXX_FLAGS "${DEFAULT_CXX_FLAGS} ${EXTRA_CXX_FLAGS}" )
-endif()
-
-if( NOT CMAKE_C_FLAGS )
-  set( CMAKE_C_FLAGS "${DEFAULT_C_FLAGS} ${EXTRA_C_FLAGS}" )
-endif()
+set( CMAKE_CXX_FLAGS "${DEFAULT_CXX_FLAGS} ${EXTRA_CXX_FLAGS}" )
+set( CMAKE_C_FLAGS "${DEFAULT_C_FLAGS} ${EXTRA_C_FLAGS}" )
 
 
 if( NOT RE_CMAKE )
@@ -825,7 +818,6 @@ endif()
 casa_find( CASACORE
            VERSION 2.0.1
            PREFIX_HINTS ${CASACORE_ROOT_DIR}
-           DEFINITIONS "-DUseCasacoreNamespace"
            INCLUDES casa/aips.h
                     casa/version.h
                     scimath/Mathematics/MatrixMathLA.h  # declares symbols defined in LAPACK
