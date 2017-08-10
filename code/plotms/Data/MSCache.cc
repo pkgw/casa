@@ -2091,7 +2091,24 @@ void MSCache::loadPageHeaderCache(const casacore::MeasurementSet& selectedMS){
 			auto firstDirectionRow = qryResultRows[0];
 			const auto & sourceColumns = selMSColumns.source();
 			auto firstDirectionMeasure = sourceColumns.directionMeas()(firstDirectionRow);
-			auto sourceDirection = firstDirectionMeasure.toString();
+			const auto & dir  = firstDirectionMeasure;
+			// auto sourceDirection = firstDirectionMeasure.toString();
+			auto refType = MDirection::castType(dir.getRef().getType());
+			String sourceDirection;
+			if ( refType == MDirection::Types::ICRS) {
+				// Format the same way casacore::MDirection::toString() formats when refType == J2000
+				auto longitude = dir.getValue().getLong("deg");
+				auto lat = dir.getValue().getLat("deg");
+				auto ra = MVTime(longitude).string(MVTime::TIME, 12);
+				auto dec = MVAngle(abs(lat)).string(MVAngle::ANGLE_CLEAN, 11);
+				dec.trim();
+				if ( lat.getValue() < 0) {
+					dec = "-" + dec;
+				}
+				sourceDirection = ra + " " + dec;
+			}
+			else sourceDirection = firstDirectionMeasure.toString();
+
 			pageHeaderCache_.store(HeaderItemData(Item::Src_Direction,sourceDirection));
 		}
 
