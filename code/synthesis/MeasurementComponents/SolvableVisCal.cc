@@ -2266,6 +2266,12 @@ void SolvableVisCal::reParseSolintForVI2() {
     // interpret as only time-dep solint
     solint()=usolint_;
 
+  // solint is always "int" for single dish calibration
+  if (longTypeName().startsWith("SDGAIN_OTFD")) {
+    //return;
+    solint() = "int";
+  }
+
   // Handle solint format
   if (upcase(solint()).contains("INF") || solint()=="") {
     solint()="inf";

@@ -173,7 +173,7 @@ class viewertool(object):
 
         error = None
         for i in range(1,500):
-            time.sleep(0.1)
+            time.sleep(0.25)
             try:
                 self.__state['proxy'] = bus.get_object( "edu.nrao.casa." + self.__state['dbus name'], "/casa/" + self.__state['dbus name'] )
                 if self.__state['proxy'] == None:
