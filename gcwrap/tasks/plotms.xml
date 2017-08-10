@@ -875,14 +875,14 @@ Plot range Parameter
 ###############################################################################
 -->
 
-    <param type="doubleArray" name="plotrange">cd
+    <param type="doubleArray" name="plotrange">
         <description>Plot axes ranges: [xmin,xmax,ymin,ymax]</description>
         <value />
     </param>
 
 <!--
 ###############################################################################
-Label Paramlegeters
+Label Parameters
 ###############################################################################
 -->
 
@@ -1074,13 +1074,13 @@ Export plot as image Parameters
      </param>
      
      <param type="bool" name="showatm">
-         <description>Compute and overlay the atmospheric transmission curve on a bandpass plot</description>
-         <value>False</value>
+        <description>Compute and overlay the atmospheric transmission curve</description>
+        <value>False</value>
      </param>
      
      <param type="bool" name="showtsky">
-         <description>Compute and overlay the sky temperature curve on a bandpass plot</description>
-         <value>False</value>
+        <description>Compute and overlay the sky temperature curve</description>
+        <value>False</value>
      </param>
      
 <!--

@@ -1368,16 +1368,17 @@ called.
 
 <method type="function" name="setShowAtm">
   <keyword>setShowAtm</keyword>
-  <shortdescription>Whether to overlay the atmospheric curve on the bandpass plot.</shortdescription>
+  <shortdescription>Whether to overlay the atmospheric curve.</shortdescription>
   <description>
-For bandpass plots, request that atmospheric transmission curve is calculated
-and overplotted.  If updateImmediately is true, this change takes effect
-immediately IF the plotms window is currently shown; otherwise it will only be
-applied next time update() and/or show() is called.
+Request that the atmospheric transmission curve is calculateda and overplotted.
+If updateImmediately is true, this change takes effect immediately IF the
+plotms window is currently shown; otherwise it will only be applied next time
+update() and/or show() is called.
   </description>
   <input>
     <param type="bool" name="showatm">
       <description>whether to plot atm curve</description>
+      <value>false</value>
     </param>
     <param type="bool" name="updateImmediately">
       <description>whether to apply this change immediately, IF the window is currently shown</description>
@@ -1410,16 +1411,17 @@ applied next time update() and/or show() is called.
 
 <method type="function" name="setShowTsky">
   <keyword>setShowTsky</keyword>
-  <shortdescription>Whether to overlay the sky temperature curve on the bandpass plot.</shortdescription>
+  <shortdescription>Whether to overlay the sky temperature curve.</shortdescription>
   <description>
-For bandpass plots, request that the sky temperature curve is calculated
-and overplotted.  If updateImmediately is true, this change takes effect
-immediately IF the plotms window is currently shown; otherwise it will only be
-applied next time update() and/or show() is called.
+Request that the sky temperature curve is calculated and overplotted.  If
+updateImmediately is true, this change takes effect immediately IF the plotms
+window is currently shown; otherwise it will only be applied next time update()
+and/or show() is called.
   </description>
   <input>
     <param type="bool" name="showtsky">
       <description>whether to plot tsky curve</description>
+      <value>false</value>
     </param>
     <param type="bool" name="updateImmediately">
       <description>whether to apply this change immediately, IF the window is currently shown</description>

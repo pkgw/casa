@@ -188,8 +188,8 @@ def plotms(vis=None,
                     default: 'upperright'
     clearplots -- clear existing plots so that the new ones coming in can replace them.                 
     callib -- calibration library string, list of strings, or filename for on-the-fly calibration
-    showatm -- for bandpass plots, show atmospheric transmission curve
-    showtsky -- for bandpass plots, show sky temperature curve
+    showatm -- show atmospheric transmission curve
+    showtsky -- show sky temperature curve
 
     """
     # Check if DISPLAY environment variable is set.
@@ -404,6 +404,10 @@ def plotms(vis=None,
             else :
                 raise Exception, 'Please remove duplicate y-axes.'
 
+        if not showatm:
+            showatm = False
+        if not showtsky:
+            showtsky = False
         if showatm and showtsky:
             casalog.post('You have selected both showatm and showtsky.  Defaulting to showatm=True only.', "WARN")
             showtsky = False
