@@ -1868,7 +1868,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
             if (PMS::axisIsUV(x)) {
                 xIsUV = true;
                 if (x==PMS::UWAVE || x==PMS::VWAVE) xIsUVwave=true;
-                maxval = round(max(abs(xmin),xmax)) + 10.0;
+                maxval = std::round(max(abs(xmin),xmax)) + 10.0;
                 xmin = -maxval;
                 xmax = maxval;
                 xymax = max(xymax, maxval);
@@ -1892,7 +1892,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
                 // make scales symmetrical for u and v
                 PMS::Axis y = cacheParams->yAxis(i);
                 if (PMS::axisIsUV(y)) {
-                    maxval = round(max(abs(ymin),ymax)) + 10.0;
+                    maxval = std::round(max(abs(ymin),ymax)) + 10.0;
                     if (xIsUV) {
                         // set x and y ranges equally
                         xymax = max(xymax, maxval);
