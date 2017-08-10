@@ -747,25 +747,27 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // create a working copy of residual image (including pixel masks) 
     os << LogIO::NORMAL2 <<"algorithm:"<<alg<<LogIO::POST;
     TempImage<Float>* tempres = new TempImage<Float>(imstore->residual()->shape(), imstore->residual()->coordinates(), memoryToUse()); 
-    Array<Float> resdata;
-    Array<Float> maskdata;
-    Array<Float> psfdata;
-    imstore->residual()->get(resdata);
-    tempres->put(resdata);
-    tempres->setImageInfo(imstore->residual()->imageInfo());
-    tempres->attachMask(ArrayLattice<Bool> (imstore->residual()->getMask()));
-
-    TempImage<Float>* temppsf = new TempImage<Float>(imstore->psf()->shape(), imstore->psf()->coordinates(), memoryToUse()); 
-    imstore->psf()->get(psfdata);
-    temppsf->put(psfdata);
-    temppsf->setImageInfo(imstore->psf()->imageInfo());
+    //Array<Float> maskdata;
+    //Array<Float> psfdata;
+    {
+      Array<Float> resdata;
+      imstore->residual()->get(resdata);
+      tempres->put(resdata);
+      tempres->setImageInfo(imstore->residual()->imageInfo());
+      tempres->attachMask(ArrayLattice<Bool> (imstore->residual()->getMask()));
+    }
+    //TempImage<Float>* temppsf = new TempImage<Float>(imstore->psf()->shape(), imstore->psf()->coordinates(), memoryToUse()); 
+    //imstore->psf()->get(psfdata);
+    //temppsf->put(psfdata);
+    //temppsf->setImageInfo(imstore->psf()->imageInfo());
 
     TempImage<Float>* tempmask = new TempImage<Float>(imstore->mask()->shape(), imstore->mask()->coordinates(), memoryToUse());
-    // get current mask
-    imstore->mask()->get(maskdata);
-    String maskname = imstore->getName()+".mask";
-    tempmask->put(maskdata);
-    // 
+    // get current mask and apply pbmask
+      Array<Float> maskdata;
+      imstore->mask()->get(maskdata);
+      String maskname = imstore->getName()+".mask";
+      tempmask->put(maskdata);
+      // 
     
     if (pblimit>0.0 && imstore->hasPB()) {
       //cerr<<" applying pb mask ..."<<endl;
@@ -788,6 +790,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       tempmask->put(maskdata);
       delete dummy;
     }
+    
     //for debug
     //String tempresname="initialRes_"+String::toString(iterdone)+".im";
     //PagedImage<Float> initialRes(tempres->shape(), tempres->coordinates(), tempresname);
@@ -902,7 +905,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           delete testres; testres=0;
        }
     } 
-    Record thestats = calcImageStatistics(*tempres, *tempmask, LELmask, region_ptr, robust);
+    Record thestats = calcImageStatistics(*tempmask, *tempmask, LELmask, region_ptr, robust);
     Array<Double> maxs, mins, rmss, mads;
     thestats.get(RecordFieldId("max"), maxs);
     thestats.get(RecordFieldId("rms"), rmss);
@@ -921,13 +924,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       makeAutoMask(imstore);
     }
     else if (alg==String("thresh")) {
-      autoMaskByThreshold(*tempmask, *tempres, *temppsf, qreso, resbybeam, qthresh, fracofpeak, thestats, sigma, nmask, autoadjust);
+      autoMaskByThreshold(*tempmask, *tempres, *imstore->psf(), qreso, resbybeam, qthresh, fracofpeak, 
+                          thestats, sigma, nmask, autoadjust);
     }
     else if (alg==String("thresh2")) {
-      autoMaskByThreshold2(*tempmask, *tempres, *temppsf, qreso, resbybeam, qthresh, fracofpeak, thestats, sigma, nmask);
+      autoMaskByThreshold2(*tempmask, *tempres, *imstore->psf(), qreso, resbybeam, qthresh, fracofpeak, thestats, sigma, nmask);
     }
     else if (alg==String("multithresh")) {
-      autoMaskByMultiThreshold(*tempmask, *tempres, *temppsf, thestats, iterdone, itsSidelobeLevel, sidelobethreshold,
+      autoMaskByMultiThreshold(*tempmask, *tempres, *imstore->psf(), thestats, iterdone, itsSidelobeLevel, sidelobethreshold,
                                           noisethreshold, lownoisethreshold, cutthreshold, smoothfactor, minbeamfrac, growiterations);
     }
 
@@ -939,10 +943,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       cerr<<" mask: "<<fname<<" exist on disk? ="<<File(fname).isDirectory()<<endl;
     }
     ***/
+    //Array<Float> updatedMaskData;
+    //tempmask->get(updatedMaskData);
+    //imstore->mask()->put(updatedMaskData);
     tempmask->get(maskdata);
     imstore->mask()->put(maskdata);
     delete tempmask; tempmask=0;
-    delete temppsf; temppsf=0;
+    //delete temppsf; temppsf=0;
     delete tempres; tempres=0;
   }
 
