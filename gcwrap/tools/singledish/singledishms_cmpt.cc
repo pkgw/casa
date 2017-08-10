@@ -284,7 +284,8 @@ singledishms::subtract_baseline_variable(string const& datacolumn,
                                          string const& bloutput,
                                          bool const dosubtract,
                                          ::casac::variant const& spw,
-                                         string const& blparam)
+                                         string const& blparam,
+					 bool const verbose)
 {
   bool rstat(false);
   *itsLog << _ORIGIN;
@@ -295,7 +296,8 @@ singledishms::subtract_baseline_variable(string const& datacolumn,
                                     bloutput, 
                                     dosubtract,
                                     toCasaString(spw),
-                                    blparam);
+                                    blparam,
+				    verbose);
     rstat = true;
   } catch  (AipsError x) {
     *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() 

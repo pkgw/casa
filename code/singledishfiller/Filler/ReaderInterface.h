@@ -58,6 +58,10 @@ public:
     return is_nro_;
   }
   
+  virtual casacore::String getDataUnit() const {
+    return "";
+  }
+
   virtual int getNROArraySize() {
     return 0;
   }
@@ -71,6 +75,9 @@ public:
     return 0;
   }
 
+  virtual bool isNROArrayUsed(int /* array_id */) {
+    return false;
+  }
   virtual int getNROArrayBeamId(int /* array_id */) {
     return -1;
   }

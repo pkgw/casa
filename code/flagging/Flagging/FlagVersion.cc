@@ -359,6 +359,9 @@ Bool FlagVersion::saveFlagsInto( Table &fromFTab, Table &toFTab, String merge )
 Bool FlagVersion::saveFlagVersion( String versionname , 
              String comment , String merge)
 {
+   // Set Log origin to the log messages
+   log->origin(LogOrigin("FlagVersion", __func__));
+
    String fnname= "saveFlagVersion";
    Bool exists = doesVersionExist(versionname);
    String tabvername = flagtablename_p + versionname;

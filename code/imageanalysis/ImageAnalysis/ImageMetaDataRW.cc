@@ -476,9 +476,6 @@ void ImageMetaDataRW::setCsys(const Record& coordinates) {
         coordinates.nfields() == 0,
         "Record is empty"
     );
-    auto cs = _makeCoordinateSystem(
-        coordinates, _getShape()
-    );
     ThrowIf(
         ! _setCsys(
             *_makeCoordinateSystem(

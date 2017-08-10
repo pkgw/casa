@@ -8,6 +8,8 @@ import __casac__
 _cu = __casac__.utils.utils()
 
 from casa_system_defaults import casa
+casa['version'] = _cu.version_string( )
+casa['version_desc'] = _cu.version_desc( )
 
 original_path = sys.path
 

@@ -140,7 +140,8 @@ public:
 				string const& out_bloutput_name,
 				bool const& do_subtract,
 				string const& in_spw,
-				string const& param_file);
+				string const& param_file,
+				bool const& verbose = true);
 
   // apply baseline table
   void applyBaselineTable(string const& in_column_name,

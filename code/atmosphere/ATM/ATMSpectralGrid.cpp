@@ -31,7 +31,7 @@
 #include <vector>
 #include <string>
 
-using namespace std;
+
 
 ATM_NAMESPACE_BEGIN
 
@@ -46,10 +46,10 @@ SpectralGrid::SpectralGrid(const Frequency &oneFreq)
   unsigned int refChan = 0;
   Frequency chanSep(0.0);
   add(numChan, refChan, oneFreq, chanSep);
-  vector<unsigned int> v_dummyInt;
-  vv_assocSpwId_.push_back(v_dummyInt); // put an empty vector
-  vector<string> v_dummyString;
-  vv_assocNature_.push_back(v_dummyString); // put an empty vector
+  std::vector<unsigned int> v_dummyInt;
+  vv_assocSpwId_.push_back(v_dummyInt); // put an empty std::vector
+  std::vector<std::string> v_dummyString;
+  vv_assocNature_.push_back(v_dummyString); // put an empty std::vector
 }
 
 SpectralGrid::SpectralGrid(unsigned int numChan,
@@ -62,10 +62,10 @@ SpectralGrid::SpectralGrid(unsigned int numChan,
   freqUnits_ = "Hz";
   v_transfertId_.resize(0); // not sure this is necessary!
   add(numChan, refChan, refFreq, chanSep);
-  vector<unsigned int> v_dummyInt;
-  vv_assocSpwId_.push_back(v_dummyInt); // put an empty vector
-  vector<string> v_dummyString;
-  vv_assocNature_.push_back(v_dummyString); // put an empty vector
+  std::vector<unsigned int> v_dummyInt;
+  vv_assocSpwId_.push_back(v_dummyInt); // put an empty std::vector
+  std::vector<std::string> v_dummyString;
+  vv_assocNature_.push_back(v_dummyString); // put an empty std::vector
 }
 
 SpectralGrid::SpectralGrid(unsigned int numChan,
@@ -86,7 +86,7 @@ SpectralGrid::SpectralGrid(unsigned int numChan,
 SpectralGrid::SpectralGrid(unsigned int numChan,
                            unsigned int refChan,
                            double* chanFreq,
-                           const string &freqUnits)
+                           const std::string &freqUnits)
 {
   v_chanFreq_.reserve(numChan);
   freqUnits_ = "Hz";
@@ -105,8 +105,8 @@ void SpectralGrid::add(unsigned int numChan,
 
 
   double chSep;
-  vector<string> v_assocNature;
-  vector<unsigned int> v_assocSpwId;
+  std::vector<std::string> v_assocNature;
+  std::vector<unsigned int> v_assocSpwId;
 
   unsigned int spwId = v_transfertId_.size();
 
@@ -192,8 +192,12 @@ unsigned int SpectralGrid::add(unsigned int numChan,
 
   double* chanFreq = new double[numChan];
   {
+	// CAS-9762 refChan should not be 1-base
+	// ICT-9490	Change refChan convention so that it is 0-based
+    // double freqOffset = v_refFreq_[spwId] - v_chanSep_[spwId]
+    //     * (double) (v_refChan_[spwId] - 1.);
     double freqOffset = v_refFreq_[spwId] - v_chanSep_[spwId]
-        * (double) (v_refChan_[spwId] - 1.);
+        * (double) (v_refChan_[spwId]);
 
     for(unsigned int i = 0; i < numChan; i++) {
       chanFreq[i] = freqOffset + (double) i * v_chanSep_[spwId];
@@ -217,9 +221,9 @@ unsigned int SpectralGrid::add(unsigned int numChan,
     v_sidebandType_ .push_back(NOTYPE);
     v_intermediateFrequency_.push_back(0.0);
   }
-  vector<unsigned int> v_dummyAssoc;
+  std::vector<unsigned int> v_dummyAssoc;
   vv_assocSpwId_.push_back(v_dummyAssoc);
-  vector<string> v_dummyNature;
+  std::vector<std::string> v_dummyNature;
   vv_assocNature_.push_back(v_dummyNature);
 
   delete [] chanFreq;
@@ -235,7 +239,7 @@ void SpectralGrid::appendChanFreq(unsigned int numChan, double* chanFreq)
   }
 }
 
-void SpectralGrid::appendChanFreq(unsigned int numChan, const vector<double> &chanFreq)
+void SpectralGrid::appendChanFreq(unsigned int numChan, const std::vector<double> &chanFreq)
 {
 
   //    unsigned int k=v_chanFreq_.size();
@@ -247,7 +251,7 @@ void SpectralGrid::appendChanFreq(unsigned int numChan, const vector<double> &ch
 unsigned int SpectralGrid::add(unsigned int numChan,
                                unsigned int refChan,
                                double* chanFreq,
-                               const string &freqUnits)
+                               const std::string &freqUnits)
 {
   double fact = 1.0;
   if(freqUnits == "GHz") fact = 1.0E9;
@@ -295,33 +299,33 @@ unsigned int SpectralGrid::add(unsigned int numChan,
 SpectralGrid::SpectralGrid(unsigned int numChan,
                            double refFreq,
                            double* chanFreq,
-                           const string &freqUnits)
+                           const std::string &freqUnits)
 {
   v_chanFreq_.reserve(numChan);
   freqUnits_ = "Hz";
   v_transfertId_.resize(0); // not sure this is necessary!
   add(numChan, refFreq, chanFreq, freqUnits);
-  vector<unsigned int> v_dummyInt;
-  vv_assocSpwId_.push_back(v_dummyInt); // put an empty vector
-  vector<string> v_dummyString;
-  vv_assocNature_.push_back(v_dummyString); // put an empty vector
+  std::vector<unsigned int> v_dummyInt;
+  vv_assocSpwId_.push_back(v_dummyInt); // put an empty std::vector
+  std::vector<std::string> v_dummyString;
+  vv_assocNature_.push_back(v_dummyString); // put an empty std::vector
 }
 
 SpectralGrid::SpectralGrid(double refFreq,
-                           const vector<double> &chanFreq,
-                           const string &freqUnits)
+                           const std::vector<double> &chanFreq,
+                           const std::string &freqUnits)
 {
   v_chanFreq_.reserve(chanFreq.size());
   freqUnits_ = "Hz";
   v_transfertId_.resize(0); // not sure this is necessary!
   add(chanFreq.size(), refFreq, chanFreq, freqUnits);
-  vector<unsigned int> v_dummyInt;
-  vv_assocSpwId_.push_back(v_dummyInt); // put an empty vector
-  vector<string> v_dummyString;
-  vv_assocNature_.push_back(v_dummyString); // put an empty vector
+  std::vector<unsigned int> v_dummyInt;
+  vv_assocSpwId_.push_back(v_dummyInt); // put an empty std::vector
+  std::vector<std::string> v_dummyString;
+  vv_assocNature_.push_back(v_dummyString); // put an empty std::vector
 }
 
-SpectralGrid::SpectralGrid(const vector<double> &chanFreq, const string &freqUnits)
+SpectralGrid::SpectralGrid(const std::vector<double> &chanFreq, const std::string &freqUnits)
 {
   v_chanFreq_.reserve(chanFreq.size());
   freqUnits_ = "Hz";
@@ -329,35 +333,35 @@ SpectralGrid::SpectralGrid(const vector<double> &chanFreq, const string &freqUni
   double refFreq = (Frequency(chanFreq[0], freqUnits)).get("Hz"); // We take the frequency of the first channel as
   // reference frequency because it has not been specified
   add(chanFreq.size(), refFreq, chanFreq, freqUnits);
-  vector<unsigned int> v_dummyInt;
-  vv_assocSpwId_.push_back(v_dummyInt); // put an empty vector
-  vector<string> v_dummyString;
-  vv_assocNature_.push_back(v_dummyString); // put an empty vector
+  std::vector<unsigned int> v_dummyInt;
+  vv_assocSpwId_.push_back(v_dummyInt); // put an empty std::vector
+  std::vector<std::string> v_dummyString;
+  vv_assocNature_.push_back(v_dummyString); // put an empty std::vector
 }
 
-SpectralGrid::SpectralGrid(const vector<Frequency> &chanFreq)
+SpectralGrid::SpectralGrid(const std::vector<Frequency> &chanFreq)
 {
   v_chanFreq_.reserve(chanFreq.size());
   freqUnits_ = "Hz";
   v_transfertId_.resize(0); // not sure this is necessary!
   double refFreq = chanFreq[0].get("Hz"); // We take the frequency of the first channel as
   // reference frequency because it has not been specified
-  vector<double> chanFreq_double;
+  std::vector<double> chanFreq_double;
   for(unsigned int i = 0; i < chanFreq.size(); i++) {
     chanFreq_double.push_back(chanFreq[i].get("GHz"));
   }
 
   add(chanFreq.size(), refFreq, chanFreq_double, "GHz");
-  vector<unsigned int> v_dummyInt;
-  vv_assocSpwId_.push_back(v_dummyInt); // put an empty vector
-  vector<string> v_dummyString;
-  vv_assocNature_.push_back(v_dummyString); // put an empty vector
+  std::vector<unsigned int> v_dummyInt;
+  vv_assocSpwId_.push_back(v_dummyInt); // put an empty std::vector
+  std::vector<std::string> v_dummyString;
+  vv_assocNature_.push_back(v_dummyString); // put an empty std::vector
 }
 
 unsigned int SpectralGrid::add(unsigned int numChan,
                                double refFreq,
                                double* chanFreq,
-                               const string &freqUnits)
+                               const std::string &freqUnits)
 {
 
   bool regular = true;
@@ -415,8 +419,8 @@ unsigned int SpectralGrid::add(unsigned int numChan,
 
   unsigned int SpectralGrid::add(unsigned int numChan,
                                  double refFreq,
-                                 const vector<double> &chanFreq,
-                                 const string &freqUnits)
+                                 const std::vector<double> &chanFreq,
+                                 const std::string &freqUnits)
 {
 
   bool regular = true;
@@ -439,7 +443,7 @@ unsigned int SpectralGrid::add(unsigned int numChan,
 
   double chanSep = fact * (chanFreq[1] - chanFreq[0]);
 
-  vector<double> chanFreqHz(numChan);
+  std::vector<double> chanFreqHz(numChan);
   chanFreqHz[0] = fact * chanFreq[0];
   double minFreq = chanFreqHz[0];
   double maxFreq = chanFreqHz[0];
@@ -509,8 +513,8 @@ SpectralGrid::~SpectralGrid()
 bool SpectralGrid::wrongSpwId(unsigned int spwId) const
 {
   if(spwId > (v_transfertId_.size() - 1)) {
-    cout << " SpectralGrid: ERROR: " << spwId
-        << " is a wrong spectral window identifier" << endl;
+    std::cout << " SpectralGrid: ERROR: " << spwId
+        << " is a wrong spectral window identifier" << std::endl;
     return (bool) true;
   }
   return (bool) false;
@@ -600,11 +604,11 @@ Frequency SpectralGrid::getChanWidth(unsigned int spwId, unsigned int chanIdx) c
   }
 }
 
-vector<double> SpectralGrid::getSbChanFreq(unsigned int spwId,
+std::vector<double> SpectralGrid::getSbChanFreq(unsigned int spwId,
                                            unsigned int chanIdx,
-                                           const string &units) const
+                                           const std::string &units) const
 {
-  vector<double> v_dummyVector;
+  std::vector<double> v_dummyVector;
   if(wrongSpwId(spwId)) return v_dummyVector;
   v_dummyVector.push_back(getChanFreq(spwId, chanIdx).get(units));
   for(unsigned int n = 0; n < vv_assocNature_[spwId].size(); n++) {
@@ -616,9 +620,9 @@ vector<double> SpectralGrid::getSbChanFreq(unsigned int spwId,
   return v_dummyVector;
 }
 
-vector<double> SpectralGrid::getSpectralWindow(unsigned int spwId) const
+std::vector<double> SpectralGrid::getSpectralWindow(unsigned int spwId) const
 {
-  vector<double> v_chanFreq;
+  std::vector<double> v_chanFreq;
   if(wrongSpwId(spwId)) return v_chanFreq;
   v_chanFreq.reserve(v_numChan_[spwId]);
   for(unsigned int n = 0; n < v_numChan_[spwId]; n++)
@@ -706,7 +710,7 @@ bool SpectralGrid::isRegular(unsigned int spwId) const
   return true;
 }
 
-string SpectralGrid::getSidebandSide(unsigned int spwId) const
+std::string SpectralGrid::getSidebandSide(unsigned int spwId) const
 {
   if(!wrongSpwId(spwId)) {
     if(vv_assocSpwId_[spwId].size() == 0) {
@@ -721,7 +725,7 @@ string SpectralGrid::getSidebandSide(unsigned int spwId) const
   return "";
 }
 
-string SpectralGrid::getSidebandType(unsigned int spwId) const
+std::string SpectralGrid::getSidebandType(unsigned int spwId) const
 {
   if(!wrongSpwId(spwId)) {
     if(vv_assocSpwId_[spwId].size() == 0) {
@@ -736,7 +740,7 @@ string SpectralGrid::getSidebandType(unsigned int spwId) const
   return "";
 }
 
-string SpectralGrid::getSideband(unsigned int spwId) const
+std::string SpectralGrid::getSideband(unsigned int spwId) const
 {
   if(!wrongSpwId(spwId)) {
     if(vv_assocSpwId_[spwId].size() == 0) {
@@ -747,14 +751,14 @@ string SpectralGrid::getSideband(unsigned int spwId) const
     if(getSidebandSide(spwId) == "NoSB") {
       return getSidebandSide(spwId);
     } else {
-      string sbTypeSide = getSidebandSide(spwId) + " with type ";
+      std::string sbTypeSide = getSidebandSide(spwId) + " with type ";
       return (sbTypeSide + getSidebandType(spwId));
     }
   }
   return "";
 }
 
-vector<string> SpectralGrid::getAssocNature(unsigned int spwId) const
+std::vector<std::string> SpectralGrid::getAssocNature(unsigned int spwId) const
 {
   if(!wrongSpwId(spwId)) {
     if(vv_assocNature_[spwId].size() == 0) {
@@ -763,11 +767,11 @@ vector<string> SpectralGrid::getAssocNature(unsigned int spwId) const
     }
     return vv_assocNature_[spwId];
   }
-  vector<string> v_dummyVector;
+  std::vector<std::string> v_dummyVector;
   return v_dummyVector;
 }
 
-vector<unsigned int> SpectralGrid::getAssocSpwId(unsigned int spwId) const
+std::vector<unsigned int> SpectralGrid::getAssocSpwId(unsigned int spwId) const
 {
   if(!wrongSpwId(spwId)) {
     if(vv_assocSpwId_[spwId].size() == 0) {
@@ -778,15 +782,15 @@ vector<unsigned int> SpectralGrid::getAssocSpwId(unsigned int spwId) const
     return vv_assocSpwId_[spwId];
 
   }
-  vector<unsigned int> v_dummyVector;
+  std::vector<unsigned int> v_dummyVector;
   return v_dummyVector;
 }
 
-vector<unsigned int> SpectralGrid::getAssocSpwIds(const vector<unsigned int> &spwIds) const
+std::vector<unsigned int> SpectralGrid::getAssocSpwIds(const std::vector<unsigned int> &spwIds) const
 {
 
   unsigned int spwId;
-  vector<unsigned int> assoc_spwIds;
+  std::vector<unsigned int> assoc_spwIds;
 
   for(unsigned int n = 0; n < spwIds.size(); n++) {
 

@@ -103,6 +103,7 @@ public:
   inline casacore::String&      tInterpType()    { return tInterpType_; };
   inline casacore::String&      fInterpType()    { return fInterpType_; };
   inline casacore::Vector<casacore::Int>& spwMap()         { return spwMap_; };
+  inline casacore::String&      refantmode()     { return refantmode_; };
   inline casacore::Int&         refant()         { return refantlist()(0); };
   inline casacore::Vector<casacore::Int>& refantlist()     { return urefantlist_; };
   inline casacore::Int&         minblperant()    { return minblperant_; };
@@ -521,6 +522,10 @@ private:
   // Delete pointers
   void deleteSVC();
 
+  // Pointer to CTTimeInterp1 factory method (generic)
+  // SVC specializations may choose to specialize CTTimeInterp1, as needed,
+  //   and override this method accordingly (e.g., see FringeJones.h)
+  virtual CTTIFactoryPtr cttifactoryptr() { return &CTTimeInterp1::factory; };
 
   // Cal table name
   casacore::String calTableName_;
@@ -533,6 +538,9 @@ private:
 
   // Spw mapping
   casacore::Vector<casacore::Int> spwMap_;
+
+  // Refant mode
+  casacore::String refantmode_;
 
   // Refant
   casacore::Vector<casacore::Int> urefantlist_;

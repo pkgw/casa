@@ -19,7 +19,6 @@ __init_scripts = [
     "init_tools.py",
     "init_tasks.py",
     "init_funcs.py",
-    "init_asap.py",
     "init_pipeline.py",
     "init_mpi.py",
     "init_docs.py",

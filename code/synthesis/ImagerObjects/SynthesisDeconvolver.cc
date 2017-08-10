@@ -190,6 +190,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         itsSmoothFactor = decpars.smoothFactor;
         itsMinBeamFrac = decpars.minBeamFrac;
         itsCutThreshold = decpars.cutThreshold;
+        itsGrowIterations = decpars.growIterations;
 	itsIsInteractive = decpars.interactive;
       }
     catch(AipsError &x)
@@ -214,7 +215,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       // If a starting model exists, this will initialize the ImageStore with it. Will do this only once.
       setStartingModel();
 
-      itsIterDone += itsLoopController.getIterDone();
+      //itsIterDone is currently only used by automask code so move this to inside setAutomask
+      //itsIterDone += itsLoopController.getIterDone();
 
       //      setupMask();
 
@@ -241,7 +243,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //itsLoopController.setMadRMS( rmss[0] );
       */
 
-      if( itsMaskSum != masksum ) // i.e. mask has changed. 
+      if( itsMaskSum != masksum || masksum == 0.0 ) // i.e. mask has changed. 
 	{ 
 	  itsMaskSum = masksum; 
 	  itsLoopController.setMaskSum( masksum );
@@ -515,15 +517,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   {
      //modify mask using automask otherwise no-op
      if ( itsAutoMaskAlgorithm != "" )  {
+       itsIterDone += itsLoopController.getIterDone();
 
        LogIO os( LogOrigin("SynthesisDeconvolver","setAutoMask",WHERE) );
        os << "Generating AutoMask" << LogIO::POST;
 
        if ( itsPBMask > 0.0 ) {
-         itsMaskHandler->autoMaskWithinPB( itsImages, itsIterDone, itsAutoMaskAlgorithm, itsMaskThreshold, itsFracOfPeak, itsMaskResolution, itsMaskResByBeam, itsNMask, itsAutoAdjust,  itsSidelobeThreshold, itsNoiseThreshold, itsLowNoiseThreshold, itsCutThreshold, itsSmoothFactor, itsMinBeamFrac, itsPBMask);
+         itsMaskHandler->autoMaskWithinPB( itsImages, itsIterDone, itsAutoMaskAlgorithm, itsMaskThreshold, itsFracOfPeak, itsMaskResolution, itsMaskResByBeam, itsNMask, itsAutoAdjust,  itsSidelobeThreshold, itsNoiseThreshold, itsLowNoiseThreshold, itsCutThreshold, itsSmoothFactor, itsMinBeamFrac, itsGrowIterations, itsPBMask);
        }
        else {
-         itsMaskHandler->autoMask( itsImages, itsIterDone, itsAutoMaskAlgorithm, itsMaskThreshold, itsFracOfPeak, itsMaskResolution, itsMaskResByBeam, itsNMask, itsAutoAdjust, itsSidelobeThreshold, itsNoiseThreshold, itsLowNoiseThreshold, itsCutThreshold, itsSmoothFactor, itsMinBeamFrac );
+         itsMaskHandler->autoMask( itsImages, itsIterDone, itsAutoMaskAlgorithm, itsMaskThreshold, itsFracOfPeak, itsMaskResolution, itsMaskResByBeam, itsNMask, itsAutoAdjust, itsSidelobeThreshold, itsNoiseThreshold, itsLowNoiseThreshold, itsCutThreshold, itsSmoothFactor, itsMinBeamFrac, itsGrowIterations );
        }
      }
   }

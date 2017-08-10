@@ -76,7 +76,7 @@ using namespace casa::vi;
 					    CountedPtr<FTMachine>& iftm)
     //		      CountedPtr<VPSkyJones>& vp)
     : SIMapper( imagestore, ftm, iftm ), ovb_p(NULL)
-    //    vb_p (vi::VisBuffer2::factory (vi::VbPlain, vi::VbRekeyable))
+    //    vb_p (vi::VisBuffer2::factory (vi::VbRekeyable))
   {
     LogIO os( LogOrigin("SIMapperImageMosaic","Constructor",WHERE) );
 
@@ -99,7 +99,7 @@ using namespace casa::vi;
 					   String& whichMachine)
     //		     CountedPtr<VPSkyJones>& vp)
     : SIMapper(cl, whichMachine )
-    //      vb_p (vi::VisBuffer2::factory (vi::VbPlain, vi::VbRekeyable))
+    //      vb_p (vi::VisBuffer2::factory (vi::VbRekeyable))
   {
 
     /*
@@ -144,7 +144,7 @@ using namespace casa::vi;
 
     //    ovb_p.assign(vb, false);
     //    ovb_p.updateCoordInfo(&vb, dirDep);
-    ovb_p = vi::VisBuffer2::factory(vi::VbPlain, vi::VbRekeyable);
+    ovb_p = vi::VisBuffer2::factory(vi::VbRekeyable);
     ovb_p->copy(vb,true);
     
     firstaccess_p = firstaccess;

@@ -1,6 +1,7 @@
 
 #include <msvis/MSVis/VisibilityIterator2.h>
 #include <msvis/MSVis/ViImplementation2.h>
+#include <msvis/MSVis/VisBufferImpl2.h>
 #include <measures/Measures/MDirection.h>
 #include <measures/Measures/MEpoch.h>
 #include <casa/Quanta/MVTime.h>
@@ -23,16 +24,11 @@ namespace vi {
 // }
 
 
-void
-ViImplementation2::associateVbWithVi2 (VisBuffer2 * vb, const VisibilityIterator2 * vi)
+VisBuffer2 *
+ViImplementation2::createAttachedVisBuffer(VisBufferOptions options)
 {
-    // Associates the top-level VI with the presumably top-level VB.
-    // Implemented here since the associateWithVi2 method is protected
-    // but ViImplementation has friend access to VB.
-
-    vb->associateWithVi2(vi);
+	return new VisBufferImpl2(this, options);
 }
-
 
 void
 ViImplementation2::azel0Calculate (Double time, MSDerivedValues & msd,
@@ -120,12 +116,6 @@ ViImplementation2::feed_paCalculate (Double time, MSDerivedValues & msd,
     }
 
     return feedpa;
-}
-
-VisBuffer2 *
-ViImplementation2::createAttachedVisBuffer (VisBufferType t, VisBufferOptions options)
-{
-    return VisBuffer2::factory (this, t, options);
 }
 
 // MSDerivedValues
