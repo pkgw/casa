@@ -30,15 +30,6 @@ ViImplementation2::createAttachedVisBuffer(VisBufferOptions options)
 	return new VisBufferImpl2(this, options);
 }
 
-VisBuffer2 *
-ViImplementation2::getVisBuffer(const VisibilityIterator2 * vi) const
-{
-	VisBuffer2 *result = getVisBuffer();
-	ThrowIf(result == nullptr, "VI Implementation has no VisBuffer.");
-	result->associateWithVi2(vi);
-	return result;
-}
-
 void
 ViImplementation2::azel0Calculate (Double time, MSDerivedValues & msd,
         MDirection & azel0, const MEpoch & mEpoch0)

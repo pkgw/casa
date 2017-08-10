@@ -615,8 +615,6 @@ protected:
 
 	virtual VisBuffer2 *createAttachedVisBuffer(VisBufferOptions options);
 
-	VisBuffer2 * getVisBuffer(const VisibilityIterator2 *) const;
-
     static void doWeightScaling (casacore::Bool hasWeightScaling,
                                  WeightScaling * scaling,
                                  const casacore::Array<casacore::Float>& unscaled,

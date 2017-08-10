@@ -293,14 +293,27 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	
 	}
   }
-  void MSUtil::getFreqRangeInSpw( Double& freqStart,
+  Bool MSUtil::getFreqRangeInSpw( Double& freqStart,
 				  Double& freqEnd, const Vector<Int>& spw, const Vector<Int>& start,
 				  const Vector<Int>& nchan,
 				  const MeasurementSet& ms, 
 				  const MFrequency::Types freqframe,
 				  const Int fieldId, const Bool fromEdge){
-    
+    Vector<Int> fields(1, fieldId);
+    return MSUtil::getFreqRangeInSpw( freqStart, freqEnd, spw, start,
+				      nchan,ms, freqframe,fields, fromEdge);
 
+
+  }
+  
+  Bool MSUtil::getFreqRangeInSpw( Double& freqStart,
+				  Double& freqEnd, const Vector<Int>& spw, const Vector<Int>& start,
+				  const Vector<Int>& nchan,
+				  const MeasurementSet& ms, 
+				  const MFrequency::Types freqframe,
+				  const Vector<Int>&  fieldIds, const Bool fromEdge){
+    
+    Bool retval=False;
     freqStart=C::dbl_max;
     freqEnd=0.0;
     Vector<Double> t;
@@ -327,7 +340,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Vector<uInt>  uniqIndx;
     
     uInt nTimes=GenSortIndirect<Double>::sort (uniqIndx, elt, Sort::Ascending, Sort::QuickSort|Sort::NoDuplicates);
-    MDirection dir =fieldCol.phaseDirMeas(fieldId);
+    MDirection dir =fieldCol.phaseDirMeas(fieldIds[0]);
     MSDataDescIndex mddin(ms.dataDescription());
     MFrequency::Types obsMFreqType= (MFrequency::Types) (spwCol.measFreqRef()(0));
     MEpoch ep;
@@ -371,12 +384,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	if(freqEnd < freqStartObs)  freqEnd=freqStartObs;
 	if(freqStart > freqEndObs)  freqStart=freqEndObs;
 	if(freqEnd < freqEndObs)  freqEnd=freqEndObs;
+	retval=True;
       }
       else{
 	MFrequency::Convert toframe(obsMFreqType,
 				    MFrequency::Ref(freqframe, frame));
 	for (uInt j=0; j< nTimes; ++j){
-	  if((fldId[elindx[uniqIndx[j]]] ==fieldId) && anyEQ(ddOfSpw, ddId[elindx[uniqIndx[j]]])){
+	  if(anyEQ(fieldIds, fldId[elindx[uniqIndx[j]]]) && anyEQ(ddOfSpw, ddId[elindx[uniqIndx[j]]])){
 	    timeCol.get(elindx[uniqIndx[j]], ep);
 	    frame.resetEpoch(ep);
 	    Double freqTmp=toframe(Quantity(freqStartObs, "Hz")).get("Hz").getValue();
@@ -385,11 +399,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    freqTmp=toframe(Quantity(freqEndObs, "Hz")).get("Hz").getValue();
 	    if(freqStart > freqTmp)  freqStart=freqTmp;
 	    if(freqEnd < freqTmp)  freqEnd=freqTmp;
+	    retval=True;
 	  }
 	}
       }
+		}
     }
-	}
+    return retval;
   }
   void MSUtil::rejectConsecutive(const Vector<Double>& t, Vector<Double>& retval, Vector<Int>& indx){
     uInt n=t.nelements();
