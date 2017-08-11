@@ -1,5 +1,6 @@
 #include <msvis/MSVis/ViFrequencySelection.h>
 #include <msvis/MSVis/UtilJ.h>
+#include <msvis/MSVis/MSUtil.h>
 #include <ms/MSSel/MSSelection.h>
 
 #include <utility>
@@ -368,7 +369,6 @@ FrequencySelectionUsingFrame::getSelectedWindows () const
          i ++){
 
         result.insert (i->spectralWindow_p);
-
     }
 
     return result;
@@ -412,7 +412,51 @@ FrequencySelectionUsingFrame::toString () const
 
     return s;
 }
+ std::map<int, std::pair<int, int>  >  FrequencySelectionUsingFrame::getChannelRange (const casacore::MeasurementSet& ms) const {
+	 
+	 map<int, pair<int, int> > retval;
+	 MFrequency::Types freqframe=MFrequency::castType(getFrameOfReference());
+	 Vector<Int> outspw;
+	 Vector<Int> outstart;
+	 Vector<Int> outnchan;
+	 for (Elements::const_iterator j = elements_p.begin(); j != elements_p.end(); j++){
+		//cerr << "elements " << (j->spectralWindow_p) <<  "  " << (j->beginFrequency_p)<< "  " <<  (j->endFrequency_p)<< endl;
 
+		Int outstart;
+		Int outnchan;
+		Int spw=j->spectralWindow_p;
+		Double begFreq=j->beginFrequency_p;
+		Double endFreq=j->endFrequency_p;
+		//cerr << "spw " << spw << " BegFreq " << begFreq << "  EndFreq " << endFreq << endl;
+		MSUtil::getChannelRangeFromFreqRange(outstart,
+  			  outnchan, ms, spw, begFreq, endFreq, 1.0e-6,freqframe); 
+		if(outstart > -1){
+			auto  old=retval.find(spw);
+			if(old != retval.end()){
+				pair<int, int> oldrange=old->second;
+				if(oldrange.second >= outstart){
+						if(outnchan > (oldrange.second-outstart+1+oldrange.first))
+							oldrange.first=outnchan;
+						else
+							oldrange.first=oldrange.second-outstart+1+oldrange.first;
+						oldrange.second=outstart;
+				}
+				else{
+				    if((oldrange.first -(outstart - oldrange.second)) <outnchan){	
+						oldrange.first=outnchan+outstart-oldrange.second+1;
+					}
+				}
+				old->second=oldrange;
+			}
+			else{
+	 
+				retval[int(spw)]=make_pair(int(outnchan), int(outstart));
+			}
+		}
+	 }
+	 return retval;
+	 
+ }
 FrequencySelections::FrequencySelections ()
 : filterWindow_p (-1)
 {}

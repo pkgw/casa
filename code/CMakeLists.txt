@@ -46,15 +46,15 @@ message("SVNINFOSTATUS: ${SVNINFOSTATUS}")
 if(${SVNINFOSTATUS} STREQUAL "0")
     message("Running svn scripts.")
     set( CASA_svngen ${CMAKE_SOURCE_DIR}/install/generate-svninfo )
-    execute_process( COMMAND ${CASA_svngen} -revision url=${CMAKE_SOURCE_DIR} 
+    execute_process( COMMAND ${CASA_svngen} -revision url=${CMAKE_SOURCE_DIR}
                    OUTPUT_VARIABLE SVNREVISION
                    OUTPUT_STRIP_TRAILING_WHITESPACE
     )
-    execute_process( COMMAND ${CASA_svngen} -date url=${CMAKE_SOURCE_DIR} 
+    execute_process( COMMAND ${CASA_svngen} -date url=${CMAKE_SOURCE_DIR}
                    OUTPUT_VARIABLE SVNDATE
                    OUTPUT_STRIP_TRAILING_WHITESPACE
     )
-    execute_process( COMMAND ${CASA_svngen} -url url=${CMAKE_SOURCE_DIR} 
+    execute_process( COMMAND ${CASA_svngen} -url url=${CMAKE_SOURCE_DIR}
                    OUTPUT_VARIABLE CASASRCURL
                    OUTPUT_STRIP_TRAILING_WHITESPACE
     )
@@ -78,7 +78,7 @@ if( CASA_VERSION_FEATURE STREQUAL "0" )
     execute_process( COMMAND svn info
                      RESULT_VARIABLE SVNINFOSTATUS
                      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} )
- 
+
     ### hash-bound git will need another solution
     if ( ${SVNINFOSTATUS} STREQUAL "0" )
         execute_process(    COMMAND svnversion
@@ -110,8 +110,6 @@ endif( )
 set( CASA_API_VERSION "${CASA_VERSION_MAJOR}.${CASA_VERSION_MINOR}.${CASA_VERSION_PATCH}-${CASA_VERSION_FEATURE}" )
 string(TIMESTAMP COMPILE_TIME "%Y-%m-%d %H:%M:%S UTC" UTC)
 
-CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/VERSION.in ${CMAKE_CURRENT_SOURCE_DIR}/VERSION )
-
 ###
 ### default name for casa-maintained dbus C++ library... (but could also be called just "dbus-cpp")
 ###
@@ -130,7 +128,7 @@ enable_language (Fortran)
 # Define compiler paths on OSX 10.5. This must be done before invoking project()
 if( APPLE )
     set( SO dylib )
-    if( EXISTS ${CMAKE_Fortran_COMPILER}) 
+    if( EXISTS ${CMAKE_Fortran_COMPILER})
         message(STATUS "Use " ${CMAKE_Fortran_COMPILER})
     elseif( EXISTS            /opt/casa/core2-apple-darwin8/3rd-party/bin/gfortran )
         set( CMAKE_Fortran_COMPILER /opt/casa/core2-apple-darwin8/3rd-party/bin/gfortran )
@@ -151,7 +149,7 @@ endif()
 
 project( CASA C CXX Fortran )
 
-# C is enabled because 
+# C is enabled because
 # - FindQt4.cmake requires it (bug)
 # - ccmtools uses the C preprocessor
 if( CMAKE_Fortran_COMPILER STREQUAL CMAKE_Fortran_COMPILER-NOTFOUND )
@@ -178,7 +176,7 @@ endif()
 if( NOT DEFINED UseCrashReporter)
     set( UseCrashReporter 1 )
 endif()
- 
+
 if( CMAKE_BUILD_TYPE STREQUAL Debug )
     add_definitions( -DAIPS_DEBUG )
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
@@ -193,9 +191,20 @@ if( INTERACTIVE_ITERATION )
 endif()
 
 include( UsePrivatePath )
-if( NOT RE_CMAKE )
-    string( REGEX REPLACE /[^/]+/?$ "" casaroot ${CMAKE_SOURCE_DIR} )
-endif()
+
+if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT OR CMAKE_INSTALL_PREFIX MATCHES ".*/linux[^/]*$" OR CMAKE_INSTALL_PREFIX MATCHES ".*/darwin[^/]*$")
+    string( REGEX REPLACE /[^/]+/?$ "" casaroot ${CMAKE_SOURCE_DIR} CACHE )
+    message("using traditional configuration where casaroot != install prefix:")
+    message("        casaroot             = ${casaroot}")
+    message("        CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
+    CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/VERSION.in ${CMAKE_CURRENT_SOURCE_DIR}/VERSION )
+else( )
+    set( casaroot ${CMAKE_INSTALL_PREFIX} CACHE PATH "casa install/destroot directory" FORCE )
+    message("using modern configuraiton where casaroot and install prefix are the same:")
+    message("        casaroot = ${casaroot}")
+    CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/VERSION.in ${casaroot}/VERSION )
+endif( )
+
 #string ( REGEX REPLACE /\\/\\.\\./ "" casaroot ${casaroot} )
 
 #
@@ -206,13 +215,13 @@ if( NOT arch AND EXISTS ${casaroot}/aipshosts )
     execute_process( COMMAND uname -n
                      COMMAND awk -F. "{print $1}"
                      OUTPUT_VARIABLE _host OUTPUT_STRIP_TRAILING_WHITESPACE )
-    execute_process( COMMAND egrep "^[\ ]*${_host}[\ \t]*" ${casaroot}/aipshosts 
+    execute_process( COMMAND egrep "^[\ ]*${_host}[\ \t]*" ${casaroot}/aipshosts
                      COMMAND awk "{print $2}"
                      OUTPUT_VARIABLE _a
                      OUTPUT_STRIP_TRAILING_WHITESPACE )
 
     if( _a )
-        set( arch ${_a} )    
+        set( arch ${_a} )
     endif()
 endif()
 
@@ -232,7 +241,7 @@ if (CMAKE_CROSSCOMPILING)
 endif()
 dump( CMAKE_SYSTEM
       CMAKE_SYSTEM_PROCESSOR
-      CMAKE_GENERATOR 
+      CMAKE_GENERATOR
       CMAKE_BUILD_TYPE )
 
 set( BUILD_SHARED_LIBS ON )
@@ -335,7 +344,7 @@ message( STATUS "$_gfortran_lib_path = ${_gfortran_lib_path}" )
 # Define paths for development packages.
 # Check for unresolved symbols at link time.
 # Set compiler flags.
-# 
+#
 if( APPLE )
     set( CMAKE_Fortran_FLAGS -fno-second-underscore )
 
@@ -421,7 +430,7 @@ if( APPLE )
                          COMMAND perl -pe "s|.*?(\\d+\\.\\d+)\\.\\d+$|$1|"
                          OUTPUT_VARIABLE _cxx_version
                          OUTPUT_STRIP_TRAILING_WHITESPACE )
-    
+
         message( STATUS "$_gfortran_version = ${_gfortran_version}" )
         message( STATUS "$_gcc_machine = ${_gcc_machine}" )
         message( STATUS "cxxversion (${_cxx_version})" )
@@ -558,10 +567,7 @@ endif()
 if( NOT RE_CMAKE )
     if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
         set( CMAKE_INSTALL_PREFIX ${casaroot}/${arch} CACHE PATH "casa architecture directory" FORCE )
-	set( casaroot ${casaroot} CACHE PATH "toplevel casa directory" FORCE )
-    else()
-        set( CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX} CACHE PATH "casa architecture directory" FORCE )
-	set( casaroot ${CMAKE_INSTALL_PREFIX}/.. CACHE PATH "toplevel casa directory" FORCE )
+        set( casaroot ${casaroot} CACHE PATH "toplevel casa directory" FORCE )
    endif(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 endif()
 
@@ -587,6 +593,109 @@ else( )
     message( STATUS "User disabled shared library versioning" )
 endif( )
 
+if( NOT RE_CMAKE )
+    if (casaroot STREQUAL CMAKE_INSTALL_PREFIX)
+
+        # Create a top-level AND lower-level casainit.sh all in one...
+        file( WRITE ${casaroot}/casainit.sh
+              "# Generated by CMake from code/CMakeLists.txt.  Do not edit.\n"
+              "# Usage: source casainit.sh\n"
+              "export CASA_INSTALLATION_TYPE=\"developer-environment\"\n"
+              "\n"
+              "a_root=${casaroot}\n"
+              "a_host=`uname -n | awk -F. '{ print $1 }'`\n"
+              "a_temp=\"\"\n"
+              "a_arch=\"\"\n"
+              "if [ -f \"$a_root/aipshosts\" ]\n"
+              "then\n"
+              "    a_temp=`egrep \"^[  ]*$a_host[ ]\" \"$a_root/aipshosts\"`\n"
+              "    a_arch=`/bin/echo $a_temp | awk '{ print $2 }'`\n"
+              "fi\n"
+              "export CASAPATH=\"${casaroot} ${arch}\"\n"
+              "export PATH=${CMAKE_INSTALL_PREFIX}/bin:${casa_packages}/bin:$PATH\n"
+        )
+        file( WRITE ${casaroot}/casainit.csh
+              "# Generated by CMake from code/CMakeLists.txt.  Do not edit.\n"
+              "# Usage: source casainit.csh\n"
+              "setenv CASA_INSTALLATION_TYPE \"developer-environment\"\n"
+              "\n"
+              "set a_root=\"${casaroot}\"\n"
+              "set a_host=`uname -n | awk -F. '{ print $1 }'`\n"
+              "set a_temp=\"\"\n"
+              "set a_arch=\"\"\n"
+              "if ( -f \"$a_root/aipshosts\" ) then\n"
+              "    set a_temp = `egrep \"^[  ]*\${a_host}[ ]\" \"$a_root/aipshosts\"`\n"
+              "    set a_arch = `/bin/echo $a_temp | awk '{ print $2 }'`\n"
+              "endif\n"
+              "setenv CASAPATH \"${casaroot} ${arch}\"\n"
+              "setenv PATH ${CMAKE_INSTALL_PREFIX}/bin:${casa_packages}/bin:$PATH\n"
+        )
+
+    else( )
+        #
+        # Create casainit.(c)sh
+        # The environment defined here is not needed at build time, but at runtime.
+        # The definitions are architecture dependent, hence put them in the install directory
+        #
+        file( WRITE ${CMAKE_INSTALL_PREFIX}/casainit.sh
+              "# Usage: source casainit.sh\n"
+              "# Generated by CMake from code/CMakeLists.txt.  Do not edit.\n"
+              "  export CASAPATH=\"${casaroot} ${arch}\"\n"
+              "  export PATH=${CMAKE_INSTALL_PREFIX}/bin:${casa_packages}/bin:$PATH\n"
+        )
+        file( WRITE ${CMAKE_INSTALL_PREFIX}/casainit.csh
+              "# Usage: source casainit.csh\n"
+              "# Generated by CMake from code/CMakeLists.txt.  Do not edit.\n"
+              "  setenv CASAPATH \"${casaroot} ${arch}\"\n"
+              "  setenv PATH ${CMAKE_INSTALL_PREFIX}/bin:${casa_packages}/bin:$PATH\n"
+        )
+
+        # Create a top-level casainit.sh which sources the <arch>/casainit.sh
+        # that belongs to this build.
+        file( WRITE ${casaroot}/casainit.sh
+              "# Usage: cd ..; source casainit.sh\n"
+              "# Generated by CMake from code/CMakeLists.txt.  Do not edit.\n"
+              "export CASA_INSTALLATION_TYPE=\"developer-environment\"\n"
+              "\n"
+              "a_root=${casaroot}\n"
+              "a_host=`uname -n | awk -F. '{ print $1 }'`\n"
+              "a_temp=\"\"\n"
+              "a_arch=\"\"\n"
+              "if [ -f \"$a_root/aipshosts\" ]\n"
+              "then\n"
+              "    a_temp=`egrep \"^[  ]*$a_host[ ]\" \"$a_root/aipshosts\"`\n"
+              "    a_arch=`/bin/echo $a_temp | awk '{ print $2 }'`\n"
+              "fi\n"
+              "if [ \"$a_arch\" = \"\" ]\n"
+              "then\n"
+              "    source ${CMAKE_INSTALL_PREFIX}/casainit.sh\n"
+              "else\n"
+              "    source $a_root/$a_arch/casainit.sh\n"
+              "fi\n"
+        )
+        file( WRITE ${casaroot}/casainit.csh
+              "# Usage: cd ..; source casainit.csh\n"
+              "# Generated by CMake from code/CMakeLists.txt.  Do not edit.\n"
+              "setenv CASA_INSTALLATION_TYPE \"developer-environment\"\n"
+              "\n"
+              "set a_root=\"${casaroot}\"\n"
+              "set a_host=`uname -n | awk -F. '{ print $1 }'`\n"
+              "set a_temp=\"\"\n"
+              "set a_arch=\"\"\n"
+              "if ( -f \"$a_root/aipshosts\" ) then\n"
+              "    set a_temp = `egrep \"^[  ]*\${a_host}[ ]\" \"$a_root/aipshosts\"`\n"
+              "    set a_arch = `/bin/echo $a_temp | awk '{ print $2 }'`\n"
+              "endif\n"
+              "if ( \"$a_arch\" == \"\" ) then\n"
+              "    source ${CMAKE_INSTALL_PREFIX}/casainit.csh\n"
+              "else\n"
+              "    source $a_root/$a_arch/casainit.csh\n"
+              "endif\n"
+        )
+
+    endif( )
+endif( )
+
 set( RE_CMAKE "YES" CACHE STRING "are we rerunning cmake?" FORCE )
 
 #
@@ -600,7 +709,7 @@ set( LATEX2HTML_OPTIONS "htcasa,section+,next,p-width,5"
 
 # Use pdflatex
 find_program( PDFLATEX_COMPILER NAMES pdflatex )
-#set( LATEX2PDF_OPTIONS "htcasa,section+,next,p-width,3" 
+#set( LATEX2PDF_OPTIONS "htcasa,section+,next,p-width,3"
 #CACHE STRING "LATEX2PDF_CONVERTER options" )
 
 set( CASA_DOC_DIR ${casaroot}/docs ) # Where to put documentation
@@ -609,7 +718,7 @@ find_package( Doxygen )
 
 if( DOXYGEN_FOUND )
   add_custom_target( doc_doxy
-    COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_SOURCE_DIR}/install/docutils/doxygen.cfg 
+    COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_SOURCE_DIR}/install/docutils/doxygen.cfg
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     )
 else()
@@ -619,73 +728,7 @@ else()
 endif()
 
 
-#
-# Create casainit.(c)sh
-# The environment defined here is not needed at build time, but at runtime.
-# The definitions are architecture dependent, hence put them in the install directory
-#
-file( WRITE ${CMAKE_INSTALL_PREFIX}/casainit.sh
-      "# Usage: source casainit.sh\n"
-      "# Generated by CMake from code/CMakeLists.txt.  Do not edit.\n"
-      "  export CASAPATH=\"${casaroot} ${arch}\"\n"
-      "  export PATH=${CMAKE_INSTALL_PREFIX}/bin:${casa_packages}/bin:$PATH\n"
-)
-file( WRITE ${CMAKE_INSTALL_PREFIX}/casainit.csh
-      "# Usage: source casainit.csh\n"
-      "# Generated by CMake from code/CMakeLists.txt.  Do not edit.\n"
-      "  setenv CASAPATH \"${casaroot} ${arch}\"\n"
-      "  setenv PATH ${CMAKE_INSTALL_PREFIX}/bin:${casa_packages}/bin:$PATH\n"
-)
 
-# Create a top-level casainit.sh which sources the <arch>/casainit.sh
-# that belongs to this build.
-file( WRITE ${casaroot}/casainit.sh 
-      "# Usage: cd ..; source casainit.sh\n"
-      "# Generated by CMake from code/CMakeLists.txt.  Do not edit.\n"
-      "export CASA_INSTALLATION_TYPE=\"developer-environment\"\n"
-      "\n"
-      "a_root=${casaroot}\n"
-      "a_host=`uname -n | awk -F. '{ print $1 }'`\n"
-      "a_temp=\"\"\n"
-      "a_arch=\"\"\n"
-      "if [ -f \"$a_root/aipshosts\" ]\n"
-      "then\n"
-      "    a_temp=`egrep \"^[  ]*$a_host[ ]\" \"$a_root/aipshosts\"`\n"
-      "    a_arch=`/bin/echo $a_temp | awk '{ print $2 }'`\n"
-      "fi\n"
-      "if [ \"$a_arch\" = \"\" ]\n"
-      "then\n"
-      "    source ${CMAKE_INSTALL_PREFIX}/casainit.sh\n"
-      "else\n"
-      "    source $a_root/$a_arch/casainit.sh\n"
-      "fi\n"
-)
-file( WRITE ${casaroot}/casainit.csh 
-      "# Usage: cd ..; source casainit.csh\n"
-      "# Generated by CMake from code/CMakeLists.txt.  Do not edit.\n"
-      "setenv CASA_INSTALLATION_TYPE \"developer-environment\"\n"
-      "\n"
-      "set a_root=\"${casaroot}\"\n"
-      "set a_host=`uname -n | awk -F. '{ print $1 }'`\n"
-      "set a_temp=\"\"\n"
-      "set a_arch=\"\"\n"
-      "if ( -f \"$a_root/aipshosts\" ) then\n"
-      "    set a_temp = `egrep \"^[  ]*\${a_host}[ ]\" \"$a_root/aipshosts\"`\n"
-      "    set a_arch = `/bin/echo $a_temp | awk '{ print $2 }'`\n"
-      "endif\n"
-      "if ( \"$a_arch\" == \"\" ) then\n"
-      "    source ${CMAKE_INSTALL_PREFIX}/casainit.csh\n"
-      "else\n"
-      "    source $a_root/$a_arch/casainit.csh\n"
-      "endif\n"
-)
-
-
-# Do not verify the contents of CASAPATH, it is not used by the build system
-#message( STATUS "$CASAPATH = $ENV{CASAPATH}" )
-#if( NOT $ENV{CASAPATH} MATCHES "^${casaroot}/? +${arch}" )
-#  message( FATAL_ERROR "The environment variable CASAPATH must start with \"${casaroot} ${arch}\". You should source ${casaroot}/casainit.sh" )
-#endif()
 
 # Choose to have correct RPATHs both in the build tree and
 # in the install tree (at the cost of having to change the
@@ -709,7 +752,7 @@ file( COPY ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/casa-config
 
 
 # Preprocessor definitions
-add_definitions( 
+add_definitions(
 # seen in CASA code
         -DAIPS_HAS_QWT
 # seen nowhere
@@ -728,7 +771,7 @@ if( CMAKE_SYSTEM_NAME STREQUAL Linux )
   endif()
 elseif( CMAKE_SYSTEM_NAME STREQUAL Darwin )
   add_definitions(
-    -DAIPS_DARWIN 
+    -DAIPS_DARWIN
     )
 else(
     message( WARNING "Not on Linux nor Darwin!" )
@@ -792,7 +835,7 @@ if( Boost_VERSION GREATER 103499 )
   if( NOT Boost_FOUND )
     message( FATAL_ERROR "Boost-system could not be found. Please check!" )
   endif()
-endif() 
+endif()
 
 if( NOT Boost_VERSION GREATER 104099 AND NOT CASA_IGNORE_VERSION )
   message( FATAL_ERROR "Boost version (${Boost_VERSION}) is too old! Must be 104100 (1.41.0) or newer. Please check!" )
@@ -851,7 +894,7 @@ if( NOT FORTRAN_LIBRARIES )
   file( WRITE ${_try}
     "int main() { return 0; }\n"
     )
-  
+
   if( _gfortran_lib_path )
     try_compile( _have_gfortran ${CMAKE_BINARY_DIR} ${_try}
       CMAKE_FLAGS -Wdev "-DCMAKE_EXE_LINKER_FLAGS=${_gfortran_lib_path}"
@@ -864,13 +907,13 @@ if( NOT FORTRAN_LIBRARIES )
   try_compile( _have_g2c ${CMAKE_BINARY_DIR} ${_try}
     CMAKE_FLAGS -Wdev "-DCMAKE_EXE_LINKER_FLAGS=-lg2c"
     )
- 
+
   if( _have_gfortran )
     if( _gfortran_lib_path )
       set( FORTRAN_LIBRARIES ${_gfortran_lib_path}
 	CACHE STRING "Fortran library linker option" FORCE )
     else()
-      set( FORTRAN_LIBRARIES -lgfortran 
+      set( FORTRAN_LIBRARIES -lgfortran
         CACHE STRING "Fortran library linker option" FORCE )
     endif()
     message( STATUS "Looking for Fortran runtime libraries -- ${FORTRAN_LIBRARIES}" )
@@ -898,7 +941,7 @@ if( NOT SKIP_PGPLOT )
   if (CMAKE_SYSTEM MATCHES ^Darwin-11 AND NOT LLVMCOMPILER )
      set( CMAKE_SHARED_LINKER_FLAGS "-Wl,-undefined -Wl,error -framework AppKit -lgfortran" )
   else()
-     if (APPLE) 
+     if (APPLE)
         set( CMAKE_SHARED_LINKER_FLAGS "-Wl,-undefined -Wl,error -framework AppKit" )
      else()
         set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined -Wl,error" )
@@ -927,7 +970,7 @@ if( NOT SKIP_PGPLOT )
 #define CASA_STRINGIFY(x) #x
 #define CASA_TOSTRING(x) CASA_STRINGIFY(x)
     std::cout << CASA_TOSTRING(WCSLIB_VERSION)"
-    DEFINITIONS -DSIGNBIT 
+    DEFINITIONS -DSIGNBIT
     DEPENDS PGPLOT )
 else()
   casa_find( WCSLIB
@@ -995,8 +1038,8 @@ else()
       set( casacore_prefix ${CMAKE_INSTALL_PREFIX}/.. )
   endif()
   set( casacore_libs
-       casa_casa 
-       casa_coordinates 
+       casa_casa
+       casa_coordinates
        casa_fits
        casa_images
        casa_lattices
@@ -1022,7 +1065,7 @@ casa_find( CASACORE
            CPP_VERSION CASACORE_VERSION
            RUN_VERSION "casacore::getVersionCASA()"
            DEPENDS LAPACK CFITSIO WCSLIB FFTW3 DL Boost)
-# Listing explicitly CASACore's dependency libraries is not necessary if the CASACore libraries 
+# Listing explicitly CASACore's dependency libraries is not necessary if the CASACore libraries
 # were built with correct linking information, which they are not.
 
 set( CASACORE_DEFINITIONS ${CASACORE_DEFINITIONS}
@@ -1035,7 +1078,7 @@ set( CASACORE_DEFINITIONS ${CASACORE_DEFINITIONS}
 if( CMAKE_SYSTEM_NAME STREQUAL Linux )
   set( CASACORE_DEFINITIONS ${CASACORE_DEFINITIONS}
     -D_FILE_OFFSET_BITS=64
-    -D_LARGEFILE_SOURCE 
+    -D_LARGEFILE_SOURCE
     )
 endif()
 
@@ -1057,10 +1100,10 @@ if( USE_ALMAWVR )
      message(STATUS "Will use CASA-internal version of BNMIN1 ...")
 endif()
 
-casa_find( GSLCBLAS	  
+casa_find( GSLCBLAS
               LIBS gslcblas )
 
-casa_find( GSL 
+casa_find( GSL
 	      LIBS gsl
    	      DEPENDS GSLCBLAS
             )
@@ -1158,7 +1201,7 @@ endif( )
 #  INCLUDES_SUFFIXES ATM
 #  LIBS aatm
 #  CPP_VERSION ATM_VERSION
-#  RUN_VERSION "atm::getVersion()" 
+#  RUN_VERSION "atm::getVersion()"
 #  PREFIX_HINTS ${ATM_ROOT_DIR}
 #)
 
@@ -1169,8 +1212,8 @@ casa_find( LIBXML2
   INCLUDES libxml/xmlversion.h
   INCLUDES_SUFFIXES libxml2
   LIBS xml2
-  CPP_VERSION LIBXML_DOTTED_VERSION 
-  RUN_VERSION "LIBXML_DOTTED_VERSION; LIBXML_TEST_VERSION;" 
+  CPP_VERSION LIBXML_DOTTED_VERSION
+  RUN_VERSION "LIBXML_DOTTED_VERSION; LIBXML_TEST_VERSION;"
   )
 
 # XSLT
@@ -1180,8 +1223,8 @@ casa_find( LIBXSLT
   INCLUDES libxslt/xsltconfig.h
   INCLUDES_SUFFIXES libxslt
   LIBS xslt
-  CPP_VERSION LIBXSLT_DOTTED_VERSION 
-  RUN_VERSION "LIBXSLT_DOTTED_VERSION; LIBXSLT_VERSION;" 
+  CPP_VERSION LIBXSLT_DOTTED_VERSION
+  RUN_VERSION "LIBXSLT_DOTTED_VERSION; LIBXSLT_VERSION;"
   )
 
 # Do not reuse FindLibXml2.cmake, except this excerpt
@@ -1201,7 +1244,7 @@ if( ${qt4} STREQUAL casa-qt )
   if ( EXISTS /opt/casa/02/bin/qmake )
       set( QT_QMAKE_EXECUTABLE /opt/casa/02/bin/qmake )
   elseif ( EXISTS /opt/casa/02/libexec/qt4/bin/qmake )
-      set( QT_QMAKE_EXECUTABLE /opt/casa/02/libexec/qt4/bin/qmake ) 
+      set( QT_QMAKE_EXECUTABLE /opt/casa/02/libexec/qt4/bin/qmake )
   else( )
       set( QT_QMAKE_EXECUTABLE /usr/lib64/casa/01/bin/qmake )
   endif( )
@@ -1227,10 +1270,10 @@ endif()
 
 set( QT4_INCLUDE_DIRS ${QT_INCLUDES} CACHE PATH "QT4 include directories" FORCE )
 set( QT4_DEFINITIONS ${QT_DEFINITIONS} -DQT_NO_DEBUG CACHE STRING "QT4 preprocessor flags" FORCE )
-set( QT4_LIBRARIES 
-  ${QT_QTCORE_LIBRARY} 
-  ${QT_QTGUI_LIBRARY} 
-  ${QT_QTDBUS_LIBRARY} 
+set( QT4_LIBRARIES
+  ${QT_QTCORE_LIBRARY}
+  ${QT_QTGUI_LIBRARY}
+  ${QT_QTDBUS_LIBRARY}
   ${QT_QTXML_LIBRARY} ${QT_QTUITOOLS_LIBRARY} ${QT_QTSVG_LIBRARY} ${QT_OPENGL}
   CACHE FILEPATH "QT4 libraries" FORCE )
 list( REMOVE_ITEM QT4_LIBRARIES "optimized" )
@@ -1246,7 +1289,7 @@ casa_find( QWT
   VERSION 5.1.1
   INCLUDES qwt_global.h
   INCLUDES_SUFFIXES qwt qwt-qt4 qwt5
-  PREFIX_HINTS 
+  PREFIX_HINTS
     ${QWT_ROOT_DIR}
     ${casa_packages}/qwt-5.2.0
     ${casa_packages}/qwt-5.2.1-svn
@@ -1266,8 +1309,8 @@ casa_find( XERCES
   PREFIX_HINTS ${XERCES_ROOT_DIR}
   INCLUDES xercesc/util/XercesVersion.hpp
   LIBS xerces-c
-  CPP_VERSION XERCES_FULLVERSIONDOT 
-  RUN_VERSION "gXercesMajVersion << '.' << gXercesMinVersion << '.' << gXercesRevision" 
+  CPP_VERSION XERCES_FULLVERSIONDOT
+  RUN_VERSION "gXercesMajVersion << '.' << gXercesMinVersion << '.' << gXercesRevision"
 )
 if( XERCES_VERSION VERSION_EQUAL   3.2 OR
     XERCES_VERSION VERSION_GREATER 3.2 )
@@ -1294,11 +1337,11 @@ casa_find( RPFITS
   LIBS rpfits
   #RUN_VERSION names_.rpfitsversion
   PREFIX_HINTS ${RPFITS_ROOT_DIR}
-  DEPENDS FORTRAN 
+  DEPENDS FORTRAN
 )
 
 # Readline
-casa_find( READLINE 
+casa_find( READLINE
   VERSION 4.3
   INCLUDES readline/readline.h #depends on <cstdio> to compile
   LIBS readline ncurses
@@ -1390,12 +1433,13 @@ casa_add_module( nrao CASACORE Boost)
 casa_add_module( atnf CASACORE Boost RPFITS)
 casa_add_module( miriad CASACORE Boost components)
 casa_add_module( casa_sakura CASACORE Boost LIBSAKURA)
-casa_add_module( singledish CASACORE casa_sakura msvis mstransform)
+casa_add_module( singledishfiller CASACORE )
+casa_add_module( singledish CASACORE casa_sakura singledishfiller msvis mstransform)
 casa_add_module( bnmin1 Boost GSL GSLCBLAS CASACORE )
 casa_add_module( air_casawvr CASACORE bnmin1 Boost synthesis WCSLIB CFITSIO LAPACK )
 
 if (UseCrashReporter AND NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
-   add_subdirectory( crash) 
+   add_subdirectory( crash)
 endif( )
 
 #

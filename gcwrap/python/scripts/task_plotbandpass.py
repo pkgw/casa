@@ -13,13 +13,13 @@
 #
 # To test:  see plotbandpass_regression.py
 #
-PLOTBANDPASS_REVISION_STRING = "$Id: task_plotbandpass.py,v 1.87 2016/12/30 01:11:56 thunter Exp $" 
+PLOTBANDPASS_REVISION_STRING = "$Id: task_plotbandpass.py,v 1.100 2017/06/09 15:57:51 thunter Exp $" 
 import pylab as pb
 import math, os, sys, re
 import time as timeUtilities
 import numpy as np
 import re  # used for testing if a string is a float
-import casadef     # necessary to read the casa version strings
+# import casadef     # necessary to read the casa version strings, but only in pre-CASA 5.0
 from taskinit import * # necessary for tb.open() to work
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter, ScalarFormatter
 import matplotlib.transforms
@@ -90,7 +90,7 @@ def version(showfile=True):
     """
     Returns the CVS revision number.
     """
-    myversion = "$Id: task_plotbandpass.py,v 1.86 2016/05/26 18:10:55 thunter Exp $" 
+    myversion = "$Id: task_plotbandpass.py,v 1.100 2017/06/09 15:57:51 thunter Exp $" 
     if (showfile):
         print "Loaded from %s" % (__file__)
     return myversion
@@ -471,10 +471,10 @@ def doPolarizations(mymsmd, inputMs, debug=False) :
     return(nPolarizations)
 
 def getnspw(mymsmd):
-    if (casadef.subversion_revision > '22653'):
+#    if (casadef.subversion_revision > '22653'):
         return(mymsmd.nspw(False))
-    else:
-        return(mymsmd.nspw())
+#    else:
+#        return(mymsmd.nspw())
         
 
 def drawOverlayTimeLegends(xframe,firstFrame,xstartTitle,ystartTitle,caltable,titlesize,
@@ -585,7 +585,7 @@ def drawAtmosphereAndFDM(showatm, showtsky, atmString, subplotRows, mysize, Tebb
                        mylineno=mylineno,xant=xant,
                        overlaySpws=overlaySpws, overlayBasebands=overlayBasebands,
                        drewAtmosphere=drewAtmosphere)
-        if (LO1 != ''):
+        if (LO1 != '' and LO1 is not None):
             # Now draw the image band
             ylim = DrawAtmosphere(showatm,showtsky, subplotRows, atmString,
                            mysize, TebbSkyImage, plotrange, xaxis,
@@ -666,7 +666,6 @@ def computeHighestSpwIndexInSpwsToPlotThatHasCurrentScan(spwsToPlot, scansToPlot
         if (scan in scansToPlotPerSpw[spw]):
             highestSpwIndex = i
     return(highestSpwIndex)
-
 
 DEFAULT_PLATFORMING_THRESHOLD = 10.0 # unused if platformingSigma != 0
 def plotbandpass(caltable='', antenna='', field='', spw='', yaxis='amp',
@@ -834,6 +833,8 @@ def plotbandpass(caltable='', antenna='', field='', spw='', yaxis='amp',
         lastfile.write('#%s\n'%(cmd))
         lastfile.close()
 
+    LO1 = None  # Fix for SCOPS-4877
+    lo1s = None # Fix for SCOPS-4877
     if (showimage == False):
         LO1 = lo1 = ''
     elif (lo1 != ''):
@@ -1266,7 +1267,7 @@ def plotbandpass(caltable='', antenna='', field='', spw='', yaxis='amp',
     # Now open the associated ms tables via msmd tool
 #     msAnt = []  # comment this out when CAS-6801 changes are in place
     if (debug): print  "creating msmd tool"
-    if (cu.compare_version('<',[4,1,0])):
+    if (cu.compare_version('<',[4,1,0])):  
         print "This version of casa is too old to use the msmd tool.  Use au.plotbandpass instead."
         return
     mymsmd = ''
@@ -1282,7 +1283,7 @@ def plotbandpass(caltable='', antenna='', field='', spw='', yaxis='amp',
         try:
             if (debug): print "Running mymsmd on %s..." % (msName)
             mymsmd = createCasaTool(msmdtool)
-            mymsmd.open(msName)
+            mymsmd.open(msName)  # this is the only open (vis not specified, but it exists)
             donetime = timeUtilities.time()
             if (debug): print "%.1f sec elapsed" % (donetime-mytimestamp)
             mytimestamp = timeUtilities.time()
@@ -1304,9 +1305,9 @@ def plotbandpass(caltable='', antenna='', field='', spw='', yaxis='amp',
             msName = vis
 # #          print "************* 2) Set msName to %s" % (msName)
             try:
-                mymsmd = createCasaTool(msmdtool)
+                mymsmd = createCasaTool(msmdtool) 
                 if (debug): print "Running msmd.open on %s" % (msName)
-                mymsmd.open(msName)
+                mymsmd.open(msName) # this is the only open (vis specified)
                 donetime = timeUtilities.time()
                 if (debug): print "%.1f sec elapsed" % (donetime-mytimestamp)
                 mytimestamp = timeUtilities.time()
@@ -1459,7 +1460,7 @@ def plotbandpass(caltable='', antenna='', field='', spw='', yaxis='amp',
                 if (debug): print "appending: spw=%d -> bb=%d" % (spw,mybaseband)
                 allBasebands.append(mybaseband)
             allBasebands = np.unique(allBasebands)
-            basebandDict = getBasebandDict(msName,caltable=caltable)  # needed later by showFDM()
+            basebandDict = getBasebandDict(msName,caltable=caltable,mymsmd=mymsmd)  # needed later by showFDM()
           except:
             basebandDict = {}
             print "This dataset (%s) does not have a BBC_NO column in the SPECTRAL_WINDOW_TABLE." % (msName)
@@ -1480,7 +1481,7 @@ def plotbandpass(caltable='', antenna='', field='', spw='', yaxis='amp',
     elif (msFound==False):
         allBasebands = [1,2,3,4]
     else:
-        basebandDict = getBasebandDict(msName,caltable=caltable)  # needed later by showFDM()
+        basebandDict = getBasebandDict(msName,caltable=caltable,mymsmd=mymsmd)  # needed later by showFDM()
         allBasebands = []
         for spw in originalSpwsToPlot:
             mybaseband = [key for key in basebandDict if spw in basebandDict[key]]
@@ -2521,8 +2522,8 @@ def plotbandpass(caltable='', antenna='', field='', spw='', yaxis='amp',
               (corr_type, corr_type_string, nPolarizations) = getCorrType(msName,originalSpwsToPlot,mymsmd,debug)
           except:
               print "4) Could not getCorrType"
-        if (corr_type == None):
-          if (observationTable == None):
+        if (corr_type is None):
+          if (observationTable is None):
               corr_type, corr_type_string, nPolarizations = getCorrTypeByAntennaName(msAnt[0].lower())
           else:
               telescope = getTelescopeNameFromCaltableObservationTable(observationTable)
@@ -2643,7 +2644,7 @@ def plotbandpass(caltable='', antenna='', field='', spw='', yaxis='amp',
         if (getLOsReturnValue != []):
             if (debug):
                 print "Calling interpret LOs"
-            lo1s = interpretLOs(msName,parentms,verbose=debug)
+            lo1s = interpretLOs(msName,parentms,verbose=debug,mymsmd=mymsmd)
             if (debug):
                 print "Done interpretLOs"
             foundLO1Message = []  # Initialize so that message is only displayed once per spw
@@ -2744,7 +2745,7 @@ def plotbandpass(caltable='', antenna='', field='', spw='', yaxis='amp',
            baseband = 0  # add from here to "ispw=" on 2014-04-05
            if (cu.compare_version('>=',[4,1,0])):
                if (debug): print "A, msName=%s, vis=%s" % (msName,vis)
-               if (getBasebandDict(vis=msName,caltable=caltable) != {}):
+               if (getBasebandDict(vis=msName,caltable=caltable,mymsmd=mymsmd) != {}):
                    if (debug): print "B"
                    try:
                        baseband = mymsmd.baseband(originalSpwsToPlot[spwctr])
@@ -2772,7 +2773,7 @@ def plotbandpass(caltable='', antenna='', field='', spw='', yaxis='amp',
                 if (groupByBaseband == False):
                     baseband = 0
                     if (cu.compare_version('>=',[4,1,0])):
-                        if (getBasebandDict(vis=msName,caltable=caltable) != {}):
+                        if (getBasebandDict(vis=msName,caltable=caltable,mymsmd=mymsmd) != {}):
                             try:
                                 baseband = mymsmd.baseband(originalSpwsToPlot[spwctr])
                                 if (baseband not in basebands):
@@ -3037,6 +3038,7 @@ def plotbandpass(caltable='', antenna='', field='', spw='', yaxis='amp',
                       if (showimage):
 #                          print "len(lo1s)=%d =  " % (len(lo1s)), lo1s
                           if (lo1 != ''):
+                              # lo1 was specified on the command line
                               LO1 = lo1
                           else:
                             if (getLOsReturnValue == []):
@@ -3046,12 +3048,12 @@ def plotbandpass(caltable='', antenna='', field='', spw='', yaxis='amp',
 # #     # #                        return()
                               LO1 = lo1
                             else:
-                              if (lo1s == None or lo1s == {}):
+                              if (lo1s is None or lo1s == {}):
                                   print "Failed to get LO1, disabling showimage.  Alternatively, you can use printLOsFromASDM and supply the lo1 parameter to plotbandpass."
                                   showimage = False
                                   LO1 = ''
                               else:
-                                if (originalSpw[ispw] > len(lo1s)):
+                                if (originalSpw[ispw] not in lo1s.keys()):
                                     print "There is a problem in reading the LO1 values, cannot showimage for this dataset."
                                     showimage = False
                                     LO1 = ''
@@ -3060,7 +3062,7 @@ def plotbandpass(caltable='', antenna='', field='', spw='', yaxis='amp',
                                   if (ispw not in foundLO1Message):
                                       casalogPost(debug,"For spw %d (%d), found LO1 = %.6f GHz" % (ispw,originalSpw[ispw],LO1))
                                       foundLO1Message.append(ispw)
-                      if (LO1 != ''):
+                      if (LO1 != '' and LO1 is not None):
                           frequenciesImage = list(2*LO1 - np.array(frequencies))
                           xfrequenciesImage = list(2*LO1 - np.array(pfrequencies[0]))
                           yfrequenciesImage = list(2*LO1 - np.array(pfrequencies[1]))
@@ -3080,11 +3082,11 @@ def plotbandpass(caltable='', antenna='', field='', spw='', yaxis='amp',
                                                   interval, uFFI, refFreq[originalSpw[ispw]],
                                                   net_sideband[originalSpw[ispw]], mytime, 
                                                   missingCalWVRErrorPrinted, caltable, verbose=DEBUG)
-                          # difference between the requested Atm freq and actual Atm calcuation
-                          chanDifference = atmfreq[0]-frequencies[0] 
-                          chanImageDifference = atmfreqImage[0]-frequenciesImage[-1]
-                          atmfreqImage = list(2*LO1 - np.array(atmfreqImage) + 2*chanDifference + chanImageDifference)  # CAS-7715 adds final 2 terms
-                          atmfreqImage.reverse()
+                          # difference between the requested Atm freq and actual Atm calcuation CAS-7715. No longer necessary after CAS-10228.
+                          #chanDifference = atmfreq[0]-frequencies[0] 
+                          #chanImageDifference = atmfreqImage[0]-frequenciesImage[-1]
+                          #print "signal SB difference = %f, image SB difference = %f" % (chanDifference, chanImageDifference)
+                          atmfreqImage = list(2*LO1 - np.array(atmfreqImage)) # + 2*chanDifference + chanImageDifference)  # CAS-7715 adds final 2 terms  
                           atmchanImage.reverse()
           
                       if (overlayTimes):
@@ -3244,6 +3246,8 @@ def plotbandpass(caltable='', antenna='', field='', spw='', yaxis='amp',
                                                          timerangeList, caltableTitle, mytime,
 #                                                         scansToPlot, scansForUniqueTimes) # task version
                                                          scansToPlotPerSpw[ispw], scansForUniqueTimes) # au version
+                                  if LO1 is None and type(lo1s) == dict:  # Fix for SCOPS-4877
+                                      LO1 = lo1s[myspw]                   # Fix for SCOPS-4877
                                   # CAS-8655
                                   newylimits = drawAtmosphereAndFDM(showatm,showtsky,atmString,subplotRows,mysize,
                                                        TebbSky,TebbSkyImage,plotrange, xaxis,atmchan,
@@ -4091,7 +4095,7 @@ def plotbandpass(caltable='', antenna='', field='', spw='', yaxis='amp',
                                              overlaySpws=overlaySpws,
                                              overlayBasebands=overlayBasebands,
                                              drewAtmosphere=drewAtmosphere)
-                              if (LO1 != ''):
+                              if (LO1 != '' and LO1 is not None):
                                   # Now draw the image band
                                   DrawAtmosphere(showatm,showtsky, subplotRows, atmString,
                                                  mysize, TebbSkyImage, plotrange, xaxis,
@@ -4894,7 +4898,7 @@ def plotbandpass(caltable='', antenna='', field='', spw='', yaxis='amp',
                                              overlaySpws=overlaySpws, 
                                              overlayBasebands=overlayBasebands,
                                              drewAtmosphere=drewAtmosphere)
-                              if (LO1 != ''):
+                              if (LO1 != '' and LO1 is not None):
                                   DrawAtmosphere(showatm,showtsky, subplotRows, atmString,
                                                  mysize, TebbSky, plotrange, xaxis, atmchanImage,
                                                  atmfreqImage, transmissionImage, subplotCols,
@@ -5401,8 +5405,8 @@ def complexMeanDeg(phases):
     return(180*np.arctan2(meanSin, meanCos)/math.pi)
 
 def CalcAtmTransmission(chans,freqs,xaxis,pwv,vm, mymsmd,vis,asdm,antenna,timestamp,
-                        interval,field,refFreqInTable, net_sideband,
-                        mytime, missingCalWVRErrorPrinted, caltable,
+                        interval,field,refFreqInTable, net_sideband=0,
+                        mytime=0, missingCalWVRErrorPrinted=False, caltable='',
                         verbose=False):
     """
     chans: all channels, regardless of whether they are flagged
@@ -5541,6 +5545,7 @@ def CalcAtmTransmission(chans,freqs,xaxis,pwv,vm, mymsmd,vis,asdm,antenna,timest
     midLatitudeSummer = 2
     midLatitudeWinter = 3
     numchan = len(freqs)
+    # Set the reference freq to be the middle of the middle two channels
     reffreq=0.5*(freqs[numchan/2-1]+freqs[numchan/2])
     originalnumchan = numchan
     while (numchan > MAX_ATM_CALC_CHANNELS):
@@ -5574,10 +5579,9 @@ def CalcAtmTransmission(chans,freqs,xaxis,pwv,vm, mymsmd,vis,asdm,antenna,timest
 
 #    myat.setAirMass()  # This does not affect the opacity, but it does effect TebbSky, so do it manually.
 
-    rc = myat.getRefChan()
     n = myat.getNumChan()
     if (verbose): print "numchan = %s" % (str(n))
-    try:     # casa 3.x
+    if cu.compare_version('<',[4,0,0]):
         dry = np.array(myat.getDryOpacitySpec(0)['dryOpacity'])
         wet = np.array(myat.getWetOpacitySpec(0)['wetOpacity'].value)
         TebbSky = []
@@ -5585,21 +5589,16 @@ def CalcAtmTransmission(chans,freqs,xaxis,pwv,vm, mymsmd,vis,asdm,antenna,timest
             TebbSky.append(myat.getTebbSky(nc=chan, spwid=0).value)
         TebbSky = np.array(TebbSky)
         # readback the values to be sure they got set
-        rf = myat.getRefFreq().value
-        cs = myat.getChanSep().value
-    except:   # casa 4.0
+        #rf = myat.getRefFreq().value
+        #cs = myat.getChanSep().value
+    else:   # casa >=4.0
         dry = np.array(myat.getDryOpacitySpec(0)[1])
         wet = np.array(myat.getWetOpacitySpec(0)[1]['value'])
         TebbSky = myat.getTebbSkySpec(spwid=0)[1]['value']
         # readback the values to be sure they got set
-        rf = myat.getRefFreq()['value']
-        cs = myat.getChanSep()['value']
-        if (myat.getRefFreq()['unit'] != 'GHz'):
-            print "There is a unit mismatch for refFreq in the code."
-        if (myat.getChanSep()['unit'] != 'MHz'):
-            print "There is a unit mismatch for chanSep in the code."
+        #rf = myqa.convert(myat.getRefFreq(),'GHz')['value']
+        #cs = myqa.convert(myat.getChanSep(),'GHz')['value']
 
-    chans = range(n)
     transmission = np.exp(-airmass*(wet+dry))
     TebbSky *= (1-np.exp(-airmass*(wet+dry)))/(1-np.exp(-wet-dry))
 
@@ -5616,8 +5615,6 @@ def CalcAtmTransmission(chans,freqs,xaxis,pwv,vm, mymsmd,vis,asdm,antenna,timest
 
     if (sense == 1):
         # The following looks right for LSB   sense=1
-#        freq = rf.value + cs.value*0.001*(0.5*n-1-np.array(range(n)))
-        freq = rf + cs*0.001*(0.5*n-1-np.array(range(n)))
         if (xaxis.find('chan')>=0):
             trans = np.zeros(len(transmission))
             Tebb = np.zeros(len(TebbSky))
@@ -5626,12 +5623,26 @@ def CalcAtmTransmission(chans,freqs,xaxis,pwv,vm, mymsmd,vis,asdm,antenna,timest
                 Tebb[i] = TebbSky[len(TebbSky)-1-i]
             transmission = trans
             TebbSky = Tebb
-    else:
-        # Using numchan can cause an inconsistency for small number of channels
-#        freq = rf.value+cs.value*0.001*(np.array(range(numchan))-0.5*numchan+1)
-        # The following looks right for USB  sense=2
-        freq = rf+cs*0.001*(np.array(range(n))-0.5*n+1)
         
+    # Be sure that number of frequencies matched number of transmission values - CAS-10123
+    numchan = len(transmission)
+    chans = range(len(transmission))
+    # Note that getChanFreq returns units of GHz, but use convert to be sure.
+    startFreq = myqa.convert(myat.getChanFreq(0),'GHz')['value']
+    endFreq = myqa.convert(myat.getChanFreq(numchan-1),'GHz')['value']
+    # print "startFreq=%f  endFreq=%f " % (startFreq, endFreq)
+    freq = np.linspace(startFreq, endFreq, numchan)
+# old method that fails on spws with an even number of channels, i.e. when the integer refchan 
+# is half a channel from the center of the span
+#    if sense == 2:
+#        freq = np.linspace(rf-((numchan-1)/2.)*chansepGHz, rf+((numchan-1)/2.)*chansepGHz, numchan) 
+#    else:
+#        freq = np.linspace(rf+((numchan-1)/2.)*chansepGHz, 
+#                           rf-((numchan-1)/2.)*chansepGHz, numchan)
+    # Therewas a 1-channel offset in CASA 5.0.x (CAS-10228), but it was fixed.
+#    if (cu.compare_version('<',[5,1,0])):  
+#        freq += chansepGHz
+
     if (verbose): print "Done CalcAtmTransmission"
     return(freq, chans, transmission, pwvmean, airmass, TebbSky, missingCalWVRErrorPrinted)
 
@@ -6409,17 +6420,21 @@ def appendBasebandNumber(spwString, baseband, showBasebandNumber):
         spwString += ', bb%d' % (baseband)
     return(spwString)
 
-def getSpwsForBaseband(vis,bb):
-    if (casadef.subversion_revision >= 25753):
-        mymsmd = createCasaTool(msmdtool)
-        mymsmd.open(vis)
+def getSpwsForBaseband(vis, bb, mymsmd=None):
+        needToClose = False
+#    if (casadef.subversion_revision >= 25753):
+        if (mymsmd is None or mymsmd == ''):
+            needToClose = True
+            mymsmd = createCasaTool(msmdtool)
+            mymsmd.open(vis)
         s = mymsmd.spwsforbaseband(bb)
-        mymsmd.close()
+        if needToClose:
+            mymsmd.close()
         return(s)
-    else:
-        return(getBasebandDict(vis,caltable=caltable))
+#    else:
+#        return(getBasebandDict(vis,caltable=caltable,mymsmd=mymsmd))
         
-def getBasebandDict(vis=None, spwlist=[], caltable=None):
+def getBasebandDict(vis=None, spwlist=[], caltable=None, mymsmd=None):
     """
     Builds a dictionary with baseband numbers as the keys and the
     associated spws as the values.  The optional parameter spwlist can
@@ -6444,8 +6459,11 @@ def getBasebandDict(vis=None, spwlist=[], caltable=None):
         return(bbdict)
     if (cu.compare_version('>=',[4,1,0]) and vis != None):
         if (os.path.exists(vis)):
-            mymsmd = createCasaTool(msmdtool)
-            mymsmd.open(vis)
+            needToClose = False
+            if mymsmd is None or mymsmd == '':
+                needToClose = True
+                mymsmd = createCasaTool(msmdtool)
+                mymsmd.open(vis)
             if (spwlist == []):
                 nspws = mymsmd.nspw()
                 spwlist = range(nspws)
@@ -6455,7 +6473,8 @@ def getBasebandDict(vis=None, spwlist=[], caltable=None):
                     bbdict[bbc_no] = [spw]
                 else:
                     bbdict[bbc_no].append(spw)
-            mymsmd.close()
+            if needToClose:
+                mymsmd.close()
     if (bbdict == {}):
         # read from spw table
         ubbs = np.unique(bbs)
@@ -6511,23 +6530,28 @@ def createCasaTool(mytool):
 def getLOs(inputMs, verbose=True):
     """
     Reads the LO information from an ms's ASDM_RECEIVER table.  It returns
-    a list of four lists: [freqLO,band,spws,names]
+    a list of 7 lists: [freqLO,band,spws,names,sidebands,receiverIDs,spwnames]
     The logic for converting this raw list into sensible association with
-    spw numbers is in printLOs().
-
-    Todd Hunter
+    spw numbers is in printLOs().  These lists are longer than the true number 
+    of spws by Nantennas-1 due to the extra WVR spws.
+    -Todd Hunter
     """
     if (os.path.exists(inputMs)):
+        mytb = createCasaTool(tbtool)
         if (os.path.exists("%s/ASDM_RECEIVER" % inputMs)):
             try:
-                mytb = createCasaTool(tbtool)
                 mytb.open("%s/ASDM_RECEIVER" % inputMs)
             except:
                 print "Could not open the existing ASDM_RECEIVER table"
+                mytb.close()
                 return([])
         else:
-            if (verbose):
-                print "The ASDM_RECEIVER table for this ms does not exist."
+            if (os.path.exists(inputMs+'/ASDMBinary')):
+                print "This is an ASDM, not an ms!  Use printLOsFromASDM."
+            else:
+                if (verbose):
+                    print "The ASDM_RECEIVER table for this ms does not exist."
+            mytb.close()
             return([])
     else:
         print "This ms does not exist = %s." % (inputMs)
@@ -6541,15 +6565,18 @@ def getLOs(inputMs, verbose=True):
     sidebands = []
     receiverIds = []
     for i in range(len(numLO)):
-        freqLO.append(mytb.getcell('freqLO',i))
-        band.append(mytb.getcell('frequencyBand',i))
-        spws.append(int((mytb.getcell('spectralWindowId',i).split('_')[1])))
-        names.append(mytb.getcell('name',i))
-        sidebands.append(mytb.getcell('sidebandLO',i))
-        receiverIds.append(int(mytb.getcell('receiverId',i)))
+        spw = int((mytb.getcell('spectralWindowId',i).split('_')[1]))
+        if (spw not in spws):
+            spws.append(spw)
+            freqLO.append(mytb.getcell('freqLO',i))
+            band.append(mytb.getcell('frequencyBand',i))
+            names.append(mytb.getcell('name',i))
+            sidebands.append(mytb.getcell('sidebandLO',i))
+            receiverIds.append(int(mytb.getcell('receiverId',i)))
     mytb.close()
     mytb.open("%s/SPECTRAL_WINDOW" % inputMs)
     spwNames = mytb.getcol("NAME")
+    mytb.close()
     mytb.close()
     return([freqLO,band,spws,names,sidebands,receiverIds,spwNames])
     
@@ -7099,18 +7126,30 @@ def yigHarmonic(bandString):
     return(harmonic)
 
 def interpretLOs(vis, parentms='', showWVR=False,
-                 showCentralFreq=False, verbose=False, show=False):
+                 showCentralFreq=False, verbose=False, show=False,
+                 alsoReturnLO2=False, showChannelAverageSpws=False,
+                 showOnlyScienceSpws=False, birdieFreq=None, birdieSpw=None,
+                 intent='OBSERVE_TARGET#ON_SOURCE', spwsForIntent=None,
+                 showEffective=False, showWindowFactors=False, mymsmd=None):
     """
-    Interpret (and optionally print) the LO settings for an MS.
+    Copied from analysisUtils on May 16, 2017, to replace old version, in order
+    to fix SCOPS-4877.
+    Interpret (and optionally print) the LO settings for an MS from the
+    ASDM_RECEIVER table.
     Options:
     showCentralFreq: if True, then show the mean frequency of each spw,
                      otherwise show the frequency of the first channel
     showWVR: include the WVR spw in the list
     parentms:  if the dataset has been split from a parent dataset, then
                you may also need to specify the name of the parent ms.
-    
+    alsoReturnLO2: if True, return a second dictionary of the LO2 values
+    birdieFreq: if specified, compute the IF of this RF feature
+    birdieSpw: only necessary if more than one LO1 in the science spws
+    intent: which intent to use in spwsforintent (to find science spws)
+    spwsForIntent: if specified, then avoid the call to spwsforintent
+
     Returns: a dictionary of the LO1 values (in Hz) for each spw, keyed by
-             integer
+             integer.  
 
     A typical band 7 TDM dataset (prior to splitting) looks like this:
     SPECTRAL_WINDOW table has 39 rows:   row
@@ -7130,33 +7169,33 @@ def interpretLOs(vis, parentms='', showWVR=False,
 
     Todd Hunter
     """
-    mytb = createCasaTool(tbtool)
     lo1s = {} # initialize dictionary to be returned
+    lo2s = {}
     try:
-        if (verbose):
-            print "Calling getLOs"
         retval =  getLOs(vis)
-        if (verbose):
-            print "Done getLOs"
         [LOs,bands,spws,names,sidebands,receiverIds,spwNames] = retval
-#        spws typically is =  [0,1,2,3,4,5,6,7,8,0,9,10,11,12,13,14,15,16]
     except:
         print "getLOs failed"
         return(retval)
-    # find gap in spectralWindowId numbering in ASDM_RECEIVER
-    gap = 0
+    if (verbose): print "len(spws) = %d: %s" % (len(spws), str(spws))
     maxSpw = np.max(spws)
+    sawWVR = False
+    indices = []  # will exclude the extraneous WVR spws
     for i in range(len(spws)):
-        if (spws[i] > 0):
-            gap = spws[i] - 1
-            break
-    for i in range(len(spws)):
-        if (spws[i] > 0):
-            if (verbose):
-                print "Renaming spw%d to spw%d" % (spws[i],spws[i]-gap)
-            spws[i] -= gap
+        if (names[i].find('WVR') >= 0):
+            if (not sawWVR):
+                indices.append(i)
+                sawWVR = True
+        else:
+            indices.append(i)
+    LOs = np.array(LOs)[indices]
+    bands = np.array(bands)[indices]
+    spws = list(np.array(spws)[indices])
+    names = np.array(names)[indices]
+    sidebands = np.array(sidebands)[indices]
+    receiverIds = np.array(receiverIds)[indices]
     index = range(len(spws))
-
+    mytb = createCasaTool(tbtool)
     mytb.open(vis+'/SPECTRAL_WINDOW')
     # If the data have been split into an ms with fewer spws, then this 
     # table will be smaller (in rows) than the parent MS's table.
@@ -7167,7 +7206,7 @@ def interpretLOs(vis, parentms='', showWVR=False,
         splitted = True
         if (verbose): 
             print "maxSpw=%d != len(spwNames)=%d)" % (maxSpw, len(spwNames))
-        if (parentms == ''):
+        if (parentms == '' or parentms == None):
             print "You appear to have split these data.  Please provide the parentms as an argument."
             return
         mytb.open(parentms+'/SPECTRAL_WINDOW')
@@ -7180,7 +7219,7 @@ def interpretLOs(vis, parentms='', showWVR=False,
                 print "This is an old dataset lacking values in the NAME column of the SPECTRAL_WINDOW table."
                 return
             if (verbose): 
-                print "Checking for %s in %s" % (spwNames[s], str(parentSpwNames))
+                print "Checking for %s in " % (spwNames[s]), parentSpwNames
             extractedRows.append(np.where(parentSpwNames == spwNames[s])[0][0])
             index.append(spws.index(extractedRows[-1]))
             if (verbose): 
@@ -7190,77 +7229,98 @@ def interpretLOs(vis, parentms='', showWVR=False,
 #     index = the row of the ASDM_RECEIVER table that matches the split-out spw
         vis = parentms
     if (verbose): 
-        print "spwNames = %s" % (str(spwNames))
-        print "spws = %s" % (str(spws))
-        print "bands = %s" % (str(bands))
-        outputString = "LOs = "
+        print "spwNames = ", spwNames
+        print "spws = ", spws
+        print "bands = ", bands
+        output = "LOs = "
         for LO in LOs:
-            outputString += "%.3f, " % (LO[0]*1e-9)
-        print outputString
-        print "names = %s" % (str(names))
-        print "index = %s" % (str(index))
+            output += "%.3f, " % (LO[0]*1e-9)
+        print output
+        print "names = ", names
+        print "index = ", index
 
-    bbc = getBasebandNumbers(vis)
-    if (verbose):
-        print "basebands = %s" % (str(bbc))
+    bbc = getBasebandNumbers(vis) # does not use msmd
     if (show): 
         print 'Row refers to the row number in the ASDM_RECEIVER table (starting at 0).'
         if (showCentralFreq):
-            print 'Row spw BB RxBand CenFreq Nchan LO1(GHz) LO2(GHz) Sampler YIG(GHz) TFBoffset(MHz)'
+            myline = 'Row spw BB RxBand CenFreq Nchan LO1(GHz) LO2(GHz) Sampler YIG(GHz) TFBoffset(MHz)'
         else:
-            print 'Row spw BB RxBand Ch1Freq Nchan LO1(GHz) LO2(GHz) Sampler YIG(GHz) TFBoffset(MHz)'
+            myline = 'Row spw BB RxBand Ch1Freq Nchan LO1(GHz) LO2(GHz) Sampler YIG(GHz) TFBoffset(MHz)'
+        if (showEffective):
+            myline += ' Eff.BW(MHz) Res(MHz) Width(MHz)'
+        if (showWindowFactors):
+            myline += ' windowFactors'
+        print myline
 
     # Loop over all rows in the ASDM_RECEIVER table, unless we've split, in 
     # which case this will loop over the N spws in the table.
-    mymsmd = createCasaTool(msmdtool)
-    mymsmd.open(vis)
+    needToClose = False
+    if mymsmd is None or mymsmd == '':
+        mymsmd = createCasaTool(msmdtool)
+        mymsmd.open(vis)
+        needToClose = True
+    if (spwsForIntent == None):
+        if intent in mymsmd.intents(): # prevent a warning of OBSERVE_TARGET does not exist
+            scienceSpws = np.setdiff1d(mymsmd.spwsforintent(intent),mymsmd.wvrspws())
+        else:
+            scienceSpws = []
+    else:
+        scienceSpws = spwsForIntent
+    birdieIF = 0
+    if (birdieFreq is not None):
+        birdieFreq = parseFrequencyArgumentToHz(birdieFreq)
+        birdieFreqGHz = parseFrequencyArgumentToGHz(birdieFreq)
+    fdmSpws = mymsmd.almaspws(fdm=True)
     for i in range(len(index)):
         if (verbose): 
             print "index[%d]=%d" % (i,index[i])
             print "spws[%d] = %d" % (index[i], spws[index[i]])
-        myspw = spws[index[i]]
+        myspw = i 
+        if (birdieFreq is not None and birdieIF == 0):
+            if (myspw == birdieSpw):
+                if verbose:
+                    print "spw=%d, Computing IF = %f - %f" % (myspw, birdieFreq, LOs[index[i]][0])
+                birdieIF = np.fabs(birdieFreq - LOs[index[i]][0])
+            elif (myspw in scienceSpws and birdieSpw==None):
+                if verbose:
+                    print "spw=%d (in %s), Computing IF = %f - %f" % (myspw, str(scienceSpws), birdieFreq, LOs[index[i]][0])
+                birdieIF = np.fabs(birdieFreq - LOs[index[i]][0])
+        freqs = mymsmd.chanfreqs(myspw)
         meanFreqGHz = mymsmd.meanfreq(myspw) * (1e-9)
-        if (verbose): 
-            print "meanFreq = %f" % (meanFreqGHz)
+        if (myspw not in scienceSpws and showOnlyScienceSpws): continue
+        if (len(freqs) < 2 and showChannelAverageSpws==False): 
+            continue
         if (bands[index[i]].split('_')[-1].isdigit()):
             rxband = bands[index[i]].split('_')[-1]
         elif (showWVR):
             rxband = 'WVR'
         else:
             continue
-        if (verbose): 
-            print "rxband = %s" % (rxband)
-        line = "%2d  %2d  %d %3s " % (spws.index(myspw), myspw, bbc[myspw], rxband)
-        if (verbose): 
-            print "line = %s" % (rxband)
+        line = "%2d  %2d  %d %3s " % (spws[index[i]], myspw, bbc[myspw], rxband)
         if (showCentralFreq):
-            line += "%10.6f %4d " % (meanFreqGHz,len(mymsmd.chanfreqs(myspw)))
+            line += "%10.6f %4d " % (meanFreqGHz,len(freqs))
         else:
-            line += "%10.6f %4d " % (mymsmd.chanfreqs(myspw)[0],len(mymsmd.chanfreqs(myspw)))
-        if (receiverIds[index[i]] != 0):
-            # receiverIds > 0 seem to be bogus repeats of spws
-            continue
+            line += "%10.6f %4d " % (freqs[0],len(freqs))
+
         if (LOs[index[i]][0] < 0):
-            if (show): print line
+            print line
             continue
         if (bbc[myspw] > 0):
             if (splitted):
                 lo1s[i] = LOs[index[i]][0]
+                lo2s[i] = LOs[index[i]][1]
             else:
                 lo1s[myspw] = LOs[index[i]][0]
+                lo2s[myspw] = LOs[index[i]][1]
             for j in range(len(LOs[index[i]])):
                 if (j != 2):
                     line = line + '%10.6f' % (LOs[index[i]][j]*1e-9)
                 else:
                     line = line + '%5.2f' % (LOs[index[i]][j]*1e-9)
-        if (verbose):
-            print "calling yigHarmonic"
         yig = LOs[index[i]][0] / yigHarmonic(bands[index[i]])
-        if (verbose): 
-            print "yig = %s" % (str(yig))
         if (yig > 0):
             line = line + ' %.6f' % (yig*1e-9)
-        if (len(mymsmd.chanfreqs(myspw)) > 256):
+        if (myspw in fdmSpws):
             # work out what LO4 must have been
             LO1 = LOs[index[i]][0]
             LO2 = LOs[index[i]][1]
@@ -7270,23 +7330,36 @@ def interpretLOs(vis, parentms='', showWVR=False,
             else:
                 IFlocation = LO3 - (LO2 - (LO1 -  meanFreqGHz*1e9))
             LO4 = 2e9 + IFlocation
-            TFBLOoffset = LO4 - 3e9
-            line += '%9.3f %+8.3f' % (LO4 * 1e-6,  TFBLOoffset * 1e-6)
-            
-        if (bands[index[i]] == 'ALMA_RB_06' or bands[index[i]] == 'ALMA_RB_09'):
+            TFBLOoffset = LO4-3e9
+            line += '%9.3f %+8.3f ' % (LO4 * 1e-6,  TFBLOoffset * 1e-6)
+        else:
+            line += 19*' '
+        if (showEffective):    
+            line += '%9.4f %9.4f %9.4f' % (effectiveBandwidth(vis, myspw)*1e-6,
+                                           effectiveResolution(vis, myspw)*1e-6,
+                                           getChanWidths(mymsmd, myspw)*1e-6)
+        if (showWindowFactors):
+            chanwidth = abs(getChanWidths(mymsmd,myspw))
+            line += ' %.4f %.4f' % (effectiveBandwidth(vis, myspw)/chanwidth,
+                                    effectiveResolution(vis, myspw)/chanwidth)
+        if (bands[index[i]].find('ALMA_RB_06')>=0 or bands[index[i]].find('ALMA_RB_09')>=0):
             if (len(LOs[index[i]]) > 1):
                 if (LOs[index[i]][1] < 11.3e9 and LOs[index[i]][1] > 10.5e9):
                     line = line + ' leakage of LO2 undesired sideband may degrade dynamic range'
-                    if (bands[index[i]] == 'ALMA_RB_06'):
+                    if (bands[index[i]].find('ALMA_RB_06')>=0):
                         line += ' (and YIG may leak in)'
                     yigLeakage = LOs[index[i]][0] + (LOs[index[i]][1] - LOs[index[i]][2]) + (yig - LOs[index[i]][1])
                     if (yigLeakage > 0):
                         line = line + ' at %.6f' % (yigLeakage*1e-9)
         if (show): print line
-    if (verbose): 
-        print "done 'for' loop"
-    mymsmd.done()
-    return(lo1s)
+    if needToClose:
+        mymsmd.done()
+    if (birdieIF != 0):
+        print "The feature at %f GHz is at IF = %f GHz." % (birdieFreqGHz, birdieIF*1e-9)
+    if (alsoReturnLO2):
+        return(lo1s, lo2s)
+    else:
+        return(lo1s)
 
 def mjdSecondsToMJDandUT(mjdsec):
     """
@@ -7412,8 +7485,8 @@ def ComputeDewPointCFromRHAndTempC(relativeHumidity, temperature):
     temperature = np.array(temperature)            # protect against it being a list
     relativeHumidity = np.array(relativeHumidity)  # protect against it being a list
     es = 6.112*np.exp(17.67*temperature/(temperature+243.5))
-    e = relativeHumidity*0.01*es
-    dewPoint = 243.5*np.log(e/6.112)/(17.67-np.log(e/6.112))
+    E = relativeHumidity*0.01*es
+    dewPoint = 243.5*np.log(E/6.112)/(17.67-np.log(E/6.112))
     return(dewPoint)
 
 def ComputeLST(mjdsec, longitude):

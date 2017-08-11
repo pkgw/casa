@@ -37,7 +37,7 @@ MassDensity::MassDensity(double massdensity) :
 {
 }
 
-MassDensity::MassDensity(double massdensity, const string &units)
+MassDensity::MassDensity(double massdensity, const std::string &units)
 {
   if(units == "gcm**-3" || units == "g cm**-3" || units == "GCM**-3" ||
      units == "G CM**-3" || units == "g/cm^3") {
@@ -56,7 +56,7 @@ MassDensity::MassDensity(double massdensity, const string &units)
 MassDensity::~MassDensity() { };
 
 
-double MassDensity::get(const string &units) const
+double MassDensity::get(const std::string &units) const
 {
   if(units == "gcm**-3" || units == "g cm**-3" || units == "GCM**-3" ||
       units == "G CM**-3" || units == "g/cm^3") {

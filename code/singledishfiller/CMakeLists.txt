@@ -1,0 +1,53 @@
+#
+# CASA - Common Astronomy Software Applications
+# Copyright (C) 2014-2015 by NAOJ (in the framework of the ALMA collaboration)
+#
+# This file is part of CASA.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+casa_add_library( singledishfiller
+    Filler/NRO2MSReader.cc
+    Filler/PThreadUtil.cc
+    Filler/Scantable2MSReader.cc
+    Filler/SingleDishMSFiller.cc
+    Filler/SingleDishMSFiller2.cc
+)
+
+install (FILES
+    Filler/FillerUtil.h
+    Filler/PThreadUtil.h
+    Filler/AntennaRecord.h
+    Filler/DataRecord.h
+    Filler/FieldRecord.h
+    Filler/ObservationRecord.h
+    Filler/ProcessorRecord.h
+    Filler/SourceRecord.h
+    Filler/SpectralWindowRecord.h
+    Filler/SysCalRecord.h
+    Filler/WeatherRecord.h
+    Filler/ScantableIterator.h
+    Filler/DataAccumulator.h
+    Filler/ReaderInterface.h
+    Filler/NRO2MSReader.h
+    Filler/NROData.h
+    Filler/Scantable2MSReader.h
+    Filler/SingleDishMSFiller.h
+    Filler/SingleDishMSFiller.tcc
+    DESTINATION include/casacode/singledishfiller/Filler
+)
+
+### google tests ###
+casa_add_google_test (MODULES singledishfiller SOURCES Filler/test/SingleDishMSFiller_GTest.cc)

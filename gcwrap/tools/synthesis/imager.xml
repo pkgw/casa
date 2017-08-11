@@ -999,6 +999,16 @@ the source is at the first time observed in the selected data.
      <value>0.0</value>
      </param>
 
+     <param type="string" name="projection">
+     <description>map projection type</description>
+     <value>SIN</value>
+     <allowed kind="enum">
+     <value>SIN</value>
+     <value>CAR</value>
+     <value>TAN</value>
+     <value>SFL</value>
+     </allowed>
+     </param>
 
 </input>
 <example>

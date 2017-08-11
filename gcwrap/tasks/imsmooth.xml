@@ -26,7 +26,6 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     	<description>Name of the input image. Must be specified.</description>
     	<value></value>
     </param>
-
     <param type="string" name="kernel">
         <description>Type of kernel to use. Acceptable values are "b", "box", or "boxcar" for a boxcar kernel, "g", "gauss", or "gaussian" for a gaussian kernel, "c", "common", or "commonbeam" to use the common beam of an image with multiple beams as the gaussian to which to convolve all the planes, "i" or "image" to use an image as the kernel.</description>
         <value>gauss</value>
@@ -44,23 +43,23 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
             <value>i</value>
         </allowed>
     </param>
-
     <param type="any" name="major" subparam="yes">
-	<description>Major axis for the kernels. Standard quantity representation. Must be specified for kernel="boxcar". Example: "4arcsec".</description>
- 	<any type='variant' limittype='string int float record'/>
+	    <description>Major axis for the kernels. Standard quantity representation. Must be specified for kernel="boxcar".</description>
+ 	    <any type='variant' limittype='string int float record'/>
     	<value type="string"/>
+        <example>"4arcsec"</example>
     </param>
-
     <param type="any" name="minor" subparam="yes">
-	<description>Minor axis. Standard quantity representation. Must be specified for kernel="boxcar". Example: "2arcsec".</description>
- 	<any type='variant' limittype='string int float record'/>
+	    <description>Minor axis. Standard quantity representation. Must be specified for kernel="boxcar".</description>
+ 	    <any type='variant' limittype='string int float record'/>
     	<value type="string"/>
+        <example>"2arcsec"</example>
     </param>
-
     <param type="any" name="pa" subparam="yes">
-	<description>Position angle used only for gaussian kernel. Standard quantity representation. Example: "40deg".</description>
- 	<any type='variant' limittype='string int float record'/>
+	    <description>Position angle used only for gaussian kernel. Standard quantity representation.</description>
+ 	    <any type='variant' limittype='string int float record'/>
     	<value type="string"/>
+        <example>"40deg"</example>
     </param>
     <param type="bool" name="targetres" subparam="yes">
         <description>If gaussian kernel, specified parameters are to be resolution of output image (True) or parameters of gaussian to convolve with input image (False).</description>
@@ -99,26 +98,24 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 	    <description>Mask to use. Default is none.</description>
 	    <value/>
     </param>
-
-
     <param type="string" name="outfile" >
 	    <description>Output image name. Must be specified.</description>
 	<value/>
     </param>
     <param type="bool" direction="in" name="stretch" subparam="true">
-        <description>Stretch the mask if necessary and possible? </description>
+        <description>If true, stretch the mask if necessary and possible.</description>
         <value>False</value>
     </param>
     <param type="bool"  name="overwrite">
-        <description>Overwrite (unprompted) pre-existing output file?</description>
+        <description>If true, overwrite (unprompted) pre-existing output file.</description>
         <value>False</value>
     </param>
     <param type="any" name="beam" subparam="yes">
         <any type='variant' limittype='string record'/>
-        <description>Alternate way of describing a Gaussian. If specified, must be a dictionary with keys "major", "minor", and "pa" (or "positionangle"). Do not specify beam if specifying major, minor, and pa. Example: Example: {"major": "5arcsec", "minor": "2arcsec", "pa": "20deg"}.</description>
+        <description>Alternate way of describing a Gaussian. If specified, must be a dictionary with keys "major", "minor", and "pa" (or "positionangle"). Do not specify beam if specifying major, minor, and pa.</description>
         <value type="string"/>
+        <example>{"major": "5arcsec", "minor": "2arcsec", "pa": "20deg"}</example>
      </param>
-     
     <constraints>
         <when param="kernel">
             <equals value="gauss">

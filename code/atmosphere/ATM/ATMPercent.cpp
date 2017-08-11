@@ -25,6 +25,8 @@
 
 #include "ATMPercent.h"
 
+
+
 ATM_NAMESPACE_BEGIN
   
   // Constructors
@@ -41,7 +43,7 @@ ATM_NAMESPACE_BEGIN
     }
   }
 
-  Percent::Percent(double percent, const string &units){
+  Percent::Percent(double percent, const std::string &units){
     if(units == "%" || units == "percent" || units == "PERCENT"){
       valueIS_ = percent / 100.0;
     } else {
@@ -58,7 +60,7 @@ ATM_NAMESPACE_BEGIN
   
   // Accessors
   double Percent::get()const{return valueIS_;}
-  double Percent::get(const string &units)const{  
+  double Percent::get(const std::string &units)const{
     if(units == "%" || units == "percent" || units == "PERCENT"){
       return valueIS_ * 100.0;
     } else {

@@ -694,7 +694,7 @@ class par(str):
 	@staticmethod
 	def direction():
 		"""
-		(for sdimprocess)
+		(for sdfixscan)
 		direction -- scan direction in unit of degree
 		default: []
 		example: [0.0, 90.0]
@@ -1571,12 +1571,6 @@ class par(str):
 		default: []  (entire spectrum)
 		example: [4000,4500] for one region
 		         [[1000,3000],[5000,7000]] for two regions, etc.
-			 
-	        ---------------------------------------------------------------
-
-		(for sdimprocess)
-		masklist -- mask width for Basket-Weaving on percentage
-		default: 1.0 (1.0% of map size)
 		"""
 		
 	@staticmethod
@@ -1597,6 +1591,13 @@ class par(str):
 		respectively.
 		"""
 
+	@staticmethod
+	def maskwidth():
+		"""
+		masklist -- mask width for Basket-Weaving on percentage
+		default: 1.0 (1.0% of map size)
+		"""
+		
         @staticmethod
         def maxpix():
                 """
@@ -1709,10 +1710,10 @@ class par(str):
 
 		--------------------------------------------------------------------------
 
-                (for sdimprocess)
+                (for sdfixscan)
 		mode -- processing mode
-		options: 'basket', 'press'
-		default: 'basket'
+		options: 'fft_mask', 'model'
+		default: 'fft_mask'
 
 		--------------------------------------------------------------------------
 

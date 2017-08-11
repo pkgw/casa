@@ -212,8 +212,7 @@ public:
 
     virtual void getRowIds (casacore::Vector<casacore::uInt> & rowids) const = 0;
 
-    virtual VisBuffer2 * getVisBuffer (const VisibilityIterator2 *) = 0;
-    virtual VisBuffer2 * getVisBuffer () = 0;
+    virtual VisBuffer2 * getVisBuffer () const = 0;
 
 
     //   +=========================+
@@ -614,9 +613,7 @@ public:
 
 protected:
 
-    void associateVbWithVi2 (VisBuffer2 * vb, const VisibilityIterator2 * vi);
-    VisBuffer2 * createAttachedVisBuffer (VisBufferType t, VisBufferOptions options);
-
+	virtual VisBuffer2 *createAttachedVisBuffer(VisBufferOptions options);
 
     static void doWeightScaling (casacore::Bool hasWeightScaling,
                                  WeightScaling * scaling,

@@ -73,8 +73,6 @@ class VisibilityIterator2;
 class WeightScaling;
 class SubtableColumns;
 
-enum VisBufferType : int {VbPlain, VbAsynchronous};
-
 // These are options to be applied to a VisBuffer, usually when it's created.
 // The intent is that these form a bit mask so that they can be used as
 // VbWritable | VbRekeyable, etc.  So add the next one in as 2 * theLastOne.
@@ -158,7 +156,7 @@ public:
 
     VisBuffer2 () : associatedVi_p (nullptr) {}
 
-    static VisBuffer2 * factory (VisBufferType t, VisBufferOptions vbOptions = VbNoOptions);
+    static VisBuffer2 * factory (VisBufferOptions vbOptions = VbNoOptions);
 
         // Used by framework
 
@@ -222,6 +220,7 @@ public:
 
     virtual const casacore::MeasurementSet& ms() const { ThrowCc ("Should be overridden"); } // Kluge
     virtual const vi::SubtableColumns & subtableColumns () const { ThrowCc ("Should be overridden"); } // Kluge
+	virtual casacore::Bool existsColumn (VisBufferComponent2 id) const = 0;
     
     virtual casacore::Bool isAttached () const = 0;
     virtual casacore::Bool isFillable () const = 0;
@@ -579,7 +578,6 @@ protected:
                                        const casacore::Vector<casacore::Stokes::StokesTypes> & correlationsDefined,
                                        const casacore::Vector<casacore::Stokes::StokesTypes> & correlationsSelected,
                                        casacore::CountedPtr<WeightScaling> weightScaling) = 0;
-    static VisBuffer2 * factory (ViImplementation2 * vi, VisBufferType t, VisBufferOptions options);
     virtual void invalidate() = 0;
     virtual casacore::Bool isRekeyable () const = 0;
     virtual void setFillable (casacore::Bool isFillable) = 0;

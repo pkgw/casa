@@ -715,10 +715,15 @@ void SingleDishSkyCal::traverseMS(MeasurementSet const &ms) {
 
 	debuglog << "spw " << ispw << ": solveAllRPar.shape=" << solveAllRPar().shape() << " nPar=" << nPar() << " nChanPar=" << nChanPar() << " nElem=" << nElem() << debugpost;
 	
-	solveAllRPar() = dataSum.addDegenerate(1);
-	solveAllParOK() = resultMask.addDegenerate(1);
-	solveAllParErr() = 0.1; // TODO: this is tentative
-	solveAllParSNR() = 1.0; // TODO: this is tentative
+  size_t const nCorr = dataSum.shape()[0];
+	Cube<Float> const rpar = dataSum.addDegenerate(1);
+	Cube<Bool> const parOK = resultMask.addDegenerate(1);
+	for (size_t iCorr = 0; iCorr < nCorr; ++iCorr) {
+	  solveAllRPar().yzPlane(iCorr) = rpar.yzPlane(iCorr);
+	  solveAllParOK().yzPlane(iCorr) = parOK.yzPlane(iCorr);
+	  solveAllParErr().yzPlane(iCorr) = 0.1; // TODO: this is tentative
+	  solveAllParSNR().yzPlane(iCorr) = 1.0; // TODO: this is tentative
+	}
 
 	keepNCT();
 
@@ -775,7 +780,7 @@ void SingleDishSkyCal::initSolvePar()
     solveAllParOK().resize(solveAllRPar().shape());
     solveAllParErr().resize(solveAllRPar().shape());
     solveAllParSNR().resize(solveAllRPar().shape());
-    solveAllParOK()=true;
+    solveAllParOK()=false;
     solveAllParErr()=0.0;
     solveAllParSNR()=0.0;
     solveParOK().reference(solveAllParOK());
@@ -797,7 +802,7 @@ void SingleDishSkyCal::syncMeta2(const vi::VisBuffer2& vb)
   interval_.reference(vb.exposure());
   debuglog << "SingleDishSkyCal::syncMeta2 interval_= " << interval_ << debugpost;
 
-  setNumberOfCorrelationsPerSpw(vb.getVi()->ms(), nCorr_);
+  setNumberOfCorrelationsPerSpw(vb.ms(), nCorr_);
   debuglog << "nCorr_ = " << nCorr_ << debugpost;
   debuglog << "currSpw() = " << currSpw() << debugpost;
   debuglog << "nPar() = " << nPar() << debugpost;
@@ -1092,14 +1097,22 @@ void SingleDishSkyCal::updateWt2(Matrix<Float> &weight, const Int &antenna1)
   debuglog << "factor.shape() = " << factor.shape() << debugpost;
   debuglog << "weight.shape() = " << weight.shape() << debugpost;
   debuglog << "weight = " << weight << debugpost;
-  if (weight.shape() == factor.shape()) {
-    weight *= factor;
-  }
-  else if (weight.shape() == IPosition(2,factor.shape()[0],1)) {
-    weight *= factor(Slice(0,factor.shape()[0]),Slice(0,1));
-  }
-  else {
-    throw AipsError("Shape mismatch between input weight and weight scaling factor");
+
+  auto const wtShape = weight.shape();
+  size_t const nCorr = wtShape[0];
+  size_t const nChan = wtShape[1];
+  // for each correlation
+  for (size_t iCorr = 0; iCorr < nCorr; ++iCorr) {
+    auto wSlice = weight.row(iCorr);
+    auto const fSlice = factor.row(iCorr);
+    if (fSlice.nelements() == nChan) {
+      wSlice *= fSlice;
+    } else if (nChan == 1) {
+      // take mean of spectral weight factor to apply it to scalar weight
+      wSlice *= mean(fSlice);
+    } else {
+      throw AipsError("Shape mismatch between input weight and weight scaling factor");
+    }
   }
 }
 

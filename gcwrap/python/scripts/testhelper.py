@@ -668,7 +668,8 @@ def compMS(ms0,ms1,keys=['mean','min','max','rms'],ap="amp",tol=1e-4,verbose=Fal
             print mss[i]+" not found"
             return False
         myms.open(mss[1])
-        s.append(myms.statistics("DATA",ap)["DATA"])
+        stats = myms.statistics("DATA",ap)
+        s.append(stats[stats.keys()[0]])
         myms.done()
     status=True
     for ik in range(len(keys)):

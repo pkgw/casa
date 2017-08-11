@@ -28,10 +28,8 @@
 #include <stdio.h>
 #include <iostream>
 #include <math.h>
-#include <string>
-#include <vector>
 
-using namespace std;
+
 
 ATM_NAMESPACE_BEGIN
 
@@ -45,13 +43,13 @@ ATM_NAMESPACE_BEGIN
     // rmRefractiveIndex();  // nonexistent method
   }
 
-  complex<double> RefractiveIndex::getRefractivity_o2(double temperature, double pressure, double wvpressure, double frequency){
+  std::complex<double> RefractiveIndex::getRefractivity_o2(double temperature, double pressure, double wvpressure, double frequency){
 
     static const double abun_18o=0.0020439;
     static const double abun_17o=0.0003750;
     static const double o2_mixing_ratio=0.2092;
 
-    complex<double> ccc = (mkSpecificRefractivity_16o16o(temperature,pressure,wvpressure,frequency)*(1.0-2.0*(abun_18o+abun_17o))*
+    std::complex<double> ccc = (mkSpecificRefractivity_16o16o(temperature,pressure,wvpressure,frequency)*(1.0-2.0*(abun_18o+abun_17o))*
 			   (1.0-exp(-1556.38*1.43/temperature))+
 			   mkSpecificRefractivity_16o16o_vib(temperature,pressure,wvpressure,frequency)*(1.0-2.0*(abun_18o+abun_17o))*
 			   exp(-1556.38*1.43/temperature)
@@ -65,10 +63,10 @@ ATM_NAMESPACE_BEGIN
 
   }
 
-  complex<double> RefractiveIndex::getRefractivity_o2(double temperature,double pressure,double wvpressure,
+  std::complex<double> RefractiveIndex::getRefractivity_o2(double temperature,double pressure,double wvpressure,
 						      double frequency,double width,unsigned int n)
   {
-    complex<double> average(0.0,0.0);
+    std::complex<double> average(0.0,0.0);
     double newfreq;
     for(unsigned int i=0; i<n; i++){
       if(n==1){
@@ -78,13 +76,13 @@ ATM_NAMESPACE_BEGIN
       }
       average=average+getRefractivity_o2(temperature,pressure,wvpressure,newfreq);
     }
-    complex<double> averagen(real(average)/n,imag(average)/n);
+    std::complex<double> averagen(real(average)/n,imag(average)/n);
     return averagen;
   }
 
 
 
-  complex<double> RefractiveIndex::getRefractivity_h2o(double temperature, double pressure, double wvpressure, double frequency){
+  std::complex<double> RefractiveIndex::getRefractivity_h2o(double temperature, double pressure, double wvpressure, double frequency){
 
     static const double abun_18o=0.0020439;
     static const double abun_17o=0.0003750;
@@ -101,10 +99,10 @@ ATM_NAMESPACE_BEGIN
       (6.023e23*wvpressure*217.0/(temperature*mmol_h2o));
   }
 
-  complex<double> RefractiveIndex::getRefractivity_h2o(double temperature,double pressure,double wvpressure,
+  std::complex<double> RefractiveIndex::getRefractivity_h2o(double temperature,double pressure,double wvpressure,
 						       double frequency,double width,unsigned int n)
   {
-    complex<double> average(0.0,0.0);
+    std::complex<double> average(0.0,0.0);
     double newfreq;
     for(unsigned int i=0; i<n; i++){
       if(n==1){
@@ -114,12 +112,12 @@ ATM_NAMESPACE_BEGIN
       }
       average=average+getRefractivity_h2o(temperature,pressure,wvpressure,newfreq);
     }
-    complex<double> averagen(real(average)/n,imag(average)/n);
+    std::complex<double> averagen(real(average)/n,imag(average)/n);
     return averagen;
   }
   
  
-  complex<double> RefractiveIndex::getSpecificRefractivity_o3(double temperature, double pressure, double frequency){
+  std::complex<double> RefractiveIndex::getSpecificRefractivity_o3(double temperature, double pressure, double frequency){
     
     static const double abun_18o=0.0020439;
     static const double abun_17o=0.0003750;
@@ -133,7 +131,7 @@ ATM_NAMESPACE_BEGIN
     double pob_v3=exp(-Tex_nu3/temperature);
     
     
-    complex<double> ccc =  ((mkSpecificRefractivity_16o16o16o(temperature,pressure,frequency)+
+    std::complex<double> ccc =  ((mkSpecificRefractivity_16o16o16o(temperature,pressure,frequency)+
 			     mkSpecificRefractivity_16o16o17o(temperature,pressure,frequency)*(2*abun_17o)+
 			     mkSpecificRefractivity_16o16o18o(temperature,pressure,frequency)*(2*abun_18o)+
 			     mkSpecificRefractivity_16o17o16o(temperature,pressure,frequency)*(abun_17o)+
@@ -149,10 +147,10 @@ ATM_NAMESPACE_BEGIN
     
   }
   
-  complex<double> RefractiveIndex::getSpecificRefractivity_o3(double temperature,double pressure,double frequency,
+  std::complex<double> RefractiveIndex::getSpecificRefractivity_o3(double temperature,double pressure,double frequency,
 							      double width,unsigned int n)
   {
-    complex<double> average(0.0,0.0);
+    std::complex<double> average(0.0,0.0);
     double newfreq;
     for(unsigned int i=0; i<n; i++){
       if(n==1){
@@ -162,7 +160,7 @@ ATM_NAMESPACE_BEGIN
       }
       average=average+getSpecificRefractivity_o3(temperature,pressure,newfreq);
     }
-    complex<double> averagen(real(average)/n,imag(average)/n);
+    std::complex<double> averagen(real(average)/n,imag(average)/n);
     return averagen;
   }
 
@@ -270,8 +268,8 @@ ATM_NAMESPACE_BEGIN
     return dv; // GHz
   }
 
-  //  complex<double>  RefractiveIndex::lineshape(Frequency nu, Frequency linefreq, Frequency linebroad, Frequency interf){
-  complex<double>  RefractiveIndex::lineshape(double v, double vl, double dv, double itf){
+  //  std::complex<double>  RefractiveIndex::lineshape(Frequency nu, Frequency linefreq, Frequency linebroad, Frequency interf){
+  std::complex<double>  RefractiveIndex::lineshape(double v, double vl, double dv, double itf){
 
     //    *********************************************************************************
     //    *  CALCULATION OF THIS PART OF THE COMPLEX VAN-VLECK WEISSKOPF LINE PROFILE:    *
@@ -299,10 +297,10 @@ ATM_NAMESPACE_BEGIN
                                                                    //   !          in 1/frec units
     //    double frv=((vl-v+lf)/a1-(vl+v+lf)/a2);                  //   ! delay profile (real part)
  
-    //  return complex<double> (frv,fv)*(v/vl);                    
+    //  return std::complex<double> (frv,fv)*(v/vl);
 
-    return complex<double> (v/vl)*(complex<double>(1.0,-itf)/complex<double>(vl-v,-dv)
-				   - complex<double>(1.0,itf)/complex<double>(vl+v, dv) );
+    return std::complex<double> (v/vl)*(std::complex<double>(1.0,-itf)/std::complex<double>(vl-v,-dv)
+				   - std::complex<double>(1.0,itf)/std::complex<double>(vl+v, dv) );
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -315,11 +313,11 @@ ATM_NAMESPACE_BEGIN
   ////////////////////////////////////////////////////////////////////////////////
 
 
-  complex<double>  RefractiveIndex::mkSpecificRefractivity(unsigned int species, 
+  std::complex<double>  RefractiveIndex::mkSpecificRefractivity(unsigned int species,
 							   double tt, double pp, double eh2o,  
 							   double nu, double width, unsigned int n)
   {
-    complex<double> average(0.0,0.0);
+    std::complex<double> average(0.0,0.0);
     double newfreq;
     for(unsigned int i=0; i<n; i++){
       if(n==1){
@@ -330,11 +328,11 @@ ATM_NAMESPACE_BEGIN
       // average=average+mkSpecificRefractivity(species,tt,pp,eh2o,nu);
       average=average+mkSpecificRefractivity(species,tt,pp,eh2o,newfreq);  // 2015-11-30 replace nu with newfreq
     }
-    complex<double> averagen(real(average)/n,imag(average)/n);
+    std::complex<double> averagen(real(average)/n,imag(average)/n);
     return averagen;
   }
   
-  complex<double>  RefractiveIndex::mkSpecificRefractivity(unsigned int species, 
+  std::complex<double>  RefractiveIndex::mkSpecificRefractivity(unsigned int species,
 							   double tt, double pp, double eh2o,  
 							   double nu)
   {
@@ -362,14 +360,14 @@ ATM_NAMESPACE_BEGIN
     if(species==21){return mkSpecificRefractivity_16o16o17o(tt, pp, nu);}
     if(species==22){return mkSpecificRefractivity_16o18o16o(tt, pp, nu);}
     if(species==23){return mkSpecificRefractivity_16o17o16o(tt, pp, nu);}
-    complex<double> aa(0.0,0.0);
+    std::complex<double> aa(0.0,0.0);
     return aa;
   }
   
 
   //////////////////////// Opacity Source Number: 8 //////////////////////////////
 
-  complex<double>  RefractiveIndex::mkSpecificRefractivity_so2(double tt, double pp, double nu){
+  std::complex<double>  RefractiveIndex::mkSpecificRefractivity_so2(double tt, double pp, double nu){
 
 
     static const double fre[594]={ 0.52147,2.83885,3.04563,4.02705,4.19571,4.54605,
@@ -683,12 +681,12 @@ ATM_NAMESPACE_BEGIN
     unsigned int vp;
     unsigned int ini;
     unsigned int ifin;
-    complex<double>  lshape;
-    complex<double>  lshapeacum;
+    std::complex<double>  lshape;
+    std::complex<double>  lshapeacum;
 
     if(nu>999.9){
 
-      return complex<double> (0.0,0.0);
+      return std::complex<double> (0.0,0.0);
 
     }else{
 
@@ -721,7 +719,7 @@ ATM_NAMESPACE_BEGIN
 
       if(ifin==0||ifin<ini){
 
-	return complex<double> (0.0,0.0);
+	return std::complex<double> (0.0,0.0);
 
       }else{
 
@@ -751,7 +749,7 @@ ATM_NAMESPACE_BEGIN
 
   //////////////////////// Opacity Source Number: 7 //////////////////////////////
 
-  complex<double>  RefractiveIndex::mkSpecificRefractivity_no2(double tt, double pp, double nu){
+  std::complex<double>  RefractiveIndex::mkSpecificRefractivity_no2(double tt, double pp, double nu){
 
 
     static const double fre[248]={15.30343, 16.02118, 26.60164, 
@@ -896,12 +894,12 @@ ATM_NAMESPACE_BEGIN
     unsigned int vp;
     unsigned int ini;
     unsigned int ifin;
-    complex<double>  lshape;
-    complex<double>  lshapeacum;
+    std::complex<double>  lshape;
+    std::complex<double>  lshapeacum;
 
     if(nu>999.9){
 
-      return complex<double> (0.0,0.0);
+      return std::complex<double> (0.0,0.0);
 
     }else{
 
@@ -934,7 +932,7 @@ ATM_NAMESPACE_BEGIN
 
       if(ifin==0||ifin<ini){
 
-	return complex<double> (0.0,0.0);
+	return std::complex<double> (0.0,0.0);
 
       }else{
 
@@ -962,7 +960,7 @@ ATM_NAMESPACE_BEGIN
 
   //////////////////////// Opacity Source Number: 6 //////////////////////////////
 
-  complex<double>  RefractiveIndex::mkSpecificRefractivity_n2o(double tt, double pp, double nu){
+  std::complex<double>  RefractiveIndex::mkSpecificRefractivity_n2o(double tt, double pp, double nu){
 
     // tt in K, pp in mb, nu in GHz
 
@@ -1318,12 +1316,12 @@ ATM_NAMESPACE_BEGIN
     unsigned int vp;
     unsigned int ini;
     unsigned int ifin;
-    complex<double>  lshape;
-    complex<double>  lshapeacum;
+    std::complex<double>  lshape;
+    std::complex<double>  lshapeacum;
 
     if(nu>999.9){
 
-      return complex<double> (0.0,0.0);
+      return std::complex<double> (0.0,0.0);
 
     }else{
 
@@ -1355,7 +1353,7 @@ ATM_NAMESPACE_BEGIN
       
       if(ifin==0||ifin<ini){
 
-	return complex<double> (0.0,0.0);
+	return std::complex<double> (0.0,0.0);
 
       }else{
 
@@ -1383,7 +1381,7 @@ ATM_NAMESPACE_BEGIN
 
   //////////////////////// Opacity Source Number: 5 //////////////////////////////
 
-  complex<double>  RefractiveIndex::mkSpecificRefractivity_co(double tt, double pp, double nu){
+  std::complex<double>  RefractiveIndex::mkSpecificRefractivity_co(double tt, double pp, double nu){
 
     static const double fre[8] = {115.271203,230.538000,345.796000,461.04075,576.267938,691.47300,806.651688,921.799563};
     static const double flin[8] = {0.100E+01,0.200E+01,0.300E+01,0.400E+01,0.500E+01,0.600E+01,0.700E+01,0.800E+01};
@@ -1706,12 +1704,12 @@ ATM_NAMESPACE_BEGIN
     unsigned int vp;
     unsigned int ini;
     unsigned int ifin;
-    complex<double>  lshape;
-    complex<double>  lshapeacum;
+    std::complex<double>  lshape;
+    std::complex<double>  lshapeacum;
 
     if(nu>999.9){
 
-      return complex<double> (0.0,0.0);
+      return std::complex<double> (0.0,0.0);
 
     }else{
 
@@ -1740,7 +1738,7 @@ ATM_NAMESPACE_BEGIN
 
       if(ifin==0||ifin<ini){
 
-	return complex<double> (0.0,0.0);
+	return std::complex<double> (0.0,0.0);
 
       }else{
 
@@ -1768,7 +1766,7 @@ ATM_NAMESPACE_BEGIN
 
   //////////////////////// Opacity Source Number: 9 //////////////////////////////
 
-  complex<double>  RefractiveIndex::mkSpecificRefractivity_cnth2o(double tt, double pp, double eh2o, double nu){
+  std::complex<double>  RefractiveIndex::mkSpecificRefractivity_cnth2o(double tt, double pp, double eh2o, double nu){
 
     //     cnth2o, empirical
 
@@ -1791,14 +1789,14 @@ ATM_NAMESPACE_BEGIN
 
     // double delayh2o=eh2o*pow(t300,2.5)*.791e-6*pow(nu,2)*nu*1.2008e-3/57.29578; //VERSION DE PRUEBA 16/12/2015
     
-    return complex<double> (delayh2o,cnth2o);       // (  rad m^-1 , m^-1 )
+    return std::complex<double> (delayh2o,cnth2o);       // (  rad m^-1 , m^-1 )
 
   }
 
 
   //////////////////////// Opacity Source Number: 10 /////////////////////////////
 
-  complex<double>  RefractiveIndex::mkSpecificRefractivity_cntdry(double tt, double pp, double eh2o, double nu){
+  std::complex<double>  RefractiveIndex::mkSpecificRefractivity_cntdry(double tt, double pp, double eh2o, double nu){
 
     //     cntdry, empirical
 
@@ -1833,14 +1831,14 @@ ATM_NAMESPACE_BEGIN
 
 
 
-    return complex<double> (delaydry,cntair);     // (  rad m^-1 , m^-1 )
+    return std::complex<double> (delaydry,cntair);     // (  rad m^-1 , m^-1 )
 
   }
 
 
   //////////////////////// Opacity Source Number: 12 /////////////////////////////
 
-  complex<double>  RefractiveIndex::mkSpecificRefractivity_hh16o_v2(double tt, double pp, double eh2o, double nu){
+  std::complex<double>  RefractiveIndex::mkSpecificRefractivity_hh16o_v2(double tt, double pp, double eh2o, double nu){
 
     static const double fre[335]={
       67.790245,   96.738518,  120.066833,  209.379730,  232.941650,
@@ -2739,13 +2737,13 @@ ATM_NAMESPACE_BEGIN
     unsigned int vp;
     unsigned int ini;
     unsigned int ifin;
-    complex<double>  lshape;
-    complex<double>  lshapeacum;
+    std::complex<double>  lshape;
+    std::complex<double>  lshapeacum;
 
 
     if(nu>999.9){
 
-      return complex<double> (0.0,0.0);
+      return std::complex<double> (0.0,0.0);
 
     }else{
 
@@ -2774,7 +2772,7 @@ ATM_NAMESPACE_BEGIN
 
       if(ifin==0||ifin<ini){
 
-	return complex<double> (0.0,0.0);
+	return std::complex<double> (0.0,0.0);
 
       }else{
 
@@ -2802,7 +2800,7 @@ ATM_NAMESPACE_BEGIN
 
   //////////////////////// Opacity Source Number: 11 /////////////////////////////
 
-  complex<double>  RefractiveIndex::mkSpecificRefractivity_hh16o(double tt, double pp, double eh2o, double nu){
+  std::complex<double>  RefractiveIndex::mkSpecificRefractivity_hh16o(double tt, double pp, double eh2o, double nu){
 
     static const double fre[522] = {22.234617,183.310001,321.195929,
 				    325.152822,   380.197554,   390.188508,   437.365786,
@@ -3923,8 +3921,8 @@ ATM_NAMESPACE_BEGIN
     unsigned int vp;
     unsigned int ini;
     unsigned int ifin;
-    complex<double>  lshape;
-    complex<double>  lshapeacum;
+    std::complex<double>  lshape;
+    std::complex<double>  lshapeacum;
 
 
     if(nu>1595.9){
@@ -3965,7 +3963,7 @@ ATM_NAMESPACE_BEGIN
 
     if(ifin==0||ifin<ini){
 
-      return complex<double> (0.0,0.0);
+      return std::complex<double> (0.0,0.0);
 
     }else{
 
@@ -3998,7 +3996,7 @@ ATM_NAMESPACE_BEGIN
 
   //////////////////////// Opacity Source Number: 14 /////////////////////////////
 
-  complex<double>  RefractiveIndex::mkSpecificRefractivity_hh17o(double tt, double pp, double eh2o, double nu){
+  std::complex<double>  RefractiveIndex::mkSpecificRefractivity_hh17o(double tt, double pp, double eh2o, double nu){
 
 
     static const double fre[16]={
@@ -4355,13 +4353,13 @@ ATM_NAMESPACE_BEGIN
     unsigned int vp;
     unsigned int ini;
     unsigned int ifin;
-    complex<double>  lshape;
-    complex<double>  lshapeacum;
+    std::complex<double>  lshape;
+    std::complex<double>  lshapeacum;
 
 
     if(nu>999.9){
 
-      return complex<double> (0.0,0.0);
+      return std::complex<double> (0.0,0.0);
 
     }else{
 
@@ -4391,7 +4389,7 @@ ATM_NAMESPACE_BEGIN
 
       if(ifin==0||ifin<ini){
 
-	return complex<double> (0.0,0.0);
+	return std::complex<double> (0.0,0.0);
 
       }else{
 
@@ -4417,8 +4415,8 @@ ATM_NAMESPACE_BEGIN
 
   //////////////////////// Opacity Source Number: 15 /////////////////////////////
 
-  //complex<double>  RefractiveIndex::mkSpecificRefractivity_hdo(double tt, double pp, double eh2o, double nu){
-complex<double>  RefractiveIndex::mkSpecificRefractivity_hdo(double tt, double pp, double nu){    // eh2o removed (unused parameter)
+  //std::complex<double>  RefractiveIndex::mkSpecificRefractivity_hdo(double tt, double pp, double eh2o, double nu){
+std::complex<double>  RefractiveIndex::mkSpecificRefractivity_hdo(double tt, double pp, double nu){    // eh2o removed (unused parameter)
 
     static const double fre[58]={
       5.70284, 10.27828, 22.30749, 50.23643, 64.42724, 80.57828,
@@ -5096,13 +5094,13 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_hdo(double tt, double p
     unsigned int vp;
     unsigned int ini1, ini2;
     unsigned int ifin1, ifin2;
-    complex<double>  lshape;
-    complex<double>  lshapeacum;
+    std::complex<double>  lshape;
+    std::complex<double>  lshapeacum;
 
 
     if(nu>999.9){
 
-      return complex<double> (0.0,0.0);
+      return std::complex<double> (0.0,0.0);
 
     }else{
 
@@ -5138,7 +5136,7 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_hdo(double tt, double p
       if(ifin2>0){ifin2=ifin2-1;}else{ifin2=0;}
 
 
-      complex<double>  lshapeacum1(0.0,0.0);
+      std::complex<double>  lshapeacum1(0.0,0.0);
 
       if(ifin1==0||ifin1<ini1){
 
@@ -5159,7 +5157,7 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_hdo(double tt, double p
 	                                                                    // real part: delay in rad*cm^2
       }
 
-      complex<double>  lshapeacum2(0.0,0.0);
+      std::complex<double>  lshapeacum2(0.0,0.0);
 
       if(ifin2==0||ifin2<ini2){
 
@@ -5190,7 +5188,7 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_hdo(double tt, double p
 
   //////////////////////// Opacity Source Number: 13 /////////////////////////////
 
-  complex<double>  RefractiveIndex::mkSpecificRefractivity_hh18o(double tt, double pp, double eh2o, double nu){
+  std::complex<double>  RefractiveIndex::mkSpecificRefractivity_hh18o(double tt, double pp, double eh2o, double nu){
 
 
     static const double fre[15]={
@@ -5546,13 +5544,13 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_hdo(double tt, double p
     unsigned int vp;
     unsigned int ini;
     unsigned int ifin;
-    complex<double>  lshape;
-    complex<double>  lshapeacum;
+    std::complex<double>  lshape;
+    std::complex<double>  lshapeacum;
 
 
     if(nu>999.9){
 
-      return complex<double> (0.0,0.0);
+      return std::complex<double> (0.0,0.0);
 
     }else{
 
@@ -5581,7 +5579,7 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_hdo(double tt, double p
 
       if(ifin==0||ifin<ini){
 
-	return complex<double> (0.0,0.0);
+	return std::complex<double> (0.0,0.0);
 
       }else{
 
@@ -5608,7 +5606,7 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_hdo(double tt, double p
 
   //////////////////////// Opacity Source Number: 2 //////////////////////////////
 
-  complex<double>  RefractiveIndex::mkSpecificRefractivity_16o16o_vib(double tt, double pp, double eh2o, double nu){
+  std::complex<double>  RefractiveIndex::mkSpecificRefractivity_16o16o_vib(double tt, double pp, double eh2o, double nu){
 
     static const double fre[6]={363.717932,420.232268,482.757899,706.772490,765.423334,825.814211};
 
@@ -5621,12 +5619,12 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_hdo(double tt, double p
     static const double mu=0.0186;  //Debyes (M1 Transitions)
 
     double q=0.72923*tt;
-    complex<double>  lshape;
-    complex<double>  lshapeacum;
+    std::complex<double>  lshape;
+    std::complex<double>  lshapeacum;
 
     double dv0=2.0;
 
-    if(nu>999.9){return complex<double> (0.0,0.0);}
+    if(nu>999.9){return std::complex<double> (0.0,0.0);}
 
     for(unsigned int i=0; i<6; i++){
 
@@ -5647,7 +5645,7 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_hdo(double tt, double p
 
   //////////////////////// Opacity Source Number: 4 //////////////////////////////
 
-  complex<double>  RefractiveIndex::mkSpecificRefractivity_16o17o(double tt, double pp, double eh2o, double nu){
+  std::complex<double>  RefractiveIndex::mkSpecificRefractivity_16o17o(double tt, double pp, double eh2o, double nu){
 
     static const double fre[14]={
       239.89920,304.81682,412.53217,474.78769,356.03171,582.32937,
@@ -5670,12 +5668,12 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_hdo(double tt, double p
     static const double mu=0.0186;  //Debyes (M1 Transitions)
 
     double q=1.536568889*tt;
-    complex<double>  lshape;
-    complex<double>  lshapeacum;
+    std::complex<double>  lshape;
+    std::complex<double>  lshapeacum;
 
     double dv0=2.0;
 
-    if(nu>999.9){return complex<double> (0.0,0.0);}
+    if(nu>999.9){return std::complex<double> (0.0,0.0);}
 
     for(unsigned int i=0; i<14; i++){
 
@@ -5697,7 +5695,7 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_hdo(double tt, double p
 
   //////////////////////// Opacity Source Number: 3 //////////////////////////////
 
-complex<double>  RefractiveIndex::mkSpecificRefractivity_16o18o(double tt, double pp, double eh2o, double nu){
+std::complex<double>  RefractiveIndex::mkSpecificRefractivity_16o18o(double tt, double pp, double eh2o, double nu){
 
     static const double fre[15]={
       233.94611,298.47306,401.73972,463.77817,345.01768,566.89542,
@@ -5719,12 +5717,12 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_16o18o(double tt, doubl
     static const double mu=0.0186;  //Debyes (M1 Transitions)
 
     double q=1.536568889*tt;
-    complex<double>  lshape;
-    complex<double>  lshapeacum;
+    std::complex<double>  lshape;
+    std::complex<double>  lshapeacum;
 
     double dv0=2.0;
 
-    if(nu>999.9){return complex<double> (0.0,0.0);}
+    if(nu>999.9){return std::complex<double> (0.0,0.0);}
 
     for(unsigned int i=0; i<15; i++){
 
@@ -5745,7 +5743,7 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_16o18o(double tt, doubl
 
   //////////////////////// Opacity Source Number: 1 //////////////////////////////
 
-  complex<double>  RefractiveIndex::mkSpecificRefractivity_16o16o(double tt, double pp, double eh2o, double nu){
+  std::complex<double>  RefractiveIndex::mkSpecificRefractivity_16o16o(double tt, double pp, double eh2o, double nu){
 
     static const double fre[55]={
       50.473557,50.987199,51.502912,52.021065,52.542126,
@@ -6344,13 +6342,13 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_16o18o(double tt, doubl
     unsigned int vp;
     unsigned int ini;
     unsigned int ifin;
-    complex<double>  lshape;
-    complex<double>  lshapeacum;
+    std::complex<double>  lshape;
+    std::complex<double>  lshapeacum;
 
 
     if(nu>999.9){
 
-      return complex<double> (0.0,0.0);
+      return std::complex<double> (0.0,0.0);
 
     }else{
 
@@ -6393,7 +6391,7 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_16o18o(double tt, doubl
 
       if(ifin==0||ifin<ini||(ini>0&&ifin==36)){
 
-	return complex<double> (0.0,0.0);
+	return std::complex<double> (0.0,0.0);
 
       }else{
 
@@ -6429,7 +6427,7 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_16o18o(double tt, doubl
 
   //////////////////////// Opacity Source Number: 18 /////////////////////////////
 
-  complex<double>  RefractiveIndex::mkSpecificRefractivity_16o16o16o_v1(double tt, double pp, double nu){
+  std::complex<double>  RefractiveIndex::mkSpecificRefractivity_16o16o16o_v1(double tt, double pp, double nu){
 
     static const double fre[666] = { 56.32262, 60.12735,  60.56912,  66.33307,  69.29689,  71.61163,
 				     77.99631, 84.18972,  85.54551,  91.15601,  93.31576,  96.15456,
@@ -6782,12 +6780,12 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_16o18o(double tt, doubl
     unsigned int vp;
     unsigned int ini;
     unsigned int ifin;
-    complex<double>  lshape;
-    complex<double>  lshapeacum;
+    std::complex<double>  lshape;
+    std::complex<double>  lshapeacum;
     
     if(nu>999.9){
       
-      return complex<double> (0.0,0.0);
+      return std::complex<double> (0.0,0.0);
       
     }else{
       
@@ -6819,7 +6817,7 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_16o18o(double tt, doubl
       
       if(ifin==0||ifin<ini){
 	
-	return complex<double> (0.0,0.0);
+	return std::complex<double> (0.0,0.0);
 	
       }else{
 	
@@ -6851,7 +6849,7 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_16o18o(double tt, doubl
   
   //////////////////////// Opacity Source Number: 19 /////////////////////////////
 
-  complex<double>  RefractiveIndex::mkSpecificRefractivity_16o16o16o_v3(double tt, double pp, double nu){
+  std::complex<double>  RefractiveIndex::mkSpecificRefractivity_16o16o16o_v3(double tt, double pp, double nu){
 
     static const double fre[714] = {  39.09919, 46.68817,  56.31397,  59.37148,  70.67795,  71.31757,
 				      81.40063, 81.69261,  81.84813,  81.85942,  83.18435,  93.32343,
@@ -7223,12 +7221,12 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_16o18o(double tt, doubl
     unsigned int vp;
     unsigned int ini;
     unsigned int ifin;
-    complex<double>  lshape;
-    complex<double>  lshapeacum;
+    std::complex<double>  lshape;
+    std::complex<double>  lshapeacum;
     
     if(nu>999.9){
       
-      return complex<double> (0.0,0.0);
+      return std::complex<double> (0.0,0.0);
       
     }else{
       
@@ -7260,7 +7258,7 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_16o18o(double tt, doubl
       
       if(ifin==0||ifin<ini){
 	
-	return complex<double> (0.0,0.0);
+	return std::complex<double> (0.0,0.0);
 	
       }else{
 	
@@ -7291,7 +7289,7 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_16o18o(double tt, doubl
 
   //////////////////////// Opacity Source Number: 17 /////////////////////////////
 
-  complex<double>  RefractiveIndex::mkSpecificRefractivity_16o16o16o_v2(double tt, double pp, double nu){
+  std::complex<double>  RefractiveIndex::mkSpecificRefractivity_16o16o16o_v2(double tt, double pp, double nu){
 
 
     static const double fre[568] ={9.07727, 23.55104, 27.94782, 28.91511, 34.91645, 36.14138,
@@ -7594,12 +7592,12 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_16o18o(double tt, doubl
     unsigned int vp;
     unsigned int ini;
     unsigned int ifin;
-    complex<double>  lshape;
-    complex<double>  lshapeacum;
+    std::complex<double>  lshape;
+    std::complex<double>  lshapeacum;
 
     if(nu>999.9){
 
-      return complex<double> (0.0,0.0);
+      return std::complex<double> (0.0,0.0);
 
     }else{
 
@@ -7631,7 +7629,7 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_16o18o(double tt, doubl
 
       if(ifin==0||ifin<ini){
 
-	return complex<double> (0.0,0.0);
+	return std::complex<double> (0.0,0.0);
 
       }else{
 
@@ -7660,13 +7658,13 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_16o18o(double tt, doubl
   }
 
 
-    //    return complex<double> (0.0,0.0);
+    //    return std::complex<double> (0.0,0.0);
 
 
 
   //////////////////////// Opacity Source Number: 16 /////////////////////////////
 
-  complex<double>  RefractiveIndex::mkSpecificRefractivity_16o16o16o(double tt, double pp, double nu){
+  std::complex<double>  RefractiveIndex::mkSpecificRefractivity_16o16o16o(double tt, double pp, double nu){
 
     static const double fre[1151] ={ .78976,  1.08767,  2.59593,  9.20030, 10.22572, 10.61320,
 				      11.07245, 14.82086, 14.86659, 16.16240, 23.85967, 25.22979,
@@ -8794,12 +8792,12 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_16o18o(double tt, doubl
     unsigned int vp;
     unsigned int ini;
     unsigned int ifin;
-    complex<double>  lshape;
-    complex<double>  lshapeacum;
+    std::complex<double>  lshape;
+    std::complex<double>  lshapeacum;
 
     if(nu>999.9){
 
-      return complex<double> (0.0,0.0);
+      return std::complex<double> (0.0,0.0);
 
     }else{
 
@@ -8832,7 +8830,7 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_16o18o(double tt, doubl
 
       if(ifin==0||ifin<ini){
 
-	return complex<double> (0.0,0.0);
+	return std::complex<double> (0.0,0.0);
 
       }else{
 
@@ -8862,7 +8860,7 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_16o18o(double tt, doubl
 
   //////////////////////// Opacity Source Number: 20 /////////////////////////////
 
-  complex<double>  RefractiveIndex::mkSpecificRefractivity_16o16o18o(double tt, double pp, double nu){
+  std::complex<double>  RefractiveIndex::mkSpecificRefractivity_16o16o18o(double tt, double pp, double nu){
 
 
     static const double fre[1376]={
@@ -9883,12 +9881,12 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_16o18o(double tt, doubl
     unsigned int vp;
     unsigned int ini;
     unsigned int ifin;
-    complex<double>  lshape;
-    complex<double>  lshapeacum;
+    std::complex<double>  lshape;
+    std::complex<double>  lshapeacum;
 
     if(nu>999.9){
 
-      return complex<double> (0.0,0.0);
+      return std::complex<double> (0.0,0.0);
 
     }else{
 
@@ -9917,7 +9915,7 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_16o18o(double tt, doubl
 
       if(ifin==0||ifin<ini){
 
-	return complex<double> (0.0,0.0);
+	return std::complex<double> (0.0,0.0);
 
       }else{
 
@@ -9945,7 +9943,7 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_16o18o(double tt, doubl
 
   //////////////////////// Opacity Source Number: 21 /////////////////////////////
 
-  complex<double>  RefractiveIndex::mkSpecificRefractivity_16o16o17o(double tt, double pp, double nu){
+  std::complex<double>  RefractiveIndex::mkSpecificRefractivity_16o16o17o(double tt, double pp, double nu){
 
     static const double fre[1363]={
       .16176,  1.89024,  1.91956,  3.04142,  3.19196,  3.89097,
@@ -10961,12 +10959,12 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_16o18o(double tt, doubl
     unsigned int vp;
     unsigned int ini;
     unsigned int ifin;
-    complex<double>  lshape;
-    complex<double>  lshapeacum;
+    std::complex<double>  lshape;
+    std::complex<double>  lshapeacum;
 
     if(nu>999.9){
 
-      return complex<double> (0.0,0.0);
+      return std::complex<double> (0.0,0.0);
 
     }else{
 
@@ -11000,7 +10998,7 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_16o18o(double tt, doubl
 
       if(ifin==0||ifin<ini){
 
-	return complex<double> (0.0,0.0);
+	return std::complex<double> (0.0,0.0);
 
       }else{
 
@@ -11028,7 +11026,7 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_16o18o(double tt, doubl
 
   //////////////////////// Opacity Source Number: 22 /////////////////////////////
 
-  complex<double>  RefractiveIndex::mkSpecificRefractivity_16o18o16o(double tt, double pp, double nu){
+  std::complex<double>  RefractiveIndex::mkSpecificRefractivity_16o18o16o(double tt, double pp, double nu){
 
     static const double fre[755]={
       3.83292,  4.65377,  6.96684,  8.18944, 10.01083, 14.86876,
@@ -11738,12 +11736,12 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_16o18o(double tt, doubl
     unsigned int vp;
     unsigned int ini;
     unsigned int ifin;
-    complex<double>  lshape;
-    complex<double>  lshapeacum;
+    std::complex<double>  lshape;
+    std::complex<double>  lshapeacum;
 
     if(nu>999.9){
 
-      return complex<double> (0.0,0.0);
+      return std::complex<double> (0.0,0.0);
 
     }else{
 
@@ -11772,7 +11770,7 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_16o18o(double tt, doubl
 
       if(ifin==0||ifin<ini){
 
-	return complex<double> (0.0,0.0);
+	return std::complex<double> (0.0,0.0);
 
       }else{
 
@@ -11800,7 +11798,7 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_16o18o(double tt, doubl
 
   //////////////////////// Opacity Source Number: 23 /////////////////////////////
 
-  complex<double>  RefractiveIndex::mkSpecificRefractivity_16o17o16o(double tt, double pp, double nu){
+  std::complex<double>  RefractiveIndex::mkSpecificRefractivity_16o17o16o(double tt, double pp, double nu){
 
     static const double fre[518]={
        62.76459, 71.39120, 71.47840, 83.61184, 85.42109, 88.04973,
@@ -12391,12 +12389,12 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_16o18o(double tt, doubl
     unsigned int vp;
     unsigned int ini;
     unsigned int ifin;
-    complex<double>  lshape;
-    complex<double>  lshapeacum;
+    std::complex<double>  lshape;
+    std::complex<double>  lshapeacum;
 
     if(nu>999.9){
 
-      return complex<double> (0.0,0.0);
+      return std::complex<double> (0.0,0.0);
 
     }else{
 
@@ -12425,7 +12423,7 @@ complex<double>  RefractiveIndex::mkSpecificRefractivity_16o18o(double tt, doubl
 
       if(ifin==0||ifin<ini){
 
-	return complex<double> (0.0,0.0);
+	return std::complex<double> (0.0,0.0);
 
       }else{
 
