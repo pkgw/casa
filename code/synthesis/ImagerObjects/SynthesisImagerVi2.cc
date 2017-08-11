@@ -275,14 +275,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           //cerr << "begin " << lowfreq << "  " << topfreq << endl; 
 	      //vi::VisibilityIterator2 tmpvi(mss_p, vi::SortColumns(), false); 
 	      //VisBufferUtil::getFreqRangeFromRange(lowfreq, topfreq,  freqFrame, lowfreq,  topfreq, tmpvi, selFreqFrame_p);
-		  //cerr << "orig low-top freq " << lowfreq << "  " << topfreq << endl; 
-			MSUtil::getFreqRangeInSpw( lowfreq,
+		  if(!MSUtil::getFreqRangeInSpw( lowfreq,
 				  topfreq, Vector<Int>(1,chanlist(k,0)), Vector<Int>(1,chanlist(k,1)),
 				  Vector<Int>(1, chanlist(k,2)-chanlist(k,1)+1),
 				 *mss_p[mss_p.nelements()-1] , 
 				  selFreqFrame_p,
-				  fieldList(0), False);
-			//cerr << "new low-top freq " << lowfreq << "  " << topfreq << endl; 
+						 fieldList, False))
+		    throw(AipsError("Could not find the frequency range of data selection"));
+		    
 	    }
 	    
 	    andFreqSelection(mss_p.nelements()-1, Int(freqList(k,0)), lowfreq, topfreq, selFreqFrame_p);
@@ -370,20 +370,22 @@ void SynthesisImagerVi2::andChanSelection(const Int msId, const Int spwId, const
 	if(chansel(1)== -1)
 		chansel(1)=startchan;
 	if(chansel(1) >= startchan){
-		if(nchan > (chansel(1)-startchan+1+chansel(0)))
+	  if(nchan > (chansel(1)-startchan+chansel(0))){
 			chansel(0)=nchan;
-		else
-			chansel(0)=chansel(1)-startchan+1+chansel(0);
-		chansel(1)=startchan;
+	  }
+	  else{
+			chansel(0)=chansel(1)-startchan+chansel(0);
+	  }
+	  chansel(1)=startchan;
 	}
 	else{
-		if((chansel(0) -(startchan - chansel(1))) < nchan){	
-			chansel(0)=nchan+startchan-chansel(1)+1;
+		if((chansel(0) -(startchan - chansel(1)+1)) < nchan){	
+		  chansel(0)=nchan+(startchan-chansel(1));
 		}
 	}
 	spwsel[spwId]=chansel;
 	channelSelections_p[msId]=spwsel;
-	//cerr << "chansel "<< channelSelections_p << endl;
+	//	cerr << "chansel "<< channelSelections_p << endl;
 	
 }
   void SynthesisImagerVi2::andFreqSelection(const Int msId, const Int spwId,  const Double freqBeg, const Double freqEnd, const MFrequency::Types frame){
@@ -584,7 +586,6 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 			       const Quantity& filterbmin, const Quantity& filterbpa   )
   {
     LogIO os(LogOrigin("SynthesisImagerVi2", "weight()", WHERE));
-
        try {
     	//Int nx=itsMaxShape[0];
     	//Int ny=itsMaxShape[1];
@@ -603,6 +604,8 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
     	  imwgt_p=VisImagingWeight("radial");
       }
       else{
+	vi_p->originChunks();
+	vi_p->origin();
     	  if(!imageDefined_p)
     		  throw(AipsError("Need to define image"));
     	  Int nx=itsMaxShape[0];

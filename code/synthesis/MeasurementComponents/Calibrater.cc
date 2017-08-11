@@ -950,6 +950,10 @@ Bool Calibrater::setsolve (const String& type,
     svc_p=svc;
     svc=NULL;
 
+    // if calibration specific data filter is necessary
+    // keep configuration parameter as a record
+    setCalFilterConfiguration(upType, solvepar);
+
     return true;
 
   } catch (AipsError x) {
@@ -3072,8 +3076,11 @@ casacore::Bool Calibrater::genericGatherAndSolve()
 		     true);   // use MSIter2
 
   // Add ad hoc SD section layer (e.g., OTF select of raster boundaries, etc.)
-  //  if (SD)
-  //     vi2org.addSDCalSelect()
+  // only double circle gain calibration is implemented
+  bool SD = svc_p->longTypeName().startsWith("SDGAIN_OTFD");
+  if (SD) {
+    vi2org.addCalFilter(calFilterConfig_p);
+  }
 
   // Add pre-cal layer, using the VisEquation
   vi2org.addCalForSolving(*ve_p);
@@ -3466,6 +3473,20 @@ void Calibrater::writeHistory(LogIO& /*os*/, Bool /*cliCommand*/)
     os << LogIO::SEVERE << "calibrater is not yet initialized" << LogIO::POST;
   }
   */
+}
+
+void Calibrater::setCalFilterConfiguration(String const &type,
+    Record const &config) {
+  // currently only SDDoubleCircleGainCal requires data filtering
+  if (type.startsWith("SDGAIN_OTFD")) {
+    calFilterConfig_p.define("mode", "SDGAIN_OTFD");
+    if (config.isDefined("smooth")) {
+      calFilterConfig_p.define("smooth", config.asBool("smooth"));
+    }
+    if (config.isDefined("radius")) {
+      calFilterConfig_p.define("radius", config.asString("radius"));
+    }
+  }
 }
 
 // *********************************************

@@ -98,14 +98,18 @@ namespace casa {
 		ui.imageHolder->setLayout( holderLayout );
 	}
 
-	void ImageManagerDialog::setImageHolders( DisplayDataHolder* registeredImages,
-	        DisplayDataHolder* images ) {
+	void ImageManagerDialog::setImageHolders( std::shared_ptr<ImageManagerDialog> holder,
+	                                          std::shared_ptr<DisplayDataHolder> registeredImages,
+	                                          std::shared_ptr<DisplayDataHolder> images ) {
+		if ( holder.get( ) != this )
+			fprintf( stderr, "ImageManagerDialog::setImageHolders(...): error, parameter inconsistency..." );
+
 		//Store the list of all images and add them to the
 		//master image combo selection box.
 		allImages = images;
 		displayedImages = registeredImages;
 		if ( allImages != NULL && displayedImages != NULL ){
-			allImages->setImageTracker( this );
+			allImages->setImageTracker( std::dynamic_pointer_cast<ImageTracker>(holder) );
 
 			//Add the images to the scroll.
 			for ( DisplayDataHolder::DisplayDataIterator iter = allImages->beginDD();

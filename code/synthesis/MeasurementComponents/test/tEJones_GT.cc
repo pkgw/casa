@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
   return RUN_ALL_TESTS();
 }
 
-TEST(EJobesSpecifyTest, Basic) {
+TEST(EJonesSpecifyTest, Basic) {
 
   // Path to an MS in the DR
   String *casapath = new String[2];
