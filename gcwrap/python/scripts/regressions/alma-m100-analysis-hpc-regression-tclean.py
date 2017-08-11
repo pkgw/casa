@@ -1083,7 +1083,7 @@ try:
 		# exppeakm = 0.189606815577
 		# exprmsm = 0.0095296749288
                 # Updated peak position and rms for CASA prerelease-5.1.0, 20170811. New changes in tclean
-                # cycles. More changes could happen in the near future.
+                # cycles. More changes could happen in the near future. See CAS-10464.
                 exppeakm = 0.189293
 		exprmsm = 0.00929898
 
