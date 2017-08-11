@@ -369,20 +369,22 @@ void SynthesisImagerVi2::andChanSelection(const Int msId, const Int spwId, const
 	if(chansel(1)== -1)
 		chansel(1)=startchan;
 	if(chansel(1) >= startchan){
-		if(nchan > (chansel(1)-startchan+1+chansel(0)))
+	  if(nchan > (chansel(1)-startchan+chansel(0))){
 			chansel(0)=nchan;
-		else
-			chansel(0)=chansel(1)-startchan+1+chansel(0);
-		chansel(1)=startchan;
+	  }
+	  else{
+			chansel(0)=chansel(1)-startchan+chansel(0);
+	  }
+	  chansel(1)=startchan;
 	}
 	else{
-		if((chansel(0) -(startchan - chansel(1))) < nchan){	
-			chansel(0)=nchan+startchan-chansel(1)+1;
+		if((chansel(0) -(startchan - chansel(1)+1)) < nchan){	
+		  chansel(0)=nchan+(startchan-chansel(1));
 		}
 	}
 	spwsel[spwId]=chansel;
 	channelSelections_p[msId]=spwsel;
-	//cerr << "chansel "<< channelSelections_p << endl;
+	//	cerr << "chansel "<< channelSelections_p << endl;
 	
 }
   void SynthesisImagerVi2::andFreqSelection(const Int msId, const Int spwId,  const Double freqBeg, const Double freqEnd, const MFrequency::Types frame){
