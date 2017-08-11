@@ -1,17 +1,28 @@
 from taskinit import find_casa
+from init_tools import iatool
 
 def write_image_history(myia, tname, param_names, param_vals, myclog=None):
     """
     Update image attached to image tool with the parameters that task tname was called with.
 
-    myia - attached image tool
+    myia - attached image tool or image name (string)
     tname - name of the calling task.
     param_names - list of parameter names.
     param_vals - list of parameter values (in the same order as param_names).
     myclog - a casalog instance (optional)
     """
-    if not hasattr(myia, 'sethistory'):
+    
+    myia_is_string = type(myia) == str
+    if myia_is_string:
+        if not myia:
+            # empty string
+            return
+        _ia = iatool()
+        _ia.open(myia)
+    elif not hasattr(myia, 'sethistory'):
         return False
+    else:
+        _ia = myia
     try:
         if not myclog and hasattr(casalog, 'post'):
             myclog = casalog
@@ -36,7 +47,7 @@ def write_image_history(myia, tname, param_names, param_vals, myclog=None):
             else:
                 vestr += ' could not be determined' # We tried.
 
-        myia.sethistory(tname, vestr)
+        _ia.sethistory(tname, vestr)
         # Write the arguments.
         s = tname + "("
         n = len(param_names)
@@ -51,11 +62,14 @@ def write_image_history(myia, tname, param_names, param_vals, myclog=None):
             if argnum < n-1:
                 s += ", "
         s += ")" 
-        myia.sethistory(tname, s)
+        _ia.sethistory(tname, s)
     except Exception, instance:
         if hasattr(myclog, 'post'):
             myclog.post("*** Error \"%s\" updating HISTORY of " % (instance),
                         'SEVERE')
         return False
+    finally:
+        if myia_is_string:
+            _ia.done()
     return True
 
