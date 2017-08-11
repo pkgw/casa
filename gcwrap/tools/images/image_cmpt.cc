@@ -125,19 +125,19 @@ image::image() : _log(), _imageF(), _imageC() {}
 // using a shared_ptr
 
 image::image(casacore::ImageInterface<casacore::Float> *inImage) :
-    _log(), _imageF(inImage), _imageC(), _doHistory(True) {
+    _log(), _imageF(inImage), _imageC() {
 }
 
 image::image(ImageInterface<Complex> *inImage) :
-    _log(), _imageF(), _imageC(inImage), _doHistory(True) {
+    _log(), _imageF(), _imageC(inImage) {
 }
 
 image::image(casa::SPIIF inImage) :
-    _log(), _imageF(inImage), _imageC(), _doHistory(True) {
+    _log(), _imageF(inImage), _imageC() {
 }
 
 image::image(casa::SPIIC inImage) :
-    _log(), _imageF(), _imageC(inImage), _doHistory(True) {
+    _log(), _imageF(), _imageC(inImage) {
 }
 
 image::~image() {}
@@ -198,9 +198,7 @@ template<class T> image* image::_adddegaxes(
         outfile, direction, spectral, stokes,
         linear, tabular, overwrite, silent
     };
-    ImageHistory<T> imh(z);
-    auto msgs = _newHistory("adddegaxes", names, values);
-    imh.addHistory(_ORIGIN, msgs);
+    _addHistory(z, "adddegaxes", names, values);
     return new image(z);
 }
 
@@ -215,7 +213,6 @@ bool image::addnoise(
         }
         SHARED_PTR<Record> pRegion = _getRegion(region, false);
         SHARED_PTR<std::pair<Int, Int> > seedPair(new std::pair<Int, Int>(0, 0));
-        //Int seed1, seed2;
         if (seeds.size() >= 2) {
             seedPair->first = seeds[0];
             seedPair->second = seeds[1];
@@ -447,8 +444,10 @@ template <class T> image* image::_boxcar(
         outfile, region, mask, axis, width,
         drop, dmethod, overwrite, stretch
     };
-    auto msgs = _newHistory("boxcar", names, values);
-    smoother.addHistory(lor, msgs);
+    if (_doHistory) {
+        auto msgs = _newHistory("boxcar", names, values);
+        smoother.addHistory(lor, msgs);
+    }
     return new image(smoother.smooth());
 }
 
@@ -620,7 +619,9 @@ image* image::collapse(
                 mask, myAxes, false, outfile, overwrite
             );
             collapser.setStretch(stretch);
-            collapser.addHistory(_ORIGIN, "ia." + String(__func__), names, values);
+            if (_doHistory) {
+                collapser.addHistory(_ORIGIN, "ia." + String(__func__), names, values);
+            }
             return new image(collapser.collapse());
         }
         else {
@@ -637,7 +638,9 @@ image* image::collapse(
                 mask, myAxes, false, outfile, overwrite
             );
             collapser.setStretch(stretch);
-            collapser.addHistory(_ORIGIN, "ia." + String(__func__), names, values);
+            if (_doHistory) {
+                collapser.addHistory(_ORIGIN, "ia." + String(__func__), names, values);
+            }
             return new image(collapser.collapse());
         }
     }
@@ -735,8 +738,10 @@ image* image::continuumsub(
             outline, outcont, region, channels,
             pol, in_fitorder, overwrite
         };
-        auto msgs = _newHistory(__func__, names, values);
-        fitter.addHistory(_ORIGIN, msgs);
+        if (_doHistory) {
+            auto msgs = _newHistory(__func__, names, values);
+            fitter.addHistory(_ORIGIN, msgs);
+        }
         fitter.fit(false);
         return new image(fitter.getResidual());
     }
@@ -844,8 +849,10 @@ image* image::convolve(
             outfile, kernel, scale, region,
             vmask, overwrite, stretch
         };
-        auto msgs = _newHistory(__func__, names, values);
-        ic.addHistory(_ORIGIN, msgs);
+        if (_doHistory) {
+            auto msgs = _newHistory(__func__, names, values);
+            ic.addHistory(_ORIGIN, msgs);
+        }
         auto z = ic.convolve();
         return new image(z);
     }
@@ -968,19 +975,21 @@ image* image::convolve2d(
         convolver.setScale(in_scale);
         convolver.setStretch(stretch);
         convolver.setTargetRes(targetres);
-        vector<String> names = {
-            "outfile", "axes", "type", "major",
-            "minor", "pa", "scale", "region",
-            "mask", "overwrite", "stretch",
-            "targetres", "beam"
-        };
-        vector<variant> values = {
-            outFile, axes, type, major, minor,
-            pa, in_scale, region, vmask,
-            overwrite, stretch, targetres, beam
-        };
-        auto msgs = _newHistory(__func__, names, values);
-        convolver.addHistory(_ORIGIN, msgs);
+        if (_doHistory) {
+            vector<String> names = {
+                "outfile", "axes", "type", "major",
+                "minor", "pa", "scale", "region",
+                "mask", "overwrite", "stretch",
+                "targetres", "beam"
+            };
+            vector<variant> values = {
+                outFile, axes, type, major, minor,
+                pa, in_scale, region, vmask,
+                overwrite, stretch, targetres, beam
+            };
+            auto msgs = _newHistory(__func__, names, values);
+            convolver.addHistory(_ORIGIN, msgs);
+        }
         return new image(convolver.convolve());
     }
     catch (const AipsError& x) {
@@ -1107,18 +1116,20 @@ image* image::crop(
         );
         cropper.setStretch(stretch);
         cropper.setAxes(saxes);
-        vector<String> names {
-            "outfile", "axes", "overwrite",
-            "region", "box", "chans", "stokes",
-            "mask", "stretch",  "wantreturn"
-        };
-        vector<variant> values {
-            outfile, axes, overwrite,
-            region, box, chans, stokes,
-            mask, stretch,  wantreturn
-        };
-        auto msgs = _newHistory(__func__, names, values);
-        cropper.addHistory(_ORIGIN, msgs);
+        if (_doHistory) {
+            vector<String> names {
+                "outfile", "axes", "overwrite",
+                "region", "box", "chans", "stokes",
+                "mask", "stretch",  "wantreturn"
+            };
+            vector<variant> values {
+                outfile, axes, overwrite,
+                region, box, chans, stokes,
+                mask, stretch,  wantreturn
+            };
+            auto msgs = _newHistory(__func__, names, values);
+            cropper.addHistory(_ORIGIN, msgs);
+        }
         auto out(cropper.crop(wantreturn));
         if (wantreturn) {
             return new image(out);
@@ -1163,14 +1174,18 @@ image* image::decimate(
             ThrowCc("Unsupported decimation method " + method);
         }
         SHARED_PTR<Record> regPtr(_getRegion(region, true));
-        vector<String> names {
-            "outfile", "axis", "factor", "method",
-            "region", "mask", "overwrite", "stretch"
-        };
-        vector<variant> values {
-            outfile, axis, factor, method, region, mask, overwrite, stretch
-        };
-        auto msgs = _newHistory(__func__, names, values);
+        vector<String> msgs;
+        if (_doHistory) {
+            vector<String> names {
+                "outfile", "axis", "factor", "method",
+                "region", "mask", "overwrite", "stretch"
+            };
+            vector<variant> values {
+                outfile, axis, factor, method,
+                region, mask, overwrite, stretch
+            };
+            msgs = _newHistory(__func__, names, values);
+        }
         if (_imageF) {
             SPCIIF myim = _imageF;
             return _decimate(
@@ -1472,15 +1487,18 @@ bool image::fft(
                 leAxes[i] = axes[i];
             }
         }
-        vector<String> names = {
-            "real", "imag", "amp", "phase", "axes",
-            "region", "mask", "stretch", "complex"
-        };
-        vector<variant> values = {
-            realOut, imagOut, ampOut, phaseOut, axes,
-            region, vmask, stretch, complexOut
-        };
-        auto msgs = _newHistory(__func__, names, values);
+        vector<String> msgs;
+        if (_doHistory) {
+            vector<String> names = {
+                "real", "imag", "amp", "phase", "axes",
+                "region", "mask", "stretch", "complex"
+            };
+            vector<variant> values = {
+                realOut, imagOut, ampOut, phaseOut, axes,
+                region, vmask, stretch, complexOut
+            };
+            msgs = _newHistory(__func__, names, values);
+        }
         if (_imageF) {
             ImageFFTer<Float> ffter(
                 _imageF,
@@ -1492,7 +1510,9 @@ bool image::fft(
             ffter.setAmp(ampOut);
             ffter.setPhase(phaseOut);
             ffter.setComplex(complexOut);
-            ffter.addHistory(_ORIGIN, msgs);
+            if (_doHistory) {
+                ffter.addHistory(_ORIGIN, msgs);
+            }
             ffter.fft();
         }
         else {
@@ -1506,7 +1526,9 @@ bool image::fft(
             ffter.setAmp(ampOut);
             ffter.setPhase(phaseOut);
             ffter.setComplex(complexOut);
-            ffter.addHistory(_ORIGIN, msgs);
+            if (_doHistory) {
+                ffter.addHistory(_ORIGIN, msgs);
+            }
             ffter.fft();
         }
         return true;
@@ -1640,7 +1662,7 @@ record* image::fitcomponents(
                 "Unsupported data type for noisefwhm: " + noisefwhm.typeString()
             );
         }
-        if (doImages) {
+        if (doImages && _doHistory) {
             vector<casacore::String> names {
                 "box", "region", "chans", "stokes", "mask", "includepix",
                 "excludepix", "residual", "model", "estimates", "logfile",
@@ -2089,14 +2111,11 @@ bool image::fromrecord(const record& imrecord, const string& outfile) {
         auto msgs = _newHistory(__func__, names, values);
         if (imagePair.first) {
             _imageF = imagePair.first;
-            ImageHistory<Float> ih(_imageF);
-            ih.addHistory(_ORIGIN.toString(), msgs);
         }
         else {
             _imageC = imagePair.second;
-            ImageHistory<Complex> ih(_imageC);
-            ih.addHistory(_ORIGIN.toString(), msgs);
         }
+        _addHistory(__func__, names, values);
         return true;
     }
     catch (const AipsError& x) {
@@ -2538,7 +2557,7 @@ template <class T> image* image::_hanning(
     bool stretch, int axis, bool drop,
     ImageDecimatorData::Function dFunction,
     const vector<variant> values
-) {
+) const {
     ImageHanningSmoother<T> smoother(
         myimage, region.get(), mask, outfile, overwrite
     );
@@ -2548,12 +2567,14 @@ template <class T> image* image::_hanning(
     if (drop) {
         smoother.setDecimationFunction(dFunction);
     }
-    vector<String> names {
-        "outfile", "region", "mask", "axis",
-        "drop", "overwrite", "stretch", "dmethod"
-    };
-    auto msgs = _newHistory("hanning", names, values);
-    smoother.addHistory(_ORIGIN, msgs);
+    if (_doHistory) {
+        vector<String> names {
+            "outfile", "region", "mask", "axis",
+            "drop", "overwrite", "stretch", "dmethod"
+        };
+        auto msgs = _newHistory("hanning", names, values);
+        smoother.addHistory(_ORIGIN, msgs);
+    }
     return new image(smoother.smooth());
 }
 
@@ -2691,11 +2712,11 @@ template<class T> SPIIT image::_imagecalc(
     ImageExprCalculator<T> calculator(pixels, outfile, overwrite);
     calculator.setCopyMetaDataFromImage(imagemd);
     auto out = calculator.compute();
-    vector<String> names {"outfile", "pixels", "overwrite", "imagemd"};
-    vector<variant> values {outfile, pixels, overwrite, imagemd};
-    ImageHistory<T> imh(out);
-    auto msgs = _newHistory("imagecalc", names, values);
-    imh.addHistory(_ORIGIN, msgs);
+    if (_doHistory) {
+        vector<String> names {"outfile", "pixels", "overwrite", "imagemd"};
+        vector<variant> values {outfile, pixels, overwrite, imagemd};
+        _addHistory(out, "imagecalc", names, values);
+    }
     return out;
 }
 
@@ -2744,7 +2765,9 @@ image* image::imageconcat(
             concat.setRelax(relax);
             concat.setReorder(reorder);
             concat.setTempClose(tempclose);
-            concat.addHistory(_ORIGIN, "ia." + String(__func__), names, values);
+            if (_doHistory) {
+                concat.addHistory(_ORIGIN, "ia." + String(__func__), names, values);
+            }
             return new image(concat.concatenate(imageNames));
         }
         else if (dataType == TpFloat) {
@@ -2754,7 +2777,9 @@ image* image::imageconcat(
             concat.setRelax(relax);
             concat.setReorder(reorder);
             concat.setTempClose(tempclose);
-            concat.addHistory(_ORIGIN, "ia." + String(__func__), names, values);
+            if (_doHistory) {
+                concat.addHistory(_ORIGIN, "ia." + String(__func__), names, values);
+            }
             return new image(concat.concatenate(imageNames));
         }
         else {
@@ -2906,9 +2931,7 @@ bool image::makecomplex(
         vector<variant> values = {
             outfile, imagFile, region, overwrite
         };
-        auto msgs = _newHistory(__func__, names, values);
-        ImageHistory<Complex> imh(cImage);
-        imh.addHistory(_ORIGIN, msgs);
+        _addHistory(cImage, __func__, names, values);
         return true;
     }
     catch (const AipsError& x) {
@@ -3054,8 +3077,10 @@ image* image::deviation(
             grid, anchor, xlength, ylength, interp,
             stattype, statalg, zscore, maxiter
         };
-        auto msgs = _newHistory(__func__,names, values);
-        sic.addHistory(_ORIGIN, msgs);
+        if (_doHistory) {
+            auto msgs = _newHistory(__func__,names, values);
+            sic.addHistory(_ORIGIN, msgs);
+        }
         return new image(sic.compute());
     }
     catch (const AipsError& x) {
@@ -3113,7 +3138,7 @@ vector<string> image::maskhandler(
             vector<String> names {"op", "name"};
             vector<variant> values {op, name};
             _addHistory(__func__, names, values);
-            _stats.reset(0);
+            _stats.reset(nullptr);
         }
         return res;
     }
@@ -3249,7 +3274,7 @@ bool image::modify(
             model, region, vmask,
             subtract, list, stretch
         };
-        _addHistory(String(__func__), names, values);
+        _addHistory(__func__, names, values);
         return true;
     }
     catch (const AipsError& x) {
@@ -3378,8 +3403,10 @@ image* image::moments(
             out, smoothout, overwrite,
             removeAxis, stretch
         };
-        auto msgs = _newHistory(__func__,names, values);
-        momentsTask.addHistory(_ORIGIN, msgs);
+        if (_doHistory) {
+            auto msgs = _newHistory(__func__,names, values);
+            momentsTask.addHistory(_ORIGIN, msgs);
+        }
         return new image(momentsTask.makeMoments());
     }
     catch (const AipsError& x) {
@@ -3445,7 +3472,9 @@ image* image::newimagefromarray(
             outfile, *mpixels, csys,
             linear, overwrite, log
         };
-        res->_addHistory(__func__, names, values);
+        if (_doHistory) {
+            res->_addHistory(__func__, names, values);
+        }
         return res;
     }
     catch (const AipsError& x) {
@@ -3502,15 +3531,12 @@ image* image::newimagefromimage(
             infile, outfile, region,
             vmask, dropdeg, overwrite
         };
-        auto hist = _newHistory(__func__, names, values);
         if (ret.first) {
-            ImageHistory<Float> ih(ret.first);
-            ih.addHistory(_ORIGIN, hist);
+            _addHistory(ret.first, __func__, names, values);
             return new image(ret.first);
         }
         else if (ret.second) {
-            ImageHistory<Complex> ih(ret.second);
-            ih.addHistory(_ORIGIN, hist);
+            _addHistory(ret.second, __func__, names, values);
             return new image(ret.second);
         }
         ThrowCc("Error creating image");
@@ -3560,7 +3586,9 @@ image* image::newimagefromshape(
             outfile, shape, csys, linear,
             overwrite, log, type
         };
-        ret->_addHistory(__func__, names, values);
+        if (_doHistory) {
+            ret->_addHistory(__func__, names, values);
+        }
         return ret.release();
     }
     catch (const AipsError& x) {
@@ -3628,8 +3656,10 @@ image* image::pad(
             overwrite, region, box, chans,
             stokes, mask, stretch, wantreturn
         };
-        auto msgs = this->_newHistory(__func__, names, values);
-        padder.addHistory(_ORIGIN, msgs);
+        if (_doHistory) {
+            auto msgs = this->_newHistory(__func__, names, values);
+            padder.addHistory(_ORIGIN, msgs);
+        }
         auto out = padder.pad(wantreturn);
         if (wantreturn) {
             return new image(out);
@@ -3721,8 +3751,10 @@ image* image::pbcor(
             outfile, overwrite, box, region, chans,
             stokes, mask, mode, cutoff, stretch
         };
-        auto msgs = _newHistory(__func__, names, values);
-        pbcor->addHistory(_ORIGIN, msgs);
+        if (_doHistory) {
+            auto msgs = _newHistory(__func__, names, values);
+            pbcor->addHistory(_ORIGIN, msgs);
+        }
         return new image(pbcor->correct(true));
     }
     catch (const AipsError& x) {
@@ -3920,13 +3952,11 @@ bool image::putregion(
                     << LogIO::POST;
             return false;
         }
-
         if (pixels.size() == 0 && mask.size() == 0) {
             _log << "You must specify at least either the pixels or the mask"
                     << LogIO::POST;
             return false;
         }
-
        auto theRegion = _getRegion(region, false);
         if (
             (
@@ -4117,8 +4147,10 @@ image* image::pv(
             pa, width, unit, overwrite, region, chans,
             stokes, mask, stretch, wantreturn
         };
-        auto msgs = _newHistory(__func__, names, values);
-        pv.addHistory(_ORIGIN, msgs);
+        if (_doHistory) {
+            auto msgs = _newHistory(__func__, names, values);
+            pv.addHistory(_ORIGIN, msgs);
+        }
         auto out = pv.generate();
         image *ret = wantreturn ? new image(out) : nullptr;
         return ret;
@@ -4193,16 +4225,18 @@ image* image::rebin(
         "All binning factors must be positive."
     );
     try {
-        vector<String> names {
-            "outfile", "bin", "region", "mask",
-            "dropdeg", "overwrite", "stretch", "crop"
-        };
-        vector<variant> values {
-            outfile, bin, region, vmask,
-            dropdeg, overwrite, stretch, crop
-        };
-
-        auto msgs = _newHistory(__func__, names, values);
+        vector<String> msgs;
+        if (_doHistory) {
+            vector<String> names {
+                "outfile", "bin", "region", "mask",
+                "dropdeg", "overwrite", "stretch", "crop"
+            };
+            vector<variant> values {
+                outfile, bin, region, vmask,
+                dropdeg, overwrite, stretch, crop
+            };
+            msgs = _newHistory(__func__, names, values);
+        }
         auto mask = _getMask(vmask);
         if (_imageF) {
             SPIIF myfloat = _imageF;
@@ -4213,7 +4247,9 @@ image* image::rebin(
             rebinner.setFactors(mybin);
             rebinner.setStretch(stretch);
             rebinner.setDropDegen(dropdeg);
-            rebinner.addHistory(lor, msgs);
+            if (_doHistory) {
+                rebinner.addHistory(lor, msgs);
+            }
             rebinner.setCrop(crop);
             return new image(rebinner.rebin());
         }
@@ -4226,7 +4262,9 @@ image* image::rebin(
             rebinner.setFactors(mybin);
             rebinner.setStretch(stretch);
             rebinner.setDropDegen(dropdeg);
-            rebinner.addHistory(lor, msgs);
+            if (_doHistory) {
+                rebinner.addHistory(lor, msgs);
+            }
             rebinner.setCrop(crop);
             return new image(rebinner.rebin());
         }
@@ -4268,21 +4306,23 @@ image* image::regrid(
         if (!((inaxes.size() == 1) && (inaxes[0] == -1))) {
             axes = inaxes;
         }
-        vector<String> names {
-            "outfile", "shape", "csys", "axes",
-            "region", "mask", "method", "decimate",
-            "replicate", "doref", "dropdegen",
-            "overwrite", "force", "asvelocity", "stretch"
-        };
-        vector<variant> values {
-            outfile, inshape, csys, inaxes,
-            region, vmask, method, decimate, replicate,
-            doRefChange, dropDegenerateAxes,
-            overwrite, forceRegrid,
-            specAsVelocity, stretch
-        };
-
-        vector<String> msgs = _newHistory(__func__, names, values);
+        vector<String> msgs;
+        if (_doHistory) {
+            vector<String> names {
+                "outfile", "shape", "csys", "axes",
+                "region", "mask", "method", "decimate",
+                "replicate", "doref", "dropdegen",
+                "overwrite", "force", "asvelocity", "stretch"
+            };
+            vector<variant> values {
+                outfile, inshape, csys, inaxes,
+                region, vmask, method, decimate, replicate,
+                doRefChange, dropDegenerateAxes,
+                overwrite, forceRegrid,
+                specAsVelocity, stretch
+            };
+            msgs = _newHistory(__func__, names, values);
+        }
         if (_imageF) {
             ImageRegridder regridder(
                 _imageF, regionPtr.get(),
@@ -4307,7 +4347,6 @@ image* image::regrid(
                 stretch, dropDegenerateAxes, lor, msgs
             );
         }
-
     }
     catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
@@ -4324,7 +4363,7 @@ template <class T> image* image::_regrid(
     bool specAsVelocity, bool stretch,
     bool dropDegenerateAxes, const LogOrigin& lor,
     const vector<String>& msgs
-) {
+) const {
     regridder.setMethod(method);
     regridder.setDecimate(decimate);
     regridder.setReplicate(replicate);
@@ -4333,7 +4372,9 @@ template <class T> image* image::_regrid(
     regridder.setSpecAsVelocity(specAsVelocity);
     regridder.setStretch(stretch);
     regridder.setDropDegen(dropDegenerateAxes);
-    regridder.addHistory(lor, msgs);
+    if (_doHistory) {
+        regridder.addHistory(lor, msgs);
+    }
     return new image(regridder.regrid());
 }
 
@@ -4369,7 +4410,6 @@ void image::_remove(bool verbose) {
     _stats.reset();
     _imageF.reset();
     _imageC.reset();
-    //_image.reset();
     if (mypair.first) {
         ImageFactory::remove(mypair.first, verbose);
     }
@@ -4562,8 +4602,10 @@ image* image::rotate(
             vmask, method, decimate, replicate,
             dropdeg, overwrite, stretch
         };
-        auto msgs = _newHistory(__func__, names, values);
-        rotator.addHistory(_ORIGIN, msgs);
+        if (_doHistory) {
+            auto msgs = _newHistory(__func__, names, values);
+            rotator.addHistory(_ORIGIN, msgs);
+        }
         return new image(rotator.rotate());
     }
     catch (const AipsError& x) {
@@ -4581,9 +4623,12 @@ bool image::rotatebeam(const variant& angle) {
             return false;
         }
         Quantum<Double> pa(_casaQuantityFromVar(angle));
-        vector<String> names { "angle" };
-        vector<variant> values { angle };
-        auto msgs = _newHistory(__func__, names, values);
+        vector<String> msgs;
+        if (_doHistory) {
+            vector<String> names { "angle" };
+            vector<variant> values { angle };
+            msgs = _newHistory(__func__, names, values);
+        }
         if (_imageF) {
             BeamManipulator<Float> bManip(_imageF);
             bManip.rotate(pa, msgs);
@@ -4592,9 +4637,6 @@ bool image::rotatebeam(const variant& angle) {
             BeamManipulator<Complex> bManip(_imageC);
             bManip.rotate(pa, msgs);
         }
-        
-
-        //_addHistory(__func__, names, values);
         return true;
     }
     catch (const AipsError& x) {
@@ -4683,16 +4725,18 @@ image* image::sepconvolve(
         task.setKernels(kernels);
         task.setKernelWidths(kernelwidths);
         task.setStretch(stretch);
-        vector<String> names {
-            "outfile", "axes", "types", "widths", "scale",
-            "region", "mask", "overwrite", "stretch"
-        };
-        vector<variant> values {
-            outfile, axes, types, widths, scale,
-            region, vmask, overwrite, stretch
-        };
-        auto msgs = _newHistory(__func__, names, values);
-        task.addHistory(_ORIGIN, msgs);
+        if (_doHistory) {
+            vector<String> names {
+                "outfile", "axes", "types", "widths", "scale",
+                "region", "mask", "overwrite", "stretch"
+            };
+            vector<variant> values {
+                outfile, axes, types, widths, scale,
+                region, vmask, overwrite, stretch
+            };
+            auto msgs = _newHistory(__func__, names, values);
+            task.addHistory(_ORIGIN, msgs);
+        }
         return new image(task.convolve());
     }
     catch (const AipsError& x) {
@@ -4728,14 +4772,16 @@ bool image::set(
                 _imageF, pixels, pixelmask, *pRegion, list
             )
         ) {
-            _stats.reset(0);
-            vector<String> names = {
-                "pixels", "pixelmask", "region", "list"
-            };
-            vector<variant> values = {
-                vpixels, pixelmask, region, list
-            };
-            _addHistory(__func__, names, values);
+            _stats.reset(nullptr);
+            if (_doHistory) {
+                vector<String> names = {
+                    "pixels", "pixelmask", "region", "list"
+                };
+                vector<variant> values = {
+                    vpixels, pixelmask, region, list
+                };
+                _addHistory(__func__, names, values);
+            }
             return true;
         }
         ThrowCc("Error setting pixel values.");
@@ -4758,9 +4804,11 @@ bool image::setbrightnessunit(const std::string& unit) {
             ?  _imageF->setUnits(Unit(unit))
             : _imageC->setUnits(Unit(unit));
         ThrowIf(! res, "Unable to set brightness unit");
-        vector<String> names = {"unit"};
-        vector<variant> values = {unit};
-        _addHistory(__func__, names, values);
+        if (_doHistory) {
+            vector<String> names = {"unit"};
+            vector<variant> values = {unit};
+            _addHistory(__func__, names, values);
+        }
         _stats.reset();
         return true;
     }
@@ -4786,9 +4834,11 @@ bool image::setcoordsys(const record& csys) {
             : new ImageMetaDataRW(_imageC)
         );
         md->setCsys(*coordinates);
-        vector<String> names = {"csys"};
-        vector<variant> values = {csys};
-        _addHistory(__func__, names, values);
+        if (_doHistory) {
+            vector<String> names = {"csys"};
+            vector<variant> values = {csys};
+            _addHistory(__func__, names, values);
+        }
     }
     catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
@@ -4840,7 +4890,7 @@ bool image::setmiscinfo(const record& info) {
         Bool res = _imageF
             ? _imageF->setMiscInfo(*tmp)
             : _imageC->setMiscInfo(*tmp);
-        if (res) {
+        if (res && _doHistory) {
             vector<String> names {"info"};
             vector<variant> values {info};
             _addHistory(__func__, names, values);
@@ -4940,10 +4990,7 @@ bool image::setrestoringbeam(
                 );
             }
         }
-        vector<String> names {
-            "major", "minor", "pa", "beam", "remove", "log",
-            "channel", "polarization", "imagename"
-        };
+
         variant myb = beam;
         std::set<String> dontQuote;
         if (rec && ! rec->empty()) {
@@ -4956,11 +5003,17 @@ bool image::setrestoringbeam(
             myb = oss.str();
             dontQuote.insert("beam");
         }
-        vector<variant> values {
-            major, minor, pa, myb, remove, log,
-            channel, polarization, imagename
-        };
-        _addHistory(__func__, names, values, vector<casacore::String>(), dontQuote);
+        if (_doHistory) {
+            vector<String> names {
+                "major", "minor", "pa", "beam", "remove", "log",
+                "channel", "polarization", "imagename"
+            };
+            vector<variant> values {
+                major, minor, pa, myb, remove, log,
+                channel, polarization, imagename
+            };
+            _addHistory(__func__, names, values, vector<casacore::String>(), dontQuote);
+        }
         return true;
     }
     catch (const AipsError& x) {
@@ -5163,7 +5216,6 @@ image* image::subimage(
         }
         vector<String> names;
         vector<variant> values;
-        cout << "dohistory " << _doHistory << endl;
         if (_doHistory) {
             vector<String> n {
                 "outfile", "region", "mask", "dropdeg", "overwrite",
@@ -5176,13 +5228,6 @@ image* image::subimage(
             names = n;
             values = v;
         }
-        /*
-        auto history = _doHistory
-            ? _newHistory(__func__, names, values)
-            : vector<String>();
-
-                auto msgs = _newHistory(__func__, names, values);
-                */
         if (_imageF) {
             auto im = _subimage<Float>(
                 SHARED_PTR<ImageInterface<Float> >(
@@ -5191,12 +5236,6 @@ image* image::subimage(
                 outfile, *regionRec, mask, dropDegenerateAxes,
                 overwrite, list, stretch, keepaxes
             );
-            /*
-            if (_doHistory) {
-                ImageHistory<Float> hist(im);
-                hist.addHistory(_ORIGIN, history);
-            }
-            */
             _addHistory(im, __func__, names, values);
             auto res = wantreturn ? new image(im) : nullptr;
             return res;
@@ -5209,12 +5248,6 @@ image* image::subimage(
                 outfile, *regionRec, mask, dropDegenerateAxes,
                 overwrite, list, stretch, keepaxes
             );
-            /*
-            if (_doHistory) {
-                ImageHistory<Complex> hist(im);
-                hist.addHistory(_ORIGIN, history);
-            }
-            */
             _addHistory(im, __func__, names, values);
             auto res = wantreturn ? new image(im) : nullptr;
             return res;
@@ -5466,7 +5499,6 @@ record* image::toworld(
         else {
             ThrowCc("Unsupported data type for value");
         }
-        //rstat = fromRecord(_image->toworld(pixel, format, dovelocity));
         unique_ptr<ImageMetaData> imd;
         if (_imageF) {
             imd.reset(new ImageMetaData(_imageF));
@@ -5533,10 +5565,12 @@ image* image::transpose(
             );
             break;
         }
-        vector<String> names = {"outfile", "order"};
-        vector<variant> values = {outfile, order};
-        auto msgs = _newHistory(__func__, names, values);
-        transposer->addHistory(_ORIGIN, msgs);
+        if (_doHistory) {
+            vector<String> names = {"outfile", "order"};
+            vector<variant> values = {outfile, order};
+            auto msgs = _newHistory(__func__, names, values);
+            transposer->addHistory(_ORIGIN, msgs);
+        }
         return new image(
             transposer->transpose()
         );
@@ -5570,15 +5604,18 @@ bool image::twopointcorrelation(
         if (!(axes.size() == 1 && axes[0] == -1)) {
             iAxes = axes;
         }
-        vector<String> names {
-            "outfile", "region", "mask", "axes",
-            "method", "overwrite", "stretch"
-        };
-        vector<variant> values {
-            outfile, region, vmask, axes,
-            method, overwrite, stretch
-        };
-        auto msgs = _newHistory(__func__, names, values);
+        vector<String> msgs;
+        if (_doHistory) {
+            vector<String> names {
+                "outfile", "region", "mask", "axes",
+                "method", "overwrite", "stretch"
+            };
+            vector<variant> values {
+                outfile, region, vmask, axes,
+                method, overwrite, stretch
+            };
+            msgs = _newHistory(__func__, names, values);
+        }
         if (_imageF) {
             auto im = _twopointcorrelation(
                 _imageF, outfile, Region, mask,
@@ -5609,14 +5646,16 @@ template <class T> SPIIT image::_twopointcorrelation(
     const IPosition& axes, const std::string& method,
     bool overwrite, bool stretch, const LogOrigin& origin,
     const vector<String>& msgs
-) {
+) const {
     TwoPointCorrelator<T> tpc(
         myimage, region.get(), mask, outfile, overwrite
     );
     tpc.setAxes(axes);
     tpc.setMethod(method);
     tpc.setStretch(stretch);
-    tpc.addHistory(origin, msgs);
+    if (_doHistory) {
+        tpc.addHistory(origin, msgs);
+    }
     return tpc.correlate();
 }
 
@@ -5660,7 +5699,7 @@ template <class T> void image::_addHistory(
         msgs.push_back(m);
     }
     ImageHistory<T> ih(image);
-    ih.addHistory(method, msgs);
+    ih.addHistory("image::" + method, msgs);
 }
 
 void image::_addHistory(
@@ -5669,6 +5708,10 @@ void image::_addHistory(
     const vector<casacore::String>& appendMsgs,
     const std::set<casacore::String>& dontQuote
 ) {
+    if (! _doHistory) {
+        // history writing disabled
+        return;
+    }
     if (_imageF) {
         _addHistory(
             _imageF, method, names, values, appendMsgs, dontQuote
@@ -5679,24 +5722,6 @@ void image::_addHistory(
             _imageC, method, names, values, appendMsgs, dontQuote
         );
     }
-    /*
-    if (! _doHistory) {
-        // history writing disabled
-        return;
-    }
-    auto msgs = _newHistory(method, names, values, dontQuote);
-    for (const auto& m: appendMsgs) {
-        msgs.push_back(m);
-    }
-    if (_imageC) {
-        ImageHistory<Complex> ih(_imageC);
-        ih.addHistory(method, msgs);
-    }
-    else {
-        ImageHistory<Float> ih(_imageF);
-        ih.addHistory(method, msgs);
-    }
-    */
 }
 
 String image::_getMask(const variant& mask) {
@@ -5930,14 +5955,6 @@ bool image::isconform(const string& other) {
             ! _imageF,
             "This method only supports Float valued images"
         );
-        /*
-        ImageInterface<Float> *oth = 0;
-        ImageUtilities::openImage(oth, String(other));
-        if (oth == 0) {
-            throw AipsError("Unable to open image " + other);
-        }
-        std::unique_ptr<ImageInterface<Float> > x(oth);
-        */
         auto mypair = ImageFactory::fromFile(other);
         auto shape = mypair.first ? mypair.first->shape()
             : mypair.second->shape();

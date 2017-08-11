@@ -6326,10 +6326,6 @@ a complex image.  The current image (i.e. that associated with this
 Image \tool\ is assumed to be the Real image).  You supply
 the Imaginary image; it must be disk-based at this time.
 
-The output image cannot be associated with an Image \tool\ (does
-not handle Complex images yet) and so the best you can do is
-write it to disk.  The Viewer can view it.
-
 </description>
 
 <example>

@@ -121,13 +121,13 @@ template<class T> vector<string>  _handleMask(
 	const vector<string>& name
 );
 
-template <class T> static image* _hanning(
+template <class T> image* _hanning(
 	SPCIIT image, SHARED_PTR<const casacore::Record> region,
 	const casacore::String& mask, const std::string& outfile, bool overwrite,
 	bool stretch, int axis, bool drop,
 	casa::ImageDecimatorData::Function dFunction,
 	const std::vector<casac::variant> values
-);
+) const;
 
 template<class T> SPIIT _imagecalc(
 	const string& outfile, const string& pixels,
@@ -153,8 +153,8 @@ static std::vector<casacore::String> _newHistory(
 // the returned value of pixels will have either 0 or two elements, if 0 then the returned
 // value of dir will be set
 void _processDirection(
-	casacore::Vector<casacore::Double>& pixels, casacore::MDirection& dir, const variant& inputDirection,
-	const casacore::String& paramName
+	casacore::Vector<casacore::Double>& pixels, casacore::MDirection& dir,
+	const variant& inputDirection, const casacore::String& paramName
 );
 
 template<class T> void _putchunk(
@@ -163,14 +163,14 @@ template<class T> void _putchunk(
 	const bool list, const bool locking, const bool replicate
 );
 
-template <class T> static image* _regrid(
+template <class T> image* _regrid(
 	casa::ImageRegridderBase<T>& regridder,
 	const string& method, int decimate,	bool replicate,
 	bool doRefChange, bool forceRegrid,
 	bool specAsVelocity, bool stretch,
 	bool dropDegenerateAxes, const casacore::LogOrigin& lor,
 	const vector<casacore::String>& msgs
-);
+) const;
 
 void _remove(bool verbose);
 
@@ -185,10 +185,10 @@ template<class T> SHARED_PTR<casacore::ImageInterface<T> > _subimage(
 
 static vector<double> _toDoubleVec(const variant& v);
 
-template <class T> static SPIIT _twopointcorrelation(
+template <class T> SPIIT _twopointcorrelation(
 	SPIIT myimage, const string& outfile,
 	SHARED_PTR<casacore::Record> region, const casacore::String& mask,
 	const casacore::IPosition& axes, const std::string& method,
 	bool overwrite, bool stretch, const casacore::LogOrigin& origin,
     const vector<casacore::String>& msgs
-);
+) const;
