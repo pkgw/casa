@@ -51,6 +51,7 @@
 #include <casaqt/QtDBus/dVO.h>
 #include <graphics/X11/X_exit.h>
 #include <display/Utilities/Lowlevel.h>
+#include <QListWidget>
 #include <set>
 #include <list>
 #if defined(__APPLE__)
@@ -196,12 +197,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		void region_item_state_change(QTreeWidgetItem*,int);
 		void region_selection_change( viewer::Region *rgn, bool selected );
 
+#ifdef WITH_VO
         //---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---
         //  VO controls...
         //---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---
         void addVOParam( );
         void removeVOParam( );
         //---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---
+#endif
 
     private slots:
          void enable_disable_slice( const QString & );
@@ -357,7 +360,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
         bool slice_available;
         bool regrid_available;
-
+#ifdef WITH_VO
         void setupVO( );
         // returns true if everything is OK...
         bool updateVOstatus( );
@@ -467,6 +470,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		std::vector<int> vo_selected_rows;
 
 		friend void lambda_dsoc_test_pre_( QtDataManager& );
+#endif
 	};
 
 } //# NAMESPACE CASA - END

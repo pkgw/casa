@@ -519,7 +519,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		// Existing user-visible QDDs
 		//casacore::List<QtDisplayData*> qdds_;
-		DisplayDataHolder* displayDataHolder;
+		std::shared_ptr<DisplayDataHolder> displayDataHolder;
 		casacore::String errMsg_;
 
 
@@ -651,7 +651,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		ColorHistogram* colorHistogram;
 		Fit2DTool* fitTool;
 		SlicerMainWindow* sliceTool;
-		ImageManagerDialog* imageManagerDialog;
+		std::shared_ptr<ImageManagerDialog> imageManagerDialog;
 		AboutDialogViewer* aboutDialog;
 
 		// interactive clean...
