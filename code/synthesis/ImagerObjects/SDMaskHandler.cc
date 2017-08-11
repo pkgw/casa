@@ -756,41 +756,45 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       tempres->setImageInfo(imstore->residual()->imageInfo());
       tempres->attachMask(ArrayLattice<Bool> (imstore->residual()->getMask()));
     }
-    //TempImage<Float>* temppsf = new TempImage<Float>(imstore->psf()->shape(), imstore->psf()->coordinates(), memoryToUse()); 
-    //imstore->psf()->get(psfdata);
-    //temppsf->put(psfdata);
-    //temppsf->setImageInfo(imstore->psf()->imageInfo());
+    //copying is unneccesary for psf
+    /***
+    TempImage<Float>* temppsf = new TempImage<Float>(imstore->psf()->shape(), imstore->psf()->coordinates(), memoryToUse()); 
+    imstore->psf()->get(psfdata);
+    temppsf->put(psfdata);
+    temppsf->setImageInfo(imstore->psf()->imageInfo());
+    ***/
 
     TempImage<Float>* tempmask = new TempImage<Float>(imstore->mask()->shape(), imstore->mask()->coordinates(), memoryToUse());
     // get current mask and apply pbmask
+    {
       Array<Float> maskdata;
       imstore->mask()->get(maskdata);
       String maskname = imstore->getName()+".mask";
       tempmask->put(maskdata);
       // 
     
-    if (pblimit>0.0 && imstore->hasPB()) {
-      //cerr<<" applying pb mask ..."<<endl;
-      LatticeExpr<Bool> pixmask( iif(*tempmask > 0.0, True, False));
-      TempImage<Float>* dummy = new TempImage<Float>(tempres->shape(), tempres->coordinates(), memoryToUse());
-      dummy->attachMask(pixmask);
-      LatticeExpr<Float> themask;
-      if (!ntrue(dummy->getMask())) { // initial zero mask
-        //themask = LatticeExpr<Float>( iif( (*(imstore->pb())) > pblimit , 1.0 , 0.0 ));
-        themask = LatticeExpr<Float>( *tempmask);
+      if (pblimit>0.0 && imstore->hasPB()) {
+        //cerr<<" applying pb mask ..."<<endl;
+        LatticeExpr<Bool> pixmask( iif(*tempmask > 0.0, True, False));
+        TempImage<Float>* dummy = new TempImage<Float>(tempres->shape(), tempres->coordinates(), memoryToUse());
+        dummy->attachMask(pixmask);
+        LatticeExpr<Float> themask;
+        if (!ntrue(dummy->getMask())) { // initial zero mask
+          //themask = LatticeExpr<Float>( iif( (*(imstore->pb())) > pblimit , 1.0 , 0.0 ));
+          themask = LatticeExpr<Float>( *tempmask);
+        }
+        else {
+          themask = LatticeExpr<Float>( iif( (*(imstore->pb())) > pblimit, *(imstore->mask()), 0.0));
+        } 
+        // attache pixmask to temp res image to be used in stats etc
+        //cerr<<"attaching pixmask to res.."<<endl;
+        tempres->attachMask(LatticeExpr<Bool> ( iif(*(imstore->pb()) > pblimit, True, False)));
+        imstore->mask()->copyData( themask );
+        imstore->mask()->get(maskdata);
+        tempmask->put(maskdata);
+        delete dummy;
       }
-      else {
-        themask = LatticeExpr<Float>( iif( (*(imstore->pb())) > pblimit, *(imstore->mask()), 0.0));
-      } 
-      // attache pixmask to temp res image to be used in stats etc
-      //cerr<<"attaching pixmask to res.."<<endl;
-      tempres->attachMask(LatticeExpr<Bool> ( iif(*(imstore->pb()) > pblimit, True, False)));
-      imstore->mask()->copyData( themask );
-      imstore->mask()->get(maskdata);
-      tempmask->put(maskdata);
-      delete dummy;
-    }
-    
+    } 
     //for debug
     //String tempresname="initialRes_"+String::toString(iterdone)+".im";
     //PagedImage<Float> initialRes(tempres->shape(), tempres->coordinates(), tempresname);
@@ -905,7 +909,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           delete testres; testres=0;
        }
     } 
-    Record thestats = calcImageStatistics(*tempmask, *tempmask, LELmask, region_ptr, robust);
+    Record thestats = calcImageStatistics(*tempres, *tempmask, LELmask, region_ptr, robust);
     Array<Double> maxs, mins, rmss, mads;
     thestats.get(RecordFieldId("max"), maxs);
     thestats.get(RecordFieldId("rms"), rmss);
@@ -943,11 +947,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       cerr<<" mask: "<<fname<<" exist on disk? ="<<File(fname).isDirectory()<<endl;
     }
     ***/
-    //Array<Float> updatedMaskData;
-    //tempmask->get(updatedMaskData);
-    //imstore->mask()->put(updatedMaskData);
-    tempmask->get(maskdata);
-    imstore->mask()->put(maskdata);
+    {
+      Array<Float> updatedMaskData;
+      tempmask->get(updatedMaskData);
+      imstore->mask()->put(updatedMaskData);
+    }
+    //tempmask->get(maskdata);
+    //imstore->mask()->put(maskdata);
     delete tempmask; tempmask=0;
     //delete temppsf; temppsf=0;
     delete tempres; tempres=0;
