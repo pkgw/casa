@@ -4559,7 +4559,10 @@ image* image::rotate(
         };
         auto msgs = _newHistory(__func__, names, values);
         rotator.addHistory(_ORIGIN, msgs);
-        return new image(rotator.rotate());
+        auto x = rotator.rotate();
+        _log << LogIO::NORMAL << "Using position angle rotation "
+            << inpa.toString() << LogIO::POST;
+        return new image(x);
     }
     catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
