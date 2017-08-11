@@ -497,8 +497,6 @@ namespace casa{
   {
     Int index;
     SynthesisUtils::nearestValue(freqValues_p, freqVal, index);
-    if (index > 10)
-      cerr << "######CFB: " << freqValues_p << " " << freqVal << endl;
     return index;
     // // The algorithm below has a N*log(N) cost.
     // Vector<Double> diff = fabs(freqValues_p - freqVal);
