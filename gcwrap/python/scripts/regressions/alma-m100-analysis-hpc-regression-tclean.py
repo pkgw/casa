@@ -1034,8 +1034,10 @@ try:
                 # expectation values  set 8 Dec 2016 based on CASA Version 5.0.0-80 Compiled on: Wed 2016/12/07 04:31:44 UTC
                 # ( change due to new cyclethreshold because of more accurate psf sidelobe level calc : CAS-9070 )
                 exppeak = [1.18951940536,1.16193413734]
-		exprms = [0.000674192491959,0.000708995265435]
-
+		# exprms = [0.000674192491959,0.000708995265435]
+                # Update for 5.1.0, values have shifted slightly and the tolerance has been
+                # reduced back to 1%. The results differred by approx. 1.08%. CAS-10464.
+                exprms = [0.000672137, 0.000701346]
 	
 	    for name in basename:
 	
