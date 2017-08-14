@@ -813,6 +813,7 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 	}
 	else if(methodName == METHOD_SHOW || methodName == METHOD_HIDE) {
 		itsPlotms_.showGUI(methodName == METHOD_SHOW);
+		itsPlotms_.allowPopups(false); // default for task
 		if(itsPlotms_.guiShown() && itsUpdateFlag_) {
 			bool completed = update();
 			if ( !completed ){
