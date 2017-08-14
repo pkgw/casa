@@ -71,7 +71,7 @@
 		</param>
 
 		<param type="bool" name="uniform" subparam="true">
-			<description>Blah</description>
+			<description>Assume uniform calibration values across the array</description>
 			<value>True</value>
 		</param>
 
@@ -80,8 +80,17 @@
                 <equals value="tecim">
                    <default param="infile"><value type="string"></value></default>
                 </equals>
-              </when>
-            </constraints>     
+                <equals value="gc">
+                   <default param="infile"><value type="string"></value></default>
+                </equals>
+                <equals value="gceff">
+                   <default param="infile"><value type="string"></value></default>
+                </equals>
+		<equals value="tsys">
+		  <default param="uniform"><value type="bool">True</value></default>
+		</equals>
+	      </when>
+            </constraints>
 
 	</input>
 <returns type="void"/>
@@ -168,6 +177,9 @@
      derived from information contained in MS subtables.  In these
      cases, specification of spw, antenna, pol, and parameter will be
      ignored.
+     If Tsys measurements are not uniformly sampled across the array
+     (typically the case for VLBI) use uniform=False to avoid
+     unnecessary flagging of data.
 
      EVLA switched power calibration is supported in three modes:  
      'swpow' (formerly 'evlagain', a syntax which will 

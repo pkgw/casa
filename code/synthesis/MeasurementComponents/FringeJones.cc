@@ -66,6 +66,7 @@
 
 using namespace casa::vi;
 using namespace casacore;
+
 namespace casa { //# NAMESPACE CASA - BEGIN
     
 static void unitize(Array<Complex>& vC) 
@@ -1075,6 +1076,87 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& param, Int refant, const std:
 }
 
     
+
+
+// **********************************************************
+//  CTRateAwareTimeInterp1 Implementations
+//
+
+CTRateAwareTimeInterp1::CTRateAwareTimeInterp1(NewCalTable& ct,
+					       const casacore::String& timetype,
+					       casacore::Array<Float>& result,
+					       casacore::Array<Bool>& rflag) :
+  CTTimeInterp1(ct,timetype,result,rflag)
+{}
+
+// Destructor (nothing to do locally)
+CTRateAwareTimeInterp1::~CTRateAwareTimeInterp1() {}
+
+Bool CTRateAwareTimeInterp1::interpolate(Double newtime) {
+  
+  // Call generic first
+  if (CTTimeInterp1::interpolate(newtime)) {
+    // Only if generic yields new calibration
+    // NB: lastWasExact_=exact in generic
+    applyPhaseRate(timeType().contains("nearest") || lastWasExact_);
+    return true;
+  }
+  else
+    // No change
+    return false;
+
+}
+
+// Do the phase rate math
+void CTRateAwareTimeInterp1::applyPhaseRate(Bool single)
+{
+  Int ispw=mcols_p->spwId()(0);
+  MSSpectralWindow msSpw(ct_.spectralWindow());
+  ROMSSpWindowColumns msCol(msSpw);
+  Vector<Double> refFreqs;
+  msCol.refFrequency().getColumn(refFreqs,True);
+
+  //  cout << "time = " << (currTime_ - timeRef_) << endl;
+
+  if (single) {
+    for (Int ipol=0;ipol<2;ipol++) {
+      Double dtime=(currTime_-timeRef_)-timelist_(currIdx_);
+      Double phase=result_(IPosition(2,ipol*3,0));
+      Double rate=result_(IPosition(2,ipol*3+2,0));
+      phase+=2.0*C::pi*rate*refFreqs(ispw)*dtime;
+      result_(IPosition(2,ipol*3,0))=phase;
+    }
+  } else {
+    Vector<uInt> rows(2); indgen(rows); rows+=uInt(currIdx_);
+    Cube<Float> r(mcols_p->fparamArray("",rows));
+
+    Vector<Double> dtime(2);
+    dtime(0)=(currTime_-timeRef_)-timelist_(currIdx_);
+    dtime(1)=(currTime_-timeRef_)-timelist_(currIdx_+1);
+    Double wt=dtime(1) / (dtime(1)-dtime(0));
+
+
+    for (Int ipol=0;ipol<2;ipol++) {
+      Vector<Double> phase(2), rate(2);
+      phase(0)=r.xyPlane(0)(IPosition(2,ipol*3,0));
+      phase(1)=r.xyPlane(1)(IPosition(2,ipol*3,0));
+      rate(0)=r.xyPlane(0)(IPosition(2,ipol*3+2,0));
+      rate(1)=r.xyPlane(1)(IPosition(2,ipol*3+2,0));
+
+      phase(0)+=2.0*C::pi*rate(0)*refFreqs(ispw)*dtime(0);
+      phase(1)+=2.0*C::pi*rate(1)*refFreqs(ispw)*dtime(1);
+
+      Vector<Complex> ph(2);
+      ph(0)=Complex(cos(phase(0)),sin(phase(0)));
+      ph(1)=Complex(cos(phase(1)),sin(phase(1)));
+      ph(0)=Float(wt)*ph(0) + Float(1.0-wt)*ph(1);
+      result_(IPosition(2,ipol*3,0))=arg(ph(0));
+    }
+  }
+}
+
+
+
 
 // **********************************************************
 //  FringeJones Implementations

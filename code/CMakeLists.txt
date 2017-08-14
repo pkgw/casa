@@ -199,7 +199,7 @@ if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT OR CMAKE_INSTALL_PREFIX MATCHES 
     message("        CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
     CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/VERSION.in ${CMAKE_CURRENT_SOURCE_DIR}/VERSION )
 else( )
-    set( casaroot ${CMAKE_INSTALL_PREFIX} CACHE )
+    set( casaroot ${CMAKE_INSTALL_PREFIX} CACHE PATH "casa install/destroot directory" FORCE )
     message("using modern configuraiton where casaroot and install prefix are the same:")
     message("        casaroot = ${casaroot}")
     CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/VERSION.in ${casaroot}/VERSION )

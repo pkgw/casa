@@ -71,7 +71,7 @@ spectrum is
     </param>
 
     <param type="string" name="calmode">
-      <shortdescription>SD calibration mode [\'ps\',\'otfraster\',\'otf\',\'tsys\',\'apply\', and allowed combinations]</shortdescription>
+      <shortdescription>SD calibration mode ["ps","otfraster","otf","tsys","apply", and allowed combinations]</shortdescription>
       <description>SD calibration mode</description>
       <value>ps</value>
       <allowed kind="enum">
@@ -140,22 +140,22 @@ spectrum is
     </param>
 
     <param type="string" name="field">
-      <description>select data by field IDs and names, e.g. \'3C2*\' (\'\' = all)</description>
+      <description>select data by field IDs and names, e.g. "3C2*" ("" = all)</description>
       <value></value>
     </param>
 
     <param type="string" name="spw">
-      <description>select data by spw IDs (spectral windows), e.g., \'3,5,7\' (\'\' = all)</description>
+      <description>select data by spw IDs (spectral windows), e.g., "3,5,7" ("" = all)</description>
       <value></value>
     </param>
 
     <param type="string" name="scan">
-      <description>select data by scan numbers, e.g. \'21~23\' (\'\'=all)</description>
+      <description>select data by scan numbers, e.g. "21~23" (""=all)</description>
       <value></value>
     </param>
     
     <param type="string" name="intent" subparam="true">
-      <description>select data by observation intent, e.g. \'OBSERVE_TARGET#ON_SOURCE\' (\'\'=all)</description>
+      <description>select data by observation intent, e.g. "OBSERVE_TARGET#ON_SOURCE" (""=all)</description>
       <value></value>
     </param>
 
@@ -340,15 +340,10 @@ scan -- select data by scan numbers
         this selection is in addition to the other selections to data
         NOTE scan input must be '' (''= all) in calmode='tsys'.
 outfile -- Name of output file
-        NOTE if you omit, behavior of the task depends on calmode. 
-        If calmode includes 'apply', then omitting outfile indicates 
-        that infile is overwritten by the calibrated data. In this case, 
-        you have to set overwrite to True. If calmode doesn't include 
-        'apply', omitting outfile indicates that the task will use 
-        default outfile name based on infile and predefined suffix 
-        ('_sky' for sky, '_tsys' for Tsys).
-        default: '' (&lt;infile&gt;_&lt;suffix&gt; for calibration 
-                     while overwrite infile for apply mode)
+        NOTE if you omit and calmode doesn't include 'apply', the task 
+        will use default outfile name based on infile and predefined 
+        suffix ('_sky' for sky, '_tsys' for Tsys).
+        default: '' (&lt;infile&gt;_&lt;suffix&gt; for calibration) 
 overwrite -- overwrite the output file if already exists
         options: (bool) True,False
         default: False
@@ -359,32 +354,42 @@ DESCRIPTION:
 
 Task sdcal is an implementation of a calibration scheme like as 
 interferometry, i.e., generate caltables and apply them. Available 
-calibration modes are 'ps', 'otfraster', and 'tsys'. Those 
-modes generates caltables for sky or Tsys calibration. The 
-caltables can be applied to the data by using calmode 'apply'.
+calibration modes are 'ps', 'otfraster', 'otf', and 'tsys'. 
+Those modes generates caltables for sky or Tsys calibration. 
+The caltables can be applied to the data by using calmode 'apply'.
 
-First two calibration modes, 'ps', and 'otfraster',generate sky
-calibration tables. The user should choose appropriate calibration
-mode depending on the data. Use case for each mode is as follows:
+First three calibration modes, 'ps', 'otfraster', and 'otf', 
+generate sky calibration tables. The user should choose appropriate 
+calibration mode depending on the data. Use case for each mode is 
+as follows:
 
     'ps': position switch (including OTF) with explicit
           reference (OFF) spectra
     'otfraster': raster OTF scan without explicit OFFs
+    'otf': fast-scan observation with Lissajous or 
+           double-circle trajectory
 
 So, if the data contains explicit reference spectra, 'ps' should
-be used. Otherwise, 'otfraster' is appropriate for raster OTF,
-respectively. Non raster OTF data is not supported yet. In 'otfraster'
-mode, the task first try to find several integrations near edge as
-OFF spectra, then the data are calibrated using those OFFs. If the
-observing pattern is raster, you should use the 'otfraster' mode to
-calibrate data. The 'otfraster' mode is designed for OTF observations
-without explicit OFF spectra. However, these modes should work even if
+be used. The 'otfraster' mode is appropriate for raster OTF. 
+For non-raster OTF data, 'otf' mode is available to support fast-
+scanning observation. In 'otfraster' mode, the task first try to 
+find several integrations near edge as OFF spectra, then the data 
+are calibrated using those OFFs. If the observing pattern is raster, 
+you should use the 'otfraster' mode to calibrate data. 
+The 'otfraster' mode is designed for OTF observations without 
+explicit OFF spectra. However, these modes should work even if
 explicit reference spectra exist. In this case, these spectra will be
 ignored and spectra near edges detected by edge marker will be used as
-reference.
+reference. In 'otf' mode, the task detects integrations near edges of 
+observed area, and detected integrations are regarded as OFFs. 
+This mode is specifically designed for fast-scan mode, which takes 
+the data contiguously by moving antenna along trajectory that 
+imitates random spatial data sampling, which is implemented as 
+either Lissajous or double-circle pattern. 
+
 
 Except for how to choose OFFs, the procedure to derive calibrated
-spectra is common for the above two modes. Selected (or preset) OFF
+spectra is common for the above three modes. Selected (or preset) OFF
 integrations are separated by its continuity in time domain, averaged in
 each segment, then interpolated to timestamps for ON integrations.
 Effectively, it means that OFF integrations are averaged by each
@@ -405,6 +410,8 @@ Allowed calibration modes in this task is as follows:
         generate sky caltable using 'ps' mode
     otfraster
         generate sky caltable using 'otfraster' mode
+    otf
+        generate sky caltable using 'otf' mode
     tsys
         generate tsys caltable
     apply
@@ -420,6 +427,12 @@ Allowed calibration modes in this task is as follows:
         and apply it. also apply caltables specified by applytable 
     otfraster,tsys,apply
         generate temporary sky caltable using 'otfraster' mode
+        as well as temporary tsys caltable, and apply them. 
+    otf,apply
+        generate temporary sky caltable using 'otf' mode
+        and apply it. also apply caltables specified by applytable 
+    otf,tsys,apply
+        generate temporary sky caltable using 'otf' mode
         as well as temporary tsys caltable, and apply them. 
 
 There are several control parameters for sky/Tsys calibration and 
@@ -443,12 +456,11 @@ Below is an example of full specification of task parameters for calmode
 of 'ps,tsys,apply':
 
     default(sdcal)
-    infile = 'foo.asap'
+    infile = 'foo.ms'
     calmode = 'ps,tsys,apply'
     spw = ''
     tsysspw = '9,11,13,15'
     spwmap = {9:[17],11:[19],13:[21],15:[23]}
-    outfile = 'bar.asap'
     sdcal()
 
 Note that, in contrast to applycal task, spwmap must be a dictionary

@@ -129,6 +129,7 @@ def tclean(
     smoothfactor,#=1.0,
     minbeamfrac,#=0.3, 
     cutthreshold,#=0.01,
+    growiterations,#=100
 
     ## Misc
 
@@ -264,6 +265,7 @@ def tclean(
         smoothfactor=smoothfactor,
         minbeamfrac=minbeamfrac,
         cutthreshold=cutthreshold,
+        growiterations=growiterations,
  
         savemodel=savemodel
         )

@@ -58,7 +58,9 @@ namespace casa {
 		ImageManagerDialog(QWidget *parent = 0);
 		//Sets the containers which are the sources for display data, both registered and
 		//open.
-		void setImageHolders( DisplayDataHolder* displayed, DisplayDataHolder* allImages );
+		void setImageHolders( std::shared_ptr<ImageManagerDialog> holder,
+		                      std::shared_ptr<DisplayDataHolder> displayed,
+		                      std::shared_ptr<DisplayDataHolder> allImages );
 
 		//Sets the image that is currently being viewed (on the Animator).  Allows the image
 		//manager to indicate the current image on the display.
@@ -159,10 +161,10 @@ namespace casa {
 		//Dialog containing display options for a particular display data.
 		DisplayOptionsDialog* displayOptionsDialog;
 		//Holds the open images
-		DisplayDataHolder* allImages;
+		std::shared_ptr<DisplayDataHolder> allImages;
 
 		//Holds the registered images
-		DisplayDataHolder* displayedImages;
+		std::shared_ptr<DisplayDataHolder> displayedImages;
 		Ui::ImageManagerDialogClass ui;
 		ImageScroll* imageScroll;
 		const casacore::String SINGLE_COLOR_MAP;

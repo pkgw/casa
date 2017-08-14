@@ -100,6 +100,7 @@ void StatWtTVITest::testCompareTransformedData() {
     MeasurementSet mstest(testFile_p);
     vi::VisIterImpl2LayerFactory data(&mstest, ipar, True);
     Record config;
+    config.define("combine", "corr");
     vi::StatWtTVILayerFactory statWtLayerFactory(config);
     Vector<vi::ViiLayerFactory*> factsTest(2);
     factsTest[0] = &data;
@@ -119,7 +120,6 @@ void StatWtTVITest::testCompareTransformedData() {
 	if (not res) {
         testResult_p = res;
     }
-
 	// Trigger google test macro
 	ASSERT_TRUE(res);
 }

@@ -1967,6 +1967,8 @@ of the image, and all pixels of other axes.
 This function creates a \casa\ \imagefile\ with the specified shape.  All
 the pixel values in the image are set to 0. One may create either an image
 with float valued pixels (type='f') or a complex valued image (type='c').
+To use a numpy array of values to create an image, use ia.fromarray().
+To make a 2-D image from a packaged FITS file, use ia.maketestimage().
 
 If {\stfaf outfile} is given, the image is written to the specified disk
 file.  If {\stfaf outfile} is unset, the Image \tool\ is associated with
@@ -1994,23 +1996,37 @@ The method returns True if successful, False otherwise.
 <example>
 
 """
-#
-print "\t----\t fromshape Ex 1 \t----"
-ia.fromshape('test2.data', [64,64,128], overwrite=true)
-mycs = ia.coordsys(axes=[0,2])
+# Create a 64 x 64 x 128 RA-Dec-Frequency image
+ia.fromshape('test2.data', [64,64,128], overwrite=True)
+mycs = ia.coordsys(axes=[0,1])
 ia.close()
+# create temporary image using first and third axes of
+# previously created image
 ia.fromshape(shape=[10, 20], csys=mycs.torecord())
 mycs.done()
 ia.close()
-#
 """
 
-
 The first example creates a zero-filled \imagefile\ named {\sff
-test.data} of shape [64,64,128].  If you examine the header with {\stff
+test2.data} of shape [64,64,128].  If you examine the header with {\stff
 ia.summary()} you will see the RA/DEC/Spectral coordinate information. 
-In the second example, a Coordinate System describing the first and third axes
+In the second example, a Coordinate System describing the first and second axes
 of the image {\sff test.data} is created and used to create a 2D temporary image.
+
+# create a 4-D image populated with noise with some interesting metadata
+ia.fromshape("noisy.im", [100, 100, 4, 20])
+# add the noise
+ia.addnoise()
+# add a beam
+ia.setrestoringbeam(major="4arcmin", minor="3arcmin", pa="20deg")
+# add brightness unit
+ia.setbrightnessunit("Jy/beam")
+ia.done()
+# set an interesting object name
+imd.open("noisy.im")
+imd.set("object","thor")
+imd.done()
+
 </example>
 </method>
 
@@ -9390,25 +9406,7 @@ This function computes statistics
 from the pixel values in the image.  You can then list them
 and retrieve them (into a record) for further analysis. 
 
-The chunk of the image over which you evaluate the statistics is
-specified by an array of axis numbers (argument {\stfaf axes}).  For example,
-consider a 3-dimensional image for which you specify {\stfaf axes=[0,2]}. 
-The statistics would be computed for each XZ (axes 0 and 2) plane in the
-image.  You could then examine those statistics as a function of the Y
-(axis 1) axis.  Or perhaps you set {\stfaf axes=[2]}, whereupon you could
-examine the statistics for each Z (axis 2) profile as a function of X
-and Y location in the image.
-
-Each statistic is stored in 
-an array in one named field in the returned record.  The shape of that array is
-that of the axes which you did {\bf not} evaluate the statistics over.
-For example, in the second example above, we set {\stfaf axes=[2]} and
-asked for statistics as a function of the remaining axes, in this
-case, the X and Y (axes 0 and 1) axes.  The shape of each statistics
-array is then [nx,ny].
-
-The names of the fields in this record are the same as the names of the
-statistics that you can plot: 
+The names of the fields in the returned record are summarized below:
 
 \begin{itemize}
 
@@ -9504,6 +9502,43 @@ However, you can force regeneration of the storage image if you set
 {\stfaf force=T}.  The storage medium is either in memory or on disk,
 depending upon its size.  You can force it to disk if you set {\stfaf
 disk=T}, otherwise it decides for itself.    
+
+CURSOR AXES
+The axes parameter allows one to set the cursor axes over which statistics 
+are computed. For example, consider a 3-dimensional image for which axes=[0,2]. 
+The statistics would be computed for each XZ (axes 0 and 2) plane in the
+image.  One could then examine those statistics as a function of the Y
+(axis 1) axis. 
+
+Each statistic is stored in an array in its own field in the returned dictionary.
+The dimensionality of these arrays is equal to the number of axes over which the
+statistics were not evaluated (called the display axes). For example, if the input
+image has four axes, and axes=[0], the output statistic arrays will have three dimensions.
+If axes=[0, 1], the output statistic arrays will have two dimensions.
+
+The shape of the output arrays when axes has a positive number of elements is based on
+the region selection. If there is no region selection, the shape of the statistic arrays
+is just the shape of the image along the display (non-cursor) axes. For example, if the
+input image has dimensions of 300x400x4x80 and axes=[0, 1], in the absence of a region
+selection, the shape of the output statistic arrays will be 4x80. If there is a region
+selection, the shape of the output statistic arrays will be determined by the number of
+planes along the display axes chosen in the region selection. For example, continuing with
+our example, if axes=[0,1] and region=rg.box([0, 0, 1, 20], [299,399, 2, 60]), the output
+statistic arrays will have shapes of 2x41. Only the selected planes will be displayed in the
+logger output if verbose=True.
+
+In the case where the image has a pixel mask, and/or the mask parameter is specified, and because
+of this specification a plane is entirely masked, this element is included in the statistic arrays
+(usually with a value of 0). It is not included in the logger output if verbose=True. One can
+exclude such elements from computations on the output arrays by using the numpy.extract() method.
+For example, to compute the minimum rms value, not including any fully masked planes, one could
+use
+
+stats = ia.statistics(...)
+rmsmin = numpy.min(numpy.extract(stats['npts']>0, stats['rms']))
+
+Thus in the computation of rmsmin, only the rms elements are considered which have
+associated values of npts that are not zero.
 
 ALGORITHMS
 

@@ -151,7 +151,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		QtDisplayData* getRegistered( int index );
 		QtDisplayData* getDD( const std::string& name ) const;
 		QtDisplayData* getDD( const DisplayData *dd ) const;
-		DisplayDataHolder* getDataHolder() const;
+		std::shared_ptr<DisplayDataHolder> getDataHolder() const;
 		bool isCoordinateMaster( QtDisplayData* displayData ) const;
 		void setControllingDD( QtDisplayData* controllingDD );
 		// true if DD is on our list.  (It may _not_ be on viewer's list
@@ -900,7 +900,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// QDDs registered on this QDP, in registration order.
 		// (casacore::List of _all_ (user-loaded) QDDs is v_->dds()).
 		//casacore::List<QtDisplayData*> qdds_;
-		DisplayDataHolder* displayDataHolder;
+		std::shared_ptr<DisplayDataHolder> displayDataHolder;
 
 		//# mouse tools.
 		viewer::RegionToolManager *toolmgr;

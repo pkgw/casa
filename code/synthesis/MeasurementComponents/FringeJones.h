@@ -29,9 +29,46 @@
 #define SYNTHESIS_FRINGEJONES_H
 
 #include <casa/aips.h>
-#include <synthesis/MeasurementComponents/StandardVisCal.h> 
+#include <synthesis/MeasurementComponents/SolvableVisCal.h> 
+#include <synthesis/CalTables/CTTimeInterp1.h>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
+
+// Rate-aware time interpolation engine
+class CTRateAwareTimeInterp1 : public CTTimeInterp1 {
+
+public:
+
+  // From NewCalTable
+  CTRateAwareTimeInterp1(NewCalTable& ct,
+			 const casacore::String& timetype,
+			 casacore::Array<casacore::Float>& result,
+			 casacore::Array<casacore::Bool>& rflag);
+
+  // Destructor
+  virtual ~CTRateAwareTimeInterp1();
+
+  // Interpolate, given timestamp; returns T if new result
+  virtual casacore::Bool interpolate(casacore::Double time);
+
+  // static factory method to make CTRateAwareTimeInterp1
+  // NB: returns pointer to a _generic_ CTTimeInterp1
+  static CTTimeInterp1* factory(NewCalTable& ct,
+				const casacore::String& timetype,
+				casacore::Array<casacore::Float>& result,
+				casacore::Array<casacore::Bool>& rflag) {
+    return new casa::CTRateAwareTimeInterp1(ct,timetype,result,rflag); }
+
+private:
+
+  // Refine time-dep phase with rate info
+  void applyPhaseRate(casacore::Bool single);
+
+  // Default ctor is unusable
+  //  CTRateAwareTimeInterp1(); 
+
+};
+
 
 // Fringe-fitting (parametrized phase) VisCal
 class FringeJones : public GJones {
@@ -130,8 +167,13 @@ protected:
 
 private:
 
+  // Pointer to CTRateAwareTimeInterp1 factory method
+  // This ensures the rates are incorporated into the time-dep interpolation
+  virtual CTTIFactoryPtr cttifactoryptr() { cout << "Using Rate-Aware CTTIFactory!" << endl; return &CTRateAwareTimeInterp1::factory; };
+
   
 };
+
 
 } //# NAMESPACE CASA - END
 

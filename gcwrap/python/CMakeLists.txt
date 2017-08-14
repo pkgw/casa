@@ -35,6 +35,8 @@ scripts/casa_builtin.py
 scripts/start_casa.py
 scripts/casa_system.py
 scripts/casa_system_defaults.py
+scripts/init_begin_startup.py
+scripts/init_end_startup.py
 scripts/init_system.py
 scripts/init_crashrpt.py
 scripts/init_mpi.py
@@ -217,6 +219,7 @@ scripts/task_wvrgcal.py
 scripts/task_msview.py
 scripts/task_imview.py
 scripts/task_vishead.py
+scripts/task_visstatold.py
 scripts/task_visstat.py
 scripts/task_visstat2.py
 scripts/task_widebandpbcor.py

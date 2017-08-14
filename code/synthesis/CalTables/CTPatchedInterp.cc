@@ -50,7 +50,8 @@ CTPatchedInterp::CTPatchedInterp(NewCalTable& ct,
 				 const String& freqtype,
 				 const String& fieldtype,
 				 Vector<Int> spwmap,
-				 Vector<Int> fldmap) :
+				 Vector<Int> fldmap,
+				 const CTTIFactoryPtr cttifactoryptr) :
   ct_(ct),
   mtype_(mtype),
   isCmplx_(false),
@@ -83,7 +84,8 @@ CTPatchedInterp::CTPatchedInterp(NewCalTable& ct,
   tI_(),
   tIdel_(),
   lastFld_(ct.spectralWindow().nrow(),-1),
-  lastObs_(ct.spectralWindow().nrow(),-1)
+  lastObs_(ct.spectralWindow().nrow(),-1),
+  cttifactoryptr_(cttifactoryptr)
 {
   if (CTPATCHEDINTERPVERB) cout << "CTPatchedInterp::CTPatchedInterp(<no MS>)" << endl;
 
@@ -217,7 +219,8 @@ CTPatchedInterp::CTPatchedInterp(NewCalTable& ct,
 				 const String& freqtype,
 				 const String& fieldtype,
 				 const MeasurementSet& ms,
-				 Vector<Int> spwmap) :
+				 Vector<Int> spwmap,
+				 const CTTIFactoryPtr cttifactoryptr) :
   ct_(ct),
   mtype_(mtype),
   isCmplx_(false),
@@ -250,7 +253,8 @@ CTPatchedInterp::CTPatchedInterp(NewCalTable& ct,
   tI_(),
   tIdel_(),
   lastFld_(ms.spectralWindow().nrow(),-1),
-  lastObs_(ms.spectralWindow().nrow(),-1)
+  lastObs_(ms.spectralWindow().nrow(),-1),
+  cttifactoryptr_(cttifactoryptr)
 {
 
   if (CTPATCHEDINTERPVERB) cout << "CTPatchedInterp::CTPatchedInterp(CT,MS)" << endl;
@@ -380,7 +384,8 @@ CTPatchedInterp::CTPatchedInterp(NewCalTable& ct,
 				 const String& freqtype,
 				 const String& fieldtype,
 				 const ROMSColumns& mscol,
-				 Vector<Int> spwmap) :
+				 Vector<Int> spwmap,
+				 const CTTIFactoryPtr cttifactoryptr) :
   ct_(ct),
   mtype_(mtype),
   isCmplx_(false),
@@ -411,7 +416,8 @@ CTPatchedInterp::CTPatchedInterp(NewCalTable& ct,
   tI_(),
   tIdel_(),
   lastFld_(mscol.spectralWindow().nrow(),-1),
-  lastObs_(mscol.spectralWindow().nrow(),-1)
+  lastObs_(mscol.spectralWindow().nrow(),-1),
+  cttifactoryptr_(cttifactoryptr)
 {
   if (CTPATCHEDINTERPVERB) cout << "CTPatchedInterp::CTPatchedInterp(mscol)" << endl;
 
@@ -833,7 +839,7 @@ void CTPatchedInterp::makeInterpolators() {
 	    if (ctSlices_(ictip)) {
 	      NewCalTable& ict(*ctSlices_(ictip));
 	      if (!ict.isNull()) {
-		tI_(tIip)=new CTTimeInterp1(ict,timeType_,tR,tRf);
+		tI_(tIip)=(*cttifactoryptr_)(ict,timeType_,tR,tRf);
 		tIdel_(tIip)=true;
 	      }
 	    }

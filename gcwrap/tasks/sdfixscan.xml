@@ -33,7 +33,7 @@ the scanning effect.
     </param>
 
     <param type="string" name="mode">
-        <shortdescription>image processing mode [\'fft_mask\', \'model\']</shortdescription>
+        <shortdescription>image processing mode ["fft_mask", "model"]</shortdescription>
 	<description>image processing mode</description>
         <value>fft_mask</value>
         <allowed kind="enum">
