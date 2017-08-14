@@ -320,10 +320,11 @@ class ia_subimage_test(unittest.TestCase):
         ia2 = iatool()
         ia2.dohistory(False)
         ia2.fromshape("gg",[20, 20])
-        msgs = ia.history()
+        msgs = ia2.history()
         ia2 = ia2.subimage()
         ia2.done()
-        self.assertTrue(len(msgs) == 0, "History unexpectedly written")   
+        for m in msgs:
+            self.assertFalse(teststr in msgs, "History unexpectedly written")   
         
         outfile = "zz_out.im"
         imsubimage(imagename=imagename, outfile=outfile)
