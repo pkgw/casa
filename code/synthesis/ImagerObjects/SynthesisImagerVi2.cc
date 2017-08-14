@@ -114,6 +114,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   Bool SynthesisImagerVi2::selectData(const SynthesisParamsSelect& selpars){
  LogIO os( LogOrigin("SynthesisImagerVi2","selectData",WHERE) );
+ Bool retval=True;
 
     try
       {
@@ -295,9 +296,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	      andChanSelection(mss_p.nelements()-1, Int(chanlist(k,0)), Int(chanlist(k,1)),Int(chanlist(k,2)));
 	    }
           }
-	  if(! (selectionValid && !ignoreframe))
-	    throw(AipsError("Could not find the frequency range of data selection"));
-    	  //fselections_p->add(channelSelector);
+	  if(! (selectionValid && !ignoreframe)){
+	    os << "Did not match spw selection in the selected ms " << LogIO::WARN << LogIO::POST;
+	    retval=False;
+	  }
+	    //fselections_p->add(channelSelector);
           //////////////////////////////////
       }
       else{
@@ -357,7 +360,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	throw( AipsError("Error in selectData() : "+x.getMesg()) );
       }
 
-    return true;
+    return retval;
 
 
 
