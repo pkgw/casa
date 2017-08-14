@@ -842,12 +842,12 @@ class plotms_test_pageheader(plotms_test_base):
         self.checkPageHeader(expected_rows=2)
 
     def test_pageheader_items02(self):
-        '''test_pageheader_items02: targpos,telescope,targname,observer,ycolumn'''
+        '''test_pageheader_items02: targdir,telescope,targname,observer,ycolumn'''
         self.plotfile_png = os.path.join(self.outputDir, "testPageHeader03.png")
         self.removePlotfile(self.plotfile_png)
         time.sleep(5)
         res = plotms(vis=self.ms, plotfile=self.plotfile_png, expformat='png', 
-                     antenna='0&2',headeritems='targpos,telescope,targname,observer,ycolumn',
+                     antenna='0&2',headeritems='targdir,telescope,targname,observer,ycolumn',
                      showgui=False, highres=True)
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_png, 26000)

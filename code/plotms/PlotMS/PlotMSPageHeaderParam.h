@@ -55,9 +55,9 @@ public:
 		Obs_Observer,
 		Obs_Project,
 		Obs_Telescope_Name,
-		// ---- Queries on Source table
-		Src_Name,
-		Src_Direction,
+		// ---- "Target" information
+		Target_Name,
+		Target_Direction,
 		ms_end,
 		// Queries on CalTable: currently none
 		// cal_begin=ms_end, cal_end=ms_end, end=cal_end
@@ -77,8 +77,8 @@ public:
 		  { {"obs_observer"       , "Observer"        , "Observer"               } , Item::Obs_Observer       },
 		  { {"obs_project"        , "Project ID"      , "Project ID"             } , Item::Obs_Project        },
 		  { {"obs_telescope_name" , "Telescope"       , "Telescope Name"         } , Item::Obs_Telescope_Name },
-		  { {"src_name"           , "Target name"     , "Source Name"            } , Item::Src_Name           },
-		  { {"src_direction"      , "Target RA,Dec"   , "Source Direction"       } , Item::Src_Direction      }
+		  { {"target_name"        , "Target name"     , "Target Name"            } , Item::Target_Name        },
+		  { {"target_direction"   , "Target RA,Dec"   , "Target Direction"       } , Item::Target_Direction   }
 		};
 		return info2item;
 	}

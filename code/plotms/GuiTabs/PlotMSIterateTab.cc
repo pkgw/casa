@@ -172,7 +172,6 @@ bool SelectedItemsDataModel::removeRows(int row, int count, const QModelIndex & 
 }
 
 
-
 //////////////////////////////////
 // PLOTMSDISPLAYTAB DEFINITIONS //
 //////////////////////////////////
@@ -276,6 +275,10 @@ bool PlotMSIterateTab::isPlottable() const {
 	return plottable;
 }
 
+void PlotMSIterateTab::clearSelectedItems(){
+	selectedItemsTableView->selectAll();
+	removeItems();
+}
 
 void PlotMSIterateTab::locationChanged(){
 	emit changed();
@@ -487,10 +490,14 @@ void PlotMSIterateTab::setValue(const PlotMSPlotParameters& params) {
 }
 
 void PlotMSIterateTab::setHeaderItems(const PMS_PP_PageHeader* pageHeaderParamsGroup){
-	if (pageHeaderParamsGroup == nullptr) return;
 	auto selectedItemsDataModel = dynamic_cast<SelectedItemsDataModel *>(selectedItemsTableView->model());
 	if (selectedItemsDataModel == nullptr) return;
-	// May need (?) to clear existing selected items
+
+	// Clear existing items
+	clearSelectedItems();
+
+	// Set new ones if any
+	if (pageHeaderParamsGroup == nullptr) return;
 	for ( const auto & item : pageHeaderParamsGroup->pageHeaderItems().items() ) {
 		selectedItemsDataModel->prepareToAppend(item);
 		auto fromRow = selectedItemsDataModel->rowCount();

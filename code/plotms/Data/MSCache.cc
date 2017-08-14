@@ -2055,7 +2055,7 @@ void MSCache::loadPageHeaderCache(const casacore::MeasurementSet& selectedMS){
 	auto firstFieldRow = static_cast<uInt>(firstFieldId);
 	const auto & fieldColumns = selMSColumns.field();
 	auto firstFieldName = fieldColumns.name().get(firstFieldRow);
-	pageHeaderCache_.store(HeaderItemData(Item::Src_Name,firstFieldName));
+	pageHeaderCache_.store(HeaderItemData(Item::Target_Name,firstFieldName));
 
 	// Target Direction
 	auto haveSourceTable = ! selectedMS.source().isNull();
@@ -2109,7 +2109,7 @@ void MSCache::loadPageHeaderCache(const casacore::MeasurementSet& selectedMS){
 			}
 			else sourceDirection = firstDirectionMeasure.toString();
 
-			pageHeaderCache_.store(HeaderItemData(Item::Src_Direction,sourceDirection));
+			pageHeaderCache_.store(HeaderItemData(Item::Target_Direction,sourceDirection));
 		}
 
 	}

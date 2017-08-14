@@ -1899,7 +1899,7 @@ Constraints
                 of page header items.
                 Comma-separated string of header item selection keywords.
                 Allowed keywords: 'obsdate','obstime','filename','projid',
-                                  'targname','targpos','telescope','observer',
+                                  'targname','targdir','telescope','observer',
                                   'ycolumn'
                 default: ''
                 example: 'filename,projid,targname'

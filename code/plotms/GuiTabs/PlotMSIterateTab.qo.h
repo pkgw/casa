@@ -76,6 +76,9 @@ public:
     //set (nonzero); false otherwise.
     bool isPlottable() const;
 
+    // Clear user-selected header items
+	void clearSelectedItems();
+
 signals:
 	void plottableChanged();
 

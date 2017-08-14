@@ -721,8 +721,8 @@ def plotms(vis=None,
         header_cpp_kw['observer'] = 'obs_observer'
         header_cpp_kw['projid']   = 'obs_project'
         header_cpp_kw['telescope'] = 'obs_telescope_name'
-        header_cpp_kw['targname'] = 'src_name'
-        header_cpp_kw['targpos']  = 'src_direction'
+        header_cpp_kw['targname'] = 'target_name'
+        header_cpp_kw['targdir']  = 'target_direction'
         
         if type(headeritems) is str:
             cpp_headeritems = []
