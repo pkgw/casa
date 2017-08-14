@@ -661,11 +661,13 @@ void PlotMSPlotter::initialize(Plotter::Implementation imp) {
     // sensible.
     isQt_ = imp == Plotter::QWT && itsPlotter_->isQWidget();
     if(isQt_) {
-        QWidget* w = dynamic_cast<QWidget*>(itsPlotter_.operator->());
-        w->setContentsMargins(0, 0, 0, 0);
-        w->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-        splitter->addWidget(w);
-        itsEnableWidgets_ << w;
+        QWidget* plotterWidget = dynamic_cast<QWidget*>(itsPlotter_.operator->());
+        plotterWidget->setContentsMargins(0, 0, 0, 0);
+        plotterWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+        splitter->addWidget(plotterWidget);
+
+        itsEnableWidgets_ << plotterWidget;
     }
 
     isClosed_ = false;
