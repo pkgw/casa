@@ -11,6 +11,7 @@ from IPython import start_ipython
 from traitlets.config.loader import Config
 __pylib = os.path.dirname(os.path.realpath(__file__))
 __init_scripts = [
+    "init_begin_startup.py",
     "init_system.py",
     "init_logger.py",
     "init_user_pre.py",
@@ -23,6 +24,7 @@ __init_scripts = [
     "init_docs.py",
     "init_user_post.py",
     "init_crashrpt.py",
+    "init_end_startup.py",
     "init_welcome.py",
 ]
 
@@ -61,6 +63,10 @@ try:
     __configs.HistoryManager.hist_file = __configs.TerminalInteractiveShell.ipython_dir + "/history.sqlite"
     __configs.TerminalIPythonApp.matplotlib = __defaults.backend
 
+    ### what does this do?
+    ###   (1) exec each of the startup files
+    ###   (2) invoke matplotlib (for interactive grapics)
+    ###       unless --agg flag has been supplied
     start_ipython( config=__configs, argv= (['--logfile='+casa['files']['iplogfile']] if __defaults.ipython_log else []) + ['--ipython-dir='+__defaults.rcdir+"/ipython", '--autocall=2', "-c", "for i in " + str(__startup_scripts) + ": execfile( i )"+("\n%matplotlib" if __defaults.backend is not None else ""), "-i" ] )
 
 except:
