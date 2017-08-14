@@ -5,8 +5,7 @@ from subprocess import Popen
 from enum import Enum
 from time import sleep, localtime, strftime
 from threading import Thread
-import tempfile
-import getpass
+import crashrpt_conf
 
 from casa_shutdown import add_shutdown_hook
 
@@ -147,13 +146,13 @@ class procmgr(Thread):
         self.__running = False
 
     def removeCrashReporterDir(self):
-        temporaryDirectory = tempfile.gettempdir() + "/casa-crashreporter/" + getpass.getuser() + "/" + str(os.getpid())
+        temporaryDirectory = crashrpt_conf.temporaryDirectory
         if os.path.exists(temporaryDirectory):
             try:
                 os.rmdir(temporaryDirectory)
             except:
                 print "Couldn't remove " + temporaryDirectory
-    
+
     def __delitem__(self, key):
         print "you cannot stop processes this way"
         return None
