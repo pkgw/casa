@@ -30,13 +30,13 @@ class MPIInterfaceCore:
         if not MPIEnvironment.is_mpi_enabled:
             msg = "MPI is not enabled"
             casalog.post(msg,"SEVERE",casalog_call_origin)
-            raise Exception,msg
+            raise Exception(msg)
         
         # Check if MPIInterfaceCore can be instantiated
         if not MPIEnvironment.is_mpi_client:
             msg = "MPIInterfaceCore can only be instantiated at master MPI process"
             casalog.post(msg,"SEVERE",casalog_call_origin)
-            raise Exception,msg
+            raise Exception(msg)
         
         # Check whether we already have a MPIInterfaceCore singleton instance
         if MPIInterfaceCore.__instance is None:
@@ -206,7 +206,8 @@ class MPIInterfaceCore:
             completed_jobs = []
             for command_response in command_response_list:
                 if not command_response['successful']:
-                    if len(error_msg) > 0: error_msg += "\n"
+                    if len(error_msg) > 0:
+                        error_msg += "\n"
                     
                     error_msg += "Exception executing command in server %s: %s" % (command_response['server'],
                                                                                   command_response['traceback'])
@@ -263,13 +264,13 @@ class MPIInterface:
         if not MPIEnvironment.is_mpi_enabled:
             msg = "MPI is not enabled"
             casalog.post(msg,"SEVERE",casalog_call_origin)
-            raise Exception,msg
+            raise Exception(msg)
         
         # Check if MPIInterface can be instantiated
         if not MPIEnvironment.is_mpi_client:
             msg = "MPIInterface can only be instantiated at master MPI process"
             casalog.post(msg,"SEVERE",casalog_call_origin)
-            raise Exception,msg
+            raise Exception(msg)
         
         # Check whether we already have a MPIInterface singleton instance
         if MPIInterface.__instance is None:
@@ -431,7 +432,7 @@ class MPIInterface:
                             if command_response_list[jobId]['successful']:
                                 ret = command_response_list[jobId]['ret']
                                 if isinstance(ret,bool):
-                                    if ret == True:
+                                    if ret is True:
                                         execution_status = 'completed - True'
                                     else:
                                         execution_status = 'completed - False'

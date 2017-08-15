@@ -193,7 +193,10 @@ class MPIEnvironment:
         mpi_command_response_handler_service_sleep_time = 0.1 # Aggressive, triggered (at the client)
         mpi_command_request_queue_service_sleep_time = 0.1 # Aggressive, triggered (at the client)
         mpi_push_command_request_block_mode_sleep_time = 0.1 # Aggressive, used for getting response in blocking mode (at the client)
-        
+
+        # For debugging/developing purposes this might need to be
+        # disabled
+        mpi_monitor_status_service_timeout_enabled = True
         mpi_monitor_status_service_timeout = 1 # 2*[bsend+(Iprobe+recv) + serialization/deserialization + latency + locks]
         mpi_monitor_status_service_timeout += mpi_ping_status_request_handler_service_sleep_time # Sleep time at the server
         mpi_monitor_status_service_timeout += mpi_world_size-1 # Receive sequentially response from all servers
@@ -229,9 +232,6 @@ class MPIEnvironment:
             # abort is only needed with >= 2.0 to kill all processes on timeout
             if 'Open MPI v1.10' not in cls.mpi_vendor_str:
                 MPIEnvironment.__mpi_factory.COMM_WORLD.Abort()
-        
-        
 
         
 # EOF
-

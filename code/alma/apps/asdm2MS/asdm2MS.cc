@@ -1449,7 +1449,7 @@ void fillEphemeris(ASDM* ds_p, uint64_t timeStepInNanoSecond, bool interpolate_e
 	+ TO_STRING(mjd0)
 	+ ".tab";
 
-      boost::regex e("[\\[\\]\\(\\)\\{\\} ]");
+      boost::regex e("[\\[\\]\\(\\)\\{\\}\\/ ]");
       tableName = replace_all_regex_copy(tableName, e, std::string("_"));
       
 
