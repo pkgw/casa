@@ -152,7 +152,6 @@ public:
 	virtual casacore::Bool
 	isWritable() const;
 
-
 	// Reset iterator to origin/start of data (of current chunk)
 	virtual void
 	origin();
@@ -426,12 +425,9 @@ public:
 	virtual void
 	visibilityModel(casacore::Cube<casacore::Complex> & vis) const;
 
-    virtual void spectralWindows (casacore::Vector<casacore::Int> & spws) const;
-	
-	//Get the all the selected channel info now or for all data set
-	ChannelInfo
-    getChannelInformation(casacore::Bool now) const;
-	
+	virtual void
+	visibilityObserved(casacore::Cube<casacore::Complex> & vis) const;
+
 	// This will return all selected spwids for each ms attached with this iterator
 	virtual casacore::Vector<casacore::Vector<casacore::Int> > getAllSelectedSpws() const;
 
@@ -696,6 +692,11 @@ protected:
 	virtual void
 	applyPendingChanges();
 
+	virtual void
+	allSpectralWindowsSelected(
+		casacore::Vector<casacore::Int> & selectedWindows,
+		casacore::Vector<casacore::Int> & nChannels) const;
+
 	// set the iteration state
 
 	virtual void
@@ -737,15 +738,22 @@ protected:
 	// Methods to get the data out of a table column according to whatever
 	// selection criteria (e.g., slicing) is in effect.
 
-    
-    ChannelInfo
-    getChannelInformationUsingFrequency (casacore::Bool now) const;
-
 	template <typename T>
 	void
 	getColumnRows(
 		const casacore::ROScalarColumn<T> & column,
 		casacore::Vector<T> & array) const;
+
+	template <typename T>
+	void
+	getColumnRowsMatrix(const casacore::ROArrayColumn<T> & column,
+	                    casacore::Matrix<T> & array,
+	                    casacore::Bool correlationSlicing) const;
+
+	template <typename T>
+	void
+	getColumnRows(const casacore::ROArrayColumn<T> & column,
+	              casacore::Array<T> & array) const;
 
 	casacore::Vector<casacore::Double>
 	getFrequencies(
@@ -802,6 +810,9 @@ protected:
 	getVisBuffer(const VisibilityIterator2 *) const;
 
 	// Ctor auxiliary method
+
+	virtual void
+	addDataSelection(const casacore::MeasurementSet & ms);
 
 	virtual void
 	initialize(
