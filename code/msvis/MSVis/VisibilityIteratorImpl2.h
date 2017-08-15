@@ -85,6 +85,7 @@ class VisibilityIteratorImpl2 : public ViImplementation2 {
 public:
 
 	typedef VisibilityIterator2::DataColumn DataColumn;
+	typedef std::tuple <casacore::Vector<casacore::Int>, casacore::Vector<casacore::Int>, casacore::Vector<casacore::Int>, casacore::Vector<casacore::Int> > ChannelInfo;
 
 	// Default constructor - useful only to assign another iterator later
 	////VisibilityIteratorImpl2 ();
@@ -425,8 +426,14 @@ public:
 	virtual void
 	visibilityModel(casacore::Cube<casacore::Complex> & vis) const;
 
-	virtual void
-	visibilityObserved(casacore::Cube<casacore::Complex> & vis) const;
+    virtual void spectralWindows (casacore::Vector<casacore::Int> & spws) const;
+	
+	//Get the all the selected channel info now or for all data set
+	ChannelInfo
+    getChannelInformation(casacore::Bool now) const;
+	
+	// This will return all selected spwids for each ms attached with this iterator
+	virtual casacore::Vector<casacore::Vector<casacore::Int> > getAllSelectedSpws() const;
 
 	// Return FLOAT_DATA as a casacore::Cube(npol, nchan, nrow) if found in the
 	// MS.
@@ -676,20 +683,6 @@ public:
 
 protected:
 
-	typedef std::tuple <casacore::Vector<casacore::Int>, casacore::Vector<casacore::Int>, casacore::Vector<casacore::Int>, casacore::Vector<casacore::Int> > ChannelInfo;
-
-	void
-	addDataSelection(const casacore::MeasurementSet & ms);
-
-	void
-	allSpectralWindowsSelected(
-		casacore::Vector<casacore::Int> & spectralWindows,
-		casacore::Vector<casacore::Int> & nChannels) const; /*KLUGE*/
-
-	void
-	attachColumnsSafe(const casacore::Table & t);
-
-	// attach the column objects to the currently selected table
 
 	virtual void
 	attachColumns(const casacore::Table & t);
@@ -744,18 +737,9 @@ protected:
 	// Methods to get the data out of a table column according to whatever
 	// selection criteria (e.g., slicing) is in effect.
 
-	template <typename T>
-	void
-	getColumnRows(
-		const casacore::ROArrayColumn<T> & column,
-		casacore::Array<T> & array) const;
-
-	template <typename T>
-	void
-	getColumnRowsMatrix(
-		const casacore::ROArrayColumn<T> & column,
-		casacore::Matrix<T> & array,
-		casacore::Bool correlationSlicing) const;
+    
+    ChannelInfo
+    getChannelInformationUsingFrequency (casacore::Bool now) const;
 
 	template <typename T>
 	void

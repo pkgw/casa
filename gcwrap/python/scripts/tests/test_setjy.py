@@ -1099,13 +1099,15 @@ class test_ModImage(SetjyUnitTestBase):
                                             field='0542+498_1',
                                             baseline='2&9',
                                             time='2003/05/02/19:53:30.0',
-                                            correlation='rr')['MODEL']['mean']
+                                            correlation='rr',
+                                            reportingaxes='field')['FIELD_ID=12']['mean']
             record['long']  = ms.statistics(column='MODEL',
                                             complex_value='amp',
                                             field='0542+498_1',
                                             baseline='21&24',
                                             time='2003/05/02/19:53:30.0',
-                                            correlation='ll')['MODEL']['mean']
+                                            correlation='ll',
+                                            reportingaxes='field')['FIELD_ID=12']['mean']
             ms.close()
         except Exception, e:
             print "Error from setjy or ms.statistics()"
@@ -1284,9 +1286,9 @@ class test_setpol(SetjyUnitTestBase):
         # fmin at last chan (Freq=4662000000.0Hz)
         fexpmin = 7.68502
         ms.open(self.inpms)
-        retrec = ms.statistics(field='0', baseline='1&2', correlation='rr', column='model', complex_value='amp')
+        retrec = ms.statistics(field='0', baseline='1&2', correlation='rr', column='model', complex_value='amp', reportingaxes='field')
         ms.close()
-        self.check_eq(retrec['MODEL']['min'],fexpmin,0.0001)
+        self.check_eq(retrec['FIELD_ID=0']['min'],fexpmin,0.0001)
 
     def test_setpol2(self):
         """ Test for constant polindex and polangle with I flux density  """
@@ -1313,10 +1315,10 @@ class test_setpol(SetjyUnitTestBase):
         # fmin at last chan (Freq=4662000000.0Hz)
         fexpmin = 7.68527
         ms.open(self.inpms)
-        retrec = ms.statistics(field='0', baseline='1&2', correlation='rr', column='model', complex_value='amp')
+        retrec = ms.statistics(field='0', baseline='1&2', correlation='rr', column='model', complex_value='amp', reportingaxes='field')
         #retrec2 = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='phase')
         ms.close()
-        self.check_eq(retrec['MODEL']['min'],fexpmin,0.0001)
+        self.check_eq(retrec['FIELD_ID=0']['min'],fexpmin,0.0001)
 
     def test_setpol3(self):
         """ Test for frequency-dependent polindex (2 terms)   """
@@ -1347,21 +1349,21 @@ class test_setpol(SetjyUnitTestBase):
         # min fluxes  at last chan (Freq=4662000000.0Hz)
         ifexpmin = 7.68527
         ms.open(self.inpms)
-        retrecI = ms.statistics(field='0', baseline='1&2', correlation='rr', column='model', complex_value='amp')
+        retrecI = ms.statistics(field='0', baseline='1&2', correlation='rr', column='model', complex_value='amp', reportingaxes='field')
         # Q flux
         # polindex0 = 0.11190024, polindex = polindex0 - 0.5*(f-fref)/fref  (f-fref)/fref = 0.027778
         # => poindex_min = 0.09801124, with ifexpmin + pang constant => Qmin = 0.306371465
         # Umin = sqrt(I^2*polindex - Q^2)
         qfexpmin = 0.306371 
         ufexpmin = 0.688121784
-        retrecQ = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='real') 
-        retrecU = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='imaginary') 
+        retrecQ = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='real', reportingaxes='field') 
+        retrecU = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='imaginary', reportingaxes='field') 
         #print "retrecQ=",retrecQ['MODEL']['min']
         #print "retrecU=",retrecU['MODEL']['min']
         ms.close()
-        self.check_eq(retrecI['MODEL']['min'],ifexpmin,0.0001)
-        self.check_eq(retrecQ['MODEL']['min'],qfexpmin,0.0001)
-        self.check_eq(retrecU['MODEL']['min'],ufexpmin,0.0001)
+        self.check_eq(retrecI['FIELD_ID=0']['min'],ifexpmin,0.0001)
+        self.check_eq(retrecQ['FIELD_ID=0']['min'],qfexpmin,0.0001)
+        self.check_eq(retrecU['FIELD_ID=0']['min'],ufexpmin,0.0001)
 
     def test_setpol4(self):
         """ Test for frequency-dependent polangle (2 terms)   """
@@ -1392,7 +1394,7 @@ class test_setpol(SetjyUnitTestBase):
         # min fluxes  at last chan (Freq=4662000000.0Hz)
         ifexpmin = 7.68527
         ms.open(self.inpms)
-        retrecI = ms.statistics(field='0', baseline='1&2', correlation='rr', column='model', complex_value='amp')
+        retrecI = ms.statistics(field='0', baseline='1&2', correlation='rr', column='model', complex_value='amp', reportingaxes='field')
         # U flux
         # polindex0 = 0.11190024, 
         # polangle0 = 0.5759586531581288, polangle = polangle0 - 0.5*(f-fref)/fref  (f-fref)/fref = 0.027778
@@ -1400,14 +1402,14 @@ class test_setpol(SetjyUnitTestBase):
         # Umin = sqrt(I^2*polindex^2 - Q^2)
         qfexpmax = 0.371472 
         ufexpmin = 0.775616 
-        retrecQ = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='real')
-        retrecU = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='imaginary')
+        retrecQ = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='real', reportingaxes='field')
+        retrecU = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='imaginary', reportingaxes='field')
         #print "retrecQ=",retrecQ['MODEL']['min']
         #print "retrecU=",retrecU['MODEL']['min']
         ms.close()
-        self.check_eq(retrecI['MODEL']['min'],ifexpmin,0.0001)
-        self.check_eq(retrecQ['MODEL']['max'],qfexpmax,0.0001)
-        self.check_eq(retrecU['MODEL']['min'],ufexpmin,0.0001)
+        self.check_eq(retrecI['FIELD_ID=0']['min'],ifexpmin,0.0001)
+        self.check_eq(retrecQ['FIELD_ID=0']['max'],qfexpmax,0.0001)
+        self.check_eq(retrecU['FIELD_ID=0']['min'],ufexpmin,0.0001)
 
     def testr5(self):
         """ Test for rotation measure (with constant polindex and polangle) """
@@ -1439,21 +1441,21 @@ class test_setpol(SetjyUnitTestBase):
         # min fluxes  at last chan (Freq=4662000000.0Hz)
         ifexpmin = 7.68527
         ms.open(self.inpms)
-        retrecI = ms.statistics(field='0', baseline='1&2', correlation='rr', column='model', complex_value='amp')
+        retrecI = ms.statistics(field='0', baseline='1&2', correlation='rr', column='model', complex_value='amp', reportingaxes='field')
         # U flux
         # polindex = 0.11190024,
         # polangle = 0.57595865
         # rotmeas = 10.0 => angle = 2*rotmeas*c^2*(fref^2-f^2)/ (f^2*f0^2) 
         qfexpend = 0.353443
         ufexpend = 0.783996
-        retrecQ = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='real')
-        retrecU = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='imaginary')
+        retrecQ = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='real', reportingaxes='field')
+        retrecU = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='imaginary', reportingaxes='field')
         #print "retrecQ=",retrecQ['MODEL']['min']
         #print "retrecU=",retrecU['MODEL']['min']
         ms.close()
-        self.check_eq(retrecI['MODEL']['min'],ifexpmin,0.0001)
-        self.check_eq(retrecQ['MODEL']['min'],qfexpend,0.0001)
-        self.check_eq(retrecU['MODEL']['min'],ufexpend,0.0001)
+        self.check_eq(retrecI['FIELD_ID=0']['min'],ifexpmin,0.0001)
+        self.check_eq(retrecQ['FIELD_ID=0']['min'],qfexpend,0.0001)
+        self.check_eq(retrecU['FIELD_ID=0']['min'],ufexpend,0.0001)
 
     def testr6(self):
         """ Test for spectral index with curvature and frequnecy-dependent polindex and polangle with rotmeas """
@@ -1485,7 +1487,7 @@ class test_setpol(SetjyUnitTestBase):
         # min fluxes  at last chan (Freq=4662000000.0Hz)
         ifexpmin = 7.6850217
         ms.open(self.inpms)
-        retrecI = ms.statistics(field='0', baseline='1&2', correlation='rr', column='model', complex_value='amp')
+        retrecI = ms.statistics(field='0', baseline='1&2', correlation='rr', column='model', complex_value='amp', reportingaxes='field')
         # U flux - based on python script calculation
         # polindex0 = 0.11190024, polindex= polindex0 +(-0.5)*(f-fref)/fref +(-0.1)*((f-fref)/fref)^2
         # polindex(f=fmax) = 
@@ -1494,16 +1496,16 @@ class test_setpol(SetjyUnitTestBase):
         qfexpmin = 0.328774
         ufexpmin = 0.678335
         anglemin = 1.119481
-        retrecQ = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='real')
-        retrecU = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='imaginary')
-        retrecAngle = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='phase')
+        retrecQ = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='real', reportingaxes='field')
+        retrecU = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='imaginary', reportingaxes='field')
+        retrecAngle = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='phase', reportingaxes='field')
         #print "retrecQ=",retrecQ['MODEL']['min']
         #print "retrecU=",retrecU['MODEL']['min']
         ms.close()
-        self.check_eq(retrecI['MODEL']['min'],ifexpmin,0.0001)
-        self.check_eq(retrecQ['MODEL']['min'],qfexpmin,0.0001)
-        self.check_eq(retrecU['MODEL']['min'],ufexpmin,0.0001)
-        self.check_eq(retrecAngle['MODEL']['min'],anglemin,0.0001)
+        self.check_eq(retrecI['FIELD_ID=0']['min'],ifexpmin,0.0001)
+        self.check_eq(retrecQ['FIELD_ID=0']['min'],qfexpmin,0.0001)
+        self.check_eq(retrecU['FIELD_ID=0']['min'],ufexpmin,0.0001)
+        self.check_eq(retrecAngle['FIELD_ID=0']['min'],anglemin,0.0001)
 
 
 class test_ephemtbl(SetjyUnitTestBase):
@@ -1539,18 +1541,18 @@ class test_ephemtbl(SetjyUnitTestBase):
         stats['phase0']={}
         stats['phase180']={}
         ms.open(self.inpms)
-        stats['1stNull']['spw0']=ms.statistics(column='MODEL',complex_value='amp',field='1',spw='0',baseline='2&18',time='2015/06/21/04:56:50.4')['MODEL']
-        stats['1stNull']['spw1']=ms.statistics(column='MODEL',complex_value='amp',field='1',spw='1',baseline='0&16',time='2015/06/21/04:54:25.1')['MODEL']
-        stats['1stNull']['spw2']=ms.statistics(column='MODEL',complex_value='amp',field='1',spw='2',baseline='7&13',time='2015/06/21/04:54:25.1')['MODEL']
-        stats['1stNull']['spw3']=ms.statistics(column='MODEL',complex_value='amp',field='1',spw='3',baseline='7&13',time='2015/06/21/04:55:01.4')['MODEL']
-        stats['phase0']['spw0']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='0',baseline='0&16', time='2015/06/21/04:55:37.8')['MODEL']
-        stats['phase180']['spw0']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='0',baseline='2&18', time='2015/06/21/04:55:37.8')['MODEL'] 
-        stats['phase0']['spw1']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='1:186~190',baseline='0&16', time='2015/06/21/04:54:25.1')['MODEL'] 
-        stats['phase180']['spw1']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='1:0~10',baseline='0&16', time='2015/06/21/04:55:37.8')['MODEL'] 
-        stats['phase0']['spw2']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='2:0~10',baseline='7&13', time='2015/06/21/04:54:25.1')['MODEL'] 
-        stats['phase180']['spw2']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='2:180~190',baseline='7&13', time='2015/06/21/04:54:25.1')['MODEL'] 
-        stats['phase0']['spw3']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='3:0~10',baseline='7&13', time='2015/06/21/04:55:01.4')['MODEL'] 
-        stats['phase180']['spw3']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='3:180~190',baseline='7&13', time='2015/06/21/04:55:01.4')['MODEL'] 
+        stats['1stNull']['spw0']=ms.statistics(column='MODEL',complex_value='amp',field='1',spw='0',baseline='2&18',time='2015/06/21/04:56:50.4',reportingaxes='field')['FIELD_ID=1']
+        stats['1stNull']['spw1']=ms.statistics(column='MODEL',complex_value='amp',field='1',spw='1',baseline='0&16',time='2015/06/21/04:54:25.1',reportingaxes='field')['FIELD_ID=1']
+        stats['1stNull']['spw2']=ms.statistics(column='MODEL',complex_value='amp',field='1',spw='2',baseline='7&13',time='2015/06/21/04:54:25.1',reportingaxes='field')['FIELD_ID=1']
+        stats['1stNull']['spw3']=ms.statistics(column='MODEL',complex_value='amp',field='1',spw='3',baseline='7&13',time='2015/06/21/04:55:01.4',reportingaxes='field')['FIELD_ID=1']
+        stats['phase0']['spw0']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='0',baseline='0&16', time='2015/06/21/04:55:37.8',reportingaxes='field')['FIELD_ID=1']
+        stats['phase180']['spw0']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='0',baseline='2&18', time='2015/06/21/04:55:37.8',reportingaxes='field')['FIELD_ID=1'] 
+        stats['phase0']['spw1']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='1:186~190',baseline='0&16', time='2015/06/21/04:54:25.1',reportingaxes='field')['FIELD_ID=1'] 
+        stats['phase180']['spw1']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='1:0~10',baseline='0&16', time='2015/06/21/04:55:37.8',reportingaxes='field')['FIELD_ID=1'] 
+        stats['phase0']['spw2']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='2:0~10',baseline='7&13', time='2015/06/21/04:54:25.1',reportingaxes='field')['FIELD_ID=1'] 
+        stats['phase180']['spw2']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='2:180~190',baseline='7&13', time='2015/06/21/04:54:25.1',reportingaxes='field')['FIELD_ID=1'] 
+        stats['phase0']['spw3']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='3:0~10',baseline='7&13', time='2015/06/21/04:55:01.4',reportingaxes='field')['FIELD_ID=1'] 
+        stats['phase180']['spw3']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='3:180~190',baseline='7&13', time='2015/06/21/04:55:01.4',reportingaxes='field')['FIELD_ID=1'] 
         ms.close()
         spwlist = ['spw0','spw1','spw2','spw3']
         print "Checking values of  model amplitudes near 1st null ..."
@@ -1581,14 +1583,14 @@ class test_ephemtbl(SetjyUnitTestBase):
         stats['amp']={}
         stats['phase']={}
         ms.open(self.inpms)
-        stats['amp']['spw0']=ms.statistics(column='MODEL',complex_value='amp',field='1',spw='0')['MODEL']
-        stats['amp']['spw1']=ms.statistics(column='MODEL',complex_value='amp',field='1',spw='1')['MODEL']
-        stats['amp']['spw2']=ms.statistics(column='MODEL',complex_value='amp',field='1',spw='2')['MODEL']
-        stats['amp']['spw3']=ms.statistics(column='MODEL',complex_value='amp',field='1',spw='3')['MODEL']
-        stats['phase']['spw0']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='0')['MODEL']
-        stats['phase']['spw1']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='1')['MODEL'] 
-        stats['phase']['spw2']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='2')['MODEL'] 
-        stats['phase']['spw3']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='3')['MODEL'] 
+        stats['amp']['spw0']=ms.statistics(column='MODEL',complex_value='amp',field='1',spw='0',reportingaxes='field')['FIELD_ID=1']
+        stats['amp']['spw1']=ms.statistics(column='MODEL',complex_value='amp',field='1',spw='1',reportingaxes='field')['FIELD_ID=1']
+        stats['amp']['spw2']=ms.statistics(column='MODEL',complex_value='amp',field='1',spw='2',reportingaxes='field')['FIELD_ID=1']
+        stats['amp']['spw3']=ms.statistics(column='MODEL',complex_value='amp',field='1',spw='3',reportingaxes='field')['FIELD_ID=1']
+        stats['phase']['spw0']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='0',reportingaxes='field')['FIELD_ID=1']
+        stats['phase']['spw1']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='1',reportingaxes='field')['FIELD_ID=1'] 
+        stats['phase']['spw2']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='2',reportingaxes='field')['FIELD_ID=1'] 
+        stats['phase']['spw3']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='3',reportingaxes='field')['FIELD_ID=1'] 
         ms.close()
         spwlist = ['spw0','spw1','spw2','spw3']
         print "Checking values of mean model amplitudes"

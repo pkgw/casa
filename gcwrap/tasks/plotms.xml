@@ -1073,6 +1073,10 @@ Export plot as image Parameters
         <value></value>
      </param>
      
+     <param type="string" name="headeritems" >
+        <description>Comma-separated list of pre-defined page header items.</description>
+        <value></value>
+    </param>
      
 <!--
 ###############################################################################
@@ -1890,6 +1894,15 @@ Constraints
     
     showgui - Whether or not to display the plotting GUI
               default: True
+              
+    headeritems -- append header items specific to this plot to the current list
+                of page header items.
+                Comma-separated string of header item selection keywords.
+                Allowed keywords: 'obsdate','obstime','filename','projid',
+                                  'targname','targdir','telescope','observer',
+                                  'ycolumn'
+                default: ''
+                example: 'filename,projid,targname'
 
 <!--
 

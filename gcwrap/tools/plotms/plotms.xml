@@ -920,6 +920,40 @@ Gets the MS calibration parameters for the plot at the given index as a record
   <returns />
 </method>
 
+<method type="function" name="setPlotMSPageHeaderItems">
+  <keyword>setPlotMSPageHeaderItems</keyword>
+  
+  <shortdescription>Sets page header items to the given.</shortdescription>
+  
+  <description>
+Sets page header items for the plot at the given index.  If updateImmediately is
+true, this change takes effect immediately IF the plotms window is currently
+shown; otherwise it will only be applied next time update() and/or show() is
+called.
+  </description>
+  
+  <input>
+    <param type="string" name="pageHeaderItems">
+      <description>Comma-separated list of items to display in the page header</description>
+    </param>
+    
+    <param type="bool" name="updateImmediately">
+      <description>whether to apply this change immediately, IF the window is currently shown</description>
+      <value>true</value>
+    </param>
+    
+    <param type="int" name="plotIndex">
+      <description>Index of the plot (0-based).</description>
+      <value>0</value>
+    </param>
+  </input>
+  
+  <example />
+  
+  <returns>
+  </returns>
+</method>
+
 <!--
 ###############################################################################
 Plot Axes Parameters Methods

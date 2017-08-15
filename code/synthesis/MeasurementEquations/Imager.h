@@ -196,7 +196,8 @@ class Imager
 			   const casacore::Quantity& distance=casacore::Quantity(0,"m"),
 			   const casacore::Bool trackSource=false, const casacore::MDirection& 
 			   trackDir=casacore::MDirection(casacore::Quantity(0.0, "deg"), 
-					       casacore::Quantity(90.0, "deg")));
+					       casacore::Quantity(90.0, "deg")),
+				 const casacore::String& projection=casacore::String("SIN"));
   // Set the data selection parameters
  
   // The parameters useModelcol and readonly is dummy here
@@ -1050,6 +1051,7 @@ protected:
   //numthreads
   casacore::Int numthreads_p;
   casacore::Bool avoidTempLatt_p;
+  casacore::String projection_p;
 };
 
 
