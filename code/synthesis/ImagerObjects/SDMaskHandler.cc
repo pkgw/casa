@@ -937,7 +937,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     }
     else if (alg==String("multithresh")) {
       autoMaskByMultiThreshold(*tempmask, *tempres, *imstore->psf(), thestats, iterdone, itsSidelobeLevel, sidelobethreshold,
-                                          noisethreshold, lownoisethreshold, cutthreshold, smoothfactor, minbeamfrac, growiterations);
+                                          noisethreshold, lownoisethreshold, negativethreshold, cutthreshold, smoothfactor, minbeamfrac, growiterations);
     }
 
     // this did not work (it won't physically remove the mask from the image 
