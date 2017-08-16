@@ -78,3 +78,6 @@ except:
 ### this should (perhaps) be placed in an 'atexit' hook...
 for handler in casa_shutdown_handlers:
     handler( )
+
+from init_welcome_helpers import immediate_exit_with_handlers
+immediate_exit_with_handlers( )
