@@ -76,7 +76,7 @@ try:
 
 except:
     _exit_status = 1
-    print "Unexpected error:", sys.exc_info()[0]
+    print "Unexpected error:"
     traceback.print_exc(file=sys.stdout)
     pass
 
