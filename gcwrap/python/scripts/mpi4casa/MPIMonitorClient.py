@@ -28,13 +28,13 @@ class MPIMonitorClient:
         if not MPIEnvironment.is_mpi_enabled:
             msg = "MPI is not enabled"
             casalog.post(msg,"SEVERE",casalog_call_origin)
-            raise Exception,msg
+            raise Exception(msg)
         
         # Check if MPIMonitorClient can be instantiated
         if not MPIEnvironment.is_mpi_client:
             msg = "MPIMonitorClient can only be instantiated at master MPI process"
             casalog.post(msg,"SEVERE",casalog_call_origin)
-            raise Exception,msg
+            raise Exception(msg)
         
         # Check whether we already have a MPIMonitorClient singleton instance
         if MPIMonitorClient.__instance is None:
@@ -117,7 +117,7 @@ class MPIMonitorClient:
                         try:
                             self.__communicator.ping_status_request_send(server=rank)
                             self.__server_status_list[rank]['ping_time'] = time.time()
-                            self.__server_status_list[rank]['pong_pending'] = True    
+                            self.__server_status_list[rank]['pong_pending'] = True
                             self.__server_status_list[rank]['pong_checks'] = 0           
                         except:
                             formatted_traceback = traceback.format_exc()
@@ -129,9 +129,11 @@ class MPIMonitorClient:
                         elapsed_time *= self.__server_status_list[rank]['pong_checks']
                         # elapsed_time = int(round(time.time() - self.__server_status_list[rank]['ping_time']))                        
                         # Notify when a server reaches timeout condition
-                        if ((elapsed_time > MPIEnvironment.mpi_monitor_status_service_timeout) and 
+                        if (MPIEnvironment.mpi_monitor_status_service_timeout_enabled and
+                            (elapsed_time > MPIEnvironment.mpi_monitor_status_service_timeout) and
                             (not self.__server_status_list[rank]['timeout'])):
-                            casalog.post("Ping status response from server %s not received in the last %ss" % 
+                            casalog.post("Ping status response from server %s not received "
+                                         "in the last %ss. Setting its status to 'timeout'" %
                                          (str(rank),str(int(elapsed_time))),"SEVERE",casalog_call_origin)
                             self.__server_status_list[rank]['timeout'] = True
                 # Sleep before next round
@@ -217,11 +219,11 @@ class MPIMonitorClient:
                         # Notify if the response has been received after timeout
                         if self.__server_status_list[rank]['timeout']:
                             self.__server_status_list[rank]['timeout'] = False
-                            casalog.post("Ping status response from server %s finally received after %ss" % 
-                                         (str(rank),str(int(elapsed_time))),"WARN",casalog_call_origin)                  
+                            casalog.post("Ping status response from server %s received after %ss" %
+                                         (str(rank),str(int(elapsed_time))),"WARN",casalog_call_origin)
                     except:
                         formatted_traceback = traceback.format_exc()
-                        casalog.post("Exception receiving ping status response msg: %s" 
+                        casalog.post("Exception receiving ping status response msg: %s"
                                      % str(formatted_traceback),"SEVERE",casalog_call_origin)
                 else:
                     time.sleep(MPIEnvironment.mpi_ping_status_response_handler_service_sleep_time) 
@@ -357,8 +359,41 @@ class MPIMonitorClient:
             for rank in self.__server_status_list:
                 if self.__server_status_list[rank]['timeout'] is True:
                     server_rank_timeout.append(rank)
-                    
+
+            casalog.post('Found {} server in timeout status'.
+                         format(len(server_rank_timeout)),
+                         "INFO", casalog_call_origin)
             return server_rank_timeout
-        
-        
+
+
+        def start_debugging_mode(self):
+            """ Enter debugging/development mode. This disables the heart-beat time
+            out mechanism (which would otherwise trigger when a debugger is attached
+            to MPI server processes). After this no more servers will be flagged as
+            'timeout', until stop_debugging_mode() is called."""
+
+            casalog_call_origin = "MPIMonitorClient::start_debugging_mode"
+
+            MPIEnvironment.mpi_monitor_status_service_timeout_enabled = False
+            casalog.post("Started debugging mode. Timeout mechanism disabled.",
+                         "INFO", casalog_call_origin)
+
+
+        def stop_debugging_mode(self):
+            """ Leave debugging/development mode. The heart-beat timeout mechanism is
+            re-enabled. """
+
+            casalog_call_origin = "MPIMonitorClient::stop_debugging_mode"
+
+            # Clear all 'pong_pending' and start ping/pong counts anew
+            for rank in self.__server_status_list:
+                if not self.__server_status_list[rank]['timeout'] is True:
+                    self.__server_status_list[rank]['pong_pending'] = False
+                    self.__server_status_list[rank]['pong_checks'] = 0;
+            MPIEnvironment.mpi_monitor_status_service_timeout_enabled = True
+
+            casalog.post("Stopped debugging mode. Timeout mechanism enabled.",
+                         "INFO", casalog_call_origin)
+
+
 # EOF

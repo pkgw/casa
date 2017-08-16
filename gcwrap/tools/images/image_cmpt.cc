@@ -5114,7 +5114,6 @@ record* image::statistics(
         if (force) {
             _stats->forceNewStorage();
         }
-        //_stats->setForce(force);
         _stats->setDisk(disk);
         _stats->setRobust(robust);
         _stats->setVerbose(verbose);

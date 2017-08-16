@@ -32,6 +32,10 @@
 #include <plotms/GuiTabs/PlotMSPlotTab.qo.h>
 #include <plotms/Plots/PlotMSPlotParameterGroups.h>
 
+#include <array>
+#include <QAbstractTableModel>
+#include <QIcon>
+
 namespace casa {
 
 //# Forward declarations.
@@ -72,6 +76,9 @@ public:
     //set (nonzero); false otherwise.
     bool isPlottable() const;
 
+    // Clear user-selected header items
+	void clearSelectedItems();
+
 signals:
 	void plottableChanged();
 
@@ -79,15 +86,80 @@ private slots:
 	//Whether to use a single global axis has changed.
 	void globalChanged();
 	void locationChanged();
+	// Header items edition
+	// ---- Add items selected in availableItemsTableView
+	void addItems();
+	// ---- Remove items selected in selectedItemsTableView
+	void removeItems();
+	void headerItemsChanged();
+	// Icons animation
+	void setArrowUpNormal();
+	void setArrowUpActive();
+	void setArrowDownNormal();
+	void setArrowDownActive();
 
 private:
 	void hideGridLocation( bool hide );
 	void setGridIndices( int rowIndex, int colIndex );
-
+	void setHeaderItems(const PMS_PP_PageHeader* pageHeaderParamsGroup);
+	void setAvailable(PageHeaderItemsDef::Item item, bool isAvailable);
+	void setButtonIcon(QPushButton *button, Bool isActive);
 
 	//Location of the plot
 	int gridRow;
 	int gridCol;
+
+	// Page header items
+	PageHeaderItems headerItems;
+
+	// Animated buttons
+	QIcon arrowUpIcon;
+	QIcon arrowDownIcon;
+};
+
+
+class SelectedItemsDataModel : public QAbstractTableModel
+{
+	Q_OBJECT
+
+public:
+	using Items = PageHeaderItemsDef;
+	using Item = Items::Item;
+	SelectedItemsDataModel(PageHeaderItems &items, QObject *parent =0);
+	// Read-Only interface
+	int rowCount(const QModelIndex &parent = QModelIndex()) const;
+	int columnCount(const QModelIndex &parent = QModelIndex()) const;
+	QVariant data(const QModelIndex &index, int role) const;
+	// Resize interface
+    void prepareToAppend(Item item);
+    vector<Item>& itemsToRemove() { return itemsToRemove_ ; }
+    bool insertRows(int row, int count, const QModelIndex & parent = QModelIndex());
+    bool removeRows(int row, int count, const QModelIndex & parent = QModelIndex());
+
+    // Edit interface
+    // bool setData(const QModelIndex & index, const QVariant & value, int role = Qt::EditRole);
+private:
+	PageHeaderItems &items_;
+	vector<Item> newItem_;
+	vector<Item> itemsToRemove_;
+};
+
+
+class AvailableItemsDataModel : public QAbstractTableModel
+{
+	Q_OBJECT
+
+public:
+	using Items = PageHeaderItemsDef;
+	using Item = Items::Item;
+	using ItemsArray = std::array<Item,Items::n_items>;
+	AvailableItemsDataModel(const ItemsArray &items, QObject *parent =0);
+	// Read-Only interface
+	int rowCount(const QModelIndex &parent = QModelIndex()) const;
+	int columnCount(const QModelIndex &parent = QModelIndex()) const;
+	QVariant data(const QModelIndex &index, int role) const;
+private:
+	const ItemsArray &items_;
 };
     
     

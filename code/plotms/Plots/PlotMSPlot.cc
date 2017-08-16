@@ -70,6 +70,10 @@ void PlotMSPlot::makeParameters(PlotMSPlotParameters& params, PlotMSApp* /*plotm
     if(params.typedGroup<PMS_PP_Display>() == NULL)
         params.setGroup<PMS_PP_Display>();
 
+    // Add page header parameters if needed.
+    if(params.typedGroup<PMS_PP_PageHeader>() == NULL)
+        params.setGroup<PMS_PP_PageHeader>();
+
     // Add iteration parameters if needed.
     if(params.typedGroup<PMS_PP_Iteration>() == NULL)
         params.setGroup<PMS_PP_Iteration>();

@@ -277,14 +277,14 @@ setbuf(stdout, NULL); /* for debugging - forces all printf() to flush immediatel
     	plotmsapp.showGUI(showGui); // don't automatically show for casapy
     }*/
     if (nopopups)
-      plotmsapp.its_want_avoid_popups = true;
+      plotmsapp.allowPopups(false);
     
     
     // check for hackjob env var CASAPLOTMS_NOPOPUPS set to "yes" (or
     // anything starting with 'Y')
     const char *ev = getenv("CASAPLOTMS_NOPOPUPS");
     if (ev && (ev[0]=='Y' || ev[0]=='y'))
-      plotmsapp.its_want_avoid_popups = true;
+      plotmsapp.allowPopups(false);
     
     // Set up parameters for plot.
     PlotMSPlotParameters plotparams = PlotMSPlot::makeParameters(&plotmsapp);
