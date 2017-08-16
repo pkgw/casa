@@ -70,7 +70,7 @@ try:
     start_ipython( config=__configs, argv= (['--logfile='+casa['files']['iplogfile']] if __defaults.ipython_log else []) + ['--ipython-dir='+__defaults.rcdir+"/ipython", '--autocall=2', "-c", "for i in " + str(__startup_scripts) + ": execfile( i )"+("\n%matplotlib" if __defaults.backend is not None else ""), "-i" ] )
 
 except:
-    print "Unexpected error:", sys.exc_info()[0]
+    print "Unexpected error:"
     traceback.print_exc(file=sys.stdout)
     pass
 
