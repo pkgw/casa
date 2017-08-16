@@ -800,7 +800,7 @@ class immath_test2(unittest.TestCase):
                 
         # FIXME: add links to repository
         for img in imageList2:
-            self.assertTrue(os.path.exists(datapath + img))
+            self.assertTrue(os.path.exists(datapath + img), datapath + img + " does not exist")
             if os.path.isdir(datapath + img):
                 shutil.copytree(datapath + img, img)
             else:
