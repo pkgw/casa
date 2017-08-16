@@ -1850,12 +1850,23 @@ class imfit_test(unittest.TestCase):
         model = "mymod.im"
         myia.open(image)
         myia.fitcomponents(residual=resid, model=model)
+        teststr = "ia.fitcomponents"
         for im in (resid, model):
             myia.open(im)
             msgs = myia.history()
             myia.done()
-            self.assertTrue("ia.fitcomponents" in msgs[-2])    
-            self.assertTrue("ia.fitcomponents" in msgs[-1])
+            self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")    
+            self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
+            
+        imfit(imagename=image, residual=resid, model=model)
+        for im in (resid, model):
+            myia.open(im)
+            msgs = myia.history()
+            myia.done()
+            teststr = "version"
+            self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")   
+            teststr = "imfit" 
+            self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
 
     def test_summary(self):
         """Test summary file, CAS-3478"""
