@@ -3365,6 +3365,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                 err+= "lownoisethreshold must be a float or double";
               }
           }
+        if( inrec.isDefined("negativethreshold"))
+          {
+            if(inrec.dataType("negativethreshold")==TpFloat || inrec.dataType("negativethreshold")==TpDouble )
+              {
+                err+= readVal(inrec, String("negativethreshold"), negativeThreshold );
+              }
+            else 
+              {
+                err+= "negativethreshold must be a float or double";
+              }
+          }
         if( inrec.isDefined("smoothfactor"))
           {
             if( inrec.dataType("smoothfactor")==TpFloat || inrec.dataType("smoothfactor")==TpDouble )
@@ -3576,6 +3587,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     decpar.define("sidelobethreshold",sidelobeThreshold);
     decpar.define("noisethreshold",noiseThreshold);
     decpar.define("lownoisethreshold",lowNoiseThreshold);
+    decpar.define("negativethreshold",negativeThreshold);
     decpar.define("smoothfactor",smoothFactor);
     decpar.define("minbeamfrac",minBeamFrac);
     decpar.define("cutthreshold",cutThreshold);

@@ -38,6 +38,11 @@ casa_builtins = { }
 ##
 casa_shutdown_handlers = [ ]
 
+##
+## final interactive exit status...
+## runs using "-c ..." exit from init_welcome.py
+##
+_exit_status=0
 try:
     __startup_scripts = filter( os.path.isfile, map(lambda f: __pylib + '/' + f, __init_scripts ) )
 
@@ -78,3 +83,6 @@ except:
 ### this should (perhaps) be placed in an 'atexit' hook...
 for handler in casa_shutdown_handlers:
     handler( )
+
+from init_welcome_helpers import immediate_exit_with_handlers
+immediate_exit_with_handlers(_exit_status)
