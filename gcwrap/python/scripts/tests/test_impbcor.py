@@ -363,15 +363,26 @@ class impbcor_test(unittest.TestCase):
     def test_history(self):
         """Test history records are written"""
         myia = iatool()
-        myia.fromshape("",[20,20])
+        imagename = "zz.im"
+        myia.fromshape(imagename, [20,20])
         gg = myia.getchunk()
         gg[:] = 1
         zz = myia.pbcor(gg, "")
         myia.done()
         msgs = zz.history()
         zz.done()
-        self.assertTrue("ia.pbcor" in msgs[-2])    
-        self.assertTrue("ia.pbcor" in msgs[-1])
+        teststr = "ia.pbcor"
+        self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")    
+        self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
+        outfile = "pb_out.im"
+        impbcor(imagename=imagename, pbimage=gg, outfile=outfile)
+        self.assertTrue(myia.open(outfile), "failed to open " + outfile)
+        msgs = myia.history()
+        myia.done()
+        teststr = "version"
+        self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
+        teststr = "impbcor"
+        self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
 
 def suite():
     return [impbcor_test]
