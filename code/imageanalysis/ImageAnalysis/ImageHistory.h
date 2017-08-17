@@ -44,22 +44,24 @@ public:
     );
     // add multiple history lines, all which have the same origin
     void addHistory(
-        const casacore::String& origin, const vector<casacore::String>& history
+        const casacore::String& origin,
+        const std::vector<casacore::String>& history
     );
 
     void addHistory(
-        const casacore::LogOrigin& origin, const vector<casacore::String>& history
+        const casacore::LogOrigin& origin,
+        const std::vector<casacore::String>& history
     );
 
     void addHistory(
-        const casacore::String& origin, const vector<string>& history
+        const casacore::String& origin, const std::vector<string>& history
     );
 
     void addHistory(
-        const vector<std::pair<casacore::LogOrigin, casacore::String> >& history
+        const std::vector<std::pair<casacore::LogOrigin, casacore::String> >& history
     );
 
-    vector<casacore::String> get(casacore::Bool list) const;
+    std::vector<casacore::String> get(casacore::Bool list) const;
     vector<string> getAsStdStrings(casacore::Bool list) const;
 
     //Append the specified image's history to this image's history
