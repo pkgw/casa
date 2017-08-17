@@ -164,6 +164,7 @@ protected:
   casacore::Float itsSidelobeThreshold;
   casacore::Float itsNoiseThreshold;
   casacore::Float itsLowNoiseThreshold;
+  casacore::Float itsNegativeThreshold;
   casacore::Float itsSmoothFactor;
   casacore::Float itsMinBeamFrac;
   casacore::Float itsCutThreshold;
