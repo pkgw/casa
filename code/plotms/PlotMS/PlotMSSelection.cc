@@ -134,18 +134,16 @@ void PlotMSSelection::apply(MeasurementSet& ms, MeasurementSet& selMS,
         throw(AipsError(errormsg));
     }
 
-
-    selAnts.resize(0);
+    selAnts1.resize(0);
     selAnts2.resize(0);
-    String antennaSel = antenna();
-    if ( antennaSel.length() > 0 ){
-    	selAnts = mss.getAntenna1List();
+    if ( antenna().length() > 0 ){
+    	selAnts1 = mss.getAntenna1List();
     	selAnts2 = mss.getAntenna2List();
     }
 }
 
 Vector<int> PlotMSSelection::getSelectedAntennas1(){
-	return selAnts;
+	return selAnts1;
 }
 
 Vector<int> PlotMSSelection::getSelectedAntennas2(){
@@ -183,6 +181,12 @@ void PlotMSSelection::apply(NewCalTable& ct, NewCalTable& selCT,
   TableExprNode ten=mss.toTableExprNode(&cti);
   try {
     getSelectedTable(selCT,ct,ten,"");
+    selAnts1.resize(0);
+    selAnts2.resize(0);
+    if ( antenna().length() > 0 ){
+    	selAnts1 = mss.getAntenna1List();
+    	selAnts2 = mss.getAntenna2List();
+    }
   } catch (AipsError x) {
     //    logSink() << x.getMesg() << LogIO::SEVERE;
     throw(AipsError("Error selecting on caltable: "+ct.tableName()));

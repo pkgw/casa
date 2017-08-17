@@ -97,6 +97,9 @@ private:
 		    casacore::Bool readonly=true,
 		    casacore::Bool chanselect=true,
 		    casacore::Bool corrselect=true);
+  // Redo (true) or add (false) selection for ref ant if selection changed
+  casacore::String handleRefantSelection(PlotMSSelection& selection, 
+        NewCalTable& selct);
 
   // Count the chunks required in the cache
   void countChunks(ROCTIter& ci,
