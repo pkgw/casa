@@ -246,7 +246,7 @@ public:
         // Can't get timeInterval, fails with error
         // "Caught exception: Exception: Can't fill VisBuffer component TimeInterval:
         // Not attached to VisibilityIterator."
-        logSink() << "Filling FFT grid with " << sdbs.nSDB() << " data buffers." << endl;
+        cerr << "Filling FFT grid with " << sdbs.nSDB() << " data buffers." << endl;
         if (sdbs.nSDB() < 2) {
             throw(AipsError("Not enough sdbs!"));
         }
@@ -422,12 +422,12 @@ public:
                 // maximum amplitude.
                 Float alo_ch = amp(ipkt, (ipkch > 0) ? ipkch-1 : nPadChan_-1);
                 Float ahi_ch = amp(ipkt, ipkch<(nPadChan_-1) ? ipkch+1 : 0);
-                cerr << "In channel dimension ipkch " << ipkch << " alo " << alo_ch  << " amax " << amax << " ahi " << ahi_ch << endl;
+                // cerr << "In channel dimension ipkch " << ipkch << " alo " << alo_ch  << " amax " << amax << " ahi " << ahi_ch << endl;
                 std::pair<Bool, Float> maybeFpkch = xinterp(alo_ch, amax, ahi_ch);
                 // We handle wrapping while looking for neighbours
                 Float alo_t = amp(ipkt > 0 ? ipkt-1 : nPadT_ -1,     ipkch);
                 Float ahi_t = amp(ipkt < (nPadT_ -1) ? ipkt+1 : 0,   ipkch);
-                cerr << "In time dimension ipkt " << ipkt << " alo " << alo_t  << " amax " << amax << " ahi " << ahi_t << endl;
+                // cerr << "In time dimension ipkt " << ipkt << " alo " << alo_t  << " amax " << amax << " ahi " << ahi_t << endl;
                 std::pair<Bool, Float> maybeFpkt = xinterp(alo_t, amax, ahi_t);
 
                 Int sgn = (ielem < refant()) ? 1 : -1;
@@ -453,7 +453,7 @@ public:
                     Double rate1 = rate0/(1e9 * f0_); 
 
                     param_(icorr*3 + 2, ielem) = Float(sgn*rate1); 
-                    if (1) {
+                    if (0) {
                         cerr << "maybeFpkch.second=" << maybeFpkch.second
                              << ", df_ " << df_ 
                              << " fpkch " << (ipkch + maybeFpkch.second) << endl;
@@ -522,7 +522,7 @@ public:
             t0 = sdbs(0).time()(0);
             Double tlast = sdbs(last_index).time()(0);
             reftime = 0.5*(t0 + tlast);
-            cerr << "AuxParamBundle reftime " << reftime << " t0 " << t0 <<" dt " << tlast - t0 << endl;
+            // cerr << "AuxParamBundle reftime " << reftime << " t0 " << t0 <<" dt " << tlast - t0 << endl;
             std::set<Int>::iterator it;
             Int i = 0;
             for (it = activeAntennas.begin(); it != activeAntennas.end(); it++) {
@@ -984,8 +984,8 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& param, Int refant, const std:
     gsl_multilarge_nlinear_fdf f;
 
     f.f = &expb_f;
-    f.df =  &expb_df;   /* set to NULL for finite-difference Jacobian */
-    // f.df = NULL;
+    /* Can't set to NULL for finite-difference Jacobian in multilarge case. */
+    f.df =  &expb_df;   
     f.n = n;    /* number of data points */
     f.p = p;    /* number of parameters */
     f.params = &bundle;
@@ -1031,11 +1031,11 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& param, Int refant, const std:
     
         gsl_vector *res = gsl_multilarge_nlinear_position(w);
         
-        for (size_t iant=0; iant!=bundle.get_max_antenna_index(); iant++) {
+        for (size_t iant=0; iant != bundle.get_max_antenna_index()+1; iant++) {
             if ( !bundle.isActive(iant) ) continue;
             Int iparam = bundle.get_param_corr_index(iant);
             if (iparam<0) continue;
-            if (0) {
+            if (1) {
                 bool flag = false;
                 if ( fabs(gsl_vector_get(diff, iparam + 0) > FLT_EPSILON) ) {
                     flag = true;
@@ -1063,13 +1063,13 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& param, Int refant, const std:
             param(3*icor + 2, iant) = gsl_vector_get( res, iparam+2 );
         }
 
-        logSink() <<  "Least squares complete for correlation " << icor << "," << endl
-                  << "number of iterations: " <<  gsl_multilarge_nlinear_niter(w) << endl
+        cerr <<  "Least squares complete for correlation " << icor << "," << endl
+             << "number of iterations: " <<  gsl_multilarge_nlinear_niter(w) << endl
             // << "reason for stopping: " << ( (info == 1) ? "small step size" : "small gradient" ) << endl
-                  << "initial |f(x)| = " << chi0 << endl
-                  << "final   |f(x)| = " << chi1 << endl
-                  << "final step taken = " << diffsize 
-                  << "." << endl;
+             << "initial |f(x)| = " << chi0 << endl
+             << "final   |f(x)| = " << chi1 << endl
+             << "final step taken = " << diffsize 
+             << "." << endl;
         gsl_vector_free( gp );
     }    
     gsl_multilarge_nlinear_free( w );
@@ -1264,47 +1264,51 @@ void FringeJones::setSolve(const Record& solve) {
 
 void FringeJones::calcAllJones() {
 
-    if (prtlev()>6) cout << "       FringeJones::calcAllJones()" << endl;
+  if (prtlev()>6) cout << "       FringeJones::calcAllJones()" << endl;
 
-    // Should handle OK flags in this method, and only
-    //  do Jones calc if OK
+  // Should handle OK flags in this method, and only
+  //  do Jones calc if OK
 
-    Vector<Complex> oneJones;
-    Vector<Bool> oneJOK;
-    Vector<Float> onePar;
-    Vector<Bool> onePOK;
+  Vector<Complex> oneJones;
+  Vector<Bool> oneJOK;
+  Vector<Float> onePar;
+  Vector<Bool> onePOK;
 
-    ArrayIterator<Complex> Jiter(currJElem(),1);
-    ArrayIterator<Bool>    JOKiter(currJElemOK(),1);
-    ArrayIterator<Float>   Piter(currRPar(),1);
-    ArrayIterator<Bool>    POKiter(currParOK(),1);
+  ArrayIterator<Complex> Jiter(currJElem(),1);
+  ArrayIterator<Bool>    JOKiter(currJElemOK(),1);
+  ArrayIterator<Float>   Piter(currRPar(),1);
+  ArrayIterator<Bool>    POKiter(currParOK(),1);
 
-    Double phase;
-    for (Int iant=0; iant<nAnt(); iant++) {
-        for (Int ich=0; ich<nChanMat(); ich++) {
-            oneJones.reference(Jiter.array());
-            oneJOK.reference(JOKiter.array());
-            onePar.reference(Piter.array());
-            onePOK.reference(POKiter.array());
-            
-            for (Int ipar=0;ipar<nPar();ipar+=3) {
-                if (onePOK(ipar)) {
-                    phase=onePar(ipar);
-                    phase+=2.0*C::pi*onePar(ipar+1)*(currFreq()(ich)-KrefFreqs_(currSpw()));
-                    oneJones(ipar/3)=Complex(cos(phase),sin(phase));
-                    oneJOK(ipar/3)=True;
-                }
-            }
+  Double phase;
+  for (Int iant=0; iant<nAnt(); iant++) {
 
+    for (Int ich=0; ich<nChanMat(); ich++) {
       
-            // Advance iterators
-            Jiter.next();
-            JOKiter.next();
+      oneJones.reference(Jiter.array());
+      oneJOK.reference(JOKiter.array());
+      onePar.reference(Piter.array());
+      onePOK.reference(POKiter.array());
+
+      for (Int ipar=0;ipar<nPar();ipar+=3) {
+        if (onePOK(ipar)) {
+          phase=onePar(ipar);
+          phase+=2.0*C::pi*onePar(ipar+1)*
+            (currFreq()(ich)-KrefFreqs_(currSpw()));
+          phase+=2.0*C::pi*onePar(ipar+2)*KrefFreqs_(currSpw())*1e9*
+            (currTime() - refTime());
+          oneJones(ipar/3)=Complex(cos(phase),sin(phase));
+          oneJOK(ipar/3)=True;
         }
-        // Step to next antenns's pars
-        Piter.next();
-        POKiter.next();
+      }
+      
+      // Advance iterators
+      Jiter.next();
+      JOKiter.next();
     }
+    // Step to next antenns's pars
+    Piter.next();
+    POKiter.next();
+  }
 }
 
 void FringeJones::selfSolveOne(SDBList& sdbs) {
@@ -1368,7 +1372,7 @@ void FringeJones::solveLotsOfSDBs(SDBList& sdbs) {
 
     if (0) {
         cerr << "Ref time " << MVTime(refTime()/C::day).string(MVTime::YMD,7) << endl;
-        cerr() << "df0 " << df0 << " dt0 " << dt0 << " ref_freq*dt0 " << ref_freq*dt0 << LogIO::POST;
+        cerr << "df0 " << df0 << " dt0 " << dt0 << " ref_freq*dt0 " << ref_freq*dt0 << LogIO::POST;
         cerr << "ref_freq " << ref_freq << endl;
         cerr << "df0 " << df0 << " dt0 " << dt0 << " ref_freq*dt0 " << ref_freq*dt0 << endl;
     }
