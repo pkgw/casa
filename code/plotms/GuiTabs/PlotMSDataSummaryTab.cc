@@ -25,6 +25,8 @@
 //# $Id: $
 #include <plotms/GuiTabs/PlotMSDataSummaryTab.qo.h>
 
+
+#include <casaqt/QwtPlotter/QPPlotter.qo.h>
 #include <casaqt/QtUtilities/QtUtilities.h>
 #include <plotms/Actions/PlotMSAction.h>
 #include <plotms/GuiTabs/PlotMSDataCollapsible.qo.h>
@@ -33,6 +35,9 @@
 #include <plotms/Plots/PlotMSPlot.h>
 #include <plotms/Plots/PlotMSPlotParameterGroups.h>
 #include <QDebug>
+
+#include <QMessageBox>
+#include <plotms/Data/MSCache.h>
 
 using namespace casacore;
 namespace casa {
@@ -213,6 +218,16 @@ void PlotMSDataSummaryTab::close( PlotMSDataCollapsible* collapsible ){
 	delete collapsible;
 }
 
+void PlotMSDataSummaryTab::refreshPageHeader(){
+	auto * controllerQtDataModel = new PlotMSPageHeaderDataModel(itsParent_);
+	QtPageHeaderDataModelPtr controllerDataModelPtr { new QtPageHeaderDataModel(controllerQtDataModel) };
+
+	auto plotter = itsParent_->getPlotter();
+
+	plotter->refreshPageHeaderDataModel(controllerDataModelPtr);
+
+}
+
 bool PlotMSDataSummaryTab::plot(){
 	bool plotted = false;
 	//If there is at least one of the graphs updating its data
@@ -223,6 +238,7 @@ bool PlotMSDataSummaryTab::plot(){
 			plotted = true;
 		}
 	}
+	refreshPageHeader();
 	return plotted;
 }
 
@@ -243,6 +259,7 @@ void PlotMSDataSummaryTab::completePlotting( bool success, PlotMSPlot* plot ){
 		completePlotting( success, completedIndex );
 
 	}
+	refreshPageHeader();
 }
 
 void PlotMSDataSummaryTab::completePlotting( bool success, int plotIndex ){
