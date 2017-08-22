@@ -324,8 +324,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     /////// Remove this when the new vi/vb is able to get the full freq range.
     mssFreqSel_p.resize();
     mssFreqSel_p  = thisSelection.getChanFreqList(NULL,true);
-    cerr << std::setprecision(14) << "####MSS Freq list: " << mssFreqSel_p    << endl;
-    cerr << std::setprecision(14) << "####MSS Chan list: " << thisSelection.getChanList() << endl;
+   
     //// Set the data column on which to operate
     // TT: added checks for the requested data column existace 
     //    cout << "Using col : " << selpars.datacolumn << endl;
