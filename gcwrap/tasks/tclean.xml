@@ -1017,7 +1017,7 @@ HPX HEALPix grid.  -->
     </param>
 
     <param type="string" name="normtype" subparam="true">
-     <shortdescription>Normalization type (flatnoise, flatsky)</shortdescription>
+     <shortdescription>Normalization type (flatnoise, flatsky,pbsquare)</shortdescription>
 <description>Normalization type (flatnoise, flatsky, pbsquare) 
 
                        Gridded (and FT'd) images represent the PB-weighted sky image.
@@ -2388,7 +2388,7 @@ HPX HEALPix grid.  -->
 	 <default param="normtype"><value>"flatnoise"</value></default>
 	 <default param="vptable"><value>""</value></default>
 	 <default param="pblimit"><value>0.2</value></default>
-	 <default param="conjbeams"><value>False</value></default>
+	 <default param="conjbeams"><value>True</value></default>
        </equals>
        <equals type="string" value="mosaicft">
 	 <default param="normtype"><value>"flatnoise"</value></default>
