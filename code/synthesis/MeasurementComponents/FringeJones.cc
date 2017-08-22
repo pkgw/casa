@@ -209,7 +209,10 @@ private:
     Double f0_, df_;
     Double t0_, t1_, dt_;
     Double padBW_;
-    Array<Complex> Vpad_; 
+    Array<Complex> Vpad_;
+    Array<Int> xcount_;
+    Array<Float> sumw_;
+    Array<Float> sumww_;
     Int nCorr_;
     // 
     Matrix<Float> param_;
@@ -229,7 +232,10 @@ public:
         dt_ ( gm_.dt ),
         f0_( gm_.fmin / 1.e9),      // GHz
         df_( gm_.df / 1.e9),
-        Vpad_()  {
+        Vpad_(),
+        xcount_(),
+        sumw_(),
+        sumww_() {
         // Actual code!
         // gm_.checkAllGridpoints();
         Int veryDebug ( 0 );
@@ -243,6 +249,17 @@ public:
         activeAntennas_.insert(refant_);
         SolveDataBuffer& s0 ( sdbs(0) );
         nElem_ =  1 + max( max(s0.antenna1()), max(s0.antenna2())) ;
+        //
+
+        IPosition aggregateDim(2, nCorr_, nElem_);
+        xcount_.resize(aggregateDim);
+        sumw_.resize(aggregateDim);
+        sumww_.resize(aggregateDim);
+
+        xcount_ = 0;
+        sumw_ = 0.0;
+        sumww_ = 0.0;
+        
         // Can't get timeInterval, fails with error
         // "Caught exception: Exception: Can't fill VisBuffer component TimeInterval:
         // Not attached to VisibilityIterator."
@@ -282,6 +299,7 @@ public:
 
                 // v has shape (nelems, ?, nrows, nchannels)
                 Cube<Complex> v = s.visCubeCorrected();
+                Cube<Float> w = s.weightSpectrum();
                 Cube<Bool> fl = s.flagCube();
                 Int spw = s.spectralWindow()( 0 );
                 Int f_index = gm_.swStartIndex( spw );    // ditto!
@@ -309,18 +327,34 @@ public:
                          << "flagSlice " << flagSlice << endl;
                 }
                 Array<Complex> rhs = v(sl2).nonDegenerate();
+                
                 unitize(rhs);
                 Vpad_(sl1).nonDegenerate() = rhs;
                 // Zero flagged entries.
 
+                Array<Float> weights = w(sl2).nonDegenerate();
                 Array<Bool> flagged( fl(flagSlice).nonDegenerate() );
                 
                 if ( allTrue(flagged) ) {
                     ; // cerr << "irow " << irow << " Whoopsie!" << endl;
                 } else {
-                    activeAntennas_.insert(iant);
-                }
-                
+
+
+                    for (Int icorr=0; icorr<nCorr_; ++icorr) {
+
+                        IPosition p(2, icorr, iant);
+                        activeAntennas_.insert(iant);
+                        for (size_t ichan=0; ichan != spwchans+1; ichan++) {
+                            IPosition pchan(2, ichan, irow);
+                            if (!flagged(pchan)) {
+                                Float w = weights(pchan);
+                                xcount_(p)++;
+                                sumw_(p) += w;
+                                sumww_(p) += w*w;
+                            }
+                        }
+                    }
+                }                
                 if (veryDebug) {
                     cerr << "flagSlice " << flagSlice << endl
                          << "fl.shape() " << fl.shape() << endl
@@ -479,6 +513,45 @@ public:
             }
         }
     }
+    Float
+    snr(Int icorr, Int iant, Float delay, Float rate) {
+
+        // Have to convert delay and rate back into indices on the padded 2D grid.
+        
+        delay *= df_;
+        if (delay < 0.0) delay += 1;
+        Int ichan = Int(delay*nPadChan_ + 0.5); 
+        if (ichan == nPadChan_) ichan = 0;
+        
+        rate *= 1e9 * f0_;
+        rate *= dt_;
+        if (rate < 0.0) rate += 1;
+        Int itime = Int(rate*nPadT_ + 0.5);
+        if (itime == nPadT_) itime = 0;
+        // FIXME!:
+        // Double rate = (ipkt + maybeFpkt.second)/Float(nPadT_);
+        // 
+        // Also map iant to internal numbering
+        Int ielem = iant; 
+        // What about flags? If the datapoint closest to the computed
+        // delay and rate values is flagged we probably shouldn't use
+        // it, but what *should* we use?
+        IPosition ipos(4, icorr, ielem, itime, ichan);
+        Complex v = Vpad_(ipos);
+        Float peak = abs(v);
+        // xcount is number of data points for baseline to ielem
+        // sumw is sum of weights,
+        // sumww is sum of squares of weights
+        IPosition p(2, icorr, ielem);
+        Float cwt = ((tan(C::pi/2*peak/sumw_(p)), 1.163) *
+                     sqrt(sumw_(p)/sqrt(sumww_(p)/xcount_(p))));
+
+        cerr << "Correlation " << icorr << " antenna " << ielem << " ipos " << ipos
+             << " peak " << peak << " xcount " << xcount_(p) << " sumw " << sumw_(p) << " sumww " << sumww_(p) 
+             << "snr " << cwt << endl;
+        return cwt;
+    }
+    
 }; // End of class DelayRateFFT.
 
 
@@ -1348,6 +1421,8 @@ void FringeJones::solveLotsOfSDBs(SDBList& sdbs) {
     logSink() << "Searched for peaks in FFT." << endl;
     Matrix<Float> sRP(solveRPar().nonDegenerate(1));
     Matrix<Bool> sPok(solveParOK().nonDegenerate(1));
+    Matrix<Float> sSNR(solveParSNR().nonDegenerate(1));
+
     
     // Map from MS antenna number to index 
     Int ncol = drf.param().ncolumn();
@@ -1391,6 +1466,10 @@ void FringeJones::solveLotsOfSDBs(SDBList& sdbs) {
                       << "Adding corrections for frequency (" << 360*delta1 << ")"
                       << " and time (" << 360*delta2 << ") degrees." << LogIO::POST;
             sRP(3*icor + 0, iant) += delta3;
+            Float snrval = drf.snr(icor, iant, delay, rate);
+            sSNR(3*icor + 0, iant) = snrval;
+            sSNR(3*icor + 1, iant) = snrval;
+            sSNR(3*icor + 2, iant) = snrval;
         }
     }
 }
