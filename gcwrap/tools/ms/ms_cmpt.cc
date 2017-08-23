@@ -283,6 +283,7 @@ std::vector<std::string> ms::getreferencedtables()
 int
 ms::nrow(const bool selected)
 {
+	*itsLog << LogOrigin("ms", "nrow");
 	Int rstat(0);
 	try {
 		if(!detached()){
@@ -303,7 +304,7 @@ ms::nrow(const bool selected)
 int
 ms::nrow2(const bool selected)
 {
-	*itsLog << LogOrigin("ms", "nrow");
+	*itsLog << LogOrigin("ms", "nrow2");
 	Int rstat(0);
     try {
 		if(!detached()){
@@ -899,6 +900,7 @@ ms::writehistory(const std::string& message, const std::string& parms, const std
 ::casac::record*
 ms::range(const std::vector<std::string>& items, const bool useflags, const int blocksize)
 {
+	*itsLog << LogOrigin("ms", "range");
 	::casac::record *retval(0);
 	try {
 		if(!detached()){
@@ -918,7 +920,7 @@ ms::range(const std::vector<std::string>& items, const bool useflags, const int 
 ::casac::record*
 ms::range2(const std::vector<std::string>& items, const bool useflags, const int blocksize)
 {
-	*itsLog << LogOrigin("ms", "range");
+	*itsLog << LogOrigin("ms", "range2");
 	::casac::record *retval(0);
 	try {
 		if(!detached()){
@@ -2219,6 +2221,7 @@ Bool ms::checkinit() {
 bool
 ms::selectinit(const int datadescid, const bool reset)
 {
+	*itsLog << LogOrigin("ms", "selectinit");
 	Bool retval = False;
 	try {
 		Vector<Int> ddId(1, datadescid);
@@ -2278,6 +2281,7 @@ ms::selectinit2(const int datadescid, const bool resetsel)
 bool
 ms::select(const ::casac::record& items)
 {
+	*itsLog << LogOrigin("ms", "select");
 	Bool retval = false;
 	try {
 		if(!detached()){
@@ -2297,13 +2301,13 @@ ms::select(const ::casac::record& items)
 bool
 ms::select2(const ::casac::record& items)
 {
-	*itsLog << LogOrigin("ms", "select");
+	*itsLog << LogOrigin("ms", "select2");
     // Use selecttaql and msselect for these selections
 	Bool retval = true;
 	try {
 		if(!detached()){
             if (checkinit()) {
-	          *itsLog << LogOrigin("ms", "select");
+	          *itsLog << LogOrigin("ms", "select2");
 			  Record* selRecord = toRecord(items);
               for (uInt field=0; field < selRecord->nfields(); ++field) {
                 String fieldStr = selRecord->name(field);
@@ -2413,6 +2417,7 @@ ms::select2(const ::casac::record& items)
 bool
 ms::selecttaql(const std::string& msselect)
 {
+    *itsLog << LogOrigin("ms", "selecttaql");
 	Bool retval(False);
 	try {
 		if(!detached())
@@ -2429,7 +2434,7 @@ ms::selecttaql(const std::string& msselect)
 bool
 ms::selecttaql2(const std::string& taqlstr)
 {
-    *itsLog << LogOrigin("ms", "selecttaql");
+    *itsLog << LogOrigin("ms", "selecttaql2");
 	Bool retval(false);
 	try {
 		if(!detached()) {
@@ -2454,6 +2459,7 @@ ms::selecttaql2(const std::string& taqlstr)
 bool
 ms::selectchannel(const int nchan, const int start, const int width, const int inc)
 {
+    *itsLog << LogOrigin("ms", "selectchannel");
 	Bool retval(false);
 	try {
 		if(!detached())
@@ -2556,6 +2562,7 @@ ms::selectchannel2(const int nchan, const int start, const int width, const int 
 bool
 ms::selectpolarization(const std::vector<std::string>& wantedpol)
 {
+	*itsLog << LogOrigin("ms", "selectpolarization");
 	Bool retval(False);
 	try {
         if(!detached()) {
@@ -2574,7 +2581,7 @@ ms::selectpolarization(const std::vector<std::string>& wantedpol)
 bool
 ms::selectpolarization2(const std::vector<std::string>& wantedpol)
 {
-	*itsLog << LogOrigin("ms", "selectpolarization");
+	*itsLog << LogOrigin("ms", "selectpolarization2");
 	Bool retval(false);
 	try {
         if(!detached()) {
@@ -3465,7 +3472,7 @@ void ms::getIfrArray(Array<T>& inputarray, vi::VisBuffer2* vb2) {
 ::casac::record*
 ms::getdata(const std::vector<std::string>& items, const bool ifraxis, const int ifraxisgap, const int increment, const bool average)
 {
-
+	*itsLog << LogOrigin("ms", "getdata");
 	::casac::record *retval(0);
 	try {
 		/*
@@ -4745,6 +4752,7 @@ casacore::String ms::getbaseitem(String itemname) {
 bool
 ms::putdata(const ::casac::record& items)
 {
+	*itsLog << LogOrigin("ms", "putdata");
 	Bool rstat(False);
 	try {
 		if(!detached()){
@@ -5692,6 +5700,7 @@ bool
 ms::iterinit(const std::vector<std::string>& columns, const double interval,
              const int maxrows, const bool adddefaultsortcolumns)
 {
+	*itsLog << LogOrigin("ms", "iterinit");
 	Bool rstat(false);
 	try {
 		if(!detached()){
@@ -5714,7 +5723,7 @@ bool
 ms::iterinit2(const std::vector<std::string>& columns, const double interval,
              const int maxrows, const bool adddefaultsortcolumns)
 {
-	*itsLog << LogOrigin("ms", "iterinit");
+	*itsLog << LogOrigin("ms", "iterinit2");
 	Bool rstat(false);
 	try {
 		if (!detached()) {
@@ -5879,6 +5888,7 @@ bool ms::statwt2(
 bool
 ms::iterorigin()
 {
+	*itsLog << LogOrigin("ms", "iterorigin");
 	Bool rstat(False);
 	try {
 		if(!detached())
@@ -5895,7 +5905,7 @@ ms::iterorigin()
 bool
 ms::iterorigin2()
 {
-	*itsLog << LogOrigin("ms", "iterorigin");
+	*itsLog << LogOrigin("ms", "iterorigin2");
 	Bool rstat(false);
 	try {
 		if(!detached()) {
@@ -5919,6 +5929,7 @@ ms::iterorigin2()
 bool
 ms::iternext()
 {
+	*itsLog << LogOrigin("ms", "iternext");
 	Bool rstat(false);
 	try {
 		if(!detached())
@@ -5935,7 +5946,7 @@ ms::iternext()
 bool
 ms::iternext2()
 {
-	*itsLog << LogOrigin("ms", "iternext");
+	*itsLog << LogOrigin("ms", "iternext2");
 	Bool rstat(false);
 	try {
 		if(!detached()) {
@@ -5973,6 +5984,7 @@ ms::iternext2()
 bool
 ms::iterend()
 {
+	*itsLog << LogOrigin("ms", "iterend");
 	Bool rstat(False);
 	try {
 		if(!detached())
@@ -5989,7 +6001,7 @@ ms::iterend()
 bool
 ms::iterend2()
 {
-	*itsLog << LogOrigin("ms", "iterend");
+	*itsLog << LogOrigin("ms", "iterend2");
 	Bool rstat(false);
 	try {
 		if(!detached())
@@ -6136,8 +6148,8 @@ bool ms::continuumsub2(const ::casac::variant& field,
 {
 	Bool rstat(False);
 	try {
-		*itsLog << LogOrigin("ms", "continuumsub");
-		*itsLog << LogIO::NORMAL2 << "continuumsub starting" << LogIO::POST;
+		*itsLog << LogOrigin("ms", "continuumsub2");
+		*itsLog << LogIO::NORMAL2 << "continuumsub2 starting" << LogIO::POST;
 
 		MSContinuumSubtractor sub(*itsMS);
 		sub.setField(toCasaString(field));
@@ -6147,7 +6159,7 @@ bool ms::continuumsub2(const ::casac::variant& field,
 		sub.setOrder(fitorder);
 		sub.setMode(mode);
 		sub.subtract2();
-		*itsLog << LogIO::NORMAL2 << "continuumsub finished" << LogIO::POST;
+		*itsLog << LogIO::NORMAL2 << "continuumsub2 finished" << LogIO::POST;
 		rstat = True;
 	} catch (AipsError x) {
 		*itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;

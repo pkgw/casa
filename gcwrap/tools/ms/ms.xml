@@ -836,7 +836,7 @@ the ms definition itself. -->
    <method type="function" name="nrow2">
    <shortdescription>Returns the number of rows in the measurement set</shortdescription>
    
-  <keyword>nrow22</keyword>
+  <keyword>nrow2</keyword>
   <input>  
     
      <param type="bool" direction="in" name="selected">
@@ -3030,7 +3030,7 @@ Date/Time:                         RR:                      RL:                 
 </method>
 
    <method type="function" name="selectpolarization2">
-   <shortdescription>Selection and convertion of polarizations</shortdescription>
+   <shortdescription>Selection and conversion of polarizations</shortdescription>
    
   <keyword>selectpolarization2</keyword>
   <input>
@@ -5651,13 +5651,13 @@ in spectral window 1.
      </returns>
      
      <description>
-       This method extracs the data as specified in the items
+       This method extracts the data as specified in the items
        parameter.  The data is returned as a record with each item
        as a separate key in the record (all in lower case).
 
        Unless the iterator was initialized with a niterinit(), this
        method initializes the iterator
-       as <link anchor="ms:ms.niteinit.function">niterinit([".."],0.0,0,False)</link>. 
+       as <link anchor="ms:ms.niterinit.function">niterinit([".."],0.0,0,False)</link>. 
      </description>
 
    </method>
