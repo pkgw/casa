@@ -29,7 +29,7 @@
 #include <synthesis/CalTables/CTColumns.h>
 #include <synthesis/CalTables/CTInterface.h>
 #include <ms/MSSel/MSSelection.h>
-//#include <synthesis/CalTables/CTSelection.h>
+#include <synthesis/CalTables/CTSelection.h>
 #include <ms/MSSel/MSSelectionTools.h>
 #include <casa/OS/Timer.h>
 #include <casa/Exceptions/Error.h>
@@ -38,7 +38,7 @@
 #include <casa/namespace.h>
 
 // <summary>
-// Test program for CTInterp class.
+// Test program for CTSelection class.
 // </summary>
 
 // Control verbosity
@@ -117,32 +117,32 @@ void doTest1 (Bool verbose=false) {
 
   NewCalTable selnct(tnct);
   CTInterface cti(tnct);
-  //  CTSelection mss;
-  MSSelection mss;
-  mss.setFieldExpr(fieldsel);
-  mss.setSpwExpr(spwsel);
-  mss.setAntennaExpr(antsel);
+  CTSelection cts;
+  //MSSelection mss;
+  cts.setFieldExpr(fieldsel);
+  cts.setSpwExpr(spwsel);
+  cts.setAntennaExpr(antsel);
 
-  TableExprNode ten=mss.toTableExprNode(&cti);
+  TableExprNode ten=cts.toTableExprNode(&cti);
 
   if (verbose)
     cout << "CalSelection index results (get*List): " << endl;
 
 
   if (verbose)
-    cout << " Field list: " << mss.getFieldList() << endl; // OK?
-  AlwaysAssert( allEQ(mss.getFieldList(),fldids), AipsError );
+    cout << " Field list: " << cts.getFieldList() << endl; // OK?
+  AlwaysAssert( allEQ(cts.getFieldList(),fldids), AipsError );
 
 
   if (verbose)
-    cout << " Antenna list: " << mss.getAntenna1List() << endl;
-  AlwaysAssert( allEQ(mss.getAntenna1List(),antids), AipsError );
+    cout << " Antenna list: " << cts.getAntenna1List() << endl;
+  AlwaysAssert( allEQ(cts.getAntenna1List(),antids), AipsError );
 
   if (verbose) {
-    cout << " Spw list: " << mss.getSpwList() << endl;
+    cout << " Spw list: " << cts.getSpwList() << endl;
     //cout << " Chan list: " << mss.getChanList() << endl;
   }
-  AlwaysAssert( allEQ(mss.getSpwList(),spwids), AipsError );
+  AlwaysAssert( allEQ(cts.getSpwList(),spwids), AipsError );
 
   getSelectedTable(selnct,tnct,ten,"");
 
@@ -230,12 +230,10 @@ void doTest2 (Bool verbose=false) {
   obsids(0)=1;
   String obssel=String::toString(obsids(0));
 
-
   // A scan selection:
   Vector<Int> scans(1);
   scans(0)=7;
   String scansel=String::toString(scans(0));
-
 
   // A time selection expression:
   //  this should pick 3 timestamps in obsid=1, scan=7
@@ -263,8 +261,6 @@ void doTest2 (Bool verbose=false) {
     antsel+=antnames(antids(i));
   }
 
-
-
   if (verbose) {
     cout << "Selection strings:" << endl;
     cout << " obssel  = " << obssel << endl;
@@ -276,50 +272,50 @@ void doTest2 (Bool verbose=false) {
 
   NewCalTable selnct(tnct);
   CTInterface cti(tnct);
-  //  CTSelection mss;
-  MSSelection mss;
-  mss.setObservationExpr(obssel);
-  mss.setScanExpr(scansel);
-  mss.setTimeExpr(timesel);
-  mss.setSpwExpr(spwsel);
-  mss.setAntennaExpr(antsel);
+  CTSelection cts;
+  //MSSelection mss;
+  cts.setObservationExpr(obssel);
+  cts.setScanExpr(scansel);
+  cts.setTimeExpr(timesel);
+  cts.setSpwExpr(spwsel);
+  cts.setAntennaExpr(antsel);
 
-  TableExprNode ten=mss.toTableExprNode(&cti);
+  TableExprNode ten = cts.toTableExprNode(&cti);
 
   if (verbose)
     cout << "CalSelection parsing results (get*List): " << endl;
 
   if (verbose) {
-    cout << " Obs list: " << mss.getObservationList() << endl;
+    cout << " Obs list: " << cts.getObservationList() << endl;
   }
-  AlwaysAssert( allEQ(mss.getObservationList(),obsids), AipsError );  
+  AlwaysAssert( allEQ(cts.getObservationList(),obsids), AipsError );  
 
   if (verbose) {
-    cout << " Scan list: " << mss.getScanList() << endl;
+    cout << " Scan list: " << cts.getScanList() << endl;
   }
-  AlwaysAssert( allEQ(mss.getScanList(),scans), AipsError );
+  AlwaysAssert( allEQ(cts.getScanList(),scans), AipsError );
 
   if (verbose) {
     cout.precision(15);
-    Vector<Double> parsedTimeBounds=Vector<Double>(mss.getTimeList()); 
+    Vector<Double> parsedTimeBounds=Vector<Double>(cts.getTimeList()); 
     cout << " Time bounds: " << parsedTimeBounds
 	 << " [" << parsedTimeBounds-refTime << "]" << endl
 	 << "  (expecting: " << timebounds << " [" << timebounds-refTime << "] )" << endl
          << "  (diff = " << parsedTimeBounds-timebounds << ")"
 	 << endl;
   }
-  AlwaysAssert( allNear(Vector<Double>(mss.getTimeList()),timebounds,1.0e-9), AipsError );
+  AlwaysAssert( allNear(Vector<Double>(cts.getTimeList()),timebounds,1.0e-9), AipsError );
 
   if (verbose) {
-    cout << " Spw list: " << mss.getSpwList() 
+    cout << " Spw list: " << cts.getSpwList() 
 	 << endl;
     //cout << " Chan list: " << mss.getChanList() << endl;
   }
-  AlwaysAssert( allEQ(mss.getSpwList(),spwids), AipsError );
+  AlwaysAssert( allEQ(cts.getSpwList(),spwids), AipsError );
 
   if (verbose)
-    cout << " Antenna list: " << mss.getAntenna1List() << endl;
-  AlwaysAssert( allEQ(mss.getAntenna1List(),antids), AipsError );
+    cout << " Antenna list: " << cts.getAntenna1List() << endl;
+  AlwaysAssert( allEQ(cts.getAntenna1List(),antids), AipsError );
 
 
   getSelectedTable(selnct,tnct,ten,"");

@@ -160,22 +160,13 @@ void CalCache::setUpCalIter(const String& ctname,
    // Now open the MS, select on it, make the VisIter
   Table::TableOption tabopt(Table::Update);
   if (readonly) tabopt=Table::Old;
+  // TBD: control locking here?
   NewCalTable ct(ctname,tabopt,Table::Plain), selct;
 
-  // Apply PlotMSSelection
+  // Apply selection
   Vector<Vector<Slice> > chansel;
   Vector<Vector<Slice> > corrsel;
-  casacore::String antExpr = selection.antenna();
-  selection.apply(ct, selct, chansel, corrsel);
-
-  // Redo selection on original ct for reference antenna auto-corr bsln only
-  if (!antExpr.empty()) {
-    casacore::String newAntExpr = handleRefantSelection(selection, ct);
-    if (!newAntExpr.empty()) {
-        selection.setAntenna(newAntExpr);
-        selection.apply(ct,selct,chansel,corrsel);
-    }
-  } 
+  selection.apply(ct,selct,chansel,corrsel);
 
   // setup the volume meter
   //  vm_.reset();
@@ -183,12 +174,12 @@ void CalCache::setUpCalIter(const String& ctname,
 
   if (readonly) {
     // Readonly version, for caching
-    ci_p = new ROCTIter(selct, columns);
-    wci_p = NULL;
+    ci_p = new ROCTIter(selct,columns);
+    wci_p =NULL;
   }
   else {
     // Writable, e.g. for flagging
-    wci_p = new CTIter(selct, columns);
+    wci_p = new CTIter(selct,columns);
     ci_p = wci_p;  // const access
   }
 
@@ -197,45 +188,7 @@ void CalCache::setUpCalIter(const String& ctname,
   //if (corrselect) rci_p->selectCorrelation(corrsel);
 
 }
-
-casacore::String CalCache::handleRefantSelection(PlotMSSelection& selection,
-        NewCalTable& ct) {
-    // selection on antenna1 id only (not baseline selection!)
-    // "REFANT" gets cross-correlation; want auto
-    // "!REFANT" gets auto-correlation; want cross
-    // To start, let MSSelection do the parsing and name->id conversion
-    casacore::Vector<int> selAnts = selection.getSelectedAntennas1();
-    ROCTMainColumns ctmain(ct);  
-    casacore::Vector<casacore::Int> refAnts = ctmain.antenna2().getColumn();
-    casacore::String refAntExpr("");
-    bool refant(false), needNewSel(false);
-    // iterate through selected antenna ids, determine if ref ant
-    for (uInt i=0; i<selAnts.size(); ++i) {
-        Int thisAnt = selAnts(i);
-        for (uInt j=0; j<refAnts.size(); ++j) {
-            if (abs(thisAnt) == refAnts(j)) {
-                refant = true;
-                break;
-            }
-        }
-        // create selection expressions for refant and other ants
-        casacore::String sepchar = (refAntExpr.empty() ? "" : ";");
-        casacore::String notchar = (thisAnt<0 ? "!" : "");
-        casacore::String thisAntStr(String::toString(abs(thisAnt)));
-        if (refant) {
-            refAntExpr += sepchar + notchar + thisAntStr + "&&&";
-            needNewSel = true;
-            refant = false;
-        } else {  // keep other ants in case selection required
-            refAntExpr += sepchar + notchar + thisAntStr;
-        }
-    }
-    if (needNewSel)
-        return refAntExpr;
-    else
-        return casacore::String();
-}
-
+      
 void CalCache::countChunks(ROCTIter& ci,
                vector<PMS::Axis>& loadAxes,
 		       vector<PMS::DataColumn>& loadData,

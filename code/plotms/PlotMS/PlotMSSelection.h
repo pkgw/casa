@@ -166,8 +166,6 @@ private:
     // Selection field values.
     std::map<Field, casacore::String> itsValues_;
 
-
-
     // Force appearance of new selection (even when not new)
     casacore::Int forceNew_;
 	casacore::Vector<int> selAnts1;
