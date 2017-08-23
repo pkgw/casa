@@ -4,14 +4,16 @@
 
 import os
 import signal
-import tempfile
+import crashrpt_conf
 
 casa['state']['crash-reporter'] = False
 if ( casa['flags'].crash_report and
      os.environ.has_key('CASA_USE_CRASH_REPORTER') and
      os.environ['CASA_USE_CRASH_REPORTER'].upper( ) == 'TRUE'):
     try:
-        temporaryDirectory = tempfile.gettempdir()
+        temporaryDirectory = crashrpt_conf.temporaryDirectory
+        if not os.path.exists(temporaryDirectory):
+                os.makedirs(temporaryDirectory)
         posterApp = casa['helpers']['crashPoster']
         if posterApp is None: posterApp = "" # handle case where it wasn't found
         postingUrl = "https://casa.nrao.edu/cgi-bin/crash-report.pl"
