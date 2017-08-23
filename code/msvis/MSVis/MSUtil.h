@@ -69,7 +69,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			    const casacore::MFrequency::Types freqframe= casacore::MFrequency::LSRK);
     // The following wil provide the range of frequency convered in the frame requested by the spw, channel selection 
  
-    static void getFreqRangeInSpw( casacore::Double& freqStart,
+     static casacore::Bool getFreqRangeInSpw( casacore::Double& freqStart,
 			      casacore::Double& freqEnd, 
 			      const casacore::Vector<casacore::Int>& spw, 
 			      const casacore::Vector<casacore::Int>& start,
@@ -77,6 +77,25 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			      const casacore::MeasurementSet& ms, 
 			      const casacore::MFrequency::Types freqframe=casacore::MFrequency::LSRK,
 				   const casacore::Int fieldId=0, const casacore::Bool edge=true );
+     ///This version does not use a fieldid but uses the ones in the ms
+     static casacore::Bool getFreqRangeInSpw( casacore::Double& freqStart,
+			      casacore::Double& freqEnd, 
+			      const casacore::Vector<casacore::Int>& spw, 
+			      const casacore::Vector<casacore::Int>& start,
+			      const casacore::Vector<casacore::Int>& nchan,
+			      const casacore::MeasurementSet& ms, 
+			      const casacore::MFrequency::Types freqframe=casacore::MFrequency::LSRK,
+			       const casacore::Bool edge=true );
+     
+     //if useFieldInMS=True fieldids are ignored
+     static casacore::Bool getFreqRangeInSpw( casacore::Double& freqStart,
+			      casacore::Double& freqEnd, 
+			      const casacore::Vector<casacore::Int>& spw, 
+			      const casacore::Vector<casacore::Int>& start,
+			      const casacore::Vector<casacore::Int>& nchan,
+			      const casacore::MeasurementSet& ms, 
+			      const casacore::MFrequency::Types freqframe,
+					      const casacore::Vector<casacore::Int>& fieldId, const casacore::Bool edge=true, const casacore::Bool useFieldsInMS=false );
     //Return all the selected SPW types selected in the selected casacore::MS if the input ms
     //is a reference MS. Else it will return all the types in the  SPW table
     static casacore::Vector<casacore::String> getSpectralFrames(casacore::Vector<casacore::MFrequency::Types>& types, const casacore::MeasurementSet& ms);

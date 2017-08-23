@@ -721,7 +721,7 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
             (*convFunctions_p[actualConvIndex_p])=resample(convFuncTemp.getSlice(blc,shp),Double(convSamp)/Double(convSampling));
             convSize_p=newRealConvSize;
             (*convWeights_p[actualConvIndex_p])=resample(weightConvFuncTemp.getSlice(blc, shp),Double(convSamp)/Double(convSampling));
-			//cerr << "nchan " << nchan_p << " getconj " << getConjConvFunc << endl;
+	    //cerr << "nchan " << nchan_p << " getconj " << getConjConvFunc << endl;
        
         }
         else {
@@ -733,17 +733,17 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
             (*convWeights_p[actualConvIndex_p])=resample(weightConvFuncTemp.get(),  Double(convSamp)/Double(convSampling));
             convSize_p=newRealConvSize;
         }
-             if((nchan_p == 1) && getConjConvFunc) {
-                fillConjConvFunc(beamFreqs);
-                ////////////////
-                //CoordinateSystem TMP = coords;
-                //CoordinateUtil::addLinearAxes(TMP, Vector<String>(1,"gulu"), IPosition(1,nBeamChans)); 
-                //PagedImage<Complex> SCREEN(TiledShape(convFunctions_p[actualConvIndex_p]->shape()), TMP, "NONCONJU"+String::toString(actualConvIndex_p));
-                //SCREEN.put(*convFunctions_p[actualConvIndex_p]  );
-                //PagedImage<Complex> SCREEN2(TiledShape(convFunctions_p[actualConvIndex_p]->shape()), TMP, "CONJU"+String::toString(actualConvIndex_p));
-                //SCREEN2.put(*convFunctionsConjFreq_p[actualConvIndex_p]  );
-                /////////////////
-            }
+	if((nchan_p == 1) && getConjConvFunc) {
+	  fillConjConvFunc(beamFreqs);
+	  ////////////////
+	  //CoordinateSystem TMP = coords;
+	  //CoordinateUtil::addLinearAxes(TMP, Vector<String>(1,"gulu"), IPosition(1,nBeamChans)); 
+	  //PagedImage<Complex> SCREEN(TiledShape(convFunctions_p[actualConvIndex_p]->shape()), TMP, "NONCONJU"+String::toString(actualConvIndex_p));
+	  //SCREEN.put(*convFunctions_p[actualConvIndex_p]  );
+	  //PagedImage<Complex> SCREEN2(TiledShape(convFunctions_p[actualConvIndex_p]->shape()), TMP, "CONJU"+String::toString(actualConvIndex_p));
+	  //SCREEN2.put(*convFunctionsConjFreq_p[actualConvIndex_p]  );
+	  /////////////////
+	}
 
         convFunc_p.resize();
         weightConvFunc_p.resize();
@@ -782,6 +782,11 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
 
     convFunc_p.resize();
 	if((nchan_p == 1) && getConjConvFunc) {
+	  //cerr << this << " recovering " << actualConvIndex_p <<  "   " <<convFunctionsConjFreq_p.size() << endl;
+	  if(Int(convFunctionsConjFreq_p.size()) <= actualConvIndex_p){
+	    fillConjConvFunc(beamFreqs);
+	    
+	  }
 		convFunc_p=(*convFunctionsConjFreq_p[actualConvIndex_p]);
 	}
 	else{

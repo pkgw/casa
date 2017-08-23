@@ -28,6 +28,8 @@
 
 #include <list>
 #include <string>
+#include <memory>
+
 namespace casa {
 
 	class DisplayData;
@@ -84,7 +86,7 @@ namespace casa {
 		// Check that a given DD is on the list.
 		bool exists(QtDisplayData* qdd) const;
 
-		void setImageTracker( ImageTracker* tracker );
+		void setImageTracker( std::shared_ptr<ImageTracker> tracker );
 		void setImageDisplayer( ImageDisplayer* displayer );
 
 		void registrationOrderChanged();
@@ -92,7 +94,7 @@ namespace casa {
 	private:
 		DisplayDataHolder( const DisplayDataHolder& displayDataHolder );
 		DisplayDataHolder operator=( const DisplayDataHolder& displayDataHolder );
-		ImageTracker* imageTracker;
+		std::shared_ptr<ImageTracker> imageTracker;
 		ImageDisplayer* imageDisplayer;
 		QtDisplayData *controlling_dd;
 		std::list<QtDisplayData*> dataList;

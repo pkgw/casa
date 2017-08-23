@@ -352,9 +352,11 @@ public:
   casacore::Float sidelobeThreshold;
   casacore::Float noiseThreshold;
   casacore::Float lowNoiseThreshold;
+  casacore::Float negativeThreshold;
   casacore::Float smoothFactor;
   casacore::Float minBeamFrac;
   casacore::Float cutThreshold;
+  casacore::Int growIterations;
   int nMask;
   bool autoAdjust;
 

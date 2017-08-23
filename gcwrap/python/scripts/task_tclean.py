@@ -126,9 +126,11 @@ def tclean(
     sidelobethreshold,#=5.0,
     noisethreshold,#=3.0,
     lownoisethreshold,#=3.0,
+    negativethreshold,#=0.0,
     smoothfactor,#=1.0,
     minbeamfrac,#=0.3, 
     cutthreshold,#=0.01,
+    growiterations,#=100
 
     ## Misc
 
@@ -261,9 +263,11 @@ def tclean(
         sidelobethreshold=sidelobethreshold,
         noisethreshold=noisethreshold,
         lownoisethreshold=lownoisethreshold,
+        negativethreshold=negativethreshold,
         smoothfactor=smoothfactor,
         minbeamfrac=minbeamfrac,
         cutthreshold=cutthreshold,
+        growiterations=growiterations,
  
         savemodel=savemodel
         )

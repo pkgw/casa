@@ -453,6 +453,40 @@ void QPPlotter::unregisterResizeHandler(PlotResizeEventHandlerPtr handler) {
 const QWidget* QPPlotter::canvasWidget() const { return canvasFrame; }
 QWidget* QPPlotter::canvasWidget() { return canvasFrame; }
 
+const QWidget* QPPlotter::pageHeaderWidget() const { return pageHeaderFrame; }
+QWidget* QPPlotter::pageHeaderWidget() { return pageHeaderFrame; }
+
+QPHeaderTable* QPPlotter::pageHeaderTable() { return headerTable; }
+
+void QPPlotter::refreshPageHeaderDataModel(PageHeaderDataModelPtr dataModel) {
+	auto qtPageHeaderDataModelPtr = dynamic_pointer_cast<QtPageHeaderDataModel,PageHeaderDataModel>(dataModel);
+	if (qtPageHeaderDataModelPtr.null()) return;
+	auto * qtPageHeaderDataModel = qtPageHeaderDataModelPtr.get();
+	if (qtPageHeaderDataModel == nullptr) return;
+	setHeaderTableDataModel(qtPageHeaderDataModel->model());
+	refreshPageHeader();
+}
+
+void QPPlotter::setHeaderTableDataModel(QAbstractItemModel *newDataModel) {
+	newHeaderTableDataModel = newDataModel;
+}
+
+void QPPlotter::refreshPageHeader() {
+	auto oldDataModel = headerTable->model();
+	if (newHeaderTableDataModel == oldDataModel) return;
+
+	headerTable->setModel(newHeaderTableDataModel);
+	if (oldDataModel != nullptr) {
+		delete oldDataModel;
+		oldDataModel = nullptr;
+	}
+	// Auto-hide page header if table is empty
+	auto emptyHeader = (headerTable->model() == nullptr) ||
+			           (headerTable->model()->rowCount() == 0 );
+	//TODO: pageHeader()->setVisible(! pageHeader()->empty());
+	headerTable->parentWidget()->setVisible(! emptyHeader);
+}
+
 QSize QPPlotter::sizeHint() const { return QSize(); }
 QSize QPPlotter::minimumSizeHint() const { return QSize(); }
 
@@ -756,6 +790,29 @@ void QPPlotter::initialize() {
     handBox->setVisible(false);
     exportBox->setVisible(false);
     
+    // Page header / create headerTable widget
+    headerTable = new QPHeaderTable();
+    QSizePolicy headerSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    headerSizePolicy.setHeightForWidth(false);
+    headerTable->setSizePolicy(headerSizePolicy);
+    headerTable->setObjectName("QPPlotter.Header.Table");
+    QSize header_min_size(0,100);
+    headerTable->setMinimumSize(header_min_size);
+
+    // Page header / insert headerTable widget
+    pageHeaderLayout->addWidget(headerTable);
+    pageHeaderLayout->setContentsMargins(0, 0, 0, 0);
+    pageHeaderFrame->setSizePolicy(headerSizePolicy);
+    pageHeaderFrame->setVisible(false);
+
+    // Page header layout debug
+    // pageHeaderFrame->setStyleSheet("background-color:yellow;");
+    // pageFrame->setStyleSheet("background-color:red;");
+
+    // page_header->setStyleSheet("background-color:green; border-width: 0px; margin: 0px;");
+    // pageLayout->setSpacing(20);
+    // pageLayout->setContentsMargins(20,20,20,20);
+
     setVisible(false);
     
     m_dateFormat = DEFAULT_DATE_FORMAT;
