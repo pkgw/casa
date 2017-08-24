@@ -944,7 +944,7 @@ HPX HEALPix grid.  -->
                        for a 2:1 bandwidth).
 
 </description>
-	    <value type="bool">True</value>
+	    <value type="bool">False</value>
     </param>
 
     <param type="string" name="cfcache" subparam="true">

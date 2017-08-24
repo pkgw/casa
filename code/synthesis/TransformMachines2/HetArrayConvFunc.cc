@@ -422,12 +422,14 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
         for (uInt ii=0; ii < ndish; ++ii) {
             support=max((antMath_p[ii])->support(coords), support);
         }
-        support=Int(max(nx_p, ny_p)*2.0)/2;
-        convSize_p=Int(max(nx_p, ny_p)*2.0)/2*convSampling;
+	
+        support=Int(min(Float(support), max(Float(nx_p), Float(ny_p)))*2.0)/2;
+        convSize_p=support*convSampling;
         // Make this a nice composite number, to speed up FFTs
         CompositeNumber cn(uInt(convSize_p*2.0));
         convSize_p  = cn.nextLargerEven(Int(convSize_p));
         convSize_p=(convSize_p/16)*16;  // need it to be divisible by 8 in places
+	
     }
 
 
@@ -472,17 +474,17 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
         spCoord.setReferencePixel(Vector<Double>(1,0.0));
         spCoord.setReferenceValue(Vector<Double>(1, beamFreqs(0)));
         if(beamFreqs.nelements() >1)
-            spCoord.setIncrement(Vector<Double>(1, beamFreqs(1)-beamFreqs(0)));
+	  spCoord.setIncrement(Vector<Double>(1, beamFreqs(1)-beamFreqs(0)));
         coords.replaceCoordinate(spCoord, spind);
-		CoordinateSystem conjCoord=coords;
-		Double centerFreq=SpectralImageUtil::worldFreq(csys_p, 0.0);
-		SpectralCoordinate conjSpCoord=spCoord;
+	CoordinateSystem conjCoord=coords;
+	Double centerFreq=SpectralImageUtil::worldFreq(csys_p, 0.0);
+	SpectralCoordinate conjSpCoord=spCoord;
 		//cerr << "centreFreq " << centerFreq << " beamFreqs " << beamFreqs(0) << "  " << beamFreqs(1) << endl;
-		conjSpCoord.setReferenceValue(Vector<Double>(1, 2*centerFreq-beamFreqs(0)));
+	conjSpCoord.setReferenceValue(Vector<Double>(1, 2*centerFreq-beamFreqs(0)));
 		///Increment should go in the reverse direction
-		if(beamFreqs.nelements() >1)
-            conjSpCoord.setIncrement(Vector<Double>(1, beamFreqs(0)-beamFreqs(1)));
-		conjCoord.replaceCoordinate(conjSpCoord, spind);
+	if(beamFreqs.nelements() >1)
+	  conjSpCoord.setIncrement(Vector<Double>(1, beamFreqs(0)-beamFreqs(1)));
+	conjCoord.replaceCoordinate(conjSpCoord, spind);
         IPosition pbShape(4, convSize_p, convSize_p, 1, nBeamChans);
         //TempImage<Complex> twoDPB(pbShape, coords);
 	
@@ -508,6 +510,12 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
         TempImage<Complex> pB2Screen(TiledShape(pbShape), ((nchan_p==1) && getConjConvFunc) ?conjCoord : coords  , memtobeused/2.2);
         IPosition start(4, 0, 0, 0, 0);
         convSupport_p.resize(ndishpair);
+	/*//////////////////
+	Double wtime0=0.0;
+	Double wtime1=0.0;
+	Double wtime2=0.0;
+	      wtime0=omp_get_wtime();
+	//////////////*/
         for (uInt k=0; k < ndish; ++k) {
 
             for (uInt j =k ; j < ndish; ++j) {
@@ -527,6 +535,7 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
                     blcin[3]=kk;
                     trcin[3]=kk;
                     //    tim.mark();
+		    //wtime0=omp_get_wtime();;
                     //cerr << "Doing channel " << kk << endl;
                     Slicer slin(blcin, trcin, Slicer::endIsLast);
                     SubImage<Complex> subim(pBScreen, slin, true);
@@ -567,14 +576,36 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
 					}
                     //tim.show("After Apply2 ");
                     //tim.mark();
+					//wtime1+=omp_get_wtime()-wtime0;
                     //subim.copyData((LatticeExpr<Complex>) (iif(abs(subim)> 5e-2, subim, 0)));
                     //subim2.copyData((LatticeExpr<Complex>) (iif(abs(subim2)> 25e-4, subim2, 0)));
-                    ft_p.c2cFFT(subim);
-                    ft_p.c2cFFT(subim2);
+					//wtime0=omp_get_wtime();
+					/*		Bool iscopy;
+					Array<DComplex> arrD(subim.shape());
+					Array<Complex> arrS(subim.shape());
+					arrS=subim.get();
+					convertArray(arrD, arrS);
+					DComplex* arrptr=arrD.getStorage(iscopy);
+					ft_p.c2cFFT(arrptr, subim.shape()(0),  subim.shape()(1));
+					arrD.putStorage(arrptr, iscopy);
+					convertArray(arrS, arrD);
+					subim.put(arrS);
+					arrS=subim2.get();
+					convertArray(arrD, arrS);
+					arrptr=arrD.getStorage(iscopy);
+					ft_p.c2cFFT(arrptr, subim2.shape()(0),  subim2.shape()(1));
+					arrD.putStorage(arrptr, iscopy);
+					convertArray(arrS, arrD);
+					subim2.put(arrS);
+					*/
+					ft_p.c2cFFT(subim);
+					ft_p.c2cFFT(subim2);
+					//wtime2+=omp_get_wtime()-wtime0;
                     //  tim.show("after ffts ");
 
 
                 }
+		//cerr << "Apply " << wtime1 << "  fft " << wtime2 << endl;
                 /*
                 if(nBeamChans >1){
                   Slicer slin(blcin, trcin, Slicer::endIsLast);
@@ -699,7 +730,14 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
         convFunctions_p.resize(actualConvIndex_p+1);
         convWeights_p.resize(actualConvIndex_p+1);
         convSupportBlock_p.resize(actualConvIndex_p+1);
+	//Using conjugate change support to be larger of either
+	if((nchan_p == 1) && getConjConvFunc) {
+	  Int conjsupp=conjSupport(beamFreqs) ;
+	  if(conjsupp > max(convSupport_p)){
+	    convSupport_p=conjsupp;
+	  }
 
+	}
         convFunctions_p[actualConvIndex_p]= new Array<Complex>();
         convWeights_p[actualConvIndex_p]= new Array<Complex>();
         convSupportBlock_p[actualConvIndex_p]=new Vector<Int>();
@@ -733,16 +771,25 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
             (*convWeights_p[actualConvIndex_p])=resample(weightConvFuncTemp.get(),  Double(convSamp)/Double(convSampling));
             convSize_p=newRealConvSize;
         }
+
+	////////////////TESTOOO
+	/* CoordinateSystem TMP = coords;
+	  CoordinateUtil::addLinearAxes(TMP, Vector<String>(1,"gulu"), IPosition(1,nBeamChans)); 
+	  PagedImage<Complex> SCREEN(TiledShape(convFunctions_p[actualConvIndex_p]->shape()), TMP, "NONCONJU"+String::toString(actualConvIndex_p));
+	  SCREEN.put(*convFunctions_p[actualConvIndex_p]  );
+	   PagedImage<Complex> SCREEN3(TiledShape(convWeights_p[actualConvIndex_p]->shape()), TMP, "FTWEIGHT"+String::toString(actualConvIndex_p));
+	  SCREEN3.put(*convWeights_p[actualConvIndex_p]  );
+	*/
+	  /////////////////
+
+
 	if((nchan_p == 1) && getConjConvFunc) {
 	  fillConjConvFunc(beamFreqs);
-	  ////////////////
-	  //CoordinateSystem TMP = coords;
-	  //CoordinateUtil::addLinearAxes(TMP, Vector<String>(1,"gulu"), IPosition(1,nBeamChans)); 
-	  //PagedImage<Complex> SCREEN(TiledShape(convFunctions_p[actualConvIndex_p]->shape()), TMP, "NONCONJU"+String::toString(actualConvIndex_p));
-	  //SCREEN.put(*convFunctions_p[actualConvIndex_p]  );
-	  //PagedImage<Complex> SCREEN2(TiledShape(convFunctions_p[actualConvIndex_p]->shape()), TMP, "CONJU"+String::toString(actualConvIndex_p));
-	  //SCREEN2.put(*convFunctionsConjFreq_p[actualConvIndex_p]  );
-	  /////////////////
+	  /////////////////////////TESTOOO
+	  /*PagedImage<Complex> SCREEN2(TiledShape(convFunctions_p[actualConvIndex_p]->shape()), TMP, "CONJU"+String::toString(actualConvIndex_p));
+	  SCREEN2.put(*convFunctionsConjFreq_p[actualConvIndex_p]  );
+	  */
+	  ////////////////////////
 	}
 
         convFunc_p.resize();
@@ -865,14 +912,38 @@ void HetArrayConvFunc::applyGradientToYLine(const Int iy, Complex*& convFunction
 
     }
 }
+Int  HetArrayConvFunc::conjSupport(const casacore::Vector<casacore::Double>& freqs){
+  Double centerFreq=SpectralImageUtil::worldFreq(csys_p, 0.0);
+  Double maxRatio=-1.0;
+  for (Int k=0; k < freqs.shape()[0]; ++k) {
+    Double conjFreq=(centerFreq-freqs[k])+centerFreq;
+    if(maxRatio < conjFreq/freqs[k] )
+      maxRatio=conjFreq/freqs[k];
+  }
+  return  Int(max(convSupport_p)*sqrt(maxRatio)/2.0)*2;
+}
 void HetArrayConvFunc::fillConjConvFunc(const Vector<Double>& freqs) {
     //cerr << "Actualconv index " << actualConvIndex_p << endl;
     convFunctionsConjFreq_p.resize(actualConvIndex_p+1);
     Double centerFreq=SpectralImageUtil::worldFreq(csys_p, 0.0);
     IPosition shp=convFunctions_p[actualConvIndex_p]->shape();
     convFunctionsConjFreq_p[actualConvIndex_p]=new Array<Complex>(shp, Complex(0.0));
+    //cerr << "convsize " << convSize_p << " convsupport " << convSupport_p << endl;
+    /*
+    Double maxRatio=-1.0;
+    for (Int k=0; k < freqs.shape()[0]; ++k) {
+      Double conjFreq=(centerFreq-freqs[k])+centerFreq;
+      if(maxRatio < conjFreq/freqs[k] )
+	maxRatio=conjFreq/freqs[k];
+    }
+    */
     IPosition blc(5,0,0,0,0,0);
     IPosition trc=shp-1;
+    /*
+    IPosition trcOut=trc;
+    IPosition trcOut(0)= Int(shp(0)*maxRatio/2.0)*2-1;
+    IPosition trcOut(1)= Int(shp(1)*maxRatio/2.0)*2-1;
+    */
     for (Int k=0; k < freqs.shape()[0]; ++k) {
         Double conjFreq=(centerFreq-freqs[k])+centerFreq;
         blc[3]=k;
@@ -880,7 +951,11 @@ void HetArrayConvFunc::fillConjConvFunc(const Vector<Double>& freqs) {
         //cerr << "blc " << blc << " trc "<< trc << " ratio " << conjFreq/freqs[k] << endl; 
         //Matrix<Complex> convSlice((*convFunctions_p[actualConvIndex_p])(blc, trc).reform(IPosition(2, shp[0], shp[1])));
         Array<Complex> convSlice((*convFunctions_p[actualConvIndex_p])(blc, trc));
+	//Array<Complex> weightSlice((*convWeights_p[actualConvIndex_p])(blc,trc));
         Array<Complex> conjFreqSlice(resample(convSlice, conjFreq/freqs[k]));
+	Double ratio1= Double(Int(Double(convSlice.shape()(0))*conjFreq/freqs[k]/2.0)*2)/Double(convSlice.shape()(0));
+	Double ratio2= Double(Int(Double(convSlice.shape()(1))*conjFreq/freqs[k]/2.0)*2)/Double(convSlice.shape()(1));
+	//cerr << "resample shape " << conjFreqSlice.shape()  << " ratio " << ratio1*ratio2 << " trc " << trc << endl; 
         Array<Complex> conjSlice=(*convFunctionsConjFreq_p[actualConvIndex_p])(blc, trc);
         if(conjFreq > freqs[k]) {
             IPosition end=shp-1;
@@ -902,9 +977,13 @@ void HetArrayConvFunc::fillConjConvFunc(const Vector<Double>& freqs) {
 			end(1)+=beg(1);
             conjSlice(beg, end)=conjFreqSlice;
         }
-        
-    }
+	//cerr << "SUMS " << sum(real(convSlice)) << "   new " << sum(real(conjSlice))/ratio1/ratio2 << endl; //" weight " << sum(real(weightSlice))/ratio1/ratio2<< endl;
+	Complex renorm( 1.0/(ratio1*ratio2),0.0);
+	conjSlice=conjSlice*renorm;
+	//weightSlice=weightSlice*Complex(1.0/(ratio1*ratio2),0.0);
 
+    }
+   
 
 }
 Bool HetArrayConvFunc::toRecord(RecordInterface& rec) {
@@ -1006,9 +1085,10 @@ void HetArrayConvFunc::supportAndNormalize(Int plane, Int convSampling) {
     Int trial=0;
     for (trial=convSize_p/2-2; trial>0; trial--) {
         //Searching down a diagonal
-        if(abs(convPlane(convSize_p/2-trial,convSize_p/2-trial)) >  (1.0e-2*maxAbsConvFunc)) {
+        if(abs(convPlane(convSize_p/2-trial,convSize_p/2-trial)) >  (1.0e-2*maxAbsConvFunc) ) {
             found=true;
             trial=Int(sqrt(2.0*Float(trial*trial)));
+	   
             break;
         }
     }
@@ -1069,6 +1149,7 @@ void HetArrayConvFunc::supportAndNormalize(Int plane, Int convSampling) {
                 (convPlane)=convPlane*Complex(1.0/pbSum,0.0);
                 convPlane.resize();
                 convPlane.reference(weightConvFunc_p(begin, end).reform(IPosition(2,convFunc_p.shape()[0], convFunc_p.shape()[1])));
+		 
                 (convPlane) =(convPlane)*Complex(1.0/pbSum,0.0);
             }
             else {
@@ -1109,17 +1190,19 @@ void HetArrayConvFunc::supportAndNormalizeLatt(Int plane, Int convSampling, Temp
     Float minAbsConvFunc=min(amplitude(convPlane));
     Bool found=false;
     Int trial=0;
-    for (trial=convSize/2-2; trial>0; trial--) {
+    for (trial=0; trial< (convSize/2-2); ++trial) {
         //Searching down a diagonal
-        if(abs(convPlane(convSize/2-trial,convSize/2-trial)) >  (1.0e-2*maxAbsConvFunc)) {
+      
+      if((abs(convPlane(convSize/2-trial-1,convSize/2-1-trial)) <  (7.5e-2*maxAbsConvFunc)) || (real(convPlane(convSize/2-trial-2,convSize/2-trial-2)) <0.0  )) {
             found=true;
             trial=Int(sqrt(2.0*Float(trial*trial)));
+	    
             break;
         }
     }
    // cerr << "found " << found << "  trial " << trial << endl;
     if(!found) {
-        if((maxAbsConvFunc-minAbsConvFunc) > (1.0e-2*maxAbsConvFunc))
+        if((maxAbsConvFunc-minAbsConvFunc) > (7.5e-2*maxAbsConvFunc))
             found=true;
         // if it drops by more than 2 magnitudes per pixel
         trial=( (10*convSampling) < convSize) ? 5*convSampling : (convSize/2 - 4*convSampling);
@@ -1129,7 +1212,8 @@ void HetArrayConvFunc::supportAndNormalizeLatt(Int plane, Int convSampling, Temp
     if(found) {
         if(trial < 5*convSampling)
             trial= ( (10*convSampling) < convSize) ? 5*convSampling : (convSize/2 - 4*convSampling);
-        convSupport=Int(0.5+Float(trial)/Float(convSampling))+1;
+        convSupport=convSampling > 1 ? (Int(0.5+Float(trial)/Float(convSampling)))+1 : trial;
+	//cerr << "convsupp " << convSupport << endl;
         //support is really over the edge
         if( (convSupport*convSampling) >= convSize/2) {
             convSupport=convSize/2/convSampling-1;
@@ -1177,7 +1261,9 @@ void HetArrayConvFunc::supportAndNormalizeLatt(Int plane, Int convSampling, Temp
                 convFuncLat.putSlice(convPlane, begin);
                 convPlane.resize();
                 convPlane=weightConvFuncLat.getSlice(begin, shape, true);
-                (convPlane) =(convPlane)*Complex(1.0/pbSum,0.0);
+		Double pbSum1=0.0;
+		pbSum1=real(sum(convPlane(blc,trc)))/Double(convSampling)/Double(convSampling);
+                (convPlane) =(convPlane)*Complex(1.0/pbSum1,0.0);
                 weightConvFuncLat.putSlice(convPlane, begin);
             }
             else {
