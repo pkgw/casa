@@ -2586,7 +2586,7 @@ ms::selectpolarization2(const std::vector<std::string>& wantedpol)
 	try {
         if(!detached()) {
             if (checkinit()) {
-	            *itsLog << LogOrigin("ms", "selectpolarization");
+	            *itsLog << LogOrigin("ms", "selectpolarization2");
                 Record polnSelRec(Record::Variable);
                 String polnExpr = MSSelection::nameExprStr(wantedpol);
                 polnSelRec.define("polarization", polnExpr);
