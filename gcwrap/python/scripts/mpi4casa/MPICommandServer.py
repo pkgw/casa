@@ -46,13 +46,13 @@ class MPICommandServer:
         if not MPIEnvironment.is_mpi_enabled:
             msg = "MPI is not enabled"
             casalog.post(msg,"SEVERE",casalog_call_origin)
-            raise Exception,msg
+            raise Exception(msg)
         
         # Check if MPIMonitorServer can be instantiated
         if MPIEnvironment.is_mpi_client:
             msg = "MPICommandServer cannot be instantiated at master MPI process"
             casalog.post(msg,"SEVERE",casalog_call_origin)
-            raise Exception,msg          
+            raise Exception(msg)
         
         # Check whether we already have a MPICommandServer singleton instance
         if MPICommandServer.__instance is None:
