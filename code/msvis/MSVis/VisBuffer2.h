@@ -212,9 +212,8 @@ public:
     virtual void setShape (casacore::Int nCorrelations, casacore::Int nChannels, casacore::Int nRows, casacore::Bool clearCache = false) = 0;
     virtual void validateShapes () const = 0;
 
-    // For attached VBs this returns the VI the VB is attached to.  For free
-    // VBs this method returns false. N.B.: It should not be used within the framework
-    // itself; instead access the associated ViImplementation2 object.
+    // For attached VBs this returns the VI the VB is attached to.  For free VBs
+    // this method returns false. N.B.: Use of this method is deprecated.
 
     virtual const VisibilityIterator2 * getVi () const;
 

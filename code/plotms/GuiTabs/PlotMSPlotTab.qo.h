@@ -97,8 +97,9 @@ protected:
 // Subclass of PlotMSTab that manages PlotMSPlots in the GUI.  Watches the
 // current PlotMSPlot's parameters for changes to update the GUI as needed and
 // watches the PlotMSPlotManager for changes to the plots.
-class PlotMSPlotTab : public PlotMSTab, Ui::PlotTab /*,
-                      public PlotMSPlotManagerWatcher*/{
+class PlotMSPlotTab : public PlotMSTab, Ui::PlotTab //,
+					  // public PlotMSPlotManagerWatcher
+					  {
     Q_OBJECT
     
     //# Friend class declarations.
@@ -274,8 +275,8 @@ private:
     
 private slots:
 
-    // Slot for when the user changes the value for any parameters.  Updates
-    // the GUI to show which parameters have been changed (if any).
+    // Slot for when the user changes the value for any parameters.
+    // Updates the GUI to show which parameters have been changed (if any).
     void tabChanged();
 
     //A y-axis has changed its internal data.
