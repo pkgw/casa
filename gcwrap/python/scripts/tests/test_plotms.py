@@ -8,6 +8,8 @@ import unittest
 import fnmatch
 import sha
 import time
+import matplotlib.pyplot as plt
+import numpy as np
 
 # Paths for data
 datapath = os.environ.get('CASAPATH').split()[0] + "/data/regression/unittest/plotms/"
@@ -742,21 +744,114 @@ class plotms_test_calplots(plotms_test_base):
 
 # ------------------------------------------------------------------------------
 
-class plotms_test_display(plotms_test_base):
+class PlotmsPageHeader:
+    ''' Analyze PlotMS page header from png image of PlotMS Plot 
+        Assumptions: graphical area has a black frame, header background is white
+    '''
+    def __init__(self,png_path,debug=False):
+        self.png_path = png_path
+        self.debug = debug
+        self.color_img = plt.imread(png_path) # shape = (height,width,4)
+        self.img_height , self.img_width , depth = self.color_img.shape
+        self.height = -1
+        self.height_ratio = -1.0
+        self.rows = -1
+        self._analyze()
+
+    def _analyze(self):
+        gray_img = self.color_img.min(axis=2)
+        gray_xproj = gray_img.min(axis=1)
+        # Binarize
+        non_white_pixels = ( gray_xproj < 1.0 )
+        gray_xproj_bin = gray_xproj.copy()
+        gray_xproj_bin[non_white_pixels] = 0.0
+        # White to black transitions
+        (steps_down,) = np.where(np.diff(gray_xproj_bin) == -1.0 )
+        if steps_down.size > 0 :
+            self.height = steps_down[-1]
+            self.rows = steps_down.size - 1
+        else:
+            self.height = 0
+            self.rows = 0
+        if self.img_height > 0:
+            self.height_ratio = float(self.height) / self.img_height
+        if self.debug:
+            gray_xmask = np.outer(gray_xproj_bin,np.ones(self.img_width,dtype=np.float))
+            path_parts = os.path.splitext(self.png_path)
+            gray_xmask_path = ''.join([path_parts[0],'.xmask',path_parts[1]])
+            plt.imsave(gray_xmask_path,gray_xmask,cmap=plt.cm.gray)
+
+    def empty(self):
+        return self.height <= 0
+
+    def hasCorrectHeightRatio(self):
+        return 0.10 <= self.height_ratio <= 0.30
+
+class plotms_test_pageheader(plotms_test_base):
 
     def setUp(self):
         self.checkDisplay()
         self.setUpdata()
-        
+
     def tearDown(self):
-        self.tearDowndata()
-       
-    def test_display_symbol(self):
-        '''test_display_symbol: Set a custom plotting symbol'''
-        self.plotfile_jpg = os.path.join(self.outputDir, "testDisplay01.jpg")
-        self.removePlotfile()
+        if not self.debug:
+            self.tearDowndata()
+
+    def checkPageHeader(self,expected_rows):
+        page_header = PlotmsPageHeader(self.plotfile_png)
+        # Empty or not
+        if expected_rows == 0:
+            err_msg = 'Page header: is unexpected, has a height of: '
+            err_msg += '{:d} pixels'.format(page_header.height)
+            self.assertTrue(page_header.empty(),err_msg)
+            return
+        else:
+            err_msg = 'Page header: is missing'
+            self.assertTrue(not page_header.empty(),err_msg)
+        # Height ratio
+        err_msg = 'Page header: has incorrect height ratio: '
+        err_msg += '{:2.0f}% not in [10%,30%]'.format(100*page_header.height_ratio)
+        self.assertTrue(page_header.hasCorrectHeightRatio(), err_msg)
+        # Number of rows
+        err_msg = 'Page header: has wrong number of rows: '
+        err_msg += '{:d} rows detected, {:d} rows expected'.format(page_header.rows,expected_rows)
+        self.assertTrue(page_header.rows == expected_rows, err_msg)
+
+    def test_pageheader_none(self):
+        '''test_pageheader_none: no page header if no header items'''
+        self.plotfile_png = os.path.join(self.outputDir, "testPageHeader01.png")
+        self.removePlotfile(self.plotfile_png)
         time.sleep(5)
-        # Test diamond shape
+        res = plotms(vis=self.ms, plotfile=self.plotfile_png, expformat='png', 
+                     antenna='0&2',
+                     showgui=False, highres=True)
+        self.assertTrue(res)
+        self.checkPlotfile(self.plotfile_png, 16000)
+        self.checkPageHeader(expected_rows=0)
+
+    def test_pageheader_items01(self):
+        '''test_pageheader_items01: filename,telescope,projid,observer'''
+        self.plotfile_png = os.path.join(self.outputDir, "testPageHeader02.png")
+        self.removePlotfile(self.plotfile_png)
+        time.sleep(5)
+        res = plotms(vis=self.ms, plotfile=self.plotfile_png, expformat='png', 
+                     antenna='0&2',headeritems='filename,telescope,projid,observer',
+                     showgui=False, highres=True)
+        self.assertTrue(res)
+        self.checkPlotfile(self.plotfile_png, 22000)
+        self.checkPageHeader(expected_rows=2)
+
+    def test_pageheader_items02(self):
+        '''test_pageheader_items02: targdir,telescope,targname,observer,ycolumn'''
+        self.plotfile_png = os.path.join(self.outputDir, "testPageHeader03.png")
+        self.removePlotfile(self.plotfile_png)
+        time.sleep(5)
+        res = plotms(vis=self.ms, plotfile=self.plotfile_png, expformat='png', 
+                     antenna='0&2',headeritems='targdir,telescope,targname,observer,ycolumn',
+                     showgui=False, highres=True)
+        self.assertTrue(res)
+        self.checkPlotfile(self.plotfile_png, 26000)
+        self.checkPageHeader(expected_rows=3)
 
 # ------------------------------------------------------------------------------
 
@@ -1697,6 +1792,7 @@ def suite():
             plotms_test_axis,
             plotms_test_calibration,
             plotms_test_calplots,
+            plotms_test_pageheader,
             plotms_test_display,
             plotms_test_grid,
             plotms_test_iteration,

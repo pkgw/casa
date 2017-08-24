@@ -732,6 +732,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                const Float& sidelobethreshold,
                                const Float& noisethreshold, 
                                const Float& lownoisethreshold,
+                               const Float& negativethreshold,
                                const Float& cutthreshold,
                                const Float& smoothfactor,
                                const Float& minbeamfrac, 
@@ -747,47 +748,54 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // create a working copy of residual image (including pixel masks) 
     os << LogIO::NORMAL2 <<"algorithm:"<<alg<<LogIO::POST;
     TempImage<Float>* tempres = new TempImage<Float>(imstore->residual()->shape(), imstore->residual()->coordinates(), memoryToUse()); 
-    Array<Float> resdata;
-    Array<Float> maskdata;
-    Array<Float> psfdata;
-    imstore->residual()->get(resdata);
-    tempres->put(resdata);
-    tempres->setImageInfo(imstore->residual()->imageInfo());
-    tempres->attachMask(ArrayLattice<Bool> (imstore->residual()->getMask()));
-
+    //Array<Float> maskdata;
+    //Array<Float> psfdata;
+    {
+      Array<Float> resdata;
+      imstore->residual()->get(resdata);
+      tempres->put(resdata);
+      tempres->setImageInfo(imstore->residual()->imageInfo());
+      tempres->attachMask(ArrayLattice<Bool> (imstore->residual()->getMask()));
+    }
+    //copying is unneccesary for psf
+    /***
     TempImage<Float>* temppsf = new TempImage<Float>(imstore->psf()->shape(), imstore->psf()->coordinates(), memoryToUse()); 
     imstore->psf()->get(psfdata);
     temppsf->put(psfdata);
     temppsf->setImageInfo(imstore->psf()->imageInfo());
+    ***/
 
     TempImage<Float>* tempmask = new TempImage<Float>(imstore->mask()->shape(), imstore->mask()->coordinates(), memoryToUse());
-    // get current mask
-    imstore->mask()->get(maskdata);
-    String maskname = imstore->getName()+".mask";
-    tempmask->put(maskdata);
-    // 
-    
-    if (pblimit>0.0 && imstore->hasPB()) {
-      //cerr<<" applying pb mask ..."<<endl;
-      LatticeExpr<Bool> pixmask( iif(*tempmask > 0.0, True, False));
-      TempImage<Float>* dummy = new TempImage<Float>(tempres->shape(), tempres->coordinates(), memoryToUse());
-      dummy->attachMask(pixmask);
-      LatticeExpr<Float> themask;
-      if (!ntrue(dummy->getMask())) { // initial zero mask
-        //themask = LatticeExpr<Float>( iif( (*(imstore->pb())) > pblimit , 1.0 , 0.0 ));
-        themask = LatticeExpr<Float>( *tempmask);
-      }
-      else {
-        themask = LatticeExpr<Float>( iif( (*(imstore->pb())) > pblimit, *(imstore->mask()), 0.0));
-      } 
-      // attache pixmask to temp res image to be used in stats etc
-      //cerr<<"attaching pixmask to res.."<<endl;
-      tempres->attachMask(LatticeExpr<Bool> ( iif(*(imstore->pb()) > pblimit, True, False)));
-      imstore->mask()->copyData( themask );
+    // get current mask and apply pbmask
+    {
+      Array<Float> maskdata;
       imstore->mask()->get(maskdata);
+      String maskname = imstore->getName()+".mask";
       tempmask->put(maskdata);
-      delete dummy;
-    }
+      // 
+    
+      if (pblimit>0.0 && imstore->hasPB()) {
+        //cerr<<" applying pb mask ..."<<endl;
+        LatticeExpr<Bool> pixmask( iif(*tempmask > 0.0, True, False));
+        TempImage<Float>* dummy = new TempImage<Float>(tempres->shape(), tempres->coordinates(), memoryToUse());
+        dummy->attachMask(pixmask);
+        LatticeExpr<Float> themask;
+        if (!ntrue(dummy->getMask())) { // initial zero mask
+          //themask = LatticeExpr<Float>( iif( (*(imstore->pb())) > pblimit , 1.0 , 0.0 ));
+          themask = LatticeExpr<Float>( *tempmask);
+        }
+        else {
+          themask = LatticeExpr<Float>( iif( (*(imstore->pb())) > pblimit, *(imstore->mask()), 0.0));
+        } 
+        // attache pixmask to temp res image to be used in stats etc
+        //cerr<<"attaching pixmask to res.."<<endl;
+        tempres->attachMask(LatticeExpr<Bool> ( iif(*(imstore->pb()) > pblimit, True, False)));
+        imstore->mask()->copyData( themask );
+        imstore->mask()->get(maskdata);
+        tempmask->put(maskdata);
+        delete dummy;
+      }
+    } 
     //for debug
     //String tempresname="initialRes_"+String::toString(iterdone)+".im";
     //PagedImage<Float> initialRes(tempres->shape(), tempres->coordinates(), tempresname);
@@ -921,14 +929,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       makeAutoMask(imstore);
     }
     else if (alg==String("thresh")) {
-      autoMaskByThreshold(*tempmask, *tempres, *temppsf, qreso, resbybeam, qthresh, fracofpeak, thestats, sigma, nmask, autoadjust);
+      autoMaskByThreshold(*tempmask, *tempres, *imstore->psf(), qreso, resbybeam, qthresh, fracofpeak, 
+                          thestats, sigma, nmask, autoadjust);
     }
     else if (alg==String("thresh2")) {
-      autoMaskByThreshold2(*tempmask, *tempres, *temppsf, qreso, resbybeam, qthresh, fracofpeak, thestats, sigma, nmask);
+      autoMaskByThreshold2(*tempmask, *tempres, *imstore->psf(), qreso, resbybeam, qthresh, fracofpeak, thestats, sigma, nmask);
     }
     else if (alg==String("multithresh")) {
-      autoMaskByMultiThreshold(*tempmask, *tempres, *temppsf, thestats, iterdone, itsSidelobeLevel, sidelobethreshold,
-                                          noisethreshold, lownoisethreshold, cutthreshold, smoothfactor, minbeamfrac, growiterations);
+      autoMaskByMultiThreshold(*tempmask, *tempres, *imstore->psf(), thestats, iterdone, itsSidelobeLevel, sidelobethreshold,
+                                          noisethreshold, lownoisethreshold, negativethreshold, cutthreshold, smoothfactor, minbeamfrac, growiterations);
     }
 
     // this did not work (it won't physically remove the mask from the image 
@@ -939,10 +948,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       cerr<<" mask: "<<fname<<" exist on disk? ="<<File(fname).isDirectory()<<endl;
     }
     ***/
-    tempmask->get(maskdata);
-    imstore->mask()->put(maskdata);
+    {
+      Array<Float> updatedMaskData;
+      tempmask->get(updatedMaskData);
+      imstore->mask()->put(updatedMaskData);
+    }
+    //tempmask->get(maskdata);
+    //imstore->mask()->put(maskdata);
     delete tempmask; tempmask=0;
-    delete temppsf; temppsf=0;
+    //delete temppsf; temppsf=0;
     delete tempres; tempres=0;
   }
 
@@ -1293,6 +1307,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                           const Float& sidelobeThresholdFactor,
                                           const Float& noiseThresholdFactor,
                                           const Float& lowNoiseThresholdFactor,
+                                          const Float& negativeThresholdFactor,
                                           const Float& cutThreshold,
                                           const Float& smoothFactor,
                                           const Float& minBeamFrac, 
@@ -1392,6 +1407,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Float sidelobeThreshold;
     Float noiseThreshold;
     Float lowNoiseThreshold;
+    Float negativeThreshold;
     // deal with stokes I only for now
     uInt ndim = mads.ndim();
     Int specAxis = CoordinateUtil::findSpectralAxis(res.coordinates());
@@ -1400,6 +1416,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Int nchan = res.shape()(specAxis);
     Vector<Float> maskThreshold(nchan);
     Vector<Float> lowMaskThreshold(nchan);
+    Vector<Float> negativeMaskThreshold(nchan);
     Vector<String> ThresholdType(nchan);
     Vector<Bool> pruned(nchan);
     for (uInt ich=0; ich < mads.nelements(); ich++) {
@@ -1417,12 +1434,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //if (modfactor != sidelobeThresholdFactor*sidelobeLevel) os<<LogIO::NORMAL<<" sidelobethreshld*sidelobeLevel ="<<sidelobeThresholdFactor*sidelobeLevel<<" appears to be high for automasking, adjusting this factor to "<<modfactor<<LogIO::POST;
       //sidelobeThreshold = modfactor * (Float)maxs(chindx); 
       //
+     
       noiseThreshold = noiseThresholdFactor * (Float)resRmss(chindx);
       lowNoiseThreshold = lowNoiseThresholdFactor * (Float)resRmss(chindx); 
+      negativeThreshold = negativeThresholdFactor * (Float)resRmss(chindx);
       maskThreshold(ich) = max(sidelobeThreshold, noiseThreshold);
       lowMaskThreshold(ich) = max(sidelobeThreshold, lowNoiseThreshold);
       ThresholdType(ich) = (maskThreshold(ich) == sidelobeThreshold? "sidelobe": "noise");
+      negativeMaskThreshold(ich) = (-1.0)*max(sidelobeThreshold, negativeThreshold); 
       os << LogIO::DEBUG1 <<" sidelobeTreshold="<<sidelobeThreshold<<" noiseThreshold="<<noiseThreshold<<" lowNoiseThreshold="<<lowNoiseThreshold<<LogIO::POST;
+      os << LogIO::DEBUG1 <<" negativeThreshold="<<negativeThreshold<<LogIO::POST;
       os << LogIO::NORMAL <<" Using "<<ThresholdType(ich)<<" threshold for chan "<<String::toString(ich)<<" threshold="<<maskThreshold(ich)<<LogIO::POST;
     }
 
@@ -1644,6 +1665,43 @@ namespace casa { //# NAMESPACE CASA - BEGIN
          PagedImage<Float> smoothedGrowedMask(res.shape(), res.coordinates(),"tmpSmoothedGrowMask-"+String::toString(iterdone)+".im");
          smoothedGrowedMask.copyData(prevmask);
        }
+    } //end - iterdone
+    
+    // 
+    TempImage<Float> thenegmask(res.shape(),res.coordinates(), memoryToUse());
+    thenegmask.set(0);
+    if (negativeThresholdFactor > 0) { 
+      os<<LogIO::NORMAL<<"Creating a mask for negative features. "<<LogIO::POST;
+      TempImage<Float> negativeMaskImage(res.shape(), res.coordinates(), memoryToUse()); 
+      makeMaskByPerChanThreshold(res, negativeMaskImage , negativeMaskThreshold);
+      SPIIF negmask = convolveMask( negativeMaskImage, modbeam);
+      // determine the cutthreshold value for negative mask
+      Record negmaskstats = calcImageStatistics(*negmask, *negmask, lelmask, 0, false);
+      Array<Double> negmaskmaxs;
+      negmaskstats.get(RecordFieldId("max"),negmaskmaxs);
+      Vector<Float> negCutThresholdValue(nchan);
+      for (uInt ich=0; ich < (uInt)nchan; ich++) {
+        if (ndim==1) {
+          chindx(0) = ich;
+        }
+        else {
+          chindx(1) = ich;
+        }
+        negCutThresholdValue(ich) = cutThreshold * negmaskmaxs(chindx);
+      }
+      makeMaskByPerChanThreshold(*negmask, thenegmask, negCutThresholdValue); 
+      if (isEmptyMask(thenegmask) ){
+         os<<"No negative region was found by auotmask."<<LogIO::POST;
+      }
+      if (debug) {
+        PagedImage<Float> temppresmoothnegmask(TiledShape(negativeMaskImage.shape()), negativeMaskImage.coordinates(),"tmpPreSmoNegMask.im");
+        temppresmoothnegmask.copyData(negativeMaskImage); 
+        PagedImage<Float> tempnegmask(TiledShape(thenegmask.shape()), thenegmask.coordinates(),"tmpNegMask.im");
+        tempnegmask.copyData(thenegmask);
+        PagedImage<Float> tempsmonegmask(TiledShape(thenegmask.shape()), thenegmask.coordinates(),"tmpSmoNegMask.im");
+        tempsmonegmask.copyData(*negmask);
+      }
+
     }
 
     //for debug
@@ -1680,7 +1738,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //mask.copyData( (LatticeExpr<Float>)( iif((mask + thenewmask) > 0.0 && pixmask, 1.0, 0.0  ) ) );
       // add all masks (previous one, growed mask, current thresh mask)
       // mask = untouched prev mask, prevmask=modified prev mask by the grow func, thenewmask=mask by thresh on current residual 
-      mask.copyData( (LatticeExpr<Float>)( iif((mask+prevmask + thenewmask) > 0.0 && pixmask, 1.0, 0.0  ) ) );
+      mask.copyData( (LatticeExpr<Float>)( iif((mask+prevmask + thenewmask + thenegmask) > 0.0 && pixmask, 1.0, 0.0  ) ) );
+
       mask.clearCache();
       mask.unlock();
       mask.tempClose();
@@ -1689,7 +1748,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     else {
       //os <<"Lattice themask is created..."<<LogIO::POST;
       //LatticeExpr<Float> themask( iif( tempconvim > rmsthresh/afactor, 1.0, 0.0 ));
-      mask.copyData( (LatticeExpr<Float>)( iif((mask + thenewmask) > 0.0, 1.0, 0.0  ) ) );
+      mask.copyData( (LatticeExpr<Float>)( iif((mask + prevmask + thenewmask + thenegmask ) > 0.0, 1.0, 0.0  ) ) );
+
       os <<LogIO::DEBUG1 <<"Add previous mask and the new mask.."<<LogIO::POST;
     }
   }//end of autoMaskByMultiThreshold
@@ -2529,7 +2589,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       SubImage<Float> chanImage(image, sl, aspec, true);
       TempImage<Float>* tempChanImage = new TempImage<Float> (chanImage.shape(), chanImage.coordinates(), memoryToUse() );
       Array<Float> chanImageArr;
-      LatticeExpr<Float> chanMask(iif(chanImage > thresholds(ich),1.0, 0.0)); 
+      LatticeExpr<Float> chanMask;
+      if (thresholds(ich) < 0) {
+         //LatticeExpr<Float> chanMask(iif(chanImage < thresholds(ich),1.0, 0.0)); 
+         chanMask = LatticeExpr<Float> (iif(chanImage < thresholds(ich),1.0, 0.0)); 
+      }
+      else {
+         //LatticeExpr<Float> chanMask(iif(chanImage > thresholds(ich),1.0, 0.0)); 
+         chanMask = LatticeExpr<Float> (iif(chanImage > thresholds(ich),1.0, 0.0)); 
+      }
       tempChanImage->copyData(chanMask);
       //tempChanImage->getSlice(chanImageArr, IPosition(4,0), chanImage.shape(),IPosition(4,1,1,1,1));
       tempChanImage->getSlice(chanImageArr, IPosition(2,0), chanImage.shape(),IPosition(2,1,1));
@@ -2643,6 +2711,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                        const Float& sidelobethreshold,
                                        const Float& noisethreshold, 
                                        const Float& lownoisethreshold,
+                                       const Float& negativethreshold,
                                        const Float& cutthreshold, 
                                        const Float& smoothfactor,
                                        const Float& minbeamfrac,
@@ -2655,7 +2724,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     os <<LogIO::DEBUG1<<"Calling autoMaskWithinPB .."<<LogIO::POST;
     // changed to do automask ater pb mask is generated so automask do stats within pb mask
     autoMask( imstore, iterdone, alg, threshold, fracofpeak, resolution, resbybeam, nmask, autoadjust, 
-              sidelobethreshold, noisethreshold, lownoisethreshold, cutthreshold, smoothfactor, 
+              sidelobethreshold, noisethreshold, lownoisethreshold, negativethreshold, cutthreshold, smoothfactor, 
               minbeamfrac, growiterations, pblimit);
 
     if( imstore->hasPB() )
