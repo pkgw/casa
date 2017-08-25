@@ -50,7 +50,7 @@ class predictcomp_test(unittest.TestCase):
         
     def test_valid_objname(self):
         '''predictcomp: valid objname'''
-        self.res=predictcomp(objname='Titan', epoch='2017/09/01:00', minfreq='100GHz',maxfreq='120GHz',
+        self.res=predictcomp(objname='Titan', epoch='2017/09/01/00:00', minfreq='100GHz',maxfreq='120GHz',
                              standard='Butler-JPL-Horizons 2012') 
         print "type(self.res) = ",type(self.res)
         self.assertTrue(type(self.res)==dict)
@@ -58,12 +58,12 @@ class predictcomp_test(unittest.TestCase):
              
     def test_invalid_freqrange(self):
         '''predictcomp: invalud freqrange'''
-        self.res=predictcomp(objname='Titan', epoch='2017/09/01:00', minfreq='100',maxfreq='120')
+        self.res=predictcomp(objname='Titan', epoch='2017/09/01/00:00', minfreq='100',maxfreq='120')
         self.assertIsNone(self.res)
 
     def test_predicted_visplot(self):
         '''predictcomp: generate visibility plot for a given array configuration''' 
-        self.res=predictcomp(objname='Titan', epoch='2017/09/01:00', minfreq='100GHz',maxfreq='120GHz', 
+        self.res=predictcomp(objname='Titan', epoch='2017/09/01/00:00', minfreq='100GHz',maxfreq='120GHz', 
                  standard='Butler-JPL-Horizons 2012',antennalist=datapath+'alma.cycle5.1.cfg', showplot=False,savefig='visplot.png') 
         self.assertTrue(type(self.res)==dict)
         self.assertTrue(os.path.exists(self.res['clist']))
@@ -71,7 +71,7 @@ class predictcomp_test(unittest.TestCase):
           
     def test_valid_but_not_visible_objname(self):
         '''predictcomp: valid but not visible objname'''
-        self.res=predictcomp(objname='Mars', epoch='2018/09/01:00', minfreq='100GHz',maxfreq='120GHz',
+        self.res=predictcomp(objname='Mars', epoch='2018/09/01/00:00', minfreq='100GHz',maxfreq='120GHz',
                              antennalist=datapath+'alma.cycle5.1.cfg',showplot=False) 
         self.assertIsNone(self.res)
 
