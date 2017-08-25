@@ -2531,7 +2531,7 @@ Float SIImageStore::getPeakResidual()
 {
     LogIO os( LogOrigin("SIImageStore","getPeakResidual",WHERE) );
 
-    LatticeExprNode pres( max( *residual() ) );
+    LatticeExprNode pres( max(abs( *residual() ) ));
     Float maxresidual = pres.getFloat();
 
     //    Float maxresidual = max( residual()->get() );
@@ -2547,7 +2547,8 @@ Float SIImageStore::getPeakResidualWithinMask()
 
     findMinMaxLattice(*residual(), *mask() , maxres,maxresmask, minres, minresmask);
     
-    return maxresmask;
+    //return maxresmask;
+    return max( abs(maxresmask), abs(minresmask) );
   }
 
   // Calculate the total model flux
