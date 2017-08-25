@@ -157,6 +157,7 @@ scripts/task_imtrans.py
 scripts/task_imval.py
 scripts/task_initweights.py
 scripts/taskinit.py
+scripts/ialib.py
 scripts/task_listcal.py
 scripts/task_listhistory.py
 scripts/task_listfits.py
