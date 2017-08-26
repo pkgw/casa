@@ -77,6 +77,16 @@ FluxStdSrcs::FluxStdSrcs()
                                   "J1829+4845").vector();          // Jhhmm+ddm, CAS-2020
   directions_p[FSS::THREEC380] = MDirection(MVDirection(4.84123669, 0.85078092),
                                              MDirection::J2000);
+  // added for Perley-Butler 2017
+  names_p[FSS::J0133] = RVS1("J0133-3629").vector();  
+  directions_p[FSS::J0133] = MDirection(MVDirection(0.00,0.00), MDirection::J2000);
+  names_p[FSS::FORNAXA] = RVS3("FORNAX A", " FORNAX_A", "J0322-3712").vector();  
+  directions_p[FSS::FORNAXA] = MDirection(MVDirection(0.00,0.00), MDirection::J2000);
+  names_p[FSS::J0444] = RVS1("J0444-2809").vector();  
+  directions_p[FSS::J0144] = MDirection(MVDirection(0.00,0.00), MDirection::J2000);
+  names_p[FSS::PICTORA] = RVS1("PICTOR A", "PIC-A", "PIC A").vector();  
+  directions_p[FSS::PICTORA] = MDirection(MVDirection(0.00,0.00), MDirection::J2000);
+   
   directions_p[FSS::UNKNOWN_SOURCE] = MDirection();	// Default.
 }
 

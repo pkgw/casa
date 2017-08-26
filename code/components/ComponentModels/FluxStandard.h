@@ -117,6 +117,9 @@ class FluxStandard
     // frequency flux scale with the Stevens high frequency flux scale
     // for 1934-638 described in Partridge et al (2016), ApJ 821,1
     STEVENS_REYNOLDS_2016,
+    //
+    // Perley-Butler 2017 
+    PERLEY_BUTLER_2017,
 
     HAS_RESOLUTION_INFO,
 
