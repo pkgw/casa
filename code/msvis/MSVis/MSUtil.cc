@@ -305,13 +305,24 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
   }
-  
   Bool MSUtil::getFreqRangeInSpw( Double& freqStart,
 				  Double& freqEnd, const Vector<Int>& spw, const Vector<Int>& start,
 				  const Vector<Int>& nchan,
 				  const MeasurementSet& ms, 
 				  const MFrequency::Types freqframe,
-				  const Vector<Int>&  fieldIds, const Bool fromEdge){
+				  const Bool fromEdge){
+    Vector<Int> fields(0);
+    return MSUtil::getFreqRangeInSpw( freqStart, freqEnd, spw, start,
+				      nchan,ms, freqframe,fields, fromEdge, True);
+
+
+  }
+  Bool MSUtil::getFreqRangeInSpw( Double& freqStart,
+				  Double& freqEnd, const Vector<Int>& spw, const Vector<Int>& start,
+				  const Vector<Int>& nchan,
+				  const MeasurementSet& ms, 
+				  const MFrequency::Types freqframe,
+				  const Vector<Int>&  fieldIds, const Bool fromEdge, const Bool useFieldsInMS){
     
     Bool retval=False;
     freqStart=C::dbl_max;
@@ -340,7 +351,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Vector<uInt>  uniqIndx;
     
     uInt nTimes=GenSortIndirect<Double>::sort (uniqIndx, elt, Sort::Ascending, Sort::QuickSort|Sort::NoDuplicates);
-    MDirection dir =fieldCol.phaseDirMeas(fieldIds[0]);
+    
+    MDirection dir;
+    if(useFieldsInMS)
+      dir=fieldCol.phaseDirMeas(fldId[0]);
+    else
+      dir=fieldCol.phaseDirMeas(fieldIds[0]);
     MSDataDescIndex mddin(ms.dataDescription());
     MFrequency::Types obsMFreqType= (MFrequency::Types) (spwCol.measFreqRef()(0));
     MEpoch ep;
@@ -390,7 +406,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	MFrequency::Convert toframe(obsMFreqType,
 				    MFrequency::Ref(freqframe, frame));
 	for (uInt j=0; j< nTimes; ++j){
-	  if(anyEQ(fieldIds, fldId[elindx[uniqIndx[j]]]) && anyEQ(ddOfSpw, ddId[elindx[uniqIndx[j]]])){
+	  if((useFieldsInMS || anyEQ(fieldIds, fldId[elindx[uniqIndx[j]]])) && anyEQ(ddOfSpw, ddId[elindx[uniqIndx[j]]])){
 	    timeCol.get(elindx[uniqIndx[j]], ep);
 	    frame.resetEpoch(ep);
 	    Double freqTmp=toframe(Quantity(freqStartObs, "Hz")).get("Hz").getValue();

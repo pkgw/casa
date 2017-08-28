@@ -1,0 +1,7 @@
+<RCC>
+  <qresource prefix="images">
+    <file>images/arrowUpOff.png</file>
+    <file>images/arrowUpOn.png</file>
+    <file>images/arrowUpOnErr.png</file>
+  </qresource>
+</RCC>

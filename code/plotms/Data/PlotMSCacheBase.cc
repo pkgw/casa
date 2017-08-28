@@ -614,6 +614,7 @@ void PlotMSCacheBase::clear() {
 	deleteCache();
 	refTime_p=0.0;
 	dataLoaded_=false;
+	pageHeaderCache_.clear();
 }
 
 #define PMSC_DELETE(VAR)                                                \
