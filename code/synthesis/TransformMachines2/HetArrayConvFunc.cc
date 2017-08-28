@@ -510,12 +510,13 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
         TempImage<Complex> pB2Screen(TiledShape(pbShape), ((nchan_p==1) && getConjConvFunc) ?conjCoord : coords  , memtobeused/2.2);
         IPosition start(4, 0, 0, 0, 0);
         convSupport_p.resize(ndishpair);
-	/*//////////////////
-	Double wtime0=0.0;
+	//////////////////
+	/*Double wtime0=0.0;
 	Double wtime1=0.0;
 	Double wtime2=0.0;
-	      wtime0=omp_get_wtime();
-	//////////////*/
+	wtime0=omp_get_wtime()
+	*/;
+	//////////////
         for (uInt k=0; k < ndish; ++k) {
 
             for (uInt j =k ; j < ndish; ++j) {
@@ -534,9 +535,7 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
                 for (Int kk=0; kk < nBeamChans; ++kk) {
                     blcin[3]=kk;
                     trcin[3]=kk;
-                    //    tim.mark();
-		    //wtime0=omp_get_wtime();;
-                    //cerr << "Doing channel " << kk << endl;
+      		    //wtime0=omp_get_wtime();
                     Slicer slin(blcin, trcin, Slicer::endIsLast);
                     SubImage<Complex> subim(pBScreen, slin, true);
                     subim.set(Complex(1.0, 0.0));
@@ -580,26 +579,10 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
                     //subim.copyData((LatticeExpr<Complex>) (iif(abs(subim)> 5e-2, subim, 0)));
                     //subim2.copyData((LatticeExpr<Complex>) (iif(abs(subim2)> 25e-4, subim2, 0)));
 					//wtime0=omp_get_wtime();
-					/*		Bool iscopy;
-					Array<DComplex> arrD(subim.shape());
-					Array<Complex> arrS(subim.shape());
-					arrS=subim.get();
-					convertArray(arrD, arrS);
-					DComplex* arrptr=arrD.getStorage(iscopy);
-					ft_p.c2cFFT(arrptr, subim.shape()(0),  subim.shape()(1));
-					arrD.putStorage(arrptr, iscopy);
-					convertArray(arrS, arrD);
-					subim.put(arrS);
-					arrS=subim2.get();
-					convertArray(arrD, arrS);
-					arrptr=arrD.getStorage(iscopy);
-					ft_p.c2cFFT(arrptr, subim2.shape()(0),  subim2.shape()(1));
-					arrD.putStorage(arrptr, iscopy);
-					convertArray(arrS, arrD);
-					subim2.put(arrS);
-					*/
-					ft_p.c2cFFT(subim);
-					ft_p.c2cFFT(subim2);
+					ft_p.c2cFFTInDouble(subim);
+					ft_p.c2cFFTInDouble(subim2);
+					//ft_p.c2cFFT(subim);
+					//ft_p.c2cFFT(subim2);
 					//wtime2+=omp_get_wtime()-wtime0;
                     //  tim.show("after ffts ");
 
