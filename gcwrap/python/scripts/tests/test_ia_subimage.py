@@ -314,6 +314,14 @@ class ia_subimage_test(unittest.TestCase):
         myia.done()       
         self.assertTrue("ia.subimage" in msgs[-2])
         self.assertTrue("ia.subimage" in msgs[-1])
+        # verify no history written if dohistory set to False
+        ia2 = iatool()
+        ia2.dohistory(False)
+        ia2.fromshape("gg",[20, 20])
+        msgs = ia.history()
+        ia2 = ia2.subimage()
+        ia2.done()
+        self.assertTrue(len(msgs) == 0, "History unexpectedly written")        
 
 def suite():
     return [ia_subimage_test]

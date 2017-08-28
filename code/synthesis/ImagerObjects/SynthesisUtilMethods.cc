@@ -1932,7 +1932,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    //VisBufferUtil::getFreqRange(freqmin,freqmax, vi2, freqFrameValid? freqFrame:MFrequency::REST );
 	    //cerr << "before " << freqmin << "   " << freqmax << endl;
 	    MSUtil::getFreqRangeInSpw( freqmin, freqmax, spwids, firstChannels,
-				       nChannels,*mss[j], freqFrameValid? freqFrame:MFrequency::REST , fld, True);
+				       nChannels,*mss[j], freqFrameValid? freqFrame:MFrequency::REST , True);
 	    //cerr << "after " << freqmin << "   " << freqmax << endl;
 	  }
 	  if(freqmin < gfreqmin) gfreqmin=freqmin;
