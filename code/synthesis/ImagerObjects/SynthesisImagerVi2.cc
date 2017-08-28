@@ -114,6 +114,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   Bool SynthesisImagerVi2::selectData(const SynthesisParamsSelect& selpars){
  LogIO os( LogOrigin("SynthesisImagerVi2","selectData",WHERE) );
+ Bool retval=True;
 
     try
       {
@@ -250,8 +251,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         vi::FrequencySelectionUsingFrame channelSelector(selFreqFrame_p);
 	///temporary variable as we carry that for tunechunk
 		
-		
+	Bool selectionValid=False;
     	  for(uInt k=0; k < nSelections; ++k){
+	    Bool thisSpwSelValid=False;
 	    //The getChanfreqList is wrong for beg and end..going round that too.
 	    Vector<Double> freqies=ROMSColumns(*mss_p[mss_p.nelements()-1]).spectralWindow().chanFreq()(Int(chanlist(k,0)));
 	    Vector<Double> chanwidth=ROMSColumns(*mss_p[mss_p.nelements()-1]).spectralWindow().chanWidth()(Int(chanlist(k,0)));
@@ -275,21 +277,30 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           //cerr << "begin " << lowfreq << "  " << topfreq << endl; 
 	      //vi::VisibilityIterator2 tmpvi(mss_p, vi::SortColumns(), false); 
 	      //VisBufferUtil::getFreqRangeFromRange(lowfreq, topfreq,  freqFrame, lowfreq,  topfreq, tmpvi, selFreqFrame_p);
-		  if(!MSUtil::getFreqRangeInSpw( lowfreq,
+		  if(MSUtil::getFreqRangeInSpw( lowfreq,
 				  topfreq, Vector<Int>(1,chanlist(k,0)), Vector<Int>(1,chanlist(k,1)),
 				  Vector<Int>(1, chanlist(k,2)-chanlist(k,1)+1),
 				 *mss_p[mss_p.nelements()-1] , 
 				  selFreqFrame_p,
 						 fieldList, False))
-		    throw(AipsError("Could not find the frequency range of data selection"));
+		    {
+		      selectionValid=True;
+		      thisSpwSelValid=True;
+		    }
+		    
 		    
 	    }
 	    
-	    andFreqSelection(mss_p.nelements()-1, Int(freqList(k,0)), lowfreq, topfreq, selFreqFrame_p);
-		andChanSelection(mss_p.nelements()-1, Int(chanlist(k,0)), Int(chanlist(k,1)),Int(chanlist(k,2)));
+	    if(thisSpwSelValid || ignoreframe){
+	      andFreqSelection(mss_p.nelements()-1, Int(freqList(k,0)), lowfreq, topfreq, selFreqFrame_p);
+	      andChanSelection(mss_p.nelements()-1, Int(chanlist(k,0)), Int(chanlist(k,1)),Int(chanlist(k,2)));
+	    }
           }
-	  
-    	  //fselections_p->add(channelSelector);
+	  if(! (selectionValid && !ignoreframe)){
+	    os << "Did not match spw selection in the selected ms " << LogIO::WARN << LogIO::POST;
+	    retval=False;
+	  }
+	    //fselections_p->add(channelSelector);
           //////////////////////////////////
       }
       else{
@@ -349,7 +360,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	throw( AipsError("Error in selectData() : "+x.getMesg()) );
       }
 
-    return true;
+    return retval;
 
 
 
