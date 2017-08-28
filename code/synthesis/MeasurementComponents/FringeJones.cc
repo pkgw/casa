@@ -183,12 +183,16 @@ DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant) :
     Int veryDebug ( 0 );
     Int nCorrOrig( sdbs(0).nCorrelations() );
     nCorr_ = (nCorrOrig> 1 ? 2 : 1); // number of p-hands
+
+    for (Int i=0; i<nCorr_; i++) {
+        activeAntennas_[i].insert(refant_);
+    }
+    
     // when we get the visCubecorrected it is already
     // reduced to parallel hands, but there isn't a
     // corresponding method for flags.
     Int corrStep = (nCorrOrig > 2 ? 3 : 1); // step for p-hands
 
-    activeAntennas_.insert(refant_);
     SolveDataBuffer& s0 ( sdbs(0) );
     nElem_ =  1 + max( max(s0.antenna1()), max(s0.antenna2())) ;
     //
@@ -282,7 +286,7 @@ DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant) :
             } else {
                 for (Int icorr=0; icorr<nCorr_; ++icorr) {
                     IPosition p(2, icorr, iant);
-                    activeAntennas_.insert(iant);
+                    activeAntennas_[icorr].insert(iant);
                     for (size_t ichan=0; ichan != spwchans+1; ichan++) {
                         IPosition pchan(2, ichan, irow);
                         if (!flagged(pchan)) {
@@ -306,13 +310,19 @@ DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant) :
         }
     }
     cerr << "Constructed a DelayRateFFT object." << endl;
-    cerr << "Antennas found: ";
-    std::set<Int>::iterator it;
-    for (it = activeAntennas_.begin(); it != activeAntennas_.end(); it++) {
-        cerr << *it << ", ";
+    printActive();
+}
+
+void DelayRateFFT::printActive() {
+    for (Int icorr=0; icorr != nCorr_; icorr++) {
+        cerr << "Antennas found for correlation " << icorr << ": ";
+        for (std::set<Int>::iterator it = activeAntennas_[icorr].begin(); it != activeAntennas_[icorr].end(); it++) {
+            cerr << *it << ", ";
+        }
+        cerr << endl;
     }
     cerr << endl;
-}
+}    
 
 void DelayRateFFT::FFT() {
     // Axes are 0: correlation (i.e., hand of polarization), 1: antenna, 2: time, 3: channel
@@ -488,6 +498,12 @@ DelayRateFFT::snr(Int icorr, Int ielem, Float delay, Float rate) {
 }
     
 
+void DelayRateFFT::removeAntennasCorrelation(Int icor, std::set< Int > s) {
+    std::set< Int > & as = activeAntennas_.find(icor)->second;
+    for (std::set< Int >::iterator it=s.begin(); it!=s.end(); it++) {
+        as.erase(*it);
+    }
+}
 
 
 // Start of GSL compliant solver
@@ -509,11 +525,11 @@ private:
     size_t corrStep;
     Double t0;
     Double reftime;
-    std::set< Int > activeAntennas;
+    std::map< Int, std::set< Int > > activeAntennas;
     std::map< Int, Int > antennaIndexMap;
     size_t activeCorr;
 public:
-    AuxParamBundle(SDBList& sdbs_, size_t refant, const std::set<Int>& activeAntennas_) :
+    AuxParamBundle(SDBList& sdbs_, size_t refant, const std::map< Int, std::set<Int> >& activeAntennas_) :
         sdbs(sdbs_),
         nCalls(0),
         refant(refant),
@@ -530,12 +546,8 @@ public:
             Double tlast = sdbs(last_index).time()(0);
             reftime = 0.5*(t0 + tlast);
             // cerr << "AuxParamBundle reftime " << reftime << " t0 " << t0 <<" dt " << tlast - t0 << endl;
-            std::set<Int>::iterator it;
-            Int i = 0;
-            for (it = activeAntennas.begin(); it != activeAntennas.end(); it++) {
-                antennaIndexMap[*it] = i++;
-            }
         }
+
     Double get_t0() {
         return t0;
     }
@@ -550,7 +562,11 @@ public:
     }
     size_t
     get_num_antennas() {
-        return (size_t) activeAntennas.size();
+        if (activeCorr < 0) {
+            throw(AipsError("Correlation out of range."));
+        }
+        std::set< Int > ants = activeAntennas.find(activeCorr)->second;
+        return (size_t) ants.size();
     }
     size_t
     get_max_antenna_index() {
@@ -575,8 +591,9 @@ public:
     }
     bool
     isActive(size_t iant) {
+        std::set<Int> ants = activeAntennas.find(activeCorr)->second;
         if (iant == refant) return true;
-        else return (activeAntennas.find( iant ) != activeAntennas.end() );
+        else return (ants.find( iant ) != ants.end() );
     }
     Int
     get_param_index(size_t iant, size_t icor) {
@@ -601,6 +618,13 @@ public:
     void
     set_active_corr(size_t icorr) {
         activeCorr = icorr;
+        antennaIndexMap.clear();
+        Int i = 0;
+        std::set<Int>::iterator it;
+        std::set<Int> ants = activeAntennas.find(activeCorr)->second;
+        for (it = ants.begin(); it != ants.end(); it++) {
+            antennaIndexMap[*it] = i++;
+        }
     }
 };
     
@@ -957,7 +981,7 @@ expb_df(CBLAS_TRANSPOSE_t TransJ, const gsl_vector* x, const gsl_vector *u, void
     
 
 void
-least_squares_driver(SDBList& sdbs, Matrix<Float>& param, Int refant, const std::set<Int>& activeAntennas) {
+least_squares_driver(SDBList& sdbs, Matrix<Float>& param, Int refant, const std::map< Int, std::set<Int> >& activeAntennas, LogIO& logSink) {
     // n below is number of variables,
     // p is number of parameters
 
@@ -965,42 +989,49 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& param, Int refant, const std:
     // Double refTime = sdbs(midTimeIndex).time()(0);
 
     AuxParamBundle bundle( sdbs, refant, activeAntennas );
-    // Three parameters for every antenna.
-    size_t p = 3 * (bundle.get_num_antennas() - 1);
-    // We need to store complex visibilities in a real matrix so we
-    // just store real and imaginary components separately.
-    size_t n = 2 * bundle.get_num_data_points();
-
-    // Parameters for the least-squares solver.
-    const double param_tol = 1.0e-50;
-    //const double gtol = 1e-50; // 1e-30; 
-    const double gtol = 1.0e-50; // 1e-30; 
-    const double ftol = 1.0e-50;   // eps rel
-    const size_t max_iter = 20;
-
-    const gsl_multilarge_nlinear_type *T = gsl_multilarge_nlinear_trust;
-    
-    gsl_multilarge_nlinear_parameters params = gsl_multilarge_nlinear_default_parameters();
-    // params.trs = gsl_multilarge_nlinear_trs_lm;
-    params.scale = gsl_multilarge_nlinear_scale_more;
-    params.solver = gsl_multilarge_nlinear_solver_cholesky;
-
-
-
-    gsl_multilarge_nlinear_workspace *w = gsl_multilarge_nlinear_alloc(T, &params, n, p);
-    gsl_multilarge_nlinear_fdf f;
-
-    f.f = &expb_f;
-    /* Can't set to NULL for finite-difference Jacobian in multilarge case. */
-    f.df =  &expb_df;   
-    f.n = n;    /* number of data points */
-    f.p = p;    /* number of parameters */
-    f.params = &bundle;
-
-    // Our original param is a matrix of (3*nCorr, nElem).
-    // We have to transcribe it to a vector.
     for (size_t icor=0; icor != bundle.get_num_corrs(); icor++ ) {
         bundle.set_active_corr(icor);
+        if (bundle.get_num_antennas() == 0) {
+            logSink << "No antennas for correlation " << icor << "; not running least-squares solver." << LogIO::POST;
+            continue;
+        }
+        if (bundle.get_num_antennas() == 1) {
+            logSink << "No baselines for correlation " << icor << "; not running least-squares solver." << LogIO::POST;
+            continue;
+        }
+        // Three parameters for every antenna.
+        size_t p = 3 * (bundle.get_num_antennas() - 1);
+        // We need to store complex visibilities in a real matrix so we
+        // just store real and imaginary components separately.
+        size_t n = 2 * bundle.get_num_data_points();
+
+        cerr << "p " << p << " n " << n << endl;
+    
+        // Parameters for the least-squares solver.
+        const double param_tol = 1.0e-50;
+        //const double gtol = 1e-50; // 1e-30; 
+        const double gtol = 1.0e-50; // 1e-30; 
+        const double ftol = 1.0e-50;   // eps rel
+        const size_t max_iter = 20;
+
+        const gsl_multilarge_nlinear_type *T = gsl_multilarge_nlinear_trust;
+        gsl_multilarge_nlinear_parameters params = gsl_multilarge_nlinear_default_parameters();
+        // params.trs = gsl_multilarge_nlinear_trs_lm;
+        params.scale = gsl_multilarge_nlinear_scale_more;
+        params.solver = gsl_multilarge_nlinear_solver_cholesky;
+
+        gsl_multilarge_nlinear_workspace *w = gsl_multilarge_nlinear_alloc(T, &params, n, p);
+        gsl_multilarge_nlinear_fdf f;
+
+        f.f = &expb_f;
+        /* Can't set to NULL for finite-difference Jacobian in multilarge case. */
+        f.df =  &expb_df;   
+        f.n = n;    /* number of data points */
+        f.p = p;    /* number of parameters */
+        f.params = &bundle;
+
+        // Our original param is a matrix of (3*nCorr, nElem).
+        // We have to transcribe it to a vector.
 
         gsl_vector *gp = gsl_vector_alloc(p);
         gsl_vector_set_zero(gp);
@@ -1078,8 +1109,8 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& param, Int refant, const std:
              << "final step taken = " << diffsize 
              << "." << endl;
         gsl_vector_free( gp );
+        gsl_multilarge_nlinear_free( w );
     }    
-    gsl_multilarge_nlinear_free( w );
 }
 
     
@@ -1335,30 +1366,19 @@ FringeJones::calculateSNR(Int nCorr, DelayRateFFT drf, Float ref_freq, Float df0
     Matrix<Float> sRP(solveRPar().nonDegenerate(1));
     Matrix<Bool> sPok(solveParOK().nonDegenerate(1));
     Matrix<Float> sSNR(solveParSNR().nonDegenerate(1));
-
-    const set<Int>& activeAntennas = drf.getActiveAntennas();
-    for (Int iant=0; iant != nAnt(); iant++) {
-        if (iant == refant() || ( activeAntennas.find( iant ) != activeAntennas.end() )) {
-            for (size_t icor=0; icor != nCorr; icor++ ) {
-                Double phi0 = sRP(3*icor + 0, iant);
+    
+    for (size_t icor=0; icor != nCorr; icor++ ) {
+        const set<Int>& activeAntennas = drf.getActiveAntennasCorrelation(icor);
+        for (Int iant=0; iant != nAnt(); iant++) {
+            if (iant == refant() || ( activeAntennas.find( iant ) != activeAntennas.end() )) {
                 Double delay = sRP(3*icor + 1, iant);
                 Double rate = sRP(3*icor + 2, iant);
-                Double delta1 = df0*delay;
-                Double delta2 = ref_freq*dt0*rate;
-                Double delta3 = C::_2pi*(delta1+delta2);
-                // cerr << "For " << iant << " correlation " << icor << "." << endl;
-                logSink() << "Antenna " << iant << ": phi0 " << phi0 << " delay " << delay << " rate " << rate << endl
-                          << "Adding corrections for frequency (" << 360*delta1 << ")"
-                          << " and time (" << 360*delta2 << ") degrees." << LogIO::POST;
-                sRP(3*icor + 0, iant) += delta3;
                 // Note that DelayRateFFT::snr is also used to calculate SNRs for the least square values!
                 Float snrval = drf.snr(icor, iant, delay, rate);
                 sSNR(3*icor + 0, iant) = snrval;
                 sSNR(3*icor + 1, iant) = snrval;
                 sSNR(3*icor + 2, iant) = snrval;
-            }
-        } else {
-            for (size_t icor=0; icor != nCorr; icor++ ) {
+            } else {
                 sRP(3*icor + 0, iant) = false;
                 sRP(3*icor + 1, iant) = false;
                 sRP(3*icor + 2, iant) = false;
@@ -1389,13 +1409,14 @@ void FringeJones::solveLotsOfSDBs(SDBList& sdbs) {
     // the values seemed reasonable
     DelayRateFFT drf( sdbs, refant());
     drf.FFT(); 
-    logSink() << "FFT completed." << endl;
+    logSink() << "FFT completed." << LogIO::POST;
     drf.searchPeak();
-    logSink() << "Searched for peaks in FFT." << endl;
+    logSink() << "Searched for peaks in FFT." << LogIO::POST;
     Matrix<Float> sRP(solveRPar().nonDegenerate(1));
     Matrix<Bool> sPok( solveParOK().nonDegenerate(1) );
     Matrix<Float> sSNR(solveParSNR().nonDegenerate(1));
 
+    
     // Map from MS antenna number to index 
     Int ncol = drf.param().ncolumn();
     for (Int i=0; i!=ncol; i++) {
@@ -1408,21 +1429,47 @@ void FringeJones::solveLotsOfSDBs(SDBList& sdbs) {
     }
 
 
-    
+    size_t nCorrOrig( sdbs(0).nCorrelations() );
+    size_t nCorr = (nCorrOrig> 1 ? 2 : 1); // number of p-hands
+
     // cerr << "(Reminder:) Current spectral window =" << currSpw() << endl;
     calculateSNR(nCorr, drf, ref_freq, df0, dt0);
 
-    set<Int> belowThreshold();
+    set<Int> belowThreshold;
+    // In the Python interface there is a parameter minsnr.
+    Float threshold = minSNR();
     
-    if (1) {
-        logSink() << "Starting least squares optimization." << endl;
-        least_squares_driver(sdbs, sRP, refant(), drf.getActiveAntennas());
+    for (size_t icor=0; icor != nCorr; icor++ ) {
+        const set<Int>& activeAntennas = drf.getActiveAntennasCorrelation(icor);
+        for (Int iant=0; iant != nAnt(); iant++) {
+            if (iant != refant() && ( activeAntennas.find( iant ) != activeAntennas.end() )) {
+                Float s = sSNR(3*icor + 0, iant);
+                if (s < threshold) {
+                    belowThreshold.insert( iant );
+                    logSink() << "Antenna " << iant << " SNR " << s
+                              << " below threshold (" << threshold << ") for correlation "
+                              << icor << "."  << LogIO::POST;
+                    // Don't assume these will be flagged later; do it right away.
+                    // (The least squares routine will eventually become optional.)
+                    sPok(3*icor + 0, iant) = false;
+                    sPok(3*icor + 1, iant) = false;
+                    sPok(3*icor + 2, iant) = false;
+                }
+            }
+        }
+        // We currently remove the antennas below SNR threshold from
+        // the object used to handle the FFT fringe search.
+        drf.removeAntennasCorrelation(icor, belowThreshold);
+        drf.printActive();
     }
-
-
-    
-    size_t nCorrOrig( sdbs(0).nCorrelations() );
-    size_t nCorr = (nCorrOrig> 1 ? 2 : 1); // number of p-hands
+    if (1) {
+        logSink() << "Starting least squares optimization." << LogIO::POST;
+        // Note that least_squares_driver is *not* a method of
+        // FringeJones so we pass everything in, including the logSink
+        // reference.  Note also that sRP is passed by reference and
+        // altered in place.
+        least_squares_driver(sdbs, sRP, refant(), drf.getActiveAntennas(), logSink());
+    }
 
     if (0) {
         cerr << "Ref time " << MVTime(refTime()/C::day).string(MVTime::YMD,7) << endl;
@@ -1430,8 +1477,7 @@ void FringeJones::solveLotsOfSDBs(SDBList& sdbs) {
         cerr << "ref_freq " << ref_freq << endl;
         cerr << "df0 " << df0 << " dt0 " << dt0 << " ref_freq*dt0 " << ref_freq*dt0 << endl;
     }
-    // Report delays to console.
-    // FIXME: nAnt 
+    // calculateSNR is a method of FringeJones so it has access to the sSNR (et al) arrays.
     calculateSNR(nCorr, drf, ref_freq, df0, dt0);
 }
 

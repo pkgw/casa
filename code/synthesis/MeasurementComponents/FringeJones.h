@@ -123,7 +123,7 @@ private:
     // 
     casacore::Matrix<casacore::Float> param_;
     casacore::Matrix<casacore::Bool> flag_; //?
-    std::set<casacore::Int> activeAntennas_;
+    std::map< casacore::Int, std::set<casacore::Int> > activeAntennas_;
 public:
     // A lot of assumptions heree that assume only one spectral window,
     // which is unfortunate since there may be more.
@@ -131,7 +131,9 @@ public:
     // The following are copied from KJones.h definition of DelayFFT.
     // I'm putting them here because I haven't yet split out the header version.
 
-    const std::set<casacore::Int>& getActiveAntennas() const { return activeAntennas_; }
+    const std::map<casacore::Int, std::set<casacore::Int> >& getActiveAntennas() const { return activeAntennas_; }
+    const std::set<casacore::Int>& getActiveAntennasCorrelation(casacore::Int icor) const { return activeAntennas_.find(icor)->second; }
+    void removeAntennasCorrelation(casacore::Int, std::set< casacore::Int >);
     const casacore::Array<casacore::Bool>& flag() const { return flag_; }
     const casacore::Array<casacore::Complex>& Vpad() const { return Vpad_; }
     const casacore::Matrix<casacore::Float>& param() const { return param_; }
@@ -141,6 +143,10 @@ public:
     std::pair<casacore::Bool, casacore::Float>  xinterp(casacore::Float alo, casacore::Float amax, casacore::Float ahi);
     void searchPeak();
     casacore::Float snr(casacore::Int icorr, casacore::Int ielem, casacore::Float delay, casacore::Float rate);
+
+    void printActive();
+
+
     
 }; // End of class DelayRateFFT.
 
