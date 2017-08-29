@@ -944,7 +944,7 @@ HPX HEALPix grid.  -->
                        for a 2:1 bandwidth).
 
 </description>
-	    <value type="bool">False</value>
+	    <value type="bool">True</value>
     </param>
 
     <param type="string" name="cfcache" subparam="true">
@@ -2388,13 +2388,13 @@ HPX HEALPix grid.  -->
 	 <default param="normtype"><value>"flatnoise"</value></default>
 	 <default param="vptable"><value>""</value></default>
 	 <default param="pblimit"><value>0.2</value></default>
-	 <default param="conjbeams"><value>False</value></default>
+	 <default param="conjbeams"><value>True</value></default>
        </equals>
        <equals type="string" value="mosaicft">
 	 <default param="normtype"><value>"flatnoise"</value></default>
 	 <default param="vptable"><value>""</value></default>
 	 <default param="pblimit"><value>0.2</value></default>
-	 <default param="conjbeams"><value>False</value></default>
+	 <default param="conjbeams"><value>True</value></default>
        </equals>
        <equals type="string" value="ftmosaic">
 	 <default param="normtype"><value>"flatnoise"</value></default>
