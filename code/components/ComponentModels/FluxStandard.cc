@@ -190,7 +190,7 @@ Bool FluxStandard::compute(const String& sourceName,
     fluxStdPtr = new NSTDS::FluxStdScaifeHeald2012;
   else if(itsFluxScale == STEVENS_REYNOLDS_2016)
     fluxStdPtr = new NSTDS::FluxStdStevensReynolds2016;
-  else if(itsFluxScale == PERELY_BUTLER_2017)
+  else if(itsFluxScale == PERLEY_BUTLER_2017)
     fluxStdPtr = new NSTDS::FluxStdPerleyButler2017;
   else{
     if(verbose)

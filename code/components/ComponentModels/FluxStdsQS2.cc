@@ -331,5 +331,57 @@ Bool FluxStdScaifeHeald2012::setSourceCoeffs()
   return found;
 }
 
+Bool FluxStdPerleyButler2017::setSourceCoeffs()
+{
+  Bool found = true;
+  setFreqUnit("GHz");
+  FSS::Source srcEnum = FCVQS::getSrcEnum();
+  String stddatapath;
+  String stdTabName("PerleyButler2017Coeffs");
+
+  if(!Aipsrc::findDir(stddatapath,"./"+stdTabName)) {
+    if(!Aipsrc::findDir(stddatapath, Aipsrc::aipsRoot()+"/data/nrao/VLA/standards/"+stdTabName)) {
+      ostringstream oss;
+      oss << "The coefficient data for Perley-Butler 2017, " <<  stdTabName
+          << " is not found in ./ or in ~/data/nrao/VLA/standards/";
+      throw(AipsError(String(oss)));
+    }
+  }
+  //cerr<<"use stddatapath="<<stddatapath<<endl;
+  LogIO os(LogOrigin("FluxStdPerleyButler2017", "setSourceCoeffs", WHERE));
+   os << LogIO::NORMAL2
+      << "Use the coefficent data table: " << stddatapath
+      << LogIO::POST;
+
+
+  Path stdTablePath(stddatapath);
+  //cerr<<"stddatapath="<<stddatapath<<endl;
+  FCVQS::readQSCoeffsTable(stdTablePath);
+  if (srcEnum != FSS::THREEC286 &&
+      srcEnum != FSS::THREEC123 &&
+      srcEnum != FSS::THREEC295 &&
+      srcEnum != FSS::THREEC196 &&
+      srcEnum != FSS::THREEC48 &&
+      srcEnum != FSS::THREEC138 &&
+      srcEnum != FSS::THREEC147 &&
+      srcEnum != FSS::J0133 &&
+      srcEnum != FSS::FORNAXA &&
+      srcEnum != FSS::J0444 &&
+      srcEnum != FSS::PICTORA &&
+      srcEnum != FSS::TAURUSA &&
+      srcEnum != FSS::HYDRAA &&
+      srcEnum != FSS::VIRGOA &&
+      srcEnum != FSS::HERCULESA &&
+      srcEnum != FSS::THREEC353 &&
+      srcEnum != FSS::THREEC380 &&
+      srcEnum != FSS::CYGNUSA &&
+      srcEnum != FSS::THREEC444 &&
+      srcEnum != FSS::CASSIOPEIAA)
+    found=false;
+  // all PB2017 source models are treated as non-variable
+  FCVQS::isTimeVar(false);
+  return found;
+}
+
 } //# NAMESPACE NSTD - END 
 } //# NAMESPACE CASA - END
