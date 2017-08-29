@@ -5,6 +5,7 @@ from subprocess import Popen
 from enum import Enum
 from time import sleep, localtime, strftime
 from threading import Thread
+import crashrpt_conf
 
 from casa_shutdown import add_shutdown_hook
 
@@ -79,13 +80,13 @@ class procmgr(Thread):
             else:
                 out = file(os.devnull,'a')
             self.__proc = Popen( self.__cmd, stderr=out, stdout=out, stdin=subprocess.PIPE )
-            self.__watchdog = Popen( [ '/bin/bash','-c', 
+            self.__watchdog = Popen( [ '/bin/bash','-c',
                                        'while kill -0 %d > /dev/null 2>&1; do sleep 1; kill -0 %d > /dev/null 2>&1 || kill -9 %d > /dev/null 2>&1; done' % \
                                      (self.__proc.pid, os.getpid( ), self.__proc.pid) ] )
 
             self.stdin = self.__proc.stdin
             self.pid = self.__proc.pid
-      
+
             if self.__output_option is output_option.PIPE:
                 self.stdout = self.__proc.stdout
                 self.stderr = self.__proc.stderr
@@ -103,6 +104,7 @@ class procmgr(Thread):
         self.__procs = { }
         self.__running = True
         add_shutdown_hook(self.shutdown)
+        add_shutdown_hook(self.removeCrashReporterDir)
 
     def running(self, tag):
         """tag: process identifier to check
@@ -134,7 +136,7 @@ class procmgr(Thread):
         if self.__running == False: return None
         if self.__procs.has_key( tag ):
             return self.__procs[tag]
-        return None        
+        return None
 
     def shutdown(self):
         """stops all managed processes"""
@@ -142,6 +144,14 @@ class procmgr(Thread):
             for p in self.__procs:
                 self.__procs[p].stop( )
         self.__running = False
+
+    def removeCrashReporterDir(self):
+        temporaryDirectory = crashrpt_conf.temporaryDirectory
+        if os.path.exists(temporaryDirectory):
+            try:
+                os.rmdir(temporaryDirectory)
+            except:
+                print "Couldn't remove " + temporaryDirectory
 
     def __delitem__(self, key):
         print "you cannot stop processes this way"
@@ -156,4 +166,3 @@ class procmgr(Thread):
     def run(self):
         while self.__running:
             sleep(10)
-
