@@ -35,6 +35,8 @@ Annotations/AnnText.cc
 Annotations/AnnVector.cc
 Annotations/RegionTextList.cc
 
+Images/ComponentListImage.cc
+
 ImageAnalysis/AntennaResponses.cc
 ImageAnalysis/CasaImageBeamSet.cc
 ImageAnalysis/ComplexImageRegridder.cc
@@ -246,6 +248,10 @@ install (FILES
 	DESTINATION include/casacode/imageanalysis/ImageAnalysis
 	)
 install (FILES
+    Images/ComponentListImage.h
+    DESTINATION include/casacode/imageanalysis/Images
+    )
+install (FILES
 	Regions/CasacRegionManager.h
 	DESTINATION include/casacode/imageanalysis/Regions
 	)
@@ -283,6 +289,8 @@ casa_add_assay( imageanalysis IO/test/tProfileFitterEstimatesFileParser.cc )
 casa_add_assay( imageanalysis IO/test/tRegionTextParser.cc )
 
 casa_add_assay( imageanalysis Regions/test/tCasacRegionManager.cc )
+
+casa_add_google_test (MODULES imageanalysis SOURCES Images/test/ComponentListImage_Gtest.cc Images/test/ComponentListImageTest.cc)
 
 casa_add_google_test (MODULES imageanalysis SOURCES ImageAnalysis/test/ImageMaskHandler_Gtest.cc ImageAnalysis/test/ImageMaskHandlerTest.cc)
 
