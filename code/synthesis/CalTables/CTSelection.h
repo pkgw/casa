@@ -31,6 +31,7 @@
 
 #include <casa/aips.h>
 #include <ms/MSSel/MSSelection.h>
+#include <ms/MSSel/MSSelectableTable.h>
 #include <synthesis/CalTables/NewCalTable.h>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -144,11 +145,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     inline casacore::Bool setObservationExpr(
             const casacore::String& observationExpr) {
         return msSelection_p->setObservationExpr(observationExpr); }
-
-    // TBD: convert to taql to select on ANTENNA1 only
     inline casacore::Bool setAntennaExpr(const casacore::String& antennaExpr) {
         return msSelection_p->setAntennaExpr(antennaExpr); }
-    // TBD: change this to not overwrite antenna selection
     inline casacore::Bool setTaQLExpr(const casacore::String& taqlExpr) {
         return msSelection_p->setTaQLExpr(taqlExpr); }
 
@@ -186,6 +184,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
             const casacore::MeasurementSet* ms=NULL) 
     { return msSelection_p->getSpwList(ms); }
 
+    // Accessor for the list of the selected Observation IDs.
+    inline casacore::Vector<casacore::Int> getObservationList(
+            const casacore::MeasurementSet* ms=NULL) 
+    { return msSelection_p->getObservationList(ms); }
+
+    // Accessor for the list of the selected Scan IDs.
+    inline casacore::Vector<casacore::Int> getScanList(
+            const casacore::MeasurementSet* ms=NULL) 
+    { return msSelection_p->getScanList(ms); }
+
     // // casacore::Matrix<casacore::Int> getChanList(
     // //               const casacore::MeasurementSet* ms=NULL, 
     // // 			    const casacore::Int defaultStep=1,
@@ -204,7 +212,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // object.  Accessing the services of the CTSelection module via
     // this interface is recommended over the version of reset() that
     // uses MeasurementSet.
-    void reset(casacore::MSSelectableTable& msLike,
+    void reset(NewCalTable ct,
 	       const casacore::MSSelection::MSSMode& mode = 
                casacore::MSSelection::PARSE_NOW,
 	       const casacore::String& timeExpr        = "",
@@ -221,6 +229,21 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 private:
 
+    // Resets msSelection_p expressions for antenna selection:
+    // use taqlExpr to select on ANTENNA1 only for antenna selection,
+    // use antennaExpr for baseline selection
+    void doCalAntennaSel(const casacore::String& antennaExpr,
+        casacore::MSSelectableTable* msLike);
+    void setTaqlAntennaSelection(const casacore::String& antennaExpr,
+        casacore::MSSelectableTable* msLike); 
+    void setBaselineSelection(const casacore::String& antennaExpr,
+        casacore::MSSelectableTable* msLike);
+    casacore::Vector<casacore::Int> getRefAntIds(
+        casacore::MSSelectableTable* msLike);
+    bool isRefAntenna(casacore::Int antennaId, 
+        casacore::Vector<casacore::Int> refantIds);
+
+    NewCalTable nct_p;
     casacore::MSSelection* msSelection_p;
     casacore::TableExprNode fullTEN_p;
   };

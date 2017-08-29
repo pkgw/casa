@@ -27,6 +27,8 @@
 //----------------------------------------------------------------------------
 
 #include <synthesis/CalTables/CTSelection.h>
+#include <ms/MSSel/MSSelectionTools.h>
+#include <casa/Utilities/Sort.h>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
 
@@ -44,7 +46,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			const casacore::String& taqlExpr,
 			const casacore::String& scanExpr,
 			const casacore::String& stateExpr,
-			const casacore::String& observationExpr) {
+			const casacore::String& observationExpr) : nct_p(ct) {
     // TBD: do antenna->taql!
     msSelection_p = new casacore::MSSelection(ct, mode, timeExpr, antennaExpr,
         fieldExpr, spwExpr, "", taqlExpr, "", scanExpr, "", stateExpr,
@@ -53,6 +55,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   
   CTSelection::CTSelection (const CTSelection& other) {
     if (this != &other) {
+        nct_p = other.nct_p;
         msSelection_p = other.msSelection_p;
         fullTEN_p = other.fullTEN_p;
     }
@@ -60,6 +63,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   CTSelection& CTSelection::operator= (const CTSelection& other) {
     if (this != &other) {
+        nct_p = other.nct_p;
         msSelection_p = other.msSelection_p;
         fullTEN_p = other.fullTEN_p;
     }
@@ -76,7 +80,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   //---------------------------------------------------------------------------
 
-  void CTSelection::reset(casacore::MSSelectableTable& msLike,
+  void CTSelection::reset(NewCalTable ct,
 			  const casacore::MSSelection::MSSMode& mode,
 			  const casacore::String& timeExpr,
 			  const casacore::String& antennaExpr,
@@ -86,8 +90,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			  const casacore::String& scanExpr,
 			  const casacore::String& stateExpr,
 			  const casacore::String& observationExpr) {
+      nct_p = ct;
       // TBD: do antenna->taql!
-      msSelection_p->reset(msLike, mode, timeExpr, antennaExpr, fieldExpr,
+      msSelection_p->reset(ct, mode, timeExpr, antennaExpr, fieldExpr,
         spwExpr, "", taqlExpr, "", scanExpr, "", stateExpr, observationExpr);
   };
 
@@ -104,7 +109,130 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //
     // Interpret all expressions and produce a consolidated TEN.  
     //
+    casacore::String antExpr = msSelection_p->getExpr(
+        casacore::MSSelection::ANTENNA_EXPR);
+    if (!antExpr.empty()) doCalAntennaSel(antExpr, msLike); 
     return msSelection_p->toTableExprNode(msLike);
+  }
+
+  //---------------------------------------------------------------------------
+
+  void CTSelection::doCalAntennaSel(const casacore::String& antennaExpr,
+          casacore::MSSelectableTable* msLike) {
+    // Override antenna selection for antenna-based cal tables
+    casacore::MSSelectableTable::MSSDataType type = msLike->dataType();
+    if ((type==casacore::MSSelectableTable::PURE_ANTENNA_BASED) ||
+        (type==casacore::MSSelectableTable::REF_ANTENNA_BASED)) {
+        // select ANTENNA1 only
+        setTaqlAntennaSelection(antennaExpr, msLike);
+        // also select baselines (given or constructed)
+        setBaselineSelection(antennaExpr, msLike);
+    }
+  }
+
+  void CTSelection::setTaqlAntennaSelection(const casacore::String& antennaExpr,
+          casacore::MSSelectableTable* msLike) {
+      // Convert antenna ids to taql ANTENNA1 selection
+      // First use MSSelection to get selected antenna ids:
+      // handles ranges (~), name->id conversion, negation, etc.
+      casacore::MSSelection mssel;
+      mssel.setAntennaExpr(antennaExpr); 
+      casacore::TableExprNode ten = mssel.toTableExprNode(msLike);
+      casacore::Vector<casacore::Int> selAntIds = mssel.getAntenna1List();
+
+      // separate antenna selection and negation
+      casacore::String antstr, notantstr;
+      for (casacore::uInt i=0; i<selAntIds.size(); ++i) {
+          casacore::Int antId = selAntIds(i);
+          casacore::String antIdStr = casacore::String::toString(abs(antId));
+          if (antId >= 0) {
+              if (!antstr.empty()) antstr += ",";
+              antstr += antIdStr;
+          } else {
+              if (!notantstr.empty()) notantstr += ",";
+              notantstr += antIdStr;
+          }
+      }
+      // make taqlExpr for ANTENNA1
+      casacore::String taqlExpr;
+      if (!antstr.empty()) 
+          taqlExpr += "ANTENNA1 IN [" + antstr + "]";
+      if (!notantstr.empty()) {
+          if (!taqlExpr.empty()) taqlExpr += " && ";
+          taqlExpr += "ANTENNA1 NOT IN [" + notantstr + "]";
+      }
+      // append taqlExpr to user's taql selection
+      casacore::String msSelTaQL = msSelection_p->getExpr(
+          casacore::MSSelection::TAQL_EXPR);
+      if (!msSelTaQL.empty()) msSelTaQL += " && ";
+      msSelTaQL += taqlExpr;
+      //cout << "**** setTaQLExpr=" << msSelTaQL << endl;
+      msSelection_p->setTaQLExpr(msSelTaQL);
+  } 
+
+  void CTSelection::setBaselineSelection(const casacore::String& antennaExpr,
+          casacore::MSSelectableTable* msLike) {
+        // Set baseline selections in MSSelection antennaExpr
+        // First, separate baseline and antenna selections
+        casacore::String baselineSel(""), antennaSel("");
+        casacore::Vector<casacore::String> selections;
+        selections = split(antennaExpr, ';', selections);
+        for (casacore::uInt i=0; i<selections.size(); ++i) {
+            if (selections(i).contains('&')) {
+                if (!baselineSel.empty()) baselineSel += ";";
+                baselineSel += selections(i);
+            } else {
+                if (!antennaSel.empty()) antennaSel += ";";
+                antennaSel += selections(i);
+            }
+        }
+        if (!antennaSel.empty()) {
+            // Construct baselines (cross/auto-corr) for each antenna;
+            // get ids for antenna selection only
+            casacore::MSSelection mssel;
+            mssel.setAntennaExpr(antennaSel);
+            casacore::TableExprNode ten = mssel.toTableExprNode(msLike);
+            casacore::Vector<casacore::Int> selAntIds = mssel.getAntenna1List();
+            // get reference antennas
+            casacore::Vector<casacore::Int> refAntIds = getRefAntIds(msLike);
+            // construct baselines for antennas
+            for (casacore::uInt i=0; i<selAntIds.size(); ++i) {
+                casacore::Int antId = selAntIds(i);
+                casacore::String sep = (baselineSel.empty() ? "" : ";");
+                casacore::String neg = (antId < 0 ? "!" : "");
+                casacore::String antstr = casacore::String::toString(abs(antId));
+                casacore::String suffix = (isRefAntenna(antId, refAntIds) ?
+                    "&&&" : "");
+                baselineSel += sep + neg + antstr + suffix;
+            }
+        }
+        // set new antennaExpr
+        //cout << "**** setAntennaExpr=" << baselineSel << endl;
+        msSelection_p->setAntennaExpr(baselineSel);
+  }
+
+  casacore::Vector<casacore::Int> CTSelection::getRefAntIds(
+          casacore::MSSelectableTable* msLike) {
+      // get unique antenna ids from antenna2 column
+      NewCalTable nct = NewCalTable(*msLike->table());
+      ROCTMainColumns ctmain(nct);
+      casacore::Vector<casacore::Int> ant2 = ctmain.antenna2().getColumn();
+      casacore::uInt nval = genSort(ant2, casacore::Sort::Descending, 
+          (casacore::Sort::QuickSort | casacore::Sort::NoDuplicates));
+      ant2.resize(nval, casacore::True);
+      return ant2;
+  }
+
+  bool CTSelection::isRefAntenna(casacore::Int antennaId,
+        casacore::Vector<casacore::Int> refantIds) {
+      bool isrefant(false);
+      for (casacore::uInt i=0; i<refantIds.size(); ++i) {
+          if (abs(antennaId) == refantIds(i)) {
+              isrefant = true;
+              break;
+          }
+      }
+      return isrefant;
   }
 
 } //# NAMESPACE CASA - END

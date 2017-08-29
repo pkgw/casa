@@ -170,19 +170,22 @@ void PlotMSSelection::apply(NewCalTable& ct, NewCalTable& selCT,
   // set up CTSelection with expressions
   CTSelection cts;
   cts.setTimeExpr(timerange());
-  cts.setObservationExpr(observation());
-  cts.setScanExpr(scan());
-  cts.setSpwExpr(spw());
-  cts.setFieldExpr(field());
   cts.setAntennaExpr(antenna());
+  cts.setFieldExpr(field());
+  cts.setSpwExpr(spw());
+  cts.setTaQLExpr(msselect());
+  // poln selection handled in loadCalAxis (uses getParSlice)
+  cts.setScanExpr(scan());
   cts.setStateExpr(intent());
+  cts.setObservationExpr(observation());
   // do selection
   CTInterface cti(ct);
   TableExprNode ten = cts.toTableExprNode(&cti);
   try {
     getSelectedTable(selCT, ct, ten, "");
   } catch(AipsError x) {
-      throw(AipsError("Error selecting on caltable: "+ct.tableName()));
+      throw(AipsError("Error selecting on caltable:\n"+
+        x.getMesg()));
   }
 }
 

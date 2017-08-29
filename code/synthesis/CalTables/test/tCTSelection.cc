@@ -1,4 +1,4 @@
-//# tCTCalSelection.cc: Test program for selecting on a NewCalTable
+//# tCTSelection.cc: Test program for selecting on a NewCalTable
 //# Copyright (C) 2011
 //# Associated Universities, Inc. Washington DC, USA.
 //#
@@ -23,26 +23,27 @@
 //#                        520 Edgemont Road
 //#                        Charlottesville, VA 22903-2475 USA
 //#
-//# $Id: tNewCalTable.cc 15602 2011-07-14 00:03:34Z tak.tsutsumi $
 
+#include <casa/namespace.h>
 #include <synthesis/CalTables/NewCalTable.h>
 #include <synthesis/CalTables/CTColumns.h>
 #include <synthesis/CalTables/CTInterface.h>
-#include <ms/MSSel/MSSelection.h>
 #include <synthesis/CalTables/CTSelection.h>
 #include <ms/MSSel/MSSelectionTools.h>
-#include <casa/OS/Timer.h>
 #include <casa/Exceptions/Error.h>
 #include <casa/iostream.h>
 #include <casa/BasicMath/Math.h>
-#include <casa/namespace.h>
 
 // <summary>
 // Test program for CTSelection class.
 // </summary>
 
+using namespace casacore;
+using namespace casa;
+
 // Control verbosity
 #define CTSELECTION_VERBOSE true
+
 
 void doTest1 (Bool verbose=false) {
 
@@ -61,9 +62,10 @@ void doTest1 (Bool verbose=false) {
 		   nFld,
 		   refTime,tint,disk,false);
 
-
-  if (verbose)
+  if (verbose) {
     cout << "Wrote NewCalTable out to tCTSelection1.ct" << endl;
+    cout << "Reference antenna id is 0" << endl;
+  }
 
   // some sanity checks on the test NewCalTable
   AlwaysAssert( (tnct.tableType() == Table::Memory), AipsError);
@@ -87,7 +89,6 @@ void doTest1 (Bool verbose=false) {
     fieldsel+=fldnames(fldids(i));
   }
 
-
   // Some spws to select
   Vector<Int> spwids(2);
   spwids(0)=1; spwids(1)=3;
@@ -97,11 +98,12 @@ void doTest1 (Bool verbose=false) {
     spwsel+=String::toString(spwids(i));
   }
 
-
-  // Extract some antenna names to select
+  // Extract some antenna names to select; antenna 0 is reference antenna
   Vector<String> antnames=ctc.antenna().name().getColumn();
   Vector<Int> antids(5);
-  antids(0)=2; antids(1)=3; antids(2)=6; antids(3)=8; antids(4)=9;
+  // select reference antenna 0 to check that not all baselines/rows 
+  // were selected
+  antids(0)=0; antids(1)=3; antids(2)=6; antids(3)=8; antids(4)=9;
   String antsel("");
   for (uInt i=0;i<antids.nelements();++i) {
     if (i>0) antsel+=",";
@@ -118,7 +120,6 @@ void doTest1 (Bool verbose=false) {
   NewCalTable selnct(tnct);
   CTInterface cti(tnct);
   CTSelection cts;
-  //MSSelection mss;
   cts.setFieldExpr(fieldsel);
   cts.setSpwExpr(spwsel);
   cts.setAntennaExpr(antsel);
@@ -126,13 +127,11 @@ void doTest1 (Bool verbose=false) {
   TableExprNode ten=cts.toTableExprNode(&cti);
 
   if (verbose)
-    cout << "CalSelection index results (get*List): " << endl;
-
+    cout << "CTSelection index results (get*List): " << endl;
 
   if (verbose)
     cout << " Field list: " << cts.getFieldList() << endl; // OK?
   AlwaysAssert( allEQ(cts.getFieldList(),fldids), AipsError );
-
 
   if (verbose)
     cout << " Antenna list: " << cts.getAntenna1List() << endl;
@@ -153,18 +152,21 @@ void doTest1 (Bool verbose=false) {
     }
   AlwaysAssert( (selnct.nrow()==antids.nelements()*nTime*spwids.nelements()*fldids.nelements()), AipsError);
 
-
   ROCTMainColumns ctmc(selnct);
-  Vector<Int> selfieldcol,selantcol,selspwcol;
+  Vector<Int> selfieldcol, selantcol, selant2col, selspwcol;
   ctmc.fieldId().getColumn(selfieldcol);
-  ctmc.spwId().getColumn(selspwcol);
   ctmc.antenna1().getColumn(selantcol);
+  ctmc.antenna2().getColumn(selant2col);
+  ctmc.spwId().getColumn(selspwcol);
 
+  /*
   if (verbose) {
     cout << "ctmc.fieldId().getColumn()  = " << selfieldcol << endl;
-    cout << "ctmc.spwId().getColumn()    = " << selspwcol << endl;
     cout << "ctmc.antenna1().getColumn() = " << selantcol << endl;
+    cout << "ctmc.antenna2().getColumn() = " << selant2col << endl;
+    cout << "ctmc.spwId().getColumn()    = " << selspwcol << endl;
   }
+  */
 
   Vector<Bool> fldok(selfieldcol.nelements(),false);
   for (uInt i=0;i<fldids.nelements();++i) {
@@ -184,13 +186,13 @@ void doTest1 (Bool verbose=false) {
   Bool allantok=allEQ(antok,true);
   if (verbose) {
     cout << boolalpha;
-    //    cout << "fldok = " << fldok << endl;
     cout << "allEQ(fldok,true) = " << allfldok  << endl;
     cout << "allEQ(spwok,true) = " << allspwok  << endl;
     cout << "allEQ(antok,true) = " << allantok  << endl;
   }
-  AlwaysAssert( allEQ(fldok,true) , AipsError );
-
+  AlwaysAssert( allfldok , AipsError );
+  AlwaysAssert( allspwok , AipsError );
+  AlwaysAssert( allantok , AipsError );
 }
 
 void doTest2 (Bool verbose=false) {
@@ -210,8 +212,10 @@ void doTest2 (Bool verbose=false) {
 		   nFld,
 		   refTime,tint,disk,false);
 
-  if (verbose) 
+  if (verbose) {
     cout << "Wrote test NewCalTable out to tCTSelection2.ct" << endl;
+    cout << "Reference antenna id is 0" << endl;
+  }
 
   // some sanity checks on the test NewCalTable
   AlwaysAssert( (tnct.tableType() == Table::Memory), AipsError);
@@ -273,7 +277,6 @@ void doTest2 (Bool verbose=false) {
   NewCalTable selnct(tnct);
   CTInterface cti(tnct);
   CTSelection cts;
-  //MSSelection mss;
   cts.setObservationExpr(obssel);
   cts.setScanExpr(scansel);
   cts.setTimeExpr(timesel);
@@ -283,7 +286,7 @@ void doTest2 (Bool verbose=false) {
   TableExprNode ten = cts.toTableExprNode(&cti);
 
   if (verbose)
-    cout << "CalSelection parsing results (get*List): " << endl;
+    cout << "CTSelection parsing results (get*List): " << endl;
 
   if (verbose) {
     cout << " Obs list: " << cts.getObservationList() << endl;
@@ -321,7 +324,7 @@ void doTest2 (Bool verbose=false) {
   getSelectedTable(selnct,tnct,ten,"");
 
   if (verbose)
-    cout << "CalSelection table contents results:" << endl;
+    cout << "CTSelection table contents results:" << endl;
 
   if (verbose)
     cout << "selected: nrow=" << selnct.nrow() 
@@ -339,6 +342,7 @@ void doTest2 (Bool verbose=false) {
   ctmc.spwId().getColumn(selspwcol);
   ctmc.antenna1().getColumn(selantcol);
 
+  /*
   if (verbose) {
     cout << "ctmc.obs().getColumn()      = " << selobscol << endl;
     cout << "ctmc.scanNo().getColumn()   = " << selscancol << endl;
@@ -347,6 +351,7 @@ void doTest2 (Bool verbose=false) {
     cout << "ctmc.spwId().getColumn()    = " << selspwcol << endl;
     cout << "ctmc.antenna1().getColumn() = " << selantcol << endl;
   }
+  */
 
   Vector<Bool> obsok(selobscol.nelements(),false);
   for (uInt i=0;i<obsids.nelements();++i) {
@@ -386,11 +391,11 @@ void doTest2 (Bool verbose=false) {
     cout << "allEQ(spwok,true) = " << allspwok  << endl;
     cout << "allEQ(antok,true) = " << allantok  << endl;
   }
-  AlwaysAssert( allEQ(obsok,true) , AipsError );
-  AlwaysAssert( allEQ(scanok,true) , AipsError );
-  AlwaysAssert( allEQ(timeok,true) , AipsError );
-  AlwaysAssert( allEQ(spwok,true) , AipsError );
-  AlwaysAssert( allEQ(antok,true) , AipsError );
+  AlwaysAssert( allobsok , AipsError );
+  AlwaysAssert( allscanok , AipsError );
+  AlwaysAssert( alltimeok , AipsError );
+  AlwaysAssert( allspwok , AipsError );
+  AlwaysAssert( allantok , AipsError );
 
 }
 
@@ -412,3 +417,4 @@ int main ()
   cout << "All OK" << endl;
   exit(0);
 };
+
