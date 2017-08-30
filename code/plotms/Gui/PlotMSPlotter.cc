@@ -379,27 +379,25 @@ void PlotMSPlotter::setActionIsChecked(
 void PlotMSPlotter::showError(
 	const String& message, const String& title, bool isWarning
 )  {
-	if (itsParent_->its_want_avoid_popups)   {
+	if (itsParent_->popupsAllowed())   {
+	    if(isWarning)
+	    	QMessageBox::warning( this, title.c_str(), message.c_str());
+	    else 
+	    	QMessageBox::critical(this, title.c_str(), message.c_str());
+    } else {
 		// We are likely running from an automated python script, or otherwise
 		// don't want to create any blocking popups.
 		// Call upon showMessage to do the right thing.
 		showMessage( String( (isWarning)? "WARNING: " : "ERROR: ")  +  message , title, isWarning);
-
-	 } else {
-	
-	    if(isWarning) {
-	    	QMessageBox::warning( this, title.c_str(), message.c_str());
-	    }
-	    else {
-	    	QMessageBox::critical(this, title.c_str(), message.c_str());
-	    }
 	 }
 }
 
 
 
 void PlotMSPlotter::showMessage(const String& message, const String& title, bool warning) {
-	if (itsParent_->its_want_avoid_popups)  {
+	if (itsParent_->popupsAllowed())  {
+		QMessageBox::information(this, title.c_str(), message.c_str());
+	} else {
 		// Update status bar 
 		// (Ignore the title)
 		QPalette pal = statusbar->palette();
@@ -414,8 +412,6 @@ void PlotMSPlotter::showMessage(const String& message, const String& title, bool
 
 		// Also write msg to logger
 		getParent()->getLogger()->postMessage(PMS::LOG_ORIGIN, title, message);
-	} else {
-		QMessageBox::information(this, title.c_str(), message.c_str());
 	}
 }
 
@@ -452,10 +448,9 @@ void PlotMSPlotter::closeEvent(QCloseEvent* event) {
 		// Normally in interactive mode, verify quitting with user.
 		// If avoiding gui popups, typically due to casaplotms being run
 		// by automated python scripts,  assume answer of "yes, i want to quit"
-        if ( ! itsParent_->its_want_avoid_popups)   {
-		    bool reply = showQuestion("One or more threaded operations are not yet "
-                "complete!  Do you still want to quit?", "PlotMS Quit");
-                
+        if ( itsParent_->popupsAllowed())   {
+		    bool reply = showQuestion("One or more threaded operations are not"
+                " yet complete!  Do you still want to quit?", "PlotMS Quit");
 			if (reply==false)   {
 				event->ignore();
 				return;
@@ -465,7 +460,8 @@ void PlotMSPlotter::closeEvent(QCloseEvent* event) {
         for(unsigned int i = 0; i < itsWaitingThreads_.size(); i++)
             delete itsWaitingThreads_[i];
         itsWaitingThreads_.clear();
-        itsCurrentThread_->cancel();
+        // in case thread completed in the meantime, check ptr
+        if (itsCurrentThread_) itsCurrentThread_->cancel();
     }
     isClosed_ = true;
     // Close plotter separately if not Qt-based.

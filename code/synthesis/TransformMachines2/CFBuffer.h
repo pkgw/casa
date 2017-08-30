@@ -379,6 +379,9 @@ using namespace casa::vi;
     void getFreqNdxMaps(casacore::Vector<casacore::Vector<casacore::Int> >& freqNdx, casacore::Vector<casacore::Vector<casacore::Int> >& conjFreqNdx);
     inline casacore::Int nearestFreqNdx(const casacore::Int& spw, const casacore::Int& chan, const casacore::Bool conj=false)
     {
+      // Single pixel along the freq. axis but chan, spw > 0 indicates
+      // use of W-only projection on a wide-band data.
+      if (nChan_p == 1) return 0; 
       if (conj) return conjFreqNdxMap_p[spw][chan];
       else  return freqNdxMap_p[spw][chan];
     }

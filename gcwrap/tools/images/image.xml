@@ -1294,6 +1294,36 @@ collapsed.done()
 		</example>
     </method>
 
+    <method type="function" name="dohistory">
+        <shortdescription>Enable/disable tool methods from writing to history.</shortdescription>
+        <input>
+            <param type="bool"  name="enable">
+                <description>Enable history writing of tool methods? True means yes, False means no.</description>
+                <value>True</value>
+            </param>
+        </input>
+        <returns type="bool"/>
+        <description>
+            This allows control over if tool methods record history of what parameters they were called
+            with to the input and/or output image. By default, tool methods will write to the image
+            history. By explicitly disabling history writing, tool methods will not write to the history.
+            When created, an ia tool will have history writing enabled. Note that the setting is specific
+            to the individual tool, and that methods such as open(), close(), done(), fromshape(), etc do
+            not implicitly change the internal state of whether or not history writing by methods is
+            enabled. One can explicitly enable/disable history writing even if the tool is not yet attached
+            to an image. In the case where a method returns a new ia tool, the method will not write history
+            to the output image, but the returned tool will have history writing enabled, so that running
+            methods on the returned tool will cause history to be written to the image attached to that
+            tool, or any new image created by running methods on that tool, unless dohistory(False) is
+            explicitly run on that tool prior to running other methods.
+            
+            IMPORTANT NOTE: This setting will not affect the behavior of ia.sethistory(); this tool
+            method will always write to the history, no matter if ia.dohistory(False) was run prior.
+        </description>
+        <example>
+        </example>
+    </method>
+
     <method type="function" name="imageconcat">
         <shortdescription>Construct a \casa\ image by concatenating images</shortdescription>
         
@@ -6295,10 +6325,6 @@ This function combines the current image with another image to make
 a complex image.  The current image (i.e. that associated with this
 Image \tool\ is assumed to be the Real image).  You supply
 the Imaginary image; it must be disk-based at this time.
-
-The output image cannot be associated with an Image \tool\ (does
-not handle Complex images yet) and so the best you can do is
-write it to disk.  The Viewer can view it.
 
 </description>
 

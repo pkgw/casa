@@ -10,7 +10,6 @@ from taskinit import *
 import numpy as np
 import pylab as pl
 from matplotlib import pyplot
-from scipy import stats
 import scipy.optimize as opt
 import os
 import math
@@ -402,14 +401,14 @@ def remove_cloud(vis=None, correct_ms=False, offsetstable='', verbose=False, dop
                 tau_con[i]=np.nan
 
         casalog.post('   Result for '+antnames[iant]+':', 'INFO')
-        casalog.post('      PWV    : before, after '+str(stats.nanmedian(pwvna))+', '+str(stats.nanmedian(pwvn_noca)), 'INFO')
-        casalog.post('      PWV rms: before, after '+str(stats.nanstd(pwvna))+','+str(stats.nanstd(pwvn_noca)), 'INFO')
-        casalog.post('      tau_constant '+str(tau_constant_m)+'  rms '+str(stats.nanstd(tau_con)), 'INFO')
+        casalog.post('      PWV    : before, after '+str(np.nanmedian(pwvna))+', '+str(np.nanmedian(pwvn_noca)), 'INFO')
+        casalog.post('      PWV rms: before, after '+str(np.nanstd(pwvna))+','+str(np.nanstd(pwvn_noca)), 'INFO')
+        casalog.post('      tau_constant '+str(tau_constant_m)+'  rms '+str(np.nanstd(tau_con)), 'INFO')
 
-        pwv_ant[iant]=stats.nanmedian(pwvn_noca)
-        pwv_std_ant[iant]=stats.nanstd(pwvn_noca)
+        pwv_ant[iant]=np.nanmedian(pwvn_noca)
+        pwv_std_ant[iant]=np.nanstd(pwvn_noca)
         tauc_ant[iant]=tau_constant_m
-        tauc_std_ant[iant]=stats.nanstd(tau_con)
+        tauc_std_ant[iant]=np.nanstd(tau_con)
 
         if doplot:
             # plot before and after results
@@ -431,10 +430,10 @@ def remove_cloud(vis=None, correct_ms=False, offsetstable='', verbose=False, dop
     mytb.close()
 
     if dooffsets:
-        pwv_noca_all=stats.nanmedian(pwv_ant)
-        pwv_std_all=stats.nanmedian(pwv_std_ant)
-        tauc_all=stats.nanmedian(tauc_ant)
-        tauc_std_all=stats.nanmedian(tauc_std_ant)
+        pwv_noca_all=np.nanmedian(pwv_ant)
+        pwv_std_all=np.nanmedian(pwv_std_ant)
+        tauc_all=np.nanmedian(tauc_ant)
+        tauc_std_all=np.nanmedian(tauc_std_ant)
 
         tbo.putkeyword('REFMS', vis)
         tbo.putkeyword('CREATION_UTC', time.asctime(time.gmtime()))

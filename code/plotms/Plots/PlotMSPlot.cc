@@ -1870,14 +1870,17 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
             // make scales symmetrical for u and v
             PMS::Axis x = cacheParams->xAxis();
             if (PMS::axisIsUV(x)) {
-                xIsUV = true;
-                if (x==PMS::UWAVE || x==PMS::VWAVE) xIsUVwave=true;
-                maxval = round(max(abs(xmin),xmax)) + 10.0;
-                xmin = -maxval;
-                xmax = maxval;
-                xymax = max(xymax, maxval);
-                pair<double, double> xbounds = make_pair(xmin, xmax);
-                canvas->setAxisRange(cx, xbounds);
+                // set range if not all flagged
+                if ((xmin != DBL_MAX) && (xmax != -DBL_MAX)) {
+                    xIsUV = true;
+                    if (x==PMS::UWAVE || x==PMS::VWAVE) xIsUVwave=true;
+                    maxval = round(max(abs(xmin),xmax)) + 10.0;
+                    xmin = -maxval;
+                    xmax = maxval;
+                    xymax = max(xymax, maxval);
+                    pair<double, double> xbounds = make_pair(xmin, xmax);
+                    canvas->setAxisRange(cx, xbounds);
+                }
             }
         }
 		for ( int i = 0; i < yAxisCount; i++ ){
@@ -1885,6 +1888,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
 			if ( axesParams->yRangeSet(i) ){
 				canvas->setAxisRange(cy, axesParams->yRange(i));
 			} else {
+                // set range if values close to zero (add margin to ymin)
                 if ((ymin > -0.5) && (ymin < 1.0) && (ymax > 10.0)) {
                     if (ymax > 100.0)
                         ymin -= 1.0; // add larger margin for larger range
@@ -1893,25 +1897,28 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
                     pair<double, double> ybounds = make_pair(ymin, ymax);
                     canvas->setAxisRange(cy, ybounds);
                 }
-                // make scales symmetrical for u and v
+                // make range symmetrical for u and v
                 PMS::Axis y = cacheParams->yAxis(i);
                 if (PMS::axisIsUV(y)) {
-                    maxval = round(max(abs(ymin),ymax)) + 10.0;
-                    if (xIsUV) {
-                        // set x and y ranges equally
-                        xymax = max(xymax, maxval);
-                        pair<double, double> xybounds = make_pair(-xymax, xymax);
-                        canvas->setAxisRange(cx, xybounds);
-                        canvas->setAxisRange(cy, xybounds);
-                        makeSquare = true;
-                        if (xIsUVwave && (y==PMS::UWAVE || y==PMS::VWAVE))
-                            waveplot=true;
-                    } else {
-                        // just set yrange equally
-                        ymin = -maxval;
-                        ymax = maxval;
-                        pair<double, double> ybounds = make_pair(ymin, ymax);
-                        canvas->setAxisRange(cy, ybounds);
+                    // set range if not all flagged
+                    if ((ymin != DBL_MAX) && (ymax != -DBL_MAX)) {
+                        maxval = round(max(abs(ymin),ymax)) + 10.0;
+                        if (xIsUV) {
+                            // set x and y ranges equally
+                            xymax = max(xymax, maxval);
+                            pair<double, double> xybounds = make_pair(-xymax, xymax);
+                            canvas->setAxisRange(cx, xybounds);
+                            canvas->setAxisRange(cy, xybounds);
+                            makeSquare = true;
+                            if (xIsUVwave && (y==PMS::UWAVE || y==PMS::VWAVE))
+                                waveplot=true;
+                        } else {
+                            // just set yrange equally
+                            ymin = -maxval;
+                            ymax = maxval;
+                            pair<double, double> ybounds = make_pair(ymin, ymax);
+                            canvas->setAxisRange(cy, ybounds);
+                        }
                     }
                 }
 		    }
