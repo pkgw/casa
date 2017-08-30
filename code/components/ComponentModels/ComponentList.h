@@ -451,6 +451,12 @@ public:
   // Summarize specified component as a formatted string.
   casacore::String summarize(casacore::uInt index) const;
 
+  // get the underlying table. This method was added specifically for use by ComponenetListImage;
+  // it is not advised that it be called outside that class.
+  casacore::Table& getTable();
+
+  const casacore::Table& getTable() const;
+
 private:
   // Privarte function to create the casacore::Table which will hold the components
   //void createTable(const casacore::Path& fileName, const casacore::Table::TableOption option, const casacore::Bool addOptCol);

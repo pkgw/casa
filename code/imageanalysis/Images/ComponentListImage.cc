@@ -31,6 +31,9 @@
 */
 
 #include <imageanalysis/Images/ComponentListImage.h>
+
+#include <casacore/casa/OS/Path.h>
+
 /*
 #include <casacore/images/Regions/ImageRegion.h>
 #include <casacore/images/Regions/RegionHandlerTable.h>
@@ -76,9 +79,8 @@ namespace casa {
 
 ComponentListImage::ComponentListImage(
     const ComponentList& compList, const CoordinateSystem& csys,
-    const IPosition& shape
-) : ImageInterface<Float>(), _cl(compList.copy()), _shape(shape) {
-    ThrowIf(shape.size() != 4, "shape must have exactly 4 axes");
+    const IPosition& shape, const String& tableName
+) : ImageInterface<Float>(), _cl(compList.copy()) {
     ThrowIf(
         csys.nPixelAxes() != 4,
         "coordinate system must have exactly 4 axes"
@@ -95,45 +97,29 @@ ComponentListImage::ComponentListImage(
         ! csys.hasPolarizationCoordinate(),
         "coordinate system must have a polarization coordinate"
     );
+    auto polAxisNum = csys.polarizationAxisNumber(False);
+    ThrowIf(shape[polAxisNum] > 4, "Polarization axis can have a maximum of four pixels");
+    if (! tableName.empty()) {
+        _cl.rename(Path(tableName));
+    }
+    resize(shape);
     setCoordinateInfo(csys);
+}
+
+ComponentListImage::ComponentListImage(const String& filename)
+    : ImageInterface<Float>(), _cl(filename) {
+    _openLogTable();
+    _restoreAll(_cl.getTable().keywordSet());
 }
 
 ComponentListImage::ComponentListImage(const ComponentListImage& image)
 : ImageInterface<Float>(image), _cl(image._cl), _shape(image._shape),
   _mask(image._mask) {}
 
-
 ComponentListImage::~ComponentListImage() {}
 
 ImageInterface<Float>* ComponentListImage::cloneII() const {
     return new ComponentListImage(*this);
-}
-
-
-String ComponentListImage::imageType() const {
-    static const String x = "ComponentListImage";
-    return x;
-}
-
-// FIXME
-String ComponentListImage::name (bool stripPath) const {
-    return "";
-}
-
-void ComponentListImage::resize (const TiledShape& newShape) {
-    auto shape = newShape.shape();
-    ThrowIf(shape.size() != 4, "ComponentListImages must have exactly four dimensions");
-    _shape = shape;
-    // TODO write shape to persistent metadata
-}
-
-
-IPosition ComponentListImage::shape() const {
-    return _shape;
-}
-
-bool ComponentListImage::ok() const {
-    return _shape.size() == 4 && coordinates().nPixelAxes() == 4;
 }
 
 // FIXME
@@ -143,8 +129,8 @@ bool ComponentListImage::doGetSlice(
     return True;
 }
 void ComponentListImage::doPutSlice (
-    const Array<Float>& buffer,
-    const IPosition& where, const IPosition& stride
+    const Array<Float>&,
+    const IPosition&, const IPosition&
 ) {
     ThrowCc(
         String(__func__)
@@ -155,6 +141,256 @@ void ComponentListImage::doPutSlice (
 // FIXME
 const LatticeRegion* ComponentListImage::getRegionPtr() const {
     return nullptr;
+}
+
+String ComponentListImage::imageType() const {
+    static const String x = "ComponentListImage";
+    return x;
+}
+
+String ComponentListImage::name(bool stripPath) const {
+    const static String tempIndicator = "Temporary ComponentListImage";
+    const auto& table = _cl.getTable();
+    if (table.isNull()) {
+        return tempIndicator;
+    }
+    else {
+        Path path(table.tableName());
+        if (!stripPath) {
+            return path.absoluteName();
+        }
+        return path.baseName();
+    }
+}
+
+bool ComponentListImage::ok() const {
+    return _shape.size() == 4 && coordinates().nPixelAxes() == 4;
+}
+
+void ComponentListImage::resize (const TiledShape& newShape) {
+    auto shape = newShape.shape();
+    ThrowIf(shape.size() != 4, "ComponentListImages must have exactly four dimensions");
+    ThrowIf(anyLE(shape.asVector(), 0), "All shape elements must be positive");
+    _shape = shape;
+    auto& table = _cl.getTable();
+    if (! table.isNull()) {
+        _reopenRW();
+        if (table.isWritable()) {
+            // Update the shape
+            if (table.keywordSet().isDefined("shape")) {
+                table.rwKeywordSet().removeField("shape");
+            }
+            table.rwKeywordSet().define("shape", _shape.asVector());
+        }
+        else {
+            LogIO os;
+            os << LogIO::SEVERE << "Image " << name()
+               << " is not writable; not saving shape"
+               << LogIO::POST;
+        }
+    }
+}
+
+Bool ComponentListImage::setCoordinateInfo (const CoordinateSystem& coords) {
+    // implementation copied from PagedImage and tweaked.
+    if (ImageInterface<Float>::setCoordinateInfo(coords)) {
+        auto& table = _cl.getTable();
+        if (table.isNull()) {
+            return True;
+        }
+        else {
+            _reopenRW();
+            if (table.isWritable()) {
+                // Update the coordinates
+                if (table.keywordSet().isDefined("coords")) {
+                    table.rwKeywordSet().removeField("coords");
+                }
+                if (coordinates().save(table.rwKeywordSet(), "coords")) {
+                    return True;
+                }
+                else {
+                    LogIO os;
+                    os << LogIO::SEVERE << "Error saving coordinates in image " << name()
+                       << LogIO::POST;
+                    return False;
+                }
+            }
+            else {
+                LogIO os;
+                os << LogIO::SEVERE << "Image " << name()
+                    << " is not writable; not saving coordinates"
+                    << LogIO::POST;
+                return True;
+            }
+        }
+    }
+    return False;
+}
+
+Bool ComponentListImage::setImageInfo(const ImageInfo& info) {
+    // Set imageinfo in base class.
+    Bool ok = ImageInterface<Float>::setImageInfo(info);
+    if (ok) {
+        // Make persistent in table keywords.
+        _reopenRW();
+        auto& tab = _cl.getTable();
+        if (tab.isWritable()) {
+            // Delete existing one if there.
+            if (tab.keywordSet().isDefined("imageinfo")) {
+                tab.rwKeywordSet().removeField("imageinfo");
+            }
+            // Convert info to a record and save as keyword.
+            TableRecord rec;
+            String error;
+            if (imageInfo().toRecord(error, rec)) {
+                tab.rwKeywordSet().defineRecord("imageinfo", rec);
+            }
+            else {
+                // Could not convert to record.
+                LogIO os;
+                os << LogIO::SEVERE << "Error saving ImageInfo in image " << name()
+                   << "; " << error << LogIO::POST;
+                ok = False;
+            }
+        }
+        else {
+            // Table not writable.
+            LogIO os;
+            os << LogIO::SEVERE
+                << "Image " << name() << " is not writable; not saving ImageInfo"
+                << LogIO::POST;
+        }
+    }
+    return ok;
+}
+
+Bool ComponentListImage::setMiscInfo(const RecordInterface& newInfo) {
+    setMiscInfoMember(newInfo);
+    _reopenRW();
+    auto& tab = _cl.getTable();
+    if (! tab.isWritable()) {
+        return False;
+    }
+    if (tab.keywordSet().isDefined("miscinfo")) {
+        tab.rwKeywordSet().removeField("miscinfo");
+    }
+    tab.rwKeywordSet().defineRecord("miscinfo", newInfo);
+    return True;
+}
+
+Bool ComponentListImage::setUnits(const Unit& newUnits) {
+    setUnitMember (newUnits);
+    _reopenRW();
+    auto& tab = _cl.getTable();
+    if (! tab.isWritable()) {
+        return False;
+    }
+    if (tab.keywordSet().isDefined("units")) {
+        tab.rwKeywordSet().removeField("units");
+    }
+    tab.rwKeywordSet().define("units", newUnits.getName());
+    return True;
+}
+
+IPosition ComponentListImage::shape() const {
+    return _shape;
+}
+
+void ComponentListImage::_openLogTable() {
+    // Open logtable as readonly if main table is not writable.
+    auto& tab = _cl.getTable();
+    setLogMember (LoggerHolder (name() + "/logtable", tab.isWritable()));
+    // Insert the keyword if possible and if it does not exist yet.
+    if (tab.isWritable()  &&  ! tab.keywordSet().isDefined ("logtable")) {
+        tab.rwKeywordSet().defineTable("logtable", Table(name() + "/logtable"));
+    }
+}
+
+void ComponentListImage::_reopenRW() {
+    // implementation copied from PagedImage and tweaked
+    auto& table = _cl.getTable();
+    //# Open for write if not done yet and if writable.
+    if (!table.isWritable()) {
+        table.reopenRW();
+    }
+}
+
+void ComponentListImage::_restoreAll (const TableRecord& rec) {
+  // Restore the coordinates.
+  std::unique_ptr<CoordinateSystem> restoredCoords(CoordinateSystem::restore(rec, "coords"));
+  ThrowIf(! restoredCoords, "Error restoring coordinate system");
+  setCoordsMember(*restoredCoords);
+  // Restore the image info.
+  _restoreImageInfo(rec);
+  // Restore the units.
+  _restoreUnits(rec);
+  // Restore the miscinfo.
+  _restoreMiscInfo(rec);
+}
+
+void ComponentListImage::_restoreImageInfo (const TableRecord& rec) {
+    if (rec.isDefined("imageinfo")) {
+        String error;
+        ImageInfo info;
+        Bool ok = info.fromRecord (error, rec.asRecord("imageinfo"));
+        if (ok) {
+            setImageInfoMember(info);
+        }
+        else {
+            LogIO os;
+            os << LogIO::WARN << "Failed to restore the ImageInfo in image " << name()
+                 << "; " << error << LogIO::POST;
+        }
+    }
+}
+
+void ComponentListImage::_restoreMiscInfo (const TableRecord& rec) {
+    if (rec.isDefined("miscinfo") && rec.dataType("miscinfo") == TpRecord) {
+        setMiscInfoMember (rec.asRecord ("miscinfo"));
+    }
+}
+
+void ComponentListImage::_restoreUnits (const TableRecord& rec) {
+    Unit retval;
+    String unitName;
+    if (rec.isDefined("units")) {
+        if (rec.dataType("units") != TpString) {
+            LogIO os;
+            os << LogOrigin("PagedImage<T>", "units()", WHERE)
+                << "'units' keyword in image table is not a string! Units not restored."
+                << LogIO::SEVERE << LogIO::POST;
+        }
+        else {
+            rec.get("units", unitName);
+        }
+    }
+    if (! unitName.empty()) {
+        // OK, non-empty unit, see if it's valid, if not try some known things to
+        // make a valid unit out of it.
+        if (! UnitVal::check(unitName)) {
+            // Beam and Pixel are the most common undefined units
+            UnitMap::putUser("Pixel",UnitVal(1.0),"Pixel unit");
+            UnitMap::putUser("Beam",UnitVal(1.0),"Beam area");
+        }
+        if (! UnitVal::check(unitName)) {
+            // OK, maybe we need FITS
+            UnitMap::addFITS();
+        }
+        if (!UnitVal::check(unitName)) {
+            // I give up!
+            LogIO os;
+            UnitMap::putUser(unitName, UnitVal(1.0, UnitDim::Dnon), unitName);
+            os << LogIO::WARN << "FITS unit \"" << unitName
+                << "\" unknown to CASA - will treat it as non-dimensional."
+                << LogIO::POST;
+            retval.setName(unitName);
+            retval.setValue(UnitVal(1.0, UnitDim::Dnon));
+        }
+        else {
+            retval = Unit(unitName);
+        }
+    }
+    setUnitMember(retval);
 }
 
 

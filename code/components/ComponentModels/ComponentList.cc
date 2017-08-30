@@ -1242,6 +1242,13 @@ String ComponentList::summarize(uInt index) const {
 	  return component(index).summarize();
 }
 
+Table& ComponentList::getTable() {
+    return itsTable;
+}
+
+const Table& ComponentList::getTable() const {
+    return itsTable;
+}
 
 // Local Variables: 
 // compile-command: "gmake ComponentList"

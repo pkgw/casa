@@ -72,10 +72,20 @@ namespace casa {
 class ComponentListImage: public casacore::ImageInterface<casacore::Float> {
 public:
 
+    // Create a new ComponentListImage from a component list, coordinate system, and shape.
+    // The input component list will be copied (via the ComponentList::copy() method, so
+    // that the constructed object has a unique ComponentList that is not referenced by
+    // Exceptions thrown if shape.size() != 4 or csys.nPixelAxes != 4 and csys is missing
+    // any of Direction, Spectral, or Stokes coordinates. If tableName is not empty,
+    // a new table by that name is created on disk to persistently store the image;
+    // otherwise, the image is not persistent.
     ComponentListImage(
         const ComponentList& compList, const casacore::CoordinateSystem& csys,
-        const casacore::IPosition& shape
+        const casacore::IPosition& shape, const casacore::String& tableName=""
     );
+
+    // Construct an object by reading a persistent ComponentListImage from disk.
+    explicit ComponentListImage(const casacore::String& filename);
 
     ComponentListImage(const ComponentListImage& image);
 
@@ -98,9 +108,18 @@ public:
 
     casacore::String name (bool stripPath=false) const;
 
-    bool ok() const;
+    casacore::Bool ok() const;
 
     void resize (const casacore::TiledShape& newShape);
+
+    // Flushes the new coordinate system to disk if the table exists is writable.
+    casacore::Bool setCoordinateInfo (const casacore::CoordinateSystem& coords);
+
+    casacore::Bool setImageInfo(const casacore::ImageInfo& info);
+
+    casacore::Bool setMiscInfo(const casacore::RecordInterface& newInfo);
+
+    casacore::Bool setUnits (const casacore::Unit& newUnits);
 
     casacore::IPosition shape() const;
 
@@ -321,8 +340,20 @@ public:
 private:
 
     ComponentList _cl;
-    casacore::IPosition _shape;
+    casacore::IPosition _shape = casacore::IPosition(4, 1);
     std::shared_ptr<casacore::Lattice<bool>> _mask = nullptr;
+
+    void _openLogTable();
+
+    void _reopenRW();
+
+    void _restoreAll(const casacore::TableRecord& rec);
+
+    void _restoreImageInfo(const casacore::TableRecord& rec);
+
+    void _restoreMiscInfo(const casacore::TableRecord& rec);
+
+    void _restoreUnits(const casacore::TableRecord& rec);
 
     /*
   // Function to return the internal Table object to the RegionHandler.
