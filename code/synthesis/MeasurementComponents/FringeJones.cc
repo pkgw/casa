@@ -1317,7 +1317,6 @@ void FringeJones::setSolve(const Record& solve) {
         throw(AipsError("Please specify a good reference antenna (refant) explicitly."));
     if (solve.isDefined("zerorates")) {
         zeroRates() = solve.asBool("zerorates");
-        cerr << "Zero rates set to " << zeroRates() << endl;
     }
 }
 

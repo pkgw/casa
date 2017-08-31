@@ -89,10 +89,9 @@ Previous calibrations should be applied on the fly.
 	</param>
 
 	<param type="double" name="minsnr">
-		<description>Reject solutions below this signal-to-noise ration
-      (at the FFT stage)</description>
+		<description>Reject solutions below this signal-to-noise ratio (at the FFT stage)</description>
 		<value>3.0</value>
-w	</param>
+	</param>
 
    <param type="bool" name="zerorates">
 		<description>Zero delay-rates in solution table</description>
