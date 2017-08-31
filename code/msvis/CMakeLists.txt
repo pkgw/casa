@@ -223,6 +223,11 @@ install (FILES
 	DESTINATION include/casacode/msvis/MSVis/statistics
 	)
 
+install (FILES
+	MSVis/util/Try.h
+	DESTINATION include/casacode/msvis/MSVis/util
+	)
+
 casa_add_assay( msvis MSVis/test/tVisibilityIterator.cc )
 casa_add_assay( msvis MSVis/test/tVisibilityIteratorAsync.cc )
 casa_add_unit_test ( MODULES msvis SOURCES MSVis/test/tHanningSmooth.cc )
