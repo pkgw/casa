@@ -255,14 +255,7 @@ MDirection SDPosInterpolator::interpolateDirectionMeasSpline(const ROMSPointingC
   if (aindex < 0) aindex = 0;
   if (lastIndex <= aindex) aindex = lastIndex - 1;
 
-  Vector<Vector<Double> > coeff;
-  coeff.resize(2);
-  for (uInt i = 0; i < coeff.nelements(); ++i) {
-    coeff(i).resize(4);
-    for (uInt j = 0; j < coeff(i).nelements(); ++j) {
-      coeff(i)(j) = splineCoeff(antid)(aindex)(i)(j);
-    }
-  }
+  auto const &coeff = splineCoeff(antid)(aindex);
   Double dt = time - timePointing(antid)(aindex);
   Vector<Double> newdir(2);
   newdir(0) = coeff(0)(0) + coeff(0)(1)*dt + coeff(0)(2)*dt*dt + coeff(0)(3)*dt*dt*dt;
@@ -270,7 +263,11 @@ MDirection SDPosInterpolator::interpolateDirectionMeasSpline(const ROMSPointingC
   
   Quantity rDirLon(newdir(0), "rad");
   Quantity rDirLat(newdir(1), "rad");
-  MDirection::Ref rf = mspc.directionMeas(index).getRef();
+  auto const &directionMeasColumn = mspc.directionMeasCol();
+  MDirection::Ref rf(directionMeasColumn.measDesc().getRefCode());
+  if (directionMeasColumn.measDesc().isRefCodeVariable()) {
+    rf = mspc.directionMeas(index).getRef();
+  }
 
   return MDirection(rDirLon, rDirLat, rf);
 }
