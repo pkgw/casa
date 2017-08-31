@@ -1315,6 +1315,10 @@ void FringeJones::setSolve(const Record& solve) {
     // Trap unspecified refant:
     if (refant()<0)
         throw(AipsError("Please specify a good reference antenna (refant) explicitly."));
+    if (solve.isDefined("zerorates")) {
+        zeroRates() = solve.asBool("zerorates");
+        cerr << "Zero rates set to " << zeroRates() << endl;
+    }
 }
 
 void FringeJones::calcAllJones() {
@@ -1495,6 +1499,20 @@ void FringeJones::solveLotsOfSDBs(SDBList& sdbs) {
         // altered in place.
         least_squares_driver(sdbs, sRP, refant(), drf.getActiveAntennas(), logSink());
     }
+
+
+    // We can zero the rates here (if needed) whether we did least squares or not.
+    
+    if ( zeroRates() ) {
+        logSink() << "Zeroing delay rates in calibration table." << LogIO::POST;
+        
+        for (size_t icor=0; icor != nCorr; icor++ ) {
+            for (Int iant=0; iant != nAnt(); iant++) {
+                sRP(3*icor + 2, iant) = 0.0;
+            }
+        }
+    }
+    
 
     if (DEVDEBUG) {
         cerr << "Ref time " << MVTime(refTime()/C::day).string(MVTime::YMD,7) << endl;

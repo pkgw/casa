@@ -8,10 +8,10 @@ def fringefit(vis=None,caltable=None,
 	      field=None,spw=None,intent=None,
 	      selectdata=None,timerange=None,antenna=None,scan=None,
               observation=None, msselect=None,
-	      solint=None,refant=None,
-	      minsnr=None,append=None,
+	      solint=None,combine=None,refant=None,
+              minsnr=None,zerorates=None,append=None,
 	      gaintable=None,gainfield=None,interp=None,spwmap=None,
-	      parang=None):
+              parang=None):
         #Python script
         casalog.origin('fringefit')
         # raise Exception, 'Am I invisible or what'
@@ -45,9 +45,10 @@ def fringefit(vis=None,caltable=None,
                 # model for this code.
                 if True:
                         ngaintab = 0;
-                        if (gaintable != ['']):
+                        if gaintable == False:
+                                ngaintab = 0
+                        elif (gaintable != ['']):
                                 ngaintab=len(gaintable)
-
                         ngainfld = len(gainfield)
                         nspwmap = len(spwmap)
                         ninterp = len(interp)
@@ -92,8 +93,9 @@ def fringefit(vis=None,caltable=None,
                 # Only support one gaintype
                 gaintype = "FRINGE"
                 mycb.setsolve(type=gaintype,t=solint,refant=refant,preavg=0.01,
-                              minsnr=minsnr,table=caltable,
-                              append=append)
+                              minsnr=minsnr,combine=combine,
+                              zerorates=zerorates,
+                              table=caltable,append=append)
                 mycb.solve()
                 reportsolvestats(mycb.activityrec());
                 mycb.close()

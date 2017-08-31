@@ -227,6 +227,8 @@ public:
 
   virtual void solveLotsOfSDBs(SDBList&);
 
+  virtual casacore::Bool& zeroRates() { return zeroRates_; }
+  
 protected:
 
   // phase, delay, rate
@@ -247,6 +249,8 @@ protected:
   // Reference frequencies
   casacore::Vector<casacore::Double> KrefFreqs_;
 
+  
+  
 private:
 
   // Pointer to CTRateAwareTimeInterp1 factory method
@@ -254,7 +258,7 @@ private:
   virtual CTTIFactoryPtr cttifactoryptr() { cout << "Using Rate-Aware CTTIFactory!" << endl; return &CTRateAwareTimeInterp1::factory; };
   void calculateSNR(casacore::Int, DelayRateFFT, casacore::Float, casacore::Float, casacore::Float);
 
-  
+  casacore::Bool zeroRates_;
 };
 
 

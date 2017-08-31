@@ -6,15 +6,13 @@ xsi:schemaLocation="http://casa.nrao.edu/schema/casa.xsd
 file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 <task type="function" name="fringefit" category="calibration">
-<shortdescription>Determine temporal gains from calibrator observations</shortdescription>
+<shortdescription>Fringe fit delay and rates</shortdescription>
 <description>
-The complex gains for each antenna/spwid are determined from the
-data column (raw data) for the
-specified fields.  The gains can be obtained for a
-specified solution interval for each spectral window, or by a linear
-fit to all spectral windows simultaneously.
+Phase offsets, groups delays and delay rates are calculated with
+respect to a specified referance antenna by a two-dimensional FFT and
+subsequent least-squares optimisation.
 
-Previous calibrations (egs. bandpass) should be applied on the fly.
+Previous calibrations should be applied on the fly.
 
 </description>
 <input>
@@ -80,14 +78,25 @@ Previous calibrations (egs. bandpass) should be applied on the fly.
 		<value type="string">inf</value>
 	</param>
 
+	<param type="string" name="combine">
+     <description>Data axes which to combine for solve (obs, scan, spw, and/or field)</description>
+		<value></value>
+	</param>
+   
 	<param type="string" name="refant">
 		<description>Reference antenna name(s)</description>
 		<value></value>
 	</param>
 
 	<param type="double" name="minsnr">
-		<description>Reject solutions below this SNR</description>
+		<description>Reject solutions below this signal-to-noise ration
+      (at the FFT stage)</description>
 		<value>3.0</value>
+w	</param>
+
+   <param type="bool" name="zerorates">
+		<description>Zero delay-rates in solution table</description>
+		<value>False</value>
 	</param>
 
 	<param type="bool" name="append">
@@ -244,8 +253,12 @@ Previous calibrations (egs. bandpass) should be applied on the fly.
                  meta-info (according to spw selection and solint)
                  or be non-overlapping.
               default: False; overwrite existing table or make new table
+      zerorates -- Write a solution table with delay-rates zeroed, for
+      the case of "manual phase calibration".
+                default: False
 
-      --- Other calibrations to apply on the fly before determining gaincal solution
+      --- Other calibrations to apply on the fly before determining
+      fringe fit solution
 
       gaintable -- Gain calibration table(s) to apply 
                default: '' (none);
