@@ -82,7 +82,7 @@ public:
 			 const casacore::Vector<casacore::Int>& nTimePerField, const casacore::Vector<casacore::Int>& nChan,
 			 casacore::Complex c0=casacore::Complex(0.0f),
 			 casacore::String polBasis="circ",
-			 casacore::Bool autoPol=false,casacore::Bool doParang=false);
+			 casacore::Bool autoPol=false,casacore::Bool doParang=false,casacore::Bool doAC=false);
 
   // Full control
   SimpleSimVi2Parameters(casacore::Int nField,casacore::Int nScan,casacore::Int nSpw,casacore::Int nAnt,casacore::Int nCorr,
