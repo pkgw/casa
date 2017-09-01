@@ -184,6 +184,7 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_tsdbaseline.py
   test_tsdcal.py
   test_tsdfit.py
+  test_tsdimaging.py
   test_tsdsmooth.py
 
   ### CASAGUIDES ###
