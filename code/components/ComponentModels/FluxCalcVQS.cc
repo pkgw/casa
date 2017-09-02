@@ -70,7 +70,7 @@ Bool FluxCalcVQS::operator()(Vector<Flux<Double> >& values,
   Bool success = true;
   for(uInt f = 0; f < nfreqs; ++f)
     success &= (*this)(values[f], errors[f], mfreqs[f], false);
-
+  
   return success;
 }
 
@@ -180,6 +180,7 @@ void FluxCalcVQS::readQSCoeffsTable(const Path& fileName)
      << "nepoch="<<epochvec_p.nelements()
      << "coeff_0 for the first epoch (coeffsmat_p(0,0))="<<coeffsmat_p(0,0) 
      << LogIO::POST;
+
 }
 
 void FluxCalcVQS::interpolate(const String& interpmethod)
@@ -222,11 +223,9 @@ void FluxCalcVQS::convertYearFracToMjd(const Vector<Double>& yearfrac, Vector<Do
     
 void FluxCalcVQS::setSourceCoeffsfromVec(uInt& i) 
 {
-  //cerr<<"i="<<i<<endl;
   //Vector<Float> err(4,0.0);
   tvcoeffs_p(0)=coeffsmat_p.column(i); 
-  //cerr<<"coeffsmat_p.column.nelements()="<<coeffsmat_p.column(i).nelements()<<endl;
-  //cerr<<"err.elements()="<<err.nelements()<<endl;
+  //cerr<<"coeffsmat_p.column="<<coeffsmat_p.column(i)(0)<<endl;
   tvcoeffs_p(1)=coefferrsmat_p.column(i); 
 }
 

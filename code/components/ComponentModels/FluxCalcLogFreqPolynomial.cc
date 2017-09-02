@@ -41,8 +41,7 @@ Bool FluxCalcLogFreqPolynomial::operator()(Flux<Double>& value,
                                            const Bool updatecoeffs)
 {
   Double dt = log10(mfreq.get(freqUnit_p).getValue());
-
-  if (updatecoeffs) {
+  if (updatecoeffs || coeffs_p(0).nelements()==0) {
     coeffs_p(0).resize();
     coeffs_p(1).resize();
     coeffs_p=getCurrentCoeffs();
