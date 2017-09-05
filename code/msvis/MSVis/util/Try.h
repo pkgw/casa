@@ -303,6 +303,13 @@ private:
 	std::exception_ptr exception;
 };
 
+template <typename F,
+          typename A = typename std::result_of<F()>::type>
+Try<A>
+try_(F&& f) {
+	return Try<A>::from(f);
+}
+
 } // end namespace vi
 
 } // end namespace casa
