@@ -147,7 +147,7 @@ public:
 	template <typename B, typename F>
 	Try<B>
 	flatMap(F&& f) const {
-		return map<Try<B> >(std::forward<F>(f)).flatten<B>();
+		return map<Try<B> >(std::forward<F>(f)).template flatten<B>();
 	};
 
 	/* flatten()
@@ -244,8 +244,10 @@ public:
 	          class = typename std::enable_if<std::is_base_of<B, A>::value, B> >
 	Try<B>
 	orElse(F&& f) const {
-		if (is_success) return Try<B>(value);
-		else return Try<Try<B> >::from(std::forward<F>(f)).flatten<B>();
+		if (is_success)
+			return Try<B>(value);
+		else
+			return Try<Try<B> >::from(std::forward<F>(f)).template flatten<B>();
 	};
 
 	/* transform()
@@ -259,7 +261,7 @@ public:
 		return fold<Try<B> >(
 			std::forward<Err>(err),
 			std::forward<Val>(val)).
-			flatten<B>();
+			template flatten<B>();
 	};
 
 private:
