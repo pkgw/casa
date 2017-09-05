@@ -27,6 +27,7 @@
 //----------------------------------------------------------------------------
 
 #include <synthesis/CalTables/CTSelection.h>
+#include <synthesis/CalTables/CTColumns.h>
 #include <ms/MSSel/MSSelectionTools.h>
 #include <casa/Utilities/Sort.h>
 
@@ -123,57 +124,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     casacore::MSSelectableTable::MSSDataType type = msLike->dataType();
     if ((type==casacore::MSSelectableTable::PURE_ANTENNA_BASED) ||
         (type==casacore::MSSelectableTable::REF_ANTENNA_BASED)) {
-        // select ANTENNA1 only
-        setTaqlAntennaSelection(antennaExpr, msLike);
-        // also select baselines (given or constructed)
-        setBaselineSelection(antennaExpr, msLike);
-    }
-  }
-
-  void CTSelection::setTaqlAntennaSelection(const casacore::String& antennaExpr,
-          casacore::MSSelectableTable* msLike) {
-      // Convert antenna ids to taql ANTENNA1 selection
-      // First use MSSelection to get selected antenna ids:
-      // handles ranges (~), name->id conversion, negation, etc.
-      casacore::MSSelection mssel;
-      mssel.setAntennaExpr(antennaExpr); 
-      casacore::TableExprNode ten = mssel.toTableExprNode(msLike);
-      casacore::Vector<casacore::Int> selAntIds = mssel.getAntenna1List();
-
-      // separate antenna selection and negation
-      casacore::String antstr, notantstr;
-      for (casacore::uInt i=0; i<selAntIds.size(); ++i) {
-          casacore::Int antId = selAntIds(i);
-          casacore::String antIdStr = casacore::String::toString(abs(antId));
-          if (antId >= 0) {
-              if (!antstr.empty()) antstr += ",";
-              antstr += antIdStr;
-          } else {
-              if (!notantstr.empty()) notantstr += ",";
-              notantstr += antIdStr;
-          }
-      }
-      // make taqlExpr for ANTENNA1
-      casacore::String taqlExpr;
-      if (!antstr.empty()) 
-          taqlExpr += "ANTENNA1 IN [" + antstr + "]";
-      if (!notantstr.empty()) {
-          if (!taqlExpr.empty()) taqlExpr += " && ";
-          taqlExpr += "ANTENNA1 NOT IN [" + notantstr + "]";
-      }
-      // append taqlExpr to user's taql selection
-      casacore::String msSelTaQL = msSelection_p->getExpr(
-          casacore::MSSelection::TAQL_EXPR);
-      if (!msSelTaQL.empty()) msSelTaQL += " && ";
-      msSelTaQL += taqlExpr;
-      //cout << "**** setTaQLExpr=" << msSelTaQL << endl;
-      msSelection_p->setTaQLExpr(msSelTaQL);
-  } 
-
-  void CTSelection::setBaselineSelection(const casacore::String& antennaExpr,
-          casacore::MSSelectableTable* msLike) {
-        // Set baseline selections in MSSelection antennaExpr
-        // First, separate baseline and antenna selections
+        // separate baseline and antenna selections
         casacore::String baselineSel(""), antennaSel("");
         casacore::Vector<casacore::String> selections;
         selections = split(antennaExpr, ';', selections);
@@ -186,30 +137,85 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                 antennaSel += selections(i);
             }
         }
-        if (!antennaSel.empty()) {
-            // Construct baselines (cross/auto-corr) for each antenna;
-            // get ids for antenna selection only
-            casacore::MSSelection mssel;
-            mssel.setAntennaExpr(antennaSel);
-            casacore::TableExprNode ten = mssel.toTableExprNode(msLike);
-            casacore::Vector<casacore::Int> selAntIds = mssel.getAntenna1List();
-            // get reference antennas
-            casacore::Vector<casacore::Int> refAntIds = getRefAntIds(msLike);
-            // construct baselines for antennas
-            for (casacore::uInt i=0; i<selAntIds.size(); ++i) {
-                casacore::Int antId = selAntIds(i);
-                casacore::String sep = (baselineSel.empty() ? "" : ";");
-                casacore::String neg = (antId < 0 ? "!" : "");
-                casacore::String antstr = casacore::String::toString(abs(antId));
-                casacore::String suffix = (isRefAntenna(antId, refAntIds) ?
-                    "&&&" : "");
-                baselineSel += sep + neg + antstr + suffix;
-            }
-        }
-        // set new antennaExpr
-        //cout << "**** setAntennaExpr=" << baselineSel << endl;
         msSelection_p->setAntennaExpr(baselineSel);
+        // set antenna expr and taql expr for antennas
+        setAntennaSelections(antennaSel, msLike);
+    }
   }
+
+  void CTSelection::setAntennaSelections(casacore::String antsel,
+          casacore::MSSelectableTable* msLike) {
+    casacore::String antIdstr, antstr(""), notantstr(""), baselines("");
+    casacore::MSSelection mssel;
+    casacore::TableExprNode ten;
+    casacore::Vector<casacore::Int> ant1list;
+    casacore::Int antId;
+
+    // get taql antenna1 selections (not negations) from baselines
+    casacore::String antExpr = msSelection_p->getExpr(
+        casacore::MSSelection::ANTENNA_EXPR);
+    if (!antExpr.empty()) {
+        mssel.setAntennaExpr(antExpr);
+        ten = mssel.toTableExprNode(msLike);
+        ant1list = mssel.getAntenna1List();
+        for (casacore::uInt i=0; i<ant1list.size(); ++i) {
+            antId = ant1list(i);
+            if ((antId>0) || (antId==0 && zeroIsSelected(antExpr, msLike)))
+                antstr += (antstr.empty() ? "" : ",") +
+                    casacore::String::toString(antId);
+        }
+    }
+
+    // For each antenna:
+    // 1. taql selection: IN/NOT IN ANTENNA1 only
+    // 2. baseline selection: auto-corr for ref ant, else cross
+    if (!antsel.empty()) {
+        mssel.clear();
+        ant1list.resize();
+        mssel.setAntennaExpr(antsel);
+        ten = mssel.toTableExprNode(msLike);
+        ant1list = mssel.getAntenna1List();
+        // Get antenna2 ids (reference antennas) for suffix
+        casacore::Vector<casacore::Int> refAntIds = getRefAntIds(msLike);
+        casacore::String sep, neg, suffix;
+        for (casacore::uInt i=0; i<ant1list.size(); ++i) {
+            antId = ant1list(i);
+            antIdstr = casacore::String::toString(abs(antId));
+            // separate antenna selection and negation for taql
+            if ((antId>0) || (antId==0 && zeroIsSelected(antsel,msLike))) {
+                antstr += (antstr.empty() ? "" : ",") + antIdstr;
+                neg = "";
+            } else {
+                notantstr += (notantstr.empty() ? "" : ",") + antIdstr;
+                neg = "!";
+            }
+            // make baseline string
+            sep = (baselines.empty() ? "" : ";");
+            suffix = (isRefAntenna(antId, refAntIds) ? "&&&" : "");
+            baselines += sep + neg + antIdstr + suffix;
+        }
+        // antenna selection first, then baselines
+        sep = (antExpr.empty() ? "" : ";");
+        antExpr = baselines + sep + antExpr;
+        msSelection_p->setAntennaExpr(antExpr);
+    }
+
+    // make taqlExpr for ANTENNA1
+    casacore::String taqlExpr;
+    if (!antstr.empty()) 
+        taqlExpr += "ANTENNA1 IN [" + antstr + "]";
+    if (!notantstr.empty()) {
+        if (!taqlExpr.empty()) taqlExpr += " && ";
+        taqlExpr += "ANTENNA1 NOT IN [" + notantstr + "]";
+    }
+    // append taqlExpr to user's taql selection
+    casacore::String msSelTaQL = msSelection_p->getExpr(
+        casacore::MSSelection::TAQL_EXPR);
+    if (!msSelTaQL.empty()) msSelTaQL += " && ";
+    msSelTaQL += taqlExpr;
+    msSelection_p->setTaQLExpr(msSelTaQL);
+  }
+
 
   casacore::Vector<casacore::Int> CTSelection::getRefAntIds(
           casacore::MSSelectableTable* msLike) {
@@ -233,6 +239,35 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           }
       }
       return isrefant;
+  }
+
+  bool CTSelection::zeroIsSelected(casacore::String antennaExpr,
+        casacore::MSSelectableTable* msLike) {
+    // check if id "0" or antenna0 name is in expression
+    NewCalTable nct = NewCalTable(*msLike->table());
+    ROCTColumns ctcol(nct);
+    casacore::String ant0name = ctcol.antenna().name().getColumn()(0);
+    casacore::Vector<casacore::String> selections, antennas;
+    selections = split(antennaExpr, ';', selections);
+    for (casacore::uInt i=0; i<selections.size(); ++i) {
+        if (selections(i).contains('&')) {
+          // for baseline we only care about antenna1
+          if (selections(i).startsWith("0") || 
+              selections(i).startsWith(ant0name))
+            return true;
+        } else {
+            if (!selections(i).startsWith("!")) {
+                // split possible antenna list
+                antennas = split(selections(i), ',', antennas);
+                for (casacore::uInt j=0; j<antennas.size(); ++j) {
+                    if (antennas(j).startsWith("0") || 
+                        antennas(j).startsWith(ant0name))
+                      return true;
+                }
+            }
+        }
+    }
+    return false;
   }
 
 } //# NAMESPACE CASA - END

@@ -234,14 +234,18 @@ private:
     // use antennaExpr for baseline selection
     void doCalAntennaSel(const casacore::String& antennaExpr,
         casacore::MSSelectableTable* msLike);
-    void setTaqlAntennaSelection(const casacore::String& antennaExpr,
-        casacore::MSSelectableTable* msLike); 
-    void setBaselineSelection(const casacore::String& antennaExpr,
-        casacore::MSSelectableTable* msLike);
+    // append baseline selection and set taql selection
+    void setAntennaSelections(casacore::String antsel,
+          casacore::MSSelectableTable* msLike);
+    // get reference antenna ids from cal table ANTENNA2 column
     casacore::Vector<casacore::Int> getRefAntIds(
         casacore::MSSelectableTable* msLike);
+    // check if antennaId is a reference antenna
     bool isRefAntenna(casacore::Int antennaId, 
         casacore::Vector<casacore::Int> refantIds);
+    // check if zero is selected (else it is negated but there is no -0)
+    bool zeroIsSelected(casacore::String antennaExpr,
+        casacore::MSSelectableTable* msLike);
 
     NewCalTable nct_p;
     casacore::MSSelection* msSelection_p;
