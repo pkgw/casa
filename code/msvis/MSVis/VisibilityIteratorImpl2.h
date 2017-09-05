@@ -140,7 +140,7 @@ public:
 
 	// Members
 
-	std::unique_ptr<VisibilityIteratorImpl2> clone();
+	std::unique_ptr<VisibilityIteratorImpl2> clone() const;
 
 	// Report the the ViImplementation type
 	//  TBD:  indicate writable?

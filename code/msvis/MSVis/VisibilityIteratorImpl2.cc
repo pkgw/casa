@@ -1366,7 +1366,7 @@ VisibilityIteratorImpl2::~VisibilityIteratorImpl2()
 }
 
 std::unique_ptr<VisibilityIteratorImpl2>
-VisibilityIteratorImpl2::clone()
+VisibilityIteratorImpl2::clone() const
 {
 	unsigned nms = measurementSets_p.nelements();
 	Block<const MeasurementSet *> msps(nms);
