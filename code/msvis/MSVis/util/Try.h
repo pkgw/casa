@@ -48,6 +48,8 @@ class Try {
 
 public:
 
+	typedef A value_type;
+
 	// Constructors
 
 	Try()
@@ -90,7 +92,8 @@ public:
 	 *
 	 * Type F should be callable const A& -> B
 	 */
-	template <typename B, typename F>
+	template <typename F,
+	          typename B = typename std::result_of<F(const A&)>::type>
 #if __cplusplus >= 201402L
 	auto
 #else
@@ -98,7 +101,7 @@ public:
 #endif
 	lift(F f) {
 		return [f](const Try<A>& ta) {
-			return ta.map<B>(f);
+			return ta.map(f);
 		};
 	}
 
@@ -123,7 +126,10 @@ public:
 	 *
 	 * Type F should be callable const A& -> bool
 	 */
-	template <typename F>
+	template <typename F,
+	          class = std::enable_if<
+		          std::is_convertible<std::result_of<F(const A&)>,bool>::value,
+		          bool> >
 	Try<A>
 	filter(F&& f) const {
 		if (is_success) {
@@ -144,10 +150,20 @@ public:
 	 *
 	 * Type F should be callable const A& -> Try<B>
 	 */
-	template <typename B, typename F>
+	template <typename F,
+	          typename B = typename std::result_of<F(const A&)>::type::value_type>
 	Try<B>
 	flatMap(F&& f) const {
-		return map<Try<B> >(std::forward<F>(f)).template flatten<B>();
+		if (is_success) {
+			try {
+				return Try<B>(f(value));
+			} catch (std::exception &) {
+				return Try<B>(std::current_exception());
+			}
+		} else {
+			return Try<B>(exception);
+		}
+		//return map(std::forward<F>(f)).flatten();
 	};
 
 	/* flatten()
@@ -155,7 +171,7 @@ public:
 	 * May only flatten instances of Try<Try<...> >, removes one level of Try
 	 */
 	template <typename B,
-	          class = typename std::enable_if<std::is_base_of<Try<B>, A>::value, B> >
+	          class = typename std::enable_if<std::is_same<Try<B>, A>::value, B>::type >
 	Try<B>
 	flatten() const {
 		if (is_success) return value;
@@ -167,8 +183,12 @@ public:
 	 * Type Err should be callable const std::exception_ptr & -> B
 	 * Type Val should be callable const A& -> B
 	 */
-	template <typename B, typename Err, typename Val>
-	B
+	template <typename Err,
+	          typename Val,
+	          typename B = typename std::result_of<Err(const std::exception_ptr&)>::type,
+	          typename C = typename std::result_of<Val(const A&)>::type,
+	          typename D = typename std::common_type<B, C>::type >
+	D
 	fold(Err&& err, Val&& val) const {
 		if (is_success) return std::forward<Val>(val)(value);
 		else return std::forward<Err>(err)(exception);
@@ -221,7 +241,8 @@ public:
 	 *
 	 * Type F should be callable const A& -> B
 	 */
-	template <typename B, typename F>
+	template <typename F,
+	          typename B = typename std::result_of<F(const A&)>::type>
 	Try<B>
 	map(F&& f) const {
 		if (is_success) {
@@ -239,15 +260,15 @@ public:
 	 *
 	 * Type F should be callable () -> Try<B>
 	 */
-	template <typename B,
-	          typename F,
+	template <typename F,
+	          typename B = typename std::result_of<F()>::type::value_type,
 	          class = typename std::enable_if<std::is_base_of<B, A>::value, B> >
 	Try<B>
 	orElse(F&& f) const {
 		if (is_success)
 			return Try<B>(value);
 		else
-			return Try<Try<B> >::from(std::forward<F>(f)).template flatten<B>();
+			return std::forward<F>(f)();
 	};
 
 	/* transform()
@@ -255,13 +276,25 @@ public:
 	 * Type Err should be callable const std::exception_ptr & -> Try<B>
 	 * Type Val should be callable const A& -> Try<B>
 	 */
-	template <typename B, typename Err, typename Val>
-	Try<B>
+	template <typename Err, typename Val,
+	          typename B = typename std::result_of<Err(const std::exception_ptr&)>::type::value_type,
+	          typename C = typename std::result_of<Val(const A&)>::type::value_type,
+	          typename D = typename std::common_type<B, C>::type >
+	Try<D>
 	transform(Err&& err, Val&& val) const {
-		return fold<Try<B> >(
-			std::forward<Err>(err),
-			std::forward<Val>(val)).
-			template flatten<B>();
+		if (is_success) {
+			try {
+				return std::forward<Val>(val)(value);
+			} catch (std::exception &) {
+				return Try<D>(std::current_exception());
+			}
+		} else {
+			return std::forward<Err>(err)(exception);
+		}
+		// return fold<Try<B> >(
+		// 	std::forward<Err>(err),
+		// 	std::forward<Val>(val)).
+		// 	flatten();
 	};
 
 private:

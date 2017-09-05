@@ -183,51 +183,48 @@ TEST_F(TryTest, Map) {
 	// simple map, w.o. failure
 	Try<int> a(8);
 	Try<bool> t(true);
-	EXPECT_EQ(a.map<bool>(isEven), t);
+	EXPECT_EQ(a.map(isEven), t);
 
 	// create false value
-	Try<bool> f = t.map<bool>([](const bool &b){ return !b; });
+	Try<bool> f = t.map([](const bool &b){ return !b; });
 	EXPECT_EQ(f, Try<bool>(false));
 
 	// another simple map
-	Try<int> b = a.map<int>([](const int &i){ return i + 1; });
-	EXPECT_EQ(b.map<bool>(isEven), f);
+	Try<int> b = a.map([](const int &i){ return i + 1; });
+	EXPECT_EQ(b.map(isEven), f);
 
 	// map failure
 	Try<int> c = Try<int>::from(badInt);
-	EXPECT_FALSE(c.map<bool>(isEven).isSuccess());
+	EXPECT_FALSE(c.map(isEven).isSuccess());
 
 	// map value to failure
-	Try<int> d = a.map<int>([](const int &){ badInt(); return 0; });
-	EXPECT_THROW(d.map<bool>(isEven).get(), BadIntException);
+	Try<int> d = a.map([](const int &){ badInt(); return 0; });
+	EXPECT_THROW(d.map(isEven).get(), BadIntException);
 }
 
 TEST_F(TryTest, FlatMap) {
 	// simple flatMap, w.o. failure
 	Try<int> a(10);
-	EXPECT_EQ(a.flatMap<int>(goodTryAdd2Int),
-	          a.map<int>([](const int& i){ return i + 2; }));
+	EXPECT_EQ(a.flatMap(goodTryAdd2Int),
+	          a.map([](const int& i){ return i + 2; }));
 
 	// flatMap to failure
-	EXPECT_THROW(a.flatMap<int>(badTryAdd2Int).get(),
-	             BadTryIntException);
+	EXPECT_THROW(a.flatMap(badTryAdd2Int).get(), BadTryIntException);
 
 	// flatMap from failure
 	Try<int> b = Try<int>::from(badInt);
-	EXPECT_THROW(b.flatMap<int>(goodTryAdd2Int).get(),
-	             BadIntException);
+	EXPECT_THROW(b.flatMap(goodTryAdd2Int).get(), BadIntException);
 
 	// flatMap from failure to failure
-	EXPECT_THROW(b.flatMap<int>(badTryAdd2Int).get(),
-	             BadIntException);
+	EXPECT_THROW(b.flatMap(badTryAdd2Int).get(), BadIntException);
 }
 
 TEST_F(TryTest, Fold) {
 	// fold on success
-	EXPECT_EQ(Try<int>::from(goodInt).fold<std::string>(err, val), pass);
+	EXPECT_EQ(Try<int>::from(goodInt).fold(err, val), pass);
 
 	// fold on failure
-	EXPECT_EQ(Try<int>::from(badInt).fold<std::string>(err, val), fail);
+	EXPECT_EQ(Try<int>::from(badInt).fold(err, val), fail);
 }
 
 TEST_F(TryTest, Foreach) {
@@ -271,41 +268,41 @@ TEST_F(TryTest, GetOrElse) {
 TEST_F(TryTest, OrElse) {
 	// orElse on success
 	Try<int> a(18);
-	Try<int> b = a.orElse<int>([&](){ return Try<int>::from(goodInt); });
+	Try<int> b = a.orElse([&](){ return Try<int>::from(goodInt); });
 	EXPECT_EQ(b, a);
 
 	// orElse on failure
 	Try<int> c = Try<int>::from(badInt);
-	Try<int> d = c.orElse<int>([&a](){ return a; });
+	Try<int> d = c.orElse([&a](){ return a; });
 	EXPECT_EQ(d, a);
 }
 
 TEST_F(TryTest, Transform) {
 	// transform on success
 	EXPECT_EQ(
-		Try<int>::from(goodInt).transform<std::string>(tryErr, tryVal),
+		Try<int>::from(goodInt).transform(tryErr, tryVal),
 		Try<std::string>(pass));
 
 	// transform on failure
 	EXPECT_EQ(
-		Try<int>::from(badInt).transform<std::string>(tryErr, tryVal),
+		Try<int>::from(badInt).transform(tryErr, tryVal),
 		Try<std::string>(fail));
 
 	// failed transform on success
 	EXPECT_THROW(
-		Try<int>::from(goodInt).transform<std::string>(tryErr, tryValFail).get(),
+		Try<int>::from(goodInt).transform(tryErr, tryValFail).get(),
 		BadTryXformException);
 
 	// failed transform on failure
 	EXPECT_THROW(
-		Try<int>::from(badInt).transform<std::string>(tryErrFail, tryVal).get(),
+		Try<int>::from(badInt).transform(tryErrFail, tryVal).get(),
 		BadTryXformException);
 }
 
 TEST_F(TryTest, Lift) {
-	auto liftedIsEven = Try<int>::lift<bool>(isEven);
+	auto liftedIsEven = Try<int>::lift(isEven);
 	Try<int> a(20);
 	EXPECT_TRUE(liftedIsEven(a).get());
 	EXPECT_FALSE(
-		liftedIsEven(a.map<int>([](const int& i){ return i + 1; })).get());
+		liftedIsEven(a.map([](const int& i){ return i + 1; })).get());
 }
