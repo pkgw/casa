@@ -29,7 +29,6 @@
 
 #include <exception>
 #include <functional>
-#include <iostream>
 
 namespace casa {
 
