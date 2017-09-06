@@ -151,20 +151,20 @@ TEST_F(TryTest, Flatten) {
 	// flatten success of success
 	Try<int> good(6);
 	Try<Try<int> > a(good);
-	EXPECT_EQ(good, a.flatten<int>());
+	EXPECT_EQ(good, a.flatten());
 
 	// flatten success of failure
 	Try<int> bad = try_(badInt);
 	Try<Try<int> > b(bad);
-	EXPECT_THROW(b.flatten<int>().get(), BadIntException);
+	EXPECT_THROW(b.flatten().get(), BadIntException);
 
 	// flatten failure of success
 	Try<Try<int> > c = try_([&](){ badTryInt(); return good; });
-	EXPECT_THROW(c.flatten<int>().get(), BadTryIntException);
+	EXPECT_THROW(c.flatten().get(), BadTryIntException);
 
 	// flatten failure of failure
 	Try<Try<int> > d = try_([&](){ badTryInt(); return bad; });
-	EXPECT_THROW(d.flatten<int>().get(), BadTryIntException);
+	EXPECT_THROW(d.flatten().get(), BadTryIntException);
 }
 
 TEST_F(TryTest, Filter) {

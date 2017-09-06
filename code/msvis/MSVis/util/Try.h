@@ -43,8 +43,13 @@ public:
 		{}
 };
 
+// TryBase exists to enable tests in Try template methods of whether
+// Try::value_class is a Try type
+struct TryBase {};
+
 template <typename A>
-class Try {
+class Try
+	: protected TryBase {
 
 public:
 
@@ -78,7 +83,9 @@ public:
 	 *
 	 * Type F should be callable () -> A
 	 */
-	template <typename F>
+	template <typename F,
+	          class = std::enable_if<
+		          std::is_convertible<std::result_of<F()>,A>::value,A> >
 	static Try<A>
 	from(F&& f) {
 		try {
@@ -128,8 +135,7 @@ public:
 	 */
 	template <typename F,
 	          class = std::enable_if<
-		          std::is_convertible<std::result_of<F(const A&)>,bool>::value,
-		          bool> >
+		          std::is_convertible<std::result_of<F(const A&)>,bool>::value> >
 	Try<A>
 	filter(F&& f) const {
 		if (is_success) {
@@ -151,31 +157,22 @@ public:
 	 * Type F should be callable const A& -> Try<B>
 	 */
 	template <typename F,
-	          typename B = typename std::result_of<F(const A&)>::type::value_type>
-	Try<B>
+	          typename TB = typename std::result_of<F(const A&)>::type,
+	          class = std::enable_if<std::is_base_of<TryBase,TB>::value> >
+	TB
 	flatMap(F&& f) const {
-		if (is_success) {
-			try {
-				return Try<B>(f(value));
-			} catch (std::exception &) {
-				return Try<B>(std::current_exception());
-			}
-		} else {
-			return Try<B>(exception);
-		}
-		//return map(std::forward<F>(f)).flatten();
+		return map(std::forward<F>(f)).flatten();
 	};
 
 	/* flatten()
 	 *
 	 * May only flatten instances of Try<Try<...> >, removes one level of Try
 	 */
-	template <typename B,
-	          class = typename std::enable_if<std::is_same<Try<B>, A>::value, B>::type >
-	Try<B>
+	template <class = std::enable_if<std::is_base_of<TryBase,A>::value> >
+	A
 	flatten() const {
 		if (is_success) return value;
-		else return Try<B>(exception);
+		else return Try<typename value_type::value_type>(exception);
 	}
 
 	/* fold()
@@ -187,8 +184,8 @@ public:
 	          typename Val,
 	          typename B = typename std::result_of<Err(const std::exception_ptr&)>::type,
 	          typename C = typename std::result_of<Val(const A&)>::type,
-	          typename D = typename std::common_type<B, C>::type >
-	D
+	          class = std::enable_if<std::is_same<B,C>::value> >
+	B
 	fold(Err&& err, Val&& val) const {
 		if (is_success) return std::forward<Val>(val)(value);
 		else return std::forward<Err>(err)(exception);
@@ -220,7 +217,7 @@ public:
 	 */
 	template <typename B,
 	          typename F,
-	          class = typename std::enable_if<std::is_base_of<B, A>::value, B> >
+	          class = typename std::enable_if<std::is_base_of<B, A>::value> >
 	B
 	getOrElse(F&& f) const {
 		if (is_success) return value;
@@ -261,12 +258,14 @@ public:
 	 * Type F should be callable () -> Try<B>
 	 */
 	template <typename F,
-	          typename B = typename std::result_of<F()>::type::value_type,
-	          class = typename std::enable_if<std::is_base_of<B, A>::value, B> >
-	Try<B>
+	          typename TB = typename std::result_of<F()>::type,
+	          class = std::enable_if<std::is_base_of<TryBase,TB>::value>,
+	          class = std::enable_if<
+		          std::is_base_of<typename TB::value_type,A>::value> >
+	TB
 	orElse(F&& f) const {
 		if (is_success)
-			return Try<B>(value);
+			return Try<typename TB::value_type>(value);
 		else
 			return std::forward<F>(f)();
 	};
@@ -277,24 +276,17 @@ public:
 	 * Type Val should be callable const A& -> Try<B>
 	 */
 	template <typename Err, typename Val,
-	          typename B = typename std::result_of<Err(const std::exception_ptr&)>::type::value_type,
-	          typename C = typename std::result_of<Val(const A&)>::type::value_type,
-	          typename D = typename std::common_type<B, C>::type >
-	Try<D>
+	          typename TB = typename std::result_of<Err(const std::exception_ptr&)>::type,
+	          typename TC = typename std::result_of<Val(const A&)>::type,
+	          class = std::enable_if<std::is_base_of<TryBase,TB>::value>,
+	          class = std::enable_if<std::is_base_of<TryBase,TC>::value>,
+	          class = std::enable_if<std::is_same<TB,TC>::value > >
+	TB
 	transform(Err&& err, Val&& val) const {
-		if (is_success) {
-			try {
-				return std::forward<Val>(val)(value);
-			} catch (std::exception &) {
-				return Try<D>(std::current_exception());
-			}
-		} else {
-			return std::forward<Err>(err)(exception);
-		}
-		// return fold<Try<B> >(
-		// 	std::forward<Err>(err),
-		// 	std::forward<Val>(val)).
-		// 	flatten();
+		Try<TB> folded = fold(
+			std::forward<Err>(err),
+			std::forward<Val>(val));
+		return folded.flatten();
 	};
 
 private:
