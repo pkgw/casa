@@ -58,24 +58,24 @@ public:
 	// Constructors
 
 	Try()
-		: is_success(true)
-		, value() {}
+		: m_isSuccess(true)
+		, m_value() {}
 
 	Try(const A& a)
-		: is_success(true)
-		, value(a) {}
+		: m_isSuccess(true)
+		, m_value(a) {}
 
 	Try(A&& a)
-		: is_success(true)
-		, value(std::move(a)) {}
+		: m_isSuccess(true)
+		, m_value(std::move(a)) {}
 
 	Try(const std::exception_ptr& e)
-		: is_success(false)
-		, exception(e) {}
+		: m_isSuccess(false)
+		, m_exception(e) {}
 
 	Try(std::exception_ptr&& e)
-		: is_success(false)
-		, exception(std::move(e)) {}
+		: m_isSuccess(false)
+		, m_exception(std::move(e)) {}
 
 	// Static methods
 
@@ -120,9 +120,9 @@ public:
 	 */
 	bool operator==(const Try<A> &ta) const {
 		return (
-			is_success == ta.is_success
-			&& ((is_success && value == ta.value)
-			    || (!is_success && exception == ta.exception)));
+			m_isSuccess == ta.m_isSuccess
+			&& ((m_isSuccess && m_value == ta.m_value)
+			    || (!m_isSuccess && m_exception == ta.m_exception)));
 	}
 
 	bool operator!=(const Try<A> &ta) const {
@@ -138,9 +138,9 @@ public:
 		          std::is_convertible<std::result_of<F(const A&)>,bool>::value> >
 	Try<A>
 	filter(F&& f) const {
-		if (is_success) {
+		if (m_isSuccess) {
 			try {
-				if (std::forward<F>(f)(value)) return *this;
+				if (std::forward<F>(f)(m_value)) return *this;
 				return Try<A>(
 					std::make_exception_ptr(NoSuchElementException()));
 
@@ -171,8 +171,8 @@ public:
 	template <class = std::enable_if<std::is_base_of<TryBase,A>::value> >
 	A
 	flatten() const {
-		if (is_success) return value;
-		else return Try<typename value_type::value_type>(exception);
+		if (m_isSuccess) return m_value;
+		else return Try<typename value_type::value_type>(m_exception);
 	}
 
 	/* fold()
@@ -187,8 +187,8 @@ public:
 	          class = std::enable_if<std::is_same<B,C>::value> >
 	B
 	fold(Err&& err, Val&& val) const {
-		if (is_success) return std::forward<Val>(val)(value);
-		else return std::forward<Err>(err)(exception);
+		if (m_isSuccess) return std::forward<Val>(val)(m_value);
+		else return std::forward<Err>(err)(m_exception);
 	};
 
 	/* foreach()
@@ -198,7 +198,7 @@ public:
 	template <typename F>
 	void
 	foreach(F&& f) const {
-		if (is_success) std::forward<F>(f)(value);
+		if (m_isSuccess) std::forward<F>(f)(m_value);
 	}
 
 	/* get()
@@ -207,8 +207,8 @@ public:
 	 */
 	A
 	get() const {
-		if (is_success) return value;
-		else std::rethrow_exception(exception);
+		if (m_isSuccess) return m_value;
+		else std::rethrow_exception(m_exception);
 	}
 
 	/* getOrElse()
@@ -220,18 +220,13 @@ public:
 	          class = typename std::enable_if<std::is_base_of<B, A>::value> >
 	B
 	getOrElse(F&& f) const {
-		if (is_success) return value;
+		if (m_isSuccess) return m_value;
 		else return std::forward<F>(f)();
 	};
 
 	bool
-	isFailure() const {
-		return !is_success;
-	}
-
-	bool
 	isSuccess() const {
-		return is_success;
+		return m_isSuccess;
 	}
 
 	/* map()
@@ -242,14 +237,14 @@ public:
 	          typename B = typename std::result_of<F(const A&)>::type>
 	Try<B>
 	map(F&& f) const {
-		if (is_success) {
+		if (m_isSuccess) {
 			try {
-				return Try<B>(std::forward<F>(f)(value));
+				return Try<B>(std::forward<F>(f)(m_value));
 			} catch (std::exception &) {
 				return Try<B>(std::current_exception());
 			}
 		} else {
-			return Try<B>(exception);
+			return Try<B>(m_exception);
 		}
 	};
 
@@ -264,8 +259,8 @@ public:
 		          std::is_base_of<typename TB::value_type,A>::value> >
 	TB
 	orElse(F&& f) const {
-		if (is_success)
-			return Try<typename TB::value_type>(value);
+		if (m_isSuccess)
+			return Try<typename TB::value_type>(m_value);
 		else
 			return std::forward<F>(f)();
 	};
@@ -290,9 +285,11 @@ public:
 	};
 
 private:
-	bool is_success;
-	A value;
-	std::exception_ptr exception;
+	bool m_isSuccess;
+
+	A m_value;
+
+	std::exception_ptr m_exception;
 };
 
 template <typename F,
