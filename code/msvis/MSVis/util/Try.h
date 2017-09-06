@@ -236,6 +236,17 @@ public:
 		else return std::forward<F>(f)();
 	};
 
+	/* getOrElse_()
+	 *
+	 * Non-lazy version of getOrElse
+	 */
+	template <typename B,
+	          class = typename std::enable_if<std::is_base_of<B, A>::value> >
+	B
+	getOrElse_(const B& b) const {
+		return getOrElse([&b](){ return b; });
+	};
+
 	bool
 	isSuccess() const {
 		return m_isSuccess;
@@ -275,6 +286,19 @@ public:
 			return Try<typename TB::value_type>(m_value);
 		else
 			return std::forward<F>(f)();
+	};
+
+	/* orElse_
+	 *
+	 * Non-lazy version of orElse
+	 */
+	template <typename TB,
+	          class = std::enable_if<std::is_base_of<TryBase,TB>::value>,
+	          class = std::enable_if<
+		          std::is_base_of<typename TB::value_type,A>::value> >
+	TB
+	orElse_(const TB& tb) const {
+		return orElse([&tb](){ return tb; });
 	};
 
 	/* transform()

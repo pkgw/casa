@@ -345,22 +345,29 @@ TEST_F(TryTest, GetOrElse) {
 	int val = 16;
 	Try<int> a(val);
 	EXPECT_EQ(a.getOrElse(goodInt), val);
+	EXPECT_EQ(a.getOrElse_(goodInt()), val);
+	EXPECT_EQ(a.getOrElse_(val), val);
 
 	// getOrElse on failure
 	Try<int> b = try_(badInt);
 	EXPECT_EQ(b.getOrElse(goodInt), goodInt());
+	EXPECT_EQ(b.getOrElse_(goodInt()), goodInt());
 }
 
 TEST_F(TryTest, OrElse) {
 	// orElse on success
 	Try<int> a(18);
 	Try<int> b = a.orElse([&](){ return try_(goodInt); });
+	Try<int> c = a.orElse_(try_(goodInt));
 	EXPECT_EQ(b, a);
+	EXPECT_EQ(c, a);
 
 	// orElse on failure
-	Try<int> c = try_(badInt);
-	Try<int> d = c.orElse([&a](){ return a; });
-	EXPECT_EQ(d, a);
+	Try<int> d = try_(badInt);
+	Try<int> e = d.orElse([&a](){ return a; });
+	Try<int> f = d.orElse_(a);
+	EXPECT_EQ(e, a);
+	EXPECT_EQ(f, a);
 }
 
 TEST_F(TryTest, Transform) {
@@ -388,7 +395,8 @@ TEST_F(TryTest, Transform) {
 TEST_F(TryTest, Lift) {
 	auto liftedIsEven = Try<int>::lift(isEven);
 	Try<int> a(20);
-	EXPECT_TRUE(liftedIsEven(a).get());
+	EXPECT_TRUE(liftedIsEven(a).getOrElse_(false));
 	EXPECT_FALSE(
-		liftedIsEven(a.map([](const int& i){ return i + 1; })).get());
+		liftedIsEven(a.map([](const int& i){ return i + 1; })).
+		getOrElse_(true));
 }
