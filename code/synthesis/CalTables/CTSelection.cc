@@ -28,6 +28,7 @@
 
 #include <synthesis/CalTables/CTSelection.h>
 #include <synthesis/CalTables/CTColumns.h>
+#include <synthesis/CalTables/CTInterface.h>
 #include <ms/MSSel/MSSelectionTools.h>
 #include <casa/Utilities/Sort.h>
 
@@ -47,26 +48,32 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			const casacore::String& taqlExpr,
 			const casacore::String& scanExpr,
 			const casacore::String& stateExpr,
-			const casacore::String& observationExpr) : nct_p(ct) {
-    // TBD: do antenna->taql!
-    msSelection_p = new casacore::MSSelection(ct, mode, timeExpr, antennaExpr,
-        fieldExpr, spwExpr, "", taqlExpr, "", scanExpr, "", stateExpr,
-        observationExpr);
+			const casacore::String& observationExpr) {
+    msSelection_p = new casacore::MSSelection();
+    setTimeExpr(timeExpr);
+    setAntennaExpr(antennaExpr);
+    setFieldExpr(fieldExpr);
+    setSpwExpr(spwExpr);
+    setTaQLExpr(taqlExpr);
+    setScanExpr(scanExpr);
+    setStateExpr(stateExpr);
+    setObservationExpr(observationExpr);
+
+    if (mode==casacore::MSSelection::PARSE_NOW) {
+        CTInterface cti(ct);
+        toTableExprNode(&cti);
+    }
   }
   
   CTSelection::CTSelection (const CTSelection& other) {
     if (this != &other) {
-        nct_p = other.nct_p;
         msSelection_p = other.msSelection_p;
-        fullTEN_p = other.fullTEN_p;
     }
   }
 
   CTSelection& CTSelection::operator= (const CTSelection& other) {
     if (this != &other) {
-        nct_p = other.nct_p;
         msSelection_p = other.msSelection_p;
-        fullTEN_p = other.fullTEN_p;
     }
     
     return *this;
@@ -81,7 +88,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   //---------------------------------------------------------------------------
 
-  void CTSelection::reset(NewCalTable ct,
+  void CTSelection::reset(casacore::MSSelectableTable& msLike,
 			  const casacore::MSSelection::MSSMode& mode,
 			  const casacore::String& timeExpr,
 			  const casacore::String& antennaExpr,
@@ -91,10 +98,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			  const casacore::String& scanExpr,
 			  const casacore::String& stateExpr,
 			  const casacore::String& observationExpr) {
-      nct_p = ct;
-      // TBD: do antenna->taql!
-      msSelection_p->reset(ct, mode, timeExpr, antennaExpr, fieldExpr,
-        spwExpr, "", taqlExpr, "", scanExpr, "", stateExpr, observationExpr);
+    clear();
+    setTimeExpr(timeExpr);
+    setAntennaExpr(antennaExpr);
+    setFieldExpr(fieldExpr);
+    setSpwExpr(spwExpr);
+    setTaQLExpr(taqlExpr);
+    setScanExpr(scanExpr);
+    setStateExpr(stateExpr);
+    setObservationExpr(observationExpr);
+    if (mode==casacore::MSSelection::PARSE_NOW)
+        toTableExprNode(&msLike);
   };
 
   //---------------------------------------------------------------------------
@@ -215,7 +229,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     msSelTaQL += taqlExpr;
     msSelection_p->setTaQLExpr(msSelTaQL);
   }
-
 
   casacore::Vector<casacore::Int> CTSelection::getRefAntIds(
           casacore::MSSelectableTable* msLike) {

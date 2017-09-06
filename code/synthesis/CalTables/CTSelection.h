@@ -129,6 +129,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     casacore::TableExprNode toTableExprNode(
             casacore::MSSelectableTable* msLike);
 
+    inline casacore::TableExprNode getTEN() { return msSelection_p->getTEN(); }
+
+    // clear selections
+    inline void clear(const casacore::MSSelection::MSExprType type=
+            casacore::MSSelection::NO_EXPR) 
+        { msSelection_p->clear(type); }
+
     // Expression setters.  The following set*Expr() methods only set
     // the expressions.  Parsing is done with a call to
     // toTableExprNode().
@@ -212,7 +219,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // object.  Accessing the services of the CTSelection module via
     // this interface is recommended over the version of reset() that
     // uses MeasurementSet.
-    void reset(NewCalTable ct,
+    void reset(casacore::MSSelectableTable& msLike,
 	       const casacore::MSSelection::MSSMode& mode = 
                casacore::MSSelection::PARSE_NOW,
 	       const casacore::String& timeExpr        = "",
@@ -247,9 +254,7 @@ private:
     bool zeroIsSelected(casacore::String antennaExpr,
         casacore::MSSelectableTable* msLike);
 
-    NewCalTable nct_p;
     casacore::MSSelection* msSelection_p;
-    casacore::TableExprNode fullTEN_p;
   };
 
 } //# NAMESPACE CASA - END

@@ -112,9 +112,9 @@ void doTest1 (Bool verbose=false) {
 
   if (verbose) {
     cout << "Selection strings:" << endl;
-    cout << " fieldsel = " << fieldsel << endl;
-    cout << " spwsel = " << spwsel << endl;
-    cout << " antsel = " << antsel << endl;
+    cout << "  fieldsel = " << fieldsel << endl;
+    cout << "  spwsel = " << spwsel << endl;
+    cout << "  antsel = " << antsel << endl;
   }
 
   NewCalTable selnct(tnct);
@@ -126,30 +126,24 @@ void doTest1 (Bool verbose=false) {
 
   TableExprNode ten=cts.toTableExprNode(&cti);
 
-  if (verbose)
-    cout << "CTSelection index results (get*List): " << endl;
-
-  if (verbose)
-    cout << " Field list: " << cts.getFieldList() << endl; // OK?
-  AlwaysAssert( allEQ(cts.getFieldList(),fldids), AipsError );
-
-  if (verbose)
-    cout << " Antenna list: " << cts.getAntenna1List() << endl;
-  AlwaysAssert( allEQ(cts.getAntenna1List(),antids), AipsError );
-
   if (verbose) {
-    cout << " Spw list: " << cts.getSpwList() << endl;
-    //cout << " Chan list: " << mss.getChanList() << endl;
+    cout << "CTSelection index results (get*List): " << endl;
+    cout << "  Field list: " << cts.getFieldList() << endl; // OK?
+    cout << "  Antenna list: " << cts.getAntenna1List() << endl;
+    cout << "  Spw list: " << cts.getSpwList() << endl;
   }
+  AlwaysAssert( allEQ(cts.getFieldList(),fldids), AipsError );
+  AlwaysAssert( allEQ(cts.getAntenna1List(),antids), AipsError );
   AlwaysAssert( allEQ(cts.getSpwList(),spwids), AipsError );
+  if (verbose) 
+    cout << "CTSelection index results (get*List): all OK " << endl;
 
   getSelectedTable(selnct,tnct,ten,"");
 
-  if (verbose)
-    {
-      cout << "selected: nrow=" << selnct.nrow()<< " ";
+  if (verbose) {
+      cout << "Selected table: nrow=" << selnct.nrow()<< " ";
       cout << "(should be " << antids.nelements()*nTime*spwids.nelements()*fldids.nelements() << ")" << endl;
-    }
+  }
   AlwaysAssert( (selnct.nrow()==antids.nelements()*nTime*spwids.nelements()*fldids.nelements()), AipsError);
 
   ROCTMainColumns ctmc(selnct);
@@ -158,15 +152,6 @@ void doTest1 (Bool verbose=false) {
   ctmc.antenna1().getColumn(selantcol);
   ctmc.antenna2().getColumn(selant2col);
   ctmc.spwId().getColumn(selspwcol);
-
-  /*
-  if (verbose) {
-    cout << "ctmc.fieldId().getColumn()  = " << selfieldcol << endl;
-    cout << "ctmc.antenna1().getColumn() = " << selantcol << endl;
-    cout << "ctmc.antenna2().getColumn() = " << selant2col << endl;
-    cout << "ctmc.spwId().getColumn()    = " << selspwcol << endl;
-  }
-  */
 
   Vector<Bool> fldok(selfieldcol.nelements(),false);
   for (uInt i=0;i<fldids.nelements();++i) {
@@ -193,11 +178,62 @@ void doTest1 (Bool verbose=false) {
   AlwaysAssert( allfldok , AipsError );
   AlwaysAssert( allspwok , AipsError );
   AlwaysAssert( allantok , AipsError );
+
+  cout << "\n**** reset() with different antenna selection ****" 
+       << endl;
+  antsel = "0~3;!1&0";
+  antids(0)=0; antids(1)=1; antids(2)=2; antids(3)=3; antids(4)=-1; 
+  if (verbose) {
+    cout << "Selection strings:" << endl;
+    cout << "  fieldsel = " << fieldsel << endl;
+    cout << "  spwsel = " << spwsel << endl;
+    cout << "  antsel = " << antsel << endl;
+  }
+  cts.reset(cti, casacore::MSSelection::PARSE_NOW, "", antsel,
+    fieldsel, spwsel, "", "", "", "");
+  if (verbose) {
+    cout << "CTSelection index results (get*List): " << endl;
+    cout << "  Field list: " << cts.getFieldList() << endl;
+    cout << "  Antenna list: " << cts.getAntenna1List() << endl;
+    cout << "  Spw list: " << cts.getSpwList() << endl;
+  }
+  AlwaysAssert( allEQ(cts.getAntenna1List(),antids), AipsError );
+  AlwaysAssert( allEQ(cts.getFieldList(),fldids), AipsError );
+  AlwaysAssert( allEQ(cts.getSpwList(),spwids), AipsError );
+  if (verbose) 
+    cout << "CTSelection parsing results (get*List): all OK" << endl;
+
+  ten = cts.getTEN();
+  getSelectedTable(selnct,tnct,ten,"");
+  ROCTMainColumns ctmain(selnct);
+  Vector<Int> selfieldcol2, selantcol2, selspwcol2;
+  ctmain.fieldId().getColumn(selfieldcol2);
+  ctmain.antenna1().getColumn(selantcol2);
+  ctmain.spwId().getColumn(selspwcol2);
+  /*
+  if (verbose) {
+    cout << "ctmc.fieldId().getColumn()  = " << selfieldcol2 << endl;
+    cout << "ctmc.antenna1().getColumn() = " << selantcol2 << endl;
+    cout << "ctmc.spwId().getColumn()    = " << selspwcol2 << endl;
+  }
+  */
+
+  // antenna 1 is selected and negated
+  antids.resize(3);
+  antids(0)=0; antids(1)=2; antids(2)=3; 
+  if (verbose)
+    {
+      cout << "Selected table: nrow=" << selnct.nrow()<< " ";
+      cout << "(should be " << antids.size() * nTime * spwids.nelements() * 
+          fldids.nelements() << ")" << endl;
+    }
+  AlwaysAssert( (selnct.nrow() == antids.size() * nTime * spwids.nelements() *
+    fldids.nelements()), AipsError);
 }
 
 void doTest2 (Bool verbose=false) {
 
-  cout << "****----doTest2()----****" << endl;
+  cout << "\n****----doTest2()----****" << endl;
   
   // Make a testing NewCalTable (Table::Memory)
   uInt nFld(1), nAnt(10), nSpw(4), nObs(3), nScan=6, nTime(6);
@@ -267,11 +303,11 @@ void doTest2 (Bool verbose=false) {
 
   if (verbose) {
     cout << "Selection strings:" << endl;
-    cout << " obssel  = " << obssel << endl;
-    cout << " scansel = " << scansel << endl;
-    cout << " timesel = " << timesel << endl;
-    cout << " spwsel  = " << spwsel << endl;
-    cout << " antsel  = " << antsel << endl;
+    cout << "  obssel  = " << obssel << endl;
+    cout << "  scansel = " << scansel << endl;
+    cout << "  timesel = " << timesel << endl;
+    cout << "  spwsel  = " << spwsel << endl;
+    cout << "  antsel  = " << antsel << endl;
   }
 
   NewCalTable selnct(tnct);
@@ -285,53 +321,37 @@ void doTest2 (Bool verbose=false) {
 
   TableExprNode ten = cts.toTableExprNode(&cti);
 
-  if (verbose)
+  if (verbose) {
     cout << "CTSelection parsing results (get*List): " << endl;
-
-  if (verbose) {
-    cout << " Obs list: " << cts.getObservationList() << endl;
-  }
-  AlwaysAssert( allEQ(cts.getObservationList(),obsids), AipsError );  
-
-  if (verbose) {
-    cout << " Scan list: " << cts.getScanList() << endl;
-  }
-  AlwaysAssert( allEQ(cts.getScanList(),scans), AipsError );
-
-  if (verbose) {
+    cout << "  Obs list: " << cts.getObservationList() << endl;
+    cout << "  Scan list: " << cts.getScanList() << endl;
     cout.precision(15);
     Vector<Double> parsedTimeBounds=Vector<Double>(cts.getTimeList()); 
-    cout << " Time bounds: " << parsedTimeBounds
+    cout << "  Time bounds: " << parsedTimeBounds
 	 << " [" << parsedTimeBounds-refTime << "]" << endl
-	 << "  (expecting: " << timebounds << " [" << timebounds-refTime << "] )" << endl
-         << "  (diff = " << parsedTimeBounds-timebounds << ")"
+	 << "  (expecting: " << timebounds << " [" << timebounds-refTime << "] )" 
+     << endl
+     << "  (diff = " << parsedTimeBounds-timebounds << ")"
 	 << endl;
+    cout << "  Spw list: " << cts.getSpwList() << endl;
   }
+  AlwaysAssert( allEQ(cts.getObservationList(),obsids), AipsError );  
+  AlwaysAssert( allEQ(cts.getScanList(),scans), AipsError );
   AlwaysAssert( allNear(Vector<Double>(cts.getTimeList()),timebounds,1.0e-9), AipsError );
-
-  if (verbose) {
-    cout << " Spw list: " << cts.getSpwList() 
-	 << endl;
-    //cout << " Chan list: " << mss.getChanList() << endl;
-  }
   AlwaysAssert( allEQ(cts.getSpwList(),spwids), AipsError );
-
-  if (verbose)
-    cout << " Antenna list: " << cts.getAntenna1List() << endl;
   AlwaysAssert( allEQ(cts.getAntenna1List(),antids), AipsError );
-
+  AlwaysAssert( allEQ(cts.getObservationList(),obsids), AipsError );  
+  if (verbose)
+    cout << "CTSelection parsing results (get*List): all OK" << endl;
 
   getSelectedTable(selnct,tnct,ten,"");
 
   if (verbose)
-    cout << "CTSelection table contents results:" << endl;
-
-  if (verbose)
-    cout << "selected: nrow=" << selnct.nrow() 
+    cout << "Selected table: nrow=" << selnct.nrow() 
 	 << " (should be " << 3*antids.nelements()*spwids.nelements() << ")"
 	 << endl;
-  AlwaysAssert( (selnct.nrow()==3*antids.nelements()*spwids.nelements()), AipsError);
-
+  AlwaysAssert( (selnct.nrow() == 3 * antids.nelements() * spwids.nelements()),
+    AipsError);
 
   ROCTMainColumns ctmc(selnct);
   Vector<Int> selantcol,selspwcol,selobscol,selscancol;
@@ -342,42 +362,26 @@ void doTest2 (Bool verbose=false) {
   ctmc.spwId().getColumn(selspwcol);
   ctmc.antenna1().getColumn(selantcol);
 
-  /*
-  if (verbose) {
-    cout << "ctmc.obs().getColumn()      = " << selobscol << endl;
-    cout << "ctmc.scanNo().getColumn()   = " << selscancol << endl;
-    cout << "ctmc.time().getColumn()     = " << seltimecol << endl;
-    cout << "dtime                       = " << seltimecol-refTime << endl;
-    cout << "ctmc.spwId().getColumn()    = " << selspwcol << endl;
-    cout << "ctmc.antenna1().getColumn() = " << selantcol << endl;
-  }
-  */
-
   Vector<Bool> obsok(selobscol.nelements(),false);
-  for (uInt i=0;i<obsids.nelements();++i) {
+  for (uInt i=0;i<obsids.nelements();++i) 
     obsok|=(selobscol==obsids(i));
-  }
 
   Vector<Bool> scanok(selscancol.nelements(),false);
-  for (uInt i=0;i<scans.nelements();++i) {
+  for (uInt i=0;i<scans.nelements();++i) 
     scanok|=(selscancol==scans(i));
-  }
 
   Vector<Bool> timeok(seltimecol.nelements(),false);
   timeok|=(seltimecol>timebounds(0));
   timeok|=(seltimecol<timebounds(1));
 
   Vector<Bool> spwok(selspwcol.nelements(),false);
-  for (uInt i=0;i<spwids.nelements();++i) {
+  for (uInt i=0;i<spwids.nelements();++i) 
     spwok|=(selspwcol==spwids(i));
-  }
+
   Vector<Bool> antok(selantcol.nelements(),false);
-  for (uInt i=0;i<antids.nelements();++i) {
+  for (uInt i=0;i<antids.nelements();++i) 
     antok|=(selantcol==antids(i));
-  }
   
-
-
   Bool allobsok=allEQ(obsok,true);
   Bool allscanok=allEQ(scanok,true);
   Bool alltimeok=allEQ(timeok,true);
@@ -397,8 +401,66 @@ void doTest2 (Bool verbose=false) {
   AlwaysAssert( allspwok , AipsError );
   AlwaysAssert( allantok , AipsError );
 
-}
+  cout << "\n**** repeat test2 using ctor with selection expressions ****" 
+       << endl;
+  CTSelection* newcts = new CTSelection(tnct, casacore::MSSelection::PARSE_NOW,
+    timesel, antsel, "", spwsel, "", scansel, "", obssel);
+  AlwaysAssert( allEQ(newcts->getObservationList(),obsids), AipsError );  
+  AlwaysAssert( allEQ(newcts->getScanList(),scans), AipsError );
+  AlwaysAssert( allNear(Vector<Double>(newcts->getTimeList()),timebounds,1.0e-9), 
+    AipsError );
+  AlwaysAssert( allEQ(newcts->getSpwList(),spwids), AipsError );
+  AlwaysAssert( allEQ(newcts->getAntenna1List(),antids), AipsError );
+  AlwaysAssert( allEQ(newcts->getObservationList(),obsids), AipsError );  
+  if (verbose) 
+    cout << "CTSelection parsing results (get*List) all OK" << endl;
 
+  ten = newcts->getTEN();
+  getSelectedTable(selnct,tnct,ten,"");
+  if (verbose)
+    cout << "Selected table: nrow=" << selnct.nrow() 
+	     << " (should be " << 3 * antids.nelements() * spwids.nelements() << ")"
+	     << endl;
+  AlwaysAssert( (selnct.nrow() == 3 * antids.nelements() * spwids.nelements()),
+    AipsError);
+
+  ROCTMainColumns ctmain(selnct);
+  Vector<Int> selantcol2, selspwcol2, selobscol2, selscancol2;
+  Vector<Double> seltimecol2;
+  ctmain.antenna1().getColumn(selantcol2);
+  ctmain.spwId().getColumn(selspwcol2);
+  ctmain.obsId().getColumn(selobscol2);
+  ctmain.scanNo().getColumn(selscancol2);
+  ctmain.time().getColumn(seltimecol2);
+
+  obsok = false;
+  for (uInt i=0;i<obsids.nelements();++i) 
+    obsok |= (selobscol2==obsids(i));
+
+  scanok = false;
+  for (uInt i=0;i<scans.nelements();++i) 
+    scanok |= (selscancol2==scans(i));
+
+  timeok = false;
+  timeok |= (seltimecol2>timebounds(0));
+  timeok |= (seltimecol2<timebounds(1));
+
+  spwok = false;
+  for (uInt i=0;i<spwids.nelements();++i)
+    spwok |= (selspwcol2==spwids(i));
+
+  antok = false;
+  for (uInt i=0;i<antids.nelements();++i)
+    antok |= (selantcol2==antids(i));
+  
+  AlwaysAssert( allEQ(obsok,true), AipsError );
+  AlwaysAssert( allEQ(scanok,true), AipsError );
+  AlwaysAssert( allEQ(timeok,true), AipsError );
+  AlwaysAssert( allEQ(spwok,true), AipsError );
+  AlwaysAssert( allEQ(antok,true), AipsError );
+  if (verbose)
+    cout << "CTSelection table contents results all OK" << endl;
+}
 
 int main ()
 {
@@ -414,7 +476,7 @@ int main ()
     cout << "Unexpected unknown exception" << endl;
     exit(1);
   }
-  cout << "All OK" << endl;
+  cout << "\nAll OK" << endl;
   exit(0);
 };
 
