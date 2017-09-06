@@ -205,6 +205,33 @@ TEST_F(TryTest, Map) {
 	EXPECT_THROW(d.map(isEven).get(), BadIntException);
 }
 
+TEST_F(TryTest, MapOperator) {
+	// simple map, w.o. failure
+	Try<int> a(8);
+	Try<bool> t(true);
+	EXPECT_EQ(a | isEven, t);
+
+	// create false value
+	Try<bool> f = t | [](const bool &b){ return !b; };
+	EXPECT_EQ(f, Try<bool>(false));
+
+	// another simple map
+	Try<int> b = a.map([](const int &i){ return i + 1; });
+	EXPECT_EQ(b | isEven, f);
+
+	// map failure
+	Try<int> c = try_(badInt);
+	EXPECT_FALSE((c | isEven).isSuccess());
+
+	// map value to failure
+	Try<int> d = a | [](const int &){ badInt(); return 0; };
+	EXPECT_THROW((d | isEven).get(), BadIntException);
+
+	// map sequence
+	auto a2e = ((a | [](const int &i){ return i + 2; }) | isEven);
+	EXPECT_EQ(a2e, t);
+}
+
 TEST_F(TryTest, FlatMap) {
 	// simple flatMap, w.o. failure
 	Try<int> a(10);
@@ -222,6 +249,30 @@ TEST_F(TryTest, FlatMap) {
 	EXPECT_THROW(b.flatMap(badTryAdd2Int).get(), BadIntException);
 }
 
+TEST_F(TryTest, FlatMapOperator) {
+	// simple flatMap, w.o. failure
+	Try<int> a(10);
+	EXPECT_EQ(a >>= goodTryAdd2Int,
+	          a.map([](const int& i){ return i + 2; }));
+
+	// flatMap to failure
+	EXPECT_THROW((a >>= badTryAdd2Int).get(), BadTryIntException);
+
+	// flatMap from failure
+	Try<int> b = try_(badInt);
+	EXPECT_THROW((b >>= goodTryAdd2Int).get(), BadIntException);
+
+	// flatMap from failure to failure
+	EXPECT_THROW((b >>= badTryAdd2Int).get(), BadIntException);
+
+	// flatMap sequence
+	auto a2e =
+		((a
+		  >>= goodTryAdd2Int)
+		 >>= [](const int &i){ return Try<bool>(i % 2 == 0); });
+	EXPECT_EQ(a2e, Try<bool>(true));
+}
+
 TEST_F(TryTest, AndThen) {
 	// simple andThen, w.o. failure
 	Try<int> a(10);
@@ -236,6 +287,22 @@ TEST_F(TryTest, AndThen) {
 
 	// andThen from failure to failure
 	EXPECT_THROW(b.andThen(badTryInt).get(), BadIntException);
+}
+
+TEST_F(TryTest, AndThenOperator) {
+	// simple andThen, w.o. failure
+	Try<int> a(10);
+	EXPECT_EQ(a >> goodTryInt, goodTryInt());
+
+	// andThen to failure
+	EXPECT_THROW((a >> badTryInt).get(), BadTryIntException);
+
+	// andThen from failure
+	Try<int> b = try_(badInt);
+	EXPECT_THROW((b >> goodTryInt).get(), BadIntException);
+
+	// andThen from failure to failure
+	EXPECT_THROW((b >> badTryInt).get(), BadIntException);
 }
 
 TEST_F(TryTest, Fold) {

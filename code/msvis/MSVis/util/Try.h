@@ -296,6 +296,41 @@ public:
 		return folded.flatten();
 	};
 
+	/* operator|()
+	 *
+	 * Type F should be callable const A& -> B
+	 */
+	template <typename F,
+	          typename B = typename std::result_of<F(const A&)>::type>
+	Try<B>
+	operator|(F&&f) const {
+		return map(std::forward<F>(f));
+	}
+
+	/* operator>>=()
+	 *
+	 * Type F should be callable const A& -> Try<B>
+	 */
+	template <typename F,
+	          typename TB = typename std::result_of<F(const A&)>::type,
+	          class = std::enable_if<std::is_base_of<TryBase,TB>::value> >
+	TB
+	operator>>=(F&& f) const {
+		return flatMap(std::forward<F>(f));
+	}
+
+	/* operator>>()
+	 *
+	 * Type F should be callable () -> Try<B>
+	 */
+	template <typename F,
+	          typename TB = typename std::result_of<F()>::type,
+	          class = std::enable_if<std::is_base_of<TryBase,TB>::value> >
+	TB
+	operator>>(F&& f) const {
+		return andThen(std::forward<F>(f));
+	}
+
 private:
 	bool m_isSuccess;
 
