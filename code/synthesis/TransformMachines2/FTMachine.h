@@ -45,10 +45,9 @@
 #include <scimath/Mathematics/InterpolateArray1D.h>
 #include <synthesis/TransformMachines2/CFCache.h>
 #include <synthesis/TransformMachines2/CFStore2.h>
-
 #include <synthesis/TransformMachines2/ConvolutionFunction.h>
 #include <synthesis/TransformMachines2/PolOuterProduct.h>
-
+#include <msvis/MSVis/VisBufferUtil.h>
 #include <images/Images/ImageInterface.h>
 #include <images/Images/SubImage.h>
 #include <synthesis/TransformMachines/StokesImageUtil.h>
@@ -506,7 +505,7 @@ protected:
   casacore::Vector<casacore::CountedPtr<SkyJones> > sj_p;
   //A holder for the complex image if nobody else is keeping it
   casacore::CountedPtr<casacore::ImageInterface<casacore::Complex> > cmplxImage_p;
-
+  casacore::CountedPtr<VisBufferUtil> vbutil_p;
  private:
   //Some temporary wasteful function for swapping axes because we don't 
   //Interpolation along the second axis...will need to implement 
