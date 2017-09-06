@@ -227,8 +227,8 @@ public:
 	 *
 	 * Type F should be callable () -> B
 	 */
-	template <typename B,
-	          typename F,
+	template <typename F,
+	          typename B = typename std::result_of<F()>::type,
 	          class = typename std::enable_if<std::is_base_of<B, A>::value> >
 	B
 	getOrElse(F&& f) const {

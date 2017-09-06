@@ -344,11 +344,11 @@ TEST_F(TryTest, GetOrElse) {
 	// getOrElse on success
 	int val = 16;
 	Try<int> a(val);
-	EXPECT_EQ(a.getOrElse<int>(goodInt), val);
+	EXPECT_EQ(a.getOrElse(goodInt), val);
 
 	// getOrElse on failure
 	Try<int> b = try_(badInt);
-	EXPECT_EQ(b.getOrElse<int>(goodInt), goodInt());
+	EXPECT_EQ(b.getOrElse(goodInt), goodInt());
 }
 
 TEST_F(TryTest, OrElse) {
