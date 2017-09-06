@@ -43,7 +43,7 @@ public:
 };
 
 // TryBase exists to enable tests in Try template methods of whether
-// Try::value_class is a Try type
+// Try::value_type is a Try type
 struct TryBase {};
 
 template <typename A>
