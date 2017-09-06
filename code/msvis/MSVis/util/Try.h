@@ -129,6 +129,18 @@ public:
 		return !(*this == ta);
 	}
 
+	/* andThen()
+	 *
+	 * Type F should be callable () -> Try<B>
+	 */
+	template <typename F,
+	          typename TB = typename std::result_of<F()>::type,
+	          class = std::enable_if<std::is_base_of<TryBase,TB>::value> >
+	TB
+	andThen(F&& f) const {
+		return flatMap([&f](const A&){ return f(); });
+	}
+
 	/* filter()
 	 *
 	 * Type F should be callable const A& -> bool

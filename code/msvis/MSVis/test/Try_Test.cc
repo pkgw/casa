@@ -54,6 +54,11 @@ public:
 		return 0;
 	}
 
+	static Try<int>
+	goodTryInt() {
+		return try_(goodInt);
+	}
+
 	struct BadTryIntException : public std::runtime_error {
 		BadTryIntException()
 			: std::runtime_error("BadTryIntException")
@@ -63,7 +68,7 @@ public:
 	static Try<int>
 	badTryInt() {
 		throw BadTryIntException();
-		return Try<int>::from(goodInt);
+		return try_(goodInt);
 	}
 
 	static bool
@@ -215,6 +220,22 @@ TEST_F(TryTest, FlatMap) {
 
 	// flatMap from failure to failure
 	EXPECT_THROW(b.flatMap(badTryAdd2Int).get(), BadIntException);
+}
+
+TEST_F(TryTest, AndThen) {
+	// simple andThen, w.o. failure
+	Try<int> a(10);
+	EXPECT_EQ(a.andThen(goodTryInt), goodTryInt());
+
+	// andThen to failure
+	EXPECT_THROW(a.andThen(badTryInt).get(), BadTryIntException);
+
+	// andThen from failure
+	Try<int> b = try_(badInt);
+	EXPECT_THROW(b.andThen(goodTryInt).get(), BadIntException);
+
+	// andThen from failure to failure
+	EXPECT_THROW(b.andThen(badTryInt).get(), BadIntException);
 }
 
 TEST_F(TryTest, Fold) {
