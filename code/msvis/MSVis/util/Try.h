@@ -58,8 +58,8 @@ public:
 	// Constructors
 
 	Try()
-		: m_isSuccess(true)
-		, m_value() {}
+		: m_isSuccess(false)
+		, m_exception(std::make_exception_ptr(NoSuchElementException())) {}
 
 	Try(const A& a)
 		: m_isSuccess(true)
@@ -153,9 +153,7 @@ public:
 		if (m_isSuccess) {
 			try {
 				if (std::forward<F>(f)(m_value)) return *this;
-				return Try<A>(
-					std::make_exception_ptr(NoSuchElementException()));
-
+				return Try<A>();
 			} catch (std::exception &) {
 				return Try<A>(std::current_exception());
 			}
