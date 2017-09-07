@@ -541,8 +541,8 @@ namespace casa{
 	Int spw=(Int)freqSelection(i,0);
 	Double fmin=freqSelection(i,1), fmax=freqSelection(i,2), finc=freqSelection(i,3);
 	Int nchan = (Int)((fmax-fmin)/finc + 1);
-	freqNdxMap_p[spw].resize(nchan);
-	conjFreqNdxMap_p[spw].resize(nchan);
+	freqNdxMap_p[spw].resize(nchan,True);
+	conjFreqNdxMap_p[spw].resize(nchan,True);
 	for (Int c=0;c<nchan;c++)
 	  {
 	    Double freq=fmin+c*finc;

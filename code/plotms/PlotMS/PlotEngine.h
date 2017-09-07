@@ -63,6 +63,7 @@ public:
 
 
 	//Show/hide
+    virtual void allowPopups(bool allow = true) = 0;
 	virtual void showGUI(bool show = true) = 0;
 	virtual bool guiShown() const = 0;
 	virtual bool isClosed() const = 0;

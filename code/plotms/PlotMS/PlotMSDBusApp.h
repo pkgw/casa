@@ -85,6 +85,7 @@ public:
     static const casacore::String PARAM_SELECTION; // casacore::Record (see PlotMSSelection)
     static const casacore::String PARAM_TRANSFORMATIONS; // casacore::Record (see PlotMSTransformations)
     static const casacore::String PARAM_CALIBRATION; // casacore::Record (see PlotMSCalibration)
+    static const casacore::String PARAM_PAGE_HEADER_ITEMS; // String
     static const casacore::String PARAM_UPDATEIMMEDIATELY; // bool
     static const casacore::String PARAM_WIDTH; // int or uInt
     static const casacore::String PARAM_EXPORT_FILENAME; // String

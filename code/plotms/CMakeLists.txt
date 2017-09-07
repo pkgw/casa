@@ -32,6 +32,7 @@ qt4_wrap_cpp( outfiles_qoh
   Gui/PlotMSSummaryDialog.qo.h
   Gui/PlotMSTransformationsWidget.qo.h
   Gui/PlotRangeWidget.qo.h
+  Gui/PlotMSPageHeaderDataModel.qo.h
   GuiTabs/PlotMSAnnotatorTab.qo.h
   GuiTabs/PlotMSAxesTab.qo.h
   GuiTabs/PlotMSCacheTab.qo.h
@@ -85,8 +86,10 @@ casa_qt4_wrap_ui( outfiles_ui
   )
 
 casa_qt4_add_resources( outfiles_qrc Gui/PlotMSPlotter.qrc OPTIONS -name Gui )
+casa_qt4_add_resources( outfiles_qrc GuiTabs/GuiTabs.qrc OPTIONS -name GuiTabs )
 
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/Gui ) 
+include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/GuiTabs ) 
 # because the generated code contain relative paths to the source tree
 
 casa_add_library( plotms
@@ -140,6 +143,7 @@ casa_add_library( plotms
   Client/ClientFactory.cc
   Client/ClientScript.cc
   Client/Client.cc
+  Data/PageHeaderCache.cc
   Data/PlotMSCacheBase.cc
   Data/MSCache.cc
   Data/MSCacheVolMeter.cc
@@ -158,6 +162,7 @@ casa_add_library( plotms
   Gui/PlotMSSummaryDialog.cc
   Gui/PlotMSTransformationsWidget.cc
   Gui/PlotRangeWidget.cc
+  Gui/PlotMSPageHeaderDataModel.cc
   GuiTabs/PlotMSAnnotatorTab.cc
   GuiTabs/PlotMSAxesTab.cc
   GuiTabs/PlotMSCacheTab.cc
@@ -185,6 +190,7 @@ casa_add_library( plotms
   PlotMS/PlotMSFlagging.cc
   PlotMS/PlotMSIterParam.cc
   PlotMS/PlotMSLabelFormat.cc
+  PlotMS/PlotMSPageHeaderParam.cc
   PlotMS/PlotMSParameters.cc
   PlotMS/PlotMSRegions.cc
   PlotMS/PlotMSSelection.cc
@@ -212,6 +218,7 @@ INSTALL (FILES
 INSTALL (FILES
         Data/PlotMSIndexer.h
         Data/PlotMSVBAverager.h
+        Data/PageHeaderCache.h
 	DESTINATION include/casacode/plotms/Data )
 
 INSTALL (FILES
@@ -226,6 +233,7 @@ INSTALL (FILES
         Gui/PlotMSSummaryDialog.qo.h
         Gui/PlotMSTransformationsWidget.qo.h
         Gui/PlotRangeWidget.qo.h
+        Gui/PlotMSPageHeaderDataModel.qo.h
 	DESTINATION include/casacode/plotms/Gui )
 
 INSTALL (FILES
@@ -259,6 +267,7 @@ INSTALL (FILES
         PlotMS/PlotMSFlagging.h
         PlotMS/PlotMSIterParam.h
         PlotMS/PlotMSLabelFormat.h
+        PlotMS/PlotMSPageHeaderParam.h
         PlotMS/PlotMSParameters.h
         PlotMS/PlotMSRegions.h
         PlotMS/PlotMSSelection.h

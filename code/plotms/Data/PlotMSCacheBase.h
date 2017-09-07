@@ -33,6 +33,8 @@
 #include <plotms/PlotMS/PlotMSTransformations.h>
 #include <plotms/PlotMS/PlotMSCalibration.h>
 
+#include <plotms/Data/PageHeaderCache.h>
+
 #include <casa/aips.h>
 #include <casa/Arrays.h>
 #include <casa/Containers/Block.h>
@@ -509,8 +511,12 @@ protected:
   // polarization selection is ratio ("/")
   bool polnRatio_;
 
+  // Page header items
+  PageHeaderCache pageHeaderCache_;
+
   // For atm/tsky overlays
   PlotMSAtm* plotmsAtm_;
+
 
 private:
   void _updateAntennaMask( casacore::Int a, casacore::Vector<casacore::Bool>& antMask, const casacore::Vector<casacore::Int> selectedAntennas );

@@ -28,6 +28,8 @@
 
 #include <plotms/PlotMS/PlotMSLabelFormat.h>
 
+#include <casacore/casa/Exceptions/Error.h>
+
 using namespace casacore;
 namespace casa
 {
@@ -59,6 +61,10 @@ const int PMS_PP::UPDATE_CANVAS =
 const String PMS_PP::UPDATE_DISPLAY_NAME = "DISPLAY";
 const int PMS_PP::UPDATE_DISPLAY =
 		PlotMSWatchedParameters::REGISTER_UPDATE_FLAG(UPDATE_DISPLAY_NAME);
+
+const String PMS_PP::UPDATE_PAGEHEADER_NAME = "PAGEHEADER";
+const int PMS_PP::UPDATE_PAGEHEADER =
+		PlotMSWatchedParameters::REGISTER_UPDATE_FLAG(UPDATE_PAGEHEADER_NAME);
 
 const String PMS_PP::UPDATE_ITERATION_NAME = "ITERATION";
 const int PMS_PP::UPDATE_ITERATION =
@@ -1490,6 +1496,66 @@ void PMS_PP_Display::resizeVectors(unsigned int newSize)
 	}
 }
 
+
+////////////////////////////////////
+// PMS_PP_PAGE_HEADER DEFINITIONS //
+////////////////////////////////////
+
+// PMS_PP_PageHeader record keys.
+const String PMS_PP_PageHeader::REC_ITEMS = "items";
+
+PMS_PP_PageHeader::PMS_PP_PageHeader(PlotFactoryPtr factory) : PlotMSPlotParameters::Group(factory)
+{
+	setDefaults();
+}
+
+PMS_PP_PageHeader::PMS_PP_PageHeader(const PMS_PP_PageHeader& copy) : PlotMSPlotParameters::Group(copy)
+{
+	setDefaults();
+	operator=(copy);
+}
+
+PMS_PP_PageHeader::~PMS_PP_PageHeader() { }
+
+void PMS_PP_PageHeader::setDefaults()
+{
+	itsPageHeaderItems_ = PageHeaderItems();
+}
+
+Record PMS_PP_PageHeader::toRecord() const {
+	Record rec;
+	rec.define(REC_ITEMS, PMS::toIntVector<PageHeaderItemsDef::Item>(itsPageHeaderItems_.items()));
+	return rec;
+}
+
+PMS_PP_PageHeader& PMS_PP_PageHeader::operator=(const PMS_PP_PageHeader& other){
+	return assign(&other);
+}
+
+PMS_PP_PageHeader& PMS_PP_PageHeader::operator=(const Group& other){
+	const PMS_PP_PageHeader* o = dynamic_cast<const PMS_PP_PageHeader*>(&other);
+	return assign( o );
+}
+
+PMS_PP_PageHeader& PMS_PP_PageHeader::assign( const PMS_PP_PageHeader* o ){
+	if (o != NULL && *this != *o){
+		itsPageHeaderItems_ = o->pageHeaderItems();
+		updated();
+	}
+	return *this;
+}
+
+bool PMS_PP_PageHeader::operator==(const Group& other) const {
+	const PMS_PP_PageHeader* o = dynamic_cast<const PMS_PP_PageHeader*>(&other);
+	if (o == NULL) return false;
+	if ( itsPageHeaderItems_ != o->itsPageHeaderItems_) return false;
+
+	return true;
+}
+
+void PMS_PP_PageHeader::fromRecord (const casacore::Record & /*record*/) {
+	throw AipsError("PMS_PP_PageHeader::fromRecord: not implemented");
+}
 
 //////////////////////////////////
 // PMS_PP_ITERATION DEFINITIONS //

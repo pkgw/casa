@@ -378,10 +378,21 @@ void plotms::setcallib(const string& callib, const bool updateImmediately,
 }
 
 record* plotms::getPlotMSCalibration(const int plotIndex) {
-  launchApp();
-  GETSINGLEPLOTREC(CALIBRATION) 
+    launchApp();
+    GETSINGLEPLOTREC(CALIBRATION)
 }
 
+void plotms::setPlotMSPageHeaderItems(const string& pageHeaderItems,
+        const bool updateImmediately, const int plotIndex) {
+	launchApp();
+    Record params;
+    params.define(PlotMSDBusApp::PARAM_PAGE_HEADER_ITEMS, pageHeaderItems);
+    params.define(PlotMSDBusApp::PARAM_UPDATEIMMEDIATELY, updateImmediately);
+    params.define(PlotMSDBusApp::PARAM_PLOTINDEX, plotIndex);
+    QtDBusXmlApp::dbusXmlCallNoRet(dbus::FROM_NAME, app.dbusName( ),
+         PlotMSDBusApp::METHOD_SETPLOTPARAMS, params, /*true*/asyncCall);
+
+}
 
 void plotms::setColorizeFlag(const bool colorize, const bool updateImmediately, const int plotIndex) 
 {
