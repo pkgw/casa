@@ -172,7 +172,7 @@ SDBListGridManager::swStartIndex(Int spw) {
 DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant) :
     refant_( refant ),
     gm_ ( sdbs ),
-    nPadFactor_ ( 8  / gm_.nSPW() ), 
+    nPadFactor_ ( max(2, 8  / gm_.nSPW() )), 
     nt_( gm_.nt ),
     nPadT_( nPadFactor_ * nt_ ),
     nChan_ ( gm_.nChannels() ),
