@@ -244,12 +244,19 @@ private:
     // append baseline selection and set taql selection
     void setAntennaSelections(casacore::String antsel,
           casacore::MSSelectableTable* msLike);
+
+    // Reference antenna:
     // get reference antenna ids from cal table ANTENNA2 column
     casacore::Vector<casacore::Int> getRefAntIds(
         casacore::MSSelectableTable* msLike);
     // check if antennaId is a reference antenna
     bool isRefAntenna(casacore::Int antennaId, 
         casacore::Vector<casacore::Int> refantIds);
+    // make baseline strings for ref ant with all ref ants
+    casacore::String getRefAntBaselines(casacore::Int antId,
+        casacore::Vector<casacore::Int> refantIds, casacore::String neg);
+
+    // Antenna ID 0:
     // check if zero is selected (else it is negated but there is no -0)
     bool zeroIsSelected(casacore::String antennaExpr,
         casacore::MSSelectableTable* msLike);

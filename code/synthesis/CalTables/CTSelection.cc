@@ -191,22 +191,25 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         ant1list = mssel.getAntenna1List();
         // Get antenna2 ids (reference antennas) for suffix
         casacore::Vector<casacore::Int> refAntIds = getRefAntIds(msLike);
-        casacore::String sep, neg, suffix;
+        casacore::String sep, neg;
         for (casacore::uInt i=0; i<ant1list.size(); ++i) {
-            antId = ant1list(i);
-            antIdstr = casacore::String::toString(abs(antId));
-            // separate antenna selection and negation for taql
-            if ((antId>0) || (antId==0 && zeroIsSelected(antsel,msLike))) {
-                antstr += (antstr.empty() ? "" : ",") + antIdstr;
-                neg = "";
-            } else {
-                notantstr += (notantstr.empty() ? "" : ",") + antIdstr;
-                neg = "!";
-            }
-            // make baseline string
-            sep = (baselines.empty() ? "" : ";");
-            suffix = (isRefAntenna(antId, refAntIds) ? "&&&" : "");
-            baselines += sep + neg + antIdstr + suffix;
+          antId = ant1list(i);
+          antIdstr = casacore::String::toString(abs(antId));
+          // separate antenna selection and negation for taql
+          if ((antId>0) || (antId==0 && zeroIsSelected(antsel,msLike))) {
+            antstr += (antstr.empty() ? "" : ",") + antIdstr;
+            neg = "";
+          } else {
+            notantstr += (notantstr.empty() ? "" : ",") + antIdstr;
+            neg = "!";
+          }
+          // make baseline string
+          sep = (baselines.empty() ? "" : ";");
+          if (isRefAntenna(antId, refAntIds)) {
+            baselines += sep + getRefAntBaselines(antId, refAntIds, neg);
+          } else {
+            baselines += sep + neg + antIdstr;
+          }
         }
         // antenna selection first, then baselines
         sep = (antExpr.empty() ? "" : ";");
@@ -252,6 +255,22 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           }
       }
       return isrefant;
+  }
+
+  casacore::String CTSelection::getRefAntBaselines(casacore::Int antId,
+        casacore::Vector<casacore::Int> refantIds, casacore::String neg) {
+      // make baseline strings for antId with all refantIds
+      casacore::String baselineStr(""), sep, antIdStr;
+      for (casacore::uInt i=0; i<refantIds.size(); ++ i) {
+        sep = (baselineStr.empty() ? "" : "!");
+        antIdStr = casacore::String::toString(antId);
+        if (antId==refantIds(i))  // auto-correlation
+            baselineStr += sep + neg + antIdStr + "&&&";
+        else  // cross-correlation
+            baselineStr += sep + neg + antIdStr + "&" + 
+                casacore::String::toString(refantIds(i));
+      }
+      return baselineStr;
   }
 
   bool CTSelection::zeroIsSelected(casacore::String antennaExpr,
