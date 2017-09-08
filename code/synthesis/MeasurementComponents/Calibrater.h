@@ -398,6 +398,10 @@ class Calibrater
   const bool simdata_p;
   const vi::SimpleSimVi2Parameters ssvp_p;
 
+  // configuration for calibration dependent data filter
+  casacore::Record calFilterConfig_p;
+  void setCalFilterConfiguration(casacore::String const &type,
+      casacore::Record const &config);
 
 };
 
