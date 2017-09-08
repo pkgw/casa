@@ -239,6 +239,7 @@ from mosaic import  mosaic
 from mstransform import  mstransform
 from msuvbin import  msuvbin
 from oldhanningsmooth import  oldhanningsmooth
+from oldplotants import  oldplotants
 from oldsplit import  oldsplit
 from plotants import  plotants
 from plotbandpass import  plotbandpass
