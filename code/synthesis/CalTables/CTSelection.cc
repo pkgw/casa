@@ -262,13 +262,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       // make baseline strings for antId with all refantIds
       casacore::String baselineStr(""), sep, antIdStr;
       for (casacore::uInt i=0; i<refantIds.size(); ++ i) {
-        sep = (baselineStr.empty() ? "" : "!");
-        antIdStr = casacore::String::toString(antId);
-        if (antId==refantIds(i))  // auto-correlation
-            baselineStr += sep + neg + antIdStr + "&&&";
-        else  // cross-correlation
-            baselineStr += sep + neg + antIdStr + "&" + 
-                casacore::String::toString(refantIds(i));
+            sep = (baselineStr.empty() ? "" : ";");
+            antIdStr = casacore::String::toString(abs(antId));
+            if (abs(antId)==refantIds(i))  // auto-correlation
+                baselineStr += sep + neg + antIdStr + "&&&";
+            else if (refantIds(i) != -1) {  // cross-correlation
+                baselineStr += sep + neg + antIdStr + "&" + 
+                    casacore::String::toString(refantIds(i));
+            }
       }
       return baselineStr;
   }
