@@ -125,6 +125,12 @@ public:
 			return m_i == f.m_i;
 		}
 	};
+
+	struct BadRecoveryException : public std::runtime_error {
+		BadRecoveryException()
+			: std::runtime_error("BadRecoveryException")
+			{}
+	};
 };
 
 const std::string TryTest::fail = "fail";
@@ -414,4 +420,19 @@ TEST_F(TryTest, NoDfltCtor) {
 	Foo f(88);
 	Foo g(88);
 	EXPECT_EQ(Try<Foo>(f).get(), g);
+}
+
+TEST_F(TryTest, RecoverWith) {
+	Try<int> a(20);
+	Try<int> b(std::make_exception_ptr(BadIntException()));
+	int altValue = 40;
+	auto alt = [&altValue](const std::exception_ptr &) { return altValue; };
+	EXPECT_EQ(a.recoverWith(alt), a);
+	EXPECT_EQ(b.recoverWith(alt), Try<int>(altValue));
+	EXPECT_THROW(
+		b.recoverWith([](const std::exception_ptr &) {
+				throw BadRecoveryException();
+				return 0;
+			}).get(),
+		BadRecoveryException);
 }

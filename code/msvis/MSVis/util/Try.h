@@ -113,7 +113,7 @@ public:
 	template <typename F,
 	          typename B = typename std::result_of<F(const A&)>::type>
 #if __cplusplus >= 201402L
-	auto
+	static auto
 #else
 	static std::function<Try<B>(const Try<A>&)>
 #endif
@@ -144,8 +144,6 @@ public:
 	}
 
 	/* equality operator
-	 *
-	 * Value equality for successes, failures are never equal
 	 */
 	bool operator==(const Try<A> &ta) const {
 		return (
@@ -327,6 +325,24 @@ public:
 	orElse_(const TB& tb) const {
 		return orElse([&tb](){ return tb; });
 	};
+
+	/* recoverWith()
+	 *
+	 * Type F should be callable const std::exception_ptr& -> A
+	 */
+	template <typename F,
+	          class = std::enable_if<
+		          std::is_convertible<
+			          std::result_of<F(const std::exception&)>,A>::value> >
+	Try<A>
+	recoverWith(F&& f) const {
+		if (m_isSuccess) {
+			return *this;
+		} else {
+			auto e = m_exception;
+			return Try<A>::from([f, e](){ return f(e); });
+		}
+	}
 
 	/* transform()
 	 *
