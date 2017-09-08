@@ -1778,6 +1778,48 @@ ia.done()
 </example>
 </method>
 
+
+<method type="function" name="fromcomplist">
+    <shortdescription>Create a new ComponentListImage from a component list</shortdescription>
+    <input>
+        <param type="string"  name="outfile">
+            <description>Name of output image file.  Default is unset.</description>
+            <value></value>
+        </param>
+        <param type="intArray"  name="shape">
+            <description>Shape of image.  Must be specified and have exactly four elements.</description>
+            <value>0</value>
+        </param>
+        <param type="record"  name="cl">
+            <description>Component list. Must be specified</description>
+            <value/>
+        </param>
+        <param type="record"  name="csys">
+            <description>Coordinate System. Default uses a four dimensional "standard" RA/Dec/Stokes/Freq coordinate system.</description>
+            <value/>
+        </param>
+        <param type="bool"  name="overwrite">
+            <description>Overwrite (unprompted) pre-existing output file?</description>
+            <value>false</value>
+        </param>
+        <param type="bool"  name="log">
+            <description>Write image creation messages to logger</description>
+            <value>true</value>
+        </param>
+        <param type="bool"  name="cache">
+            <description>Cache pixel values for use while image is in use?</description>
+            <value>true</value>
+        </param>
+    </input>
+    <returns type="bool"/>
+    <description>
+        TODO
+    </description>
+    <example>
+        TODO
+    </example>
+</method>
+
  
    <method type="function" name="fromfits">
    <shortdescription>Construct a \casa\ image by conversion from a FITS image file</shortdescription>
@@ -1953,7 +1995,6 @@ of the image, and all pixels of other axes.
  
 <method type="function" name="fromshape">
    <shortdescription>Construct an empty \casa\ image from a shape</shortdescription>
-   
 <input>
   
      <param type="string"  name="outfile">
@@ -7176,6 +7217,11 @@ ia.close()
      <param type="string"  name="infile" mustexist="True">
      <description>image file name</description>
      </param>
+     <param type="bool"  name="cache">
+        <description>Cache pixel values for use while image is in use? Ignored if image being opened is not a ComponentListImage.</description>
+        <value>true</value>
+     </param>
+     
 </input>
 <returns type="bool">T or fail</returns>
 <description>

@@ -30,6 +30,8 @@
 
 #include <casacore/casa/BasicSL/String.h>
 
+#include <components/ComponentModels/ComponentList.h>
+
 namespace test {
 
 class ComponentListImageTest : public ::testing::Test {
@@ -41,6 +43,8 @@ public:
 	virtual void SetUp();
 
 	virtual void TearDown();
+
+	casa::ComponentList oneGaussianCL() const;
 
 private:
 

@@ -1403,7 +1403,7 @@ bool image::done(bool remove, bool verbose) {
         _log << _ORIGIN;
         // resetting _stats must come before the table removal or the table
         // removal will fail
-        _stats.reset(0);
+        _stats.reset();
         MeasIERS::closeTables();
         if (remove && !detached()) {
             _remove(verbose);
@@ -2029,6 +2029,40 @@ bool image::fromascii(
         RETHROW(x);
     }
     return true;
+}
+
+bool image::fromcomplist(
+    const string& outfile, const vector<int>& shape, const record& cl,
+    const record& csys, bool overwrite, bool log, bool cache
+) {
+    try {
+        _log << _ORIGIN;
+        std::unique_ptr<Record> coordinates(toRecord(csys));
+        std::unique_ptr<Record> mycl(toRecord(cl));
+        _imageF = ImageFactory::createComponentListImage(
+            outfile, *mycl, shape, *coordinates, overwrite, log, cache
+        );
+        vector<String> names {
+            "outfile", "shape", "cl",
+            "csys", "overwrite", "log", "cache"
+        };
+        vector<variant> values {
+            outfile, shape, cl, csys, overwrite, log, cache
+        };
+        _addHistory(__func__, names, values);
+        if (! outfile.empty()) {
+            // force a flush to disk and reopen
+            done();
+            open(outfile, cache);
+        }
+        return True;
+    }
+    catch (const AipsError& x) {
+        _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
+            << LogIO::POST;
+        RETHROW(x);
+    }
+    return false;
 }
 
 bool image::fromfits(
@@ -3599,8 +3633,7 @@ image* image::newimagefromshape(
     return nullptr;
 }
 
-
-bool image::open(const std::string& infile) {
+bool image::open(const std::string& infile, bool cache) {
     try {
         _log << _ORIGIN;
         if (_imageF || _imageC) {
@@ -3608,7 +3641,7 @@ bool image::open(const std::string& infile) {
                 << LogIO::POST;
         }
         _reset();
-        auto ret = ImageFactory::fromFile(infile);
+        auto ret = ImageFactory::fromFile(infile, cache);
         _imageF = ret.first;
         _imageC = ret.second;
         return true;

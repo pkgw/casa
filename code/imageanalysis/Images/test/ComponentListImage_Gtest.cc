@@ -17,7 +17,6 @@ TEST_F(ComponentListImageTest, constructorTest) {
     IPosition shape(3, 5, 5, 5);
     ComponentList cl;
     ASSERT_THROW(ComponentListImage(cl, csys, shape), AipsError);
-
     csys = CoordinateUtil::defaultCoords4D();
     shape.resize(4);
     shape = IPosition(4, 5, 5, 5, 5);
@@ -27,12 +26,13 @@ TEST_F(ComponentListImageTest, constructorTest) {
     ASSERT_THROW(ComponentListImage(cl, csys, shape), AipsError);
     shape[0] = 5;
     ComponentListImage cli(cl, csys, shape);
+    ASSERT_FALSE(cli.isPersistent());
 }
 
 TEST_F(ComponentListImageTest, constructorTest2) {
     auto csys = CoordinateUtil::defaultCoords4D();
     IPosition shape(4, 4);
-    ComponentList cl;
+    ComponentList cl = oneGaussianCL();
     String imageName = "my.im";
     Unit unit("Jy/pixel");
     Record miscInfo;
@@ -45,9 +45,18 @@ TEST_F(ComponentListImageTest, constructorTest2) {
         cli.setUnits(unit);
         cli.setMiscInfo(miscInfo);
         cli.setImageInfo(ii);
+        ASSERT_TRUE(cli.isPersistent());
     }
-
-
+    {
+        ComponentListImage cli(imageName);
+        ASSERT_TRUE(cli.units() == unit);
+        ASSERT_TRUE(cli.miscInfo().asString("me") == "you");
+        ASSERT_TRUE(cli.imageInfo().objectName() == objectName);
+        ASSERT_TRUE(cli.shape() == shape);
+        ASSERT_TRUE(cli.componentList().nelements() == 1);
+        ASSERT_TRUE(cli.isPersistent());
+    }
+    Table::deleteTable(imageName);
 }
 
 TEST_F(ComponentListImageTest, copyConstructorTest) {
@@ -58,6 +67,8 @@ TEST_F(ComponentListImageTest, copyConstructorTest) {
     ComponentListImage copy(cli);
     ASSERT_TRUE(cli.shape() == copy.shape());
     ASSERT_TRUE(cli.coordinates().near(copy.coordinates()));
+    ASSERT_FALSE(cli.isPersistent());
+    ASSERT_FALSE(copy.isPersistent());
 }
 
 TEST_F(ComponentListImageTest, cloneIITest) {

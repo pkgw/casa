@@ -25,116 +25,183 @@
 //#
 //# $Id$
 
-/*
-#ifndef IMAGES_PAGEDIMAGE_TCC
-#define IMAGES_PAGEDIMAGE_TCC
-*/
-
 #include <imageanalysis/Images/ComponentListImage.h>
 
 #include <casacore/casa/OS/Path.h>
+#include <casacore/coordinates/Coordinates/DirectionCoordinate.h>
+#include <casacore/coordinates/Coordinates/SpectralCoordinate.h>
+#include <casacore/images/Images/ImageOpener.h>
+#include <components/ComponentModels/ComponentShape.h>
+#include <omp.h>
 
-/*
-#include <casacore/images/Regions/ImageRegion.h>
-#include <casacore/images/Regions/RegionHandlerTable.h>
-#include <casacore/images/Images/ImageInfo.h>
-#include <casacore/lattices/Lattices/ArrayLattice.h>
-#include <casacore/lattices/Lattices/LatticeNavigator.h>
-#include <casacore/lattices/Lattices/LatticeStepper.h>
-#include <casacore/lattices/Lattices/LatticeIterator.h>
-#include <casacore/lattices/Lattices/PagedArrIter.h>
-#include <casacore/lattices/LEL/LatticeExprNode.h>
-#include <casacore/lattices/LEL/LatticeExpr.h>
-#include <casacore/lattices/LRegions/LatticeRegion.h>
-#include <casacore/casa/Logging/LogIO.h>
-#include <casacore/casa/Logging/LogMessage.h>
-
-#include <casacore/casa/Arrays/Array.h>
-#include <casacore/casa/Arrays/ArrayMath.h>
-#include <casacore/casa/Arrays/ArrayLogical.h>
-#include <casacore/casa/Arrays/LogiArray.h>
-#include <casacore/casa/Exceptions/Error.h>
-#include <casacore/casa/OS/File.h>
-#include <casacore/casa/OS/Path.h>
-#include <casacore/casa/Arrays/IPosition.h>
-#include <casacore/casa/Arrays/Slicer.h>
-#include <casacore/tables/Tables/SetupNewTab.h>
-#include <casacore/tables/Tables/TableLock.h>
-#include <casacore/tables/Tables/Table.h>
-#include <casacore/tables/Tables/TableDesc.h>
-#include <casacore/tables/Tables/TableRecord.h>
-#include <casacore/tables/Tables/TableInfo.h>
-#include <casacore/tables/Tables/TableColumn.h>
-#include <casacore/casa/BasicSL/String.h>
-#include <casacore/casa/Utilities/Assert.h>
-#include <casacore/casa/Quanta/UnitMap.h>
-
-#include <casacore/casa/iostream.h>
-#include <casacore/casa/sstream.h>
-*/
+// debug
+#include <casacore/casa/BasicSL/STLIO.h>
 
 using namespace casacore;
 
 namespace casa {
 
+const String ComponentListImage::IMAGE_TYPE = "ComponentListImage";
+
 ComponentListImage::ComponentListImage(
     const ComponentList& compList, const CoordinateSystem& csys,
-    const IPosition& shape, const String& tableName
-) : ImageInterface<Float>(), _cl(compList.copy()) {
-    ThrowIf(
-        csys.nPixelAxes() != 4,
-        "coordinate system must have exactly 4 axes"
-    );
-    ThrowIf(
-        ! csys.hasDirectionCoordinate(),
-        "coordinate system must have a direction coordinate"
-    );
-    ThrowIf(
-        ! csys.hasSpectralAxis(),
-        "coordinate system must have a spectral coordinate"
-    );
-    ThrowIf(
-        ! csys.hasPolarizationCoordinate(),
-        "coordinate system must have a polarization coordinate"
-    );
-    auto polAxisNum = csys.polarizationAxisNumber(False);
-    ThrowIf(shape[polAxisNum] > 4, "Polarization axis can have a maximum of four pixels");
+    const IPosition& shape, const String& tableName, Bool doCache
+) : ImageInterface<Float>(), _cl(compList.copy()),
+    _modifiedCL(compList.copy()), _cache(doCache) {
     if (! tableName.empty()) {
         _cl.rename(Path(tableName));
     }
-    resize(shape);
+    // resizing must precede setting of coordinate system
+    _resize(shape);
     setCoordinateInfo(csys);
+    setUnits("Jy/pixel");
 }
 
-ComponentListImage::ComponentListImage(const String& filename)
-    : ImageInterface<Float>(), _cl(filename) {
+ComponentListImage::ComponentListImage(const String& filename, Bool doCache)
+    : ImageInterface<Float>(), _cl(filename), _cache(doCache) {
     _openLogTable();
     _restoreAll(_cl.getTable().keywordSet());
+    _modifiedCL = _cl.copy();
 }
 
 ComponentListImage::ComponentListImage(const ComponentListImage& image)
-: ImageInterface<Float>(image), _cl(image._cl), _shape(image._shape),
-  _mask(image._mask) {}
+: ImageInterface<Float>(image), _cl(image._cl),
+  _modifiedCL(image._modifiedCL), _shape(image._shape),
+  _mask(image._mask), _latAxis(image._latAxis),
+  _longAxis(image._longAxis), _freqAxis(image._freqAxis),
+  _stokesAxis(image._stokesAxis), _pixelLongSize(image._pixelLongSize),
+  _pixelLatSize(image._pixelLatSize), _dirRef(image._dirRef),
+  _dirVals(image._dirVals), _freqRef(image._freqRef),
+  _freqVals(image._freqVals), _ptSourcePixelVals(image._ptSourcePixelVals),
+  _pixelToIQUV(image._pixelToIQUV), _cache(image._cache),
+  _valueCache(image._valueCache) {}
 
 ComponentListImage::~ComponentListImage() {}
+
+ComponentListImage& ComponentListImage::operator=(const ComponentListImage& other) {
+    if (this != &other) {
+        ImageInterface<Float>::operator= (other);
+        _cl = other._cl;
+        _modifiedCL = other._modifiedCL;
+        _shape = other._shape;
+        _mask = other._mask;
+        _latAxis = other._latAxis;
+        _longAxis = other._longAxis;
+        _freqAxis = other._freqAxis;
+        _stokesAxis = other._stokesAxis;
+        _dirRef = other._dirRef;
+        _dirVals = other._dirVals;
+        _freqRef = other._freqRef;;
+        _freqVals = other._freqVals;
+        _pixelLongSize = other._pixelLongSize;
+        _pixelLatSize = other._pixelLatSize;
+        _ptSourcePixelVals = other._ptSourcePixelVals;
+        _pixelToIQUV = other._pixelToIQUV;
+        _cache = other._cache;
+        _valueCache = other._valueCache;
+    }
+    return *this;
+}
+void ComponentListImage::apply(casacore::Float (*)(casacore::Float)) {
+    ThrowCc("There is no general way to run " + String(__func__) + " on a ComponentList");
+}
+
+void ComponentListImage::apply(casacore::Float (*)(const casacore::Float&)) {
+    ThrowCc("There is no general way to run " + String(__func__) + " on a ComponentList");
+}
+
+void ComponentListImage::apply(
+    const casacore::Functional<casacore::Float, casacore::Float>&
+) {
+    ThrowCc("There is no general way to run " + String(__func__) + " on a ComponentList");
+}
 
 ImageInterface<Float>* ComponentListImage::cloneII() const {
     return new ComponentListImage(*this);
 }
 
-// FIXME
-bool ComponentListImage::doGetSlice(
+void ComponentListImage::copyData (const casacore::Lattice<casacore::Float>&) {
+    ThrowCc("There is no general way to run " + String(__func__) + " on a ComponentList");
+}
+void ComponentListImage::copyDataTo (casacore::Lattice<casacore::Float>&) const {
+    ThrowCc("There is no general way to run " + String(__func__) + " on a ComponentList");
+}
+
+const ComponentList& ComponentListImage::componentList() const {
+    return _cl;
+}
+
+Bool ComponentListImage::doGetMaskSlice(Array<Bool>& buffer, const Slicer& section) {
+    if (_mask) {
+        return _mask->doGetSlice(buffer, section);
+    }
+    else {
+        // If no mask, base implementation returns a True mask.
+        return MaskedLattice<Float>::doGetMaskSlice (buffer, section);
+    }
+}
+
+Bool ComponentListImage::doGetSlice(
     Array<Float>& buffer, const Slicer& section
 ) {
+    if (! _ptSourcePixelVals) {
+        _computePointSourcePixelValues();
+    }
+    auto lookForPtSources = ! _ptSourcePixelVals->empty();
+    const auto& chunkShape = section.length();
+    if (_cache) {
+        // if the values have already been computed and cached, just use them
+        Array<Bool> mask(chunkShape);
+        _valueCache->getMaskSlice(mask, section);
+        if (allTrue(mask)) {
+            _valueCache->getSlice(buffer, section);
+            return True;
+        }
+    }
+    auto nFreqs = chunkShape[_freqAxis];
+    auto secStart = section.start();
+    const uInt nDirs = chunkShape(_longAxis) * chunkShape(_latAxis);
+    Vector<MVDirection> dirVals(nDirs);
+    auto secEnd = section.end();
+    auto endLong = secEnd[_longAxis];
+    auto endLat = secEnd[_latAxis];
+    const auto& dirCoord = coordinates().directionCoordinate();
+    if (_cache) {
+        _getDirValsDoCache(dirVals, secStart, endLong, endLat, dirCoord);
+    }
+    else {
+        _getDirValsNoCache(dirVals, secStart, endLong, endLat, dirCoord);
+    }
+    const auto& specCoord = coordinates().spectralCoordinate();
+    Vector<MVFrequency> freqVals(nFreqs);
+    if (_cache) {
+        _getFreqValsDoCache(freqVals, secStart, nFreqs, specCoord);
+    }
+    else {
+        _getFreqValsNoCache(freqVals, secStart, nFreqs, specCoord);
+    }
+    Cube<Double> pixelVals(4, nDirs, nFreqs);
+    _modifiedCL.sample(
+        pixelVals, Unit("Jy"), dirVals, _dirRef, _pixelLatSize,
+        _pixelLongSize, freqVals, _freqRef
+    );
+    _fillBuffer(
+        buffer, chunkShape, secStart, lookForPtSources, nFreqs, pixelVals
+    );
+    if (_cache) {
+        _valueCache->putSlice(buffer, secStart);
+        Array<Bool> trueChunk(chunkShape, True);
+        _valueCache->pixelMask().putSlice(trueChunk, secStart);
+    }
     return True;
 }
+
 void ComponentListImage::doPutSlice (
-    const Array<Float>&,
-    const IPosition&, const IPosition&
+    const Array<Float>&, const IPosition&, const IPosition&
 ) {
     ThrowCc(
-        String(__func__)
-        + " cannot be implemented as there is no general way to do this for a ComponentListImage"
+        "ComponentListImage::" + String(__func__)
+        + ": pixel values cannot be modified in a ComponentListImage"
     );
 }
 
@@ -143,9 +210,24 @@ const LatticeRegion* ComponentListImage::getRegionPtr() const {
     return nullptr;
 }
 
+Bool ComponentListImage::hasPixelMask() const {
+    return Bool(_mask);
+}
+
 String ComponentListImage::imageType() const {
-    static const String x = "ComponentListImage";
-    return x;
+    return (_cl.getTable().isNull() ? "Temporary " : "Persistent ") + IMAGE_TYPE;
+}
+
+Bool ComponentListImage::isMasked() const {
+    return Bool(_mask);
+}
+
+Bool ComponentListImage::isPersistent() const {
+    return ! _cl.getTable().isNull();
+}
+
+Bool ComponentListImage::isWritable() const {
+    return False;
 }
 
 String ComponentListImage::name(bool stripPath) const {
@@ -167,67 +249,112 @@ bool ComponentListImage::ok() const {
     return _shape.size() == 4 && coordinates().nPixelAxes() == 4;
 }
 
-void ComponentListImage::resize (const TiledShape& newShape) {
-    auto shape = newShape.shape();
-    ThrowIf(shape.size() != 4, "ComponentListImages must have exactly four dimensions");
-    ThrowIf(anyLE(shape.asVector(), 0), "All shape elements must be positive");
-    _shape = shape;
-    auto& table = _cl.getTable();
-    if (! table.isNull()) {
-        _reopenRW();
-        if (table.isWritable()) {
-            // Update the shape
-            if (table.keywordSet().isDefined("shape")) {
-                table.rwKeywordSet().removeField("shape");
-            }
-            table.rwKeywordSet().define("shape", _shape.asVector());
-        }
-        else {
-            LogIO os;
-            os << LogIO::SEVERE << "Image " << name()
-               << " is not writable; not saving shape"
-               << LogIO::POST;
-        }
+LatticeBase* ComponentListImage::openCLImage(const String& name, const MaskSpecifier&) {
+    return new ComponentListImage(name);
+}
+
+const Lattice<Bool>& ComponentListImage::pixelMask() const {
+    ThrowIf(! _mask, "ComponentListImage::" + String(__func__) + " - no mask attached");
+    return *_mask;
+}
+
+void ComponentListImage::registerOpenFunction() {
+    ImageOpener::registerOpenImageFunction(
+        ImageOpener::COMPLISTIMAGE, &openCLImage
+    );
+}
+
+void ComponentListImage::removeRegion(
+    const String& name, RegionHandler::GroupType type, Bool throwIfUnknown
+) {
+     // Remove the default mask if it is the region to be removed.
+     if (name == getDefaultMask()) {
+         setDefaultMask("");
+     }
+     ImageInterface<Float>::removeRegion(name, type, throwIfUnknown);
+}
+
+void ComponentListImage::resize(const TiledShape& newShape) {
+    _resize(newShape);
+    _deleteCache();
+    if (_cache) {
+        _initCache();
     }
 }
 
-Bool ComponentListImage::setCoordinateInfo (const CoordinateSystem& coords) {
-    // implementation copied from PagedImage and tweaked.
-    if (ImageInterface<Float>::setCoordinateInfo(coords)) {
-        auto& table = _cl.getTable();
-        if (table.isNull()) {
-            return True;
-        }
-        else {
-            _reopenRW();
-            if (table.isWritable()) {
-                // Update the coordinates
-                if (table.keywordSet().isDefined("coords")) {
-                    table.rwKeywordSet().removeField("coords");
-                }
-                if (coordinates().save(table.rwKeywordSet(), "coords")) {
-                    return True;
-                }
-                else {
-                    LogIO os;
-                    os << LogIO::SEVERE << "Error saving coordinates in image " << name()
-                       << LogIO::POST;
-                    return False;
-                }
-            }
-            else {
-                LogIO os;
-                os << LogIO::SEVERE << "Image " << name()
-                    << " is not writable; not saving coordinates"
-                    << LogIO::POST;
-                return True;
-            }
-        }
+void ComponentListImage::set(const casacore::Float&) {
+    ThrowCc(
+        "There is no general way to run " + String(__func__) + " on a ComponentList"
+    );
+}
+
+void ComponentListImage::setCache(casacore::Bool doCache) {
+    if (doCache == _cache) {
+        // already set to what is wanted
+        return;
     }
-    return False;
+    _cache = doCache;
+    _initCache();
+}
+
+Bool ComponentListImage::setCoordinateInfo (const CoordinateSystem& csys) {
+    ThrowIf(
+        csys.nPixelAxes() != 4,
+        "coordinate system must have exactly 4 axes"
+    );
+    ThrowIf(
+        ! csys.hasDirectionCoordinate(),
+        "coordinate system must have a direction coordinate"
+    );
+    ThrowIf(
+        ! csys.hasSpectralAxis(),
+        "coordinate system must have a spectral coordinate"
+    );
+    ThrowIf(
+        ! csys.hasPolarizationCoordinate(),
+        "coordinate system must have a polarization coordinate"
+    );
+    auto polAxisNum = csys.polarizationAxisNumber(False);
+    ThrowIf(_shape[polAxisNum] > 4, "Polarization axis can have no more than four pixels");
+    const auto& stCoord = csys.stokesCoordinate();
+    auto idx = stCoord.stokes();
+    for (auto stokesIndex: idx) {
+        Stokes::StokesTypes type = Stokes::type(stokesIndex);
+        ThrowIf(
+            type != Stokes::I && type != Stokes::Q
+            && type != Stokes::U && type != Stokes::V,
+            "Unsupported stokes type " + Stokes::name(type)
+        );
+    }
+    // implementation copied from PagedImage and tweaked.
+    auto& table = _cl.getTable();
+    ThrowIf(! table.isNull() && ! table.isWritable(), "Image is not writable, cannot save coordinate system");
+    ThrowIf(! ImageInterface<Float>::setCoordinateInfo(csys), "Could not set coordinate system");
+    if (! table.isNull()) {
+        // we've tested for writability above, so if here it's writable
+        _reopenRW();
+        // Update the coordinates
+        if (table.keywordSet().isDefined("coords")) {
+            table.rwKeywordSet().removeField("coords");
+        }
+        ThrowIf(
+            ! csys.save(table.rwKeywordSet(), "coords"),
+            "Error writing coordinate system to image"
+        );
+    }
+    _cacheCoordinateInfo(csys);
+    return True;
+}
+
+void ComponentListImage::setDefaultMask(const String& regionName) {
+    // Use the new region as the image's mask.
+    _applyMask(regionName);
+    // Store the new default name.
+    ImageInterface<Float>::setDefaultMask(regionName);
 }
 
 Bool ComponentListImage::setImageInfo(const ImageInfo& info) {
+    ThrowIf(info.hasBeam(), "A ComponentListImage may not have a beam(s)");
     // Set imageinfo in base class.
     Bool ok = ImageInterface<Float>::setImageInfo(info);
     if (ok) {
@@ -279,21 +406,449 @@ Bool ComponentListImage::setMiscInfo(const RecordInterface& newInfo) {
 }
 
 Bool ComponentListImage::setUnits(const Unit& newUnits) {
+    ThrowIf(
+        newUnits != "Jy/pixel", "units must be Jy/pixel"
+    );
     setUnitMember (newUnits);
-    _reopenRW();
-    auto& tab = _cl.getTable();
-    if (! tab.isWritable()) {
-        return False;
+    if (! _cl.getTable().isNull()) {
+        _reopenRW();
+        auto& tab = _cl.getTable();
+        if (! tab.isWritable()) {
+            return False;
+        }
+        if (tab.keywordSet().isDefined("units")) {
+            tab.rwKeywordSet().removeField("units");
+        }
+        tab.rwKeywordSet().define("units", newUnits.getName());
     }
-    if (tab.keywordSet().isDefined("units")) {
-        tab.rwKeywordSet().removeField("units");
-    }
-    tab.rwKeywordSet().define("units", newUnits.getName());
     return True;
 }
 
 IPosition ComponentListImage::shape() const {
     return _shape;
+}
+
+void ComponentListImage::useMask(MaskSpecifier spec) {
+    _applyMaskSpecifier(spec);
+}
+
+void ComponentListImage::handleMath(const Lattice<Float>&, int) {
+    ThrowCc(
+        "There is no general way to run " + String(__func__) + " on a ComponentList"
+    );
+}
+
+void ComponentListImage::handleMathTo(Lattice<Float>&, int) const {
+    ThrowCc(
+        "There is no general way to run " + String(__func__) + " on a ComponentList"
+    );
+}
+
+void ComponentListImage::_applyMask(const String& maskName) {
+    // No region if no mask name is given.
+    if (maskName.empty()) {
+        _mask.reset();
+        return;
+    }
+    // Reconstruct the ImageRegion object.
+    // Turn the region into lattice coordinates.
+    std::unique_ptr<ImageRegion> regPtr(getImageRegionPtr(maskName, RegionHandler::Masks));
+    std::shared_ptr<LatticeRegion> latReg(
+        new LatticeRegion(regPtr->toLatticeRegion(coordinates(), shape()))
+    );
+    // The mask has to cover the entire image.
+    ThrowIf(
+        latReg->shape() != shape(),
+        "ComponentListImage::" + String(__func__) + " - region "
+        + maskName + " does not cover the full image"
+    );
+    _mask = latReg;
+}
+
+void ComponentListImage::_applyMaskSpecifier (const MaskSpecifier& spec) {
+    // Use default mask if told to do so.
+    // If it does not exist, use no mask.
+    auto name = spec.name();
+    if (spec.useDefault()) {
+        name = getDefaultMask();
+        if (! hasRegion(name, RegionHandler::Masks)) {
+            name = "";
+        }
+    }
+    _applyMask(name);
+}
+
+void ComponentListImage::_cacheCoordinateInfo(const CoordinateSystem& csys) {
+    // cache often used info
+    const auto dirAxes = csys.directionAxesNumbers();
+    _longAxis = dirAxes[0];
+    _latAxis = dirAxes[1];
+    const auto& dirCoord = csys.directionCoordinate();
+    // use the conversion frame, not the native one
+    MDirection::Types dirFrame;
+    dirCoord.getReferenceConversion(dirFrame);
+    _dirRef = MeasRef<MDirection>(dirFrame);
+    const auto inc = dirCoord.increment();
+    const auto units = dirCoord.worldAxisUnits();
+    _pixelLongSize = MVAngle(Quantity(abs(inc[_longAxis]), units[_longAxis]));
+    _pixelLatSize = MVAngle(Quantity(abs(inc[_latAxis]), units[_latAxis]));
+    _freqAxis = csys.spectralAxisNumber(false);
+    const auto& specCoord = csys.spectralCoordinate();
+
+    // Create Frequency MeasFrame; this will enable conversions between
+    // spectral frames (e.g. the CS frame might be TOPO and the CL
+    // frame LSRK)
+
+    MFrequency::Types specConv;
+    MEpoch epochConv;
+    MPosition posConv;
+    MDirection dirConv;
+    specCoord.getReferenceConversion(specConv,  epochConv, posConv, dirConv);
+    MeasFrame measFrame(epochConv, posConv, dirConv);
+    _freqRef = MeasRef<MFrequency>(specConv, measFrame);
+    _stokesAxis = csys.polarizationAxisNumber(False);
+    auto nstokes = _shape[_stokesAxis];
+    _pixelToIQUV.resize(nstokes);
+    for (uInt s=0; s<nstokes; ++s) {
+        auto mystokes = csys.stokesAtPixel(s);
+        if (mystokes == "I") {
+            _pixelToIQUV[s] = 0;
+        }
+        else if (mystokes == "Q") {
+            _pixelToIQUV[s] = 1;
+        }
+        else if (mystokes == "U") {
+            _pixelToIQUV[s] = 2;
+        }
+        else if (mystokes == "V") {
+            _pixelToIQUV[s] = 3;
+        }
+        else {
+            ThrowCc("Unsupported stokes value " + mystokes + " at pixel " + String::toString(s));
+        }
+    }
+    _deleteCache();
+    if (_cache) {
+        _initCache();
+    }
+}
+
+void ComponentListImage::_computePointSourcePixelValues() {
+    _ptSourcePixelVals.reset(new std::map<IPosition, Float, IPositionComparator>());
+    auto n = _cl.nelements();
+    std::set<uInt> pointSourceIdx;
+    for (uInt i=0; i<n; ++i) {
+        if (_cl.getShape(i)->type() == ComponentType::POINT) {
+            pointSourceIdx.insert(i);
+        }
+    }
+    if (pointSourceIdx.empty()) {
+        return;
+    }
+    Vector<Double> pixel;
+    auto nFreqs = _shape[_freqAxis];
+    auto freqValues = _getAllFreqValues(nFreqs);
+    Cube<Double> values(4, 1, nFreqs);
+    IPosition pixelPosition(4, 0);
+    const auto& dirCoord = coordinates().directionCoordinate();
+    std::unique_ptr<ComponentList> modifiedList;
+    uInt nStokes = _shape[_stokesAxis];
+    std::vector<uInt> foundPtSourceIdx;
+    for (const auto i: pointSourceIdx) {
+        dirCoord.toPixel(pixel, _cl.getRefDirection(i));
+        pixelPosition[_longAxis] = floor(pixel[0] + 0.5);
+        pixelPosition[_latAxis] = floor(pixel[1] + 0.5);
+        const auto& point = _cl.component(i);
+        values = 0;
+        auto foundPixel = _findPixel(
+            values, pixelPosition, dirCoord, point, freqValues
+        );
+        if (! foundPixel) {
+            foundPixel = _findPixelIn3x3Box(
+                pixelPosition, values, dirCoord, point, freqValues
+            );
+        }
+        if (foundPixel) {
+            foundPtSourceIdx.push_back(i);
+            for (uInt f = 0; f < nFreqs; ++f) {
+                pixelPosition[_freqAxis] = f;
+                for (uInt s = 0; s < nStokes; ++s) {
+                    pixelPosition[_stokesAxis] = s;
+                    auto myiter = _ptSourcePixelVals->find(pixelPosition);
+                    auto v = values(_pixelToIQUV[s], 0, f);
+                    if (myiter == _ptSourcePixelVals->end()) {
+                        (*_ptSourcePixelVals)[pixelPosition] = v;
+                    }
+                    else {
+                        (*_ptSourcePixelVals)[pixelPosition] += v;
+                    }
+                }
+            }
+        }
+    }
+    if (! foundPtSourceIdx.empty()) {
+        _modifiedCL.remove(Vector<Int>(foundPtSourceIdx));
+    }
+}
+
+void ComponentListImage::_deleteCache() {
+    _freqVals.resize();
+    _dirVals.resize();
+    _valueCache.reset();
+    _ptSourcePixelVals.reset();
+}
+
+void ComponentListImage::_fillBuffer(
+    Array<Float>& buffer, const IPosition& chunkShape,
+    const IPosition& secStart, Bool lookForPtSources, uInt nFreqs,
+    const Cube<Double>& pixelVals
+) const {
+    if (buffer.size() != chunkShape) {
+        buffer.resize(chunkShape, False);
+    }
+    auto nLong = chunkShape[_longAxis];
+    auto nLat = chunkShape[_latAxis];
+    uInt d = 0;
+    auto nStokes = chunkShape[_stokesAxis];
+    IPosition posInArray(4, 0);
+    auto imagePixel = secStart;
+    for(
+        posInArray[_latAxis]=0, imagePixel[_latAxis]=secStart[_latAxis];
+        posInArray[_latAxis]<nLat; ++posInArray[_latAxis], ++imagePixel[_latAxis]
+    ) {
+        for(
+            posInArray[_longAxis]=0, imagePixel[_longAxis]=secStart[_longAxis];
+            posInArray[_longAxis]<nLong;
+            ++posInArray[_longAxis], ++imagePixel[_longAxis], ++d
+        ) {
+            uInt f = 0;
+            for (
+                posInArray[_freqAxis]=0, imagePixel[_freqAxis] = secStart[_freqAxis];
+                posInArray[_freqAxis]<nFreqs;
+                ++posInArray[_freqAxis], ++imagePixel[_freqAxis], ++f
+            ) {
+                for (
+                    posInArray[_stokesAxis]=0, imagePixel[_stokesAxis] = secStart[_stokesAxis];
+                    posInArray[_stokesAxis]<nStokes; ++posInArray[_stokesAxis], ++imagePixel[_stokesAxis]
+                ) {
+                    buffer(posInArray) = pixelVals(_pixelToIQUV[imagePixel[_stokesAxis]], d, f);
+                    if (lookForPtSources) {
+                        auto ptSourceContrib = _ptSourcePixelVals->find(imagePixel);
+                        if (ptSourceContrib != _ptSourcePixelVals->end()) {
+                            buffer(posInArray) += ptSourceContrib->second;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+Bool ComponentListImage::_findPixel(
+    Cube<Double>& values, const IPosition& pixelPosition,
+    const DirectionCoordinate& dirCoord, const SkyComponent& point,
+    const Vector<MVFrequency>& freqValues
+) const {
+    MVDirection imageWorld;
+    static const Unit jy("Jy");
+    Vector<Double> pixel(2);
+    pixel[0] = pixelPosition[0];
+    pixel[1] = pixelPosition[1];
+    if (
+        pixelPosition[_longAxis] >= 0 && pixelPosition[_latAxis] >= 0
+        && pixelPosition[_longAxis] < _shape[_longAxis]
+        && pixelPosition[_latAxis] < _shape[_latAxis]
+    ) {
+        dirCoord.toWorld(imageWorld, pixel);
+        point.sample(
+            values, jy, Vector<MVDirection>(1, imageWorld),
+            _dirRef, _pixelLatSize, _pixelLongSize, freqValues, _freqRef
+        );
+        return anyNE(values, 0.0);
+    }
+    return False;
+}
+
+Bool ComponentListImage::_findPixelIn3x3Box(
+    IPosition& pixelPosition, Cube<Double>& values,
+    const DirectionCoordinate& dirCoord, const SkyComponent& point,
+    const Vector<MVFrequency>& freqValues
+) const {
+    // look for the pixel in a 3x3 square around the target pixel
+    auto targetPixel = pixelPosition;
+    for (
+        pixelPosition[_longAxis]=targetPixel[_longAxis]-1;
+        pixelPosition[_longAxis]<=targetPixel[_longAxis]+1; ++pixelPosition[_longAxis]
+    ) {
+        for (
+            pixelPosition[_latAxis]=targetPixel[_latAxis]-1;
+            pixelPosition[_latAxis]<=targetPixel[_latAxis]+1; ++pixelPosition[_latAxis]
+        ) {
+            // we've already looked at the target pixel position before this method
+            // was called and didn't find the point source there, so don't waste
+            // time doing it again
+            if (
+                (
+                    pixelPosition[_longAxis] != targetPixel[_longAxis]
+                    || pixelPosition[_latAxis] != targetPixel[_latAxis]
+                )
+            ) {
+                if (
+                    _findPixel(values, pixelPosition, dirCoord, point, freqValues)
+                ) {
+                    return True;
+                }
+            }
+        }
+    }
+    return False;
+}
+
+Vector<MVFrequency> ComponentListImage::_getAllFreqValues(uInt nFreqs) {
+    Vector<MVFrequency> freqValues(nFreqs);
+    Double thisFreq;
+    const auto& specCoord = coordinates().spectralCoordinate();
+    auto freqUnit = specCoord.worldAxisUnits()[0];
+    Quantity freq(0, freqUnit);
+    for (Double pixelFreq=0; pixelFreq<nFreqs; ++pixelFreq) {
+        // Includes any frame conversion
+        ThrowIf (
+            ! specCoord.toWorld(thisFreq, pixelFreq),
+            "cannot convert a frequency value"
+        );
+        freq.setValue(thisFreq);
+        freqValues[pixelFreq] = MVFrequency(freq);
+        if (_cache) {
+            _freqVals[pixelFreq].reset(new MVFrequency(freq));
+        }
+    }
+    return freqValues;
+}
+
+void ComponentListImage::_getDirValsDoCache(
+    Vector<MVDirection>& dirVals, const IPosition& secStart, uInt endLong,
+    uInt endLat, const DirectionCoordinate& dirCoord
+) {
+    Vector<Double> pixelDir(2);
+    IPosition iPixelDir(2);
+    uInt d = 0;
+    for(
+        pixelDir[1]=secStart[_latAxis], iPixelDir[1]=secStart[_latAxis];
+        pixelDir[1]<=endLat; ++pixelDir[1], ++iPixelDir[1]
+    ) {
+        for (
+            pixelDir[0]=secStart[_longAxis], iPixelDir[0]=secStart[_longAxis];
+            pixelDir[0]<=endLong; ++pixelDir[0], ++iPixelDir[0], ++d
+        ) {
+            auto dirVal = _dirVals(iPixelDir);
+            if (dirVal) {
+                // cached value exists, use it
+                dirVals[d] = *dirVal;
+            }
+            else {
+                std::shared_ptr<MVDirection> newDirVal(new MVDirection);
+                if (! dirCoord.toWorld(*newDirVal, pixelDir)) {
+                    ostringstream oss;
+                    oss << "Unable to convert to world direction at pixel "
+                        << pixelDir;
+                    ThrowCc(oss.str());
+                }
+                // cache it
+                _dirVals(iPixelDir) = newDirVal;
+                dirVals[d] = *newDirVal;
+            }
+        }
+    }
+}
+
+void ComponentListImage::_getDirValsNoCache(
+    Vector<MVDirection>& dirVals, const IPosition& secStart, uInt endLong,
+    uInt endLat, const DirectionCoordinate& dirCoord
+) const {
+    Vector<Double> pixelDir(2);
+    IPosition iPixelDir(2);
+    uInt d = 0;
+    for(
+        pixelDir[1]=secStart[_latAxis], iPixelDir[1]=secStart[_latAxis];
+        pixelDir[1]<=endLat; ++pixelDir[1], ++iPixelDir[1]
+    ) {
+        for (
+            pixelDir[0]=secStart[_longAxis], iPixelDir[0]=secStart[_longAxis];
+            pixelDir[0]<=endLong; ++pixelDir[0], ++iPixelDir[0], ++d
+        ) {
+            if (! dirCoord.toWorld(dirVals[d], pixelDir)) {
+                ostringstream oss;
+                oss << "Unable to convert to world direction at pixel "
+                    << pixelDir;
+                ThrowCc(oss.str());
+            }
+        }
+    }
+}
+
+void ComponentListImage::_getFreqValsDoCache(
+    Vector<MVFrequency>& freqVals, const IPosition& secStart,
+    uInt nFreqs, const SpectralCoordinate& specCoord
+) {
+    uInt f = 0;
+    Double thisFreq;
+    auto freqUnit = specCoord.worldAxisUnits()[0];
+    Quantity freq(0, freqUnit);
+    for (Double pixelFreq=secStart[_freqAxis]; f<nFreqs; ++pixelFreq, ++f) {
+        auto freqVal = _freqVals[pixelFreq];
+        if (freqVal) {
+            // already cached
+            freqVals[f] = *freqVal;
+        }
+        else {
+            // Includes any frame conversion
+            ThrowIf (
+                ! specCoord.toWorld(thisFreq, pixelFreq),
+                "cannot convert a frequency value"
+            );
+            freq.setValue(thisFreq);
+            freqVals[f] = freq;
+            _freqVals[pixelFreq].reset(new MVFrequency(freq));
+        }
+    }
+}
+
+void ComponentListImage::_getFreqValsNoCache(
+    Vector<MVFrequency>& freqVals, const IPosition& secStart,
+    uInt nFreqs, const SpectralCoordinate& specCoord
+) const {
+    uInt f = 0;
+    Double thisFreq;
+    auto freqUnit = specCoord.worldAxisUnits()[0];
+    Quantity freq(0, freqUnit);
+    for (Double pixelFreq=secStart[_freqAxis]; f<nFreqs; ++pixelFreq, ++f) {
+        // Includes any frame conversion
+        ThrowIf (
+            ! specCoord.toWorld(thisFreq, pixelFreq),
+            "cannot convert a frequency value"
+        );
+        freq.setValue(thisFreq);
+        freqVals[f] = freq;
+    }
+}
+
+void ComponentListImage::_initCache() {
+    if (_cache) {
+        auto nLong = _shape[_longAxis];
+        auto nLat = _shape[_latAxis];
+        _dirVals = Matrix<std::shared_ptr<MVDirection>>(nLong, nLat);
+        _dirVals.set(std::shared_ptr<MVDirection>(nullptr));
+        auto nFreqs = _shape[_freqAxis];
+        _freqVals.resize(nFreqs);
+        _freqVals.set(std::shared_ptr<MVFrequency>(nullptr));
+        _valueCache.reset(new TempImage<Float>(_shape, coordinates()));
+        _valueCache->attachMask(TempLattice<Bool>(_shape, False));
+        _valueCache->pixelMask();
+        _ptSourcePixelVals.reset();
+    }
+    else {
+        _deleteCache();
+    }
 }
 
 void ComponentListImage::_openLogTable() {
@@ -315,17 +870,48 @@ void ComponentListImage::_reopenRW() {
     }
 }
 
-void ComponentListImage::_restoreAll (const TableRecord& rec) {
-  // Restore the coordinates.
-  std::unique_ptr<CoordinateSystem> restoredCoords(CoordinateSystem::restore(rec, "coords"));
-  ThrowIf(! restoredCoords, "Error restoring coordinate system");
-  setCoordsMember(*restoredCoords);
-  // Restore the image info.
-  _restoreImageInfo(rec);
-  // Restore the units.
-  _restoreUnits(rec);
-  // Restore the miscinfo.
-  _restoreMiscInfo(rec);
+void ComponentListImage::_resize(const TiledShape& newShape) {
+    auto shape = newShape.shape();
+    ThrowIf(shape.size() != 4, "ComponentListImages must have exactly four dimensions");
+    ThrowIf(anyLE(shape.asVector(), 0), "All shape elements must be positive");
+    _shape = shape;
+    auto& table = _cl.getTable();
+    if (! table.isNull()) {
+        _reopenRW();
+        if (table.isWritable()) {
+            // Update the shape
+            if (table.keywordSet().isDefined("shape")) {
+                table.rwKeywordSet().removeField("shape");
+            }
+            table.rwKeywordSet().define("shape", _shape.asVector());
+        }
+        else {
+            LogIO os;
+            os << LogIO::SEVERE << "Image " << name()
+               << " is not writable; not saving shape"
+               << LogIO::POST;
+        }
+    }
+}
+
+void ComponentListImage::_restoreAll(const TableRecord& rec) {
+    // must do shape before coordinates
+    ThrowIf(! rec.isDefined("shape"), "shape is not present in " + name());
+    ThrowIf(
+        rec.type(rec.fieldNumber("shape")) != TpArrayInt,
+        "shape found in " + name() + " is not stored as an integer array"
+    );
+    _resize(IPosition(rec.asArrayInt("shape")));
+    // Restore the coordinates.
+    std::unique_ptr<CoordinateSystem> restoredCoords(CoordinateSystem::restore(rec, "coords"));
+    ThrowIf(! restoredCoords, "Error restoring coordinate system");
+    setCoordinateInfo(*restoredCoords);
+    // Restore the image info.
+    _restoreImageInfo(rec);
+    // Restore the units.
+    _restoreUnits(rec);
+    // Restore the miscinfo.
+    _restoreMiscInfo(rec);
 }
 
 void ComponentListImage::_restoreImageInfo (const TableRecord& rec) {
@@ -393,801 +979,4 @@ void ComponentListImage::_restoreUnits (const TableRecord& rec) {
     setUnitMember(retval);
 }
 
-
-/*
-template <class T> 
-PagedImage<T>::PagedImage (const TiledShape& shape, 
-			   const CoordinateSystem& coordinateInfo, 
-			   Table& table, uInt rowNumber)
-: ImageInterface<T>(RegionHandlerTable(getTable, this)),
-  map_p         (shape, table, "map", rowNumber),
-  regionPtr_p   (0)
-{
-  attach_logtable();
-  AlwaysAssert(setCoordinateInfo(coordinateInfo), AipsError);
-  setTableType();
 }
-
-template <class T> 
-PagedImage<T>::PagedImage (const TiledShape& shape, 
-			   const CoordinateSystem& coordinateInfo, 
-			   const String& filename, 
-			   TableLock::LockOption lockMode,
-			   uInt rowNumber)
-: ImageInterface<T>(RegionHandlerTable(getTable, this)),
-  regionPtr_p   (0)
-{
-  makePagedImage (shape, coordinateInfo, filename,
-		  TableLock(lockMode), rowNumber);
-}
-
-template <class T> 
-PagedImage<T>::PagedImage (const TiledShape& shape, 
-			   const CoordinateSystem& coordinateInfo, 
-			   const String& filename, 
-			   const TableLock& lockOptions,
-			   uInt rowNumber)
-: ImageInterface<T>(RegionHandlerTable(getTable, this)),
-  regionPtr_p   (0)
-{
-  makePagedImage (shape, coordinateInfo, filename, lockOptions, rowNumber);
-}
-
-
-template <class T> 
-void PagedImage<T>::makePagedImage (const TiledShape& shape, 
-				    const CoordinateSystem& coordinateInfo, 
-				    const String& filename, 
-				    const TableLock& lockOptions,
-				    uInt rowNumber)
-{
-  SetupNewTable newtab (filename, TableDesc(), Table::New);
-  Table tab(newtab, lockOptions);
-  map_p = PagedArray<T> (shape, tab, "map", rowNumber);
-  attach_logtable();
-  AlwaysAssert(setCoordinateInfo(coordinateInfo), AipsError);
-  setTableType();
-}
-
-template <class T> 
-PagedImage<T>::PagedImage (const TiledShape& shape, 
-			   const CoordinateSystem& coordinateInfo, 
-			   const String& filename, 
-			   uInt rowNumber)
-: ImageInterface<T>(RegionHandlerTable(getTable, this)),
-  regionPtr_p   (0)
-{
-  SetupNewTable newtab (filename, TableDesc(), Table::New);
-  Table tab(newtab);
-  map_p = PagedArray<T> (shape, tab, "map", rowNumber);
-  attach_logtable();
-  AlwaysAssert(setCoordinateInfo(coordinateInfo), AipsError);
-  setTableType();
-}
-
-template <class T> 
-PagedImage<T>::PagedImage (Table& table, MaskSpecifier spec, uInt rowNumber)
-: ImageInterface<T>(RegionHandlerTable(getTable, this)),
-  map_p         (table, "map", rowNumber),
-  regionPtr_p   (0)
-{
-  attach_logtable();
-  restoreAll (table.keywordSet());
-  applyMaskSpecifier (spec);
-}
-
-template <class T> 
-PagedImage<T>::PagedImage (const String& filename, MaskSpecifier spec,
-			   uInt rowNumber)
-: ImageInterface<T>(RegionHandlerTable(getTable, this)),
-  regionPtr_p   (0)
-{
-  Table tab(filename);
-  map_p = PagedArray<T>(tab, "map", rowNumber);
-  attach_logtable();
-  restoreAll (tab.keywordSet());
-  applyMaskSpecifier (spec);
-}
-
-template <class T> 
-PagedImage<T>::PagedImage (const String& filename,
-			   const TableLock& lockOptions,
-			   MaskSpecifier spec, uInt rowNumber)
-: ImageInterface<T>(RegionHandlerTable(getTable, this)),
-  regionPtr_p   (0)
-{
-  makePagedImage (filename, lockOptions, spec, rowNumber);
-}
-
-template <class T> 
-PagedImage<T>::PagedImage (const String& filename,
-			   TableLock::LockOption lockMode,
-			   MaskSpecifier spec, uInt rowNumber)
-: ImageInterface<T>(RegionHandlerTable(getTable, this)),
-  regionPtr_p   (0)
-{
-  makePagedImage (filename, TableLock(lockMode), spec, rowNumber);
-}
-
-template <class T> 
-void PagedImage<T>::makePagedImage (const String& filename,
-				    const TableLock& lockOptions,
-				    const MaskSpecifier& spec,
-				    uInt rowNumber)
-{
-  Table tab(filename, lockOptions);
-  map_p = PagedArray<T>(tab, "map", rowNumber);
-  attach_logtable();
-  restoreAll (tab.keywordSet());
-  applyMaskSpecifier (spec);
-}
-
-template <class T> 
-PagedImage<T>::PagedImage (const PagedImage<T>& other)
-: ImageInterface<T>(other),
-  map_p            (other.map_p),
-  regionPtr_p      (0)
-{
-  if (other.regionPtr_p != 0) {
-    regionPtr_p = new LatticeRegion (*other.regionPtr_p);
-  }
-}
-
-template <class T> 
-PagedImage<T>::~PagedImage()
-{
-  // Close the logger here in case the image table is going to be deleted.
-  delete regionPtr_p;
-  logger().tempClose();
-}
-
-template <class T> 
-PagedImage<T>& PagedImage<T>::operator=(const PagedImage<T>& other)
-{
-  if (this != &other) {
-    ImageInterface<T>::operator= (other);
-    map_p = other.map_p;
-    delete regionPtr_p;
-    regionPtr_p = 0;
-    if (other.regionPtr_p != 0) {
-      regionPtr_p = new LatticeRegion (*other.regionPtr_p);
-    }
-  } 
-  return *this;
-}
-
-template <class T> 
-ImageInterface<T>* PagedImage<T>::cloneII() const
-{
-  return new PagedImage<T> (*this);
-}
-
-template <class T>
-void PagedImage<T>::restoreAll (const TableRecord& rec)
-{
-  // Restore the coordinates.
-  CoordinateSystem* restoredCoords = CoordinateSystem::restore(rec, "coords");
-  AlwaysAssert(restoredCoords != 0, AipsError);
-  setCoordsMember (*restoredCoords);
-  delete restoredCoords;
-  // Restore the image info.
-  restoreImageInfo (rec);
-  // Restore the units.
-  restoreUnits (rec);
-  // Restore the miscinfo.
-  restoreMiscInfo (rec);
-}
-
-
-template<class T>
-Bool PagedImage<T>::isPersistent() const
-{
-  return True;
-}
-
-template<class T>
-Bool PagedImage<T>::isPaged() const
-{
-  return True;
-}
-
-template <class T> 
-Bool PagedImage<T>::isWritable() const
-{
-  return map_p.isWritable();
-}
-
-template<class T>
-void PagedImage<T>::reopenRW()
-{
-  //# First reopen if needed.
-  map_p.reopen();
-  //# Open for write if not done yet and if writable.
-  if (!table().isWritable()  &&  isWritable()) {
-    table().reopenRW();
-  }
-}
-
-template<class T>
-Bool PagedImage<T>::hasPixelMask() const
-{
-  return (regionPtr_p != 0  &&  regionPtr_p->hasMask());
-}
-
-template<class T>
-const Lattice<Bool>& PagedImage<T>::pixelMask() const
-{
-  if (regionPtr_p == 0) {
-    throw (AipsError ("PagedImage::pixelMask - no pixelmask used"));
-  }
-  return *regionPtr_p;
-}
-template<class T>
-Lattice<Bool>& PagedImage<T>::pixelMask()
-{
-  if (regionPtr_p == 0) {
-    throw (AipsError ("PagedImage::pixelMask - no pixelmask used"));
-  }
-  return *regionPtr_p;
-}
-
-template<class T>
-const LatticeRegion* PagedImage<T>::getRegionPtr() const
-{
-  return regionPtr_p;
-}
-
-template<class T>
-void PagedImage<T>::setDefaultMask (const String& regionName)
-{
-  // Reopen for write when needed and possible.
-  reopenRW();
-  // Use the new region as the image's mask.
-  applyMask (regionName);
-  // Store the new default name.
-  ImageInterface<T>::setDefaultMask (regionName);
-}
-
-template <class T> 
-void PagedImage<T>::useMask (MaskSpecifier spec)
-{
-  applyMaskSpecifier (spec);
-}
-
-template<class T>
-void PagedImage<T>::applyMaskSpecifier (const MaskSpecifier& spec)
-{
-  // Use default mask if told to do so.
-  // If it does not exist, use no mask.
-  String name = spec.name();
-  if (spec.useDefault()) {
-    name = getDefaultMask();
-    if (! hasRegion (name, RegionHandler::Masks)) {
-      name = String();
-    }
-  }
-  applyMask (name);
-}
-
-template<class T>
-void PagedImage<T>::applyMask (const String& maskName)
-{
-  // No region if no mask name is given.
-  if (maskName.empty()) {
-    delete regionPtr_p;
-    regionPtr_p = 0;
-    return;
-  }
-  // Reconstruct the ImageRegion object.
-  // Turn the region into lattice coordinates.
-  ImageRegion* regPtr = getImageRegionPtr (maskName, RegionHandler::Masks);
-  LatticeRegion* latReg = new LatticeRegion
-                          (regPtr->toLatticeRegion (coordinates(), shape()));
-  delete regPtr;
-  // The mask has to cover the entire image.
-  if (latReg->shape() != shape()) {
-    delete latReg;
-    throw (AipsError ("PagedImage::setDefaultMask - region " + maskName +
-		      " does not cover the full image"));
-  }
-  // Replace current by new mask.
-  delete regionPtr_p;
-  regionPtr_p = latReg;
-}
-
-
-template <class T> 
-void PagedImage<T>::rename (const String& newName)
-{
-  table().rename (newName, Table::New);
-}
-
-template <class T> 
-String PagedImage<T>::name (Bool stripPath) const 
-{
-  return map_p.name (stripPath);
-}
-
-template <class T> 
-uInt PagedImage<T>::rowNumber() const
-{
-  return map_p.rowNumber();
-}
-
-template <class T> 
-IPosition PagedImage<T>::shape() const
-{
-  return map_p.shape();
-}
-
-template<class T> 
-void PagedImage<T>::resize (const TiledShape& newShape)
-{
-  if (newShape.shape().nelements() != coordinates().nPixelAxes()) {
-    throw(AipsError("PagedImage<T>::resize: coordinate info is "
-		    "the incorrect shape."));
-  }
-  map_p.resize (newShape);
-}
-
-template <class T> 
-Bool PagedImage<T>::setCoordinateInfo (const CoordinateSystem& coords)
-{
-  Bool ok = ImageInterface<T>::setCoordinateInfo(coords);
-  if (ok) {
-    reopenRW();
-    Table& tab = table();
-    if (tab.isWritable()) {
-      // Update the coordinates
-      if (tab.keywordSet().isDefined("coords")) {
-	tab.rwKeywordSet().removeField("coords");
-      }
-      if (!(coordinates().save(tab.rwKeywordSet(), "coords"))) {
-        LogIO os;
-	os << LogIO::SEVERE << "Error saving coordinates in image " << name()
-           << LogIO::POST;
-	ok = False;
-      }
-    } else {
-      LogIO os;
-      os << LogIO::SEVERE << "Image " << name()
-         << " is not writable; not saving coordinates"
-         << LogIO::POST;
-    }
-  }
-  return ok;
-}
-
-  
-template <class T> 
-Bool PagedImage<T>::doGetSlice(Array<T>& buffer, const Slicer& theSlice)
-{
-  return map_p.doGetSlice(buffer, theSlice);
-}
-
-template <class T> 
-void PagedImage<T>::doPutSlice(const Array<T>& sourceBuffer, 
-                               const IPosition& where, 
-                               const IPosition& stride)
-{
-    //  if (throughmask_p || !mask_p) {
-  map_p.putSlice(sourceBuffer,where,stride);
-    //  } else if (mask_p) {
-    //    Array<T> map;
-    //Array<Bool> mask;
-    //IPosition shape(sourceBuffer.shape());
-    //mask_p->getSlice(mask, where, shape, stride, True);
-    //map_p.getSlice(map, where, shape, stride, True);
-    // use maskedarrays to do all the work.
-    //map(mask==False) = sourceBuffer;
-    //map_p.putSlice(map,where,stride);
-    //  } else {
-    //    throw(AipsError("PagedImage<T>::putSlice - throughmask==False but no "
-    //		    "mask exists."));
-    //  }
-}
-
-
-// apply a function to all elements of the map
-template <class T> 
-void PagedImage<T>::apply(T (*function)(T)) 
-{
-    map_p.apply(function);
-}
-
-// apply a function to all elements of a const map;
-template <class T> 
-void PagedImage<T>::apply(T (*function)(const T&))
-{
-    map_p.apply(function);
-}
-
-template <class T> 
-void PagedImage<T>::apply(const Functional<T,T>& function)
-{
-    map_p.apply(function);
-}
-
-
-template <class T> 
-T PagedImage<T>::getAt(const IPosition& where) const
-{
-   return map_p(where);
-}
-
-template <class T> 
-void PagedImage<T>::putAt(const T& value, const IPosition& where) {
-    map_p.putAt (value, where);
-}
-
-template<class T> 
-void PagedImage<T>::restoreMiscInfo (const TableRecord& rec)
-{
-  if (rec.isDefined("miscinfo")  &&
-      rec.dataType("miscinfo") == TpRecord) {
-    setMiscInfoMember (rec.asRecord ("miscinfo"));
-  }
-}
-
-template<class T> 
-Bool PagedImage<T>::setMiscInfo (const RecordInterface& newInfo)
-{
-  setMiscInfoMember (newInfo);
-  reopenRW();
-  Table& tab = table();
-  if (! tab.isWritable()) {
-    return False;
-  }
-  if (tab.keywordSet().isDefined("miscinfo")) {
-    tab.rwKeywordSet().removeField("miscinfo");
-  }
-  tab.rwKeywordSet().defineRecord("miscinfo", newInfo);
-  return True;
-}
-
-template <class T> 
-LatticeIterInterface<T>* PagedImage<T>::makeIter
-                                   (const LatticeNavigator& navigator,
-				    Bool useRef) const
-{
-  return map_p.makeIter (navigator, useRef);
-}
-
-template <class T> 
-Bool PagedImage<T>::ok() const
-{
-  Int okay = (map_p.ndim() == coordinates().nPixelAxes());
-  return okay  ?  True : False;
-}
-
-
-template <class T> 
-PagedImage<T>& PagedImage<T>::operator+= (const Lattice<T>& other)
-{
-  check_conformance(other);
-  // Use LEL, so a mask is also handled.
-  LatticeExpr<T> expr(*this + other);
-  this->copyData (expr);
-  return *this;
-}
-
-
-template<class T> 
-void PagedImage<T>::attach_logtable()
-{
-  open_logtable();
-}
-
-template<class T> 
-void PagedImage<T>::open_logtable()
-{
-  // Open logtable as readonly if main table is not writable.
-  Table& tab = table();
-  setLogMember (LoggerHolder (name() + "/logtable", tab.isWritable()));
-  // Insert the keyword if possible and if it does not exist yet.
-  if (tab.isWritable()  &&  ! tab.keywordSet().isDefined ("logtable")) {
-    tab.rwKeywordSet().defineTable("logtable", Table(name() + "/logtable"));
-  }
-}
-
-template<class T> 
-Bool PagedImage<T>::setUnits(const Unit& newUnits) 
-{
-  setUnitMember (newUnits);
-  reopenRW();
-  Table& tab = table();
-  if (! tab.isWritable()) {
-    return False;
-  }
-  if (tab.keywordSet().isDefined("units")) {
-    tab.rwKeywordSet().removeField("units");
-  }
-  tab.rwKeywordSet().define("units", newUnits.getName());
-  return True;
-}
-
-template<class T> 
-void PagedImage<T>::restoreUnits (const TableRecord& rec)
-{
-  Unit retval;
-  String unitName;
-  if (rec.isDefined("units")) {
-    if (rec.dataType("units") != TpString) {
-      LogIO os;
-      os << LogOrigin("PagedImage<T>", "units()", WHERE)
-	 << "'units' keyword in image table is not a string! Units not restored." 
-         << LogIO::SEVERE << LogIO::POST;
-    } else {
-      rec.get("units", unitName);
-    }
-  }
-  if (! unitName.empty()) {
-    // OK, non-empty unit, see if it's valid, if not try some known things to
-    // make a valid unit out of it.
-    if (! UnitVal::check(unitName)) {
-      // Beam and Pixel are the most common undefined units
-      UnitMap::putUser("Pixel",UnitVal(1.0),"Pixel unit");
-      UnitMap::putUser("Beam",UnitVal(1.0),"Beam area");
-    }
-    if (! UnitVal::check(unitName)) {
-      // OK, maybe we need FITS
-      UnitMap::addFITS();
-    }
-    if (!UnitVal::check(unitName)) {
-      // I give up!
-      LogIO os;
-      UnitMap::putUser(unitName, UnitVal(1.0, UnitDim::Dnon), unitName);
-      os << LogIO::WARN << "FITS unit \"" << unitName
-         << "\" unknown to CASA - will treat it as non-dimensional."
-	 << LogIO::POST;
-      retval.setName(unitName);
-      retval.setValue(UnitVal(1.0, UnitDim::Dnon));
-    } else {
-      retval = Unit(unitName);
-    }
-  }
-  setUnitMember (retval);
-}
-
-
-template<class T> 
-void PagedImage<T>::removeRegion (const String& name,
-				  RegionHandler::GroupType type,
-				  Bool throwIfUnknown)
-{
-  reopenRW();
-  // Remove the default mask if it is the region to be removed.
-  if (name == getDefaultMask()) {
-    setDefaultMask (String());
-  }
-  ImageInterface<T>::removeRegion (name, type, throwIfUnknown);
-}
-
-
-template<class T> 
-void PagedImage<T>::check_conformance(const Lattice<T>& other)
-{
-  if (! this->conform(other)) {
-    throw AipsError("Shapes of image " + name() + " and other lattice do not conform");
-  }
-}
-
-template<class T> 
-uInt PagedImage<T>::maximumCacheSize() const
-{
-  return map_p.maximumCacheSize();
-}
-
-template<class T> 
-void PagedImage<T>::setMaximumCacheSize(uInt howManyPixels)
-{
-  map_p.setMaximumCacheSize(howManyPixels);
-  if (regionPtr_p != 0) {
-    regionPtr_p->setMaximumCacheSize(howManyPixels);
-  }
-}
-
-template<class T> 
-void PagedImage<T>::setCacheSizeFromPath(const IPosition& sliceShape, 
-    	                                 const IPosition& windowStart,
-                                         const IPosition& windowLength,
-                                         const IPosition& axisPath)
-{
-  map_p.setCacheSizeFromPath(sliceShape, windowStart, windowLength, axisPath);
-  if (regionPtr_p != 0) {
-    regionPtr_p->setCacheSizeFromPath(sliceShape, windowStart,
-				      windowLength, axisPath);
-  }
-}
-
-template<class T>
-void PagedImage<T>::setCacheSizeInTiles (uInt howManyTiles)  
-{  
-  map_p.setCacheSizeInTiles (howManyTiles);
-  if (regionPtr_p != 0) {
-    regionPtr_p->setCacheSizeInTiles (howManyTiles);
-  }
-}
-
-
-template<class T> 
-void PagedImage<T>::clearCache()
-{
-  map_p.clearCache();
-  if (regionPtr_p != 0) {
-    regionPtr_p->clearCache();
-  }
-}
-
-template<class T> 
-void PagedImage<T>::showCacheStatistics(ostream& os) const
-{
-  os << "Pixel statistics : ";
-  map_p.showCacheStatistics(os);
-  if (regionPtr_p != 0) {
-    os << "Pixelmask statistics : ";
-    regionPtr_p->showCacheStatistics(os);
-  }
-}
-
-template<class T> 
-uInt PagedImage<T>::advisedMaxPixels() const
-{
-  return map_p.advisedMaxPixels();
-}
-
-template<class T> 
-IPosition PagedImage<T>::doNiceCursorShape(uInt maxPixels) const
-{
-  return map_p.niceCursorShape(maxPixels);
-}
-
-template<class T> 
-void PagedImage<T>::setTableType()
-{
-  TableInfo& info(table().tableInfo());
-  const String reqdType = info.type(TableInfo::PAGEDIMAGE);
-  if (info.type() != reqdType) {
-    info.setType(reqdType);
-  }
-  const String reqdSubType = info.subType(TableInfo::PAGEDIMAGE);
-  if (info.subType() != reqdSubType) {
-    info.setSubType(reqdSubType);
-  }
-}
-
-
-template<class T>
-Table& PagedImage<T>::getTable (void* imagePtr, Bool writable)
-{
-  PagedImage<T>* im = static_cast<PagedImage<T>*>(imagePtr);
-  if (writable) {
-    im->reopenRW();
-  }
-  return im->map_p.table();
-}
-
-template<class T>
-Bool PagedImage<T>::lock (FileLocker::LockType type, uInt nattempts)
-{
-  return map_p.lock (type, nattempts);
-}
-template<class T>
-void PagedImage<T>::unlock()
-{
-  map_p.unlock();
-  logger().unlock();
-  if (regionPtr_p != 0) {
-    regionPtr_p->unlock();
-  }
-}
-template<class T>
-Bool PagedImage<T>::hasLock (FileLocker::LockType type) const
-{
-  return map_p.hasLock (type);
-}
-
-template<class T>
-void PagedImage<T>::resync()
-{
-  map_p.resync();
-  logger().resync();
-  if (regionPtr_p != 0
-  &&  !regionPtr_p->hasLock (FileLocker::Read)) {
-    regionPtr_p->resync();
-  }
-}
-
-template<class T>
-void PagedImage<T>::flush()
-{
-  itsAttrHandler.flush();
-  map_p.flush();
-  logger().flush();
-  if (regionPtr_p != 0) {
-    regionPtr_p->flush();
-  }
-}
-
-template<class T>
-void PagedImage<T>::tempClose()
-{
-  map_p.tempClose();
-  logger().tempClose();
-  if (regionPtr_p != 0) {
-    regionPtr_p->tempClose();
-  }
-}
-
-template<class T>
-void PagedImage<T>::reopen()
-{
-  map_p.reopen();
-  if (regionPtr_p != 0) {
-    regionPtr_p->reopen();
-  }
-}
-
-template<class T>
-Bool PagedImage<T>::setImageInfo (const ImageInfo& info) 
-{
-  // Set imageinfo in base class.
-  Bool ok = ImageInterface<T>::setImageInfo(info);
-  if (ok) {
-    // Make persistent in table keywords.
-    reopenRW();
-    Table& tab = table();
-    if (tab.isWritable()) {
-      // Delete existing one if there.
-      if (tab.keywordSet().isDefined("imageinfo")) {
-	tab.rwKeywordSet().removeField("imageinfo");
-      }
-      // Convert info to a record and save as keyword.
-      TableRecord rec;
-      String error;
-      if (imageInfo().toRecord(error, rec)) {
-         tab.rwKeywordSet().defineRecord("imageinfo", rec);
-      } else {
-        // Could not convert to record.
-        LogIO os;
-	os << LogIO::SEVERE << "Error saving ImageInfo in image " << name()
-           << "; " << error << LogIO::POST;
-	ok = False;
-      }
-    } else {
-      // Table not writable.
-      LogIO os;
-      os << LogIO::SEVERE
-         << "Image " << name() << " is not writable; not saving ImageInfo"
-         << LogIO::POST;
-    }
-  }
-  return ok;
-}
-
-template<class T>
-void PagedImage<T>::restoreImageInfo (const TableRecord& rec)
-{
-  if (rec.isDefined("imageinfo")) {
-    String error;
-    ImageInfo info;
-    Bool ok = info.fromRecord (error, rec.asRecord("imageinfo"));
-    if (ok) {
-      setImageInfoMember (info);
-    } else {
-      LogIO os;
-      os << LogIO::WARN << "Failed to restore the ImageInfo in image " << name()
-         << "; " << error << LogIO::POST;
-    }
-  }
-}
-
-template<class T>
-ImageAttrHandler& PagedImage<T>::attrHandler (Bool createHandler)
-{
-  return itsAttrHandler.attachTable (table(), createHandler);
-}
-*/
-}
-
-// #endif

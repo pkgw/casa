@@ -25,9 +25,15 @@
 
 #include <imageanalysis/Images/test/ComponentListImageTest.h>
 
+#include <components/ComponentModels/ConstantSpectrum.h>
+#include <components/ComponentModels/Flux.h>
+#include <components/ComponentModels/GaussianShape.h>
+
 using namespace casacore;
 
 using namespace std;
+
+using namespace casa;
 
 namespace test {
 
@@ -39,5 +45,20 @@ ComponentListImageTest::~ComponentListImageTest() {}
 void ComponentListImageTest::SetUp() {}
 
 void ComponentListImageTest::TearDown() {}
+
+ComponentList ComponentListImageTest::oneGaussianCL() const {
+    MDirection dir(Quantity(0, "deg"), Quantity(0, "deg"), MDirection::J2000);
+    Quantity majorAxis(10, "arcmin");
+    Quantity minorAxis(8, "arcmin");
+    Quantity pa(45, "deg");
+    GaussianShape g(dir, majorAxis, minorAxis, pa);
+    Flux<Double> flux;
+    ConstantSpectrum cs;
+    SkyComponent sc(flux, g, cs);
+    ComponentList cl;
+    cl.add(sc);
+    return cl;
+}
+
 
 }

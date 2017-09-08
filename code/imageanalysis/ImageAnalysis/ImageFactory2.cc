@@ -40,6 +40,45 @@ using namespace std;
 using namespace casacore;
 namespace casa {
 
+
+SHARED_PTR<ComponentListImage> ImageFactory::createComponentListImage(
+    const String& outfile, const Record& cl, const Vector<Int>& shape,
+    const Record& csys, Bool overwrite, Bool log, Bool cache
+) {
+    _checkOutfile(outfile, overwrite);
+    ComponentList mycl;
+    String err;
+    ThrowIf(! mycl.fromRecord(err, cl), err);
+    CoordinateSystem mycsys;
+    std::unique_ptr<CoordinateSystem> csysPtr;
+    if (csys.empty()) {
+        mycsys = CoordinateUtil::makeCoordinateSystem(shape, False);
+        _centerRefPix(mycsys, shape);
+    }
+    else {
+        csysPtr.reset(
+            _makeCoordinateSystem(csys, shape)
+        );
+        mycsys = *csysPtr;
+    }
+
+    SHARED_PTR<ComponentListImage> image(
+        new ComponentListImage(mycl, mycsys, IPosition(shape), outfile, cache)
+    );
+    ostringstream os;
+    os << "Created ComponentListImage " << outfile
+       << " of shape " << shape << ".";
+    ImageHistory<Float> hist(image);
+    LogOrigin lor("ImageFactory", __func__);
+    hist.addHistory(lor, os.str());
+    if (log) {
+        casacore::LogIO mylog;
+        mylog << casacore::LogIO::NORMAL << os.str() << casacore::LogIO::POST;
+    }
+    return image;
+}
+
+
 SPIIF ImageFactory::floatImageFromShape(
 		const String& outfile, const Vector<Int>& shape,
 		const Record& csys, Bool linear,
@@ -122,8 +161,8 @@ pair<SPIIF, SPIIC> ImageFactory::fromImage(
     mylog << LogOrigin("ImageFactory", __func__);
     if (imagePair.first) {
         imagePair.first = SubImageFactory<Float>::createImage(
-                *imagePair.first, outfile, region,
-                mask, dropdeg, overwrite, false, false
+            *imagePair.first, outfile, region,
+            mask, dropdeg, overwrite, false, false
         );
         ThrowIf(
            ! imagePair.first,
@@ -303,11 +342,16 @@ SHARED_PTR<TempImage<Float> > ImageFactory::floatFromComplex(
 	return newImage;
 }
 
-pair<SPIIF, SPIIC> ImageFactory::fromFile(const String& infile) {
+pair<SPIIF, SPIIC> ImageFactory::fromFile(const String& infile, Bool cache) {
     _checkInfile(infile);
+    ComponentListImage::registerOpenFunction();
     unique_ptr<LatticeBase> latt(ImageOpener::openImage(infile));
     ThrowIf (! latt, "Unable to open lattice");
-    return _fromLatticeBase(latt);
+    auto mypair = _fromLatticeBase(latt);
+    if (mypair.first && mypair.first->imageType() == ComponentListImage::IMAGE_TYPE) {
+        std::dynamic_pointer_cast<ComponentListImage>(mypair.first)->setCache(cache);
+    }
+    return mypair;
 }
 
 pair<SPIIF, SPIIC> ImageFactory::_fromLatticeBase(unique_ptr<LatticeBase>& latt) {
