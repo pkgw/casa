@@ -207,6 +207,9 @@ public:
 			      casacore::Bool /*fftNorm*/)
     {throw(casacore::AipsError("SDGrid::normalizeImage() called"));}
 
+  // SDGrind needs to fill weightimage
+  virtual casacore::Bool useWeightImage(){return true;};
+
   // Get the final weights image
   void getWeightImage(casacore::ImageInterface<casacore::Float>&, casacore::Matrix<casacore::Float>&);
 
