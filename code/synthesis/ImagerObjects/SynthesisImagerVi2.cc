@@ -1209,11 +1209,11 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
   }// end of predictModel
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  void SynthesisImagerVi2::makeSdImage()
+  void SynthesisImagerVi2::makeSdImage(Bool dopsf)
   {
     LogIO os( LogOrigin("SynthesisImagerVi2","makeSdImage",WHERE) );
 
-    Bool dopsf=false;
+//    Bool dopsf=false;
     if(datacol_p==FTMachine::PSF) dopsf=true;
 
     {

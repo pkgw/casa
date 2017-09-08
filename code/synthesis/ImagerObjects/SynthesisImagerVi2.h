@@ -64,7 +64,7 @@ public:
   
   casacore::Bool setWeightDensity();
   void predictModel();
-  void makeSdImage();
+  virtual void makeSdImage(casacore::Bool dopsf=false);
 
   void dryGridding(const casacore::Vector<casacore::String>& cfList);
   void fillCFCache(const casacore::Vector<casacore::String>& cfList,
