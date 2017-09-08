@@ -16,6 +16,10 @@
 			<description>Name of input visibility file (MS)</description>
 			<value></value>
 		</param>
+        <param type="bool" name="logpos">
+			<description>Whether to plot logarithmic positions</description>
+			<value>False</value>
+		</param>
 		<param type="string" name="figfile">
 			<description>Save the plotted figure to this file</description>
 			<value></value>
@@ -28,29 +32,28 @@
        Plot the antenna distribution in the local reference frame:
 
        The location of the antennas in the MS will be plotted with
-       X-toward local east; Y-toward local north.
+       X-toward local east; Y-toward local north. The name of each
+       antenna is shown next to its respective location.
 
        Keyword arguments:
        vis -- Name of input visibility file.
-               default: none. example: vis='ngc5921.ms'
+            default: none. example: vis='ngc5921.ms'
+
+       logpos -- produce a logarithmic position plot.
+            default: False. example: logpos=True
 
        figfile -- Save the plotted figure in this file.
-               default: ''. example: figfile='myFigure.png'
+            default: ''. example: figfile='myFigure.png'
 
-               The name of each antenna (egs. vla=antenna number) is
-                  shown next to its respective location.
+       You can zoom in by pressing the magnifier button (bottom,
+       third from right) and making a rectangular region with
+       the mouse.  Press the home button (left most button) to
+       remove zoom.
 
-               DO NOT use the buttons on the Mark Region line.  These are
-                  not implemented yet and might abort CASA.
-
-               You can zoom in by pressing the magnifier button (bottom,
-                  third from left) and making a rectangular region with
-                  the mouse.  Press the home button (left most button) to
-                  remove zoom.
-
-               A hard-copy of this plot can be obtained by pressing the
-                  button on the right at the bottom of the display.  This
-                  produces a png format file.
+       A hard-copy of this plot can be obtained by pressing the
+       button on the right at the bottom of the display. A file
+       dialog will allow you to choose the directory, filename,
+       and format of the export. 
  </example>
  </task>
  </casaxml>
