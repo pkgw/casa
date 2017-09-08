@@ -1409,6 +1409,11 @@ ImageInterface<Complex>& SDGrid::getImage(Matrix<Float>& weights,
     // Do the copy
     image->copyData(gridSub);
   }
+
+  // IMAGER MIGRATION
+  // set sumWeight to 1.0
+  weights = 1.0;
+
   return *image;
 }
 
