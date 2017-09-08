@@ -370,7 +370,7 @@ class PySynthesisImager:
         self.makeSdPSFCore()
         for immod in range(0,self.NF):
             self.PStools[immod].gatherresidual() 
-            self.PStools[immod].divideresidualbyweight()
+            self.PStools[immod].dividepsfbyweight()
 
 #############################################
     def makeSdImageCore(self):
