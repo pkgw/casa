@@ -164,7 +164,7 @@ def plotAntennas(antXs, antYs, antNames, logpos, telescope):
                 show_circle = False
 
         for i, antenna in enumerate(antNames):
-            ax.plot(theta[i], np.log(r[i]), 'ko', ms=5, mfc='k')
+            ax.plot(theta[i], np.log(r[i]), 'ko', ms=5, mfc='r')
             ax.text(theta[i], np.log(r[i]), '  '+antenna)
 
         # Set minimum and maximum radius.
