@@ -1426,7 +1426,10 @@ void SDGrid::getWeightImage(ImageInterface<Float>& weightImage, Matrix<Float>& w
   logIO() << LogOrigin("SDGrid", "getWeightImage") << LogIO::NORMAL;
 
   weights.resize(sumWeight.shape());
-  convertArray(weights,sumWeight);
+  // IMAGER MIGRATION
+  // set sumWeight to 1.0
+  weights = 1.0;
+//  convertArray(weights,sumWeight);
 
   weightImage.copyData(*wArrayLattice);
 }
