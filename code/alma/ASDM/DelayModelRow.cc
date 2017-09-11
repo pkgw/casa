@@ -5790,11 +5790,13 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 	 * Return true if all required attributes of the value part are equal to their homologues
 	 * in x and false otherwise.
 	 *
+
 	 * @param x a pointer on the DelayModelRow whose required attributes of the value part 
+
 	 * will be compared with those of this.
 	 * @return a boolean.
 	 */
-	bool DelayModelRow::equalByRequiredValue(DelayModelRow* x) {
+	bool DelayModelRow::equalByRequiredValue(DelayModelRow*  x ) {
 		
 			
 		if (this->numPoly != x->numPoly) return false;

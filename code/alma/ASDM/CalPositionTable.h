@@ -41,19 +41,19 @@
 
 
 	
-#include <ArrayTime.h>
-	
-
-	
 #include <Angle.h>
 	
 
 	
-#include <Tag.h>
+#include <ArrayTime.h>
 	
 
 	
 #include <Length.h>
+	
+
+	
+#include <Tag.h>
 	
 
 
@@ -135,7 +135,7 @@ class CalPositionRow;
  * Result of antenna positions calibration performed by TelCal.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of CalPosition </CAPTION>
@@ -233,7 +233,7 @@ class CalPositionRow;
  * </TR>
 	
  * <TR>
- * <TD> numAntenna </TD> 
+ * <TD> numAntenna (\f$N_{Ante}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of antennas of reference. </TD>
@@ -293,14 +293,14 @@ class CalPositionRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> delayRms </TD> 
+ * <TD> delayRms</TD> 
  * <TD> double </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the RMS deviation for the observed delays. </TD>
  * </TR>
 	
  * <TR>
- * <TD> phaseRms </TD> 
+ * <TD> phaseRms</TD> 
  * <TD> Angle </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the RMS deviation for the observed phases. </TD>
@@ -637,6 +637,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 
