@@ -108,7 +108,7 @@ public:
 
 	/* lift
 	 *
-	 * Type F should be callable const A& -> B
+	 * Type F should be callable const A& -> B (for some B)
 	 */
 	template <typename F,
 	          typename B = typename std::result_of<F(const A&)>::type>
@@ -158,7 +158,7 @@ public:
 
 	/* andThen()
 	 *
-	 * Type F should be callable () -> Try<B>
+	 * Type F should be callable () -> Try<B> (for some B)
 	 */
 	template <typename F,
 	          typename TB = typename std::result_of<F()>::type,
@@ -191,7 +191,7 @@ public:
 
 	/* flatMap()
 	 *
-	 * Type F should be callable const A& -> Try<B>
+	 * Type F should be callable const A& -> Try<B> (for some B)
 	 */
 	template <typename F,
 	          typename TB = typename std::result_of<F(const A&)>::type,
@@ -214,7 +214,8 @@ public:
 
 	/* fold()
 	 *
-	 * Type Err should be callable const std::exception_ptr & -> B
+	 * Type Err should be callable const std::exception_ptr & -> B (for some B)
+	 *
 	 * Type Val should be callable const A& -> B
 	 */
 	template <typename Err,
@@ -250,7 +251,7 @@ public:
 
 	/* getOrElse()
 	 *
-	 * Type F should be callable () -> B
+	 * Type F should be callable () -> B (for some B)
 	 */
 	template <typename F,
 	          typename B = typename std::result_of<F()>::type,
@@ -279,7 +280,7 @@ public:
 
 	/* map()
 	 *
-	 * Type F should be callable const A& -> B
+	 * Type F should be callable const A& -> B (for some B)
 	 */
 	template <typename F,
 	          typename B = typename std::result_of<F(const A&)>::type>
@@ -298,7 +299,7 @@ public:
 
 	/* orElse
 	 *
-	 * Type F should be callable () -> Try<B>
+	 * Type F should be callable () -> Try<B> (for some B)
 	 */
 	template <typename F,
 	          typename TB = typename std::result_of<F()>::type,
@@ -346,7 +347,9 @@ public:
 
 	/* transform()
 	 *
-	 * Type Err should be callable const std::exception_ptr & -> Try<B>
+	 * Type Err should be callable const std::exception_ptr & -> Try<B> (for
+	 * some B)
+	 *
 	 * Type Val should be callable const A& -> Try<B>
 	 */
 	template <typename Err, typename Val,
@@ -365,7 +368,7 @@ public:
 
 	/* operator|()
 	 *
-	 * Type F should be callable const A& -> B
+	 * Type F should be callable const A& -> B (for some B)
 	 */
 	template <typename F,
 	          typename B = typename std::result_of<F(const A&)>::type>
@@ -376,7 +379,7 @@ public:
 
 	/* operator>>=()
 	 *
-	 * Type F should be callable const A& -> Try<B>
+	 * Type F should be callable const A& -> Try<B> (for some B)
 	 */
 	template <typename F,
 	          typename TB = typename std::result_of<F(const A&)>::type,
@@ -388,7 +391,7 @@ public:
 
 	/* operator>>()
 	 *
-	 * Type F should be callable () -> Try<B>
+	 * Type F should be callable () -> Try<B> (for some B)
 	 */
 	template <typename F,
 	          typename TB = typename std::result_of<F()>::type,
