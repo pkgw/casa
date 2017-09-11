@@ -162,6 +162,10 @@ void PlotMSSelection::apply(NewCalTable& ct, NewCalTable& selCT,
     throw(AipsError("Selection by uvrange not supported for NewCalTable"));
   if (array().length()>0)
     throw(AipsError("Selection by array not supported for NewCalTable"));
+  if (intent().length()>0)
+    throw(AipsError("Selection by intent not supported for NewCalTable"));
+  if (feed().length()>0)
+    throw(AipsError("Selection by feed not supported for NewCalTable"));
 
   // Set the selected NewCalTable to be the same initially as the input
   // NewCalTable
@@ -177,9 +181,6 @@ void PlotMSSelection::apply(NewCalTable& ct, NewCalTable& selCT,
   mss.setSpwExpr(spw());
   mss.setFieldExpr(field());
   mss.setAntennaExpr(antenna());
-  mss.setStateExpr(intent());
-  // Note cal table doesn't have FEED columns or table; 
-  // TBD: warn user if feed() is set? or just ignore?
   TableExprNode ten=mss.toTableExprNode(&cti);
   try {
     getSelectedTable(selCT,ct,ten,"");

@@ -133,7 +133,7 @@ public:
 	      "UVdist","UVwave","U","V","W","Uwave","Vwave","Wwave",
 	      "Azimuth","Elevation","HourAngle","ParAngle",
 	      "Antenna","Ant-Azimuth","Ant-Elevation","Ant-ParAngle",
-	      "Gain Amplitude","Gain Phase","Gain Real","Gain Imag",
+	      "Gain Amp","Gain Phase","Gain Real","Gain Imag",
 	      "Delay","SwPower","Tsys","Opac", "SNR", "TEC",
 	      "Radial Velocity [km/s]", "Distance (rho) [km]", 
 	      "None")
