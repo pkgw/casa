@@ -411,9 +411,16 @@ TEST_F(TryTest, Lift) {
 	auto liftedIsEven = Try<int>::lift(isEven);
 	Try<int> a(20);
 	EXPECT_TRUE(liftedIsEven(a).getOrElse_(false));
-	EXPECT_FALSE(
-		liftedIsEven(a.map([](const int& i){ return i + 1; })).
-		getOrElse_(true));
+	auto liftedPlusOne = Try<int>::lift([](const int &i){ return i + 1; });
+	EXPECT_FALSE(liftedIsEven(liftedPlusOne(a)).getOrElse_(true));
+	// lift a function that gets deleted, it should be copied into the lifted
+	// function
+	std::function<Try<int>(const Try<int>&)> lf;
+	{
+		auto i2 = [](const int& i){ return i + 2; };
+		lf = Try<int>::lift(i2);
+	}
+	EXPECT_EQ(lf(a), a.map([](const int &i){ return i + 2; }));
 }
 
 TEST_F(TryTest, NoDfltCtor) {
