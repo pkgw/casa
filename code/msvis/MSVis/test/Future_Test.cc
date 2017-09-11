@@ -333,6 +333,23 @@ TEST_F(FutureTest, IterateWhile) {
 			[](const int& i) { return Future<int>(i - 1); });
 	p1.set_value(Try<int>(12));
 	EXPECT_EQ(g1.get().get(), 0);
+
+	// with an error along the way
+	std::promise<Try<int> > p2;
+	int init = 12;
+	Future<int> f2(p2.get_future());
+	Future<int> g2 =
+		f2.iterateWhile(
+			[](const int& i) { return i > 0; },
+			[&init](const int& i) {
+				if (i > init / 2)
+					return Future<int>(i - 1);
+				else
+					return Future<int>(
+						std::make_exception_ptr(BadIntException()));
+			});
+	p2.set_value(Try<int>(init));
+	EXPECT_THROW(g2.get().get(), BadIntException);
 }
 
 TEST_F(FutureTest, Lift) {
