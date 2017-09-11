@@ -208,19 +208,10 @@ public:
 	          class = std::enable_if<
 		          std::is_same<Future<A>,std::result_of<F(const A&)> >::value> >
 	Future<A>
-	iterateUntil(P p, F f) const {
-		Future<A> fa = *this;
-		return
-			Future<Future<A> >(
-				std::async(
-					std::launch::async,
-					[fa, p, f]() {
-						Future<A> fa1 =
-							!fa.map(p).get().getOrElse_(true)
-							? fa.flatMap(f).iterateUntil(p, f)
-							: fa;
-						return Try<Future<A> >(fa1);
-					})).flatten();
+	iterateUntil(P p, F&& f) const {
+		return iterateWhile(
+			[p](const A& a){ return !p(a); },
+			std::forward<F>(f));
 	}
 
 	/* iterateWhile()
@@ -236,10 +227,18 @@ public:
 	          class = std::enable_if<
 		          std::is_same<Future<A>,std::result_of<F(const A&)> >::value> >
 	Future<A>
-	iterateWhile(P p, F&& f) const {
-		return iterateUntil(
-			[p](const A& a){ return !p(a); },
-			std::forward<F>(f));
+	iterateWhile(P p, F f) const {
+		Future<A> fa = *this;
+		return
+			Future<A>(
+				std::async(
+					std::launch::async,
+					[fa, p, f]() {
+						auto result = fa;
+						while (result.map(p).get().getOrElse_(false))
+							result = result.flatMap(f);
+						return result.get();
+					}));
 	}
 
 	/* map()
