@@ -671,7 +671,7 @@ def genImageName(vis='', spw='', field='', imtype='mfs', targettype='sci', stoke
         raise Exception("ERROR: problem opening vis")
 
     myfieldnames = mymsmd.fieldnames()
-    if type(field)==type(str) and (field in myfieldnames):
+    if type(field)==str and (field in myfieldnames):
         theobject = field
     elif field in range(mymsmd.nfields()):
         theobject = myfieldnames[field]
@@ -701,7 +701,7 @@ def genImageName(vis='', spw='', field='', imtype='mfs', targettype='sci', stoke
             else:
                 thespwid = thespwid+'_'+str(myspw)                
         else:
-            if not type(myspw) == type(int):
+            if not type(myspw) == int:
                 print "ERROR: invalid spw: "+str(myspw)+". Valid entries are ", myspws
                 raise Exception("ERROR: invalid spw: "+str(myspw)+' Data type must be int.')
             else:
