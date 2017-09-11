@@ -32,6 +32,8 @@
 
 #include <map>
 
+#include <casa/Logging/LogIO.h>
+
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
 
@@ -40,11 +42,27 @@ Bool FluxCalcLogFreqPolynomial::operator()(Flux<Double>& value,
                                            const MFrequency& mfreq,
                                            const Bool updatecoeffs)
 {
+  LogIO os(LogOrigin("FluxCalcLogFreqPolynomial", "()", WHERE));
   Double dt = log10(mfreq.get(freqUnit_p).getValue());
   if (updatecoeffs || coeffs_p(0).nelements()==0) {
     coeffs_p(0).resize();
     coeffs_p(1).resize();
     coeffs_p=getCurrentCoeffs();
+  }
+  {
+     validfrange_p=getValidFreqRange();
+     Double ghzinfreq = mfreq.get("GHz").getValue();
+     Double minfreq = validfrange_p(0).get("GHz").getValue();
+     Double maxfreq = validfrange_p(1).get("GHz").getValue();
+     if (!(minfreq==0.0 && maxfreq ==0.0)) {
+       //cerr<<" range:"<<minfreq<<","<<maxfreq<<"  infreq="<<ghzinfreq<<endl;
+        if (minfreq > ghzinfreq || maxfreq < ghzinfreq) {
+          //cerr<<"Input "<<String::toString(mfreq)<<" is out of the valid frequency range of the flux model: "<<String::toString(validfrange_p)<<endl;
+          os<<LogIO::WARN<<"Input "<<String::toString(mfreq) 
+                         <<" (Hz) is out of the valid frequency range of the flux model: "
+                         <<String::toString(validfrange_p)<<" (Hz)"<<LogIO::POST;
+        }
+    }
   }
   Double fluxCoeff = coeffs_p(0)[coeffs_p(0).nelements() - 1];
   for(Int order = coeffs_p(0).nelements() - 2; order >= 0; --order)
