@@ -116,6 +116,15 @@ public:
 		throw BadTryXformException();
 		return Try<std::string>(pass);
 	};
+
+	class Foo {
+	public:
+		Foo(int i) : m_i(i) {}
+		int m_i;
+		bool operator==(const Foo& f) const {
+			return m_i == f.m_i;
+		}
+	};
 };
 
 const std::string TryTest::fail = "fail";
@@ -399,4 +408,10 @@ TEST_F(TryTest, Lift) {
 	EXPECT_FALSE(
 		liftedIsEven(a.map([](const int& i){ return i + 1; })).
 		getOrElse_(true));
+}
+
+TEST_F(TryTest, NoDfltCtor) {
+	Foo f(88);
+	Foo g(88);
+	EXPECT_EQ(Try<Foo>(f).get(), g);
 }

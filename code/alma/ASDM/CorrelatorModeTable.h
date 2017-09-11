@@ -109,7 +109,7 @@ class CorrelatorModeRow;
  * Contains information on a Correlator processor.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of CorrelatorMode </CAPTION>
@@ -131,7 +131,7 @@ class CorrelatorModeRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numBaseband </TD> 
+ * <TD> numBaseband (\f$N_{Base}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of basebands. </TD>
@@ -166,7 +166,7 @@ class CorrelatorModeRow;
  * </TR>
 	
  * <TR>
- * <TD> numAxes </TD> 
+ * <TD> numAxes (\f$N_{Axes}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of axes in the binary data blocks. </TD>
@@ -476,6 +476,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

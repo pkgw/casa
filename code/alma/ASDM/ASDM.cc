@@ -4087,7 +4087,7 @@ namespace asdm {
 		;
 	}
 	
-	void ASDM::setFromMIME(const string & mimeMsg) {
+	void ASDM::setFromMIME(const string & /* mimeMsg */) {
 		// To be implemented
 		;
 	}
@@ -4402,7 +4402,7 @@ namespace asdm {
 
 		this->loadTablesOnDemand_ = parse.loadTablesOnDemand_;
 		this->checkRowUniqueness_ = parse.checkRowUniqueness_;
-		this->directory_          = directory;
+		this->directory_ = directory;					
 		string fileName;
 		if (fileAsBin) {
 			fileName = directory + "/ASDM.bin";
@@ -4452,7 +4452,7 @@ namespace asdm {
     			throw ConversionException("I cannot read this dataset with version='UNKNOWN' and origin='UNKNOWN'", "ASDM");
  		
     		string xsltPath;
- 			bool proceed = (origin == ASDMUtils::EVLA)  
+ 			bool proceed = (version.compare("3") && (origin == ASDMUtils::EVLA))  
     				    || (version.compare("3") && ( origin == ASDMUtils::ALMA)); // If it's an ALMA then we must check its version.
 			string xmlDoc;
  			try {
@@ -4952,7 +4952,7 @@ namespace asdm {
 				
 		}
 			
-		origin = FILE;		
+		origin = FILE;
 	}
 	
 	bool ASDM::checkRowUniqueness() const { return checkRowUniqueness_; } 
@@ -5596,11 +5596,11 @@ namespace asdm {
 		throw ConversionException("Invalid xml document","ASDM");
 	}
 	
-	string ASDM::getXMLEntity(EntityId id) {
+	string ASDM::getXMLEntity(EntityId /* id */) {
 		throw ConversionException("Not implemented","ASDM");
 	}
 	
-	void ASDM::putXMLEntity(string xml) {
+	void ASDM::putXMLEntity(string /* xml */) {
 		throw ConversionException("Not implemented","ASDM");
 	}
 	
