@@ -103,9 +103,7 @@ public:
 	static Future<A>
 	from(F f) {
 		return Future<A>(
-			std::async(
-				std::launch::async,
-				[f](){ return Try<A>::from(f); }));
+			std::async(std::launch::async, [f](){ return try_(f); }));
 	}
 
 	/* lift()
