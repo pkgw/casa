@@ -89,6 +89,7 @@ SDBListGridManager::SDBListGridManager(SDBList& sdbs_) :
     Int totalChans0( 0 ) ;
     Int nchan;
 
+    
     for (Int i=0; i != sdbs.nSDB(); i++) {
         SolveDataBuffer& sdb = sdbs(i);
         Int spw = sdb.spectralWindow()(0);
@@ -1369,17 +1370,6 @@ void FringeJones::calcAllJones() {
   }
 }
 
-void
-FringeJones::selfSolveOne(SDBList& sdbs) {
-    solveLotsOfSDBs(sdbs);
-        
-    // Implement actual solve here!!!
-    //  E.g., gather data from visCubeCorrected in the SolveDataBuffers 
-    //   in the SDBList and feed to solving code
-    //  Typically, each SolveDataBuffer will contain a single timestamp 
-    //    in a single spw
-    //  E.g., see KJones::solveOneSDBmbd(SDBList&)
-}
 
 void
 FringeJones::calculateSNR(Int nCorr, DelayRateFFT drf, Float ref_freq, Float df0, Float dt0 ) {
@@ -1414,7 +1404,11 @@ FringeJones::calculateSNR(Int nCorr, DelayRateFFT drf, Float ref_freq, Float df0
 }
 
 
-void FringeJones::solveLotsOfSDBs(SDBList& sdbs) {
+
+// void FringeJones::solveLotsOfSDBs(SDBList& sdbs)
+
+void
+FringeJones::selfSolveOne(SDBList& sdbs) {
     solveRPar()=0.0;
     solveParOK()=false; 
     solveParErr()=1.0; // Does nothing?
@@ -1423,12 +1417,55 @@ void FringeJones::solveLotsOfSDBs(SDBList& sdbs) {
     // FIXME: Update for multiple SWs!
     // FIMXE: No, really!
     MSSpectralWindow msSpw(ct_->spectralWindow());
-    ROMSSpWindowColumns msCol(msSpw);
-    msCol.refFrequency().getColumn(myRefFreqs, true);
+    ROMSSpWindowColumns spwCol(msSpw);
+    spwCol.refFrequency().getColumn(myRefFreqs, true);
     Double ref_freq = myRefFreqs(currSpw());
     Double ref_time = refTime();
     Double dt0 = (ref_time - sdbs(0).time()(0));
     Double df0 = ref_freq - sdbs.freqs()(0);
+
+
+
+    // ROMSSpWindowColumns are a casacore type!
+    // http://casacore.github.io/casacore/classcasacore_1_1ROMSSpWindowColumns.html
+
+    if (1) {
+        /* The MSSpectralWindow above is constructed from the
+         * calibration table (ct_). In the case of the fringe jones
+         * table this reports only one frequency channel for each
+         * spectral window. This may be a bug in the definition of the
+         * spectral window in the calibration table; until it is
+         * addressed I need to work around it.
+         */
+
+        MeasurementSet ms( msName() );
+        ROMSColumns mscol(ms);
+        const ROMSSpWindowColumns& spwcol(mscol.spectralWindow());
+
+        cerr << "nSpw() " << nSpw() << " nelements() " << spwMap().nelements() << endl;
+
+        cerr << "combine() " << combine() << endl;
+        cerr << "combspw() " << combspw() << endl;
+        
+        // spwMap seems to report 1, even when you are combining spectral windows;
+        // nSPW() reports 30 even when you aren't.
+
+        // Can we get the spectral windows without grovelling over the entire set of SolveDataBuffers?
+        for (uInt ispw=0; ispw != spwMap().nelements(); ++ispw) {
+            uInt jspw = spwMap()(ispw);
+            const Vector<Double>& chanfreqs = spwcol.chanFreq()(ispw);
+            // const ScalarColumn<int>& nchan = spwCol.numChan();
+            int nchan = spwcol.numChan()(ispw);
+        
+            cerr << "ispw " << ispw << " freq(0) " << chanfreqs(0) << endl;
+            cerr << "shape " << chanfreqs.shape() << endl;
+            cerr << "nelements " << chanfreqs.nelements() << endl;
+            cerr << "nchan " << nchan << endl;
+            // ncc.spectralWindow().chan
+            // spwins.insert(spw);
+        }
+        throw(AipsError("That's quite enough of that."));
+    }
     
     // Pausing here:
     // throw(AipsError("Just checking ref values."));
