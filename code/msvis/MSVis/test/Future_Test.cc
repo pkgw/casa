@@ -311,6 +311,14 @@ TEST_F(FutureTest, ForEffect) {
 	p1.set_value(Try<int>(init));
 	EXPECT_EQ(g1.get().get(), init);
 	EXPECT_EQ(init1, init + 1);
+
+	// with failing effect
+	std::promise<Try<int> > p2;
+	Future<int> f2(p2.get_future());
+	Future<int> g2 = f2.forEffect(
+		[](){ throw BadIntException(); return Future<int>(0); });
+	p2.set_value(Try<int>(init));
+	EXPECT_THROW(g2.get().get(), BadIntException);
 }
 
 TEST_F(FutureTest, IterateUntil) {
