@@ -3,7 +3,7 @@ import numpy as np
 import pylab as pl
 from taskinit import gentools, qatool
 
-def plotants(vis=None, logpos=False, figfile=''):
+def plotants(vis=None, antindex=False, logpos=False, figfile=''):
     """Plot the antenna distribution in the local reference frame:
 
     The location of the antennas in the MS will be plotted with
@@ -14,7 +14,10 @@ def plotants(vis=None, logpos=False, figfile=''):
     vis -- Name of input visibility file.
             default: none. example: vis='ngc5921.ms'
 
-    logpos -- produce a logarithmic position plot.
+    antindex -- Label antennas with name and antenna ID
+            default: False. example: antindex=True
+
+    logpos -- Produce a logarithmic position plot.
             default: False. example: logpos=True
 
     figfile -- Save the plotted figure in this file.
@@ -32,9 +35,9 @@ def plotants(vis=None, logpos=False, figfile=''):
     """
 
     try:
-        antNames, antXs, antYs, telescope = getAntennaInfo(vis)
+        telescope, antUsed, antNames, antXs, antYs = getAntennaInfo(vis)
         pl.clf()
-        plotAntennas(antXs, antYs, antNames, logpos, telescope)
+        plotAntennas(antXs, antYs, antNames, antUsed, antindex, logpos, telescope)
         pl.title("Antenna positions for " + os.path.basename(vis))
         if figfile:
             pl.savefig(figfile)
@@ -49,21 +52,31 @@ def getAntennaInfo(msname):
     msmd.open(msname)
     telescope = msmd.observatorynames()[0]
     arrPos = msmd.observatoryposition()
+    allAntennas = np.array([], dtype=int)
+    for scan in msmd.scannumbers():
+        allAntennas = np.append(allAntennas, msmd.antennasforscan(scan))
+    antIdsUsed = set(allAntennas)
     msmd.close()
-    arrWgs84 = me.measure(arrPos, 'WGS84')
-    arrLon, arrLat, arrAlt = [arrWgs84[i]['value'] for i in ['m0','m1','m2']]
+
+    arrWgs84 = me.measure(arrayPos, 'WGS84')
+    arrLon, arrLat, arrAlt = [arrWgs84[i]['value'] 
+        for i in ['m0','m1','m2']]
 
     # Open the ANTENNA subtable to get the names of the antennas in this MS and
     # their positions.  Note that the entries in the ANTENNA subtable are pretty
-    # much in random order, so allAnts translates between their index and name
+    # much in random order, so antNames translates between their index and name
     # (e.g., index 11 = STD155).  We'll need these indices for later, since the
     # main data table refers to the antennas by their indices, not names.
     anttabname = msname + '/ANTENNA'
     tb.open(anttabname)
-    antNames = np.array(tb.getcol('NAME'))
+    if telescope == 'VLBA':
+        antNames = np.array(tb.getcol('STATION'))
+    else:
+        antNames = np.array(tb.getcol('NAME'))
+
     antPoss = np.array([me.position('ITRF', qa.quantity(x, 'm'),
-                                    qa.quantity(y, 'm'), qa.quantity(z, 'm'))
-                        for (x, y, z) in tb.getcol('POSITION').transpose()])
+        qa.quantity(y, 'm'), qa.quantity(z, 'm'))
+        for (x, y, z) in tb.getcol('POSITION').transpose()])
     tb.close()
     
     # Get the names, indices, and lat/lon/alt coords of our "good" antennas.
@@ -71,7 +84,7 @@ def getAntennaInfo(msname):
     antLons, antLats, antAlts = [np.array( [pos[i]['value'] 
         for pos in antWgs84s]) for i in ['m0','m1','m2']]
     
-    # Convert from lat, lon, alt to X, Y, Z, 
+    # Convert from lat, lon, alt to X, Y, Z (unless VLBA)
     # where X is east, Y is north, Z is up,
     # and 0, 0, 0 is the center of the LWA1.  
     # Note: this conversion is NOT exact, since it doesn't take into account
@@ -81,9 +94,10 @@ def getAntennaInfo(msname):
     antYs = (antLats - arrLat) * radE
     antZs = antAlts - arrAlt
     
-    return antNames, antXs, antYs, telescope
+    return telescope, antIdsUsed, antNames, antXs, antYs
 
-def plotAntennas(antXs, antYs, antNames, logpos, telescope):
+def plotAntennas(antXs, antYs, antNames, antIdsUsed, antIndex, logpos, 
+        telescope):
     fig = pl.figure(1)
     if logpos:
         # code from pipeline summary.py 
@@ -164,18 +178,34 @@ def plotAntennas(antXs, antYs, antNames, logpos, telescope):
                 show_circle = False
 
         for i, antenna in enumerate(antNames):
-            ax.plot(theta[i], np.log(r[i]), 'ko', ms=5, mfc='r')
-            ax.text(theta[i], np.log(r[i]), '  '+antenna)
+            if i in antUsed:
+                ax.plot(theta[i], np.log(r[i]), 'ko', ms=5, mfc='r')
+                if antIndex:
+                    ax.text(theta[i], np.log(r[i]), '  ' + antenna + ' (' + str(i) + ')')
+                else:
+                    ax.text(theta[i], np.log(r[i]), '  ' + antenna)
 
         # Set minimum and maximum radius.
         ax.set_rmax(rmax)
         ax.set_rmin(rmin)
     else:
         ax = fig.add_subplot(111)
-        ax.plot(antXs, antYs, 'ro')
-        for (x, y, name) in zip(antXs, antYs, antNames):
-            ax.text(x + 0.5, y + 0.5, name)
-            fig.show()
-        pl.xlabel('X (m)')
-        pl.ylabel('Y (m)')
+
+        # use m or km units
+        units = ' (m)'
+        if np.median(antXs) > 1e6 or np.median(antYs) > 1e6:
+            antXs /= 1e3
+            antYs /= 1e3
+            units = ' (km)'
+
+        for i, (x, y, name) in enumerate(zip(antXs, antYs, antNames)):
+            if i in antUsed:
+                ax.plot(x, y, 'ro')
+                if antIndex:
+                    ax.text(x, y, '  ' + name + ' (' + str(i) + ')')
+                else:
+                    ax.text(x, y, '  ' + name)
+                fig.show()
+        pl.xlabel('X' + units)
+        pl.ylabel('Y' + units)
         pl.margins(0.1, 0.1)
