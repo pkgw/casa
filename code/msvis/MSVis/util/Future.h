@@ -235,7 +235,7 @@ public:
 					std::launch::async,
 					[fa, p, f]() {
 						auto result = fa;
-						while (result.map(p).get().getOrElse_(false))
+						while (result.get().map(p).getOrElse_(false))
 							result = result.flatMap(f);
 						return result.get();
 					}));
