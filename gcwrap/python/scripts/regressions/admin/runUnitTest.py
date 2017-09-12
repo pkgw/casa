@@ -34,6 +34,14 @@ import pprint
 import nose
 from taskinit import casalog
 
+##
+## testwrapper.py depends upon the current directory being in the path because
+## it changes to the directory where the test is located and then imports it.
+## CASA no longer leaves empty strings in sys.path to avoid confusion when
+## stray files are in the current directory.
+##
+sys.path.insert(0,'')
+
 PYVER = str(sys.version_info[0]) + "." + str(sys.version_info[1])
 
 CASA_DIR = os.environ["CASAPATH"].split()[0]
