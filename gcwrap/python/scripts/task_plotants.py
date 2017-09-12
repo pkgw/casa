@@ -1,9 +1,9 @@
 import os
 import numpy as np
 import pylab as pl
-from taskinit import gentools, qatool
+from taskinit import gentools, qatool, casalog
 
-def plotants(vis=None, antindex=None, logpos=None, figfile=None):
+def plotants(vis=None, antindex=None, logpos=None, exclude=None, figfile=None):
     """Plot the antenna distribution in the local reference frame:
 
     The location of the antennas in the MS will be plotted with
@@ -20,6 +20,9 @@ def plotants(vis=None, antindex=None, logpos=None, figfile=None):
     logpos -- Produce a logarithmic position plot.
             default: False. example: logpos=True
 
+    exclude -- antenna IDs or names to exclude from plotting
+            default: []. example: exclude=[2,3,4], exclude='DV15'
+
     figfile -- Save the plotted figure in this file.
             default: ''. example: figfile='myFigure.png'
 
@@ -35,7 +38,12 @@ def plotants(vis=None, antindex=None, logpos=None, figfile=None):
     """
 
     try:
-        telescope, antNames, antXs, antYs = getAntennaInfo(vis)
+        if type(exclude) in [str, int]:
+            exclude = [exclude]
+        telescope, antNames, antXs, antYs = getAntennaInfo(vis, exclude)
+        if len(antNames) == 0:  # no antennas selected
+            casalog.post("No antennas selected.  Exiting plotants.")
+            return
         pl.clf()
         if logpos:
             plotAntennasLog(antXs, antYs, antNames, antindex, telescope)
@@ -47,7 +55,7 @@ def plotants(vis=None, antindex=None, logpos=None, figfile=None):
     except Exception, instance:
           print '*** Error ***',instance
 
-def getAntennaInfo(msname):
+def getAntennaInfo(msname, exclude):
 
     msmd, me, tb = gentools(['msmd', 'me', 'tb'])
     qa = qatool()
@@ -72,27 +80,54 @@ def getAntennaInfo(msname):
     # much in random order, so antNames translates between their index and name
     # (e.g., index 11 = STD155).  We'll need these indices for later, since the
     # main data table refers to the antennas by their indices, not names.
+    # Get antenna ids from main table:
     tb.open(msname)
     ants1 = tb.getcol('ANTENNA1')
     ants2 = tb.getcol('ANTENNA2')
     tb.close()
-    allantennas = np.append(ants1, ants2)
-    antIdsUsed = set(allantennas)
-    print "Number of points being plotted:", len(antIdsUsed)
-
+    # Get antenna names and positions from antenna table
     anttabname = msname + '/ANTENNA'
     tb.open(anttabname)
+    colname = 'NAME'
     if telescope == 'VLBA':
-        antNames = np.array(tb.getcol('STATION'))
-    else:
-        antNames = np.array(tb.getcol('NAME'))
-    antNames = [antNames[i] for i in antIdsUsed]
-
+        colname = 'STATION'
+    antNames = np.array(tb.getcol(colname)).tolist()
     antPositions = np.array([me.position('ITRF', qa.quantity(x, 'm'),
         qa.quantity(y, 'm'), qa.quantity(z, 'm'))
         for (x, y, z) in tb.getcol('POSITION').transpose()])
     tb.close()
+
+    allAntIds = range(len(antNames))
+    antIdsUsed = set(np.append(ants1, ants2))
+
+    # handle exclude
+    for ant in exclude:
+        if type(ant) is int:
+            if ant not in allAntIds:
+                casalog.post("Cannot exclude antenna id " + str(ant) + 
+                        ": does not exist")
+            else:
+                try:
+                    antIdsUsed.remove(ant)
+                except KeyError: # id exists but not used anyway
+                    pass
+        if type(ant) is str:
+            try:
+                antIdsUsed.remove(antNames.index(ant))
+            except ValueError: # cannot find name
+                casalog.post("Cannot exclude antenna " + ant + 
+                        ": does not exist")
+            except KeyError:  # name exists but cannot remove from used ids
+                pass
+
+    antNames = [antNames[i] for i in antIdsUsed]
     antPositions = [antPositions[i] for i in antIdsUsed]
+
+    nAnts = len(antIdsUsed)
+    print "Number of points being plotted:", nAnts
+    casalog.post("Number of points being plotted: " + str(nAnts))
+    if nAnts == 0:
+        return telescope, antNames, [], []
     
     # Get the names, indices, and lat/lon/alt coords of our "good" antennas.
     antWgs84s = np.array([me.measure(pos, 'WGS84') for pos in antPositions])

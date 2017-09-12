@@ -24,6 +24,12 @@
 			<description>Whether to plot logarithmic positions</description>
 			<value>False</value>
 		</param>
+        <param type="any" name="exclude">
+            <description>Antenna names/ids to exclude from plot</description>
+            <any type="variant" limittype="stringArray intArray"/>
+            <value type="stringArray"><value></value></value>
+            <value type="intArray"><value></value></value>
+		</param>
 		<param type="string" name="figfile">
 			<description>Save the plotted figure to this file</description>
 			<value></value>
@@ -48,6 +54,9 @@
 
        logpos -- produce a logarithmic position plot.
             default: False. example: logpos=True
+
+       exclude -- antenna IDs or names to exclude from plotting
+            default: []. examples: exclude=[2,3,4], exclude='DV15'
 
        figfile -- Save the plotted figure in this file.
             default: ''. example: figfile='myFigure.png'
