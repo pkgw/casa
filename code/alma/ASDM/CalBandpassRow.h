@@ -52,11 +52,11 @@
 	
 
 	 
-#include <Tag.h>
+#include <Frequency.h>
 	
 
 	 
-#include <Frequency.h>
+#include <Tag.h>
 	
 
 
@@ -120,7 +120,7 @@
 //#include <TableStreamReader.h>
 
 /*\file CalBandpass.h
-    \brief Generated from model's revision "1.64", branch "HEAD"
+    \brief Generated from model's revision "-1", branch ""
 */
 
 namespace asdm {
@@ -142,7 +142,7 @@ typedef void (CalBandpassRow::*CalBandpassAttributeFromText) (const string& s);
 /**
  * The CalBandpassRow class is a row of a CalBandpassTable.
  * 
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  */
 class CalBandpassRow {
