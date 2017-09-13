@@ -445,7 +445,6 @@ TEST_P(AltSrcNameTest, checkAltSrcNames)
     fluxStd.reset(new FluxStandard(expFlxStdEnum));
     mfreq = MFrequency(Quantity(freq,"GHz"));
     fluxStd->setInterpMethod("spline");
-    cerr<<"srcDir="<<srcDir<<" srcName="<<srcName<<endl;
     foundStd = fluxStd->compute(srcName, srcDir, mfreq, mtime, returnFlux, returnFluxErr);
     EXPECT_TRUE(foundStd);
   }
@@ -479,7 +478,7 @@ TEST_P(SetInterpMethodTest, checkInterpolation)
   if (modelExists(coeffsTbName)) {
     fluxStd.reset(new FluxStandard(FluxStandard::PERLEY_BUTLER_2013));
     mfreq = MFrequency(Quantity(2.0,"GHz")); 
-    cerr<<"set interpolation to "<<interpMethod<<endl;
+    cout<<"set interpolation to "<<interpMethod<<endl;
     fluxStd->setInterpMethod(interpMethod);
     foundStd = fluxStd->compute(srcName, srcDir, mfreq, mtime, returnFlux, returnFluxErr);
     returnFlux.value(fluxUsed);
