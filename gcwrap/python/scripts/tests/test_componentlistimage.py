@@ -93,8 +93,11 @@ class componentlistimage_test(unittest.TestCase):
         pt = "point"
         mycl.addcomponent(flux=flux, dir=dir, shape=pt)
         
+        shape = [5, 5]
+        self.assertTrue(myia.fromcomplist("", shape=shape, cl=mycl.torecord()))
+        
         shape = [5, 5, 5]
-        self.assertRaises(Exception, myia.fromcomplist, "", shape=shape, cl=mycl.torecord())
+        self.assertTrue(myia.fromcomplist("", shape=shape, cl=mycl.torecord()))
         
         shape = [5, 5, 4, 5]
         self.assertTrue(myia.fromcomplist("", shape=shape, cl=mycl.torecord()))

@@ -16,7 +16,7 @@ TEST_F(ComponentListImageTest, constructorTest) {
     auto csys = CoordinateUtil::defaultCoords3D();
     IPosition shape(3, 5, 5, 5);
     ComponentList cl;
-    ASSERT_THROW(ComponentListImage(cl, csys, shape), AipsError);
+    ComponentListImage cl0(cl, csys, shape);
     csys = CoordinateUtil::defaultCoords4D();
     shape.resize(4);
     shape = IPosition(4, 5, 5, 5, 5);
@@ -95,6 +95,27 @@ TEST_F(ComponentListImageTest, nameTest) {
         ASSERT_TRUE(cli2.name(True) == imageName);
     }
     Table::deleteTable(imageName);
+}
+
+TEST_F(ComponentListImageTest, setUnitsTest) {
+    auto csys = CoordinateUtil::defaultCoords4D();
+    IPosition shape(4, 4);
+    ComponentList cl;
+    ComponentListImage cli(cl, csys, shape);
+    ASSERT_THROW(cli.setUnits("Jy/beam"), AipsError);
+    ASSERT_TRUE(cli.setUnits("Jy/pixel"));
+}
+
+TEST_F(ComponentListImageTest, setImageInfoTest) {
+    auto csys = CoordinateUtil::defaultCoords4D();
+    IPosition shape(4, 4);
+    ComponentList cl;
+    ComponentListImage cli(cl, csys, shape);
+    auto ii = cli.imageInfo();
+    ii.setRestoringBeam(Quantity(5, "arcmin"), Quantity(4, "arcmin"), Quantity(0, "deg"));
+    ASSERT_THROW(cli.setImageInfo(ii), AipsError);
+    ii.removeRestoringBeam();
+    ASSERT_TRUE(cli.setImageInfo(ii));
 }
 
 }

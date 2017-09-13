@@ -63,7 +63,9 @@ SHARED_PTR<ComponentListImage> ImageFactory::createComponentListImage(
     }
 
     SHARED_PTR<ComponentListImage> image(
-        new ComponentListImage(mycl, mycsys, IPosition(shape), outfile, cache)
+        outfile.empty()
+        ? new ComponentListImage(mycl, mycsys, IPosition(shape), cache)
+        : new ComponentListImage(mycl, mycsys, IPosition(shape), outfile, cache)
     );
     ostringstream os;
     os << "Created ComponentListImage " << outfile
@@ -348,7 +350,10 @@ pair<SPIIF, SPIIC> ImageFactory::fromFile(const String& infile, Bool cache) {
     unique_ptr<LatticeBase> latt(ImageOpener::openImage(infile));
     ThrowIf (! latt, "Unable to open lattice");
     auto mypair = _fromLatticeBase(latt);
-    if (mypair.first && mypair.first->imageType() == ComponentListImage::IMAGE_TYPE) {
+    if (
+        mypair.first
+        && mypair.first->imageType().contains(ComponentListImage::IMAGE_TYPE)
+    ) {
         std::dynamic_pointer_cast<ComponentListImage>(mypair.first)->setCache(cache);
     }
     return mypair;

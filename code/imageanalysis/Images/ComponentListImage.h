@@ -40,6 +40,9 @@
 
 #include <components/ComponentModels/ComponentList.h>
 
+// debug
+#include <components/ComponentModels/C11Timer.h>
+
 namespace casa {
 
 // <summary>
@@ -76,24 +79,35 @@ public:
 
     static const casacore::String IMAGE_TYPE;
 
+    // <group>
     // Create a new ComponentListImage from a component list, coordinate system, and shape.
     // The input component list will be copied (via the ComponentList::copy() method, so
     // that the constructed object has a unique ComponentList that is not referenced by
     // Exceptions thrown if shape.size() != 4 or csys.nPixelAxes != 4 or csys is missing
-    // any of Direction, Spectral, or Stokes coordinates. If tableName is not empty,
-    // a new table by that name is created on disk to persistently store the image;
-    // otherwise, the image is not persistent. The brightness units are automatically
-    // set to Jy/pixel.
+    // any of Direction, Spectral, or Stokes coordinates.  The brightness units are
+    // automatically set to Jy/pixel.
+
+    // This constructor creates a persistent ComponentListImage of name tableName.
+    // If tableName is empty, an exception is thrown.
     ComponentListImage(
         const ComponentList& compList, const casacore::CoordinateSystem& csys,
-        const casacore::IPosition& shape, const casacore::String& tableName="",
+        const casacore::IPosition& shape, const casacore::String& tableName,
         const casacore::Bool doCache=casacore::True
     );
 
+    // This constructor creates a temporary ComponentListImage.
+    ComponentListImage(
+        const ComponentList& compList, const casacore::CoordinateSystem& csys,
+        const casacore::IPosition& shape, const casacore::Bool doCache=casacore::True
+    );
+    // </group>
+
     // Construct an object by reading a persistent ComponentListImage from disk.
+    // By default the image's default mask is used if it exists.
     explicit ComponentListImage(
         const casacore::String& filename,
-        const casacore::Bool doCache=casacore::True
+        const casacore::Bool doCache=casacore::True,
+        casacore::MaskSpecifier maskSpec=casacore::MaskSpecifier()
     );
 
     ComponentListImage(const ComponentListImage& image);
@@ -119,22 +133,26 @@ public:
         casacore::Array<casacore::Bool>& buffer, const casacore::Slicer& section
     );
 
-    // <group>
-    // These methods override those in Lattice and always throw exceptions as there is not
+    // This methods override that in Lattice and always throw exceptions as there is not
     // general way to do this for component lists.
     void copyData (const casacore::Lattice<casacore::Float>&);
-    void copyDataTo (casacore::Lattice<casacore::Float>&) const;
-    // </group>
 
     bool doGetSlice(
         casacore::Array<casacore::Float>& buffer, const casacore::Slicer& section
     );
 
+    // This methods override that in Lattice and always throw exceptions as there is not
+    // general way to do this for component lists.
     void doPutSlice (
         const casacore::Array<casacore::Float>& buffer,
         const casacore::IPosition& where, const casacore::IPosition& stride
     );
 
+    // Return the internal Table object to the RegionHandler.
+    static casacore::Table& getTable (void* imagePtr, casacore::Bool writable);
+
+    // Get a pointer the default pixelmask object used with this image.
+    // It returns nullptr if no default pixelmask is used.
     const casacore::LatticeRegion* getRegionPtr() const;
 
     casacore::Bool hasPixelMask() const;
@@ -143,13 +161,19 @@ public:
 
     casacore::Bool isMasked() const;
 
+    // returns True if there is a persistent table associated with this object.
+    casacore::Bool isPaged() const;
+
+    // returns True if there is a persistent table associated with this object.
     casacore::Bool isPersistent() const;
 
     // Overrides the LatticeBase method. The method refers to the Lattice
     // characteristic and therefore always returns False.
     casacore::Bool isWritable() const;
 
-    casacore::String name (bool stripPath=false) const;
+    // If there is no persistent table associated with this object, returns
+    // "Temporary ComponentListImage". Returns the name of the table otherwise.
+    casacore::String name(bool stripPath=false) const;
 
     casacore::Bool ok() const;
 
@@ -157,8 +181,11 @@ public:
     // returns the result of new ComponentListImage(name).
     static casacore::LatticeBase* openCLImage(const casacore::String& name, const casacore::MaskSpecifier&);
 
+    // Throws an exception is there is no pixel mask.
     const casacore::Lattice<casacore::Bool>& pixelMask() const;
 
+    // In general, clients shouldn't need to call this. This is for registering
+    // how to open a ComponentListImage with casacore ImageOpener.
     static void registerOpenFunction();
 
     // overrides ImageInterface method
@@ -170,15 +197,16 @@ public:
 
     void resize(const casacore::TiledShape& newShape);
 
-    // Overrides Lattice method. Always throws exception; there is no way to represent a source with constant
-    // intensity everywhere.
+    // Overrides Lattice method. Always throws exception; there is no way to
+    // represent with a single component a source with constant intensity everywhere.
     void set(const casacore::Float& value);
 
     // controls if pixel values, directions, and frequencies are cached. If doCache is false,
     // existing cache values are destroyed if they exist.
     void setCache(casacore::Bool doCache);
 
-    // Flushes the new coordinate system to disk if the table exists is writable.
+    // Set the coordinate system. Flush the new coordinate system to disk if
+    // the table exists is writable.
     casacore::Bool setCoordinateInfo (const casacore::CoordinateSystem& coords);
 
     void setDefaultMask(const casacore::String& regionName);
@@ -200,15 +228,12 @@ protected:
     //Overrides Lattice. Always throws exception; arbitrary math cannot be represented with components.
     void handleMath(const casacore::Lattice<casacore::Float>& from, int oper);
 
-    //Overrides Lattice. Always throws exception; arbitrary math cannot be represented with components.
-    void handleMathTo (casacore::Lattice<casacore::Float>& to, int oper) const;
-
 private:
 
     ComponentList _cl, _modifiedCL;
 
     casacore::IPosition _shape = casacore::IPosition(4, 1);
-    std::shared_ptr<casacore::Lattice<bool>> _mask = nullptr;
+    std::shared_ptr<casacore::LatticeRegion> _mask = nullptr;
     casacore::Int _latAxis, _longAxis, _freqAxis, _stokesAxis;
     casacore::MVAngle _pixelLongSize, _pixelLatSize;
     casacore::MeasRef<casacore::MDirection> _dirRef;
@@ -220,7 +245,12 @@ private:
     > _ptSourcePixelVals = nullptr;
     casacore::Vector<casacore::Int> _pixelToIQUV;
     casacore::Bool _cache = casacore::True;
+    casacore::Bool _hasFreq = casacore::False;
+    casacore::Bool _hasStokes = casacore::False;
+    casacore::MFrequency _defaultFreq = casacore::MFrequency();
     std::shared_ptr<casacore::TempImage<casacore::Float>> _valueCache = nullptr;
+
+    mutable vector<C11Timer> _timer = vector<C11Timer>(15);
 
     void _applyMask (const casacore::String& maskName);
 
@@ -236,8 +266,8 @@ private:
 
     void _fillBuffer(
         casacore::Array<casacore::Float>& buffer, const casacore::IPosition& chunkShape,
-        const casacore::IPosition& secStart, casacore::Bool lookForPtSources,
-        casacore::uInt nFreqs, const casacore::Cube<casacore::Double>& pixelVals
+        const casacore::IPosition& secStart, casacore::uInt nFreqs,
+        const casacore::Cube<casacore::Double>& pixelVals
     ) const;
 
     casacore::Bool _findPixel(

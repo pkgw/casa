@@ -31,11 +31,15 @@
 #include <casacore/coordinates/Coordinates/DirectionCoordinate.h>
 #include <casacore/coordinates/Coordinates/SpectralCoordinate.h>
 #include <casacore/images/Images/ImageOpener.h>
+#include <casacore/images/Regions/RegionHandlerTable.h>
 #include <components/ComponentModels/ComponentShape.h>
+#include <components/ComponentModels/SpectralModel.h>
 #include <omp.h>
 
 // debug
 #include <casacore/casa/BasicSL/STLIO.h>
+#include <components/ComponentModels/C11Timer.h>
+
 
 using namespace casacore;
 
@@ -46,35 +50,59 @@ const String ComponentListImage::IMAGE_TYPE = "ComponentListImage";
 ComponentListImage::ComponentListImage(
     const ComponentList& compList, const CoordinateSystem& csys,
     const IPosition& shape, const String& tableName, Bool doCache
-) : ImageInterface<Float>(), _cl(compList.copy()),
-    _modifiedCL(compList.copy()), _cache(doCache) {
-    if (! tableName.empty()) {
-        _cl.rename(Path(tableName));
-    }
+) : ImageInterface<Float>(RegionHandlerTable(getTable, this)),
+    _cl(compList.copy()), _modifiedCL(compList.copy()),
+    _cache(doCache) {
+    ThrowIf(tableName.empty(), "Table name cannot be empty");
+    _cl.rename(Path(tableName));
     // resizing must precede setting of coordinate system
     _resize(shape);
     setCoordinateInfo(csys);
     setUnits("Jy/pixel");
 }
 
-ComponentListImage::ComponentListImage(const String& filename, Bool doCache)
-    : ImageInterface<Float>(), _cl(filename), _cache(doCache) {
+ComponentListImage::ComponentListImage(
+    const ComponentList& compList, const CoordinateSystem& csys,
+    const IPosition& shape, Bool doCache
+) : ImageInterface<Float>(), _cl(compList.copy()),
+    _modifiedCL(compList.copy()), _cache(doCache) {
+    // resizing must precede setting of coordinate system
+    _resize(shape);
+    setCoordinateInfo(csys);
+    setUnits("Jy/pixel");
+}
+
+ComponentListImage::ComponentListImage(
+    const String& filename, Bool doCache, MaskSpecifier maskSpec
+) : ImageInterface<Float>(RegionHandlerTable(getTable, this)), _cl(filename),
+    _cache(doCache) {
     _openLogTable();
     _restoreAll(_cl.getTable().keywordSet());
     _modifiedCL = _cl.copy();
+    _applyMaskSpecifier(maskSpec);
 }
 
 ComponentListImage::ComponentListImage(const ComponentListImage& image)
 : ImageInterface<Float>(image), _cl(image._cl),
   _modifiedCL(image._modifiedCL), _shape(image._shape),
-  _mask(image._mask), _latAxis(image._latAxis),
+  _latAxis(image._latAxis),
   _longAxis(image._longAxis), _freqAxis(image._freqAxis),
   _stokesAxis(image._stokesAxis), _pixelLongSize(image._pixelLongSize),
   _pixelLatSize(image._pixelLatSize), _dirRef(image._dirRef),
   _dirVals(image._dirVals), _freqRef(image._freqRef),
   _freqVals(image._freqVals), _ptSourcePixelVals(image._ptSourcePixelVals),
   _pixelToIQUV(image._pixelToIQUV), _cache(image._cache),
-  _valueCache(image._valueCache) {}
+  _hasFreq(image._hasFreq), _hasStokes(image._hasStokes),
+  _defaultFreq(image._defaultFreq) {
+    if (image._mask) {
+        _mask.reset(new LatticeRegion(*image._mask));
+    }
+    if (image._valueCache) {
+        _valueCache.reset(
+            dynamic_cast<TempImage<Float>*>(image._valueCache->cloneII())
+        );
+    }
+}
 
 ComponentListImage::~ComponentListImage() {}
 
@@ -84,7 +112,9 @@ ComponentListImage& ComponentListImage::operator=(const ComponentListImage& othe
         _cl = other._cl;
         _modifiedCL = other._modifiedCL;
         _shape = other._shape;
-        _mask = other._mask;
+        if (other._mask) {
+            _mask.reset(new LatticeRegion(*other._mask));
+        }
         _latAxis = other._latAxis;
         _longAxis = other._longAxis;
         _freqAxis = other._freqAxis;
@@ -98,7 +128,14 @@ ComponentListImage& ComponentListImage::operator=(const ComponentListImage& othe
         _ptSourcePixelVals = other._ptSourcePixelVals;
         _pixelToIQUV = other._pixelToIQUV;
         _cache = other._cache;
-        _valueCache = other._valueCache;
+        _hasFreq = other._hasFreq;
+        _hasStokes = other._hasStokes;
+        _defaultFreq = other._defaultFreq;
+        if (other._valueCache) {
+            _valueCache.reset(
+                dynamic_cast<TempImage<Float>*>(other._valueCache->cloneII())
+            );
+        }
     }
     return *this;
 }
@@ -123,9 +160,11 @@ ImageInterface<Float>* ComponentListImage::cloneII() const {
 void ComponentListImage::copyData (const casacore::Lattice<casacore::Float>&) {
     ThrowCc("There is no general way to run " + String(__func__) + " on a ComponentList");
 }
+/*
 void ComponentListImage::copyDataTo (casacore::Lattice<casacore::Float>&) const {
     ThrowCc("There is no general way to run " + String(__func__) + " on a ComponentList");
 }
+*/
 
 const ComponentList& ComponentListImage::componentList() const {
     return _cl;
@@ -144,12 +183,14 @@ Bool ComponentListImage::doGetMaskSlice(Array<Bool>& buffer, const Slicer& secti
 Bool ComponentListImage::doGetSlice(
     Array<Float>& buffer, const Slicer& section
 ) {
+    _timer[0].start();
     if (! _ptSourcePixelVals) {
         _computePointSourcePixelValues();
     }
-    auto lookForPtSources = ! _ptSourcePixelVals->empty();
+    _timer[0].stop();
     const auto& chunkShape = section.length();
     if (_cache) {
+    _timer[1].start();
         // if the values have already been computed and cached, just use them
         Array<Bool> mask(chunkShape);
         _valueCache->getMaskSlice(mask, section);
@@ -157,41 +198,65 @@ Bool ComponentListImage::doGetSlice(
             _valueCache->getSlice(buffer, section);
             return True;
         }
+    _timer[1].stop();
     }
-    auto nFreqs = chunkShape[_freqAxis];
+    _timer[2].start();
     auto secStart = section.start();
-    const uInt nDirs = chunkShape(_longAxis) * chunkShape(_latAxis);
-    Vector<MVDirection> dirVals(nDirs);
-    auto secEnd = section.end();
-    auto endLong = secEnd[_longAxis];
-    auto endLat = secEnd[_latAxis];
-    const auto& dirCoord = coordinates().directionCoordinate();
-    if (_cache) {
-        _getDirValsDoCache(dirVals, secStart, endLong, endLat, dirCoord);
-    }
-    else {
-        _getDirValsNoCache(dirVals, secStart, endLong, endLat, dirCoord);
-    }
-    const auto& specCoord = coordinates().spectralCoordinate();
-    Vector<MVFrequency> freqVals(nFreqs);
-    if (_cache) {
-        _getFreqValsDoCache(freqVals, secStart, nFreqs, specCoord);
-    }
-    else {
-        _getFreqValsNoCache(freqVals, secStart, nFreqs, specCoord);
-    }
+    const auto nDirs = chunkShape(_longAxis) * chunkShape(_latAxis);
+    const auto nFreqs = _hasFreq ? chunkShape[_freqAxis] : 1;
     Cube<Double> pixelVals(4, nDirs, nFreqs);
-    _modifiedCL.sample(
-        pixelVals, Unit("Jy"), dirVals, _dirRef, _pixelLatSize,
-        _pixelLongSize, freqVals, _freqRef
-    );
+    _timer[2].stop();
+    _timer[3].start();
+    if (_modifiedCL.nelements() == 0) {
+        pixelVals = 0;
+    }
+    else {
+        Vector<MVDirection> dirVals(nDirs);
+        auto secEnd = section.end();
+        auto endLong = secEnd[_longAxis];
+        auto endLat = secEnd[_latAxis];
+        const auto& dirCoord = coordinates().directionCoordinate();
+        if (_cache) {
+            _getDirValsDoCache(dirVals, secStart, endLong, endLat, dirCoord);
+        }
+        else {
+            _getDirValsNoCache(dirVals, secStart, endLong, endLat, dirCoord);
+        }
+        Vector<MVFrequency> freqVals(nFreqs);
+        if (_hasFreq) {
+            const auto& specCoord = coordinates().spectralCoordinate();
+            if (_cache) {
+                _getFreqValsDoCache(freqVals, secStart, nFreqs, specCoord);
+            }
+            else {
+                _getFreqValsNoCache(freqVals, secStart, nFreqs, specCoord);
+            }
+        }
+        else {
+            freqVals[0] = _defaultFreq.getValue();
+        }
+        _modifiedCL.sample(
+            pixelVals, Unit("Jy"), dirVals, _dirRef, _pixelLatSize,
+            _pixelLongSize, freqVals, _freqRef
+        );
+    }
+    _timer[3].stop();
+    _timer[4].start();
     _fillBuffer(
-        buffer, chunkShape, secStart, lookForPtSources, nFreqs, pixelVals
+        buffer, chunkShape, secStart, nFreqs, pixelVals
     );
+    _timer[4].stop();
+    _timer[5].start();
     if (_cache) {
         _valueCache->putSlice(buffer, secStart);
         Array<Bool> trueChunk(chunkShape, True);
         _valueCache->pixelMask().putSlice(trueChunk, secStart);
+    }
+    _timer[5].stop();
+    uInt i = 0;
+    for (auto t: _timer) {
+        cout << i << " " << t.totalDuration() << endl;
+        ++i;
     }
     return True;
 }
@@ -205,9 +270,16 @@ void ComponentListImage::doPutSlice (
     );
 }
 
-// FIXME
+Table& ComponentListImage::getTable (void* imagePtr, Bool writable) {
+    ComponentListImage* im = static_cast<ComponentListImage*>(imagePtr);
+    if (writable) {
+        im->_reopenRW();
+    }
+    return im->_cl.getTable();
+}
+
 const LatticeRegion* ComponentListImage::getRegionPtr() const {
-    return nullptr;
+    return _mask.get();
 }
 
 Bool ComponentListImage::hasPixelMask() const {
@@ -220,6 +292,10 @@ String ComponentListImage::imageType() const {
 
 Bool ComponentListImage::isMasked() const {
     return Bool(_mask);
+}
+
+Bool ComponentListImage::isPaged() const {
+    return ! _cl.getTable().isNull();
 }
 
 Bool ComponentListImage::isPersistent() const {
@@ -246,7 +322,9 @@ String ComponentListImage::name(bool stripPath) const {
 }
 
 bool ComponentListImage::ok() const {
-    return _shape.size() == 4 && coordinates().nPixelAxes() == 4;
+    auto n = _shape.size();
+    auto x = coordinates().nPixelAxes();
+    return n > 1 && n < 5 && x > 1 && x < 5;
 }
 
 LatticeBase* ComponentListImage::openCLImage(const String& name, const MaskSpecifier&) {
@@ -298,33 +376,31 @@ void ComponentListImage::setCache(casacore::Bool doCache) {
 }
 
 Bool ComponentListImage::setCoordinateInfo (const CoordinateSystem& csys) {
+    auto x = csys.nPixelAxes();
     ThrowIf(
-        csys.nPixelAxes() != 4,
-        "coordinate system must have exactly 4 axes"
+        x != _shape.size(), "Coordinate system must have the same dimensionality as the shape"
     );
     ThrowIf(
         ! csys.hasDirectionCoordinate(),
         "coordinate system must have a direction coordinate"
     );
-    ThrowIf(
-        ! csys.hasSpectralAxis(),
-        "coordinate system must have a spectral coordinate"
-    );
-    ThrowIf(
-        ! csys.hasPolarizationCoordinate(),
-        "coordinate system must have a polarization coordinate"
-    );
     auto polAxisNum = csys.polarizationAxisNumber(False);
-    ThrowIf(_shape[polAxisNum] > 4, "Polarization axis can have no more than four pixels");
-    const auto& stCoord = csys.stokesCoordinate();
-    auto idx = stCoord.stokes();
-    for (auto stokesIndex: idx) {
-        Stokes::StokesTypes type = Stokes::type(stokesIndex);
-        ThrowIf(
-            type != Stokes::I && type != Stokes::Q
-            && type != Stokes::U && type != Stokes::V,
-            "Unsupported stokes type " + Stokes::name(type)
-        );
+    _hasStokes = polAxisNum > 0;
+    ThrowIf(
+        _hasStokes && _shape[polAxisNum] > 4,
+        "Polarization axis can have no more than four pixels"
+    );
+    if (_hasStokes) {
+        const auto& stCoord = csys.stokesCoordinate();
+        auto idx = stCoord.stokes();
+        for (auto stokesIndex: idx) {
+            Stokes::StokesTypes type = Stokes::type(stokesIndex);
+            ThrowIf(
+                type != Stokes::I && type != Stokes::Q
+                && type != Stokes::U && type != Stokes::V,
+                "Unsupported stokes type " + Stokes::name(type)
+            );
+        }
     }
     // implementation copied from PagedImage and tweaked.
     auto& table = _cl.getTable();
@@ -357,10 +433,10 @@ Bool ComponentListImage::setImageInfo(const ImageInfo& info) {
     ThrowIf(info.hasBeam(), "A ComponentListImage may not have a beam(s)");
     // Set imageinfo in base class.
     Bool ok = ImageInterface<Float>::setImageInfo(info);
-    if (ok) {
+    auto& tab = _cl.getTable();
+    if (ok && ! tab.isNull()) {
         // Make persistent in table keywords.
         _reopenRW();
-        auto& tab = _cl.getTable();
         if (tab.isWritable()) {
             // Delete existing one if there.
             if (tab.keywordSet().isDefined("imageinfo")) {
@@ -393,21 +469,23 @@ Bool ComponentListImage::setImageInfo(const ImageInfo& info) {
 
 Bool ComponentListImage::setMiscInfo(const RecordInterface& newInfo) {
     setMiscInfoMember(newInfo);
-    _reopenRW();
     auto& tab = _cl.getTable();
-    if (! tab.isWritable()) {
-        return False;
+    if (! tab.isNull()) {
+        _reopenRW();
+        if (! tab.isWritable()) {
+            return False;
+        }
+        if (tab.keywordSet().isDefined("miscinfo")) {
+            tab.rwKeywordSet().removeField("miscinfo");
+        }
+        tab.rwKeywordSet().defineRecord("miscinfo", newInfo);
     }
-    if (tab.keywordSet().isDefined("miscinfo")) {
-        tab.rwKeywordSet().removeField("miscinfo");
-    }
-    tab.rwKeywordSet().defineRecord("miscinfo", newInfo);
     return True;
 }
 
 Bool ComponentListImage::setUnits(const Unit& newUnits) {
     ThrowIf(
-        newUnits != "Jy/pixel", "units must be Jy/pixel"
+        newUnits.getName() != "Jy/pixel", "units must be Jy/pixel"
     );
     setUnitMember (newUnits);
     if (! _cl.getTable().isNull()) {
@@ -438,12 +516,6 @@ void ComponentListImage::handleMath(const Lattice<Float>&, int) {
     );
 }
 
-void ComponentListImage::handleMathTo(Lattice<Float>&, int) const {
-    ThrowCc(
-        "There is no general way to run " + String(__func__) + " on a ComponentList"
-    );
-}
-
 void ComponentListImage::_applyMask(const String& maskName) {
     // No region if no mask name is given.
     if (maskName.empty()) {
@@ -459,8 +531,7 @@ void ComponentListImage::_applyMask(const String& maskName) {
     // The mask has to cover the entire image.
     ThrowIf(
         latReg->shape() != shape(),
-        "ComponentListImage::" + String(__func__) + " - region "
-        + maskName + " does not cover the full image"
+        "region " + maskName + " does not cover the full image"
     );
     _mask = latReg;
 }
@@ -493,38 +564,48 @@ void ComponentListImage::_cacheCoordinateInfo(const CoordinateSystem& csys) {
     _pixelLongSize = MVAngle(Quantity(abs(inc[_longAxis]), units[_longAxis]));
     _pixelLatSize = MVAngle(Quantity(abs(inc[_latAxis]), units[_latAxis]));
     _freqAxis = csys.spectralAxisNumber(false);
-    const auto& specCoord = csys.spectralCoordinate();
+    _hasFreq = _freqAxis > 0;
+    if (_hasFreq) {
+        const auto& specCoord = csys.spectralCoordinate();
 
-    // Create Frequency MeasFrame; this will enable conversions between
-    // spectral frames (e.g. the CS frame might be TOPO and the CL
-    // frame LSRK)
+        // Create Frequency MeasFrame; this will enable conversions between
+        // spectral frames (e.g. the CS frame might be TOPO and the CL
+        // frame LSRK)
 
-    MFrequency::Types specConv;
-    MEpoch epochConv;
-    MPosition posConv;
-    MDirection dirConv;
-    specCoord.getReferenceConversion(specConv,  epochConv, posConv, dirConv);
-    MeasFrame measFrame(epochConv, posConv, dirConv);
-    _freqRef = MeasRef<MFrequency>(specConv, measFrame);
+        MFrequency::Types specConv;
+        MEpoch epochConv;
+        MPosition posConv;
+        MDirection dirConv;
+        specCoord.getReferenceConversion(specConv,  epochConv, posConv, dirConv);
+        MeasFrame measFrame(epochConv, posConv, dirConv);
+        _freqRef = MeasRef<MFrequency>(specConv, measFrame);
+    }
+    else {
+        _defaultFreq = _cl.component(0).spectrum().refFrequency();
+        _freqRef = _defaultFreq.getRef();
+    }
     _stokesAxis = csys.polarizationAxisNumber(False);
-    auto nstokes = _shape[_stokesAxis];
-    _pixelToIQUV.resize(nstokes);
-    for (uInt s=0; s<nstokes; ++s) {
-        auto mystokes = csys.stokesAtPixel(s);
-        if (mystokes == "I") {
-            _pixelToIQUV[s] = 0;
-        }
-        else if (mystokes == "Q") {
-            _pixelToIQUV[s] = 1;
-        }
-        else if (mystokes == "U") {
-            _pixelToIQUV[s] = 2;
-        }
-        else if (mystokes == "V") {
-            _pixelToIQUV[s] = 3;
-        }
-        else {
-            ThrowCc("Unsupported stokes value " + mystokes + " at pixel " + String::toString(s));
+    _hasStokes = _stokesAxis > 0;
+    if (_hasStokes) {
+        auto nstokes = _shape[_stokesAxis];
+        _pixelToIQUV.resize(nstokes);
+        for (uInt s=0; s<nstokes; ++s) {
+            auto mystokes = csys.stokesAtPixel(s);
+            if (mystokes == "I") {
+                _pixelToIQUV[s] = 0;
+            }
+            else if (mystokes == "Q") {
+                _pixelToIQUV[s] = 1;
+            }
+            else if (mystokes == "U") {
+                _pixelToIQUV[s] = 2;
+            }
+            else if (mystokes == "V") {
+                _pixelToIQUV[s] = 3;
+            }
+            else {
+                ThrowCc("Unsupported stokes value " + mystokes + " at pixel " + String::toString(s));
+            }
         }
     }
     _deleteCache();
@@ -546,13 +627,13 @@ void ComponentListImage::_computePointSourcePixelValues() {
         return;
     }
     Vector<Double> pixel;
-    auto nFreqs = _shape[_freqAxis];
+    auto nFreqs = _hasFreq ? _shape[_freqAxis] : 1;
     auto freqValues = _getAllFreqValues(nFreqs);
     Cube<Double> values(4, 1, nFreqs);
-    IPosition pixelPosition(4, 0);
+    IPosition pixelPosition(_shape.size(), 0);
     const auto& dirCoord = coordinates().directionCoordinate();
     std::unique_ptr<ComponentList> modifiedList;
-    uInt nStokes = _shape[_stokesAxis];
+    uInt nStokes = _hasStokes ? _shape[_stokesAxis] : 1;
     std::vector<uInt> foundPtSourceIdx;
     for (const auto i: pointSourceIdx) {
         dirCoord.toPixel(pixel, _cl.getRefDirection(i));
@@ -571,11 +652,15 @@ void ComponentListImage::_computePointSourcePixelValues() {
         if (foundPixel) {
             foundPtSourceIdx.push_back(i);
             for (uInt f = 0; f < nFreqs; ++f) {
-                pixelPosition[_freqAxis] = f;
+                if (_hasFreq) {
+                    pixelPosition[_freqAxis] = f;
+                }
                 for (uInt s = 0; s < nStokes; ++s) {
-                    pixelPosition[_stokesAxis] = s;
-                    auto myiter = _ptSourcePixelVals->find(pixelPosition);
+                    if (_hasStokes) {
+                        pixelPosition[_stokesAxis] = s;
+                    }
                     auto v = values(_pixelToIQUV[s], 0, f);
+                    auto myiter = _ptSourcePixelVals->find(pixelPosition);
                     if (myiter == _ptSourcePixelVals->end()) {
                         (*_ptSourcePixelVals)[pixelPosition] = v;
                     }
@@ -600,40 +685,40 @@ void ComponentListImage::_deleteCache() {
 
 void ComponentListImage::_fillBuffer(
     Array<Float>& buffer, const IPosition& chunkShape,
-    const IPosition& secStart, Bool lookForPtSources, uInt nFreqs,
+    const IPosition& secStart, uInt nFreqs,
     const Cube<Double>& pixelVals
 ) const {
     if (buffer.size() != chunkShape) {
         buffer.resize(chunkShape, False);
     }
+    auto lookForPtSources = ! _ptSourcePixelVals->empty();
     auto nLong = chunkShape[_longAxis];
     auto nLat = chunkShape[_latAxis];
     uInt d = 0;
-    auto nStokes = chunkShape[_stokesAxis];
-    IPosition posInArray(4, 0);
+    auto nStokes = _hasStokes ? chunkShape[_stokesAxis] : 1;
+    IPosition posInArray(_shape.size(), 0);
     auto imagePixel = secStart;
-    for(
-        posInArray[_latAxis]=0, imagePixel[_latAxis]=secStart[_latAxis];
-        posInArray[_latAxis]<nLat; ++posInArray[_latAxis], ++imagePixel[_latAxis]
-    ) {
-        for(
-            posInArray[_longAxis]=0, imagePixel[_longAxis]=secStart[_longAxis];
-            posInArray[_longAxis]<nLong;
-            ++posInArray[_longAxis], ++imagePixel[_longAxis], ++d
-        ) {
+    ssize_t zero = 0;
+    auto& blat = posInArray[_latAxis];
+    auto& blong = posInArray[_longAxis];
+    auto& bfreq = _hasFreq ? posInArray[_freqAxis] : zero;
+    auto& bpol = _hasStokes ? posInArray[_stokesAxis] : zero;
+    auto& ilat = imagePixel[_latAxis];
+    auto& ilong = imagePixel[_longAxis];
+    auto& ifreq = _hasFreq ? imagePixel[_freqAxis] : zero;
+    auto& ipol = _hasStokes ? imagePixel[_stokesAxis] : zero;
+    for(blat=0, ilat=secStart[_latAxis]; blat<nLat; ++blat, ++ilat) {
+        for(blong=0, ilong=secStart[_longAxis]; blong<nLong; ++blong, ++ilong, ++d) {
+            ifreq = _hasFreq ? secStart[_freqAxis] : zero;
             uInt f = 0;
-            for (
-                posInArray[_freqAxis]=0, imagePixel[_freqAxis] = secStart[_freqAxis];
-                posInArray[_freqAxis]<nFreqs;
-                ++posInArray[_freqAxis], ++imagePixel[_freqAxis], ++f
-            ) {
-                for (
-                    posInArray[_stokesAxis]=0, imagePixel[_stokesAxis] = secStart[_stokesAxis];
-                    posInArray[_stokesAxis]<nStokes; ++posInArray[_stokesAxis], ++imagePixel[_stokesAxis]
-                ) {
+            for (bfreq=0; bfreq<nFreqs; ++bfreq, ++f, ++ifreq) {
+                ipol = _hasStokes ? secStart[_stokesAxis] : zero;
+                for (bpol=0; bpol<nStokes; ++bpol, ++ipol) {
                     buffer(posInArray) = pixelVals(_pixelToIQUV[imagePixel[_stokesAxis]], d, f);
                     if (lookForPtSources) {
+                        _timer[6].start();
                         auto ptSourceContrib = _ptSourcePixelVals->find(imagePixel);
+                        _timer[6].stop();
                         if (ptSourceContrib != _ptSourcePixelVals->end()) {
                             buffer(posInArray) += ptSourceContrib->second;
                         }
@@ -706,6 +791,11 @@ Bool ComponentListImage::_findPixelIn3x3Box(
 
 Vector<MVFrequency> ComponentListImage::_getAllFreqValues(uInt nFreqs) {
     Vector<MVFrequency> freqValues(nFreqs);
+    if (! _hasFreq) {
+        freqValues[0] = _defaultFreq.get("Hz");
+        _freqVals[0].reset(new MVFrequency(freqValues[0]));
+        return freqValues;
+    }
     Double thisFreq;
     const auto& specCoord = coordinates().spectralCoordinate();
     auto freqUnit = specCoord.worldAxisUnits()[0];
@@ -760,6 +850,116 @@ void ComponentListImage::_getDirValsDoCache(
         }
     }
 }
+
+/*
+void ComponentListImage::_getDirValsDoCache(
+    Vector<MVDirection>& dirVals, const IPosition& secStart, uInt endLong,
+    uInt endLat, const DirectionCoordinate& dirCoord
+) {
+    auto directionType = dirCoord.directionType(False);
+    auto projection = dirCoord.projection();
+    auto units = dirCoord.worldAxisUnits();
+    auto refVal = dirCoord.referenceValue();
+    Quantity refLong(refVal[0], units[0]);
+    Quantity refLat(refVal[1], units[1]);
+    auto inc = dirCoord.increment();
+    Quantity incLong(inc[0], units[0]);
+    Quantity incLat(inc[1], units[1]);
+    auto xform = dirCoord.linearTransform();
+    auto refPix = dirCoord.referencePixel();
+    auto refX = refPix[0];
+    auto refY = refPix[1];
+
+    auto poles = dirCoord.longLatPoles();
+    auto longPole = poles[0];
+    auto latPole = poles[1];
+
+
+
+    const auto nLong = endLong - secStart[_longAxis] + 1;
+#pragma omp parallel for
+    for (uInt i=secStart[_latAxis]; i<=endLat; ++i) {
+        //pixelDir[1] = i;
+        //iPixelDir[1] = i;
+        for (uInt j=secStart[_longAxis]; j<=endLong; ++j) {
+            Vector<Double> pixelDir(2, j);
+            pixelDir[1] = i;
+            IPosition iPixelDir(2, j, i);
+            //pixelDir[0] = j;
+            //iPixelDir[0] = j;
+            uInt d = nLong*(i - secStart[_latAxis]) + j - secStart[_longAxis];
+            auto dirVal = _dirVals(iPixelDir);
+            if (dirVal) {
+                // cached value exists, use it
+                dirVals[d] = *dirVal;
+            }
+            else {
+                std::shared_ptr<MVDirection> newDirVal(new MVDirection());
+                //auto dc = dirCoord;
+                DirectionCoordinate dc(
+                    directionType, projection,
+                    refLong, refLat,
+                    incLong, incLat,
+                    xform.copy(),
+                    refX, refY
+                    // longPole, latPole
+                    );
+                // cout << "refX refY " << refX << ", " << refY << endl;
+                // cout << "poles " << longPole << ", " << latPole << endl;
+                //cout << "xform " << xform << endl;
+                //cout << "refVal " << refLong << ", " << refLat << endl;
+                //cout << "inc " << incLong << ", " << incLat << endl;
+#pragma omp critical
+                {
+                if (! dc.toWorld(*newDirVal, pixelDir)) {
+                    ostringstream oss;
+                    oss << "Unable to convert to world direction at pixel "
+                        << pixelDir;
+                    ThrowCc(oss.str());
+                }
+                }
+                // cache it
+                _dirVals(iPixelDir) = newDirVal;
+                dirVals[d] = *newDirVal;
+            }
+        }
+
+    }
+    */
+    /*
+    for(
+        pixelDir[1]=secStart[_latAxis], iPixelDir[1]=secStart[_latAxis];
+        pixelDir[1]<=endLat; ++pixelDir[1], ++iPixelDir[1]
+    ) {
+        for (
+            pixelDir[0]=secStart[_longAxis], iPixelDir[0]=secStart[_longAxis];
+            pixelDir[0]<=endLong; ++pixelDir[0], ++iPixelDir[0], ++d
+        ) {
+            auto dirVal = _dirVals(iPixelDir);
+            if (dirVal) {
+                // cached value exists, use it
+                dirVals[d] = *dirVal;
+            }
+            else {
+                std::shared_ptr<MVDirection> newDirVal(new MVDirection);
+                if (! dirCoord.toWorld(*newDirVal, pixelDir)) {
+                    ostringstream oss;
+                    oss << "Unable to convert to world direction at pixel "
+                        << pixelDir;
+                    ThrowCc(oss.str());
+                }
+                // cache it
+                _dirVals(iPixelDir) = newDirVal;
+                dirVals[d] = *newDirVal;
+            }
+        }
+    }
+    */
+// }
+
+
+
+
 
 void ComponentListImage::_getDirValsNoCache(
     Vector<MVDirection>& dirVals, const IPosition& secStart, uInt endLong,
@@ -838,7 +1038,7 @@ void ComponentListImage::_initCache() {
         auto nLat = _shape[_latAxis];
         _dirVals = Matrix<std::shared_ptr<MVDirection>>(nLong, nLat);
         _dirVals.set(std::shared_ptr<MVDirection>(nullptr));
-        auto nFreqs = _shape[_freqAxis];
+        auto nFreqs = _hasFreq ? _shape[_freqAxis] : 1;
         _freqVals.resize(nFreqs);
         _freqVals.set(std::shared_ptr<MVFrequency>(nullptr));
         _valueCache.reset(new TempImage<Float>(_shape, coordinates()));
@@ -872,8 +1072,11 @@ void ComponentListImage::_reopenRW() {
 
 void ComponentListImage::_resize(const TiledShape& newShape) {
     auto shape = newShape.shape();
-    ThrowIf(shape.size() != 4, "ComponentListImages must have exactly four dimensions");
+    ThrowIf(shape.size() < 2 || shape.size() > 4, "ComponentListImages must have 2, 3, or 4 dimensions");
     ThrowIf(anyLE(shape.asVector(), 0), "All shape elements must be positive");
+    if (! _shape.conform(shape)) {
+        _shape.resize(shape.size(), False);
+    }
     _shape = shape;
     auto& table = _cl.getTable();
     if (! table.isNull()) {
