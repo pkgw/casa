@@ -16,6 +16,10 @@
 			<description>Name of input visibility file (MS)</description>
 			<value></value>
 		</param>
+		<param type="string" name="figfile">
+			<description>Save the plotted figure to this file</description>
+			<value></value>
+		</param>
         <param type="bool" name="antindex">
 			<description>Label antennas with name and antenna ID</description>
 			<value>False</value>
@@ -30,8 +34,8 @@
             <value type="stringArray"><value></value></value>
             <value type="intArray"><value></value></value>
 		</param>
-		<param type="string" name="figfile">
-			<description>Save the plotted figure to this file</description>
+		<param type="string" name="title">
+			<description>Title for the plot</description>
 			<value></value>
 		</param>
 
@@ -49,6 +53,9 @@
        vis -- Name of input visibility file.
             default: none. example: vis='ngc5921.ms'
 
+       figfile -- Save the plotted figure in this file.
+            default: ''. example: figfile='myFigure.png'
+
        antindex -- Labels antennas with antennaId in addition to name
             default: False. example: antindex=True
 
@@ -58,8 +65,8 @@
        exclude -- antenna IDs or names to exclude from plotting
             default: []. examples: exclude=[2,3,4], exclude='DV15'
 
-       figfile -- Save the plotted figure in this file.
-            default: ''. example: figfile='myFigure.png'
+       title -- Title written along top of plot
+            default: ''
 
        You can zoom in by pressing the magnifier button (bottom,
        third from right) and making a rectangular region with

@@ -3,7 +3,8 @@ import numpy as np
 import pylab as pl
 from taskinit import gentools, qatool, casalog
 
-def plotants(vis=None, antindex=None, logpos=None, exclude=None, figfile=None):
+def plotants(vis=None, figfile=None, antindex=None, logpos=None, exclude=None,
+        title=None):
     """Plot the antenna distribution in the local reference frame:
 
     The location of the antennas in the MS will be plotted with
@@ -14,6 +15,9 @@ def plotants(vis=None, antindex=None, logpos=None, exclude=None, figfile=None):
     vis -- Name of input visibility file.
             default: none. example: vis='ngc5921.ms'
 
+    figfile -- Save the plotted figure in this file.
+            default: ''. example: figfile='myFigure.png'
+
     antindex -- Label antennas with name and antenna ID
             default: False. example: antindex=True
 
@@ -23,8 +27,8 @@ def plotants(vis=None, antindex=None, logpos=None, exclude=None, figfile=None):
     exclude -- antenna IDs or names to exclude from plotting
             default: []. example: exclude=[2,3,4], exclude='DV15'
 
-    figfile -- Save the plotted figure in this file.
-            default: ''. example: figfile='myFigure.png'
+    title -- Title written along top of plot
+            default: ''
 
     You can zoom in by pressing the magnifier button (bottom,
     third from right) and making a rectangular region with
@@ -49,7 +53,9 @@ def plotants(vis=None, antindex=None, logpos=None, exclude=None, figfile=None):
             plotAntennasLog(antXs, antYs, antNames, antindex, telescope)
         else:
             plotAntennas(antXs, antYs, antNames, antindex, telescope)
-        pl.title("Antenna positions for " + os.path.basename(vis))
+        if not title:
+            title = "Antenna positions for " + os.path.basename(vis)
+        pl.title(title)
         if figfile:
             pl.savefig(figfile)
     except Exception, instance:
@@ -63,12 +69,6 @@ def getAntennaInfo(msname, exclude):
     msmd.open(msname)
     telescope = msmd.observatorynames()[0]
     arrayPos = msmd.observatoryposition()
-    """
-    allAntennas = np.array([], dtype=int)
-    for scan in msmd.scannumbers():
-        allAntennas = np.append(allAntennas, msmd.antennasforscan(scan))
-    antIdsUsed = set(allAntennas)
-    """
     msmd.close()
 
     arrayWgs84 = me.measure(arrayPos, 'WGS84')

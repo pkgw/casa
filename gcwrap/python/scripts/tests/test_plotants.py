@@ -59,8 +59,35 @@ class plotants_test(unittest.TestCase):
         self.assertTrue(os.path.exists(self.fig))
 
     def test3(self):
-        '''Test 3: Logarithmic antenna positions'''
-        self.res = plotants(vis=self.msfile, logpos=True, figfile=self.fig)
+        '''Test 3: Label antenna IDs'''
+        self.res = plotants(vis=self.msfile, figfile=self.fig, antindex=True)
+        self.assertEqual(self.res,None)
+        self.assertTrue(os.path.exists(self.fig))
+
+    def test4(self):
+        '''Test 4: Logarithmic antenna positions'''
+        self.res = plotants(vis=self.msfile, figfile=self.fig, logpos=True)
+        self.assertEqual(self.res,None)
+        self.assertTrue(os.path.exists(self.fig))
+
+    def test5(self):
+        '''Test 5: Exclude antenna positions'''
+        self.res = plotants(vis=self.msfile, figfile=self.fig,
+                exclude=['1','5','19','14','10','13'])
+        self.assertEqual(self.res,None)
+        self.assertTrue(os.path.exists(self.fig))
+
+    def test6(self):
+        '''Test 6: Title'''
+        self.res = plotants(vis=self.msfile, figfile=self.fig,
+                title='IC2233')
+        self.assertEqual(self.res,None)
+        self.assertTrue(os.path.exists(self.fig))
+
+    def test7(self):
+        '''Test 7: All arguments'''
+        self.res = plotants(self.msfile, self.fig, True, True, [1,3,5,7,9],
+                "IC2233")
         self.assertEqual(self.res,None)
         self.assertTrue(os.path.exists(self.fig))
 
