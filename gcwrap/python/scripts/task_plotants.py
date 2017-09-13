@@ -54,7 +54,7 @@ def plotants(vis=None, figfile=None, antindex=None, logpos=None, exclude=None,
         else:
             plotAntennas(antXs, antYs, antNames, antindex, telescope)
         if not title:
-            title = "Antenna positions for " + os.path.basename(vis)
+            title = "Antenna Positions for\n" + os.path.basename(vis)
         pl.title(title)
         if figfile:
             pl.savefig(figfile)
