@@ -729,7 +729,7 @@ public:
 	 * @param mimeMsg the string containing the MIME message.
 	 * @throws ConversionException
 	 */
-	 void setFromMIME(const std::string & mimeMsg);	
+	 void setFromMIME(const std::string & /* mimeMsg */);	
 
 	/**
 	 * Write this ASDM dataset to the specified directory
@@ -1381,8 +1381,8 @@ private:
 
 	
 	void error() ; // throw(ConversionException);
-	static std::string getXMLEntity(EntityId id); // throw(ConversionException);
-	static void putXMLEntity(std::string xml); // throw(ConversionException);
+	static std::string getXMLEntity(EntityId /* id */); // throw(ConversionException);
+	static void putXMLEntity(std::string /* xml */); // throw(ConversionException);
 	
 	XSLTransformer xslTransformer;
 	

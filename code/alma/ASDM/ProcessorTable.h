@@ -91,7 +91,7 @@ class ProcessorRow;
  * Processor characteristics. This table holds summary information for the  back-end processing devices used to generate the basic science  data.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of Processor </CAPTION>
@@ -392,6 +392,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

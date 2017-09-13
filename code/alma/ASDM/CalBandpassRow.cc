@@ -3413,11 +3413,13 @@ receiverBand = CReceiverBand::from_int(0);
 	 * Return true if all required attributes of the value part are equal to their homologues
 	 * in x and false otherwise.
 	 *
+
 	 * @param x a pointer on the CalBandpassRow whose required attributes of the value part 
+
 	 * will be compared with those of this.
 	 * @return a boolean.
 	 */
-	bool CalBandpassRow::equalByRequiredValue(CalBandpassRow* x) {
+	bool CalBandpassRow::equalByRequiredValue(CalBandpassRow*  x ) {
 		
 			
 		if (this->startValidTime != x->startValidTime) return false;
