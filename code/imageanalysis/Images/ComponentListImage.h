@@ -40,9 +40,6 @@
 
 #include <components/ComponentModels/ComponentList.h>
 
-// debug
-#include <components/ComponentModels/C11Timer.h>
-
 namespace casa {
 
 // <summary>
@@ -249,8 +246,6 @@ private:
     casacore::Bool _hasStokes = casacore::False;
     casacore::MFrequency _defaultFreq = casacore::MFrequency();
     std::shared_ptr<casacore::TempImage<casacore::Float>> _valueCache = nullptr;
-
-    mutable vector<C11Timer> _timer = vector<C11Timer>(15);
 
     void _applyMask (const casacore::String& maskName);
 

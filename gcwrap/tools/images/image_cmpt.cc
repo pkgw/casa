@@ -2037,6 +2037,7 @@ bool image::fromcomplist(
 ) {
     try {
         _log << _ORIGIN;
+        _reset();
         std::unique_ptr<Record> coordinates(toRecord(csys));
         std::unique_ptr<Record> mycl(toRecord(cl));
         _imageF = ImageFactory::createComponentListImage(
@@ -2211,7 +2212,6 @@ variant* image::getchunk(
     bool list, bool dropdeg, bool getmask
 ) {
     try {
-
         _log << _ORIGIN;
         if (detached()) {
             return nullptr;

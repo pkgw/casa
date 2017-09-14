@@ -35,11 +35,7 @@
 #include <components/ComponentModels/ComponentShape.h>
 #include <components/ComponentModels/SpectralModel.h>
 #include <omp.h>
-
-// debug
-#include <casacore/casa/BasicSL/STLIO.h>
-#include <components/ComponentModels/C11Timer.h>
-
+#include <set>
 
 using namespace casacore;
 
@@ -183,14 +179,11 @@ Bool ComponentListImage::doGetMaskSlice(Array<Bool>& buffer, const Slicer& secti
 Bool ComponentListImage::doGetSlice(
     Array<Float>& buffer, const Slicer& section
 ) {
-    _timer[0].start();
     if (! _ptSourcePixelVals) {
         _computePointSourcePixelValues();
     }
-    _timer[0].stop();
     const auto& chunkShape = section.length();
     if (_cache) {
-    _timer[1].start();
         // if the values have already been computed and cached, just use them
         Array<Bool> mask(chunkShape);
         _valueCache->getMaskSlice(mask, section);
@@ -198,15 +191,11 @@ Bool ComponentListImage::doGetSlice(
             _valueCache->getSlice(buffer, section);
             return True;
         }
-    _timer[1].stop();
     }
-    _timer[2].start();
     auto secStart = section.start();
     const auto nDirs = chunkShape(_longAxis) * chunkShape(_latAxis);
     const auto nFreqs = _hasFreq ? chunkShape[_freqAxis] : 1;
     Cube<Double> pixelVals(4, nDirs, nFreqs);
-    _timer[2].stop();
-    _timer[3].start();
     if (_modifiedCL.nelements() == 0) {
         pixelVals = 0;
     }
@@ -240,23 +229,13 @@ Bool ComponentListImage::doGetSlice(
             _pixelLongSize, freqVals, _freqRef
         );
     }
-    _timer[3].stop();
-    _timer[4].start();
     _fillBuffer(
         buffer, chunkShape, secStart, nFreqs, pixelVals
     );
-    _timer[4].stop();
-    _timer[5].start();
     if (_cache) {
         _valueCache->putSlice(buffer, secStart);
         Array<Bool> trueChunk(chunkShape, True);
         _valueCache->pixelMask().putSlice(trueChunk, secStart);
-    }
-    _timer[5].stop();
-    uInt i = 0;
-    for (auto t: _timer) {
-        cout << i << " " << t.totalDuration() << endl;
-        ++i;
     }
     return True;
 }
@@ -716,9 +695,7 @@ void ComponentListImage::_fillBuffer(
                 for (bpol=0; bpol<nStokes; ++bpol, ++ipol) {
                     buffer(posInArray) = pixelVals(_pixelToIQUV[imagePixel[_stokesAxis]], d, f);
                     if (lookForPtSources) {
-                        _timer[6].start();
                         auto ptSourceContrib = _ptSourcePixelVals->find(imagePixel);
-                        _timer[6].stop();
                         if (ptSourceContrib != _ptSourcePixelVals->end()) {
                             buffer(posInArray) += ptSourceContrib->second;
                         }
@@ -850,116 +827,6 @@ void ComponentListImage::_getDirValsDoCache(
         }
     }
 }
-
-/*
-void ComponentListImage::_getDirValsDoCache(
-    Vector<MVDirection>& dirVals, const IPosition& secStart, uInt endLong,
-    uInt endLat, const DirectionCoordinate& dirCoord
-) {
-    auto directionType = dirCoord.directionType(False);
-    auto projection = dirCoord.projection();
-    auto units = dirCoord.worldAxisUnits();
-    auto refVal = dirCoord.referenceValue();
-    Quantity refLong(refVal[0], units[0]);
-    Quantity refLat(refVal[1], units[1]);
-    auto inc = dirCoord.increment();
-    Quantity incLong(inc[0], units[0]);
-    Quantity incLat(inc[1], units[1]);
-    auto xform = dirCoord.linearTransform();
-    auto refPix = dirCoord.referencePixel();
-    auto refX = refPix[0];
-    auto refY = refPix[1];
-
-    auto poles = dirCoord.longLatPoles();
-    auto longPole = poles[0];
-    auto latPole = poles[1];
-
-
-
-    const auto nLong = endLong - secStart[_longAxis] + 1;
-#pragma omp parallel for
-    for (uInt i=secStart[_latAxis]; i<=endLat; ++i) {
-        //pixelDir[1] = i;
-        //iPixelDir[1] = i;
-        for (uInt j=secStart[_longAxis]; j<=endLong; ++j) {
-            Vector<Double> pixelDir(2, j);
-            pixelDir[1] = i;
-            IPosition iPixelDir(2, j, i);
-            //pixelDir[0] = j;
-            //iPixelDir[0] = j;
-            uInt d = nLong*(i - secStart[_latAxis]) + j - secStart[_longAxis];
-            auto dirVal = _dirVals(iPixelDir);
-            if (dirVal) {
-                // cached value exists, use it
-                dirVals[d] = *dirVal;
-            }
-            else {
-                std::shared_ptr<MVDirection> newDirVal(new MVDirection());
-                //auto dc = dirCoord;
-                DirectionCoordinate dc(
-                    directionType, projection,
-                    refLong, refLat,
-                    incLong, incLat,
-                    xform.copy(),
-                    refX, refY
-                    // longPole, latPole
-                    );
-                // cout << "refX refY " << refX << ", " << refY << endl;
-                // cout << "poles " << longPole << ", " << latPole << endl;
-                //cout << "xform " << xform << endl;
-                //cout << "refVal " << refLong << ", " << refLat << endl;
-                //cout << "inc " << incLong << ", " << incLat << endl;
-#pragma omp critical
-                {
-                if (! dc.toWorld(*newDirVal, pixelDir)) {
-                    ostringstream oss;
-                    oss << "Unable to convert to world direction at pixel "
-                        << pixelDir;
-                    ThrowCc(oss.str());
-                }
-                }
-                // cache it
-                _dirVals(iPixelDir) = newDirVal;
-                dirVals[d] = *newDirVal;
-            }
-        }
-
-    }
-    */
-    /*
-    for(
-        pixelDir[1]=secStart[_latAxis], iPixelDir[1]=secStart[_latAxis];
-        pixelDir[1]<=endLat; ++pixelDir[1], ++iPixelDir[1]
-    ) {
-        for (
-            pixelDir[0]=secStart[_longAxis], iPixelDir[0]=secStart[_longAxis];
-            pixelDir[0]<=endLong; ++pixelDir[0], ++iPixelDir[0], ++d
-        ) {
-            auto dirVal = _dirVals(iPixelDir);
-            if (dirVal) {
-                // cached value exists, use it
-                dirVals[d] = *dirVal;
-            }
-            else {
-                std::shared_ptr<MVDirection> newDirVal(new MVDirection);
-                if (! dirCoord.toWorld(*newDirVal, pixelDir)) {
-                    ostringstream oss;
-                    oss << "Unable to convert to world direction at pixel "
-                        << pixelDir;
-                    ThrowCc(oss.str());
-                }
-                // cache it
-                _dirVals(iPixelDir) = newDirVal;
-                dirVals[d] = *newDirVal;
-            }
-        }
-    }
-    */
-// }
-
-
-
-
 
 void ComponentListImage::_getDirValsNoCache(
     Vector<MVDirection>& dirVals, const IPosition& secStart, uInt endLong,
