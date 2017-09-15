@@ -93,6 +93,7 @@
 			<value>Perley-Butler 2013</value>
 			<allowed kind="enum">
 			<value>Perley-Butler 2013</value>
+			<value>Perley-Butler 2017</value>
 			<value>Perley-Butler 2010</value>
 			<value>Perley-Taylor 99</value>
 			<value>Baars</value>
@@ -207,6 +208,12 @@
                     </notequals>
                   </when>-->
                   <when param="standard">
+                  <equals type="string" value="Perley-Butler 2017">
+                   <default param="model"><value type="string"></value>
+                   </default>
+                   <default param="listmodels"><value type="bool">False</value>
+                   </default>
+                  </equals>
                   <equals type="string" value="Perley-Butler 2013">
                    <default param="model"><value type="string"></value>
                    </default>
@@ -412,6 +419,7 @@
                      'Perley-Taylor 99', 
                      'Perley-Butler 2010', 
                      'Perley-Butler 2013',
+                     'Perley-Butler 2017',
                      'Scaife-Heald 2012',
                      'Stevens-Reynolds 2016',
                      'Butler-JPL-Horizons 2010', 
