@@ -70,7 +70,7 @@ ComponentListImage::ComponentListImage(
 
 ComponentListImage::ComponentListImage(
     const String& filename, Bool doCache, MaskSpecifier maskSpec
-) : ImageInterface<Float>(RegionHandlerTable(getTable, this)), _cl(filename),
+) : ImageInterface<Float>(RegionHandlerTable(getTable, this)), _cl(filename, False, False),
     _cache(doCache) {
     _openLogTable();
     _restoreAll(_cl.getTable().keywordSet());
@@ -254,7 +254,7 @@ Table& ComponentListImage::getTable (void* imagePtr, Bool writable) {
     if (writable) {
         im->_reopenRW();
     }
-    return im->_cl.getTable();
+    return im->_cl._getTable();
 }
 
 const LatticeRegion* ComponentListImage::getRegionPtr() const {
@@ -382,7 +382,7 @@ Bool ComponentListImage::setCoordinateInfo (const CoordinateSystem& csys) {
         }
     }
     // implementation copied from PagedImage and tweaked.
-    auto& table = _cl.getTable();
+    auto& table = _cl._getTable();
     ThrowIf(! table.isNull() && ! table.isWritable(), "Image is not writable, cannot save coordinate system");
     ThrowIf(! ImageInterface<Float>::setCoordinateInfo(csys), "Could not set coordinate system");
     if (! table.isNull()) {
@@ -412,7 +412,7 @@ Bool ComponentListImage::setImageInfo(const ImageInfo& info) {
     ThrowIf(info.hasBeam(), "A ComponentListImage may not have a beam(s)");
     // Set imageinfo in base class.
     Bool ok = ImageInterface<Float>::setImageInfo(info);
-    auto& tab = _cl.getTable();
+    auto& tab = _cl._getTable();
     if (ok && ! tab.isNull()) {
         // Make persistent in table keywords.
         _reopenRW();
@@ -448,7 +448,7 @@ Bool ComponentListImage::setImageInfo(const ImageInfo& info) {
 
 Bool ComponentListImage::setMiscInfo(const RecordInterface& newInfo) {
     setMiscInfoMember(newInfo);
-    auto& tab = _cl.getTable();
+    auto& tab = _cl._getTable();
     if (! tab.isNull()) {
         _reopenRW();
         if (! tab.isWritable()) {
@@ -469,7 +469,7 @@ Bool ComponentListImage::setUnits(const Unit& newUnits) {
     setUnitMember (newUnits);
     if (! _cl.getTable().isNull()) {
         _reopenRW();
-        auto& tab = _cl.getTable();
+        auto& tab = _cl._getTable();
         if (! tab.isWritable()) {
             return False;
         }
@@ -920,7 +920,7 @@ void ComponentListImage::_initCache() {
 
 void ComponentListImage::_openLogTable() {
     // Open logtable as readonly if main table is not writable.
-    auto& tab = _cl.getTable();
+    auto& tab = _cl._getTable();
     setLogMember (LoggerHolder (name() + "/logtable", tab.isWritable()));
     // Insert the keyword if possible and if it does not exist yet.
     if (tab.isWritable()  &&  ! tab.keywordSet().isDefined ("logtable")) {
@@ -930,7 +930,7 @@ void ComponentListImage::_openLogTable() {
 
 void ComponentListImage::_reopenRW() {
     // implementation copied from PagedImage and tweaked
-    auto& table = _cl.getTable();
+    auto& table = _cl._getTable();
     //# Open for write if not done yet and if writable.
     if (!table.isWritable()) {
         table.reopenRW();
@@ -945,7 +945,7 @@ void ComponentListImage::_resize(const TiledShape& newShape) {
         _shape.resize(shape.size(), False);
     }
     _shape = shape;
-    auto& table = _cl.getTable();
+    auto& table = _cl._getTable();
     if (! table.isNull()) {
         _reopenRW();
         if (table.isWritable()) {

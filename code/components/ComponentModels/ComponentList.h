@@ -161,7 +161,27 @@ public:
   // opened read-write.  Any subsequent changes made to a list opened 
   // read-only (i.e. via add(), remove(), or editing a non-const member 
   // component returned by component()) will not be saved to disk.
-  ComponentList(const casacore::Path& fileName, const casacore::Bool readOnly=false);
+  //
+  // rewriteTable indicates if the table, if it exists and is not readOnly, should be
+  // rewritten on copies (operator=()) and on destruction. Rewriting this table is always
+  // how it has worked in the past (which is why the default is true), however, classes
+  // like ComponentListImage must be able to write things like metadata and subtables to
+  // the main table (so need write access), but do not alter data in the main table, so
+  // that rewriting the main table is unnecessary. Rewriting the table also causes an
+  // increase in the table size on disk. This occurs even when the data being written is
+  // identical to the the data being overwritten, and on the surface seems to be a bug,
+  // but requires more investigation.
+  //
+  // In any case, rewriting the entire table seems overkill, and this needs to be addressed.
+  // The table should only be written to when data are changed. CAS-10717 is meant to address
+  // this, although it will take some effort to complete. The main issue is that the non-const
+  // version of method component() needs to be removed, because it allows callers to change
+  // SkyComponent data without the knowledge of the ComponentList object. This breaks
+  // encapsulation; when changing an object's data, the object should be aware.
+  ComponentList(
+      const casacore::Path& fileName, casacore::Bool readOnly=false,
+      casacore::Bool rewriteTable=casacore::True
+  );
 
   // The Copy constructor uses reference semantics
   ComponentList(const ComponentList& other);
@@ -453,7 +473,7 @@ public:
 
   // get the underlying table. This method was added specifically for use by ComponenetListImage;
   // it is not advised that it be called outside that class.
-  casacore::Table& getTable();
+  // casacore::Table& getTable();
 
   const casacore::Table& getTable() const;
 
@@ -467,6 +487,9 @@ private:
   // </thrown>
   void writeTable();
 
+  friend class ComponentListImage;
+  casacore::Table& _getTable();
+
   // Private function to read the components from disk
   // <thrown>
   // <li> casacore::AipsError - If the table is not readable
@@ -476,10 +499,11 @@ private:
   casacore::Block<SkyComponent> itsList;
   casacore::uInt itsNelements;
   casacore::Table itsTable;
-  casacore::Bool itsROFlag;
+  casacore::Bool itsROFlag = casacore::False;
   casacore::Block<casacore::Bool> itsSelectedFlags;
   casacore::Block<casacore::uInt> itsOrder;
   casacore::Bool itsAddOptCol;
+  casacore::Bool itsRewriteTable;
 };
 
 } //# NAMESPACE CASA - END
