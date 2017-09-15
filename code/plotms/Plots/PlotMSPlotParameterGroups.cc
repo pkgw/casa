@@ -88,6 +88,7 @@ const int PMS_PP::UPDATE_PLOTMS_OPTIONS =
 
 // PMS_PP_MSData record keys.
 const String PMS_PP_MSData::REC_FILENAME = "filename";
+const String PMS_PP_MSData::REC_TYPE = "type";
 const String PMS_PP_MSData::REC_SELECTION = "selection";
 const String PMS_PP_MSData::REC_AVERAGING = "averaging";
 const String PMS_PP_MSData::REC_TRANSFORMATIONS = "transformations";
@@ -119,6 +120,7 @@ Record PMS_PP_MSData::toRecord() const
 {
 	Record rec;
 	rec.define(REC_FILENAME, itsFilename_);
+	rec.define(REC_TYPE, itsType_);
 	rec.defineRecord(REC_SELECTION, itsSelection_.toRecord());
 	rec.defineRecord(REC_AVERAGING, itsAveraging_.toRecord());
 	rec.defineRecord(REC_TRANSFORMATIONS, itsTransformations_.toRecord());
@@ -133,6 +135,11 @@ void PMS_PP_MSData::fromRecord(const Record& record)
 	if (record.isDefined(REC_FILENAME) && record.dataType(REC_FILENAME) == TpString && itsFilename_ != record.asString(REC_FILENAME))
 	{
 		itsFilename_ = record.asString(REC_FILENAME);
+		valuesChanged = true;
+	}
+	if (record.isDefined(REC_TYPE) && record.dataType(REC_TYPE) == TpInt && itsType_ != record.asInt(REC_TYPE))
+	{
+		itsType_ = record.asInt(REC_TYPE);
 		valuesChanged = true;
 	}
 	if (record.isDefined(REC_SELECTION) && record.dataType(REC_SELECTION) == TpRecord)
@@ -192,6 +199,7 @@ PMS_PP_MSData& PMS_PP_MSData::assign(const PMS_PP_MSData* o){
 	if (o != NULL && *this != *o)
 	{
 		itsFilename_ = o->itsFilename_;
+		itsType_ = o->itsType_;
 		itsSelection_ = o->itsSelection_;
 		itsAveraging_ = o->itsAveraging_;
 		itsTransformations_ = o->itsTransformations_;
@@ -207,6 +215,7 @@ bool PMS_PP_MSData::operator==(const Group& other) const
 	const PMS_PP_MSData* o = dynamic_cast<const PMS_PP_MSData*>(&other);
 	if (o == NULL) return false;
 	if (itsFilename_ != o->itsFilename_) return false;
+	if (itsType_ != o->itsType_) return false;
 	if (itsSelection_ != o->itsSelection_) return false;
 	if (itsAveraging_ != o->itsAveraging_) return false;
 	if (itsTransformations_ != o->itsTransformations_) return false;
@@ -219,6 +228,7 @@ bool PMS_PP_MSData::operator==(const Group& other) const
 void PMS_PP_MSData::setDefaults()
 {
 	itsFilename_ = "";
+    itsType_ = 0; // MS
 	itsSelection_ = PlotMSSelection();
 	itsAveraging_ = PlotMSAveraging();
 	itsTransformations_ = PlotMSTransformations();
