@@ -79,11 +79,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 // </todo>
 
 
-VisBufferUtil::VisBufferUtil(): oldMSId_p(-1), timeAntIndex_p(0), cachedPointingDir_p(0){};
+  VisBufferUtil::VisBufferUtil(): oldMSId_p(-1), oldPCMSId_p(-1), timeAntIndex_p(0), cachedPointingDir_p(0), cachedPhaseCenter_p(0){};
 
 
 // Construct from a VisBuffer (sets frame info)
-VisBufferUtil::VisBufferUtil(const VisBuffer& vb): oldMSId_p(-1), timeAntIndex_p(0), cachedPointingDir_p(0) {
+  VisBufferUtil::VisBufferUtil(const VisBuffer& vb): oldMSId_p(-1), oldPCMSId_p(-1), timeAntIndex_p(0), cachedPointingDir_p(0), cachedPhaseCenter_p(0) {
 
   // The nominal epoch 
   MEpoch ep=vb.msColumns().timeMeas()(0);
@@ -110,7 +110,7 @@ VisBufferUtil::VisBufferUtil(const VisBuffer& vb): oldMSId_p(-1), timeAntIndex_p
 }
 
 // Construct from a VisBuffer (sets frame info)
-VisBufferUtil::VisBufferUtil(const vi::VisBuffer2& vb): oldMSId_p(-1) {
+  VisBufferUtil::VisBufferUtil(const vi::VisBuffer2& vb): oldMSId_p(-1), oldPCMSId_p(-1),  timeAntIndex_p(0), cachedPointingDir_p(0), cachedPhaseCenter_p(0) {
 	if(!vb.isAttached())
 		ThrowCc("Programmer Error: used a detached Visbuffer when it should not have been so");
 	ROMSColumns msc(vb.ms());
@@ -677,7 +677,7 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
 	 //MDirection outdir;
 	 if(oldMSId_p != vb.msId()){
 		 tim.mark();
-		 cerr << "MSID: "<< oldMSId_p <<  "    " << vb.msId() << endl;
+		 //cerr << "MSID: "<< oldMSId_p <<  "    " << vb.msId() << endl;
 		 oldMSId_p=vb.msId();
 		 if(timeAntIndex_p.shape()(0) < (oldMSId_p+1)){
 			 timeAntIndex_p.resize(oldMSId_p+1, true);
@@ -732,6 +732,80 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
 
 
  }
+
+   MDirection VisBufferUtil::getPhaseCenter(const vi::VisBuffer2& vb, const Int vbrow){
+     //Timer tim;
+	 
+	 
+	 //MDirection outdir;
+	 if(oldPCMSId_p != vb.msId()){
+	   ROMSColumns msc(vb.ms());
+	   //tim.mark();
+	   //cerr << "MSID: "<< oldPCMSId_p <<  "    " << vb.msId() << endl;
+	   oldPCMSId_p=vb.msId();
+	   if(cachedPhaseCenter_p.shape()(0) < (oldPCMSId_p+1)){
+	     cachedPhaseCenter_p.resize(oldPCMSId_p+1, true);
+	     cachedPhaseCenter_p[oldPCMSId_p]=map<Double, MDirection>();
+	   }
+	   if( cachedPhaseCenter_p[oldPCMSId_p].empty()){
+		   Vector<Double> tOrig;
+		   msc.time().getColumn(tOrig);
+		   Vector<Int> fieldId;
+		   msc.fieldId().getColumn(fieldId);
+		   Vector<Double> t;
+		   Vector<Int> origindx;
+		   rejectConsecutive(tOrig, t, origindx);
+		   Vector<uInt>  uniqIndx;
+		   
+		   uInt nTimes=GenSortIndirect<Double>::sort (uniqIndx, t, Sort::Ascending, Sort::QuickSort|Sort::NoDuplicates);
+		   //cerr << "ntimes " << nTimes << "  " << uniqIndx  << "\n  origInx " << origindx << endl;
+		   const ROMSFieldColumns& msfc=msc.field();
+		   for (uInt k=0; k <nTimes; ++k){
+		     //cerr << t[uniqIndx[k]] << "   " <<  fieldId[origindx[uniqIndx[k]]] << endl;
+		     //cerr << msfc.phaseDirMeas(fieldId[origindx[uniqIndx[k]]], t[uniqIndx[k]]) << endl;
+		     //cerr << "size " <<  cachedPhaseCenter_p[oldPCMSId_p].size() << endl;
+		       (cachedPhaseCenter_p[oldPCMSId_p])[t[uniqIndx[k]]]=msfc.phaseDirMeas(fieldId[origindx[uniqIndx[k]]], t[uniqIndx[k]]);
+		     
+		   }
+			
+
+	   }
+	   //tim.show("After caching all phasecenters");
+	 }
+	 //tim.mark();
+	 MDirection retval;
+	 auto it=cachedPhaseCenter_p[oldPCMSId_p].find(vb.time()(vbrow));
+	 if(it != cachedPhaseCenter_p[oldPCMSId_p].end()){
+	   retval=it->second;
+	 }
+	 else{
+	   auto upp= cachedPhaseCenter_p[oldPCMSId_p].upper_bound(vb.time()(vbrow));
+	   auto low= cachedPhaseCenter_p[oldPCMSId_p].lower_bound(vb.time()(vbrow));
+	   if (upp==cachedPhaseCenter_p[oldPCMSId_p].begin())
+	     retval=(cachedPhaseCenter_p[oldPCMSId_p].begin())->second;
+	   else if(low==cachedPhaseCenter_p[oldPCMSId_p].end()){
+	     --low;
+	     retval=low->second;
+	   }
+	   else{
+	     if(fabs(vb.time()(vbrow) - (low->first)) < fabs(vb.time()(vbrow) - (upp->first))){
+	       retval=low->second;
+	     }
+	     else{
+	       retval=upp->second;
+	     }
+
+	   }
+	 }
+	 //tim.show("retrieved cache");
+	 
+
+	 return retval;
+
+
+
+ }
+
  //utility to reject consecutive similar value for sorting
  void VisBufferUtil::rejectConsecutive(const Vector<Double>& t, Vector<Double>& retval){
      uInt n=t.nelements();
@@ -752,6 +826,31 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
      retval.resize(prev+1, true);
 
    }
+void VisBufferUtil::rejectConsecutive(const Vector<Double>& t, Vector<Double>& retval, Vector<Int>& indx){
+    uInt n=t.nelements();
+    if(n >0){
+      retval.resize(n);
+      indx.resize(n);
+      retval[0]=t[0];
+      indx[0]=0;
+    }
+    else
+      return;
+    Int prev=0;
+    for (uInt k=1; k < n; ++k){ 
+      if(t[k] != retval(prev)){
+	++prev;
+	//retval.resize(prev+1, true);
+	retval[prev]=t[k];
+	//indx.resize(prev+1, true);
+	indx[prev]=k;
+      }
+    }
+    retval.resize(prev+1, true);
+    indx.resize(prev+1, true);
+    
+  }
+
 // helper function to swap the y and z axes of a Cube
  void   VisBufferUtil::swapyz(Cube<Complex>& out, const Cube<Complex>& in)
 {

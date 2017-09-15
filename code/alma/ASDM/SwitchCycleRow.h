@@ -48,15 +48,15 @@
 
 
 	 
-#include <ArrayTime.h>
-	
-
-	 
 #include <Angle.h>
 	
 
 	 
-#include <Interval.h>
+#include <ArrayTime.h>
+	
+
+	 
+#include <Frequency.h>
 	
 
 	 
@@ -64,7 +64,7 @@
 	
 
 	 
-#include <Frequency.h>
+#include <Interval.h>
 	
 
 
@@ -98,7 +98,7 @@
 //#include <TableStreamReader.h>
 
 /*\file SwitchCycle.h
-    \brief Generated from model's revision "1.64", branch "HEAD"
+    \brief Generated from model's revision "-1", branch ""
 */
 
 namespace asdm {
@@ -114,7 +114,7 @@ typedef void (SwitchCycleRow::*SwitchCycleAttributeFromText) (const string& s);
 /**
  * The SwitchCycleRow class is a row of a SwitchCycleTable.
  * 
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  */
 class SwitchCycleRow {

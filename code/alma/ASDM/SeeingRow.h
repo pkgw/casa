@@ -48,15 +48,15 @@
 
 
 	 
+#include <ArrayTimeInterval.h>
+	
+
+	 
 #include <Angle.h>
 	
 
 	 
 #include <Length.h>
-	
-
-	 
-#include <ArrayTimeInterval.h>
 	
 
 
@@ -84,7 +84,7 @@
 //#include <TableStreamReader.h>
 
 /*\file Seeing.h
-    \brief Generated from model's revision "1.64", branch "HEAD"
+    \brief Generated from model's revision "-1", branch ""
 */
 
 namespace asdm {
@@ -100,7 +100,7 @@ typedef void (SeeingRow::*SeeingAttributeFromText) (const string& s);
 /**
  * The SeeingRow class is a row of a SeeingTable.
  * 
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  */
 class SeeingRow {
