@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import pylab as pl
+from textwrap import wrap
 from taskinit import gentools, qatool, casalog
 
 def plotants(vis=None, figfile=None, antindex=None, logpos=None, exclude=None,
@@ -42,20 +43,29 @@ def plotants(vis=None, figfile=None, antindex=None, logpos=None, exclude=None,
     """
 
     try:
-        if type(exclude) in [str, int]:
+        # remove trailing / for title basename
+        if vis[-1]=='/':
+            vis = vis[:-1]
+        # make exclude a list
+        if isinstance(exclude, (str, int)):
             exclude = [exclude]
-        telescope, antNames, antXs, antYs = getAntennaInfo(vis, exclude)
-        if len(antNames) == 0:  # no antennas selected
+
+        pl.clf()
+        telescope, names, ids, xpos, ypos = getAntennaInfo(vis, exclude)
+        if not names:  # no antennas selected
             casalog.post("No antennas selected.  Exiting plotants.")
             return
-        pl.clf()
         if logpos:
-            plotAntennasLog(antXs, antYs, antNames, antindex, telescope)
+            plotAntennasLog(telescope, names, ids, xpos, ypos, antindex)
         else:
-            plotAntennas(antXs, antYs, antNames, antindex, telescope)
+            plotAntennas(telescope, names, ids, xpos, ypos, antindex)
         if not title:
-            title = "Antenna Positions for\n" + os.path.basename(vis)
-        pl.title(title)
+            msname = os.path.basename(vis)
+            title = "Antenna Positions for "
+            if len(msname) > 55:
+                title += '\n'
+            title += msname
+        pl.title(title, {'fontsize':12})
         if figfile:
             pl.savefig(figfile)
     except Exception, instance:
@@ -85,24 +95,27 @@ def getAntennaInfo(msname, exclude):
     ants1 = tb.getcol('ANTENNA1')
     ants2 = tb.getcol('ANTENNA2')
     tb.close()
-    # Get antenna names and positions from antenna table
+    antIdsUsed = set(np.append(ants1, ants2))
+
+    # Get antenna names from antenna table
     anttabname = msname + '/ANTENNA'
     tb.open(anttabname)
     colname = 'NAME'
     if telescope == 'VLBA':
         colname = 'STATION'
     antNames = np.array(tb.getcol(colname)).tolist()
+    allAntIds = range(len(antNames))
+
+    # Get antenna names from antenna table
     antPositions = np.array([me.position('ITRF', qa.quantity(x, 'm'),
         qa.quantity(y, 'm'), qa.quantity(z, 'm'))
         for (x, y, z) in tb.getcol('POSITION').transpose()])
     tb.close()
 
-    allAntIds = range(len(antNames))
-    antIdsUsed = set(np.append(ants1, ants2))
 
     # handle exclude
     for ant in exclude:
-        if type(ant) is int:
+        if isinstance(ant, int):
             if ant not in allAntIds:
                 casalog.post("Cannot exclude antenna id " + str(ant) + 
                         ": does not exist")
@@ -111,7 +124,7 @@ def getAntennaInfo(msname, exclude):
                     antIdsUsed.remove(ant)
                 except KeyError: # id exists but not used anyway
                     pass
-        if type(ant) is str:
+        if isinstance(ant, str):
             try:
                 antIdsUsed.remove(antNames.index(ant))
             except ValueError: # cannot find name
@@ -120,14 +133,15 @@ def getAntennaInfo(msname, exclude):
             except KeyError:  # name exists but cannot remove from used ids
                 pass
 
-    antNames = [antNames[i] for i in antIdsUsed]
-    antPositions = [antPositions[i] for i in antIdsUsed]
+    ids = list(antIdsUsed)
+    antNames = [antNames[i] for i in ids]
+    antPositions = [antPositions[i] for i in ids]
 
-    nAnts = len(antIdsUsed)
+    nAnts = len(ids)
     print "Number of points being plotted:", nAnts
     casalog.post("Number of points being plotted: " + str(nAnts))
     if nAnts == 0:
-        return telescope, antNames, [], []
+        return telescope, antNames, [], [], []
     
     # Get the names, indices, and lat/lon/alt coords of our "good" antennas.
     antWgs84s = np.array([me.measure(pos, 'WGS84') for pos in antPositions])
@@ -144,9 +158,9 @@ def getAntennaInfo(msname, exclude):
     antYs = (antLats - arrayLat) * radE
     antZs = antAlts - arrayAlt
     
-    return telescope, antNames, antXs, antYs
+    return telescope, antNames, ids, antXs, antYs
 
-def plotAntennasLog(antXs, antYs, antNames, antIndex, telescope):
+def plotAntennasLog(telescope, names, ids, xpos, ypos, antindex):
     fig = pl.figure(1)
     # Set up subplot.
     ax = fig.add_subplot(1, 1, 1, polar=True, projection='polar')
@@ -168,12 +182,12 @@ def plotAntennasLog(antXs, antYs, antNames, antIndex, telescope):
     else:
         # For non-(E)VLA, take the median of antenna offsets as the
         # center for the plot.
-        xcenter = np.median(antXs)
-        ycenter = np.median(antYs)
+        xcenter = np.median(xpos)
+        ycenter = np.median(ypos)
         rmin_min, rmin_max = 3, 350
 
     # Derive radial offset w.r.t. center position.
-    r = ((antXs-xcenter)**2 + (antYs-ycenter)**2)**0.5
+    r = ((xpos-xcenter)**2 + (ypos-ycenter)**2)**0.5
     # Set rmin, clamp between a min and max value, ignore station
     # at r=0 if one is there.
     rmin = min(rmin_max, max(rmin_min, 0.8*np.min(r[r > 0])))
@@ -183,7 +197,7 @@ def plotAntennasLog(antXs, antYs, antNames, antIndex, telescope):
     # Set rmax.
     rmax = np.log(1.5*np.max(r))
     # Derive angle of offset w.r.t. center position.
-    theta = np.arctan2(antXs-xcenter, antYs-ycenter)
+    theta = np.arctan2(xpos-xcenter, ypos-ycenter)
 
     # Draw circles at specific distances from the center.
     angles = np.arange(0, 2.01*np.pi, 0.01*np.pi)
@@ -230,31 +244,35 @@ def plotAntennasLog(antXs, antYs, antNames, antIndex, telescope):
             show_circle = False
 
     # plot points and antenna names/ids
-    for i, antenna in enumerate(antNames):
+    for i, antenna in enumerate(names):
         ax.plot(theta[i], np.log(r[i]), 'ko', ms=5, mfc='r')
-        if antIndex:
-            antenna += ' (' + str(i) + ')'
+        if antindex:
+            antenna += ' (' + str(ids[i]) + ')'
         ax.text(theta[i], np.log(r[i]), '   '+antenna, size=8, va='top')
+
     # Set minimum and maximum radius.
     ax.set_rmax(rmax)
     ax.set_rmin(rmin)
 
-def plotAntennas(antXs, antYs, antNames, antIndex, telescope):
+    # Make room for 2-line title
+    pl.subplots_adjust(top=0.88)
+
+def plotAntennas(telescope, names, ids, xpos, ypos, antindex):
     fig = pl.figure(1)
     ax = fig.add_subplot(111)
 
     # use m or km units
     units = ' (m)'
-    if np.median(antXs) > 1e6 or np.median(antYs) > 1e6:
+    if np.median(xpos) > 1e6 or np.median(ypos) > 1e6:
         antXs /= 1e3
         antYs /= 1e3
         units = ' (km)'
 
     # plot points and antenna names/ids
-    for i, (x, y, name) in enumerate(zip(antXs, antYs, antNames)):
+    for i, (x, y, name) in enumerate(zip(xpos, ypos, names)):
         ax.plot(x, y, 'ro')
-        if antIndex:
-            name += ' (' + str(i) + ')'
+        if antindex:
+            name += ' (' + str(ids[i]) + ')'
         ax.text(x, y+2, '  ' + name, size=8, va='top')
         fig.show()
 
