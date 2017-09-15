@@ -238,7 +238,8 @@ private:
     casacore::MeasRef<casacore::MFrequency> _freqRef;
     casacore::Vector<std::shared_ptr<casacore::MVFrequency>> _freqVals;
     std::shared_ptr<
-        std::map<casacore::IPosition, casacore::Float, casacore::IPositionComparator>
+        std::map<std::pair<casacore::uInt, casacore::uInt>,
+        casacore::Matrix<casacore::Float>>
     > _ptSourcePixelVals = nullptr;
     casacore::Vector<casacore::Int> _pixelToIQUV;
     casacore::Bool _cache = casacore::True;

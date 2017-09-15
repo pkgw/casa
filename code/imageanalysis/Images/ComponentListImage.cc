@@ -594,7 +594,9 @@ void ComponentListImage::_cacheCoordinateInfo(const CoordinateSystem& csys) {
 }
 
 void ComponentListImage::_computePointSourcePixelValues() {
-    _ptSourcePixelVals.reset(new std::map<IPosition, Float, IPositionComparator>());
+    _ptSourcePixelVals.reset(
+        new std::map<std::pair<uInt, uInt>, Matrix<Float>>()
+    );
     auto n = _cl.nelements();
     std::set<uInt> pointSourceIdx;
     for (uInt i=0; i<n; ++i) {
@@ -614,6 +616,7 @@ void ComponentListImage::_computePointSourcePixelValues() {
     std::unique_ptr<ComponentList> modifiedList;
     uInt nStokes = _hasStokes ? _shape[_stokesAxis] : 1;
     std::vector<uInt> foundPtSourceIdx;
+    std::pair<uInt, uInt> dirPos;
     for (const auto i: pointSourceIdx) {
         dirCoord.toPixel(pixel, _cl.getRefDirection(i));
         pixelPosition[_longAxis] = floor(pixel[0] + 0.5);
@@ -630,22 +633,16 @@ void ComponentListImage::_computePointSourcePixelValues() {
         }
         if (foundPixel) {
             foundPtSourceIdx.push_back(i);
+            dirPos.first = pixelPosition[_longAxis];
+            dirPos.second = pixelPosition[_latAxis];
+            auto myiter = _ptSourcePixelVals->find(dirPos);
+            if (myiter == _ptSourcePixelVals->end()) {
+                (*_ptSourcePixelVals)[dirPos] = Matrix<Float>(nFreqs, nStokes, 0);
+            }
             for (uInt f = 0; f < nFreqs; ++f) {
-                if (_hasFreq) {
-                    pixelPosition[_freqAxis] = f;
-                }
                 for (uInt s = 0; s < nStokes; ++s) {
-                    if (_hasStokes) {
-                        pixelPosition[_stokesAxis] = s;
-                    }
                     auto v = values(_pixelToIQUV[s], 0, f);
-                    auto myiter = _ptSourcePixelVals->find(pixelPosition);
-                    if (myiter == _ptSourcePixelVals->end()) {
-                        (*_ptSourcePixelVals)[pixelPosition] = v;
-                    }
-                    else {
-                        (*_ptSourcePixelVals)[pixelPosition] += v;
-                    }
+                    (*_ptSourcePixelVals)[dirPos](f, s) += v;
                 }
             }
         }
@@ -676,29 +673,31 @@ void ComponentListImage::_fillBuffer(
     uInt d = 0;
     auto nStokes = _hasStokes ? chunkShape[_stokesAxis] : 1;
     IPosition posInArray(_shape.size(), 0);
-    auto imagePixel = secStart;
     ssize_t zero = 0;
     auto& blat = posInArray[_latAxis];
     auto& blong = posInArray[_longAxis];
     auto& bfreq = _hasFreq ? posInArray[_freqAxis] : zero;
     auto& bpol = _hasStokes ? posInArray[_stokesAxis] : zero;
-    auto& ilat = imagePixel[_latAxis];
-    auto& ilong = imagePixel[_longAxis];
-    auto& ifreq = _hasFreq ? imagePixel[_freqAxis] : zero;
-    auto& ipol = _hasStokes ? imagePixel[_stokesAxis] : zero;
-    for(blat=0, ilat=secStart[_latAxis]; blat<nLat; ++blat, ++ilat) {
-        for(blong=0, ilong=secStart[_longAxis]; blong<nLong; ++blong, ++ilong, ++d) {
-            ifreq = _hasFreq ? secStart[_freqAxis] : zero;
-            uInt f = 0;
-            for (bfreq=0; bfreq<nFreqs; ++bfreq, ++f, ++ifreq) {
-                ipol = _hasStokes ? secStart[_stokesAxis] : zero;
+    std::pair<uInt, uInt> dirPos;
+    uInt ilat=secStart[_latAxis];
+    const uInt startLong = secStart[_longAxis];
+    const uInt startFreq =  _hasFreq ? secStart[_freqAxis] : 0;
+    const uInt startPol =  _hasStokes ? secStart[_stokesAxis] : 0;
+    for(blat=0; blat<nLat; ++blat, ++ilat) {
+        dirPos.first = ilat;
+        uInt ilong = startLong;
+        for(blong=0; blong<nLong; ++blong, ++ilong, ++d) {
+            dirPos.second = ilong;
+            uInt ifreq = startFreq;
+            auto ptSourceContrib = _ptSourcePixelVals->find(dirPos);
+            auto hasPtSourceContrib = lookForPtSources
+                && ptSourceContrib != _ptSourcePixelVals->end();
+            for (bfreq=0; bfreq<nFreqs; ++bfreq, ++ifreq) {
+                uInt ipol = startPol;
                 for (bpol=0; bpol<nStokes; ++bpol, ++ipol) {
-                    buffer(posInArray) = pixelVals(_pixelToIQUV[imagePixel[_stokesAxis]], d, f);
-                    if (lookForPtSources) {
-                        auto ptSourceContrib = _ptSourcePixelVals->find(imagePixel);
-                        if (ptSourceContrib != _ptSourcePixelVals->end()) {
-                            buffer(posInArray) += ptSourceContrib->second;
-                        }
+                    buffer(posInArray) = pixelVals(_pixelToIQUV[ipol], d, bfreq);
+                    if (hasPtSourceContrib) {
+                        buffer(posInArray) += ptSourceContrib->second(ifreq, ipol);
                     }
                 }
             }
