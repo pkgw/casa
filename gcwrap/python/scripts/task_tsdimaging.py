@@ -10,7 +10,7 @@ import sdbeamutil
 from cleanhelper import cleanhelper
 
 @sdutil.sdtask_decorator
-def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, mode, nchan, start, width, veltype, outframe, gridfunction, convsupport, truncate, gwidth, jwidth, imsize, cell, phasecenter, ephemsrcname, pointingcolumn, restfreq, stokes, minweight, clipminmax):
+def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, mode, nchan, start, width, veltype, outframe, gridfunction, convsupport, truncate, gwidth, jwidth, imsize, cell, phasecenter, projection, ephemsrcname, pointingcolumn, restfreq, stokes, minweight, brightnessunit, clipminmax):
     with sdutil.sdtask_manager(sdimaging_worker, locals()) as worker:
         worker.initialize()
         worker.execute()
@@ -27,6 +27,7 @@ class sdimaging_worker(sdutil.sdtask_template_imaging):
         super(sdimaging_worker,self).__init__(**kwargs)
         self.imager_param = {}
         self.sorted_idx = []
+        self.image_unit = ""
 
     def parameter_check(self):
         # outfile check
@@ -285,6 +286,15 @@ class sdimaging_worker(sdutil.sdtask_template_imaging):
                 raise Exception, "Internal error of getting frequency frame of spw=%d." % spwid_ref
         else:
             casalog.post("Using frequency frame defined by user, '%s'" % self.imager_param['outframe'])
+
+        # brightness unit
+        if len(self.brightnessunit) > 0:
+            if self.brightnessunit.lower() == 'k':
+                self.image_unit = 'K'
+            elif self.brightnessunit.lower() == 'jy/beam':
+                self.image_unit = 'Jy/beam'
+            else:
+                raise ValueError, "Invalid brightness unit, %s" % self.brightnessunit
         
 #         # antenna
 #         in_antenna = self.antenna # backup for future use
@@ -388,6 +398,8 @@ class sdimaging_worker(sdutil.sdtask_template_imaging):
         self.imager_param['start'] = startval
         self.imager_param['step'] = widthval
         self.imager_param['nchan'] = imnchan #self.nchan
+        
+        self.imager_param['projection'] = self.projection
 
         
 
@@ -451,6 +463,9 @@ class sdimaging_worker(sdutil.sdtask_template_imaging):
         csys = my_ia.coordsys()
         csys.setconversiontype(spectral=csys.referencecode('spectra')[0])
         my_ia.setcoordsys(csys.torecord())
+        if len(self.image_unit) > 0:
+            casalog.post("Setting brightness unit '%s' to image." % self.image_unit)
+            my_ia.setbrightnessunit(self.image_unit)
 
         my_ia.close()
 

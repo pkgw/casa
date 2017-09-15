@@ -213,6 +213,17 @@ values. See description below for details of gridfunction available.
             <value type="string"></value>
     </param>
 
+	<param type="string" name="projection">
+	    <description>map projection type</description>
+	    <value>SIN</value>
+	    <allowed kind="enum" ignorecase="true">
+	        <value>SIN</value>
+	        <value>CAR</value>
+	        <value>TAN</value>
+	        <value>SFL</value>
+	    </allowed>
+	</param>
+
     <param type="string" name="ephemsrcname">
 	    <description>ephemeris source name, e.g. \'MARS\'</description>
 	    <value></value>
@@ -249,6 +260,16 @@ values. See description below for details of gridfunction available.
             <value>0.1</value>
     </param>
    
+    <param type="string" name="brightnessunit">
+            <description>Overwrite the brightness unit in image (\'\' = respect the unit in MS) [\'K\' or \'Jy/beam\']</description>
+            <value></value>
+            <allowed kind="enum" ignorecase="True">
+                <value></value>
+                <value>K</value>
+                <value>Jy/beam</value>
+            </allowed>
+    </param>
+
    	<param type="bool" name="clipminmax">
    			<shortdescription>Clip minimum and maximum value from each pixel</shortdescription>
    			<description>Clip minimum and maximum value from each pixel. Note the benefit of clipping is lost when the number of integrations contributing to each gridded pixel is small, or where the incidence of spurious datapoints is approximately or greater than the number of beams (in area) encompassed by expected image.</description>
@@ -471,6 +492,9 @@ phasecenter -- image phase center: direction measure or field ID
                      POINTING table of infiles)
         example: 6 (field id), 'J2000 13h44m00 -17d02m00',
                  'AZEL -123d48m29 15d41m41'
+projection -- map projection type. See Calabretta &amp; Greisen (2002) for detail.
+        default: 'SIN' 
+        options: 'SIN', 'CAR', 'TAN', 'SFL'
 ephemsrcname -- ephemeris source name for moving source (solar sytem objects)
         default: '' (none)
         If specified source name matches one of the solar system 
@@ -504,6 +528,9 @@ minweight -- Minimum weight ratio to the median of weight used in
              weight correction and weight based masking
         default: 0.1
         example: minweight = 0.
+brightnessunit -- Overwrite the brightness unit in image.
+        default: '' (use the unit in MS)
+        Options: '', 'K' (Kelvin), 'Jy/beam'
 clipminmax -- Clip minimum and maximum value from each pixel. 
               Note the benefit of clipping is lost when the number of 
               integrations contributing to each gridded pixel is small, 
