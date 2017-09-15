@@ -264,8 +264,8 @@ def plotAntennas(telescope, names, ids, xpos, ypos, antindex):
     # use m or km units
     units = ' (m)'
     if np.median(xpos) > 1e6 or np.median(ypos) > 1e6:
-        antXs /= 1e3
-        antYs /= 1e3
+        xpos /= 1e3
+        ypos /= 1e3
         units = ' (km)'
 
     # plot points and antenna names/ids
