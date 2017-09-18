@@ -1115,6 +1115,275 @@ class test_ModImage(SetjyUnitTestBase):
 
         return record
     
+class test_newStandards(SetjyUnitTestBase):
+    """Test simple Stnadard Scaling"""
+    def setUp(self):
+        prefix = 'n1333_1' 
+        msname=prefix+'.ms'
+        self.setUpMS(msname)
+        self.field='0542+498_1'
+
+    def tearDown(self):
+        self.resetMS()
+
+    def test_PB2013(self):
+        self.modelim = ""
+        sjran = setjy(vis=self.inpms, 
+                      field=self.field,
+                      modimage=self.modelim,
+                      standard='Perley-Butler 2013',
+                      usescratch=True
+                      )
+        ret = True
+        if type(sjran)!=dict:
+            ret = False
+        else: 
+            outfldid = ""
+            for ky in sjran.keys():
+                if sjran[ky].has_key('fieldName') and sjran[ky]['fieldName']==self.field:
+                    outfldid = ky
+                    break 
+            ret = len(outfldid)
+            if not ret:
+                print "FAIL: missing field = %s in the returned dictionary" % self.field 
+        self.check_eq(sjran['12']['0']['fluxd'][0],0.99137,0.0001)
+        self.check_eq(sjran['12']['1']['fluxd'][0],0.99132,0.0001)
+        self.assertTrue(ret)
+ 
+    def test_PB2017(self):
+        self.modelim = ""
+        sjran = setjy(vis=self.inpms, 
+                      field=self.field,
+                      modimage=self.modelim,
+                      standard='Perley-Butler 2017',
+                      usescratch=True
+                      )
+        ret = True
+        if type(sjran)!=dict:
+            ret = False
+        else: 
+            outfldid = ""
+            for ky in sjran.keys():
+                if sjran[ky].has_key('fieldName') and sjran[ky]['fieldName']==self.field:
+                    outfldid = ky
+                    break 
+            ret = len(outfldid)
+            if not ret:
+                print "FAIL: missing field = %s in the returned dictionary" % self.field 
+        self.check_eq(sjran['12']['0']['fluxd'][0],1.15116881972,0.0001)
+        self.check_eq(sjran['12']['1']['fluxd'][0],1.15111995508,0.0001)
+        self.assertTrue(ret)
+ 
+    
+class test_inputs(SetjyUnitTestBase):
+    """Test input parameter checking"""
+    def setUp(self):
+        #self.setUpMS("unittest/setjy/2528.ms")         # Uranus
+        #self.setUpMS("2528.ms")         # Uranus
+        self.setUpMS("multiobs.ms")
+
+    def tearDown(self):
+        self.resetMS()
+
+    def test_vischeck(self):
+        """ Test input vis check"""
+        self.inpms='wrong.ms'
+        if os.path.exists(self.inpms):
+            shutil.rmtree(self.inpms) 
+
+
+        # test by temporarily setting __rethrow_casa_exceptions
+        sjran=None
+        try:
+            myf = stack_frame_find( )
+            original_rethrow_setting=myf.get('__rethrow_casa_exceptions',False)
+            myf['__rethrow_casa_exceptions']=True
+            print "\nRunning setjy with a non-existant vis"
+            sjran = setjy(vis=self.inpms,listmodels=False)
+        except Exception, setjyUTerr:
+            msg = setjyUTerr.message
+            self.assertNotEqual(msg.find("%s does not exist" % self.inpms), -1,
+                                'wrong type of exception is thrown')
+        finally:
+            # put back original rethrow setting
+            myf['__rethrow_casa_exceptions']=original_rethrow_setting
+        self.assertEqual(sjran,None,"Failed to raise exception.") 
+     
+    def test_listmodels(self):
+        """ Test listmodels mode """
+        self.inpms=''
+        print "\nRunning setjy in listmodels mode ...."
+        sjran = setjy(vis=self.inpms,listmodels=True)
+        self.assertTrue(sjran)
+
+
+class test_conesearch(SetjyUnitTestBase):
+    """Test search for field match by position (standard='Perley-Butler 2013')"""
+
+    def setUp(self):
+        prefix = 'n1333_nonstdcalname' 
+        msname=prefix+'.ms'
+        #self.setUpMS('unittest/setjy/n1333_nonstdcalname.ms')
+        self.setUpMS(msname)
+        self.field = 'myfcalsrc'
+        self.modelim = '3C147_U.im'
+        self.result = {}
+
+    def tearDown(self):
+        self.resetMS()
+ 
+    def test_searchByPosition(self): 
+        sjran = setjy(vis=self.inpms, 
+                      field=self.field,
+                      modimage=self.modelim,
+                      scalebychan=False,
+                      #standard='Perley-Taylor 99',
+                      standard='Perley-Butler 2013',
+                      usescratch=True
+                      )
+        ret = True
+        if type(sjran)!=dict:
+            ret = False
+        else: 
+            outfldid = ""
+            for ky in sjran.keys():
+                if sjran[ky].has_key('fieldName') and sjran[ky]['fieldName']==self.field:
+                    outfldid = ky
+                    break 
+            ret = len(outfldid)
+            if not ret:
+                print "FAIL: missing field = %s in the returned dictionary" % self.field 
+        self.check_eq(sjran['12']['1']['fluxd'][0],0.99125797,0.0001)
+        self.assertTrue(ret)
+
+class test_fluxscaleStandard(SetjyUnitTestBase):
+    """Test standard="fluxscale" mode"""
+
+    def setUp(self):
+        prefix = 'ngc5921' 
+        msname=prefix+'.ms'
+        self.setUpMS(msname) 
+        self.field = 'myfcalsrc'
+        self.modelim = '3C147_U.im'
+        self.result = {}
+
+    def tearDown(self):
+        self.resetMS()
+
+    def test_fluxscaleStandard1(self):
+        """ Test for accepting input fluxscale dictionary """
+        import numpy as np
+        fluxscaledict=\
+        {'1': {'0': {'fluxd': np.array([ 2.48362403,  0.        ,  0.        ,  0.        ]),
+             'fluxdErr': np.array([ 0.00215907,  0.        ,  0.        ,  0.        ]),
+             'numSol': np.array([ 54.,   0.,   0.,   0.])},
+       'fieldName': '1445+09900002_0',
+       'fitFluxd': 0.0,
+       'fitFluxdErr': 0.0,
+       'fitRefFreq': 0.0,
+       'spidx': np.array([ 0.,  0.,  0.]),
+       'spidxerr': np.array([ 0.,  0.,  0.])},
+       'freq':np. array([  1.41266507e+09]),
+       'spwID': np.array([0], dtype=np.int32),
+       'spwName': np.array(['none'], dtype='|S5')}
+
+        sjran = setjy(vis=self.inpms,
+                      standard='fluxscale',
+                      fluxdict=fluxscaledict,
+                      usescratch=False
+                      )
+        ret = True
+        if type(sjran)!=dict:
+            ret = False
+        else:
+            outfldid = ""
+            for ky in sjran.keys():
+                if sjran[ky].has_key('fieldName') and sjran[ky]['fieldName']==fluxscaledict['1']['fieldName']:
+                    outfldid = ky
+                    break
+            ret = len(outfldid)
+            if not ret:
+                print "FAIL: missing field = %s in the returned dictionary" % self.field
+        self.check_eq(sjran['1']['0']['fluxd'][0],2.48362403,0.0001)
+        self.assertTrue(ret)
+
+class test_setpol(SetjyUnitTestBase):
+    """Test multi-term spix and polarization parameter setting"""
+
+    def setUp(self):
+        prefix = '3c391calonly'
+        msfile = prefix + '.ms'
+        #self.setUpMS('unittest/setjy/3c391calonly.ms')
+        self.setUpMS(msfile)
+        self.result = {}
+
+    def tearDown(self):
+        self.resetMS()
+
+    def test_setpol1(self):
+        """ Test for multi-term spix (alpha and beta) """
+
+        sjran = setjy(vis=self.inpms,
+                      standard='manual',
+                      field = 'J1331+3030',
+                      fluxdensity = [7.81694, 0.355789, 0.79909, 0],
+                      spix = [-0.62,-0.1], 
+                      reffreq='4536.0MHz',
+                      usescratch=True)
+        ret = True
+        if type(sjran)!=dict:
+            ret = False
+        #else:
+        #    print sjran 
+        #print "fluxdic=",sjran 
+ 
+        self.check_eq(sjran['0']['0']['fluxd'][0],7.81694, 0.0001)
+        self.assertTrue(ret)
+
+        # expected flux
+        #fref = 4.536e9
+        #logflx = log10(7.81694) + (-0.62)*log10(f/fref) + (-0.1)*log10(f/fref)
+        # fmin at last chan (Freq=4662000000.0Hz)
+        fexpmin = 7.68502
+        ms.open(self.inpms)
+        retrec = ms.statistics(field='0', baseline='1&2', correlation='rr', column='model', complex_value='amp', reportingaxes='field')
+        ms.close()
+        self.check_eq(retrec['FIELD_ID=0']['min'],fexpmin,0.0001)
+
+    def test_setpol2(self):
+        """ Test for constant polindex and polangle with I flux density  """
+
+        sjran = setjy(vis=self.inpms,
+                      standard='manual',
+                      field = 'J1331+3030',
+                      fluxdensity = [7.81694, 0, 0, 0],
+                      spix = [-0.62],
+                      reffreq='4536.0MHz',
+                      usescratch=True)
+        ret = True
+        if type(sjran)!=dict:
+            ret = False
+        #else:
+        #    print sjran
+
+        self.check_eq(sjran['0']['0']['fluxd'][0],7.81694, 0.0001)
+        self.assertTrue(ret)
+
+        # expected flux
+        #fref = 4.536e9
+        #logflx = log10(7.81694) + (-0.62)*log10(f/fref) + (-0.1)*log10(f/fref)
+        # fmin at last chan (Freq=4662000000.0Hz)
+        fexpmin = 7.68527
+        ms.open(self.inpms)
+        retrec = ms.statistics(field='0', baseline='1&2', correlation='rr', column='model', complex_value='amp', reportingaxes='field')
+        #retrec2 = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='phase')
+        ms.close()
+        self.check_eq(retrec['FIELD_ID=0']['min'],fexpmin,0.0001)
+
+    def test_setpol3(self):
+        """ Test for frequency-dependent polindex (2 terms)   """
+        # the constant terms (polindex[0] and polangle[0] is ignored..
+    
 class test_inputs(SetjyUnitTestBase):
     """Test input parameter checking"""
     def setUp(self):
@@ -1665,4 +1934,4 @@ class test_tpmAsteroid(SetjyUnitTestBase):
 
  
 def suite():
-    return [test_SingleObservation,test_MultipleObservations,test_ModImage, test_inputs, test_conesearch, test_fluxscaleStandard, test_setpol, test_ephemtbl, test_tpmAsteroid]
+    return [test_SingleObservation,test_MultipleObservations,test_ModImage, test_inputs, test_conesearch, test_fluxscaleStandard, test_setpol, test_ephemtbl, test_tpmAsteroid, test_newStandards]

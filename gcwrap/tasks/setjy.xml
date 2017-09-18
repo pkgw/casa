@@ -439,25 +439,40 @@
             (also case insensitive) and it recognizes as long as the field name  
             contains the string listed below (e.g. 'PKS 1934-638' works).  
             For 3C Name, a space or an underscore between 3C and the number
-             (e.g. '3C 286' and '3C_286') also works. If the matching by 
+             (e.g. '3C 286' and '3C_286') also works. For the sources containing
+            the name of the constellation, common abberiviation also works 
+            (e.g 'Cas-A', 'Cas A', 'CasA' and 'Cas_A'). If the matching by 
             the field name fails, the task tries to match by its position to
             the known calibrator list stored in the data directory
             (~/data/nrao/VLA/standards/fluxscalibrator.data). 
-            -------------------------------------------------------------
-            3C Name B1950 Name J2000 Name Alt. J2000 Name  standards*
-            3C48    0134+329   0137+331   J0137+3309       1,2,3,4,5,6,7
-            3C123   0433+295   0437+296   J0437+2940       2 
-            3C138   0518+165   0521+166   J0521+1638       1,2,3,4,5,6
-            3C147   0538+498   0542+498   J0542+4951       1,2,3,4,5,6,7
-            3C196   0809+483   0813+482   J0813+4813       1,2,7 
-            3C286   1328+307   1331+305   J1331+3030       1,2,3,4,5,6,7
-            3C295   1409+524   1411+522   J1411+5212       1,2,3,4,5,6,7
-              -     1934-638      -       J1939-6342       1,3,4,5,6,8
-            3C380   1828+487   1829+487   J1829+4845       7
-            ------------------------------------------------------------- 
+            -----------------------------------------------------------------------
+            3C/Common Name   B1950 Name J2000 Name Alt. J2000 Name  standards*
+              -                  -          -      J0133-3629       9
+            3C48             0134+329   0137+331   J0137+3309       1,2,3,4,5,6,7,9
+            FORNAX A             -          -      J0322-3712       9
+            3C123            0433+295   0437+296   J0437+2940       2,9 
+              -                  -          -      J0444-2809       9
+            3C138            0518+165   0521+166   J0521+1638       1,2,3,4,5,6,9
+            PICTOR A             -          -      J0519-4546       9
+            3C144(TAURUS A/CRAB) -          -      J0534+2200       9 
+            3C147            0538+498   0542+498   J0542+4951       1,2,3,4,5,6,7,9
+            3C196            0809+483   0813+482   J0813+4813       1,2,7,9
+            3C218(HYDRA A)       -          -      J0918-1205       9
+            3C274(VIRGO A)       -          -      J1230+1223       9
+            3C286            1328+307   1331+305   J1331+3030       1,2,3,4,5,6,7,9
+            3C295            1409+524   1411+522   J1411+5212       1,2,3,4,5,6,7,9
+            3C438(HERCULES A)    -          -      J1651+0459       9
+            3C353                -          -      J1720-0059       9
+              -              1934-638       -      J1939-6342       1,3,4,5,6,8
+            3C380            1828+487   1829+487   J1829+4845       7,9
+            3C405(CYGNUS A)      -          -      J1959+4044       9
+            3C444                -          -      J2214-1701       9
+            3C461(CASSIOPEIA A)  -          -      J2323+5848       9
+            -----------------------------------------------------------------------
             * supported in: 1 - Perley-Butler 2010, 2 - Perley-Butler 2013 (ref. Perley and 
             Butler 2013, ApJS 204, 19), 3 - Perley-Taylor 99, 4 - Perley-Taylor 95, 
             5 - Perley 90, 6 - Baars, 7 - Scaife-Heald 2012, 8 - Stevens-Reynolds 2016 
+            9 - Perley-Butler 2017
 
             Solar system objects:
             The 'Butler-JPL-Horizons 2012' standard is recommended over 
