@@ -71,10 +71,10 @@ ComponentListImage::ComponentListImage(
 ComponentListImage::ComponentListImage(
     const String& filename, Bool doCache, MaskSpecifier maskSpec
 ) : ImageInterface<Float>(RegionHandlerTable(getTable, this)), _cl(filename, False, False),
+    _modifiedCL(_cl.copy()),
     _cache(doCache) {
     _openLogTable();
     _restoreAll(_cl.getTable().keywordSet());
-    _modifiedCL = _cl.copy();
     _applyMaskSpecifier(maskSpec);
 }
 
@@ -89,6 +89,7 @@ ComponentListImage::ComponentListImage(const ComponentListImage& image)
   _freqVals(image._freqVals), _ptSourcePixelVals(image._ptSourcePixelVals),
   _pixelToIQUV(image._pixelToIQUV), _cache(image._cache),
   _hasFreq(image._hasFreq), _hasStokes(image._hasStokes),
+  _computedPtSources(image._computedPtSources),
   _defaultFreq(image._defaultFreq) {
     if (image._mask) {
         _mask.reset(new LatticeRegion(*image._mask));
@@ -126,6 +127,7 @@ ComponentListImage& ComponentListImage::operator=(const ComponentListImage& othe
         _cache = other._cache;
         _hasFreq = other._hasFreq;
         _hasStokes = other._hasStokes;
+        _computedPtSources = other._computedPtSources;
         _defaultFreq = other._defaultFreq;
         if (other._valueCache) {
             _valueCache.reset(
@@ -156,11 +158,6 @@ ImageInterface<Float>* ComponentListImage::cloneII() const {
 void ComponentListImage::copyData (const casacore::Lattice<casacore::Float>&) {
     ThrowCc("There is no general way to run " + String(__func__) + " on a ComponentList");
 }
-/*
-void ComponentListImage::copyDataTo (casacore::Lattice<casacore::Float>&) const {
-    ThrowCc("There is no general way to run " + String(__func__) + " on a ComponentList");
-}
-*/
 
 const ComponentList& ComponentListImage::componentList() const {
     return _cl;
@@ -179,7 +176,7 @@ Bool ComponentListImage::doGetMaskSlice(Array<Bool>& buffer, const Slicer& secti
 Bool ComponentListImage::doGetSlice(
     Array<Float>& buffer, const Slicer& section
 ) {
-    if (! _ptSourcePixelVals) {
+    if (! *_computedPtSources) {
         _computePointSourcePixelValues();
     }
     const auto& chunkShape = section.length();
@@ -594,9 +591,10 @@ void ComponentListImage::_cacheCoordinateInfo(const CoordinateSystem& csys) {
 }
 
 void ComponentListImage::_computePointSourcePixelValues() {
-    _ptSourcePixelVals.reset(
-        new std::map<std::pair<uInt, uInt>, Matrix<Float>>()
-    );
+    if (*_computedPtSources) {
+        return;
+    }
+    _ptSourcePixelVals->clear();
     auto n = _cl.nelements();
     std::set<uInt> pointSourceIdx;
     for (uInt i=0; i<n; ++i) {
@@ -607,56 +605,39 @@ void ComponentListImage::_computePointSourcePixelValues() {
     if (pointSourceIdx.empty()) {
         return;
     }
-    Vector<Double> pixel;
-    auto nFreqs = _hasFreq ? _shape[_freqAxis] : 1;
-    auto freqValues = _getAllFreqValues(nFreqs);
-    Cube<Double> values(4, 1, nFreqs);
-    IPosition pixelPosition(_shape.size(), 0);
-    const auto& dirCoord = coordinates().directionCoordinate();
-    std::unique_ptr<ComponentList> modifiedList;
-    uInt nStokes = _hasStokes ? _shape[_stokesAxis] : 1;
     std::vector<uInt> foundPtSourceIdx;
-    std::pair<uInt, uInt> dirPos;
-    for (const auto i: pointSourceIdx) {
-        dirCoord.toPixel(pixel, _cl.getRefDirection(i));
-        pixelPosition[_longAxis] = floor(pixel[0] + 0.5);
-        pixelPosition[_latAxis] = floor(pixel[1] + 0.5);
-        const auto& point = _cl.component(i);
-        values = 0;
-        auto foundPixel = _findPixel(
-            values, pixelPosition, dirCoord, point, freqValues
-        );
-        if (! foundPixel) {
-            foundPixel = _findPixelIn3x3Box(
-                pixelPosition, values, dirCoord, point, freqValues
-            );
-        }
-        if (foundPixel) {
-            foundPtSourceIdx.push_back(i);
-            dirPos.first = pixelPosition[_longAxis];
-            dirPos.second = pixelPosition[_latAxis];
-            auto myiter = _ptSourcePixelVals->find(dirPos);
-            if (myiter == _ptSourcePixelVals->end()) {
-                (*_ptSourcePixelVals)[dirPos] = Matrix<Float>(nFreqs, nStokes, 0);
-            }
-            for (uInt f = 0; f < nFreqs; ++f) {
-                for (uInt s = 0; s < nStokes; ++s) {
-                    auto v = values(_pixelToIQUV[s], 0, f);
-                    (*_ptSourcePixelVals)[dirPos](f, s) += v;
-                }
-            }
-        }
+    uInt nInside = 0;
+    uInt nOutside = 0;
+    _findPointSoures(
+        foundPtSourceIdx, nInside,
+        nOutside, pointSourceIdx
+    );
+    LogIO log(LogOrigin(IMAGE_TYPE, __func__));
+    auto npts = pointSourceIdx.size();
+    if (nInside > 0) {
+        log << LogIO::NORMAL << "Found " << nInside << " of " << npts
+            << " point sources located within the image and cached their "
+            << "pixel coordinates." << LogIO::POST;
+    }
+    if (nOutside > 0) {
+        log << LogIO::NORMAL << "Found " << nOutside << " of " << npts << " point "
+            << "sources to be located outside the image, so will ignore those."
+            << LogIO::POST;
     }
     if (! foundPtSourceIdx.empty()) {
         _modifiedCL.remove(Vector<Int>(foundPtSourceIdx));
     }
+    *_computedPtSources = True;
 }
 
 void ComponentListImage::_deleteCache() {
     _freqVals.resize();
     _dirVals.resize();
-    _valueCache.reset();
-    _ptSourcePixelVals.reset();
+    if (_valueCache) {
+        _valueCache->resize(TiledShape());
+    }
+    _ptSourcePixelVals->clear();
+    *_computedPtSources = False;
 }
 
 void ComponentListImage::_fillBuffer(
@@ -667,37 +648,48 @@ void ComponentListImage::_fillBuffer(
     if (buffer.size() != chunkShape) {
         buffer.resize(chunkShape, False);
     }
-    auto lookForPtSources = ! _ptSourcePixelVals->empty();
-    auto nLong = chunkShape[_longAxis];
-    auto nLat = chunkShape[_latAxis];
-    uInt d = 0;
-    auto nStokes = _hasStokes ? chunkShape[_stokesAxis] : 1;
-    IPosition posInArray(_shape.size(), 0);
-    ssize_t zero = 0;
-    auto& blat = posInArray[_latAxis];
-    auto& blong = posInArray[_longAxis];
-    auto& bfreq = _hasFreq ? posInArray[_freqAxis] : zero;
-    auto& bpol = _hasStokes ? posInArray[_stokesAxis] : zero;
-    std::pair<uInt, uInt> dirPos;
-    uInt ilat=secStart[_latAxis];
+    const auto lookForPtSources = ! _ptSourcePixelVals->empty();
+    const auto nLong = chunkShape[_longAxis];
+    const auto nLat = chunkShape[_latAxis];
+    const auto nStokes = _hasStokes ? chunkShape[_stokesAxis] : 1;
+    const uInt ilatStart = secStart[_latAxis];
     const uInt startLong = secStart[_longAxis];
     const uInt startFreq =  _hasFreq ? secStart[_freqAxis] : 0;
-    const uInt startPol =  _hasStokes ? secStart[_stokesAxis] : 0;
-    for(blat=0; blat<nLat; ++blat, ++ilat) {
-        dirPos.first = ilat;
-        uInt ilong = startLong;
-        for(blong=0; blong<nLong; ++blong, ++ilong, ++d) {
-            dirPos.second = ilong;
-            uInt ifreq = startFreq;
-            auto ptSourceContrib = _ptSourcePixelVals->find(dirPos);
-            auto hasPtSourceContrib = lookForPtSources
-                && ptSourceContrib != _ptSourcePixelVals->end();
-            for (bfreq=0; bfreq<nFreqs; ++bfreq, ++ifreq) {
-                uInt ipol = startPol;
-                for (bpol=0; bpol<nStokes; ++bpol, ++ipol) {
+    const uInt startPol = _hasStokes ? secStart[_stokesAxis] : 0;
+    const uInt ndim = chunkShape.size();
+#pragma omp parallel for collapse(4)
+    for(uInt blat=0; blat<nLat; ++blat) {
+        for(uInt blong=0; blong<nLong; ++blong) {
+            for (uInt bfreq=0; bfreq<nFreqs; ++bfreq) {
+                for (uInt bpol=0; bpol<nStokes; ++bpol) {
+                    uInt ilat = ilatStart + blat;
+                    IPosition posInArray(ndim);
+                    posInArray[_latAxis] = blat;
+                    std::pair<uInt, uInt> dirPos;
+                    dirPos.first = ilat;
+                    uInt ilong = startLong + blong;
+                    uInt d = blat * nLong + blong;
+                    posInArray[_longAxis] = blong;
+                    dirPos.second = ilong;
+                    uInt ifreq = startFreq + bfreq;
+                    /*
+                    auto ptSourceContrib = _ptSourcePixelVals->find(dirPos);
+                    auto hasPtSourceContrib = lookForPtSources
+                        && ptSourceContrib != _ptSourcePixelVals->end();
+                        */
+                    if (_hasFreq) {
+                        posInArray[_freqAxis] = bfreq;
+                    }
+                    uInt ipol = startPol + bpol;
+                    if (_hasStokes) {
+                        posInArray[_stokesAxis] = bpol;
+                    }
                     buffer(posInArray) = pixelVals(_pixelToIQUV[ipol], d, bfreq);
-                    if (hasPtSourceContrib) {
-                        buffer(posInArray) += ptSourceContrib->second(ifreq, ipol);
+                    if (lookForPtSources) {
+                        auto ptSourceContrib = _ptSourcePixelVals->find(dirPos);
+                        if (ptSourceContrib != _ptSourcePixelVals->end()) {
+                            buffer(posInArray) += ptSourceContrib->second(ifreq, ipol);
+                        }
                     }
                 }
             }
@@ -705,7 +697,7 @@ void ComponentListImage::_fillBuffer(
     }
 }
 
-Bool ComponentListImage::_findPixel(
+ComponentListImage::PtFound ComponentListImage::_findPixel(
     Cube<Double>& values, const IPosition& pixelPosition,
     const DirectionCoordinate& dirCoord, const SkyComponent& point,
     const Vector<MVFrequency>& freqValues
@@ -715,22 +707,27 @@ Bool ComponentListImage::_findPixel(
     Vector<Double> pixel(2);
     pixel[0] = pixelPosition[0];
     pixel[1] = pixelPosition[1];
-    if (
-        pixelPosition[_longAxis] >= 0 && pixelPosition[_latAxis] >= 0
-        && pixelPosition[_longAxis] < _shape[_longAxis]
-        && pixelPosition[_latAxis] < _shape[_latAxis]
-    ) {
-        dirCoord.toWorld(imageWorld, pixel);
-        point.sample(
-            values, jy, Vector<MVDirection>(1, imageWorld),
-            _dirRef, _pixelLatSize, _pixelLongSize, freqValues, _freqRef
-        );
-        return anyNE(values, 0.0);
+    dirCoord.toWorld(imageWorld, pixel);
+    point.sample(
+        values, jy, Vector<MVDirection>(1, imageWorld),
+        _dirRef, _pixelLatSize, _pixelLongSize, freqValues, _freqRef
+    );
+    if (anyNE(values, 0.0)) {
+        if (
+            pixelPosition[_longAxis] >= 0 && pixelPosition[_latAxis] >= 0
+            && pixelPosition[_longAxis] < _shape[_longAxis]
+            && pixelPosition[_latAxis] < _shape[_latAxis]
+        ) {
+            return FOUND_INSIDE;
+        }
+        else {
+            return FOUND_OUTSIDE;
+        }
     }
-    return False;
+    return NOT_FOUND;
 }
 
-Bool ComponentListImage::_findPixelIn3x3Box(
+ComponentListImage::PtFound ComponentListImage::_findPixelIn3x3Box(
     IPosition& pixelPosition, Cube<Double>& values,
     const DirectionCoordinate& dirCoord, const SkyComponent& point,
     const Vector<MVFrequency>& freqValues
@@ -754,15 +751,75 @@ Bool ComponentListImage::_findPixelIn3x3Box(
                     || pixelPosition[_latAxis] != targetPixel[_latAxis]
                 )
             ) {
-                if (
-                    _findPixel(values, pixelPosition, dirCoord, point, freqValues)
-                ) {
-                    return True;
+                auto res = _findPixel(values, pixelPosition, dirCoord, point, freqValues);
+                if (res != NOT_FOUND) {
+                    return res;
                 }
             }
         }
     }
-    return False;
+    return NOT_FOUND;
+}
+
+void ComponentListImage::_findPointSoures(
+    std::vector<uInt>& foundPtSourceIdx, uInt& nInside, uInt& nOutside,
+    const std::set<uInt>& pointSourceIdx
+) {
+    Vector<Double> pixel;
+    auto nFreqs = _hasFreq ? _shape[_freqAxis] : 1;
+    auto freqValues = _getAllFreqValues(nFreqs);
+    Cube<Double> values(4, 1, nFreqs);
+    IPosition pixelPosition(_shape.size(), 0);
+    const auto& dirCoord = coordinates().directionCoordinate();
+    uInt nStokes = _hasStokes ? _shape[_stokesAxis] : 1;
+    std::pair<uInt, uInt> dirPos;
+    for (const auto i: pointSourceIdx) {
+        dirCoord.toPixel(pixel, _cl.getRefDirection(i));
+        pixelPosition[_longAxis] = floor(pixel[0] + 0.5);
+        pixelPosition[_latAxis] = floor(pixel[1] + 0.5);
+        const auto& point = _cl.component(i);
+        values = 0;
+        // allow some slop at the image boundaries on the first pass
+        if (
+            pixelPosition[_longAxis] < -1
+            || pixelPosition[_latAxis] < -1
+            || pixelPosition[_longAxis] > _shape[_longAxis]
+            || pixelPosition[_latAxis] > _shape[_latAxis]
+        ) {
+            ++nOutside;
+            foundPtSourceIdx.push_back(i);
+        }
+        else {
+            auto foundPixel = _findPixel(
+                values, pixelPosition, dirCoord, point, freqValues
+            );
+            if (foundPixel == NOT_FOUND) {
+                foundPixel = _findPixelIn3x3Box(
+                    pixelPosition, values, dirCoord, point, freqValues
+                );
+            }
+            if (foundPixel == FOUND_INSIDE) {
+                ++nInside;
+                foundPtSourceIdx.push_back(i);
+                dirPos.first = pixelPosition[_longAxis];
+                dirPos.second = pixelPosition[_latAxis];
+                auto myiter = _ptSourcePixelVals->find(dirPos);
+                if (myiter == _ptSourcePixelVals->end()) {
+                    (*_ptSourcePixelVals)[dirPos] = Matrix<Float>(nFreqs, nStokes, 0);
+                }
+                for (uInt f = 0; f < nFreqs; ++f) {
+                    for (uInt s = 0; s < nStokes; ++s) {
+                        auto v = values(_pixelToIQUV[s], 0, f);
+                        (*_ptSourcePixelVals)[dirPos](f, s) += v;
+                    }
+                }
+            }
+            else if (foundPixel == FOUND_OUTSIDE) {
+                ++nOutside;
+                foundPtSourceIdx.push_back(i);
+            }
+        }
+    }
 }
 
 Vector<MVFrequency> ComponentListImage::_getAllFreqValues(uInt nFreqs) {
@@ -909,8 +966,8 @@ void ComponentListImage::_initCache() {
         _freqVals.set(std::shared_ptr<MVFrequency>(nullptr));
         _valueCache.reset(new TempImage<Float>(_shape, coordinates()));
         _valueCache->attachMask(TempLattice<Bool>(_shape, False));
-        _valueCache->pixelMask();
-        _ptSourcePixelVals.reset();
+        *_computedPtSources = False;
+        _ptSourcePixelVals->clear();
     }
     else {
         _deleteCache();

@@ -40,6 +40,8 @@
 
 #include <components/ComponentModels/ComponentList.h>
 
+#include <set>
+
 namespace casa {
 
 // <summary>
@@ -56,11 +58,51 @@ namespace casa {
 // </prerequisite>
 
 // <etymology>
-
+// An Image comprised of a ComponentList.
 // </etymology>
 
 // <synopsis> 
-
+// A ComponentListImage is an image based on a ComponentList table. Upon construction,
+// the pixel values are not known, and are computed on the fly when doGetSlice() is called.
+//
+// AXES
+// A ComponetListImage must have 2, 3, or 4 axes. At least two of these axes must be associated
+// with a direction coordinate. Optionally, a ComponentListImage can also have a frequency and/or
+// polarization axis. The maximum length of the polarization axis is four pixels, and the
+// associated polarization values are constrained to be in the set of stokes parameters I, Q, U,
+// and/or V.
+//
+// UNITS
+// A ComponentListImage must have units of Jy/pixel, and setUnit() will thrown an exception if
+// directed to set the brightness unit to something other than this.
+//
+// BEAMS
+// ComponentListImages do not support beams, and setImageInfo() will throw an exception if beam
+// information is included in the passed object. One can of course create another type of image
+// using the pixel values of a ComponentListImage and modify metadata of the
+// non-ComponentListImage to their heart's content.
+//
+// CACHING PIXEL VALUES
+// The pixel values can be cached for the life of the object for fast retrieval if they
+// are needed again. In this case, a TemporaryImage is created to hold the pixel values,
+// The associated mask of this TempImage indicates if the corresponding pixel values have
+// been computed or not; pixel values are computed as needed. In addition, the world
+// coordinate values of all the direction and frequency pixels in the image are cached if
+// caching is requested, as these computations can be expensive.
+//
+// CACHING OF POINT SOURCE PIXEL POSITIONS
+// Computing samples for point source sky components on a pixel by pixel basis can be expensive
+// (cf CAS-5688), and in comparison, caching their values for later use takes relatively little
+// memory (I estimate 16 bytes * nchan * nstokes per point source). For
+// this reason, if the associated component list contains point sources, the pixel coordinates
+// of all the point sources are computed in a highly optimized way on the first call to doGetSlice()
+// and are cached for later use; computing their values on a pixel by pixel basis is not done. Pixel
+// coordinates for point sources which fall outside the image boundaries are not cached.
+//
+// MODIFYING PIXEL VALUES
+// Pixel values are computed from sky components; one cannot set pixel values explicitly. Any method
+// that ultimately calls doPutSlice will throw an exception. Note however, that masks can be added,
+// removed, and modified in the usual ways.
 // </synopsis> 
 
 // <example>
@@ -68,7 +110,9 @@ namespace casa {
 // </example>
 
 // <motivation>
-
+// Kumar Golap is the motivation. See CAS-5837 and CAS-7309. The idea being that an image which can
+// be represented by sky components takes a small fraction of the space to store compared to a
+// PagedImage with identical pixel values.
 // </motivation>
 
 class ComponentListImage: public casacore::ImageInterface<casacore::Float> {
@@ -80,8 +124,9 @@ public:
     // Create a new ComponentListImage from a component list, coordinate system, and shape.
     // The input component list will be copied (via the ComponentList::copy() method, so
     // that the constructed object has a unique ComponentList that is not referenced by
-    // Exceptions thrown if shape.size() != 4 or csys.nPixelAxes != 4 or csys is missing
-    // any of Direction, Spectral, or Stokes coordinates.  The brightness units are
+    // any other objects. Exceptions are thrown if the shape has fewer than 2 or more than
+    // 4 elements, the number of pixel axes in csys is not equal to the number of elements
+    // in shape, or if csys does not have a direction coordinate. The brightness units are
     // automatically set to Jy/pixel.
 
     // This constructor creates a persistent ComponentListImage of name tableName.
@@ -107,10 +152,12 @@ public:
         casacore::MaskSpecifier maskSpec=casacore::MaskSpecifier()
     );
 
+    // Copy constructor uses reference semantics.
     ComponentListImage(const ComponentListImage& image);
 
     ~ComponentListImage();
 
+    // Assignment operator using reference semantics.
     ComponentListImage& operator=(const ComponentListImage& other);
 
     // <group>
@@ -121,16 +168,17 @@ public:
     void apply (const casacore::Functional<casacore::Float, casacore::Float>& function);
     // </group>
 
+    // Create an ImageInterface clone using reference semantics.
     casacore::ImageInterface<casacore::Float>* cloneII() const;
 
-    // get a reference to the underlying ComponentList
+    // get a const reference to the underlying ComponentList
     const ComponentList& componentList() const;
 
     casacore::Bool doGetMaskSlice(
         casacore::Array<casacore::Bool>& buffer, const casacore::Slicer& section
     );
 
-    // This methods override that in Lattice and always throw exceptions as there is not
+    // This method overrides that in Lattice and always throw exceptions as there is not
     // general way to do this for component lists.
     void copyData (const casacore::Lattice<casacore::Float>&);
 
@@ -138,7 +186,7 @@ public:
         casacore::Array<casacore::Float>& buffer, const casacore::Slicer& section
     );
 
-    // This methods override that in Lattice and always throw exceptions as there is not
+    // This method overrides that in Lattice and always throws an exception as there is not
     // general way to do this for component lists.
     void doPutSlice (
         const casacore::Array<casacore::Float>& buffer,
@@ -227,6 +275,12 @@ protected:
 
 private:
 
+    enum PtFound {
+        FOUND_INSIDE,
+        FOUND_OUTSIDE,
+        NOT_FOUND
+    };
+
     ComponentList _cl, _modifiedCL;
 
     casacore::IPosition _shape = casacore::IPosition(4, 1);
@@ -237,14 +291,27 @@ private:
     casacore::Matrix<std::shared_ptr<casacore::MVDirection>> _dirVals;
     casacore::MeasRef<casacore::MFrequency> _freqRef;
     casacore::Vector<std::shared_ptr<casacore::MVFrequency>> _freqVals;
-    std::shared_ptr<
-        std::map<std::pair<casacore::uInt, casacore::uInt>,
-        casacore::Matrix<casacore::Float>>
-    > _ptSourcePixelVals = nullptr;
+    // yes it really does need to be initialized here (or in the constructor)
+    // because initializing to nullptr will have undesirable effects when copying.
+    // The copied image will initialize this, but since it is a nullptr in the original,
+    // it doesn't get initialized in the original. Trust me, you don't want to deal
+    // with this issue.
+    using PtStoreType = std::map<
+        std::pair<casacore::uInt, casacore::uInt>,
+        casacore::Matrix<casacore::Float>
+    >;
+    std::shared_ptr<PtStoreType> _ptSourcePixelVals = std::shared_ptr<PtStoreType>(
+        new PtStoreType()
+    );
     casacore::Vector<casacore::Int> _pixelToIQUV;
     casacore::Bool _cache = casacore::True;
     casacore::Bool _hasFreq = casacore::False;
     casacore::Bool _hasStokes = casacore::False;
+    // Yes this really has to be a shared_ptr so that _ptSourcePixelVals can be computed
+    // outside the constructor and copying the image will work properly
+    std::shared_ptr<casacore::Bool> _computedPtSources = std::shared_ptr<casacore::Bool>(
+        new casacore::Bool(casacore::False)
+    );
     casacore::MFrequency _defaultFreq = casacore::MFrequency();
     std::shared_ptr<casacore::TempImage<casacore::Float>> _valueCache = nullptr;
 
@@ -266,17 +333,22 @@ private:
         const casacore::Cube<casacore::Double>& pixelVals
     ) const;
 
-    casacore::Bool _findPixel(
+    PtFound _findPixel(
         casacore::Cube<casacore::Double>& values, const casacore::IPosition& pixelPosition,
         const casacore::DirectionCoordinate& dirCoord, const SkyComponent& point,
         const casacore::Vector<casacore::MVFrequency>& freqValues
     ) const;
 
-    casacore::Bool _findPixelIn3x3Box(
+    PtFound _findPixelIn3x3Box(
         casacore::IPosition& pixelPosition, casacore::Cube<casacore::Double>& values,
         const casacore::DirectionCoordinate& dirCoord, const SkyComponent& point,
         const casacore::Vector<casacore::MVFrequency>& freqValues
     ) const;
+
+    void _findPointSoures(
+        std::vector<casacore::uInt>& foundPtSourceIdx, casacore::uInt& nInside,
+        casacore::uInt& nOutside, const std::set<casacore::uInt>& pointSourceIdx
+    );
 
     casacore::Vector<casacore::MVFrequency> _getAllFreqValues(casacore::uInt nFreqs);
 
