@@ -84,7 +84,9 @@ PlotMSPlotTab::PlotMSPlotTab(PlotMSPlotter* parent, int plotIndex) :  PlotMSTab(
 
 void PlotMSPlotTab::removePlot(){
 	closing = true;
+	// deletes plot and its params
 	itsPlotManager_.removePlot( itsCurrentPlot_ );
+	itsCurrentPlot_ = NULL;
 }
 
 bool PlotMSPlotTab::setGridSize( int rowCount, int colCount ){
