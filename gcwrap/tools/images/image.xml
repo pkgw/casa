@@ -1783,7 +1783,7 @@ ia.done()
     <shortdescription>Create a new ComponentListImage from a component list</shortdescription>
     <input>
         <param type="string"  name="outfile">
-            <description>Name of output image file.  Default is unset.</description>
+            <description>Name of output image file. Default is unset.</description>
             <value></value>
         </param>
         <param type="intArray"  name="shape">
@@ -1813,13 +1813,74 @@ ia.done()
     </input>
     <returns type="bool"/>
     <description>
-        TODO
+        This method allows one to create an image based on a component list. A component list
+        is a list of simple models (point sources, Gaussians, disks, etc) that describe the
+        sky brightness (cf the component list (cl) tool). Images that can be described in this
+        way normally require significantly less space to store than traditional images in which
+        all the pixel values are stored. For a component list image, pixel values are computed
+        "on the fly". Pixel values can be cached by specifying cache=True (the default value)
+        while the image is attached to an image tool, which permits faster access to them after
+        they are computed the first time. The trade off to caching is that resources such as
+        memory and disk space must be used to cache the pixel values.
+        
+        The image is constrained to have two, three, or four dimensions. One must specify an
+        image shape (the dimensionality of which must adhere to this constraint). One may also
+        supply a coordinate system specification using the csys parameter. If a coordinate system
+        is not specified, a default coordinate system is used. If specified, the coordinate system
+        must have a direction coordinate which has two pixel axes. It can also have a spectral
+        and/or polarization coordinate. The maximum length of the polarization coordinate is four
+        pixels, and the world coordinate values of the polarization coordinate are constrained to
+        be in the set of stokes parameters I, Q, U, and V.
+        
+        As is common with image creation methods, specifying an empty string for the outfile parameter
+        results in a tempoary image being created that will be deleted when either the done() or
+        close() method is run on the tool. By specifying a non-empty string, the image is saved to
+        disk and can be opened with the open() method later. A persistent component list image is
+        composed of a component list table that has metadata describing the image-related information,
+        such as the coordinate system and the shape, as well as a history (log) table.
+        
+        Because pixel values are computed from the component models, altering pixel values is not
+        supported. So methods such as putchunk(), putregion(), and addnoise() will fail on component
+        list images when trying to modify pixel values. However, persistent image masks and on the fly
+        masks are fully supported.
+        
+        The brightness unit of a component list image is constrained to be "Jy/pixel". Attempts to
+        modify this value using setbrightnessunit() will fail.
+        
+        Component list images do not support synthesized beams; attempting to run setrestoringbeam() on
+        a component list image to add a beam(s) will fail.
+        
+        One can easily create an image in which the pixel values are persistently stored from a
+        component list image by running methods such as fromimage(), subimage(), tofits(), etc. In
+        general, any method run on a component list image that creates a new image will create a
+        non-component list image (eg, a traditional CASA Paged image or Temporary image) in which the
+        pixel values are explicitly stored.
+        
     </description>
     <example>
-        TODO
+        # use an existing component list and the coordinate system from an existing image
+        # to create a component list image. To prevent the size of the files associated with
+        # the component list from increasing, open the list read only
+        cl.open("mymodel.cl", nomodify=True)
+        clrec = cl.torecord()
+        cl.done()
+        # say this image has axes RA x Dec x Stokes x Freq
+        ia.open("myimage.im")
+        csys = ia.coordsys().torecord()
+        ia.done()
+        ia.fromcomplist(outfile="mycomplist.im", shape=[512, 512, 4, 20], cl=clrec,
+            csys=csys, cache=True)
+        # get statistics
+        stats = ia.statistics()
+        # do other operations, like convolving the image
+        im2 = ia.convolve2d(outfile="convolved.im", axes=[0,1], type="gauss", "
+            major='20arcsec', minor='10arces', pa='45deg')
+        # be sure to close the image tools when done with them
+        ia.done()
+        im2.done()
+        
     </example>
 </method>
-
  
    <method type="function" name="fromfits">
    <shortdescription>Construct a \casa\ image by conversion from a FITS image file</shortdescription>
@@ -7226,15 +7287,14 @@ ia.close()
 <returns type="bool">T or fail</returns>
 <description>
 
-Use this function when you are finished analyzing the current
-\imagefile\ and want to attach to another one.  This function detaches the
-\imagetool\ from the current \imagefile, and reattaches it (opens) to
-the new \imagefile. 
+This method detaches from the current image (if an image is attached to the tool), and
+reattaches it (opens) to the new image.
 
-The input image file may be in native \casa, \fits, or Miriad  
-format.  Look \htmlref{here}{IMAGES:FOREIGNIMAGES}  for more
-information on foreign images. In the case of \casa images, both
-Float and Complex valued images are supported.
+The input image file may be in native CASA, FITS, or Miriad format. In the case of CASA images,
+both Float and Complex valued images aresupported.
+
+The cache parameter applies only to component list images and indicates if pixel values should
+be cached after they are computed for faster retrieval.
 
 </description>
 

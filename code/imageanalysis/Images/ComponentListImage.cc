@@ -584,6 +584,10 @@ void ComponentListImage::_cacheCoordinateInfo(const CoordinateSystem& csys) {
             }
         }
     }
+    else {
+        _pixelToIQUV.resize(1);
+        _pixelToIQUV[0] = 0;
+    }
     _deleteCache();
     if (_cache) {
         _initCache();
@@ -603,6 +607,7 @@ void ComponentListImage::_computePointSourcePixelValues() {
         }
     }
     if (pointSourceIdx.empty()) {
+        *_computedPtSources = True;
         return;
     }
     std::vector<uInt> foundPtSourceIdx;
@@ -826,7 +831,9 @@ Vector<MVFrequency> ComponentListImage::_getAllFreqValues(uInt nFreqs) {
     Vector<MVFrequency> freqValues(nFreqs);
     if (! _hasFreq) {
         freqValues[0] = _defaultFreq.get("Hz");
-        _freqVals[0].reset(new MVFrequency(freqValues[0]));
+        if (_cache) {
+            _freqVals[0].reset(new MVFrequency(freqValues[0]));
+        }
         return freqValues;
     }
     Double thisFreq;

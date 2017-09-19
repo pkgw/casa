@@ -262,17 +262,91 @@ class componentlistimage_test(unittest.TestCase):
     def test_mask(self):
         """Test mask handling"""
         
-        
-    """
     def test_history(self):
-        verify history writing
+        """verify history writing"""
+        mycl = self._mycl
         myia = self._myia
-        myia.fromshape("zz",[20, 20])
-        myia.rename("zy.im")
+        flux = [1, 0, 0, 0]
+        dir0 = ['J2000', '00:00:00.00', '00.00.00.0']
+        pt = "point"
+        mycl.addcomponent(flux=flux, dir=dir0,shape=pt)
+        shape = [20, 20]
+        myia.fromcomplist("", shape=shape, cl=mycl.torecord())
+        mycl.done()
         msgs = myia.history()
-        self.assertTrue("ia.rename" in msgs[-3])
-        self.assertTrue("ia.rename" in msgs[-2])
-    """
+        myia.done()
+        teststr = "ia.fromcomplist"
+        self.assertTrue(teststr in msgs[-2])
+        self.assertTrue(teststr in msgs[-1])
+        
+    def test_multi_points_same_pixel(self):
+        """Test that multiple point sources at the same pixel produce the correct result"""
+        mycl = self._mycl
+        myia = self._myia
+        flux = [1, 0, 0, 0]
+        dir0 = ['J2000', '00:00:00.00', '00.00.00.0']
+        pt = "point"
+        mycl.addcomponent(flux=flux, dir=dir0,shape=pt)
+        mycl.addcomponent(flux=flux, dir=dir0,shape=pt)
+        shape = [20, 20]
+        myia.fromcomplist("", shape=shape, cl=mycl.torecord())
+        mycl.done()
+        stats = myia.statistics()
+        myia.done()
+        self.assertEqual(stats['max'], 2)
+        
+    def test_mask(self):
+        """Test support for masks"""
+        mycl = self._mycl
+        myia = self._myia
+        flux0 = [1, 0, 0, 0]
+        dir0 = ['J2000', '00:00:00.00', '00.00.00.0']
+        flux1 = [2, 0, 0, 0]
+        dir1 = ['J2000', '00:00:00.00', '00.05.00.0']
+        pt = "point"
+        mycl.addcomponent(flux=flux0, dir=dir0,shape=pt)
+        mycl.addcomponent(flux=flux1, dir=dir1,shape=pt)
+        shape = [20, 20]
+        imagename = "jk.im"
+        myia.fromcomplist(outfile=imagename, shape=shape, cl=mycl.torecord())
+        mycl.done()
+        stats = myia.statistics()
+        self.assertEqual(stats['max'], 2)
+        self.assertEqual(stats['sum'], 3)
+        myia.calcmask(imagename + " > 1")
+        stats = myia.statistics()
+        self.assertEqual(stats['max'], 2)
+        self.assertEqual(stats['sum'], 2)
+        self.assertEqual(stats['npts'], 1)
+        myia.calcmask(imagename + " < 2")
+        myia.maskhandler("set", "mask1")
+        stats = myia.statistics()
+        self.assertEqual(stats['max'], 1)
+        self.assertEqual(stats['sum'], 1)
+        self.assertEqual(stats['npts'], 399)
+        myia.maskhandler("set", "")
+        stats = myia.statistics()
+        self.assertEqual(stats['max'], 2)
+        self.assertEqual(stats['sum'], 3)
+        self.assertEqual(stats['npts'], 400)
+        stats = myia.statistics(mask=imagename + " > 0")
+        self.assertEqual(stats['max'], 2)
+        self.assertEqual(stats['sum'], 3)
+        self.assertEqual(stats['npts'], 2)
+        
+    def test_fromimage(self):
+        """Test fromimage() supports reading from a componentlist image"""
+        myia = self._myia
+        imagename = datapath + "simple_cl.im"
+        outfile = "akd.im"
+        self.assertTrue(myia.fromimage(outfile=outfile, infile=imagename))
+        bb = myia.getchunk()
+        myia.done()
+        myia.open(imagename)
+        cc = myia.getchunk()
+        myia.done()
+        self.assertTrue((bb == cc).all())
+        
         
 def suite():
     return [componentlistimage_test]

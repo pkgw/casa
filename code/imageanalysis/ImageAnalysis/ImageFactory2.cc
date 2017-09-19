@@ -155,10 +155,7 @@ pair<SPIIF, SPIIC> ImageFactory::fromImage(
     const Record& region, const String& mask, Bool dropdeg,
     Bool overwrite
 ) {
-    _checkInfile(infile);
-    unique_ptr<LatticeBase> latt(ImageOpener::openImage(infile));
-    ThrowIf (! latt, "Unable to open lattice");
-    auto imagePair = _fromLatticeBase(latt);
+    auto imagePair = fromFile(infile, False);
     LogIO mylog;
     mylog << LogOrigin("ImageFactory", __func__);
     if (imagePair.first) {
@@ -166,29 +163,22 @@ pair<SPIIF, SPIIC> ImageFactory::fromImage(
             *imagePair.first, outfile, region,
             mask, dropdeg, overwrite, false, false
         );
-        ThrowIf(
-           ! imagePair.first,
-           "Failed to create PagedImage"
-        );
+        ThrowIf(! imagePair.first, "Failed to create image");
         mylog << LogIO::NORMAL << "Created image '" << outfile
             << "' of shape " << imagePair.first->shape() << LogIO::POST;
+
     }
     else {
         imagePair.second = SubImageFactory<Complex>::createImage(
             *imagePair.second, outfile, region,
             mask, dropdeg, overwrite, false, false
         );
-        ThrowIf(
-            ! imagePair.second,
-            "Failed to create PagedImage"
-        );
+        ThrowIf(! imagePair.second, "Failed to create image");
         mylog << LogIO::NORMAL << "Created image '" << outfile
             << "' of shape " << imagePair.second->shape() << LogIO::POST;
-
     }
     return imagePair;
 }
-
 
 pair<SPIIF, SPIIC> ImageFactory::fromRecord(
     const RecordInterface& rec, const String& name
@@ -348,7 +338,7 @@ pair<SPIIF, SPIIC> ImageFactory::fromFile(const String& infile, Bool cache) {
     _checkInfile(infile);
     ComponentListImage::registerOpenFunction();
     unique_ptr<LatticeBase> latt(ImageOpener::openImage(infile));
-    ThrowIf (! latt, "Unable to open lattice");
+    ThrowIf (! latt, "Unable to open image");
     auto mypair = _fromLatticeBase(latt);
     if (
         mypair.first
