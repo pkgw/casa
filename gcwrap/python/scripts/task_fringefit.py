@@ -5,7 +5,7 @@ from taskinit import *
 # For stack frames in debugging
 import sys
 def fringefit(vis=None,caltable=None,
-	      field=None,spw=None,intent=None,
+	      field=None,spw=None,
 	      selectdata=None,timerange=None,antenna=None,scan=None,
               observation=None, msselect=None,
 	      solint=None,combine=None,refant=None,
@@ -29,13 +29,13 @@ def fringefit(vis=None,caltable=None,
                         casalog.post("Selecting data")
                         # pass all data selection parameters in as specified
                         mycb.selectvis(time=timerange,spw=spw, scan=scan, field=field,
-                                       intent=intent, observation=str(observation),
+                                       observation=str(observation),
                                        baseline=antenna, chanmode='none',
                                        msselect=msselect)
                 else:
                         # selectdata=F, so time,scan,baseline,msselect=''
                         # using spw and field specifications only
-                        mycb.selectvis(time='',spw=spw,scan='',field=field,intent=intent,
+                        mycb.selectvis(time='',spw=spw,scan='',field=field,
                                        observation='', baseline='', 
                                        chanmode='none', msselect='')
                         
