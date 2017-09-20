@@ -2,9 +2,11 @@ import os
 import numpy as np
 import pylab as pl
 from textwrap import wrap
-from taskinit import gentools, qatool, casalog
+from taskinit import msmdtool, gentools, qatool, casalog
 
-def plotants(vis=None, figfile=None, antindex=None, logpos=None, exclude=None,
+def plotants(vis=None, figfile=None, 
+        antindex=None, logpos=None, 
+        exclude=None, checkbaselines=None,
         title=None):
     """Plot the antenna distribution in the local reference frame:
 
@@ -27,6 +29,12 @@ def plotants(vis=None, figfile=None, antindex=None, logpos=None, exclude=None,
 
     exclude -- antenna IDs or names to exclude from plotting
             default: []. example: exclude=[2,3,4], exclude='DV15'
+
+    checkbaselines -- Only plot antennas in the MAIN table.
+          This can be useful after a split.  WARNING:  Setting 
+          checkbaselines to True will add to runtime in
+          proportion to the number of rows in the dataset.
+            default: False. example: checkbaselines=True
 
     title -- Title written along top of plot
             default: ''
@@ -51,7 +59,8 @@ def plotants(vis=None, figfile=None, antindex=None, logpos=None, exclude=None,
             exclude = [exclude]
 
         pl.clf()
-        telescope, names, ids, xpos, ypos = getAntennaInfo(vis, exclude)
+        telescope, names, ids, xpos, ypos = getAntennaInfo(vis, exclude, 
+            checkbaselines)
         if not names:  # no antennas selected
             casalog.post("No antennas selected.  Exiting plotants.")
             return
@@ -71,16 +80,12 @@ def plotants(vis=None, figfile=None, antindex=None, logpos=None, exclude=None,
     except Exception, instance:
           print '*** Error ***',instance
 
-def getAntennaInfo(msname, exclude):
+def getAntennaInfo(msname, exclude, checkbaselines):
 
-    msmd, me, tb = gentools(['msmd', 'me', 'tb'])
+    tb, me = gentools(['tb', 'me'])
     qa = qatool()
 
-    msmd.open(msname)
-    telescope = msmd.observatorynames()[0]
-    arrayPos = msmd.observatoryposition()
-    msmd.close()
-
+    telescope, arrayPos = getObservatoryInfo(msname)
     arrayWgs84 = me.measure(arrayPos, 'WGS84')
     arrayLon, arrayLat, arrayAlt = [arrayWgs84[i]['value'] 
         for i in ['m0','m1','m2']]
@@ -90,30 +95,33 @@ def getAntennaInfo(msname, exclude):
     # much in random order, so antNames translates between their index and name
     # (e.g., index 11 = STD155).  We'll need these indices for later, since the
     # main data table refers to the antennas by their indices, not names.
-    # Get antenna ids from main table:
-    tb.open(msname)
-    ants1 = tb.getcol('ANTENNA1')
-    ants2 = tb.getcol('ANTENNA2')
-    tb.close()
-    antIdsUsed = set(np.append(ants1, ants2))
 
-    # Get antenna names from antenna table
     anttabname = msname + '/ANTENNA'
     tb.open(anttabname)
+    # Get antenna names from antenna table
     colname = 'NAME'
     if telescope == 'VLBA':
         colname = 'STATION'
     antNames = np.array(tb.getcol(colname)).tolist()
     allAntIds = range(len(antNames))
-
-    # Get antenna names from antenna table
+    # Get antenna positions from antenna table
     antPositions = np.array([me.position('ITRF', qa.quantity(x, 'm'),
         qa.quantity(y, 'm'), qa.quantity(z, 'm'))
         for (x, y, z) in tb.getcol('POSITION').transpose()])
     tb.close()
 
+    if checkbaselines:
+        # Get antenna ids from main table; this will add to runtime
+        tb.open(msname)
+        ants1 = tb.getcol('ANTENNA1')
+        ants2 = tb.getcol('ANTENNA2')
+        tb.close()
+        antIdsUsed = set(np.append(ants1, ants2))
+    else:
+        # use them all!
+        antIdsUsed = allAntIds
 
-    # handle exclude
+    # handle exclude -- remove from antIdsUsed
     for ant in exclude:
         if isinstance(ant, int):
             if ant not in allAntIds:
@@ -133,6 +141,7 @@ def getAntennaInfo(msname, exclude):
             except KeyError:  # name exists but cannot remove from used ids
                 pass
 
+    # apply antIdsUsed mask
     ids = list(antIdsUsed)
     antNames = [antNames[i] for i in ids]
     antPositions = [antPositions[i] for i in ids]
@@ -140,10 +149,10 @@ def getAntennaInfo(msname, exclude):
     nAnts = len(ids)
     print "Number of points being plotted:", nAnts
     casalog.post("Number of points being plotted: " + str(nAnts))
-    if nAnts == 0:
+    if nAnts == 0: # excluded all antennas
         return telescope, antNames, [], [], []
     
-    # Get the names, indices, and lat/lon/alt coords of our "good" antennas.
+    # Get the names, indices, and lat/lon/alt coords of "good" antennas.
     antWgs84s = np.array([me.measure(pos, 'WGS84') for pos in antPositions])
     antLons, antLats, antAlts = [np.array( [pos[i]['value'] 
         for pos in antWgs84s]) for i in ['m0','m1','m2']]
@@ -159,6 +168,14 @@ def getAntennaInfo(msname, exclude):
     antZs = antAlts - arrayAlt
     
     return telescope, antNames, ids, antXs, antYs
+
+def getObservatoryInfo(msname):
+    metadata = msmdtool()
+    metadata.open(msname)
+    telescope = metadata.observatorynames()[0]
+    arrayPos = metadata.observatoryposition()
+    metadata.close()
+    return telescope, arrayPos
 
 def plotAntennasLog(telescope, names, ids, xpos, ypos, antindex):
     fig = pl.figure(1)

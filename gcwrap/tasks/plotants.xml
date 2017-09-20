@@ -34,6 +34,10 @@
             <value type="stringArray"><value></value></value>
             <value type="intArray"><value></value></value>
 		</param>
+		<param type="bool" name="checkbaselines">
+			<description>Whether to check baselines in the main table.</description>
+			<value>False</value>
+		</param>
 		<param type="string" name="title">
 			<description>Title for the plot</description>
 			<value></value>
@@ -64,6 +68,12 @@
 
        exclude -- antenna IDs or names to exclude from plotting
             default: []. examples: exclude=[2,3,4], exclude='DV15'
+
+       checkbaselines -- Only plot antennas in the MAIN table.
+            This can be useful after a split.  WARNING: Setting
+            checkbaselines to True will add to runtime in
+            proportion to the number of rows in the dataset.
+            default: False. example: checkbaselines=True
 
        title -- Title written along top of plot
             default: ''
