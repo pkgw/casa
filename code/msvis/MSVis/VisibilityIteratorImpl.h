@@ -403,7 +403,10 @@ public:
     virtual const casacore::MDirection & phaseCenter () const {
         return msIter_p.phaseCenter ();
     }
-
+    
+    virtual const casacore::MDirection  phaseCenter (const casacore::Int fieldId, const casacore::Double time=-1.0) const {
+      return time >0.0 ? msIter_p.phaseCenter (fieldId, time) : msIter_p.phaseCenter () ;
+    }
     // Return frame for polarization (returns PolFrame enum)
     virtual casacore::Int polFrame () const {
         return msIter_p.polFrame ();
