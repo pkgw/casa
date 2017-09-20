@@ -272,7 +272,7 @@ DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant) :
                              IPosition(3, nCorr_, spwchans, 1),
                              IPosition(3, corrStep,        1, 1), Slicer::endIsLength);
             nr++;
-            if ( DEVDEBUG ) {
+            if ( DEVDEBUG && 0) {
                 cerr << "nr " << nr
                      << " irow " << endl
                      << "Vpad shape " << Vpad_.shape() << endl
@@ -280,6 +280,10 @@ DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant) :
                      << "sl2 " << sl2 << endl
                      << "sl1 " << sl1 << endl
                      << "flagSlice " << flagSlice << endl;
+            }
+            if ( DEVDEBUG ) {
+                cerr << "SolveDataBuffer[" << ibuf << "] has spw=" << spw << "; freq, time indices ("
+                     << f_index << ", " << t_index << ")" << endl;
             }
             Array<Complex> rhs = v(sl2).nonDegenerate();
             Array<Float> weights = w(sl2).nonDegenerate();
@@ -307,13 +311,12 @@ DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant) :
                     }
                 }
             }                
-            if (DEVDEBUG) {
+            if (DEVDEBUG && 0) {
                 cerr << "flagSlice " << flagSlice << endl
                      << "fl.shape() " << fl.shape() << endl
                      << "Vpad_.shape() " << Vpad_.shape() << endl
                      << "flagged.shape() " << flagged.shape() << endl
                      << "sl1 " << sl1 << endl;
-                cerr << "halfflagged" << endl;
             }
             Vpad_(sl1).nonDegenerate()(flagged) = Complex(0.0);
         }
@@ -396,16 +399,6 @@ DelayRateFFT::searchPeak() {
                     }
                 }
             }
-            // We used to print out a slice once, but that's not needed now.
-            // cerr << "Slice: "
-            //      << amplitude(
-            //          Vpad_(Slicer(
-            //                    IPosition( 4, icorr, ielem,      ipkt,     0),
-            //                    IPosition( 4,     1,     1,      1, nPadChan_),
-            //                    IPosition( 4,     1,     1,      1,        1),
-            //                    Slicer::endIsLength)).nonDegenerate())
-            //      << endl;
-
             // Finished grovelling. Now we have the location of the
             // maximum amplitude.
             Float alo_ch = amp(ipkt, (ipkch > 0) ? ipkch-1 : nPadChan_-1);
@@ -974,7 +967,7 @@ expb_df(CBLAS_TRANSPOSE_t TransJ, const gsl_vector* x, const gsl_vector *u, void
             }
         }
     }
-    if (DEVDEBUG) {
+    if (DEVDEBUG && 0) {
         cerr << "Param indices ";
         std::copy(
             params.begin(),
@@ -1424,12 +1417,19 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
     Double dt0 = (ref_time - sdbs(0).time()(0));
     Double df0 = ref_freq - sdbs.freqs()(0);
 
-
-
     // ROMSSpWindowColumns are a casacore type!
     // http://casacore.github.io/casacore/classcasacore_1_1ROMSSpWindowColumns.html
 
-    if (1) {
+
+    /* We'd like to learn about the spectral windows in the actual
+     * dataset but I haven't succeeded yet. */
+    // cerr << "nSpw() " << nSpw() << " nelements() " << spwMap().nelements() << endl;
+    // cerr << "spwMap() " << endl;
+    // cerr << "combine() " << combine() << endl;
+    // cerr << "combspw() " << combspw() << endl;
+    // throw(AipsError("That's quite enough of that."));
+    
+    if (0) {
         /* The MSSpectralWindow above is constructed from the
          * calibration table (ct_). In the case of the fringe jones
          * table this reports only one frequency channel for each
@@ -1442,7 +1442,6 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
         ROMSColumns mscol(ms);
         const ROMSSpWindowColumns& spwcol(mscol.spectralWindow());
 
-        cerr << "nSpw() " << nSpw() << " nelements() " << spwMap().nelements() << endl;
 
         cerr << "combine() " << combine() << endl;
         cerr << "combspw() " << combspw() << endl;
@@ -1548,8 +1547,13 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
             }
         }
     }
-    
 
+    if (DEVDEBUG) {
+        cerr << "Just sayin': nAnt()*nCorr=" << nAnt() * nCorr << " while sRP has shape " << sRP.shape() << endl;
+        cerr << "Full shape of solveRPar(): " << solveRPar().shape() << endl;
+        cerr << "Shape of solveAllRPar(): " << solveAllRPar().shape() << endl;
+    }
+    
     if (DEVDEBUG) {
         cerr << "Ref time " << MVTime(refTime()/C::day).string(MVTime::YMD,7) << endl;
         cerr << "df0 " << df0 << " dt0 " << dt0 << " ref_freq*dt0 " << ref_freq*dt0 << LogIO::POST;
