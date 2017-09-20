@@ -225,8 +225,6 @@ public:
 
   // virtual void solveOneSDB(const SolveDataBuffer&);
 
-  virtual void solveLotsOfSDBs(SDBList&);
-
   virtual casacore::Bool& zeroRates() { return zeroRates_; }
   
 protected:
