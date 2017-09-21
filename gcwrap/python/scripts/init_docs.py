@@ -87,7 +87,7 @@ class __doc(object):
                     return webbrowser.open(path + "/casadocs/stable/" + self.local_start_path)
                 elif self.local_toc.has_key(sec):
                     self.__welcome( )
-                    return webbrowser.open("file://" + "/casadocs/stable/" + self.local_toc[sec]['path'])
+                    return webbrowser.open("file://" + path + "/casadocs/stable/" + self.local_toc[sec]['path'])
                 else:
                     self.__welcome(None)
                     print "Sorry '%s' is not a recognized section..." % sec
