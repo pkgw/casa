@@ -6,7 +6,6 @@ import sys
 import xml.etree.cElementTree as ET
 import urllib2
 from urlparse import urlparse
-from sys import platform
 
 class __doc(object):
     "command-line Plone help"
@@ -88,10 +87,7 @@ class __doc(object):
                     return webbrowser.open(path + "/casadocs/stable/" + self.local_start_path)
                 elif self.local_toc.has_key(sec):
                     self.__welcome( )
-                    lpath = path + "/casadocs/stable/" + self.local_toc[sec]['path']
-                    if platform == "darwin":
-                        lpath = "file://" +lpath
-                    return webbrowser.open(lpath)
+                    return webbrowser.open("file://" + "/casadocs/stable/" + self.local_toc[sec]['path'])
                 else:
                     self.__welcome(None)
                     print "Sorry '%s' is not a recognized section..." % sec
