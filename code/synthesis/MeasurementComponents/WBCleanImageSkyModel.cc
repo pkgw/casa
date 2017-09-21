@@ -39,7 +39,6 @@
 #include <casa/Utilities/Assert.h>
 
 #include <images/Images/PagedImage.h>
-#include <imageanalysis/ImageAnalysis/ImageAnalysis.h>
 #include <images/Images/SubImage.h>
 #include <images/Regions/ImageRegion.h>
 #include <images/Regions/RegionManager.h>
