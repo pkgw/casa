@@ -257,7 +257,7 @@ def plotms(vis=None,
         synonyms['Ant-Azimuth'] = 'ant-azimuth'
         synonyms['Ant-Elevation'] = 'ant-elevation'
         synonyms['ant-parallacticangle']=synonyms['ant-parang'] = synonyms['Ant-ParAngle'] = 'ant-parangle'
-        synonyms['gamp']=synonyms['gainamp']=synonyms['GainAmp']='Gain Amplitude'
+        synonyms['gamp']=synonyms['gainamp']=synonyms['GainAmp']='Gain Amp'
         synonyms['gphase']=synonyms['gainphase']=synonyms['GainPhase']='Gain Phase'
         synonyms['greal']=synonyms['gainreal']=synonyms['GainReal']='Gain Real'
         synonyms['gimag']=synonyms['gainimag']=synonyms['GainImag']='Gain Imag'

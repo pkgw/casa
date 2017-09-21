@@ -262,7 +262,9 @@ bool PlotMSPlotTab::plot( bool forceReload ) {
 		//
 		// note as of Aug 2010: .cacheReady() seems to return false even 
 		// if cache was cancelled.
-        bool paramsChanged = &params != itsCurrentParameters_;
+
+		// check if current params ptr changed or contents of params changed
+        bool paramsChanged = (&params != itsCurrentParameters_);
         bool cancelledCache = !itsCurrentPlot_->cache().cacheReady();
         if (forceReload)    {
 			forceReloadCounter_++;   
