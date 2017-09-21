@@ -1,6 +1,6 @@
 [submodule "casacore"]
 	path = casacore
-	url = https://github.com/casacore/casacore
+	url = https://github.com/schiebel/casacore
 [submodule "asap"]
 	path = asap
 	url = https://open-bitbucket.nrao.edu/scm/casa/casa-asap.git
