@@ -10,7 +10,7 @@ def fringefit(vis=None,caltable=None,
               observation=None, msselect=None,
 	      solint=None,combine=None,refant=None,
               minsnr=None,zerorates=None,append=None,
-	      gaintable=None,gainfield=None,interp=None,spwmap=None,
+	      docallib=None, callib=None, gaintable=None,gainfield=None,interp=None,spwmap=None,
               parang=None):
         #Python script
         casalog.origin('fringefit')
@@ -39,11 +39,17 @@ def fringefit(vis=None,caltable=None,
                                        observation='', baseline='', 
                                        chanmode='none', msselect='')
                         
-                # Arrange applies....  Don't support callib, so
-                # configure by traditional parameters. Add trivial if
-                # to match indentation of task_gaincal.py, which is the
-                # model for this code.
-                if True:
+                # [small@jive.eu] I don't know what callib is and I
+                # don't want to support it, but the arguments in the
+                # 'else' branch are "subparameters" of docallib, so we
+                # plagiarize the handling from task_gaincal.py
+                if docallib:
+                        # by cal library from file
+			mycallib=callibrary()
+			mycallib.read(callib)
+			mycb.setcallib(mycallib.cld)
+                else:
+                        # [small@jive.eu] This is also plagiarized from task_gaincal.py.
                         ngaintab = 0;
                         if gaintable == False:
                                 ngaintab = 0

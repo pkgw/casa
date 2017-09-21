@@ -98,6 +98,16 @@ Previous calibrations should be applied on the fly.
 		<value>False</value>
 	</param>
    
+	<param type="bool" name="docallib" >
+	        <description>Use callib or traditional cal apply parameters</description>
+	        <value>False</value>
+	</param>
+
+	<param type="string" name="callib" subparam="true" >
+	        <description>Cal Library filename</description>
+                <value type="string"></value>
+	</param>
+
 	<param type="stringArray" name="gaintable" subparam="true">
 		<description>Gain calibration table(s) to apply on the fly</description>
 		<value></value>
@@ -122,6 +132,7 @@ Previous calibrations should be applied on the fly.
 		<description>Apply parallactic angle correction on the fly</description>
 		<value>False</value>
 	</param>
+   
    <constraints>
 	<when param="selectdata">
 		<equals type="bool" value="True">
@@ -134,6 +145,17 @@ Previous calibrations should be applied on the fly.
 		</equals>
 		<equals type="bool" value="False"/>
 	</when>
+        <when param="docallib">
+                <equals type="bool" value="False">
+                        <default param="gaintable"><value type="stringArray"/></default>
+                        <default param="gainfield"><value type="stringArray"/></default>
+                        <default param="interp"><value type="stringArray"/></default>
+                        <default param="spwmap"><value type="intArray"/></default>
+		</equals>
+                <equals type="bool" value="True">
+                        <default param="callib"><value type="string"/></default>
+		</equals>
+        </when>
    </constraints>
 </input>
 <example>
