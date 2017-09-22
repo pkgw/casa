@@ -20,6 +20,7 @@ class __doc(object):
 
         self.local_toc_url = None if casa['dirs']['doc'] is None else casa['dirs']['doc'] + '/casa.nrao.edu/casadocs/toc.xml'
         self.local_start_path = "usingcasa/starting-casa.html"
+        self.local_base = "/casadocs/%s/" % version
 
     def __welcome( self, welcome="\nOpening packaged documentation.\n" ):
         if welcome is not None:
@@ -84,10 +85,10 @@ class __doc(object):
                     show_toc(self.local_toc)
                 elif sec == 'start':
                     self.__welcome( )
-                    return webbrowser.open(path + "/casadocs/stable/" + self.local_start_path)
+                    return webbrowser.open("file://" + path + self.local_base + self.local_start_path)
                 elif self.local_toc.has_key(sec):
                     self.__welcome( )
-                    return webbrowser.open(path + "/casadocs/stable/" + self.local_toc[sec]['path'])
+                    return webbrowser.open("file://" + path + self.local_base + self.local_toc[sec]['path'])
                 else:
                     self.__welcome(None)
                     print "Sorry '%s' is not a recognized section..." % sec
