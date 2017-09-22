@@ -63,18 +63,18 @@ namespace casa {
 // Constructors/Destructors //
 
 PlotMSApp::PlotMSApp(bool connectToDBus, bool userGui) :
-        itsLastPlotter_(NULL), isGUI_(userGui), allow_popups(true), 
-        itsExportFormat( PlotExportFormat::JPG, ""), 
-        itsDBus_(NULL){
-    initialize(connectToDBus, userGui);
+		itsLastPlotter_(NULL), isGUI_(userGui), allow_popups(true), 
+		itsExportFormat( PlotExportFormat::JPG, ""), 
+		itsDBus_(NULL) {
+	initialize(connectToDBus, userGui);
 }
 
 PlotMSApp::PlotMSApp(const PlotMSParameters& params, bool connectToDBus,
-		bool userGui) :
-        itsPlotter_(NULL), itsLastPlotter_(NULL), isGUI_(userGui), 
-        allow_popups(true), itsParameters_(params),
-        itsExportFormat( PlotExportFormat::JPG, ""), itsDBus_(NULL) {
-    initialize(connectToDBus, userGui);
+			bool userGui) :
+		itsPlotter_(NULL), itsLastPlotter_(NULL), isGUI_(userGui), 
+		allow_popups(true), itsParameters_(params),
+		itsExportFormat( PlotExportFormat::JPG, ""), itsDBus_(NULL) {
+	initialize(connectToDBus, userGui);
 }
 
 PlotMSApp::~PlotMSApp() {
@@ -330,7 +330,6 @@ vector<String> PlotMSApp::getFiles() const {
 void PlotMSApp::initialize(bool connectToDBus, bool userGui) {
 
 	operationCompleted = true;
-	
     itsParameters_.addWatcher(this);
 
     if ((itsLastPlotter_ != NULL) && (itsLastPlotter_->isInteractive() == userGui)) {

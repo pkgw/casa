@@ -125,7 +125,7 @@ public:
 
     PMS_ENUM2(Axis, axes, axesStrings, axis,
 	      "Scan","Field","Time","Interval",
-	      "Spw","Channel","Frequency","Velocity","Correlation",
+	      "Spw","Channel","Frequency","Velocity","Corr",
 	      "Antenna1","Antenna2","Baseline","Row",
 	      "Observation", "Intent", "Feed1", "Feed2",
 	      "Amp","Phase","Real","Imag","Wt","Wt*Amp","WtSp",

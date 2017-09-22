@@ -1775,8 +1775,8 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
         if (axisIsAveraged(x, averaging))
             xLabelSingle = "Average " + xLabelSingle;
         // change xaxis to "Polarization" for cal tables if no MS plotted
-        if (allEQ(dataTypes,1) && xLabelSingle.contains("Correlation"))
-            xLabelSingle.gsub("Correlation", "Polarization");
+        if (allEQ(dataTypes,1) && xLabelSingle.contains("Corr"))
+            xLabelSingle.gsub("Corr", "Poln");
 		canvas->setAxisLabel(cx, xLabelSingle);
 		PlotFontPtr xFont = canvas->axisFont(cx);
         pointsize = (canvParams->xFontSet()) ? canvParams->xAxisFont(): std::max(12. - rows*cols+1., 8.);
@@ -1810,8 +1810,8 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
                     yLabelSingle = addFreqFrame(yLabelSingle);
                 if (axisIsAveraged(y, averaging))
                     yLabelSingle = "Average " + yLabelSingle;
-                if (isCalTable && yLabelSingle.contains("Correlation"))
-                    yLabelSingle.gsub("Correlation", "Polarization");
+                if (isCalTable && yLabelSingle.contains("Corr"))
+                    yLabelSingle.gsub("Corr", "Poln");
 				if ( cy == Y_LEFT ){
 					if ( !yLabelLeft.empty() ) yLabelLeft.append( ", ");
 					yLabelLeft.append( yLabelSingle );
@@ -1982,16 +1982,16 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
 		title = canvParams->titleFormat().getLabel(x, yAxes, xref,
 				xrefval, yRefs, yRefVals, xDataColumn, yDatas, polnRatio)
 				+ " " + iterTxt;
-        // Change "Correlation"->"Polarization" for cal tables
-        if (title.contains("Correlation") && anyEQ(dataTypes,1)) {  
+        // Change "Corr"->"Polarization" for cal tables
+        if (title.contains("Corr") && anyEQ(dataTypes,1)) {  
             if (allEQ(dataTypes, 1)) {  // all cal tables: do global replace
-                title.gsub("Correlation", "Polarization");
+                title.gsub("Corr", "Poln");
             } else {  // mixed MS/CT
                 // change Corr->Pol for CT yaxis only
-                if (title.startsWith("Correlation") && dataTypes(0)==1)
-                    title.replace(0, 11, "Polarization");
-                else if (title.contains(",Correlation") && dataTypes(1)==1)
-                    title.gsub(",Correlation", ",Polarization");
+                if (title.startsWith("Corr") && dataTypes(0)==1)
+                    title.replace(0, 4, "Poln");
+                else if (title.contains(", Corr") && dataTypes(1)==1)
+                    title.gsub(", Corr", ", Poln");
             }
         }
 		canvas->setTitle(title);
