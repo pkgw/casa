@@ -34,7 +34,9 @@
 #include <casacore/images/Regions/RegionHandlerTable.h>
 #include <components/ComponentModels/ComponentShape.h>
 #include <components/ComponentModels/SpectralModel.h>
+#ifdef _OPENMP
 #include <omp.h>
+#endif
 #include <set>
 
 using namespace casacore;
@@ -662,7 +664,9 @@ void ComponentListImage::_fillBuffer(
     const uInt startFreq =  _hasFreq ? secStart[_freqAxis] : 0;
     const uInt startPol = _hasStokes ? secStart[_stokesAxis] : 0;
     const uInt ndim = chunkShape.size();
+#ifdef _OPENMP
 #pragma omp parallel for collapse(4)
+#endif
     for(uInt blat=0; blat<nLat; ++blat) {
         for(uInt blong=0; blong<nLong; ++blong) {
             for (uInt bfreq=0; bfreq<nFreqs; ++bfreq) {
@@ -677,11 +681,6 @@ void ComponentListImage::_fillBuffer(
                     posInArray[_longAxis] = blong;
                     dirPos.second = ilong;
                     uInt ifreq = startFreq + bfreq;
-                    /*
-                    auto ptSourceContrib = _ptSourcePixelVals->find(dirPos);
-                    auto hasPtSourceContrib = lookForPtSources
-                        && ptSourceContrib != _ptSourcePixelVals->end();
-                        */
                     if (_hasFreq) {
                         posInArray[_freqAxis] = bfreq;
                     }
