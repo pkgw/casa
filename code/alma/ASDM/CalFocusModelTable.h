@@ -45,11 +45,11 @@
 	
 
 	
-#include <Tag.h>
+#include <Length.h>
 	
 
 	
-#include <Length.h>
+#include <Tag.h>
 	
 
 
@@ -204,14 +204,14 @@ class CalFocusModelRow;
  * </TR>
 	
  * <TR>
- * <TD> numCoeff </TD> 
+ * <TD> numCoeff (\f$N_{Coef}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of coefficients. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numSourceObs </TD> 
+ * <TD> numSourceObs (\f$N_{Sour}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of source directions observed to derive the model. </TD>
@@ -603,6 +603,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 

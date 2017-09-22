@@ -41,15 +41,15 @@
 
 
 	
+#include <Length.h>
+	
+
+	
 #include <ArrayTime.h>
 	
 
 	
 #include <Tag.h>
-	
-
-	
-#include <Length.h>
 	
 
 
@@ -107,7 +107,7 @@ class AntennaRow;
  * Antenna characteristics.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of Antenna </CAPTION>
@@ -189,7 +189,7 @@ class AntennaRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> assocAntennaId </TD> 
+ * <TD> assocAntennaId</TD> 
  * <TD> Tag </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; refers to an associate antenna (i.e. one row in the Antenna table). </TD>
@@ -473,6 +473,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

@@ -3020,11 +3020,11 @@ void WeatherRow::waterFromBin(EndianIStream& eis) {
 	 * Return true if all required attributes of the value part are equal to their homologues
 	 * in x and false otherwise.
 	 *
-	 * @param x a pointer on the WeatherRow whose required attributes of the value part 
+
 	 * will be compared with those of this.
 	 * @return a boolean.
 	 */
-	bool WeatherRow::equalByRequiredValue(WeatherRow* x) {
+	bool WeatherRow::equalByRequiredValue(WeatherRow* ) {
 		
 		return true;
 	}	
