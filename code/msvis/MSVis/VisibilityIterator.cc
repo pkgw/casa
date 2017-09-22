@@ -1210,7 +1210,12 @@ ROVisibilityIterator::phaseCenter () const
     CheckImplementationPointerR ();
     return readImpl_p->phaseCenter ();
 }
-
+const MDirection
+ROVisibilityIterator::phaseCenter (const Int fieldid, const Double time) const
+{
+    CheckImplementationPointerR ();
+    return readImpl_p->phaseCenter (fieldid, time);
+}
 Int
 ROVisibilityIterator::polFrame () const
 {

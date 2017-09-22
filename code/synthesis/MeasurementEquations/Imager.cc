@@ -4489,7 +4489,7 @@ Bool Imager::nnls(const String&,  const Int niter, const Float tolerance,
 
 // Fourier transform the model and componentlist
 Bool Imager::ft(const Vector<String>& model, const String& complist,
-		const Bool incremental)
+		const Bool incremental, const Double phaseCenTime)
 {
   if(!valid()) return false;
   
@@ -4522,7 +4522,7 @@ Bool Imager::ft(const Vector<String>& model, const String& complist,
 	(sm_p->deltaImage(mod)).copyData(sm_p->image(mod));
       }
     }
-    
+    se_p->setPhaseCenterTime(phaseCenTime);
     se_p->predict(incremental);
     
     // destroySkyEquation();
@@ -4590,7 +4590,7 @@ Bool Imager::setjy(const Vector<Int>& /*fieldid*/,
     for (uInt kk=0; kk<fldids.nelements(); ++kk) {
       fldid=fldids[kk];
       // Extract field name and field center position 
-      MDirection position=msc.field().phaseDirMeas(fldid);
+      MDirection position=msc.field().phaseDirMeas(fldid, meantime);
       String fieldName=msc.field().name()(fldid);
 
       for (uInt jj=0; jj< spwids.nelements(); ++jj) {
@@ -4900,7 +4900,7 @@ Record Imager::setjy(const Vector<Int>& /*fieldid*/,
     for(Int fldInd = fldids.nelements(); fldInd--;){
       Int fldid = fldids[fldInd];
       // Extract field name and field center position 
-      MDirection fieldDir = msc.field().phaseDirMeas(fldid);
+      MDirection fieldDir = msc.field().phaseDirMeas(fldid, msc.time()(0));
       String fieldName = msc.field().name()(fldid);
       Bool foundSrc = false;
     
@@ -5450,7 +5450,6 @@ Bool Imager::sjy_computeFlux(LogIO& os, FluxStandard& fluxStd,
   meantime += 0.5 * (msc.time()(msc.nrow() - 1) - meantime);
   MEpoch mtime(msc.timeMeas()(0));
   mtime.set(Quantity(meantime, "s"));
-
   if(model != ""){
     // Just get the fluxes and their uncertainties for scaling the image.
     //foundSrc = fluxStd.compute(fieldName, mfreqs, returnFluxes,

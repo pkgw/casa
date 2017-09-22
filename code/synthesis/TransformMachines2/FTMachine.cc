@@ -96,7 +96,7 @@ using namespace casa::vi;
 			   pointingDirCol_p("DIRECTION"),
 			   cfStokes_p(), cfCache_p(), cfs_p(), cfwts_p(), cfs2_p(), cfwts2_p(), 
 			   canComputeResiduals_p(false), toVis_p(true), 
-                           numthreads_p(-1), pbLimit_p(0.05),sj_p(0), cmplxImage_p( ), vbutil_p()
+                           numthreads_p(-1), pbLimit_p(0.05),sj_p(0), cmplxImage_p( ), vbutil_p(), phaseCenterTime_p(-1.0)
   {
     spectralCoord_p=SpectralCoordinate();
     isPseudoI_p=false;
@@ -115,7 +115,7 @@ using namespace casa::vi;
     pointingDirCol_p("DIRECTION"),
     cfStokes_p(), cfCache_p(cfcache), cfs_p(), cfwts_p(), cfs2_p(), cfwts2_p(),
     convFuncCtor_p(cf),canComputeResiduals_p(false), toVis_p(true), numthreads_p(-1), 
-    pbLimit_p(0.05),sj_p(0), cmplxImage_p( ), vbutil_p()
+    pbLimit_p(0.05),sj_p(0), cmplxImage_p( ), vbutil_p(), phaseCenterTime_p(-1.0)
   {
     spectralCoord_p=SpectralCoordinate();
     isPseudoI_p=false;
@@ -209,6 +209,7 @@ using namespace casa::vi;
       sj_p.resize();
       sj_p=other.sj_p;
       isDryRun=other.isDryRun;
+      phaseCenterTime_p=other.phaseCenterTime_p;
     };
     return *this;
   };
@@ -303,7 +304,7 @@ using namespace casa::vi;
       //  computation time especially for spectral cubes.
       {
         Vector<Double> equal= (mImage_p.getAngle()-
-			       vbutil_p->getPhaseCenter(vb).getAngle()).getValue();
+			       vbutil_p->getPhaseCenter(vb, phaseCenterTime_p).getAngle()).getValue();
         if((abs(equal(0)) < abs(directionCoord.increment()(0)))
   	 && (abs(equal(1)) < abs(directionCoord.increment()(1)))){
   	doUVWRotation_p=false;
@@ -331,11 +332,11 @@ using namespace casa::vi;
 	throw(AipsError("Cannot define frame because of no access to OBSERVATION table")); 
       if(observatory.contains("ATCA") || observatory.contains("DRAO")
          || observatory.contains("WSRT")){
-        uvwMachine_p=new casacore::UVWMachine(mImage_p, vbutil_p->getPhaseCenter(vb), mFrame_p,
+        uvwMachine_p=new casacore::UVWMachine(mImage_p, vbutil_p->getPhaseCenter(vb, phaseCenterTime_p), mFrame_p,
   				  true, false);
       }
       else{
-        uvwMachine_p=new casacore::UVWMachine(mImage_p, vbutil_p->getPhaseCenter(vb), mFrame_p,
+        uvwMachine_p=new casacore::UVWMachine(mImage_p, vbutil_p->getPhaseCenter(vb, phaseCenterTime_p), mFrame_p,
   				  false, tangentSpecified_p);
       }
       AlwaysAssert(uvwMachine_p, AipsError);
@@ -869,7 +870,7 @@ using namespace casa::vi;
 	mFrame_p.set(mLocation_p, MEpoch(Quantity(vb.time()(0), "s"), mscol.timeMeas()(0).getRef()));
       MDirection::Types outType;
       MDirection::getType(outType, mImage_p.getRefString());
-      MDirection phasecenter=MDirection::Convert(vbutil_p->getPhaseCenter(vb), MDirection::Ref(outType, mFrame_p))();
+      MDirection phasecenter=MDirection::Convert(vbutil_p->getPhaseCenter(vb, phaseCenterTime_p), MDirection::Ref(outType, mFrame_p))();
       
 
       if(fixMovingSource_p){
@@ -895,13 +896,13 @@ using namespace casa::vi;
 	if(observatory.contains("ATCA") || observatory.contains("WSRT")){
 		//Tangent specified is being wrongly used...it should be for a
 	    	//Use the safest way  for now.
-	    uvwMachine_p=new UVWMachine(phasecenter, vbutil_p->getPhaseCenter(vb), mFrame_p,
+	  uvwMachine_p=new UVWMachine(phasecenter, vbutil_p->getPhaseCenter(vb, phaseCenterTime_p), mFrame_p,
 					true, false);
 	    phaseShifter_p=new UVWMachine(mImage_p, phasecenter, mFrame_p,
 					true, false);
 	}
 	else{
-	  uvwMachine_p=new UVWMachine(phasecenter, vbutil_p->getPhaseCenter(vb),  mFrame_p,
+	  uvwMachine_p=new UVWMachine(phasecenter, vbutil_p->getPhaseCenter(vb, phaseCenterTime_p),  mFrame_p,
 				      false, false);
 	  phaseShifter_p=new UVWMachine(mImage_p, phasecenter,  mFrame_p,
 				      false, false);
@@ -999,11 +1000,11 @@ using namespace casa::vi;
   	if(observatory.contains("ATCA") || observatory.contains("WSRT")){
   		//Tangent specified is being wrongly used...it should be for a
   	    	//Use the safest way  for now.
-  	    uvwMachine_p=new UVWMachine(phasecenter, vbutil_p->getPhaseCenter(vb), mFrame_p,
+	  uvwMachine_p=new UVWMachine(phasecenter, vbutil_p->getPhaseCenter(vb, phaseCenterTime_p), mFrame_p,
   					true, false);
   	}
   	else{
-  		uvwMachine_p=new UVWMachine(phasecenter, vbutil_p->getPhaseCenter(vb), mFrame_p,
+	  uvwMachine_p=new UVWMachine(phasecenter, vbutil_p->getPhaseCenter(vb, phaseCenterTime_p), mFrame_p,
   					false,tangentSpecified_p);
   	    }
        }
@@ -1245,6 +1246,7 @@ using namespace casa::vi;
     outRecord.define("tovis", toVis_p);
     outRecord.define("sumweight", sumWeight);
     outRecord.define("numthreads", numthreads_p);
+    outRecord.define("phasecentertime", phaseCenterTime_p);
     //Need to serialized sj_p...the user has to set the sj_p after recovering from record
     return true;
   };
@@ -1401,6 +1403,7 @@ using namespace casa::vi;
       freqInterpMethod_p=static_cast<InterpolateArray1D<Double, Complex >::InterpolationMethod>(tmpInt);
     }
     inRecord.get("numthreads", numthreads_p);
+    inRecord.get("phasecentertime", phaseCenterTime_p);
     return true;
   };
   
