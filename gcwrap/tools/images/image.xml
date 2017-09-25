@@ -5052,7 +5052,9 @@ have three keys: 'beamarcsec' will be a subdictionary giving the beam dimensions
 'beampixels' will have the value of the beam area expressed in pixels, and 'beamster' will have the
 value of the beam area epressed in steradians. Also, if the image has a beam(s), in the component level
 dictionaries will be an 'ispoint' entry with an associated boolean value describing if the component
-is consistent with a point source.
+is consistent with a point source. Each component level dictionary will have a 'pixelcoords' entry
+which has the value of a two element numeric array which provides the direction pixel coordinates
+of the fitted position.
 
 If dooff is True, in addtion to the specified number of
 gaussians, a zero-level offset will also be fit. The initial estimate for this

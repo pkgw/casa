@@ -70,6 +70,7 @@ import hashlib
 import shutil
 from __main__ import *
 import unittest
+import numpy
 
 
 noisy_image = "gaussian_model_with_noise.im"
@@ -1284,8 +1285,6 @@ class imfit_test(unittest.TestCase):
                 near(mycl.getfluxvalue(1)[0], 1145.9896413, epsilon),
                 str(code) + " didn't get right flux for comp 1"
             )
-            print "*** got ", mycl.getfluxvalue(2)[0]
-
             self.assertTrue(
                 near(mycl.getfluxvalue(2)[0], 3143.99613138, epsilon),
                 str(code) + " didn't get right flux for comp 2"
@@ -1298,6 +1297,18 @@ class imfit_test(unittest.TestCase):
             self.assertTrue(
                 all(res['converged']),
                 "One or more of the converged elements are False"
+            )
+            self.assertTrue(numpy.isclose(
+                res['results']['component0']['pixelcoords'], [24.30, 46.43],
+                atol=0.01).all()
+            )
+            self.assertTrue(numpy.isclose(
+                res['results']['component1']['pixelcoords'], [26.71, 44.39],
+                atol=0.01).all()
+            )
+            self.assertTrue(numpy.isclose(
+                res['results']['component2']['pixelcoords'], [54.74, 40.89],
+                atol=0.01).all()
             )
 
     def test_xx_fit(self):
