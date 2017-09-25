@@ -30,6 +30,7 @@
 #include <exception>
 #include <functional>
 #include <stdexcept>
+#include <memory>
 
 namespace casa {
 
@@ -58,16 +59,18 @@ public:
 	// Constructors
 
 	Try()
-		: m_isSuccess(true)
-		, m_value() {}
+		: m_isSuccess(false)
+		, m_exception(std::make_exception_ptr(NoSuchElementException())) {}
 
 	Try(const A& a)
-		: m_isSuccess(true)
-		, m_value(a) {}
+		: m_isSuccess(true) {
+		m_value.reset(new A(a));
+	}
 
 	Try(A&& a)
-		: m_isSuccess(true)
-		, m_value(std::move(a)) {}
+		: m_isSuccess(true) {
+		m_value.reset(new A(std::move(a)));
+	}
 
 	Try(const std::exception_ptr& e)
 		: m_isSuccess(false)
@@ -76,6 +79,14 @@ public:
 	Try(std::exception_ptr&& e)
 		: m_isSuccess(false)
 		, m_exception(std::move(e)) {}
+
+	Try(const Try<A>& ta) {
+		*this = ta;
+	}
+
+	Try(Try<A>&& ta) {
+		*this = ta;
+	}
 
 	// Static methods
 
@@ -97,12 +108,12 @@ public:
 
 	/* lift
 	 *
-	 * Type F should be callable const A& -> B
+	 * Type F should be callable const A& -> B (for some B)
 	 */
 	template <typename F,
 	          typename B = typename std::result_of<F(const A&)>::type>
 #if __cplusplus >= 201402L
-	auto
+	static auto
 #else
 	static std::function<Try<B>(const Try<A>&)>
 #endif
@@ -114,14 +125,30 @@ public:
 
 	// Instance methods
 
+	/* copy assignment
+	 */
+	Try<A>& operator=(const Try<A>& ta) {
+		m_isSuccess = ta.m_isSuccess;
+		if (ta.m_isSuccess) m_value.reset(new A(*ta.m_value));
+		else m_exception = ta.m_exception;
+		return *this;
+	}
+
+	/* move assignment
+	 */
+	Try<A>& operator=(Try<A>&& ta) {
+		m_isSuccess = ta.m_isSuccess;
+		m_value = ta.m_value;
+		m_exception = std::move(ta.m_exception);
+		return *this;
+	}
+
 	/* equality operator
-	 *
-	 * Value equality for successes, failures are never equal
 	 */
 	bool operator==(const Try<A> &ta) const {
 		return (
 			m_isSuccess == ta.m_isSuccess
-			&& ((m_isSuccess && m_value == ta.m_value)
+			&& ((m_isSuccess && *m_value == *ta.m_value)
 			    || (!m_isSuccess && m_exception == ta.m_exception)));
 	}
 
@@ -131,7 +158,7 @@ public:
 
 	/* andThen()
 	 *
-	 * Type F should be callable () -> Try<B>
+	 * Type F should be callable () -> Try<B> (for some B)
 	 */
 	template <typename F,
 	          typename TB = typename std::result_of<F()>::type,
@@ -152,10 +179,8 @@ public:
 	filter(F&& f) const {
 		if (m_isSuccess) {
 			try {
-				if (std::forward<F>(f)(m_value)) return *this;
-				return Try<A>(
-					std::make_exception_ptr(NoSuchElementException()));
-
+				if (std::forward<F>(f)(*m_value)) return *this;
+				return Try<A>();
 			} catch (std::exception &) {
 				return Try<A>(std::current_exception());
 			}
@@ -166,7 +191,7 @@ public:
 
 	/* flatMap()
 	 *
-	 * Type F should be callable const A& -> Try<B>
+	 * Type F should be callable const A& -> Try<B> (for some B)
 	 */
 	template <typename F,
 	          typename TB = typename std::result_of<F(const A&)>::type,
@@ -183,13 +208,14 @@ public:
 	template <class = std::enable_if<std::is_base_of<TryBase,A>::value> >
 	A
 	flatten() const {
-		if (m_isSuccess) return m_value;
+		if (m_isSuccess) return *m_value;
 		else return Try<typename value_type::value_type>(m_exception);
 	}
 
 	/* fold()
 	 *
-	 * Type Err should be callable const std::exception_ptr & -> B
+	 * Type Err should be callable const std::exception_ptr & -> B (for some B)
+	 *
 	 * Type Val should be callable const A& -> B
 	 */
 	template <typename Err,
@@ -199,7 +225,7 @@ public:
 	          class = std::enable_if<std::is_same<B,C>::value> >
 	B
 	fold(Err&& err, Val&& val) const {
-		if (m_isSuccess) return std::forward<Val>(val)(m_value);
+		if (m_isSuccess) return std::forward<Val>(val)(*m_value);
 		else return std::forward<Err>(err)(m_exception);
 	};
 
@@ -210,7 +236,7 @@ public:
 	template <typename F>
 	void
 	foreach(F&& f) const {
-		if (m_isSuccess) std::forward<F>(f)(m_value);
+		if (m_isSuccess) std::forward<F>(f)(*m_value);
 	}
 
 	/* get()
@@ -219,20 +245,20 @@ public:
 	 */
 	A
 	get() const {
-		if (m_isSuccess) return m_value;
+		if (m_isSuccess) return *m_value;
 		else std::rethrow_exception(m_exception);
 	}
 
 	/* getOrElse()
 	 *
-	 * Type F should be callable () -> B
+	 * Type F should be callable () -> B (for some B)
 	 */
 	template <typename F,
 	          typename B = typename std::result_of<F()>::type,
 	          class = typename std::enable_if<std::is_base_of<B, A>::value> >
 	B
 	getOrElse(F&& f) const {
-		if (m_isSuccess) return m_value;
+		if (m_isSuccess) return *m_value;
 		else return std::forward<F>(f)();
 	};
 
@@ -254,7 +280,7 @@ public:
 
 	/* map()
 	 *
-	 * Type F should be callable const A& -> B
+	 * Type F should be callable const A& -> B (for some B)
 	 */
 	template <typename F,
 	          typename B = typename std::result_of<F(const A&)>::type>
@@ -262,7 +288,7 @@ public:
 	map(F&& f) const {
 		if (m_isSuccess) {
 			try {
-				return Try<B>(std::forward<F>(f)(m_value));
+				return Try<B>(std::forward<F>(f)(*m_value));
 			} catch (std::exception &) {
 				return Try<B>(std::current_exception());
 			}
@@ -273,7 +299,7 @@ public:
 
 	/* orElse
 	 *
-	 * Type F should be callable () -> Try<B>
+	 * Type F should be callable () -> Try<B> (for some B)
 	 */
 	template <typename F,
 	          typename TB = typename std::result_of<F()>::type,
@@ -283,7 +309,7 @@ public:
 	TB
 	orElse(F&& f) const {
 		if (m_isSuccess)
-			return Try<typename TB::value_type>(m_value);
+			return Try<typename TB::value_type>(*m_value);
 		else
 			return std::forward<F>(f)();
 	};
@@ -301,9 +327,29 @@ public:
 		return orElse([&tb](){ return tb; });
 	};
 
+	/* recoverWith()
+	 *
+	 * Type F should be callable const std::exception_ptr& -> A
+	 */
+	template <typename F,
+	          class = std::enable_if<
+		          std::is_convertible<
+			          std::result_of<F(const std::exception&)>,A>::value> >
+	Try<A>
+	recoverWith(F&& f) const {
+		if (m_isSuccess) {
+			return *this;
+		} else {
+			auto e = m_exception;
+			return Try<A>::from([f, e](){ return f(e); });
+		}
+	}
+
 	/* transform()
 	 *
-	 * Type Err should be callable const std::exception_ptr & -> Try<B>
+	 * Type Err should be callable const std::exception_ptr & -> Try<B> (for
+	 * some B)
+	 *
 	 * Type Val should be callable const A& -> Try<B>
 	 */
 	template <typename Err, typename Val,
@@ -322,7 +368,7 @@ public:
 
 	/* operator|()
 	 *
-	 * Type F should be callable const A& -> B
+	 * Type F should be callable const A& -> B (for some B)
 	 */
 	template <typename F,
 	          typename B = typename std::result_of<F(const A&)>::type>
@@ -333,7 +379,7 @@ public:
 
 	/* operator>>=()
 	 *
-	 * Type F should be callable const A& -> Try<B>
+	 * Type F should be callable const A& -> Try<B> (for some B)
 	 */
 	template <typename F,
 	          typename TB = typename std::result_of<F(const A&)>::type,
@@ -345,7 +391,7 @@ public:
 
 	/* operator>>()
 	 *
-	 * Type F should be callable () -> Try<B>
+	 * Type F should be callable () -> Try<B> (for some B)
 	 */
 	template <typename F,
 	          typename TB = typename std::result_of<F()>::type,
@@ -358,7 +404,7 @@ public:
 private:
 	bool m_isSuccess;
 
-	A m_value;
+	std::unique_ptr<A> m_value;
 
 	std::exception_ptr m_exception;
 };

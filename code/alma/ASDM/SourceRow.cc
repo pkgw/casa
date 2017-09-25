@@ -5978,11 +5978,13 @@ velRefCode = CRadialVelocityReferenceCode::from_int(0);
 	 * Return true if all required attributes of the value part are equal to their homologues
 	 * in x and false otherwise.
 	 *
+
 	 * @param x a pointer on the SourceRow whose required attributes of the value part 
+
 	 * will be compared with those of this.
 	 * @return a boolean.
 	 */
-	bool SourceRow::equalByRequiredValue(SourceRow* x) {
+	bool SourceRow::equalByRequiredValue(SourceRow*  x ) {
 		
 			
 		if (this->code != x->code) return false;

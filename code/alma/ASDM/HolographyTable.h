@@ -41,11 +41,11 @@
 
 
 	
-#include <Tag.h>
+#include <Length.h>
 	
 
 	
-#include <Length.h>
+#include <Tag.h>
 	
 
 
@@ -95,7 +95,7 @@ class HolographyRow;
  * Used for Single-Dish holography with a fixed transmitter.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of Holography </CAPTION>
@@ -131,7 +131,7 @@ class HolographyRow;
  * </TR>
 	
  * <TR>
- * <TD> numCorr </TD> 
+ * <TD> numCorr (\f$N_{Corr}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of stored correlations. </TD>
@@ -407,6 +407,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm
