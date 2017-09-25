@@ -66,31 +66,31 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
             <example>10</example>
         </param>
         <param type="string" name="statalg">
-            <description>Statistics algorithm to use for computing variances. Supported values are "chauvenet", "classic", "fit-half", and "hinges-fences". Minimum match is supported.</description>
+            <description>Statistics algorithm to use for computing variances. Supported values are "chauvenet", "classic", "fit-half", and "hinges-fences". Minimum match is supported, although the full string must be specified for the subparameters to appear in the inputs list.</description>
             <value>classic</value>
             <example>"cl", "ch", "f", or "h"</example>
         </param>
-        <param type="double" name="fence">
+        <param type="double" name="fence" subparam="true">
             <description>Fence value for statalg="hinges-fences". A negative value means use the entire data set (ie default to the "classic" algorithm). Ignored if statalg is not "hinges-fences".</description>
             <value>-1</value>
             <example>0.2</example>
         </param>
-        <param type="string" name="center">
+        <param type="string" name="center" subparam="true">
             <description>Center to use for statalg="fit-half". Valid choices are "mean", "median", and "zero". Ignored if statalg is not "fit-half".</description>
             <value>mean</value>
             <example>"mean", "median", or "zero"</example>
         </param>
-        <param type="bool" name="lside">
+        <param type="bool" name="lside" subparam="true">
             <description>For statalg="fit-half", real data are &lt;=; center? If false, real data are &gt;= center. Ignored if statalg is not "fit-half".</description>
             <value>True</value>
             <example>True</example>
         </param>
-        <param type="double" name="zscore">
+        <param type="double" name="zscore" subparam="true">
             <description>For statalg="chauvenet", this is the target maximum number of standard deviations data may have to be included. If negative, use Chauvenet\'s criterion. Ignored if statalg is not "chauvenet".</description>
             <value>-1</value>
             <example>3.5</example>
         </param>
-        <param type="int" name="maxiter">
+        <param type="int" name="maxiter" subparam="true">
             <description>For statalg="chauvenet", this is the maximum number of iterations to attempt. Iterating will stop when either this limit is reached, or the zscore criterion is met. If negative, iterate until the zscore criterion is met. Ignored if statalg is not "chauvenet".</description>
             <value>-1</value>
             <example>10</example>
@@ -120,6 +120,32 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
             <value>corrected</value>
             <example>"data" or "corrected"</example>
         </param>
+        <constraints>
+            <when param="statalg">
+                <equals type="string" value="classic"/>
+                <equals type="string" value="hinges-fences">
+                    <default param="fence">
+                        <value>-1</value>
+                    </default>
+                </equals>
+                <equals type="string" value="fit-half">
+                    <default param="center">
+                        <value type="string">mean</value>
+                    </default>
+                    <default param="lside">
+                        <value>True</value>
+                    </default>
+                </equals>
+                <equals type="string" value="chauvenet">
+                    <default param="zscore">
+                        <value>-1</value>
+                    </default>
+                    <default param="maxiter">
+                        <value>-1</value>
+                    </default>
+                </equals>
+            </when>
+        </constraints>
     </input>
     <example>
         IF NOT RUN IN PREVIEW MODE, THIS APPLICATION WILL MODIFY THE WEIGHT, WEIGHT SPECTRUM, FLAG,
