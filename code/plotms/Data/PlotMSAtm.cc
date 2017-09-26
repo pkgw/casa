@@ -281,24 +281,27 @@ void PlotMSAtm::getMedianPwv() {
         casacore::String subname;
         casacore::Table mstab(tableName_), subtable;
         casacore::Vector<casacore::Double> waterCol, timesCol;
-        if (mstab.keywordSet().fieldNumber("ASDM_CALWVR") > -1) {
+        try {
+          if (mstab.keywordSet().fieldNumber("ASDM_CALWVR") > -1) {
             subname = tableName_ + "::ASDM_CALWVR";
             subtable = Table::openTable(subname);
             waterCol = ScalarColumn<casacore::Double>(subtable, "water").getColumn();
             timesCol = ScalarColumn<casacore::Double>(subtable, "startValidTime").getColumn();
             mstab.closeSubTables();
-        } else if (mstab.keywordSet().fieldNumber("ASDM_CALATMOSPHERE") > -1) {
+          } else if (mstab.keywordSet().fieldNumber("ASDM_CALATMOSPHERE") > -1) {
             subname = tableName_ + "::ASDM_CALATMOSPHERE";
             subtable = Table::openTable(subname);
             waterCol = ArrayColumn<casacore::Double>(subtable, "water").getColumn();
             timesCol = ScalarColumn<casacore::Double>(subtable, "startValidTime").getColumn();
             mstab.closeSubTables();
-        }
-        if (!waterCol.empty()) {
+          }
+          if (!waterCol.empty()) {
             casacore::Vector<casacore::Double> water = 
                 getValuesNearTimes(waterCol, timesCol);
-            if (!water.empty())
-                pwv = median(water) * 1000.0; // in mm
+            if (!water.empty()) pwv = median(water) * 1000.0; // in mm
+          }
+        } catch (AipsError & err) {
+            // openTable failed, use default pwv
         }
     }
     // else use default value in mm
@@ -306,7 +309,7 @@ void PlotMSAtm::getMedianPwv() {
         if (telescopeName_=="ALMA") pwv = 1.0;
         else pwv = 5.0;
         parent_->loginfo("load_cache", 
-            "ASMD_CALWVR and ASDM_CALATMOSPHERE tables do not exist; using default pwv " + casacore::String::toString(pwv) + " for telescope " + telescopeName_);
+            "Could not open ASMD_CALWVR and ASDM_CALATMOSPHERE tables; using default pwv " + casacore::String::toString(pwv) + " for telescope " + telescopeName_);
     }
     pwv_ = pwv;
 }
@@ -374,7 +377,7 @@ void PlotMSAtm::getMeanWeather() {
         noWeather = true;
     }
     if (noWeather) {
-        parent_->loginfo("load_cache", "WEATHER table does not exist, using default values: humidity " + casacore::String::toString(humidity) + ", pressure " + casacore::String::toString(pressure) + ", temperature " + casacore::String::toString(temperature) + " for Atm/Tsky");
+        parent_->loginfo("load_cache", "Could not open WEATHER table, using default values: humidity " + casacore::String::toString(humidity) + ", pressure " + casacore::String::toString(pressure) + ", temperature " + casacore::String::toString(temperature) + " for Atm/Tsky");
     }
 
     // to use in atmosphere.initAtmProfile (tool)
