@@ -217,7 +217,7 @@ void PlotMSAxesTab::getValue(PlotMSPlotParameters& params) const {
     for ( int i = 0; i < yAxisCount; i++ ){
     	c->setXAxis(xAxis, itsXWidget_->data(), i);
     	a->setXAxis(itsXWidget_->attachAxis(), i);
-    	a->setXRange(itsXWidget_->rangeCustom(), itsXWidget_->range(), i);
+		a->setXRange(itsXWidget_->rangeCustom(), itsXWidget_->range(), i);
     }
 
     for ( int i = 0; i < yAxisCount; i++ ){
@@ -248,8 +248,10 @@ void PlotMSAxesTab::getValue(PlotMSPlotParameters& params) const {
                 int index = c->numXAxes();
                 c->setAxes(xAxis, atmAxis, c->xDataColumn(0), PMS::DEFAULT_DATACOLUMN, index);
                 // set Axes positions
-                a->resize(index+1);
+                a->resize(index+1, true);  // copy values for index 0
                 a->setAxes(a->xAxis(index-1), Y_RIGHT, index);
+				// keep same xaxis range
+    			a->setXRange(itsXWidget_->rangeCustom(), itsXWidget_->range(), index);
                 // set Display symbol color
                 PMS_PP_Display* disp = params.typedGroup<PMS_PP_Display>();
                 PlotSymbolPtr atmSymbol = disp->unflaggedSymbol(index);
@@ -269,8 +271,8 @@ void PlotMSAxesTab::setValue(const PlotMSPlotParameters& params) {
     if(c == NULL || a == NULL) return; // shouldn't happen
 
     PMS::Axis cacheAxis = c->xAxis();    
-    PlotAxis axesAxis = a->xAxis();
     PMS::DataColumn cacheColumn =  c->xDataColumn();
+    PlotAxis axesAxis = a->xAxis();
     bool axesXRangeSet = a->xRangeSet();
     std::pair<double, double> axesXRange = a->xRange();
     itsXWidget_->setValue(cacheAxis, cacheColumn, axesAxis,

@@ -694,7 +694,7 @@ public:
 	}
 
 	//Change the size of the vectors.
-	void resize( int count );
+	void resize( int count, bool copyValues=False );
 
 private:
 

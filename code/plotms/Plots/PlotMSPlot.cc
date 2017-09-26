@@ -352,8 +352,10 @@ vector<PMS::Axis> PlotMSPlot::getCachedAxes() {
                         PMS::DEFAULT_DATACOLUMN, index);
                 // set Axes positions
                 PMS_PP_Axes* a = itsParams_.typedGroup<PMS_PP_Axes>();
-                a->resize(index+1);
+                a->resize(index+1, true);  // copy values
                 a->setAxes(a->xAxis(index-1), Y_RIGHT, index);
+				// keep same xaxis range
+				a->setXRange(a->xRangeSet(index-1), a->xRange(index-1), index);
                 // set Display symbol color
                 PMS_PP_Display* disp = itsParams_.typedGroup<PMS_PP_Display>();
                 PlotSymbolPtr atmSymbol = disp->unflaggedSymbol(index);

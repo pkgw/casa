@@ -463,11 +463,15 @@ PMS_PP_Axes::PMS_PP_Axes(PlotFactoryPtr factory)
 : PlotMSPlotParameters::Group(factory)
 {
 	setDefaults();
-} PMS_PP_Axes::PMS_PP_Axes(const PMS_PP_Axes& copy) : PlotMSPlotParameters::Group(copy)
+} 
+
+PMS_PP_Axes::PMS_PP_Axes(const PMS_PP_Axes& copy) : PlotMSPlotParameters::Group(copy)
 {
 	setDefaults();
 	operator=(copy);
-} PMS_PP_Axes::~PMS_PP_Axes() { }
+} 
+
+PMS_PP_Axes::~PMS_PP_Axes() { }
 
 
 Record PMS_PP_Axes::toRecord() const
@@ -649,8 +653,7 @@ PMS_PP_Axes& PMS_PP_Axes::operator=(const Group& other){
 }
 
 PMS_PP_Axes& PMS_PP_Axes::assign(const PMS_PP_Axes* o){
-	if (o != NULL && *this != *o)
-	{
+	if (o != NULL && *this != *o) {
 		itsXAxes_ = o->itsXAxes_;
 		itsYAxes_ = o->itsYAxes_;
 		itsXRangesSet_ = o->itsXRangesSet_;
@@ -658,7 +661,7 @@ PMS_PP_Axes& PMS_PP_Axes::assign(const PMS_PP_Axes* o){
 		itsXRanges_ = o->itsXRanges_;
 		itsYRanges_ = o->itsYRanges_;
 		updated();
-	}
+	} 
 	return *this;
 }
 
@@ -687,13 +690,24 @@ void PMS_PP_Axes::setDefaults()
 	itsYRanges_ = vector<prange_t>(1, prange_t(0.0, 0.0));
 }
 
-void PMS_PP_Axes::resize( int count ){
-	itsXAxes_ = vector<PlotAxis>(count, PMS::DEFAULT_CANVAS_XAXIS);
-	itsYAxes_ = vector<PlotAxis>(count, PMS::DEFAULT_CANVAS_YAXIS);
-	itsXRangesSet_ = vector<bool>(count, false);
-	itsYRangesSet_ = vector<bool>(count, false);
-	itsXRanges_ = vector<prange_t>(count, prange_t(0.0, 0.0));
-	itsYRanges_ = vector<prange_t>(count, prange_t(0.0, 0.0));
+void PMS_PP_Axes::resize( int count, bool copyValues ){
+	if (copyValues) {  // append default values
+		for (int i=numXAxes(); i<count; ++i) {
+			itsXAxes_.push_back(PMS::DEFAULT_CANVAS_XAXIS);
+			itsYAxes_.push_back(PMS::DEFAULT_CANVAS_YAXIS);
+			itsXRangesSet_.push_back(false);
+			itsYRangesSet_.push_back(false);
+			itsXRanges_.push_back(prange_t(0.0, 0.0));
+			itsYRanges_.push_back(prange_t(0.0, 0.0));
+		}
+	} else {
+		itsXAxes_ = vector<PlotAxis>(count, PMS::DEFAULT_CANVAS_XAXIS);
+		itsYAxes_ = vector<PlotAxis>(count, PMS::DEFAULT_CANVAS_YAXIS);
+		itsXRangesSet_ = vector<bool>(count, false);
+		itsYRangesSet_ = vector<bool>(count, false);
+		itsXRanges_ = vector<prange_t>(count, prange_t(0.0, 0.0));
+		itsYRanges_ = vector<prange_t>(count, prange_t(0.0, 0.0));
+	}
 }
 
 unsigned int PMS_PP_Axes::numXAxes() const
