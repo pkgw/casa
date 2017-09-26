@@ -1859,8 +1859,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   CoordinateSystem SynthesisParamsImage::buildCoordinateSystem(vi::VisibilityIterator2& vi2, const std::map<Int, std::map<Int, Vector<Int> > >& chansel, Block<const MeasurementSet *> mss) 
 
   {
-    
-    
     //vi2.getImpl()->spectralWindows( spwids );
     //The above is not right
     //////////// ///Kludge to find all spw selected
@@ -1940,7 +1938,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  if(datafend > gdatafend) gdatafend=datafend;
 	}
     //cerr << "freqmin " <<freqmin << " max " <<freqmax << endl;
-
+    
     return buildCoordinateSystemCore( msobj, spwids0, fld, gfreqmin, gfreqmax, gdatafstart, gdatafend );
   }
   

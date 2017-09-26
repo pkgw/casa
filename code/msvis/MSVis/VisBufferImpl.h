@@ -451,6 +451,7 @@ public:
     virtual casacore::Int nRow () const;
     virtual const casacore::Vector<casacore::Int> & observationId () const;
     virtual const casacore::MDirection& phaseCenter () const;
+    virtual const casacore::MDirection phaseCenter (const casacore Int fieldid, const casacore::Double time=-1.0) const;
     virtual casacore::Int polFrame () const;
     virtual const casacore::Vector<casacore::Int> & processorId () const;
     virtual const casacore::Vector<casacore::uInt> & rowIds () const;

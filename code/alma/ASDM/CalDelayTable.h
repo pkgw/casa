@@ -41,19 +41,19 @@
 
 
 	
-#include <ArrayTime.h>
-	
-
-	
 #include <Angle.h>
 	
 
 	
-#include <Tag.h>
+#include <ArrayTime.h>
 	
 
 	
 #include <Frequency.h>
+	
+
+	
+#include <Tag.h>
 	
 
 
@@ -139,7 +139,7 @@ class CalDelayRow;
  * Result of delay offset calibration performed on-line by  TelCal. This calibration determines the delay offsets to be added in the  correlator to compensate for residual cable delays.   Delays are entered in seconds but represented as double precision floating point numbers.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of CalDelay </CAPTION>
@@ -227,7 +227,7 @@ class CalDelayRow;
  * </TR>
 	
  * <TR>
- * <TD> numReceptor </TD> 
+ * <TD> numReceptor (\f$N_{Rece}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of receptors. </TD>
@@ -273,42 +273,42 @@ class CalDelayRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> crossDelayOffset </TD> 
+ * <TD> crossDelayOffset</TD> 
  * <TD> double </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the measured cross delay offset (reference antenna only). </TD>
  * </TR>
 	
  * <TR>
- * <TD> crossDelayOffsetError </TD> 
+ * <TD> crossDelayOffsetError</TD> 
  * <TD> double </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the uncertainty for the cross delay offset. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numSideband </TD> 
+ * <TD> numSideband(\f$N_{Side}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of sideband. </TD>
  * </TR>
 	
  * <TR>
- * <TD> refFreq </TD> 
+ * <TD> refFreq</TD> 
  * <TD> vector<Frequency > </TD>
  * <TD>  numSideband  </TD>
  * <TD>&nbsp; the reference frequencies (one value per sideband). </TD>
  * </TR>
 	
  * <TR>
- * <TD> refFreqPhase </TD> 
+ * <TD> refFreqPhase</TD> 
  * <TD> vector<Angle > </TD>
  * <TD>  numSideband  </TD>
  * <TD>&nbsp; the phases at reference frequencies (one value per sideband). </TD>
  * </TR>
 	
  * <TR>
- * <TD> sidebands </TD> 
+ * <TD> sidebands</TD> 
  * <TD> vector<ReceiverSidebandMod::ReceiverSideband > </TD>
  * <TD>  numSideband  </TD>
  * <TD>&nbsp; identifies the receiver's sidebands (one value per sideband). </TD>
@@ -633,6 +633,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 
