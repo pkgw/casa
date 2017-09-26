@@ -75,7 +75,8 @@ class PlotMSAtm {
 public:
 
     // construct with bandpass table name
-    PlotMSAtm(casacore::String filename, PlotMSSelection& userSel, bool isMS);
+    PlotMSAtm(casacore::String filename, PlotMSSelection& userSel, bool isMS,
+        PlotMSCacheBase* parent);
     ~PlotMSAtm();
 
     // Returns curve vector (atm if atm=true, else tsky);
@@ -132,6 +133,7 @@ private:
         casacore::Vector<casacore::Double> timesCol);
 
     bool isMS_;
+    PlotMSCacheBase* parent_; // for log messages
     casacore::MeasurementSet *ms_, *selms_; // selected MS for each spw/scan
     NewCalTable *caltable_, *selct_;  // selected CT for each spw/scan
     casacore::String tableName_, telescopeName_;

@@ -320,7 +320,7 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 
     if (doAtm) {
         plotmsAtm_ = new PlotMSAtm(filename_, selection_,
-            cacheType()==PlotMSCacheBase::MS);
+            cacheType()==PlotMSCacheBase::MS, this);
     }
 
 	//logLoad(selection_.summary());

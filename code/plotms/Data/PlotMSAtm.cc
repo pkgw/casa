@@ -44,8 +44,9 @@ using namespace casacore;
 namespace casa {
 
 PlotMSAtm::PlotMSAtm(casacore::String filename, PlotMSSelection& userSel,
-        bool isMS):
+        bool isMS, PlotMSCacheBase* parent):
     isMS_(isMS),
+    parent_(parent),
     ms_(NULL),
     caltable_(NULL),
     tableName_(""),
@@ -73,6 +74,14 @@ PlotMSAtm::~PlotMSAtm() {
     if (ms_) {
         delete ms_;
         ms_ = NULL;
+    }
+    if (selms_) {
+        delete selms_;
+        selms_ = NULL;
+    }
+    if (selct_) {
+        delete selct_;
+        selct_ = NULL;
     }
 }
 
@@ -296,6 +305,8 @@ void PlotMSAtm::getMedianPwv() {
     if (pwv == 0.0) {
         if (telescopeName_=="ALMA") pwv = 1.0;
         else pwv = 5.0;
+        parent_->loginfo("load_cache", 
+            "ASMD_CALWVR and ASDM_CALATMOSPHERE tables do not exist; using default pwv " + casacore::String::toString(pwv) + " for telescope " + telescopeName_);
     }
     pwv_ = pwv;
 }
@@ -310,49 +321,60 @@ void PlotMSAtm::getMeanWeather() {
     else pressure = 786.0;  // mb
 
     // values from WEATHER table if it exists
+    bool noWeather(false);
     if (!tableName_.empty()) {
         casacore::Table mstab(tableName_);
         if (mstab.keywordSet().fieldNumber("WEATHER") > -1) {
             casacore::String subname = tableName_ + "::WEATHER";
-            casacore::Table subtable = Table::openTable(subname);
-            // get columns and temp. units
-            casacore::Vector<casacore::Float> pressureCol, humidityCol, 
-                temperatureCol;
-            casacore::Vector<casacore::Double> timeCol;
-            pressureCol = ScalarColumn<casacore::Float>(subtable, "PRESSURE").getColumn();
-            humidityCol = ScalarColumn<casacore::Float>(subtable, "REL_HUMIDITY").getColumn();
-            ScalarColumn<casacore::Float> tempColumn = 
-                ScalarColumn<casacore::Float>(subtable, "TEMPERATURE");
-            temperatureCol = tempColumn.getColumn();
-            casacore::String units = 
-                tempColumn.keywordSet().asArrayString("QuantumUnits").tovector()[0];
-            timeCol = ScalarColumn<casacore::Double>(subtable, "TIME").getColumn();
-            mstab.closeSubTables();
+            try {
+                casacore::Table subtable = Table::openTable(subname);
+                // get columns and temp. units
+                casacore::Vector<casacore::Float> pressureCol, humidityCol, 
+                    temperatureCol;
+                casacore::Vector<casacore::Double> timeCol;
+                pressureCol = ScalarColumn<casacore::Float>(subtable, "PRESSURE").getColumn();
+                humidityCol = ScalarColumn<casacore::Float>(subtable, "REL_HUMIDITY").getColumn();
+                ScalarColumn<casacore::Float> tempColumn = 
+                    ScalarColumn<casacore::Float>(subtable, "TEMPERATURE");
+                temperatureCol = tempColumn.getColumn();
+                casacore::String units = 
+                    tempColumn.keywordSet().asArrayString("QuantumUnits").tovector()[0];
+                timeCol = ScalarColumn<casacore::Double>(subtable, "TIME").getColumn();
+                mstab.closeSubTables();
 
-            // now select based on cal times
-            casacore::Vector<casacore::Float> selpressure, selhumidity, seltemperature;
-            // pressure
-            if (!pressureCol.empty()) {
-                selpressure = getValuesNearTimes(pressureCol, timeCol);
-                if (!selpressure.empty())
-                    pressure = mean(selpressure);
-            }
-            // humidity
-            if (!humidityCol.empty()) {
-                selhumidity = getValuesNearTimes(humidityCol, timeCol);
-                if (!selhumidity.empty())
-                    humidity = mean(selhumidity);
-            }
-            // temperature
-            if (!temperatureCol.empty()) {
-                seltemperature = getValuesNearTimes(temperatureCol, timeCol);
-                if (!seltemperature.empty()) {
-                    temperature = mean(seltemperature);
-                    if (units.compare("K")!=0) 
-                        temperature += (float)273.15;  // convert C to K
+                // now select based on cal times
+                casacore::Vector<casacore::Float> selpressure, selhumidity,
+                    seltemperature;
+                // pressure
+                if (!pressureCol.empty()) {
+                    selpressure = getValuesNearTimes(pressureCol, timeCol);
+                    if (!selpressure.empty()) pressure = mean(selpressure);
                 }
+                // humidity
+                if (!humidityCol.empty()) {
+                    selhumidity = getValuesNearTimes(humidityCol, timeCol);
+                    if (!selhumidity.empty()) humidity = mean(selhumidity);
+                }
+                // temperature
+                if (!temperatureCol.empty()) {
+                    seltemperature = getValuesNearTimes(temperatureCol, timeCol);
+                    if (!seltemperature.empty()) {
+                        temperature = mean(seltemperature);
+                        if (units.compare("K")!=0) 
+                            temperature += (float)273.15;  // convert C to K
+                    }
+                }
+            } catch (AipsError & err) {
+                noWeather = true;
             }
+        } else {
+            noWeather = true;
         }
+    } else {
+        noWeather = true;
+    }
+    if (noWeather) {
+        parent_->loginfo("load_cache", "WEATHER table does not exist, using default values: humidity " + casacore::String::toString(humidity) + ", pressure " + casacore::String::toString(pressure) + ", temperature " + casacore::String::toString(temperature) + " for Atm/Tsky");
     }
 
     // to use in atmosphere.initAtmProfile (tool)

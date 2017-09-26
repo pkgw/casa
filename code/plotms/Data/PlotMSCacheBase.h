@@ -155,13 +155,13 @@ public:
   // PlotMSCacheThreadHelper object is given, it will be used to report
   // progress information.
   virtual void load(const std::vector<PMS::Axis>& axes,
-		    const std::vector<PMS::DataColumn>& data,
-		    const casacore::String& filename,
-		    const PlotMSSelection& selection,
-		    const PlotMSAveraging& averaging,
-		    const PlotMSTransformations& transformations,
-		    const PlotMSCalibration& calibration,
-		    /*PlotMSCacheThread**/ThreadCommunication* thread = NULL);
+            const std::vector<PMS::DataColumn>& data,
+            const casacore::String& filename,
+            const PlotMSSelection& selection,
+            const PlotMSAveraging& averaging,
+            const PlotMSTransformations& transformations,
+            const PlotMSCalibration& calibration,
+            /*PlotMSCacheThread**/ThreadCommunication* thread = NULL);
   
   // Clears the cache of all stored values.  This should be called when the
   // underlying casacore::MS or casacore::MS selection is changed, thus invalidating stored data.
@@ -173,9 +173,10 @@ public:
   
   // Set up indexing for the plot
   bool isIndexerInitialized( PMS::Axis iteraxis, casacore::Bool globalXRange,
-  		casacore::Bool globalYRange, int dataIndex ) const;
+    casacore::Bool globalYRange, int dataIndex ) const;
   void setUpIndexer(PMS::Axis iteraxis=PMS::SCAN,
-		    casacore::Bool globalXRange=false, casacore::Bool globalYRange=false, int dataIndex = 0);
+    casacore::Bool globalXRange=false, casacore::Bool globalYRange=false, 
+    int dataIndex = 0);
 
   // Access to flags per chunk
   inline casacore::Array<casacore::Bool>& flag(casacore::Int chunk) { return *flag_[chunk]; };
@@ -283,14 +284,16 @@ public:
   // Returns a list of channel numbers that were averaged together in that chunk
   inline casacore::Vector<casacore::Int> getChansPerBin(casacore::Int chnk,casacore::Int irel) { return (*chansPerBin_[chnk])[irel]; };
 
-  casacore::Record locateInfo(int plotIterIndex, const casacore::Vector<PlotRegion>& regions,
-      		bool showUnflagged, bool showFlagged, bool selectAll );
+  casacore::Record locateInfo(int plotIterIndex, 
+    const casacore::Vector<PlotRegion>& regions, bool showUnflagged, 
+    bool showFlagged, bool selectAll );
 
-  PlotLogMessage* locateRange( int plotIterIndex, const casacore::Vector<PlotRegion> & regions,
-     		bool showUnflagged, bool showFlagged);
+  PlotLogMessage* locateRange( int plotIterIndex, 
+    const casacore::Vector<PlotRegion> & regions, bool showUnflagged, 
+    bool showFlagged);
 
   PlotLogMessage* flagRange( int plotIterIndex, casa::PlotMSFlagging& flagging,
-     		const casacore::Vector<PlotRegion>& regions, bool showFlagged);
+     const casacore::Vector<PlotRegion>& regions, bool showFlagged);
 
   //Return a formatted string for time iteration plots giving the time range.
   casacore::String getTimeBounds( int iterValue );
@@ -302,6 +305,9 @@ public:
 
   inline PMS::DataColumn getXDataColumn() { return currentXData_[0]; };
   inline PMS::DataColumn getYDataColumn(int index) { return currentYData_[index]; };
+
+  // need a public warning method
+  inline void loginfo(const casacore::String& method, const casacore::String& message) { logInfo(method, message); };
 
 protected:
     
@@ -321,14 +327,14 @@ protected:
   // Specialized method for loading the cache
   //  (pure virtual: implemented specifically in child classes)
   virtual void loadIt(std::vector<PMS::Axis>& loadAxes,
-		      std::vector<PMS::DataColumn>& loadData,
-		      /*PlotMSCacheThread**/ThreadCommunication* thread = NULL)=0;
+      std::vector<PMS::DataColumn>& loadData,
+      /*PlotMSCacheThread**/ThreadCommunication* thread = NULL)=0;
 
   virtual void flagToDisk(const PlotMSFlagging& flagging,
-			  casacore::Vector<casacore::Int>& chunks, 
-			  casacore::Vector<casacore::Int>& relids,
-			  casacore::Bool flag,
-			  PlotMSIndexer* indexer, int dataIndex)=0;
+    casacore::Vector<casacore::Int>& chunks, 
+    casacore::Vector<casacore::Int>& relids,
+    casacore::Bool flag,
+    PlotMSIndexer* indexer, int dataIndex)=0;
   
   // Clean up the PtrBlocks
   void deleteCache();
@@ -495,9 +501,9 @@ protected:
   std::vector<casacore::PtrBlock<casacore::Array<casacore::Bool>* > > plmask_;
 
   // meta info for locate output
-  casacore::Vector<casacore::String> antnames_; 	 
-  casacore::Vector<casacore::String> stanames_; 	 
-  casacore::Vector<casacore::String> antstanames_; 	 
+  casacore::Vector<casacore::String> antnames_;
+  casacore::Vector<casacore::String> stanames_;
+  casacore::Vector<casacore::String> antstanames_;
   casacore::Vector<casacore::String> fldnames_;
   casacore::Vector<casacore::String> intentnames_;
   casacore::Array<casacore::Double> positions_;
