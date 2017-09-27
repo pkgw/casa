@@ -93,6 +93,11 @@ private:
     // disallow default constructor
     ImageCollapser();
 
+    void _doFluxUnits(
+        casacore::TempImage<T>& tmpIm,
+        const SHARED_PTR<const casacore::SubImage<T>> subImage
+    ) const;
+
     void _invert();
 
     void _finishConstruction();

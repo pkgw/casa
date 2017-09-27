@@ -82,9 +82,9 @@ template<class T> ImageCollapser<T>::ImageCollapser(
 template<class T> SPIIT ImageCollapser<T>::collapse() const {
     auto subImage = SubImageFactory<T>::createSubImageRO(
         *this->_getImage(), *this->_getRegion(), this->_getMask(),
-        this->_getLog().get(), casacore::AxesSpecifier(), this->_getStretch()
+        this->_getLog().get(), AxesSpecifier(), this->_getStretch()
     );
-    *this->_getLog() << casacore::LogOrigin(getClass(), __func__);
+    *this->_getLog() << LogOrigin(getClass(), __func__);
     ThrowIf(
         ImageMask::isAllMaskFalse(*subImage),
         "All selected pixels are masked"
@@ -96,8 +96,8 @@ template<class T> SPIIT ImageCollapser<T>::collapse() const {
         _checkFlux(subImage);
     }
     // Set the compressed axis reference pixel and reference value
-    casacore::Vector<casacore::Double> blc, trc;
-    casacore::IPosition pixblc(inShape.nelements(), 0);
+    Vector<Double> blc, trc;
+    IPosition pixblc(inShape.nelements(), 0);
     auto pixtrc = inShape - 1;
     ThrowIf(
         ! outCoords.toWorld(blc, pixblc)
@@ -108,15 +108,11 @@ template<class T> SPIIT ImageCollapser<T>::collapse() const {
     auto refPixels = outCoords.referencePixel();
     auto outShape = inShape;
     IPosition shape(outShape.nelements(), 1);
-    auto end = _axes.end();
-    for (
-        auto iter = _axes.begin(); iter != end; ++iter
-    ) {
-        casacore::uInt i = *iter;
-        refValues[i] = (blc[i] + trc[i]) / 2;
-        refPixels[i] = 0;
-        outShape[i] = 1;
-        shape[i] = inShape[i];
+    for (const auto& axis: _axes) {
+        refValues[axis] = (blc[axis] + trc[axis])/2;
+        refPixels[axis] = 0;
+        outShape[axis] = 1;
+        shape[axis] = inShape[axis];
     }
     ThrowIf(
         ! outCoords.setReferenceValue(refValues),
@@ -143,21 +139,7 @@ template<class T> SPIIT ImageCollapser<T>::collapse() const {
         ImageUtilities::copyMiscellaneous(tmpIm, *subImage, true);
     }
     if (_aggType == ImageCollapserData::FLUX) {
-        // get the flux units right
-        auto sbunit = subImage->units().getName();
-        String unit;
-        if (sbunit.contains("K")) {
-            casacore::String areaUnit = "arcsec2";
-            unit = sbunit + "." + areaUnit;
-        }
-        else {
-            unit = "Jy";
-            if (sbunit.contains("/beam")) {
-                uInt iBeam = sbunit.find("/beam");
-                unit = sbunit.substr(0, iBeam) + sbunit.substr(iBeam + 5);
-            }
-        }
-        tmpIm.setUnits(unit);
+        _doFluxUnits(tmpIm, subImage);
     }
     return this->_prepareOutputImage(tmpIm);
 }
@@ -189,9 +171,30 @@ template<class T> void ImageCollapser<T>::_checkFlux(
     }
 }
 
-template<class T> casacore::Bool ImageCollapser<T>::_doMultipleBeams(
-    casacore::TempImage<T>& tmpIm, SPCIIT subImage, casacore::Bool hasDir,
-    const casacore::CoordinateSystem & outCoords
+template<class T> void ImageCollapser<T>::_doFluxUnits(
+    TempImage<T>& tmpIm, const SHARED_PTR<const SubImage<T>> subImage
+) const {
+    // get the flux units right
+     auto sbunit = subImage->units().getName();
+     String unit;
+     if (sbunit.contains("K")) {
+         casacore::String areaUnit = "arcsec2";
+         unit = sbunit + "." + areaUnit;
+     }
+     else {
+         unit = "Jy";
+         if (sbunit.contains("/beam")) {
+             uInt iBeam = sbunit.find("/beam");
+             unit = sbunit.substr(0, iBeam) + sbunit.substr(iBeam + 5);
+         }
+     }
+     tmpIm.setUnits(unit);
+}
+
+
+template<class T> Bool ImageCollapser<T>::_doMultipleBeams(
+    TempImage<T>& tmpIm, SPCIIT subImage, Bool hasDir,
+    const CoordinateSystem & outCoords
 ) const {
     auto naxes = _axes.size();
     auto dirAxesOnlyCollapse = hasDir && naxes == 2;
