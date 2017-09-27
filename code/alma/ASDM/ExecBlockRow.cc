@@ -4580,11 +4580,13 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	 * Return true if all required attributes of the value part are equal to their homologues
 	 * in x and false otherwise.
 	 *
+
 	 * @param x a pointer on the ExecBlockRow whose required attributes of the value part 
+
 	 * will be compared with those of this.
 	 * @return a boolean.
 	 */
-	bool ExecBlockRow::equalByRequiredValue(ExecBlockRow* x) {
+	bool ExecBlockRow::equalByRequiredValue(ExecBlockRow*  x ) {
 		
 			
 		if (this->startTime != x->startTime) return false;

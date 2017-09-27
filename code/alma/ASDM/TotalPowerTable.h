@@ -45,7 +45,7 @@
 	
 
 	
-#include <Interval.h>
+#include <Length.h>
 	
 
 	
@@ -53,7 +53,7 @@
 	
 
 	
-#include <Length.h>
+#include <Interval.h>
 	
 
 
@@ -115,7 +115,7 @@ class TotalPowerRow;
  * Total power data monitoring.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of TotalPower </CAPTION>
@@ -243,7 +243,7 @@ class TotalPowerRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> subintegrationNumber </TD> 
+ * <TD> subintegrationNumber</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp;  </TD>
@@ -579,6 +579,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 
