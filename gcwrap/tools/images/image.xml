@@ -2132,7 +2132,7 @@ ia.close()             # close to unlock disk image
             <description>Stretch the mask if necessary and possible? Default value is False.</description>
             <value>false</value>
         </param>    
-        <param type="intarray" name="grid">
+        <param type="intArray" name="grid">
             <description>x,y grid spacing. Array of exactly two positive integers.</description>
             <value type="vector"><value>1</value><value>1</value></value>
         </param>
