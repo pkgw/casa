@@ -1800,11 +1800,13 @@ antennaType = CAntennaType::from_int(0);
 	 * Return true if all required attributes of the value part are equal to their homologues
 	 * in x and false otherwise.
 	 *
+
 	 * @param x a pointer on the AntennaRow whose required attributes of the value part 
+
 	 * will be compared with those of this.
 	 * @return a boolean.
 	 */
-	bool AntennaRow::equalByRequiredValue(AntennaRow* x) {
+	bool AntennaRow::equalByRequiredValue(AntennaRow*  x ) {
 		
 			
 		if (this->name != x->name) return false;

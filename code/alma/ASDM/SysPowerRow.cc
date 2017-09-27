@@ -1690,11 +1690,13 @@ void SysPowerRow::requantizerGainFromBin(EndianIStream& eis) {
 	 * Return true if all required attributes of the value part are equal to their homologues
 	 * in x and false otherwise.
 	 *
+
 	 * @param x a pointer on the SysPowerRow whose required attributes of the value part 
+
 	 * will be compared with those of this.
 	 * @return a boolean.
 	 */
-	bool SysPowerRow::equalByRequiredValue(SysPowerRow* x) {
+	bool SysPowerRow::equalByRequiredValue(SysPowerRow*  x ) {
 		
 			
 		if (this->numReceptor != x->numReceptor) return false;

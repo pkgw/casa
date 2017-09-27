@@ -48,11 +48,11 @@
 
 
 	 
-#include <ArrayTime.h>
+#include <ArrayTimeInterval.h>
 	
 
 	 
-#include <Tag.h>
+#include <ArrayTime.h>
 	
 
 	 
@@ -60,7 +60,7 @@
 	
 
 	 
-#include <ArrayTimeInterval.h>
+#include <Tag.h>
 	
 
 
@@ -134,7 +134,7 @@
 //#include <TableStreamReader.h>
 
 /*\file DelayModel.h
-    \brief Generated from model's revision "1.64", branch "HEAD"
+    \brief Generated from model's revision "-1", branch ""
 */
 
 namespace asdm {
@@ -159,7 +159,7 @@ typedef void (DelayModelRow::*DelayModelAttributeFromText) (const string& s);
 /**
  * The DelayModelRow class is a row of a DelayModelTable.
  * 
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  */
 class DelayModelRow {

@@ -36,6 +36,7 @@ namespace casa{
    ///This is a not a full generic   fft class...use casacore::FFTServer or casacore::LatticeFFT for that
    //This is optimized with minimal memcopies for 2D FFTs 
    //Assumes 2D x, y array to be even numbers (e.g (100, 200)...will not work for (101, 200))
+   typedef unsigned long long ooLong;
  public:
    FFT2D(casacore::Bool useFFTW=true);
    ~FFT2D();
@@ -52,6 +53,9 @@ namespace casa{
    //This will return the 2D FFT of each x-y planes back into the lattice.
    void c2cFFT(casacore::Lattice<casacore::Complex>& inout, casacore::Bool toFreq=true);
    void c2cFFT(casacore::Lattice<casacore::DComplex>& inout, casacore::Bool toFreq=true);
+   //Same as above EXCEPT 
+   //will do the FFT in DComplex but input and output are Complex
+   void c2cFFTInDouble(casacore::Lattice<casacore::Complex>& inout, casacore::Bool toFreq=true);
    //The toFreq=false in FFTShift does the normalization of 1/N_sample expected of ifft
    void fftShift(casacore::Complex*& scr,  casacore::Long x, casacore::Long y, casacore::Bool toFreq=false);
    void fftShift(casacore::DComplex*& scr,  casacore::Long x, casacore::Long y, casacore::Bool toFreq=false);
@@ -59,6 +63,8 @@ namespace casa{
    void doFFT(casacore::Complex*& out, casacore::Long x, casacore::Long y, casacore::Bool toFreq);
    void doFFT(casacore::DComplex*& out, casacore::Long x, casacore::Long y, casacore::Bool toFreq);
    void doFFT(casacore::Complex*& out, casacore::Float *& in, casacore::Long x, casacore::Long y);
+   //C style element conversion avoiding overhead of iterators etc...
+   static void complexConvert(casacore::DComplex*& srcD, casacore::Complex*& scr,  const ooLong len, const casacore::Bool down=false);
  private:
    //casacore::FFTW stuff
    fftwf_plan planC2C_p;
