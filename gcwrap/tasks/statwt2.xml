@@ -13,27 +13,31 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 		    <description>Name of measurement set</description>
 		    <value/>
 	    </param>
-        <param type="string" name="field">
+	    <param type="bool" name="selectdata">
+	       <description>Enable data selection parameters</description>
+	       <value type="bool">True</value>
+	    </param>
+        <param type="string" name="field" subparam="true">
             <description>Selection based on field names or field index numbers. Default is all.</description>
             <value/>
             <example>"0~2", or "3C286"</example>
         </param>
-        <param type="string" name="spw">
+        <param type="string" name="spw" subparam="true">
             <description>Selection based on spectral windows:channels. Default is all.</description>
             <value/>
             <example>"3"</example>
         </param>
-        <param type="string" name="intent">
+        <param type="string" name="intent" subparam="true">
             <description>Selection based on intents. Default is all.</description>
             <value/>
             <example>"my_intent"</example>
         </param>
-        <param type="string" name="array">
+        <param type="string" name="array" subparam="true">
             <description>Selection based on array IDs. Default is all.</description>
             <value/>
             <example>"1"</example>
         </param>
-        <param type="string" name="observation">
+        <param type="string" name="observation" subparam="true">
             <description>Selection based on observation IDs. Default is all.</description>
             <value/>
             <example>"1"</example>
@@ -121,6 +125,15 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
             <example>"data" or "corrected"</example>
         </param>
         <constraints>
+            <when param="selectdata">
+                <equals type="bool" value="True">
+                    <default param="field"><value>""</value></default>
+                    <default param="spw"><value>""</value></default>
+                    <default param="observation"><value>""</value></default>
+                    <default param="intent"><value>""</value></default>
+                    <default param="array"><value>""</value></default>
+                </equals>
+            </when>
             <when param="statalg">
                 <equals type="string" value="classic"/>
                 <equals type="string" value="hinges-fences">
