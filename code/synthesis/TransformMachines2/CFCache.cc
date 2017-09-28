@@ -449,7 +449,7 @@ namespace casa{
 		    SynthesisUtils::stdNearestValue(fList, fVal, fndx);
 		    SynthesisUtils::stdNearestValue(wList, wVal, wndx);
 		    SynthesisUtils::stdNearestValue(mList, mVal, mndx);
-		    Float fsampling=sampling;
+		    //Float fsampling=sampling;
 		    //
 		    // The coordSys, sampling, xSupport, ySuport
 		    // params are set for the CFCell at the location

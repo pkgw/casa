@@ -106,7 +106,7 @@
 //#include <TableStreamReader.h>
 
 /*\file Scan.h
-    \brief Generated from model's revision "1.64", branch "HEAD"
+    \brief Generated from model's revision "-1", branch ""
 */
 
 namespace asdm {
@@ -125,7 +125,7 @@ typedef void (ScanRow::*ScanAttributeFromText) (const string& s);
 /**
  * The ScanRow class is a row of a ScanTable.
  * 
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  */
 class ScanRow {

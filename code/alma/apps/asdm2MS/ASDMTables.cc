@@ -3968,6 +3968,16 @@ ASDM_CALPHASE::ASDM_CALPHASE() {
   		
   		
   tableDesc_.addColumn(ArrayColumnDesc<bool>("correctionValidity", "blabla"));
+  		
+  tableDesc_.addColumn(ScalarColumnDesc<int>("numAntenna", "blabla"));
+  		
+  tableDesc_.addColumn(ArrayColumnDesc<String>("singleAntennaName", "blabla"));
+  		
+  tableDesc_.addColumn(ScalarColumnDesc<String>("refAntennaName", "blabla"));
+  		
+  tableDesc_.addColumn(ArrayColumnDesc<float>("phaseAnt", "blabla"));
+  		
+  tableDesc_.addColumn(ArrayColumnDesc<float>("phaseAntRMS", "blabla"));
   		  		
 }
 
@@ -4028,6 +4038,16 @@ using namespace PolarizationTypeMod;
 		
 			
 		
+			
+		
+			
+		
+			
+		
+			
+		
+			
+		
 	
 void ASDM_CALPHASE::fill(const ASDM& asdm) {
 	vector<CalPhaseRow*> rows = asdm.getCalPhase().get();
@@ -4077,6 +4097,16 @@ void ASDM_CALPHASE::fill(const ASDM& asdm) {
   		
   		
     ArrayColumn<bool> correctionValidity(*table_p_, "correctionValidity");             
+  		
+    ScalarColumn<int> numAntenna(*table_p_, "numAntenna");             
+  		
+    ArrayColumn<String> singleAntennaName(*table_p_, "singleAntennaName");             
+  		
+    ScalarColumn<String> refAntennaName(*table_p_, "refAntennaName");             
+  		
+    ArrayColumn<float> phaseAnt(*table_p_, "phaseAnt");             
+  		
+    ArrayColumn<float> phaseAntRMS(*table_p_, "phaseAntRMS");             
   		  	
 
 	for (unsigned int i = 0; i < rows.size(); i++) {
@@ -4166,6 +4196,31 @@ void ASDM_CALPHASE::fill(const ASDM& asdm) {
 	
 	if (rows.at(i)->isCorrectionValidityExists())
 		correctionValidity.put(rowIndex, basic2CASA1D<bool,bool>(rows.at(i)->getCorrectionValidity()));
+	
+
+	
+	if (rows.at(i)->isNumAntennaExists())
+		numAntenna.put(rowIndex, rows.at(i)->getNumAntenna());
+	
+
+	
+	if (rows.at(i)->isSingleAntennaNameExists())
+		singleAntennaName.put(rowIndex, basic2CASA1D<string,String>(rows.at(i)->getSingleAntennaName()));
+	
+
+	
+	if (rows.at(i)->isRefAntennaNameExists())
+		refAntennaName.put(rowIndex, rows.at(i)->getRefAntennaName());
+	
+
+	
+	if (rows.at(i)->isPhaseAntExists())
+		phaseAnt.put(rowIndex, basic2CASA2D<float,float>(rows.at(i)->getPhaseAnt()));
+	
+
+	
+	if (rows.at(i)->isPhaseAntRMSExists())
+		phaseAntRMS.put(rowIndex, basic2CASA2D<float,float>(rows.at(i)->getPhaseAntRMS()));
 	
 
 		rowIndex++;		

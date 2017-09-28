@@ -41,15 +41,15 @@
 
 
 	
+#include <Length.h>
+	
+
+	
 #include <ArrayTime.h>
 	
 
 	
 #include <Tag.h>
-	
-
-	
-#include <Length.h>
 	
 
 
@@ -99,7 +99,7 @@ class StationRow;
  * Antenna station information.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of Station </CAPTION>
@@ -146,7 +146,7 @@ class StationRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> time </TD> 
+ * <TD> time</TD> 
  * <TD> ArrayTime </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the time of position measurement. </TD>
@@ -410,6 +410,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm
