@@ -228,7 +228,7 @@ file:///opt/casa/code/tools/xml/casa.xsd">
   \medskip\noindent\textbf{Splitting}
     The split function allows you to make a new ms from a subset of the 
     actual ms.
-		
+
 
 \def\bul{$+$}
 \def\all{$\ast$}
@@ -319,7 +319,7 @@ weight               &amp; \all  &amp; \none  &amp; \bul    &amp; \bul    &amp; 
 \end{longtable}
 
 <example>
-	\begin{verbatim}
+    \begin{verbatim}
 Example:
 
 ms.open("3C273XC1.MS",nomodify=False)
@@ -329,7 +329,7 @@ rec=ms.getdata(["weight","data"])
 # modify rec['weight'] and rec['data'] values as desired
 ms.putdata(rec)
 ms.close()
-	\end{verbatim}
+    \end{verbatim}
 
 
 We open the MS for writing, select an array and spectral window
@@ -439,18 +439,18 @@ the ms definition itself. -->
   <keyword>open</keyword>
   <input>
        <param type="string" direction="in" name="thems">
-	   <description>Name of the measurement set table to open.</description>
-	   <value></value>
+       <description>Name of the measurement set table to open.</description>
+       <value></value>
        </param>
 
        <param type="bool" direction="in" name="nomodify">
-	   <description>Prevent changes to the measurement set. </description>
-	   <value>true</value>
+       <description>Prevent changes to the measurement set. </description>
+       <value>true</value>
        </param>
     
        <param type="bool" direction="in" name="lock">
-	   <description>Lock the table for exclusive use by this tool. </description>
-	   <value>false</value>
+       <description>Lock the table for exclusive use by this tool. </description>
+       <value>false</value>
        </param> 
        
        <param type="bool" name="check">
@@ -465,7 +465,7 @@ the ms definition itself. -->
     measurement set table.  <!-- This is quicker than destroying the ms tool
     with the <link anchor="ms:ms.done.function">done</link> function and
     starting up a new one as the server does not have to be restarted.-->
-			
+
     If check=true, additional referential integrity checks on the MS
     are run. If any of these fail, an exception is thrown and the MS
     is not open (since it is not a valid MS).
@@ -930,8 +930,8 @@ the ms definition itself. -->
            just antenna number, new style prepends VA or EV. </description>
      <value>old</value>
      <allowed type="enum">
-	     <value>old</value>
-	     <value>new</value>
+         <value>old</value>
+         <value>new</value>
      </allowed>
      </param>
   </input>
@@ -1452,10 +1452,10 @@ ms.tosdfits("myfile.sdfits")  # write SDFITS file
      1=no Main, 2=no Pointing, 3=no Main and Pointing, 4=virtual. </description>
      <value>0</value>
      <allowed type="enum">
-	    <value>0</value>
-	    <value>1</value>
-	    <value>2</value>
-	    <value>3</value>
+        <value>0</value>
+        <value>1</value>
+        <value>2</value>
+        <value>3</value>
      </allowed>
      </param>
 
@@ -1608,10 +1608,10 @@ ms.tosdfits("myfile.sdfits")  # write SDFITS file
       os.remove('3Caux.dat')
       ms.createmultims(concatvis, 
           ["3C273XC1.ms","3C273XC1-2.ms","3C273XC1-3.ms"],
-		  [],
-		  True, # nomodify
-		  False,# lock
-		  True) # copysubtables from first to all other members
+          [],
+          True, # nomodify
+          False,# lock
+          True) # copysubtables from first to all other members
       ms.close()
     
     This example virtually appends the data from the 3C273XC1-2 and
@@ -1652,7 +1652,7 @@ ms.tosdfits("myfile.sdfits")  # write SDFITS file
      <param type="bool" direction="in" name="copysubtables">
      <description>Copy the subtables from the first to all other member MSs. </description>
      <value>false</value>
-     </param>		
+     </param>
 
      <param name="omitsubtables" type="stringArray">
      <description>Omit the subtables from this list when copying subtables. </description>
@@ -2215,12 +2215,12 @@ ms.tosdfits("myfile.sdfits")  # write SDFITS file
   <keyword>getfielddirmeas</keyword>
   <input>  
       <param type="string" direction="in" name="dircolname">
-	  <description>Name of the direction column in the FIELD table. </description>
-	  <value>PHASE_DIR</value>
+      <description>Name of the direction column in the FIELD table. </description>
+      <value>PHASE_DIR</value>
       <allowed type="enum">
-	    <value>PHASE_DIR</value>
-	    <value>DELAY_DIR</value>
-	    <value>REFERENCE_DIR</value>
+        <value>PHASE_DIR</value>
+        <value>DELAY_DIR</value>
+        <value>REFERENCE_DIR</value>
       </allowed>
       </param>
 
@@ -4732,34 +4732,34 @@ in spectral window 1.
   <keyword>iterinit</keyword>
   <input>
        <param type="stringArray" direction="in" name="columns">
-	   <description>
-	   Vector of column names (case sensitive).  This parameter is
-	   not used and is here only for backwards compatibility with
-	   the iterinit() method.
-	   </description>
-	   <value></value>
+       <description>
+       Vector of column names (case sensitive).  This parameter is
+       not used and is here only for backwards compatibility with
+       the iterinit() method.
+       </description>
+       <value></value>
        </param>
        
        <param type="double" direction="in" name="interval">
-	   <description>
-	   Time interval in seconds (greater than 0), to group
-	   together in iteration
-	   </description>
-	   <value>0.0</value>
+       <description>
+       Time interval in seconds (greater than 0), to group
+       together in iteration
+       </description>
+       <value>0.0</value>
        </param>
        
        <param type="int" direction="in" name="maxrows">
-	   <description>
-	   Max number of rows (greater than 0) to return in iteration.
-	   </description>
-	   <value>0</value>
+       <description>
+       Max number of rows (greater than 0) to return in iteration.
+       </description>
+       <value>0</value>
        </param>
        
        <param type="bool" direction="in" name="adddefaultsortcolumns">
-	   <description>
-	   Add the default sort columns
-	   </description>
-	   <value>true</value>
+       <description>
+       Add the default sort columns
+       </description>
+       <value>true</value>
        </param>
   </input>
   <returns type="bool"/>
@@ -4800,7 +4800,7 @@ in spectral window 1.
   <keyword>iternext</keyword>
   <returns type="bool">
     <shortdescription>
-	 Bool, True if there was more data, False if we've reached the end
+    Bool: True if there was more data, False if we've reached the end
     </shortdescription>
   </returns>
   <description>
@@ -4825,7 +4825,7 @@ in spectral window 1.
   <keyword>iterend</keyword>
   <returns type="bool">
        <shortdescription>
-	 Bool, True if iterations have ended.  False otherwise.
+    Bool: True if iterations have ended.  False otherwise.
        </shortdescription>
   </returns>
   <description>
@@ -5055,7 +5055,7 @@ in spectral window 1.
      <param type="record" direction="in" name="items">
      <description>record with fields contain ranges and enumerations</description>
      <value></value>
-     </param>	
+     </param>
   </input>
   <returns type="bool"/>
   <description>
@@ -5125,7 +5125,7 @@ in spectral window 1.
      <param type="string" direction="in" name="msselect">
      <description>TaQL selection string</description>
      <value></value>
-     </param>	
+     </param>
   </input>
   <returns type="bool"/>
   <description>
@@ -5348,8 +5348,8 @@ in spectral window 1.
     quantities like amplitude and flag_sum and it can reorder the
     data.
 
-	The items to read are specified, as with the rangeold function,
-	using a vector of strings. Allowable items include:  amplitude,
+    The items to read are specified, as with the rangeold function,
+    using a vector of strings. Allowable items include:  amplitude,
     corrected_amplitude, model_amplitude, ratio_amplitude,
     residual_amplitude, obs_residual_amplitude, antenna1, antenna2,
     axis_info, data, corrected_data, model_data, ratio_data,
@@ -5647,11 +5647,11 @@ in spectral window 1.
     DEPRECATED: Please use the ms::iterorigin() function in place
     of ms::iteroriginold().
 
-	Set or reset the iterator to the start of the currently specified
-	iteration. You need to call this after iterinitold, before
-	attempting to retrieve data with getdataold. You may also use
-	iteroriginold to set the iteration back to the start before you
-	reach the end of the data.
+    Set or reset the iterator to the start of the currently specified
+    iteration. You need to call this after iterinitold, before
+    attempting to retrieve data with getdataold. You may also use
+    iteroriginold to set the iteration back to the start before you
+    reach the end of the data.
   </description>
   <example>
     See the example for the <link anchor="ms:ms.iterendold.function">iterendold</link> function.
@@ -5670,11 +5670,11 @@ in spectral window 1.
     DEPRECATED: Please use the ms::iternext() function in place
     of ms::iternextold().
 
-	This sets the currently selected table (as accessed with
-	getdataold) to the next iteration. If there is no more data, the
-	function returns False and the selection is reset to that before
-	the iteration started.  You need to call iterinitold and
-	iteroriginold before calling this.
+    This sets the currently selected table (as accessed with
+    getdataold) to the next iteration. If there is no more data, the
+    function returns False and the selection is reset to that before
+    the iteration started.  You need to call iterinitold and
+    iteroriginold before calling this.
   </description>
   <example>
     See the example for the <link anchor="ms:ms.iterendold.function">iterendold</link> function.
@@ -5762,22 +5762,22 @@ in spectral window 1.
     of ms::continuumsubold().
 
     This function provides a means of continuum determination and
-	subtraction by fitting a polynomial of desired order to a subset
-	of channels in each time-averaged uv spectrum.  The fit is used
-	to model the continuum in all channels (not just those used in
-	the fit), for subtraction, if desired.  Use the fitspw parameter
-	to limit the spectral windows processed and the range of channels
-	used to estimate the continuum  in each (avoid channels
-	containing spectral lines).  The default solution interval 'int'
-	will result in per-integration continuum fits for each baseline.
-	The mode parameter indicates how the continuum model (the result
-	of the fit) should be used: 'subtract' will store the continuum
-	model in the MODEL_DATA column and subtract it from the
-	CORRECTED_DATA column; 'replace' will replace the CORRECTED_DATA
-	column with the continuum model (useful if you want to image the
-	continuum model result); and 'model' will only store the
-	continuum model in the MODEL_DATA column (the CORRECTED_DATA is
-	unaffected).
+    subtraction by fitting a polynomial of desired order to a subset
+    of channels in each time-averaged uv spectrum.  The fit is used
+    to model the continuum in all channels (not just those used in
+    the fit), for subtraction, if desired.  Use the fitspw parameter
+    to limit the spectral windows processed and the range of channels
+    used to estimate the continuum  in each (avoid channels
+    containing spectral lines).  The default solution interval 'int'
+    will result in per-integration continuum fits for each baseline.
+    The mode parameter indicates how the continuum model (the result
+    of the fit) should be used: 'subtract' will store the continuum
+    model in the MODEL_DATA column and subtract it from the
+    CORRECTED_DATA column; 'replace' will replace the CORRECTED_DATA
+    column with the continuum model (useful if you want to image the
+    continuum model result); and 'model' will only store the
+    continuum model in the MODEL_DATA column (the CORRECTED_DATA is
+    unaffected).
 
     It is important to open the dataset with nomodify=False so that
     changes will be allowed (see example below).
@@ -5785,12 +5785,12 @@ in spectral window 1.
     For now, the only way to recover the un-subtracted CORRECTED_DATA
     column is to use calibrater.correct() again.
 
-	Note that the MODEL_DATA and CORRECTED_DATA columns must be
-	present for continuumsubold to work correctly.  The function will
-	warn the user if they are not present, and abort.  To add these
-	scratch columns, close the ms tool, then start a calibrater or an
-	imager tool, which will add the scratch columns.  Then restart
-	the ms tool, and try continuumsubold again.
+    Note that the MODEL_DATA and CORRECTED_DATA columns must be
+    present for continuumsubold to work correctly.  The function will
+    warn the user if they are not present, and abort.  To add these
+    scratch columns, close the ms tool, then start a calibrater or an
+    imager tool, which will add the scratch columns.  Then restart
+    the ms tool, and try continuumsubold again.
   </description>
   <example>
      ms.fromfits('ngc5921.ms','/aips++/data/demo/NGC5921.fits')
