@@ -27,14 +27,16 @@ template <class T>  class ImageMaskedPixelReplacer : public ImageTask<T> {
 
 public:
 
+    ImageMaskedPixelReplacer() = delete;
+
 	// The total pixel mask is calculated by a logical OR of the existing default
 	// image pixel mask when the mask specified by <src>mask</src>. Pixel replacement
 	// is done in place; ie on the image passed to the constructor. No copy of that image
 	// is made.
 	ImageMaskedPixelReplacer(
 		const SPIIT image,
-		const casacore::Record *const &region,
-		const casacore::String& maskInp
+		const casacore::Record *const &region = nullptr,
+		const casacore::String& maskInp = ""
 	);
 
 	~ImageMaskedPixelReplacer() {}
@@ -61,14 +63,10 @@ private:
 	// changes to.
 	const SPIIT _image;
 
-	// disallow default constructor
-	ImageMaskedPixelReplacer();
-
 	static void _makeRegionBlock(
     	casacore::PtrBlock<const casacore::ImageRegion*>& imageRegions,
     	const casacore::Record& regions
     );
-
 };
 }
 

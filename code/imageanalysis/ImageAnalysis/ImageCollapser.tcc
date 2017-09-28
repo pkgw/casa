@@ -39,6 +39,8 @@
 #include <lattices/Lattices/LatticeUtilities.h>
 #include <lattices/LatticeMath/LatticeMathUtil.h>
 
+#include <imageanalysis/ImageAnalysis/ImageMaskedPixelReplacer.h>
+
 #include <memory>
 
 namespace casa {
@@ -107,12 +109,13 @@ template<class T> SPIIT ImageCollapser<T>::collapse() const {
     auto refValues = outCoords.referenceValue();
     auto refPixels = outCoords.referencePixel();
     auto outShape = inShape;
-    IPosition shape(outShape.nelements(), 1);
+    auto degenTypes = ImageCollapserData::aggTypesSupportedDegenAxes();
+    auto useDegenCase = degenTypes->find(_aggType) != degenTypes->end();
     for (const auto& axis: _axes) {
         refValues[axis] = (blc[axis] + trc[axis])/2;
         refPixels[axis] = 0;
         outShape[axis] = 1;
-        shape[axis] = inShape[axis];
+        useDegenCase = useDegenCase && inShape[axis] == 1;
     }
     ThrowIf(
         ! outCoords.setReferenceValue(refValues),
@@ -125,6 +128,9 @@ template<class T> SPIIT ImageCollapser<T>::collapse() const {
     TempImage<T> tmpIm(outShape, outCoords);
     if (_aggType == ImageCollapserData::ZERO) {
         tmpIm.set(0.0);
+    }
+    else if (useDegenCase) {
+        _doDegenerateAxesCase(tmpIm, subImage);
     }
     else if (_aggType == ImageCollapserData::MEDIAN) {
         _doMedian(subImage, tmpIm);
@@ -168,6 +174,55 @@ template<class T> void ImageCollapser<T>::_checkFlux(
             "Specified axis " + String::toString(axis)
             + " is not a direction axis but has length > 1." + cant
         );
+    }
+}
+
+template<class T> void ImageCollapser<T>::_doDegenerateAxesCase(
+    TempImage<T>& tmpIm, SPCIIT subImage
+) const {
+    *this->_getLog() << LogOrigin(getClass(), __func__);
+    *this->_getLog() << LogIO::NORMAL << "All subimage axes to be "
+        << "collapsed are degenerate, using algorithm optimized for "
+        << "that case." << LogIO::POST;
+    ThrowIf(
+        _aggType == ImageCollapserData::STDDEV
+        || _aggType == ImageCollapserData::VARIANCE,
+        "Cannot compute "
+        + ImageCollapserData::funcNameMap()->find(_aggType)->second
+        + " for single sample data sets"
+    );
+    if (
+        _aggType == ImageCollapserData::MAX
+        || _aggType == ImageCollapserData::MEAN
+        || _aggType == ImageCollapserData::MEDIAN
+        || _aggType == ImageCollapserData::MIN
+        || _aggType == ImageCollapserData::RMS
+        || _aggType == ImageCollapserData::SUM
+    ) {
+        // Straight copy
+        this->_copyData(tmpIm, *subImage);
+    }
+    else if (_aggType == ImageCollapserData::NPTS) {
+        tmpIm.set(1.0);
+    }
+    else {
+        ThrowCc(
+            "Logic error: "
+            + ImageCollapserData::funcNameMap()->find(_aggType)->second
+            + " erroneously not supported for degenerate axis case. Please "
+            + "file a bug report and include this message"
+        );
+    }
+    if (subImage->isMasked()) {
+        if (! tmpIm.isMasked()) {
+            TempLattice<Bool> mask(tmpIm.shape());
+            this->_copyMask(mask, *subImage);
+            tmpIm.attachMask(mask);
+        }
+        // This works because the underlying pixel data are cloned by reference
+        SPIIT myclone(tmpIm.cloneII());
+        ImageMaskedPixelReplacer<T> impr(myclone);
+        impr.replace("0", False, False);
     }
 }
 

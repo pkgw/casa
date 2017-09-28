@@ -6,10 +6,12 @@
 using namespace casacore;
 namespace casa {
 
-std::map<uInt, String> *ImageCollapserData::_funcNameMap = 0;
-std::map<uInt, String> *ImageCollapserData::_minMatchMap = 0;
+std::shared_ptr<std::map<uInt, String>> ImageCollapserData::_funcNameMap = nullptr;
+std::shared_ptr<std::map<uInt, String>> ImageCollapserData::_minMatchMap = nullptr;
+std::shared_ptr<std::set<ImageCollapserData::AggregateType>>
+ImageCollapserData::_degenAxesSupported = nullptr;
 
-const std::map<uInt, String>* ImageCollapserData::funcNameMap() {
+std::shared_ptr<const std::map<uInt, String>> ImageCollapserData::funcNameMap() {
 	if (! _funcNameMap) {
 		std::map<uInt, String> ref;
 		//ref[(uInt)AVDEV] = "avdev";
@@ -18,7 +20,7 @@ const std::map<uInt, String>* ImageCollapserData::funcNameMap() {
 		ref[(uInt)MEAN] = "mean";
 		ref[(uInt)MEDIAN] = "median";
 		ref[(uInt)MIN] = "min";
-		ref[(uInt)NPTS] = "nputs";
+		ref[(uInt)NPTS] = "npts";
 		ref[(uInt)RMS] = "rms";
 		ref[(uInt)SQRTSUM] = "sqrtsum";
 		ref[(uInt)SQRTSUM_NPIX_BEAM] = "sqrtsum_npix_beam";
@@ -27,15 +29,14 @@ const std::map<uInt, String>* ImageCollapserData::funcNameMap() {
 		ref[(uInt)SUM] = "sum";
 		ref[(uInt)VARIANCE] = "variance";
 		ref[(uInt)ZERO] = "zero";
-		_funcNameMap = new std::map<uInt, String>(ref);
+		_funcNameMap.reset(new std::map<uInt, String>(ref));
 	}
 	return _funcNameMap;
 }
 
-const std::map<uInt, String>* ImageCollapserData::minMatchMap() {
+std::shared_ptr<const std::map<uInt, String>> ImageCollapserData::minMatchMap() {
 	if (! _minMatchMap) {
 		std::map<uInt, String> ref;
-		//ref[(uInt)AVDEV] = "a";
 		ref[(uInt)FLUX] = "f";
 		ref[(uInt)MAX] = "ma";
 		ref[(uInt)MEAN] = "mea";
@@ -50,8 +51,7 @@ const std::map<uInt, String>* ImageCollapserData::minMatchMap() {
 		ref[(uInt)SUM] = "su";
 		ref[(uInt)VARIANCE] = "v";
 		ref[(uInt)ZERO] = "z";
-		_minMatchMap = new std:: map<uInt, String>(ref);
-
+		_minMatchMap.reset(new std:: map<uInt, String>(ref));
 	}
 	return _minMatchMap;
 }
@@ -65,22 +65,41 @@ ImageCollapserData::AggregateType ImageCollapserData::aggregateType(
 	);
 	String agg = aggString;
 	agg.downcase();
-	const std::map<uInt, String> *funcNamePtr = funcNameMap();
+	auto funcNamePtr = funcNameMap();
 	std::map<uInt, String>::const_iterator iter;
-	const std::map<uInt, String> *minMatch = minMatchMap();
+	auto minMatch = minMatchMap();
 	std::map<uInt, String>::const_iterator end = minMatch->end();
-	for (iter = minMatch->begin(); iter != end; iter++) {
-		uInt key = iter->first;
-		String minMatch = iter->second;
-		String funcName = (*funcNamePtr).at(key);
-		if (
-			agg.startsWith(minMatch)
-			&& funcName.startsWith(agg)
-		) {
-			return (AggregateType)key;
-		}
+	for (const auto& p: *minMatch) {
+	    auto key = p.first;
+	    auto minMatch = p.second;
+	    auto funcName = (*funcNamePtr).at(key);
+	    if (
+	        agg.startsWith(minMatch)
+	        && funcName.startsWith(agg)
+	    ) {
+	        return (AggregateType)key;
+	    }
 	}
 	ThrowCc("Unknown aggregate function specified by " + aggString);
 }
+
+std::shared_ptr<const std::set<ImageCollapserData::AggregateType>>
+ImageCollapserData::aggTypesSupportedDegenAxes() {
+    if (! _degenAxesSupported) {
+        std::set<AggregateType> ref;
+        ref.insert(MAX);
+        ref.insert(MEAN);
+        ref.insert(MEDIAN);
+        ref.insert(MIN);
+        ref.insert(NPTS);
+        ref.insert(RMS);
+        ref.insert(STDDEV);
+        ref.insert(SUM);
+        ref.insert(VARIANCE);
+        _degenAxesSupported.reset(new std::set<AggregateType>(ref));
+    }
+    return _degenAxesSupported;
+}
+
 
 }

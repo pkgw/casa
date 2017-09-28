@@ -104,6 +104,10 @@ private:
 
     void _checkFlux(SPCIIT subImage) const;
 
+    void _doDegenerateAxesCase(
+        casacore::TempImage<T>& tmpIm, SPCIIT subImage
+    ) const;
+
     void _doLowPerf(
         TempImage<T>& tmpIm, SPCIIT subImage, T npixPerBeam
     ) const;
