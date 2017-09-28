@@ -213,7 +213,7 @@ template<class T> void ImageCollapser<T>::_doDegenerateAxesCase(
             + "file a bug report and include this message"
         );
     }
-    if (subImage->isMasked()) {
+    if (subImage->isMasked() && ! ImageMask::isAllMaskTrue(*subImage)) {
         if (! tmpIm.isMasked()) {
             TempLattice<Bool> mask(tmpIm.shape());
             this->_copyMask(mask, *subImage);
