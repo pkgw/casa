@@ -121,7 +121,7 @@ class ScanRow;
  * A summary of information for each scan.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of Scan </CAPTION>
@@ -166,14 +166,14 @@ class ScanRow;
  * </TR>
 	
  * <TR>
- * <TD> numIntent </TD> 
+ * <TD> numIntent (\f$N_{Inte}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of intents for this scan. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numSubscan </TD> 
+ * <TD> numSubscan (\f$N_{Subs}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of subscans contained by this scan. </TD>
@@ -205,42 +205,42 @@ class ScanRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> calibrationFunction </TD> 
+ * <TD> calibrationFunction</TD> 
  * <TD> vector<CalibrationFunctionMod::CalibrationFunction > </TD>
  * <TD>  numIntent  </TD>
  * <TD>&nbsp; identifies the calibration functions (one value per intent). </TD>
  * </TR>
 	
  * <TR>
- * <TD> calibrationSet </TD> 
+ * <TD> calibrationSet</TD> 
  * <TD> vector<CalibrationSetMod::CalibrationSet > </TD>
  * <TD>  numIntent  </TD>
  * <TD>&nbsp; attaches this scan to a calibration set (one value per intent). </TD>
  * </TR>
 	
  * <TR>
- * <TD> calPattern </TD> 
+ * <TD> calPattern</TD> 
  * <TD> vector<AntennaMotionPatternMod::AntennaMotionPattern > </TD>
  * <TD>  numIntent  </TD>
  * <TD>&nbsp; identifies the antenna motion patterns used for the calibration. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numField </TD> 
+ * <TD> numField(\f$N_{Fiel}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of fields observed. </TD>
  * </TR>
 	
  * <TR>
- * <TD> fieldName </TD> 
+ * <TD> fieldName</TD> 
  * <TD> vector<string > </TD>
  * <TD>  numField  </TD>
  * <TD>&nbsp; the names of the observed fields (one value per field). </TD>
  * </TR>
 	
  * <TR>
- * <TD> sourceName </TD> 
+ * <TD> sourceName</TD> 
  * <TD> string </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the name of the observed source. </TD>
@@ -533,6 +533,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 

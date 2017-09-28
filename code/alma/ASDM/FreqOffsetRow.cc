@@ -1064,11 +1064,13 @@ void FreqOffsetRow::offsetFromBin(EndianIStream& eis) {
 	 * Return true if all required attributes of the value part are equal to their homologues
 	 * in x and false otherwise.
 	 *
+
 	 * @param x a pointer on the FreqOffsetRow whose required attributes of the value part 
+
 	 * will be compared with those of this.
 	 * @return a boolean.
 	 */
-	bool FreqOffsetRow::equalByRequiredValue(FreqOffsetRow* x) {
+	bool FreqOffsetRow::equalByRequiredValue(FreqOffsetRow*  x ) {
 		
 			
 		if (this->offset != x->offset) return false;

@@ -45,15 +45,15 @@
 	
 
 	
-#include <Interval.h>
-	
-
-	
 #include <Tag.h>
 	
 
 	
 #include <EntityRef.h>
+	
+
+	
+#include <Interval.h>
 	
 
 
@@ -112,7 +112,7 @@ class MainRow;
 
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of Main </CAPTION>
@@ -152,7 +152,7 @@ class MainRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numAntenna </TD> 
+ * <TD> numAntenna (\f$N_{Ante}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;Number of antennas. </TD>
@@ -173,7 +173,7 @@ class MainRow;
  * </TR>
 	
  * <TR>
- * <TD> numIntegration </TD> 
+ * <TD> numIntegration (\f$N_{Inte}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;number of integrations. </TD>
@@ -544,6 +544,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 

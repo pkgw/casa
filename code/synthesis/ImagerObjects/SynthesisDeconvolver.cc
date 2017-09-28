@@ -502,7 +502,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
       // Get the number of mask pixels (sum) and send to the logger.
       Float masksum = itsImages->getMaskSum();
-      Int npix = (itsImages->getShape()).product();
+      Float npix = (itsImages->getShape()).product();
+
+      //Int npix2 = 20000*20000*16000*4;
+      //Float npix2f = 20000*20000*16000*4;
+
+      //cout << " bigval : " << npix2 << " and " << npix2f << endl;
+
       os << "[" << itsImages->getName() << "] Number of pixels in the clean mask : " << masksum << " out of a total of " << npix << " pixels. [ " << 100.0 * masksum/npix << " % ]" << LogIO::POST;
 
       maskchanged=True;

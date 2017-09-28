@@ -92,7 +92,7 @@
 //#include <TableStreamReader.h>
 
 /*\file CalReduction.h
-    \brief Generated from model's revision "1.64", branch "HEAD"
+    \brief Generated from model's revision "-1", branch ""
 */
 
 namespace asdm {
@@ -108,7 +108,7 @@ typedef void (CalReductionRow::*CalReductionAttributeFromText) (const string& s)
 /**
  * The CalReductionRow class is a row of a CalReductionTable.
  * 
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  */
 class CalReductionRow {
