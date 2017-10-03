@@ -36,6 +36,16 @@ def importfitsidi(fitsidifile,vis,constobsid=None,scanreindexgap_s=None,specfram
 		casalog.post("")
                 myms = mstool()
 		mytb = tbtool()
+
+                if type(specframe)==str and not specframe=='':
+                        myspecframe=specframe.upper()
+                else:
+                        myspecframe='GEO'
+
+                refframes = {'REST': 0, 'LSRK': 1, 'LSRD': 2, 'BARY': 3, 'GEO': 4, 'TOPO': 5} 
+                if not refframes.has_key(myspecframe):
+                        raise Exception, 'Value '+myspecframe+' of parameter specframe invalid. Possible values are REST, LSRK, LSRD, BARY, GEO, TOPO'
+
 		if(type(fitsidifile)==str):
 			casalog.post('### Reading file '+fitsidifile, 'INFO')
 			myms.fromfitsidi(vis,fitsidifile)
@@ -133,15 +143,7 @@ def importfitsidi(fitsidifile,vis,constobsid=None,scanreindexgap_s=None,specfram
 			mytb.putcol('SCAN_NUMBER', scannumbers)	
 			mytb.close()
 
-                if type(specframe)==str and not specframe=='':
-                        myspecframe=specframe.upper()
-                else:
-                        myspecframe='GEO'
-
-                refframes = {'REST': 0, 'LSRK': 1, 'LSRD': 2, 'BARY': 3, 'GEO': 4, 'TOPO': 5} 
-                if not refframes.has_key(myspecframe):
-                        raise Exception, 'Value '+myspecframe+' of parameter specframe invalid. Possible values are REST, LSRK, LSRD, BARY, GEO, TOPO'
-                else:
+                if refframes.has_key(myspecframe):
                         casalog.post('Setting reference frame for all spectral windows to '+myspecframe, 'INFO')
                         if myspecframe == 'TOPO':
                                 casalog.post('NOTE: reference position for TOPO frame will be the observatory location', 'WARN')
