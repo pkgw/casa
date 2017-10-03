@@ -1206,32 +1206,25 @@ void solveTridiagonalSystem(unsigned int		n,
   LOGEXIT("solveTridiagonalSystem");
 }
 
+#define LOG_EPHEM(message) if (getenv("FILLER_LOG_EPHEM")) cout << message;
+
 void linearInterpCoeff(uint32_t                   npoints,
 		       const vector<double>&      time_v,
-		       const vector<double>&      timeOffset_v,
 		       const vector<double>&      k_v,
 		       vector<vector<double> >&   coeff_vv) {
   LOGENTER("linearInterpCoeff");
   coeff_vv.clear();
   coeff_vv.resize(npoints-1);
+
+  LOG_EPHEM("linearInterpCoeff for npoints = " + TO_STRING(npoints));
   
   for (uint32_t i = 0; i < npoints-1; i++) {
     vector<double> coeff_v (2);
-    // these coefficients are evaluated relative to timeOrigin
-    // but that may not be the times at which the value of the 
-    // parmeter equals k_v.  In order that this interpolation evaluates
-    // to k_v the correct time, it is necessary to know the offset.
-    // timeOffset_v is the time difference between the time when
-    // the parameter has a value equal to k_v[i] and timeOrigin 
-    // timeOffset = timeEq - timeOrigin; timeEq is likely the midpoint of the interval
-    // the actual values of time_v relative to timeSet and timeOrigin are unimportant
-    // so long as the time step between rows is fixed, which other code here assumes is true.
-    // these times are likely the start times of the interval
     coeff_v[0] = k_v[i];
     coeff_v[1] = (k_v[i+1] - k_v[i]) / (time_v[i+1] - time_v[i]);
-    // the adjustment
-    coeff_v[0] -= coeff_v[1]*timeOffset_v[i];
     coeff_vv[i] = coeff_v;
+
+    LOG_EPHEM(TO_STRING(i) + " : " + TO_STRING(k_v[i]) + ", " + TO_STRING(k_v[i+1]) + ", " + TO_STRING(time_v[i]) + ", " + TO_STRING(time_v[i+1]) + ": " + TO_STRING(coeff_v[0]) + ", " + TO_STRING(coeff_v[1]) + "\n");
   }
   LOGEXIT("linearInterpCoeff");
 }
@@ -1291,8 +1284,6 @@ double evalPoly (unsigned int		numCoeff,
   LOGEXIT("evalPoly");
   return result;
 }
-
-#define LOG_EPHEM(message) if (getenv("FILLER_LOG_EPHEM")) cout << message;
 
 void deleteEphemeris(map<AtmPhaseCorrection, Table*>& apc2EphemTable_m) {
   for ( map<AtmPhaseCorrection, Table*>::iterator iter = apc2EphemTable_m.begin(); iter!=apc2EphemTable_m.end(); ++iter)
@@ -1377,8 +1368,8 @@ void fillEphemeris(ASDM* ds_p, uint64_t timeStepInNanoSecond, bool interpolate_e
       int64_t	r      = t0ASDM % timeStepInNanoSecond;
       int64_t	t0MS   = t0ASDM;
       if ( r != 0 ) {  
-	q		       = q + 1;
-	t0MS	       = q * timeStepInNanoSecond;
+	q = q + 1;
+	t0MS = q * timeStepInNanoSecond;
       }
 
       double mjd0 = ArrayTime(t0MS).getMJD();
@@ -1503,11 +1494,15 @@ void fillEphemeris(ASDM* ds_p, uint64_t timeStepInNanoSecond, bool interpolate_e
       bool	numPolyDistIsOne   = ephRow_v[0]->getNumPolyDist() == 1;
       bool	radVelExists	   = ephRow_v[0]->isRadVelExists() && ephRow_v[0]->isNumPolyRadVelExists();
       bool	numPolyRadVelIsOne = radVelExists ? ephRow_v[0]->getNumPolyRadVel() == 1 : false; 
+      bool      anyNumPolyIsOne = numPolyDirIsOne || numPolyDistIsOne || (radVelExists && numPolyRadVelIsOne);
+      bool      allNumPolyIsOne = numPolyDirIsOne && numPolyDistIsOne && (!radVelExists || numPolyRadVelIsOne);
 
       LOG ("numPolyDirIsOne = " + TO_STRING(numPolyDirIsOne));
       LOG ("numPolyDistIsOne = " + TO_STRING(numPolyDistIsOne));
       LOG ("radVelExists = " + TO_STRING(radVelExists));
       LOG ("numPolyRadVelIsOne = " + TO_STRING(numPolyRadVelIsOne));
+      LOG ("anyNumPolyIsOne = " + TO_STRING(anyNumPolyIsOne));
+      LOG ("allNumPolyIsOne = " + TO_STRING(allNumPolyIsOne));
 
       // the single row case
       if (ephRow_v.size()==1) {
@@ -1645,7 +1640,7 @@ void fillEphemeris(ASDM* ds_p, uint64_t timeStepInNanoSecond, bool interpolate_e
 	    }	 
 	  }
 	}
-	if (!interpolate_ephemeris && (numPolyDirIsOne && numPolyDistIsOne && (!radVelExists || numPolyRadVelIsOne))) {
+	if (!interpolate_ephemeris && allNumPolyIsOne) {
 	  // interpolation is NOT requested and all possible polynomial columns are simple scalars, numPoly==1
 	  // Just copy ephemeris without any interpolation. Just adapt the units.
 	  infostream.str("");
@@ -1669,80 +1664,148 @@ void fillEphemeris(ASDM* ds_p, uint64_t timeStepInNanoSecond, bool interpolate_e
 		     << "' will be produced by tabulating the polynomials found in the 'dir', 'distance' and optionally 'radVel' columns with a timestep of '"
 		     << timeStepInNanoSecond / 1.e9 / 86400. << "' days"; 
 	  info(infostream.str());
-	  if (numPolyDirIsOne || numPolyDistIsOne || (radVelExists && numPolyRadVelIsOne)) {
+	  if (anyNumPolyIsOne) {
 	    infostream.str("");
 	    infostream << "the polynomials of order 0 will be interpolated between mid-interval values using the same timestep.";
 	    info(infostream.str());
 	  }
 
+	  // the times that will be used depends on whether there are any numPoly*IsOne cases.  In that case,
+	  // times must run from the first interval mid-point through the last interval mid-point.  Otherwise
+	  // it's all evaluating the existing polynomials and the times can run from the first start time to the end
+	  // of the last interval.
+
 	  // Check that for each polynomial column the degree is always null or never null and that the optional fields are always present or always absent.
 	  // And also verify that there is no "hole" in the time range covered by the sequence of ArrayTime intervals when the degree is == 0.
 
-	  vector<double> duration_v;  // In seconds
+	  // this vector is only used in the linear interpolation case
 	  vector<double> time_v;      //  "      "
-	  vector<double> timeOffset_v; // (midpoint - origin) in seconds
 	  
-	  time_v.push_back(1.0e-09*ephRow_v[0]->getTimeInterval().getStart().get());
-	  timeOffset_v.push_back(1.0e-09*(ephRow_v[0]->getTimeInterval().getMidPoint().get()-ephRow_v[0]->getTimeOrigin().get()));
+	  if (anyNumPolyIsOne) {
+	    // need to recalculate t0MS using the midPoint
+	    t0ASDM = ephRow_v[0]->getTimeInterval().getMidPoint().get();
+	    q = t0ASDM / timeStepInNanoSecond;
+	    r = t0ASDM % timeStepInNanoSecond;
+	    t0MS = t0ASDM;
+	    if (r != 0) {
+	      q = q+1;
+	      t0MS = q * timeStepInNanoSecond;
+	    }
 
-	  // look for holes in the intervals for the degree == 0 case
-	  for (unsigned int i = 1; i < ephRow_v.size(); i++) {
-	    if (numPolyDirIsOne || numPolyDistIsOne || (radVelExists && numPolyRadVelIsOne)) {
-	      int64_t start_i = ephRow_v[i]->getTimeInterval().getStart().get() ;
-	      int64_t start_i_1 = ephRow_v[i-1]->getTimeInterval().getStart().get();
+	    // and populate time_v and look for gaps
+	    time_v.push_back(1.0e-09*t0ASDM);  
+
+	    for (unsigned int i = 1; i < ephRow_v.size(); i++) {
+	      int64_t midPoint_i = ephRow_v[i]->getTimeInterval().getMidPoint().get() ;
+	      int64_t midPoint_i_1 = ephRow_v[i-1]->getTimeInterval().getMidPoint().get();
 	      int64_t duration_i_1 = ephRow_v[i-1]->getTimeInterval().getDuration().get();
-	      if (start_i != (start_i_1 + duration_i_1)) {
+	      // look for gaps
+	      // comparing midPoint times should be equivalent to start times for this purpose, and we need the mid points for time_v
+	      if (midPoint_i != (midPoint_i_1 + duration_i_1)) {
 		infostream.str("");
 		infostream << "The value of 'timeInterval' at row #" << i-1 << " does not cover the time range up to the start time of the next row. The polynomial will be evaluated despite the presence of this 'hole'";
 		info(infostream.str());
 	      }
-	      duration_v.push_back(1.0e-09*(start_i - start_i_1));
-	      time_v.push_back(1.0e-09*start_i); 
+	      time_v.push_back(1.0e-09*midPoint_i); 
 	    }
 	  }
     
-	  // The number of tabulated values (i.e. the number of rows in the MS Ephemerides) table depend on the 
-	  // degrees of each polynomial column. If there is at least one such degree which is equal to 1 then
-	  // we exclude the last element of the vector ephRow_v, i.e. the last ArrayTimeInterval, since on this time interval
-	  // we would miss one end value for the interpolation (so far extrapolation is excluded).
-
-	  if (numPolyDirIsOne || numPolyDistIsOne || (radVelExists && numPolyRadVelIsOne)) {
-	    // Then just "forget" the last element.
-	    LOG("Erasing the last element of ephRow_v (size before = '" + TO_STRING(ephRow_v.size()) + "')");
-	    ephRow_v.erase(ephRow_v.begin() + ephRow_v.size() - 1);
-
-	    LOG("Erasing the last element of duration_v (size before = '" + TO_STRING(duration_v.size()) + "')");
-	    duration_v.erase(duration_v.begin() + duration_v.size() - 1);
-	  }
-
 	  // Determine the timely ordered sequence of indexes in ephRow_v which will be used to tabulate the ephemeris data to be put into the MS table.
 	  LOG("Prepare the time ordered sequence of indexes used to tabulate the ephemeris data to be written in the MS table.");
+
+	  // The polynomials change at the interval boundaries, the linear interpolations change at the interval mid-points
+	  // It may be necessary to have both sets of (index,time) pairs.
+
 	  typedef pair<uint32_t, int64_t> atiIdxMStime_pair;
-	  vector<atiIdxMStime_pair>  atiIdxMStime_v;
+	  vector<atiIdxMStime_pair>  atiIdxMStimePoly_v;
+	  vector<atiIdxMStime_pair>  atiIdxMStimeLine_v;
 
-	  uint32_t index = 0;  
+	  // BUT - the time values used in each pair MUST be the same, starting from t0MS through either
+	  // the end of the final interval OR through the midpoint of the final interval
+	  // all times here the integer times in nano seconds
+	  vector<int64_t> intMStimes_v;
 	  int64_t tMS = t0MS;
-
-	  atiIdxMStime_v.push_back(atiIdxMStime_pair(index, tMS));
-	  LOG ("size of atiIdxMStime_v="+TO_STRING(atiIdxMStime_v.size())+", index = "+TO_STRING(index)+", tMS = "+TO_STRING(tMS));
-	  tMS += timeStepInNanoSecond;
-
-	  int64_t  start =  ephRow_v[index]->getTimeInterval().getStart().get();
-	  int64_t  end   =  start + ephRow_v[index]->getTimeInterval().getDuration().get();
+	  int32_t lastIntIndx = ephRow_v.size()-1;
+	  int64_t end = ephRow_v[lastIntIndx]->getTimeInterval().getStart().get() + ephRow_v[lastIntIndx]->getTimeInterval().getDuration().get();
+	  // there must be a vector way to do this - revisit this part later, and even a for loop would be better
 	  do {
-	    if (tMS < end) {
-	      atiIdxMStime_v.push_back(atiIdxMStime_pair(index, tMS));
-	      tMS += timeStepInNanoSecond;
-	      LOG ("size of atiIdxMStime_v="+TO_STRING(atiIdxMStime_v.size())+", index = "+TO_STRING(index)+", tMS = "+TO_STRING(tMS));
-	    }
-	    else {
+	    intMStimes_v.push_back(tMS);
+	    tMS += timeStepInNanoSecond;
+	  } while (tMS < end);
+	  
+	  // populate the pairs as needed
+	  if (!allNumPolyIsOne) {
+	    // some polynomials exist
+	    uint32_t index = 0;  
+	    int64_t  start =  ephRow_v[index]->getTimeInterval().getStart().get();
+	    int64_t  end   =  start + ephRow_v[index]->getTimeInterval().getDuration().get();
+
+	    // position index so that t0MS is < end
+	    while ((t0MS >= end) && (index < ephRow_v.size())) {
 	      index++;
-	      end   =  ephRow_v[index]->getTimeInterval().getStart().get() + ephRow_v[index]->getTimeInterval().getDuration().get();
+	      end = ephRow_v[index]->getTimeInterval().getStart().get() + ephRow_v[index]->getTimeInterval().getDuration().get();
 	    }
-	    
-	  } while (index < ephRow_v.size()-1);
+
+	    if (index >= ephRow_v.size()) {
+	      // this might happen if the user chose a time step that's really bad for the ephemeris table being interpolated
+	      // can not continue
+	      errstream.str("");
+	      errstream << "The ephemeris table can't be evaluated or interpolated using the chosen timestep : "
+			<< timeStepInNanoSecond / 1.e9 / 86400. << "' days.  Choose a smaller value.";
+	      error(errstream.str());
+	    }
+
+	    for (int64_t tMS : intMStimes_v) {
+	      // make sure this index is appropriate for tMS
+	      // there may be a gap so it's important to keep advancing index until there's nothing left
+	      while ((tMS >= end) && (index < ephRow_v.size())) {
+		index++;
+		end = ephRow_v[index]->getTimeInterval().getStart().get() + ephRow_v[index]->getTimeInterval().getDuration().get();
+	      }
+	      if (index < ephRow_v.size()) {
+		atiIdxMStimePoly_v.push_back(atiIdxMStime_pair(index, tMS));
+		LOG ("size of atiIdxMStimePoly_v="+TO_STRING(atiIdxMStimePoly_v.size())+", index = "+TO_STRING(index)+", tMS = "+TO_STRING(tMS));
+	      }
+	    }
+	  }
+	  if (anyNumPolyIsOne) {
+	    // some linear interpolation is needed - breaks at the interval midpoint
+	    uint32_t index = 0;  
+	    int64_t  start =  ephRow_v[index]->getTimeInterval().getMidPoint().get();
+	    int64_t  end   =  start + ephRow_v[index]->getTimeInterval().getDuration().get();
+
+	    // the linear interpolation can't ever start with the final index number, that would required interpolating beyond the end
+	    // position index so that t0MS is < end
+	    while ((t0MS >= end) && (index < (ephRow_v.size()-1))) {
+	      index++;
+	      end = ephRow_v[index]->getTimeInterval().getMidPoint().get() + ephRow_v[index]->getTimeInterval().getDuration().get();
+	    }
+
+	    if (index >= (ephRow_v.size()-1)) {
+	      // this might happen if the user chose a time step that's really bad for the ephemeris table being interpolated
+	      // can not continue
+	      errstream.str("");
+	      errstream << "The ephemeris table can't be evaluated or interpolated using the chosen timestep : "
+			<< timeStepInNanoSecond / 1.e9 / 86400. << "' days.  Choose a smaller value.";
+	      error(errstream.str());
+	    }
+
+	    for (int64_t tMS : intMStimes_v) {
+	      // make sure this index is appropriate for tMS
+	      // there may be a gap, so keep advancing until there's nothing left
+	      while (tMS >= end && (index < (ephRow_v.size()-1))) {
+		index++;
+		end = ephRow_v[index]->getTimeInterval().getMidPoint().get() + ephRow_v[index]->getTimeInterval().getDuration().get();
+	      }
+	      if (index < (ephRow_v.size()-1)) {
+		atiIdxMStimeLine_v.push_back(atiIdxMStime_pair(index, tMS));
+		LOG ("size of atiIdxMStimeLine_v="+TO_STRING(atiIdxMStimeLine_v.size())+", index = "+TO_STRING(index)+", tMS = "+TO_STRING(tMS));
+	      }
+	    }
+	  }
     
-	  LOG("atiIdxMStime_v has " + TO_STRING(atiIdxMStime_v.size()) + " elements.");
+	  LOG("atiIdxMStimePoly_v has " + TO_STRING(atiIdxMStimePoly_v.size()) + " elements.");
+	  LOG("atiIdxMStimeLine_v has " + TO_STRING(atiIdxMStimeLine_v.size()) + " elements.");
 
 	  // Prepare the coefficients which will be used for the tabulation.
  
@@ -1804,52 +1867,44 @@ void fillEphemeris(ASDM* ds_p, uint64_t timeStepInNanoSecond, bool interpolate_e
 	  
 	  
 	  // Preparing the coefficients of piecewise polynomial of degree 1.
-	  //
-	  // The calculations below are done only once and will be useful for all the columns
-	  // requiring the cubic spline interpolation.
-	  //
-	  if (numPolyDirIsOne || numPolyDistIsOne || (radVelExists && numPolyRadVelIsOne)) {
-	    if (numPolyDirIsOne) {
-	      LOG("Compute the linear interpolation coefficients for RAD");
-	      linearInterpCoeff(ephRow_v.size(),
-				time_v,
-				timeOffset_v,
-				raASDM_v,
-				raASDM_vv);
+	  if (numPolyDirIsOne) {
+	    LOG("Compute the linear interpolation coefficients for RAD");
+	    linearInterpCoeff(ephRow_v.size(),
+			      time_v,
+			      raASDM_v,
+			      raASDM_vv);
 	      
-	      LOG("Compute the linear interpolation coefficients for DEC");
-	      linearInterpCoeff(ephRow_v.size(),
-				time_v,
-				timeOffset_v,
-				decASDM_v,
-				decASDM_vv);
-	    }
-	    
-	    if (numPolyDistIsOne)  {
-	      LOG("Compute the linear interolation coefficients for Dist");
-	      linearInterpCoeff(ephRow_v.size(),
-				time_v,
-				timeOffset_v,
-				distanceASDM_v,
-				distanceASDM_vv);
-	    }
-	    
-	    if (radVelExists && numPolyRadVelIsOne) {
-	      LOG("Compute the linear interpolation coefficients for RadVel");
-	      linearInterpCoeff(ephRow_v.size(),
-				time_v,
-				timeOffset_v,
-				radVelASDM_v,
-				radVelASDM_vv);
-	    }     
+	    LOG("Compute the linear interpolation coefficients for DEC");
+	    linearInterpCoeff(ephRow_v.size(),
+			      time_v,
+			      decASDM_v,
+			      decASDM_vv);
 	  }
-	  // End of interpolating with piecewise polynomial of degree 1.
-	  
-	  
-	  for (atiIdxMStime_pair atiIdxMStime: atiIdxMStime_v) {
+	    
+	  if (numPolyDistIsOne)  {
+	    LOG("Compute the linear interolation coefficients for Dist");
+	    linearInterpCoeff(ephRow_v.size(),
+			      time_v,
+			      distanceASDM_v,
+			      distanceASDM_vv);
+	  }
+	    
+	  if (radVelExists && numPolyRadVelIsOne) {
+	    LOG("Compute the linear interpolation coefficients for RadVel");
+	    linearInterpCoeff(ephRow_v.size(),
+			      time_v,
+			      radVelASDM_v,
+			      radVelASDM_vv);
+	  }     
+
+	  // loops over the two vectors of pairs
+	  // the polynomials
+	  for (atiIdxMStime_pair atiIdxMStime: atiIdxMStimePoly_v) {
 	    //
 	    // MJD
+	    // mjdMS_v is always unfilled at this point, this is always appropriate here
 	    mjdMS_v.push_back(ArrayTime(atiIdxMStime.second).getMJD());
+	    LOG_EPHEM(TO_STRING(mjdMS_v.size()) + ": ");
 	    LOG_EPHEM( "resampled " + TO_STRING(mjdMS_v.back()));
 	    LOG("mjdMS_v -> "+TO_STRING(mjdMS_v.back()));
 	    
@@ -1859,40 +1914,103 @@ void fillEphemeris(ASDM* ds_p, uint64_t timeStepInNanoSecond, bool interpolate_e
 	    LOG("timeOrigin="+TO_STRING(timeOrigin)+", time="+TO_STRING(time));
 	    
 	    // RA / DEC
-	    LOG("Eval poly for RA");
-	    LOG("atiIdxMStime.first = " + TO_STRING(atiIdxMStime.first));
-	    raMS_v.push_back(evalPoly(raASDM_vv[atiIdxMStime.first].size(),
-				      raASDM_vv[atiIdxMStime.first],
-				      timeOrigin,
-				      time));
-	    LOG_EPHEM(" " + TO_STRING(raMS_v.back()));
-	    LOG("raMS_v -> "+TO_STRING(raMS_v.back()));
+	    if (!numPolyDirIsOne) {
+	      LOG("Eval poly for RA");
+	      LOG("atiIdxMStime.first = " + TO_STRING(atiIdxMStime.first));
+	      raMS_v.push_back(evalPoly(raASDM_vv[atiIdxMStime.first].size(),
+					raASDM_vv[atiIdxMStime.first],
+					timeOrigin,
+					time));
+	      LOG_EPHEM(" " + TO_STRING(raMS_v.back()));
+	      LOG("raMS_v -> "+TO_STRING(raMS_v.back()));
 	    
-	    LOG("Eval poly for DEC");
-	    decMS_v.push_back(evalPoly(decASDM_vv[atiIdxMStime.first].size(),
-				       decASDM_vv[atiIdxMStime.first],
-				       timeOrigin,
-				       time));
-	    LOG_EPHEM(" " + TO_STRING(decMS_v.back()));
+	      LOG("Eval poly for DEC");
+	      decMS_v.push_back(evalPoly(decASDM_vv[atiIdxMStime.first].size(),
+					 decASDM_vv[atiIdxMStime.first],
+					 timeOrigin,
+					 time));
+	      LOG_EPHEM(" " + TO_STRING(decMS_v.back()));
+	    }
 	    
 	    // Distance
-	    LOG("Eval poly for distance");
-	    distanceMS_v.push_back(evalPoly(distanceASDM_vv[atiIdxMStime.first].size(),
-					    distanceASDM_vv[atiIdxMStime.first],
-					    timeOrigin,
-					    time));
-	    LOG_EPHEM(" " + TO_STRING(distanceMS_v.back()));
+	    if (!numPolyDistIsOne) {
+	      LOG("Eval poly for distance");
+	      distanceMS_v.push_back(evalPoly(distanceASDM_vv[atiIdxMStime.first].size(),
+					      distanceASDM_vv[atiIdxMStime.first],
+					      timeOrigin,
+					      time));
+	      LOG_EPHEM(" " + TO_STRING(distanceMS_v.back()));
 
-	    // Radvel
-	    if (radVelExists) { 
-	      LOG("Eval poly for radvel");
-	      radVelMS_v.push_back(evalPoly(radVelASDM_vv[atiIdxMStime.first].size(),
-					    radVelASDM_vv[atiIdxMStime.first],
-					    timeOrigin,
-					    time));
-	      LOG_EPHEM(" " + TO_STRING(radVelMS_v.back()));
+	      // Radvel
+	      if (radVelExists && !numPolyRadVelIsOne) { 
+		LOG("Eval poly for radvel");
+		radVelMS_v.push_back(evalPoly(radVelASDM_vv[atiIdxMStime.first].size(),
+					      radVelASDM_vv[atiIdxMStime.first],
+					      timeOrigin,
+					      time));
+		LOG_EPHEM(" " + TO_STRING(radVelMS_v.back()));
+	      }
+	      LOG_EPHEM("\n");
 	    }
-	    LOG_EPHEM("\n");
+	  } // end of polynomial evaluations
+	  
+	  // the linear interpolations
+	  for (atiIdxMStime_pair atiIdxMStime: atiIdxMStimeLine_v) {
+	    //
+	    // MJD
+	    // mjdMS_v has already been filled if the poly pair vector has a non-zero size
+	    if (atiIdxMStimePoly_v.size() == 0) {
+	      mjdMS_v.push_back(ArrayTime(atiIdxMStime.second).getMJD());
+	      LOG_EPHEM(TO_STRING(mjdMS_v.size()) + ": ");
+	      LOG_EPHEM( "resampled " + TO_STRING(mjdMS_v.back()));
+	      LOG("mjdMS_v -> "+TO_STRING(mjdMS_v.back()));
+	    }
+
+	    // linear interpolations are evaluated relative to the mid point
+	    double timeMidPoint = 1.0e-09 * ephRow_v[atiIdxMStime.first]->getTimeInterval().getMidPoint().get();
+	    double time       = 1.0e-09 * atiIdxMStime.second;
+	    
+	    LOG("timeMidPoint="+TO_STRING(timeMidPoint)+", time="+TO_STRING(time));
+	    
+	    // RA / DEC
+	    if (numPolyDirIsOne) {
+	      LOG("Eval line for RA");
+	      LOG("atiIdxMStime.first = " + TO_STRING(atiIdxMStime.first));
+	      raMS_v.push_back(evalPoly(raASDM_vv[atiIdxMStime.first].size(),
+					raASDM_vv[atiIdxMStime.first],
+					timeMidPoint,
+					time));
+	      LOG_EPHEM(" " + TO_STRING(raMS_v.back()));
+	      LOG("raMS_v -> "+TO_STRING(raMS_v.back()));
+	    
+	      LOG("Eval line for DEC");
+	      decMS_v.push_back(evalPoly(decASDM_vv[atiIdxMStime.first].size(),
+					 decASDM_vv[atiIdxMStime.first],
+					 timeMidPoint,
+					 time));
+	      LOG_EPHEM(" " + TO_STRING(decMS_v.back()));
+	    }
+	    
+	    // Distance
+	    if (numPolyDistIsOne) {
+	      LOG("Eval line for distance");
+	      distanceMS_v.push_back(evalPoly(distanceASDM_vv[atiIdxMStime.first].size(),
+					      distanceASDM_vv[atiIdxMStime.first],
+					      timeMidPoint,
+					      time));
+	      LOG_EPHEM(" " + TO_STRING(distanceMS_v.back()));
+
+	      // Radvel
+	      if (radVelExists && numPolyRadVelIsOne) { 
+		LOG("Eval line for radvel");
+		radVelMS_v.push_back(evalPoly(radVelASDM_vv[atiIdxMStime.first].size(),
+					      radVelASDM_vv[atiIdxMStime.first],
+					      timeMidPoint,
+					      time));
+		LOG_EPHEM(" " + TO_STRING(radVelMS_v.back()));
+	      }
+	      LOG_EPHEM("\n");
+	    } // end of linear evaluations
 	  }
 	} // end of the general interpolation case
       } // end of the non-single row case, everything is ready to push to the MS now
@@ -4355,7 +4473,7 @@ int main(int argc, char *argv[]) {
       ("lazy", "defers the production of the observational data in the MS Main table (DATA column) - Purely experimental, don't use in production !")
       ("with-pointing-correction", "add (ASDM::Pointing::encoder - ASDM::Pointing::pointingDirection) to the value to be written in MS::Pointing::direction - (related with JIRA tickets CSV-2878 and ICT-1532))")
       ("ac-xc-per-timestamp", po::value<string>()->default_value("no"), "if set to yes, then the filler writes in that order autocorrelations and cross correlations rows for one given data description and timestamp. Otherwise auto correlations data are grouped for a sequence of time stamps and then come the cross correlations data for the same sequence of timestamps.")
-      ("polyephem-tabtimestep", po::value<double>(&polyephem_tabtimestep)->default_value(0.001), "Defines the time step used to tabulate the polynomials found in the columns 'dir', 'distance' and optionally 'radVel' of the ASDM Ephemeris table. The unit to express the time step is the day and the default value is 0.001. If 'radvel' is not present then the radial velocity will be obtained by tabulating the derivative the polynomial found in 'distance'.") 
+      ("polyephem-tabtimestep", po::value<double>(&polyephem_tabtimestep)->default_value(0.001), "Defines the time step used to tabulate the polynomials found in the columns 'dir', 'distance' and optionally 'radVel' of the ASDM Ephemeris table. The unit to express the time step is the day and the default value is 0.001. If 'radvel' is not present then the radial velocity will be obtained by tabulating the derivative of the polynomial found in 'distance'.") 
       ("interpolate-ephemeris", po::value<string>()->default_value("no"), "if set to 'yes' then the filler will resample the sequence of times found in the ASDM Ephemeris table into an evenly spaced sequence of times on which the ephemeris paarameters will obtained by an interpolation of degree 1. Otherwise (!= 'yes') the ephemeris parameters will be copies of what's in the ASDM Ephemeris table on the same sequence of times");
 
     // Hidden options, will be allowed both on command line and
