@@ -1118,7 +1118,7 @@ the ms definition itself. -->
         <shortdescription>Compute and set weights based on variance of data.</shortdescription>
         <input>
             <param type="string" name="combine">
-                <description>Ignore changes in these columns (scan, field, and/or state) when aggregating samples to compute weights.</description>
+                <description>Ignore changes in these columns (scan, field, and/or state) when aggregating samples to compute weights. The value "corr" is also supported to aggregate samples across correlations.</description>
                 <value/>
             </param>
             <param type="any" name="timebin">
