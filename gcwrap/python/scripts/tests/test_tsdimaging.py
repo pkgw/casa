@@ -322,7 +322,15 @@ class sdimaging_test0(sdimaging_unittest_base):
         os.system( 'rm -rf '+self.prefix+'*' )
         
         self.assertEqual(len(get_table_cache()), 0)
-
+        
+    def run_exception_case(self, task_param, expected_msg, expected_type=RuntimeError):
+        with self.assertRaises(RuntimeError) as cm:
+            res=sdimaging(**task_param)
+        the_exception = cm.exception
+        pos=str(the_exception).find(expected_msg)
+        self.assertNotEqual(pos,-1,
+                            msg='Unexpected exception was thrown: {0}'.format(str(the_exception)))
+        
     def test000(self):
         """Test 000: Default parameters"""
         # argument verification error
@@ -337,47 +345,41 @@ class sdimaging_test0(sdimaging_unittest_base):
 
     def test002(self):
         """Test002: Bad field id"""
-        outfile=self.prefix+self.postfix
-        try:
-            res=sdimaging(infiles=self.rawfile,field=self.badid,intent='',outfile=self.outfile)
-            self.assertTrue(False,
-                            msg='The task must throw exception')
-        except Exception, e:
-            pos=str(e).find('Field Expression: Partial or no match for Field ID list [%s]' % self.badid)
-            self.assertNotEqual(pos,-1,
-                                msg='Unexpected exception was thrown: %s'%(str(e)))
+        task_param = {'infiles': self.rawfile,
+                      'field': self.badid,
+                      'intent': '',
+                      'outfile': self.outfile}
+        msg = 'Field Expression: Partial or no match for Field ID list [{0}]'.format(self.badid)
+        self.run_exception_case(task_param, msg)
 
     def test003(self):
         """Test003: Bad spectral window id"""
-        try:
-            res=sdimaging(infiles=self.rawfile,spw=self.badid,intent='',outfile=self.outfile)
-            self.assertTrue(False,
-                            msg='The task must throw exception')
-        except Exception, e:
-            pos=str(e).find('Spw Expression: No match found for %s' % self.badid)
-            self.assertNotEqual(pos,-1,
-                                msg='Unexpected exception was thrown: %s'%(str(e)))
+        task_param = {'infiles': self.rawfile,
+                      'spw': self.badid,
+                      'intent': '',
+                      'outfile': self.outfile}
+        msg = 'Spw Expression: No match found for {0}'.format(self.badid)
+        self.run_exception_case(task_param, msg)
 
     def test004(self):
         """Test004: Bad antenna id"""
-        try:
-            res=sdimaging(infiles=self.rawfile,antenna=self.badid,intent='',
-                          imsize=self.imsize,cell=self.cell,outfile=self.outfile)
-            self.assertTrue(False,
-                            msg='The task must throw exception')
-        except Exception, e:
-            pos=str(e).find('No match found for the antenna specificion')
-            self.assertNotEqual(pos,-1,
-                                msg='Unexpected exception was thrown: %s'%(str(e)))
+        task_param = {'infiles': self.rawfile,
+                      'antenna': self.badid,
+                      'intent': '',
+                      'imsize': self.imsize,
+                      'cell': self.cell,
+                      'outfile': self.outfile}
+        msg = 'No match found for the antenna specificion'
+        self.run_exception_case(task_param, msg)
         
     def test005(self):
         """Test005: Bad stokes parameter"""
-        with self.assertRaises(RuntimeError) as cm:
-            res=sdimaging(infiles=self.rawfile,stokes='BAD',intent='',outfile=self.outfile)
-        e = cm.exception
-        pos=str(e).find('Stokes BAD is an unsupported option')
-        self.assertNotEqual(pos,-1,
-                            msg='Unexpected exception was thrown: %s'%(str(e)))
+        task_param = {'infiles': self.rawfile,
+                      'stokes': 'BAD',
+                      'intent': '',
+                      'outfile': self.outfile}
+        msg = 'Stokes BAD is an unsupported option'
+        self.run_exception_case(task_param, msg)
         
     def test006(self):
         """Test006: Bad gridfunction"""
@@ -387,35 +389,35 @@ class sdimaging_test0(sdimaging_unittest_base):
 
     def test007(self):
         """Test007: Bad scanlist"""
-        with self.assertRaises(RuntimeError) as cm:
-            res=sdimaging(infiles=self.rawfile,scan=self.badid,intent='',outfile=self.outfile)
-        the_exception = cm.exception
-        pos=str(the_exception).find('has zero selected rows')
-        self.assertNotEqual(pos,-1,
-                            msg='Unexpected exception was thrown: %s'%(str(the_exception)))
+        task_param = {'infiles': self.rawfile,
+                      'scan': self.badid,
+                      'intent': '',
+                      'outfile': self.outfile}
+        msg = 'has zero selected rows'
+        self.run_exception_case(task_param, msg)
 
     def test008(self):
         """Test008: Existing outfile with overwrite=False"""
         f=open(self.outfile,'w')
         print >> f, 'existing file'
         f.close()
-        try:
-            res=sdimaging(infiles=self.rawfile,intent='',outfile=self.outfile)
-            self.assertTrue(False,
-                            msg='The task must throw exception')
-        except Exception, e:
-            pos=str(e).find('Output file \'%s\' exists.'%(self.outfile))
-            self.assertNotEqual(pos,-1,
-                                msg='Unexpected exception was thrown: %s'%(str(e)))
+        task_param = {'infiles': self.rawfile,
+                      'intent': '',
+                      'outfile': self.outfile,
+                      'overwrite': False}
+        msg = 'Output file \'{0}\' exists.'.format(self.outfile)
+        self.run_exception_case(task_param, msg)
 
     def test009(self):
         """Test009: Bad phasecenter string"""
-        with self.assertRaises(RuntimeError) as cm:
-            res=sdimaging(infiles=self.rawfile,outfile=self.outfile,intent='',cell=self.cell,imsize=self.imsize,phasecenter='This is bad')
-        the_exception = cm.exception
-        pos=str(the_exception).find('Error in converting \'This is bad\' to MDirection.')
-        self.assertNotEqual(pos,-1,
-                            msg='Unexpected exception was thrown: %s'%(str(the_exception)))
+        task_param = {'infiles': self.rawfile,
+                      'intent': '',
+                      'cell': self.cell,
+                      'imsize': self.imsize,
+                      'phasecenter': 'This is bad',
+                      'outfile': self.outfile}
+        msg = 'Error in converting \'{0}\' to MDirection.'.format(task_param['phasecenter'])
+        self.run_exception_case(task_param, msg)
 
     def test010(self):
         """Test010: Bad phasecenter reference (J2000 is assumed)"""
@@ -441,34 +443,44 @@ class sdimaging_test0(sdimaging_unittest_base):
 
     def test012(self):
         """Test012: Bad imsize"""
-        with self.assertRaises(RuntimeError) as cm:
-            res=sdimaging(infiles=self.rawfile,outfile=self.outfile,intent='',cell=self.cell,imsize=[1,0],phasecenter=self.phasecenter)
-        the_exception = cm.exception
-        pos=str(the_exception).find('Error in building Coordinate System and Image Shape : Internal Error : Image shape is invalid :')
-        self.assertNotEqual(pos, -1, 
-                            msg='Unexpected exception was thrown: {0}'.format(str(the_exception)))
+        task_param = {'infiles': self.rawfile,
+                      'intent': '',
+                      'cell': self.cell,
+                      'imsize': [1,0],
+                      'phasecenter': self.phasecenter,
+                      'outfile': self.outfile}
+        msg = 'Error in building Coordinate System and Image Shape : Internal Error : Image shape is invalid :'
+        self.run_exception_case(task_param, msg)
 
     def test013(self):
         """Test013: Bad cell size"""
-        # empty image will be created
-        with self.assertRaises(RuntimeError) as cm:
-            res=sdimaging(infiles=self.rawfile,outfile=self.outfile,intent='',cell=[0.,0.],imsize=self.imsize,phasecenter=self.phasecenter)
-        the_exception = cm.exception
-        pos=str(the_exception).find('Error in building Coordinate System and Image Shape : wcs wcsset_error: Linear transformation matrix is singular')
-        self.assertNotEqual(pos,-1,
-                            msg='Unexpected exception was thrown: %s'%(str(the_exception)))
+        task_param = {'infiles': self.rawfile,
+                      'intent': '',
+                      'cell': [0.,0.],
+                      'imsize': self.imsize,
+                      'phasecenter': self.phasecenter,
+                      'outfile': self.outfile}
+        msg = 'Error in building Coordinate System and Image Shape : wcs wcsset_error: Linear transformation matrix is singular'
+        self.run_exception_case(task_param, msg)
 
     def test014(self):
         """Test014: Too fine resolution (smaller than original channel width"""
-        with self.assertRaises(RuntimeError) as cm:
-            specunit = 'GHz'
-            start = '%f%s' % (1.4202, specunit)
-            width = '%e%s' % (1.0e-10, specunit)
-            res=sdimaging(infiles=self.rawfile,outfile=self.outfile,intent='',cell=self.cell,imsize=self.imsize,phasecenter=self.phasecenter,gridfunction=self.gridfunction,mode='frequency',nchan=10,start=start,width=width)
-        the_exception = cm.exception
-        pos=str(the_exception).find('calcChanFreqs failed, check input start and width parameters')
-        self.assertNotEqual(pos,-1,
-                            msg='Unexpected exception was thrown: %s'%(str(the_exception)))
+        specunit = 'GHz'
+        start = '%f%s' % (1.4202, specunit)
+        width = '%e%s' % (1.0e-10, specunit)
+        task_param = {'infiles': self.rawfile,
+                      'intent': '',
+                      'cell': self.cell,
+                      'imsize': self.imsize,
+                      'phasecenter': self.phasecenter,
+                      'gridfunction': self.gridfunction,
+                      'mode': 'frequency',
+                      'nchan': 10,
+                      'start': start,
+                      'width': width,
+                      'outfile': self.outfile}
+        msg = 'calcChanFreqs failed, check input start and width parameters'
+        self.run_exception_case(task_param, msg)
 
     def test015(self):
         """Test015: negative minweight"""
