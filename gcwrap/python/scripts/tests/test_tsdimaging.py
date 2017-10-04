@@ -451,28 +451,24 @@ class sdimaging_test0(sdimaging_unittest_base):
     def test013(self):
         """Test013: Bad cell size"""
         # empty image will be created
-        try:
+        with self.assertRaises(RuntimeError) as cm:
             res=sdimaging(infiles=self.rawfile,outfile=self.outfile,intent='',cell=[0.,0.],imsize=self.imsize,phasecenter=self.phasecenter)
-            self.assertFail(msg='The task must throw exception')
-        except Exception, e:
-            pos=str(e).find('Infinite resolution not possible.')
-            self.assertNotEqual(pos,-1,
-                                msg='Unexpected exception was thrown: %s'%(str(e)))
+        the_exception = cm.exception
+        pos=str(the_exception).find('Error in building Coordinate System and Image Shape : wcs wcsset_error: Linear transformation matrix is singular')
+        self.assertNotEqual(pos,-1,
+                            msg='Unexpected exception was thrown: %s'%(str(the_exception)))
 
     def test014(self):
         """Test014: Too fine resolution (smaller than original channel width"""
-        try:
+        with self.assertRaises(RuntimeError) as cm:
             specunit = 'GHz'
             start = '%f%s' % (1.4202, specunit)
             width = '%e%s' % (1.0e-10, specunit)
             res=sdimaging(infiles=self.rawfile,outfile=self.outfile,intent='',cell=self.cell,imsize=self.imsize,phasecenter=self.phasecenter,gridfunction=self.gridfunction,mode='frequency',nchan=10,start=start,width=width)
-            self.assertTrue(False,
-                            msg='The task must throw exception')
-        except Exception, e:
-            pos=str(e).find('Output frequency grid cannot be calculated:  please check start and width parameters')
-            #pos=str(e).find('calcChanFreqs failed, check input start and width parameters')
-            self.assertNotEqual(pos,-1,
-                                msg='Unexpected exception was thrown: %s'%(str(e)))
+        the_exception = cm.exception
+        pos=str(the_exception).find('calcChanFreqs failed, check input start and width parameters')
+        self.assertNotEqual(pos,-1,
+                            msg='Unexpected exception was thrown: %s'%(str(the_exception)))
 
     def test015(self):
         """Test015: negative minweight"""
