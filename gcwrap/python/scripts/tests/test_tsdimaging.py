@@ -389,12 +389,12 @@ class sdimaging_test0(sdimaging_unittest_base):
 
     def test007(self):
         """Test007: Bad scanlist"""
-        try:
+        with self.assertRaises(RuntimeError) as cm:
             res=sdimaging(infiles=self.rawfile,scan=self.badid,intent='',outfile=self.outfile)
-        except Exception, e:
-            pos=str(e).find('Selection is empty')
-            self.assertNotEqual(pos,-1,
-                                msg='Unexpected exception was thrown: %s'%(str(e)))
+        the_exception = cm.exception
+        pos=str(the_exception).find('has zero selected rows')
+        self.assertNotEqual(pos,-1,
+                            msg='Unexpected exception was thrown: %s'%(str(the_exception)))
 
     def test008(self):
         """Test008: Existing outfile with overwrite=False"""
