@@ -1023,7 +1023,7 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& param, Int refant, const std:
         //const double gtol = 1e-50; // 1e-30; 
         const double gtol = 1.0e-50; // 1e-30; 
         const double ftol = 1.0e-50;   // eps rel
-        const size_t max_iter = 20;
+        const size_t max_iter = 200;
 
         const gsl_multilarge_nlinear_type *T = gsl_multilarge_nlinear_trust;
         gsl_multilarge_nlinear_parameters params = gsl_multilarge_nlinear_default_parameters();
@@ -1506,17 +1506,19 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
         for (Int iant=0; iant != nAnt(); iant++) {
             if (iant != refant() && ( activeAntennas.find( iant ) != activeAntennas.end() )) {
                 Float s = sSNR(3*icor + 0, iant);
+		// Start the log message; finished below
+		logSink() << "Antenna " << iant << " correlation has (FFT) SNR of " << s;
                 if (s < threshold) {
                     belowThreshold.insert( iant );
-                    logSink() << "Antenna " << iant << " SNR " << s
-                              << " below threshold (" << threshold << ") for correlation "
-                              << icor << "."  << LogIO::POST;
+                    logSink() << " below threshold (" << threshold << ")";
                     // Don't assume these will be flagged later; do it right away.
                     // (The least squares routine will eventually become optional.)
                     sPok(3*icor + 0, iant) = false;
                     sPok(3*icor + 1, iant) = false;
                     sPok(3*icor + 2, iant) = false;
                 }
+		// Finish the log message
+		logSink() << "." << LogIO::POST;
             }
         }
         // We currently remove the antennas below SNR threshold from
