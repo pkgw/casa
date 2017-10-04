@@ -1096,7 +1096,7 @@ myim.done()
     <shortdescription>Collapse an image along a specified axis, computing a specified aggregate function of pixels along that axis.</shortdescription>
     <input>
         <param type="string"  name="function">
-            <description>Aggregate function to apply. This can be set one of flux, max, mean, median, min, rms, stdev, sum, variance. Must be specified.</description>
+            <description>Aggregate function to apply. This can be set one of flux, madm, max, mean, median, min, rms, stdev, sum, variance. Must be specified.</description>
             <value/>
         </param>
         <param type="any"  name="axes">
@@ -1143,12 +1143,12 @@ myim.done()
 
 This method collapses an image along a specified axis or set of axes of length N pixels to a single pixel on each
 specified axis. Both float valued and complex valued images are supported. It computes a user-specified aggregate
-function for pixel values along the specified axes,
-and places those values in the single remaining plane of those axes in the output image. The method returns
-an image analysis tool containing the newly-created collapsed image. Valid choices of aggregate functions are:
-'flux' (see below for constraitns), 'max', 'mean', 'median', 'min', 'rms', 'stdev', 'sum' and 'variance'. Minimal unique matching is supported
-for the function parameter (e.g. function = 'r' will compute the rms of the pixel values, 'med' will compute
-the median, etc.).
+function for pixel values along the specified axes, and places those values in the single remaining plane of
+those axes in the output image. The method returns an image analysis tool containing the newly-created collapsed
+image. Valid choices of aggregate functions are: 'flux' (see below for constraitns), 'madm' (median absolute
+deviation from the median), 'max', 'mean', 'median', 'min', 'rms', 'stdev', 'sum' and 'variance'. Minimal unique
+matching is supported for the function parameter (e.g. function = 'r' will compute the rms of the pixel values,
+'med' will compute the median, etc.).
 
 If one specifies function='flux', the following constraints must be true:
 
@@ -5608,7 +5608,7 @@ This application returns information on a one-dimensional profile taken along a 
 The region of interest is collapsed (a'la ia.collapse() along all axes orthogonal to the one specified, and)
 the specified aggregate function is applied to these pixels to generate the returned values. 
 
-The aggregate function must be one of the functions supported by ia.collapse; ie, 'flux', 'max',  'mean',
+The aggregate function must be one of the functions supported by ia.collapse; ie, 'flux', 'madm', 'max',  'mean',
 'median', 'min', 'rms', 'stdev', 'sum', and 'variance'. See the help for ia.collapse() for details regarding
 these functions. Minimum match and case insenstivity is supported.
 

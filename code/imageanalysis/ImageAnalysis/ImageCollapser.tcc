@@ -130,8 +130,11 @@ template<class T> SPIIT ImageCollapser<T>::collapse() const {
     if (_aggType == ImageCollapserData::ZERO) {
         tmpIm.set(0.0);
     }
-    else if (_aggType == ImageCollapserData::MEDIAN) {
-        _doMedian(subImage, tmpIm);
+    else if (
+         _aggType == ImageCollapserData::MEDIAN
+         || _aggType == ImageCollapserData::MADM
+     ) {
+        _doHighPerf(subImage, tmpIm);
     }
     else {
         _doOtherStats(tmpIm, subImage);
@@ -425,9 +428,17 @@ template<class T> void ImageCollapser<T>::_invert() {
     }
 }
 
-template<class T> void ImageCollapser<T>::_doMedian(
+template<class T> void ImageCollapser<T>::_doHighPerf(
     SPCIIT image, casacore::TempImage<T>& outImage
 ) const {
+    auto doMedian = _aggType == ImageCollapserData::MEDIAN;
+    auto doMADM = _aggType == ImageCollapserData::MADM;
+    ThrowIf(
+        ! doMedian && ! doMADM,
+        "Logic error, unsupported aggregate type "
+        + String(ImageCollapserData::funcNameMap()->at((uInt)_aggType)) + " for method "
+        + String(__func__)
+    );
     IPosition cursorShape(image->ndim(), 1);
     for (uInt i = 0; i < cursorShape.size(); ++i) {
         for (uInt j = 0; j < _axes.size(); ++j) {
@@ -440,7 +451,7 @@ template<class T> void ImageCollapser<T>::_doMedian(
     LatticeStepper stepper(image->shape(), cursorShape);
     std::unique_ptr<Array<Bool>> outMask;
     // accumtype being the same precision as the input data type is ok here,
-    // since we are only computing the median and not actually accumulating
+    // since we are only computing the median/madm and not actually accumulating
     ClassicalStatistics<
         T, typename Array<T>::const_iterator, Array<Bool>::const_iterator
     > stats;
@@ -466,12 +477,22 @@ template<class T> void ImageCollapser<T>::_doMedian(
             }
             else if (! allTrue(maskSlice)) {
                 stats.setData(data.begin(), maskSlice.begin(), data.size());
-                outImage.putAt(stats.getMedian(), stepper.position());
+                if (doMedian) {
+                    outImage.putAt(stats.getMedian(), stepper.position());
+                }
+                else if (doMADM) {
+                    outImage.putAt(stats.getMedianAbsDevMed(), stepper.position());
+                }
             }
         }
         else {
             stats.setData(data.begin(), data.size());
-            outImage.putAt(stats.getMedian(), stepper.position());
+            if (doMedian) {
+                outImage.putAt(stats.getMedian(), stepper.position());
+            }
+            else if (doMADM) {
+                outImage.putAt(stats.getMedianAbsDevMed(), stepper.position());
+            }
         }
     }
     if (outMask) {

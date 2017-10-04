@@ -12,13 +12,13 @@ std::map<uInt, String> *ImageCollapserData::_minMatchMap = 0;
 const std::map<uInt, String>* ImageCollapserData::funcNameMap() {
 	if (! _funcNameMap) {
 		std::map<uInt, String> ref;
-		//ref[(uInt)AVDEV] = "avdev";
 		ref[(uInt)FLUX] = "flux";
+		ref[(uInt)MADM] = "madm";
 		ref[(uInt)MAX] = "max";
 		ref[(uInt)MEAN] = "mean";
 		ref[(uInt)MEDIAN] = "median";
 		ref[(uInt)MIN] = "min";
-		ref[(uInt)NPTS] = "nputs";
+		ref[(uInt)NPTS] = "npts";
 		ref[(uInt)RMS] = "rms";
 		ref[(uInt)SQRTSUM] = "sqrtsum";
 		ref[(uInt)SQRTSUM_NPIX_BEAM] = "sqrtsum_npix_beam";
@@ -35,9 +35,9 @@ const std::map<uInt, String>* ImageCollapserData::funcNameMap() {
 const std::map<uInt, String>* ImageCollapserData::minMatchMap() {
 	if (! _minMatchMap) {
 		std::map<uInt, String> ref;
-		//ref[(uInt)AVDEV] = "a";
 		ref[(uInt)FLUX] = "f";
-		ref[(uInt)MAX] = "ma";
+		ref[(uInt)MADM] = "mad";
+		ref[(uInt)MAX] = "max";
 		ref[(uInt)MEAN] = "mea";
 		ref[(uInt)MEDIAN] = "med";
 		ref[(uInt)MIN] = "mi";
@@ -51,7 +51,6 @@ const std::map<uInt, String>* ImageCollapserData::minMatchMap() {
 		ref[(uInt)VARIANCE] = "v";
 		ref[(uInt)ZERO] = "z";
 		_minMatchMap = new std:: map<uInt, String>(ref);
-
 	}
 	return _minMatchMap;
 }

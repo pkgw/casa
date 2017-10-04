@@ -64,8 +64,12 @@ public:
 		// the square root of the sum divided by the number of pixels per beam, sqrt(sum)/(beam_area/pixel_area)
 		// Yes that's how it was implemented in ImageAnalysis::getFreqProfile().
 		SQRTSUM_NPIX_BEAM,
+		// median absolute devation from mean
+		MADM,
 		UNKNOWN
 	};
+
+    ImageCollapserData() = delete;
 
 	// destructor
 	~ImageCollapserData() {}
@@ -79,8 +83,6 @@ private:
 
 	static std::map<casacore::uInt, casacore::String> *_funcNameMap, *_minMatchMap;
 
-	// disallow default constructor
-	ImageCollapserData();
 
 };
 }
