@@ -445,9 +445,12 @@ class sdimaging_test0(sdimaging_unittest_base):
 
     def test012(self):
         """Test012: Bad imsize"""
-        # This does not raise error anymore.
-        res=sdimaging(infiles=self.rawfile,outfile=self.outfile,intent='',cell=self.cell,imsize=[1,0],phasecenter=self.phasecenter)
-        self.assertFalse(res)
+        with self.assertRaises(RuntimeError) as cm:
+            res=sdimaging(infiles=self.rawfile,outfile=self.outfile,intent='',cell=self.cell,imsize=[1,0],phasecenter=self.phasecenter)
+        the_exception = cm.exception
+        pos=str(the_exception).find('Error in building Coordinate System and Image Shape : Internal Error : Image shape is invalid :')
+        self.assertNotEqual(pos, -1, 
+                            msg='Unexpected exception was thrown: {0}'.format(str(the_exception)))
 
     def test013(self):
         """Test013: Bad cell size"""
