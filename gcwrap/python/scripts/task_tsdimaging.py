@@ -91,6 +91,7 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
         # TODO: hadnle ephemsrcname
         # TODO: handle brightnessunit
         # TODO: handle overwrite
+        # TODO: output image name
             
         ## (3) Construct the PySynthesisImager object, with all input parameters
         
