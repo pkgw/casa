@@ -12,7 +12,7 @@ Determines the amplitude corrections neede due to errors in sampler
 thresholds using measurements of auto-correlation spectra.  This
 correction is typically requiered for data correlated with the DiFX
 correlator (such as VLBA data).  Other correlators (such as the SFXC
-correlator is used to correlate EVN data at JIVE) already apply this
+correlator used to correlate EVN data at JIVE) already apply this
 correction at the correlator.  In this case, running this task is not
 necessary.
 </description>
@@ -149,7 +149,7 @@ necessary.
       thresholds using measurements of auto-correlation spectra.  This
       correction is typically requiered for data correlated with the DiFX
       correlator (such as VLBA data).  Other correlators (such as the SFXC
-      correlator is used to correlate EVN data at JIVE) already apply this
+      correlator used to correlate EVN data at JIVE) already apply this
       correction at the correlator.  In this case, running this task is not
       necessary.
 
