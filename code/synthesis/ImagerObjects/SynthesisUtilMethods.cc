@@ -188,7 +188,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     
   void SynthesisUtilMethods::getResource(String label, String fname)
   {
-               return;
+    //               return;
 
      LogIO os( LogOrigin("SynthesisUtilMethods","getResource",WHERE) );
 

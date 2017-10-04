@@ -2163,7 +2163,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     	}
     	//cerr << "IN SYNTHE_IMA" << endl;
     	//VisModelData::listModel(rvi_p->getMeasurementSet());
-	//SynthesisUtilMethods::getResource("Before finalize for all mappers");
+	SynthesisUtilMethods::getResource("Before finalize for all mappers");
     	if(!dopsf) itsMappers.finalizeDegrid(*vb);
     	itsMappers.finalizeGrid(*vb, dopsf);
 
