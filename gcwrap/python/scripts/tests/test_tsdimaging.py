@@ -372,14 +372,12 @@ class sdimaging_test0(sdimaging_unittest_base):
         
     def test005(self):
         """Test005: Bad stokes parameter"""
-        try:
+        with self.assertRaises(RuntimeError) as cm:
             res=sdimaging(infiles=self.rawfile,stokes='BAD',intent='',outfile=self.outfile)
-            self.assertTrue(False,
-                            msg='The task must throw exception')
-        except Exception, e:
-            pos=str(e).find('Stokes selection BAD is currently not supported.')
-            self.assertNotEqual(pos,-1,
-                                msg='Unexpected exception was thrown: %s'%(str(e)))
+        e = cm.exception
+        pos=str(e).find('Stokes BAD is an unsupported option')
+        self.assertNotEqual(pos,-1,
+                            msg='Unexpected exception was thrown: %s'%(str(e)))
         
     def test006(self):
         """Test006: Bad gridfunction"""
