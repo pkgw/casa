@@ -140,7 +140,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //    cerr << "IN DESTR"<< endl;
     //    VisModelData::listModel(mss4vi_p[0]);
 
-    SynthesisUtilMethods::getResource("End Run");
+    SynthesisUtilMethods::getResource("End SynthesisImager");
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -195,7 +195,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   {
     LogIO os( LogOrigin("SynthesisImager","selectData",WHERE) );
 
-    SynthesisUtilMethods::getResource("Start Run");
+    SynthesisUtilMethods::getResource("Start SelectData");
 
     try
       {
