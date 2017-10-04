@@ -410,14 +410,12 @@ class sdimaging_test0(sdimaging_unittest_base):
 
     def test009(self):
         """Test009: Bad phasecenter string"""
-        try:
+        with self.assertRaises(RuntimeError) as cm:
             res=sdimaging(infiles=self.rawfile,outfile=self.outfile,intent='',cell=self.cell,imsize=self.imsize,phasecenter='This is bad')
-            self.assertTrue(False,
-                            msg='The task must throw exception')
-        except Exception, e:
-            pos=str(e).find('Empty QuantumHolder argument for asQuantumDouble')
-            self.assertNotEqual(pos,-1,
-                                msg='Unexpected exception was thrown: %s'%(str(e)))
+        the_exception = cm.exception
+        pos=str(the_exception).find('Error in converting \'This is bad\' to MDirection.')
+        self.assertNotEqual(pos,-1,
+                            msg='Unexpected exception was thrown: %s'%(str(the_exception)))
 
     def test010(self):
         """Test010: Bad phasecenter reference (J2000 is assumed)"""
