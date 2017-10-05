@@ -315,6 +315,14 @@ class sdimaging_test0(sdimaging_unittest_base):
         shutil.copytree(self.datapath+self.rawfile, self.rawfile)
 
         default(sdimaging)
+        self.task_param = dict(infiles=self.rawfile,mode='channel',
+                               outfile=self.outfile,intent='',
+                               cell=self.cell,imsize=self.imsize,
+                               phasecenter=self.phasecenter,
+                               gridfunction=self.gridfunction,
+                               nchan=40,start=400,
+                               width=10,
+                               minweight=self.minweight0)
 
     def tearDown(self):
         if (os.path.exists(self.rawfile)):
@@ -345,41 +353,27 @@ class sdimaging_test0(sdimaging_unittest_base):
 
     def test002(self):
         """Test002: Bad field id"""
-        task_param = {'infiles': self.rawfile,
-                      'field': self.badid,
-                      'intent': '',
-                      'outfile': self.outfile}
+        self.task_param['field'] = self.badid
         msg = 'Field Expression: Partial or no match for Field ID list [{0}]'.format(self.badid)
-        self.run_exception_case(task_param, msg)
+        self.run_exception_case(self.task_param, msg)
 
     def test003(self):
         """Test003: Bad spectral window id"""
-        task_param = {'infiles': self.rawfile,
-                      'spw': self.badid,
-                      'intent': '',
-                      'outfile': self.outfile}
+        self.task_param['spw'] = self.badid
         msg = 'Spw Expression: No match found for {0}'.format(self.badid)
-        self.run_exception_case(task_param, msg)
+        self.run_exception_case(self.task_param, msg)
 
     def test004(self):
         """Test004: Bad antenna id"""
-        task_param = {'infiles': self.rawfile,
-                      'antenna': self.badid,
-                      'intent': '',
-                      'imsize': self.imsize,
-                      'cell': self.cell,
-                      'outfile': self.outfile}
+        self.task_param['antenna'] = self.badid
         msg = 'No match found for the antenna specificion'
-        self.run_exception_case(task_param, msg)
+        self.run_exception_case(self.task_param, msg)
         
     def test005(self):
         """Test005: Bad stokes parameter"""
-        task_param = {'infiles': self.rawfile,
-                      'stokes': 'BAD',
-                      'intent': '',
-                      'outfile': self.outfile}
+        self.task_param['stokes'] = 'BAD'
         msg = 'Stokes BAD is an unsupported option'
-        self.run_exception_case(task_param, msg)
+        self.run_exception_case(self.task_param, msg)
         
     def test006(self):
         """Test006: Bad gridfunction"""
@@ -389,12 +383,9 @@ class sdimaging_test0(sdimaging_unittest_base):
 
     def test007(self):
         """Test007: Bad scanlist"""
-        task_param = {'infiles': self.rawfile,
-                      'scan': self.badid,
-                      'intent': '',
-                      'outfile': self.outfile}
+        self.task_param['scan'] = self.badid
         msg = 'has zero selected rows'
-        self.run_exception_case(task_param, msg)
+        self.run_exception_case(self.task_param, msg)
 
     def test008(self):
         """Test008: Existing outfile with overwrite=False"""
@@ -402,38 +393,24 @@ class sdimaging_test0(sdimaging_unittest_base):
         f=open(outfile, 'w')
         print >> f, 'existing file'
         f.close()
-        task_param = {'infiles': self.rawfile,
-                      'intent': '',
-                      'outfile': self.outfile,
-                      'overwrite': False}
+        self.task_param['overwrite'] = False
         msg = 'Output file \'{0}\' exists.'.format(outfile)
-        self.run_exception_case(task_param, msg)
+        self.run_exception_case(self.task_param, msg)
 
     def test009(self):
         """Test009: Bad phasecenter string"""
-        task_param = {'infiles': self.rawfile,
-                      'intent': '',
-                      'cell': self.cell,
-                      'imsize': self.imsize,
-                      'phasecenter': 'This is bad',
-                      'outfile': self.outfile}
-        msg = 'Error in converting \'{0}\' to MDirection.'.format(task_param['phasecenter'])
-        self.run_exception_case(task_param, msg)
+        self.task_param['phasecenter'] = 'This is bad'
+        msg = 'Error in converting \'{0}\' to MDirection.'.format(self.task_param['phasecenter'])
+        self.run_exception_case(self.task_param, msg)
 
     def test010(self):
         """Test010: Bad phasecenter reference (CHANGED: raise an error)"""
         # older sdimaging was so kind that it assumed J2000 when unrecognized direction frame was given
         # in the new tsdimaging raises an error in such case
         false_phasecenter = self.phasecenter.replace('J2000', 'J3000')
-        task_param = {'infiles': self.rawfile,
-                      'outfile': self.outfile,
-                      'intent': '',
-                      'cell': self.cell,
-                      'imsize': self.imsize,
-                      'phasecenter': false_phasecenter,
-                      'minweight': self.minweight0}
+        self.task_param['phasecenter'] = false_phasecenter
         msg = 'Invalid Image Parameter set : Error in converting \'{0}\' to MDirection.'.format(false_phasecenter)
-        self.run_exception_case(task_param, msg)
+        self.run_exception_case(self.task_param, msg)
 #         # default for unknown direction frame is J2000 
 #         refimage=self.outfile+'2'
 #         sdimaging(infiles=self.rawfile,outfile=self.outfile,intent='',cell=self.cell,imsize=self.imsize,phasecenter=self.phasecenter.replace('J2000','J3000'),minweight=self.minweight0)
@@ -456,44 +433,26 @@ class sdimaging_test0(sdimaging_unittest_base):
 
     def test012(self):
         """Test012: Bad imsize"""
-        task_param = {'infiles': self.rawfile,
-                      'intent': '',
-                      'cell': self.cell,
-                      'imsize': [1,0],
-                      'phasecenter': self.phasecenter,
-                      'outfile': self.outfile}
+        self.task_param['imsize'] = [1,0]
         msg = 'Error in building Coordinate System and Image Shape : Internal Error : Image shape is invalid :'
-        self.run_exception_case(task_param, msg)
+        self.run_exception_case(self.task_param, msg)
 
     def test013(self):
         """Test013: Bad cell size"""
-        task_param = {'infiles': self.rawfile,
-                      'intent': '',
-                      'cell': [0.,0.],
-                      'imsize': self.imsize,
-                      'phasecenter': self.phasecenter,
-                      'outfile': self.outfile}
+        self.task_param['cell'] = [0., 0.]
         msg = 'Error in building Coordinate System and Image Shape : wcs wcsset_error: Linear transformation matrix is singular'
-        self.run_exception_case(task_param, msg)
+        self.run_exception_case(self.task_param, msg)
 
     def test014(self):
         """Test014: Too fine resolution (smaller than original channel width"""
         specunit = 'GHz'
         start = '%f%s' % (1.4202, specunit)
         width = '%e%s' % (1.0e-10, specunit)
-        task_param = {'infiles': self.rawfile,
-                      'intent': '',
-                      'cell': self.cell,
-                      'imsize': self.imsize,
-                      'phasecenter': self.phasecenter,
-                      'gridfunction': self.gridfunction,
-                      'mode': 'frequency',
-                      'nchan': 10,
-                      'start': start,
-                      'width': width,
-                      'outfile': self.outfile}
+        self.task_param['mode'] = 'frequency'
+        self.task_param['start'] = start
+        self.task_param['width'] = width
         msg = 'calcChanFreqs failed, check input start and width parameters'
-        self.run_exception_case(task_param, msg)
+        self.run_exception_case(self.task_param, msg)
 
     def test015(self):
         """Test015: negative minweight"""
