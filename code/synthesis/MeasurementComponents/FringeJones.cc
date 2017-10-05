@@ -1583,7 +1583,6 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
             Double rate = sRP(3*icor + 2, iant);
             Double delta1 = df0*delay;
             // Double delta1 = 0.5*df_bootleg*delay/1e9;
-            Double delta1 = 0;
             Double delta2 = ref_freq*dt0*rate;
             Double delta3 = C::_2pi*(delta1+delta2);
             logSink() << "Antenna " << iant << ": phi0 " << phi0 << " delay " << delay << " rate " << rate << endl
