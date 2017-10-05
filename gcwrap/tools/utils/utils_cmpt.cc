@@ -35,6 +35,7 @@
 #include <list>
 #include <cstdlib>
 #include <casacore/casa/State.h>
+#include <casacore/casa/Quanta/UnitMap.h>
 
 using namespace std;
 using namespace casacore;
@@ -444,7 +445,25 @@ utils::_trigger_segfault (int faultType)
 }
 
 // ------------------------------------------------------------
+// -------------------- initialize CASAtools ------------------
+static std::vector<std::string> default_data_path;
+bool utils::initialize(const std::vector<std::string> &default_path) {
+    static bool initialized = false;
+    if ( initialized ) return false;
+    default_data_path = default_path;
+    get_casac_state( ) = default_data_path;
+    // configure quanta/measures customizations...
+    UnitMap::putUser( "pix", UnitVal(1.0), "pixel units" );
+    initialized = true;
+    return true;
+}
+
+// ------------------------------------------------------------
 // -------------------- handling data path --------------------
+std::vector<std::string> utils::defaultpath( ) {
+    return default_data_path;
+}
+
 bool utils::setpath(const std::vector<std::string> &dirs) {
     get_casac_state( ) = dirs;
     return get_casac_state( ).dataPath( ).size( ) == dirs.size( );

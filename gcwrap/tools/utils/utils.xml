@@ -321,7 +321,34 @@ file:///opt/casa/code/tools/xml/casa.xsd">
 
 </method>
 
+<!-- ******************** function to initialize CASAtools ************************** -->
+<method type="function" name="initialize">
+<shortdescription>initialize CASAtools</shortdescription>
+
+<description>
+returns true if initalization was performed; returns false if initialization was already done
+</description>
+
+<input>
+  <param type="stringArray" name="default_path">
+	<description>directories that should constitute the default data path</description>
+  </param>
+</input>
+
+<returns type="bool"/>
+</method>
+
 <!-- ******************** functions to manage the CASAtools path ******************** -->
+<method type="function" name="defaultpath">
+<shortdescription>returns the default data path</shortdescription>
+
+<description>
+Returns the default data path. This path is used unless the user has set the current path to something else using the setpath function.
+</description>
+
+<returns type="stringArray"/>
+</method>
+
 <method type="function" name="setpath">
 <shortdescription>sets the data path to the specified list of directories</shortdescription>
 
