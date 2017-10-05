@@ -398,14 +398,15 @@ class sdimaging_test0(sdimaging_unittest_base):
 
     def test008(self):
         """Test008: Existing outfile with overwrite=False"""
-        f=open(self.outfile,'w')
+        outfile = self.outfile + '.residual'
+        f=open(outfile, 'w')
         print >> f, 'existing file'
         f.close()
         task_param = {'infiles': self.rawfile,
                       'intent': '',
                       'outfile': self.outfile,
                       'overwrite': False}
-        msg = 'Output file \'{0}\' exists.'.format(self.outfile)
+        msg = 'Output file \'{0}\' exists.'.format(outfile)
         self.run_exception_case(task_param, msg)
 
     def test009(self):
