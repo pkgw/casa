@@ -30,12 +30,12 @@
 #include <graphics/GenericPlotter/PlotCanvasLayout.h>
 #include <graphics/GenericPlotter/PlotLogger.h>
 #include <graphics/GenericPlotter/PlotPanel.h>
+#include <graphics/GenericPlotter/PageHeaderDataModel.h>
 
 namespace casa {
 
 //# Forward Declarations
 class PlotFactory;
-
 
 // A Plotter can be thought of as a frame that holds one or more PlotCanvases
 // in a configuration determined by a given PlotCanvasLayout.  It also has
@@ -303,9 +303,14 @@ public:
     virtual bool exportPlot(const PlotExportFormat& format) = 0;
     bool isVisible(PlotCanvasPtr& canvas );
 
+    virtual void refreshPageHeader() = 0;
+
+    virtual void refreshPageHeaderDataModel(PageHeaderDataModelPtr dataModel) = 0 ;
+
 protected:
     // Logger.
     PlotLoggerPtr m_logger;
+//    PlotterControllerPtr m_controller;
     casacore::Bool commonAxisX;
     casacore::Bool commonAxisY;
     PlotAxis axisLocationX;

@@ -107,7 +107,7 @@ class CalReductionRow;
  * Generic items describing the data reduction process.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of CalReduction </CAPTION>
@@ -129,7 +129,7 @@ class CalReductionRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numApplied </TD> 
+ * <TD> numApplied (\f$N_{Appl}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of applied calibrations prior the reduction. </TD>
@@ -143,7 +143,7 @@ class CalReductionRow;
  * </TR>
 	
  * <TR>
- * <TD> numParam </TD> 
+ * <TD> numParam (\f$N_{Para}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of listed parameters used for calibration. </TD>
@@ -157,7 +157,7 @@ class CalReductionRow;
  * </TR>
 	
  * <TR>
- * <TD> numInvalidConditions </TD> 
+ * <TD> numInvalidConditions (\f$N_{Inva}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of invalidating conditions. </TD>
@@ -485,6 +485,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

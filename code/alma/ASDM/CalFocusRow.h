@@ -48,19 +48,15 @@
 
 
 	 
-#include <ArrayTime.h>
-	
-
-	 
 #include <Temperature.h>
 	
 
 	 
-#include <Angle.h>
+#include <ArrayTime.h>
 	
 
 	 
-#include <Tag.h>
+#include <Angle.h>
 	
 
 	 
@@ -69,6 +65,10 @@
 
 	 
 #include <Frequency.h>
+	
+
+	 
+#include <Tag.h>
 	
 
 

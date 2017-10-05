@@ -406,6 +406,101 @@ namespace asdm {
 	
 
 	
+  		
+		
+		x->numAntennaExists = numAntennaExists;
+		
+		
+			
+				
+		x->numAntenna = numAntenna;
+ 				
+ 			
+		
+	
+
+	
+  		
+		
+		x->singleAntennaNameExists = singleAntennaNameExists;
+		
+		
+			
+		x->singleAntennaName.length(singleAntennaName.size());
+		for (unsigned int i = 0; i < singleAntennaName.size(); ++i) {
+			
+				
+			x->singleAntennaName[i] = CORBA::string_dup(singleAntennaName.at(i).c_str());
+				
+	 		
+	 	}
+			
+		
+	
+
+	
+  		
+		
+		x->refAntennaNameExists = refAntennaNameExists;
+		
+		
+			
+				
+		x->refAntennaName = CORBA::string_dup(refAntennaName.c_str());
+				
+ 			
+		
+	
+
+	
+  		
+		
+		x->phaseAntExists = phaseAntExists;
+		
+		
+			
+		x->phaseAnt.length(phaseAnt.size());
+		for (unsigned int i = 0; i < phaseAnt.size(); i++) {
+			x->phaseAnt[i].length(phaseAnt.at(i).size());			 		
+		}
+		
+		for (unsigned int i = 0; i < phaseAnt.size() ; i++)
+			for (unsigned int j = 0; j < phaseAnt.at(i).size(); j++)
+					
+						
+				x->phaseAnt[i][j] = phaseAnt.at(i).at(j);
+		 				
+			 						
+		
+			
+		
+	
+
+	
+  		
+		
+		x->phaseAntRMSExists = phaseAntRMSExists;
+		
+		
+			
+		x->phaseAntRMS.length(phaseAntRMS.size());
+		for (unsigned int i = 0; i < phaseAntRMS.size(); i++) {
+			x->phaseAntRMS[i].length(phaseAntRMS.at(i).size());			 		
+		}
+		
+		for (unsigned int i = 0; i < phaseAntRMS.size() ; i++)
+			for (unsigned int j = 0; j < phaseAntRMS.at(i).size(); j++)
+					
+						
+				x->phaseAntRMS[i][j] = phaseAntRMS.at(i).at(j);
+		 				
+			 						
+		
+			
+		
+	
+
+	
 	
 		
 	
@@ -749,6 +844,101 @@ namespace asdm {
 	
 
 	
+  		
+		
+		x.numAntennaExists = numAntennaExists;
+		
+		
+			
+				
+		x.numAntenna = numAntenna;
+ 				
+ 			
+		
+	
+
+	
+  		
+		
+		x.singleAntennaNameExists = singleAntennaNameExists;
+		
+		
+			
+		x.singleAntennaName.length(singleAntennaName.size());
+		for (unsigned int i = 0; i < singleAntennaName.size(); ++i) {
+			
+				
+			x.singleAntennaName[i] = CORBA::string_dup(singleAntennaName.at(i).c_str());
+				
+	 		
+	 	}
+			
+		
+	
+
+	
+  		
+		
+		x.refAntennaNameExists = refAntennaNameExists;
+		
+		
+			
+				
+		x.refAntennaName = CORBA::string_dup(refAntennaName.c_str());
+				
+ 			
+		
+	
+
+	
+  		
+		
+		x.phaseAntExists = phaseAntExists;
+		
+		
+			
+		x.phaseAnt.length(phaseAnt.size());
+		for (unsigned int i = 0; i < phaseAnt.size(); i++) {
+			x.phaseAnt[i].length(phaseAnt.at(i).size());			 		
+		}
+		
+		for (unsigned int i = 0; i < phaseAnt.size() ; i++)
+			for (unsigned int j = 0; j < phaseAnt.at(i).size(); j++)
+					
+						
+				x.phaseAnt[i][j] = phaseAnt.at(i).at(j);
+		 				
+			 						
+		
+			
+		
+	
+
+	
+  		
+		
+		x.phaseAntRMSExists = phaseAntRMSExists;
+		
+		
+			
+		x.phaseAntRMS.length(phaseAntRMS.size());
+		for (unsigned int i = 0; i < phaseAntRMS.size(); i++) {
+			x.phaseAntRMS[i].length(phaseAntRMS.at(i).size());			 		
+		}
+		
+		for (unsigned int i = 0; i < phaseAntRMS.size() ; i++)
+			for (unsigned int j = 0; j < phaseAntRMS.at(i).size(); j++)
+					
+						
+				x.phaseAntRMS[i][j] = phaseAntRMS.at(i).at(j);
+		 				
+			 						
+		
+			
+		
+	
+
+	
 	
 		
 	
@@ -1075,6 +1265,106 @@ namespace asdm {
 	
 
 	
+		
+		numAntennaExists = x.numAntennaExists;
+		if (x.numAntennaExists) {
+		
+		
+			
+		setNumAntenna(x.numAntenna);
+  			
+ 		
+		
+		}
+		
+	
+
+	
+		
+		singleAntennaNameExists = x.singleAntennaNameExists;
+		if (x.singleAntennaNameExists) {
+		
+		
+			
+		singleAntennaName .clear();
+		for (unsigned int i = 0; i <x.singleAntennaName.length(); ++i) {
+			
+			singleAntennaName.push_back(string (x.singleAntennaName[i]));
+			
+		}
+			
+  		
+		
+		}
+		
+	
+
+	
+		
+		refAntennaNameExists = x.refAntennaNameExists;
+		if (x.refAntennaNameExists) {
+		
+		
+			
+		setRefAntennaName(string (x.refAntennaName));
+			
+ 		
+		
+		}
+		
+	
+
+	
+		
+		phaseAntExists = x.phaseAntExists;
+		if (x.phaseAntExists) {
+		
+		
+			
+		phaseAnt .clear();
+		vector<float> v_aux_phaseAnt;
+		for (unsigned int i = 0; i < x.phaseAnt.length(); ++i) {
+			v_aux_phaseAnt.clear();
+			for (unsigned int j = 0; j < x.phaseAnt[0].length(); ++j) {
+				
+				v_aux_phaseAnt.push_back(x.phaseAnt[i][j]);
+	  			
+  			}
+  			phaseAnt.push_back(v_aux_phaseAnt);			
+		}
+			
+  		
+		
+		}
+		
+	
+
+	
+		
+		phaseAntRMSExists = x.phaseAntRMSExists;
+		if (x.phaseAntRMSExists) {
+		
+		
+			
+		phaseAntRMS .clear();
+		vector<float> v_aux_phaseAntRMS;
+		for (unsigned int i = 0; i < x.phaseAntRMS.length(); ++i) {
+			v_aux_phaseAntRMS.clear();
+			for (unsigned int j = 0; j < x.phaseAntRMS[0].length(); ++j) {
+				
+				v_aux_phaseAntRMS.push_back(x.phaseAntRMS[i][j]);
+	  			
+  			}
+  			phaseAntRMS.push_back(v_aux_phaseAntRMS);			
+		}
+			
+  		
+		
+		}
+		
+	
+
+	
 	
 		
 	
@@ -1269,6 +1559,66 @@ namespace asdm {
 		
 		
 		Parser::toXML(correctionValidity, "correctionValidity", buf);
+		
+		
+		}
+		
+	
+
+  	
+ 		
+		if (numAntennaExists) {
+		
+		
+		Parser::toXML(numAntenna, "numAntenna", buf);
+		
+		
+		}
+		
+	
+
+  	
+ 		
+		if (singleAntennaNameExists) {
+		
+		
+		Parser::toXML(singleAntennaName, "singleAntennaName", buf);
+		
+		
+		}
+		
+	
+
+  	
+ 		
+		if (refAntennaNameExists) {
+		
+		
+		Parser::toXML(refAntennaName, "refAntennaName", buf);
+		
+		
+		}
+		
+	
+
+  	
+ 		
+		if (phaseAntExists) {
+		
+		
+		Parser::toXML(phaseAnt, "phaseAnt", buf);
+		
+		
+		}
+		
+	
+
+  	
+ 		
+		if (phaseAntRMSExists) {
+		
+		
+		Parser::toXML(phaseAntRMS, "phaseAntRMS", buf);
 		
 		
 		}
@@ -1492,6 +1842,62 @@ namespace asdm {
 			
 								
 	  		setCorrectionValidity(Parser::get1DBoolean("correctionValidity","CalPhase",rowDoc));
+	  			
+	  		
+		}
+ 		
+	
+
+	
+  		
+        if (row.isStr("<numAntenna>")) {
+			
+	  		setNumAntenna(Parser::getInteger("numAntenna","CalPhase",rowDoc));
+			
+		}
+ 		
+	
+
+	
+  		
+        if (row.isStr("<singleAntennaName>")) {
+			
+								
+	  		setSingleAntennaName(Parser::get1DString("singleAntennaName","CalPhase",rowDoc));
+	  			
+	  		
+		}
+ 		
+	
+
+	
+  		
+        if (row.isStr("<refAntennaName>")) {
+			
+	  		setRefAntennaName(Parser::getString("refAntennaName","CalPhase",rowDoc));
+			
+		}
+ 		
+	
+
+	
+  		
+        if (row.isStr("<phaseAnt>")) {
+			
+								
+	  		setPhaseAnt(Parser::get2DFloat("phaseAnt","CalPhase",rowDoc));
+	  			
+	  		
+		}
+ 		
+	
+
+	
+  		
+        if (row.isStr("<phaseAntRMS>")) {
+			
+								
+	  		setPhaseAntRMS(Parser::get2DFloat("phaseAntRMS","CalPhase",rowDoc));
 	  			
 	  		
 		}
@@ -1770,6 +2176,98 @@ namespace asdm {
 			eoss.writeBoolean(correctionValidity.at(i));
 				
 				
+						
+		
+	
+
+	}
+
+	eoss.writeBoolean(numAntennaExists);
+	if (numAntennaExists) {
+	
+	
+	
+		
+						
+			eoss.writeInt(numAntenna);
+				
+		
+	
+
+	}
+
+	eoss.writeBoolean(singleAntennaNameExists);
+	if (singleAntennaNameExists) {
+	
+	
+	
+		
+		
+			
+		eoss.writeInt((int) singleAntennaName.size());
+		for (unsigned int i = 0; i < singleAntennaName.size(); i++)
+				
+			eoss.writeString(singleAntennaName.at(i));
+				
+				
+						
+		
+	
+
+	}
+
+	eoss.writeBoolean(refAntennaNameExists);
+	if (refAntennaNameExists) {
+	
+	
+	
+		
+						
+			eoss.writeString(refAntennaName);
+				
+		
+	
+
+	}
+
+	eoss.writeBoolean(phaseAntExists);
+	if (phaseAntExists) {
+	
+	
+	
+		
+		
+			
+		eoss.writeInt((int) phaseAnt.size());
+		eoss.writeInt((int) phaseAnt.at(0).size());
+		for (unsigned int i = 0; i < phaseAnt.size(); i++) 
+			for (unsigned int j = 0;  j < phaseAnt.at(0).size(); j++) 
+							 
+				eoss.writeFloat(phaseAnt.at(i).at(j));
+				
+	
+						
+		
+	
+
+	}
+
+	eoss.writeBoolean(phaseAntRMSExists);
+	if (phaseAntRMSExists) {
+	
+	
+	
+		
+		
+			
+		eoss.writeInt((int) phaseAntRMS.size());
+		eoss.writeInt((int) phaseAntRMS.at(0).size());
+		for (unsigned int i = 0; i < phaseAntRMS.size(); i++) 
+			for (unsigned int j = 0;  j < phaseAntRMS.at(0).size(); j++) 
+							 
+				eoss.writeFloat(phaseAntRMS.at(i).at(j));
+				
+	
 						
 		
 	
@@ -2138,6 +2636,129 @@ void CalPhaseRow::correctionValidityFromBin(EndianIStream& eis) {
 	}
 	
 }
+void CalPhaseRow::numAntennaFromBin(EndianIStream& eis) {
+		
+	numAntennaExists = eis.readBoolean();
+	if (numAntennaExists) {
+		
+	
+	
+		
+			
+		numAntenna =  eis.readInt();
+			
+		
+	
+
+	}
+	
+}
+void CalPhaseRow::singleAntennaNameFromBin(EndianIStream& eis) {
+		
+	singleAntennaNameExists = eis.readBoolean();
+	if (singleAntennaNameExists) {
+		
+	
+	
+		
+			
+	
+		singleAntennaName.clear();
+		
+		unsigned int singleAntennaNameDim1 = eis.readInt();
+		for (unsigned int  i = 0 ; i < singleAntennaNameDim1; i++)
+			
+			singleAntennaName.push_back(eis.readString());
+			
+	
+
+		
+	
+
+	}
+	
+}
+void CalPhaseRow::refAntennaNameFromBin(EndianIStream& eis) {
+		
+	refAntennaNameExists = eis.readBoolean();
+	if (refAntennaNameExists) {
+		
+	
+	
+		
+			
+		refAntennaName =  eis.readString();
+			
+		
+	
+
+	}
+	
+}
+void CalPhaseRow::phaseAntFromBin(EndianIStream& eis) {
+		
+	phaseAntExists = eis.readBoolean();
+	if (phaseAntExists) {
+		
+	
+	
+		
+			
+	
+		phaseAnt.clear();
+		
+		unsigned int phaseAntDim1 = eis.readInt();
+		unsigned int phaseAntDim2 = eis.readInt();
+		vector <float> phaseAntAux1;
+		for (unsigned int i = 0; i < phaseAntDim1; i++) {
+			phaseAntAux1.clear();
+			for (unsigned int j = 0; j < phaseAntDim2 ; j++)			
+			
+			phaseAntAux1.push_back(eis.readFloat());
+			
+			phaseAnt.push_back(phaseAntAux1);
+		}
+	
+	
+
+		
+	
+
+	}
+	
+}
+void CalPhaseRow::phaseAntRMSFromBin(EndianIStream& eis) {
+		
+	phaseAntRMSExists = eis.readBoolean();
+	if (phaseAntRMSExists) {
+		
+	
+	
+		
+			
+	
+		phaseAntRMS.clear();
+		
+		unsigned int phaseAntRMSDim1 = eis.readInt();
+		unsigned int phaseAntRMSDim2 = eis.readInt();
+		vector <float> phaseAntRMSAux1;
+		for (unsigned int i = 0; i < phaseAntRMSDim1; i++) {
+			phaseAntRMSAux1.clear();
+			for (unsigned int j = 0; j < phaseAntRMSDim2 ; j++)			
+			
+			phaseAntRMSAux1.push_back(eis.readFloat());
+			
+			phaseAntRMS.push_back(phaseAntRMSAux1);
+		}
+	
+	
+
+		
+	
+
+	}
+	
+}
 	
 	
 	CalPhaseRow* CalPhaseRow::fromBin(EndianIStream& eis, CalPhaseTable& table, const vector<string>& attributesSeq) {
@@ -2332,6 +2953,51 @@ void CalPhaseRow::correctionValidityFromBin(EndianIStream& eis) {
 		correctionValidityExists = true;
 		 
 		correctionValidity = ASDMValuesParser::parse1D<bool>(s);
+		
+	}
+	
+	
+	// Convert a string into an int 
+	void CalPhaseRow::numAntennaFromText(const string & s) {
+		numAntennaExists = true;
+		 
+		numAntenna = ASDMValuesParser::parse<int>(s);
+		
+	}
+	
+	
+	// Convert a string into an String 
+	void CalPhaseRow::singleAntennaNameFromText(const string & s) {
+		singleAntennaNameExists = true;
+		 
+		singleAntennaName = ASDMValuesParser::parse1D<string>(s);
+		
+	}
+	
+	
+	// Convert a string into an String 
+	void CalPhaseRow::refAntennaNameFromText(const string & s) {
+		refAntennaNameExists = true;
+		 
+		refAntennaName = ASDMValuesParser::parse<string>(s);
+		
+	}
+	
+	
+	// Convert a string into an float 
+	void CalPhaseRow::phaseAntFromText(const string & s) {
+		phaseAntExists = true;
+		 
+		phaseAnt = ASDMValuesParser::parse2D<float>(s);
+		
+	}
+	
+	
+	// Convert a string into an float 
+	void CalPhaseRow::phaseAntRMSFromText(const string & s) {
+		phaseAntRMSExists = true;
+		 
+		phaseAntRMS = ASDMValuesParser::parse2D<float>(s);
 		
 	}
 	
@@ -2984,6 +3650,241 @@ void CalPhaseRow::correctionValidityFromBin(EndianIStream& eis) {
 	
 
 	
+	/**
+	 * The attribute numAntenna is optional. Return true if this attribute exists.
+	 * @return true if and only if the numAntenna attribute exists. 
+	 */
+	bool CalPhaseRow::isNumAntennaExists() const {
+		return numAntennaExists;
+	}
+	
+
+	
+ 	/**
+ 	 * Get numAntenna, which is optional.
+ 	 * @return numAntenna as int
+ 	 * @throw IllegalAccessException If numAntenna does not exist.
+ 	 */
+ 	int CalPhaseRow::getNumAntenna() const  {
+		if (!numAntennaExists) {
+			throw IllegalAccessException("numAntenna", "CalPhase");
+		}
+	
+  		return numAntenna;
+ 	}
+
+ 	/**
+ 	 * Set numAntenna with the specified int.
+ 	 * @param numAntenna The int value to which numAntenna is to be set.
+ 	 
+ 	
+ 	 */
+ 	void CalPhaseRow::setNumAntenna (int numAntenna) {
+	
+ 		this->numAntenna = numAntenna;
+	
+		numAntennaExists = true;
+	
+ 	}
+	
+	
+	/**
+	 * Mark numAntenna, which is an optional field, as non-existent.
+	 */
+	void CalPhaseRow::clearNumAntenna () {
+		numAntennaExists = false;
+	}
+	
+
+	
+	/**
+	 * The attribute singleAntennaName is optional. Return true if this attribute exists.
+	 * @return true if and only if the singleAntennaName attribute exists. 
+	 */
+	bool CalPhaseRow::isSingleAntennaNameExists() const {
+		return singleAntennaNameExists;
+	}
+	
+
+	
+ 	/**
+ 	 * Get singleAntennaName, which is optional.
+ 	 * @return singleAntennaName as vector<string >
+ 	 * @throw IllegalAccessException If singleAntennaName does not exist.
+ 	 */
+ 	vector<string > CalPhaseRow::getSingleAntennaName() const  {
+		if (!singleAntennaNameExists) {
+			throw IllegalAccessException("singleAntennaName", "CalPhase");
+		}
+	
+  		return singleAntennaName;
+ 	}
+
+ 	/**
+ 	 * Set singleAntennaName with the specified vector<string >.
+ 	 * @param singleAntennaName The vector<string > value to which singleAntennaName is to be set.
+ 	 
+ 	
+ 	 */
+ 	void CalPhaseRow::setSingleAntennaName (vector<string > singleAntennaName) {
+	
+ 		this->singleAntennaName = singleAntennaName;
+	
+		singleAntennaNameExists = true;
+	
+ 	}
+	
+	
+	/**
+	 * Mark singleAntennaName, which is an optional field, as non-existent.
+	 */
+	void CalPhaseRow::clearSingleAntennaName () {
+		singleAntennaNameExists = false;
+	}
+	
+
+	
+	/**
+	 * The attribute refAntennaName is optional. Return true if this attribute exists.
+	 * @return true if and only if the refAntennaName attribute exists. 
+	 */
+	bool CalPhaseRow::isRefAntennaNameExists() const {
+		return refAntennaNameExists;
+	}
+	
+
+	
+ 	/**
+ 	 * Get refAntennaName, which is optional.
+ 	 * @return refAntennaName as string
+ 	 * @throw IllegalAccessException If refAntennaName does not exist.
+ 	 */
+ 	string CalPhaseRow::getRefAntennaName() const  {
+		if (!refAntennaNameExists) {
+			throw IllegalAccessException("refAntennaName", "CalPhase");
+		}
+	
+  		return refAntennaName;
+ 	}
+
+ 	/**
+ 	 * Set refAntennaName with the specified string.
+ 	 * @param refAntennaName The string value to which refAntennaName is to be set.
+ 	 
+ 	
+ 	 */
+ 	void CalPhaseRow::setRefAntennaName (string refAntennaName) {
+	
+ 		this->refAntennaName = refAntennaName;
+	
+		refAntennaNameExists = true;
+	
+ 	}
+	
+	
+	/**
+	 * Mark refAntennaName, which is an optional field, as non-existent.
+	 */
+	void CalPhaseRow::clearRefAntennaName () {
+		refAntennaNameExists = false;
+	}
+	
+
+	
+	/**
+	 * The attribute phaseAnt is optional. Return true if this attribute exists.
+	 * @return true if and only if the phaseAnt attribute exists. 
+	 */
+	bool CalPhaseRow::isPhaseAntExists() const {
+		return phaseAntExists;
+	}
+	
+
+	
+ 	/**
+ 	 * Get phaseAnt, which is optional.
+ 	 * @return phaseAnt as vector<vector<float > >
+ 	 * @throw IllegalAccessException If phaseAnt does not exist.
+ 	 */
+ 	vector<vector<float > > CalPhaseRow::getPhaseAnt() const  {
+		if (!phaseAntExists) {
+			throw IllegalAccessException("phaseAnt", "CalPhase");
+		}
+	
+  		return phaseAnt;
+ 	}
+
+ 	/**
+ 	 * Set phaseAnt with the specified vector<vector<float > >.
+ 	 * @param phaseAnt The vector<vector<float > > value to which phaseAnt is to be set.
+ 	 
+ 	
+ 	 */
+ 	void CalPhaseRow::setPhaseAnt (vector<vector<float > > phaseAnt) {
+	
+ 		this->phaseAnt = phaseAnt;
+	
+		phaseAntExists = true;
+	
+ 	}
+	
+	
+	/**
+	 * Mark phaseAnt, which is an optional field, as non-existent.
+	 */
+	void CalPhaseRow::clearPhaseAnt () {
+		phaseAntExists = false;
+	}
+	
+
+	
+	/**
+	 * The attribute phaseAntRMS is optional. Return true if this attribute exists.
+	 * @return true if and only if the phaseAntRMS attribute exists. 
+	 */
+	bool CalPhaseRow::isPhaseAntRMSExists() const {
+		return phaseAntRMSExists;
+	}
+	
+
+	
+ 	/**
+ 	 * Get phaseAntRMS, which is optional.
+ 	 * @return phaseAntRMS as vector<vector<float > >
+ 	 * @throw IllegalAccessException If phaseAntRMS does not exist.
+ 	 */
+ 	vector<vector<float > > CalPhaseRow::getPhaseAntRMS() const  {
+		if (!phaseAntRMSExists) {
+			throw IllegalAccessException("phaseAntRMS", "CalPhase");
+		}
+	
+  		return phaseAntRMS;
+ 	}
+
+ 	/**
+ 	 * Set phaseAntRMS with the specified vector<vector<float > >.
+ 	 * @param phaseAntRMS The vector<vector<float > > value to which phaseAntRMS is to be set.
+ 	 
+ 	
+ 	 */
+ 	void CalPhaseRow::setPhaseAntRMS (vector<vector<float > > phaseAntRMS) {
+	
+ 		this->phaseAntRMS = phaseAntRMS;
+	
+		phaseAntRMSExists = true;
+	
+ 	}
+	
+	
+	/**
+	 * Mark phaseAntRMS, which is an optional field, as non-existent.
+	 */
+	void CalPhaseRow::clearPhaseAntRMS () {
+		phaseAntRMSExists = false;
+	}
+	
+
+	
 	///////////////////////////////////////////////
 	// Extrinsic Table Attributes getters/setters//
 	///////////////////////////////////////////////
@@ -3157,6 +4058,26 @@ void CalPhaseRow::correctionValidityFromBin(EndianIStream& eis) {
 	
 
 	
+		numAntennaExists = false;
+	
+
+	
+		singleAntennaNameExists = false;
+	
+
+	
+		refAntennaNameExists = false;
+	
+
+	
+		phaseAntExists = false;
+	
+
+	
+		phaseAntRMSExists = false;
+	
+
+	
 	
 
 	
@@ -3177,6 +4098,16 @@ receiverBand = CReceiverBand::from_int(0);
 	
 // This attribute is scalar and has an enumeration type. Let's initialize it to some valid value (the 1st of the enumeration).		
 atmPhaseCorrection = CAtmPhaseCorrection::from_int(0);
+	
+
+	
+
+	
+
+	
+
+	
+
 	
 
 	
@@ -3236,6 +4167,11 @@ atmPhaseCorrection = CAtmPhaseCorrection::from_int(0);
 		
 	
 	 fromBinMethods["correctionValidity"] = &CalPhaseRow::correctionValidityFromBin; 
+	 fromBinMethods["numAntenna"] = &CalPhaseRow::numAntennaFromBin; 
+	 fromBinMethods["singleAntennaName"] = &CalPhaseRow::singleAntennaNameFromBin; 
+	 fromBinMethods["refAntennaName"] = &CalPhaseRow::refAntennaNameFromBin; 
+	 fromBinMethods["phaseAnt"] = &CalPhaseRow::phaseAntFromBin; 
+	 fromBinMethods["phaseAntRMS"] = &CalPhaseRow::phaseAntRMSFromBin; 
 	
 	
 	
@@ -3325,6 +4261,26 @@ atmPhaseCorrection = CAtmPhaseCorrection::from_int(0);
 				
 	fromTextMethods["correctionValidity"] = &CalPhaseRow::correctionValidityFromText;
 		 	
+	 
+				
+	fromTextMethods["numAntenna"] = &CalPhaseRow::numAntennaFromText;
+		 	
+	 
+				
+	fromTextMethods["singleAntennaName"] = &CalPhaseRow::singleAntennaNameFromText;
+		 	
+	 
+				
+	fromTextMethods["refAntennaName"] = &CalPhaseRow::refAntennaNameFromText;
+		 	
+	 
+				
+	fromTextMethods["phaseAnt"] = &CalPhaseRow::phaseAntFromText;
+		 	
+	 
+				
+	fromTextMethods["phaseAntRMS"] = &CalPhaseRow::phaseAntRMSFromText;
+		 	
 		
 	}
 	
@@ -3372,6 +4328,26 @@ atmPhaseCorrection = CAtmPhaseCorrection::from_int(0);
 
 	
 		correctionValidityExists = false;
+	
+
+	
+		numAntennaExists = false;
+	
+
+	
+		singleAntennaNameExists = false;
+	
+
+	
+		refAntennaNameExists = false;
+	
+
+	
+		phaseAntExists = false;
+	
+
+	
+		phaseAntRMSExists = false;
 	
 
 	
@@ -3436,6 +4412,41 @@ atmPhaseCorrection = CAtmPhaseCorrection::from_int(0);
 		else
 			correctionValidityExists = false;
 		
+		if (row.numAntennaExists) {
+			numAntenna = row.numAntenna;		
+			numAntennaExists = true;
+		}
+		else
+			numAntennaExists = false;
+		
+		if (row.singleAntennaNameExists) {
+			singleAntennaName = row.singleAntennaName;		
+			singleAntennaNameExists = true;
+		}
+		else
+			singleAntennaNameExists = false;
+		
+		if (row.refAntennaNameExists) {
+			refAntennaName = row.refAntennaName;		
+			refAntennaNameExists = true;
+		}
+		else
+			refAntennaNameExists = false;
+		
+		if (row.phaseAntExists) {
+			phaseAnt = row.phaseAnt;		
+			phaseAntExists = true;
+		}
+		else
+			phaseAntExists = false;
+		
+		if (row.phaseAntRMSExists) {
+			phaseAntRMS = row.phaseAntRMS;		
+			phaseAntRMSExists = true;
+		}
+		else
+			phaseAntRMSExists = false;
+		
 		}
 		
 		 fromBinMethods["basebandName"] = &CalPhaseRow::basebandNameFromBin; 
@@ -3461,6 +4472,11 @@ atmPhaseCorrection = CAtmPhaseCorrection::from_int(0);
 			
 	
 		 fromBinMethods["correctionValidity"] = &CalPhaseRow::correctionValidityFromBin; 
+		 fromBinMethods["numAntenna"] = &CalPhaseRow::numAntennaFromBin; 
+		 fromBinMethods["singleAntennaName"] = &CalPhaseRow::singleAntennaNameFromBin; 
+		 fromBinMethods["refAntennaName"] = &CalPhaseRow::refAntennaNameFromBin; 
+		 fromBinMethods["phaseAnt"] = &CalPhaseRow::phaseAntFromBin; 
+		 fromBinMethods["phaseAntRMS"] = &CalPhaseRow::phaseAntRMSFromBin; 
 			
 	}
 
@@ -3686,11 +4702,13 @@ atmPhaseCorrection = CAtmPhaseCorrection::from_int(0);
 	 * Return true if all required attributes of the value part are equal to their homologues
 	 * in x and false otherwise.
 	 *
+
 	 * @param x a pointer on the CalPhaseRow whose required attributes of the value part 
+
 	 * will be compared with those of this.
 	 * @return a boolean.
 	 */
-	bool CalPhaseRow::equalByRequiredValue(CalPhaseRow* x) {
+	bool CalPhaseRow::equalByRequiredValue(CalPhaseRow*  x ) {
 		
 			
 		if (this->startValidTime != x->startValidTime) return false;
@@ -3754,6 +4772,11 @@ atmPhaseCorrection = CAtmPhaseCorrection::from_int(0);
 		
 		
 		result["correctionValidity"] = &CalPhaseRow::correctionValidityFromBin;
+		result["numAntenna"] = &CalPhaseRow::numAntennaFromBin;
+		result["singleAntennaName"] = &CalPhaseRow::singleAntennaNameFromBin;
+		result["refAntennaName"] = &CalPhaseRow::refAntennaNameFromBin;
+		result["phaseAnt"] = &CalPhaseRow::phaseAntFromBin;
+		result["phaseAntRMS"] = &CalPhaseRow::phaseAntRMSFromBin;
 			
 		
 		return result;	

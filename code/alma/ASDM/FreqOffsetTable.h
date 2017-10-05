@@ -41,7 +41,7 @@
 
 
 	
-#include <Tag.h>
+#include <ArrayTimeInterval.h>
 	
 
 	
@@ -49,7 +49,7 @@
 	
 
 	
-#include <ArrayTimeInterval.h>
+#include <Tag.h>
 	
 
 
@@ -91,7 +91,7 @@ class FreqOffsetRow;
  * Frequency offset information. Contains an additional antenna-based frequency  offset relative to the frequencies in the Spectral Windows. Useful for such  thing as Doppler tracking.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of FreqOffset </CAPTION>
@@ -439,6 +439,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 

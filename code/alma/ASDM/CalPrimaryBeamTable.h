@@ -41,19 +41,19 @@
 
 
 	
-#include <ArrayTime.h>
-	
-
-	
 #include <Angle.h>
 	
 
 	
-#include <Tag.h>
+#include <ArrayTime.h>
 	
 
 	
 #include <Frequency.h>
+	
+
+	
+#include <Tag.h>
 	
 
 	
@@ -139,7 +139,7 @@ class CalPrimaryBeamRow;
  * Result of Primary Beam Map measurement.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of CalPrimaryBeam </CAPTION>
@@ -209,7 +209,7 @@ class CalPrimaryBeamRow;
  * </TR>
 	
  * <TR>
- * <TD> numSubband </TD> 
+ * <TD> numSubband (\f$N_{Subb}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of subband images (frequency ranges simultaneously measured ). </TD>
@@ -223,7 +223,7 @@ class CalPrimaryBeamRow;
  * </TR>
 	
  * <TR>
- * <TD> numReceptor </TD> 
+ * <TD> numReceptor (\f$N_{Rece}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of receptors. </TD>
@@ -635,6 +635,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 

@@ -114,6 +114,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   Bool SynthesisImagerVi2::selectData(const SynthesisParamsSelect& selpars){
  LogIO os( LogOrigin("SynthesisImagerVi2","selectData",WHERE) );
+ Bool retval=True;
 
     try
       {
@@ -243,13 +244,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         ////////////////////////////
         Double lowfreq;
         Double topfreq;
-
-	//cerr << "chanlist " << chanlist << "\n freqlis " << freqList << endl;
+      Vector<Int> fieldList=thisSelection.getFieldList(mss_p[mss_p.nelements()-1]);
+	 // cerr << "chanlist " << chanlist.column(0) << "\n fieldList " << fieldList << endl;
         
 	//cerr << "selpars.freqframe " << selpars.freqframe << endl;
         vi::FrequencySelectionUsingFrame channelSelector(selFreqFrame_p);
 	///temporary variable as we carry that for tunechunk
+		
+	Bool selectionValid=False;
     	  for(uInt k=0; k < nSelections; ++k){
+	    Bool thisSpwSelValid=False;
 	    //The getChanfreqList is wrong for beg and end..going round that too.
 	    Vector<Double> freqies=ROMSColumns(*mss_p[mss_p.nelements()-1]).spectralWindow().chanFreq()(Int(chanlist(k,0)));
 	    Vector<Double> chanwidth=ROMSColumns(*mss_p[mss_p.nelements()-1]).spectralWindow().chanWidth()(Int(chanlist(k,0)));
@@ -268,14 +272,35 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    }
 	    
 	    if(!ignoreframe){
-	      vi::VisibilityIterator2 tmpvi(mss_p, vi::SortColumns(), false); 
-	      VisBufferUtil::getFreqRangeFromRange(lowfreq, topfreq,  freqFrame, lowfreq,  topfreq, tmpvi, selFreqFrame_p);
+		
+			
+          //cerr << "begin " << lowfreq << "  " << topfreq << endl; 
+	      //vi::VisibilityIterator2 tmpvi(mss_p, vi::SortColumns(), false); 
+	      //VisBufferUtil::getFreqRangeFromRange(lowfreq, topfreq,  freqFrame, lowfreq,  topfreq, tmpvi, selFreqFrame_p);
+		  if(MSUtil::getFreqRangeInSpw( lowfreq,
+				  topfreq, Vector<Int>(1,chanlist(k,0)), Vector<Int>(1,chanlist(k,1)),
+				  Vector<Int>(1, chanlist(k,2)-chanlist(k,1)+1),
+				 *mss_p[mss_p.nelements()-1] , 
+				  selFreqFrame_p,
+						 fieldList, False))
+		    {
+		      selectionValid=True;
+		      thisSpwSelValid=True;
+		    }
+		    
+		    
 	    }
-	    //cerr << std::setprecision(12) << "Dat lowFreq "<< lowfreq << " topfreq " << topfreq << endl; 
-            //channelSelector.add(Int(freqList(k,0)), lowfreq, topfreq);
-	    andFreqSelection(mss_p.nelements()-1, Int(freqList(k,0)), lowfreq, topfreq, selFreqFrame_p);
+	    
+	    if(thisSpwSelValid || ignoreframe){
+	      andFreqSelection(mss_p.nelements()-1, Int(freqList(k,0)), lowfreq, topfreq, selFreqFrame_p);
+	      andChanSelection(mss_p.nelements()-1, Int(chanlist(k,0)), Int(chanlist(k,1)),Int(chanlist(k,2)));
+	    }
           }
-    	  //fselections_p->add(channelSelector);
+	  if(! (selectionValid && !ignoreframe)){
+	    os << "Did not match spw selection in the selected ms " << LogIO::WARN << LogIO::POST;
+	    retval=False;
+	  }
+	    //fselections_p->add(channelSelector);
           //////////////////////////////////
       }
       else{
@@ -335,12 +360,44 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	throw( AipsError("Error in selectData() : "+x.getMesg()) );
       }
 
-    return true;
+    return retval;
 
 
 
   }
-
+void SynthesisImagerVi2::andChanSelection(const Int msId, const Int spwId, const Int startchan, const Int endchan){
+	map<Int, Vector<Int> > spwsel;
+	auto it=channelSelections_p.find(msId);
+	if(it !=channelSelections_p.end())
+		spwsel=it->second;
+	auto hasspw=spwsel.find(spwId);
+	Vector<Int>chansel(2,-1);
+	if(hasspw != spwsel.end()){
+		chansel.resize();
+		chansel=hasspw->second;
+	}
+	Int nchan=endchan-startchan+1;
+	if(chansel(1)== -1)
+		chansel(1)=startchan;
+	if(chansel(1) >= startchan){
+	  if(nchan > (chansel(1)-startchan+chansel(0))){
+			chansel(0)=nchan;
+	  }
+	  else{
+			chansel(0)=chansel(1)-startchan+chansel(0);
+	  }
+	  chansel(1)=startchan;
+	}
+	else{
+		if((chansel(0) -(startchan - chansel(1)+1)) < nchan){	
+		  chansel(0)=nchan+(startchan-chansel(1));
+		}
+	}
+	spwsel[spwId]=chansel;
+	channelSelections_p[msId]=spwsel;
+	//	cerr << "chansel "<< channelSelections_p << endl;
+	
+}
   void SynthesisImagerVi2::andFreqSelection(const Int msId, const Int spwId,  const Double freqBeg, const Double freqEnd, const MFrequency::Types frame){
     
    
@@ -454,7 +511,9 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 
 	os << "Define image coordinates for [" << impars.imageName << "] : " << LogIO::POST;
 
-	csys = impars.buildCoordinateSystem( *vi_p );
+
+	csys = impars.buildCoordinateSystem( *vi_p, channelSelections_p, mss_p );
+
 	IPosition imshape = impars.shp();
 
 	os << "Impars : start " << impars.start << LogIO::POST;
@@ -537,7 +596,6 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 			       const Quantity& filterbmin, const Quantity& filterbpa   )
   {
     LogIO os(LogOrigin("SynthesisImagerVi2", "weight()", WHERE));
-
        try {
     	//Int nx=itsMaxShape[0];
     	//Int ny=itsMaxShape[1];
@@ -556,6 +614,8 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
     	  imwgt_p=VisImagingWeight("radial");
       }
       else{
+	vi_p->originChunks();
+	vi_p->origin();
     	  if(!imageDefined_p)
     		  throw(AipsError("Need to define image"));
     	  Int nx=itsMaxShape[0];
@@ -1267,7 +1327,7 @@ void SynthesisImagerVi2::unlockMSs()
     }
     else if ( ftname == "mosaic" || ftname== "mosft" || ftname == "mosaicft" || ftname== "MosaicFT"){
 
-      createMosFTMachine(theFT, theIFT, padding, useAutocorr, useDoublePrec, rotatePAStep, stokes);
+      createMosFTMachine(theFT, theIFT, padding, useAutocorr, useDoublePrec, rotatePAStep, stokes, conjBeams);
     }
     else
       {
@@ -1475,7 +1535,7 @@ void SynthesisImagerVi2::unlockMSs()
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  void SynthesisImagerVi2:: createMosFTMachine(CountedPtr<refim::FTMachine>& theFT,CountedPtr<refim::FTMachine>&  theIFT, const Float /*padding*/, const Bool useAutoCorr, const Bool useDoublePrec, const Float rotatePAStep, const String stokes){
+  void SynthesisImagerVi2:: createMosFTMachine(CountedPtr<refim::FTMachine>& theFT,CountedPtr<refim::FTMachine>&  theIFT, const Float /*padding*/, const Bool useAutoCorr, const Bool useDoublePrec, const Float rotatePAStep, const String stokes, const Bool doConjBeams){
     
     LogIO os(LogOrigin("SynthesisImagerVi2", "createMosFTMachine",WHERE));
    
@@ -1527,7 +1587,7 @@ void SynthesisImagerVi2::unlockMSs()
    
     
     theFT = new refim::MosaicFTNew(vps, mLocation_p, stokes, 1000000000, 16, useAutoCorr, 
-		      useDoublePrec);
+		      useDoublePrec, doConjBeams);
     PBMathInterface::PBClass pbtype=((kpb==PBMath::EVLA) || multiTel)? PBMathInterface::COMMONPB: PBMathInterface::AIRY;
     if(rec.asString("name")=="IMAGE")
        pbtype=PBMathInterface::IMAGE;

@@ -41,19 +41,19 @@
 
 
 	
-#include <ArrayTime.h>
-	
-
-	
 #include <Angle.h>
 	
 
 	
-#include <Tag.h>
+#include <ArrayTime.h>
 	
 
 	
 #include <Frequency.h>
+	
+
+	
+#include <Tag.h>
 	
 
 
@@ -135,7 +135,7 @@ class CalFluxRow;
  * Result of flux calibration performed on-line by TelCal. Atmospheric absorption is corrected for. No ionosphere correction has been applied.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of CalFlux </CAPTION>
@@ -189,14 +189,14 @@ class CalFluxRow;
  * </TR>
 	
  * <TR>
- * <TD> numFrequencyRanges </TD> 
+ * <TD> numFrequencyRanges (\f$N_{Freq}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of frequency ranges. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numStokes </TD> 
+ * <TD> numStokes (\f$N_{Stok}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of Stokes parameters. </TD>
@@ -220,7 +220,7 @@ class CalFluxRow;
  * <TD> flux </TD> 
  * <TD> vector<vector<double > > </TD>
  * <TD>  numStokes, numFrequencyRanges </TD> 
- * <TD> &nbsp;the flux densities (one value par Stokes parameter per frequency range). </TD>
+ * <TD> &nbsp;the flux densities (one value par Stokes parameter per frequency range) expressed in Jansky (Jy). </TD>
  * </TR>
 	
  * <TR>
@@ -242,56 +242,56 @@ class CalFluxRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> direction </TD> 
+ * <TD> direction</TD> 
  * <TD> vector<Angle > </TD>
  * <TD>  2  </TD>
  * <TD>&nbsp; the direction of the source. </TD>
  * </TR>
 	
  * <TR>
- * <TD> directionCode </TD> 
+ * <TD> directionCode</TD> 
  * <TD> DirectionReferenceCodeMod::DirectionReferenceCode </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; identifies the reference frame of the source's direction. </TD>
  * </TR>
 	
  * <TR>
- * <TD> directionEquinox </TD> 
+ * <TD> directionEquinox</TD> 
  * <TD> Angle </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; equinox associated with the reference frame of the source's direction. </TD>
  * </TR>
 	
  * <TR>
- * <TD> PA </TD> 
+ * <TD> PA</TD> 
  * <TD> vector<vector<Angle > > </TD>
  * <TD>  numStokes, numFrequencyRanges  </TD>
  * <TD>&nbsp; the position's angles for the source model (one value per Stokes parameter per frequency range). </TD>
  * </TR>
 	
  * <TR>
- * <TD> PAError </TD> 
+ * <TD> PAError</TD> 
  * <TD> vector<vector<Angle > > </TD>
  * <TD>  numStokes, numFrequencyRanges  </TD>
  * <TD>&nbsp; the uncertainties on the position's angles (one value per Stokes parameter per frequency range). </TD>
  * </TR>
 	
  * <TR>
- * <TD> size </TD> 
+ * <TD> size</TD> 
  * <TD> vector<vector<vector<Angle > > > </TD>
  * <TD>  numStokes, numFrequencyRanges, 2  </TD>
  * <TD>&nbsp; the sizes of the source (one pair of angles per Stokes parameter per frequency range). </TD>
  * </TR>
 	
  * <TR>
- * <TD> sizeError </TD> 
+ * <TD> sizeError</TD> 
  * <TD> vector<vector<vector<Angle > > > </TD>
  * <TD>  numStokes, numFrequencyRanges, 2  </TD>
  * <TD>&nbsp; the uncertainties of the sizes of the source (one pair of angles per Stokes parameter per frequency range). </TD>
  * </TR>
 	
  * <TR>
- * <TD> sourceModel </TD> 
+ * <TD> sourceModel</TD> 
  * <TD> SourceModelMod::SourceModel </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; identifies the source model. </TD>
@@ -598,6 +598,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 
