@@ -181,6 +181,7 @@ DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant) :
     dt_ ( gm_.dt ),
     f0_( gm_.fmin / 1.e9),      // GHz
     df_( gm_.df / 1.e9),
+    df_all_( gm_.fmax - gm_.fmin),
     Vpad_(),
     xcount_(),
     sumw_(),
@@ -427,7 +428,6 @@ DelayRateFFT::searchPeak() {
                 // Phase
                 Complex c = aS(ipkt, ipkch);
                 Float phase = arg(c);
-                // FIXME: Here we go again.
                 param_(icorr*3 + 0, ielem) = sgn*phase;
                 // Delay
                 // FIXME!:
@@ -1496,7 +1496,8 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
     Matrix<Float> sSNR(solveParSNR().nonDegenerate(1));
 
     
-    // Map from MS antenna number to index 
+    // Map from MS antenna number to index
+    // transcribe fft results to sRP
     Int ncol = drf.param().ncolumn();
     for (Int i=0; i!=ncol; i++) {
         IPosition start(2, 0,                  i);
@@ -1555,17 +1556,7 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
     }
 
 
-    // We can zero the rates here (if needed) whether we did least squares or not.
     
-    if ( zeroRates() ) {
-        logSink() << "Zeroing delay rates in calibration table." << LogIO::POST;
-        
-        for (size_t icor=0; icor != nCorr; icor++ ) {
-            for (Int iant=0; iant != nAnt(); iant++) {
-                sRP(3*icor + 2, iant) = 0.0;
-            }
-        }
-    }
 
     if (DEVDEBUG) {
         cerr << "Just sayin': nAnt()*nCorr=" << nAnt() * nCorr << " while sRP has shape " << sRP.shape() << endl;
@@ -1581,6 +1572,41 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
     }
     // calculateSNR is a method of FringeJones so it has access to the sSNR (et al) arrays.
     calculateSNR(nCorr, drf, ref_freq, df0, dt0);
+
+    // 2017-10-05(iv) This correction to the centre of the interval had fallen off.
+    // restored from 19cd4a016baf3370658ad0601f4949f4474ba747
+    for (Int iant=0; iant != nAnt(); iant++) {
+        for (size_t icor=0; icor != nCorr; icor++ ) {
+            Double df_bootleg = drf.get_df_all();
+            Double phi0 = sRP(3*icor + 0, iant);
+            Double delay = sRP(3*icor + 1, iant);
+            Double rate = sRP(3*icor + 2, iant);
+            Double delta1 = df0*delay;
+            // Double delta1 = 0.5*df_bootleg*delay/1e9;
+            Double delta1 = 0;
+            Double delta2 = ref_freq*dt0*rate;
+            Double delta3 = C::_2pi*(delta1+delta2);
+            logSink() << "Antenna " << iant << ": phi0 " << phi0 << " delay " << delay << " rate " << rate << endl
+                      << "Adding corrections for frequency (" << 360*delta1 << ")"
+                      << " and time (" << 360*delta2 << ") degrees." << LogIO::POST;
+            sRP(3*icor + 0, iant) += delta3;
+         }
+    }
+
+    
+    // We can zero the rates here (if needed) whether we did least squares or not.
+    if ( zeroRates() ) {
+        logSink() << "Zeroing delay rates in calibration table." << LogIO::POST;
+        
+        for (size_t icor=0; icor != nCorr; icor++ ) {
+            for (Int iant=0; iant != nAnt(); iant++) {
+                sRP(3*icor + 2, iant) = 0.0;
+            }
+        }
+    }
+
+
+
 }
 
 

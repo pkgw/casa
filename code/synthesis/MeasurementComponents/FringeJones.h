@@ -112,7 +112,7 @@ private:
     casacore::Int nSPWChan_;
     casacore::Int nPadChan_;
     casacore::Int nElem_;
-    casacore::Double f0_, df_;
+    casacore::Double f0_, df_, df_all_;
     casacore::Double t0_, t1_, dt_;
     casacore::Double padBW_;
     casacore::Array<casacore::Complex> Vpad_;
@@ -139,6 +139,7 @@ public:
     const casacore::Array<casacore::Complex>& Vpad() const { return Vpad_; }
     const casacore::Matrix<casacore::Float>& param() const { return param_; }
     casacore::Int refant() const { return refant_; }
+    casacore::Double get_df_all() { return df_all_; }
     
     void FFT();
     std::pair<casacore::Bool, casacore::Float>  xinterp(casacore::Float alo, casacore::Float amax, casacore::Float ahi);
