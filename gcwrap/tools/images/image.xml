@@ -5608,9 +5608,12 @@ This application returns information on a one-dimensional profile taken along a 
 The region of interest is collapsed (a'la ia.collapse() along all axes orthogonal to the one specified, and)
 the specified aggregate function is applied to these pixels to generate the returned values. 
 
-The aggregate function must be one of the functions supported by ia.collapse; ie, 'flux', 'madm', 'max',  'mean',
+The aggregate function must be one of the functions supported by ia.collapse; ie, 'flux', 'madm', 'max', 'mean',
 'median', 'min', 'rms', 'stdev', 'sum', and 'variance'. See the help for ia.collapse() for details regarding
-these functions. Minimum match and case insenstivity is supported.
+these functions. Minimum match and case insenstivity is supported. In addition, single binary (addition,
+subtraction, multiplication, and division) operations of these functions are supported, eg function='max*min'
+will return data that is the product of the maximum and the mininum for each plane along the specified
+axis.
 
 One may specify the unit of the returned coordinate values.  Unless axis is the spectral axis, unit must be
 conformant with the corresponding axis unit in the image coordinate system or it must be 'pixel' which signifies,
@@ -5656,16 +5659,17 @@ res = ia.getprofile(axis=2, function='max')
 # axis 2 is the spectral axis. Get the minimum pixel values along this axis
 # and specify that the returned coordinate values should be optical velocities
 # in km/s
-
 res2 = ia.getprofile(axis=2, function='min', unit='km/s', spectype='optical')
+
+# get the result of the maximum and the median of the absolute deviation from the median
+# along this axis
+res3 = ia.getprofile(axis=2, function='max/madm')
 
 ia.done()
 
 </example>
 
 </method>
-
-
  
    <method type="function" name="getslice">
    <shortdescription>Get 1-D slice from the image</shortdescription>
