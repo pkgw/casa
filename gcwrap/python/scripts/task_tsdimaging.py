@@ -13,6 +13,9 @@ from cleanhelper import cleanhelper
 from imagerhelpers.imager_base import PySynthesisImager
 from imagerhelpers.input_parameters import ImagerParameters
 
+image_suffix = '.residual'
+associate_suffixes = ['.psf', '.sumwt', '.weight']
+
 def _configure_spectral_axis(mode, nchan, start, width, restfreq):
     #TODO: implement the function
     imnchan = nchan
@@ -29,13 +32,35 @@ def _handle_grid_defaults(value):
         ret = value
     return ret
 
+def _remove_image(imagename):
+    if os.path.exists(imagename):
+        if os.path.isdir(imagename):
+            os.rmdir(imagename)
+        elif os.path.isfile(imagename):
+            os.remove(imagename)
+        else:
+            # could be a symlink
+            os.remove(imagename)
+
 def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, mode, nchan, start, width, veltype, outframe, 
                gridfunction, convsupport, truncate, gwidth, jwidth, imsize, cell, phasecenter, projection, ephemsrcname, 
                pointingcolumn, restfreq, stokes, minweight, brightnessunit, clipminmax):
     
     origin = 'tsdimaging'
+    imager = None
  
     try: 
+        
+        # handle overwrite parameter
+        presumed_imagename = outfile + image_suffix
+        if os.path.exists(presumed_imagename):
+            if overwrite == False:
+                raise RuntimeError('Output file \'{0}\' exists.'.format(presumed_imagename))
+            else:
+                # delete existing images
+                _remove_image(presumed_imagename)
+                for _suffix in associate_suffixes:
+                    _remove_image(outfile + _suffix)
     
         # parse parameter for spectral axis 
         imnchan, imstart, imwidth = _configure_spectral_axis(mode, nchan, start, width, restfreq)
@@ -122,8 +147,8 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
     except Exception as e:
         #print 'Exception : ' + str(e)
         casalog.post('Exception from task_tsdimaging : ' + str(e), "SEVERE", origin=origin)
-        if imager != None:
-            imager.deleteTools() 
+#         if imager != None:
+#             imager.deleteTools() 
 
         larg = list(e.args)
         larg[0] = 'Exception from task_tsdimaging : ' + str(larg[0])
@@ -134,6 +159,7 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
         ## (8) Close tools.
         
         casalog.post('*** Cleaning up tools ***', origin=origin)
-        imager.deleteTools()
+        if imager is not None:
+            imager.deleteTools()
         
 
