@@ -200,7 +200,16 @@ DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant) :
     Int corrStep = (nCorrOrig > 2 ? 3 : 1); // step for p-hands
 
     SolveDataBuffer& s0 ( sdbs(0) );
-    nElem_ =  1 + max( max(s0.antenna1()), max(s0.antenna2())) ;
+    for (Int ibuf=0; ibuf != sdbs.nSDB(); ibuf++) {
+        SolveDataBuffer& s ( sdbs(ibuf) );
+        for (Int irow=0; irow!=s.nRows(); irow++) {
+            Int a1(s.antenna1()(irow)), a2(s.antenna2()(irow));
+            allActiveAntennas_.insert(a1);
+            allActiveAntennas_.insert(a2);
+        }
+    }
+
+    nElem_ =  1 + *(allActiveAntennas_.rbegin()) ;
     //
 
     IPosition aggregateDim(2, nCorr_, nElem_);
@@ -222,7 +231,9 @@ DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant) :
     if (sdbs.nSDB() < 2) {
         throw(AipsError("Not enough sdbs!"));
     }
-        
+
+
+    
     IPosition paddedDataSize(4, nCorr_, nElem_, nPadT_, nPadChan_);
     Vpad_.resize(paddedDataSize);
 
@@ -580,7 +591,10 @@ public:
     }
     size_t
     get_max_antenna_index() {
-        return max( max(sdbs(0).antenna1()), max(sdbs(0).antenna2())) ;
+        if (activeCorr < 0) {
+            throw(AipsError("Correlation out of range."));
+        }
+        return *(activeAntennas.find(activeCorr)->second.rbegin());
     }
     // Sometimes there is Int, sometimes size_t; the following ones are casacore::Int.
     Int
@@ -1417,6 +1431,9 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
     Double dt0 = (ref_time - sdbs(0).time()(0));
     Double df0 = ref_freq - sdbs.freqs()(0);
 
+    logSink() << "Solving for fringes for spw=" << currSpw() << " at t="
+              << MVTime(refTime()/C::day).string(MVTime::YMD,7)  << LogIO::POST;
+    
     // ROMSSpWindowColumns are a casacore type!
     // http://casacore.github.io/casacore/classcasacore_1_1ROMSSpWindowColumns.html
 

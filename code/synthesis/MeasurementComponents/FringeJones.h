@@ -124,6 +124,7 @@ private:
     casacore::Matrix<casacore::Float> param_;
     casacore::Matrix<casacore::Bool> flag_; //?
     std::map< casacore::Int, std::set<casacore::Int> > activeAntennas_;
+    std::set<casacore::Int> allActiveAntennas_;
 public:
     // A lot of assumptions heree that assume only one spectral window,
     // which is unfortunate since there may be more.
