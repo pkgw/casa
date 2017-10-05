@@ -421,20 +421,32 @@ class sdimaging_test0(sdimaging_unittest_base):
         self.run_exception_case(task_param, msg)
 
     def test010(self):
-        """Test010: Bad phasecenter reference (J2000 is assumed)"""
-        # default for unknown direction frame is J2000 
-        refimage=self.outfile+'2'
-        sdimaging(infiles=self.rawfile,outfile=self.outfile,intent='',cell=self.cell,imsize=self.imsize,phasecenter=self.phasecenter.replace('J2000','J3000'),minweight=self.minweight0)
-        sdimaging(infiles=self.rawfile,outfile=refimage,intent='',cell=self.cell,imsize=self.imsize,phasecenter=self.phasecenter,minweight=self.minweight0)
-        tb.open(self.outfile)
-        chunk=tb.getcol('map')
-        tb.close()
-        tb.open(refimage)
-        refchunk=tb.getcol('map')
-        tb.close()
-        ret=all(chunk.flatten()==refchunk.flatten())
-        #print ret
-        self.assertTrue(ret)
+        """Test010: Bad phasecenter reference (CHANGED: raise an error)"""
+        # older sdimaging was so kind that it assumed J2000 when unrecognized direction frame was given
+        # in the new tsdimaging raises an error in such case
+        false_phasecenter = self.phasecenter.replace('J2000', 'J3000')
+        task_param = {'infiles': self.rawfile,
+                      'outfile': self.outfile,
+                      'intent': '',
+                      'cell': self.cell,
+                      'imsize': self.imsize,
+                      'phasecenter': false_phasecenter,
+                      'minweight': self.minweight0}
+        msg = 'Invalid Image Parameter set : Error in converting \'{0}\' to MDirection.'.format(false_phasecenter)
+        self.run_exception_case(task_param, msg)
+#         # default for unknown direction frame is J2000 
+#         refimage=self.outfile+'2'
+#         sdimaging(infiles=self.rawfile,outfile=self.outfile,intent='',cell=self.cell,imsize=self.imsize,phasecenter=self.phasecenter.replace('J2000','J3000'),minweight=self.minweight0)
+#         sdimaging(infiles=self.rawfile,outfile=refimage,intent='',cell=self.cell,imsize=self.imsize,phasecenter=self.phasecenter,minweight=self.minweight0)
+#         tb.open(self.outfile)
+#         chunk=tb.getcol('map')
+#         tb.close()
+#         tb.open(refimage)
+#         refchunk=tb.getcol('map')
+#         tb.close()
+#         ret=all(chunk.flatten()==refchunk.flatten())
+#         #print ret
+#         self.assertTrue(ret)
 
     def test011(self):
         """Test011: Bad pointingcolumn name"""
