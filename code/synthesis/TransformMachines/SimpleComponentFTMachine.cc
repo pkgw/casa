@@ -318,7 +318,7 @@ void SimpleComponentFTMachine::get(VisBuffer& vb, const ComponentList& compList,
   }
   Bool isCopy;
   Complex *modData=modelData.getStorage(isCopy);
-  MDirection dataMDir=vb.phaseCenter();
+  MDirection dataMDir=vb.phaseCenter(phaseCenterTime_p);
 
 #pragma omp parallel default(none)  firstprivate(npart, npol, nChan, modData, corrType, nRowp,  invLambda, frequency, poltype) shared(startrow, compp, uvwcomps, dphasecomps) num_threads(npart)
   {

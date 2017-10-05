@@ -50,7 +50,7 @@ using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
 
 //---------------------------------------------------------------------- 
-  ComponentFTMachine::ComponentFTMachine() : numthreads_p(-1)
+  ComponentFTMachine::ComponentFTMachine() : numthreads_p(-1), phaseCenterTime_p(-1.0)
 {
 }
 
@@ -98,7 +98,7 @@ void ComponentFTMachine::rotateUVW(Matrix<Double>& uvw, Vector<Double>& dphase,
 			   vb.msColumns().timeMeas()(0).getRef())), 
 		   vb.msColumns().antenna().positionMeas()(0));
 
-  UVWMachine uvwMachine(mDesired, vb.phaseCenter(), mFrame,
+  UVWMachine uvwMachine(mDesired, vb.phaseCenter(phaseCenterTime_p), mFrame,
 			false, true);
 
   // Now we convert all rows and also calculate the
@@ -130,7 +130,7 @@ void ComponentFTMachine::rotateUVW(Double*& uvw, Double*& dphase, const Int nrow
   MeasFrame mFrame((MEpoch(Quantity(vb.time()(0), vb.msColumns().timeQuant()(0).getUnit()), vb.msColumns().timeMeas()(0).getRef())), vb.msColumns().antenna().positionMeas()(0));
 
 
-  UVWMachine uvwMachine(mDesired, vb.phaseCenter(), mFrame,
+  UVWMachine uvwMachine(mDesired, vb.phaseCenter(phaseCenterTime_p), mFrame,
 			false, true);
 
   // Now we convert all rows and also calculate the

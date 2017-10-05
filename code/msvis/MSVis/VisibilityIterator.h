@@ -537,6 +537,7 @@ public:
   casacore::Vector<casacore::Double>& lsrFrequency(casacore::Vector<casacore::Double>& freq) const;
   // Return the current phase center as an MDirection
   const casacore::MDirection& phaseCenter() const;
+  const casacore::MDirection phaseCenter(const casacore::Int fieldid, const casacore::Double time=-1.0) const;
   // Return frame for polarization (returns PolFrame enum)
   casacore::Int polFrame() const;
   // Return the correlation type (returns casacore::Stokes enums)

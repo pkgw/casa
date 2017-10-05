@@ -39,7 +39,6 @@ ImageAnalysis/AntennaResponses.cc
 ImageAnalysis/CasaImageBeamSet.cc
 ImageAnalysis/ComplexImageRegridder.cc
 ImageAnalysis/ComponentImager.cc
-ImageAnalysis/ImageAnalysis.cc
 ImageAnalysis/ImageCollapserData.cc
 ImageAnalysis/ImageFactory2.cc
 ImageAnalysis/ImageFFT.cc
@@ -136,8 +135,6 @@ install (FILES
 	ImageAnalysis/Image1DSmoother.tcc
 	ImageAnalysis/Image2DConvolver.h
 	ImageAnalysis/Image2DConvolver.tcc
-	ImageAnalysis/ImageAnalysis.h
-	ImageAnalysis/ImageAnalysis2.tcc
     ImageAnalysis/ImageBoxcarSmoother.h
     ImageAnalysis/ImageBoxcarSmoother.tcc
 	ImageAnalysis/ImageCollapser.h
@@ -258,13 +255,10 @@ casa_add_demo( imageanalysis ImageAnalysis/test/dImageHistograms.cc )
 message ("WARNING: ImageAnalysis/test/dImageMoments.cc not building: repair or remove")
 #casa_add_demo( imageanalysis ImageAnalysis/test/dImageMoments.cc )
 
-casa_add_assay( imageanalysis ImageAnalysis/test/tImageAnalysis.cc )
-casa_add_assay( imageanalysis ImageAnalysis/test/tImageAnalysis2.cc )
 casa_add_assay( imageanalysis ImageAnalysis/test/tImageConvolver.cc )
 casa_add_assay( imageanalysis ImageAnalysis/test/tImageDecomposer.cc )
 casa_add_assay( imageanalysis ImageAnalysis/test/tImageFit1D.cc )
 casa_add_assay( imageanalysis ImageAnalysis/test/tImageFFT.cc )
-casa_add_assay( imageanalysis ImageAnalysis/test/tImageFitter.cc )
 casa_add_assay( imageanalysis ImageAnalysis/test/tImageMetaData.cc )
 casa_add_assay( imageanalysis ImageAnalysis/test/tImageMoments.cc )
 casa_add_assay( imageanalysis ImageAnalysis/test/tImagePolarimetry.cc )
@@ -304,5 +298,6 @@ casa_add_unit_test ( MODULES imageanalysis SOURCES ImageAnalysis/test/tCasaImage
 casa_add_unit_test ( MODULES imageanalysis SOURCES ImageAnalysis/test/tComponentImager.cc )
 casa_add_unit_test ( MODULES imageanalysis SOURCES ImageAnalysis/test/tImage2DConvolver.cc )
 casa_add_unit_test ( MODULES imageanalysis SOURCES ImageAnalysis/test/tImageCollapser.cc )
+casa_add_unit_test ( MODULES imageanalysis SOURCES ImageAnalysis/test/tImageFitter.cc )
 casa_add_unit_test ( MODULES imageanalysis SOURCES ImageAnalysis/test/tImageStatsCalculator.cc )
 

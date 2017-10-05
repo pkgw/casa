@@ -116,6 +116,21 @@ public:
 		throw BadTryXformException();
 		return Try<std::string>(pass);
 	};
+
+	class Foo {
+	public:
+		Foo(int i) : m_i(i) {}
+		int m_i;
+		bool operator==(const Foo& f) const {
+			return m_i == f.m_i;
+		}
+	};
+
+	struct BadRecoveryException : public std::runtime_error {
+		BadRecoveryException()
+			: std::runtime_error("BadRecoveryException")
+			{}
+	};
 };
 
 const std::string TryTest::fail = "fail";
@@ -396,7 +411,35 @@ TEST_F(TryTest, Lift) {
 	auto liftedIsEven = Try<int>::lift(isEven);
 	Try<int> a(20);
 	EXPECT_TRUE(liftedIsEven(a).getOrElse_(false));
-	EXPECT_FALSE(
-		liftedIsEven(a.map([](const int& i){ return i + 1; })).
-		getOrElse_(true));
+	auto liftedPlusOne = Try<int>::lift([](const int &i){ return i + 1; });
+	EXPECT_FALSE(liftedIsEven(liftedPlusOne(a)).getOrElse_(true));
+	// lift a function that gets deleted, it should be copied into the lifted
+	// function
+	std::function<Try<int>(const Try<int>&)> lf;
+	{
+		auto i2 = [](const int& i){ return i + 2; };
+		lf = Try<int>::lift(i2);
+	}
+	EXPECT_EQ(lf(a), a.map([](const int &i){ return i + 2; }));
+}
+
+TEST_F(TryTest, NoDfltCtor) {
+	Foo f(88);
+	Foo g(88);
+	EXPECT_EQ(Try<Foo>(f).get(), g);
+}
+
+TEST_F(TryTest, RecoverWith) {
+	Try<int> a(20);
+	Try<int> b(std::make_exception_ptr(BadIntException()));
+	int altValue = 40;
+	auto alt = [&altValue](const std::exception_ptr &) { return altValue; };
+	EXPECT_EQ(a.recoverWith(alt), a);
+	EXPECT_EQ(b.recoverWith(alt), Try<int>(altValue));
+	EXPECT_THROW(
+		b.recoverWith([](const std::exception_ptr &) {
+				throw BadRecoveryException();
+				return 0;
+			}).get(),
+		BadRecoveryException);
 }
