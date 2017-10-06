@@ -838,7 +838,7 @@ class plotms_test_pageheader(plotms_test_base):
                      antenna='0&2',headeritems='filename,telescope,projid,observer',
                      showgui=False, highres=True)
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_png, 22000)
+        self.checkPlotfile(self.plotfile_png, 21000)
         self.checkPageHeader(expected_rows=2)
 
     def test_pageheader_items02(self):
@@ -850,7 +850,7 @@ class plotms_test_pageheader(plotms_test_base):
                      antenna='0&2',headeritems='targdir,telescope,targname,observer,ycolumn',
                      showgui=False, highres=True)
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_png, 26000)
+        self.checkPlotfile(self.plotfile_png, 25000)
         self.checkPageHeader(expected_rows=3)
 
 # ------------------------------------------------------------------------------
