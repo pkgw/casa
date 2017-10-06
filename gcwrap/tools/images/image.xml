@@ -1787,11 +1787,12 @@ ia.done()
             <value></value>
         </param>
         <param type="intArray"  name="shape">
-            <description>Shape of image.  Must be specified and have exactly four elements.</description>
-            <value>0</value>
+            <description>Shape of image.  Must be specified and have either two, three, or four elements.</description>
+            <value/>
         </param>
-        <param type="record"  name="cl">
-            <description>Component list. Must be specified</description>
+        <param type="any" name="cl">
+            <any type="variant" limittypes="string record"/>
+            <description>Component list as a dictionary or name of component list table. Must be specified</description>
             <value/>
         </param>
         <param type="record"  name="csys">
@@ -1878,7 +1879,6 @@ ia.done()
         # be sure to close the image tools when done with them
         ia.done()
         im2.done()
-        
     </example>
 </method>
  

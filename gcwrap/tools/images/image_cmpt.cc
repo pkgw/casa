@@ -101,6 +101,8 @@
 #include <imageanalysis/ImageAnalysis/SubImageFactory.h>
 #include <imageanalysis/ImageAnalysis/TwoPointCorrelator.h>
 
+#include <tools/componentlist_cmpt.h>
+
 #include <stdcasa/version.h>
 
 #include <casa/namespace.h>
@@ -2032,14 +2034,31 @@ bool image::fromascii(
 }
 
 bool image::fromcomplist(
-    const string& outfile, const vector<int>& shape, const record& cl,
+    const string& outfile, const vector<int>& shape, const variant& cl,
     const record& csys, bool overwrite, bool log, bool cache
 ) {
     try {
         _log << _ORIGIN;
         _reset();
         std::unique_ptr<Record> coordinates(toRecord(csys));
-        std::unique_ptr<Record> mycl(toRecord(cl));
+        auto myType = cl.type();
+        std::unique_ptr<Record> mycl;
+        if (myType == variant::RECORD) {
+            std::unique_ptr<variant> clone(cl.clone());
+            mycl.reset(toRecord(clone->asRecord()));
+        }
+        else if (myType == variant::STRING) {
+            auto myname = cl.toString();
+            ThrowIf(myname.empty(), "Component list table name cannot be empty");
+            componentlist cltool;
+            cltool.open(myname, True);
+            std::unique_ptr<record> myrec(cltool.torecord());
+            mycl.reset(toRecord(*myrec));
+            cltool.done();
+        }
+        else {
+            ThrowCc("Unsupported type for parameter cl");
+        }
         _imageF = ImageFactory::createComponentListImage(
             outfile, *mycl, shape, *coordinates, overwrite, log, cache
         );

@@ -72,7 +72,7 @@ from __main__ import *
 import unittest
 import numpy
 
-datapath=os.environ.get('CASAPATH').split()[0]+'/data/regression/unittest/ia_fromcomponentlist/'
+datapath = os.environ.get('CASAPATH').split()[0]+'/data/regression/unittest/ia_fromcomponentlist/'
 
 class componentlistimage_test(unittest.TestCase):
     
@@ -289,8 +289,15 @@ class componentlistimage_test(unittest.TestCase):
         mycl.addcomponent(flux=flux, dir=dir0,shape=pt)
         mycl.addcomponent(flux=flux, dir=dir0,shape=pt)
         shape = [20, 20]
+        clname = "jj.cl"
+        mycl.rename(clname)
         myia.fromcomplist("", shape=shape, cl=mycl.torecord())
         mycl.done()
+        stats = myia.statistics()
+        myia.done()
+        self.assertEqual(stats['max'], 2)
+        # test opening by name
+        myia.fromcomplist("", shape=shape, cl=clname)
         stats = myia.statistics()
         myia.done()
         self.assertEqual(stats['max'], 2)
