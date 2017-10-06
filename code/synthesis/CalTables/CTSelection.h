@@ -180,8 +180,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     { return msSelection_p->getFieldList(ms); }
 
     // Accessor for the list of the specified time range(s) as the
-    // start and end MJD values.  The time ranges are stored as columns,
-    // i.e. the output casacore::Matrix is 2 x n_ranges.
+    // start and end MJD values.  The time ranges are stored as columns.
+    // Change 5/21/17: returns [startTime, stopTime, dT] CAS-10142
     inline casacore::Matrix<casacore::Double> getTimeList(
             const casacore::MeasurementSet* ms=NULL)
     { return msSelection_p->getTimeList(ms); }

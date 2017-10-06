@@ -185,9 +185,10 @@ TEST( CTSelectionTest, CTSelection2 ) {
   // Time selection expression:
   //  this should pick 3 timestamps in obsid=1, scan=7
   String timesel("2012/01/06/12:06:15.0~12:06:45");
-  Vector<Double> timebounds(2);
+  Vector<Double> timebounds(3);
   timebounds(0) = 375.0+refTime;
   timebounds(1) = 405.0+refTime;
+  timebounds(2) = 0.0; // dT
   // Spw selection
   Vector<Int> spwids(2);  
   spwids(0)=1; spwids(1)=3;

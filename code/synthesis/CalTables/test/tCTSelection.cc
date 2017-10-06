@@ -277,10 +277,11 @@ void doTest2 (Bool verbose=false) {
 
   // A time selection expression:
   //  this should pick 3 timestamps in obsid=1, scan=7
-  String timesel("2012/01/06/12:06:15.0~12:06:45");
-  Vector<Double> timebounds(2);
+  String timesel("2012/01/06/12:06:15.0~2012/01/06/12:06:45");
+  Vector<Double> timebounds(3);
   timebounds(0)=375.0+refTime;
   timebounds(1)=405.0+refTime;
+  timebounds(2)=0.0; // integration time
 
   // Some spws to select
   Vector<Int> spwids(2);  
@@ -326,13 +327,13 @@ void doTest2 (Bool verbose=false) {
     cout << "  Obs list: " << cts.getObservationList() << endl;
     cout << "  Scan list: " << cts.getScanList() << endl;
     cout.precision(15);
-    Vector<Double> parsedTimeBounds=Vector<Double>(cts.getTimeList()); 
-    cout << "  Time bounds: " << parsedTimeBounds
-	 << " [" << parsedTimeBounds-refTime << "]" << endl
-	 << "  (expecting: " << timebounds << " [" << timebounds-refTime << "] )" 
-     << endl
-     << "  (diff = " << parsedTimeBounds-timebounds << ")"
-	 << endl;
+	casacore::Vector<Double> parsedTimeBounds=Vector<Double>(cts.getTimeList()); 
+    cout << "  Time bounds: " << parsedTimeBounds  
+	     << " [" << parsedTimeBounds(Slice(0,2,1))-refTime << "]" << endl;
+	cout << "    Expecting: " << timebounds << " ["  
+		 << timebounds(Slice(0,2,1))-refTime << "]" << endl;
+    cout << "    (time diff = " << parsedTimeBounds-timebounds << ")" 
+		 << endl;
     cout << "  Spw list: " << cts.getSpwList() << endl;
   }
   AlwaysAssert( allEQ(cts.getObservationList(),obsids), AipsError );  
