@@ -114,6 +114,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   Bool SynthesisImagerVi2::selectData(const SynthesisParamsSelect& selpars){
  LogIO os( LogOrigin("SynthesisImagerVi2","selectData",WHERE) );
+ Bool retval=True;
 
     try
       {
@@ -250,8 +251,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         vi::FrequencySelectionUsingFrame channelSelector(selFreqFrame_p);
 	///temporary variable as we carry that for tunechunk
 		
-		
+	Bool selectionValid=False;
     	  for(uInt k=0; k < nSelections; ++k){
+	    Bool thisSpwSelValid=False;
 	    //The getChanfreqList is wrong for beg and end..going round that too.
 	    Vector<Double> freqies=ROMSColumns(*mss_p[mss_p.nelements()-1]).spectralWindow().chanFreq()(Int(chanlist(k,0)));
 	    Vector<Double> chanwidth=ROMSColumns(*mss_p[mss_p.nelements()-1]).spectralWindow().chanWidth()(Int(chanlist(k,0)));
@@ -275,21 +277,30 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           //cerr << "begin " << lowfreq << "  " << topfreq << endl; 
 	      //vi::VisibilityIterator2 tmpvi(mss_p, vi::SortColumns(), false); 
 	      //VisBufferUtil::getFreqRangeFromRange(lowfreq, topfreq,  freqFrame, lowfreq,  topfreq, tmpvi, selFreqFrame_p);
-		  //cerr << "orig low-top freq " << lowfreq << "  " << topfreq << endl; 
-			MSUtil::getFreqRangeInSpw( lowfreq,
+		  if(MSUtil::getFreqRangeInSpw( lowfreq,
 				  topfreq, Vector<Int>(1,chanlist(k,0)), Vector<Int>(1,chanlist(k,1)),
 				  Vector<Int>(1, chanlist(k,2)-chanlist(k,1)+1),
 				 *mss_p[mss_p.nelements()-1] , 
 				  selFreqFrame_p,
-				  fieldList(0), False);
-			//cerr << "new low-top freq " << lowfreq << "  " << topfreq << endl; 
+						 fieldList, False))
+		    {
+		      selectionValid=True;
+		      thisSpwSelValid=True;
+		    }
+		    
+		    
 	    }
 	    
-	    andFreqSelection(mss_p.nelements()-1, Int(freqList(k,0)), lowfreq, topfreq, selFreqFrame_p);
-		andChanSelection(mss_p.nelements()-1, Int(chanlist(k,0)), Int(chanlist(k,1)),Int(chanlist(k,2)));
+	    if(thisSpwSelValid || ignoreframe){
+	      andFreqSelection(mss_p.nelements()-1, Int(freqList(k,0)), lowfreq, topfreq, selFreqFrame_p);
+	      andChanSelection(mss_p.nelements()-1, Int(chanlist(k,0)), Int(chanlist(k,1)),Int(chanlist(k,2)));
+	    }
           }
-	  
-    	  //fselections_p->add(channelSelector);
+	  if(! (selectionValid && !ignoreframe)){
+	    os << "Did not match spw selection in the selected ms " << LogIO::WARN << LogIO::POST;
+	    retval=False;
+	  }
+	    //fselections_p->add(channelSelector);
           //////////////////////////////////
       }
       else{
@@ -349,7 +360,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	throw( AipsError("Error in selectData() : "+x.getMesg()) );
       }
 
-    return true;
+    return retval;
 
 
 
@@ -369,20 +380,22 @@ void SynthesisImagerVi2::andChanSelection(const Int msId, const Int spwId, const
 	if(chansel(1)== -1)
 		chansel(1)=startchan;
 	if(chansel(1) >= startchan){
-		if(nchan > (chansel(1)-startchan+1+chansel(0)))
+	  if(nchan > (chansel(1)-startchan+chansel(0))){
 			chansel(0)=nchan;
-		else
-			chansel(0)=chansel(1)-startchan+1+chansel(0);
-		chansel(1)=startchan;
+	  }
+	  else{
+			chansel(0)=chansel(1)-startchan+chansel(0);
+	  }
+	  chansel(1)=startchan;
 	}
 	else{
-		if((chansel(0) -(startchan - chansel(1))) < nchan){	
-			chansel(0)=nchan+startchan-chansel(1)+1;
+		if((chansel(0) -(startchan - chansel(1)+1)) < nchan){	
+		  chansel(0)=nchan+(startchan-chansel(1));
 		}
 	}
 	spwsel[spwId]=chansel;
 	channelSelections_p[msId]=spwsel;
-	//cerr << "chansel "<< channelSelections_p << endl;
+	//	cerr << "chansel "<< channelSelections_p << endl;
 	
 }
   void SynthesisImagerVi2::andFreqSelection(const Int msId, const Int spwId,  const Double freqBeg, const Double freqEnd, const MFrequency::Types frame){
@@ -583,7 +596,6 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 			       const Quantity& filterbmin, const Quantity& filterbpa   )
   {
     LogIO os(LogOrigin("SynthesisImagerVi2", "weight()", WHERE));
-
        try {
     	//Int nx=itsMaxShape[0];
     	//Int ny=itsMaxShape[1];
@@ -602,6 +614,8 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
     	  imwgt_p=VisImagingWeight("radial");
       }
       else{
+	vi_p->originChunks();
+	vi_p->origin();
     	  if(!imageDefined_p)
     		  throw(AipsError("Need to define image"));
     	  Int nx=itsMaxShape[0];

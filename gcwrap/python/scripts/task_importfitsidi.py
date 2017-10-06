@@ -3,7 +3,7 @@ import shutil
 from taskinit import casalog, mstool, tbtool, write_history
 import numpy as np
 
-def importfitsidi(fitsidifile,vis,constobsid=None,scanreindexgap_s=None):
+def importfitsidi(fitsidifile,vis,constobsid=None,scanreindexgap_s=None,specframe=None):
 	"""Convert FITS-IDI visibility file into a CASA visibility file (MS).
 
 	Keyword arguments:
@@ -17,7 +17,16 @@ def importfitsidi(fitsidifile,vis,constobsid=None,scanreindexgap_s=None):
 
 	scanreindexgap_s --  if > 0., a new scan is started whenever the gap between two
                 integrations is > the given value (seconds) or when a new field starts
+                or when the ARRAY_ID changes.
                 default = 0. (no reindexing)
+
+        specframe -- this frame will be used to set the spectral reference frame
+                for all spectral windows in the output MS
+                default = GEO (geocentric), other options: TOPO, LSRK, BARY
+                NOTE: if specframe is set to TOPO, the reference location will be taken from
+                the Observatories table in the CASA data repository for the given name of
+                the observatory. You can edit that table and add new rows.   
+
 	"""
 
 	#Python script
@@ -27,6 +36,16 @@ def importfitsidi(fitsidifile,vis,constobsid=None,scanreindexgap_s=None):
 		casalog.post("")
                 myms = mstool()
 		mytb = tbtool()
+
+                if type(specframe)==str and not specframe=='':
+                        myspecframe=specframe.upper()
+                else:
+                        myspecframe='GEO'
+
+                refframes = {'REST': 0, 'LSRK': 1, 'LSRD': 2, 'BARY': 3, 'GEO': 4, 'TOPO': 5} 
+                if not refframes.has_key(myspecframe):
+                        raise Exception, 'Value '+myspecframe+' of parameter specframe invalid. Possible values are REST, LSRK, LSRD, BARY, GEO, TOPO'
+
 		if(type(fitsidifile)==str):
 			casalog.post('### Reading file '+fitsidifile, 'INFO')
 			myms.fromfitsidi(vis,fitsidifile)
@@ -121,6 +140,16 @@ def importfitsidi(fitsidifile,vis,constobsid=None,scanreindexgap_s=None):
 
 			mytb.putcol('SCAN_NUMBER', scannumbers)	
 			mytb.close()
+
+                if refframes.has_key(myspecframe):
+                        casalog.post('Setting reference frame for all spectral windows to '+myspecframe, 'INFO')
+                        if myspecframe == 'TOPO':
+                                casalog.post('NOTE: reference position for TOPO frame will be the observatory location', 'WARN')
+                        mytb.open(vis+'/SPECTRAL_WINDOW', nomodify=False)
+                        refcol = mytb.getcol('MEAS_FREQ_REF')
+                        refcol = [refframes[myspecframe]]*len(refcol)
+                        mytb.putcol('MEAS_FREQ_REF', refcol)
+                        mytb.close()
 		
 	        # write history
                 try:

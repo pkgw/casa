@@ -714,7 +714,16 @@ ViImplementation2*
 PolAverageTVILayerFactory::createInstance(ViImplementation2* vii0) const {
   // Make the PolAverageTVI, using supplied ViImplementation2, and return it
   PolAverageVi2Factory factory(configuration_p, vii0);
-  return factory.createVi();
+  ViImplementation2 *vii = nullptr;
+  try {
+    vii = factory.createVi();
+  } catch (...) {
+    if (vii0) {
+      delete vii0;
+    }
+    throw;
+  }
+  return vii;
 }
 } // # NAMESPACE VI - END
 } // #NAMESPACE CASA - END

@@ -41,7 +41,7 @@
 
 
 	
-#include <Tag.h>
+#include <ArrayTimeInterval.h>
 	
 
 	
@@ -49,7 +49,7 @@
 	
 
 	
-#include <ArrayTimeInterval.h>
+#include <Tag.h>
 	
 
 
@@ -105,7 +105,7 @@ class CalDeviceRow;
  * Calibration device characteristics. This table is not part of the   Calibration Data Model but describes the actual observations; it refers to   the amplitude calibration device which includes the hot loads.     Calibration device properties are assumed independent of frequency   throughout a spectral window.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of CalDevice </CAPTION>
@@ -154,7 +154,7 @@ class CalDeviceRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numCalload </TD> 
+ * <TD> numCalload (\f$N_{Call}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of calibration loads. </TD>
@@ -172,35 +172,35 @@ class CalDeviceRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> numReceptor </TD> 
+ * <TD> numReceptor(\f$N_{Rece}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of receptors. </TD>
  * </TR>
 	
  * <TR>
- * <TD> calEff </TD> 
+ * <TD> calEff</TD> 
  * <TD> vector<vector<float > > </TD>
  * <TD>  numReceptor, numCalload  </TD>
  * <TD>&nbsp; the calibration efficiencies (one value per receptor per load). </TD>
  * </TR>
 	
  * <TR>
- * <TD> noiseCal </TD> 
+ * <TD> noiseCal</TD> 
  * <TD> vector<double > </TD>
  * <TD>  numCalload  </TD>
  * <TD>&nbsp; the equivalent temperatures of the of the noise sources used (one value per load). </TD>
  * </TR>
 	
  * <TR>
- * <TD> coupledNoiseCal </TD> 
+ * <TD> coupledNoiseCal</TD> 
  * <TD> vector<vector<float > > </TD>
  * <TD>  numReceptor, numCalload  </TD>
  * <TD>&nbsp;  </TD>
  * </TR>
 	
  * <TR>
- * <TD> temperatureLoad </TD> 
+ * <TD> temperatureLoad</TD> 
  * <TD> vector<Temperature > </TD>
  * <TD>  numCalload  </TD>
  * <TD>&nbsp; the physical temperatures of the loads for a black body calibration source (one value per load). </TD>
@@ -502,6 +502,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 

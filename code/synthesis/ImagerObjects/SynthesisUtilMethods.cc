@@ -1859,8 +1859,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   CoordinateSystem SynthesisParamsImage::buildCoordinateSystem(vi::VisibilityIterator2& vi2, const std::map<Int, std::map<Int, Vector<Int> > >& chansel, Block<const MeasurementSet *> mss) 
 
   {
-    
-    
     //vi2.getImpl()->spectralWindows( spwids );
     //The above is not right
     //////////// ///Kludge to find all spw selected
@@ -1882,65 +1880,65 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	Int j=0;
 	for (auto forMS0=chansel.begin(); forMS0 !=chansel.end(); ++forMS0, ++j){
     //auto forMS0=chansel.find(0);
-    map<Int, Vector<Int> > spwsels=forMS0->second;
-	Int nspws=spwsels.size();
-	Vector<Int> spwids(nspws);
-	Vector<Int> nChannels(nspws);
-	Vector<Int> firstChannels(nspws);
-	//Vector<Int> channelIncrement(nspws);
-	
-	Int k=0;
-	for (auto it=spwsels.begin(); it != spwsels.end(); ++it, ++k){
-		spwids[k]=it->first;
-		nChannels[k]=(it->second)[0];
-		firstChannels[k]=(it->second)[1];
-	}
-	if(j==0)
-	  spwids0=spwids;
-	// std::tie (spwids, nChannels, firstChannels, channelIncrement)=(static_cast<vi::VisibilityIteratorImpl2 * >(vi2.getImpl()))->getChannelInformation(false);
-  
-    //cerr << "SPWIDS "<< spwids <<  "  nchan " << nChannels << " firstchan " << firstChannels << endl;
-
-    //////////////////This returns junk for multiple ms CAS-9994..so kludged up along with spw kludge
-    //Vector<Int> flds;
-    //vi2.getImpl()->fieldIds( flds );
-    //AlwaysAssert( flds.nelements()>0 , AipsError );
-    //fld = flds[0];
-    Double freqmin=0, freqmax=0;
-    freqFrameValid=(freqFrame != MFrequency::REST );
-
-    //MFrequency::Types dataFrame=(MFrequency::Types)vi2.subtableColumns().spectralWindow().measFreqRef()(spwids[0]);
-    MFrequency::Types dataFrame=(MFrequency::Types)ROMSColumns(*mss[j]).spectralWindow().measFreqRef()(spwids[0]);
-
-	Double datafstart, datafend;
-    //VisBufferUtil::getFreqRange(datafstart, datafend, vi2, dataFrame );
-	//cerr << std::setprecision(12) << "before " << datafstart << "   " << datafend << endl;
-		MSUtil::getFreqRangeInSpw( datafstart, datafend, spwids, firstChannels, nChannels,*mss[j], dataFrame, fld, True);
-	//	cerr << "after " << datafstart << "   " << datafend << endl;
-		if(datafstart > datafend)
-			throw(AipsError("spw selection failed")); 
-		//cerr << "datafstart " << datafstart << " end " << datafend << endl;
-
-    if (mode=="cubedata") {
-		
-       freqmin = datafstart;
-       freqmax = datafend;
-    }
-    else {
-
-       //VisBufferUtil::getFreqRange(freqmin,freqmax, vi2, freqFrameValid? freqFrame:MFrequency::REST );
-	   //cerr << "before " << freqmin << "   " << freqmax << endl;
-		MSUtil::getFreqRangeInSpw( freqmin, freqmax, spwids, firstChannels,
-				  nChannels,*mss[j], freqFrameValid? freqFrame:MFrequency::REST , fld, True);
-		//cerr << "after " << freqmin << "   " << freqmax << endl;
-    }
-    if(freqmin < gfreqmin) gfreqmin=freqmin;
-	if(freqmax > gfreqmax) gfreqmax=freqmax;
-	if(datafstart < gdatafstart) gdatafstart=datafstart;
-	if(datafend > gdatafend) gdatafend=datafend;
+	  map<Int, Vector<Int> > spwsels=forMS0->second;
+	  Int nspws=spwsels.size();
+	  Vector<Int> spwids(nspws);
+	  Vector<Int> nChannels(nspws);
+	  Vector<Int> firstChannels(nspws);
+	  //Vector<Int> channelIncrement(nspws);
+	  
+	  Int k=0;
+	  for (auto it=spwsels.begin(); it != spwsels.end(); ++it, ++k){
+	    spwids[k]=it->first;
+	    nChannels[k]=(it->second)[0];
+	    firstChannels[k]=(it->second)[1];
+	  }
+	  if(j==0)
+	    spwids0=spwids;
+	  // std::tie (spwids, nChannels, firstChannels, channelIncrement)=(static_cast<vi::VisibilityIteratorImpl2 * >(vi2.getImpl()))->getChannelInformation(false);
+	  
+	  //cerr << "SPWIDS "<< spwids <<  "  nchan " << nChannels << " firstchan " << firstChannels << endl;
+	  
+	  //////////////////This returns junk for multiple ms CAS-9994..so kludged up along with spw kludge
+	  //Vector<Int> flds;
+	  //vi2.getImpl()->fieldIds( flds );
+	  //AlwaysAssert( flds.nelements()>0 , AipsError );
+	  //fld = flds[0];
+	  Double freqmin=0, freqmax=0;
+	  freqFrameValid=(freqFrame != MFrequency::REST );
+	  
+	  //MFrequency::Types dataFrame=(MFrequency::Types)vi2.subtableColumns().spectralWindow().measFreqRef()(spwids[0]);
+	  MFrequency::Types dataFrame=(MFrequency::Types)ROMSColumns(*mss[j]).spectralWindow().measFreqRef()(spwids[0]);
+	  
+	  Double datafstart, datafend;
+	  //VisBufferUtil::getFreqRange(datafstart, datafend, vi2, dataFrame );
+	  //cerr << std::setprecision(12) << "before " << datafstart << "   " << datafend << endl;
+	  Bool status=MSUtil::getFreqRangeInSpw( datafstart, datafend, spwids, firstChannels, nChannels,*mss[j], dataFrame,  True);
+	  //cerr << "after " << datafstart << "   " << datafend << endl;
+	  if((datafstart > datafend) || !status)
+	    throw(AipsError("spw selection failed")); 
+	  //cerr << "datafstart " << datafstart << " end " << datafend << endl;
+	  
+	  if (mode=="cubedata") {
+	    
+	    freqmin = datafstart;
+	    freqmax = datafend;
+	  }
+	  else {
+	    
+	    //VisBufferUtil::getFreqRange(freqmin,freqmax, vi2, freqFrameValid? freqFrame:MFrequency::REST );
+	    //cerr << "before " << freqmin << "   " << freqmax << endl;
+	    MSUtil::getFreqRangeInSpw( freqmin, freqmax, spwids, firstChannels,
+				       nChannels,*mss[j], freqFrameValid? freqFrame:MFrequency::REST , True);
+	    //cerr << "after " << freqmin << "   " << freqmax << endl;
+	  }
+	  if(freqmin < gfreqmin) gfreqmin=freqmin;
+	  if(freqmax > gfreqmax) gfreqmax=freqmax;
+	  if(datafstart < gdatafstart) gdatafstart=datafstart;
+	  if(datafend > gdatafend) gdatafend=datafend;
 	}
     //cerr << "freqmin " <<freqmin << " max " <<freqmax << endl;
-
+    
     return buildCoordinateSystemCore( msobj, spwids0, fld, gfreqmin, gfreqmax, gdatafstart, gdatafend );
   }
   
@@ -3365,6 +3363,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                 err+= "lownoisethreshold must be a float or double";
               }
           }
+        if( inrec.isDefined("negativethreshold"))
+          {
+            if(inrec.dataType("negativethreshold")==TpFloat || inrec.dataType("negativethreshold")==TpDouble )
+              {
+                err+= readVal(inrec, String("negativethreshold"), negativeThreshold );
+              }
+            else 
+              {
+                err+= "negativethreshold must be a float or double";
+              }
+          }
         if( inrec.isDefined("smoothfactor"))
           {
             if( inrec.dataType("smoothfactor")==TpFloat || inrec.dataType("smoothfactor")==TpDouble )
@@ -3576,6 +3585,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     decpar.define("sidelobethreshold",sidelobeThreshold);
     decpar.define("noisethreshold",noiseThreshold);
     decpar.define("lownoisethreshold",lowNoiseThreshold);
+    decpar.define("negativethreshold",negativeThreshold);
     decpar.define("smoothfactor",smoothFactor);
     decpar.define("minbeamfrac",minBeamFrac);
     decpar.define("cutthreshold",cutThreshold);

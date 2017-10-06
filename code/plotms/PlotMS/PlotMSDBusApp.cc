@@ -28,6 +28,7 @@
 #include <plotms/Actions/ActionFactory.h>
 #include <plotms/Actions/PlotMSAction.h>
 #include <plotms/PlotMS/PlotMSFlagging.h>
+#include <plotms/PlotMS/PlotMSPageHeaderParam.h>
 #include <graphics/GenericPlotter/PlotOptions.h>
 
 #include <plotms/Plots/PlotMSPlotParameterGroups.h>
@@ -71,6 +72,7 @@ const String PlotMSDBusApp::PARAM_PRIORITY = "priority";
 const String PlotMSDBusApp::PARAM_SELECTION = "selection";
 const String PlotMSDBusApp::PARAM_TRANSFORMATIONS = "transformations";
 const String PlotMSDBusApp::PARAM_CALIBRATION = "calibration";
+const String PlotMSDBusApp::PARAM_PAGE_HEADER_ITEMS = "pageHeaderItems";
 const String PlotMSDBusApp::PARAM_UPDATEIMMEDIATELY = "updateImmediately";
 const String PlotMSDBusApp::PARAM_WIDTH = "width";
 
@@ -476,6 +478,13 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 			ppp.setGroup<PMS_PP_Canvas>();
 			ppcan = ppp.typedGroup<PMS_PP_Canvas>();
 		}
+
+		PMS_PP_PageHeader* pp_pgheader = ppp.typedGroup<PMS_PP_PageHeader>();
+		if (pp_pgheader == NULL) {
+			ppp.setGroup<PMS_PP_PageHeader>();
+			pp_pgheader = ppp.typedGroup<PMS_PP_PageHeader>();
+		}
+
 		PMS_PP_Iteration* ppiter = ppp.typedGroup<PMS_PP_Iteration>();
 		if (ppiter == NULL) {
 			ppp.setGroup<PMS_PP_Iteration>();
@@ -514,6 +523,13 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 			PlotMSCalibration calib = ppdata->calibration();
 			calib.fromRecord(parameters.asRecord(PARAM_CALIBRATION));
 			ppdata->setCalibration(calib);
+		}
+
+		if(parameters.isDefined(PARAM_PAGE_HEADER_ITEMS) &&
+				parameters.dataType(PARAM_PAGE_HEADER_ITEMS) == TpString) {
+			PageHeaderItems headerItems;
+			headerItems.setItems(parameters.asString(PARAM_PAGE_HEADER_ITEMS));
+			pp_pgheader->setPageHeaderItems(headerItems);
 		}
 
 		if(parameters.isDefined(PARAM_ITERATE) &&
@@ -813,6 +829,7 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 	}
 	else if(methodName == METHOD_SHOW || methodName == METHOD_HIDE) {
 		itsPlotms_.showGUI(methodName == METHOD_SHOW);
+		itsPlotms_.allowPopups(false); // default for task
 		if(itsPlotms_.guiShown() && itsUpdateFlag_) {
 			bool completed = update();
 			if ( !completed ){

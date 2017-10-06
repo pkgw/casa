@@ -1381,7 +1381,7 @@ namespace casa {
     
 	tR->setDirectionCode(directionCode);
 
-	asdm::SourceRow* tR2;
+	asdm::SourceRow* tR2 = 0;
 	try{
 	  tR2 = tT.add(tR);
 	}
@@ -4083,7 +4083,7 @@ namespace casa {
         tR = tT.newRow(antennaId, numCoeff, coeffName, coeffVal, polarizationType, 
 		       receiverBand, assocNature, assocPointingModelId);
     
-	asdm::PointingModelRow* tR2;
+	asdm::PointingModelRow* tR2 = 0;
 
 	tR2 = tT.add(tR);
 	if(!asdmPointingModelId_p.isDefined(antennaId)){
@@ -4355,7 +4355,7 @@ namespace casa {
 	  tR->setSourceOffset(sourceOffset);
 	} 
 
-	asdm::PointingRow* tR2;
+	asdm::PointingRow* tR2 = 0;
 	
 	try{
 	  tR2 = tT.add(tR);
