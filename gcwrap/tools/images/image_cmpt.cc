@@ -698,7 +698,7 @@ image* image::continuumsub(
     try {
         _log << _ORIGIN;
         if (detached()) {
-            return 0;
+            return nullptr;
         }
         ThrowIf(in_fitorder < 0, "Polynomial order cannot be negative");
         if (! pol.empty()) {
