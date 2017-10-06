@@ -78,6 +78,8 @@ public:
         return data_path;
     }
 
+    virtual bool initialized( ) const { return true; }
+
 private:
     std::list<std::string> data_path;
 
@@ -446,6 +448,7 @@ utils::_trigger_segfault (int faultType)
 
 // ------------------------------------------------------------
 // -------------------- initialize CASAtools ------------------
+
 static std::vector<std::string> default_data_path;
 bool utils::initialize(const std::vector<std::string> &default_path) {
     static bool initialized = false;
@@ -478,6 +481,10 @@ std::vector<std::string> utils::getpath( ) {
 
 void utils::clearpath( ) {
     get_casac_state( ).clear( );
+}
+
+std::string utils::resolve(const std::string &subdir) {
+    return get_casac_state( ).resolve(subdir);
 }
 // ------------------------------------------------------------
 

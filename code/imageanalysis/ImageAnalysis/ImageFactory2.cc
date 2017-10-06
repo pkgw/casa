@@ -28,6 +28,7 @@
 #include <imageanalysis/ImageAnalysis/ImageFactory.h>
 
 #include <casa/OS/EnvVar.h>
+#include <casacore/casa/State.h>
 #include <images/Images/ImageFITSConverter.h>
 #include <images/Images/ImageUtilities.h>
 #include <images/Images/ImageOpener.h>
@@ -529,27 +530,38 @@ SPIIF ImageFactory::testImage(
     const String& outfile, const Bool overwrite,
     const String& imagetype
 ) {
-    String var = EnvironmentVariable::get("CASAPATH");
-    if (var.empty()) {
-        var = EnvironmentVariable::get("AIPSPATH");
-    }
-    ThrowIf(
-        var.empty(),
-        "Neither CASAPATH nor AIPSPATH is set, so cannot locate data directory"
-    );
-    String fields[4];
-    Int num = split(var, fields, 4, String(" "));
-    ThrowIf (num <= 0, "Bad CASAPATH/AIPSPATH value: " + var);
-    String fitsfile;
+    // setup image name relative to the data root...
+    String testname;
     if (imagetype.contains("cube")) {
-        fitsfile = fields[0] + "/data/demo/Images/test_imageFloat.fits";
+        testname = "demo/Images/test_imageFloat.fits";
     }
     else if (imagetype.contains("2d")) {
-        fitsfile = fields[0] + "/data/demo/Images/imagetestimage.fits";
+        testname = "demo/Images/imagetestimage.fits";
     }
     else {
         ThrowCc("imageType must be either \"cube\" or \"2d\"");
     }
+
+    String fitsfile;
+
+    const casacore::State &state = casacore::StateSource::fetch( );
+    if ( state.initialized( ) )
+        fitsfile = state.resolve(testname);
+
+    else {
+        String var = EnvironmentVariable::get("CASAPATH");
+        if (var.empty()) {
+            var = EnvironmentVariable::get("AIPSPATH");
+        }
+        ThrowIf( var.empty(),
+                 "Neither CASAPATH nor AIPSPATH is set, so cannot locate data directory" );
+        String fields[4];
+        Int num = split(var, fields, 4, String(" "));
+        ThrowIf (num <= 0, "Bad CASAPATH/AIPSPATH value: " + var);
+
+        fitsfile = fields[0] + "/data/" + testname;
+    }
+
     return fromFITS(
         outfile, fitsfile, 0, 0, false, overwrite
     );

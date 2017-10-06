@@ -386,6 +386,26 @@ Removes all directories from the data path.
 
 <returns/>
 </method>
+
+<method type="function" name="resolve">
+<shortdescription>resolve a complete path from a subdirectory using the data path</shortdescription>
+
+<description>
+If the provided path already represents a file or a directory, it is returned. If it does not,
+this function tries to find a complete path by matching up this partial directory with the
+elements of the data path.
+</description>
+
+<input>
+  <param type="string" name="path">
+	<description>path to be expanded</description>
+	<value></value>
+  </param>
+</input>
+
+<returns type="string"/>
+</method>
+
 <!-- ******************************************************************************** -->
 
 <method type="function" name="version">
