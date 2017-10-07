@@ -118,26 +118,24 @@ def importfitsidi(fitsidifile,vis,constobsid=None,scanreindexgap_s=None,specfram
 
 			timesorted = np.argsort(np.array(times)) 
 
-			scannumber = 1
-			prevtime = times[timesorted[0]]
-			prevfield = fields[timesorted[0]]
+			scannumber = 0
+			scannumber_field = len(fields) * [0]
+			prevtime = len(fields) * [0]
 			prevarrayid = arrayids[timesorted[0]]
-			scannumbers[timesorted[0]] = scannumber
 
-			for i in xrange(1,mytb.nrows()):
+			for i in xrange(0,mytb.nrows()):
 				ii = timesorted[i]
 				timenow = times[ii]
 				fieldnow = fields[ii]
 				arrayidnow = arrayids[ii]
-				if (timenow-prevtime > scanreindexgap_s) \
-					    or (fieldnow != prevfield) \
+				if (timenow-prevtime[fieldnow] > scanreindexgap_s) \
 					    or (arrayidnow != prevarrayid):
 					scannumber += 1
+					scannumber_field[fieldnow] = scannumber
 					casalog.post("Starting new scan "+str(scannumber)+" at "+str(timenow)\
 							     +", field "+str(fieldnow)+", array_id "+str(arrayidnow), 'INFO')
-				scannumbers[ii] = scannumber
-				prevtime = timenow
-				prevfield = fieldnow
+				scannumbers[ii] = scannumber_field[fieldnow]
+				prevtime[fieldnow] = timenow
 				prevarrayid = arrayidnow
 
 			mytb.putcol('SCAN_NUMBER', scannumbers)	
