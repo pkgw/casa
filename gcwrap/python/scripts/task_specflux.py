@@ -1,4 +1,3 @@
-
 ##########################################################################
 # task_specflux.py
 #
@@ -52,7 +51,18 @@ def specflux(
             or funclower.startswith("med") or funclower.startswith("s")
         ):
             raise Exception("Unsupported function " + function)
+        if bool(major) != bool(minor):
+            raise Exception("You must specify both of major and minor, or neither of them")
         myia.open(imagename)
+        bunit = myia.brightnessunit()
+        unit_is_perbeam = bunit.find("/beam") >= 0
+        if (unit_is_perbeam and not bool(major) and not bool(myia.restoringbeam())):
+            raise Exception(
+                "Brightness unit is " + bunit
+                + " but image has no restoring beam and major and minor were not specifed. "
+                + " So spectral flux cannot be computed. Please add a restoring beam or specify "
+                + " major and minor"
+            )
         try:
             axis = myia.coordsys().axiscoordinatetypes().index("Spectral")
         except Exception, instance:
@@ -62,11 +72,8 @@ def specflux(
             csys=csys.torecord(), shape=myia.shape(), box=box,
             chans=chans, stokes=stokes, stokescontrol="a", region=region
         )
-        if bool(major) != bool(minor):
-            raise Exception("You must specify both of major and minor, or neither of them")
         if bool(major):
-            bunit = myia.brightnessunit()
-            if (bunit.find("/beam") >= 0):
+            if (unit_is_perbeam):
                 myia = myia.subimage()
                 myia.setrestoringbeam(major=major, minor=minor, pa="0deg")
             else:
