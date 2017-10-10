@@ -2420,6 +2420,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   SHARED_PTR<casacore::ImageInterface<Float> >  SDMaskHandler::YAPruneRegions(const ImageInterface<Float>& image, Vector<Bool>& allpruned, Double prunesize)
   {
     LogIO os( LogOrigin("SDMaskHandler", "YAPruneRegions",WHERE) );
+    Timer timer;
     Bool debug(False);
     Bool recordPruned(False);
     if (allpruned.nelements()>0) {
@@ -2466,13 +2467,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       Array<Float> tempImarr;
       tempIm->get(tempImarr);
       os<<LogIO::DEBUG1<<" total pix of 1s="<< sum(tempImarr) <<LogIO::POST;
+      timer.mark();
       labelRegions(*tempIm, *blobMap);
+      os<< "Processing time for labelRegions: real "<< timer.real()<< "s ; user "<< timer.user() <<"s"<< LogIO::POST;
       Array<Float> tempblobarr;
       blobMap->get(tempblobarr);
       os<<LogIO::DEBUG1<<" total pix of 1s="<< sum(tempblobarr) <<LogIO::POST;
       os<<LogIO::DEBUG1<<"Calling findBlobSize..."<<LogIO::POST;
       // get blobsizes (the vector contains each labeled region size (label # = ith element+1)
+      //timer.mark();
       Vector<Float> blobsizes = findBlobSize(*blobMap);
+      os<< "Processing time for findBlobSize: real "<< timer.real() << "s ; user "<< timer.user() <<"s"<<LogIO::POST ;
       //cerr<<"blobsizes="<<blobsizes<<endl;
       //use ImageDecomposer
       // book keeping of no of  removed components`
