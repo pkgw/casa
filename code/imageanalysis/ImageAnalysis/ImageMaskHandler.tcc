@@ -143,8 +143,7 @@ template <class T> void ImageMaskHandler<T>::calcmask(
 	ThrowIf(mask.empty(), "You must specify an expression");
 	ThrowIf (
 		! _image->canDefineRegion(),
-		"Cannot make requested mask for this type of image"
-		"It is of type" + _image->imageType()
+		"Cannot make requested mask for this image type which is " + _image->imageType()
 	);
 	casacore::Block<casacore::LatticeExprNode> temps;
 	casacore::PtrBlock<const casacore::ImageRegion*> tempRegs;

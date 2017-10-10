@@ -851,15 +851,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   // Convert Quantity to String
   String SynthesisParams::QuantityToString(Quantity val) const
   {
-    //std::ostringstream ss;
+    std::ostringstream ss;
     //use digits10 to ensure the conersions involve use full decimal digits guranteed to be 
     //correct plus extra digits to deal with least significant digits (or replace with
     // max_digits10 when it is available)
-    //ss.precision(std::numeric_limits<double>::digits10+2);
-    //ss << val;
-    //return ss.str();
+    ss.precision(std::numeric_limits<double>::digits10+2);
+    ss << val;
+    return ss.str();
+    // NOTE - 2017.10.04: It was found (CAS-10773) that we cannot use to_string for this as
+    // the decimal place is fixed to 6 digits. 
     //TT: change to C++11 to_string which handles double value to string conversion 
-    return String(std::to_string( val.getValue(val.getUnit()) )) + val.getUnit() ;
+    //return String(std::to_string( val.getValue(val.getUnit()) )) + val.getUnit() ;
   }
   
   // Convert Record contains Quantity or Measure quantities to String
