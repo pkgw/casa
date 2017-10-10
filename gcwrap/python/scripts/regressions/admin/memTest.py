@@ -78,6 +78,11 @@ class MemTest(nose.plugins.xunit.Xunit):
         The file includes a report of test errors and failures.
 
         """
+        if os.environ.get('NOSE_XUNIT_FILE'):
+            self.error_report_file = codecs.open(os.environ['NOSE_XUNIT_FILE'], 'w',self.encoding, 'replace')
+        else:
+            self.error_report_file = codecs.open("nosetests.xml", 'w',self.encoding, 'replace')
+
         self.stats['encoding'] = self.encoding
         self.stats['total'] = (self.stats['errors'] + self.stats['failures']
                                + self.stats['passes'] + self.stats['skipped'])
