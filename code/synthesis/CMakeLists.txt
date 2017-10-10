@@ -866,6 +866,7 @@ casa_add_unit_test( MODULES synthesis SOURCES ImagerObjects/test/tSynthesisImage
 casa_add_unit_test( MODULES synthesis SOURCES Utilities/test/tFFT2D.cc  ) 
 casa_add_unit_test( MODULES synthesis SOURCES CalTables/test/tCTPatchedInterp.cc )
 casa_add_unit_test( MODULES synthesis SOURCES ImagerObjects/test/tLabelandFindRegions.cc )
+casa_add_unit_test( MODULES synthesis SOURCES ImagerObjects/test/tLabelandFindRegionsFullCube.cc )
 
 
 casa_add_google_test( MODULES mstransform SOURCES ../mstransform/MSTransform/test/tMSTransformIterator.cc  ../mstransform/TVI/test/TestUtilsTVI.cc)
