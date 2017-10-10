@@ -1,11 +1,14 @@
 import os
 import re
 from taskinit import *
+from ialib import write_image_history
 
 from odict import odict
 
-def imcontsub(imagename=None,linefile=None,contfile=None,fitorder=None,region=None,box=None,chans=None,stokes=None,xstat=None):
-
+def imcontsub(
+    imagename, linefile, contfile, fitorder,
+    region, box, chans, stokes
+):
     casalog.origin('imcontsub')
     filesExist=False
     if ( len( linefile ) > 0 ):
@@ -33,82 +36,52 @@ def imcontsub(imagename=None,linefile=None,contfile=None,fitorder=None,region=No
         return False
     
     _myia = iatool()
+    _myia.dohistory(False)
     _myia.open(imagename)
     mycsys = _myia.coordsys()
-
     if isinstance(box, list):
         box = ', '.join([str(b) for b in box])
 
     # Don't mix chans up with reg!  reg selects a subset for output, and chans
     # selects a subset to define the line-free channels.
     myrg = rgtool()
-    reg = myrg.frombcs(csys=mycsys.torecord(), shape=_myia.shape(),
-                     box=box, stokes=stokes, stokescontrol="f",
-                     region=region)
+    reg = myrg.frombcs(
+        csys=mycsys.torecord(), shape=_myia.shape(),
+        box=box, stokes=stokes, stokescontrol="f",
+        region=region
+    )
     channels = []
     if chans != None and len(chans) > 0:
         channels = myrg.selectedchannels(chans, _myia.shape())
     
     try:
         # Now do the continuum subtraction.
-        _myia.continuumsub(outline=linefile, outcont=contfile, region=reg,
-                           channels=channels, fitorder=fitorder, overwrite=False)
+        lineim = _myia.continuumsub(
+            outline=linefile, outcont=contfile, region=reg,
+            channels=channels, fitorder=fitorder,
+            overwrite=False
+        )
+        if not lineim:
+            raise Exception("ia.continuumsub did not complete successfully")
+        try:
+            param_names = imcontsub.func_code.co_varnames[:imcontsub.func_code.co_argcount]
+            param_vals = [eval(p) for p in param_names]
+            for x in [lineim, contfile]:
+                write_image_history(
+                    x, sys._getframe().f_code.co_name,
+                    param_names, param_vals, casalog
+                )
+        except Exception, instance:
+            casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
+        lineim.done()
         return True
-                
     except Exception, err:
         casalog.post( 'Error: Unable to perform continuum subtraction'+str(err), 'SEVERE' )
         raise
     finally:
         _myia.done()
+        if (lineim):
+            lineim.done()
         if ( reg != None ):
             del reg
-        
     return True
-
-#
-"""
-#TODO add a try/catch block or type checking to make
-#sure all channel values are ints.
-def _parse_chans( chanString='', min=0, max=0 ):
-    retValue=[]
-    startChan=min;
-    endChan=max;
-
-    values=chanString.split('~')
-    if ( len(values)==2 ):
-        # We have a min and max value
-        startChan=int(values[0])
-        endChan=int(values[1])
-    elif ( len(values)==1 ):
-        # We probably have a <, <=, > or >= sign
-        if ( values[0].startswith( '<=') ):
-            endChan=int(values[0][2:])
-        elif ( values[0].startswith( '<') ):
-            endChan=int(values[0][1:])-1
-        elif( values[0].startswith( '>=') ):
-            startChan=int(values[0][2:])
-        elif( values[0].startswith( '>') ):
-            startChan=int(values[0][1:])+1
-        elif( values[0]== '-1' ):
-            startChan = min
-            endChan   = max
-        elif ( values.count( ',' ) > 0 ):
-            # We have a list of specific channel numbers
-            startChan=endChan=-1
-            tmpList = chanString.split( ',' )
-            for j in range( len( tmpList ) ):
-                retValue.append( int( tmpList[j] ) )
-        else:
-            # We have a single value
-            startChan=int(values[0])
-            endChan=int(values[0])
-
-    if ( startChan >= 0 and endChan >= 0 and \
-         startChan <= int(max) and endChan <= int(max) ):
-        for i in range( startChan, endChan+1 ):
-            retValue.append( i )
-    else:
-        raise Exception, "Invalid channel specification: "+str(values)
-    
-    return retValue
-"""
