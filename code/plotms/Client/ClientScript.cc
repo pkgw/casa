@@ -32,6 +32,8 @@
 #include <plotms/PlotMS/PlotMSConstants.h>
 #include <plotms/Actions/ActionExport.h>
 #include <plotms/Plots/PlotMSPlotParameterGroups.h>
+#include <plotms/Gui/PlotMSPageHeaderDataModel.qo.h>
+#include <casaqt/QwtPlotter/QtPageHeaderDataModel.h>
 #include <casaqt/PlotterImplementations/PlotterImplementations.h>
 #include <QDebug>
 #include <QWidget>
@@ -62,6 +64,7 @@ bool ClientScript::plot() {
 		//Without it, sometimes the exported plot was not appearing correctly,
 		//i.e., a missing y-axis.
 		itsPlotter_->updateScriptGui();
+		updatePlotterPageHeader();
 	}
 	return true;
 }
@@ -76,6 +79,14 @@ void ClientScript::initializeCurrentPlot() {
 			currentPlots.push_back(manager.plot( i ));
 		}
 	}
+}
+
+void ClientScript::updatePlotterPageHeader(){
+	auto * controllerQtDataModel = new PlotMSPageHeaderDataModel(plotController);
+	QtPageHeaderDataModelPtr controllerDataModelPtr { new QtPageHeaderDataModel(controllerQtDataModel) };
+
+	itsPlotter_->refreshPageHeaderDataModel(controllerDataModelPtr);
+
 }
 
 vector<PlotMSPlot*> ClientScript::getCurrentPlots() const {

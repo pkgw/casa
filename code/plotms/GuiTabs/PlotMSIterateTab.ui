@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>264</width>
-    <height>487</height>
+    <width>271</width>
+    <height>746</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
+  <layout class="QVBoxLayout" name="tabLayout">
    <item>
     <widget class="QGroupBox" name="chooserFrame">
      <property name="title">
@@ -220,20 +220,161 @@ p, li { white-space: pre-wrap; }
     </widget>
    </item>
    <item>
-    <spacer>
+    <widget class="QGroupBox" name="pageHeaderGroupBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string>Page Header</string>
+     </property>
+     <layout class="QVBoxLayout" name="pageHeaderGroupBoxLayout">
+      <item>
+       <layout class="QVBoxLayout" name="selectedItemsLayout">
+        <item>
+         <widget class="QLabel" name="selectedItemsLabel">
+          <property name="text">
+           <string>Contents</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTableView" name="selectedItemsTableView"/>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="editItemsButtonsLayout">
+        <item>
+         <widget class="QPushButton" name="addItemsButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>64</width>
+            <height>32</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>32</height>
+           </size>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="GuiTabs.qrc">
+            <normaloff>:/images/images/arrowUpOff.png</normaloff>
+            <activeoff>:/images/images/arrowUpOnErr.png</activeoff>
+            <activeon>:/images/images/arrowUpOn.png</activeon>:/images/images/arrowUpOff.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>32</width>
+            <height>32</height>
+           </size>
+          </property>
+          <property name="checkable">
+           <bool>false</bool>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+          <property name="autoDefault">
+           <bool>false</bool>
+          </property>
+          <property name="default">
+           <bool>false</bool>
+          </property>
+          <property name="flat">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="editItemsButtonsSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="removeItemsButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>64</width>
+            <height>32</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>32</height>
+           </size>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>32</width>
+            <height>32</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QTableView" name="availableItemsTableView">
+        <property name="frameShape">
+         <enum>QFrame::Box</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Plain</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>95</width>
-       <height>218</height>
+       <width>20</width>
+       <height>2</height>
       </size>
      </property>
     </spacer>
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="GuiTabs.qrc"/>
+ </resources>
  <connections/>
 </ui>

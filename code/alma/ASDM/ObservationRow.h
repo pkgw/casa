@@ -66,7 +66,7 @@
 //#include <TableStreamReader.h>
 
 /*\file Observation.h
-    \brief Generated from model's revision "1.64", branch "HEAD"
+    \brief Generated from model's revision "-1", branch ""
 */
 
 namespace asdm {
@@ -82,7 +82,7 @@ typedef void (ObservationRow::*ObservationAttributeFromText) (const string& s);
 /**
  * The ObservationRow class is a row of a ObservationTable.
  * 
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  */
 class ObservationRow {

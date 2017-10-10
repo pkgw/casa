@@ -70,6 +70,10 @@ void PlotMSPlot::makeParameters(PlotMSPlotParameters& params, PlotMSApp* /*plotm
     if(params.typedGroup<PMS_PP_Display>() == NULL)
         params.setGroup<PMS_PP_Display>();
 
+    // Add page header parameters if needed.
+    if(params.typedGroup<PMS_PP_PageHeader>() == NULL)
+        params.setGroup<PMS_PP_PageHeader>();
+
     // Add iteration parameters if needed.
     if(params.typedGroup<PMS_PP_Iteration>() == NULL)
         params.setGroup<PMS_PP_Iteration>();
@@ -1763,8 +1767,8 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
             xLabelSingle = addFreqFrame(xLabelSingle);
         if (axisIsAveraged(x, averaging))
             xLabelSingle = "Average " + xLabelSingle;
-        if (isCalTable && xLabelSingle.contains("Correlation"))
-            xLabelSingle.replace(xLabelSingle.find("Correlation"), 11, "Polarization");
+        if (isCalTable && xLabelSingle.contains("Corr"))
+            xLabelSingle.replace(xLabelSingle.find("Corr"), 4, "Polarization");
 		canvas->setAxisLabel(cx, xLabelSingle);
 		PlotFontPtr xFont = canvas->axisFont(cx);
         pointsize = (canvParams->xFontSet()) ? canvParams->xAxisFont(): std::max(12. - rows*cols+1., 8.);
@@ -1797,8 +1801,8 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
                     yLabelSingle = addFreqFrame(yLabelSingle);
                 if (axisIsAveraged(y, averaging))
                     yLabelSingle = "Average " + yLabelSingle;
-                if (isCalTable && yLabelSingle.contains("Correlation"))
-                    yLabelSingle.replace(yLabelSingle.find("Correlation"), 11, "Polarization");
+                if (isCalTable && yLabelSingle.contains("Corr"))
+                    yLabelSingle.replace(yLabelSingle.find("Corr"), 4, "Polarization");
 
 				if ( cy == Y_LEFT ){
 					if ( yLabelLeft.size() > 0 ){
@@ -1866,14 +1870,17 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
             // make scales symmetrical for u and v
             PMS::Axis x = cacheParams->xAxis();
             if (PMS::axisIsUV(x)) {
-                xIsUV = true;
-                if (x==PMS::UWAVE || x==PMS::VWAVE) xIsUVwave=true;
-                maxval = round(max(abs(xmin),xmax)) + 10.0;
-                xmin = -maxval;
-                xmax = maxval;
-                xymax = max(xymax, maxval);
-                pair<double, double> xbounds = make_pair(xmin, xmax);
-                canvas->setAxisRange(cx, xbounds);
+                // set range if not all flagged
+                if ((xmin != DBL_MAX) && (xmax != -DBL_MAX)) {
+                    xIsUV = true;
+                    if (x==PMS::UWAVE || x==PMS::VWAVE) xIsUVwave=true;
+                    maxval = round(max(abs(xmin),xmax)) + 10.0;
+                    xmin = -maxval;
+                    xmax = maxval;
+                    xymax = max(xymax, maxval);
+                    pair<double, double> xbounds = make_pair(xmin, xmax);
+                    canvas->setAxisRange(cx, xbounds);
+                }
             }
         }
 		for ( int i = 0; i < yAxisCount; i++ ){
@@ -1881,6 +1888,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
 			if ( axesParams->yRangeSet(i) ){
 				canvas->setAxisRange(cy, axesParams->yRange(i));
 			} else {
+                // set range if values close to zero (add margin to ymin)
                 if ((ymin > -0.5) && (ymin < 1.0) && (ymax > 10.0)) {
                     if (ymax > 100.0)
                         ymin -= 1.0; // add larger margin for larger range
@@ -1889,25 +1897,28 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
                     pair<double, double> ybounds = make_pair(ymin, ymax);
                     canvas->setAxisRange(cy, ybounds);
                 }
-                // make scales symmetrical for u and v
+                // make range symmetrical for u and v
                 PMS::Axis y = cacheParams->yAxis(i);
                 if (PMS::axisIsUV(y)) {
-                    maxval = round(max(abs(ymin),ymax)) + 10.0;
-                    if (xIsUV) {
-                        // set x and y ranges equally
-                        xymax = max(xymax, maxval);
-                        pair<double, double> xybounds = make_pair(-xymax, xymax);
-                        canvas->setAxisRange(cx, xybounds);
-                        canvas->setAxisRange(cy, xybounds);
-                        makeSquare = true;
-                        if (xIsUVwave && (y==PMS::UWAVE || y==PMS::VWAVE))
-                            waveplot=true;
-                    } else {
-                        // just set yrange equally
-                        ymin = -maxval;
-                        ymax = maxval;
-                        pair<double, double> ybounds = make_pair(ymin, ymax);
-                        canvas->setAxisRange(cy, ybounds);
+                    // set range if not all flagged
+                    if ((ymin != DBL_MAX) && (ymax != -DBL_MAX)) {
+                        maxval = round(max(abs(ymin),ymax)) + 10.0;
+                        if (xIsUV) {
+                            // set x and y ranges equally
+                            xymax = max(xymax, maxval);
+                            pair<double, double> xybounds = make_pair(-xymax, xymax);
+                            canvas->setAxisRange(cx, xybounds);
+                            canvas->setAxisRange(cy, xybounds);
+                            makeSquare = true;
+                            if (xIsUVwave && (y==PMS::UWAVE || y==PMS::VWAVE))
+                                waveplot=true;
+                        } else {
+                            // just set yrange equally
+                            ymin = -maxval;
+                            ymax = maxval;
+                            pair<double, double> ybounds = make_pair(ymin, ymax);
+                            canvas->setAxisRange(cy, ybounds);
+                        }
                     }
                 }
 		    }
@@ -1951,8 +1962,8 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
 		title = canvParams->titleFormat().getLabel(x, yAxes, xref,
 				xrefval, yRefs, yRefVals, xDataColumn, yDatas, polnRatio)
 				+ " " + iterTxt;
-        if (isCalTable && title.contains("Correlation"))
-            title.replace(title.find("Correlation"), 11, "Polarization");
+        if (isCalTable && title.contains("Corr"))
+            title.replace(title.find("Corr"), 11, "Polarization");
 		canvas->setTitle(title);
 	}
 

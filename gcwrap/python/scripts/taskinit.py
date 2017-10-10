@@ -55,6 +55,7 @@ if casa.has_key('state') and casa['state'].has_key('init_version') and casa['sta
     imtool = stack_find("imtool")
     smtool = stack_find("smtool")
     at = stack_find("at")
+    attool = stack_find("attool")
     msmdtool = stack_find("msmdtool")
 
     coordsystool = stack_find("coordsystool")
@@ -72,6 +73,7 @@ if casa.has_key('state') and casa['state'].has_key('init_version') and casa['sta
     potool = stack_find("potool")
     rgtool = stack_find("rgtool")
     sdmstool = stack_find("sdmstool")
+    sdms = stack_find("sdms")
     sltool = stack_find("sltool")
     tptool = stack_find("tptool")
     viewertool = stack_find("viewertool")
@@ -143,7 +145,7 @@ else:
     cu = casac.cu = utilstool()
     vftask = casac.vlafillertask()
     vlafiller=vftask.fill
-    at = casac.atmosphere()
+    attool = casac.atmosphere
     ca = casac.calanalysis()
     mttool = casac.mstransformer
     mt = mttool()
@@ -179,7 +181,7 @@ else:
         """
         Generate a fresh set of tools; only the ones who have
         states..so globally sharing the same one can be unpredicatable
-        im,cb,ms,tb,me,ia,po,sm,cl,cs,rg,sl,dc,vp,msmd,fi,fn,imd,sdms,lm=gentools()
+        im,cb,ms,tb,me,ia,po,sm,cl,cs,rg,sl,dc,vp,msmd,fi,fn,imd,sdms,lm,at=gentools()
         or if you want specific set of tools
         im, ia, cb=gentools(['im', 'ia', 'cb'])
 
@@ -190,17 +192,19 @@ else:
                  'cl': 'cltool()', 'cs' :'cstool()', 'rg':'rgtool()',
                  'sl':'sltool()', 'dc':'dctool()', 'vp':'vptool()',
                  'msmd':'msmdtool()','fi':'fitool()','fn':'fntool()',
-                 'imd':'imdtool()','sdms':'sdmstool()', 'lm':'lmtool()'}
+                 'imd':'imdtool()','sdms':'sdmstool()', 'lm':'lmtool()',
+                 'at':'attool()'}
         reqtools=[]
         if (not tools) or not hasattr(tools, '__iter__'):
             reqtools=['im', 'cb', 'ms','tb', 'me', 'ia', 'po',
                       'sm', 'cl', 'cs', 'rg','sl', 'dc', 'vp',
-                      'msmd', 'fi', 'fn', 'imd', 'sdms', 'lm']
+                      'msmd', 'fi', 'fn', 'imd', 'sdms', 'lm',
+                      'at']
         else:
             reqtools=tools
         return tuple([eval(tooldic[reqtool]) for reqtool in reqtools])
 
-    im,cb,ms,tb,me,ia,po,sm,cl,cs,rg,sl,dc,vp,msmd,fi,fn,imd,sdms,lm=gentools()
+    im,cb,ms,tb,me,ia,po,sm,cl,cs,rg,sl,dc,vp,msmd,fi,fn,imd,sdms,lm,at=gentools()
 
     def write_history(myms, vis, tname, param_names, param_vals, myclog=None, debug=False):
         """

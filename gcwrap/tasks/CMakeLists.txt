@@ -1,4 +1,5 @@
 casa_add_tasks( tools  casa_tasks 
+accor.xml
 accum.xml
 applycal.xml
 asdmsummary.xml
@@ -130,6 +131,7 @@ viewer.xml
 wvrgcal.xml
 virtualconcat.xml
 vishead.xml
+visstatold.xml
 visstat.xml
 visstat2.xml
 widebandpbcor.xml

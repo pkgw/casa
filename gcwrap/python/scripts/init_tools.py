@@ -4,11 +4,13 @@ except ImportError, e:
     print "failed to load casa:\n", e
     sys.exit(1)
 
+from casa_system import casa
+
 def gentools(tools=None):
 	"""
 	Generate a fresh set of tools; only the ones who have
 	states..so globally sharing the same one can be unpredicatable 
-	im,cb,ms,tb,me,ia,po,sm,cl,cs,rg,sl,dc,vp,msmd,fi,fn,imd,sdms,lm=gentools() 
+	im,cb,ms,tb,me,ia,po,sm,cl,cs,rg,sl,dc,vp,msmd,fi,fn,imd,sdms,lm,at=gentools() 
 	or if you want specific set of tools
 	im, ia, cb=gentools(['im', 'ia', 'cb'])
 
@@ -19,12 +21,13 @@ def gentools(tools=None):
 		 'cl': 'cltool()', 'cs' :'cstool()', 'rg':'rgtool()',
 		 'sl':'sltool()', 'dc':'dctool()', 'vp':'vptool()',
 		 'msmd':'msmdtool()','fi':'fitool()','fn':'fntool()', 
-		 'imd':'imdtool()','sdms':'sdmstool()', 'lm':'lmtool()'}
+		 'imd':'imdtool()','sdms':'sdmstool()', 'lm':'lmtool()',
+         'at':'attool()'}
 	reqtools=[]
         if (not tools) or not hasattr(tools, '__iter__'):
 		reqtools=['im', 'cb', 'ms','tb', 'me', 'ia', 'po',
                           'sm', 'cl', 'cs', 'rg','sl', 'dc', 'vp', 
-			  'msmd', 'fi', 'fn', 'imd', 'sdms', 'lm']
+			  'msmd', 'fi', 'fn', 'imd', 'sdms', 'lm', 'at']
 	else:
 		reqtools=tools
 	return tuple([eval(tooldic[reqtool]) for reqtool in reqtools])
@@ -163,7 +166,6 @@ cu = casac.cu = cutool( )
 vftask = casac.vlafillertask()
 vlafiller=vftask.fill
 attool = casac.atmosphere
-at = attool( )
 catool = casac.calanalysis
 ca = catool( )
 mttool = casac.mstransformer
@@ -188,5 +190,5 @@ except:
     print "Unable to start viewer, maybe no dbus available?"
 
 
-im,cb,ms,tb,me,ia,po,sm,cl,cs,rg,sl,dc,vp,msmd,fi,fn,imd,sdms,lm=gentools()
+im,cb,ms,tb,me,ia,po,sm,cl,cs,rg,sl,dc,vp,msmd,fi,fn,imd,sdms,lm,at=gentools()
 

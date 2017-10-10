@@ -274,7 +274,7 @@ void QtDisplayPanelGui::construct_( QtDisplayPanel *newpanel, const std::list<st
 		rc.put( "viewer." + rcid() + ".position.regions", default_dock_location );
 	}
 
-	displayDataHolder = new DisplayDataHolder();
+	displayDataHolder.reset(new DisplayDataHolder( ));
 
 	if ( use_new_regions ) {
 		// -----
@@ -1210,14 +1210,14 @@ QtDisplayPanelGui::~QtDisplayPanelGui() {
 	delete qdp_;	// (probably unnecessary because of Qt parenting...)
 	// (possibly wrong, for same reason?...).
 	// (indeed was wrong as the last deletion [at least] because the display panel also reference the qsm_)
+	// (also wrong here, because qdp_ sometimes deletes the displayDataHolder and ImageTracker that we use
+	//  below, in removeAllDDs( ) and then re-delete; converted the pointers shared between DisplayDataHolder,
+	//  QtDisplayPanelGui, and QtDisplayPanel to shared pointers <drs>)
 	qdp_= NULL;
 	delete qsm_;
 	qsm_ = NULL;
 
 	removeAllDDs();
-	delete imageManagerDialog;
-	imageManagerDialog = NULL;
-	delete displayDataHolder;
 
 }
 
@@ -2648,8 +2648,6 @@ void QtDisplayPanelGui::quit( ) {
 
 	removeAllDDs();
 	emit closed( this );
-	delete imageManagerDialog;
-	imageManagerDialog = NULL;
 	if ( v_->server( ) ) {
 		close( );
 	} else {
@@ -2996,9 +2994,6 @@ void QtDisplayPanelGui::closeEvent(QCloseEvent *event) {
 		}
 	}
 #endif
-
-	delete imageManagerDialog;
-	imageManagerDialog = NULL;
 
 	QtPanelBase::closeEvent(event);
 }
@@ -3350,25 +3345,25 @@ void QtDisplayPanelGui::showAboutDialog(){
 
 void QtDisplayPanelGui::showImageManager() {
 	if ( imageManagerDialog == NULL ) {
-		imageManagerDialog = new ImageManagerDialog( NULL );
-		imageManagerDialog->setImageHolders( qdp_->getDataHolder(), displayDataHolder );
-		connect( imageManagerDialog, SIGNAL(ddClosed(QtDisplayData*&)),
+		imageManagerDialog.reset(new ImageManagerDialog( NULL ));
+		imageManagerDialog->setImageHolders( imageManagerDialog, qdp_->getDataHolder(), displayDataHolder );
+		connect( imageManagerDialog.get( ), SIGNAL(ddClosed(QtDisplayData*&)),
 				this, SLOT(ddClose(QtDisplayData*&)));
-		connect( imageManagerDialog, SIGNAL(ddOpened(const casacore::String&, const casacore::String&, const casacore::String&, int, bool, bool, bool, bool)),
+		connect( imageManagerDialog.get( ), SIGNAL(ddOpened(const casacore::String&, const casacore::String&, const casacore::String&, int, bool, bool, bool, bool)),
 				this, SLOT(ddOpen(const casacore::String&, const casacore::String&, const casacore::String&, int, bool, bool, bool, bool)));
-		connect( imageManagerDialog, SIGNAL(registerAll()),
+		connect( imageManagerDialog.get( ), SIGNAL(registerAll()),
 				this, SLOT(registerAllDDs()));
-		connect( imageManagerDialog, SIGNAL(unregisterAll()),
+		connect( imageManagerDialog.get( ), SIGNAL(unregisterAll()),
 				this, SLOT(unregisterAllDDs()));
-		connect( imageManagerDialog, SIGNAL(registerDD(QtDisplayData*, int)),
+		connect( imageManagerDialog.get( ), SIGNAL(registerDD(QtDisplayData*, int)),
 				this, SLOT(registerDD(QtDisplayData*, int)));
-		connect( imageManagerDialog, SIGNAL(unregisterDD(QtDisplayData*)),
+		connect( imageManagerDialog.get( ), SIGNAL(unregisterDD(QtDisplayData*)),
 				this, SLOT(unregisterDD(QtDisplayData*)));
-		connect( imageManagerDialog, SIGNAL(masterCoordinateChanged(QtDisplayData*, QtDisplayData*)),
+		connect( imageManagerDialog.get( ), SIGNAL(masterCoordinateChanged(QtDisplayData*, QtDisplayData*)),
 				this, SLOT(replaceControllingDD(QtDisplayData*, QtDisplayData*)));
-		connect( imageManagerDialog, SIGNAL(animateToImage(int)),
+		connect( imageManagerDialog.get( ), SIGNAL(animateToImage(int)),
 				this, SLOT(setAnimatedImage(int)));
-		connect( imageManagerDialog, SIGNAL(createRGBImage(QtDisplayData*, QtDisplayData*, QtDisplayData*, QtDisplayData*)),
+		connect( imageManagerDialog.get( ), SIGNAL(createRGBImage(QtDisplayData*, QtDisplayData*, QtDisplayData*, QtDisplayData*)),
 				this, SLOT(createRGBImage(QtDisplayData*,QtDisplayData*,QtDisplayData*,QtDisplayData*)));
 		updateViewedImage();
 

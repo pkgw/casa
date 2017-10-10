@@ -37,7 +37,8 @@ def plotms(vis=None,
            plotfile=None, expformat=None, exprange=None,
            highres=None, dpi=None, width=None, height=None, overwrite=None,
            showgui=None, clearplots=None,
-           callib=None
+           callib=None,
+           headeritems=None
 ):
 
 # we'll add these later
@@ -188,6 +189,7 @@ def plotms(vis=None,
                     default: 'upperright'
     clearplots -- clear existing plots so that the new ones coming in can replace them.                 
     callib -- calibration library string, list of strings, or filename for on-the-fly calibration
+    headeritems -- string of comma-separated page header items keywords
 
     """
     # Check if DISPLAY environment variable is set.
@@ -255,7 +257,7 @@ def plotms(vis=None,
         synonyms['Ant-Azimuth'] = 'ant-azimuth'
         synonyms['Ant-Elevation'] = 'ant-elevation'
         synonyms['ant-parallacticangle']=synonyms['ant-parang'] = synonyms['Ant-ParAngle'] = 'ant-parangle'
-        synonyms['gamp']=synonyms['gainamp']=synonyms['GainAmp']='Gain Amplitude'
+        synonyms['gamp']=synonyms['gainamp']=synonyms['GainAmp']='Gain Amp'
         synonyms['gphase']=synonyms['gainphase']=synonyms['GainPhase']='Gain Phase'
         synonyms['greal']=synonyms['gainreal']=synonyms['GainReal']='Gain Real'
         synonyms['gimag']=synonyms['gainimag']=synonyms['GainImag']='Gain Imag'
@@ -284,6 +286,9 @@ def plotms(vis=None,
         vis = vis.strip()
         if len(vis) > 0:
             vis = os.path.abspath(vis)
+            if not os.path.exists(vis):
+                casalog.post('\n'.join(['Input file not found:',vis]),"SEVERE")
+                return False
 
         if not plotindex:
             plotindex = 0  
@@ -701,6 +706,37 @@ def plotms(vis=None,
 
         pm.setXRange((xrange<=0.), plotrange[0],plotrange[1], False, plotindex)
         pm.setYRange((yrange<=0.), plotrange[2],plotrange[3], False, plotindex)
+        
+        # Page Header Items
+        # Python keywords for specifying header items are defined in CAS-8082, 
+        # Erik's comment dated 9-jun-2016
+        # Python / C++ header items keywords map
+        # format is header_cpp_kw['python_keyword'] = 'c++_keyword', where 
+        # the c++ keyword is what's coded in PlotMSPageHeaderParam.h
+        header_cpp_kw = {}
+        header_cpp_kw['filename'] = 'filename'
+        header_cpp_kw['ycolumn']  = 'y_columns'
+        header_cpp_kw['obsdate']  = 'obs_start_date'
+        header_cpp_kw['obstime']  = 'obs_start_time'
+        header_cpp_kw['observer'] = 'obs_observer'
+        header_cpp_kw['projid']   = 'obs_project'
+        header_cpp_kw['telescope'] = 'obs_telescope_name'
+        header_cpp_kw['targname'] = 'target_name'
+        header_cpp_kw['targdir']  = 'target_direction'
+        
+        if type(headeritems) is str:
+            cpp_headeritems = []
+            for headeritem_word in headeritems.split(','):
+                py_headeritem = headeritem_word.strip()
+                if py_headeritem == "":
+                    continue
+                if py_headeritem in header_cpp_kw:
+                    ccp_headeritem = header_cpp_kw[py_headeritem]
+                    cpp_headeritems.append(ccp_headeritem)
+                else:
+                    casalog.post("Ignoring invalid page header item: " + py_headeritem ,"WARN")
+    
+            pm.setPlotMSPageHeaderItems(','.join(cpp_headeritems), False, plotindex)
 
         # Update
         plotUpdated = pm.update()

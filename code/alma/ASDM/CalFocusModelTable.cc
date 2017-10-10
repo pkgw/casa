@@ -652,12 +652,11 @@ CalFocusModelRow* CalFocusModelTable::lookup(string antennaName, ReceiverBandMod
 		// Look for a version information in the schemaVersion of the XML
 		//
 		xmlDoc *doc;
-		#if LIBXML_VERSION >= 20703
-doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS|XML_PARSE_HUGE);
+#if LIBXML_VERSION >= 20703
+        doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS|XML_PARSE_HUGE);
 #else
-doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS);
+		doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS);
 #endif
-
 		if ( doc == NULL )
 			throw ConversionException("Failed to parse the xmlHeader into a DOM structure.", "CalFocusModel");
 		
@@ -731,9 +730,10 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 				
 		if (!xml.isStr("</CalFocusModelTable>")) 
 		error();
-			
-		archiveAsBin = false;
-		fileAsBin = false;
+		
+		//Does not change the convention defined in the model.	
+		//archiveAsBin = false;
+		//fileAsBin = false;
 		
 	}
 
@@ -879,7 +879,7 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
     if ( root_element == NULL || root_element->type != XML_ELEMENT_NODE )
       throw ConversionException("Failed to parse the xmlHeader into a DOM structure.", "CalFocusModel");
     
-    const ByteOrder* byteOrder;
+    const ByteOrder* byteOrder=0;
     if ( string("ASDMBinaryTable").compare((const char*) root_element->name) == 0) {
       // Then it's an "old fashioned" MIME file for tables.
       // Just try to deserialize it with Big_Endian for the bytes ordering.
@@ -1025,8 +1025,9 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 			append(aRow);
       	}   	
     }
-    archiveAsBin = true;
-    fileAsBin = true;
+    //Does not change the convention defined in the model.	
+    //archiveAsBin = true;
+    //fileAsBin = true;
 	}
 	
 	void CalFocusModelTable::setUnknownAttributeBinaryReader(const string& attributeName, BinaryAttributeReaderFunctor* barFctr) {
@@ -1158,7 +1159,7 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
     if ( root_element == NULL || root_element->type != XML_ELEMENT_NODE )
       throw ConversionException("Failed to parse the xmlHeader into a DOM structure.", "CalFocusModel");
     
-    const ByteOrder* byteOrder;
+    const ByteOrder* byteOrder=0;
     if ( string("ASDMBinaryTable").compare((const char*) root_element->name) == 0) {
       // Then it's an "old fashioned" MIME file for tables.
       // Just try to deserialize it with Big_Endian for the bytes ordering.

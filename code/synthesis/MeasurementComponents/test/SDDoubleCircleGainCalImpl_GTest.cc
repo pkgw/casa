@@ -12,6 +12,7 @@
 #include <casacore/casa/Arrays/Matrix.h>
 #include <casacore/casa/Arrays/Cube.h>
 #include <casacore/casa/Arrays/ArrayMath.h>
+#include <casacore/casa/Arrays/ArrayLogical.h>
 #include <casacore/casa/Arrays/ArrayIO.h>
 #include <casacore/casa/Quanta/Quantum.h>
 
@@ -294,6 +295,28 @@ struct StandardExecutor {
     //TESTLOG << "OUTPUT FLAG: " << gain_flag << endl;
     VerifyGainWithFlag(smooth_size, data_index, time, data, flag_local,
         gain_time_with_flag, gain_with_flag, gain_flag);
+
+    // test findTimeRange
+    Vector<Double> interval(num_data, 1.0);
+    TimeRangeList timerange;
+    bool status = calibrator.findTimeRange(time, interval, direction,
+        timerange);
+    cout << "findTimeRange done: status code is " << status << endl;
+    cout << "There are " << timerange.size() << " entries in timerange" << endl;
+    for (auto iter = timerange.begin(); iter != timerange.end(); ++iter) {
+      cout << "[" << iter->first << "," << iter->second << "]" << endl;
+    }
+    Vector<size_t> delta_index = data_index(
+        Slice(1, data_index.nelements() - 1))
+        - data_index(Slice(0, data_index.nelements() - 1));
+    size_t num_groups = ntrue(delta_index > (size_t)1) + 1; // number of groups = number of gaps + 1
+    cout << "num_groups = " << num_groups << endl;
+    EXPECT_EQ(num_groups, timerange.size());
+    for (auto iter = data_index.begin(); iter != data_index.end(); ++iter) {
+      auto const current_time = time[*iter];
+      cout << "examining " << *iter << endl;
+      EXPECT_TRUE(TimeRangeListTool::InRange(timerange, current_time));
+    }
 
     if (flag.empty()) {
       // check consistency between calibrations with and without flag

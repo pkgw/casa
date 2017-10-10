@@ -1968,6 +1968,11 @@ of various types</shortdescription>
      <value></value>
      </param>
 
+     <param type="bool" direction="in" name="uniform">
+     <description>Assume uniform calibration values across the array</description>
+     <value>true</value>
+     </param>
+
 </input>
 <returns type="bool"/>
 

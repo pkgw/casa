@@ -221,6 +221,7 @@ casa_add_library( synthesis
  DataSampling/SDDataSampling.cc
  DataSampling/SynDataSampling.cc
  IDL/IDL.cc
+ MeasurementComponents/AccorJones.cc
  MeasurementComponents/AMueller.cc
  MeasurementComponents/BPoly.cc
  MeasurementComponents/CalCorruptor.cc
@@ -287,6 +288,8 @@ casa_add_library( synthesis
  MeasurementComponents/VisCalSolver.cc
  MeasurementComponents/VisCalSolver2.cc
  MeasurementComponents/VisVector.cc
+ MeasurementComponents/FiltrationTVI.cc
+ MeasurementComponents/SDDoubleCircleFilter.cc
  TransformMachines/VisibilityResamplerBase.cc
  TransformMachines/VisibilityResampler.cc
  TransformMachines/VLACalcIlluminationConvFunc.cc
@@ -563,6 +566,9 @@ install (FILES
 	MeasurementComponents/nPBWProjectFT.h
 	MeasurementComponents/rGridFT.h
 	MeasurementComponents/ImageSkyModel.tcc
+ 	MeasurementComponents/FiltrationTVI.h
+ 	MeasurementComponents/FiltrationTVI.tcc
+ 	MeasurementComponents/SDDoubleCircleFilter.h
 	DESTINATION include/casacode/synthesis/MeasurementComponents
 	)
 install (FILES
@@ -876,19 +882,23 @@ casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tCali
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tCalibraterSolveSimData_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tCalSolVi2Organizer_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tRecursiveVi2LayersWithCal_GT.cc )
+casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tAccorJones_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tDJones_GT.cc )
+casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tEJones_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tFringeJones_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tGlinXphJones_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tKJones_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tMMueller_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tMSMetaInfoForCal_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tPJones_GT.cc )
+casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tSolveDataBuffer_GT.cc )
+casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tTsysGainCal_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tVisVectorJonesMueller_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tVisCal_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tGJones_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tVisCalGlobals_GT.cc )
-casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tSolveDataBuffer_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/SingleDishSkyCal_GTest.cc )
+casa_add_google_test( MODULES synthesis mstransform SOURCES MeasurementComponents/test/FiltrationTVI_GTest.cc )
 
 casa_add_google_test( MODULES synthesis SOURCES ImagerObjects/test/SDMaskHandler_GTest.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/SDPosInterpolator_GTest.cc )
