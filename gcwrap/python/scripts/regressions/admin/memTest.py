@@ -12,6 +12,7 @@ import time
 import os
 import subprocess
 import sys
+import codecs
 
 def nice_classname(obj):
     """Returns a nice name for class object or class instance.
