@@ -1096,7 +1096,7 @@ myim.done()
     <shortdescription>Collapse an image along a specified axis, computing a specified aggregate function of pixels along that axis.</shortdescription>
     <input>
         <param type="string"  name="function">
-            <description>Aggregate function to apply. This can be set one of flux, max, mean, median, min, rms, stdev, sum, variance. Must be specified.</description>
+            <description>Aggregate function to apply. This can be set one of flux, max, mean, median, min, rms, stddev, sum, variance. Must be specified.</description>
             <value/>
         </param>
         <param type="any"  name="axes">
@@ -1146,7 +1146,7 @@ specified axis. Both float valued and complex valued images are supported. It co
 function for pixel values along the specified axes,
 and places those values in the single remaining plane of those axes in the output image. The method returns
 an image analysis tool containing the newly-created collapsed image. Valid choices of aggregate functions are:
-'flux' (see below for constraitns), 'max', 'mean', 'median', 'min', 'rms', 'stdev', 'sum' and 'variance'. Minimal unique matching is supported
+'flux' (see below for constraitns), 'max', 'mean', 'median', 'min', 'rms', 'stddev', 'sum' and 'variance'. Minimal unique matching is supported
 for the function parameter (e.g. function = 'r' will compute the rms of the pixel values, 'med' will compute
 the median, etc.).
 
