@@ -2876,20 +2876,22 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     lablat.get(lablatarr);
     //cerr<<"IN labelRegions:: inlat.shape="<<inlat.shape()<<" lablat.shape="<<lablat.shape()<<" nrow="<<nrow<<" ncol="<<ncol<<endl;
 
-    for (Int i = 0; i < nrow; ++i)
-    { 
-      for (Int j = 0; j < ncol; ++j) 
-      {
-        // evaluating elements with lattice seems to be very slow... 
-        // changed to use Arrarys
-        //if (!lablat(IPosition(2,i,j)) && inlat(IPosition(2,i,j) ) ) 
-        if (!lablatarr(IPosition(2,i,j)) && inlatarr(IPosition(2,i,j) ) ) 
-          //depthFirstSearch(i, j, ++blobId, inlatarr, lablatarr);
-          // Use non-recursive version
-          depthFirstSearch2(i, j, ++blobId, inlatarr, lablatarr);
+    if ( sum(inlatarr) !=0.0 ) {
+      for (Int i = 0; i < nrow; ++i)
+      { 
+        for (Int j = 0; j < ncol; ++j) 
+        {
+          // evaluating elements with lattice seems to be very slow... 
+          // changed to use Arrarys
+          //if (!lablat(IPosition(2,i,j)) && inlat(IPosition(2,i,j) ) ) 
+          if (!lablatarr(IPosition(2,i,j)) && inlatarr(IPosition(2,i,j) ) ) 
+            //depthFirstSearch(i, j, ++blobId, inlatarr, lablatarr);
+            // Use non-recursive version
+            depthFirstSearch2(i, j, ++blobId, inlatarr, lablatarr);
+        }
       }
+      lablat.put(lablatarr);
     }
-    lablat.put(lablatarr);
     //cerr<<"done blobId="<<blobId<<endl;
   }
 
@@ -2905,8 +2907,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     IPosition inshape = lablat.shape();
     Int nrow = inshape(0);
     Int ncol = inshape(1);
-    LatticeExprNode leMax=max(lablat);
-    Float maxlab = leMax.getFloat();
+    // getting max value via LatticeExprNode seems to be slower
+    //LatticeExprNode leMax=max(lablat);
+    //Float maxlab = leMax.getFloat();
+    Array<Float> lablatarr;
+    lablat.get(lablatarr);
+    Float maxlab = max(lablatarr);
     //os<<LogIO::DEBUG1<<"maxlab="<<maxlab<<LogIO::POST;
     
     if (maxlab < 1.0) {
@@ -2920,7 +2926,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         //IPosition loc(4, i, j, 0, 0);
         IPosition loc(2, i, j);
         //os<<LogIO::DEBUG1<<"i="<<i<<" j="<<j<<" labelat(loc)="<<lablat(loc)<<LogIO::POST;
-        if (lablat(loc)) blobsizes[Int(lablat(loc))-1]+=1;
+        //if (lablat(loc)) blobsizes[Int(lablat(loc))-1]+=1;
+        if (lablatarr(loc)) blobsizes[Int(lablatarr(loc))-1]+=1;
       }
     }
 
