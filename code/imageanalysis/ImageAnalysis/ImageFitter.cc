@@ -104,16 +104,15 @@ std::pair<ComponentList, ComponentList> ImageFitter::fit() {
     }
     _useBeamForNoise = _correlatedNoise && ! _noiseFWHM.get()
         && _getImage()->imageInfo().hasBeam();
-
     {
         // CAS-6971
         String msg;
-        if (_noiseFWHM.get() && ! _correlatedNoise) {
+        if (_noiseFWHM && ! _correlatedNoise) {
             msg = "Specified noise FWHM is less than a pixel "
                 "width, so uncertainties will be computed "
                 "assuming uncorrelated pixel noise.";
         }
-        else if (! _noiseFWHM.get()) {
+        else if (! _noiseFWHM) {
             if (_getImage()->imageInfo().hasBeam()) {
                 msg = "noise FWHM not specified, so uncertainties "
                     "will be computed using the beam geometric mean "
