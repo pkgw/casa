@@ -27,6 +27,7 @@ except:
 
 from tsdimaging import tsdimaging as sdimaging
 from sdutil import tbmanager, toolmanager, table_selector
+from task_tsdimaging import image_suffix
 
 #
 # Unit test of sdimaging task.
@@ -73,7 +74,19 @@ def get_table_cache():
 ###
 # Base class for sdimaging unit test
 ###
-class sdimaging_unittest_base(unittest.TestCase):
+class sdimaging_standard_paramset(object):
+    rawfile='sdimaging.ms'
+    phasecenter='J2000 17:18:29 +59.31.23'
+    imsize=[75,75]
+    cell=['3.0arcmin','3.0arcmin']
+    gridfunction='PB'
+    minweight0 = 0.
+    mode='channel'
+    nchan=40
+    start=400
+    width=10    
+
+class sdimaging_unittest_base(unittest.TestCase, sdimaging_standard_paramset):
     """
     Base class for sdimaging unit test
 
@@ -104,14 +117,14 @@ class sdimaging_unittest_base(unittest.TestCase):
     """
     taskname='sdimaging'
     datapath=os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/sdimaging/'
-    rawfile='sdimaging.ms'
+    #rawfile='sdimaging.ms'
     postfix='.im'
     ms_nchan = 1024
-    phasecenter='J2000 17:18:29 +59.31.23'
-    imsize=[75,75]
-    cell=['3.0arcmin','3.0arcmin']
-    gridfunction='PB'
-    minweight0 = 0.
+#     phasecenter='J2000 17:18:29 +59.31.23'
+#     imsize=[75,75]
+#     cell=['3.0arcmin','3.0arcmin']
+#     gridfunction='PB'
+#     minweight0 = 0.
     statsinteg={'blc': numpy.array([0, 0, 0, 0], dtype=numpy.int32),
                 'blcf': '17:32:18.690, +57.37.28.536, I, 1.42064e+09Hz',
                 'max': numpy.array([ 0.6109162]),
@@ -142,13 +155,14 @@ class sdimaging_unittest_base(unittest.TestCase):
         (5) reference beam of image (optional)
         """
         res=sdimaging(**task_param)
-        outfile = task_param['outfile']
+        outprefix = task_param['outfile']
+        outfile = outprefix + image_suffix
         # Tests
         self.assertEqual(res,None,
                          msg='Any error occurred during imaging')
         self._checkfile(outfile)
-        self._checkfile(outfile+".weight")
-        self._checkshape(outfile,shape[0], shape[1],shape[2],shape[3])
+        self._checkfile(outprefix+".weight")
+        self._checkshape(outfile, shape[0], shape[1],shape[2],shape[3])
         self._checkstats(outfile, refstats, compstats=compstats,
                          atol=atol, rtol=rtol, ignoremask=ignoremask)
         if refbeam is not None:
@@ -389,7 +403,7 @@ class sdimaging_test0(sdimaging_unittest_base):
 
     def test008(self):
         """Test008: Existing outfile with overwrite=False"""
-        outfile = self.outfile + '.residual'
+        outfile = self.outfile + image_suffix
         f=open(outfile, 'w')
         print >> f, 'existing file'
         f.close()
@@ -479,10 +493,10 @@ class sdimaging_test1(sdimaging_unittest_base):
     # Input and output names
     prefix=sdimaging_unittest_base.taskname+'Test1'
     outfile=prefix+sdimaging_unittest_base.postfix
-    mode='channel'
-    nchan=40
-    start=400
-    width=10
+#     mode='channel'
+#     nchan=40
+#     start=400
+#     width=10
 
     def setUp(self):
         if os.path.exists(self.rawfile):
@@ -490,6 +504,7 @@ class sdimaging_test1(sdimaging_unittest_base):
         shutil.copytree(self.datapath+self.rawfile, self.rawfile)
         # Common task parameters of the class
         self.task_param = dict(infiles=self.rawfile,mode=self.mode,
+                               spw='0',
                                outfile=self.outfile,intent='',
                                cell=self.cell,imsize=self.imsize,
                                phasecenter=self.phasecenter,
@@ -547,6 +562,10 @@ class sdimaging_test1(sdimaging_unittest_base):
             nchan=tb.getcell('DATA').shape[1]
         tb.close()
         self.task_param.update(dict(nchan=nchan,start=0,width=1))
+        # for testing 
+        #self.task_param['gridfunction'] = 'BOX'
+        for (k,v) in self.task_param.iteritems():
+            casalog.post('test102: {0} = \'{1}\' (type {2})'.format(k,v,type(v)))
         outshape = (self.imsize[0],self.imsize[1],1,nchan)
         refstats={'blc': numpy.array([0, 0, 0, 0], dtype=numpy.int32),
                   'blcf': '17:32:18.690, +57.37.28.536, I, 1.419395e+09Hz',
