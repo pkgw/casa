@@ -281,13 +281,14 @@ std::vector<std::string> ms::getreferencedtables()
 }
 
 int
-ms::nrow(const bool selected)
+ms::nrowold(const bool selected)
 {
-	*itsLog << LogOrigin("ms", "nrow");
+	*itsLog << LogOrigin("ms", "nrowold");
 	*itsLog << LogIO::WARN
-			<< "The use of ms::nrow() is deprecated and will be "
-			<< "replaced by nrow2() in a future version. "
-            << "After deprecation, nrow2() will be renamed nrow(). "
+			<< "The use of ms::nrowold() is deprecated; this function "
+			<< "will be removed from CASA in a future version. "
+            << "Calls to nrowold() should be replaced by calls to "
+            << "ms::nrow()."
 			<< LogIO::POST;
 
 	Int rstat(0);
@@ -308,9 +309,9 @@ ms::nrow(const bool selected)
 }
 
 int
-ms::nrow2(const bool selected)
+ms::nrow(const bool selected)
 {
-	*itsLog << LogOrigin("ms", "nrow2");
+	*itsLog << LogOrigin("ms", "nrow");
 	Int rstat(0);
     try {
 		if(!detached()){
@@ -904,13 +905,14 @@ ms::writehistory(const std::string& message, const std::string& parms, const std
 }
 
 ::casac::record*
-ms::range(const std::vector<std::string>& items, const bool useflags, const int blocksize)
+ms::rangeold(const std::vector<std::string>& items, const bool useflags, const int blocksize)
 {
-	*itsLog << LogOrigin("ms", "range");
+	*itsLog << LogOrigin("ms", "rangeold");
 	*itsLog << LogIO::WARN
-			<< "The use of ms::range() is deprecated and will be "
-			<< "replaced by range2() in a future version. "
-            << "After deprecation, range2() will be renamed range(). "
+			<< "The use of ms::rangeold() is deprecated; this function "
+			<< "will be removed in a future version. "
+            << "Calls to ms::rangeold() should be replaced by calls to "
+            << "ms::range()."
 			<< LogIO::POST;
 
 	::casac::record *retval(0);
@@ -930,9 +932,9 @@ ms::range(const std::vector<std::string>& items, const bool useflags, const int 
 }
 
 ::casac::record*
-ms::range2(const std::vector<std::string>& items, const bool useflags, const int blocksize)
+ms::range(const std::vector<std::string>& items, const bool useflags, const int blocksize)
 {
-	*itsLog << LogOrigin("ms", "range2");
+	*itsLog << LogOrigin("ms", "range");
 	::casac::record *retval(0);
 	try {
 		if(!detached()){
@@ -2224,20 +2226,21 @@ Bool ms::checkinit() {
     if (!shapesConform) {
 	    *itsLog << LogOrigin("ms", "checkinit");
 		*itsLog << LogIO::WARN << "Data shape varies, selecting first data desc id only" << LogIO::POST;
-        initSel_p = selectinit2(0);
+        initSel_p = selectinit(0);
     }
     delete vi2;
     return initSel_p;
 }
 
 bool
-ms::selectinit(const int datadescid, const bool reset)
+ms::selectinitold(const int datadescid, const bool reset)
 {
-	*itsLog << LogOrigin("ms", "selectinit");
+	*itsLog << LogOrigin("ms", "selectinitold");
 	*itsLog << LogIO::WARN
-			<< "The use of ms::selectinit() is deprecated and will be "
-			<< "replaced by selectinit2() in a future version. "
-            << "After deprecation, selectinit2() will be renamed selectinit()."
+			<< "The use of ms::selectinitold() is deprecated; this function "
+			<< "will be removed from CASA in a future version. "
+			<< "Calls to ms::selectinitold() should be replaced by calls to "
+			<< "ms::selectinit()."
 			<< LogIO::POST;
 
 	Bool retval = False;
@@ -2267,9 +2270,9 @@ ms::selectinit(const int datadescid, const bool reset)
 }
 
 bool
-ms::selectinit2(const int datadescid, const bool resetsel)
+ms::selectinit(const int datadescid, const bool resetsel)
 {
-	*itsLog << LogOrigin("ms", "selectinit2");
+	*itsLog << LogOrigin("ms", "selectinit");
 	Bool retval = false;
 	try {
 		Vector<Int> ddId(1, datadescid);
@@ -2283,7 +2286,7 @@ ms::selectinit2(const int datadescid, const bool resetsel)
                 retval = reset();
             } else {
                 String taQLExpr = "DATA_DESC_ID IN [" + String::toString(datadescid) + "]";
-                retval = selecttaql2(taQLExpr);
+                retval = selecttaql(taQLExpr);
                 initSel_p = retval;
             }
 		}
@@ -2297,13 +2300,14 @@ ms::selectinit2(const int datadescid, const bool resetsel)
 }
 
 bool
-ms::select(const ::casac::record& items)
+ms::selectold(const ::casac::record& items)
 {
-	*itsLog << LogOrigin("ms", "select");
+	*itsLog << LogOrigin("ms", "selectold");
 	*itsLog << LogIO::WARN
-			<< "The use of ms::select() is deprecated and will be "
-			<< "replaced by select2() in a future version. "
-            << "After deprecation, select2() will be renamed select(). "
+			<< "The use of ms::selectold() is deprecated; this function "
+			<< "will be removed from CASA in a future version. "
+			<< "Calls to ms::selectold() should be replaced by calls to "
+			<< "ms::select()."
 			<< LogIO::POST;
 
 	Bool retval = false;
@@ -2323,9 +2327,9 @@ ms::select(const ::casac::record& items)
 }
 
 bool
-ms::select2(const ::casac::record& items)
+ms::select(const ::casac::record& items)
 {
-	*itsLog << LogOrigin("ms", "select2");
+	*itsLog << LogOrigin("ms", "select");
     // Use selecttaql and msselect for these selections
 	Bool retval = true;
 	try {
@@ -2350,7 +2354,7 @@ ms::select2(const ::casac::record& items)
                   taqlStr += " in [";
                   taqlStr += MSSelection::indexExprStr(selRecord->asArrayInt(RecordFieldId(field)));
                   taqlStr += "]";
-			      retval = retval & selecttaql2(taqlStr);
+			      retval = retval & selecttaql(taqlStr);
                 }
                 else if (fieldStr=="IFR_NUMBER") {
                     Vector<Int> ifrNums = selRecord->asArrayInt(RecordFieldId(field));
@@ -2394,7 +2398,7 @@ ms::select2(const ::casac::record& items)
                         String taqlStr = uvwStr + ">=" + String::toString(uvw[0]);
                         taqlStr += " && ";
                         taqlStr += uvwStr + "<=" + String::toString(uvw[1]);
-			            retval = retval & selecttaql2(taqlStr);
+			            retval = retval & selecttaql(taqlStr);
                     } else {
                         *itsLog << LogIO::WARN << "Illegal value for uvdist range selection: two element numeric vector required" << LogIO::POST;
                         retval = false;
@@ -2418,7 +2422,7 @@ ms::select2(const ::casac::record& items)
                     Vector<Double> time = selRecord->asArrayDouble(RecordFieldId(field));
                     MeasurementSet selms = (*itsSelectedMS)((itsSelectedMS->col(column)).in(time));
                     *itsSelectedMS = selms;
-                    if (nrow2(true)==0) {
+                    if (nrow(true)==0) {
                         *itsLog << LogIO::WARN << "Zero rows selected; input precision may be too small to select times exactly.  Reset selection and select time range with {'time':[start,stop]} instead" << LogIO::POST;
                     }
                 }
@@ -2439,13 +2443,14 @@ ms::select2(const ::casac::record& items)
 }
 
 bool
-ms::selecttaql(const std::string& msselect)
+ms::selecttaqlold(const std::string& msselect)
 {
-	*itsLog << LogOrigin("ms", "selecttaql");
+	*itsLog << LogOrigin("ms", "selecttaqlold");
 	*itsLog << LogIO::WARN
-			<< "The use of ms::selecttaql() is deprecated and will be "
-			<< "replaced by selecttaql2() in a future version. "
-            << "After deprecation, selecttaql2() will be renamed selecttaql(). "
+			<< "The use of ms::selecttaqlold() is deprecated; this function "
+			<< "will be removed from CASA in a future version. "
+			<< "Calls to ms::selecttaqlold() should be replaced by calls to "
+			<< "ms::selecttaql()."
 			<< LogIO::POST;
 
 	Bool retval(False);
@@ -2462,9 +2467,9 @@ ms::selecttaql(const std::string& msselect)
 }
 
 bool
-ms::selecttaql2(const std::string& taqlstr)
+ms::selecttaql(const std::string& taqlstr)
 {
-    *itsLog << LogOrigin("ms", "selecttaql2");
+    *itsLog << LogOrigin("ms", "selecttaql");
 	Bool retval(false);
 	try {
 		if(!detached()) {
@@ -2487,14 +2492,15 @@ ms::selecttaql2(const std::string& taqlstr)
 }
 
 bool
-ms::selectchannel(const int nchan, const int start, const int width, const int inc)
+ms::selectchannelold(const int nchan, const int start, const int width, 
+        const int inc)
 {
-	*itsLog << LogOrigin("ms", "selectchannel");
+	*itsLog << LogOrigin("ms", "selectchannelold");
 	*itsLog << LogIO::WARN
-			<< "The use of ms::selectchannel() is deprecated and will be "
-			<< "replaced by selectchannel2() in a future version. "
-            << "After deprecation, selectchannel2() will be renamed "
-            << "selectchannel(). "
+			<< "The use of ms::selectchannelold() is deprecated; this function "
+			<< "will be removed from CASA in a future version. "
+			<< "Calls to ms::selectchannelold() should be replaced by calls to "
+			<< "ms::selectchannel()."
 			<< LogIO::POST;
 
 	Bool retval(false);
@@ -2530,14 +2536,14 @@ String ms::getSpwExpr() {
 }
 
 bool
-ms::selectchannel2(const int nchan, const int start, const int width, const int inc)
+ms::selectchannel(const int nchan, const int start, const int width, const int inc)
 {
-	*itsLog << LogOrigin("ms", "selectchannel2");
+	*itsLog << LogOrigin("ms", "selectchannel");
 	Bool retval(false);
 	try {
 		if(!detached()) {
             if (checkinit()) {
-	            *itsLog << LogOrigin("ms", "selectchannel2");
+	            *itsLog << LogOrigin("ms", "selectchannel");
                 // No averaging = width of 1
                 Int chanbin = ( width>0 ? width : 1 );
                 Bool ok = (nchan>0 && start>=0 && width>0 && inc>0);
@@ -2597,14 +2603,14 @@ ms::selectchannel2(const int nchan, const int start, const int width, const int 
 }
 
 bool
-ms::selectpolarization(const std::vector<std::string>& wantedpol)
+ms::selectpolarizationold(const std::vector<std::string>& wantedpol)
 {
-	*itsLog << LogOrigin("ms", "selectpolarization");
+	*itsLog << LogOrigin("ms", "selectpolarizationold");
 	*itsLog << LogIO::WARN
-			<< "The use of ms::selectpolarization() is deprecated and will be "
-			<< "replaced by selectpolarization2() in a future version. "
-            << "After deprecation, selectpolarization2() will be renamed "
-            << "selectpolarization(). "
+			<< "The use of ms::selectpolarizationold() is deprecated; this "
+            << "function will be removed from CASA in a future version. "
+			<< "Calls to ms::selectpolarizationold() should be replaced by "
+            << "calls to ms::selectpolarization()."
 			<< LogIO::POST;
 
 	Bool retval(False);
@@ -2623,9 +2629,9 @@ ms::selectpolarization(const std::vector<std::string>& wantedpol)
 }
 
 bool
-ms::selectpolarization2(const std::vector<std::string>& wantedpol)
+ms::selectpolarization(const std::vector<std::string>& wantedpol)
 {
-	*itsLog << LogOrigin("ms", "selectpolarization2");
+	*itsLog << LogOrigin("ms", "selectpolarization");
 	Bool retval(false);
 	try {
         if(!detached()) {
@@ -3514,13 +3520,14 @@ void ms::getIfrArray(Array<T>& inputarray, vi::VisBuffer2* vb2) {
 }
 
 ::casac::record*
-ms::getdata(const std::vector<std::string>& items, const bool ifraxis, const int ifraxisgap, const int increment, const bool average)
+ms::getdataold(const std::vector<std::string>& items, const bool ifraxis, const int ifraxisgap, const int increment, const bool average)
 {
-	*itsLog << LogOrigin("ms", "getdata");
+	*itsLog << LogOrigin("ms", "getdataold");
 	*itsLog << LogIO::WARN
-			<< "The use of ms::getdata() is deprecated and will be "
-			<< "replaced by getdata2() in a future version. "
-            << "After deprecation, getdata2() will be renamed getdata(). "
+            << "The use of ms::getdataold() is deprecated; this function "
+			<< "will be removed from CASA in a future version. "
+			<< "Calls to ms::getdataold() should be replaced by calls to "
+			<< "ms::getdata()."
 			<< LogIO::POST;
 
 	::casac::record *retval(0);
@@ -3556,9 +3563,9 @@ ms::getdata(const std::vector<std::string>& items, const bool ifraxis, const int
 }
 
 ::casac::record*
-ms::getdata2(const std::vector<std::string>& items, const bool ifraxis, const int ifraxisgap, const int increment, const bool average)
+ms::getdata(const std::vector<std::string>& items, const bool ifraxis, const int ifraxisgap, const int increment, const bool average)
 {
-	*itsLog << LogOrigin("ms", "getdata2");
+	*itsLog << LogOrigin("ms", "getdata");
 
 	::casac::record *retval(0);
 	try {
@@ -3571,7 +3578,7 @@ ms::getdata2(const std::vector<std::string>& items, const bool ifraxis, const in
 
             uInt nrows = itsSelectedMS->nrow();
             if (nrows == 0) {
-                *itsLog << LogIO::WARN << "Selected table is empty - use selectinit2" << LogIO::POST;
+                *itsLog << LogIO::WARN << "Selected table is empty - use selectinit" << LogIO::POST;
 		        return retval;
 	        }
 
@@ -3727,7 +3734,7 @@ ms::getdata2(const std::vector<std::string>& items, const bool ifraxis, const in
                 vi::VisBuffer2* vb2 = itsVI2->getVisBuffer();
                 if (maxrows_p) {
                     // this is per visbuffer!
-                    // Iteration adjusted in iternext2()
+                    // Iteration adjusted in iternext()
                     for (uInt it=0; it<itemnames.size(); ++it) {
                         if (!itemnames(it).empty()) 
                             getitem(itemnames(it), vb2, out, ifraxis);
@@ -3744,13 +3751,13 @@ ms::getdata2(const std::vector<std::string>& items, const bool ifraxis, const in
                 // Set up iterator and go through all chunks
                 // Note: iter methods change LogOrigin, change back!
                 if (checkinit()) {
-                    *itsLog << LogOrigin("ms", "getdata2");
+                    *itsLog << LogOrigin("ms", "getdata");
                     // init iterator, do not sort columns
                     std::vector<std::string> columns = {""};
-                    if (iterinit2(columns, 0.0, 0, false)) {
-                        iterorigin2();
+                    if (iterinit(columns, 0.0, 0, false)) {
+                        iterorigin();
                         vi::VisBuffer2* vb2 = itsVI2->getVisBuffer();
-                        *itsLog << LogOrigin("ms", "getdata2");
+                        *itsLog << LogOrigin("ms", "getdata");
                         // handle first chunk
                         for (itsVI2->origin(); itsVI2->more(); itsVI2->next()) {
                             for (uInt it=0; it<itemnames.size(); ++it) {
@@ -3760,8 +3767,8 @@ ms::getdata2(const std::vector<std::string>& items, const bool ifraxis, const in
                             }
                         }
                         // continue iteration
-                        while (iternext2()) {
-                            *itsLog << LogOrigin("ms", "getdata2");
+                        while (iternext()) {
+                            *itsLog << LogOrigin("ms", "getdata");
                             for (itsVI2->origin(); itsVI2->more(); itsVI2->next()) {
                                 for (uInt it=0; it<itemnames.size(); ++it) {
                                     if (!itemnames(it).empty())
@@ -3769,8 +3776,8 @@ ms::getdata2(const std::vector<std::string>& items, const bool ifraxis, const in
                                 }
                             }
                         }
-                        iterend2();
-                        *itsLog << LogOrigin("ms", "getdata2");
+                        iterend();
+                        *itsLog << LogOrigin("ms", "getdata");
                     } // iterinit
                 } // checkinit 
             } // else (!VI2)
@@ -4800,13 +4807,14 @@ casacore::String ms::getbaseitem(String itemname) {
 }
 
 bool
-ms::putdata(const ::casac::record& items)
+ms::putdataold(const ::casac::record& items)
 {
-	*itsLog << LogOrigin("ms", "putdata");
+	*itsLog << LogOrigin("ms", "putdataold");
 	*itsLog << LogIO::WARN
-			<< "The use of ms::putdata() is deprecated and will be "
-			<< "replaced by putdata2() in a future version. "
-            << "After deprecation, putdata2() will be renamed putdata(). "
+            << "The use of ms::putdataold() is deprecated; this function "
+			<< "will be removed from CASA in a future version. "
+			<< "Calls to ms::putdataold() should be replaced by calls to "
+			<< "ms::putdata()."
 			<< LogIO::POST;
 
 	Bool rstat(False);
@@ -4826,19 +4834,19 @@ ms::putdata(const ::casac::record& items)
 }
 
 bool
-ms::putdata2(const ::casac::record& items)
+ms::putdata(const ::casac::record& items)
 {
-	*itsLog << LogOrigin("ms", "putdata2");
+	*itsLog << LogOrigin("ms", "putdata");
 	bool rstat(false);
 	try {
 		if(!detached()){
             // run some checks!
-            if (nrow2(True)==0) {
-                *itsLog << LogIO::SEVERE << "Selected table is empty - use selectinit2"
+            if (nrow(True)==0) {
+                *itsLog << LogIO::SEVERE << "Selected table is empty - use selectinit"
 				    << LogIO::POST;
 		        return false;
 	        }
-	        *itsLog << LogOrigin("ms", "putdata2");
+	        *itsLog << LogOrigin("ms", "putdata");
             if (!ready2write_()) {
                 *itsLog << LogIO::SEVERE << "MeasurementSet is not writable; use open with nomodify=False" << LogIO::POST;
 		        return false;
@@ -4877,11 +4885,11 @@ ms::putdata2(const ::casac::record& items)
                     }
                 } else {
                     if (checkinit()) {
-                        *itsLog << LogOrigin("ms", "putdata2");
+                        *itsLog << LogOrigin("ms", "putdata");
                         std::vector<std::string> columns = {""};
-                        if (iterinit2(columns, 0.0, 0, false)) {
-                            iterorigin2();
-                            *itsLog << LogOrigin("ms", "putdata2");
+                        if (iterinit(columns, 0.0, 0, false)) {
+                            iterorigin();
+                            *itsLog << LogOrigin("ms", "putdata");
                             vi::VisBuffer2* vb2 = itsVI2->getVisBuffer();
                             for (itsVI2->origin(); itsVI2->more(); itsVI2->next()) {
                                 for (uInt i=0; i<putRecord->nfields(); ++i) {
@@ -4891,8 +4899,8 @@ ms::putdata2(const ::casac::record& items)
                                 startrow += vb2->nRows();
                                 ++subchunk;
                             }
-                            while(iternext2()) {
-                                *itsLog << LogOrigin("ms", "putdata2");
+                            while(iternext()) {
+                                *itsLog << LogOrigin("ms", "putdata");
                                 for (itsVI2->origin(); itsVI2->more(); itsVI2->next()) {
                                     for (uInt i=0; i<putRecord->nfields(); ++i) {
                                         if (allowed(i)) putitem(i, vb2, *putRecord,
@@ -4902,8 +4910,8 @@ ms::putdata2(const ::casac::record& items)
                                     ++subchunk;
                                 }
                             }
-                            iterend2();
-                            *itsLog << LogOrigin("ms", "putdata2");
+                            iterend();
+                            *itsLog << LogOrigin("ms", "putdata");
                         } // iterinit
                     } // checkinit
                 } // else
@@ -5753,14 +5761,19 @@ Vector<Int> ms::getspectralwindows() {
 }
 
 bool
-ms::iterinit(const std::vector<std::string>& columns, const double interval,
+ms::iterinitold(const std::vector<std::string>& columns, const double interval,
              const int maxrows, const bool adddefaultsortcolumns)
 {
-	*itsLog << LogOrigin("ms", "iterinit");
+	*itsLog << LogOrigin("ms", "iterinitold");
 	*itsLog << LogIO::WARN
-			<< "The use of ms::iterinit() is deprecated and will be "
-			<< "replaced by iterinit2() in a future version. "
-            << "After deprecation, iterinit2() will be renamed iterinit(). "
+            << "The use of the old ms iter functions is deprecated; these "
+            << "functions will be removed from CASA in a future version. "
+			<< "Calls to ms::iterinitold() should be replaced by calls to "
+			<< "ms::iterinit(). Calls to ms::iteroriginold() should be "
+            << "replaced by calls to ms::iterorigin().  Calls to "
+            << "ms::iternextold() should be replaced by calls to "
+			<< "ms::iternext().  Calls to ms::iterendold() should be replaced "
+            << "by calls to ms::iterend()."
 			<< LogIO::POST;
 
 	Bool rstat(false);
@@ -5782,10 +5795,10 @@ ms::iterinit(const std::vector<std::string>& columns, const double interval,
 }
 
 bool
-ms::iterinit2(const std::vector<std::string>& columns, const double interval,
+ms::iterinit(const std::vector<std::string>& columns, const double interval,
              const int maxrows, const bool adddefaultsortcolumns)
 {
-	*itsLog << LogOrigin("ms", "iterinit2");
+	*itsLog << LogOrigin("ms", "iterinit");
 	Bool rstat(false);
 	try {
 		if (!detached()) {
@@ -5820,7 +5833,7 @@ ms::iterinit2(const std::vector<std::string>& columns, const double interval,
             Vector<vi::ViiLayerFactory*> layers(1);
             layers[0] = &viilayer;
 
-            // Add channel-averaging layer if requested in selectchannel2 
+            // Add channel-averaging layer if requested in selectchannel 
             if (chanAverage) {
                 Record config;
                 config.define("chanbin", chansel_p[2]);
@@ -5948,14 +5961,9 @@ bool ms::statwt2(
 }
 
 bool
-ms::iterorigin()
+ms::iteroriginold()
 {
-	*itsLog << LogOrigin("ms", "iterorigin");
-	*itsLog << LogIO::WARN
-			<< "The use of ms::iterorigin() is deprecated and will be "
-			<< "replaced by iterorigin2() in a future version. "
-            << "After deprecation, iterorigin2() will be renamed iterorigin(). "
-			<< LogIO::POST;
+	*itsLog << LogOrigin("ms", "iteroriginold");
 
 	Bool rstat(False);
 	try {
@@ -5971,9 +5979,9 @@ ms::iterorigin()
 }
 
 bool
-ms::iterorigin2()
+ms::iterorigin()
 {
-	*itsLog << LogOrigin("ms", "iterorigin2");
+	*itsLog << LogOrigin("ms", "iterorigin");
 	Bool rstat(false);
 	try {
 		if(!detached()) {
@@ -5995,14 +6003,9 @@ ms::iterorigin2()
 }
 
 bool
-ms::iternext()
+ms::iternextold()
 {
-	*itsLog << LogOrigin("ms", "iternext");
-	*itsLog << LogIO::WARN
-			<< "The use of ms::iternext() is deprecated and will be "
-			<< "replaced by iternext2() in a future version. "
-            << "After deprecation, iternext2() will be renamed iternext(). "
-			<< LogIO::POST;
+	*itsLog << LogOrigin("ms", "iternextold");
 
 	Bool rstat(false);
 	try {
@@ -6018,9 +6021,9 @@ ms::iternext()
 }
 
 bool
-ms::iternext2()
+ms::iternext()
 {
-	*itsLog << LogOrigin("ms", "iternext2");
+	*itsLog << LogOrigin("ms", "iternext");
 	Bool rstat(false);
 	try {
 		if(!detached()) {
@@ -6056,14 +6059,9 @@ ms::iternext2()
 }
 
 bool
-ms::iterend()
+ms::iterendold()
 {
-	*itsLog << LogOrigin("ms", "iterend");
-	*itsLog << LogIO::WARN
-			<< "The use of ms::iterend() is deprecated and will be "
-			<< "replaced by iterend2() in a future version. "
-            << "After deprecation, iterend2() will be renamed iterend(). "
-			<< LogIO::POST;
+	*itsLog << LogOrigin("ms", "iterendold");
 
 	Bool rstat(False);
 	try {
@@ -6079,9 +6077,9 @@ ms::iterend()
 }
 
 bool
-ms::iterend2()
+ms::iterend()
 {
-	*itsLog << LogOrigin("ms", "iterend2");
+	*itsLog << LogOrigin("ms", "iterend");
 	Bool rstat(false);
 	try {
 		if(!detached())
@@ -6188,19 +6186,19 @@ ms::asdmref(const std::string& abspath)
 
 }
 
-bool ms::continuumsub(const ::casac::variant& field,
+bool ms::continuumsubold(const ::casac::variant& field,
                       const ::casac::variant& fitspw,
                       const ::casac::variant& spw,
                       const ::casac::variant& solint,
                       const int fitorder,
                       const std::string& mode)
 {
-	*itsLog << LogOrigin("ms", "continuumsub");
+	*itsLog << LogOrigin("ms", "continuumsubold");
 	*itsLog << LogIO::WARN
-			<< "The use of ms::continuumsub() is deprecated and will be "
-			<< "replaced by continuumsub2() in a future version. "
-            << "After deprecation, continuumsub2() will be renamed "
-            << "continuumsub()."
+            << "The use of ms::continuumsubold() is deprecated; this function "
+			<< "will be removed from CASA in a future version. "
+			<< "Calls to ms::continuumsubold() should be replaced by calls to "
+			<< "ms::continuumsub()."
 			<< LogIO::POST;
 
 	Bool rstat(false);
@@ -6227,7 +6225,7 @@ bool ms::continuumsub(const ::casac::variant& field,
 	return rstat;
 }
 
-bool ms::continuumsub2(const ::casac::variant& field,
+bool ms::continuumsub(const ::casac::variant& field,
                       const ::casac::variant& fitspw,
                       const ::casac::variant& spw,
                       const ::casac::variant& solint,
@@ -6236,7 +6234,7 @@ bool ms::continuumsub2(const ::casac::variant& field,
 {
 	Bool rstat(False);
 	try {
-		*itsLog << LogOrigin("ms", "continuumsub2");
+		*itsLog << LogOrigin("ms", "continuumsub");
 		*itsLog << LogIO::NORMAL2 << "continuumsub starting" << LogIO::POST;
 
 		MSContinuumSubtractor sub(*itsMS);
@@ -6651,10 +6649,14 @@ ms::niterinit(const std::vector<std::string>& /*columns*/, const double interval
 { 
 	*itsLog << LogOrigin("ms", "niterinit");
 	*itsLog << LogIO::WARN
-			<< "The use of ms::niterinit() is deprecated; this function "
-			<< "will be removed from CASA. "
+            << "The use of the ms niter functions is deprecated; these "
+            << "functions will be removed from CASA in a future version. "
 			<< "Calls to ms::niterinit() should be replaced by calls to "
-			<< "ms::iterinit2()."
+			<< "ms::iterinit(). Calls to ms::niterorigin() should be "
+            << "replaced by calls to ms::iterorigin().  Calls to "
+            << "ms::niternext() should be replaced by calls to "
+			<< "ms::iternext().  Calls to ms::niterend() should be replaced "
+            << "by calls to ms::iterend()."
 			<< LogIO::POST;
 
 	Bool rstat(false);
@@ -6685,12 +6687,6 @@ bool
 ms::niterorigin()
 {
 	*itsLog << LogOrigin("ms", "niterorigin");
-	*itsLog << LogIO::WARN
-			<< "The use of ms::niterorigin() is deprecated; this function "
-			<< "will be removed from CASA. "
-			<< "Calls to ms::niterorigin() should be replaced by calls to "
-			<< "ms::iterorigin2()."
-			<< LogIO::POST;
 
 	Bool rstat(false);
 	if (!detached())
@@ -6717,12 +6713,6 @@ bool
 ms::niterend()
 {
 	*itsLog << LogOrigin("ms", "niterend");
-	*itsLog << LogIO::WARN
-			<< "The use of ms::niterend() is deprecated; this function "
-			<< "will be removed from CASA. "
-			<< "Calls to ms::niterend() should be replaced by calls to "
-			<< "ms::iterend2()."
-			<< LogIO::POST;
 
 	Bool rstat(false);
 	if (!detached())
@@ -6743,12 +6733,6 @@ bool
 ms::niternext()
 {
 	*itsLog << LogOrigin("ms", "niternext");
-	*itsLog << LogIO::WARN
-			<< "The use of ms::niternext() is deprecated; this function "
-			<< "will be removed from CASA. "
-			<< "Calls to ms::niternext() should be replaced by calls to "
-			<< "ms::iternext2()."
-			<< LogIO::POST;
 
 	Bool rstat(false);
 	if (!detached())
@@ -6775,10 +6759,10 @@ ms::ngetdata(const std::vector<std::string>& items, const bool /*ifraxis*/, cons
 {
 	*itsLog << LogOrigin("ms", "ngetdata");
 	*itsLog << LogIO::WARN
-			<< "The use of ms::ngetdata() is deprecated; this function "
-			<< "will be removed from CASA. "
+            << "The use of the ms::ngetdata is deprecated; this function "
+            << "will be removed from CASA in a future version. "
 			<< "Calls to ms::ngetdata() should be replaced by calls to "
-			<< "ms::getdata2()."
+			<< "ms::getdata()."
 			<< LogIO::POST;
 
 	try

@@ -74,6 +74,7 @@ public:
 
     void setVerbosity(Verbosity verbosity) { _verbosity = verbosity; }
 
+    // <group>
     // These messages will appear in the product image history upon the call to
     // _prepareOutputImage(). They will be located immediately after the input
     // image's copied history. The first value in the pair is the log origin.
@@ -92,6 +93,7 @@ public:
         const casacore::LogOrigin& origin, const casacore::String& taskname,
         const vector<casacore::String>& paramNames, const vector<casac::variant>& paramValues
     ) const;
+    // </group>
 
     // suppress writing the history on _prepareOutputImage() call. Useful for
     // not writing history to intermediate image products.
