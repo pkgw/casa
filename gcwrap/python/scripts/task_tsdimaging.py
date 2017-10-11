@@ -2,6 +2,7 @@
 import os
 import re
 import numpy
+import shutil
 
 from taskinit import casalog, gentools, qatool
 
@@ -19,8 +20,8 @@ associate_suffixes = ['.psf', '.sumwt', '.weight']
 def _configure_spectral_axis(mode, nchan, start, width, restfreq):
     #TODO: implement the function
     imnchan = nchan
-    imstart = start
-    imwidth = width
+    imstart = str(start)
+    imwidth = str(width)
     return imnchan, imstart, imwidth
 
 def _handle_grid_defaults(value):
@@ -35,7 +36,7 @@ def _handle_grid_defaults(value):
 def _remove_image(imagename):
     if os.path.exists(imagename):
         if os.path.isdir(imagename):
-            os.rmdir(imagename)
+            shutil.rmtree(imagename)
         elif os.path.isfile(imagename):
             os.remove(imagename)
         else:
@@ -49,6 +50,8 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
     origin = 'tsdimaging'
     imager = None
  
+    casalog.post('spw = \'{0}\' type {1}'.format(spw, type(spw)))
+ 
     try: 
         
         # handle overwrite parameter
@@ -58,9 +61,13 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
                 raise RuntimeError('Output file \'{0}\' exists.'.format(presumed_imagename))
             else:
                 # delete existing images
+                casalog.post('Removing \'{0}\''.format(presumed_imagename))
                 _remove_image(presumed_imagename)
+                assert not os.path.exists(presumed_imagename)
                 for _suffix in associate_suffixes:
+                    casalog.post('Removing \'{0}\''.format(outfile + _suffix))
                     _remove_image(outfile + _suffix)
+                    assert not os.path.exists(outfile + _suffix)
     
         # parse parameter for spectral axis 
         imnchan, imstart, imwidth = _configure_spectral_axis(mode, nchan, start, width, restfreq)
