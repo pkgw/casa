@@ -1705,12 +1705,13 @@ void SynthesisImagerVi2::unlockMSs()
     os << LogIO::NORMAL // Loglevel INFO
        << "Gridding will use specified common tangent point:" << LogIO::POST;
     os << LogIO::NORMAL << tangentPoint(phaseCenter_p) << LogIO::POST; // Loglevel INFO
-    if(gridFunction=="pb") {
+    String const gridfunclower = downcase(gridFunction);
+    if(gridfunclower=="pb") {
       refim::SkyJones *vp = nullptr;
       ROMSColumns msc(*mss_p[0]);
       // todo: NONE is OK?
       BeamSquint::SquintType squintType = BeamSquint::NONE;
-      Quantity skyPosThresholdQuant((Double)skyPosThreshold, "deg");
+      Quantity skyPosThresholdQuant((Double)skyPosThreshold+180.0, "deg");
       Quantity parAngleStepQuant((Double)rotatePAStep, "deg");
       if (itsVpTable.empty()) {
         os << LogIO::NORMAL // Loglevel INFO
@@ -1724,11 +1725,11 @@ void SynthesisImagerVi2::unlockMSs()
         vp=new refim::VPSkyJones(msc, vpTable, parAngleStepQuant, squintType,
             skyPosThresholdQuant);
       }
-      theFT = new refim::SDGrid(mLocation_p, *vp, cache/2, tile, gridFunction,
+      theFT = new refim::SDGrid(mLocation_p, *vp, cache/2, tile, gridfunclower,
           convSupport, minWeight, clipMinMax);
-      theIFT = new refim::SDGrid(mLocation_p, *vp, cache/2, tile, gridFunction,
+      theIFT = new refim::SDGrid(mLocation_p, *vp, cache/2, tile, gridfunclower,
           convSupport, minWeight, clipMinMax);
-    } else if (gridFunction=="gauss" || gridFunction=="gjinc") {
+    } else if (gridfunclower=="gauss" || gridfunclower=="gjinc") {
       DirectionCoordinate dirCoord = itsMaxCoordSys.directionCoordinate();
       Vector<String> units = dirCoord.worldAxisUnits();
       Vector<Double> increments = dirCoord.increment();
@@ -1755,15 +1756,15 @@ void SynthesisImagerVi2::unlockMSs()
         jwidthValue = jwidth.getValue();
       else
         jwidthValue = jwidth.getValue("rad")/celly.getValue("rad");
-      theFT = new refim::SDGrid(mLocation_p, cache/2, tile, gridFunction,
+      theFT = new refim::SDGrid(mLocation_p, cache/2, tile, gridfunclower,
                         truncateValue, gwidthValue, jwidthValue, minWeight, clipMinMax);
-      theIFT = new refim::SDGrid(mLocation_p, cache/2, tile, gridFunction,
+      theIFT = new refim::SDGrid(mLocation_p, cache/2, tile, gridfunclower,
                         truncateValue, gwidthValue, jwidthValue, minWeight, clipMinMax);
     }
     else {
-      theFT = new refim::SDGrid(mLocation_p, cache/2, tile, gridFunction,
+      theFT = new refim::SDGrid(mLocation_p, cache/2, tile, gridfunclower,
                         convSupport, minWeight, clipMinMax);
-      theIFT = new refim::SDGrid(mLocation_p, cache/2, tile, gridFunction,
+      theIFT = new refim::SDGrid(mLocation_p, cache/2, tile, gridfunclower,
                         convSupport, minWeight, clipMinMax);
     }
     theFT->setPointingDirColumn(pointingDirCol);
