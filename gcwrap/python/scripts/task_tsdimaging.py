@@ -117,7 +117,9 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
             jwidth=gjwidth,
             pointingcolumntouse=pointingcolumn,
             minweight=minweight,
-            clipminmax=clipminmax
+            clipminmax=clipminmax,
+            # normalizer
+            normtype='flatsky'
         )
         
         # TODO: hadnle ephemsrcname
