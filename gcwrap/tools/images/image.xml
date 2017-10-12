@@ -5025,20 +5025,22 @@ but can be performed over several contiguous spectral channels.
 If the image has a clean beam, the report and returned dictionary will contain both the convolved
 and the deconvolved fit results.
 
-When dooff is False, the method returns a dictionary with three keys, 'converged', 'results',
-and 'deconvolved'. The value of 'converged' is a boolean array which indicates if the fit
-converged on a channel by channel basis. The value of 'results' is a dictionary representing
-a component list reflecting the fit results. In the case of an image containing beam information,
-the sizes and position angles in the 'results' dictionary are those of the source(s) convolved
-with the restoring beam, while the same parameters in the 'deconvolved' dictionary represent the
-source sizes deconvolved from the beam. In the case where the image does not contain a beam,
-'deconvolved' will be absent. Both the 'results' and 'deconvolved' dictionaries can
-be read into a component list tool (default tool is named cl) using the fromrecord() method
-for easier inspection using tool methods, eg
+When dooff is False, the method returns a dictionary with keys named 'converged', 'pixelsperarcsec',
+'results', and 'deconvolved'. The value of 'converged' is a boolean array which indicates if the
+fit converged on a channel by channel basis. The value of 'pixelsperarcsec' is a two element double
+array with the absolute values of the direction coordinate pixel increments (longitude-like and
+latitude-like coordinate, respectively) in arcsec. The value of 'results' is a dictionary
+representing a component list reflecting the fit results. In the case of an image containing beam
+information, the sizes and position angles in the 'results' dictionary are those of the source(s)
+convolved with the restoring beam, while the same parameters in the 'deconvolved' dictionary
+represent the source sizes deconvolved from the beam. In the case where the image does not
+contain a beam, 'deconvolved' will be absent. Both the 'results' and 'deconvolved' dictionaries can
+be read into a component list tool (default tool is named cl) using the fromrecord() method for
+easier inspection using tool methods, eg
 
 cl.fromrecord(res['results'])
 
-although this currently only works if the flux density units are conformant with Jy.
+although this only works if the flux density units are conformant with Jy.
 
 There are also values in each component subdictionary not used by cl.fromrecord() but meant to
 supply additional information. There is a 'peak' subdictionary for each component that provides the

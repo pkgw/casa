@@ -303,6 +303,13 @@ void ImageFitter::_createOutputRecord(
         _output.defineRecord("deconvolved", allDeconvolved);
     }
     _output.define("converged", _fitConverged);
+    const auto& dc = _getImage()->coordinates().directionCoordinate();
+    auto inc = dc.increment();
+    auto units = dc.worldAxisUnits();
+    Vector<Double> pixelsPerArcsec(2);
+    pixelsPerArcsec[0] = abs(1/Quantity(inc[0], units[0]).getValue("arcsec"));
+    pixelsPerArcsec[1] = abs(1/Quantity(inc[1], units[1]).getValue("arcsec"));
+    _output.define("pixelsperarcsec", pixelsPerArcsec);
     if (_doZeroLevel) {
         Record z;
         z.define("value", Vector<Double>(_zeroLevelOffsetSolution));
@@ -373,7 +380,6 @@ void ImageFitter::_fitLoop(
         }
         *_getLog() << origin;
         anyConverged |= converged;
-
         if (converged) {
             _doConverged(
                 convolvedList, deconvolvedList,

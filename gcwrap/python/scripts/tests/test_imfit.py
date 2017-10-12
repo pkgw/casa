@@ -1310,6 +1310,9 @@ class imfit_test(unittest.TestCase):
                 res['results']['component2']['pixelcoords'], [54.74, 40.89],
                 atol=0.01).all()
             )
+            self.assertTrue(
+                numpy.isclose(res['pixelsperarcsec'], 1.0/60).all()
+            )
 
     def test_xx_fit(self):
         '''Imfit: Fit using pol xx'''
