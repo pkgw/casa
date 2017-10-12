@@ -70,7 +70,7 @@ include( CASA )
 
 set( CASA_VERSION_MAJOR   5   )
 set( CASA_VERSION_MINOR   1   )
-set( CASA_VERSION_PATCH   0   )
+set( CASA_VERSION_PATCH   1   )
 set( CASA_VERSION_FEATURE 0 CACHE STRING "feature version" )
 set( CASA_VERSION_DESC    "" )
 

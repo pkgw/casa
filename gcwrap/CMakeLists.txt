@@ -1,4 +1,4 @@
-# CASA - Common Astronomy Software Applications 
+# CASA - Common Astronomy Software Applications
 # Copyright (C) 2010 by ESO (in the framework of the ALMA collaboration)
 # Copyright (C) 2010 by NAOJ (in the framework of the ALMA collaboration)
 # Copyright (C) 2010 Associated Universities, Inc. Washington DC, USA.
@@ -68,7 +68,7 @@ include( CASA )
 
 set( CASA_MAJOR_VERSION 5 )
 set( CASA_MINOR_VERSION 1 )
-set( CASA_PATCH_VERSION 0 )
+set( CASA_PATCH_VERSION 1 )
 set( CASA_API_VERSION "${CASA_MAJOR_VERSION}.${CASA_MINOR_VERSION}.${CASA_PATCH_VERSION}" )
 
 set( casa_startup 0 )
