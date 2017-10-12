@@ -45,11 +45,11 @@
 	
 
 	
-#include <Interval.h>
+#include <Tag.h>
 	
 
 	
-#include <Tag.h>
+#include <Interval.h>
 	
 
 
@@ -117,7 +117,7 @@ class AnnotationRow;
  * The Annotation Table is intended to offer space for unexpected data to be  added in the software development process at short notice, without  redefining the data model.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of Annotation </CAPTION>
@@ -164,77 +164,77 @@ class AnnotationRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> numAntenna </TD> 
+ * <TD> numAntenna(\f$N_{Ante}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; number of antennas. </TD>
  * </TR>
 	
  * <TR>
- * <TD> basebandName </TD> 
+ * <TD> basebandName</TD> 
  * <TD> vector<BasebandNameMod::BasebandName > </TD>
  * <TD>  numBaseband  </TD>
  * <TD>&nbsp; an array of numBaseband baseband names. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numBaseband </TD> 
+ * <TD> numBaseband(\f$N_{Base}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; number of basebands. </TD>
  * </TR>
 	
  * <TR>
- * <TD> interval </TD> 
+ * <TD> interval</TD> 
  * <TD> Interval </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; time interval </TD>
  * </TR>
 	
  * <TR>
- * <TD> dValue </TD> 
+ * <TD> dValue</TD> 
  * <TD> double </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; scalar data. </TD>
  * </TR>
 	
  * <TR>
- * <TD> vdValue </TD> 
+ * <TD> vdValue</TD> 
  * <TD> vector<double > </TD>
  * <TD>    </TD>
  * <TD>&nbsp; useful to store an array of double values. </TD>
  * </TR>
 	
  * <TR>
- * <TD> vvdValues </TD> 
+ * <TD> vvdValues</TD> 
  * <TD> vector<vector<double > > </TD>
  * <TD>  ,   </TD>
  * <TD>&nbsp; useful to store an array of array(s) of double values. </TD>
  * </TR>
 	
  * <TR>
- * <TD> llValue </TD> 
+ * <TD> llValue</TD> 
  * <TD> int64_t </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; useful to record a long long data. </TD>
  * </TR>
 	
  * <TR>
- * <TD> vllValue </TD> 
+ * <TD> vllValue</TD> 
  * <TD> vector<int64_t > </TD>
  * <TD>    </TD>
  * <TD>&nbsp; useful to store an array of array(s) of long long values. </TD>
  * </TR>
 	
  * <TR>
- * <TD> vvllValue </TD> 
+ * <TD> vvllValue</TD> 
  * <TD> vector<vector<int64_t > > </TD>
  * <TD>  ,   </TD>
  * <TD>&nbsp; useful to store an array of array(s) long long values. </TD>
  * </TR>
 	
  * <TR>
- * <TD> antennaId </TD> 
+ * <TD> antennaId</TD> 
  * <TD> vector<Tag>  </TD>
  * <TD>  numAntenna  </TD>
  * <TD>&nbsp; refers to a collection of rows in the AntennaTable. </TD>
@@ -498,6 +498,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

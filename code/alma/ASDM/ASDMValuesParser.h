@@ -96,9 +96,7 @@ namespace asdm {
       T result;
       iss.clear();
       iss.str(s);
-      //char c;
       READ(result);
-      //if ( c == ' ' ) iss.putback(c);list.tcc
       return result;
     }
 

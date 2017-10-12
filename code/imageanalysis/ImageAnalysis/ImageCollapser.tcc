@@ -218,18 +218,19 @@ template<class T> casacore::Bool ImageCollapser<T>::_doMultipleBeams(
         }
     }
     if (! dirAxesOnlyCollapse) {
-        *this->_getLog() << casacore::LogIO::WARN << "Input image has per plane beams "
-            << "but the collapse is not done exclusively along the direction axes. "
-            << "The output image will arbitrarily have a single beam which "
-            << "is the first beam available in the subimage."
-            << "Thus, the image planes will not be convolved to a common "
-            << "restoring beam before collapsing. If, however, this is desired, "
-            << "then run the task imsmooth or the tool method ia.convolve2d() first, "
-            << "and use the output image of that as the input for collapsing."
-            << casacore::LogIO::POST;
+        LogOrigin lor(getClass(), __func__);
+        String msg = "Input image has per plane beams "
+            "but the collapse is not done exclusively along the direction axes. "
+            "The output image will arbitrarily have a single beam which "
+            "is the first beam available in the subimage."
+            "Thus, the image planes will not be convolved to a common "
+            "restoring beam before collapsing. If, however, this is desired, "
+            "then run the task imsmooth or the tool method ia.convolve2d() first, "
+            "and use the output image of that as the input for collapsing.";
+        *this->_getLog() << lor << LogIO::WARN << msg << LogIO::POST;
+        this->addHistory(lor, msg);
         ImageUtilities::copyMiscellaneous(tmpIm, *subImage, false);
         auto info = subImage->imageInfo();
-        vector<Vector<Quantity>> out;
         auto beam = *(info.getBeamSet().getBeams().begin());
         info.removeRestoringBeam();
         info.setRestoringBeam(beam);

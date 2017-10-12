@@ -41,15 +41,15 @@
 
 
 	
+#include <ArrayTimeInterval.h>
+	
+
+	
 #include <Angle.h>
 	
 
 	
 #include <Length.h>
-	
-
-	
-#include <ArrayTimeInterval.h>
 	
 
 
@@ -99,7 +99,7 @@ class SeeingRow;
  * Seeing information.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of Seeing </CAPTION>
@@ -121,7 +121,7 @@ class SeeingRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numBaseLength </TD> 
+ * <TD> numBaseLength (\f$N_{Base}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp; </TD>
@@ -446,6 +446,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 

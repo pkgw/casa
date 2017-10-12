@@ -2563,11 +2563,13 @@ assocCalNature = CAssociatedCalNature::from_int(0);
 	 * Return true if all required attributes of the value part are equal to their homologues
 	 * in x and false otherwise.
 	 *
+
 	 * @param x a pointer on the CalDataRow whose required attributes of the value part 
+
 	 * will be compared with those of this.
 	 * @return a boolean.
 	 */
-	bool CalDataRow::equalByRequiredValue(CalDataRow* x) {
+	bool CalDataRow::equalByRequiredValue(CalDataRow*  x ) {
 		
 			
 		if (this->startTimeObserved != x->startTimeObserved) return false;

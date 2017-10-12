@@ -41,11 +41,11 @@
 
 
 	
-#include <ArrayTime.h>
+#include <Temperature.h>
 	
 
 	
-#include <Temperature.h>
+#include <ArrayTime.h>
 	
 
 	
@@ -53,11 +53,11 @@
 	
 
 	
-#include <Tag.h>
+#include <Frequency.h>
 	
 
 	
-#include <Frequency.h>
+#include <Tag.h>
 	
 
 
@@ -169,7 +169,7 @@ class CalPointingRow;
  * Result of the pointing calibration performed on-line by TelCal.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of CalPointing </CAPTION>
@@ -281,7 +281,7 @@ class CalPointingRow;
  * </TR>
 	
  * <TR>
- * <TD> numReceptor </TD> 
+ * <TD> numReceptor (\f$N_{Rece}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of receptors. </TD>
@@ -334,91 +334,91 @@ class CalPointingRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> averagedPolarizations </TD> 
+ * <TD> averagedPolarizations</TD> 
  * <TD> bool </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; true when the polarizations were averaged together to improve sensitivity. </TD>
  * </TR>
 	
  * <TR>
- * <TD> beamPA </TD> 
+ * <TD> beamPA</TD> 
  * <TD> vector<Angle > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the fitted beam position angles (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
- * <TD> beamPAError </TD> 
+ * <TD> beamPAError</TD> 
  * <TD> vector<Angle > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the uncertaintes on the fitted beam position angles (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
- * <TD> beamPAWasFixed </TD> 
+ * <TD> beamPAWasFixed</TD> 
  * <TD> bool </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; indicates if the beam position was fixed (true) or not fixed (false). </TD>
  * </TR>
 	
  * <TR>
- * <TD> beamWidth </TD> 
+ * <TD> beamWidth</TD> 
  * <TD> vector<vector<Angle > > </TD>
  * <TD>  numReceptor, 2  </TD>
  * <TD>&nbsp; the fitted beam widths (one pair of angles per receptor). </TD>
  * </TR>
 	
  * <TR>
- * <TD> beamWidthError </TD> 
+ * <TD> beamWidthError</TD> 
  * <TD> vector<vector<Angle > > </TD>
  * <TD>  numReceptor, 2  </TD>
  * <TD>&nbsp; the uncertainties on the fitted beam widths (one pair of angles per receptor). </TD>
  * </TR>
 	
  * <TR>
- * <TD> beamWidthWasFixed </TD> 
+ * <TD> beamWidthWasFixed</TD> 
  * <TD> vector<bool > </TD>
  * <TD>  2  </TD>
  * <TD>&nbsp; indicates if the beam width was fixed (true) or not fixed (true) (one pair of booleans). </TD>
  * </TR>
 	
  * <TR>
- * <TD> offIntensity </TD> 
+ * <TD> offIntensity</TD> 
  * <TD> vector<Temperature > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the off intensity levels (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
- * <TD> offIntensityError </TD> 
+ * <TD> offIntensityError</TD> 
  * <TD> vector<Temperature > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the uncertainties on the off intensity levels (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
- * <TD> offIntensityWasFixed </TD> 
+ * <TD> offIntensityWasFixed</TD> 
  * <TD> bool </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; indicates if the off intensity level was fixed (true) or not fixed (false). </TD>
  * </TR>
 	
  * <TR>
- * <TD> peakIntensity </TD> 
+ * <TD> peakIntensity</TD> 
  * <TD> vector<Temperature > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the maximum intensities (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
- * <TD> peakIntensityError </TD> 
+ * <TD> peakIntensityError</TD> 
  * <TD> vector<Temperature > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the uncertainties on the maximum intensities (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
- * <TD> peakIntensityWasFixed </TD> 
+ * <TD> peakIntensityWasFixed</TD> 
  * <TD> bool </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the maximum intensity was fixed. </TD>
@@ -759,6 +759,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 
