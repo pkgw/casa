@@ -39,6 +39,7 @@ file:///opt/casa/code/tools/xml/casa.xsd">
 
         <tool name="ms" module="ms">
            <needs>table</needs>
+           <needs>msmetadata</needs>
         <shortdescription>Operations on measurement sets</shortdescription>
        
 
