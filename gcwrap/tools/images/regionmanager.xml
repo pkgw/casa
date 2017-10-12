@@ -1495,6 +1495,7 @@ This method returns all the selected zero-based channel numbers from the specifi
         <param type="string" direction="in" name="filename">
             <description>List of text file containing the region description</description>
             <value></value>
+            <type mustexist="true">path</type>
         </param>
 
         <param type="intArray" direction="in" name="shape">
