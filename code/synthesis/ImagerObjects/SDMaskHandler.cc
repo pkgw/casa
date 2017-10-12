@@ -2466,49 +2466,50 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       os<<LogIO::DEBUG1<<"Calling labelRegions..."<<LogIO::POST;
       Array<Float> tempImarr;
       tempIm->get(tempImarr);
-      os<<LogIO::DEBUG1<<" total pix of 1s="<< sum(tempImarr) <<LogIO::POST;
-      timer.mark();
-      labelRegions(*tempIm, *blobMap);
-      os<< "Processing time for labelRegions: real "<< timer.real()<< "s ; user "<< timer.user() <<"s"<< LogIO::POST;
-      Array<Float> tempblobarr;
-      blobMap->get(tempblobarr);
-      os<<LogIO::DEBUG1<<" total pix of 1s="<< sum(tempblobarr) <<LogIO::POST;
-      os<<LogIO::DEBUG1<<"Calling findBlobSize..."<<LogIO::POST;
-      // get blobsizes (the vector contains each labeled region size (label # = ith element+1)
-      //timer.mark();
-      Vector<Float> blobsizes = findBlobSize(*blobMap);
-      os<< "Processing time for findBlobSize: real "<< timer.real() << "s ; user "<< timer.user() <<"s"<<LogIO::POST ;
-      //cerr<<"blobsizes="<<blobsizes<<endl;
-      //use ImageDecomposer
-      // book keeping of no of  removed components`
+      Float sumMaskVal=sum(tempImarr);
       uInt removeBySize=0;
-      Bool hasMask(True);
-      //cerr<<"blobsizes.nelements()="<<blobsizes.nelements()<<endl; 
-      //removing operations
-      if (blobsizes.nelements()) {
-        if (prunesize > 0.0) {
-          for (uInt icomp = 0; icomp < blobsizes.nelements(); ++icomp) {
-            if ( blobsizes[icomp] < prunesize ) {
-              Float blobid = Float(icomp+1);
-              removeBySize++;
-              tempIm->copyData( (LatticeExpr<Float>)( iif(*blobMap == blobid, 0.0, *tempIm  ) ) );
+      uInt nBlob=0; 
+      os<<LogIO::DEBUG1<<" total pix of 1s="<< sumMaskVal <<LogIO::POST;
+      if ( sumMaskVal !=0.0 ) {
+        timer.mark();
+        labelRegions(*tempIm, *blobMap);
+        os<< "Processing time for labelRegions: real "<< timer.real()<< "s ; user "<< timer.user() <<"s"<< LogIO::POST;
+        Array<Float> tempblobarr;
+        blobMap->get(tempblobarr);
+        os<<LogIO::DEBUG1<<" total pix of 1s="<< sum(tempblobarr) <<LogIO::POST;
+        os<<LogIO::DEBUG1<<"Calling findBlobSize..."<<LogIO::POST;
+        // get blobsizes (the vector contains each labeled region size (label # = ith element+1)
+        //timer.mark();
+        Vector<Float> blobsizes = findBlobSize(*blobMap);
+        os<< "Processing time for findBlobSize: real "<< timer.real() << "s ; user "<< timer.user() <<"s"<<LogIO::POST ;
+        //cerr<<"blobsizes="<<blobsizes<<endl;
+        //use ImageDecomposer
+        // book keeping of no of  removed components`
+        //cerr<<"blobsizes.nelements()="<<blobsizes.nelements()<<endl; 
+        //removing operations
+        nBlob = blobsizes.nelements();
+        if (blobsizes.nelements()) {
+          if (prunesize > 0.0) {
+            for (uInt icomp = 0; icomp < blobsizes.nelements(); ++icomp) {
+              if ( blobsizes[icomp] < prunesize ) {
+                Float blobid = Float(icomp+1);
+                removeBySize++;
+                tempIm->copyData( (LatticeExpr<Float>)( iif(*blobMap == blobid, 0.0, *tempIm  ) ) );
+              }
             }
           }
         }
       }
-      else {
-        hasMask=False;
-      }
       // log reporting ...
       String chanlabel = "[C"+String::toString(ich)+"]";
       if (removeBySize>0) {
-        os <<LogIO::NORMAL<<chanlabel<<" pruneRegions removed "<<removeBySize<<" regions (out of "<<blobsizes.nelements()<<" ) from the mask image. "<<LogIO::POST;
+        os <<LogIO::NORMAL<<chanlabel<<" pruneRegions removed "<<removeBySize<<" regions (out of "<<nBlob<<" ) from the mask image. "<<LogIO::POST;
         if (recordPruned) {
-          if (removeBySize==blobsizes.nelements()) allpruned(ich) = True;
+          if (removeBySize==nBlob) allpruned(ich) = True;
         } 
       }
       else {
-        if (hasMask) {
+        if (sumMaskVal!=0.0) {
           os <<LogIO::NORMAL<<chanlabel<<" No regions are removed in pruning process." << LogIO::POST;
         }
         else {
