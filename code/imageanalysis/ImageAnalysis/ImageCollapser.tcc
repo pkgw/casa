@@ -131,9 +131,10 @@ template<class T> SPIIT ImageCollapser<T>::collapse() const {
         tmpIm.set(0.0);
     }
     else if (
-         _aggType == ImageCollapserData::MEDIAN
-         || _aggType == ImageCollapserData::MADM
-     ) {
+        _aggType == ImageCollapserData::MEDIAN
+        || _aggType == ImageCollapserData::MADM
+        || _aggType == ImageCollapserData::XMADM       
+    ) {
         _doHighPerf(subImage, tmpIm);
     }
     else {
@@ -433,7 +434,8 @@ template<class T> void ImageCollapser<T>::_doHighPerf(
     SPCIIT image, casacore::TempImage<T>& outImage
 ) const {
     auto doMedian = _aggType == ImageCollapserData::MEDIAN;
-    auto doMADM = _aggType == ImageCollapserData::MADM;
+    auto doMADM = _aggType == ImageCollapserData::MADM
+        || _aggType == ImageCollapserData::XMADM;
     ThrowIf(
         ! doMedian && ! doMADM,
         "Logic error, unsupported aggregate type "
@@ -482,7 +484,11 @@ template<class T> void ImageCollapser<T>::_doHighPerf(
                     outImage.putAt(stats.getMedian(), stepper.position());
                 }
                 else if (doMADM) {
-                    outImage.putAt(stats.getMedianAbsDevMed(), stepper.position());
+                    auto x = stats.getMedianAbsDevMed();
+                    if (_aggType == ImageCollapserData::XMADM) {
+                        x *= PHI;
+                    }
+                    outImage.putAt(x, stepper.position());
                 }
             }
         }
@@ -492,7 +498,11 @@ template<class T> void ImageCollapser<T>::_doHighPerf(
                 outImage.putAt(stats.getMedian(), stepper.position());
             }
             else if (doMADM) {
-                outImage.putAt(stats.getMedianAbsDevMed(), stepper.position());
+                auto x = stats.getMedianAbsDevMed();
+                if (_aggType == ImageCollapserData::XMADM) {
+                    x *= PHI;
+                }
+                outImage.putAt(x, stepper.position());
             }
         }
     }

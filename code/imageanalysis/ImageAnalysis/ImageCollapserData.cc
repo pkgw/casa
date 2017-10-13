@@ -26,6 +26,7 @@ const std::map<uInt, String>* ImageCollapserData::funcNameMap() {
 		ref[(uInt)STDDEV] = "stddev";
 		ref[(uInt)SUM] = "sum";
 		ref[(uInt)VARIANCE] = "variance";
+		ref[(uInt)XMADM] = "xmadm";
 		ref[(uInt)ZERO] = "zero";
 		_funcNameMap = new std::map<uInt, String>(ref);
 	}
@@ -49,6 +50,7 @@ const std::map<uInt, String>* ImageCollapserData::minMatchMap() {
 		ref[(uInt)STDDEV] = "st";
 		ref[(uInt)SUM] = "su";
 		ref[(uInt)VARIANCE] = "v";
+		ref[(uInt)XMADM] = "x";
 		ref[(uInt)ZERO] = "z";
 		_minMatchMap = new std:: map<uInt, String>(ref);
 	}

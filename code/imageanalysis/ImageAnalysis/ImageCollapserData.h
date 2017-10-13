@@ -66,6 +66,8 @@ public:
 		SQRTSUM_NPIX_BEAM,
 		// median absolute devation from mean
 		MADM,
+        // madm * 1/Phi^-1 
+        XMADM,
 		UNKNOWN
 	};
 
