@@ -1802,8 +1802,8 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
             xLabelSingle = addFreqFrame(xLabelSingle);
         if (axisIsAveraged(x, averaging))
             xLabelSingle = "Average " + xLabelSingle;
-        if (isCalTable && xLabelSingle.contains("Correlation"))
-            xLabelSingle.replace(xLabelSingle.find("Correlation"), 11, "Polarization");
+        if (isCalTable && xLabelSingle.contains("Corr"))
+            xLabelSingle.replace(xLabelSingle.find("Corr"), 4, "Polarization");
 		canvas->setAxisLabel(cx, xLabelSingle);
 		PlotFontPtr xFont = canvas->axisFont(cx);
         pointsize = (canvParams->xFontSet()) ? canvParams->xAxisFont(): std::max(12. - rows*cols+1., 8.);
@@ -1836,8 +1836,8 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
                     yLabelSingle = addFreqFrame(yLabelSingle);
                 if (axisIsAveraged(y, averaging))
                     yLabelSingle = "Average " + yLabelSingle;
-                if (isCalTable && yLabelSingle.contains("Correlation"))
-                    yLabelSingle.replace(yLabelSingle.find("Correlation"), 11, "Polarization");
+                if (isCalTable && yLabelSingle.contains("Corr"))
+                    yLabelSingle.replace(yLabelSingle.find("Corr"), 4, "Polarization");
 
 				if ( cy == Y_LEFT ){
 					if ( yLabelLeft.size() > 0 ){
@@ -2003,8 +2003,8 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
 		title = canvParams->titleFormat().getLabel(x, yAxes, xref,
 				xrefval, yRefs, yRefVals, xDataColumn, yDatas, polnRatio)
 				+ " " + iterTxt;
-        if (isCalTable && title.contains("Correlation"))
-            title.replace(title.find("Correlation"), 11, "Polarization");
+        if (isCalTable && title.contains("Corr"))
+            title.replace(title.find("Corr"), 11, "Polarization");
 		canvas->setTitle(title);
 	}
 

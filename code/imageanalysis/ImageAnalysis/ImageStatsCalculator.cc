@@ -578,7 +578,7 @@ Record ImageStatsCalculator::statistics(
             }
         }
     }
-    if (messageStore != NULL) {
+    if (messageStore) {
         stats->recordMessages(true);
     }
     stats->setPrecision(precis);
@@ -697,10 +697,10 @@ Record ImageStatsCalculator::statistics(
             stats->errorMessage()
         );
     }
-    if (messageStore != 0) {
-        vector<String> messages = stats->getMessages();
+    if (messageStore) {
+        std::vector<String> messages = stats->getMessages();
         for (
-            vector<String>::const_iterator iter=messages.begin();
+            std::vector<String>::const_iterator iter=messages.begin();
             iter!=messages.end(); ++iter
         ) {
             messageStore->push_back(*iter + "\n");
