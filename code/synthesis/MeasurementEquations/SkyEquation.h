@@ -247,6 +247,8 @@ public:
 
   virtual casacore::Bool isNewFTM(){return false;}
 
+  virtual void setPhaseCenterTime(const casacore::Double time);
+  virtual casacore::Double getPhaseCenterTime();
  protected:
 
   // Increment gradientsChiSquared. The image of SkyModel must contain
