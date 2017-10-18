@@ -1789,8 +1789,15 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 
 bool MSCache::isEphemeris(){
 	if ( !ephemerisInitialized ){
-	        Table::TableOption tabopt(Table::Old);
-		MeasurementSet ms(filename_,TableLock(TableLock::AutoLocking), tabopt);
+		Table::TableOption tabopt(Table::Old);
+		MeasurementSet ms;
+		try {
+			ms = MeasurementSet(filename_,TableLock(TableLock::AutoLocking), 
+					tabopt);
+		} catch (AipsError& err) {
+			throw(AipsError("MeasurementSet setup failed.\n" + err.getMesg()));
+		}
+
 		ROMSColumns msc(ms);
 
                 // Check the field subtable for ephemeris fields

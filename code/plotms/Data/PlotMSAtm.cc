@@ -52,10 +52,11 @@ PlotMSAtm::PlotMSAtm(casacore::String filename, PlotMSSelection& userSel,
     tableName_(""),
     telescopeName_(""),
     pwv_(0.0),
-    airmass_(0.0) {
+    airmass_(0.0),
+    MAX_ATM_CALC_CHAN_(512) {
 
     // set up table and needed data (times, fields)
-    if (isMS)
+    if (isMS) 
         setUpMS(filename, userSel);
     else
         setUpCalTable(filename, userSel);
@@ -86,7 +87,11 @@ PlotMSAtm::~PlotMSAtm() {
 }
 
 void PlotMSAtm::setUpMS(casacore::String filename, PlotMSSelection& userSel) {
-    ms_ = new MeasurementSet(filename);
+    try {
+        ms_ = new MeasurementSet(filename);
+    } catch (AipsError& err) {
+        throw(AipsError("MeasurementSet setup failed.\n" + err.getMesg()));
+    }
     tableName_ = ms_->tableName();
     if (!userSel.isEmpty()) 
         applyMSSelection(userSel, *ms_);
@@ -176,8 +181,16 @@ void PlotMSAtm::getCalMS() {
         casacore::String fullpath = path.dirName() + "/" + msname;
         casacore::File msname(fullpath);
         if (msname.exists() && msname.isDirectory()) {
-            ms_ = new MeasurementSet(fullpath);
-            tableName_ = ms_->tableName();
+            try {
+                ms_ = new MeasurementSet(fullpath);
+                tableName_ = ms_->tableName();
+            } catch (AipsError& err) {
+                parent_->logmesg("load_cache", 
+                    "MeasurementSet setup failed.\n" + err.getMesg(), 
+                    PlotLogger::MSG_WARN);
+                parent_->logmesg("load_cache", "Proceeding without ms",
+                    PlotLogger::MSG_WARN);
+            }
         }
     }
 }
@@ -200,7 +213,11 @@ casacore::Vector<casacore::Double> PlotMSAtm::calcOverlayCurve(
         bool atm) {
     // Implements algorithm in CAS-9053 to get overlay curves
     // (atm or tsky) per spw + scan
-    casacore::Vector<casacore::Double> curve(1, 0.0);
+    unsigned int numChan(chanFreqs.nelements());
+    casacore::Vector<casacore::Double> curve(numChan, 0.0);
+    if (numChan==1)
+        return curve;
+
     PlotMSSelection pmsSel;
     pmsSel.setSpw(String::toString(spw));
     pmsSel.setScan(String::toString(scan));
@@ -211,48 +228,67 @@ casacore::Vector<casacore::Double> PlotMSAtm::calcOverlayCurve(
         applyCalSelection(pmsSel, *selct_);
         getCalFields();  // update fields for airmass calc
     }
-    unsigned int numChan(chanFreqs.nelements());
-    if (numChan==1) return curve;
-    unsigned int midChan(numChan/2);
+
+    unsigned int midChan(numChan/2), numCalcChan(numChan);
+    unsigned int refChan((numChan - 1) / 2);
+    if (numChan > MAX_ATM_CALC_CHAN_) { 
+        while (numCalcChan > MAX_ATM_CALC_CHAN_)
+            numCalcChan /= 2;
+    }
     casacore::Double refFreq = 0.5 * (chanFreqs(IPosition(2, midChan-1, 0))
         + chanFreqs(IPosition(2, midChan, 0)));
     casacore::Double chanSep = (chanFreqs(IPosition(2, numChan-1, 0))
         - chanFreqs(IPosition(2, 0, 0))) / (numChan - 1);
     if (numChan % 2 == 0) refFreq -= chanSep*0.5;
     // set atm parameters
-    unsigned int refChan((numChan - 1) / 2);
-    atm::SpectralGrid* specGrid = new atm::SpectralGrid(numChan, refChan,
+    atm::SpectralGrid* specGrid = new atm::SpectralGrid(numCalcChan, refChan,
         atm::Frequency(refFreq, "GHz"), atm::Frequency(chanSep, "GHz"));
     atm::AtmProfile* atmProfile = getAtmProfile();
     atm::RefractiveIndexProfile* refIdxProfile =
         new atm::RefractiveIndexProfile(*specGrid, *atmProfile);
     atm::SkyStatus* skyStatus = new atm::SkyStatus(*refIdxProfile);
     skyStatus->setUserWH2O(atm::Length(pwv_, "mm"));
-    casacore::Vector<casacore::Double> dryOpacity, wetOpacity, 
-        atmTransmission, TebbSky;
-    dryOpacity.resize(numChan);
-    wetOpacity.resize(numChan);
-    for (uInt chan=0; chan<numChan; ++chan) {
+    // opacity vectors may have fewer elements (numCalcChan) than numChan
+    // to save time
+    casacore::Vector<casacore::Double> dryOpacity(numCalcChan);
+    casacore::Vector<casacore::Double> wetOpacity(numCalcChan);
+    casacore::Vector<casacore::Double> atmTransmission, TebbSky;
+    for (uInt chan=0; chan<numCalcChan; ++chan) {
         dryOpacity(chan) = refIdxProfile->getDryOpacity(0,chan).get("neper");
         wetOpacity(chan) = skyStatus->getWetOpacity(0, chan).get("mm-1");
     }
     airmass_ = computeMeanAirmass();
     atmTransmission = exp(-airmass_ * (wetOpacity + dryOpacity));
     if (!atm) {
-        TebbSky.resize(numChan);
-        for (uInt chan=0; chan<numChan; ++chan) {
+        TebbSky.resize(numCalcChan);
+        for (uInt chan=0; chan<numCalcChan; ++chan) {
             TebbSky(chan) = skyStatus->getTebbSky(0, chan).get("K");
         }
     }
+    // final calculations; calcCurve may be smaller than curve
+    casacore::Vector<casacore::Double> calcCurve(numCalcChan);
+    if (atm) {
+        calcCurve = atmTransmission * 100.0; // percent
+    } else {
+        calcCurve = TebbSky *
+            (1.0-atmTransmission) / (1.0-exp((-1.0*wetOpacity)-dryOpacity));
+    }
+
     // clean up
     delete specGrid;
     delete atmProfile;
     delete refIdxProfile;
     delete skyStatus;
-    curve.resize();
-    if (atm) curve = atmTransmission * 100.0; // percent
-    else curve = TebbSky *
-            (1.0-atmTransmission) / (1.0-exp((-1.0*wetOpacity)-dryOpacity));
+
+    if (numCalcChan == numChan) {
+        curve = calcCurve;
+    } else {  // fill in curve with calcCurve values, set rest to NaN
+		curve.set(casacore::doubleNaN());
+        unsigned int inc(numChan / numCalcChan);
+        for (unsigned int i=0; i<numCalcChan; ++i) {
+            curve(i*inc) = calcCurve(i);
+        }
+    }
     return curve;
 }
 
@@ -308,8 +344,8 @@ void PlotMSAtm::getMedianPwv() {
     if (pwv == 0.0) {
         if (telescopeName_=="ALMA") pwv = 1.0;
         else pwv = 5.0;
-        parent_->loginfo("load_cache", 
-            "Could not open ASMD_CALWVR and ASDM_CALATMOSPHERE tables; using default pwv " + casacore::String::toString(pwv) + " for telescope " + telescopeName_);
+        parent_->logmesg("load_cache", 
+            "Could not open ASMD_CALWVR or ASDM_CALATMOSPHERE table; using default pwv " + casacore::String::toString(pwv) + " for telescope " + telescopeName_);
     }
     pwv_ = pwv;
 }
@@ -377,7 +413,7 @@ void PlotMSAtm::getMeanWeather() {
         noWeather = true;
     }
     if (noWeather) {
-        parent_->loginfo("load_cache", "Could not open WEATHER table, using default values: humidity " + casacore::String::toString(humidity) + ", pressure " + casacore::String::toString(pressure) + ", temperature " + casacore::String::toString(temperature) + " for Atm/Tsky");
+        parent_->logmesg("load_cache", "Could not open WEATHER table, using default values: humidity " + casacore::String::toString(humidity) + ", pressure " + casacore::String::toString(pressure) + ", temperature " + casacore::String::toString(temperature) + " for Atm/Tsky");
     }
 
     // to use in atmosphere.initAtmProfile (tool)

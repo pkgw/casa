@@ -177,12 +177,12 @@ QwtGraphic QPScatterPlot::legendIcon(int /*index*/, const QSizeF& size) const {
 }
 #else
 QWidget* QPScatterPlot::legendItem() const {
-	QPen legendPen = m_line.asQPen();
-	if ( !linesShown() ){
-		QBrush symbolBrush = m_symbol.drawBrush();
-		QColor brushColor = symbolBrush.color();
-		legendPen = QPen(brushColor );
-	}
+    QPen legendPen = m_line.asQPen();
+    if ( !linesShown() ){
+        QBrush symbolBrush = m_symbol.drawBrush();
+        QColor brushColor = symbolBrush.color();
+        legendPen = QPen(brushColor );
+    }
     QwtLegendItem* i= new QwtLegendItem(m_symbol, legendPen, qwtTitle());
     i->setIdentifierMode(QwtLegendItem::ShowLine | QwtLegendItem::ShowSymbol |
                          QwtLegendItem::ShowText);
@@ -209,7 +209,7 @@ void QPScatterPlot::setLine(const PlotLine& line) {
 
 
 PlotPointDataPtr QPScatterPlot::pointData() const {
-	return m_data;
+    return m_data;
 }
 
 bool QPScatterPlot::symbolsShown() const {
@@ -226,7 +226,7 @@ PlotSymbolPtr QPScatterPlot::symbol() const {
     psize_t casasize = m_symbol.size();
     QSize qsize = QSize(casasize.first, casasize.second);
     QPSymbol* symbol = new QPSymbol(m_symbol.style(), 
-	m_symbol.drawBrush(), m_symbol.drawPen(), qsize);
+    m_symbol.drawBrush(), m_symbol.drawPen(), qsize);
     return symbol;
 #else
     return new QPSymbol(m_symbol);
@@ -283,7 +283,7 @@ PlotSymbolPtr QPScatterPlot::maskedSymbol() const {
     psize_t casasize = m_maskedSymbol.size();
     QSize qsize = QSize(casasize.first, casasize.second);
     QPSymbol* symbol = new QPSymbol(m_maskedSymbol.style(), 
-	m_maskedSymbol.drawBrush(), m_maskedSymbol.drawPen(), qsize);
+    m_maskedSymbol.drawBrush(), m_maskedSymbol.drawPen(), qsize);
     return symbol;
 #else
     return new QPSymbol(m_maskedSymbol);
@@ -368,7 +368,7 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
     }
         
     if(drawIndex + drawCount > n){
-    	drawCount = n - drawIndex;
+        drawCount = n - drawIndex;
     }
     n = drawIndex + drawCount;
 
@@ -538,7 +538,8 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
 
             for(unsigned int i = drawIndex; i < n; i++) {
                 m_maskedData->xyAndMaskAt(i, tempx, tempy, mask);
-                if(drawSymbol && !mask) {
+                if (!casacore::isNaN(tempx) && !casacore::isNaN(tempy)) {
+                  if(drawSymbol && !mask) {
                     for (unsigned int pt=0; pt<ptsToDraw; ++pt) {
                         if (pt==0) {
                             rect.moveCenter(QPoint(xMap.transform(tempx),
@@ -569,7 +570,7 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                         m_symbol.draw(p, rect);
 #endif
                     }
-                } else if(drawMaskedSymbol && mask) {
+                  } else if(drawMaskedSymbol && mask) {
                     for (unsigned int pt=0; pt<ptsToDraw; ++pt) {
                         if (pt==0) {
                             mRect.moveCenter(QPoint(xMap.transform(tempx),
@@ -598,6 +599,7 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                         m_maskedSymbol.draw(p, mRect);
 #endif
                     }
+                  }
                 }
             }
 

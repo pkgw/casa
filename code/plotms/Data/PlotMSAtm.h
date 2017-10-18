@@ -141,6 +141,7 @@ private:
     casacore::Vector<casacore::Double> times_;
     casacore::Vector<casacore::Int> fields_;
     casacore::Record weather_;
+	const unsigned int MAX_ATM_CALC_CHAN_;
 };
 
 }

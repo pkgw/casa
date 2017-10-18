@@ -95,14 +95,14 @@ public:
   // Reference an indexer; returns -1 if there is no indexer
   // for the given dataIndex.
   PlotMSIndexer& indexer( int dataIndex, casacore::uInt i) {
-	  return (*indexer_[dataIndex][i]);
+      return (*indexer_[dataIndex][i]);
   };
   PlotMSIndexer& indexer0() {
-	  return *indexer0_;
+      return *indexer0_;
   };
   void resizeIndexer( int size );
   int getDataCount() const {
-	  return currentX_.size();
+      return currentX_.size();
   }
   casacore::Int nIter( int dataIndex ) const;
 
@@ -306,8 +306,10 @@ public:
   inline PMS::DataColumn getXDataColumn() { return currentXData_[0]; };
   inline PMS::DataColumn getYDataColumn(int index) { return currentYData_[index]; };
 
-  // need a public warning method
-  inline void loginfo(const casacore::String& method, const casacore::String& message) { logInfo(method, message); };
+  // public log method
+  inline void logmesg(const casacore::String& method, 
+    const casacore::String& message, int type=PlotLogger::MSG_INFO) 
+      { log(method, message, type); };
 
 protected:
     

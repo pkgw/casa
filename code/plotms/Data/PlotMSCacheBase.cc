@@ -511,7 +511,7 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 		// Call method that actually does the loading (MS- or Cal-specific)
 		loadIt(loadAxes,loadData,thread);
 
-		// Update loaded axes if not canceled.
+		// Update loaded axes if not canceled or failed.
         if (wasCanceled()) { 
             logLoad("Cache loading cancelled.");
             return;  // no need to continue
@@ -521,7 +521,8 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
                 loadedAxes_[axis] = true;
                 String datacol = PMS::dataColumn(loadData[i]);
                 if(PMS::axisIsData(axis)) 
-                    loadedAxesData_[axis].defineRecord(datacol, averaging.toRecord());
+                    loadedAxesData_[axis].defineRecord(datacol, 
+                        averaging.toRecord());
             }
         }
 

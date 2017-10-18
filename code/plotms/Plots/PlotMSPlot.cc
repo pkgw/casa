@@ -333,7 +333,7 @@ vector<PMS::Axis> PlotMSPlot::getCachedAxes() {
         if (!validXAxis) {
             c->setShowAtm(false);
             c->setShowTsky(false);
-		    itsParent_->showError("Overlays are valid only when xaxis is Channel or Frequency");
+            itsParent_->showWarning("Overlays are valid only when xaxis is Channel or Frequency");
         } else {
             // add here for script client
             bool found(false);
