@@ -299,6 +299,7 @@ def main(testnames=[]):
                 
     # Run all tests and create a XML report
     xmlfile = xmldir+'nose.xml'
+    sys.setrecursionlimit(len(list)+1)
     try:
         if (HAVE_MEMTEST and MEM):
             regstate = nose.run(argv=[sys.argv[0],"-d","-s","--with-memtest","--verbosity=2",
