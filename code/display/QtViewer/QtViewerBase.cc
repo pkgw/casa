@@ -251,7 +251,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			//Note:  Calling the CasaImageOpener can produce an AipsError if the file
 			//does not have proper permissions.  Please see CAS-8068.
 			try {
-				if(ImageOpener::imageType(pathname)==ImageOpener::IMAGECONCAT || ImageOpener::imageType(pathname)==ImageOpener::IMAGEEXPR){
+			  if(ImageOpener::imageType(pathname)==ImageOpener::IMAGECONCAT || ImageOpener::imageType(pathname)==ImageOpener::IMAGEEXPR || ImageOpener::imageType(pathname)==ImageOpener::COMPLISTIMAGE){
 					return "Image";
 				}
 			}
@@ -307,7 +307,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			//directory/file does not have proper permissions.  Please see CAS-8068.
 			try {
                 ImageOpener::ImageTypes info = ImageOpener::imageType(pathname);
-				if( info == ImageOpener::IMAGECONCAT ) return "Image";
+				if( info == ImageOpener::IMAGECONCAT || info ==ImageOpener::COMPLISTIMAGE  ) return "Image";
                 else if ( info == ImageOpener::MIRIAD ) {
                     QFileInfo vis(pathName + "/visdata" );
                     if ( vis.exists( ) )  return "Miriad Vis";
@@ -333,8 +333,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// similar to above; returns internal DD datatype names.
 
 		String fTyp = fileType(pathname);
-
-		if(fTyp=="Image" || fTyp=="FITS Image" ||
+		if(fTyp=="Image" || fTyp=="FITS Image" || fTyp=="Component List" ||
 		        fTyp=="Miriad Image" || fTyp=="Gipsy") return "image";
 		if(fTyp=="Measurement Set")               return "ms";
 		if(fTyp=="Sky Catalog")                   return "skycatalog";

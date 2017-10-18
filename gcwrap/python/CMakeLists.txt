@@ -88,6 +88,7 @@ scripts/solar_system_setjy.py
 scripts/testhelper.py
 scripts/TablePlotQt4Agg.py
 scripts/TablePlotTkAgg.py
+scripts/task_accor.py
 scripts/task_accum.py
 scripts/task_applycal.py
 scripts/task_autoclean.py

@@ -1642,7 +1642,30 @@ class imhead_test(unittest.TestCase):
         self.assertTrue(
             imhead(outfile, mode='list'),
             "Failed to run imhead"
-        ) 
+        )
+        
+    def test_history(self):
+        """verify history writing"""
+        myia = iatool()
+        imagename = "zz.im"
+        myia.fromshape(imagename, [20, 20])
+        myia.done()
+        hdkey = "mykey"
+        for mode in ["add", "put", "del"]:
+            if mode == "add":
+                hdvalue = "Jy/beam"
+            elif mode == "put":
+                hdvalue = "K"
+            else:
+                hdvalue = ""
+            imhead(imagename=imagename, mode=mode, hdkey=hdkey, hdvalue=hdvalue)
+            myia.open(imagename)
+            msgs = myia.history()
+            myia.done()
+            teststr = "version"
+            self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found.")
+            teststr = 'mode="' + mode + '"'
+            self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found.")                  
  
 def suite():
     return [imhead_test]    
