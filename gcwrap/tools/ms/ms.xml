@@ -446,6 +446,7 @@ the ms definition itself. -->
      <param type="string" direction="in" name="fitsfile">
      <description>uvfits file to read</description>
      <value></value>
+     <type mustexist="true">path</type>
      </param>
     
      <param type="bool" direction="in" name="nomodify">
@@ -898,8 +899,9 @@ the ms definition itself. -->
      <keyword>open</keyword>
      <input>
        <param type="string" direction="in" name="thems">
-	 <description>Name of the measurement set table to open</description>
-	 <value></value>
+       <description>Name of the measurement set table to open</description>
+       <value></value>
+       <type mustexist="true">path</type>
        </param>
 
        <param type="bool" direction="in" name="nomodify">
