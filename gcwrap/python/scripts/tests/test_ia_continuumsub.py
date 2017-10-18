@@ -109,7 +109,8 @@ class ia_continuumsub_test(unittest.TestCase):
         "verify history is written to output"""
         g1d = fn.gaussian1d(40, 30, 10)
         myia = self._myia
-        myia.fromshape("", [1,1,50])
+        imagename = "zz.im"
+        myia.fromshape(imagename, [1,1,50])
         bb = myia.getchunk()
         for i in xrange(50):
             bb[0,0,i] = g1d.f(i)
@@ -125,6 +126,29 @@ class ia_continuumsub_test(unittest.TestCase):
             myia.done() 
             self.assertTrue("ia.continuumsub" in msgs[-6]) 
             self.assertTrue("ia.continuumsub" in msgs[-7])
+
+        def imcontsub_history_check(imagename):
+            myia.open(imagename)
+            msgs = myia.history()
+            myia.done()
+            teststr = "version"
+            self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
+            teststr = "imcontsub"
+            self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
+        
+        linefile = "zz.line"
+        contfile = "zz.cont"
+        imcontsub(imagename=imagename, linefile=linefile, contfile=contfile)
+        for x in [linefile, contfile]:
+            imcontsub_history_check(x)
+            
+        linefile = "zz1.line"
+        imcontsub(imagename=imagename, linefile=linefile)
+        imcontsub_history_check(linefile)
+        
+        contfile = "zz1.cont"
+        imcontsub(imagename=imagename, contfile=contfile)
+        imcontsub_history_check(contfile)
 
 def suite():
     return [ia_continuumsub_test]
