@@ -3618,6 +3618,7 @@ ms::getdata(const std::vector<std::string>& items, const bool ifraxis, const int
             Vector<Bool> info_options(3); // [ha, last, ut]
             for (uInt it=0; it<itemnames.size(); ++it) {
                 String name = downcase(itemnames(it));
+                itemnames(it) = name;
                 if (name=="flag_sum") do_flag_sum = True; // added later
                 else if (name=="axis_info") do_axis_info = True;
                 else if (name=="time") do_time = True; // for axis_info
@@ -4362,7 +4363,7 @@ void ms::addTimeAxis(Record& out) {
 void ms::getitem(String item, vi::VisBuffer2* vb2, Record& outputRec,
         bool ifraxis) {
     String itemname = downcase(item);
-    Bool fieldExists = outputRec.isDefined(item);
+    Bool fieldExists = outputRec.isDefined(itemname);
     Record intermediateValue(RecordInterface::Variable);
     MSS::Field fld;
     if (itemname.startsWith("avg_"))
