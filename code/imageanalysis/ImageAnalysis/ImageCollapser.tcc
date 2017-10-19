@@ -200,7 +200,6 @@ template<class T> void ImageCollapser<T>::_doDegenerateAxesCase(
         || _aggType == ImageCollapserData::MEAN
         || _aggType == ImageCollapserData::MEDIAN
         || _aggType == ImageCollapserData::MIN
-        || _aggType == ImageCollapserData::RMS
         || _aggType == ImageCollapserData::SUM
     ) {
         // Straight copy
@@ -214,6 +213,9 @@ template<class T> void ImageCollapser<T>::_doDegenerateAxesCase(
         || _aggType == ImageCollapserData::XMADM
     ) {
         tmpIm.set(0.0);
+    }
+    else if (_aggType == ImageCollapserData::RMS) {
+        this->_copyData(tmpIm, LatticeExpr<T>(abs(*subImage)));
     }
     else {
         ThrowCc(
