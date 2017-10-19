@@ -88,9 +88,9 @@ class po_sigmalinpolint_test(unittest.TestCase):
         """Test multibeam images for correct behavior"""
         mypo = self.mypo
         mypo.open(eq_beams)
-        self.assertTrue(mypo.sigmalinpolint("g"))
+        self.assertTrue(mypo.sigmalinpolint())
         mypo.open(neq_beams)
-        self.assertRaises(Exception, mypo.sigmalinpolint, "hh")
+        self.assertRaises(Exception, mypo.sigmalinpolint)
         
 def suite():
     return [po_sigmalinpolint_test]

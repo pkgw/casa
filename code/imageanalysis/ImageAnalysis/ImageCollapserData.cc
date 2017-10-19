@@ -14,8 +14,8 @@ ImageCollapserData::_degenAxesSupported = nullptr;
 std::shared_ptr<const std::map<uInt, String>> ImageCollapserData::funcNameMap() {
 	if (! _funcNameMap) {
 		std::map<uInt, String> ref;
-		//ref[(uInt)AVDEV] = "avdev";
 		ref[(uInt)FLUX] = "flux";
+		ref[(uInt)MADM] = "madm";
 		ref[(uInt)MAX] = "max";
 		ref[(uInt)MEAN] = "mean";
 		ref[(uInt)MEDIAN] = "median";
@@ -28,6 +28,7 @@ std::shared_ptr<const std::map<uInt, String>> ImageCollapserData::funcNameMap() 
 		ref[(uInt)STDDEV] = "stddev";
 		ref[(uInt)SUM] = "sum";
 		ref[(uInt)VARIANCE] = "variance";
+		ref[(uInt)XMADM] = "xmadm";
 		ref[(uInt)ZERO] = "zero";
 		_funcNameMap.reset(new std::map<uInt, String>(ref));
 	}
@@ -38,7 +39,8 @@ std::shared_ptr<const std::map<uInt, String>> ImageCollapserData::minMatchMap() 
 	if (! _minMatchMap) {
 		std::map<uInt, String> ref;
 		ref[(uInt)FLUX] = "f";
-		ref[(uInt)MAX] = "ma";
+		ref[(uInt)MADM] = "mad";
+		ref[(uInt)MAX] = "max";
 		ref[(uInt)MEAN] = "mea";
 		ref[(uInt)MEDIAN] = "med";
 		ref[(uInt)MIN] = "mi";
@@ -50,6 +52,7 @@ std::shared_ptr<const std::map<uInt, String>> ImageCollapserData::minMatchMap() 
 		ref[(uInt)STDDEV] = "st";
 		ref[(uInt)SUM] = "su";
 		ref[(uInt)VARIANCE] = "v";
+		ref[(uInt)XMADM] = "x";
 		ref[(uInt)ZERO] = "z";
 		_minMatchMap.reset(new std:: map<uInt, String>(ref));
 	}
