@@ -90,6 +90,7 @@ std::shared_ptr<const std::set<ImageCollapserData::AggregateType>>
 ImageCollapserData::aggTypesSupportedDegenAxes() {
     if (! _degenAxesSupported) {
         std::set<AggregateType> ref;
+        ref.insert(MADM);
         ref.insert(MAX);
         ref.insert(MEAN);
         ref.insert(MEDIAN);
@@ -99,6 +100,7 @@ ImageCollapserData::aggTypesSupportedDegenAxes() {
         ref.insert(STDDEV);
         ref.insert(SUM);
         ref.insert(VARIANCE);
+        ref.insert(XMADM);
         _degenAxesSupported.reset(new std::set<AggregateType>(ref));
     }
     return _degenAxesSupported;
