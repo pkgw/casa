@@ -229,17 +229,22 @@ casacore::Vector<casacore::Double> PlotMSAtm::calcOverlayCurve(
         getCalFields();  // update fields for airmass calc
     }
 
-    unsigned int midChan(numChan/2), numCalcChan(numChan);
-    unsigned int refChan((numChan - 1) / 2);
+    unsigned int numCalcChan(numChan);
+    unsigned int midChan(numCalcChan/2);
+    // Set the reference freq to be the middle of the middle two channels
+    casacore::Double refFreq = 0.5 * (chanFreqs(IPosition(2, midChan-1, 0))
+        + chanFreqs(IPosition(2, midChan, 0)));
+    // reduce number of channels to shorten calc time
     if (numChan > MAX_ATM_CALC_CHAN_) { 
         while (numCalcChan > MAX_ATM_CALC_CHAN_)
             numCalcChan /= 2;
+        midChan = numCalcChan/2;
     }
-    casacore::Double refFreq = 0.5 * (chanFreqs(IPosition(2, midChan-1, 0))
-        + chanFreqs(IPosition(2, midChan, 0)));
+    unsigned int refChan((numCalcChan - 1) / 2);
     casacore::Double chanSep = (chanFreqs(IPosition(2, numChan-1, 0))
-        - chanFreqs(IPosition(2, 0, 0))) / (numChan - 1);
-    if (numChan % 2 == 0) refFreq -= chanSep*0.5;
+        - chanFreqs(IPosition(2, 0, 0))) / (numCalcChan - 1);
+    if (numCalcChan % 2 == 0) refFreq -= chanSep*0.5;
+
     // set atm parameters
     atm::SpectralGrid* specGrid = new atm::SpectralGrid(numCalcChan, refChan,
         atm::Frequency(refFreq, "GHz"), atm::Frequency(chanSep, "GHz"));
@@ -248,8 +253,8 @@ casacore::Vector<casacore::Double> PlotMSAtm::calcOverlayCurve(
         new atm::RefractiveIndexProfile(*specGrid, *atmProfile);
     atm::SkyStatus* skyStatus = new atm::SkyStatus(*refIdxProfile);
     skyStatus->setUserWH2O(atm::Length(pwv_, "mm"));
-    // opacity vectors may have fewer elements (numCalcChan) than numChan
-    // to save time
+
+    // calculate opacities and airmass
     casacore::Vector<casacore::Double> dryOpacity(numCalcChan);
     casacore::Vector<casacore::Double> wetOpacity(numCalcChan);
     casacore::Vector<casacore::Double> atmTransmission, TebbSky;
@@ -265,7 +270,7 @@ casacore::Vector<casacore::Double> PlotMSAtm::calcOverlayCurve(
             TebbSky(chan) = skyStatus->getTebbSky(0, chan).get("K");
         }
     }
-    // final calculations; calcCurve may be smaller than curve
+    // final calculations
     casacore::Vector<casacore::Double> calcCurve(numCalcChan);
     if (atm) {
         calcCurve = atmTransmission * 100.0; // percent
@@ -283,7 +288,7 @@ casacore::Vector<casacore::Double> PlotMSAtm::calcOverlayCurve(
     if (numCalcChan == numChan) {
         curve = calcCurve;
     } else {  // fill in curve with calcCurve values, set rest to NaN
-		curve.set(casacore::doubleNaN());
+        curve.set(casacore::doubleNaN());
         unsigned int inc(numChan / numCalcChan);
         for (unsigned int i=0; i<numCalcChan; ++i) {
             curve(i*inc) = calcCurve(i);
