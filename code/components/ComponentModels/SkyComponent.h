@@ -288,13 +288,16 @@ public:
   ) const;
 
   // If the <src>dc</src> parameter is specified, also return the corresponding world
-  // coordinates. If longErrOnGreatCircle is true, the longitude error is interpreted as lying
-  // along the great circle that is tangent to the center position, rather than along the
-  // circle of constant longitude. In this case, the longitude error presented as a time has
-  // been multiplied by 1/cos(latitude), but the associated angle reported as an angular measure
-  // will not have this factor applied to it, nor will the error reported in pixels.
+  // coordinates, and the pixel coordinates will be returned in the <src>pixelCoords</src>
+  // parameter (otherwise it is set to nullptr). If longErrOnGreatCircle is true, the
+  // longitude error is interpreted as lying along the great circle that is tangent to the center
+  // position, rather than along the circle of constant latitude. In this case, the longitude error
+  // presented as a time has been multiplied by 1/cos(latitude), but the associated angle reported
+  // as an angular measure will not have this factor applied to it, nor will the error reported in
+  // pixels.
   casacore::String positionToString(
-		  const casacore::DirectionCoordinate *const &dc = 0, casacore::Bool longErrOnGreatCircle=false
+          SHARED_PTR<casacore::Vector<casacore::Double>>& pixelCoords,
+		  const casacore::DirectionCoordinate *const &dc=nullptr, casacore::Bool longErrOnGreatCircle=false
   ) const;
 
 private:

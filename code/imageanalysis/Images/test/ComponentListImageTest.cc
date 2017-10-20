@@ -1,4 +1,3 @@
-//# ImageTypedefs.h
 //# Copyright (C) 1998,1999,2000,2001
 //# Associated Universities, Inc. Washington DC, USA.
 //#
@@ -24,34 +23,42 @@
 //#                        Charlottesville, VA 22903-2475 USA
 //#
 
-#ifndef IMAGETYPEDEFS_H_
-#define IMAGETYPEDEFS_H_
+#include <imageanalysis/Images/test/ComponentListImageTest.h>
 
-#include <casa/aipstype.h>
-#include <casa/BasicSL/Complexfwd.h>
-#include <casa/Utilities/CountedPtr.h>
+#include <components/ComponentModels/ConstantSpectrum.h>
+#include <components/ComponentModels/Flux.h>
+#include <components/ComponentModels/GaussianShape.h>
 
-#define SPIIT SHARED_PTR<casacore::ImageInterface<T> >
-#define SPCIIT SHARED_PTR<const casacore::ImageInterface<T> >
+using namespace casacore;
 
-#define SPIIU SHARED_PTR<casacore::ImageInterface<U> >
-#define SPCIIU SHARED_PTR<const casacore::ImageInterface<U> >
+using namespace std;
 
-namespace casacore{
+using namespace casa;
 
-	template<class T> class ImageInterface;
+namespace test {
+
+ComponentListImageTest::ComponentListImageTest() {
 }
 
-namespace casa {
+ComponentListImageTest::~ComponentListImageTest() {}
 
-    using SPCIIF = SHARED_PTR<const casacore::ImageInterface<casacore::Float> >;
-	using SPIIF = SHARED_PTR<casacore::ImageInterface<casacore::Float> >;
-	using SPCIIC = SHARED_PTR<const casacore::ImageInterface<casacore::Complex> >;
-	using SPIIC = SHARED_PTR<casacore::ImageInterface<casacore::Complex> >;
+void ComponentListImageTest::SetUp() {}
 
-    // 1/(Phi^(-1)(3/4), see https://en.wikipedia.org/wiki/Median_absolute_deviation#Relation_to_standard_deviation
-    const casacore::Double PHI = 1.482602218505602;
+void ComponentListImageTest::TearDown() {}
 
+ComponentList ComponentListImageTest::oneGaussianCL() const {
+    MDirection dir(Quantity(0, "deg"), Quantity(0, "deg"), MDirection::J2000);
+    Quantity majorAxis(10, "arcmin");
+    Quantity minorAxis(8, "arcmin");
+    Quantity pa(45, "deg");
+    GaussianShape g(dir, majorAxis, minorAxis, pa);
+    Flux<Double> flux;
+    ConstantSpectrum cs;
+    SkyComponent sc(flux, g, cs);
+    ComponentList cl;
+    cl.add(sc);
+    return cl;
 }
 
-#endif
+
+}

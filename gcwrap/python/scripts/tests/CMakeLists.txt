@@ -32,6 +32,7 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_cleanhelper.py
   test_clearstat.py
   test_componentlist.py
+  test_componentlistimage.py
   test_concat.py
   test_conjugatevis.py
   test_coordsys.py

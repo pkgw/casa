@@ -1,4 +1,3 @@
-//# ImageTypedefs.h
 //# Copyright (C) 1998,1999,2000,2001
 //# Associated Universities, Inc. Washington DC, USA.
 //#
@@ -24,34 +23,33 @@
 //#                        Charlottesville, VA 22903-2475 USA
 //#
 
-#ifndef IMAGETYPEDEFS_H_
-#define IMAGETYPEDEFS_H_
+#ifndef IMAGEANALYSIS_COMPONENTLISTIMAGETEST
+#define IMAGEANALYSIS_COMPONENTLISTIMAGETEST
 
-#include <casa/aipstype.h>
-#include <casa/BasicSL/Complexfwd.h>
-#include <casa/Utilities/CountedPtr.h>
+#include <gtest/gtest.h>
 
-#define SPIIT SHARED_PTR<casacore::ImageInterface<T> >
-#define SPCIIT SHARED_PTR<const casacore::ImageInterface<T> >
+#include <casacore/casa/BasicSL/String.h>
 
-#define SPIIU SHARED_PTR<casacore::ImageInterface<U> >
-#define SPCIIU SHARED_PTR<const casacore::ImageInterface<U> >
+#include <components/ComponentModels/ComponentList.h>
 
-namespace casacore{
+namespace test {
 
-	template<class T> class ImageInterface;
-}
+class ComponentListImageTest : public ::testing::Test {
 
-namespace casa {
+public:
+    ComponentListImageTest();
+	virtual ~ComponentListImageTest();
 
-    using SPCIIF = SHARED_PTR<const casacore::ImageInterface<casacore::Float> >;
-	using SPIIF = SHARED_PTR<casacore::ImageInterface<casacore::Float> >;
-	using SPCIIC = SHARED_PTR<const casacore::ImageInterface<casacore::Complex> >;
-	using SPIIC = SHARED_PTR<casacore::ImageInterface<casacore::Complex> >;
+	virtual void SetUp();
 
-    // 1/(Phi^(-1)(3/4), see https://en.wikipedia.org/wiki/Median_absolute_deviation#Relation_to_standard_deviation
-    const casacore::Double PHI = 1.482602218505602;
+	virtual void TearDown();
 
-}
+	casa::ComponentList oneGaussianCL() const;
+
+private:
+
+};
 
 #endif
+
+}

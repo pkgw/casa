@@ -88,9 +88,9 @@ class po_sigmafractotpol_test(unittest.TestCase):
         """Test multibeam images for correct behavior"""
         mypo = self.mypo
         mypo.open(eq_beams)
-        self.assertTrue(mypo.sigmafractotpol("g"))
+        self.assertTrue(mypo.sigmafractotpol())
         mypo.open(neq_beams)
-        self.assertRaises(Exception, mypo.sigmafractotpol, "hh")
+        self.assertRaises(Exception, mypo.sigmafractotpol)
         
 def suite():
     return [po_sigmafractotpol_test]
