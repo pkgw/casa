@@ -55,7 +55,8 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
     try: 
         
         # handle overwrite parameter
-        presumed_imagename = outfile + image_suffix
+        _outfile = outfile.rstrip('/')
+        presumed_imagename = _outfile + image_suffix
         if os.path.exists(presumed_imagename):
             if overwrite == False:
                 raise RuntimeError('Output file \'{0}\' exists.'.format(presumed_imagename))
@@ -65,9 +66,9 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
                 _remove_image(presumed_imagename)
                 assert not os.path.exists(presumed_imagename)
                 for _suffix in associate_suffixes:
-                    casalog.post('Removing \'{0}\''.format(outfile + _suffix))
-                    _remove_image(outfile + _suffix)
-                    assert not os.path.exists(outfile + _suffix)
+                    casalog.post('Removing \'{0}\''.format(_outfile + _suffix))
+                    _remove_image(_outfile + _suffix)
+                    assert not os.path.exists(_outfile + _suffix)
     
         # parse parameter for spectral axis 
         imnchan, imstart, imwidth = _configure_spectral_axis(mode, nchan, start, width, restfreq)
@@ -93,7 +94,7 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
             scan=scan,
             state=intent,
             # image parameters
-            imagename=outfile,#'try2',
+            imagename=_outfile,#'try2',
             nchan=imnchan,#1024,
             start=imstart,#'0',
             width=imwidth,#'1',
