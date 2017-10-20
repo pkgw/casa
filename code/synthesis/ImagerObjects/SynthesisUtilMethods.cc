@@ -804,7 +804,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}
 
 	MDirection::Types theRF;
-	MDirection::getType(theRF, tmpRF);
+	Bool status = MDirection::getType(theRF, tmpRF);
+	if (!status) {
+	  throw AipsError();
+	}
 	md = MDirection (tmpQRA, tmpQDEC, theRF);
 	return String("");
       }
