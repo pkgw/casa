@@ -20,8 +20,8 @@ associate_suffixes = ['.psf', '.sumwt', '.weight']
 def _configure_spectral_axis(mode, nchan, start, width, restfreq):
     #TODO: implement the function
     imnchan = nchan
-    imstart = str(start)
-    imwidth = str(width)
+    imstart = start
+    imwidth = width
     return imnchan, imstart, imwidth
 
 def _handle_grid_defaults(value):
