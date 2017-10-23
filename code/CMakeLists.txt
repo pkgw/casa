@@ -572,7 +572,7 @@ dump( CMAKE_INSTALL_PREFIX )
 
 SET(NO_SOVERSION FALSE CACHE BOOL "do not add version information to shared libraries")
 if( NOT NO_SOVERSION )
-    set(casa_soversion "50.0.0" CACHE STRING "version for shared objects")
+    set(casa_soversion "51.0.0" CACHE STRING "version for shared objects")
     message( STATUS "Shared object version number ${casa_soversion}" )
 else( )
     message( STATUS "User disabled shared library versioning" )
