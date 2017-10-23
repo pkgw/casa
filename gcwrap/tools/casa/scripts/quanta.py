@@ -1848,7 +1848,7 @@ type will return the tool name.
 """
 #
 print "\t----\t type Ex 1 \t----"
-print qa.type()quanta 
+print qa.type()
 #
 """
 \end{verbatim}
