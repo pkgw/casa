@@ -55,7 +55,7 @@ def imcontsub(imagename=None,linefile=None,contfile=None,fitorder=None,region=No
                            channels=channels, fitorder=fitorder, overwrite=False)
         return True
                 
-    except Exception, err:
+    except Exception as err:
         casalog.post( 'Error: Unable to perform continuum subtraction'+str(err), 'SEVERE' )
         raise
     finally:

@@ -24,9 +24,9 @@ def imrebin(
     outia = None
     try:
         if (not myia.open(imagename)):
-            raise Exception, "Cannot create image analysis tool using " + imagename
+            raise Exception("Cannot create image analysis tool using " + imagename)
         if (len(outfile) == 0):
-            raise Exception, "outfile must be specified."
+            raise Exception("outfile must be specified.")
         if (type(region) != type({})):
             myrg = rgtool()
             reg = myrg.frombcs(
@@ -40,7 +40,7 @@ def imrebin(
             overwrite=overwrite, stretch=stretch, crop=crop
         )
         return True
-    except Exception, instance:
+    except Exception as instance:
         casalog.post( str( '*** Error ***') + str(instance), 'SEVERE')
         raise
     finally:

@@ -23,7 +23,7 @@
 
 import subprocess
 import time
-import commands
+import subprocess
 import sys
 import os
 import string
@@ -89,7 +89,7 @@ class sh_builder(builder):
         # Time to flush
         
         # First define variables
-        for (n,v) in self.definitions.items():
+        for (n,v) in list(self.definitions.items()):
             self.file.write('%s=%s\n' % (n, v))
         self.file.write('\n')
 
@@ -109,7 +109,7 @@ class sh_builder(builder):
             elif t.__class__ == platform or \
                  t.__class__ == machine:
 
-                 if not t.name in self.definitions.keys():
+                 if not t.name in list(self.definitions.keys()):
                      self.definitions[t.name] = t.value
                  s = "$" + t.name
 
@@ -216,7 +216,7 @@ class exe_builder(builder):
     def do(self, comment, *texts):
         cmd = self._transform(texts)
         if not self.dry:
-            print cmd
+            print(cmd)
         sys.stdout.flush()
         if not self.dry:
 
@@ -247,17 +247,17 @@ class exe_builder(builder):
     # os.system("cd <path>") won't work...
     def chdir(self, *texts):
         # Substitute any environment variables by calling the shell
-        dir = commands.getoutput("echo " + self._transform(texts))
+        dir = subprocess.getoutput("echo " + self._transform(texts))
         if not self.dry:
-            print "cd", dir
+            print("cd", dir)
         sys.stdout.flush()
         if not self.dry:
             os.chdir(dir)
 
     def set_env(self, env, *texts):
-        val = commands.getoutput("echo " + self._transform(texts))
+        val = subprocess.getoutput("echo " + self._transform(texts))
         if not self.dry:
-            print env, "=", val
+            print(env, "=", val)
         sys.stdout.flush()
         if not self.dry:
             os.environ[env] = val
@@ -314,9 +314,9 @@ class exe_and_doc_builder(builder):
 def build_casa(b, url, revision, type, ops, architecture):
 
     builddirs = {'Linux' : {'i386' : 'linux_gnu', 'x86_64' : 'linux_64b'}, 'Darwin' : {'10.5' : 'darwin', '10.6': 'darwin'}}
-    if not ops in builddirs.keys() or \
-            not architecture in builddirs[ops].keys():
-        raise Exception, ("Unknown OS and architecture " + str(ops) + ", " + str(architecture) + ", must be one of " + str(builddirs))
+    if not ops in list(builddirs.keys()) or \
+            not architecture in list(builddirs[ops].keys()):
+        raise Exception("Unknown OS and architecture " + str(ops) + ", " + str(architecture) + ", must be one of " + str(builddirs))
 
     # Setup platform- and machine dependent variables
     oss = platform('oss', ops)
@@ -655,7 +655,7 @@ def main(argv):
         if arch == 'i686':
             arch = 'i386'
     elif oss == "Darwin":
-        sw_vers = commands.getoutput("/usr/bin/sw_vers -productVersion")
+        sw_vers = subprocess.getoutput("/usr/bin/sw_vers -productVersion")
         arch = sw_vers[:4]
         if not arch in ["10.5", "10.6"]:
             raise Exception("Unsupported software version: %s" % sw_vers)
@@ -673,9 +673,9 @@ def main(argv):
     dry = (len(argv) > 4)
     doc_dir = os.getenv('HOME') + "/documentation/" + type + "-" + oss + "-" + arch
     if dry:
-        print "Writing documentation for", oss, arch, "to", doc_dir + "/build.html"
+        print("Writing documentation for", oss, arch, "to", doc_dir + "/build.html")
     else:
-        print "Going to build on", oss, arch
+        print("Going to build on", oss, arch)
     sys.stdout.flush()
     b = exe_and_doc_builder(doc_dir,
                             oss, arch, type = type, dry = dry)

@@ -16,8 +16,8 @@ def listhistory(vis=None):
                 if ((type(vis)==str) & (os.path.exists(vis))):
                         ms.open(vis)
                 else:
-                        raise Exception, 'Visibility data set not found - please verify the name'
+                        raise Exception('Visibility data set not found - please verify the name')
 		ms.listhistory()
 		ms.close()
-	except Exception, instance:
-		print '*** Error ***',instance
+	except Exception as instance:
+		print('*** Error ***',instance)

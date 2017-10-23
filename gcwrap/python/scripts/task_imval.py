@@ -97,7 +97,7 @@ def imval(imagename, region, box, chans, stokes):
         try:
             axes=getimaxes(imagename)
         except:
-            raise Exception, "Unable to determine the axes of image: "+imagename
+            raise Exception("Unable to determine the axes of image: "+imagename)
         
     
         # Get rid of any white space in the parameters
@@ -137,8 +137,8 @@ def imval(imagename, region, box, chans, stokes):
                 retValue['axes']=axes
                 casalog.post( 'imval task complete for point'+str(point), 'NORMAL1' )
                 return retValue
-            except Exception, instance:
-                raise Exception, instance
+            except Exception as instance:
+                raise Exception(instance)
             finally:
                 myia.done()
     
@@ -160,8 +160,8 @@ def imval(imagename, region, box, chans, stokes):
                 retValue['axes']=axes
                 casalog.post( 'imval task complete for point '+str(singlePt), 'NORMAL1' )
                 return retValue
-            except Exception, instance:
-                raise Exception, instance
+            except Exception as instance:
+                raise Exception(instance)
             finally:
                 myia.done()
             
@@ -200,7 +200,7 @@ def imval(imagename, region, box, chans, stokes):
                         + str(int(round(values[axes[0][0]])))+','\
                         +str(int(round(values[axes[1][0]])))
                 except:
-                    raise Exception, "Unable to find the size of the input image."
+                    raise Exception("Unable to find the size of the input image.")
             
         # Because the help file says -1 is valid, apparently that's supported functionality, good grief
         
@@ -219,7 +219,7 @@ def imval(imagename, region, box, chans, stokes):
         # Now that we know which axes we are using, and have the region
         # selected, lets get that stats!  NOTE: if you have axes size
         # greater then 0 then the maxpos and minpos will not be displayed
-        if ( reg.has_key( 'regions' ) ):
+        if ( 'regions' in reg ):
             casalog.post( "Complex region found, only processing the first"\
                           " SIMPLE region found", "WARN" )
             reg=reg['regions']['*1']
@@ -228,7 +228,7 @@ def imval(imagename, region, box, chans, stokes):
     
         casalog.post( 'imval task complete for region bound by blc='+str(retValue['blc'])+' and trc='+str(retValue['trc']), 'NORMAL1' )
         return retValue
-    except Exception, instance:
+    except Exception as instance:
         casalog.post( '*** Error ***'+str(instance), 'SEVERE' )
         raise
     finally:
@@ -249,11 +249,11 @@ def _imval_process_pixel( results, point ):
         casalog.post( "Value returned is: "+str(results), "SEVERE" )
         return retvalue
     
-    if ( not results.has_key('mask') ):
+    if ( 'mask' not in results ):
         casalog.post( "ia.pixelvalue() has returned unexpected results, no mask value present.", "SEVERE" )
         return retvalue
 
-    if ( not results.has_key('value') or not results['value'].has_key('unit') or not results['value'].has_key('value') ):
+    if ( 'value' not in results or 'unit' not in results['value'] or 'value' not in results['value'] ):
         casalog.post( "ia.pixelvalue() has returned unexpected results, data value absent or ill-formed.", "SEVERE" )
         return retvalue
     
@@ -328,11 +328,11 @@ def _imval_getregion( imagename, region):
         # the user.
         bbox = myia.boundingbox( region=region )
         
-        if ( not bbox.has_key( 'blc' ) ):
+        if ( 'blc' not in bbox ):
             casalog.post( "ia.boundingbox() has returned unexpected results, blc value absent.", "SEVERE" )
             myia.done()
             return retvalue
-        if ( not bbox.has_key( 'trc' ) ):
+        if ( 'trc' not in bbox ):
             casalog.post( "ia.boundingbox() has returned unexpected results, trc value absent.", "SEVERE" )
             myia.done()
             return retvalue
@@ -344,7 +344,7 @@ def _imval_getregion( imagename, region):
         outcoords = _imval_redo(data_results.shape, mycoords['numeric'])
         
         avalue = myia.pixelvalue( bbox['blc'].tolist() )
-        if ( not avalue.has_key('value') or not avalue['value'].has_key('unit') ):
+        if ( 'value' not in avalue or 'unit' not in avalue['value'] ):
             casalog.post( "ia.pixelvalue() has returned unexpected results, data value absent or ill-formed.", "SEVERE" )
             myia.done()
             return retvalue
@@ -354,7 +354,7 @@ def _imval_getregion( imagename, region):
             'unit':avalue['value']['unit'], 'data':data_results,
             'mask': mask_results, 'coords': outcoords
         }
-    except Exception, instance:
+    except Exception as instance:
         raise instance
     finally:
         myia.done()

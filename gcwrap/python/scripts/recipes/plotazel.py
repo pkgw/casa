@@ -1,5 +1,5 @@
 from taskinit import *
-from getazel import *
+from .getazel import *
 import pylab as pl
 import os
 import datetime
@@ -47,27 +47,27 @@ def plotsrcazel(planet='', srcfile='', date='', obs='ALMA', plotsun=False, plott
     # date = '2010/02/01'
     inpd =""
     if date=='':
-      inpd=raw_input('date? YYYY/MM/DD or hit return to use today\'s date:')
+      inpd=input('date? YYYY/MM/DD or hit return to use today\'s date:')
       if inpd == "":
 	date=qa.time('today', form=['ymd','no_time'])[0]
       else:    
 	date=inpd
     else:
       date=date
-    print "Use date:", date
+    print("Use date:", date)
 
-    intz=raw_input('Show in UTC, CLT,or LST? ')
+    intz=input('Show in UTC, CLT,or LST? ')
     tz='UTC' 
     if intz!='':
       check_intz = [intz.upper()==tl for tl in ['UTC','CLT','LST']]
       if not any(check_intz):
-         raise Exception, "Input error: should be 'UTC','CLT',or 'LST'"
+         raise Exception("Input error: should be 'UTC','CLT',or 'LST'")
       tz=intz.upper()
 
     # read source list from a file 
     if srcfile!="":
        if not os.path.exists(srcfile):
-          raise IOError, "%s does not exist!" % srcfile
+          raise IOError("%s does not exist!" % srcfile)
        readfromfile = True
     else:
        readfromfile = False
@@ -86,7 +86,7 @@ def plotsrcazel(planet='', srcfile='', date='', obs='ALMA', plotsun=False, plott
         #plottype='az'
         plottype='both'
 
-        inptype=raw_input('plot type? (el, az, or both):')
+        inptype=input('plot type? (el, az, or both):')
 
         if inptype=='el' or inptype=='az':
 	    plottype=inptype
@@ -145,10 +145,10 @@ def plotsrcazel(planet='', srcfile='', date='', obs='ALMA', plotsun=False, plott
                    srclist['ra'].append(src[0])
                    srclist['dec'].append(' ')
     if insrc:
-       inpos = raw_input("Enter name xxhxxmxx.xs +/-xxdxxmxx.xs: (return to skip)")
+       inpos = input("Enter name xxhxxmxx.xs +/-xxdxxmxx.xs: (return to skip)")
        if inpos=='':
           if planet=='' and srcfile=='' and (not plotsun):
-             raise Exception, "No source is specified!!!"
+             raise Exception("No source is specified!!!")
 	  pass
        else:
 	  inpos.replace("\'","")
@@ -173,8 +173,8 @@ def plotsrcazel(planet='', srcfile='', date='', obs='ALMA', plotsun=False, plott
     fig = pl.figure()
     fig.clf()
     tmfmt = DateFormatter('%H')
-    seq = range(len(srclist['name']))
-    print "Number of sources to be plotted:", len(srclist['name'])
+    seq = list(range(len(srclist['name'])))
+    print("Number of sources to be plotted:", len(srclist['name']))
     for i in seq:
 	if i == seq[-1] :
 	   last = True 
@@ -286,7 +286,7 @@ def plotsrcazel(planet='', srcfile='', date='', obs='ALMA', plotsun=False, plott
 	        #pl.xlim(0,24.)
 	        ax2.set_ylim(-180.,180.)
 	    #ax.text(tx[maxidx],*1.01,srcname,color=defaultcolors[cindx])
-            print srcname," max EL:", maxel
+            print(srcname," max EL:", maxel)
 
     #pl.draw()
     if saveplot!='':

@@ -123,15 +123,15 @@ def csvclean(vis, imagename,field, spw, advise, mode, nchan, width, imsize, cell
         if ((type(vis)==str) & (os.path.exists(vis))):
             ms.open(vis)
         else:
-            raise Exception, 'Visibility data set not found - please verify the name'
+            raise Exception('Visibility data set not found - please verify the name')
         if(not advise):
             if (imagename == ""):
                 #            ms.close()
-                raise Exception, "Must provide output image name in parameter imagename."            
+                raise Exception("Must provide output image name in parameter imagename.")            
         
             if os.path.exists(imagename):
                 #            ms.close()
-                raise Exception, "Output image %s already exists - will not overwrite." % imagename
+                raise Exception("Output image %s already exists - will not overwrite." % imagename)
            
         if (field == ''):
         	field = '*'
@@ -174,7 +174,7 @@ def csvclean(vis, imagename,field, spw, advise, mode, nchan, width, imsize, cell
                         tmppc = int(ms.msseltoindex(vis,
                                                     field=phasecenter)['field'][0])
                     ##succesful must be string like '0' or 'NGC*'
-                except Exception, instance:
+                except Exception as instance:
                     #failed must be a string type J2000 18h00m00 10d00m00
                     tmppc = phasecenter
                 phasecenter = tmppc
@@ -370,14 +370,14 @@ def csvclean(vis, imagename,field, spw, advise, mode, nchan, width, imsize, cell
         dc.done()  
         return True
 
-    except Exception, instance:
+    except Exception as instance:
         im.close()
         ia.close()
         dc.close()
-        print '*** Error *** ',instance
+        print('*** Error *** ',instance)
         casalog.post("Error ...", 'SEVERE')
         traceback.print_exc()
-        raise Exception, instance
+        raise Exception(instance)
 
     
 

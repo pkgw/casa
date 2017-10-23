@@ -52,7 +52,7 @@ class predictcomp_test(unittest.TestCase):
         '''predictcomp: valid objname'''
         self.res=predictcomp(objname='Titan', epoch='2017/09/01/00:00', minfreq='100GHz',maxfreq='120GHz',
                              standard='Butler-JPL-Horizons 2012') 
-        print "type(self.res) = ",type(self.res)
+        print("type(self.res) = ",type(self.res))
         self.assertTrue(type(self.res)==dict)
         self.assertTrue(os.path.exists(self.res['clist']))
              

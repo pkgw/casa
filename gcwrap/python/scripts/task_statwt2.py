@@ -43,7 +43,7 @@ def statwt2(
             wtrange=wtrange, preview=preview, datacolumn=datacolumn
         ) 
         return True
-    except Exception, instance:
+    except Exception as instance:
         casalog.post( '*** Error ***'+str(instance), 'SEVERE' )
         raise
     finally:

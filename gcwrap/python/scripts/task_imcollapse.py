@@ -74,17 +74,17 @@ def imcollapse(
     casalog.origin('imcollapse')
     try :
         if (len(outfile) == 0):
-            raise Exception, "oufile must be specified" 
+            raise Exception("oufile must be specified") 
         myia = iatool() 
         if (not myia.open(imagename)):
-            raise Exception, "Cannot create image analysis tool using " + imagename
+            raise Exception("Cannot create image analysis tool using " + imagename)
         ia_tool = myia.collapse(
             function, axes, outfile, region, box, chans,
             stokes, mask, overwrite, stretch
         )
         ia_tool.done()
         return True
-    except Exception, instance:
+    except Exception as instance:
         casalog.post( str( '*** Error ***') + str(instance), 'SEVERE')
         raise
     finally:

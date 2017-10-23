@@ -58,22 +58,22 @@ def statwt(vis, dorms, byantenna, sepacs, fitspw, fitcorr, combine,
                              timebin, minsamp, field, spw, antenna, timerange, scan, intent,
                              array, correlation, obs, datacolumn)
         myms.close()
-    except Exception, e:
+    except Exception as e:
         casalog.post("Error setting WEIGHT and SIGMA for %s:" % vis, 'SEVERE')
         casalog.post("%s" % e, 'SEVERE')
         if False:  # Set True for debugging.
-            for p in statwt.func_code.co_varnames[:statwt.func_code.co_argcount]:
+            for p in statwt.__code__.co_varnames[:statwt.__code__.co_argcount]:
                 v = eval(p)
-                print p, "=", v, ", type =", type(v)
+                print(p, "=", v, ", type =", type(v))
         retval = False
 
     if retval:
         try:
-            param_names = statwt.func_code.co_varnames[:statwt.func_code.co_argcount]
+            param_names = statwt.__code__.co_varnames[:statwt.__code__.co_argcount]
             param_vals = [eval(p) for p in param_names]
             retval &= write_history(myms, vis, 'statwt', param_names, param_vals,
                                     casalog)
-        except Exception, instance:
+        except Exception as instance:
             casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
                          'WARN')        
     return retval

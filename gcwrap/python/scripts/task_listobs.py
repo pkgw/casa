@@ -35,8 +35,7 @@ def listobs(
         if (type(vis) == str) & os.path.exists(vis):
             myms.open(thems=vis, check=True)
         else:
-            raise Exception, \
-                'Visibility data set not found - please verify the name'
+            raise Exception('Visibility data set not found - please verify the name')
                 
         sel = {}
         if (selectdata):
@@ -59,7 +58,7 @@ def listobs(
             cachesize=cachesize, overwrite=overwrite, wantreturn=False
         )
         return True
-    except Exception, instance:
+    except Exception as instance:
         casalog.post('*** Error *** ' + str(instance), 'SEVERE')
         return False
     finally:

@@ -21,12 +21,12 @@ def data():
 
 def run(fetch=False):
     lepath=locatescript('orion_regression.py')
-    print 'Script used is ',lepath
+    print('Script used is ',lepath)
     gl['regstate']=True
-    execfile(lepath, gl)
-    print 'regstate =', gl['regstate']
+    exec(compile(open(lepath).read(), lepath, 'exec'), gl)
+    print('regstate =', gl['regstate'])
     if not gl['regstate']:
-        raise Exception, 'regstate = False'
+        raise Exception('regstate = False')
 #    import lepath+'/g192_regression.py'
 ###resturn the images that will be templated and compared in future runs
     return ['orion_tfeather.im','orion_tfeather2.im','orion_tsdmem.image','orion_tsdms.image','orion_tjoint3.image']

@@ -85,7 +85,7 @@ def specfit(
     myia = iatool()
     try:
         if (not myia.open(imagename)):
-            raise Exception, "Cannot create image analysis tool using " + imagename
+            raise Exception("Cannot create image analysis tool using " + imagename)
         retval = myia.fitprofile(
 			box=box, region=region, chans=chans,
 			stokes=stokes, axis=axis, mask=mask,
@@ -107,7 +107,7 @@ def specfit(
 			goodcenterrange=goodcenterrange, goodfwhmrange=goodfwhmrange,
 			sigma=sigma, outsigma=outsigma
 		)
-    except Exception, instance:
+    except Exception as instance:
         casalog.post( str( '*** Error ***') + str(instance), 'SEVERE')
         retval = None
     myia.done()

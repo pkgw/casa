@@ -30,8 +30,8 @@ def scaleweights(vis="", field=[], spw="", scale=1., dotime=False):
     """
 
     if(vis=="" or spw=="" or field==[] or scale==1. or not type(field)==list):
-        print "Usage: scaleweights(vis, field, spw, scale)"
-        print "       The field parameter takes a list of fields."
+        print("Usage: scaleweights(vis, field, spw, scale)")
+        print("       The field parameter takes a list of fields.")
         return False
 
     myvis = vis
@@ -60,7 +60,7 @@ def scaleweights(vis="", field=[], spw="", scale=1., dotime=False):
 
     mytb.close()
 
-    print "Will change weights for data description ids ", mydds
+    print("Will change weights for data description ids ", mydds)
 
     changes=0
 
@@ -78,9 +78,9 @@ def scaleweights(vis="", field=[], spw="", scale=1., dotime=False):
         mytb.close()
 
     if changes>0:
-        print "Changes applied in ", changes, " rows."
+        print("Changes applied in ", changes, " rows.")
     else:
-        print "No changes applied."
+        print("No changes applied.")
 
     return True
 
@@ -94,8 +94,8 @@ def getavweight(vis="", field=[], spw=""):
     """
 
     if(vis=="" or spw=="" or field==[] or not type(field)==list):
-        print "Usage: getavweight(vis, field, spw)"
-        print "       The field parameter takes a list of fields."
+        print("Usage: getavweight(vis, field, spw)")
+        print("       The field parameter takes a list of fields.")
         return False
 
     myvis = vis
@@ -136,9 +136,9 @@ def getavweight(vis="", field=[], spw=""):
 
     if mynrows>0:
         rval = mysumw/float(npol)/float(mynrows)
-        print "Average weight is ", rval
+        print("Average weight is ", rval)
     else:
-        print "No rows selected."
+        print("No rows selected.")
 
     return rval
 
@@ -152,7 +152,7 @@ def abschanwidth(vis="", spw=""):
     """
 
     if(vis=="" or spw==""):
-        print "Usage: abschanwidth(vis, spw)"
+        print("Usage: abschanwidth(vis, spw)")
         return 0
 
     myvis = vis
@@ -161,7 +161,7 @@ def abschanwidth(vis="", spw=""):
     
     mytb.open(myvis+"/SPECTRAL_WINDOW")
     if(spw>=mytb.nrows() or spw<0):
-        print "Error: spw out of range. Min is 0. Max is ", mytb.nrows()-1
+        print("Error: spw out of range. Min is 0. Max is ", mytb.nrows()-1)
         return 0
         
     mychw = mytb.getcell("CHAN_WIDTH",spw)[0]
@@ -178,7 +178,7 @@ def getnch(vis="", spw=""):
     """
 
     if(vis=="" or spw==""):
-        print "Usage: abschanwidth(vis, spw)"
+        print("Usage: abschanwidth(vis, spw)")
         return 0
 
     myvis = vis
@@ -187,7 +187,7 @@ def getnch(vis="", spw=""):
     
     mytb.open(myvis+"/SPECTRAL_WINDOW")
     if(spw>=mytb.nrows() or spw<0):
-        print "Error: spw out of range. Min is 0. Max is ", mytb.nrows()-1
+        print("Error: spw out of range. Min is 0. Max is ", mytb.nrows()-1)
         return 0
         
     mynch = mytb.getcell("NUM_CHAN",spw)
@@ -219,9 +219,9 @@ def adjustweights(vis="", field="", refspws=[], spws=[]):
     mytb=taskinit.tbtool()
     
     if (vis=="" or myfield=="" or refspws==[] or spws==[] or not type(refspws)==list or not type(spws)==list):
-        print "Usage: adjustweights(vis, field, refspws, spws)"
-        print "       refspws and spws are of type list,"
-        print "       field should be given as field id"
+        print("Usage: adjustweights(vis, field, refspws, spws)")
+        print("       refspws and spws are of type list,")
+        print("       field should be given as field id")
         return False
 
     # check that all ref spws have the same chan width
@@ -229,13 +229,13 @@ def adjustweights(vis="", field="", refspws=[], spws=[]):
     for spw in refspws:
         cw = abschanwidth(myvis, spw)
         if cw==0:
-            print "Error reading channel width of spw ", spw
+            print("Error reading channel width of spw ", spw)
             return False
         if(refcw==0):
             refcw=cw
         else:
             if not refcw==cw:
-                print "Error: the spws given in the reference list do not all have the same channel width."
+                print("Error: the spws given in the reference list do not all have the same channel width.")
                 return False
 
     # get avweight and chanwidth from spws
@@ -244,39 +244,39 @@ def adjustweights(vis="", field="", refspws=[], spws=[]):
     for spw in spws:
         cw = abschanwidth(myvis, spw)
         if cw==0:
-            print "Error reading channel width of spw ", spw
+            print("Error reading channel width of spw ", spw)
             return False
         cws.append(cw)
         avw = getavweight(myvis, [myfield], spw)
         if(avw==0.):
-            print "Error: average weight of spw ", spw, " is zero (could also mean no data)."
+            print("Error: average weight of spw ", spw, " is zero (could also mean no data).")
             return False    
-        print "Spw ", spw, ", channelwidth ", cw, ", av. weight ", avw
+        print("Spw ", spw, ", channelwidth ", cw, ", av. weight ", avw)
         avweights.append(avw)
 
     # get avweight and chanwidth from ref spws    
     ravweight = 0.
     for spw in refspws:
         avw = getavweight(myvis, [myfield], spw)
-        print "Reference Spw ", spw, ", channelwidth ", refcw, ", av. weight ", avw
+        print("Reference Spw ", spw, ", channelwidth ", refcw, ", av. weight ", avw)
         ravweight += avw
 
     if(len(refspws)>0):
         ravweight /= len(refspws)
     else:
-        print "Error: no reference spws"
+        print("Error: no reference spws")
         return False
 
-    print "Average weight of reference spws: ", ravweight
+    print("Average weight of reference spws: ", ravweight)
 
     # calculate scale factor and apply scaling to the spws
 
     for i in range(0,len(spws)):
         myscale = ravweight/avweights[i]*cws[i]/refcw
-        print "Scale factor for weights in spw ", spws[i], " is ", myscale
+        print("Scale factor for weights in spw ", spws[i], " is ", myscale)
         scaleweights(myvis, [myfield], spws[i], myscale)
 
-    print "Done."
+    print("Done.")
 
     return True
 
@@ -302,9 +302,9 @@ def adjustweights2(vis="", field="", spws=[]):
     mytb=taskinit.tbtool()
     
     if (vis=="" or myfield=="" or spws==[] or not type(spws)==list):
-        print "Usage: adjustweights2(vis, field, spws)"
-        print "       spws are of type list,"
-        print "       field should be given as field id"
+        print("Usage: adjustweights2(vis, field, spws)")
+        print("       spws are of type list,")
+        print("       field should be given as field id")
         return False
 
     # get avweight and chanwidth from spws
@@ -313,26 +313,26 @@ def adjustweights2(vis="", field="", spws=[]):
     for spw in spws:
         cw = abschanwidth(myvis, spw)
         if cw==0:
-            print "Error reading channel width of spw ", spw
+            print("Error reading channel width of spw ", spw)
             return False
         chw.append(cw)
 
 
         nc = getnch(myvis, spw)
         if(nc==0):
-            print "Error: nch of spw ", spw, " is zero (could also mean no data)."
+            print("Error: nch of spw ", spw, " is zero (could also mean no data).")
             return False    
         nch.append(nc)
 
-        print "Spw ", spw, ", channelwidth", cw, ", nchan ", nc
+        print("Spw ", spw, ", channelwidth", cw, ", nchan ", nc)
 
     # calculate scale factor and apply scaling to the spws
 
     for i in range(0,len(spws)):
         myscale = chw[i]/nch[i]
-        print "Scale factor for weights in spw ", spws[i], " is ", myscale
+        print("Scale factor for weights in spw ", spws[i], " is ", myscale)
         scaleweights(myvis, [myfield], spws[i], myscale, True) # include integ time
 
-    print "Done."
+    print("Done.")
 
     return True

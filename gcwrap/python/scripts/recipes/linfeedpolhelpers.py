@@ -37,12 +37,12 @@ def qufromgain(gt,badspw=[]):
     nfld=tb.nrows()
     dirs=tb.getcol('DELAY_DIR')[:,0,:]
     tb.close()
-    print 'Found as many as '+str(nfld)+' fields.'
+    print('Found as many as '+str(nfld)+' fields.')
 
     tb.open(gt+'/SPECTRAL_WINDOW')
     nspw=tb.nrows()
     tb.close()
-    print 'Found as many as '+str(nspw)+' spws.'
+    print('Found as many as '+str(nspw)+' spws.')
 
     R=pl.zeros((nspw,nfld))
     Q=pl.zeros((nspw,nfld))
@@ -69,7 +69,7 @@ def qufromgain(gt,badspw=[]):
                 ntimes=len(pl.unique(times))
                 nants=ants.max()+1
 
-                print nrows, ntimes, nants
+                print(nrows, ntimes, nants)
 
                 # times
                 time0=86400.0*floor(times[0]/86400.0)
@@ -111,17 +111,17 @@ def qufromgain(gt,badspw=[]):
                 Pant=pl.sqrt(Qant*Qant + Uant*Uant)
                 Xant=0.5*pl.arctan2(Uant,Qant)*180/pi
                 
-                print 'By antenna:'
-                print ' R = ', Rant,pl.mean(Rant)
-                print ' Q = ', Qant,pl.mean(Qant)
-                print ' U = ', Uant,pl.mean(Uant)
-                print ' P = ', Pant,pl.mean(Pant)
-                print ' X = ', Xant,pl.mean(Xant)
+                print('By antenna:')
+                print(' R = ', Rant,pl.mean(Rant))
+                print(' Q = ', Qant,pl.mean(Qant))
+                print(' U = ', Uant,pl.mean(Uant))
+                print(' P = ', Pant,pl.mean(Pant))
+                print(' X = ', Xant,pl.mean(Xant))
 
                 pl.plot(Qant,Uant,',')
 
                 
-                ants0=range(nants)
+                ants0=list(range(nants))
                 rsum=pl.sum(ratio[:,ants0],1)
                 rsum/=len(ants0)
                 
@@ -133,7 +133,7 @@ def qufromgain(gt,badspw=[]):
                 P=sqrt(Q[ispw,ifld]**2+U[ispw,ifld]**2)
                 X=0.5*atan2(U[ispw,ifld],Q[ispw,ifld])*180/pi
 
-                print 'Fld=',ifld,'Spw=',ispw,'Gx/Gy=',R[ispw,ifld],'Q=',Q[ispw,ifld],'U=',U[ispw,ifld],'P=',P,'X=',X
+                print('Fld=',ifld,'Spw=',ispw,'Gx/Gy=',R[ispw,ifld],'Q=',Q[ispw,ifld],'U=',U[ispw,ifld],'P=',P,'X=',X)
 
                 pl.plot(Q[ispw,ifld],U[ispw,ifld],'o')
 
@@ -143,7 +143,7 @@ def qufromgain(gt,badspw=[]):
 
             st.close()
 
-        print 'For field id = ',ifld,' there are ',sum(mask[:,ifld]),'good spws.'
+        print('For field id = ',ifld,' there are ',sum(mask[:,ifld]),'good spws.')
 
         Qm=pl.mean(Q[mask[:,ifld],ifld])
         Um=pl.mean(U[mask[:,ifld],ifld])
@@ -151,7 +151,7 @@ def qufromgain(gt,badspw=[]):
         Ue=pl.std(U[mask[:,ifld],ifld])
         Pm=sqrt(Qm**2+Um**2)
         Xm=0.5*atan2(Um,Qm)*180/pi
-        print 'Spw mean: Fld=', ifld,' Fractional: Q=',Qm,'U=',Um,'(rms=',Qe,Ue,')','P=',Pm,'X=',Xm
+        print('Spw mean: Fld=', ifld,' Fractional: Q=',Qm,'U=',Um,'(rms=',Qe,Ue,')','P=',Pm,'X=',Xm)
     tb.close()
 
     pl.plot(Qm,Um,'*')
@@ -176,7 +176,7 @@ def xyamb(xy,qu,xyout=''):
         u=QU[1,ispw]
         if ( (abs(q)>0.0 and abs(qu[0])>0.0 and (q/qu[0])<0.0) or
              (abs(u)>0.0 and abs(qu[1])>0.0 and (u/qu[1])<0.0) ):
-            print 'Fixing ambiguity in spw',ispw
+            print('Fixing ambiguity in spw',ispw)
             st=tb.query('SPECTRAL_WINDOW_ID=='+str(ispw))
             c=st.getcol('CPARAM')
             c[0,:,:]*=-1.0
@@ -189,7 +189,7 @@ def xyamb(xy,qu,xyout=''):
     tb.close()
     QUm=pl.mean(QU[:,P>0],1)
     QUe=pl.std(QU[:,P>0],1)
-    print 'mean ambiguity-resolved fractional QU:',QUm,' +/- ',QUe
+    print('mean ambiguity-resolved fractional QU:',QUm,' +/- ',QUe)
     
     return pl.array([1.0,QUm[0],QUm[1],0.0])
 
@@ -206,7 +206,7 @@ def dxy(dtab,xtab,dout):
 
 
     for ispw in range(nspw):
-        print 'Spw = ',ispw
+        print('Spw = ',ispw)
         tb.open(xtab)
         x=[]
         st=tb.query('SPECTRAL_WINDOW_ID=='+str(ispw))
@@ -232,13 +232,13 @@ def dxy(dtab,xtab,dout):
                     d[1,:,:]*=x[0,:,:]
                     st.putcol('CPARAM',d)
                 else:
-                    print ' D and X shapes do not match!'
+                    print(' D and X shapes do not match!')
             else:
-                print '  No D solutions for this spw'
+                print('  No D solutions for this spw')
             st.close()
             tb.close()
         else:
-            print '  No X solutions for this spw'
+            print('  No X solutions for this spw')
 
 
  
@@ -253,7 +253,7 @@ def zeromeanD(dtab,dout):
 
     tb.open(dout,nomodify=F)
     for ispw in range(nspw):
-        print 'Spw = ',ispw
+        print('Spw = ',ispw)
 
         st=tb.query('SPECTRAL_WINDOW_ID=='+str(ispw))
 
@@ -270,7 +270,7 @@ def zeromeanD(dtab,dout):
             d[1,:,:]=d[1,:,:]+pl.conj(a)
             st.putcol('CPARAM',d)
         else:
-            print ' No D in this spw'
+            print(' No D in this spw')
         st.close()
     tb.close()
 
@@ -287,7 +287,7 @@ def nonorthogD(dtab,dout):
 
     tb.open(dout,nomodify=F)
     for ispw in range(nspw):
-        print 'Spw = ',ispw
+        print('Spw = ',ispw)
 
         st=tb.query('SPECTRAL_WINDOW_ID=='+str(ispw))
 
@@ -298,6 +298,6 @@ def nonorthogD(dtab,dout):
             d[1,:,:]+=pl.conj(dorth)
             st.putcol('CPARAM',d)
         else:
-            print ' No D in this spw'
+            print(' No D in this spw')
         st.close()
     tb.close()

@@ -19,7 +19,7 @@ def getput_keyw(mode, vis, key, hdindex, hdvalue='', hdref=None):
             i = int(hdindex)
             if i < 0:
                 # allowed by python, but...
-                raise Exception, "Illegal index " + str(i)
+                raise Exception("Illegal index " + str(i))
             
             value = tb.getcell(col, i)  # throws exception if index too large
         except (ValueError, TypeError):   # This is almost certainly from
@@ -31,7 +31,7 @@ def getput_keyw(mode, vis, key, hdindex, hdvalue='', hdref=None):
     elif mode == 'put':
         if(tb.isvarcol(col)):
             tb.close()
-            raise Exception, "vishead does not yet read/write variably sized columns"
+            raise Exception("vishead does not yet read/write variably sized columns")
         else:
             #TODO: Apply colinfo and hdref.
 
@@ -48,7 +48,7 @@ def getput_keyw(mode, vis, key, hdindex, hdvalue='', hdref=None):
                 c = tb.getcol(col)
 
                 # Must be careful here:
-                if isinstance(c[0], basestring):
+                if isinstance(c[0], str):
                     # The new hdvalue may be longer than
                     # the current string.
                     # numpy arrays do *not* expand flexibly,
@@ -68,7 +68,7 @@ def getput_keyw(mode, vis, key, hdindex, hdvalue='', hdref=None):
         value = None
     else:
         tb.close()
-        raise Exception, "Assertion error"
+        raise Exception("Assertion error")
 
     #print "Will return", value
 
@@ -99,7 +99,7 @@ def dict2direction_strs(raddict, csys='J2000', units=('rad', 'rad')):
     converted to directions if possible.
     """
     retlist = []
-    rkeys = raddict.keys()
+    rkeys = list(raddict.keys())
     rkeys.sort()
     for rk in rkeys:
         val = raddict[rk]
@@ -117,10 +117,10 @@ def getrefunits(d, defunits=None):
     """
     rsys = 'UNKNOWN'
     try:
-        if d.has_key('MEASINFO'):
+        if 'MEASINFO' in d:
             rsys = d['MEASINFO'].get('Ref', 'UNKNOWN')
     except:
-        print "d =", d
+        print("d =", d)
     return rsys, d.get('QuantumUnits', defunits)
     
 def valref2direction_strs(valreftuple):
@@ -161,6 +161,6 @@ def digest(tup):
     elif hasattr(t0, 'get'):
         t0 = strip_r1(t0)
     retval = str(t0)
-    if len(tup[1].keys()) > 0:
+    if len(list(tup[1].keys())) > 0:
         retval += " " + str(tup[1])
     return retval

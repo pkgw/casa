@@ -29,7 +29,7 @@ def astimerange(tmargin, mjd0, mjd1):
 @contextlib.contextmanager
 def selection_manager(scantab, original_selection, **kwargs):
     sel = sd.selector(original_selection)
-    for (k,v) in kwargs.items():
+    for (k,v) in list(kwargs.items()):
         method_name = 'set_%s'%(k)
         if hasattr(sel, method_name):
             getattr(sel, method_name)(v)
@@ -71,7 +71,7 @@ class Raster(object):
         self._nominal_spw = None
         with selection_manager(self.scantab, self.original_selection, types=0) as s:
             spw_list = s.getifnos()
-        print spw_list
+        print(spw_list)
         for spw in spw_list:
             with selection_manager(self.scantab, self.original_selection, ifs=spw) as s:
                 if self.scantab.nrow() > 0:
@@ -127,14 +127,14 @@ class Raster(object):
         casalog.post(separator)
         headertitles = ['Filename', 'Nominal Spw for Detection', 'Nominal Pol for Detection', 'Number of Raster Rows', 'Number of Rasters']
         headervalues = ['', self.spw, self.pol, self.nrow, self.nraster]
-        headertemplate = '%-{digit}s: %s'.format(digit=max(map(len,headertitles)))
+        headertemplate = '%-{digit}s: %s'.format(digit=max(list(map(len,headertitles))))
         for (t,v) in zip(headertitles, headervalues):
             ht = t
             casalog.post(headertemplate%(ht,v))
         casalog.post(separator)
         header = formatline('ROW', 'TIMERANGE')
         casalog.post(header)
-        for i in xrange(self.nrow):
+        for i in range(self.nrow):
             self.select(rowid=i)
             mjd_range_nomargin = self.mjd_range_nomargin
             daterangestring = astimerange(self.margin, *self.mjd_range_nomargin)
@@ -143,7 +143,7 @@ class Raster(object):
         casalog.post(separator)
         header = formatline('RASTER', 'TIMERANGE')
         casalog.post(header)
-        for i in xrange(self.nraster):
+        for i in range(self.nraster):
             self.select(rasterid=i)
             mjd_range_nomargin_raster = self.mjd_range_nomargin_raster
             daterangestring = astimerange(self.margin, *self.mjd_range_nomargin_raster)
@@ -161,7 +161,7 @@ class Raster(object):
             raise IndexError('row index %s is out of range (number of rasters detected: %s)'%(rasterid,self.nraster))
 
         with selection_manager(self.scantab, self.original_selection, types=0, ifs=self.spw, pols=self.pol) as s:
-            alltimes = numpy.array(map(lambda x: qa.quantity(x)['value'], s.get_time(prec=16)))
+            alltimes = numpy.array([qa.quantity(x)['value'] for x in s.get_time(prec=16)])
             mean_interval = numpy.array(s.get_inttime()).mean()
             self.margin = 0.1 * mean_interval
             mjd_margin = self.margin / 86400.0
@@ -229,10 +229,10 @@ class Raster(object):
         taql = self.astaql(rowid=rowid,rasterid=rasterid)
 
         with selection_manager(self.scantab, self.original_selection, types=0, ifs=self.spw, pols=self.pol) as s:
-            alldir = numpy.array([s.get_directionval(i) for i in xrange(s.nrow())]).transpose()
+            alldir = numpy.array([s.get_directionval(i) for i in range(s.nrow())]).transpose()
 
         with selection_manager(self.scantab, self.original_selection, query=taql) as s:
-            dirs = numpy.array([s.get_directionval(i) for i in xrange(s.nrow())]).transpose()
+            dirs = numpy.array([s.get_directionval(i) for i in range(s.nrow())]).transpose()
    
         pl.clf()
         pl.plot(alldir[0], alldir[1], 'o', color='#aaaaaa', markeredgewidth=0)
@@ -243,8 +243,8 @@ class Raster(object):
 
 def detect_gap(scantab, spw, pol):
     with selection_manager(scantab, scantab.get_selection(), types=0, ifs=spw, pols=pol) as s:
-        alldir = numpy.array([s.get_directionval(i) for i in xrange(s.nrow())]).transpose()
-        timestamp = numpy.array(map(lambda x: qa.quantity(x)['value'], s.get_time(prec=16)))
+        alldir = numpy.array([s.get_directionval(i) for i in range(s.nrow())]).transpose()
+        timestamp = numpy.array([qa.quantity(x)['value'] for x in s.get_time(prec=16)])
 
     row_gap = _detect_gap(timestamp)
     ras_gap = _detect_gap_raster(timestamp, alldir, row_gap=row_gap)

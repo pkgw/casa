@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import os, sys, traceback, email, errno, mimetypes, xml.dom.minidom, StringIO, getopt, re, exceptions, operator, string
+import os, sys, traceback, email, errno, mimetypes, xml.dom.minidom, io, getopt, re, exceptions, operator, string
 from string import *
 from tokenize import *
 from token import *
@@ -37,7 +37,7 @@ class SDMDataObjectStreamReader:
         name, value = self.HeaderField2Pair(self.nextLine())
         #print name, value
         if string.upper(name) != hf:
-            print 'Missing "', hf, '" field.'
+            print('Missing "', hf, '" field.')
             sys.exit(1)
         return name, value
 
@@ -66,7 +66,7 @@ class SDMDataObjectStreamReader:
             line = self.nextLine()
             numSkip+=1
         if numSkip > maxSkips:
-            print "could not find an expected empty line"
+            print("could not find an expected empty line")
             sys.exit(1)
 
     def requireMIMEHeader(self):
@@ -76,7 +76,7 @@ class SDMDataObjectStreamReader:
         #print name, value
         #if line != "MIME-Version: 1.0":
         if not line.endswith("IME-Version: 1.0"):
-            print 'Missing "MIME-Version: 1.0"'
+            print('Missing "MIME-Version: 1.0"')
             Sys.exit(1)
 
         # Content-Type
@@ -107,7 +107,7 @@ class SDMDataObjectStreamReader:
             line = self.nextLine()
 
         if numLines > maxLines:
-            print "Could not find '--" + boundary + "' in the next " + maxLines + "."
+            print("Could not find '--" + boundary + "' in the next " + maxLines + ".")
             sys.exit(1)
 
         return result
@@ -120,7 +120,7 @@ class SDMDataObjectStreamReader:
             line = self.nextLine()
 
         if numLines > maxLines:
-            print "Could not read the expected boundary '"+boundary+"'"
+            print("Could not read the expected boundary '"+boundary+"'")
             sys.exit(1)
 
     def lookForBinaryPartSize(self, dom, partName):
@@ -129,7 +129,7 @@ class SDMDataObjectStreamReader:
         if elements != []:
             size = elements.item(0).getAttribute("size")
             if size == "":
-                print "Missing 'size' attribute in element '", element.nodeName, "."
+                print("Missing 'size' attribute in element '", element.nodeName, ".")
                 sys.exit(1)
             result = int(size)
         return result
@@ -138,12 +138,12 @@ class SDMDataObjectStreamReader:
         result = None
         elements = dom.getElementsByTagName("crossData")
         if elements == []:
-            print "Missing  'crossData' element in '" , dom.toprettyxml() , "'"
+            print("Missing  'crossData' element in '" , dom.toprettyxml() , "'")
             sys.exit(1)
 
         result = elements.item(0).getAttribute("type")
         if result == "":
-            print "Missing 'type' attribute in element '", element.nodeName, "."
+            print("Missing 'type' attribute in element '", element.nodeName, ".")
             sys.exit(1)
 
         return result
@@ -194,13 +194,13 @@ class SDMDataObjectStreamReader:
             name, value = self.requireHeaderField("CONTENT-LOCATION")
             result = re.match("([0-9]+/)+(actualDurations|actualTimes|autoData|crossData|zeroLags|flags)\.bin", value.lstrip().rstrip())
             if result == None:
-                print "Could not identify the part name in '" , value , "'"
+                print("Could not identify the part name in '" , value , "'")
                 sys.exit(1)
 
             binaryPartName = result.group(2)
 
-            if not self.binaryPartSize.has_key(binaryPartName):
-                print "The size of '" + binaryPartName + "' has not been announced in the  data header"
+            if binaryPartName not in self.binaryPartSize:
+                print("The size of '" + binaryPartName + "' has not been announced in the  data header")
                 sys.exit(1)
 
             if binaryPartName == "crossData":
@@ -229,7 +229,7 @@ class SDMDataObjectStreamReader:
                 autoDataDesc["base"] = self.position() 
             bytes = self.f.read(numberOfBytesToRead) 
             if len(bytes) < numberOfBytesToRead:
-                print "EOF reached while reading a binary attachment ('" + binaryPartName + "')"
+                print("EOF reached while reading a binary attachment ('" + binaryPartName + "')")
                 sys.exit(1)
 
             #print "I have read " , self.binaryPartSize[binaryPartName] , " values for " , binaryPartName
@@ -238,7 +238,7 @@ class SDMDataObjectStreamReader:
             line = self.nextLine() # This should boundary_2
 
             if string.find(line, "--"+self.boundary_2) != 0:
-                print "Unexpected '", line, "' after the binary part '", binaryPartName, "'" 
+                print("Unexpected '", line, "' after the binary part '", binaryPartName, "'") 
                 sys.exit(1)
 
             done = line == "--"+self.boundary_2+"--"
@@ -261,7 +261,7 @@ class SDMDataObjectStreamReader:
         return (cdd, add)
 
     def processBDF(self, f):
-        print "in processBDF"
+        print("in processBDF")
         boundary_1 = self.requireMIMEHeader()
 
         self.requireSDMDataHeaderMIMEPart(boundary_1)
@@ -276,7 +276,7 @@ def traverseALMARadiometricData(numAntenna, dataDesc, basebands):
     if dataDesc["type"] == "FLOAT32_TYPE" :
         numberOfBytesPerValue = 4
     else:
-        print "Unknown data type '%s' for radiometric data" % dataDesc["type"]
+        print("Unknown data type '%s' for radiometric data" % dataDesc["type"])
         exit
 
     # Number of spectral windows
@@ -292,7 +292,7 @@ def traverseALMARadiometricData(numAntenna, dataDesc, basebands):
     offset = dataDesc["base"]
 
     for time in range(int(dataDesc["numTime"])):
-        osio = StringIO.StringIO()
+        osio = io.StringIO()
 
         # General information.
         osio.write("%d" % MSMainRowNum)                                    # MS Main row number of the 1st row of this time slot
@@ -337,7 +337,7 @@ def traverseALMARadiometricData(numAntenna, dataDesc, basebands):
         # Prepare the MS Main row number for the next time slot.
         MSMainRowNum = MSMainRowNum + numAntenna * numberOfSpectralWindows
 
-        print osio.getvalue()
+        print(osio.getvalue())
         osio.close()
         
 def traverseALMAAutoData(numAntenna, crossDataDesc, autoDataDesc, basebands):
@@ -359,7 +359,7 @@ def traverseALMAAutoData(numAntenna, crossDataDesc, autoDataDesc, basebands):
     numPol = len(basebands[0]["crossPolProducts"].split())
 
 
-    osio = StringIO.StringIO()
+    osio = io.StringIO()
 
     # General information.
     osio.write("%d" % MSMainRowNum)                                    # MS Main row number of the 1st row of this time slot
@@ -389,7 +389,7 @@ def traverseALMAAutoData(numAntenna, crossDataDesc, autoDataDesc, basebands):
     osio.write("|%d" % dataType)
 
     # Output the result
-    print osio.getvalue()
+    print(osio.getvalue())
     osio.close()
 
     # Increment the global value MSMainRowNum
@@ -413,7 +413,7 @@ def traverseALMACrossData(numAntenna, crossDataDesc, autoDataDesc, basebands):
     # Number of polarizations supposed to be constant all over the basebands.
     numPol = len(basebands[0]["crossPolProducts"].split())
 
-    osio = StringIO.StringIO()
+    osio = io.StringIO()
 
     # now the cross data
     # General information.
@@ -450,11 +450,11 @@ def traverseALMACrossData(numAntenna, crossDataDesc, autoDataDesc, basebands):
     elif crossDataType == "FLOAT32_TYPE":
         dataType = 3
     else :
-        print "Unrecognized cross data type '%s'" % crossDataType
+        print("Unrecognized cross data type '%s'" % crossDataType)
     osio.write("|%d" % dataType)
 
     # Output the result
-    print osio.getvalue()
+    print(osio.getvalue())
     osio.close()
 
     # Increment the global value MSMainRowNum
@@ -466,7 +466,7 @@ def main() :
     #
     try:
         options, arg = getopt.getopt(sys.argv[1:], ":h", ["help"])
-    except getopt.GetoptError, err:
+    except getopt.GetoptError as err:
             usage();
             sys.exit(2)
 
@@ -488,8 +488,8 @@ def main() :
             #print "> Processing %s" %  bdfName
             try :
                 f  = open(arg[0]+"/ASDMBinary/"+bdfName)
-            except IOError, e:
-                print e;
+            except IOError as e:
+                print(e);
                 continue
 
             sdosr = SDMDataObjectStreamReader()
@@ -522,7 +522,7 @@ def main() :
                     crossDataDesc["axes"] = str(elems[0].getAttribute("axes"))
 
                 if crossDataAxesRE.match(crossDataDesc["axes"]) == None:
-                    print "These axes '%s' are not recognized for cross data." % crossDataDesc["axes"] 
+                    print("These axes '%s' are not recognized for cross data." % crossDataDesc["axes"]) 
                     continue
 
                 autoDataDesc = {}
@@ -541,7 +541,7 @@ def main() :
                         autoDataDesc["normalized"] = normalized == "true"
 
                 if autoDataAxesRE.match(autoDataDesc["axes"]) == None:
-                    print "These axes '%s' are not recognized for auto data." % autoDataDesc["axes"] 
+                    print("These axes '%s' are not recognized for auto data." % autoDataDesc["axes"]) 
                     continue
 
                 numAntenna = int(globalHeaderDOM.getElementsByTagName("numAntenna")[0].childNodes[0].nodeValue)
@@ -564,11 +564,11 @@ def main() :
                 # first auto
                 while sdosr.hasData() :
                     cdd, add = sdosr.getData()
-                    for k, v in cdd.iteritems(): 
+                    for k, v in cdd.items(): 
                         crossDataDesc[k]=v
                     #print crossDataDesc
 
-                    for k, v in add.iteritems():
+                    for k, v in add.items():
                         autoDataDesc[k]=v
                     #print autoDataDesc
                     #print ">>> file %s, next subset, cross data starts at %d and auto data starts at %d " % (crossDataDesc["bdfName"], crossDataDesc["base"], autoDataDesc["base"])
@@ -607,7 +607,7 @@ def main() :
                     basebands.append(attributes)        
 
                 cdd, add = sdosr.getData()
-                for k, v in add.iteritems():
+                for k, v in add.items():
                     radiometricDataDesc[k]=v
 
                 traverseALMARadiometricData(numAntenna, radiometricDataDesc, basebands) 

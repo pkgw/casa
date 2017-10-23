@@ -42,8 +42,8 @@ class plotuv_test(unittest.TestCase):
         if os.uname()[0] == "Darwin" and \
            os.system("sw_vers -productVersion | grep 10.6") == 0 and \
            not os.getenv("DISPLAY"):
-            print >> sys.stderr, "Warning: The DISPLAY environment variable is unset, " + \
-            "required on OS X 10.6, skipping test"
+            print("Warning: The DISPLAY environment variable is unset, " + \
+            "required on OS X 10.6, skipping test", file=sys.stderr)
         else:
             self.res = plotuv(vis=self.msfile, figfile=self.fig)
             self.assertTrue(self.res)

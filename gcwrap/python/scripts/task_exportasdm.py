@@ -59,26 +59,26 @@ def exportasdm(vis=None, asdm=None, datacolumn=None, archiveid=None, rangeid=Non
 		casalog.post(parsummary)
 
 		if not (type(vis)==str) or not (os.path.exists(vis)):
-			raise Exception, 'Visibility data set not found - please verify the name'
+			raise Exception('Visibility data set not found - please verify the name')
 		
 		if (asdm == ""):
-			raise Exception, "Must provide output data set name in parameter asdm."            
+			raise Exception("Must provide output data set name in parameter asdm.")            
 		
 		if os.path.exists(asdm):
-			raise Exception, "Output ASDM %s already exists - will not overwrite." % asdm
+			raise Exception("Output ASDM %s already exists - will not overwrite." % asdm)
 
 		# determine sb and subscan duration
 		ssdur_secs = 24.*3600 # default is one day, i.e. there will be only one subscan per scan
 		if not(subscanduration==""):
 			if (qa.canonical(subscanduration)['unit'].find('s') < 0):
-				raise TypeError, "subscanduration is not a valid time quantity: %s" % subscanduration
+				raise TypeError("subscanduration is not a valid time quantity: %s" % subscanduration)
 			else:
 				ssdur_secs = qa.canonical(subscanduration)['value']
 
 		sbdur_secs = 2700. # default is 45 minutes
 		if not(sbduration==""):
 			if (qa.canonical(sbduration)['unit'].find('s') < 0):
-				raise TypeError, "sbduration is not a valid time quantity: %s" % sbduration
+				raise TypeError("sbduration is not a valid time quantity: %s" % sbduration)
 			else:
 				sbdur_secs = qa.canonical(sbduration)['value']
 
@@ -96,7 +96,7 @@ def exportasdm(vis=None, asdm=None, datacolumn=None, archiveid=None, rangeid=Non
 		a = tb.getcol('PROCESSOR_ID')
 		a0 = a[0]
 		candoit = True
-		for i in xrange(0,len(a)-1):
+		for i in range(0,len(a)-1):
 			if(a[i]!=a[i+1]):
 				candoit = False
 				break
@@ -145,7 +145,7 @@ def exportasdm(vis=None, asdm=None, datacolumn=None, archiveid=None, rangeid=Non
 					tb.open(tsortvis+'/SYSCAL', nomodify=False)
 					if(cname in tb.colnames()):
 						cdesc = tb.getcoldesc(cname)
-						if cdesc.has_key('ndim') and (cdesc['ndim']==-1):
+						if 'ndim' in cdesc and (cdesc['ndim']==-1):
 							tb.removecols([cname])
 							casalog.post('   Removed empty array column '+cname+' from table SYSCAL.')
 					tb.close()
@@ -157,13 +157,13 @@ def exportasdm(vis=None, asdm=None, datacolumn=None, archiveid=None, rangeid=Non
 			if(nobsrows>0):
 				tb.open(tsortvis+'/OBSERVATION', nomodify=False)
 				cdesc = tb.getcoldesc('LOG')
-				if cdesc.has_key('ndim') and (cdesc['ndim']>0):
+				if 'ndim' in cdesc and (cdesc['ndim']>0):
 					b = tb.getvarcol('LOG')
 					if not (type(b['r1'])==bool):
-						kys = b.keys()
+						kys = list(b.keys())
 						modified = False
 						b2 = []
-						for i in xrange(0,len(kys)):
+						for i in range(0,len(kys)):
 							k = 'r'+str(i+1)
 							if (b[k][0] == [''])[0]:
 								b[k][0] = ["-"]
@@ -175,7 +175,7 @@ def exportasdm(vis=None, asdm=None, datacolumn=None, archiveid=None, rangeid=Non
 				tb.close()
 			casalog.post("Done.")
 		else:
-			raise Exception, "More than one processor id in use in the main table. Cannot proceed."		    
+			raise Exception("More than one processor id in use in the main table. Cannot proceed.")		    
 		
 		# generate call to ms2ASDM executable
 
@@ -204,7 +204,7 @@ def exportasdm(vis=None, asdm=None, datacolumn=None, archiveid=None, rangeid=Non
 			casalog.post('Running '+theexecutable+' standalone invoked as:')
 			casalog.post(execute_string)
 		else:
-			print execute_string
+			print(execute_string)
 
         	rval = os.system(execute_string)
 
@@ -216,6 +216,6 @@ def exportasdm(vis=None, asdm=None, datacolumn=None, archiveid=None, rangeid=Non
 			casalog.post(theexecutable+' terminated with exit code '+str(rval),'WARN')
 			return False
 	
-	except Exception, instance:
+	except Exception as instance:
 		casalog.post("Error: "+str(instance), 'SEVERE')
-		raise Exception, instance
+		raise Exception(instance)

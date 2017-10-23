@@ -26,9 +26,9 @@ class regressionframe :
          os.mkdir(self.workdir)
          os.chdir(self.workdir)
          startTime = time.time()
-         print self.title + ":" + workdir
+         print(self.title + ":" + workdir)
          for mystep in self.steps :
-	    print "Processing step: " +mystep
+	    print("Processing step: " +mystep)
 	    beenrun = {}
 	    for task in eval('self.'+mystep+"['tasks']") :
 		    beenrun[task] = 0
@@ -38,8 +38,8 @@ class regressionframe :
 	       the_args = eval(mycommand)
 	       arg_list = ''
 	       thecommand=task+'('
-	       if(the_args.has_key('args')) :
-		       argscount = len(the_args['args'].keys())
+	       if('args' in the_args) :
+		       argscount = len(list(the_args['args'].keys()))
 		       argcount = 0
 		       comma = ', '
 		       for key in the_args['args'] :
@@ -51,9 +51,9 @@ class regressionframe :
 				       quoteit = "'"
 			       arg_list=arg_list+key+'='+quoteit+str(the_args['args'][key])+quoteit+comma
 		       thecommand=thecommand+arg_list
-	       elif(len(the_args.keys())>1) :
+	       elif(len(list(the_args.keys()))>1) :
 		       count = beenrun[task]
-		       argscount = len(the_args[count]['args'].keys())
+		       argscount = len(list(the_args[count]['args'].keys()))
 		       argcount = 0
 		       comma = ', '
 		       for key in the_args[count]['args'] :
@@ -70,23 +70,23 @@ class regressionframe :
 	       thecommand=thecommand+')'
 	       beginTime = time.time()
 	       if verbose :
-	          print thecommand
+	          print(thecommand)
 	       eval(thecommand)
 	       endTime = time.time()
-	       print "   " + task+': Time to complete was '+str(endTime-beginTime)
+	       print("   " + task+': Time to complete was '+str(endTime-beginTime))
 	    if (eval("self."+mystep+".has_key('verify')")) :
 	        verified = eval('self.'+mystep+"['verify']()")
 	        if not verified :
-		   print mystep + " has failed verification."
+		   print(mystep + " has failed verification.")
                    os.chdir(startdir)
 		   return False
 	        else :
-	           print '   '+mystep+' verified'
+	           print('   '+mystep+' verified')
          endTime = time.time()
-         print 'Total time was: '+str(endTime-startTime)
+         print('Total time was: '+str(endTime-startTime))
          os.chdir(startdir)
          return True
-      except Exception, instance:
-	 print "***Oops exception*** ",instance
+      except Exception as instance:
+	 print("***Oops exception*** ",instance)
          os.chdir(startdir)
 	 return False

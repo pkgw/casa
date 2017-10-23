@@ -27,9 +27,9 @@ def update_params(func, printtext=True):
     
     # Check if task has defined a task_check_params function
     if (hascheck):
-        has_othertasks = myf.has_key('task_location')
+        has_othertasks = 'task_location' in myf
         if(has_othertasks) :
-           has_task = myf['task_location'].has_key(myf['taskname'])
+           has_task = myf['taskname'] in myf['task_location']
            if (has_task) :
                 pathname = myf['task_location'][myf['taskname']]
            else :
@@ -51,11 +51,11 @@ def update_params(func, printtext=True):
         ###if a dictionary with key 0, 1 etc then need to peel-open
         ###parameters
         if(type(paramval) == dict):
-            if(paramval.has_key(0)):
+            if(0 in paramval):
                 notdict = False
         
         if (notdict):
-            if(not myf.has_key(params[k])):
+            if(params[k] not in myf):
                 myf.update({params[k]:paramval})
             if(printtext):
                 if(hascheck):
@@ -76,34 +76,34 @@ def update_params(func, printtext=True):
                 for somekey in paramval:
                     somedict = dict(paramval[somekey])
                     subkeyupdated.update(dict.fromkeys(somedict, False))
-                    if(somedict.has_key('value') and myf.has_key(params[k])):
+                    if('value' in somedict and params[k] in myf):
                         if(somedict['value'] == myf[params[k]]):
                             userdict = somedict
-                    elif(somedict.has_key('notvalue') and myf.has_key(params[k])):
+                    elif('notvalue' in somedict and params[k] in myf):
                         if(somedict['notvalue'] != myf[params[k]]):
                             userdict = somedict
                 ###The behaviour is to set to the first default
                 ### all non set parameters and parameters that
                 ### have no meaning for this selection
                 for j in range(len(subdict)):
-                    subkey = subdict[j].keys()
+                    subkey = list(subdict[j].keys())
                     for kk in range(len(subkey)):
                         
                         if((subkey[kk] != 'value') & (subkey[kk] != 'notvalue')):
                             #if user selecteddict
                             #does not have the key
                             ##put default
-                            if((not userdict.has_key(subkey[kk])) and (not subkeyupdated[subkey[kk]])):
+                            if((subkey[kk] not in userdict) and (not subkeyupdated[subkey[kk]])):
                                 myf.update({subkey[kk]:subdict[j][subkey[kk]]})
                                 subkeyupdated[subkey[kk]] = True
                                 
                     ###put default if not there
-                            if(not myf.has_key(subkey[kk])):
+                            if(subkey[kk] not in myf):
                                 myf.update({subkey[kk]:subdict[j][subkey[kk]]})
                         
             ### need to do default when user has not set val
-            if(not myf.has_key(params[k])):
-                if(paramval[0].has_key('notvalue')):
+            if(params[k] not in myf):
+                if('notvalue' in paramval[0]):
                     myf.update({params[k]:paramval[0]['notvalue']})
                 else:
                     myf.update({params[k]:paramval[0]['value']})
@@ -112,7 +112,7 @@ def update_params(func, printtext=True):
             notchoice = -1
             valuekey = 'value'
             for j in range(len(subdict)):
-                if(subdict[j].has_key('notvalue')):
+                if('notvalue' in subdict[j]):
                     valuekey = 'notvalue'
                     if(subdict[j]['notvalue'] != userval):
                         notchoice = j;
@@ -122,7 +122,7 @@ def update_params(func, printtext=True):
                         choice = j
                         notchoice = j
                         break
-            subkey = subdict[choice].keys()
+            subkey = list(subdict[choice].keys())
             if(hascheck):
                 noerror = obj.check_params(params[k], userval)
             if(printtext):
@@ -134,7 +134,7 @@ def update_params(func, printtext=True):
             for j in range(len(subkey)):
                 if((subkey[j] != valuekey) & (notchoice > -1)):
                     ###put default if not there
-                    if(not myf.has_key(subkey[j])):
+                    if(subkey[j] not in myf):
                         myf.update({subkey[j]:subdict[choice][subkey[j]]})
                     paramval = subdict[choice][subkey[j]]
                     if (j == (len(subkey) - 1)):

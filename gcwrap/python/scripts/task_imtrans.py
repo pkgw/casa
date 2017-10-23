@@ -70,12 +70,12 @@ def imtrans(imagename, outfile, order):
     mynewim = None
     try:
         if (not myia.open(imagename)):
-            raise Exception, "Cannot create image analysis tool using " + imagename
+            raise Exception("Cannot create image analysis tool using " + imagename)
         if (len(outfile) == 0):
-            raise Exception, "outfile parameter must be specified."
+            raise Exception("outfile parameter must be specified.")
         mynewim = myia.transpose(outfile=outfile, order=order)
         return True
-    except Exception, instance:
+    except Exception as instance:
         casalog.post( str( '*** Error ***') + str(instance), 'SEVERE')
         raise
     finally:

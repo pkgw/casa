@@ -5,13 +5,13 @@ from taskinit import casalog # Import casalog
 import time # To calculate elapsed times
 
 # Import MPIEnvironment static class
-from MPIEnvironment import MPIEnvironment
+from .MPIEnvironment import MPIEnvironment
 
 # Import MPICommandClient static class
-from MPICommandClient import MPICommandClient
+from .MPICommandClient import MPICommandClient
 
 # Import MPIMonitorClient singleton
-from MPIMonitorClient import MPIMonitorClient
+from .MPIMonitorClient import MPIMonitorClient
 
 
 
@@ -317,7 +317,7 @@ class MPIInterface:
         
         col_width = [max(len(x) for x in col) for col in zip(*table)]
         for line in table:
-            print "| " + " | ".join("{:{}}".format(x, col_width[i]) for i, x in enumerate(line)) + " |"       
+            print("| " + " | ".join("{:{}}".format(x, col_width[i]) for i, x in enumerate(line)) + " |")       
     
     
     

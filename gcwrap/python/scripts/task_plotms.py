@@ -269,14 +269,14 @@ def plotms(vis=None,
         synonyms['radialvelocity']= synonyms['Radial Velocity'] = 'Radial Velocity [km/s]'
         synonyms['rho']=synonyms['Distance']='Distance (rho) [km]'
         
-        if(synonyms.has_key(xaxis)): xaxis = synonyms[xaxis]
+        if(xaxis in synonyms): xaxis = synonyms[xaxis]
         if type(yaxis) is str:
-            if(synonyms.has_key(yaxis)): yaxis = synonyms[yaxis]
+            if(yaxis in synonyms): yaxis = synonyms[yaxis]
         elif type(yaxis) is list:
             for index,axis in enumerate(yaxis):
-                if (synonyms.has_key(axis)): yaxis[index] = synonyms[axis]
+                if (axis in synonyms): yaxis[index] = synonyms[axis]
         if type(coloraxis) is str:
-            if(synonyms.has_key(coloraxis)): coloraxis = synonyms[coloraxis]
+            if(coloraxis in synonyms): coloraxis = synonyms[coloraxis]
         
         
         # synonyms for data columns (only one, so just hardcode it)
@@ -405,7 +405,7 @@ def plotms(vis=None,
                         yAxisLocation = yaxislocation[i]
                     pm.setPlotAxes(xaxis, yaxis[i], xdatacolumn, yDataColumn, yAxisLocation, False, plotindex, i)
             else :
-                raise Exception, 'Please remove duplicate y-axes.'
+                raise Exception('Please remove duplicate y-axes.')
         
         # Set selection
         if (selectdata and os.path.exists(vis)):
@@ -699,7 +699,7 @@ def plotms(vis=None,
             if (len(plotrange)==0):
                 plotrange=[0.0,0.0,0.0,0.0]
             else:
-                raise Exception, 'plotrange parameter has incorrect number of elements.'
+                raise Exception('plotrange parameter has incorrect number of elements.')
 
         xrange=plotrange[1]-plotrange[0]
         yrange=plotrange[3]-plotrange[2]
@@ -755,8 +755,8 @@ def plotms(vis=None,
                 casalog.post("Calling pm.save", 'NORMAL')
                 plotUpdated = pm.save( plotfile, expformat, highres, dpi, width, height)
     
-    except Exception, instance:
+    except Exception as instance:
         plotUpdated = False
-        print "Exception during plotms task: ", instance
+        print("Exception during plotms task: ", instance)
         
     return plotUpdated

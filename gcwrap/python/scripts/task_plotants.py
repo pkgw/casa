@@ -36,7 +36,7 @@ def plotants(vis=None,figfile=''):
               if type(vis) == str and os.path.isdir(vis):
                      mp.open(vis)
               else:
-                     raise Exception, 'Visibility data set not found - please verify the name'
+                     raise Exception('Visibility data set not found - please verify the name')
               pl.ion() # countering tableplot's inadequacies with poor practice
               pl.clf()
               mp.plotoptions(plotsymbol='ro');
@@ -49,7 +49,7 @@ def plotants(vis=None,figfile=''):
               if ( len(figfile) > 0 ) :
                    mp.savefig( figfile )
 
-       except Exception, instance:
-              print '*** Error ***',instance
+       except Exception as instance:
+              print('*** Error ***',instance)
 
        mp.done()

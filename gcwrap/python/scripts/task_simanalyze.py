@@ -123,7 +123,7 @@ def simanalyze(
                 if os.path.exists(fileroot+"/"+user_skymodel):
                     user_skymodel=fileroot+"/"+user_skymodel
                 elif len(user_skymodel)>0:
-                    raise Exception,"Can't find your specified skymodel "+user_skymodel
+                    raise Exception("Can't find your specified skymodel "+user_skymodel)
             # try to strip a searchable identifier
             tmpstring=user_skymodel.split("/")[-1]
             skymodel_searchstring=tmpstring.replace(".image","")
@@ -209,7 +209,7 @@ def simanalyze(
 
 
             if not mstoimage  and len(tpmstoimage) == 0:
-                raise Exception,"No MS found to image"
+                raise Exception("No MS found to image")
 
             # now try to parse the mslist for an identifier string that 
             # we can use to find the right skymodel if there are several
@@ -368,7 +368,7 @@ def simanalyze(
                         minimsize = min(imsize)
                         psfsize = qa.mul(cell[0],3) # HACK
                     else:
-                        raise Exception,mstoimage+" not found."
+                        raise Exception(mstoimage+" not found.")
 
                 if imsize[0] < minimsize:
                     msg("The number of image pixel in x-axis, %d, is small to cover 8 x PSF. Setting x pixel number, %d." % (imsize[0], minimsize), priority='warn',origin='simanalyze')
@@ -414,7 +414,7 @@ def simanalyze(
                     aveant = 12.0
                     pb_asec = pbcoeff*0.29979/qa.convert(qa.quantity(model_specrefval),'GHz')['value']/aveant*3600.*180/pl.pi
                 else:
-                    raise Exception, tpmstoimage+" not found."
+                    raise Exception(tpmstoimage+" not found.")
 
                 # default PSF from PB of antenna
                 imbeam = {'major': qa.quantity(pb_asec,'arcsec'),
@@ -464,7 +464,7 @@ def simanalyze(
                     if not dryrun:
                         sdimaging(**sdim_param)
                         if not os.path.exists(temp_out):
-                            raise RuntimeError, "TP imaging failed."
+                            raise RuntimeError("TP imaging failed.")
 
                         # Scale image by convolved beam / antenna primary beam
                         ia.open(temp_out)
@@ -479,7 +479,7 @@ def simanalyze(
                         immath(imagename=temp_in, mode='evalexpr', expr="IM0*%f" % (beam_area_ratio),
                                outfile=temp_out)
                         if not os.path.exists(temp_out):
-                            raise RuntimeError, "TP image scaling failed."
+                            raise RuntimeError("TP image scaling failed.")
                         
                     # Regrid TP image to final resolution
                     msg("Regridding TP image to final resolution",origin='simanalyze')
@@ -610,7 +610,7 @@ def simanalyze(
             # feather
             if featherimage:
                 if not os.path.exists(featherimage):
-                    raise Exception,"Could not find featherimage "+featherimage
+                    raise Exception("Could not find featherimage "+featherimage)
             else:
                 featherimage=""
                 if tpimage:
@@ -1000,23 +1000,23 @@ def simanalyze(
             myutil.closereport()
 
 
-    except TypeError, e:
+    except TypeError as e:
         finalize_tools()
         #msg("simanalyze -- TypeError: %s" % e,priority="error")
         casalog.post("simanalyze -- TypeError: %s" % e, priority="ERROR")
-        raise TypeError, e
+        raise TypeError(e)
         return
-    except ValueError, e:
+    except ValueError as e:
         finalize_tools()
         #print "simanalyze -- OptionError: ", e
         casalog.post("simanalyze -- OptionError: %s" % e, priority="ERROR")
-        raise ValueError, e
+        raise ValueError(e)
         return
-    except Exception, instance:
+    except Exception as instance:
         finalize_tools()
         #print '***Error***',instance
         casalog.post("simanalyze -- Exception: %s" % instance, priority="ERROR")
-        raise Exception, instance
+        raise Exception(instance)
         return
 
 

@@ -25,7 +25,7 @@ def sdfit(infile=None, datacolumn=None, antenna=None, field=None, spw=None,
             else:
                 raise ValueError(outfile + ' exists.')
         if (fitmode not in  ['list', 'auto']):
-            raise ValueError, "fitmode='%s' is not supported yet" % fitmode
+            raise ValueError("fitmode='%s' is not supported yet" % fitmode)
         if (spw == ''): spw = '*'
 
         selection = ms.msseltoindex(vis=infile, spw=spw, field=field, 
@@ -64,8 +64,8 @@ def sdfit(infile=None, datacolumn=None, antenna=None, field=None, spw=None,
         else:
             raise Exception('temporary file was unexpectedly not created.')
 
-    except Exception, instance:
-        raise Exception, instance
+    except Exception as instance:
+        raise Exception(instance)
     finally:
         if 'tempfile' in locals() and os.path.exists(tempfile):
             os.system('rm -f %s' % tempfile)
@@ -98,7 +98,7 @@ def get_results(tempfile, fitfunc, nfit, outfile):
             for icomp in range(res['nfit'][-1]):
                 fit_result = component[icomp].split(',')   # split into each parameter
                 num_ids = 6 # scan, time, ant, beam, spw, pol
-                assert(len(fit_result) == 2*(len(res.keys())-1)+num_ids)
+                assert(len(fit_result) == 2*(len(list(res.keys()))-1)+num_ids)
                 res['cent'][iline].append([float(fit_result[num_ids+0]), float(fit_result[num_ids+1])])
                 res['peak'][iline].append([float(fit_result[num_ids+2]), float(fit_result[num_ids+3])])
                 res['fwhm'][iline].append([float(fit_result[num_ids+4]), float(fit_result[num_ids+5])])

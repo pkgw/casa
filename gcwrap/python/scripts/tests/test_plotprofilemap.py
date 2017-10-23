@@ -11,7 +11,7 @@ import matplotlib
 import pylab as pl
 
 try:
-    import testutils
+    from . import testutils
 except:
     import tests.testutils as testutils
 
@@ -98,8 +98,8 @@ class plotprofilemap_test(unittest.TestCase):
             nx = imageshape[0] / 5 - 1
             ny = imageshape[1] / 5 - 1
             ns = imageshape[2] - 1
-            print 'masked region: blc=[0,0,0], trc=[{0},{1},{2}]'.format(
-                nx, ny, ns)
+            print('masked region: blc=[0,0,0], trc=[{0},{1},{2}]'.format(
+                nx, ny, ns))
             region = myrg.box(blc=[0,0,0], trc=[nx,ny,ns])
             myia.set(pixelmask=False, region=region)
             msk = myia.getchunk(getmask=True)
@@ -211,7 +211,7 @@ class plotprofilemap_test(unittest.TestCase):
         #   - axison should be False
         #   - no line 
         #   - one text entry
-        for i in xrange(nx):
+        for i in range(nx):
             self._verify_axes_for_text(alist[index])
             index += 1
             
@@ -219,7 +219,7 @@ class plotprofilemap_test(unittest.TestCase):
         #   - axison should be False
         #   - no line 
         #   - one text entry
-        for i in xrange(ny):
+        for i in range(ny):
             self._verify_axes_for_text(alist[index])
             index += 1
             
@@ -228,7 +228,7 @@ class plotprofilemap_test(unittest.TestCase):
         #   - no line 
         #   - one text entry
         #   - text should be 'Right Ascension (J2000)'
-        for i in xrange(1):
+        for i in range(1):
             text = 'Right Ascension (J2000)'
             self._verify_axes_for_text(alist[index], text=text)
             index += 1
@@ -238,7 +238,7 @@ class plotprofilemap_test(unittest.TestCase):
         #   - no line 
         #   - one text entry
         #   - text should be 'Declination (J2000)'
-        for i in xrange(1):
+        for i in range(1):
             text = 'Declination (J2000)'
             self._verify_axes_for_text(alist[index], text=text)
             index += 1
@@ -249,7 +249,7 @@ class plotprofilemap_test(unittest.TestCase):
         #   - one text entry
         #   - text should be title  
         if title is not None:
-            for i in xrange(1):
+            for i in range(1):
                 self._verify_axes_for_text(alist[index], text=title)
                 index += 1
             
@@ -258,7 +258,7 @@ class plotprofilemap_test(unittest.TestCase):
         #   - one line (if not empty)
         #   - no text (if not empty)
         empty_panel = ny * (nx - 1) 
-        for i in xrange(nx * ny):
+        for i in range(nx * ny):
             #print 'verify axes {0}'.format(index)
             a = alist[index]
             if plotmasked is None or i != empty_panel:
@@ -268,7 +268,7 @@ class plotprofilemap_test(unittest.TestCase):
                 self.assertEqual(len(lines), 1)
                 self.assertEqual(len(texts), 0)
             else:
-                print 'verifying plotmasked parameter: axes {0} plotmasked {1}'.format(index, plotmasked)
+                print('verifying plotmasked parameter: axes {0} plotmasked {1}'.format(index, plotmasked))
                 # verify plotmasked parameter 
                 self._verify_plotmasked(a, plotmasked)
             index += 1

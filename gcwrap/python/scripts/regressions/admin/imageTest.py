@@ -69,16 +69,16 @@ class ImageTest:
 	if self.write:
          self.resultDir=resultDir+strftime('/%Y_%m_%d/')
          if os.access(self.resultDir,os.F_OK) is False:
-          print self.resultDir+' directory DNE, so am making one!'
+          print(self.resultDir+' directory DNE, so am making one!')
           os.mkdir(self.resultDir)
          else: 
-          print self.resultDir+' directory exists; will add to it!'
+          print(self.resultDir+' directory exists; will add to it!')
 	 self.imDir=imDir
 	 if os.access(imDir,os.F_OK) is False:
-	  print imDir+' directory DNE, so am making one!'
+	  print(imDir+' directory DNE, so am making one!')
 	  os.mkdir(imDir)
 	 else: 
-	  print imDir+' directory exists; will add to it!'
+	  print(imDir+' directory exists; will add to it!')
 
          t=localtime( time() )
          self.fname='Regression-%s-%s-%s-%s-%s-%s.html'%(t[0],t[1],t[2],t[3],t[4],t[5])
@@ -87,7 +87,7 @@ class ImageTest:
          self.body2=[]
          self.htmlPub=htmlPub(self.html,'Image tests')
         else:
-	 print 'stats-only mode; will not write to html file!'
+	 print('stats-only mode; will not write to html file!')
 
     def changeImage(self, imageName):
         self.imTool.open(imageName) #open('tables/squint_corr.restored')
@@ -167,9 +167,9 @@ class ImageTest:
     def done(self) :
 	if self.write:
        	 self.htmlPub.doFooter()
-	 print 'webpage construction successful!'
-	 print 'images in '+os.path.abspath(self.imDir)
-	 print 'webpage at '+os.path.abspath(self.html)
+	 print('webpage construction successful!')
+	 print('images in '+os.path.abspath(self.imDir))
+	 print('webpage at '+os.path.abspath(self.html))
          return '%s'%(os.path.abspath(self.html))
         else: #return 0 if no writing of file is done
          return 'none'
@@ -217,7 +217,7 @@ class ImageTest:
         body2=[]
         fit_results = a['results']
         tostr=lambda a: str(a[0]) if (type(a)==list) else str(a)
-        if(fit_results.has_key('component0')):
+        if('component0' in fit_results):
             ra = tostr(self.qaTool.time(fit_results['component0']['shape']['direction']['m0']))
             dec = tostr(self.qaTool.angle(fit_results['component0']['shape']['direction']['m1']))
             bmaj= tostr(self.qaTool.angle(fit_results['component0']['shape']['majoraxis'], form='dig2'))
@@ -243,7 +243,7 @@ class ImageTest:
             self.show(resid)
             rms=pylab.rms_flat(resid)
             min1,max1=self.min_max(resid)
-            print 'rms of residual image: %f'%(rms)
+            print('rms of residual image: %f'%(rms))
             #write to web page
             if self.write:
                 header='Residual from plane%d of image %s'%(plane,self.imageName)
@@ -290,8 +290,8 @@ class ImageTest:
        y=point[1]
        v=tw_func.gauss3d(result[i],[x,y])
        self.amodel(v,x,y)
-     print 'done building model'
-     print 'stats for fits:'
+     print('done building model')
+     print('stats for fits:')
      #rms=pylab.rms_flat(self.m[:,:,0])
      #min1,max1=self.min_max(self.m[:,:,0])
      for i in range(len(r)): 
@@ -301,7 +301,7 @@ class ImageTest:
       if(XY==None):
           XY=[[0,0]]
       ss='fit #%d:\testimated center: %s  optimized center: [%.2f,%.2f]\n'%(i,XY[i],r[i][0][5],r[i][0][3])+'\tFWHM in x: %.3f pixels   FWHM in y: %.3f\n\tchi2: %f'%(2.355*sigmaX,2.355*sigmaY,r[i][1])
-      print ss
+      print(ss)
       body2.append('<pre>%s</pre>'%ss)
       output.append([r[i][0][5],r[i][0][3],2.355*sigmaX,2.355*sigmaY])
      #write to web page
@@ -332,7 +332,7 @@ class ImageTest:
      rms=pylab.rms_flat(self.resid)
      min1,max1=self.min_max(self.resid)
      self.show(self.resid)
-     print 'rms of residual image: %f'%(rms)
+     print('rms of residual image: %f'%(rms))
      #write to web page
      if self.write:
       header='Residual from plane%d of image %s'%(plane,self.imageName)
@@ -394,7 +394,7 @@ class ImageTest:
       r=(dx+dy)/2
       if(r >12):
           r=12
-      print 'PEAK pos, val and r ', xp[i], yp[i],val[i],  r
+      print('PEAK pos, val and r ', xp[i], yp[i],val[i],  r)
       data.append([])
       for j in range(xp[i]-r,xp[i]+r):
        for k in range(yp[i]-r,yp[i]+r):
@@ -456,7 +456,7 @@ class ImageTest:
 
     def save(self,path='junk.png'):
      pylab.savefig(path)
-     print 'image saved to %s'%(path)
+     print('image saved to %s'%(path))
 
     def ishift(self,image,x,y,plane=None,cube=None): #shift the image by x,y
                                  #x,y > 0 shift to right, up
@@ -587,7 +587,7 @@ class ImageTest:
      optimumXY.append([maxX,maxY])
      s='minX: %d   minY: %f   maxX: %d   maxY: %f   mean: %f'%(minX,minY,maxX,maxY,mean)
      if self.write: self.body2.append('<pre>%s</pre>'%s)
-     print s
+     print(s)
      return dataMin,dataMax,optimumXY
     def auto_fitCube2(self,verbose=0):
         ib=self.imTool.moments(moments=7, outfile='Some_momtest_7.im', overwrite=True)
@@ -608,14 +608,14 @@ class ImageTest:
      s=numarray.shape(image)
      if s[0]>100:
 #      xlist=range(.25*s[0],.75*s[0])
-      xlist=range(s[0]/4,3*s[0]/4)
+      xlist=list(range(s[0]/4,3*s[0]/4))
      else:
-      xlist=range(s[0])
+      xlist=list(range(s[0]))
      if s[1]>100:
 #      ylist=range(.25*s[1],.75*s[1],4) #later add the 4th pixel thing
-      ylist=range(s[1]/4,3*s[1]/4,4)
+      ylist=list(range(s[1]/4,3*s[1]/4,4))
      else:
-      ylist=range(s[1])
+      ylist=list(range(s[1]))
      for i in xlist:
       for j in ylist:
        x,y=self.drill(image,i,j)
@@ -626,7 +626,7 @@ class ImageTest:
  #      if rms>max_rms:
  #          max_rms,xp,yp=rms,i,j
  #          if verbose: print i,j,rms
-     print 'optimum fit to [%d,%d]   rms=%.6f'%(xp,yp,max_rms)
+     print('optimum fit to [%d,%d]   rms=%.6f'%(xp,yp,max_rms))
      XY,fwhm=self.fitCube2(xp,yp)
      return XY,fwhm
      
@@ -640,19 +640,19 @@ class ImageTest:
       s1,s2,t1,t2=[],[],[],[]
       s='fit stats (numbered in order of fits)'
       if self.write: self.body2.append('<pre>%s</pre>'%s) #assemble body2 for html
-      print s
+      print(s)
       dataMin,dataMax,optimumXY=self.cubePeaks(image,x,y)
       tparam0=[1.,-1.,1.,optimumXY[0][0]]
       tparam1=[1.,1.,1.,optimumXY[1][0]]
       try: #new min fit: reduce dataset size whenever overflow error occurs
           dataMin.sort()
-          print 'tparam0', tparam0
-          print dataMin
+          print('tparam0', tparam0)
+          print(dataMin)
           dataMin.sort()
 #          result.append(LeastSquares.leastSquaresFit(tw_func.gauss,tparam0,list(dataMin)))
           minFitted=1
       except:
-          print '!\n overFlowError in fitting max peak\n will reduce dataset size'
+          print('!\n overFlowError in fitting max peak\n will reduce dataset size')
 #          print ' initial dataset size: %d'%len(dataMin)
 #          shrink=0
 #          while (shrink<25) & (minFitted==0):
@@ -667,11 +667,11 @@ class ImageTest:
 #          print 'error in finding a negative peak'
       try: #new max fit: reduce dataset size when things don't work right
           dataMax.sort()
-          print tparam1
+          print(tparam1)
 #          result.append(LeastSquares.leastSquaresFit(tw_func.gauss,tparam1,list(dataMax)))
           maxFitted=1
       except:
-          print 'error in fitting a positive peak'
+          print('error in fitting a positive peak')
  #         print '!\n overFlowError in fitting max peak\n will reduce dataset size'
  #         print ' initial dataset size: %d'%len(dataMax)
  #         shrink=0
@@ -685,10 +685,10 @@ class ImageTest:
  #         print ' final dataset size: %d\n!'%len(dataMax)
       #resume old
       for i in range(len(result)):
-       print 'result ', result[i]
+       print('result ', result[i])
        sigma=pylab.sqrt(1/(2*result[i][0][2]))
        s='fit #%d:\toptimized coord: [%.6f,%.6f]\n\tFWHM: %f pixels\n\tchi2: %f'%(i,result[i][0][3],result[i][0][0]+result[i][0][1],2.355*sigma,result[i][1])
-       print s
+       print(s)
        if self.write: self.body2.append('<pre>%s</pre>'%s)
       #draw nice guassian curves on chart
       if minFitted:
@@ -775,7 +775,7 @@ class ImageTest:
         result.append([retval['gs']['amp'].flatten()[0], retval['gs']['center'].flatten()[0], retval['gs']['fwhm'].flatten()[0]])
         result.append([retval['gs']['ampErr'].flatten()[0], retval['gs']['centerErr'].flatten()[0], retval['gs']['fwhmErr'].flatten()[0]])
         s='fit at [%d,%d]\n\tFWHM: %f \n\peak: %f \t with errors: %f, %f '%(x0,y0, result[0][2], result[0][0], result[1][2], result[1][0]) 
-        print s
+        print(s)
         if self.write: self.body2.append('<pre>%s</pre>'%s)
         data=self.imTool.getchunk(blc=[int(x0),int(y0)], trc=[int(x0),int(y0)], dropdeg=True)
         pylab.clf()

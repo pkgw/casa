@@ -27,7 +27,7 @@ def predictSolarObjectCompList(objname, epoch, freqs, prefix):
     #mepoch = myme.epoch('UTC', epoch)
     if epoch['m0']['value']==0.0:
         casalog.post('Invalid epoch, '+str(epoch['m0']['value'])+str(epoch['m0']['unit']),'SEVERE');
-        raise Exception, "Error"
+        raise Exception("Error")
     epochv = epoch['m0']['value'] 
 
 
@@ -66,11 +66,11 @@ def predictSolarObjectCompList(objname, epoch, freqs, prefix):
     if prefix: clname=prefix+clname
 
     if(os.path.exists(clname)):
-        print "Removing previous cl file,", clname
+        print("Removing previous cl file,", clname)
         try:
             shutil.rmtree(clname)
         except:
-            print "shutil.rmtree failed" 
+            print("shutil.rmtree failed") 
     index= 2.0
     sptype = 'spectral index'
     #index= 0.0

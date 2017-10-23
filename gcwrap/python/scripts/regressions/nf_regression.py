@@ -65,7 +65,7 @@ if benchmarking:
 ###############################################
 # Run clean
 #
-print '--Clean--'
+print('--Clean--')
     
 taskname = 'clean'
 default(taskname)
@@ -86,7 +86,7 @@ clean()
 ###############################################
 # Run immath
 #
-print '--Immath--'
+print('--Immath--')
 
 #  Make separate images in each stokes
 
@@ -111,8 +111,8 @@ stokes = 'V'; outfile = testdir+'MG_V_1.im'; immath()
 #  Do selected imfits on some images
 #  point source at field center
 
-print '--Point sources--'
-print '--Imfit I--'
+print('--Point sources--')
+print('--Imfit I--')
 taskname = 'imfit'
 default (taskname)
 box = '63,54,74,64'
@@ -126,7 +126,7 @@ imfit()
 #  Peak/Int should be about 1.00 Jy, nearly unresolved 
 #
 
-print '--Imfit Q--'
+print('--Imfit Q--')
 imagename = testdir+'MG_Q_1.im'
 logfile = testdir+'MG_Q_1.log'
 stokes='Q'
@@ -135,7 +135,7 @@ imfit()
 #  Peak/Int should be about 100 mJy, nearly unresolved 
 #
 
-print '--Imfit U--'
+print('--Imfit U--')
 imagename = testdir+'MG_U_1.im'
 logfile = testdir+'MG_U_1.log'
 stokes='U'
@@ -144,7 +144,7 @@ imfit()
 #  Peak/Int should be about -80 mJy, nearly unresolved 
 #
 
-print '--Imfit V--'
+print('--Imfit V--')
 imagename = testdir+'MG_V_1.im'
 logfile = testdir+'MG_V_1.log'
 stokes='V'
@@ -152,8 +152,8 @@ imfit()
 #!more MG_V_1.log
 #  Pure noise, fit may blow up, but should not
 
-print '--Extended source--'
-print '--Imfit I--'
+print('--Extended source--')
+print('--Imfit I--')
 # Fit on an extended source
 taskname = 'imfit'
 default (taskname)
@@ -167,7 +167,7 @@ imfit()
 #  Int should be about 0.5 Jy, size 1.5x0.5 in pa 30 
 #
 
-print '--Imfit Q--'
+print('--Imfit Q--')
 imagename = testdir+'MG_Q_0.im'
 logfile = testdir+'MG_Q_0.log'
 stokes='Q'
@@ -176,7 +176,7 @@ imfit()
 #  Int should be about -0.06 Jy, size 1.5x0.5 in pa 30 
 #
 
-print '--Imfit U--'
+print('--Imfit U--')
 imagename = testdir+'MG_U_0.im'
 logfile = testdir+'MG_U_0.log'
 stokes='U'
@@ -184,8 +184,8 @@ imfit()
 #!more MG_Q_0.log
 #  Int should be about +0.03 Jy, size 1.5x0.5 in pa 30 
 
-print '--Point double source--'
-print '--Imfit I--'
+print('--Point double source--')
+print('--Imfit I--')
 # Fit on point double source
 taskname = 'imfit'
 default (taskname)
@@ -199,7 +199,7 @@ imfit()
 #!more Double_I_0.log
 #  Peaks are 0.4 and 0.2, separated by 2.5 xpix and 1.0 ypix
 
-print '--Imfit U--'
+print('--Imfit U--')
 imagename = testdir+'MG_U_0.im'
 logfile = testdir+'Double_U_0.log'
 estimates = doubleU

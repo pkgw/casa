@@ -33,7 +33,7 @@ def makePB(vis='',field='',spw='',timerange='',uvrange='',antenna='',observation
     me = casac.measures()
     qa = casac.quanta()
 
-    print 'MAKEPB : Making a PB image using the imager tool'
+    print('MAKEPB : Making a PB image using the imager tool')
 
     tb.open(vis+'/OBSERVATION')
     tel = tb.getcol('TELESCOPE_NAME')[0]
@@ -43,9 +43,9 @@ def makePB(vis='',field='',spw='',timerange='',uvrange='',antenna='',observation
     mfreqref = tb.getcol('MEAS_FREQ_REF')[0]
     tb.close()
     if mfreqref == 64:
-       print 'MAKEPB : This function is using old imager tool, Undefined frame may not be handled properly.'
+       print('MAKEPB : This function is using old imager tool, Undefined frame may not be handled properly.')
 
-    print 'MAKEPB : Making PB for ', tel
+    print('MAKEPB : Making PB for ', tel)
 
     ia.open(imtemplate)
     csysa = ia.coordsys()
@@ -66,7 +66,7 @@ def makePB(vis='',field='',spw='',timerange='',uvrange='',antenna='',observation
     if nchan>1:
         smode='frequency'
 
-    print 'MAKEPB : Starting imager tool'
+    print('MAKEPB : Starting imager tool')
 
     im.open(vis)
     im.selectvis(field=field,spw=spw,time=timerange,intent=intent,scan=scan,uvrange=uvrange,baseline=antenna,observation=observation)
@@ -81,7 +81,7 @@ def makePB(vis='',field='',spw='',timerange='',uvrange='',antenna='',observation
    
     else:
     
-        print 'MAKEPB : Regrid to desired coordinate system'
+        print('MAKEPB : Regrid to desired coordinate system')
     
         imregrid(imagename=outimage+'.tmp', template=imtemplate,output=outimage,overwrite=True,asvelocity=False)
 
@@ -89,7 +89,7 @@ def makePB(vis='',field='',spw='',timerange='',uvrange='',antenna='',observation
 
     shutil.rmtree(outimage+'.tmp')
 
-    print 'MAKEPB : Set mask to pblimit'
+    print('MAKEPB : Set mask to pblimit')
 
     ia.open(outimage)
     ia.calcmask( "'"+outimage+"'>"+str(pblimit) )

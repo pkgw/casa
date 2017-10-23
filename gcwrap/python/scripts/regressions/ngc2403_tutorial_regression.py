@@ -85,25 +85,25 @@ if benchmarking:
     startTime=time.time()
     startProc=time.clock()
 
-print 'Tutorial Regression Script for VLA NGC2403 HI data'
-print 'Will do: import, flagging, calibration, imaging'
-print ''
+print('Tutorial Regression Script for VLA NGC2403 HI data')
+print('Will do: import, flagging, calibration, imaging')
+print('')
 #=====================================================================
 # Data Import
 #=====================================================================
 #
 # Import the data from VLA archive files to MS
 #
-print "--importvla--"
-print ""
-print " Use importvla to read 4 VLA archive files and write the data"
-print " into a Measurement Set (MS).  This will take a while ..."
-print ""
+print("--importvla--")
+print("")
+print(" Use importvla to read 4 VLA archive files and write the data")
+print(" into a Measurement Set (MS).  This will take a while ...")
+print("")
 
 # Set up the MS filename and save as new global variable
 msfile = prefix + '.ms'
 
-print " MS will be called "+msfile
+print(" MS will be called "+msfile)
 
 default('importvla')
 
@@ -119,10 +119,10 @@ if benchmarking:
 #=====================================================================
 #
 #
-print "--listobs--"
-print ""
-print " Use listobs to print verbose summary to logger"
-print " see the logger window for the listobs output"
+print("--listobs--")
+print("")
+print(" Use listobs to print verbose summary to logger")
+print(" see the logger window for the listobs output")
 
 # Don't default this one and make use of the previous setting of
 # vis.  Remember, the variables are GLOBAL!
@@ -134,9 +134,9 @@ verbose = True
 
 listobs()
 
-print ""
-print "The listobs output will be displayed in your logger window and in"
-print "the casa.log file"
+print("")
+print("The listobs output will be displayed in your logger window and in")
+print("the casa.log file")
 
 if benchmarking:
     list2time=time.time()
@@ -159,9 +159,9 @@ saveinputs('flagdata',prefix+'.saved.flagdata.n2403.rr.time0351')
 
 flagdata()
 
-print ""
-print " now we clip RR above 0.4Jy"
-print ""
+print("")
+print(" now we clip RR above 0.4Jy")
+print("")
 
 mode='clip'
 timerange = ''
@@ -171,9 +171,9 @@ saveinputs('flagdata',prefix+'.saved.flagdata.n2403.rr.clip')
 
 flagdata()
 
-print ""
-print " now we clip LL above 1.0Jy"
-print ""
+print("")
+print(" now we clip LL above 1.0Jy")
+print("")
 
 timerange = ''
 correlation='LL'
@@ -186,12 +186,12 @@ flagdata()
 # Save flagging done up to this point
 #=====================================================================
 #
-print ""
-print "--flagmanager--"
-print ""
-print " It is a good idea to save the flagging at certain times"
-print " First, list the flag versions using flagmanager"
-print ""
+print("")
+print("--flagmanager--")
+print("")
+print(" It is a good idea to save the flagging at certain times")
+print(" First, list the flag versions using flagmanager")
+print("")
 
 # first we list the current flagging tables
 
@@ -199,8 +199,8 @@ mode='list'
 
 flagmanager()
 
-print ""
-print " then, we save the flagging we just did"
+print("")
+print(" then, we save the flagging we just did")
 
 # then we save the flagging we just did
 
@@ -213,16 +213,16 @@ flagmanager()
 
 # and now we list one more time to show the changes made
 
-print ""
-print " then, list one more time to show the changes"
+print("")
+print(" then, list one more time to show the changes")
 
 
 mode='list'
 
 flagmanager()
 
-print " Done Flagging - proceed to Calibration"
-print ""
+print(" Done Flagging - proceed to Calibration")
+print("")
 
 if benchmarking:
     flag2time=time.time()
@@ -232,10 +232,10 @@ if benchmarking:
 # Fill the model column for flux density calibrators
 #=====================================================================
 #
-print "--setjy--"
-print ""
-print " find the flux of the flux calibrators, and write it to the"
-print " column labeled MODEL_DATA"
+print("--setjy--")
+print("")
+print(" find the flux of the flux calibrators, and write it to the")
+print(" column labeled MODEL_DATA")
 
 default('setjy')
 
@@ -260,12 +260,12 @@ if benchmarking:
 # Determine antenna gains
 #=====================================================================
 #
-print "--gaincal--"
-print ""
-print " creates user defined table containing antenna gain solutions"
-print " once for each calibrator since uv ranges are different."
-print " Note: append is False first, then True"
-print ""
+print("--gaincal--")
+print("")
+print(" creates user defined table containing antenna gain solutions")
+print(" once for each calibrator since uv ranges are different.")
+print(" Note: append is False first, then True")
+print("")
 
 default('gaincal')
 vis        = msfile
@@ -278,8 +278,8 @@ solint     = 'inf'
 combine    = ''
 append     = False
 
-print " starting field 1"
-print ""
+print(" starting field 1")
+print("")
 
 saveinputs('gaincal',prefix+'.saved.gaincal.field1')
 
@@ -289,8 +289,8 @@ field='2'
 uvrange='0~20klambda'
 append=True
 
-print " starting field 2"
-print ""
+print(" starting field 2")
+print("")
 
 saveinputs('gaincal',prefix+'.saved.gaincal.field2')
 
@@ -299,8 +299,8 @@ gaincal()
 field='3'
 uvrange='0~50klambda'
 
-print " starting field 3"
-print ""
+print(" starting field 3")
+print("")
 
 saveinputs('gaincal',prefix+'.saved.gaincal.field3')
 
@@ -309,8 +309,8 @@ gaincal()
 field='4'
 uvrange=''
 
-print " starting field 4"
-print ""
+print(" starting field 4")
+print("")
 
 saveinputs('gaincal',prefix+'.saved.gaincal.field4')
 
@@ -323,9 +323,9 @@ if benchmarking:
 # Plot antenna gains
 #=====================================================================
 #
-print "--plotcal--"
-print ""
-print " first we plot the amplitude gains for antennas 9 - 12"
+print("--plotcal--")
+print("")
+print(" first we plot the amplitude gains for antennas 9 - 12")
 
 default('plotcal')
 caltable= prefix + '.gcal'
@@ -334,7 +334,7 @@ yaxis='amp'
 field='2'
 antenna='9~12'
 
-print ""
+print("")
 if scriptmode:
     showgui=True
     figfile=''
@@ -342,7 +342,7 @@ if scriptmode:
 
     plotcal()
 
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 else:
     showgui=False
     figfile=prefix+'.plotcal.gaincal.amp.png'
@@ -351,8 +351,8 @@ else:
     plotcal()
 
 
-print " then, we plot R and L just for antenna 9 in separate plots on"
-print " the same page.  Note use of the subplot parameter"
+print(" then, we plot R and L just for antenna 9 in separate plots on")
+print(" the same page.  Note use of the subplot parameter")
 
 yaxis='phase'
 antenna='9'
@@ -371,7 +371,7 @@ else:
 poln='L'
 subplot=212
 
-print ""
+print("")
 # Pause script if you are running in scriptmode
 if scriptmode:
     showgui=True
@@ -380,9 +380,9 @@ if scriptmode:
 
     plotcal()
 
-    print ""
-    print " Next, we will determine the flux of 0841+708"
-    user_check=raw_input('Return to continue script\n')
+    print("")
+    print(" Next, we will determine the flux of 0841+708")
+    user_check=input('Return to continue script\n')
 else:
     showgui=False
     figfile=prefix+'.plotcal.gaincal.phase.png'
@@ -397,10 +397,10 @@ if benchmarking:
 # Bootstrap flux of 0841+708
 #=====================================================================
 #
-print "--fluxscale--"
-print ""
-print " determines flux based on gains and flux calibrator fluxes"
-print " see Log window for flux value found"
+print("--fluxscale--")
+print("")
+print(" determines flux based on gains and flux calibrator fluxes")
+print(" see Log window for flux value found")
 default('fluxscale')
 vis=msfile
 caltable= prefix + '.gcal'
@@ -419,9 +419,9 @@ if benchmarking:
 # Solves for bandpass, writes it to table
 #=====================================================================
 #
-print "--bandpass--"
-print ""
-print " determine bandpass"
+print("--bandpass--")
+print("")
+print(" determine bandpass")
 
 default('bandpass')
 
@@ -443,9 +443,9 @@ if benchmarking:
 # Plot bandpass
 #=====================================================================
 #
-print "--plotcal--"
-print ""
-print " First we plot solutions for antennas 9-12 for field 1 only"
+print("--plotcal--")
+print("")
+print(" First we plot solutions for antennas 9-12 for field 1 only")
 
 default('plotcal')
 
@@ -464,8 +464,8 @@ if scriptmode:
 
     plotcal()
 
-    print ""
-    user_check=raw_input('Return to continue script\n')
+    print("")
+    user_check=input('Return to continue script\n')
 else:
     showgui=False
     figfile=prefix+'.plotcal.bandpass.field1.ant9to12amp.png'
@@ -473,7 +473,7 @@ else:
 
     plotcal()
 
-print ""
+print("")
 
 antenna='25'
 
@@ -486,17 +486,17 @@ if scriptmode:
 
     plotcal()
 
-    print " we iterate over all three fields, just for antenna 25 using"
-    print " the iteration parameter"
-    print ""
+    print(" we iterate over all three fields, just for antenna 25 using")
+    print(" the iteration parameter")
+    print("")
 
-    print " Make sure to click Next to go through the fields before hitting return"
-    print ""
-    print " note the galactic absorption in the first two fields"
-    print " only field 4 (1331+305) is free of absorption"
-    print " for now, we will use only bandpass solutions for field 4"
-    print ""
-    user_check=raw_input('Return when done to run applycal\n')
+    print(" Make sure to click Next to go through the fields before hitting return")
+    print("")
+    print(" note the galactic absorption in the first two fields")
+    print(" only field 4 (1331+305) is free of absorption")
+    print(" for now, we will use only bandpass solutions for field 4")
+    print("")
+    user_check=input('Return when done to run applycal\n')
 
 else:
     showgui=False
@@ -525,11 +525,11 @@ if benchmarking:
 #=====================================================================
 #Apply calibration - results go to corrected_data column
 #=====================================================================
-print "--applycal--"
-print ""
-print " applies supplied calibration tables (gain and bandpass) and"
-print " writes corrected data to column labeled CORRECTED_DATA."
-print " This may take a while ..."
+print("--applycal--")
+print("")
+print(" applies supplied calibration tables (gain and bandpass) and")
+print(" writes corrected data to column labeled CORRECTED_DATA.")
+print(" This may take a while ...")
 
 default('applycal')
 
@@ -550,16 +550,16 @@ if benchmarking:
 # Flag data non-interactively
 #=====================================================================
 #
-print "--flagdata--"
+print("--flagdata--")
 
 default('flagdata')
 vis=msfile
 spw='0'
 mode='manual'
 
-print ""
-print " flag the narrow time range around 03:53 for RR"
-print ""
+print("")
+print(" flag the narrow time range around 03:53 for RR")
+print("")
 
 # NOTE: this was flagged previously in RR if not in scriptmode, but do
 # it here again for consistency between modes
@@ -571,9 +571,9 @@ saveinputs('flagdata',prefix+'.saved.flagdata.time0352')
 
 flagdata()
 
-print ""
-print " flag antenna 0 for correlation LL over the whole time range"
-print ""
+print("")
+print(" flag antenna 0 for correlation LL over the whole time range")
+print("")
 
 antenna='0'
 timerange=''
@@ -591,13 +591,13 @@ if benchmarking:
 #=====================================================================
 #
 # selects target source data (throws away all calibrator data).
-print ""
-print "--split--"
-print ""
-print " We are done with the calibrator data so we use split to select"
-print " source data only (field '0').  split will also move the"
-print " CORRECTED_DATA column to the DATA column."
-print ""
+print("")
+print("--split--")
+print("")
+print(" We are done with the calibrator data so we use split to select")
+print(" source data only (field '0').  split will also move the")
+print(" CORRECTED_DATA column to the DATA column.")
+print("")
 
 default('split')
 
@@ -620,20 +620,20 @@ if benchmarking:
 #
 # subtract continuum to form a line-only data set
 
-print "--uvcontsub--"
-print ""
-print " fit a continuum using line-free regions on both ends of the spectrum"
-print " and subtract this continuum.  Inspection of the earlier data cube"
-print " shows that a good choice for line-free channels at either end are"
-print " channels 21-30 and 92-111.  We use the parameter fitspw to specify"
-print " the range of channels to base the fit on"
-print ""
-print " Note that no output file is needed; the results are stored in the"
-print " 'corrected' data column"
-print ""
-print ""
-print " have patience - this will take a while ..."
-print ""
+print("--uvcontsub--")
+print("")
+print(" fit a continuum using line-free regions on both ends of the spectrum")
+print(" and subtract this continuum.  Inspection of the earlier data cube")
+print(" shows that a good choice for line-free channels at either end are")
+print(" channels 21-30 and 92-111.  We use the parameter fitspw to specify")
+print(" the range of channels to base the fit on")
+print("")
+print(" Note that no output file is needed; the results are stored in the")
+print(" 'corrected' data column")
+print("")
+print("")
+print(" have patience - this will take a while ...")
+print("")
 
 default('uvcontsub')
 
@@ -656,16 +656,16 @@ uvcontsubfile = splitfile + '.contsub'
 # make dirty image of channel 32
 #=====================================================================
 #
-print "--clean (dirty image)--"
-print ""
-print " for now, we will image just channels 32, which is line-free"
-print " and last are line-free but were not part of the line-free range in"
-print " uvcontsub and their rms noise is therefore indicative of the noise in"
-print " the channels with line emission.  The middle channel is an example of"
-print " a channel containing line emission without continuum"
-print ""
-print " Note by setting niter=0 we are just imaging; not cleaning"
-print ""
+print("--clean (dirty image)--")
+print("")
+print(" for now, we will image just channels 32, which is line-free")
+print(" and last are line-free but were not part of the line-free range in")
+print(" uvcontsub and their rms noise is therefore indicative of the noise in")
+print(" the channels with line emission.  The middle channel is an example of")
+print(" a channel containing line emission without continuum")
+print("")
+print(" Note by setting niter=0 we are just imaging; not cleaning")
+print("")
 
 default('clean')
 
@@ -696,10 +696,10 @@ if benchmarking:
 #=====================================================================
 #
 if scriptmode:
-    print "--viewer (dirty image)--"
-    print ""
-    print " display dirty image of chan 32"
-    print ""
+    print("--viewer (dirty image)--")
+    print("")
+    print(" display dirty image of chan 32")
+    print("")
     
     default('viewer')
 
@@ -707,17 +707,17 @@ if scriptmode:
 
     viewer()
 
-    user_check=raw_input('when done viewing, Close and hit Return to continue\n')
+    user_check=input('when done viewing, Close and hit Return to continue\n')
 
-    print ""
+    print("")
 
 #=====================================================================
 # Determine the rms in chan32
 #=====================================================================
 #
 # use the task imstat to do this
-print "--imstat (dirty image)--"
-print ""
+print("--imstat (dirty image)--")
+print("")
 default('imstat')
 
 imagename = outdirty+'.image'
@@ -728,9 +728,9 @@ dirty_stat = imstat()
 rmsjy     = dirty_stat['sigma'][0]
 rmsmjy    = 1000 * rmsjy
 
-print " Dirty image chan32 rms = ", rmsmjy, "mJy"
+print(" Dirty image chan32 rms = ", rmsmjy, "mJy")
 
-print ""
+print("")
 
 if benchmarking:
     dirtystat2time=time.time()
@@ -740,13 +740,13 @@ if benchmarking:
 #=====================================================================
 #
 
-print ""
-print "--clean--"
-print ""
-print " we will image all channels of interest, and are requesting"
-print " cleaning by setting niter to a large number and using a"
-print " threshold of 1.2mJy (2 x sigma of dirty image of ch32)"
-print ""
+print("")
+print("--clean--")
+print("")
+print(" we will image all channels of interest, and are requesting")
+print(" cleaning by setting niter to a large number and using a")
+print(" threshold of 1.2mJy (2 x sigma of dirty image of ch32)")
+print("")
 
 default('clean')
 
@@ -777,7 +777,7 @@ clean()
 if benchmarking:
     clean2time=time.time()
 
-print ""
+print("")
 
 #=====================================================================
 # view result of clean
@@ -785,10 +785,10 @@ print ""
 #
 # view all channels if you are running in scriptmode
 if scriptmode:
-    print "--viewer (clean cube)--"
-    print ""
-    print " display continuum-free channels"
-    print ""
+    print("--viewer (clean cube)--")
+    print("")
+    print(" display continuum-free channels")
+    print("")
     
     default('viewer')
 
@@ -796,20 +796,20 @@ if scriptmode:
 
     viewer()
 
-    user_check=raw_input('when done viewing, Close and hit Return to continue\n')
+    user_check=input('when done viewing, Close and hit Return to continue\n')
 
-    print ""
+    print("")
 
 #=====================================================================
 # display image header
 #=====================================================================
 #
 # 
-print "--imhead--"
-print ""
-print " We will need to specify a subset of this cube, so let's explore the"
-print " structure of the image cube first.  Use the task imhead for this"
-print ""
+print("--imhead--")
+print("")
+print(" We will need to specify a subset of this cube, so let's explore the")
+print(" structure of the image cube first.  Use the task imhead for this")
+print("")
 
 default('imhead')
 
@@ -817,17 +817,17 @@ imagename = outname+'.image'
 
 imhead()
 
-print ""
-print " Look in the log window for the output of imhead.  You will see that"
-print " the axis order is RA, Dec, Stokes, Frequency.  Keep this in mind"
-print " when specifying a subset of the image cube below"
-print ""
+print("")
+print(" Look in the log window for the output of imhead.  You will see that")
+print(" the axis order is RA, Dec, Stokes, Frequency.  Keep this in mind")
+print(" when specifying a subset of the image cube below")
+print("")
 
 #=====================================================================
 # Statistics on clean image cube and moments
 #=====================================================================
 #
-print '--imstat (clean cube)--'
+print('--imstat (clean cube)--')
 default('imstat')
 
 imagename = outname+'.image'
@@ -836,7 +836,7 @@ imagename = outname+'.image'
 
 srcstat = imstat()
 
-print " Found image max = "+str(srcstat['max'][0])+" Jy"
+print(" Found image max = "+str(srcstat['max'][0])+" Jy")
 
 # determine the stats in a off-source box
 
@@ -845,7 +845,7 @@ box = offbox
 
 offstat = imstat()
 
-print " Found off-source image rms = "+str(offstat['sigma'][0])+" Jy"
+print(" Found off-source image rms = "+str(offstat['sigma'][0])+" Jy")
 
 # determine the stats in line-free channels (here: 0-3)
 
@@ -857,7 +857,7 @@ chans = offlinechan
 
 offlinestat = imstat()
 
-print " Found off-line image rms = "+str(offlinestat['sigma'][0])+" Jy"
+print(" Found off-line image rms = "+str(offlinestat['sigma'][0])+" Jy")
 offline_rms = offlinestat['sigma'][0]
 
 if benchmarking:
@@ -869,15 +869,15 @@ if benchmarking:
 #
 # use the task immoments to do this
 
-print ""
-print "--immoments--"
-print ""
-print " as the final step we determine the 0'th and first moment maps, aka"
-print " the total HI map and the velocity field.  For want of a better method"
-print " we exclude pixel values falling in the interval given by excludepix at"
-print "   cutoff = "+str(3*offline_rms)+" Jy"
-print " Note the use of the rms determined earlier in imstat"
-print ""
+print("")
+print("--immoments--")
+print("")
+print(" as the final step we determine the 0'th and first moment maps, aka")
+print(" the total HI map and the velocity field.  For want of a better method")
+print(" we exclude pixel values falling in the interval given by excludepix at")
+print("   cutoff = "+str(3*offline_rms)+" Jy")
+print(" Note the use of the rms determined earlier in imstat")
+print("")
 
 default('immoments')
 
@@ -904,8 +904,8 @@ if benchmarking:
 # view if in scriptmode
 
 if scriptmode:
-    print "--viewer--"
-    print ""
+    print("--viewer--")
+    print("")
 
     default('viewer')
 
@@ -913,27 +913,27 @@ if scriptmode:
 
     viewer()
 
-    print " display moment 0 of continuum-free channels"
-    print ""
-    user_check=raw_input('when done viewing, Close and hit Return to continue\n')
+    print(" display moment 0 of continuum-free channels")
+    print("")
+    user_check=input('when done viewing, Close and hit Return to continue\n')
 
     infile = outfile + '.weighted_coord'
 
     viewer()
 
-    print ""
-    print " display moment 1 of continuum-free channels"
-    print ""
-    user_check=raw_input('when done viewing, Close and hit Return to continue\n')
+    print("")
+    print(" display moment 1 of continuum-free channels")
+    print("")
+    user_check=input('when done viewing, Close and hit Return to continue\n')
 
-    print ""
+    print("")
 
 
 #=====================================================================
 # Statistics on moment images
 #=====================================================================
 #
-print '--imstat (moment images)--'
+print('--imstat (moment images)--')
 default('imstat')
 
 imagename = momfile+'.integrated'
@@ -941,8 +941,8 @@ imagename = momfile+'.integrated'
 momzerostat=imstat()
 
 try:
-    print " Found moment 0 max = "+str(momzerostat['max'][0])
-    print " Found moment 0 rms = "+str(momzerostat['rms'][0])
+    print(" Found moment 0 max = "+str(momzerostat['max'][0]))
+    print(" Found moment 0 rms = "+str(momzerostat['rms'][0]))
 except:
     pass
 
@@ -951,7 +951,7 @@ imagename = momfile+'.weighted_coord'
 momonestat=imstat()
 
 try:
-    print " Found moment 1 median = "+str(momonestat['median'][0])
+    print(" Found moment 1 median = "+str(momonestat['median'][0]))
 except:
     pass
 
@@ -965,16 +965,16 @@ if benchmarking:
     endProc=time.clock()
     endTime=time.time()
 
-print ""
-print "Completed processing of NGC2403 data"
-print ""
+print("")
+print("Completed processing of NGC2403 data")
+print("")
 
 #
 ##########################################################################
 # Calculate regression values
 ##########################################################################
-print '--Calculate Regression Results--'
-print ''
+print('--Calculate Regression Results--')
+print('')
 #
 # Save these stats
 #
@@ -1025,7 +1025,7 @@ canonical['version'] = 'CASA Version 3.0.0 Rev 9751'
 canonical['user'] = 'gmoellen'
 canonical['host'] = 'penns'
 canonical['cwd'] = '/home/penns/gmoellen/CASA/REG/N2403'
-print "Canonical regression from "+canonical['version']+" on "+canonical['date']
+print("Canonical regression from "+canonical['version']+" on "+canonical['date'])
 
 canonical_results = {}
 canonical_results['dirty_image_rms'] = {}
@@ -1064,13 +1064,13 @@ prev_results = {}
 try:
     fr = open(regressfile,'r')
 except:
-    print "No previous regression results file "+regressfile
+    print("No previous regression results file "+regressfile)
 else:
     u = pickle.Unpickler(fr)
     regression = u.load()
     fr.close()
-    print "Regression results filled from "+regressfile
-    print "Regression from version "+regression['version']+" on "+regression['date']
+    print("Regression results filled from "+regressfile)
+    print("Regression from version "+regression['version']+" on "+regression['date'])
     regression['exist'] = True
 
     prev_results = regression['results']
@@ -1216,7 +1216,7 @@ resultlist = ['dirty_image_rms','clean_image_max',
 
 for keys in resultlist:
     res = results[keys]
-    if prev_results.has_key(keys):
+    if keys in prev_results:
         # This is a known regression
         prev = prev_results[keys]
         new_val = res['value']
@@ -1235,7 +1235,7 @@ for keys in resultlist:
         results[keys]['diff'] = new_diff
         results[keys]['status'] = new_status
         results[keys]['test'] = 'Last'
-    elif canonical_results.has_key(keys):
+    elif keys in canonical_results:
         # Go back to canonical values
         prev = canonical_results[keys]
         new_val = res['value']
@@ -1275,11 +1275,11 @@ p = pickle.Pickler(f)
 p.dump(new_regression)
 f.close()
 
-print ""
-print "Regression result dictionary saved in "+pickfile
-print ""
-print "Use Pickle to retrieve these"
-print ""
+print("")
+print("Regression result dictionary saved in "+pickfile)
+print("")
+print("Use Pickle to retrieve these")
+print("")
 
 # e.g.
 # f = open(pickfile)
@@ -1300,15 +1300,15 @@ outfile='out.'+prefix+'.'+datestring+'.log'
 logfile=open(outfile,'w')
 
 # Print version info to outfile
-print >>logfile,'Regression = '+new_regression['dataset']
-print >>logfile,'Running '+myvers+' on host '+myhost
-print >>logfile,'at '+datestring
-print >>logfile,''
+print('Regression = '+new_regression['dataset'], file=logfile)
+print('Running '+myvers+' on host '+myhost, file=logfile)
+print('at '+datestring, file=logfile)
+print('', file=logfile)
 
 # Print out comparison:
-print >>logfile,'---'
-print >>logfile,'Regression versus previous values:'
-print >>logfile,'---'
+print('---', file=logfile)
+print('Regression versus previous values:', file=logfile)
+print('---', file=logfile)
 
 res = {}
 resultlist = ['dirty_image_rms','clean_image_max',
@@ -1318,60 +1318,60 @@ resultlist = ['dirty_image_rms','clean_image_max',
 final_status = 'Passed'
 for keys in resultlist:
     res = results[keys]
-    print '--%30s : %12.6f was %12.6f %4s %12.6f (%6s) %s ' % ( res['name'], res['value'], res['prev'], res['op'], res['diff'], res['status'], res['test'] )
-    print >>logfile,'--%30s : %12.6f was %12.6f %4s %12.6f (%6s) %s ' % ( res['name'], res['value'], res['prev'], res['op'], res['diff'], res['status'], res['test'] )
+    print('--%30s : %12.6f was %12.6f %4s %12.6f (%6s) %s ' % ( res['name'], res['value'], res['prev'], res['op'], res['diff'], res['status'], res['test'] ))
+    print('--%30s : %12.6f was %12.6f %4s %12.6f (%6s) %s ' % ( res['name'], res['value'], res['prev'], res['op'], res['diff'], res['status'], res['test'] ), file=logfile)
     if res['status']=='Failed':
         final_status = 'Failed'
 
 if (final_status == 'Passed'):
     regstate=True
-    print >>logfile,'---'
-    print >>logfile,'Passed Regression test for NGC 2403'
-    print >>logfile,'---'
-    print ''
-    print 'Regression PASSED'
-    print ''
-    print 'Passed Regression test for NGC 2403'
+    print('---', file=logfile)
+    print('Passed Regression test for NGC 2403', file=logfile)
+    print('---', file=logfile)
+    print('')
+    print('Regression PASSED')
+    print('')
+    print('Passed Regression test for NGC 2403')
 else:
     regstate=False
-    print >>logfile,'----FAILED Regression test for NGC 2403'
-    print ''
-    print 'Regression FAILED'
-    print ''
-    print '----FAILED Regression test for NGC 2403'
+    print('----FAILED Regression test for NGC 2403', file=logfile)
+    print('')
+    print('Regression FAILED')
+    print('')
+    print('----FAILED Regression test for NGC 2403')
     
 #
 ##########################################################################
 # Print benchmarking etc.
 
 if benchmarking:
-    print ''
-    print 'Total wall clock time was: %10.3f ' % total['wall']
-    print 'Total CPU        time was: %10.3f ' % total['cpu']
-    print 'Raw processing rate MB/s was: %8.1f ' % total['rate_raw']
-    print 'MS  processing rate MB/s was: %8.1f ' % total['rate_ms']
-    print ''
-    print '* Breakdown:                              *'
+    print('')
+    print('Total wall clock time was: %10.3f ' % total['wall'])
+    print('Total CPU        time was: %10.3f ' % total['cpu'])
+    print('Raw processing rate MB/s was: %8.1f ' % total['rate_raw'])
+    print('MS  processing rate MB/s was: %8.1f ' % total['rate_ms'])
+    print('')
+    print('* Breakdown:                              *')
 
-    print >>logfile,''
-    print >>logfile,'********* Benchmarking *************************'
-    print >>logfile,'*                                              *'
-    print >>logfile,'Total wall clock time was: %10.3f ' % total['wall']
-    print >>logfile,'Total CPU        time was: %10.3f ' % total['cpu']
-    print >>logfile,'Raw processing rate MB/s was: %8.1f ' % total['rate_raw']
-    print >>logfile,'MS  processing rate MB/s was: %8.1f ' % total['rate_ms']
-    print >>logfile,'* Breakdown:                                   *'
+    print('', file=logfile)
+    print('********* Benchmarking *************************', file=logfile)
+    print('*                                              *', file=logfile)
+    print('Total wall clock time was: %10.3f ' % total['wall'], file=logfile)
+    print('Total CPU        time was: %10.3f ' % total['cpu'], file=logfile)
+    print('Raw processing rate MB/s was: %8.1f ' % total['rate_raw'], file=logfile)
+    print('MS  processing rate MB/s was: %8.1f ' % total['rate_ms'], file=logfile)
+    print('* Breakdown:                                   *', file=logfile)
 
     for i in range(nstages):
-        print '* %16s * time was: %10.3f ' % tuple(stages[i])
-        print >>logfile,'* %16s * time was: %10.3f ' % tuple(stages[i])
+        print('* %16s * time was: %10.3f ' % tuple(stages[i]))
+        print('* %16s * time was: %10.3f ' % tuple(stages[i]), file=logfile)
     
-    print >>logfile,'************************************************'
-    print >>logfile,'imager-b (2008-07-24) wall time was: 2740 seconds'
-    print >>logfile,'imager-b (2008-07-24) CPU  time was: 1792 seconds'
+    print('************************************************', file=logfile)
+    print('imager-b (2008-07-24) wall time was: 2740 seconds', file=logfile)
+    print('imager-b (2008-07-24) CPU  time was: 1792 seconds', file=logfile)
 
 logfile.close()
 
-print "Done with NGC2403 Tutorial Regression"
+print("Done with NGC2403 Tutorial Regression")
 #
 ##########################################################################

@@ -58,7 +58,7 @@ def autoclean(vis, imagename, field, spw, selectdata, timerange, uvrange,
         ia.removefile(inputmask)
 
     # begin loop over all channels
-    for ichan in xrange(nchan):
+    for ichan in range(nchan):
 
         if imagermode!='mfs':
             casalog.post('***** Beginning channel %d of %d' % (ichan, nchan))
@@ -465,7 +465,7 @@ def add_box(imagename, box, peak_flux, boxstretch=0):
 # concatenate multiple-channel images
 def concat_images(imagename='', suffix='', number=0, relax=False):
     imagelist = [imagename + '.channel.' + i + suffix
-                 for i in map(str, range(number))]
+                 for i in map(str, list(range(number)))]
     ia.imageconcat(imagename + suffix, imagelist, overwrite=True, relax=relax)
     ia.close()
 
@@ -474,7 +474,7 @@ def concat_images(imagename='', suffix='', number=0, relax=False):
 def concat_regions(imagename='', suffix='', number=0):
     regions = {}
     for file in [imagename + '.channel.' + i + suffix
-                 for i in map(str, range(number))]:
+                 for i in map(str, list(range(number)))]:
         if(os.path.exists(file)):
             regions[file] = rg.fromfiletorecord(file)
     nregion = len(regions)

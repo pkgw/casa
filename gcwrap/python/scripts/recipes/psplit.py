@@ -15,7 +15,7 @@ def psplit(vis,outputvispattern,nodes,field,nspw,
         endSPW=startSPW+spwPerNode;
         spwExpr=str(startSPW)+'~'+str(endSPW-1);
         startSPW=endSPW;
-        print OutputName,spwExpr;
+        print(OutputName,spwExpr);
         
         split(vis=vis,outputvis=OutputName,
               datacolumn=datacolumn,

@@ -107,8 +107,7 @@ def importevla(
                 execute_string = execute_string + ' --polyephem-tabtimestep '+str(polyephem_tabtimestep)
                 
         if not overwrite and os.path.exists(viso):
-            raise Exception, \
-                'You have specified and existing ms and have indicated you do not wish to overwrite it'
+            raise Exception('You have specified and existing ms and have indicated you do not wish to overwrite it')
         #
         # If viso+".flagversions" then process differently depending on the value of overwrite..
         #
@@ -122,8 +121,8 @@ def importevla(
             else:
                 casalog.post("Found '%s' but can't overwrite it."
                              % dotFlagversion)
-                raise Exception, "Found '%s' but can't overwrite it." \
-                    % dotFlagversion
+                raise Exception("Found '%s' but can't overwrite it." \
+                    % dotFlagversion)
 
         execute_string = execute_string + ' ' + asdm + ' ' + viso
         casalog.post('Running the asdm2MS standalone invoked as:')
@@ -134,7 +133,7 @@ def importevla(
         ret_status = os.system(execute_string)
         if ret_status != 0:
             casalog.post('asdm2MS failed to execute with exit error '+str(ret_status), 'SEVERE')
-            raise Exception, 'ASDM conversion error, please check if it is a valid ASDM.'
+            raise Exception('ASDM conversion error, please check if it is a valid ASDM.')
         
         if compression:
             visover = viso
@@ -144,8 +143,8 @@ def importevla(
             ok = aflocal.saveflagversion('Original',
                     comment='Original flags on import', merge='save')
             ok = aflocal.done()
-            print 'Backed up original flag column to ' + viso \
-                + '.flagversions'
+            print('Backed up original flag column to ' + viso \
+                + '.flagversions')
             casalog.post('Backed up original flag column to ' + viso
                          + '.flagversions')
         else:
@@ -162,34 +161,33 @@ def importevla(
                 
         if os.access(asdm + '/Flag.xml', os.F_OK):
                 # Find (and copy) Flag.xml
-            print '  Found Flag.xml in SDM, copying to MS'
+            print('  Found Flag.xml in SDM, copying to MS')
             casalog.post('Found Flag.xml in SDM, copying to MS')
             os.system('cp -rf ' + asdm + '/Flag.xml ' + viso + '/')
             # Find (and copy) Antenna.xml
             if os.access(asdm + '/Antenna.xml', os.F_OK):
-                print '  Found Antenna.xml in SDM, copying to MS'
+                print('  Found Antenna.xml in SDM, copying to MS')
                 casalog.post('Found Antenna.xml in SDM, copying to MS')
                 os.system('cp -rf ' + asdm + '/Antenna.xml ' + viso
                           + '/')
             else:
-                raise Exception, 'Failed to find Antenna.xml in SDM'
+                raise Exception('Failed to find Antenna.xml in SDM')
             # Find (and copy) SpectralWindow.xml
             if os.access(asdm + '/SpectralWindow.xml', os.F_OK):
-                print '  Found SpectralWindow.xml in SDM, copying to MS'
+                print('  Found SpectralWindow.xml in SDM, copying to MS')
                 casalog.post('Found SpectralWindow.xml in SDM, copying to MS'
                              )
                 os.system('cp -rf ' + asdm + '/SpectralWindow.xml '
                           + viso + '/')
             else:
-                raise Exception, \
-                    'Failed to find SpectralWindow.xml in SDM'
+                raise Exception('Failed to find SpectralWindow.xml in SDM')
             #
             # Parse Flag.xml into flag dictionary
             #
             if online:
 #                flago = fh.readXML(asdm, tbuff)
                 flago = fh.parseXML(asdm, tbuff)
-                onlinekeys = flago.keys()
+                onlinekeys = list(flago.keys())
 
                 nkeys = onlinekeys.__len__()
                 nflags += nkeys
@@ -307,7 +305,7 @@ def importevla(
             casalog.post('Created 1 command to flag shadowed data')
         
         # List of rows to save
-        allkeys = allflags.keys()
+        allkeys = list(allflags.keys())
         
         # Apply the flags
         if applyflags:
@@ -366,7 +364,7 @@ def importevla(
                 casalog.post('There are no flag commands to save')
                 
                          
-    except Exception, instance:
+    except Exception as instance:
 
         casalog.post('%s' % instance, 'ERROR')
 
@@ -374,12 +372,12 @@ def importevla(
     else:
         retval = True
         try:
-            param_names = importevla.func_code.co_varnames[:importevla.func_code.co_argcount]
+            param_names = importevla.__code__.co_varnames[:importevla.__code__.co_argcount]
             param_vals = [eval(p) for p in param_names]
             retval &= write_history(mslocal, vis, 'importevla', param_names,
                                     param_vals, casalog)
             
-        except Exception, instance:
+        except Exception as instance:
             casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
                          'WARN')
 
@@ -404,7 +402,7 @@ def getmsmjds(vis):
         mslocal2.close()
     except:
         success = False
-        print 'Error opening MS ' + vis
+        print('Error opening MS ' + vis)
     if success:
         ms_startmjds = timd['time'][0]
         ms_endmjds = timd['time'][1]
@@ -417,7 +415,7 @@ def getmsmjds(vis):
         casalog.post('MS spans timerange ' + ms_time1 + ' to '
                      + ms_time2)
     else:
-        print 'WARNING: Could not open vis as MS to find times'
+        print('WARNING: Could not open vis as MS to find times')
         casalog.post('WARNING: Could not open vis as MS to find times')
     return (ms_startmjds, ms_endmjds, ms_time1, ms_time2)
 

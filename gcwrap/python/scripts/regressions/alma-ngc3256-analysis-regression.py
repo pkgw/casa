@@ -71,13 +71,13 @@ peakcontsc = 0
 thesteps = []
 
 try:
-    print 'List of steps to be executed ...', mysteps
+    print('List of steps to be executed ...', mysteps)
     thesteps = mysteps
 except:
-    print 'global variable mysteps not set.'
+    print('global variable mysteps not set.')
 if (thesteps==[]):
-    thesteps = range(0,len(step_title))
-    print 'mysteps empty. Executing all steps: ', thesteps
+    thesteps = list(range(0,len(step_title)))
+    print('mysteps empty. Executing all steps: ', thesteps)
 
 # The Python variable 'mysteps' will control which steps
 # are executed when you start the script using
@@ -120,17 +120,17 @@ def timing():
 mytarfile_name = 'NGC3256_Band3_UnCalibratedMSandTablesForReduction.tgz'
 # get the dataset name from the wrapper if possible
 mydict = locals()
-if mydict.has_key("tarfile_name"):
+if "tarfile_name" in mydict:
     if(mytarfile_name != mydict["tarfile_name"]):
-        raise Exception, 'Wrong input file 1'
+        raise Exception('Wrong input file 1')
 
 # data preparation
 mystep = 0
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     if not os.path.exists(mytarfile_name):
-        raise Exception, 'Cannot find input file '+mytarfile_name
+        raise Exception('Cannot find input file '+mytarfile_name)
     for name in basename:
         os.system('rm -rf '+name+'.ms')
 
@@ -143,7 +143,7 @@ if(mystep in thesteps):
 # generate caltables
 mystep = 1
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     for name in basename:
         flagmanager(vis = name+'.ms', mode = 'save', versionname = 'Original')
@@ -171,7 +171,7 @@ if(mystep in thesteps):
 # Apriori flagging
 mystep = 2
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     for name in basename:
         flagmanager(vis = name+'.ms', mode = 'restore', versionname = 'Original')
@@ -188,7 +188,7 @@ if(mystep in thesteps):
 # Delay Correction for Antenna DV07
 mystep = 3
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     for i in range(3): # loop over the first three ms's
 	name=basename[i]
@@ -203,7 +203,7 @@ if(mystep in thesteps):
 # Applycal of delay and  wvr corrections
 mystep = 4
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
     for i in range(3): # loop over the first three data sets
 	name=basename[i]
 	applycal(vis=name+'.ms', flagbackup = False, spw='1,3,5,7',
@@ -226,7 +226,7 @@ if(mystep in thesteps):
 # Applycal of tsys corrections, split out corrected data
 mystep = 5
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     flagmanager(vis ='uid___A002_X1d54a1_X174_K_WVR.ms', mode = 'restore', versionname = 'Original')
        
@@ -250,7 +250,7 @@ if(mystep in thesteps):
 # concatenate the MSs
 mystep = 6
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     comvis=[]
     for name in basename:
@@ -266,7 +266,7 @@ if(mystep in thesteps):
 # fixplanets and flag the concatenated data
 mystep = 7
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     flagmanager(vis ='ngc3256_line.ms', mode = 'restore', versionname = 'Original')
 
@@ -302,7 +302,7 @@ if(mystep in thesteps):
 # Fast phase-only gaincal on the bandpass calibrator
 mystep = 8
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     os.system('rm -rf cal-ngc3256.G1')
     gaincal(vis='ngc3256_line.ms', caltable='cal-ngc3256.G1', spw='*:40~80', field='1037*',
@@ -321,7 +321,7 @@ if(mystep in thesteps):
 # Bandpass calibration
 mystep = 9
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     os.system('rm -rf cal-ngc3256.B1')
 
@@ -347,7 +347,7 @@ if(mystep in thesteps):
 # Set fluxscale on Titan
 mystep = 10
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     setjy(vis='ngc3256_line.ms', field='Titan', standard='Butler-JPL-Horizons 2012', 
           spw='0,1,2,3', scalebychan=False, usescratch=False)
@@ -357,7 +357,7 @@ if(mystep in thesteps):
 # Amplitude and Phase gaincal
 mystep = 11
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     gaincal(vis = 'ngc3256_line.ms', caltable = 'cal-ngc3256.G2', spw =
             '*:16~112', field = '1037*,Titan', minsnr=1.0,
@@ -383,7 +383,7 @@ if(mystep in thesteps):
 # Adjust absolute fluxscale
 mystep = 12
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     fluxscale(vis="ngc3256_line.ms", caltable="cal-ngc3256.G2",
               fluxtable="cal-ngc3256.G2.flux", reference="Titan",
@@ -394,7 +394,7 @@ if(mystep in thesteps):
 # Apply bandpass and gain calibration
 mystep = 13
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     applycal(vis='ngc3256_line.ms', flagbackup = False, field='NGC*,1037*',
              interp=['nearest','nearest'], gainfield = ['1037*', '1037*'],
@@ -407,7 +407,7 @@ if(mystep in thesteps):
 # Final flagging
 mystep = 14
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     flagmanager(vis = 'ngc3256_line.ms', mode = 'restore', versionname = 'step12')
     
@@ -436,7 +436,7 @@ if(mystep in thesteps):
 # Final calibration
 mystep = 15
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     delmod('ngc3256_line.ms')
 
@@ -477,7 +477,7 @@ if(mystep in thesteps):
 # Image the phase calibrator
 mystep = 16
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     os.system('rm -rf result-phasecal_cont*')
     clean(vis='ngc3256_line.ms', imagename='result-phasecal_cont', field='1037*',
@@ -488,11 +488,11 @@ if(mystep in thesteps):
     
     calstat=imstat(imagename='result-phasecal_cont.image.tt0', region='', box='85,8,120,120')
     rmspcal=(calstat['rms'][0])
-    print '>> rms in phase calibrator image: '+str(rmspcal)
+    print('>> rms in phase calibrator image: '+str(rmspcal))
     calstat=imstat(imagename='result-phasecal_cont.image.tt0', region='')
     peakpcal=(calstat['max'][0])
-    print '>> Peak in phase calibrator image: '+str(peakpcal)
-    print '>> Dynamic range in phase calibrator image: '+str(peakpcal/rmspcal)
+    print('>> Peak in phase calibrator image: '+str(peakpcal))
+    print('>> Dynamic range in phase calibrator image: '+str(peakpcal/rmspcal))
 
     if makeplots:
         imview(raster={'file': 'result-phasecal_cont.image.tt0', 'colorwedge':True,
@@ -508,7 +508,7 @@ if(mystep in thesteps):
 # Apply calibration to flux calibrator
 mystep = 17
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     applycal(vis='ngc3256_line.ms', flagbackup = False, field='Titan',
              interp=['nearest', 'nearest'], gainfield = ['Titan', '1037*'],
@@ -519,7 +519,7 @@ if(mystep in thesteps):
 # Image flux calibrator
 mystep = 18
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     os.system('rm -rf result-ampcal_cont*')
     clean(vis='ngc3256_line.ms', imagename='result-ampcal_cont', 
@@ -529,11 +529,11 @@ if(mystep in thesteps):
 
     calstat=imstat(imagename="result-ampcal_cont.image",region="",box="85,8,120,120")
     rmstitan=(calstat['rms'][0])
-    print ">> rms in amp calibrator image: "+str(rmstitan)
+    print(">> rms in amp calibrator image: "+str(rmstitan))
     calstat=imstat(imagename="result-ampcal_cont.image",region="")
     peaktitan=(calstat['max'][0])
-    print ">> Peak in amp calibrator image: "+str(peaktitan)
-    print ">> Dynamic range in amp calibrator image: "+str(peaktitan/rmstitan)
+    print(">> Peak in amp calibrator image: "+str(peaktitan))
+    print(">> Dynamic range in amp calibrator image: "+str(peaktitan/rmstitan))
 
     if makeplots:
         imview(raster={'file': 'result-ampcal_cont.image', 'colorwedge':True,
@@ -549,7 +549,7 @@ if(mystep in thesteps):
 # split out the calibrated target data
 mystep = 19
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     os.system('rm -rf ngc3256_line_target.ms*')
     split(vis='ngc3256_line.ms', outputvis='ngc3256_line_target.ms',
@@ -558,7 +558,7 @@ if(mystep in thesteps):
 # Image the NGC3256 continuum
 mystep = 20
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     os.system('rm -rf result-ngc3256_cont*')
     clean( vis='ngc3256_line_target.ms', imagename='result-ngc3256_cont',
@@ -569,11 +569,11 @@ if(mystep in thesteps):
 
     calstat=imstat(imagename='result-ngc3256_cont.image', region='', box='10,10,90,35')
     rmscont=(calstat['rms'][0])
-    print '>> rms in continuum image: '+str(rmscont)
+    print('>> rms in continuum image: '+str(rmscont))
     calstat=imstat(imagename='result-ngc3256_cont.image', region='')
     peakcont=(calstat['max'][0])
-    print '>> Peak in continuum image: '+str(peakcont)
-    print '>> Dynamic range in continuum image: '+str(peakcont/rmscont)
+    print('>> Peak in continuum image: '+str(peakcont))
+    print('>> Dynamic range in continuum image: '+str(peakcont/rmscont))
 
     if makeplots:
         imview(raster={'file': 'result-ngc3256_cont.image', 'colorwedge':True,
@@ -585,7 +585,7 @@ if(mystep in thesteps):
 # Slow phase selfcal
 mystep = 21
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     os.system('rm -rf cal-ngc3256_cont_30m.Gp')
     gaincal(vis='ngc3256_line_target.ms', field='NGC*',
@@ -615,7 +615,7 @@ if(mystep in thesteps):
 # Image the NGC3256 continuum again after selfcal
 mystep = 22
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     os.system('rm -rf result-ngc3256_cont_sc1*')
     clean(vis='ngc3256_line_target.ms', imagename='result-ngc3256_cont_sc1',
@@ -627,11 +627,11 @@ if(mystep in thesteps):
     calstat=imstat(imagename='result-ngc3256_cont_sc1.image', region='', 
                    box='10,10,90,35')
     rmscontsc=(calstat['rms'][0])
-    print '>> rms in continuum image: '+str(rmscontsc)
+    print('>> rms in continuum image: '+str(rmscontsc))
     calstat=imstat(imagename='result-ngc3256_cont_sc1.image', region='')
     peakcontsc=(calstat['max'][0])
-    print '>> Peak in continuum image: '+str(peakcontsc)
-    print '>> Dynamic range in continuum image: '+str(peakcontsc/rmscontsc)
+    print('>> Peak in continuum image: '+str(peakcontsc))
+    print('>> Dynamic range in continuum image: '+str(peakcontsc/rmscontsc))
 
     if makeplots:
         imview(raster={'file': 'result-ngc3256_cont_sc1.image', 'colorwedge':True,
@@ -643,7 +643,7 @@ if(mystep in thesteps):
 # Determine and subtract continuum
 mystep = 23
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     uvcontsub(vis = 'ngc3256_line_target.ms',
               fitspw='0:20~53;71~120,1:70~120,2:20~120,3:20~120', solint ='int', 
@@ -655,7 +655,7 @@ if(mystep in thesteps):
 # Clean the NGC3256 line cube
 mystep = 24
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     os.system('rm -rf result-ngc3256_line_CO.*')
     clean(vis='ngc3256_line_target.ms.contsub', imagename='result-ngc3256_line_CO',
@@ -669,7 +669,7 @@ if(mystep in thesteps):
 # Evaluate the NGC3256 line cube
 mystep = 25
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     os.system('rm -rf myresults.tbl')
     slsearch(outfile='myresults.tbl', freqrange = [84,116], species=['COv=0'])
@@ -718,7 +718,7 @@ if(mystep in thesteps):
 # Clean the NGC3256 CNhi line cube
 mystep = 26
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     os.system('rm -rf result-ngc3256_line_CNhi.*')
     clean(vis='ngc3256_line_target.ms', imagename='result-ngc3256_line_CNhi',
@@ -734,7 +734,7 @@ if(mystep in thesteps):
 # Evaluate the NGC3256 CNhi line cube
 mystep = 27
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     os.system('rm -rf result-ngc3256_CNhi.mom.*')
     immoments( imagename='result-ngc3256_line_CNhi.image', moments=[0,1],
@@ -755,7 +755,7 @@ if(mystep in thesteps):
 # Clean the NGC3256 CNlo line cube
 mystep = 28
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     os.system('rm -rf result-ngc3256_line_CNlo.*')
     clean( vis='ngc3256_line_target.ms', imagename='result-ngc3256_line_CNlo',
@@ -771,7 +771,7 @@ if(mystep in thesteps):
 # Evaluate the NGC3256 CNlo line cube
 mystep = 29
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     os.system('rm -rf result-ngc3256_CNlo.mom.*')
     immoments( imagename='result-ngc3256_line_CNlo.image', moments=[0,1],
@@ -794,7 +794,7 @@ if(mystep in thesteps):
 # Verify regression results
 mystep = 30
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     # reference values obtained with the NGC3256 Band 3 CASA guide for CASA 3.3 (9 May 2012, DP)
     refrmspcal33 = 0.000556594866794
@@ -884,14 +884,14 @@ if(mystep in thesteps):
                  +str(rmscontsc)+" ("+str(refrmscontsc)+", "+str(refrmscontsc33)+")")
     casalog.post( "------------------------------------------------------------------------------------------")
 
-    print rmspcal, refrmspcal
-    print peakpcal, refpeakpcal
-    print rmstitan, refrmstitan
-    print peaktitan, refpeaktitan
-    print rmscont, refrmscont
-    print peakcont, refpeakcont
-    print rmscontsc, refrmscontsc
-    print peakcontsc, refpeakcontsc
+    print(rmspcal, refrmspcal)
+    print(peakpcal, refpeakpcal)
+    print(rmstitan, refrmstitan)
+    print(peaktitan, refpeaktitan)
+    print(rmscont, refrmscont)
+    print(peakcont, refpeakcont)
+    print(rmscontsc, refrmscontsc)
+    print(peakcontsc, refpeakcontsc)
 
     passed = True
 
@@ -1003,8 +1003,8 @@ if(mystep in thesteps):
             passed = False
             
     if not passed:
-        raise Exception, 'Regression failed.'
+        raise Exception('Regression failed.')
 
-    print "Regression Passed."
+    print("Regression Passed.")
 
     timing()

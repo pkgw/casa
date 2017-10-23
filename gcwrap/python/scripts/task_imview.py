@@ -81,8 +81,8 @@ class __imview_class(object):
 
         """
         myf=stack_frame_find( )
-        vi = myf['vi'] if myf.has_key('vi') else None
-        ving = myf['ving'] if myf.has_key('ving') else None
+        vi = myf['vi'] if 'vi' in myf else None
+        ving = myf['ving'] if 'ving' in myf else None
 
         casalog.origin('imview')
         
@@ -101,7 +101,7 @@ class __imview_class(object):
                 vwr = vi if gui else ving
 
                 if type(vwr) == type(None) or type(vwr.cwd( )) != str:
-                    vwr = viewertool( gui, True, (type(myf) == dict and myf.has_key('casa') and type(myf['casa']) == type(os)) )
+                    vwr = viewertool( gui, True, (type(myf) == dict and 'casa' in myf and type(myf['casa']) == type(os)) )
             except:
                 vwr = None
 
@@ -114,7 +114,7 @@ class __imview_class(object):
 
         if type(vwr) == type(None):
             casalog.post( "failed to find a viewertool...", 'SEVERE')
-            raise Exception, "failed to find a viewertool..."
+            raise Exception("failed to find a viewertool...")
 
         self.__pushd( vwr, os.path.abspath(os.curdir) )
 
@@ -147,40 +147,40 @@ class __imview_class(object):
         ## here we can assume we have a dictionary
         ## that specifies what needs to be done...
         data = None
-        if not raster.has_key('file'):
+        if 'file' not in raster:
             return panel
 
         if  type(raster['file']) != str or not os.path.exists(raster['file']) or \
                vwr.fileinfo(raster['file'])['type'] != 'image':
             casalog.post( str(raster['file']) + " does not exist or is not an image", 'SEVERE')
-            raise Exception, raster['file'] + " does not exist or is not an image"
+            raise Exception(raster['file'] + " does not exist or is not an image")
 
         if panel is None:
             panel = self.__panel(vwr)
         
         scaling = 0.0
-        if raster.has_key('scaling'):
+        if 'scaling' in raster:
             scaling = self.__checknumeric(raster['scaling'], float, "raster scaling")
 
             
         data = vwr.load( raster['file'], 'raster', panel=panel, scaling=scaling )
         
-        if raster.has_key('range'):
+        if 'range' in raster:
             vwr.datarange( self.__checknumeric(raster['range'], float, "data range", array_size=2), data=data )
 
-        if raster.has_key('colormap'):
+        if 'colormap' in raster:
             if type(raster['colormap']) == str:
                 vwr.colormap( raster['colormap'], data )
             else:
                 casalog.post( "raster colormap must be a string", 'SEVERE')
-                raise Exception, "raster colormap must be a string"
+                raise Exception("raster colormap must be a string")
 
-        if raster.has_key('colorwedge'):
+        if 'colorwedge' in raster:
             if type(raster['colorwedge']) == bool:
                 self.__colorwedge_queue.append( (data,raster['colorwedge']) )
             else:
                 casalog.post( "colorwedge must be a boolean", 'SEVERE')
-                raise Exception, "colorwedge must be a boolean"
+                raise Exception("colorwedge must be a boolean")
 
         return panel
 
@@ -194,33 +194,33 @@ class __imview_class(object):
         ## here we can assume we have a dictionary
         ## that specifies what needs to be done...
         data = None
-        if not contour.has_key('file'):
+        if 'file' not in contour:
             return panel
 
         if type(contour['file']) != str or not os.path.exists(contour['file']) or \
                vwr.fileinfo(contour['file'])['type'] != 'image':
             casalog.post( str(contour['file']) + " does not exist or is not an image", 'SEVERE')
-            raise Exception, contour['file'] + " does not exist or is not an image"
+            raise Exception(contour['file'] + " does not exist or is not an image")
 
         if panel is None:
             panel = self.__panel(vwr)
 
         data = vwr.load( contour['file'], 'contour', panel=panel )
 
-        if contour.has_key('levels'):
+        if 'levels' in contour:
             vwr.contourlevels( self.__checknumeric(contour['levels'], float, "contour levels", array_size=0), data=data )
-        if contour.has_key('unit'):
+        if 'unit' in contour:
             vwr.contourlevels( unitlevel=self.__checknumeric(contour['unit'], float, "contour unitlevel"), data=data )
-        if contour.has_key('base'):
+        if 'base' in contour:
             vwr.contourlevels( baselevel=self.__checknumeric(contour['base'], float, "contour baselevel"), data=data )
 
         try:
-            if contour.has_key('thickness'):
+            if 'thickness' in contour:
                 vwr.contourthickness( thickness=self.__checknumeric(contour['thickness'], float, "contour thickness"), data=data )
-            if contour.has_key('color'):
+            if 'color' in contour:
                 vwr.contourcolor( contour['color'], data=data )
         except:
-            print "viewertool error: %s" % sys.exc_info()[1]
+            print("viewertool error: %s" % sys.exc_info()[1])
 
         return panel
 
@@ -230,33 +230,33 @@ class __imview_class(object):
         z=''
         invoke = False
         if type(axes) == list and len(axes) == 3 and \
-           all( map( lambda x: type(x) == str, axes ) ) :
+           all( [type(x) == str for x in axes] ) :
             x = axes[0]
             y = axes[1]
             z = axes[2]
             invoke = True
         elif type(axes) == dict :
-            if axes.has_key('x'):
+            if 'x' in axes:
                 if type(axes['x']) != str:
                     casalog.post( "dimensions of axes must be strings (x is not)", 'SEVERE')
-                    raise Exception, "dimensions of axes must be strings (x is not)"
+                    raise Exception("dimensions of axes must be strings (x is not)")
                 x = axes['x']
                 invoke = True
-            if axes.has_key('y'):
+            if 'y' in axes:
                 if type(axes['y']) != str:
                     casalog.post( "dimensions of axes must be strings (y is not)", 'SEVERE')
-                    raise Exception, "dimensions of axes must be strings (y is not)"
+                    raise Exception("dimensions of axes must be strings (y is not)")
                 y = axes['y']
                 invoke = True
-            if axes.has_key('z'):
+            if 'z' in axes:
                 if type(axes['z']) != str:
                     casalog.post( "dimensions of axes must be strings (z is not)", 'SEVERE')
-                    raise Exception, "dimensions of axes must be strings (z is not)"
+                    raise Exception("dimensions of axes must be strings (z is not)")
                 z = axes['z']
                 invoke = True
         else :
             casalog.post( "'axes' must either be a string list of 3 dimensions or a dictionary", 'SEVERE')
-            raise Exception, "'axes' must either be a string list of 3 dimensions or a dictionary"
+            raise Exception("'axes' must either be a string list of 3 dimensions or a dictionary")
 
         result = False
         if invoke:
@@ -269,14 +269,14 @@ class __imview_class(object):
     def __zoom( self, vwr, panel, zoom ) :      
 
         channel = -1
-        if type(zoom) == dict and zoom.has_key('channel') :
+        if type(zoom) == dict and 'channel' in zoom :
             channel = self.__checknumeric(zoom['channel'], int, "channel")
 
         if type(zoom) == int :
             vwr.zoom(level=zoom,panel=panel)
         elif type(zoom) == str and os.path.isfile( zoom ):
             vwr.zoom(region=zoom,panel=panel)
-        elif type(zoom) == dict and zoom.has_key('blc') and zoom.has_key('trc'):
+        elif type(zoom) == dict and 'blc' in zoom and 'trc' in zoom:
             blc = zoom['blc']
             trc = zoom['trc']
             if type(blc) == list and type(trc) == list:
@@ -284,49 +284,49 @@ class __imview_class(object):
                 trc = self.__checknumeric( trc, float, "zoom trc", array_size=2 )
 
                 coord = "pixel"
-                if zoom.has_key('coordinates'):
-                    if zoom.has_key('coord'):
+                if 'coordinates' in zoom:
+                    if 'coord' in zoom:
                         casalog.post( "cannot specify both 'coord' and 'coordinates' for zoom", 'SEVERE')
-                        raise Exception, "cannot specify both 'coord' and 'coordinates' for zoom"
+                        raise Exception("cannot specify both 'coord' and 'coordinates' for zoom")
                     if type(zoom['coordinates']) != str:
                         casalog.post( "zoom coordinates must be a string", 'SEVERE')
-                        raise Exception, "zoom coordinates must be a string"
+                        raise Exception("zoom coordinates must be a string")
                     coord = zoom['coordinates']
                     if coord != 'world' and coord != 'pixel' :
                         casalog.post( "zoom coordinates must be either 'world' or 'pixel'", 'SEVERE')
-                        raise Exception, "zoom coordinates must be either 'world' or 'pixel'"
-                elif zoom.has_key('coord'):
+                        raise Exception("zoom coordinates must be either 'world' or 'pixel'")
+                elif 'coord' in zoom:
                     if type(zoom['coord']) != str:
                         casalog.post( "zoom coord must be a string", 'SEVERE')
-                        raise Exception, "zoom coord must be a string"
+                        raise Exception("zoom coord must be a string")
                     coord = zoom['coord']
                     if coord != 'world' and coord != 'pixel' :
                         casalog.post( "zoom coord must be either 'world' or 'pixel'", 'SEVERE')
-                        raise Exception, "zoom coord must be either 'world' or 'pixel'"
+                        raise Exception("zoom coord must be either 'world' or 'pixel'")
                 if channel >= 0:
                     vwr.channel( channel, panel=panel )
                 vwr.zoom(blc=blc,trc=trc, coordinates=coord, panel=panel)
             elif type(blc) == dict and type(trc) == dict and \
-                 blc.has_key( '*1' ) and trc.has_key( '*1' ) :
+                 '*1' in blc and '*1' in trc :
                 if channel >= 0:
                     vwr.channel( channel, panel=panel )
                 vwr.zoom(region=zoom,panel=panel)
             else:
                 casalog.post( "zoom blc & trc must be either lists or dictionaries", 'SEVERE')
-                raise Exception, "zoom blc & trc must be either lists or dictionaries" 
+                raise Exception("zoom blc & trc must be either lists or dictionaries") 
 
-        elif type(zoom) == dict and zoom.has_key('regions'):
+        elif type(zoom) == dict and 'regions' in zoom:
             if channel >= 0:
                 vwr.channel( channel, panel=panel )
             vwr.zoom(region=zoom,panel=panel)
-        elif type(zoom) == dict and zoom.has_key('file') and type(zoom['file']) == str and os.path.isfile( zoom['file'] ):
+        elif type(zoom) == dict and 'file' in zoom and type(zoom['file']) == str and os.path.isfile( zoom['file'] ):
             if channel >= 0:
                 vwr.channel( channel, panel=panel )
             vwr.zoom(region=zoom['file'],panel=panel)
         else:
             if channel < 0:
                 casalog.post( "invalid zoom parameters", 'SEVERE')
-                raise Exception, "invalid zoom parameters"
+                raise Exception("invalid zoom parameters")
             else:
                 vwr.channel( channel, panel=panel )
         vwr.show(panel=panel)
@@ -335,7 +335,7 @@ class __imview_class(object):
 
         if filetype != "raster" and filetype != "contour":
             casalog.post( "internal error __load_files( )...", 'SEVERE')
-            raise Exception, "internal error __load_files( )..."
+            raise Exception("internal error __load_files( )...")
 
         if type(files) == str:
             panel = self.__load_raster( vwr, panel, { 'file': files } ) if filetype == 'raster' else \
@@ -344,20 +344,20 @@ class __imview_class(object):
             panel = self.__load_raster( vwr, panel, files ) if filetype == 'raster' else \
                         self.__load_contour( vwr, panel, files )
         elif type(files) == list:
-            if all(map( lambda x: type(x) == dict, files )):
+            if all([type(x) == dict for x in files]):
                 for f in files:
                     panel = self.__load_raster( vwr, panel, f ) if filetype == 'raster' else \
                                 self.__load_contour( vwr, panel, f )
-            elif all(map( lambda x: type(x) == str, files )):
+            elif all([type(x) == str for x in files]):
                 for f in files:
                     panel = self.__load_raster( vwr, panel, { 'file': f } ) if filetype == 'raster' else \
                                 self.__load_contour( vwr, panel, { 'file': f } )
             else:
                 casalog.post( "multiple " + str(filetype) + " specifications must be either all dictionaries or all strings", 'SEVERE')
-                raise Exception, "multiple " + filetype + " specifications must be either all dictionaries or all strings"
+                raise Exception("multiple " + filetype + " specifications must be either all dictionaries or all strings")
         else:
             casalog.post( filetype + "s can be a single file path (string), a single specification (dictionary), or a list containing all strings or all dictionaries", 'SEVERE')
-            raise Exception, filetype + "s can be a single file path (string), a single specification (dictionary), or a list containing all strings or all dictionaries"
+            raise Exception(filetype + "s can be a single file path (string), a single specification (dictionary), or a list containing all strings or all dictionaries")
         return panel
 
 
@@ -373,14 +373,14 @@ class __imview_class(object):
             output_file = out
 
         elif type(out) == dict:
-            if out.has_key('file'):
+            if 'file' in out:
                 if type(out['file']) != str:
                     casalog.post( "output filename must be a string", 'SEVERE')
-                    raise Exception, "output filename must be a string"
-                if out.has_key('format'):
+                    raise Exception("output filename must be a string")
+                if 'format' in out:
                     if type(out['format']) != str:
                         casalog.post( "output format must be a string", 'SEVERE')
-                        raise Exception, "output format must be a string"
+                        raise Exception("output format must be a string")
                     output_format = self.__check_fileformat( out['format'] )
                     self.__check_filename( out['file'], False )
                 else:
@@ -390,34 +390,34 @@ class __imview_class(object):
 
             else:
                 casalog.post( "an output dictionary must include a 'file' field", 'SEVERE')
-                raise Exception, "an output dictionary must include a 'file' field"
+                raise Exception("an output dictionary must include a 'file' field")
 
-            if out.has_key('scale'):
+            if 'scale' in out:
                 output_scale = self.__checknumeric(out['scale'], float, "output scale")
 
-            if out.has_key('dpi'):
+            if 'dpi' in out:
                 output_dpi = self.__checknumeric(out['dpi'], int, "output dpi")
                 output_dpi = int(out['dpi'])
 
-            if out.has_key('orientation'):
-                if out.has_key('orient'):
+            if 'orientation' in out:
+                if 'orient' in out:
                     casalog.post( "output dictionary cannot have both 'orient' and 'orientation' fields", 'SEVERE')
-                    raise Exception, "output dictionary cannot have both 'orient' and 'orientation' fields"
+                    raise Exception("output dictionary cannot have both 'orient' and 'orientation' fields")
                 if type(out['orientation']) != str:
                     casalog.post( "output orientation must be a string", 'SEVERE')
-                    raise Exception, "output orientation must be a string"
+                    raise Exception("output orientation must be a string")
                 if out['orientation'] != 'portrait' and out['orientation'] != 'landscape':
                     casalog.post( "output orientation must be either 'portrait' or 'landscape'", 'SEVERE')
-                    raise Exception, "output orientation must be either 'portrait' or 'landscape'"
+                    raise Exception("output orientation must be either 'portrait' or 'landscape'")
                 output_orientation = out['orientation']
 
-            if out.has_key('orient'):
+            if 'orient' in out:
                 if type(out['orient']) != str:
                     casalog.post( "output orient field must be a string", 'SEVERE')
-                    raise Exception, "output orient field must be a string"
+                    raise Exception("output orient field must be a string")
                 if out['orient'] != 'portrait' and out['orient'] != 'landscape':
                     casalog.post( "output orient field must be either 'portrait' or 'landscape'", 'SEVERE')
-                    raise Exception, "output orient field must be either 'portrait' or 'landscape'"
+                    raise Exception("output orient field must be either 'portrait' or 'landscape'")
                 output_orientation = out['orient']
 
         return (output_file, output_format, output_scale, output_dpi, output_orientation)
@@ -426,22 +426,22 @@ class __imview_class(object):
         if array_size is not None:
             if type(array_size) != int:
                 casalog.post( "internal error: array_size is expected to be of type int", 'SEVERE')
-                raise Exception, "internal error: array_size is expected to be of type int"
+                raise Exception("internal error: array_size is expected to be of type int")
             if type(value) != list and not isinstance(value,ndarray):
                 casalog.post( error_string + " must be a list", 'SEVERE')
-                raise Exception, error_string + " must be a list"
+                raise Exception(error_string + " must be a list")
             if array_size > 0 and len(value) != array_size:
                 numbers = { '1': 'one', '2': 'two', '3': 'three' }
                 casalog.post( error_string + " can only be a " + numbers[str(array_size)] + " element numeric list", 'SEVERE')
-                raise Exception, error_string + " can only be a " + numbers[str(array_size)] + " element numeric list"
-            if not all(map( lambda x: type(x) == int or type(x) == float or isinstance(x,float64), value )):
+                raise Exception(error_string + " can only be a " + numbers[str(array_size)] + " element numeric list")
+            if not all([type(x) == int or type(x) == float or isinstance(x,float64) for x in value]):
                 casalog.post( error_string + " must be a numeric list", 'SEVERE')
-                raise Exception, error_string + " must be a numeric list"
-            return map( lambda x: otype(x), value )
+                raise Exception(error_string + " must be a numeric list")
+            return [otype(x) for x in value]
                     
         if type(value) != int and type(value) != float:
             casalog.post( error_string + " must be numeric", 'SEVERE')
-            raise Exception, error_string + " must be numeric"
+            raise Exception(error_string + " must be numeric")
 
         return otype(value)
 
@@ -449,7 +449,7 @@ class __imview_class(object):
         supported_files = [ 'jpg', 'pdf', 'eps', 'ps', 'png', 'xbm', 'xpm', 'ppm' ]
         if supported_files.count(ext.lower( )) == 0:
             casalog.post( "output format '" + str(ext) + "' not supported; supported types are: " + str(supported_files), 'SEVERE')
-            raise Exception, "output format '" + str(ext) + "' not supported; supported types are: " + str(supported_files)
+            raise Exception("output format '" + str(ext) + "' not supported; supported types are: " + str(supported_files))
         return ext.lower( )
 
 
@@ -457,15 +457,15 @@ class __imview_class(object):
         dir = os.path.dirname(out)
         if len(dir) > 0 and not os.path.isdir(dir):
             casalog.post( "output directory (" + str(dir) + ") does not exist", 'SEVERE')
-            raise Exception, "output directory (" + str(dir) + ") does not exist"
+            raise Exception("output directory (" + str(dir) + ") does not exist")
         file = os.path.basename(out)
         if len(file) == 0:
             casalog.post( "could not find a valid file name in '" + str(out) + "'", 'SEVERE')
-            raise Exception, "could not find a valid file name in '" + str(out) + "'"
+            raise Exception("could not find a valid file name in '" + str(out) + "'")
         (base,ext) = os.path.splitext(file)
         if len(ext) == 0:
             casalog.post( "could not infer the ouput type from file name '" + str(file) + "'", 'SEVERE')
-            raise Exception, "could not infer the ouput type from file name '" + str(file) + "'"
+            raise Exception("could not infer the ouput type from file name '" + str(file) + "'")
         return self.__check_fileformat(ext[1:]) if check_extension else ''
 
     def __pushd( self, vwr, newdir ):
@@ -473,14 +473,14 @@ class __imview_class(object):
             old_path = vwr.cwd( )
         except:
             casalog.post( "imview() failed to get the current working directory [" + str(sys.exc_info()[0]) + ": " + str(sys.exc_info()[1]) + "]", 'SEVERE')
-            raise Exception, "imview() failed to get the current working directory [" + str(sys.exc_info()[0]) + ": " + str(sys.exc_info()[1]) + "]"
+            raise Exception("imview() failed to get the current working directory [" + str(sys.exc_info()[0]) + ": " + str(sys.exc_info()[1]) + "]")
 
         self.__dirstack.append(old_path)
         try:
             vwr.cwd(newdir)
         except:
             casalog.post( "imview() failed to change to the new working directory (" + os.path.abspath(os.curdir) + ") [" + str(sys.exc_info()[0]) + ": " + str(sys.exc_info()[1]) + "]", 'SEVERE')
-            raise Exception, "imview() failed to change to the new working directory (" + os.path.abspath(os.curdir) + ") [" + str(sys.exc_info()[0]) + ": " + str(sys.exc_info()[1]) + "]"
+            raise Exception("imview() failed to change to the new working directory (" + os.path.abspath(os.curdir) + ") [" + str(sys.exc_info()[0]) + ": " + str(sys.exc_info()[1]) + "]")
 
 
     def __popd( self, vwr ):
@@ -488,7 +488,7 @@ class __imview_class(object):
             vwr.cwd(self.__dirstack.pop( ))
         except:
             casalog.post( "imview() failed to restore the old working directory (" + old_path + ") [" + str(sys.exc_info()[0]) + ": " + str(sys.exc_info()[1]) + "]", 'SEVERE')
-            raise Exception, "imview() failed to restore the old working directory (" + old_path + ") [" + str(sys.exc_info()[0]) + ": " + str(sys.exc_info()[1]) + "]"
+            raise Exception("imview() failed to restore the old working directory (" + old_path + ") [" + str(sys.exc_info()[0]) + ": " + str(sys.exc_info()[1]) + "]")
 
 
 imview = __imview_class( )

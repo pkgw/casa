@@ -22,7 +22,7 @@ def field2skycat(msname='', skycat='',fieldpattern=''):
             n=n+1
 
     eltype=[]
-    if(c.table.getcolkeyword('PHASE_DIR', 'MEASINFO').has_key('VarRefCol')):
+    if('VarRefCol' in c.table.getcolkeyword('PHASE_DIR', 'MEASINFO')):
         typeid=c.table.getcol(c.table.getcolkeyword('PHASE_DIR', 'MEASINFO')['VarRefCol'])
         for k in range(nfield):
             if (re.match(fieldpattern,nam[k]) != None):

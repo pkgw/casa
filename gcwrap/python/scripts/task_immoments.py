@@ -99,11 +99,11 @@ def immoments(
         # does then we abort.  CASA doesn't allow files to be
         # over-written, just a policy.
         if ( len( outfile ) > 0 and os.path.exists( outfile ) ):
-            raise Exception, 'Output file, '+outfile+\
+            raise Exception('Output file, '+outfile+\
               ' exists. immoment can not proceed, please\n'\
-              'remove it or change the output file name.'
+              'remove it or change the output file name.')
         elif ( len( outfile ) ==  1 ):
-            raise Exception, 'outfile is not specified but must be'
+            raise Exception('outfile is not specified but must be')
         _myia.open(imagename) 
         reg = _rg.frombcs(csys=_myia.coordsys().torecord(),
             shape=_myia.shape(), box=box, chans=chans, stokes=stokes,
@@ -119,9 +119,9 @@ def immoments(
         )
         retValue.done()
         return True
-    except Exception, x:
+    except Exception as x:
         _myia.done()
-        print '*** Error ***: ' + str(x)
+        print('*** Error ***: ' + str(x))
         raise
     finally:
         _myia.done()

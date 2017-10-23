@@ -20,7 +20,7 @@ def qtst(a0, a1, txt='', prec=1e-12):
 	Returns boolean"""
 	result = true
 	if abs(qa.canon(a0)['value'] - qa.canon(a1)['value']) > prec or qa.canon(a0)['unit'] != qa.canon(a1)['unit']: 
-		print 'tmeasures error for',txt,'--',a0,':',a1
+		print('tmeasures error for',txt,'--',a0,':',a1)
 		result = false
 	return result
 
@@ -30,7 +30,7 @@ def vtst(a0, a1, txt='', prec=1e-12):
 	Returns boolean"""
 	result = true
 	if (abs(a0-a1) > prec):
-		print 'tmeasures error for',txt,'--',a0,':',a1
+		print('tmeasures error for',txt,'--',a0,':',a1)
 		result = false;
 	return result
      
@@ -40,7 +40,7 @@ def stst(a0, a1, txt=''):
 	Returns boolean"""
 	result = true
 	if a0 != a1:
-		print 'tmeasures error for',txt,'--',a0,':',a1
+		print('tmeasures error for',txt,'--',a0,':',a1)
 		result = false;
 	return result;
 
@@ -51,7 +51,7 @@ def ttst(a0, txt=''):
 	Returns boolean"""
 	result = true
 	if not a0:
-		print 'tmeasures error for',txt,'--',a0
+		print('tmeasures error for',txt,'--',a0)
 		result = false;
 	return result
 
@@ -61,7 +61,7 @@ def ftst(a0, txt=''):
 	Returns boolean"""
 	result = true
 	if (a0):
-		print 'tmeasures error for',txt,'--',a0
+		print('tmeasures error for',txt,'--',a0)
 		result = false;
 	return result;
 

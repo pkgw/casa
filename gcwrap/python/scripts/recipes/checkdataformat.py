@@ -1,5 +1,5 @@
 # guess what kind (format) of the input data is
-import commands
+import subprocess
 import os
 from  casac import *
 
@@ -23,7 +23,7 @@ def dataformat(dataname):
 
 
     # directory?
-    if(commands.getoutput('file '+dataname).count('directory')):
+    if(subprocess.getoutput('file '+dataname).count('directory')):
         # check for MS, ASDM, scantable..., CASA image, ... 
         # try to ms.open
         try:
@@ -64,11 +64,11 @@ def dataformat(dataname):
             if isASAP:
                 dataformat="ASAP Scantable ver."+ver
 
-            print "%s is appeared to be %s " % (dataname, dataformat)
-    elif(commands.getoutput('file '+dataname).count('text')):
+            print("%s is appeared to be %s " % (dataname, dataformat))
+    elif(subprocess.getoutput('file '+dataname).count('text')):
          dataformat='ASCII'
-    elif(commands.getoutput('file '+dataname).count('FITS')):
-         print "Probably some kind of FITS (e.g. image fits,  uvfits, etc)" 
+    elif(subprocess.getoutput('file '+dataname).count('FITS')):
+         print("Probably some kind of FITS (e.g. image fits,  uvfits, etc)") 
          dataformat='FITS'
 
     return dataformat
@@ -113,7 +113,7 @@ def checkasdm(dname):
         from xml.etree.ElementTree import ElementTree
         rt = ElementTree(file=dname+'/ASDM.xml')
         iter = rt.getiterator()
-        for k, n in iter[1].items():
+        for k, n in list(iter[1].items()):
             if n =='ASDM':
                 isASDM=True
             if k=='schemaVersion':

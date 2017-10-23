@@ -11,9 +11,9 @@ def imsubimage(
     outia = None
     try:
         if (not myia.open(imagename)):
-            raise Exception, "Cannot create image analysis tool using " + imagename
+            raise Exception("Cannot create image analysis tool using " + imagename)
         if (len(outfile) == 0):
-            raise Exception, "outfile must be specified."
+            raise Exception("outfile must be specified.")
         if (type(region) != type({})):
             region = _rg.frombcs(
                 csys=myia.coordsys().torecord(), shape=myia.shape(), box=box,
@@ -24,7 +24,7 @@ def imsubimage(
             overwrite=overwrite, list=verbose, stretch=stretch, keepaxes=keepaxes
         )
         return True
-    except Exception, instance:
+    except Exception as instance:
         casalog.post( str( '*** Error ***') + str(instance), 'SEVERE')
         raise
     finally:

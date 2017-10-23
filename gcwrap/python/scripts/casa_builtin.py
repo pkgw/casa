@@ -5,7 +5,7 @@ from casa_stack_manip import stack_find
 __casa = stack_find('casa')
 
 
-if __casa.has_key('state') and __casa['state'].has_key('init_version') and __casa['state']['init_version'] > 0:
+if 'state' in __casa and 'init_version' in __casa['state'] and __casa['state']['init_version'] > 0:
 
     #### this provides two functions:
     ####      register_builtin(str or [str]) - register builtin values
@@ -47,17 +47,17 @@ if __casa.has_key('state') and __casa['state'].has_key('init_version') and __cas
                     for t in tgts:
                         if not isinstance(t,ast.Attribute) and \
                            not isinstance(t,ast.Subscript):
-                            if __builtins__.has_key(t.id):
+                            if t.id in __builtins__:
                                 raise InputRejected("attempt to modify a python builtin value")
-                            if self.casa_builtins.has_key(t.id):
+                            if t.id in self.casa_builtins:
                                 raise InputRejected("attempt to modify a casa builtin value")
             except InputRejected as ir:
                 raise ir
             except:
-                print "-----------------------------------------------------------------"
-                print "internal error in CASA assignment filter..."
-                print traceback.format_exc()
-                print "-----------------------------------------------------------------"
+                print("-----------------------------------------------------------------")
+                print("internal error in CASA assignment filter...")
+                print(traceback.format_exc())
+                print("-----------------------------------------------------------------")
             return node
         def visit_Lambda(self, node):
             return node
