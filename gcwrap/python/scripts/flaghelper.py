@@ -4498,7 +4498,7 @@ def evalString(cmdline):
     try:
         pairs = cmdline.split()
     except:
-        raise "Whitespace in parameter values is not yet supported"
+        raise Exception("Whitespace in parameter values is not yet supported")
     
     for kv in pairs:
         newval = None

@@ -120,7 +120,7 @@ def _setup_path():
     else :
         raise RuntimeError, "cannot configure CASA tasking system"
     __ld_library_path__ = (lambda fd: fd.readline().strip('\n').split(':'))(_os.popen(_rootdir + "/casapyinfo --exec 'echo $LD_LIBRARY_PATH'"))
-    map(lambda x: _sys.path.append(x),__ld_library_path__)
+    for x in __ld_library_path__: _sys.path.append(x)
 
 _setup_path()
 
