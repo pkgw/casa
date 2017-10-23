@@ -333,7 +333,7 @@ def plotms(vis=None,
                 # start process with procmgr
                 procmgr.create("plotms", [plotmsApp, "--nogui", "--nopopups",
                     "--casapy", "--logfilename="+logfile])
-                if procIsRunning("plotms"):
+                if procIsRunning("plotms"):  # started ok
                     # connect future pm calls to this plotms
                     plotmspid = procmgr.fetch('plotms').pid
                     pm.setPlotmsPid(plotmspid)
@@ -748,7 +748,6 @@ def plotms(vis=None,
         # Update - ready to plot!
         plotUpdated = pm.update()
         if not plotUpdated:
-            checkProcesses()
             casalog.post( "There was a problem updating the plot.", "ERROR")
         else:
             # write file if requested
@@ -763,13 +762,13 @@ def plotms(vis=None,
                         time.sleep(1.0)
                 casalog.post("Exporting the plot.",'NORMAL')
                 plotUpdated = pm.save( plotfile, expformat, highres, dpi, width, height)
-                if not plotUpdated:
-                    checkProcesses()
-    
+
     except Exception, instance:
         plotUpdated = False
         print "Exception during plotms task: ", instance
         
+    if not plotUpdated:
+        checkProcesses() # see if something crashed, log failure
     return plotUpdated
 
 def procIsRunning(procname):
@@ -785,6 +784,7 @@ def procIsRunning(procname):
 
 def checkProcesses():
     if not procIsRunning('plotms'):
-        casalog.post( "Plotms is not running. Check logs for error and run again.", "SEVERE")
+        casalog.post( "plotms has stopped running. Check logs for error and run again.", "SEVERE")
+
     if not procIsRunning('dbus'):
-        casalog.post( "dbus-daemon is not running.  Restart casa.", "SEVERE")
+        casalog.post( "dbus-daemon has stopped running.  Please restart casa.", "SEVERE")
