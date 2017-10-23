@@ -120,12 +120,12 @@ macro( casa_add_tasks module _target )
 
   install( 
     FILES ${_xmls}
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/xml
+    DESTINATION share/casa-python/xml
     )
 
   install( 
     PROGRAMS ${_out_py}
-    DESTINATION lib/python${PYTHONV} 
+    DESTINATION ${PYTHON_TASKD}
     )
 
   # Create tasksinfo.py
@@ -168,7 +168,7 @@ macro( casa_add_tasks module _target )
   add_dependencies( ${module}_fast tasks_fast )
 
   install(
-    PROGRAMS ${_tasks} ${_tasksinfo} DESTINATION lib/python${PYTHONV}
+    PROGRAMS ${_tasks} ${_tasksinfo} DESTINATION ${PYTHON_TASKD}
     )
 endmacro()
 
@@ -323,8 +323,8 @@ macro( casa_add_tools out_swig out_sources out_py )
 
   set(${out_sources} ${${out_sources}} ${_initpy} )
   set(${out_sources} ${${out_sources}} ${_casacpy} )
-  install(FILES ${_initpy} DESTINATION  lib/python${PYTHONV}/__casac__ )
-  install(FILES ${_casacpy} DESTINATION lib/python${PYTHONV} )
+  install(FILES ${_initpy} DESTINATION  ${PYTHON_LIBD}/__casac__ )
+  install(FILES ${_casacpy} DESTINATION ${PYTHON_LIBD} )
   
 endmacro( casa_add_tools )
 

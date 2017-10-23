@@ -1874,7 +1874,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
                 if ((xmin != DBL_MAX) && (xmax != -DBL_MAX)) {
                     xIsUV = true;
                     if (x==PMS::UWAVE || x==PMS::VWAVE) xIsUVwave=true;
-                    maxval = round(max(abs(xmin),xmax)) + 10.0;
+                    maxval = std::round(max(abs(xmin),xmax)) + 10.0;
                     xmin = -maxval;
                     xmax = maxval;
                     xymax = max(xymax, maxval);
@@ -1902,7 +1902,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
                 if (PMS::axisIsUV(y)) {
                     // set range if not all flagged
                     if ((ymin != DBL_MAX) && (ymax != -DBL_MAX)) {
-                        maxval = round(max(abs(ymin),ymax)) + 10.0;
+                        maxval = std::round(max(abs(ymin),ymax)) + 10.0;
                         if (xIsUV) {
                             // set x and y ranges equally
                             xymax = max(xymax, maxval);

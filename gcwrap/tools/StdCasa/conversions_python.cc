@@ -12,6 +12,34 @@
 #include <stdcasa/StdCasa/string_conversions>
 #include <iostream>
 
+#if PY_MAJOR_VERSION >= 3
+# define PYINT_CHECK(x) 0
+# ifndef PyInt_AsLong
+#  define PyInt_AsLong(x) 0
+# endif
+# define PY_INTEGER_FROM_LONG(x) PyLong_FromLong(x)
+# define PYSTRING_FROM_C_STRING PyUnicode_FromString
+# define PYBYTES_CHECK PyBytes_Check
+# define PYBYTES_AS_C_STRING PyBytes_AsString
+# define PYTEXT_CHECK PyUnicode_Check
+# define PYTEXT_TO_CXX_STRING(cxx_string,text_obj) \
+    do { (cxx_string) = std::string(PyUnicode_AsUTF8AndSize((text_obj), NULL)); } while (0)
+#else
+# define PYINT_CHECK(x) PyInt_Check(x)
+# define PY_INTEGER_FROM_LONG(x) PyInt_FromLong(x)
+# define PYSTRING_FROM_C_STRING PyString_FromString
+# define PYBYTES_CHECK PyString_Check
+# define PYBYTES_AS_C_STRING PyString_AsString
+# define PYTEXT_CHECK PyUnicode_Check
+// Below, the string constructor copies the char*, so we can dealloc bytes_obj safely.
+# define PYTEXT_TO_CXX_STRING(cxx_string,text_obj) \
+    do { \
+        PyObject *bytes_obj = PyUnicode_AsUTF8String(text_obj); \
+        (cxx_string) = std::string(PyString_AsString(bytes_obj)); \
+        Py_DECREF(bytes_obj); \
+    } while (0)
+#endif
+
 STRINGTOCOMPLEX_DEFINITION(casac::complex,stringtoccomplex)
 
 #if ( (PY_MAJOR_VERSION <= 1) || (PY_MINOR_VERSION <= 4) )
@@ -283,7 +311,7 @@ static unsigned int initialized_numpy_ = 0;
 inline void initialize_numpy( ) {
     if ( initialized_numpy_ == 0 ) {
 	++initialized_numpy_;
-	import_array( );
+	import_array1();
     }
 }
 int casac::pyarray_check(PyObject *obj) {
@@ -296,15 +324,11 @@ int casac::pyarray_check(PyObject *obj) {
 #define PYLIST2VECTOR_PLACEIT(VECTOR,INDEX,BOOLCVT,INTCVT,DOUBLECVT,COMPLEXCVT,STRINGCVT) \
 {										\
     if (PyBool_Check(ele)) {							\
-										\
 	VECTOR[INDEX] = BOOLCVT( ele == Py_True );				\
-										\
-    } else if (PyInt_Check(ele)) {						\
-										\
+    } else if (PYINT_CHECK(ele)) {						\
 	long l = PyInt_AsLong(ele);						\
 	/*** need range check ***/						\
 	VECTOR[INDEX] = INTCVT( l );						\
-										\
     } else if ( PyLong_Check(ele)) {						\
 	long l_result = PyLong_AsLong(ele);					\
 	PyObject *err = PyErr_Occurred();					\
@@ -329,18 +353,20 @@ int casac::pyarray_check(PyObject *obj) {
     } else if ( PyComplex_Check(ele)) {						\
 	Py_complex c = PyComplex_AsCComplex(ele);				\
 	VECTOR[INDEX] = COMPLEXCVT(c); 						\
-    } else if (PyString_Check(ele)) {						\
-	VECTOR[INDEX] = STRINGCVT(PyString_AsString(ele));			\
-    } else { \
-	    if (PyNumber_Check(ele)){ \
-		    if(!strncmp(ele->ob_type->tp_name, "numpy.int", 9)){ \
-		       VECTOR[INDEX] = INTCVT(PyLong_AsLong(PyNumber_Long(ele)));  		\
-		    }else if(!strncmp(ele->ob_type->tp_name, "numpy.float", 11)){ \
-		       VECTOR[INDEX] = DOUBLECVT(PyFloat_AsDouble(PyNumber_Float(ele)));  		\
-		    } \
-            }										\
-    }										\
-}										\
+    } else if (PYTEXT_CHECK(ele)) {						\
+	std::string tempval; \
+	PYTEXT_TO_CXX_STRING(tempval, ele); \
+	VECTOR[INDEX] = STRINGCVT(tempval); \
+    } else if (PYBYTES_CHECK(ele)) { \
+	VECTOR[INDEX] = STRINGCVT(PYBYTES_AS_C_STRING(ele)); \
+    } else if (PyNumber_Check(ele)){ \
+	if (!strncmp(ele->ob_type->tp_name, "numpy.int", 9)) { \
+	    VECTOR[INDEX] = INTCVT(PyLong_AsLong(PyNumber_Long(ele))); \
+	} else if(!strncmp(ele->ob_type->tp_name, "numpy.float", 11)) {	\
+	    VECTOR[INDEX] = DOUBLECVT(PyFloat_AsDouble(PyNumber_Float(ele))); \
+	} \
+    } \
+}
 
 #define BOOLCVT_INT(cond) (cond ? 1 : 0)
 #define BOOLCVT_BOOL(cond) (cond ? true : false)
@@ -352,8 +378,8 @@ int casac::pyarray_check(PyObject *obj) {
 #define CPXCVT_REAL(val) (val.real)
 
 #define PYLIST2VECTOR(TYPE,BOOLCVT,INTCVT,DOUBLECVT,COMPLEXCVT,STRINGCVT)		\
-int casac::pylist2vector( PyObject *array, std::vector<TYPE> &vec, std::vector<int> &shape, int stride, int offset ) { \
-											\
+int casac::pylist2vector( PyObject *array, std::vector<TYPE> &vec, std::vector<int> &shape, int stride, int offset ) \
+{ \
     if ( PyList_Check(array) || PyTuple_Check(array) ) {				\
 	int number_elements = -1;							\
 	bool list_elements = false;							\
@@ -406,9 +432,7 @@ int casac::pylist2vector( PyObject *array, std::vector<TYPE> &vec, std::vector<i
 				return 0;						\
 		    }									\
 		}									\
-											\
 	    } else {									\
-											\
 		if ( list_elements )							\
 		    return 0;								\
 		if ( singleton_elements == false ) {					\
@@ -440,6 +464,7 @@ PYLIST2VECTOR(casac::complex,DOCOMPLEXCOND,DOCOMPLEX,DOCOMPLEX,CPXCVT_CCPX,strin
 PYLIST2VECTOR(std::string,booltostring BOOLCVT_BOOL,inttostring,doubletostring,complextostring CPXCVT_CPX,CVT_PASS)
 
 namespace casac {
+
 int convert_idl_complex_from_python_complex(PyObject *obj,void *s) {
     if ( PyComplex_Check(obj) ) {
 	casac::complex *to = (casac::complex*) s;
@@ -451,6 +476,7 @@ int convert_idl_complex_from_python_complex(PyObject *obj,void *s) {
     PyErr_SetString( PyExc_TypeError, "not a complex" );
     return 0;
 }
+
 PyObject *convert_idl_complex_to_python_complex(const casac::complex &from) {
     return PyComplex_FromDoubles(from.re,from.im);
 }
@@ -460,7 +486,7 @@ PyObject *convert_idl_complex_to_python_complex(const casac::complex &from) {
 	const std::string &key = (*iter).first;										\
 	const variant &val = (*iter).second;										\
 	PyObject *v = variant2pyobj( val );										\
-	PyDict_SetItem(result, PyString_FromString(key.c_str()), v);							\
+	PyDict_SetItem(result, PYSTRING_FROM_C_STRING(key.c_str()), v);							\
 	Py_DECREF(v);													\
     }															\
 															\
@@ -476,15 +502,11 @@ PyObject *record2pydict(const record &rec) {
 #define PLACEIT(VARIANT,INDEX)							\
 {										\
     if (PyBool_Check(ele)) {							\
-										\
 	VARIANT.place( ele == Py_True ? true : false, INDEX );			\
-										\
-    } else if (PyInt_Check(ele)) {						\
-										\
+    } else if (PYINT_CHECK(ele)) {						\
 	long l = PyInt_AsLong(ele);						\
 	/*** need range check ***/						\
 	VARIANT.place((int)l,INDEX);						\
-										\
     } else if ( PyLong_Check(ele)) {						\
 	long l_result = PyLong_AsLong(ele);					\
 	PyObject *err = PyErr_Occurred();					\
@@ -516,8 +538,12 @@ PyObject *record2pydict(const record &rec) {
 	}else if(!strncmp(ele->ob_type->tp_name, "numpy.float", 11)){ \
 	   VARIANT.place(double(PyFloat_AsDouble(PyNumber_Float(ele))),INDEX);  		\
 	} \
-    } else if (PyString_Check(ele)) {						\
-	VARIANT.place(std::string(PyString_AsString(ele)),INDEX);		\
+    } else if (PYTEXT_CHECK(ele)) {						\
+	std::string tempval; \
+	PYTEXT_TO_CXX_STRING(tempval, ele); \
+	VARIANT.place(tempval,INDEX); \
+    } else if (PYBYTES_CHECK(ele)) { \
+	VARIANT.place(std::string(PYBYTES_AS_C_STRING(ele)), INDEX); \
     }										\
 }										\
 
@@ -718,8 +744,9 @@ FWD_map_array_pylist(std::string)
 //
 // returns non-zero upon success
 //
-static int unmap_array_pylist( PyObject *array, std::vector<int> &shape, casac::variant &vnt, int stride = 1, int offset = 0 ) {
-
+static int
+unmap_array_pylist( PyObject *array, std::vector<int> &shape, casac::variant &vnt, int stride = 1, int offset = 0 )
+{
     if ( PyList_Check(array) || PyTuple_Check(array) ) {
 	int number_elements = -1;
 	bool list_elements = false;
@@ -741,7 +768,7 @@ static int unmap_array_pylist( PyObject *array, std::vector<int> &shape, casac::
 		list_elements = true;
 		if ( number_elements < 0 )
 		    number_elements = element_size;
-                // to allow irregular shaped python list 
+                // to allow irregular shaped python list
                 // (e.g. [[1,2,3],[4]]
 		//if ( element_size != number_elements )
 		//    return 0;
@@ -807,11 +834,9 @@ static int unmap_array_pylist( PyObject *array, std::vector<int> &shape, casac::
 #define PYOBJ2VARIANT(SINGLETON,CREATION,DO_THROW)					\
     if ( PyBool_Check(obj) )								\
 	SINGLETON(obj == Py_True ? true : false );					\
-											\
-    else if ( PyInt_Check(obj) )							\
+    else if ( PYINT_CHECK(obj) )							\
         /*** need range check ***/							\
 	SINGLETON((int) PyInt_AsLong(obj) );						\
-											\
     else if ( PyLong_Check(obj) ) {							\
 	long l_result = PyLong_AsLong(obj);						\
 	PyObject *err = PyErr_Occurred();						\
@@ -831,21 +856,19 @@ static int unmap_array_pylist( PyObject *array, std::vector<int> &shape, casac::
             /*** need range check ***/							\
 	    SINGLETON((int)ll_result );							\
 	}										\
-    }											\
-											\
-    else if ( PyFloat_Check(obj) )							\
+    } else if ( PyFloat_Check(obj) )							\
 	SINGLETON(PyFloat_AsDouble(obj) );						\
-											\
-    else if ( PyString_Check(obj) NOT_NUMPY_ARRAY(obj) )				\
-	SINGLETON(std::string(PyString_AsString(obj)));					\
-											\
+    else if (PYTEXT_CHECK(obj) NOT_NUMPY_ARRAY(obj)) { \
+	std::string tempval; \
+	PYTEXT_TO_CXX_STRING(tempval, obj); \
+	SINGLETON(tempval); \
+    } else if (PYBYTES_CHECK(obj) NOT_NUMPY_ARRAY(obj)) \
+	SINGLETON(std::string(PYBYTES_AS_C_STRING(obj))); \
     else if ( PyComplex_Check(obj) ) {							\
-											\
 	Py_complex c = PyComplex_AsCComplex(obj);					\
 	SINGLETON(std::complex<double>(c.real,c.imag) );				\
 											\
-    }											\
-    else if (PyNumber_Check(obj)) {					\
+    } else if (PyNumber_Check(obj)) {					\
 	if(!strncmp(obj->ob_type->tp_name, "numpy.int", 9)){ \
 	   SINGLETON((int)PyLong_AsLong(PyNumber_Long(obj)));  		\
 	}else if(!strncmp(obj->ob_type->tp_name, "numpy.float", 11)){ \
@@ -856,7 +879,6 @@ static int unmap_array_pylist( PyObject *array, std::vector<int> &shape, casac::
     CREATION										\
 											\
     if (PyList_Check(obj) || PyTuple_Check(obj)) {					\
-											\
 	bool is_list = PyList_Check(obj) ? true : false;				\
 	bool done = false;								\
 											\
@@ -876,20 +898,15 @@ static int unmap_array_pylist( PyObject *array, std::vector<int> &shape, casac::
 	}										\
 											\
 	if ( ! done ) {									\
-											\
 	    for ( int i=0; ( is_list ? i < PyList_Size(obj) : i < PyTuple_Size(obj) ); ++ i) {		\
 		PyObject *ele = is_list ? PyList_GetItem(obj,i) : PyTuple_GetItem(obj, i);              \
 											\
 		if (PyBool_Check(ele)) {						\
-											\
 		    result.push( ele == Py_True ? true : false );			\
-											\
-		} else if (PyInt_Check(ele)) {						\
-											\
+		} else if (PYINT_CHECK(ele)) {						\
 		    long l = PyInt_AsLong(ele);						\
 		    /*** need range check ***/						\
 		    result.push((int)l);						\
-											\
 		} else if ( PyLong_Check(ele)) {					\
 		    long l_result = PyLong_AsLong(ele);					\
 		    PyObject *err = PyErr_Occurred();					\
@@ -914,8 +931,12 @@ static int unmap_array_pylist( PyObject *array, std::vector<int> &shape, casac::
 		} else if ( PyComplex_Check(ele)) {					\
 		    Py_complex c = PyComplex_AsCComplex(ele);				\
 		    result.push(std::complex<double>(c.real, c.imag));			\
-		} else if (PyString_Check(ele)) {					\
-		    result.push(std::string(PyString_AsString(ele)));			\
+		} else if (PYTEXT_CHECK(ele)) { \
+		    std::string tempval; \
+		    PYTEXT_TO_CXX_STRING(tempval, ele); \
+		    result.push(tempval); \
+		} else if (PYBYTES_CHECK(ele)) { \
+		    result.push(std::string(PYBYTES_AS_C_STRING(ele))); \
 		} else if (PyNumber_Check(ele)) {					\
 		    if(!strncmp(ele->ob_type->tp_name, "numpy.int", 9)){ \
 		       result.push((int)PyLong_AsLong(PyNumber_Long(ele)));  		\
@@ -936,16 +957,18 @@ static int unmap_array_pylist( PyObject *array, std::vector<int> &shape, casac::
         MYPYSIZE pos = 0;                                                               \
 	record &rec = result.asRecord( );						\
 	while ( PyDict_Next(obj, &pos, &key, &val) ) {					\
-	    const char *str = 0;							\
+	    std::string str; \
 	    PyObject *strobj = 0;							\
-	    if (PyString_Check(key)) {							\
-		str = PyString_AsString(key);						\
+	    if (PYTEXT_CHECK(key)) {							\
+		PYTEXT_TO_CXX_STRING(str, key); \
+	    } else if (PYBYTES_CHECK(key)) {					\
+		str = std::string(PYBYTES_AS_C_STRING(key));		\
 	    } else {									\
-		strobj = PyObject_Str(key);						\
-		str = PyString_AsString(strobj);					\
+		strobj = PyObject_Bytes(key);						\
+		str = std::string(PYBYTES_AS_C_STRING(strobj));		\
 	    }										\
-            if(PyBool_Check(val) || PyInt_Check(val) || PyLong_Check(val) ||            \
-               PyFloat_Check(val) || PyString_Check(val) || PyComplex_Check(val) ||     \
+            if(PyBool_Check(val) || PYINT_CHECK(val) || PyLong_Check(val) || \
+               PyFloat_Check(val) || PYTEXT_CHECK(val) || PYBYTES_CHECK(val) || PyComplex_Check(val) ||     \
                PyList_Check(val) || PyTuple_Check(val) || PyDict_Check(val) ||          \
                (casac::pyarray_check(val) &&                                            \
                 (PyArray_TYPE((PyArrayObject*)val) == NPY_BOOL ||                       \
@@ -1035,13 +1058,13 @@ static PyObject *map_array_pylist( const std::vector<TYPE> &vec, const std::vect
     return result;										\
 }
 
-ARRAY2PYOBJ(int,PyInt_FromLong(val),PyInt_FromLong(*iter),,)
-ARRAY2PYOBJ(unsigned int,PyInt_FromLong(val),PyInt_FromLong(*iter),,)
+ARRAY2PYOBJ(int,PY_INTEGER_FROM_LONG(val),PY_INTEGER_FROM_LONG(*iter),,)
+ARRAY2PYOBJ(unsigned int,PY_INTEGER_FROM_LONG(val),PY_INTEGER_FROM_LONG(*iter),,)
 ARRAY2PYOBJ(bool,(val == 0 ? Py_False : Py_True); Py_INCREF(ele),(*iter == false ? Py_False : Py_True),Py_INCREF(vec_val);,)
 ARRAY2PYOBJ(double,PyFloat_FromDouble(val),PyFloat_FromDouble(*iter),,)
 ARRAY2PYOBJ(std::complex<double> ,PyComplex_FromDoubles(val.real(),val.imag()),PyComplex_FromDoubles(cpx.real(),cpx.imag()),,std::complex<double> cpx = *iter;)
 ARRAY2PYOBJ(casac::complex ,PyComplex_FromDoubles(val.re,val.im),PyComplex_FromDoubles(cpx.re,cpx.im),,casac::complex cpx = *iter;)
-ARRAY2PYOBJ(std::string,PyString_FromString(val.c_str()),PyString_FromString((*iter).c_str()),,)
+ARRAY2PYOBJ(std::string,PYSTRING_FROM_C_STRING(val.c_str()),PYSTRING_FROM_C_STRING((*iter).c_str()),,)
 
 #define HANDLEVEC2(TYPE,FETCH)												\
 {															\
@@ -1080,13 +1103,13 @@ ARRAY2PYOBJ(std::string,PyString_FromString(val.c_str()),PyString_FromString((*i
 		break;													\
 		}													\
 	    case variant::INT:												\
-		result = PyInt_FromLong(val.toInt());									\
+		result = PY_INTEGER_FROM_LONG(val.toInt());									\
 		break;													\
-        case variant::UINT:                                             \
-        result = PyInt_FromLong(val.touInt());                          \
-        break;                                                          \
+            case variant::UINT:                                             \
+		result = PY_INTEGER_FROM_LONG(val.touInt());		\
+		break;							\
 	    case variant::LONG:												\
-		result = PyInt_FromLong(val.toLong());									\
+		result = PY_INTEGER_FROM_LONG(val.toLong());									\
 		break;													\
 	    case variant::DOUBLE:											\
 		result = PyFloat_FromDouble(val.toDouble());								\
@@ -1098,30 +1121,22 @@ ARRAY2PYOBJ(std::string,PyString_FromString(val.c_str()),PyString_FromString((*i
 		break;													\
 		}													\
 	    case variant::STRING:											\
-		result = PyString_FromString(val.toString().c_str());							\
+		result = PYSTRING_FROM_C_STRING(val.toString().c_str());							\
 		break;													\
-															\
 	    case variant::BOOLVEC:											\
 		HANDLEVEC2(bool,getBoolVec)										\
-															\
 	    case variant::INTVEC:											\
 		HANDLEVEC2(int,getIntVec)										\
-															\
-        case variant::UINTVEC:                                          \
-        HANDLEVEC2(unsigned int,getuIntVec)                             \
-                                                                        \
+            case variant::UINTVEC:                                          \
+		HANDLEVEC2(unsigned int,getuIntVec)			\
 	    case variant::LONGVEC:											\
 		HANDLEVEC2(long long,getLongVec)										\
-															\
 	    case variant::DOUBLEVEC:											\
 		HANDLEVEC2(double,getDoubleVec)										\
-															\
 	    case variant::COMPLEXVEC:											\
 		HANDLEVEC2(std::complex<double>,getComplexVec) 								\
-															\
 	    case variant::STRINGVEC:											\
 		HANDLEVEC2(std::string,getStringVec)									\
-															\
 	    default:													\
 		fprintf( stderr, "encountered unknown variant type in pyobj2variant()!\n" );				\
 	}

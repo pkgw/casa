@@ -20,6 +20,9 @@
 
 cmake_minimum_required( VERSION 2.8 )
 
+cmake_policy(SET CMP0056 NEW)
+cmake_policy(SET CMP0066 NEW)
+
 # ccache use is optional
 option( UseCcache OFF )
 
@@ -32,8 +35,6 @@ if (UseCcache)
         set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
     endif(CCACHE_FOUND)
 endif()
-
-add_definitions ("-DUseCasacoreNamespace")
 
 set( CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/install )
 
@@ -71,7 +72,7 @@ include( CASA )
 set( CASA_VERSION_MAJOR   5   )
 set( CASA_VERSION_MINOR   1   )
 set( CASA_VERSION_PATCH   1   )
-set( CASA_VERSION_FEATURE 0 CACHE STRING "feature version" )
+set( CASA_VERSION_FEATURE 1 )
 set( CASA_VERSION_DESC    "" )
 
 if( CASA_VERSION_FEATURE STREQUAL "0" )
@@ -556,13 +557,8 @@ endif()
 
 set( CMAKE_MODULE_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS} )
 
-if( NOT CMAKE_CXX_FLAGS )
-  set( CMAKE_CXX_FLAGS "${DEFAULT_CXX_FLAGS} ${EXTRA_CXX_FLAGS}" )
-endif()
-
-if( NOT CMAKE_C_FLAGS )
-  set( CMAKE_C_FLAGS "${DEFAULT_C_FLAGS} ${EXTRA_C_FLAGS}" )
-endif()
+set( CMAKE_CXX_FLAGS "${DEFAULT_CXX_FLAGS} ${EXTRA_CXX_FLAGS}" )
+set( CMAKE_C_FLAGS "${DEFAULT_C_FLAGS} ${EXTRA_C_FLAGS}" )
 
 if( NOT RE_CMAKE )
     if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -576,18 +572,7 @@ dump( CMAKE_INSTALL_PREFIX )
 
 SET(NO_SOVERSION FALSE CACHE BOOL "do not add version information to shared libraries")
 if( NOT NO_SOVERSION )
-    set( epochdelta 1385614800 )
-    if ( EXISTS ${CMAKE_INSTALL_PREFIX}/${arch}/casa_sover.txt )
-        execute_process( COMMAND perl -e "while (<>) { chomp and print if (! m/^\#/ ) }" ${CMAKE_INSTALL_PREFIX}/${arch}/casa_sover.txt
-                         OUTPUT_VARIABLE __casa_soversion )
-    elseif( EXISTS ${CMAKE_INSTALL_PREFIX}/casa_sover.txt )
-        execute_process( COMMAND perl -e "while (<>) { chomp and print if (! m/^#/ ) }" ${CMAKE_INSTALL_PREFIX}/casa_sover.txt
-                         OUTPUT_VARIABLE __casa_soversion )
-    else( )
-        execute_process( COMMAND perl -e "$t=time( )-${epochdelta};$z=$t & 0xff; $y=($t>>8)&0xff; $x=($t>>16)&0xffff; print \"$x.$y.$z\""
-                         OUTPUT_VARIABLE __casa_soversion )
-    endif( )
-    set(casa_soversion ${__casa_soversion} CACHE STRING "version for shared objects")
+    set(casa_soversion "50.0.0" CACHE STRING "version for shared objects")
     message( STATUS "Shared object version number ${casa_soversion}" )
 else( )
     message( STATUS "User disabled shared library versioning" )
@@ -1055,12 +1040,11 @@ endif()
 casa_find( CASACORE
            VERSION 2.0.2
            PREFIX_HINTS ${CASACORE_ROOT_DIR} ${Boost_INCLUDE_DIR}
-           DEFINITIONS "-DUseCasacoreNamespace"
            INCLUDES casa/aips.h
                     casa/version.h
                     scimath/Mathematics/MatrixMathLA.h  # declares symbols defined in LAPACK
            INCLUDES_SUFFIXES casacore
-           LIBS ${casacore_libs}
+           LIBS ${casacore_libs} pthread
            PREFIX_HINTS ${casacore_prefix}
            CPP_VERSION CASACORE_VERSION
            RUN_VERSION "casacore::getVersionCASA()"
@@ -1118,12 +1102,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL Linux AND GSL_LIBRARIES)
         set( Boost_LIBRARIES "${GSL_LIBRARIES};/usr/lib64/atlas/libsatlas.so" )
     endif( )
 endif( )
-
-# Java
-casa_find( Java
-  VERSION 1.5
-  PROGRAMS java
-  PROG_VERSION "-version")
 
 if ( ${dbusxx} STREQUAL dbus-c++ )
   # C++ DBus
@@ -1344,7 +1322,7 @@ casa_find( RPFITS
 casa_find( READLINE
   VERSION 4.3
   INCLUDES readline/readline.h #depends on <cstdio> to compile
-  LIBS readline ncurses
+  LIBS readline ncursesw
   PREFIX_HINTS ${READLINE_ROOT_DIR}
   CPP_VERSION "RL_VERSION_MAJOR << '.' << RL_VERSION_MINOR"
   RUN_VERSION rl_library_version

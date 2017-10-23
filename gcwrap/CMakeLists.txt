@@ -21,6 +21,9 @@
 
 cmake_minimum_required( VERSION 2.8 )
 
+cmake_policy(SET CMP0056 NEW)
+cmake_policy(SET CMP0066 NEW)
+
 # ccache use is optional
 option( UseCcache OFF )
 
@@ -35,8 +38,6 @@ if (UseCcache)
 endif()
 
 set( CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/install )
-
-add_definitions ("-DUseCasacoreNamespace")
 
 execute_process( COMMAND svn info
                    RESULT_VARIABLE SVNINFOSTATUS
@@ -510,15 +511,14 @@ else()
     message( WARNING "Unsupported system: ${CMAKE_SYSTEM_NAME}" )
 endif()
 
+if(CASA_PACKAGES)
+  set( casa_packages "${CASA_PACKAGES}" )
+endif()
+
 set( CMAKE_MODULE_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS} )
 
-if( NOT CMAKE_CXX_FLAGS )
-  set( CMAKE_CXX_FLAGS "${DEFAULT_CXX_FLAGS} ${EXTRA_CXX_FLAGS}" )
-endif()
-
-if( NOT CMAKE_C_FLAGS )
-  set( CMAKE_C_FLAGS "${DEFAULT_C_FLAGS} ${EXTRA_C_FLAGS}" )
-endif()
+set( CMAKE_CXX_FLAGS "${DEFAULT_CXX_FLAGS} ${EXTRA_CXX_FLAGS}" )
+set( CMAKE_C_FLAGS "${DEFAULT_C_FLAGS} ${EXTRA_C_FLAGS}" )
 
 if( NOT RE_CMAKE )
     if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -531,18 +531,7 @@ dump( casaroot )
 dump( CMAKE_INSTALL_PREFIX )
 SET(NO_SOVERSION FALSE CACHE BOOL "do not add version information to shared libraries")
 if( NOT NO_SOVERSION )
-    set( epochdelta 1385614800 )
-    if ( EXISTS ${CMAKE_INSTALL_PREFIX}/${arch}/casa_sover.txt )
-        execute_process( COMMAND perl -e "while (<>) { chomp and print if (! m/^\#/ ) }" ${CMAKE_INSTALL_PREFIX}/${arch}/casa_sover.txt
-                         OUTPUT_VARIABLE __casa_soversion )
-    elseif( EXISTS ${CMAKE_INSTALL_PREFIX}/casa_sover.txt )
-        execute_process( COMMAND perl -e "while (<>) { chomp and print if (! m/^#/ ) }" ${CMAKE_INSTALL_PREFIX}/casa_sover.txt
-                         OUTPUT_VARIABLE __casa_soversion )
-    else( )
-        execute_process( COMMAND perl -e "$t=time( )-${epochdelta};$z=$t & 0xff; $y=($t>>8)&0xff; $x=($t>>16)&0xffff; print \"$x.$y.$z\""
-                         OUTPUT_VARIABLE __casa_soversion )
-    endif( )
-    set(casa_soversion ${__casa_soversion} CACHE STRING "version for shared objects")
+    set(casa_soversion "47.0.0" CACHE STRING "version for shared objects")
     message( STATUS "Shared object version number ${casa_soversion}" )
 else( )
     message( STATUS "User disabled shared library versioning" )
@@ -832,7 +821,6 @@ endif()
 casa_find( CASACORE
            VERSION 2.0.1
            PREFIX_HINTS ${CASACORE_ROOT_DIR}
-           DEFINITIONS "-DUseCasacoreNamespace"
            INCLUDES casa/aips.h
                     casa/version.h
                     scimath/Mathematics/MatrixMathLA.h  # declares symbols defined in LAPACK
@@ -934,8 +922,7 @@ endif()
 if( NOT PYTHON_FOUND )
 
   if ( NOT PYTHON_LIBNAME )
-    set( _names 2.7 2.6 2.5.2 2.5 )
-    # (The library named libpython.2.5.2.dylib seems to exist only in the CASA world.)
+    set( _names 3.6m 3.5m 3.4m 2.7 )
   else()
     set( _names ${PYTHON_LIBNAME} )
   endif()
@@ -969,7 +956,8 @@ if( NOT PYTHON_LIBNAME )
   message( FATAL_ERROR "The variable PYTHON_LIBNAME is undefined. Most likely, CMake's cache is out of date and you need to redetect your PYTHON installation (\"cmake -U PYTHON*\")")
 endif()
 
-string( SUBSTRING ${PYTHON_LIBNAME} 0 3 PYTHONV )
+# PYTHON_LIBNAME might be "3.6m" ; PYTHONV might be "3.6"; PV might be "36"
+string( REGEX REPLACE "m$" "" PYTHONV "${PYTHON_LIBNAME}" )
 string( REPLACE "." "" PV ${PYTHONV} )
 set( python_library python${PYTHON_LIBNAME} )
 
@@ -1012,7 +1000,7 @@ casa_find( PYTHON
   VERSION 2.5    # minimum required
   INCLUDES Python.h
      numpy/npy_interrupt.h   # for numpy
-  INCLUDES_SUFFIXES python${PYTHONV}
+  INCLUDES_SUFFIXES python${PYTHON_LIBNAME}
   PREFIX_HINTS
      ${NUMPY_ROOT_DIR}
      ${python_prefix}/lib/python${PYTHONV}/site-packages/numpy/core
@@ -1330,7 +1318,7 @@ casa_find( RPFITS
 casa_find( READLINE
   VERSION 4.3
   INCLUDES readline/readline.h #depends on <cstdio> to compile
-  LIBS readline ncurses
+  LIBS readline ncursesw
   PREFIX_HINTS ${READLINE_ROOT_DIR}
   CPP_VERSION "RL_VERSION_MAJOR << '.' << RL_VERSION_MINOR"
   RUN_VERSION rl_library_version
@@ -1343,8 +1331,11 @@ casa_config_end()
 #
 # The following variables are substitued into python scripts
 #
-set( PYTHON_LIBD ${CMAKE_INSTALL_PREFIX}/python/${PYTHONV} )
-set( PYTHON_TASKD ${PYTHON_LIBD} )
+# XXX: we are injecting the assumption that the `python` in $PATH is
+# the one we want.
+execute_process(COMMAND python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())" OUTPUT_VARIABLE PYTHON_LIBD)
+STRING(STRIP "${PYTHON_LIBD}" PYTHON_LIBD)
+set( PYTHON_TASKD share/casa-python/tasks )
 #
 # allow user to override contents of casadef.py (needed for linux rpms)
 #
@@ -1455,6 +1446,6 @@ install( FILES
          install/casa2tlatex.xsl
          install/casa2tsum.xsl
          install/casatlist.xsl
-         DESTINATION ${CMAKE_INSTALL_PREFIX}/xml )
+         DESTINATION share/casa-python/xml )
 
 install( FILES install/saxon8.jar DESTINATION lib )
