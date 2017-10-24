@@ -45,6 +45,17 @@ def _handle_image_params(imsize, cell, phasecenter):
     _cell = cell
     _phasecenter = phasecenter
     return _imsize, _cell, _phasecenter
+
+def _calc_pblimit(minweight):
+    if minweight == 0.0:
+        # set tiny value
+        pblimit = 1e-16
+    else:
+        pblimit = minweight
+        
+    # disable pixel mask by pblimit
+    pblimit = 1e-16 
+    return pblimit
    
 def _get_param(ms_index, param):
     if isinstance(param, str):
@@ -352,6 +363,9 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
         # handle image parameters
         _imsize, _cell, _phasecenter = _handle_image_params(imsize, cell, phasecenter)
         
+        # calculate pblimit from minweight
+        pblimit = _calc_pblimit(minweight)
+        
         ## (2) Set up Input Parameters 
         ##       - List all parameters that you need here
         ##       - Defaults will be assumed for unspecified parameters
@@ -395,7 +409,7 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
             clipminmax=clipminmax,
             # normalizer
             normtype='flatsky',
-            pblimit=1e-16
+            pblimit=pblimit
         )
         
         # TODO: hadnle ephemsrcname
@@ -475,5 +489,5 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
                   _restfreq, gridfunction, convsupport, truncate, gwidth, jwidth)
     
     # mask low weight pixels 
-    #weightimage = outfile + weight_suffix
-    #do_weight_mask(imagename, weightimage, minweight)
+    weightimage = outfile + weight_suffix
+    do_weight_mask(imagename, weightimage, minweight)
