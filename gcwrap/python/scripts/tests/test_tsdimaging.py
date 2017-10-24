@@ -1121,12 +1121,14 @@ class sdimaging_autocoord(sdimaging_unittest_base):
         (4) image direction axis
         """
         res=sdimaging(**task_param)
-        outfile = task_param['outfile']
+        #outfile = task_param['outfile']
+        outprefix = task_param['outfile']
+        outfile = outprefix + image_suffix
         # Tests
         self.assertEqual(res,None,
                          msg='Any error occurred during imaging')
         self._checkfile(outfile)
-        self._checkfile(outfile+".weight")
+        self._checkfile(outprefix+".weight")
         self._checkshape(outfile,shape[0],shape[1],shape[2],shape[3])
         self._checkdirax(outfile,dirax[0], dirax[1], dirax[2])
 
