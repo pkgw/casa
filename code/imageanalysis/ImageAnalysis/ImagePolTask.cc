@@ -279,8 +279,8 @@ SPIIF ImagePolTask::_makeSubImage(
 
 void ImagePolTask::_setDoLinDoCirc(Bool& doLin, Bool& doCirc) const {
     *_getLog() << LogOrigin("ImagePolTask", __func__, WHERE);
-    doLin = ! _stokesImage[Q] && ! _stokesImage[U];
-    doCirc = ! _stokesImage[V];
+    doLin = _stokesImage[Q] && _stokesImage[U];
+    doCirc = Bool(_stokesImage[V]);
     AlwaysAssert((doLin||doCirc), AipsError);    // Should never happen
     if (! _stokesImage[I]) {
         *_getLog() << "This image does not have Stokes I so this calculation cannot be carried out"

@@ -15,11 +15,12 @@
 #include <casa/Containers/Record.h>
 #include <casa/Exceptions/Error.h>
 #include <casa/Logging/LogIO.h>
-#include <images/Images/ImageInterface.h>
 #include <images/Images/ImageUtilities.h>
 #include <images/Images/ImageExpr.h>
-#include <imageanalysis/ImageAnalysis/ImagePolProxy.h>
+
 #include <imageanalysis/ImageAnalysis/ImageFactory.h>
+#include <imageanalysis/ImageAnalysis/ImagePolProxy.h>
+#include <imageanalysis/ImageAnalysis/ImageTotalPolarization.h>
 
 #include <casa/namespace.h>
 
@@ -368,7 +369,7 @@ image *
 imagepol::pol(const std::string& which, const bool debias, const double clip, const double sigma, const std::string& outfile)
 {
   try{
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
+    *itsLog << LogOrigin("imagepol", __func__);
     if(itsImPol==0){
       *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
 	      << LogIO::POST;
@@ -382,8 +383,17 @@ imagepol::pol(const std::string& which, const bool debias, const double clip, co
       rstat = itsImPol->linPolInt(out,debias,Float(clip),
 				  Float(sigma),String(outfile));
     } else if (type=="TPI") {
+        ImageTotalPolarization itp(
+            itsImPol->getImage(), outfile, False
+        );
+        itp.setClip(clip);
+        itp.setSigma(sigma);
+        itp.setDebias(debias);
+        return new image(itp.compute());
+        /*
       rstat = itsImPol->totPolInt(out,debias,Float(clip),
 				  Float(sigma),String(outfile));
+				  */
     } else if (type=="LPPA") {
       rstat = itsImPol->linPolPosAng(out,String(outfile));
     } else if (type=="FLP") {
@@ -862,16 +872,24 @@ imagepol::summary()
   return rstat;
 }
 
-image *
-imagepol::totpolint(const bool debias, const double clip, const double sigma, const std::string& outfile)
-{
-  try{
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
-    if(itsImPol==0){
-      *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
-	      << LogIO::POST;
-      return 0;
-    }
+image* imagepol::totpolint(
+    const bool debias, const double clip, const double sigma, const std::string& outfile
+) {
+    try{
+        *itsLog << LogOrigin("imagepol", __func__);
+        if(! itsImPol){
+            *itsLog << LogIO::SEVERE <<"No attached image, please use open "
+                << LogIO::POST;
+            return nullptr;
+        }
+        ImageTotalPolarization itp(
+            itsImPol->getImage(), outfile, False
+        );
+        itp.setClip(clip);
+        itp.setSigma(sigma);
+        itp.setDebias(debias);
+        return new image(itp.compute());
+    /*
     ImageInterface<Float> *out;
     Bool rstat(false);
     rstat = itsImPol->totPolInt(out,debias,Float(clip),
@@ -882,11 +900,12 @@ imagepol::totpolint(const bool debias, const double clip, const double sigma, co
     else {
       throw(AipsError("could not attach totpolint image"));
     }
-    } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
-    RETHROW(x);
-  }
-
+    */
+    }
+    catch (const AipsError& x) {
+        *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
+        RETHROW(x);
+    }
 }
 
 } // casac namespace
