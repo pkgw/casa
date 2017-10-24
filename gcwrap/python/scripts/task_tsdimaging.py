@@ -8,7 +8,7 @@ import functools
 
 from taskinit import casalog, gentools, qatool
 
-# import sdutil
+import sdutil
 import sdbeamutil
 from cleanhelper import cleanhelper
 
@@ -34,6 +34,17 @@ def _handle_grid_defaults(value):
     elif isinstance(value, str):
         ret = value
     return ret
+
+def _handle_image_params(imsize, cell, phasecenter):
+    _imsize = sdutil._to_list(imsize, int) or sdutil._to_list(imsize, numpy.integer)
+    if _imsize is None:
+        _imsize = imsize if hasattr(imsize, '__iter__') else [ imsize ]
+        _imsize = [ int(numpy.ceil(v)) for v in _imsize ]
+        casalog.post("imsize is not integers. force converting to integer pixel numbers.", priority="WARN")
+        casalog.post("rounded-up imsize: %s --> %s" % (str(imsize), str(_imsize)))
+    _cell = cell
+    _phasecenter = phasecenter
+    return _imsize, _cell, _phasecenter
    
 def _get_param(ms_index, param):
     if isinstance(param, str):
@@ -338,6 +349,9 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
         ggwidth = _handle_grid_defaults(gwidth)
         gjwidth = _handle_grid_defaults(jwidth)
         
+        # handle image parameters
+        _imsize, _cell, _phasecenter = _handle_image_params(imsize, cell, phasecenter)
+        
         ## (2) Set up Input Parameters 
         ##       - List all parameters that you need here
         ##       - Defaults will be assumed for unspecified parameters
@@ -361,9 +375,9 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
             outframe=outframe,
             veltype=veltype,
             restfreq=_restfreq,
-            phasecenter=phasecenter,#'J2000 17:18:29 +59.31.23',
-            imsize=imsize,#[75,75], 
-            cell=cell,#['3arcmin', '3arcmin'], 
+            phasecenter=_phasecenter,#'J2000 17:18:29 +59.31.23',
+            imsize=_imsize,#[75,75], 
+            cell=_cell,#['3arcmin', '3arcmin'], 
             projection=projection,
             stokes=stokes,
             # fix specmode to 'cubedata'
