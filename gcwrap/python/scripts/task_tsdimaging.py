@@ -47,6 +47,111 @@ def open_table(vis):
     finally:
         tb.close()
         
+class SelectionHandler(object):
+    def __init__(self, sel):
+        self.sel = sel
+        if isinstance(self.sel, str):
+            self.selector = self._select0
+        elif len(self.sel) == 0:
+            self.selector = self._select1
+        else:
+            self.selector = self._select2
+    
+    def __call__(self, i):
+        return self.selector(i)
+        
+    def _select0(self, i):
+        return self.sel
+
+    def _select1(self, i):
+        return self.sel[0]
+    
+    def _select2(self, i):
+        return self.sel[i]
+    
+class OldImagerBasedTools(object):
+    def __init__(self):
+        self.imager = gentools(['im'])[0]
+        
+    @contextlib.contextmanager    
+    def open_old_imager(self, vis):
+        try:
+            self.imager.open(vis)
+            yield self.imager
+        finally:
+            self.imager.close()
+            
+    @contextlib.contextmanager
+    def open_and_select_old_imager(self, vislist, field, spw, antenna, scan, intent):
+        if isinstance(vislist, str):
+            with self.open_old_imager(vislist) as im:
+                im.selectvis(field=field,
+                             spw=spw,
+                             nchan=-1,
+                             start=0,
+                             step=1,
+                             baseline=antenna,
+                             scan=scan,
+                             intent=intent)
+                yield im
+        else:
+            fieldsel = SelectionHandler(field)
+            spwsel = SelectionHandler(spw)
+            antennasel = SelectionHandler(antenna)
+            scansel = SelectionHandler(scan)
+            intentsel = SelectionHandler(intent)
+            try:
+                for i in xrange(len(vislist)):
+                    vis = vislist[i]
+                    _field = fieldsel(i)
+                    _spw = spwsel(i)
+                    _antenna = antennasel(i)
+                    _scan = scansel(i)
+                    _intent = intentsel(i)
+                    if len(_antenna) == 0:
+                        _baseline = _antenna
+                    elif len(_antenna) < 4 or _antenna[:-3] != '&&&':
+                        _baseline = _antenna + '&&&'
+                    else:
+                        _baseline = _antenna
+                    self.imager.selectvis(vis, field=_field, spw=_spw, nchan=-1, start=0, step=1,
+                                          baseline=_baseline, scan=_scan, intent=_intent)
+                yield self.imager
+            finally:
+                self.imager.close()
+        
+    def test(self, vis):
+        with self.open_old_imager(vis) as im:
+            print 'test'
+            raise RuntimeError('ERROR!')
+        
+    def get_pointing_sampling_params(self, vis, field, spw, baseline, scan, intent, outref, movingsource, pointingcolumntouse, antenna_name):
+        with self.open_old_imager(vis) as im:
+            im.selectvis(field=field,
+                        spw=spw,
+                        nchan=-1,
+                        start=0,
+                        step=1,
+                        baseline=baseline,
+                        scan=scan,
+                        intent=intent)
+            sampling_params = im.pointingsampling(pattern='raster',
+                                                ref=outref,
+                                                movingsource=movingsource,
+                                                pointingcolumntouse=pointingcolumntouse,
+                                                antenna='{0}&&&'.format(antenna_name))
+        return sampling_params
+    
+    def get_map_extent(self, vislist, field, spw, antenna, scan, intent, 
+                       ref, movingsource, pointingcolumntouse):
+        
+        with self.open_and_select_old_imager(vislist=vislist, field=field,
+                                             spw=spw, antenna=antenna, scan=scan, 
+                                             intent=intent) as im:
+            map_param = im.mapextent(ref=ref, movingsource=movingsource, 
+                                     pointingcolumntouse=pointingcolumntouse)
+        return map_param
+
 def _configure_spectral_axis(mode, nchan, start, width, restfreq):
     # TODO: implement the function
     imnchan = nchan
@@ -100,7 +205,83 @@ def _calc_PB(vis, antenna_id, restfreq):
     casalog.post("PB size = %5.3f * lambda/D = %s" % (pb_factor, my_qa.tos(PB)))
     return PB
 
-def _handle_image_params(imsize, cell, phasecenter, vislist, antenna, restfreq):
+def _get_imsize(width, height, dx, dy):
+    casalog.post("Calculating pixel size.")
+    # CAS-5410 Use private tools inside task scripts
+    my_qa = qatool()
+    ny = numpy.ceil( ( my_qa.convert(height, my_qa.getunit(dy))['value'] /  \
+                       my_qa.getvalue(dy) ) )
+    nx = numpy.ceil( ( my_qa.convert(width, my_qa.getunit(dx))['value'] /  \
+                       my_qa.getvalue(dx) ) )
+    casalog.post("- Map extent: [%s, %s]" % (my_qa.tos(width), my_qa.tos(height)))
+    casalog.post("- Cell size: [%s, %s]" % (my_qa.tos(dx), my_qa.tos(dy)))
+    casalog.post("Image pixel numbers to cover the extent: [%d, %d] (projected)" % \
+                 (nx+1, ny+1))
+    return (int(nx+1), int(ny+1))
+
+def _get_pointing_extent(phasecenter, vislist, field, spw, antenna, scan, intent, 
+                         pointingcolumntouse, ephemsrcname):
+    ### MS selection is ignored. This is not quite right.
+    casalog.post("Calculating map extent from pointings.")
+    # CAS-5410 Use private tools inside task scripts
+    my_qa = qatool()
+    ret_dict = {}
+    
+    if isinstance(vislist, str):
+        vis = vislist
+    else:
+        vis = vislist[0]
+    
+    colname = pointingcolumntouse.upper()
+
+    if phasecenter == "":
+        # defaut is J2000
+        base_mref = 'J2000'
+    elif isinstance(phasecenter, int) or phasecenter.isdigit():
+        # may be field id
+        with open_table(os.path.join(vis, 'FIELD')) as tb:
+            base_mref = tb.getcolkeyword('PHASE_DIR', 'MEASINFO')['Ref']
+    else:
+        # may be phasecenter is explicitly specified
+        pattern = '^([\-\+]?[0-9.]+([eE]?-?[0-9])?)|([\-\+]?[0-9][:h][0-9][:m][0-9.]s?)|([\-\+]?[0-9][.d][0-9][.d][0-9.]s?)$'
+        items = phasecenter.split()
+        base_mref = 'J2000'
+        for i in items:
+            s = i.strip()
+            if re.match(pattern, s) is None:
+                base_mref = s
+                break
+
+    t = OldImagerBasedTools()
+    mapextent = t.get_map_extent(vislist, field, spw, antenna, scan, intent, 
+                                 ref=base_mref, movingsource=ephemsrcname, 
+                                 pointingcolumntouse=pointingcolumntouse)
+    #mapextent = self.imager.mapextent(ref=base_mref, movingsource=ephemsrcname, 
+    #                                  pointingcolumntouse=colname)
+    if mapextent['status'] is True:
+        qheight = my_qa.quantity(mapextent['extent'][1], 'rad')
+        qwidth = my_qa.quantity(mapextent['extent'][0], 'rad')
+        qcent0 = my_qa.quantity(mapextent['center'][0], 'rad')
+        qcent1 = my_qa.quantity(mapextent['center'][1], 'rad')
+        scenter = '%s %s %s'%(base_mref, my_qa.formxxx(qcent0, 'hms'), 
+                              my_qa.formxxx(qcent1, 'dms'))
+
+        casalog.post("- Pointing center: %s" % scenter)
+        casalog.post("- Pointing extent: [%s, %s] (projected)" % (my_qa.tos(qwidth), \
+                                                              my_qa.tos(qheight)))
+        ret_dict['center'] = scenter
+        ret_dict['width'] = qwidth
+        ret_dict['height'] = qheight
+    else:
+        casalog.post('Failed to derive map extent from the MSs registered to the imager probably due to mising valid data.', priority='SEVERE')
+        ret_dict['center'] = ''
+        ret_dict['width'] = my_qa.quantity(0.0, 'rad')
+        ret_dict['height'] = my_qa.quantity(0.0, 'rad')
+    return ret_dict
+
+def _handle_image_params(imsize, cell, phasecenter, 
+                         vislist, field, spw, antenna, scan, intent, 
+                         restfreq, pointingcolumntouse, ephemsrcname):
     # round-up imsize
     _imsize = sdutil._to_list(imsize, int) or sdutil._to_list(imsize, numpy.integer)
     if _imsize is None:
@@ -138,7 +319,26 @@ def _handle_image_params(imsize, cell, phasecenter, vislist, antenna, restfreq):
         _cell = '%f%s' % (qqb['value']/grid_factor, qpb['unit'])
         casalog.post("Using cell size = PB/%4.2F = %s" % (grid_factor, _cell))
         
+    # Calculate Pointing center and extent (if necessary)
     _phasecenter = phasecenter
+    if _phasecenter == '' or len(_imsize) == 0 or imsize[0] < 1:
+        # return a dictionary with keys 'center', 'width', 'height'
+        map_param = _get_pointing_extent(_phasecenter, vislist, field, spw, antenna, scan, intent, 
+                                         pointingcolumntouse, ephemsrcname)
+        # imsize
+        (cellx,celly) = sdutil.get_cellx_celly(_cell, unit='arcmin')
+        if len(_imsize) == 0 or _imsize[0] < 1:
+            _imsize = _get_imsize(map_param['width'], map_param['height'], cellx, celly)
+            if _phasecenter != "":
+                casalog.post("You defined phasecenter but not imsize. The image will cover as wide area as pointing in MS extends, but be centered at phasecenter. This could result in a strange image if your phasecenter is a part from the center of pointings", priority='WARN')
+            if _imsize[0] > 1024 or _imsize[1] > 1024:
+                casalog.post("The calculated image pixel number is larger than 1024. It could take time to generate the image depending on your computer resource. Please wait...", priority='WARN')
+
+        # phasecenter
+        # if empty, it should be determined here...
+        if _phasecenter == "":
+            _phasecenter = map_param['center']
+        
     return _imsize, _cell, _phasecenter
 
 def _calc_pblimit(minweight):
@@ -267,40 +467,6 @@ def _get_restfreq_if_empty(vislist, spw, field, restfreq):
     assert rf is not None
     
     return rf
-
-class OldImagerBasedTools(object):
-    def __init__(self):
-        self.imager = gentools(['im'])[0]
-        
-    @contextlib.contextmanager    
-    def open_old_imager(self, vis):
-        try:
-            self.imager.open(vis)
-            yield self.imager
-        finally:
-            self.imager.close()
-        
-    def test(self, vis):
-        with self.open_old_imager(vis) as im:
-            print 'test'
-            raise RuntimeError('ERROR!')
-        
-    def get_pointing_sampling_params(self, vis, field, spw, baseline, scan, intent, outref, movingsource, pointingcolumntouse, antenna_name):
-        with self.open_old_imager(vis) as im:
-            im.selectvis(field=field,
-                        spw=spw,
-                        nchan=-1,
-                        start=0,
-                        step=1,
-                        baseline=baseline,
-                        scan=scan,
-                        intent=intent)
-            sampling_params = im.pointingsampling(pattern='raster',
-                                                ref=outref,
-                                                movingsource=movingsource,
-                                                pointingcolumntouse=pointingcolumntouse,
-                                                antenna='{0}&&&'.format(antenna_name))
-        return sampling_params
 
 def set_beam_size(vis, imagename,
                   field, spw, baseline, scan, intent,
@@ -461,7 +627,9 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
         gjwidth = _handle_grid_defaults(jwidth)
         
         # handle image parameters
-        _imsize, _cell, _phasecenter = _handle_image_params(imsize, cell, phasecenter, infiles, antenna, _restfreq)
+        _imsize, _cell, _phasecenter = _handle_image_params(imsize, cell, phasecenter, infiles, 
+                                                            field, spw, antenna, scan, intent,
+                                                            _restfreq, pointingcolumn, ephemsrcname)
         
         # calculate pblimit from minweight
         pblimit = _calc_pblimit(minweight)
