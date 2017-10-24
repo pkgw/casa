@@ -20,6 +20,33 @@ image_suffix = '.residual'
 weight_suffix = '.weight'
 associate_suffixes = ['.psf', '.sumwt', weight_suffix]
 
+@contextlib.contextmanager
+def open_ia(imagename):
+    (ia,) = gentools(['ia'])
+    ia.open(imagename)
+    try:
+        yield ia
+    finally:
+        ia.close()
+
+@contextlib.contextmanager
+def open_ms(vis):
+    (ms,) = gentools(['ms'])
+    ms.open(vis)
+    try:
+        yield ms
+    finally:
+        ms.close()
+
+@contextlib.contextmanager
+def open_table(vis):
+    (tb,) = gentools(['tb'])
+    tb.open(vis)
+    try:
+        yield tb
+    finally:
+        tb.close()
+        
 def _configure_spectral_axis(mode, nchan, start, width, restfreq):
     # TODO: implement the function
     imnchan = nchan
@@ -35,14 +62,82 @@ def _handle_grid_defaults(value):
         ret = value
     return ret
 
-def _handle_image_params(imsize, cell, phasecenter):
+def _calc_PB(vis, antenna_id, restfreq):
+    """
+    Calculate the primary beam size of antenna, using dish diamenter
+    and rest frequency
+    Average antenna diamter and reference frequency are adopted for
+    calculation.
+    The input argument should be a list of antenna IDs.
+    """
+    casalog.post("Calculating Pirimary beam size:")
+    # CAS-5410 Use private tools inside task scripts
+    my_qa = qatool()
+    
+    pb_factor = 1.175
+    # Reference frequency
+    ref_freq = restfreq
+    if type(ref_freq) in [float, numpy.float64]:
+        ref_freq = my_qa.tos(my_qa.quantity(ref_freq, 'Hz'))
+    if not my_qa.compare(ref_freq, 'Hz'):
+        msg = "Could not get the reference frequency. " + \
+              "Your data does not seem to have valid one in selected field.\n" + \
+              "PB is not calculated.\n" + \
+              "Please set restreq or cell manually to generate an image."
+        raise Exception, msg
+    # Antenna diameter
+    with open_table(vis) as tb:
+        antdiam_ave = tb.getcell('DISH_DIAMETER', antenna_id)
+    #antdiam_ave = self._get_average_antenna_diameter(antenna)
+    # Calculate PB
+    wave_length = 0.2997924 / my_qa.convert(my_qa.quantity(ref_freq),'GHz')['value']
+    D_m = my_qa.convert(antdiam_ave, 'm')['value']
+    lambda_D = wave_length / D_m * 3600. * 180 / numpy.pi
+    PB = my_qa.quantity(pb_factor*lambda_D, 'arcsec')
+    # Summary
+    casalog.post("- Antenna diameter: %s m" % D_m)
+    casalog.post("- Reference Frequency: %s" % ref_freq)
+    casalog.post("PB size = %5.3f * lambda/D = %s" % (pb_factor, my_qa.tos(PB)))
+    return PB
+
+def _handle_image_params(imsize, cell, phasecenter, vislist, antenna, restfreq):
+    # round-up imsize
     _imsize = sdutil._to_list(imsize, int) or sdutil._to_list(imsize, numpy.integer)
     if _imsize is None:
         _imsize = imsize if hasattr(imsize, '__iter__') else [ imsize ]
         _imsize = [ int(numpy.ceil(v)) for v in _imsize ]
         casalog.post("imsize is not integers. force converting to integer pixel numbers.", priority="WARN")
         casalog.post("rounded-up imsize: %s --> %s" % (str(imsize), str(_imsize)))
+
+    # calculate cell based on PB if it is not given
     _cell = cell
+    if _cell == '' or _cell[0] == '':
+        # calc PB
+        if isinstance(vislist, str):
+            vis = vislist
+        else:
+            vis = vislist[0]
+        if isinstance(antenna, str):
+            antsel = antenna
+        else:
+            antsel = antenna[0]
+        if antsel == '':
+            antenna_id = 0
+        else:
+            if len(antsel) > 3 and antsel[:-3] == '&&&':
+                baseline = antsel
+            else:
+                baseline = antsel + '&&&'
+            with open_ms(vis) as ms:
+                ms.msselect({'baseline': baseline})
+                ndx = ms.msselectedindices()
+            antenna_id = ndx['antenna1'][0]
+        grid_factor = 3.
+        casalog.post("The cell size will be calculated using PB size of antennas in the first MS")
+        qpb = _calc_PB(vis, antenna_id, restfreq)
+        _cell = '%f%s' % (qqb['value']/grid_factor, qpb['unit'])
+        casalog.post("Using cell size = PB/%4.2F = %s" % (grid_factor, _cell))
+        
     _phasecenter = phasecenter
     return _imsize, _cell, _phasecenter
 
@@ -78,7 +173,7 @@ def _remove_image(imagename):
             # could be a symlink
             os.remove(imagename)
             
-def _get_restfreq_if_empty(vislist, spw, restfreq):
+def _get_restfreq_if_empty(vislist, spw, field, restfreq):
     qa = qatool()
     rf = None
     # if restfreq is nonzero float value, return it
@@ -111,25 +206,57 @@ def _get_restfreq_if_empty(vislist, spw, restfreq):
     else:
         raise RuntimeError('Internal Error: invalid spw selection \'{0}\''.format(spw))
     
+    if isinstance(field, str):
+        fieldsel = field
+    elif hasattr(field, '__iter__'):
+        fieldsel = field[0]
+    else:
+        raise RuntimeError('Internal Error: invalid field selection \'{0}\''.format(field))
+       
+    
     with open_ms(vis) as ms:
-        ms.msselect({'spw': spwsel})
+        ms.msselect({'spw': spwsel, 'field': fieldsel})
         ndx = ms.msselectedindices()
-        spwid = ndx['spw'][0]
-        
+        if len(ndx['spw']) > 0:
+            spwid = ndx['spw'][0]
+        else:
+            spwid = None
+        if len(ndx['field']) > 0:
+            fieldid = ndx['field'][0]
+        else:
+            fieldid = None
+    sourceid = None
+    if fieldid is not None:
+        with open_table(os.path.join(vis, 'FIELD')) as tb:
+            sourceid = tb.getcell('SOURCE_ID', fieldid)
+        if sourceid < 0:
+            sourceid = None
     if rf is None:
         # if restfrequency is defined in SOURCE table, return it
         with open_table(os.path.join(vis, 'SOURCE')) as tb:
             if 'REST_FREQUENCY' in tb.colnames():
-                tsel = tb.query('SPECTRAL_WINDOW_ID == {0}'.format(spwid))
+                tsel = None
+                taql = ''
+                if spwid is not None:
+                    taql = 'SPECTRAL_WINDOW_ID == {0}'.format(spwid)
+                if sourceid is not None:
+                    delimiter = '&&' if len(taql) > 0 else ''
+                    taql += '{0}SOURCE_ID == {1}'.format(delimiter, sourceid)
+                if len(taql) > 0:
+                    tsel = tb.query(taql)
+                    t = tsel
+                else:
+                    t = tb
                 try:
-                    nrow = tsel.nrows()
+                    nrow = t.nrows()
                     if nrow > 0:
                         for irow in xrange(nrow):
-                            if tsel.iscelldefined('REST_FREQUENCY', irow):
-                                rf = tsel.getcell('REST_FREQUENCY', irow)[0]
+                            if t.iscelldefined('REST_FREQUENCY', irow):
+                                rf = t.getcell('REST_FREQUENCY', irow)[0]
                                 break
                 finally:
-                    tsel.close()
+                    if tsel is not None:
+                        tsel.close()
                             
     if rf is None:
         # otherwise, return mean frequency of given spectral window
@@ -175,33 +302,6 @@ class OldImagerBasedTools(object):
                                                 antenna='{0}&&&'.format(antenna_name))
         return sampling_params
 
-@contextlib.contextmanager
-def open_ia(imagename):
-    (ia,) = gentools(['ia'])
-    ia.open(imagename)
-    try:
-        yield ia
-    finally:
-        ia.close()
-
-@contextlib.contextmanager
-def open_ms(vis):
-    (ms,) = gentools(['ms'])
-    ms.open(vis)
-    try:
-        yield ms
-    finally:
-        ms.close()
-
-@contextlib.contextmanager
-def open_table(vis):
-    (tb,) = gentools(['tb'])
-    tb.open(vis)
-    try:
-        yield tb
-    finally:
-        tb.close()
-        
 def set_beam_size(vis, imagename,
                   field, spw, baseline, scan, intent,
                   ephemsrcname, pointingcolumntouse, antenna_name, antenna_diameter,
@@ -353,7 +453,7 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
     
         # parse parameter for spectral axis 
         imnchan, imstart, imwidth = _configure_spectral_axis(mode, nchan, start, width, restfreq)
-        _restfreq = _get_restfreq_if_empty(infiles, spw, restfreq)
+        _restfreq = _get_restfreq_if_empty(infiles, spw, field, restfreq)
         
         # translate some default values into the ones that are consistent with the current framework
         gtruncate = _handle_grid_defaults(truncate)
@@ -361,7 +461,7 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
         gjwidth = _handle_grid_defaults(jwidth)
         
         # handle image parameters
-        _imsize, _cell, _phasecenter = _handle_image_params(imsize, cell, phasecenter)
+        _imsize, _cell, _phasecenter = _handle_image_params(imsize, cell, phasecenter, infiles, antenna, _restfreq)
         
         # calculate pblimit from minweight
         pblimit = _calc_pblimit(minweight)
