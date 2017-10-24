@@ -1265,11 +1265,12 @@ class sdimaging_test_selection(selection_syntax.SelectionSyntaxTest,sdimaging_un
         self.res=self.run_task(**task_param)
         # Tests
         imsize = [shape[0], shape[1]]
-        self._checkshape(self.outfile,shape[0], shape[1],shape[2],shape[3])
-        self._checkdirax(self.outfile,self.phasecenter_auto,self.cell_auto,imsize)
-        self._checkstats(self.outfile,refstats,atol=atol,rtol=rtol)
+        outfile = self.outfile + image_suffix
+        self._checkshape(outfile,shape[0], shape[1],shape[2],shape[3])
+        self._checkdirax(outfile,self.phasecenter_auto,self.cell_auto,imsize)
+        self._checkstats(outfile,refstats,atol=atol,rtol=rtol)
         if box is not None:
-            self._checkstats_box(self.outfile,refstats,box=box,
+            self._checkstats_box(outfile,refstats,box=box,
                                  atol=atol,rtol=rtol)
         
 
@@ -1291,7 +1292,8 @@ class sdimaging_test_selection(selection_syntax.SelectionSyntaxTest,sdimaging_un
         out_shape = (self.imsize_auto[0],self.imsize_auto[1],1,1)
         # Tests
         self.run_test(self.task_param, refstats, out_shape,atol=1.e-5)
-        self._checkstats(self.outfile,refstats,atol=1.e-5)
+        outfile = self.outfile + image_suffix
+        self._checkstats(outfile,refstats,atol=1.e-5)
 
     def test_scan_id_exact(self):
         """test scan selection (scan='16')"""
@@ -1372,7 +1374,8 @@ class sdimaging_test_selection(selection_syntax.SelectionSyntaxTest,sdimaging_un
         out_shape = (self.imsize_auto[0],self.imsize_auto[1],1,1)
         # Tests
         self.run_test(self.task_param, refstats, out_shape,atol=1.e-5)
-        self._checkstats(self.outfile,refstats,atol=1.e-5)
+        outfile = self.outfile + image_suffix
+        self._checkstats(outfile,refstats,atol=1.e-5)
         
     def test_intent_value_exact(self):
         """test intent selection (intent='OBSERVE_TARGET.ON_SOURCE')"""
@@ -1384,7 +1387,8 @@ class sdimaging_test_selection(selection_syntax.SelectionSyntaxTest,sdimaging_un
         out_shape = (self.imsize_auto[0],self.imsize_auto[1],1,1)
         # Tests
         self.run_test(self.task_param, refstats, out_shape,atol=1.e-5)
-        self._checkstats(self.outfile,refstats,atol=1.e-5)
+        outfile = self.outfile + image_suffix
+        self._checkstats(outfile,refstats,atol=1.e-5)
 
     def test_intent_value_pattern(self):
         """test intent selection (intent='*CALIBRATE_PHASE*')"""
@@ -1396,7 +1400,8 @@ class sdimaging_test_selection(selection_syntax.SelectionSyntaxTest,sdimaging_un
         out_shape = (self.imsize_auto[0],self.imsize_auto[1],1,1)
         # Tests
         self.run_test(self.task_param, refstats, out_shape,atol=1.e-5)
-        self._checkstats(self.outfile,refstats,atol=1.e-5)
+        outfile = self.outfile + image_suffix
+        self._checkstats(outfile,refstats,atol=1.e-5)
 
     ####################
     # field
