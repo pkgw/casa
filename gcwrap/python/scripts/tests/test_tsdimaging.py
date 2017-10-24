@@ -863,6 +863,13 @@ class sdimaging_test2(sdimaging_unittest_base):
     def test201(self):
         """Test 201: Full channel image (mode='frequency', nchan = -1)"""
         self.task_param.update(dict(nchan = -1, start = '', width = ''))
+        # workaround for new imager framework
+        # New imager looks SPECTRAL_WINDOW table to get whole frequency range 
+        # regardless of whether associating data exist in the MAIN table or not.
+        # As a result, resulting image has 2048 channels instead of 1024.
+        # To proceed this test, spw is explicitly specified here.
+        spw = '0'
+        self.task_param.update(dict(spw=spw))
         outshape = (self.imsize[0],self.imsize[1],1,self.ms_nchan)
         refstats={'blc': numpy.array([0, 0, 0, 0], dtype=numpy.int32),
                   'blcf': '17:32:18.690, +57.37.28.536, I, 1.419395e+09Hz',
