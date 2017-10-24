@@ -48,11 +48,11 @@
 
 
 	 
-#include <ArrayTime.h>
+#include <Temperature.h>
 	
 
 	 
-#include <Tag.h>
+#include <ArrayTime.h>
 	
 
 	 
@@ -60,11 +60,11 @@
 	
 
 	 
-#include <Temperature.h>
+#include <Frequency.h>
 	
 
 	 
-#include <Frequency.h>
+#include <Tag.h>
 	
 
 
@@ -114,7 +114,7 @@
 //#include <TableStreamReader.h>
 
 /*\file CalWVR.h
-    \brief Generated from model's revision "1.64", branch "HEAD"
+    \brief Generated from model's revision "-1", branch ""
 */
 
 namespace asdm {
@@ -136,7 +136,7 @@ typedef void (CalWVRRow::*CalWVRAttributeFromText) (const string& s);
 /**
  * The CalWVRRow class is a row of a CalWVRTable.
  * 
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  */
 class CalWVRRow {

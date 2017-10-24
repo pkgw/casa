@@ -296,6 +296,27 @@ class getchunk_test(unittest.TestCase):
         exp = numpy.mean(bb)
         got = res['values'][0]
         self.assertLess(abs((got - exp)/exp), 1.25e-5)
+        
+    def test_getprofile_composite_function(self):
+        """Test composite value of function in getprofile works properly"""
+        myia = iatool()
+        myia.fromshape("", [100, 100, 20])
+        myia.addnoise()
+        im0 = myia.collapse(outfile="", function="madm", axes=[0, 1])
+        im1 = myia.collapse(outfile="", function="max", axes=[0, 1])
+        im2 = myia.collapse(outfile="", function="x", axes=[0, 1])
+        expec = im1.getchunk()/im0.getchunk()
+        res = myia.getprofile(axis=2, function="max/madm")['values']
+        self.assertTrue(numpy.isclose(res, expec, rtol=1e-7, atol=1e-7).all())
+        res = im2.getchunk()/im0.getchunk()
+        self.assertTrue(numpy.isclose(res, 1.482602218505602, rtol=1e-7, atol=1e-7).all())
+        res = myia.getprofile(axis=2, function="x")['values']
+        expec = im2.getchunk()
+        self.assertTrue(numpy.isclose(res, expec, rtol=1e-7, atol=1e-7).all())
+        im0.done()
+        im1.done()
+        im2.done()
+        myia.done()
 
 def suite():
     return [getchunk_test]

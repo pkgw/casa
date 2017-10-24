@@ -48,19 +48,11 @@
 
 
 	 
-#include <Angle.h>
-	
-
-	 
 #include <Speed.h>
 	
 
 	 
-#include <Tag.h>
-	
-
-	 
-#include <Length.h>
+#include <ArrayTimeInterval.h>
 	
 
 	 
@@ -68,11 +60,19 @@
 	
 
 	 
+#include <Angle.h>
+	
+
+	 
+#include <Length.h>
+	
+
+	 
 #include <Humidity.h>
 	
 
 	 
-#include <ArrayTimeInterval.h>
+#include <Tag.h>
 	
 
 	 
@@ -122,7 +122,7 @@
 //#include <TableStreamReader.h>
 
 /*\file Weather.h
-    \brief Generated from model's revision "1.64", branch "HEAD"
+    \brief Generated from model's revision "-1", branch ""
 */
 
 namespace asdm {
@@ -141,7 +141,7 @@ typedef void (WeatherRow::*WeatherAttributeFromText) (const string& s);
 /**
  * The WeatherRow class is a row of a WeatherTable.
  * 
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  */
 class WeatherRow {
