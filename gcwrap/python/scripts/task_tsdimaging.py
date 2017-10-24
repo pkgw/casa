@@ -191,7 +191,7 @@ def _calc_PB(vis, antenna_id, restfreq):
               "Please set restreq or cell manually to generate an image."
         raise Exception, msg
     # Antenna diameter
-    with open_table(vis) as tb:
+    with open_table(os.path.join(vis, 'ANTENNA')) as tb:
         antdiam_ave = tb.getcell('DISH_DIAMETER', antenna_id)
     #antdiam_ave = self._get_average_antenna_diameter(antenna)
     # Calculate PB
@@ -217,7 +217,7 @@ def _get_imsize(width, height, dx, dy):
     casalog.post("- Cell size: [%s, %s]" % (my_qa.tos(dx), my_qa.tos(dy)))
     casalog.post("Image pixel numbers to cover the extent: [%d, %d] (projected)" % \
                  (nx+1, ny+1))
-    return (int(nx+1), int(ny+1))
+    return [int(nx+1), int(ny+1)]
 
 def _get_pointing_extent(phasecenter, vislist, field, spw, antenna, scan, intent, 
                          pointingcolumntouse, ephemsrcname):
@@ -316,7 +316,7 @@ def _handle_image_params(imsize, cell, phasecenter,
         grid_factor = 3.
         casalog.post("The cell size will be calculated using PB size of antennas in the first MS")
         qpb = _calc_PB(vis, antenna_id, restfreq)
-        _cell = '%f%s' % (qqb['value']/grid_factor, qpb['unit'])
+        _cell = '%f%s' % (qpb['value']/grid_factor, qpb['unit'])
         casalog.post("Using cell size = PB/%4.2F = %s" % (grid_factor, _cell))
         
     # Calculate Pointing center and extent (if necessary)
