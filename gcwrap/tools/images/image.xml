@@ -8706,7 +8706,7 @@ ia.close()
      <description>Type of convolution kernel.
      Vector of strings from 'boxcar', 'gaussian', and 'hanning'.
      Default is appropriately sized vector of 'gaussian'.</description>
-     <value></value>
+     <value><value/></value>
      </param>
   
      <param type="any"  name="widths">
