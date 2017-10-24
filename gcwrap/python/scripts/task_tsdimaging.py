@@ -30,8 +30,7 @@ def _configure_spectral_axis(mode, nchan, start, width, restfreq):
 def _handle_grid_defaults(value):
     ret = ''
     if isinstance(value, int) or isinstance(value, float):
-        if value != -1:
-            ret = string(value)
+        ret = str(value)
     elif isinstance(value, str):
         ret = value
     return ret
