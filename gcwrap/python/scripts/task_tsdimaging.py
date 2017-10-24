@@ -501,13 +501,13 @@ def set_beam_size(vis, imagename,
     # TODO: copy from sdimaging implementation
     sampling = [xsampling, ysampling]
     if abs(xsampling) < 2.2e-3 or not numpy.isfinite(xsampling):
-        casalog.post("Invalid sampling=%s arcsec. Using the value of orthogonal direction=%s arcsec" % (xSampling, ySampling), priority="WARN")
+        casalog.post("Invalid sampling=%s arcsec. Using the value of orthogonal direction=%s arcsec" % (xsampling, ysampling), priority="WARN")
         sampling = [ ysampling ]
         angle = 0.0
         valid_sampling = False
     if abs(ysampling) < 1.0e-3 or not numpy.isfinite(ysampling):
         if valid_sampling:
-            casalog.post("Invalid sampling=%s arcsec. Using the value of orthogonal direction=%s arcsec" % (ySampling, xSampling), priority="WARN")
+            casalog.post("Invalid sampling=%s arcsec. Using the value of orthogonal direction=%s arcsec" % (ysampling, xsampling), priority="WARN")
             sampling = [ xsampling ]
             angle = 0.0
             valid_sampling = True
@@ -596,10 +596,10 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
     
     origin = 'tsdimaging'
     imager = None
- 
-    casalog.post('spw = \'{0}\' type {1}'.format(spw, type(spw)))
- 
+  
     try: 
+        # if spw starts with ':', add '*' at the beginning
+        _spw = '*' + spw if spw.startswith(':') else spw
         
         # handle overwrite parameter
         _outfile = outfile.rstrip('/')
@@ -619,7 +619,7 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
     
         # parse parameter for spectral axis 
         imnchan, imstart, imwidth = _configure_spectral_axis(mode, nchan, start, width, restfreq)
-        _restfreq = _get_restfreq_if_empty(infiles, spw, field, restfreq)
+        _restfreq = _get_restfreq_if_empty(infiles, _spw, field, restfreq)
         
         # translate some default values into the ones that are consistent with the current framework
         gtruncate = _handle_grid_defaults(truncate)
@@ -628,7 +628,7 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
         
         # handle image parameters
         _imsize, _cell, _phasecenter = _handle_image_params(imsize, cell, phasecenter, infiles, 
-                                                            field, spw, antenna, scan, intent,
+                                                            field, _spw, antenna, scan, intent,
                                                             _restfreq, pointingcolumn, ephemsrcname)
         
         # calculate pblimit from minweight
@@ -645,7 +645,7 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
             msname =infiles,#'sdimaging.ms',
             # data selection
             field=field,#'',
-            spw=spw,#'0',
+            spw=_spw,#'0',
             antenna=antenna,
             scan=scan,
             state=intent,
@@ -736,7 +736,7 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
     ms_index = 0
     rep_ms = _get_param(0, infiles)
     rep_field = _get_param(0, field)
-    rep_spw = _get_param(0, spw)
+    rep_spw = _get_param(0, _spw)
     rep_antenna = _get_param(0, antenna)
     rep_scan = _get_param(0, scan)
     rep_intent = _get_param(0, intent)
