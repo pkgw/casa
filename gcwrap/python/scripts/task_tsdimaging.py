@@ -599,7 +599,11 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
   
     try: 
         # if spw starts with ':', add '*' at the beginning
-        _spw = '*' + spw if spw.startswith(':') else spw
+        if isinstance(spw, str):
+            _spw = '*' + spw if spw.startswith(':') else spw
+        else:
+            _spw = ['*' + v if v.startswith(':') else v for v in spw]
+            
         
         # handle overwrite parameter
         _outfile = outfile.rstrip('/')
