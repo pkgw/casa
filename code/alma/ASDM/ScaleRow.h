@@ -82,7 +82,7 @@
 //#include <TableStreamReader.h>
 
 /*\file Scale.h
-    \brief Generated from model's revision "1.64", branch "HEAD"
+    \brief Generated from model's revision "-1", branch ""
 */
 
 namespace asdm {
@@ -98,7 +98,7 @@ typedef void (ScaleRow::*ScaleAttributeFromText) (const string& s);
 /**
  * The ScaleRow class is a row of a ScaleTable.
  * 
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  */
 class ScaleRow {

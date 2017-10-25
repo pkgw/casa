@@ -1294,6 +1294,24 @@ Bool SkyEquation::changedSkyJonesBuffer
   return didChange;
 };
 
+
+void SkyEquation::setPhaseCenterTime(const Double time){
+
+  if(cft_)
+    cft_->setPhaseCenterTime(time);
+  if(ft_)
+    ft_->setPhaseCenterTime(time);
+  if(ift_)
+    ift_->setPhaseCenterTime(time);
+}
+Double SkyEquation::getPhaseCenterTime(){
+  if(cft_)
+    return cft_->getPhaseCenterTime();
+  if(ft_)
+    return ft_->getPhaseCenterTime();
+  return -1.0;
+}
+
 // Reset all of the SkyJones to initial state
 void SkyEquation::resetSkyJones() 
 {

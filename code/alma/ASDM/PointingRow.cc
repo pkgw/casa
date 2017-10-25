@@ -3221,11 +3221,13 @@ sourceOffsetReferenceCode = CDirectionReferenceCode::from_int(0);
 	 * Return true if all required attributes of the value part are equal to their homologues
 	 * in x and false otherwise.
 	 *
+
 	 * @param x a pointer on the PointingRow whose required attributes of the value part 
+
 	 * will be compared with those of this.
 	 * @return a boolean.
 	 */
-	bool PointingRow::equalByRequiredValue(PointingRow* x) {
+	bool PointingRow::equalByRequiredValue(PointingRow*  x ) {
 		
 			
 		if (this->numSample != x->numSample) return false;

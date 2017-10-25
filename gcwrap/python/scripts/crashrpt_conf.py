@@ -2,4 +2,6 @@ import os
 import tempfile
 import getpass
 
-temporaryDirectory = tempfile.gettempdir() + "/casa-crashreporter/" + getpass.getuser() + "/" + str(os.getpid())
+systemTempDir = tempfile.gettempdir()
+temporaryDirectoryCommon = tempfile.gettempdir() + "/casa-crashreporter/"
+temporaryDirectory = temporaryDirectoryCommon + getpass.getuser() + "/" + str(os.getpid())

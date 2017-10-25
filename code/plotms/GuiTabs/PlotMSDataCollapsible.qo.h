@@ -128,9 +128,9 @@ private:
     QAction minimizeAction;
     QAction maximizeAction;
     QAction closeAction;
-    const int SIZE_COLLAPSED;
-    const int SIZE_EXPANDED;
-    const int SIZE_WIDTH;
+    const int PMS_SIZE_COLLAPSED;
+    const int PMS_SIZE_EXPANDED;
+    const int PMS_SIZE_WIDTH;
     int minimumSize;
 
     QLineEdit* nameLabel;
