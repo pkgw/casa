@@ -321,7 +321,7 @@ def _handle_image_params(imsize, cell, phasecenter,
         
     # Calculate Pointing center and extent (if necessary)
     _phasecenter = phasecenter
-    if _phasecenter == '' or len(_imsize) == 0 or imsize[0] < 1:
+    if _phasecenter == '' or len(_imsize) == 0 or _imsize[0] < 1:
         # return a dictionary with keys 'center', 'width', 'height'
         map_param = _get_pointing_extent(_phasecenter, vislist, field, spw, antenna, scan, intent, 
                                          pointingcolumntouse, ephemsrcname)
