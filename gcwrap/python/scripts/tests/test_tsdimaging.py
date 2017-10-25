@@ -2779,12 +2779,18 @@ class sdimaging_test_clipping(sdimaging_unittest_base):
         for data in self.data_list:
             if os.path.exists(data):
                 shutil.rmtree(data)
-        if os.path.exists(self.outfile):
-            shutil.rmtree(self.outfile)
+        outfile = self.outfile + image_suffix
+        if os.path.exists(outfile):
+            shutil.rmtree(outfile)
             shutil.rmtree(self.outfile + '.weight')
-        if os.path.exists(self.outfile_ref):
-            shutil.rmtree(self.outfile_ref)
+            shutil.rmtree(self.outfile + '.sumwt')
+            shutil.rmtree(self.outfile + '.psf')
+        outfile_ref = self.outfile_ref + image_suffix
+        if os.path.exists(outfile_ref):
+            shutil.rmtree(outfile_ref)
             shutil.rmtree(self.outfile_ref + '.weight')
+            shutil.rmtree(self.outfile_ref + '.sumwt')
+            shutil.rmtree(self.outfile_ref + '.psf')
     
     def _test_clipping(self, infiles, is_clip_effective=True):
         if isinstance(infiles, str):
@@ -2811,7 +2817,8 @@ class sdimaging_test_clipping(sdimaging_unittest_base):
                   mode=mode, nchan=nchan, start=start, width=width, 
                   gridfunction=gridfunction, imsize=imsize, cell=cell,
                   phasecenter=phasecenter, clipminmax=True)
-        self.assertTrue(os.path.exists(self.outfile))
+        _outfile = outfile + image_suffix
+        self.assertTrue(os.path.exists(_outfile))
         
         if is_clip_effective == True:
             # pre-flag the data to be clipped
@@ -2894,16 +2901,17 @@ class sdimaging_test_clipping(sdimaging_unittest_base):
                   mode=mode, nchan=nchan, start=start, width=width, 
                   gridfunction=gridfunction, imsize=imsize, cell=cell,
                   phasecenter=phasecenter, clipminmax=False)
-        self.assertTrue(os.path.exists(self.outfile_ref))
+        _outfile_ref = outfile + image_suffix
+        self.assertTrue(os.path.exists(_outfile_ref))
             
         # compare
         myia = gentools(['ia'])[0]
-        myia.open(self.outfile)
+        myia.open(_outfile)
         result = myia.getchunk()
         result_mask = myia.getchunk(getmask=True)
         myia.close()
         
-        myia.open(self.outfile_ref)
+        myia.open(_outfile_ref)
         reference = myia.getchunk()
         reference_mask = myia.getchunk(getmask=True)
         myia.close()
@@ -3037,7 +3045,8 @@ class sdimaging_test_projection(sdimaging_unittest_base):
                                                                atol, rtol, compstats, ignoremask)
 
         # check projection
-        _ia.open(task_param['outfile'])
+        outfile = task_param['outfile'] + image_suffix
+        _ia.open(outfile)
         try:
             result_projection = _ia.coordsys().projection()['type']
         finally:
@@ -3047,7 +3056,8 @@ class sdimaging_test_projection(sdimaging_unittest_base):
     def test_projection_GSL(self):
         """test_projection_GSL: unsupported projection type"""
         projection = 'GSL'
-        self.task_param.update(dict(projection=projection))
+        spw = '0'
+        self.task_param.update(dict(projection=projection, spw=spw))
         res=sdimaging(**self.task_param)
         self.assertFalse(res)
         self.assertFalse(os.path.exists(self.outfile))
@@ -3055,7 +3065,8 @@ class sdimaging_test_projection(sdimaging_unittest_base):
     def test_projection_SIN(self):
         """test_projection_SIN: create image with SIN (Slant Orthographic) projection"""
         projection = 'SIN'
-        self.task_param.update(dict(projection=projection))
+        spw = '0'
+        self.task_param.update(dict(projection=projection, spw=spw))
         outshape = (self.imsize[0],self.imsize[1],1,self.nchan)
         refstats = {
             'blc': numpy.array([0, 0, 0, 0], dtype=numpy.int32),
@@ -3082,7 +3093,8 @@ class sdimaging_test_projection(sdimaging_unittest_base):
     def test_projection_TAN(self):
         """test_projection_TAN: create image with TAN (Gnomonic) projection"""
         projection = 'TAN'
-        self.task_param.update(dict(projection=projection))
+        spw = '0'
+        self.task_param.update(dict(projection=projection, spw=spw))
         outshape = (self.imsize[0],self.imsize[1],1,self.nchan)
         refstats = {
             'blc': numpy.array([0, 0, 0, 0], dtype=numpy.int32),
@@ -3109,7 +3121,8 @@ class sdimaging_test_projection(sdimaging_unittest_base):
     def test_projection_CAR(self):
         """test_projection_CAR: create image with CAR (Plate Caree) projection"""
         projection = 'CAR'
-        self.task_param.update(dict(projection=projection))
+        spw = '0'
+        self.task_param.update(dict(projection=projection, spw=spw))
         outshape = (self.imsize[0],self.imsize[1],1,self.nchan)
         refstats = {
             'blc': numpy.array([0, 0, 0, 0], dtype=numpy.int32),
@@ -3136,7 +3149,8 @@ class sdimaging_test_projection(sdimaging_unittest_base):
     def test_projection_SFL(self):
         """test_projection_SFL: create image with SFL (Sanson-Flamsteed) projection"""
         projection = 'SFL'
-        self.task_param.update(dict(projection=projection))
+        spw = '0'
+        self.task_param.update(dict(projection=projection, spw=spw))
         outshape = (self.imsize[0],self.imsize[1],1,self.nchan)
         refstats = {
             'blc': numpy.array([0, 0, 0, 0], dtype=numpy.int32),
