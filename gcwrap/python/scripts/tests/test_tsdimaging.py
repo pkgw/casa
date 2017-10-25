@@ -2458,12 +2458,13 @@ class sdimaging_test_restfreq(sdimaging_unittest_base):
         self.param.update(**kwargs)
         sdimaging(**self.param)
         stats.pop('sumsq')
-        self._checkstats(self.outfile, stats, atol=1.e-3, rtol=1.e-3)
-        self._check_beam(self.outfile, beam_ref)
+        outfile = self.outfile + image_suffix
+        self._checkstats(outfile, stats, atol=1.e-3, rtol=1.e-3)
+        self._check_beam(outfile, beam_ref)
         # check restfreq
-        self._check_restfreq(self.outfile,restfreq_ref)
+        self._check_restfreq(outfile,restfreq_ref)
         # check cell size
-        self._checkdirax(self.outfile, self.param['phasecenter'],
+        self._checkdirax(outfile, self.param['phasecenter'],
                          cell_ref, self.param['imsize'])
 
     def test_restfreq_param(self):
