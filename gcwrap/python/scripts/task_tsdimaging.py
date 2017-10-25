@@ -452,8 +452,10 @@ def _get_restfreq_if_empty(vislist, spw, field, restfreq):
                     if nrow > 0:
                         for irow in xrange(nrow):
                             if t.iscelldefined('REST_FREQUENCY', irow):
-                                rf = t.getcell('REST_FREQUENCY', irow)[0]
-                                break
+                                rfs = t.getcell('REST_FREQUENCY', irow)
+                                if len(rfs) > 0:
+                                    rf = rfs[0]
+                                    break
                 finally:
                     if tsel is not None:
                         tsel.close()
@@ -462,8 +464,8 @@ def _get_restfreq_if_empty(vislist, spw, field, restfreq):
         # otherwise, return mean frequency of given spectral window
         with open_table(os.path.join(vis, 'SPECTRAL_WINDOW')) as tb:
             cf = tb.getcell('CHAN_FREQ', spwid)
-            restfreq = cf.mean()    
-
+            rf = cf.mean()
+            
     assert rf is not None
     
     return rf
