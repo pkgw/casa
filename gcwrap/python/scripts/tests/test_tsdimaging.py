@@ -2570,11 +2570,13 @@ class sdimaging_test_mapextent(unittest.TestCase):
         self.param.update(**kwargs)
         status = sdimaging(**self.param)
         self.assertIsNone(status, msg='sdimaging failed to execute')
-        self.assertTrue(os.path.exists(self.outfile), msg='output image is not created.')
+        outfile = self.outfile + image_suffix
+        self.assertTrue(os.path.exists(outfile), msg='output image is not created.')
         
     def verify_mapextent(self, npix_ref, blc_ref, trc_ref):
-        self.assertTrue(os.path.exists(self.outfile), msg='output image is not created.')
-        stats = calc_statistics(self.outfile)
+        outfile = self.outfile + image_suffix
+        self.assertTrue(os.path.exists(outfile), msg='output image is not created.')
+        stats = calc_statistics(outfile)
         map_property = calc_mapproperty(stats)
         npix = map_property['npix']
         blc = map_property['blc']
@@ -2700,7 +2702,8 @@ class sdimaging_test_interp(unittest.TestCase):
         self.params.update(**kwargs)
         status = sdimaging(**self.params)
         self.assertIsNone(status, msg = 'sdimaging failed to execute')
-        self.assertTrue(os.path.exists(self.outfile), msg='output image is not created.')
+        outfile = self.outfile + image_suffix
+        self.assertTrue(os.path.exists(outfile), msg='output image is not created.')
         
     def test_spline_interp(self):
         """test_spline_interp: Check if spline interpolation works for fast scan data."""
