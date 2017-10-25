@@ -461,6 +461,8 @@ def _get_restfreq_if_empty(vislist, spw, field, restfreq):
                         tsel.close()
                             
     if rf is None:
+        if spwid is None:
+            spwid = 0
         # otherwise, return mean frequency of given spectral window
         with open_table(os.path.join(vis, 'SPECTRAL_WINDOW')) as tb:
             cf = tb.getcell('CHAN_FREQ', spwid)
@@ -606,6 +608,19 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
         else:
             _spw = ['*' + v if v.startswith(':') else v for v in spw]
             
+        # if antenna doesn't contain '&&&', append it
+        def antenna_to_baseline(s):
+            if len(s) == 0:
+                return s
+            elif len(s) > 3 and s.endswith('&&&'):
+                return s
+            else:
+                return '{0}&&&'.format(s)
+        if isinstance(antenna, str):
+            baseline = antenna_to_baseline(antenna)
+        else:
+            baseline = [antenna_to_baseline(a) for a in antenna]
+            
         
         # handle overwrite parameter
         _outfile = outfile.rstrip('/')
@@ -652,7 +667,7 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
             # data selection
             field=field,#'',
             spw=_spw,#'0',
-            antenna=antenna,
+            antenna=baseline,
             scan=scan,
             state=intent,
             # image parameters
@@ -753,7 +768,7 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
     with open_ms(rep_ms) as ms:
         ms.msselect({'baseline': baseline})
         ndx = ms.msselectedindices()
-        antenna_index = ndx['antenna1']
+        antenna_index = ndx['antenna1'][0]
     with open_table(os.path.join(rep_ms, 'ANTENNA')) as tb:
         antenna_name = tb.getcell('NAME', antenna_index)
         antenna_diameter = tb.getcell('DISH_DIAMETER', antenna_index)
