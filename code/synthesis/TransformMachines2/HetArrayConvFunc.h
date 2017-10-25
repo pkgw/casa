@@ -82,7 +82,9 @@ namespace casa {
 				    casacore::Array<casacore::Complex>& weightConvFunc,
 				    casacore::Vector<casacore::Int>& convsize,
 				    casacore::Vector<casacore::Int>& convSupport,
-				    casacore::Vector<casacore::Int>& polMap, casacore::Vector<casacore::Int>& chanMap, casacore::Vector<casacore::Int>& rowMap);
+				    casacore::Vector<casacore::Int>& polMap, casacore::Vector<casacore::Int>& chanMap, casacore::Vector<casacore::Int>& rowMap,
+					const casacore::Bool getConjConvFuncs=false
+ 								);
 
     virtual casacore::ImageInterface<casacore::Float>&  getFluxScaleImage();
     // slice flux scale images 
@@ -98,6 +100,8 @@ namespace casa {
    void applyGradientToYLine(const casacore::Int iy, casacore::Complex*& convFunctions, 
 			     casacore::Complex*& convWeights, const casacore::Double pixXdir, const casacore::Double pixYdir, 
 			     casacore::Int convSize, const casacore::Int ndishpair, const casacore::Int nchan, const casacore::Int nPol);
+   void fillConjConvFunc(const casacore::Vector<casacore::Double>& beamFreqs);
+   casacore::Int conjSupport(const casacore::Vector<casacore::Double>& beamFreqs);
       casacore::Int factorial(casacore::Int n);
       // the return value are -1 or false for not in cache yet but pointing direction 
       //seems to be inside image
@@ -113,6 +117,7 @@ namespace casa {
       casacore::Float interpLanczos( const casacore::Double& x , const casacore::Double& y, const casacore::Double& nx, const casacore::Double& ny,   const casacore::Float* data, const casacore::Float a=3);
       casacore::Float sinc(const casacore::Float x) ;
       casacore::Array<casacore::Complex> resample(const casacore::Array<casacore::Complex>& inarray, const casacore::Double factor);
+      casacore::Matrix<casacore::Complex> resample2(const casacore::Matrix<casacore::Complex>& inarray, const casacore::Double factor);
       PBMathInterface::PBClass pbClass_p;
       //casacore::SimpleOrderedMap <casacore::String, casacore::Int> convFunctionMap_p;
       casacore::Vector<casacore::Int64> convFunctionMap_p;
@@ -130,6 +135,7 @@ namespace casa {
       casacore::String vpTable_p;
       casacore::Vector<casacore::Int> convSupport_p;
       casacore::Block <casacore::CountedPtr<casacore::Array<casacore::Complex> > > convFunctions_p;
+      casacore::Block < casacore::CountedPtr<casacore::Array<casacore::Complex> > > convFunctionsConjFreq_p;
       casacore::Block <casacore::CountedPtr<casacore::Array<casacore::Complex> > > convWeights_p;
       casacore::Block<casacore::CountedPtr<casacore::Vector<casacore::Int> > > convSizes_p;
       casacore::Block <casacore::CountedPtr<casacore::Vector<casacore::Int> > > convSupportBlock_p;

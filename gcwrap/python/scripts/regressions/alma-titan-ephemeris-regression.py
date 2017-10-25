@@ -217,11 +217,23 @@ if(mystep in thesteps):
     #exppeakchan = 258
 
     # expectation values CASA 4.4
-    exppeakm = 3.3441593647
-    exprmsm = 1.13052916527
-    exppeakmb = 0.363690376282
-    exprmsmb = 0.0196652077138
+    # exppeakm = 3.3441593647
+    # exprmsm = 1.13052916527
+    # exppeakmb = 0.363690376282
+    # exprmsmb = 0.0196652077138
+    # exppeakchan = 259
+
+    # expectation values CASA >= 5.0
+    # (after change in mstransform regridding - CAS-10331).
+    # Here "Ratio between input and output width is >=2: 5.81224"
+    # => older versions of CASA mstransform was doing channel pre-averaging
+    # which is now disabled (and replaced by a tclean-like interpolation).
+    exppeakm = 3.37098
+    exprmsm = 1.13342
+    exppeakmb = 0.372862
+    exprmsmb = 0.0215464
     exppeakchan = 259
+    exp_2nd_peakchan = 132
 
     os.system('rm -rf collapsed')
 
@@ -237,12 +249,14 @@ if(mystep in thesteps):
     resrmsmb=(calstatb['rms'][0])
     respeakmb=(calstatb['max'][0])
 
+    calstatx_200 = imstat(imagename='collapsed', chans="0~200")
+    res_2nd_peakchan = calstatx_200['maxpos'][3]
+
     casalog.post( ' rms in Titan: '+str(resrmsm))
     casalog.post( ' Peak in Titan: '+str(respeakm))
     casalog.post( ' Dynamic range in Titan: '+str(respeakm/resrmsm))
     casalog.post( ' rms off-axis: '+str(resrmsmb))
     casalog.post( ' peak off-axis: '+str(respeakmb))
-
 
     timing()
 
@@ -262,37 +276,50 @@ if(mystep in thesteps):
     casalog.post( "Peak channel (expectation)")
     casalog.post( "------------------------------------------------------------------------------------------")
     casalog.post( str(respeakchan)+ "("+str(exppeakchan)+")")
+    casalog.post( "------------------------------------------------------------------------------------------")
+    casalog.post( "Second peak channel (expectation)")
+    casalog.post( "------------------------------------------------------------------------------------------")
+    casalog.post( str(res_2nd_peakchan)+ "("+str(exp_2nd_peakchan)+")")
 
 
+    # Most important check here is the peak flux position in the spectrum (see CAS-10433)
     if (respeakchan!=exppeakchan):
         casalog.post( 'ERROR: Peak flux in titan cube should be at channel '+str(exppeakchan)+' but is at '+str(respeakchan),'WARN')
         passed = False
 
+    if (res_2nd_peakchan != exp_2nd_peakchan):
+        casalog.post( 'ERROR: Second peak flux in titan cube should be at channel ' + str(exp_2nd_peakchan) +
+                      ' but is at '+str(res_2nd_peakchan), 'WARN')
+        passed = False
+
+    tolerance = 0.5
     peakmdev = abs(respeakm-exppeakm)/exppeakm*100.
-    if (peakmdev > 0.5):
+    if (peakmdev > tolerance):
         casalog.post( 'ERROR: Peak in Titan image deviates from expectation by '+str(peakmdev)+' percent.','WARN')
         passed = False
 
     rmsmdev = abs(resrmsm-exprmsm)/exprmsm*100.
-    if (rmsmdev > 0.5):
+    if (rmsmdev > tolerance):
         casalog.post( 'ERROR: RMS in Titan image deviates from expectation by '+str(rmsmdev)+' percent.','WARN')
         passed = False
 
     peakmdevb = abs(respeakmb-exppeakmb)/exppeakmb*100.
-    if (peakmdevb > 0.5):
+    if (peakmdevb > tolerance):
         casalog.post( 'ERROR: Peak offaxis deviates from expectation by '+str(peakmdevb)+' percent.','WARN')
         passed = False
 
     rmsmdevb = abs(resrmsmb-exprmsmb)/exprmsmb*100.
-    if (rmsmdevb > 0.5):
+    if (rmsmdevb > tolerance):
         casalog.post( 'ERROR: RMS in Titan image deviates from expectation by '+str(rmsmdevb)+' percent.','WARN')
         passed = False
 
     if not passed:
         print "Regression FAILED"
-        raise Exception, 'Results are different from expectations by more than 0.5 percent.'
+        raise Exception, ('Results are different from expectations by more than {0} percent.'.
+                          format(tolerance))
     else:
-        casalog.post( "\nAll peak and RMS values within 0.5 percent of the expectation.")
+        casalog.post( "\nAll peak and RMS values within {0} percent of the expectation.".
+                      format(tolerance))
         print "Regression PASSED"
 
 print 'Done.'

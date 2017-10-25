@@ -282,7 +282,6 @@ WeatherRow* WeatherTable::newRow(WeatherRow* row) {
 	//
 
 	
-		
 	
 		
 		
@@ -330,11 +329,11 @@ WeatherRow* WeatherTable::newRow(WeatherRow* row) {
 		WeatherRow * dummy = checkAndAdd(x, true); // We require the check for uniqueness to be skipped.
 		                                           // by passing true in the second parameter
 		                                           // whose value by default is false.
+		// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
                 if (false) cout << (unsigned long long) dummy;
 	}
 	
 
-	
 
 
 	// 
@@ -350,7 +349,7 @@ WeatherRow* WeatherTable::newRow(WeatherRow* row) {
 			
 			
 			
-	WeatherRow*  WeatherTable::checkAndAdd(WeatherRow* x, bool ) {
+	WeatherRow*  WeatherTable::checkAndAdd(WeatherRow* x, bool /* skipCheckUniqueness */ ) {
 		string keystr = Key( 
 						x->getStationId() 
 					   ); 
@@ -569,12 +568,11 @@ WeatherRow* WeatherTable::newRow(WeatherRow* row) {
 		// Look for a version information in the schemaVersion of the XML
 		//
 		xmlDoc *doc;
-		#if LIBXML_VERSION >= 20703
-doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS|XML_PARSE_HUGE);
+#if LIBXML_VERSION >= 20703
+        doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS|XML_PARSE_HUGE);
 #else
-doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS);
+		doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS);
 #endif
-
 		if ( doc == NULL )
 			throw ConversionException("Failed to parse the xmlHeader into a DOM structure.", "Weather");
 		
@@ -648,9 +646,10 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 				
 		if (!xml.isStr("</WeatherTable>")) 
 		error();
-			
-		archiveAsBin = false;
-		fileAsBin = false;
+		
+		//Does not change the convention defined in the model.	
+		//archiveAsBin = false;
+		//fileAsBin = false;
 		
 	}
 
@@ -936,8 +935,9 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 			append(aRow);
       	}   	
     }
-    archiveAsBin = true;
-    fileAsBin = true;
+    //Does not change the convention defined in the model.	
+    //archiveAsBin = true;
+    //fileAsBin = true;
 	}
 	
 	void WeatherTable::setUnknownAttributeBinaryReader(const string& attributeName, BinaryAttributeReaderFunctor* barFctr) {

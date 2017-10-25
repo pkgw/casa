@@ -92,13 +92,13 @@ using namespace casa::refim;
 
   MosaicFT::MosaicFT(SkyJones* sj, MPosition mloc, String stokes,
 		   Long icachesize, Int itilesize, 
-		     Bool usezero, Bool useDoublePrec)
+		     Bool usezero, Bool useDoublePrec, Bool useConjConvFunc)
   : FTMachine(), sj_p(sj),
     imageCache(0),  cachesize(icachesize), tilesize(itilesize), gridder(0),
     isTiled(false),
     maxAbsData(0.0), centerLoc(IPosition(4,0)), offsetLoc(IPosition(4,0)),
     mspc(0), msac(0), pointingToImage(0), usezero_p(usezero), convSampling(1),
-    skyCoverage_p( ), machineName_p("MosaicFT"), stokes_p(stokes)
+    skyCoverage_p( ), machineName_p("MosaicFT"), stokes_p(stokes), useConjConvFunc_p(useConjConvFunc)
 {
   convSize=0;
   lastIndex_p=0;
@@ -168,8 +168,9 @@ MosaicFT& MosaicFT::operator=(const MosaicFT& other)
       gridder = new ConvolveGridder<Double, Complex>(IPosition(2, nx, ny),
 						     uvScale, uvOffset,
 						     "SF");
+	  
     }
-    
+    useConjConvFunc_p=other.useConjConvFunc_p;
   };
   return *this;
 };
@@ -284,8 +285,9 @@ void MosaicFT::findConvFunction(const ImageInterface<Complex>& iimage,
       convSampling=10;
     AipsrcValue<Int>::find (convSampling, "mosaic.oversampling", 10);
   }
+  
   pbConvFunc_p->findConvFunction(iimage, vb, convSampling, interpVisFreq_p, convFunc, weightConvFunc_p, convSizePlanes_p, convSupportPlanes_p,
-		  convPolMap_p, convChanMap_p, convRowMap_p);
+		  convPolMap_p, convChanMap_p, convRowMap_p, (useConjConvFunc_p && !toVis_p));
 
   // cerr << "MAX of convFunc " << max(abs(convFunc)) << endl;
   //For now only use one size and support
@@ -315,11 +317,13 @@ void MosaicFT::initializeToVis(ImageInterface<Complex>& iimage,
   // Initialize the maps for polarization and channel. These maps
   // translate visibility indices into image indices
   initMaps(vb);
-  //make sure we rotate the first field too
+  pbConvFunc_p->setVBUtil(vbutil_p);
+ //make sure we rotate the first field too
   lastFieldId_p=-1;
   phaseShifter_p=new UVWMachine(*uvwMachine_p);
   //This is needed here as we need to know the grid correction before FFTing 
   findConvFunction(*image, vb);
+  
   prepGridForDegrid();
 
 }
@@ -457,7 +461,7 @@ void MosaicFT::initializeToSky(ImageInterface<Complex>& iimage,
 {
   // image always points to the image
   image=&iimage;
-  
+  toVis_p=False;
   //  if(convSize==0) {
     init();
     
@@ -466,6 +470,7 @@ void MosaicFT::initializeToSky(ImageInterface<Complex>& iimage,
   // Initialize the maps for polarization and channel. These maps
   // translate visibility indices into image indices
   initMaps(vb);
+  pbConvFunc_p->setVBUtil(vbutil_p);
   //make sure we rotate the first field too
   lastFieldId_p=-1;
   phaseShifter_p=new UVWMachine(*uvwMachine_p);
@@ -1861,11 +1866,12 @@ Bool MosaicFT::toRecord(String&  error,
   outRec.define("convsizeplanes", convSizePlanes_p);
   outRec.define("convRowMap",  convRowMap_p);
   outRec.define("stokes", stokes_p);
+  outRec.define("useconjconvfunc", useConjConvFunc_p);
   if(!pbConvFunc_p.null()){
     Record subRec;
     //cerr << "Doing pbconvrec " << endl;
     pbConvFunc_p->toRecord(subRec);
-    outRec.defineRecord("pbconvfunc", subRec);
+    outRec.defineRecord("pbconvfunc", subRec);	
   }
   
 
@@ -1918,6 +1924,7 @@ Bool MosaicFT::fromRecord(String& error,
   inRec.get("convsizeplanes", convSizePlanes_p);
   inRec.get("convRowMap",  convRowMap_p);
   inRec.get("stokes", stokes_p);
+  inRec.get("useconjconvfunc", useConjConvFunc_p);
   if(inRec.isDefined("pbconvfunc")){
     Record subRec=inRec.asRecord("pbconvfunc");
     String elname=subRec.asString("name");

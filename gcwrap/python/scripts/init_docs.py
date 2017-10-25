@@ -13,11 +13,20 @@ class __doc(object):
     def __init__( self ):
         self.local_toc = None
         self.remote_toc = None
-        self.remote_source_url = "https://casaweb-snapshot.cv.nrao.edu/casa5-0/casa5-0"
+        version = "casa-%d.%d.%d" % tuple(cu.version( )[:3])
+        self.remote_source_url = "https://casa.nrao.edu/casadocs/%s" % version
         self.remote_source_url_components = urlparse(self.remote_source_url)
-        self.remote_toc_url = 'https://%s/PloneResource/stable/toc.xml' % self.remote_source_url_components[1]
+        self.remote_toc_url = 'https://%s/PloneResource/%s/toc.xml' % (self.remote_source_url_components[1],version)
 
         self.local_toc_url = None if casa['dirs']['doc'] is None else casa['dirs']['doc'] + '/casa.nrao.edu/casadocs/toc.xml'
+        self.local_start_path = "usingcasa/starting-casa.html"
+        self.local_base = "/casadocs/%s/" % version
+
+    def __welcome( self, welcome="\nOpening packaged documentation.\n" ):
+        if welcome is not None:
+            print welcome
+        print "The most recent version of all CASA documentation is available online from:"
+        print "\thttps://casa.nrao.edu/casadocs/\n"
 
     def __call__( self, sec=None ):
         "open browser with documentation, try \"doc('toc')\""
@@ -56,11 +65,13 @@ class __doc(object):
         else:
             path = casa['dirs']['doc'] + "/casa.nrao.edu"
             if sec is None:
-                homepage = "%s/%s.html" % (path,self.remote_source_url_components[2])
+                homepage = "%s%s.html" % (path,self.remote_source_url_components[2])
                 if os.path.exists(path):
+                    self.__welcome( )
                     return webbrowser.open("file://" + homepage)
                 else:
                     print "local documentation tree not found..."
+                    self.__welcome(None)
                     return False
             else:
                 if self.local_toc is None:
@@ -68,12 +79,18 @@ class __doc(object):
                         self.local_toc = reduce( entry_to_dict, ET.ElementTree(file=urllib2.urlopen("file://" + self.local_toc_url)).getroot( ).getchildren( ), { } )
                     else:
                         print "local documentation tree not found..."
+                        self.__welcome(None)
                         return False
                 if sec == 'toc':
                     show_toc(self.local_toc)
+                elif sec == 'start':
+                    self.__welcome( )
+                    return webbrowser.open("file://" + path + self.local_base + self.local_start_path)
                 elif self.local_toc.has_key(sec):
-                    return webbrowser.open(path + "/stable/" + self.local_toc[sec]['path'])
+                    self.__welcome( )
+                    return webbrowser.open("file://" + path + self.local_base + self.local_toc[sec]['path'])
                 else:
+                    self.__welcome(None)
                     print "Sorry '%s' is not a recognized section..." % sec
                     print "------------------------------------------------------------------------------"
                     show_toc(self.local_toc)
@@ -88,13 +105,14 @@ class __doc(object):
             return False
 
         ## rename existing directory
+        path = casa['dirs']['doc'] + "/casa.nrao.edu"
         if os.path.exists(casa['dirs']['doc'] + "/casa.nrao.edu"):
-            path = casa['dirs']['doc'] + "/casa.nrao.edu"
             now = datetime.datetime.now( ).isoformat('-')
             os.rename(path, path + "." + now)
 
         print "               source:  %s" % self.remote_source_url
         print "    table of contents:  %s" % self.remote_toc_url
+        print "       download point:  %s" % path
         print "--- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---"
         print "this will take some time..."
         print "relax..."

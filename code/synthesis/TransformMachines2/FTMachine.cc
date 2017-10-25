@@ -76,7 +76,7 @@
 #include <casa/OS/Timer.h>
 #include <casa/sstream.h>
 #include <casa/iostream.h>
-
+#include <iomanip>
 using namespace casacore;
 namespace casa{//# CASA namespace
 namespace refim {//# namespace refactor imaging
@@ -96,7 +96,7 @@ using namespace casa::vi;
 			   pointingDirCol_p("DIRECTION"),
 			   cfStokes_p(), cfCache_p(), cfs_p(), cfwts_p(), cfs2_p(), cfwts2_p(), 
 			   canComputeResiduals_p(false), toVis_p(true), 
-                           numthreads_p(-1), pbLimit_p(0.05),sj_p(0), cmplxImage_p( )
+                           numthreads_p(-1), pbLimit_p(0.05),sj_p(0), cmplxImage_p( ), vbutil_p(), phaseCenterTime_p(-1.0)
   {
     spectralCoord_p=SpectralCoordinate();
     isPseudoI_p=false;
@@ -115,7 +115,7 @@ using namespace casa::vi;
     pointingDirCol_p("DIRECTION"),
     cfStokes_p(), cfCache_p(cfcache), cfs_p(), cfwts_p(), cfs2_p(), cfwts2_p(),
     convFuncCtor_p(cf),canComputeResiduals_p(false), toVis_p(true), numthreads_p(-1), 
-    pbLimit_p(0.05),sj_p(0), cmplxImage_p( )
+    pbLimit_p(0.05),sj_p(0), cmplxImage_p( ), vbutil_p(), phaseCenterTime_p(-1.0)
   {
     spectralCoord_p=SpectralCoordinate();
     isPseudoI_p=false;
@@ -202,12 +202,14 @@ using namespace casa::vi;
       expandedSpwFreqSel_p = other.expandedSpwFreqSel_p;
       expandedSpwConjFreqSel_p = other.expandedSpwConjFreqSel_p;
       cmplxImage_p=other.cmplxImage_p;
+      vbutil_p=other.vbutil_p;
       numthreads_p=other.numthreads_p;
       pbLimit_p=other.pbLimit_p;
       convFuncCtor_p = other.convFuncCtor_p;      
       sj_p.resize();
       sj_p=other.sj_p;
       isDryRun=other.isDryRun;
+      phaseCenterTime_p=other.phaseCenterTime_p;
     };
     return *this;
   };
@@ -270,7 +272,8 @@ using namespace casa::vi;
       AlwaysAssert(directionIndex>=0, AipsError);
       DirectionCoordinate
         directionCoord=coords.directionCoordinate(directionIndex);
-
+      if(vbutil_p.null())
+	vbutil_p=new VisBufferUtil(vb);
       // get the first position of moving source
       if(fixMovingSource_p){
 
@@ -301,7 +304,7 @@ using namespace casa::vi;
       //  computation time especially for spectral cubes.
       {
         Vector<Double> equal= (mImage_p.getAngle()-
-  			     vb.phaseCenter().getAngle()).getValue();
+			       vbutil_p->getPhaseCenter(vb, phaseCenterTime_p).getAngle()).getValue();
         if((abs(equal(0)) < abs(directionCoord.increment()(0)))
   	 && (abs(equal(1)) < abs(directionCoord.increment()(1)))){
   	doUVWRotation_p=false;
@@ -329,11 +332,11 @@ using namespace casa::vi;
 	throw(AipsError("Cannot define frame because of no access to OBSERVATION table")); 
       if(observatory.contains("ATCA") || observatory.contains("DRAO")
          || observatory.contains("WSRT")){
-        uvwMachine_p=new casacore::UVWMachine(mImage_p, vb.phaseCenter(), mFrame_p,
+        uvwMachine_p=new casacore::UVWMachine(mImage_p, vbutil_p->getPhaseCenter(vb, phaseCenterTime_p), mFrame_p,
   				  true, false);
       }
       else{
-        uvwMachine_p=new casacore::UVWMachine(mImage_p, vb.phaseCenter(), mFrame_p,
+        uvwMachine_p=new casacore::UVWMachine(mImage_p, vbutil_p->getPhaseCenter(vb, phaseCenterTime_p), mFrame_p,
   				  false, tangentSpecified_p);
       }
       AlwaysAssert(uvwMachine_p, AipsError);
@@ -591,7 +594,8 @@ using namespace casa::vi;
   	chanMap.set(-1);
   	interpVisFreq_p.resize(ninterpchan);
   	interpVisFreq_p[0]=(interpwidth > 0) ? minIF : maxIF;
-  	interpVisFreq_p[0] -= fabs(imageFreq_p[1]-imageFreq_p[0])/2.0;
+  	interpVisFreq_p[0] =(interpwidth >0) ? (interpVisFreq_p[0]-fabs(imageFreq_p[1]-imageFreq_p[0])/2.0):
+																(interpVisFreq_p[0]+fabs(imageFreq_p[1]-imageFreq_p[0])/2.0);
   	for (Int k=1; k < ninterpchan; ++k){
   	  interpVisFreq_p[k] = interpVisFreq_p[k-1]+ interpwidth;
   	}
@@ -614,8 +618,7 @@ using namespace casa::vi;
         indgen(chanMap);
       }
 
-      
-
+	  
       if(type != FTMachine::PSF){ // Interpolating the data
    	//Need to get  new interpolate functions that interpolate explicitly on the 2nd axis
   	//2 swap of axes needed
@@ -701,19 +704,30 @@ using namespace casa::vi;
   void FTMachine::getInterpolateArrays(const vi::VisBuffer2& vb,
   				       Cube<Complex>& data, Cube<Int>& flags){
 
+	Vector<Double> visFreq(vb.getFrequencies(0).nelements());
 
+      //if(doConversion_p[vb.spectralWindows()[0]]){
+      if(freqFrameValid_p){
+        convertArray(visFreq, lsrFreq_p);
+      }
+      else{
+        convertArray(visFreq, vb.getFrequencies(0));
+      }
+    
+	
+	  
       if((imageFreq_p.nelements()==1) || (freqInterpMethod_p== InterpolateArray1D<Double, Complex>::nearestNeighbour)||  (vb.nChannels()==1)){
         Cube<Bool> modflagCube;
         setSpectralFlag(vb,modflagCube);
 	
-	 data.reference(vb.visCubeModel());
+		data.reference(vb.visCubeModel());
         //flags.resize(vb.flagCube().shape());
         flags.resize(modflagCube.shape());
         flags=0;
         //flags(vb.flagCube())=true;
         flags(modflagCube)=true;
         interpVisFreq_p.resize();
-        interpVisFreq_p=vb.getFrequencies(0);
+        interpVisFreq_p=visFreq;
         return;
       }
 
@@ -773,24 +787,51 @@ using namespace casa::vi;
     // has only one channel, resort to nearestNeighbour interpolation.
     // Honour user selection of nearestNeighbour.
     //
+    
+	Double width=fabs(imageFreq_p[1]-imageFreq_p[0])/fabs(visFreq[1]-visFreq[0]);
+	
     if((imageFreq_p.nelements()==1) || 
        (vb.nChannels()==1) || 
        (freqInterpMethod_p== InterpolateArray1D<Double, Complex>::nearestNeighbour)){
         origdata->reference(data);
         return false;
       }
-
+  
       //Need to get  new interpolate functions that interpolate explicitly on the 2nd axis
       //2 swap of axes needed
-      Cube<Complex> flipgrid;
-      flipgrid.resize();
-      swapyz(flipgrid,data);
-
+		Cube<Complex> flipgrid;
+		flipgrid.resize();
+		swapyz(flipgrid,data);
+		Vector<Double> newImFreq;
+		newImFreq=imageFreq_p;
+		
+		//cerr << "width " << width << endl;
+         if(((width >2.0) && (freqInterpMethod_p==InterpolateArray1D<Double, Complex>::linear)) ||
+         ((width >4.0) && (freqInterpMethod_p !=InterpolateArray1D<Double, Complex>::linear))){
+			Int newNchan=Int(std::round(width))*imageFreq_p.nelements();
+			newImFreq.resize(newNchan);
+			Double newIncr= (imageFreq_p[1]-imageFreq_p[0])/std::round(width);
+			Double newStart=imageFreq_p[0]-(imageFreq_p[1]-imageFreq_p[0])/2.0+newIncr/2.0;
+			Cube<Complex> newflipgrid(flipgrid.shape()[0], flipgrid.shape()[1], newNchan);
+			for (Int k=0; k < newNchan; ++k){
+				newImFreq[k]=newStart+k*newIncr;
+				Int oldchan=k/Int(std::round(width));
+				newflipgrid.xyPlane(k)=flipgrid.xyPlane(oldchan);
+				
+			}
+			//cerr << std::setprecision(12) << "newfreq " << newImFreq << endl;
+			//cerr << "oldfreq " << imageFreq_p << endl;
+			//InterpolateArray1D<Double,Complex>::
+        //interpolate(newflipgrid,newImFreq, imageFreq_p, flipgrid, InterpolateArray1D<Double, Complex>::nearestNeighbour);
+			flipgrid.resize();
+			flipgrid.reference(newflipgrid);
+			 
+		 }
       Cube<Complex> flipdata((origdata->shape())(0),(origdata->shape())(2),
   			   (origdata->shape())(1)) ;
       flipdata.set(Complex(0.0));
       InterpolateArray1D<Double,Complex>::
-        interpolate(flipdata,visFreq, imageFreq_p, flipgrid,freqInterpMethod_p);
+        interpolate(flipdata,visFreq, newImFreq, flipgrid,freqInterpMethod_p);
       
 
       
@@ -829,7 +870,7 @@ using namespace casa::vi;
 	mFrame_p.set(mLocation_p, MEpoch(Quantity(vb.time()(0), "s"), mscol.timeMeas()(0).getRef()));
       MDirection::Types outType;
       MDirection::getType(outType, mImage_p.getRefString());
-      MDirection phasecenter=MDirection::Convert(vb.phaseCenter(), MDirection::Ref(outType, mFrame_p))();
+      MDirection phasecenter=MDirection::Convert(vbutil_p->getPhaseCenter(vb, phaseCenterTime_p), MDirection::Ref(outType, mFrame_p))();
       
 
       if(fixMovingSource_p){
@@ -855,13 +896,13 @@ using namespace casa::vi;
 	if(observatory.contains("ATCA") || observatory.contains("WSRT")){
 		//Tangent specified is being wrongly used...it should be for a
 	    	//Use the safest way  for now.
-	    uvwMachine_p=new UVWMachine(phasecenter, vb.phaseCenter(), mFrame_p,
+	  uvwMachine_p=new UVWMachine(phasecenter, vbutil_p->getPhaseCenter(vb, phaseCenterTime_p), mFrame_p,
 					true, false);
 	    phaseShifter_p=new UVWMachine(mImage_p, phasecenter, mFrame_p,
 					true, false);
 	}
 	else{
-	  uvwMachine_p=new UVWMachine(phasecenter, vb.phaseCenter(),  mFrame_p,
+	  uvwMachine_p=new UVWMachine(phasecenter, vbutil_p->getPhaseCenter(vb, phaseCenterTime_p),  mFrame_p,
 				      false, false);
 	  phaseShifter_p=new UVWMachine(mImage_p, phasecenter,  mFrame_p,
 				      false, false);
@@ -959,11 +1000,11 @@ using namespace casa::vi;
   	if(observatory.contains("ATCA") || observatory.contains("WSRT")){
   		//Tangent specified is being wrongly used...it should be for a
   	    	//Use the safest way  for now.
-  	    uvwMachine_p=new UVWMachine(phasecenter, vb.phaseCenter(), mFrame_p,
+	  uvwMachine_p=new UVWMachine(phasecenter, vbutil_p->getPhaseCenter(vb, phaseCenterTime_p), mFrame_p,
   					true, false);
   	}
   	else{
-  		uvwMachine_p=new UVWMachine(phasecenter, vb.phaseCenter(), mFrame_p,
+	  uvwMachine_p=new UVWMachine(phasecenter, vbutil_p->getPhaseCenter(vb, phaseCenterTime_p), mFrame_p,
   					false,tangentSpecified_p);
   	    }
        }
@@ -1205,6 +1246,7 @@ using namespace casa::vi;
     outRecord.define("tovis", toVis_p);
     outRecord.define("sumweight", sumWeight);
     outRecord.define("numthreads", numthreads_p);
+    outRecord.define("phasecentertime", phaseCenterTime_p);
     //Need to serialized sj_p...the user has to set the sj_p after recovering from record
     return true;
   };
@@ -1361,6 +1403,7 @@ using namespace casa::vi;
       freqInterpMethod_p=static_cast<InterpolateArray1D<Double, Complex >::InterpolationMethod>(tmpInt);
     }
     inRecord.get("numthreads", numthreads_p);
+    inRecord.get("phasecentertime", phaseCenterTime_p);
     return true;
   };
   

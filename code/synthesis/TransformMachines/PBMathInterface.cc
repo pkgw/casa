@@ -53,7 +53,7 @@
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
 
-PBMathInterface::PBMathInterface()
+PBMathInterface::PBMathInterface() : bandOrFeedName_p("")
 {
 };
 
@@ -68,7 +68,7 @@ PBMathInterface::PBMathInterface(Bool isThisVP,
 				 Bool useSymmetricBeam) :
 isThisVP_p(isThisVP),
 squint_p(squint),
-useSymmetricBeam_p(useSymmetricBeam)
+useSymmetricBeam_p(useSymmetricBeam), bandOrFeedName_p("")
 {
 };
 

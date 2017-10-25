@@ -626,6 +626,13 @@ TBD
      <value></value>
      </param>
 
+     <param type="string" direction="in" name="refantmode">
+     <description>Reference antenna mode</description>
+     <value>flex</value>
+     <value>strict</value>
+     <value>flex</value>
+     </param>
+
      <param type="int" direction="in" name="minblperant">
      <description>Minimum number of baselines per ant for solving</description>
      <value>4</value>
@@ -1961,6 +1968,11 @@ of various types</shortdescription>
      <value></value>
      </param>
 
+     <param type="bool" direction="in" name="uniform">
+     <description>Assume uniform calibration values across the array</description>
+     <value>true</value>
+     </param>
+
 </input>
 <returns type="bool"/>
 
@@ -2069,6 +2081,58 @@ and the result written to 'out.gcal'.
 
 </example>
 
+</method>
+
+<method type="function" name="rerefant">
+   <shortdescription>Apply a new reference antenna</shortdescription>
+   
+
+<input>
+
+     <param type="string" direction="in" name="tablein">
+     <description>Input calibration table</description>
+     </param>
+
+     <param type="string" direction="in" name="tableout">
+     <description>Output calibration table</description>
+     </param>
+
+     <param type="string" direction="in" name="refantmode">
+     <description>The refant application mode</description>
+     <value>strict</value>
+     <value>flexible</value>
+     </param>
+
+     <param type="any" direction="in" name="refant">
+     <description>Reference antenna.  Default is none.</description>
+     <any type="variant"/>
+     <value></value>
+     </param>
+
+
+</input>
+<returns type="bool"/>
+
+<description>
+
+TBD
+
+Pending improvements:
+
+\begin{itemize}
+\item TBD
+\end{itemize}
+
+</description>
+
+<example>
+
+cb.open('ngc5921.ms');
+cb.rerefant(tablein='in.gcal',tableout='out.gcal',
+            refantmode='median',refant='4')
+cb.close();
+
+</example>
 </method>
 
 <method type="function" name="listcal">

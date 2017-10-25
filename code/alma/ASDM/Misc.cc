@@ -173,11 +173,7 @@ namespace asdm {
 
   void ASDMUtils::DotXMLFilter::operator()(directory_entry& p) {
     if (!extension(p).compare(".xml")) {
-#if (BOOST_FILESYSTEM_VERSION == 3)
       filenames->push_back(p.path().string());
-#else
-      filenames->push_back(p.string());
-#endif
     }
   }
  
@@ -288,7 +284,8 @@ namespace asdm {
     return result;
   }
 
-  bool ASDMUtils::hasChild(xmlDocPtr doc, xmlNodePtr node, const xmlChar* childName) {
+  bool ASDMUtils::hasChild(xmlDocPtr, // doc
+			   xmlNodePtr node, const xmlChar* childName) {
     node = node->xmlChildrenNode;
 
     while (node != NULL) {
@@ -380,7 +377,7 @@ namespace asdm {
   }
 
   string ASDMUtils::pathToxslTransform( const string& xsltFilename) {
-    char * envVars[] = {"INTROOT", "ACSROOT"};
+    const char * envVars[] = {"INTROOT", "ACSROOT"};
     char * rootDir_p;
     for (unsigned int i = 0; i < sizeof(envVars) / sizeof(char *) ; i++) 
       if ((rootDir_p = getenv(envVars[i])) != 0) {
@@ -571,11 +568,12 @@ namespace asdm {
     output << "Origin=" << s << ",Version=" << p.version_ << ",LoadTablesOnDemand=" << p.loadTablesOnDemand_ << ",CheckRowUniqueness=" << p.checkRowUniqueness_;
     return output;  // for multiple << operators.
   }
+
   CharComparator::CharComparator(std::ifstream * is_p, off_t limit):is_p(is_p), limit(limit){asdmDebug_p = getenv("ASDM_DEBUG");}
 
   bool CharComparator::operator() (char cl, char cr) {
     if (asdmDebug_p) cout << "Entering CharComparator::operator()" << endl;
-    if (is_p && is_p->tellg() > limit)
+    if (is_p && is_p->tellg() > limit) 
       return true;
     else 
       return toupper(cl) == cr;
@@ -589,7 +587,7 @@ namespace asdm {
     if (asdmDebug_p) cout << "Entering CharCompAccumulator::operator()" << endl;
     bool result = false;
     // Are we beyond the limit ?
-    if (is_p && is_p->tellg( ) > limit) 
+    if (is_p && is_p->tellg() > limit) 
       result = true;      // Yes
     else {                // No
       if (toupper(cl) == toupper(cr)) {

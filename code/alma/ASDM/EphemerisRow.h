@@ -48,11 +48,11 @@
 
 
 	 
-#include <ArrayTime.h>
+#include <ArrayTimeInterval.h>
 	
 
 	 
-#include <ArrayTimeInterval.h>
+#include <ArrayTime.h>
 	
 
 

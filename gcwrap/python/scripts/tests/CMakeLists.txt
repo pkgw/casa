@@ -32,6 +32,7 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_cleanhelper.py
   test_clearstat.py
   test_componentlist.py
+  test_componentlistimage.py
   test_concat.py
   test_conjugatevis.py
   test_coordsys.py
@@ -171,18 +172,19 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_po_sigmalinpolint.py
   test_po_sigmalinpolposang.py
   test_po_totpolint.py
+  test_predictcomp.py
   test_refimager.py
   test_refimager_parallel.py
   test_report.py
   test_rg_selectedchannels.py
   test_rg_frombcs.py
   test_rg_fromtextfile.py
-  test_tsdbaseline.py	
-  test_tsdcal.py
-  test_tsdfit.py
+  test_sdfixscan.py
   test_sdgaincal.py
   test_sdimaging.py
-  test_sdimprocess.py
+  test_tsdbaseline.py
+  test_tsdcal.py
+  test_tsdfit.py
   test_tsdsmooth.py
 
   ### CASAGUIDES ###
@@ -191,24 +193,6 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_FirstLook_LineImaging.py
   test_FirstLook_SelfCalibration.py
 
-  ### ASAP tasks ###
-  test_sdaverage.py
-  test_sdbaseline.py
-  test_sdbaseline2.py
-  test_sdcal.py
-  test_sdcal2.py
-  test_sdcoadd.py
-  test_sdfit.py
-  test_sdflag.py
-  test_sdflagmanager.py
-  test_sdgrid.py
-  test_sdlist.py
-  test_sdmath.py
-  test_sdplot.py
-  test_sdreduce.py
-  test_sdsave.py
-  test_sdscale.py
-  test_sdstat.py
   ###
   test_setjy.py
   test_simobserve.py
@@ -229,14 +213,15 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_viewer.py
   test_virtualconcat.py
   test_vishead.py
+  test_visstatold.py
   test_visstat.py
-  test_visstat2.py
   test_vpmanager.py
   test_wvrgcal.py
   test_imview.py
   test_msview.py
   selection_syntax.py
   ../mpi4casa/test_mpi4casa.py
+  ../mpi4casa/test_mpi4casa_subset.py
   testutils.py
   unittests_list.txt
 )

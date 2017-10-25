@@ -136,9 +136,10 @@ namespace asdm {
 	// The follwing is a special case.
 	//////////////////////////////////////////////////////
 
-	string Parser::getString(const string &name, const string &tableName, const string &xmlDoc) 
+	string Parser::getString(const string &name, const string & /* tableName */, const string &xmlDoc) 
 	{
 		string xmlField = Parser::getField(xmlDoc,name);
+		// uncomment tableName argument if this code is ever used
 		/*
 		if (xmlField == "")
 			throw  ConversionException("Error: Missing field \"" + 
@@ -167,7 +168,6 @@ namespace asdm {
 			if (dim0 == 0)
 				return value;
 			t.nextToken("\""); // the space
-			//t.nextToken();
 			value[0] = t.nextToken();
 			for (int i = 1; i < dim0; ++i) {
 				t.nextToken(); // the space		

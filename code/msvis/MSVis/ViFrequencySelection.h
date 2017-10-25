@@ -133,7 +133,7 @@ public:
 
         double getBeginFrequency () const;
         double getEndFrequency () const;
-        std::pair<int, int> getChannelRange (const casacore::MeasurementSet * ms) const;
+		std::pair<int, int> getChannelRange (const casacore::MeasurementSet * ms) const;
         int getSpectralWindow () const;
 
     private:
@@ -159,7 +159,9 @@ public:
     const_iterator end () const;
     set<int> getSelectedWindows () const;
     casacore::String toString () const;
-
+    ///This will return a map where the key is the spw and the pair is the pair (nchan, start) for that spw
+	std::map<int, std::pair<int, int>  > getChannelRange (const casacore::MeasurementSet& ms) const;
+        
 private:
 
     Elements elements_p;

@@ -28,7 +28,7 @@
 namespace casa {
 
      AnimatorWidget::AnimatorWidget(QWidget *parent)
-		: QWidget(parent), Ui::AnimatorWidget( ) {
+		: QWidget(parent), Ui::AnimatorWidget( ), play(0) {
 
 		setupUi(this);
 

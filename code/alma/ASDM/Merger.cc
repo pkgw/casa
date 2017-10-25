@@ -169,6 +169,10 @@ namespace asdm {
 
 		Merger::mergeCalAppPhasePtr = &Merger::mergeCalAppPhase;
 
+		Merger::mergeDelayModelFixedParametersPtr = &Merger::mergeDelayModelFixedParameters;
+
+		Merger::mergeDelayModelVariableParametersPtr = &Merger::mergeDelayModelVariableParameters;
+
 	}
 	
 	Merger::~Merger() {
@@ -308,6 +312,10 @@ namespace asdm {
 
 		hasMergedCalAppPhase = false;
 
+		hasMergedDelayModelFixedParameters = false;
+
+		hasMergedDelayModelVariableParameters = false;
+
 
 		mergeSBSummary( );
 
@@ -437,6 +445,10 @@ namespace asdm {
 
 		mergeCalAppPhase( );
 
+		mergeDelayModelFixedParameters( );
+
+		mergeDelayModelVariableParameters( );
+
 
 		postMergeSBSummary( );
 
@@ -565,6 +577,10 @@ namespace asdm {
 		postMergeSysPower( );
 
 		postMergeCalAppPhase( );
+
+		postMergeDelayModelFixedParameters( );
+
+		postMergeDelayModelVariableParameters( );
 			
 	}
 	
@@ -645,6 +661,7 @@ namespace asdm {
 			
 		
 			ConfigDescriptionRow * retRow = ds1->getConfigDescription().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 			
@@ -776,6 +793,7 @@ namespace asdm {
 			
 		
 			AntennaRow * retRow = ds1->getAntenna().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 			
@@ -839,6 +857,7 @@ namespace asdm {
 			
 		
 			DataDescriptionRow * retRow = ds1->getDataDescription().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 			
@@ -888,6 +907,7 @@ namespace asdm {
 			
 		
 			SourceRow * retRow = ds1->getSource().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 			
@@ -942,6 +962,7 @@ namespace asdm {
 			
 		
 			FeedRow * retRow = ds1->getFeed().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 			
@@ -1054,6 +1075,7 @@ namespace asdm {
 			
 		
 			FreqOffsetRow * retRow = ds1->getFreqOffset().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -1099,6 +1121,7 @@ namespace asdm {
 			
 		
 			ReceiverRow * retRow = ds1->getReceiver().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 			
@@ -1133,6 +1156,7 @@ namespace asdm {
 			
 		
 			DopplerRow * retRow = ds1->getDoppler().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 			
@@ -1211,6 +1235,7 @@ namespace asdm {
 			
 		
 			CalDeviceRow * retRow = ds1->getCalDevice().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -1263,6 +1288,7 @@ namespace asdm {
 			
 		
 			FocusRow * retRow = ds1->getFocus().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -1294,6 +1320,7 @@ namespace asdm {
 			
 		
 			HistoryRow * retRow = ds1->getHistory().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -1346,6 +1373,7 @@ namespace asdm {
 			
 		
 			PointingRow * retRow = ds1->getPointing().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -1406,6 +1434,7 @@ namespace asdm {
 			
 		
 			SysCalRow * retRow = ds1->getSysCal().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -1464,6 +1493,7 @@ namespace asdm {
 			
 		
 			TotalPowerRow * retRow = ds1->getTotalPower().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -1495,6 +1525,7 @@ namespace asdm {
 			
 		
 			WeatherRow * retRow = ds1->getWeather().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -1545,6 +1576,7 @@ namespace asdm {
 			
 		
 			WVMCalRow * retRow = ds1->getWVMCal().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -1601,6 +1633,7 @@ namespace asdm {
 			
 		
 			ExecBlockRow * retRow = ds1->getExecBlock().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 			
@@ -1656,6 +1689,7 @@ namespace asdm {
 			
 		
 			ScanRow * retRow = ds1->getScan().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -1687,6 +1721,7 @@ namespace asdm {
 			
 		
 			SubscanRow * retRow = ds1->getSubscan().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -1745,6 +1780,7 @@ namespace asdm {
 			
 		
 			MainRow * retRow = ds1->getMain().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -1783,6 +1819,7 @@ namespace asdm {
 			
 		
 			FocusModelRow * retRow = ds1->getFocusModel().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 			
@@ -1833,6 +1870,7 @@ namespace asdm {
 			
 		
 			GainTrackingRow * retRow = ds1->getGainTracking().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -1871,6 +1909,7 @@ namespace asdm {
 			
 		
 			PointingModelRow * retRow = ds1->getPointingModel().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 			
@@ -1914,6 +1953,7 @@ namespace asdm {
 			
 		
 			CalAmpliRow * retRow = ds1->getCalAmpli().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -1981,6 +2021,7 @@ namespace asdm {
 			
 		
 			CalPhaseRow * retRow = ds1->getCalPhase().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -2020,6 +2061,7 @@ namespace asdm {
 			
 		
 			CalSeeingRow * retRow = ds1->getCalSeeing().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -2059,6 +2101,7 @@ namespace asdm {
 			
 		
 			CalPositionRow * retRow = ds1->getCalPosition().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -2098,6 +2141,7 @@ namespace asdm {
 			
 		
 			CalPointingRow * retRow = ds1->getCalPointing().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -2137,6 +2181,7 @@ namespace asdm {
 			
 		
 			CalPointingModelRow * retRow = ds1->getCalPointingModel().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -2176,6 +2221,7 @@ namespace asdm {
 			
 		
 			CalHolographyRow * retRow = ds1->getCalHolography().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -2215,6 +2261,7 @@ namespace asdm {
 			
 		
 			CalAtmosphereRow * retRow = ds1->getCalAtmosphere().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -2254,6 +2301,7 @@ namespace asdm {
 			
 		
 			CalCurveRow * retRow = ds1->getCalCurve().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -2359,6 +2407,7 @@ namespace asdm {
 			
 		
 			CalFocusRow * retRow = ds1->getCalFocus().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -2398,6 +2447,7 @@ namespace asdm {
 			
 		
 			CalDelayRow * retRow = ds1->getCalDelay().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -2451,6 +2501,7 @@ namespace asdm {
 			
 		
 			CalBandpassRow * retRow = ds1->getCalBandpass().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -2490,6 +2541,7 @@ namespace asdm {
 			
 		
 			CalFluxRow * retRow = ds1->getCalFlux().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -2529,6 +2581,7 @@ namespace asdm {
 			
 		
 			CalFocusModelRow * retRow = ds1->getCalFocusModel().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -2568,6 +2621,7 @@ namespace asdm {
 			
 		
 			CalGainRow * retRow = ds1->getCalGain().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -2607,6 +2661,7 @@ namespace asdm {
 			
 		
 			CalPrimaryBeamRow * retRow = ds1->getCalPrimaryBeam().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -2646,6 +2701,7 @@ namespace asdm {
 			
 		
 			CalWVRRow * retRow = ds1->getCalWVR().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -2731,6 +2787,7 @@ namespace asdm {
 			
 		
 			DelayModelRow * retRow = ds1->getDelayModel().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -2765,6 +2822,7 @@ namespace asdm {
 			
 		
 			FlagRow * retRow = ds1->getFlag().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 			
@@ -2869,6 +2927,7 @@ namespace asdm {
 			
 		
 			SysPowerRow * retRow = ds1->getSysPower().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -2908,6 +2967,7 @@ namespace asdm {
 			
 		
 			CalAppPhaseRow * retRow = ds1->getCalAppPhase().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
 		
 		}
@@ -2920,6 +2980,78 @@ namespace asdm {
 		cout << "Entering Merger::postMergeCalAppPhase" << endl;
 	
 		cout << "Exiting Merger::postMergeCalAppPhase" << endl;
+	}			
+
+	void Merger::mergeDelayModelFixedParameters() {
+		cout << "Entering Merger::mergeDelayModelFixedParameters" << endl;
+		if (hasMergedDelayModelFixedParameters) return;
+	
+		vector <DelayModelFixedParametersRow *> rows2 = ds2->getDelayModelFixedParameters().get();
+		for (unsigned int i = 0; i < rows2.size(); i++) {
+			DelayModelFixedParametersRow * row = ds1->getDelayModelFixedParameters().newRow(rows2.at(i));
+		
+			
+				
+				
+			Tag execBlockIdTag = getTag(row->getExecBlockId(), mergeExecBlockPtr);
+			row->setExecBlockId(execBlockIdTag);
+				
+			
+		
+			DelayModelFixedParametersRow * retRow = ds1->getDelayModelFixedParameters().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
+			if (false) cout << (unsigned long long) retRow;
+		
+			
+			tagTag.insert(make_pair(rows2.at(i)->getDelayModelFixedParametersId().toString(), retRow->getDelayModelFixedParametersId()));
+			
+		
+		}
+	
+		hasMergedDelayModelFixedParameters = true;
+		cout << "Exiting Merger::mergeDelayModelFixedParameters" << endl;
+	}
+	
+	void Merger::postMergeDelayModelFixedParameters() {
+		cout << "Entering Merger::postMergeDelayModelFixedParameters" << endl;
+	
+		cout << "Exiting Merger::postMergeDelayModelFixedParameters" << endl;
+	}			
+
+	void Merger::mergeDelayModelVariableParameters() {
+		cout << "Entering Merger::mergeDelayModelVariableParameters" << endl;
+		if (hasMergedDelayModelVariableParameters) return;
+	
+		vector <DelayModelVariableParametersRow *> rows2 = ds2->getDelayModelVariableParameters().get();
+		for (unsigned int i = 0; i < rows2.size(); i++) {
+			DelayModelVariableParametersRow * row = ds1->getDelayModelVariableParameters().newRow(rows2.at(i));
+		
+			
+				
+				
+			Tag delayModelFixedParametersIdTag = getTag(row->getDelayModelFixedParametersId(), mergeDelayModelFixedParametersPtr);
+			row->setDelayModelFixedParametersId(delayModelFixedParametersIdTag);
+				
+			
+		
+			DelayModelVariableParametersRow * retRow = ds1->getDelayModelVariableParameters().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
+			if (false) cout << (unsigned long long) retRow;
+		
+			
+			tagTag.insert(make_pair(rows2.at(i)->getDelayModelVariableParametersId().toString(), retRow->getDelayModelVariableParametersId()));
+			
+		
+		}
+	
+		hasMergedDelayModelVariableParameters = true;
+		cout << "Exiting Merger::mergeDelayModelVariableParameters" << endl;
+	}
+	
+	void Merger::postMergeDelayModelVariableParameters() {
+		cout << "Entering Merger::postMergeDelayModelVariableParameters" << endl;
+	
+		cout << "Exiting Merger::postMergeDelayModelVariableParameters" << endl;
 	}			
 
 

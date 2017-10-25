@@ -342,7 +342,7 @@ class test_base_compare(test_base):
             self.assertTrue(th.compTables(self.outvis_sorted+subtable,self.refvis_sorted+subtable, [],0.000001,"absolute"))
 
         # Special case for SOURCE which contains many un-defined columns
-        # CAS-5172 (jagonzal): Commenting this out because cvel and mstransform produce different SORUCE subtable
+        # CAS-5172 (jagonzal): Commenting this out because cvel and mstransform produce different SOURCE subtable
         # For some reason cvel removes sources which are not present in any row of the main table even if the
         # user does not specify field selection
         #self.assertTrue(th.compTables(self.outvis_sorted+'/SOURCE',self.refvis_sorted+'/SOURCE', 
@@ -982,7 +982,6 @@ class test_Columns(test_base):
           mkeys = mcol.keys()
           self.assertTrue(mkeys.__len__()==0, 'Should not add MODEL_DATA column')
           
-    @unittest.skip('Skip until seg fault in msvis is fixed.')          
     def test_col2(self):
           """mstransform: make real a virtual MODEL column """
           self.setUp_ngc5921()
@@ -1383,7 +1382,8 @@ class test_channelAverageByDefault(test_base_compare):
     def tearDown(self):
         super(test_channelAverageByDefault,self).tearDown()
 
-    @unittest.skip('Skip, cvel produces an exception since release 4.7.2 as per CAS-9798')
+    @unittest.skip('Skip, cvel produces an exception since release 4.7.2 as per CAS-9798'
+                   ' (regridding with pre-averaging)')
     def test_channelAverageByDefaultInVelocityMode(self):
         self.outvis = 'test_channelAverageByDefaultInVelocityMode.ms'
 
@@ -1392,11 +1392,20 @@ class test_channelAverageByDefault(test_base_compare):
         cvel(vis=self.vis,outputvis=self.refvis,interpolation="linear",mode="velocity",veltype="optical",width='30km/s',restfreq='230GHz')
 
         self.generate_tolerance_map()
-        
+
         self.mode['WEIGHT'] = "absolute"
         self.tolerance['WEIGHT'] = 1
         
         self.post_process()
+
+    def test_noregrid_channelAverageByDefaultInVelocityMode(self):
+        self.outvis = 'test_channelAverageByDefaultInVelocityMode.ms'
+
+        mstransform(vis=self.vis, outputvis=self.outvis, regridms=True,
+                    combinespws=True,interpolation="linear", mode="velocity",
+                    veltype="optical", width='30km/s', restfreq='230GHz', datacolumn='ALL')
+
+        self.assertTrue(os.path.isdir(self.outvis))
 
 
 class test_float_column(test_base):
@@ -1833,7 +1842,17 @@ class test_regridms_multiple_spws(test_base_compare):
                         '/POINTING','/POLARIZATION','/PROCESSOR','/STATE']
 
         self.post_process()          
-        
+
+    def test_combine_noregrid_fftshift(self):
+        '''mstransform: Combine 2 SPWs and change ref. frame to LSRK using fftshift'''
+
+        mstransform(vis=self.vis, outputvis=self.outvis, datacolumn='all',
+                    combinespws=True, regridms=True, mode='velocity', nchan=10,
+                    start='-50km/s', width='5km/s', interpolation='fftshift',
+                    restfreq='36.39232GHz', outframe='LSRK', veltype='radio')
+
+        self.assertTrue(os.path.isdir(self.outvis))
+
 class test_regridms_spw_with_different_number_of_channels(test_base):
     '''Tests for regridms w/o combining SPWS'''
        
@@ -1884,7 +1903,7 @@ class test_spw_poln(test_base):
         myms = mstool()
         myms.open(self.vis)
         myms.msselect({'polarization':'LL'})
-        inp_nrow = myms.nrow()
+        inp_nrow = myms.nrow(True)
         myms.close()
 
         myms.open(self.outputms)
@@ -1928,7 +1947,7 @@ class test_spw_poln(test_base):
         myms = mstool()
         myms.open(self.vis)
         myms.msselect({'spw':'0'})
-        inp_nrow = myms.nrow()
+        inp_nrow = myms.nrow(True)
         myms.close()
 
         myms.open(self.outputms)
@@ -1964,7 +1983,7 @@ class test_spw_poln(test_base):
         myms = mstool()
         myms.open(self.vis)
         myms.msselect({'spw':'0','polarization':'LL'})
-        inp_nrow = myms.nrow()
+        inp_nrow = myms.nrow(True)
         myms.close()
 
         myms.open(self.outputms)
@@ -1990,7 +2009,7 @@ class test_spw_poln(test_base):
         myms = mstool()
         myms.open(self.vis)
         myms.msselect({'spw':'0,1','polarization':'RR'})
-        inp_nrow = myms.nrow()
+        inp_nrow = myms.nrow(True)
         myms.close()
 
         myms.open(self.outputms)
@@ -2008,7 +2027,7 @@ class test_spw_poln(test_base):
         myms = mstool()
         myms.open(self.vis)
         myms.msselect({'spw':'1,2'})
-        inp_nrow = myms.nrow()
+        inp_nrow = myms.nrow(True)
         myms.close()
 
         myms.open(self.outputms)
@@ -2420,9 +2439,19 @@ class test_radial_velocity_correction_largetimerange(test_base_compare):
         self.post_process()
         
         # Also check that the ephemerides table is copied to the right place
-        self.assertTrue(os.path.isdir(self.outvis + '/FIELD/EPHEM0_Titan.tab'), 'Ephemerides table not copied to FIELD') 
+        self.assertTrue(os.path.isdir(self.outvis + '/FIELD/EPHEM0_Titan.tab'), 'Ephemerides table not copied to FIELD')
         self.assertFalse(os.path.isdir(self.outvis + '/EPHEM0_Titan.tab'), 'Ephemerides table copied to MAIN')
-        
+
+    def test_ascending_freq_noregrid(self):
+        cvel2(vis=self.vis, outputvis=self.outvis, spw='1', field='Titan',
+             mode='velocity', width='0.5km/s', interpolation='linear',
+             restfreq='349.45370GHz', outframe='SOURCE')
+
+        # Also check that the ephemerides table is copied to the right place
+        self.assertTrue(os.path.isdir(self.outvis + '/FIELD/EPHEM0_Titan.tab'),
+                        'Ephemerides table not copied to FIELD')
+        self.assertFalse(os.path.isdir(self.outvis + '/EPHEM0_Titan.tab'),
+                         'Ephemerides table copied to MAIN')
 
     @unittest.skip('Skip, cvel produces an exception since release 4.7.2 as per CAS-9798')
     def test_descending_freq(self):
@@ -2442,10 +2471,21 @@ class test_radial_velocity_correction_largetimerange(test_base_compare):
         self.post_process()
         
         # Also check that the ephemerides table is copied to the right place
-        self.assertTrue(os.path.isdir(self.outvis + '/FIELD/EPHEM0_Titan.tab'), 'Ephemerides table not copied to FIELD') 
-        self.assertFalse(os.path.isdir(self.outvis + '/EPHEM0_Titan.tab'), 'Ephemerides table copied to MAIN')        
+        self.assertTrue(os.path.isdir(self.outvis + '/FIELD/EPHEM0_Titan.tab'), 'Ephemerides table not copied to FIELD')
+        self.assertFalse(os.path.isdir(self.outvis + '/EPHEM0_Titan.tab'), 'Ephemerides table copied to MAIN')
 
-        
+    def test_descending_freq_noregrid(self):
+        cvel2(vis=self.vis, outputvis=self.outvis, spw='0', field='Titan',
+             mode='velocity', width='0.5km/s', interpolation='linear',
+             restfreq='349.45370GHz', outframe='SOURCE')
+
+        # Also check that the ephemerides table is copied to the right place
+        self.assertTrue(os.path.isdir(self.outvis + '/FIELD/EPHEM0_Titan.tab'),
+                        'Ephemerides table not copied to FIELD')
+        self.assertFalse(os.path.isdir(self.outvis + '/EPHEM0_Titan.tab'),
+                         'Ephemerides table copied to MAIN')
+
+
 class test_vla_mixed_polarizations(test_base):
     '''Test behaviour of mstransform in split mode when the input MS contains mixed VLA correlations XY/LR'''
     

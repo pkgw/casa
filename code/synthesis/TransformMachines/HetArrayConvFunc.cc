@@ -345,7 +345,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 					  Vector<Int>& convSupport,
 					  Vector<Int>& convFuncPolMap,
 					  Vector<Int>& convFuncChanMap,
-					  Vector<Int>& convFuncRowMap)
+					  Vector<Int>& convFuncRowMap,
+					  const Bool /*conjugateFreqFuncs*/)
   {
 
     storeImageParams(iimage,vb);
@@ -425,8 +426,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       for (uInt ii=0; ii < ndish; ++ii){
 	support=max((antMath_p[ii])->support(coords), support);
       }
-      support=Int(max(nx_p, ny_p)*2.0)/2;
-      convSize_p=Int(max(nx_p, ny_p)*2.0)/2*convSampling;
+      support=Int(min(Float(support), max(Float(nx_p), Float(ny_p)))*2.0)/2;
+      convSize_p=support*convSampling;
       // Make this a nice composite number, to speed up FFTs
       CompositeNumber cn(uInt(convSize_p*2.0));    
       convSize_p  = cn.nextLargerEven(Int(convSize_p));
@@ -548,9 +549,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	   //subim2.copyData((LatticeExpr<Complex>) (iif(abs(subim2)> 25e-4, subim2, 0)));
 	   
 	
-	   ft_p.c2cFFT(subim);
+	   //ft_p.c2cFFT(subim);
 	  
-	   ft_p.c2cFFT(subim2);
+	   //ft_p.c2cFFT(subim2);
+	   ft_p.c2cFFTInDouble(subim);
+	   ft_p.c2cFFTInDouble(subim2);
 	   //LatticeFFT::cfft2d(subim2);
 	    //  tim.show("after ffts ");
 	   // cerr << kk << " applies " << wtime1-wtime0 << " ffts " << omp_get_wtime()-wtime1 << endl;

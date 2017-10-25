@@ -13,7 +13,7 @@
 #
 # To test:  see plotbandpass_regression.py
 #
-PLOTBANDPASS_REVISION_STRING = "$Id: task_plotbandpass.py,v 1.96 2017/05/19 15:28:20 thunter Exp $" 
+PLOTBANDPASS_REVISION_STRING = "$Id: task_plotbandpass.py,v 1.100 2017/06/09 15:57:51 thunter Exp $" 
 import pylab as pb
 import math, os, sys, re
 import time as timeUtilities
@@ -90,7 +90,7 @@ def version(showfile=True):
     """
     Returns the CVS revision number.
     """
-    myversion = "$Id: task_plotbandpass.py,v 1.96 2017/05/19 15:28:20 thunter Exp $" 
+    myversion = "$Id: task_plotbandpass.py,v 1.100 2017/06/09 15:57:51 thunter Exp $" 
     if (showfile):
         print "Loaded from %s" % (__file__)
     return myversion
@@ -666,7 +666,6 @@ def computeHighestSpwIndexInSpwsToPlotThatHasCurrentScan(spwsToPlot, scansToPlot
         if (scan in scansToPlotPerSpw[spw]):
             highestSpwIndex = i
     return(highestSpwIndex)
-
 
 DEFAULT_PLATFORMING_THRESHOLD = 10.0 # unused if platformingSigma != 0
 def plotbandpass(caltable='', antenna='', field='', spw='', yaxis='amp',
@@ -3083,11 +3082,11 @@ def plotbandpass(caltable='', antenna='', field='', spw='', yaxis='amp',
                                                   interval, uFFI, refFreq[originalSpw[ispw]],
                                                   net_sideband[originalSpw[ispw]], mytime, 
                                                   missingCalWVRErrorPrinted, caltable, verbose=DEBUG)
-                          # difference between the requested Atm freq and actual Atm calcuation
-                          chanDifference = atmfreq[0]-frequencies[0] 
-                          chanImageDifference = atmfreqImage[0]-frequenciesImage[-1]
-                          atmfreqImage = list(2*LO1 - np.array(atmfreqImage) + 2*chanDifference + chanImageDifference)  # CAS-7715 adds final 2 terms
-                          atmfreqImage.reverse()
+                          # difference between the requested Atm freq and actual Atm calcuation CAS-7715. No longer necessary after CAS-10228.
+                          #chanDifference = atmfreq[0]-frequencies[0] 
+                          #chanImageDifference = atmfreqImage[0]-frequenciesImage[-1]
+                          #print "signal SB difference = %f, image SB difference = %f" % (chanDifference, chanImageDifference)
+                          atmfreqImage = list(2*LO1 - np.array(atmfreqImage)) # + 2*chanDifference + chanImageDifference)  # CAS-7715 adds final 2 terms  
                           atmchanImage.reverse()
           
                       if (overlayTimes):
@@ -5546,6 +5545,7 @@ def CalcAtmTransmission(chans,freqs,xaxis,pwv,vm, mymsmd,vis,asdm,antenna,timest
     midLatitudeSummer = 2
     midLatitudeWinter = 3
     numchan = len(freqs)
+    # Set the reference freq to be the middle of the middle two channels
     reffreq=0.5*(freqs[numchan/2-1]+freqs[numchan/2])
     originalnumchan = numchan
     while (numchan > MAX_ATM_CALC_CHANNELS):
@@ -5589,19 +5589,15 @@ def CalcAtmTransmission(chans,freqs,xaxis,pwv,vm, mymsmd,vis,asdm,antenna,timest
             TebbSky.append(myat.getTebbSky(nc=chan, spwid=0).value)
         TebbSky = np.array(TebbSky)
         # readback the values to be sure they got set
-        rf = myat.getRefFreq().value
-        cs = myat.getChanSep().value
+        #rf = myat.getRefFreq().value
+        #cs = myat.getChanSep().value
     else:   # casa >=4.0
         dry = np.array(myat.getDryOpacitySpec(0)[1])
         wet = np.array(myat.getWetOpacitySpec(0)[1]['value'])
         TebbSky = myat.getTebbSkySpec(spwid=0)[1]['value']
         # readback the values to be sure they got set
-        rf = myat.getRefFreq()['value']
-        cs = myat.getChanSep()['value']
-        if (myat.getRefFreq()['unit'] != 'GHz'):
-            print "There is a unit mismatch for refFreq in the code."
-        if (myat.getChanSep()['unit'] != 'MHz'):
-            print "There is a unit mismatch for chanSep in the code."
+        #rf = myqa.convert(myat.getRefFreq(),'GHz')['value']
+        #cs = myqa.convert(myat.getChanSep(),'GHz')['value']
 
     transmission = np.exp(-airmass*(wet+dry))
     TebbSky *= (1-np.exp(-airmass*(wet+dry)))/(1-np.exp(-wet-dry))
@@ -5619,8 +5615,6 @@ def CalcAtmTransmission(chans,freqs,xaxis,pwv,vm, mymsmd,vis,asdm,antenna,timest
 
     if (sense == 1):
         # The following looks right for LSB   sense=1
-#        freq = rf.value + cs.value*0.001*(0.5*n-1-np.array(range(n)))
-#        freq = rf + cs*0.001*(0.5*n-1-np.array(range(n)))
         if (xaxis.find('chan')>=0):
             trans = np.zeros(len(transmission))
             Tebb = np.zeros(len(TebbSky))
@@ -5629,22 +5623,26 @@ def CalcAtmTransmission(chans,freqs,xaxis,pwv,vm, mymsmd,vis,asdm,antenna,timest
                 Tebb[i] = TebbSky[len(TebbSky)-1-i]
             transmission = trans
             TebbSky = Tebb
-#    else:
-        # Using numchan can cause an inconsistency for small number of channels
-#        freq = rf.value+cs.value*0.001*(np.array(range(numchan))-0.5*numchan+1)
-        # The following looks right for USB  sense=2
-#        freq = rf+cs*0.001*(np.array(range(n))-0.5*n+1)
         
     # Be sure that number of frequencies matched number of transmission values - CAS-10123
     numchan = len(transmission)
-    chansep = cs*0.001
     chans = range(len(transmission))
-    if sense == 2:
-        freq = np.linspace(reffreq-numchan*chansep/2, reffreq+numchan*chansep/2, numchan) 
-    else:
-        freq = np.linspace(reffreq+numchan*chansep/2, reffreq-numchan*chansep/2, numchan) + chansep 
-    if cu.compare_version('>=',[5,0,0]):
-        freq += chansep*0.5
+    # Note that getChanFreq returns units of GHz, but use convert to be sure.
+    startFreq = myqa.convert(myat.getChanFreq(0),'GHz')['value']
+    endFreq = myqa.convert(myat.getChanFreq(numchan-1),'GHz')['value']
+    # print "startFreq=%f  endFreq=%f " % (startFreq, endFreq)
+    freq = np.linspace(startFreq, endFreq, numchan)
+# old method that fails on spws with an even number of channels, i.e. when the integer refchan 
+# is half a channel from the center of the span
+#    if sense == 2:
+#        freq = np.linspace(rf-((numchan-1)/2.)*chansepGHz, rf+((numchan-1)/2.)*chansepGHz, numchan) 
+#    else:
+#        freq = np.linspace(rf+((numchan-1)/2.)*chansepGHz, 
+#                           rf-((numchan-1)/2.)*chansepGHz, numchan)
+    # Therewas a 1-channel offset in CASA 5.0.x (CAS-10228), but it was fixed.
+#    if (cu.compare_version('<',[5,1,0])):  
+#        freq += chansepGHz
+
     if (verbose): print "Done CalcAtmTransmission"
     return(freq, chans, transmission, pwvmean, airmass, TebbSky, missingCalWVRErrorPrinted)
 
@@ -7262,7 +7260,10 @@ def interpretLOs(vis, parentms='', showWVR=False,
         mymsmd.open(vis)
         needToClose = True
     if (spwsForIntent == None):
-        scienceSpws = np.setdiff1d(mymsmd.spwsforintent(intent),mymsmd.wvrspws())
+        if intent in mymsmd.intents(): # prevent a warning of OBSERVE_TARGET does not exist
+            scienceSpws = np.setdiff1d(mymsmd.spwsforintent(intent),mymsmd.wvrspws())
+        else:
+            scienceSpws = []
     else:
         scienceSpws = spwsForIntent
     birdieIF = 0

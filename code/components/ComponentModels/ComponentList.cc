@@ -109,19 +109,21 @@ ComponentList::ComponentList()
    itsROFlag(false),
    itsSelectedFlags(),
    itsOrder(),
-   itsAddOptCol(false)
+   itsAddOptCol(false),
+   itsRewriteTable(True)
 {
   AlwaysAssert(ok(), AipsError);
 }
 
-ComponentList::ComponentList(const Path& fileName, const Bool readOnly)
+ComponentList::ComponentList(const Path& fileName, Bool readOnly, Bool rewriteTable)
   :itsList(),
    itsNelements(0),
    itsTable(),
    itsROFlag(false),
    itsSelectedFlags(),
    itsOrder(),
-   itsAddOptCol(false)
+   itsAddOptCol(false),
+   itsRewriteTable(rewriteTable)
 {
   readTable(fileName, readOnly);
   AlwaysAssert(ok(), AipsError);
@@ -134,13 +136,14 @@ ComponentList::ComponentList(const ComponentList& other)
    itsROFlag(other.itsROFlag),
    itsSelectedFlags(other.itsSelectedFlags),
    itsOrder(other.itsOrder),
-   itsAddOptCol(other.itsAddOptCol)
+   itsAddOptCol(other.itsAddOptCol),
+   itsRewriteTable(other.itsRewriteTable)
 {
   DebugAssert(ok(), AipsError);
 }
 
 ComponentList::~ComponentList() {
-  if ((itsROFlag == false) && (itsTable.isNull() == false)) {
+  if (! itsROFlag && ! itsTable.isNull() && itsRewriteTable) {
     writeTable();
   }
   AlwaysAssert(ok(), AipsError);
@@ -148,7 +151,7 @@ ComponentList::~ComponentList() {
 
 ComponentList& ComponentList::operator=(const ComponentList& other){
   if (this != &other) {
-    if ((itsROFlag == false) && (itsTable.isNull() == false)) {
+    if (! itsROFlag && ! itsTable.isNull() && itsRewriteTable) {
       writeTable();
     }
     itsList = other.itsList;
@@ -158,6 +161,7 @@ ComponentList& ComponentList::operator=(const ComponentList& other){
     itsSelectedFlags = other.itsSelectedFlags;
     itsOrder = other.itsOrder;
     itsAddOptCol = other.itsAddOptCol;
+    itsRewriteTable = other.itsRewriteTable;
   }
   DebugAssert(ok(), AipsError);
   return *this;
@@ -1242,6 +1246,13 @@ String ComponentList::summarize(uInt index) const {
 	  return component(index).summarize();
 }
 
+Table& ComponentList::_getTable() {
+    return itsTable;
+}
+
+const Table& ComponentList::getTable() const {
+    return itsTable;
+}
 
 // Local Variables: 
 // compile-command: "gmake ComponentList"

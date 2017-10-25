@@ -52,20 +52,21 @@ ImageStatsCalculator::ImageStatsCalculator(
     _disk(false), _robust(false), _verbose(false),
     _subImage() {
     _construct(beVerboseDuringConstruction);
-    // _algConf.algorithm = StatisticsData::CLASSICAL;
 }
 
 ImageStatsCalculator::~ImageStatsCalculator() {}
 
 Record ImageStatsCalculator::calculate() {
     *_getLog() << LogOrigin(_class, __func__);
-    std::unique_ptr<vector<String> > messageStore( _getLogFile() ? new vector<String>() : nullptr );
+    std::unique_ptr<std::vector<String> > messageStore(
+        _getLogFile() ? new std::vector<String>() : nullptr
+    );
     Record retval = statistics(messageStore.get());
     Bool writeFile = _openLogfile();
     if (_verbose || writeFile) {
         if (writeFile) {
             for (
-                vector<String>::const_iterator iter=messageStore->begin();
+                auto iter = messageStore->begin();
                 iter != messageStore->end(); ++iter
             ) {
                 _writeLogfile("# " + *iter, false, false);
@@ -90,7 +91,123 @@ Record ImageStatsCalculator::calculate() {
                 << LogIO::POST;
         }
     }
+    _sanitizeDueToRegionSelection(retval);
     return retval;
+}
+
+void ImageStatsCalculator::_sanitizeDueToRegionSelection(Record& retval) const {
+    if (_axes.empty()) {
+        return;
+    }
+    if (! _getRegion() || _getRegion()->empty()) {
+        // no region selection, nothing to sanitize
+        return;
+    }
+    // create subimage template based on region only
+    TempImage<Float> tempIm(_getImage()->shape(), _getImage()->coordinates());
+    auto subim = SubImageFactory<Float>::createSubImageRO(
+        tempIm, *_getRegion(), "", nullptr, AxesSpecifier(), False
+    );
+    if (! subim->isMasked()) {
+        // no pixels masked because of region selection
+        return;
+    }
+    auto ndim = subim->ndim();
+    auto allAxes = IPosition::makeAxisPath(ndim);
+    IPosition cursor;
+    for (auto a: _axes) {
+        cursor.append(IPosition(1, a));
+    }
+    auto displayAxes = allAxes.otherAxes(ndim, cursor);
+    // key is axis number, value is set of planes that are completely masked
+    std::map<uInt, std::set<uInt>> excludePlanes;
+    Bool mustExclude = False;
+    for (auto d: displayAxes) {
+        excludePlanes[d] = std::set<uInt>();
+        IPosition cursorShape = subim->shape();
+        cursorShape[d] = 1;
+        RO_MaskedLatticeIterator<Float> lattIter(*subim, cursorShape);
+        uInt planeNum = 0;
+        for (lattIter.atStart(); ! lattIter.atEnd(); ++lattIter, ++planeNum) {
+            if (! anyTrue(lattIter.getMask())) {
+                excludePlanes[d].insert(planeNum);
+                mustExclude = True;
+            }
+        }
+    }
+    if (! mustExclude) {
+        // no planes to exclude
+        return;
+    }
+    auto nfields = retval.nfields();
+    // n is the index of the axis within the displayAxes
+    uInt n = 0;
+    for (auto d: displayAxes) {
+        if (excludePlanes[d].empty()) {
+            // no planes to exclude for this axis
+            continue;
+        }
+        for (uInt i=0; i<nfields; ++i) {
+            auto fieldName = retval.name(i);
+            if (fieldName == "blc" || fieldName == "trc") {
+                continue;
+            }
+            if (isArray(retval.dataType(i))) {
+                switch (retval.dataType(i)) {
+                case TpArrayDouble: {
+                    auto x = retval.asArrayDouble(i);
+                    _removePlanes(x, n, excludePlanes[d]);
+                    retval.define(i, x);
+                    break;
+                }
+                case TpArrayInt: {
+                    auto x = retval.asArrayInt(i);
+                    _removePlanes(x, n, excludePlanes[d]);
+                    retval.define(i, x);
+                    break;
+                }
+                default:
+                    ThrowCc("Unhandled data type");
+                    break;
+                }
+            }
+        }
+        ++n;
+    }
+}
+
+template <class T> void ImageStatsCalculator::_removePlanes(
+    Array<T>& arr, uInt axis, const std::set<uInt>& planes
+) const {
+    IPosition oldShape = arr.shape();
+    IPosition newShape = oldShape;
+    newShape[axis] -= planes.size();
+    Array<T> newArray(newShape);
+    // do a plane by plane copy into the new array
+    auto nOldPlanes = oldShape[axis];
+    auto begin = planes.begin();
+    auto end = planes.end();
+    auto ndim = arr.ndim();
+    IPosition newSliceStart(ndim, 0);
+    IPosition newSliceEnd = newShape - 1;
+    newSliceEnd[axis] = 0;
+    IPosition oldSliceStart(ndim, 0);
+    IPosition oldSliceEnd = oldShape - 1;
+    oldSliceEnd[axis] = 0;
+    Slicer newSlice(newSliceStart, newSliceEnd, Slicer::endIsLast);
+    Slicer oldSlice(oldSliceStart, oldSliceEnd, Slicer::endIsLast);
+    for (uInt i=0; i<nOldPlanes; ++i, ++oldSliceStart[axis], ++oldSliceEnd[axis]) {
+        if (std::find(begin, end, i) == end) {
+            newSlice.setStart(newSliceStart);
+            newSlice.setEnd(newSliceEnd);
+            oldSlice.setStart(oldSliceStart);
+            oldSlice.setEnd(oldSliceEnd);
+            newArray(newSlice) = arr(oldSlice);
+            ++newSliceStart[axis];
+            ++newSliceEnd[axis];
+        }
+    }
+    arr.assign(newArray);
 }
 
 void ImageStatsCalculator::setVerbose(Bool v) {
@@ -110,6 +227,16 @@ void ImageStatsCalculator::setDisk(Bool d) {
 void ImageStatsCalculator::_reportDetailedStats(
     const SPCIIF tempIm, const Record& retval
 ) {
+    auto nptsArr = retval.asArrayDouble("npts");
+    if (nptsArr.empty()) {
+        auto msg = "NO UNMASKED POINTS FOUND, NO STATISTICS WERE COMPUTED";
+        *_getLog() << LogIO::NORMAL << msg << LogIO::POST;
+        if (_getLogFile()) {
+            _writeLogfile(msg, false, false);
+        }
+        _closeLogfile();
+        return;
+    }
     const CoordinateSystem& csys = tempIm->coordinates();
     auto worldAxes = csys.worldAxisNames();
     auto imShape = tempIm->shape();
@@ -303,14 +430,6 @@ void ImageStatsCalculator::_reportDetailedStats(
         oss << std::scientific;
         uInt colNum = 0;
         position = inIter.position();
-        for (uInt i=0; i<reportAxes.nelements(); ++i) {
-            oss << setw(colwidth[colNum]);
-            oss    << coords[i][position[reportAxes[i]]];
-            ++colNum;
-            oss << " " << setw(colwidth[colNum])
-                << (position[reportAxes[i]] + blc[reportAxes[i]]) << " ";
-            ++colNum;
-        }
         csys.toWorld(world, position);
         if (axesMap.empty()) {
             arrayIndex = IPosition(1, 0);
@@ -321,25 +440,33 @@ void ImageStatsCalculator::_reportDetailedStats(
                 arrayIndex[i] = position[axesMap[i]];
             }
         }
-        if (retval.asArrayDouble("npts").size() == 0) {
-            oss << "NO VALID POINTS FOR WHICH TO DETERMINE STATISTICS" << endl;
+        auto npts = nptsArr(arrayIndex);
+        if (npts == 0) {
+            // CAS-10183, do not log planes for which there are no good points
+            continue;
         }
-        else {
-            oss << std::setw(width) << retval.asArrayDouble("npts")(arrayIndex) << " "
-                << std::setw(width) << retval.asArrayDouble("sum")(arrayIndex) << " "
-                << std::setw(width) << retval.asArrayDouble("mean")(arrayIndex) << " "
-                << std::setw(width) << retval.asArrayDouble("rms")(arrayIndex) << " "
-                << std::setw(width) << retval.asArrayDouble(SIGMA)(arrayIndex) << " "
-                << std::setw(width) << retval.asArrayDouble("min")(arrayIndex) << " "
-                << std::setw(width) << retval.asArrayDouble("max")(arrayIndex);
-            if (alg == StatisticsData::CHAUVENETCRITERION) {
-                ostringstream pos;
-                pos << position;
-                oss << std::setw(6) << " " << chauvIters[pos.str()];
-                ++count;
-            }
-            oss << endl;
+        for (uInt i=0; i<reportAxes.nelements(); ++i) {
+            oss << setw(colwidth[colNum]);
+            oss    << coords[i][position[reportAxes[i]]];
+            ++colNum;
+            oss << " " << setw(colwidth[colNum])
+                << (position[reportAxes[i]] + blc[reportAxes[i]]) << " ";
+            ++colNum;
         }
+        oss << std::setw(width) << npts << " "
+            << std::setw(width) << retval.asArrayDouble("sum")(arrayIndex) << " "
+            << std::setw(width) << retval.asArrayDouble("mean")(arrayIndex) << " "
+            << std::setw(width) << retval.asArrayDouble("rms")(arrayIndex) << " "
+            << std::setw(width) << retval.asArrayDouble(SIGMA)(arrayIndex) << " "
+            << std::setw(width) << retval.asArrayDouble("min")(arrayIndex) << " "
+            << std::setw(width) << retval.asArrayDouble("max")(arrayIndex);
+        if (alg == StatisticsData::CHAUVENETCRITERION) {
+            ostringstream pos;
+            pos << position;
+            oss << std::setw(6) << " " << chauvIters[pos.str()];
+            ++count;
+        }
+        oss << endl;
         if (_verbose) {
             *_getLog() << LogIO::NORMAL << oss.str() << LogIO::POST;
         }
@@ -352,7 +479,7 @@ void ImageStatsCalculator::_reportDetailedStats(
 }
 
 Record ImageStatsCalculator::statistics(
-    vector<String> *const &messageStore
+    std::vector<String> *const &messageStore
 ) {
     LogOrigin myOrigin(_class, __func__);
     *_getLog() << myOrigin;
@@ -451,7 +578,7 @@ Record ImageStatsCalculator::statistics(
             }
         }
     }
-    if (messageStore != NULL) {
+    if (messageStore) {
         stats->recordMessages(true);
     }
     stats->setPrecision(precis);
@@ -570,10 +697,10 @@ Record ImageStatsCalculator::statistics(
             stats->errorMessage()
         );
     }
-    if (messageStore != 0) {
-        vector<String> messages = stats->getMessages();
+    if (messageStore) {
+        std::vector<String> messages = stats->getMessages();
         for (
-            vector<String>::const_iterator iter=messages.begin();
+            std::vector<String>::const_iterator iter=messages.begin();
             iter!=messages.end(); ++iter
         ) {
             messageStore->push_back(*iter + "\n");

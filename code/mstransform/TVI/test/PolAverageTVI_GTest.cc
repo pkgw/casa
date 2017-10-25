@@ -606,8 +606,7 @@ public:
     SortColumns defaultSortColumns;
 
     std::unique_ptr<ViImplementation2> inputVii(
-        new VisibilityIteratorImpl2(mss, defaultSortColumns, 0.0, VbPlain,
-            False));
+        new VisibilityIteratorImpl2(mss, defaultSortColumns, 0.0, False));
 
     std::unique_ptr<ViFactory> factory(
         new PolAverageVi2Factory(mode, inputVii.get()));
@@ -1125,6 +1124,31 @@ protected:
     }
   }
 
+  VisibilityIterator2 *ManufactureVI2(String const &mode) {
+    return LayerManufacturer::ManufactureVI(ms_, mode);
+  }
+
+  void TestLayerFactory(String const &mode, String const &expectedClassName) {
+
+    cout << "Mode \"" << mode << "\" expected class name \""
+        << expectedClassName << "\"" << endl;
+
+    if (expectedClassName.size() > 0) {
+      std::unique_ptr < VisibilityIterator2 > vi(ManufactureVI2(mode));
+
+      // Verify type string
+      String viiType = vi->ViiType();
+      EXPECT_TRUE(viiType.startsWith(expectedClassName));
+    } else {
+      cout << "Creation of VI via factory will fail" << endl;
+      // exception must be thrown
+      EXPECT_THROW( {
+            std::unique_ptr<VisibilityIterator2> vi(ManufactureVI2(mode)); //new VisibilityIterator2(factory));
+          },
+          AipsError)<< "The process must throw AipsError";
+    }
+  }
+
 };
 
 // Fixture class for testing four polarization (cross-pol, stokes IQUV)
@@ -1135,7 +1159,7 @@ protected:
   }
 
   virtual std::string GetRelativeDataPath() {
-    return "sdsave";
+    return "singledish";
   }
 
   void SetCorrTypeToStokes() {
@@ -1290,6 +1314,23 @@ TEST_F(PolAverageTVITest, Factory) {
   TestFactory("", "StokesPolAverage");
   // invalid mode (throw exception)
   TestFactory("invalid", "");
+}
+
+TEST_F(PolAverageTVITest, LayerFactory) {
+
+  TestLayerFactory("default", "StokesPolAverage");
+  TestLayerFactory("Default", "StokesPolAverage");
+  TestLayerFactory("DEFAULT", "StokesPolAverage");
+  TestLayerFactory("geometric", "GeometricPolAverage");
+  TestLayerFactory("Geometric", "GeometricPolAverage");
+  TestLayerFactory("GEOMETRIC", "GeometricPolAverage");
+  TestLayerFactory("stokes", "StokesPolAverage");
+  TestLayerFactory("Stokes", "StokesPolAverage");
+  TestLayerFactory("STOKES", "StokesPolAverage");
+  // empty mode (default)
+  TestLayerFactory("", "StokesPolAverage");
+  // invalid mode (throw exception)
+  TestLayerFactory("invalid", "");
 }
 
 TEST_F(PolAverageTVITest, GeometricAverage) {

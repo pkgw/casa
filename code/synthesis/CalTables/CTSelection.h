@@ -30,20 +30,8 @@
 #define SYNTHESIS_CTSELECTION_H
 
 #include <casa/aips.h>
-#include <casa/BasicSL/String.h>
-#include <casa/Arrays/Vector.h>
-#include <measures/Measures/MEpoch.h>
-#include <measures/Measures/MRadialVelocity.h>
-#include <tables/TaQL/ExprNode.h>
-#include <ms/MeasurementSets/MeasurementSet.h>
 #include <ms/MSSel/MSSelection.h>
-#include <casa/Arrays/Matrix.h>
-#include <casa/Arrays/Cube.h>
-#include <ms/MSSel/MSSelectionError.h>
-#include <ms/MSSel/MSSelectionErrorHandler.h>
 #include <ms/MSSel/MSSelectableTable.h>
-#include <casa/Containers/OrderedMap.h>
-#include <casa/Containers/MapIO.h>
 #include <synthesis/CalTables/NewCalTable.h>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -57,7 +45,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 // <reviewed reviewer="" date="" tests="" demos="">
 
 // <prerequisite>
-//   <li> <linkto class="casacore::MeasurementSet">casacore::MeasurementSet</linkto> module
+//   <li> <linkto class="NewCalTable">NewCalTable</linkto> module
+//   <li> <linkto class="casacore::MSSelection">MSSelection</linkto> module
 // </prerequisite>
 //
 // <etymology>
@@ -70,19 +59,21 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 // The purpose of this class is to provides a simple expression based
 // selection mechanism to both the end-user and developer wishing to
 // perform query operations over a measurement set.  This class is a
-// specialization of the CASACORE casacore::MSSelection class.  The
-// specialization this provides is that this workes with CT and uses
-// parsers specialization for CT where necessary.  For a complete list
-// of the STaQL interface refer to the casacore::MeasurementSet Selection Syntax
-// document at: <a href="http://casa.nrao.edu/other_doc.shtml">Data
-// Selection</a>
+// specialization of the CASACORE casacore::MSSelection class in order to
+// override the antenna selection to select ANTENNA1 only instead of
+// baselines, then using MSSelection as usual with the revised antennaExpr
+// and taqlExpr.
+//
+// For a complete list of the STaQL interface refer to the
+// casacore::MeasurementSet Selection Syntax document at: <a
+// href="http://casa.nrao.edu/other_doc.shtml">Data Selection</a>
 //
 // The sub-expressions are interpreted in the order which they were
 // set.  The order however in not important - any dependency on the
 // order in which the expressions are evaluated is handled internally.
-// The result of parsing the expressions is casacore::TableExprNode (TEN).  All
-// TENs from sub-expressions are finally ANDed and the resultant TEN
-// is used to select the rows of the casacore::MS table.
+// The result of parsing the expressions is casacore::TableExprNode (TEN).
+// All TENs from sub-expressions are finally ANDed and the resultant TEN
+// is used to select the rows of the NewCalTable.
 //
 // </synopsis>
 //
@@ -97,7 +88,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 // <todo asof="Aug/14/2009">
 // </todo>
 
-  class CTSelection: public MSSelection
+  class CTSelection
   {
   public:
 
@@ -105,22 +96,22 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     CTSelection();
     virtual ~CTSelection();
     
-    casacore::TableExprNode toTableExprNode(casacore::MSSelectableTable* msLike);
-    // Construct using an casacore::MS and the various selection expressions to
-    // be applied to the given MS.  By default, the expressions will
+    // Construct using a NewCalTable and the various selection expressions to
+    // be applied to the given CT.  By default, the expressions will
     // be parsed immediately.  With mode=PARSE_LATE, the parsing will
     // be done with a call to toTableExprNode().
     CTSelection(const NewCalTable& ct,
-		const MSSMode& mode= PARSE_NOW,
+		const casacore::MSSelection::MSSMode& mode= 
+            casacore::MSSelection::PARSE_NOW,
 		const casacore::String& timeExpr="",
 		const casacore::String& antennaExpr="",
 		const casacore::String& fieldExpr="",
 		const casacore::String& spwExpr="",
-		const casacore::String& uvDistExpr="",
+		// const String& uvDistExpr="",         // not supported
 		const casacore::String& taqlExpr="",
-		const casacore::String& polnExpr="",
+		//const String& polnExpr="",,           // not supported
 		const casacore::String& scanExpr="",
-		const casacore::String& arrayExpr="",
+		//const String& arrayExpr="",i          // not supported
 		const casacore::String& stateExpr="",
 		const casacore::String& observationExpr="");
     
@@ -134,132 +125,145 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     
     // Assignment operator
     CTSelection& operator=(const CTSelection& other);
-    
-    // Accessor for result of parsing all of the selection
-    // expressions.  The final casacore::TableExprNode (TEN) is the result of
-    // ANDing the TENs for the individual expressions.
-    //    casacore::TableExprNode getTEN(const casacore::MeasurementSet*ms = NULL);
 
-    // Accessor for the list of antenna-1 of the selected baselines.
+    casacore::TableExprNode toTableExprNode(
+            casacore::MSSelectableTable* msLike);
+
+    inline casacore::TableExprNode getTEN() { return msSelection_p->getTEN(); }
+
+    // clear selections
+    inline void clear(const casacore::MSSelection::MSExprType type=
+            casacore::MSSelection::NO_EXPR) 
+        { msSelection_p->clear(type); }
+
+    // Expression setters.  The following set*Expr() methods only set
+    // the expressions.  Parsing is done with a call to
+    // toTableExprNode().
+    inline casacore::Bool setFieldExpr(const casacore::String& fieldExpr) {
+        return msSelection_p->setFieldExpr(fieldExpr); }
+    inline casacore::Bool setSpwExpr(const casacore::String& spwExpr) {
+        return msSelection_p->setSpwExpr(spwExpr); }
+    inline casacore::Bool setScanExpr(const casacore::String& scanExpr) {
+        return msSelection_p->setScanExpr(scanExpr); }
+    inline casacore::Bool setTimeExpr(const casacore::String& timeExpr) {
+        return msSelection_p->setTimeExpr(timeExpr); }
+    inline casacore::Bool setStateExpr(const casacore::String& stateExpr) {
+        return msSelection_p->setStateExpr(stateExpr); }
+    inline casacore::Bool setObservationExpr(
+            const casacore::String& observationExpr) {
+        return msSelection_p->setObservationExpr(observationExpr); }
+    inline casacore::Bool setAntennaExpr(const casacore::String& antennaExpr) {
+        return msSelection_p->setAntennaExpr(antennaExpr); }
+    inline casacore::Bool setTaQLExpr(const casacore::String& taqlExpr) {
+        return msSelection_p->setTaQLExpr(taqlExpr); }
+
+    // Accessors for items selected:
+
+    // Accessor for the list of antenna-1 selected.
     // Antennas affected by the baseline negation operator have the
     // antenna IDs multiplied by -1.
-
-    // // inline casacore::Vector<casacore::Int> getAntenna1List(const casacore::MeasurementSet* ms=NULL) 
-    // // {getTEN(ms); return antenna1IDs_p;}
+    // TBD: does this work with taql?
+    inline casacore::Vector<casacore::Int> getAntenna1List(
+            const casacore::MeasurementSet* ms=NULL) 
+    { return msSelection_p->getAntenna1List(ms); }
     
-    // // Accessor for the list of antenna-2 of the selected baselines.
-    // // Antennas affected by the baseline negation operator have the
-    // // antenna IDs multiplied by -1.
-    // // inline casacore::Vector<casacore::Int> getAntenna2List(const casacore::MeasurementSet* ms=NULL) 
-    // // {getTEN(ms); return antenna2IDs_p;}
+    // Accessor for the list of antenna-2 of the selected baselines.
+    // Antennas affected by the baseline negation operator have the
+    // antenna IDs multiplied by -1.
+    inline casacore::Vector<casacore::Int> getAntenna2List(
+            const casacore::MeasurementSet* ms=NULL) 
+    { return msSelection_p->getAntenna2List(ms); }
     
-    // // inline casacore::Matrix<casacore::Int> getBaselineList(const casacore::MeasurementSet* ms=NULL) 
-    // // {getTEN(ms); return baselineIDs_p;}
+    // Accessor for the list of selected field IDs.
+    inline casacore::Vector<casacore::Int> getFieldList(
+            const casacore::MeasurementSet* ms=NULL) 
+    { return msSelection_p->getFieldList(ms); }
+
+    // Accessor for the list of the specified time range(s) as the
+    // start and end MJD values.  The time ranges are stored as columns.
+    // Change 5/21/17: returns [startTime, stopTime, dT] CAS-10142
+    inline casacore::Matrix<casacore::Double> getTimeList(
+            const casacore::MeasurementSet* ms=NULL)
+    { return msSelection_p->getTimeList(ms); }
     
-    // // // Accessor for the list of selected field IDs.
-    // // inline casacore::Vector<casacore::Int> getFieldList(const casacore::MeasurementSet* ms=NULL) 
-    // // {// if (fieldIDs_p.nelements() <= 0) 
-    // // 	getTEN(ms); return fieldIDs_p;}
+    // Accessor for the list of the selected Spectral Window IDs.
+    inline casacore::Vector<casacore::Int> getSpwList(
+            const casacore::MeasurementSet* ms=NULL) 
+    { return msSelection_p->getSpwList(ms); }
 
-    // // // Accessor for the list of the specified time range(s) as the
-    // // // start and end MJD values.  The time ranges are stored as columns,
-    // // // i.e. the output casacore::Matrix is 2 x n_ranges.
-    // // inline casacore::Matrix<casacore::Double> getTimeList(const casacore::MeasurementSet* ms=NULL)
-    // // {getTEN(ms); return selectedTimesList_p;}
-    
-    // // // Accessor for the list of the selected Spectral Window IDs.
-    // // inline casacore::Vector<casacore::Int> getSpwList(const casacore::MeasurementSet* ms=NULL) 
-    // // {// if (spwIDs_p.nelements() <= 0) 
-    // // 	getTEN(ms); return spwIDs_p;}
+    // Accessor for the list of the selected Observation IDs.
+    inline casacore::Vector<casacore::Int> getObservationList(
+            const casacore::MeasurementSet* ms=NULL) 
+    { return msSelection_p->getObservationList(ms); }
 
+    // Accessor for the list of the selected Scan IDs.
+    inline casacore::Vector<casacore::Int> getScanList(
+            const casacore::MeasurementSet* ms=NULL) 
+    { return msSelection_p->getScanList(ms); }
 
-    // // casacore::Matrix<casacore::Int> getChanList(const casacore::MeasurementSet* ms=NULL, 
+    // // casacore::Matrix<casacore::Int> getChanList(
+    // //               const casacore::MeasurementSet* ms=NULL, 
     // // 			    const casacore::Int defaultStep=1,
     // // 			    const casacore::Bool sorted=false);
+    // // { return msSelection_p->getChanList(ms, defaultStep, sorted); }
 
     // // //
     // // // Same as getChanList, except that the channels and steps are in Hz.
     // // //    
-    // // casacore::Matrix<casacore::Double> getChanFreqList(const casacore::MeasurementSet* ms=NULL, 
+    // // casacore::Matrix<casacore::Double> getChanFreqList(
+    // //                  const casacore::MeasurementSet* ms=NULL, 
     // // 				   const casacore::Bool sorted=false);
+    // // { return msSelection_p->getChanFreqList(ms, sorted); }
 
-    // // // Accessor for the list of the selected casacore::Data Description IDs from
-    // // // the SPW expression parsing.  The actual
-    // // // selected DDIDs would be an intersection of the DDIDs selected
-    // // // from polarization and SPW expressions parsing (see
-    // // // getDDIDList() above).
-    // // inline casacore::Vector<casacore::Int> getSPWDDIDList(const casacore::MeasurementSet* ms=NULL) 
-    // // {if (spwDDIDs_p.nelements() <= 0) getTEN(ms); return spwDDIDs_p;}
-
-    // // //
-    // // // The key in the ordered map returned by getPolMap() is the Data
-    // // // Description ID (DDID). The value is a vector containing the
-    // // // list of in-row indices to pick out the selected polarizations
-    // // // (or equivalently, the list of indices for the vector in the
-    // // // corrType column of the POLARIZATION sub-table). These are also
-    // // // what the user intended (i.e., e.g. not all DD IDs due to user
-    // // // POL expression might be selected due to SPW expressions).
-    // // //
-    // // inline casacore::OrderedMap<casacore::Int, casacore::Vector<casacore::Int> > getPolMap(const casacore::MeasurementSet* ms=NULL) 
-    // // {getTEN(ms); return selectedPolMap_p;};
-
-    // // //
-    // // // The key in the ordered map returned by getCorrMap() is the
-    // // // pol. is the casacore::Data Description ID (DDID).  The value is a set of
-    // // // two vectors.  The first vector is the list of the in-row
-    // // // indices to pick out the selected polarizations (or
-    // // // equivalently, the list of indices for the vector in the
-    // // // corrType column of the POLARIZATION sub-table).
-    // // //
-    // // inline casacore::OrderedMap<casacore::Int, casacore::Vector<Vector<casacore::Int> > > getCorrMap(const casacore::MeasurementSet* ms=NULL) 
-    // // {getTEN(ms); return selectedSetupMap_p;};
-
-    // // // Methods to convert the maps return by getChanList and
-    // // // getCorrMap to a list of casacore::Slice which can be directly used by
-    // // // casacore::Table system for in-row selection of frequency channels and
-    // // // polarizations.
-    // // void getChanSlices(casacore::Vector<Vector<casacore::Slice> >& chanslices, 
-    // // 		       const casacore::MeasurementSet* ms=NULL, 
-    // // 		       const casacore::Int defaultChanStep=1);
-
-    // // void getCorrSlices(casacore::Vector<Vector<casacore::Slice> >& corrslices,
-    // // 		       const casacore::MeasurementSet* ms=NULL);
-    
-    // This version of reset() works with generic MSSeletableTable
+    // This version of reset() works with generic MSSelectableTable
     // object.  Accessing the services of the CTSelection module via
     // this interface is recommended over the version of reset() that
     // uses MeasurementSet.
     void reset(casacore::MSSelectableTable& msLike,
-	       const MSSMode& mode           = PARSE_NOW,
+	       const casacore::MSSelection::MSSMode& mode = 
+               casacore::MSSelection::PARSE_NOW,
 	       const casacore::String& timeExpr        = "",
 	       const casacore::String& antennaExpr     = "",
 	       const casacore::String& fieldExpr       = "",
 	       const casacore::String& spwExpr         = "",
-	       const casacore::String& uvDistExpr      = "",
+	       // const String& uvDistExpr             = "", // not supported
 	       const casacore::String& taqlExpr        = "",
-	       const casacore::String& polnExpr        = "",
+	       // const String& polnExpr               = "", // not supported
 	       const casacore::String& scanExpr        = "",
-	       const casacore::String& arrayExpr       = "",
+	       // const String& arrayExpr              = "", // not supported
 	       const casacore::String& stateExpr       = "",
 	       const casacore::String& observationExpr = "");
-    
-    // // // Set the error handler to be used for reporting errors while
-    // // // parsing the type of expression give by the first argument.
-    // // void setErrorHandler(const MSExprType type, casacore::MSSelectionErrorHandler* mssEH,
-    // // 			 const casacore::Bool overRide=false);
-    
-    // // // Initialize the error handler.  This is set the error-handler to
-    // // // the user supplied error handler via setErrorHandler() or to the
-    // // // default built-in error handler.
-    // // void initErrorHandler(const MSExprType tye=NO_EXPR);
 
-    // // // Execute the handleError() method of the error-handlers.  This
-    // // // is called in the catch code for any exceptions emitted from any
-    // // // of the parsers. It is also called at the end of the
-    // // // parsing cycle.
-    // // void runErrorHandler();
+private:
+
+    // Resets msSelection_p expressions for antenna selection:
+    // use taqlExpr to select on ANTENNA1 only for antenna selection,
+    // use antennaExpr for baseline selection
+    void doCalAntennaSel(const casacore::String& antennaExpr,
+        casacore::MSSelectableTable* msLike);
+    // append baseline selection and set taql selection
+    void setAntennaSelections(casacore::String antsel,
+          casacore::MSSelectableTable* msLike);
+
+    // Reference antenna:
+    // get reference antenna ids from cal table ANTENNA2 column
+    casacore::Vector<casacore::Int> getRefAntIds(
+        casacore::MSSelectableTable* msLike);
+    // check if antennaId is a reference antenna
+    bool isRefAntenna(casacore::Int antennaId, 
+        casacore::Vector<casacore::Int> refantIds);
+    // make baseline strings for ref ant with all ref ants
+    casacore::String getRefAntBaselines(casacore::Int antId,
+        casacore::Vector<casacore::Int> refantIds, casacore::String neg);
+
+    // Antenna ID 0:
+    // check if zero is selected (else it is negated but there is no -0)
+    bool zeroIsSelected(casacore::String antennaExpr,
+        casacore::MSSelectableTable* msLike);
+
+    casacore::MSSelection* msSelection_p;
   };
-  
+
 } //# NAMESPACE CASA - END
 
 #endif

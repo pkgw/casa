@@ -176,10 +176,10 @@ namespace asdm {
 		entity.setInstanceVersion("1");
 		
 		// Archive XML
-		archiveAsBin = false;
+		archiveAsBin = true;
 		
 		// File XML
-		fileAsBin = false;
+		fileAsBin = true;
 		
 		// By default the table is considered as present in memory
 		presentInMemory = true;
@@ -310,7 +310,6 @@ SysCalRow* SysCalTable::newRow(SysCalRow* row) {
 	//
 
 	
-		
 	
 		
 		
@@ -366,11 +365,11 @@ SysCalRow* SysCalTable::newRow(SysCalRow* row) {
 		SysCalRow * dummy = checkAndAdd(x, true); // We require the check for uniqueness to be skipped.
 		                                           // by passing true in the second parameter
 		                                           // whose value by default is false.
+		// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
                 if (false) cout << (unsigned long long) dummy;
 	}
 	
 
-	
 
 
 	// 
@@ -386,7 +385,7 @@ SysCalRow* SysCalTable::newRow(SysCalRow* row) {
 			
 			
 			
-	SysCalRow*  SysCalTable::checkAndAdd(SysCalRow* x, bool ) {
+	SysCalRow*  SysCalTable::checkAndAdd(SysCalRow* x, bool /* skipCheckUniqueness */ ) {
 		string keystr = Key( 
 						x->getAntennaId() 
 					   , 
@@ -610,11 +609,10 @@ SysCalRow* SysCalTable::newRow(SysCalRow* row) {
 		//
 		xmlDoc *doc;
 #if LIBXML_VERSION >= 20703
-		doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS|XML_PARSE_HUGE);
+        doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS|XML_PARSE_HUGE);
 #else
 		doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS);
 #endif
-
 		if ( doc == NULL )
 			throw ConversionException("Failed to parse the xmlHeader into a DOM structure.", "SysCal");
 		
@@ -688,9 +686,10 @@ SysCalRow* SysCalTable::newRow(SysCalRow* row) {
 				
 		if (!xml.isStr("</SysCalTable>")) 
 		error();
-			
-		archiveAsBin = false;
-		fileAsBin = false;
+		
+		//Does not change the convention defined in the model.	
+		//archiveAsBin = false;
+		//fileAsBin = false;
 		
 	}
 
@@ -988,8 +987,9 @@ SysCalRow* SysCalTable::newRow(SysCalRow* row) {
 			append(aRow);
       	}   	
     }
-    archiveAsBin = true;
-    fileAsBin = true;
+    //Does not change the convention defined in the model.	
+    //archiveAsBin = true;
+    //fileAsBin = true;
 	}
 	
 	void SysCalTable::setUnknownAttributeBinaryReader(const string& attributeName, BinaryAttributeReaderFunctor* barFctr) {
