@@ -383,17 +383,7 @@ imagepol::pol(const std::string& which, const bool debias, const double clip, co
       rstat = itsImPol->linPolInt(out,debias,Float(clip),
 				  Float(sigma),String(outfile));
     } else if (type=="TPI") {
-        ImageTotalPolarization itp(
-            itsImPol->getImage(), outfile, False
-        );
-        itp.setClip(clip);
-        itp.setSigma(sigma);
-        itp.setDebias(debias);
-        return new image(itp.compute());
-        /*
-      rstat = itsImPol->totPolInt(out,debias,Float(clip),
-				  Float(sigma),String(outfile));
-				  */
+        return totpolint(debias, clip, sigma, outfile);
     } else if (type=="LPPA") {
       rstat = itsImPol->linPolPosAng(out,String(outfile));
     } else if (type=="FLP") {
@@ -411,7 +401,7 @@ imagepol::pol(const std::string& which, const bool debias, const double clip, co
       else {
       throw(AipsError("could not attach pol image"));
       }    
-  } catch (AipsError x) {
+  } catch (const AipsError& x) {
     *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
     RETHROW(x);
   }
@@ -873,7 +863,8 @@ imagepol::summary()
 }
 
 image* imagepol::totpolint(
-    const bool debias, const double clip, const double sigma, const std::string& outfile
+    bool debias, double clip, double sigma, const std::string& outfile,
+    const variant& region, const std::string& mask, bool stretch
 ) {
     try{
         *itsLog << LogOrigin("imagepol", __func__);
@@ -882,29 +873,57 @@ image* imagepol::totpolint(
                 << LogIO::POST;
             return nullptr;
         }
-        ImageTotalPolarization itp(
-            itsImPol->getImage(), outfile, False
+        auto myreg = _getRegion(region, False);
+        auto subImage = SubImageFactory<Float>::createSubImageRO(
+            *itsImPol->getImage(), *myreg, mask,
+            itsLog, AxesSpecifier(), stretch, true
         );
+        ImageTotalPolarization itp(subImage, outfile, False);
         itp.setClip(clip);
         itp.setSigma(sigma);
         itp.setDebias(debias);
         return new image(itp.compute());
-    /*
-    ImageInterface<Float> *out;
-    Bool rstat(false);
-    rstat = itsImPol->totPolInt(out,debias,Float(clip),
-				Float(sigma),String(outfile));
-    if (rstat) {
-        return new image(out);
-    }
-    else {
-      throw(AipsError("could not attach totpolint image"));
-    }
-    */
     }
     catch (const AipsError& x) {
         *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
         RETHROW(x);
+    }
+}
+
+SHARED_PTR<Record> imagepol::_getRegion(
+    const variant& region, bool nullIfEmpty
+) const {
+    switch (region.type()) {
+    case variant::BOOLVEC:
+        return SHARED_PTR<Record>(nullIfEmpty ? nullptr : new Record());
+    case variant::STRING: {
+        if (region.toString().empty()) {
+            return SHARED_PTR<Record>(nullIfEmpty ? 0 : new Record());
+        }
+        auto image = itsImPol->getImage();
+        ThrowIf(
+            ! image, "No attached image. Cannot use a string value for region"
+        );
+        return SHARED_PTR<Record>(
+            new Record(
+                CasacRegionManager::regionFromString(
+                    image->coordinates(), region.toString(),
+                    image->name(False), image->shape(), True
+                )
+            )
+        );
+    }
+    case variant::RECORD: {
+        return SHARED_PTR<Record>(
+            nullIfEmpty && region.size() == 0
+            ? 0
+            : toRecord(
+                SHARED_PTR<variant>(region.clone())->asRecord()
+            )
+        );
+    }
+    default:
+        ThrowCc("Unsupported type for region " + region.typeString());
     }
 }
 

@@ -39,13 +39,27 @@ ImageTotalPolarization::~ImageTotalPolarization() {}
 SPIIF ImageTotalPolarization::compute() {
     *_getLog() << LogOrigin(CLASS_NAME, __func__);
     ImageExpr<Float> expr = _totPolInt();
-    return _prepareOutputImage(expr);
+    auto out = _prepareOutputImage(expr);
+    if (_debias) {
+        auto isnan = isNaN(*out);
+        if (any(isnan).getBool()) {
+            LatticeExpr<Bool> mask(! isnan);
+            if (! out->hasPixelMask()) {
+                String x;
+                ImageMaskAttacher::makeMask(*out, x, True, True, *_getLog(), False);
+            }
+            auto& pixelMask = out->pixelMask();
+            LatticeExpr<Bool> newMask(mask && LatticeExpr<Bool>(out->pixelMask()));
+            pixelMask.copyData(newMask);
+            out->copyData(LatticeExpr<Float>(iif(isnan, 0, *out)));
+        }
+    }
+    return out;
 }
 
 String ImageTotalPolarization::getClass() const {
     return CLASS_NAME;
 }
-
 
 void ImageTotalPolarization::setClip(Float clip) {
     _clip = clip;
@@ -62,7 +76,7 @@ void ImageTotalPolarization::setSigma(Float sigma) {
 ImageExpr<Float> ImageTotalPolarization::_totPolInt() {
     *_getLog() << LogOrigin(CLASS_NAME, __func__, WHERE);
     Bool doLin, doCirc;
-    _setDoLinDoCirc(doLin, doCirc);
+    _setDoLinDoCirc(doLin, doCirc, False);
     // Make node.
     LatticeExprNode node = _makePolIntNode(_debias, _clip, _sigma, doLin, doCirc);
     // Make expression
@@ -72,7 +86,7 @@ ImageExpr<Float> ImageTotalPolarization::_totPolInt() {
     StokesTypes stokes = _getStokesImage(Q) ? Q : _getStokesImage(U) ? U : V;
     _setInfo(ie, stokes);
     // Fiddle Stokes coordinate in ImageExpr
-    _fiddleStokesCoordinate(ie, Stokes::Ptotal);
+    _fiddleStokesCoordinate(ie, doCirc ? Stokes::Ptotal : Stokes::Plinear);
     return ie;
 }
 

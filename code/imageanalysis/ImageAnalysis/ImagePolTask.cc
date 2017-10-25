@@ -30,9 +30,8 @@
 using namespace casacore;
 namespace casa {
 
-// region and mask specification is purposefully not supported.
-// Region selection and OTF mask should be applied prior to construction,
-// and the result of that selection should be passed in as <src>image</src>
+const String ImagePolTask::CLASS_NAME = "ImagePolTask";
+
 ImagePolTask::ImagePolTask(
     const SPCIIF image, const String& outname, Bool overwrite
 ) : ImageTask<Float>(image, nullptr, "", outname, overwrite) {
@@ -42,8 +41,12 @@ ImagePolTask::ImagePolTask(
 
 ImagePolTask::~ImagePolTask() {}
 
+String ImagePolTask::getClass() const {
+    return CLASS_NAME;
+}
+
 Float ImagePolTask::sigmaLinPolInt(Float clip, Float sigma) {
-    *_getLog() <<LogOrigin("ImagePolTask", __func__, WHERE);
+    *_getLog() <<LogOrigin(CLASS_NAME, __func__, WHERE);
     ThrowIf(
         ! _stokesImage[Q] && ! _stokesImage[U]==0,
         "This image does not have Stokes Q and U so cannot provide linear polarization"
@@ -171,7 +174,7 @@ void ImagePolTask::_fiddleStokesCoordinate(
 
 
 void ImagePolTask::_findStokes() {
-    *_getLog() << LogOrigin("ImagePolTask", __func__, WHERE);
+    *_getLog() << LogOrigin(CLASS_NAME, __func__, WHERE);
     // Do we have any Stokes ?
     const auto& csys = _getImage()->coordinates();
     ThrowIf(
@@ -219,52 +222,25 @@ LatticeExprNode ImagePolTask::_makePolIntNode(
     Bool debias, Float clip, Float sigma,
     Bool doLin, Bool doCirc
 ) {
-    LatticeExprNode linNode, circNode, node;
-    Float sigma2 = 0.0;
+    LatticeExprNode linNode, circNode;
     if (doLin) {
-        if (debias) {
-            sigma2 = sigma > 0 ? sigma : _sigma(clip);
-        }
         linNode = LatticeExprNode(
             pow(*_stokesImage[U],2) + pow(*_stokesImage[Q],2)
         );
     }
     if (doCirc) {
-        sigma2 = sigma > 0 ? sigma : _sigma(clip);
         circNode = LatticeExprNode(pow(*_stokesImage[V],2));
     }
-    auto sigmasq = sigma2 * sigma2;
-    if (doLin && doCirc) {
-        if (debias) {
-            node = linNode + circNode - LatticeExprNode(sigmasq);
-            *_getLog() << LogIO::NORMAL << "Debiasing with sigma = "
-                << sqrt(sigmasq) << LogIO::POST;
-        }
-        else {
-            node = linNode + circNode;
-        }
+    auto node = (doLin && doCirc) ? linNode + circNode
+        : doLin ? linNode : circNode;
+    if (debias) {
+        auto sigma2 = sigma > 0 ? sigma : _sigma(clip);
+        node = node - LatticeExprNode(sigma2*sigma2);
+        // node = iif(node >= 0, node, 0);
+        *_getLog() << LogIO::NORMAL << "Debiasing with sigma = "
+            << sigma2 << LogIO::POST;
     }
-    else if (doLin) {
-        if (debias) {
-            node = linNode - LatticeExprNode(sigmasq);
-            *_getLog() << LogIO::NORMAL << "Debiasing with sigma  = "
-                << sqrt(sigmasq) << LogIO::POST;
-        }
-        else {
-            node = linNode;
-        }
-    }
-    else if (doCirc) {
-        if (debias) {
-            node = circNode - LatticeExprNode(sigmasq);
-            *_getLog() << LogIO::NORMAL << "Debiasing with sigma = "
-                << sqrt(sigmasq) << LogIO::POST;
-        }
-        else {
-            node = circNode;
-        }
-    }
-    return LatticeExprNode(sqrt(node));
+    return sqrt(node);
 }
 
 SPIIF ImagePolTask::_makeSubImage(
@@ -277,25 +253,35 @@ SPIIF ImagePolTask::_makeSubImage(
     return SPIIF(new SubImage<Float>(*_getImage(), region));
 }
 
-void ImagePolTask::_setDoLinDoCirc(Bool& doLin, Bool& doCirc) const {
-    *_getLog() << LogOrigin("ImagePolTask", __func__, WHERE);
+void ImagePolTask::_setDoLinDoCirc(Bool& doLin, Bool& doCirc, Bool requireI) const {
+    *_getLog() << LogOrigin(CLASS_NAME, __func__, WHERE);
     doLin = _stokesImage[Q] && _stokesImage[U];
     doCirc = Bool(_stokesImage[V]);
     AlwaysAssert((doLin||doCirc), AipsError);    // Should never happen
-    if (! _stokesImage[I]) {
+    if (requireI && ! _stokesImage[I]) {
         *_getLog() << "This image does not have Stokes I so this calculation cannot be carried out"
             << LogIO::EXCEPTION;
     }
     if (doLin) {
-        if (! _checkIQUBeams(False, False)) {
-            *_getLog() << LogIO::WARN
-                << "I, Q, and U beams are not the same, cannot do linear portion"
-                << LogIO::POST;
-            doLin = false;
+        if (_stokesImage[I]) {
+            if (! _checkIQUBeams(False, False)) {
+                *_getLog() << LogIO::WARN
+                    << "I, Q, and U beams are not the same, cannot do linear portion"
+                    << LogIO::POST;
+                doLin = False;
+            }
+        }
+        else {
+            if (! _checkQUBeams(False, False)) {
+                *_getLog() << LogIO::WARN
+                    << "Q, and U beams are not the same, cannot do linear portion"
+                    << LogIO::POST;
+                doLin = False;
+            }
         }
     }
     if (doCirc) {
-        if (! _checkIVBeams(False, False)) {
+        if (_stokesImage[I] && ! _checkIVBeams(False, False)) {
             *_getLog() << LogIO::WARN
                 << "I and V beams are not the same, cannot do circular portion"
                 << LogIO::POST;
@@ -316,7 +302,7 @@ void ImagePolTask::_setInfo(ImageInterface<Float>& im, const StokesTypes stokes)
 }
 
 Float ImagePolTask::_sigma(Float clip) {
-    *_getLog() << LogOrigin("ImagePolarimetry", __func__, WHERE);
+    *_getLog() << LogOrigin(CLASS_NAME, __func__, WHERE);
     Float sigma2 = 0.0;
     if (_stokesImage[V]) {
         *_getLog() << LogIO::NORMAL << "Determined noise from V image to be ";
@@ -348,7 +334,7 @@ Float ImagePolTask::_sigma (StokesTypes index, Float clip) {
     if (clip2==0.0) {
         clip2 = 10.0;
     }
-    if (clip2 != _oldClip && ! _stokesStats[index]) {
+    if (clip2 != _oldClip) {
         _stokesStats[index].reset();
     }
     if (! _stokesStats[index]) {
@@ -372,14 +358,10 @@ Float ImagePolTask::_sigma (StokesTypes index, Float clip) {
 
 String ImagePolTask::_stokesName (StokesTypes index) const {
     switch(index) {
-    case I:
-        return "I";
-    case Q:
-        return "Q";
-    case U:
-        return "U";
-    case V:
-        return "V";
+    case I: return "I";
+    case Q: return "Q";
+    case U: return "U";
+    case V: return "V";
     default:
         ThrowCc("Unsupported stokes index " + String::toString(index));
     }

@@ -89,6 +89,9 @@ public:
 
     virtual ~ImagePolTask();
 
+    virtual casacore::String getClass() const;
+
+    /*
     // Get the linearly polarized intensity image and its
     // standard deviation.  If wish to debias the image, you
     // can either provide <src>sigma</src> (the standard
@@ -98,6 +101,8 @@ public:
     casacore::ImageExpr<casacore::Float> linPolInt(
         casacore::Bool debias, casacore::Float clip=10.0, casacore::Float sigma=-1.0
     );
+    */
+
     casacore::Float sigmaLinPolInt(
         casacore::Float clip=10.0, casacore::Float sigma=-1.0
     );
@@ -134,7 +139,10 @@ protected:
         casacore::Bool doLin, casacore::Bool doCirc
     );
 
-    void _setDoLinDoCirc(casacore::Bool& doLin, casacore::Bool& doCirc) const;
+    void _setDoLinDoCirc(
+        casacore::Bool& doLin, casacore::Bool& doCirc,
+        casacore::Bool requireI
+    ) const;
 
     void _setInfo(
         casacore::ImageInterface<Float>& im, const StokesTypes stokes
@@ -150,6 +158,8 @@ private:
     casacore::Matrix<casacore::Bool> _beamsEqMat
         = casacore::Matrix<casacore::Bool>(4, 4, casacore::False);
     Float _oldClip = 0.0;
+
+    static const casacore::String CLASS_NAME;
 
     casacore::Bool _checkBeams(
         const std::vector<StokesTypes>& stokes,
