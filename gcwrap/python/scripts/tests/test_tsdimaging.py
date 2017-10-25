@@ -2038,7 +2038,7 @@ class sdimaging_test_flag(sdimaging_unittest_base):
     rawfile='sdimaging_flagtest.ms'
     prefix=sdimaging_unittest_base.taskname+'TestFlag'
     outfile=prefix+sdimaging_unittest_base.postfix
-    maskfile = outfile + '/mask0'
+    maskfile = outfile + image_suffix + '/mask0'
     weightfile = outfile + '.weight'
     
     gridfunction = "BOX"
@@ -2071,7 +2071,8 @@ class sdimaging_test_flag(sdimaging_unittest_base):
         res=sdimaging(infiles=self.rawfile,outfile=self.outfile,intent="",gridfunction=self.gridfunction,cell=self.cell,imsize=self.imsize,phasecenter=self.phasecenter,minweight=self.minweight0)
         self.assertEqual(res,None,
                          msg='Any error occurred during imaging')
-        self._checkshape(self.outfile,self.imsize[0],self.imsize[1],1,self.nchan)
+        outfile = self.outfile + image_suffix
+        self._checkshape(outfile,self.imsize[0],self.imsize[1],1,self.nchan)
         self._set_data_ranges()
         self._check_data()
         self._check_mask()
@@ -2081,7 +2082,8 @@ class sdimaging_test_flag(sdimaging_unittest_base):
         res=sdimaging(infiles=self.rawfile,outfile=self.outfile,intent="",width=10,gridfunction=self.gridfunction,cell=self.cell,imsize=self.imsize,phasecenter=self.phasecenter,minweight=self.minweight0)
         self.assertEqual(res,None,
                          msg='Any error occurred during imaging')
-        self._checkshape(self.outfile,self.imsize[0],self.imsize[1],1,1)
+        outfile = self.outfile + image_suffix
+        self._checkshape(outfile,self.imsize[0],self.imsize[1],1,1)
         self._set_data_ranges(True)
         self._check_data(True)
         self._check_mask(True)
@@ -2103,10 +2105,11 @@ class sdimaging_test_flag(sdimaging_unittest_base):
     def _check_data(self, chanmerge=False):
         val = self._get_refvalues(self.rawfile, chanmerge)
         idx = 0
+        outfile = self.outfile + image_suffix
         for i in xrange(len(self.x_range)):
             for j in xrange(len(self.y_range)):
                 for k in xrange(len(self.f_range)):
-                    self._checkvalue(self.outfile, False, self.x_range[i], self.y_range[j], self.f_range[k],  val[idx], chanmerge)
+                    self._checkvalue(outfile, False, self.x_range[i], self.y_range[j], self.f_range[k],  val[idx], chanmerge)
                     idx += 1
 
     def _check_mask(self, chanmerge=False):
@@ -2249,9 +2252,10 @@ class sdimaging_test_polflag(sdimaging_unittest_base):
         self.res=sdimaging(**task_param)
         # Tests
         imsize = [shape[0], shape[1]]
-        self._checkshape(self.outfile,shape[0], shape[1],shape[2],shape[3])
-        self._checkdirax(self.outfile,self.phasecenter_auto,self.cell_auto,imsize)
-        self._checkstats(self.outfile,refstats,atol=atol,rtol=rtol)
+        outfile = self.outfile + image_suffix
+        self._checkshape(outfile,shape[0], shape[1],shape[2],shape[3])
+        self._checkdirax(outfile,self.phasecenter_auto,self.cell_auto,imsize)
+        self._checkstats(outfile,refstats,atol=atol,rtol=rtol)
 
     def test_i(self):
         """test stokes='I': image constructed by unflagged YY pol"""
@@ -2359,7 +2363,8 @@ class sdimaging_test_mslist(sdimaging_unittest_base):
 
     def tearDown(self):
         if self.clearup:
-            if os.path.exists(self.outfile):
+            outfile = self.outfile + image_suffix
+            if os.path.exists(outfile):
                 os.system('rm -rf %s*' % self.outfile)
             for name in self.infiles:
                 if os.path.exists(name):
@@ -2373,9 +2378,10 @@ class sdimaging_test_mslist(sdimaging_unittest_base):
         if refstats is None:
             refstats = self.refstats
         res=sdimaging(**task_param)
-        self._checkshape(self.outfile,self.imsize[0],self.imsize[1],1,1)
-        self._checkdirax(self.outfile,self.phasecenter,self.cell,self.imsize)
-        self._checkstats(self.outfile,refstats,atol=1.e-5)
+        outfile = self.outfile + image_suffix
+        self._checkshape(outfile,self.imsize[0],self.imsize[1],1,1)
+        self._checkdirax(outfile,self.phasecenter,self.cell,self.imsize)
+        self._checkstats(outfile,refstats,atol=1.e-5)
 
     ###########################
     # Tests
