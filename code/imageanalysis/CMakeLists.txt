@@ -65,6 +65,8 @@ ImageAnalysis/ImageStatsCalculator.cc
 ImageAnalysis/ImageStatsConfigurator.cc
 ImageAnalysis/ImageTotalPolarization.cc
 ImageAnalysis/ImageTransposer.cc
+ImageAnalysis/LinearPolarizationAngleCalculator.cc
+ImageAnalysis/LinearPolarizationCalculator.cc
 ImageAnalysis/PeakIntensityFluxDensityConverter.cc
 ImageAnalysis/PixelValueManipulatorData.cc
 ImageAnalysis/ProfileFitResults.cc
@@ -220,6 +222,8 @@ install (FILES
 	ImageAnalysis/ImageTransposer.h
 	ImageAnalysis/ImageTwoPtCorr.h
 	ImageAnalysis/ImageTwoPtCorr.tcc
+	ImageAnalysis/LinearPolarizationAngleCalculator.h
+	ImageAnalysis/LinearPolarizationCalculator.h
 	ImageAnalysis/MomentsBase.h
 	ImageAnalysis/MomentsBase.tcc
 	ImageAnalysis/MomentCalcBase.h
