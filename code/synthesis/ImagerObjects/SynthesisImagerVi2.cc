@@ -557,6 +557,22 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 	   << " , " << impars.cellsize[1].getValue() << impars.cellsize[1].getUnit() 
 	   << LogIO::POST;
 	*/
+        // phasecenter
+        if (impars.phaseCenterFieldId == -1) {
+          // user-specified
+          phaseCenter_p = impars.phaseCenter;
+        } else if (impars.phaseCenterFieldId >= 0) {
+          // FIELD_ID
+          auto const msobj = mss_p[0];
+          ROMSFieldColumns msfield(msobj->field());
+          phaseCenter_p=msfield.phaseDirMeas(impars.phaseCenterFieldId);
+        } else {
+          // use default FIELD_ID (0)
+          auto const msobj = mss_p[0];
+          ROMSFieldColumns msfield(msobj->field());
+          phaseCenter_p=msfield.phaseDirMeas(0);
+        }
+
       }
     catch(AipsError &x)
       {
