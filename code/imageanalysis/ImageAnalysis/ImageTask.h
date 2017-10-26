@@ -196,8 +196,6 @@ protected:
     // mask=0 => the mask attached to the image, if any will be used, outShape=0 => use image shape, coordsys=0 => use image coordinate
     // system. overwrite is only used if outname != NULL.
 
-    //SPIIT _prepareOutputImage(const casacore::ImageInterface<T>& image) const;
-
     SPIIT _prepareOutputImage(
         const casacore::ImageInterface<T>& image, const casacore::Array<T> *const values,
         const casacore::ArrayLattice<casacore::Bool> *const mask=nullptr,
