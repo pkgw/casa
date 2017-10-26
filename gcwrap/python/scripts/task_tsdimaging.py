@@ -151,6 +151,27 @@ class OldImagerBasedTools(object):
             map_param = im.mapextent(ref=ref, movingsource=movingsource, 
                                      pointingcolumntouse=pointingcolumntouse)
         return map_param
+    
+    def sort_vis(self, vislist, spw, mode, width, field, antenna, scan, intent):
+        if isinstance(vislist, str) or len(vislist) == 1:
+            return vislist, field, spw, antenna, scan, intent
+        imhelper = cleanhelper(imtool=self.imager, vis=vislist, casalog=casalog)
+        imhelper.sortvislist(spw=spw, mode=mode, width=width)
+        sorted_idx = list(imhelper.sortedvisindx)
+        # reverse the order
+        sorted_idx.reverse()
+        sorted_vislist = [vislist[i] for i in sorted_idx]
+        fieldsel = SelectionHandler(field)
+        sorted_field = [fieldsel(i) for i in sorted_idx]
+        spwsel = SelectionHandler(spw)
+        sorted_spw = [spwsel(i) for i in sorted_idx]
+        antennasel = SelectionHandler(antenna)
+        sorted_antenna = [antennasel(i) for i in sorted_idx]
+        scansel = SelectionHandler(scan)
+        sorted_scan = [scansel(i) for i in sorted_idx]
+        intentsel = SelectionHandler(intent)
+        sorted_intent = [intentsel(i) for i in sorted_idx]
+        return sorted_vislist, sorted_field, sorted_spw, sorted_antenna, sorted_scan, sorted_intent
 
 def _configure_spectral_axis(mode, nchan, start, width, restfreq):
     # TODO: implement the function
@@ -648,10 +669,21 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
         gjwidth = _handle_grid_defaults(jwidth)
         
         # handle image parameters
-        _imsize, _cell, _phasecenter = _handle_image_params(imsize, cell, phasecenter, infiles, 
-                                                            field, _spw, antenna, scan, intent,
-                                                            _restfreq, pointingcolumn, ephemsrcname)
-        
+        if isinstance(infiles, str) or len(infiles) == 1:
+            _imsize, _cell, _phasecenter = _handle_image_params(imsize, cell, phasecenter, infiles, 
+                                                                field, _spw, antenna, scan, intent,
+                                                                _restfreq, pointingcolumn, ephemsrcname)
+        else:
+            # sort input data using cleanhelper function to get consistent result with older sdimaging
+            o = OldImagerBasedTools()
+            _sorted = o.sort_vis(infiles, _spw, mode, imwidth, field, antenna, scan, intent)
+            sorted_vis, sorted_field, sorted_spw, sorted_antenna, sorted_scan, sorted_intent = _sorted
+            _imsize, _cell, _phasecenter = _handle_image_params(imsize, cell, phasecenter, sorted_vis, 
+                                                                sorted_field, sorted_spw, sorted_antenna, 
+                                                                sorted_scan, sorted_intent,
+                                                                _restfreq, pointingcolumn, ephemsrcname)
+           
+            
         # calculate pblimit from minweight
         pblimit = _calc_pblimit(minweight)
         
