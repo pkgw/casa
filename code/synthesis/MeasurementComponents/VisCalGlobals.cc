@@ -651,13 +651,18 @@ Slice calParSliceByType(String caltype, String what, String pol)
     else
       throw(AipsError("Unsupported value type: "+what));
   }
-  else if (caltype[0]=='K' && caltype!="KAntPos Jones") {
-      if (what=="DELAY") {
-        s=0;
-        i=1;
-      } else {
-        throw(AipsError("Unsupported value type: "+what));
-      }
+  else if (caltype[0]=='K') {
+	  if (caltype=="KANTPOS JONES") {
+		  // antenna x,y,z corrections not pol
+		  return Slice(0,3,1);
+	  } else {
+		  if (what=="DELAY") {
+			s=0;
+			i=1;
+		  } else {
+			throw(AipsError("Unsupported value type: "+what));
+		  }
+	  }
   }
   else if (caltype[0]=='F') {
     if (what=="TEC") {

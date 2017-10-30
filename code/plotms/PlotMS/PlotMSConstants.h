@@ -107,35 +107,48 @@ public:
     // xmlcasa/scripts/task_plotms.py.**
     // <group>
     PMS_ENUM1(Axis, axes, axesStrings, axis,
+		  // Metadata
 	      SCAN,FIELD,TIME,TIME_INTERVAL,
 	      SPW,CHANNEL,FREQUENCY,VELOCITY,CORR,
 	      ANTENNA1,ANTENNA2,BASELINE,ROW,
           OBSERVATION,INTENT,FEED1,FEED2,
+		  // Visibilities and flags
 	      AMP,PHASE,REAL,IMAG,WT,WTxAMP,WTSP,
 	      SIGMA, SIGMASP,
 	      FLAG,FLAG_ROW,
+		  // Observational geometry
 	      UVDIST,UVDIST_L,U,V,W,UWAVE,VWAVE,WWAVE,
 	      AZ0,EL0,HA0,PA0,
+		  // Antenna-based
 	      ANTENNA,AZIMUTH,ELEVATION,
 	      PARANG,
+		  // Calibration 
 	      GAMP,GPHASE,GREAL,GIMAG,
-	      DELAY,SWP,TSYS,OPAC, SNR, TEC,
+	      DELAY,SWP,TSYS,OPAC, SNR, TEC, ANTCORR,
+		  // Ephemeris
 	      RADIAL_VELOCITY, RHO, 
 	      NONE)
 
     PMS_ENUM2(Axis, axes, axesStrings, axis,
+		  // Metadata
 	      "Scan","Field","Time","Interval",
 	      "Spw","Channel","Frequency","Velocity","Corr",
 	      "Antenna1","Antenna2","Baseline","Row",
 	      "Observation", "Intent", "Feed1", "Feed2",
+		  // Visibilities and flags
 	      "Amp","Phase","Real","Imag","Wt","Wt*Amp","WtSp",
 	      "Sigma", "SigmaSp", "Flag","FlagRow",
+		  // Observational geometry
 	      "UVdist","UVwave","U","V","W","Uwave","Vwave","Wwave",
 	      "Azimuth","Elevation","HourAngle","ParAngle",
+		  // Antenna-based
 	      "Antenna","Ant-Azimuth","Ant-Elevation","Ant-ParAngle",
+		  // Calibration 
 	      "Gain Amp","Gain Phase","Gain Real","Gain Imag",
 	      "Delay","SwPower","Tsys","Opac", "SNR", "TEC",
-	      "Radial Velocity [km/s]", "Distance (rho) [km]", 
+		  "Antenna Corrections",
+		  // Ephemeris
+	      "Radial Velocity", "Distance (rho)", 
 	      "None")
 
     // </group>

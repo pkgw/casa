@@ -62,8 +62,18 @@ String CalCache::polname(Int ipol) {
     return ( (ipol%2==0) ? String("X") : String("Y") );
   else if (basis_=="Circular")
     return ( (ipol%2==0) ? String("R") : String("L") );
-  else // "unknown"
-    return ( (ipol%2==0) ? String("0") : String("1") );
+  else { // "unknown", or antenna positions
+	if (calType_=="KAntPos Jones") {
+		switch(ipol) {
+			case 0: return "X";
+			case 1: return "Y";
+			case 2: return "Z";
+			default: return (String::toString(ipol));
+		}
+	} else {
+        return ( String::toString(ipol) );
+	}
+  }
 }
 
 
@@ -80,8 +90,6 @@ void CalCache::loadIt(vector<PMS::Axis>& loadAxes,
   if (calType_=="BPOLY" || calType_=="GSPLINE" || 
       calType_[0]=='A' || calType_[0]=='M' || calType_[0]=='X')
     throw AipsError("Cal table type " + calType_ + " is unsupported in plotms.  Please continue to use plotcal.");
-  if (calType_=="KAntPos Jones")
-    throw AipsError("Cannot plot " + calType_ + " tables.");
 
   // Warn that averaging will be ignored
   if (averaging().anyAveraging())
@@ -514,7 +522,7 @@ void CalCache::loadCalChunks(ROCTIter& ci,
         Cube<Float> fArray = cti.fparam();
         *par_[chunk] = fArray(parSlice1, Slice(), Slice());
     } else
-		throw(AipsError( "opacity has no meaning for this table"));
+        throw(AipsError( "opacity has no meaning for this table"));
     break;
   }
 
@@ -534,7 +542,7 @@ void CalCache::loadCalChunks(ROCTIter& ci,
   }
 
   case PMS::TSYS: {
-	if ( !parsAreComplex() && (calType_.contains("EVLASWPOW") || calType_.contains("TSYS"))) {
+    if ( !parsAreComplex() && (calType_.contains("EVLASWPOW") || calType_.contains("TSYS"))) {
         Cube<Float> fArray = cti.fparam();
         if (polnRatio_) {
             Array<Float> tsysRatio = fArray(parSlice1, Slice(), Slice()) / fArray(parSlice2, Slice(), Slice());
@@ -560,7 +568,7 @@ void CalCache::loadCalChunks(ROCTIter& ci,
   }
 
    case PMS::TEC: {
-	if ( !parsAreComplex() && calType_[0]=='F') {
+    if ( !parsAreComplex() && calType_[0]=='F') {
         Cube<Float> fArray = cti.fparam();
         *par_[chunk] = (fArray(parSlice1, Slice(), Slice()))/1e+16;
     } else
@@ -569,12 +577,13 @@ void CalCache::loadCalChunks(ROCTIter& ci,
   }
 
                 
-  case PMS::FLAG:
+  case PMS::FLAG: {
     if (polnRatio_)
         *flag_[chunk] = cti.flag()(parSlice1, Slice(), Slice()) | cti.flag()(parSlice2, Slice(), Slice());
     else
         *flag_[chunk] = cti.flag()(parSlice1, Slice(), Slice());
     break;
+  }
  /*
     case PMS::WT: {
       *wt_[chunk] = cti.weightMat();
@@ -831,7 +840,8 @@ String CalCache::toVisCalAxis(PMS::Axis axis) {
         case PMS::SNR:
             if (calType_.contains("EVLASWP")) return "GAINAMP";
             if (calType_.contains("TSYS")) return "TSYS";
-            if (calType_[0] == 'K') return "DELAY";
+            if (calType_[0] == 'K' && !calType_.startsWith("KAntPos")) 
+				return "DELAY";
             if (calType_[0] == 'F') return "TEC";
             if (calType_ == "TOpac") return "OPAC";
             return "AMP";

@@ -349,7 +349,7 @@ PMS::Axis PlotMSPlot::getDefaultXAxis() {
         if (caltype.contains("TSYS") || caltype[0]=='B' ||
             caltype.contains("Mf") || caltype[0]=='X' )
             xaxis = PMS::CHANNEL;
-        if (caltype[0]=='D')
+        if (caltype[0]=='D' || caltype[0]=='K')
             xaxis = PMS::ANTENNA1;
     }
     return xaxis;
@@ -1767,8 +1767,9 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
             xLabelSingle = addFreqFrame(xLabelSingle);
         if (axisIsAveraged(x, averaging))
             xLabelSingle = "Average " + xLabelSingle;
-        if (isCalTable && xLabelSingle.contains("Corr"))
-            xLabelSingle.replace(xLabelSingle.find("Corr"), 4, "Polarization");
+        if (isCalTable && xLabelSingle.contains("Corr") &&
+				!xLabelSingle.contains("Correction"))
+            xLabelSingle.gsub("Corr", "Polarization");
 		canvas->setAxisLabel(cx, xLabelSingle);
 		PlotFontPtr xFont = canvas->axisFont(cx);
         pointsize = (canvParams->xFontSet()) ? canvParams->xAxisFont(): std::max(12. - rows*cols+1., 8.);
@@ -1801,8 +1802,9 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
                     yLabelSingle = addFreqFrame(yLabelSingle);
                 if (axisIsAveraged(y, averaging))
                     yLabelSingle = "Average " + yLabelSingle;
-                if (isCalTable && yLabelSingle.contains("Corr"))
-                    yLabelSingle.replace(yLabelSingle.find("Corr"), 4, "Polarization");
+                if (isCalTable && yLabelSingle.contains("Corr") &&
+						!yLabelSingle.contains("Correction"))
+                    yLabelSingle.gsub("Corr", "Polarization");
 
 				if ( cy == Y_LEFT ){
 					if ( yLabelLeft.size() > 0 ){
@@ -1962,8 +1964,9 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
 		title = canvParams->titleFormat().getLabel(x, yAxes, xref,
 				xrefval, yRefs, yRefVals, xDataColumn, yDatas, polnRatio)
 				+ " " + iterTxt;
-        if (isCalTable && title.contains("Corr"))
-            title.replace(title.find("Corr"), 11, "Polarization");
+        if (isCalTable && title.contains("Corr") && 
+				!title.contains("Correction"))
+            title.gsub("Corr", "Polarization");
 		canvas->setTitle(title);
 	}
 
@@ -2022,7 +2025,8 @@ PMS::Axis PlotMSPlot::getCalAxis(String calType, PMS::Axis axis) {
         if (calType.contains("Opac")) return PMS::OPAC;
         if (calType.contains("SD")) return PMS::GREAL;
         if (calType[0]=='F') return PMS::TEC;
-        if (calType[0]=='K' && calType!="KAntPos") return PMS::DELAY;
+		if (calType.startsWith("KAntPos")) return PMS::ANTCORR; 
+        if (calType[0]=='K') return PMS::DELAY;
         return PMS::GAMP;
     }
     if (axis==PMS::PHASE) return PMS::GPHASE;

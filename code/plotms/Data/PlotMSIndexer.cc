@@ -1476,7 +1476,9 @@ void PlotMSIndexer::reportMeta(Double x, Double y, Bool masked,stringstream& ss)
 
     if (isMS)
 	    ss << "Corr=";
-    else
+    else if (plotmscache_->calType() == "KAntPos Jones")
+		ss << "Coordinate=";
+	else
 	    ss << "Poln=";
 	if (plotmscache_->netAxesMask_[dataIndex](0))
 		ss << plotmscache_->polname(Int(plotmscache_->getCorr(currChunk_,getIndex1000(currChunk_,irel_))));
