@@ -134,7 +134,8 @@ def getAntennaInfo(msname, exclude, checkbaselines):
                     pass
         if isinstance(ant, str):
             try:
-                antIdsUsed.remove(antNames.index(ant))
+                if ant:  # default is empty string
+                    antIdsUsed.remove(antNames.index(ant))
             except ValueError: # cannot find name
                 casalog.post("Cannot exclude antenna " + ant + 
                         ": does not exist")

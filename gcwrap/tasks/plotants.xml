@@ -30,9 +30,8 @@
 		</param>
         <param type="any" name="exclude">
             <description>Antenna names/ids to exclude from plot</description>
-            <any type="variant" limittype="stringArray intArray"/>
-            <value type="stringArray"><value></value></value>
-            <value type="intArray"><value></value></value>
+            <any type="variant" limittypes="string stringArray int intArray"/>
+            <value type="string"></value>
 		</param>
 		<param type="bool" name="checkbaselines">
 			<description>Whether to check baselines in the main table.</description>
