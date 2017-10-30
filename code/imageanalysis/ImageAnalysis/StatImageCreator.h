@@ -87,8 +87,6 @@ protected:
 
 private:
 
-    static const casacore::Double PHI;
-
     Quantity _xlen = Quantity(1, "pix");
     Quantity _ylen = Quantity(1, "pix");
 

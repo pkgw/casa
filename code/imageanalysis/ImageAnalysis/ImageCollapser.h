@@ -104,10 +104,7 @@ private:
     ) const;
 
     // necessary to improve performance
-    void _doMedian(
-        SPCIIT image,
-		casacore::TempImage<T>& outImage
-    ) const;
+    void _doHighPerf(SPCIIT image, casacore::TempImage<T>& outImage) const;
 
     // returns true if miscellaneous info was copied
     Bool _doMultipleBeams(
