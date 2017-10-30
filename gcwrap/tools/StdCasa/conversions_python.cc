@@ -14,11 +14,28 @@
 
 STRINGTOCOMPLEX_DEFINITION(casac::complex,stringtoccomplex)
 
+#ifndef PyInt_Check
+// support for python3
+#define PyInt_Check                     PyLong_Check
+#define PyInt_FromLong                  PyLong_FromLong
+#define PyInt_FromUnsignedLong          PyLong_FromUnsignedLong
+#define PyInt_AsLong                    PyLong_AsLong
+#define PyInt_AsUnsignedLong            PyLong_AsUnsignedLong
+#define PyInt_Type                      PyLong_Type
+#define PyNumber_Int                    PyNumber_Long
+#define PyString_Check                  PyUnicode_Check
+// FIX ME-------------------------------vvvvvvvvvvvvvvvv
+#define PyString_AsString               PyUnicode_AsUTF8
+#define PyString_FromString             PyUnicode_FromString
+#define MYPYSIZE                        Py_ssize_t
+#else
 #if ( (PY_MAJOR_VERSION <= 1) || (PY_MINOR_VERSION <= 4) )
     #define MYPYSIZE int
 #else
     #define MYPYSIZE Py_ssize_t
 #endif
+#endif
+
 
 #define NODOCOMPLEX(x) (x)
 #define DOCOMPLEX(x) casac::complex(x,0)
@@ -280,12 +297,23 @@ NUMPY2VECTOR(casac::complex,casac::complex,npy_cdouble,(PyArray_TYPE((PyArrayObj
 NUMPY2VECTOR(std::string,char,const char,(false),,COPY_PYNSTRING,,,NODOCOMPLEX,booltostring,inttostring,doubletostring,complextostring,*to = *from,itemsize)
 
 static unsigned int initialized_numpy_ = 0;
-inline void initialize_numpy( ) {
-    if ( initialized_numpy_ == 0 ) {
-	++initialized_numpy_;
-	import_array( );
+#if PY_MAJOR_VERSION > 2
+    inline void *initialize_numpy( ) {
+        if ( initialized_numpy_ == 0 ) {
+            ++initialized_numpy_;
+            import_array( );
+        }
+        return 0;
     }
-}
+#else
+    inline void initialize_numpy( ) {
+        if ( initialized_numpy_ == 0 ) {
+            ++initialized_numpy_;
+            import_array( );
+        }
+    }
+#endif
+
 int casac::pyarray_check(PyObject *obj) {
     if ( initialized_numpy_ == 0 ) initialize_numpy( );
     return PyArray_Check(obj);
