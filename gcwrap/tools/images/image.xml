@@ -9791,6 +9791,16 @@ frequency unit is Hz, the resulting flux unit will be K.arcsec2.Hz).
 In both cases of flux density or flux being computed, the resulting numerical value is
 assigned to the "flux" key in the output dictionary.
 
+If the image has units of Jy/beam, the flux density is just the mean intensity multiplied
+by the number of beam areas included in the region. The beam area is defined as the volume
+of the elliptical Gaussian defined by the synthesized beam, divided by the maximum of
+that function, which is equivalent to
+
+pi/(4*ln(2)) * major * minor
+
+where ln() is the natural logarithm and major and minor are the major and minor FWHM axes
+of the beam, respectively.
+
 </description>
 
 <example> 
