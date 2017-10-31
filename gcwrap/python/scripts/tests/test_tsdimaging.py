@@ -2258,12 +2258,25 @@ class sdimaging_test_polflag(sdimaging_unittest_base):
         self._checkstats(outfile,refstats,atol=atol,rtol=rtol)
 
     def test_i(self):
-        """test stokes='I': image constructed by unflagged YY pol"""
+        """test stokes='I': image constructed by unflagged YY pol (NB after imager migration: image weights all zero)"""
         self.task_param['stokes'] = 'I'
+        # Tests
+        # In true Stokes mode, all correlation components are flagged when any of them is flagged
+        # Stokes value consistent with older imager based implementation is pseudo-Stokes
+        #refstats = merge_dict(self.stat_common, construct_refstat_uniform(self.unif_flux, self.region_all['blc'], self.region_all['trc']) )
+        refstats = merge_dict(self.stat_common, construct_refstat_uniform(0.0, self.region_all['blc'], self.region_all['trc']) )
+        out_shape = (self.imsize_auto[0],self.imsize_auto[1],1,1)
+        self.run_test(self.task_param, refstats, out_shape,atol=1.e-5)
+        
+    def test_pseudo_i(self):
+        """test pseudo stokes I: image constructed by unflagged YY pol"""
+        self.task_param['stokes'] = 'pseudoI'
         # Tests
         refstats = merge_dict(self.stat_common, construct_refstat_uniform(self.unif_flux, self.region_all['blc'], self.region_all['trc']) )
         out_shape = (self.imsize_auto[0],self.imsize_auto[1],1,1)
-        self.run_test(self.task_param, refstats, out_shape,atol=1.e-5)
+        #self.run_test(self.task_param, refstats, out_shape,atol=1.e-5)
+        self.skipTest('Skip test_pseudo_i since pseudo-Stokes mode is not implemented yet')
+       
 
     def test_xx(self):
         """test stokes='XX' (flagged): image weights all zero"""
