@@ -25,7 +25,7 @@ void addTimeAxis(casacore::Record& rec);
 void incTimeAxis(casacore::IPosition& cubeshape);
 
 // Add data to return record (getdata2), with helpers:
-void getitem(casacore::String item, casa::vi::VisBuffer2* vb2,
+bool getitem(casacore::String item, casa::vi::VisBuffer2* vb2,
         casacore::Record& addToRec, bool ifraxis);
 bool itemIsData(casacore::String item);
 casacore::String getbaseitem(casacore::String item);
