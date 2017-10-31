@@ -2301,7 +2301,8 @@ class sdimaging_test_polflag(sdimaging_unittest_base):
         refstats['blc'][2] = 1
         for key in ['blcf', 'trcf']: refstats.pop(key)
         box = _rg.box(blc=refstats['blc'],trc=refstats['trc'])
-        self._checkstats(self.outfile,refstats,atol=1.e-5,region=box)
+        outfile = self.outfile + image_suffix
+        self._checkstats(outfile,refstats,atol=1.e-5,region=box)
 
 class sdimaging_test_mslist(sdimaging_unittest_base):
     """
