@@ -29,7 +29,7 @@
 			<value>False</value>
 		</param>
         <param type="any" name="exclude">
-            <description>Antenna names/ids to exclude from plot</description>
+            <description>Antenna names/ids to exclude from plot (list, int, or str)</description>
             <any type="variant" limittypes="string stringArray int intArray"/>
             <value type="string"></value>
 		</param>
@@ -53,29 +53,34 @@
        antenna is shown next to its respective location.
 
        Keyword arguments:
-       vis -- Name of input visibility file.
-            default: none. example: vis='ngc5921.ms'
+       vis -- Name of input visibility file (required).
+            Default: none, example: vis='ngc5921.ms'
 
        figfile -- Save the plotted figure in this file.
-            default: ''. example: figfile='myFigure.png'
+            Default: '', example: figfile='myFigure.png'
 
        antindex -- Labels antennas with antennaId in addition to name
-            default: False. example: antindex=True
+            Default: False, example: antindex=True
 
        logpos -- produce a logarithmic position plot.
-            default: False. example: logpos=True
+            Default: False, example: logpos=True
 
        exclude -- antenna IDs or names to exclude from plotting
-            default: []. examples: exclude=[2,3,4], exclude='DV15'
+            Can be a string (name or MSSelection string), int,
+            or list of ints and/or strings.
+            Default: '', examples:
+              string: 'DV15'; '0~3'; "DV23, DA02"
+              int:    5
+              list:   [0,25,26]; ["DV23","PM02"]; ['DV23',5]
 
        checkbaselines -- Only plot antennas in the MAIN table.
             This can be useful after a split.  WARNING: Setting
             checkbaselines to True will add to runtime in
             proportion to the number of rows in the dataset.
-            default: False. example: checkbaselines=True
+            Default: False, example: checkbaselines=True
 
        title -- Title written along top of plot
-            default: ''
+            Default: '', example: "VLA Split Antenna Positions"
 
        You can zoom in by pressing the magnifier button (bottom,
        third from right) and making a rectangular region with

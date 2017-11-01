@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pylab as pl
 from textwrap import wrap
-from taskinit import msmdtool, gentools, qatool, casalog
+from taskinit import msmdtool, gentools, qatool, casalog, mstool
 
 def plotants(vis=None, figfile=None, 
         antindex=None, logpos=None, 
@@ -54,15 +54,28 @@ def plotants(vis=None, figfile=None,
         # remove trailing / for title basename
         if vis[-1]=='/':
             vis = vis[:-1]
+        if isinstance(exclude, tuple):
+            exclude = list(exclude)
+            if not all(isinstance(ant, (int, str)) for ant in exclude):
+                casalog.post("'exclude' list must contain str or int", "ERROR")
+                return
         # make exclude a list
-        if isinstance(exclude, (str, int)):
+        if isinstance(exclude, int):
             exclude = [exclude]
+        elif isinstance(exclude, str):
+            myms = mstool()
+            try:
+                exclude = myms.msseltoindex(vis, baseline=exclude)['antenna1'].tolist()
+            except RuntimeError as rterr:  # MSSelection failed
+                mesg = "Antenna plot failed: exclude " + str(rterr)
+                casalog.post(mesg, "ERROR")
+                return
 
         pl.clf()
         telescope, names, ids, xpos, ypos = getAntennaInfo(vis, exclude, 
             checkbaselines)
-        if not names:  # no antennas selected
-            casalog.post("No antennas selected.  Exiting plotants.")
+        if not names:
+            casalog.post("No antennas selected.  Exiting plotants.", "ERROR")
             return
         if logpos:
             plotAntennasLog(telescope, names, ids, xpos, ypos, antindex)
@@ -77,8 +90,8 @@ def plotants(vis=None, figfile=None,
         pl.title(title, {'fontsize':12})
         if figfile:
             pl.savefig(figfile)
-    except Exception, instance:
-          print '*** Error ***',instance
+    except Exception as instance:
+        casalog.post("Antenna plot failed: " + str(instance), "ERROR")
 
 def getAntennaInfo(msname, exclude, checkbaselines):
 
@@ -126,21 +139,28 @@ def getAntennaInfo(msname, exclude, checkbaselines):
         if isinstance(ant, int):
             if ant not in allAntIds:
                 casalog.post("Cannot exclude antenna id " + str(ant) + 
-                        ": does not exist")
+                        ": does not exist", "WARN")
             else:
                 try:
                     antIdsUsed.remove(ant)
                 except KeyError: # id exists but not used anyway
-                    pass
+                    casalog.post("Cannot exclude antenna " + str(ant) + 
+                        ": not in main table", "WARN")
         if isinstance(ant, str):
-            try:
-                if ant:  # default is empty string
-                    antIdsUsed.remove(antNames.index(ant))
-            except ValueError: # cannot find name
-                casalog.post("Cannot exclude antenna " + ant + 
-                        ": does not exist")
-            except KeyError:  # name exists but cannot remove from used ids
-                pass
+            if ant:  # default is empty string
+                start = 0
+                count = antNames.count(ant)
+                if count is 0:
+                    casalog.post("Cannot exclude antenna " + ant + 
+                            ": does not exist", "WARN")
+                for i in range(count):
+                    try:
+                        idx = antNames[start:].index(ant)
+                        antIdsUsed.remove(start + idx)
+                        start += idx + 1
+                    except ValueError: # id not in list of used ids
+                        casalog.post("Cannot exclude antenna " + ant + 
+                            ": not in main table", "WARN")
 
     # apply antIdsUsed mask
     ids = list(antIdsUsed)
