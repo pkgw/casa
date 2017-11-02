@@ -562,7 +562,6 @@ FWD_DECL_map_array_pylist(std::complex<double>)
 FWD_DECL_map_array_pylist(casac::complex)
 FWD_DECL_map_array_pylist(std::string)
 
-#if USING_NUMPY_ARRAYS
 //static int unmap_array_numpy( PyObject *array, std::vector<int> &shape, casac::variant &vnt ) {
 
 #define MAP_ARRAY_NUMPY(TYPE,NPYTYPE,NUMPY_TYPE,ASSIGN)						\
@@ -716,30 +715,6 @@ else if ( casac::pyarray_check(obj) ) {						\
 }
 
 #define NOT_NUMPY_ARRAY(OBJ) && ! casac::pyarray_check(OBJ)
-
-#else
-
-#define FWD_map_array_pylist( TYPE )								\
-inline PyObject *map_array( const std::vector<TYPE> &vec, const std::vector<int> &shape ) {	\
-    return map_array_pylist(vec, shape);							\
-}												\
-												\
-inline PyObject *map_vector( const std::vector<TYPE> &vec ) {					\
-    return map_vector_pylist( vec );								\
-}
-
-FWD_map_array_pylist(int)
-FWD_map_array_pylist(unsigned int)
-FWD_map_array_pylist(bool)
-FWD_map_array_pylist(double)
-FWD_map_array_pylist(std::complex<double>)
-FWD_map_array_pylist(casac::complex)
-FWD_map_array_pylist(std::string)
-
-#define HANDLE_NUMPY_ARRAY
-#define NOT_NUMPY_ARRAY(OBJ)
-
-#endif
 
 //
 // returns non-zero upon success
@@ -1066,7 +1041,7 @@ ARRAY2PYOBJ(std::complex<double> ,PyComplex_FromDoubles(val.real(),val.imag()),P
 ARRAY2PYOBJ(casac::complex ,PyComplex_FromDoubles(val.re,val.im),PyComplex_FromDoubles(cpx.re,cpx.im),,casac::complex cpx = *iter;)
 ARRAY2PYOBJ(std::string,PYSTRING_FROM_C_STRING(val.c_str()),PYSTRING_FROM_C_STRING((*iter).c_str()),,)
 
-#define HANDLEVEC2(TYPE,FETCH)												\
+#define HANDLEVEC2(TYPE,FETCH,MAP_PYLIST)						\
 {															\
 	const std::vector<TYPE> &vec = val.FETCH();									\
 	const std::vector<int> &shape = val.arrayshape( );								\
@@ -1082,12 +1057,20 @@ ARRAY2PYOBJ(std::string,PYSTRING_FROM_C_STRING(val.c_str()),PYSTRING_FROM_C_STRI
 	    }														\
 	}														\
 															\
-	if ( shape.size() > (unsigned) 1 && shape_size == vec.size() ) {						\
-	    result = map_array( vec, shape );										\
-	} else {													\
-	    result = map_vector( vec );											\
-	}														\
-    break;														\
+	if(MAP_PYLIST) { \
+	    if ( shape.size() > (unsigned) 1 && shape_size == vec.size() ) { \
+		result = map_array_pylist( vec, shape );			\
+	    } else {							\
+		result = map_vector_pylist( vec );			\
+	    }								\
+        } else {							\
+	    if ( shape.size() > (unsigned) 1 && shape_size == vec.size() ) { \
+		result = map_array_numpy( vec, shape );			\
+	    } else {							\
+		result = map_vector_numpy( vec );			\
+	    }								\
+	}								\
+	break;					\
 }
 
 #define VARIANT2PYOBJ													\
@@ -1124,19 +1107,19 @@ ARRAY2PYOBJ(std::string,PYSTRING_FROM_C_STRING(val.c_str()),PYSTRING_FROM_C_STRI
 		result = PYSTRING_FROM_C_STRING(val.toString().c_str());							\
 		break;													\
 	    case variant::BOOLVEC:											\
-		HANDLEVEC2(bool,getBoolVec)										\
+		HANDLEVEC2(bool,getBoolVec,0)				\
 	    case variant::INTVEC:											\
-		HANDLEVEC2(int,getIntVec)										\
+		HANDLEVEC2(int,getIntVec,0)				\
             case variant::UINTVEC:                                          \
-		HANDLEVEC2(unsigned int,getuIntVec)			\
+		HANDLEVEC2(unsigned int,getuIntVec,0)			\
 	    case variant::LONGVEC:											\
-		HANDLEVEC2(long long,getLongVec)										\
+		HANDLEVEC2(long long,getLongVec,0)			\
 	    case variant::DOUBLEVEC:											\
-		HANDLEVEC2(double,getDoubleVec)										\
+		HANDLEVEC2(double,getDoubleVec,0)			\
 	    case variant::COMPLEXVEC:											\
-		HANDLEVEC2(std::complex<double>,getComplexVec) 								\
+		HANDLEVEC2(std::complex<double>,getComplexVec,0)		\
 	    case variant::STRINGVEC:											\
-		HANDLEVEC2(std::string,getStringVec)									\
+		HANDLEVEC2(std::string,getStringVec,1)			\
 	    default:													\
 		fprintf( stderr, "encountered unknown variant type in pyobj2variant()!\n" );				\
 	}
