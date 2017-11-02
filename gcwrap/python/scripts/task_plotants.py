@@ -54,22 +54,15 @@ def plotants(vis=None, figfile=None,
         # remove trailing / for title basename
         if vis[-1]=='/':
             vis = vis[:-1]
-        if isinstance(exclude, tuple):
-            exclude = list(exclude)
-            if not all(isinstance(ant, (int, str)) for ant in exclude):
-                casalog.post("'exclude' list must contain str or int", "ERROR")
-                return
-        # make exclude a list
-        if isinstance(exclude, int):
-            exclude = [exclude]
-        elif isinstance(exclude, str):
-            myms = mstool()
-            try:
-                exclude = myms.msseltoindex(vis, baseline=exclude)['antenna1'].tolist()
-            except RuntimeError as rterr:  # MSSelection failed
-                mesg = "Antenna plot failed: exclude " + str(rterr)
-                casalog.post(mesg, "ERROR")
-                return
+        myms = mstool()
+        try:
+            exclude = myms.msseltoindex(vis, baseline=exclude)['antenna1'].tolist()
+        except RuntimeError as rterr:  # MSSelection failed
+            errmsg = str(rterr)
+            errmsg = errmsg.replace('specificion', 'specification')
+            errmsg = errmsg.replace('Antenna Expression: ', '')
+            casalog.post("Exclude selection error: " + errmsg, "ERROR")
+            return
 
         pl.clf()
         telescope, names, ids, xpos, ypos = getAntennaInfo(vis, exclude, 
@@ -91,7 +84,7 @@ def plotants(vis=None, figfile=None,
         if figfile:
             pl.savefig(figfile)
     except Exception as instance:
-        casalog.post("Antenna plot failed: " + str(instance), "ERROR")
+        casalog.post("Error: " + str(instance), "ERROR")
 
 def getAntennaInfo(msname, exclude, checkbaselines):
 
@@ -112,62 +105,43 @@ def getAntennaInfo(msname, exclude, checkbaselines):
     anttabname = msname + '/ANTENNA'
     tb.open(anttabname)
     # Get antenna names from antenna table
-    colname = 'NAME'
-    if telescope == 'VLBA':
-        colname = 'STATION'
-    antNames = np.array(tb.getcol(colname)).tolist()
-    allAntIds = range(len(antNames))
+    antNames = np.array(tb.getcol("NAME")).tolist()
+    if telescope == 'VLBA':  # names = ant@station
+        stationNames = np.array(tb.getcol("STATION")).tolist()
+        antNames = ['@'.join(antsta) for antsta in zip(antNames,stationNames)]
     # Get antenna positions from antenna table
     antPositions = np.array([me.position('ITRF', qa.quantity(x, 'm'),
         qa.quantity(y, 'm'), qa.quantity(z, 'm'))
         for (x, y, z) in tb.getcol('POSITION').transpose()])
     tb.close()
 
+    allAntIds = range(len(antNames))
     if checkbaselines:
         # Get antenna ids from main table; this will add to runtime
         tb.open(msname)
         ants1 = tb.getcol('ANTENNA1')
         ants2 = tb.getcol('ANTENNA2')
         tb.close()
-        antIdsUsed = set(np.append(ants1, ants2))
+        antIdsUsed = list(set(np.append(ants1, ants2)))
     else:
         # use them all!
         antIdsUsed = allAntIds
 
     # handle exclude -- remove from antIdsUsed
-    for ant in exclude:
-        if isinstance(ant, int):
-            if ant not in allAntIds:
-                casalog.post("Cannot exclude antenna id " + str(ant) + 
-                        ": does not exist", "WARN")
-            else:
-                try:
-                    antIdsUsed.remove(ant)
-                except KeyError: # id exists but not used anyway
-                    casalog.post("Cannot exclude antenna " + str(ant) + 
-                        ": not in main table", "WARN")
-        if isinstance(ant, str):
-            if ant:  # default is empty string
-                start = 0
-                count = antNames.count(ant)
-                if count is 0:
-                    casalog.post("Cannot exclude antenna " + ant + 
-                            ": does not exist", "WARN")
-                for i in range(count):
-                    try:
-                        idx = antNames[start:].index(ant)
-                        antIdsUsed.remove(start + idx)
-                        start += idx + 1
-                    except ValueError: # id not in list of used ids
-                        casalog.post("Cannot exclude antenna " + ant + 
-                            ": not in main table", "WARN")
+    for antId in exclude:
+        try:
+            antNameId = antNames[antId] + " (id " + str(antId) + ")"
+            antIdsUsed.remove(antId)
+            casalog.post("Exclude antenna " + antNameId)
+        except ValueError:
+            casalog.post("Cannot exclude antenna " + antNameId + 
+                ": not in main table", "WARN")
 
     # apply antIdsUsed mask
-    ids = list(antIdsUsed)
-    antNames = [antNames[i] for i in ids]
-    antPositions = [antPositions[i] for i in ids]
+    antNames = [antNames[i] for i in antIdsUsed]
+    antPositions = [antPositions[i] for i in antIdsUsed]
 
-    nAnts = len(ids)
+    nAnts = len(antIdsUsed)
     print "Number of points being plotted:", nAnts
     casalog.post("Number of points being plotted: " + str(nAnts))
     if nAnts == 0: # excluded all antennas
@@ -188,7 +162,7 @@ def getAntennaInfo(msname, exclude, checkbaselines):
     antYs = (antLats - arrayLat) * radE
     antZs = antAlts - arrayAlt
     
-    return telescope, antNames, ids, antXs, antYs
+    return telescope, antNames, antIdsUsed, antXs, antYs
 
 def getObservatoryInfo(msname):
     metadata = msmdtool()

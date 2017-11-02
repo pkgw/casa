@@ -73,7 +73,7 @@ class plotants_test(unittest.TestCase):
     def test6(self):
         '''Test 6: Exclude antenna positions'''
         self.res = plotants(vis=self.msfile, figfile=self.fig,
-            exclude=['1','5','19','14','10','13'])
+            exclude='1,5,19,14,10,13')
         self.assertEqual(self.res,None)
         self.assertTrue(os.path.exists(self.fig))
 
@@ -87,6 +87,7 @@ class plotants_test(unittest.TestCase):
     def test8(self):
         '''Test 8: exclude checkbaselines'''
         # antenna (name) 11 is already excluded by checkbaselines
+        # (warning)
         self.res = plotants(vis=self.msfile, figfile=self.fig,
             exclude='11', checkbaselines=True)
         self.assertEqual(self.res,None)
@@ -101,7 +102,7 @@ class plotants_test(unittest.TestCase):
 
     def test10(self):
         '''Test 10: All arguments'''
-        self.res = plotants(self.msfile, self.fig, True, True, [1,3,5,7,9],
+        self.res = plotants(self.msfile, self.fig, True, True, '1,3,5,7,9',
             True, "IC2233")
         self.assertEqual(self.res,None)
         self.assertTrue(os.path.exists(self.fig))
