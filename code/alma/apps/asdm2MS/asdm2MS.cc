@@ -59,8 +59,7 @@ using namespace casacore;
 #include <tables/Tables/TableCopy.h>
 #include <tables/Tables/TableInfo.h>
 #include <casa/Arrays/MatrixMath.h>
-
-
+#include <casa/BasicMath/Math.h>
 
 #include "CBasebandName.h"
 #include "CCalibrationDevice.h"
@@ -5670,9 +5669,21 @@ int main(int argc, char *argv[]) {
 	// All rows of ASDM-Pointing must have their attribute usePolynomials equal to false
 	// and their numTerm attribute equal to 1. Use the opportunity of this check
 	// to compute the number of rows to be created in the MS-Pointing by summing
-	// all the numSample attributes values.
+	// all the numSample attributes values. Watch for duplicate times due and avoid.
 	//
 	int numMSPointingRows = 0;
+
+	// initialize the lastTime to 0.0 for all antennaIds
+	map<Tag, double> lastTime;
+	const AntennaTable& antennaT = ds->getAntenna();
+	const vector<AntennaRow *>& vAntRow = antennaT.get();
+	for (unsigned int i=0; i < vAntRow.size(); i++) {
+	  lastTime[vAntRow[i]->getAntennaId()] = 0.0;
+	}
+
+	// set this to true for any rows where the first element should be skipped because the time is a duplicate
+	vector<bool> vSkipFirst(v.size(),false);
+
 	for (unsigned int i = 0; i < v.size(); i++) {
 	  if (v[i]->getUsePolynomials()) {
 	    errstream.str("");
@@ -5680,7 +5691,30 @@ int main(int argc, char *argv[]) {
 	    error(errstream.str());
 	  }
 
-	  numMSPointingRows += v[i]->getNumSample();
+	  // look for duplicate rows - time at the start of row is near the time at the end of the previous row for that antennaId
+	  int numSample = v[i]->getNumSample();
+	  Tag antId = v[i]->getAntennaId();
+	  double tfirst = 0.0;
+	  double tlast = 0.0;
+	  if (v[i]->isSampledTimeIntervalExists()) {
+	    tfirst = ((double) (v[i]->getSampledTimeInterval().at(0).getStart().get())) / ArrayTime::unitsInASecond;
+	    tlast = ((double) (v[i]->getSampledTimeInterval().at(numSample-1).getStart().get())) / ArrayTime::unitsInASecond;
+	  } else {
+	    double tstart = ((double) v[i]->getTimeInterval().getStart().get()) / ArrayTime::unitsInASecond;
+	    double tint = ((double) v[i]->getTimeInterval().getDuration().get()) / ArrayTime::unitsInASecond / numSample;
+	    tfirst = tstart + tint/2.0;
+	    tlast = tfirst + tint*(numSample-1);
+	  }
+	  if (casacore::near(tfirst,lastTime[antId])) {
+	      infostream.str("");
+	      infostream << "First time in Pointing row " << i << " for antenna " << antId << " is near the previous last time for that antenna, skipping that first time in the output MS POINTING table" << endl;
+	      info(infostream.str());
+	      numSample--;
+	      lastTime[antId] = tlast;
+	      vSkipFirst[i] = true;
+	  }
+	  lastTime[antId] = tlast;
+	  numMSPointingRows += numSample;
 	}
 
 	//
@@ -5769,27 +5803,33 @@ int main(int argc, char *argv[]) {
 	  vector<ArrayTimeInterval> timeInterval ;
 	  if (r->isSampledTimeIntervalExists()) timeInterval = r->getSampledTimeInterval();
 
+	  // and now insert the values into the MS POINTING table
+	  // watch for the skipped initial sample
+	  int numSampleUsed = numSample;
+	  if (vSkipFirst.at(i)) numSampleUsed--;
+
 	  // Use 'fill' from algorithm for the cases where values remain constant.
 	  // ANTENNA_ID
-	  fill(antenna_id_.begin()+iMSPointingRow, antenna_id_.begin()+iMSPointingRow+numSample, antennaId);
+	  fill(antenna_id_.begin()+iMSPointingRow, antenna_id_.begin()+iMSPointingRow+numSampleUsed, antennaId);
 
 	  // TRACKING 
-	  fill(tracking_.begin()+iMSPointingRow, tracking_.begin()+iMSPointingRow+numSample, pointingTracking);
+	  fill(tracking_.begin()+iMSPointingRow, tracking_.begin()+iMSPointingRow+numSampleUsed, pointingTracking);
 
 	  // OVER_THE_TOP 
 	  if (overTheTopExists4All)
 	    // it's present everywhere
-	    fill(v_overTheTop_.begin()+iMSPointingRow, v_overTheTop_.begin()+iMSPointingRow+numSample,
+	    fill(v_overTheTop_.begin()+iMSPointingRow, v_overTheTop_.begin()+iMSPointingRow+numSampleUsed,
 		 r->getOverTheTop());
 	  else if (r->isOverTheTopExists()) {
 	    // it's present only in some rows.
 	    s_overTheTop saux ;
-	    saux.start = iMSPointingRow; saux.len = numSample; saux.value = r->getOverTheTop();
+	    saux.start = iMSPointingRow; saux.len = numSampleUsed; saux.value = r->getOverTheTop();
 	    v_s_overTheTop_.push_back(saux);
 	  }
        
 	  // Use an explicit loop for the other values.
 	  for (int j = 0 ; j < numSample; j++) { // ... must be expanded in numSample MS-Pointing rows.
+	    if (j == 0 && vSkipFirst.at(i)) continue;   // the first element is to be skipped
 
 	    // TIME and INTERVAL
 	    if (r->isSampledTimeIntervalExists()) { //if sampledTimeInterval is present use its values.	           
