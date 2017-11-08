@@ -52,7 +52,7 @@ class SelectionHandler(object):
         self.sel = sel
         if isinstance(self.sel, str):
             self.selector = self._select0
-        elif len(self.sel) == 0:
+        elif len(self.sel) == 1:
             self.selector = self._select1
         else:
             self.selector = self._select2
