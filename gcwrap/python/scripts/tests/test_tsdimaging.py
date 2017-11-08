@@ -2058,6 +2058,9 @@ class sdimaging_test_flag(sdimaging_unittest_base):
         default(sdimaging)
         with tbmanager(self.rawfile) as tb:
             self.nchan = len(tb.getcell('DATA', 0)[0])
+            
+        # fix timestamp issue
+        self.fix_timestamp()
 
     def tearDown(self):
         if os.path.exists(self.rawfile):
@@ -2065,6 +2068,30 @@ class sdimaging_test_flag(sdimaging_unittest_base):
         os.system( 'rm -rf '+self.prefix+'*' )
 
         self.assertEqual(len(get_table_cache()), 0)
+        
+    def fix_timestamp(self):
+        # fix duplicated timestamp issue
+        # data taken by three spws have essentially same timestamp 
+        # but they are intended to be allocated to different pointing 
+        # directions. to enable it, timestamps are artificially shifted 
+        # by a value significantly larger than integration time.
+        with tbmanager(self.rawfile, nomodify=False) as tb:
+            nrow = tb.nrows()
+            ddid = numpy.unique(tb.getcol('DATA_DESC_ID'))
+            nchunk = len(ddid)
+            nrow_chunk = nrow / nchunk
+            torig = tb.getcol('TIME')
+            interval = tb.getcol('INTERVAL')
+            max_interval = interval.max()
+            tshift = numpy.empty_like(torig)
+            for ichunk in xrange(nchunk):
+                ifrom = ichunk * nrow_chunk
+                ito = (ichunk+1) * nrow_chunk
+                tshift[ifrom:ito] = torig[ifrom:ito] + ichunk * max_interval
+            tb.putcol('TIME', tshift)
+            
+        with tbmanager(os.path.join(self.rawfile, 'POINTING'), nomodify=False) as tb:
+            tb.putcol('TIME', tshift) 
 
     def testFlag01(self):
         """testFlag01: """
