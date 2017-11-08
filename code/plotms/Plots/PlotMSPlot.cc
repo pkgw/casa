@@ -346,11 +346,12 @@ PMS::Axis PlotMSPlot::getDefaultXAxis() {
     if (itsCache_->cacheType() == PlotMSCacheBase::CAL) {
         if (caltype.contains("BPOLY"))
             xaxis = PMS::FREQUENCY;
-        if (caltype.contains("TSYS") || caltype[0]=='B' ||
-            caltype.contains("Mf") || caltype[0]=='X' )
-            xaxis = PMS::CHANNEL;
-        if (caltype[0]=='D' || caltype[0]=='K')
+        else if (caltype[0]=='D' || caltype.startsWith("KAntPos"))
             xaxis = PMS::ANTENNA1;
+        else if (caltype.contains("TSYS") || caltype[0]=='B' ||
+                 caltype.contains("Mf") || caltype[0]=='X' ||
+                 caltype[0]=='K')
+            xaxis = PMS::CHANNEL;
     }
     return xaxis;
 }
