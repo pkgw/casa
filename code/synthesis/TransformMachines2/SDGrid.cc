@@ -815,6 +815,7 @@ extern "C" {
                  const Complex*,
                  Int*,
                  Int*,
+                 Int*,
                  const Int*,
                  const Int*,
                  const Float*,
@@ -984,7 +985,8 @@ void SDGrid::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
       Complex * datStor=griddedData.getStorage(datCopy);
       Float * wgtStor=wGriddedData.getStorage(wgtCopy);
 
-      Bool call_ggridsd = !clipminmax_ || dopsf;
+      //Bool call_ggridsd = !clipminmax_ || dopsf;
+      Bool call_ggridsd = !clipminmax_;
 
       if (call_ggridsd) {
 
@@ -1027,6 +1029,7 @@ void SDGrid::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
           datStorage,
           &s[0],
           &s[1],
+          &idopsf,
           flags.getStorage(del),
           rowFlags.getStorage(del),
           wgtStorage,

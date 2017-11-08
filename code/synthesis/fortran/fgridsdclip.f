@@ -71,7 +71,7 @@ C   sumwt must be updated accordingly
 C - otherwise, leave grid, wgrid, and sumwt as they are
 C
       subroutine ggridsdclip (xy, values, nvispol, nvischan,
-     $   flag, rflag, weight, nrow, irow,
+     $   dowt, flag, rflag, weight, nrow, irow,
      $   grid, wgrid, 
      $   npoints, gmin, wmin, gmax, wmax,
      $   nx, ny, npol, nchan, 
@@ -95,6 +95,7 @@ C
       integer irow
       integer support, sampling
       integer chanmap(nvischan), polmap(nvispol)
+      integer dowt
 
       complex nvalue, thevalue
 
@@ -156,7 +157,11 @@ C          if (ogridsd(nx, ny, loc, support)) then
                      apol=polmap(ipol)+1
                      if((flag(ipol,ichan,irow).ne.1).and.
      $                    (apol.ge.1).and.(apol.le.npol)) then
-                        thevalue=conjg(values(ipol,ichan,irow))
+                        if (dowt.eq.1) then
+                         thevalue=1.0
+                        else
+                         thevalue=conjg(values(ipol,ichan,irow))
+                        end if
                         theweight=weight(ichan,irow)
                         norm=0.0
                         ir=1
