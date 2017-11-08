@@ -16,6 +16,8 @@ if [ ! -z $CASABRANCHHINT ]; then
         b1=${CASABRANCHHINT%/*} # part before the slash
         b2=${CASABRANCHHINT##*/} # part after the slash
         headGrep=$b1-$b2
+    elif [[ $CASABRANCHHINT =~ ^CAS.* ]] ; then
+        headGrep=$CASABRANCHHINT
     elif [[ $CASABRANCHHINT =~ .*release.* ]] ; then
         headGrep=$CASABRANCHHINT
         tagid="rel"
@@ -43,7 +45,7 @@ if [ $branch == "HEAD" ];then
     if [ -z $CASAFORKPOINTHINT ]; then
         if [[ $CASABRANCHHINT =~ .*release.* ]]; then
             CASAFORKPOINTHINT=`git merge-base $CASABRANCHHINT $branch`
-        else 
+        else
             CASAFORKPOINTHINT=`git merge-base master $branch`
         fi
     fi
@@ -110,6 +112,9 @@ else
     b1=${branch%/*} # part before the slash
     b2=${branch##*/} # rpart after the slash
     tagMatcher=$b1-$b2
+    if [[ $CASABRANCHHINT =~ ^CAS.* ]] ; then
+        tagMatcher=$CASABRANCHHINT
+    fi
     branchTag=`git tag --points-at HEAD | grep \\\-$tagMatcher- | xargs`
     if [[ -z "${branchTag// }" ]]; then
         # Get the nearest tag and add Desca
