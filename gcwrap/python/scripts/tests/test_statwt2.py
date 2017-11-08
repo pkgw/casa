@@ -571,6 +571,132 @@ class statwt2_test(unittest.TestCase):
             )
             shutil.rmtree(dst)
 
+    def test_residual(self):
+        """ Test using corrected_data - model_data column"""
+        dst = "ngc5921.split.residualwmodel.ms"
+        ref = datadir + "ngc5921.resid_with_model.ms.ref"
+        [refwt, refwtsp, refflag, reffrow] = _get_dst_cols(ref, "", dodata=False)
+        rtol = 1e-7
+        data = "residual"
+        mytb = tbtool()
+        myms = mstool()
+        for i in [0, 1]:
+            shutil.copytree(src, dst)
+            if i == 0:
+                myms.open(dst, nomodify=False)
+                myms.statwt2(datacolumn=data)
+                myms.done()
+            else:
+                statwt2(dst, datacolumn=data)
+            [tstwt, tstwtsp, tstflag, tstfrow] = _get_dst_cols(dst, "", False)
+            self.assertTrue(numpy.all(tstflag == refflag), "FLAGs don't match")
+            self.assertTrue(numpy.all(tstfrow == reffrow), "FLAG_ROWs don't match")
+            self.assertTrue(
+                numpy.all(numpy.isclose(tstwt, refwt, rtol)),
+                "WEIGHTs don't match"
+            )
+            self.assertTrue(
+                numpy.all(numpy.isclose(tstwtsp, refwtsp, rtol)),
+                "WEIGHT_SPECTRUMs don't match"
+            )
+            shutil.rmtree(dst)
+            
+    def test_residual_no_model(self):
+        """ Test using corrected_data - model_data column"""
+        dst = "ngc5921.split.residualwoutmodel.ms"
+        ref = datadir + "ngc5921.resid_without_model.ms.ref"
+        [refwt, refwtsp, refflag, reffrow] = _get_dst_cols(ref, "", dodata=False)
+        rtol = 1e-7
+        data = "residual"
+        mytb = tbtool()
+        myms = mstool()
+        for i in [0, 1]:
+            shutil.copytree(src, dst)
+            self.assertTrue(mytb.open(dst, nomodify=False))
+            self.assertTrue(mytb.removecols("MODEL_DATA"))
+            mytb.done()
+            if i == 0:
+                myms.open(dst, nomodify=False)
+                myms.statwt2(datacolumn=data)
+                myms.done()
+            else:
+                statwt2(dst, datacolumn=data)
+            [tstwt, tstwtsp, tstflag, tstfrow] = _get_dst_cols(dst, "", False)
+            self.assertTrue(numpy.all(tstflag == refflag), "FLAGs don't match")
+            self.assertTrue(numpy.all(tstfrow == reffrow), "FLAG_ROWs don't match")
+            self.assertTrue(
+                numpy.all(numpy.isclose(tstwt, refwt, rtol)),
+                "WEIGHTs don't match"
+            )
+            self.assertTrue(
+                numpy.all(numpy.isclose(tstwtsp, refwtsp, rtol)),
+                "WEIGHT_SPECTRUMs don't match"
+            )
+            shutil.rmtree(dst)
+
+    def test_residual_data(self):
+        """ Test using _data - model_data column"""
+        dst = "ngc5921.split.residualdatawmodel.ms"
+        ref = datadir + "ngc5921.residdata_with_model.ms.ref"
+        [refwt, refwtsp, refflag, reffrow] = _get_dst_cols(ref, "", dodata=False)
+        rtol = 1e-7
+        data = "residual_data"
+        mytb = tbtool()
+        myms = mstool()
+        for i in [0, 1]:
+            shutil.copytree(src, dst)
+            if i == 0:
+                myms.open(dst, nomodify=False)
+                myms.statwt2(datacolumn=data)
+                myms.done()
+            else:
+                statwt2(dst, datacolumn=data)
+            [tstwt, tstwtsp, tstflag, tstfrow] = _get_dst_cols(dst, "", False)
+            self.assertTrue(numpy.all(tstflag == refflag), "FLAGs don't match")
+            self.assertTrue(numpy.all(tstfrow == reffrow), "FLAG_ROWs don't match")
+            self.assertTrue(
+                numpy.all(numpy.isclose(tstwt, refwt, rtol)),
+                "WEIGHTs don't match"
+            )
+            self.assertTrue(
+                numpy.all(numpy.isclose(tstwtsp, refwtsp, rtol)),
+                "WEIGHT_SPECTRUMs don't match"
+            )
+            shutil.rmtree(dst)
+
+    def test_residual_data_no_model(self):
+        """ Test using data - default model """
+        dst = "ngc5921.split.residualdatawoutmodel.ms"
+        ref = datadir + "ngc5921.residdata_without_model.ms.ref"
+        [refwt, refwtsp, refflag, reffrow] = _get_dst_cols(ref, "", dodata=False)
+        rtol = 1e-7
+        data = "residual_data"
+        mytb = tbtool()
+        myms = mstool()
+        for i in [0, 1]:
+            shutil.copytree(src, dst)
+            self.assertTrue(mytb.open(dst, nomodify=False))
+            self.assertTrue(mytb.removecols("MODEL_DATA"))
+            mytb.done()
+            if i == 0:
+                myms.open(dst, nomodify=False)
+                myms.statwt2(datacolumn=data)
+                myms.done()
+            else:
+                statwt2(dst, datacolumn=data)
+            [tstwt, tstwtsp, tstflag, tstfrow] = _get_dst_cols(dst, "", False)
+            self.assertTrue(numpy.all(tstflag == refflag), "FLAGs don't match")
+            self.assertTrue(numpy.all(tstfrow == reffrow), "FLAG_ROWs don't match")
+            self.assertTrue(
+                numpy.all(numpy.isclose(tstwt, refwt, rtol)),
+                "WEIGHTs don't match"
+            )
+            self.assertTrue(
+                numpy.all(numpy.isclose(tstwtsp, refwtsp, rtol)),
+                "WEIGHT_SPECTRUMs don't match"
+            )
+            shutil.rmtree(dst)
+
 def suite():
     return [statwt2_test]
 
