@@ -1323,7 +1323,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     //for debug set to True to save intermediate mask images on disk
     Bool debug(false); // create additional temp masks for debugging
-    Bool debug2(true); // debug2 saves masks before/after prune and binary dilation
+    Bool debug2(false); // debug2 saves masks before/after prune and binary dilation
 
     // tempmsk: working image for the curret mask
     TempImage<Float> tempmask(mask.shape(), mask.coordinates(), memoryToUse());
@@ -2694,14 +2694,25 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                       Array<Bool>& chanmask,
                       ImageInterface<Float>& outImage)
   {
+      LogIO os( LogOrigin("SDMaskHandler", "binaryDilation", WHERE) );
       binaryDilationCore(inImage,structure,mask,chanmask,outImage);
       Int iter = 1;
       ArrayLattice<Float> templattice(inImage.shape());
-      while (iter < niteration) {
+      TempImage<Float> diffTempImage(outImage.shape(), outImage.coordinates(), memoryToUse());
+      while (iter < niteration && !isEmptyMask(diffTempImage)) {
         templattice.copyData(outImage);
         binaryDilationCore(templattice,structure,mask,chanmask,outImage); 
+        LatticeExpr<Float> diffIm( abs(templattice - outImage ) );
+        diffTempImage.copyData(diffIm);
+        if (isEmptyMask(diffTempImage)) { 
+          cerr<<"current iter"<<iter<<" diffim is 0 "<<endl;
+        }
+        else {
+          cerr<<"current iter"<<iter<<endl;
+        } 
         iter++;
       }
+      os<<"grow iter done="<<iter<<LogIO::POST;
   }
 
  
