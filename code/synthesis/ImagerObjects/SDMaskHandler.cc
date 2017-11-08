@@ -2704,12 +2704,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         binaryDilationCore(templattice,structure,mask,chanmask,outImage); 
         LatticeExpr<Float> diffIm( abs(templattice - outImage ) );
         diffTempImage.copyData(diffIm);
-        if (isEmptyMask(diffTempImage)) { 
-          cerr<<"current iter"<<iter<<" diffim is 0 "<<endl;
-        }
-        else {
-          cerr<<"current iter"<<iter<<endl;
-        } 
+        //if (isEmptyMask(diffTempImage)) { 
+        //  cerr<<"current iter"<<iter<<" diffim is 0 "<<endl;
+        //}
+        //else {
+        //  cerr<<"current iter"<<iter<<endl;
+        //} 
         iter++;
       }
       os<<"grow iter done="<<iter<<LogIO::POST;
