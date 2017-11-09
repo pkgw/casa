@@ -125,6 +125,12 @@ public:
   // Set number of threads to use when predicting. Setting it to -1 
   // basically tell openmp to use the number it can get
   void setnumthreads(const casacore::Int numthreads);
+  //set and get Time to calculate phasecenter  -1.0 means using the time available at 
+  //each iteration..this is used when the phasecenter in the field table is either 
+  //a polynomial or has a ephemerides tables associated with it
+  //Using double in the units and epoch-frame of the ms(s) ..caller is responsible for conversion
+  void setPhaseCenterTime(const casacore::Double time){phaseCenterTime_p=time;};
+  casacore::Double getPhaseCenterTime(){return phaseCenterTime_p;};
 protected:
 
   casacore::LogIO logIO_p;
@@ -136,6 +142,7 @@ protected:
   
   virtual void ok();
   casacore::Int numthreads_p;
+  casacore::Double phaseCenterTime_p;
 
 };
 

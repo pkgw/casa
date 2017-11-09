@@ -76,7 +76,7 @@
 //#include <TableStreamReader.h>
 
 /*\file Processor.h
-    \brief Generated from model's revision "1.64", branch "HEAD"
+    \brief Generated from model's revision "-1", branch ""
 */
 
 namespace asdm {
@@ -92,7 +92,7 @@ typedef void (ProcessorRow::*ProcessorAttributeFromText) (const string& s);
 /**
  * The ProcessorRow class is a row of a ProcessorTable.
  * 
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  */
 class ProcessorRow {

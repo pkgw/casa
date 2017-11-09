@@ -83,7 +83,7 @@ class DopplerRow;
  * Doppler tracking information. This table defines how velocity  information is converted into a frequency offset to compensate in real time  for the Doppler effect. This table may be omitted for ALMA when the  Doppler tracking is not corrected.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of Doppler </CAPTION>
@@ -397,6 +397,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

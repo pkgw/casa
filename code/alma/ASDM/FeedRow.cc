@@ -3216,11 +3216,13 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
 	 * Return true if all required attributes of the value part are equal to their homologues
 	 * in x and false otherwise.
 	 *
+
 	 * @param x a pointer on the FeedRow whose required attributes of the value part 
+
 	 * will be compared with those of this.
 	 * @return a boolean.
 	 */
-	bool FeedRow::equalByRequiredValue(FeedRow* x) {
+	bool FeedRow::equalByRequiredValue(FeedRow*  x ) {
 		
 			
 		if (this->numReceptor != x->numReceptor) return false;

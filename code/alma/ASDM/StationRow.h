@@ -48,15 +48,15 @@
 
 
 	 
+#include <Length.h>
+	
+
+	 
 #include <ArrayTime.h>
 	
 
 	 
 #include <Tag.h>
-	
-
-	 
-#include <Length.h>
 	
 
 
@@ -84,7 +84,7 @@
 //#include <TableStreamReader.h>
 
 /*\file Station.h
-    \brief Generated from model's revision "1.64", branch "HEAD"
+    \brief Generated from model's revision "-1", branch ""
 */
 
 namespace asdm {
@@ -100,7 +100,7 @@ typedef void (StationRow::*StationAttributeFromText) (const string& s);
 /**
  * The StationRow class is a row of a StationTable.
  * 
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  */
 class StationRow {

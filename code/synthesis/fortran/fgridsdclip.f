@@ -29,7 +29,7 @@
 C
 C Calculate gridded coordinates
 C
-      subroutine sgridsd (xy, sampling, pos, loc, off)
+      subroutine sgridsdclip (xy, sampling, pos, loc, off)
       implicit none
       integer sampling
       integer loc(2), off(2)
@@ -47,10 +47,10 @@ C
 C
 C Is this on the grid?
 C
-      logical function ogridsd (nx, ny, loc, support)
+      logical function ogridsdclip (nx, ny, loc, support)
       implicit none
       integer nx, ny, loc(2), support
-      ogridsd=(loc(1)-support.ge.1).and.(loc(1)+support.le.nx).and.
+      ogridsdclip=(loc(1)-support.ge.1).and.(loc(1)+support.le.nx).and.
      $     (loc(2)-support.ge.1).and.(loc(2)+support.le.ny)
       return
       end
@@ -104,7 +104,7 @@ C
       real wt, wtx, wty
       real swap, theweight, nweight
 
-      logical ogridsd
+      logical ogridsdclip
 
       real pos(2), rloc(2)
       integer loc(2), off(2)
@@ -126,9 +126,9 @@ C
 
       do irow=rbeg, rend
          if(rflag(irow).eq.0) then
-         call sgridsd(xy(1,irow), sampling, pos, loc, off)
-C          if (ogridsd(nx, ny, loc, support)) then
-         if (ogridsd(nx, ny, loc, 0)) then
+         call sgridsdclip(xy(1,irow), sampling, pos, loc, off)
+C          if (ogridsdclip(nx, ny, loc, support)) then
+         if (ogridsdclip(nx, ny, loc, 0)) then
             ir=1
             norm=-(support+1)*sampling+off(1)
             rloc(2)=-(support+1)*sampling+off(2)

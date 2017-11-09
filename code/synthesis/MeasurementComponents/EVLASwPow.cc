@@ -494,6 +494,8 @@ void EVLASwPow::fillTcals() {
   // Iterate over CALDEVICE table
   Int iter(0);
   Vector<Int> islot(nSpw(),0);
+
+  Bool ignoreSolar(false);
   while (!calDevIter.pastEnd()) {
 
     Table itab(calDevIter.table());
@@ -509,22 +511,36 @@ void EVLASwPow::fillTcals() {
     Int ispw=spwCol(0);
     Int iant=antCol(0);
     Int nTcal=noiseCalCol(0).nelements();
-    
-    Vector<Float> thisTcal=noiseCalCol(0);
 
     if (nTcal==1) {
+      // One value (not clear this was ever the case)
+      Vector<Float> thisTcal=noiseCalCol(0);
       AlwaysAssert(thisTcal.nelements()==1,AipsError);
       tcals_.xyPlane(ispw).column(iant)=thisTcal(0);
     }
-    else {
+    else if (nTcal==2) {
+      // Pre-solar Tcal support: two values
+      Vector<Float> thisTcal=noiseCalCol(0);
       AlwaysAssert(thisTcal.nelements()==2,AipsError);
       tcals_.xyPlane(ispw).column(iant)=thisTcal;
+    }
+    else if (nTcal==4) {
+      ignoreSolar=true;  // we will ignore solar Tcals
+      Matrix<Float> thisTcalMat=noiseCalCol(0);
+      AlwaysAssert(thisTcalMat.shape()==IPosition(2,2,2),AipsError);
+      Int tcalset(0);  // first pair, for now, which is ordinary non-solar Tcals
+      tcals_.xyPlane(ispw).column(iant)=thisTcalMat(Slice(tcalset,1,1),Slice());
     }
 
     // Increment the iterator
     ++iter;
     calDevIter.next();
   }
+
+  // Report if we ignored solar Tcals
+  if (ignoreSolar)
+    logSink() << "Ignoring the SOLAR Tcals, which seem to be present in CALDEVICE." << LogIO::POST;
+
 
 }
 

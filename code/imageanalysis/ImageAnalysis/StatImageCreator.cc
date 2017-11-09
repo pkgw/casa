@@ -8,8 +8,6 @@
 
 namespace casa {
 
-const Double StatImageCreator::PHI = 1.482602218505602;
-
 StatImageCreator::StatImageCreator(
     const SPCIIF image, const Record *const region,
 	const String& mask, const String& outname, Bool overwrite
