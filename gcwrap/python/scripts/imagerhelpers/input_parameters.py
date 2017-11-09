@@ -133,7 +133,7 @@ class ImagerParameters():
                  cflist=[],
                  
                  ## single-dish imaging params
-                 gridfunction='BOX',
+                 gridfunction='SF',
                  convsupport=-1,
                  truncate="-1",
                  gwidth="-1",
