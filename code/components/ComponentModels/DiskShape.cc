@@ -55,7 +55,7 @@ DiskShape::DiskShape()
    _majorAxis(Quantity(1,"'").getValue("rad")),
    _minorAxis(Quantity(1,"'").getValue("rad")),
    _pa(Quantity(0,"deg").getValue("rad")),
-   _recipArea(1.0/(C::pi*_majorAxis*_minorAxis))
+   _recipArea(1.0/_area())
 {
   DebugAssert(ok(), AipsError);
 }
@@ -69,7 +69,7 @@ DiskShape::DiskShape(const MDirection& direction,
    _majorAxis(majorAxis.getValue("rad")),
    _minorAxis(minorAxis.getValue("rad")),
    _pa(positionAngle.getValue("rad")),
-   _recipArea(1.0/(C::pi*_majorAxis*_minorAxis))
+   _recipArea(1.0/_area())
 {
   DebugAssert(ok(), AipsError);
 }
@@ -83,7 +83,7 @@ DiskShape::DiskShape(const MDirection& direction,
    _majorAxis(width.getValue("rad")),
    _minorAxis(_majorAxis*axialRatio),
    _pa(positionAngle.getValue("rad")),
-   _recipArea(1.0/(C::pi*_majorAxis*_minorAxis))
+   _recipArea(1.0/_area())
 {
   DebugAssert(ok(), AipsError);
 }
@@ -127,7 +127,7 @@ void DiskShape::setWidthInRad(const Double majorAxis,
   _pa = positionAngle;
   AlwaysAssert(_majorAxis > 0 && _minorAxis > 0 && _majorAxis >=_minorAxis,
             AipsError);
-  _recipArea = 1.0/(C::pi*_majorAxis*_minorAxis);
+  _recipArea = 1.0/_area();
   DebugAssert(ok(), AipsError);
 }
 
@@ -191,7 +191,6 @@ void DiskShape::sample(Vector<Double>& scale,
   const Double minRad = _minorAxis/2.0; 
   const Double pixValue = _recipArea * 
     pixelLatSize.radian() * pixelLongSize.radian();
-  cout << "pixValue " << pixValue << endl;
   for (uInt i = 0; i < nSamples; i++) {
     scale(i) = _calcSample(*compDirValue, directions(i), 
               majRad, minRad, pixValue);
@@ -293,7 +292,7 @@ Bool DiskShape::ok() const {
            << LogIO::POST;
     return false;
   }
-  if (!near(_recipArea, 1.0/(C::pi*_majorAxis*_minorAxis), 2*C::dbl_epsilon)) {
+  if (!near(_recipArea, 1.0/_area(), 2*C::dbl_epsilon)) {
     LogIO logErr(LogOrigin("DiskCompRep", "ok()"));
     logErr << LogIO::SEVERE << "The disk shape does not have"
        << " unit area"
@@ -319,6 +318,10 @@ void DiskShape::_rotateVis(Double& u, Double& v,
   const Double utemp = u;
   u = u * cpa - v * spa;
   v = utemp * spa + v * cpa;
+}
+
+Double DiskShape::_area() const {
+    return (C::pi/ 4.0) * _majorAxis * _minorAxis; 
 }
 
 Double DiskShape::_calcSample(const MDirection::MVType& compDirValue, 

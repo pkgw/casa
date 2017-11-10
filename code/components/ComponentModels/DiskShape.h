@@ -266,6 +266,9 @@ public:
     virtual casacore::String sizeToString() const;
 
 private:
+    // area of disk
+    casacore::Double _area() const;
+
     casacore::Double _calcSample(
         const casacore::MDirection::MVType& compDirValue, 
         const casacore::MDirection::MVType& dirVal, 
