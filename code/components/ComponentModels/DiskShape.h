@@ -266,18 +266,18 @@ public:
     virtual casacore::String sizeToString() const;
 
 private:
-    casacore::Double calcSample(
+    casacore::Double _calcSample(
         const casacore::MDirection::MVType& compDirValue, 
         const casacore::MDirection::MVType& dirVal, 
         const casacore::Double majRad, const casacore::Double minRad, 
         const casacore::Double pixValue
     ) const;
   
-    casacore::Double calcVis(
+    casacore::Double _calcVis(
         casacore::Double u, casacore::Double v, const casacore::Double factor
     ) const;
 
-    static void rotateVis(
+    static void _rotateVis(
         casacore::Double& u, casacore::Double& v, 
         const casacore::Double cpa, const casacore::Double spa
     );

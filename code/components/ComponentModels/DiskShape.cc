@@ -160,7 +160,7 @@ Double DiskShape::sample(const MDirection& direction,
       (MDirection::Convert(compDir, direction.getRef())().getValue());
     deleteValue = true;
   }
-  Double retVal = calcSample(*compDirValue, direction.getValue(),
+  Double retVal = _calcSample(*compDirValue, direction.getValue(),
                  _majorAxis/2.0, _minorAxis/2.0, 
                  _recipArea*pixelLatSize.radian()*
                  pixelLongSize.radian());
@@ -193,7 +193,7 @@ void DiskShape::sample(Vector<Double>& scale,
     pixelLatSize.radian() * pixelLongSize.radian();
   cout << "pixValue " << pixValue << endl;
   for (uInt i = 0; i < nSamples; i++) {
-    scale(i) = calcSample(*compDirValue, directions(i), 
+    scale(i) = _calcSample(*compDirValue, directions(i), 
               majRad, minRad, pixValue);
   }
   if (deleteValue) delete compDirValue;
@@ -208,9 +208,9 @@ DComplex DiskShape::visibility(const Vector<Double>& uvw,
   Double v = uvw(1);
   if (near(u + v, 0.0)) return DComplex(1.0, 0.0);
   if (!nearAbs(_pa, 0.0)) {
-    rotateVis(u, v, cos(_pa), sin(_pa));
+    _rotateVis(u, v, cos(_pa), sin(_pa));
   }
-  return DComplex(calcVis(u, v, C::pi * frequency/C::c), 0.0);
+  return DComplex(_calcVis(u, v, C::pi * frequency/C::c), 0.0);
 }
 
 void DiskShape::visibility(Matrix<DComplex>& scale,
@@ -251,13 +251,13 @@ void DiskShape::visibility(Vector<DComplex>& scale,
     // DComplex& thisVis = scale(i);
     ///    thisVis.imag() = 0.0;
     if (near(u + v, 0.0)) {
-      ///      thisVis.real() = 1.0; // avoids dividing by zero in calcVis(...)
+      ///      thisVis.real() = 1.0; // avoids dividing by zero in _calcVis(...)
       scale[i] = DComplex(1.0, 0.0); // avoids dividing by zero
-      // in calcVis(...)
+      // in _calcVis(...)
     } else {
-      if (doRotation) rotateVis(u, v, cpa, spa);
-      ///      thisVis.real() = calcVis(u, v, factor);
-      scale[i] = DComplex(calcVis(u, v, factor), 0.0);
+      if (doRotation) _rotateVis(u, v, cpa, spa);
+      ///      thisVis.real() = _calcVis(u, v, factor);
+      scale[i] = DComplex(_calcVis(u, v, factor), 0.0);
     }
   }
 }
@@ -307,21 +307,21 @@ const ComponentShape* DiskShape::getPtr() const {
     return this;
 }
 
-Double DiskShape::calcVis(Double u, Double v, const Double factor) const {
+Double DiskShape::_calcVis(Double u, Double v, const Double factor) const {
   u *= _minorAxis;
   v *= _majorAxis;
   const Double r = hypot(u, v) * factor;
   return 2.0 * j1(r)/r;
 }
 
-void DiskShape::rotateVis(Double& u, Double& v, 
+void DiskShape::_rotateVis(Double& u, Double& v, 
               const Double cpa, const Double spa) {
   const Double utemp = u;
   u = u * cpa - v * spa;
   v = utemp * spa + v * cpa;
 }
 
-Double DiskShape::calcSample(const MDirection::MVType& compDirValue, 
+Double DiskShape::_calcSample(const MDirection::MVType& compDirValue, 
                  const MDirection::MVType& dirVal, 
                  const Double majRad, const Double minRad, 
                  const Double pixValue) const {
