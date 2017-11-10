@@ -284,10 +284,10 @@ private:
 
     // The parameters of the disk
     // <group>
-    casacore::Double itsMajValue;
-    casacore::Double itsMinValue;
-    casacore::Double itsPaValue;
-    casacore::Double itsHeight;
+    casacore::Double _majorAxis;
+    casacore::Double _minorAxis;
+    casacore::Double _pa;
+    casacore::Double _recipArea;
     // </group>
 };
 

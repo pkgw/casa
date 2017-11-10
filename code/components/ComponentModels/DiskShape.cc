@@ -52,10 +52,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 DiskShape::DiskShape()
   :TwoSidedShape(),
-   itsMajValue(Quantity(1,"'").getValue("rad")),
-   itsMinValue(Quantity(1,"'").getValue("rad")),
-   itsPaValue(Quantity(0,"deg").getValue("rad")),
-   itsHeight(1.0/(C::pi*itsMajValue*itsMinValue))
+   _majorAxis(Quantity(1,"'").getValue("rad")),
+   _minorAxis(Quantity(1,"'").getValue("rad")),
+   _pa(Quantity(0,"deg").getValue("rad")),
+   _recipArea(1.0/(C::pi*_majorAxis*_minorAxis))
 {
   DebugAssert(ok(), AipsError);
 }
@@ -66,10 +66,10 @@ DiskShape::DiskShape(const MDirection& direction,
              const Quantum<Double>& positionAngle)
   :TwoSidedShape(direction, majorAxis.getFullUnit(),
          minorAxis.getFullUnit(), positionAngle.getFullUnit()),
-   itsMajValue(majorAxis.getValue("rad")),
-   itsMinValue(minorAxis.getValue("rad")),
-   itsPaValue(positionAngle.getValue("rad")),
-   itsHeight(1.0/(C::pi*itsMajValue*itsMinValue))
+   _majorAxis(majorAxis.getValue("rad")),
+   _minorAxis(minorAxis.getValue("rad")),
+   _pa(positionAngle.getValue("rad")),
+   _recipArea(1.0/(C::pi*_majorAxis*_minorAxis))
 {
   DebugAssert(ok(), AipsError);
 }
@@ -80,20 +80,20 @@ DiskShape::DiskShape(const MDirection& direction,
              const Quantum<Double>& positionAngle) 
   :TwoSidedShape(direction, width.getFullUnit(),
          width.getFullUnit(), positionAngle.getFullUnit()),
-   itsMajValue(width.getValue("rad")),
-   itsMinValue(itsMajValue*axialRatio),
-   itsPaValue(positionAngle.getValue("rad")),
-   itsHeight(1.0/(C::pi*itsMajValue*itsMinValue))
+   _majorAxis(width.getValue("rad")),
+   _minorAxis(_majorAxis*axialRatio),
+   _pa(positionAngle.getValue("rad")),
+   _recipArea(1.0/(C::pi*_majorAxis*_minorAxis))
 {
   DebugAssert(ok(), AipsError);
 }
 
 DiskShape::DiskShape(const DiskShape& other) 
   :TwoSidedShape(other),
-   itsMajValue(other.itsMajValue),
-   itsMinValue(other.itsMinValue),
-   itsPaValue(other.itsPaValue),
-   itsHeight(other.itsHeight)
+   _majorAxis(other._majorAxis),
+   _minorAxis(other._minorAxis),
+   _pa(other._pa),
+   _recipArea(other._recipArea)
 {
   DebugAssert(ok(), AipsError);
 }
@@ -105,10 +105,10 @@ DiskShape::~DiskShape() {
 DiskShape& DiskShape::operator=(const DiskShape& other) {
   if (this != &other) {
     TwoSidedShape::operator=(other);
-    itsMajValue = other.itsMajValue;
-    itsMinValue = other.itsMinValue;
-    itsPaValue = other.itsPaValue;
-    itsHeight = other.itsHeight;
+    _majorAxis = other._majorAxis;
+    _minorAxis = other._minorAxis;
+    _pa = other._pa;
+    _recipArea = other._recipArea;
   }
   DebugAssert(ok(), AipsError);
   return *this;
@@ -122,28 +122,28 @@ ComponentType::Shape DiskShape::type() const {
 void DiskShape::setWidthInRad(const Double majorAxis,
                   const Double minorAxis, 
                   const Double positionAngle) {
-  itsMajValue = majorAxis;
-  itsMinValue = minorAxis;
-  itsPaValue = positionAngle;
-  AlwaysAssert(itsMajValue > 0 && itsMinValue > 0 && itsMajValue >=itsMinValue,
+  _majorAxis = majorAxis;
+  _minorAxis = minorAxis;
+  _pa = positionAngle;
+  AlwaysAssert(_majorAxis > 0 && _minorAxis > 0 && _majorAxis >=_minorAxis,
             AipsError);
-  itsHeight = 1.0/(C::pi*itsMajValue*itsMinValue);
+  _recipArea = 1.0/(C::pi*_majorAxis*_minorAxis);
   DebugAssert(ok(), AipsError);
 }
 
 Double DiskShape::majorAxisInRad() const {
   DebugAssert(ok(), AipsError);
-  return itsMajValue;
+  return _majorAxis;
 }
 
 Double DiskShape::minorAxisInRad() const {
   DebugAssert(ok(), AipsError);
-  return itsMinValue;
+  return _minorAxis;
 }
 
 Double DiskShape::positionAngleInRad() const {
   DebugAssert(ok(), AipsError);
-  return itsPaValue;
+  return _pa;
 }
 
 Double DiskShape::sample(const MDirection& direction, 
@@ -161,8 +161,8 @@ Double DiskShape::sample(const MDirection& direction,
     deleteValue = true;
   }
   Double retVal = calcSample(*compDirValue, direction.getValue(),
-                 itsMajValue/2.0, itsMinValue/2.0, 
-                 itsHeight*pixelLatSize.radian()*
+                 _majorAxis/2.0, _minorAxis/2.0, 
+                 _recipArea*pixelLatSize.radian()*
                  pixelLongSize.radian());
   if (deleteValue) delete compDirValue;
   return retVal;
@@ -187,9 +187,9 @@ void DiskShape::sample(Vector<Double>& scale,
       (MDirection::Convert(compDir, refFrame)().getValue());
     deleteValue = true;
   }
-  const Double majRad = itsMajValue/2.0; 
-  const Double minRad = itsMinValue/2.0; 
-  const Double pixValue = itsHeight * 
+  const Double majRad = _majorAxis/2.0; 
+  const Double minRad = _minorAxis/2.0; 
+  const Double pixValue = _recipArea * 
     pixelLatSize.radian() * pixelLongSize.radian();
   cout << "pixValue " << pixValue << endl;
   for (uInt i = 0; i < nSamples; i++) {
@@ -207,8 +207,8 @@ DComplex DiskShape::visibility(const Vector<Double>& uvw,
   Double u = uvw(0);
   Double v = uvw(1);
   if (near(u + v, 0.0)) return DComplex(1.0, 0.0);
-  if (!nearAbs(itsPaValue, 0.0)) {
-    rotateVis(u, v, cos(itsPaValue), sin(itsPaValue));
+  if (!nearAbs(_pa, 0.0)) {
+    rotateVis(u, v, cos(_pa), sin(_pa));
   }
   return DComplex(calcVis(u, v, C::pi * frequency/C::c), 0.0);
 }
@@ -237,10 +237,10 @@ void DiskShape::visibility(Vector<DComplex>& scale,
   
   Bool doRotation = false;
   Double cpa = 1.0, spa = 0.0;
-  if (!nearAbs(itsPaValue, 0.0)) {
+  if (!nearAbs(_pa, 0.0)) {
     doRotation = true;
-    cpa = cos(itsPaValue);
-    spa = sin(itsPaValue);
+    cpa = cos(_pa);
+    spa = sin(_pa);
   }
 
   const Double factor = C::pi * frequency/C::c;
@@ -274,26 +274,26 @@ Bool DiskShape::ok() const {
   // performance reasons. Both function static and file static variables
   // where considered and rejected for this purpose.
   if (!TwoSidedShape::ok()) return false; 
-  if (itsMajValue <= 0) {
+  if (_majorAxis <= 0) {
     LogIO logErr(LogOrigin("DiskCompRep", "ok()"));
     logErr << LogIO::SEVERE << "The major axis width is zero or negative"
            << LogIO::POST;
     return false;
   }
-  if (itsMinValue <= 0) {
+  if (_minorAxis <= 0) {
     LogIO logErr(LogOrigin("DiskCompRep", "ok()"));
     logErr << LogIO::SEVERE << "The minor axis width is zero or negative"
            << LogIO::POST;
     return false;
   }
-  if (itsMinValue > itsMajValue) {
+  if (_minorAxis > _majorAxis) {
     LogIO logErr(LogOrigin("DiskCompRep", "ok()"));
     logErr << LogIO::SEVERE << "The minor axis width is larger than "
        << "the major axis width"
            << LogIO::POST;
     return false;
   }
-  if (!near(itsHeight, 1.0/(C::pi*itsMajValue*itsMinValue), 2*C::dbl_epsilon)) {
+  if (!near(_recipArea, 1.0/(C::pi*_majorAxis*_minorAxis), 2*C::dbl_epsilon)) {
     LogIO logErr(LogOrigin("DiskCompRep", "ok()"));
     logErr << LogIO::SEVERE << "The disk shape does not have"
        << " unit area"
@@ -308,8 +308,8 @@ const ComponentShape* DiskShape::getPtr() const {
 }
 
 Double DiskShape::calcVis(Double u, Double v, const Double factor) const {
-  u *= itsMinValue;
-  v *= itsMajValue;
+  u *= _minorAxis;
+  v *= _majorAxis;
   const Double r = hypot(u, v) * factor;
   return 2.0 * j1(r)/r;
 }
@@ -327,7 +327,7 @@ Double DiskShape::calcSample(const MDirection::MVType& compDirValue,
                  const Double pixValue) const {
   const Double separation = compDirValue.separation(dirVal);
   if (separation <= majRad) {
-    const Double pa = compDirValue.positionAngle(dirVal) - itsPaValue;
+    const Double pa = compDirValue.positionAngle(dirVal) - _pa;
     const Double x = abs(separation*cos(pa));
     const Double y = abs(separation*sin(pa));
     if ((x <= majRad) && 
@@ -341,9 +341,9 @@ Double DiskShape::calcSample(const MDirection::MVType& compDirValue,
 
 String DiskShape::sizeToString() const {
     return TwoSidedShape::sizeToString(
-        Quantity(itsMajValue, "rad"),
-        Quantity(itsMinValue, "rad"),
-        Quantity(itsPaValue, "rad"),
+        Quantity(_majorAxis, "rad"),
+        Quantity(_minorAxis, "rad"),
+        Quantity(_pa, "rad"),
         false
     );
 }
