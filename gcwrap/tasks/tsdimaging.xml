@@ -56,7 +56,7 @@ values. See description below for details of gridfunction available.
     </param>
 
     <param type="string" name="outfile">
-	    <description>name of output image</description>
+	    <description>prefix of output images (.image, .weight, .sumwt, .psf)</description>
 	    <value></value>
     </param>
 
@@ -347,7 +347,14 @@ Keyword arguments:
 infiles -- a list of names of input SD Measurementsets
         example: 'm100.PM01.ms'
                  ['m100.PM01.ms','m100.PM03.ms']; multiple MSes
-outfile -- name of output image
+outfile -- prefix of output images
+           Currently, four images are created by the task:
+               .image -- target image
+               .weight -- weight image
+               .sumwt -- sumwt image
+               .psf -- psf image (equivalent to weight image)
+           .sumwt and .psf are kind of useless so far. image products 
+           will be improved later.
         default: ''
         example: 'mySDimage.im'
 overwrite -- overwrite the output file if already exists
