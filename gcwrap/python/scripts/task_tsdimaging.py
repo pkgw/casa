@@ -16,9 +16,10 @@ from cleanhelper import cleanhelper
 from imagerhelpers.imager_base import PySynthesisImager
 from imagerhelpers.input_parameters import ImagerParameters
 
-image_suffix = '.residual'
+image_suffix = '.image'
+residual_suffix = '.residual'
 weight_suffix = '.weight'
-associate_suffixes = ['.psf', '.sumwt', weight_suffix]
+associate_suffixes = ['.psf', '.sumwt', weight_suffix, residual_suffix]
 
 @contextlib.contextmanager
 def open_ia(imagename):
@@ -781,6 +782,10 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
         casalog.post('*** Cleaning up tools ***', origin=origin)
         if imager is not None:
             imager.deleteTools()
+            
+        # change image suffix from .residual to .image
+        if os.path.exists(outfile + residual_suffix):
+            os.rename(outfile + residual_suffix, outfile + image_suffix)
         
 
     # set beam size
