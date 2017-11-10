@@ -366,7 +366,7 @@ void ImageInterfaceTest::testBinaryDilationIter()
 
     IPosition shape(4, 100, 100, 1, 5);
     csys=CoordinateUtil::defaultCoords4D();
-    PagedImage<Float> InImage(TiledShape(shape),csys, String("testBDilationIn.im"));
+    PagedImage<Float> InImage(TiledShape(shape),csys, String("testBDilationIn2.im"));
     //PagedImage<Float> dummyMaskImage(TiledShape(shape),csys, String("testBDilationDummyMask.im"));
     TempImage<Float> dummyMaskImage(TiledShape(shape),csys);
     // no mask case (all true)

@@ -2699,6 +2699,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       Int iter = 1;
       ArrayLattice<Float> templattice(inImage.shape());
       TempImage<Float> diffTempImage(outImage.shape(), outImage.coordinates(), memoryToUse());
+      diffTempImage.set(1);
       while (iter < niteration && !isEmptyMask(diffTempImage)) {
         templattice.copyData(outImage);
         binaryDilationCore(templattice,structure,mask,chanmask,outImage); 
