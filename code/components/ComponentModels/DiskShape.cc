@@ -321,7 +321,7 @@ void DiskShape::_rotateVis(Double& u, Double& v,
 }
 
 Double DiskShape::_area() const {
-    return (C::pi/ 4.0) * _majorAxis * _minorAxis; 
+    return C::pi_4 * _majorAxis * _minorAxis; 
 }
 
 Double DiskShape::_calcSample(const MDirection::MVType& compDirValue, 
