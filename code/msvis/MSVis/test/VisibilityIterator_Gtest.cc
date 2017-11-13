@@ -1064,13 +1064,6 @@ BasicMutation::createMs ()
     return std::make_tuple (ms, nRows, true);
 }
 
-class LogicalNot {
-public:
-
-    Bool operator() (Bool b) { return ! b;}
-};
-
-
 void
 BasicMutation::nextSubchunk (VisibilityIterator2 & vi, VisBuffer2 * vb)
 {
@@ -1105,7 +1098,7 @@ BasicMutation::nextSubchunk (VisibilityIterator2 & vi, VisBuffer2 * vb)
         Cube<Bool> cubeB;
 
         cubeB = vb->flagCube();
-        cubeB = arrayTransformResult (cubeB, LogicalNot());
+        cubeB = arrayTransformResult (cubeB, std::logical_not<Bool>());
         vb->setFlagCube (cubeB);
 
 //        Array<Bool> flagCategory = vb->flagCategory();
@@ -1124,7 +1117,7 @@ BasicMutation::nextSubchunk (VisibilityIterator2 & vi, VisBuffer2 * vb)
 
         Vector<Bool> vB;
         vB = vb->flagRow();
-        vB = arrayTransformResult (vB, LogicalNot());
+        vB = arrayTransformResult (vB, std::logical_not<Bool>());
         vb->setFlagRow (vB);
 
         vb->writeChangesBack();
@@ -1758,6 +1751,10 @@ TEST_F (Weighting, DoWeighting)
     sweepMs ();
 }
 
+//TEST_F (Exceptions, CheckingExceptions)
+//{
+//    checkExceptions();
+//}
 
 
 } // end namespace test
