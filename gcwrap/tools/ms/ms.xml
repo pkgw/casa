@@ -3685,7 +3685,9 @@ in spectral window 1.
     (=True) prior to running the application are excluded from the
     computation of these statistics. If the WEIGHT_SPECTRUM values are
     available, they are used to compute the statistics, otherwise,
-    the WEIGHT values are used.
+    the WEIGHT values are used. The returned statistics are always computed
+    using the classic algorithm; the value of statalg has no impact on how
+    they are computed.
             
     OTHER CONSIDERATIONS
 
