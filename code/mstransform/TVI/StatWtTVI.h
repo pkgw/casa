@@ -25,6 +25,7 @@
 
 #include <msvis/MSVis/TransformingVi2.h>
 
+#include <casacore/casa/Arrays/ArrayIter.h>
 #include <casacore/ms/MSSel/MSSelection.h>
 #include <casacore/scimath/Mathematics/StatisticsAlgorithmFactory.h>
 
@@ -94,6 +95,8 @@ public:
     virtual void flagRow (casacore::Vector<casacore::Bool> & flagRow) const;
 
     void summarizeFlagging() const;
+
+    void summarizeStats(casacore::Double& mean, casacore::Double& variance) const;
 
     // Override unimplemented TransformingVi2 version
     void writeBackChanges(VisBuffer2* vb);
@@ -183,7 +186,7 @@ private:
         casacore::StatisticsAlgorithm<casacore::Double,
         casacore::Array<casacore::Float>::const_iterator,
         casacore::Array<casacore::Bool>::const_iterator>
-    > _statAlg;
+    > _statAlg = nullptr;
     std::unique_ptr<std::pair<casacore::Double, casacore::Double>> _wtrange = nullptr;
     std::map<casacore::uInt, casacore::Cube<casacore::Bool>> _chanSelFlags;
 
@@ -203,6 +206,12 @@ private:
     casacore::Double _slidingTimeWindowWidth = -1;
 
     casacore::Bool _useDefaultModelValue = casacore::False;
+
+    SHARED_PTR<
+        casacore::ClassicalStatistics<casacore::Double,
+        casacore::Array<casacore::Float>::const_iterator,
+        casacore::Array<casacore::Bool>::const_iterator>
+    > _wtStats = nullptr;
 
     const static casacore::Complex DEFAULT_MODEL_VALUE;
 
@@ -253,7 +262,7 @@ private:
 
     casacore::Bool _parseConfiguration(const casacore::Record &configuration);
 	
-    void _initialize();
+    //void _initialize();
 
     // swaps ant1/ant2 if necessary
     static Baseline _baseline(casacore::uInt ant1, casacore::uInt ant2);

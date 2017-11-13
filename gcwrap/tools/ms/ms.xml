@@ -3461,7 +3461,7 @@ in spectral window 1.
      <example>"data" or "corrected"</example>
      </param>
   </input>
-  <returns type="bool"/>
+  <returns type="record"/>
   <description>
     IF NOT RUN IN PREVIEW MODE, THIS APPLICATION WILL MODIFY THE
     WEIGHT, WEIGHT SPECTRUM, FLAG, AND FLAG_ROW COLUMNS OF THE INPUT
@@ -3665,6 +3665,16 @@ in spectral window 1.
     column should be used for computing the weights. The values
     "corrected" for the CORRECTED_DATA column and "data" for the DATA
     column are supported (minimum match, case insensitive).
+            
+    RETURN VALUE
+    
+    In all cases, the mean and variance of the set of all weights computed
+    by the application is reported and returned in a dictionary with keys
+    'mean' and 'variance'. Weights for which there are corresponding flags
+    (=True) prior to running the application are excluded from the
+    computation of these statistics. If the WEIGHT_SPECTRUM values are
+    available, they are used to compute the statistics, otherwise,
+    the WEIGHT values are used.
             
     OTHER CONSIDERATIONS
 

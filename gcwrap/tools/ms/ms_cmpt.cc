@@ -5905,7 +5905,7 @@ ms::iterinit(const std::vector<std::string>& columns, const double interval,
 	return rstat;
 }
 
-bool ms::statwt2(
+record* ms::statwt2(
     const string& combine, const variant& timebin, bool slidetimebin,
     const variant& chanbin, int minsamp, const string& statalg,
     double fence, const string& center, bool lside,
@@ -5916,7 +5916,7 @@ bool ms::statwt2(
     *itsLog << LogOrigin("ms", __func__);
     try {
         if (detached()) {
-            return False;
+            return nullptr;
         }
         StatWt statwt(itsMS);
         if (slidetimebin) {
@@ -5962,8 +5962,7 @@ bool ms::statwt2(
         tviConfig["datacolumn"] = datacolumn;
         unique_ptr<Record> rec(toRecord(tviConfig));
         statwt.setTVIConfig(*rec);
-        statwt.writeWeights();
-        return True;
+        return fromRecord(statwt.writeWeights());
     }
     catch (const AipsError& x) {
         *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
@@ -5971,7 +5970,7 @@ bool ms::statwt2(
         RETHROW(x);
     }
     Table::relinquishAutoLocks(true);
-    return False;
+    return nullptr;
 }
 
 bool
