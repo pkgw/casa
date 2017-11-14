@@ -232,7 +232,7 @@ protected:
 
     static void _copyMask(casacore::Lattice<casacore::Bool>& mask, const casacore::ImageInterface<T>& image);
 
-    static void _copyData(casacore::Lattice<T>& data, const casacore::ImageInterface<T>& image);
+    static void _copyData(casacore::Lattice<T>& data, const casacore::Lattice<T>& image);
 
     template <class U> void _doHistory(SHARED_PTR<casacore::ImageInterface<U>>& image) const;
 

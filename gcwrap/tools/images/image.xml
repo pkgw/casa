@@ -1096,7 +1096,7 @@ myim.done()
     <shortdescription>Collapse an image along a specified axis, computing a specified aggregate function of pixels along that axis.</shortdescription>
     <input>
         <param type="string"  name="function">
-            <description>Aggregate function to apply. This can be set one of flux, max, mean, median, min, rms, stddev, sum, variance. Must be specified.</description>
+            <description>Aggregate function to apply. This can be set one of flux, madm, max, mean, median, min, npts, rms, stddev, sum, variance, xmadm. Must be specified.</description>
             <value/>
         </param>
         <param type="any"  name="axes">
@@ -1143,12 +1143,15 @@ myim.done()
 
 This method collapses an image along a specified axis or set of axes of length N pixels to a single pixel on each
 specified axis. Both float valued and complex valued images are supported. It computes a user-specified aggregate
-function for pixel values along the specified axes,
-and places those values in the single remaining plane of those axes in the output image. The method returns
-an image analysis tool containing the newly-created collapsed image. Valid choices of aggregate functions are:
-'flux' (see below for constraitns), 'max', 'mean', 'median', 'min', 'rms', 'stddev', 'sum' and 'variance'. Minimal unique matching is supported
-for the function parameter (e.g. function = 'r' will compute the rms of the pixel values, 'med' will compute
-the median, etc.).
+function for pixel values along the specified axes, and places those values in the single remaining plane of
+those axes in the output image. The method returns an image analysis tool containing the newly-created collapsed
+image. Valid choices of aggregate functions are: 'flux' (see below for constraitns), 'madm' (median absolute
+deviation from the median), 'max', 'mean', 'median', 'min', 'npts', 'rms', 'stddev', 'sum', 'variance' and 'xmadm'
+(median absolute deviation from the median multipied by x, where x is the reciprocal of Phi^-1(3/4), where Phi^-1
+is the reciprocal of the quantile function. Numerically, x = 1.482602218505602. See, eg,
+https://en.wikipedia.org/wiki/Median_absolute_deviation#Relation_to_standard_deviation). Minimal unique matching is
+supported for the function parameter (e.g. function = 'r' will compute the rms of the pixel values, 'med' will
+compute the median, etc.).
 
 If one specifies function='flux', the following constraints must be true:
 
@@ -5714,9 +5717,12 @@ This application returns information on a one-dimensional profile taken along a 
 The region of interest is collapsed (a'la ia.collapse() along all axes orthogonal to the one specified, and)
 the specified aggregate function is applied to these pixels to generate the returned values. 
 
-The aggregate function must be one of the functions supported by ia.collapse; ie, 'flux', 'max',  'mean',
-'median', 'min', 'rms', 'stdev', 'sum', and 'variance'. See the help for ia.collapse() for details regarding
-these functions. Minimum match and case insenstivity is supported.
+The aggregate function must be one of the functions supported by ia.collapse; ie, 'flux', 'madm', 'max', 'mean',
+'median', 'min', 'rms', 'stdev', 'sum', 'variance', and 'xmadm'. See the help for ia.collapse() for details regarding
+these functions. Minimum match and case insenstivity is supported. In addition, single binary (addition,
+subtraction, multiplication, and division) operations of these functions are supported, eg function='max*min'
+will return data that is the product of the maximum and the mininum for each plane along the specified
+axis.
 
 One may specify the unit of the returned coordinate values.  Unless axis is the spectral axis, unit must be
 conformant with the corresponding axis unit in the image coordinate system or it must be 'pixel' which signifies,
@@ -5748,10 +5754,6 @@ coords   One-dimensional array of corresponding coordinate values along the spec
          (or the unit associated with the axis in the image coordinate system if unspecified).
 xUnit    The unit used for calculating the values the coords array.
 
-
-<example>
-</example>
-
 </description>
 
 <example>
@@ -5762,16 +5764,17 @@ res = ia.getprofile(axis=2, function='max')
 # axis 2 is the spectral axis. Get the minimum pixel values along this axis
 # and specify that the returned coordinate values should be optical velocities
 # in km/s
-
 res2 = ia.getprofile(axis=2, function='min', unit='km/s', spectype='optical')
+
+# get the result of the maximum and the median of the absolute deviation from the median
+# along this axis
+res3 = ia.getprofile(axis=2, function='max/madm')
 
 ia.done()
 
 </example>
 
 </method>
-
-
  
    <method type="function" name="getslice">
    <shortdescription>Get 1-D slice from the image</shortdescription>
@@ -9787,6 +9790,16 @@ frequency unit is Hz, the resulting flux unit will be K.arcsec2.Hz).
 
 In both cases of flux density or flux being computed, the resulting numerical value is
 assigned to the "flux" key in the output dictionary.
+
+If the image has units of Jy/beam, the flux density is just the mean intensity multiplied
+by the number of beam areas included in the region. The beam area is defined as the volume
+of the elliptical Gaussian defined by the synthesized beam, divided by the maximum of
+that function, which is equivalent to
+
+pi/(4*ln(2)) * major * minor
+
+where ln() is the natural logarithm and major and minor are the major and minor FWHM axes
+of the beam, respectively.
 
 </description>
 
