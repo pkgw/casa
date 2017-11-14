@@ -65,6 +65,7 @@ casa_add_library( synthesis
   TransformMachines2/AWVisResampler.cc
  TransformMachines2/VisibilityResamplerBase.cc
  TransformMachines2/VisibilityResampler.cc
+  TransformMachines2/SDGrid.cc
   TransformMachines/BeamSkyJones.cc
   TransformMachines/BeamSquint.cc
   TransformMachines/CFCache.cc
@@ -717,6 +718,7 @@ install (FILES
 	TransformMachines2/WPConvFunc.h
 	TransformMachines2/WProjectFT.h
 	TransformMachines2/WTerm.h
+	TransformMachines2/SDGrid.h
 	DESTINATION include/casacode/synthesis/TransformMachines2
        )
 install (FILES
