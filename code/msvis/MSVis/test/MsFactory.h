@@ -374,8 +374,6 @@ protected:
 
 private:
 
-    typedef std::set<casacore::MSMainEnums::PredefinedColumns> ColumnIds;
-
     class Columns {
 
     public:
@@ -494,7 +492,6 @@ private:
 
     casacore::Bool addWeightSpectrum_p;
     Columns columns_p;
-    ColumnIds columnIds_p;
     Generators generators_p;
     casacore::Bool includeAutocorrelations_p;
     casacore::MeasurementSet * ms_p;
