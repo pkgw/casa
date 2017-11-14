@@ -242,6 +242,15 @@ MsFactory::addCubeColumn (MSMainEnums::PredefinedColumns columnId,
     ms_p->flush();
 }
 
+void
+MsFactory::removeColumn (casacore::MSMainEnums::PredefinedColumns columnId)
+{
+    casacore::String columnName = MS::columnName(columnId);
+
+    ms_p->removeColumn(columnName);
+
+    ms_p->flush();
+}
 
 void
 MsFactory::attachColumns ()

@@ -318,6 +318,7 @@ public:
     void addCubeColumn (casacore::MSMainEnums::PredefinedColumns columnId,
                         const casacore::String & dataStorageMangerName);
 
+    void removeColumn (casacore::MSMainEnums::PredefinedColumns columnId);
 
     void addFeeds (casacore::Int nFeeds);
     void addField (const casacore::String & name,
