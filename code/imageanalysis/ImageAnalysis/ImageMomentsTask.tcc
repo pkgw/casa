@@ -71,9 +71,11 @@ template<class T> SPIIT ImageMomentsTask<T>::makeMoments() const {
         if (x->imageInfo().hasMultipleBeams()) {
             const CoordinateSystem& csys = x->coordinates();
             if (csys.hasPolarizationCoordinate() && _axis == csys.polarizationAxisNumber()) {
-                *this->_getLog() << LogIO::WARN << "This image has multiple beams and you are determining "
-                    << " moments along the polarization axis. Interpret your results carefully"
-                    << LogIO::POST;
+                LogOrigin logOrigin(getClass(), __func__);
+                String msg = "This image has multiple beams and you are determining moments ";
+                msg += "along the polarization axis. Interpret your results carefully";
+                *this->_getLog() << logOrigin << LogIO::WARN << msg << LogIO::POST;
+                this->addHistory(logOrigin, msg);
             }
         }
         // Set moment methods
@@ -113,8 +115,12 @@ template<class T> SPIIT ImageMomentsTask<T>::makeMoments() const {
         if (! _velocityType.empty()) {
             MDoppler::Types velType;
             if (! MDoppler::getType(velType, _velocityType)) {
-                *this->_getLog() << LogIO::WARN << "Illegal velocity type "
-                    << _velocityType << ". Using RADIO" << LogIO::POST;
+                LogOrigin logOrigin(getClass(), __func__);
+                ostringstream oss;
+                oss << "Illegal velocity type " << _velocityType << ". Using RADIO";
+                auto msg = oss.str();
+                *this->_getLog() << logOrigin << LogIO::WARN << msg << LogIO::POST;
+                this->addHistory(logOrigin, msg);
                 velType = MDoppler::RADIO;
             }
             momentMaker.setVelocityType(velType);
