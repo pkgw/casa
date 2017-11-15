@@ -479,11 +479,11 @@ bool PlotMSPlot::updateCache() {
 			itsCache_ = NULL;
 		}
 		itsCache_ = CacheFactory::getCache(filename, itsParent_);
-        data->setType(itsCache_->cacheType());
 		if(itsCache_ == NULL) {
 			throw AipsError("Failed to create a new Cache object!");
 		} else
-            itsCache_->setFilename(filename);
+			itsCache_->setFilename(filename);
+			data->setType(itsCache_->cacheType());
 	}
 
 	bool result = true;
