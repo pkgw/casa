@@ -1994,7 +1994,8 @@ An integer between 0 and one less than the list length, inclusively</description
     The type argument defines what the sort of new shape to use. This
     can be either 'point', 'Gaussian', or 'disk'. 
     The parsing of this string is case insensitive. 
-    <!-- COMMENTED OUT UNTIL FURTHER FIXES AND FULL IMPLEMENTATION IS DONE TO
+    <!-- 
+    COMMENTED OUT UNTIL FURTHER FIXES AND FULL IMPLEMENTATION ARE DONE TO
     TO SUPPORT THE LIMB DARKENED DISK MODEL:  The 'limbdarkeneddisk'
     is an experimental disk model with the limb-darkening effect, where 
     the sky brigtness is described as I=I_o (1-(r/R)**2)**(n/2) with 
