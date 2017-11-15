@@ -46,7 +46,7 @@
 #include <scimath/Mathematics/FFTServer.h>
 #include <synthesis/MeasurementComponents/SDPosInterpolator.h>
 #include <synthesis/TransformMachines2/FTMachine.h>
-#include <synthesis/TransformMachines/SkyJones.h>
+#include <synthesis/TransformMachines2/SkyJones.h>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
 
