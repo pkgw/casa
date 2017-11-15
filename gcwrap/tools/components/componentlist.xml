@@ -944,9 +944,8 @@ have chosen to represent these as actual sizes.
     
      <param type="string" name="shape">
      <description>The new shape type.
-     A string that is either 'point', 'Gaussian', 'disk', or 'limbdarkeneddisk'</description>
+     A string that is either 'point', 'Gaussian', or 'disk'</description>
      <value>disk</value>
-     <value>limbdarkeneddisk</value>
      <value>Gaussian</value>
      <value>point</value>
      </param>
@@ -990,7 +989,7 @@ have chosen to represent these as actual sizes.
      </param>
     
      <param type="doubleArray" name="optionalparms">
-     <description>optional parameters in vector (currently only used for limbdarkeneddisk)</description>
+     <description>optional parameters in vector (for future use)</description>
      <value>0.0</value>
      </param>
 
@@ -1993,18 +1992,21 @@ An integer between 0 and one less than the list length, inclusively</description
     to the user specified shape.
 
     The type argument defines what the sort of new shape to use. This
-    can be either 'point', 'Gaussian', 'disk', or 'limbdarkeneddisk'. 
-    The parsing of this string is case insensitive. The 'limbdarkeneddisk'
+    can be either 'point', 'Gaussian', or 'disk'. 
+    The parsing of this string is case insensitive. 
+    <!-- COMMENTED OUT UNTIL FURTHER FIXES AND FULL IMPLEMENTATION IS DONE TO
+    TO SUPPORT THE LIMB DARKENED DISK MODEL:  The 'limbdarkeneddisk'
     is an experimental disk model with the limb-darkening effect, where 
     the sky brigtness is described as I=I_o (1-(r/R)**2)**(n/2) with 
     R being apparent body radius. The n can be set in optionalparms (if it is
     not set, the default value, 0.0 will be used).
+    -->
 
     If the shape type is 'point' then the remaining arguments in this
     function are ignored. There are no other parameters needed to
     specify a point shape. 
 
-    But if the shape is 'Gaussian', 'disk', or 'limbdarkeneddisk', 
+    But if the shape is 'Gaussian', or 'disk', 
     the remaining arguments are needed to fully specify the shape. 
     The majoraxis, minoraxis and positionangle arguments are quantities (see the
     <link anchor="quanta">quanta</link> module for a definition of a
@@ -2029,9 +2031,8 @@ An integer between 0 and one less than the list length, inclusively</description
     
      <param type="string" name="type">
      <description>The new shape type.
-     A string that is either 'point', 'Gaussian', 'disk', or 'limbdarkeneddisk'</description>
+     A string that is either 'point', 'Gaussian', or 'disk'</description>
      <value>disk</value>
-     <value>limbdarkeneddisk</value>
      <value>Gaussian</value>
      <value>Point</value>
      </param>
@@ -2075,7 +2076,7 @@ An integer between 0 and one less than the list length, inclusively</description
      </param>
     
      <param type="doubleArray" name="optionalparms">
-     <description>optional parameters in a vector (for limbdarkeneddisk) 
+     <description>optional parameters in a vector (for future use)
      </description>
      <value>0.0</value>
      </param>
