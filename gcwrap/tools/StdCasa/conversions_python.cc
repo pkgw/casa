@@ -23,9 +23,8 @@ STRINGTOCOMPLEX_DEFINITION(casac::complex,stringtoccomplex)
 #define PyInt_AsUnsignedLong            PyLong_AsUnsignedLong
 #define PyInt_Type                      PyLong_Type
 #define PyNumber_Int                    PyNumber_Long
-#define PyString_Check                  PyUnicode_Check
-// FIX ME-------------------------------vvvvvvvvvvvvvvvv
-#define PyString_AsString               PyUnicode_AsUTF8
+#define PyString_Check                  PyBytes_Check
+#define PyString_AsString               PyBytes_AsString
 #define PyString_FromString             PyUnicode_FromString
 #define MYPYSIZE                        Py_ssize_t
 #else
