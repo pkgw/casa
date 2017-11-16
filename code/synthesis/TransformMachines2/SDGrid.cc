@@ -71,15 +71,16 @@
 #include <measures/Measures/Stokes.h>
 #include <ms/MeasurementSets/MSColumns.h>
 #include <msvis/MSVis/StokesVector.h>
-#include <msvis/MSVis/VisBuffer.h>
-#include <msvis/MSVis/VisibilityIterator.h>
+#include <msvis/MSVis/VisBuffer2.h>
+#include <msvis/MSVis/VisibilityIterator2.h>
 #include <scimath/Mathematics/RigidVector.h>
-#include <synthesis/MeasurementComponents/SDGrid.h>
-#include <synthesis/TransformMachines/SkyJones.h>
+#include <synthesis/TransformMachines2/SDGrid.h>
+#include <synthesis/TransformMachines2/SkyJones.h>
 #include <synthesis/TransformMachines/StokesImageUtil.h>
 
 using namespace casacore;
 namespace casa {
+namespace refim {//# namespace for imaging refactor
 
 SDGrid::SDGrid(SkyJones& sj, Int icachesize, Int itilesize,
 	       String iconvType, Int userSupport, Bool useImagingWeight)
@@ -201,7 +202,7 @@ String SDGrid::name() const{
 
 //----------------------------------------------------------------------
 // Odds are that it changed.....
-Bool SDGrid::changed(const VisBuffer& /*vb*/) {
+Bool SDGrid::changed(const vi::VisBuffer2& /*vb*/) {
   return false;
 }
 
@@ -409,7 +410,7 @@ SDGrid::~SDGrid() {
 }
 
 void SDGrid::findPBAsConvFunction(const ImageInterface<Complex>& image,
-				  const VisBuffer& vb) {
+				  const vi::VisBuffer2& vb) {
 
   // Get the coordinate system and increase the sampling by 
   // a factor of ~ 100.
@@ -437,7 +438,7 @@ void SDGrid::findPBAsConvFunction(const ImageInterface<Complex>& image,
   // system used in the POINTING table.
   {
     uInt row=0;
-    const ROMSPointingColumns& act_mspc = vb.msColumns().pointing();
+    const ROMSPointingColumns& act_mspc = vb.subtableColumns().pointing();
     Bool nullPointingTable=(act_mspc.nrow() < 1);
     // uInt pointIndex=getIndex(*mspc, vb.time()(row), vb.timeInterval()(row), vb.antenna1()(row));
     Int pointIndex=-1;
@@ -445,8 +446,8 @@ void SDGrid::findPBAsConvFunction(const ImageInterface<Complex>& image,
       //if(vb.newMS()) This thing is buggy...using msId change
       if(vb.msId() != msId_p){
 	lastIndex_p=0;
-  if(lastIndexPerAnt_p.nelements() < (size_t)vb.numberAnt()) {
-    lastIndexPerAnt_p.resize(vb.numberAnt());
+  if(lastIndexPerAnt_p.nelements() < (size_t)vb.nAntennas()) {
+    lastIndexPerAnt_p.resize(vb.nAntennas());
   }
 	lastIndexPerAnt_p=0;
 	msId_p=vb.msId();
@@ -466,7 +467,7 @@ void SDGrid::findPBAsConvFunction(const ImageInterface<Complex>& image,
     if(!pointingToImage) {
       lastAntID_p=vb.antenna1()(row);
       MPosition pos;
-      pos=vb.msColumns().antenna().positionMeas()(lastAntID_p);
+      pos=vb.subtableColumns().antenna().positionMeas()(lastAntID_p);
       mFrame_p=MeasFrame(epoch, pos);
       if(!nullPointingTable){
 	worldPosMeas=directionMeas(act_mspc, pointIndex);
@@ -488,7 +489,7 @@ void SDGrid::findPBAsConvFunction(const ImageInterface<Complex>& image,
       if(lastAntID_p != vb.antenna1()(row)){
 	MPosition pos;
 	lastAntID_p=vb.antenna1()(row);
-	pos=vb.msColumns().antenna().positionMeas()(lastAntID_p);
+	pos=vb.subtableColumns().antenna().positionMeas()(lastAntID_p);
 	mFrame_p.resetPosition(pos);
       }
     }
@@ -560,7 +561,7 @@ void SDGrid::findPBAsConvFunction(const ImageInterface<Complex>& image,
 // Initialize for a transform from the Sky domain. This means that
 // we grid-correct, and FFT the image
 void SDGrid::initializeToVis(ImageInterface<Complex>& iimage,
-			     const VisBuffer& vb)
+			     const vi::VisBuffer2& vb)
 {
   image=&iimage;
 
@@ -656,7 +657,7 @@ void SDGrid::finalizeToVis()
 // Initialize the FFT to the Sky. Here we have to setup and initialize the
 // grid. 
 void SDGrid::initializeToSky(ImageInterface<Complex>& iimage,
-			     Matrix<Float>& weight, const VisBuffer& vb)
+			     Matrix<Float>& weight, const vi::VisBuffer2& vb)
 {
   // image always points to the image
   image=&iimage;
@@ -857,32 +858,17 @@ extern "C" {
 		Int*);
 }
 
-void SDGrid::put(const VisBuffer& vb, Int row, Bool dopsf, 
+void SDGrid::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
 		 FTMachine::Type type)
 {
   LogIO os(LogOrigin("SDGrid", "put"));
   
   gridOk(convSupport);
 
-  //Check if ms has changed then cache new spw and chan selection
-  if(vb.newMS()){
-    matchAllSpwChans(vb);
-    lastIndex_p=0;
-    if (lastIndexPerAnt_p.nelements() < (size_t)vb.numberAnt()) {
-      lastIndexPerAnt_p.resize(vb.numberAnt());
-    }
-    lastIndexPerAnt_p=0;
-  }
-  //Here we redo the match or use previous match
+  // There is no channel mapping cache in VI/VB2 version of FTMachine
+  // Perform matchChannel everytime
+  matchChannel(vb);
   
-  //Channel matching for the actual spectral window of buffer
-  if(doConversion_p[vb.spectralWindow()]){
-    matchChannel(vb.spectralWindow(), vb);
-  }
-  else{
-    chanMap.resize();
-    chanMap=multiChanMap_p[vb.spectralWindow()];
-  }
   //No point in reading data if its not matching in frequency
   if(max(chanMap)==-1)
     return;
@@ -911,7 +897,7 @@ void SDGrid::put(const VisBuffer& vb, Int row, Bool dopsf,
   // If row is -1 then we pass through all rows
   Int startRow, endRow, nRow;
   if (row==-1) {
-    nRow=vb.nRow();
+    nRow=vb.nRows();
     startRow=0;
     endRow=nRow-1;
   } else {
@@ -999,7 +985,8 @@ void SDGrid::put(const VisBuffer& vb, Int row, Bool dopsf,
       Complex * datStor=griddedData.getStorage(datCopy);
       Float * wgtStor=wGriddedData.getStorage(wgtCopy);
 
-      Bool call_ggridsd = !clipminmax_ || dopsf;
+      //Bool call_ggridsd = !clipminmax_ || dopsf;
+      Bool call_ggridsd = !clipminmax_;
 
       if (call_ggridsd) {
 
@@ -1082,7 +1069,7 @@ void SDGrid::put(const VisBuffer& vb, Int row, Bool dopsf,
 
 }
 
-void SDGrid::get(VisBuffer& vb, Int row)
+void SDGrid::get(vi::VisBuffer2& vb, Int row)
 {
   LogIO os(LogOrigin("SDGrid", "get"));
 
@@ -1091,38 +1078,26 @@ void SDGrid::get(VisBuffer& vb, Int row)
   // If row is -1 then we pass through all rows
   Int startRow, endRow, nRow;
   if (row==-1) {
-    nRow=vb.nRow();
+    nRow=vb.nRows();
     startRow=0;
     endRow=nRow-1;
-    vb.modelVisCube()=Complex(0.0,0.0);
+    // TODO: ask imager guru if commenting out the following line
+    //       is safe for SDGrid
+    //unnecessary zeroing
+    //vb.modelVisCube()=Complex(0.0,0.0);
   } else {
     nRow=1;
     startRow=row;
     endRow=row;
-    vb.modelVisCube().xyPlane(row)=Complex(0.0,0.0);
+    // TODO: ask imager guru if commenting out the following line
+    //       is safe for SDGrid
+    //unnecessary zeroing
+    //vb.modelVisCube().xyPlane(row)=Complex(0.0,0.0);
   }
 
-
-  //Check if ms has changed then cache new spw and chan selection
-  if(vb.newMS()){
-    matchAllSpwChans(vb);
-    lastIndex_p=0;
-    if (lastIndexPerAnt_p.nelements() < (size_t)vb.numberAnt()) {
-      lastIndexPerAnt_p.resize(vb.numberAnt());
-    }
-    lastIndexPerAnt_p=0;
-  }
-
-  //Here we redo the match or use previous match
-  
-  //Channel matching for the actual spectral window of buffer
-  if(doConversion_p[vb.spectralWindow()]){
-    matchChannel(vb.spectralWindow(), vb);
-  }
-  else{
-    chanMap.resize();
-    chanMap=multiChanMap_p[vb.spectralWindow()];
-  }
+  // There is no channel mapping cache in VI/VB2 version of FTMachine
+  // Perform matchChannel everytime
+  matchChannel(vb);
 
   //No point in reading data if its not matching in frequency
   if(max(chanMap)==-1)
@@ -1141,7 +1116,7 @@ void SDGrid::get(VisBuffer& vb, Int row)
   for (Int rownr=startRow; rownr<=endRow; rownr++) {
     if(vb.flagRow()(rownr)) rowFlags(rownr)=1;
     //single dish yes ?
-    if(max(vb.uvw()(rownr).vector()) > 0.0) rowFlags(rownr)=1;
+    if(max(vb.uvw().column(rownr)) > 0.0) rowFlags(rownr)=1;
   }
 
 
@@ -1236,7 +1211,7 @@ void SDGrid::get(VisBuffer& vb, Int row)
   // is that required for the visibilities.
   //----------------------------------------------------------------------
   void SDGrid::makeImage(FTMachine::Type type, 
-			    ROVisibilityIterator& vi,
+			    vi::VisibilityIterator2& vi,
 			    ImageInterface<Complex>& theImage,
 			    Matrix<Float>& weight) {
     
@@ -1244,18 +1219,18 @@ void SDGrid::get(VisBuffer& vb, Int row)
     logIO() << LogOrigin("FTMachine", "makeImage0") << LogIO::NORMAL;
     
     // Loop over all visibilities and pixels
-    VisBuffer vb(vi);
+    vi::VisBuffer2 *vb = vi.getVisBuffer();
     
     // Initialize put (i.e. transform to Sky) for this model
     vi.origin();
     
-    if(vb.polFrame()==MSIter::Linear) {
+    if(vb->polarizationFrame()==MSIter::Linear) {
       StokesImageUtil::changeCStokesRep(theImage, StokesImageUtil::LINEAR);
     }
     else {
       StokesImageUtil::changeCStokesRep(theImage, StokesImageUtil::CIRCULAR);
     }
-    Bool useCorrected= !(vi.msColumns().correctedData().isNull());
+    Bool useCorrected= !(ROMSMainColumns(vi.ms()).correctedData().isNull());
     if((type==FTMachine::CORRECTED) && (!useCorrected))
       type=FTMachine::OBSERVED;
     Bool normalize=true;
@@ -1302,7 +1277,7 @@ void SDGrid::get(VisBuffer& vb, Int row)
       }
       vi.originChunks();
       vi.origin();
-      initializeToSky(*imCopy,wgtcopy,vb);
+      initializeToSky(*imCopy,wgtcopy,*vb);
    
 
       // for minmax clipping
@@ -1314,32 +1289,31 @@ void SDGrid::get(VisBuffer& vb, Int row)
       }
 
       // Loop over the visibilities, putting VisBuffers
-      for (vi.originChunks();vi.moreChunks();vi.nextChunk()) {
-	for (vi.origin(); vi.more(); vi++) {
+	  for (vi.originChunks();vi.moreChunks();vi.nextChunk()) {
+	    for (vi.origin(); vi.more(); vi.next()) {
 	
 	  switch(type) {
 	  case FTMachine::RESIDUAL:
-	    vb.visCube()=vb.correctedVisCube();
-	    vb.visCube()-=vb.modelVisCube();
-	    put(vb, -1, false);
+	    vb->setVisCube(vb->visCubeCorrected() - vb->visCubeModel());
+	    put(*vb, -1, false);
 	    break;
 	  case FTMachine::MODEL:
-	    put(vb, -1, false, FTMachine::MODEL);
+	    put(*vb, -1, false, FTMachine::MODEL);
 	    break;
 	  case FTMachine::CORRECTED:
-	    put(vb, -1, false, FTMachine::CORRECTED);
+	    put(*vb, -1, false, FTMachine::CORRECTED);
 	    break;
 	  case FTMachine::PSF:
-	    vb.visCube()=Complex(1.0,0.0);
-	    put(vb, -1, true, FTMachine::PSF);
+	    vb->setVisCube(Complex(1.0,0.0));
+	    put(*vb, -1, true, FTMachine::PSF);
 	    break;
 	  case FTMachine::COVERAGE:
-	    vb.visCube()=Complex(1.0);
-	    put(vb, -1, true, FTMachine::COVERAGE);
+	    vb->setVisCube(Complex(1.0));
+	    put(*vb, -1, true, FTMachine::COVERAGE);
 	    break;
 	  case FTMachine::OBSERVED:
 	  default:
-	    put(vb, -1, false, FTMachine::OBSERVED);
+	    put(*vb, -1, false, FTMachine::OBSERVED);
 	    break;
 	  }
 	}
@@ -1447,6 +1421,11 @@ ImageInterface<Complex>& SDGrid::getImage(Matrix<Float>& weights,
     // Do the copy
     image->copyData(gridSub);
   }
+
+  // IMAGER MIGRATION
+  // set sumWeight to 1.0
+  weights = 1.0;
+
   return *image;
 }
 
@@ -1459,7 +1438,10 @@ void SDGrid::getWeightImage(ImageInterface<Float>& weightImage, Matrix<Float>& w
   logIO() << LogOrigin("SDGrid", "getWeightImage") << LogIO::NORMAL;
 
   weights.resize(sumWeight.shape());
-  convertArray(weights,sumWeight);
+  // IMAGER MIGRATION
+  // set sumWeight to 1.0
+  weights = 1.0;
+//  convertArray(weights,sumWeight);
 
   weightImage.copyData(*wArrayLattice);
 }
@@ -1537,19 +1519,19 @@ Int SDGrid::getIndex(const ROMSPointingColumns& mspc, const Double& time,
   return -1;
 }
 
-Bool SDGrid::getXYPos(const VisBuffer& vb, Int row) {
+Bool SDGrid::getXYPos(const vi::VisBuffer2& vb, Int row) {
 
   Bool dointerp;
   Bool nullPointingTable = false;
-  const ROMSPointingColumns& act_mspc = vb.msColumns().pointing();
+  const ROMSPointingColumns& act_mspc = vb.subtableColumns().pointing();
   nullPointingTable = (act_mspc.nrow() < 1);
   Int pointIndex = -1;
   if (!nullPointingTable) {
     ///if(vb.newMS())  vb.newMS does not work well using msid 
     if (vb.msId() != msId_p) {
       lastIndex_p = 0;
-      if (lastIndexPerAnt_p.nelements() < (size_t)vb.numberAnt()) {
-        lastIndexPerAnt_p.resize(vb.numberAnt());
+      if (lastIndexPerAnt_p.nelements() < (size_t)vb.nAntennas()) {
+        lastIndexPerAnt_p.resize(vb.nAntennas());
       }
       lastIndexPerAnt_p = 0;
       msId_p = vb.msId();
@@ -1582,7 +1564,7 @@ Bool SDGrid::getXYPos(const VisBuffer& vb, Int row) {
     // Set the frame
     MPosition pos;
     lastAntID_p = vb.antenna1()(row);
-    pos = vb.msColumns().antenna().positionMeas()(lastAntID_p);
+    pos = vb.subtableColumns().antenna().positionMeas()(lastAntID_p);
     mFrame_p = MeasFrame(epoch, pos);
     if (!nullPointingTable) {
       if (dointerp) {
@@ -1608,16 +1590,16 @@ Bool SDGrid::getXYPos(const VisBuffer& vb, Int row) {
     if (lastAntID_p != vb.antenna1()(row)) {
       MPosition pos;
       lastAntID_p = vb.antenna1()(row);
-      pos = vb.msColumns().antenna().positionMeas()(lastAntID_p);
+      pos = vb.subtableColumns().antenna().positionMeas()(lastAntID_p);
       mFrame_p.resetPosition(pos);
     }
   }
 
   if (!nullPointingTable) {
     if (dointerp) {
+      worldPosMeas = (*pointingToImage)(directionMeas(act_mspc, pointIndex, vb.time()(row)));
       MDirection newdir = directionMeas(act_mspc, pointIndex, vb.time()(row));
-      worldPosMeas = (*pointingToImage)(newdir);
-      //Vector<Double> newdirv = newdir.getAngle("rad").getValue();
+      Vector<Double> newdirv = newdir.getAngle("rad").getValue();
       //cerr<<"dir0="<<newdirv(0)<<endl;
    
     //fprintf(pfile,"%.8f %.8f \n", newdirv(0), newdirv(1));
@@ -1799,7 +1781,7 @@ MDirection SDGrid::interpolateDirectionMeas(const ROMSPointingColumns& mspc,
   return newDirMeas;
 }
   
-void SDGrid::pickWeights(const VisBuffer& vb, Matrix<Float>& weight){
+void SDGrid::pickWeights(const vi::VisBuffer2& vb, Matrix<Float>& weight){
   //break reference
   weight.resize();
 
@@ -1807,24 +1789,24 @@ void SDGrid::pickWeights(const VisBuffer& vb, Matrix<Float>& weight){
     weight.reference(vb.imagingWeight());
   } else {
     const Cube<Float> weightspec(vb.weightSpectrum());
-    weight.resize(vb.nChannel(), vb.nRow());
+    weight.resize(vb.nChannels(), vb.nRows());
       
     if (weightspec.nelements() == 0) {
-      for (Int k = 0; k < vb.nRow(); ++k) {
+      for (Int k = 0; k < vb.nRows(); ++k) {
         //cerr << "nrow " << vb.nRow() << " " << weight.shape() << "  "  << weight.column(k).shape() << endl;
-        weight.column(k).set(vb.weight()(k));
+        weight.column(k).set(mean(vb.weight().column(k)));
       }
     } else {
       Int npol = weightspec.shape()(0);
       if (npol == 1) {
-        for (Int k = 0; k < vb.nRow(); ++k) {
-          for (int chan = 0; chan < vb.nChannel(); ++chan) {
+        for (Int k = 0; k < vb.nRows(); ++k) {
+          for (int chan = 0; chan < vb.nChannels(); ++chan) {
             weight(chan, k)=weightspec(0, chan, k);
           }
         }
       } else {
-        for (Int k = 0; k < vb.nRow(); ++k) {
-          for (int chan = 0; chan < vb.nChannel(); ++chan) {
+        for (Int k = 0; k < vb.nRows(); ++k) {
+          for (int chan = 0; chan < vb.nChannels(); ++chan) {
             weight(chan, k) = (weightspec(0, chan, k) + weightspec((npol-1), chan, k))/2.0f;
           }
         }
@@ -1883,4 +1865,5 @@ void SDGrid::clipMinMax() {
   }
 }
 
+} //End of namespace refim
 } //#End casa namespace

@@ -19,6 +19,8 @@ if [ ! -z $CASABRANCHHINT ]; then
     elif [[ $CASABRANCHHINT =~ .*release.* ]] ; then
         headGrep=$CASABRANCHHINT
         tagid="rel"
+    elif [[ $CASABRANCHHINT =~ ^bambooprtest.* ]] ; then
+        headGrep="bambooprtest"
     fi
 fi
 #echo $headGrep
@@ -28,7 +30,7 @@ branch=`git rev-parse --abbrev-ref HEAD`
 
 # Detached HEAD, should have a tag
 if [ $branch == "HEAD" ];then
-    headTag=`git tag --points-at HEAD`
+    headTag=`git tag --points-at HEAD | grep $headGrep`
     if [[ -z "${headTag// }" ]]; then
         # Get the nearest tag and add Desc
         headCommit=`git rev-parse HEAD`
