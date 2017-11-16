@@ -620,6 +620,22 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   }
 
+  String SynthesisUtilMethods::asComprehensibleDirectionString(MDirection const &direction)
+  {
+    MVAngle mvRa=direction.getAngle().getValue()(0);
+    MVAngle mvDec=direction.getAngle().getValue()(1);
+    ostringstream oos;
+    oos << "     ";
+    Int widthRA=20;
+    Int widthDec=20;
+    oos.setf(ios::left, ios::adjustfield);
+    oos.width(widthRA);  oos << mvRa(0.0).string(MVAngle::TIME,8);
+    oos.width(widthDec); oos << mvDec.string(MVAngle::DIG2,8);
+    oos << "     "
+        << MDirection::showType(direction.getRefPtr()->getType());
+    return String(oos);
+  }
+
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////    Parameter Containers     ///////////////////////////////////////////////////////
