@@ -44,9 +44,9 @@
 #include <msvis/MSVis/VisBuffer2.h>
 #include <msvis/MSVis/VisibilityIterator2.h>
 #include <scimath/Mathematics/FFTServer.h>
-#include <synthesis/MeasurementComponents/SDPosInterpolator.h>
 #include <synthesis/TransformMachines2/FTMachine.h>
 #include <synthesis/TransformMachines2/SkyJones.h>
+#include <synthesis/Utilities/SDPosInterpolator.h>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
 
