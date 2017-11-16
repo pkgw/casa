@@ -81,7 +81,7 @@ class ia_makecomplex_test(unittest.TestCase):
         self.assertTrue(len(tb.showcache()) == 0)
     
     def test_history(self):
-        """Verify ia.insert writes history to image"""
+        """Verify ia.makecomplex() writes history to image"""
         myia = self.ia
         imag = "hist_zxye.im"
         shape = [20, 20]

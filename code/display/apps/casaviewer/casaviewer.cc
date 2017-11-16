@@ -66,6 +66,7 @@
 using namespace casa;
 
 static pid_t manager_root_pid = 0;
+static pid_t manager_xvfb_pid = 0;
 static bool sigterm_received = false;
 static void preprocess_args( int argc, const char *argv[], int &numargs, char **&args,
                              char *&dbus_name, bool &do_dbus, bool &inital_run,
@@ -81,6 +82,7 @@ static char *find_xvfb( const char *paths );
 static pid_t launch_xvfb( const char *name, pid_t pid, char *&display, char *&authority );
 
 static void exiting_server( int /*sig*/ ) {
+	if ( manager_xvfb_pid ) kill( manager_xvfb_pid, SIGKILL );
 	exit(0);
 }
 static void signal_manager_root( int sig ) {
@@ -454,6 +456,8 @@ static void preprocess_args( int argc, const char *argv[], int &numargs, char **
 			} else if ( x + 1 < argc ) {
 				logfile_path = strdup(argv[++x]);
 			}
+		} else if ( ! strncmp(argv[x],"--xvfb-pid=",11) ) {
+			sscanf( argv[x], "--xvfb-pid=%u", &manager_xvfb_pid );
 		}
 	}
 
@@ -530,14 +534,13 @@ static void preprocess_args( int argc, const char *argv[], int &numargs, char **
 	}
 }
 
-void start_manager_root( const char *origname, int /*numargs*/, char **args, const char */*dbusname*/,
+void start_manager_root( const char *origname, int numargs, char **args, const char */*dbusname*/,
                          bool without_gui, pid_t root_pid ) {
 
-	//pid_t child_xvfb = 0;
 	char *display = 0;
 	char *authority = 0;
 	if ( without_gui ) {
-		/*child_xvfb =*/ launch_xvfb( args[0], root_pid, display, authority );
+		manager_xvfb_pid = launch_xvfb( args[0], root_pid, display, authority );
 		sleep(2);
 	}
 
@@ -556,7 +559,20 @@ void start_manager_root( const char *origname, int /*numargs*/, char **args, con
 
 	free(name);
 
-	execvp( origname, args );
+	char **newargs = 0;
+	if ( manager_xvfb_pid == 0 )
+		newargs = args;
+	else {
+		newargs = (char**) malloc( sizeof(char*)*(numargs+2) );
+		for (int i=0; i < numargs; ++i)
+			newargs[i] = args[i];
+		char xvfbb[124];
+		sprintf( xvfbb, "--xvfb-pid=%u", manager_xvfb_pid );
+		newargs[numargs] = xvfbb;
+		newargs[numargs+1] = 0;
+	}
+
+	execvp( origname, newargs );
 }
 
 void launch_server( const char *origname, int numargs, char **args,

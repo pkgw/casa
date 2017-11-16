@@ -235,7 +235,7 @@ MS Parameters
     </allowed>
   </param>
   
-    <param type="string" name="xdatacolumn" subparam="true">
+    <param type="string" name="xdatacolumn">
       <description>Data column to use for x-axis (blank for default/current).  Note that residuals are complex (vector) differences or ratios.</description>
       <value />
       <allowed kind="enum">
@@ -407,7 +407,7 @@ MS Parameters
     </allowed>
     </param>
     
-    <param type="any" name="ydatacolumn" subparam="true">
+    <param type="any" name="ydatacolumn">
       <description>Data column to use for y-axis (blank for default/current). Note that residuals are complex (vector) differences or ratios.</description>
       <any type="variant" limittype='string stringArray'/>
       <value type="string"/>
@@ -1073,6 +1073,10 @@ Export plot as image Parameters
         <value></value>
      </param>
      
+     <param type="string" name="headeritems" >
+        <description>Comma-separated list of pre-defined page header items.</description>
+        <value></value>
+    </param>
      
 <!--
 ###############################################################################
@@ -1890,6 +1894,15 @@ Constraints
     
     showgui - Whether or not to display the plotting GUI
               default: True
+              
+    headeritems -- append header items specific to this plot to the current list
+                of page header items.
+                Comma-separated string of header item selection keywords.
+                Allowed keywords: 'obsdate','obstime','filename','projid',
+                                  'targname','targdir','telescope','observer',
+                                  'ycolumn'
+                default: ''
+                example: 'filename,projid,targname'
 
 <!--
 

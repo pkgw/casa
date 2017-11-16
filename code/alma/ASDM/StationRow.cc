@@ -1016,11 +1016,13 @@ type = CStationType::from_int(0);
 	 * Return true if all required attributes of the value part are equal to their homologues
 	 * in x and false otherwise.
 	 *
+
 	 * @param x a pointer on the StationRow whose required attributes of the value part 
+
 	 * will be compared with those of this.
 	 * @return a boolean.
 	 */
-	bool StationRow::equalByRequiredValue(StationRow* x) {
+	bool StationRow::equalByRequiredValue(StationRow*  x ) {
 		
 			
 		if (this->name != x->name) return false;

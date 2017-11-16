@@ -1,5 +1,7 @@
 casacore::Bool detached();
 casacore::Bool ready2write_();
+casacore::Bool doMSSelection(const ::casac::record& exprs, 
+	const bool onlyparse=false);
 
 casacore::Bool checkinit();
 casacore::Vector<casacore::Int> convertCorrToInt(casa::vi::VisBuffer2* vb2);
@@ -23,9 +25,12 @@ casacore::Record getFreqAxis();
 casacore::Record getIfrAxis();
 void addTimeAxis(casacore::Record& rec);
 void incTimeAxis(casacore::IPosition& cubeshape);
-// Add data to return record (getdata2):
+
+// Add data to return record (getdata2), with helpers:
 void getitem(casacore::String item, casa::vi::VisBuffer2* vb2,
         casacore::Record& addToRec, bool ifraxis);
+bool itemIsData(casacore::String item);
+casacore::String getbaseitem(casacore::String item);
 template <typename T> void getIfrArray(casacore::Array<T>& inputarray, 
         casa::vi::VisBuffer2* vb2);
 void getInfoOptions(casacore::Vector<casacore::Bool> info_options, 

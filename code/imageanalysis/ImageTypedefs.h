@@ -48,6 +48,10 @@ namespace casa {
 	using SPIIF = SHARED_PTR<casacore::ImageInterface<casacore::Float> >;
 	using SPCIIC = SHARED_PTR<const casacore::ImageInterface<casacore::Complex> >;
 	using SPIIC = SHARED_PTR<casacore::ImageInterface<casacore::Complex> >;
+
+    // 1/(Phi^(-1)(3/4), see https://en.wikipedia.org/wiki/Median_absolute_deviation#Relation_to_standard_deviation
+    const casacore::Double PHI = 1.482602218505602;
+
 }
 
 #endif

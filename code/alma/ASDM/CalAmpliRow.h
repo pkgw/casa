@@ -52,11 +52,11 @@
 	
 
 	 
-#include <Tag.h>
+#include <Frequency.h>
 	
 
 	 
-#include <Frequency.h>
+#include <Tag.h>
 	
 
 
@@ -104,7 +104,7 @@
 //#include <TableStreamReader.h>
 
 /*\file CalAmpli.h
-    \brief Generated from model's revision "1.64", branch "HEAD"
+    \brief Generated from model's revision "-1", branch ""
 */
 
 namespace asdm {
@@ -126,7 +126,7 @@ typedef void (CalAmpliRow::*CalAmpliAttributeFromText) (const string& s);
 /**
  * The CalAmpliRow class is a row of a CalAmpliTable.
  * 
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  */
 class CalAmpliRow {

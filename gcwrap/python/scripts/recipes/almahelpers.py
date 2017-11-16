@@ -7,8 +7,9 @@
 #  v1.1 (gmoellen; 2013Mar07) Lots of improvements from Eric Villard
 #  v1.2 (gmoellen; 2013Apr09) Added fixsyscaltimes and calantsub methods
 #                             to handle Tsys irregularities
+#  v1.3 (dpetry; 2017Sept11) Added genImageName
 #
-# This script defines several functions useful for ALMA Tsys processing.
+# This script defines several functions useful for ALMA data processing.
 #
 # tsysspwmap  - generate an "applycal-ready" spwmap for TDM to FDM
 #                 transfer of Tsys
@@ -16,6 +17,8 @@
 #                    SYSCAL subtable so that gencal properly generates
 #                    the Tsys caltable
 # calantsub - provides for substitution of cal solutions by antenna
+#
+# genImageName - generate canonical image file names
 #
 # To access these functions, type (at the CASA prompt):
 #
@@ -26,7 +29,7 @@
 # help tsysspwmap
 # help fixsyscaltimes
 # help calantsub
-
+# help genImageName
 #
 #
 import numpy
@@ -611,4 +614,133 @@ def editIntents(msName='', field='', scan='', newintents='',
         mytb.addrows(naddedrows)
     mytb.putcol('OBS_MODE', intentcol)
     mytb.close()
+
+def genImageName(vis='', spw='', field='', imtype='mfs', targettype='sci', stokes='I', mous='', modtext='manual'):
+    # DPetry, Sept 2017
+
+    """
+    Generate image name to be used in clean command
+    following the ALMA archive conventions (see SCIREQ-110, draft recommendations v4.8).
+      vis         = MS to be imaged (to extract object name, SPW frequencies
+      spw         = ID of SPW to be imaged
+                    If several SPWs are imaged at once, enter list of SPWs.
+      field       = ID of field to be imaged (to extract object name).
+                    in case of mosaic, give any ID of field belonging to the mosaic
+      imtype      = image type, 'mfs' (default) - aggregate bandwidth
+                    'cont' - mfs with lines excluded
+                    'cube' - spectrally resolved cube
+      targettype  = 'sci' (default) for science target
+                    'bp' for bandpass calibrator
+                    'ph' for phase calibrator
+                    'chk' for checksource
+                    'amp' for flux calibrator
+      stokes      = 'I' (default) for Stokes I image
+                    any combination of 'I', 'Q', 'U', 'V', 'P', 'A'
+      mous        = '' (default) normally this is filled by the archive.
+                    But if you know the MOUS UID, enter it in the format with "_"
+                    e.g.  uid___A001_X888_X66
+      modtext     = 'manual' (default) - this string can be used to add text,
+                    i.e. a modification, to the standard file name.
+                    It is appended at the end of the name.
+    """
+
+    themous = ''
+    theobject = ''
+    thetargettype = ''
+    targettypes = ['sci', 'bp', 'ph', 'chk', 'amp']
+    thespwid = ''
+    theimtype = ''
+    imtypes = ['mfs', 'cont', 'cube']
+    thestokes = ''
+    stokess = ['I', 'Q', 'U', 'V', 'IQU', 'IQUV', 'P', 'A']
+    themodtext = ''
+
+    rval = ''
+
+    mymsmd = taskinit.msmdtool()
+
+    # MOUS
+    if (mous != ''):
+        themous = mous+'.'
+
+    # object
+    try:
+        mymsmd.open(vis)
+    except:
+        mymsmd.done()
+        raise Exception("ERROR: problem opening vis")
+
+    myfieldnames = mymsmd.fieldnames()
+    if type(field)==str and (field in myfieldnames):
+        theobject = field
+    elif field in range(mymsmd.nfields()):
+        theobject = myfieldnames[field]
+    else:
+        print "ERROR: invalid field: "+field
+        print "Valid entries are ", myfieldnames
+        print " or ", range(mymsmd.nfields())
+        raise Exception("ERROR: invalid field: "+field)
+    myspws = mymsmd.spwsforfield(theobject)
+    mymsmd.close()
+
+    # target type
+    if targettype in targettypes:
+        thetargettype = targettype
+    else:
+        print "ERROR: invalid targettype ", targettype
+        print "  Valid entries are ", targettypes
+        raise  Exception("ERROR: invalid targettype ", targettype)
+
+    # spw
+    if type(spw) != type([]):
+        spw = [spw]
+    for myspw in spw:
+        if myspw in myspws:
+            if thespwid=='':
+                thespwid = str(myspw)
+            else:
+                thespwid = thespwid+'_'+str(myspw)                
+        else:
+            if not type(myspw) == int:
+                print "ERROR: invalid spw: "+str(myspw)+". Valid entries are ", myspws
+                raise Exception("ERROR: invalid spw: "+str(myspw)+' Data type must be int.')
+            else:
+                print "ERROR: invalid spw: "+str(myspw)+". Valid entries are ", myspws
+                raise Exception("ERROR: invalid spw: "+str(myspw))
+
+    # imtype
+    if imtype in imtypes:
+        theimtype = imtype
+    else:
+        print "ERROR: invalid imtype ", imtype
+        print "  Valid entries are ", imtypes
+        raise Exception( "ERROR: invalid imtype "+str(imtype))
+
+    # stokes
+    if stokes in stokess:
+        thestokes = stokes
+    else:
+        print "ERROR: invalid stokes ", stokes
+        print "  Valid entries are ", stokess
+        raise Exception("ERROR: invalid stokes "+str(stokes))
+
+    # modifying text
+
+    if modtext != '':
+        themodtext = '.'+modtext
+        if ' ' in themodtext:
+            raise Exception("ERROR: modtext must not contain spaces")
+
+    rval = themous+theobject+'_'+thetargettype+'.spw'+thespwid+'.'+theimtype+'.'+thestokes+themodtext
+
+    if ' ' in rval:
+        raise Exception("ERROR: generated name contains spaces: \""+rval+"\"")
+    if '/' in rval:
+        raise Exception("ERROR: generated name contains slash: \""+rval+"\"")
+    if '*' in rval:
+        raise Exception("ERROR: generated name contains star: \""+rval+"\"")
+    if '?' in rval:
+        raise Exception("ERROR: generated name contains question mark: \""+rval+"\"") 
+
+    return rval
 

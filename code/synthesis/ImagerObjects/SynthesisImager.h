@@ -181,6 +181,7 @@ class SynthesisImager
   virtual bool makePB();
   
   virtual void predictModel();
+  virtual void makeSdImage(casacore::Bool dopsf=false);
   //  void makeImage();
   /* Access method to the Loop Controller held in this class */
   //SIIterBot& getLoopControls();
@@ -236,7 +237,9 @@ protected:
                           const casacore::Bool useAutoCorr,
                           const casacore::Bool useDoublePrec,
                           const casacore::Float rotatePAStep,
-                          const casacore::String Stokes="I");
+                          const casacore::String Stokes="I",
+						  const casacore::Bool doConjConvFunc=false
+ 						);
 
   // Choose between different types of ImageStore types (single term, multiterm, faceted)
   casacore::CountedPtr<SIImageStore> createIMStore(casacore::String imageName, 

@@ -213,7 +213,10 @@ public:
 
   // Generate casacore::Coordinate System 
   casacore::CoordinateSystem buildCoordinateSystem(ROVisibilityIterator* rvi);
-  casacore::CoordinateSystem buildCoordinateSystem(vi::VisibilityIterator2& vi2);
+
+  casacore::CoordinateSystem buildCoordinateSystem(vi::VisibilityIterator2& vi2, const std::map<casacore::Int, std::map<casacore::Int, casacore::Vector<casacore::Int> > >& chansel,  casacore::Block<const casacore::MeasurementSet *> mss);
+
+ 
   casacore::CoordinateSystem buildCoordinateSystemCore(casacore::MeasurementSet& msobj, 
 					     casacore::Vector<casacore::Int> spwids, casacore::Int fld, 
 					     casacore::Double freqmin, casacore::Double freqmax, 
@@ -313,6 +316,16 @@ public:
   casacore::String cfCache;
   casacore::Float computePAStep, rotatePAStep;
 
+  // For single-dish imaging
+  casacore::String pointingDirCol;
+  casacore::Float skyPosThreshold;
+  casacore::Int convSupport;
+  casacore::Quantity truncateSize;
+  casacore::Quantity gwidth;
+  casacore::Quantity jwidth;
+  casacore::Float minWeight;
+  casacore::Bool clipMinMax;
+
   // Mapper Type.
   casacore::String mType;
 
@@ -349,9 +362,11 @@ public:
   casacore::Float sidelobeThreshold;
   casacore::Float noiseThreshold;
   casacore::Float lowNoiseThreshold;
+  casacore::Float negativeThreshold;
   casacore::Float smoothFactor;
   casacore::Float minBeamFrac;
   casacore::Float cutThreshold;
+  casacore::Int growIterations;
   int nMask;
   bool autoAdjust;
 

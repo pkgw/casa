@@ -41,19 +41,19 @@
 
 
 	
-#include <ArrayTime.h>
-	
-
-	
 #include <Angle.h>
 	
 
 	
-#include <Tag.h>
+#include <ArrayTime.h>
 	
 
 	
 #include <Length.h>
+	
+
+	
+#include <Tag.h>
 	
 
 	
@@ -147,7 +147,7 @@ class ExecBlockRow;
  * Characteristics of the Execution block.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of ExecBlock </CAPTION>
@@ -225,7 +225,7 @@ class ExecBlockRow;
  * </TR>
 	
  * <TR>
- * <TD> numObservingLog </TD> 
+ * <TD> numObservingLog (\f$N_{Obse}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of elements in the (array) attribute observingLog. </TD>
@@ -288,7 +288,7 @@ class ExecBlockRow;
  * </TR>
 	
  * <TR>
- * <TD> numAntenna </TD> 
+ * <TD> numAntenna (\f$N_{Ante}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of antennas. </TD>
@@ -313,56 +313,56 @@ class ExecBlockRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> releaseDate </TD> 
+ * <TD> releaseDate</TD> 
  * <TD> ArrayTime </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the date when the data go to the public domain. </TD>
  * </TR>
 	
  * <TR>
- * <TD> schedulerMode </TD> 
+ * <TD> schedulerMode</TD> 
  * <TD> string </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the mode of scheduling. </TD>
  * </TR>
 	
  * <TR>
- * <TD> siteAltitude </TD> 
+ * <TD> siteAltitude</TD> 
  * <TD> Length </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the altitude of the site. </TD>
  * </TR>
 	
  * <TR>
- * <TD> siteLongitude </TD> 
+ * <TD> siteLongitude</TD> 
  * <TD> Angle </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the longitude of the site. </TD>
  * </TR>
 	
  * <TR>
- * <TD> siteLatitude </TD> 
+ * <TD> siteLatitude</TD> 
  * <TD> Angle </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the latitude of the site. </TD>
  * </TR>
 	
  * <TR>
- * <TD> observingScript </TD> 
+ * <TD> observingScript</TD> 
  * <TD> string </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; The text of the observation script. </TD>
  * </TR>
 	
  * <TR>
- * <TD> observingScriptUID </TD> 
+ * <TD> observingScriptUID</TD> 
  * <TD> EntityRef </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; A reference to the Entity which contains the observing script. </TD>
  * </TR>
 	
  * <TR>
- * <TD> scaleId </TD> 
+ * <TD> scaleId</TD> 
  * <TD> Tag </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; refers to a unique row in the table Scale. </TD>
@@ -694,6 +694,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

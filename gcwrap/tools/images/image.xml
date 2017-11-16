@@ -1096,7 +1096,7 @@ myim.done()
     <shortdescription>Collapse an image along a specified axis, computing a specified aggregate function of pixels along that axis.</shortdescription>
     <input>
         <param type="string"  name="function">
-            <description>Aggregate function to apply. This can be set one of flux, max, mean, median, min, rms, stdev, sum, variance. Must be specified.</description>
+            <description>Aggregate function to apply. This can be set one of flux, madm, max, mean, median, min, npts, rms, stddev, sum, variance, xmadm. Must be specified.</description>
             <value/>
         </param>
         <param type="any"  name="axes">
@@ -1143,12 +1143,15 @@ myim.done()
 
 This method collapses an image along a specified axis or set of axes of length N pixels to a single pixel on each
 specified axis. Both float valued and complex valued images are supported. It computes a user-specified aggregate
-function for pixel values along the specified axes,
-and places those values in the single remaining plane of those axes in the output image. The method returns
-an image analysis tool containing the newly-created collapsed image. Valid choices of aggregate functions are:
-'flux' (see below for constraitns), 'max', 'mean', 'median', 'min', 'rms', 'stdev', 'sum' and 'variance'. Minimal unique matching is supported
-for the function parameter (e.g. function = 'r' will compute the rms of the pixel values, 'med' will compute
-the median, etc.).
+function for pixel values along the specified axes, and places those values in the single remaining plane of
+those axes in the output image. The method returns an image analysis tool containing the newly-created collapsed
+image. Valid choices of aggregate functions are: 'flux' (see below for constraitns), 'madm' (median absolute
+deviation from the median), 'max', 'mean', 'median', 'min', 'npts', 'rms', 'stddev', 'sum', 'variance' and 'xmadm'
+(median absolute deviation from the median multipied by x, where x is the reciprocal of Phi^-1(3/4), where Phi^-1
+is the reciprocal of the quantile function. Numerically, x = 1.482602218505602. See, eg,
+https://en.wikipedia.org/wiki/Median_absolute_deviation#Relation_to_standard_deviation). Minimal unique matching is
+supported for the function parameter (e.g. function = 'r' will compute the rms of the pixel values, 'med' will
+compute the median, etc.).
 
 If one specifies function='flux', the following constraints must be true:
 
@@ -1292,6 +1295,36 @@ collapsed.done()
 			# do stuff with decimated and then close it
 			decimated.close()
 		</example>
+    </method>
+
+    <method type="function" name="dohistory">
+        <shortdescription>Enable/disable tool methods from writing to history.</shortdescription>
+        <input>
+            <param type="bool"  name="enable">
+                <description>Enable history writing of tool methods? True means yes, False means no.</description>
+                <value>True</value>
+            </param>
+        </input>
+        <returns type="bool"/>
+        <description>
+            This allows control over if tool methods record history of what parameters they were called
+            with to the input and/or output image. By default, tool methods will write to the image
+            history. By explicitly disabling history writing, tool methods will not write to the history.
+            When created, an ia tool will have history writing enabled. Note that the setting is specific
+            to the individual tool, and that methods such as open(), close(), done(), fromshape(), etc do
+            not implicitly change the internal state of whether or not history writing by methods is
+            enabled. One can explicitly enable/disable history writing even if the tool is not yet attached
+            to an image. In the case where a method returns a new ia tool, the method will not write history
+            to the output image, but the returned tool will have history writing enabled, so that running
+            methods on the returned tool will cause history to be written to the image attached to that
+            tool, or any new image created by running methods on that tool, unless dohistory(False) is
+            explicitly run on that tool prior to running other methods.
+            
+            IMPORTANT NOTE: This setting will not affect the behavior of ia.sethistory(); this tool
+            method will always write to the history, no matter if ia.dohistory(False) was run prior.
+        </description>
+        <example>
+        </example>
     </method>
 
     <method type="function" name="imageconcat">
@@ -1748,6 +1781,109 @@ ia.done()
 </example>
 </method>
 
+
+<method type="function" name="fromcomplist">
+    <shortdescription>Create a new ComponentListImage from a component list</shortdescription>
+    <input>
+        <param type="string"  name="outfile">
+            <description>Name of output image file. Default is unset.</description>
+            <value></value>
+        </param>
+        <param type="intArray"  name="shape">
+            <description>Shape of image.  Must be specified and have either two, three, or four elements.</description>
+            <value/>
+        </param>
+        <param type="any" name="cl">
+            <any type="variant" limittypes="string record"/>
+            <description>Component list as a dictionary or name of component list table. Must be specified</description>
+            <value/>
+        </param>
+        <param type="record"  name="csys">
+            <description>Coordinate System. Default uses a four dimensional "standard" RA/Dec/Stokes/Freq coordinate system.</description>
+            <value/>
+        </param>
+        <param type="bool"  name="overwrite">
+            <description>Overwrite (unprompted) pre-existing output file?</description>
+            <value>false</value>
+        </param>
+        <param type="bool"  name="log">
+            <description>Write image creation messages to logger</description>
+            <value>true</value>
+        </param>
+        <param type="bool"  name="cache">
+            <description>Cache pixel values for use while image is in use?</description>
+            <value>true</value>
+        </param>
+    </input>
+    <returns type="bool"/>
+    <description>
+        This method allows one to create an image based on a component list. A component list
+        is a list of simple models (point sources, Gaussians, disks, etc) that describe the
+        sky brightness (cf the component list (cl) tool). Images that can be described in this
+        way normally require significantly less space to store than traditional images in which
+        all the pixel values are stored. For a component list image, pixel values are computed
+        "on the fly". Pixel values can be cached by specifying cache=True (the default value)
+        while the image is attached to an image tool, which permits faster access to them after
+        they are computed the first time. The trade off to caching is that resources such as
+        memory and disk space must be used to cache the pixel values.
+        
+        The image is constrained to have two, three, or four dimensions. One must specify an
+        image shape (the dimensionality of which must adhere to this constraint). One may also
+        supply a coordinate system specification using the csys parameter. If a coordinate system
+        is not specified, a default coordinate system is used. If specified, the coordinate system
+        must have a direction coordinate which has two pixel axes. It can also have a spectral
+        and/or polarization coordinate. The maximum length of the polarization coordinate is four
+        pixels, and the world coordinate values of the polarization coordinate are constrained to
+        be in the set of stokes parameters I, Q, U, and V.
+        
+        As is common with image creation methods, specifying an empty string for the outfile parameter
+        results in a tempoary image being created that will be deleted when either the done() or
+        close() method is run on the tool. By specifying a non-empty string, the image is saved to
+        disk and can be opened with the open() method later. A persistent component list image is
+        composed of a component list table that has metadata describing the image-related information,
+        such as the coordinate system and the shape, as well as a history (log) table.
+        
+        Because pixel values are computed from the component models, altering pixel values is not
+        supported. So methods such as putchunk(), putregion(), and addnoise() will fail on component
+        list images when trying to modify pixel values. However, persistent image masks and on the fly
+        masks are fully supported.
+        
+        The brightness unit of a component list image is constrained to be "Jy/pixel". Attempts to
+        modify this value using setbrightnessunit() will fail.
+        
+        Component list images do not support synthesized beams; attempting to run setrestoringbeam() on
+        a component list image to add a beam(s) will fail.
+        
+        One can easily create an image in which the pixel values are persistently stored from a
+        component list image by running methods such as fromimage(), subimage(), tofits(), etc. In
+        general, any method run on a component list image that creates a new image will create a
+        non-component list image (eg, a traditional CASA Paged image or Temporary image) in which the
+        pixel values are explicitly stored.
+        
+    </description>
+    <example>
+        # use an existing component list and the coordinate system from an existing image
+        # to create a component list image. To prevent the size of the files associated with
+        # the component list from increasing, open the list read only
+        cl.open("mymodel.cl", nomodify=True)
+        clrec = cl.torecord()
+        cl.done()
+        # say this image has axes RA x Dec x Stokes x Freq
+        ia.open("myimage.im")
+        csys = ia.coordsys().torecord()
+        ia.done()
+        ia.fromcomplist(outfile="mycomplist.im", shape=[512, 512, 4, 20], cl=clrec,
+            csys=csys, cache=True)
+        # get statistics
+        stats = ia.statistics()
+        # do other operations, like convolving the image
+        im2 = ia.convolve2d(outfile="convolved.im", axes=[0,1], type="gauss", "
+            major='20arcsec', minor='10arces', pa='45deg')
+        # be sure to close the image tools when done with them
+        ia.done()
+        im2.done()
+    </example>
+</method>
  
    <method type="function" name="fromfits">
    <shortdescription>Construct a \casa\ image by conversion from a FITS image file</shortdescription>
@@ -1923,7 +2059,6 @@ of the image, and all pixels of other axes.
  
 <method type="function" name="fromshape">
    <shortdescription>Construct an empty \casa\ image from a shape</shortdescription>
-   
 <input>
   
      <param type="string"  name="outfile">
@@ -1967,6 +2102,8 @@ of the image, and all pixels of other axes.
 This function creates a \casa\ \imagefile\ with the specified shape.  All
 the pixel values in the image are set to 0. One may create either an image
 with float valued pixels (type='f') or a complex valued image (type='c').
+To use a numpy array of values to create an image, use ia.fromarray().
+To make a 2-D image from a packaged FITS file, use ia.maketestimage().
 
 If {\stfaf outfile} is given, the image is written to the specified disk
 file.  If {\stfaf outfile} is unset, the Image \tool\ is associated with
@@ -1994,23 +2131,37 @@ The method returns True if successful, False otherwise.
 <example>
 
 """
-#
-print "\t----\t fromshape Ex 1 \t----"
-ia.fromshape('test2.data', [64,64,128], overwrite=true)
-mycs = ia.coordsys(axes=[0,2])
+# Create a 64 x 64 x 128 RA-Dec-Frequency image
+ia.fromshape('test2.data', [64,64,128], overwrite=True)
+mycs = ia.coordsys(axes=[0,1])
 ia.close()
+# create temporary image using first and third axes of
+# previously created image
 ia.fromshape(shape=[10, 20], csys=mycs.torecord())
 mycs.done()
 ia.close()
-#
 """
 
-
 The first example creates a zero-filled \imagefile\ named {\sff
-test.data} of shape [64,64,128].  If you examine the header with {\stff
+test2.data} of shape [64,64,128].  If you examine the header with {\stff
 ia.summary()} you will see the RA/DEC/Spectral coordinate information. 
-In the second example, a Coordinate System describing the first and third axes
+In the second example, a Coordinate System describing the first and second axes
 of the image {\sff test.data} is created and used to create a 2D temporary image.
+
+# create a 4-D image populated with noise with some interesting metadata
+ia.fromshape("noisy.im", [100, 100, 4, 20])
+# add the noise
+ia.addnoise()
+# add a beam
+ia.setrestoringbeam(major="4arcmin", minor="3arcmin", pa="20deg")
+# add brightness unit
+ia.setbrightnessunit("Jy/beam")
+ia.done()
+# set an interesting object name
+imd.open("noisy.im")
+imd.set("object","thor")
+imd.done()
+
 </example>
 </method>
 
@@ -4979,20 +5130,22 @@ but can be performed over several contiguous spectral channels.
 If the image has a clean beam, the report and returned dictionary will contain both the convolved
 and the deconvolved fit results.
 
-When dooff is False, the method returns a dictionary with three keys, 'converged', 'results',
-and 'deconvolved'. The value of 'converged' is a boolean array which indicates if the fit
-converged on a channel by channel basis. The value of 'results' is a dictionary representing
-a component list reflecting the fit results. In the case of an image containing beam information,
-the sizes and position angles in the 'results' dictionary are those of the source(s) convolved
-with the restoring beam, while the same parameters in the 'deconvolved' dictionary represent the
-source sizes deconvolved from the beam. In the case where the image does not contain a beam,
-'deconvolved' will be absent. Both the 'results' and 'deconvolved' dictionaries can
-be read into a component list tool (default tool is named cl) using the fromrecord() method
-for easier inspection using tool methods, eg
+When dooff is False, the method returns a dictionary with keys named 'converged', 'pixelsperarcsec',
+'results', and 'deconvolved'. The value of 'converged' is a boolean array which indicates if the
+fit converged on a channel by channel basis. The value of 'pixelsperarcsec' is a two element double
+array with the absolute values of the direction coordinate pixel increments (longitude-like and
+latitude-like coordinate, respectively) in arcsec. The value of 'results' is a dictionary
+representing a component list reflecting the fit results. In the case of an image containing beam
+information, the sizes and position angles in the 'results' dictionary are those of the source(s)
+convolved with the restoring beam, while the same parameters in the 'deconvolved' dictionary
+represent the source sizes deconvolved from the beam. In the case where the image does not
+contain a beam, 'deconvolved' will be absent. Both the 'results' and 'deconvolved' dictionaries can
+be read into a component list tool (default tool is named cl) using the fromrecord() method for
+easier inspection using tool methods, eg
 
 cl.fromrecord(res['results'])
 
-although this currently only works if the flux density units are conformant with Jy.
+although this only works if the flux density units are conformant with Jy.
 
 There are also values in each component subdictionary not used by cl.fromrecord() but meant to
 supply additional information. There is a 'peak' subdictionary for each component that provides the
@@ -5006,7 +5159,9 @@ have three keys: 'beamarcsec' will be a subdictionary giving the beam dimensions
 'beampixels' will have the value of the beam area expressed in pixels, and 'beamster' will have the
 value of the beam area epressed in steradians. Also, if the image has a beam(s), in the component level
 dictionaries will be an 'ispoint' entry with an associated boolean value describing if the component
-is consistent with a point source.
+is consistent with a point source. Each component level dictionary will have a 'pixelcoords' entry
+which has the value of a two element numeric array which provides the direction pixel coordinates
+of the fitted position.
 
 If dooff is True, in addtion to the specified number of
 gaussians, a zero-level offset will also be fit. The initial estimate for this
@@ -5562,9 +5717,12 @@ This application returns information on a one-dimensional profile taken along a 
 The region of interest is collapsed (a'la ia.collapse() along all axes orthogonal to the one specified, and)
 the specified aggregate function is applied to these pixels to generate the returned values. 
 
-The aggregate function must be one of the functions supported by ia.collapse; ie, 'flux', 'max',  'mean',
-'median', 'min', 'rms', 'stdev', 'sum', and 'variance'. See the help for ia.collapse() for details regarding
-these functions. Minimum match and case insenstivity is supported.
+The aggregate function must be one of the functions supported by ia.collapse; ie, 'flux', 'madm', 'max', 'mean',
+'median', 'min', 'rms', 'stdev', 'sum', 'variance', and 'xmadm'. See the help for ia.collapse() for details regarding
+these functions. Minimum match and case insenstivity is supported. In addition, single binary (addition,
+subtraction, multiplication, and division) operations of these functions are supported, eg function='max*min'
+will return data that is the product of the maximum and the mininum for each plane along the specified
+axis.
 
 One may specify the unit of the returned coordinate values.  Unless axis is the spectral axis, unit must be
 conformant with the corresponding axis unit in the image coordinate system or it must be 'pixel' which signifies,
@@ -5596,10 +5754,6 @@ coords   One-dimensional array of corresponding coordinate values along the spec
          (or the unit associated with the axis in the image coordinate system if unspecified).
 xUnit    The unit used for calculating the values the coords array.
 
-
-<example>
-</example>
-
 </description>
 
 <example>
@@ -5610,16 +5764,17 @@ res = ia.getprofile(axis=2, function='max')
 # axis 2 is the spectral axis. Get the minimum pixel values along this axis
 # and specify that the returned coordinate values should be optical velocities
 # in km/s
-
 res2 = ia.getprofile(axis=2, function='min', unit='km/s', spectype='optical')
+
+# get the result of the maximum and the median of the absolute deviation from the median
+# along this axis
+res3 = ia.getprofile(axis=2, function='max/madm')
 
 ia.done()
 
 </example>
 
 </method>
-
-
  
    <method type="function" name="getslice">
    <shortdescription>Get 1-D slice from the image</shortdescription>
@@ -6279,10 +6434,6 @@ This function combines the current image with another image to make
 a complex image.  The current image (i.e. that associated with this
 Image \tool\ is assumed to be the Real image).  You supply
 the Imaginary image; it must be disk-based at this time.
-
-The output image cannot be associated with an Image \tool\ (does
-not handle Complex images yet) and so the best you can do is
-write it to disk.  The Viewer can view it.
 
 </description>
 
@@ -7134,19 +7285,23 @@ ia.close()
      <param type="string"  name="infile" mustexist="True">
      <description>image file name</description>
      </param>
+     <param type="bool"  name="cache">
+        <description>Cache pixel values for use while image is in use? Ignored if image being opened is not a ComponentListImage.</description>
+        <value>true</value>
+     </param>
+     
 </input>
 <returns type="bool">T or fail</returns>
 <description>
 
-Use this function when you are finished analyzing the current
-\imagefile\ and want to attach to another one.  This function detaches the
-\imagetool\ from the current \imagefile, and reattaches it (opens) to
-the new \imagefile. 
+This method detaches from the current image (if an image is attached to the tool), and
+reattaches it (opens) to the new image.
 
-The input image file may be in native \casa, \fits, or Miriad  
-format.  Look \htmlref{here}{IMAGES:FOREIGNIMAGES}  for more
-information on foreign images. In the case of \casa images, both
-Float and Complex valued images are supported.
+The input image file may be in native CASA, FITS, or Miriad format. In the case of CASA images,
+both Float and Complex valued images aresupported.
+
+The cache parameter applies only to component list images and indicates if pixel values should
+be cached after they are computed for faster retrieval.
 
 </description>
 
@@ -9390,25 +9545,7 @@ This function computes statistics
 from the pixel values in the image.  You can then list them
 and retrieve them (into a record) for further analysis. 
 
-The chunk of the image over which you evaluate the statistics is
-specified by an array of axis numbers (argument {\stfaf axes}).  For example,
-consider a 3-dimensional image for which you specify {\stfaf axes=[0,2]}. 
-The statistics would be computed for each XZ (axes 0 and 2) plane in the
-image.  You could then examine those statistics as a function of the Y
-(axis 1) axis.  Or perhaps you set {\stfaf axes=[2]}, whereupon you could
-examine the statistics for each Z (axis 2) profile as a function of X
-and Y location in the image.
-
-Each statistic is stored in 
-an array in one named field in the returned record.  The shape of that array is
-that of the axes which you did {\bf not} evaluate the statistics over.
-For example, in the second example above, we set {\stfaf axes=[2]} and
-asked for statistics as a function of the remaining axes, in this
-case, the X and Y (axes 0 and 1) axes.  The shape of each statistics
-array is then [nx,ny].
-
-The names of the fields in this record are the same as the names of the
-statistics that you can plot: 
+The names of the fields in the returned record are summarized below:
 
 \begin{itemize}
 
@@ -9504,6 +9641,43 @@ However, you can force regeneration of the storage image if you set
 {\stfaf force=T}.  The storage medium is either in memory or on disk,
 depending upon its size.  You can force it to disk if you set {\stfaf
 disk=T}, otherwise it decides for itself.    
+
+CURSOR AXES
+The axes parameter allows one to set the cursor axes over which statistics 
+are computed. For example, consider a 3-dimensional image for which axes=[0,2]. 
+The statistics would be computed for each XZ (axes 0 and 2) plane in the
+image.  One could then examine those statistics as a function of the Y
+(axis 1) axis. 
+
+Each statistic is stored in an array in its own field in the returned dictionary.
+The dimensionality of these arrays is equal to the number of axes over which the
+statistics were not evaluated (called the display axes). For example, if the input
+image has four axes, and axes=[0], the output statistic arrays will have three dimensions.
+If axes=[0, 1], the output statistic arrays will have two dimensions.
+
+The shape of the output arrays when axes has a positive number of elements is based on
+the region selection. If there is no region selection, the shape of the statistic arrays
+is just the shape of the image along the display (non-cursor) axes. For example, if the
+input image has dimensions of 300x400x4x80 and axes=[0, 1], in the absence of a region
+selection, the shape of the output statistic arrays will be 4x80. If there is a region
+selection, the shape of the output statistic arrays will be determined by the number of
+planes along the display axes chosen in the region selection. For example, continuing with
+our example, if axes=[0,1] and region=rg.box([0, 0, 1, 20], [299,399, 2, 60]), the output
+statistic arrays will have shapes of 2x41. Only the selected planes will be displayed in the
+logger output if verbose=True.
+
+In the case where the image has a pixel mask, and/or the mask parameter is specified, and because
+of this specification a plane is entirely masked, this element is included in the statistic arrays
+(usually with a value of 0). It is not included in the logger output if verbose=True. One can
+exclude such elements from computations on the output arrays by using the numpy.extract() method.
+For example, to compute the minimum rms value, not including any fully masked planes, one could
+use
+
+stats = ia.statistics(...)
+rmsmin = numpy.min(numpy.extract(stats['npts']>0, stats['rms']))
+
+Thus in the computation of rmsmin, only the rms elements are considered which have
+associated values of npts that are not zero.
 
 ALGORITHMS
 
@@ -9616,6 +9790,16 @@ frequency unit is Hz, the resulting flux unit will be K.arcsec2.Hz).
 
 In both cases of flux density or flux being computed, the resulting numerical value is
 assigned to the "flux" key in the output dictionary.
+
+If the image has units of Jy/beam, the flux density is just the mean intensity multiplied
+by the number of beam areas included in the region. The beam area is defined as the volume
+of the elliptical Gaussian defined by the synthesized beam, divided by the maximum of
+that function, which is equivalent to
+
+pi/(4*ln(2)) * major * minor
+
+where ln() is the natural logarithm and major and minor are the major and minor FWHM axes
+of the beam, respectively.
 
 </description>
 

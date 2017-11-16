@@ -1245,11 +1245,13 @@ void FlagCmdRow::commandFromBin(EndianIStream& eis) {
 	 * Return true if all required attributes of the value part are equal to their homologues
 	 * in x and false otherwise.
 	 *
+
 	 * @param x a pointer on the FlagCmdRow whose required attributes of the value part 
+
 	 * will be compared with those of this.
 	 * @return a boolean.
 	 */
-	bool FlagCmdRow::equalByRequiredValue(FlagCmdRow* x) {
+	bool FlagCmdRow::equalByRequiredValue(FlagCmdRow*  x ) {
 		
 			
 		if (this->type != x->type) return false;

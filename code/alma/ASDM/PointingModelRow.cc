@@ -1870,11 +1870,13 @@ receiverBand = CReceiverBand::from_int(0);
 	 * Return true if all required attributes of the value part are equal to their homologues
 	 * in x and false otherwise.
 	 *
+
 	 * @param x a pointer on the PointingModelRow whose required attributes of the value part 
+
 	 * will be compared with those of this.
 	 * @return a boolean.
 	 */
-	bool PointingModelRow::equalByRequiredValue(PointingModelRow* x) {
+	bool PointingModelRow::equalByRequiredValue(PointingModelRow*  x ) {
 		
 			
 		if (this->numCoeff != x->numCoeff) return false;

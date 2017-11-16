@@ -33,6 +33,8 @@
 #include <plotms/PlotMS/PlotMSTransformations.h>
 #include <plotms/PlotMS/PlotMSCalibration.h>
 
+#include <plotms/Data/PageHeaderCache.h>
+
 #include <casa/aips.h>
 #include <casa/Arrays.h>
 #include <casa/Containers/Block.h>
@@ -159,8 +161,6 @@ public:
 		    const PlotMSAveraging& averaging,
 		    const PlotMSTransformations& transformations,
 		    const PlotMSCalibration& calibration,
-            const PMS::Axis iteraxis,
-            const PMS::Axis coloraxis,
 		    /*PlotMSCacheThread**/ThreadCommunication* thread = NULL);
   
   // Clears the cache of all stored values.  This should be called when the
@@ -504,6 +504,9 @@ protected:
   casacore::String calType_;
   // polarization selection is ratio ("/")
   bool polnRatio_;
+
+  // Page header items
+  PageHeaderCache pageHeaderCache_;
 
 private:
   void _updateAntennaMask( casacore::Int a, casacore::Vector<casacore::Bool>& antMask, const casacore::Vector<casacore::Int> selectedAntennas );

@@ -52,11 +52,11 @@
 	
 
 	 
-#include <Tag.h>
+#include <Frequency.h>
 	
 
 	 
-#include <Frequency.h>
+#include <Tag.h>
 	
 
 
@@ -112,7 +112,7 @@
 //#include <TableStreamReader.h>
 
 /*\file CalCurve.h
-    \brief Generated from model's revision "1.64", branch "HEAD"
+    \brief Generated from model's revision "-1", branch ""
 */
 
 namespace asdm {
@@ -134,7 +134,7 @@ typedef void (CalCurveRow::*CalCurveAttributeFromText) (const string& s);
 /**
  * The CalCurveRow class is a row of a CalCurveTable.
  * 
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  */
 class CalCurveRow {
