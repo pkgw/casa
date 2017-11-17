@@ -1597,9 +1597,9 @@ Bool SDGrid::getXYPos(const vi::VisBuffer2& vb, Int row) {
 
   if (!nullPointingTable) {
     if (dointerp) {
-      worldPosMeas = (*pointingToImage)(directionMeas(act_mspc, pointIndex, vb.time()(row)));
       MDirection newdir = directionMeas(act_mspc, pointIndex, vb.time()(row));
-      Vector<Double> newdirv = newdir.getAngle("rad").getValue();
+      //Vector<Double> newdirv = newdir.getAngle("rad").getValue();
+      worldPosMeas = (*pointingToImage)(newdir);
       //cerr<<"dir0="<<newdirv(0)<<endl;
    
     //fprintf(pfile,"%.8f %.8f \n", newdirv(0), newdirv(1));
