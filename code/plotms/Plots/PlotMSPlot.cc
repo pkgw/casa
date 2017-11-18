@@ -338,9 +338,9 @@ vector<PMS::Axis> PlotMSPlot::getCachedAxes() {
 }
 
 PMS::Axis PlotMSPlot::getDefaultXAxis() {
-	String caltype = itsCache_->calType();
 	PMS::Axis xaxis = PMS::TIME;
 	if (itsCache_->cacheType() == PlotMSCacheBase::CAL) {
+		String caltype = itsCache_->calType();
 		if (caltype.contains("BPOLY"))
 			xaxis = PMS::FREQUENCY;
 		else if (caltype.contains("TSYS") || caltype[0]=='B' ||
@@ -574,9 +574,14 @@ bool PlotMSPlot::updateDisplay() {
 				// Set item axes
 				plot->setAxes(axes->xAxis(row), axes->yAxis(row));
 
-				// Set plot title
+				// Set plot title for legend; convert axes for cal table
 				PMS::Axis x = cache->xAxis(row);
 				PMS::Axis y = cache->yAxis(row);
+				if (itsCache_->cacheType()==PlotMSCacheBase::CAL) {
+					String caltype = itsCache_->calType();
+					x = getCalAxis(caltype, x);
+					y = getCalAxis(caltype, y);
+				}
 				vector<PMS::Axis> yAxes(1, y);
 				vector<bool> yRefs(1, itsCache_->hasReferenceValue(y));
 				vector<double> yRefValues(1, itsCache_->referenceValue(y));
@@ -1677,15 +1682,17 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
 		canvas->showAxis(cy, showY);
 	}
 
-	// Set axis scale types(TIME/NORMAL); get default axis if needed first.
-	// x
+	// Get default or cal axis if needed, set axis scale type (TIME/NORMAL)
+	// for x
 	PMS::Axis x = cacheParams->xAxis();
 	if (x==PMS::NONE) {
 		x = getDefaultXAxis();
 		cacheParams->setXAxis(x);
 	}
 	canvas->setAxisScale(cx, PMS::axisScale(x));
-	// y
+	if (itsCache_->cacheType() == PlotMSCacheBase::CAL)
+		x= getCalAxis(itsCache_->calType(), x);
+	// for y
 	for ( int i = 0; i < yAxisCount; i++ ){
 		PMS::Axis y = cacheParams->yAxis( i );
 		if (y==PMS::NONE) {
@@ -1694,6 +1701,8 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
 		}
 		PlotAxis cy = axesParams->yAxis( i );
 		canvas->setAxisScale(cy, PMS::axisScale(y));
+		if (itsCache_->cacheType() == PlotMSCacheBase::CAL)
+			y= getCalAxis(itsCache_->calType(), y);
 	}
 
 	// Set reference values (time axis)
@@ -2037,7 +2046,7 @@ PMS::Axis PlotMSPlot::getCalAxis(String calType, PMS::Axis axis) {
     if (axis==PMS::PHASE) return PMS::GPHASE;
     if (axis==PMS::REAL) return PMS::GREAL;
     if (axis==PMS::IMAG) return PMS::GIMAG;
-    return PMS::GAMP;
+    return axis;
 }
 
 }
