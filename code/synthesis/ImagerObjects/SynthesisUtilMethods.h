@@ -136,6 +136,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     static casacore::Int parseLine(char* line);
     static void getResource(casacore::String label="",casacore::String fname="");
     
+    // return comprehensible direction string from given MDirection object
+    static casacore::String asComprehensibleDirectionString(casacore::MDirection const &direction);
+
   protected:
     static casacore::String mergeSpwSel(const casacore::Vector<casacore::Int>& fspw, const casacore::Vector<casacore::Int>& fstart, const casacore::Vector<casacore::Int>& fnchan, const casacore::Matrix<casacore::Int>& spwsel);
 

@@ -25,7 +25,7 @@
 //#
 //# $Id$
 
-#include <synthesis/MeasurementComponents/SDPosInterpolator.h>
+#include <synthesis/Utilities/SDPosInterpolator.h>
 
 using namespace casacore;
 namespace casa {

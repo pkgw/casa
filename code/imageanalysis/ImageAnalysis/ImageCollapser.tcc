@@ -1,4 +1,3 @@
-//# tSubImage.cc: Test program for class SubImage
 //# Copyright (C) 1998,1999,2000,2001,2003
 //# Associated Universities, Inc. Washington DC, USA.
 //#
@@ -23,7 +22,6 @@
 //#                        520 Edgemont Road
 //#                        Charlottesville, VA 22903-2475 USA
 //#
-//# $Id: $
 
 #include <imageanalysis/ImageAnalysis/ImageCollapser.h>
 
@@ -552,7 +550,7 @@ template<class T> void ImageCollapser<T>::_doHighPerf(
                 else if (doMADM) {
                     auto x = stats.getMedianAbsDevMed();
                     if (_aggType == ImageCollapserData::XMADM) {
-                        x *= PHI;
+                        x *= PROBIT_3_4;
                     }
                     outImage.putAt(x, stepper.position());
                 }
@@ -566,7 +564,7 @@ template<class T> void ImageCollapser<T>::_doHighPerf(
             else if (doMADM) {
                 auto x = stats.getMedianAbsDevMed();
                 if (_aggType == ImageCollapserData::XMADM) {
-                    x *= PHI;
+                    x *= PROBIT_3_4;
                 }
                 outImage.putAt(x, stepper.position());
             }

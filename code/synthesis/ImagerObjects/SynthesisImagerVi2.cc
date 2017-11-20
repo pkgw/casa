@@ -100,25 +100,6 @@ using namespace std;
 
 using namespace casacore;
 
-namespace {
-String tangentPoint(MDirection const &phaseCenter)
-{
-  MVAngle mvRa=phaseCenter.getAngle().getValue()(0);
-  MVAngle mvDec=phaseCenter.getAngle().getValue()(1);
-  ostringstream oos;
-  oos << "     ";
-  Int widthRA=20;
-  Int widthDec=20;
-  oos.setf(ios::left, ios::adjustfield);
-  oos.width(widthRA);  oos << mvRa(0.0).string(MVAngle::TIME,8);
-  oos.width(widthDec); oos << mvDec.string(MVAngle::DIG2,8);
-  oos << "     "
-      << MDirection::showType(phaseCenter.getRefPtr()->getType());
-  return String(oos);
-}
-
-}
-
 namespace casa { //# NAMESPACE CASA - BEGIN
 
   SynthesisImagerVi2::SynthesisImagerVi2() : SynthesisImager(), vi_p(0), fselections_p(nullptr) {
@@ -1721,7 +1702,8 @@ void SynthesisImagerVi2::unlockMSs()
     // Now make the Single Dish Gridding
     os << LogIO::NORMAL // Loglevel INFO
        << "Gridding will use specified common tangent point:" << LogIO::POST;
-    os << LogIO::NORMAL << tangentPoint(phaseCenter_p) << LogIO::POST; // Loglevel INFO
+    os << LogIO::NORMAL << SynthesisUtilMethods::asComprehensibleDirectionString(phaseCenter_p)
+        << LogIO::POST; // Loglevel INFO
     String const gridfunclower = downcase(gridFunction);
     if(gridfunclower=="pb") {
       refim::SkyJones *vp = nullptr;
