@@ -415,6 +415,7 @@ void MSCache::setUpVisIter(PlotMSSelection& selection,
 	// Start with data selection; rename fields with expected keywords
 	Record configuration = selection.toRecord();
 	configuration.renameField("correlation", configuration.fieldNumber("corr"));
+	configuration.renameField("taql", configuration.fieldNumber("msselect"));
 
 	// Add needed fields
 	configuration.define("inputms", filename_);

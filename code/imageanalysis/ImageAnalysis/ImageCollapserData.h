@@ -4,14 +4,14 @@
 #include <casa/typeinfo.h>
 
 #include <map>
+#include <memory>
+#include <set>
 
 namespace casacore{
-
-class String;
+    class String;
 }
 
 namespace casa {
-
 
 class ImageCollapserData {
 	// <summary>
@@ -34,10 +34,12 @@ class ImageCollapserData {
 	// <example>
 	// </example>
 
+    //<todo>
+    // None of this is thread safe
+    //</todo>
 public:
 
 	enum AggregateType {
-		//AVDEV,
 		MAX,
 		MEAN,
 		MEDIAN,
@@ -64,23 +66,35 @@ public:
 		// the square root of the sum divided by the number of pixels per beam, sqrt(sum)/(beam_area/pixel_area)
 		// Yes that's how it was implemented in ImageAnalysis::getFreqProfile().
 		SQRTSUM_NPIX_BEAM,
+		// median absolute devation from mean
+		MADM,
+        // madm * 1/Phi^-1 
+        XMADM,
 		UNKNOWN
 	};
+
+	ImageCollapserData() = delete;
+
+	ImageCollapserData(const ImageCollapserData&) = delete;
+
+	ImageCollapserData operator=(const ImageCollapserData&) const = delete;
 
 	// destructor
 	~ImageCollapserData() {}
 
 	static AggregateType aggregateType(const casacore::String& aggString);
 
-	static const std::map<casacore::uInt, casacore::String>* funcNameMap();
-	static const std::map<casacore::uInt, casacore::String>* minMatchMap();
+	static std::shared_ptr<const std::set<AggregateType>> aggTypesSupportedDegenAxes();
+
+	static std::shared_ptr<const std::map<casacore::uInt, casacore::String>> funcNameMap();
+
+	static std::shared_ptr<const std::map<casacore::uInt, casacore::String>> minMatchMap();
 
 private:
 
-	static std::map<casacore::uInt, casacore::String> *_funcNameMap, *_minMatchMap;
+	static std::shared_ptr<std::map<casacore::uInt, casacore::String>> _funcNameMap, _minMatchMap;
 
-	// disallow default constructor
-	ImageCollapserData();
+	static std::shared_ptr<std::set<AggregateType>> _degenAxesSupported;
 
 };
 }

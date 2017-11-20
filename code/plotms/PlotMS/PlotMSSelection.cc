@@ -30,6 +30,7 @@
 #include <ms/MSSel/MSSelectionTools.h>
 #include <synthesis/CalTables/NewCalTable.h>
 #include <synthesis/CalTables/CTInterface.h>
+#include <synthesis/CalTables/CTSelection.h>
 #include <QDebug>
 
 using namespace casacore;
@@ -120,7 +121,7 @@ void PlotMSSelection::apply(MeasurementSet& ms, MeasurementSet& selMS,
     // MeasurementSet
     selMS = ms;
     MSSelection mss;
-    String spwstr = spw();
+    String spwstr = spw(); // for errormsg
     try {
         mssSetData2(ms, selMS, chansel,corrsel, "", 
            timerange(), antenna(), field(), spwstr,
@@ -134,18 +135,16 @@ void PlotMSSelection::apply(MeasurementSet& ms, MeasurementSet& selMS,
         throw(AipsError(errormsg));
     }
 
-
-    selAnts.resize(0);
+    selAnts1.resize(0);
     selAnts2.resize(0);
-    String antennaSel = antenna();
-    if ( antennaSel.length() > 0 ){
-    	selAnts = mss.getAntenna1List();
+    if ( antenna().length() > 0 ){
+    	selAnts1 = mss.getAntenna1List();
     	selAnts2 = mss.getAntenna2List();
     }
 }
 
 Vector<int> PlotMSSelection::getSelectedAntennas1(){
-	return selAnts;
+	return selAnts1;
 }
 
 Vector<int> PlotMSSelection::getSelectedAntennas2(){
@@ -162,37 +161,32 @@ void PlotMSSelection::apply(NewCalTable& ct, NewCalTable& selCT,
     throw(AipsError("Selection by uvrange not supported for NewCalTable"));
   if (array().length()>0)
     throw(AipsError("Selection by array not supported for NewCalTable"));
+  if (feed().length()>0)
+    throw(AipsError("Selection by feed not supported for NewCalTable"));
 
   // Set the selected NewCalTable to be the same initially as the input
   // NewCalTable
   selCT = ct;
-
-  //cout << "Whole NCT nrows    = " << ct.nrow() << endl;
-
+  // set up CTSelection with expressions
+  CTSelection cts;
+  cts.setTimeExpr(timerange());
+  cts.setAntennaExpr(antenna());
+  cts.setFieldExpr(field());
+  cts.setSpwExpr(spw());
+  cts.setTaQLExpr(msselect());
+  // poln selection handled in loadCalAxis (uses getParSlice)
+  cts.setScanExpr(scan());
+  cts.setStateExpr(intent());
+  cts.setObservationExpr(observation());
+  // do selection
   CTInterface cti(ct);
-  MSSelection mss;
-  mss.setTimeExpr(timerange());
-  mss.setObservationExpr(observation());
-  mss.setScanExpr(scan());
-  mss.setSpwExpr(spw());
-  mss.setFieldExpr(field());
-  mss.setAntennaExpr(antenna());
-  mss.setStateExpr(intent());
-  // Note cal table doesn't have FEED columns or table; 
-  // TBD: warn user if feed() is set? or just ignore?
-  TableExprNode ten=mss.toTableExprNode(&cti);
+  TableExprNode ten = cts.toTableExprNode(&cti);
   try {
-    getSelectedTable(selCT,ct,ten,"");
-  } catch (AipsError x) {
-    //throw(AipsError("Error selecting on caltable: "+ct.tableName()));
-    throw(AipsError(x.getMesg()));
+    getSelectedTable(selCT, ct, ten, "");
+  } catch(AipsError x) {
+      throw(AipsError("Error selecting on caltable:\n"+
+        x.getMesg()));
   }
-
-  // TBD: fill chansel, corrsel
-
-
-  //cout << "Selected NCT nrows = " << selCT.nrow() << endl;
-
 }
 
 
