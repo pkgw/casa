@@ -112,8 +112,8 @@ private:
     casacore::Int nSPWChan_;
     casacore::Int nPadChan_;
     casacore::Int nElem_;
-    casacore::Double f0_, df_, df_all_;
-    casacore::Double t0_, t1_, dt_;
+    casacore::Double dt_, f0_, df_, df_all_;
+    casacore::Double t0_, t1_;
     casacore::Double padBW_;
     casacore::Array<casacore::Complex> Vpad_;
     casacore::Array<casacore::Int> xcount_;
@@ -256,7 +256,7 @@ private:
   // Pointer to CTRateAwareTimeInterp1 factory method
   // This ensures the rates are incorporated into the time-dep interpolation
   virtual CTTIFactoryPtr cttifactoryptr() { cout << "Using Rate-Aware CTTIFactory!" << endl; return &CTRateAwareTimeInterp1::factory; };
-  void calculateSNR(casacore::Int, DelayRateFFT, casacore::Float, casacore::Float, casacore::Float);
+  void calculateSNR(casacore::Int, DelayRateFFT);
 
   casacore::Bool zeroRates_;
 };
