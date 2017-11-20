@@ -1903,7 +1903,7 @@ class test_spw_poln(test_base):
         myms = mstool()
         myms.open(self.vis)
         myms.msselect({'polarization':'LL'})
-        inp_nrow = myms.nrow()
+        inp_nrow = myms.nrow(True)
         myms.close()
 
         myms.open(self.outputms)
@@ -1947,7 +1947,7 @@ class test_spw_poln(test_base):
         myms = mstool()
         myms.open(self.vis)
         myms.msselect({'spw':'0'})
-        inp_nrow = myms.nrow()
+        inp_nrow = myms.nrow(True)
         myms.close()
 
         myms.open(self.outputms)
@@ -1983,7 +1983,7 @@ class test_spw_poln(test_base):
         myms = mstool()
         myms.open(self.vis)
         myms.msselect({'spw':'0','polarization':'LL'})
-        inp_nrow = myms.nrow()
+        inp_nrow = myms.nrow(True)
         myms.close()
 
         myms.open(self.outputms)
@@ -2009,7 +2009,7 @@ class test_spw_poln(test_base):
         myms = mstool()
         myms.open(self.vis)
         myms.msselect({'spw':'0,1','polarization':'RR'})
-        inp_nrow = myms.nrow()
+        inp_nrow = myms.nrow(True)
         myms.close()
 
         myms.open(self.outputms)
@@ -2027,7 +2027,7 @@ class test_spw_poln(test_base):
         myms = mstool()
         myms.open(self.vis)
         myms.msselect({'spw':'1,2'})
-        inp_nrow = myms.nrow()
+        inp_nrow = myms.nrow(True)
         myms.close()
 
         myms.open(self.outputms)

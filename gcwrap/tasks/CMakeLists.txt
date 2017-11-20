@@ -1,4 +1,5 @@
 casa_add_tasks( tools  casa_tasks 
+accor.xml
 accum.xml
 applycal.xml
 asdmsummary.xml
@@ -101,6 +102,7 @@ sdfit.xml
 sdfixscan.xml
 sdgaincal.xml
 sdimaging.xml
+tsdimaging.xml
 sdsmooth.xml
 setjy.xml
 ssoflux.xml

@@ -166,8 +166,10 @@ import os
 import shutil
 from taskinit import *
 import re
+from ialib import write_image_history
 
-_rg = rgtool( )
+_rg = rgtool()
+
 
 def immath(
     imagename, mode, outfile, expr, varnames, sigma,
@@ -178,6 +180,7 @@ def immath(
     casalog.origin('immath')
     tmpFilePrefix='_immath_tmp' + str(os.getpid()) + '_'
     _myia = iatool()
+    _myia.dohistory(False)
     isLPol = False
     isTPol = False
     lpol = ''
@@ -229,18 +232,28 @@ def immath(
             (expr, varnames, subImages) = _immath_updateexpr(
                 expr, varnames, subImages, filenames, file_map
             )
-            return _immath_compute(
+            outia = _immath_compute(
                 imagename, expr, mode, outfile, imagemd, _myia,
                 isTPol, isLPol, lpol, doPolThresh, polithresh
             )
         else:
             # If the user didn't give any region or mask information
             # then just evaluated the expression with the filenames in it.
-            return _immath_dofull(
+            outia = _immath_dofull(
                 imagename, imagemd, outfile, mode, expr,
                 varnames, filenames, isTPol, isLPol,
                 doPolThresh, polithresh, lpol, _myia
             )
+        try:
+            param_names = immath.func_code.co_varnames[:immath.func_code.co_argcount]
+            param_vals = [eval(p) for p in param_names]   
+            write_image_history(
+                outia, sys._getframe().f_code.co_name,
+                param_names, param_vals, casalog
+            )
+        except Exception, instance:
+            casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
+        return True
     except Exception, error:
         casalog.post("Unable to process expression " + expr, 'SEVERE')
         casalog.post("Exception caught was: " + str(error), 'SEVERE')
@@ -248,6 +261,8 @@ def immath(
     finally:
         if _myia:
             _myia.done()
+        if outia:
+           outia.done() 
         _immath_cleanup(tmpFilePrefix)
     
 def _immath_compute(
@@ -259,18 +274,18 @@ def _immath_compute(
         pixels=expr, outfile=outfile,
         imagemd=_immath_translate_imagemd(imagename, imagemd)
     )
+    res.dohistory(False)
     # modify stokes type for polarization intensity image
-    if (  mode=="poli" ):                
+    if mode=="poli":                
         csys = res.coordsys()
         if isTPol:
             csys.setstokes('Ptotal')
         elif isLPol:
             csys.setstokes('Plinear')
         res.setcoordsys(csys.torecord())
-    res.done()
-    if (doPolThresh):
-        _immath_createPolMask(polithresh, lpol, outfile)
-    return True
+    if doPolThresh:
+        _immath_createPolMask(polithresh, lpol, res)
+    return res
 
 def _immath_updateexpr(expr, varnames, subImages, filenames, file_map):
     # Make sure no problems happened
@@ -371,6 +386,7 @@ def _immath_dopola(
         if (qa.getunit(polithresh) != ""):
             initUnit = qa.getunit(polithresh)
             _myia = iatool()
+            _myia.dohistory(False)
             _myia.open(filenames[0])
             bunit = _myia.brightnessunit()
             polithresh = qa.convert(polithresh, bunit)
@@ -664,15 +680,15 @@ def _immath_dopoli_single_image(stokeslist, filenames, tpol, createSubims, tmpFi
     )
     return _immath_doltpol(mystokes, filenames, filenames)
 
-def _immath_createPolMask(polithresh, lpol, outfile):
+def _immath_createPolMask(polithresh, lpol, myia):
     # make the linear polarization threshhold mask CAS-2120
     myexpr = "'" + lpol + "' >= " + str(qa.getvalue(polithresh)[0])
-    _myia = iatool()
-    _myia.open(outfile)
-    _myia.calcmask(name='mask0', mask=myexpr)
-    casalog.post('Calculated mask based on linear polarization threshold ' + str(polithresh),
-        'INFO')
-    _myia.done()
+    myia.calcmask(name='mask0', mask=myexpr)
+    casalog.post(
+        'Calculated mask based on linear polarization threshold '
+        + str(polithresh),
+        'INFO'
+    )
     
 def _immath_translate_imagemd(imagename, imagemd):
     # may IM0 etc is a real file name

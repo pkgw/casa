@@ -37,7 +37,7 @@
 #include <measures/Measures/Stokes.h>
 #include <synthesis/TransformMachines2/SkyJones.h>
 #include <synthesis/TransformMachines/PBMath.h>
-
+#include <msvis/MSVis/VisBufferUtil.h>
 
 namespace casacore{
 
@@ -352,6 +352,7 @@ protected:
                      const casacore::Int &compareAntenna=-1,
 		     const casacore::Int &compareFeed=-1) const;
   casacore::MDirection convertDir(const vi::VisBuffer2& vb, const casacore::MDirection& inDir, const casacore::MDirection::Types outType);
+  casacore::CountedPtr<VisBufferUtil> vbutil_p;
   
 };
  

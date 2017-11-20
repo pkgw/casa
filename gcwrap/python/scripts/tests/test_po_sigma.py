@@ -89,9 +89,9 @@ class po_sigma_test(unittest.TestCase):
         mypo = self.mypo
         print eq_beams
         mypo.open(eq_beams)
-        self.assertTrue(mypo.sigma("g"))
+        self.assertTrue(mypo.sigma())
         mypo.open(neq_beams)
-        self.assertTrue(mypo.sigma("hh"))
+        self.assertTrue(mypo.sigma())
         
 def suite():
     return [po_sigma_test]

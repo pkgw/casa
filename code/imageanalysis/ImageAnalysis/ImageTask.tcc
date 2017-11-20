@@ -333,7 +333,7 @@ template <class T> void ImageTask<T>::_copyMask(
 }
 
 template <class T> void ImageTask<T>::_copyData(
-    casacore::Lattice<T>& data, const casacore::ImageInterface<T>& image
+    Lattice<T>& data, const Lattice<T>& image
 ) {
     auto cursorShape = image.niceCursorShape(4096*4096);
     casacore::LatticeStepper stepper(image.shape(), cursorShape, casacore::LatticeStepper::RESIZE);
