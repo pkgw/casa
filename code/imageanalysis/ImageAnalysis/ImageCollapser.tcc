@@ -29,7 +29,7 @@
 
 #include <casa/Arrays/ArrayLogical.h>
 #include <casa/BasicSL/STLIO.h>
-#include <casacore/scimath/Mathematics/ClassicalStatistics.h>
+#include <casacore/scimath/StatsFramework/ClassicalStatistics.h>
 #include <casacore/scimath/Mathematics/NumericTraits.h>
 #include <images/Images/ImageStatistics.h>
 #include <images/Images/ImageUtilities.h>

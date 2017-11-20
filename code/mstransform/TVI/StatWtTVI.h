@@ -26,7 +26,7 @@
 #include <msvis/MSVis/TransformingVi2.h>
 
 #include <casacore/ms/MSSel/MSSelection.h>
-#include <casacore/scimath/Mathematics/StatisticsAlgorithmFactory.h>
+#include <casacore/scimath/StatsFramework/StatisticsAlgorithmFactory.h>
 
 #include <msvis/MSVis/VisBuffer2.h>
 #include <msvis/MSVis/VisibilityIterator2.h>
