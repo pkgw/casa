@@ -63,6 +63,8 @@
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_spblas.h>
 #include <gsl/gsl_multilarge_nlinear.h>
+#include <gsl/gsl_linalg.h>
+
 
 #define DEVDEBUG 0
 
@@ -200,7 +202,6 @@ DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant) :
     // corresponding method for flags.
     Int corrStep = (nCorrOrig > 2 ? 3 : 1); // step for p-hands
 
-    SolveDataBuffer& s0 ( sdbs(0) );
     for (Int ibuf=0; ibuf != sdbs.nSDB(); ibuf++) {
         SolveDataBuffer& s ( sdbs(ibuf) );
         for (Int irow=0; irow!=s.nRows(); irow++) {
@@ -312,7 +313,7 @@ DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant) :
                 for (Int icorr=0; icorr<nCorr_; ++icorr) {
                     IPosition p(2, icorr, iant);
                     activeAntennas_[icorr].insert(iant);
-                    for (size_t ichan=0; ichan != spwchans+1; ichan++) {
+                    for (size_t ichan=0; ichan != (size_t) spwchans+1; ichan++) {
                         IPosition pchan(2, ichan, irow);
                         if (!flagged(pchan)) {
                             Float w = weights(pchan);
@@ -548,7 +549,7 @@ private:
     Double reftime;
     std::map< Int, std::set< Int > > activeAntennas;
     std::map< Int, Int > antennaIndexMap;
-    size_t activeCorr;
+    Int activeCorr;
 public:
     AuxParamBundle(SDBList& sdbs_, size_t refant, const std::map< Int, std::set<Int> >& activeAntennas_) :
         sdbs(sdbs_),
@@ -651,7 +652,20 @@ public:
         }
     }
 };
-    
+
+
+
+void
+print_baselines(std::set<std::pair< Int, Int > > baselines) {
+    cerr << "Baselines encountered ";
+    std::set<std::pair< Int, Int > >::iterator it;
+    for (it=baselines.begin(); it != baselines.end(); ++it) {
+        cerr << "(" << it->first << ", " << it->second << ") ";
+    }
+    cerr << endl;
+}
+
+
 int
 expb_f(const gsl_vector *param, void *d, gsl_vector *f)
 {
@@ -663,6 +677,10 @@ expb_f(const gsl_vector *param, void *d, gsl_vector *f)
     Vector<Double> freqs = sdbs.freqs();
     
     size_t count = 0; // This is the master index.
+
+    Double sumwt = 0.0;
+    Double xi_squared = 0.0;
+    
     for (Int ibuf=0; ibuf < sdbs.nSDB(); ibuf++) {
         SolveDataBuffer& s ( sdbs(ibuf) );
         if ( !s.Ok() ) continue;
@@ -704,7 +722,6 @@ expb_f(const gsl_vector *param, void *d, gsl_vector *f)
                 phi0_2 = gsl_vector_get(param, iparam2+0);
                 tau2 =   gsl_vector_get(param, iparam2+1);
                 r2 =     gsl_vector_get(param, iparam2+2);
-                // cerr << "phi0_2 " << phi0_2 << " tau2 " << tau2 << " r2 " << r2 << endl;
             } else {
                 phi0_2 = 0.0;
                 tau2 = 0.0;
@@ -717,39 +734,45 @@ expb_f(const gsl_vector *param, void *d, gsl_vector *f)
             for (size_t ichan = 0; ichan != v.ncolumn(); ichan++) {
                 if ( fl(dcorr, ichan, irow) ) continue;
                 Complex vis = v(dcorr, ichan, irow);
-                Double w = weights(dcorr, ichan, irow);
+                Double w0 = weights(dcorr, ichan, irow);
+                // FIXME: what should we use to scale the weights?
+                // Double weightScale = norm(vis);
+                // Double weightScale = abs(vis);
+                // Double weightScale = 1;
+                // Double weightScale = 1/sqrt(w0); // Actually AIPS 0, not AIPS 1!
+                // Double weightScale = pow(w0, -0.75); // AIPS 2
+                //  Double weightScale = 1/w0; // AIPS 3
+                // Double weightScale = norm(vis); // Casa 1, I guess
+                Double w = sqrt(w0);
+                sumwt += w*w;
                 if (fabs(w) < FLT_EPSILON) continue;
-                
                 // We have to turn the delay back into seconds from nanoseconds.
                 // Freq difference is in Hz, which comes out typically as 1e6 bands
                 Double wDf = C::_2pi*(freqs(ichan) - freqs(0))*1e-9;
                 //
                 Double t1 = s.time()(0);
+                // FIXME: Remind me why we *do* scale wDf with 1e-9
+                // but do *not* do that with ref_freq?
+                // I have a theory which is mine:
+                // this is because tau is in nanoseconds.
                 Double ref_freq = freqs(0);
                 Double wDt = C::_2pi*(t1 - refTime) * ref_freq; 
 
                 Double mtheta = -(phi0 + tau*wDf + r*wDt); 
                 Double vtheta = arg(vis);
-                
-                gsl_vector_set(f, count, w*(cos(mtheta) - cos(vtheta)));
-                gsl_vector_set(f, count+1, w*(sin(mtheta)  - sin(vtheta)));
-                
+
+                Double c_r = w*(cos(mtheta) - cos(vtheta));
+                Double c_i = w*(sin(mtheta)  - sin(vtheta));
+                gsl_vector_set(f, count, c_r);
+                gsl_vector_set(f, count+1, c_i);
+
                 count += 2;
+                xi_squared += c_r*c_r + c_i*c_i;
             }
         }
     }
+    // cerr << "Residual xi-squared = " << xi_squared << endl;
     return GSL_SUCCESS;
-}
-
-
-void
-print_baselines(std::set<std::pair< Int, Int > > baselines) {
-    cerr << "Baselines encountered ";
-    std::set<std::pair< Int, Int > >::iterator it;
-    for (it=baselines.begin(); it != baselines.end(); ++it) {
-        cerr << "(" << it->first << ", " << it->second << ") ";
-    }
-    cerr << endl;
 }
 
     
@@ -838,7 +861,8 @@ expb_df(CBLAS_TRANSPOSE_t TransJ, const gsl_vector* x, const gsl_vector *u, void
             
             for (size_t ichan = 0; ichan != vis.ncolumn(); ichan++) {
                 if ( fl(dcorr, ichan, irow) ) continue;
-                Double w = weights(dcorr, ichan, irow);
+                Double w0 = weights(dcorr, ichan, irow);
+                Double w = sqrt(w0);
                 if (fabs(w) < FLT_EPSILON) continue;
                 found_data = true;
                 // Add a 1e-9 factor because tau parameter is in nanoseconds.
@@ -849,9 +873,6 @@ expb_df(CBLAS_TRANSPOSE_t TransJ, const gsl_vector* x, const gsl_vector *u, void
                 Double wc = cos(mtheta);
 
                 if (iparam2 >= 0) {
-                    // cerr << "insert param2! " << iparam2
-                    // << " into array of size (" << JTJ->size1 << ", " <<  JTJ->size2 << ")"
-                    //      << endl;
                     params.insert(iparam2);
                     /* 
                        What we want to express is just:
@@ -914,18 +935,29 @@ expb_df(CBLAS_TRANSPOSE_t TransJ, const gsl_vector* x, const gsl_vector *u, void
                     // can be simplified to (ws*ws) + (wc*wc) and that that reduces to 1.
                     // But I'd like to have regression tests for some of that I guess.
                     if (JTJ) {
-                        (*gsl_matrix_ptr(JTJ, iparam2 + 0, iparam2 + 0)) += w*w*-1.0*-1.0*((-ws) * (-ws) +  // J[count + 0, iparam2 + 0] * J[count + 0, iparam2 + 0]
-                                                                                           (+wc) * (+wc));  // J[count + 1, iparam2 + 0] * J[count + 1, iparam2 + 0]
-                        (*gsl_matrix_ptr(JTJ, iparam2 + 1, iparam2 + 0)) += w*w*-wDf*-1.0*((-ws) * (-ws) +  // J[count + 0, iparam2 + 1] * J[count + 0, iparam2 + 0]
-                                                                                           (+wc) * (+wc));  // J[count + 1, iparam2 + 1] * J[count + 1, iparam2 + 0]
-                        (*gsl_matrix_ptr(JTJ, iparam2 + 1, iparam2 + 1)) += w*w*-wDf*-wDf*((-ws) * (-ws) +  // J[count + 0, iparam2 + 1]^2
-                                                                                           (+wc) * (+wc));  // J[count + 1, iparam2 + 1]^2 
-                        (*gsl_matrix_ptr(JTJ, iparam2 + 2, iparam2 + 0)) += w*w*-wDt*-1.0*((-ws) * (-ws) +  // J[count + 0, iparam2 + 2] * J[count + 0, iparam2 + 0]
-                                                                                           (+wc) * (+wc) ); // J[count + 1, iparam2 + 2] * J[count + 1, iparam2 + 0] 
-                        (*gsl_matrix_ptr(JTJ, iparam2 + 2, iparam2 + 1)) += w*w*-wDt*-wDf*((-ws) * (-ws) +  // J[count + 0, iparam2 + 2] * J[count + 0, iparam2 + 1]
-                                                                                           (+wc) * (+wc));  // J[count + 1, iparam2 + 2] * J[count + 1, iparam2 + 1]
-                        (*gsl_matrix_ptr(JTJ, iparam2 + 2, iparam2 + 2)) += w*w*-wDt*-wDt*((-ws) * (-ws) +  // J[count + 0, iparam2 + 2]^2 
-                                                                                           (+wc) * (+wc));  // J[count + 1, iparam2 + 2]^2
+                        // J[count + 0, iparam2 + 0] * J[count + 0, iparam2 + 0]
+                        // J[count + 1, iparam2 + 0] * J[count + 1, iparam2 + 0]
+                        (*gsl_matrix_ptr(JTJ, iparam2 + 0, iparam2 + 0)) +=
+                            w0*-1.0*-1.0*((-ws) * (-ws) + (+wc) * (+wc));
+                        // J[count + 0, iparam2 + 1] * J[count + 0, iparam2 + 0]
+                        // J[count + 1, iparam2 + 1] * J[count + 1, iparam2 + 0]                        
+                        (*gsl_matrix_ptr(JTJ, iparam2 + 1, iparam2 + 0)) +=
+                            w0*-wDf*-1.0*((-ws) * (-ws) + (+wc) * (+wc));  
+                        // J[count + 0, iparam2 + 1]^2
+                        // J[count + 1, iparam2 + 1]^2 
+                        (*gsl_matrix_ptr(JTJ, iparam2 + 1, iparam2 + 1)) +=
+                            w0*-wDf*-wDf*((-ws) * (-ws) + (+wc) * (+wc));
+                        // J[count + 0, iparam2 + 2] * J[count + 0, iparam2 + 0]
+                        // J[count + 1, iparam2 + 2] * J[count + 1, iparam2 + 0] 
+                        (*gsl_matrix_ptr(JTJ, iparam2 + 2, iparam2 + 0)) +=
+                            w0*-wDt*-1.0*((-ws) * (-ws) + (+wc) * (+wc) );
+                        // J[count + 0, iparam2 + 2] * J[count + 0, iparam2 + 1]
+                        // J[count + 1, iparam2 + 2] * J[count + 1, iparam2 + 1]
+                        (*gsl_matrix_ptr(JTJ, iparam2 + 2, iparam2 + 1)) +=
+                            w0*-wDt*-wDf*((-ws) * (-ws) + (+wc) * (+wc));
+                        // J[count + 0, iparam2 + 2]^2 and J[count + 1, iparam2 + 2]^2
+                        (*gsl_matrix_ptr(JTJ, iparam2 + 2, iparam2 + 2)) +=
+                            w0*-wDt*-wDt*((-ws) * (-ws) + (+wc) * (+wc));  
                     }
 
                 }
@@ -949,18 +981,27 @@ expb_df(CBLAS_TRANSPOSE_t TransJ, const gsl_vector* x, const gsl_vector *u, void
                         (*gsl_vector_ptr(v, iparam1 + 2)) += gsl_vector_get(u, count + 1) * (w*+wc*+wDt);
                     } 
                     if (JTJ) {
-                        (*gsl_matrix_ptr(JTJ, iparam1 + 0, iparam1 + 0)) += w*w*1.0*1.0*((-ws) * (-ws) +  // J[count + 0, iparam1 + 0]^2
-                                                                                         (+wc) * (+wc));  // J[count + 1, iparam1 + 0]^2
-                        (*gsl_matrix_ptr(JTJ, iparam1 + 1, iparam1 + 0)) += w*w*wDf*1.0*((-ws) * (-ws) +  // J[count + 0, iparam1 + 1] * J[count + 0, iparam1 + 0]
-                                                                                         (+wc) * (+wc));  // J[count + 1, iparam1 + 1] * J[count + 1, iparam1 + 0]
-                        (*gsl_matrix_ptr(JTJ, iparam1 + 1, iparam1 + 1)) += w*w*wDf*wDf*((-ws) * (-ws) +  // J[count + 0, iparam1 + 1]^2
-                                                                                         (+wc) * (+wc));  // J[count + 1, iparam1 + 1]^2 
-                        (*gsl_matrix_ptr(JTJ, iparam1 + 2, iparam1 + 0)) += w*w*wDt*1.0*((-ws) * (-ws) +  // J[count + 0, iparam1 + 2] * J[count + 0, iparam1 + 0]
-                                                                                         (+wc) * (+wc) ); // J[count + 1, iparam1 + 2] * J[count + 1, iparam1 + 0] 
-                        (*gsl_matrix_ptr(JTJ, iparam1 + 2, iparam1 + 1)) += w*w*wDt*wDf*((-ws) * (-ws) +  // J[count + 0, iparam1 + 2] * J[count + 0, iparam1 + 1]
-                                                                                         (+wc) * (+wc));  // J[count + 1, iparam1 + 2] * J[count + 1, iparam1 + 1]
-                        (*gsl_matrix_ptr(JTJ, iparam1 + 2, iparam1 + 2)) += w*w*wDt*wDt*((-ws) * (-ws) +  // J[count + 0, iparam1 + 2]^2 
-                                                                                         (+wc) * (+wc));  // J[count + 1, iparam1 + 2]^2
+                        // J[count + 0, iparam1 + 0]^2 and J[count + 1, iparam1 + 0]^2
+                        (*gsl_matrix_ptr(JTJ, iparam1 + 0, iparam1 + 0)) +=
+                            w0*1.0*1.0*((-ws) * (-ws) + (+wc) * (+wc));
+                        // J[count + 0, iparam1 + 1] * J[count + 0, iparam1 + 0]
+                        // and J[count + 1, iparam1 + 1] * J[count + 1, iparam1 + 0]
+                        (*gsl_matrix_ptr(JTJ, iparam1 + 1, iparam1 + 0)) +=
+                            w0*wDf*1.0*((-ws) * (-ws) + (+wc) * (+wc));
+                        // J[count + 0, iparam1 + 1]^2 and J[count + 1, iparam1 + 1]^2 
+                        (*gsl_matrix_ptr(JTJ, iparam1 + 1, iparam1 + 1)) +=
+                            w0*wDf*wDf*((-ws) * (-ws) + (+wc) * (+wc));
+                        // J[count + 0, iparam1 + 2] * J[count + 0, iparam1 + 0]
+                        // J[count + 1, iparam1 + 2] * J[count + 1, iparam1 + 0] 
+                        (*gsl_matrix_ptr(JTJ, iparam1 + 2, iparam1 + 0)) +=
+                            w0*wDt*1.0*((-ws) * (-ws) + (+wc) * (+wc) );
+                        // J[count + 0, iparam1 + 2] * J[count + 0, iparam1 + 1]
+                        // J[count + 1, iparam1 + 2] * J[count + 1, iparam1 + 1]
+                        (*gsl_matrix_ptr(JTJ, iparam1 + 2, iparam1 + 1)) +=
+                            w0*wDt*wDf*((-ws) * (-ws) + (+wc) * (+wc));
+                        // J[count + 0, iparam1 + 2]^2 and  J[count + 1, iparam1 + 2]^2
+                        (*gsl_matrix_ptr(JTJ, iparam1 + 2, iparam1 + 2)) +=
+                            w0*wDt*wDt*((-ws) * (-ws) + (+wc) * (+wc));  
                     }
                 }
                 count += 2;
@@ -992,8 +1033,8 @@ expb_df(CBLAS_TRANSPOSE_t TransJ, const gsl_vector* x, const gsl_vector *u, void
         print_baselines(baselines);
         cerr << "count " << count << endl;
         cerr <<"JTJ " << std::scientific << endl;
-        for (int i=0; i!=JTJ->size1; i++) {
-            for (int j=0; j!=JTJ->size2; j++) {
+        for (size_t i=0; i!=JTJ->size1; i++) {
+            for (size_t j=0; j!=JTJ->size2; j++) {
                 cerr << gsl_matrix_get(JTJ, i, j) << " ";
             }
             cerr << endl;
@@ -1004,8 +1045,247 @@ expb_df(CBLAS_TRANSPOSE_t TransJ, const gsl_vector* x, const gsl_vector *u, void
 }
     
 
+
+int
+expb_hess(gsl_vector *param, AuxParamBundle *bundle, gsl_matrix *hess, Double xi_squared, gsl_vector *snr_vector, LogIO& logSink)
+{
+    // We calculate the diagonal for the hessian as used by AIPS for
+    // the signal to noise. The AIPS formulation, by Fred Schwab, is a
+    // hand-rolled routine that solves a different problem to ours: by
+    // using a triangular matrix for the Jacobian (requiring antenna i<
+    // antenna j) the J^T * J term vanishes throughout and the Hessian
+    // of the Xi^2 functional *only* includes the second-order
+    // derivative terms, which are usually neglected.
+    //
+    // This is very clever, but it also means different covariance and
+    // information matrices, and therefore a different SNR.  Here we
+    // use a generic least squares solver but we cheat slightly and use
+    // the AIPS form for the Hessian and SNR calculations.
+    //
+    // FIXME: Is there any compelling reason to use gsl_vectors for
+    // this, given that we're not really hooked in to the gsl
+    // least squares framework by the time we do this?
+    
+    SDBList& sdbs = bundle->sdbs;
+    Double refTime = bundle->get_t0();
+
+    // Dimensions of (num_antennas); is the same dimension as
+    // param vector here.
+    gsl_matrix_set_zero(hess);
+    Vector<Double> freqs = sdbs.freqs();
+
+    size_t nobs = 0;
+    Double sumwt = 0;
+    size_t numant3 = param->size;
+    
+    for (Int ibuf=0; ibuf < sdbs.nSDB(); ibuf++) {
+        SolveDataBuffer& s ( sdbs(ibuf) );
+        if ( !s.Ok() ) continue;
+
+        Cube<Complex> v = s.visCubeCorrected();
+        Cube<Bool> fl = s.flagCube();
+        Cube<Float> weights = s.weightSpectrum();
+           
+        for (Int irow=0; irow!=s.nRows(); irow++) {
+            if ( s.flagRow()(irow) ) continue;
+
+            Int ant1(s.antenna1()(irow));
+            Int ant2(s.antenna2()(irow));
+            if (!bundle->isActive(ant1) || !bundle->isActive(ant2))
+                continue;            
+            if (ant1==ant2) continue;
+
+            // VisBuffer.h seems to suggest that a vb.visCube may have shape
+            // (nCorr(), nChannel(), nRow())
+            size_t icorr0 = bundle->get_active_corr();
+            size_t dcorr = bundle->get_data_corr_index(icorr0);
+            // We also need to get the right parameters for this,
+            // polarization (icorr is an encoding of the
+            // polarization of the correlation products).
+            Int iparam1 = bundle->get_param_corr_index(ant1);
+            Double phi0_1, tau1, r1;
+            if (iparam1 >= 0) {
+                phi0_1 = gsl_vector_get(param, iparam1+0);
+                tau1 =   gsl_vector_get(param, iparam1+1);
+                r1 =     gsl_vector_get(param, iparam1+2);
+            } else {
+                phi0_1 = 0.0;
+                tau1 = 0.0;
+                r1 = 0.0;
+            }
+            Int iparam2 = bundle->get_param_corr_index(ant2);
+            Double phi0_2, tau2, r2;
+            if (iparam2 >= 0) {
+                phi0_2 = gsl_vector_get(param, iparam2+0);
+                tau2 =   gsl_vector_get(param, iparam2+1);
+                r2 =     gsl_vector_get(param, iparam2+2);
+                // cerr << "phi0_2 " << phi0_2 << " tau2 " << tau2 << " r2 " << r2 << endl;
+            } else {
+                phi0_2 = 0.0;
+                tau2 = 0.0;
+                r2 = 0.0;
+            }
+
+            if (iparam2 < iparam1) {
+                cerr << "iparam1 " << iparam1 << " iparam2 " << iparam2 << " iant1 " << ant1 << " iant2 " << ant2 << endl;
+            }
+            Float phi0 = phi0_2 - phi0_1;
+            Float tau  = tau2 - tau1;
+            Float r    = r2 - r1;
+            for (size_t ichan = 0; ichan != v.ncolumn(); ichan++) {
+                if ( fl(dcorr, ichan, irow) ) continue;
+                Complex vis = v(dcorr, ichan, irow);
+                // Fixme: this isn't a square root.
+                Double w0 = weights(dcorr, ichan, irow);
+                sumwt += w0;
+                Double w = w0;
+                nobs++;
+                if (fabs(w) < FLT_EPSILON) continue;
+                
+                // We have to turn the delay back into seconds from nanoseconds.
+                // Freq difference is in Hz, which comes out typically as 1e6 bands
+                Double wDf = C::_2pi*(freqs(ichan) - freqs(0))*1e-9;
+                //
+                Double t1 = s.time()(0);
+
+                Double ref_freq = freqs(0);
+                Double wDt = C::_2pi*(t1 - refTime) * ref_freq; 
+
+                Double mtheta = -(phi0 + tau*wDf + r*wDt); 
+                Double vtheta = arg(vis);
+
+                // Hold on a minute though! 
+                Double cx = w*cos(vtheta - mtheta);
+                Double d00 = cx;
+                Double d01 = wDf*cx;
+                Double d02 = wDt*cx;
+                Double d11 = wDf*d01;
+                Double d12 = wDt*d01;
+                Double d22 = wDt*d12;
+                
+                if (iparam1 >= 0) {
+                    // Diagonal terms.
+                    *gsl_matrix_ptr(hess, iparam1 + 0, iparam1 + 0) += d00;
+                    *gsl_matrix_ptr(hess, iparam1 + 1, iparam1 + 1) += d11;
+                    *gsl_matrix_ptr(hess, iparam1 + 2, iparam1 + 2) += d22;
+                    // Off-diagonals
+                    *gsl_matrix_ptr(hess, iparam1 + 0, iparam1 + 1) += d01;
+                    *gsl_matrix_ptr(hess, iparam1 + 0, iparam1 + 2) += d02;
+                    *gsl_matrix_ptr(hess, iparam1 + 1, iparam1 + 2) += d12;
+                    // FIXME: Let's don't forget to symmetrize this stuff somewhere!
+                    // FIXME: Also, is this right?
+                    *gsl_matrix_ptr(hess, iparam1 + 1, iparam1 + 0) += d01;
+                    *gsl_matrix_ptr(hess, iparam1 + 2, iparam1 + 0) += d02;
+                    *gsl_matrix_ptr(hess, iparam1 + 2, iparam1 + 1) += d12;
+                }
+                if (iparam2 >= 0) {
+                    // Diagonals
+                    *gsl_matrix_ptr(hess, iparam2 + 0, iparam2 + 0) += d00;
+                    *gsl_matrix_ptr(hess, iparam2 + 1, iparam2 + 1) += d11;
+                    *gsl_matrix_ptr(hess, iparam2 + 2, iparam2 + 2) += d22;
+                    // Off diagonals
+                    *gsl_matrix_ptr(hess, iparam2 + 0, iparam2 + 1) += d01;
+                    *gsl_matrix_ptr(hess, iparam2 + 0, iparam2 + 2) += d02;
+                    *gsl_matrix_ptr(hess, iparam2 + 1, iparam2 + 2) += d12;
+                    // Symmetry:
+                    *gsl_matrix_ptr(hess, iparam2 + 1, iparam2 + 0) += d01;
+                    *gsl_matrix_ptr(hess, iparam2 + 2, iparam2 + 0) += d02;
+                    *gsl_matrix_ptr(hess, iparam2 + 2, iparam2 + 1) += d12;
+                }
+                // FIXME: Not just diagonal terms any more!
+                if ((iparam1 >= 0) && (iparam2 >= 0)) {
+                    // Note that some of these are not in the lower
+                    // triangular part, even though they are copied
+                    // faithfully from AIPS which thinks it is filling
+                    // a triangular matrix and handles symmetry
+                    // later. Unless I've missed something (again).
+                    // 
+                    *gsl_matrix_ptr(hess, iparam1 + 0, iparam2 + 0) -= d00;
+                    *gsl_matrix_ptr(hess, iparam1 + 0, iparam2 + 1) -= d01;
+                    *gsl_matrix_ptr(hess, iparam1 + 0, iparam2 + 2) -= d02;
+                    *gsl_matrix_ptr(hess, iparam2 + 0, iparam1 + 1) -= d01;
+                    *gsl_matrix_ptr(hess, iparam2 + 0, iparam1 + 2) -= d02;
+                    *gsl_matrix_ptr(hess, iparam1 + 1, iparam2 + 1) -= d11;
+                    *gsl_matrix_ptr(hess, iparam1 + 1, iparam2 + 2) -= d12;
+                    *gsl_matrix_ptr(hess, iparam2 + 1, iparam1 + 2) -= d12;
+                    *gsl_matrix_ptr(hess, iparam1 + 2, iparam2 + 2) -= d22;
+                    // And symmetry:
+                    *gsl_matrix_ptr(hess, iparam2 + 0, iparam1 + 0) -= d00;
+                    *gsl_matrix_ptr(hess, iparam2 + 1, iparam1 + 0) -= d01;
+                    *gsl_matrix_ptr(hess, iparam2 + 2, iparam1 + 0) -= d02;
+                    *gsl_matrix_ptr(hess, iparam1 + 1, iparam2 + 0) -= d01;
+                    *gsl_matrix_ptr(hess, iparam1 + 2, iparam2 + 0) -= d02;
+                    *gsl_matrix_ptr(hess, iparam2 + 1, iparam1 + 1) -= d11;
+                    *gsl_matrix_ptr(hess, iparam2 + 2, iparam1 + 1) -= d12;
+                    *gsl_matrix_ptr(hess, iparam1 + 2, iparam2 + 1) -= d12;
+                    *gsl_matrix_ptr(hess, iparam2 + 2, iparam1 + 2) -= d22;
+
+                }
+            }
+        }
+    }
+    // s is more tricky: it is the xi^2 term from exp_f
+    
+    xi_squared = max(xi_squared, 1e-25);
+
+    if (0) {
+        cerr << "The matrix is" << endl;
+        cerr << setprecision(3) << scientific;
+        for (size_t i = 0; i != hess->size1; i++) {
+            for (size_t j = 0; j < hess->size2; j++) {
+                cerr << gsl_matrix_get(hess,i,j) << " ";
+            }
+            cerr << endl;
+        }
+        cerr << endl;
+        // str.unsetf(cerr:floatfield);
+        cerr << defaultfloat;
+    }
+    //
+    size_t hsize = hess->size1;
+    int signum;
+    gsl_permutation *perm = gsl_permutation_alloc (hsize);
+    gsl_matrix *lu = gsl_matrix_alloc(hsize, hsize);
+    gsl_matrix *inv_hess = gsl_matrix_alloc(hsize, hsize);
+
+    gsl_linalg_LU_decomp(hess, perm, &signum);
+    Double det = gsl_linalg_LU_det(hess, signum);
+    if (fabs(det) < GSL_DBL_EPSILON) {
+        logSink << "Hessian matrix singular; setting signal-to-noise ratio to zero." << LogIO::POST;
+        // Singular matrix; fill snrs with zero.
+        for (size_t i=0; i < hess->size1; i+=3) {
+            Double snr = 0;
+            gsl_vector_set(snr_vector, i, snr);
+        }
+    }
+    else {
+        // cerr << "Determinant of hessian =" << det << endl;
+        gsl_linalg_LU_invert(hess, perm, inv_hess);
+    
+        Double sigma2 = xi_squared / (nobs - numant3) * nobs / sumwt;
+        // cerr << "xi_squared " << xi_squared << " Nobs " << nobs << " sumwt " << sumwt << " sigma2 " << sigma2 << endl;
+        for (size_t i=0; i < hess->size1; i+=3) {
+            Double h = gsl_matrix_get(inv_hess, i, i);
+            Double snr0 = sqrt(sigma2*h*0.5);
+            snr0 = min(snr0, 9999.999);
+            Double snr = (snr0 > 1e-20) ? snr = 1.0/snr0 : snr0;
+            // cerr << "Antenna " << i/3 << " h " << h << " SNR0 " << snr0 << " SNR  = " << snr << endl;
+            gsl_vector_set(snr_vector, i, snr);
+        }
+    }
+    gsl_matrix_free(lu);
+    gsl_matrix_free(inv_hess);
+    // SNR[i], according to aips, is 1/sqrt(sigma2*hess(i1,i1)*0.5);
+    // Note that in AIPS i1 ranges over 1..NANT
+    // We use 1 as a success code.
+    return 1;
+}
+
+
 void
-least_squares_driver(SDBList& sdbs, Matrix<Float>& param, Int refant, const std::map< Int, std::set<Int> >& activeAntennas, LogIO& logSink) {
+least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Float>& casa_snr, Int refant,
+                     const std::map< Int, std::set<Int> >& activeAntennas, LogIO& logSink) {
+    // The variable casa_param is the Casa calibration framework's RParam matrix; we transcribe our results into it only at the end.
     // n below is number of variables,
     // p is number of parameters
 
@@ -1033,18 +1313,18 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& param, Int refant, const std:
             cerr << "p " << p << " n " << n << endl;
         }
         // Parameters for the least-squares solver.
-        const double param_tol = 1.0e-50;
-        //const double gtol = 1e-50; // 1e-30; 
-        const double gtol = 1.0e-50; // 1e-30; 
-        const double ftol = 1.0e-50;   // eps rel
-        const size_t max_iter = 200;
+        const double param_tol = 1.0e-8;
+        const double gtol = pow(GSL_DBL_EPSILON, 1.0/3.0);
+        const double ftol = 1.0e-20;   
+        const size_t max_iter = 100;
 
         const gsl_multilarge_nlinear_type *T = gsl_multilarge_nlinear_trust;
         gsl_multilarge_nlinear_parameters params = gsl_multilarge_nlinear_default_parameters();
-        // params.trs = gsl_multilarge_nlinear_trs_lm;
-        params.scale = gsl_multilarge_nlinear_scale_more;
-        params.solver = gsl_multilarge_nlinear_solver_cholesky;
-
+        // params.scale = gsl_multilarge_nlinear_scale_more;
+        // params.solver = gsl_multilarge_nlinear_solver_cholesky;
+        params.trs = gsl_multilarge_nlinear_trs_lm;
+        params.scale = gsl_multilarge_nlinear_scale_levenberg;
+ 
         gsl_multilarge_nlinear_workspace *w = gsl_multilarge_nlinear_alloc(T, &params, n, p);
         gsl_multilarge_nlinear_fdf f;
 
@@ -1055,22 +1335,24 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& param, Int refant, const std:
         f.p = p;    /* number of parameters */
         f.params = &bundle;
 
+        
         // Our original param is a matrix of (3*nCorr, nElem).
         // We have to transcribe it to a vector.
 
         gsl_vector *gp = gsl_vector_alloc(p);
         gsl_vector_set_zero(gp);
 
+        // We transcribe Casa parameters into gsl vector format, as required by the solver.
         for (size_t iant=0; iant != bundle.get_max_antenna_index()+1; iant++) {
             if ( !bundle.isActive(iant) ) {
-                logSink << "Skipping antenna " << iant << " for correlation " << icor << "." << LogIO::POST;
+                // logSink << "Skipping antenna " << iant << " for correlation " << icor << "." << LogIO::POST;
                 continue;
             }
             Int ind = bundle.get_param_corr_index(iant);
             if (ind < 0) continue;
-            gsl_vector_set( gp, ind+0, param(3*icor + 0, iant) );
-            gsl_vector_set( gp, ind+1, param(3*icor + 1, iant) );
-            gsl_vector_set( gp, ind+2, param(3*icor + 2, iant) );
+            gsl_vector_set( gp, ind+0, casa_param(3*icor + 0, iant) );
+            gsl_vector_set( gp, ind+1, casa_param(3*icor + 1, iant) );
+            gsl_vector_set( gp, ind+2, casa_param(3*icor + 2, iant) );
         }
         gsl_vector *gp_orig = gsl_vector_alloc( p );
         // Keep a copy of original parameters
@@ -1085,20 +1367,40 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& param, Int refant, const std:
         int info;
         int status = gsl_multilarge_nlinear_driver(max_iter, param_tol, gtol, ftol,
                                                    NULL, NULL, &info, w);
-    
-        double chi1 = gsl_blas_dnrm2(res_f);
 
+        // if reporting xi_squared values, add a blank line here:
+        // cerr << endl;
+        double chi1 = gsl_blas_dnrm2(res_f);
+        
         gsl_vector_sub( gp_orig, w->x);
         gsl_vector *diff = gp_orig;
         double diffsize = gsl_blas_dnrm2(diff);
     
         gsl_vector *res = gsl_multilarge_nlinear_position(w);
         
+        // We transcribe values back from gsl_vector to the param matrix
+        
+        gsl_matrix *hess = gsl_matrix_alloc(p,p);
+        gsl_vector *snr_vector = gsl_vector_alloc(p);
+        gsl_matrix_set_zero(hess);
+        gsl_vector_set_zero(snr_vector);
+        expb_hess(gp, &bundle, hess, chi1*chi1, snr_vector, logSink);
+        
+        Double log_det = 0;
+        // cerr << "Hessian diagonal: [" ;
+        // for (size_t i=0; i<p; i+=1)
+        // {
+        //     Double d = gsl_matrix_get(hess, i, i);
+        //     cerr << d;
+        //     if (i != p-1) cerr << ", ";
+        //     log_det += log10(fabs(d));
+        // }
+        // cerr << "]" << endl;
         for (size_t iant=0; iant != bundle.get_max_antenna_index()+1; iant++) {
             if ( !bundle.isActive(iant) ) continue;
             Int iparam = bundle.get_param_corr_index(iant);
             if (iparam<0) continue;
-            if (1) {
+            if (0) {
                 bool flag = false;
                 if ( fabs(gsl_vector_get(diff, iparam + 0) > FLT_EPSILON) ) {
                     flag = true;
@@ -1109,31 +1411,48 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& param, Int refant, const std:
                 if ( fabs(gsl_vector_get(diff, iparam + 2) > 1e-30) ) {
                     flag = true;
                 }
-                logSink << "Old values for ant " << iant << " correlation " << icor 
-                // if (flag) cerr << "Changed! "<< endl;
-                        << ": Angle " << param(3*icor + 0, iant)
-                        << " delay " << param(3*icor + 1, iant) << " ns "
-                        << " rate " << param(3*icor + 2, iant) << "."
-                        << endl
-                        << "New values for ant " << iant << " correlation " << icor 
-                        << ": Angle " << gsl_vector_get(res, iparam+0)
-                        << " delay " << gsl_vector_get(res, iparam+1) << " ns "
-                        << " rate " << gsl_vector_get(res, iparam+2) << "."
-                        << LogIO::POST;
+                if (DEVDEBUG) {
+                    logSink << "Old values for ant " << iant << " correlation " << icor 
+                            << ": Angle " << casa_param(3*icor + 0, iant)
+                            << " delay " << casa_param(3*icor + 1, iant) << " ns "
+                            << " rate " << casa_param(3*icor + 2, iant) << "."
+                            << endl
+                            << "New values for ant " << iant << " correlation " << icor 
+                            << ": Angle " << gsl_vector_get(res, iparam+0)
+                            << " delay " << gsl_vector_get(res, iparam+1) << " ns "
+                            << " rate " << gsl_vector_get(res, iparam+2) << "."
+                            << LogIO::POST;
+                }
             }
-            param(3*icor + 0, iant) = gsl_vector_get( res, iparam+0 );
-            param(3*icor + 1, iant) = gsl_vector_get( res, iparam+1 );
-            param(3*icor + 2, iant) = gsl_vector_get( res, iparam+2 );
+            casa_param(3*icor + 0, iant) = gsl_vector_get( res, iparam+0 );
+            casa_param(3*icor + 1, iant) = gsl_vector_get( res, iparam+1 );
+            casa_param(3*icor + 2, iant) = gsl_vector_get( res, iparam+2 );
+
+            for (size_t i=0; i!=3; i++) {
+                casa_snr(3*icor + i, iant) = gsl_vector_get( snr_vector, iparam+0);
+            }
         }
 
-        logSink <<  "Least squares complete for correlation " << icor << "," << endl
-                << "number of iterations: " <<  gsl_multilarge_nlinear_niter(w) << endl
+        logSink <<  "Least squares complete for correlation " << icor
+                << " after " <<  gsl_multilarge_nlinear_niter(w) << " iterations." << LogIO::POST;
+
             // << "reason for stopping: " << ( (info == 1) ? "small step size" : "small gradient" ) << endl
-                << "initial |f(x)| = " << chi0 << endl
-                << "final   |f(x)| = " << chi1 << endl
-                << "final step taken = " << diffsize 
-                << "." << LogIO::POST;
+            // << "initial |f(x)| = " << chi0 << endl
+            // << "final   |f(x)| = " << chi1 << endl
+            // << "final step taken = " << diffsize 
+
+        if (DEVDEBUG) {
+            switch (info) {
+            case 1:
+                logSink << "Small step size." << endl;
+                break;
+            case 2:
+                logSink << "Flatness." << endl;
+            }
+            logSink << LogIO::POST;
+        }
         gsl_vector_free( gp );
+        gsl_matrix_free( hess );
         gsl_multilarge_nlinear_free( w );
     }    
 }
@@ -1379,16 +1698,16 @@ void FringeJones::calcAllJones() {
 
 
 void
-FringeJones::calculateSNR(Int nCorr, DelayRateFFT drf, Float ref_freq, Float df0, Float dt0 ) {
+FringeJones::calculateSNR(Int nCorr, DelayRateFFT drf) {
     Matrix<Float> sRP(solveRPar().nonDegenerate(1));
     Matrix<Bool> sPok(solveParOK().nonDegenerate(1));
     Matrix<Float> sSNR(solveParSNR().nonDegenerate(1));
     
-    for (size_t icor=0; icor != nCorr; icor++ ) {
+    for (size_t icor=0; icor != (size_t) nCorr; icor++ ) {
         const set<Int>& activeAntennas = drf.getActiveAntennasCorrelation(icor);
         for (Int iant=0; iant != nAnt(); iant++) {
             if (iant == refant()) {
-                Double maxsnr = 1.0e6;
+                Double maxsnr = 999.0;
                 sSNR(3*icor + 0, iant) = maxsnr;
                 sSNR(3*icor + 1, iant) = maxsnr;
                 sSNR(3*icor + 2, iant) = maxsnr;
@@ -1488,9 +1807,9 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
     // the values seemed reasonable
     DelayRateFFT drf( sdbs, refant());
     drf.FFT(); 
-    logSink() << "FFT completed." << LogIO::POST;
+    // logSink() << "FFT completed." << LogIO::POST;
     drf.searchPeak();
-    logSink() << "Searched for peaks in FFT." << LogIO::POST;
+    // logSink() << "Searched for peaks in FFT." << LogIO::POST;
     Matrix<Float> sRP(solveRPar().nonDegenerate(1));
     Matrix<Bool> sPok( solveParOK().nonDegenerate(1) );
     Matrix<Float> sSNR(solveParSNR().nonDegenerate(1));
@@ -1513,7 +1832,7 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
     size_t nCorr = (nCorrOrig> 1 ? 2 : 1); // number of p-hands
 
     // cerr << "(Reminder:) Current spectral window =" << currSpw() << endl;
-    calculateSNR(nCorr, drf, ref_freq, df0, dt0);
+    calculateSNR(nCorr, drf);
 
     set<Int> belowThreshold;
     // In the Python interface there is a parameter minsnr.
@@ -1552,18 +1871,10 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
         // FringeJones so we pass everything in, including the logSink
         // reference.  Note also that sRP is passed by reference and
         // altered in place.
-        least_squares_driver(sdbs, sRP, refant(), drf.getActiveAntennas(), logSink());
+        least_squares_driver(sdbs, sRP, sSNR, refant(), drf.getActiveAntennas(), logSink());
     }
 
 
-    
-
-    if (DEVDEBUG) {
-        cerr << "Just sayin': nAnt()*nCorr=" << nAnt() * nCorr << " while sRP has shape " << sRP.shape() << endl;
-        cerr << "Full shape of solveRPar(): " << solveRPar().shape() << endl;
-        cerr << "Shape of solveAllRPar(): " << solveAllRPar().shape() << endl;
-    }
-    
     if (DEVDEBUG) {
         cerr << "Ref time " << MVTime(refTime()/C::day).string(MVTime::YMD,7) << endl;
         cerr << "df0 " << df0 << " dt0 " << dt0 << " ref_freq*dt0 " << ref_freq*dt0 << LogIO::POST;
@@ -1571,7 +1882,8 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
         cerr << "df0 " << df0 << " dt0 " << dt0 << " ref_freq*dt0 " << ref_freq*dt0 << endl;
     }
     // calculateSNR is a method of FringeJones so it has access to the sSNR (et al) arrays.
-    calculateSNR(nCorr, drf, ref_freq, df0, dt0);
+    // But we no longer call it; we use a hessian-based calculation in least_squares_driver now.
+    // calculateSNR(nCorr, drf);
 
     // 2017-10-05(iv) This correction to the centre of the interval had fallen off.
     // restored from 19cd4a016baf3370658ad0601f4949f4474ba747
@@ -1581,17 +1893,17 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
             Double phi0 = sRP(3*icor + 0, iant);
             Double delay = sRP(3*icor + 1, iant);
             Double rate = sRP(3*icor + 2, iant);
-            Double delta1 = df0*delay;
+            // Double delta1 = df0*delay;
             // Double delta1 = 0.5*df_bootleg*delay/1e9;
+            Double delta1 = 0.0; // Temporary hack
             Double delta2 = ref_freq*dt0*rate;
             Double delta3 = C::_2pi*(delta1+delta2);
-            logSink() << "Antenna " << iant << ": phi0 " << phi0 << " delay " << delay << " rate " << rate << endl
-                      << "Adding corrections for frequency (" << 360*delta1 << ")"
-                      << " and time (" << 360*delta2 << ") degrees." << LogIO::POST;
+            // logSink() << "Antenna " << iant << ": phi0 " << phi0 << " delay " << delay << " rate " << rate << endl
+            //           << "Adding corrections for frequency (" << 360*delta1 << ")"
+            //           << " and time (" << 360*delta2 << ") degrees." << LogIO::POST;
             sRP(3*icor + 0, iant) += delta3;
          }
     }
-
     
     // We can zero the rates here (if needed) whether we did least squares or not.
     if ( zeroRates() ) {
@@ -1608,7 +1920,6 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
 
 }
 
-
 void
 FringeJones::solveOneVB(const VisBuffer&) {
     throw(AipsError("VisBuffer interface not supported!"));
@@ -1619,9 +1930,11 @@ FringeJones::solveOneVB(const VisBuffer&) {
 
 
 /*
+Example of use in at Python level:
 
 fringefit(vis="n14c2.ms", caltable="fail.fj", field="",spw="1",intent="",
           selectdata=True, timerange="", antenna="", scan="5", observation="",
           msselect="", solint="inf", refant="EF", minsnr=3.0, append=False,
           gaintable=['n14c2.gcal'], parang=False)
 */
+
