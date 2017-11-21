@@ -55,6 +55,7 @@ class sdcal_test(unittest.TestCase):
     # Input 
     infile1 = 'uid___A002_X6218fb_X264.ms.sel'
     infiles = [infile1]
+    tsystable = 'out.cal'
 
     def setUp(self):
         for infile in self.infiles:
@@ -67,6 +68,9 @@ class sdcal_test(unittest.TestCase):
         for infile in self.infiles:
             if (os.path.exists(infile)):
                 shutil.rmtree(infile)
+                
+        if os.path.exists(self.tsystable):
+            shutil.rmtree(self.tsystable)
 
     def _compareOutFile(self,out,reference):
         self.assertTrue(os.path.exists(out))
@@ -78,9 +82,9 @@ class sdcal_test(unittest.TestCase):
 
         tid = "00"
         infile = self.infile1
-        sdcal(infile=infile, calmode='tsys', outfile='out.cal')
+        sdcal(infile=infile, calmode='tsys', outfile=self.tsystable)
         compfile1=infile+'/SYSCAL'
-        compfile2='out.cal'
+        compfile2=self.tsystable
 
         tb.open(compfile1)
         subt1=tb.query('', sortlist='ANTENNA_ID, TIME, SPECTRAL_WINDOW_ID', columns='TSYS_SPECTRUM')
@@ -118,9 +122,9 @@ class sdcal_test(unittest.TestCase):
         infile = self.infile1
         with mmshelper(infile) as mvis:
             self.assertTrue(mvis is not None)
-            sdcal(infile=mvis, calmode='tsys', outfile='out.cal')
+            sdcal(infile=mvis, calmode='tsys', outfile=self.tsystable)
         compfile1=infile+'/SYSCAL'
-        compfile2='out.cal'
+        compfile2=self.tsystable
 
         tb.open(compfile1)
         subt1=tb.query('', sortlist='ANTENNA_ID, TIME, SPECTRAL_WINDOW_ID', columns='TSYS_SPECTRUM')
@@ -159,13 +163,13 @@ class sdcal_test(unittest.TestCase):
         
         tid = "01"
         infile = self.infile1
-        sdcal(infile=infile, calmode='tsys', outfile='tsys.cal')
+        sdcal(infile=infile, calmode='tsys', outfile=self.tsystable)
         initweights(vis=infile, wtmode='nyq', dowtsp=True)        
         #spwmap_list=[0,1,2,3,4,5,6,7,8,1,10,3,12,5,14,7,16]
         #spwmap_dict={1:[9],3:[11],5:[13],7:[15]}
         
         spwmap_dict={1:[1],3:[3],5:[5],7:[7]}        
-        sdcal(infile=infile, calmode='apply', spwmap=spwmap_dict, applytable='tsys.cal', outfile='')
+        sdcal(infile=infile, calmode='apply', spwmap=spwmap_dict, applytable=self.tsystable, outfile='')
         
                 
         tb.open(infile)
@@ -175,7 +179,7 @@ class sdcal_test(unittest.TestCase):
         weight10=tb.getcol('WEIGHT')[1][0]
         tb.close()
         
-        tb.open('tsys.cal')
+        tb.open(self.tsystable)
         sum_fparam0=0
         sum_fparam1=0
         for i in range(128):
@@ -208,13 +212,13 @@ class sdcal_test(unittest.TestCase):
         
         tid = "02"
         infile = self.infile1
-        sdcal(infile=infile, calmode='tsys', outfile='tsys2.cal')
+        sdcal(infile=infile, calmode='tsys', outfile=self.tsystable)
         initweights(vis=infile, wtmode='nyq', dowtsp=True)        
         spwmap_list=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
         #spwmap_dict={1:[9],3:[11],5:[13],7:[15]}
         
         #spwmap_dict={1:[1],3:[3],5:[5],7:[7]}        
-        sdcal(infile=infile, calmode='apply', spwmap=spwmap_list, applytable='tsys2.cal', outfile='')
+        sdcal(infile=infile, calmode='apply', spwmap=spwmap_list, applytable=self.tsystable, outfile='')
         
                 
         tb.open(infile)
@@ -224,7 +228,7 @@ class sdcal_test(unittest.TestCase):
         weight10=tb.getcol('WEIGHT')[1][0]
         tb.close()
         
-        tb.open('tsys2.cal')
+        tb.open(self.tsystable)
         sum_fparam0=0
         sum_fparam1=0
         for i in range(128):
@@ -304,7 +308,7 @@ class sdcal_test(unittest.TestCase):
 
         tid ="03"
         infile=self.infile1
-        tsysfile='tsys3.cal'
+        tsysfile=self.tsystable
         
         
         #tsys table is produced 
@@ -345,7 +349,7 @@ class sdcal_test(unittest.TestCase):
         
         tid ="04"
         infile=self.infile1
-        tsysfile='tsys4.cal'
+        tsysfile=self.tsystable
     
         #tsys table is produced 
         sdcal(infile=infile, calmode='tsys', outfile=tsysfile)
@@ -386,7 +390,7 @@ class sdcal_test(unittest.TestCase):
         
         tid ="05"
         infile=self.infile1
-        tsysfile='tsys5.cal'
+        tsysfile=self.tsystable
     
         #tsys table is produced 
         sdcal(infile=infile, calmode='tsys', outfile=tsysfile)
@@ -422,13 +426,13 @@ class sdcal_test(unittest.TestCase):
         
         tid = "06"
         infile = self.infile1
-        sdcal(infile=infile, calmode='tsys', outfile='tsys6.cal')
+        sdcal(infile=infile, calmode='tsys', outfile=self.tsystable)
         initweights(vis=infile, wtmode='nyq', dowtsp=True)        
         #spwmap_list=[0,1,2,3,4,5,6,7,8,1,10,3,12,5,14,7,16]
         #spwmap_dict={1:[9],3:[11],5:[13],7:[15]}
         
         spwmap_dict={1:[1],3:[3],5:[5],7:[7]}        
-        sdcal(infile=infile, calmode='apply', spwmap=spwmap_dict, applytable='tsys6.cal', interp='nearest', outfile='')
+        sdcal(infile=infile, calmode='apply', spwmap=spwmap_dict, applytable=self.tsystable, interp='nearest', outfile='')
         
         row=0
         eps = 1.0e-1
@@ -439,7 +443,7 @@ class sdcal_test(unittest.TestCase):
         total_ch=tb.getcell('WEIGHT_SPECTRUM',row).shape[1]
         tb.close()
         
-        tb.open('tsys.cal')
+        tb.open(self.tsystable)
         fparam=tb.getcell('FPARAM', row)
         for ch in range(total_ch):
             #print 'SIGMA00 ', sigma[0]
