@@ -1313,18 +1313,18 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Float>& ca
             cerr << "p " << p << " n " << n << endl;
         }
         // Parameters for the least-squares solver.
-        const double param_tol = 1.0e-8;
+        // param_tol sets roughly the number of decimal places accuracy you want in the answer;
+        // I feel that 3 is probably plenty for fringe fitting.
+        const double param_tol = 1.0e-3;
         const double gtol = pow(GSL_DBL_EPSILON, 1.0/3.0);
         const double ftol = 1.0e-20;   
         const size_t max_iter = 100;
 
         const gsl_multilarge_nlinear_type *T = gsl_multilarge_nlinear_trust;
         gsl_multilarge_nlinear_parameters params = gsl_multilarge_nlinear_default_parameters();
-        // params.scale = gsl_multilarge_nlinear_scale_more;
-        // params.solver = gsl_multilarge_nlinear_solver_cholesky;
+        params.scale = gsl_multilarge_nlinear_scale_more;
         params.trs = gsl_multilarge_nlinear_trs_lm;
-        params.scale = gsl_multilarge_nlinear_scale_levenberg;
- 
+        params.solver = gsl_multilarge_nlinear_solver_cholesky;
         gsl_multilarge_nlinear_workspace *w = gsl_multilarge_nlinear_alloc(T, &params, n, p);
         gsl_multilarge_nlinear_fdf f;
 
