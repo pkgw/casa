@@ -160,6 +160,7 @@ class cleanhelper:
             spectable=self.getsubtable(visname, "SPECTRAL_WINDOW")
             tb.open(spectable)
             chanfreqs=tb.getvarcol('CHAN_FREQ')
+            tb.close()
             kys = chanfreqs.keys()
             selspws=mssel['spw']
             # find extreme freq in each selected spw

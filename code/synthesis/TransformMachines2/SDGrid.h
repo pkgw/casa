@@ -41,13 +41,16 @@
 #include <measures/Measures/MDirection.h>
 #include <measures/Measures/MPosition.h>
 #include <ms/MeasurementSets/MSColumns.h>
-#include <msvis/MSVis/VisBuffer.h>
+#include <msvis/MSVis/VisBuffer2.h>
+#include <msvis/MSVis/VisibilityIterator2.h>
 #include <scimath/Mathematics/FFTServer.h>
-#include <synthesis/TransformMachines/FTMachine.h>
-#include <synthesis/TransformMachines/SkyJones.h>
+#include <synthesis/TransformMachines2/FTMachine.h>
+#include <synthesis/TransformMachines2/SkyJones.h>
 #include <synthesis/Utilities/SDPosInterpolator.h>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
+
+namespace refim { //# namespace for imaging refactor
 
 // <summary> An FTMachine for Gridding Single Dish data
 // </summary>
@@ -164,7 +167,7 @@ public:
   // Initialize transform to Visibility plane using the image
   // as a template. The image is loaded and Fourier transformed.
   void initializeToVis(casacore::ImageInterface<casacore::Complex>& image,
-		       const VisBuffer& vb);
+		       const vi::VisBuffer2& vb);
 
   // Finalize transform to Visibility plane: flushes the image
   // cache and shows statistics if it is being used.
@@ -172,7 +175,7 @@ public:
 
   // Initialize transform to Sky plane: initializes the image
   void initializeToSky(casacore::ImageInterface<casacore::Complex>& image,  casacore::Matrix<casacore::Float>& weight,
-		       const VisBuffer& vb);
+		       const vi::VisBuffer2& vb);
 
   // Finalize transform to Sky plane: flushes the image
   // cache and shows statistics if it is being used. DOES NOT
@@ -180,10 +183,10 @@ public:
   void finalizeToSky();
 
   // Get actual coherence from grid by degridding
-  void get(VisBuffer& vb, casacore::Int row=-1);
+  void get(vi::VisBuffer2& vb, casacore::Int row=-1);
 
   // Put coherence to grid by gridding.
-  void put(const VisBuffer& vb, casacore::Int row=-1, casacore::Bool dopsf=false,
+  void put(const vi::VisBuffer2& vb, casacore::Int row=-1, casacore::Bool dopsf=false,
 	   FTMachine::Type type=FTMachine::OBSERVED);
 
   // Make the entire image using a ROVisIter...
@@ -191,7 +194,7 @@ public:
   //SDGrid now does everything in memory
   // so for large cube ..proceed by slices that fit in memory here.
   virtual void makeImage(FTMachine::Type type,
-			 ROVisibilityIterator& vi,
+			 vi::VisibilityIterator2& vi,
 			 casacore::ImageInterface<casacore::Complex>& image,
 			 casacore::Matrix<casacore::Float>& weight);
 
@@ -204,13 +207,16 @@ public:
 			      casacore::Bool /*fftNorm*/)
     {throw(casacore::AipsError("SDGrid::normalizeImage() called"));}
 
+  // SDGrind needs to fill weightimage
+  virtual casacore::Bool useWeightImage(){return true;};
+
   // Get the final weights image
   void getWeightImage(casacore::ImageInterface<casacore::Float>&, casacore::Matrix<casacore::Float>&);
 
   // Has this operator changed since the last application?
-  virtual casacore::Bool changed(const VisBuffer& vb);
+  virtual casacore::Bool changed(const vi::VisBuffer2& vb);
   virtual void setMiscInfo(const casacore::Int qualifier){(void)qualifier;};
-  virtual void ComputeResiduals(VisBuffer& /*vb*/, casacore::Bool /*useCorrected*/) {};
+  virtual void ComputeResiduals(vi::VisBuffer2& /*vb*/, casacore::Bool /*useCorrected*/) {};
 
   virtual casacore::String name() const;
 
@@ -218,7 +224,7 @@ private:
 
   // Find the Primary beam and convert it into a convolution buffer
   void findPBAsConvFunction(const casacore::ImageInterface<casacore::Complex>& image,
-			    const VisBuffer& vb);
+			    const vi::VisBuffer2& vb);
 
   SkyJones* sj_p;
 
@@ -306,7 +312,7 @@ private:
   casacore::Int getIndex(const casacore::ROMSPointingColumns& mspc, const casacore::Double& time,
 	       const casacore::Double& interval=-1.0, const casacore::Int& antid=-1);
 
-  casacore::Bool getXYPos(const VisBuffer& vb, casacore::Int row);
+  casacore::Bool getXYPos(const vi::VisBuffer2& vb, casacore::Int row);
 
   //get the casacore::MDirection from a chosen column of pointing table
   casacore::MDirection directionMeas(const casacore::ROMSPointingColumns& mspc, const casacore::Int& index);
@@ -314,12 +320,13 @@ private:
   casacore::MDirection interpolateDirectionMeas(const casacore::ROMSPointingColumns& mspc, const casacore::Double& time,
                                   const casacore::Int& index, const casacore::Int& index1, const casacore::Int& index2);
 
-  void pickWeights(const VisBuffer&vb, casacore::Matrix<casacore::Float>& weight);
+  void pickWeights(const vi::VisBuffer2&vb, casacore::Matrix<casacore::Float>& weight);
 
   //for debugging
   //FILE *pfile;
 };
 
+} //End of namespace refim
 } //# NAMESPACE CASA - END
 
 #endif
