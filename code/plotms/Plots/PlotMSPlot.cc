@@ -1754,7 +1754,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
 				xrefval, xDataColumn, polnRatio);
 		if (x == PMS::FREQUENCY)
 			xLabelSingle = addFreqFrame(xLabelSingle);
-		if (axisIsAveraged(x, averaging))
+		if (axisIsAveraged(x, averaging) && anyEQ(dataTypes,0))
 			xLabelSingle = "Average " + xLabelSingle;
 		// change xaxis to "Polarization" for cal tables if no MS plotted
 		if (allEQ(dataTypes,1) && xLabelSingle.contains("Corr"))
@@ -1790,7 +1790,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
 						yref, yrefval, yDataColumn, polnRatio );
 				if (y == PMS::FREQUENCY)
 					yLabelSingle = addFreqFrame(yLabelSingle);
-				if (axisIsAveraged(y, averaging))
+				if (axisIsAveraged(y, averaging) && !isCalTable)
 					yLabelSingle = "Average " + yLabelSingle;
 				if (isCalTable && yLabelSingle.contains("Corr"))
 					yLabelSingle.gsub("Corr", "Poln");
