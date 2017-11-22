@@ -107,36 +107,36 @@ public:
     // xmlcasa/scripts/task_plotms.py.**
     // <group>
     PMS_ENUM1(Axis, axes, axesStrings, axis,
-	      SCAN,FIELD,TIME,TIME_INTERVAL,
-	      SPW,CHANNEL,FREQUENCY,VELOCITY,CORR,
-	      ANTENNA1,ANTENNA2,BASELINE,ROW,
+          SCAN,FIELD,TIME,TIME_INTERVAL,
+          SPW,CHANNEL,FREQUENCY,VELOCITY,CORR,
+          ANTENNA1,ANTENNA2,BASELINE,ROW,
           OBSERVATION,INTENT,FEED1,FEED2,
-	      AMP,PHASE,REAL,IMAG,WT,WTxAMP,WTSP,
-	      SIGMA, SIGMASP,
-	      FLAG,FLAG_ROW,
-	      UVDIST,UVDIST_L,U,V,W,UWAVE,VWAVE,WWAVE,
-	      AZ0,EL0,HA0,PA0,
-	      ANTENNA,AZIMUTH,ELEVATION,
-	      PARANG,
-	      GAMP,GPHASE,GREAL,GIMAG,
-	      DELAY,SWP,TSYS,OPAC, SNR, TEC,
-	      RADIAL_VELOCITY, RHO, 
-	      NONE)
+          AMP,PHASE,REAL,IMAG,WT,WTxAMP,WTSP,
+          SIGMA, SIGMASP,
+          FLAG,FLAG_ROW,
+          UVDIST,UVDIST_L,U,V,W,UWAVE,VWAVE,WWAVE,
+          AZ0,EL0,HA0,PA0,
+          ANTENNA,AZIMUTH,ELEVATION,
+          PARANG,
+          GAMP,GPHASE,GREAL,GIMAG,
+          DELAY,SWP,TSYS,OPAC, SNR, TEC,
+          RADIAL_VELOCITY, RHO, 
+          NONE)
 
     PMS_ENUM2(Axis, axes, axesStrings, axis,
-	      "Scan","Field","Time","Interval",
-	      "Spw","Channel","Frequency","Velocity","Corr",
-	      "Antenna1","Antenna2","Baseline","Row",
-	      "Observation", "Intent", "Feed1", "Feed2",
-	      "Amp","Phase","Real","Imag","Wt","Wt*Amp","WtSp",
-	      "Sigma", "SigmaSp", "Flag","FlagRow",
-	      "UVdist","UVwave","U","V","W","Uwave","Vwave","Wwave",
-	      "Azimuth","Elevation","HourAngle","ParAngle",
-	      "Antenna","Ant-Azimuth","Ant-Elevation","Ant-ParAngle",
-	      "Gain Amp","Gain Phase","Gain Real","Gain Imag",
-	      "Delay","SwPower","Tsys","Opac", "SNR", "TEC",
-	      "Radial Velocity [km/s]", "Distance (rho) [km]", 
-	      "None")
+          "Scan","Field","Time","Interval",
+          "Spw","Channel","Frequency","Velocity","Corr",
+          "Antenna1","Antenna2","Baseline","Row",
+          "Observation", "Intent", "Feed1", "Feed2",
+          "Amp","Phase","Real","Imag","Wt","Wt*Amp","WtSp",
+          "Sigma", "SigmaSp", "Flag","FlagRow",
+          "UVdist","UVwave","U","V","W","Uwave","Vwave","Wwave",
+          "Azimuth","Elevation","HourAngle","ParAngle",
+          "Antenna","Ant-Azimuth","Ant-Elevation","Ant-ParAngle",
+          "Gain Amp","Gain Phase","Gain Real","Gain Imag",
+          "Delay","SwPower","Tsys","Opac", "SNR", "TEC",
+          "Radial Velocity [km/s]", "Distance (rho) [km]", 
+          "None")
 
     // </group>
               
@@ -150,10 +150,10 @@ public:
     // <group>
     PMS_ENUM1(DataColumn, dataColumns, dataColumnStrings, dataColumn,
               DATA, CORRECTED, MODEL, CORRMODEL, DATAMODEL, DATA_DIVIDE_MODEL, 
-			  CORRECTED_DIVIDE_MODEL, FLOAT_DATA)
+              CORRECTED_DIVIDE_MODEL, FLOAT_DATA)
     PMS_ENUM2(DataColumn, dataColumns, dataColumnStrings, dataColumn,
               "data", "corrected", "model", "corrected-model", "data-model", 
-			  "data/model", "corrected/model", "float")
+              "data/model", "corrected/model", "float")
     // </group>
               
     // Returns whether or not the given axis needs the second data parameter to
@@ -183,9 +183,9 @@ public:
     // Enum for different axes units.  Currently only used in labels.
     // <group>
     PMS_ENUM1(AxisUnit, axesUnits, axesUnitStrings, axisUnit,
-              UNONE, UDATETIME, GHERTZ, METERS_PER_SECOND, KILOMETERS_PER_SECOND,
-              KILOMETERS, METERS, HOURS, WAVELENGTHS, DEGREES, NANOSECONDS, KELVIN,
-              NEPERS, SECONDS);
+              UNONE, UDATETIME, GHERTZ, METERS_PER_SECOND, 
+              KILOMETERS_PER_SECOND, KILOMETERS, METERS, HOURS, WAVELENGTHS,
+              DEGREES, NANOSECONDS, KELVIN, NEPERS, SECONDS);
     PMS_ENUM2(AxisUnit, axesUnits, axesUnitStrings, axisUnit,
               "", "hh:mm:ss", "GHz", "m/s", "km/s", "km", "m", "hours",
               "<html>&lambda;</html>", "degrees", "ns", "K", "neper", "s");
@@ -207,15 +207,17 @@ public:
             double& sec, PlotAxisScale scale = DATE_MJ_SEC);
     // </group>    
               
-    // Returns true if the given Strings are equals, false otherwise.  If
-    // ignoreCase is false then it is a direct casacore::String comparison using ==;
-    // otherwise the casacore::String characters are compared while ignoring case for
-    // letters.
-    static bool strEq(const casacore::String& str1, const casacore::String& str2,
+    // Returns true if the given Strings are equals, false otherwise.
+    // If ignoreCase is false then it is a direct casacore::String comparison
+    // using ==; otherwise the casacore::String characters are compared while
+    // ignoring case for letters.
+    static bool strEq(const casacore::String& str1, 
+                      const casacore::String& str2,
                       bool ignoreCase = false);
     
     // Returns true if the given Records are equals, false otherwise.
-    static bool recEq(const casacore::Record& rec1, const casacore::Record& rec2);
+    static bool recEq(const casacore::Record& rec1,
+                      const casacore::Record& rec2);
     
     // Converts the given templated vector to/from an int Vector.
     // <group>
@@ -250,7 +252,17 @@ public:
               "SysCal", "Weather")
     // </group>
               
+    // Enum for the different CalTable summary types.
+    // <group>
+    PMS_ENUM1(CTSummaryType, CTsummaryTypes, CTsummaryTypeStrings, CTsummaryType,
+              S_ALL_CT, S_WHERE_CT, S_WHAT_CT, S_HOW_CT, S_MAIN_CT, S_TABLES_CT,
+              S_ANTENNA_CT, S_FIELD_CT, S_OBSERVATION_CT, S_HISTORY_CT, S_SPW_CT)
 
+    PMS_ENUM2(CTSummaryType, CTsummaryTypes, CTsummaryTypeStrings, CTsummaryType,
+              "All", "Where", "What", "How", "Main", "Tables", "Antenna",
+              "Field", "Observation", "History", "Spectral Window") 
+    // </group>
+              
    // Enum for export range.
    // <group>
    PMS_ENUM1(ExportRange, exportRanges, exportRangeStrings, exportRange, PAGE_CURRENT, PAGE_ALL)

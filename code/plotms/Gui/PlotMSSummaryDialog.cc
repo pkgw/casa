@@ -24,6 +24,8 @@
 //#
 //# $Id: $
 #include "PlotMSSummaryDialog.qo.h"
+#include <tables/Tables/Table.h>
+#include <tables/Tables/TableRecord.h>
 #include <QDebug>
 
 
@@ -62,6 +64,17 @@ void PlotMSSummaryDialog::filesChanged(const vector<String>& fileNames){
 	QString oldSelection = ui.fileCombo->currentText();
 	ui.fileCombo->clear();
 	int fileNameCount = fileNames.size();
+
+	// Revise summary choices for cal tables
+	Table tab = Table(fileNames[0]);
+	if (tab.keywordSet().isDefined("ParType")) {
+		ui.summaryType->clear();
+		const vector<String>& types = PMS::CTsummaryTypeStrings();
+		for(unsigned int i = 0; i < types.size(); i++){
+			ui.summaryType->addItem(types[i].c_str());
+		}
+	}
+
 	for ( int i = 0; i < fileNameCount; i++ ){
 		ui.fileCombo->addItem( fileNames[i].c_str());
 	}
