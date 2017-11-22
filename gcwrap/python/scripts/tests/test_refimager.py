@@ -1277,6 +1277,61 @@ class test_cube(testref_base):
           report2 = self.th.checkspecframe(self.img+self.testList[testid]['imagename']+'.image','TOPO',1.20e9)
           self.checkfinal(report+report2)
 
+     # following tests for cube image spectral channel order for the data with decreasing channel frequecies
+     def test_cube_descendF1(self):
+          # first image channel = first data channel, image channel frequecy descreases with increasing channel number
+          """ [cube] Test_Cube_DescendF1: specmode cube with descending frequency data, default start and width  """
+          self.prepData('refim_point_descendingfreqs.ms')
+          ret = tclean(vis=self.msfile,field='0',imsize=100,cell='8.0arcsec',niter=10,\
+                       specmode='cube',nchan=10,restfreq=['1.25GHz'],\
+                       phasecenter="J2000 19:59:28.500 +40.44.01.50",deconvolver='hogbom',\
+                       spw='0', imagename=self.img,veltype='radio',outframe='LSRK')
+          self.assertTrue(os.path.exists(self.img+'.psf') and os.path.exists(self.img+'.image') )
+
+          report = self.th.checkspecframe(self.img+'.image','LSRK',1.949978e9, -0.049999438e9)
+          self.checkfinal(report)
+
+     def test_cube_descendF2(self):
+          # first image channel = data channel 5, image channel frequecy descreases with increasing channel number
+          """ [cube] Test_Cube_DescendF2: specmode cube with descending frequency data, start in channel no. with default width  """
+          self.prepData('refim_point_descendingfreqs.ms')
+          ret = tclean(vis=self.msfile,field='0',imsize=100,cell='8.0arcsec',niter=10,\
+                       specmode='cube',nchan=10,restfreq=['1.25GHz'],\
+                       phasecenter="J2000 19:59:28.500 +40.44.01.50",deconvolver='hogbom',\
+                       spw='0', start=5, width='', imagename=self.img,veltype='radio',outframe='LSRK')
+          self.assertTrue(os.path.exists(self.img+'.psf') and os.path.exists(self.img+'.image') )
+
+          report = self.th.checkspecframe(self.img+'.image','LSRK',1.699981e9,-0.049999438e9)
+          self.checkfinal(report)
+
+     def test_cube_descendF3(self):
+          # cube image should be identical with test_cube_descendF2
+          # first image channel = data channel 5, width=1, ->image channel frequecy descreases with increasing channel number
+          """ [cube] Test_Cube_DescendF3: specmode cube with descending frequency data, start in channel no. with  width=1  """
+          self.prepData('refim_point_descendingfreqs.ms')
+          ret = tclean(vis=self.msfile,field='0',imsize=100,cell='8.0arcsec',niter=10,\
+                       specmode='cube',nchan=10,restfreq=['1.25GHz'],\
+                       phasecenter="J2000 19:59:28.500 +40.44.01.50",deconvolver='hogbom',\
+                       spw='0', start=5, width=1, imagename=self.img,veltype='radio',outframe='LSRK')
+          self.assertTrue(os.path.exists(self.img+'.psf') and os.path.exists(self.img+'.image') )
+
+          report = self.th.checkspecframe(self.img+'.image','LSRK',1.699981e9,-0.049999438e9)
+          self.checkfinal(report)
+
+     def test_cube_descendF4(self):
+          # start by frequency, default width
+          # first image channel = data channel 5, -> channel frequecy increases with increasing channel number
+          """ [cube] Test_Cube_DescendF4: specmode cube with descending frequency data, start in freuquency  with  default width """
+          self.prepData('refim_point_descendingfreqs.ms')
+          ret = tclean(vis=self.msfile,field='0',imsize=100,cell='8.0arcsec',niter=10,\
+                       specmode='cube',nchan=10,restfreq=['1.25GHz'],\
+                       phasecenter="J2000 19:59:28.500 +40.44.01.50",deconvolver='hogbom',\
+                       spw='0', start='1.49998GHz', width='', imagename=self.img,veltype='radio',outframe='LSRK')
+          self.assertTrue(os.path.exists(self.img+'.psf') and os.path.exists(self.img+'.image') )
+
+          report = self.th.checkspecframe(self.img+'.image','LSRK',1.49998e9,0.049999438e9)
+          self.checkfinal(report)
+
      def test_cube_D1(self):
           """ [cube] Test_Cube_D1 : specmode cubedata - No runtime doppler corrections """
           self.prepData('refim_Cband.G37line.ms')
