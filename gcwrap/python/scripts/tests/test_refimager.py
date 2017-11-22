@@ -1279,6 +1279,7 @@ class test_cube(testref_base):
 
      # following tests for cube image spectral channel order for the data with decreasing channel frequecies
      def test_cube_descendF1(self):
+           # default start and width
           # first image channel = first data channel, image channel frequecy descreases with increasing channel number
           """ [cube] Test_Cube_DescendF1: specmode cube with descending frequency data, default start and width  """
           self.prepData('refim_point_descendingfreqs.ms')
@@ -1319,17 +1320,158 @@ class test_cube(testref_base):
           self.checkfinal(report)
 
      def test_cube_descendF4(self):
-          # start by frequency, default width
-          # first image channel = data channel 5, -> channel frequecy increases with increasing channel number
+          # start in channel no., width=-1  
+          # first image channel = data channel 9, -> channel frequecy increases with increasing image channel number  
           """ [cube] Test_Cube_DescendF4: specmode cube with descending frequency data, start in freuquency  with  default width """
           self.prepData('refim_point_descendingfreqs.ms')
           ret = tclean(vis=self.msfile,field='0',imsize=100,cell='8.0arcsec',niter=10,\
                        specmode='cube',nchan=10,restfreq=['1.25GHz'],\
                        phasecenter="J2000 19:59:28.500 +40.44.01.50",deconvolver='hogbom',\
-                       spw='0', start='1.49998GHz', width='', imagename=self.img,veltype='radio',outframe='LSRK')
+                       spw='0', start=9, width=-1, imagename=self.img,veltype='radio',outframe='LSRK')
           self.assertTrue(os.path.exists(self.img+'.psf') and os.path.exists(self.img+'.image') )
 
-          report = self.th.checkspecframe(self.img+'.image','LSRK',1.49998e9,0.049999438e9)
+          report = self.th.checkspecframe(self.img+'.image','LSRK', 1.499983125e9,0.049999438e9)
+          self.checkfinal(report)
+
+     def test_cube_descendF5(self):
+          # start in frequency, default width
+          # first image channel = data channel 9, -> channel frequecy increases with increasing channel number
+          """ [cube] Test_Cube_DescendF5: specmode cube with descending frequency data, start in freuquency  with  default width """
+          self.prepData('refim_point_descendingfreqs.ms')
+          ret = tclean(vis=self.msfile,field='0',imsize=100,cell='8.0arcsec',niter=10,\
+                       specmode='cube',nchan=10,restfreq=['1.25GHz'],\
+                       phasecenter="J2000 19:59:28.500 +40.44.01.50",deconvolver='hogbom',\
+                       spw='0', start='1.499983125GHz', width='', imagename=self.img,veltype='radio',outframe='LSRK')
+          self.assertTrue(os.path.exists(self.img+'.psf') and os.path.exists(self.img+'.image') )
+
+          report = self.th.checkspecframe(self.img+'.image','LSRK',1.499983125e9,0.049999438e9)
+          self.checkfinal(report)
+
+     def test_cube_descendF6(self):
+          # start in frequency, positive width
+          # first image channel = data channel 9, -> channel frequecy increases with increasing channel number
+          """ [cube] Test_Cube_DescendF6: specmode cube with descending frequency data, start in freuquency  with  a positive width """
+          self.prepData('refim_point_descendingfreqs.ms')
+          ret = tclean(vis=self.msfile,field='0',imsize=100,cell='8.0arcsec',niter=10,\
+                       specmode='cube',nchan=10,restfreq=['1.25GHz'],\
+                       phasecenter="J2000 19:59:28.500 +40.44.01.50",deconvolver='hogbom',\
+                       spw='0', start='1.499983125GHz', width='0.049999438GHz', imagename=self.img,veltype='radio',outframe='LSRK')
+          self.assertTrue(os.path.exists(self.img+'.psf') and os.path.exists(self.img+'.image') )
+
+          report = self.th.checkspecframe(self.img+'.image','LSRK',1.499983125e9,0.049999438e9)
+          self.checkfinal(report)
+
+     def test_cube_descendF7(self):
+          # start in frequency, negative width
+          # first image channel = data channel 5, -> channel frequecy decreases with increasing channel number
+          """ [cube] Test_Cube_DescendF7: specmode cube with descending frequency data, start in freuquency  with  a negative width """
+          self.prepData('refim_point_descendingfreqs.ms')
+          ret = tclean(vis=self.msfile,field='0',imsize=100,cell='8.0arcsec',niter=10,\
+                       specmode='cube',nchan=10,restfreq=['1.25GHz'],\
+                       phasecenter="J2000 19:59:28.500 +40.44.01.50",deconvolver='hogbom',\
+                       spw='0', start='1.699981GHz', width='-0.049999438GHz', imagename=self.img,veltype='radio',outframe='LSRK')
+          self.assertTrue(os.path.exists(self.img+'.psf') and os.path.exists(self.img+'.image') )
+
+          report = self.th.checkspecframe(self.img+'.image','LSRK',1.699981e9,-0.049999438e9)
+          self.checkfinal(report)
+
+     def test_cube_descendF8(self):
+          # start='',  a positive frequency width
+          # the data channel 0 - 9  will be selected, but since width >0 for the ms, image channel order will be reversed w.r.t data channel order
+          """ [cube] Test_Cube_DescendF8: specmode cube with descending frequency data, width in  a positive freuquency  with  default start """
+          self.prepData('refim_point_descendingfreqs.ms')
+          ret = tclean(vis=self.msfile,field='0',imsize=100,cell='8.0arcsec',niter=10,\
+                       specmode='cube',nchan=10,restfreq=['1.25GHz'],\
+                       phasecenter="J2000 19:59:28.500 +40.44.01.50",deconvolver='hogbom',\
+                       spw='0', start='', width='0.049999438GHz', imagename=self.img,veltype='radio',outframe='LSRK')
+          self.assertTrue(os.path.exists(self.img+'.psf') and os.path.exists(self.img+'.image') )
+
+          report = self.th.checkspecframe(self.img+'.image', 'LSRK', 0.999989e9, 0.049999438e9)
+          self.checkfinal(report)
+
+     def test_cube_descendF9(self):
+          # start='',  a netative frequency width
+          # the data channel 0 - 9 will be selected, but since width <0 for the ms, image channel order will be the same order as data channel
+          """ [cube] Test_Cube_DescendF9: specmode cube with descending frequency data, width in  a positive freuquency  with  default start """
+          self.prepData('refim_point_descendingfreqs.ms')
+          ret = tclean(vis=self.msfile,field='0',imsize=100,cell='8.0arcsec',niter=10,\
+                       specmode='cube',nchan=10,restfreq=['1.25GHz'],\
+                       phasecenter="J2000 19:59:28.500 +40.44.01.50",deconvolver='hogbom',\
+                       spw='0', start='', width='-0.049999438GHz', imagename=self.img,veltype='radio',outframe='LSRK')
+          self.assertTrue(os.path.exists(self.img+'.psf') and os.path.exists(self.img+'.image') )
+
+          report = self.th.checkspecframe(self.img+'.image', 'LSRK', 1.44998369263e9, -0.049999438e9)
+          self.checkfinal(report)
+
+     def test_cube_descendF10(self):
+          # start in velocity , width=''
+          # first image channel = data channel 5, -> channel velocity increases  with increasing channel number
+          """ [cube] Test_Cube_DescendF10: specmode cube with descendign frequency data, start in velocity with defualt width """
+          self.prepData('refim_point_descendingfreqs.ms')
+          ret = tclean(vis=self.msfile,field='0',imsize=100,cell='8.0arcsec',niter=10,\
+                       specmode='cube',nchan=10,restfreq=['1.25GHz'],\
+                       phasecenter="J2000 19:59:28.500 +40.44.01.50",deconvolver='hogbom',\
+                       spw='0', start='-107920.698km/s', width='', imagename=self.img,veltype='radio',outframe='LSRK')
+          self.assertTrue(os.path.exists(self.img+'.psf') and os.path.exists(self.img+'.image') )
+
+          report = self.th.checkspecframe(self.img+'.image', 'LSRK', 1.699980875e9, -0.049999438e9)
+          self.checkfinal(report)
+
+     def test_cube_descendF11(self):
+          # start in velocity , a positive vel width
+          # first image channel = data channel 5, -> channel velocity increases  with increasing channel number
+          """ [cube] Test_Cube_DescendF11: specmode cube with descendign frequency data, start in velocity with defualt width """
+          self.prepData('refim_point_descendingfreqs.ms')
+          ret = tclean(vis=self.msfile,field='0',imsize=100,cell='8.0arcsec',niter=10,\
+                       specmode='cube',nchan=10,restfreq=['1.25GHz'],\
+                       phasecenter="J2000 19:59:28.500 +40.44.01.50",deconvolver='hogbom',\
+                       spw='0', start='-107920.698km/s', width='1.1991563418e4km/s', imagename=self.img,veltype='radio',outframe='LSRK')
+          self.assertTrue(os.path.exists(self.img+'.psf') and os.path.exists(self.img+'.image') )
+
+          report = self.th.checkspecframe(self.img+'.image', 'LSRK', 1.699980875e9, -0.049999438e9)
+          self.checkfinal(report)
+
+     def test_cube_descendF12(self):
+          # start in velocity , a negative vel width
+          # first image channel = data channel 9, -> channel velocity decreases with increasing channel number
+          """ [cube] Test_Cube_DescendF12: specmode cube with descendign frequency data, start in velocity with defualt width """
+          self.prepData('refim_point_descendingfreqs.ms')
+          ret = tclean(vis=self.msfile,field='0',imsize=100,cell='8.0arcsec',niter=10,\
+                       specmode='cube',nchan=10,restfreq=['1.25GHz'],\
+                       phasecenter="J2000 19:59:28.500 +40.44.01.50",deconvolver='hogbom',\
+                       spw='0', start='-59954.444km/s', width='-1.1991563418e4km/s', imagename=self.img,veltype='radio',outframe='LSRK')
+          self.assertTrue(os.path.exists(self.img+'.psf') and os.path.exists(self.img+'.image') )
+
+          report = self.th.checkspecframe(self.img+'.image', 'LSRK', 1.49998312558e9, 0.049999438e9)
+          self.checkfinal(report)
+
+     def test_cube_descendF13(self):
+          # width  in a positive velocity, default start
+          # the data channel 10-19 (lower side in vel) will be selected, since vel width >0, image channel order will be reversed order w.r.t data channel order
+          """ [cube] Test_Cube_DescendF13: specmode cube with descendign frequency data, start in velocity with defualt width """
+          self.prepData('refim_point_descendingfreqs.ms')
+          ret = tclean(vis=self.msfile,field='0',imsize=100,cell='8.0arcsec',niter=10,\
+                       specmode='cube',nchan=10,restfreq=['1.25GHz'],\
+                       phasecenter="J2000 19:59:28.500 +40.44.01.50",deconvolver='hogbom',\
+                       spw='0', start='', width='1.1991563418e4km/s', imagename=self.img,veltype='radio',outframe='LSRK')
+          self.assertTrue(os.path.exists(self.img+'.psf') and os.path.exists(self.img+'.image') )
+
+          report = self.th.checkspecframe(self.img+'.image', 'LSRK', 1.449983688e9, -0.0499994375194e9)
+          self.checkfinal(report)
+
+
+     def test_cube_descendF14(self):
+          # width  in a negative velocity, default start
+          # the data channel 10-19 (lower side in vel) will be selected, since vel width <0, image channel order will the same order w.r.t data channel order
+          """ [cube] Test_Cube_DescendF14: specmode cube with descendign frequency data, start in velocity with defualt width """
+          self.prepData('refim_point_descendingfreqs.ms')
+          ret = tclean(vis=self.msfile,field='0',imsize=100,cell='8.0arcsec',niter=10,\
+                       specmode='cube',nchan=10,restfreq=['1.25GHz'],\
+                       phasecenter="J2000 19:59:28.500 +40.44.01.50",deconvolver='hogbom',\
+                       spw='0', start='', width='-1.1991563418e4km/s', imagename=self.img,veltype='radio',outframe='LSRK')
+          self.assertTrue(os.path.exists(self.img+'.psf') and os.path.exists(self.img+'.image') )
+
+          report = self.th.checkspecframe(self.img+'.image', 'LSRK', 0.999988750387e9, 0.049999438e9)
           self.checkfinal(report)
 
      def test_cube_D1(self):
