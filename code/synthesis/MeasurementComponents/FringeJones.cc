@@ -680,7 +680,7 @@ expb_f(const gsl_vector *param, void *d, gsl_vector *f)
 
     Double sumwt = 0.0;
     Double xi_squared = 0.0;
-    
+
     for (Int ibuf=0; ibuf < sdbs.nSDB(); ibuf++) {
         SolveDataBuffer& s ( sdbs(ibuf) );
         if ( !s.Ok() ) continue;
@@ -1126,9 +1126,6 @@ expb_hess(gsl_vector *param, AuxParamBundle *bundle, gsl_matrix *hess, Double xi
                 r2 = 0.0;
             }
 
-            if (iparam2 < iparam1) {
-                cerr << "iparam1 " << iparam1 << " iparam2 " << iparam2 << " iant1 " << ant1 << " iant2 " << ant2 << endl;
-            }
             Float phi0 = phi0_2 - phi0_1;
             Float tau  = tau2 - tau1;
             Float r    = r2 - r1;
