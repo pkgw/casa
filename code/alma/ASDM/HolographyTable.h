@@ -131,7 +131,7 @@ class HolographyRow;
  * </TR>
 	
  * <TR>
- * <TD> numCorr (\f$N_{Corr}\f$)</TD> 
+ * <TD> numCorr (numCorr)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of stored correlations. </TD>
