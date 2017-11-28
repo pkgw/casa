@@ -1,5 +1,7 @@
 casacore::Bool detached();
 casacore::Bool ready2write_();
+casacore::Bool doMSSelection(const ::casac::record& exprs, 
+	const bool onlyparse=false);
 
 casacore::Bool checkinit();
 casacore::Vector<casacore::Int> convertCorrToInt(casa::vi::VisBuffer2* vb2);
