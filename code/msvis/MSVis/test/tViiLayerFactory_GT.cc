@@ -357,7 +357,8 @@ public:
  
 
 /* This test will simply access the corrected data column of a 
- * synthetic created MS */ 
+ * synthetic created MS 
+ */ 
 TEST_F(DataAccessTest, AccessCorrectedData)
 {
   createTVIs();
@@ -366,6 +367,10 @@ TEST_F(DataAccessTest, AccessCorrectedData)
   visitIterator([&]() -> void {vb_p->visCubeCorrected().shape();});
 }
 
+/* 
+ * This test will check that an exception is thrown if the 
+ * CORRECTED DATA column is missing in the MS.
+ */
 TEST_F(DataAccessTest, AccessCorrectedDataWhenMissing)
 {
 //  removeCorrectedData();
@@ -378,6 +383,11 @@ TEST_F(DataAccessTest, AccessCorrectedDataWhenMissing)
 //               AipsError);
 }
 
+/* 
+ * This test will access the corrected data column of a 
+ * synthetic that doesn't contain that column. The upper TVI, however
+ * will swap the access to DATA column instead so the test should succeed
+ */ 
 TEST_F(DataAccessTest, AccessCorrectedDataInSwappingDataTVI)
 {
   removeCorrectedData();
