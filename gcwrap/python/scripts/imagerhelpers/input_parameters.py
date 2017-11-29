@@ -117,6 +117,7 @@ class ImagerParameters():
                  sidelobethreshold=5.0,
                  noisethreshold=3.0,
                  lownoisethreshold=3.0,
+                 negativethreshold=0.0,
                  smoothfactor=1.0,
                  minbeamfrac=0.3,
                  cutthreshold=0.01,
@@ -129,7 +130,17 @@ class ImagerParameters():
                  workdir='',
 
                  ## CFCache params
-                 cflist=[]
+                 cflist=[],
+                 
+                 ## single-dish imaging params
+                 gridfunction='SF',
+                 convsupport=-1,
+                 truncate="-1",
+                 gwidth="-1",
+                 jwidth="-1",
+                 pointingcolumntouse='direction',
+                 minweight=0.0,
+                 clipminmax=False
                  ):
 
         self.defaultKey="0";
@@ -163,7 +174,11 @@ class ImagerParameters():
                                    'rotatepastep':rotatepastep, #'mtype':mtype, # 'weightlimit':weightlimit,
                                    'facets':facets,'chanchunks':chanchunks,
                                    'interpolation':interpolation, 'wprojplanes':wprojplanes,
-                                   'deconvolver':deconvolver, 'vptable':vptable }     }
+                                   'deconvolver':deconvolver, 'vptable':vptable,
+                                   ## single-dish specific
+                                   'convfunc': gridfunction, 'convsupport': convsupport,
+                                   'truncate': truncate, 'gwidth': gwidth, 'jwidth': jwidth,
+                                   'minweight': minweight, 'clipminmax': clipminmax}     }
         ######### weighting
         self.weightpars = {'type':weighting,'robust':robust, 'npixels':npixels,'uvtaper':uvtaper}
 
@@ -180,7 +195,7 @@ class ImagerParameters():
                                     'maskresolution':maskresolution, 'nmask':nmask,
                                     #'maskresolution':maskresolution, 'nmask':nmask,'autoadjust':autoadjust,
                                     'sidelobethreshold':sidelobethreshold, 'noisethreshold':noisethreshold,
-                                    'lownoisethreshold':lownoisethreshold, 'smoothfactor':smoothfactor,
+                                    'lownoisethreshold':lownoisethreshold, 'negativethreshold':negativethreshold,'smoothfactor':smoothfactor,
                                     'minbeamfrac':minbeamfrac, 'cutthreshold':cutthreshold, 'growiterations':growiterations,
                                     'interactive':interactive, 'startmodel':startmodel} }
 

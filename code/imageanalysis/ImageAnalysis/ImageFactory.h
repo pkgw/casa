@@ -30,12 +30,14 @@
 
 #include <imageanalysis/ImageTypedefs.h>
 
-#include <casa/Arrays/Array.h>
-#include <casa/BasicSL/String.h>
-#include <casa/Containers/Record.h>
-#include <casa/Logging/LogOrigin.h>
-#include <casa/namespace.h>
-#include <lattices/Lattices/LatticeBase.h>
+#include <imageanalysis/Images/ComponentListImage.h>
+
+#include <casacore/casa/Arrays/Array.h>
+#include <casacore/casa/BasicSL/String.h>
+#include <casacore/casa/Containers/Record.h>
+#include <casacore/casa/Logging/LogOrigin.h>
+#include <casacore/casa/namespace.h>
+#include <casacore/lattices/Lattices/LatticeBase.h>
 #include <utility>
 #include <vector>
 
@@ -49,7 +51,6 @@ template <class T> class Vector;
 }
 
 namespace casa {
-
 
 class ImageFactory {
 	// <summary>
@@ -87,6 +88,13 @@ public:
         const casacore::CoordinateSystem& cSys, const casacore::IPosition& shape,
         casacore::Bool log, casacore::Bool overwrite,
         const std::vector<std::pair<casacore::LogOrigin, casacore::String> > *const &msgs
+    );
+
+    // create a ComponentListImage
+    static SHARED_PTR<ComponentListImage> createComponentListImage(
+        const casacore::String& outfile, const casacore::Record& cl,
+        const casacore::Vector<casacore::Int>& shape, const casacore::Record& csys,
+        casacore::Bool overwrite, casacore::Bool log, casacore::Bool cache
     );
 
     static casacore::String className() { static const casacore::String s = "ImageFactory"; return s; }
@@ -155,8 +163,10 @@ public:
     );
 
     // exactly one of the pointers will not be null, indicating the
-    // pixel data type
-    static std::pair<SPIIF, SPIIC> fromFile(const casacore::String& filename);
+    // pixel data type. Cache is only used if the image is a CompoenentListImage
+    static std::pair<SPIIF, SPIIC> fromFile(
+        const casacore::String& filename, casacore::Bool cache=casacore::True
+    );
 
     static SPIIF fromFITS(
         const casacore::String& outfile, const casacore::String& fitsfile,

@@ -3047,11 +3047,13 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 	 * Return true if all required attributes of the value part are equal to their homologues
 	 * in x and false otherwise.
 	 *
+
 	 * @param x a pointer on the AnnotationRow whose required attributes of the value part 
+
 	 * will be compared with those of this.
 	 * @return a boolean.
 	 */
-	bool AnnotationRow::equalByRequiredValue(AnnotationRow* x) {
+	bool AnnotationRow::equalByRequiredValue(AnnotationRow*  x ) {
 		
 			
 		if (this->time != x->time) return false;

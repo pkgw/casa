@@ -35,6 +35,8 @@ scripts/casa_builtin.py
 scripts/start_casa.py
 scripts/casa_system.py
 scripts/casa_system_defaults.py
+scripts/init_begin_startup.py
+scripts/init_end_startup.py
 scripts/init_system.py
 scripts/init_crashrpt.py
 scripts/init_mpi.py
@@ -56,6 +58,7 @@ scripts/check_exceptionhandling.py
 scripts/check_input_saverestore.py
 scripts/cleanhelper.py
 scripts/correct_ant_posns.py
+scripts/crashrpt_conf.py
 scripts/dbusutil.py
 scripts/dict_to_table.py
 scripts/filecatalog.py
@@ -85,6 +88,7 @@ scripts/solar_system_setjy.py
 scripts/testhelper.py
 scripts/TablePlotQt4Agg.py
 scripts/TablePlotTkAgg.py
+scripts/task_accor.py
 scripts/task_accum.py
 scripts/task_applycal.py
 scripts/task_autoclean.py
@@ -154,6 +158,7 @@ scripts/task_imtrans.py
 scripts/task_imval.py
 scripts/task_initweights.py
 scripts/taskinit.py
+scripts/ialib.py
 scripts/task_listcal.py
 scripts/task_listhistory.py
 scripts/task_listfits.py
@@ -187,6 +192,7 @@ scripts/task_sdfit.py
 scripts/task_sdfixscan.py
 scripts/task_sdgaincal.py
 scripts/task_sdimaging.py
+scripts/task_tsdimaging.py
 scripts/task_sdsmooth.py
 scripts/task_setjy.py
 scripts/task_ssoflux.py

@@ -136,6 +136,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     static casacore::Int parseLine(char* line);
     static void getResource(casacore::String label="",casacore::String fname="");
     
+    // return comprehensible direction string from given MDirection object
+    static casacore::String asComprehensibleDirectionString(casacore::MDirection const &direction);
+
   protected:
     static casacore::String mergeSpwSel(const casacore::Vector<casacore::Int>& fspw, const casacore::Vector<casacore::Int>& fstart, const casacore::Vector<casacore::Int>& fnchan, const casacore::Matrix<casacore::Int>& spwsel);
 
@@ -316,6 +319,16 @@ public:
   casacore::String cfCache;
   casacore::Float computePAStep, rotatePAStep;
 
+  // For single-dish imaging
+  casacore::String pointingDirCol;
+  casacore::Float skyPosThreshold;
+  casacore::Int convSupport;
+  casacore::Quantity truncateSize;
+  casacore::Quantity gwidth;
+  casacore::Quantity jwidth;
+  casacore::Float minWeight;
+  casacore::Bool clipMinMax;
+
   // Mapper Type.
   casacore::String mType;
 
@@ -352,6 +365,7 @@ public:
   casacore::Float sidelobeThreshold;
   casacore::Float noiseThreshold;
   casacore::Float lowNoiseThreshold;
+  casacore::Float negativeThreshold;
   casacore::Float smoothFactor;
   casacore::Float minBeamFrac;
   casacore::Float cutThreshold;

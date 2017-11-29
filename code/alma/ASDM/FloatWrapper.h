@@ -36,8 +36,7 @@ namespace asdm {
  * A collection of static methods to perform conversions
  * between strings and float values.
  */
-
-    class Float {
+class Float {
 
 public:
 	/**

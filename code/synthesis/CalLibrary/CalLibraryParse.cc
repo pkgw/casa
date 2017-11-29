@@ -90,6 +90,7 @@ void CalLibraryParse::issueKeywordWarning(String key) {
 void CalLibraryParse::addStringParam(String key, String val) {
     if (paramRec_.isDefined(key)) {
         if (paramRec_.dataType(key) == TpArrayInt) paramRec_.removeField(key);
+        val.gsub("'", "\"");  // repl ' with " around field
         paramRec_.define(key, val);
     } else if (key == "caltable") {
         caltableName_ = val;

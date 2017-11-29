@@ -466,7 +466,8 @@ public:
     virtual casacore::MDirection phaseCenter() const {
         return This->phaseCenter();
     }
-
+    virtual const casacore::MDirection phaseCenter(const casacore::Int fieldId, const casacore::Double time=-1.0) const;
+    virtual const casacore::MDirection phaseCenter(const casacore::Double time) const;
     virtual casacore::Int polFrame() const {
         return polFrameOK_p ? polFrame_p : This->fillPolFrame();
     }

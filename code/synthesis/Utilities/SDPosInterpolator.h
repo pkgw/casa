@@ -39,6 +39,7 @@
 #include <measures/Measures/Measure.h>
 #include <ms/MeasurementSets/MSColumns.h>
 #include <msvis/MSVis/VisBuffer.h>
+#include <msvis/MSVis/VisBuffer2.h>
 #include <coordinates/Coordinates/DirectionCoordinate.h>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -47,6 +48,8 @@ class SDPosInterpolator {
 public:
   SDPosInterpolator(const VisBuffer& vb,
 		    const casacore::String& pointingDirCol_p);
+  SDPosInterpolator(const vi::VisBuffer2& vb,
+        const casacore::String& pointingDirCol_p);
   SDPosInterpolator(const casacore::Vector<casacore::Vector<casacore::Double> >& time,
 		    const casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > >& dir);
   ~SDPosInterpolator();
@@ -62,6 +65,8 @@ private:
   casacore::Vector<casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > > > splineCoeff; //(antid)(index)(xy)(order)
   void setup(const VisBuffer& vb,
 	     const casacore::String& pointingDirCol_p);
+  void setup(const vi::VisBuffer2& vb,
+       const casacore::String& pointingDirCol_p);
   void setup(const casacore::Vector<casacore::Vector<casacore::Double> >& time,
 	     const casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > >& dir);
   void calcSplineCoeff(const casacore::Vector<casacore::Double>& time,

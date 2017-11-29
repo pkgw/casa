@@ -28,6 +28,8 @@
 #define MSCACHE_H_
 
 #include <plotms/Data/PlotMSCacheBase.h>
+#include <plotms/Data/PageHeaderCache.h>
+
 
 #include <plotms/PlotMS/PlotMSAveraging.h>
 #include <plotms/PlotMS/PlotMSConstants.h>
@@ -74,6 +76,7 @@ public:
 
   void setFilename(casacore::String filename) { filename_ = filename; };
   virtual casacore::String polname(casacore::Int ipol);
+  const PageHeaderCache& pageHeaderCache() const { return pageHeaderCache_; };
 
 protected:
 
@@ -174,6 +177,10 @@ private:
   // Some axes need to come from VB2 attached to VI2
   bool useAveragedVisBuffer(PMS::Axis axis);
 
+  // Page Header Cache loading
+  void loadPageHeaderCache(const casacore::MeasurementSet& selectedMS);
+  void completeLoadPageHeaderCache();
+
   // Datacolumn to use (requested or "adjusted")
   casacore::String dataColumn_;
 
@@ -198,6 +205,7 @@ private:
   map<casacore::Int, casacore::Int> chansPerSpw_; 
 
   bool ephemerisAvailable;
+
 };
 typedef casacore::CountedPtr<MSCache> MSCachePtr;
 

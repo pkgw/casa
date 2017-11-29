@@ -449,7 +449,7 @@ class test_importfitsidi(unittest.TestCase):
             expected = [
                          ['UVW',       253, [ -209524.112917, 52443.4688607, 25501.833085 ], 1E-6],
                          ['EXPOSURE',  253, 1.0, 1E-8],
-                         ['WEIGHT',    253, 1.0, 1E-8]
+                         ['WEIGHT',    253, 500000.0, 1E-8]
                          ]
             results = checktable(name, expected)
             if not results:
