@@ -398,7 +398,6 @@ TEST_F(DataAccessTest, AccessCorrectedDataInSwappingDataTVI)
 
   //Traverse the iterator accessing the corrected data cube. This works
   //despite removing the corrected data from disk because the upper TVI layer
-  //delivers data when corrected data is requested.
-  SCOPED_TRACE("LL");
-  visitIterator([&]() -> void {SCOPED_TRACE("II"); vb_p->visCubeCorrected().shape();});
+  //(DataSwappingTVI) delivers DATA when CORRECTED DATA is requested.
+  visitIterator([&]() -> void {vb_p->visCubeCorrected().shape();});
 }
