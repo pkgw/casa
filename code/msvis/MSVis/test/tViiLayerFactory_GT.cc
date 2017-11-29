@@ -280,6 +280,15 @@ public:
   }
 
   /*
+   * Do not create DATA column. 
+   * This function must be called before createTVIs()
+   */
+  void removeData()
+  {
+    msf_p->removeColumn(MS::DATA);
+  }
+
+  /*
    * Switch the creation of the DataSwappingTVI on top the disk access layer.
    * This function must be called before createTVIs(). 
    */
@@ -400,4 +409,20 @@ TEST_F(DataAccessTest, AccessCorrectedDataInSwappingDataTVI)
   //despite removing the corrected data from disk because the upper TVI layer
   //(DataSwappingTVI) delivers DATA when CORRECTED DATA is requested.
   visitIterator([&]() -> void {vb_p->visCubeCorrected().shape();});
+}
+
+TEST_F(DataAccessTest, AccessCorrectedDataInSwappingDataTVIWhenMissingData)
+{
+  removeData();
+
+  addSwappingDataTVI();
+  
+  createTVIs();
+
+  //Traverse the iterator accessing the corrected data cube. 
+  //The swapping TVI will access the underlying DATA column when accessing
+  //the CORRECTED DATA. Since DATA has been removed from the MS this should
+  //throw
+  ASSERT_THROW(visitIterator([&]() -> void {vb_p->visCubeCorrected().shape();}),
+               AipsError);
 }
