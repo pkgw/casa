@@ -1,4 +1,3 @@
-//# tSubImage.cc: Test program for class SubImage
 //# Copyright (C) 1998,1999,2000,2001,2003
 //# Associated Universities, Inc. Washington DC, USA.
 //#
@@ -23,13 +22,12 @@
 //#                        520 Edgemont Road
 //#                        Charlottesville, VA 22903-2475 USA
 //#
-//# $Id: $
 
 #include <imageanalysis/ImageAnalysis/ImageCollapser.h>
 
 #include <casa/Arrays/ArrayLogical.h>
 #include <casa/BasicSL/STLIO.h>
-#include <casacore/scimath/Mathematics/ClassicalStatistics.h>
+#include <casacore/scimath/StatsFramework/ClassicalStatistics.h>
 #include <casacore/scimath/Mathematics/NumericTraits.h>
 #include <images/Images/ImageStatistics.h>
 #include <images/Images/ImageUtilities.h>
@@ -38,6 +36,8 @@
 #include <images/Images/TempImage.h>
 #include <lattices/Lattices/LatticeUtilities.h>
 #include <lattices/LatticeMath/LatticeMathUtil.h>
+
+#include <imageanalysis/ImageAnalysis/ImageMaskedPixelReplacer.h>
 
 #include <memory>
 
@@ -82,9 +82,9 @@ template<class T> ImageCollapser<T>::ImageCollapser(
 template<class T> SPIIT ImageCollapser<T>::collapse() const {
     auto subImage = SubImageFactory<T>::createSubImageRO(
         *this->_getImage(), *this->_getRegion(), this->_getMask(),
-        this->_getLog().get(), casacore::AxesSpecifier(), this->_getStretch()
+        this->_getLog().get(), AxesSpecifier(), this->_getStretch()
     );
-    *this->_getLog() << casacore::LogOrigin(getClass(), __func__);
+    *this->_getLog() << LogOrigin(getClass(), __func__);
     ThrowIf(
         ImageMask::isAllMaskFalse(*subImage),
         "All selected pixels are masked"
@@ -96,8 +96,8 @@ template<class T> SPIIT ImageCollapser<T>::collapse() const {
         _checkFlux(subImage);
     }
     // Set the compressed axis reference pixel and reference value
-    casacore::Vector<casacore::Double> blc, trc;
-    casacore::IPosition pixblc(inShape.nelements(), 0);
+    Vector<Double> blc, trc;
+    IPosition pixblc(inShape.nelements(), 0);
     auto pixtrc = inShape - 1;
     ThrowIf(
         ! outCoords.toWorld(blc, pixblc)
@@ -107,16 +107,13 @@ template<class T> SPIIT ImageCollapser<T>::collapse() const {
     auto refValues = outCoords.referenceValue();
     auto refPixels = outCoords.referencePixel();
     auto outShape = inShape;
-    IPosition shape(outShape.nelements(), 1);
-    auto end = _axes.end();
-    for (
-        auto iter = _axes.begin(); iter != end; ++iter
-    ) {
-        casacore::uInt i = *iter;
-        refValues[i] = (blc[i] + trc[i]) / 2;
-        refPixels[i] = 0;
-        outShape[i] = 1;
-        shape[i] = inShape[i];
+    auto degenTypes = ImageCollapserData::aggTypesSupportedDegenAxes();
+    auto useDegenCase = degenTypes->find(_aggType) != degenTypes->end();
+    for (const auto& axis: _axes) {
+        refValues[axis] = (blc[axis] + trc[axis])/2;
+        refPixels[axis] = 0;
+        outShape[axis] = 1;
+        useDegenCase = useDegenCase && inShape[axis] == 1;
     }
     ThrowIf(
         ! outCoords.setReferenceValue(refValues),
@@ -129,6 +126,9 @@ template<class T> SPIIT ImageCollapser<T>::collapse() const {
     TempImage<T> tmpIm(outShape, outCoords);
     if (_aggType == ImageCollapserData::ZERO) {
         tmpIm.set(0.0);
+    }
+    else if (useDegenCase) {
+        _doDegenerateAxesCase(tmpIm, subImage);
     }
     else if (
         _aggType == ImageCollapserData::MEDIAN
@@ -147,21 +147,7 @@ template<class T> SPIIT ImageCollapser<T>::collapse() const {
         ImageUtilities::copyMiscellaneous(tmpIm, *subImage, true);
     }
     if (_aggType == ImageCollapserData::FLUX) {
-        // get the flux units right
-        auto sbunit = subImage->units().getName();
-        String unit;
-        if (sbunit.contains("K")) {
-            casacore::String areaUnit = "arcsec2";
-            unit = sbunit + "." + areaUnit;
-        }
-        else {
-            unit = "Jy";
-            if (sbunit.contains("/beam")) {
-                uInt iBeam = sbunit.find("/beam");
-                unit = sbunit.substr(0, iBeam) + sbunit.substr(iBeam + 5);
-            }
-        }
-        tmpIm.setUnits(unit);
+        _doFluxUnits(tmpIm, subImage);
     }
     return this->_prepareOutputImage(tmpIm);
 }
@@ -193,9 +179,87 @@ template<class T> void ImageCollapser<T>::_checkFlux(
     }
 }
 
-template<class T> casacore::Bool ImageCollapser<T>::_doMultipleBeams(
-    casacore::TempImage<T>& tmpIm, SPCIIT subImage, casacore::Bool hasDir,
-    const casacore::CoordinateSystem & outCoords
+template<class T> void ImageCollapser<T>::_doDegenerateAxesCase(
+    TempImage<T>& tmpIm, SPCIIT subImage
+) const {
+    *this->_getLog() << LogOrigin(getClass(), __func__);
+    *this->_getLog() << LogIO::NORMAL << "All subimage axes to be "
+        << "collapsed are degenerate, using algorithm optimized for "
+        << "that case." << LogIO::POST;
+    ThrowIf(
+        _aggType == ImageCollapserData::STDDEV
+        || _aggType == ImageCollapserData::VARIANCE,
+        "Cannot compute "
+        + ImageCollapserData::funcNameMap()->find(_aggType)->second
+        + " for single sample data sets"
+    );
+    if (
+        _aggType == ImageCollapserData::MAX
+        || _aggType == ImageCollapserData::MEAN
+        || _aggType == ImageCollapserData::MEDIAN
+        || _aggType == ImageCollapserData::MIN
+        || _aggType == ImageCollapserData::SUM
+    ) {
+        // Straight copy
+        this->_copyData(tmpIm, *subImage);
+    }
+    else if (_aggType == ImageCollapserData::NPTS) {
+        tmpIm.set(1.0);
+    }
+    else if (
+        _aggType == ImageCollapserData::MADM
+        || _aggType == ImageCollapserData::XMADM
+    ) {
+        tmpIm.set(0.0);
+    }
+    else if (_aggType == ImageCollapserData::RMS) {
+        this->_copyData(tmpIm, LatticeExpr<T>(abs(*subImage)));
+    }
+    else {
+        ThrowCc(
+            "Logic error: "
+            + ImageCollapserData::funcNameMap()->find(_aggType)->second
+            + " erroneously not supported for degenerate axis case. Please "
+            + "file a bug report and include this message"
+        );
+    }
+    if (subImage->isMasked() && ! ImageMask::isAllMaskTrue(*subImage)) {
+        if (! tmpIm.isMasked()) {
+            TempLattice<Bool> mask(tmpIm.shape());
+            this->_copyMask(mask, *subImage);
+            tmpIm.attachMask(mask);
+        }
+        // This works because the underlying pixel data are cloned by reference
+        SPIIT myclone(tmpIm.cloneII());
+        ImageMaskedPixelReplacer<T> impr(myclone);
+        impr.replace("0", False, False);
+    }
+}
+
+template<class T> void ImageCollapser<T>::_doFluxUnits(
+    TempImage<T>& tmpIm, const SHARED_PTR<const SubImage<T>> subImage
+) const {
+    // get the flux units right
+     auto sbunit = subImage->units().getName();
+     String unit;
+     if (sbunit.contains("K")) {
+         casacore::String areaUnit = "arcsec2";
+         unit = sbunit + "." + areaUnit;
+     }
+     else {
+         unit = "Jy";
+         if (sbunit.contains("/beam")) {
+             uInt iBeam = sbunit.find("/beam");
+             unit = sbunit.substr(0, iBeam) + sbunit.substr(iBeam + 5);
+         }
+     }
+     tmpIm.setUnits(unit);
+}
+
+
+template<class T> Bool ImageCollapser<T>::_doMultipleBeams(
+    TempImage<T>& tmpIm, SPCIIT subImage, Bool hasDir,
+    const CoordinateSystem & outCoords
 ) const {
     auto naxes = _axes.size();
     auto dirAxesOnlyCollapse = hasDir && naxes == 2;
@@ -427,87 +491,6 @@ template<class T> void ImageCollapser<T>::_invert() {
         casacore::IPosition x = casacore::IPosition::otherAxes(this->_getImage()->ndim(), _axes);
         _axes.resize(x.size());
         _axes = x;
-    }
-}
-
-template<class T> void ImageCollapser<T>::_doHighPerf(
-    SPCIIT image, casacore::TempImage<T>& outImage
-) const {
-    auto doMedian = _aggType == ImageCollapserData::MEDIAN;
-    auto doMADM = _aggType == ImageCollapserData::MADM
-        || _aggType == ImageCollapserData::XMADM;
-    ThrowIf(
-        ! doMedian && ! doMADM,
-        "Logic error, unsupported aggregate type "
-        + String(ImageCollapserData::funcNameMap()->at((uInt)_aggType)) + " for method "
-        + String(__func__)
-    );
-    IPosition cursorShape(image->ndim(), 1);
-    for (uInt i = 0; i < cursorShape.size(); ++i) {
-        for (uInt j = 0; j < _axes.size(); ++j) {
-            if (_axes[j] == i) {
-                cursorShape[i] = image->shape()[i];
-                break;
-            }
-        }
-    }
-    LatticeStepper stepper(image->shape(), cursorShape);
-    std::unique_ptr<Array<Bool>> outMask;
-    // accumtype being the same precision as the input data type is ok here,
-    // since we are only computing the median/madm and not actually accumulating
-    ClassicalStatistics<
-        T, typename Array<T>::const_iterator, Array<Bool>::const_iterator
-    > stats;
-    auto hasMaskedPixels = ! ImageMask::isAllMaskTrue(*image);
-    for (stepper.reset(); !stepper.atEnd(); stepper++) {
-        Slicer slicer(
-            stepper.position(), stepper.endPosition(), casacore::Slicer::endIsLast
-        );
-        auto data = image->getSlice(slicer);
-        Bool isMasked = False;
-        Array<Bool> maskSlice;
-        if (hasMaskedPixels) {
-            maskSlice = image->getMaskSlice(slicer);
-            isMasked = ! allTrue(maskSlice);
-        }
-        if (isMasked) {
-            if (! anyTrue(maskSlice)) {
-                if (! outMask) {
-                    outMask.reset(new Array<Bool>(outImage.shape(), true));
-                }
-                (*outMask)(stepper.position()) = false;
-                outImage.putAt(T(0), stepper.position());
-            }
-            else if (! allTrue(maskSlice)) {
-                stats.setData(data.begin(), maskSlice.begin(), data.size());
-                if (doMedian) {
-                    outImage.putAt(stats.getMedian(), stepper.position());
-                }
-                else if (doMADM) {
-                    auto x = stats.getMedianAbsDevMed();
-                    if (_aggType == ImageCollapserData::XMADM) {
-                        x *= PHI;
-                    }
-                    outImage.putAt(x, stepper.position());
-                }
-            }
-        }
-        else {
-            stats.setData(data.begin(), data.size());
-            if (doMedian) {
-                outImage.putAt(stats.getMedian(), stepper.position());
-            }
-            else if (doMADM) {
-                auto x = stats.getMedianAbsDevMed();
-                if (_aggType == ImageCollapserData::XMADM) {
-                    x *= PHI;
-                }
-                outImage.putAt(x, stepper.position());
-            }
-        }
-    }
-    if (outMask) {
-        outImage.attachMask(ArrayLattice<Bool>(*outMask));
     }
 }
 

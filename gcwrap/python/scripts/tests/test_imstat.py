@@ -722,5 +722,15 @@ class imstat_test(unittest.TestCase):
         self.assertTrue((zz['npts'].shape == (42, 2)))
         self.assertTrue(numpy.min(zz['npts']) > 0)
 
+    def test_CAS_10906(self):
+        """Test fix to CAS-10906, accouting issue when computing median"""
+        myia = iatool()
+        imagename = self.datapath + "CAS-10906.im"
+        print imagename
+        myia.open(imagename)
+        # running successfully verifies that the issue has been resolved
+        self.assertTrue(myia.statistics(robust=True))
+        myia.done()
+
 def suite():
     return [imstat_test]
