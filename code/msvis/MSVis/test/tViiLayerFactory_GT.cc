@@ -373,14 +373,14 @@ TEST_F(DataAccessTest, AccessCorrectedData)
  */
 TEST_F(DataAccessTest, AccessCorrectedDataWhenMissing)
 {
-//  removeCorrectedData();
+  removeCorrectedData();
 
-//  createTVIs();
+  createTVIs();
 
   //Traverse the iterator accessing the corrected data cube. This should
   //throw, since it has been removed from the MS.
-//  ASSERT_THROW(visitIterator([&]() -> void {vb_p->visCubeCorrected().shape();}),
-//               AipsError);
+  ASSERT_THROW(visitIterator([&]() -> void {vb_p->visCubeCorrected().shape();}),
+               AipsError);
 }
 
 /* 
