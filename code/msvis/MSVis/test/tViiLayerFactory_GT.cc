@@ -61,6 +61,10 @@ int main(int argc, char **argv) {
 int removeFile(const char *fpath, const struct stat *sb, int typeflag, 
                struct FTW* ftwbuf)
 {
+  (void)sb;  //Unused vars
+  (void)typeflag;
+  (void)ftwbuf;
+    
   int rv = remove(fpath);
   if(rv)
     perror(fpath);
