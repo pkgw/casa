@@ -2245,10 +2245,10 @@ VisibilityIteratorImpl2::makeChannelSelectorC(
 	if (selection.refinementNeeded()) {
 		auto spwcFetcher =
 			[this, msId]
-			(int spectralWindowId, double lowerFrequency, double upperFrequency)
+			(int spwId, double lowerFrequency, double upperFrequency)
 			{
 				const SpectralWindowChannels & spwChannels =
-				getSpectralWindowChannels(msId, spectralWindowId);
+				getSpectralWindowChannels(msId, spwId);
 				return spwChannels.getIntersection(
 					lowerFrequency, upperFrequency);
 			};
