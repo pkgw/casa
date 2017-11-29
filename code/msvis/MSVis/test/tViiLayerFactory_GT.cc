@@ -365,9 +365,10 @@ public:
 };
  
 
-/* This test will simply access the corrected data column of a 
- * synthetic created MS 
- */ 
+/*
+ * This test will simply access the corrected data column of a
+ * synthetic created MS
+ */
 TEST_F(DataAccessTest, AccessCorrectedData)
 {
   createTVIs();
@@ -376,8 +377,8 @@ TEST_F(DataAccessTest, AccessCorrectedData)
   visitIterator([&]() -> void {vb_p->visCubeCorrected().shape();});
 }
 
-/* 
- * This test will check that an exception is thrown if the 
+/*
+ * This test will check that an exception is thrown if the
  * CORRECTED DATA column is missing in the MS.
  */
 TEST_F(DataAccessTest, AccessCorrectedDataWhenMissing)
@@ -392,11 +393,11 @@ TEST_F(DataAccessTest, AccessCorrectedDataWhenMissing)
                AipsError);
 }
 
-/* 
- * This test will access the corrected data column of a 
+/*
+ * This test will access the corrected data column of a
  * synthetic that doesn't contain that column. The upper TVI, however
  * will swap the access to DATA column instead so the test should succeed
- */ 
+ */
 TEST_F(DataAccessTest, AccessCorrectedDataInSwappingDataTVI)
 {
   removeCorrectedData();
@@ -411,6 +412,12 @@ TEST_F(DataAccessTest, AccessCorrectedDataInSwappingDataTVI)
   visitIterator([&]() -> void {vb_p->visCubeCorrected().shape();});
 }
 
+/*
+ * This test will access the corrected data column of a
+ * synthetic that doesn't contain column DATA. The upper TVI, however,
+ * will deliver the underlying DATA column when asking for CORRECTED DATA,
+ * and therefore the test will fail.
+ */
 TEST_F(DataAccessTest, AccessCorrectedDataInSwappingDataTVIWhenMissingData)
 {
   removeData();
@@ -424,5 +431,68 @@ TEST_F(DataAccessTest, AccessCorrectedDataInSwappingDataTVIWhenMissingData)
   //the CORRECTED DATA. Since DATA has been removed from the MS this should
   //throw
   ASSERT_THROW(visitIterator([&]() -> void {vb_p->visCubeCorrected().shape();}),
+               AipsError);
+}
+
+/* 
+ * This test will simply access the data column of a
+ * synthetic created MS
+ */
+TEST_F(DataAccessTest, AccessData)
+{
+  createTVIs();
+
+  //Traverse the iterator accessing the corrected data cube
+  visitIterator([&]() -> void {vb_p->visCube().shape();});
+}
+
+/*
+ * This test will check that an exception is thrown if the
+ * CORRECTED DATA column is missing in the MS.
+ */
+TEST_F(DataAccessTest, AccessDataWhenMissing)
+{
+  removeData();
+
+  createTVIs();
+
+  //Traverse the iterator accessing the corrected data cube. This should
+  //throw, since it has been removed from the MS.
+  ASSERT_THROW(visitIterator([&]() -> void {vb_p->visCube().shape();}),
+               AipsError);
+}
+
+/*
+ * This test will access the corrected data column of a
+ * synthetic that doesn't contain that column. The upper TVI, however
+ * will swap the access to DATA column instead so the test should succeed
+ */
+TEST_F(DataAccessTest, AccessDataInSwappingDataTVI)
+{
+  removeData();
+
+  addSwappingDataTVI();
+
+  createTVIs();
+
+  //Traverse the iterator accessing the corrected data cube. This works
+  //despite removing the corrected data from disk because the upper TVI layer
+  //(DataSwappingTVI) delivers DATA when CORRECTED DATA is requested.
+  visitIterator([&]() -> void {vb_p->visCube().shape();});
+}
+
+TEST_F(DataAccessTest, AccessDataInSwappingDataTVIWhenMissingCorrectedData)
+{
+  removeCorrectedData();
+
+  addSwappingDataTVI();
+
+  createTVIs();
+
+  //Traverse the iterator accessing the corrected data cube.
+  //The swapping TVI will access the underlying DATA column when accessing
+  //the CORRECTED DATA. Since DATA has been removed from the MS this should
+  //throw
+  ASSERT_THROW(visitIterator([&]() -> void {vb_p->visCube().shape();}),
                AipsError);
 }
