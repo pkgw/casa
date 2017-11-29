@@ -2904,7 +2904,7 @@ in spectral window 1.
   <input>
      <param type="record" direction="in" name="items">
      <description>
-       Record with fields contain the selection experessions. Keys
+       Record with fields contain the selection expressions. Keys
        recognized in the record are: "spw", "time", "field",
        "baseline", "scan", "scanintent", "polarization",
        "observation", "array", "uvdist" and "taql".
@@ -2937,10 +2937,10 @@ in spectral window 1.
     <link anchor="http://casa.nrao.edu/other_doc.shtml">MSSelection Memo.</link>
 
     Note that this function can be called multiple times but the
-    result is cumulative.  I.e. selection will work on the data
+    result is cumulative.  Each selection will work on the data
     already selected from all previous calls of this function.  Use
     the function reset() to reset all selections to NULL (original
-    database).
+    dataset).
   </description>
   <example>
       staql={'field':'3C286', 'spw':'0~7:10~55'};

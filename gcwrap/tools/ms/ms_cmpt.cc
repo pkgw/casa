@@ -2205,13 +2205,12 @@ Bool ms::checkinit() {
     if (initSel_p) return True;
     // No DDIDs selected, check if data shapes same
     // else select DDID 0
-    initSel_p = True;;
     vi::VisibilityIterator2* vi2 = new vi::VisibilityIterator2(*itsSelectedMS);
     vi::VisBuffer2* vb2 = vi2->getVisBuffer();
     vi2->originChunks();
     vi2->origin();
-    IPosition firstShape = vb2->getShape();
-    Bool shapesConform = True;
+    IPosition firstShape(vb2->getShape());
+    Bool shapesConform(True);
     for (vi2->originChunks(); vi2->moreChunks(); vi2->nextChunk()) {
         for (vi2->origin(); vi2->more(); vi2->next()) {
             IPosition thisShape = vb2->getShape();
@@ -2222,13 +2221,13 @@ Bool ms::checkinit() {
             }
         }
     }
+    delete vi2;
     initSel_p = shapesConform;
     if (!shapesConform) {
         *itsLog << LogOrigin("ms", "checkinit");
         *itsLog << LogIO::WARN << "Data shape varies, selecting first data desc id only" << LogIO::POST;
         initSel_p = selectinit(0);
     }
-    delete vi2;
     return initSel_p;
 }
 
@@ -2272,31 +2271,47 @@ ms::selectinitold(const int datadescid, const bool reset)
 bool
 ms::selectinit(const int datadescid, const bool resetsel)
 {
-    *itsLog << LogOrigin("ms", "selectinit");
-    Bool retval = false;
-    try {
-        Vector<Int> ddId(1, datadescid);
-        if(!detached()){
-            Int n=ddId.nelements();
-            if (n>0 && min(ddId)<0 && !resetsel) {
-                *itsLog << "The data description id must be a list of "
-                    "positive integers" << LogIO::EXCEPTION;
-            }
-            if (resetsel) {
-                retval = reset();
-            } else {
-                String taQLExpr = "DATA_DESC_ID IN [" + String::toString(datadescid) + "]";
-                retval = selecttaql(taQLExpr);
-                initSel_p = retval;
-            }
-        }
-    } catch (AipsError x) {
-        *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
-        Table::relinquishAutoLocks(true);
-        RETHROW(x);
-    }
-    Table::relinquishAutoLocks(true);
-    return retval;
+	*itsLog << LogOrigin("ms", "selectinit");
+	Bool retval = false;
+	try {
+		Vector<Int> ddId(1, datadescid);
+		if(!detached()){
+			Int n=ddId.nelements();
+			if (n>0 && min(ddId)<0 && !resetsel) {
+				*itsLog << "The data description id must be a list of "
+					"positive integers" << LogIO::EXCEPTION;
+			}
+			if (resetsel) {
+				retval = reset();
+				initSel_p = false;
+			} else {
+				// test it first, can't revert MSSelection selection
+				String selDDID = String::toString(datadescid);
+				String ddidTaql = "DATA_DESC_ID IN [" + selDDID + "]";
+				MSSelection mss(*itsSelectedMS);
+				MeasurementSet testSelectionMS;
+				mss.setTaQLExpr(ddidTaql);
+				try {
+					mss.getSelectedMS(testSelectionMS);
+					// okay to do selection for real
+					retval = selecttaql(ddidTaql);
+					initSel_p = retval;
+				} catch (AipsError x) {  // MSSelectionNullSelection
+					String mesg = "selectinit failed for datadescid " + selDDID;
+					*itsLog << LogOrigin("ms", "selectinit");
+					*itsLog << LogIO::WARN << mesg << LogIO::POST;
+					retval = initSel_p = false;
+				}
+			}
+		}
+	} catch (AipsError x) {
+		*itsLog << LogOrigin("ms", "selectinit");
+		*itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
+		Table::relinquishAutoLocks(true);
+		RETHROW(x);
+	}
+	Table::relinquishAutoLocks(true);
+	return retval;
 }
 
 bool
@@ -2329,11 +2344,11 @@ ms::selectold(const ::casac::record& items)
 bool
 ms::select(const ::casac::record& items)
 {
-    *itsLog << LogOrigin("ms", "select");
-    // Use selecttaql and msselect for these selections
-    Bool retval = true;
-    try {
-        if(!detached()){
+	*itsLog << LogOrigin("ms", "select");
+    // Use selecttaql and doMSSelection for these selections
+	Bool retval = true;
+	try {
+		if(!detached()){
             if (checkinit()) {
               *itsLog << LogOrigin("ms", "select");
               Record* selRecord = toRecord(items);
@@ -2369,7 +2384,7 @@ ms::select(const ::casac::record& items)
                      antennaExpr.rtrim(';'); // remove trailing ';'
                      antSelRec.define("baseline", antennaExpr);
                      ::casac::record* casacRec = fromRecord(antSelRec);
-                     retval = retval & msselect(*casacRec);
+                     retval = retval & doMSSelection(*casacRec);
                 }
                 else if (fieldStr=="TIME") {
                     Vector<Double> times = selRecord->asArrayDouble(RecordFieldId(field));
@@ -2380,7 +2395,7 @@ ms::select(const ::casac::record& items)
                         String timeExpr = startTime.string(MVTime::YMD) + "~" + stopTime.string(MVTime::YMD);
                         timeSelRec.define("time", timeExpr);
                         ::casac::record* casacRec = fromRecord(timeSelRec);
-                        retval = retval & msselect(*casacRec);
+                        retval = retval & doMSSelection(*casacRec);
                     } else {
                         *itsLog << LogIO::WARN << "Illegal value for time range: two element numeric vector [start,stop] required" << LogIO::POST;
                         retval = false;
@@ -2411,7 +2426,7 @@ ms::select(const ::casac::record& items)
                         String uvdistExpr = String::toString(uvdist[0]) + "~" + String::toString(uvdist[1]);
                         uvdistSelRec.define("uvdist", uvdistExpr);
                         ::casac::record* casacRec = fromRecord(uvdistSelRec);
-                        retval = retval & msselect(*casacRec);
+                        retval = retval & doMSSelection(*casacRec);
                     } else {
                         *itsLog << LogIO::WARN << "Illegal value for uvdist range selection: two element numeric vector required" << LogIO::POST;
                         retval = false;
@@ -2430,16 +2445,15 @@ ms::select(const ::casac::record& items)
                   *itsLog << LogIO::WARN << "Unrecognized field in input ignored: "+fieldStr << LogIO::POST;
                      
               }
-              delete selRecord;
-          }
+			  delete selRecord;
+		  }
         }
-    } catch (AipsError x) {
-        *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
-        Table::relinquishAutoLocks(true);
-        RETHROW(x);
-    }
-    Table::relinquishAutoLocks(true);
-    return retval;
+	} catch (AipsError x) {
+		Table::relinquishAutoLocks(true);
+		RETHROW(x);
+	}
+	Table::relinquishAutoLocks(true);
+	return retval;
 }
 
 bool
@@ -2477,18 +2491,20 @@ ms::selecttaql(const std::string& taqlstr)
             String taqlExpr = String::toString(taqlstr);
             taqlSelRec.define("taql", taqlExpr);
             ::casac::record* casacRec = fromRecord(taqlSelRec);
-            retval = msselect(*casacRec);
+            retval = doMSSelection(*casacRec);
         }
-    } catch (MSSelectionNullSelection x) {
-        *itsLog << LogIO::WARN << "Selected table has zero rows" << LogIO::POST;
-        retval = true;
-    } catch (AipsError x) {
-        *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
-        Table::relinquishAutoLocks(true);
-        RETHROW(x);
-    }
-    Table::relinquishAutoLocks(true);
-    return retval;
+	} catch (AipsError x) {
+    	*itsLog << LogOrigin("ms", "selecttaql");
+		if (x.getMesg().contains("zero rows")) {
+			*itsLog << LogIO::WARN << x.getMesg() << LogIO::POST;
+		} else {
+			*itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
+			Table::relinquishAutoLocks(true);
+			RETHROW(x);
+		}
+	}
+	Table::relinquishAutoLocks(true);
+	return retval;
 }
 
 bool
@@ -2641,7 +2657,7 @@ ms::selectpolarization(const std::vector<std::string>& wantedpol)
                 String polnExpr = MSSelection::nameExprStr(wantedpol);
                 polnSelRec.define("polarization", polnExpr);
                 ::casac::record* casacRec = fromRecord(polnSelRec);
-                retval = msselect(*casacRec);
+                retval = doMSSelection(*casacRec);
                 if (retval) {
                     polnExpr_p = polnExpr;
                     wantedpol_p.resize();
@@ -3565,29 +3581,29 @@ ms::getdataold(const std::vector<std::string>& items, const bool ifraxis, const 
 ::casac::record*
 ms::getdata(const std::vector<std::string>& items, const bool ifraxis, const int ifraxisgap, const int increment, const bool average)
 {
-    *itsLog << LogOrigin("ms", "getdata");
+	*itsLog << LogOrigin("ms", "getdata");
 
-    ::casac::record *retval(0);
-    try {
-      if(!detached()) {
-          Record out(RecordInterface::Variable);
-          Vector<String> itemnames(items);
-          Int axisgap = ifraxisgap;
-          doingAveraging_p = average;
-          bool chanAverage = ((chansel_p.size() > 0) && (chansel_p[2] > 1));
-
-          uInt nrows = itsSelectedMS->nrow();
-          if (nrows == 0) {
-              *itsLog << LogIO::WARN << "Selected table is empty - use selectinit" << LogIO::POST;
-             return retval;
-          }
-
-          if (axisgap>0 && ifraxis==false) {
-              *itsLog << LogIO::WARN << "ifraxis not requested, ignoring ifraxisgap argument" << LogIO::POST;
-              axisgap = 0;
-          }
-
+	::casac::record *retval(0);
+	try {
+		if(!detached()) {
           if (checkinit()) {
+            Record out(RecordInterface::Variable);
+            Vector<String> itemnames(items);
+            Int axisgap = ifraxisgap;
+		    doingAveraging_p = average;
+            bool chanAverage = ((chansel_p.size() > 0) && (chansel_p[2] > 1));
+
+            uInt nrows = itsSelectedMS->nrow();
+            if (nrows == 0) {
+                *itsLog << LogIO::WARN << "Selected table is empty - use selectinit" << LogIO::POST;
+		        return retval;
+	        }
+
+            if (axisgap>0 && ifraxis==false) {
+                *itsLog << LogIO::WARN << "ifraxis not requested, ignoring ifraxisgap argument" << LogIO::POST;
+                axisgap = 0;
+            }
+
             // Keep table before increment selection, restore later
             MeasurementSet origSelMS = *itsSelectedMS;
             if ((increment>1) && (uInt(increment)<=nrows)) {
@@ -6422,59 +6438,86 @@ ms::uvsub(Bool reverse)
 
 bool ms::msselect(const ::casac::record& exprs, const bool onlyparse)
 {
-    Bool retVal=false;
-    try
-    {
-        *itsLog << LogOrigin("ms", "msselect");
-        Record *casaRec = toRecord(exprs);
-        String spwExpr, timeExpr, fieldExpr, baselineExpr, scanExpr, scanIntentExpr,
-            polnExpr, uvDistExpr, obsExpr, arrayExpr, taQLExpr;
-        Int nFields = casaRec->nfields();
-        for (Int i=0; i<nFields; i++)
-        {
-            if (casaRec->name(i) == "spw")           {spwExpr        = casaRec->asString(RecordFieldId(i));}
-            if (casaRec->name(i) == "time")          {timeExpr       = casaRec->asString(RecordFieldId(i));}
-            if (casaRec->name(i) == "field")         {fieldExpr      = casaRec->asString(RecordFieldId(i));}
-            if (casaRec->name(i) == "baseline")      {baselineExpr   = casaRec->asString(RecordFieldId(i));}
-            if (casaRec->name(i) == "antenna")       {baselineExpr   = casaRec->asString(RecordFieldId(i));}
-            if (casaRec->name(i) == "scan")          {scanExpr       = casaRec->asString(RecordFieldId(i));}
-            if (casaRec->name(i) == "scanintent")    {scanIntentExpr = casaRec->asString(RecordFieldId(i));}
-            if (casaRec->name(i) == "state")         {scanIntentExpr = casaRec->asString(RecordFieldId(i));}
-            if (casaRec->name(i) == "polarization")  {polnExpr       = casaRec->asString(RecordFieldId(i));}
-            if (casaRec->name(i) == "uvdist")        {uvDistExpr     = casaRec->asString(RecordFieldId(i));}
-            if (casaRec->name(i) == "observation")   {obsExpr        = casaRec->asString(RecordFieldId(i));}
-            if (casaRec->name(i) == "array")         {arrayExpr      = casaRec->asString(RecordFieldId(i));}
-            if (casaRec->name(i) == "taql")          {taQLExpr       = casaRec->asString(RecordFieldId(i));}
-        }
-        // if (itsSelectedMS) delete itsSelectedMS;
-        // itsSelectedMS = new MeasurementSet();
+	// public: catches exception and prints log mesg rather than traceback
+	Bool retVal=false;
+	try
+	{
+		*itsLog << LogOrigin("ms", "msselect");
+		retVal = doMSSelection(exprs, onlyparse);
+	} catch (AipsError x) {
+		*itsLog << LogIO::WARN << x.getMesg() << LogIO::POST;
+	}
+	return retVal;
+}
 
-        //
-        // If only parsing is requested, just set up the itsMSS object.
-        // This is much faster if one is only interested in the indices
-        // and not the actual selected MS.
-        //
-        if (onlyparse)
-        {
-            itsMSS->reset(*itsMS, MSSelection::PARSE_NOW,timeExpr,baselineExpr,fieldExpr,spwExpr,uvDistExpr,
-                          taQLExpr,polnExpr,scanExpr,arrayExpr,scanIntentExpr,obsExpr);
-            retVal=(itsMSS->getTEN(itsMS).isNull() == false);
-        } else {
-            retVal = mssSetData(*itsSelectedMS, *itsSelectedMS, "",/*outMSName*/
-                timeExpr, baselineExpr, fieldExpr, spwExpr, uvDistExpr,
-                taQLExpr, polnExpr, scanExpr,
-                arrayExpr, scanIntentExpr, obsExpr, itsMSS);
-            *itsMS = MeasurementSet(*itsSelectedMS);
+Bool ms::doMSSelection(const ::casac::record& exprs, const bool onlyparse)
+{
+	// for internal use
+	Bool retVal=false;
+	try
+	{
+		Record *casaRec = toRecord(exprs);
+		String spwExpr, timeExpr, fieldExpr, baselineExpr, scanExpr, scanIntentExpr,
+			polnExpr, uvDistExpr, obsExpr, arrayExpr, taQLExpr;
+		Int nFields = casaRec->nfields();
+		for (Int i=0; i<nFields; i++)
+		{
+			if (casaRec->name(i) == "spw")
+				{spwExpr        = casaRec->asString(RecordFieldId(i));}
+			if (casaRec->name(i) == "time")
+  				{timeExpr       = casaRec->asString(RecordFieldId(i));}
+			if (casaRec->name(i) == "field")
+				{fieldExpr      = casaRec->asString(RecordFieldId(i));}
+			if (casaRec->name(i) == "baseline")
+				{baselineExpr   = casaRec->asString(RecordFieldId(i));}
+			if (casaRec->name(i) == "antenna")
+				{baselineExpr   = casaRec->asString(RecordFieldId(i));}
+			if (casaRec->name(i) == "scan")
+				{scanExpr       = casaRec->asString(RecordFieldId(i));}
+			if (casaRec->name(i) == "scanintent")
+				{scanIntentExpr = casaRec->asString(RecordFieldId(i));}
+			if (casaRec->name(i) == "state")
+				{scanIntentExpr = casaRec->asString(RecordFieldId(i));}
+			if (casaRec->name(i) == "polarization")
+				{polnExpr       = casaRec->asString(RecordFieldId(i));}
+			if (casaRec->name(i) == "uvdist")
+				{uvDistExpr     = casaRec->asString(RecordFieldId(i));}
+			if (casaRec->name(i) == "observation")
+				{obsExpr        = casaRec->asString(RecordFieldId(i));}
+			if (casaRec->name(i) == "array")
+				{arrayExpr      = casaRec->asString(RecordFieldId(i));}
+			if (casaRec->name(i) == "taql")
+				{taQLExpr       = casaRec->asString(RecordFieldId(i));}
+		}
+		// If only parsing is requested, just set up the itsMSS object.
+		// This is much faster if one is only interested in the indices
+		// and not the actual selected MS.
+		//
+		if (onlyparse)
+		{
+			itsMSS->reset(*itsMS, MSSelection::PARSE_NOW,timeExpr,baselineExpr,fieldExpr,
+				spwExpr,uvDistExpr, taQLExpr,polnExpr,scanExpr,arrayExpr,scanIntentExpr,
+				obsExpr);
+			retVal=(itsMSS->getTEN(itsMS).isNull() == false);
+		} else {
+			MeasurementSet newSelectedMS(*itsSelectedMS);
+		    retVal = mssSetData(*itsSelectedMS, newSelectedMS, "",/*outMSName*/
+		        timeExpr, baselineExpr, fieldExpr, spwExpr, uvDistExpr,
+			    taQLExpr, polnExpr, scanExpr,
+			    arrayExpr, scanIntentExpr, obsExpr, itsMSS);
+			*itsSelectedMS = newSelectedMS;
+		    *itsMS = newSelectedMS;
+        	if (itsSel) itsSel->setMS(*itsMS);
         }
-        if (itsSel) itsSel->setMS(*itsMS);
-        return retVal;
-    }
-    catch (AipsError x)
-    {
-        RETHROW(x);
-    }
-    Table::relinquishAutoLocks(true);
-    return retVal;
+		return retVal;
+	}
+	catch (AipsError x)
+	{
+		Table::relinquishAutoLocks(true);
+		RETHROW(x);
+	}
+	Table::relinquishAutoLocks(true);
+	return retVal;
 }
 
 ::casac::record*

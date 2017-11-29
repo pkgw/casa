@@ -529,7 +529,37 @@ bool synthesisimager::executemajorcycle(const casac::record& controls)
     return rstat;
   }
 
+bool synthesisimager::makesdimage()
+{
+  Bool rstat(false);
 
+  try {
+
+    //if( ! itsImager ) itsImager = new SynthesisImager();
+    itsImager = makeSI();
+    itsImager->makeSdImage();
+
+  } catch  (AipsError x) {
+    RETHROW(x);
+  }
+  return rstat;
+}
+
+bool synthesisimager::makesdpsf()
+{
+  Bool rstat(false);
+
+  try {
+
+    //if( ! itsImager ) itsImager = new SynthesisImager();
+    itsImager = makeSI();
+    itsImager->makeSdImage(true);
+
+  } catch  (AipsError x) {
+    RETHROW(x);
+  }
+  return rstat;
+}
 
 synthesisimstore* synthesisimager::getimstore(const int id)
 {
