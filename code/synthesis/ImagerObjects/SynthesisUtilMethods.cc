@@ -620,6 +620,22 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   }
 
+  String SynthesisUtilMethods::asComprehensibleDirectionString(MDirection const &direction)
+  {
+    MVAngle mvRa=direction.getAngle().getValue()(0);
+    MVAngle mvDec=direction.getAngle().getValue()(1);
+    ostringstream oos;
+    oos << "     ";
+    Int widthRA=20;
+    Int widthDec=20;
+    oos.setf(ios::left, ios::adjustfield);
+    oos.width(widthRA);  oos << mvRa(0.0).string(MVAngle::TIME,8);
+    oos.width(widthDec); oos << mvDec.string(MVAngle::DIG2,8);
+    oos << "     "
+        << MDirection::showType(direction.getRefPtr()->getType());
+    return String(oos);
+  }
+
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////    Parameter Containers     ///////////////////////////////////////////////////////
@@ -804,7 +820,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}
 
 	MDirection::Types theRF;
-	MDirection::getType(theRF, tmpRF);
+	Bool status = MDirection::getType(theRF, tmpRF);
+	if (!status) {
+	  throw AipsError();
+	}
 	md = MDirection (tmpQRA, tmpQDEC, theRF);
 	return String("");
       }
@@ -2969,6 +2988,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  }
 	if(gridder=="awproject" || gridder=="awprojectft")
 	  {ftmachine="awprojectft";}
+	if(gridder=="singledish") {
+	  ftmachine="sd";
+	}
 
 	String deconvolver;
 	err += readVal( inrec, String("deconvolver"), deconvolver );
@@ -3000,6 +3022,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	err += readVal( inrec, String("computepastep"), computePAStep );
 	err += readVal( inrec, String("rotatepastep"), rotatePAStep );
 
+	// The extra params for single-dish
+	err += readVal( inrec, String("pointingcolumntouse"), pointingDirCol );
+	err += readVal( inrec, String("skypolthreshold"), skyPosThreshold );
+	err += readVal( inrec, String("convsupport"), convSupport );
+	err += readVal( inrec, String("truncate"), truncateSize );
+	err += readVal( inrec, String("gwidth"), gwidth );
+	err += readVal( inrec, String("jwidth"), jwidth );
+	err += readVal( inrec, String("minweight"), minWeight );
+	err += readVal( inrec, String("clipminmax"), clipMinMax );
+
 	// Single or MultiTerm mapper : read in 'deconvolver' and set mType here.
 	//	err += readVal( inrec, String("mtype"), mType );
 
@@ -3029,7 +3061,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     if( (ftmachine != "gridft") && (ftmachine != "wprojectft") && 
 	(ftmachine != "mosaicft") && (ftmachine != "awprojectft") && 
-	(ftmachine != "mawprojectft") && (ftmachine != "protoft"))
+	(ftmachine != "mawprojectft") && (ftmachine != "protoft") &&
+	(ftmachine != "sd"))
       { err += "Invalid ftmachine name. Must be one of 'gridft', 'wprojectft', 'mosaicft', 'awprojectft', 'mawpojectft'";   }
 
     if( ((ftmachine=="mosaicft") && (mType=="imagemosaic"))  || 
@@ -3061,6 +3094,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     if( (ftmachine=="mosaicft") && (facets>1) )
       { err += "The combination of mosaicft gridding with multiple facets is not supported. "
 	  "Please use the awprojectft gridder instead, and set wprojplanes to a value > 1 to trigger AW-Projection. \n"; }
+
+    // todo: any single-dish specific limitation?
 
     return err;
   }
@@ -3105,6 +3140,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     computePAStep=360.0;
     rotatePAStep=5.0;
 
+    // extra params for single-dish
+    pointingDirCol = "";
+    skyPosThreshold = 0.0;
+    convSupport = -1;
+    truncateSize = Quantity(-1.0);
+    gwidth = Quantity(-1.0);
+    jwidth = Quantity(-1.0);
+    minWeight = 0.0;
+    clipMinMax = False;
+
     // Mapper type
     mType = String("default");
     
@@ -3141,6 +3186,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     gridpar.define("conjbeams",conjBeams );
     gridpar.define("computepastep", computePAStep);
     gridpar.define("rotatepastep", rotatePAStep);
+
+    gridpar.define("pointingcolumntouse", pointingDirCol );
+    gridpar.define("skyposthreshold", skyPosThreshold );
+    gridpar.define("convsupport", convSupport );
+    gridpar.define("truncate", QuantityToString(truncateSize) );
+    gridpar.define("gwidth", QuantityToString(gwidth) );
+    gridpar.define("jwidth", QuantityToString(jwidth) );
+    gridpar.define("minweight", minWeight );
+    gridpar.define("clipminmax", clipMinMax );
 
     if( mType=="multiterm") gridpar.define("deconvolver","mtmfs");
     ///    else gridpar.define("deconvolver","singleterm");
