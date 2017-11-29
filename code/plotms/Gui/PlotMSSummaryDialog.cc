@@ -41,11 +41,12 @@ PlotMSSummaryDialog::PlotMSSummaryDialog(QDialog *parent)
 	connect( ui.closeButton, SIGNAL(clicked()), this, SLOT(closeDialog()));
 	connect( ui.summaryButton, SIGNAL(clicked()), this, SLOT(summarize()));
 
-	// Set up summary choices
+	// Set up summary choices for MS
 	const vector<String>& types = PMS::summaryTypeStrings();
 	for(unsigned int i = 0; i < types.size(); i++){
 		ui.summaryType->addItem(types[i].c_str());
 	}
+	isMS_ = true;
 }
 
 void PlotMSSummaryDialog::closeDialog(){
@@ -68,11 +69,14 @@ void PlotMSSummaryDialog::filesChanged(const vector<String>& fileNames){
 	// Revise summary choices for cal tables
 	Table tab = Table(fileNames[0]);
 	if (tab.keywordSet().isDefined("ParType")) {
+		isMS_ = false;
 		ui.summaryType->clear();
 		const vector<String>& types = PMS::CTsummaryTypeStrings();
 		for(unsigned int i = 0; i < types.size(); i++){
 			ui.summaryType->addItem(types[i].c_str());
 		}
+	} else {
+		isMS_ = true;
 	}
 
 	for ( int i = 0; i < fileNameCount; i++ ){
@@ -95,6 +99,16 @@ PMS::SummaryType PlotMSSummaryDialog::getSummaryType() const {
 	PMS::SummaryType type = PMS::summaryType( summaryStr.toStdString(), &valid );
 	if ( !valid ){
 		type = PMS::S_ALL;
+	}
+	return type;
+}
+
+PMS::CTSummaryType PlotMSSummaryDialog::getCTSummaryType() const {
+	QString summaryStr = ui.summaryType->currentText();
+	bool valid = false;
+	PMS::CTSummaryType type = PMS::CTsummaryType( summaryStr.toStdString(), &valid );
+	if ( !valid ){
+		type = PMS::S_ALL_CT;
 	}
 	return type;
 }

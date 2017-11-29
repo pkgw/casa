@@ -59,6 +59,10 @@ void ActionSummary::setSummaryType( PMS::SummaryType type ){
 	summaryType = type;
 }
 
+void ActionSummary::setCTSummaryType( PMS::CTSummaryType type ){
+	CTsummaryType = type;
+}
+
 void ActionSummary::setFile( String file ){
 	filename = file;
 }
@@ -96,18 +100,18 @@ bool ActionSummary::doActionSpecific(PlotMSApp* plotms) {
 			NewCalTable ct = NewCalTable(filename, Table::Old, Table::Plain);
 			CTSummary cts(ct);
 			// Log summary of the appropriate type and verbosity.
-			switch( summaryType ) {
-				//case PMS::S_ALL_CT:          cts.list(log, vb); break;
-				//case PMS::S_WHERE_CT:        cts.listWhere(log, vb); break;
-				//case PMS::S_WHAT_CT:         cts.listWhat(log, vb); break;
-				//case PMS::S_HOW_CT:          cts.listHow(log, vb); break;
+			switch( CTsummaryType ) {
+				case PMS::S_ALL_CT:          cts.list(log, vb); break;
+				case PMS::S_WHERE_CT:        cts.listWhere(log, vb); break;
+				case PMS::S_WHAT_CT:         cts.listWhat(log, vb); break;
+				case PMS::S_HOW_CT:          cts.listHow(log, vb); break;
 				case PMS::S_MAIN_CT:         cts.listMain(log, vb); break;
-				//case PMS::S_TABLES_CT:       cts.listTables(log, vb); break;
-				//case PMS::S_ANTENNA_CT:      cts.listAntenna(log, vb); break;
-				//case PMS::S_FIELD_CT:        cts.listField(log, vb); break;
-				//case PMS::S_OBSERVATION_CT:  cts.listObservation(log, vb); break;
-				//case PMS::S_HISTORY_CT:      cts.listHistory(log); break;
-				//case PMS::S_SPW_CT:          cts.listSpectralWindow(log, vb); break;
+				case PMS::S_TABLES_CT:       cts.listTables(log, vb); break;
+				case PMS::S_ANTENNA_CT:      cts.listAntenna(log, vb); break;
+				case PMS::S_FIELD_CT:        cts.listField(log, vb); break;
+				case PMS::S_OBSERVATION_CT:  cts.listObservation(log, vb); break;
+				case PMS::S_HISTORY_CT:      cts.listHistory(log); break;
+				case PMS::S_SPW_CT:          cts.listSpectralWindow(log, vb); break;
 				default: 					 cts.listMain(log, vb); break;
 			}
 			success = true;
