@@ -565,7 +565,9 @@ MsFactory::fillVisCubeModel (FillState & fillState)
 void
 MsFactory::fillVisCubeObserved (FillState & fillState)
 {
+  if (! columns_p.vis_p.isNull ()){
     fillCube (columns_p.vis_p, fillState, generators_p.get (MSMainEnums::DATA));
+  }
 }
 
 void
