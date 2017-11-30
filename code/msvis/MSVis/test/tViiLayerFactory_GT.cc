@@ -28,7 +28,7 @@
 #define _POSIX_C_SOURCE 200809L //For mkdtemp(), stpcpy(), nftw()
 
 #include <ftw.h>
-#include <stdlib.h>
+#include <unistd.h> //in macOS mkdtemp() is not in stdlib,h as POSIX dictates.. 
 #include <casa/aips.h>
 #include <casa/Exceptions/Error.h>
 #include <casacore/casa/OS/EnvVar.h>
