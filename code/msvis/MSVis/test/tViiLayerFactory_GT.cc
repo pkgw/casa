@@ -82,7 +82,7 @@ TEST( ViiLayerFactoryTest , ViiLayerFactoryBasicTest ) {
   Vector<ViiLayerFactory*> facts(1);
   facts[0]=&fac;
 
-  VisibilityIterator2 *vi = new VisibilityIterator2(facts);
+  std::unique_ptr<VisibilityIterator2> vi(new VisibilityIterator2(facts));
   VisBuffer2 *vb = vi->getImpl()->getVisBuffer();
 
   // Has a viable VI2 been generated?
@@ -116,7 +116,7 @@ TEST( ViiLayerFactoryTest , ViiLayerFactoryRealDataBasicTest ) {
   Vector<ViiLayerFactory*> facts(1);
   facts[0]=&fac;
 
-  VisibilityIterator2 *vi = new VisibilityIterator2(facts);
+  std::unique_ptr<VisibilityIterator2> vi(new VisibilityIterator2(facts));
   VisBuffer2 *vb = vi->getImpl()->getVisBuffer();
 
   // Has a viable VI2 been generated?
