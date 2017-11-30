@@ -242,7 +242,7 @@ TestWidget::sweepMs()
             startOfData (* vi, vb);
 
             for (vi->originChunks (); vi->moreChunks(); vi->nextChunk()){
-                SCOPED_TRACE("Rows processed so far" + 
+                SCOPED_TRACE("Rows processed so far: " + 
                              std::to_string(nRowsProcessed));
 
                 nextChunk (* vi, vb);
@@ -250,6 +250,9 @@ TestWidget::sweepMs()
                 for (vi->origin(); vi->more (); vi->next()){
 
                     subchunk = vi->getSubchunkId();
+
+                    SCOPED_TRACE("Processing subchunk: " +
+                                 std::to_string(subchunk.subchunk()));
 
                     nRowsProcessed += vb->nRows();
 
