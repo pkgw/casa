@@ -27,6 +27,23 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 namespace vi { //# NAMESPACE VI - BEGIN
 
+int removeFile(const char *fpath, const struct stat *sb, int typeflag, 
+               struct FTW* ftwbuf);
+
+int removeFile(const char *fpath, const struct stat *sb, int typeflag, 
+               struct FTW* ftwbuf)
+{
+  (void)sb;  //Unused vars
+  (void)typeflag;
+  (void)ftwbuf;
+    
+  int rv = remove(fpath);
+  if(rv)
+    perror(fpath);
+  return rv;
+}
+
+
 //////////////////////////////////////////////////////////////////////////
 // FreqAxisTVITest class
 //////////////////////////////////////////////////////////////////////////
@@ -89,19 +106,12 @@ void FreqAxisTVITest::SetUp()
 // -----------------------------------------------------------------------
 void FreqAxisTVITest::TearDown()
 {
-    String rm_command;
-
-    rm_command = String ("rm -rf ") + testFile_p;
-    system(rm_command.c_str());
-
-    rm_command = String ("rm -rf ") + referenceFile_p;
-    system(rm_command.c_str());
+    //Recursively remove the test and reference files
+    nftw(testFile_p.c_str(), removeFile, 64, FTW_DEPTH | FTW_PHYS);
+    nftw(referenceFile_p.c_str(), removeFile, 64, FTW_DEPTH | FTW_PHYS);
 
     if (autoMode_p)
-    {
-        rm_command = String ("rm -rf ") + inpFile_p;
-        system(rm_command.c_str());
-    }
+        nftw(inpFile_p.c_str(), removeFile, 64, FTW_DEPTH | FTW_PHYS);
 
     return;
 }
