@@ -545,6 +545,7 @@ Record ImageStatsCalculator::statistics(
             stats->setNewImage(*_subImage);
         }
     }
+    stats->setComputeQuantiles(_robust);
     // prevent the table of stats we no longer use from being logged
     stats->setListStats(false);
     String myAlg = _configureAlgorithm();
