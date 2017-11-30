@@ -1754,12 +1754,6 @@ TEST_F (Weighting, DoWeighting)
     sweepMs ();
 }
 
-//TEST_F (Exceptions, CheckingExceptions)
-//{
-//    checkExceptions();
-//}
-
-
 } // end namespace test
 } // end namespace vi
 using namespace casacore;
