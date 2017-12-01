@@ -3,7 +3,7 @@
 #define VI2_STATISTICS_ITERATEE_H_
 
 #include <msvis/MSVis/VisBuffer2.h>
-#include <casacore/scimath/Mathematics/StatisticsAlgorithm.h>
+#include <casacore/scimath/StatsFramework/StatisticsAlgorithm.h>
 #include <unordered_map>
 
 namespace casa {
