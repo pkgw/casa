@@ -8,6 +8,7 @@ file:///opt/casa/code/tools/xml/casa.xsd">
  
         <tool name="image" module="images">
 		<needs>coordsys</needs>
+        <needs>componentlist</needs>
         <shortdescription>Operations on images</shortdescription>
        
 <keyword>image</keyword>
