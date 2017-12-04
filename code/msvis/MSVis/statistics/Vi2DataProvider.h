@@ -39,8 +39,8 @@
 #include <msvis/MSVis/statistics/Vi2StatsWeightsIterator.h>
 #include <msvis/MSVis/statistics/Vi2StatsSigmasIterator.h>
 #include <msvis/MSVis/statistics/Vi2StatisticsIteratee.h>
-#include <casacore/scimath/Mathematics/StatisticsAlgorithm.h>
-#include <casacore/scimath/Mathematics/StatsDataProvider.h>
+#include <casacore/scimath/StatsFramework/StatisticsAlgorithm.h>
+#include <casacore/scimath/StatsFramework/StatsDataProvider.h>
 #include <memory>
 #include <vector>
 #include <unordered_map>
