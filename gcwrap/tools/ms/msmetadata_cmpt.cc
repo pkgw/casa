@@ -2038,13 +2038,23 @@ variant* msmetadata::timesforscan(int scan, int obsid, int arrayid, bool perspw)
 	return nullptr;
 }
 
-vector<double> msmetadata::timesforscans(const vector<int>& scans, int obsid, int arrayid) {
+vector<double> msmetadata::timesforscans(const variant& scans, int obsid, int arrayid) {
 	_FUNC(
-		ThrowIf(
-			*std::min_element(scans.begin(), scans.end()) < 0,
-			"All scan numbers must be nonnegative"
-		);
-		auto scanKeys = _getScanKeys(scans, obsid, arrayid);
+	    vector<int> myscans;
+	    if (scans.type() == variant::INT) {
+	        myscans.push_back(scans.toInt());
+	    }
+	    else if (scans.type() == variant::INTVEC) {
+	        myscans = scans.toIntVec();
+	    }
+	    else {
+	        ThrowCc("scans must either be an int or an array of ints");
+	    }
+	    ThrowIf(
+	        *std::min_element(myscans.begin(), myscans.end()) < 0,
+	        "All scan numbers must be nonnegative"
+	    );
+		auto scanKeys = _getScanKeys(myscans, obsid, arrayid);
 		return _setDoubleToVectorDouble(_msmd->getTimesForScans(scanKeys));
 	)
 	return vector<double>();

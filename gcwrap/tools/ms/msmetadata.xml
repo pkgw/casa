@@ -2302,7 +2302,7 @@ windows in the dataset and close the tool.
             <example>
     msmd.open("my.ms")
     # get the times associated with scan number 10, all obsids, all arrayids.
-    times = msmd.timesforscans(10)
+    times = msmd.timesforscan(10)
     msmd.done()
             </example>
         </method>
@@ -2310,8 +2310,9 @@ windows in the dataset and close the tool.
         <method type="function" name="timesforscans">
             <shortdescription>Get an array of the unique times for the specified scan numbers, observation ID, and array ID.</shortdescription>
              <input>
-                <param type="intArray" direction="in" name="scans">
-                    <description>Scan numbers for which to return the times.</description>
+                <param type="any" name="scans">
+                    <description>Scan number(s) for which to return the times.</description>
+                    <any type="variant" limittypes="int intArray"/>
                     <value>-1</value>
                 </param>
                 <param type="int" direction="in" name="obsid">
