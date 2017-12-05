@@ -51,7 +51,7 @@ file:///opt/casa/code/tools/xml/casa.xsd">
 <code>
 <include>tools/ms/ms_forward.h</include>
 <private>
-	<include>tools/ms/ms_private.h</include>
+    <include>tools/ms/ms_private.h</include>
 </private>
 </code>
 
@@ -485,8 +485,8 @@ the ms definition itself. -->
   <keyword>reset</keyword>
   <description>
     This function re-attaches the ms tool to the original MS,
-    effectively discarding any prior operations, in particular any data
-    selection operations using <link anchor="ms:ms.msselection.function">msselect</link> function.
+    effectively discarding any prior operations, in particular any
+    data selection operations using <link anchor="ms:ms.msselection.function">msselect</link> function.
   </description>
   <returns type="bool"/>
  </method>
@@ -498,10 +498,10 @@ the ms definition itself. -->
    
   <keyword>close</keyword>
   <description>
-    This function detaches the ms tool from the associated measurement
-    set table after flushing all the cached changes.  After calling
-    this function the ms tool is not associated with any measurement
-    set and using any function other than <link anchor="ms:ms.open.function">open</link> or <link anchor="ms:ms.fromfits.function">fromfits</link>
+    This function detaches the ms tool from the associated
+    measurement set table after flushing all the cached changes.
+    After calling this function the ms tool is not associated with
+    any measurement set and using any function other than <link anchor="ms:ms.open.function">open</link> or <link anchor="ms:ms.fromfits.function">fromfits</link>
     will result in an error message being sent to the logger.
 
     This function can be useful to avoid synchronization problems
@@ -520,7 +520,7 @@ the ms definition itself. -->
    
   <keyword>done</keyword>
   <description>
-    You should call close() when you are finished using the ms tool  
+    You should call close() when you are finished using the ms tool 
     to close the measurement set table and free any associated file
     locks. The measurement set is not deleted. <!-- It will also shut down
     the server process if there are no other ms tools being used. -->
@@ -559,7 +559,7 @@ the ms definition itself. -->
    
   <keyword>iswritable</keyword>
   <description>
-    This function returns True if the underlying MeasurementSet Table
+    This function returns True if the underlying MeasurementSet
     was opened for writing/update.
   </description>
   <returns type="bool"/>
@@ -587,10 +587,10 @@ the ms definition itself. -->
      </param>
   </input>
   <description>
-    This function returns the number of rows in the measurement set. If
-    the optional argument selected is set to True, it returns the
-    number of currently selected rows, otherwise it returns the number
-    of rows in the original measurement set.
+    This function returns the number of rows in the measurement set.
+    If the optional argument selected is set to True, it returns the
+    number of currently selected rows, otherwise it returns the
+    number of rows in the original measurement set.
   </description>
   <returns type="int"/>
   <example>
@@ -638,112 +638,137 @@ the ms definition itself. -->
      <shortdescription>record with fields containing arrays of data</shortdescription>
   </returns>
   <description>
-    This function will read the specified items from the currently
+    This function reads the specified items from the currently
     selected measurement set and returns them in fields of a record.
     The main difference between this and direct access of the table,
     using the table tool, is that this function reads data from the
-    selected measurement set, it provides access to derived quantities
-    like amplitude and flag_sum and it can reorder the data.
+    selected measurement set, provides access to derived
+    quantities like amplitude and flag_sum, and can reorder the 
+    data.
 
-    The items to read are specified, as with the range function, using
-    a vector of strings. Allowable items include:  amplitude,
-    corrected_amplitude, model_amplitude, ratio_amplitude,
-    residual_amplitude, obs_residual_amplitude, antenna1, antenna2,
-    axis_info, data, corrected_data, model_data, ratio_data,
-    residual_data, obs_residual_data, feed1, feed2, field_id, flag,
-    flag_row, flag_sum, ha (added to axis_info), ifr_number, imaginary,
-    corrected_imaginary, model_imaginary, ratio_imaginary,
-    residual_imaginary, obs_residual_imaginary, last (added to
-    axis_info), phase, corrected_phase, model_phase, ratio_phase,
-    residual_phase, obs_residual_phase, real, corrected_real,
-    ratio_real, residual_real, obs_residual_real, scan_number, sigma,
-    data_desc_id, time, ut (added to axis_info), uvw, u, v, w, uvdist,
-    and weight. Unrecognized items will result in a warning being sent
-    to the logger.  Duplicate items are silently ignored.
+    As with the ms.range function, the items to read are specified
+    using a vector of strings. Allowable items include: 'amplitude',
+    'corrected_amplitude', 'model_amplitude', 'ratio_amplitude',
+    'residual_amplitude', 'obs_residual_amplitude', 'antenna1',
+    'antenna2', 'axis_info', 'data', 'corrected_data', 'float_data',
+    'model_data', 'ratio_data', 'residual_data', 
+    'obs_residual_data', 'feed1', 'feed2', 'field_id', 'flag',
+    'flag_row', 'flag_sum', 'ha' (added to 'axis_info'),
+    'ifr_number', 'imaginary', 'corrected_imaginary',
+    'model_imaginary', 'ratio_imaginary', 'residual_imaginary',
+    'obs_residual_imaginary', 'last' (added to 'axis_info'),
+    'phase', 'corrected_phase', 'model_phase', 'ratio_phase',
+    'residual_phase', 'obs_residual_phase', 'real', 
+    'corrected_real', 'ratio_real', 'residual_real',
+    'obs_residual_real', 'scan_number', 'sigma', 'data_desc_id',
+    'time', 'ut' (added to 'axis_info'), 'uvw', 'u', 'v', 'w', 
+    'uvdist', and 'weight'. Unrecognized items will result in a 
+    warning being sent to the logger.  Corrected, model, and float
+    visibilities will result in a warning if these columns do not 
+    exist.  Duplicate items are silently ignored.
+    
+    Note that 'ha', 'last', and 'ut' must be requested along with
+    'axis_info' and ifraxis=True.  This data will be found in a
+    subrecord of the returned record's 'axis_info' with the key in 
+    uppercase.  For example, for 'ut', the data is found in: 
+    rec['axis_info']['time_axis']['UT'].  See more information
+    about 'axis_info' below.
 
     The record that is returned contains fields that correspond to
-    each of the specified items. Most fields will contain an array. The
-    array may be one, two or three dimensional depending on whether the
-    corresponding row in the measurement set is a scalar, one or two
-    dimensional. Unless the ifraxis argument is set to True the length
-    of the last axis on these arrays will correspond to the number of
-    rows in the selected measurement set.
+    each of the specified items. Most fields will contain an array.
+    The array may be one, two or three dimensional depending on
+    whether the corresponding row in the measurement set is a 
+    scalar, one-, or two-dimensional. Unless the ifraxis argument
+    is set to True, the length of the last axis on these arrays
+    will correspond to the number of rows in the selected
+    measurement set.
 
-    If the ifraxis argument is set to True, the row axis is split into
-    an interferometer axis and a time axis. For example, a measurement
-    set with 90 rows, in an array with 6 telescopes (so that there are
-    15 interferometers), may have a data array of shape [4,32,90]
-    if ifraxis is False, or [4,32,15,6] if ifraxis is True (assuming
-    there are 4 correlations and 32 channels). If there are missing
-    rows, as will happen if not all interferometers were used for all
-    time-slots, then a default value will be inserted.
+    If the ifraxis argument is set to True, the row axis is split
+    into an interferometer axis and a time axis. For example, a
+    measurement set with 90 rows, in an array with 6 telescopes (so
+    that there are 15 interferometers), may have a data array of
+    shape [4,32,90] if ifraxis is False, or [4,32,15,6] if ifraxis
+    is True (assuming there are 4 correlations and 32 channels). If
+    there are missing rows, as will happen if not all
+    interferometers were used for all time-slots, then a default
+    value will be inserted.
     
     This splitting of the row axis may not happen for items where
-    there is only a single value per row. For some items the returned
-    vector will contain only as many values as there are
-    interferometers and it is implicit that the same value should be
-    used for all time slots. The antenna1, antenna2, feed1, feed2 and
-    ifr_number items fall in this category. For other items the
-    returned vector will have as many values as there are time slots
-    and it is implicit that the same value should be used for all
-    interferometers. The field_id, scan_number, data_desc_id, and
-    time items fall into this category.
+    there is only a single value per row. For some items the 
+    returned vector will contain only as many values as there are
+    interferometers and it is implicit that the same value should
+    be used for all time slots. The antenna1, antenna2, feed1, 
+    feed2 and ifr_number items fall in this category. For other 
+    items, the returned vector will have as many values as there
+    are time slots and it is implicit that the same value should be
+    used for all interferometers. The field_id, scan_number,
+    data_desc_id, and time items fall into this category.
 
-    The axis_info item provides data labelling information. It returns
-    a record with the following fields: corr_axis, freq_axis, ifr_axis
-    and time_axis. The latter two fields are not present if ifr_axis is
-    set to False. The corr_axis field contains a string vector with
-    elements like 'RR' or 'XY' that indicates which polarizations where
-    correlated together to produce the data. The length of this vector
-    will always be the same as the length of the first axis of the data
-    array. The freq_axis field contains a record with two fields,
-    chan_freq and resolution. Each of these fields contains vectors
-    which indicate the centre frequency and spectral resolution (FWHM)
-    of each channel. The length of these vectors will be the same as
-    the length of the second axis in the data. The ifr_axis field
-    contains fields: ifr_number, ifr_name, ifr_shortname and baseline.
-    The ifr_number is the same as returned by the ifr_item, the
-    ifr_name and ifr_shortname are string vecors containing
-    descriptions of the interferometer and the baseline is the
-    Euclidian distance, in meters between the two antennas. All of
-    these vectors have a length equal to the number of interferometers
-    in the selected measurement set ie., to the length of the third
-    axis in the data when ifraxis is True. The time_axis field contains
-    the MJD seconds field and optionally the HA, UT, and LAST fields.
-    To include the optional fields you need to add the ha, last or ut
-    strings to the list of requested items. All the fields in the
-    time_axis record contain vectors that indicate the time at the
-    midpoint of the observation and are in seconds. The MJD seconds
-    field is since 0 hours on the day having a modified julian day
-    number of zero and the rest are since midnight prior to the start
-    of the observation.
+    The 'axis_info' item provides data labelling information. It 
+    returns a record with the following fields: corr_axis, 
+    freq_axis, ifr_axis, and time_axis. The latter two fields are
+    not present if ifraxis is set to False.
+    
+    1. The corr_axis field contains a string vector with elements like
+    'RR' or 'XY' that indicates which polarizations were correlated
+    together to produce the data. The length of this vector will
+    always be the same as the length of the first axis of the data
+    array.
+    
+    2. The freq_axis field contains a record with two fields, chan_freq
+    and resolution. Each of these fields contains vectors which
+    indicate the centre frequency and spectral resolution (FWHM)
+    of each channel. The length of these vectors will be the same
+    as the length of the second axis in the data.
+    
+    3. The ifr_axis field contains fields: ifr_number, ifr_name,
+    ifr_shortname and baseline. The ifr_number is the same as 
+    returned by the 'ifr_number' item, 1000*antenna1+antenna2.
+    The ifr_name and ifr_shortname are string vectors containing
+    descriptions of the interferometer; ifr_name contains the names
+    of the antenna pair separated by a hyphen, and ifr_shortname 
+    contains the ids of the antenna pair separated by a hyphen.
+    The baseline is the Euclidian distance in meters between the two
+    antennas. All of these vectors have a length equal to the number 
+    of interferometers in the selected measurement set, i.e., to the
+    length of the third axis in the data when ifraxis is True.
+    
+    4. The time_axis field contains the MJD seconds field and
+    optionally the HA, UT, and LAST fields. To include the optional
+    fields, you need to add 'ha', 'last' or 'ut' strings to the list
+    of requested items. All of the fields in the time_axis record
+    contain vectors that indicate the time at the midpoint of the
+    observation and are in seconds. The MJD seconds field is since
+    0 hours on the day having a modified julian day number of zero
+    and the rest are since midnight prior to the start of the 
+    observation.
 
-    An optional gap size can be specified to visually separate groups
-    of interferometers with the same antenna1 index (handy for
-    identifying antennas in an interferometer vs time display). The
-    default is no gap.
+    An optional gap size can be specified to visually separate
+    groups of interferometers with the same antenna1 index (handy
+    for identifying antennas in an interferometer vs time display).
+    The default is no gap.
 
     An optional increment can be specified to return data from every
     row matching the increment only.
 
     When the average flag is set, the data will be averaged over the
     time axis if the ifraxis is True or the row axis i.e., different
-    interferometers and times may be averaged together. In the latter
-    case, some of the coordinate information, like antenna_id, will
-    no longer make sense. When all data to be averaged is unflagged,
-    the result is the averaged value and the corresponding flag is
-    False. When all data is flagged, the result is set to zero and the
-    corresponding flag is True.  When data to be averaged is mixed
-    (unflagged and flagged), only the unflagged values are averaged and
-    the flag is set to False.
+    interferometers and times may be averaged together. In the
+    latter case, some of the coordinate information, like
+    antenna_id, will no longer make sense. When all data to be
+    averaged is unflagged, the result is the averaged value and the
+    corresponding flag is False. When all data is flagged, the
+    result is set to zero and the corresponding flag is True.  When
+    data to be averaged is mixed (unflagged and flagged), only the
+    unflagged values are averaged and the flag is set to False.
 
     You need to call <link anchor="ms:ms.selectinit.function">selectinit</link> before calling this function. 
-    If you haven't then selectinit will be called for you with default
-    arguments.
+    If you haven't then selectinit will be called for you with
+    default arguments.
 
-    Items prefixed with corrected, model, residual or obs_residual are
-    not available unless your measurement set has been processed either
-    with the imager or calibrator tools.
+    Items prefixed with corrected, model, residual or obs_residual 
+    are not available unless your measurement set has been processed
+    either with the imager or calibrator tools.
   </description>
   <example>
     ms.open("3C273XC1.MS")
@@ -803,13 +828,13 @@ the ms definition itself. -->
 
 
     This example selects all the data from the measurement set where
-    the value in the DATA_DESC_ID column is zero. This corresponds to a
-    particular spectral window and polarization setup. It then gets the
-    correlated amplitude, and the axis information from this selected
-    measurement set. This is returned in the casapy variable d. The
-    remainder of the example prints a table of 'hour angle' and
-    corresponding 'correlated amplitude' for the first channel,
-    correlation and baseline.
+    the value in the DATA_DESC_ID column is zero. This corresponds
+    to a particular spectral window and polarization setup. It then
+    gets the correlated amplitude, and the axis information from
+    this selected measurement set. This is returned in the casapy
+    variable d. The remainder of the example prints a table of
+    'hour angle' and corresponding 'correlated amplitude' for the
+    first channel, correlation and baseline.
   </example>
  </method>
 
@@ -828,33 +853,35 @@ the ms definition itself. -->
   </input>
   <returns type="bool"/>
   <description>
-    This function allows you to write values from casapy variables back
-    into the measurement set table. The main difference between this
-    and directly accessing the table using the table tool is that this
-    function writes data to the selected measurement set.
+    This function allows you to write values from casapy variables
+    back into the measurement set table. The main difference between
+    this and directly accessing the table using the table tool is
+    that this function writes data to the selected measurement set.
 
-    Unlike the getdata function you can only put items that correspond
-    to actual table columns. You cannot change the data shape either
-    so that the number of correlations, channels and rows (or
-    interferometers/time slots) must match the values in the selected
-    measurement set. If the values were obtained using the getdata
-    function with ifraxis argument set to True, then any default values
-    added to fill in missing intereferometer/timeslots pairs will be
-    ignored when writing the modified values back using this function.
+    Unlike the getdata function, you can only put items that
+    correspond to actual table columns. You cannot change the data
+    shape either so that the number of correlations, channels and
+    rows (or interferometers/time slots) must match the values in
+    the selected measurement set. If the values were obtained using
+    the getdata function with ifraxis argument set to True, then
+    any default values added to fill in missing 
+    interferometer/timeslots pairs will be ignored when writing
+    the modified values back using this function.
 
-    Allowable items include:  data, corrected_data, model_data, flag,
-    flag_row, sigma, and weight.
+    Allowable items include:  'data', 'corrected_data', 
+    'model_data', 'flag', 'flag_row', 'sigma', and 'weight'.
+    'float_data' is currently not implemented for putdata.
 
-    The measurement set has to be opened for read/write access to be
-    able to use this function.
+    The measurement set has to be opened for read/write access
+    (nomodify=False) to be able to use this function.
 
     You need to call <link anchor="ms:ms.selectinit.function">selectinit</link> before calling this function.
-    If you haven't then selectinit will be called for you with default
-    arguments.
+    If you haven't then selectinit will be called for you with
+    default arguments.
 
-    Items prefixed with corrected, model, residual or obs_residual are
-    not available unless your measurement set has been processed either
-    with the imager or calibrator tools.
+    Items prefixed with corrected, model, residual or obs_residual
+    are not available unless your measurement set has been processed
+    either with the imager or calibrator tools.
   </description>
   <example>
       ms.open("3C273XC1.MS", nomodify=False)
@@ -868,17 +895,18 @@ the ms definition itself. -->
       ms.putdata(rec)
     
     This example selects all the data from the measurement set where
-    the value in the DATA_DESC_ID column is zero. This corresponds to a
-    particular spectral window and polarization setup. Note that the
-    measurement set was opened for writing as well as reading. The
-    third line reads all the weights and the data into the casapy
-    variable rec. The weights are set to one. The more obscure syntax
-    is used as typing rec['weight'] = 1 will not preserve the shape of
-    the weight array. The data then has its mean subtracted from it.
-    The mean function is defined in the numpy module. Finally the data
-    is written back into the measurement set table. (NOTE:  Normally
-    one should not modify the raw data column.  Such adjustments are
-    more appropriate for the corrected_data column, if it exists.)
+    the value in the DATA_DESC_ID column is zero. This corresponds
+    to a particular spectral window and polarization setup. Note
+    that the measurement set was opened for writing as well as
+    reading. The third line reads all the weights and the data into
+    the casapy variable rec. The weights are set to one. The more
+    obscure syntax is used as typing rec['weight'] = 1 will not
+    preserve the shape of the weight array. The data then has its
+    mean subtracted from it. The mean function is defined in the
+    numpy module. Finally the data is written back into the
+    measurement set table. (NOTE:  Normally one should not modify
+    the raw data column.  Such adjustments are more appropriate for
+    the corrected_data column, if it exists.)
   </example>
  </method>
 
@@ -2588,35 +2616,43 @@ ms.tosdfits("myfile.sdfits")  # write SDFITS file
   </input>
   <returns type="record"/>
   <description>
-    This function will return the range of values in the currently
-    selected measurement set for the items specified.  Possible items
-    include most scalar columns, interferometer number
-    (1000*antenna1 + antenna2), uvdist, u, v, w, amplitude, phase,
-    real and imaginary components of the data (and corrected and model
-    versions of these - if these columns are present). See the table
-    at the top of the document to find the exact list.
+    This function returns the range of values in the currently
+    selected measurement set for the items specified.
+    
+    Possible items include 'amplitude', 'corrected_amplitude', 
+    'model_amplitude', 'antenna1', 'antenna2', 'antennas',
+    'array_id', 'chan_freq', 'corr_names', 'corr_types', 'feed1',
+    'feed2', 'field_id', 'fields', 'float_data', 'ifr_number'
+    (1000*antenna1 + antenna2), 'imaginary', 'corrected_imaginary',
+    'model_imaginary', 'num_corr', 'num_chan', 'phase',
+    'corrected_phase', 'model_phase', 'phase_dir', 'real',
+    'corrected_real', 'model_real', 'ref_frequency', 'rows',
+    'scan_number', 'sigma', 'data_desc_id', 'time', 'times', 'u', 
+    'v', 'w', 'uvdist', and 'weight'.  Note that corrected, model,
+    and float versions are available only if these columns are
+    present in the data.
 
     You specify items in which you are interested using a string
     vector where each element is a case insensitive item name.  This
     function will then return a record that has fields corresponding
-    to each of the specified items. Each field will contain the range
-    of the specified item. For many items the range will be the
-    minimum and maximum values but for some it will be a list of
+    to each of the specified items. Each field will contain the
+    range of the specified item. For many items the range will be
+    the minimum and maximum values but for some it will be a list of
     unique values. Unrecognized items are ignored.
     
-    By default the FLAG column is used to exclude flagged data before
-    any ranges are determined, but you can set useflags=False to
-    include flagged data in the range.  However, if you average in
-    frequency, flagging will still be applied.
+    By default the FLAG column is used to exclude flagged data
+    before any ranges are determined, but you can set useflags=False
+    to include flagged data in the range.  However, if you average
+    in frequency, flagging will still be applied.
 
     You can influence the memory use and the reading speed using 
     the blocksize argument - it specifies how big a block of data
-    to read at once (in MB). For large datasets on machines with lots
-    of memory you may speed things up by setting this higher than the
-    default (10 MB).
+    to read at once (in MB). For large datasets on machines with
+    lots of memory you may speed things up by setting this higher
+    than the default (10 MB).
 
-    For some items, you need to call selectinit to select a portion of
-    the data with a unique shape prior to calling this function.
+    For some items, you need to call selectinit to select a portion
+    of the data with a unique shape prior to calling this function.
 
     Items prefixed with corrected, model, residual or obs_residual 
     are not available unless your measurement set has been processed
@@ -2627,15 +2663,17 @@ ms.tosdfits("myfile.sdfits")  # write SDFITS file
       ms.selectinit(datadescid=0)
       ms.range(["time","uvdist","amplitude","antenna1"])
       #{'amplitude': array([  2.60339398e-02,   3.38518333e+01]),
-      # 'antenna1': array([ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 11, 
-      #    12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]),
+      # 'antenna1': array([ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9,
+      # 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+      # 26]),
       # 'time': array([  4.12162940e+09,   4.12164267e+09]),
       # 'uvdist': array([   46.26912101,  3727.97385983])}
     
     In this example the minimum and maximum observation times,
-    uvdistances, data amplitudes are returned as well as a list of all
-    the antennas in the antenna1 column. <!-- Note that the double
-    quoted string produces a string vector as the input argument. -->
+    uvdistances, data amplitudes are returned as well as a list of
+    all the antennas in the antenna1 column. <!-- Note that the
+    double quoted string produces a string vector as the input
+    argument. -->
 
     For this dataset the selectinit function did not need to be
     called as all the data is of one shape.
@@ -2866,7 +2904,7 @@ in spectral window 1.
   <input>
      <param type="record" direction="in" name="items">
      <description>
-       Record with fields contain the selection experessions. Keys
+       Record with fields contain the selection expressions. Keys
        recognized in the record are: "spw", "time", "field",
        "baseline", "scan", "scanintent", "polarization",
        "observation", "array", "uvdist" and "taql".
@@ -2899,10 +2937,10 @@ in spectral window 1.
     <link anchor="http://casa.nrao.edu/other_doc.shtml">MSSelection Memo.</link>
 
     Note that this function can be called multiple times but the
-    result is cumulative.  I.e. selection will work on the data
+    result is cumulative.  Each selection will work on the data
     already selected from all previous calls of this function.  Use
     the function reset() to reset all selections to NULL (original
-    database).
+    dataset).
   </description>
   <example>
       staql={'field':'3C286', 'spw':'0~7:10~55'};
@@ -3129,9 +3167,10 @@ in spectral window 1.
     used as the argument for this function.  A successful selection
     returns True. Unrecognized fields are ignored.
 
-    Allowable items for select include:  antenna1, antenna2, array_id,
-    feed1, feed2, field_id, ifr_number, rows, scan_number,
-    data_desc_id, time, times, u, v, w, and uvdist.
+    Allowable items for select include: 'antenna1', 'antenna2',
+    'array_id', 'feed1', 'feed2', 'field_id', 'ifr_number', 'rows',
+    'scan_number', 'data_desc_id', 'time', 'times', 'u', 'v', 'w', 
+    and 'uvdist'.
 
     You need to call <link anchor="ms:ms.selectinit.function">selectinit</link> before
     calling this function. If you haven't then selectinit will be

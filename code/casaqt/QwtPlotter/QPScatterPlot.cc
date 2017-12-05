@@ -179,9 +179,8 @@ QwtGraphic QPScatterPlot::legendIcon(int /*index*/, const QSizeF& size) const {
 QWidget* QPScatterPlot::legendItem() const {
 	QPen legendPen = m_line.asQPen();
 	if ( !linesShown() ){
-		QBrush symbolBrush = m_symbol.drawBrush();
-		QColor brushColor = symbolBrush.color();
-		legendPen = QPen(brushColor );
+		QColor penColor = m_symbol.drawPen().color();
+		legendPen = QPen(penColor );
 	}
     QwtLegendItem* i= new QwtLegendItem(m_symbol, legendPen, qwtTitle());
     i->setIdentifierMode(QwtLegendItem::ShowLine | QwtLegendItem::ShowSymbol |

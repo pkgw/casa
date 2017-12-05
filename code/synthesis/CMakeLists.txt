@@ -65,6 +65,7 @@ casa_add_library( synthesis
   TransformMachines2/AWVisResampler.cc
  TransformMachines2/VisibilityResamplerBase.cc
  TransformMachines2/VisibilityResampler.cc
+  TransformMachines2/SDGrid.cc
   TransformMachines/BeamSkyJones.cc
   TransformMachines/BeamSquint.cc
   TransformMachines/CFCache.cc
@@ -270,7 +271,6 @@ casa_add_library( synthesis
  MeasurementComponents/ResidualAlgorithm.cc
  MeasurementComponents/ResamplerWorklet.cc
  MeasurementComponents/SDGrid.cc
- MeasurementComponents/SDPosInterpolator.cc
  MeasurementComponents/SDDoubleCircleGainCalImpl.cc
  MeasurementComponents/SDDoubleCircleGainCal.cc
  MeasurementComponents/SimACohCalc.cc
@@ -377,6 +377,7 @@ casa_add_library( synthesis
  Utilities/PointingDirectionCalculator.cc
  Utilities/PointingDirectionProjector.cc
  Utilities/SingleDishBeamUtil.cc
+ Utilities/SDPosInterpolator.cc
  ${BISON_CalLibraryGram_OUTPUTS}
  ${FLEX_CalLibraryGram_OUTPUTS}
   )
@@ -539,7 +540,6 @@ install (FILES
 	MeasurementComponents/ResamplerWorklet.h
 	MeasurementComponents/ResidualAlgorithm.h
 	MeasurementComponents/SDGrid.h
-	MeasurementComponents/SDPosInterpolator.h
 	MeasurementComponents/SDDoubleCircleGainCalImpl.h
 	MeasurementComponents/SDDoubleCircleGainCal.h
 	MeasurementComponents/SimACoh.h
@@ -717,6 +717,7 @@ install (FILES
 	TransformMachines2/WPConvFunc.h
 	TransformMachines2/WProjectFT.h
 	TransformMachines2/WTerm.h
+	TransformMachines2/SDGrid.h
 	DESTINATION include/casacode/synthesis/TransformMachines2
        )
 install (FILES
@@ -803,6 +804,7 @@ install (FILES
 	Utilities/PointingDirectionCalculator.h
 	Utilities/PointingDirectionProjector.h
 	Utilities/SingleDishBeamUtil.h
+	Utilities/SDPosInterpolator.h
 	DESTINATION include/casacode/synthesis/Utilities
 	)
 casa_add_executable( synthesis casasplit apps/casasplit/casasplit.cc )
@@ -899,7 +901,7 @@ casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tGJon
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tVisCalGlobals_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/SingleDishSkyCal_GTest.cc )
 casa_add_google_test( MODULES synthesis mstransform SOURCES MeasurementComponents/test/FiltrationTVI_GTest.cc )
-casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/SDPosInterpolator_GTest.cc )
+casa_add_google_test( MODULES synthesis SOURCES Utilities/test/SDPosInterpolator_GTest.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/SDDoubleCircleGainCalImpl_GTest.cc )
 casa_add_google_test( MODULES synthesis SOURCES CalTables/test/CTSelection_GTest.cc )
 
