@@ -1325,10 +1325,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     //for debug set to True to save intermediate mask images on disk
     Bool debug(false); // create additional temp masks for debugging
-    Bool debug2(true); // debug2 saves masks before/after prune and binary dilation
-
-    //do pruning on the growed mask
-    //Bool doGrowPrune(true);
+    Bool debug2(false); // debug2 saves masks before/after prune and binary dilation
 
     // tempmsk: working image for the curret mask
     TempImage<Float> tempmask(mask.shape(), mask.coordinates(), memoryToUse());
