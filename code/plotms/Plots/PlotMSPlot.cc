@@ -1757,7 +1757,8 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
 		if (axisIsAveraged(x, averaging) && anyEQ(dataTypes,0))
 			xLabelSingle = "Average " + xLabelSingle;
 		// change xaxis to "Polarization" for cal tables if no MS plotted
-		if (allEQ(dataTypes,1) && xLabelSingle.contains("Corr"))
+		if (allEQ(dataTypes,1) && xLabelSingle.contains("Corr") &&
+				!xLabelSingle.contains("Correction"))
 			xLabelSingle.gsub("Corr", "Poln");
 		canvas->setAxisLabel(cx, xLabelSingle);
 		PlotFontPtr xFont = canvas->axisFont(cx);
@@ -1792,7 +1793,8 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
 					yLabelSingle = addFreqFrame(yLabelSingle);
 				if (axisIsAveraged(y, averaging) && !isCalTable)
 					yLabelSingle = "Average " + yLabelSingle;
-				if (isCalTable && yLabelSingle.contains("Corr"))
+				if (isCalTable && yLabelSingle.contains("Corr") &&
+						!yLabelSingle.contains("Correction"))
 					yLabelSingle.gsub("Corr", "Poln");
 				if ( cy == Y_LEFT ){
 					if ( !yLabelLeft.empty() ) yLabelLeft.append( ", ");
