@@ -29,7 +29,6 @@ MsFactory::MsFactory (const String & msName)
 MsFactory::~MsFactory ()
 {
     delete simulator_p;
-    delete ms_p;
 }
 
 void

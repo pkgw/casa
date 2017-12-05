@@ -310,11 +310,11 @@ public:
   {
     //Create MS using the simulator MsFactory
     pair<MeasurementSet *, Int> p = msf_p->createMs();
-    ms_p.reset(p.first);
+    ms_p = p.first;
 
     //Create a disk layer type VI Factory
     IteratingParameters ipar;
-    VisIterImpl2LayerFactory diskItFac(ms_p.get(),ipar,false);
+    VisIterImpl2LayerFactory diskItFac(ms_p,ipar,false);
 
     //Create a SwappingDataTVI Factory if requested
     std::unique_ptr<DataSwappingTVILayerFactory> swapFac;
@@ -367,7 +367,7 @@ public:
   //The attached VisBuffer
   VisBuffer2 * vb_p;
   //The synthetic MS
-  std::unique_ptr<MeasurementSet> ms_p;
+  MeasurementSet *  ms_p;
 };
  
 
