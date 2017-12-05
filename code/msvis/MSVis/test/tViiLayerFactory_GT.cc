@@ -26,9 +26,10 @@
 //# $Id$
 
 #define _POSIX_C_SOURCE 200809L //For mkdtemp(), stpcpy(), nftw()
+#define _DARWIN_C_SOURCE //in macOS mkdtemp() is not available if  _POSIX_C_SOURCE=200809L (Apple bugreport #35851865)
 
 #include <ftw.h>
-#include <unistd.h> //in macOS mkdtemp() is not in stdlib,h as POSIX dictates.. 
+#include <unistd.h> //in macOS mkdtemp() is not in stdlib,h as POSIX dictates..(Apple bugreport #35830645) 
 #include <casa/aips.h>
 #include <casa/Exceptions/Error.h>
 #include <casacore/casa/OS/EnvVar.h>
