@@ -136,7 +136,9 @@ public:
                 const casacore::Float& smoothfactor=0.0,
                 const casacore::Float& minbeamfrac=0.0, 
                 const casacore::Int growiterations=0,
+                const casacore::Bool dogrowprune=true,
                 casacore::Float pblimit=0.0);
+
   // automask by threshold with binning before applying it 
   void autoMaskByThreshold (casacore::ImageInterface<casacore::Float>& mask,
                            const casacore::ImageInterface<casacore::Float>& res, 
@@ -176,7 +178,8 @@ public:
                                           const casacore::Float& cutThreshold=0.01,
                                           const casacore::Float& smoothFactor=1.0,
                                           const casacore::Float& minBeamFrac=-1.0,
-                                          const casacore::Int growIterations=100); 
+                                          const casacore::Int growIterations=100,
+                                          const casacore::Bool dogrowprune=true); 
                            
   // Calculate statistics on a residual image with additional region and LEL mask specificaations
   casacore::Record calcImageStatistics(casacore::ImageInterface<casacore::Float>& res, 
@@ -261,6 +264,7 @@ public:
                         const casacore::Float& smoothfactor=0.0,
                         const casacore::Float& minbeamfrac=0.0, 
                         const casacore::Int growiterations=0,
+                        const casacore::Bool dogrowprune=true,
                         casacore::Float pblimit=0.1);
 
   

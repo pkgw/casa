@@ -737,6 +737,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                const Float& smoothfactor,
                                const Float& minbeamfrac, 
                                const Int growiterations,
+                               const Bool dogrowprune,
                                Float pblimit)
   {
     LogIO os( LogOrigin("SDMaskHandler","autoMask",WHERE) );
@@ -937,7 +938,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     }
     else if (alg==String("multithresh")) {
       autoMaskByMultiThreshold(*tempmask, *tempres, *imstore->psf(), thestats, iterdone, itsSidelobeLevel, sidelobethreshold,
-                                          noisethreshold, lownoisethreshold, negativethreshold, cutthreshold, smoothfactor, minbeamfrac, growiterations);
+                                          noisethreshold, lownoisethreshold, negativethreshold, cutthreshold, smoothfactor, minbeamfrac, growiterations, dogrowprune);
     }
 
     // this did not work (it won't physically remove the mask from the image 
@@ -1311,7 +1312,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                           const Float& cutThreshold,
                                           const Float& smoothFactor,
                                           const Float& minBeamFrac, 
-                                          const Int growIterations) 
+                                          const Int growIterations,
+                                          const Bool doGrowPrune) 
   {
     LogIO os( LogOrigin("SDMaskHandler","autoMaskByMultiThreshold",WHERE) );
     Array<Double> rmss, maxs, mads;
@@ -1323,7 +1325,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     //for debug set to True to save intermediate mask images on disk
     Bool debug(false); // create additional temp masks for debugging
-    Bool debug2(false); // debug2 saves masks before/after prune and binary dilation
+    Bool debug2(true); // debug2 saves masks before/after prune and binary dilation
+
+    //do pruning on the growed mask
+    //Bool doGrowPrune(true);
 
     // tempmsk: working image for the curret mask
     TempImage<Float> tempmask(mask.shape(), mask.coordinates(), memoryToUse());
@@ -1623,6 +1628,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
        }
        // multiply binary dilated mask by constraintmask
        prevmask.copyData( LatticeExpr<Float> (constraintMaskImage*prevmask));
+       if(debug2) {
+         PagedImage<Float> beforepruneconstIm(res.shape(), res.coordinates(),"tmpBeforePruneGrowMask-"+String::toString(iterdone)+".im");
+         beforepruneconstIm.copyData(prevmask);
+       }
        // prune the resultant mask 
        /***
        if (minBeamFrac > 0.0 ) {
@@ -1631,7 +1640,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
          prevmask.copyData( *(tempPrunedMask_ptr.get()) );
        }
        ***/
-       if (minBeamFrac > 0.0 ) {
+       if (minBeamFrac > 0.0 && doGrowPrune) {
          os<<LogIO::NORMAL << "Pruning the growed previous mask "<<LogIO::POST;
          Vector<Bool> dummy(0);
          SHARED_PTR<ImageInterface<Float> > tempPrunedMask_ptr = YAPruneRegions(prevmask, dummy, pruneSize);
@@ -1639,7 +1648,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
        }
        if(debug2) {
          PagedImage<Float> afterpruneconstIm(res.shape(), res.coordinates(),"tmpAfterPruneGrowMask-"+String::toString(iterdone)+".im");
-         afterpruneconstIm.copyData(constraintMaskImage);
+         afterpruneconstIm.copyData(prevmask);
        }
        SPIIF outprevmask = convolveMask( prevmask, modbeam);
        if (debug) {
@@ -2734,6 +2743,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                        const Float& smoothfactor,
                                        const Float& minbeamfrac,
                                        const Int growiterations,
+                                       const Bool dogrowprune,
                                        Float pblimit)
   { 
     LogIO os( LogOrigin("SDMaskHandler","autoMaskWithinPB",WHERE) );
@@ -2743,7 +2753,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // changed to do automask ater pb mask is generated so automask do stats within pb mask
     autoMask( imstore, iterdone, alg, threshold, fracofpeak, resolution, resbybeam, nmask, autoadjust, 
               sidelobethreshold, noisethreshold, lownoisethreshold, negativethreshold, cutthreshold, smoothfactor, 
-              minbeamfrac, growiterations, pblimit);
+              minbeamfrac, growiterations, dogrowprune, pblimit);
 
     if( imstore->hasPB() )
       {

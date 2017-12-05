@@ -2004,6 +2004,12 @@ HPX HEALPix grid.  -->
 </description>
     </param>
 
+    <param type="bool" name="dogrowprune" subparam="true">
+           <shortdescription>Do pruning on the "grow"ed mask</shortdescription>
+           <value type="bool">True</value>
+<description>Experimental sub-parameter for "auto-multithresh": Do pruning on the "grow"-ed mask 
+</description>
+    </param>
 <!--============================================== -->
 <!--                            Other Operational Parameters                                       -->
 <!--============================================== -->
@@ -2547,6 +2553,7 @@ HPX HEALPix grid.  -->
          <default param="minbeamfrac"><value type="double">0.3</value></default>
          <default param="cutthreshold"><value>0.01</value></default>
          <default param="growiterations"><value>75</value></default>
+         <default param="dogrowprune"><value type="bool">True</value></default>
        </equals>
    </when>
 
