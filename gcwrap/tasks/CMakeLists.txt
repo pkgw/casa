@@ -103,6 +103,7 @@ sdfit.xml
 sdfixscan.xml
 sdgaincal.xml
 sdimaging.xml
+tsdimaging.xml
 sdsmooth.xml
 setjy.xml
 ssoflux.xml

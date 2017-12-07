@@ -42,6 +42,7 @@ ImageAnalysis/CasaImageBeamSet.cc
 ImageAnalysis/ComplexImageRegridder.cc
 ImageAnalysis/ComponentImager.cc
 ImageAnalysis/ImageCollapserData.cc
+ImageAnalysis/ImageCollapser2.cc
 ImageAnalysis/ImageFactory2.cc
 ImageAnalysis/ImageFFT.cc
 ImageAnalysis/ImageFitter.cc

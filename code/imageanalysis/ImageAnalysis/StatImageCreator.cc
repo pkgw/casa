@@ -132,8 +132,8 @@ SPIIF StatImageCreator::compute() {
         writeTo = store.get();
     }
     _computeStat(*writeTo, subImageRO, nxpts, nypts, xstart, ystart);
-    if (_doPhi) {
-        writeTo->copyData((LatticeExpr<Float>)(*writeTo * PHI));
+    if (_doProbit) {
+        writeTo->copyData((LatticeExpr<Float>)(*writeTo * PROBIT_3_4));
     }
     if (interpolate) {
         _doInterpolation(
@@ -641,7 +641,7 @@ void StatImageCreator::setStatType(const String& s) {
     else {
         ThrowCc("Statistic " + s + " not supported.");
     }
-    _doPhi = m.startsWith("x");
+    _doProbit = m.startsWith("x");
     setStatType(stat);
 }
 
