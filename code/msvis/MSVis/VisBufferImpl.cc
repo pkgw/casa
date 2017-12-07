@@ -1729,6 +1729,12 @@ VisBufferImpl::phaseCenter () const
     return cache_p->phaseCenter_p.get ();
 }
 
+const MDirection VisBufferImpl::phaseCenter(const fieldid, const time){
+  CheckVisIter ();
+
+  return getViP()->phaseCenter (fieldid, time);
+
+}
 Int
 VisBufferImpl::polFrame () const
 {

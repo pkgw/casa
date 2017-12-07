@@ -25,6 +25,10 @@
 #include <casacore/ms/MSOper/MSMetaData.h>
 #include <casacore/tables/Tables/ArrColDesc.h>
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 #include <iomanip>
 
 using namespace casacore;
@@ -905,7 +909,9 @@ void StatWtTVI::_computeWeightsSlidingTimeWindow(
         False
     );
     const auto nRows = rowMap.size();
+#ifdef _OPENMP
 #pragma omp parallel for
+#endif
     for (size_t iRow=0; iRow<nRows; ++iRow) {
         IPosition chunkSliceStart(3, 0);
         auto chunkSliceLength = chunkShape;
@@ -1175,7 +1181,9 @@ void StatWtTVI::_computeWeightsTimeBlockProcessing(
         _weights[blcb].resize(ncorr);
     }
     auto n = keys.size();
+#ifdef _OPENMP
 #pragma omp parallel for
+#endif
     for (size_t i=0; i<n; ++i) {
         auto blcb = keys[i];
         auto dataForBLCB = data.find(blcb)->second;
@@ -1225,9 +1233,11 @@ casacore::Double StatWtTVI::_computeWeight(
     // _samples.second can be updated in two different places, so use
     // a local (per thread) variable and update the object's private field in one
     // place
-    uInt updateSecond = False;;
+    uInt updateSecond = False;
     if (varSum > 0) {
+#ifdef _OPENMP
 #pragma omp atomic
+#endif
         ++_samples[spw].first;
         if (imagVar == 0 || realVar == 0) {
             updateSecond = True;
@@ -1238,7 +1248,9 @@ casacore::Double StatWtTVI::_computeWeight(
             updateSecond = ratio > 1.5 || inverse > 1.5;
         }
         if (updateSecond) {
+#ifdef _OPENMP
 #pragma omp atomic
+#endif
             ++_samples[spw].second;
         }
     }

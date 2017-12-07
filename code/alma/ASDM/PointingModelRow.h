@@ -84,7 +84,7 @@
 //#include <TableStreamReader.h>
 
 /*\file PointingModel.h
-    \brief Generated from model's revision "1.64", branch "HEAD"
+    \brief Generated from model's revision "-1", branch ""
 */
 
 namespace asdm {
@@ -106,7 +106,7 @@ typedef void (PointingModelRow::*PointingModelAttributeFromText) (const string& 
 /**
  * The PointingModelRow class is a row of a PointingModelTable.
  * 
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  */
 class PointingModelRow {

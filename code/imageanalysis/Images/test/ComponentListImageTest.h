@@ -1,5 +1,4 @@
-//# ImageAnalysis.cc:  Image analysis and handling tool
-//# Copyright (C) 1995-2007
+//# Copyright (C) 1998,1999,2000,2001
 //# Associated Universities, Inc. Washington DC, USA.
 //#
 //# This library is free software; you can redistribute it and/or modify it
@@ -23,31 +22,34 @@
 //#                        520 Edgemont Road
 //#                        Charlottesville, VA 22903-2475 USA
 //#
-//# $Id: ImageAnalysis.cc 20491 2009-01-16 08:33:56Z gervandiepen $
-//   
 
-// PLEASE DO *NOT* ADD ADDITIONAL METHODS TO THIS CLASS
+#ifndef IMAGEANALYSIS_COMPONENTLISTIMAGETEST
+#define IMAGEANALYSIS_COMPONENTLISTIMAGETEST
 
-#include <imageanalysis/ImageAnalysis/ImageAnalysis.h>
+#include <gtest/gtest.h>
 
-#include <imageanalysis/ImageAnalysis/ImageFFT.h>
-#include <imageanalysis/ImageAnalysis/ImageMaskAttacher.h>
-#include <imageanalysis/ImageAnalysis/SubImageFactory.h>
-#include <images/Images/ImageExpr.h>
-#include <images/Images/ImageOpener.h>
-#include <images/Images/PagedImage.h>
-#include <lattices/Lattices/LatticeUtilities.h>
+#include <casacore/casa/BasicSL/String.h>
 
-namespace casa {
+#include <components/ComponentModels/ComponentList.h>
 
-template<class T> void ImageAnalysis::_destruct(casacore::ImageInterface<T>& image) {
-	if((image.isPersistent()) && ((image.imageType()) == "PagedImage")) {
-		casacore::ImageOpener::ImageTypes type = casacore::ImageOpener::imageType(image.name());
-		if (type == casacore::ImageOpener::AIPSPP) {
-			casacore::Table::relinquishAutoLocks(true);
-			(static_cast<casacore::PagedImage<T>& >(image)).table().unlock();
-		}
-	}
+namespace test {
+
+class ComponentListImageTest : public ::testing::Test {
+
+public:
+    ComponentListImageTest();
+	virtual ~ComponentListImageTest();
+
+	virtual void SetUp();
+
+	virtual void TearDown();
+
+	casa::ComponentList oneGaussianCL() const;
+
+private:
+
+};
+
+#endif
+
 }
-
-} // end of  casa namespace

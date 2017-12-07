@@ -317,6 +317,15 @@ CubeSkyEquation::~CubeSkyEquation(){
     SigHandler::resetSignalHandlers();
 }
 
+void CubeSkyEquation::setPhaseCenterTime(const Double time){
+  SkyEquation::setPhaseCenterTime(time);
+  for(Int model=0; model < sm_->numberOfModels(); ++model){
+    ftm_p[model]->setPhaseCenterTime(time);
+    iftm_p[model]->setPhaseCenterTime(time);
+  }
+    
+}
+
 void  CubeSkyEquation::predict(Bool incremental, MS::PredefinedColumns col) {
 
   VisibilityIterator::DataColumn visCol=VisibilityIterator::Model;
