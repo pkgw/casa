@@ -52,7 +52,7 @@
 	
 
 	 
-#include <Interval.h>
+#include <Length.h>
 	
 
 	 
@@ -60,7 +60,7 @@
 	
 
 	 
-#include <Length.h>
+#include <Interval.h>
 	
 
 
@@ -100,7 +100,7 @@
 //#include <TableStreamReader.h>
 
 /*\file TotalPower.h
-    \brief Generated from model's revision "1.64", branch "HEAD"
+    \brief Generated from model's revision "-1", branch ""
 */
 
 namespace asdm {
@@ -128,7 +128,7 @@ typedef void (TotalPowerRow::*TotalPowerAttributeFromText) (const string& s);
 /**
  * The TotalPowerRow class is a row of a TotalPowerTable.
  * 
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  */
 class TotalPowerRow {

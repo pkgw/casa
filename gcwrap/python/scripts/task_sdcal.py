@@ -33,9 +33,10 @@ def sdcal(infile=None, calmode='tsys', fraction='10%', noff=-1,
                 raise UserWarning, "Spw input must be ''(=all) in calmode='tsys'."
 
         if isinstance(infile,str) and os.path.exists(infile):
-            # don't need scr col for this
+            # check if CORRECTED_DATA is necessary
+            addcorr = calmode == 'apply'
             cb.setvi(old=True)
-            cb.open(filename=infile,compress=False,addcorr=True,addmodel=False)
+            cb.open(filename=infile,compress=False,addcorr=addcorr,addmodel=False)
             cb.selectvis(spw=spw, scan=scan, field=field)
         else:
             raise Exception, 'Infile data set not found - please verify the name'

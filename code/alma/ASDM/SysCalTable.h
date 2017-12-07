@@ -41,7 +41,7 @@
 
 
 	
-#include <Tag.h>
+#include <ArrayTimeInterval.h>
 	
 
 	
@@ -49,7 +49,7 @@
 	
 
 	
-#include <ArrayTimeInterval.h>
+#include <Tag.h>
 	
 
 
@@ -121,7 +121,7 @@ class SysCalRow;
  * System calibration. Gives information on the conversion  of data to temperature scale. This table is reduced to follow  the contents of the Measurement Set SysCal table. Use only spectral  values (use a single channel spectral window for single numbers).   \texttt{numChan} can be found in the SpectralWindow Table.  The contents of this table are used to scale the data in the filler.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of SysCal </CAPTION>
@@ -170,14 +170,14 @@ class SysCalRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numReceptor </TD> 
+ * <TD> numReceptor (\f$N_{Rece}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of receptors. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numChan </TD> 
+ * <TD> numChan (\f$N_{Chan}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of frequency channels. </TD>
@@ -188,98 +188,98 @@ class SysCalRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> tcalFlag </TD> 
+ * <TD> tcalFlag</TD> 
  * <TD> bool </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the calibration temperature flag. </TD>
  * </TR>
 	
  * <TR>
- * <TD> tcalSpectrum </TD> 
+ * <TD> tcalSpectrum</TD> 
  * <TD> vector<vector<Temperature > > </TD>
  * <TD>  numReceptor, numChan  </TD>
  * <TD>&nbsp; the calibration temperatures (one value per receptor per channel). </TD>
  * </TR>
 	
  * <TR>
- * <TD> trxFlag </TD> 
+ * <TD> trxFlag</TD> 
  * <TD> bool </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the receiver temperature flag. </TD>
  * </TR>
 	
  * <TR>
- * <TD> trxSpectrum </TD> 
+ * <TD> trxSpectrum</TD> 
  * <TD> vector<vector<Temperature > > </TD>
  * <TD>  numReceptor, numChan  </TD>
  * <TD>&nbsp; the receiver temperatures (one value per receptor per channel). </TD>
  * </TR>
 	
  * <TR>
- * <TD> tskyFlag </TD> 
+ * <TD> tskyFlag</TD> 
  * <TD> bool </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the sky temperature flag. </TD>
  * </TR>
 	
  * <TR>
- * <TD> tskySpectrum </TD> 
+ * <TD> tskySpectrum</TD> 
  * <TD> vector<vector<Temperature > > </TD>
  * <TD>  numReceptor, numChan  </TD>
  * <TD>&nbsp; the sky temperatures (one value per receptor per channel). </TD>
  * </TR>
 	
  * <TR>
- * <TD> tsysFlag </TD> 
+ * <TD> tsysFlag</TD> 
  * <TD> bool </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the system temperature flag. </TD>
  * </TR>
 	
  * <TR>
- * <TD> tsysSpectrum </TD> 
+ * <TD> tsysSpectrum</TD> 
  * <TD> vector<vector<Temperature > > </TD>
  * <TD>  numReceptor, numChan  </TD>
  * <TD>&nbsp; the system temperatures (one value per receptor per channel). </TD>
  * </TR>
 	
  * <TR>
- * <TD> tantFlag </TD> 
+ * <TD> tantFlag</TD> 
  * <TD> bool </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the tant flag. </TD>
  * </TR>
 	
  * <TR>
- * <TD> tantSpectrum </TD> 
+ * <TD> tantSpectrum</TD> 
  * <TD> vector<vector<float > > </TD>
  * <TD>  numReceptor, numChan  </TD>
  * <TD>&nbsp; the Tant spectrum (one value per receptor per channel). </TD>
  * </TR>
 	
  * <TR>
- * <TD> tantTsysFlag </TD> 
+ * <TD> tantTsysFlag</TD> 
  * <TD> bool </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the Tant/Tsys flag. </TD>
  * </TR>
 	
  * <TR>
- * <TD> tantTsysSpectrum </TD> 
+ * <TD> tantTsysSpectrum</TD> 
  * <TD> vector<vector<float > > </TD>
  * <TD>  numReceptor, numChan  </TD>
  * <TD>&nbsp; the Tant/Tsys spectrum(one value per receptor per channel) . </TD>
  * </TR>
 	
  * <TR>
- * <TD> phaseDiffFlag </TD> 
+ * <TD> phaseDiffFlag</TD> 
  * <TD> bool </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the phase difference flag. </TD>
  * </TR>
 	
  * <TR>
- * <TD> phaseDiffSpectrum </TD> 
+ * <TD> phaseDiffSpectrum</TD> 
  * <TD> vector<vector<float > > </TD>
  * <TD>  numReceptor, numChan  </TD>
  * <TD>&nbsp; the phase difference spectrum (one value per receptor per channel). </TD>
@@ -581,6 +581,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 

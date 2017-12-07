@@ -657,12 +657,40 @@ class imcollapse_test(unittest.TestCase):
     def test_history(self):
         """Test history record is written"""
         myia = iatool()
-        myia.fromshape("",[20,20,20])
-        bb = myia.collapse(function="mean", axes=2)
+        imagename = "zz.im"
+        myia.fromshape(imagename,[20,20,20])
+        function = "mean"
+        axes = 2
+        bb = myia.collapse(function=function, axes=axes)
         myia.done()
         msgs = bb.history()
         bb.done()
-        self.assertTrue("ia.collapse" in msgs[-1])
+        teststr = "ia.collapse"
+        self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
+        self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
+        
+        outfile = "zz_out.im"
+        imcollapse(
+            imagename=imagename, outfile=outfile,
+            function=function, axes=axes
+        )
+        myia.open(outfile)
+        msgs = myia.history()
+        myia.done()
+        teststr = "version"
+        self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
+        teststr = "imcollapse"
+        self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
 
+    def test_CAS_10938(self):
+        """Verify fix for CAS-10938, ia.collapse can compute median for large images of all noise"""
+        myia = iatool()
+        myia.open(datapath + "CAS-10938.im")
+        # successful completion of this command indicates the issue is resolved
+        xx = myia.collapse(function="median", axes=[0])
+        myia.done()
+        self.assertTrue(xx)
+        xx.done()
+        
 def suite():
     return [imcollapse_test]

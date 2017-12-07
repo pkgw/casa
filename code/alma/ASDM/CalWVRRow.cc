@@ -3029,11 +3029,13 @@ wvrMethod = CWVRMethod::from_int(0);
 	 * Return true if all required attributes of the value part are equal to their homologues
 	 * in x and false otherwise.
 	 *
+
 	 * @param x a pointer on the CalWVRRow whose required attributes of the value part 
+
 	 * will be compared with those of this.
 	 * @return a boolean.
 	 */
-	bool CalWVRRow::equalByRequiredValue(CalWVRRow* x) {
+	bool CalWVRRow::equalByRequiredValue(CalWVRRow*  x ) {
 		
 			
 		if (this->startValidTime != x->startValidTime) return false;

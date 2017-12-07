@@ -84,7 +84,7 @@
 //#include <TableStreamReader.h>
 
 /*\file FocusModel.h
-    \brief Generated from model's revision "1.64", branch "HEAD"
+    \brief Generated from model's revision "-1", branch ""
 */
 
 namespace asdm {
@@ -106,7 +106,7 @@ typedef void (FocusModelRow::*FocusModelAttributeFromText) (const string& s);
 /**
  * The FocusModelRow class is a row of a FocusModelTable.
  * 
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  */
 class FocusModelRow {

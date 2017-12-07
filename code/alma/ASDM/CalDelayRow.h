@@ -48,19 +48,19 @@
 
 
 	 
-#include <ArrayTime.h>
-	
-
-	 
 #include <Angle.h>
 	
 
 	 
-#include <Tag.h>
+#include <ArrayTime.h>
 	
 
 	 
 #include <Frequency.h>
+	
+
+	 
+#include <Tag.h>
 	
 
 
@@ -124,7 +124,7 @@
 //#include <TableStreamReader.h>
 
 /*\file CalDelay.h
-    \brief Generated from model's revision "1.64", branch "HEAD"
+    \brief Generated from model's revision "-1", branch ""
 */
 
 namespace asdm {
@@ -146,7 +146,7 @@ typedef void (CalDelayRow::*CalDelayAttributeFromText) (const string& s);
 /**
  * The CalDelayRow class is a row of a CalDelayTable.
  * 
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  */
 class CalDelayRow {
