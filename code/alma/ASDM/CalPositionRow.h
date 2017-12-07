@@ -48,19 +48,19 @@
 
 
 	 
-#include <ArrayTime.h>
-	
-
-	 
 #include <Angle.h>
 	
 
 	 
-#include <Tag.h>
+#include <ArrayTime.h>
 	
 
 	 
 #include <Length.h>
+	
+
+	 
+#include <Tag.h>
 	
 
 
@@ -120,7 +120,7 @@
 //#include <TableStreamReader.h>
 
 /*\file CalPosition.h
-    \brief Generated from model's revision "1.64", branch "HEAD"
+    \brief Generated from model's revision "-1", branch ""
 */
 
 namespace asdm {
@@ -142,7 +142,7 @@ typedef void (CalPositionRow::*CalPositionAttributeFromText) (const string& s);
 /**
  * The CalPositionRow class is a row of a CalPositionTable.
  * 
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  */
 class CalPositionRow {

@@ -216,6 +216,10 @@ void PlotMSDataSummaryTab::close( PlotMSDataCollapsible* collapsible ){
 		dataList.removeAt( collapseIndex );
 	}
 	delete collapsible;
+	for (int i=0; i<dataList.size(); ++i) {
+		dataList[i]->maximizeDisplay();
+		dataList[i]->plot(false);
+	}
 }
 
 void PlotMSDataSummaryTab::refreshPageHeader(){

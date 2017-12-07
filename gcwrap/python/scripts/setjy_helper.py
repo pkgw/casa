@@ -516,7 +516,7 @@ class ss_setjy_helper:
                       shutil.rmtree(tmpclpath)
                   mycl.rename(tmpclpath)
                   mycl.close(False)
-	          self.im.ft(complist=tmpclpath)
+	          self.im.ft(complist=tmpclpath, phasecentertime=tc)
              
 
             # --------------------------------------------------------------------------------------------

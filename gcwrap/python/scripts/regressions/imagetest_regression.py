@@ -4231,85 +4231,6 @@ def imagetest(which=None, size=[32,32,8]):
         if not ok: fail('failed done')
         return cleanup(testdir)
 
-    def test25():
-        #
-        # Test methods
-        #   modify and fitcomponents
-        info('')
-        info('')
-        info('')
-        info('Test 25 - modify, fitcomponents')
-        # Make the directory
-        testdir = 'imagetest_temp'
-        if not cleanup(testdir):
-            return False
-        try:
-            os.mkdir(testdir)
-        except IOError, e:
-            note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
-        #
-        # Make image
-        #
-        imname = testdir+'/'+'ia.fromshape.image'
-        imshape = [128,128,1]
-        myim = ia.newimagefromshape(imname, imshape)
-        if not myim:
-            stop('ia.fromshape constructor 1 failed')
-        #
-        # Add units and restoring beam
-        #
-        ok = myim.setbrightnessunit('Jy/beam')
-        if not ok: fail('failed in setbrightnessunit')
-        ok = myim.setrestoringbeam(major='5arcmin', minor='2.5arcmin',
-                                   pa='60deg', log=False)
-        if not ok: fail('failed in setrestoringbeam')
-        #
-        # Pretty hard to test properly.  Add model
-        #
-        qmaj = '10arcmin'  #qa.quantity(10, 'arcmin')
-        qmin = '5arcmin'   #qa.quantity(5, 'arcmin')
-        qpa = '45.0deg'    #qa.quantity(45.0,'deg')
-        flux = 100.0
-        cl0 = gaussian(flux, qmaj, qmin, qpa)
-        if not (myim.modify(cl0.torecord(), subtract=False)):
-            fail('failed in modify')
-        stats = myim.statistics(list=False)
-        if not stats:
-            fail('failed to get statistics')
-        diff = abs(stats['flux']-flux)/flux
-        if (diff > 0.001):
-            stop('model image 1 has wrong values');
-        #
-        # Subtract it again
-        #
-        if not myim.modify(cl0.torecord(), subtract=True): fail()
-        stats = myim.statistics(list=False)
-        if not stats: fail()
-        p = myim.getchunk()
-        if not alleqnum(p,0.0,tolerance=1e-6):
-            stop('model image 2 has wrong values');
-        #
-        # Now add the model for fitting
-        #
-        if not myim.modify(cl0.torecord(), subtract=False): fail()
-        #
-
-        cl1 = myim.fitcomponents(
-            region=rg.box(blc=[32, 32, 0],
-            trc=[96, 96, 0])
-        )
-        myim.done()
-        if not cl1:
-            stop('fitcomponents 1 failed')
-        if not cl1['converged']:
-            stop('fitcomponents 1 did not converge')
-        cl1tool=cltool()
-        cl1tool.fromrecord(cl1['results'])
-        if not compareComponentList(cl0,cl1tool):
-            stop('failed fitcomponents 1')
-        return cleanup(testdir)
-
     def test28():
         #
         # Test methods
@@ -5312,7 +5233,6 @@ def imagetest(which=None, size=[32,32,8]):
     test20()
     test22()
     test24()
-    test25()
     test28()
     test29()
     test30()  # are abs/rel/world/pixel output values correct?

@@ -1563,7 +1563,7 @@ class test_ephemtbl(SetjyUnitTestBase):
         print "Checking values of model phases transition of 1st null (shuold see phase 0 deg -> 180 deg)..."
         for spwn in spwlist:
             self.check_eq(stats['phase0'][spwn]['min']*180.0/numpy.pi,0.0,1.0e-4)
-            self.check_eq(stats['phase180'][spwn]['min']*180.0/numpy.pi,180.0,1.0e-4)
+            self.check_eq((stats['phase180'][spwn]['min']*180.0/numpy.pi)%360,180.0,1.0e-4)
 
     def test_ephemtbl2(self):
         """ Test for Uranus with the ephemeris table with the positions in ICRS """

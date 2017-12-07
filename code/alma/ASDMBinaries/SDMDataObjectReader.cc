@@ -358,9 +358,8 @@ namespace asdmbinaries {
     // We are 1 character beyond the end of --<MIMEBOUNDARY_2>
     string contentLocation = getContentLocation();
 
-    regex r;
+    regex r(" *" + sdmDataObject_.projectPath() + "([[:digit:]]+/){1,2}" + "desc.xml");;
     ostringstream oss;
-    r = regex(" *" + sdmDataObject_.projectPath() + "([[:digit:]]+/){1,2}" + "desc.xml");
     
     // Extract the Subset name and the integration [, subintegration] number.
     cmatch what;
@@ -450,7 +449,8 @@ namespace asdmbinaries {
       //
       // The presence of crossData and autoData depends on the correlation mode.
 
-      unsigned int crossDataTypeSize;    
+      // crossDataTypeSize is not currently used
+      // unsigned int crossDataTypeSize;    
       switch (sdmDataObject_.correlationMode()) {  
       case CROSS_ONLY:
 	if (!attachmentFlags.test(CROSSDATA)) {
@@ -549,21 +549,20 @@ namespace asdmbinaries {
 	  throw SDMDataObjectReaderException(oss.str());
 	}
 
-	switch (integration.crossDataType()) {
-	case INT32_TYPE:
-	  crossDataTypeSize = sizeof(INTCROSSDATATYPE);
-	  break;
-	case INT16_TYPE:
-	  crossDataTypeSize = sizeof(SHORTCROSSDATATYPE);
-	  break;
-	case FLOAT32_TYPE:
-	  crossDataTypeSize = sizeof(FLOATCROSSDATATYPE);
-	  break;
-	default:
-	  throw SDMDataObjectReaderException("'"+CPrimitiveDataType::name(integration.crossDataType())+"' unexpected here.");
-
-
-	}
+	// crossDataTypeSize is not currently used, skip this block
+	// switch (integration.crossDataType()) {
+	// case INT32_TYPE:
+	//   crossDataTypeSize = sizeof(INTCROSSDATATYPE);
+	//   break;
+	// case INT16_TYPE:
+	//   crossDataTypeSize = sizeof(SHORTCROSSDATATYPE);
+	//   break;
+	// case FLOAT32_TYPE:
+	//   crossDataTypeSize = sizeof(FLOATCROSSDATATYPE);
+	//  break;
+	// default:
+	//   throw SDMDataObjectReaderException("'"+CPrimitiveDataType::name(integration.crossDataType())+"' unexpected here.");
+        // }
 
 	if (nCrossData_ != sdmDataObject_.dataStruct().crossData().size()) {
 	  ostringstream oss;
@@ -803,7 +802,7 @@ namespace asdmbinaries {
 
    // Check the Content-Location of the MIME header ...but do nothing special with it...
     string contentLocation=getContentLocation();
-
+   
     // Detect SDMDataHeader.
     processMIMESDMDataHeader();
 
@@ -814,6 +813,25 @@ namespace asdmbinaries {
     else {
       processMIMEIntegrations();
     }
+
+    
+    // if (sdmDataObject_.isCorrelation()) {
+    //   // Process integrations.
+    //   processMIMEIntegrations();
+    // }
+    // else if (sdmDataObject_.isTP()){
+    //   // cout << "TP data" << endl;
+    //   if (sdmDataObject_.dimensionality() == 0) {
+    // 	processMIMESubscan();
+    //   }
+    //   else {
+    // 	processMIMEIntegrations();
+    //   }
+    // }
+    // else {
+    //   // cout << "Unrecognized type of binary data." << endl;
+    // }
+    //cout << "Exiting processMIME" << endl;
   }
 
   const SDMDataObject & SDMDataObjectReader::read(const char * buffer, unsigned long int size, bool fromFile) {
@@ -866,7 +884,6 @@ namespace asdmbinaries {
 
   const SDMDataObject & SDMDataObjectReader::read(string filename) {
 
-    
     struct stat fattr; // stat64 fattr;
 
     unsigned long int filesize;
@@ -878,7 +895,6 @@ namespace asdmbinaries {
 #else
     if ( (filedes_ = open(filename.c_str(), O_RDONLY | O_LARGEFILE)) == -1) {
 #endif
-      //string message(strerror_r(errno, errmsg, 512));
       string message(strerror(errno));
       throw SDMDataObjectReaderException("Could not open file '" + filename + "'. The message was '" + message + "'");
     }
@@ -888,7 +904,6 @@ namespace asdmbinaries {
     errno = 0;
     int status = fstat(filedes_,&fattr); // fstat64(filedes_,&fattr);
     if (status == -1) {
-      //string message(strerror_r(errno, errmsg, 512));
       string message(strerror(errno));
       throw SDMDataObjectReaderException("Could not retrieve size of file '" + filename + "'. The message was '" + message + "'");
     }
@@ -899,7 +914,6 @@ namespace asdmbinaries {
 
     data = (char *) mmap((caddr_t)0, filesize, PROT_READ, MAP_SHARED, filedes_, (off_t)0);
     if ( ((unsigned long) data) == 0xffffffff) {      
-      //string message(strerror_r(errno, errmsg, 512));
       string message(strerror(errno));
       throw SDMDataObjectReaderException("Could not map file '" + filename + "' to memory. The message was '" + message + "'");
     }
