@@ -95,28 +95,33 @@ Record StatWt::writeWeights() const {
         }
     }
     auto mustInitWtSp = False;
-    if (! hasWtSp && mustWriteWtSp) {
-        // we must create WEIGHT_SPECTRUM
-        hasWtSp = True;
-        mustInitWtSp = True;
-        // from Calibrater.cc
-        // Nominal default tile shape
-        IPosition dts(3, 4, 32, 1024);
-        // Discern DATA's default tile shape and use it
-        const auto dminfo = _ms->dataManagerInfo();
-        for (uInt i=0; i<dminfo.nfields(); ++i) {
-            Record col = dminfo.asRecord(i);
-            if (anyEQ(col.asArrayString("COLUMNS"), String("DATA"))) {
-                dts = IPosition(col.asRecord("SPEC").asArrayInt("DEFAULTTILESHAPE"));
-                break;
+    // this conditional structure supports the
+    // case of ! hasWtSp && ! mustWriteWtSp, in which case,
+    // nothing need be done
+    if (! hasWtSp) {
+        if (mustWriteWtSp) {
+            // we must create WEIGHT_SPECTRUM
+            hasWtSp = True;
+            mustInitWtSp = True;
+            // from Calibrater.cc
+            // Nominal default tile shape
+            IPosition dts(3, 4, 32, 1024);
+            // Discern DATA's default tile shape and use it
+            const auto dminfo = _ms->dataManagerInfo();
+            for (uInt i=0; i<dminfo.nfields(); ++i) {
+                Record col = dminfo.asRecord(i);
+                if (anyEQ(col.asArrayString("COLUMNS"), String("DATA"))) {
+                    dts = IPosition(col.asRecord("SPEC").asArrayInt("DEFAULTTILESHAPE"));
+                    break;
+                }
             }
+            // Add the column
+            String colWtSp = MS::columnName(MS::WEIGHT_SPECTRUM);
+            TableDesc tdWtSp;
+            tdWtSp.addColumn(ArrayColumnDesc<Float>(colWtSp, "weight spectrum", 2));
+            TiledShapeStMan wtSpStMan("TiledWgtSpectrum", dts);
+            _ms->addColumn(tdWtSp, wtSpStMan);
         }
-        // Add the column
-        String colWtSp = MS::columnName(MS::WEIGHT_SPECTRUM);
-        TableDesc tdWtSp;
-        tdWtSp.addColumn(ArrayColumnDesc<Float>(colWtSp, "weight spectrum", 2));
-        TiledShapeStMan wtSpStMan("TiledWgtSpectrum", dts);
-        _ms->addColumn(tdWtSp, wtSpStMan);
     }
     else if (! _preview) {
         // check to see if extant WEIGHT_SPECTRUM needs to be initialized

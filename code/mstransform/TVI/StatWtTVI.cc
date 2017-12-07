@@ -471,8 +471,6 @@ Double StatWtTVI::getTimeBinWidthUsingInterval(const casacore::MeasurementSet *c
     return n*stats.median;
 }
 
-//void StatWtTVI::_initialize() {}
-
 void StatWtTVI::weightSpectrum(Cube<Float>& newWtsp) const {
     ThrowIf(! _weightsComputed, "Weights have not been computed yet");
     if (! *_mustComputeWtSp) {
@@ -602,32 +600,20 @@ void StatWtTVI::_updateWtSpFlags(
     Cube<Float>& wtsp, Cube<Bool>& flags,
     Bool& checkFlags, const Slicer& slice, Float wt
 ) const {
+    // writable array reference
     auto flagSlice = flags(slice);
     if (*_mustComputeWtSp) {
+        // writable array reference
         auto wtSlice = wtsp(slice);
         wtSlice = wt;
-        // do this before we potentially flag data
+        // update global stats before we potentially flag data
         auto mask = ! flagSlice;
         _wtStats->addData(wtSlice.begin(), mask.begin(), wtSlice.size());
     }
-    else {
-        auto flagShape = flags.shape();
-        auto ncorr = flagShape[0];
-        auto nrow = flagShape[2];
-        Matrix<Bool> maskmat(ncorr, nrow);
-        IPosition start(3, 0);
-        IPosition end(3, ncorr, flagShape[1], nrow);
-        Slicer sl(start, end, Slicer::endIsLength);
-        for (uInt corr=0; corr<ncorr; ++corr, ++start[0], ++end[2]) {
-            for (uInt row=0; row<nrow; ++nrow, ++start[2], ++end[2]) {
-                sl.setStart(start);
-                sl.setEnd(end);
-                maskmat(corr, row) = ! allTrue(flagSlice(sl));
-            }
-        }
-        Matrix<Float> wtmat;
-        weight(wtmat);
-        _wtStats->addData(wtmat.begin(), maskmat.begin(), wtmat.size());
+    else if (! allTrue(flagSlice)) {
+        // we don't need to compute WEIGHT_SPECTRUM, and the slice isn't
+        // entirely flagged, so we need to update the WEIGHT column stats
+        _wtStats->addData(Array<Float>(IPosition(1, 1), wt).begin(), 1);
     }
     if (
         wt == 0
