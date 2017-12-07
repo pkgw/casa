@@ -101,6 +101,8 @@
 #include <imageanalysis/ImageAnalysis/SubImageFactory.h>
 #include <imageanalysis/ImageAnalysis/TwoPointCorrelator.h>
 
+#include <tools/componentlist_cmpt.h>
+
 #include <stdcasa/version.h>
 
 #include <casa/namespace.h>
@@ -696,7 +698,7 @@ image* image::continuumsub(
     try {
         _log << _ORIGIN;
         if (detached()) {
-            return 0;
+            return nullptr;
         }
         ThrowIf(in_fitorder < 0, "Polynomial order cannot be negative");
         if (! pol.empty()) {
@@ -1403,7 +1405,7 @@ bool image::done(bool remove, bool verbose) {
         _log << _ORIGIN;
         // resetting _stats must come before the table removal or the table
         // removal will fail
-        _stats.reset(0);
+        _stats.reset();
         MeasIERS::closeTables();
         if (remove && !detached()) {
             _remove(verbose);
@@ -2031,6 +2033,58 @@ bool image::fromascii(
     return true;
 }
 
+bool image::fromcomplist(
+    const string& outfile, const vector<int>& shape, const variant& cl,
+    const record& csys, bool overwrite, bool log, bool cache
+) {
+    try {
+        _log << _ORIGIN;
+        _reset();
+        std::unique_ptr<Record> coordinates(toRecord(csys));
+        auto myType = cl.type();
+        std::unique_ptr<Record> mycl;
+        if (myType == variant::RECORD) {
+            std::unique_ptr<variant> clone(cl.clone());
+            mycl.reset(toRecord(clone->asRecord()));
+        }
+        else if (myType == variant::STRING) {
+            auto myname = cl.toString();
+            ThrowIf(myname.empty(), "Component list table name cannot be empty");
+            componentlist cltool;
+            cltool.open(myname, True);
+            std::unique_ptr<record> myrec(cltool.torecord());
+            mycl.reset(toRecord(*myrec));
+            cltool.done();
+        }
+        else {
+            ThrowCc("Unsupported type for parameter cl");
+        }
+        _imageF = ImageFactory::createComponentListImage(
+            outfile, *mycl, shape, *coordinates, overwrite, log, cache
+        );
+        vector<String> names {
+            "outfile", "shape", "cl",
+            "csys", "overwrite", "log", "cache"
+        };
+        vector<variant> values {
+            outfile, shape, cl, csys, overwrite, log, cache
+        };
+        _addHistory(__func__, names, values);
+        if (! outfile.empty()) {
+            // force a flush to disk and reopen
+            done();
+            open(outfile, cache);
+        }
+        return True;
+    }
+    catch (const AipsError& x) {
+        _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
+            << LogIO::POST;
+        RETHROW(x);
+    }
+    return false;
+}
+
 bool image::fromfits(
     const string& outfile, const string& fitsfile,
     int whichrep, int whichhdu, bool zeroBlanks,
@@ -2177,7 +2231,6 @@ variant* image::getchunk(
     bool list, bool dropdeg, bool getmask
 ) {
     try {
-
         _log << _ORIGIN;
         if (detached()) {
             return nullptr;
@@ -3599,8 +3652,7 @@ image* image::newimagefromshape(
     return nullptr;
 }
 
-
-bool image::open(const std::string& infile) {
+bool image::open(const std::string& infile, bool cache) {
     try {
         _log << _ORIGIN;
         if (_imageF || _imageC) {
@@ -3608,7 +3660,7 @@ bool image::open(const std::string& infile) {
                 << LogIO::POST;
         }
         _reset();
-        auto ret = ImageFactory::fromFile(infile);
+        auto ret = ImageFactory::fromFile(infile, cache);
         _imageF = ret.first;
         _imageC = ret.second;
         return true;
@@ -4606,7 +4658,10 @@ image* image::rotate(
             auto msgs = _newHistory(__func__, names, values);
             rotator.addHistory(_ORIGIN, msgs);
         }
-        return new image(rotator.rotate());
+        auto x = rotator.rotate();
+        _log << LogIO::NORMAL << "Using position angle rotation "
+            << inpa.toString() << LogIO::POST;
+        return new image(x);
     }
     catch (const AipsError& x) {
         _log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()

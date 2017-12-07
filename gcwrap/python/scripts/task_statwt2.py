@@ -2,12 +2,25 @@ from taskinit import mstool, tbtool, casalog, write_history
 import flaghelper
 
 def statwt2(
-    vis, field, spw, intent, array, observation, combine,
+    vis, selectdata, field, spw, intent, array, observation, combine,
     timebin, slidetimebin, chanbin, minsamp, statalg, fence, center,
     lside, zscore, maxiter, excludechans, wtrange,
     flagbackup, preview, datacolumn
 ):
     casalog.origin('statwt2')
+    if not selectdata:
+        # CAS-10761, requirement provided by Urvashi
+        if field or spw or intent or array or observation:
+            casalog.post(
+                "selectdata=False, any explicitly set data "
+                + "selection parameters will be ignored",
+                "WARN"
+            )
+        field = ""
+        spw = ""
+        intent = ""
+        array = ""
+        observation = ""
     try:
         if (flagbackup):
             if (preview):

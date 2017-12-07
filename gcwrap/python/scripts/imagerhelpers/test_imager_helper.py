@@ -409,27 +409,43 @@ class TestHelpers():
           pstr=pstr+"\n"
           return pstr
    
-     def checkspecframe(self,imname,frame, crval=0.0):
+     def checkspecframe(self,imname,frame, crval=0.0, cdelt=0.0):
           testname = inspect.stack()[1][3]
           pstr = ""
           if os.path.exists(imname):
                res = True
+               expcrval=""
+               expcdelt=""
+               thecval=""
+               thecdelt="" 
                coordsys = self.getcoordsys(imname)
                baseframe = coordsys['spectral2']['system']
                basecrval = coordsys['spectral2']['wcs']['crval']
+               basecdelt = coordsys['spectral2']['wcs']['cdelt']
                if baseframe != frame:
                     res = False 
                else:
                     res = True
                     if crval!=0.0:
-                         if abs(basecrval - crval)/crval > 1.0e-6: 
+                         if abs(basecrval - crval)/abs(crval) > 1.0e-6: 
                               res = False
+                         thecrval = " with crval " + str(basecrval)
+                         expcrval = " with expected crval " + str(crval)
                     else:
                          # skip the crval test
                          thecrval = ""
-               thecorrectans = frame + " "+ str(crval) 
+                         expcrval = ""
+                    if cdelt!=0.0:
+                         if abs(basecdelt - cdelt)/abs(cdelt) > 1.0e-6: 
+                              res = False
+                         thecdelt = " with cdelt " + str(basecdelt)
+                         expcdelt = " with expected cdelt " + str(cdelt) 
+                    else:
+                         # skip the crval test
+                         thecdelt = ""
+               thecorrectans = frame +  expcrval + expcdelt
                pstr =  "[" + testname + "] " + imname + ": Spec frame is " +\
-               str(baseframe) + " with crval " + str(basecrval) + " (" +\
+               str(baseframe) + thecrval + thecdelt + " (" +\
                self.verdict(res) +" : should be " + thecorrectans +" )"
                print pstr
                pstr=pstr+"\n"

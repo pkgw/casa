@@ -41,11 +41,11 @@
 
 
 	
-#include <Angle.h>
+#include <ArrayTimeInterval.h>
 	
 
 	
-#include <Tag.h>
+#include <Angle.h>
 	
 
 	
@@ -53,7 +53,7 @@
 	
 
 	
-#include <ArrayTimeInterval.h>
+#include <Tag.h>
 	
 
 
@@ -103,7 +103,7 @@ class FocusRow;
  * Contains the focus information.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of Focus </CAPTION>
@@ -166,14 +166,14 @@ class FocusRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> measuredFocusPosition </TD> 
+ * <TD> measuredFocusPosition</TD> 
  * <TD> vector<Length > </TD>
  * <TD>  3  </TD>
  * <TD>&nbsp; the measured focus position. </TD>
  * </TR>
 	
  * <TR>
- * <TD> measuredFocusRotation </TD> 
+ * <TD> measuredFocusRotation</TD> 
  * <TD> vector<Angle > </TD>
  * <TD>  2  </TD>
  * <TD>&nbsp; the measured focus rotation (tip, tilt). </TD>
@@ -471,6 +471,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 

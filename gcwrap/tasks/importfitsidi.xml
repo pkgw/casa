@@ -30,6 +30,11 @@
 		  <value>0.</value>
 		</param>
 
+		<param type="string" name="specframe">
+			<description>spectral reference frame for all spectral windows in the output MS</description>
+			<value>GEO</value>
+		</param>
+
 	</input>
 
 <example>
@@ -48,8 +53,13 @@
                 integrations is > the given value (seconds) or when a new field starts
                 or when the ARRAY_ID changes.
                 default = 0. (no reindexing)
-        async --  Run asynchronously
-               default = false; do not run asychronously
+        specframe -- this frame will be used to set the spectral reference frame
+                for all spectral windows in the output MS
+                default = GEO (geocentric), other options: TOPO, LSRK, BARY
+                NOTE: if specframe is set to TOPO, the reference location will be taken from
+                the Observatories table in the CASA data repository for the given name of
+                the observatory. You can edit that table and add new rows.   
+
 
  </example>
  </task>
