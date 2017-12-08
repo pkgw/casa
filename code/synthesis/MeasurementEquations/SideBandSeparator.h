@@ -108,11 +108,11 @@ protected:
 	  casacore::Bool checkFile(const std::string name, std::string type="");
 
 	  casacore::Vector<float> solve(const casacore::Matrix<float> &specMat,
-			      const std::vector<casacore::uInt> &tabIdvec,
+			      const std::vector<casacore::uInt> &inIdvec,
 			      const bool signal = true);
 
 	  casacore::Vector<bool> collapseMask(const casacore::Matrix<bool> &flagMat,
-				    const std::vector<casacore::uInt> &tabIdvec,
+				    const std::vector<casacore::uInt> &inIdvec,
 				    const bool signal = true);
 	  void shiftSpectrum(const casacore::Vector<float> &invec, double shift,
 			     casacore::Vector<float> &outvec);

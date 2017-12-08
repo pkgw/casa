@@ -75,6 +75,7 @@ void SideBandSeparatorBase::setInput(const vector<string>& inputname) {
     if (checkFile(inputname[i], "d")) {
 	  inputNames_.push_back(inputname[i]);
 	} else {
+	  inputNames_.resize(0);
 	  throw( AipsError("Could not find "+inputname[i]) );
 	}
   }
@@ -86,7 +87,7 @@ void SideBandSeparatorBase::setInput(const vector<string>& inputname) {
 void SideBandSeparatorBase::setShift(const vector<double> &shift, const bool signal)
 {
   LogIO os(LogOrigin("SideBandSeparatorBase","setShift()", WHERE));
-  if (shift.size() != inputNames_.size())
+  if (shift.size() != 0 && shift.size() != inputNames_.size())
 	  throw( AipsError("The number of shift should match that of images") );
   vector<double> *target = signal ? &sigShift_ : &imgShift_;
   target->resize(shift.size());
@@ -141,18 +142,18 @@ size_t SideBandSeparatorBase::setupShift()
 }
 
 Vector<bool> SideBandSeparatorBase::collapseMask(const Matrix<bool> &flagMat,
-					 const vector<uInt> &tabIdvec,
+					 const vector<uInt> &inIdvec,
 					 const bool signal)
 {
   LogIO os(LogOrigin("SideBandSeparatorBase","collapseFlag()", WHERE));
-  if (tabIdvec.size() == 0)
+  if (inIdvec.size() == 0)
     throw(AipsError("Internal error. Table index is not defined."));
-  if (flagMat.ncolumn() != tabIdvec.size())
+  if (flagMat.ncolumn() != inIdvec.size())
     throw(AipsError("Internal error. The row number of input matrix is not conformant."));
   if (flagMat.nrow() != nchan_)
     throw(AipsError("Internal error. The channel size of input matrix is not conformant."));
 
-  const size_t nspec = tabIdvec.size();
+  const size_t nspec = inIdvec.size();
   vector<double> *thisShift;
   if (signal == otherside_) {
     // (solve signal && solveother = T) OR (solve image && solveother = F)
@@ -168,7 +169,7 @@ Vector<bool> SideBandSeparatorBase::collapseMask(const Matrix<bool> &flagMat,
   Vector<bool> accflag(nchan_, true);
   uInt shiftId;
   for (uInt i = 0 ; i < nspec; ++i) {
-    shiftId = tabIdvec[i];
+    shiftId = inIdvec[i];
     tempshift = - thisShift->at(shiftId);
     shiftFlag(flagMat.column(i), tempshift, shiftvec);
     // Now accumulate Mask (true only if all data is valid)
@@ -186,13 +187,13 @@ Vector<bool> SideBandSeparatorBase::collapseMask(const Matrix<bool> &flagMat,
 
 
 Vector<float> SideBandSeparatorBase::solve(const Matrix<float> &specmat,
-				   const vector<uInt> &tabIdvec,
+				   const vector<uInt> &inIdvec,
 				   const bool signal)
 {
   LogIO os(LogOrigin("SideBandSeparatorBase","solve()", WHERE));
-  if (tabIdvec.size() == 0)
+  if (inIdvec.size() == 0)
     throw(AipsError("Internal error. Table index is not defined."));
-  if (specmat.ncolumn() != tabIdvec.size())
+  if (specmat.ncolumn() != inIdvec.size())
     throw(AipsError("Internal error. The row number of input matrix is not conformant."));
   if (specmat.nrow() != nchan_)
     throw(AipsError("Internal error. The channel size of input matrix is not conformant."));
@@ -203,7 +204,7 @@ Vector<float> SideBandSeparatorBase::solve(const Matrix<float> &specmat,
      << endl;
 #endif
 
-  const size_t nspec = tabIdvec.size();
+  const size_t nspec = inIdvec.size();
   vector<double> *thisShift, *otherShift;
   if (signal == otherside_) {
     // (solve signal && solveother = T) OR (solve image && solveother = F)
@@ -227,7 +228,7 @@ Vector<float> SideBandSeparatorBase::solve(const Matrix<float> &specmat,
   Vector<float> shiftspvec;
   uInt shiftId;
   for (uInt i = 0 ; i < nspec; i++) {
-    shiftId = tabIdvec[i];
+    shiftId = inIdvec[i];
     spshift[i] = otherShift->at(shiftId) - thisShift->at(shiftId);
     tempshift = - thisShift->at(shiftId);
     shiftspvec.reference(shiftSpecmat.column(i));
