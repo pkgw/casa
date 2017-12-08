@@ -161,6 +161,8 @@ void PlotMSSelection::apply(NewCalTable& ct, NewCalTable& selCT,
     throw(AipsError("Selection by uvrange not supported for NewCalTable"));
   if (array().length()>0)
     throw(AipsError("Selection by array not supported for NewCalTable"));
+  if (intent().length()>0)
+    throw(AipsError("Selection by intent not supported for NewCalTable"));
   if (feed().length()>0)
     throw(AipsError("Selection by feed not supported for NewCalTable"));
 
