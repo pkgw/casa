@@ -25,11 +25,12 @@
 //#
 //# $Id$
 
-#define _POSIX_C_SOURCE 200809L //For mkdtemp(), stpcpy(), nftw()
+#define _POSIX_C_SOURCE 200809L //For mkdtemp(), stpcpy()
+#define _XPEN_SOURCE 500 //For nftw()
 #define _DARWIN_C_SOURCE //in macOS mkdtemp() is not available if  _POSIX_C_SOURCE=200809L (Apple bugreport #35851865)
 
 #include <ftw.h>
-#include <unistd.h> //in macOS mkdtemp() is not in stdlib,h as POSIX dictates..(Apple bugreport #35830645) 
+#include <unistd.h> //in macOS mkdtemp() is not in stdlib.h as POSIX dictates..(Apple bugreport #35830645) 
 #include <casa/aips.h>
 #include <casa/Exceptions/Error.h>
 #include <casacore/casa/OS/EnvVar.h>
@@ -161,6 +162,7 @@ TEST( ViiLayerFactoryTest , ViiLayerFactoryRealDataBasicTest ) {
 
   ASSERT_EQ(32,chunk);
   ASSERT_EQ(2864,niter);
+  delete[] casapath;
 }
 
 /* 
@@ -310,11 +312,11 @@ public:
   {
     //Create MS using the simulator MsFactory
     pair<MeasurementSet *, Int> p = msf_p->createMs();
-    ms_p = p.first;
+    ms_p.reset(p.first); //MsFactory has given up ownership
 
     //Create a disk layer type VI Factory
     IteratingParameters ipar;
-    VisIterImpl2LayerFactory diskItFac(ms_p,ipar,false);
+    VisIterImpl2LayerFactory diskItFac(ms_p.get(),ipar,false);
 
     //Create a SwappingDataTVI Factory if requested
     std::unique_ptr<DataSwappingTVILayerFactory> swapFac;
@@ -352,6 +354,8 @@ public:
   //Destructor
   ~DataAccessTest()
   {
+    //The MS destructor will update the file system, so deleting it before removing the directory 
+    ms_p.release();
     //This will recursively remove everything in the directory
     nftw(tmpdir_p, removeFile, 64, FTW_DEPTH | FTW_PHYS);
   }
@@ -362,12 +366,12 @@ public:
   bool withSwappingDataTVI_p = false;
   //The helper class to create synthetic MS
   std::unique_ptr<casa::vi::test::MsFactory> msf_p;
+  //The synthetic MS.
+  std::unique_ptr<MeasurementSet> ms_p;
   //The VisibilityIterator2 used to iterate trough the data
   std::unique_ptr<VisibilityIterator2> vi_p;
   //The attached VisBuffer
   VisBuffer2 * vb_p;
-  //The synthetic MS
-  MeasurementSet *  ms_p;
 };
  
 
