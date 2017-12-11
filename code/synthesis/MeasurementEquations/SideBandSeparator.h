@@ -123,7 +123,7 @@ protected:
 	  void deconvolve(casacore::Matrix<float> &specmat, const std::vector<double> shiftvec,
 			  const double threshold, casacore::Matrix<float> &outmat);
 
-	  void aggregateMat(casacore::Matrix<float> &inmat, std::vector<float> &outvec);
+	  void aggregateMat(const casacore::Matrix<float> &inmat, std::vector<float> &outvec);
 
 	  void subtractFromOther(const casacore::Matrix<float> &shiftmat,
 				 const std::vector<float> &invec,

@@ -386,9 +386,9 @@ void SideBandSeparatorBase::deconvolve(Matrix<float> &specmat,
 
   uInt ninsp = shiftvec.size();
   outmat.resize(nchan_, ninsp*(ninsp-1)/2, 0.);
-  Matrix<Complex> fftspmat(nchan_/2+1, ninsp, 0.);
+  Matrix<Complex> fftspmat(nchan_/2+1, ninsp, Complex(0.));
   Vector<float> rvecref(nchan_, 0.);
-  Vector<Complex> cvecref(nchan_/2+1, 0.);
+  Vector<Complex> cvecref(nchan_/2+1, Complex(0.));
   uInt icol = 0;
   unsigned int nreject = 0;
 
@@ -424,7 +424,7 @@ void SideBandSeparatorBase::deconvolve(Matrix<float> &specmat,
   //Liberate from reference
   rvecref.unique();
 
-  Vector<Complex> cspec(nchan_/2+1, 0.);
+  Vector<Complex> cspec(nchan_/2+1, Complex(0.));
   const double PI = 6.0 * asin(0.5);
   const double nchani = 1. / (float) nchan_;
   const Complex trans(0., 1.);
@@ -444,7 +444,8 @@ void SideBandSeparatorBase::deconvolve(Matrix<float> &specmat,
 	double phase = dx*ichan;
 	if ( fabs( sin(phase) ) > threshold){
 	  cspec[ichan] += ( fftspmat(ichan, j) - fftspmat(ichan, k) ) * 0.5
-	    * trans * sin(phase) / ( 1. - cos(phase) );
+			  * trans * cos(0.5*phase) / sin(0.5*phase);
+//	    * trans * sin(phase) / ( 1. - cos(phase) );
 	} else {
 	  nreject++;
 	}
@@ -493,7 +494,7 @@ void SideBandSeparatorBase::deconvolve(Matrix<float> &specmat,
 };
 
 
-void SideBandSeparatorBase::aggregateMat(Matrix<float> &inmat,
+void SideBandSeparatorBase::aggregateMat(const Matrix<float> &inmat,
 				 vector<float> &outvec)
 {
   LogIO os(LogOrigin("SideBandSeparatorBase","aggregateMat()", WHERE));
@@ -537,13 +538,12 @@ void SideBandSeparatorBase::subtractFromOther(const Matrix<float> &shiftmat,
   const uInt nspec = shiftmat.ncolumn();
   Vector<float> subsp(nchan_, 0.), shiftsub;
   Matrix<float> submat(nchan_, nspec, 0.);
-  vector<float>::iterator iter;
   for (uInt isp = 0 ; isp < nspec ; isp++) {
     for (uInt ich = 0; ich < nchan_ ; ich++) {
       subsp(ich) = shiftmat(ich, isp) - invec[ich];
     }
     shiftsub.reference(submat.column(isp));
-    shiftSpectrum(subsp, shift[isp], shiftsub);
+    shiftSpectrum(subsp, -shift[isp], shiftsub);
   }
 
   aggregateMat(submat, outvec);
@@ -813,21 +813,16 @@ bool SideBandSeparatorII::getSpectraToSolve(const vector<SPIIF> &images, const S
 	Array<bool> mask(IPosition(1,nchan_));
 	size_t nspec = 0;
 	for (size_t i = 0; i < images.size(); ++i) {
-//		spec.reference(specMat.column(nspec));
-//		mask.reference(maskMat.column(nspec));
 		images[i]->getSlice(spec, slicer, False);
 		images[i]->getMaskSlice(mask, slicer, False);
-		specMat.column(nspec) = spec;
-		maskMat.column(nspec) = mask;
 		// check if there is valid data?
 
-		imgIdvec.push_back((uInt) i);
-		++nspec;
 		// do interpolation of masked chans?
 
-		// Liberate from reference
-//		spec.unique();
-//		mask.unique();
+		specMat.column(nspec) = spec;
+		maskMat.column(nspec) = mask;
+		imgIdvec.push_back((uInt) i);
+		++nspec;
 	} // end of image loop
 	if (nspec < nshift_) {
 		specMat.resize(nchan_, nspec, true);
