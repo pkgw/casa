@@ -241,7 +241,7 @@ class plotms_test_basic(plotms_test_base):
                          customsymbol=True, symbolshape='diamond',
                          symbolsize=1, symbolcolor='0000ff', highres=True)
             self.assertTrue(res)
-            self.checkPlotfile(self.plotfile_jpg, 60000)   
+            self.checkPlotfile(self.plotfile_jpg, 50000)
         else:
             print "Skipping test, no path to alternate MS"
         print
@@ -1002,7 +1002,7 @@ class plotms_test_display(plotms_test_base):
                      symbolsize=[5,5], symbolcolor=['ff0000','00ff00'], 
                      symbolfill=['mesh3','mesh3'])
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 65000) 
+        self.checkPlotfile(self.plotfile_jpg, 60000)
         print    
         
     def test_display_yaxisloc_iter(self):
@@ -1021,7 +1021,7 @@ class plotms_test_display(plotms_test_base):
                      symbolsize=[5,5], symbolcolor=['ff0000','00ff00'], 
                      symbolfill=['mesh3','mesh3'])
         self.assertTrue(res)
-        self.checkPlotfile(plotfile1_jpg, 165000) 
+        self.checkPlotfile(plotfile1_jpg, 160000)
         self.removePlotfile(plotfile1_jpg)
         print       
       
@@ -1188,7 +1188,7 @@ class plotms_test_grid(plotms_test_base):
         print 'Added iteration plot, now exporting'
         self.checkPlotfile(plotFiles[0], 190000)
         self.removePlotfile(plotFiles[0])
-        self.checkPlotfile(plotFiles[1], 190000)
+        self.checkPlotfile(plotFiles[1], 180000)
         self.removePlotfile(plotFiles[1])
         self.checkPlotfile(plotFiles[2], 40000)
         self.removePlotfile(plotFiles[2])
@@ -1363,7 +1363,7 @@ class plotms_test_iteration(plotms_test_base):
                      gridrows=3, gridcols=2, highres=True,
                      yaxis=['amp'], yaxislocation=['right'])
         self.assertTrue(res)
-        self.checkPlotfile(plotfile1_jpg, 200000)
+        self.checkPlotfile(plotfile1_jpg, 190000)
         self.removePlotfile(plotfile1_jpg)
         self.checkPlotfile(plotfile2_jpg, 40000)
         self.removePlotfile(plotfile2_jpg) 
@@ -1606,7 +1606,7 @@ class plotms_test_selection(plotms_test_base):
         res = plotms(vis=self.ms, plotfile=plotfile2_jpg, expformat='jpg', 
                      overwrite=True, showgui=False, scan='2,4', highres=True)
         self.assertTrue(res)
-        self.checkPlotfile(plotfile2_jpg, 84000, 125000)
+        self.checkPlotfile(plotfile2_jpg, 70000, 125000)
         self.removePlotfile(plotfile2_jpg)
         # Succeed with different scan selection (CAS-6813)
         res = plotms(vis=self.ms, plotfile=plotfile3_jpg, expformat='jpg', 
