@@ -1,4 +1,4 @@
-import casa as c
+from casac import casac
 import numpy as np
 import re;
 def field2skycat(msname='', skycat='',fieldpattern=''):
@@ -11,27 +11,28 @@ def field2skycat(msname='', skycat='',fieldpattern=''):
                 'AZELGEO','AZELSWGEO','JNAT','ECLIPTIC','MECLIPTIC','TECLIPTIC','SUPERGAL',
                 'ITRF','TOPO','ICRS']
 
-    qa=c.quanta
-    c.table.open(msname+'/FIELD')
-    dir=c.table.getcol('PHASE_DIR')
-    nam=c.table.getcol('NAME')
-    nfield=c.table.nrows()
+    qa=casac.quanta()
+    tb=casac.table()
+    tb.open(msname+'/FIELD')
+    dir=tb.getcol('PHASE_DIR')
+    nam=tb.getcol('NAME')
+    nfield=tb.nrows()
     n=0;
     for k in range(nfield):
         if (re.match(fieldpattern,nam[k]) != None):
             n=n+1
 
     eltype=[]
-    if(c.table.getcolkeyword('PHASE_DIR', 'MEASINFO').has_key('VarRefCol')):
-        typeid=c.table.getcol(c.table.getcolkeyword('PHASE_DIR', 'MEASINFO')['VarRefCol'])
+    if(tb.getcolkeyword('PHASE_DIR', 'MEASINFO').has_key('VarRefCol')):
+        typeid=tb.getcol(tb.getcolkeyword('PHASE_DIR', 'MEASINFO')['VarRefCol'])
         for k in range(nfield):
             if (re.match(fieldpattern,nam[k]) != None):
                 eltype.append(enumTypes[typeid[k]])
     else:
-        eltype=[c.table.getcolkeyword('PHASE_DIR', 'MEASINFO')['Ref']]*nfield
-    unitra=c.table.getcolkeyword('PHASE_DIR', 'QuantumUnits')[0]
-    unitdec=c.table.getcolkeyword('PHASE_DIR', 'QuantumUnits')[1]
-    c.table.done()
+        eltype=[tb.getcolkeyword('PHASE_DIR', 'MEASINFO')['Ref']]*nfield
+    unitra=tb.getcolkeyword('PHASE_DIR', 'QuantumUnits')[0]
+    unitdec=tb.getcolkeyword('PHASE_DIR', 'QuantumUnits')[1]
+    tb.done()
     des={}
     des['Type']={'valueType':'string'}
     des['Long']={'valueType':'double'}
@@ -42,8 +43,8 @@ def field2skycat(msname='', skycat='',fieldpattern=''):
     des['DEC']={'valueType':'string'}
 
 
-    c.table.create(tablename=skycat, tabledesc=des, nrow=n);
-    c.table.putcol('Type', eltype)
+    tb.create(tablename=skycat, tabledesc=des, nrow=n);
+    tb.putcol('Type', eltype)
     lati=np.zeros((n,))
     longi=np.zeros((n,))
     RA=[]
@@ -60,14 +61,14 @@ def field2skycat(msname='', skycat='',fieldpattern=''):
             fid.append(str(k))
             fieldname.append(nam[k]);
             n=n+1;
-    c.table.putcol('RA', RA)
-    c.table.putcol('DEC', DEC)
-#    c.table.putcol('FIELD_NAME', nam)
-    c.table.putcol('FIELD_NAME', fieldname);
-    c.table.putcol('FIELD_ID', fid)
-    c.table.putcol('Long', longi)
-    c.table.putcol('Lat', lati)
-    c.table.putcolkeyword(columnname='Long', keyword='UNIT', value='deg')
-    c.table.putcolkeyword(columnname='Lat', keyword='UNIT', value='deg')                     
-    c.table.putinfo({'type':'Skycatalog'})
-    c.table.done()
+    tb.putcol('RA', RA)
+    tb.putcol('DEC', DEC)
+#    tb.putcol('FIELD_NAME', nam)
+    tb.putcol('FIELD_NAME', fieldname);
+    tb.putcol('FIELD_ID', fid)
+    tb.putcol('Long', longi)
+    tb.putcol('Lat', lati)
+    tb.putcolkeyword(columnname='Long', keyword='UNIT', value='deg')
+    tb.putcolkeyword(columnname='Lat', keyword='UNIT', value='deg')                     
+    tb.putinfo({'type':'Skycatalog'})
+    tb.done()
