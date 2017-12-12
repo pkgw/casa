@@ -326,7 +326,7 @@ SimpleSimVi2::SimpleSimVi2 (const SimpleSimVi2Parameters& pars)
     lastSpw_(-1),
     thisTime_(0.0),
     corrdef_(4,Stokes::Undefined),
-    vb_(0),
+    vb_(nullptr),
     phaseCenter_(),
     feedpa_()
 {
@@ -399,7 +399,7 @@ SimpleSimVi2::SimpleSimVi2 (const SimpleSimVi2Parameters& pars)
   }
     
   VisBufferOptions vbopt=VbWritable;
-  vb_ = createAttachedVisBuffer(vbopt);
+  vb_.reset(createAttachedVisBuffer(vbopt));
 
 }
 
@@ -574,7 +574,7 @@ VisBuffer2 * SimpleSimVi2::getVisBuffer (const VisibilityIterator2 * vi)
 }
   */
 
-VisBuffer2 * SimpleSimVi2::getVisBuffer () const { return vb_; }
+VisBuffer2 * SimpleSimVi2::getVisBuffer () const { return vb_.get(); }
 
   //   +=========================+
   //   |                         |
