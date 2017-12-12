@@ -34,7 +34,7 @@
 #include <vector>
 #include <list>
 #include <cstdlib>
-#include <casacore/casa/State.h>
+#include <casacore/casa/System/AppState.h>
 #include <casacore/casa/Quanta/UnitMap.h>
 
 using namespace std;
@@ -44,7 +44,7 @@ using namespace casa;
 using namespace casacore;
 namespace casac {
 
-class CasacState: public casacore::State {
+class CasacState: public casacore::AppState {
 public:
 
     CasacState( ) { }
@@ -86,13 +86,9 @@ private:
 };
 
 static CasacState &get_casac_state( ) {
-    static CasacState state;
-    static bool initialized = false;
-    if ( initialized == false ) {
-        casacore::StateSource::initialize( &state );
-        initialized = true;
-    }
-    return state;
+    if ( AppStateSource::fetch( ).initialized( ) == false )
+        casacore::AppStateSource::initialize( new CasacState );
+    return dynamic_cast<CasacState&>(AppStateSource::fetch( ));
 }
 
 utils::utils()

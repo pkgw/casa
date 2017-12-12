@@ -28,7 +28,7 @@
 #include <imageanalysis/ImageAnalysis/ImageFactory.h>
 
 #include <casa/OS/EnvVar.h>
-#include <casacore/casa/State.h>
+#include <casacore/casa/System/AppState.h>
 #include <images/Images/ImageFITSConverter.h>
 #include <images/Images/ImageUtilities.h>
 #include <images/Images/ImageOpener.h>
@@ -583,7 +583,7 @@ SPIIF ImageFactory::testImage(
 
     String fitsfile;
 
-    const casacore::State &state = casacore::StateSource::fetch( );
+    const casacore::AppState &state = casacore::AppStateSource::fetch( );
     if ( state.initialized( ) )
         fitsfile = state.resolve(testname);
 
