@@ -48,7 +48,7 @@
 
 
 	 
-#include <Tag.h>
+#include <ArrayTimeInterval.h>
 	
 
 	 
@@ -56,7 +56,7 @@
 	
 
 	 
-#include <ArrayTimeInterval.h>
+#include <Tag.h>
 	
 
 
@@ -76,7 +76,7 @@
 //#include <TableStreamReader.h>
 
 /*\file FreqOffset.h
-    \brief Generated from model's revision "1.64", branch "HEAD"
+    \brief Generated from model's revision "-1", branch ""
 */
 
 namespace asdm {
@@ -101,7 +101,7 @@ typedef void (FreqOffsetRow::*FreqOffsetAttributeFromText) (const string& s);
 /**
  * The FreqOffsetRow class is a row of a FreqOffsetTable.
  * 
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  */
 class FreqOffsetRow {
