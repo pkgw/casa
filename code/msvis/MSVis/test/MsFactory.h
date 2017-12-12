@@ -497,7 +497,7 @@ private:
     casacore::MeasurementSet * ms_p;
     casacore::Int nAntennas_p;
     casacore::Int nRows_p;
-    casacore::NewMSSimulator * simulator_p;
+    std::unique_ptr<casacore::NewMSSimulator> simulator_p;
     casacore::Double timeEnd_p;
     casacore::Double timeInterval_p;
     casacore::Double timeStart_p;

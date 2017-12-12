@@ -273,9 +273,7 @@ public:
     stpcpy (tmpdir_p+strlen(tmpdir_p), "/test_tViiLayerFactory_XXXXXX");
     mkdtemp(tmpdir_p);
 
-    msf_p = std::move(
-        std::unique_ptr<MsFactory>(
-            new MsFactory(String::format("%s/DataAccessTest.ms", tmpdir_p))));
+    msf_p.reset(new MsFactory(String::format("%s/DataAccessTest.ms", tmpdir_p)));
   }
 
   /*
@@ -355,7 +353,7 @@ public:
   ~DataAccessTest()
   {
     //The MS destructor will update the file system, so deleting it before removing the directory 
-    ms_p.release();
+    ms_p.reset();
     //This will recursively remove everything in the directory
     nftw(tmpdir_p, removeFile, 64, FTW_DEPTH | FTW_PHYS);
   }
