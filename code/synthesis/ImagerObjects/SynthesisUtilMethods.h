@@ -134,13 +134,18 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     static casacore::Int getOptimumSize(const casacore::Int npix);
 
     static casacore::Int parseLine(char* line);
-    static void getResource(casacore::String label="",casacore::String fname="");
+    static void getResource(casacore::String label="", casacore::String fname="");
     
   protected:
     static casacore::String mergeSpwSel(const casacore::Vector<casacore::Int>& fspw, const casacore::Vector<casacore::Int>& fstart, const casacore::Vector<casacore::Int>& fnchan, const casacore::Matrix<casacore::Int>& spwsel);
 
     static casacore::Vector<casacore::uInt> primeFactors(casacore::uInt n, casacore::Bool douniq=true);
 
+  private:
+    static casacore::String makeResourceFilename(int pid);
+
+    static casacore::String g_hostname;
+    static casacore::String g_startTimestamp;
   };
 
 class SynthesisParams

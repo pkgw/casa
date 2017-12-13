@@ -74,6 +74,10 @@ using namespace std;
 
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
+
+  casacore::String SynthesisUtilMethods::g_hostname;
+  casacore::String SynthesisUtilMethods::g_startTimestamp;
+
   SynthesisUtilMethods::SynthesisUtilMethods()
   {
     
@@ -185,12 +189,38 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         return i;
     }
 
+  /**
+   * Produces a name for a 'memprofile' output file. For example:
+   * casa.synthesis.imager.memprofile.23514.pc22555.hq.eso.org.20171209_120446.txt
+   * (where 23514 is the PID passed as input parameter).
+   *
+   * @param pid PID of the process running the imager
+   *
+   * @return a longish 'memprofile' filename including PID, machine, timestamp, etc.
+   **/
+  String SynthesisUtilMethods::makeResourceFilename(int pid)
+  {
+    if (g_hostname.empty() or g_startTimestamp.empty()) {
+      const int strMax = 256;
+      char hostname[strMax];
+      gethostname(hostname, HOST_NAME_MAX);
+      g_hostname = hostname;
+
+      auto time = std::time(nullptr);
+      auto gmt = std::gmtime(&time);
+      const char* format = "%Y%m%d_%H%M%S";
+      char timestr[strMax];
+      std::strftime(timestr,  strMax, format, gmt);
+      g_startTimestamp = timestr;
+    }
+
+    return String("casa.synthesis.imager.memprofile." + String::toString(pid) +
+		  "." + g_hostname + "." + g_startTimestamp + ".txt");
+  }
+
   void SynthesisUtilMethods::getResource(String label, String fname)
   {
-    //               return;
-
-     LogIO os( LogOrigin("SynthesisUtilMethods","getResource",WHERE) );
-
+     LogIO os( LogOrigin("SynthesisUtilMethods", "getResource", WHERE) );
 
         FILE* file = fopen("/proc/self/status", "r");
         int vmSize = -1, vmWHM=-1, vmRSS=-1, pid=-1;
@@ -232,21 +262,19 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	oss << " FDSize: " << fdSize;
 	oss <<  " [" << label << "] ";
 
-
 	os << oss.str() << LogIO::NORMAL3 <<  LogIO::POST;
-	//	cout << oss.str() << endl;
 
 	// Write this to a file too...
-	fname = "memprofile";
-	if( fname.size() > 0 )
-	  {
-	    ofstream myfile;
-	    myfile.open (fname+"."+String::toString(pid), ios::app);
-	    myfile << oss.str() << endl;
-	    myfile.close();
-	  }
+	if (fname.empty()) {
+	  fname = makeResourceFilename(pid);
+	}
+	if( fname.size() > 0 ) {
+	  ofstream myfile;
+	  myfile.open (fname, ios::app);
+	  myfile << oss.str() << endl;
+	  myfile.close();
+	}
   }
-
 
 
   // Data partitioning rules for CONTINUUM imaging
