@@ -74,7 +74,6 @@ using namespace std;
 
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
- 
   SynthesisUtilMethods::SynthesisUtilMethods()
   {
     
@@ -185,7 +184,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         i = atoi(line);
         return i;
     }
-    
+
   void SynthesisUtilMethods::getResource(String label, String fname)
   {
     //               return;
@@ -194,7 +193,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
         FILE* file = fopen("/proc/self/status", "r");
-        int vmSize = -1, vmRSS=-1, pid=-1;
+        int vmSize = -1, vmWHM=-1, vmRSS=-1, pid=-1;
 	int fdSize=-1;
         char line[128];
     
@@ -202,10 +201,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  if (strncmp(line, "VmSize:", 7) == 0){
 	    vmSize = parseLine(line)/1024.0;
 	  }
+	  if (strncmp(line, "VmHWM:", 6) == 0){
+	    vmWHM = parseLine(line)/1024.0;
+	  }
 	  if (strncmp(line, "VmRSS:", 6) == 0){
 	    vmRSS = parseLine(line)/1024.0;
 	  }
-	  	  if (strncmp(line, "FDSize:", 7) == 0){
+
+	  if (strncmp(line, "FDSize:", 7) == 0){
 	    fdSize = parseLine(line);
 	  }
 	  if (strncmp(line, "Pid:", 4) == 0){
@@ -221,8 +224,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	ostringstream oss;
 	
-	oss << " PID: " << pid ;
+	oss << "PID: " << pid ;
 	oss << " MemRSS: " << vmRSS << " MB.";
+	oss << " VmWHM: " << vmWHM << " MB.";
 	oss << " VirtMem: " << vmSize << " MB.";
 	oss << " ProcTime: " << now.tv_sec << "." << now.tv_usec;
 	oss << " FDSize: " << fdSize;
