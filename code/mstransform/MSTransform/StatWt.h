@@ -26,7 +26,7 @@
 #include <casacore/casa/Quanta/Quantum.h>
 #include <casacore/casa/Logging/LogIO.h>
 #include <casacore/ms/MeasurementSets/MeasurementSet.h>
-#include <casacore/scimath/Mathematics/StatisticsAlgorithmFactory.h>
+#include <casacore/scimath/StatsFramework/StatisticsAlgorithmFactory.h>
 
 #include <memory>
 

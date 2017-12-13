@@ -1,5 +1,3 @@
-//# FreqAxisTVI.h: This file contains the interface definition of the MSTransformManager class.
-//#
 //#  CASA - Common Astronomy Software Applications (http://casa.nrao.edu/)
 //#  Copyright (C) Associated Universities, Inc. Washington DC, USA 2011, All rights reserved.
 //#  Copyright (C) European Southern Observatory, 2011, All rights reserved.
@@ -18,7 +16,6 @@
 //#  License along with this library; if not, write to the Free Software
 //#  Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 //#  MA 02111-1307  USA
-//# $Id: $
 
 #ifndef STATWTTVI_H_
 #define STATWTTVI_H_
@@ -27,7 +24,7 @@
 
 #include <casacore/casa/Arrays/ArrayIter.h>
 #include <casacore/ms/MSSel/MSSelection.h>
-#include <casacore/scimath/Mathematics/StatisticsAlgorithmFactory.h>
+#include <casacore/scimath/StatsFramework/StatisticsAlgorithmFactory.h>
 
 #include <msvis/MSVis/VisBuffer2.h>
 #include <msvis/MSVis/VisibilityIterator2.h>

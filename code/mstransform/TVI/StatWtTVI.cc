@@ -1293,7 +1293,7 @@ casacore::Double StatWtTVI::_computeWeight(
     // _samples.second can be updated in two different places, so use
     // a local (per thread) variable and update the object's private field in one
     // place
-    uInt updateSecond = False;;
+    uInt updateSecond = False;
     if (varSum > 0) {
 #ifdef _OPENMP
 #pragma omp atomic
