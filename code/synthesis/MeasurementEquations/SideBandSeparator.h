@@ -132,6 +132,24 @@ protected:
 	  ////
 	  size_t setupShift();
 
+	  /*
+	   * Interpolate masked spectrum channels
+	   * In-place interpolation is performed to elements with mask being false.
+	   * This function interpolates masked channels in the following rules.
+	   * o nearest interpolation for edge channels
+	   * o linear interpolation for intermediate masked ranges
+	   *
+	   * @param[inout] spectrum an 1-D array to be interpolated (in-place).
+	   * the number of elements should be equal to that of @a mask.
+	   * @param[in] mask an 1-D mask array. the elements in spectrum is valid
+	   * when corresponding elements in mask is true.
+	   * the number of elements should be equal to that of @a spectrum.
+	   *
+	   * the function returns false if no valid channel (mask is all false)
+	   */
+	  bool interpolateMaskedChannels(Array<float> spectrum,
+			  const Array<bool> maskp);
+
 	  /** Member variables **/
 	  // name of images
 	  std::vector<std::string> inputNames_;

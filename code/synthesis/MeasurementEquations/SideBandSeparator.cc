@@ -543,11 +543,62 @@ void SideBandSeparatorBase::subtractFromOther(const Matrix<float> &shiftmat,
       subsp(ich) = shiftmat(ich, isp) - invec[ich];
     }
     shiftsub.reference(submat.column(isp));
+    // shift back spectrum so that other side stays still.
     shiftSpectrum(subsp, -shift[isp], shiftsub);
   }
 
   aggregateMat(submat, outvec);
 };
+
+bool SideBandSeparatorBase::interpolateMaskedChannels(Array<float> spectrum,
+		const Array<bool> mask)
+{
+//	if (spectrum.ndim() != 1 || mask.ndim() != 1)
+//		throw AipsError("Array arguments must be 1-dimension.");
+	if (spectrum.size() != mask.size())
+		throw AipsError("Size mismatch between spectrum and mask.");
+	size_t num_chan = spectrum.size();
+	float* spectrum_p = spectrum.data();
+	const bool* mask_p = mask.data();
+	// get the first and the last valid channel IDs.
+	size_t ledge=0, redge=num_chan-1;
+	while (!mask_p[ledge] && ledge < num_chan-1) {
+		++ledge;
+	}
+	while (!mask_p[redge] && redge > 0) {
+		--redge;
+	}
+	// Return if no valid channel
+	if (redge < ledge) return false;
+	// Nearest-neighbor for edges;
+	for (size_t i = 0; i < ledge; ++i) spectrum_p[i] = spectrum_p[ledge];
+	for (size_t i = num_chan-1; i > redge; --i) spectrum_p[i] = spectrum_p[redge];
+	// Linear interpolation for intermediate gaps
+	size_t mstart = -1, mend = -1, i0;
+	float slope;
+	for (size_t i = ledge+1; i < redge; ++i) {
+		if (!mask_p[i]) {
+			// the first masked channel
+			mstart=i;
+			// the last valid channel
+			i0 = mstart-1;
+			// search for the end of masked channel range
+			while(!mask_p[i] && i < redge) {
+				mend = i;
+				++i;
+			}
+			// 'mend' points to the last masked channel
+			// while 'i' points to the next valid channel
+			slope = (spectrum_p[i] - spectrum_p[i0])/static_cast<float>(i-i0);
+			for (size_t j = mstart; j < mend+1; ++j) {
+				spectrum_p[j] = slope*static_cast<float>(j-i0) + spectrum_p[i0];
+			}
+			mstart = -1;
+			mend = -1;
+		}
+	}
+	return true;
+}
 
 Bool SideBandSeparatorBase::checkFile(const string name, string type)
 {
@@ -815,10 +866,11 @@ bool SideBandSeparatorII::getSpectraToSolve(const vector<SPIIF> &images, const S
 	for (size_t i = 0; i < images.size(); ++i) {
 		images[i]->getSlice(spec, slicer, False);
 		images[i]->getMaskSlice(mask, slicer, False);
-		// check if there is valid data?
-
-		// do interpolation of masked chans?
-
+		// Do interpolation of masked channels.
+		// The method return false if there is no valid data (mask is true for valid pixels)
+		// Skip if no valid channel in this spectrum
+		if (!interpolateMaskedChannels(spec, mask)) continue;
+		// register this spectrum and mask to matrices to solve
 		specMat.column(nspec) = spec;
 		maskMat.column(nspec) = mask;
 		imgIdvec.push_back((uInt) i);
