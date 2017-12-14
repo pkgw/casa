@@ -74,7 +74,7 @@ public:
 
     void clear( ) { data_path.clear( ); }
 
-    virtual const std::list<std::string> &dataPath( ) const {
+    virtual std::list<std::string> dataPath( ) const {
         return data_path;
     }
 
