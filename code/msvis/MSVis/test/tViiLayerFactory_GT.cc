@@ -353,7 +353,9 @@ public:
   ~DataAccessTest()
   {
     //The MS destructor will update the file system, so deleting it before removing the directory 
+    msf_p.reset();
     ms_p.reset();
+    vi_p.reset();
     //This will recursively remove everything in the directory
     nftw(tmpdir_p, removeFile, 64, FTW_DEPTH | FTW_PHYS);
   }
