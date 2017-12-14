@@ -147,8 +147,8 @@ protected:
 	   *
 	   * the function returns false if no valid channel (mask is all false)
 	   */
-	  bool interpolateMaskedChannels(Array<float> spectrum,
-			  const Array<bool> maskp);
+	  bool interpolateMaskedChannels(casacore::Array<float> spectrum,
+			  const casacore::Array<bool> maskp);
 
 	  /** Member variables **/
 	  // name of images
