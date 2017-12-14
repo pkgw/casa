@@ -39,6 +39,8 @@ namespace vi {
 
 const String StatWtTVI::CHANBIN = "stchanbin";
 
+const Complex StatWtTVI::DEFAULT_MODEL_VALUE(1, 0);
+
 StatWtTVI::StatWtTVI(ViImplementation2 * inputVii, const Record &configuration)
     : TransformingVi2 (inputVii) {
 	// Parse and check configuration parameters
@@ -49,15 +51,19 @@ StatWtTVI::StatWtTVI(ViImplementation2 * inputVii, const Record &configuration)
 	    "Error parsing StatWtTVI configuration"
     );
     ThrowIf(
-        _useCorrected && ! ms().isColumn(MSMainEnums::CORRECTED_DATA),
+        (_column == CORRECTED || _column == RESIDUAL)
+        && ! ms().isColumn(MSMainEnums::CORRECTED_DATA),
         "StatWtTVI requires the MS to have a "
         "CORRECTED_DATA column. This MS does not"
     );
     ThrowIf(
-        ! _useCorrected && ! ms().isColumn(MSMainEnums::DATA),
+        (_column == DATA || _column == RESIDUAL_DATA)
+        && ! ms().isColumn(MSMainEnums::DATA),
         "StatWtTVI requires the MS to have a "
         "DATA column. This MS does not"
     );
+    _useDefaultModelValue = (_column == RESIDUAL || _column == RESIDUAL_DATA)
+        && ! ms().isColumn(MSMainEnums::MODEL_DATA);
 	_initialize();
 	// Initialize attached VisBuffer
 	setVisBuffer(createAttachedVisBuffer(VbRekeyable));
@@ -185,10 +191,16 @@ Bool StatWtTVI::_parseConfiguration(const Record& config) {
         if (! val.empty()) {
             val.downcase();
             ThrowIf (
-                ! (val.startsWith("c") || val.startsWith("d")),
+                ! (
+                    val.startsWith("c") || val.startsWith("d")
+                    || val.startsWith("residual") || val.startsWith("residual_")
+                ),
                 "Unsupported value for " + field + ": " + val
             );
-            _useCorrected = val.startsWith("c");
+            _column = val.startsWith("c") ? CORRECTED
+                : val.startsWith("d") ? DATA
+                : val.startsWith("residual_") ? RESIDUAL_DATA
+                : RESIDUAL;
         }
     }
     field = "slidetimebin";
@@ -864,8 +876,7 @@ void StatWtTVI::_gatherAndComputeWeightsSlidingTimeWindow() const {
             }
             rowMap.push_back(myRowNums);
         }
-        const auto& dataCube = _useCorrected
-            ? vb->visCubeCorrected() : vb->visCube();
+        const auto dataCube = _dataCube(vb);
         auto resultantFlags = _getResultantFlags(
             chanSelFlagTemplate, chanSelFlags,
             initChanSelTemplate, doChanSelFlags, spw,
@@ -892,6 +903,23 @@ void StatWtTVI::_gatherAndComputeWeightsSlidingTimeWindow() const {
         subchunkStartIndex += nrows;
     }
     _computeWeightsSlidingTimeWindow(chunkData, chunkFlags, rowMap, spw);
+}
+
+const casacore::Cube<casacore::Complex> StatWtTVI::_dataCube(const VisBuffer2 *const vb) const {
+    switch (_column) {
+    case CORRECTED:
+        return vb->visCubeCorrected();
+    case DATA:
+        return vb->visCube();
+    case RESIDUAL:
+        return _useDefaultModelValue ? vb->visCubeCorrected() - DEFAULT_MODEL_VALUE
+            : vb->visCubeCorrected() - vb->visCubeModel();
+    case RESIDUAL_DATA:
+        return _useDefaultModelValue ? vb->visCube() - DEFAULT_MODEL_VALUE
+            : vb->visCube() - vb->visCubeModel();
+    default:
+        ThrowCc("Logic error: column type not handled");
+    }
 }
 
 void StatWtTVI::_computeWeightsSlidingTimeWindow(
@@ -1013,8 +1041,7 @@ void StatWtTVI::_gatherAndComputeWeightsTimeBlockProcessing() const {
         const auto& ant1 = vb->antenna1();
         const auto& ant2 = vb->antenna2();
         // [nC,nF,nR)
-        const auto& dataCube = _useCorrected
-            ? vb->visCubeCorrected() : vb->visCube();
+        const auto& dataCube = _dataCube(vb);
         const auto& flagCube = vb->flagCube();
         const auto nrows = vb->nRows();
         const auto npol = dataCube.nrow();
@@ -1233,7 +1260,7 @@ casacore::Double StatWtTVI::_computeWeight(
     // _samples.second can be updated in two different places, so use
     // a local (per thread) variable and update the object's private field in one
     // place
-    uInt updateSecond = False;;
+    uInt updateSecond = False;
     if (varSum > 0) {
 #ifdef _OPENMP
 #pragma omp atomic
