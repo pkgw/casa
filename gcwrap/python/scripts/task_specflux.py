@@ -56,12 +56,30 @@ def specflux(
         myia.open(imagename)
         bunit = myia.brightnessunit()
         unit_is_perbeam = bunit.find("/beam") >= 0
+        # we must be able to compute the flux density, this is part of
+        # the requirements. See eg CAS-10791
+        if not unit_is_perbeam and bunit != "K":
+            if not bunit:
+                raise Exception(
+                    "This application is required to do a flux density calculation but "
+                    + "cannot because the image has no brightness unit. Please add one "
+                    + "that is consistent with specific intensity, and add a beam if "
+                    + "necessary."
+                )
+            else:
+                raise Exception(
+                    "This application is required to do a flux density calculation but "
+                    + "cannot because the image has a brightness unit of " + bunit + " "
+                    + "which is not consistent with specific intensity. Please add one "
+                    + "that is consistent with specific intensity, and add a beam if "
+                    + "necessary."
+                )
         if (unit_is_perbeam and not bool(major) and not bool(myia.restoringbeam())):
             raise Exception(
                 "Brightness unit is " + bunit
                 + " but image has no restoring beam and major and minor were not specifed. "
                 + " So spectral flux cannot be computed. Please add a restoring beam or specify "
-                + " major and minor"
+                + " major and minor."
             )
         try:
             axis = myia.coordsys().axiscoordinatetypes().index("Spectral")
