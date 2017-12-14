@@ -3495,7 +3495,7 @@ in spectral window 1.
      </param>
 
      <param type="string" name="datacolumn">
-     <description>Data column to use to compute weights. Supported values are "data" and "corrected" (case insensitive, minimum match supported).</description>
+     <description>Data column to use to compute weights. Supported values are "data", "corrected", "residual, and "residual_data" (case insensitive, minimum match supported).</description>
      <value>corrected</value>
      <example>"data" or "corrected"</example>
      </param>
@@ -3703,7 +3703,18 @@ in spectral window 1.
     The datacolumn parameter can be specified to indicate which data
     column should be used for computing the weights. The values
     "corrected" for the CORRECTED_DATA column and "data" for the DATA
-    column are supported (minimum match, case insensitive).
+    column are supported (minimum match, case insensitive). One may
+    specify 'residual' in which case the values used are the result of
+    the CORRECTED_DATA - MODEL_DATA columns, or 'residual_data' in which
+    case the values used are the DATA - MODEL_DATA columns. The last two
+    options are to allow for operatation on timescales or frequency
+    ranges which are larger than that over which the sky signal is
+    expected to be constant. This situation arises in eg, OTF mapping,
+    and also perhaps with sources with significant spectral structure.
+    In cases where the one of the residual columns is specified and the
+    MODEL_DATA column doesn't exist, the default model visibility of
+    value 1 + 0i will be used. In cases where a necessary column doesn't
+    exist, an exception will be thrown and no data will be changed.
             
     OTHER CONSIDERATIONS
 

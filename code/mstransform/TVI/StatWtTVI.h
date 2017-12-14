@@ -149,6 +149,18 @@ private:
         };
     };
 
+    enum Column {
+        // column(s) to use
+        // DATA
+        DATA,
+        // CORRECTED_DATA
+        CORRECTED,
+        // CORRECTED_DATA - MODEL_DATA
+        RESIDUAL,
+        // DATA - MODEL_DATA
+        RESIDUAL_DATA
+    };
+
     mutable casacore::Bool _weightsComputed = false;
     mutable std::unique_ptr<casacore::Bool> _mustComputeWtSp = nullptr;
     mutable casacore::Cube<casacore::Float> _newWtSp;
@@ -175,7 +187,7 @@ private:
     mutable casacore::uInt _nTotalPts = 0;
     mutable casacore::uInt _nNewFlaggedPts = 0;
     mutable casacore::uInt _nOrigFlaggedPts = 0;
-    mutable casacore::Bool _useCorrected = true;
+    mutable Column _column = CORRECTED;
     mutable std::map<casacore::uInt, std::pair<casacore::uInt, casacore::uInt>> _samples;
     mutable std::set<casacore::uInt> _processedRowIDs = std::set<casacore::uInt>();
     mutable std::vector<std::vector<casacore::Double>> _timeWindowWts;
@@ -187,12 +199,18 @@ private:
     mutable std::map<casacore::uInt, casacore::uInt> _rowIDInMSTorowIndexInChunk;
     casacore::Double _slidingTimeWindowWidth = -1;
 
+    casacore::Bool _useDefaultModelValue = casacore::False;
+
+    const static casacore::Complex DEFAULT_MODEL_VALUE;
+
     // returns True if this chunk has already been processed. This can happen
     // for the last chunk.
     casacore::Bool _checkFirsSubChunk(
         casacore::Int& spw, casacore::Bool& firstTime,
         const VisBuffer2 * const vb
     ) const;
+
+    const casacore::Cube<casacore::Complex> _dataCube(const VisBuffer2 *const vb) const;
 
     // combines the flag cube with the channel selection flags (if any)
     casacore::Cube<casacore::Bool> _getResultantFlags(
