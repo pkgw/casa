@@ -1769,7 +1769,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       IPosition trc=maskshape-1;
       Slicer sl(blc,trc,Slicer::endIsLast);
       mask.doGetSlice(maskdata,sl);
-      return (sum(maskdata)==0);
+      return (sum(maskdata)==0.0);
       
   }
  
@@ -2649,8 +2649,19 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     LatticeIterator<Float> oli(outlattice,tls);
     Int ich;
     IPosition ipch(chanmask.shape().size(),0);
+
+    // for debug
+    //Array<Float> initarr=inlattice.get();
+    //cerr<<"initarr sum pix="<<sum(initarr)<<endl;
+    
     for (li.reset(), mi.reset(), oli.reset(), ich=0; !li.atEnd(); li++, mi++, oli++, ich++) {
-      Array<Float> planeImage(li.cursor());
+      //Array<Float> planeImage(li.cursor());
+      Array<Float> inMask(li.cursor());
+      //cerr<<"sum of inMask="<<sum(inMask)<<endl;
+      Array<Float> planeImage(inMask.shape());
+      planeImage.set(0);
+      planeImage=inMask;
+      //cerr<<"sum of planeImage before grow ="<<sum(planeImage)<<endl;
       Array<Bool> planeMask(mi.cursor());
       ipch(0)=ich;
       // if masks are true do binary dilation...
@@ -2691,6 +2702,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       } // if ntrure() ...
       oli.woCursor() = planeImage;
     }
+    //For debug
+    //Array<Float> afterinarr=inlattice.get();
+    //cerr<<"afaterinarr sum pix ="<<sum(afterinarr)<<endl;
+    //Array<Float> outarr = outlattice.get();
+    //cerr<<"outlattice sum pix ="<<sum(outarr)<<endl;
   }
 
   void SDMaskHandler::binaryDilation(ImageInterface<Float>& inImage,
@@ -2701,22 +2717,31 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                       ImageInterface<Float>& outImage)
   {
       LogIO os( LogOrigin("SDMaskHandler", "binaryDilation", WHERE) );
-      binaryDilationCore(inImage,structure,mask,chanmask,outImage);
-      Int iter = 1;
       ArrayLattice<Float> templattice(inImage.shape());
+      templattice.copyData(inImage);
       TempImage<Float> diffTempImage(outImage.shape(), outImage.coordinates(), memoryToUse());
       diffTempImage.set(1);
+      // initial grow mask
+      binaryDilationCore(inImage,structure,mask,chanmask,outImage);
+      LatticeExpr<Float> diffIm0( abs(templattice - outImage ) );
+
+      // if the initial grow does not change mask (i.e. diffIm0 = 0)
+      // then it won't enter the while loop below. 
+      diffTempImage.copyData(diffIm0);
+      Int iter = 1;
       while (iter < niteration && !isEmptyMask(diffTempImage)) {
         templattice.copyData(outImage);
         binaryDilationCore(templattice,structure,mask,chanmask,outImage); 
         LatticeExpr<Float> diffIm( abs(templattice - outImage ) );
         diffTempImage.copyData(diffIm);
-        //if (isEmptyMask(diffTempImage)) { 
-        //  cerr<<"current iter"<<iter<<" diffim is 0 "<<endl;
-        //}
-        //else {
-        //  cerr<<"current iter"<<iter<<endl;
-        //} 
+        /***
+        if (isEmptyMask(diffTempImage)) { 
+          cerr<<"current iter"<<iter<<" diffim is 0 "<<endl;
+        }
+        else {
+          cerr<<"current iter"<<iter<<endl;
+        } 
+        ***/
         iter++;
       }
       os<<"grow iter done="<<iter<<LogIO::POST;
