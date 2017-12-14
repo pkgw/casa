@@ -55,32 +55,13 @@ def specflux(
             raise Exception("You must specify both of major and minor, or neither of them")
         myia.open(imagename)
         bunit = myia.brightnessunit()
+        if (not bunit):
+            _no_unit_no_beam_message()
         unit_is_perbeam = bunit.find("/beam") >= 0
         # we must be able to compute the flux density, this is part of
         # the requirements. See eg CAS-10791
-        if not unit_is_perbeam and bunit != "K":
-            if not bunit:
-                raise Exception(
-                    "This application is required to do a flux density calculation but "
-                    + "cannot because the image has no brightness unit. Please add one "
-                    + "that is consistent with specific intensity, and add a beam if "
-                    + "necessary."
-                )
-            else:
-                raise Exception(
-                    "This application is required to do a flux density calculation but "
-                    + "cannot because the image has a brightness unit of " + bunit + " "
-                    + "which is not consistent with specific intensity. Please add one "
-                    + "that is consistent with specific intensity, and add a beam if "
-                    + "necessary."
-                )
         if (unit_is_perbeam and not bool(major) and not bool(myia.restoringbeam())):
-            raise Exception(
-                "Brightness unit is " + bunit
-                + " but image has no restoring beam and major and minor were not specifed. "
-                + " So spectral flux cannot be computed. Please add a restoring beam or specify "
-                + " major and minor."
-            )
+            _no_unit_no_beam_message()
         try:
             axis = myia.coordsys().axiscoordinatetypes().index("Spectral")
         except Exception, instance:
@@ -207,3 +188,13 @@ def specflux(
             myia.done()
             myrg.done()
 
+def _no_unit_no_beam_message():
+    # CAS-10791
+    raise Exception(
+        "This application is required to do a flux density calculation but cannot "
+        + "because the image has no beam and/or appropriate brightness unit. Please "
+        + "define a beam using the relevant task parameter inputs. To add a beam "
+        + "and brightness unit to your image, use ia.setrestoringbeam() and "
+        + "ia.setbrightnessunit(). To simply return a one-dimensional profile along "
+        + "a specified axis, ia.getprofile() is also available."
+    )
