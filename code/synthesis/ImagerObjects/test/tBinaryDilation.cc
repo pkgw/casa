@@ -94,6 +94,7 @@ int main(int argc, char **argv)
     CountedPtr<ImageInterface<Float> > im;
     im = ImageUtilities::openImage<Float>(imagename);
     IPosition shp=im->shape();
+    csys = im->coordinates();
     CountedPtr<ImageInterface<Float> > constraintim;
     constraintim = ImageUtilities::openImage<Float>(constraintimagename);
     IPosition constshp=im->shape();
