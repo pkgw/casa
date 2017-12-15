@@ -66,7 +66,7 @@ public:
     // set the StatWtTVI config record
     void setTVIConfig(const casacore::Record& config);
 
-    void writeWeights() const;
+    casacore::Record writeWeights() const;
 
 private:
     casacore::MeasurementSet* _ms;

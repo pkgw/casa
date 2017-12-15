@@ -697,6 +697,30 @@ class statwt2_test(unittest.TestCase):
             )
             shutil.rmtree(dst)
 
+    def test_returned_stats(self):
+        """ Test returned stats, CAS-10881"""
+        dst = "ngc5921.split.statstest.ms"
+        ref = datadir + "ngc5921.residdata_without_model.ms.ref"
+        rtol = 1e-7
+        myms = mstool()
+        for i in [0, 1]:
+            shutil.copytree(src, dst)
+            if i == 0:
+                myms.open(dst, nomodify=False)
+                res = myms.statwt2()
+                myms.done()
+            else:
+                res = statwt2(dst)
+            self.assertTrue(
+                numpy.isclose(res['mean'], 3.6326332, rtol),
+                "mean is incorrect"
+            )
+            self.assertTrue(
+                numpy.isclose(res['variance'], 6.6448922, rtol),
+                "variance is incorrect"
+            )
+            shutil.rmtree(dst)
+
 def suite():
     return [statwt2_test]
 
