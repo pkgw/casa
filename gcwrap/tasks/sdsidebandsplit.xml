@@ -25,12 +25,16 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
  -->
 
     <param type="stringArray" name="imagename"  mustexist="True">
-    <description>list of names of input images</description>
+    <shortdescription>a list of names of input images</shortdescription>
+    <description>a list of names of input images. At least two valid images are required for processing</description>
     <value></value>
     </param>
 
     <param type="string" name="outfile">
-      <description>Prefix of output image name</description>
+      <shortdescription>Prefix of output image name</shortdescription>
+      <description>Prefix of output image name.
+      A suffix, ".signalband" or ".imageband" is added to 
+      output image name depending on the side band side being solved.</description>
       <value></value>
     </param>
 
@@ -41,12 +45,18 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 <!-- separation parameters -->
     <param type="doubleArray" name="signalshift">
-      <description>a list of channel number shifts in signal side band</description>
+      <shortdescription>a list of channel number shifts in signal side band</shortdescription>
+      <description>a list of channel number shifts in signal side band.
+      The number of elements must be equal to that of imagename</description>
       <value></value>
     </param>
 
     <param type="doubleArray" name="imageshift">
-      <description>a list of channel number shifts in image side band</description>
+      <shortdescription>a list of channel number shifts in image side band</shortdescription>
+      <description> a list of channel number shifts in image side band.
+      The number of elements must be either zero or equal to that of imagename.
+      In case of zero length array, the values are obtained from signalshift
+      assuming the shifts are the same magnitude in opposite direction.</description>
       <value></value>
     </param>
 
@@ -66,13 +76,18 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     </param>
  
     <param type="bool" name="otherside">
-	    <description>solve the other side and subtract the solution</description>
+	    <description>solve the solution of the other side band side and subtract the solution</description>
             <value>False</value>
     </param>
 
     <param type="double" name="threshold">
-      <description>Rejection limit of solution</description>
+      <shortdescription>Rejection limit of solution</shortdescription>
+      <description>Rejection limit of solution. The value must be greater than 0.0 and less than 1.0.</description>
       <value>0.2</value>
+      <allowed kind="range">
+	      <value range="min">0.0</value>
+	      <value range="max">1.0</value>
+	  </allowed>
     </param>
 
 <!-- CONSTRAINTS -->
@@ -90,7 +105,33 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
   <returns type="void"/>
   <example>
-sidebandsplit()
+Solve signal sideband
+
+    sdsidebandsplit(imagename=['shift_0ch.image', 'shift_132ch.image', 'shift_neg81ch.image'],
+                  outfile='separated.image', signalshift=[0.0, +132.0, -81.0],
+                  imageshift=[0.0, -132.0, +81.0])
+
+The output image is 'separated.image.signalband'.
+
+Solve both signal and image sidebands (need to set frequency of image sideband explicitly)
+
+    sdsidebandsplit(imagename=['shift_0ch.image', 'shift_132ch.image', 'shift_neg81ch.image'],
+                  outfile='separated.image', signalshift=[0.0, +132.0, -81.0],
+                  imageshift=[0.0, -132.0, +81.0],
+                  getbothside=True, refpix=0.0, refval='805.8869GHz')
+
+The output images are 'separated.image.signalband' and 'separated.image.imageband'
+for signal and image sideband, respectively.
+
+Obtain signal sideband image by solving image sideband
+
+    sdsidebandsplit(imagename=['shift_0ch.image', 'shift_132ch.image', 'shift_neg81ch.image'],
+                  outfile='separated.image', signalshift=[0.0, +132.0, -81.0],
+                  imageshift=[0.0, -132.0, +81.0], otherside=True)
+
+Solution of image sidband is obtained and subtracted from the original (double sideband) spectra
+to derive spectra of signal sideband.
+
   </example>
 
 </task>
