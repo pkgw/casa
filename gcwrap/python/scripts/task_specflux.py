@@ -55,9 +55,9 @@ def specflux(
             raise Exception("You must specify both of major and minor, or neither of them")
         myia.open(imagename)
         bunit = myia.brightnessunit()
-        if (not bunit):
-            _no_unit_no_beam_message()
         unit_is_perbeam = bunit.find("/beam") >= 0
+        if not bunit or not (unit_is_perbeam or bunit.endswith("K")):
+            _no_unit_no_beam_message()
         # we must be able to compute the flux density, this is part of
         # the requirements. See eg CAS-10791
         if (unit_is_perbeam and not bool(major) and not bool(myia.restoringbeam())):
@@ -66,7 +66,9 @@ def specflux(
             axis = myia.coordsys().axiscoordinatetypes().index("Spectral")
         except Exception, instance:
             raise Exception("Image does not have a spectral coordinate, cannot proceed")
-        csys=myia.coordsys()
+        if myia.shape()[axis] == 1:
+            raise Exception("This application only supports multi-channel images")
+        csys = myia.coordsys()
         reg = myrg.frombcs(
             csys=csys.torecord(), shape=myia.shape(), box=box,
             chans=chans, stokes=stokes, stokescontrol="a", region=region
