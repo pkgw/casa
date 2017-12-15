@@ -13,8 +13,8 @@ def sdsidebandsplit(imagename, outfile, overwrite, signalshift, imageshift,
     casalog.origin('sdsidebandsplit')
     
     separator = casac.sidebandseparator()
-    separator.open(imagename)
     try:
+        separator.open(imagename)
         separator.setshift(signalshift, True)
         if len(imageshift) > 0:
             separator.setshift(imageshift, False)

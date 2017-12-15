@@ -80,8 +80,8 @@ void SideBandSeparatorBase::setInput(const vector<string>& inputname) {
 	}
   }
   LogIO os(LogOrigin("SideBandSeparatorBase","setImage()", WHERE));
-  if (inputNames_.size() == 0)
-	  throw( AipsError("No image set for processing") );
+  if (inputNames_.size() < 2)
+	  throw( AipsError("At least two valid input data are required for processing") );
 }
 
 void SideBandSeparatorBase::setShift(const vector<double> &shift, const bool signal)
@@ -109,8 +109,8 @@ void SideBandSeparatorBase::setShift(const vector<double> &shift, const bool sig
 void SideBandSeparatorBase::setThreshold(const double limit)
 {
   LogIO os(LogOrigin("SideBandSeparatorBase","setThreshold()", WHERE));
-  if (limit < 0)
-    throw( AipsError("Rejection limit should be a positive number.") );
+  if (limit <= 0 || limit >= 1.0)
+    throw( AipsError("Rejection limit should be > 0.0 and < 1.0") );
 
   rejlimit_ = limit;
   os << "Rejection limit is set to " << rejlimit_ << LogIO::POST;
@@ -718,6 +718,8 @@ void SideBandSeparatorII::separate(const string& outfile, const bool overwrite)
 {
   LogIO os(LogOrigin("SideBandSeparatorBase","separate()", WHERE));
   /*** Check outputs ***/
+  if (outfile.size() == 0)
+	  throw( AipsError("Output file name is undefined."));
   string const signame = outfile + ".signalband";
   string const imgname = outfile + ".imageband";
   if (checkFile(signame, "d") && !overwrite) {
