@@ -3717,7 +3717,19 @@ in spectral window 1.
     MODEL_DATA column doesn't exist, the default model visibility of
     value 1 + 0i will be used. In cases where a necessary column doesn't
     exist, an exception will be thrown and no data will be changed.
-            
+
+    RETURN VALUE
+
+    In all cases, the mean and variance of the set of all weights computed
+    by the application is reported and returned in a dictionary with keys
+    'mean' and 'variance'. Weights for which there are corresponding flags
+    (=True) prior to running the application are excluded from the
+    computation of these statistics. If the WEIGHT_SPECTRUM values are
+    available, they are used to compute the statistics, otherwise,
+    the WEIGHT values are used. The returned statistics are always computed
+    using the classic algorithm; the value of statalg has no impact on how
+    they are computed.
+
     OTHER CONSIDERATIONS
 
     Flagged values are not used in computing the weights, although the
