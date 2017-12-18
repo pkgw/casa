@@ -3502,7 +3502,7 @@ in spectral window 1.
      <example>"data" or "corrected"</example>
      </param>
   </input>
-  <returns type="bool"/>
+  <returns type="record"/>
   <description>
     IF NOT RUN IN PREVIEW MODE, THIS APPLICATION WILL MODIFY THE
     WEIGHT, WEIGHT SPECTRUM, FLAG, AND FLAG_ROW COLUMNS OF THE INPUT
