@@ -1,4 +1,4 @@
-# Copyright (C) 2010
+# Copyright (C) 2010...2017
 # Associated Universities, Inc. Washington DC, USA.
 #
 # This library is free software; you can redistribute it and/or modify it
@@ -31,6 +31,7 @@ casa_add_python( tools tools_imagerhelpers lib/python${PYTHONV}/imagerhelpers
   imager_parallel_continuum.py  
   imager_parallel_deconvolver.py  
   input_parameters.py  
+  resource_predictor.py
   test_imager_helper.py
   __init__.py
 )
