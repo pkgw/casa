@@ -47,7 +47,7 @@
 #include <msvis/MSVis/MSChecker.h>
 
 #include <algorithm>
-#include <boost/regex.hpp>
+#include <regex>
 
 #include <casa/namespace.h>
 
@@ -2369,10 +2369,10 @@ std::set<T> msmetadata::_idsFromExpansion(
 	const std::map<String, std::set<T> >& mymap, const String& matchString
 ) {
 	std::set<T> ids;
-	boost::regex re;
+	std::regex re;
 	re.assign(_escapeExpansion(matchString));
 	for(auto kv : mymap) {
-		if (boost::regex_match(kv.first, re)) {
+		if (std::regex_match(kv.first, re)) {
 			ids.insert(kv.second.begin(), kv.second.end());
 		}
 	}
@@ -2383,10 +2383,10 @@ std::set<Int> msmetadata::_idsFromExpansion(
 	const std::map<String, std::set<uInt> >& mymap, const String& matchString
 ) {
 	std::set<Int> ids;
-	boost::regex re;
+	std::regex re;
 	re.assign(_escapeExpansion(matchString));
 	for(auto kv : mymap) {
-		if (boost::regex_match(kv.first, re)) {
+		if (std::regex_match(kv.first, re)) {
 			ids.insert(kv.second.begin(), kv.second.end());
 		}
 	}
@@ -2419,10 +2419,10 @@ std::vector<casacore::String> msmetadata::_match(
 	const vector<casacore::String>& candidates, const casacore::String& matchString
 ) {
 	vector<casacore::String> matches;
-	boost::regex re;
+	std::regex re;
 	re.assign(_escapeExpansion(matchString));
 	for(auto candidate : candidates) {
-		if (boost::regex_match(candidate, re)) {
+		if (std::regex_match(candidate, re)) {
 			matches.push_back(candidate);
 		}
 	}
@@ -2430,15 +2430,15 @@ std::vector<casacore::String> msmetadata::_match(
 }
 
 std::string msmetadata::_escapeExpansion(const casacore::String& stringToEscape) {
-	const boost::regex esc("[\\^\\.\\$\\|\\(\\)\\[\\]\\+\\?\\/\\\\]");
+	const std::regex esc("[\\^\\.\\$\\|\\(\\)\\[\\]\\+\\?\\/\\\\]");
 	const std::string rep("\\\\\\1");
 	std::string result = regex_replace(
-		stringToEscape, esc, rep, boost::match_default | boost::format_sed
+		stringToEscape, esc, rep, std::regex_constants::match_default | std::regex_constants::format_sed
 	);
-	const boost::regex expand("\\*");
+	const std::regex expand("\\*");
 	const std::string rep1(".*");
 	return regex_replace(
-		result, expand, rep1, boost::match_default | boost::format_sed
+		result, expand, rep1, std::regex_constants::match_default | std::regex_constants::format_sed
 	);
 }
 
