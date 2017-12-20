@@ -1781,7 +1781,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 					if (isCalTable && PMS::axisIsData(y))
 						y = getCalAxis(calTypes(i), y);
 					yAxes.push_back(y);  // save for title
-					PlotAxis cy = plotAxisParams->yAxis( i );
+					PlotAxis cy = plotAxisParams->yAxis( j );
 					bool yref = plotCacheBase.hasReferenceValue(y);
 					yRefs.push_back(yref); // save for title
 					double yrefval = plotCacheBase.referenceValue(y);
