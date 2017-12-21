@@ -509,6 +509,7 @@ print me.comettopo()
      <param type="string" direction="in" name="v">
      <description>name of a table</description>
      <value></value>
+     <type mustexist="true">path</type>
      </param>
 </input>
 <returns type="bool"></returns>

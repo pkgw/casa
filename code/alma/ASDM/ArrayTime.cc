@@ -125,7 +125,7 @@ namespace asdm {
    * @return A new Time formed by adding an Interval
    * to the specified Time. 
    */
-  ArrayTime ArrayTime::add(const ArrayTime &time, const Interval &) {
+  ArrayTime ArrayTime::add(const ArrayTime &time, const Interval & /* interval */) {
     ArrayTime t(time);
     //t.add(interval);
     return t;
@@ -139,7 +139,7 @@ namespace asdm {
    * @return A new Time formed by subtracting an Interval
    * from the specified Time. 
    */
-  ArrayTime ArrayTime::sub(const ArrayTime &time, const Interval &) {
+  ArrayTime ArrayTime::sub(const ArrayTime &time, const Interval & /* interval */) {
     ArrayTime t(time);
     //t.sub(interval);
     return t;

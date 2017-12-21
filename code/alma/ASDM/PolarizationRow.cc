@@ -918,11 +918,13 @@ void PolarizationRow::corrProductFromBin(EndianIStream& eis) {
 	 * Return true if all required attributes of the value part are equal to their homologues
 	 * in x and false otherwise.
 	 *
+
 	 * @param x a pointer on the PolarizationRow whose required attributes of the value part 
+
 	 * will be compared with those of this.
 	 * @return a boolean.
 	 */
-	bool PolarizationRow::equalByRequiredValue(PolarizationRow* x) {
+	bool PolarizationRow::equalByRequiredValue(PolarizationRow*  x ) {
 		
 			
 		if (this->numCorr != x->numCorr) return false;

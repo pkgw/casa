@@ -101,6 +101,7 @@ namespace casa {
 			     casacore::Complex*& convWeights, const casacore::Double pixXdir, const casacore::Double pixYdir, 
 			     casacore::Int convSize, const casacore::Int ndishpair, const casacore::Int nchan, const casacore::Int nPol);
    void fillConjConvFunc(const casacore::Vector<casacore::Double>& beamFreqs);
+   casacore::Int conjSupport(const casacore::Vector<casacore::Double>& beamFreqs);
       casacore::Int factorial(casacore::Int n);
       // the return value are -1 or false for not in cache yet but pointing direction 
       //seems to be inside image

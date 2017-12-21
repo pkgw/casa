@@ -2355,12 +2355,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
    
   }// end of predictModel
 
-  /*
-  void SynthesisImager::makeImage()
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  void SynthesisImager::makeSdImage(Bool dopsf)
   {
-    LogIO os( LogOrigin("SynthesisImager","makeImage",WHERE) );
+    LogIO os( LogOrigin("SynthesisImager","makeSdImage",WHERE) );
 
-    Bool dopsf=false;
+//    Bool dopsf=false;
     if(datacol_p==FTMachine::PSF) dopsf=true;
 
     {
@@ -2389,8 +2389,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     unlockMSs();
 
-  }// end makeImage
-  */
+  }// end makeSdImage
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
  

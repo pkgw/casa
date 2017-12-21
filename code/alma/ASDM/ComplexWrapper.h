@@ -21,7 +21,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307  USA
  *
- * File ComplexWrapper.h
+ * File Complex.h
  */
 
 #ifndef Complex_CLASS
@@ -61,8 +61,7 @@ namespace asdm {
  * @author Michel Caillat 
  * added toBin/fromBin methods.
  */
-
-    class Complex : public std::complex<double> {
+class Complex : public std::complex<double> {
 
 public:
 	static Complex fromString(const string&) throw(NumberFormatException);
@@ -146,7 +145,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of vector of Complex
 	 */	 
-	 static vector<vector<vector<Complex> > > from3DBin(EndianIStream & eis);
+	 static vector<vector<vector<Complex> > > from3DBin(EndianIStream & eis);	 
 
 };
 

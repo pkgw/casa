@@ -221,6 +221,7 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
     convSizes_p.resize(0, true);
     convSupportBlock_p.resize(0, true);
     convFunctionMap_p.clear();
+   vbConvIndex_p.clear(); 
   }
 
 
@@ -252,9 +253,16 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
       return ant1PointingCache_p[ant1PointVal_p[elkey]];
 
     }
+    Bool hasValidPointing=False;
+    if(Table::isReadable(vb.ms().pointingTableName())){
+      hasValidPointing=(vb.ms().pointing().nrow() >0);
+    }
     Int val=ant1PointingCache_p.nelements();
     ant1PointingCache_p.resize(val+1, true);
-    ant1PointingCache_p[val]=vb.direction1()[0];
+    if(hasValidPointing)
+      ant1PointingCache_p[val]=vb.direction1()[0];
+    else
+      ant1PointingCache_p[val]=vbutil_p->getPhaseCenter(vb);
     //ant1PointingCache_p[val]=vbUtil_p.getPointingDir(vb, vb.antenna1()(0), 0);
     ant1PointVal_p[elkey]=val;
     return ant1PointingCache_p[val];
