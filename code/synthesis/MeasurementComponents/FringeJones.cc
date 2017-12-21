@@ -1278,6 +1278,38 @@ expb_hess(gsl_vector *param, AuxParamBundle *bundle, gsl_matrix *hess, Double xi
     return 1;
 }
 
+// Stolen from SolveDataBuffer
+void
+aggregateTimeCentroid(SDBList& sdbs, Int refAnt, std::map<Int, Double>& aggregateTime) {
+    // Weighted average of SDBs' timeCentroids
+    std::map<Int, Double> aggregateWeight;
+    for (Int i=0; i < sdbs.nSDB(); ++i) {
+        SolveDataBuffer& s = sdbs(i);
+        Vector<Double> wtvD;
+        // Sum over correlations and channels to get a vector of weights for each row
+        Vector<Float> wtv(partialSums(s.weightSpectrum(), IPosition(2, 0, 1)));
+        wtvD.resize(wtv.nelements());
+        convertArray(wtvD, wtv);
+        for (Int j=0; j<s.nRows(); j++) {
+            Int a1 = s.antenna1()(j);
+            Int a2 = s.antenna2()(j);
+            Int ant;
+            if (a1 == refAnt) { ant = a2; }
+            else if (a2 == refAnt) { ant = a1; }
+            else continue;
+            Double w = wtv(j);
+            aggregateTime[ant] += w*s.timeCentroid()(j);
+            aggregateWeight[ant] += w;
+        }
+    }
+    for (auto it=aggregateTime.begin(); it!=aggregateTime.end(); ++it) {
+        Int a = it->first;
+        it->second /= aggregateWeight[a];
+    }
+
+}
+
+
 
 void
 least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Float>& casa_snr, Int refant,
@@ -1663,7 +1695,6 @@ void FringeJones::calcAllJones() {
 
   Double phase;
   for (Int iant=0; iant<nAnt(); iant++) {
-
     for (Int ich=0; ich<nChanMat(); ich++) {
       
       oneJones.reference(Jiter.array());
@@ -1743,24 +1774,20 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
     ROMSSpWindowColumns spwCol(msSpw);
     spwCol.refFrequency().getColumn(myRefFreqs, true);
     Double ref_freq = myRefFreqs(currSpw());
-    Double ref_time = refTime();
-    Double dt0 = (ref_time - sdbs(0).time()(0));
+    Double t0 = sdbs(0).time()(0);
+    Double dt0 = refTime() - t0;
     Double df0 = ref_freq - sdbs.freqs()(0);
 
     logSink() << "Solving for fringes for spw=" << currSpw() << " at t="
               << MVTime(refTime()/C::day).string(MVTime::YMD,7)  << LogIO::POST;
-    
-    // ROMSSpWindowColumns are a casacore type!
-    // http://casacore.github.io/casacore/classcasacore_1_1ROMSSpWindowColumns.html
 
+    std::map<Int, Double> aggregateTime;
+    aggregateTimeCentroid(sdbs, refant(), aggregateTime);
 
-    /* We'd like to learn about the spectral windows in the actual
-     * dataset but I haven't succeeded yet. */
-    // cerr << "nSpw() " << nSpw() << " nelements() " << spwMap().nelements() << endl;
-    // cerr << "spwMap() " << endl;
-    // cerr << "combine() " << combine() << endl;
-    // cerr << "combspw() " << combspw() << endl;
-    // throw(AipsError("That's quite enough of that."));
+    std::cerr << "Weighted time centroids" << endl; 
+    for (auto it=aggregateTime.begin(); it!=aggregateTime.end(); ++it)
+        std::cerr << it->first << " => " << it->second - t0 << std::endl;
+        
     
     if (0) {
         /* The MSSpectralWindow above is constructed from the
@@ -1798,11 +1825,16 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
         }
         throw(AipsError("That's quite enough of that."));
     }
+
+    cerr << "Here" << endl;
     
     // Pausing here:
     // throw(AipsError("Just checking ref values."));
     // the values seemed reasonable
+
+    // DelayRateFFT constructor currently segfaults, which is nice?
     DelayRateFFT drf( sdbs, refant());
+    cerr << "Here?" << endl;
     drf.FFT(); 
     // logSink() << "FFT completed." << LogIO::POST;
     drf.searchPeak();
@@ -1815,6 +1847,7 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
     // Map from MS antenna number to index
     // transcribe fft results to sRP
     Int ncol = drf.param().ncolumn();
+
     for (Int i=0; i!=ncol; i++) {
         IPosition start(2, 0,                  i);
         IPosition stop( 2, drf.param().nrow(), 1);
@@ -1830,6 +1863,7 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
 
     // cerr << "(Reminder:) Current spectral window =" << currSpw() << endl;
     calculateSNR(nCorr, drf);
+    cerr << "Not here" << endl;
 
     set<Int> belowThreshold;
     // In the Python interface there is a parameter minsnr.
@@ -1892,12 +1926,22 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
             Double rate = sRP(3*icor + 2, iant);
             // Double delta1 = df0*delay;
             // Double delta1 = 0.5*df_bootleg*delay/1e9;
+            auto it = aggregateTime.find(iant);
             Double delta1 = 0.0; // Temporary hack
             Double delta2 = ref_freq*dt0*rate;
             Double delta3 = C::_2pi*(delta1+delta2);
-            // logSink() << "Antenna " << iant << ": phi0 " << phi0 << " delay " << delay << " rate " << rate << endl
-            //           << "Adding corrections for frequency (" << 360*delta1 << ")"
-            //           << " and time (" << 360*delta2 << ") degrees." << LogIO::POST;
+            Double dt;
+            auto p = aggregateTime.find(iant);
+            if (zeroRates() && p != aggregateTime.end()) {
+                dt = p->second - t0;
+            } else {
+                dt = refTime() - t0;
+            }
+            cerr << "Antenna " << iant << ": phi0 " << phi0 << " delay " << delay << " rate " << rate << " dt " << dt << endl
+                 << "dt " << dt << endl
+                 << "Ref freq. "<< ref_freq << " Adding corrections for frequency (" << 360*delta1 << ")" 
+                 << " and time (" << 360*delta2 << ") degrees." << endl;
+
             sRP(3*icor + 0, iant) += delta3;
          }
     }
@@ -1912,9 +1956,6 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
             }
         }
     }
-
-
-
 }
 
 void
