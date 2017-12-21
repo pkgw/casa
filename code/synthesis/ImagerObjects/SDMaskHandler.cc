@@ -1489,7 +1489,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         //  savedPostPrunedMask.copyData(tempmask);
         //}
     }
-    else {
+    else { // No pruning case
       //themask = LatticeExpr<Float> ( iif( res > maskThreshold, 1.0, 0.0 ));
         makeMaskByPerChanThreshold(res, tempmask, maskThreshold); 
         if (debug) {
@@ -1715,6 +1715,32 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     PagedImage<Float> tempthemask(TiledShape(tempIm_ptr.get()->shape()), tempIm_ptr.get()->coordinates(),"tempthemask.Im");
     tempthemask.copyData(themask);
     ***/
+
+    // *** CAS-10798 ***
+    // stopmask implementation here?
+    // stopmask(previous_mask,current_mask, maskChans) maskChans a vector? stores boolean for each channel 
+    // initially set maskChans all False but later (CAS-10960) this will be set by a user.
+    // ****
+    // chanMask : float or int cube with 1 or 0: 1 means flag the channel, will be used in creating final mask
+    // if maskChans(i) = false, i th channel plane will be set to all zero so it will skip
+    // Do iteration by channel, slice the cube,
+    // First check no mask channels
+    // for (Int ichan=0; ichan<nchan, ichan++) {
+    //    if (isEmptyMask(current_mask)) 
+    //          then, do : maskChans(i)=true
+    //     else
+    //       Array<Float> prevmaskdata;
+    //       Array<Float> curmaskdata;
+    //       previous_mask.doGetSlice(prevmaskdata,slall);
+    //       current_mask.doGetSlice(curmaskdata,slall);
+    //       Float prevnpix = sum(prevmaskdata);
+    //       Float curnpix = sum(curmaskdata);
+    //       Float fracPixelChange = (curnpix - prevnpix)/prevnpix 
+    //         if (fracPixelChange<inFracMaskChange) {
+    //           maskChans(i) = true; //Flag true
+    //           // also set current mask image to zero
+    //         } 
+    // }
 
     // In the initial iteration, if no mask is created (all spectral planes) by automask it will fall back to full clean mask
     /***
