@@ -187,6 +187,7 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_tsdfit.py
   test_tsdimaging.py
   test_tsdsmooth.py
+  test_sdsidebandsplit.py
 
   ### CASAGUIDES ###
   test_FirstLook_Imaging.py
