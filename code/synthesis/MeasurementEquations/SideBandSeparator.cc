@@ -22,10 +22,6 @@
 using namespace std ;
 using namespace casacore ;
 
-//#ifndef KS_DEBUG
-//#define KS_DEBUG
-//#endif
-
 namespace casa {
 
 // constructors
@@ -199,10 +195,8 @@ Vector<float> SideBandSeparatorBase::solve(const Matrix<float> &specmat,
     throw(AipsError("Internal error. The channel size of input matrix is not conformant."));
 
 
-#ifdef KS_DEBUG
-  cout << "Solving " << (signal ? "SIGNAL" : "IMAGE") << " sideband."
-     << endl;
-#endif
+  os << LogIO::DEBUG1 << "Solving " << (signal ? "SIGNAL" : "IMAGE") << " sideband."
+     << LogIO::POST;
 
   const size_t nspec = inIdvec.size();
   vector<double> *thisShift, *otherShift;
@@ -210,16 +204,12 @@ Vector<float> SideBandSeparatorBase::solve(const Matrix<float> &specmat,
     // (solve signal && solveother = T) OR (solve image && solveother = F)
     thisShift = &imgShift_;
     otherShift = &sigShift_;
-#ifdef KS_DEBUG
-    cout << "Image sideband will be deconvolved." << endl;
-#endif
+    os << LogIO::DEBUG1 << "Image sideband will be deconvolved." << LogIO::POST;
   } else {
     // (solve signal && solveother = F) OR (solve image && solveother = T)
     thisShift =  &sigShift_;
     otherShift = &imgShift_;
-#ifdef KS_DEBUG
-    cout << "Signal sideband will be deconvolved." << endl;
-#endif
+    os << LogIO::DEBUG1 << "Signal sideband will be deconvolved." << LogIO::POST;
  }
 
   vector<double> spshift(nspec);
@@ -239,23 +229,20 @@ Vector<float> SideBandSeparatorBase::solve(const Matrix<float> &specmat,
   vector<float> thisvec(nchan_, 0.);
 
   float minval, maxval;
-  minMax(minval, maxval, shiftSpecmat);
-#ifdef KS_DEBUG
-  cout << "Max/Min of input Matrix = (max: " << maxval << ", min: " << minval << ")" << endl;
-#endif
+  {//Debug
+	  minMax(minval, maxval, shiftSpecmat);
+	  os << LogIO::DEBUG1 << "Max/Min of input Matrix = (max: " << maxval
+			  << ", min: " << minval << ")" << LogIO::POST;
+  }
 
-#ifdef KS_DEBUG
-  cout << "starting deconvolution" << endl;
-#endif
+  os << LogIO::DEBUG1 <<  "starting deconvolution" << LogIO::POST;
   deconvolve(shiftSpecmat, spshift, rejlimit_, convmat);
-#ifdef KS_DEBUG
-  cout << "finished deconvolution" << endl;
-#endif
 
-  minMax(minval, maxval, convmat);
-#ifdef KS_DEBUG
-  cout << "Max/Min of output Matrix = (max: " << maxval << ", min: " << minval << ")" << endl;
-#endif
+  {//Debug
+	  minMax(minval, maxval, convmat);
+	  os << LogIO::DEBUG1 <<  "Max/Min of output Matrix = (max: " << maxval
+			  << ", min: " << minval << ")" << LogIO::POST;
+  }
 
   aggregateMat(convmat, thisvec);
 
@@ -278,9 +265,7 @@ void SideBandSeparatorBase::shiftSpectrum(const Vector<float> &invec,
   if (outvec.size() != nchan_)
     throw(AipsError("Internal error. The length of output vector differs from nchan_"));
 
-#ifdef KS_DEBUG
-  cout << "Start shifting spectrum for " << shift << " channels" << endl;
-#endif
+//  cout <<  "Start shifting spectrum for " << shift << " channels" << endl;
 
   // tweak shift to be in 0 ~ nchan_-1
   if ( fabs(shift) > nchan_ ) shift = fmod(shift, nchan_);
@@ -297,15 +282,14 @@ void SideBandSeparatorBase::shiftSpectrum(const Vector<float> &invec,
     rchan = ( (lchan + 1) % nchan_ );
     outvec(lchan) += invec(i) * lweight;
     outvec(rchan) += invec(i) * rweight;
-#ifdef KS_DEBUG
-    if (i == 2350 || i== 2930) {
-      cout << "Channel= " << i << " of input vector: " << endl;
-      cout << "L channel = " << lchan << endl;
-      cout << "R channel = " << rchan << endl;
-      cout << "L weight = " << lweight << endl;
-      cout << "R weight = " << rweight << endl;
-    }
-#endif
+
+//    if (i == 2350 || i== 2930) {
+//      cout << "Channel= " << i << " of input vector: " << endl;
+//      cout << "L channel = " << lchan << endl;
+//      cout << "R channel = " << rchan << endl;
+//      cout << "L weight = " << lweight << endl;
+//      cout << "R weight = " << rweight << endl;
+//    }
   }
 };
 
@@ -320,9 +304,7 @@ void SideBandSeparatorBase::shiftFlag(const Vector<bool> &invec,
   if (outvec.size() != nchan_)
     throw(AipsError("Internal error. The length of output vector differs from nchan_"));
 
-#ifdef KS_DEBUG
-  cout << "Start shifting flag for " << shift << "channels" << endl;
-#endif
+//  cout << "Start shifting flag for " << shift << "channels" << endl;
 
   // shift is almost integer think it as int.
   // tolerance should be in 0 - 1
@@ -352,15 +334,14 @@ void SideBandSeparatorBase::shiftFlag(const Vector<bool> &invec,
     rchan = ( (lchan + 1) % nchan_ );
     outvec(lchan) |= (invec(i) && luse);
     outvec(rchan) |= (invec(i) && ruse);
-#ifdef KS_DEBUG
-    if (i == 2350 || i == 2930) {
-      cout << "Channel= " << i << " of input vector: " << endl;
-      cout << "L channel = " << lchan << endl;
-      cout << "R channel = " << rchan << endl;
-      cout << "L channel will be " << (luse ? "used" : "ignored") << endl;
-      cout << "R channel will be " << (ruse ? "used" : "ignored") << endl;
-    }
-#endif
+
+//    if (i == 2350 || i == 2930) {
+//      cout << "Channel= " << i << " of input vector: " << endl;
+//      cout << "L channel = " << lchan << endl;
+//      cout << "R channel = " << rchan << endl;
+//      cout << "L channel will be " << (luse ? "used" : "ignored") << endl;
+//      cout << "R channel will be " << (ruse ? "used" : "ignored") << endl;
+//    }
   }
 };
 
@@ -376,13 +357,12 @@ void SideBandSeparatorBase::deconvolve(Matrix<float> &specmat,
   if (specmat.ncolumn() != shiftvec.size())
     throw(AipsError("Internal error. The number of input shifts and spectrum  differs."));
 
-#ifdef KS_DEBUG
   float minval, maxval;
-#endif
-#ifdef KS_DEBUG
-  minMax(minval, maxval, specmat);
-  cout << "Max/Min of input Matrix = (max: " << maxval << ", min: " << minval << ")" << endl;
-#endif
+  {//Debug
+	  minMax(minval, maxval, specmat);
+	  os << LogIO::DEBUG1 <<  "Max/Min of input Matrix = (max: " << maxval
+			  << ", min: " << minval << ")" << LogIO::POST;
+  }
 
   uInt ninsp = shiftvec.size();
   outmat.resize(nchan_, ninsp*(ninsp-1)/2, 0.);
@@ -392,33 +372,20 @@ void SideBandSeparatorBase::deconvolve(Matrix<float> &specmat,
   uInt icol = 0;
   unsigned int nreject = 0;
 
-#ifdef KS_DEBUG
-  cout << "Starting initial FFT. The number of input spectra = " << ninsp << endl;
-  cout << "out matrix has ncolumn = " << outmat.ncolumn() << endl;
-#endif
+  os << LogIO::DEBUG1 <<  "Starting initial FFT. The number of input spectra = " << ninsp << LogIO::POST;
+  os << LogIO::DEBUG1 <<  "out matrix has ncolumn = " << outmat.ncolumn() << LogIO::POST;
 
   for (uInt isp = 0 ; isp < ninsp ; isp++) {
     rvecref.reference( specmat.column(isp) );
     cvecref.reference( fftspmat.column(isp) );
 
-#ifdef KS_DEBUG
-    minMax(minval, maxval, rvecref);
-    cout << "Max/Min of inv FFTed Matrix = (max: " << maxval << ", min: " << minval << ")" << endl;
-#endif
+    {//Debug
+    	minMax(minval, maxval, rvecref);
+    	os << LogIO::DEBUG1 << "Max/Min of inv FFTed Matrix = (max: " << maxval
+    			<< ", min: " << minval << ")" << LogIO::POST;
+    }
 
     fftsf.fft0(cvecref, rvecref, true);
-
-#ifdef KS_DEBUG
-    double maxr=cvecref[0].real(), minr=cvecref[0].real(),
-      maxi=cvecref[0].imag(), mini=cvecref[0].imag();
-    for (uInt i = 1; i<cvecref.size();i++){
-      maxr = max(maxr, cvecref[i].real());
-      maxi = max(maxi, cvecref[i].imag());
-      minr = min(minr, cvecref[i].real());
-      mini = min(mini, cvecref[i].imag());
-    }
-    cout << "Max/Min of inv FFTed Matrix (size=" << cvecref.size() << ") = (max: " << maxr << " + " << maxi << "j , min: " << minr << " + " << mini << "j)" << endl;
-#endif
   }
 
   //Liberate from reference
@@ -428,69 +395,42 @@ void SideBandSeparatorBase::deconvolve(Matrix<float> &specmat,
   const double PI = 6.0 * asin(0.5);
   const double nchani = 1. / (float) nchan_;
   const Complex trans(0., 1.);
-#ifdef KS_DEBUG
-  cout << "starting actual deconvolution" << endl;
-#endif
+
+  os << LogIO::DEBUG1 <<  "starting actual deconvolution" << LogIO::POST;
   for (uInt j = 0 ; j < ninsp ; j++) {
     for (uInt k = j+1 ; k < ninsp ; k++) {
       const double dx = (shiftvec[k] - shiftvec[j]) * 2. * PI * nchani;
 
-#ifdef KS_DEBUG
-      cout << "icol = " << icol << endl;
-#endif
-
       for (uInt ichan = 0 ; ichan < cspec.size() ; ichan++){
-	cspec[ichan] = ( fftspmat(ichan, j) + fftspmat(ichan, k) )*0.5;
-	double phase = dx*ichan;
-	if ( fabs( sin(phase) ) > threshold){
-	  cspec[ichan] += ( fftspmat(ichan, j) - fftspmat(ichan, k) ) * 0.5
-			  * trans * cos(0.5*phase) / sin(0.5*phase);
-//	    * trans * sin(phase) / ( 1. - cos(phase) );
-	} else {
-	  nreject++;
-	}
+    	  cspec[ichan] = ( fftspmat(ichan, j) + fftspmat(ichan, k) )*0.5;
+    	  double phase = dx*ichan;
+    	  if ( fabs( sin(phase) ) > threshold){
+    		  cspec[ichan] += ( fftspmat(ichan, j) - fftspmat(ichan, k) ) * 0.5
+    				  * trans * cos(0.5*phase) / sin(0.5*phase);
+//	                    * trans * sin(phase) / ( 1. - cos(phase) );
+    	  } else {
+    		  nreject++;
+    	  }
       } // end of channel loop
-
-#ifdef KS_DEBUG
-      cout << "done calculation of cspec" << endl;
-#endif
+//      os << LogIO::DEBUG1 <<  "done calculation of cspec" << LogIO::POST;
 
       Vector<Float> rspec;
       rspec.reference( outmat.column(icol) );
 
-#ifdef KS_DEBUG
-      cout << "Starting inverse FFT. icol = " << icol << endl;
-      //cout << "- size of complex vector = " << cspec.size() << endl;
-      double maxr=cspec[0].real(), minr=cspec[0].real(),
-	maxi=cspec[0].imag(), mini=cspec[0].imag();
-      for (uInt i = 1; i<cspec.size();i++){
-	maxr = max(maxr, cspec[i].real());
-	maxi = max(maxi, cspec[i].imag());
-	minr = min(minr, cspec[i].real());
-	mini = min(mini, cspec[i].imag());
-      }
-      cout << "Max/Min of conv vector (size=" << cspec.size() << ") = (max: " << maxr << " + " << maxi << "j , min: " << minr << " + " << mini << "j)" << endl;
-#endif
-
+//      os << LogIO::DEBUG1 <<  "Starting inverse FFT. icol = " << icol << LogIO::POST;
       fftsi.fft0(rspec, cspec, false);
-
-#ifdef KS_DEBUG
-      //cout << "- size of inversed real vector = " << rspec.size() << endl;
-      minMax(minval, maxval, rspec);
-      cout << "Max/Min of inv FFTed Vector (size=" << rspec.size() << ") = (max: " << maxval << ", min: " << minval << ")" << endl;
-      //cout << "Done inverse FFT. icol = " << icol << endl;
-#endif
 
       icol++;
     }
   }
 
-#ifdef KS_DEBUG
-  minMax(minval, maxval, outmat);
-  cout << "Max/Min of inv FFTed Matrix = (max: " << maxval << ", min: " << minval << ")" << endl;
-#endif
+  {//Debug
+	  minMax(minval, maxval, outmat);
+	  os << LogIO::DEBUG1 <<  "Max/Min of inv FFTed Matrix = (max: " << maxval << ", min: " << minval << ")" << LogIO::POST;
+  }
 
-  os << LogIO::DEBUG1 << "Threshold = " << threshold << ", Rejected channels = " << nreject << endl;
+  os << LogIO::DEBUG1 << "Threshold = " << threshold
+		  << ", Rejected channels = " << nreject << LogIO::POST;
 };
 
 
