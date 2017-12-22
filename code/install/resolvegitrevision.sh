@@ -109,11 +109,17 @@ elif [[ $branch =~ ^release\/.* ]];then
 else
     #echo "Resolving branch"
     # Using parameter expansion to split the strings
-    b1=${branch%/*} # part before the slash
-    b2=${branch##*/} # rpart after the slash
-    tagMatcher=$b1-$b2
-    if [[ $CASABRANCHHINT =~ ^CAS.* ]] ; then
-        tagMatcher=$CASABRANCHHINT
+    # Replace slash in branch name with dash for tags
+    if [[ $string == *"/"* ]]; then
+        b1=${branch%/*} # part before the slash
+        b2=${branch##*/} # rpart after the slash
+        tagMatcher=$b1-$b2
+        #echo "b1: $b1"
+        #echo "b2: $b2"
+    # If there is no slash use the branch name as is
+    else
+        tagMatcher=$branch
+        #echo $tagMatcher
     fi
     branchTag=`git tag --points-at HEAD | grep \\\-$tagMatcher- | xargs`
     if [[ -z "${branchTag// }" ]]; then
