@@ -123,7 +123,7 @@ class CalDataRow;
  * This table describes the data used to derive the calibration results.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of CalData </CAPTION>
@@ -180,7 +180,7 @@ class CalDataRow;
  * </TR>
 	
  * <TR>
- * <TD> numScan </TD> 
+ * <TD> numScan (\f$N_{Scan}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of scans (in this Execution Block). </TD>
@@ -198,42 +198,42 @@ class CalDataRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> assocCalDataId </TD> 
+ * <TD> assocCalDataId</TD> 
  * <TD> Tag </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; refers to an associate row in CalDataTable. </TD>
  * </TR>
 	
  * <TR>
- * <TD> assocCalNature </TD> 
+ * <TD> assocCalNature</TD> 
  * <TD> AssociatedCalNatureMod::AssociatedCalNature </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; identifies the nature of the relation with the associate row in CalDataTable. </TD>
  * </TR>
 	
  * <TR>
- * <TD> fieldName </TD> 
+ * <TD> fieldName</TD> 
  * <TD> vector<string > </TD>
  * <TD>  numScan  </TD>
  * <TD>&nbsp; the names of the fields (one name per scan). </TD>
  * </TR>
 	
  * <TR>
- * <TD> sourceName </TD> 
+ * <TD> sourceName</TD> 
  * <TD> vector<string > </TD>
  * <TD>  numScan  </TD>
  * <TD>&nbsp; the names of the sources as given during observations (one source name per scan). </TD>
  * </TR>
 	
  * <TR>
- * <TD> sourceCode </TD> 
+ * <TD> sourceCode</TD> 
  * <TD> vector<string > </TD>
  * <TD>  numScan  </TD>
  * <TD>&nbsp; the special characteristics of sources expressed in a textual form (one string per scan). </TD>
  * </TR>
 	
  * <TR>
- * <TD> scanIntent </TD> 
+ * <TD> scanIntent</TD> 
  * <TD> vector<ScanIntentMod::ScanIntent > </TD>
  * <TD>  numScan  </TD>
  * <TD>&nbsp; identifies the intents of  the scans (one value per scan). </TD>
@@ -513,6 +513,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

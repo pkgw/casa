@@ -123,7 +123,7 @@ namespace refim{ //namespace for imaging refactor
       virtual void setWeightImage(casacore::CountedPtr<casacore::TempImage<casacore::Float> >& wgtimage);
 
       virtual void setSkyJones(SkyJones* sj);
-
+      virtual void setVBUtil(casacore::CountedPtr<VisBufferUtil> vbutil) {vbutil_p=vbutil;};
       casacore::Bool findSupport(casacore::Array<casacore::Complex>& /*func*/, casacore::Float& /*threshold*/,casacore::Int& /*origin*/, casacore::Int& /*R*/) 
       {throw(casacore::AipsError("SimplePBConvFunc::findSupport() not implemented"));};
       virtual casacore::Bool makeAverageResponse(const vi::VisBuffer2& /*vb*/, 
@@ -171,7 +171,8 @@ namespace refim{ //namespace for imaging refactor
       virtual void toPix(const vi::VisBuffer2& vb);
       FFT2D ft_p;
       casacore::CountedPtr<casacore::TempImage<casacore::Float> > convWeightImage_p;
-	  casacore::String bandName_p;
+      casacore::String bandName_p;
+      casacore::CountedPtr<VisBufferUtil> vbutil_p;
     private:
       casacore::Bool checkPBOfField(const vi::VisBuffer2& vb);
       void addPBToFlux(const vi::VisBuffer2& vb);

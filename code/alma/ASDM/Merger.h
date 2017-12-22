@@ -228,6 +228,12 @@
 #include "CalAppPhaseTable.h"
 #include "CalAppPhaseRow.h"
 
+#include "DelayModelFixedParametersTable.h"
+#include "DelayModelFixedParametersRow.h"
+
+#include "DelayModelVariableParametersTable.h"
+#include "DelayModelVariableParametersRow.h"
+
 
 
 /*\file "Merger.h"
@@ -380,6 +386,10 @@ namespace asdm {
 			bool hasMergedSysPower;	
 
 			bool hasMergedCalAppPhase;	
+
+			bool hasMergedDelayModelFixedParameters;	
+
+			bool hasMergedDelayModelVariableParameters;	
 			
 
 
@@ -575,6 +585,12 @@ namespace asdm {
 			void mergeCalAppPhase();
 			void postMergeCalAppPhase();			
 
+			void mergeDelayModelFixedParameters();
+			void postMergeDelayModelFixedParameters();			
+
+			void mergeDelayModelVariableParameters();
+			void postMergeDelayModelVariableParameters();			
+
 
 
 		void (Merger::*mergeSBSummaryPtr) () ;
@@ -704,6 +720,10 @@ namespace asdm {
 		void (Merger::*mergeSysPowerPtr) () ;
 
 		void (Merger::*mergeCalAppPhasePtr) () ;
+
+		void (Merger::*mergeDelayModelFixedParametersPtr) () ;
+
+		void (Merger::*mergeDelayModelVariableParametersPtr) () ;
 
 	};
 } // End namespace asdm

@@ -34,8 +34,8 @@
 #include <gtest/gtest.h>
 
 #include <casa/Arrays/Vector.h>
-#include <synthesis/MeasurementComponents/SDPosInterpolator.h>
 #include <tables/Tables/Table.h>
+#include <synthesis/Utilities/SDPosInterpolator.h>
 
 using namespace casacore;
 using namespace casa;

@@ -37,7 +37,6 @@ namespace asdm {
  * A collection of static methods to perform conversions
  * between strings and int64_t values.
  */
-
 class Long {
 
 public:

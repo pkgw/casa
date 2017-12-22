@@ -41,11 +41,11 @@
 
 
 	
-#include <ArrayTime.h>
+#include <ArrayTimeInterval.h>
 	
 
 	
-#include <ArrayTimeInterval.h>
+#include <ArrayTime.h>
 	
 
 
@@ -158,7 +158,7 @@ A triple with all its elements equal to 0.0 will mean that a geocentric coordina
  * </TR>
 	
  * <TR>
- * <TD> numPolyDir </TD> 
+ * <TD> numPolyDir (\f$N_{Poly}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of coefficients of the polynomial stored in phaseDir. It has to be \f$ \ge 1 \f$.  </TD>
@@ -181,7 +181,7 @@ where
  * </TR>
 	
  * <TR>
- * <TD> numPolyDist </TD> 
+ * <TD> numPolyDist (\f$N_{Poly}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of coefficients of the polynomial stored in distance. It has to be \f$ \ge 1 \f$.  </TD>
@@ -220,14 +220,14 @@ where
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> numPolyRadVel </TD> 
+ * <TD> numPolyRadVel(\f$N_{Poly}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of coefficients of the polynomial stored in radVel . It has to be \f$ \ge 1 \f$.  </TD>
  * </TR>
 	
  * <TR>
- * <TD> radVel </TD> 
+ * <TD> radVel</TD> 
  * <TD> vector<double > </TD>
  * <TD>  numPolyRadVel  </TD>
  * <TD>&nbsp;  the coefficients of a polynomial expressing a radial velocity as a function of the time expressed in m/s. The time origin used to tabulate the polynomial is stored in timeOrigin.   </TD>
@@ -541,6 +541,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 
