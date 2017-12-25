@@ -172,6 +172,16 @@ class sdimaging_unittest_base(unittest.TestCase, sdimaging_standard_paramset):
         isthere=os.path.exists(name)
         self.assertEqual(isthere,True,
                          msg='output file %s was not created because of the task failure'%(name))
+        
+    def _checkframe(self, name):
+        _ia.open(name)
+        csys = _ia.coordsys()
+        _ia.close()
+        spectral_frames = csys.referencecode('spectral')
+        csys.done()
+        self.assertEqual(1, len(spectral_frames))
+        spectral_frame = spectral_frames[0]
+        self.assertEqual('LSRK', spectral_frame)
 
     def _checkshape(self,name,nx,ny,npol,nchan):
         self._checkfile(name)
