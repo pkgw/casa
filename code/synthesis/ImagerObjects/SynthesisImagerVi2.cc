@@ -100,25 +100,6 @@ using namespace std;
 
 using namespace casacore;
 
-namespace {
-String tangentPoint(MDirection const &phaseCenter)
-{
-  MVAngle mvRa=phaseCenter.getAngle().getValue()(0);
-  MVAngle mvDec=phaseCenter.getAngle().getValue()(1);
-  ostringstream oos;
-  oos << "     ";
-  Int widthRA=20;
-  Int widthDec=20;
-  oos.setf(ios::left, ios::adjustfield);
-  oos.width(widthRA);  oos << mvRa(0.0).string(MVAngle::TIME,8);
-  oos.width(widthDec); oos << mvDec.string(MVAngle::DIG2,8);
-  oos << "     "
-      << MDirection::showType(phaseCenter.getRefPtr()->getType());
-  return String(oos);
-}
-
-}
-
 namespace casa { //# NAMESPACE CASA - BEGIN
 
   SynthesisImagerVi2::SynthesisImagerVi2() : SynthesisImager(), vi_p(0), fselections_p(nullptr) {
@@ -212,10 +193,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     TableExprNode exprNode=thisSelection.toTableExprNode(&thisms);
     if(!(exprNode.isNull()))
       {
-	mss_p.resize(mss_p.nelements()+1, false, true);
+	
     
 	MeasurementSet thisMSSelected0 = MeasurementSet(thisms(exprNode));
-
+	mss_p.resize(mss_p.nelements()+1, false, true);
 	if(selpars.taql != "")
 	  {
 	    MSSelection mss0;
@@ -236,6 +217,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     else{
       throw(AipsError("Selection for given MS "+selpars.msname+" is invalid"));
     }
+    if((mss_p[mss_p.nelements()-1])->nrow() ==0){
+      delete mss_p[mss_p.nelements()-1];
+      mss_p.resize(mss_p.nelements()-1, True, True);
+      if(mss_p.nelements()==0)
+	throw(AipsError("Data selection ended with 0 rows"));
+      //Sill have some valid ms's so return false and do not proceed to do 
+      //channel selection
+      return False;
+    }
+
+
     
     ///Channel selection
     {
@@ -341,7 +333,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  //vi::FrequencySelectionUsingFrame channelSelector((vi_p ? freqFrame :selpars.freqframe));
 	  //vi::FrequencySelectionUsingFrame channelSelector(selpars.freqframe);
     	  for(uInt k=0; k < nSelections; ++k){
-	    //cerr << "lowFreq "<< lowfreq << " topfreq " << topfreq << endl;
             //channelSelector.add(Int(freqList(k,0)), lowfreq, topfreq);
 	    //andFreqSelection((mss_p.nelements()-1), Int(freqList(k,0)), lowfreq, topfreq, vi_p ?freqFrame : selpars.freqframe);
 	    andFreqSelection((mss_p.nelements()-1), Int(freqList(k,0)), lowfreq, topfreq, selFreqFrame_p);
@@ -416,7 +407,7 @@ void SynthesisImagerVi2::andChanSelection(const Int msId, const Int spwId, const
 	}
 	spwsel[spwId]=chansel;
 	channelSelections_p[msId]=spwsel;
-	//	cerr << "chansel "<< channelSelections_p << endl;
+	//cerr << "chansel "<< channelSelections_p << endl;
 	
 }
   void SynthesisImagerVi2::andFreqSelection(const Int msId, const Int spwId,  const Double freqBeg, const Double freqEnd, const MFrequency::Types frame){
@@ -1721,7 +1712,8 @@ void SynthesisImagerVi2::unlockMSs()
     // Now make the Single Dish Gridding
     os << LogIO::NORMAL // Loglevel INFO
        << "Gridding will use specified common tangent point:" << LogIO::POST;
-    os << LogIO::NORMAL << tangentPoint(phaseCenter_p) << LogIO::POST; // Loglevel INFO
+    os << LogIO::NORMAL << SynthesisUtilMethods::asComprehensibleDirectionString(phaseCenter_p)
+        << LogIO::POST; // Loglevel INFO
     String const gridfunclower = downcase(gridFunction);
     if(gridfunclower=="pb") {
       refim::SkyJones *vp = nullptr;

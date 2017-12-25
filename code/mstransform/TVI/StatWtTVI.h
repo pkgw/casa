@@ -1,5 +1,3 @@
-//# FreqAxisTVI.h: This file contains the interface definition of the MSTransformManager class.
-//#
 //#  CASA - Common Astronomy Software Applications (http://casa.nrao.edu/)
 //#  Copyright (C) Associated Universities, Inc. Washington DC, USA 2011, All rights reserved.
 //#  Copyright (C) European Southern Observatory, 2011, All rights reserved.
@@ -18,15 +16,15 @@
 //#  License along with this library; if not, write to the Free Software
 //#  Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 //#  MA 02111-1307  USA
-//# $Id: $
 
 #ifndef STATWTTVI_H_
 #define STATWTTVI_H_
 
 #include <msvis/MSVis/TransformingVi2.h>
 
+#include <casacore/casa/Arrays/ArrayIter.h>
 #include <casacore/ms/MSSel/MSSelection.h>
-#include <casacore/scimath/Mathematics/StatisticsAlgorithmFactory.h>
+#include <casacore/scimath/StatsFramework/StatisticsAlgorithmFactory.h>
 
 #include <msvis/MSVis/VisBuffer2.h>
 #include <msvis/MSVis/VisibilityIterator2.h>
@@ -95,6 +93,8 @@ public:
 
     void summarizeFlagging() const;
 
+    void summarizeStats(casacore::Double& mean, casacore::Double& variance) const;
+
     // Override unimplemented TransformingVi2 version
     void writeBackChanges(VisBuffer2* vb);
 
@@ -152,6 +152,18 @@ private:
         };
     };
 
+    enum Column {
+        // column(s) to use
+        // DATA
+        DATA,
+        // CORRECTED_DATA
+        CORRECTED,
+        // CORRECTED_DATA - MODEL_DATA
+        RESIDUAL,
+        // DATA - MODEL_DATA
+        RESIDUAL_DATA
+    };
+
     mutable casacore::Bool _weightsComputed = false;
     mutable std::unique_ptr<casacore::Bool> _mustComputeWtSp = nullptr;
     mutable casacore::Cube<casacore::Float> _newWtSp;
@@ -171,14 +183,14 @@ private:
         casacore::StatisticsAlgorithm<casacore::Double,
         casacore::Array<casacore::Float>::const_iterator,
         casacore::Array<casacore::Bool>::const_iterator>
-    > _statAlg;
+    > _statAlg = nullptr;
     std::unique_ptr<std::pair<casacore::Double, casacore::Double>> _wtrange = nullptr;
     std::map<casacore::uInt, casacore::Cube<casacore::Bool>> _chanSelFlags;
 
     mutable casacore::uInt _nTotalPts = 0;
     mutable casacore::uInt _nNewFlaggedPts = 0;
     mutable casacore::uInt _nOrigFlaggedPts = 0;
-    mutable casacore::Bool _useCorrected = true;
+    mutable Column _column = CORRECTED;
     mutable std::map<casacore::uInt, std::pair<casacore::uInt, casacore::uInt>> _samples;
     mutable std::set<casacore::uInt> _processedRowIDs = std::set<casacore::uInt>();
     mutable std::vector<std::vector<casacore::Double>> _timeWindowWts;
@@ -190,12 +202,24 @@ private:
     mutable std::map<casacore::uInt, casacore::uInt> _rowIDInMSTorowIndexInChunk;
     casacore::Double _slidingTimeWindowWidth = -1;
 
+    casacore::Bool _useDefaultModelValue = casacore::False;
+
+    SHARED_PTR<
+        casacore::ClassicalStatistics<casacore::Double,
+        casacore::Array<casacore::Float>::const_iterator,
+        casacore::Array<casacore::Bool>::const_iterator>
+    > _wtStats = nullptr;
+
+    const static casacore::Complex DEFAULT_MODEL_VALUE;
+
     // returns True if this chunk has already been processed. This can happen
     // for the last chunk.
     casacore::Bool _checkFirsSubChunk(
         casacore::Int& spw, casacore::Bool& firstTime,
         const VisBuffer2 * const vb
     ) const;
+
+    const casacore::Cube<casacore::Complex> _dataCube(const VisBuffer2 *const vb) const;
 
     // combines the flag cube with the channel selection flags (if any)
     casacore::Cube<casacore::Bool> _getResultantFlags(
@@ -235,7 +259,7 @@ private:
 
     casacore::Bool _parseConfiguration(const casacore::Record &configuration);
 	
-    void _initialize();
+    //void _initialize();
 
     // swaps ant1/ant2 if necessary
     static Baseline _baseline(casacore::uInt ant1, casacore::uInt ant2);

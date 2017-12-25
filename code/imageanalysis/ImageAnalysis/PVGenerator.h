@@ -67,6 +67,8 @@ class PVGenerator : public ImageTask<casacore::Float> {
 
 public:
 
+    PVGenerator() = delete;
+
     // The region selection in the constructor only applies to the non-direction coordinates.
     // The direction coordinate limits are effectively set by calling setEndPoints()
     // after construction. The region selection in the constructor is only for things like
@@ -84,6 +86,8 @@ public:
         const casacore::String& stokes, const casacore::String& maskInp,
         const casacore::String& outname, const casacore::Bool overwrite
     );
+
+    PVGenerator(const PVGenerator&) = delete;
 
     // destructor
     ~PVGenerator();
@@ -162,10 +166,6 @@ private:
     casacore::String _unit;
     static const casacore::String _class;
 
-
-    // disallow default constructor
-    PVGenerator();
-
     void _checkRotatedImageSanity(
         SPCIIF rotated, const Vector<Double>& rotPixStart,
         const Vector<Double>& rotPixEnd, Int xAxis, Int yAxis,
@@ -188,14 +188,14 @@ private:
 
     void _checkWidthSanity(
         Double paInRad, Double halfwidth, const vector<Double>& start,
-        const vector<Double>& end, SPCIIF subImage, Int xAxis, Int yAxis
+        const std::vector<Double>& end, SPCIIF subImage, Int xAxis, Int yAxis
     ) const;
 
     casacore::Quantity _increment() const;
 
     void _moveRefPixel(
-        SPIIF subImage, CoordinateSystem& subCoords, const vector<Double>& start,
-        const vector<Double>& end, Double paInRad, Int xAxis, Int yAxis
+        SPIIF subImage, CoordinateSystem& subCoords, const std::vector<Double>& start,
+        const std::vector<Double>& end, Double paInDeg, Int xAxis, Int yAxis
     ) const;
     
     static casacore::String _pairToString(const std::pair<casacore::Double, casacore::Double>& p);

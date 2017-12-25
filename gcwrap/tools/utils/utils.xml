@@ -278,7 +278,7 @@ file:///opt/casa/code/tools/xml/casa.xsd">
   <input>
     <param type="string" name="crashDumpDirectory">
 	    <description>Directory to write crash dumps into.</description>
-    </param> 
+    </param>
     <param type="string" name="crashDumpPosterApplication">
 	    <description>Application to post crash dumps to http server.</description>
     </param>
@@ -288,7 +288,7 @@ file:///opt/casa/code/tools/xml/casa.xsd">
     <param type="string" name="logFile">
 	    <description>Full name of initial logfile</description>
     </param>
-    
+
   </input>
 
   <returns type="string"/>
@@ -302,8 +302,8 @@ file:///opt/casa/code/tools/xml/casa.xsd">
 	<shortdescription>Crashes casa with segfault.</shortdescription>
 
   <description>
-    This triggers a segfault for testing the crash reporter.  Obviously you 
-    shouldn't call this unless that's what you want.  It's in here for 
+    This triggers a segfault for testing the crash reporter.  Obviously you
+    shouldn't call this unless that's what you want.  It's in here for
     development/debugging purposes and ought to be removed before you see this.
   </description>
 
@@ -321,9 +321,96 @@ file:///opt/casa/code/tools/xml/casa.xsd">
 
 </method>
 
+<!-- ******************** function to initialize CASAtools ************************** -->
+<method type="function" name="initialize">
+<shortdescription>initialize CASAtools</shortdescription>
+
+<description>
+returns true if initalization was performed; returns false if initialization was already done
+</description>
+
+<input>
+  <param type="stringArray" name="default_path">
+	<description>directories that should constitute the default data path</description>
+  </param>
+</input>
+
+<returns type="bool"/>
+</method>
+
+<!-- ******************** functions to manage the CASAtools path ******************** -->
+<method type="function" name="defaultpath">
+<shortdescription>returns the default data path</shortdescription>
+
+<description>
+Returns the default data path. This path is used unless the user has set the current path to something else using the setpath function.
+</description>
+
+<returns type="stringArray"/>
+</method>
+
+<method type="function" name="setpath">
+<shortdescription>sets the data path to the specified list of directories</shortdescription>
+
+<description>
+Sets the data path to the specified list of directories. Returns true if all directories were added
+returns false otherwise.
+</description>
+
+<input>
+  <param type="stringArray" name="dirs">
+	<description>directories that should constitute the data path</description>
+	<value></value>
+  </param>
+</input>
+
+<returns type="bool"/>
+</method>
+
+<method type="function" name="getpath">
+<shortdescription>retrieves the data path</shortdescription>
+
+<description>
+Returns the list of directories that are currently in the data path.
+</description>
+
+<returns type="stringArray"/>
+</method>
+
+<method type="function" name="clearpath">
+<shortdescription>removes all directories from the data path</shortdescription>
+
+<description>
+Removes all directories from the data path.
+</description>
+
+<returns/>
+</method>
+
+<method type="function" name="resolve">
+<shortdescription>resolve a complete path from a subdirectory using the data path</shortdescription>
+
+<description>
+If the provided path already represents a file or a directory, it is returned. If it does not,
+this function tries to find a complete path by matching up this partial directory with the
+elements of the data path.
+</description>
+
+<input>
+  <param type="string" name="path">
+	<description>path to be expanded</description>
+	<value></value>
+  </param>
+</input>
+
+<returns type="string"/>
+</method>
+
+<!-- ******************************************************************************** -->
+
 <method type="function" name="version">
 <shortdescription>returns four element vector for the version</shortdescription>
-   
+
 <returns type="intArray"/>
 <description>
 
@@ -334,7 +421,7 @@ Returns a four element vector representing the version (major, minor, patch and 
 
 <method type="function" name="version_desc">
 <shortdescription>returns the descriptive version string, e.g. DEV or REL</shortdescription>
-   
+
 <returns type="string"/>
 <description>
 
@@ -347,7 +434,7 @@ version ("DEV") or a release version ("REL").
 
 <method type="function" name="version_info">
 <shortdescription>Returns the complete version description as a string.</shortdescription>
-   
+
 <returns type="string"/>
 <description>
 
@@ -358,7 +445,7 @@ Returns a description string that includes the version information and the descr
 
 <method type="function" name="version_string">
 <shortdescription>Returns the complete version description as a string but without the description (i.e. git hash) string.</shortdescription>
-   
+
 <returns type="string"/>
 <description>
 
@@ -369,7 +456,7 @@ Returns a description string that includes the version information and the descr
 
 <method type="function" name="compare_version">
 <shortdescription>Returns the complete version description as a string.</shortdescription>
-   
+
 <input>
     <param type="string" name="comparitor">
 	    <description>what sort of comparison to do, one of &gt;, &lt;, &lt;=, &gt;=, ==, = !=</description>

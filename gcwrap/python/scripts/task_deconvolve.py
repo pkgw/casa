@@ -1,6 +1,7 @@
 import os
 from taskinit import *
 import pdb
+ia, dc, tb=gentools(['ia', 'dc', 'tb'])
 
 def deconvolve(imagename,model,psf,alg,niter,gain,threshold,mask,scales,sigma,targetflux,prior):
     """ deconvolve: Image based deconvolver. The psf provided is
