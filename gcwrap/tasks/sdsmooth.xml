@@ -68,6 +68,11 @@ xsi:schemaLocation="http://casa.nrao.edu/schema/casa.xsd file:///opt/casa/code/x
         <value></value>
     </param>
 
+    <param type="bool" name="reindex">
+        <description>Re-index indices in subtables based on data selection</description>
+        <value>True</value>
+    </param>
+
     <param type="string" name="kernel">
         <description>spectral smoothing kernel type</description>
         <value>gaussian</value>

@@ -79,6 +79,11 @@ pipeline processing for huge dataset.
         <value></value>
     </param>
 
+    <param type="bool" name="reindex">
+        <description>Re-index indices in subtables based on data selection</description>
+        <value>True</value>
+    </param>
+
     <param type="string" name="maskmode" ignorecase="true">
         <shortdescription>mode of setting additional channel masks</shortdescription>
 <!--        <description>mode of setting additional channel masks ["auto", "list", or "interact"]</description> -->
