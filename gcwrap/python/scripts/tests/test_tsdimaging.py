@@ -162,6 +162,7 @@ class sdimaging_unittest_base(unittest.TestCase, sdimaging_standard_paramset):
                          msg='Any error occurred during imaging')
         self._checkfile(outfile)
         self._checkfile(outprefix+".weight")
+        self._checkframe(outfile)
         self._checkshape(outfile, shape[0], shape[1],shape[2],shape[3])
         self._checkstats(outfile, refstats, compstats=compstats,
                          atol=atol, rtol=rtol, ignoremask=ignoremask)
