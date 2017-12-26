@@ -80,7 +80,8 @@ pipeline processing for huge dataset.
     </param>
 
     <param type="bool" name="reindex">
-        <description>Re-index indices in subtables based on data selection</description>
+         <shortdescription>Re-index indices in subtables based on data selection</shortdescription>
+        <description>Re-index indices in subtables based on data selection. Ignored when blmode='apply'.</description>
         <value>True</value>
     </param>
 
@@ -356,6 +357,11 @@ intent -- select data by observational intent, also referred to as 'scan intent'
         default: '' (use all scan intents)
         example: intent='*ON_SOURCE*' (any valid scan-intent expression accepted by the MSSelection module can be specified)
         this selection is in addition to the other selections to data
+reindex -- Re-index indices in subtables based on data selection.
+           Ignored when blmode='apply'.
+           If True, DATA_DESCRIPTION, FEED, SPECTRAL_WINDOW, STATE, and SOURCE
+           subtables are filtered  based on data selection and re-indexed in output MS.
+           default: True
 maskmode -- mode of setting additional channel masks. When blmode='apply'
              and/or blfunc='variable', maskmode and its subparameters
              are ignored.
