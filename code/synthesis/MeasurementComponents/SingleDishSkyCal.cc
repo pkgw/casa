@@ -1405,7 +1405,26 @@ MeasurementSet SingleDishOtfCal::selectMS(MeasurementSet const &ms)
         Vector<Double> pointings_x(pointings_coords.row(0).copy());
         Vector<Double> pointings_y(pointings_coords.row(1).copy());
         Vector<Bool> is_edge(pointings_coords.ncolumn(),false);
-        const double pixel_size = 0.0;
+        double pixel_size = 0.0;
+        {
+          // CAS-9956
+          // Mitigation of memory usage due to unexpectedly large number of pixels.
+          // Currently CreateMaskNearEdgeDouble requires 2*sizeof(size_t)*num_pixels bytes
+          // of memory. If this value exceeds 2GB, the mitigation will be activated.
+          Double const num_pixels = p.p_size()[0] * p.p_size()[1];
+          auto const estimated_memory = num_pixels * 2 * sizeof(size_t);
+          constexpr Double kMaxMemory = 2.0e9;
+          if (estimated_memory >= kMaxMemory && pixel_scale_ < 1.0) {
+            LogIO os;
+            os << LogOrigin("PointingDirectionProjector", "scale_and_center", WHERE);
+            os << LogIO::WARN << "Estimated Memory: " << estimated_memory << LogIO::POST;
+            os << LogIO::WARN << "Mitigation of memory usage is activated. pixel_scale_ is set to 1.0" << LogIO::POST;
+            // pixel_size can be set to 2.0 since projection grid spacing is estimated from half of median separation
+            // between neighboring pixels so that pixel_width will become about 1.0 if pixel_size is 0.
+            pixel_size = 2.0;
+            os << LogIO::WARN << "pixel_size is set to " << pixel_size << LogIO::POST;
+           }
+        }
         // libsakura 2.0: setting pixel_size=0.0 means that CreateMaskNearEdgeDouble will
         //   . compute the median separation of consecutive pointing coordinates
         //   . use an "edge detection pixel size" = 0.5*coordinates_median (pixel scale hard-coded to 0.5)
