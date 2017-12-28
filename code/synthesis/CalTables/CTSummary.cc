@@ -170,8 +170,7 @@ void CTSummary::listMain (LogIO& os, Bool verbose) const
     casacore::Double stopTime = times(times.size()-1);
     casacore::Double exposTime = stopTime - startTime;
     MVTime startMVT(startTime/86400.0), stopMVT(stopTime/86400.0);
-    casacore::String timeref = 
-        ctmain.time().keywordSet().subRecord("MEASINFO").asString("Ref");
+    casacore::String timeref = ctmain.time().keywordSet().subRecord("MEASINFO").asString("Ref");
     // Output info
     os << "  Data records: " << nrow() << "       Total elapsed time = "
        << exposTime << " seconds" << endl
@@ -185,8 +184,7 @@ void CTSummary::listMain (LogIO& os, Bool verbose) const
 
     if (verbose) {
         // Field names:
-        casacore::Vector<casacore::String> fieldnames =
-            ctsub.field().name().getColumn();
+        casacore::Vector<casacore::String> fieldnames = ctsub.field().name().getColumn();
         // Spw Ids
         casacore::Vector<casacore::Int> specwindids(ctmain.spwId().getColumn());
 
@@ -238,12 +236,9 @@ void CTSummary::listMain (LogIO& os, Bool verbose) const
                 fieldname = fieldnames(fieldid);
             casacore::Int nrow = iter->nrow();
             std::vector<casacore::Int> spws = iter->spw().tovector();
-            std::set<casacore::Int> spwset =
-                std::set<casacore::Int>(spws.begin(), spws.end());
-            std::vector<casacore::Double> intervals = 
-                iter->interval().tovector();
-            std::set<casacore::Double> intervalset =
-                std::set<casacore::Double>(intervals.begin(), intervals.end());
+            std::set<casacore::Int> spwset = std::set<casacore::Int>(spws.begin(), spws.end());
+            std::vector<casacore::Double> intervals = iter->interval().tovector();
+            std::set<casacore::Double> intervalset = std::set<casacore::Double>(intervals.begin(), intervals.end());
             // print line
             os.output().setf(ios::right, ios::adjustfield);
             os.output().width(width_lead); os << "  ";
@@ -308,15 +303,13 @@ void CTSummary::listAntenna (LogIO& os, Bool verbose) const
         // Determine antennas  present in the main table
         ROCTMainColumns ctmain(*pNCT);
         std::vector<casacore::Int> ant1col = ctmain.antenna1().getColumn().tovector();
-        std::set<casacore::Int> antIds =
-                std::set<casacore::Int>(ant1col.begin(), ant1col.end());
+        std::set<casacore::Int> antIds = std::set<casacore::Int>(ant1col.begin(), ant1col.end());
         std::vector<casacore::Int> ant2col = ctmain.antenna2().getColumn().tovector();
-        std::set<casacore::Int> ant2ids =
-           std::set<casacore::Int>(ant2col.begin(), ant2col.end());
-        for (std::set<Int>::const_iterator iter=ant2ids.begin();
-             iter!= ant2ids.end(); ++iter) {
+        std::set<casacore::Int> ant2ids = std::set<casacore::Int>(ant2col.begin(), ant2col.end());
+        for (std::set<Int>::const_iterator iter=ant2ids.begin(); iter!= ant2ids.end(); ++iter) {
             antIds.insert(*iter);
         }
+        antIds.erase(-1); // remove invalid antenna id
         uInt nAnt = antIds.size();
         casacore::Vector<casacore::String> names = ctAC.name().getColumn();
         casacore::Vector<casacore::String> stations = ctAC.station().getColumn();
@@ -334,11 +327,9 @@ void CTSummary::listAntenna (LogIO& os, Bool verbose) const
             casacore::Int diamprec(1);
 
             // Position and diameter values for each antenna
-            casacore::ROScalarMeasColumn<casacore::MPosition> antPos =
-                ctAC.positionMeas();
+            casacore::ROScalarMeasColumn<casacore::MPosition> antPos = ctAC.positionMeas();
             Bool posIsITRF = (antPos(0).type() == MPosition::ITRF);
-            casacore::ROScalarQuantColumn<casacore::Double> diameters =
-                ctAC.dishDiameterQuant();
+            casacore::ROScalarQuantColumn<casacore::Double> diameters = ctAC.dishDiameterQuant();
             // Get observatory position info for antenna offsets 
             // *not read from antenna table OFFSET column!*
             casacore::MPosition obsPos;
@@ -348,12 +339,10 @@ void CTSummary::listAntenna (LogIO& os, Bool verbose) const
             if (!doOffset) {
                 os << "Warning: Telescope name '" << telname << "' is not recognized by CASA.  Cannot compute offsets." << endl << endl;
             } else {
-                casacore::Vector<casacore::Double> obsXYZ =
-                    obsPos.get("m").getValue();
+                casacore::Vector<casacore::Double> obsXYZ = obsPos.get("m").getValue();
                 casacore::Double xo(obsXYZ[0]), yo(obsXYZ[1]), zo(obsXYZ[2]);
                 rObs = sqrt(xo*xo + yo*yo + zo*zo);
-                casacore::Vector<casacore::Double> obsLongLat =
-                    obsPos.getAngle("rad").getValue();
+                casacore::Vector<casacore::Double> obsLongLat = obsPos.getAngle("rad").getValue();
                 longObs = obsLongLat[0];
                 latObs = obsLongLat[1];
             }
@@ -378,8 +367,7 @@ void CTSummary::listAntenna (LogIO& os, Bool verbose) const
             os.output().width(3 * positionwidth);
             os << "         ITRF Geocentric coordinates (m)";
             os << endl << indent;
-            os.output().width(indwidth + namewidth + statwidth + diamwidth + 4
-                + longwidth + latwidth);
+            os.output().width(indwidth + namewidth + statwidth + diamwidth + 4 + longwidth + latwidth);
             os << " ";
             os.output().setf(ios::right, ios::adjustfield);
             if (doOffset) {
@@ -397,80 +385,75 @@ void CTSummary::listAntenna (LogIO& os, Bool verbose) const
             std::set<Int>::const_iterator end = antIds.end();
             for (; iter!=end; ++iter) {
               Int antId = *iter;
-              if (antId >= 0) {
-                // diameter
-                const Quantity& diam = diameters(antId);
-                // xyz
-                casacore::Vector<casacore::Double> xyz = 
-                    antPos(antId).get("m").getValue();
-                casacore::Double x = xyz(0);
-                casacore::Double y = xyz(1);
-                casacore::Double z = xyz(2);
-                casacore::Double rAnt = sqrt(x*x + y*y + z*z);
-                // offsets
-                const MPosition& mLongLat = antPos(antId);
-                casacore::Vector<casacore::Double> antOffset;
-                if (doOffset) {
-                    casacore::Vector<casacore::Double> longLatRad = 
-                        mLongLat.getAngle("rad").getValue();
-                    casacore::Double longAnt = longLatRad(0);
-                    casacore::Double latAnt = longLatRad(1);
-                    casacore::Vector<casacore::Double> offset(3);
-                    offset[0] = (longAnt - longObs) * rObs * cos(latObs);
-                    offset[1] = (latAnt - latObs) * rObs;
-                    offset[2] = rAnt - rObs;
-                    casacore::QVD qoffset(offset, "m");
-                    antOffset = qoffset.getValue("m");
-                }
-                // lat/long
-                MVAngle mvLong = mLongLat.getAngle().getValue()(0);
-                MVAngle mvLat = mLongLat.getAngle().getValue()(1);
-                if (!posIsITRF) {
-                    MeasConvert<MPosition> toItrf(antPos(antId), 
-                        MPosition::ITRF);
-                    antPos(antId) = toItrf(antPos(antId));
-                }
-                // write the row
-                os.output().setf(ios::left, ios::adjustfield);
-                os << indent;
-                // ID, Name, Station
-                os.output().width(indwidth);  os << antId;
-                os.output().width(namewidth); os << names(antId);
-                os.output().width(statwidth); os << stations(antId);
-                // Diam.
-                os.output().precision(diamprec);
-                os.output().width(diamwidth);
-                os << diam.getValue(diamUnit) << "m   ";
-                // Long. and Lat.
-                os.output().width(longwidth);
-                os << mvLong.string(MVAngle::ANGLE,7);
-                os.output().width(latwidth);
-                os << mvLat.string(MVAngle::DIG2,7);
-                if (doOffset) {
-                    // Offset from array center (m) (East, North, Elevation)
-                    os.output().setf(ios::right, ios::adjustfield);
-                    os.output().precision(4);
-                    os.output().width(offsetwidth); os << antOffset(0);
-                    os.output().width(offsetwidth); os << antOffset(1);
-                    os.output().width(offsetwidth); os << antOffset(2);
-                }
-                // ITRF Geocentric coordinates (m) (x, y, z)
-                os.output().precision(6);
-                os.output().width(positionwidth); os << x;
-                os.output().width(positionwidth); os << y;
-                os.output().width(positionwidth); os << z;
-                os << endl;
+              // diameter
+              const Quantity& diam = diameters(antId);
+              // xyz
+              casacore::Vector<casacore::Double> xyz = antPos(antId).get("m").getValue();
+              casacore::Double x = xyz(0);
+              casacore::Double y = xyz(1);
+              casacore::Double z = xyz(2);
+              casacore::Double rAnt = sqrt(x*x + y*y + z*z);
+              // offsets
+              const MPosition& mLongLat = antPos(antId);
+              casacore::Vector<casacore::Double> antOffset;
+              if (doOffset) {
+                  casacore::Vector<casacore::Double> longLatRad = mLongLat.getAngle("rad").getValue();
+                  casacore::Double longAnt = longLatRad(0);
+                  casacore::Double latAnt = longLatRad(1);
+                  casacore::Vector<casacore::Double> offset(3);
+                  offset[0] = (longAnt - longObs) * rObs * cos(latObs);
+                  offset[1] = (latAnt - latObs) * rObs;
+                  offset[2] = rAnt - rObs;
+                  casacore::QVD qoffset(offset, "m");
+                  antOffset = qoffset.getValue("m");
               }
+              // lat/long
+              MVAngle mvLong = mLongLat.getAngle().getValue()(0);
+              MVAngle mvLat = mLongLat.getAngle().getValue()(1);
+              if (!posIsITRF) {
+                  MeasConvert<MPosition> toItrf(antPos(antId), MPosition::ITRF);
+                  antPos(antId) = toItrf(antPos(antId));
+              }
+              // write the row
+              os.output().setf(ios::left, ios::adjustfield);
+              os << indent;
+              // ID, Name, Station
+              os.output().width(indwidth);  os << antId;
+              os.output().width(namewidth); os << names(antId);
+              os.output().width(statwidth); os << stations(antId);
+              // Diam.
+              os.output().precision(diamprec);
+              os.output().width(diamwidth);
+              os << diam.getValue(diamUnit) << "m   ";
+              // Long. and Lat.
+              os.output().width(longwidth);
+              os << mvLong.string(MVAngle::ANGLE,7);
+              os.output().width(latwidth);
+              os << mvLat.string(MVAngle::DIG2,7);
+              if (doOffset) {
+                  // Offset from array center (m) (East, North, Elevation)
+                  os.output().setf(ios::right, ios::adjustfield);
+                  os.output().precision(4);
+                  os.output().width(offsetwidth); os << antOffset(0);
+                  os.output().width(offsetwidth); os << antOffset(1);
+                  os.output().width(offsetwidth); os << antOffset(2);
+              }
+              // ITRF Geocentric coordinates (m) (x, y, z)
+              os.output().precision(6);
+              os.output().width(positionwidth); os << x;
+              os.output().width(positionwidth); os << y;
+              os.output().width(positionwidth); os << z;
+              os << endl;
             }
         } else {
             // Horizontal list of the stations names:
             os << "Antennas: " << nAnt << " ('name'='station') " <<  endl;
             casacore::String line, leader;
-            casacore::Int lastId = *antIds.begin() - 1;
+            // track last id of previous line for leader
+            casacore::Int lastIdInLine = *antIds.begin() - 1;
             std::set<casacore::Int>::const_iterator iter = antIds.begin();
             std::set<casacore::Int>::const_iterator end = antIds.end();
-            casacore::Int maxAnt =
-               *std::max_element(antIds.begin(), antIds.end());
+            casacore::Int maxAnt = *std::max_element(antIds.begin(), antIds.end());
             for (; iter!=end; ++iter) {
                 Int antId = *iter;
                 // Build the line
@@ -480,14 +463,13 @@ void CTSummary::listAntenna (LogIO& os, Bool verbose) const
                 if (antId != maxAnt)  line = line + ", ";
                 if (line.length() > 55 || antId == maxAnt) {
                     // This line is finished, dump it after the line leader
-                    leader = String::toString(lastId+1) + "-" + 
-                        String::toString(antId) +": ";
+                    leader = String::toString(lastIdInLine+1) + "-" + String::toString(antId) +": ";
                     os << "   ID=";
                     os.output().setf(ios::right, ios::adjustfield);
                     os.output().width(8); os << leader;
                     os << line << endl;
                     line = "";
-                    lastId = antId;
+                    lastIdInLine = antId;
                 }
             }
         }
@@ -523,8 +505,7 @@ void CTSummary::listField (LogIO& os, Bool verbose) const
         // only list fields in main table
         ROCTMainColumns ctmain(*pNCT);
         std::vector<casacore::Int> fieldcol = ctmain.fieldId().getColumn().tovector();
-        std::set<casacore::Int> fieldIds =
-                std::set<casacore::Int>(fieldcol.begin(), fieldcol.end());
+        std::set<casacore::Int> fieldIds = std::set<casacore::Int>(fieldcol.begin(), fieldcol.end());
         os << "Fields: " << fieldIds.size() << endl;
         casacore::Int widthLead(2),
             widthField(6),
@@ -551,8 +532,7 @@ void CTSummary::listField (LogIO& os, Bool verbose) const
         // get column values
         casacore::Vector<casacore::String> fieldNames = ctFC.name().getColumn();
         casacore::Vector<casacore::String> codes = ctFC.code().getColumn();
-        casacore::ROArrayMeasColumn<casacore::MDirection> phaseDirs =
-            ctFC.phaseDirMeasCol();
+        casacore::ROArrayMeasColumn<casacore::MDirection> phaseDirs = ctFC.phaseDirMeasCol();
         casacore::Vector<casacore::Int> sourceIds = ctFC.sourceId().getColumn();
         // loop through fields
         std::set<Int>::const_iterator fiter = fieldIds.begin();
@@ -562,8 +542,7 @@ void CTSummary::listField (LogIO& os, Bool verbose) const
         for (; fiter!=fend; ++fiter) {
             Int fieldId = *fiter;
             if (fieldId >=0) {
-                casacore::MDirection mRaDec =
-                    phaseDirs(fieldId)(IPosition(1,0));
+                casacore::MDirection mRaDec = phaseDirs(fieldId)(IPosition(1,0));
                 MVAngle mvRa = mRaDec.getAngle().getValue()(0);
                 MVAngle mvDec = mRaDec.getAngle().getValue()(1);
                 String name = fieldNames(fieldId);
@@ -606,14 +585,11 @@ void CTSummary::listObservation (LogIO& os, Bool verbose) const
         // only list obsids in main table
         ROCTMainColumns ctmain(*pNCT);
         std::vector<casacore::Int> obsidcol = ctmain.obsId().getColumn().tovector();
-        std::set<casacore::Int> obsIds =
-                std::set<casacore::Int>(obsidcol.begin(), obsidcol.end());
-
+        std::set<casacore::Int> obsIds = std::set<casacore::Int>(obsidcol.begin(), obsidcol.end());
         // for timeranges
         casacore::IPosition first(1,0);
         casacore::IPosition second(1,1);
-        casacore::String timeref = 
-            ctOC.timeRange().keywordSet().subRecord("MEASINFO").asString("Ref");
+        casacore::String timeref = ctOC.timeRange().keywordSet().subRecord("MEASINFO").asString("Ref");
         // time range (Date) format is e.g. 00:00:46.0-01:43:50.2
         casacore::Int widthTel(10), widthDate(36), widthObs(20), widthProj(15);
         // column headings
@@ -625,14 +601,10 @@ void CTSummary::listObservation (LogIO& os, Bool verbose) const
         os.output().width(widthProj);    os << "Project";
         os << endl;
         // get columns
-        casacore::Vector<casacore::String> telname =
-            ctOC.telescopeName().getColumn();
-        casacore::Array<casacore::Double> timerange =
-            ctOC.timeRange().getColumn();
-        casacore::Vector<casacore::String> observer =
-            ctOC.observer().getColumn();
-        casacore::Vector<casacore::String> project =
-            ctOC.project().getColumn();
+        casacore::Vector<casacore::String> telname = ctOC.telescopeName().getColumn();
+        casacore::Array<casacore::Double> timerange = ctOC.timeRange().getColumn();
+        casacore::Vector<casacore::String> observer = ctOC.observer().getColumn();
+        casacore::Vector<casacore::String> project = ctOC.project().getColumn();
         // print each obsid row
         std::set<casacore::Int>::const_iterator iter = obsIds.begin();
         std::set<casacore::Int>::const_iterator end = obsIds.end();
@@ -643,8 +615,7 @@ void CTSummary::listObservation (LogIO& os, Bool verbose) const
             os.output().width(widthTel);  os << telname(obsid);
             casacore::Double start = timerange(IPosition(2, 0, obsid));
             casacore::Double end = timerange(IPosition(2, 1, obsid));
-            casacore::String range = 
-              MVTime(start/C::day).string(MVTime::YMD,7) + " - " 
+            casacore::String range = MVTime(start/C::day).string(MVTime::YMD,7) + " - " 
               + MVTime(end/C::day).string(MVTime::TIME,7);
             os.output().width(widthDate); os << range;
             os.output().width(widthObs);  os << observer(obsid);
@@ -840,12 +811,10 @@ void CTSummary::clearFormatFlags(LogIO& os) const
     os.output().unsetf(ios::oct);
     os.output().unsetf(ios::hex);
 
-    os.output().unsetf(ios::showbase | ios::showpos | ios::uppercase
-            | ios::showpoint);
+    os.output().unsetf(ios::showbase | ios::showpos | ios::uppercase | ios::showpoint);
 
     os.output().unsetf(ios::scientific);
     os.output().unsetf(ios::fixed);
-
 }
 
 } //# NAMESPACE CASA - END
