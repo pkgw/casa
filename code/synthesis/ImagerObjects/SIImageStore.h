@@ -237,7 +237,7 @@ protected:
   SHARED_PTR<casacore::ImageInterface<casacore::Float> > openImage(const casacore::String imagenamefull, 
 					       const casacore::Bool overwrite, 
 					       const casacore::Bool dosumwt=casacore::False,
-					       const casacore::Int nfacetsperside=1);
+								   const casacore::Int nfacetsperside=1, const  casacore::Bool checkCoord=casacore::True);
 
   void buildImage(SHARED_PTR<casacore::ImageInterface<casacore::Float> > &imptr, casacore::IPosition shape, casacore::CoordinateSystem csys, casacore::String name);
   void buildImage(SHARED_PTR<casacore::ImageInterface<casacore::Float> > &imptr,casacore::String name);

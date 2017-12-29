@@ -305,6 +305,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
       <value type="string"></value>
     </param>
 
+
     <param type="string" name="stokes" > <!-- subparam="true"> -->
      <shortdescription>Stokes Planes to make</shortdescription>
 <description>Stokes Planes to make
@@ -809,6 +810,19 @@ HPX HEALPix grid.  -->
 
 </description>
       <value type="int">1</value>
+    </param>
+
+<param type="any" name="psfphasecenter"  subparam="true"> 
+     <shortdescription>Phase center of the image</shortdescription>
+<description>For mosaic use psf centered of this optional direction
+               example: psfphasecenter=6
+                        psfphasecenter='J2000 19h30m00 -40d00m00'
+                        psfphasecenter='J2000 292.5deg  -40.0deg'
+                        psfphasecenter='J2000 5.105rad  -0.698rad'
+                        psfphasecenter='ICRS 13:05:27.2780 -049.28.04.458' 
+</description>
+      <any type="variant" limittypes="int string"/>
+      <value type="string"></value>
     </param>
 
     <param type="int" name="chanchunks" subparam="true">
@@ -2389,12 +2403,14 @@ HPX HEALPix grid.  -->
 	 <default param="vptable"><value>""</value></default>
 	 <default param="pblimit"><value>0.2</value></default>
 	 <default param="conjbeams"><value>True</value></default>
+	 <default param="psfphasecenter"><value>""</value></default>
        </equals>
        <equals type="string" value="mosaicft">
 	 <default param="normtype"><value>"flatnoise"</value></default>
 	 <default param="vptable"><value>""</value></default>
 	 <default param="pblimit"><value>0.2</value></default>
 	 <default param="conjbeams"><value>True</value></default>
+	 <default param="psfphasecenter"><value>""</value></default>
        </equals>
        <equals type="string" value="ftmosaic">
 	 <default param="normtype"><value>"flatnoise"</value></default>

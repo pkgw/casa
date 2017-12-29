@@ -1242,8 +1242,104 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
 
     unlockMSs();
 
-  }// end makeImage
+  }// end makeSDImage
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  void SynthesisImagerVi2::makeImage(String type, const String& imagename, const String& complexImage, const Int whichModel)
+  {
+    LogIO os( LogOrigin("SynthesisImager","makeImage",WHERE) );
+
+    
+    refim::FTMachine::Type seType(refim::FTMachine::OBSERVED);
+    if(type=="observed") {
+      seType=refim::FTMachine::OBSERVED;
+      os << LogIO::NORMAL // Loglevel INFO
+         << "Making dirty image from " << type << " data "
+	 << LogIO::POST;
+    }
+    else if (type=="model") {
+      seType=refim::FTMachine::MODEL;
+      os << LogIO::NORMAL // Loglevel INFO
+         << "Making dirty image from " << type << " data "
+	 << LogIO::POST;
+    }
+    else if (type=="corrected") {
+      seType=refim::FTMachine::CORRECTED;
+      os << LogIO::NORMAL // Loglevel INFO
+         << "Making dirty image from " << type << " data "
+	 << LogIO::POST;
+    }
+    else if (type=="psf") {
+      seType=refim::FTMachine::PSF;
+      os << "Making point spread function "
+	 << LogIO::POST;
+    }
+    else if (type=="residual") {
+      seType=refim::FTMachine::RESIDUAL;
+      os << LogIO::NORMAL // Loglevel INFO
+         << "Making dirty image from " << type << " data "
+	 << LogIO::POST;
+    }
+    else if (type=="singledish-observed") {
+      seType=refim::FTMachine::OBSERVED;
+      os << LogIO::NORMAL 
+         << "Making single dish image from observed data" << LogIO::POST;
+    }
+    else if (type=="singledish") {
+      seType=refim::FTMachine::CORRECTED;
+      os << LogIO::NORMAL 
+         << "Making single dish image from corrected data" << LogIO::POST;
+    }
+    else if (type=="coverage") {
+      seType=refim::FTMachine::COVERAGE;
+      os << LogIO::NORMAL 
+         << "Making single dish coverage function "
+	 << LogIO::POST;
+    }
+    else if (type=="holography") {
+      seType=refim::FTMachine::CORRECTED;
+      os << LogIO::NORMAL
+         << "Making complex holographic image from corrected data "
+	 << LogIO::POST;
+    }
+    else if (type=="holography-observed") {
+      seType=refim::FTMachine::OBSERVED;
+      os << LogIO::NORMAL 
+         << "Making complex holographic image from observed data "
+	 << LogIO::POST;
+    }
+
+
+    String imageName=(itsMappers.imageStore(whichModel))->getName();
+    String cImageName(complexImage);
+    Bool keepComplexImage=(complexImage!="")||(type.contains("holography"));
+    if(complexImage=="") {
+      cImageName=imageName+".compleximage";
+    }
+    PagedImage<Float> theImage((itsMappers.imageStore(whichModel))->getShape(), (itsMappers.imageStore(whichModel))->getCSys(), imagename);
+    PagedImage<Complex> cImageImage(theImage.shape(),
+				    theImage.coordinates(),
+				    cImageName);
+    if(!keepComplexImage)
+      cImageImage.table().markForDelete();
+
+
+    Matrix<Float> weight;
+    (itsMappers.getFTM2(whichModel))->makeImage(seType, *vi_p, cImageImage, weight);
+
+    if(seType==refim::FTMachine::PSF){
+       StokesImageUtil::ToStokesPSF(theImage, cImageImage);
+       StokesImageUtil::normalizePSF(theImage);
+    }
+    else{
+      StokesImageUtil::To(theImage, cImageImage);
+    }
+    unlockMSs();
+
+  }// end makeImage
+  /////////////////////////////////////////////////////
+
+
+
 
 
 CountedPtr<SIMapper> SynthesisImagerVi2::createSIMapper(String mappertype,  

@@ -172,8 +172,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     itsImageName = imagename;
     itsImageShape = imshape;
-    itsCoordSys = imcoordsys;
-
+    itsCoordSys = imcoordsys; 
     itsMiscInfo=Record();
 
     init();
@@ -254,7 +253,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	itsFacetId = 0;
 	itsUseWeight = getUseWeightImage( *imptr );
 	itsPBScaleFactor=1.0; ///// No need to set properly here as it will be calc'd in ()
-
+	/////redo this here as psf may have different coordinates
+	itsCoordSys = imptr->coordinates();
+	itsMiscInfo=imptr->miscInfo();
 	if( itsUseWeight && ! doesImageExist(itsImageName+String(".weight")) )
 	  {
 	    throw(AipsError("Internal error : Sumwt has a useweightimage=True but the weight image does not exist."));
@@ -413,11 +414,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   SHARED_PTR<ImageInterface<Float> > SIImageStore::openImage(const String imagenamefull, 
 							     const Bool overwrite, 
-							     const Bool dosumwt, const Int nfacetsperside)
+							     const Bool dosumwt, const Int nfacetsperside, const Bool checkCoordSys)
   {
 
     SHARED_PTR<ImageInterface<Float> > imPtr;
-
     IPosition useShape( itsParentImageShape );
 
     if( dosumwt ) // change shape to sumwt image shape.
@@ -492,7 +492,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			  oo1 << useShape; oo2 << imPtr->shape();
 			  throw( AipsError( "There is a shape mismatch between existing images ("+oo2.str()+") and current parameters ("+oo1.str()+"). If you are attempting to restart a run with a new image shape, please change imagename and supply the old model or mask as inputs (via the startmodel or mask parameters) so that they can be regridded to the new shape before continuing." ) );
 			}
-		      if( itsParentCoordSys.nCoordinates()>0 &&  ! itsParentCoordSys.near( imPtr->coordinates() ) )
+		     
+		      if( itsParentCoordSys.nCoordinates()>0 &&  checkCoordSys && ! itsParentCoordSys.near( imPtr->coordinates() ) )
 			{
 			  throw( AipsError( "There is a coordinate system mismatch between existing images on disk and current parameters ("+itsParentCoordSys.errorMessage()+"). If you are attempting to restart a run, please change imagename and supply the old model or mask as inputs (via the startmodel or mask parameters) so that they can be regridded to the new coordinate system before continuing. " ) );
 			}
@@ -910,7 +911,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  }
 	else
 	  {
-	    ptr = openImage(itsImageName+label , itsOverWrite, sw, 1 ); 
+	    ///coordsys for psf can be different ...shape should be the same.
+	    ptr = openImage(itsImageName+label , itsOverWrite, sw, 1, (label !=  imageExts(PSF))); 
 	    //cout << "Opening image : " << itsImageName+label << " of shape " << ptr->shape() << endl;
 	  }
       }
@@ -2931,12 +2933,7 @@ void SIImageStore::regridToModelImage( ImageInterface<Float> &inputimage, Int te
     inFile >> token; if (token=="itsUseWeight:") inFile >> itsUseWeight;
 
     Bool coordSysLoaded=False;
-    String itsName;
-    try 
-      {
-	itsName=itsImageName+imageExts(PSF);casa::openImage(itsName,      itsPsf);
-	if (coordSysLoaded==False) {itsCoordSys=itsPsf->coordinates(); itsMiscInfo=itsPsf->miscInfo();coordSysLoaded=True;}
-      } catch (AipsIO& x) {logIO << "\"" << itsName << "\" not found." << LogIO::WARN;};
+    String itsName;      
     try 
       {
 	itsName=itsImageName+imageExts(MASK);casa::openImage(itsName,     itsMask);
@@ -2966,6 +2963,11 @@ void SIImageStore::regridToModelImage( ImageInterface<Float> &inputimage, Int te
       {
 	itsName=itsImageName+imageExts(SUMWT);casa::openImage(itsName,    itsSumWt);
 	if (coordSysLoaded==False) {itsCoordSys=itsSumWt->coordinates(); itsMiscInfo=itsSumWt->miscInfo();coordSysLoaded=True;}
+      } catch (AipsIO& x) {logIO << "\"" << itsName << "\" not found." << LogIO::WARN;};
+    try
+      {
+	itsName=itsImageName+imageExts(PSF);casa::openImage(itsName,      itsPsf);
+	if (coordSysLoaded==False) {itsCoordSys=itsPsf->coordinates(); itsMiscInfo=itsPsf->miscInfo();coordSysLoaded=True;}
       } catch (AipsIO& x) {logIO << "\"" << itsName << "\" not found." << LogIO::WARN;};
     try
       {
