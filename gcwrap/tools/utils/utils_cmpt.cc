@@ -27,15 +27,13 @@
 #ifndef NO_CRASH_REPORTER
 #include <stdcasa/StdCasa/CrashReporter.h>
 #endif
-#include <sys/stat.h>
 #include <stdlib.h>
 #include <signal.h>
 #include <string>
 #include <vector>
-#include <list>
 #include <cstdlib>
-#include <casacore/casa/System/AppState.h>
 #include <casacore/casa/Quanta/UnitMap.h>
+#include <casatools/Config/State.h>
 
 using namespace std;
 using namespace casacore;
@@ -43,53 +41,6 @@ using namespace casa;
 
 using namespace casacore;
 namespace casac {
-
-class CasacState: public casacore::AppState {
-public:
-
-    CasacState( ) { }
-
-    void operator=(const std::vector<std::string> &new_list) {
-        std::list<std::string> existing_paths;
-        struct stat s;
-
-        // always clear the existing path
-        data_path.clear( );
-
-        // accept only strings that are the path to a directory
-        std::copy_if( new_list.begin( ), new_list.end( ), std::back_inserter(existing_paths),
-                      [&s]( std::string d ) {
-                          return (stat(d.c_str( ),&s) == 0)  && (s.st_mode & S_IFDIR);
-                      } );
-
-        // convert the paths to fully qualified paths
-        char buffer[PATH_MAX+1];
-        std::transform( existing_paths.begin( ), existing_paths.end( ),
-                        std::back_inserter( data_path ),
-                        [&buffer]( const std::string &f ) {
-                            char *expanded = realpath(f.c_str( ), buffer);
-                            return expanded ? std::string(expanded) : std::string( );
-                        } );
-    }
-
-    void clear( ) { data_path.clear( ); }
-
-    virtual std::list<std::string> dataPath( ) const {
-        return data_path;
-    }
-
-    virtual bool initialized( ) const { return true; }
-
-private:
-    std::list<std::string> data_path;
-
-};
-
-static CasacState &get_casac_state( ) {
-    if ( AppStateSource::fetch( ).initialized( ) == false )
-        casacore::AppStateSource::initialize( new CasacState );
-    return dynamic_cast<CasacState&>(AppStateSource::fetch( ));
-}
 
 utils::utils()
 {
@@ -450,7 +401,7 @@ bool utils::initialize(const std::vector<std::string> &default_path) {
     static bool initialized = false;
     if ( initialized ) return false;
     default_data_path = default_path;
-    get_casac_state( ) = default_data_path;
+    casatools::get_state( ).setDataPath(default_data_path);
     // configure quanta/measures customizations...
     UnitMap::putUser( "pix", UnitVal(1.0), "pixel units" );
     initialized = true;
@@ -464,24 +415,55 @@ std::vector<std::string> utils::defaultpath( ) {
 }
 
 bool utils::setpath(const std::vector<std::string> &dirs) {
-    get_casac_state( ) = dirs;
-    return get_casac_state( ).dataPath( ).size( ) == dirs.size( );
+    casatools::get_state( ).setDataPath(dirs);
+    return casatools::get_state( ).dataPath( ).size( ) == dirs.size( );
 }
 
 std::vector<std::string> utils::getpath( ) {
     std::vector<std::string> result;
-    const std::list<std::string> &path = get_casac_state( ).dataPath( );
+    const std::list<std::string> &path = casatools::get_state( ).dataPath( );
     std::copy( path.begin( ), path.end( ), std::back_inserter(result) );
     return result;
 }
 
 void utils::clearpath( ) {
-    get_casac_state( ).clear( );
+    casatools::get_state( ).clearDataPath( );
 }
 
 std::string utils::resolve(const std::string &subdir) {
-    return get_casac_state( ).resolve(subdir);
+    return casatools::get_state( ).resolve(subdir);
 }
+// ------------------------------------------------------------
+
+// ------------------------------------------------------------
+// -------------- handling service registry -------------------
+::casac::record *utils::registry( ) {
+    casac::record *regrec = new casac::record;
+    regrec->insert("uri",casatools::get_state( ).registryURI( ));
+    return regrec;
+}
+
+::casac::record *utils::services( ) {
+    std::list<casatools::ServiceId> servs = casatools::get_state( ).services( );
+    casac::record *regrec = new casac::record;
+    unsigned int count = 1;
+    for ( std::list<casatools::ServiceId>::const_iterator it=servs.begin( ); it != servs.end( ); ++it ) {
+        casac::record *sub = new casac::record;
+        sub->insert("id",it->id( ));
+        sub->insert("type",it->type( ));
+        sub->insert("uri",it->uri( ));
+        sub->insert("priority",it->priority( ));
+        regrec->insert(std::to_string(count++),sub);
+    }
+    return regrec;
+}
+
+void utils::shutdown( ) {
+    casatools::get_state( ).shutdown( );
+    // this will result in the deletion of casacore state object
+    casacore::AppStateSource::initialize(0);
+}
+
 // ------------------------------------------------------------
 
 std::vector<int>
