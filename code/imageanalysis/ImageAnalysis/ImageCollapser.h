@@ -93,21 +93,27 @@ private:
     // disallow default constructor
     ImageCollapser();
 
+    void _doFluxUnits(
+        casacore::TempImage<T>& tmpIm,
+        const SHARED_PTR<const casacore::SubImage<T>> subImage
+    ) const;
+
     void _invert();
 
     void _finishConstruction();
 
     void _checkFlux(SPCIIT subImage) const;
 
+    void _doDegenerateAxesCase(
+        casacore::TempImage<T>& tmpIm, SPCIIT subImage
+    ) const;
+
     void _doLowPerf(
         TempImage<T>& tmpIm, SPCIIT subImage, T npixPerBeam
     ) const;
 
     // necessary to improve performance
-    void _doMedian(
-        SPCIIT image,
-		casacore::TempImage<T>& outImage
-    ) const;
+    void _doHighPerf(SPCIIT image, casacore::TempImage<T>& outImage) const;
 
     // returns true if miscellaneous info was copied
     Bool _doMultipleBeams(

@@ -555,6 +555,7 @@ hardly ever needed.
 <input>
 	<param type="string" name="tablename">
 	<value></value>
+    <type mustexist="true">path</type>
 	</param>
         <param type="record" name="lockoptions">
         <description>locking dictionary to be used : dict keys are 'option', 'interval', 'maxwait'</description>

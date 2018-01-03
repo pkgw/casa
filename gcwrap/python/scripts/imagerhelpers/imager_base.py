@@ -359,6 +359,28 @@ class PySynthesisImager:
         self.SItool.makepb()
 
 #############################################
+    def makeSdImage(self):
+        self.makeSdImageCore()
+        for immod in range(0,self.NF):
+            self.PStools[immod].gatherresidual() 
+            self.PStools[immod].divideresidualbyweight()
+
+#############################################
+    def makeSdPSF(self):
+        self.makeSdPSFCore()
+        for immod in range(0,self.NF):
+            self.PStools[immod].gatherresidual() 
+            self.PStools[immod].dividepsfbyweight()
+
+#############################################
+    def makeSdImageCore(self):
+        self.SItool.makesdimage()
+
+#############################################
+    def makeSdPSFCore(self):
+        self.SItool.makesdpsf()
+
+#############################################
 
 ## Overloaded for parallel runs
     def setWeighting(self):
