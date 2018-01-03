@@ -76,7 +76,7 @@ void StatWt::setTVIConfig(const Record& config) {
     _tviConfig = config;
 }
 
-void StatWt::writeWeights() const {
+Record StatWt::writeWeights() const {
     auto hasWtSp = _ms->isColumn(MSMainEnums::WEIGHT_SPECTRUM);
     auto mustWriteWtSp = ! _preview
         && _tviConfig.isDefined(vi::StatWtTVI::CHANBIN);
@@ -119,7 +119,7 @@ void StatWt::writeWeights() const {
         _ms->addColumn(tdWtSp, wtSpStMan);
     }
     else if (! _preview) {
-        // check to see if existant WEIGHT_SPECTRUM needs to be initialized
+        // check to see if extant WEIGHT_SPECTRUM needs to be initialized
         ArrayColumn<Float> col(*_ms, MS::columnName(MS::WEIGHT_SPECTRUM));
         try {
             col.get(0);
@@ -203,6 +203,12 @@ void StatWt::writeWeights() const {
             << LogIO::POST;
     }
     statWtLayerFactory.getTVI()->summarizeFlagging();
+    Double mean, variance;
+    statWtLayerFactory.getTVI()->summarizeStats(mean, variance);
+    Record ret;
+    ret.define("mean", mean);
+    ret.define("variance", variance);
+    return ret;
 }
 
 }
