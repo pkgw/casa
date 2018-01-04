@@ -912,7 +912,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	else
 	  {
 	    ///coordsys for psf can be different ...shape should be the same.
-	    ptr = openImage(itsImageName+label , itsOverWrite, sw, 1, (label !=  imageExts(PSF))); 
+	    ptr = openImage(itsImageName+label , itsOverWrite, sw, 1, !(label.contains(imageExts(PSF)))); 
 	    //cout << "Opening image : " << itsImageName+label << " of shape " << ptr->shape() << endl;
 	  }
       }

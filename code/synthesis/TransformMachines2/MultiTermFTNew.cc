@@ -400,7 +400,6 @@ void MultiTermFTNew::initializeToSkyNew(const Bool dopsf,
   {
     
     subftms_p[0]->put(vb,row,dopsf,type);
-    
     if (!dryRun())
       {
 	Int gridnterms=nterms_p;
@@ -409,7 +408,7 @@ void MultiTermFTNew::initializeToSkyNew(const Bool dopsf,
 	    gridnterms=2*nterms_p-1;
 	  }
     
-	//cout << "  Calling put for " << gridnterms << " terms, nelements :  " << subftms_p.nelements() << "  and dopsf " << dopsf << endl;
+	//cerr << "  Calling put for " << gridnterms << " terms, nelements :  " << subftms_p.nelements() << "  and dopsf " << dopsf << " reffreq " << reffreq_p << endl;
     
 	for(Int tix=1;tix<gridnterms;tix++)
 	  {
@@ -469,8 +468,70 @@ void MultiTermFTNew::finalizeToSkyNew(Bool dopsf,
     //    cout << "MTFT :: makeImage for taylor 0 only "<< endl;
     subftms_p[0]->makeImage(type, vi, theImage, weight);
   }
-  
+  void MultiTermFTNew::makeMTImages(refim::FTMachine::Type type,
+				    vi::VisibilityIterator2& vi,
+				    casacore::Vector<casacore::CountedPtr<casacore::ImageInterface<casacore::Complex> > >& theImage,
+				    casacore::Vector<casacore::CountedPtr<casacore::Matrix<casacore::Float> > >& weight){
+    Int ntaylor= (type== refim::FTMachine::PSF) ? psfnterms_p : nterms_p; 
+    
 
+    
+    vi::VisBuffer2* vb=vi.getVisBuffer();
+    
+    // Initialize put (i.e. transform to Sky) for this model
+    vi.origin();
+    for(Int taylor=0;taylor< ntaylor  ; ++taylor) {
+       if(vb->polarizationFrame()==MSIter::Linear) {
+	 StokesImageUtil::changeCStokesRep(*(theImage[taylor]), StokesImageUtil::LINEAR);
+       }
+       else {
+	 StokesImageUtil::changeCStokesRep(*(theImage[taylor]), StokesImageUtil::CIRCULAR);
+       }
+       subftms_p[taylor]->initializeToSky(*(theImage[taylor]), *(weight[taylor]),*vb);
+      
+    }
+    {
+      Vector<Double> refpix = (theImage[0]->coordinates().spectralCoordinate()).referencePixel();
+      (theImage[0]->coordinates().spectralCoordinate()).toWorld( reffreq_p, refpix[0] );
+    }
+    Bool useCorrected= !(ROMSColumns(vi.ms()).correctedData().isNull());
+    if((type==FTMachine::CORRECTED) && (!useCorrected))
+      type=FTMachine::OBSERVED;
+   
+
+    // Loop over the visibilities, putting VisBuffers
+    for (vi.originChunks();vi.moreChunks();vi.nextChunk()) {
+      for (vi.origin(); vi.more(); vi.next()) {
+	
+	switch(type) {
+	case FTMachine::RESIDUAL:
+	  vb->setVisCube(vb->visCubeCorrected());
+	  vb->setVisCube(vb->visCube()-vb->visCubeModel());
+	  put(*vb, -1, false);
+	  break;
+	case FTMachine::CORRECTED:
+	  put(*vb, -1, false, FTMachine::CORRECTED);
+	  break;
+	case FTMachine::PSF:
+	  vb->setVisCube(Complex(1.0,0.0));
+	  put(*vb, -1, true, FTMachine::PSF);
+	  break;
+	case FTMachine::OBSERVED:
+	  put(*vb, -1, false, FTMachine::OBSERVED);
+	  break;
+	default:
+	  throw(AipsError("Cannot make multiterm image of type requested"));
+	  break;
+	}
+      }
+    }
+    ///
+    for(Int taylor=0;taylor< ntaylor  ; ++taylor) {
+      subftms_p[taylor]->finalizeToSky();
+      subftms_p[taylor]->getImage(*(weight[taylor]), false);
+     
+    }
+  }
   //---------------------------------------------------------------------------------------------------
   //------------------------ To / From Records ---------------------------------------------------------
   //---------------------------------------------------------------------------------------------------

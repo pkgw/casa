@@ -271,9 +271,10 @@ void StokesImageUtil::MakeGaussianPSF(ImageInterface<Float>& psf, Vector<Float>&
   
 }
 
-void StokesImageUtil::normalizePSF(casacore::ImageInterface<casacore::Float>& psf){
+Float  StokesImageUtil::normalizePSF(casacore::ImageInterface<casacore::Float>& psf){
   AlwaysAssert(psf.ndim()==4,AipsError);
   
+  Float retval=-1e10;
   Vector<Int> map;
   AlwaysAssert(StokesMap(map, psf.coordinates()), AipsError);
   Int nx = psf.shape()(map(0));
@@ -300,6 +301,8 @@ void StokesImageUtil::normalizePSF(casacore::ImageInterface<casacore::Float>& ps
       Slicer sl(blc, trc, Slicer::endIsLast);
       SubImage<Float> psfSub(psf, sl, True);
       Float maxCenter=max(psfSub.getSlice(inner8));
+      if(maxCenter > retval)
+	retval=maxCenter;
       if(maxCenter !=0){
 	psfSub.copyData( (LatticeExpr<Float>)(psfSub/maxCenter));
       }
@@ -308,6 +311,7 @@ void StokesImageUtil::normalizePSF(casacore::ImageInterface<casacore::Float>& ps
       }
     }
   }
+  return retval;
 }
 
 

@@ -1318,13 +1318,15 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
 	 << LogIO::POST;
     }
 
-
     String imageName=(itsMappers.imageStore(whichModel))->getName();
     String cImageName(complexImage);
-    Bool keepComplexImage=(complexImage!="")||(type.contains("holography"));
     if(complexImage=="") {
       cImageName=imageName+".compleximage";
     }
+    Bool keepComplexImage=(complexImage!="")||(type.contains("holography"));
+    //cerr << "name " << (itsMappers.getFTM2(whichModel))->name() << endl;
+ if(((itsMappers.getFTM2(whichModel))->name())!="MultiTermFTNew"){
+   ////Non multiterm case    
     PagedImage<Float> theImage((itsMappers.imageStore(whichModel))->getShape(), (itsMappers.imageStore(whichModel))->getCSys(), imagename);
     PagedImage<Complex> cImageImage(theImage.shape(),
 				    theImage.coordinates(),
@@ -1334,6 +1336,7 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
 
 
     Matrix<Float> weight;
+    
     (itsMappers.getFTM2(whichModel))->makeImage(seType, *vi_p, cImageImage, weight);
 
     if(seType==refim::FTMachine::PSF){
@@ -1343,6 +1346,48 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
     else{
       StokesImageUtil::To(theImage, cImageImage);
     }
+ }
+ else{
+   ///Multiterm
+   //refim::MultiTermFTNew *theft=static_cast<refim::MultiTermFTNew *>( (itsMappers.getFTM2(whichModel))->cloneFTM());
+   refim::MultiTermFTNew *theft=static_cast<refim::MultiTermFTNew *>( (itsMappers.getFTM2(whichModel)).get());
+   Int ntaylor= seType==refim::FTMachine::PSF ? theft->psfNTerms() : theft->nTerms();
+   if(ntaylor<2)
+     throw(AipsError("some issue with muti term setting "));
+   Vector<CountedPtr<ImageInterface<Float> > >theImage(ntaylor);
+   Vector<CountedPtr<ImageInterface<Complex> > >cImageImage(ntaylor);
+   Vector<CountedPtr<Matrix<Float> > >weight(ntaylor);
+   for (Int taylor=0; taylor < ntaylor; ++taylor){
+     theImage[taylor]=new PagedImage<Float>((itsMappers.imageStore(whichModel))->getShape(), (itsMappers.imageStore(whichModel))->getCSys(), imagename+".tt"+String::toString(taylor));
+     cImageImage[taylor]=new PagedImage<Complex> (theImage[taylor]->shape(),
+						  theImage[taylor]->coordinates(),
+						  cImageName+".tt"+String::toString(taylor));
+      if(!keepComplexImage)
+	static_cast<PagedImage<Complex> *> (cImageImage[taylor].get())->table().markForDelete();
+      weight[taylor]=new Matrix<Float>();
+
+   }
+   theft->makeMTImages(seType, *vi_p, cImageImage, weight);
+   Float maxpsf=1.0;
+   for (Int taylor=0; taylor < ntaylor; ++taylor){
+     if(seType==refim::FTMachine::PSF){
+       StokesImageUtil::ToStokesPSF(*(theImage[taylor]), *(cImageImage[taylor]));
+       if(taylor==0){
+	 maxpsf=StokesImageUtil::normalizePSF(*theImage[taylor]);
+	 //cerr << "maxpsf " << maxpsf << endl;
+       }
+       else{
+	 ///divide by max;
+	 (*theImage[taylor]).copyData((LatticeExpr<Float>)((*theImage[taylor])/maxpsf));
+       }
+    }
+    else{
+      StokesImageUtil::To(*(theImage[taylor]), *(cImageImage[taylor]));
+    }
+   }
+   //delete theft;
+     
+ }
     unlockMSs();
 
   }// end makeImage
