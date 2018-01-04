@@ -37,7 +37,6 @@
 
 #include <casa/Arrays/ArrayMath.h>
 #include <casa/Arrays/MatrixMath.h>
-// FIXME: ?
 #include <casa/Arrays/ArrayLogical.h>
 #include <casa/BasicSL/String.h>
 #include <casa/Utilities/Assert.h>
@@ -66,6 +65,8 @@
 #include <gsl/gsl_linalg.h>
 
 
+// DEVDEBUG gates the development debugging information to standard
+// error; it should be set to 0 for production.
 #define DEVDEBUG 0
 
 using namespace casa::vi;
@@ -80,7 +81,6 @@ static void unitize(Array<Complex>& vC)
     vCa(vCa<FLT_EPSILON)=1.0;
     vC /= vCa;
 }
-
 
 SDBListGridManager::SDBListGridManager(SDBList& sdbs_) :
     sdbs (sdbs_)
@@ -136,6 +136,9 @@ SDBListGridManager::SDBListGridManager(SDBList& sdbs_) :
     }
 }
 
+// checkAllGridPoints is a diagnostic funtion that should not be called
+// in production releases, but it doesn't do any harm to have it
+// latent.
 void
 SDBListGridManager::checkAllGridpoints() {
         map<Int , Vector<Double> const * >::iterator it;
@@ -162,16 +165,7 @@ SDBListGridManager::swStartIndex(Int spw) {
 }
     
 
-
-// **************************************************************
-// DelayRateFFT modeled on DelayFFT(const VisBuffer&, Double padBW, Int refant) in KJones.{cc|h}
-
-// Remark: Double, Int et al are in casacore namespace. Need to be
-// qualified in headers, I guess, but here we are not in headers and we
-// are using that namespace.
-
-
-
+// DelayRateFFT is modeled on DelayFFT in KJones.{cc|h}
 DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant) :
     refant_( refant ),
     gm_ ( sdbs ),
@@ -188,8 +182,12 @@ DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant) :
     xcount_(),
     sumw_(),
     sumww_() {
-    // Actual code!
+    // This check should be commented out in production:
     // gm_.checkAllGridpoints();
+    if (nt_ < 2) {
+        throw(AipsError("Can't do a 2-dimensional FFT on a single timestep! Please consider changing solint to avoid orphan timesteps."));
+    }
+    
     Int nCorrOrig( sdbs(0).nCorrelations() );
     nCorr_ = (nCorrOrig> 1 ? 2 : 1); // number of p-hands
 
@@ -212,7 +210,6 @@ DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant) :
     }
 
     nElem_ =  1 + *(allActiveAntennas_.rbegin()) ;
-    //
 
     IPosition aggregateDim(2, nCorr_, nElem_);
     xcount_.resize(aggregateDim);
@@ -222,24 +219,15 @@ DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant) :
     xcount_ = 0;
     sumw_ = 0.0;
     sumww_ = 0.0;
-        
-    // Can't get timeInterval, fails with error
-    // "Caught exception: Exception: Can't fill VisBuffer component TimeInterval:
-    // Not attached to VisibilityIterator."
-
+    
     if (DEVDEBUG) {
         cerr << "Filling FFT grid with " << sdbs.nSDB() << " data buffers." << endl;
     }
-    if (sdbs.nSDB() < 2) {
-        throw(AipsError("Not enough sdbs!"));
-    }
 
-
-    
+    // Don't try to check there are multiple times here; let DelayRateFFT check that.
     IPosition paddedDataSize(4, nCorr_, nElem_, nPadT_, nPadChan_);
     Vpad_.resize(paddedDataSize);
 
-    // FIXME: There are now multiple SDBs per time step!
     for (Int ibuf=0; ibuf != sdbs.nSDB(); ibuf++) {
         SolveDataBuffer& s ( sdbs(ibuf) );
         if ( !s.Ok() )
@@ -308,7 +296,7 @@ DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant) :
             Array<Bool> flagged( fl(flagSlice).nonDegenerate() );
                 
             if ( allTrue(flagged) ) {
-                ; // cerr << "irow " << irow << " Whoopsie!" << endl;
+                ; // skip
             } else {
                 for (Int icorr=0; icorr<nCorr_; ++icorr) {
                     IPosition p(2, icorr, iant);
@@ -1784,61 +1772,15 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
     std::map<Int, Double> aggregateTime;
     aggregateTimeCentroid(sdbs, refant(), aggregateTime);
 
-    std::cerr << "Weighted time centroids" << endl; 
-    for (auto it=aggregateTime.begin(); it!=aggregateTime.end(); ++it)
-        std::cerr << it->first << " => " << it->second - t0 << std::endl;
-        
-    
-    if (0) {
-        /* The MSSpectralWindow above is constructed from the
-         * calibration table (ct_). In the case of the fringe jones
-         * table this reports only one frequency channel for each
-         * spectral window. This may be a bug in the definition of the
-         * spectral window in the calibration table; until it is
-         * addressed I need to work around it.
-         */
-
-        MeasurementSet ms( msName() );
-        ROMSColumns mscol(ms);
-        const ROMSSpWindowColumns& spwcol(mscol.spectralWindow());
-
-
-        cerr << "combine() " << combine() << endl;
-        cerr << "combspw() " << combspw() << endl;
-        
-        // spwMap seems to report 1, even when you are combining spectral windows;
-        // nSPW() reports 30 even when you aren't.
-
-        // Can we get the spectral windows without grovelling over the entire set of SolveDataBuffers?
-        for (uInt ispw=0; ispw != spwMap().nelements(); ++ispw) {
-            uInt jspw = spwMap()(ispw);
-            const Vector<Double>& chanfreqs = spwcol.chanFreq()(ispw);
-            // const ScalarColumn<int>& nchan = spwCol.numChan();
-            int nchan = spwcol.numChan()(ispw);
-        
-            cerr << "ispw " << ispw << " freq(0) " << chanfreqs(0) << endl;
-            cerr << "shape " << chanfreqs.shape() << endl;
-            cerr << "nelements " << chanfreqs.nelements() << endl;
-            cerr << "nchan " << nchan << endl;
-            // ncc.spectralWindow().chan
-            // spwins.insert(spw);
-        }
-        throw(AipsError("That's quite enough of that."));
+    if (DEVDEBUG) {
+        std::cerr << "Weighted time centroids" << endl; 
+        for (auto it=aggregateTime.begin(); it!=aggregateTime.end(); ++it)
+            std::cerr << it->first << " => " << it->second - t0 << std::endl;
     }
-
-    cerr << "Here" << endl;
     
-    // Pausing here:
-    // throw(AipsError("Just checking ref values."));
-    // the values seemed reasonable
-
-    // DelayRateFFT constructor currently segfaults, which is nice?
     DelayRateFFT drf( sdbs, refant());
-    cerr << "Here?" << endl;
     drf.FFT(); 
-    // logSink() << "FFT completed." << LogIO::POST;
     drf.searchPeak();
-    // logSink() << "Searched for peaks in FFT." << LogIO::POST;
     Matrix<Float> sRP(solveRPar().nonDegenerate(1));
     Matrix<Bool> sPok( solveParOK().nonDegenerate(1) );
     Matrix<Float> sSNR(solveParSNR().nonDegenerate(1));
@@ -1857,16 +1799,13 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
         sPok(sl) = !(drf.flag()(sl));
     }
 
-
     size_t nCorrOrig( sdbs(0).nCorrelations() );
     size_t nCorr = (nCorrOrig> 1 ? 2 : 1); // number of p-hands
 
-    // cerr << "(Reminder:) Current spectral window =" << currSpw() << endl;
     calculateSNR(nCorr, drf);
-    cerr << "Not here" << endl;
 
     set<Int> belowThreshold;
-    // In the Python interface there is a parameter minsnr.
+
     Float threshold = minSNR();
     
     for (size_t icor=0; icor != nCorr; icor++ ) {
@@ -1896,6 +1835,7 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
             drf.printActive();
         }
     }
+    // It should probably be possible for users to choose to turn off the least squares optimization.
     if (1) {
         logSink() << "Starting least squares optimization." << LogIO::POST;
         // Note that least_squares_driver is *not* a method of
@@ -1912,12 +1852,7 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
         cerr << "ref_freq " << ref_freq << endl;
         cerr << "df0 " << df0 << " dt0 " << dt0 << " ref_freq*dt0 " << ref_freq*dt0 << endl;
     }
-    // calculateSNR is a method of FringeJones so it has access to the sSNR (et al) arrays.
-    // But we no longer call it; we use a hessian-based calculation in least_squares_driver now.
-    // calculateSNR(nCorr, drf);
 
-    // 2017-10-05(iv) This correction to the centre of the interval had fallen off.
-    // restored from 19cd4a016baf3370658ad0601f4949f4474ba747
     for (Int iant=0; iant != nAnt(); iant++) {
         for (size_t icor=0; icor != nCorr; icor++ ) {
             Double df_bootleg = drf.get_df_all();
@@ -1927,7 +1862,10 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
             // Double delta1 = df0*delay;
             // Double delta1 = 0.5*df_bootleg*delay/1e9;
             auto it = aggregateTime.find(iant);
-            Double delta1 = 0.0; // Temporary hack
+            // We assume the reference frequency for fringe fitting
+            // (which is NOT the one stored in the SPECTRAL_WINDOW
+            // table) is the left-hand edge of the frequency grid.
+            Double delta1 = 0.0; 
             Double delta2 = ref_freq*dt0*rate;
             Double delta3 = C::_2pi*(delta1+delta2);
             Double dt;
@@ -1937,11 +1875,12 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
             } else {
                 dt = refTime() - t0;
             }
-            cerr << "Antenna " << iant << ": phi0 " << phi0 << " delay " << delay << " rate " << rate << " dt " << dt << endl
-                 << "dt " << dt << endl
-                 << "Ref freq. "<< ref_freq << " Adding corrections for frequency (" << 360*delta1 << ")" 
-                 << " and time (" << 360*delta2 << ") degrees." << endl;
-
+            if (DEVDEBUG) {
+                cerr << "Antenna " << iant << ": phi0 " << phi0 << " delay " << delay << " rate " << rate << " dt " << dt << endl
+                     << "dt " << dt << endl
+                     << "Ref freq. "<< ref_freq << " Adding corrections for frequency (" << 360*delta1 << ")" 
+                     << " and time (" << 360*delta2 << ") degrees." << endl;
+            }
             sRP(3*icor + 0, iant) += delta3;
          }
     }
