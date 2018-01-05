@@ -1891,7 +1891,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
 			} else {
 				pair<double, double> ybounds;
 				PMS::Axis y = cacheParams->yAxis(i);
-				if (y==PMS::TIME && ymax-ymin > 60.0) {
+				if (y==PMS::TIME && ymax-ymin > 120.0) {
 					// explicitly set range so can set time scale 
 					ybounds = make_pair(ymin, ymax);
 			    	canvas->setAxisRange(cy, ybounds);
