@@ -1853,6 +1853,11 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
 		if ( axesParams->xRangeSet() ){
 			canvas->setAxisRange(cx, axesParams->xRange());
 		} else {
+			if (x==PMS::TIME && xmax-xmin > 120.0) {
+				// explicitly set range so can set time scale 
+				pair<double, double> xbounds = make_pair(xmin, xmax);
+			    canvas->setAxisRange(cx, xbounds);
+			}
 			if ((xmin > -0.5) && (xmin < 1.0) && (xmax > 10.0)) {
 				if (xmax > 100.0)
 					xmin -= 1.0; // add larger margin for larger range
@@ -1885,6 +1890,12 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
 				canvas->setAxisRange(cy, axesParams->yRange(i));
 			} else {
 				pair<double, double> ybounds;
+				PMS::Axis y = cacheParams->yAxis(i);
+				if (y==PMS::TIME && ymax-ymin > 60.0) {
+					// explicitly set range so can set time scale 
+					ybounds = make_pair(ymin, ymax);
+			    	canvas->setAxisRange(cy, ybounds);
+				}
 				if (ymax-ymin < 1e-3) {
 					// autorange sets multiple y-ticks to same value
 					// with very small diff
@@ -1902,7 +1913,6 @@ void PlotMSPlot::setCanvasProperties (int row, int col,
 				}
 
 				// make range symmetrical for u and v
-				PMS::Axis y = cacheParams->yAxis(i);
 				if (PMS::axisIsUV(y)) {
 					// set range if not all flagged
 					if ((ymin != DBL_MAX) && (ymax != -DBL_MAX)) {
