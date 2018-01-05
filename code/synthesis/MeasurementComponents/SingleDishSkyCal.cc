@@ -1418,7 +1418,7 @@ MeasurementSet SingleDishOtfCal::selectMS(MeasurementSet const &ms)
             LogIO os;
             os << LogOrigin("PointingDirectionProjector", "scale_and_center", WHERE);
             os << LogIO::WARN << "Estimated Memory: " << estimated_memory << LogIO::POST;
-            os << LogIO::WARN << "Mitigation of memory usage is activated. pixel_scale_ is set to 1.0" << LogIO::POST;
+            os << LogIO::WARN << "Mitigation of memory usage is activated. pixel scale is set to 1.0" << LogIO::POST;
             // pixel_size can be set to 2.0 since projection grid spacing is estimated from half of median separation
             // between neighboring pixels so that pixel_width will become about 1.0 if pixel_size is 0.
             pixel_size = 2.0;
