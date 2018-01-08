@@ -88,9 +88,8 @@ void CalCache::loadIt(vector<PMS::Axis>& loadAxes,
   setFilename(filename_);
 
   // trap unsupported types
-  if (calType_=="BPOLY" || calType_=="GSPLINE" || 
-      calType_[0]=='A' || calType_[0]=='M' || (calType_[0]=='X' &&
-      calType_.contains("Mueller"))) {
+  if (calType_=="BPOLY" || calType_=="GSPLINE" || calType_[0]=='M' ||
+      (calType_[0]=='X' && calType_.contains("Mueller"))) {
     throw AipsError("Cal table type " + calType_ + " is unsupported in plotms. Please continue to use plotcal.");
   }
 

@@ -651,6 +651,17 @@ Slice calParSliceByType(String caltype, String what, String pol)
     else
       throw(AipsError("Unsupported value type: "+what));
   }
+  else if (caltype[0]=='A') {
+    if (what=="AMP" ||
+        what=="PHASE" ||
+        what=="REAL" ||
+        what=="IMAG") {
+      s=0;  // nominal start is first pol
+      i=1;  // increment is nominally 1 (only good for 1-par-per-pol caltypes
+    }
+    else
+      throw(AipsError("Unsupported value type: "+what));
+  } 
   else if (caltype[0]=='K') {
     if (caltype=="KANTPOS JONES") {
       // antenna x,y,z corrections not pol
