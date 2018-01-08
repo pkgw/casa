@@ -638,7 +638,7 @@ Slice calParSliceByType(String caltype, String what, String pol)
     else
       throw(AipsError("Unsupported value type: "+what));
   } 
-  else if (caltype[0]=='T') {
+  else if ((caltype[0]=='T') || (caltype[0]=='X' && !caltype.contains("MUELLER"))) {
     if (what=="AMP" ||
         what=="PHASE" ||
         what=="REAL" ||
@@ -646,7 +646,7 @@ Slice calParSliceByType(String caltype, String what, String pol)
       if (pol=="")
          return Slice(0,1,1); // trivial
       else
-         throw(AipsError("Can't select with pol='"+pol+"' on unpolarized T table."));
+         throw(AipsError("Can't select with pol='"+pol+"' on unpolarized table."));
     }
     else
       throw(AipsError("Unsupported value type: "+what));

@@ -118,7 +118,7 @@ PMS::AxisUnit PMS::axisUnit(Axis axis) {
     case U:
     case V:
     case W:
-    case ANTCORR:
+    case ANTPOS:
        	return METERS;
     case UVDIST_L:
     case UWAVE:

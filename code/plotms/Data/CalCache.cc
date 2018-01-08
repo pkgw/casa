@@ -84,12 +84,16 @@ void CalCache::loadIt(vector<PMS::Axis>& loadAxes,
     vector<PMS::DataColumn>& /*loadData*/,
     ThreadCommunication* thread) {
 
-  // update cal type
+  // this also sets calType_:
   setFilename(filename_);
 
+  // trap unsupported types
   if (calType_=="BPOLY" || calType_=="GSPLINE" || 
-      calType_[0]=='A' || calType_[0]=='M' || calType_[0]=='X')
+      calType_[0]=='A' || calType_[0]=='M' || (calType_[0]=='X' &&
+      calType_.contains("Mueller"))) {
     throw AipsError("Cal table type " + calType_ + " is unsupported in plotms. Please continue to use plotcal.");
+  }
+
   logLoad("Plotting a " + calType_ + " calibration table.");
 
   // Warn that averaging will be ignored
@@ -149,8 +153,9 @@ void CalCache::setUpCalIter(const String& ctname,
 
   // check for invalid caltypes for ratio plots
   if (selection.corr() == "/") {
-    if (calType_ == "BPOLY" || calType_[0] == 'T' || calType_[0] == 'F')
+    if (calType_ == "BPOLY" || calType_[0]=='T' || calType_[0]=='F' || calType_[0]=='X') {
       throw(AipsError("Polarization ratio plots not supported for " + calType_ + " tables."));
+    }
     polnRatio_ = true;
   } else {
     polnRatio_ = false;

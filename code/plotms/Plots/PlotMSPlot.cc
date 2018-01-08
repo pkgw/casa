@@ -2043,7 +2043,7 @@ PMS::Axis PlotMSPlot::getCalAxis(String calType, PMS::Axis axis) {
         if (calType.contains("Opac")) return PMS::OPAC;
         if (calType.contains("SD")) return PMS::GREAL;
         if (calType[0]=='F') return PMS::TEC;
-		if (calType.startsWith("KAntPos")) return PMS::ANTCORR; 
+		if (calType.startsWith("KAntPos")) return PMS::ANTPOS; 
         if (calType[0]=='K') return PMS::DELAY;
         return PMS::GAMP;
     }

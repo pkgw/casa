@@ -783,6 +783,7 @@ void PlotMSCacheBase::release(const vector<PMS::Axis>& axes) {
                 break;
 			case PMS::RHO: rho_.resize(0);
                 break;
+			case PMS::ANTPOS: // ant corrections loaded as AMP
 			case PMS::NONE:
                 break;
 			}
@@ -1521,6 +1522,7 @@ void PlotMSCacheBase::setCache(Int newnChunk,
                 rho_.resize(nChunk_,true);
                 }
                 break;
+            case PMS::ANTPOS:  // ant corrections loaded as AMP
             case PMS::NONE:
                 break;
         }
@@ -1668,6 +1670,7 @@ void PlotMSCacheBase::setAxesMask(PMS::Axis axis,Vector<Bool>& axismask) {
 	case PMS::INTENT:
 	case PMS::FEED1:
 	case PMS::FEED2:
+	case PMS::ANTPOS:
 	case PMS::NONE:
 		break;
 	}

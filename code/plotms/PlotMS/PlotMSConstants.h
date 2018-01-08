@@ -124,7 +124,7 @@ public:
 	      PARANG,
 		  // Calibration 
 	      GAMP,GPHASE,GREAL,GIMAG,
-	      DELAY,SWP,TSYS,OPAC, SNR, TEC, ANTCORR,
+	      DELAY,SWP,TSYS,OPAC, SNR, TEC, ANTPOS,
 		  // Ephemeris
 	      RADIAL_VELOCITY, RHO, 
 	      NONE)
