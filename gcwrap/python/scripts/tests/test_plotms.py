@@ -1612,7 +1612,7 @@ class test_selection(plotms_test_base):
         res = plotms(vis=self.ms, plotfile=plotfile3_jpg, expformat='jpg', 
                      overwrite=True, showgui=False, scan='5,7', highres=True)
         self.assertTrue(res)
-        self.checkPlotfile(plotfile3_jpg, 80000, 125000)
+        self.checkPlotfile(plotfile3_jpg, 70000, 125000)
         self.removePlotfile(plotfile3_jpg)
         print
 
