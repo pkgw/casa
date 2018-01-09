@@ -179,6 +179,17 @@ public:
 		}
 	}
 
+    // based on PlotMSCacheBase::Type enum {MS, CAL}
+    const casacore::Int & type() const {
+        return itsType_;
+    }
+	void setType (const casacore::Int & value) {
+		if (itsType_ != value) {
+			itsType_ = value;
+			updated();
+		}
+	}
+
 	const PlotMSSelection & selection() const {
 		return itsSelection_;
 	}
@@ -226,6 +237,7 @@ private:
 
 	/* Parameters' values */
 	casacore::String itsFilename_;
+	casacore::Int itsType_;
 	PlotMSSelection itsSelection_;
 	PlotMSAveraging itsAveraging_;
 	PlotMSTransformations itsTransformations_;
@@ -233,6 +245,7 @@ private:
 
 	/* Key strings for casacore::Record */
 	static const casacore::String REC_FILENAME;
+	static const casacore::String REC_TYPE;
 	static const casacore::String REC_SELECTION;
 	static const casacore::String REC_AVERAGING;
 	static const casacore::String REC_TRANSFORMATIONS;

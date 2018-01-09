@@ -721,10 +721,18 @@ def plotms(vis=None,
                          showminorgrid, minorwidth, minorstyle, minorcolor, False, plotindex)
 
         # Plot ranges
-        if (len(plotrange) == 0):
+        if len(plotrange) == 0:
             plotrange=[0.0, 0.0, 0.0, 0.0]
-        if (len(plotrange) != 4):
-            raise Exception('plotrange parameter has incorrect number of elements.')
+        elif len(plotrange) != 4:
+            casalog.post('plotrange parameter has incorrect number of elements.', 'SEVERE')
+            return False
+        else:
+            try:
+                for i,val in enumerate(plotrange):
+                    plotrange[i] = float(val)
+            except (TypeError, ValueError) as e:
+                casalog.post("plotrange elements must be numeric", 'SEVERE')
+                return False
         xranges = plotrange[1] - plotrange[0]
         yranges = plotrange[3] - plotrange[2]
         pm.setXRange((xranges<=0.0), plotrange[0], plotrange[1], False, plotindex)

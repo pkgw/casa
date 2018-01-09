@@ -23,7 +23,7 @@
 //#                        Charlottesville, VA 22903-2475 USA
 //#
 #include "PreferencesColor.qo.h"
-#include <guitools/Feather/Preferences.qo.h>
+#include <guitools/Feather/FeatherPreferences.qo.h>
 #include <guitools/Feather/PreferencesFunction.qo.h>
 #include <QColorDialog>
 #include <QSettings>
@@ -273,7 +273,7 @@ void PreferencesColor::populateScatterAxisY(){
 void PreferencesColor::initializeUser(){
 	//Only use the default values passed in if the user has not indicated
 	//any preferences.
-	QSettings settings( Preferences::ORGANIZATION, Preferences::APPLICATION );
+	QSettings settings( FeatherPreferences::ORGANIZATION, FeatherPreferences::APPLICATION );
 	QList<CurveType> keys = curvePreferences.keys();
 	for ( QList<CurveType>::iterator iter = keys.begin(); iter != keys.end(); iter++ ){
 		curvePreferences[*iter]->initialize( settings );
@@ -420,7 +420,7 @@ void PreferencesColor::saveScatterSettings(){
 void PreferencesColor::persist(){
 	saveScatterSettings();
 
-	QSettings settings( Preferences::ORGANIZATION, Preferences::APPLICATION );
+	QSettings settings( FeatherPreferences::ORGANIZATION, FeatherPreferences::APPLICATION );
 	QList<CurveType> keys = curvePreferences.keys();
 	for ( QList<CurveType>::iterator iter = keys.begin(); iter != keys.end(); iter++ ){
 		curvePreferences[*iter]->persist( settings );
