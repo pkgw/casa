@@ -146,7 +146,7 @@ public:
 		  // Calibration 
 	      "Gain Amp","Gain Phase","Gain Real","Gain Imag",
 	      "Delay","SwPower","Tsys","Opac", "SNR", "TEC",
-		  "Antenna Corrections",
+		  "Antenna Positions",
 		  // Ephemeris
 	      "Radial Velocity", "Distance (rho)", 
 	      "None")
