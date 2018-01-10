@@ -65,7 +65,7 @@ casa_add_library( casadbus
   plotserver/PlotServerProxy.cc
   session/DBusSession.cc
   session/Dispatcher.cc
-  types/record.cc
+  types/dbusrecord.cc
   types/variant.cc
   utilities/BusAccess.cc
   utilities/Conversion.cc
