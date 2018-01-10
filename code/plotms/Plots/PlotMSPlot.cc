@@ -338,12 +338,13 @@ vector<PMS::Axis> PlotMSPlot::getCachedAxes() {
                 PMS_PP_Axes* a = itsParams_.typedGroup<PMS_PP_Axes>();
                 a->resize(index+1, true);  // copy values
                 a->setAxes(a->xAxis(index-1), Y_RIGHT, index);
-				// keep same xaxis range
-				a->setXRange(a->xRangeSet(index-1), a->xRange(index-1), index);
+                // keep same xaxis range
+                a->setXRange(a->xRangeSet(index-1), a->xRange(index-1), index);
                 // set Display symbol color
                 PMS_PP_Display* disp = itsParams_.typedGroup<PMS_PP_Display>();
                 PlotSymbolPtr atmSymbol = disp->unflaggedSymbol(index);
-                atmSymbol->setSymbol("autoscaling");
+                atmSymbol->setSymbol("circle");
+                atmSymbol->setSize(3,3);
                 atmSymbol->setColor("#FF00FF");
                 disp->setUnflaggedSymbol(atmSymbol, index);
                 PlotSymbolPtr flaggedSymbol = disp->flaggedSymbol();
@@ -1745,7 +1746,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
                 } else if (y==PMS::ATM || y==PMS::TSKY) {
                     itsCache_->indexer(1,iteration).minsMaxes(xmin, xmax, ymin, ymax);
                     pair<double,double> atmrange;
-                    if (y==PMS::ATM) atmrange = make_pair(0, min(ymax+5.0, 100.0));
+                    if (y==PMS::ATM) atmrange = make_pair(0, min(ymax+1.0, 100.0));
                     else atmrange = make_pair(0, ymax+0.1);
                     canvas->setAxisRange(cy, atmrange);
                 }

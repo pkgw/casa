@@ -958,14 +958,18 @@ void MSCache::loadChunks(vi::VisibilityIterator2& vi,
                         lastscan = thisscan;
                     }
                     thisspw = vbToUse->spectralWindows()(0);
-                    if (((*atm_[chunk]).nelements()==1) &&
-                            (thisspw != lastspw)) {
-                        logWarn("load_cache", "Setting " + 
-                            PMS::axis(loadAxes[i]) + " for spw " +
-                            String::toString(thisspw) + 
-                            " to zero because it has only one channel.");
+                    if (thisspw != lastspw) {
+                        uInt vectorsize = ( loadAxes[i]==PMS::ATM ?
+                            (*atm_[chunk]).nelements() :
+                            (*tsky_[chunk]).nelements());
+                        if (vectorsize==1) {
+                            logWarn("load_cache", "Setting " + 
+                              PMS::axis(loadAxes[i]) + " for spw " +
+                              String::toString(thisspw) +
+                              " to zero because it has only one channel.");
+                        }
                         lastspw = thisspw;
-                    }
+                    } 
                 }
             }
         } else {
@@ -1010,7 +1014,9 @@ bool MSCache::useAveragedVisBuffer(PMS::Axis axis) {
 	case PMS::AZIMUTH:
 	case PMS::ELEVATION:
 	case PMS::PARANG:
-	case PMS::ROW: {
+	case PMS::ROW:
+	case PMS::ATM:
+	case PMS::TSKY: {
 		useAvg = false;
 		break;
 	}
@@ -1767,7 +1773,7 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
         casacore::Int spw = vb->spectralWindows()(0);
         casacore::Int scan = vb->scan()(0);
         casacore::Array<casacore::Double> chanFreqGHz =
-            vb->getFrequencies(0)/1e9;
+            vb->getFrequencies(0, freqFrame_)/1e9;
         casacore::Vector<casacore::Double> curve(1, 0.0);
         bool isAtm = (axis==PMS::ATM);
         if (plotmsAtm_) {
