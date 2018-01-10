@@ -867,31 +867,88 @@ template<class ScalingScheme>
 void SingleDishSkyCal::calcWtScale()
 {
   debuglog << "calcWtScale<ScalingScheme>" << debugpost;
-  CTInterface cti(*ct_);
-  MSSelection mss;
-  mss.setSpwExpr(String::toString(currSpw()));
-  mss.setObservationExpr(String::toString(currObs()));
+  auto const key = std::make_pair(currObs(), currSpw());
+  debuglog << "for obs " << currObs() << " and spw " << currSpw() << debugpost;
+  decltype(wtScaleData_)::iterator iter = wtScaleData_.find(key);
+  map<Int, Matrix<Double> > wtMap;
+  if (iter == wtScaleData_.end()) {
+    debuglog << "construct weight scaling data for obs " << currObs() << " spw " << currSpw() << debugpost;
+    CTInterface cti(*ct_);
+    MSSelection mss;
+    mss.setObservationExpr(String::toString(currObs()));
+    mss.setSpwExpr(String::toString(currSpw()));
+//    map<Int, Matrix<Double> > m;
+    debuglog << "number of antennas = " << nAnt() << debugpost;
+    for (Int iAnt = 0; iAnt < nAnt(); ++iAnt) {
+      mss.setAntennaExpr(String::toString(iAnt) + "&&&");
+      TableExprNode ten = mss.toTableExprNode(&cti);
+      NewCalTable temp;
+      try {
+        getSelectedTable(temp, *ct_, ten, "");
+      } catch (AipsError x) {
+        //logSink() << LogIO::WARN
+        //          << "Failed to calculate Weight Scale. Set to 1." << LogIO::POST;
+        //currWtScale() = 1.0f;
+        continue;
+      }
+      temp = temp.sort("TIME");
+      wtMap.emplace(std::piecewise_construct,
+          std::forward_as_tuple(iAnt),
+          std::forward_as_tuple(2, temp.nrow()));
+      //Matrix<Double> arr(2, temp.nrow());
+      Matrix<Double> &arr = wtMap.at(iAnt);
+      debuglog << "ant " << iAnt << " arr.shape = " << arr.shape() << debugpost;
+      ROScalarColumn<Double> col(temp, "TIME");
+      auto timeCol = arr.row(0);
+      col.getColumn(timeCol, False);
+      col.attach(temp, "INTERVAL");
+      auto intervalCol = arr.row(1);
+      debuglog << "timeCol.size() == " << timeCol.size() << " intervalCol.size() = " << intervalCol.size() << debugpost;
+      col.getColumn(intervalCol, False);
+    }
+    wtScaleData_.insert(std::make_pair(key, wtMap));
+  } else {
+    wtMap = iter->second;
+  }
+//  CTInterface cti(*ct_);
+//  MSSelection mss;
+//  mss.setSpwExpr(String::toString(currSpw()));
+//  mss.setObservationExpr(String::toString(currObs()));
+  debuglog << "wtMap keys: ";
+  for (decltype(wtMap)::iterator i = wtMap.begin(); i != wtMap.end(); ++i) {
+    debuglog << i->first << " ";
+  }
+  debuglog << debugpost;
   for (Int iAnt = 0; iAnt < nAnt(); ++iAnt) {
-    mss.setAntennaExpr(String::toString(iAnt) + "&&&");
-    TableExprNode ten = mss.toTableExprNode(&cti);
-    NewCalTable temp;
-    try {
-      getSelectedTable(temp, *ct_, ten, "");
-    } catch (AipsError x) {
-      //logSink() << LogIO::WARN
-      //          << "Failed to calculate Weight Scale. Set to 1." << LogIO::POST;
-      //currWtScale() = 1.0f;
+//    mss.setAntennaExpr(String::toString(iAnt) + "&&&");
+//    TableExprNode ten = mss.toTableExprNode(&cti);
+//    NewCalTable temp;
+//    try {
+//      getSelectedTable(temp, *ct_, ten, "");
+//    } catch (AipsError x) {
+//      //logSink() << LogIO::WARN
+//      //          << "Failed to calculate Weight Scale. Set to 1." << LogIO::POST;
+//      //currWtScale() = 1.0f;
+//      continue;
+//    }
+//    temp = temp.sort("TIME");
+//    ROScalarColumn<Double> col(temp, "TIME");
+//    Vector<Double> timeCol = col.getColumn();
+//    col.attach(temp, "INTERVAL");
+//    Vector<Double> intervalCol = col.getColumn();
+    decltype(wtMap)::iterator i = wtMap.find(iAnt);
+    if (i == wtMap.end()) {
+      //AipsError("Internal Error: Problem constructing weight scaling data.");
       continue;
     }
-    temp = temp.sort("TIME");
-    ROScalarColumn<Double> col(temp, "TIME");
-    Vector<Double> timeCol = col.getColumn();
-    col.attach(temp, "INTERVAL");
-    Vector<Double> intervalCol = col.getColumn();
+    auto const &mat = i->second;
+    debuglog << "matrix shape " << mat.shape() << debugpost;
+    Vector<Double> const &timeCol = mat.row(0);
+    Vector<Double> const &intervalCol = mat.row(1);
     size_t nrow = timeCol.size();
     debuglog << "timeCol = " << timeCol << debugpost;
     debuglog << "intervalCol = " << intervalCol << debugpost;
-    debuglog << "iAnt " << iAnt << " temp.nrow()=" << temp.nrow() << debugpost;
+    debuglog << "iAnt " << iAnt << " nrow=" << nrow << debugpost;
     if (currTime() < timeCol[0]) {
       debuglog << "Use nearest OFF weight (0)" << debugpost;
       currWtScale().xyPlane(iAnt) = ScalingScheme::SimpleScale(interval_[iAnt], intervalCol[0]);
