@@ -6751,10 +6751,13 @@ def getRADecForField(ms, myfieldId, debug):
         print "Could not open FIELD table for ms=%s" % (ms)
         return([0,0])
     mydir = mytb.getcell('DELAY_DIR',myfieldId)
+    npoly = mytb.getcell('NUM_POLY',myfieldId)
 #    if (mydir[0] < 0):
 #        mydir[0] += 2*math.pi
 #    mytb.close()
     mytb.done()
+    if npoly > 0:
+        return([mydir[0][0], mydir[1][0]])
     return(mydir)
 
 def findClosestTime(mytimes, mytime):
@@ -6870,9 +6873,9 @@ def getWeather(vis='', scan='', antenna='0',verbose=False, mymsmd=None):
     azeltime = subtable.getcol("TIME")
     subtable.close()
     telescopeName = mymsmd.observatorynames()[0]
-    if (len(direction) > 0 and telescopeName.find('VLA') < 0):
-      azimuth = direction[0][0]*180.0/math.pi
-      elevation = direction[1][0]*180.0/math.pi
+    if (len(direction) > 0 and telescopeName.find('VLA') < 0 and telescopeName.find('NRO') < 0):
+      azimuth = direction[0][0]*180.0/math.pi  # a list of values
+      elevation = direction[1][0]*180.0/math.pi # a list of values
       npat = np.array(azeltime)
       matches = np.where(npat>myTimes[0])[0]
       matches2 = np.where(npat<myTimes[-1])[0]
@@ -6908,7 +6911,7 @@ def getWeather(vis='', scan='', antenna='0',verbose=False, mymsmd=None):
       if (verbose):
           print "Average azimuth = %.2f, elevation = %.2f degrees" % (conditions['azimuth'],conditions['elevation'])
     else:
-      if (verbose): print "The POINTING table is blank."
+      if (verbose): print "The POINTING table is either blank or does not contain Azim/Elev."
       if (type(scan) == int or type(scan)==np.int32):
           # compute Az/El for this scan
         myfieldId = mymsmd.fieldsforscan(scan)
@@ -6984,6 +6987,10 @@ def getWeather(vis='', scan='', antenna='0',verbose=False, mymsmd=None):
           
               
     # now, get the weather
+    if not os.path.exists('%s/WEATHER' % vis):
+        print "There is no WEATHER table for this ms."
+        if (needToClose_mymsmd): mymsmd.close()
+        return([conditions,myTimes])
     try:
         mytb.open("%s/WEATHER" % vis)
     except:
@@ -7000,13 +7007,16 @@ def getWeather(vis='', scan='', antenna='0',verbose=False, mymsmd=None):
         if (np.mean(temperature) > 100):
             # must be in units of Kelvin, so convert to C
             temperature -= 273.15        
-        dewPoint = mytb.getcol('DEW_POINT')
-        if (np.mean(dewPoint) > 100):
-            # must be in units of Kelvin, so convert to C
-            dewPoint -= 273.15        
-        if (np.mean(dewPoint) == 0):
-            # assume it is not measured and use NOAA formula to compute from humidity:
-            dewPoint = ComputeDewPointCFromRHAndTempC(relativeHumidity, temperature)
+        if 'DEW_POINT' in mytb.colnames():
+            dewPoint = mytb.getcol('DEW_POINT')
+            if (np.mean(dewPoint) > 100):
+                # must be in units of Kelvin, so convert to C
+                dewPoint -= 273.15        
+            if (np.mean(dewPoint) == 0):
+                # assume it is not measured and use NOAA formula to compute from humidity:
+                dewPoint = ComputeDewPointCFromRHAndTempC(relativeHumidity, temperature)
+        else:
+            dewPoint = None  # Nobeyama measurement sets do not have a dewpoint column
         sinWindDirection = np.sin(mytb.getcol('WIND_DIRECTION'))
         cosWindDirection = np.cos(mytb.getcol('WIND_DIRECTION'))
         windSpeed = mytb.getcol('WIND_SPEED')
@@ -7017,7 +7027,8 @@ def getWeather(vis='', scan='', antenna='0',verbose=False, mymsmd=None):
         pressure = np.array(pressure)[indices]
         relativeHumidity = np.array(relativeHumidity)[indices]
         temperature = np.array(temperature)[indices]
-        dewPoint = np.array(dewPoint)[indices]
+        if dewPoint is not None:
+            dewPoint = np.array(dewPoint)[indices]
         windSpeed = np.array(windSpeed)[indices]
         sinWindDirection = np.array(sinWindDirection)[indices]
         cosWindDirection = np.array(cosWindDirection)[indices]
@@ -7074,7 +7085,8 @@ def getWeather(vis='', scan='', antenna='0',verbose=False, mymsmd=None):
                   print "matches[0]=%f, matches[-1]=%f, matches2[0]=%f, matches2[-1]=%d" % (matches[0], matches[-1], matches2[0], matches2[-1])
           conditions['temperature'] = np.mean(temperature[selectedValues])
           conditions['humidity'] = np.mean(relativeHumidity[selectedValues])
-          conditions['dewpoint'] = np.mean(dewPoint[selectedValues])
+          if dewPoint is not None:
+              conditions['dewpoint'] = np.mean(dewPoint[selectedValues])
           conditions['windspeed'] = np.mean(windSpeed[selectedValues])
           conditions['winddirection'] = (180./math.pi)*np.arctan2(np.mean(sinWindDirection[selectedValues]),np.mean(cosWindDirection[selectedValues]))
           if (conditions['winddirection'] < 0):
@@ -7083,7 +7095,8 @@ def getWeather(vis='', scan='', antenna='0',verbose=False, mymsmd=None):
               print "Mean weather values for scan %s (field %s)" % (listscan,listfield)
               print "  Pressure = %.2f mb" % (conditions['pressure'])
               print "  Temperature = %.2f C" % (conditions['temperature'])
-              print "  Dew point = %.2f C" % (conditions['dewpoint'])
+              if dewPoint is not None:
+                  print "  Dew point = %.2f C" % (conditions['dewpoint'])
               print "  Relative Humidity = %.2f %%" % (conditions['humidity'])
               print "  Wind speed = %.2f m/s" % (conditions['windspeed'])
               print "  Wind direction = %.2f deg" % (conditions['winddirection'])
