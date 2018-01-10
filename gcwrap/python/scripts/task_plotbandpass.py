@@ -6744,20 +6744,11 @@ def getRADecForField(ms, myfieldId, debug):
     Returns RA,Dec in radians for the specified field in the specified ms.
     -- Todd Hunter
     """
-    mytb = createCasaTool(tbtool)
-    try:
-        mytb.open(ms+'/FIELD')
-    except:
-        print "Could not open FIELD table for ms=%s" % (ms)
-        return([0,0])
-    mydir = mytb.getcell('DELAY_DIR',myfieldId)
-    npoly = mytb.getcell('NUM_POLY',myfieldId)
-#    if (mydir[0] < 0):
-#        mydir[0] += 2*math.pi
-#    mytb.close()
-    mytb.done()
-    if npoly > 0:
-        return([mydir[0][0], mydir[1][0]])
+    myms = createCasaTool(mstool)
+    myms.open(ms)
+    myd = myms.getfielddirmeas('DELAY_DIR', fieldid=myfieldId)  # dircolname defaults to 'PHASE_DIR'
+    myms.close()
+    mydir = np.array([[myd['m0']['value']], [myd['m1']['value']]])  # simulates tb.getcell
     return(mydir)
 
 def findClosestTime(mytimes, mytime):
