@@ -135,8 +135,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                 IPosition outShape = imstore->mask()->shape();
                 Int specAxis = CoordinateUtil::findSpectralAxis(inmask.coordinates());
                 Int outSpecAxis = CoordinateUtil::findSpectralAxis(imstore->mask()->coordinates());
+                Vector <Stokes::StokesTypes> inWhichPols, outWhichPols;
+                Int stokesAxis = CoordinateUtil::findStokesAxis(inWhichPols, inmask.coordinates());
+                Int outStokesAxis = CoordinateUtil::findStokesAxis(outWhichPols, imstore->mask()->coordinates());
                 if (inShape(specAxis) == 1 && outShape(outSpecAxis)>1) {
                   os << "Expanding mask image: " << maskString << LogIO::POST;
+                  expandMask(inmask, tempMaskImage);
+                }
+                else if(inShape(stokesAxis) == 1 && outShape(outStokesAxis) > 1 ) {
+                  os << "Expading mask image along Stokes axis: " << maskString << LogIO::POST;
                   expandMask(inmask, tempMaskImage);
                 }
                 else {
@@ -565,7 +572,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     LogIO os( LogOrigin("SDMaskHandler", "expandMask", WHERE) );
 
     // expand mask with input range (in spectral axis and stokes?) ... to output range on outimage
-    // current expand a continuum mask to a cube mask in channels only (to all channels) 
+    // currently expand a continuum mask to a cube mask in channels only (to all channels) 
     IPosition inShape = inImageMask.shape();
     CoordinateSystem inCsys = inImageMask.coordinates();
     Vector<Int> dirAxes = CoordinateUtil::findDirectionAxes(inCsys);
@@ -573,8 +580,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Int inNchan = inShape(inSpecAxis); 
     Vector<Stokes::StokesTypes> inWhichPols;
     Int inStokesAxis = CoordinateUtil::findStokesAxis(inWhichPols,inCsys);
+    Int inNpol = inShape(inStokesAxis); 
     //
-    // Single channel(continuum) input mask to output cube mask case:
+    // Single channel(continuum) and single Stokes input mask to output cube mask case:
     //  - It can be different shape in direction axes and will be regridded.
     if (inNchan==1) {
       IPosition outShape = outImageMask.shape();
@@ -584,9 +592,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       Int outNchan = outShape(outSpecAxis);
       Vector<Stokes::StokesTypes> outWhichPols;
       Int outStokesAxis = CoordinateUtil::findStokesAxis(outWhichPols,outCsys);
-
+      Int outNpol = outShape(outStokesAxis);
+      cerr<<"inNpol="<<inNpol<<" outNpol="<<outNpol<<endl;
       Int stokesInc = 1;
-      if (inShape(inStokesAxis)==outShape(outStokesAxis)) {
+      if (inNpol == 1 ) { 
+        stokesInc = 1;
+      }
+      else if (inShape(inStokesAxis)==outShape(outStokesAxis)) {
         stokesInc = inShape(inStokesAxis);
       }
       IPosition start(4,0,0,0,0);
@@ -605,12 +617,42 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       }
       Array<Float> inMaskData;
       IPosition end2(4,outShape(outDirAxes(0)), outShape(outDirAxes(1)), 1, 1);
+      if ( inNpol==outNpol ) {
+        end2(outStokesAxis) = inNpol;
+      } 
+      cerr<<"end2 now="<<end2<<" start="<<start<<endl;
       chanMask.doGetSlice(inMaskData, Slicer(start,end2));
-      for (Int ich = 1; ich < outNchan; ich++) {
-        start(outSpecAxis) = ich;
-        IPosition stride(4,1,1,1,1);
-        stride(outSpecAxis) = stokesInc; 
-        outImageMask.putSlice(inMaskData,start,stride); 
+      //IPosition stride(4,1,1,1,1);
+      IPosition stride(4,outShape(outDirAxes(0)), outShape(outDirAxes(1)),1,1);
+      if (outNchan==1) {
+        //just do copying over all Stokes if input mask is a single Stokes
+        if (inNpol == 1 && outNpol > 1) {
+          for (Int ipol = 1; ipol < outNpol; ipol++) {
+            start(outStokesAxis) = ipol;
+            os<<"copying input mask to ipol="<<ipol<<LogIO::POST;
+            outImageMask.putSlice(inMaskData,start,stride);
+          }
+        }
+      }
+      else {
+        for (Int ich = 1; ich < outNchan; ich++) {
+          start(outSpecAxis) = ich;
+          if (inNpol == 1 && outNpol > 1) {
+            // extend to other Stokes 
+            for (Int ipol = 1; ipol < outNpol; ipol++) {
+              start(outStokesAxis) = ipol;
+              os<<"multichan: copying input mask to ipol="<<ipol<<" start="<<start<<LogIO::POST;
+              outImageMask.putSlice(inMaskData,start,stride);
+            }
+          }
+          else {
+            // copy Stokes plane as is
+            stride(outStokesAxis) = stokesInc; 
+            cerr<<"putSlice for start="<<start<<"stride="<<stride<<endl;
+            cerr<<"inMaskData.shape="<<inMaskData.shape()<<endl;
+            outImageMask.putSlice(inMaskData,start,stride); 
+          }
+        }
       }
     }
     else {
