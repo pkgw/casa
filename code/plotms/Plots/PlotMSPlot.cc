@@ -1714,6 +1714,14 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 				// Custom axes ranges set by user
 				canvas->setAxisRange(cy, axesParams->yRange(i));
 			} else {
+				PMS::Axis y = cacheParams->yAxis(i);
+				// add margin if showAtm so overlay doesn't overlap plot
+				if ((cacheParams->showAtm() && y!=PMS::ATM) ||
+					(cacheParams->showTsky() && y!=PMS::TSKY)) {
+					ymax += (ymax-ymin)*0.5;
+					pair<double, double> ybounds = make_pair(ymin, ymax);
+					canvas->setAxisRange(cy, ybounds);
+				}
 				// add margin if values close to zero
 				if ((ymin > -0.5) && (ymin < 1.0) && (ymax > 10.0)) {
 					if (ymax > 100.0) ymin -= 1.0; // add larger margin for larger range
@@ -1722,7 +1730,6 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 					canvas->setAxisRange(cy, ybounds);
 				}
 				// make range symmetrical for uvplot
-				PMS::Axis y = cacheParams->yAxis(i);
 				if (PMS::axisIsUV(y)) {
 					if ((ymin != DBL_MAX) && (ymax != -DBL_MAX)) {
 						maxval = round(max(abs(ymin),ymax)) + 10.0;
