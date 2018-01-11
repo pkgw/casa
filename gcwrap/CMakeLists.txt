@@ -882,6 +882,7 @@ else()
        alma
        atmosphere
        calanalysis
+       casatools
        casadbus
        casaqt
        components
