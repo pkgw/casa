@@ -996,6 +996,7 @@ void PlotMSPlot::cacheLoaded_(bool wasCanceled) {
     }
 
     // Report we are done
+    if(itsTCLParams_.endCacheLog)
         itsParent_->getLogger()->releaseMeasurement();
     // Release drawing if needed.
     if(itsTCLParams_.releaseWhenDone && !isCacheUpdating() )
@@ -1628,6 +1629,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 		canvas->setAxisReferenceValue(cy, yref, yrefval);
 	}
 	// x and y axis ranges
+	canvas->setAxesAutoRescale(true);
 	if (set) {
 		double xmin, xmax, ymin, ymax;
 		double maxval(0), xymax(0);
