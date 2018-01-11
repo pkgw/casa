@@ -877,7 +877,6 @@ void SingleDishSkyCal::calcWtScale()
     MSSelection mss;
     mss.setObservationExpr(String::toString(currObs()));
     mss.setSpwExpr(String::toString(currSpw()));
-//    map<Int, Matrix<Double> > m;
     debuglog << "number of antennas = " << nAnt() << debugpost;
     for (Int iAnt = 0; iAnt < nAnt(); ++iAnt) {
       mss.setAntennaExpr(String::toString(iAnt) + "&&&");
@@ -886,16 +885,12 @@ void SingleDishSkyCal::calcWtScale()
       try {
         getSelectedTable(temp, *ct_, ten, "");
       } catch (AipsError x) {
-        //logSink() << LogIO::WARN
-        //          << "Failed to calculate Weight Scale. Set to 1." << LogIO::POST;
-        //currWtScale() = 1.0f;
         continue;
       }
       temp = temp.sort("TIME");
       wtMap.emplace(std::piecewise_construct,
           std::forward_as_tuple(iAnt),
           std::forward_as_tuple(2, temp.nrow()));
-      //Matrix<Double> arr(2, temp.nrow());
       Matrix<Double> &arr = wtMap.at(iAnt);
       debuglog << "ant " << iAnt << " arr.shape = " << arr.shape() << debugpost;
       ROScalarColumn<Double> col(temp, "TIME");
@@ -910,35 +905,19 @@ void SingleDishSkyCal::calcWtScale()
   } else {
     wtMap = iter->second;
   }
-//  CTInterface cti(*ct_);
-//  MSSelection mss;
-//  mss.setSpwExpr(String::toString(currSpw()));
-//  mss.setObservationExpr(String::toString(currObs()));
-  debuglog << "wtMap keys: ";
-  for (decltype(wtMap)::iterator i = wtMap.begin(); i != wtMap.end(); ++i) {
-    debuglog << i->first << " ";
+
+  {
+    // for debugging
+    debuglog << "wtMap keys: ";
+    for (decltype(wtMap)::iterator i = wtMap.begin(); i != wtMap.end(); ++i) {
+      debuglog << i->first << " ";
+    }
+    debuglog << debugpost;
   }
-  debuglog << debugpost;
+
   for (Int iAnt = 0; iAnt < nAnt(); ++iAnt) {
-//    mss.setAntennaExpr(String::toString(iAnt) + "&&&");
-//    TableExprNode ten = mss.toTableExprNode(&cti);
-//    NewCalTable temp;
-//    try {
-//      getSelectedTable(temp, *ct_, ten, "");
-//    } catch (AipsError x) {
-//      //logSink() << LogIO::WARN
-//      //          << "Failed to calculate Weight Scale. Set to 1." << LogIO::POST;
-//      //currWtScale() = 1.0f;
-//      continue;
-//    }
-//    temp = temp.sort("TIME");
-//    ROScalarColumn<Double> col(temp, "TIME");
-//    Vector<Double> timeCol = col.getColumn();
-//    col.attach(temp, "INTERVAL");
-//    Vector<Double> intervalCol = col.getColumn();
     decltype(wtMap)::iterator i = wtMap.find(iAnt);
     if (i == wtMap.end()) {
-      //AipsError("Internal Error: Problem constructing weight scaling data.");
       continue;
     }
     auto const &mat = i->second;
