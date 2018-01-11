@@ -147,6 +147,8 @@ void HetArrayConvFunc::findAntennaSizes(const vi::VisBuffer2& vb) {
 
         }
         if(pbClass_p== PBMathInterface::AIRY) {
+	  LogIO os;
+	os << LogOrigin("HetArrConvFunc", "findAntennaSizes")  << LogIO::NORMAL;
             ////////We'll be using dish diameter as key
             for (uInt k=0; k < dishDiam.nelements(); ++k) {
                 if((diamIndex !=0) && antDiam2IndexMap_p.isDefined(String::toString(dishDiam(k)))) {
@@ -158,31 +160,36 @@ void HetArrayConvFunc::findAntennaSizes(const vi::VisBuffer2& vb) {
                         antIndexToDiamIndex_p(k)=diamIndex;
                         antMath_p.resize(diamIndex+1);
                         if(pbClass_p== PBMathInterface::AIRY) {
-                            Quantity qdiam(10.7, "m");
-                            Quantity blockDiam(0.75, "m");
+			  //ALMA ratio of blockage to dish
+                            Quantity qdiam= Quantity (dishDiam(k),"m");	
+                            Quantity blockDiam= Quantity(dishDiam(k)/12.0*.75, "m");
                             ///For ALMA 12m dish it is effectively 10.7 m according to Todd Hunter
                             ///@ 2011-12-06
-                            if(!((mscol.observation().telescopeName()(0) =="ALMA")
-                                    && (abs(dishDiam[k] - 12.0) < 0.5))) {
-                                qdiam= Quantity (dishDiam(k),"m");
-                                //VLA ratio of blockage to dish
-                                blockDiam= Quantity(dishDiam(k)/25.0*2.0, "m");
+                            if((mscol.observation().telescopeName()(0) =="ALMA") || (mscol.observation().telescopeName()(0) =="ACA")){
+
+			      if((abs(dishDiam[k] - 12.0) < 0.5)) {
+				qdiam= Quantity(10.7, "m");
+				blockDiam= Quantity(0.75, "m");
+                                
+			      }
+			      else{
                                 //2017 the ACA dishes are best represented by 6.25m:
-                                if((mscol.observation().telescopeName()(0) =="ALMA") || (mscol.observation().telescopeName()(0) =="ACA")) {
-                                    if (abs(dishDiam[k] - 7.0) < 0.5) {
-                                        qdiam= Quantity(6.25,"m");
-                                        blockDiam = Quantity(0.75,"m");
-                                    }
-                                }
-                            }
+                               
+				qdiam= Quantity(6.25,"m");
+				blockDiam = Quantity(0.75,"m");
+			      }
+			    }
+			     os << "Overriding PB with Airy of diam,blockage="<<qdiam<<","<<blockDiam<<" starting with antenna "<<k<<LogIO::POST; 
+			    
+			
+		    
 
+			antMath_p[diamIndex]=new PBMath1DAiry(qdiam, blockDiam,
+							  Quantity(150,"arcsec"),
+							  Quantity(100.0,"GHz"));
+			}
 
-                            antMath_p[diamIndex]=new PBMath1DAiry(qdiam, blockDiam,
-                                                                  Quantity(150,"arcsec"),
-                                                                  Quantity(100.0,"GHz"));
-
-
-                        }
+		
 
                         //////Will no longer support this
                         /*else if(pbClass_p== PBMathInterface::IMAGE){
@@ -225,13 +232,13 @@ void HetArrayConvFunc::findAntennaSizes(const vi::VisBuffer2& vb) {
                         }
                         */
                         ++diamIndex;
-                    }
-                }
+	    
+		    }
 
-            }
+		}
+	    }
 
-
-        }
+	}
         else if(pbClass_p== PBMathInterface::IMAGE) {
 
             VPManager *vpman=VPManager::Instance();
@@ -755,16 +762,6 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
             convSize_p=newRealConvSize;
         }
 
-	////////////////TESTOOO
-	/* CoordinateSystem TMP = coords;
-	  CoordinateUtil::addLinearAxes(TMP, Vector<String>(1,"gulu"), IPosition(1,nBeamChans)); 
-	  PagedImage<Complex> SCREEN(TiledShape(convFunctions_p[actualConvIndex_p]->shape()), TMP, "NONCONJU"+String::toString(actualConvIndex_p));
-	  SCREEN.put(*convFunctions_p[actualConvIndex_p]  );
-	   PagedImage<Complex> SCREEN3(TiledShape(convWeights_p[actualConvIndex_p]->shape()), TMP, "FTWEIGHT"+String::toString(actualConvIndex_p));
-	  SCREEN3.put(*convWeights_p[actualConvIndex_p]  );
-	*/
-	  /////////////////
-
 
 	if((nchan_p == 1) && getConjConvFunc) {
 	  fillConjConvFunc(beamFreqs);
@@ -793,6 +790,16 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
 
     }
     */
+    /*////////////////TESTOOO
+		 CoordinateSystem TMP = coords;
+	  CoordinateUtil::addLinearAxes(TMP, Vector<String>(1,"gulu"), IPosition(1,nBeamChans)); 
+	  PagedImage<Complex> SCREEN(TiledShape(convFunctions_p[actualConvIndex_p]->shape()), TMP, "NONCONJUVI2"+String::toString(actualConvIndex_p));
+	  SCREEN.put(*convFunctions_p[actualConvIndex_p]  );
+	   PagedImage<Complex> SCREEN3(TiledShape(convWeights_p[actualConvIndex_p]->shape()), TMP, "FTWEIGHTVI2"+String::toString(actualConvIndex_p));
+	  SCREEN3.put(*convWeights_p[actualConvIndex_p]  );
+	
+    /////////////////*/
+
     makerowmap(vb, convFuncRowMap);
     ///need to deal with only the maximum of different baselines available in this
     ///vb
@@ -1175,15 +1182,16 @@ void HetArrayConvFunc::supportAndNormalizeLatt(Int plane, Int convSampling, Temp
     Int trial=0;
     for (trial=0; trial< (convSize/2-2); ++trial) {
         //Searching down a diagonal
-      
-      if((abs(convPlane(convSize/2-trial-1,convSize/2-1-trial)) <  (7.5e-2*maxAbsConvFunc)) || (real(convPlane(convSize/2-trial-2,convSize/2-trial-2)) <0.0  )) {
+     if((abs(convPlane(convSize/2-trial-1,convSize/2-1-trial)) <  (7.5e-2*maxAbsConvFunc)) || (real(convPlane(convSize/2-trial-2,convSize/2-trial-2)) <0.0  )) 
+     { 
+//|| (real(convPlane(convSize/2-trial-2,convSize/2-trial-2)) <0.0  )) {
             found=true;
             trial=Int(sqrt(2.0*Float(trial*trial)));
 	    
             break;
         }
     }
-   // cerr << "found " << found << "  trial " << trial << endl;
+   
     if(!found) {
         if((maxAbsConvFunc-minAbsConvFunc) > (7.5e-2*maxAbsConvFunc))
             found=true;
@@ -1195,7 +1203,7 @@ void HetArrayConvFunc::supportAndNormalizeLatt(Int plane, Int convSampling, Temp
     if(found) {
         if(trial < 5*convSampling)
             trial= ( (10*convSampling) < convSize) ? 5*convSampling : (convSize/2 - 4*convSampling);
-        convSupport=convSampling > 1 ? (Int(0.5+Float(trial)/Float(convSampling)))+1 : trial;
+        convSupport=(Int(0.5+Float(trial)/Float(convSampling)))+1 ;
 	//cerr << "convsupp " << convSupport << endl;
         //support is really over the edge
         if( (convSupport*convSampling) >= convSize/2) {
@@ -1213,7 +1221,7 @@ void HetArrayConvFunc::supportAndNormalizeLatt(Int plane, Int convSampling, Temp
         //OTF may have flagged stuff ...
         convSupport=0;
     }
-    //cerr << "trial " << trial << " convSupport " << convSupport << " convSize " << convSize_p << endl;
+   
     convSupport_p(plane)=convSupport;
     Double pbSum=0.0;
     /*

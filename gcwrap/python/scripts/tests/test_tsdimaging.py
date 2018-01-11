@@ -398,7 +398,7 @@ class sdimaging_test0(sdimaging_unittest_base):
     def test007(self):
         """Test007: Bad scanlist"""
         self.task_param['scan'] = self.badid
-        msg = 'has zero selected rows'
+        msg = 'Data selection ended with 0 rows'
         self.run_exception_case(self.task_param, msg)
 
     def test008(self):

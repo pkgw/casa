@@ -971,10 +971,6 @@ void MosaicFT::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
   if(max(chanMap)==-1)
     return;
 
-
-  //cerr << "chanMap " << chanMap << endl;
- 
-
   const Matrix<Float> *imagingweight;
   imagingweight=&(vb.imagingWeight());
 
@@ -1138,9 +1134,12 @@ Int x0, y0, nxsub, nysub, ixsub, iysub, icounter, ix, iy;
   Int rbeg=startRow+1;
   Int rend=endRow+1;
   Block<Matrix<Double> > sumwgt(ixsub*iysub);
+  Vector<Double *> swgtptr(ixsub*iysub);
+  Vector<Bool> swgtdel(ixsub*iysub);
   for (icounter=0; icounter < ixsub*iysub; ++icounter){
     sumwgt[icounter].resize(sumWeight.shape());
     sumwgt[icounter].set(0.0);
+    swgtptr[icounter]=sumwgt[icounter].getStorage(swgtdel(icounter));
   }
   const Int* pmapstor=polMap.getStorage(del);
   const Int* cmapstor=chanMap.getStorage(del);
@@ -1161,7 +1160,7 @@ Int x0, y0, nxsub, nysub, ixsub, iysub, icounter, ix, iy;
   if(useDoubleGrid_p) {
     DComplex *gridstor=griddedData2.getStorage(gridcopy);
     
-#pragma omp parallel default(none) private(icounter,ix,iy,x0,y0,nxsub,nysub, del) firstprivate(idopsf, doWeightGridding, datStorage, wgtStorage, flagstor, rowflagstor, convstor, wconvstor, pmapstor, cmapstor, gridstor,  csupp, nxp, nyp, np, nc,ixsub, iysub, rend, rbeg, csamp, csize, nvp, nvc, nvisrow, phasorstor, locstor, offstor, convrowmapstor, convchanmapstor, convpolmapstor, nPolConv, nChanConv, nConvFunc) shared(sumwgt) num_threads(ixsub*iysub)
+#pragma omp parallel default(none) private(icounter,ix,iy,x0,y0,nxsub,nysub, del) firstprivate(idopsf, doWeightGridding, datStorage, wgtStorage, flagstor, rowflagstor, convstor, wconvstor, pmapstor, cmapstor, gridstor,  csupp, nxp, nyp, np, nc,ixsub, iysub, rend, rbeg, csamp, csize, nvp, nvc, nvisrow, phasorstor, locstor, offstor, convrowmapstor, convchanmapstor, convpolmapstor, nPolConv, nChanConv, nConvFunc) shared(swgtptr) num_threads(ixsub*iysub)
     {   
 #pragma omp for schedule(dynamic, 1)      
     for(icounter=0; icounter < ixsub*iysub; ++icounter){
@@ -1198,7 +1197,7 @@ Int x0, y0, nxsub, nysub, ixsub, iysub, icounter, ix, iy;
 	   convstor,
 	   cmapstor,
 	   pmapstor,
-	   (sumwgt[icounter]).getStorage(del),
+	   swgtptr[icounter],
 	   convrowmapstor,
 	   convchanmapstor,
 	   convpolmapstor,
@@ -1209,9 +1208,9 @@ Int x0, y0, nxsub, nysub, ixsub, iysub, icounter, ix, iy;
     }
     }//end pragma parallel
     for (icounter=0; icounter < ixsub*iysub; ++icounter){
+      sumwgt[icounter].putStorage(swgtptr[icounter],swgtdel[icounter]);
       sumWeight=sumWeight+sumwgt[icounter];
     }    
-    //cerr << "SUMWGT " << sumWeight << endl;
     griddedData2.putStorage(gridstor, gridcopy);
     if(!doneWeightImage_p){
       //This can be parallelized by making copy of the central part of the griddedWeight
@@ -1232,7 +1231,7 @@ Int x0, y0, nxsub, nysub, ixsub, iysub, icounter, ix, iy;
     //cerr << "maps "  << convChanMap_p << "   " << chanMap  << endl;
     //cerr << "nchan " << nchan << "  nchanconv " << nChanConv << endl;
     Complex *gridstor=griddedData.getStorage(gridcopy);
-#pragma omp parallel default(none) private(icounter,ix,iy,x0,y0,nxsub,nysub, del) firstprivate(idopsf, doWeightGridding, datStorage, wgtStorage, flagstor, rowflagstor, convstor, wconvstor, pmapstor, cmapstor, gridstor, csupp, nxp, nyp, np, nc,ixsub, iysub, rend, rbeg, csamp, csize, nvp, nvc, nvisrow, phasorstor, locstor, offstor, convrowmapstor, convchanmapstor, convpolmapstor, nPolConv, nChanConv, nConvFunc) shared(sumwgt) num_threads(ixsub*iysub)
+#pragma omp parallel default(none) private(icounter,ix,iy,x0,y0,nxsub,nysub, del) firstprivate(idopsf, doWeightGridding, datStorage, wgtStorage, flagstor, rowflagstor, convstor, wconvstor, pmapstor, cmapstor, gridstor, csupp, nxp, nyp, np, nc,ixsub, iysub, rend, rbeg, csamp, csize, nvp, nvc, nvisrow, phasorstor, locstor, offstor, convrowmapstor, convchanmapstor, convpolmapstor, nPolConv, nChanConv, nConvFunc)  shared(swgtptr) num_threads(ixsub*iysub)
     {   
 #pragma omp for schedule(dynamic, 1)      
       for(icounter=0; icounter < ixsub*iysub; ++icounter){
@@ -1268,7 +1267,7 @@ Int x0, y0, nxsub, nysub, ixsub, iysub, icounter, ix, iy;
 	   convstor,
 	   cmapstor,
 	   pmapstor,
-	   (sumwgt[icounter]).getStorage(del),
+	   swgtptr[icounter],
 	   convrowmapstor,
 	   convchanmapstor,
 	   convpolmapstor,
@@ -1281,7 +1280,8 @@ Int x0, y0, nxsub, nysub, ixsub, iysub, icounter, ix, iy;
     }
     } //end pragma   
      for (icounter=0; icounter < ixsub*iysub; ++icounter){
-      sumWeight=sumWeight+sumwgt[icounter];
+       sumwgt[icounter].putStorage(swgtptr[icounter],swgtdel[icounter]);
+       sumWeight=sumWeight+sumwgt[icounter];
     }
     griddedData.putStorage(gridstor, gridcopy);
     if(!doneWeightImage_p){
@@ -1650,7 +1650,6 @@ ImageInterface<Complex>& MosaicFT::getImage(Matrix<Float>& weights,
   logIO() << LogOrigin("MosaicFT", "getImage") << LogIO::NORMAL;
   
   weights.resize(sumWeight.shape());
-  
   convertArray(weights, sumWeight);
   SynthesisUtilMethods::getResource("mem peak in getImage");
   
