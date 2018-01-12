@@ -103,6 +103,13 @@ class testref_base(unittest.TestCase):
                os.system('rm -rf ' + self.msfile)
           os.system('rm -rf ' + self.img+'*')
 
+     def prepInputmask(self,maskname=""):
+          if maskname!="":
+              self.maskname=maskname
+          if (os.path.exists(self.maskname)):
+              os.system('rm -rf ' + self.maskname)
+          shutil.copytree(refdatapath+self.maskname, self.maskname)
+
      def checkfinal(self,pstr=""):
           #pstr += "["+inspect.stack()[1][3]+"] : To re-run this test :  casa -c `echo $CASAPATH | awk '{print $1}'`/gcwrap/python/scripts/regressions/admin/runUnitTest.py test_refimager["+ inspect.stack()[1][3] +"]"
           pstr += "["+inspect.stack()[1][3]+"] : To re-run this test :  runUnitTest.main(['test_refimager["+ inspect.stack()[1][3] +"]'])"
@@ -1759,7 +1766,85 @@ class test_mask(testref_base):
 
           self.checkfinal(report)
 
+     def test_mask_expand_contstokesImask_to_cube(self):
+          """ [mask] test_mask_expand_contstokesImask_to_cube : Test for
+          expanding input continuum Stokes I mask to cube imaging  """
+          self.prepData('refim_point_linRL.ms')
+          self.prepInputmask('refim_cont_stokesI_input.mask')
+          ret = tclean(vis=self.msfile,
+          imagename=self.img, specmode="cube", imsize=100, cell='8.0arcsec', niter=10,interactive=0,interpolation='nearest', usemask='user', mask=self.maskname)
 
+          report=self.th.checkall(ret=ret, imexist=[self.img+'.mask'],
+          imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',1.0,[50,50,0,1]),(self.img+'.mask',1.0,[50,50,0,2]), (self.img+'.mask',0.0,[65,65,0,1])])
+
+          self.checkfinal(report)
+
+     def test_mask_expand_contstokesImask_to_IQUV(self):
+          """ [mask] test_mask_expand_contstokesImask_to_IQUV : Test for expanding
+          input continuum Stokes I mask to continuum multi-stokes imaging  """
+          self.prepData('refim_point_linRL.ms')
+          self.prepInputmask('refim_cont_stokesI_input.mask')
+          ret = tclean(vis=self.msfile,
+          imagename=self.img, specmode="mfs", imsize=100, cell='8.0arcsec',
+          niter=10,interactive=0, stokes='IQUV', usemask='user', mask=self.maskname)
+
+          report=self.th.checkall(ret=ret, imexist=[self.img+'.mask'],
+          imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',1.0,[50,50,1,0]),(self.img+'.mask',1.0,[50,50,2,0]),(self.img+'.mask',1.0,[50,50,3,0]), (self.img+'.mask',0.0,[65,65,2,0])])
+
+          self.checkfinal(report)
+
+     def test_mask_expand_contstokesImask_to_cube_IQUV(self):
+          """ [mask] test_mask_extend_contstokesImask_to_cube_IQUV : Test for extending
+          input continuum Stokes I mask to cube multi-stokes imaging  """
+          self.prepData('refim_point_linRL.ms')
+          self.prepInputmask('refim_cont_stokesI_input.mask')
+          ret = tclean(vis=self.msfile,
+          imagename=self.img, specmode="cube", imsize=100, cell='8.0arcsec',
+          niter=10,interactive=0,interpolation='nearest', stokes='IQUV', usemask='user', mask=self.maskname)
+
+          report=self.th.checkall(ret=ret, imexist=[self.img+'.mask'],
+          imval=[(self.img+'.mask',1.0,[50,50,0,0]),
+                 (self.img+'.mask',1.0,[50,50,1,0]),
+                 (self.img+'.mask',1.0,[50,50,2,0]),
+                 (self.img+'.mask',1.0,[50,50,3,0]), 
+                 (self.img+'.mask',1.0,[50,50,0,1]),
+                 (self.img+'.mask',1.0,[50,50,1,1]),
+                 (self.img+'.mask',1.0,[50,50,2,1]),
+                 (self.img+'.mask',1.0,[50,50,3,1]),
+                 (self.img+'.mask',1.0,[50,50,1,2]),
+                 (self.img+'.mask',0.0,[65,65,0,0]),
+                 (self.img+'.mask',0.0,[65,65,2,1]),
+                 ])
+
+          self.checkfinal(report)
+
+     def test_mask_expand_contstokesIQUVmask_to_cube_IQUV(self):
+          """ [mask] test_mask_expand_contstokesIQUVmask_to_cube_IQUV : Test for expanding
+          input continuum Stokes IQUV mask to cube IQUV imaging  """
+          # extending to all channels and preserving mask of each stokes 
+          self.prepData('refim_point_linRL.ms') 
+          # input mask will different for different stokes plane
+          self.prepInputmask('refim_cont_stokesIQUV_input.mask')
+          ret = tclean(vis=self.msfile,
+          imagename=self.img, specmode="cube", imsize=100, cell='8.0arcsec',
+          niter=10,interactive=0,interpolation='nearest', stokes='IQUV', usemask='user', mask=self.maskname)
+
+          report=self.th.checkall(ret=ret, imexist=[self.img+'.mask'],
+          imval=[(self.img+'.mask',1.0,[50,50,0,0]),
+                 (self.img+'.mask',1.0,[50,50,0,1]),
+                 (self.img+'.mask',1.0,[50,50,1,0]),
+                 (self.img+'.mask',1.0,[50,50,1,2]), 
+                 (self.img+'.mask',1.0,[50,50,2,0]),
+                 (self.img+'.mask',1.0,[50,50,2,1]),
+                 (self.img+'.mask',1.0,[43,31,3,0]),
+                 (self.img+'.mask',1.0,[43,31,3,2]),
+                 (self.img+'.mask',0.0,[61,51,0,0]),
+                 (self.img+'.mask',0.0,[50,63,1,1]),
+                 (self.img+'.mask',0.0,[37,65,2,2]),
+                 (self.img+'.mask',0.0,[34,70,0,1]),
+                 ])
+
+          self.checkfinal(report)
 
 ##############################################
 ##############################################

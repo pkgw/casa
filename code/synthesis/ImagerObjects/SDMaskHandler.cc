@@ -605,11 +605,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       IPosition start(4,0,0,0,0);
       IPosition length(4,outShape(outDirAxes(0)), outShape(outDirAxes(1)),1,1);
       length(outStokesAxis) = stokesInc;
+
+      // I stokes cont -> cube: regrid ra.dec on the input single plane 
+      // I stokes cont -> cont multi-stokes: regrid ra.dec on the input 
+      // I stokes cont ->  cube multi-stokes: regid ra.dec on input 
       Slicer sl(start, length); 
 
       // make a subImage for regridding output       
       SubImage<Float> chanMask(outImageMask, sl, true);
-      
       ImageRegrid<Float> imregrid;
       try {
         imregrid.regrid(chanMask, Interpolate2D::LINEAR, dirAxes, inImageMask);
@@ -628,7 +631,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       if (outNchan==1) { 
         //No copying over channels, just do copying over all Stokes if input mask is a single Stokes
         if (inNpol == 1 && outNpol > 1) {
-          for (Int ipol = 1; ipol < outNpol; ipol++) {
+          for (Int ipol = 0; ipol < outNpol; ipol++) {
             start(outStokesAxis) = ipol;
             os<<"Copying input mask to Stokes plane="<<ipol<<LogIO::POST;
             outImageMask.putSlice(inMaskData,start,stride);
@@ -638,19 +641,21 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       else {  // for cube 
         for (Int ich = 0; ich < outNchan; ich++) {
           start(outSpecAxis) = ich;
+          IPosition inStart(4,0,0,0,0);
           if (inNpol == 1 && outNpol > 1) {
             // extend to other Stokes 
             for (Int ipol = 0; ipol < outNpol; ipol++) {
               os<<"Copying input mask to Stokes plane="<<ipol<<LogIO::POST;
+              start(outStokesAxis) = ipol;
               outImageMask.putSlice(inMaskData,start,stride);
             }
           }
           else {
-            // copy Stokes plane as is
+            // copy Stokes plane as is (but expand it to all channels)
             stride(outStokesAxis) = stokesInc; 
-            IPosition inStart(4,0,0,0,0);
             if (inNpol == outNpol) {
               for (Int ipol = 0; ipol < outNpol; ipol++) {
+                // need to slice mask from each stokes plane
                 inMaskData.resize();
                 inStart(outStokesAxis) = ipol;
                 start(outStokesAxis) = ipol;
