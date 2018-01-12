@@ -2398,7 +2398,7 @@ windows in the dataset and close the tool.
             <input>
                 <param type="bool" direction="in" name="complement">
                     <description>If True, return all non-wvr spws.</description>
-                    <value>-false</value>
+                    <value>false</value>
                 </param>
             </input>
             <returns type="intArray"/>
