@@ -30,6 +30,8 @@
 #include <mutex>
 #include <string>
 #include <vector>
+#include <limits.h>
+#include <algorithm>
 #include <casacore/casa/System/AppState.h>
 #include <casatools/Proc/Registrar.h>
 
