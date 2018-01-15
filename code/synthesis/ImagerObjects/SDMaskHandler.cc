@@ -1718,7 +1718,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     // *** CAS-10798 ***
     // stopmask implementation here?
-    // stopmask(previous_mask,current_mask, maskChans) maskChans a vector? stores boolean for each channel 
+    // skipChannels(previous_mask,current_mask, maskChans) maskChans a vector? stores boolean for each channel 
     // initially set maskChans all False but later (CAS-10960) this will be set by a user.
     // ****
     // chanMask : float or int cube with 1 or 0: 1 means flag the channel, will be used in creating final mask
@@ -1845,6 +1845,29 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                << "Try decreasing your "<<thresholdType(0)<<"threshold parameter if you want to capture emission in these channels."<< LogIO::POST;
          }
       }
+  }
+
+  void SDMaskHandler::skipChannels(const Float& fracChange, 
+                                  ImageInterface<Float>& prevmask, 
+                                  ImageInterface<Float>& curmask, 
+                                  Vector<Bool>& chanFlag)
+  {
+    IPosition shp = curmask.shape();
+    Int naxis = shp.size();
+    CoordinateSystem csys = curmask.coordinates();
+    Int specaxis = CoordinateUtil::findSpectralAxis(csys); 
+    Int nchan = shp(specaxis);
+    IPosition blc(naxis,0);
+    IPosition trc=shp-1;
+    for (Int ichan=0; ichan<nchan; ichan++) {
+      Array<Float> prevmaskdata;
+      Array<Float> curmaskdata;
+      blc(specaxis)=ichan;
+      trc(specaxis)=ichan;
+      Slicer sl(blc,trc,Slicer::endIsLast);
+      prevmask.doGetSlice(prevmaskdata,sl);
+      curmask.doGetSlice(curmaskdata,sl);
+    }
   }
 
   SHARED_PTR<ImageInterface<Float> >  SDMaskHandler::makeMaskFromBinnedImage(const ImageInterface<Float>& image, 

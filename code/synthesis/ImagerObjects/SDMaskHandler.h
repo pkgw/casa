@@ -301,6 +301,12 @@ public:
   // for warning messages for empy initial mask in automask
   void noMaskCheck(casacore::ImageInterface<casacore::Float>& mask, casacore::Vector<casacore::String>& thresholdType);
 
+  // determining skip channels for the mask changed less than the specfied percentage
+  void skipChannels(const casacore::Float& fracChnage, 
+                    casacore::ImageInterface<casacore::Float>& prevmask, 
+                    casacore::ImageInterface<casacore::Float>& curmask, 
+                    casacore::Vector<casacore::Bool>& chanFlag);
+
   // check if input image is a mask image with 0 or a value (if normalize=true, 1)
   //casacore::Bool checkMaskImage(casacore::ImageInterface<casacore::Float>& maskiamge, casacore::Bool normalize=true);
 
