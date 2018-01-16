@@ -142,7 +142,7 @@ Multipy a scaling factor to selected spectra.
   <example>
 sdms.open('m100_sd.ms')
 sdms.set_selection(field='M100')
-sdms.scale(factor=2.0)
+sdms._scale(factor=2.0)
   </example>
 </method>
 
