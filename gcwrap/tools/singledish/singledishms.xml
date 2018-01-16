@@ -21,7 +21,7 @@ file:///opt/casa/code/tools/xml/casa.xsd">
    <shortdescription>Construct singledishms tool</shortdescription>
    
 <description>
-This is used to construct an {\tt singledishms} tool.
+This is used to construct an singledishms tool.
 </description>
 <input>
 </input>
@@ -39,7 +39,7 @@ ssd = casac.singledishms()
    </shortdescription>
 <description>
 Close the current MeasurementSet and open a new MeasurementSet
-instead. The current state of {\tt sdms} is retained, except for
+instead. The current state of sdms is retained, except for
 the data selection.
 </description>
 <input>
@@ -56,11 +56,11 @@ sdms.open('m100_sd.ms')
 </method>
 
 <method type="function" name="close">
-   <shortdescription>Close the {\tt sdms} tool, with data written on disk, keeping sdms running for future use
+   <shortdescription>Close the sdms tool, with data written on disk, keeping sdms running for future use
    </shortdescription>
    <description>
-This is used to close {\tt sdms} tools. Note that the
-data is written to disk and detached from {\tt sdms} tool.
+This is used to close sdms tools. Note that the
+data is written to disk and detached from sdms tool.
 This is a synonym for done.
    </description>
    <returns type="bool"/>
@@ -70,11 +70,11 @@ sdms.close()
 </method>
 
 <method type="function" name="done">
-  <shortdescription>Close the {\tt sdms} tool</shortdescription>
+  <shortdescription>Close the sdms tool</shortdescription>
 
   <description>
-This is used to close and {\tt sdms} tools. Note that the
-data is written to disk  and detached from {\tt sdms} tool.
+This is used to close and sdms tools. Note that the
+data is written to disk  and detached from sdms tool.
 This is a synonym for close.
   </description>
   <returns type="bool"></returns>
