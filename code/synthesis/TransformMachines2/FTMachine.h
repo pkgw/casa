@@ -313,7 +313,7 @@ public:
 
   // set a moving source aka planets or comets =>  adjust phase center
   // on the fly for gridding 
-  virtual void setMovingSource(const casacore::String& sourcename);
+  virtual void setMovingSource(const casacore::String& sourcename, const casacore::String& ephemtable="");
   virtual void setMovingSource(const casacore::MDirection& mdir);
 
   //reset stuff in an FTMachine

@@ -261,10 +261,23 @@ using namespace casa::vi;
       AlwaysAssert(image, AipsError);
 
       // Set the frame for the UVWMachine
-      if(vb.isAttached())
-	mFrame_p=MeasFrame(MEpoch(Quantity(vb.time()(0), "s"), ROMSColumns(vb.ms()).timeMeas()(0).getRef()), mLocation_p);
-      else
+      if(vb.isAttached()){
+	//mFrame_p=MeasFrame(MEpoch(Quantity(vb.time()(0), "s"), ROMSColumns(vb.ms()).timeMeas()(0).getRef()), mLocation_p);
+	if(!mFrame_p.epoch()) 
+	  mFrame_p.set(MEpoch(Quantity(vb.time()(0), "s"),  ROMSColumns(vb.ms()).timeMeas()(0).getRef()));
+	else
+	  mFrame_p.resetEpoch(MEpoch(Quantity(vb.time()(0), "s"),  ROMSColumns(vb.ms()).timeMeas()(0).getRef()));
+	if(!mFrame_p.position())
+	  mFrame_p.set(mLocation_p);
+	else
+	  mFrame_p.resetPosition(mLocation_p);		    			    
+      }
+      else{
 	throw(AipsError("Cannot define some frame as no Visiter/MS is attached"));
+      }
+      //////TESTOOOO
+      ///setMovingSource("COMET", "des_deedee_ephem2.tab");
+      ///////////////////////////////////////////
       // First get the CoordinateSystem for the image and then find
       // the DirectionCoordinate
       casacore::CoordinateSystem coords=image->coordinates();
@@ -281,8 +294,11 @@ using namespace casa::vi;
         MDirection::Ref outref1(MDirection::AZEL, mFrame_p);
         MDirection tmphadec=MDirection::Convert(movingDir_p, outref1)();
         MDirection::Ref outref(directionCoord.directionType(), mFrame_p);
-        firstMovingDir_p=MDirection::Convert(tmphadec, outref)();
-
+        //firstMovingDir_p=MDirection::Convert(tmphadec, outref)();
+	///TESTOO 
+	///waiting for CAS-11060
+	firstMovingDir_p=MDirection::Convert(vbutil_p->getPhaseCenter(vb, phaseCenterTime_p), outref)();
+	////////////////////
       }
 
 
@@ -861,9 +877,16 @@ using namespace casa::vi;
     // UVrotation is false only if field never changes
   
    ROMSColumns mscol(vb.ms());
-   if((vb.fieldId()(0)!=lastFieldId_p) || (vb.msId()!=lastMSId_p))
+   if((vb.fieldId()(0)!=lastFieldId_p) || (vb.msId()!=lastMSId_p)){
       doUVWRotation_p=true;
-    if(doUVWRotation_p ||  fixMovingSource_p){
+   } 
+   else{
+     //if above failed it still can be changing if   polynome phasecenter or ephem
+     
+     if( (vb.subtableColumns().field().numPoly()(lastFieldId_p) >0) ||  (vb.subtableColumns().field().ephemerisId()(lastFieldId_p) > -1))
+       doUVWRotation_p=True;
+   }
+   if(doUVWRotation_p ||  fixMovingSource_p){
       
       mFrame_p.epoch() != 0 ? 
 	mFrame_p.resetEpoch(MEpoch(Quantity(vb.time()(0), "s"))):
@@ -881,15 +904,15 @@ using namespace casa::vi;
 	MDirection::Ref outref(mImage_p.getRef().getType(), mFrame_p);
 	MDirection sourcenow=MDirection::Convert(tmphadec, outref)();
 	//cerr << "Rotating to fixed moving source " << MVDirection(phasecenter.getAngle()-firstMovingDir_p.getAngle()+sourcenow.getAngle()) << endl;
-	phasecenter.set(MVDirection(phasecenter.getAngle()+firstMovingDir_p.getAngle()-sourcenow.getAngle()));
-	
+	//phasecenter.set(MVDirection(phasecenter.getAngle()+firstMovingDir_p.getAngle()-sourcenow.getAngle()));
+	phasecenter.shift(MVDirection(sourcenow.getAngle()-firstMovingDir_p.getAngle()), True);
     }
 
 
       // Set up the UVWMachine only if the field id has changed. If
       // the tangent plane is specified then we need a UVWMachine that
       // will reproject to that plane iso the image plane
-      if((vb.fieldId()(0)!=lastFieldId_p) || (vb.msId()!=lastMSId_p) || fixMovingSource_p) {
+      if(doUVWRotation_p || fixMovingSource_p) {
 	
 	String observatory=mscol.observation().telescopeName()(0);
 	if(uvwMachine_p) delete uvwMachine_p; uvwMachine_p=0;
@@ -966,8 +989,17 @@ using namespace casa::vi;
       //the uvw rotation is done for common tangent reprojection or if the
       //image center is different from the phasecenter
       // UVrotation is false only if field never changes
-      if((vb.fieldId()(0)!=lastFieldId_p) || (vb.msId()!=lastMSId_p))
+
+      if((vb.fieldId()(0)!=lastFieldId_p) || (vb.msId()!=lastMSId_p)){
         doUVWRotation_p=true;
+	
+      }
+      else{
+	//if above failed it still can be changing if   polynome phasecenter or ephem
+	if( (vb.subtableColumns().field().numPoly()(lastFieldId_p) >0) ||  (vb.subtableColumns().field().ephemerisId()(lastFieldId_p) > -1))
+	  doUVWRotation_p=True;
+	
+      }
       if(doUVWRotation_p || tangentSpecified_p || fixMovingSource_p){
         ok();
 	
@@ -979,21 +1011,25 @@ using namespace casa::vi;
         MDirection phasecenter=mImage_p;
         if(fixMovingSource_p){
 
-        //First convert to HA-DEC or AZEL for parallax correction
-  	MDirection::Ref outref1(MDirection::AZEL, mFrame_p);
-  	MDirection tmphadec=MDirection::Convert(movingDir_p, outref1)();
-  	MDirection::Ref outref(mImage_p.getRef().getType(), mFrame_p);
-  	MDirection sourcenow=MDirection::Convert(tmphadec, outref)();
+	  //First convert to HA-DEC or AZEL for parallax correction
+	  MDirection::Ref outref1(MDirection::AZEL, mFrame_p);
+	  //  MDirection tmphadec=MDirection::Convert(movingDir_p, outref1)();
+	  ////TESTOO waiting for CAS-11060
+	  MDirection tmphadec=MDirection::Convert((vbutil_p->getPhaseCenter(vb, phaseCenterTime_p)), outref1)();
+	  /////////
+	  MDirection::Ref outref(mImage_p.getRef().getType(), mFrame_p);
+	  MDirection sourcenow=MDirection::Convert(tmphadec, outref)();
   	//cerr << "Rotating to fixed moving source " << MVDirection(phasecenter.getAngle()-firstMovingDir_p.getAngle()+sourcenow.getAngle()) << endl;
-  	phasecenter.set(MVDirection(phasecenter.getAngle()+firstMovingDir_p.getAngle()-sourcenow.getAngle()));
-
+  	//phasecenter.set(MVDirection(phasecenter.getAngle()+firstMovingDir_p.getAngle()-sourcenow.getAngle()));
+	  phasecenter.shift(MVDirection(sourcenow.getAngle()-firstMovingDir_p.getAngle()), True);
+	  cerr    << sourcenow.toString() <<"  "<<(vbutil_p->getPhaseCenter(vb, phaseCenterTime_p)).toString() <<  " difference " << firstMovingDir_p.getAngle() - sourcenow.getAngle() << endl;
       }
 
 
         // Set up the UVWMachine only if the field id has changed. If
         // the tangent plane is specified then we need a UVWMachine that
         // will reproject to that plane iso the image plane
-        if((vb.fieldId()(0)!=lastFieldId_p) || (vb.msId()!=lastMSId_p) || fixMovingSource_p) {
+        if(doUVWRotation_p || fixMovingSource_p) {
 
   	String observatory=ROMSColumns(vb.ms()).observation().telescopeName()(0);
   	if(uvwMachine_p) delete uvwMachine_p; uvwMachine_p=0;
@@ -1680,13 +1716,41 @@ using namespace casa::vi;
   }
   
   
-  void FTMachine::setMovingSource(const String& sourcename){
-    
+  void FTMachine::setMovingSource(const String& sname, const String& ephtab){
+    String sourcename=sname;
+    String ephemtab=ephtab;
+    //if a table is given as sourcename...assume ephemerides
+    if(Table::isReadable(sourcename, False)){
+      sourcename="COMET";
+      ephemtab=sname;
+    }
+    MDirection::Types refType;
+    Bool  isValid = MDirection::getType(refType, sourcename);
+    if(!isValid)
+      throw(AipsError("Cannot recognize moving source "+sourcename));
+    if(refType < MDirection::N_Types || refType > MDirection:: N_Planets )
+      throw(AipsError(sourcename+" is not type of source we can track"));
+    if(refType==MDirection::COMET){
+      MeasComet laComet;
+      if(Table::isReadable(ephemtab, False)){
+	Table laTable(ephemtab);
+	Path leSentier(ephemtab);
+	laComet=MeasComet(laTable, leSentier.absoluteName());
+      }
+      else{
+        laComet= MeasComet(ephemtab);
+      }
+      if(!mFrame_p.comet())
+	mFrame_p.set(laComet);
+      else
+	mFrame_p.resetComet(laComet);
+    }
     fixMovingSource_p=true;
     movingDir_p=MDirection(Quantity(0.0,"deg"), Quantity(90.0, "deg"));
     movingDir_p.setRefString(sourcename);
-    
+    cerr << "movingdir " << movingDir_p.toString() << endl;
   }
+
 
   void FTMachine::setMovingSource(const MDirection& mdir){
     

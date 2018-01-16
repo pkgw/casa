@@ -186,15 +186,47 @@ bool synthesisimager::defineimage(const casac::record& impars, const casac::reco
       //if( ! itsImager ) itsImager = new SynthesisImager();
       itsImager = makeSI();
     casacore::Record irecpars = *toRecord( impars );
+    ////Temporary fix till we get the checking for phasecenter in fromRecord 
+    ////to deal with this
+    //////////////
+    String movingSource="";
+    if( irecpars.dataType("phasecenter") == TpString ){
+      String pcen=irecpars.asString("phasecenter");
+      if(Table::isReadable(pcen, False)){
+	//seems to be a table so assuming ephemerides table
+	movingSource=pcen;
+	irecpars.define("phasecenter", "");
+      }
+      ///if not a table 
+      casacore::MDirection::Types refType;
+      if(casacore::MDirection::getType(refType, pcen)){
+	if(refType > casacore::MDirection::N_Types && refType < casacore::MDirection:: N_Planets ){
+	  ///A known planet
+	  movingSource=pcen;
+	  irecpars.define("phasecenter", "");
+
+	}
+      }
+      //cerr << "PCEN " << pcen << "  " << irecpars.asString("phasecenter")<< endl;
+    }
+    //////////////////////
+
+
+
     SynthesisParamsImage ipars;
     ipars.fromRecord( irecpars );
-
+    
+      
     casacore::Record grecpars = *toRecord( gridpars );
     SynthesisParamsGrid gpars;
     gpars.fromRecord( grecpars );
-
+    if(movingSource != casacore::String("")){
+      itsImager->setMovingSource(movingSource);
+    }
     itsImager->defineImage( ipars, gpars );
- 
+    
+
+    
     /*
     itsImager->defineImage( ipars.imageName, ipars.imsize[0], ipars.imsize[1], 
 			    ipars.cellsize[0], ipars.cellsize[1], ipars.stokes, ipars.phaseCenter,

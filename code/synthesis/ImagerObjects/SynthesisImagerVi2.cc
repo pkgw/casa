@@ -520,10 +520,11 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 
     try
       {
+	
 
 	os << "Define image coordinates for [" << impars.imageName << "] : " << LogIO::POST;
 
-
+	
 	csys = impars.buildCoordinateSystem( *vi_p, channelSelections_p, mss_p );
 
 	IPosition imshape = impars.shp();
@@ -1463,11 +1464,20 @@ void SynthesisImagerVi2::unlockMSs()
     //// Set interpolation mode
     theFT->setFreqInterpolation( interpolation );
     theIFT->setFreqInterpolation( interpolation );
+
+    ///Set tracking of moving source if any
+    if(movingSource_p != ""){
+      theFT->setMovingSource(movingSource_p);
+      theIFT->setMovingSource(movingSource_p);
+    }
     /* vi_p has chanselection now
     //channel selections from spw param
     theFT->setSpwChanSelection(chanSel_p);
     theIFT->setSpwChanSelection(chanSel_p);
     */
+
+
+
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
