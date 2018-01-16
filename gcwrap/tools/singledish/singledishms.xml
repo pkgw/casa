@@ -133,7 +133,7 @@ Multipy a scaling factor to selected spectra.
     </param>
     
     <param type="string" name="timespan" subparam="true">
-       <description>Span the timebin across \'scan\', \'state\', \'field\', or a combination of them (e.g., \'scan,state\').</description>
+       <description>Span the timebin across 'scan', 'state', 'field', or a combination of them (e.g., 'scan,state').</description>
        <value type="string"></value>
     </param>
 
@@ -577,12 +577,12 @@ Fit line profile to selected spectra and obtain the best-fit parameter values
     </param>
     
     <param type="string" name="timespan">
-        <description>Span the timebin across \'scan\', \'state\', \'field\', or a combination of them (e.g., \'scan,state\').</description>
+        <description>Span the timebin across 'scan', 'state', 'field', or a combination of them (e.g., 'scan,state').</description>
         <value></value>
     </param>
 
     <param type="string" name="polaverage">
-        <description>polarization averaging mode (\'\', \'stokes\', or \'geometric\').</description>
+        <description>polarization averaging mode ('', 'stokes', or 'geometric').</description>
         <allowed kind="enum">
             <value></value>
             <value>stokes</value>
@@ -719,7 +719,7 @@ sdms.fit_line(fitfunc='gauss',spw='0:1000~2000;4000~5000',nfit=[1,1])
   </input>
   <returns type="bool"/>
   <example>
-sdms.set_selection(field="M100", spw="3,5")
+sdms.set_selection(field='M100', spw='3,5')
   </example>
 </method>
 
