@@ -108,7 +108,7 @@ Multipy a scaling factor to selected spectra.
     </param>
 
     <param type="string" name="datacolumn">
-      <description>the name of data column to process</description>
+      <description>The name of data column to process ('data', 'float_data', or 'corrected')</description>
       <value>data</value>
       <allowed kind="enum">
 	<value>data</value>
@@ -155,7 +155,7 @@ Fit baseline and subtract it from selected spectra
   <input>
 
     <param type="string" name="datacolumn">
-      <description>the name of data column to process</description>
+      <description>The name of data column to process ('data', 'float_data', or 'corrected')</description>
       <value>data</value>
       <allowed kind="enum">
 	<value>data</value>
@@ -248,7 +248,7 @@ Fit baseline and subtract it from selected spectra
   <input>
 
     <param type="string" name="datacolumn">
-      <description>the name of data column to process</description>
+      <description>The name of data column to process ('data', 'float_data', or 'corrected')</description>
       <value>data</value>
       <allowed kind="enum">
 	<value>data</value>
@@ -337,12 +337,12 @@ Fit baseline and subtract it from selected spectra
   <input>
 
     <param type="string" name="datacolumn">
-      <description>the name of data column to process</description>
+      <description>The name of data column to process ('data', 'float_data', or 'corrected')</description>
       <value>data</value>
       <allowed kind="enum">
 	<value>data</value>
 	<value>float_data</value>
-	<value>corrected_data</value>
+	<value>corrected</value>
       </allowed>
     </param>
 
@@ -447,7 +447,7 @@ Fit parameters for each spectrum are obtained from a text file.
   <input>
 
     <param type="string" name="datacolumn">
-      <description>the name of data column to process</description>
+      <description>The name of data column to process ('data', 'float_data', or 'corrected')</description>
       <value>data</value>
       <allowed kind="enum">
 	<value>data</value>
@@ -512,7 +512,7 @@ in the MS.
     </param>
 
     <param type="string" name="datacolumn">
-      <description>the name of data column to process</description>
+      <description>The name of data column to process ('data', 'float_data', or 'corrected')</description>
       <value>data</value>
       <allowed kind="enum">
 	<value>data</value>
@@ -550,12 +550,12 @@ Fit line profile to selected spectra and obtain the best-fit parameter values
   <input>
 
     <param type="string" name="datacolumn">
-      <description>The name of data column to process</description>
+      <description>The name of data column to process ('data', 'float_data', or 'corrected')</description>
       <value>data</value>
       <allowed kind="enum">
 	<value>data</value>
 	<value>float_data</value>
-	<value>corrected_data</value>
+	<value>corrected</value>
       </allowed>
     </param>
 
@@ -744,7 +744,7 @@ sdms.set_selection(field='M100', spw='3,5')
     </param>
       
     <param type="string" name="datacolumn">
-      <description>the name of data column to process</description>
+      <description>The name of data column to process ('data', 'float_data', or 'corrected')</description>
       <value>data</value>
       <allowed kind="enum">
 	    <value>data</value>
