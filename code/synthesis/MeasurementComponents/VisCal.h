@@ -116,6 +116,10 @@ public:
   virtual casacore::Vector<casacore::Bool> spwOK() { return casacore::Vector<casacore::Bool>(nSpw(),true); };
   virtual casacore::Bool spwOK(casacore::Int) { return true; };
 
+  // Calibration available?
+  //  (always true for non-tabular)
+  virtual casacore::Bool calAvailable(vi::VisBuffer2&) { return true;};
+
   // Frequency-dependent Parameters?  Nominally not.
   virtual casacore::Bool freqDepPar() { return false; };
 
@@ -239,6 +243,7 @@ protected:
   inline casacore::Int&    currScan()                { return currScan_(currSpw()); };
   inline casacore::Int&    currObs()                 { return currObs_(currSpw()); };
   inline casacore::Int&    currField()               { return currField_(currSpw()); };
+  inline casacore::Int&    currIntent()              { return currIntent_(currSpw()); };
   inline casacore::Vector<casacore::Double>& currFreq()        { return currFreq_; };
 
   inline casacore::Double& refTime()                 { return refTime_; };
@@ -367,6 +372,7 @@ private:
   casacore::Vector<casacore::Int> currScan_;
   casacore::Vector<casacore::Int> currObs_;
   casacore::Vector<casacore::Int> currField_;
+  casacore::Vector<casacore::Int> currIntent_;
   casacore::Vector<casacore::Double> currFreq_;
   casacore::Vector<casacore::Double> lastTime_;
   casacore::Double refTime_;

@@ -238,6 +238,10 @@ public:
   // Destructor
   virtual ~CLPatchPanel();
 
+  // Is specific calibration explicitly available for a obs,fld,intent,spw,ant combination?
+  casacore::Bool calAvailable(casacore::Int obs, casacore::Int fld, casacore::Int ent, 
+			      casacore::Int spw, casacore::Int ant=-1);
+
   // Interpolate, given input obs, field, intent, spw, timestamp, & (optionally) freq 
   //    returns T if new result (anywhere,anyhow)
   //  For casacore::Complex params (calls casacore::Float version)

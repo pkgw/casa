@@ -330,6 +330,9 @@ public:
   // New spwOK
   virtual casacore::Bool spwOK(casacore::Int ispw);
 
+  // Calibration available?
+  virtual casacore::Bool calAvailable(vi::VisBuffer2&);
+
   // Post solve tinkering (generic version)
   virtual void globalPostSolveTinker();
 

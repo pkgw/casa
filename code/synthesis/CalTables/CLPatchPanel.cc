@@ -841,8 +841,10 @@ CLPatchPanel::CLPatchPanel(const String& ctname,
 	     << cls.state() << LogIO::POST;
 
     // The intent list from the callib instance, to be used to index the msci_
-    Vector<Int> theseMSint(1,-1);  // Details TBD
-    //    cout << "theseMSint = " << theseMSint << endl;
+    Vector<Int> theseMSint(1,-1); 
+    if (cls.ent.length()>0)
+      theseMSint.reference(this->getMSuniqueIds(clsms,"intent"));
+    //cout << "theseMSint = " << theseMSint << endl;
 
     // What MS indices will be calibrated by this CL instance?
 
@@ -1102,6 +1104,8 @@ Vector<Int> CLPatchPanel::getMSuniqueIds(MeasurementSet& ms, String which) {
     msc.observationId().getColumn(colv);
   else if (which=="fld") 
     msc.fieldId().getColumn(colv);
+  else if (which=="intent") 
+    msc.stateId().getColumn(colv);
   else if (which=="spw") 
     msc.dataDescId().getColumn(colv);  // these are actually ddids!
   else
@@ -1134,6 +1138,22 @@ CLPatchPanel::~CLPatchPanel() {
   // Delete the atomic interpolators
   for (std::map<CTCalPatchKey,CTTimeInterp1*>::iterator it=ci_.begin(); it!=ci_.end(); ++it)
     delete it->second;
+
+}
+
+// Is specific calibration explicitly available for a obs,fld,intent,spw,ant combination?
+Bool CLPatchPanel::calAvailable(casacore::Int msobs, casacore::Int msfld, casacore::Int msent, 
+				casacore::Int msspw, casacore::Int msant) {
+
+  const MSCalPatchKey key(msobs,msfld,msent,msspw,msant);
+
+  Bool avail=msTres_.count(key)>0;
+
+  //  if (!avail) {
+  //    cout << Path(ct_.tableName()).baseName().before(".tempMem") << " stepped over: " << key.print() << endl;
+  //  }
+
+  return avail;
 
 }
 

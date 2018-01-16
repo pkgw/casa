@@ -386,6 +386,8 @@ class Calibrater
   casacore::MSHistoryHandler *hist_p;
   casacore::Table historytab_p;
 
+  casacore::Bool usingCalLibrary_;
+
   // Activity record
   casacore::Record actRec_;
 

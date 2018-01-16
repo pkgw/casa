@@ -541,7 +541,6 @@ void SolvableVisCal::setCallib(const Record& callib,
 
   // Make the interpolation engine
   cpp_ = new CLPatchPanel(calTableName(),selms,callib,matrixType(),nPar(),cttifactoryptr());
-
   //  cpp_->listmappings();
 
 }
@@ -3853,6 +3852,43 @@ Bool SolvableVisCal::spwOK(Int ispw) {
     return true;
   }
 }
+
+// Calibration available?
+Bool SolvableVisCal::calAvailable(vi::VisBuffer2& vb) {
+
+  // Ensure meta info up-to-date!
+  this->syncMeta2(vb);
+
+  if (isSolved()) {
+    // Solve context
+    cout << "SVC::calAvailable: solve context TBD" << endl;
+    return spwOK_(currSpw());
+  }
+
+  else if (isApplied()) {
+    // Apply context
+    if (ci_) {
+      // Using (traditional) CTPatchedInterp; defer to spwOK
+      return this->spwOK(currSpw());
+    }
+
+    else if (cpp_) {
+      // Using newer CalLibrary; ask the CLPatchPanel
+      // NB: not concerned with antenna-specifity at this granularity
+      return cpp_->calAvailable(currObs(),currField(),currIntent(),currSpw(),-1);
+    }
+    else
+      // Assume ok (e.g., non-interpolable types are there any?)
+      return true;
+  }
+  else {
+    cout << "SVC::calAvailable: non-solve/non-apply context TBD" << endl;
+    return false;
+  }
+
+}
+
+
 
 // File a solved solution (and meta-data) into the in-memory Caltable
 void SolvableVisCal::keepNCT() {

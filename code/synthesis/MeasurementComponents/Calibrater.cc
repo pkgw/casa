@@ -96,6 +96,7 @@ Calibrater::Calibrater():
   svc_p(0),
   histLockCounter_p(), 
   hist_p(0),
+  usingCalLibrary_(false),
   actRec_(),
   simdata_p(false),
   ssvp_p()
@@ -115,6 +116,7 @@ Calibrater::Calibrater(String msname):
   svc_p(0),
   histLockCounter_p(), 
   hist_p(0),
+  usingCalLibrary_(false),
   actRec_(),
   simdata_p(false),
   ssvp_p()
@@ -153,6 +155,7 @@ Calibrater::Calibrater(const vi::SimpleSimVi2Parameters& ssvp):
   svc_p(0),
   histLockCounter_p(), 
   hist_p(0),
+  usingCalLibrary_(false),
   actRec_(),
   simdata_p(true),
   ssvp_p(ssvp)
@@ -652,6 +655,9 @@ Bool Calibrater::setcallib2(Record callib) {
 
   // Local MS object for callib parsing (only)
   MeasurementSet lms(msname_p,Table::Update);
+  // TBD: Use selected MS instead (not yet available in OTF plotms context!)
+  //const MeasurementSet lms(*mssel_p);
+  //MeasurementSet lms(msname_p);
 
   for (uInt itab=0;itab<ntab;++itab) {
 
@@ -682,7 +688,7 @@ Bool Calibrater::setcallib2(Record callib) {
 
       // ingest this table according to its callib
       vc->setCallib(thistabrec,lms);
-
+      
     } catch (AipsError x) {
       logSink() << LogIO::SEVERE << x.getMesg() 
 		<< " Check inputs and try again."
@@ -712,6 +718,10 @@ Bool Calibrater::setcallib2(Record callib) {
       return false;
     } 
   }
+
+  // Signal use of CalLibrary
+  usingCalLibrary_=true;
+
   // All ok, if we get this far!
   return true;
 
@@ -1166,7 +1176,8 @@ Calibrater::correct2(String mode)
 	  for (vi.origin(); vi.more(); vi.next()) {
 
 	    uInt spw = vb->spectralWindows()(0);
-	    if (ve_p->spwOK(spw)){
+	    //if (ve_p->spwOK(spw)){
+	    if (usingCalLibrary_ || ve_p->spwOK(spw)){
 
 	      // Re-initialize weight info from sigma info
 	      //   This is smart wrt spectral weights, etc.
@@ -1342,7 +1353,8 @@ Bool Calibrater::corrupt2()
       for (vi.originChunks(); vi.moreChunks(); vi.nextChunk()) {
 	for (vi.origin(); vi.more(); vi.next()) {
 	  uInt spw = vb->spectralWindows()(0);
-	  if (ve_p->spwOK(spw)){
+	  //if (ve_p->spwOK(spw)){
+	  if (usingCalLibrary_ || ve_p->spwOK(spw)){
 
 	    // Make all vb "not dirty", for safety
 	    vb->dirtyComponentsClear();
