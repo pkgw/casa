@@ -883,7 +883,7 @@ using namespace casa::vi;
    else{
      //if above failed it still can be changing if   polynome phasecenter or ephem
      
-     if( (vb.subtableColumns().field().numPoly()(lastFieldId_p) >0) ||  (vb.subtableColumns().field().ephemerisId()(lastFieldId_p) > -1))
+     if( (vb.subtableColumns().field().numPoly()(lastFieldId_p) >0) ||  (! (vb.subtableColumns().field().ephemerisId().isNull()) && (vb.subtableColumns().field().ephemerisId()(lastFieldId_p) > -1)))
        doUVWRotation_p=True;
    }
    if(doUVWRotation_p ||  fixMovingSource_p){
@@ -996,7 +996,7 @@ using namespace casa::vi;
       }
       else{
 	//if above failed it still can be changing if   polynome phasecenter or ephem
-	if( (vb.subtableColumns().field().numPoly()(lastFieldId_p) >0) ||  (vb.subtableColumns().field().ephemerisId()(lastFieldId_p) > -1))
+	if( (vb.subtableColumns().field().numPoly()(lastFieldId_p) >0) ||  (! (vb.subtableColumns().field().ephemerisId().isNull()) &&(vb.subtableColumns().field().ephemerisId()(lastFieldId_p) > -1)))
 	  doUVWRotation_p=True;
 	
       }
