@@ -21,7 +21,7 @@ file:///opt/casa/code/tools/xml/casa.xsd">
    <shortdescription>Construct singledishms tool</shortdescription>
    
 <description>
-This is used to construct an singledishms tool.
+This is used to construct a singledishms tool.
 </description>
 <input>
 </input>
