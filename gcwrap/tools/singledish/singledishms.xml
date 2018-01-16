@@ -21,7 +21,11 @@ file:///opt/casa/code/tools/xml/casa.xsd">
    <shortdescription>Construct singledishms tool</shortdescription>
    
 <description>
-This is used to construct a singledishms tool.
+This is used to construct a singledishms tool instance. Created instance is 
+just like the default one ('sdms') but physically independent each other. 
+This is useful when users want to create own tool instance inside their 
+scripts/modules to avoid possible conflict that may happen when using default 
+tool instance from various places.
 </description>
 <input>
 </input>
