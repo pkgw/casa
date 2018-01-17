@@ -123,29 +123,6 @@ singledishms::name()
 }
 
 bool
-singledishms::_scale(float const factor, string const& datacolumn, string const& outfile, bool const timeaverage, string const& timebin, string const& timespan)
-{
-  bool rstat(false);
-  *itsLog << _ORIGIN;
-  try {
-    assert_valid_ms();
-    if (timeaverage) {
-      Record average_param = get_time_averaging_record(timeaverage,timebin,
-						       timespan);
-      itsSd->setAverage(average_param);
-    }
-
-    itsSd->scale(factor, datacolumn, outfile);
-    rstat = true;
-  } catch  (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() 
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return rstat;
-}
-
-bool
 singledishms::subtract_baseline(string const& datacolumn,
                                 string const& outfile,
                                 string const& bloutput,
