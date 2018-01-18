@@ -81,6 +81,7 @@
 #include <synthesis/TransformMachines2/AWConvFunc.h>
 #include <synthesis/TransformMachines2/AWConvFuncEPJones.h>
 #include <synthesis/TransformMachines2/NoOpATerm.h>
+#include <synthesis/TransformMachines2/SDGrid.h>
 #include <synthesis/TransformMachines/WProjectFT.h>
 #include <casadbus/viewer/ViewerProxy.h>
 #include <casadbus/plotserver/PlotServerProxy.h>
@@ -98,6 +99,7 @@
 using namespace std;
 
 using namespace casacore;
+
 namespace casa { //# NAMESPACE CASA - BEGIN
 
   SynthesisImagerVi2::SynthesisImagerVi2() : SynthesisImager(), vi_p(0), fselections_p(nullptr) {
@@ -191,10 +193,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     TableExprNode exprNode=thisSelection.toTableExprNode(&thisms);
     if(!(exprNode.isNull()))
       {
-	mss_p.resize(mss_p.nelements()+1, false, true);
+	
     
 	MeasurementSet thisMSSelected0 = MeasurementSet(thisms(exprNode));
-
+	mss_p.resize(mss_p.nelements()+1, false, true);
 	if(selpars.taql != "")
 	  {
 	    MSSelection mss0;
@@ -215,6 +217,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     else{
       throw(AipsError("Selection for given MS "+selpars.msname+" is invalid"));
     }
+    if((mss_p[mss_p.nelements()-1])->nrow() ==0){
+      delete mss_p[mss_p.nelements()-1];
+      mss_p.resize(mss_p.nelements()-1, True, True);
+      if(mss_p.nelements()==0)
+	throw(AipsError("Data selection ended with 0 rows"));
+      //Sill have some valid ms's so return false and do not proceed to do 
+      //channel selection
+      return False;
+    }
+
+
     
     ///Channel selection
     {
@@ -320,7 +333,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  //vi::FrequencySelectionUsingFrame channelSelector((vi_p ? freqFrame :selpars.freqframe));
 	  //vi::FrequencySelectionUsingFrame channelSelector(selpars.freqframe);
     	  for(uInt k=0; k < nSelections; ++k){
-	    //cerr << "lowFreq "<< lowfreq << " topfreq " << topfreq << endl;
             //channelSelector.add(Int(freqList(k,0)), lowfreq, topfreq);
 	    //andFreqSelection((mss_p.nelements()-1), Int(freqList(k,0)), lowfreq, topfreq, vi_p ?freqFrame : selpars.freqframe);
 	    andFreqSelection((mss_p.nelements()-1), Int(freqList(k,0)), lowfreq, topfreq, selFreqFrame_p);
@@ -395,7 +407,7 @@ void SynthesisImagerVi2::andChanSelection(const Int msId, const Int spwId, const
 	}
 	spwsel[spwId]=chansel;
 	channelSelections_p[msId]=spwsel;
-	//	cerr << "chansel "<< channelSelections_p << endl;
+	//cerr << "chansel "<< channelSelections_p << endl;
 	
 }
   void SynthesisImagerVi2::andFreqSelection(const Int msId, const Int spwId,  const Double freqBeg, const Double freqEnd, const MFrequency::Types frame){
@@ -536,6 +548,22 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 	   << " , " << impars.cellsize[1].getValue() << impars.cellsize[1].getUnit() 
 	   << LogIO::POST;
 	*/
+        // phasecenter
+        if (impars.phaseCenterFieldId == -1) {
+          // user-specified
+          phaseCenter_p = impars.phaseCenter;
+        } else if (impars.phaseCenterFieldId >= 0) {
+          // FIELD_ID
+          auto const msobj = mss_p[0];
+          ROMSFieldColumns msfield(msobj->field());
+          phaseCenter_p=msfield.phaseDirMeas(impars.phaseCenterFieldId);
+        } else {
+          // use default FIELD_ID (0)
+          auto const msobj = mss_p[0];
+          ROMSFieldColumns msfield(msobj->field());
+          phaseCenter_p=msfield.phaseDirMeas(0);
+        }
+
       }
     catch(AipsError &x)
       {
@@ -560,7 +588,9 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 			gridpars.doPBCorr,gridpars.conjBeams,
 			gridpars.computePAStep,gridpars.rotatePAStep,
 			gridpars.interpolation, impars.freqFrameValid, 1000000000,  16, impars.stokes,
-			impars.imageName);
+			impars.imageName, gridpars.pointingDirCol, gridpars.skyPosThreshold,
+			gridpars.convSupport, gridpars.truncateSize, gridpars.gwidth, gridpars.jwidth,
+			gridpars.minWeight, gridpars.clipMinMax);
 
       }
     catch(AipsError &x)
@@ -1184,6 +1214,45 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
     unlockMSs();
    
   }// end of predictModel
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  void SynthesisImagerVi2::makeSdImage(Bool dopsf)
+  {
+    LogIO os( LogOrigin("SynthesisImagerVi2","makeSdImage",WHERE) );
+
+//    Bool dopsf=false;
+    if(datacol_p==FTMachine::PSF) dopsf=true;
+
+    {
+      vi::VisBuffer2* vb = vi_p->getVisBuffer();;
+      vi_p->originChunks();
+      vi_p->origin();
+
+      Double numberCoh=0;
+      for (uInt k=0; k< mss_p.nelements(); ++k)
+        numberCoh+=Double(mss_p[k]->nrow());
+
+      ProgressMeter pm(1.0, numberCoh, "Predict Model", "","","",true);
+      Int cohDone=0;
+
+      itsMappers.initializeGrid(*vb,dopsf);
+      for (vi_p->originChunks(); vi_p->moreChunks(); vi_p->nextChunk())
+      {
+
+        for (vi_p->origin(); vi_p->more(); vi_p->next())
+        {
+          itsMappers.grid(*vb, dopsf, (refim::FTMachine::Type)datacol_p);
+          cohDone += vb->nRows();
+          pm.update(Double(cohDone));
+        }
+      }
+      itsMappers.finalizeGrid(*vb, dopsf);
+
+    }
+
+    unlockMSs();
+
+  }// end makeImage
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -1279,7 +1348,16 @@ void SynthesisImagerVi2::unlockMSs()
 					   const Int cache,             //=1000000000,
 					   const Int tile,               //=16
 					   const String stokes, //=I
-					   const String imageNamePrefix
+					   const String imageNamePrefix,
+					   //---------------------------
+					   const String &pointingDirCol,
+					   const Float skyPosThreshold,
+					   const Int convSupport,
+					   const Quantity &truncateSize,
+					   const Quantity &gwidth,
+					   const Quantity &jwidth,
+					   const Float minWeight,
+					   const Bool clipMinMax
 					   )
 
   {
@@ -1328,6 +1406,10 @@ void SynthesisImagerVi2::unlockMSs()
     else if ( ftname == "mosaic" || ftname== "mosft" || ftname == "mosaicft" || ftname== "MosaicFT"){
 
       createMosFTMachine(theFT, theIFT, padding, useAutocorr, useDoublePrec, rotatePAStep, stokes, conjBeams);
+    } else if (ftname == "sd") {
+      createSDFTMachine(theFT, theIFT, pointingDirCol, skyPosThreshold, doPBCorr, rotatePAStep,
+          gridFunction, convSupport, truncateSize, gwidth, jwidth,
+          minWeight, clipMinMax, cache, tile, stokes);
     }
     else
       {
@@ -1603,7 +1685,108 @@ void SynthesisImagerVi2::unlockMSs()
     
   }
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  void SynthesisImagerVi2::createSDFTMachine(CountedPtr<refim::FTMachine>& theFT,
+      CountedPtr<refim::FTMachine>& theIFT,
+      const String &pointingDirCol,
+      const Float skyPosThreshold,
+      const Bool /*doPBCorr*/,
+      const Float rotatePAStep,
+      const String& gridFunction,
+      const Int convSupport,
+      const Quantity& truncateSize,
+      const Quantity& gwidth,
+      const Quantity& jwidth,
+      const Float minWeight,
+      const Bool clipMinMax,
+      const Int cache,
+      const Int tile,
+      const String &stokes) {
+//    // member variable itsVPTable is VP table name
+    LogIO os(LogOrigin("SynthesisImagerVi2", "createSDFTMachine", WHERE));
+    os << LogIO::NORMAL // Loglevel INFO
+       << "Performing single dish gridding..." << LogIO::POST;
+    os << LogIO::NORMAL1 // gridFunction is too cryptic for most users.
+       << "with convolution function " << gridFunction << LogIO::POST;
+
+    // Now make the Single Dish Gridding
+    os << LogIO::NORMAL // Loglevel INFO
+       << "Gridding will use specified common tangent point:" << LogIO::POST;
+    os << LogIO::NORMAL << SynthesisUtilMethods::asComprehensibleDirectionString(phaseCenter_p)
+        << LogIO::POST; // Loglevel INFO
+    String const gridfunclower = downcase(gridFunction);
+    if(gridfunclower=="pb") {
+      refim::SkyJones *vp = nullptr;
+      ROMSColumns msc(*mss_p[0]);
+      // todo: NONE is OK?
+      BeamSquint::SquintType squintType = BeamSquint::NONE;
+      Quantity skyPosThresholdQuant((Double)skyPosThreshold+180.0, "deg");
+      Quantity parAngleStepQuant((Double)rotatePAStep, "deg");
+      if (itsVpTable.empty()) {
+        os << LogIO::NORMAL // Loglevel INFO
+            << "Using defaults for primary beams used in gridding" << LogIO::POST;
+        vp=new refim::VPSkyJones(msc, true, parAngleStepQuant, squintType,
+            skyPosThresholdQuant);
+      } else {
+        os << LogIO::NORMAL // Loglevel INFO
+            << "Using VP as defined in " << itsVpTable <<  LogIO::POST;
+        Table vpTable( itsVpTable );
+        vp=new refim::VPSkyJones(msc, vpTable, parAngleStepQuant, squintType,
+            skyPosThresholdQuant);
+      }
+      theFT = new refim::SDGrid(mLocation_p, *vp, cache/2, tile, gridfunclower,
+          convSupport, minWeight, clipMinMax);
+      theIFT = new refim::SDGrid(mLocation_p, *vp, cache/2, tile, gridfunclower,
+          convSupport, minWeight, clipMinMax);
+    } else if (gridfunclower=="gauss" || gridfunclower=="gjinc") {
+      DirectionCoordinate dirCoord = itsMaxCoordSys.directionCoordinate();
+      Vector<String> units = dirCoord.worldAxisUnits();
+      Vector<Double> increments = dirCoord.increment();
+      Quantity cellx(increments[0], units[0]);
+      Quantity celly(increments[1], units[1]);
+      if (cellx != celly &&
+          ((!truncateSize.getUnit().empty()||truncateSize.getUnit()=="pixel")
+              || (!gwidth.getUnit().empty()||gwidth.getUnit()=="pixel")
+              || (!jwidth.getUnit().empty()||jwidth.getUnit()=="pixel"))) {
+        os << LogIO::WARN
+            << "The " << gridFunction << " gridding doesn't support non-square grid." << endl
+            << "Result may be wrong." << LogIO::POST;
+      }
+      Float truncateValue, gwidthValue, jwidthValue;
+      if (truncateSize.getUnit().empty() || truncateSize.getUnit()=="pixel")
+        truncateValue = truncateSize.getValue();
+      else
+        truncateValue = truncateSize.getValue("rad")/celly.getValue("rad");
+      if (gwidth.getUnit().empty() || gwidth.getUnit()=="pixel")
+        gwidthValue = gwidth.getValue();
+      else
+        gwidthValue = gwidth.getValue("rad")/celly.getValue("rad");
+      if (jwidth.getUnit().empty() || jwidth.getUnit()=="pixel")
+        jwidthValue = jwidth.getValue();
+      else
+        jwidthValue = jwidth.getValue("rad")/celly.getValue("rad");
+      theFT = new refim::SDGrid(mLocation_p, cache/2, tile, gridfunclower,
+                        truncateValue, gwidthValue, jwidthValue, minWeight, clipMinMax);
+      theIFT = new refim::SDGrid(mLocation_p, cache/2, tile, gridfunclower,
+                        truncateValue, gwidthValue, jwidthValue, minWeight, clipMinMax);
+    }
+    else {
+      theFT = new refim::SDGrid(mLocation_p, cache/2, tile, gridfunclower,
+                        convSupport, minWeight, clipMinMax);
+      theIFT = new refim::SDGrid(mLocation_p, cache/2, tile, gridfunclower,
+                        convSupport, minWeight, clipMinMax);
+    }
+    theFT->setPointingDirColumn(pointingDirCol);
+
+    // turn on Pseudo Stokes mode if necessary
+    if (stokes == "XX" || stokes == "YY" || stokes == "XXYY"
+        || stokes == "RR" || stokes == "LL" || stokes == "RRLL") {
+      theFT->setPseudoIStokes(True);
+      theIFT->setPseudoIStokes(True);
+    }
+  }
   
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //// Get/Set Weight Grid.... write to disk and read
 
   /// todo : do for full mapper list, and taylor terms.

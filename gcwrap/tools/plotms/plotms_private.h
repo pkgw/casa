@@ -69,7 +69,11 @@ casacore::String itsLogFilename_, itsLogFilter_;
 bool displaySet();
 
 // Launches the dbus plotms application IF it is not already launched.
-void launchApp();
+// Returns:
+//   true = already launched, or launched in launchCasaplotms
+//   false = launch failed or plotms (task) has crashed 
+bool launchApp();
+bool launchCasaplotms();
 
 // Closes the launched dbus plotms application if needed.
 void closeApp();
@@ -105,3 +109,4 @@ void setFlagging_(const casa::PlotMSFlagging& flagging);
 
 bool showGui;
 bool asyncCall;
+bool isTask;

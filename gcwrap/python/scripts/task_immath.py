@@ -166,8 +166,9 @@ import os
 import shutil
 from taskinit import *
 import re
+from ialib import write_image_history
 
-_rg = rgtool( )
+_rg = rgtool()
 
 def immath(
     imagename, mode, outfile, expr, varnames, sigma,
@@ -178,6 +179,8 @@ def immath(
     casalog.origin('immath')
     tmpFilePrefix='_immath_tmp' + str(os.getpid()) + '_'
     _myia = iatool()
+    _myia.dohistory(False)
+    outia = iatool()
     isLPol = False
     isTPol = False
     lpol = ''
@@ -205,10 +208,12 @@ def immath(
                 tmpFilePrefix, imagename, imagemd
             )
         elif mode == 'poli':
-            (expr, isLPol, isTPol) = _immath_dopoli(
-                filenames, varnames, tmpFilePrefix, sigma, _myia
+            _immath_new_poli(
+                filenames, outfile, tmpFilePrefix, mask, region,
+                box, chans, stokes, stretch, sigma, _myia
             )
-        if (mode == 'pola' or mode == 'poli') and stokes:
+            return True
+        if (mode == 'pola') and stokes:
             # reset stokes selection for pola and poli
             casalog.post( "Ignoring stokes parameters selection." ,'WARN' );
             stokes=''
@@ -229,18 +234,28 @@ def immath(
             (expr, varnames, subImages) = _immath_updateexpr(
                 expr, varnames, subImages, filenames, file_map
             )
-            return _immath_compute(
+            outia = _immath_compute(
                 imagename, expr, mode, outfile, imagemd, _myia,
                 isTPol, isLPol, lpol, doPolThresh, polithresh
             )
         else:
             # If the user didn't give any region or mask information
             # then just evaluated the expression with the filenames in it.
-            return _immath_dofull(
+            outia = _immath_dofull(
                 imagename, imagemd, outfile, mode, expr,
                 varnames, filenames, isTPol, isLPol,
                 doPolThresh, polithresh, lpol, _myia
             )
+        try:
+            param_names = immath.func_code.co_varnames[:immath.func_code.co_argcount]
+            param_vals = [eval(p) for p in param_names]   
+            write_image_history(
+                outia, sys._getframe().f_code.co_name,
+                param_names, param_vals, casalog
+            )
+        except Exception, instance:
+            casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
+        return True
     except Exception, error:
         casalog.post("Unable to process expression " + expr, 'SEVERE')
         casalog.post("Exception caught was: " + str(error), 'SEVERE')
@@ -248,7 +263,63 @@ def immath(
     finally:
         if _myia:
             _myia.done()
+        if outia:
+           outia.done() 
         _immath_cleanup(tmpFilePrefix)
+    
+def _immath_new_poli(
+    filenames, outfile, tmpFilePrefix, mask, region,
+    box, chans, stokes, stretch, sigma, _myia
+):
+    target = filenames[0]
+    if len(filenames) > 1:
+        _myia.open(filenames[0])
+        stokes_axis = _myia.coordsys().findaxisbyname("stokes")
+        _myia.done()
+        casalog.post("Concatenating images along stokes axis")
+        target = tmpFilePrefix + "_concat_for_poli"
+        _myia = _myia.imageconcat(
+            outfile=target, infiles=filenames, axis=stokes_axis
+        )
+        _myia.done()
+    debias = False
+    newsigma = 0
+    if sigma:
+        qsigma = qa.quantity(sigma)
+        if qa.getvalue(qsigma)[0] > 0:
+            debias = True
+            sigmaunit = qa.getunit(qsigma)
+            try:
+                _myia.open(filenames[0])
+                iunit = _myia.brightnessunit()
+                _myia.done()
+            except:
+                raise Exception, 'Unable to get brightness unit from image file ' + filenames[0]
+            if sigmaunit != iunit:
+                newsigma = qa.convert(qsigma,iunit)
+            else:
+                newsigma = sigma
+    myreg = region
+    if (type(region) != type({})):
+        myrg = rgtool()
+        if stokes:
+            casalog.post( "Ignoring stokes parameters selection for mode='poli'." ,'WARN' );
+            stokes=''
+        _myia.open(target)
+        myreg = myrg.frombcs(
+            csys=_myia.coordsys().torecord(), shape=_myia.shape(), box=box,
+            chans=chans, stokes=stokes, stokescontrol="a", region=region
+        )
+        _myia.done()
+        myrg.done()
+    mypo = potool()
+    mypo.open(target)
+    _myia = mypo.totpolint(
+        debias=debias, sigma=newsigma, outfile=outfile,
+        region=myreg, mask=mask, stretch=stretch
+    )
+    _myia.done()
+    mypo.done()
     
 def _immath_compute(
     imagename, expr, mode, outfile, imagemd, _myia,
@@ -259,18 +330,18 @@ def _immath_compute(
         pixels=expr, outfile=outfile,
         imagemd=_immath_translate_imagemd(imagename, imagemd)
     )
+    res.dohistory(False)
     # modify stokes type for polarization intensity image
-    if (  mode=="poli" ):                
+    if mode=="poli":                
         csys = res.coordsys()
         if isTPol:
             csys.setstokes('Ptotal')
         elif isLPol:
             csys.setstokes('Plinear')
         res.setcoordsys(csys.torecord())
-    res.done()
-    if (doPolThresh):
-        _immath_createPolMask(polithresh, lpol, outfile)
-    return True
+    if doPolThresh:
+        _immath_createPolMask(polithresh, lpol, res)
+    return res
 
 def _immath_updateexpr(expr, varnames, subImages, filenames, file_map):
     # Make sure no problems happened
@@ -335,28 +406,6 @@ def _immath_dofull(
         isTPol, isLPol, lpol, doPolThresh, polithresh
     )
 
-def _immath_dopoli(filenames, varnames, tmpFilePrefix, sigma, _myia):
-    [expr, isLPol, isTPol] = _doPolI(filenames, varnames, tmpFilePrefix, True, True)
-    sigsq = 0
-    if sigma:
-        qsigma = qa.quantity(sigma)
-        if qa.getvalue(qsigma)[0] > 0:
-            sigmaunit=qa.getunit(qsigma)
-            try:
-                _myia.open(filenames[0])
-                iunit = _myia.brightnessunit()
-                _myia.done()
-            except:
-                raise Exception, 'Unable to get brightness unit from image file ' + filenames[0]
-            if sigmaunit != iunit:
-                newsigma = qa.convert(qsigma,iunit)
-            else:
-                newsigma = sigma
-                sigsq=(qa.getvalue(newsigma)[0])**2
-            expr += '-%s' % sigsq
-        expr += ')'
-    return (expr, isLPol, isTPol)
-
 def _immath_dopola(
     mask, polithresh, filenames, varnames,
     tmpFilePrefix, imagename, imagemd
@@ -371,6 +420,7 @@ def _immath_dopola(
         if (qa.getunit(polithresh) != ""):
             initUnit = qa.getunit(polithresh)
             _myia = iatool()
+            _myia.dohistory(False)
             _myia.open(filenames[0])
             bunit = _myia.brightnessunit()
             polithresh = qa.convert(polithresh, bunit)
@@ -664,15 +714,15 @@ def _immath_dopoli_single_image(stokeslist, filenames, tpol, createSubims, tmpFi
     )
     return _immath_doltpol(mystokes, filenames, filenames)
 
-def _immath_createPolMask(polithresh, lpol, outfile):
+def _immath_createPolMask(polithresh, lpol, myia):
     # make the linear polarization threshhold mask CAS-2120
     myexpr = "'" + lpol + "' >= " + str(qa.getvalue(polithresh)[0])
-    _myia = iatool()
-    _myia.open(outfile)
-    _myia.calcmask(name='mask0', mask=myexpr)
-    casalog.post('Calculated mask based on linear polarization threshold ' + str(polithresh),
-        'INFO')
-    _myia.done()
+    myia.calcmask(name='mask0', mask=myexpr)
+    casalog.post(
+        'Calculated mask based on linear polarization threshold '
+        + str(polithresh),
+        'INFO'
+    )
     
 def _immath_translate_imagemd(imagename, imagemd):
     # may IM0 etc is a real file name

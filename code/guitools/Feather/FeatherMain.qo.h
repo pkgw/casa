@@ -30,7 +30,7 @@
 
 #include <guitools/Feather/FeatherMain.ui.h>
 #include <guitools/Feather/FileLoader.qo.h>
-#include <guitools/Feather/Preferences.qo.h>
+#include <guitools/Feather/FeatherPreferences.qo.h>
 #include <guitools/Feather/PreferencesColor.qo.h>
 #include <guitools/Feather/OverWriteFileDialog.qo.h>
 #include <guitools/Feather/AboutDialog.qo.h>
@@ -106,7 +106,7 @@ private:
 
 	Ui::FeatherMainClass ui;
     FileLoader fileLoader;
-    Preferences preferences;
+    FeatherPreferences preferences;
     PreferencesColor preferencesColor;
 
     QString lowResImagePath;
