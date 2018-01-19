@@ -1542,7 +1542,6 @@ CTRateAwareTimeInterp1::CTRateAwareTimeInterp1(NewCalTable& ct,
 CTRateAwareTimeInterp1::~CTRateAwareTimeInterp1() {}
 
 Bool CTRateAwareTimeInterp1::interpolate(Double newtime) {
-    cerr << "CTRateAwareTimeInterp1" << endl;
   // Call generic first
   if (CTTimeInterp1::interpolate(newtime)) {
     // Only if generic yields new calibration
