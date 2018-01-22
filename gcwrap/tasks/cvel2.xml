@@ -173,7 +173,7 @@ NOTE:
         </param>
 
         <param type="any" name="width" subparam="true">
-	    <description>Number of input channels that are used to create an output channel.</description>
+	    <description>Channel width of the output visibilities. Used for regridding. It can be in different units, depending on the regridding mode: number of input channels (mode=\'channel\'), velocity (mode=\'velocity\'), or frequency (mode=\'frequency\'. Example values: \'2\', \'0.0km/s\', \'1.0kHz\', for channel, velocity, and frequency modes, respectively.</description>
 	    <any type="variant"/>
 	    <value type="int">1</value>
         </param>
