@@ -290,7 +290,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         </param>
 
         <param type="any" name="phasecenter" subparam="true">
-            <description>Phase center direction to be used for the spectral coordinate transformation: position or field index</description>
+            <description>Phase center direction to be used for the spectral coordinate transformation: direction measure or field index</description>
             <any type="variant"/>
             <value type="string"></value>
         </param>
