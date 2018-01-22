@@ -327,7 +327,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         </param>
 
 	<param type="bool" name="preaverage">
-          <description>Pre-average channels before regridding when the ratio.</description>
+          <description>Pre-average channels before regridding, when the ratio between the output and and input widths is greater than 2.</description>
           <value>False</value>
 	</param>
 
