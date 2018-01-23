@@ -38,6 +38,7 @@
 #include <images/Images/ImageInterface.h>
 #include <scimath/Fitting/LinearFitSVD.h>
 
+#include <imageanalysis/ImageTypedefs.h>
 
 namespace casacore{
 
@@ -137,7 +138,7 @@ public:
 
 // Get the casacore::ImageInterface pointer of the construction image
 // Don't delete it !
-   const casacore::ImageInterface<casacore::Float>* imageInterface() const {return itsInImagePtr;};
+   SPCIIF imageInterface() const {return itsInImagePtr;};
 
 // Get the casacore::CoordinateSystem of the construction image
    casacore::CoordinateSystem coordinates() const {return itsInImagePtr->coordinates();};
@@ -335,7 +336,8 @@ public:
 // </group>
 
 private:
-   const casacore::ImageInterface<casacore::Float>* itsInImagePtr;
+   SPCIIF itsInImagePtr;
+   // const casacore::ImageInterface<casacore::Float>* itsInImagePtr;
    casacore::LinearFitSVD<casacore::Float>* itsFitterPtr;
    casacore::Float itsOldClip;
 
