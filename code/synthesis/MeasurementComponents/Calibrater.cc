@@ -758,7 +758,8 @@ Bool Calibrater::setsolve (const String& type,
                            const Float fraction,
                            const Int numedge,
                            const String& radius,
-                           const Bool smooth)
+                           const Bool smooth,
+                           const Bool zerorates)
 {
   
   logSink() << LogOrigin("Calibrater","setsolve") << LogIO::NORMAL3;
@@ -781,12 +782,15 @@ Bool Calibrater::setsolve (const String& type,
   solveparDesc.addField ("cfcache", TpString);
   solveparDesc.addField ("painc", TpDouble);
   solveparDesc.addField ("fitorder", TpInt);
+  solveparDesc.addField ("zerorates", TpBool);
 
   // single dish specific fields
   solveparDesc.addField ("fraction", TpFloat);
   solveparDesc.addField ("numedge", TpInt);
   solveparDesc.addField ("radius", TpString);
   solveparDesc.addField ("smooth", TpBool);
+
+
   
   // Create a solver record with the requisite field values
   Record solvepar(solveparDesc);
@@ -802,6 +806,8 @@ Bool Calibrater::setsolve (const String& type,
   solvepar.define ("append", append);
   solvepar.define ("solnorm", solnorm);
   solvepar.define ("minsnr", minsnr);
+  solvepar.define ("zerorates", zerorates);
+  
   String uptype=type;
   uptype.upcase();
   solvepar.define ("type", uptype);

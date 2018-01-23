@@ -132,7 +132,8 @@ class Calibrater
                  const casacore::Float fraction=0.1,
                  const casacore::Int numedge=-1,
                  const casacore::String& radius="",
-                 const casacore::Bool smooth=true);
+                 const casacore::Bool smooth=true,
+                 const casacore::Bool zerorates=false);
 
   // Arrange to solve for BPOLY (using casacore::MSSelection syntax)
   casacore::Bool setsolvebandpoly(const casacore::String& table,

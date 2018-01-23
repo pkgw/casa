@@ -121,6 +121,7 @@ scripts/task_flagcmd.py
 scripts/task_flagdata.py
 scripts/task_flagmanager.py
 scripts/task_fluxscale.py
+scripts/task_fringefit.py
 scripts/task_ft.py
 scripts/task_gaincal.py
 scripts/task_gencal.py
