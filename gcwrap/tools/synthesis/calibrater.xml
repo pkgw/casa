@@ -714,6 +714,13 @@ Default is True. </description>
      tables. </description>
      <value>false</value>
      </param>
+
+     <param type="bool" direction="in" name="globalsolve">
+     <description>Use global least-squares solver to improve fringe-fitting
+     parameter estimates </description>
+     <value>true</value>
+     </param>
+     
      
 </input>
 <returns type="bool"/>

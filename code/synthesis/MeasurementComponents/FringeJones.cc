@@ -1732,6 +1732,10 @@ void FringeJones::setSolve(const Record& solve) {
     if (solve.isDefined("zerorates")) {
         zeroRates() = solve.asBool("zerorates");
     }
+    if (solve.isDefined("globalsolve")) {
+        globalSolve() = solve.asBool("globalsolve");
+    }
+
 }
 
 // Note: this was previously omitted
@@ -1917,8 +1921,7 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
             drf.printActive();
         }
     }
-    // It should probably be possible for users to choose to turn off the least squares optimization.
-    if (1) {
+    if (globalSolve()) {
         logSink() << "Starting least squares optimization." << LogIO::POST;
         // Note that least_squares_driver is *not* a method of
         // FringeJones so we pass everything in, including the logSink
@@ -1926,7 +1929,9 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
         // altered in place.
         least_squares_driver(sdbs, sRP, sSNR, refant(), drf.getActiveAntennas(), logSink());
     }
-
+    else {
+        logSink() << "Skipping least squares optimisation." << LogIO::POST;
+    }
 
     if (DEVDEBUG) {
         cerr << "Ref time " << MVTime(refTime()/C::day).string(MVTime::YMD,7) << endl;

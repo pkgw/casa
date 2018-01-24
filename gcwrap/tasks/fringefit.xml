@@ -98,6 +98,11 @@ Previous calibrations should be applied on the fly.
 		<value>False</value>
 	</param>
 
+   <param type="bool" name="globalsolve">
+		<description>Refine estimates of delay and rate with global least-squares solver</description>
+		<value>True</value>
+	</param>
+
 	<param type="bool" name="append">
 		<description>Append solutions to the (existing) table</description>
 		<value>False</value>
@@ -278,6 +283,9 @@ Previous calibrations should be applied on the fly.
       the case of "manual phase calibration".
                 default: False
 
+      globalsolve -- Refine fringefit solutions with global least-squares solver.
+                default: False
+                
       --- Other calibrations to apply on the fly before determining
       fringe fit solution
 
