@@ -75,7 +75,7 @@
 #include <display/Display/Options.h>
 #include <algorithm>
 #include <display/functional/elements.h>
-
+#include <imageanalysis/ImageAnalysis/ImageFactory.h>
 #include <imageanalysis/ImageAnalysis/ImageRegridder.h>
 
 
@@ -256,7 +256,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		invertColorMap = false;
 		logScaleColorMap = 0;
 		std::string method = "";
-
 		if(dataType=="lel") {
 			name_ = path_;
 			if( name_.length() > 25 )
@@ -299,7 +298,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			else if( isMS() && isRaster() ) {
 				dd_ = new MSAsRaster( path_, ddo );
 			} else if(dataType_==TYPE_IMAGE || dataType_=="lel") {
-
 				if(dataType_==TYPE_IMAGE) {
 
 					// check for a FITS extension in the path name
@@ -373,6 +371,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 					default: {
 						File f(path);
 						if(!f.exists()) throw AipsError("File not found.");
+						///Try if file is one of the new format recognized 
+						///by imagefactory but not taken care above.
+						std::tie(im_ , cim_)=ImageFactory::fromFile(path);	 
+						if(im_ || cim_){
+						  break;
+						}
 						if (f.isDirectory()) {
 							//Defer image construction.
 							return;

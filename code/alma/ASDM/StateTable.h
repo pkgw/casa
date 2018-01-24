@@ -93,7 +93,7 @@ class StateRow;
  * State information.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of State </CAPTION>
@@ -147,7 +147,7 @@ class StateRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> weight </TD> 
+ * <TD> weight</TD> 
  * <TD> float </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; used for combining data. </TD>
@@ -415,6 +415,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

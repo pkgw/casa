@@ -1350,13 +1350,28 @@ class immoment_test2(unittest.TestCase):
     def test_history(self):
         """Verify that history is written"""
         myia = iatool()
-        myia.fromshape("", [20, 20, 20])
+        imagename = "zz.im"
+        myia.fromshape(imagename, [20, 20, 20])
         bb = myia.moments()
         myia.done()
         msgs = bb.history()
         bb.done()
-        self.assertTrue("ia.moments" in msgs[-2])        
-        self.assertTrue("ia.moments" in msgs[-1])        
+        teststr = "ia.moments"
+        self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
+        self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
+        outfile = "zz_out"
+        moments = [-1, 1, 2]
+        axis = 2
+        immoments(imagename=imagename, outfile=outfile, axis=axis, moments=moments)
+        for s in [".weighted_coord", ".average", ".weighted_dispersion_coord"]:
+            im = outfile + s
+            myia.open(im)
+            msgs = myia.history()
+            myia.done()
+            teststr = "version"
+            self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
+            teststr = "immoments"
+            self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
 
     def test_flush(self):
         """CAS-8570: Ensure moments images are flushed to disk"""

@@ -90,6 +90,7 @@ import numpy
 import os
 
 from taskinit import *
+from ialib import write_image_history
 
 def imhead(
     imagename, mode, hdkey, hdvalue, verbose
@@ -116,22 +117,33 @@ def imhead(
         myimd = imdtool()
         try:
             myimd.open(imagename)
+            res = False
             if mode.startswith('a'):
-                return myimd.add(hdkey, hdvalue)
+                res = myimd.add(hdkey, hdvalue)
             elif mode.startswith('d'):
-                return myimd.remove(hdkey, hdvalue)
+                res = myimd.remove(hdkey, hdvalue)
             elif mode.startswith('g'):
                 return myimd.get(hdkey)
             elif mode.startswith('l'):
                 return myimd.list(True)
             elif mode.startswith('p'):
-                return myimd.set(hdkey, hdvalue)
+                res = myimd.set(hdkey, hdvalue)
+            if res:
+                try:
+                    param_names = imhead.func_code.co_varnames[:imhead.func_code.co_argcount]
+                    param_vals = [eval(p) for p in param_names]   
+                    write_image_history(
+                        imagename, sys._getframe().f_code.co_name,
+                        param_names, param_vals, casalog
+                    )
+                except Exception, instance:
+                    casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
+            return res
         except Exception, instance:
             casalog.post(str('*** Error *** ') + str(instance), 'SEVERE')
             return False
         finally:
             myimd.done()
-            
         casalog.post('Unknown imhead mode ' + str(mode), 'SEVERE')
         return False
                 

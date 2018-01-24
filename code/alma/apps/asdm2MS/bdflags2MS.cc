@@ -1821,7 +1821,10 @@ int main (int argC, char * argV[]) {
 	      pair<unsigned int, const FLAGSTYPE *> flagsPair(numFlags, flags_p);
 	      traverseALMARadiometerFlagsAxes(1, sdo.dataStruct().basebands(), antennas, flagsPair, flagEval, accumulator);
 	    }
-	    const vector < vector < vector <FLAG_CELL> > >& x = accumulator.flagCell();
+	    // MAFlagAccumulator::flagCell() just returns a data member, it doesn't change anything
+	    // in the object, and here, the returned value (x) is not used.  So this can be
+	    // safely commented out.
+	    // const vector < vector < vector <FLAG_CELL> > >& x = accumulator.flagCell();
 	  }
 	  infostream.str("");
 

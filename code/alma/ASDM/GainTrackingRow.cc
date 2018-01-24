@@ -2151,11 +2151,13 @@ void GainTrackingRow::attSpectrumFromBin(EndianIStream& eis) {
 	 * Return true if all required attributes of the value part are equal to their homologues
 	 * in x and false otherwise.
 	 *
+
 	 * @param x a pointer on the GainTrackingRow whose required attributes of the value part 
+
 	 * will be compared with those of this.
 	 * @return a boolean.
 	 */
-	bool GainTrackingRow::equalByRequiredValue(GainTrackingRow* x) {
+	bool GainTrackingRow::equalByRequiredValue(GainTrackingRow*  x ) {
 		
 			
 		if (this->numReceptor != x->numReceptor) return false;

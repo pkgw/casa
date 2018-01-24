@@ -726,8 +726,10 @@ void CalSolvingVi2::calibrateCurrentVB() const
     Double time1b=omp_get_wtime();
 #endif
 
+#if 0
     // Set old-style flags, FOR NOW
     corrIndepFlags(vb);
+#endif
 
 #ifdef _OPENMP
     Double time2=omp_get_wtime();

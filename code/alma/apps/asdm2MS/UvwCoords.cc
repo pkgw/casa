@@ -50,7 +50,7 @@ UvwCoords::UvwCoords( ASDM* const datasetPtr )
     vector<SwitchCycleRow*> v_sr= v_configDesc[n]->getSwitchCyclesUsingSwitchCycleId();
 
     if (v_sr.size() != numspw)
-      Error(FATAL, "It seems that the arrays 'switchCycleId' and 'dataDescriptionId' do not have the same size in one row of the ConfigDescription table !");
+      Error(FATAL, string("It seems that the arrays 'switchCycleId' and 'dataDescriptionId' do not have the same size in one row of the ConfigDescription table !"));
 
     for(unsigned int nspw=0; nspw<numspw; nspw++)
       arrayParam.nrepeat += v_sr[nspw]->getNumStep();

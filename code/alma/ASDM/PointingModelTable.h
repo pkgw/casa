@@ -99,7 +99,7 @@ class PointingModelRow;
  * The pointing models used to point the antennas.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of PointingModel </CAPTION>
@@ -130,7 +130,7 @@ class PointingModelRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numCoeff </TD> 
+ * <TD> numCoeff (\f$N_{Coef}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of coefficients used in the analytical form of the model. </TD>
@@ -183,7 +183,7 @@ class PointingModelRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> coeffFormula </TD> 
+ * <TD> coeffFormula</TD> 
  * <TD> vector<string > </TD>
  * <TD>  numCoeff  </TD>
  * <TD>&nbsp; the fitted functions </TD>
@@ -478,6 +478,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

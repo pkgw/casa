@@ -5,12 +5,12 @@ from taskinit import *
 # For stack frames in debugging
 import sys
 def fringefit(vis=None,caltable=None,
-	      field=None,spw=None,intent=None,
+	      field=None,spw=None,
 	      selectdata=None,timerange=None,antenna=None,scan=None,
               observation=None, msselect=None,
 	      solint=None,combine=None,refant=None,
               minsnr=None,zerorates=None,append=None,
-	      gaintable=None,gainfield=None,interp=None,spwmap=None,
+	      docallib=None, callib=None, gaintable=None,gainfield=None,interp=None,spwmap=None,
               parang=None):
         #Python script
         casalog.origin('fringefit')
@@ -29,21 +29,27 @@ def fringefit(vis=None,caltable=None,
                         casalog.post("Selecting data")
                         # pass all data selection parameters in as specified
                         mycb.selectvis(time=timerange,spw=spw, scan=scan, field=field,
-                                       intent=intent, observation=str(observation),
+                                       observation=str(observation),
                                        baseline=antenna, chanmode='none',
                                        msselect=msselect)
                 else:
                         # selectdata=F, so time,scan,baseline,msselect=''
                         # using spw and field specifications only
-                        mycb.selectvis(time='',spw=spw,scan='',field=field,intent=intent,
+                        mycb.selectvis(time='',spw=spw,scan='',field=field,
                                        observation='', baseline='', 
                                        chanmode='none', msselect='')
                         
-                # Arrange applies....  Don't support callib, so
-                # configure by traditional parameters. Add trivial if
-                # to match indentation of task_gaincal.py, which is the
-                # model for this code.
-                if True:
+                # [small@jive.eu] I don't know what callib is and I
+                # don't want to support it, but the arguments in the
+                # 'else' branch are "subparameters" of docallib, so we
+                # plagiarize the handling from task_gaincal.py
+                if docallib:
+                        # by cal library from file
+			mycallib=callibrary()
+			mycallib.read(callib)
+			mycb.setcallib(mycallib.cld)
+                else:
+                        # [small@jive.eu] This is also plagiarized from task_gaincal.py.
                         ngaintab = 0;
                         if gaintable == False:
                                 ngaintab = 0

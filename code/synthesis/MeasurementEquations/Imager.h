@@ -501,8 +501,11 @@ class Imager
   
   // Fourier transform the model and componentlist.
   // Returns its nominal success value.
+  ///For moving time variable phasecenters in field table
+  //phasecentertime is usually the time in the data unless 
+  //you want to use a specific time which you can set here 
   casacore::Bool ft(const casacore::Vector<casacore::String>& model, const casacore::String& complist,
-	  casacore::Bool incremental=false);
+		    casacore::Bool incremental=false, const casacore::Double phasecenterTime=-1.0);
 
   // Compute the model visibility using specified source flux densities
   casacore::Bool setjy(const casacore::Int fieldid, const casacore::Int spectralwindowid,

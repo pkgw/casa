@@ -60,7 +60,7 @@ void ImageFitterResults::writeNewEstimatesFile(const String& filename) const {
 	uInt ndim = _image->ndim();
 	const CoordinateSystem csys = _image->coordinates();
 	Vector<Int> dirAxesNumbers = csys.directionAxesNumbers();
-	Vector<Double> world(ndim,0), pixel(ndim,0);
+	Vector<Double> world(ndim, 0), pixel(ndim, 0);
 	csys.toWorld(world, pixel);
 	*_log << LogOrigin(_class, __func__);
 	uInt n = _convolvedList.nelements();
@@ -72,9 +72,9 @@ void ImageFitterResults::writeNewEstimatesFile(const String& filename) const {
 		world[dirAxesNumbers[1]] = lat.getValue();
 		if (csys.toPixel(pixel, world)) {
 			out << _peakIntensities[i].getValue() << ", "
-					<< pixel[0] << ", " << pixel[1] << ", "
-					<< _majorAxes[i] << ", " << _minorAxes[i] << ", "
-					<< _positionAngles[i] << endl;
+			    << pixel[0] << ", " << pixel[1] << ", "
+			    << _majorAxes[i] << ", " << _minorAxes[i] << ", "
+			    << _positionAngles[i] << endl;
 		}
 		else {
 			*_log << LogIO::WARN << "Unable to calculate pixel location of "
@@ -180,7 +180,7 @@ String ImageFitterResults::resultsHeader(
 String ImageFitterResults::fluxToString(
 	uInt compNumber, Bool hasBeam
 ) const {
-	vector<String> unitPrefix = ImageFitterResults::unitPrefixes(false);
+	auto unitPrefix = unitPrefixes(false);
 	ostringstream fluxes;
 	Quantity fluxDensity = _fluxDensities[compNumber];
 	Quantity fluxDensityError = _fluxDensityErrors[compNumber];
@@ -197,7 +197,8 @@ String ImageFitterResults::fluxToString(
 	}
 	String usedPrefix;
 	String unit;
-	for (uInt i=0; i<unitPrefix.size(); i++) {
+	uInt n = unitPrefix.size();
+	for (uInt i=0; i<n; ++i) {
 		usedPrefix = unitPrefix[i];
 		unit = usedPrefix + baseUnit;
 		if (fluxDensity.getValue(unit) > 1) {
@@ -232,7 +233,7 @@ String ImageFitterResults::fluxToString(
 			fluxes << " +/- " << fluxDensityError << endl;
 		}
 	}
-	for (uInt i=0; i<unitPrefix.size(); i++) {
+	for (uInt i=0; i<n; ++i) {
 		usedPrefix = unitPrefix[i];
 		String unit = usedPrefix + tmpFlux.getUnit();
 		if (tmpFlux.getValue(unit) > 1) {
@@ -266,7 +267,7 @@ String ImageFitterResults::fluxToString(
 	return fluxes.str();
 }
 
-vector<String> ImageFitterResults::unitPrefixes(Bool includeCenti) {
+std::vector<String> ImageFitterResults::unitPrefixes(Bool includeCenti) {
 	if (_prefixes.empty()) {
 #if __cplusplus >= 201103L
 		_prefixesWithCenti = std::vector<String> {"T","G","M","k","","c","m","u","n"};

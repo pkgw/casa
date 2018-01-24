@@ -112,8 +112,8 @@ private:
     casacore::Int nSPWChan_;
     casacore::Int nPadChan_;
     casacore::Int nElem_;
-    casacore::Double f0_, df_;
-    casacore::Double t0_, t1_, dt_;
+    casacore::Double dt_, f0_, df_, df_all_;
+    casacore::Double t0_, t1_;
     casacore::Double padBW_;
     casacore::Array<casacore::Complex> Vpad_;
     casacore::Array<casacore::Int> xcount_;
@@ -124,6 +124,7 @@ private:
     casacore::Matrix<casacore::Float> param_;
     casacore::Matrix<casacore::Bool> flag_; //?
     std::map< casacore::Int, std::set<casacore::Int> > activeAntennas_;
+    std::set<casacore::Int> allActiveAntennas_;
 public:
     // A lot of assumptions heree that assume only one spectral window,
     // which is unfortunate since there may be more.
@@ -138,6 +139,7 @@ public:
     const casacore::Array<casacore::Complex>& Vpad() const { return Vpad_; }
     const casacore::Matrix<casacore::Float>& param() const { return param_; }
     casacore::Int refant() const { return refant_; }
+    casacore::Double get_df_all() { return df_all_; }
     
     void FFT();
     std::pair<casacore::Bool, casacore::Float>  xinterp(casacore::Float alo, casacore::Float amax, casacore::Float ahi);
@@ -225,8 +227,6 @@ public:
 
   // virtual void solveOneSDB(const SolveDataBuffer&);
 
-  virtual void solveLotsOfSDBs(SDBList&);
-
   virtual casacore::Bool& zeroRates() { return zeroRates_; }
   
 protected:
@@ -256,7 +256,7 @@ private:
   // Pointer to CTRateAwareTimeInterp1 factory method
   // This ensures the rates are incorporated into the time-dep interpolation
   virtual CTTIFactoryPtr cttifactoryptr() { cout << "Using Rate-Aware CTTIFactory!" << endl; return &CTRateAwareTimeInterp1::factory; };
-  void calculateSNR(casacore::Int, DelayRateFFT, casacore::Float, casacore::Float, casacore::Float);
+  void calculateSNR(casacore::Int, DelayRateFFT);
 
   casacore::Bool zeroRates_;
 };

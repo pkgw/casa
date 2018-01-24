@@ -25,7 +25,7 @@ def accor(vis=None,caltable=None,
 		# Do data selection according to selectdata
 		casalog.post("NB: accor automatically excludes crosso-correlations.")
 		if (selectdata):
-			# insist no CCs
+			# insist only CCs
 			if len(msselect)>0:
 				msselect='('+msselect+') && ANTENNA==ANTENNA2'
 			else:
@@ -39,7 +39,7 @@ def accor(vis=None,caltable=None,
 		else:
 			# selectdata=F, so time,scan,baseline,uvrange,msselect=''
 			# using spw and field specifications only
-			# also insist no CCs
+			# also insist only CCs
 			mycb.selectvis(time='',spw=spw,scan='',field=field,intent=intent,
                                      observation='', baseline='', uvrange='',
                                      chanmode='none', msselect='ANTENNA1==ANTENNA2')
