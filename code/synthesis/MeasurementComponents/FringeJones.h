@@ -70,7 +70,9 @@ private:
 
 };
 
-
+// A utility class that provides an API that allows clients to find
+// grid indices in time and frequency from a SBDList that can include
+// multiple spectral windows.
 class SDBListGridManager {
 public:
      casacore::Double fmin, fmax, df;
@@ -93,13 +95,17 @@ public:
     void checkAllGridpoints();
 };
 
+
+// DelayRateFFT is responsible for the two-dimensional FFT of
+// visibility phases to find an estimate for deay. rate and phase
+// offset parameters during fringe-fitting.
 class DelayRateFFT {
     // The idiom used in KJones solvers is:
     // DelayFFT delfft1(vbga(ibuf), ptbw, refant());
     // delfft1.FFT();
     // delfft1.shift(f0[0]);
     // delfft1.searchPeak();
-    // This class is designed to follow that API (only without the shift).
+    // This class is designed to follow that API (without the shift).
 private:
     casacore::Int refant_;
     // SBDListGridManager handles all the sizing and interpolating of
@@ -126,18 +132,20 @@ private:
     std::map< casacore::Int, std::set<casacore::Int> > activeAntennas_;
     std::set<casacore::Int> allActiveAntennas_;
 public:
-    // A lot of assumptions heree that assume only one spectral window,
-    // which is unfortunate since there may be more.
     DelayRateFFT(SDBList& sdbs, casacore::Int refant);
+    DelayRateFFT(casacore::Array<casacore::Complex>& data, casacore::Int nPadFactor,
+                 casacore::Float f0, casacore::Float df, casacore::Float dt, SDBList& s);
     // The following are copied from KJones.h definition of DelayFFT.
-    // I'm putting them here because I haven't yet split out the header version.
-
-    const std::map<casacore::Int, std::set<casacore::Int> >& getActiveAntennas() const { return activeAntennas_; }
-    const std::set<casacore::Int>& getActiveAntennasCorrelation(casacore::Int icor) const { return activeAntennas_.find(icor)->second; }
+    const std::map<casacore::Int, std::set<casacore::Int> >& getActiveAntennas() const
+    { return activeAntennas_; }
+    const std::set<casacore::Int>& getActiveAntennasCorrelation(casacore::Int icor) const
+    { return activeAntennas_.find(icor)->second; }
     void removeAntennasCorrelation(casacore::Int, std::set< casacore::Int >);
-    const casacore::Array<casacore::Bool>& flag() const { return flag_; }
     const casacore::Array<casacore::Complex>& Vpad() const { return Vpad_; }
+    const casacore::Matrix<casacore::Bool>& flag() const { return flag_; }
     const casacore::Matrix<casacore::Float>& param() const { return param_; }
+    casacore::Matrix<casacore::Float> delay() const;
+    casacore::Matrix<casacore::Float> rate() const;
     casacore::Int refant() const { return refant_; }
     casacore::Double get_df_all() { return df_all_; }
     
@@ -147,9 +155,6 @@ public:
     casacore::Float snr(casacore::Int icorr, casacore::Int ielem, casacore::Float delay, casacore::Float rate);
 
     void printActive();
-
-
-    
 }; // End of class DelayRateFFT.
 
 
@@ -188,6 +193,7 @@ public:
 
   // Local setApply to enforce calWt=F for delays
   virtual void setApply(const casacore::Record& apply);
+  virtual void setApply();
   using GJones::setApply;
   virtual void setCallib(const casacore::Record& callib,
 			 const casacore::MeasurementSet& selms);
@@ -196,12 +202,16 @@ public:
   virtual void setSolve(const casacore::Record& solve);
   using GJones::setSolve;
 
+  // Default parameter value
+  virtual casacore::Complex defaultPar() { return casacore::Complex(0.0); };
+  
+  // FIXME: was omitted
+  virtual void specify(const casacore::Record& specify);
+  
   // This type is not yet accumulatable
-  //  Deprecate?
   virtual casacore::Bool accumulatable() { return false; };
 
   // This type is smoothable
-  //  TBD?
   virtual casacore::Bool smoothable() { return true; };
 
   // Delay to phase calculator
@@ -225,6 +235,7 @@ public:
 
   virtual void solveOneVB(const VisBuffer&);
 
+  // SolveDataBuffer is being phased out; we no longer support it.
   // virtual void solveOneSDB(const SolveDataBuffer&);
 
   virtual casacore::Bool& zeroRates() { return zeroRates_; }

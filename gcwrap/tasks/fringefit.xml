@@ -36,6 +36,11 @@ Previous calibrations should be applied on the fly.
 		<value></value>
 	</param>
 
+	<param type="string" name="intent">
+		<description>Select observing intent</description>
+		<value></value>
+	</param>
+
 	<param type="bool" name="selectdata">
 		<description>Other data selection parameters</description>
 		<value>True</value>
@@ -56,11 +61,11 @@ Previous calibrations should be applied on the fly.
 		<value></value>
 	</param>
 
-   <param type="any" name="observation" subparam="true">
-     <description>Select by observation ID(s)</description>
-	  <any type="variant" limittypes="string int"/>
-	  <value type="string"></value>
-   </param>
+        <param type="any" name="observation" subparam="true">
+               <description>Select by observation ID(s)</description>
+               <any type="variant" limittypes="string int"/>
+               <value type="string"></value>
+	</param>
 
 	<param type="string" name="msselect" subparam="true">
 		<description>Optional complex data selection (ignore for now)</description>
@@ -74,8 +79,8 @@ Previous calibrations should be applied on the fly.
 	</param>
 
 	<param type="string" name="combine">
-     <description>Data axes which to combine for solve (obs, scan, spw, and/or field)</description>
-		<value></value>
+               <description>Data axes which to combine for solve (obs, scan, spw, and/or field)</description>
+               <value></value>
 	</param>
    
 	<param type="string" name="refant">
@@ -88,7 +93,7 @@ Previous calibrations should be applied on the fly.
 		<value>3.0</value>
 	</param>
 
-   <param type="bool" name="zerorates">
+        <param type="bool" name="zerorates">
 		<description>Zero delay-rates in solution table</description>
 		<value>False</value>
 	</param>
@@ -167,8 +172,8 @@ Previous calibrations should be applied on the fly.
       Keyword arguments:
       vis -- Name of input visibility file
               default: none; example: vis='ngc5921.ms'
-      caltable -- Name of output gain calibration table
-              default: none; example: caltable='ngc5921.gcal'
+      caltable -- Name of output fringefit calibration table
+              default: none; example: caltable='ngc5921.fringe'
 
       --- Data Selection (see help par.selectdata for more detailed information)
 
@@ -194,6 +199,10 @@ Previous calibrations should be applied on the fly.
                        NOTE ';' to separate channel selections
              spw='0:0~10^2,1:20~30^5'; spw 0, channels 0,2,4,6,8,10,
                    spw 1, channels 20,25,30
+      intent -- Select observing intent
+                default: ''  (no selection by intent)
+                intent='*FRINGEFIT*'  (selects data labelled with
+                                      FRINGEFIT intent)
       selectdata -- Other data selection parameters
               default: True 
 
@@ -271,6 +280,12 @@ Previous calibrations should be applied on the fly.
 
       --- Other calibrations to apply on the fly before determining
       fringe fit solution
+
+      docallib -- Control means of specifying the caltables:
+               default: False ==&gt; Use gaintable,gainfield,interp,spwmap,calwt
+                        If True, specify a file containing cal library in callib
+      callib -- If docallib=True, specify a file containing cal
+                  library directives
 
       gaintable -- Gain calibration table(s) to apply 
                default: '' (none);
