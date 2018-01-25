@@ -239,7 +239,7 @@ public:
   // virtual void solveOneSDB(const SolveDataBuffer&);
 
   virtual casacore::Bool& zeroRates() { return zeroRates_; }
-  
+  virtual casacore::Bool& globalSolve() { return globalSolve_; }
 protected:
 
   // phase, delay, rate
@@ -270,6 +270,7 @@ private:
   void calculateSNR(casacore::Int, DelayRateFFT);
 
   casacore::Bool zeroRates_;
+  casacore::Bool globalSolve_;
 };
 
 
