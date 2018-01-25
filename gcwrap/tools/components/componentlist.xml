@@ -1912,7 +1912,7 @@ An integer between 0 and one less than the list length, inclusively</description
     The shapetype function returns the current shape of the specified
     component. The shape defines how the flux of the component varies
     with direction on the sky. Currently there are three shapes
-    available. These are 'Point', 'Gaussian', 'Disk', and 'Limbdarkeneddisk' (experimental). This
+    available. These are 'Point', 'Gaussian', and 'Disk'. This
     function returns one of these four strings.
 
   </description>
