@@ -2705,8 +2705,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   
     for(rvi_p->originChunks(); rvi_p->moreChunks(); rvi_p->nextChunk()){
       Bool fieldDone=false;
-      for (uInt k=0;  k < fieldsDone.nelements(); ++k)
+      for (uInt k=0;  k < fieldsDone.nelements(); ++k){
 	fieldDone=fieldDone || (vb.fieldId()==fieldsDone(k));
+      }
       if(!fieldDone){
 	++fieldCounter;
 	fieldsDone.resize(fieldCounter, true);

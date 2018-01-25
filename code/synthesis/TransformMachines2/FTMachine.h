@@ -399,7 +399,9 @@ protected:
   casacore::MDirection movingDir_p;
   casacore::Bool fixMovingSource_p;
   casacore::MDirection firstMovingDir_p;
-    
+  // This will hold the angular difference between movingDir and firstMovingDir with 
+  // the frame conversion done properly etc..
+  casacore::MVDirection movingDirShift_p;
 
   casacore::Double distance_p;
 

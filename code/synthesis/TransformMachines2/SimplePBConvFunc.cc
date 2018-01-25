@@ -163,7 +163,7 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
 
   }
 
-  void SimplePBConvFunc::toPix(const vi::VisBuffer2& vb){
+  void SimplePBConvFunc::toPix(const vi::VisBuffer2& vb, const MVDirection& extraShift, const Bool useExtraShift){
     thePix_p.resize(2);
 
     const MDirection& p1=pointingDirAnt1(vb);
@@ -196,16 +196,23 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
       direction1_p=pointToPix_p(p1);
       //direction2_p=pointToPix_p(vb.direction2()(0));
       direction2_p=direction1_p;
-      dc_p.toPixel(thePix_p, direction1_p);
+      
 
     }
     else{
       direction1_p=p1;
+     
       //direction2_p=vb.direction2()(0);
       //For now 
       direction2_p=direction1_p;
-      dc_p.toPixel(thePix_p, direction1_p);
+     
     }
+    //Should return both antennas direction in the future
+    
+    if(useExtraShift)
+      direction1_p.shift(extraShift, True);
+    dc_p.toPixel(thePix_p, direction1_p);
+   
   }
 
   void SimplePBConvFunc::setWeightImage(CountedPtr<TempImage<Float> >& wgtimage){
@@ -259,8 +266,10 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
     }
     Int val=ant1PointingCache_p.nelements();
     ant1PointingCache_p.resize(val+1, true);
-    if(hasValidPointing)
-      ant1PointingCache_p[val]=vb.direction1()[0];
+    if(hasValidPointing){
+      //ant1PointingCache_p[val]=vb.direction1()[0];
+      ant1PointingCache_p[val]=vbUtil_p.getPointingDir(vb, vb.antenna1()(0), 0);
+    }
     else
       ant1PointingCache_p[val]=vbutil_p->getPhaseCenter(vb);
     //ant1PointingCache_p[val]=vbUtil_p.getPointingDir(vb, vb.antenna1()(0), 0);
@@ -279,7 +288,8 @@ void SimplePBConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
 					  Vector<Int>& convFuncPolMap,
 					  Vector<Int>& convFuncChanMap,
 					  Vector<Int>& convFuncRowMap,
-					  const Bool /*getConjFreqConvFunc*/
+					const Bool /*getConjFreqConvFunc*/,
+					const MVDirection& extraShift, const Bool useExtraShift
 					  ){
 
 
@@ -346,7 +356,7 @@ void SimplePBConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
     }
     
    
-    toPix(vb);
+    toPix(vb, extraShift, useExtraShift);
     //Timer tim;
     //tim.mark();
     addPBToFlux(vb);

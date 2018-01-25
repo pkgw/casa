@@ -88,7 +88,8 @@ using namespace casa::refim;
 using namespace casacore;
 using namespace casa::vi;
   FTMachine::FTMachine() : isDryRun(false), image(0), uvwMachine_p(0), 
-			   tangentSpecified_p(false), fixMovingSource_p(false),
+			   tangentSpecified_p(false), fixMovingSource_p(false), 
+			   movingDirShift_p(0.0), 
 			   distance_p(0.0), lastFieldId_p(-1),lastMSId_p(-1), 
 			   useDoubleGrid_p(false), 
 			   freqFrameValid_p(false), 
@@ -107,7 +108,7 @@ using namespace casa::vi;
   
   FTMachine::FTMachine(CountedPtr<CFCache>& cfcache,CountedPtr<ConvolutionFunction>& cf):
     isDryRun(false), image(0), uvwMachine_p(0), 
-    tangentSpecified_p(false), fixMovingSource_p(false),
+    tangentSpecified_p(false), fixMovingSource_p(false), movingDirShift_p(0.0),
     distance_p(0.0), lastFieldId_p(-1),lastMSId_p(-1), 
     useDoubleGrid_p(false), 
     freqFrameValid_p(false), 
@@ -184,7 +185,7 @@ using namespace casa::vi;
       movingDir_p=other.movingDir_p;
       fixMovingSource_p=other.fixMovingSource_p;
       firstMovingDir_p=other.firstMovingDir_p;
-      
+      movingDirShift_p=other.movingDirShift_p;
       //Double precision gridding for those FTMachines that can do
       useDoubleGrid_p=other.useDoubleGrid_p;
       cfStokes_p = other.cfStokes_p;
@@ -294,10 +295,10 @@ using namespace casa::vi;
         MDirection::Ref outref1(MDirection::AZEL, mFrame_p);
         MDirection tmphadec=MDirection::Convert(movingDir_p, outref1)();
         MDirection::Ref outref(directionCoord.directionType(), mFrame_p);
-        //firstMovingDir_p=MDirection::Convert(tmphadec, outref)();
+        firstMovingDir_p=MDirection::Convert(tmphadec, outref)();
 	///TESTOO 
 	///waiting for CAS-11060
-	firstMovingDir_p=MDirection::Convert(vbutil_p->getPhaseCenter(vb, phaseCenterTime_p), outref)();
+	//firstMovingDir_p=MDirection::Convert(vbutil_p->getPhaseCenter(vb, phaseCenterTime_p), outref)();
 	////////////////////
       }
 
@@ -894,7 +895,7 @@ using namespace casa::vi;
       MDirection::Types outType;
       MDirection::getType(outType, mImage_p.getRefString());
       MDirection phasecenter=MDirection::Convert(vbutil_p->getPhaseCenter(vb, phaseCenterTime_p), MDirection::Ref(outType, mFrame_p))();
-      
+      MDirection inFieldPhaseCenter=phasecenter;
 
       if(fixMovingSource_p){
        
@@ -905,7 +906,9 @@ using namespace casa::vi;
 	MDirection sourcenow=MDirection::Convert(tmphadec, outref)();
 	//cerr << "Rotating to fixed moving source " << MVDirection(phasecenter.getAngle()-firstMovingDir_p.getAngle()+sourcenow.getAngle()) << endl;
 	//phasecenter.set(MVDirection(phasecenter.getAngle()+firstMovingDir_p.getAngle()-sourcenow.getAngle()));
-	phasecenter.shift(MVDirection(sourcenow.getAngle()-firstMovingDir_p.getAngle()), True);
+	 movingDirShift_p=MVDirection(sourcenow.getAngle()-firstMovingDir_p.getAngle());
+	 // cerr << "shift " << movingDirShift_p.getAngle() << endl;
+	inFieldPhaseCenter.shift(movingDirShift_p, True);
     }
 
 
@@ -919,13 +922,13 @@ using namespace casa::vi;
 	if(observatory.contains("ATCA") || observatory.contains("WSRT")){
 		//Tangent specified is being wrongly used...it should be for a
 	    	//Use the safest way  for now.
-	  uvwMachine_p=new UVWMachine(phasecenter, vbutil_p->getPhaseCenter(vb, phaseCenterTime_p), mFrame_p,
+	  uvwMachine_p=new UVWMachine(inFieldPhaseCenter, vbutil_p->getPhaseCenter(vb, phaseCenterTime_p), mFrame_p,
 					true, false);
 	    phaseShifter_p=new UVWMachine(mImage_p, phasecenter, mFrame_p,
 					true, false);
 	}
 	else{
-	  uvwMachine_p=new UVWMachine(phasecenter, vbutil_p->getPhaseCenter(vb, phaseCenterTime_p),  mFrame_p,
+	  uvwMachine_p=new UVWMachine(inFieldPhaseCenter, vbutil_p->getPhaseCenter(vb, phaseCenterTime_p),  mFrame_p,
 				      false, false);
 	  phaseShifter_p=new UVWMachine(mImage_p, phasecenter,  mFrame_p,
 				      false, false);
@@ -1013,15 +1016,16 @@ using namespace casa::vi;
 
 	  //First convert to HA-DEC or AZEL for parallax correction
 	  MDirection::Ref outref1(MDirection::AZEL, mFrame_p);
-	  //  MDirection tmphadec=MDirection::Convert(movingDir_p, outref1)();
+	  MDirection tmphadec=MDirection::Convert(movingDir_p, outref1)();
 	  ////TESTOO waiting for CAS-11060
-	  MDirection tmphadec=MDirection::Convert((vbutil_p->getPhaseCenter(vb, phaseCenterTime_p)), outref1)();
+	  //MDirection tmphadec=MDirection::Convert((vbutil_p->getPhaseCenter(vb, phaseCenterTime_p)), outref1)();
 	  /////////
 	  MDirection::Ref outref(mImage_p.getRef().getType(), mFrame_p);
 	  MDirection sourcenow=MDirection::Convert(tmphadec, outref)();
   	//cerr << "Rotating to fixed moving source " << MVDirection(phasecenter.getAngle()-firstMovingDir_p.getAngle()+sourcenow.getAngle()) << endl;
   	//phasecenter.set(MVDirection(phasecenter.getAngle()+firstMovingDir_p.getAngle()-sourcenow.getAngle()));
-	  phasecenter.shift(MVDirection(sourcenow.getAngle()-firstMovingDir_p.getAngle()), True);
+	  movingDirShift_p=MVDirection(sourcenow.getAngle()-firstMovingDir_p.getAngle());
+	  phasecenter.shift(movingDirShift_p, True);
 	  //cerr    << sourcenow.toString() <<"  "<<(vbutil_p->getPhaseCenter(vb, phaseCenterTime_p)).toString() <<  " difference " << firstMovingDir_p.getAngle() - sourcenow.getAngle() << endl;
       }
 
@@ -1276,6 +1280,7 @@ using namespace casa::vi;
     saveMeasure(outRecord, "movingdir_rec", error, movingDir_p);
     outRecord.define("fixmovingsource", fixMovingSource_p);
     saveMeasure(outRecord, "firstmovingdir_rec", error, firstMovingDir_p);
+    movingDirShift_p=MVDirection(0.0);
     outRecord.define("usedoublegrid", useDoubleGrid_p);
     outRecord.define("cfstokes", cfStokes_p);
     outRecord.define("polinuse", polInUse_p);
@@ -1748,7 +1753,7 @@ using namespace casa::vi;
     fixMovingSource_p=true;
     movingDir_p=MDirection(Quantity(0.0,"deg"), Quantity(90.0, "deg"));
     movingDir_p.setRefString(sourcename);
-    //cerr << "movingdir " << movingDir_p.toString() << endl;
+    // cerr << "movingdir " << movingDir_p.toString() << endl;
   }
 
 
