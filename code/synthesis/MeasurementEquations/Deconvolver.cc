@@ -537,7 +537,7 @@ Bool Deconvolver::restore(const String& model, const String& image,
     ImageRegrid<Float> regridder;
     Vector<Double> locate;
     Bool missedIt = regridder.insert(*modelImage_p, locate, modelImage0);
-    cerr << "missedIt " << missedIt << endl;
+    //cerr << "missedIt " << missedIt << endl;
     if (!missedIt) {
       os << LogIO::SEVERE << "Problem in getting model Image on correct grid " << LogIO::POST;
     }
@@ -2086,8 +2086,8 @@ Bool Deconvolver::putGaussian(ImageInterface<Float>& im, const GaussianBeam& bea
   dirCoord.toWorld(centre, cenpix);
   MVAngle mvRA=centre.getAngle().getValue()(0);
   MVAngle mvDEC=centre.getAngle().getValue()(1);
-  cerr << "centre " << cenpix <<  "   " << centre.getRefString() << " " << mvRA(0.0).string(MVAngle::TIME,8)  << " " <<  mvDEC(0.0).string(MVAngle::ANGLE_CLEAN,8) << endl;
-  cerr << "maj min pa " << beam.getMajor() << "   " <<  beam.getMinor() << "   " <<  beam.getPA() << endl;
+  //cerr << "centre " << cenpix <<  "   " << centre.getRefString() << " " << mvRA(0.0).string(MVAngle::TIME,8)  << " " <<  mvDEC(0.0).string(MVAngle::ANGLE_CLEAN,8) << endl;
+  //cerr << "maj min pa " << beam.getMajor() << "   " <<  beam.getMinor() << "   " <<  beam.getPA() << endl;
   GaussianShape gshp(centre, beam.getMajor(), beam.getMinor(), beam.getPA());
   SkyComponent gcomp(Flux<Double>(1.0), gshp, ConstantSpectrum());
   ComponentList cl;

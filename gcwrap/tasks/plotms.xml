@@ -36,7 +36,7 @@
         conversions, etc.), and some details of selection (channel and 
         polarization selection are not yet enabled) and axes choices 
         (geometry options are not yet enabled).  In the plotms gui,
-        many options irrelevant for CalTables are not yet hidden when
+        many options irrelevant for CalTables are not hidden when
         interacting with a CalTable, and such settings will be ignored
         (when benign) or cause an error message.
         
@@ -1025,7 +1025,7 @@ Export plot as image Parameters
     </param>
 
     <param type="string" name="exprange" subparam="true">
-        <description>Range of iteration plots to export</description>
+        <description>Range of iteration plots to export, one plotfile per page.  Multipage pdf exports are not supported.</description>
         <allowed kind="enum">
             <value />
             <value>current</value>

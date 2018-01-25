@@ -252,14 +252,18 @@ def main(testnames=[]):
     if not whichtests:
         '''Run all tests'''
         list = []
-        
+        # awells CAS-10844 Fix
+        suiteList = []
         for f in listtests:
+            suite = unittest.TestSuite()
             try:
                 tests = UnitTest(f).getUnitTest()
-                list = list+tests
+                for test in tests:
+                    suite.addTest(test)
+                suiteList.append(suite)
             except:
                 traceback.print_exc()
-                    
+        list = suiteList
     elif (whichtests == 1):
         '''Run specific tests'''
         list = []
@@ -299,6 +303,7 @@ def main(testnames=[]):
                 
     # Run all tests and create a XML report
     xmlfile = xmldir+'nose.xml'
+
     try:
         if (HAVE_MEMTEST and MEM):
             regstate = nose.run(argv=[sys.argv[0],"-d","-s","--with-memtest","--verbosity=2",

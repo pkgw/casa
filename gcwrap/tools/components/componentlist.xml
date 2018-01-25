@@ -2693,7 +2693,7 @@ An integer between 0 and one less than the list length, inclusively</description
      <param type="string" name="unit">
      <description>The units of the frequency.
      Any string with the same dimensions as the 'Hz'</description>
-     <value>'GHz'</value>
+     <value>GHz</value>
      </param>
     
      <param type="bool" name="log">
@@ -2793,7 +2793,7 @@ An integer between 0 and one less than the list length, inclusively</description
      <param type="string" name="unit">
      <description>The new frequency unit.
      Any string with the same dimensions as the 'Hz'</description>
-     <value>'GHz'</value>
+     <value>GHz</value>
      </param>
   </input>
   <returns type="bool"/>
