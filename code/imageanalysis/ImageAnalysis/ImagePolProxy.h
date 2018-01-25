@@ -107,9 +107,11 @@ class ImagePol
   casacore::Float sigmaLinPolInt(casacore::Float clip = 10.0, casacore::Float sigma = -1) const;
 
   // Total polarized intensity.
+  /*
   casacore::Bool totPolInt(casacore::ImageInterface<casacore::Float>*& rtnim, casacore::Bool debias = false,
 		 casacore::Float clip = 10.0,
 		 casacore::Float sigma = -1, const casacore::String& outfile = "");
+		 */
   casacore::Float sigmaTotPolInt(casacore::Float clip = 10.0, casacore::Float sigma = -1) const;
 
   // casacore::Complex linear polarization
@@ -170,6 +172,8 @@ class ImagePol
   void makeComplex (const casacore::String& complex, const casacore::String& real = "",
 		    const casacore::String& imag = "", const casacore::String& amp = "",
 		    const casacore::String& phase = "");
+
+  SPCIIF getImage() const { return itsImPol->imageInterface(); }
 
  private:
   casacore::LogIO *itsLog;
