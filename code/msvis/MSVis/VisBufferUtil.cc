@@ -49,7 +49,9 @@
 #include <ms/MeasurementSets/MSColumns.h>
 #include <casa/iostream.h>
 #include <iomanip>
+#ifdef _OPENMP
 #include <omp.h>
+#endif
 using namespace std;
 
 using namespace casacore;
@@ -691,7 +693,6 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
 			 uInt nTimes=GenSortIndirect<Double>::sort (uniqIndx, t, Sort::Ascending, Sort::QuickSort|Sort::NoDuplicates);
 			 uInt nAnt=msc.antenna().nrow();
 			 const ROMSPointingColumns& mspc=msc.pointing();
-			 Int guessIndex=0;
 			 Vector<Double> tUniq(nTimes);
 			 for (uInt k=0; k <nTimes; ++k){
 			   tUniq[k]= t[uniqIndx[k]];
@@ -713,7 +714,7 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
 #pragma omp parallel for firstprivate(nTimes, tuniqptr, tcolptr, antcolptr, intcolptr, npointrow), shared(mspc)
 			 for (uInt a=0; a < nAnt; ++a){
 			   
-			   Double wtime1=omp_get_wtime();
+			   //Double wtime1=omp_get_wtime();
 			   Vector<Int> indices;
 			   Vector<MDirection> theDirs(nTimes);
 			   pointingIndex(tcolptr, antcolptr, intcolptr, npointrow, a, nTimes, tuniqptr, indices);
