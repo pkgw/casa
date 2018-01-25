@@ -294,12 +294,14 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
     <param type="any" name="phasecenter" > <!-- subparam="true"> -->
      <shortdescription>Phase center of the image</shortdescription>
-<description>Phase center of the image (string or field id)
+<description>Phase center of the image (string or field id); if the phasecenter is the name known major solar system object or is an ephemerides table then that source is tracked and the background sources get smeared.
                example: phasecenter=6
                         phasecenter='J2000 19h30m00 -40d00m00'
                         phasecenter='J2000 292.5deg  -40.0deg'
                         phasecenter='J2000 5.105rad  -0.698rad'
-                        phasecenter='ICRS 13:05:27.2780 -049.28.04.458' 
+                        phasecenter='ICRS 13:05:27.2780 -049.28.04.458'
+			phasecenter='myComet_ephem.tab'
+			phasecenter='MOON'
 </description>
       <any type="variant" limittypes="int string"/>
       <value type="string"></value>
