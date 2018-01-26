@@ -9,7 +9,8 @@ def fringefit(vis=None,caltable=None,
 	      selectdata=None,timerange=None,antenna=None,scan=None,
 	      observation=None, msselect=None,
 	      solint=None,combine=None,refant=None,
-	      minsnr=None,zerorates=None,globalsolve=None,append=None,
+	      minsnr=None,zerorates=None,globalsolve=None,
+              delaywindow=None,ratewindow=None,append=None,
 	      docallib=None, callib=None, gaintable=None,gainfield=None,interp=None,spwmap=None,
 	      parang=None):
 	#Python script
@@ -98,6 +99,8 @@ def fringefit(vis=None,caltable=None,
 			      minsnr=minsnr,combine=combine,
 			      zerorates=zerorates,
                               globalsolve=globalsolve,
+                              delaywindow=delaywindow,
+                              ratewindow=ratewindow,
 			      table=caltable,append=append)
 		mycb.solve()
 		reportsolvestats(mycb.activityrec());

@@ -1735,7 +1735,17 @@ void FringeJones::setSolve(const Record& solve) {
     if (solve.isDefined("globalsolve")) {
         globalSolve() = solve.asBool("globalsolve");
     }
-
+    if (solve.isDefined("delaywindow")) {
+        cerr << "delay window: " << solve.asArrayDouble("delaywindow") << endl;
+    } else {
+        cerr << "No delay window: " << endl;
+    }
+    if (solve.isDefined("ratewindow")) {
+        cerr << "rate window: " << solve.asArrayDouble("ratewindow") << endl;
+    } else {
+        cerr << "No rate window: " << endl;
+    }
+    
 }
 
 // Note: this was previously omitted

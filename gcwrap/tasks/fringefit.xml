@@ -100,6 +100,16 @@ Previous calibrations should be applied on the fly.
 
    <param type="bool" name="globalsolve">
 		<description>Refine estimates of delay and rate with global least-squares solver</description>
+		<value>[]</value>
+	</param>
+
+   <param type="doubleArray" name="delaywindow">
+		<description>Constrain FFT delay search to a window</description>
+		<value>[]</value>
+	</param>
+
+   <param type="doubleArray" name="ratewindow">
+		<description>Constrain FFT rate search to a window</description>
 		<value>True</value>
 	</param>
 
@@ -285,7 +295,11 @@ Previous calibrations should be applied on the fly.
 
       globalsolve -- Refine fringefit solutions with global least-squares solver.
                 default: False
-                
+
+
+		delaywindow -- Constrain FFT delay search to a window
+      ratewindow -- Constrain FFT rate search to a window
+
       --- Other calibrations to apply on the fly before determining
       fringe fit solution
 
