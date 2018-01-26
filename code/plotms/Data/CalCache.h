@@ -32,10 +32,10 @@
 #include <plotms/PlotMS/PlotMSAveraging.h>
 #include <plotms/PlotMS/PlotMSConstants.h>
 #include <plotms/PlotMS/PlotMSFlagging.h>
-//#include <plotms/Threads/PlotMSCacheThread.qo.h>
-
 #include <synthesis/CalTables/NewCalTable.h>
 #include <synthesis/CalTables/CTIter.h>
+#include <synthesis/CalTables/SolvableVJMCol.h>
+#include <synthesis/CalTables/CalDescColumns.h>
 #include <casa/aips.h>
 #include <casa/Arrays.h>
 #include <casa/Containers/Block.h>
@@ -65,13 +65,10 @@ public:
   // Is the underlying table complex?
   inline casacore::Bool parsAreComplex() { return parsAreComplex_; };
 
-  // Access to channel averaging bounds
-  casacore::Matrix<casacore::Int>& chanAveBounds(casacore::Int spw) { return chanAveBounds_p(spw); };
-  
   // ...not yet CAL-specific... (or ever?)
   // Set up indexing for the plot
   //  void setUpIndexer(PMS::Axis iteraxis=PMS::SCAN,
-  //		    casacore::Bool globalXRange=false, casacore::Bool globalYRange=false);
+  //    casacore::Bool globalXRange=false, casacore::Bool globalYRange=false);
 
   // Convert poln index->name and name->index
   virtual casacore::String polname(casacore::Int ipol);
@@ -83,37 +80,46 @@ protected:
 
   // CAL-specific loadIt method
   virtual void loadIt(vector<PMS::Axis>& loadAxes,
-		      vector<PMS::DataColumn>& loadData,
-		      ThreadCommunication* thread = NULL);
+    vector<PMS::DataColumn>& loadData,
+    ThreadCommunication* thread = NULL);
 
 private:
     
   // Forbid copy for now
   CalCache(const CalCache&);
 
-  // Setup the CalIter
+  // NewCalTable:
   void setUpCalIter(const casacore::String& calname,
-		    PlotMSSelection& selection,
-		    casacore::Bool readonly=true,
-		    casacore::Bool chanselect=true,
-		    casacore::Bool corrselect=true);
-
-  // Count the chunks required in the cache
+    PlotMSSelection& selection,
+    casacore::Bool readonly=true,
+    casacore::Bool chanselect=true,
+    casacore::Bool corrselect=true);
   void countChunks(ROCTIter& ci,
-            vector<PMS::Axis>& loadAxes,
-		    vector<PMS::DataColumn>& loadData,
-            ThreadCommunication* thread);  // old
+    vector<PMS::Axis>& loadAxes,
+    vector<PMS::DataColumn>& loadData,
+    ThreadCommunication* thread);
+  void loadCalChunks(ROCTIter& ci, const vector<PMS::Axis> loadAxes,
+    ThreadCommunication* thread);
+  void loadCalAxis(ROCTIter& cti, casacore::Int chunk, PMS::Axis axis,
+    casacore::String pol);
+
+  // CalTable:
+  void countChunks(casacore::Int nrowMain, vector<PMS::Axis>& loadAxes,
+    vector<PMS::DataColumn>& loadData,
+    ThreadCommunication* thread);
+  void loadCalChunks(ROSolvableVisJonesMCol& mcol,
+    ROCalDescColumns& dcol, const vector<PMS::Axis> loadAxes,
+    ThreadCommunication* thread);
+  void loadCalAxis(ROSolvableVisJonesMCol& mcol, ROCalDescColumns& dcol,
+    casacore::Int chunk, PMS::Axis axis, casacore::String pol);
+  // helper functions for loading CalTable chunks
+  casacore::String getMSAbsPath(casacore::String msname);
+  void getChanFreqsFromMS(casacore::String fullmsname);
+  void getBPolyDataAxis(PMS::Axis axis,
+    casacore::Cube<casacore::Complex>& viscube, casacore::Int chunk);
 
   // Trap attempt to use to much memory (too many points)
   //  void trapExcessVolume(map<PMS::Axis,casacore::Bool> pendingLoadAxes);
-
-  // Loop over VisIter, filling the cache
-  void loadCalChunks(ROCTIter& ci,
-		  const vector<PMS::Axis> loadAxes,
-		  ThreadCommunication* thread);
-
-  // Loads the specific axis/metadata into the cache using the given VisBuffer.
-  void loadCalAxis(ROCTIter& cti, casacore::Int chunk, PMS::Axis axis, casacore::String pol);
 
   // Check axis and slice param column appropriately
   casacore::Slice getParSlice(casacore::String axis, casacore::String polnSel);
@@ -125,34 +131,28 @@ private:
 
   // Set flags in the CalTable
   virtual void flagToDisk(const PlotMSFlagging& flagging,
-			  casacore::Vector<casacore::Int>& chunks, 
-			  casacore::Vector<casacore::Int>& relids,
-			  casacore::Bool flag,
-			  PlotMSIndexer* indexer, int index);
-  
+    casacore::Vector<casacore::Int>& chunks, 
+    casacore::Vector<casacore::Int>& relids,
+    casacore::Bool flag,
+    PlotMSIndexer* indexer, int index);
 
-  // A container for channel averaging bounds
-  casacore::Vector<casacore::Matrix<casacore::Int> > chanAveBounds_p;
-
-  // Provisional flagging helpers
-  casacore::Vector<casacore::Int> nVBPerAve_;
- 
-  // The polarization basis
-  casacore::String basis_;
-  // Had to adjust for divide-by-zero in ratio plot (checkRatioArray)
-  bool divZero_;
-
-  // VisIterator pointer
+  // cal table iterator pointers
   ROCTIter* ci_p;
   CTIter* wci_p;
 
+  // The polarization basis
+  casacore::String basis_;
   // Is parameter column complex?
   casacore::Bool parsAreComplex_;
-
+  // Check divide-by-zero in ratio plot (checkRatioArray)
+  bool divZero_;
+  // get from MeasurementSet
+  casacore::Array<casacore::Double> chanfreqs_;
+  // for CalTables
+  casacore::Int nrow_;
   // Volume meter for volume calculation
   //  PMSCacheVolMeter vm_;
-
-    
+ 
 };
 typedef casacore::CountedPtr<CalCache> CalCachePtr;
 

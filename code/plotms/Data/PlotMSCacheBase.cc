@@ -1,4 +1,4 @@
-//# PlotMSCache2.cc: Data cache for plotms.
+//# PlotMSCacheBase.cc: Data cache for plotms.
 //# Copyright (C) 2009
 //# Associated Universities, Inc. Washington DC, USA.
 //#
@@ -67,12 +67,10 @@ const PMS::Axis PlotMSCacheBase::METADATA[] =
 		PMS::BASELINE,
 		PMS::FLAG,
 		PMS::OBSERVATION,
-		PMS::INTENT,
+		PMS::INTENT
 };
-
 //      PMS::TIME_INTERVAL,
 //      PMS::FLAG_ROW
-
 
 bool PlotMSCacheBase::axisIsMetaData(PMS::Axis axis) {
 	for(unsigned int i = 0; i < N_METADATA; i++)
@@ -406,6 +404,17 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 	pendingLoadAxes_.clear();
 
 	for(Int i = 0; i < nmetadata(); ++i) {
+      // skip invalid metadata axes for cal tables
+	  if (cacheType()==PlotMSCacheBase::CAL) {
+		  String caltype = calType();
+		  if (metadata(i)==PMS::INTENT)
+			  continue;
+		  else if ((metadata(i)==PMS::ANTENNA2 || metadata(i)==PMS::BASELINE) &&
+                   (caltype=="BPOLY" || caltype=="GSPLINE"))
+			  continue;
+          else if ((metadata(i)==PMS::CHANNEL) && caltype=="GSPLINE")
+			  continue;
+      }
 	  pendingLoadAxes_[metadata(i)]=true; // all meta data will be loaded
 	  if(!loadedAxes_[metadata(i)]) {
 		loadAxes.push_back(metadata(i));
