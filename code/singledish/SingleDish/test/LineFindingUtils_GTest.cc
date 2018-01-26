@@ -190,7 +190,7 @@ TEST_F(LineFindingUtilsTest, BinDataAndMask) {
     size_t const offset = 1;
     size_t const num_out = (num_data-offset)/bin_size;
     bool const keepsize=false;
-    float ref_data[] = {2.0, 0.0, 0.0, 0.0, 14,0, 0.0 };
+    float ref_data[] = {2.0, 0.0, 0.0, 0.0, 14.0, 0.0 };
     bool ref_mask[] = {true, false, false, false, true, false};
     assert(ELEMENTSOF(ref_data)==num_out);
     assert(ELEMENTSOF(ref_mask)==num_out);
