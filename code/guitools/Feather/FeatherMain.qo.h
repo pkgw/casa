@@ -25,7 +25,7 @@
 #ifndef FEATHERMAIN_QO_H
 #define FEATHERMAIN_QO_H
 
-#include <QtGui/QMainWindow>
+#include <QMainWindow>
 #include <QProgressDialog>
 
 #include <guitools/Feather/FeatherMain.ui.h>

@@ -1,9 +1,9 @@
 #ifndef PREFERENCESFUNCTION_QO_H
 #define PREFERENCESFUNCTION_QO_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <QSettings>
-#include <guitools/Feather/PreferencesFunction.ui.h>
+#include <ui/ui_PreferencesFunction.h>
 #include <guitools/Feather/CurveDisplay.h>
 
 namespace casa {

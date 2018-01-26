@@ -97,13 +97,29 @@ static void signal_manager_root( int sig ) {
 
 class ViewerApp : public QApplication {
 public:
-	ViewerApp( int &argc, char **argv, bool gui_enabled ) : QApplication(argc, argv, gui_enabled), viewer_(0) { }
+	ViewerApp( int &argc, char **argv, bool gui_enabled ) : QApplication(argc, argv, gui_enabled), viewer_(0) {
+#if QT_VERSION >= 0x050000
+        local_argc_ = argc;
+        local_argv_ = new char*[local_argc_+1];
+        for ( int i=0; i < local_argc_; ++i )
+            local_argv_[i] = strdup(argv[i]);
+        local_argv_[local_argc_] = 0;
+#endif
+    }
 	bool notify( QObject *receiver, QEvent *e );
 	void subscribe( QtViewer *v ) {
 		viewer_ = v;
 	}
 private:
 	QtViewer *viewer_;
+
+#if QT_VERSION >= 0x050000
+    int local_argc_;
+    char **local_argv_;
+public:
+    int argc( ) { return local_argc_; }
+    char **argv( ) { return local_argv_; }
+#endif
 };
 
 bool ViewerApp::notify( QObject *receiver, QEvent *e ) {
