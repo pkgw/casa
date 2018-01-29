@@ -196,8 +196,6 @@ protected:
     // mask=0 => the mask attached to the image, if any will be used, outShape=0 => use image shape, coordsys=0 => use image coordinate
     // system. overwrite is only used if outname != NULL.
 
-    //SPIIT _prepareOutputImage(const casacore::ImageInterface<T>& image) const;
-
     SPIIT _prepareOutputImage(
         const casacore::ImageInterface<T>& image, const casacore::Array<T> *const values,
         const casacore::ArrayLattice<casacore::Bool> *const mask=nullptr,
@@ -232,7 +230,7 @@ protected:
 
     static void _copyMask(casacore::Lattice<casacore::Bool>& mask, const casacore::ImageInterface<T>& image);
 
-    static void _copyData(casacore::Lattice<T>& data, const casacore::ImageInterface<T>& image);
+    static void _copyData(casacore::Lattice<T>& data, const casacore::Lattice<T>& image);
 
     template <class U> void _doHistory(SHARED_PTR<casacore::ImageInterface<U>>& image) const;
 

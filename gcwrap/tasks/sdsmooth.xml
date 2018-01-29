@@ -68,6 +68,11 @@ xsi:schemaLocation="http://casa.nrao.edu/schema/casa.xsd file:///opt/casa/code/x
         <value></value>
     </param>
 
+    <param type="bool" name="reindex">
+        <description>Re-index indices in subtables based on data selection</description>
+        <value>True</value>
+    </param>
+
     <param type="string" name="kernel">
         <description>spectral smoothing kernel type</description>
         <value>gaussian</value>
@@ -156,6 +161,10 @@ intent -- select data by observational intent, also referred to as 'scan intent'
         default: '' (use all scan intents)
         example: intent='*ON_SOURCE*' (any valid scan-intent expression accepted by the MSSelection module can be specified)
         this selection is in addition to the other selections to data
+reindex -- Re-index indices in subtables based on data selection.
+           If True, DATA_DESCRIPTION, FEED, SPECTRAL_WINDOW, STATE, and SOURCE
+           subtables are filtered based on data selection and re-indexed in output MS.
+           default: True
 kernel -- type of spectral smoothing kernel
         options: 'gaussian', 'boxcar'
         default: 'gaussian' (no smoothing)
