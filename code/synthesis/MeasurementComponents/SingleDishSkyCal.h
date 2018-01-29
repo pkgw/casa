@@ -338,6 +338,10 @@ private:
 
   // number of correlations per spw
   casacore::Vector<casacore::Int> nCorr_;
+
+  // list of timestamps and intervals for each observation, spw, and antenna
+  // as a nested map with key obsId (outermost), spwId, antennaId (innermost)
+  std::map<std::pair<casacore::Int, casacore::Int>, std::map<casacore::Int, casacore::Matrix<casacore::Double> > > wtScaleData_;
 };
 
 class SingleDishPositionSwitchCal : public SingleDishSkyCal 

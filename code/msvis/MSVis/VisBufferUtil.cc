@@ -724,7 +724,7 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
 	 String index=oss.str();
 	 Int rowincache=timeAntIndex_p[oldMSId_p][index];
 	 //cerr << "key "<< index << " index " << rowincache << endl;
-	 tim.show("retrieved cache");
+	 //tim.show("retrieved cache");
 	 if(rowincache <0)
 		 return vb.phaseCenter();
 	 return cachedPointingDir_p[oldMSId_p][rowincache];

@@ -538,6 +538,7 @@ tb.open('cplx2')
   
      <param type="string" direction="in" name="infile">
      <description>Other image</description>
+     <type mustexist="true">path</type>
      </param>
   
      <param type="bool" direction="in" name="debias">
@@ -1104,6 +1105,8 @@ images which should be identical.
      </description>
      <any type="variant"/>
      <value></value>
+     <type mustexist="true">path</type>
+     <type>record</type>
      </param>
 </input>
 <returns type="bool">T or fail</returns>
@@ -1439,6 +1442,7 @@ print "sigma=", sigma
   
      <param type="string" direction="in" name="infile">
      <description>Other image.  Required input.</description>
+     <type mustexist="true">path</type>
      </param>
   
      <param type="bool" direction="in" name="debias">
