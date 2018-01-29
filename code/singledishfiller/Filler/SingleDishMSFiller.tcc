@@ -412,7 +412,7 @@ void SingleDishMSFiller<T>::initialize() {
   casacore::String ref_string = casacore::MDirection::showType(direction_frame);
   meas_info.define("Ref", ref_string);
   record.defineRecord("MEASINFO", meas_info);
-
+  
   POST_END;
 }
 
@@ -455,14 +455,16 @@ template<class T>
 void SingleDishMSFiller<T>::setupMS() {
 //  std::cout << "Start " << __PRETTY_FUNCTION__ << std::endl;
 
-//  casacore::String dunit = table_->getHeader().fluxunit ;
+  casacore::String const dunit = reader_->getDataUnit();
 
   casacore::TableDesc ms_main_description = casacore::MeasurementSet::requiredTableDesc();
   if (is_float_) {
     casacore::MeasurementSet::addColumnToDesc(ms_main_description,
         casacore::MSMainEnums::FLOAT_DATA, 2);
+    ms_main_description.rwColumnDesc(MS::columnName(MS::FLOAT_DATA)).rwKeywordSet().define("UNIT", dunit);
   } else {
     casacore::MeasurementSet::addColumnToDesc(ms_main_description, casacore::MSMainEnums::DATA, 2);
+    ms_main_description.rwColumnDesc(MS::columnName(MS::DATA)).rwKeywordSet().define("UNIT", dunit);
   }
 
   casacore::String const scratch_table_name = casacore::File::newUniqueName(".",
@@ -840,9 +842,16 @@ void SingleDishMSFiller<T>::fillNROArray() {
  casacore:: ScalarColumn<int> spw(nro_table, "SPECTRAL_WINDOW");
   for (int iarr = 0; iarr < reader_->getNROArraySize(); ++iarr) {
         arr.put(iarr, iarr);
-        bea.put(iarr, reader_->getNROArrayBeamId(iarr));
-        pol.put(iarr, reader_->getNROArrayPol(iarr));
-        spw.put(iarr, reader_->getNROArraySpwId(iarr));
+        if (reader_->isNROArrayUsed(iarr)) {
+          bea.put(iarr, reader_->getNROArrayBeamId(iarr));
+          pol.put(iarr, reader_->getNROArrayPol(iarr));
+          spw.put(iarr, reader_->getNROArraySpwId(iarr));
+        } else {
+          // array is not used, fill with -1
+          bea.put(iarr, -1);
+          pol.put(iarr, -1);
+          spw.put(iarr, -1);
+        }
   }
 
   POST_END;
@@ -1321,6 +1330,13 @@ void SingleDishMSFiller<T>::sortPointing() {
     }
   }
 
+  // sort INTERVAL
+  {
+    casacore::Vector<casacore::Double> interval_list = mycolumns.interval().getColumn();
+    for (casacore::uInt i = 0; i < nrow; ++i) {
+      mycolumns.interval().put(i, interval_list[index_vector[i]]);
+    }
+  }
   POST_END;
 }
 

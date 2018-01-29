@@ -284,7 +284,8 @@ singledishms::subtract_baseline_variable(string const& datacolumn,
                                          string const& bloutput,
                                          bool const dosubtract,
                                          ::casac::variant const& spw,
-                                         string const& blparam)
+                                         string const& blparam,
+					 bool const verbose)
 {
   bool rstat(false);
   *itsLog << _ORIGIN;
@@ -295,7 +296,8 @@ singledishms::subtract_baseline_variable(string const& datacolumn,
                                     bloutput, 
                                     dosubtract,
                                     toCasaString(spw),
-                                    blparam);
+                                    blparam,
+				    verbose);
     rstat = true;
   } catch  (AipsError x) {
     *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() 
@@ -381,7 +383,8 @@ singledishms::set_selection(::casac::variant const& spw,
 		    ::casac::variant const& polarization,
 		    ::casac::variant const& beam,
 		    ::casac::variant const& intent,
-		    string const& taql)
+		    string const& taql,
+			bool const reindex)
 {
   bool rstat(false);
   *itsLog << _ORIGIN;
@@ -434,6 +437,8 @@ singledishms::set_selection(::casac::variant const& spw,
     selection_string = toCasaString(taql);
     if (selection_string != "")
       selection.define("taql", selection_string);
+
+    selection.define("reindex", Bool(reindex));
 
     itsSd->setSelection(selection);
     rstat = true;

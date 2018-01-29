@@ -1,4 +1,4 @@
-# CASA - Common Astronomy Software Applications
+# CASA - Common Astronomy Software Applications 
 # Copyright (C) 2010 by ESO (in the framework of the ALMA collaboration)
 # Copyright (C) 2010 by NAOJ (in the framework of the ALMA collaboration)
 # Copyright (C) 2010 Associated Universities, Inc. Washington DC, USA.
@@ -67,7 +67,7 @@ include( target )
 include( CASA )
 
 set( CASA_MAJOR_VERSION 5 )
-set( CASA_MINOR_VERSION 0 )
+set( CASA_MINOR_VERSION 3 )
 set( CASA_PATCH_VERSION 0 )
 set( CASA_API_VERSION "${CASA_MAJOR_VERSION}.${CASA_MINOR_VERSION}.${CASA_PATCH_VERSION}" )
 
@@ -149,10 +149,19 @@ if( CMAKE_BUILD_TYPE STREQUAL Debug )
 endif()
 
 include( UsePrivatePath )
-if( NOT RE_CMAKE )
-    string( REGEX REPLACE /[^/]+/?$ "" casaroot ${CMAKE_SOURCE_DIR} )
-endif()
-#string ( REGEX REPLACE /\\/\\.\\./ "" casaroot ${casaroot} )
+
+if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT OR CMAKE_INSTALL_PREFIX MATCHES ".*/linux[^/]*$" OR CMAKE_INSTALL_PREFIX MATCHES ".*/darwin[^/]*$")
+    string( REGEX REPLACE /[^/]+/?$ "" casaroot ${CMAKE_SOURCE_DIR} CACHE )
+    message("using traditional configuration where casaroot != install prefix:")
+    message("        casaroot             = ${casaroot}")
+    message("        CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
+else( )
+    set( casaroot ${CMAKE_INSTALL_PREFIX} CACHE PATH "toplevel casa directory" FORCE )
+    message("using modern configuraiton where casaroot and install prefix are the same:")
+    message("        casaroot = ${casaroot}")
+endif( )
+
+file(MAKE_DIRECTORY ${casaroot}/share/doc)
 
 #
 # aipshosts is supported for backwards compatibility
@@ -511,21 +520,15 @@ if( NOT CMAKE_C_FLAGS )
   set( CMAKE_C_FLAGS "${DEFAULT_C_FLAGS} ${EXTRA_C_FLAGS}" )
 endif()
 
-
 if( NOT RE_CMAKE )
     if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
         set( CMAKE_INSTALL_PREFIX ${casaroot}/${arch} CACHE PATH "casa architecture directory" FORCE )
-	set( casaroot ${casaroot} CACHE PATH "toplevel casa directory" FORCE )
-    else()
-        set( CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX} CACHE PATH "casa architecture directory" FORCE )
-	set( casaroot ${CMAKE_INSTALL_PREFIX}/.. CACHE PATH "toplevel casa directory" FORCE )
+        set( casaroot ${casaroot} CACHE PATH "toplevel casa directory" FORCE )
    endif(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-   file(MAKE_DIRECTORY ${casaroot}/share/doc)
 endif()
 
 dump( casaroot )
 dump( CMAKE_INSTALL_PREFIX )
-
 SET(NO_SOVERSION FALSE CACHE BOOL "do not add version information to shared libraries")
 if( NOT NO_SOVERSION )
     set( epochdelta 1385614800 )
@@ -561,7 +564,7 @@ find_program( PDFLATEX_COMPILER NAMES pdflatex )
 #set( LATEX2PDF_OPTIONS "htcasa,section+,next,p-width,3"
 #CACHE STRING "LATEX2PDF_CONVERTER options" )
 
-set( CASA_DOC_DIR ${casaroot}/docs ) # Where to put documentation
+set( CASA_DOC_DIR ${casaroot}/share/doc ) # Where to put documentation
 
 find_package( Doxygen )
 

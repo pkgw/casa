@@ -294,9 +294,7 @@ void MSTransformIterator::propagateChanAvgFlags (const Cube<Bool> &avgFlagCube, 
 			if (outChan < nTransChan) // outChan >= nChan  may happen when channels are dropped
 			{
 				for (size_t corr_i =0;corr_i<nCorr;corr_i++)
-				{
-					if (avgFlagCube(corr_i,outChan,row_i)) expandedFlagCube(corr_i,chan_i,row_i) = true;
-				}
+					expandedFlagCube(corr_i,chan_i,row_i) = avgFlagCube(corr_i,outChan,row_i);
 			}
 		}
 	}

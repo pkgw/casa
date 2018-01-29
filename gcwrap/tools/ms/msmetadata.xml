@@ -2334,7 +2334,37 @@ windows in the dataset and close the tool.
     msmd.done()
             </example>
         </method>
-        
+        <method name="timesforspws">
+            <shortdescription>Get the unique times corresponding to the specified spectral window(s).</shortdescription>
+            <input>
+                <param type="any" name="spw">
+                    <description>Zero-based spectral window ID(s). A negative integer will cause the all the times for all spws to be returned.</description>
+                    <any type="variant" limittypes="int intArray"/>
+                    <value type="int">-1</value>
+                </param>
+            </input>
+            <returns type="any">
+                <any type="variant"/>
+            </returns>
+            <description>
+                Get the unique times corresponding to the specified spectral window(s). The input indicates the
+                spws for which times are to be retrieved, and can be a single integer or an array of
+                integers. If a single, non-negative integer, an array of unique times associated with
+                that spectral window are returned. Otherwise, a dictionary of times associated with the
+                specified spectral windows are returned, with the spws (as strings) as the keys and the
+                times as the values. A negative integer will cause a dictionary of all spws and their 
+                associated times to be returned.
+            </description>
+            <example>
+    msmd.open("my.ms")
+    # get the times associated with spws 10 and 20
+    times = msmd.timesforspws([10,20])
+    # print the times for spw 10
+    print times["10"]
+    msmd.done()
+            </example>
+        </method>
+
         <method type="function" name="transitions">
             <shortdescription>Get the spectral transitions from the SOURCE table for the specified source and spectral window.</shortdescription>
             <input>
@@ -2368,7 +2398,7 @@ windows in the dataset and close the tool.
             <input>
                 <param type="bool" direction="in" name="complement">
                     <description>If True, return all non-wvr spws.</description>
-                    <value>-false</value>
+                    <value>false</value>
                 </param>
             </input>
             <returns type="intArray"/>

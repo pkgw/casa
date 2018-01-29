@@ -482,6 +482,11 @@ Fit parameters for each spectrum are obtained from a text file.
       <value></value>
     </param>
 
+    <param type="bool" name="verbose">
+      <description>Print fitting parameters of each spectrum to logger</description>
+      <value>false</value>
+    </param>
+
   </input>
   <returns type="bool"/>
   <example>
@@ -710,6 +715,11 @@ sdms.fit_line(fitfunc='gauss',spw='0:1000~2000;4000~5000',nfit=[1,1])
      <description>For the TAQL experts, flexible data selection using the TAQL syntax</description>
      <value></value>
      </param>
+
+    <param type="bool" name="reindex">
+      <description>Re-index indices in subtables based on data selection</description>
+      <value>true</value>
+    </param>
  
   </input>
   <returns type="bool"/>

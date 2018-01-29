@@ -347,7 +347,7 @@ public:
     interval_column.attach(main_table_, "INTERVAL");
     time_range_.clear();
     for (size_t i = 0; i < srcname_boundary.size() - 1; ++i) {
-      casacore::String name = srcname_list[srcname_boundary[i]];
+      casacore::String name = srcname_list[index_list[srcname_boundary[i]]];
       size_t start = srcname_boundary[i];
       size_t end = srcname_boundary[i + 1];
       std::map<casacore::uInt, casacore::Block<casacore::Double> > range;

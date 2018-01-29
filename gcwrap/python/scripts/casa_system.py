@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 import casadef
 from procmgr import procmgr as _procmgr
@@ -7,6 +8,10 @@ import __casac__
 _cu = __casac__.utils.utils()
 
 from casa_system_defaults import casa
+casa['version'] = _cu.version_string( )
+casa['version_desc'] = _cu.version_desc( )
+
+original_path = sys.path
 
 ###########################################################################
 ######## these will be removed at the CASA 5.1 code freeze time... ########

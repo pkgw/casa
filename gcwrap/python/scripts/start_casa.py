@@ -11,6 +11,7 @@ from IPython import start_ipython
 from traitlets.config.loader import Config
 __pylib = os.path.dirname(os.path.realpath(__file__))
 __init_scripts = [
+    "init_begin_startup.py",
     "init_system.py",
     "init_logger.py",
     "init_user_pre.py",
@@ -18,12 +19,12 @@ __init_scripts = [
     "init_tools.py",
     "init_tasks.py",
     "init_funcs.py",
-    "init_asap.py",
     "init_pipeline.py",
     "init_mpi.py",
     "init_docs.py",
     "init_user_post.py",
     "init_crashrpt.py",
+    "init_end_startup.py",
     "init_welcome.py",
 ]
 
@@ -37,6 +38,11 @@ casa_builtins = { }
 ##
 casa_shutdown_handlers = [ ]
 
+##
+## final interactive exit status...
+## runs using "-c ..." exit from init_welcome.py
+##
+_exit_status=0
 try:
     __startup_scripts = filter( os.path.isfile, map(lambda f: __pylib + '/' + f, __init_scripts ) )
 
@@ -62,10 +68,15 @@ try:
     __configs.HistoryManager.hist_file = __configs.TerminalInteractiveShell.ipython_dir + "/history.sqlite"
     __configs.TerminalIPythonApp.matplotlib = __defaults.backend
 
+    ### what does this do?
+    ###   (1) exec each of the startup files
+    ###   (2) invoke matplotlib (for interactive grapics)
+    ###       unless --agg flag has been supplied
     start_ipython( config=__configs, argv= (['--logfile='+casa['files']['iplogfile']] if __defaults.ipython_log else []) + ['--ipython-dir='+__defaults.rcdir+"/ipython", '--autocall=2', "-c", "for i in " + str(__startup_scripts) + ": execfile( i )"+("\n%matplotlib" if __defaults.backend is not None else ""), "-i" ] )
 
 except:
-    print "Unexpected error:", sys.exc_info()[0]
+    _exit_status = 1
+    print "Unexpected error:"
     traceback.print_exc(file=sys.stdout)
     pass
 
@@ -73,3 +84,6 @@ except:
 ### this should (perhaps) be placed in an 'atexit' hook...
 for handler in casa_shutdown_handlers:
     handler( )
+
+from init_welcome_helpers import immediate_exit_with_handlers
+immediate_exit_with_handlers(_exit_status)

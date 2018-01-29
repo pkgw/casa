@@ -80,9 +80,8 @@ if [ "$1" = "--debug" ]; then
     _dodebug="T"
 fi
 
-if [ $installed_from_rpm = "T" ]; then
-    prefix=`echo ${CASAPATH} | awk '{printf "%s", $1}'`
-else
+prefix=`echo ${CASAPATH} | awk '{printf "%s", $1}'`
+if [ ! -e "${prefix}/lib/python2.7/$startup" ]; then
     prefix=`echo ${CASAPATH} | awk '{printf "%s/%s", $1,$2}'`
 fi
 # echo "DEBUG: prefix = $prefix"
@@ -127,11 +126,7 @@ export CASAPATH="$a_root $a_arch"
 # echo "DEBUG: CASAPATH = ${CASAPATH}"
 export DISPLAY=${DISPLAY=:0.0}
 
-if [ $installed_from_rpm = "T" ]; then
-    export PATH="${a_root}/bin:${p_root}/bin:/bin:/sbin:/usr/bin:/usr/sbin"
-else
-    export PATH="${a_root}/${a_arch}/bin:${p_root}/bin:/bin:/sbin:/usr/bin:/usr/sbin"
-fi
+export PATH="${prefix}/bin:${p_root}/bin:/bin:/sbin:/usr/bin:/usr/sbin"
 # echo "DEBUG: PATH = ${PATH}"
 
 export PGPLOT_DIR="${casa3party}/lib"

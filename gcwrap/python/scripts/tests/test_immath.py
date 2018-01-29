@@ -800,7 +800,7 @@ class immath_test2(unittest.TestCase):
                 
         # FIXME: add links to repository
         for img in imageList2:
-            self.assertTrue(os.path.exists(datapath + img))
+            self.assertTrue(os.path.exists(datapath + img), datapath + img + " does not exist")
             if os.path.isdir(datapath + img):
                 shutil.copytree(datapath + img, img)
             else:
@@ -1652,19 +1652,35 @@ class immath_test3(unittest.TestCase):
         myia.fromshape(im1, [20, 20])
         myia.fromshape(im2, [20, 20])
         myia.done()
-        kk = myia.imagecalc("", im1 + "+" + im2)
+        expr = im1 + "+" + im2
+        kk = myia.imagecalc("", expr)
         msgs = kk.history()
         kk.done()
-        self.assertTrue("ia.imagecalc" in msgs[-2])
-        self.assertTrue("ia.imagecalc" in msgs[-1])
-
+        teststr = "ia.imagecalc"
+        self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
+        self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
+        
         myia.open(im1)
-        self.assertTrue(myia.calc(im1 + "+" + im2))
+        self.assertTrue(myia.calc(expr))
         msgs = myia.history()
         myia.done()
-        self.assertTrue("ia.calc" in msgs[-2])
-        self.assertTrue("ia.calc" in msgs[-1])
-
+        teststr = "ia.calc"
+        self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
+        self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
+        
+        outfile = "zz_out.im"
+        self.assertTrue(
+            immath(imagename=im1, outfile=outfile, expr=expr),
+            "immath failed"
+        )
+        myia.open(outfile)
+        msgs = myia.history()
+        myia.done()
+        teststr = "version"
+        self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
+        teststr = "immath"
+        self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
+        
     def test_flush(self):
         "CAS-8570: ensure image is flushed to disk when it is created"""
         myia = iatool()

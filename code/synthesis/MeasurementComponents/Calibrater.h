@@ -121,6 +121,7 @@ class Calibrater
 		 const casacore::String& apmode="AP",
 		 const casacore::Int minblperant=4,
 		 const casacore::String& refant="",
+		 const casacore::String& refantmode="flex",
 		 const casacore::Bool solnorm=false,
 		 const casacore::Float minsnr=0.0f,
 		 const casacore::String& combine="",
@@ -249,7 +250,8 @@ class Calibrater
 			  const casacore::String& antenna,
 			  const casacore::String& pol,
 			  const casacore::Vector<casacore::Double>& parameter,
-			  const casacore::String& infile);
+			  const casacore::String& infile,
+			  const casacore::Bool& uniform);
 
   // casacore::Smooth  calibration (using casacore::MSSelection syntax
   virtual casacore::Bool smooth(const casacore::String& infile,
@@ -257,6 +259,13 @@ class Calibrater
 				const casacore::String& smoothtype, 
 				const casacore::Double& smoothtime,
 				const casacore::String& fields);
+
+
+  // Apply new reference antenna to calibration
+  virtual casacore::Bool reRefant(const casacore::String& infile,
+				  casacore::String& outfile, 
+				  const casacore::String& refantmode, 
+				  const casacore::String& refant);
 
 
   // casacore::List a calibration table
@@ -389,6 +398,10 @@ class Calibrater
   const bool simdata_p;
   const vi::SimpleSimVi2Parameters ssvp_p;
 
+  // configuration for calibration dependent data filter
+  casacore::Record calFilterConfig_p;
+  void setCalFilterConfiguration(casacore::String const &type,
+      casacore::Record const &config);
 
 };
 
@@ -503,7 +516,8 @@ class OldCalibrater : public Calibrater
 			  const casacore::String& antenna,
 			  const casacore::String& pol,
 			  const casacore::Vector<casacore::Double>& parameter,
-			  const casacore::String& infile);
+			  const casacore::String& infile,
+			  const casacore::Bool& uniform);
 
   // casacore::Smooth  calibration (using casacore::MSSelection syntax
   // NB: uses *vs_p to create SVC

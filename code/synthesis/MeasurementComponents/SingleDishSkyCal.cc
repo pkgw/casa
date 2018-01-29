@@ -715,10 +715,15 @@ void SingleDishSkyCal::traverseMS(MeasurementSet const &ms) {
 
 	debuglog << "spw " << ispw << ": solveAllRPar.shape=" << solveAllRPar().shape() << " nPar=" << nPar() << " nChanPar=" << nChanPar() << " nElem=" << nElem() << debugpost;
 	
-	solveAllRPar() = dataSum.addDegenerate(1);
-	solveAllParOK() = resultMask.addDegenerate(1);
-	solveAllParErr() = 0.1; // TODO: this is tentative
-	solveAllParSNR() = 1.0; // TODO: this is tentative
+  size_t const nCorr = dataSum.shape()[0];
+	Cube<Float> const rpar = dataSum.addDegenerate(1);
+	Cube<Bool> const parOK = resultMask.addDegenerate(1);
+	for (size_t iCorr = 0; iCorr < nCorr; ++iCorr) {
+	  solveAllRPar().yzPlane(iCorr) = rpar.yzPlane(iCorr);
+	  solveAllParOK().yzPlane(iCorr) = parOK.yzPlane(iCorr);
+	  solveAllParErr().yzPlane(iCorr) = 0.1; // TODO: this is tentative
+	  solveAllParSNR().yzPlane(iCorr) = 1.0; // TODO: this is tentative
+	}
 
 	keepNCT();
 
@@ -775,7 +780,7 @@ void SingleDishSkyCal::initSolvePar()
     solveAllParOK().resize(solveAllRPar().shape());
     solveAllParErr().resize(solveAllRPar().shape());
     solveAllParSNR().resize(solveAllRPar().shape());
-    solveAllParOK()=true;
+    solveAllParOK()=false;
     solveAllParErr()=0.0;
     solveAllParSNR()=0.0;
     solveParOK().reference(solveAllParOK());
@@ -797,7 +802,7 @@ void SingleDishSkyCal::syncMeta2(const vi::VisBuffer2& vb)
   interval_.reference(vb.exposure());
   debuglog << "SingleDishSkyCal::syncMeta2 interval_= " << interval_ << debugpost;
 
-  setNumberOfCorrelationsPerSpw(vb.getVi()->ms(), nCorr_);
+  setNumberOfCorrelationsPerSpw(vb.ms(), nCorr_);
   debuglog << "nCorr_ = " << nCorr_ << debugpost;
   debuglog << "currSpw() = " << currSpw() << debugpost;
   debuglog << "nPar() = " << nPar() << debugpost;
@@ -862,31 +867,67 @@ template<class ScalingScheme>
 void SingleDishSkyCal::calcWtScale()
 {
   debuglog << "calcWtScale<ScalingScheme>" << debugpost;
-  CTInterface cti(*ct_);
-  MSSelection mss;
-  mss.setSpwExpr(String::toString(currSpw()));
-  mss.setObservationExpr(String::toString(currObs()));
+  auto const key = std::make_pair(currObs(), currSpw());
+  debuglog << "for obs " << currObs() << " and spw " << currSpw() << debugpost;
+  decltype(wtScaleData_)::iterator iter = wtScaleData_.find(key);
+  map<Int, Matrix<Double> > wtMap;
+  if (iter == wtScaleData_.end()) {
+    debuglog << "construct weight scaling data for obs " << currObs() << " spw " << currSpw() << debugpost;
+    CTInterface cti(*ct_);
+    MSSelection mss;
+    mss.setObservationExpr(String::toString(currObs()));
+    mss.setSpwExpr(String::toString(currSpw()));
+    debuglog << "number of antennas = " << nAnt() << debugpost;
+    for (Int iAnt = 0; iAnt < nAnt(); ++iAnt) {
+      mss.setAntennaExpr(String::toString(iAnt) + "&&&");
+      TableExprNode ten = mss.toTableExprNode(&cti);
+      NewCalTable temp;
+      try {
+        getSelectedTable(temp, *ct_, ten, "");
+      } catch (AipsError x) {
+        continue;
+      }
+      temp = temp.sort("TIME");
+      wtMap.emplace(std::piecewise_construct,
+          std::forward_as_tuple(iAnt),
+          std::forward_as_tuple(2, temp.nrow()));
+      Matrix<Double> &arr = wtMap.at(iAnt);
+      debuglog << "ant " << iAnt << " arr.shape = " << arr.shape() << debugpost;
+      ROScalarColumn<Double> col(temp, "TIME");
+      auto timeCol = arr.row(0);
+      col.getColumn(timeCol, False);
+      col.attach(temp, "INTERVAL");
+      auto intervalCol = arr.row(1);
+      debuglog << "timeCol.size() == " << timeCol.size() << " intervalCol.size() = " << intervalCol.size() << debugpost;
+      col.getColumn(intervalCol, False);
+    }
+    wtScaleData_.insert(std::make_pair(key, wtMap));
+  } else {
+    wtMap = iter->second;
+  }
+
+  {
+    // for debugging
+    debuglog << "wtMap keys: ";
+    for (decltype(wtMap)::iterator i = wtMap.begin(); i != wtMap.end(); ++i) {
+      debuglog << i->first << " ";
+    }
+    debuglog << debugpost;
+  }
+
   for (Int iAnt = 0; iAnt < nAnt(); ++iAnt) {
-    mss.setAntennaExpr(String::toString(iAnt) + "&&&");
-    TableExprNode ten = mss.toTableExprNode(&cti);
-    NewCalTable temp;
-    try {
-      getSelectedTable(temp, *ct_, ten, "");
-    } catch (AipsError x) {
-      //logSink() << LogIO::WARN
-      //          << "Failed to calculate Weight Scale. Set to 1." << LogIO::POST;
-      //currWtScale() = 1.0f;
+    decltype(wtMap)::iterator i = wtMap.find(iAnt);
+    if (i == wtMap.end()) {
       continue;
     }
-    temp = temp.sort("TIME");
-    ROScalarColumn<Double> col(temp, "TIME");
-    Vector<Double> timeCol = col.getColumn();
-    col.attach(temp, "INTERVAL");
-    Vector<Double> intervalCol = col.getColumn();
+    auto const &mat = i->second;
+    debuglog << "matrix shape " << mat.shape() << debugpost;
+    Vector<Double> const &timeCol = mat.row(0);
+    Vector<Double> const &intervalCol = mat.row(1);
     size_t nrow = timeCol.size();
     debuglog << "timeCol = " << timeCol << debugpost;
     debuglog << "intervalCol = " << intervalCol << debugpost;
-    debuglog << "iAnt " << iAnt << " temp.nrow()=" << temp.nrow() << debugpost;
+    debuglog << "iAnt " << iAnt << " nrow=" << nrow << debugpost;
     if (currTime() < timeCol[0]) {
       debuglog << "Use nearest OFF weight (0)" << debugpost;
       currWtScale().xyPlane(iAnt) = ScalingScheme::SimpleScale(interval_[iAnt], intervalCol[0]);
@@ -1092,14 +1133,22 @@ void SingleDishSkyCal::updateWt2(Matrix<Float> &weight, const Int &antenna1)
   debuglog << "factor.shape() = " << factor.shape() << debugpost;
   debuglog << "weight.shape() = " << weight.shape() << debugpost;
   debuglog << "weight = " << weight << debugpost;
-  if (weight.shape() == factor.shape()) {
-    weight *= factor;
-  }
-  else if (weight.shape() == IPosition(2,factor.shape()[0],1)) {
-    weight *= factor(Slice(0,factor.shape()[0]),Slice(0,1));
-  }
-  else {
-    throw AipsError("Shape mismatch between input weight and weight scaling factor");
+
+  auto const wtShape = weight.shape();
+  size_t const nCorr = wtShape[0];
+  size_t const nChan = wtShape[1];
+  // for each correlation
+  for (size_t iCorr = 0; iCorr < nCorr; ++iCorr) {
+    auto wSlice = weight.row(iCorr);
+    auto const fSlice = factor.row(iCorr);
+    if (fSlice.nelements() == nChan) {
+      wSlice *= fSlice;
+    } else if (nChan == 1) {
+      // take mean of spectral weight factor to apply it to scalar weight
+      wSlice *= mean(fSlice);
+    } else {
+      throw AipsError("Shape mismatch between input weight and weight scaling factor");
+    }
   }
 }
 
@@ -1392,7 +1441,26 @@ MeasurementSet SingleDishOtfCal::selectMS(MeasurementSet const &ms)
         Vector<Double> pointings_x(pointings_coords.row(0).copy());
         Vector<Double> pointings_y(pointings_coords.row(1).copy());
         Vector<Bool> is_edge(pointings_coords.ncolumn(),false);
-        const double pixel_size = 0.0;
+        double pixel_size = 0.0;
+        {
+          // CAS-9956
+          // Mitigation of memory usage due to unexpectedly large number of pixels.
+          // Currently CreateMaskNearEdgeDouble requires 2*sizeof(size_t)*num_pixels bytes
+          // of memory. If this value exceeds 2GB, the mitigation will be activated.
+          Double const num_pixels = p.p_size()[0] * p.p_size()[1];
+          auto const estimated_memory = num_pixels * 2 * sizeof(size_t);
+          constexpr Double kMaxMemory = 2.0e9;
+          if (estimated_memory >= kMaxMemory && pixel_scale_ < 1.0) {
+            LogIO os;
+            os << LogOrigin("PointingDirectionProjector", "scale_and_center", WHERE);
+            os << LogIO::WARN << "Estimated Memory: " << estimated_memory << LogIO::POST;
+            os << LogIO::WARN << "Mitigation of memory usage is activated. pixel scale is set to 1.0" << LogIO::POST;
+            // pixel_size can be set to 2.0 since projection grid spacing is estimated from half of median separation
+            // between neighboring pixels so that pixel_width will become about 1.0 if pixel_size is 0.
+            pixel_size = 2.0;
+            os << LogIO::WARN << "pixel_size is set to " << pixel_size << LogIO::POST;
+           }
+        }
         // libsakura 2.0: setting pixel_size=0.0 means that CreateMaskNearEdgeDouble will
         //   . compute the median separation of consecutive pointing coordinates
         //   . use an "edge detection pixel size" = 0.5*coordinates_median (pixel scale hard-coded to 0.5)

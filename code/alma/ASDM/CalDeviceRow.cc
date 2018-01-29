@@ -2269,11 +2269,13 @@ void CalDeviceRow::temperatureLoadFromBin(EndianIStream& eis) {
 	 * Return true if all required attributes of the value part are equal to their homologues
 	 * in x and false otherwise.
 	 *
+
 	 * @param x a pointer on the CalDeviceRow whose required attributes of the value part 
+
 	 * will be compared with those of this.
 	 * @return a boolean.
 	 */
-	bool CalDeviceRow::equalByRequiredValue(CalDeviceRow* x) {
+	bool CalDeviceRow::equalByRequiredValue(CalDeviceRow*  x ) {
 		
 			
 		if (this->numCalload != x->numCalload) return false;

@@ -49,7 +49,7 @@ namespace asdm {
 	    toTableName + " in this row of table " + fromTableName) {
   }
 
-  NoSuchRow::NoSuchRow(string toTableName, string fromTableName, bool option) :
+  NoSuchRow::NoSuchRow(string toTableName, string fromTableName, bool /* option */ ) :
     message("The optional link to table " + toTableName + " in this row of table " + 
 	    fromTableName + " does not exist! ")  {
   }

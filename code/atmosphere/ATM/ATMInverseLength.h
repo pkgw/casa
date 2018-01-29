@@ -32,13 +32,13 @@
 #include "ATMCommon.h"
 #include <string>
 
-using namespace std;
+
 
 ATM_NAMESPACE_BEGIN
 /*! \brief Class for those physical parameters having dimensions of Inverse Length [L^-1]
  *
  *   This class is defined for those physical parameters that have units of Inverse Length, for example
- *   the absorption coefficients. Default units are m^-1 (International System).
+ *   the absorption coefficients. Desfault units are m^-1 (International System).
  */
 class InverseLength
 {
@@ -48,7 +48,7 @@ public:
   /** A full constructor: value in default units (m^-1) */
   InverseLength(double inverseLength);
   /** A full constructor: value + units. Valid units are:  km-1 [KM-1], m-1 [M-1], mm-1 [MM-1], micron-1 [MICRON-1], nm-1 [NM-1]. */
-  InverseLength(double inverseLength, const string &units);
+  InverseLength(double inverseLength, const std::string &units);
   /** Copy constructor */
   InverseLength (const InverseLength &inverseLength);
 
@@ -59,7 +59,7 @@ public:
   inline double get() const { return valueIS_; }
   /** Accessor to the inverse length value in specified units. Implemented units are km-1 [KM-1], m-1 [M-1], mm-1 [MM-1], micron-1 [MICRON-1], nm-1 [NM-1].
    *  If none of these implemented units is given, the SI value will be returned. */
-  inline double get(const string &units) const { return sget(valueIS_, units); }
+  inline double get(const std::string &units) const { return sget(valueIS_, units); }
 
   /** Operator "equal to a InverseLength" */
   inline InverseLength& operator=(const InverseLength &rhs) { if(&rhs != this) valueIS_ = rhs.valueIS_; return *this; }
@@ -99,8 +99,8 @@ public:
   inline bool operator!=(const InverseLength & rhs) const { return (valueIS_ != rhs.get()); }
 
 private:
-  static double sget(double value, const string &units);
-  static double sput(double value, const string &units);
+  static double sget(double value, const std::string &units);
+  static double sput(double value, const std::string &units);
 
 private:
   double valueIS_;

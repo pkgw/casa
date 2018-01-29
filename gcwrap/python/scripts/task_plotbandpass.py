@@ -13,7 +13,7 @@
 #
 # To test:  see plotbandpass_regression.py
 #
-PLOTBANDPASS_REVISION_STRING = "$Id: task_plotbandpass.py,v 1.96 2017/05/19 15:28:20 thunter Exp $" 
+PLOTBANDPASS_REVISION_STRING = "$Id: task_plotbandpass.py,v 1.102 2018/01/21 14:45:41 thunter Exp $" 
 import pylab as pb
 import math, os, sys, re
 import time as timeUtilities
@@ -90,7 +90,7 @@ def version(showfile=True):
     """
     Returns the CVS revision number.
     """
-    myversion = "$Id: task_plotbandpass.py,v 1.96 2017/05/19 15:28:20 thunter Exp $" 
+    myversion = "$Id: task_plotbandpass.py,v 1.102 2018/01/21 14:45:41 thunter Exp $" 
     if (showfile):
         print "Loaded from %s" % (__file__)
     return myversion
@@ -607,6 +607,7 @@ def drawAtmosphereAndFDM(showatm, showtsky, atmString, subplotRows, mysize, Tebb
             else:
                 showFDM(originalSpw, chanFreqGHz,
                         baseband, showBasebandNumber, basebandDict)
+            ylim = pb.ylim()  # CAS-11062 need to pass the new wider limits back up to calling function
     return ylim  # CAS-8655
 
 def DrawPolarizationLabelsForOverlayTime(xstartPolLabel,ystartPolLabel,corr_type,polsToPlot,
@@ -666,7 +667,6 @@ def computeHighestSpwIndexInSpwsToPlotThatHasCurrentScan(spwsToPlot, scansToPlot
         if (scan in scansToPlotPerSpw[spw]):
             highestSpwIndex = i
     return(highestSpwIndex)
-
 
 DEFAULT_PLATFORMING_THRESHOLD = 10.0 # unused if platformingSigma != 0
 def plotbandpass(caltable='', antenna='', field='', spw='', yaxis='amp',
@@ -3083,11 +3083,11 @@ def plotbandpass(caltable='', antenna='', field='', spw='', yaxis='amp',
                                                   interval, uFFI, refFreq[originalSpw[ispw]],
                                                   net_sideband[originalSpw[ispw]], mytime, 
                                                   missingCalWVRErrorPrinted, caltable, verbose=DEBUG)
-                          # difference between the requested Atm freq and actual Atm calcuation
-                          chanDifference = atmfreq[0]-frequencies[0] 
-                          chanImageDifference = atmfreqImage[0]-frequenciesImage[-1]
-                          atmfreqImage = list(2*LO1 - np.array(atmfreqImage) + 2*chanDifference + chanImageDifference)  # CAS-7715 adds final 2 terms
-                          atmfreqImage.reverse()
+                          # difference between the requested Atm freq and actual Atm calcuation CAS-7715. No longer necessary after CAS-10228.
+                          #chanDifference = atmfreq[0]-frequencies[0] 
+                          #chanImageDifference = atmfreqImage[0]-frequenciesImage[-1]
+                          #print "signal SB difference = %f, image SB difference = %f" % (chanDifference, chanImageDifference)
+                          atmfreqImage = list(2*LO1 - np.array(atmfreqImage)) # + 2*chanDifference + chanImageDifference)  # CAS-7715 adds final 2 terms  
                           atmchanImage.reverse()
           
                       if (overlayTimes):
@@ -5546,6 +5546,7 @@ def CalcAtmTransmission(chans,freqs,xaxis,pwv,vm, mymsmd,vis,asdm,antenna,timest
     midLatitudeSummer = 2
     midLatitudeWinter = 3
     numchan = len(freqs)
+    # Set the reference freq to be the middle of the middle two channels
     reffreq=0.5*(freqs[numchan/2-1]+freqs[numchan/2])
     originalnumchan = numchan
     while (numchan > MAX_ATM_CALC_CHANNELS):
@@ -5589,19 +5590,15 @@ def CalcAtmTransmission(chans,freqs,xaxis,pwv,vm, mymsmd,vis,asdm,antenna,timest
             TebbSky.append(myat.getTebbSky(nc=chan, spwid=0).value)
         TebbSky = np.array(TebbSky)
         # readback the values to be sure they got set
-        rf = myat.getRefFreq().value
-        cs = myat.getChanSep().value
+        #rf = myat.getRefFreq().value
+        #cs = myat.getChanSep().value
     else:   # casa >=4.0
         dry = np.array(myat.getDryOpacitySpec(0)[1])
         wet = np.array(myat.getWetOpacitySpec(0)[1]['value'])
         TebbSky = myat.getTebbSkySpec(spwid=0)[1]['value']
         # readback the values to be sure they got set
-        rf = myat.getRefFreq()['value']
-        cs = myat.getChanSep()['value']
-        if (myat.getRefFreq()['unit'] != 'GHz'):
-            print "There is a unit mismatch for refFreq in the code."
-        if (myat.getChanSep()['unit'] != 'MHz'):
-            print "There is a unit mismatch for chanSep in the code."
+        #rf = myqa.convert(myat.getRefFreq(),'GHz')['value']
+        #cs = myqa.convert(myat.getChanSep(),'GHz')['value']
 
     transmission = np.exp(-airmass*(wet+dry))
     TebbSky *= (1-np.exp(-airmass*(wet+dry)))/(1-np.exp(-wet-dry))
@@ -5619,8 +5616,6 @@ def CalcAtmTransmission(chans,freqs,xaxis,pwv,vm, mymsmd,vis,asdm,antenna,timest
 
     if (sense == 1):
         # The following looks right for LSB   sense=1
-#        freq = rf.value + cs.value*0.001*(0.5*n-1-np.array(range(n)))
-#        freq = rf + cs*0.001*(0.5*n-1-np.array(range(n)))
         if (xaxis.find('chan')>=0):
             trans = np.zeros(len(transmission))
             Tebb = np.zeros(len(TebbSky))
@@ -5629,22 +5624,26 @@ def CalcAtmTransmission(chans,freqs,xaxis,pwv,vm, mymsmd,vis,asdm,antenna,timest
                 Tebb[i] = TebbSky[len(TebbSky)-1-i]
             transmission = trans
             TebbSky = Tebb
-#    else:
-        # Using numchan can cause an inconsistency for small number of channels
-#        freq = rf.value+cs.value*0.001*(np.array(range(numchan))-0.5*numchan+1)
-        # The following looks right for USB  sense=2
-#        freq = rf+cs*0.001*(np.array(range(n))-0.5*n+1)
         
     # Be sure that number of frequencies matched number of transmission values - CAS-10123
     numchan = len(transmission)
-    chansep = cs*0.001
     chans = range(len(transmission))
-    if sense == 2:
-        freq = np.linspace(reffreq-numchan*chansep/2, reffreq+numchan*chansep/2, numchan) 
-    else:
-        freq = np.linspace(reffreq+numchan*chansep/2, reffreq-numchan*chansep/2, numchan) + chansep 
-    if cu.compare_version('>=',[5,0,0]):
-        freq += chansep*0.5
+    # Note that getChanFreq returns units of GHz, but use convert to be sure.
+    startFreq = myqa.convert(myat.getChanFreq(0),'GHz')['value']
+    endFreq = myqa.convert(myat.getChanFreq(numchan-1),'GHz')['value']
+    # print "startFreq=%f  endFreq=%f " % (startFreq, endFreq)
+    freq = np.linspace(startFreq, endFreq, numchan)
+# old method that fails on spws with an even number of channels, i.e. when the integer refchan 
+# is half a channel from the center of the span
+#    if sense == 2:
+#        freq = np.linspace(rf-((numchan-1)/2.)*chansepGHz, rf+((numchan-1)/2.)*chansepGHz, numchan) 
+#    else:
+#        freq = np.linspace(rf+((numchan-1)/2.)*chansepGHz, 
+#                           rf-((numchan-1)/2.)*chansepGHz, numchan)
+    # Therewas a 1-channel offset in CASA 5.0.x (CAS-10228), but it was fixed.
+#    if (cu.compare_version('<',[5,1,0])):  
+#        freq += chansepGHz
+
     if (verbose): print "Done CalcAtmTransmission"
     return(freq, chans, transmission, pwvmean, airmass, TebbSky, missingCalWVRErrorPrinted)
 
@@ -6746,17 +6745,11 @@ def getRADecForField(ms, myfieldId, debug):
     Returns RA,Dec in radians for the specified field in the specified ms.
     -- Todd Hunter
     """
-    mytb = createCasaTool(tbtool)
-    try:
-        mytb.open(ms+'/FIELD')
-    except:
-        print "Could not open FIELD table for ms=%s" % (ms)
-        return([0,0])
-    mydir = mytb.getcell('DELAY_DIR',myfieldId)
-#    if (mydir[0] < 0):
-#        mydir[0] += 2*math.pi
-#    mytb.close()
-    mytb.done()
+    myms = createCasaTool(mstool)
+    myms.open(ms)
+    myd = myms.getfielddirmeas('DELAY_DIR', fieldid=myfieldId)  # dircolname defaults to 'PHASE_DIR'
+    myms.close()
+    mydir = np.array([[myd['m0']['value']], [myd['m1']['value']]])  # simulates tb.getcell
     return(mydir)
 
 def findClosestTime(mytimes, mytime):
@@ -6872,9 +6865,9 @@ def getWeather(vis='', scan='', antenna='0',verbose=False, mymsmd=None):
     azeltime = subtable.getcol("TIME")
     subtable.close()
     telescopeName = mymsmd.observatorynames()[0]
-    if (len(direction) > 0 and telescopeName.find('VLA') < 0):
-      azimuth = direction[0][0]*180.0/math.pi
-      elevation = direction[1][0]*180.0/math.pi
+    if (len(direction) > 0 and telescopeName.find('VLA') < 0 and telescopeName.find('NRO') < 0):
+      azimuth = direction[0][0]*180.0/math.pi  # a list of values
+      elevation = direction[1][0]*180.0/math.pi # a list of values
       npat = np.array(azeltime)
       matches = np.where(npat>myTimes[0])[0]
       matches2 = np.where(npat<myTimes[-1])[0]
@@ -6910,7 +6903,7 @@ def getWeather(vis='', scan='', antenna='0',verbose=False, mymsmd=None):
       if (verbose):
           print "Average azimuth = %.2f, elevation = %.2f degrees" % (conditions['azimuth'],conditions['elevation'])
     else:
-      if (verbose): print "The POINTING table is blank."
+      if (verbose): print "The POINTING table is either blank or does not contain Azim/Elev."
       if (type(scan) == int or type(scan)==np.int32):
           # compute Az/El for this scan
         myfieldId = mymsmd.fieldsforscan(scan)
@@ -6986,6 +6979,10 @@ def getWeather(vis='', scan='', antenna='0',verbose=False, mymsmd=None):
           
               
     # now, get the weather
+    if not os.path.exists('%s/WEATHER' % vis):
+        print "There is no WEATHER table for this ms."
+        if (needToClose_mymsmd): mymsmd.close()
+        return([conditions,myTimes])
     try:
         mytb.open("%s/WEATHER" % vis)
     except:
@@ -7002,13 +6999,16 @@ def getWeather(vis='', scan='', antenna='0',verbose=False, mymsmd=None):
         if (np.mean(temperature) > 100):
             # must be in units of Kelvin, so convert to C
             temperature -= 273.15        
-        dewPoint = mytb.getcol('DEW_POINT')
-        if (np.mean(dewPoint) > 100):
-            # must be in units of Kelvin, so convert to C
-            dewPoint -= 273.15        
-        if (np.mean(dewPoint) == 0):
-            # assume it is not measured and use NOAA formula to compute from humidity:
-            dewPoint = ComputeDewPointCFromRHAndTempC(relativeHumidity, temperature)
+        if 'DEW_POINT' in mytb.colnames():
+            dewPoint = mytb.getcol('DEW_POINT')
+            if (np.mean(dewPoint) > 100):
+                # must be in units of Kelvin, so convert to C
+                dewPoint -= 273.15        
+            if (np.mean(dewPoint) == 0):
+                # assume it is not measured and use NOAA formula to compute from humidity:
+                dewPoint = ComputeDewPointCFromRHAndTempC(relativeHumidity, temperature)
+        else:
+            dewPoint = None  # Nobeyama measurement sets do not have a dewpoint column
         sinWindDirection = np.sin(mytb.getcol('WIND_DIRECTION'))
         cosWindDirection = np.cos(mytb.getcol('WIND_DIRECTION'))
         windSpeed = mytb.getcol('WIND_SPEED')
@@ -7019,7 +7019,8 @@ def getWeather(vis='', scan='', antenna='0',verbose=False, mymsmd=None):
         pressure = np.array(pressure)[indices]
         relativeHumidity = np.array(relativeHumidity)[indices]
         temperature = np.array(temperature)[indices]
-        dewPoint = np.array(dewPoint)[indices]
+        if dewPoint is not None:
+            dewPoint = np.array(dewPoint)[indices]
         windSpeed = np.array(windSpeed)[indices]
         sinWindDirection = np.array(sinWindDirection)[indices]
         cosWindDirection = np.array(cosWindDirection)[indices]
@@ -7076,7 +7077,8 @@ def getWeather(vis='', scan='', antenna='0',verbose=False, mymsmd=None):
                   print "matches[0]=%f, matches[-1]=%f, matches2[0]=%f, matches2[-1]=%d" % (matches[0], matches[-1], matches2[0], matches2[-1])
           conditions['temperature'] = np.mean(temperature[selectedValues])
           conditions['humidity'] = np.mean(relativeHumidity[selectedValues])
-          conditions['dewpoint'] = np.mean(dewPoint[selectedValues])
+          if dewPoint is not None:
+              conditions['dewpoint'] = np.mean(dewPoint[selectedValues])
           conditions['windspeed'] = np.mean(windSpeed[selectedValues])
           conditions['winddirection'] = (180./math.pi)*np.arctan2(np.mean(sinWindDirection[selectedValues]),np.mean(cosWindDirection[selectedValues]))
           if (conditions['winddirection'] < 0):
@@ -7085,7 +7087,8 @@ def getWeather(vis='', scan='', antenna='0',verbose=False, mymsmd=None):
               print "Mean weather values for scan %s (field %s)" % (listscan,listfield)
               print "  Pressure = %.2f mb" % (conditions['pressure'])
               print "  Temperature = %.2f C" % (conditions['temperature'])
-              print "  Dew point = %.2f C" % (conditions['dewpoint'])
+              if dewPoint is not None:
+                  print "  Dew point = %.2f C" % (conditions['dewpoint'])
               print "  Relative Humidity = %.2f %%" % (conditions['humidity'])
               print "  Wind speed = %.2f m/s" % (conditions['windspeed'])
               print "  Wind direction = %.2f deg" % (conditions['winddirection'])
@@ -7262,7 +7265,10 @@ def interpretLOs(vis, parentms='', showWVR=False,
         mymsmd.open(vis)
         needToClose = True
     if (spwsForIntent == None):
-        scienceSpws = np.setdiff1d(mymsmd.spwsforintent(intent),mymsmd.wvrspws())
+        if intent in mymsmd.intents(): # prevent a warning of OBSERVE_TARGET does not exist
+            scienceSpws = np.setdiff1d(mymsmd.spwsforintent(intent),mymsmd.wvrspws())
+        else:
+            scienceSpws = []
     else:
         scienceSpws = spwsForIntent
     birdieIF = 0

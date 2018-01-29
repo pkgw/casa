@@ -87,8 +87,6 @@ protected:
 
 private:
 
-    static const casacore::Double PHI;
-
     Quantity _xlen = Quantity(1, "pix");
     Quantity _ylen = Quantity(1, "pix");
 
@@ -102,10 +100,10 @@ private:
     casacore::StatisticsData::STATS _statType
         = casacore::StatisticsData::STDDEV;
     casacore::Bool _doMask = casacore::False;
-    casacore::Bool _doPhi = casacore::False;
+    casacore::Bool _doProbit = casacore::False;
 
     void _doInterpolation(
-        TempImage<Float>& output, TempImage<Float>& store,
+        /*TempImage<Float>& */ SPIIF output, TempImage<Float>& store,
         SPCIIF subImage, uInt nxpts, uInt nypts, Int xstart, Int ystart
     ) const;
 
@@ -113,6 +111,23 @@ private:
         TempImage<Float>& writeTo,
         SPCIIF subImage, uInt nxpts, uInt nypts,
         Int xstart, Int ystart
+    );
+
+    void _doStatsLoop(
+        casacore::TempImage<Float>& writeTo, casacore::RO_MaskedLatticeIterator<Float>& lattIter,
+        casacore::uInt nxpts, casacore::uInt nypts, casacore::Int xstart, casacore::Int ystart,
+        casacore::uInt xBlcOff, casacore::uInt yBlcOff, casacore::uInt xChunkSize,
+        casacore::uInt yChunkSize, const casacore::IPosition& imshape,
+        const casacore::IPosition& chunkShape,
+        SHARED_PTR<casacore::Array<casacore::Bool>> regionMask,
+        SHARED_PTR<
+            casacore::StatisticsAlgorithm<
+                casacore::Double, casacore::Array<casacore::Float>::const_iterator,
+                casacore::Array<casacore::Bool>::const_iterator,
+                casacore::Array<casacore::Float>::const_iterator
+            >
+        >& alg, const casacore::Array<casacore::Bool>& regMaskCopy,
+        const casacore::IPosition& loopAxes, casacore::uInt nPts
     );
 
     // start is the pixel offset in the result matrix relative the

@@ -1,4 +1,4 @@
-#import os
+import os
 import glob
 import sys
 import shutil
@@ -772,7 +772,8 @@ class sdbaseline_basicTest(sdbaseline_unittest_base):
         try:
             result = sdbaseline(infile=infile, outfile=outfile, overwrite=False, maskmode=mode)
         except Exception, e:
-            pos = str(e).find(outfile+' exists.')
+            #pos = str(e).find(outfile+' exists.')
+            pos = str(e).find("outfile='" + outfile + "' exists, and cannot overwrite it.")
             self.assertNotEqual(pos, -1, msg='Unexpected exception was thrown: %s'%(str(e)))
         finally:
             shutil.rmtree(outfile)
@@ -4604,7 +4605,7 @@ class sdbaseline_selection(unittest.TestCase):
     common_param = dict(infile=infile, outfile=outfile,
                         maskmode='list', blmode='fit', dosubtract=True,
                         blfunc='poly', order=1)
-    selections=dict(intent=("CALIBRATE_ATMOSPHERE#*", [1]),
+    selections=dict(intent=("CALIBRATE_ATMOSPHERE#OFF*", [1]),
                     antenna=("DA99", [1]),
                     field=("M1*", [0]),
                     spw=(">6", [1]),
@@ -4676,15 +4677,15 @@ class sdbaseline_selection(unittest.TestCase):
                     ("%s:%s" % (spwids[irow], self.chan_mask[datacolumn][irow]))
             return spwstr
     
-    def run_test(self, sel_param, datacolumn):
+    def run_test(self, sel_param, datacolumn, reindex=True):
         inparams = self._get_selection_string(sel_param)
         inparams['spw'] = self._format_spw_mask(datacolumn, sel_param)
         inparams.update(self.common_param)
         print("task param: %s" % str(inparams))
-        sdbaseline(datacolumn=datacolumn, **inparams)
+        sdbaseline(datacolumn=datacolumn, reindex=reindex, **inparams)
         self._test_result(inparams["outfile"], sel_param, datacolumn)
         
-    def _test_result(self, msname, sel_param, dcol, atol=1.e-5, rtol=1.e-5):
+    def _test_result(self, msname, sel_param, dcol, atol=1.e-5, rtol=1.e-5, applymode=False):
         # Make sure output MS exists
         self.assertTrue(os.path.exists(msname), "Could not find output MS")
         # Compare output MS with reference (nrow, npol, and spectral values)
@@ -4696,9 +4697,14 @@ class sdbaseline_selection(unittest.TestCase):
             testcolumn = "DATA"
         tb.open(msname)
         try:
-            self.assertEqual(tb.nrows(), len(rowids), "Row number is wrong %d (expected: %d)" % (tb.nrows(), len(rowids)))
+            if not applymode: # normal fit
+                self.assertEqual(tb.nrows(), len(rowids), "Row number is wrong %d (expected: %d)" % (tb.nrows(), len(rowids)))
+            else: # in case of apply, rownumber does not change from input MS
+                self.assertGreaterEqual(tb.nrows(), numpy.array(rowids).max(),
+                                        'Reference row number is larger than table size.')
             for out_row in range(len(rowids)):
                 in_row = rowids[out_row]
+                if applymode: out_row = in_row
                 sp = tb.getcell(testcolumn, out_row)
                 if not poltest:
                     self.assertEqual(sp.shape[0], len(polids), "Number of pol is wrong in row=%d:  %d (expected: %d)" % (out_row,len(polids),sp.shape[0]))
@@ -4713,6 +4719,22 @@ class sdbaseline_selection(unittest.TestCase):
         finally:
             tb.close()
         
+    def run_test_apply(self, sel_param, datacolumn, reindex=True):
+        """BL table generation + application"""
+        inparams = self._get_selection_string(sel_param)
+        inparams['spw'] = self._format_spw_mask(datacolumn, sel_param)
+        inparams.update(self.common_param)
+        outms = inparams['outfile']
+        bltable = outms+'.bl.cal'
+        print('generate BL table')
+        inparams.update(dict(dosubtract=False, blformat='table', bloutput=bltable, outfile=''))
+        sdbaseline(datacolumn=datacolumn, reindex=reindex, **inparams)
+        self.assertTrue(os.path.exists(bltable), 'Failed to generate BL caltable')
+        self.assertFalse(os.path.exists(outms), 'Output MS should not be generated yet.')
+        print('apply BL table')
+        sdbaseline(datacolumn=datacolumn, reindex=reindex, infile=inparams['infile'],
+                    outfile=outms, blmode='apply', bltable=bltable)
+        self._test_result(outms, sel_param, datacolumn, applymode=True)
 
     def testIntentF(self):
         """Test selection by intent (float_data)"""
@@ -4769,6 +4791,43 @@ class sdbaseline_selection(unittest.TestCase):
     def testPolC(self):
         """Test selection by pol (corrected)"""
         self.run_test("pol", "corrected")
+
+    def testReindexSpw(self):
+        """Test reindex =T/F in spw selection"""
+        outfile = self.common_param['outfile']
+        for datacol in ['float_data', 'corrected']:
+            print("Test: %s" % datacol.upper())
+            for (reindex, ddid, spid) in zip([True, False], [0, 1], [0,7]):
+                print("- reindex=%s" % str(reindex))
+                self.run_test("spw", datacol, reindex=reindex)
+                tb.open(outfile)
+                try:
+                    self.assertEqual(ddid, tb.getcell('DATA_DESC_ID', 0),
+                                     "comparison of DATA_DESCRIPTION_ID failed.")
+                finally: tb.close()
+                tb.open(outfile+'/DATA_DESCRIPTION')
+                try:
+                    self.assertEqual(spid, tb.getcell('SPECTRAL_WINDOW_ID', ddid),
+                                     "comparison of SPW_ID failed.")
+                finally: tb.close()
+                shutil.rmtree(outfile)
+                os.remove('%s_blparam.txt' % self.common_param['infile'])
+
+    def testReindexIntent(self):
+        """Test reindex =T/F in intent selection"""
+        outfile = self.common_param['outfile']
+        for datacol in ['float_data', 'corrected']:
+            print("Test: %s" % datacol.upper())
+            for (reindex, idx) in zip([True, False], [0, 4]):
+                print("- reindex=%s" % str(reindex))
+                self.run_test("intent", datacol, reindex=reindex)
+                tb.open(outfile)
+                try:
+                    self.assertEqual(idx, tb.getcell('STATE_ID', 0),
+                                     "comparison of state_id failed.")
+                finally: tb.close()
+                shutil.rmtree(outfile)
+                os.remove('%s_blparam.txt' % self.common_param['infile'])
 
 def suite():
     return [sdbaseline_basicTest, 

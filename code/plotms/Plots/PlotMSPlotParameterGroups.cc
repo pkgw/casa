@@ -28,6 +28,8 @@
 
 #include <plotms/PlotMS/PlotMSLabelFormat.h>
 
+#include <casacore/casa/Exceptions/Error.h>
+
 using namespace casacore;
 namespace casa
 {
@@ -60,6 +62,10 @@ const String PMS_PP::UPDATE_DISPLAY_NAME = "DISPLAY";
 const int PMS_PP::UPDATE_DISPLAY =
 		PlotMSWatchedParameters::REGISTER_UPDATE_FLAG(UPDATE_DISPLAY_NAME);
 
+const String PMS_PP::UPDATE_PAGEHEADER_NAME = "PAGEHEADER";
+const int PMS_PP::UPDATE_PAGEHEADER =
+		PlotMSWatchedParameters::REGISTER_UPDATE_FLAG(UPDATE_PAGEHEADER_NAME);
+
 const String PMS_PP::UPDATE_ITERATION_NAME = "ITERATION";
 const int PMS_PP::UPDATE_ITERATION =
 		PlotMSWatchedParameters::REGISTER_UPDATE_FLAG(UPDATE_ITERATION_NAME);
@@ -82,6 +88,7 @@ const int PMS_PP::UPDATE_PLOTMS_OPTIONS =
 
 // PMS_PP_MSData record keys.
 const String PMS_PP_MSData::REC_FILENAME = "filename";
+const String PMS_PP_MSData::REC_TYPE = "type";
 const String PMS_PP_MSData::REC_SELECTION = "selection";
 const String PMS_PP_MSData::REC_AVERAGING = "averaging";
 const String PMS_PP_MSData::REC_TRANSFORMATIONS = "transformations";
@@ -113,6 +120,7 @@ Record PMS_PP_MSData::toRecord() const
 {
 	Record rec;
 	rec.define(REC_FILENAME, itsFilename_);
+	rec.define(REC_TYPE, itsType_);
 	rec.defineRecord(REC_SELECTION, itsSelection_.toRecord());
 	rec.defineRecord(REC_AVERAGING, itsAveraging_.toRecord());
 	rec.defineRecord(REC_TRANSFORMATIONS, itsTransformations_.toRecord());
@@ -127,6 +135,11 @@ void PMS_PP_MSData::fromRecord(const Record& record)
 	if (record.isDefined(REC_FILENAME) && record.dataType(REC_FILENAME) == TpString && itsFilename_ != record.asString(REC_FILENAME))
 	{
 		itsFilename_ = record.asString(REC_FILENAME);
+		valuesChanged = true;
+	}
+	if (record.isDefined(REC_TYPE) && record.dataType(REC_TYPE) == TpInt && itsType_ != record.asInt(REC_TYPE))
+	{
+		itsType_ = record.asInt(REC_TYPE);
 		valuesChanged = true;
 	}
 	if (record.isDefined(REC_SELECTION) && record.dataType(REC_SELECTION) == TpRecord)
@@ -186,6 +199,7 @@ PMS_PP_MSData& PMS_PP_MSData::assign(const PMS_PP_MSData* o){
 	if (o != NULL && *this != *o)
 	{
 		itsFilename_ = o->itsFilename_;
+		itsType_ = o->itsType_;
 		itsSelection_ = o->itsSelection_;
 		itsAveraging_ = o->itsAveraging_;
 		itsTransformations_ = o->itsTransformations_;
@@ -201,6 +215,7 @@ bool PMS_PP_MSData::operator==(const Group& other) const
 	const PMS_PP_MSData* o = dynamic_cast<const PMS_PP_MSData*>(&other);
 	if (o == NULL) return false;
 	if (itsFilename_ != o->itsFilename_) return false;
+	if (itsType_ != o->itsType_) return false;
 	if (itsSelection_ != o->itsSelection_) return false;
 	if (itsAveraging_ != o->itsAveraging_) return false;
 	if (itsTransformations_ != o->itsTransformations_) return false;
@@ -213,6 +228,7 @@ bool PMS_PP_MSData::operator==(const Group& other) const
 void PMS_PP_MSData::setDefaults()
 {
 	itsFilename_ = "";
+    itsType_ = 0; // MS
 	itsSelection_ = PlotMSSelection();
 	itsAveraging_ = PlotMSAveraging();
 	itsTransformations_ = PlotMSTransformations();
@@ -1461,6 +1477,66 @@ void PMS_PP_Display::resizeVectors(unsigned int newSize)
 	}
 }
 
+
+////////////////////////////////////
+// PMS_PP_PAGE_HEADER DEFINITIONS //
+////////////////////////////////////
+
+// PMS_PP_PageHeader record keys.
+const String PMS_PP_PageHeader::REC_ITEMS = "items";
+
+PMS_PP_PageHeader::PMS_PP_PageHeader(PlotFactoryPtr factory) : PlotMSPlotParameters::Group(factory)
+{
+	setDefaults();
+}
+
+PMS_PP_PageHeader::PMS_PP_PageHeader(const PMS_PP_PageHeader& copy) : PlotMSPlotParameters::Group(copy)
+{
+	setDefaults();
+	operator=(copy);
+}
+
+PMS_PP_PageHeader::~PMS_PP_PageHeader() { }
+
+void PMS_PP_PageHeader::setDefaults()
+{
+	itsPageHeaderItems_ = PageHeaderItems();
+}
+
+Record PMS_PP_PageHeader::toRecord() const {
+	Record rec;
+	rec.define(REC_ITEMS, PMS::toIntVector<PageHeaderItemsDef::Item>(itsPageHeaderItems_.items()));
+	return rec;
+}
+
+PMS_PP_PageHeader& PMS_PP_PageHeader::operator=(const PMS_PP_PageHeader& other){
+	return assign(&other);
+}
+
+PMS_PP_PageHeader& PMS_PP_PageHeader::operator=(const Group& other){
+	const PMS_PP_PageHeader* o = dynamic_cast<const PMS_PP_PageHeader*>(&other);
+	return assign( o );
+}
+
+PMS_PP_PageHeader& PMS_PP_PageHeader::assign( const PMS_PP_PageHeader* o ){
+	if (o != NULL && *this != *o){
+		itsPageHeaderItems_ = o->pageHeaderItems();
+		updated();
+	}
+	return *this;
+}
+
+bool PMS_PP_PageHeader::operator==(const Group& other) const {
+	const PMS_PP_PageHeader* o = dynamic_cast<const PMS_PP_PageHeader*>(&other);
+	if (o == NULL) return false;
+	if ( itsPageHeaderItems_ != o->itsPageHeaderItems_) return false;
+
+	return true;
+}
+
+void PMS_PP_PageHeader::fromRecord (const casacore::Record & /*record*/) {
+	throw AipsError("PMS_PP_PageHeader::fromRecord: not implemented");
+}
 
 //////////////////////////////////
 // PMS_PP_ITERATION DEFINITIONS //

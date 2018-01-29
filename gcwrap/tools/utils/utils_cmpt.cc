@@ -3,11 +3,11 @@
  * Framework independent implementation file for utils...
  *
  * Implement the utils component here.
- * 
- * // TODO: WRITE YOUR DESCRIPTION HERE! 
+ *
+ * // TODO: WRITE YOUR DESCRIPTION HERE!
  *
  * @author
- * @version 
+ * @version
  ***/
 
 #include <iostream>
@@ -27,11 +27,15 @@
 #ifndef NO_CRASH_REPORTER
 #include <stdcasa/StdCasa/CrashReporter.h>
 #endif
+#include <sys/stat.h>
+#include <stdlib.h>
 #include <signal.h>
 #include <string>
 #include <vector>
+#include <list>
 #include <cstdlib>
-
+#include <casacore/casa/System/AppState.h>
+#include <casacore/casa/Quanta/UnitMap.h>
 
 using namespace std;
 using namespace casacore;
@@ -39,6 +43,53 @@ using namespace casa;
 
 using namespace casacore;
 namespace casac {
+
+class CasacState: public casacore::AppState {
+public:
+
+    CasacState( ) { }
+
+    void operator=(const std::vector<std::string> &new_list) {
+        std::list<std::string> existing_paths;
+        struct stat s;
+
+        // always clear the existing path
+        data_path.clear( );
+
+        // accept only strings that are the path to a directory
+        std::copy_if( new_list.begin( ), new_list.end( ), std::back_inserter(existing_paths),
+                      [&s]( std::string d ) {
+                          return (stat(d.c_str( ),&s) == 0)  && (s.st_mode & S_IFDIR);
+                      } );
+
+        // convert the paths to fully qualified paths
+        char buffer[PATH_MAX+1];
+        std::transform( existing_paths.begin( ), existing_paths.end( ),
+                        std::back_inserter( data_path ),
+                        [&buffer]( const std::string &f ) {
+                            char *expanded = realpath(f.c_str( ), buffer);
+                            return expanded ? std::string(expanded) : std::string( );
+                        } );
+    }
+
+    void clear( ) { data_path.clear( ); }
+
+    virtual std::list<std::string> dataPath( ) const {
+        return data_path;
+    }
+
+    virtual bool initialized( ) const { return true; }
+
+private:
+    std::list<std::string> data_path;
+
+};
+
+static CasacState &get_casac_state( ) {
+    if ( AppStateSource::fetch( ).initialized( ) == false )
+        casacore::AppStateSource::initialize( new CasacState );
+    return dynamic_cast<CasacState&>(AppStateSource::fetch( ));
+}
 
 utils::utils()
 {
@@ -321,7 +372,7 @@ typedef int SIZETCAST;
     result->insert( "pid", HostInfo::processID( ) );
 
     result->insert( "seconds", HostInfo::secondsFrom1970( ) );
-    
+
     return result;
 }
 
@@ -361,7 +412,7 @@ utils::_crash_reporter_initialize (const string & crashDirectory,
 
     return status;
 #else
-    return "";
+    return "no-op";
 #endif
 }
 
@@ -391,6 +442,47 @@ utils::_trigger_segfault (int faultType)
     return false;
 }
 
+// ------------------------------------------------------------
+// -------------------- initialize CASAtools ------------------
+
+static std::vector<std::string> default_data_path;
+bool utils::initialize(const std::vector<std::string> &default_path) {
+    static bool initialized = false;
+    if ( initialized ) return false;
+    default_data_path = default_path;
+    get_casac_state( ) = default_data_path;
+    // configure quanta/measures customizations...
+    UnitMap::putUser( "pix", UnitVal(1.0), "pixel units" );
+    initialized = true;
+    return true;
+}
+
+// ------------------------------------------------------------
+// -------------------- handling data path --------------------
+std::vector<std::string> utils::defaultpath( ) {
+    return default_data_path;
+}
+
+bool utils::setpath(const std::vector<std::string> &dirs) {
+    get_casac_state( ) = dirs;
+    return get_casac_state( ).dataPath( ).size( ) == dirs.size( );
+}
+
+std::vector<std::string> utils::getpath( ) {
+    std::vector<std::string> result;
+    const std::list<std::string> &path = get_casac_state( ).dataPath( );
+    std::copy( path.begin( ), path.end( ), std::back_inserter(result) );
+    return result;
+}
+
+void utils::clearpath( ) {
+    get_casac_state( ).clear( );
+}
+
+std::string utils::resolve(const std::string &subdir) {
+    return get_casac_state( ).resolve(subdir);
+}
+// ------------------------------------------------------------
 
 std::vector<int>
 utils::version( ) {
@@ -408,6 +500,9 @@ utils::version_desc( ) { return VersionInfo::desc( ); }
 
 std::string
 utils::version_info( ) { return VersionInfo::info( ); }
+
+std::string
+utils::version_string( ) { return VersionInfo::str( ); }
 
 bool
  utils::compare_version(const  string& comparitor,  const std::vector<int>& vec) {
@@ -460,4 +555,3 @@ bool
 }
 
 } // casac namespace
-

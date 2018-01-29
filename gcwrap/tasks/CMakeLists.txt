@@ -1,4 +1,5 @@
 casa_add_tasks( tools  casa_tasks 
+accor.xml
 accum.xml
 applycal.xml
 asdmsummary.xml
@@ -92,34 +93,17 @@ partition.xml
 polcal.xml
 predictcomp.xml
 impv.xml
+rerefant.xml
 rmfit.xml
 rmtables.xml
 sdbaseline.xml
 sdcal.xml
 sdfit.xml
+sdfixscan.xml
 sdgaincal.xml
 sdimaging.xml
-sdimprocess.xml
+tsdimaging.xml
 sdsmooth.xml
-### ASAP tasks ###
-sdaverageold.xml
-sdbaselineold.xml
-sdbaseline2old.xml
-sdcalold.xml
-sdcal2old.xml
-sdcoaddold.xml
-sdfitold.xml
-sdflagold.xml
-sdflagmanagerold.xml
-sdgridold.xml
-sdlistold.xml
-sdmathold.xml
-sdplotold.xml
-sdreduceold.xml
-sdsaveold.xml
-sdscaleold.xml
-sdstatold.xml
-###
 setjy.xml
 ssoflux.xml
 simalma.xml
@@ -147,6 +131,7 @@ viewer.xml
 wvrgcal.xml
 virtualconcat.xml
 vishead.xml
+visstatold.xml
 visstat.xml
 visstat2.xml
 widebandpbcor.xml

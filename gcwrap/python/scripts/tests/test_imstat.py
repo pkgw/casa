@@ -710,5 +710,27 @@ class imstat_test(unittest.TestCase):
         self.assertTrue((stats['trc'] == [500, 500,   0, 250]).all())
         self.assertEqual(stats['trcf'], '09:49:33.210, +30.24.14.357, I, 2.520099e+11Hz')
 
+    def test_internal_region_exclusion(self):
+        """Verify data not returned for internally excluded regions"""
+        myia = iatool()
+        imagename = "internally_excluded_region.im"
+        myia.fromshape(imagename, [100, 200, 110, 4])
+        myia.addnoise()
+        myia.done()
+        zz = imstat(imagename, axes=[0, 1], chans="10~20;60~90", stokes="IV")
+        print "shape", zz['npts'].shape
+        self.assertTrue((zz['npts'].shape == (42, 2)))
+        self.assertTrue(numpy.min(zz['npts']) > 0)
+
+    def test_CAS_10906(self):
+        """Test fix to CAS-10906, accouting issue when computing median"""
+        myia = iatool()
+        imagename = self.datapath + "CAS-10906.im"
+        print imagename
+        myia.open(imagename)
+        # running successfully verifies that the issue has been resolved
+        self.assertTrue(myia.statistics(robust=True))
+        myia.done()
+
 def suite():
     return [imstat_test]

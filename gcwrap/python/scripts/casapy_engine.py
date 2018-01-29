@@ -34,7 +34,6 @@ except ImportError, e:
     sys.exit(1)
     
     
-from asap_init import *
 
 
 import casadef

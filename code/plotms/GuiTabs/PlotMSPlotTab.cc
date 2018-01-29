@@ -84,7 +84,9 @@ PlotMSPlotTab::PlotMSPlotTab(PlotMSPlotter* parent, int plotIndex) :  PlotMSTab(
 
 void PlotMSPlotTab::removePlot(){
 	closing = true;
+	// deletes plot and its params
 	itsPlotManager_.removePlot( itsCurrentPlot_ );
+	itsCurrentPlot_ = NULL;
 }
 
 bool PlotMSPlotTab::setGridSize( int rowCount, int colCount ){
@@ -150,7 +152,6 @@ void PlotMSPlotTab::parametersHaveChanged(const PlotMSWatchedParameters& p,
 
 void PlotMSPlotTab::plotsChanged(const PlotMSPlotManager& manager,
 		int index, bool show) {
-
 	int plotCount = manager.numPlots();
     if( plotCount == 0 ) {
         itsCurrentPlot_ = NULL;
@@ -245,17 +246,10 @@ bool PlotMSPlotTab::plot( bool forceReload ) {
     if(itsCurrentParameters_ != NULL) {
 
         PlotMSPlotParameters params = currentlySetParameters();
-	/*
         PMS_PP_MSData* d = params.typedGroup<PMS_PP_MSData>(),
                      *cd = itsCurrentParameters_->typedGroup<PMS_PP_MSData>();
         PMS_PP_Cache* c = params.typedGroup<PMS_PP_Cache>(),
                     *cc = itsCurrentParameters_->typedGroup<PMS_PP_Cache>();
-	*/
-        PMS_PP_MSData* d = params.typedGroup<PMS_PP_MSData>();
-        PMS_PP_Cache* c = params.typedGroup<PMS_PP_Cache>();
-
-        PMS_PP_MSData* cd = itsCurrentParameters_->typedGroup<PMS_PP_MSData>();
-        PMS_PP_Cache*cc = itsCurrentParameters_->typedGroup<PMS_PP_Cache>();
 
         // Redo the plot if any of:
         //   1) Parameters have changed, 
@@ -263,19 +257,23 @@ bool PlotMSPlotTab::plot( bool forceReload ) {
         //   3) User was holding down the shift key
         //       Case #3 works by changing dummyChangeCount to 
         //       imitate case #1.
-        //	 4) User has changed check box indicating we have changed from non-plotting to plotting.
+        //	 4) User has changed check box indicating we have changed from 
+		//	 	 non-plotting to plotting.
 		//
-		// note as of Aug 2010: .cacheReady() seems to return false even if cache was cancelled.
-        bool paramsChanged = params != *itsCurrentParameters_;
+		// note as of Aug 2010: .cacheReady() seems to return false even 
+		// if cache was cancelled.
+
+		// check if current params ptr changed or contents of params changed
+        bool paramsChanged = (&params != itsCurrentParameters_);
         bool cancelledCache = !itsCurrentPlot_->cache().cacheReady();
         if (forceReload)    {
 			forceReloadCounter_++;   
 			paramsChanged=true;   // just to make sure we're noticed
 		}
 		
-		// whether forced reload or not, must make sure PlotMSSelection in params
-		// has some value set.   Otherwise, we might always get a "no match" 
-		// and reload and therefore a bored user waiting.
+		// whether forced reload or not, must make sure PlotMSSelection in 
+		// params has some value set.   Otherwise, we might always get a "no
+		// match" and reload and therefore a bored user waiting.
 		// Must remove constness of the reference returned by d->selection()
 		PlotMSSelection &sel = (PlotMSSelection &)d->selection();
 		sel.setForceNew(forceReloadCounter_);
@@ -283,9 +281,10 @@ bool PlotMSPlotTab::plot( bool forceReload ) {
             if (paramsChanged) {
                 // check for "clear selections on axes change" setting
                 if(itsParent_->getParameters().clearSelectionsOnAxesChange() &&
-                       ((c != NULL && cc != NULL && (c->xAxis() != cc->xAxis() ||
-                         c->yAxis() != cc->yAxis())) || (d != NULL && cd != NULL &&
-                         d->filename() != cd->filename())))    {
+                       ((c!= NULL&& cc!=NULL && 
+						(c->xAxis()!=cc->xAxis() || c->yAxis()!=cc->yAxis())) || 
+						(d!=NULL && cd!=NULL &&
+                         d->filename()!=cd->filename()))) {
                     vector<PlotCanvasPtr> canv = itsCurrentPlot_->canvases();
                     for(unsigned int i = 0; i < canv.size(); i++){
                     	if ( !canv[i].null() ){
@@ -301,6 +300,10 @@ bool PlotMSPlotTab::plot( bool forceReload ) {
                 plotCompleted = !itsCurrentPlot_->isCacheUpdating();
                 if ( plotCompleted ){
                 	completePlotting( true );
+                	// Quick & dirty (?) fix for GUI bug:
+                	// state of parameters is not reset when plotting
+                	// does not trigger a cache reload
+                	plotsChanged(itsPlotManager_);
                 }
                 return plotCompleted;
             }

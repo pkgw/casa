@@ -100,6 +100,7 @@ SolvableVisCal::SolvableVisCal(VisSet& vs) :
   tInterpType_(""),
   fInterpType_(""),
   spwMap_(1,-1),
+  refantmode_("flex"),
   urefantlist_(1,-1),
   minblperant_(4),
   solved_(false),
@@ -167,6 +168,7 @@ SolvableVisCal::SolvableVisCal(String msname,Int MSnAnt,Int MSnSpw) :
   tInterpType_(""),
   fInterpType_(""),
   spwMap_(1,-1),
+  refantmode_("flex"),
   urefantlist_(1,-1),
   minblperant_(4),
   solved_(false),
@@ -236,6 +238,7 @@ SolvableVisCal::SolvableVisCal(const MSMetaInfoForCal& msmc) :
   tInterpType_(""),
   fInterpType_(""),
   spwMap_(1,-1),
+  refantmode_("flex"),
   urefantlist_(1,-1),
   minblperant_(4),
   solved_(False),
@@ -301,6 +304,7 @@ SolvableVisCal::SolvableVisCal(const Int& nAnt) :
   tInterpType_(""),
   fInterpType_(""),
   spwMap_(1,-1),
+  refantmode_("flex"),
   urefantlist_(1,-1),
   minblperant_(4),
   solved_(false),
@@ -491,7 +495,7 @@ void SolvableVisCal::setApply(const Record& apply) {
 
   // Make the interpolation engine
   MeasurementSet ms(msName());
-  ci_ = new CTPatchedInterp(*ct_,matrixType(),nPar(),tInterpType(),fInterpType(),fieldtype,ms,spwMap());
+  ci_ = new CTPatchedInterp(*ct_,matrixType(),nPar(),tInterpType(),fInterpType(),fieldtype,ms,spwMap(),cttifactoryptr());
 
   // Channel counting info 
   //  (soon will deprecate, I think, because there will be no need
@@ -536,7 +540,7 @@ void SolvableVisCal::setCallib(const Record& callib,
 	    << LogIO::POST;
 
   // Make the interpolation engine
-  cpp_ = new CLPatchPanel(calTableName(),selms,callib,matrixType(),nPar());
+  cpp_ = new CLPatchPanel(calTableName(),selms,callib,matrixType(),nPar(),cttifactoryptr());
 
   //  cpp_->listmappings();
 
@@ -1013,7 +1017,7 @@ void SolvableVisCal::setSimulate(VisSet& vs, Record& simpar, Vector<Double>& sol
       delete ci_;
 
     MeasurementSet ms(msName());
-    ci_=new CTPatchedInterp(*ct_,matrixType(),nPar(),tInterpType(),"linear","",ms,spwMap());
+    ci_=new CTPatchedInterp(*ct_,matrixType(),nPar(),tInterpType(),"linear","",ms,spwMap(),cttifactoryptr());
 
   }
 
@@ -1199,6 +1203,9 @@ void SolvableVisCal::setSolve(const Record& solve)
   if (solve.isDefined("preavg"))
     preavg()=solve.asFloat("preavg");
 
+  if (solve.isDefined("refantmode")) {
+    refantmode_=solve.asString("refantmode");
+  }
   if (solve.isDefined("refant")) {
     refantlist().resize();
     refantlist()=solve.asArrayInt("refant");
@@ -1262,6 +1269,7 @@ String SolvableVisCal::solveinfo() {
     << (freqDepPar() ? (","+fsolint()) : "")
     //    << " t="          << interval()
     //    << " preavg="     << preavg()
+    << " refantmode="     << "'" << refantmode_ << "'"
     << " refant="     << "'" << refantNames << "'" // (id=" << refant() << ")"
     << " minsnr=" << minSNR()
     << " apmode="  << apmode()
@@ -2257,6 +2265,12 @@ void SolvableVisCal::reParseSolintForVI2() {
   else
     // interpret as only time-dep solint
     solint()=usolint_;
+
+  // solint is always "int" for single dish calibration
+  if (longTypeName().startsWith("SDGAIN_OTFD")) {
+    //return;
+    solint() = "int";
+  }
 
   // Handle solint format
   if (upcase(solint()).contains("INF") || solint()=="") {
@@ -3648,9 +3662,17 @@ void SolvableVisCal::createMemCalTable() {
 
   // Set up description
   String partype = ((parType()==VisCalEnum::COMPLEX) ? "Complex" : "Float");
-  CTDesc caltabdesc(partype,Path(msName()).baseName(),typeName(),"unknown");
-  ct_ = new NewCalTable("tempNCT.tab",caltabdesc,Table::Scratch,Table::Memory);
-  ct_->setMetaInfo(msName());
+
+  if (msName()!="<noms>") {
+    CTDesc caltabdesc(partype,Path(msName()).baseName(),typeName(),"unknown");
+    ct_ = new NewCalTable("tempNCT.tab",caltabdesc,Table::Scratch,Table::Memory)
+;
+    ct_->setMetaInfo(msName());
+  }
+  else {
+    ct_ = new NewCalTable("tempNCT.tab",partype,typeName(),msmc().ssp(),
+			  false,true);
+  }
 
   CTColumns ncc(*ct_);
 
@@ -4111,6 +4133,7 @@ void SolvableVisCal::stateSVC(const Bool& doVC) {
   cout << "  tInterpType() = " << tInterpType() << endl;
   cout << "  fInterpType() = " << fInterpType() << endl;
   cout << "  spwMap() = " << spwMap() << endl;
+  cout << "  refantmode() = " << refantmode() << endl;
   cout << "  refant() = " << refant() << endl;
   cout << "  refantlist() = " << refantlist() << endl;
   
@@ -4238,7 +4261,8 @@ void SolvableVisCal::verifyCalTable(const String& caltablename) {
   if (calType!=typeName()) {
     ostringstream o;
     o << "Table " << caltablename 
-      << " has wrong Calibration type: " << calType;
+      << " has wrong Calibration type: " << calType
+      << " (expected: " << typeName() << ")";
     throw(AipsError(String(o)));
   }
 }
@@ -5771,7 +5795,12 @@ void SolvableVisJones::applyRefAnt() {
   }
 
   logSink() << "Applying refant: " << refantName
-	    << LogIO::POST;
+	    << " refantmode = " << refantmode();
+  if (refantmode()=="flex")
+    logSink() << " (hold alternate refants' phase constant) when refant flagged";
+  if (refantmode()=="strict")
+    logSink() << " (flag all antennas when refant flagged)";
+  logSink() << LogIO::POST;
 
   // Generate a prioritized refant choice list
   //  The first entry in this list is the user's primary refant,
@@ -5830,6 +5859,12 @@ void SolvableVisJones::applyRefAnt() {
       refantlist()(IPosition(1,1),IPosition(1,nUserRefant-1));
 
   //cout << "refantchoices = " << refantchoices << endl;
+
+
+  if (refantmode()=="strict") {
+    nchoices=1;
+    refantchoices.resize(1,True);
+  }
 
   Vector<Int> nPol(nSpw(),nPar());  // TBD:or 1, if data was single pol
 
@@ -5938,7 +5973,7 @@ void SolvableVisJones::applyRefAnt() {
       // at this point, irefA/irefB point to a good refant
       
       // Keep track
-      usedaltrefant=(ichoice>0);
+      usedaltrefant|=(ichoice>0);
       currrefant=refantchoices(ichoice);
       refantchoices(1)=currrefant;  // 2nd priorty next time
 
@@ -6068,6 +6103,21 @@ void SolvableVisJones::applyRefAnt() {
       first=false;  // avoid first-pass stuff from now on
       
     } // found
+    else {
+      logSink() 
+	<< "At " 
+	<< MVTime(ctiter.thisTime()/C::day).string(MVTime::YMD,7) 
+	<< " ("
+	<< "Spw=" << ctiter.thisSpw()
+	<< ", Fld=" << ctiter.thisField()
+	<< ")"
+	<< ", refant (id=" << currrefant 
+	<< ") was flagged; flagging all antennas strictly." 
+	<< LogIO::POST;
+      // Flag all solutions in this interval
+      flB.set(True);
+      ctiter.setflag(flB);
+    }
 
     // advance to the next interval
     lastspw=ispw;
@@ -6174,9 +6224,23 @@ void SolvableVisJones::fluxscale(const String& outfile,
 
     // sort user-specified fields
     Vector<Int> refField; refField = refFieldIn;
-    Vector<Int> tranField; tranField = tranFieldIn;
     Int nRef,nTran;
     nRef=genSort(refField,Sort::Ascending,(Sort::QuickSort | Sort::NoDuplicates));
+    // temp copy of tranFieldIn
+    std::vector<Int> tmpTranField;
+    tranFieldIn.tovector(tmpTranField);
+    for (Int iRef=0; iRef<nRef; iRef++) {
+        auto iidx = std::find(tmpTranField.begin(),tmpTranField.end(),refField(iRef));
+        if (iidx != tmpTranField.end()) { 
+          logSink() << "The reference field, "<<fldNames(*iidx)
+                    << " , is also listed in the transfer fields. "
+                    <<" It will be ignored for further scaling process."
+	             << LogIO::POST;
+          tmpTranField.erase(iidx);
+        }
+    }
+    //Vector<Int> tranField; tranField = tranFieldIn;
+    Vector<Int> tranField(tmpTranField);
     nTran=genSort(tranField,Sort::Ascending,(Sort::QuickSort | Sort::NoDuplicates));
 
     // make masks for ref/tran among available fields

@@ -1699,7 +1699,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     }
     else if ( ftname == "mosaic" || ftname== "mosft" || ftname == "mosaicft" || ftname== "MosaicFT"){
 
-      createMosFTMachine(theFT, theIFT, padding, useAutocorr, useDoublePrec, rotatePAStep, stokes);
+      createMosFTMachine(theFT, theIFT, padding, useAutocorr, useDoublePrec, rotatePAStep, stokes, conjBeams);
     }
     else
       {
@@ -1977,7 +1977,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }// get VPRecord
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  void SynthesisImager:: createMosFTMachine(CountedPtr<FTMachine>& theFT,CountedPtr<FTMachine>&  theIFT, const Float /*padding*/, const Bool useAutoCorr, const Bool useDoublePrec, const Float rotatePAStep, const String stokes){
+  void SynthesisImager:: createMosFTMachine(CountedPtr<FTMachine>& theFT,CountedPtr<FTMachine>&  theIFT, const Float /*padding*/, const Bool useAutoCorr, const Bool useDoublePrec, const Float rotatePAStep, const String stokes, const Bool /*doConjBeam*/){
     
     LogIO os(LogOrigin("SynthesisImager", "createMosFTMachine",WHERE));
    
@@ -2355,12 +2355,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
    
   }// end of predictModel
 
-  /*
-  void SynthesisImager::makeImage()
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  void SynthesisImager::makeSdImage(Bool dopsf)
   {
-    LogIO os( LogOrigin("SynthesisImager","makeImage",WHERE) );
+    LogIO os( LogOrigin("SynthesisImager","makeSdImage",WHERE) );
 
-    Bool dopsf=false;
+//    Bool dopsf=false;
     if(datacol_p==FTMachine::PSF) dopsf=true;
 
     {
@@ -2389,8 +2389,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     unlockMSs();
 
-  }// end makeImage
-  */
+  }// end makeSdImage
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
  

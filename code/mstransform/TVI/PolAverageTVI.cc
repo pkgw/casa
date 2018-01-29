@@ -280,7 +280,7 @@ PolAverageTVI::PolAverageTVI(ViImplementation2 *inputVII) :
   configurePolAverage();
 
   // Initialize attached VisBuffer
-  setVisBuffer(createAttachedVisBuffer(VbPlain, VbRekeyable));
+  setVisBuffer(createAttachedVisBuffer(VbRekeyable));
 }
 
 PolAverageTVI::~PolAverageTVI() {
@@ -339,7 +339,7 @@ void PolAverageTVI::corrType(Vector<Int> & corrTypes) const {
 }
 
 void PolAverageTVI::flagRow(Vector<Bool> & rowflags) const {
-  Cube<Bool> const &flags = getVisBufferConst()->flagCube();
+  Cube<Bool> const &flags = getVisBuffer()->flagCube();
   accumulateFlagCube(flags, rowflags);
 }
 
@@ -384,8 +384,8 @@ void PolAverageTVI::jonesC(Vector<SquareMatrix<Complex, 2> > &cjones) const {
 
 void PolAverageTVI::sigma(Matrix<Float> & sigmat) const {
   if (weightSpectrumExists()) {
-    Cube<Float> const &sigmaSp = getVisBufferConst()->sigmaSpectrum();
-    Cube<Bool> const &flag = getVisBufferConst()->flagCube();
+    Cube<Float> const &sigmaSp = getVisBuffer()->sigmaSpectrum();
+    Cube<Bool> const &flag = getVisBuffer()->flagCube();
     accumulateWeightCube(sigmaSp, flag, sigmat);
   } else {
     if (doTransform_[dataDescriptionId()]) {
@@ -472,8 +472,8 @@ IPosition PolAverageTVI::visibilityShape() const {
 
 void PolAverageTVI::weight(Matrix<Float> & wtmat) const {
   if (weightSpectrumExists()) {
-    Cube<Float> const &weightSp = getVisBufferConst()->weightSpectrum();
-    Cube<Bool> const &flag = getVisBufferConst()->flagCube();
+    Cube<Float> const &weightSp = getVisBuffer()->weightSpectrum();
+    Cube<Bool> const &flag = getVisBuffer()->flagCube();
     accumulateWeightCube(weightSp, flag, wtmat);
   } else {
     Matrix<Float> wtmatOrg;
@@ -684,7 +684,7 @@ PolAverageVi2Factory::PolAverageVi2Factory(Record const &configuration,
     Double timeInterval, Bool isWritable) :
     inputVII_p(nullptr), mode_(AveragingMode::DEFAULT) {
   inputVII_p = new VisibilityIteratorImpl2(Block<MeasurementSet const *>(1, ms),
-      sortColumns, timeInterval, VbPlain, isWritable);
+      sortColumns, timeInterval, isWritable);
 
   mode_ = PolAverageVi2Factory::GetAverageModeFromConfig(configuration);
 }
@@ -714,7 +714,16 @@ ViImplementation2*
 PolAverageTVILayerFactory::createInstance(ViImplementation2* vii0) const {
   // Make the PolAverageTVI, using supplied ViImplementation2, and return it
   PolAverageVi2Factory factory(configuration_p, vii0);
-  return factory.createVi();
+  ViImplementation2 *vii = nullptr;
+  try {
+    vii = factory.createVi();
+  } catch (...) {
+    if (vii0) {
+      delete vii0;
+    }
+    throw;
+  }
+  return vii;
 }
 } // # NAMESPACE VI - END
 } // #NAMESPACE CASA - END

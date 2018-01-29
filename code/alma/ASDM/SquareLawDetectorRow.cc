@@ -700,11 +700,13 @@ bandType = CDetectorBandType::from_int(0);
 	 * Return true if all required attributes of the value part are equal to their homologues
 	 * in x and false otherwise.
 	 *
+
 	 * @param x a pointer on the SquareLawDetectorRow whose required attributes of the value part 
+
 	 * will be compared with those of this.
 	 * @return a boolean.
 	 */
-	bool SquareLawDetectorRow::equalByRequiredValue(SquareLawDetectorRow* x) {
+	bool SquareLawDetectorRow::equalByRequiredValue(SquareLawDetectorRow*  x ) {
 		
 			
 		if (this->numBand != x->numBand) return false;

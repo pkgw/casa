@@ -36,6 +36,7 @@
 #include <plotms/PlotMS/PlotMSTransformations.h>
 #include <plotms/PlotMS/PlotMSCalibration.h>
 #include <plotms/PlotMS/PlotMSLabelFormat.h>
+#include <plotms/PlotMS/PlotMSPageHeaderParam.h>
 
 namespace casa {
 
@@ -77,6 +78,12 @@ public:
 	// <group>
 	static const casacore::String UPDATE_DISPLAY_NAME;
 	static const int UPDATE_DISPLAY;
+	// </group>
+
+	// Update flag for page header group.
+	// <group>
+	static const casacore::String UPDATE_PAGEHEADER_NAME;
+	static const int UPDATE_PAGEHEADER;
 	// </group>
 
 	// Update flag for iteration group.
@@ -169,6 +176,17 @@ public:
 		}
 	}
 
+    // based on PlotMSCacheBase::Type enum {MS, CAL}
+    const casacore::Int & type() const {
+        return itsType_;
+    }
+	void setType (const casacore::Int & value) {
+		if (itsType_ != value) {
+			itsType_ = value;
+			updated();
+		}
+	}
+
 	const PlotMSSelection & selection() const {
 		return itsSelection_;
 	}
@@ -218,6 +236,7 @@ private:
 
 	/* Parameters' values */
 	casacore::String itsFilename_;
+	casacore::Int itsType_;
 	PlotMSSelection itsSelection_;
 	PlotMSAveraging itsAveraging_;
 	PlotMSTransformations itsTransformations_;
@@ -225,6 +244,7 @@ private:
 
 	/* Key strings for casacore::Record */
 	static const casacore::String REC_FILENAME;
+	static const casacore::String REC_TYPE;
 	static const casacore::String REC_SELECTION;
 	static const casacore::String REC_AVERAGING;
 	static const casacore::String REC_TRANSFORMATIONS;
@@ -1401,7 +1421,75 @@ private:
 	void setDefaults();
 };
 
+// Subclass of PlotMSPlotParameters::Group to handle page header parameters.
+// Currently includes:
+// * page header items
 
+// Parameters are vector-based, on a per-plot basis.
+//
+class PMS_PP_PageHeader : public PlotMSPlotParameters::Group {
+
+public:
+	/* Constructor which takes a factory */
+	PMS_PP_PageHeader (PlotFactoryPtr factory);
+
+	/* Copy constructor.  See operator=(). */
+	PMS_PP_PageHeader (const PMS_PP_PageHeader & copy);
+
+	~PMS_PP_PageHeader();
+
+	/* Implements PlotMSPlotParameters::Group::clone(). */
+	Group *clone() const {
+		return new PMS_PP_PageHeader (*this);
+	}
+
+	/* Implements PlotMSPlotParameters::Group::name(). */
+	const casacore::String & name() const {
+		static casacore::String groupName = PMS_PP::UPDATE_PAGEHEADER_NAME;
+		return groupName;
+	}
+
+	/* Implements PlotMSPlotParameters::Group::toRecord(). */
+	casacore::Record toRecord() const;
+
+	/* Implements PlotMSPlotParameters::Group::fromRecord(). */
+	void fromRecord (const casacore::Record & record);
+
+	/* Overrides PlotMSPlotParameters::Group::operator=(). */
+	PMS_PP_PageHeader & operator= (const Group & other);
+
+	/*  Overrides the actual assignment operator=() */
+	PMS_PP_PageHeader& operator=(const PMS_PP_PageHeader& other);
+
+	/* Overrides PlotMSPlotParameters::Group::operator==(). */
+	bool operator== (const Group & other) const;
+
+	/* Implements PlotMSPlotParameters::Group::requiresRedrawOnChanged(). */
+	bool requiresRedrawOnChange() const {
+		return false;
+	}
+
+	void setPageHeaderItems (const PageHeaderItems & value) {
+		if (itsPageHeaderItems_ != value) {
+			itsPageHeaderItems_ = value;
+			updated();
+		}
+	}
+
+	const PageHeaderItems& pageHeaderItems() const { return itsPageHeaderItems_;  }
+
+private:
+	/* Parameters' values */
+	PageHeaderItems itsPageHeaderItems_;
+
+	/* Key strings for casacore::Record */
+	static const casacore::String REC_ITEMS;
+
+	//Does the work for the operator=()s.
+	PMS_PP_PageHeader& assign( const PMS_PP_PageHeader* o );
+	void setDefaults();
+
+};
 
 
 // Subclass of PlotMSPlotParameters::Group to handle iteration parameters.

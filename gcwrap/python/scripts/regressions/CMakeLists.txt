@@ -26,8 +26,6 @@ casa_add_python( tools tools_regressions_python lib/python${PYTHONV}/regressions
   ic2233_regression.py
   ngc2403_regression.py
   ngc5921redux_regression.py
-  ori_hc3n_regression.py
-  ori_sio_regression.py
   pylabmem_regression.py
   wproject_regression.py
   calstat_test_regression.py
@@ -50,13 +48,10 @@ casa_add_python( tools tools_regressions_python lib/python${PYTHONV}/regressions
   cvel+clean_test_regression.py
   cvel_regression2.py
   fits-import-export_regression.py
-  fls3a_hi_regression.py
   g192_regression.py
   h121_regression.py
   imagepoltest_regression.py
   imagetest_regression.py
-  irc_cs_task_regression.py
-  irc_hc3n_task_regression.py
   l02d_regression.py
   leo2pt_regression.py
   listcal_regression.py
@@ -71,9 +66,7 @@ casa_add_python( tools tools_regressions_python lib/python${PYTHONV}/regressions
   ngc4826-mms_tutorial_regression.py
   ngc5921_regression.py
   ngc7538_regression.py
-  ori_hc3n_task_regression.py
   orion_regression.py
-  ori_sio_task_regression.py
 #  plotxy_regression.py
   pointing_regression.py
   polcal_20080224_cband_regression.py
