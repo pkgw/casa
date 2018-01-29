@@ -6,7 +6,8 @@ ms,sdms,tb = gentools(['ms','sdms','tb'])
 
 def sdsmooth(infile=None, datacolumn=None, antenna=None, 
               field=None, spw=None, timerange=None, scan=None, 
-              pol=None, intent=None, kernel=None, kwidth=None,
+              pol=None, intent=None, reindex=None,
+              kernel=None, kwidth=None,
               outfile=None, overwrite=None):
 
     casalog.origin('sdsmooth')
@@ -24,7 +25,8 @@ def sdsmooth(infile=None, datacolumn=None, antenna=None,
         sdms.set_selection(spw=spw, field=field, 
                            antenna=antenna,
                            timerange=timerange, scan=scan,
-                           polarization=pol, intent=intent)
+                           polarization=pol, intent=intent,
+                           reindex=reindex)
         sdms.smooth(type=kernel, width=kwidth, datacolumn=datacolumn, outfile=outfile)
     except Exception, instance:
         raise Exception, instance
