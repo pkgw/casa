@@ -30,8 +30,10 @@
 #include <mutex>
 #include <string>
 #include <vector>
-#include <limits.h>
+#include <memory>
 #include <algorithm>
+#include <limits.h>
+#include <stdlib.h>
 #include <casacore/casa/System/AppState.h>
 #include <casatools/Proc/Registrar.h>
 
@@ -71,12 +73,13 @@ namespace casatools {   /** namespace for CASAtools classes within "CASA code" *
             data_path.clear( );
 
             // convert the paths to fully qualified paths
-            char buffer[PATH_MAX+1];
             std::transform( existing_paths.begin( ), existing_paths.end( ),
                             std::back_inserter( data_path ),
-                            [&buffer]( const std::string &f ) {
-                                char *expanded = realpath(f.c_str( ), buffer);
-                                return expanded ? std::string(expanded) : std::string( );
+                            [ ]( const std::string &f ) {
+                                char *expanded = realpath(f.c_str( ), NULL);
+                                std::string result( expanded ? expanded : "" );
+                                free(expanded);
+                                return result;
                             } );
         }
 
