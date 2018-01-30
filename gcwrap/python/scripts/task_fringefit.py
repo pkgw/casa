@@ -92,7 +92,6 @@ def fringefit(vis=None,caltable=None,
 		# Apply parallactic angle, if requested
 		if parang: mycb.setapply(type='P')
 
-                print >>sys.stderr, "Weightfactor: ", weightfactor, type(weightfactor)
 		# Set up for solving; only support one gaintype
 		mycb.setsolve(type="FRINGE",t=solint,refant=refant,preavg=0.01,
 			      minsnr=minsnr,combine=combine,
