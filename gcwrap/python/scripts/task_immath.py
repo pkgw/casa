@@ -170,7 +170,6 @@ from ialib import write_image_history
 
 _rg = rgtool()
 
-
 def immath(
     imagename, mode, outfile, expr, varnames, sigma,
     polithresh, mask, region, box, chans, stokes, stretch,
@@ -181,6 +180,7 @@ def immath(
     tmpFilePrefix='_immath_tmp' + str(os.getpid()) + '_'
     _myia = iatool()
     _myia.dohistory(False)
+    outia = iatool()
     isLPol = False
     isTPol = False
     lpol = ''
@@ -208,10 +208,12 @@ def immath(
                 tmpFilePrefix, imagename, imagemd
             )
         elif mode == 'poli':
-            (expr, isLPol, isTPol) = _immath_dopoli(
-                filenames, varnames, tmpFilePrefix, sigma, _myia
+            _immath_new_poli(
+                filenames, outfile, tmpFilePrefix, mask, region,
+                box, chans, stokes, stretch, sigma, _myia
             )
-        if (mode == 'pola' or mode == 'poli') and stokes:
+            return True
+        if (mode == 'pola') and stokes:
             # reset stokes selection for pola and poli
             casalog.post( "Ignoring stokes parameters selection." ,'WARN' );
             stokes=''
@@ -264,6 +266,60 @@ def immath(
         if outia:
            outia.done() 
         _immath_cleanup(tmpFilePrefix)
+    
+def _immath_new_poli(
+    filenames, outfile, tmpFilePrefix, mask, region,
+    box, chans, stokes, stretch, sigma, _myia
+):
+    target = filenames[0]
+    if len(filenames) > 1:
+        _myia.open(filenames[0])
+        stokes_axis = _myia.coordsys().findaxisbyname("stokes")
+        _myia.done()
+        casalog.post("Concatenating images along stokes axis")
+        target = tmpFilePrefix + "_concat_for_poli"
+        _myia = _myia.imageconcat(
+            outfile=target, infiles=filenames, axis=stokes_axis
+        )
+        _myia.done()
+    debias = False
+    newsigma = 0
+    if sigma:
+        qsigma = qa.quantity(sigma)
+        if qa.getvalue(qsigma)[0] > 0:
+            debias = True
+            sigmaunit = qa.getunit(qsigma)
+            try:
+                _myia.open(filenames[0])
+                iunit = _myia.brightnessunit()
+                _myia.done()
+            except:
+                raise Exception, 'Unable to get brightness unit from image file ' + filenames[0]
+            if sigmaunit != iunit:
+                newsigma = qa.convert(qsigma,iunit)
+            else:
+                newsigma = sigma
+    myreg = region
+    if (type(region) != type({})):
+        myrg = rgtool()
+        if stokes:
+            casalog.post( "Ignoring stokes parameters selection for mode='poli'." ,'WARN' );
+            stokes=''
+        _myia.open(target)
+        myreg = myrg.frombcs(
+            csys=_myia.coordsys().torecord(), shape=_myia.shape(), box=box,
+            chans=chans, stokes=stokes, stokescontrol="a", region=region
+        )
+        _myia.done()
+        myrg.done()
+    mypo = potool()
+    mypo.open(target)
+    _myia = mypo.totpolint(
+        debias=debias, sigma=newsigma, outfile=outfile,
+        region=myreg, mask=mask, stretch=stretch
+    )
+    _myia.done()
+    mypo.done()
     
 def _immath_compute(
     imagename, expr, mode, outfile, imagemd, _myia,
@@ -349,28 +405,6 @@ def _immath_dofull(
         imagename, expr, mode, outfile, imagemd, _myia,
         isTPol, isLPol, lpol, doPolThresh, polithresh
     )
-
-def _immath_dopoli(filenames, varnames, tmpFilePrefix, sigma, _myia):
-    [expr, isLPol, isTPol] = _doPolI(filenames, varnames, tmpFilePrefix, True, True)
-    sigsq = 0
-    if sigma:
-        qsigma = qa.quantity(sigma)
-        if qa.getvalue(qsigma)[0] > 0:
-            sigmaunit=qa.getunit(qsigma)
-            try:
-                _myia.open(filenames[0])
-                iunit = _myia.brightnessunit()
-                _myia.done()
-            except:
-                raise Exception, 'Unable to get brightness unit from image file ' + filenames[0]
-            if sigmaunit != iunit:
-                newsigma = qa.convert(qsigma,iunit)
-            else:
-                newsigma = sigma
-                sigsq=(qa.getvalue(newsigma)[0])**2
-            expr += '-%s' % sigsq
-        expr += ')'
-    return (expr, isLPol, isTPol)
 
 def _immath_dopola(
     mask, polithresh, filenames, varnames,

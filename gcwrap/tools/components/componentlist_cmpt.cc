@@ -458,7 +458,7 @@ bool componentlist::addcomponent(const ::casac::variant& flux,
                                  const ::casac::variant& freq, 
                                  const std::string& spectrumtype,
                                  const double index,
-                                 const std::vector<double>& optionalparms,
+                                 const std::vector<double>& /*optionalparms*/,
                                  const std::string& label)
 {
   itsLog->origin(LogOrigin("componentlist", "addcomponent"));
@@ -520,7 +520,7 @@ bool componentlist::addcomponent(const ::casac::variant& flux,
       ::casac::variant minoraxiserror; 
       ::casac::variant positionangleerror;
       setshape(which, shape, majoraxis, minoraxis, positionangle,
-               majoraxiserror,minoraxiserror, positionangleerror, optionalparms);
+               majoraxiserror,minoraxiserror, positionangleerror);
       setspectrum(which, spectrumtype, index);
       MFrequency theFreq;
       ::casac::variant *tmpfreq=0;
@@ -1289,7 +1289,7 @@ bool componentlist::setshape(const int which, const std::string& type,
                              const ::casac::variant& majoraxiserror,
                              const ::casac::variant& minoraxiserror,
                              const ::casac::variant& positionangleerror,
-                             const std::vector<double>& optionalparms,
+                             const std::vector<double>& /*optionalparms*/,
                              const bool /*log*/)
 {
   itsLog->origin(LogOrigin("componentlist", "setshape"));
@@ -1305,10 +1305,20 @@ bool componentlist::setshape(const int which, const std::string& type,
                 << "Known types are:" << endl;
         for (uInt i = 0; i < ComponentType::NUMBER_SHAPES - 1; i++) {
           reqShape = (ComponentType::Shape) i;
-          *itsLog <<  ComponentType::name(reqShape) + String("\n");
+          if (reqShape!=(ComponentType::Shape) 3)
+            *itsLog <<  ComponentType::name(reqShape) + String("\n");
         }
         *itsLog << "Shape not changed." << LogIO::POST;
         return false;
+      }
+      else {
+        if (reqShape == ComponentType::Shape::LDISK) {
+        *itsLog << LogIO::SEVERE
+                << ComponentType::name(reqShape) 
+                << " is not implemented yet." << endl;
+        *itsLog << "Shape not changed." << LogIO::POST;
+        return false;
+        }
       }
 
        
@@ -1353,10 +1363,11 @@ bool componentlist::setshape(const int which, const std::string& type,
         return false;
       }
       Vector<Int> intVec(1,which);
-      if (type=="limbdarkeneddisk") {
-        shapePtr->setOptParameters(optionalparms);
-        itsList->setOptParms(intVec, *shapePtr);
-      }
+      // Uncomment when limb darkened disk shape is fully supported 
+      //if (type=="limbdarkeneddisk") {
+      //  shapePtr->setOptParameters(optionalparms);
+      //  itsList->setOptParms(intVec, *shapePtr);
+      //}
       itsList->setShapeParms(intVec, *shapePtr);
 
       delete shapePtr;
