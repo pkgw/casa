@@ -1,5 +1,4 @@
 ####################            Imports
-
 import os
 import sys
 import getopt
@@ -16,33 +15,33 @@ import testwrapper
 from testwrapper import *
 import StringIO
 import contextlib
+import logging
+import argparse
+import time
 
-
+####################            Temp Constants
 regressionsDisabled = True
+
+####################            Logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+logging.basicConfig(level=logging.INFO)
+# create a file handler
+handler = logging.FileHandler('runTest-debug.log',mode='w')
+handler.setLevel(logging.INFO)
+
+# create a logging format
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+
+# add the handlers to the logger
+logger.addHandler(handler)
+
+
 ####################            Functions
-def usage():
-    print '========================================================================='
-    print '\nRunTest will execute Python test(s) of CASA tasks.'
-    print 'Usage:\n'
-    print 'casa [casapy-options] -c runTest.py [options] test_name\n'
-    print 'Options:'
-    print '  no option              print this message and exit.'
-    #print '  -a or --all            run all tests defined in '
-    #print '                         trunk/gcwrap/python/scripts/tests/uTest_list.json'
-    print '  <test_name>            run only <test_name> (more tests are separated by spaces).'
-    print '  -f or --file <list>    run the tests defined in an ASCII file <list>; one test per line.'
-    print '  -d or --datadir <dir>  set an env. variable to a directory, TEST_DATADIR=<dir> '
-    print '                         that can be used inside the tests.'
-    print '  -m or --mem            show the memory used by the tests and the number of files left open.'
-    print '  -g or --debug          set casalog.filter to DEBUG.'
-    print '  -l or --list           print the list of tests from & print the list of tags from '
-    print '                         trunk/gcwrap/python/scripts/tests/uTest_list.json.'
-    print '  -s or --classes        print the classes from a test script (those returned by suite()).'
-    print '  -H or --Help           print this message and exit.\n'
-    print 'NOTE: it will look for tests in the install directory, which usually is \r'
-    print '      <casa_install_dir>/python/2.7/tests'
-    print 'See documentation in: http://www.eso.org/~scastro/ALMA/CASAUnitTests.htm\n'
-    print '=========================================================================='
+
+def use_pybot():
+    raise Exception, "Pybot option not avaliable"
 
 def remove_duplicates(values):
     output = []
@@ -78,19 +77,23 @@ def gettests(testfile):
         return tests
 
 def settestdir(datadir):
+    logger.debug("Start def settestdir()")
     '''Set an environmental variable for the data directory'''
     absdatadir = os.path.abspath(datadir)
     os.environ.__setitem__('TEST_DATADIR',absdatadir)
-    print "Setting TEST_DATADIR Environmental variable"
+    #print "Setting TEST_DATADIR Environmental variable"
+    logger.info("Setting TEST_DATADIR Environmental variable: %s",absdatadir)
     return
 
 def getclasses(testnames):
+    logger.debug("Start def getclasses()")
     '''Get the classes of a test script It will copy the test script to /tmp and remove it afterwards'''
     here = os.getcwd()
     tmpdir = '/tmp'
     for filename in testnames:
         if not filename.startswith("test_"):
             print "Cannot Get Classes for Regression Test"
+            logger.error("Cannot Get Classes for Regression Test: %s",filename)
             return
     try:
         os.chdir(tmpdir)
@@ -100,28 +103,32 @@ def getclasses(testnames):
             tt.copyTest(copyto=tmpdir)
             classes = tt.getTestClasses(filename)
             for c in classes:
-                pprint.pprint('Class '+c.__name__)       
+                pprint.pprint('Class '+c.__name__)
                 for attr, value in c.__dict__.iteritems():
                     if len(attr) >= len("test") and attr[:len("test")] == "test":
                         print '\t%s'%c(attr)
-            os.remove(filename+'.py')       
-            os.remove(filename+'.pyc')       
+            os.remove(filename+'.py')
+            os.remove(filename+'.pyc')
         os.chdir(here)
     except:
         print '--> ERROR: Cannot copy script to %s'%tmpdir
+        logger.error('Failed to open file', exc_info=True)
         return
 
 def readJSON(FILE):
+    logger.debug("Start Function: readJSON()")
+    logger.debug("Filename: %s", FILE)
     import json
     List = []
-    #print FILE
     if(not os.path.exists(FILE)):
         print 'ERROR: List of tests does not exist'
+        logger.error('ERROR: List of tests does not exist')
         return []
     tests = json.load(open(FILE))
     return tests['testlist']
 
 def list_tests():
+    logger.info("Start Function: list_tests()")
     print 'Full list of tests'
     print '-----------------------'
     for test in readJSON(LISTofTESTS):
@@ -157,7 +164,6 @@ def test_dummy():
     print "Regression: %s"%(test_name)
     #test_result = regression_test.run(True)
     #TODO: Import regression setup and regression execution (if both are avaliable)
-
     with stdoutIO() as regressionResult:
         test_result = regression_test.run(False) # Some regressions are True/ False. This should be set within the test script
     print regressionResult.getvalue()
@@ -177,26 +183,8 @@ def _find_unit_path():
             TESTS_DIR = CASA_DIR+'/Resources/python/tests/'
     return TESTS_DIR
 
-def _find_regression_path():
-    TESTS_DIR = CASA_DIR + "/" + os.environ["CASAPATH"].split()[1] + '/lib/python' + PYVER + '/regressions/'
-    _potential_data_directories = ( "/opt/casa/data",
-                                    "/home/casa/data",
-                                    "/home/casa/data/trunk",
-                                    "/home/casa/data/master",
-                                    "/opt/casa/data/master",
-                                    "/export/data/casa" )
-    REGRESSION_DATA = filter(lambda x: os.access(x,os.F_OK),map(lambda y: y+"/regression",_potential_data_directories))
-    if not os.access(TESTS_DIR, os.F_OK):
-        if os.access(CASA_DIR+'/lib64', os.F_OK):
-            TESTS_DIR = CASA_DIR+'/lib64/python' + PYVER + '/regressions/'
-        elif os.access(CASA_DIR+'/lib', os.F_OK):
-            TESTS_DIR = CASA_DIR+'/lib/python' + PYVER + '/regressions/'
-        else:            #Mac release
-            TESTS_DIR = CASA_DIR+'/Resources/python/regressions/'
-    stack_frame_find()['TESTS_DIR']=TESTS_DIR
-    return TESTS_DIR
-
 def checkForMPI():
+    logger.debug("Start Function: checkForMPI()")
     if (not os.environ.has_key("OMP_NUM_THREADS")) or (not os.environ.has_key("OMPI_COMM_WORLD_SIZE")): 
         print "MPICASA is not enabled"
         return False
@@ -204,37 +192,41 @@ def checkForMPI():
     return True
 
 def checkForPIPELINE():
+    logger.debug("Start Function: def checkForPIPELINE()")
     try:
         import pipeline
     except ImportError, e:
-        #print e
+        print e
         print "Unable to import the CASA pipeline"
         return False
     return True
 
 def checkForCASAGUIDE_DATA():
+    logger.debug("Start Function: checkForCASAGUIDE_DATA()")
     if not os.path.isdir(os.environ["CASAPATH"].split()[0] + '/data/casaguidedata/'):
         print "Could Not Find CasaGuide Data"
         return False
     return True
 
-def main(testnames=[]):
-
+def run(testnames=[]):
+    logger.info("Start Function: run(%s)",testnames)
     # Global variable used by regression framework to determine pass/failure status
     global regstate  
     global regressionResult
+    global regression_test
+    global test_name
+
     regressionResult = ''
     regstate = False
-        
     listtests = testnames
-    if listtests == '--Help' or listtests == []:
-        usage()
-        sys.exit()
-        
-       
+    whichtests = 0
+
     if listtests == 'all':
-        raise Exception, 'Disabled Due to CAS-10844.'
-        whichtests = 1
+        logger.info("Executing All Tests")
+        if (HAVE_MEMTEST and MEM):
+            logging.critical('Cannot Execute All Tests in MEM mode')
+            raise Exception, 'Cannot Execute All Tests in MEM mode'
+        whichtests = 0
         # Get the full list of tests from file
         skip_mpi = False
         skip_casaguide = False
@@ -243,55 +235,63 @@ def main(testnames=[]):
         mpiEnabled = checkForMPI()
         pipelineEnabled = checkForPIPELINE()
         casaguideEnabled = checkForCASAGUIDE_DATA()
+        logger.debug("mpiEnabled: %s",mpiEnabled)
+        logger.debug("pipelineEnabled: %s",pipelineEnabled)
+        logger.debug("casaguideEnabled: %s",casaguideEnabled)
 
-        # Check For MPI
         for test in tests:
+            logger.debug("Test: %s", test['testScript'])
             if not mpiEnabled and "mpi" in test["tag"]:
-                print "Skipping ", test['testScript'], "MPI Not Enabled"
+                #print "Skipping ", test['testScript'], "MPI Not Enabled"
+                logger.debug("Skipping %s %s", test['testScript'], "MPI Not Enabled")
                 continue
             if not pipelineEnabled and "pipeline" in test["tag"]:
-                print "Skipping ", test['testScript'], "MPI Not Enabled"
+                logger.debug("Skipping %s %s", test['testScript'], "Pipeline Not Enabled")
                 continue
             if not casaguideEnabled and "casaguide" in test["tag"]:
-                print "Skipping ", test['testScript'], "Casaguide"
+                logger.debug("Skipping %s %s", test['testScript'], "Casaguide")
                 continue
-            listtests.append(test['testScript'])
-
+            listtests.append(str(test['testScript']))
+            logger.debug("To Execute Test: %s", test['testScript'])
 
         if listtests == []:
+            logging.critical('List of tests \"%s\" is empty or does not exist', LISTofTESTS)
             raise Exception, 'List of tests \"%s\" is empty or does not exist'%LISTofTESTS
 
-    elif listtests == '-t' or listtests == '--subset':
+    elif listtests == 'subset':
         whichtests = 1
         listtests = []
         tests = readJSON(LISTofTESTS)
         mpiEnabled = checkForMPI()
         pipelineEnabled = checkForPIPELINE()
         casaguideEnabled = checkForCASAGUIDE_DATA()
-
+        logger.debug("mpiEnabled: %s",mpiEnabled)
+        logger.debug("pipelineEnabled: %s",pipelineEnabled)
+        logger.debug("casaguideEnabled: %s",casaguideEnabled)
+        logger.debug("TestTag: %s",testTag)
         # Begin Run Test Suite
 
         for test in tests:
             # Run MPI tests. Check for MPI enabled 
             if ('mpi'in testTag):
-                 if not mpiEnabled: raise Exception, 'MPICASA Not Enabled'
+                 if not mpiEnabled:
+                    logger.critical("MPICASA Not Enabled. Cannot Generate Suite for 'mpi' Tag")
+                    raise Exception, 'MPICASA Not Enabled'
 
             # Run Pipeline tests. Check for Pipeline enabled 
             if ('pipeline'in testTag):
-                if not pipelineEnabled:raise Exception, 'Pipeline Not Enabled'
+                if not pipelineEnabled:
+                    logger.critical("Pipeline Not Enabled. Cannot Generate Suite for 'pipeline' Tag")
+                    raise Exception, 'Pipeline Not Enabled'
 
-            # Run Pipeline tests. Check for Pipeline enabled 
+            # Run casaguide tests. Check for casaguide data 
             if ('casaguide'in testTag):
-                if not casaguideEnabled:raise Exception, 'Cannot Find Casa Guide Data in: ' + os.environ["CASAPATH"].split()[0] + '/data/casaguidedata'
+                if not casaguideEnabled:
+                    logger.critical('Cannot Find Casa Guide Data in: ' + os.environ["CASAPATH"].split()[0] + '/data/casaguidedata')
+                    raise Exception, 'Cannot Find Casa Guide Data in: ' + os.environ["CASAPATH"].split()[0] + '/data/casaguidedata'
 
             # Test Tag to run all Functional Tests or all regression tags
             if ("functionalTest" in testTag) or ("regression" in testTag):
-
-                # BEGIN TODO TEMP
-                if 'functionalTest' in testTag: 
-                    raise Exception, 'Disabled Due to CAS-10844.'
-                # END TODO TEMP
-
                 # BEGIN TODO TEMP
                 if regressionsDisabled:
                     if 'regression' in testTag: 
@@ -301,7 +301,7 @@ def main(testnames=[]):
                 if not pipelineEnabled and ("pipeline" in test["tag"]): continue
                 if not casaguideEnabled and ("casaguide" in test["tag"]): continue
                 elif (testTag in test['testType']): 
-                    listtests.append(test['testScript'])
+                    listtests.append(str(test['testScript']))
 
             # Run Priority Tests ( Originally mapped to TS1, TS2 , etc)
             elif testTag.startswith("TS"):
@@ -327,7 +327,7 @@ def main(testnames=[]):
                             if "regression" in test["testType"]:
                                 continue
                             else:
-                                listtests.append(test['testScript'])
+                                listtests.append(str(test['testScript']))
 
                         # ****************** END TODO TEMP NOT TO RUN REGRESSIONS *******************
                         #listtests.append(test['testScript'])
@@ -339,13 +339,13 @@ def main(testnames=[]):
                     if "regression" in test["testType"]:
                         continue
                     else:
-                        listtests.append(test['testScript'])
+                        listtests.append(str(test['testScript']))
 
                 # ****************** END TODO TEMP NOT TO RUN REGRESSIONS *******************
                 #listtests.append(test['testScript'])
+
         if listtests == []:
             raise Exception, 'List of tests is empty'
-
 
     elif (type(testnames) != type([])):                
         if (os.path.isfile(testnames)):
@@ -360,27 +360,22 @@ def main(testnames=[]):
     else:
         # run specific tests
         whichtests = 1
-    
-    # BEGIN TODO TEMP
-    if regressionsDisabled:
-        for listtest in listtests:
-            if not listtest.startswith("test_"):
-                raise Exception, 'Disabled Regression Tests'
-    # END TODO TEMP
-    print "Tests to run: ", listtests
+
     # Directories
     PWD = os.getcwd()
     WDIR = PWD+'/nosedir/'
-    
+
     # Create a working directory
     workdir = WDIR
-    print 'Creating work directory '+ workdir
+    #print 'Creating work directory '+ workdir
+    logger.info("Creating work directory: %s", workdir)
     if os.access(workdir, os.F_OK) is False:
         os.makedirs(workdir)
     else:
         shutil.rmtree(workdir)
         os.makedirs(workdir)
-    
+    logger.debug("Working Directory: %s", workdir)
+
     # Move to working dir
     os.chdir(workdir)
     
@@ -392,152 +387,94 @@ def main(testnames=[]):
         shutil.rmtree(xmldir)
         os.makedirs(xmldir)
     
-    print "Starting tests for %s: " %(listtests)
-    global regression_test
-    global test_name
+    #print "Starting tests for %s: " %(listtests)
+    logger.info("Starting Tests for: %s", listtests)
     # ASSEMBLE and RUN the TESTS
     if not whichtests:
         '''Run all tests'''
+        logger.info("Executing all tests")
         list = []
-        print "RUNNING ALL TESTS"
-        try:
-            for f in listtests:
-                TESTDIR = WDIR + '/' + str(f) + '/'
-                if os.access(TESTDIR, os.F_OK) is False:
-                    os.makedirs(TESTDIR)
-                else:
-                    shutil.rmtree(TESTDIR)
-                    os.makedirs(TESTDIR)
-                os.chdir(TESTDIR)
-                if f.startswith("test_"):
-                    print "-------------------------------------Test: %s---------------------------------------------"%f
-                    _find_unit_path()
-                    if not haslist(f):                
-                        testcases = UnitTest(f).getUnitTest()
-                        list = list+testcases
-                else:
-                    print "-------------------------------------Regression: %s---------------------------------------------"%f
-                    name = f
-                    _find_regression_path( )
-                    #print "Copying %s to %s"%(TESTS_DIR + "tests/" + name + ".py",os.getcwd()+'/'+name + ".py")
-                    print "------------------------------------------------------------------------------------------------------------------------"
-                    print "starting test %s (%s)" % (name,TESTS_DIR + "tests/" + name + ".py")
-                    print "------------------------------------------------------------------------------------------------------------------------"
-                    shutil.copy2(TESTS_DIR + "tests/" + name + ".py",os.getcwd()+'/'+name + ".py")
-                    global regression_test
-                    global test_name
-                    test_name = name
-                    regression_test = __import__(name)
-                    list = list+[unittest.FunctionTestCase(test_dummy)]
-
-        except:
-            traceback.print_exc()
-                    
-    elif (whichtests == 1):
-        '''Run specific tests'''
-        list = []
-        # Get one list of tests
-        tmp = []
-        for i in range(0,len(listtests)):
-            if haslist(listtests[i]):
-                tmp = tmp + gettests(listtests[i])
-        if len(tmp) > 0:
-            listtests = tmp
-
-        # Remost Duplicates
-        #print "Removing Duplicates"
-        listtests = remove_duplicates(listtests)
-
+        suiteList = []
         for f in listtests:
-            TESTDIR = WDIR + '/' + str(f) + '/'
-            if os.access(TESTDIR, os.F_OK) is False:
-                os.makedirs(TESTDIR)
-            else:
-                shutil.rmtree(TESTDIR)
-                os.makedirs(TESTDIR)
-            os.chdir(TESTDIR)
-
-            if f.startswith("test_"):
-                print "-------------------------------------Test: %s---------------------------------------------"%f
-                _find_unit_path()
-                if not haslist(f):                
-                    testcases = UnitTest(f).getUnitTest()
-                    list = list+testcases
-
-                else:
-                    ff = getname(f)
-                    tests = gettests(f)
-                    print "-------------------------------------Test: %s---------------------------------------------"%f
-                    # allow splitting of large test groups into smaller chunks
-                    # large long running test groups make parallel test scheduling
-                    # a bit more complicated so splitting them to smaller groups
-                    # helps
-                    # syntax: [testsplit:chunk_index-number_of_chunks]
-                    if len(tests) == 1 and tests[0].startswith('testsplit:'):
-                        import math
-                        testcases = UnitTest(ff).getUnitTest()
-                        chk, nchk = map(int, tests[0].split(':')[1].split('-'))
-                        if chk > nchk or chk < 1:
-                            raise ValueError('testsplit chunk must be 1 <= nchunks')
-                        nchk = min(len(testcases), nchk)
-                        chksz = int(math.ceil(len(testcases) / float(nchk)))
-                        offset = (chk - 1) * chksz
-                        print 'running tests %d to %d' % \
-                            (offset, min(offset + chksz, len(testcases)))
-                        testcases = testcases[offset:offset + chksz]
+            suite = unittest.TestSuite()
+            try:
+                if f.startswith("test_"):
+                    tests = UnitTest(f).getUnitTest()
+                    if DRY_RUN:
+                        tests = UnitTest(f).getUnitTest()
+                        suiteList = suiteList + tests
                     else:
-                        testcases = UnitTest(ff).getUnitTest(tests)
-                    list = list+testcases                
-            else:
-                print "-------------------------------------Regression: %s---------------------------------------------"%f
-                name = f
-                _find_regression_path( )
-                #print "Copying %s to %s"%(TESTS_DIR + "tests/" + name + ".py",os.getcwd()+'/'+name + ".py")
-                print "------------------------------------------------------------------------------------------------------------------------"
-                print "starting test %s (%s)" % (name,TESTS_DIR + "tests/" + name + ".py")
-                print "------------------------------------------------------------------------------------------------------------------------"
-                shutil.copy2(TESTS_DIR + "tests/" + name + ".py",os.getcwd()+'/'+name + ".py")
-                test_name = name # Passing test_name as a global to test_dummy. Passing regression_test as a global to test_dummy. Import it as a test instance
-                regression_test = __import__(name)
-                list = list+[unittest.FunctionTestCase(test_dummy)]
+                        for test in tests:
+                            suite.addTest(test)
+                        logger.debug("\nTestName: %s: Suite: %s", f, suite)
+                        suiteList.append(suite)
+                else:
+                    logger.debug("Disabled Regression Test: %s not compatiable with runTest.py",f)
+                    pass
+            except:
+                traceback.print_exc()
+        list = suiteList
 
-                
-        if (len(list) == 0):
-            os.chdir(PWD)
-            raise Exception, 'ERROR: There are no valid tests to run'
-                                                                     
-                
+    # memTest.MemTest() plugin does not work with suites, requires 1 list of tests
+    elif (whichtests == 1): 
+        list = []
+        suiteList = []
+        suite = unittest.TestSuite()
+        for f in listtests:
+            try:
+                if f.startswith("test_"):
+                    tests = UnitTest(f).getUnitTest() 
+                    list = list+tests
+                else:
+                    logger.debug("Disabled Regression Test: %s not compatiable with runTest.py",f)
+                    pass
+            except:
+                traceback.print_exc()
+
+    if (len(list) == 0):
+        os.chdir(PWD)
+        logger.critical("ERROR: There are no valid tests to run")
+        raise Exception, 'ERROR: There are no valid tests to run'
+
     # Run all tests and create a XML report
     xmlfile = xmldir+'nose.xml'
-    #print list
-    #sys.exit()
+    if not os.environ.get('NOSE_XUNIT_FILE'):
+        os.environ['NOSE_XUNIT_FILE'] = xmlfile
+        logger.debug("Setting os.environ['NOSE_XUNIT_FILE']=%s",xmlfile)
 
-    # BEGIN TODO TEMP
-    if len(list) > 1000:
-        raise Exception, 'Disabled Due to CAS-10844.'
-    # END TODO TEMP
-    #sys.exit()
     try:
         if (HAVE_MEMTEST and MEM):
-            if not os.environ.get('NOSE_XUNIT_FILE'):
-                os.environ['NOSE_XUNIT_FILE'] = xmlfile
+            logger.debug('Executing nose.run(argv=[sys.argv[0],"-d","-s","--with-memtest","--verbosity=2","--memtest-file="%s"], suite=%s, addplugins=[memTest.MemTest()])',xmlfile,list)
             regstate = nose.run(argv=[sys.argv[0],"-d","-s","--with-memtest","--verbosity=2","--memtest-file="+xmlfile], suite=list, addplugins=[memTest.MemTest()])
-            print "Mem Test XML File: ", xmlfile
-        else:
-            regstate = nose.run(argv=[sys.argv[0],"-d","-s","--with-xunit","--verbosity=2","--xunit-file="+xmlfile], suite=list)
-            print "Xunit File: ",xmlfile
+            logger.debug("Regstate: %s", regstate)
+            logger.info("Mem Test XML File: %s", xmlfile)
 
-        os.chdir(PWD)
+        elif (HAVE_COVTEST and COV):
+            logger.warn("Due to the directory structure and various dependencies, Coverage Reporting May not Be Accurate")
+            time.sleep(5) # Give 5 Seconds to View this warning
+            logger.debug('Executing nose.run(argv=[sys.argv[0],"-d","-s","--with-coverage","--verbosity=2","--cover-xml-file="%s","--cover-html-dir="%s","--cover-html","--cover-erase","--cover-inclusive","--cover-branches"], suite=%s)',xmlfile,xmldir,list)
+            regstate = nose.run(argv=[sys.argv[0],"-d","-s","--with-coverage","--verbosity=2","--cover-xml-file="+xmlfile,"--cover-html-dir="+xmldir,"--cover-html","--cover-erase","--cover-inclusive","--cover-branches"], suite=list)
+            logger.debug("Regstate: %s", regstate)
+            logger.info("Cov Test XML Directory: %s", xmldir)
+
+        else:
+            cmd = [sys.argv[0],"-d","-s","--with-xunit","--verbosity=2","--xunit-file="+xmlfile]
+            if DRY_RUN:
+                cmd = cmd + ["--collect-only"]
+            logger.debug('Executing nose.run(argv=%s, suite=%s)',cmd,list)
+            regstate = nose.run(argv=cmd, suite=list)
+            logger.debug("Regstate: %s", regstate)
+            logger.info("XUNIT File: %s", xmlfile)
+
     except:
         print "Failed to run one or more tests"
+        logger.critical("Failed to run one or more tests", exc_info=True)
         traceback.print_exc()
-    else:
-        os.chdir(PWD)
 
-# ------------------ NOTE ---------------------------------------------
-# Once CASA moves to Python 2.7, the getpopt module should be replaced
-# by argparse. The next section will need to be updated accordingly
-# ---------------------------------------------------------------------
+    if logger.isEnabledFor(logging.DEBUG):
+        logger.info("Debug Log: runTest-debug.log")
+
+    os.chdir(PWD)
 
 ####################            Constants
 
@@ -547,143 +484,198 @@ PYVER = str(sys.version_info[0]) + "." + str(sys.version_info[1])
 # CASA Directory
 CASA_DIR = os.environ["CASAPATH"].split()[0]
 
-# memory mode variable
-MEM = 0
-
-# Define which tests to run    
-whichtests = 0
-
-# List of Tests
-
-LISTofTESTS = _find_unit_path() + "uTest_list.json"
+# mem mode variables
 HAVE_MEMTEST=True
+MEM = 0
 try:
     import memTest
 except:
     HAVE_MEMTEST = False
 
+# cov mode variables
+HAVE_COVTEST=True
+COV = 0
+try:
+    import coverage
+except:
+    HAVE_COVTEST = False
+
+# Dry run of Tests
+DRY_RUN = False
+
+# Define which tests to run
+whichtests = 0
+
+# List of Tests
+LISTofTESTS = _find_unit_path() + "uTest_list.json"
+
 global testTag
 testTag = ''
-####################            Main
-if __name__ == "__main__":
 
+####################            Main
+
+if __name__ == "__main__":
+    logger.info('Start of Main')
+    logger.info("Disabled Regression Testing. FunctionalTest will be executed.")
     original_datapath = casa['dirs']['data']
+    # List of tests to run
+    testnames = []
+
     # Get command line arguments
     if "-c" in sys.argv:
-        # If called with ... -c runUnitTest.py from the command line,
-        # then parse the command line parameters
+        # If called with ... -c runUnitTest.py from the command line,then parse the command line parameters
         i = sys.argv.index("-c")
-        if len(sys.argv) >= i + 2 and \
-               re.compile("runTest\.py$").search(sys.argv[i + 1]):
-            
-        
-            try:
-                # Get only this script options
-                opts,args=getopt.getopt(sys.argv[i+2:], "Hpalt:mgs:f:d:", ["Help","pybot","all","list","subset=","mem",
-                                                                     "debug","classes=","file=",
-                                                                     "datadir="])
-                
-            except getopt.GetoptError, err:
-                # Print help information and exit:
-                print str(err) # will print something like "option -a not recognized"
-                usage()
-                os._exit(2)
-                
-            # List of tests to run
-            testnames = []
-            
-            # Boolean for file with tests.
-            # One could allow the use of --file with specific tests given in
-            # the command line by removing this option and appending to the
-            # testnames list in the args handling
-            hasfile = False
-            alltests = False
-            
-            #If no option is given, show the Help page
-            if opts == [] and args == []:
-                usage()
+        if len(sys.argv) >= i + 2 and re.compile("runTest\.py$").search(sys.argv[i + 1]):
+
+            parser = argparse.ArgumentParser()
+            parser.add_argument("-a", "--all", action='store_true',help='run all tests defined in trunk/gcwrap/python/scripts/tests/uTest_list.json.')
+            parser.add_argument("-d", "--datadir",help='set an env. variable to a directory, TEST_DATADIR=<dir> that can be used inside the tests.')
+            parser.add_argument("-f", "--file",nargs='?', type=argparse.FileType('r'),help='run the tests defined in an ASCII file <list>; one test per line')
+            parser.add_argument("-g", "--debug",action='store_true',help='Set casalog.filter to DEBUG. Set runTest-debug.log to DEBUG')
+            parser.add_argument("-l", "--list",action='store_true',help='print the list of tests & tags defined in trunk/gcwrap/python/scripts/tests/uTest_list.json.')
+            parser.add_argument("-m", "--mem",action='store_true',help='show the memory used by the tests and the number of files left open.')
+            parser.add_argument("-p", "--pybot",action='store_true',help=argparse.SUPPRESS) # TODO
+
+            tmpArray = []
+            for test in readJSON(LISTofTESTS):
+                tmpArray.append(str(test['tag']))
+            listtags = remove_duplicates(tmpArray)
+            listtags.append('functionalTest')
+            if not regressionsDisabled:
+                listtags.append('regression')
+            listtags.append('TS1')
+            listtags.append('TS2')
+            listtags.append('TS3') #'Disabled Due to CAS-10844'
+
+            parser.add_argument("-t", "--subset", choices=listtags,metavar='tag',help='run a suite of tests defined from tags in trunk/gcwrap/python/scripts/tests/uTest_list.json.')
+            parser.add_argument("-s", "--classes",nargs='+',metavar='test',help='print the classes from a test script (those returned by suite())')
+            parser.add_argument("-x", "--dry-run",action='store_true',help="dry run Test Execution")
+            parser.add_argument("-z", "--coverage",action='store_true',help='show the coverage of the tests')
+
+            args, unknownArgs = parser.parse_known_args(sys.argv[i+2:])
+
+            # No option print help
+            if sys.argv[i+2:] == []:
+                parser.print_help()
                 os._exit(0)
-                
-            #print args
-            # All other options       
-            for o, a in opts:
-                #print opts
-                if o in ("-H", "--Help"):
-                    usage()
-                    os._exit(0) 
-                if o in ("-p", "--pybot"):
-                    raise Exception, "Pybot option not avaliable"
-                    use_pybot()
-                    os._exit(0) 
-                if o in ("-l", "--list"):
-                    list_tests()
-                    os._exit(0)
-                if o in ("-s", "--classes"): 
-                    testnames.append(a)
-                    getclasses(testnames)
-                    os._exit(0)
-                if o in ("-m", "--mem"):
-                    # run specific tests in mem mode            
-                    MEM = 1
-                elif o in ("-t", "--subset"):
-                    testTag = a
-                    testnames = o
-                elif o in ("-g", "--debug"):
-                    #Set the casalog to DEBUG
-                    casalog.filter('DEBUG')
-                elif o in ("-d", "--datadir"):
-                    # This will create an environmental variable called
-                    # TEST_DATADIR that can be read by the tests to use
-                    # an alternative location for the data. This is used 
-                    # to test tasks with MMS data
-                    # directory with test data
-                    datadir = a
-                    if not os.path.isdir(datadir):                            
-                        raise Exception, 'Value of --datadir is not a directory -> '+datadir  
-                    
-                    # Set an environmental variable for the data directory
-                    # Also, overwrite casa paramaters dictionary to point to new data
-                    print "Setting Test Data Dir: ", datadir
-                    casa['dirs']['data'] = datadir
-                    settestdir(datadir)
-                    if not os.environ.has_key('TEST_DATADIR'):    
-                        raise Exception, 'Could not create environmental variable TEST_DATADIR'                        
-                        
-                elif o in ("-a", "--all"):
-                    alltests = True
-                    whichtests = 0
-                    testnames = 'all'
-                    break
-                elif o in ("-f", "--file"):
-                    hasfile = True
-                    if  os.path.isfile(a):
-                        f = open(a,"r") 
-                        for line in f:
-                            try:
-                                testnames.append(re.sub(r'[\n\r]+', '',line))
-                            except:
-                                raise Exception, " The list should contain one test per line."
+
+            if args.dry_run:
+                # Some Parameters do not work with some plugins
+                if args.coverage:
+                    raise Exception, "Cannot have a Dry Run in Coverage Mode"
+                if args.mem:
+                    raise Exception, "Cannot have a Dry Run in Mem Mode"
+                DRY_RUN = True
+
+            # Run All Test
+            if args.all:
+                logger.info('Running All of Tests')
+                whichtests = 0
+                testnames = 'all'
+
+            # Run Subset of Test
+            if args.subset is not None:
+                    logger.info('Running Subset of Tests')
+                    testTag = args.subset
+                    if args.all or testTag == 'TS3': # TS3 tag is the same as running --all flag
+                        logger.info('Running All Tests')
+                        whichtests = 0
+                        testnames = 'all'
                     else:
-                        raise Exception, str(a) + " is Not a Valid input File"
-                    
+                        testnames = 'subset'
+
+            # List All Avaliable Tests
+            if args.list:
+                list_tests()
+                os._exit(0)
+
+            # Print the classes from a test script
+            if args.classes is not None:
+                getclasses(args.classes)
+                os._exit(0)
+
+
+            # Options to change test Execution Modes
+            if args.mem: # run specific tests in mem mode
+                logger.info('Setting Mem Mode')
+                MEM = 1 
+
+            if args.coverage: # run specific tests in cov mode
+                if (HAVE_COVTEST):
+                    logger.info('Setting Cov Mode')
+                    COV = 1
                 else:
-                    assert False, "unhandled option"
+                    print "You don't have module coverage installed: See https://pypi.python.org/pypi/coverage"
+                    os._exit(0)
+
+            # set casalog.filter to DEBUG. set runTest.log to DEBUG
+            if args.debug:
+                logger.info('Setting Debug Mode')
+                casalog.filter('DEBUG')
+                logger.setLevel(logging.DEBUG)
+                logging.basicConfig(level=logging.DEBUG)
+                handler.setLevel(logging.DEBUG)
+                logger.debug("Starting Debug Mode")
+
+            if args.file is not None:
+                logger.info('Reading Test List from %s: ', args.file)
+                for line in args.file:
+                    try:
+                        logger.debug("Adding Test %s from file %s",re.sub(r'[\n\r]+', '',line),args.file)
+                        testnames.append(re.sub(r'[\n\r]+', '',line))
+                    except:
+                        raise Exception, " The list should contain one test per line."
+
+            if args.pybot:
+                # TODO Define use_pybot function to run pybot and produce a .html output file
+                use_pybot()
+                os._exit(0)
+
+            if args.datadir is not None:
+                '''This will create an environmental variable called TEST_DATADIR that can be read by the tests to use
+                   an alternative location for the data. This is used to test tasks with MMS data directory with test data'''
+
+                if not os.path.isdir(args.datadir):
+                    raise Exception, 'Value of --datadir is not a directory -> '+ args.datadir
+                logger.debug("Data Path: %s")
+                # Set an environmental variable for the data directory
+                # Also, overwrite casa paramaters dictionary to point to new data
+
+                logger.info("Setting Test Data Dir: %s",args.datadir)
+                casa['dirs']['data'] = args.datadir
+                settestdir(args.datadir)
+                if not os.environ.has_key('TEST_DATADIR'):
+                    logging.critical("Could not create environmental variable TEST_DATADIR")
+                    raise Exception, 'Could not create environmental variable TEST_DATADIR'
 
             # Deal with other arguments
-            if args != [] and not hasfile and not alltests:
-                testnames = args
-                                        
-        else:
-            testnames = []
-        
-    else:
-        # Not called with -c (but possibly execfile() from iPython)
-        testnames = []
+            for arg in unknownArgs:
+                if arg.startswith(("-", "--")):
+                    raise ValueError('unrecognized argument: %s'%(arg))
+                #
+                else:
+                    testnames.append(arg)
+
+            #If no tests are given, no subet tag or --all option
+            if testnames == []:
+                raise Exception, 'List of tests is empty'
+
+    if logger.isEnabledFor(logging.DEBUG):
+        # Debug Information
+        logger.debug("PYVER: %s",PYVER)
+        logger.debug("CASA_DIR: %s",CASA_DIR)
+        logger.debug("HAVE_MEMTEST: %s",HAVE_MEMTEST)
+        logger.debug("HAVE_COVTEST: %s",HAVE_COVTEST)
+        logger.debug("DRY_RUN: %s",DRY_RUN)
+        logger.debug("whichtests: %s",whichtests)
+        logger.debug("Tests: %s",testnames)
+        logger.debug("TestTag: %s",testTag)
+        logger.debug("Arguments: %s",args)
 
     try:
-        main(testnames)
+        run(testnames)
         casa['dirs']['data'] = original_datapath #Set Datapath to original datapath if '-d' option was given
     except:
         traceback.print_exc()
 
-
+    logging.shutdown()
