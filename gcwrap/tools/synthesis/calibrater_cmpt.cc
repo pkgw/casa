@@ -363,7 +363,11 @@ calibrater::setsolve(const std::string& type,
                      const std::string& radius,
                      const bool smooth,
                      const bool zerorates,
-                     const bool globalsolve)
+                     const bool globalsolve,
+                     const int weightfactor,
+                     const vector<double>& delaywindow,
+                     const vector<double>& ratewindow
+    )
 {
   if (! itsMS) {
     *itsLog << LogIO::SEVERE << "Must first open a MeasurementSet."
@@ -390,7 +394,8 @@ calibrater::setsolve(const std::string& type,
 			    minblperant,
 			    toCasaString(refant),refantmode,
 			    solnorm,minsnr,combine,fillgaps,
-			    cfcache, painc, fitorder, fraction, numedge, radius, smooth, zerorates, globalsolve);
+			    cfcache, painc, fitorder, fraction, numedge, radius, smooth,
+                            zerorates, globalsolve, weightfactor, delaywindow, ratewindow);
     
   } catch(AipsError x) {
     *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;

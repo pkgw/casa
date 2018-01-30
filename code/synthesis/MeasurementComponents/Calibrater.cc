@@ -760,7 +760,10 @@ Bool Calibrater::setsolve (const String& type,
                            const String& radius,
                            const Bool smooth,
                            const Bool zerorates,
-                           const Bool globalsolve
+                           const Bool globalsolve,
+                           const Int weightfactor,
+                           const Vector<Double>& delaywindow, 
+                           const Vector<Double>& ratewindow
     )
 {
   
@@ -777,15 +780,20 @@ Bool Calibrater::setsolve (const String& type,
   solveparDesc.addField ("table", TpString);
   solveparDesc.addField ("append", TpBool);
   solveparDesc.addField ("solnorm", TpBool);
-  solveparDesc.addField ("minsnr", TpFloat);
   solveparDesc.addField ("type", TpString);
   solveparDesc.addField ("combine", TpString);
   solveparDesc.addField ("maxgap", TpInt);
   solveparDesc.addField ("cfcache", TpString);
   solveparDesc.addField ("painc", TpDouble);
   solveparDesc.addField ("fitorder", TpInt);
+
+  // fringe-fit specific fields
+  solveparDesc.addField ("minsnr", TpFloat);
   solveparDesc.addField ("zerorates", TpBool);
   solveparDesc.addField ("globalsolve", TpBool);
+  solveparDesc.addField ("weightfactor", TpInt);
+  solveparDesc.addField ("delaywindow", TpArrayDouble);
+  solveparDesc.addField ("ratewindow", TpArrayDouble);
 
   // single dish specific fields
   solveparDesc.addField ("fraction", TpFloat);
@@ -794,7 +802,6 @@ Bool Calibrater::setsolve (const String& type,
   solveparDesc.addField ("smooth", TpBool);
 
 
-  
   // Create a solver record with the requisite field values
   Record solvepar(solveparDesc);
   solvepar.define ("solint", solint);
@@ -808,9 +815,15 @@ Bool Calibrater::setsolve (const String& type,
   solvepar.define ("table", table);
   solvepar.define ("append", append);
   solvepar.define ("solnorm", solnorm);
+
+  // Fringe-fit specific
   solvepar.define ("minsnr", minsnr);
   solvepar.define ("zerorates", zerorates);
   solvepar.define ("globalsolve", globalsolve);
+  solvepar.define ("weightfactor", weightfactor);
+  solvepar.define ("delaywindow", delaywindow);
+  solvepar.define ("ratewindow", ratewindow);
+  
   
   String uptype=type;
   uptype.upcase();
