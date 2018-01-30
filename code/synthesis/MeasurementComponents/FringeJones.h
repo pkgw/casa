@@ -239,7 +239,11 @@ public:
   // virtual void solveOneSDB(const SolveDataBuffer&);
 
   virtual casacore::Bool& zeroRates() { return zeroRates_; }
-  virtual casacore::Bool& globalSolve() { return globalSolve_; }
+  virtual casacore::Bool& globalSolve() { return globalSolve_; } 
+  virtual casacore::Int& weightFactor() { return weightFactor_; }
+  virtual casacore::Array<casacore::Double>& delayWindow() { return delayWindow_; }
+  virtual casacore::Array<casacore::Double>& rateWindow() { return rateWindow_; }
+
 protected:
 
   // phase, delay, rate
@@ -271,6 +275,9 @@ private:
 
   casacore::Bool zeroRates_;
   casacore::Bool globalSolve_;
+  casacore::Array<casacore::Double> delayWindow_;
+  casacore::Array<casacore::Double> rateWindow_;
+  casacore::Int weightFactor_;
 };
 
 

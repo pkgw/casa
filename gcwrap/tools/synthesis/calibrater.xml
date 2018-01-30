@@ -721,6 +721,11 @@ Default is True. </description>
      <value>true</value>
      </param>
 
+     <param type="int" direction="in" name="weightfactor">
+     <description>[FRINGE-FIT SPECIFIC] Exponent for weights in least-squares routine</description>
+     <value>2</value>
+     </param>
+
      <param type="doubleArray" direction="in" name="delaywindow">
      <description>[FRINGE-FIT SPECIFIC] Constrain FFT delay search to a window</description>
      <value></value>
@@ -730,7 +735,7 @@ Default is True. </description>
      <description>[FRINGE-FIT SPECIFIC] Constrain FFT rate search to a window</description>
      <value></value>
      </param>
-     
+
      
 </input>
 <returns type="bool"/>

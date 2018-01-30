@@ -9,7 +9,7 @@ def fringefit(vis=None,caltable=None,
 	      selectdata=None,timerange=None,antenna=None,scan=None,
 	      observation=None, msselect=None,
 	      solint=None,combine=None,refant=None,
-	      minsnr=None,zerorates=None,globalsolve=None,
+	      minsnr=None,zerorates=None,globalsolve=None,weightfactor=None,
               delaywindow=None,ratewindow=None,append=None,
 	      docallib=None, callib=None, gaintable=None,gainfield=None,interp=None,spwmap=None,
 	      parang=None):
@@ -92,16 +92,16 @@ def fringefit(vis=None,caltable=None,
 		# Apply parallactic angle, if requested
 		if parang: mycb.setapply(type='P')
 
-		# Set up for solving:  
-
-		# Only support one gaintype
+                print >>sys.stderr, "Weightfactor: ", weightfactor, type(weightfactor)
+		# Set up for solving; only support one gaintype
 		mycb.setsolve(type="FRINGE",t=solint,refant=refant,preavg=0.01,
 			      minsnr=minsnr,combine=combine,
 			      zerorates=zerorates,
                               globalsolve=globalsolve,
+                              weightfactor=weightfactor,
                               delaywindow=delaywindow,
                               ratewindow=ratewindow,
-			      table=caltable,append=append)
+                	      table=caltable,append=append)
 		mycb.solve()
 		reportsolvestats(mycb.activityrec());
 		mycb.close()

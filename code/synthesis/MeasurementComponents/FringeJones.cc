@@ -597,15 +597,17 @@ private:
     std::map< Int, std::set< Int > > activeAntennas;
     std::map< Int, Int > antennaIndexMap;
     Int activeCorr;
+    Int weightfactor;
 public:
-    AuxParamBundle(SDBList& sdbs_, size_t refant, const std::map< Int, std::set<Int> >& activeAntennas_) :
+    AuxParamBundle(SDBList& sdbs_, size_t refant, const std::map< Int, std::set<Int> >& activeAntennas_, Int weightfactor_) :
         sdbs(sdbs_),
         nCalls(0),
         refant(refant),
         nCorrelations(sdbs.nCorrelations() > 1 ? 2 : 1),
         corrStep(sdbs.nCorrelations() > 2 ? 3 : 1),
         activeAntennas(activeAntennas_),
-        activeCorr(-1)
+        activeCorr(-1),
+        weightfactor(weightfactor_)
         // corrStep(3)
         {
             Int last_index = sdbs.nSDB() - 1 ;
@@ -617,6 +619,20 @@ public:
 
     Double get_t0() {
         return t0;
+    }
+    Double
+    get_weightExponent() {
+        Double weightExponent;
+        if (weightfactor == 0) {
+            weightExponent = 0;
+        } else if (weightfactor == 1) {
+            weightExponent = 0.25;
+        } else if (weightfactor == 2) {
+            weightExponent = 0.5;
+        } else {
+            throw(AipsError("Invalid weightfactor - must be 0, 1 or 2."));
+        }
+        return weightExponent;
     }
     Double
     get_ref_time() {
@@ -717,7 +733,8 @@ expb_f(const gsl_vector *param, void *d, gsl_vector *f)
     AuxParamBundle *bundle = (AuxParamBundle *)d;
     SDBList& sdbs = bundle->sdbs;
     Double refTime = bundle->get_t0();
-
+    Double weightExponent = bundle->get_weightExponent();
+    
     gsl_vector_set_zero(f);
     Vector<Double> freqs = sdbs.freqs();
     
@@ -780,15 +797,7 @@ expb_f(const gsl_vector *param, void *d, gsl_vector *f)
                 if (fl(dcorr, ichan, irow)) continue;
                 Complex vis = v(dcorr, ichan, irow);
                 Double w0 = weights(dcorr, ichan, irow);
-                // FIXME: what should we use to scale the weights?
-                // Double weightScale = norm(vis);
-                // Double weightScale = abs(vis);
-                // Double weightScale = 1;
-                // Double weightScale = 1/sqrt(w0); // Actually AIPS 0, not AIPS 1!
-                // Double weightScale = pow(w0, -0.75); // AIPS 2
-                //  Double weightScale = 1/w0; // AIPS 3
-                // Double weightScale = norm(vis); // Casa 1, I guess
-                Double w = sqrt(w0);
+                Double w = pow(w0, weightExponent);
                 sumwt += w*w;
                 if (fabs(w) < FLT_EPSILON) continue;
                 // We have to turn the delay back into seconds from nanoseconds.
@@ -832,6 +841,8 @@ expb_df(CBLAS_TRANSPOSE_t TransJ, const gsl_vector* x, const gsl_vector *u, void
     AuxParamBundle *bundle = (AuxParamBundle *)bundle_;
 
     SDBList& sdbs = bundle->sdbs;
+    Double weightExponent = bundle->get_weightExponent();
+    
     Vector<Double> freqs = sdbs.freqs();
 
     size_t count = 0; // This is the master index.
@@ -907,7 +918,7 @@ expb_df(CBLAS_TRANSPOSE_t TransJ, const gsl_vector* x, const gsl_vector *u, void
             for (size_t ichan = 0; ichan != vis.ncolumn(); ichan++) {
                 if (fl(dcorr, ichan, irow)) continue;
                 Double w0 = weights(dcorr, ichan, irow);
-                Double w = sqrt(w0);
+                Double w = pow(w0, weightExponent);
                 if (fabs(w) < FLT_EPSILON) continue;
                 found_data = true;
                 // Add a 1e-9 factor because tau parameter is in nanoseconds.
@@ -1073,7 +1084,7 @@ expb_df(CBLAS_TRANSPOSE_t TransJ, const gsl_vector* x, const gsl_vector *u, void
             params.begin(),
             params.end(),
             std::ostream_iterator<Int>(std::cerr, " ")
-);
+            );
         cerr << endl;
         print_baselines(baselines);
         cerr << "count " << count << endl;
@@ -1358,12 +1369,13 @@ aggregateTimeCentroid(SDBList& sdbs, Int refAnt, std::map<Int, Double>& aggregat
 
 void
 least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Float>& casa_snr, Int refant,
-                     const std::map< Int, std::set<Int> >& activeAntennas, LogIO& logSink) {
+                     const std::map< Int, std::set<Int> >& activeAntennas, Int weightFactor, LogIO& logSink) {
     // The variable casa_param is the Casa calibration framework's RParam matrix; we transcribe our results into it only at the end.
     // n below is number of variables,
     // p is number of parameters
 
-    AuxParamBundle bundle(sdbs, refant, activeAntennas);
+    AuxParamBundle bundle(sdbs, refant, activeAntennas, weightFactor);
+    
     for (size_t icor=0; icor != bundle.get_num_corrs(); icor++) {
         bundle.set_active_corr(icor);
         if (bundle.get_num_antennas() == 0) {
@@ -1736,16 +1748,19 @@ void FringeJones::setSolve(const Record& solve) {
         globalSolve() = solve.asBool("globalsolve");
     }
     if (solve.isDefined("delaywindow")) {
-        cerr << "delay window: " << solve.asArrayDouble("delaywindow") << endl;
+        Array<Double> dw = solve.asArrayDouble("delaywindow");
+        delayWindow() = dw;
     } else {
         cerr << "No delay window: " << endl;
     }
     if (solve.isDefined("ratewindow")) {
-        cerr << "rate window: " << solve.asArrayDouble("ratewindow") << endl;
+        rateWindow() = solve.asArrayDouble("ratewindow");
     } else {
         cerr << "No rate window: " << endl;
     }
-    
+    if (solve.isDefined("weightfactor")) {
+        weightFactor() = solve.asInt("weightfactor");
+    } 
 }
 
 // Note: this was previously omitted
@@ -1937,7 +1952,7 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
         // FringeJones so we pass everything in, including the logSink
         // reference.  Note also that sRP is passed by reference and
         // altered in place.
-        least_squares_driver(sdbs, sRP, sSNR, refant(), drf.getActiveAntennas(), logSink());
+        least_squares_driver(sdbs, sRP, sSNR, refant(), drf.getActiveAntennas(), weightFactor(), logSink());
     }
     else {
         logSink() << "Skipping least squares optimisation." << LogIO::POST;

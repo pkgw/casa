@@ -135,6 +135,7 @@ class Calibrater
                  const casacore::Bool smooth=true,
                  const casacore::Bool zerorates=false,
        const casacore::Bool globalsolve=true,
+       const casacore::Int weightfactor=2,
        const casacore::Vector<casacore::Double>& delaywindow=casacore::Vector<casacore::Double>(), 
        const casacore::Vector<casacore::Double>& ratewindow=casacore::Vector<casacore::Double>()
 );
