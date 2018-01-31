@@ -283,7 +283,8 @@ void ImageInterfaceTest::testMaskByPerPlaneThreshold()
     
     PagedImage<Float> outmaskimage(TiledShape(shape), csys, String("testMaskPerChanOutput.im"));
     SDMaskHandler maskhandler;
-    maskhandler.makeMaskByPerChanThreshold(templateImage, outmaskimage, thresval); 
+    Vector<Bool> chanflg(5,False);
+    maskhandler.makeMaskByPerChanThreshold(templateImage, chanflg, outmaskimage, thresval); 
     ASSERT_TRUE(outmaskimage.getAt(IPosition(4,50,45,0,0))==Float(1.0));
     ASSERT_TRUE(outmaskimage.getAt(IPosition(4,50,46,0,0))==Float(0.0));
     ASSERT_TRUE(outmaskimage.getAt(IPosition(4,25,25,0,1))==Float(0.0));
@@ -456,7 +457,8 @@ void ImageInterfaceTest::testYAPruneRegions()
 
     Double prunesize=2.0;
     Vector<Bool> pruned; 
-    SHARED_PTR<ImageInterface<Float> > tempIm_ptr = maskhandler.YAPruneRegions(InImage,pruned,prunesize);
+    Vector<Bool> chanflg(5,False);
+    SHARED_PTR<ImageInterface<Float> > tempIm_ptr = maskhandler.YAPruneRegions(InImage,chanflg, pruned,prunesize);
     PagedImage<Float> outMask(InImage.shape(), InImage.coordinates(), "testYAPruneRegions-out.mask");
     outMask.copyData(*(tempIm_ptr.get()) );
 }
@@ -494,7 +496,8 @@ void ImageInterfaceTest::testYAPruneRegionsBigImage()
 
     Double prunesize=2.0;
     Vector<Bool> pruned; 
-    SHARED_PTR<ImageInterface<Float> > tempIm_ptr = maskhandler.YAPruneRegions(InImage,pruned,prunesize);
+    Vector<Bool> chanflg(5,False);
+    SHARED_PTR<ImageInterface<Float> > tempIm_ptr = maskhandler.YAPruneRegions(InImage,chanflg, pruned,prunesize);
     PagedImage<Float> outMask(InImage.shape(), InImage.coordinates(), "testYAPruneRegions2-out.mask");
     outMask.copyData(*(tempIm_ptr.get()) );
 }

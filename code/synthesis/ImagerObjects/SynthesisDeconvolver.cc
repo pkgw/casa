@@ -70,6 +70,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                        itsPBMask(0.0),
 				       //itsMaskString(String("")),
                                        itsIterDone(0.0),
+                                       itsChanFlag(Vector<Bool>(False)),
+                                       initializeChanMaskFlag(false),
 				       itsIsMaskLoaded(false),
 				       itsMaskSum(-1e+9)
   {
@@ -193,6 +195,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         itsCutThreshold = decpars.cutThreshold;
         itsGrowIterations = decpars.growIterations;
         itsDoGrowPrune = decpars.doGrowPrune;
+        itsMinPercentChange = decpars.minPercentChange;
 	itsIsInteractive = decpars.interactive;
       }
     catch(AipsError &x)
@@ -237,6 +240,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       itsLoopController.setPeakResidual( validMask ? itsImages->getPeakResidualWithinMask() : peakresnomask );
       itsLoopController.setPeakResidualNoMask( peakresnomask );
       itsLoopController.setMaxPsfSidelobe( itsImages->getPSFSidelobeLevel() );
+
+      if (!initializeChanMaskFlag) {
+        IPosition maskshp = itsImages->mask()->shape();
+        Int nchan = maskshp(3);
+        itsChanFlag=Vector<Bool>(nchan,False);
+        initializeChanMaskFlag=True;
+      }
+      os<<LogIO::DEBUG1<<"itsChanFlag.shape="<<itsChanFlag.shape()<<LogIO::POST;
 
       /*
       Array<Double> rmss = itsImages->calcRobustRMS();
@@ -529,12 +540,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
        LogIO os( LogOrigin("SynthesisDeconvolver","setAutoMask",WHERE) );
        os << "Generating AutoMask" << LogIO::POST;
+       os << "itsMinPercentChnage = " << itsMinPercentChange<< LogIO::POST;
 
        if ( itsPBMask > 0.0 ) {
-         itsMaskHandler->autoMaskWithinPB( itsImages, itsIterDone, itsAutoMaskAlgorithm, itsMaskThreshold, itsFracOfPeak, itsMaskResolution, itsMaskResByBeam, itsNMask, itsAutoAdjust,  itsSidelobeThreshold, itsNoiseThreshold, itsLowNoiseThreshold, itsNegativeThreshold,itsCutThreshold, itsSmoothFactor, itsMinBeamFrac, itsGrowIterations, itsDoGrowPrune, itsPBMask);
+         itsMaskHandler->autoMaskWithinPB( itsImages, itsIterDone, itsChanFlag, itsAutoMaskAlgorithm, itsMaskThreshold, itsFracOfPeak, itsMaskResolution, itsMaskResByBeam, itsNMask, itsAutoAdjust,  itsSidelobeThreshold, itsNoiseThreshold, itsLowNoiseThreshold, itsNegativeThreshold,itsCutThreshold, itsSmoothFactor, itsMinBeamFrac, itsGrowIterations, itsDoGrowPrune, itsMinPercentChange, itsPBMask);
        }
        else {
-         itsMaskHandler->autoMask( itsImages, itsIterDone, itsAutoMaskAlgorithm, itsMaskThreshold, itsFracOfPeak, itsMaskResolution, itsMaskResByBeam, itsNMask, itsAutoAdjust, itsSidelobeThreshold, itsNoiseThreshold, itsLowNoiseThreshold, itsNegativeThreshold, itsCutThreshold, itsSmoothFactor, itsMinBeamFrac, itsGrowIterations, itsDoGrowPrune );
+         itsMaskHandler->autoMask( itsImages, itsIterDone, itsChanFlag,itsAutoMaskAlgorithm, itsMaskThreshold, itsFracOfPeak, itsMaskResolution, itsMaskResByBeam, itsNMask, itsAutoAdjust, itsSidelobeThreshold, itsNoiseThreshold, itsLowNoiseThreshold, itsNegativeThreshold, itsCutThreshold, itsSmoothFactor, itsMinBeamFrac, itsGrowIterations, itsDoGrowPrune, itsMinPercentChange );
        }
      }
   }

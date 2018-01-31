@@ -3486,6 +3486,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                 err+= "dogrowprune must be a bool\n";
             }
           } 
+        if( inrec.isDefined("minpercentchange"))
+          {
+            if (inrec.dataType("minpercentchange")==TpFloat || inrec.dataType("minpercentchange")==TpDouble ) {
+                err+= readVal(inrec, String("minpercentchange"), minPercentChange );
+            }
+            else {
+                err+= "minpercentchange must be a float or double";
+            }
+          }
         if( inrec.isDefined("restoringbeam") )     
 	  {
 	    String errinfo("");
@@ -3656,6 +3665,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     decpar.define("cutthreshold",cutThreshold);
     decpar.define("growiterations",growIterations);
     decpar.define("dogrowprune",doGrowPrune);
+    decpar.define("minpercentchange",minPercentChange);
     decpar.define("interactive",interactive);
 
     return decpar;
