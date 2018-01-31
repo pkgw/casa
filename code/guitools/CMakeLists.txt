@@ -43,7 +43,7 @@ qt4_wrap_cpp( outfiles_qoh
   Feather/FileLoader.qo.h
   Feather/FeatherPlotWidget.qo.h
   Feather/PreferencesFunction.qo.h
-  Feather/Preferences.qo.h
+  Feather/FeatherPreferences.qo.h
   Feather/PreferencesColor.qo.h
   Feather/OverWriteFileDialog.qo.h
   Feather/AboutDialog.qo.h
@@ -66,7 +66,7 @@ casa_qt4_wrap_ui( outfiles_ui
   Feather/FileLoader.ui
   Feather/FeatherPlotWidget.ui
   Feather/PreferencesFunction.ui
-  Feather/Preferences.ui
+  Feather/FeatherPreferences.ui
   Feather/PreferencesColor.ui
   Feather/OverWriteFileDialog.ui
   Feather/AboutDialog.ui
@@ -97,7 +97,7 @@ casa_add_library( guitools
   Feather/FileLoader.cc
   Feather/LegendCurve.cc
   Feather/LegendItemRect.cc
-  Feather/Preferences.cc
+  Feather/FeatherPreferences.cc
   Feather/PreferencesFunction.cc
   Feather/PreferencesColor.cc
   Feather/FeatherPlot.cc
