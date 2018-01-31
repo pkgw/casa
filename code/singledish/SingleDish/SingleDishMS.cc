@@ -233,6 +233,14 @@ void SingleDishMS::setSelection(Record const &selection, bool const verbose) {
       any_selection = true;
       os << "- TaQL: " << taQLExpr << LogIO::POST;
     }
+    {// reindex
+    	Int ifield;
+    	ifield = selection_.fieldNumber(String("reindex"));
+    	if (ifield > -1) {
+    		Bool reindex = selection_.asBool(ifield);
+    		os << "- Reindex: " << (reindex ? "ON" : "OFF" ) << LogIO::POST;
+    	}
+    }
     if (!any_selection)
       os << "No valid selection parameter is set." << LogIO::WARN;
   }
