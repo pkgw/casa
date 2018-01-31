@@ -7,6 +7,7 @@ from taskinit import *
 SRV_WSDL_URL = 'http://asa.alma.cl/axis2/services/TMCDBAntennaPadService?wsdl'
 ALMA_CONFIG_NAME = 'CURRENT.AOS'
 
+offline_tmp_test = False
 
 def query_tmcdb_antennas(ant_names, timestamp):
     """
@@ -23,14 +24,23 @@ def query_tmcdb_antennas(ant_names, timestamp):
     :raises urllib2.URLError: if network or server issues
     """
 
+    import time
     from suds.client import Client
 
+    if offline_tmp_test:
+        return {}
+
     # build a string of space-separated antenna names
-    ant_names_str = ' '.join(ant for ant in ant_names)
+    try:
+        ant_names_str = ' '.join(ant for ant in ant_names)
+    except RuntimeError as exc:
+        raise AttributeError('Error in antenna names strings: {0}. ant_names must be a list'
+                             'of strings. Got: {1}'.format(exc, ant_names))
     config_name = ALMA_CONFIG_NAME
-    casalog.post('Querying positions for configuration: {0}, for these '
+    casalog.post('Querying TMC DB, positions for configuration: {0}, for these '
                  'antennas: {1}, at time: {2}'.
                  format(config_name, ant_names_str, timestamp), 'INFO')
+    time_start = time.time()
 
     wscli = Client(SRV_WSDL_URL)
     resp = None
@@ -38,6 +48,8 @@ def query_tmcdb_antennas(ant_names, timestamp):
         resp = wscli.service.getAntennaPositions(configurationName=config_name,
                                                  antennaNames=ant_names_str,
                                                  timestamp=timestamp)
+        time_end = time.time()
+        casalog.post('Got response from TMC DB. Took {0}s'.format(time_end - time_start))
     except AttributeError as exc:
         import traceback
         traceback.print_exc(file=sys.stdout)
@@ -50,6 +62,27 @@ def query_tmcdb_antennas(ant_names, timestamp):
 
     return resp
 
+# TODO: CAS-9089 remove once we have the web service in place and up
+def offline_replacement_get_ant_pad_posns(resp_ignore):
+    ant_names = ['CM01', 'CM04', 'CM06', 'CM08', 'CM09', 'CM12']
+    pad_posns = np.array([
+        [2225077.740072, -5440126.556893, -2481521.870757],
+        [2225071.452829, -5440108.851154, -2481566.026086],
+        [2225081.6259, -5440108.599685, -2481557.493929],
+        [2225060.918022, -5440127.734977, -2481534.28463],
+        [2225069.540537, -5440129.897722, -2481521.874189],
+        [2225086.823433, -5440113.37494, -2481542.48177]
+    ])
+    ant_vec = np.array([
+        [-0.002052, -0.000232, 7.502983],
+        [-0.001695, 0.000365, 7.499843],
+        [-0.001863, 0.000487, 7.500449],
+        [-0.001925, 0.001029, 7.501333],
+        [-0.001918, 0.000704, 7.500064],
+        [-0.00173, 0.000851, 7.499918]
+    ])
+
+    return (ant_names, ant_vec, pad_posns)
 
 def process_tmcdb_response_for_gencal(resp):
     """
@@ -71,7 +104,7 @@ def process_tmcdb_response_for_gencal(resp):
         Basic sanity checks on a position object
 
         :param pos: position object as returned for one antenna by the
-        TMCDB AntennaPad service.
+        TMC DB AntennaPad service.
         :param ant_idx: index of the antenna
         """
         if not pos:
@@ -91,7 +124,7 @@ def process_tmcdb_response_for_gencal(resp):
         Get the position parameters for an antenna from a position object
 
         :param pos: position object as returned for one antenna by the
-        TMCDB AntennaPad service.
+        TMC DB AntennaPad service.
 
         :returns: tuple: position found, position as a list [x,y,z], pad
         position as a list [x, y, z]
@@ -114,30 +147,34 @@ def process_tmcdb_response_for_gencal(resp):
 
         return (pos_found, ant_position, pad_position)
 
-    if not resp:
-        raise RuntimeError('No response received: {}'.format(resp))
-    elif not resp.antennaPositionList or 0 == len(resp.antennaPositionList):
-        raise RuntimeError('Response with no list: {}'.format(resp))
+    if not offline_tmp_test:
+        if not resp:
+            raise RuntimeError('No response received: {}'.format(resp))
+        elif not resp.antennaPositionList or 0 == len(resp.antennaPositionList):
+            raise RuntimeError('Response with no list: {}'.format(resp))
 
-    casalog.post('Got this response from ALMA TMCDB: {}'.
+    casalog.post('Got this response from ALMA TMC DB: {}'.
                  format(resp), 'DEBUG')
 
     accum_ant_names = []
     accum_positions = []
     accum_pad_positions = []
     cnt_pos_found = 0
-    for ant_idx, pos in enumerate(resp.antennaPositionList):
-        check_pos(pos, ant_idx)
+    if not offline_tmp_test:
+        for ant_idx, pos in enumerate(resp.antennaPositionList):
+            check_pos(pos, ant_idx)
 
-        accum_ant_names.append(pos.name)
-        (found, ant_position, pad_position) = get_ant_pad_position(pos)
-        if found:
-            cnt_pos_found += 1
-        accum_positions.append(ant_position)
-        accum_pad_positions.append(pad_position)
+            accum_ant_names.append(pos.name)
+            (found, ant_position, pad_position) = get_ant_pad_position(pos)
+            if found:
+                cnt_pos_found += 1
+            accum_positions.append(ant_position)
+            accum_pad_positions.append(pad_position)
+    else:
+        (accum_ant_names, accum_positions, accum_pad_positions) = offline_replacement_get_ant_pad_posns(resp)
 
-    casalog.post('Found position parameters for {} antennas out of {} '
-                 'queried in total '.
+    casalog.post('Queried ALMA TMC DB and found position parameters for {} antennas out of '
+                 '{} requested in total '.
                  format(cnt_pos_found, len(accum_ant_names)), 'INFO')
 
     return (accum_ant_names, accum_positions, accum_pad_positions)
@@ -162,7 +199,8 @@ def correct_ant_posns_alma(vis_name, print_offsets=False):
 
         :returns: a tuple: 1) list of antenna names from the MS, 2) list
         of pad/station names from the MS, 3) positions [x, y, z] of the
-        antennas as recorded in the MS.
+        antennas as recorded in the MS, 4) positions [x, y, z] of the
+        pads/stations as recorded in the MS.
         """
         tb_tool.open(vis_name + '/ANTENNA')
         ant_names = tb_tool.getcol('NAME')
@@ -189,7 +227,8 @@ def correct_ant_posns_alma(vis_name, print_offsets=False):
             tb_tool.close()
 
             asdm_pad_pos = asdm_pad_pos[:, 0:asdm_ant_pos.shape[1]]
-            ant_posns = asdm_pad_pos + asdm_ant_pos
+            #ant_posns = asdm_pad_pos + asdm_ant_pos    # key
+            ant_posns = asdm_ant_pos
         except RuntimeError as exc:
             casalog.post('Could not find pad and antenna position information '
                          'from the ASDM_ANTENNA and ASDM_STATION subtables. '
@@ -201,9 +240,11 @@ def correct_ant_posns_alma(vis_name, print_offsets=False):
             ant_posns = tb_tool.getcol('POSITION')
             tb_tool.close()
 
-        ant_posns_lists = map(list, zip(ant_posns[0], ant_posns[1],
-                                        ant_posns[2]))
-        return (ant_names, pad_names, ant_posns_lists)
+        ant_posns_ms = map(list, zip(asdm_ant_pos[0], asdm_ant_pos[1],
+                                     asdm_ant_pos[2]))
+        pad_posns_ms = map(list, zip(asdm_pad_pos[0], asdm_pad_pos[1],
+                                     asdm_pad_pos[2]))
+        return (ant_names, pad_names, ant_posns_ms, pad_posns_ms)
 
     def get_time_range_from_obs(vis_name):
         tb_tool.open(vis_name + '/OBSERVATION')
@@ -226,66 +267,170 @@ def correct_ant_posns_alma(vis_name, print_offsets=False):
         return obs_time
 
     def calc_ant_params_from_positions(ant_names, ant_corr_posns, pad_posns,
-                                       ant_posns_ms):
+                                       ant_posns_ms, pad_posns_ms):
         """
         Produces the antenna position correction offset parameters required by
         gencal. Uses positions from the TMCDB and the MS.
 
         :param ant_names: list of names of the antennas
-        :param ant_corr_posns: antenna (corrected) positions from the TMCDB
+        :param ant_corr_posns: antenna positions offsets from the TMCDB
         :param pad_posns: pad positions from the TMCDB
-        :param ant_posns_ms: antenna positions recorded in the MS
+        :param ant_posns_ms: antenna position offsets recorded from the MS/ASDM
+        :param pad_posns_ms: pad/station positions recorded from the MS/ASDM
 
         :returns: position correction parameters for the antennas listed in the
                   first parameter
         """
 
-        def calc_param_diff(ant_corr_pos, pad_pos, ant_pos_ms):
+        def calc_param_diff(name, ant_corr_pos, pad_pos, ant_pos_ms, pad_pos_ms):
             """
-            Subtracts A (found from the TMCDB) - B (found in the MS), where
-            A is: pad position + antenna position correction/vector
-            B is: antenna position in MS
-            to produce the correctin parameters expected by gencal
+            Produce the correction parameters expected by gencal.
 
+            :param name: antenna name
             :param ant_corr_pos: antenna position from the TMCDB
             :param pad_pos: pad position from the TMCDB
-            :param ant_pos_ms: antenna position recorded in the MS
+            :param ant_pos_ms: antenna position recorded from the MS/ASDM
+            :param ant_pos_ms: pad position recorded from the MS/ASDM
 
             :returns: position correction parameters for one antenna
                       (Bx, By, Bz)
             """
-            import math
+            if (pad_pos == pad_pos_ms).all():
+                return calc_param_diff_same_pad_pos(name, ant_corr_pos, pad_pos, ant_pos_ms)
+            else:
+                return calc_param_diff_diff_pad_pos(name, ant_corr_pos, pad_pos, ant_pos_ms,
+                                                    pad_pos_ms)
 
-            lat = (math.asin(pad_pos[2] /
-                             math.sqrt(pad_pos[0]**2
+        def calc_param_diff_diff_pad_pos(name, ant_corr_pos, pad_pos, ant_pos_ms,
+                                         pad_pos_ms):
+            from math import sqrt, cos, sin, asin, atan2
+
+            lat = (asin(pad_pos[2] /
+                             sqrt(pad_pos[0]**2
                                        + pad_pos[1]**2 + pad_pos[2]**2)))
-            lon = math.atan2(pad_pos[1], pad_pos[0])
+            lon = atan2(pad_pos[1], pad_pos[0])
+            pos_tot = np.array([0, 0, 0], dtype=float)
+            pos_tot[0] = (ant_corr_pos[0] - sin(-lon) * pad_pos[0] -
+                          cos(-lon) * sin(-lat) * pad_pos[1] +
+                          cos(-lon) * cos(-lat) * pad_pos[2])
+            pos_tot[1] = (ant_corr_pos[1] + cos(-lon) * pad_pos[0] -
+                          sin(-lon) * sin(-lat) * pad_pos[1] +
+                          sin(-lon) * cos(-lat) * pad_pos[2])
+            pos_tot[2] = (ant_corr_pos[2] + cos(-lat) * pad_pos[1] +
+                          sin(-lat) * pad_pos[2])
 
-            itrf_diff = pad_pos + ant_corr_pos - ant_pos_ms
+            lat_ms = (asin(pad_pos_ms[2] /
+                             sqrt(pad_pos_ms[0]**2
+                                       + pad_pos_ms[1]**2 + pad_pos_ms[2]**2)))
+            lon_ms = atan2(pad_pos_ms[1], pad_pos_ms[0])
+            pos_tot_ms = np.array([0, 0, 0], dtype=float)
+            pos_tot_ms[0] = (ant_pos_ms[0] - sin(-lon_ms) * pad_pos_ms[0] -
+                             cos(-lon_ms) * sin(-lat_ms) * pad_pos_ms[1] +
+                             cos(-lon_ms) * cos(-lat_ms) * pad_pos_ms[2])
+            pos_tot_ms[1] = (ant_pos_ms[1] + cos(-lon_ms) * pad_pos_ms[0] -
+                             sin(-lon_ms) * sin(-lat_ms) * pad_pos_ms[1] +
+                             sin(-lon_ms) * cos(-lat_ms) * pad_pos_ms[2])
+            pos_tot_ms[2] = (ant_pos_ms[2] + cos(-lat_ms) * pad_pos_ms[1] +
+                             sin(-lat_ms) * ant_pos_ms[2])
+
+            pos_diff = pos_tot - pos_tot_ms
+
+            # Errors fixed. Not clear at this point (201712) if/when they could be
+            # retrieved from the database
+            pos_err = np.array([1e-10, 1e-10, 1e-10])
+
+            if (pos_err == 0).any():
+                casalog.post('Note: some errors are null for an antenna position. Error '
+                             'vector: {}'.format(pos_err), 'WARN')
+
+            # Threshold fixed as the default value in analysisUtils:correctMyAntennaPositions
+            thresh = 5
+            norm_ratio = sqrt(((pos_diff / pos_err)**2).sum())
+            if norm_ratio < thresh:
+                casalog.post('Note: norm of position difference / errors ({}) is lower '
+                             'than threshold ({}).'.format(norm_ratio, thresh), 'WARN')
+
+            # calculate parameters for gencal
+            par_tot = np.array([0, 0, 0], dtype=float)
+            par_tot[0] = (pad_pos[0] - sin(lon) * ant_corr_pos[0] -
+                          cos(lon) * sin(lat) * ant_corr_pos[1] +
+                          cos(lon) * cos(lat) * ant_corr_pos[2])
+            par_tot[1] = (pad_pos[1] + cos(lon) * ant_corr_pos[0] -
+                          sin(lon) * sin(lat) * ant_corr_pos[1] +
+                          sin(lon) * cos(lat) * ant_corr_pos[2])
+            par_tot[2] = (pad_pos[2] + cos(lat) * ant_corr_pos[1] +
+                          sin(lat) * ant_corr_pos[2])
+
+            par_tot_ms = np.array([0, 0, 0], dtype=float)
+            par_tot_ms[0] = (pad_pos_ms[0] - sin(lon_ms) * ant_pos_ms[0] -
+                             cos(lon_ms) * sin(lat_ms) * ant_pos_ms[1] +
+                             cos(lon_ms) * cos(lat_ms) * ant_pos_ms[2])
+            par_tot_ms[1] = (pad_pos_ms[1] + cos(lon_ms) * ant_pos_ms[0] -
+                             sin(lon_ms) * sin(lat_ms) * ant_pos_ms[1] +
+                             sin(lon_ms) * cos(lat_ms) * ant_pos_ms[2])
+            par_tot_ms[2] = (pad_pos_ms[2] + cos(lat_ms) * ant_pos_ms[1] +
+                             sin(lat_ms) * ant_pos_ms[2])
+
+            pos_par_diff = par_tot - par_tot_ms
+
+            correction_thresh = 2e-3
+            norm_par = np.linalg.norm(pos_par_diff)
+            if norm_par >= correction_thresh:
+                casalog.post('Note: the norm of the correction for antenna {} ({}) is '
+                             'larger than {}.'.
+                             format(name, norm_par, correction_thresh), 'WARN')
+
+            return pos_par_diff
+
+        def calc_param_diff_same_pad_pos(name, ant_corr_pos, pad_pos, ant_pos_ms):
+            """
+            Subtracts A (found from the TMCDB) - B (found in the MS), where
+            A is: pad position + antenna position correction/vector
+            B is: antenna position in MS
+            to produce the correction parameters expected by gencal
+
+            :param name: antenna name
+            :param ant_corr_pos: antenna position from the TMCDB
+            :param pad_pos: pad position from the TMCDB
+            :param ant_pos_ms: antenna position from the MS/ASDM
+            :param ant_pos_ms: pad position from the MS/ASDM
+
+            :returns: position correction parameters for one antenna
+                      (Bx, By, Bz)
+            """
+            from math import sqrt, sin, cos, asin, atan2
+
+            lat = (asin(pad_pos[2] /
+                             sqrt(pad_pos[0]**2
+                                       + pad_pos[1]**2 + pad_pos[2]**2)))
+            lon = atan2(pad_pos[1], pad_pos[0])
+
+            itrf_diff = ant_corr_pos - ant_pos_ms
             param = np.array([0, 0, 0], dtype=float)
-            param[0] = (-math.sin(lon) * itrf_diff[0]
-                        - math.cos(lon) * math.sin(lat) * itrf_diff[1]
-                        + math.cos(lon) * math.cos(lat) * itrf_diff[2])
-            param[1] = (math.cos(lon) * itrf_diff[0]
-                        - math.sin(lon) * math.sin(lat) * itrf_diff[1]
-                        + math.sin(lon) * math.cos(lat) * itrf_diff[2])
-            param[2] = (math.cos(lat) * itrf_diff[1]
-                        + math.sin(lat) * itrf_diff[2])
+            param[0] = (-sin(lon) * itrf_diff[0]
+                        - cos(lon) * sin(lat) * itrf_diff[1]
+                        + cos(lon) * cos(lat) * itrf_diff[2])
+            param[1] = (cos(lon) * itrf_diff[0]
+                        - sin(lon) * sin(lat) * itrf_diff[1]
+                        + sin(lon) * cos(lat) * itrf_diff[2])
+            param[2] = (cos(lat) * itrf_diff[1] + sin(lat) * itrf_diff[2])
 
             return param
 
         ant_params = []
-        casalog.post('Antenna positions found in TMCDB: {0}, \nPositions '
-                     'found in MS: {1}'.format(ant_corr_posns, ant_posns_ms),
+        casalog.post('Antennas {0}\nPositions from TMC DB: {1},\nPositions '
+                     'found in MS: {2}'.format(ant_names, ant_corr_posns, ant_posns_ms),
                      'DEBUG')
 
-        for idx, _name in enumerate(ant_names):
+        for idx, name in enumerate(ant_names):
             if np.all(ant_corr_posns[idx] == 0) and np.all(pad_posns[idx] == 0):
                 param = np.array([0, 0, 0], dtype=float)
             else:
-                param = calc_param_diff(ant_corr_posns[idx], pad_posns[idx],
-                                        ant_posns_ms[idx])
-
+                param = calc_param_diff(name, ant_corr_posns[idx], pad_posns[idx],
+                                        ant_posns_ms[idx], pad_posns_ms[idx])
+                casalog.post('Antenna name: {}, pos corr: {}, pad pos: {}, pos ms: {}, '
+                             'params: {} '.format(name, ant_corr_posns[idx], pad_posns[idx],
+                                                  ant_posns_ms[idx], param), 'DEBUG')
             ant_params.extend(param)
 
         # build a string of comma-separated antenna names
@@ -294,12 +439,13 @@ def correct_ant_posns_alma(vis_name, print_offsets=False):
         return (ant_names_str, ant_params)
 
     time_range = get_time_range_from_obs(vis_name)
-    ant_names, _pad_names, ant_posns_ms = get_ant_pad_names_posns(vis_name)
+    ant_names, _pad_names, ant_posns_ms, pad_posns_ms = get_ant_pad_names_posns(vis_name)
     obs_time = build_obs_time(time_range)
 
     # the three element to return
     ret_code = 1
     ant_names_str = ''
+    ant_params = []
     # Get corrected positions by querying the TMC database via the TMCDB
     # AntennaPad service
     try:
@@ -309,25 +455,24 @@ def correct_ant_posns_alma(vis_name, print_offsets=False):
             process_tmcdb_response_for_gencal(response))
         if (ant_names_db != ant_names).any():
             raise RuntimeError('The antenna names found in the MS (which were '
-                               'used to query the TMCDB) do not match the '
+                               'used to query the TMC DB) do not match the '
                                'names returned by the database.\nFound in MS: '
-                               '{0}.\nFound in TMCDB: {1}'.
+                               '{0}.\nFound in TMC DB: {1}'.
                                format(ant_names_db, ant_names))
+        ant_names_str, ant_params = (
+            calc_ant_params_from_positions(ant_names, ant_corr_posns,
+                                           pad_posns, ant_posns_ms, pad_posns_ms))
         ret_code = 0
     except urllib2.URLError as exc:
-        casalog.post('Network or server issue found while querying ALMA TMCDB '
+        casalog.post('Network or server issue found while querying ALMA TMC DB '
                      'AntennaPad service. Details: {}'.format(exc), 'ERROR')
         ret_code = 2
     except RuntimeError as exc:
-        casalog.post('Issue found while querying ALMA TMCDB AntennaPad '
+        casalog.post('Issue found while querying ALMA TMC DB AntennaPad '
                      'service. Details: {}'.format(exc), 'ERROR')
         ret_code = 1
 
-    ant_names_str, ant_params = (
-        calc_ant_params_from_positions(ant_names, ant_corr_posns,
-                                       pad_posns, ant_posns_ms))
-
-    casalog.post('Parameter values produced for gencal: {0}'.
-                 format(ant_params), 'DEBUG')
+    casalog.post('Parameter values (FPARAM) produced for gencal, using position information '
+                 'retrieved from the ALMA TMC DB: {0}'.format(ant_params), 'INFO')
 
     return [ret_code, ant_names_str, ant_params]
