@@ -192,6 +192,8 @@ TEST_F(FringeJonesTest, FringeJones_selfSolveOneTest) {
   solvePar.define("table",String("test.Fringe"));  // not used
   solvePar.define("solint",String("inf"));
   solvePar.define("combine",String(""));
+  solvePar.define("globalsolve", true);
+  solvePar.define("weightfactor", 2);
   Vector<Int> refant(1,0); solvePar.define("refant",refant);
   FJsol.setSolve(solvePar);
 
@@ -247,6 +249,8 @@ TEST_F(FringeJonesTest, FringeJones_selfSolveOneTest) {
   Float rate1 = 0.0;
   Float rate2 = 0.0;    
 
+  cerr << "delay1 results " << p(1,1) << endl;
+  cerr << "delay2 results " << p(4,1) << endl;
   ASSERT_TRUE(allNearAbs(p(1, 1), delay1, 2e-2));
   ASSERT_TRUE(allNearAbs(p(4, 1), delay2, 2e-2));
   
