@@ -1,4 +1,4 @@
-//# Preferences.cc: dialog which allows user to set and reset viewer preferences
+//# ViewerPreferences.cc: dialog which allows user to set and reset viewer preferences
 //# Copyright (C) 2012
 //# Associated Universities, Inc. Washington DC, USA.
 //#
@@ -25,7 +25,7 @@
 //#
 //# $Id$
 
-#include <display/QtViewer/Preferences.qo.h>
+#include <display/QtViewer/ViewerPreferences.qo.h>
 #include <display/DisplayErrors.h>
 #include <QLineEdit>
 #include <QRegExp>
@@ -42,7 +42,7 @@ namespace casa {
 		// represent something that the user can set, but may represent something worth providing
 		// intermediate tool tips for the user...
 		//
-		const char *Preferences::init_state[] = {
+		const char *ViewerPreferences::init_state[] = {
 			"viewer.dpg", "N", "", "preferences for main Viewer Display Panel", "",
 			"viewer.dpg.position", "N", "", "viewer dock panel positions", "",
 			"viewer.dpg.position.animator", "L", "right", "in which dock (left, right, top, bottom) should the animator be shown", "L/R/T/B",
@@ -156,7 +156,7 @@ namespace casa {
 			}
 		};
 
-		int Preferences::tokenize( tokenized_type &tokenized ) {
+		int ViewerPreferences::tokenize( tokenized_type &tokenized ) {
 			char sep[] = ".";
 			int buf_size = 256;
 			char *buf = (char*) malloc(buf_size*sizeof(char));
@@ -213,7 +213,7 @@ namespace casa {
 			return rc_count;
 		}
 
-		int Preferences::countbranches( const tokenized_type &tokenized, branch_count_type &branch_count ) {
+		int ViewerPreferences::countbranches( const tokenized_type &tokenized, branch_count_type &branch_count ) {
 			std::set<std::string> roots;
 			// calculate node branch count...
 			for ( tokenized_type::const_iterator it = tokenized.begin( ); it != tokenized.end( ); ++it ) {
@@ -238,7 +238,7 @@ namespace casa {
 		}
 
 
-		int Preferences::find_tree_depth( bool trim_root, const tokenized_type &tokenized, const branch_count_type &branch_count ) {
+		int ViewerPreferences::find_tree_depth( bool trim_root, const tokenized_type &tokenized, const branch_count_type &branch_count ) {
 			int depth = 0;
 			for ( tokenized_type::const_iterator it = tokenized.begin( ); it != tokenized.end( ); ++it ) {
 				int cur_depth = 0;
@@ -280,7 +280,7 @@ namespace casa {
 			return depth+1;
 		}
 
-		void Preferences::init( ) {
+		void ViewerPreferences::init( ) {
 
 			// tokenize...
 			tokenized_type tokenized;
@@ -401,7 +401,7 @@ namespace casa {
 			}
 		}
 
-		Preferences::Preferences( QWidget *parent ) : QDialog(parent), sigmap(new QSignalMapper(this)),
+		ViewerPreferences::ViewerPreferences( QWidget *parent ) : QDialog(parent), sigmap(new QSignalMapper(this)),
 			init_fields(5), tip_offset(3), role_offset(1),
 			default_offset(2), validate_offset(4),
 			rc(viewer::getrc()) {
@@ -420,9 +420,9 @@ namespace casa {
 
 		}
 
-		Preferences::~Preferences( ) { }
+		ViewerPreferences::~ViewerPreferences( ) { }
 
-		void Preferences::showEvent( QShowEvent* ) {
+		void ViewerPreferences::showEvent( QShowEvent* ) {
 			for ( rcedits_type::iterator it=edits.begin( ); it != edits.end( ); ++it ) {
 				std::string val;
 				if ( rc.get(it->first, val) ) {
@@ -431,7 +431,7 @@ namespace casa {
 			}
 		}
 
-		void Preferences::cancel_edits( ) {
+		void ViewerPreferences::cancel_edits( ) {
 			hide( );
 			for ( rcedits_type::iterator it=edits.begin( ); it != edits.end( ); ++it ) {
 				rcvalues_type::iterator dflt = defaults.find(it->first);
@@ -440,7 +440,7 @@ namespace casa {
 			}
 		}
 
-		void Preferences::reset_edits( ) {
+		void ViewerPreferences::reset_edits( ) {
 			hide( );
 			for ( rcedits_type::iterator it=edits.begin( ); it != edits.end( ); ++it ) {
 				rcvalues_type::iterator dflt = defaults.find(it->first);
@@ -450,7 +450,7 @@ namespace casa {
 			}
 		}
 
-		void Preferences::apply_edits( ) {
+		void ViewerPreferences::apply_edits( ) {
 			hide( );
 			for ( rcedits_type::iterator it=edits.begin( ); it != edits.end( ); ++it ) {
 				rc.put(it->first,it->second->text( ).toStdString( ));
