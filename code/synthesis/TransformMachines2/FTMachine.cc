@@ -293,7 +293,13 @@ using namespace casa::vi;
 
         //First convert to HA-DEC or AZEL for parallax correction
         MDirection::Ref outref1(MDirection::AZEL, mFrame_p);
-        MDirection tmphadec=MDirection::Convert(movingDir_p, outref1)();
+        MDirection tmphadec;
+	if(upcase(movingDir_p.getRefString()).contains("APP")){
+	  tmphadec=MDirection::Convert((vbutil_p->getPhaseCenter(vb, phaseCenterTime_p)), outref1)();
+	}
+	else{
+	  tmphadec=MDirection::Convert(movingDir_p, outref1)();
+	}
         MDirection::Ref outref(directionCoord.directionType(), mFrame_p);
         firstMovingDir_p=MDirection::Convert(tmphadec, outref)();
 	///TESTOO 
@@ -901,7 +907,13 @@ using namespace casa::vi;
        
       //First convert to HA-DEC or AZEL for parallax correction
 	MDirection::Ref outref1(MDirection::AZEL, mFrame_p);
-	MDirection tmphadec=MDirection::Convert(movingDir_p, outref1)();
+	MDirection tmphadec;
+	if(upcase(movingDir_p.getRefString()).contains("APP")){
+	  tmphadec=MDirection::Convert((vbutil_p->getPhaseCenter(vb, phaseCenterTime_p)), outref1)();
+	}
+	else{
+	  tmphadec=MDirection::Convert(movingDir_p, outref1)();
+	}
 	MDirection::Ref outref(mImage_p.getRef().getType(), mFrame_p);
 	MDirection sourcenow=MDirection::Convert(tmphadec, outref)();
 	//cerr << "Rotating to fixed moving source " << MVDirection(phasecenter.getAngle()-firstMovingDir_p.getAngle()+sourcenow.getAngle()) << endl;
@@ -1016,7 +1028,13 @@ using namespace casa::vi;
 
 	  //First convert to HA-DEC or AZEL for parallax correction
 	  MDirection::Ref outref1(MDirection::AZEL, mFrame_p);
-	  MDirection tmphadec=MDirection::Convert(movingDir_p, outref1)();
+	  MDirection tmphadec;
+	  if(upcase(movingDir_p.getRefString()).contains("APP")){
+	    tmphadec=MDirection::Convert((vbutil_p->getPhaseCenter(vb, phaseCenterTime_p)), outref1)();
+	  }
+	  else{
+	    tmphadec=MDirection::Convert(movingDir_p, outref1)();
+	  }
 	  ////TESTOO waiting for CAS-11060
 	  //MDirection tmphadec=MDirection::Convert((vbutil_p->getPhaseCenter(vb, phaseCenterTime_p)), outref1)();
 	  /////////
@@ -1729,6 +1747,16 @@ using namespace casa::vi;
       sourcename="COMET";
       ephemtab=sname;
     }
+    ///Special case
+    if(upcase(sourcename)=="TRACKFIELD"){
+      fixMovingSource_p=True;
+      movingDir_p=MDirection(Quantity(0.0,"deg"), Quantity(90.0, "deg"));
+      movingDir_p.setRefString("APP");
+      ///Setting it to APP with movingDir_p==True  => should use the phasecenter to track
+      ///Discussion in CAS-9004 where users are too lazy to give an ephemtable.
+      return;
+    }
+
     MDirection::Types refType;
     Bool  isValid = MDirection::getType(refType, sourcename);
     if(!isValid)

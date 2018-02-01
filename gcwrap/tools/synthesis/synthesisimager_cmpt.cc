@@ -192,26 +192,22 @@ bool synthesisimager::defineimage(const casac::record& impars, const casac::reco
     String movingSource="";
     if( irecpars.dataType("phasecenter") == TpString ){
       String pcen=irecpars.asString("phasecenter");
-      if(Table::isReadable(pcen, False)){
-	//seems to be a table so assuming ephemerides table
+      //seems to be a table so assuming ephemerides table 
+      //Or A known planet
+      //Or special case
+      casacore::MDirection::Types refType;
+      Bool trackingNearSource= (Table::isReadable(pcen, False))
+	|| ( (casacore::MDirection::getType(refType, pcen)) && (refType > casacore::MDirection::N_Types && refType < casacore::MDirection:: N_Planets ))
+	|| (upcase(pcen)==String("TRACKFIELD"));
+      if(trackingNearSource){
 	movingSource=pcen;
 	irecpars.define("phasecenter", "");
       }
-      ///if not a table 
-      casacore::MDirection::Types refType;
-      if(casacore::MDirection::getType(refType, pcen)){
-	if(refType > casacore::MDirection::N_Types && refType < casacore::MDirection:: N_Planets ){
-	  ///A known planet
-	  movingSource=pcen;
-	  irecpars.define("phasecenter", "");
-
-	}
-      }
+      
+      
+      
       //cerr << "PCEN " << pcen << "  " << irecpars.asString("phasecenter")<< endl;
     }
-    //////////////////////
-
-
 
     SynthesisParamsImage ipars;
     ipars.fromRecord( irecpars );
