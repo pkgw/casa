@@ -92,8 +92,20 @@ class ia_fromfits_test(unittest.TestCase):
         myia.done()
         myia.fromfits("", fits)
         msgs = myia.history()
-        self.assertTrue("ia.fromfits" in msgs[-2])
-        self.assertTrue("ia.fromfits" in msgs[-1])
+        myia.done()
+        teststr = "ia.fromfits"
+        self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
+        self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
+        
+        imagename = "xx.im"
+        self.assertTrue(importfits(fitsimage=fits, imagename=imagename))
+        myia.open(imagename)
+        msgs = myia.history()
+        myia.done()
+        teststr = "version"
+        self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
+        teststr = "importfits"
+        self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
         
 def suite():
     return [ia_fromfits_test]

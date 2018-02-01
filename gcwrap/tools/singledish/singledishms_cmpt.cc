@@ -360,7 +360,8 @@ singledishms::set_selection(::casac::variant const& spw,
 		    ::casac::variant const& polarization,
 		    ::casac::variant const& beam,
 		    ::casac::variant const& intent,
-		    string const& taql)
+		    string const& taql,
+			bool const reindex)
 {
   bool rstat(false);
   *itsLog << _ORIGIN;
@@ -413,6 +414,8 @@ singledishms::set_selection(::casac::variant const& spw,
     selection_string = toCasaString(taql);
     if (selection_string != "")
       selection.define("taql", selection_string);
+
+    selection.define("reindex", Bool(reindex));
 
     itsSd->setSelection(selection);
     rstat = true;
