@@ -371,6 +371,7 @@ public:
   casacore::Float cutThreshold;
   casacore::Int growIterations;
   casacore::Bool doGrowPrune;
+  casacore::Float minPercentChange;
   int nMask;
   bool autoAdjust;
 

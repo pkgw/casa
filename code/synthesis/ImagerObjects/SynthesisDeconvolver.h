@@ -171,12 +171,15 @@ protected:
   casacore::Int itsIterDone;
   casacore::Int itsGrowIterations;
   casacore::Bool itsDoGrowPrune;
+  casacore::Float  itsMinPercentChange;
+  casacore::Vector<casacore::Bool> itsChanFlag;
+  casacore::Bool initializeChanMaskFlag; 
   
   casacore::Bool itsIsMaskLoaded; // Try to get rid of this state variable ! 
   casacore::Bool itsIsInteractive;
 
   casacore::Float itsMaskSum;
- 
+
 };
 
 

@@ -870,6 +870,7 @@ casa_add_unit_test( MODULES synthesis SOURCES CalTables/test/tCTPatchedInterp.cc
 casa_add_unit_test( MODULES synthesis SOURCES ImagerObjects/test/tLabelandFindRegions.cc )
 casa_add_unit_test( MODULES synthesis SOURCES ImagerObjects/test/tLabelandFindRegionsFullCube.cc )
 casa_add_unit_test( MODULES synthesis SOURCES ImagerObjects/test/tBinaryDilation.cc )
+casa_add_unit_test( MODULES synthesis SOURCES ImagerObjects/test/tSkipChannels.cc )
 
 
 

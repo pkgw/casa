@@ -117,10 +117,12 @@ public:
   // @param[in] negativethreshold Threshold factor in a multiplier of the rms noise used to set threshold for negative features 
   // @param[in] cutthreshold Cut threshold factor for adjust a mask after smoothing of the mask
   // @param[in] smoothfactor Smoothing factor (multiplier of the beam)
+  // @param[in] min percent change in mask size to trigger a new automask creation for 'noise'-based threshold
   // @param[in] pblimit Primary beam cut off level
   //
   void autoMask(SHARED_PTR<SIImageStore> imstore, 
                 const casacore::Int iterdone,
+                casacore::Vector<casacore::Bool>& chanflag,
                 const casacore::String& alg="",
                 const casacore::String& threshold="",
                 const casacore::Float& fracpeak=0.0,
@@ -137,6 +139,7 @@ public:
                 const casacore::Float& minbeamfrac=0.0, 
                 const casacore::Int growiterations=0,
                 const casacore::Bool dogrowprune=true,
+                const casacore::Float& minpercentchange=0.0,
                 casacore::Float pblimit=0.0);
 
   // automask by threshold with binning before applying it 
@@ -170,6 +173,8 @@ public:
                                           const casacore::ImageInterface<casacore::Float>& psf, 
                                           const casacore::Record& stats, 
                                           const casacore::Int iterdone,
+                                          casacore::Vector<casacore::Bool>& chanFlag,
+                                          const casacore::Float& maskPercentChange=0.0,
                                           const casacore::Float& sidelobeLevel=0.0,
                                           const casacore::Float& sidelobeThresholdFactor=3.0,
                                           const casacore::Float& noiseThresholdFactor=3.0,
@@ -219,10 +224,13 @@ public:
 
   // Yet another Prune the mask regions per spectral plane
   SHARED_PTR<casacore::ImageInterface<float> >  YAPruneRegions(const casacore::ImageInterface<casacore::Float>& image,
-                                                   casacore::Vector<casacore::Bool>& allpruned, casacore::Double prunesize=0.0);
+                                                   casacore::Vector<casacore::Bool>& chanflag,
+                                                   casacore::Vector<casacore::Bool>& allpruned, 
+                                                   casacore::Double prunesize=0.0);
 
   // create a mask image (1/0 image) applying a different threshold for each channel plane
   void makeMaskByPerChanThreshold(const casacore::ImageInterface<casacore::Float>& image, 
+                                 casacore::Vector<casacore::Bool>& chanflag,
                                  casacore::ImageInterface<casacore::Float>& mask, 
                                  casacore::Vector<casacore::Float>& thresholds); 
 
@@ -249,6 +257,7 @@ public:
 
   void autoMaskWithinPB(SHARED_PTR<SIImageStore> imstore, 
                         const casacore::Int iterdone,
+                        casacore::Vector<casacore::Bool>& chanflag,
                         const casacore::String& alg="",
                         const casacore::String& threshold="",
                         const casacore::Float& fracpeak=0.0,
@@ -265,6 +274,7 @@ public:
                         const casacore::Float& minbeamfrac=0.0, 
                         const casacore::Int growiterations=0,
                         const casacore::Bool dogrowprune=true,
+                        const casacore::Float& minpercentchange=0.0,
                         casacore::Float pblimit=0.1);
 
   
@@ -300,6 +310,13 @@ public:
 
   // for warning messages for empy initial mask in automask
   void noMaskCheck(casacore::ImageInterface<casacore::Float>& mask, casacore::Vector<casacore::String>& thresholdType);
+
+  // determining skip channels for the mask changed less than the specfied percentage
+  void skipChannels(const casacore::Float& fracChnage, 
+                    casacore::ImageInterface<casacore::Float>& prevmask, 
+                    casacore::ImageInterface<casacore::Float>& curmask, 
+                    const casacore::Vector<casacore::String>& threshtype,
+                    casacore::Vector<casacore::Bool>& chanFlag);
 
   // check if input image is a mask image with 0 or a value (if normalize=true, 1)
   //casacore::Bool checkMaskImage(casacore::ImageInterface<casacore::Float>& maskiamge, casacore::Bool normalize=true);
