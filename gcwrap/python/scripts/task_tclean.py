@@ -132,6 +132,7 @@ def tclean(
     cutthreshold,#=0.01,
     growiterations,#=100
     dogrowprune,#=True
+    minpercentchange,#=0.0
 
     ## Misc
 
@@ -270,10 +271,11 @@ def tclean(
         cutthreshold=cutthreshold,
         growiterations=growiterations,
         dogrowprune=dogrowprune,
+        minpercentchange=minpercentchange,
  
         savemodel=savemodel
         )
-    
+
     #paramList.printParameters()
 
     pcube=False
