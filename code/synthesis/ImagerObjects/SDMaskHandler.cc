@@ -720,6 +720,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
 
   void SDMaskHandler::autoMask(SHARED_PTR<SIImageStore> imstore, 
+                               TempImage<Float>& posmask,
                                const Int iterdone,
                                Vector<Bool>& chanflag,
                                const String& alg, 
@@ -939,7 +940,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       autoMaskByThreshold2(*tempmask, *tempres, *imstore->psf(), qreso, resbybeam, qthresh, fracofpeak, thestats, sigma, nmask);
     }
     else if (alg==String("multithresh")) {
-      autoMaskByMultiThreshold(*tempmask, *tempres, *imstore->psf(), thestats, iterdone, chanflag, minpercentchange, itsSidelobeLevel, sidelobethreshold,
+      autoMaskByMultiThreshold(*tempmask, posmask, *tempres, *imstore->psf(), thestats, iterdone, chanflag, minpercentchange, itsSidelobeLevel, sidelobethreshold,
                                           noisethreshold, lownoisethreshold, negativethreshold, cutthreshold, smoothfactor, minbeamfrac, growiterations, dogrowprune);
     }
 
@@ -1302,6 +1303,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   // for implemtation of Amanda's algorithm
   void SDMaskHandler::autoMaskByMultiThreshold(ImageInterface<Float>& mask,
+                                          TempImage<Float>& posmask,
                                           const ImageInterface<Float>& res, 
                                           const ImageInterface<Float>& psf, 
                                           const Record& stats, 
@@ -1338,7 +1340,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     TempImage<Float> tempmask(mask.shape(), mask.coordinates(), memoryToUse());
     // prevmask: mask from previous iter.
     TempImage<Float> prevmask(mask.shape(), mask.coordinates(), memoryToUse());
-    prevmask.copyData(LatticeExpr<Float>(mask) );
+    // use positive only previous mask
+    //prevmask.copyData(LatticeExpr<Float>(mask) );
+    prevmask.copyData(LatticeExpr<Float>(posmask) );
     // taking account for beam or input resolution
     IPosition shp = mask.shape();
     CoordinateSystem incsys = res.coordinates();
@@ -1686,7 +1690,21 @@ namespace casa { //# NAMESPACE CASA - BEGIN
        }
     } //end - iterdone
     
-    // 
+    // save positive (emission) mask only
+    if (res.hasPixelMask()) {
+      LatticeExpr<Bool>  pixmask(res.pixelMask()); 
+      // add all positive masks (previous one, growed mask, current thresh mask)
+      // mask = untouched prev mask, prevmask=modified prev mask by the grow func, thenewmask=mask by thresh on current residual 
+      posmask.copyData( (LatticeExpr<Float>)( iif((posmask + prevmask + thenewmask ) > 0.0 && pixmask, 1.0, 0.0  ) ) );
+      os <<LogIO::DEBUG1 <<"Add positive previous mask, pbmask and the new mask.."<<LogIO::POST;
+    }
+    else {
+      posmask.copyData( (LatticeExpr<Float>)( iif((posmask + prevmask + thenewmask ) > 0.0, 1.0, 0.0  ) ) );
+
+      os <<LogIO::DEBUG1 <<"Add positive previous mask and the new mask.."<<LogIO::POST;
+    }
+
+    // negatvie mask creation 
     TempImage<Float> thenegmask(res.shape(),res.coordinates(), memoryToUse());
     thenegmask.set(0);
     if (negativeThresholdFactor > 0) { 
@@ -1781,7 +1799,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // make a copy of unmodified previous mask 
     TempImage<Float> unmodifiedprevmask(res.shape(),res.coordinates(), memoryToUse());
     unmodifiedprevmask.copyData(mask);
-
+     
     if (res.hasPixelMask()) {
       LatticeExpr<Bool>  pixmask(res.pixelMask()); 
       //mask.copyData( (LatticeExpr<Float>)( iif((mask + thenewmask) > 0.0 && pixmask, 1.0, 0.0  ) ) );
@@ -2843,6 +2861,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
  
   void SDMaskHandler::autoMaskWithinPB(SHARED_PTR<SIImageStore> imstore, 
+                                       TempImage<Float>& posmask,
                                        const Int iterdone,
                                        Vector<Bool>& chanflag,
                                        const String& alg, 
@@ -2869,7 +2888,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     os <<LogIO::DEBUG1<<"Calling autoMaskWithinPB .."<<LogIO::POST;
     // changed to do automask ater pb mask is generated so automask do stats within pb mask
-    autoMask( imstore, iterdone, chanflag, alg, threshold, fracofpeak, resolution, resbybeam, nmask, autoadjust, 
+    autoMask( imstore, posmask, iterdone, chanflag, alg, threshold, fracofpeak, resolution, resbybeam, nmask, autoadjust, 
               sidelobethreshold, noisethreshold, lownoisethreshold, negativethreshold, cutthreshold, smoothfactor, 
               minbeamfrac, growiterations, dogrowprune, minpercentchange, pblimit);
 

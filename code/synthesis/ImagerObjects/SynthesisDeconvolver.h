@@ -174,6 +174,7 @@ protected:
   casacore::Float  itsMinPercentChange;
   casacore::Vector<casacore::Bool> itsChanFlag;
   casacore::Bool initializeChanMaskFlag; 
+  casacore::TempImage<casacore::Float> itsPosMask;
   
   casacore::Bool itsIsMaskLoaded; // Try to get rid of this state variable ! 
   casacore::Bool itsIsInteractive;
