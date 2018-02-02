@@ -530,7 +530,7 @@ class test_rflag(test_base):
         #  step 2: apply thresholds using text files as input
         flagdata(vis=self.vis, mode='rflag', spw='9,10',
                  timedev='tdevfile.txt', freqdev='fdevfile.txt',
-                 timedevscale=1.0, freqdevscale=1.0,
+                 timedevscale=5.0, freqdevscale=5.0,
                  action='apply', flagbackup=False, extendflags=False)
         res1 = flagdata(vis=self.vis, mode='summary', spw='9,10')
 
@@ -541,20 +541,18 @@ class test_rflag(test_base):
         #      and then read back in via list mode. 
         #      Also test the 'savepars' when timedev and freqdev are specified differently...
         flagdata(vis=self.vis, mode='rflag', spw='9,10', timedev='',
-                 freqdev=[], action='calculate', savepars=True, outfile='outcmd.txt',
-                 extendflags=False);
+                 freqdev=[], action='calculate',
+                 extendflags=False, savepars=True, outfile='outcmd.txt');
         self.assertTrue(os.path.exists('outcmd.txt'))
 
         # Note: after CAS-5808, when mode='rflag' and action='calculate' the
-        # time/freqdevscale parameters are ignored, or forced to 1.0. Because
-        # of this, if the first flagdata() (res1) above had used devscale
-        # values different from 1, then this flagdata run from an 'outcmd.txt'
-        # file would not match.
+        # time/freqdevscale parameters are not considered for the calculation of the
+        # thresholds. The scale factors will be used when action='calculate'.
         flagdata(vis=self.vis, mode='list', inpfile='outcmd.txt', flagbackup=False)
         res2 = flagdata(vis=self.vis, mode='summary', spw='9,10')
 
         # A normal 'apply' (res1) and a mode='list' run apply (res2) should match:
-        self.assertEqual(res1['flagged'], 270386.0)
+        self.assertEqual(res1['flagged'], 39504.0)
         self.assertEqual(res1['flagged'], res2['flagged'])
 
         # (3) Now try different scales with the same input time/freqdevscale files
@@ -586,7 +584,7 @@ class test_rflag(test_base):
         flagdata(vis=self.vis, mode='rflag', spw='9,10',
                  timedev=rdict['report0']['timedev'],
                  freqdev=rdict['report0']['freqdev'],
-                 timedevscale=1.0, freqdevscale=1.0,
+                 timedevscale=2.5, freqdevscale=2.5,
                  action='apply', flagbackup=False, extendflags=False)
         res1 = flagdata(vis=self.vis, mode='summary', spw='9,10')
 
@@ -598,14 +596,15 @@ class test_rflag(test_base):
         #      Also test the 'savepars' when timedev and freqdev are specified differently...
         flagdata(vis=self.vis, mode='rflag', spw='9,10',
                  timedev='', freqdev=[], action='calculate', extendflags=False,
+                 timedevscale=2.5, freqdevscale=2.5,
                  savepars=True, outfile='outcmd.txt')
         flagdata(vis=self.vis, mode='list', inpfile='outcmd.txt', flagbackup=False)
         res2 = flagdata(vis=self.vis, mode='summary', spw='9,10')
 
         self.assertEqual(res1['flagged'], res2['flagged'])
-        self.assertEqual(res1['flagged'], 270386.0)
+        self.assertEqual(res1['flagged'], 98403)
 
-    def test_rflag4(self):
+    def test_rflag_correlation_selection(self):
         '''flagdata:: mode = rflag : correlation selection'''
         flagdata(vis=self.vis, mode='rflag', spw='9,10', correlation='rr,ll', flagbackup=False,
                  extendflags=False)
@@ -658,7 +657,7 @@ class test_rflag(test_base):
         self.assertEqual(pos['spw']['9']['flagged'], pre['spw']['9']['flagged'])
         self.assertEqual(pos['spw']['10']['flagged'], pre['spw']['10']['flagged'])
         
-    def test_rflag_extendflags2(self):
+    def test_rflag_extendflags_list_mode(self):
         '''flagdata: in list mode extend the flags automatically after rflag'''
         def getcounts():
             ### Channel 51 should extend flags, but channel 52 should not.

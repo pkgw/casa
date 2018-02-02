@@ -930,13 +930,13 @@ class test_rflag(test_base):
         print "(5) Finished flagcmd test : using outcmd.txt from flagdata (test 2) : ", res5['flagged']
 
         self.assertEqual(res3['flagged'], res4['flagged']);
-        self.assertEqual(res5['flagged'], 270386.0);
+        self.assertEqual(res5['flagged'], 39504);
         self.assertEqual(res3['flagged'], 5971.0)
 
     def test_rflagauto(self):
         """flagcmd:: Test of rflag with defaults
         """
-        # (6) flagcmd AUTO. Should give same answers as test_flagdata[test_rflag1]
+        # (6) flagcmd AUTO. Should give same answers as test_flagdata[test_rflag_auto_thresholds]
         flagdata(vis=self.vis,mode='unflag');
         flagcmd(vis=self.vis, inpmode='list',
                 inpfile=['mode=rflag spw=9,10 extendflags=False'],
@@ -944,7 +944,7 @@ class test_rflag(test_base):
         res6 = flagdata(vis=self.vis, mode='summary')
         print "(6) Finished flagcmd test : auto : ", res6['flagged']
 
-        #(7) flagdata AUTO (same as test_flagdata[test_rflag1])
+        #(7) flagdata AUTO (same as test_flagdata[test_rflag_auto_thresholds])
         #flagdata(vis=self.vis,mode='unflag');
         #flagdata(vis=self.vis, mode='rflag', spw='9,10');
         #res7 = flagdata(vis=self.vis, mode='summary')
