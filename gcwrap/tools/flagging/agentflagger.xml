@@ -173,8 +173,13 @@ one measurement set at a time.
 
  \medskip\noindent\textbf{Rflag specific actions}
 
-  Currently the agentflagger does not support the 'calculate' and 'apply' actions directly. These actions are distinguished only by the flagdata task. When selecting mode='rflag' the agentflagger will run as 'apply'. The 'calculate' action of the flagdata task can be emulated by setting the hidden parameter 'writeflags' to False as follows:
-\begin{verbatim}
+  Currently the agentflagger does not support the 'calculate' and
+  'apply' actions directly. These actions are distinguished only by
+  the flagdata task. When selecting mode='rflag' the agentflagger will
+  run as 'apply'. The 'calculate' action of the flagdata task can be
+  emulated by setting the hidden parameter 'writeflags' to False as
+  follows:
+  \begin{verbatim}
      myagents = {}
      myagents['mode'] = 'rflag'
      myagents['writeflags'] = False
@@ -182,15 +187,22 @@ one measurement set at a time.
      af.parseagentparameters(myagents)
 \end{verbatim}
 
-  Or, in a more compact example, with the following parameters the agentflagger will run as 'apply'. The default value of writeflags (not given) is True:
-\begin{verbatim}
+  Or, in a more compact example, with the following parameters the
+  agentflagger will run as 'apply'. The default value of writeflags
+  (not given) is True:
+  \begin{verbatim}
      af.parseagentparameters({'mode':'rflag', 'extend flags': False})
 \end{verbatim}
-  But here, by setting writeflags to False, the agentflagger will run as 'calculate'. That is, it will not flag the MS, but it will calculate and return the thresholds:
+  But here, by setting writeflags to False, the agentflagger will run
+  as 'calculate'. That is, it will not flag the MS, but it will
+  calculate and return the thresholds:
 \begin{verbatim}
      af.parseagentparameters({'mode':'rflag', 'extend flags': False, writeflags=False})
 \end{verbatim}
- Note that the writeflags parameter needs to be passed in the set of parameters that are parsed initially, before running the agentflagger, for the agentflagger to be able to calculate the RFlag thresholds and return a dictionary with the values calculated.
+  Note that the writeflags parameter needs to be passed in the set of
+  parameters that are parsed initially, before running the
+  agentflagger, for the agentflagger to be able to calculate the RFlag
+  thresholds and return a dictionary with the values calculated.
 
 </description>
 

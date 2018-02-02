@@ -1372,8 +1372,8 @@
                                    spw 9, and noise-estimate of 0.5 for field 1, spw 10.
                          timedev = [] : Auto-calculate noise estimates.
                          'tdevfile.txt' : Auto-calculate noise estimates and write them into
-			 a file with the name given (any string will be interpreted as a
-			 file name which will be checked for existence).
+                         a file with the name given (any string will be interpreted as a
+                         file name which will be checked for existence).
 
                     
                freqdev -- spectral noise estimate ( scutoff in AIPS ).
