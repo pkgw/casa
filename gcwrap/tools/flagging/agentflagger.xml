@@ -82,7 +82,7 @@ one measurement set at a time.
      # Add a summary agent to the list.
      myagents = {}
      myagents['mode'] = 'summary
-     myagents['spwchan] = True
+     myagents['spwchan'] = True
      af.parseagentparameters(myagents)
 
      # Add a manual agent to the same internal list of agents.
@@ -99,8 +99,8 @@ one measurement set at a time.
      
      # Add another summary agent to the list.
      myagents = {}
-     myagents['mode'] = 'summary
-     myagents['spwchan] = True
+     myagents['mode'] = 'summary'
+     myagents['spwchan'] = True
      af.parseagentparameters(myagents)
 \end{verbatim}
 
@@ -143,6 +143,7 @@ one measurement set at a time.
   af.init()
 \end{verbatim}
 
+
  \medskip\noindent\textbf{Run the tool}
 
   Run the tool to apply or unapply the flags. The run method takes two parameters, writeflags and sequential.
@@ -168,6 +169,28 @@ one measurement set at a time.
 \begin{verbatim}
   af.done()
 \end{verbatim}
+
+
+ \medskip\noindent\textbf{Rflag specific actions}
+
+  Currently the agentflagger does not support the 'calculate' and 'apply' actions directly. These actions are distinguished only by the flagdata task. When selecting mode='rflag' the agentflagger will run as 'apply'. The 'calculate' action of the flagdata task can be emulated by setting the hidden parameter 'writeflags' to False as follows:
+\begin{verbatim}
+     myagents = {}
+     myagents['mode'] = 'rflag'
+     myagents['writeflags'] = False
+     ...
+     af.parseagentparameters(myagents)
+\end{verbatim}
+
+  Or, in a more compact example, with the following parameters the agentflagger will run as 'apply'. The default value of writeflags (not given) is True:
+\begin{verbatim}
+     af.parseagentparameters({'mode':'rflag', 'extend flags': False})
+\end{verbatim}
+  But here, by setting writeflags to False, the agentflagger will run as 'calculate'. That is, it will not flag the MS, but it will calculate and return the thresholds:
+\begin{verbatim}
+     af.parseagentparameters({'mode':'rflag', 'extend flags': False, writeflags=False})
+\end{verbatim}
+ Note that the writeflags parameter needs to be passed in the set of parameters that are parsed initially, before running the agentflagger, for the agentflagger to be able to calculate the RFlag thresholds and return a dictionary with the values calculated.
 
 </description>
 
