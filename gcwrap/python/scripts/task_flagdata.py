@@ -488,13 +488,8 @@ def flagdata(vis,
             agent_pars['combinescans'] = combinescans   
             agent_pars['datacolumn'] = datacolumn.upper()
             agent_pars['winsize'] = winsize
-            ACTION_WITHOUT_SCALE = 'calculate'
-            if action == ACTION_WITHOUT_SCALE:
-                agent_pars['timedevscale'] = 1.0
-                agent_pars['freqdevscale'] = 1.0
-            else:
-                agent_pars['timedevscale'] = timedevscale
-                agent_pars['freqdevscale'] = freqdevscale
+            agent_pars['timedevscale'] = timedevscale
+            agent_pars['freqdevscale'] = freqdevscale
             agent_pars['spectralmax'] = spectralmax
             agent_pars['spectralmin'] = spectralmin
             agent_pars['extendflags'] = bool(extendflags)
@@ -519,10 +514,6 @@ def flagdata(vis,
             agent_pars['timebin'] = timebin            
 
             casalog.post('Rflag mode is active')
-            if action == ACTION_WITHOUT_SCALE:
-                casalog.post('Note: as action is \'{0}\', the scale parameters '
-                             '\'timedevscale\' and \'freqdevscale\' will be ignored ('
-                             'fixed to 1)'.format(ACTION_WITHOUT_SCALE))
 
         elif mode == 'antint':
             agent_pars['antint_ref_antenna'] = antint_ref_antenna

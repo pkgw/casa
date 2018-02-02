@@ -63,6 +63,52 @@ void FlagAgentRFlag::setAgentParameters(Record config)
 
 	int exists;
 
+	// Determine if we have to apply the flags in the modified flag cube
+	String display("none");
+	exists = config.fieldNumber ("display");
+	if (exists >= 0)
+	{
+	        if( config.type(exists) != TpString )
+	        {
+			 throw( AipsError ( "Parameter 'display' must be of type 'string'" ) );
+	        }
+		display = config.asString("display");
+		*logger_p << LogIO::NORMAL << " display is: " << display << LogIO::POST;
+	}
+
+	// Determine if we have to generate plot reports.
+	if ( (display == String("report")) or (display == String("both")) )
+	{
+		doplot_p = true;
+	}
+	else
+	{
+	        doplot_p = false;
+	}
+
+	// Do we actually flag, or just calculate thresholds without applying flags?
+	Bool writeflags(display != "report");
+	exists = config.fieldNumber ("writeflags");
+	if (exists >= 0)
+	{
+		if( config.type(exists) != TpBool )
+		{
+			throw( AipsError ( "Parameter 'writeflags' must be of type 'bool'" ) );
+		}
+		writeflags = config.asBool("writeflags");
+		*logger_p << LogIO::NORMAL << " writeflags is: " << writeflags << LogIO::POST;
+	}
+
+	if( (writeflags == true) or (display == String("data")) or (display == String("both")) )
+	{
+		doflag_p = true;
+		*logger_p << LogIO::NORMAL << " (writeflags OR display)=(" <<  writeflags << "," << display << "), will apply flags on modified flag cube " << LogIO::POST;
+	}
+	else
+	{
+		doflag_p = false;
+	}
+
 	// AIPS RFlag FPARM(1)
 	exists = config.fieldNumber ("winsize");
 	if (exists >= 0)
@@ -179,6 +225,12 @@ void FlagAgentRFlag::setAgentParameters(Record config)
 	}
 
 	*logger_p << logLevel_p << " timedevscale is " << noiseScale_p << LogIO::POST;
+	const auto thresholds_note = "Note: not applying flags, simply calculating "
+	  "thresholds (action not 'apply')";
+	if (not writeflags) {
+	  *logger_p << logLevel_p << " " << thresholds_note <<
+	    " so timedevscale is not used." << LogIO::POST;
+	}
 
 	// AIPS RFlag FPARM(10)
 	exists = config.fieldNumber ("freqdevscale");
@@ -189,64 +241,17 @@ void FlagAgentRFlag::setAgentParameters(Record config)
 		         throw( AipsError ( "Parameter 'freqdevscale' must be of type 'double'" ) );
 	        }
 		
-		scutofScale_p = config.asDouble("freqdevscale");
+		scutoffScale_p = config.asDouble("freqdevscale");
 	}
 	else
 	{
-		scutofScale_p = 5;
+		scutoffScale_p = 5;
 	}
 
-	*logger_p << logLevel_p << " freqdevscale is " << scutofScale_p << LogIO::POST;
-
-	// Determine if we have to apply the flags in the modified flag cube
-	String display("none");
-	exists = config.fieldNumber ("display");
-	if (exists >= 0)
-	{
-	        if( config.type(exists) != TpString )
-	        {
-			 throw( AipsError ( "Parameter 'display' must be of type 'string'" ) );
-	        }
-		
-		display = config.asString("display");
-		*logger_p << LogIO::NORMAL << " display is: " << display << LogIO::POST;
-	}
-
-	Bool writeflags(true);
-	exists = config.fieldNumber ("writeflags");
-	if (exists >= 0)
-	{
-		if( config.type(exists) != TpBool )
-		{
-			throw( AipsError ( "Parameter 'writeflags' must be of type 'bool'" ) );
-		}
-		
-		writeflags = config.asBool("writeflags");
-		*logger_p << LogIO::NORMAL << " writeflags is: " << writeflags << LogIO::POST;
-	}
-	else if (display == String("report"))
-	{
-		writeflags = false;
-	}
-
-	if( (writeflags == true) or (display == String("data")) or (display == String("both")) )
-	{
-		doflag_p = true;
-		*logger_p << LogIO::NORMAL << " (writeflags,display)=(" <<  writeflags << "," << display << "), will apply flags on modified flag cube " << LogIO::POST;
-	}
-	else
-	{
-		doflag_p = false;
-	}
-
-	// Determine if we have to generate plot reports.
-	if ( (display == String("report")) or (display == String("both")) )
-	{
-		doplot_p = true;
-	}
-	else
-	{
-	        doplot_p = false;
+	*logger_p << logLevel_p << " freqdevscale is " << scutoffScale_p << LogIO::POST;
+	if (not writeflags) {
+	  *logger_p << logLevel_p << " " << thresholds_note <<
+	    "so freqdevscale is not used." << LogIO::POST;
 	}
 
 	// timedev - Matrix for time analysis deviation thresholds - (old AIPS RFlag FPARM(3)/NOISE)
@@ -257,21 +262,16 @@ void FlagAgentRFlag::setAgentParameters(Record config)
 	  if ( config.type( exists ) == casacore::TpFloat ||  config.type( exists ) == casacore::TpDouble || config.type(exists) == casacore::TpInt )
 		{
 			noise_p = config.asDouble("timedev");
-			*logger_p << logLevel_p << " timedev (same for all fields and spws) is " << noise_p
-				  << " (* timedevscale=" << noiseScale_p << ")"
-				  << LogIO::POST;
-			// new behavior since CAS-5808: multiply X freqdevscale
-			noise_p *= noiseScale_p;
-
+			*logger_p << logLevel_p << " timedev (same for all fields and spws) "
+			  "is " << noise_p  << LogIO::POST;
 		}
 		else if( config.type(exists) == casacore::TpArrayDouble || config.type(exists) == casacore::TpArrayFloat || config.type(exists) == casacore::TpArrayInt)
 		{
 			Matrix<Double> timedev = config.asArrayDouble( RecordFieldId("timedev") );
 			if(timedev.ncolumn()==3)
 			{
-				*logger_p << logLevel_p << " timedev [field,spw,dev] is " << timedev
-					  << " (* timedevscale=" << noiseScale_p << ")"
-					  << LogIO::POST;
+				*logger_p << logLevel_p << " timedev [field,spw,dev] is "
+					  << timedev << LogIO::POST;
 
 			    IPosition shape = timedev.shape();
 			    uInt nDevs = shape[0];
@@ -279,7 +279,7 @@ void FlagAgentRFlag::setAgentParameters(Record config)
 			    {
 			    	pair<Int,Int> field_spw = std::make_pair((Int)timedev(dev_i, 0),
 			    	                                         (Int)timedev(dev_i, 1));
-			    	field_spw_noise_map_p[field_spw] = timedev(dev_i, 2) * noiseScale_p;
+			    	field_spw_noise_map_p[field_spw] = timedev(dev_i, 2);
 			    	user_field_spw_noise_map_p[field_spw] = true;
 			    	*logger_p << LogIO::DEBUG1 << "timedev matrix - field=" << timedev(dev_i,0) << " spw=" << timedev(dev_i,1) << " dev=" << timedev(dev_i,2) << LogIO::POST;
 			    }
@@ -301,29 +301,24 @@ void FlagAgentRFlag::setAgentParameters(Record config)
 	}
 
 
-	// freqdev - Matrix for time analysis deviation thresholds (freqdev) - (old AIPS RFlag FPARM(4)/SCUTOF)
-	scutof_p = 0;
+	// freqdev - Matrix for time analysis deviation thresholds (freqdev) - (old AIPS RFlag FPARM(4)/SCUTOFF)
+	scutoff_p = 0;
 	exists = config.fieldNumber ("freqdev");
 	if (exists >= 0)
 	{
 		if ( config.type( exists ) == casacore::TpFloat ||  config.type( exists ) == casacore::TpDouble  || config.type(exists) == casacore::TpInt )
 		{
-			scutof_p = config.asDouble("freqdev");
-			*logger_p << logLevel_p << " freqdev (same for all fields and spws) is " << scutof_p
-				  << " (* freqdevscale=" << scutofScale_p << ")"
-				  << LogIO::POST;
-			// new behavior since CAS-5808: multiply X freqdevscale
-			scutof_p *= scutofScale_p;
-
+			scutoff_p = config.asDouble("freqdev");
+			*logger_p << logLevel_p << " freqdev (same for all fields and spws) "
+			  "is " << scutoff_p << LogIO::POST;
 		}
 		else if( config.type(exists) == casacore::TpArrayDouble || config.type(exists) == casacore::TpArrayFloat || config.type(exists) == casacore::TpArrayInt)
 		{
 			Matrix<Double> freqdev = config.asArrayDouble( RecordFieldId("freqdev") );
 			if(freqdev.ncolumn()==3)
 			{
-				*logger_p << logLevel_p << " freqdev [field,spw,dev] is " << freqdev
-					  << " (* freqdevscale=" << scutofScale_p << ")"
-					  << LogIO::POST;
+				*logger_p << logLevel_p << " freqdev [field,spw,dev] is " <<
+				  freqdev << LogIO::POST;
 
 			    IPosition shape = freqdev.shape();
 			    uInt nDevs = shape[0];
@@ -331,8 +326,8 @@ void FlagAgentRFlag::setAgentParameters(Record config)
 			    {
 			    	pair<Int,Int> field_spw = std::make_pair(static_cast<Int>(freqdev(dev_i, 0)),
 			    			static_cast<Int>(freqdev(dev_i, 1)));
-			    	field_spw_scutof_map_p[field_spw] = freqdev(dev_i, 2) * scutofScale_p;
-			    	user_field_spw_scutof_map_p[field_spw] = true;
+			    	field_spw_scutoff_map_p[field_spw] = freqdev(dev_i, 2);
+			    	user_field_spw_scutoff_map_p[field_spw] = true;
 				*logger_p << LogIO::DEBUG1 << "freqdev matrix - field=" << freqdev(dev_i,0) << " spw=" << freqdev(dev_i,1) << " dev=" << freqdev(dev_i,2) << LogIO::POST;
 			    }
 			}
@@ -349,7 +344,7 @@ void FlagAgentRFlag::setAgentParameters(Record config)
 	else
 	{
 	        *logger_p << logLevel_p << "Using automatically computed values for freqdev" << LogIO::POST;
-		// scutof initialized to zero above.
+		// scutoff initialized to zero above.
 	}
 
 	return;
@@ -443,6 +438,14 @@ Double FlagAgentRFlag::computeThreshold(vector<Double> &data,vector<Double> &/*d
 	return (med + 1.4826*mad);
 }
 
+/**
+ * This will calculate the timedev and freqdev thresholds, using the
+ * RMS/variance values calculated in computeAntennaPairFlagsCore(()
+ * (into the field_spw_noise_histogram_).
+ *
+ * @return a FlagReport with the overall thresholds (timedev and
+ * freqdev thresholds for every field-SPW pair).
+ */
 FlagReport FlagAgentRFlag::getReport()
 {
 	FlagReport totalRep(String("list"),agentName_p);
@@ -456,23 +459,21 @@ FlagReport FlagAgentRFlag::getReport()
 							field_spw_noise_histogram_sum_squares_p,
 							field_spw_noise_histogram_counts_p,
 							field_spw_noise_map_p,
-							"Time analysis",
-							noiseScale_p);
-		generateThresholds(	field_spw_scutof_histogram_sum_p,
-							field_spw_scutof_histogram_sum_squares_p,
-							field_spw_scutof_histogram_counts_p,
-							field_spw_scutof_map_p,
-							"Spectral analysis",
-							scutofScale_p);
+							"Time analysis");
+		generateThresholds(	field_spw_scutoff_histogram_sum_p,
+							field_spw_scutoff_histogram_sum_squares_p,
+							field_spw_scutoff_histogram_counts_p,
+							field_spw_scutoff_map_p,
+							"Spectral analysis");
 
 		// Threshold reports (should be returned if params were calculated)
 		Record threshList;
 		Int nEntriesNoise = field_spw_noise_map_p.size();
-		Int nEntriesScutof = field_spw_scutof_map_p.size();
+		Int nEntriesScutoff = field_spw_scutoff_map_p.size();
 
-		if(nEntriesNoise>0 || nEntriesScutof>0)
+		if(nEntriesNoise>0 || nEntriesScutoff>0)
 	        {
-		          Matrix<Double> timedev(nEntriesNoise,3), freqdev(nEntriesScutof,3);
+		          Matrix<Double> timedev(nEntriesNoise,3), freqdev(nEntriesScutoff,3);
 			  Int threshCountTime = 0, threshCountFreq = 0;
 			  pair<Int,Int> field_spw;
 			  for (	map< pair<Int,Int>,Double >::iterator spw_field_iter = field_spw_noise_map_p.begin();
@@ -487,15 +488,15 @@ FlagReport FlagAgentRFlag::getReport()
 				    threshCountTime++;
 			  }
 
-			  for (	map< pair<Int,Int>,Double >::iterator spw_field_iter = field_spw_scutof_map_p.begin();
-				        spw_field_iter != field_spw_scutof_map_p.end();
+			  for (	map< pair<Int,Int>,Double >::iterator spw_field_iter = field_spw_scutoff_map_p.begin();
+				        spw_field_iter != field_spw_scutoff_map_p.end();
 				        spw_field_iter++)
 		          {
 			            field_spw = spw_field_iter->first;
 
 				    freqdev(threshCountFreq,0) = field_spw.first;
 				    freqdev(threshCountFreq,1) = field_spw.second;
-				    freqdev(threshCountFreq,2) = field_spw_scutof_map_p[field_spw];
+				    freqdev(threshCountFreq,2) = field_spw_scutoff_map_p[field_spw];
 				    threshCountFreq++;
 			  }
 
@@ -518,13 +519,13 @@ FlagReport FlagAgentRFlag::getReport()
 							plotRepCont,
 							"Time analysis",
 							noiseScale_p);
-			getReportCore(	field_spw_scutof_histogram_sum_p,
-							field_spw_scutof_histogram_sum_squares_p,
-							field_spw_scutof_histogram_counts_p,
-							field_spw_scutof_map_p,
+			getReportCore(	field_spw_scutoff_histogram_sum_p,
+							field_spw_scutoff_histogram_sum_squares_p,
+							field_spw_scutoff_histogram_counts_p,
+							field_spw_scutoff_map_p,
 							plotRepCont,
 							"Spectral analysis",
-							scutofScale_p);
+							scutoffScale_p);
 
 			Int nReports = plotRepCont.nReport();
 			for (Int report_idx=0; report_idx<nReports; report_idx++)
@@ -617,8 +618,8 @@ FlagReport FlagAgentRFlag::getReportCore(	map< pair<Int,Int>,vector<Double> > &d
         	total_threshold_squared.insert(total_threshold_squared.end(),current_spw_threshold_squared.begin(),current_spw_threshold_squared.end());
         	total_threshold_counts.insert(total_threshold_counts.end(),current_spw_threshold_counts.begin(),current_spw_threshold_counts.end());
 
-        	// Prepare threshold array for plotting
-        	spwStd = threshold[current_field_spw];
+        	// Prepare threshold array for plotting (note: display using scale factor)
+        	spwStd = scale * threshold[current_field_spw];
         	vector<Float> aux(current_spw_threshold.size(),spwStd);
         	total_threshold_spw_average.insert(total_threshold_spw_average.end(),aux.begin(),aux.end());
 
@@ -681,19 +682,16 @@ FlagReport FlagAgentRFlag::getReportCore(	map< pair<Int,Int>,vector<Double> > &d
     return totalReport;
 }
 
-void FlagAgentRFlag::generateThresholds(	map< pair<Int,Int>,vector<Double> > &data,
-											map< pair<Int,Int>,vector<Double> > &dataSquared,
-											map< pair<Int,Int>,vector<Double> > &counts,
-											map< pair<Int,Int>,Double > &threshold,
-											string label,
-											Double scale)
+void FlagAgentRFlag::generateThresholds(map< pair<Int,Int>,vector<Double> > &data,
+					map< pair<Int,Int>,vector<Double> > &dataSquared,
+					map< pair<Int,Int>,vector<Double> > &counts,
+					map< pair<Int,Int>,Double > &threshold,
+					string label)
 {
 	// Set logger origin
 	logger_p->origin(LogOrigin(agentName_p,__FUNCTION__,WHERE));
 
     // First of all determine each SPW frequency in order to produce ordered vectors
-    size_t nfreq;
-    Double freqStart, freqEnd;
     pair<Int,Int> current_field_spw;
     for (	map< pair<Int,Int>,vector<Double> >::iterator field_spw_iter = data.begin();
     		field_spw_iter != data.end();
@@ -702,19 +700,19 @@ void FlagAgentRFlag::generateThresholds(	map< pair<Int,Int>,vector<Double> > &da
     	current_field_spw = field_spw_iter->first;
 
     	// Compute threshold
-    	threshold[current_field_spw] = scale*computeThreshold(	data[current_field_spw],
-																dataSquared[current_field_spw],
-																counts[current_field_spw]);
+    	threshold[current_field_spw] = computeThreshold(data[current_field_spw],
+							dataSquared[current_field_spw],
+							counts[current_field_spw]);
 
     	// Log info
-    	nfreq = field_spw_frequency_p[current_field_spw].size();
-    	freqStart = field_spw_frequency_p[current_field_spw][0];
-    	freqEnd = field_spw_frequency_p[current_field_spw][nfreq-1];
-    	*logger_p << logLevel_p << label.c_str() 	<< " - Field " << current_field_spw.first
-    												<< " - Spw " << current_field_spw.second
-    												<< " - Frequency " << freqStart << "~" << freqEnd << "GHz"
-    												<< " threshold (over baselines/timesteps) avg: "
-    												<< threshold[current_field_spw] << LogIO::POST;
+        auto nfreq = field_spw_frequency_p[current_field_spw].size();
+	auto freqStart = field_spw_frequency_p[current_field_spw][0];
+	auto freqEnd = field_spw_frequency_p[current_field_spw][nfreq-1];
+    	*logger_p << logLevel_p << label.c_str() << " - Field " << current_field_spw.first
+		  << " - Spw " << current_field_spw.second
+		  << " - Frequency " << freqStart << "~" << freqEnd << "GHz"
+		  << " threshold (over baselines/timesteps) avg: "
+		  << threshold[current_field_spw] << LogIO::POST;
     }
 
     return;
@@ -722,7 +720,7 @@ void FlagAgentRFlag::generateThresholds(	map< pair<Int,Int>,vector<Double> > &da
 
 void FlagAgentRFlag::computeAntennaPairFlagsCore(	pair<Int,Int> spw_field,
 													Double noise,
-													Double scutof,
+													Double scutoff,
 													uInt timeStart,
 													uInt timeStop,
 													uInt centralTime,
@@ -830,7 +828,7 @@ void FlagAgentRFlag::computeAntennaPairFlagsCore(	pair<Int,Int> spw_field,
 	}
 
 	// Spectral analysis: Fix timestep/polarization and compute stats with all channels
-	if ( (scutof < 0) or ((scutof > 0) and (doflag_p == true) and (prepass_p == false)) )
+	if ( (scutoff < 0) or ((scutoff > 0) and (doflag_p == true) and (prepass_p == false)) )
 	{
 		for (uInt timestep_i=centralTime;timestep_i<=centralTime;timestep_i++)
 		{
@@ -849,7 +847,7 @@ void FlagAgentRFlag::computeAntennaPairFlagsCore(	pair<Int,Int> spw_field,
 												visibilities,
 												flags);
 
-				if (scutof < 0)
+				if (scutoff < 0)
 				{
 					for (uInt chan_j=0;chan_j<(uInt) nChannels;chan_j++)
 					{
@@ -862,17 +860,17 @@ void FlagAgentRFlag::computeAntennaPairFlagsCore(	pair<Int,Int> spw_field,
 						if (SumWeightReal > 0)
 						{
 							deviationReal = abs(visibility.real()-AverageReal);
-							field_spw_scutof_histogram_counts_p[spw_field][chan_j]  += 1;
-							field_spw_scutof_histogram_sum_p[spw_field][chan_j]  += deviationReal;
-							field_spw_scutof_histogram_sum_squares_p[spw_field][chan_j]  += deviationReal*deviationReal;
+							field_spw_scutoff_histogram_counts_p[spw_field][chan_j]  += 1;
+							field_spw_scutoff_histogram_sum_p[spw_field][chan_j]  += deviationReal;
+							field_spw_scutoff_histogram_sum_squares_p[spw_field][chan_j]  += deviationReal*deviationReal;
 						}
 
 						if (SumWeightImag > 0)
 						{
 							deviationImag = abs(visibility.imag()-AverageImag);
-							field_spw_scutof_histogram_counts_p[spw_field][chan_j]  += 1;
-							field_spw_scutof_histogram_sum_p[spw_field][chan_j]  += deviationImag;
-							field_spw_scutof_histogram_sum_squares_p[spw_field][chan_j]  += deviationImag*deviationImag;
+							field_spw_scutoff_histogram_counts_p[spw_field][chan_j]  += 1;
+							field_spw_scutoff_histogram_sum_p[spw_field][chan_j]  += deviationImag;
+							field_spw_scutoff_histogram_sum_squares_p[spw_field][chan_j]  += deviationImag*deviationImag;
 						}
 					}
 				}
@@ -893,14 +891,14 @@ void FlagAgentRFlag::computeAntennaPairFlagsCore(	pair<Int,Int> spw_field,
 							}
 						}
 					}
-					// Check each channel separately vs the scutof level
+					// Check each channel separately vs the scutoff level
 					else
 					{
 						for (uInt chan_j=0;chan_j<(uInt) nChannels;chan_j++)
 						{
 							visibility = visibilities.correlationProduct(pol_k,chan_j,timestep_i);
-							if (	(abs(visibility.real()-AverageReal)>scutof) or
-									(abs(visibility.imag()-AverageImag)>scutof)	)
+							if (	(abs(visibility.real()-AverageReal)>scutoff) or
+									(abs(visibility.imag()-AverageImag)>scutoff)	)
 							{
 								if (!flags.getModifiedFlags(pol_k,chan_j,timestep_i))
 								{
@@ -1085,7 +1083,7 @@ FlagAgentRFlag::computeAntennaPairFlags(const vi::VisBuffer2 &visBuffer, VisMapp
 	// Check if frequency array has to be initialized
 	Bool initFreq = false;
 
-	// Get noise and scutoff levels
+	// Get noise and scutofff levels
 	Double noise = -1;
 	if ( (field_spw_noise_map_p.find(field_spw) != field_spw_noise_map_p.end()) and
 			field_spw_noise_map_p[field_spw] > 0)
@@ -1105,24 +1103,25 @@ FlagAgentRFlag::computeAntennaPairFlags(const vi::VisBuffer2 &visBuffer, VisMapp
 		if (doflag_p) prepass_p = true;
 		initFreq = true;
 	}
-
+	// Apply scale factor to the flagging threshold
+	noise *= noiseScale_p;
 
 	// Get cutoff level
-	Double scutof = -1;
-	if ((field_spw_scutof_map_p.find(field_spw) != field_spw_scutof_map_p.end()) and
-			(field_spw_scutof_map_p[field_spw] > 0))
+	Double scutoff = -1;
+	if ((field_spw_scutoff_map_p.find(field_spw) != field_spw_scutoff_map_p.end()) and
+			(field_spw_scutoff_map_p[field_spw] > 0))
 	{
-		scutof = field_spw_scutof_map_p[field_spw];
+		scutoff = field_spw_scutoff_map_p[field_spw];
 	}
-	else if (scutof_p > 0)
+	else if (scutoff_p > 0)
 	{
-		scutof = scutof_p;
+		scutoff = scutoff_p;
 	}
-	else if (field_spw_scutof_histogram_sum_p.find(field_spw) == field_spw_scutof_histogram_sum_p.end())
+	else if (field_spw_scutoff_histogram_sum_p.find(field_spw) == field_spw_scutoff_histogram_sum_p.end())
 	{
-		field_spw_scutof_histogram_sum_p[field_spw] = vector<Double>(nChannels,0);
-		field_spw_scutof_histogram_counts_p[field_spw] = vector<Double>(nChannels,0);
-		field_spw_scutof_histogram_sum_squares_p[field_spw] = vector<Double>(nChannels,0);
+		field_spw_scutoff_histogram_sum_p[field_spw] = vector<Double>(nChannels,0);
+		field_spw_scutoff_histogram_counts_p[field_spw] = vector<Double>(nChannels,0);
+		field_spw_scutoff_histogram_sum_squares_p[field_spw] = vector<Double>(nChannels,0);
 
 		if (field_spw_frequency_p.find(field_spw) == field_spw_frequency_p.end())
 		{
@@ -1132,7 +1131,8 @@ FlagAgentRFlag::computeAntennaPairFlags(const vi::VisBuffer2 &visBuffer, VisMapp
 
 		if (doflag_p) prepass_p = true;
 	}
-
+	// Apply scale factor to the flagging threshold
+	scutoff *= scutoffScale_p;
 
 	// Initialize frequency array has to be initialized
 	if (initFreq)
@@ -1163,21 +1163,21 @@ FlagAgentRFlag::computeAntennaPairFlags(const vi::VisBuffer2 &visBuffer, VisMapp
 	// We set start/stop time with decreasing values to deactivate time analysis
 	for (uInt timestep_i=0;timestep_i<effectiveNTimeStepsDelta;timestep_i++)
 	{
-		// computeAntennaPairFlagsCore(field_spw,scutof,0,effectiveNTimeSteps,timestep_i,visibilities,flags);
-		computeAntennaPairFlagsCore(field_spw,noise,scutof,-1,-2,timestep_i,visibilities,flags);
+		// computeAntennaPairFlagsCore(field_spw,scutoff,0,effectiveNTimeSteps,timestep_i,visibilities,flags);
+		computeAntennaPairFlagsCore(field_spw,noise,scutoff,-1,-2,timestep_i,visibilities,flags);
 	}
 
 	for (uInt timestep_i=effectiveNTimeStepsDelta;timestep_i<nTimesteps-effectiveNTimeStepsDelta;timestep_i++)
 	{
-		computeAntennaPairFlagsCore(field_spw,noise,scutof,timestep_i-effectiveNTimeStepsDelta,timestep_i+effectiveNTimeStepsDelta,timestep_i,visibilities,flags);
+		computeAntennaPairFlagsCore(field_spw,noise,scutoff,timestep_i-effectiveNTimeStepsDelta,timestep_i+effectiveNTimeStepsDelta,timestep_i,visibilities,flags);
 	}
 
 	// End time range: Move only central point (only for spectral analysis)
 	// We set start/stop time with decreasing values to deactivate time analysis
 	for (uInt timestep_i=nTimesteps-effectiveNTimeStepsDelta;timestep_i<(uInt) nTimesteps;timestep_i++)
 	{
-		// computeAntennaPairFlagsCore(field_spw,scutof,nTimesteps-effectiveNTimeSteps,nTimesteps-1,timestep_i,visibilities,flags);
-		computeAntennaPairFlagsCore(field_spw,noise,scutof,-1,-2,timestep_i,visibilities,flags);
+		// computeAntennaPairFlagsCore(field_spw,scutoff,nTimesteps-effectiveNTimeSteps,nTimesteps-1,timestep_i,visibilities,flags);
+		computeAntennaPairFlagsCore(field_spw,noise,scutoff,-1,-2,timestep_i,visibilities,flags);
 	}
 
 	return false;
@@ -1196,7 +1196,7 @@ FlagAgentRFlag::passIntermediate(const vi::VisBuffer2 &visBuffer)
 
 	if (field_spw_noise_map_p.find(field_spw) == field_spw_noise_map_p.end() && !noise_p)
 	{
-		Double noise = noiseScale_p*computeThreshold(	field_spw_noise_histogram_sum_p[field_spw],
+	  Double noise = /*noiseScale_p**/ computeThreshold(	field_spw_noise_histogram_sum_p[field_spw],
 														field_spw_noise_histogram_sum_squares_p[field_spw],
 														field_spw_noise_histogram_counts_p[field_spw]		);
 
@@ -1204,14 +1204,14 @@ FlagAgentRFlag::passIntermediate(const vi::VisBuffer2 &visBuffer)
 		*logger_p << LogIO::DEBUG1 << " field=" << field << " spw=" <<  spw << " noise=" << noise << LogIO::POST;
 	}
 
-	if (field_spw_scutof_map_p.find(field_spw) == field_spw_scutof_map_p.end() && !scutof_p)
+	if (field_spw_scutoff_map_p.find(field_spw) == field_spw_scutoff_map_p.end() && !scutoff_p)
 	{
-		Double scutof = scutofScale_p*computeThreshold(	field_spw_scutof_histogram_sum_p[field_spw],
-														field_spw_scutof_histogram_sum_squares_p[field_spw],
-														field_spw_scutof_histogram_counts_p[field_spw]		);
+	  Double scutoff = /*scutoffScale_p**/computeThreshold(	field_spw_scutoff_histogram_sum_p[field_spw],
+														field_spw_scutoff_histogram_sum_squares_p[field_spw],
+														field_spw_scutoff_histogram_counts_p[field_spw]		);
 
-		field_spw_scutof_map_p[field_spw] = scutof;
-		*logger_p << LogIO::DEBUG1 << " field=" << field << " spw=" <<  spw << " scutof=" << scutof << LogIO::POST;
+		field_spw_scutoff_map_p[field_spw] = scutoff;
+		*logger_p << LogIO::DEBUG1 << " field=" << field << " spw=" <<  spw << " scutoff=" << scutoff << LogIO::POST;
 	}
 
 	return;
@@ -1233,12 +1233,12 @@ FlagAgentRFlag::passFinal(const vi::VisBuffer2 &visBuffer)
 		field_spw_noise_histogram_counts_p.erase(field_spw);
 	}
 
-	if (user_field_spw_scutof_map_p.find(field_spw) == user_field_spw_scutof_map_p.end())
+	if (user_field_spw_scutoff_map_p.find(field_spw) == user_field_spw_scutoff_map_p.end())
 	{
-		field_spw_scutof_map_p.erase(field_spw);
-		field_spw_scutof_histogram_sum_p.erase(field_spw);
-		field_spw_scutof_histogram_sum_squares_p.erase(field_spw);
-		field_spw_scutof_histogram_counts_p.erase(field_spw);
+		field_spw_scutoff_map_p.erase(field_spw);
+		field_spw_scutoff_histogram_sum_p.erase(field_spw);
+		field_spw_scutoff_histogram_sum_squares_p.erase(field_spw);
+		field_spw_scutoff_histogram_counts_p.erase(field_spw);
 	}
 
 	return;
