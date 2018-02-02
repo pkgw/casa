@@ -320,11 +320,11 @@
                 <value type="string"></value>
             </param>
             <param type="double" name="timedevscale" subparam="true">
-                <description>Threshold scaling for timedev [aips:fparm(9)]. Only used when action is "apply". Ignored when action is "calculate".</description>
+                <description>Threshold scaling for timedev [aips:fparm(9)]. Ignored for the purpose of calculating thresholds (when action is "calculate") It is used when applying flags and displaying reports..</description>
                 <value>5.0</value>
             </param>
             <param type="double" name="freqdevscale" subparam="true">
-                <description>Threshold scaling for freqdev [aips:fparm(10)]. Only used when action is "apply". Ignored when action is "calculate".</description>
+                <description>Threshold scaling for freqdev [aips:fparm(10)]. Similarly as timedevscale, it is used when applying flags and displaying reports.</description>
                 <value>5.0</value>
             </param>
             <param type="double" name="spectralmax" subparam="true">
@@ -1319,7 +1319,8 @@
                         Note : The RFlag algorithm was originally developed by Eric Greisen in 
                                 AIPS (31DEC11).
                         AIPS documentation : Section E.5 of the AIPS cookbook
-                        (Appendix E : Special Considerations for EVLA data calibration and imaging in AIPS,
+                        (Appendix E : Special Considerations for EVLA data calibration and
+                        imaging in AIPS, E.5 Detailed Flagging
                         http://www.aips.nrao.edu/cook.html#CEE )
 
                         Note1 : Since this algorithm operates with two passes through each
@@ -1370,7 +1371,7 @@
                          timedev = [ [1,9,0.2], [1,10,0.5] ] :  Use noise-estimate of 0.2 for field 1, 
                                    spw 9, and noise-estimate of 0.5 for field 1, spw 10.
                          timedev = [] : Auto-calculate noise estimates.
-                
+
                     
                freqdev -- spectral noise estimate ( scutoff in AIPS ).
                           This step depends on having a relatively-flat bandshape.
@@ -1379,11 +1380,19 @@
                      
 
                timedevscale -- For Step 1 (time analysis), flag a point if local rms around it 
-                               is larger than  'timedevscale' x 'timedev'   ( fparm(0) in AIPS )
+                               is larger than 'timedevscale' x 'timedev'   ( fparm(0) in AIPS ).
+                               This scale parameter is only applied when flagging (action='apply')
+                               and displaying reports (display option). It is not used when
+                               the thresholds are simply calculated and saved into files
+                               (action='calculate', as in the two-passes usage pattern of AIPS)
                     default: 5.0
-                    
+
+
                freqdevscale -- For Step 2 (spectral analysis), flag a point if local rms around it
                                is larger than 'freqdevscale' x 'freqdev'     ( fparm(10) in AIPS )
+                               Similarly as with timedevscale, freqdevscale is not used when
+                               the thresholds are simply calculated and saved into files
+                               (action='calculate', as in the two-passes usage pattern of AIPS)
                     default: 5.0
 
                spectralmax -- Flag whole spectrum if 'freqdev' is greater than spectralmax ( fparm(6) in AIPS )
