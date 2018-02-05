@@ -364,8 +364,9 @@ def _immath_new_poli(
     myreg = _immath_getregion(region, box, chans, stokes, "poli", _myia, target)
     mypo = potool()
     mypo.open(target)
+    numeric_sigma = qa.getvalue(qa.quantity(newsigma))
     _myia = mypo.totpolint(
-        debias=debias, sigma=newsigma, outfile=outfile,
+        debias=debias, sigma=numeric_sigma, outfile=outfile,
         region=myreg, mask=mask, stretch=stretch
     )
     _myia.done()
