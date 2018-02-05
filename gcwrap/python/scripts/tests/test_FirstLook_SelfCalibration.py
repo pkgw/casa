@@ -186,8 +186,21 @@ class Test020_FirstLookatSelfCalibration(unittest.TestCase):
 
     def setUp(self):
         pass
-    def tearDown(self):
-        pass
+    @classmethod
+    def tearDownClass(cls):
+
+        rmtables("first_image*")
+        rmtables("second_image*")
+        rmtables("third_image*")
+        rmtables("fourth_image*")
+
+        rmtables("sis14_twhya*")
+        rmtables("*.cal")
+        os.system("rm -rf *.last")
+
+        os.system("rm -rf lessons")
+        os.system("rm -rf working_data")
+        os.system("rm -rf *.flagversions")
 
     def test_1_amp_cal(self):
         '''Test 1: Check amp.cal'''
@@ -337,3 +350,6 @@ class Test021_FirstLookatSelfCalibration(unittest.TestCase):
         '''Test 38: Image Comparison sis14_selfcal_phase_scan_2.png'''
         imageName = 'sis14_selfcal_phase_scan_2.png'
         self.assertTrue(compareImages('sis14_selfcal_phase_scan_2.png'))
+
+if __name__ == '__main__':
+    unittest.main()
