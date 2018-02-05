@@ -448,97 +448,97 @@ Double FlagAgentRFlag::computeThreshold(vector<Double> &data,vector<Double> &/*d
  */
 FlagReport FlagAgentRFlag::getReport()
 {
-	FlagReport totalRep(String("list"),agentName_p);
+    FlagReport totalRep(String("list"),agentName_p);
 
-	if ((doflag_p==false))
-	{
-		FlagReport plotRepCont(String("list"),agentName_p);
+    if (doflag_p) {
+        return totalRep;
+    }
 
-		// Calculate thresholds
-		generateThresholds(	field_spw_noise_histogram_sum_p,
-							field_spw_noise_histogram_sum_squares_p,
-							field_spw_noise_histogram_counts_p,
-							field_spw_noise_map_p,
-							"Time analysis");
-		generateThresholds(	field_spw_scutoff_histogram_sum_p,
-							field_spw_scutoff_histogram_sum_squares_p,
-							field_spw_scutoff_histogram_counts_p,
-							field_spw_scutoff_map_p,
-							"Spectral analysis");
+    FlagReport plotRepCont(String("list"),agentName_p);
 
-		// Threshold reports (should be returned if params were calculated)
-		Record threshList;
-		Int nEntriesNoise = field_spw_noise_map_p.size();
-		Int nEntriesScutoff = field_spw_scutoff_map_p.size();
+    // Calculate thresholds
+    generateThresholds(	field_spw_noise_histogram_sum_p,
+			field_spw_noise_histogram_sum_squares_p,
+			field_spw_noise_histogram_counts_p,
+			field_spw_noise_map_p,
+			"Time analysis");
+    generateThresholds(	field_spw_scutoff_histogram_sum_p,
+			field_spw_scutoff_histogram_sum_squares_p,
+			field_spw_scutoff_histogram_counts_p,
+			field_spw_scutoff_map_p,
+			"Spectral analysis");
 
-		if(nEntriesNoise>0 || nEntriesScutoff>0)
-	        {
-		          Matrix<Double> timedev(nEntriesNoise,3), freqdev(nEntriesScutoff,3);
-			  Int threshCountTime = 0, threshCountFreq = 0;
-			  pair<Int,Int> field_spw;
-			  for (auto spw_field_iter = field_spw_noise_map_p.begin();
-			       spw_field_iter != field_spw_noise_map_p.end();
-			       spw_field_iter++)
-		          {
-			            field_spw = spw_field_iter->first;
+    // Threshold reports (should be returned if params were calculated)
+    Record threshList;
+    Int nEntriesNoise = field_spw_noise_map_p.size();
+    Int nEntriesScutoff = field_spw_scutoff_map_p.size();
 
-				    timedev(threshCountTime,0) = field_spw.first;
-				    timedev(threshCountTime,1) = field_spw.second;
-				    timedev(threshCountTime,2) = field_spw_noise_map_p[field_spw];
-				    threshCountTime++;
-			  }
+    if(nEntriesNoise>0 || nEntriesScutoff>0)
+    {
+        Matrix<Double> timedev(nEntriesNoise,3), freqdev(nEntriesScutoff,3);
+        Int threshCountTime = 0, threshCountFreq = 0;
+        pair<Int,Int> field_spw;
+        for (auto spw_field_iter = field_spw_noise_map_p.begin();
+             spw_field_iter != field_spw_noise_map_p.end();
+             spw_field_iter++)
+        {
+            field_spw = spw_field_iter->first;
 
-			  for (auto spw_field_iter = field_spw_scutoff_map_p.begin();
-			       spw_field_iter != field_spw_scutoff_map_p.end();
-			       spw_field_iter++)
-		          {
-			            field_spw = spw_field_iter->first;
+            timedev(threshCountTime,0) = field_spw.first;
+            timedev(threshCountTime,1) = field_spw.second;
+            timedev(threshCountTime,2) = field_spw_noise_map_p[field_spw];
+            threshCountTime++;
+        }
 
-				    freqdev(threshCountFreq,0) = field_spw.first;
-				    freqdev(threshCountFreq,1) = field_spw.second;
-				    freqdev(threshCountFreq,2) = field_spw_scutoff_map_p[field_spw];
-				    threshCountFreq++;
-			  }
+        for (auto spw_field_iter = field_spw_scutoff_map_p.begin();
+             spw_field_iter != field_spw_scutoff_map_p.end();
+             spw_field_iter++)
+        {
+            field_spw = spw_field_iter->first;
 
-			  threshList.define( RecordFieldId("timedev") , timedev );
-			  threshList.define( RecordFieldId("freqdev") , freqdev );
-			  
-			  FlagReport returnThresh("rflag",agentName_p, threshList);
-			  totalRep.addReport(returnThresh);
-		}
+            freqdev(threshCountFreq,0) = field_spw.first;
+            freqdev(threshCountFreq,1) = field_spw.second;
+            freqdev(threshCountFreq,2) = field_spw_scutoff_map_p[field_spw];
+            threshCountFreq++;
+        }
 
-		// Add the plot-reports last. Display needs plot-reports to be at the end of the list
-		// Should be fixed in the display agent....
-		if(doplot_p==true)
-		{
-			// Plot reports (should be returned if params were calculated and display is activated)
-			getReportCore(field_spw_noise_histogram_sum_p,
-							field_spw_noise_histogram_sum_squares_p,
-							field_spw_noise_histogram_counts_p,
-							field_spw_noise_map_p,
-							plotRepCont,
-							"Time analysis",
-							noiseScale_p);
-			getReportCore(field_spw_scutoff_histogram_sum_p,
-							field_spw_scutoff_histogram_sum_squares_p,
-							field_spw_scutoff_histogram_counts_p,
-							field_spw_scutoff_map_p,
-							plotRepCont,
-							"Spectral analysis",
-							scutoffScale_p);
+        threshList.define( RecordFieldId("timedev") , timedev );
+        threshList.define( RecordFieldId("freqdev") , freqdev );
 
-			Int nReports = plotRepCont.nReport();
-			for (Int report_idx=0; report_idx<nReports; report_idx++)
-			{
-				FlagReport report_i;
-				Bool valid = plotRepCont.accessReport(report_idx,report_i);
-				if (valid) totalRep.addReport(report_i);
-			}
-		}
-	}
+        FlagReport returnThresh("rflag",agentName_p, threshList);
+        totalRep.addReport(returnThresh);
+    }
 
+    // Add the plot-reports last. Display needs plot-reports to be at the end of the list
+    // Should be fixed in the display agent....
+    if(doplot_p==true)
+    {
+        // Plot reports (should be returned if params were calculated and display is activated)
+        getReportCore(field_spw_noise_histogram_sum_p,
+                      field_spw_noise_histogram_sum_squares_p,
+                      field_spw_noise_histogram_counts_p,
+                      field_spw_noise_map_p,
+                      plotRepCont,
+                      "Time analysis",
+                      noiseScale_p);
+        getReportCore(field_spw_scutoff_histogram_sum_p,
+                      field_spw_scutoff_histogram_sum_squares_p,
+                      field_spw_scutoff_histogram_counts_p,
+                      field_spw_scutoff_map_p,
+                      plotRepCont,
+                      "Spectral analysis",
+                      scutoffScale_p);
 
-	return totalRep;
+        Int nReports = plotRepCont.nReport();
+        for (Int report_idx=0; report_idx<nReports; report_idx++)
+        {
+            FlagReport report_i;
+            Bool valid = plotRepCont.accessReport(report_idx,report_i);
+            if (valid) totalRep.addReport(report_i);
+        }
+    }
+
+    return totalRep;
 }
 
 FlagReport FlagAgentRFlag::getReportCore(	map< pair<Int,Int>,vector<Double> > &data,
@@ -688,8 +688,8 @@ void FlagAgentRFlag::generateThresholds(map< pair<Int,Int>,vector<Double> > &dat
 					map< pair<Int,Int>,Double > &threshold,
 					string label)
 {
-	// Set logger origin
-	logger_p->origin(LogOrigin(agentName_p,__FUNCTION__,WHERE));
+    // Set logger origin
+    logger_p->origin(LogOrigin(agentName_p,__FUNCTION__,WHERE));
 
     // First of all determine each SPW frequency in order to produce ordered vectors
     pair<Int,Int> current_field_spw;
@@ -927,7 +927,6 @@ void FlagAgentRFlag::robustMean(	uInt timestep_i,
 									VisMapper &visibilities,
 									FlagMapper &flags)
 {
-
 	// NOTE: To apply the robust coefficients we need some initial values of avg/std
 	//       In AIPS they simply use Std=1000 for the first iteration
 	//       I'm not very convinced with this but if we have to cross-validate...
