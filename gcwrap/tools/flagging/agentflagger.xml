@@ -177,7 +177,7 @@ one measurement set at a time.
   'apply' actions directly. These actions are distinguished only by
   the flagdata task. When selecting mode='rflag' the agentflagger will
   run as 'apply'. The 'calculate' action of the flagdata task can be
-  emulated by setting the hidden parameter 'writeflags' to False as
+  emulated by setting the tool parameter 'writeflags' to False as
   follows:
   \begin{verbatim}
      myagents = {}
@@ -429,7 +429,7 @@ writeflags controls whether or not to write to the MS.
 </description>
 <input>
      <param type="bool" name="writeflags">
-     <description>Write flags to MS</description>
+     <description>Write flags to MS (default: True)</description>
      <value>true</value>
      </param>
 
