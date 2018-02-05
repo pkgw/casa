@@ -211,6 +211,11 @@ public:
   virtual void setApplyParCurrSpw(const casacore::Cube<float> rpar,
 				  bool sync=false, bool doInv=false);
 
+  // Access (public) to current solution parameters and matrices
+  inline virtual casacore::Cube<casacore::Complex>& currCPar()  {return (*currCPar_[currSpw()]);};
+  inline virtual casacore::Cube<casacore::Float>&   currRPar()  {return (*currRPar_[currSpw()]);};
+  inline virtual casacore::Cube<casacore::Bool>&    currParOK() {return (*currParOK_[currSpw()]);};
+
 
 protected:
 
@@ -254,11 +259,6 @@ protected:
 
   // Access to matrix renderings of Visibilities
   inline VisVector& V() { return (*V_[currSpw()]); };
-
-  // Access to current solution parameters and matrices
-  inline virtual casacore::Cube<casacore::Complex>& currCPar()  {return (*currCPar_[currSpw()]);};
-  inline virtual casacore::Cube<casacore::Float>&   currRPar()  {return (*currRPar_[currSpw()]);};
-  inline virtual casacore::Cube<casacore::Bool>&    currParOK() {return (*currParOK_[currSpw()]);};
 
   // Validation of calibration parameters
   inline void invalidateP() {PValid_(currSpw())=false;};

@@ -1375,109 +1375,119 @@ PlotLogMessage* PlotMSIndexer::locateRange(const Vector<PlotRegion>& regions,
 void PlotMSIndexer::reportMeta(Double x, Double y, Bool masked,stringstream& ss) {
 
 	// This method assumes currChunk_ and irel_ already set correctly!
-    // Note some values not set (-1) in some cal tables
+	// Note some values not set (-1) in some cal tables; use *
 	Bool showindices(true);
 
 	ss << "Scan=";
-    Int scan= Int(plotmscache_->getScan(currChunk_,0));
-    if (scan < 0)
-        ss << "* ";
-    else
-        ss << scan << " ";
+	Int scan(plotmscache_->getScan(currChunk_,0));
+	if (scan < 0) ss << "* ";
+	else          ss << scan << " ";
 
 	ss << "Field=";
-	Int fld=Int(plotmscache_->getField(currChunk_,0));
-	if (fld<0)
+	Int fld(plotmscache_->getField(currChunk_,0));
+	if (fld<0) {
 		ss << "* ";
-	else {
+	} else {
 		ss << plotmscache_->fldnames_(fld);
-		if (showindices) ss << "[" << fld << "]";
-        ss << " ";
+		if (showindices) ss << " [" << fld << "] ";
 	}
 
-    ss << "Time=";
-    Double timeVal = plotmscache_->getTime(currChunk_,0);
-    if (timeVal == 0.0)
-        ss << "* ";
-    else
-	    ss << MVTime(timeVal/C::day).string(MVTime::YMD,10) << " ";
+	ss << "Time=";
+	Double timeVal(plotmscache_->getTime(currChunk_,0));
+	if (timeVal == 0.0) {
+		ss << "* ";
+	} else {
+		ss << MVTime(timeVal/C::day).string(MVTime::YMD,10) << " ";
+	}
 
-	Int ant1=Int( plotmscache_->getAnt1(currChunk_,getIndex0010(currChunk_,irel_)) );
-	Int ant2=Int( plotmscache_->getAnt2(currChunk_,getIndex0010(currChunk_,irel_)) );
-    if (ant1<0 && ant2<0)
-		ss << "BL=*&* [averaged]";
-	else {
-		if (ant2 < 0)
-			ss << "ANT1=";
-		else
-			ss << "BL=";
-		// Antenna Names
-		if (!plotmscache_->netAxesMask_[dataIndex](2) || ant1<0)
-			ss << "*";
-		else
-			ss << plotmscache_->antstanames_(ant1);
-		if (!plotmscache_->netAxesMask_[dataIndex](2) || ant2<0)
-			ss << " & * ";
-		else if (ant1==ant2)
-			ss << " && " << plotmscache_->antstanames_(ant2);
-		else if (ant2>=0)
-			ss << " & " << plotmscache_->antstanames_(ant2);
-		// Antenna indices
-		if (showindices) {
-			ss << " [";
+	Int ant1(plotmscache_->getAnt1(currChunk_,getIndex0010(currChunk_,irel_)));
+	String caltype(plotmscache_->calType());
+	if (caltype=="BPOLY" || caltype =="GSPLINE") { // no ant2
+		ss << "ANT1=" << plotmscache_->antnames_(ant1);
+		if (showindices) ss << " [" << ant1 << "]";
+	} else {	
+		Int ant2(plotmscache_->getAnt2(currChunk_,getIndex0010(currChunk_,irel_)));
+		if (ant1<0 && ant2<0) {
+			ss << "BL=*&* [averaged]";
+		} else {
+			// antenna or baseline
+			if (ant2 < 0) ss << "ANT1=";
+			else          ss << "BL=";
+
+			// Antenna Names
 			if (!plotmscache_->netAxesMask_[dataIndex](2) || ant1<0)
 				ss << "*";
 			else
-				ss << ant1;
+				ss << plotmscache_->antstanames_(ant1);
+
 			if (!plotmscache_->netAxesMask_[dataIndex](2) || ant2<0)
-				ss << "&*";
+				ss << " & * ";
 			else if (ant1==ant2)
-				ss << "&&" << ant2;
+				ss << " && " << plotmscache_->antstanames_(ant2);
 			else if (ant2>=0)
-				ss << "&" << ant2;
-			ss << "]";
+				ss << " & " << plotmscache_->antstanames_(ant2);
+
+			// Antenna indices
+			if (showindices) {
+				ss << " [";
+				if (!plotmscache_->netAxesMask_[dataIndex](2) || ant1<0)
+					ss << "*";
+				else
+					ss << ant1;
+				if (!plotmscache_->netAxesMask_[dataIndex](2) || ant2<0)
+					ss << "&*";
+				else if (ant1==ant2)
+					ss << "&&" << ant2;
+				else if (ant2>=0)
+					ss << "&" << ant2;
+				ss << "]";
+			}
 		}
 	}
 	ss << " ";
 
 	ss << "Spw=";
-	Int spw=Int(plotmscache_->getSpw(currChunk_,0));
-	if (spw<0)
-		ss << "* ";
-	else
-		ss << spw << " ";
+	Int spw(plotmscache_->getSpw(currChunk_,0));
+	if (spw<0) ss << "* ";
+	else       ss << spw << " ";
 
+	Bool isMS(plotmscache_->cacheType() == PlotMSCacheBase::MS);
+	PlotMSAveraging& pmsAvg(plotmscache_->averaging());
+	Int ichan = getIndex0100(currChunk_,irel_);
 	ss << "Chan=";
-	Int ichan=getIndex0100(currChunk_,irel_);
-    PlotMSAveraging& pmsave(plotmscache_->averaging());
-    Bool isMS = (plotmscache_->cacheType() == PlotMSCacheBase::MS);
-	if (plotmscache_->netAxesMask_[dataIndex](1)) {
-		if (isMS && pmsave.channel() && pmsave.channelValue()>1) {
-            Vector<Int> chansPerBin = plotmscache_->getChansPerBin(currChunk_, ichan);
-			ss << "<" << chansPerBin[0] << "~" << chansPerBin[chansPerBin.size()-1] << ">";
-		}
-		else
-			ss << Int(plotmscache_->getChan(currChunk_,ichan));
-	}
-	else
+	if (caltype =="GSPLINE") { // no chan
 		ss << "*";
+	} else {
+		if (plotmscache_->netAxesMask_[dataIndex](1)) {
+			if (isMS && pmsAvg.channel() && pmsAvg.channelValue()>1) {
+				Vector<Int> chansPerBin = plotmscache_->getChansPerBin(currChunk_, ichan);
+				ss << "<" << chansPerBin[0] << "~" << chansPerBin[chansPerBin.size()-1] << ">";
+			} else {
+				ss << Int(plotmscache_->getChan(currChunk_,ichan));
+			}
+		} else {
+			ss << "*";
+		}
+	}
 	ss << " ";
 
-	if (plotmscache_->netAxesMask_[dataIndex](1)) {
-		if (isMS && pmsave.channel() && pmsave.channelValue()>1) {
-	        ss << "Avg Freq=";
-        } else {
-	        ss << "Freq=";
-        }
-		ss << plotmscache_->getFreq(currChunk_,ichan) << " ";
-    } else {
+	if (caltype =="GSPLINE") { // no freq
 		ss << "Freq=*        ";
-    }
+	} else {
+		if (plotmscache_->netAxesMask_[dataIndex](1)) {
+			if (isMS && pmsAvg.channel() && pmsAvg.channelValue()>1) {
+				ss << "Avg Freq=";
+			} else {
+				ss << "Freq=";
+			}
+			ss << plotmscache_->getFreq(currChunk_,ichan) << " ";
+		} else {
+			ss << "Freq=*        ";
+		}
+	}
 
-    if (isMS)
-	    ss << "Corr=";
-    else
-	    ss << "Poln=";
+	if (isMS) ss << "Corr=";
+	else      ss << "Poln=";
 	if (plotmscache_->netAxesMask_[dataIndex](0))
 		ss << plotmscache_->polname(Int(plotmscache_->getCorr(currChunk_,getIndex1000(currChunk_,irel_))));
 	else
@@ -1487,7 +1497,11 @@ void PlotMSIndexer::reportMeta(Double x, Double y, Bool masked,stringstream& ss)
 	ss << "X=" << x << " ";
 	ss << "Y="  << y;
 	ss << ( masked ? " F " : " ");
-	ss << "Observation=" << plotmscache_->getObsid(currChunk_,0) << " ";
+
+	ss << "Observation=";
+	Int obsid(plotmscache_->getObsid(currChunk_,0));
+	if (obsid<0) ss << "*";
+	else         ss << obsid;
 }
 
 PlotLogMessage* PlotMSIndexer::flagRange(const PlotMSFlagging& flagging,

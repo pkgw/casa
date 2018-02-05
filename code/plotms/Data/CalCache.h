@@ -36,6 +36,9 @@
 #include <synthesis/CalTables/CTIter.h>
 #include <synthesis/CalTables/SolvableVJMCol.h>
 #include <synthesis/CalTables/CalDescColumns.h>
+#include <synthesis/CalTables/BJonesMCol.h>
+#include <synthesis/CalTables/GJonesMCol.h>
+#include <synthesis/MeasurementComponents/MSMetaInfoForCal.h>
 #include <casa/aips.h>
 #include <casa/Arrays.h>
 #include <casa/Containers/Block.h>
@@ -107,16 +110,25 @@ private:
   void countChunks(casacore::Int nrowMain, vector<PMS::Axis>& loadAxes,
     vector<PMS::DataColumn>& loadData,
     ThreadCommunication* thread);
-  void loadCalChunks(ROSolvableVisJonesMCol& mcol,
-    ROCalDescColumns& dcol, const vector<PMS::Axis> loadAxes,
+  void loadCalChunks(ROBJonesPolyMCol& mcol, ROCalDescColumns& dcol,
+    casacore::Int nrow, const vector<PMS::Axis> loadAxes,
     ThreadCommunication* thread);
+  void loadCalChunks(ROGJonesSplineMCol& mcol, ROCalDescColumns& dcol,
+    casacore::Int nsample, const vector<PMS::Axis> loadAxes,
+    ThreadCommunication* thread);
+  // trap user-requested axes that are invalid for GSPLINE
+  void checkAxes(const vector<PMS::Axis>& loadAxes);
   void loadCalAxis(ROSolvableVisJonesMCol& mcol, ROCalDescColumns& dcol,
-    casacore::Int chunk, PMS::Axis axis, casacore::String pol);
+    casacore::Int chunk, PMS::Axis axis);
   // helper functions for loading CalTable chunks
+  void setUpLoad(ThreadCommunication* thread, casacore::Slice& parSlice);
   casacore::String getMSAbsPath(casacore::String msname);
   void getChanFreqsFromMS(casacore::String fullmsname);
-  void getBPolyDataAxis(PMS::Axis axis,
+  void getCalDataAxis(PMS::Axis axis,
     casacore::Cube<casacore::Complex>& viscube, casacore::Int chunk);
+
+  // for locate
+  void getNamesFromMS(MSMetaInfoForCal& meta);
 
   // Trap attempt to use to much memory (too many points)
   //  void trapExcessVolume(map<PMS::Axis,casacore::Bool> pendingLoadAxes);
@@ -148,8 +160,7 @@ private:
   bool divZero_;
   // get from MeasurementSet
   casacore::Array<casacore::Double> chanfreqs_;
-  // for CalTables
-  casacore::Int nrow_;
+
   // Volume meter for volume calculation
   //  PMSCacheVolMeter vm_;
  

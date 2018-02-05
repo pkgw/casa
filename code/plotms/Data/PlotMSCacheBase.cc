@@ -412,7 +412,8 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 		  else if ((metadata(i)==PMS::ANTENNA2 || metadata(i)==PMS::BASELINE) &&
                    (caltype=="BPOLY" || caltype=="GSPLINE"))
 			  continue;
-          else if ((metadata(i)==PMS::CHANNEL) && caltype=="GSPLINE")
+          else if ((metadata(i)==PMS::CHANNEL || metadata(i)==PMS::FREQUENCY) &&
+				    caltype=="GSPLINE")
 			  continue;
       }
 	  pendingLoadAxes_[metadata(i)]=true; // all meta data will be loaded
