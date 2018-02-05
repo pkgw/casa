@@ -275,7 +275,7 @@ void FlagAgentRFlag::setAgentParameters(Record config)
 
 			    IPosition shape = timedev.shape();
 			    uInt nDevs = shape[0];
-			    for(uInt dev_i=0;dev_i<nDevs;dev_i++)
+			    for(uInt dev_i=0; dev_i<nDevs; ++dev_i)
 			    {
 			    	auto field_spw = std::make_pair((Int)timedev(dev_i, 0),
 								(Int)timedev(dev_i, 1));
@@ -322,7 +322,7 @@ void FlagAgentRFlag::setAgentParameters(Record config)
 
 			    IPosition shape = freqdev.shape();
 			    uInt nDevs = shape[0];
-			    for(uInt dev_i=0;dev_i<nDevs;dev_i++)
+			    for(uInt dev_i=0; dev_i<nDevs; ++dev_i)
 			    {
 			    	auto field_spw = std::make_pair(static_cast<Int>(freqdev(dev_i, 0)),
 								static_cast<Int>(freqdev(dev_i, 1)));
@@ -357,7 +357,7 @@ Double FlagAgentRFlag::mean(vector<Double> &data,vector<Double> &counts)
 
 	if (data.size() == 0)
 	{
-		for (size_t index = 0; index < data.size();index++)
+		for (size_t index = 0; index < data.size(); ++index)
 		{
 			if (counts[index] > 0)
 			{
@@ -376,7 +376,7 @@ Double FlagAgentRFlag::mean(vector<Double> &data,vector<Double> &counts)
 
 void FlagAgentRFlag::noiseVsRef(vector<Double> &data, Double ref)
 {
-	for (size_t index = 0; index < data.size();index++)
+	for (size_t index = 0; index < data.size(); ++index)
 	{
 		data[index] -= ref;
 	}
@@ -413,7 +413,7 @@ Double FlagAgentRFlag::computeThreshold(vector<Double> &data,vector<Double> &/*d
 
 	// Produce samples for median
 	vector<Double> samplesForMedian(data.size(),0);
-	for (size_t index = 0; index < data.size();index++)
+	for (size_t index = 0; index < data.size(); ++index)
 	{
 		if (counts[index] > 0)
 		{
@@ -427,7 +427,7 @@ Double FlagAgentRFlag::computeThreshold(vector<Double> &data,vector<Double> &/*d
 
 	// Produce samples for median absolute deviation
 	vector<Double> samplesForMad(samplesForMedian.size(),0);
-	for (size_t index = 0; index < samplesForMedian.size();index++)
+	for (size_t index = 0; index < samplesForMedian.size(); ++index)
 	{
 		samplesForMad[index] = abs(samplesForMedian[index] - med);
 	}
@@ -480,26 +480,26 @@ FlagReport FlagAgentRFlag::getReport()
         pair<Int,Int> field_spw;
         for (auto spw_field_iter = field_spw_noise_map_p.begin();
              spw_field_iter != field_spw_noise_map_p.end();
-             spw_field_iter++)
+             ++spw_field_iter)
         {
             field_spw = spw_field_iter->first;
 
             timedev(threshCountTime,0) = field_spw.first;
             timedev(threshCountTime,1) = field_spw.second;
             timedev(threshCountTime,2) = field_spw_noise_map_p[field_spw];
-            threshCountTime++;
+            ++threshCountTime;
         }
 
         for (auto spw_field_iter = field_spw_scutoff_map_p.begin();
              spw_field_iter != field_spw_scutoff_map_p.end();
-             spw_field_iter++)
+             ++spw_field_iter)
         {
             field_spw = spw_field_iter->first;
 
             freqdev(threshCountFreq,0) = field_spw.first;
             freqdev(threshCountFreq,1) = field_spw.second;
             freqdev(threshCountFreq,2) = field_spw_scutoff_map_p[field_spw];
-            threshCountFreq++;
+            ++threshCountFreq;
         }
 
         threshList.define( RecordFieldId("timedev") , timedev );
@@ -530,7 +530,7 @@ FlagReport FlagAgentRFlag::getReport()
                       scutoffScale_p);
 
         Int nReports = plotRepCont.nReport();
-        for (Int report_idx=0; report_idx<nReports; report_idx++)
+        for (Int report_idx=0; report_idx<nReports; ++report_idx)
         {
             FlagReport report_i;
             Bool valid = plotRepCont.accessReport(report_idx,report_i);
@@ -557,7 +557,7 @@ FlagReport FlagAgentRFlag::getReportCore(	map< pair<Int,Int>,vector<Double> > &d
     map< Int, vector<pair<Double,Int> > > field_spw_order;
     for (auto field_spw_iter = data.begin();
 	 field_spw_iter != data.end();
-	 field_spw_iter++)
+	 ++field_spw_iter)
     {
     	current_field_spw = field_spw_iter->first;
     	auto freq_spw = std::make_pair(field_spw_frequencies_p[current_field_spw],current_field_spw.second);
@@ -571,7 +571,7 @@ FlagReport FlagAgentRFlag::getReportCore(	map< pair<Int,Int>,vector<Double> > &d
     String fieldName;
     for (auto field_freq_spw_iter = field_spw_order.begin();
 	 field_freq_spw_iter != field_spw_order.end();
-	 field_freq_spw_iter++)
+	 ++field_freq_spw_iter)
     {
     	// Get field
     	field = field_freq_spw_iter->first;
@@ -598,7 +598,7 @@ FlagReport FlagAgentRFlag::getReportCore(	map< pair<Int,Int>,vector<Double> > &d
     			<< field << " (" << fieldName << ")" << LogIO::POST;
 
     	// Now iterate over SPWs
-    	for (uInt spw_i=0;spw_i<field_freq_spw_iter->second.size();spw_i++)
+    	for (uInt spw_i=0; spw_i<field_freq_spw_iter->second.size(); ++spw_i)
     	{
     		// Get SPW
     		spw = field_freq_spw_iter->second[spw_i].second;
@@ -642,7 +642,7 @@ FlagReport FlagAgentRFlag::getReportCore(	map< pair<Int,Int>,vector<Double> > &d
         //Vector<Float> threshold_down(total_threshold_counts.size(),0);
         //Vector<Float> threshold_variance(total_threshold_counts.size(),0);
         Vector<Float> threshold_dev(total_threshold_counts.size(),0);
-        for (auto iter = total_threshold.begin();iter != total_threshold.end();iter++)
+        for (auto iter = total_threshold.begin(); iter != total_threshold.end(); ++iter)
         {
         	// threshold_index(idx) = idx;
         	threshold_frequency(idx) = total_frequency[idx];
@@ -665,7 +665,7 @@ FlagReport FlagAgentRFlag::getReportCore(	map< pair<Int,Int>,vector<Double> > &d
         	threshold_up(idx) = avg+variance;
         	//threshold_down(idx) = avg-variance;
         	//threshold_variance(idx) = variance; // New
-        	idx++;
+        	++idx;
         }
 
         // Finally add plots to field report
@@ -694,7 +694,7 @@ void FlagAgentRFlag::generateThresholds(map< pair<Int,Int>,vector<Double> > &dat
     // First of all determine each SPW frequency in order to produce ordered vectors
     pair<Int,Int> current_field_spw;
     for (auto field_spw_iter = data.begin(); field_spw_iter != data.end();
-	 field_spw_iter++)
+	 ++field_spw_iter)
     {
     	current_field_spw = field_spw_iter->first;
 
@@ -751,10 +751,10 @@ void FlagAgentRFlag::computeAntennaPairFlagsCore(pair<Int,Int> spw_field,
   // NOTE: It is better to operate in channel/polarization sequence for data contiguity
   if ( (noise < 0) or ((noise > 0) and (doflag_p == true) and (prepass_p == false)) )
     {
-      for (uInt chan_j=0;chan_j<(uInt)nChannels;chan_j++)
+      for (uInt chan_j=0; chan_j<(uInt)nChannels; ++chan_j)
 	{
 	  // Compute variance
-	  for (uInt pol_k=0;pol_k<(uInt)nPols;pol_k++)
+	  for (uInt pol_k=0;pol_k<(uInt)nPols; ++pol_k)
 	    {
 	      SumWeight = 0;
 	      StdTotal = 0;
@@ -767,7 +767,7 @@ void FlagAgentRFlag::computeAntennaPairFlagsCore(pair<Int,Int> spw_field,
 	      AverageImag = 0;
 	      StdImag = 0;
 
-	      for (uInt timestep_i=timeStart;timestep_i<=(uInt) timeStop;timestep_i++)
+	      for (uInt timestep_i=timeStart; timestep_i<=(uInt) timeStop; ++timestep_i)
 		{
 		  // Ignore data point if it is already flagged
 		  // NOTE: In our case visibilities come w/o weights, so we check vs flags instead
@@ -812,7 +812,7 @@ void FlagAgentRFlag::computeAntennaPairFlagsCore(pair<Int,Int> spw_field,
 		    }
 		  else if (StdTotal > noise)
 		    {
-		      for (uInt timestep_i=timeStart;timestep_i<=timeStop;timestep_i++)
+		      for (uInt timestep_i=timeStart; timestep_i<=timeStop; ++timestep_i)
 			{
 			  if (!flags.getModifiedFlags(pol_k,chan_j,timestep_i))
 			    {
@@ -829,9 +829,9 @@ void FlagAgentRFlag::computeAntennaPairFlagsCore(pair<Int,Int> spw_field,
   // Spectral analysis: Fix timestep/polarization and compute stats with all channels
   if ( (scutoff < 0) or ((scutoff > 0) and (doflag_p == true) and (prepass_p == false)) )
     {
-      for (uInt timestep_i=centralTime;timestep_i<=centralTime;timestep_i++)
+      for (uInt timestep_i=centralTime; timestep_i<=centralTime; ++timestep_i)
 	{
-	  for (uInt pol_k=0;pol_k<(uInt) nPols;pol_k++)
+	  for (uInt pol_k=0; pol_k<(uInt) nPols; ++pol_k)
 	    {
 
 	      (*this.*spectralAnalysis_p)(	timestep_i,
@@ -848,7 +848,7 @@ void FlagAgentRFlag::computeAntennaPairFlagsCore(pair<Int,Int> spw_field,
 
 	      if (scutoff < 0)
 		{
-		  for (uInt chan_j=0;chan_j<(uInt) nChannels;chan_j++)
+		  for (uInt chan_j=0; chan_j<(uInt) nChannels; ++chan_j)
 		    {
 		      // Ignore data point if it is already flagged
 		      // NOTE: In our case visibilities come w/o weights, so we check vs flags instead
@@ -881,7 +881,7 @@ void FlagAgentRFlag::computeAntennaPairFlagsCore(pair<Int,Int> spw_field,
 			(StdReal < spectralmin_p) or
 			(StdImag < spectralmin_p)		)
 		    {
-		      for (uInt chan_j=0;chan_j<(uInt) nChannels;chan_j++)
+		      for (uInt chan_j=0; chan_j<(uInt) nChannels; ++chan_j)
 			{
 			  if (!flags.getModifiedFlags(pol_k,chan_j,timestep_i))
 			    {
@@ -893,7 +893,7 @@ void FlagAgentRFlag::computeAntennaPairFlagsCore(pair<Int,Int> spw_field,
 		  // Check each channel separately vs the scutoff level
 		  else
 		    {
-		      for (uInt chan_j=0;chan_j<(uInt) nChannels;chan_j++)
+		      for (uInt chan_j=0; chan_j<(uInt) nChannels; ++chan_j)
 			{
 			  visibility = visibilities.correlationProduct(pol_k,chan_j,timestep_i);
 			  if (	(abs(visibility.real()-AverageReal)>scutoff) or
@@ -944,7 +944,7 @@ void FlagAgentRFlag::robustMean(	uInt timestep_i,
 	Double SumImag = 0;
 	Double SumImagSquare = 0;
 
-	for (uInt robustIter=0;robustIter<nIterationsRobust_p;robustIter++)
+	for (uInt robustIter=0; robustIter<nIterationsRobust_p; ++robustIter)
 	{
 		SumWeightReal = 0;
 		SumWeightImag = 0;
@@ -953,7 +953,7 @@ void FlagAgentRFlag::robustMean(	uInt timestep_i,
 		SumImag = 0;
 		SumImagSquare = 0;
 
-		for (uInt chan_j=0;chan_j<(uInt) nChannels;chan_j++)
+		for (uInt chan_j=0; chan_j<(uInt) nChannels; ++chan_j)
 		{
 			// Ignore data point if it is already flagged or weight is <= 0
 			// NOTE: In our case visibilities come w/o weights, so we check only vs flags
@@ -1034,7 +1034,7 @@ void FlagAgentRFlag::simpleMedian(	uInt timestep_i,
 //	Double realMedian = 0;
 //	Double imagMedian = 0;
 
-	for (uInt chan_j=0;chan_j<(uInt) nChannels;chan_j++)
+	for (uInt chan_j=0; chan_j<(uInt) nChannels; ++chan_j)
 	{
 		// Ignore data point if it is already flagged or weight is <= 0
 		// NOTE: In our case visibilities come w/o weights, so we check only vs flags
@@ -1137,7 +1137,7 @@ FlagAgentRFlag::computeAntennaPairFlags(const vi::VisBuffer2 &visBuffer, VisMapp
 	{
 		Vector<Double> freqInHz = visBuffer.getFrequencies(0,MFrequency::TOPO);
 		// jagonzal (CAS-4312): We have to take into account channel selection for the frequency mapping
-		for (uInt channel_idx=0;channel_idx < channelIndex_p.size();channel_idx++)
+		for (uInt channel_idx=0; channel_idx < channelIndex_p.size(); ++channel_idx)
 		{
 			field_spw_frequency_p[field_spw][channel_idx] = freqInHz[channelIndex_p[channel_idx]]/1E9;
 		}
@@ -1159,20 +1159,20 @@ FlagAgentRFlag::computeAntennaPairFlags(const vi::VisBuffer2 &visBuffer, VisMapp
 
 	// Beginning time range: Move only central point (only for spectral analysis)
 	// We set start/stop time with decreasing values to deactivate time analysis
-	for (uInt timestep_i=0;timestep_i<effectiveNTimeStepsDelta;timestep_i++)
+	for (uInt timestep_i=0; timestep_i<effectiveNTimeStepsDelta; ++timestep_i)
 	{
 		// computeAntennaPairFlagsCore(field_spw,scutoff,0,effectiveNTimeSteps,timestep_i,visibilities,flags);
 		computeAntennaPairFlagsCore(field_spw,noise,scutoff,-1,-2,timestep_i,visibilities,flags);
 	}
 
-	for (uInt timestep_i=effectiveNTimeStepsDelta;timestep_i<nTimesteps-effectiveNTimeStepsDelta;timestep_i++)
+	for (uInt timestep_i=effectiveNTimeStepsDelta; timestep_i<nTimesteps-effectiveNTimeStepsDelta; ++timestep_i)
 	{
 		computeAntennaPairFlagsCore(field_spw,noise,scutoff,timestep_i-effectiveNTimeStepsDelta,timestep_i+effectiveNTimeStepsDelta,timestep_i,visibilities,flags);
 	}
 
 	// End time range: Move only central point (only for spectral analysis)
 	// We set start/stop time with decreasing values to deactivate time analysis
-	for (uInt timestep_i=nTimesteps-effectiveNTimeStepsDelta;timestep_i<(uInt) nTimesteps;timestep_i++)
+	for (uInt timestep_i=nTimesteps-effectiveNTimeStepsDelta; timestep_i<(uInt) nTimesteps; ++timestep_i)
 	{
 		// computeAntennaPairFlagsCore(field_spw,scutoff,nTimesteps-effectiveNTimeSteps,nTimesteps-1,timestep_i,visibilities,flags);
 		computeAntennaPairFlagsCore(field_spw,noise,scutoff,-1,-2,timestep_i,visibilities,flags);
