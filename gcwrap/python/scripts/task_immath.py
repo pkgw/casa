@@ -317,7 +317,7 @@ def _immath_new_pola(
             polithresh = qa.getvalue(polithresh)[0]
             lpol = tmpFilePrefix + "_lpol"
             mypo.open(target)
-            _myia = mypo.linpolint(debias=False, outfile=lpol, region=region)
+            _myia = mypo.linpolint(debias=False, outfile=lpol, region=myreg)
             _myia.done()
             mypo.done()
     mypo.open(target)
