@@ -589,7 +589,7 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 			gridpars.interpolation, impars.freqFrameValid, 1000000000,  16, impars.stokes,
 			impars.imageName, gridpars.pointingDirCol, gridpars.skyPosThreshold,
 			gridpars.convSupport, gridpars.truncateSize, gridpars.gwidth, gridpars.jwidth,
-			gridpars.minWeight, gridpars.clipMinMax);
+			gridpars.minWeight, gridpars.clipMinMax, impars.pseudoi);
 
       }
     catch(AipsError &x)
@@ -1356,7 +1356,8 @@ void SynthesisImagerVi2::unlockMSs()
 					   const Quantity &gwidth,
 					   const Quantity &jwidth,
 					   const Float minWeight,
-					   const Bool clipMinMax
+					   const Bool clipMinMax,
+					   const Bool pseudoI
 					   )
 
   {
@@ -1467,6 +1468,15 @@ void SynthesisImagerVi2::unlockMSs()
     theFT->setSpwChanSelection(chanSel_p);
     theIFT->setSpwChanSelection(chanSel_p);
     */
+
+    // Set pseudo-I if requested.
+    if(pseudoI==true)
+      {
+	os << "Turning on Pseudo-I gridding" << LogIO::POST;
+	theFT->setPseudoIStokes(true);
+	theIFT->setPseudoIStokes(true);
+      }
+
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

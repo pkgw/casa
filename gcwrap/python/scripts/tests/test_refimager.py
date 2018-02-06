@@ -772,6 +772,31 @@ class test_stokes(testref_base):
           self.checkfinal(report)
 
 
+     def test_stokes_pseudoI(self):
+          """ [onefield] Test_Stokes_pseudoI : One channel stokes I, LL partially flagged"""
+          self.prepData('refim_point.ms')
+
+          ### A debug run to check total sum of weights, without any flagging. Need not turn on for actual test.
+          #ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,spw='0:5',cell='8.0arcsec',niter=10, stokes='pseudoI',interactive=0,specmode='mfs',weighting='natural')
+          #report=self.th.checkall(imexist=[self.img+'.image',self.img+'.sumwt'],imval=[(self.img+'.image',1.2,[50,50,0,0]),(self.img+'.sumwt',1719543.62,[0,0,0,0])])
+
+          ### Modify flags in the MS.
+          tb.open('refim_point.ms',nomodify=False)
+          flgs = tb.getcol('FLAG')
+          flgs[1,:,50:84240]=True   ## Flag half of LL.
+          tb.putcol('FLAG',flgs)
+          tb.close()
+
+          ### Run with pseudo-I. Sum of weight should be 3/4 of full.
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,spw='0:5',cell='8.0arcsec',niter=10, stokes='pseudoI',interactive=0,specmode='mfs',weighting='natural')
+          report=self.th.checkall(imexist=[self.img+'.image',self.img+'.sumwt'],imval=[(self.img+'.image',1.2,[50,50,0,0]),(self.img+'.sumwt',1288281.75,[0,0,0,0])])
+
+          ### Run with I. Sum of weight should be 1/2 of full
+          ret_2 = tclean(vis=self.msfile,imagename=self.img+'_2',imsize=100,spw='0:5',cell='8.0arcsec',niter=10, stokes='I',interactive=0,specmode='mfs',weighting='natural')
+          report=self.th.checkall(imexist=[self.img+'_2.image',self.img+'_2.sumwt'],imval=[(self.img+'_2.image',1.2,[50,50,0,0]),(self.img+'_2.sumwt',857020.0,[0,0,0,0])])
+
+
+
 #     def test_stokes_cube_I_flags(self):
 #          """ [onefield] Test_Stokes_cube_I_flags : cube with stokes I and only XY or YX flagged"""
 #          self.prepData('refim_point_linXY.ms')
@@ -783,6 +808,8 @@ class test_stokes(testref_base):
 #          self.prepData('refim_point_linXY.ms')
 #          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10, stokes='IQUV',interactive=0,specmode='cube')
 #          report=self.th.checkall(imexist=[self.img+'.image'],imval=[(self.img+'.image',1.0,[50,50,0,1]),(self.img+'.image',2.0,[50,50,1,1]), (self.img+'.image',3.0,[50,50,2,1]),(self.img+'.image',4.0,[50,50,4,1]) ])
+
+
 
 ##############################################
 ##############################################

@@ -127,7 +127,8 @@ public:
            const casacore::Quantity &gwidth=casacore::Quantity(-1),
            const casacore::Quantity &jwidth=casacore::Quantity(-1),
            const casacore::Float minWeight=0.1,
-           const casacore::Bool clipMinMax=false);
+		       const casacore::Bool clipMinMax=false,
+		       const casacore::Bool pseudoI=false);
 
   void createAWPFTMachine(casacore::CountedPtr<refim::FTMachine>& theFT, casacore::CountedPtr<refim::FTMachine>& theIFT, 
 			  const casacore::String& ftmName,

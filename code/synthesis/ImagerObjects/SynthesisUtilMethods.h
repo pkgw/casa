@@ -252,6 +252,9 @@ public:
   casacore::MDirection phaseCenter;
   casacore::Int phaseCenterFieldId;
 
+  // Stokes info
+  casacore::Bool pseudoi;
+
   // Spectral coordinates ( TT : Add other params here  )
   casacore::Int nchan, nTaylorTerms, chanStart, chanStep;
   casacore::Quantity freqStart, freqStep, refFreq, velStart, velStep;

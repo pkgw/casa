@@ -337,6 +337,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 	      <value>YY</value>
 	      <value>RRLL</value>
 	      <value>XXYY</value>
+	      <value>pseudoI</value>
 	    </allowed>
     </param>
 
