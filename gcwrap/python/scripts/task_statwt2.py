@@ -47,7 +47,7 @@ def statwt2(
         #sel['feed'] = feed
         # Select the data. Only-parse is set to false.
         myms.msselect(sel, False)
-        myms.statwt2(
+        return myms.statwt2(
             combine=combine, timebin=timebin,
             slidetimebin=slidetimebin, chanbin=chanbin,
             minsamp=minsamp, statalg=statalg, fence=fence,
@@ -55,7 +55,6 @@ def statwt2(
             maxiter=maxiter, excludechans=excludechans,
             wtrange=wtrange, preview=preview, datacolumn=datacolumn
         ) 
-        return True
     except Exception, instance:
         casalog.post( '*** Error ***'+str(instance), 'SEVERE' )
         raise

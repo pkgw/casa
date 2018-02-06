@@ -10,7 +10,7 @@
              "Maintainer":"Dirk Petry",
              "MaintainerEmail":"dpetry@eso.org",
              "priority":"3",
-             "tag":"",
+             "tag":"importExport",
              "suppressEmail": true,
              "comment":""
         },
@@ -23,7 +23,7 @@
              "Maintainer":"Dirk Petry",
              "MaintainerEmail":"dpetry@eso.org",
              "priority":"3",
-             "tag":"",
+             "tag":"importExport",
              "suppressEmail": true,
              "comment":""
         },
@@ -36,7 +36,7 @@
              "Maintainer":"Sandra Castro",
              "MaintainerEmail":"scastro@eso.org",
              "priority":"3",
-             "tag":"",
+             "tag":"importExport",
              "suppressEmail": true,
              "comment":""
         },
@@ -49,7 +49,7 @@
              "Maintainer":"Mark Wieringa",
              "MaintainerEmail":"Mark.Wieringa@csiro.au",
              "priority":"3",
-             "tag":"",
+             "tag":"importExport",
              "suppressEmail": true,
              "comment":""
         },
@@ -62,7 +62,7 @@
              "Maintainer":"Takeshi Nakazato",
              "MaintainerEmail":"takeshi.nakazato@nao.ac.jp",
              "priority":"3",
-             "tag":"",
+             "tag":"importExport",
              "suppressEmail": true,
              "comment":""
         },
@@ -75,7 +75,7 @@
              "Maintainer":"Sandra Castro",
              "MaintainerEmail":"scastro@eso.org",
              "priority":"3",
-             "tag":"",
+             "tag":"importExport",
              "suppressEmail": true,
              "comment":""
         },
@@ -88,7 +88,7 @@
              "Maintainer":"Dirk Petry",
              "MaintainerEmail":"dpetry@eso.org",
              "priority":"2",
-             "tag":"",
+             "tag":"importExport",
              "suppressEmail": true,
              "comment":""
         },
@@ -101,7 +101,7 @@
              "Maintainer":"Mark Wieringa",
              "MaintainerEmail":"Mark.Wieringa@csiro.au",
              "priority":"3",
-             "tag":"",
+             "tag":"importExport",
              "suppressEmail": true,
              "comment":""
         },
@@ -114,7 +114,7 @@
              "Maintainer":"Bob Garwood",
              "MaintainerEmail":"bgarwood@nrao.edu",
              "priority":"3",
-             "tag":"",
+             "tag":"importExport",
              "suppressEmail": true,
              "comment":""
         },
@@ -127,7 +127,7 @@
              "Maintainer":"David Mehringer",
              "MaintainerEmail":"dmehring@nrao.edu",
              "priority":"3",
-             "tag":"",
+             "tag":"importExport",
              "suppressEmail": true,
              "comment":""
         },
