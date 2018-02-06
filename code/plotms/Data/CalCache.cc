@@ -155,16 +155,17 @@ void CalCache::setUpCalIter(const String& ctname,
   columns[2]="SPECTRAL_WINDOW_ID";
   columns[3]="TIME";
 
-   // Now open the MS, select on it, make the VisIter
+  // Now open the MS, select on it, make the VisIter
+  TableLock lock(TableLock::AutoNoReadLocking);
   Table::TableOption tabopt(Table::Update);
-  if (readonly) tabopt=Table::Old;
-  // TBD: control locking here?
-  NewCalTable ct(ctname,tabopt,Table::Plain), selct;
+  if (readonly) tabopt = Table::Old;
+  NewCalTable ct(ctname, lock, tabopt, Table::Plain);
 
   // Apply selection
+  NewCalTable selct;
   Vector<Vector<Slice> > chansel;
   Vector<Vector<Slice> > corrsel;
-  selection.apply(ct,selct,chansel,corrsel);
+  selection.apply(ct, selct, chansel, corrsel);
 
   // setup the volume meter
   //  vm_.reset();

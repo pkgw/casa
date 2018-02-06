@@ -472,6 +472,28 @@ class ia_pv_test(unittest.TestCase):
         self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
         teststr = "impv"
         self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
+        
+    def test_CAS10968(self):
+        """Fix for pa=90,270 when segment y pixel falls on half pixel"""
+        myia = self.ia
+        myia.fromshape("", [30, 30, 30])
+        ary = myia.getchunk()
+        for i in range(30):
+            ary[i, :, :] = i
+        myia.putchunk(ary)
+        length = "14arcmin"
+        center = [15.5, 15.5]
+        bb = myia.pv("", center=center, length=length, pa="90deg")
+        ary = bb.getchunk()
+        bb.done()
+        for i in range(14):
+            self.assertTrue((ary[i, :] == i+9).all(), "incorrect values for pa=90 deg")
+        bb = myia.pv("", center=center, length=length, pa="270deg")
+        ary = bb.getchunk()
+        bb.done()
+        myia.done()
+        for i in range(14):
+            self.assertTrue(numpy.isclose(ary[i, :], 22-i).all(), "incorrect values for pa=270 deg")
 
 def suite():
     return [ia_pv_test]

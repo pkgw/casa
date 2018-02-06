@@ -225,8 +225,15 @@ class Test021_CorrectingBandpassCalib(unittest.TestCase):
 
     def setUp(self):
         pass
-    def tearDown(self):
-        pass
+    @classmethod
+    def tearDownClass(cls):
+
+        rmtables("calG192*")
+        os.system("rm -rf 3C84.fluxinfo")
+        rmtables("G192-BP.ms*")
+        os.system("rm -rf *.last")
+        os.system("rm -rf *.flagversions")
+
 
     def test_16_Flux_density_3c84_J0319_413(self):
         '''Flux density for 3c84-J0319+413'''

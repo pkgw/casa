@@ -1495,6 +1495,7 @@ This method returns all the selected zero-based channel numbers from the specifi
         <param type="string" direction="in" name="filename">
             <description>List of text file containing the region description</description>
             <value></value>
+            <type mustexist="true">path</type>
         </param>
 
         <param type="intArray" direction="in" name="shape">
@@ -2449,7 +2450,7 @@ call sequence.
      <description>Absolute or relative coordinates
      Vector of
             strings from 'abs', 'relref' and 'relcen'</description>
-     <value>'abs'</value>
+     <value>abs</value>
      </param>
   
      <param type="string" direction="in" name="comment">
@@ -2653,7 +2654,7 @@ automatically the full image.
      <param type="string" direction="in" name="absrel">
      <description>Absolute or relative coordinates; possibilities are 'abs', 'rel', 'relcen'</description>
      <value>abs</value>
-     <choice>'abs'</choice>
+     <choice>abs</choice>
      </param>
   
      <param type="string" direction="in" name="comment">
