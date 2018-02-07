@@ -26,10 +26,11 @@
 //# $Id$
 
 #define _POSIX_C_SOURCE 200809L //For mkdtemp(), stpcpy()
-#define _XPEN_SOURCE 500 //For nftw()
+#define _XOPEN_SOURCE 500 //For nftw()
 #define _DARWIN_C_SOURCE //in macOS mkdtemp() is not available if  _POSIX_C_SOURCE=200809L (Apple bugreport #35851865)
 
 #include <ftw.h>
+#include <limits.h>
 #include <unistd.h> //in macOS mkdtemp() is not in stdlib.h as POSIX dictates..(Apple bugreport #35830645) 
 #include <casa/aips.h>
 #include <casa/Exceptions/Error.h>
@@ -264,13 +265,14 @@ public:
    */
   DataAccessTest()
   {
-    //Use the system temp dir, if not defined resort to /tmp
+    //Use the system temp dir, if not defined or too long resort to /tmp
     char * sys_tmpdir = getenv("TMPDIR");
-    if(sys_tmpdir != NULL)
-      strcpy(tmpdir_p, sys_tmpdir);
+    if(sys_tmpdir != NULL &&
+       strlen(sys_tmpdir) < _POSIX_PATH_MAX - 1 - tmpsubdir_p.size())
+      strncpy(tmpdir_p, sys_tmpdir, strlen(sys_tmpdir)+1);
     else
-      strcpy(tmpdir_p, "/tmp");
-    stpcpy (tmpdir_p+strlen(tmpdir_p), "/test_tViiLayerFactory_XXXXXX");
+      strncpy(tmpdir_p, "/tmp", 5);
+    stpcpy (tmpdir_p+strlen(tmpdir_p), tmpsubdir_p.c_str());
     mkdtemp(tmpdir_p);
 
     msf_p.reset(new MsFactory(String::format("%s/DataAccessTest.ms", tmpdir_p)));
@@ -361,7 +363,9 @@ public:
   }
 
   //The temporary dir where the synthetic MS is created  
-  char tmpdir_p[100];
+  char tmpdir_p[_POSIX_PATH_MAX];
+  //The subdirectory to create in the temporary dir
+  std::string tmpsubdir_p{"/test_tViiLayerFactory_XXXXXX"};
   //Wether to use the DataSwappingTVI
   bool withSwappingDataTVI_p = false;
   //The helper class to create synthetic MS
