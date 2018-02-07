@@ -1,11 +1,10 @@
 // Include file for forward declarations
-
+#include <stdcasa/StdCasa/CasacSupport.h>
 #include <set>
 #include <vector>
-#include <ms_cmpt.h>
 #include <memory>
 
-namespace casacore{
+namespace casacore {
 
 	class MSMetaData;
 	class MeasurementSet;
@@ -15,4 +14,5 @@ namespace casacore{
 }
 
 namespace casa {
-};
+
+}

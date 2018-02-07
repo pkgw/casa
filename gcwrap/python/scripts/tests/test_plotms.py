@@ -106,7 +106,7 @@ class plotms_test_base(unittest.TestCase):
 
 # ------------------------------------------------------------------------------
  
-class plotms_test_basic(plotms_test_base):
+class test_basic(plotms_test_base):
     ''' Test basic single plots and overplots '''
 
     def setUp(self):
@@ -284,7 +284,7 @@ class plotms_test_basic(plotms_test_base):
 
 # ------------------------------------------------------------------------------
 
-class plotms_test_averaging(plotms_test_base):
+class test_averaging(plotms_test_base):
     ''' test plotms averaging options '''
 
     def setUp(self):
@@ -387,7 +387,7 @@ class plotms_test_averaging(plotms_test_base):
 
 # ------------------------------------------------------------------------------
 
-class plotms_test_axis(plotms_test_base):
+class test_axis(plotms_test_base):
     ''' test axis and datacolumn options '''
 
     def setUp(self):
@@ -617,7 +617,7 @@ class plotms_test_axis(plotms_test_base):
 
 # ------------------------------------------------------------------------------
        
-class plotms_test_calibration(plotms_test_base):
+class test_calibration(plotms_test_base):
     ''' test plotms callib parameter '''
 
     def setUp(self):
@@ -659,7 +659,7 @@ class plotms_test_calibration(plotms_test_base):
 
 # ------------------------------------------------------------------------------
  
-class plotms_test_calplots(plotms_test_base):
+class test_calplots(plotms_test_base):
     ''' Test basic single plots and overplots '''
 
     def setUp(self):
@@ -787,7 +787,7 @@ class PlotmsPageHeader:
     def hasCorrectHeightRatio(self):
         return 0.10 <= self.height_ratio <= 0.30
 
-class plotms_test_pageheader(plotms_test_base):
+class test_pageheader(plotms_test_base):
 
     def setUp(self):
         self.checkDisplay()
@@ -855,7 +855,7 @@ class plotms_test_pageheader(plotms_test_base):
 
 # ------------------------------------------------------------------------------
 
-class plotms_test_display(plotms_test_base):
+class test_display(plotms_test_base):
 
     def setUp(self):
         self.checkDisplay()
@@ -1080,7 +1080,7 @@ class plotms_test_display(plotms_test_base):
 
 # ------------------------------------------------------------------------------
 
-class plotms_test_grid(plotms_test_base):
+class test_grid(plotms_test_base):
 
     def setUp(self):
         self.checkDisplay()
@@ -1255,7 +1255,7 @@ class plotms_test_grid(plotms_test_base):
 
 # ------------------------------------------------------------------------------
 
-class plotms_test_iteration(plotms_test_base):
+class test_iteration(plotms_test_base):
 
     def setUp(self):
         self.checkDisplay()
@@ -1466,7 +1466,7 @@ class plotms_test_iteration(plotms_test_base):
 
 # ------------------------------------------------------------------------------
 
-class plotms_test_multi(plotms_test_base):
+class test_multi(plotms_test_base):
     ''' tests of multiple plotms arguments '''
 
     def setUp(self):
@@ -1579,7 +1579,7 @@ class plotms_test_multi(plotms_test_base):
 
 # ------------------------------------------------------------------------------
 
-class plotms_test_selection(plotms_test_base):
+class test_selection(plotms_test_base):
 
     def setUp(self):
         self.checkDisplay()
@@ -1612,7 +1612,7 @@ class plotms_test_selection(plotms_test_base):
         res = plotms(vis=self.ms, plotfile=plotfile3_jpg, expformat='jpg', 
                      overwrite=True, showgui=False, scan='5,7', highres=True)
         self.assertTrue(res)
-        self.checkPlotfile(plotfile3_jpg, 84000, 125000)
+        self.checkPlotfile(plotfile3_jpg, 80000, 125000)
         self.removePlotfile(plotfile3_jpg)
         print
 
@@ -1709,7 +1709,7 @@ class plotms_test_selection(plotms_test_base):
 
 # ------------------------------------------------------------------------------
 
-class plotms_test_transform(plotms_test_base):
+class test_transform(plotms_test_base):
 
     def setUp(self):
         self.checkDisplay()
@@ -1787,17 +1787,17 @@ class plotms_test_transform(plotms_test_base):
 def suite():
     print 'Tests may fail due to DBUS timeout if the version of Qt is not at least 4.8.5'
     print
-    return [plotms_test_basic,
-            plotms_test_averaging,
-            plotms_test_axis,
-            plotms_test_calibration,
-            plotms_test_calplots,
-            plotms_test_pageheader,
-            plotms_test_display,
-            plotms_test_grid,
-            plotms_test_iteration,
-            plotms_test_multi,
-            plotms_test_selection,
-            plotms_test_transform
+    return [test_basic,
+            test_averaging,
+            test_axis,
+            test_calibration,
+            test_calplots,
+            test_pageheader,
+            test_display,
+            test_grid,
+            test_iteration,
+            test_multi,
+            test_selection,
+            test_transform
            ]
  
