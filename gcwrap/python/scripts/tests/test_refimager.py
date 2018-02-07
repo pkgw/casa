@@ -1739,9 +1739,9 @@ class test_mask(testref_base):
           """ [mask] test_mask__autobox_multithresh_on_absorption :  multi-threshold Autobox (minbeamfrac=0.3) on the data with both emission and absorption  """
           # data with a emission pt and absorption pt.
           self.prepData('refim_point_pos_neg.ms')
-          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=100,deconvolver='hogbom',interactive=0,usemask='auto-multithresh')
-          #report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[63,50,0,0])])
-          #self.checkfinal(report)
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=100,deconvolver='hogbom',interactive=0,usemask='auto-multithresh', negativethreshold=5.0)
+          report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',1.0,[60,40,0,0]),(self.img+'.mask',0.0,[65,50,0,0])])
+          self.checkfinal(report)
 
 #     def test_mask_outregion(self):
 #          """ [mask] test_mask_outregion : Input mask has region that goes outside the image """
