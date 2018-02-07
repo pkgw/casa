@@ -169,7 +169,8 @@ public:
       const casacore::Bool clipMinMax,
       const casacore::Int cache,
       const casacore::Int tile,
-      const casacore::String &stokes);
+      const casacore::String &stokes,
+      const casacore::Bool pseudoI=false);
  
 // Do the major cycle
   virtual void runMajorCycle(const casacore::Bool dopsf=false, const casacore::Bool savemodel=false);

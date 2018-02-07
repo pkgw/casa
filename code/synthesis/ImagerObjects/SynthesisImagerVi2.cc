@@ -1710,7 +1710,8 @@ void SynthesisImagerVi2::unlockMSs()
       const Bool clipMinMax,
       const Int cache,
       const Int tile,
-      const String &stokes) {
+      const String &stokes,
+      const Bool pseudoI) {
 //    // member variable itsVPTable is VP table name
     LogIO os(LogOrigin("SynthesisImagerVi2", "createSDFTMachine", WHERE));
     os << LogIO::NORMAL // Loglevel INFO
@@ -1788,7 +1789,7 @@ void SynthesisImagerVi2::unlockMSs()
     theFT->setPointingDirColumn(pointingDirCol);
 
     // turn on Pseudo Stokes mode if necessary
-    if (stokes == "XX" || stokes == "YY" || stokes == "XXYY"
+    if (pseudoI || stokes == "XX" || stokes == "YY" || stokes == "XXYY"
         || stokes == "RR" || stokes == "LL" || stokes == "RRLL") {
       theFT->setPseudoIStokes(True);
       theIFT->setPseudoIStokes(True);
