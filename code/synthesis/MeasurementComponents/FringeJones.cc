@@ -64,6 +64,7 @@
 #include <gsl/gsl_multilarge_nlinear.h>
 #include <gsl/gsl_linalg.h>
 
+#include <gsl/gsl_multifit_nlin.h>
 
 // DEVDEBUG gates the development debugging information to standard
 // error; it should be set to 0 for production.
@@ -174,7 +175,7 @@ SDBListGridManager::swStartIndex(Int spw) {
 
    
 // DelayRateFFT is modeled on DelayFFT in KJones.{cc|h}
-DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant) :
+DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant, Array<Double>& delayWindow, Array<Double>& rateWindow) :
     refant_(refant),
     gm_(sdbs),
     nPadFactor_(max(2, 8  / gm_.nSPW())), 
@@ -189,13 +190,23 @@ DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant) :
     Vpad_(),
     xcount_(),
     sumw_(),
-    sumww_() {
+    sumww_(),
+    delayWindow_(delayWindow),
+    rateWindow_(rateWindow) {
     // This check should be commented out in production:
     // gm_.checkAllGridpoints();
+
     if (nt_ < 2) {
         throw(AipsError("Can't do a 2-dimensional FFT on a single timestep! Please consider changing solint to avoid orphan timesteps."));
     }
-    
+    IPosition ds = delayWindow_.shape();
+    if (ds.size()!=1 || ds.nelements() != 1) {
+        throw AipsError("delaywindow must be a list of length 2.");
+    }
+    IPosition rs = rateWindow_.shape();
+    if (rs.size()!=1 || rs.nelements() != 1) {
+        throw AipsError("ratewindow must be a list of length 2.");
+    }
     Int nCorrOrig(sdbs(0).nCorrelations());
     nCorr_ = (nCorrOrig> 1 ? 2 : 1); // number of p-hands
 
@@ -329,7 +340,8 @@ DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant) :
     }
 }
 
-DelayRateFFT::DelayRateFFT(Array<Complex>& data, Int nPadFactor, Float f0, Float df, Float dt, SDBList& s) :
+DelayRateFFT::DelayRateFFT(Array<Complex>& data, Int nPadFactor, Float f0, Float df, Float dt, SDBList& s,
+                           Array<Double>& delayWindow, Array<Double>& rateWindow) :
     gm_(s),
     refant_(0),
     nPadFactor_(nPadFactor),
@@ -340,7 +352,9 @@ DelayRateFFT::DelayRateFFT(Array<Complex>& data, Int nPadFactor, Float f0, Float
     sumw_(),
     sumww_(),
     param_(),
-    flag_()
+    flag_(),
+    delayWindow_(delayWindow),
+    rateWindow_(rateWindow) 
 {
     IPosition shape = data.shape();
     nCorr_ = shape(0);
@@ -428,7 +442,10 @@ DelayRateFFT::searchPeak() {
     if (DEVDEBUG) {
         cerr << "nt_ " << nt_ << " nPadChan_ " << nPadChan_ << endl;
         cerr << "Vpad_.shape() " << Vpad_.shape() << endl;
+        cerr << "delayWindow_ " << delayWindow_ << endl;
+
     }
+    
     for (Int icorr=0; icorr<nCorr_; ++icorr) {
         flag_(icorr*3 + 0, refant()) = false; 
         flag_(icorr*3 + 1, refant()) = false;
@@ -444,15 +461,50 @@ DelayRateFFT::searchPeak() {
             IPosition step(4,     1,     1,       1,        1);
             Slicer sl(start, stop, step, Slicer::endIsLength);
             Matrix<Complex> aS = Vpad_(sl).nonDegenerate();
-            // cerr << "aS.shape()=" <<aS.shape() << endl;
+            Int sgn = (ielem < refant()) ? 1 : -1;
 
+            // Below is the gory details for turning delay window into index range
+            Double bw = Float(nPadChan_)*df_;
+            Double d0 = sgn*delayWindow_(IPosition(1, 0));
+            Double d1 = sgn*delayWindow_(IPosition(1, 1));
+            if (d0 > d1) std::swap(d0, d1);
+            d0 = max(d0, -0.5/df_);
+            d1 = min(d1, (0.5-1/nPadChan_)/df_);
+
+            // It's simpler to keep the ranges as signed integers and
+            // handle the wrapping of the FFT in the loop over
+            // indices. Recall that the FFT result returned has indices
+            // that run from 0 to nPadChan_/2 -1 and then from
+            // -nPadChan/2 to -1, so far as our delay is concerned.
+            Int i0 = bw*d0;
+            Int i1 = bw*d1;
+            // Now for the gory details for turning rate window into index range
+            Double width = nPadT_*dt_*1e9*f0_;
+            Double r0 = sgn*rateWindow_(IPosition(1,0));
+            Double r1 = sgn*rateWindow_(IPosition(1,1));
+            if (r0 > r1) std::swap(r0, r1);
+            r0 = max(r0, -0.5/(dt_*1e9*f0_));
+            r1 = min(r1, (0.5 - 1/nPadT_)/(dt_*1e9*f0_));
+            
+            Int j0 = width*r0;
+            Int j1 = width*r1;
+            if (DEVDEBUG) {
+                cerr << "Checking the windows for delay and rate search.";
+                cerr << "bw " << bw << endl;
+                cerr << "d0 " << d0 << " i0 " << i0 << endl;
+                cerr << "d1 " << d1 << " i1 " << i1 << endl; 
+                cerr << "r0 " << r0 << " j0 " << j0 << endl;
+                cerr << "r1 " << r1 << " j1 " << j1 << endl; 
+            }
             Matrix<Float> amp(amplitude(aS));
             Int ipkch(0);
             Int ipkt(0);
             Float amax(-1.0);
             // Unlike KJones we have to iterate in time too
-            for (Int itime=0; itime != nPadT_; itime++) {
-                for (Int ich=0; ich != nPadChan_; ich++) {
+            for (Int itime0=j0; itime0 != j1; itime0++) {
+                Int itime = (itime0 < 0) ? itime0 + nPadT_ : itime0;
+                for (Int ich0=i0; ich0 != i1; ich0++) {
+                    Int ich = (ich0 < 0) ? ich0 + nPadChan_ : ich0;
                     if (amp(itime, ich) > amax) {
                         ipkch = ich;
                         ipkt  = itime;
@@ -476,7 +528,6 @@ DelayRateFFT::searchPeak() {
             }
             std::pair<Bool, Float> maybeFpkt = xinterp(alo_t, amax, ahi_t);
 
-            Int sgn = (ielem < refant()) ? 1 : -1;
             if (maybeFpkch.first and maybeFpkt.first) {
                 // Phase
                 Complex c = aS(ipkt, ipkch);
@@ -1366,6 +1417,124 @@ aggregateTimeCentroid(SDBList& sdbs, Int refAnt, std::map<Int, Double>& aggregat
 }
 
 
+void
+print_gsl_vector(gsl_vector *v)
+{
+    const size_t n = v->size;
+    for (int i=0; i!=n; i++) {
+        cerr << gsl_vector_get(v, i) << " ";
+        if (i>0 && (i % 4)==0) cerr << endl;
+    }
+    cerr << endl;
+}
+
+void
+print_max_gsl3(gsl_vector *v)
+{
+    double phi_max = 0.0;
+    double del_max = 0.0;
+    double rat_max = 0.0;
+        
+    const size_t n = v->size;
+    for (int i=0; i!=n/3; i++) {
+        if (fabs(gsl_vector_get(v, 3*i+0)) > fabs(phi_max)) phi_max = gsl_vector_get(v, 3*i+0);
+        if (fabs(gsl_vector_get(v, 3*i+1)) > fabs(del_max)) del_max = gsl_vector_get(v, 3*i+1);
+        if (fabs(gsl_vector_get(v, 3*i+2)) > fabs(rat_max)) rat_max = gsl_vector_get(v, 3*i+2);
+    }
+    cerr << "phi_max " << phi_max << " del_max " << del_max << " rat_max " << rat_max << endl;
+}
+
+
+
+/*
+gsl-2.4/multilarge_nlinear/fdf.c defines gsl_multilarge_nlinear_driver,
+which I have butchered for my purposes here into
+not_gsl_multilarge_nlinear_driver(). We still iterate the nonlinear
+least squares solver until completion, but we adopt a convergence
+criterion copied from AIPS.
+
+Inputs: maxiter  - maximum iterations to allow
+        w        - workspace
+
+Additionally I've removed the info parameter, and I may yet regret it.
+
+Originally:
+        info     - (output) info flag on why iteration terminated
+                   1 = stopped due to small step size ||dx|
+                   2 = stopped due to small gradient
+                   3 = stopped due to small change in f
+                   GSL_ETOLX = ||dx|| has converged to within machine
+                               precision (and xtol is too small)
+                   GSL_ETOLG = ||g||_inf is smaller than machine
+                               precision (gtol is too small)
+                   GSL_ETOLF = change in ||f|| is smaller than machine
+                               precision (ftol is too small)
+
+Return:
+GSL_SUCCESS if converged
+GSL_MAXITER if maxiter exceeded without converging
+GSL_ENOPROG if no accepted step found on first iteration
+*/
+
+int
+least_squares_inner_driver (const size_t maxiter,
+                                   gsl_multilarge_nlinear_workspace * w)
+{
+  int status;
+  size_t iter = 0;
+  /* call user callback function prior to any iterations
+   * with initial system state */
+  Double s;
+  Double last_s = 1.0e30;
+  Bool converged = false;
+  do  {
+      status = gsl_multilarge_nlinear_iterate (w);
+      /*
+       * If the solver reports no progress on the first iteration,
+       * then it didn't find a single step to reduce the
+       * cost function and more iterations won't help so return.
+       *
+       * If we get a no progress flag on subsequent iterations,
+       * it means we did find a good step in a previous iteration,
+       * so continue iterating since the solver has now reset
+       * mu to its initial value.
+       */
+      if (status == GSL_ENOPROG && iter == 0) {
+          return GSL_EMAXITER;
+      }
+
+      Double fnorm = gsl_blas_dnrm2(w->f);      
+      s = 0.5 * fnorm * fnorm;
+      if ((iter > 0) && DEVDEBUG) {
+          // cerr << "Parameters: " << endl;
+          // print_gsl_vector(w->x);
+          cerr << "Iter: " << iter << " ";
+          print_max_gsl3(w->dx);
+          cerr << "1 - s/last_s=" << 1 - s/last_s << endl;
+      }
+      ++iter;
+      if ((1 - s/last_s < 5e-6) && (iter > 1)) converged = true;
+      last_s = s;
+      /* old test for convergence:
+         status = not_gsl_multilarge_nlinear_test(xtol, gtol, ftol, info, w); */
+  } while (!converged && iter < maxiter);
+  /*
+   * the following error codes mean that the solution has converged
+   * to within machine precision, so record the error code in info
+   * and return success
+   */
+  if (status == GSL_ETOLF || status == GSL_ETOLX || status == GSL_ETOLG)
+  {
+      status = GSL_SUCCESS;
+  }
+  /* check if max iterations reached */
+  if (iter >= maxiter && status != GSL_SUCCESS)
+      status = GSL_EMAXITER;
+  return status;
+} /* gsl_multilarge_nlinear_driver() */
+
+
+
 
 void
 least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Float>& casa_snr, Int refant,
@@ -1447,8 +1616,7 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Float>& ca
         gsl_vector *res_f = gsl_multilarge_nlinear_residual(w);
 
         int info;
-        int status = gsl_multilarge_nlinear_driver(max_iter, param_tol, gtol, ftol,
-                                                   NULL, NULL, &info, w);
+        int status = least_squares_inner_driver(max_iter, w);
         double chi1 = gsl_blas_dnrm2(res_f);
         
         gsl_vector_sub(gp_orig, w->x);
@@ -1536,7 +1704,8 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Float>& ca
     }    
 }
 
-    
+
+
 
 
 // **********************************************************
@@ -1888,9 +2057,9 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
         for (auto it=aggregateTime.begin(); it!=aggregateTime.end(); ++it)
             std::cerr << it->first << " => " << it->second - t0 << std::endl;
     }
-    
-    DelayRateFFT drf(sdbs, refant());
-    drf.FFT(); 
+
+    DelayRateFFT drf(sdbs, refant(), delayWindow(), rateWindow());
+    drf.FFT();
     drf.searchPeak();
     Matrix<Float> sRP(solveRPar().nonDegenerate(1));
     Matrix<Bool> sPok(solveParOK().nonDegenerate(1));
