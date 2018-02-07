@@ -409,7 +409,7 @@ TEST_F(DataAccessTest, AccessCorrectedDataWhenMissing)
 
 /*
  * This test will access the corrected data column of a
- * synthetic that doesn't contain that column. The upper TVI, however
+ * synthetic MS that doesn't contain that column. The upper TVI, however
  * will swap the access to DATA column instead so the test should succeed
  */
 TEST_F(DataAccessTest, AccessCorrectedDataInSwappingDataTVI)
