@@ -386,8 +386,9 @@ class sdimaging_test0(sdimaging_unittest_base):
     def test005(self):
         """Test005: Bad stokes parameter"""
         self.task_param['stokes'] = 'BAD'
-        msg = 'Stokes BAD is an unsupported option'
-        self.run_exception_case(self.task_param, msg)
+        # argument verification error
+        res = sdimaging(**self.task_param)
+        self.assertFalse(res)
         
     def test006(self):
         """Test006: Bad gridfunction"""
@@ -2301,8 +2302,7 @@ class sdimaging_test_polflag(sdimaging_unittest_base):
         # Tests
         refstats = merge_dict(self.stat_common, construct_refstat_uniform(self.unif_flux, self.region_all['blc'], self.region_all['trc']) )
         out_shape = (self.imsize_auto[0],self.imsize_auto[1],1,1)
-        #self.run_test(self.task_param, refstats, out_shape,atol=1.e-5)
-        self.skipTest('Skip test_pseudo_i since pseudo-Stokes mode is not implemented yet')
+        self.run_test(self.task_param, refstats, out_shape,atol=1.e-5)
        
 
     def test_xx(self):
