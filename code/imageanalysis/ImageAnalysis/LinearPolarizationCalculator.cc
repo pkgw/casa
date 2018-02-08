@@ -23,60 +23,58 @@
 //#                        Charlottesville, VA 22903-2475 USA
 //#
 
-#include <imageanalysis/ImageAnalysis/ImageTotalPolarization.h>
+#include <imageanalysis/ImageAnalysis/LinearPolarizationCalculator.h>
 
 using namespace casacore;
 namespace casa {
 
-const String ImageTotalPolarization::CLASS_NAME = "ImageTotalPolarization";
+const String LinearPolarizationCalculator::CLASS_NAME = "LinearPolarizationCalculator";
 
-ImageTotalPolarization::ImageTotalPolarization(
+LinearPolarizationCalculator::LinearPolarizationCalculator(
     const SPCIIF image, const String& outname, Bool overwrite
 ) : ImagePolTask(image, outname, overwrite) {}
 
-ImageTotalPolarization::~ImageTotalPolarization() {}
+LinearPolarizationCalculator::~LinearPolarizationCalculator() {}
 
-SPIIF ImageTotalPolarization::compute() {
-    *_getLog() << LogOrigin(CLASS_NAME, __func__);
-    ImageExpr<Float> expr = _totPolInt();
-    auto out = _prepareOutputImage(expr);
+SPIIF LinearPolarizationCalculator::compute() {
+    *_getLog() << LogOrigin(CLASS_NAME, __func__, WHERE);
+    auto q = _getStokesImage(Q);
+    auto u = _getStokesImage(U);
+    ThrowIf(
+        ! q || ! u,
+        "This image does not have Stokes Q and/or U so cannot compute linear polarization"
+    );
+    _checkQUBeams(false);
+    auto node = _makePolIntNode(_debias, _clip, _sigma, True, False);
+    // Make expression
+    LatticeExpr<Float> le(node);
+    ImageExpr<Float> ie(le, String("LinearlyPolarizedIntensity"));
+    ie.setUnits(_getImage()->units());
+    _setInfo(ie, Q);
+    // Fiddle Stokes coordinate in ImageExpr
+    _fiddleStokesCoordinate(ie, Stokes::Plinear);
+    auto out = _prepareOutputImage(ie);
     if (_debias) {
         _maskAndZeroNaNs(out);
     }
     return out;
 }
 
-String ImageTotalPolarization::getClass() const {
+String LinearPolarizationCalculator::getClass() const {
     return CLASS_NAME;
 }
 
-void ImageTotalPolarization::setClip(Float clip) {
+
+void LinearPolarizationCalculator::setClip(Float clip) {
     _clip = clip;
 }
 
-void ImageTotalPolarization::setDebias(Bool debias) {
+void LinearPolarizationCalculator::setDebias(Bool debias) {
     _debias = debias;
 }
 
-void ImageTotalPolarization::setSigma(Float sigma) {
+void LinearPolarizationCalculator::setSigma(Float sigma) {
     _sigma = sigma;
-}
-
-ImageExpr<Float> ImageTotalPolarization::_totPolInt() {
-    *_getLog() << LogOrigin(CLASS_NAME, __func__, WHERE);
-    Bool doLin, doCirc;
-    _setDoLinDoCirc(doLin, doCirc, False);
-    // Make node.
-    LatticeExprNode node = _makePolIntNode(_debias, _clip, _sigma, doLin, doCirc);
-    // Make expression
-    LatticeExpr<Float> le(node);
-    ImageExpr<Float> ie(le, "totalPolarizedIntensity");
-    ie.setUnits(_getImage()->units());     // Dodgy. The beam is now rectified
-    StokesTypes stokes = _getStokesImage(Q) ? Q : _getStokesImage(U) ? U : V;
-    _setInfo(ie, stokes);
-    // Fiddle Stokes coordinate in ImageExpr
-    _fiddleStokesCoordinate(ie, doCirc ? Stokes::Ptotal : Stokes::Plinear);
-    return ie;
 }
 
 }

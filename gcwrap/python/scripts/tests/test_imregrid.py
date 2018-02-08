@@ -1149,7 +1149,23 @@ class imregrid_test(unittest.TestCase):
 
         myia.done()
                 
-                          
+    def test_history(self):
+        """Test history writing"""
+        myia = self._myia
+        imagename = "zz.im"
+        myia.fromshape(imagename, [20, 20, 10])
+        myia.done()
+        outfile = "zz_out.im"
+        self.assertTrue(
+            imregrid(imagename=imagename, output=outfile, template="GALACTIC")
+        )
+        myia.open(outfile)
+        msgs = myia.history()
+        myia.done()
+        teststr = "version"
+        self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
+        teststr = "imregrid"
+        self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
         
 def suite():
     return [imregrid_test]
