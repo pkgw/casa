@@ -21,11 +21,11 @@ file:///opt/casa/code/tools/xml/casa.xsd">
    <shortdescription>Construct singledishms tool</shortdescription>
    
 <description>
-This is used to construct a singledishms tool instance. Created instance is 
-just like the default one ('sdms') but physically independent each other. 
-This is useful when users want to create own tool instance inside their 
-scripts/modules to avoid possible conflict that may happen when using default 
-tool instance from various places.
+This is used to construct a singledishms tool instance. The created instance is 
+just like the default one ('sdms') but physically independent from it. 
+This is useful when users want to create their own tool instance inside scripts/modules 
+to avoid possible conflicts that may happen when using the default tool instance 
+from various places.
 </description>
 <input>
 </input>
@@ -231,7 +231,7 @@ Fit baseline and subtract it from selected spectra
     </param>
 
     <param type="int" name="npiece">
-      <description>cspline npice</description>
+      <description>cspline npiece</description>
       <value>5</value>
     </param>
 
@@ -325,7 +325,7 @@ Fit baseline and subtract it from selected spectra
     </param>
 
     <param type="string" name="rejwn">
-      <description>reject wave numbers Not to use</description>
+      <description>reject specified wave numbers</description>
       <value></value>
     </param>
 
@@ -335,7 +335,7 @@ Fit baseline and subtract it from selected spectra
     </param>
 
     <param type="string" name="fftmethod">
-      <description>method for automatically set wave numbers of sinusoids ['fft']</description>
+      <description>method to automatically set wave numbers of sinusoids ['fft']</description>
       <value>fft</value>
     </param>
 
@@ -453,7 +453,7 @@ sdms.subtract_baseline_variable('m100_fitparam.txt')
   </shortdescription>
   <description>
 For each row of given baseline table, read baseline parameters, 
-constrct baseline, then subtract it from the corresponding spectrum 
+construct baseline, then subtract it from the corresponding spectrum 
 in the MS.
   </description>
   <input>
@@ -629,7 +629,7 @@ sdms.fit_line(fitfunc='gauss',spw='0:1000~2000;4000~5000',nfit=[1,1])
      </param>
 
      <param type="any" name="timerange">
-     <description>Limit data selected to be within a given time range. Syntax is the defined in the msselection link</description>
+     <description>Limit data selected to be within a given time range. Syntax is defined in the msselection link</description>
      <any type="variant"/>
      <value></value>
      </param>
