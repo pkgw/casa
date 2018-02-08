@@ -643,20 +643,13 @@ void CalCache::loadBPoly(vector<PMS::Axis>& loadAxes,
   if (!selection_.isEmpty()) {
     Vector<Vector<Slice> > chansel;
     Vector<Vector<Slice> > corrsel;
-    try {
-      selection_.apply(ct, selct, chansel, corrsel);
-    } catch (AipsError& err) {
-      String msg(err.getMesg());
-      if (msg == "No MS")
-        throw(AipsError("Associated MS is not available, cannot plot solutions."));
-      else
-        throw(AipsError(msg));
-    }
+    selection_.apply(ct, selct, chansel, corrsel);
   }
 
   ROBJonesPolyMCol mainCol(ct);
   ROCalDescColumns calDescCol(ct);
-  setMSname(calDescCol.msName()(0)); // throws error if not valid
+  String msname(calDescCol.msName()(0));
+  setMSname(msname); // add path
   getNamesFromMS(); // field and antenna
 
   // count and load chunks
@@ -673,20 +666,13 @@ void CalCache::loadGSpline(vector<PMS::Axis>& loadAxes,
   if (!selection_.isEmpty()) {
     Vector<Vector<Slice> > chansel;
     Vector<Vector<Slice> > corrsel;
-    try {
-      selection_.apply(ct, selct, chansel, corrsel);
-    } catch (AipsError& err) {
-      String msg(err.getMesg());
-      if (msg == "No MS")
-        throw(AipsError("Associated MS is not available, cannot plot solutions."));
-      else
-        throw(AipsError(msg));
-    }
+    selection_.apply(ct, selct, chansel, corrsel);
   }
 
   ROGJonesSplineMCol mainCol(ct);
   ROCalDescColumns calDescCol(ct);
-  setMSname(calDescCol.msName()(0));  // throws error if not valid
+  String msname(calDescCol.msName()(0));
+  setMSname(msname);  // add path
   getNamesFromMS(); // field and antenna
 
   // count and load chunks
@@ -792,10 +778,10 @@ void CalCache::loadCalChunks(ROGJonesSplineMCol& mcol, ROCalDescColumns& dcol,
     parslice2 = getParSlice(toVisCalAxis(PMS::AMP), "L");
 
   // load main table metadata once; use vector/value for every timestamp
-  // field
+  // field: use first for solving
   Vector<Int> fields(mcol.fieldId().getColumn());
   Int nItems = GenSort<Int>::sort(fields, Sort::Ascending, Sort::NoDuplicates);
-  Int field = (nItems>1 ? -1 : fields(0));
+  Int field = fields(0);
   // spw
   Array<Int> spws(dcol.spwId().getColumn());
   nItems = GenSort<Int>::sort(spws, Sort::Ascending, Sort::NoDuplicates);
@@ -841,14 +827,14 @@ void CalCache::loadCalChunks(ROGJonesSplineMCol& mcol, ROCalDescColumns& dcol,
   gspline->setSolve(rec); // set mode
 
   // values for setMeta: make sure ids are valid
-  Int fieldId = (field>-1 ? field : 0);
   Int spwId = (spw>-1 ? spw : 0);
   Int obs(obsid(0));
 
   // get first row for chosen field
   uInt row;
-  for (row=0; row<fields.size(); ++row)
-    if (fields(row) == fieldId) break;
+  Vector<Int> fieldcol(mcol.fieldId().getColumn());
+  for (row=0; row<fieldcol.size(); ++row)
+    if (fieldcol(row) == field) break;
 
   MFrequency refFreq = mcol.refFreqMeas()(row)(IPosition(3,0,0,0));
   Double refFreqHz = refFreq.get("Hz").getValue();
@@ -873,7 +859,7 @@ void CalCache::loadCalChunks(ROGJonesSplineMCol& mcol, ROCalDescColumns& dcol,
   for (Int sample=0; sample<nsample; sample++) {
     // set time and field for calcPar
     Double time = times(sample);
-    gspline->setMeta(obs, scan, time, spwId, freq, fieldId);
+    gspline->setMeta(obs, scan, time, spwId, freq, field);
     gspline->doCalcPar();
 
     // Cache the data shapes
@@ -1169,12 +1155,11 @@ void CalCache::checkAxes(const vector<PMS::Axis>& loadAxes) {
 void CalCache::setMSname(String msname) {
   // set msname_ (with path) if valid
   Path filepath(filename_);
-  String path(filepath.dirName()), mspath("");
-  if (!path.empty()) mspath += path + "/";
-  mspath += msname;
-  if (msname.empty() || !Table::isReadable(mspath))
+  String path(filepath.dirName());
+  if (!path.empty()) path += "/";
+  msname_ = path + msname;
+  if (msname.empty() || !Table::isReadable(msname_))
     throw(AipsError("Associated MS is not available, cannot plot solutions."));
-  msname_ = mspath;
 }
 
 void CalCache::getNamesFromMS() {
