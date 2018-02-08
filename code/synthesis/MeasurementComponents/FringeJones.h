@@ -131,10 +131,19 @@ private:
     casacore::Matrix<casacore::Bool> flag_; //?
     std::map< casacore::Int, std::set<casacore::Int> > activeAntennas_;
     std::set<casacore::Int> allActiveAntennas_;
+    casacore::Array<casacore::Double>& delayWindow_;
+    casacore::Array<casacore::Double>& rateWindow_;
+    
 public:
-    DelayRateFFT(SDBList& sdbs, casacore::Int refant);
+    DelayRateFFT(SDBList& sdbs, casacore::Int refant,
+                 casacore::Array<casacore::Double>& delayWindow_,
+                 casacore::Array<casacore::Double>& rateWindow_
+         );
     DelayRateFFT(casacore::Array<casacore::Complex>& data, casacore::Int nPadFactor,
-                 casacore::Float f0, casacore::Float df, casacore::Float dt, SDBList& s);
+                 casacore::Float f0, casacore::Float df, casacore::Float dt, SDBList& s,
+                 casacore::Array<casacore::Double>& delayWindow_,
+                 casacore::Array<casacore::Double>& rateWindow_
+         );
     // The following are copied from KJones.h definition of DelayFFT.
     const std::map<casacore::Int, std::set<casacore::Int> >& getActiveAntennas() const
     { return activeAntennas_; }

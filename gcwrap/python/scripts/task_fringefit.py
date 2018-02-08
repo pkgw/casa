@@ -85,7 +85,10 @@ def fringefit(vis=None,caltable=None,
 
 					mycb.setapply(t=0.0,table=gaintable[igt],field=thisgainfield,
 						      calwt=True,spwmap=thisspwmap,interp=thisinterp)
-
+                        if len(delaywindow) != 2:
+                                delaywindow = [-1e6, 1e6]
+                        if len(ratewindow) != 2:
+                                ratewindow = [-1e6, 1e6]
 		# ...and now the specialized terms
 		# (BTW, interp irrelevant for these, since they are evaluated)
 		
