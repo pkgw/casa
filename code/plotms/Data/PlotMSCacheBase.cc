@@ -299,13 +299,13 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 	// Maintain access to this msname, selection, & averager, because we'll
 	// use it if/when we flag, etc.
 	if ( filename_ != filename ){
+		setFilename(filename);  // sets filename_ and calType_ for cal table
 		ephemerisInitialized = false;
 	    const vector<PMS::Axis>& axes = PMS::axes();
 	    for(unsigned int i = 0; i < axes.size(); i++) 
 		    loadedAxes_[axes[i]] = false;
         loadedAxesData_.clear();
 	}
-	filename_ = filename;
 	selection_ = selection;
 	averaging_ = averaging;
 	transformations_ = transformations;
@@ -403,10 +403,11 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 	//   works---it is used to pre-estimate memory requirements.
 	pendingLoadAxes_.clear();
 
+	bool isCalCache(cacheType()==PlotMSCacheBase::CAL);
+    String caltype(calType());
 	for(Int i = 0; i < nmetadata(); ++i) {
       // skip invalid metadata axes for cal tables
-	  if (cacheType()==PlotMSCacheBase::CAL) {
-		  String caltype = calType();
+	  if (isCalCache) {
 		  if (metadata(i)==PMS::INTENT)
 			  continue;
 		  else if ((metadata(i)==PMS::ANTENNA2 || metadata(i)==PMS::BASELINE) &&

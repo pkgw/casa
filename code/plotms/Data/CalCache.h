@@ -92,6 +92,8 @@ private:
   CalCache(const CalCache&);
 
   // NewCalTable:
+  void loadNewCalTable(vector<PMS::Axis>& loadAxes,
+     vector<PMS::DataColumn>& loadData, ThreadCommunication* thread = NULL);
   void setUpCalIter(const casacore::String& calname,
     PlotMSSelection& selection,
     casacore::Bool readonly=true,
@@ -107,6 +109,10 @@ private:
     casacore::String pol);
 
   // CalTable:
+  void loadBPoly(vector<PMS::Axis>& loadAxes,
+     vector<PMS::DataColumn>& loadData, ThreadCommunication* thread = NULL);
+  void loadGSpline(vector<PMS::Axis>& loadAxes,
+     vector<PMS::DataColumn>& loadData, ThreadCommunication* thread = NULL);
   void countChunks(casacore::Int nrowMain, vector<PMS::Axis>& loadAxes,
     vector<PMS::DataColumn>& loadData,
     ThreadCommunication* thread);
@@ -116,19 +122,16 @@ private:
   void loadCalChunks(ROGJonesSplineMCol& mcol, ROCalDescColumns& dcol,
     casacore::Int nsample, const vector<PMS::Axis> loadAxes,
     ThreadCommunication* thread);
-  // trap user-requested axes that are invalid for GSPLINE
-  void checkAxes(const vector<PMS::Axis>& loadAxes);
   void loadCalAxis(ROSolvableVisJonesMCol& mcol, ROCalDescColumns& dcol,
     casacore::Int chunk, PMS::Axis axis);
-  // helper functions for loading CalTable chunks
+  // helper functions for setting up and loading CalTable chunks
+  void checkAxes(const vector<PMS::Axis>& loadAxes); // for GSPLINE
+  void setMSname(casacore::String msname); // msname_; adds path to name
+  void getNamesFromMS();    // for locate
   void setUpLoad(ThreadCommunication* thread, casacore::Slice& parSlice);
-  casacore::String getMSAbsPath(casacore::String msname);
-  void getChanFreqsFromMS(casacore::String fullmsname);
-  void getCalDataAxis(PMS::Axis axis,
-    casacore::Cube<casacore::Complex>& viscube, casacore::Int chunk);
-
-  // for locate
-  void getNamesFromMS(MSMetaInfoForCal& meta);
+  void getChanFreqsFromMS();  // for BPOLY
+  void getCalDataAxis(PMS::Axis axis, casacore::Cube<casacore::Complex>& viscube,
+    casacore::Int chunk);  // axes derived from raw viscube
 
   // Trap attempt to use to much memory (too many points)
   //  void trapExcessVolume(map<PMS::Axis,casacore::Bool> pendingLoadAxes);
@@ -141,24 +144,29 @@ private:
   // Check for divide-by-zero (=inf); set to 1.0 and flag it
   void checkRatioArray(casacore::Array<float>& array, int chunk);
 
-  // Set flags in the CalTable
+  // Set flags in the NewCalTable
   virtual void flagToDisk(const PlotMSFlagging& flagging,
     casacore::Vector<casacore::Int>& chunks, 
     casacore::Vector<casacore::Int>& relids,
     casacore::Bool flag,
     PlotMSIndexer* indexer, int index);
 
+  // Check divide-by-zero in ratio plot (checkRatioArray)
+  bool divZero_;
+
+  // NewCalTable
   // cal table iterator pointers
   ROCTIter* ci_p;
   CTIter* wci_p;
-
   // The polarization basis
   casacore::String basis_;
   // Is parameter column complex?
   casacore::Bool parsAreComplex_;
-  // Check divide-by-zero in ratio plot (checkRatioArray)
-  bool divZero_;
-  // get from MeasurementSet
+
+  // CalTable
+  // cannot plot BPOLY or GSPLINE without MS
+  casacore::String msname_;
+  // for BPOLY: get from MeasurementSet
   casacore::Array<casacore::Double> chanfreqs_;
 
   // Volume meter for volume calculation

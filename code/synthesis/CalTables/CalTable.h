@@ -151,6 +151,8 @@ class CalTable
    // Return the number of rows per CalDescId
    void rowsPerCalDescId(casacore::Vector<casacore::Int>& rowspercdi);
 
+   const casacore::String tableName() { return calMainAsTable().tableName(); }
+
  protected:
    // Create a new table
    void createCalTable (const casacore::String& tableName, CalTableDesc& ctableDesc,

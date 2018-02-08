@@ -49,11 +49,12 @@ namespace casa {
 
 CalCache::CalCache(PlotMSApp* parent):
   PlotMSCacheBase(parent),
+  divZero_(False),
   ci_p(NULL),
   wci_p(NULL),
   basis_("unknown"),
   parsAreComplex_(False),
-  divZero_(False)
+  msname_("")
 {
 }
 
@@ -81,89 +82,76 @@ void CalCache::loadIt(vector<PMS::Axis>& loadAxes,
   // update cal type
   setFilename(filename_);
 
+  // Trap unsupported modes: cal types, averaging, transforms, poln ratio
   if (calType_[0]=='A' || calType_[0]=='M' || calType_[0]=='X')
     throw AipsError("Cal table type " + calType_ + " is unsupported in plotms. Please continue to use plotcal.");
   if (calType_=="KAntPos Jones")
     throw AipsError("Cannot plot " + calType_ + " tables.");
   logLoad("Plotting a " + calType_ + " calibration table.");
-
-  // Warn that averaging will be ignored
+  // Warn that averaging and transformations will be ignored
   if (averaging().anyAveraging())
     logWarn("CalCache::loadIt",
       "Averaging ignored: not supported for calibration tables");
-
   if (transformations().anyTransform())
     logWarn("CalCache::loadIt",
       "Transformations ignored: not supported for calibration tables");
+  // poln ratio
+  if (selection_.corr()=="/") {
+    if (calType_=="BPOLY" || calType_[0] == 'T' || calType_[0] == 'F')
+      throw(AipsError("Polarization ratio plots not supported for " + calType_ + " tables."));
+    else
+      polnRatio_ = true;
+  }
 
-  // data column not applicable
-  vector<PMS::DataColumn> loadData(loadAxes.size());
-  for (uInt i=0; i<loadData.size(); ++i) 
-    loadData[i] = PMS::DEFAULT_DATACOLUMN;
-
-  // Get various names, properties
   antnames_.resize();
   stanames_.resize();
   antstanames_.resize();
   fldnames_.resize();
   positions_.resize();
   polnRatio_ = false;
+
+  vector<PMS::DataColumn> loadData(loadAxes.size());
+  for (uInt i=0; i<loadData.size(); ++i) 
+    loadData[i] = PMS::DEFAULT_DATACOLUMN;
+
   if (calType_=="BPOLY") {
-    if (selection_.corr() == "/") 
-      throw(AipsError("Polarization ratio plots not supported for BPOLY tables."));
-    BJonesPolyTable ct = BJonesPolyTable(filename_);
-    // select here!
-    ROBJonesPolyMCol mainCol(ct);
-    ROCalDescColumns calDescCol(ct);
-    // iterate per row to load cache
-    Int nrow = ct.nRowMain();
-    countChunks(nrow, loadAxes, loadData, thread); // set up cache size
-    loadCalChunks(mainCol, calDescCol, nrow, loadAxes, thread); 
+    loadBPoly(loadAxes, loadData, thread);
   } else if (calType_=="GSPLINE") {
-    if (selection_.corr() == "/")  polnRatio_=true;
-    GJonesSplineTable ct = GJonesSplineTable(filename_);
-    // select here!
-    ROGJonesSplineMCol mainCol(ct);
-    ROCalDescColumns calDescCol(ct);
-    Int nsample(1000);
-    countChunks(nsample, loadAxes, loadData, thread);
-    loadCalChunks(mainCol, calDescCol, nsample, loadAxes, thread);
+    checkAxes(loadAxes);  // check for invalid axis before proceeding
+    loadGSpline(loadAxes, loadData, thread);
   } else {
-    NewCalTable ct(NewCalTable::createCT(filename_, Table::Old, Table::Plain));
-    basis_ = ct.polBasis();
-    parsAreComplex_ = ct.isComplex();
-
-    ROCTColumns ctCol(ct);
-    antnames_ = ctCol.antenna().name().getColumn();
-    stanames_ = ctCol.antenna().station().getColumn();
-    antstanames_ = antnames_ + String("@") + stanames_;
-    fldnames_ = ctCol.field().name().getColumn();
-    positions_ = ctCol.antenna().position().getColumn();    
-    nAnt_ = ctCol.antenna().nrow();
-
-    setUpCalIter(filename_,selection_, True,True,True);
-    countChunks(*ci_p, loadAxes, loadData, thread);
-    loadCalChunks(*ci_p,loadAxes,thread);
-    if (ci_p)
-      delete ci_p;
-    ci_p = NULL;
+    loadNewCalTable(loadAxes, loadData, thread);
   }
 }
 
 // ======================== NewCalTable ==========================
+
+void CalCache::loadNewCalTable(vector<PMS::Axis>& loadAxes,
+    vector<PMS::DataColumn>& loadData, ThreadCommunication* thread) {
+  // Get various names, properties from cal table
+  NewCalTable ct(NewCalTable::createCT(filename_, Table::Old, Table::Plain));
+  basis_ = ct.polBasis();
+  parsAreComplex_ = ct.isComplex();
+  ROCTColumns ctCol(ct);
+  antnames_ = ctCol.antenna().name().getColumn();
+  stanames_ = ctCol.antenna().station().getColumn();
+  antstanames_ = antnames_ + String("@") + stanames_;
+  fldnames_ = ctCol.field().name().getColumn();
+  positions_ = ctCol.antenna().position().getColumn();    
+  nAnt_ = ctCol.antenna().nrow();
+
+  setUpCalIter(filename_,selection_, True,True,True);
+  countChunks(*ci_p, loadAxes, loadData, thread);
+  loadCalChunks(*ci_p, loadAxes, thread);
+  if (ci_p)
+    delete ci_p;
+  ci_p = NULL;
+}
+
 void CalCache::setUpCalIter(const String& ctname,
     PlotMSSelection& selection, Bool readonly,
     Bool /*chanselect*/, Bool /*corrselect*/) {
   // for NewCalTable
-  // check for invalid caltypes for ratio plots
-  if (selection.corr() == "/") {
-    if (calType_[0] == 'T' || calType_[0] == 'F') {
-      throw(AipsError("Polarization ratio plots not supported for " + calType_ + " tables."));
-    } else {
-      polnRatio_ = true;
-    }
-  }
-
   Int nsortcol(4);
   Block<String> columns(nsortcol);
   columns[0]="SCAN_NUMBER";
@@ -645,6 +633,68 @@ void CalCache::loadCalAxis(ROCTIter& cti, Int chunk, PMS::Axis axis, String pol)
 
 
 // ======================== CalTable ==========================
+
+// **** for BPOLY CalTable ****
+void CalCache::loadBPoly(vector<PMS::Axis>& loadAxes,
+    vector<PMS::DataColumn>& loadData, ThreadCommunication* thread) {
+  // set up BPoly table from filename and load cache
+  BJonesPolyTable ct = BJonesPolyTable(filename_);
+  BJonesPolyTable selct;
+  if (!selection_.isEmpty()) {
+    Vector<Vector<Slice> > chansel;
+    Vector<Vector<Slice> > corrsel;
+    try {
+      selection_.apply(ct, selct, chansel, corrsel);
+    } catch (AipsError& err) {
+      String msg(err.getMesg());
+      if (msg == "No MS")
+        throw(AipsError("Associated MS is not available, cannot plot solutions."));
+      else
+        throw(AipsError(msg));
+    }
+  }
+
+  ROBJonesPolyMCol mainCol(ct);
+  ROCalDescColumns calDescCol(ct);
+  setMSname(calDescCol.msName()(0)); // throws error if not valid
+  getNamesFromMS(); // field and antenna
+
+  // count and load chunks
+  Int nrow = ct.nRowMain(); // iterate per row to load cache
+  countChunks(nrow, loadAxes, loadData, thread); // set up cache size
+  loadCalChunks(mainCol, calDescCol, nrow, loadAxes, thread); 
+}
+
+// **** for GSPLINE CalTable ****
+void CalCache::loadGSpline(vector<PMS::Axis>& loadAxes,
+    vector<PMS::DataColumn>& loadData, ThreadCommunication* thread) {
+  GJonesSplineTable ct = GJonesSplineTable(filename_);
+  GJonesSplineTable selct;
+  if (!selection_.isEmpty()) {
+    Vector<Vector<Slice> > chansel;
+    Vector<Vector<Slice> > corrsel;
+    try {
+      selection_.apply(ct, selct, chansel, corrsel);
+    } catch (AipsError& err) {
+      String msg(err.getMesg());
+      if (msg == "No MS")
+        throw(AipsError("Associated MS is not available, cannot plot solutions."));
+      else
+        throw(AipsError(msg));
+    }
+  }
+
+  ROGJonesSplineMCol mainCol(ct);
+  ROCalDescColumns calDescCol(ct);
+  setMSname(calDescCol.msName()(0));  // throws error if not valid
+  getNamesFromMS(); // field and antenna
+
+  // count and load chunks
+  Int nsample(1000); // make time samples to load cache
+  countChunks(nsample, loadAxes, loadData, thread);
+  loadCalChunks(mainCol, calDescCol, nsample, loadAxes, thread);
+}
+
 void CalCache::countChunks(Int nchunks, vector<PMS::Axis>& loadAxes,
     vector<PMS::DataColumn>& loadData, ThreadCommunication* thread) {
   // for CalTable
@@ -661,14 +711,14 @@ void CalCache::loadCalChunks(ROBJonesPolyMCol& mcol, ROCalDescColumns& dcol,
   Slice parslice;
   setUpLoad(thread, parslice);
 
-  // info from ms
-  String msname = getMSAbsPath(dcol.msName()(0)); 
-  MSMetaInfoForCal msmeta(msname); // if no ms, throws error
-  getNamesFromMS(msmeta);
-
+  // freq info from ms
   chanfreqs_.resize();
-  getChanFreqsFromMS(msname); // set chanfreqs_
+  try {
+    getChanFreqsFromMS(); // set chanfreqs_; throws exception if no ms
+  } catch (AipsError& err) {
+  }
 
+  MSMetaInfoForCal msmeta(msname_);
   BJonesPoly* bpoly = new BJonesPoly(msmeta);
   Record rec;  // for solving params
   rec.define("caltable", filename_);
@@ -723,17 +773,23 @@ void CalCache::loadCalChunks(ROBJonesPolyMCol& mcol, ROCalDescColumns& dcol,
     }
   }
 }
-
 // **** for GSPLINE CalTable ****
 void CalCache::loadCalChunks(ROGJonesSplineMCol& mcol, ROCalDescColumns& dcol,
     Int nsample, const vector<PMS::Axis> loadAxes, ThreadCommunication* thread) {
+  // GSPLINE does not load per chunk or row as in other cal tables. 
+  // Its "chunks" are per-time sample, generated from SPLINE_KNOTS_AMP/PHASE.
+  // Therefore:
+  //   Scalar columns are read once and all values plotted per time sample.
+  //   Columns that normally have one value per chunk (field, spw, scan, time,
+  //   and interval) will use the value in the column if all are the same; 
+  //   else multiple values result in setting the value to -1.
+  //   Otherwise locate does not work.
+
   Slice parslice, parslice2;
   setUpLoad(thread, parslice);
   Int nPol = parslice.length();  // for chunk shapes
   if (polnRatio_) 
     parslice2 = getParSlice(toVisCalAxis(PMS::AMP), "L");
-
-  checkAxes(loadAxes);  // check for invalid axis before proceeding
 
   // load main table metadata once; use vector/value for every timestamp
   // field
@@ -761,6 +817,10 @@ void CalCache::loadCalChunks(ROGJonesSplineMCol& mcol, ROCalDescColumns& dcol,
   Vector<Int> feed1(mcol.feed1().getColumn());
   nItems = GenSort<Int>::sort(feed1, Sort::Ascending, Sort::NoDuplicates);
   feed1.resize(nItems, true);
+  // interval
+  Vector<Double> intervals(mcol.interval().getColumn());
+  nItems = GenSort<Double>::sort(intervals, Sort::Ascending, Sort::NoDuplicates);
+  Double interval = (nItems>1 ? -1 : intervals(0));
   // poln
   Vector<Int> polns(parslice.length());
   if (polnRatio_) {
@@ -770,12 +830,8 @@ void CalCache::loadCalChunks(ROGJonesSplineMCol& mcol, ROCalDescColumns& dcol,
     indgen(polns, start, inc);
   }
 
-  // info from ms
-  String msname = getMSAbsPath(dcol.msName()(0)); 
-  MSMetaInfoForCal msmeta(msname); // if no ms, throws error
-  getNamesFromMS(msmeta); // for Locate
-
   // set up gspline
+  MSMetaInfoForCal msmeta(msname_);
   GJonesSpline* gspline = new GJonesSpline(msmeta);
   String mode(mcol.polyMode()(0));
   Record rec;  // for solving params
@@ -852,6 +908,9 @@ void CalCache::loadCalChunks(ROGJonesSplineMCol& mcol, ROCalDescColumns& dcol,
           case PMS::TIME: 
             time_(sample) = time;
             break;
+          case PMS::TIME_INTERVAL:
+            timeIntr_[sample] = interval;
+            break;
           case PMS::SPW:
             spw_(sample) = spw;
             break;
@@ -876,7 +935,7 @@ void CalCache::loadCalChunks(ROGJonesSplineMCol& mcol, ROCalDescColumns& dcol,
           case PMS::FLAG: {
             Cube<Bool> parOK = gspline->currParOK();
             // OK=true means flag=false
-            Cube<Bool> flagcube(!parOK(slicer1));	
+            Cube<Bool> flagcube(!parOK(slicer1));
             if (polnRatio_) {
               Slicer slicer2(Slicer(parslice2, Slice(), Slice()));
               flagcube &= !parOK(slicer2);
@@ -909,108 +968,9 @@ void CalCache::loadCalChunks(ROGJonesSplineMCol& mcol, ROCalDescColumns& dcol,
   }
 }
 
-void CalCache::checkAxes(const vector<PMS::Axis>& loadAxes) {
-  // trap user-requested axes that are invalid for GSPLINE
-  for(unsigned int i = 0; i < loadAxes.size(); i++) {
-    PMS::Axis axis(loadAxes[i]);
-    switch (axis) {
-      case PMS::SCAN:
-      case PMS::FIELD:
-      case PMS::TIME:
-      case PMS::SPW:
-      case PMS::CORR:
-      case PMS::ANTENNA1:
-      case PMS::AMP:
-      case PMS::GAMP:
-      case PMS::PHASE:
-      case PMS::GPHASE:
-      case PMS::REAL:
-      case PMS::GREAL:
-      case PMS::IMAG:
-      case PMS::GIMAG:
-      case PMS::FLAG:
-      case PMS::ROW:
-      case PMS::OBSERVATION:
-      case PMS::FEED1: {
-        // allowed
-        break;
-      }
-      case PMS::ANTENNA:
-      case PMS::CHANNEL:
-      case PMS::FREQUENCY:
-      case PMS::SNR: {
-        String msg("GSPLINE plotting does not support " + PMS::axis(axis) + " axis");
-        if (axis==PMS::ANTENNA) msg += "; use ANTENNA1";
-        throw(AipsError(msg));
-        break;
-      }
-      case PMS::ANTENNA2:
-      case PMS::BASELINE:
-      case PMS::DELAY:
-      case PMS::OPAC:
-      case PMS::SWP:
-      case PMS::TSYS:
-      case PMS::TEC:
-      case PMS::INTENT: {
-        String msg(PMS::axis(axis) + " has no meaning for this table");
-        throw(AipsError(msg));
-        break;
-      }
-      default:
-        throw(AipsError("Axis choice not supported for Cal Tables"));
-        break;
-    }
-  }
-}
-
-void CalCache::setUpLoad(ThreadCommunication* thread, Slice& parSlice) {
-  // common setup for CalTables
-
-  // permit cancel in progress meter:
-  if(thread != NULL)
-    thread->setAllowedOperations(false,false,true);
-  logLoad("Loading chunks......");
-
-  // initial chunk info
-  chshapes_.resize(4,nChunk_);
-  goodChunk_.resize(nChunk_);
-  goodChunk_.set(False);
-
-  // get selected npol
-  String polSelection(selection_.corr());
-  String paramAxis(toVisCalAxis(PMS::AMP));
-  // getParSlice() checks for valid axis and pol sel
-  if (polnRatio_) {  // just pick one for length
-    parSlice = getParSlice(paramAxis, "R");
-  } else { 
-    parSlice = getParSlice(paramAxis, polSelection);
-  }
-}
-
-String CalCache::getMSAbsPath(String msname) {
-  Path filepath(filename_);
-  String path(filepath.dirName()), mspath("");
-  if (!path.empty()) mspath += path + "/";
-  mspath += msname;
-  return mspath;
-}
-
-void CalCache::getNamesFromMS(MSMetaInfoForCal& msmeta) {
-    msmeta.antennaNames(antnames_);
-    msmeta.fieldNames(fldnames_);
-    nAnt_ = msmeta.nAnt();
-}
-
-void CalCache::getChanFreqsFromMS(String fullmsname) {
-  // shape is (nchan, nspw)
-  MeasurementSet ms(fullmsname);
-  ROMSColumns mscol(ms);
-  chanfreqs_ = mscol.spectralWindow().chanFreq().getColumn();
-}
-
+// **** for BPOLY CalTable ****
 void CalCache::loadCalAxis(ROSolvableVisJonesMCol& mcol,
   ROCalDescColumns& dcol, Int chunk, PMS::Axis axis) {
-    // load axis for CalTable
     switch(axis) {
     case PMS::SCAN:
       scan_(chunk) = mcol.scanNo()(chunk);
@@ -1148,6 +1108,111 @@ void CalCache::loadCalAxis(ROSolvableVisJonesMCol& mcol,
       throw(AipsError("Axis choice not supported for Cal Tables"));
       break;
     } // switch
+}
+
+// **** for GSPLINE CalTable ****
+void CalCache::checkAxes(const vector<PMS::Axis>& loadAxes) {
+  // trap user-requested axes that are invalid for GSPLINE
+  for(unsigned int i = 0; i < loadAxes.size(); i++) {
+    PMS::Axis axis(loadAxes[i]);
+    switch (axis) {
+      case PMS::SCAN:
+      case PMS::FIELD:
+      case PMS::TIME:
+      case PMS::SPW:
+      case PMS::TIME_INTERVAL:
+      case PMS::CORR:
+      case PMS::ANTENNA1:
+      case PMS::AMP:
+      case PMS::GAMP:
+      case PMS::PHASE:
+      case PMS::GPHASE:
+      case PMS::REAL:
+      case PMS::GREAL:
+      case PMS::IMAG:
+      case PMS::GIMAG:
+      case PMS::FLAG:
+      case PMS::OBSERVATION:
+      case PMS::FEED1: {
+        // allowed
+        break;
+      }
+      case PMS::ANTENNA:
+      case PMS::CHANNEL:
+      case PMS::FREQUENCY:
+      case PMS::SNR: {
+        String msg("GSPLINE plotting does not support " + PMS::axis(axis) + " axis");
+        if (axis==PMS::ANTENNA) msg += "; use ANTENNA1";
+        throw(AipsError(msg));
+        break;
+      }
+      case PMS::ANTENNA2:
+      case PMS::BASELINE:
+      case PMS::ROW:
+      case PMS::DELAY:
+      case PMS::OPAC:
+      case PMS::SWP:
+      case PMS::TSYS:
+      case PMS::TEC:
+      case PMS::INTENT: {
+        String msg(PMS::axis(axis) + " has no meaning for this table");
+        throw(AipsError(msg));
+        break;
+      }
+      default:
+        throw(AipsError("Axis choice not supported for Cal Tables"));
+        break;
+    }
+  }
+}
+
+void CalCache::setMSname(String msname) {
+  // set msname_ (with path) if valid
+  Path filepath(filename_);
+  String path(filepath.dirName()), mspath("");
+  if (!path.empty()) mspath += path + "/";
+  mspath += msname;
+  if (msname.empty() || !Table::isReadable(mspath))
+    throw(AipsError("Associated MS is not available, cannot plot solutions."));
+  msname_ = mspath;
+}
+
+void CalCache::getNamesFromMS() {
+  // Set antenna and field names for Locate.
+  MSMetaInfoForCal msmeta(msname_);
+  msmeta.antennaNames(antnames_);
+  msmeta.fieldNames(fldnames_);
+  nAnt_ = msmeta.nAnt();
+}
+
+void CalCache::setUpLoad(ThreadCommunication* thread, Slice& parSlice) {
+  // common setup for CalTables
+  // permit cancel in progress meter:
+  if(thread != NULL)
+    thread->setAllowedOperations(false,false,true);
+  logLoad("Loading chunks......");
+
+  // initial chunk info
+  chshapes_.resize(4,nChunk_);
+  goodChunk_.resize(nChunk_);
+  goodChunk_.set(False);
+
+  // get selected npol
+  String polSelection(selection_.corr());
+  String paramAxis(toVisCalAxis(PMS::AMP));
+  // getParSlice() checks for valid axis and pol sel
+  if (polnRatio_) {  // just pick one for length
+    parSlice = getParSlice(paramAxis, "R");
+  } else { 
+    parSlice = getParSlice(paramAxis, polSelection);
+  }
+}
+
+void CalCache::getChanFreqsFromMS() {
+  // shape is (nchan, nspw)
+  MeasurementSet ms(msname_);
+  ROMSColumns mscol(ms);
+  chanfreqs_ = mscol.spectralWindow().chanFreq().getColumn();
 }
 
 void CalCache::getCalDataAxis(PMS::Axis axis, Cube<Complex>& viscube,
