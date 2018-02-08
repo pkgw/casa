@@ -21,6 +21,8 @@
 #include <imageanalysis/ImageAnalysis/ImageFactory.h>
 #include <imageanalysis/ImageAnalysis/ImagePolProxy.h>
 #include <imageanalysis/ImageAnalysis/ImageTotalPolarization.h>
+#include <imageanalysis/ImageAnalysis/LinearPolarizationAngleCalculator.h>
+#include <imageanalysis/ImageAnalysis/LinearPolarizationCalculator.h>
 
 #include <casa/namespace.h>
 
@@ -292,55 +294,57 @@ imagepol::fractotpol(const bool debias, const double clip, const double sigma, c
   }
 }
 
-image *
-imagepol::linpolint(const bool debias, const double clip, const double sigma, const std::string& outfile)
-{
-  try{
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
-    if(itsImPol==0){
-      *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
-	      << LogIO::POST;
-      return 0;
+image * imagepol::linpolint(
+    const bool debias, const double clip, const double sigma, const std::string& outfile,
+    const variant& region, const std::string& mask, bool stretch
+) {
+    try{
+        *itsLog << LogOrigin("imagepol", __func__);
+        if(! itsImPol){
+            *itsLog << LogIO::SEVERE <<"No attached image, please use open "
+                << LogIO::POST;
+            return nullptr;
+        }
+        auto myreg = _getRegion(region, False);
+        auto subImage = SubImageFactory<Float>::createSubImageRO(
+            *itsImPol->getImage(), *myreg, mask,
+            itsLog, AxesSpecifier(), stretch, true
+        );
+        LinearPolarizationCalculator lpc(subImage, outfile, False);
+        lpc.setClip(clip);
+        lpc.setSigma(sigma);
+        lpc.setDebias(debias);
+        return new image(lpc.compute());
     }
-    ImageInterface<Float> *out;
-    Bool rstat(false);
-    rstat = itsImPol->linPolInt(out,debias,Float(clip),
-				Float(sigma),String(outfile));
-    if (rstat) {
-        return new image(out);
-     }
-    else {
-      throw(AipsError("could not attach linpolint image"));
+    catch (const AipsError& x) {
+        *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
+        RETHROW(x);
     }
-    } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
-    RETHROW(x);
-  }
 }
 
-image *
-imagepol::linpolposang(const std::string& outfile)
-{
-  try{
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
-    if(itsImPol==0){
-      *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
-	      << LogIO::POST;
-      return 0;
+image * imagepol::linpolposang(
+    const std::string& outfile, const variant& region,
+    const std::string& mask, bool stretch
+) {
+    try{
+        *itsLog << LogOrigin("imagepol", __func__);
+        if(! itsImPol){
+            *itsLog << LogIO::SEVERE <<"No attached image, please use open "
+                << LogIO::POST;
+            return nullptr;
+        }
+        auto myreg = _getRegion(region, False);
+        auto subImage = SubImageFactory<Float>::createSubImageRO(
+            *itsImPol->getImage(), *myreg, mask,
+            itsLog, AxesSpecifier(), stretch, true
+        );
+        LinearPolarizationAngleCalculator lpac(subImage, outfile, False);
+        return new image(lpac.compute(False));
     }
-    ImageInterface<Float> *out;
-    Bool rstat(false);
-    rstat = itsImPol->linPolPosAng(out,String(outfile));
-    if (rstat) {
-        return new image(out);
+    catch (const AipsError& x) {
+        *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
+        RETHROW(x);
     }
-    else {
-      throw(AipsError("could not attach linpolposang image"));
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
-    RETHROW(x);
-  }
 }
 
 bool
@@ -380,12 +384,16 @@ imagepol::pol(const std::string& which, const bool debias, const double clip, co
     type.upcase();
     Bool rstat(false);
     if (type=="LPI") {
+        return linpolint(debias, clip, sigma, outfile);
+        /*
       rstat = itsImPol->linPolInt(out,debias,Float(clip),
 				  Float(sigma),String(outfile));
+				  */
     } else if (type=="TPI") {
         return totpolint(debias, clip, sigma, outfile);
     } else if (type=="LPPA") {
-      rstat = itsImPol->linPolPosAng(out,String(outfile));
+        return linpolposang(outfile);
+      //rstat = itsImPol->linPolPosAng(out,String(outfile));
     } else if (type=="FLP") {
       rstat = itsImPol->fracLinPol(out,debias,Float(clip),
 				   Float(sigma),String(outfile));
