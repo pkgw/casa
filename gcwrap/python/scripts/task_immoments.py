@@ -83,9 +83,12 @@
 # <todo>
 # </todo>
 
-import os
+import os, sys, time
 from taskinit import *
-_rg = rgtool( )
+from stat import S_ISDIR, ST_MTIME, ST_MODE
+from ialib import write_image_history
+
+_rg = rgtool()
 
 def immoments(
     imagename, moments, axis, region, box, chans, stokes,
@@ -95,6 +98,7 @@ def immoments(
     casalog.origin('immoments')
     _myia = iatool()
     try:
+        _myia.dohistory(False)
         # First check to see if the output file exists.  If it
         # does then we abort.  CASA doesn't allow files to be
         # over-written, just a policy.
@@ -109,15 +113,26 @@ def immoments(
             shape=_myia.shape(), box=box, chans=chans, stokes=stokes,
             stokescontrol="a", region=region
         )
-        if isinstance( axis, str ):
+        if isinstance(axis, str):
              axis = _myia.coordsys().findaxisbyname(axis)
-        retValue = _myia.moments(
+        outia = _myia.moments(
             moments=moments, axis=int(axis), mask=mask,
             region=reg, includepix=includepix,
             excludepix=excludepix, outfile=outfile, drop=False,
             stretch=stretch
         )
-        retValue.done()
+        created_images = _immoments_get_created_images(outia.name(), outfile)
+        created_images.append(outia)
+        try:
+            param_names = immoments.func_code.co_varnames[:immoments.func_code.co_argcount]
+            param_vals = [eval(p) for p in param_names]
+            method = sys._getframe().f_code.co_name
+            for im in created_images:
+                write_image_history(
+                    im, method, param_names, param_vals, casalog
+                )
+        except Exception, instance:
+            casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
         return True
     except Exception, x:
         _myia.done()
@@ -125,4 +140,25 @@ def immoments(
         raise
     finally:
         _myia.done()
+        if outia:
+            outia.done()
 
+def _immoments_get_created_images(out1name, outfile):
+    dirpath = os.path.dirname(out1name)
+    target_time = os.path.getmtime(out1name)
+    # get all entries in the directory w/ stats
+    entries = (os.path.join(dirpath, fn) for fn in os.listdir(dirpath))
+    entries = ((os.stat(path), path) for path in entries)
+    # leave only directories, insert creation date
+    entries = ((stat.st_mtime, path)
+        for stat, path in entries if S_ISDIR(stat[ST_MODE]))
+    # reverse sort by time
+    zz = sorted(entries)
+    zz.reverse()
+    created_images = []
+    for mdate, path in zz:
+        if mdate < target_time:
+            break
+        if path != out1name and os.path.basename(path).startswith(outfile):
+            created_images.append(path)
+    return created_images

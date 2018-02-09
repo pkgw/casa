@@ -21,7 +21,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         <example>imagename='ngc5921.im'</example>
     </param>
     <param type="string" name="function">
-        <description>Aggregate function to apply. This can be set one of flux, madm, max, mean, median, min, rms, stddev, sum, variance, xmadm. Must be specified.</description>
+        <description>Aggregate function to apply. This can be set one of flux, madm, max, mean, median, min, npts, rms, stddev, sum, variance, xmadm. Must be specified.</description>
         <value/>
         <example>function="max"</example>
         <example>function="rms</example>
@@ -61,7 +61,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         <value type="string"/>
     </param>
     <param type="bool" name="overwrite" subparam="true">
-        <description>Overwrite exisitng ouput file if it exists?</description>
+        <description>Overwrite output image if it exists?</description>
         <value>False</value>
         <example>overwrite=true</example>
     </param>
