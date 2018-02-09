@@ -24,6 +24,7 @@
 
 #include <mstransform/TVI/PolAverageTVI.h>
 
+#include <limits>
 
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -5801,6 +5802,23 @@ void MSTransformManager::initFrequencyTransGrid(vi::VisBuffer2 *vb)
 		bandwidth += chanWidth;
 
 		fftShift_p = - absoluteShift / bandwidth;
+
+                ostringstream current;
+                current << setprecision(numeric_limits<double>::max_digits10)
+                        << newCentralFrequencyBeforeRegriddingAtCurrentTime;
+                ostringstream reference;
+                reference << setprecision(numeric_limits<double>::max_digits10)
+                          << newCentralFrequencyBeforeRegriddingAtReferenceTime;
+                logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager",__FUNCTION__)
+                         << "Using fftshift interpolation. The absolute shift is the "
+                         << "new central frequency at current (input SPW) time - new "
+                         << "central frequency "
+                         << "at reference (output SPW) time\nAbsolute shift: "
+                         << current
+                         << " - " << reference
+                         << " = " << absoluteShift << ", bandwidth " << bandwidth
+                         << ", relative shift: " << fftShift_p << LogIO::POST;
+
 	}
 	else
 	{
@@ -7084,7 +7102,7 @@ template <class T> void MSTransformManager::copyCubeOfData(	vi::VisBuffer2 *vb,
 }
 
 // -----------------------------------------------------------------------
-//
+// combine - for combinespws=True
 // -----------------------------------------------------------------------
 template <class T> void MSTransformManager::combineCubeOfData(	vi::VisBuffer2 *vb,
 																	RefRows &rowRef,
@@ -7474,6 +7492,11 @@ template <class T> void MSTransformManager::transformAndWriteCubeOfData(	Int inp
 																				ArrayColumn<T> &outputDataCol,
 																				ArrayColumn<Bool> *outputFlagCol)
 {
+        logger_p << LogIO::DEBUG1 << LogOrigin("MSTransformManager",__FUNCTION__)
+                 << "Shape of input data cube: " << inputDataCube.shape()
+                 << ", output plane shape: " << outputPlaneShape
+                 << LogIO::POST;
+
 	// Write flag column too?
 	if (outputFlagCol != NULL)
 	{
@@ -7582,8 +7605,6 @@ void MSTransformManager::setWeightsPlaneByReference(	uInt inputRow,
 															Matrix<Float> &inputWeightsPlane)
 {
 	inputWeightsPlane = inputWeightsCube.xyPlane(inputRow);
-
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -7630,8 +7651,6 @@ template <class T> void MSTransformManager::transformAndWritePlaneOfData(	Int in
 
 	// Write output planes
 	writeOutputPlanes(row,outputDataPlane,outputFlagsPlane,outputDataCol,*outputFlagCol);
-
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -7644,7 +7663,6 @@ void MSTransformManager::writeOutputPlanes(	uInt row,
 											ArrayColumn<Bool> &outputFlagCol)
 {
 	(*this.*writeOutputPlanesComplex_p)(row,outputDataPlane,outputFlagsPlane,outputDataCol,outputFlagCol);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -7657,7 +7675,6 @@ void MSTransformManager::writeOutputPlanes(	uInt row,
 											ArrayColumn<Bool> &outputFlagCol)
 {
 	(*this.*writeOutputPlanesFloat_p)(row,outputDataPlane,outputFlagsPlane,outputDataCol,outputFlagCol);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -7880,8 +7897,6 @@ template <class T> void MSTransformManager::writeOutputPlanesInBlock(	uInt row,
 	outputDataCol.setShape(row,outputPlaneShape);
 	outputDataCol.put(row, outputDataPlane);
 	(*this.*writeOutputFlagsPlane_p)(outputFlagsPlane,outputFlagCol, outputPlaneShape, row);
-
-	return;
 }
 
 
@@ -7895,7 +7910,6 @@ void MSTransformManager::writeOutputFlagsPlane(	Matrix<Bool> &outputPlane,
 {
 	outputCol.setShape(outputRow,outputPlaneShape);
 	outputCol.put(outputRow, outputPlane);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -7929,8 +7943,6 @@ template <class T> void MSTransformManager::writeOutputPlanesInSlices(	uInt row,
 	writeOutputPlaneReshapedSlices(outputDataPlane,outputDataCol,sliceX,sliceY,outputPlaneShape_tail,outRow);
 	(*this.*writeOutputFlagsPlaneReshapedSlices_p)(	outputFlagsPlane,outputFlagCol,
 													sliceX,sliceY,outputPlaneShape_tail,outRow);
-
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -7944,7 +7956,6 @@ void MSTransformManager::writeOutputFlagsPlaneSlices(	Matrix<Bool> &outputPlane,
 															uInt &outputRow)
 {
 	writeOutputPlaneSlices(outputPlane,outputCol,sliceX,sliceY,outputPlaneShape,outputRow);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -7958,7 +7969,6 @@ void MSTransformManager::writeOutputFlagsPlaneReshapedSlices(	Matrix<Bool> &outp
 																	uInt &outputRow)
 {
 	writeOutputPlaneReshapedSlices(outputPlane,outputCol,sliceX,sliceY,outputPlaneShape,outputRow);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -7974,7 +7984,6 @@ template <class T> void MSTransformManager::writeOutputPlaneSlices(	Matrix<T> &o
 	Matrix<T> outputPlane_i = outputPlane(sliceX,sliceY);
 	outputCol.setShape(outputRow,outputPlaneShape);
 	outputCol.put(outputRow, outputPlane_i);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -7991,7 +8000,6 @@ template <class T> void MSTransformManager::writeOutputPlaneReshapedSlices(	Matr
 	outputPlane_i.resize(outputPlaneShape,true);
 	outputCol.setShape(outputRow,outputPlaneShape);
 	outputCol.put(outputRow, outputPlane_i);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -8002,7 +8010,6 @@ void MSTransformManager::setWeightStripeByReference(	uInt corrIndex,
 															Vector<Float> &inputWeightsStripe)
 {
 	inputWeightsStripe.reference(inputWeightsPlane.row(corrIndex));
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -8044,7 +8051,6 @@ void MSTransformManager::transformStripeOfData(Int inputSpw,
 {
 	(*this.*transformStripeOfDataFloat_p)(	inputSpw,inputDataStripe,inputFlagsStripe,inputWeightsStripe,
 											outputDataStripe,outputFlagsStripe);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -8683,7 +8689,6 @@ template <class T> void MSTransformManager::regrid(Int inputSpw,
 				outputDataStripe,
 				outputFlagsStripe);
 
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -8703,7 +8708,6 @@ void MSTransformManager::regridCore(Int inputSpw,
 									inputWeightsStripe,
 									outputDataStripe,
 									outputFlagsStripe);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -8722,7 +8726,6 @@ void MSTransformManager::regridCore(Int inputSpw,
 								inputWeightsStripe,
 								outputDataStripe,
 								outputFlagsStripe);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -8743,7 +8746,6 @@ void MSTransformManager::fftshift(Int ,
     					(const Double)fftShift_p,
     					false, // A good data point has its flag set to false
     					false);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -8763,7 +8765,6 @@ void MSTransformManager::fftshift(Int ,
     					(const uInt)0, // In vectors axis 0 is the only dimension
     					(const Double)fftShift_p,
     					false); // A good data point has its flag set to false
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -8860,9 +8861,9 @@ template <class T> void MSTransformManager::interpolateByChannelMap(Int spw,
   }
 }
 
-// -----------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// casacore::fftshift does not interpolate, it needs interpolation+fftshift
+// ------------------------------------------------------------------------
 template <class T> void MSTransformManager::interpol1Dfftshift(Int inputSpw,
 							       const Vector<T> &inputDataStripe,
 							       const Vector<Bool> &inputFlagsStripe,
