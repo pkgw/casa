@@ -718,7 +718,7 @@ class test_regridms_interpolation_only(test_base):
 
     def tearDown(self):
         os.system('rm -rf '+ self.vis)
-        # os.system('rm -rf '+ self.outvis)
+        os.system('rm -rf '+ self.outvis)
 
     def check_output_values(self, vis, eq_pattern, nchan=10, eq_epsilon=1e-5):
         ''' Checks DATA, WEIGHT, and WEIGHT_SPECTRUM '''
