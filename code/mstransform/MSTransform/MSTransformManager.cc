@@ -1619,16 +1619,8 @@ void MSTransformManager::setup()
 	// Set Regridding kernel
 	if (fftShiftEnabled_p)
 	{
-		if (combinespws_p)
-		{
-			regridCoreComplex_p = &MSTransformManager::interpol1Dfftshift;
-			regridCoreFloat_p = &MSTransformManager::interpol1Dfftshift;
-		}
-		else
-		{
-			regridCoreComplex_p = &MSTransformManager::fftshift;
-			regridCoreFloat_p = &MSTransformManager::fftshift;
-		}
+		regridCoreComplex_p = &MSTransformManager::interpol1Dfftshift;
+		regridCoreFloat_p = &MSTransformManager::interpol1Dfftshift;
 	}
 	else
 	{
