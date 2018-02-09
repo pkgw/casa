@@ -61,6 +61,35 @@
 
 #include <casadbus/utilities/Diagnostic.h>
 #include <display/DisplayErrors.h>
+#include <casacore/casa/System/AppState.h>
+#include <algorithm>
+
+#if defined(__APPLE__)
+// for executable_path( )
+#include <mach-o/dyld.h>
+#else
+// for executable_path( )
+std::string read_link( const std::string &path ) {
+    int buffer_size = 128;
+    char *buffer = new char[buffer_size+1];
+    int nchars = readlink( path.c_str( ), buffer, buffer_size );
+    while ( nchars == buffer_size ) {
+        buffer_size *= 2;
+        delete [] buffer;
+        buffer = new char[buffer_size+1];
+        nchars = readlink( path.c_str( ), buffer, buffer_size );
+    }
+    std::string result;
+    if ( nchars > 0 ) {
+        buffer[nchars] = '\0';
+        char *exe = realpath(buffer,NULL);
+        result = exe;
+        free(exe);
+    }
+    delete [] buffer;
+    return result;
+}
+#endif
 
 #include <casa/namespace.h>
 using namespace casa;
@@ -94,16 +123,45 @@ static void signal_manager_root( int sig ) {
 	exit(0);
 }
 
+static std::string executable_path( ) {
+#if defined(__APPLE__)
+    uint32_t size = PATH_MAX;
+    char *buffer = (char *) malloc(sizeof(char)*size);
+    if ( _NSGetExecutablePath(buffer, &size) == -1 ) {
+        ++size;
+        buffer = (char *) realloc(buffer,sizeof(char)*size);
+        if ( _NSGetExecutablePath(buffer, &size) != 0 ) {
+            free(buffer);
+            fprintf( stderr, "cannot discover path to executable...\n" );
+            return "";
+        }
+    }
+    char *exepath = realpath(buffer,NULL);
+    std::string result(exepath);
+    free(buffer);
+    free(exepath);
+    return result;
+#else
+    char buffer[256];
+    sprintf( buffer, "/proc/%d/exe", getpid( ) );
+    struct stat statbuf;
+    if ( lstat( buffer, &statbuf ) == 0 && S_ISLNK(statbuf.st_mode) ) {
+        return read_link(buffer);
+    }
+    return "";
+#endif
+}
+
 
 class ViewerApp : public QApplication {
 public:
 	ViewerApp( int &argc, char **argv, bool gui_enabled ) : QApplication(argc, argv, gui_enabled), viewer_(0) {
 #if QT_VERSION >= 0x050000
-        local_argc_ = argc;
-        local_argv_ = new char*[local_argc_+1];
-        for ( int i=0; i < local_argc_; ++i )
-            local_argv_[i] = strdup(argv[i]);
-        local_argv_[local_argc_] = 0;
+		local_argc_ = argc;
+		local_argv_ = new char*[local_argc_+1];
+		for ( int i=0; i < local_argc_; ++i )
+			local_argv_[i] = strdup(argv[i]);
+		local_argv_[local_argc_] = 0;
 #endif
     }
 	bool notify( QObject *receiver, QEvent *e );
@@ -114,11 +172,11 @@ private:
 	QtViewer *viewer_;
 
 #if QT_VERSION >= 0x050000
-    int local_argc_;
-    char **local_argv_;
+	int local_argc_;
+	char **local_argv_;
 public:
-    int argc( ) { return local_argc_; }
-    char **argv( ) { return local_argv_; }
+	int argc( ) { return local_argc_; }
+	char **argv( ) { return local_argv_; }
 #endif
 };
 
@@ -163,9 +221,20 @@ bool ViewerApp::notify( QObject *receiver, QEvent *e ) {
 }
 
 
+class ViewerDataState: public casacore::AppState {
+public:
+
+    ViewerDataState(const std::list<std::string> &path ) : data_path(path) { }
+    virtual bool initialized( ) const { return true; }
+    virtual std::list<std::string> dataPath( ) const { return data_path; }
+private:
+    std::list<std::string> data_path;
+};
 
 
 int main( int argc, const char *argv[] ) {
+
+    std::string exepath(executable_path( ));
 
 #ifndef NO_CRASH_REPORTER
     CrashReporter::initializeFromApplication(argv[0]);
@@ -205,6 +274,49 @@ int main( int argc, const char *argv[] ) {
 	preprocess_args( argc, argv, numargs, args, dbus_name, with_dbus,
 	                 initial_run, server_startup, daemon, without_gui,
                      persistent, casapy_start, logfile_path );
+
+	//
+	// configure datapath for casacore and colormaps...
+	//
+	auto ends_with = []( const std::string& str, const std::string& ending ) {
+		return ( str.size( ) >= ending.size( ) ) && equal( ending.rbegin( ), ending.rend( ), str.rbegin( ) );
+	};
+	//
+	// on linux argv[0] will be "casaviewer"
+	// on OSX with the viewer packaged with CASA argv[0] will be "CASAViewer"
+	// on OSX with the viewer packaged separately argv[0] will be "CASAviewer"
+	if ( ends_with(exepath, "Contents/MacOS/CASAviewer") ) {
+		// initialize CASAviewer app data...
+		if ( ! casacore::AppStateSource::fetch( ).initialized( ) ) {
+			// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+			// initialize CASAviewer app data...
+			// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+			// generate path to data...
+			std::string datapath(exepath);
+			datapath.erase( datapath.end( ) -  16, datapath.end( ) );
+			std::string pgplotpath = datapath;             // save for later...
+			std::string pluginpath = datapath;             // save for later...
+			datapath += "Resources/casa-data";
+			// initialize casacore...
+			std::list<std::string> datadirs;
+			datadirs.push_back(datapath);
+			casacore::AppStateSource::initialize(new ViewerDataState(datadirs));
+			// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+			// initialize CASAviewer app data...
+			// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+			// configure pgpplot...
+			std::string rgbpath = std::string("PGPLOT_RGB=") + pgplotpath + "Resources/pgplot/rgb.txt";
+			std::string fontpath = std::string("PGPLOT_FONT=") + pgplotpath + "Resources/pgplot/grfont.dat";
+			putenv(strdup(rgbpath.c_str( )));
+			putenv(strdup(fontpath.c_str( )));
+			// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+			// set up Qt Plugin Path
+			// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+			pluginpath += "Plugins";
+			QCoreApplication::addLibraryPath(QString(pluginpath.c_str( )));
+		}
+
+	}
 
 	//
 	// setup casa logging's global sink, if the user supplied a path...
@@ -858,4 +970,3 @@ pid_t launch_xvfb( const char *name, pid_t pid, char *&display, char *&authority
 #endif
 	return child_xvfb;
 }
-
