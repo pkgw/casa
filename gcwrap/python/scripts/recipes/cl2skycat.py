@@ -1,4 +1,4 @@
-import casa as c
+from casac import casac
 import numpy as np
 def cl2skycat(componentlist='', skycat=''):
     """
@@ -6,8 +6,9 @@ def cl2skycat(componentlist='', skycat=''):
     to  a skycatalog to overlay on image in the viewer
     
     """
-    qa=c.quanta
-    cl=c.casac.componentlist()
+    qa=casac.quanta()
+    cl=casac.componentlist()
+    tb=casac.table()
     if(type(componentlist)==str):
         cl.open(componentlist)
     elif(type(componentlist)==dict):
@@ -25,7 +26,7 @@ def cl2skycat(componentlist='', skycat=''):
     des['RA']={'valueType':'string'}
     des['DEC']={'valueType':'string'}
     des['FluxValue']={'valueType':'double'}
-    c.table.create(tablename=skycat, tabledesc=des, nrow=cl.length())
+    tb.create(tablename=skycat, tabledesc=des, nrow=cl.length())
     eltype=[]
     nam=[]
     RA=[]
@@ -41,14 +42,14 @@ def cl2skycat(componentlist='', skycat=''):
         DEC.append(qa.angle(cl.getrefdir(k)['m1'], prec=10))
         eltype.append(cl.getrefdir(k)['refer'])
         nam.append(str(k))
-    c.table.putcol('Type', eltype)
-    c.table.putcol('RA', RA)
-    c.table.putcol('DEC', DEC)
-    c.table.putcol('COMP_ID', nam)
-    c.table.putcol('Long', longi)
-    c.table.putcol('Lat', lati)
-    c.table.putcol('FluxValue', fluxval)
-    c.table.putcolkeyword(columnname='Long', keyword='UNIT', value='deg')
-    c.table.putcolkeyword(columnname='Lat', keyword='UNIT', value='deg')                     
-    c.table.putinfo({'type':'Skycatalog'})
-    c.table.done()
+    tb.putcol('Type', eltype)
+    tb.putcol('RA', RA)
+    tb.putcol('DEC', DEC)
+    tb.putcol('COMP_ID', nam)
+    tb.putcol('Long', longi)
+    tb.putcol('Lat', lati)
+    tb.putcol('FluxValue', fluxval)
+    tb.putcolkeyword(columnname='Long', keyword='UNIT', value='deg')
+    tb.putcolkeyword(columnname='Lat', keyword='UNIT', value='deg')                     
+    tb.putinfo({'type':'Skycatalog'})
+    tb.done()

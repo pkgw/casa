@@ -101,7 +101,7 @@
 #include <imageanalysis/ImageAnalysis/SubImageFactory.h>
 #include <imageanalysis/ImageAnalysis/TwoPointCorrelator.h>
 
-#include <tools/componentlist_cmpt.h>
+#include <componentlist_cmpt.h>
 
 #include <stdcasa/version.h>
 

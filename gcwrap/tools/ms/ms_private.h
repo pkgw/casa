@@ -4,7 +4,8 @@ casacore::Bool doMSSelection(const ::casac::record& exprs,
 	const bool onlyparse=false);
 
 casacore::Bool checkinit();
-casacore::Vector<casacore::Int> convertCorrToInt(casa::vi::VisBuffer2* vb2);
+casacore::Vector<casacore::Int> getCorrTypes(casa::vi::VisBuffer2* vb2);
+casacore::Vector<casacore::Int> getCorrTypes(casacore::ROMSColumns& msc);
 casacore::Vector<casacore::Int> getspectralwindows();
 casacore::Vector<casacore::Int> getifrnumbers();
 casacore::Vector<casacore::Int> getbaselines(casa::vi::VisBuffer2* vb2);
@@ -21,14 +22,18 @@ casacore::String getSpwExpr();
 
 // for getdata2 axis_info:
 casacore::Vector<casacore::String> getCorrAxis(casa::vi::VisBuffer2* vb2);
+casacore::Vector<casacore::String> getCorrAxis(casacore::ROMSColumns& msc);
+void getWantedPolNames(casacore::Vector<casacore::String>& names);
 casacore::Record getFreqAxis();
 casacore::Record getIfrAxis();
 void addTimeAxis(casacore::Record& rec);
 void incTimeAxis(casacore::IPosition& cubeshape);
 
-// Add data to return record (getdata2), with helpers:
-void getitem(casacore::String item, casa::vi::VisBuffer2* vb2,
+// Add data to return record (getdata), with helpers:
+bool getitem(casacore::String item, casa::vi::VisBuffer2* vb2,
         casacore::Record& addToRec, bool ifraxis);
+bool getitem(casacore::String item, casacore::ROMSColumns& msc,
+        casacore::Record& outputRec);
 bool itemIsData(casacore::String item);
 casacore::String getbaseitem(casacore::String item);
 template <typename T> void getIfrArray(casacore::Array<T>& inputarray, 

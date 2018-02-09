@@ -181,6 +181,7 @@ class SynthesisImager
   virtual bool makePB();
   
   virtual void predictModel();
+  virtual void makeSdImage(casacore::Bool dopsf=false);
   //  void makeImage();
   /* Access method to the Loop Controller held in this class */
   //SIIterBot& getLoopControls();
