@@ -452,34 +452,6 @@ void ImagePolarimetry::fourierRotationMeasure(ImageInterface<Complex>& cpol,
    _setInfo(cpol, Q);
 }
 
-
-ImageExpr<Float> ImagePolarimetry::linPolInt(Bool debias, Float clip, Float sigma) 
-{
-   LogIO os(LogOrigin("ImagePolarimetry", __FUNCTION__, WHERE));
-   if (itsStokesPtr[ImagePolarimetry::Q]==0 && itsStokesPtr[ImagePolarimetry::U]==0) {
-      os << "This image does not have Stokes Q and U so cannot provide linear polarization" << LogIO::EXCEPTION;
-   }
-   _checkQUBeams(false);
-// Make node.  
-
-   LatticeExprNode node = makePolIntNode(os, debias, clip, sigma, true, false);
-
-// Make expression
-
-   LatticeExpr<Float> le(node);
-   ImageExpr<Float> ie(le, String("LinearlyPolarizedIntensity"));
-//
-   ie.setUnits(itsInImagePtr->units());
-   _setInfo(ie, Q);
-
-// Fiddle Stokes coordinate in ImageExpr
-
-   fiddleStokesCoordinate(ie, Stokes::Plinear);
-//
-   return ie;
-}
-
-
 Float ImagePolarimetry::sigmaLinPolInt(Float clip, Float sigma) 
 //
 // sigma_P = sigma_QU
@@ -536,7 +508,6 @@ ImageExpr<Float> ImagePolarimetry::linPolPosAng(Bool radians) const
 
    return ie;
 }
-
 
 ImageExpr<Float> ImagePolarimetry::sigmaLinPolPosAng(Bool radians, Float clip, Float sigma) 
 //
