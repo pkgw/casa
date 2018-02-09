@@ -8866,16 +8866,14 @@ template <class T> void MSTransformManager::interpol1Dfftshift(Int inputSpw,
 							       Vector<T> &outputDataStripe,
 							       Vector<Bool> &outputFlagsStripe)
 {
-	Vector<T> regriddedDataStripe(inputDataStripe.shape(),T());
-	Vector<Bool> regriddedFlagsStripe(inputFlagsStripe.shape(),false);
+    Vector<T> regriddedDataStripe(outputDataStripe.shape(),T());
+    Vector<Bool> regriddedFlagsStripe(outputFlagsStripe.shape(),false);
 
-	// This linear interpolation provides an uniform grid (pre-condition to apply fftshift)
-	interpol1D(inputSpw,inputDataStripe,inputFlagsStripe,inputWeightsStripe,regriddedDataStripe,regriddedFlagsStripe);
+    // This linear interpolation provides a uniform grid (pre-condition to apply fftshift)
+    interpol1D(inputSpw,inputDataStripe,inputFlagsStripe,inputWeightsStripe,regriddedDataStripe,regriddedFlagsStripe);
 
-	// fftshift takes care of time
-	fftshift(inputSpw,regriddedDataStripe,regriddedFlagsStripe,inputWeightsStripe,outputDataStripe,outputFlagsStripe);
-
-	return;
+    // fftshift takes care of time
+    fftshift(inputSpw,regriddedDataStripe,regriddedFlagsStripe,inputWeightsStripe,outputDataStripe,outputFlagsStripe);
 }
 
 // -----------------------------------------------------------------------
