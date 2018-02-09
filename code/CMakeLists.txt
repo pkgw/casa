@@ -71,7 +71,7 @@ include( CASA )
 
 set( CASA_VERSION_MAJOR   5   )
 set( CASA_VERSION_MINOR   1   )
-set( CASA_VERSION_PATCH   1   )
+set( CASA_VERSION_PATCH   2   )
 set( CASA_VERSION_FEATURE 1 )
 set( CASA_VERSION_DESC    "" )
 
