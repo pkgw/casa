@@ -1920,12 +1920,12 @@ void FringeJones::setSolve(const Record& solve) {
         Array<Double> dw = solve.asArrayDouble("delaywindow");
         delayWindow() = dw;
     } else {
-        cerr << "No delay window: " << endl;
+        cerr << "No delay window!" << endl;
     }
     if (solve.isDefined("ratewindow")) {
         rateWindow() = solve.asArrayDouble("ratewindow");
     } else {
-        cerr << "No rate window: " << endl;
+        cerr << "No rate window!" << endl;
     }
     if (solve.isDefined("weightfactor")) {
         weightFactor() = solve.asInt("weightfactor");
