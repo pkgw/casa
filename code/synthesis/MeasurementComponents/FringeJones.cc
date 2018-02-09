@@ -2015,10 +2015,6 @@ FringeJones::calculateSNR(Int nCorr, DelayRateFFT drf) {
                 sSNR(3*icor + 0, iant) = snrval;
                 sSNR(3*icor + 1, iant) = snrval;
                 sSNR(3*icor + 2, iant) = snrval;
-            } else {
-                sPok(3*icor + 0, iant) = false;
-                sPok(3*icor + 1, iant) = false;
-                sPok(3*icor + 2, iant) = false;
             }
         }
     }
@@ -2031,7 +2027,7 @@ FringeJones::calculateSNR(Int nCorr, DelayRateFFT drf) {
 void
 FringeJones::selfSolveOne(SDBList& sdbs) {
     solveRPar()=0.0;
-    solveParOK()=false; 
+    solveParOK()=true; // We should do nothing by default, not flag.
     solveParErr()=1.0; // Does nothing?
     // Maybe we put refFreq, refTime stuff in here?
     Vector<Double> myRefFreqs;
@@ -2078,7 +2074,7 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
         sRP(sl) = drf.param()(sl);
         sPok(sl) = !(drf.flag()(sl));
     }
-
+    
     size_t nCorrOrig(sdbs(0).nCorrelations());
     size_t nCorr = (nCorrOrig> 1 ? 2 : 1); // number of p-hands
 
