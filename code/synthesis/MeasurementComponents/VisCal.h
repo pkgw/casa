@@ -120,6 +120,10 @@ public:
   //  (always true for non-tabular)
   virtual casacore::Bool calAvailable(vi::VisBuffer2&) { return true;};
 
+  // Calibration expected AND available? 
+  //  (always assume true for non-tabular)
+  virtual casacore::Bool VBOKforCalApply(vi::VisBuffer2&) { return true;};
+
   // Frequency-dependent Parameters?  Nominally not.
   virtual casacore::Bool freqDepPar() { return false; };
 

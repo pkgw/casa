@@ -205,6 +205,23 @@ Bool VisEquation::spwOK(const Int& spw) {
   return spwok;
 }
 
+
+//----------------------------------------------------------------------
+// Report if calibration is collectively calibrateable by all VCs 
+//   (including possible agnosticism by somein CalLibrary context; 
+//    see SolvableVisCal::VBOKforCalApply)
+Bool VisEquation::VBOKforCalApply(vi::VisBuffer2& vb) {
+
+  Bool okForCal(True); // nominal
+  for (Int i=0;i<napp_;++i) 
+    okForCal = okForCal && vc()[i]->VBOKforCalApply(vb);
+    
+  return okForCal;
+
+}
+
+
+
 //----------------------------------------------------------------------
 // Correct in place the OBSERVED visibilities in a VisBuffer
 void VisEquation::correct(VisBuffer& vb, Bool trial) {

@@ -330,6 +330,9 @@ public:
   // New spwOK
   virtual casacore::Bool spwOK(casacore::Int ispw);
 
+  //Is VB OK for calibration? 
+  virtual casacore::Bool VBOKforCalApply(vi::VisBuffer2& vb);
+
   // Calibration available?
   virtual casacore::Bool calAvailable(vi::VisBuffer2&);
 

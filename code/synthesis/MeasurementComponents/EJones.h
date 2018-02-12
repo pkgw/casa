@@ -81,6 +81,11 @@ public:
   // Local implementation of spwOK()
   virtual casacore::Vector<casacore::Bool> spwOK() { return spwOK_; };
 
+  //Is VB OK for calibration?
+  //  Defer to _local_ spwOK_ at current spw (it is per spw only)
+  virtual casacore::Bool VBOKforCalApply(vi::VisBuffer2& vb) { return spwOK_[vb.spectralWindows()(0)]; };
+
+
 protected:
 
   // EGainCurve has eight casacore::Float pars per ant (4 per pol)
