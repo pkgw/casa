@@ -253,6 +253,21 @@ SPIIF ImagePolTask::_makeSubImage(
     return SPIIF(new SubImage<Float>(*_getImage(), region));
 }
 
+void ImagePolTask::_maskAndZeroNaNs(SPIIF out) {
+    auto isnan = isNaN(*out);
+    if (any(isnan).getBool()) {
+        LatticeExpr<Bool> mask(! isnan);
+        if (! out->hasPixelMask()) {
+            String x;
+            ImageMaskAttacher::makeMask(*out, x, True, True, *_getLog(), False);
+        }
+        auto& pixelMask = out->pixelMask();
+        LatticeExpr<Bool> newMask(mask && LatticeExpr<Bool>(out->pixelMask()));
+        pixelMask.copyData(newMask);
+        out->copyData(LatticeExpr<Float>(iif(isnan, 0, *out)));
+    }
+}
+
 void ImagePolTask::_setDoLinDoCirc(Bool& doLin, Bool& doCirc, Bool requireI) const {
     *_getLog() << LogOrigin(CLASS_NAME, __func__, WHERE);
     doLin = _stokesImage[Q] && _stokesImage[U];
