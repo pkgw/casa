@@ -362,6 +362,11 @@ void VisCal::corrupt2(vi::VisBuffer2& vb) {
 
   if (prtlev()>3) cout << "VC::corrupt(vb2)" << endl;
 
+  // If calibration is unavailable, just return!
+  if (!calAvailable(vb)) {
+    return;
+  }
+
   // Call non-in-place version, in-place-wise:
   Cube<Complex> m;
   m.reference(vb.visCubeModel());  // access model non-const
