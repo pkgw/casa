@@ -1408,7 +1408,7 @@ void MSTransformManager::createOutputMSStructure()
 	catch (AipsError ex)
 	{
 		outputMSStructureCreated = false;
-		logger_p 	<< LogIO::SEVERE
+		logger_p 	<< LogIO::DEBUG1
 					<< "Exception creating output MS structure: " << ex.getMesg() << endl
 					<< LogIO::POST;
 
@@ -5612,7 +5612,7 @@ void MSTransformManager::generateIterator()
 		}
 		catch (AipsError x)
 		{
-    		logger_p 	<< LogIO::SEVERE << LogOrigin("MSTransformManager",__FUNCTION__)
+    		logger_p 	<< LogIO::DEBUG1 << LogOrigin("MSTransformManager",__FUNCTION__)
     					<< "Error initializing calibration VI: " << x.getMesg()
     					<< LogIO::POST;
     		throw(x);
