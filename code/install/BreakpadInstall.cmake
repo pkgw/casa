@@ -236,13 +236,13 @@ if (UseCrashReporter)
     # Only the Breakpad_Timestamp line below should require changing when upgrading
     # to a later breakpad release
 
-    set (Breakpad_Timestamp "160426")
+    set (Breakpad_Timestamp "180213")
     set (Breakpad_Url_At_Casa "https://casa.nrao.edu/download/devel/breakpad/")
 
     ################################
 
     set (Breakpad_Root ${CMAKE_BINARY_DIR}/breakpad) # Root of breakpad within the build tree.
-    set (Breakpad_ArchiveFile "breakpad-from-google-${Breakpad_Timestamp}-patch3.tgz")
+    set (Breakpad_ArchiveFile "breakpad-from-google-${Breakpad_Timestamp}-patch1.tgz")
     set (Breakpad_ArchiveUrl
 	"${Breakpad_Url_At_Casa}/${Breakpad_ArchiveFile}")
 
