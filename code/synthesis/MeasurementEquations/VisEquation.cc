@@ -394,7 +394,12 @@ void VisEquation::collapse2(vi::VisBuffer2& vb) {
   // Trap case of unavailable calibration in any vc we intend to apply below
   //   In the solve context, if we can't pre-cal, we flag it
   //    NB: this assumes only one spw in the VB2!
-  if (!this->spwOK(vb.spectralWindows()(0))) {
+  //if (!this->spwOK(vb.spectralWindows()(0))) {
+  // Use new VBOKforCalApply, which is f(obs,fld,intent,spw) (not just f(spw))
+  if (!this->VBOKforCalApply(vb)) {
+
+    //cout << "UNCALIBRATEABLE VB2 in VE::collapse2" << endl;
+
     Cube<Bool> fl(vb.flagCube());          fl.set(true);
     Cube<Float> wtsp(vb.weightSpectrum()); wtsp.set(0.0f);
     Matrix<Float> wt(vb.weight());         wt.set(0.0f);

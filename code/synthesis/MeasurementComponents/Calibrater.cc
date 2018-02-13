@@ -1254,20 +1254,13 @@ Calibrater::correct2(String mode)
 	    else{
 	      uncalspw[spw] = true;
 
-	      cout << "An uncalibrateable VB!!!!!!!!!!!!!!!!!  Strict = " << boolalpha << upmode.contains("STRICT") << endl;
-
-
 	      // set the flags, if we are being strict
 	      // (don't touch the data/weights, which are initialized)
 	      if (upmode.contains("STRICT")) {
 
-		cout << "FLAGGING: ";
-
 		// reference (to avoid copy) and set the flags
 		Cube<Bool> fC(vb->flagCube());   // reference
-		cout << ntrue(fC) << " --> ";
 		fC.set(true);  
-		cout << ntrue(fC) << endl;
 
 		// make dirty for writeChangesBack  (does this do an actual copy?)
 		vb->setFlagCube(vb->flagCube());
@@ -1284,8 +1277,6 @@ Calibrater::correct2(String mode)
 		  // Asynchronous I/O doesn't have a way to skip
 		  // VisBuffers, so only break out when not using
 		  // async i/o.
-
-		  cout << "Stepping out of intter VI2 loop" << endl;
 		  break; 
 
 		}
@@ -3423,6 +3414,12 @@ casacore::Bool Calibrater::genericGatherAndSolve()
       }
 
     } // sdbs.Ok()
+    else {
+      // Synchronize meta-info in SVC
+      svc_p->syncSolveMeta(sdbs);
+      cout << "Found no unflagged data at:";
+      svc_p->currMetaNote();
+    }
     //cout << endl;
 
 #ifdef _OPENMP
@@ -3933,13 +3930,10 @@ Bool OldCalibrater::setcallib2(Record callib, const casacore::MeasurementSet* ms
   if (ms) {
     // Use supplied MS (from outside), if specified...
     // TBD: should we verify same base MS as ms_p/mssel_p?
-    cout << "Using externally-specified MS!!" << endl;
-
     lmsp=ms;
   }
   else {
     // ...use internal one instead
-    cout << "Using internal MS (mssel_p)!!" << endl;
     lmsp=mssel_p;
   }
   // Reference for use below

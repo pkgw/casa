@@ -1225,9 +1225,9 @@ Bool CLPatchPanel::MSIndicesOK(casacore::Int msobs, casacore::Int msfld, casacor
 
   const MSCalPatchKey key(msobs,msfld,msent,msspw,msant);
   Bool bad=badmsciname_.count(key)>0;
-  if (bad) {
-    cout << Path(ct_.tableName()).baseName().before(".tempMem") << " should but can't calibrate: " << key.print() << endl;
-  }
+  //  if (bad) {
+  //    cout << Path(ct_.tableName()).baseName().before(".tempMem") << " should but can't calibrate: " << key.print() << endl;
+  //  }
 
   // Return TRUE if NOT bad
   return !bad;
