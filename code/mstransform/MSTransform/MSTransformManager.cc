@@ -1410,7 +1410,6 @@ void MSTransformManager::createOutputMSStructure()
 		outputMSStructureCreated = false;
 		logger_p 	<< LogIO::SEVERE
 					<< "Exception creating output MS structure: " << ex.getMesg() << endl
-					<< "Stack Trace: " << ex.getStackTrace()
 					<< LogIO::POST;
 
 		throw AipsError(ex.getMesg());
