@@ -4,6 +4,9 @@ import traceback
 
 from init_welcome_helpers import redirect_argv, immediate_exit_with_handlers
 
+if casa['state']['telemetry-enabled']:
+    casalog.poststat("Start CASA")
+
 if casa['flags'].execute:
     import os.path
 

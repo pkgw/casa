@@ -15,7 +15,7 @@ file:///opt/casa/code/tools/xml/casa.xsd">
 </code>
 
 <shortdescription>tool for logsink</shortdescription>
-       
+
 <description></description>
 
 <method type="constructor" name="logsink">
@@ -26,8 +26,12 @@ file:///opt/casa/code/tools/xml/casa.xsd">
       <description>logfile name</description>
       <value>casa.log</value>
     </param>
+	<param type="bool"  name="allow_stats">
+      <description>Allow telemetry data to be written.</description>
+      <value>false</value>
+    </param>
   </input>
-  <example></example> 
+  <example></example>
 </method>
 
 <method type="function" name="origin">
@@ -73,9 +77,9 @@ file:///opt/casa/code/tools/xml/casa.xsd">
 			<value>DEBUG1</value>
 			<value>DEBUG2</value>
 			<choice>INFO</choice>
-		</param>	
+		</param>
 	</input>
-	
+
   <returns type="bool"/>
 </method>
 
@@ -86,7 +90,7 @@ file:///opt/casa/code/tools/xml/casa.xsd">
      	<param type="stringArray" name="msgList">
      		<description>Array of strings identifying messages to filter out</description>
      		<value></value>
-     	</param>		
+     	</param>
 	</input>
   	<returns type="void"/>
 </method>
@@ -113,6 +117,21 @@ file:///opt/casa/code/tools/xml/casa.xsd">
     <value></value>
     </param>
   </input>
+  <returns type="bool"/>
+</method>
+
+  <method type="function" direction="in" name="poststat">
+    <shortdescription>Post a message</shortdescription>
+    <description>Write telemetry data</description>
+    <input>
+      <param type="string" direction="in" name="message">
+      <description>Message to be posted</description>
+      </param>
+      <param type="string" direction="in" name="origin">
+      <description>Origin of message to be posted</description>
+      <value></value>
+      </param>
+    </input>
 
   <returns type="bool"/>
 </method>
@@ -160,6 +179,15 @@ file:///opt/casa/code/tools/xml/casa.xsd">
   <example>casalog.version()</example>
 </method>
 
+<method type="function" name="getstatslogfile">
+	<shortdescription>String representation of statistics logfile path </shortdescription>
+	<description>String representation of statistics logfile path</description>
+  <input>
+  </input>
+  <returns type="string"/>
+  <example>casalog.getstatslogfile()</example>
+</method>
+
 <method type="function" name="id">
 
   <shortdescription>Get ID</shortdescription>
@@ -186,6 +214,16 @@ file:///opt/casa/code/tools/xml/casa.xsd">
 	<returns type="bool"/>
 </method>
 <method type="function" name="setlogfile">
+	<shortdescription>Set the name of file for logger output</shortdescription>
+	<input>
+		<param type="string" direction="in" name="filename">
+			<description>filename for logger</description>
+			<value>casapy.log</value>
+	        </param>
+        </input>
+	<returns type="bool"/>
+</method>
+<method type="function" name="setstatslogfile">
 	<shortdescription>Set the name of file for logger output</shortdescription>
 	<input>
 		<param type="string" direction="in" name="filename">
@@ -228,12 +266,12 @@ file:///opt/casa/code/tools/xml/casa.xsd">
 </method>
 
 <method type="function" name="ompSetNumThreads">
-  <shortdescription>Specifies the number of OpenMP threads used by default in subsequent parallel regions</shortdescription> 
+  <shortdescription>Specifies the number of OpenMP threads used by default in subsequent parallel regions</shortdescription>
   <input>
   	<param type="int" direction="in" name="numThreads">
   		<value>1</value>
   	</param>
-  </input>  
+  </input>
   <returns type="bool"/>
   <example>casalog.ompSetNumThreads(2)</example>
 </method>

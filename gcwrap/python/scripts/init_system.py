@@ -247,6 +247,9 @@ argparser.add_argument( '--iplog',dest='ipython_log',default=False,
 argparser.add_argument( '--nocrashreport',dest='crash_report',default=True,
                           const=False,action='store_const',
                           help='do not submit an online report when CASA crashes' )
+argparser.add_argument( '--telemetry',dest='telemetry',default=False,
+                          const=True,action='store_const',
+                          help='Enable telemetry collection' )
 argparser.add_argument( "-c",dest='execute',default=[],nargs=argparse.REMAINDER,
                         help='python eval string or python script to execute' )
 

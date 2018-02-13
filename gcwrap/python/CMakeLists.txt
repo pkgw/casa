@@ -45,6 +45,7 @@ scripts/init_tools.py
 scripts/init_logger.py
 scripts/init_funcs.py
 scripts/init_pipeline.py
+scripts/init_telemetry.py
 scripts/init_testing.py
 scripts/init_tasks.py
 scripts/init_welcome.py
@@ -165,7 +166,7 @@ scripts/task_listobs.py
 scripts/task_listpartition.py
 scripts/task_listsdm.py
 scripts/task_listvis.py
-scripts/task_makemask.py 
+scripts/task_makemask.py
 scripts/task_mosaic.py
 scripts/task_mstransform.py
 scripts/task_msuvbin.py
@@ -227,6 +228,7 @@ scripts/task_visstat.py
 scripts/task_visstat2.py
 scripts/task_widebandpbcor.py
 scripts/task_widefield.py
+scripts/telemetry.py
 scripts/TerminalController.py
 scripts/tget.py
 scripts/update_spw.py
