@@ -141,6 +141,7 @@ public:
                 const casacore::Int growiterations=0,
                 const casacore::Bool dogrowprune=true,
                 const casacore::Float& minpercentchange=0.0,
+                const casacore::Bool verbose=false,
                 casacore::Float pblimit=0.0);
 
   // automask by threshold with binning before applying it 
@@ -186,7 +187,8 @@ public:
                                           const casacore::Float& smoothFactor=1.0,
                                           const casacore::Float& minBeamFrac=-1.0,
                                           const casacore::Int growIterations=100,
-                                          const casacore::Bool dogrowprune=true); 
+                                          const casacore::Bool dogrowprune=true,
+                                          const casacore::Bool verbose=false); 
                            
   // Calculate statistics on a residual image with additional region and LEL mask specificaations
   casacore::Record calcImageStatistics(casacore::ImageInterface<casacore::Float>& res, 
@@ -228,13 +230,16 @@ public:
   SHARED_PTR<casacore::ImageInterface<float> >  YAPruneRegions(const casacore::ImageInterface<casacore::Float>& image,
                                                    casacore::Vector<casacore::Bool>& chanflag,
                                                    casacore::Vector<casacore::Bool>& allpruned, 
+                                                   casacore::Vector<casacore::uInt>& nreg,
+                                                   casacore::Vector<casacore::uInt>& npruned,
                                                    casacore::Double prunesize=0.0);
 
   // create a mask image (1/0 image) applying a different threshold for each channel plane
   void makeMaskByPerChanThreshold(const casacore::ImageInterface<casacore::Float>& image, 
                                  casacore::Vector<casacore::Bool>& chanflag,
                                  casacore::ImageInterface<casacore::Float>& mask, 
-                                 casacore::Vector<casacore::Float>& thresholds); 
+                                 casacore::Vector<casacore::Float>& thresholds,
+                                 casacore::Vector<casacore::Float>& masksizes); 
 
   // A core method for binary dilation of the input lattice   
   void binaryDilationCore(casacore::Lattice<casacore::Float>& inlattice,
@@ -278,6 +283,7 @@ public:
                         const casacore::Int growiterations=0,
                         const casacore::Bool dogrowprune=true,
                         const casacore::Float& minpercentchange=0.0,
+                        const casacore::Bool verbose=false,
                         casacore::Float pblimit=0.1);
 
   
@@ -310,6 +316,7 @@ public:
 
   // check if mask image is empty (all zeros ) =True or not
   casacore::Bool isEmptyMask(casacore::ImageInterface<casacore::Float>& maskiamge);
+  casacore::Int getTotalPixels(casacore::ImageInterface<casacore::Float>& maskiamge);
 
   // for warning messages for empy initial mask in automask
   void noMaskCheck(casacore::ImageInterface<casacore::Float>& mask, casacore::Vector<casacore::String>& thresholdType);
@@ -323,6 +330,20 @@ public:
 
   // check if input image is a mask image with 0 or a value (if normalize=true, 1)
   //casacore::Bool checkMaskImage(casacore::ImageInterface<casacore::Float>& maskiamge, casacore::Bool normalize=true);
+
+  // print per-channel automask summary
+  void printAutomaskSummary(const casacore::Array<casacore::Double>& rmss,
+                            const casacore::Array<casacore::Double>& maxs, 
+                            const casacore::Array<casacore::Double>& mins, 
+                            const casacore::Vector<casacore::Float>& maskthreshold, 
+                            const casacore::Vector<casacore::String>& masktype,
+                            const casacore::Vector<casacore::Bool>& chanflag,
+                            const casacore::Vector<casacore::uInt>& nreg,
+                            const casacore::Vector<casacore::uInt>& npruned,
+                            const casacore::Vector<casacore::uInt>& ngrowreg,
+                            const casacore::Vector<casacore::uInt>& ngrowpruned,
+                            const casacore::Vector<casacore::Float>& negmaskpixs,
+                            const casacore::Record& miscsummaryinfo);
 
 
   // 

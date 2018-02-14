@@ -372,6 +372,7 @@ public:
   casacore::Int growIterations;
   casacore::Bool doGrowPrune;
   casacore::Float minPercentChange;
+  casacore::Bool verbose;
   int nMask;
   bool autoAdjust;
 

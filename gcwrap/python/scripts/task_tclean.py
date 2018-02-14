@@ -133,6 +133,7 @@ def tclean(
     growiterations,#=100
     dogrowprune,#=True
     minpercentchange,#=0.0
+    verbose, #=False
 
     ## Misc
 
@@ -272,6 +273,7 @@ def tclean(
         growiterations=growiterations,
         dogrowprune=dogrowprune,
         minpercentchange=minpercentchange,
+        verbose=verbose,
  
         savemodel=savemodel
         )
