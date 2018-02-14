@@ -72,13 +72,33 @@ public:
   // Report some stateinfo
   void state();
 
-private:
+protected:
   casacore::Double f0_, df_, padBW_;
   casacore::Int nCorr_, nPadChan_, nElem_;
   casacore::Int refant_;
   casacore::Cube<casacore::Complex> Vpad_;
   casacore::Matrix<casacore::Float> delay_;
   casacore::Matrix<casacore::Bool> flag_;
+
+};
+
+
+ class CrossDelayFFT : public DelayFFT {
+public:
+  // Construct from freq info and data-like casacore::Cube<casacore::Complex>
+  //  (for generic testing w/out casacore::MS data)
+  CrossDelayFFT(casacore::Double f0, casacore::Double df, casacore::Double padBW, 
+	   casacore::Cube<casacore::Complex> V);
+
+  // Construct from freq info and shape, w/ initialization
+  //   (for accumulation)
+  CrossDelayFFT(casacore::Double f0, casacore::Double df, casacore::Double padBW);
+
+  // Construct from a SDB (VB2)
+  CrossDelayFFT(SolveDataBuffer& sdb,casacore::Double padBW);
+
+  // Report some stateinfo
+  void state();
 
 };
 
@@ -228,12 +248,16 @@ public:
   virtual void selfSolveOne(SDBList& sdbs);
 
 
+
 protected:
 
 
   // FFT solver for on VB, that collapses baselines and cross-hands first
   virtual void solveOneVB(const VisBuffer& vb);
   virtual void solveOneSDB(SolveDataBuffer& sdb);
+
+  // MBD support
+  void solveOneSDBmbd(SDBList& sdbs);
 
 };
 

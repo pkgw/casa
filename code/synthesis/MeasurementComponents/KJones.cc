@@ -263,8 +263,6 @@ DelayFFT::DelayFFT(SolveDataBuffer& sdb,Double padBW,Int refant,Int nElem) :
 
 void DelayFFT::FFT() {
 
-  //  cout << "DelayFFT::FFT()..." << endl;
-
   // We always transform only the chan axis (1)
   Vector<Bool> ax(3,false);
   ax(1)=true;
@@ -274,14 +272,10 @@ void DelayFFT::FFT() {
   ArrayLattice<Complex> c(Vpad_);
   LatticeFFT::cfft0(c,ax,true);
 
-  //  cout << "...end DelayFFT::FFT()" << endl;
-
 }
 
 void DelayFFT::shift(Double f) {
 
-  //  cout << "DelayFFT::shift(f)..." << endl;
-    
   Double shift=-(f0_-f)/df_;                    // samples  
   Vector<Double> ph(nPadChan_);  indgen(ph);   // indices
   //  ph-=Double(nPadChan_/2);                     // centered
@@ -303,8 +297,6 @@ void DelayFFT::shift(Double f) {
       v*=sh;
     }
 
-  //  cout << "... end DelayFFT::shift(f)" << endl;
-
 }
 
 
@@ -314,9 +306,6 @@ void DelayFFT::add(const DelayFFT& other) {
   //  cout << "DelayFFT::add(x)..." << endl;
 
   IPosition osh=other.Vpad_.shape();
-
-  //  cout << "add: " << nPadChan_ << " " << other.nPadChan_ << endl;
-
 
   AlwaysAssert( (other.nCorr_==nCorr_), AipsError);
   AlwaysAssert( (other.nPadChan_<=nPadChan_), AipsError);
@@ -333,13 +322,9 @@ void DelayFFT::add(const DelayFFT& other) {
     lo+=oNchan;
   }
 
-  //  cout << "...end DelayFFT::add(x)" << endl;
-
 }
 
 void DelayFFT::searchPeak() {
-
-  //  cout << "DelayFFT::searchPeak()..." << endl;
 
   delay_.resize(nCorr_,nElem_);
   delay_.set(0.0);
@@ -396,8 +381,6 @@ void DelayFFT::searchPeak() {
   if (refant_>-1)
     flag_(Slice(),Slice(refant_,1,1))=false;
 
-  //  cout << "...end DelayFFT::searchPeak()" << endl;
-
 
 }
 
@@ -416,6 +399,82 @@ void DelayFFT::state() {
        << " flag_.shape()=" << flag_.shape()
        << endl;
     
+}
+
+// **********************************************************
+// CrossDelayFFT Implementations
+//
+
+// Construct from freq info and a data-like Cube<Complex>
+CrossDelayFFT::CrossDelayFFT(Double f0, Double df, Double padBW, 
+		   Cube<Complex> V) :
+  DelayFFT(f0,df,padBW,V)
+{}
+
+
+// Construct from freq info and shape, w/ initialization
+CrossDelayFFT::CrossDelayFFT(Double f0, Double df, Double padBW) :
+  DelayFFT(f0,df,padBW,1,1,-1,Complex(0.0))
+{}
+
+// Construct from a (single) SDB
+//  (init DelayFFT via freq info/shape ctor, and fill data _here_
+CrossDelayFFT::CrossDelayFFT(SolveDataBuffer& sdb,Double padBW) :
+  DelayFFT(sdb.freqs()(0)/1e9,
+	   (sdb.freqs()(1)-sdb.freqs()(0))/1e9,
+	   padBW,
+	   1,1,-1,Complex(0.0))
+{
+
+  AlwaysAssert(Vpad_.shape()(0)==1,AipsError);  // Working array only 1 corr
+  AlwaysAssert(Vpad_.shape()(2)==1,AipsError);  // Working array only 1 elem
+  
+  // SDB facts
+  Int nCorr=sdb.nCorrelations();
+  AlwaysAssert(nCorr==4,AipsError);   // Must have full set of correlations!
+  Int nChan=sdb.nChannels();
+  Int nRow=sdb.nRows();
+  
+  //  this->state();
+
+
+  // Fill the relevant data
+  Vpad_.set(Complex(0.0));
+  for (Int irow=0;irow<nRow;++irow) {
+    Int a1(sdb.antenna1()(irow)), a2(sdb.antenna2()(irow));
+    if (!sdb.flagRow()(irow) && a1!=a2) {  // not flagged, not an AC
+
+      Slicer pq(Slice(1,1,1),Slice(),Slice(irow,1,1));  // first cross-hand
+      Slicer qp(Slice(2,1,1),Slice(),Slice(irow,1,1));  // second cross-hand
+
+      Cube<Complex> Vcross;
+      Vcross=sdb.visCubeCorrected()(pq);
+      Vcross+=conj(sdb.visCubeCorrected()(qp));
+      
+      // Flag combination where either cross-hand flagged
+      Vcross(sdb.flagCube()(pq))=Complex(0.0);
+      Vcross(sdb.flagCube()(qp))=Complex(0.0);
+
+      // Divide by non-zero amps
+      Cube<Float> vCa(amplitude(Vcross));
+      vCa(vCa<FLT_EPSILON)=1.0;
+      Vcross/=vCa;
+
+      // Zero flagged channels
+      Cube<Bool> flpq(sdb.flagCube()(pq));
+      Vcross(flpq)=Complex(0.0);
+      Cube<Bool> flqp(sdb.flagCube()(qp));
+      Vcross(flqp)=Complex(0.0);
+
+      // TBD: apply weights
+      //      Matrix<Float> wt(vb.weightMat()(Slice,Slice(irow,1,1)));
+
+      // Acquire this baseline for solving
+      Slicer sl1(Slice(),Slice(0,nChan,1),Slice()); // add to this Vpad_ slice
+      Vpad_(sl1)=Vpad_(sl1)+Vcross;
+    }
+  }
+	      
 }
 
 
@@ -1145,13 +1204,13 @@ void KcrossJones::selfSolveOne(VisBuffGroupAcc& vbga) {
 
 void KcrossJones::selfSolveOne(SDBList& sdbs) {
 
-  // Trap MBD attempt (NYI)
-  if (sdbs.nSDB()!=1) 
-    throw(AipsError("KcrossJones does not yet support MBD"));
-  //    this->solveOneVBmbd(vbga);
+  // Do MBD if more than one SolveDataBuffer
+  if (sdbs.nSDB()>1) 
+    this->solveOneSDBmbd(sdbs);
 
-  // otherwise, call the single-VB solver with the first VB in the vbga
+  // otherwise, call the single-SDB solver with the first (and only) SDB in SDBLIST
   else
+    //this->solveOneSDBmbd(sdbs);
     this->solveOneSDB(sdbs(0));
 
 }
@@ -1339,6 +1398,60 @@ void KcrossJones::solveOneSDB(SolveDataBuffer& sdb) {
 	    << " Global cross-hand delay=" << delay << " nsec"
 	    << LogIO::POST;
 }
+
+void KcrossJones::solveOneSDBmbd(SDBList& sdbs) {
+
+  Int nbuf=sdbs.nSDB();
+  
+  Vector<Int> nch(nbuf,0);
+  Vector<Double> f0(nbuf,0.0);
+  Vector<Double> df(nbuf,0.0);
+  Double flo(1e15),fhi(0.0);
+
+  for (Int ibuf=0;ibuf<nbuf;++ibuf) {
+    SolveDataBuffer& sdb(sdbs(ibuf));
+    Vector<Double> chf(sdb.freqs());
+    nch(ibuf)=sdbs(ibuf).nChannels();
+    f0(ibuf)=chf(0)/1.0e9;           // GHz
+    df(ibuf)=(chf(1)-chf(0))/1.0e9;  // GHz
+    flo=min(flo,f0[ibuf]);
+    fhi=max(fhi,f0[ibuf]+nch[ibuf]*df[ibuf]);
+  }
+  Double tbw=fhi-flo;
+
+  Double ptbw=tbw*8;  // pad total bw by 8X
+  // TBD:  verifty that all df are factors of tbw
+
+  /*
+  cout << "tbw = " << tbw << "  (" << flo << "-" << fhi << ")" << " resoln=" << 1.0/tbw
+       << ";   ptbw = " << ptbw << " resoln=" << 1/ptbw
+       << endl;
+  */
+
+  // Must always have 4 correlations when doing cross-hand delays
+  Int nCor=sdbs(0).nCorrelations();
+  AlwaysAssert(nCor==4,AipsError);
+  
+  CrossDelayFFT sumfft(f0[0],min(df),ptbw);
+  for (Int ibuf=0;ibuf<nbuf;++ibuf) {
+    CrossDelayFFT delfft1(sdbs(ibuf),ptbw);
+    delfft1.FFT();
+    delfft1.shift(f0[0]);
+    sumfft.add(delfft1);
+
+    delfft1.searchPeak();
+  }
+
+  sumfft.searchPeak();
+
+  // Keep solution (same for all antennas in first pol)
+  solveRPar()(Slice(0,1,1),Slice(),Slice())=sumfft.delay()(0,0);
+  solveParOK()=true;
+
+
+}
+
+
 
 // **********************************************************
 //  KMBDJones Implementations
