@@ -9,7 +9,6 @@
 #include <casa/aipstype.h>
 #include <msvis/MSVis/VisibilityIterator2.h>
 #include <msvis/MSVis/VisBufferImpl.h>
-#include <msvis/MSVis/VisBufferImpl.h>
 #include <msvis/MSVis/VisBufferAsyncWrapper.h>
 #include <msvis/MSVis/UtilJ.h>
 #include <casa/Arrays/ArrayMath.h>
