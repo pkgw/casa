@@ -448,15 +448,30 @@ class ia_pv_test(unittest.TestCase):
     def test_history(self):
         """Verify history is written to created image"""
         myia = self.ia
-        myia.fromshape("", [30, 30, 30])
+        imagename = "zz.im"
+        myia.fromshape(imagename, [30, 30, 30])
         length = "14arcmin"
         center = [15, 15]
         bb = myia.pv("", center=center, length=length, pa="45deg")
         myia.done()
         msgs = bb.history()
         bb.done()
-        self.assertTrue("ia.pv" in msgs[-2])
-        self.assertTrue("ia.pv" in msgs[-1])
+        teststr = "ia.pv"
+        self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
+        self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
+        
+        outfile = "zz_out.im"
+        impv(
+            imagename=imagename, mode="length", center=center,
+            length=length, pa="45deg", outfile=outfile
+        )
+        myia.open(outfile)
+        msgs = myia.history()
+        myia.done()
+        teststr = "version"
+        self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
+        teststr = "impv"
+        self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
         
     def test_CAS10968(self):
         """Fix for pa=90,270 when segment y pixel falls on half pixel"""
