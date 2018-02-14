@@ -332,7 +332,8 @@ void PlotMSAtm::getMedianPwv() {
           } else if (mstab.keywordSet().fieldNumber("ASDM_CALATMOSPHERE") > -1) {
             subname = tableName_ + "::ASDM_CALATMOSPHERE";
             subtable = Table::openTable(subname);
-            waterCol = ArrayColumn<casacore::Double>(subtable, "water").getColumn();
+            Array<Double> waterColArray = ArrayColumn<casacore::Double>(subtable, "water").getColumn();
+			waterCol = waterColArray(Slicer(Slice(0), Slice()));
             timesCol = ScalarColumn<casacore::Double>(subtable, "startValidTime").getColumn();
             mstab.closeSubTables();
           }
@@ -498,6 +499,7 @@ casacore::Vector<T> PlotMSAtm::getValuesNearTimes(
             mintimediff = min(mintimediff, abs(times_(i)-timesCol(j)));
         }
     }
+
     // now get index of values within 1 sec of minimum timediff
     casacore::Vector<casacore::uInt> values;
     casacore::uInt vsize(0);

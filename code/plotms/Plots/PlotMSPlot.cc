@@ -1680,12 +1680,13 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 		} else {                                          // get range of all data
 			itsCache_->indexer(0,iteration).minsMaxes(xmin, xmax, ymin, ymax);
 		}
+		bool xPtsToPlot(xmin != DBL_MAX), yPtsToPlot(ymin != DBL_MAX);
 
 		// x range
 		if ( axesParams->xRangeSet() ){
 			// Custom axes ranges set by user
 			canvas->setAxisRange(cx, axesParams->xRange());
-		} else {
+		} else if (xPtsToPlot) {
 			// CAS-3263 points near zero are not plotted, so add lower margin
 			if ((xmin > -0.5) && (xmin < 1.0) && (xmax > 10.0)) {
 				if (xmax > 100.0) xmin -= 1.0; // add larger margin for larger range
@@ -1713,7 +1714,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 			if ( axesParams->yRangeSet(i) ){
 				// Custom axes ranges set by user
 				canvas->setAxisRange(cy, axesParams->yRange(i));
-			} else {
+			} else if (yPtsToPlot) {
 				PMS::Axis y = cacheParams->yAxis(i);
 				// add margin if showAtm so overlay doesn't overlap plot
 				if ((cacheParams->showAtm() && y!=PMS::ATM) ||
