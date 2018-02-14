@@ -5,7 +5,15 @@ import sdutil
 from collections import Counter
 ms,sdms,tb,msmd = gentools(['ms','sdms','tb', 'msmd'])
 
-def sdbaseline(infile=None, datacolumn=None, antenna=None, field=None, spw=None, timerange=None, scan=None, pol=None, intent=None, maskmode=None, thresh=None, avg_limit=None, minwidth=None, edge=None, blmode=None, dosubtract=None, blformat=None, bloutput=None, bltable=None, blfunc=None, order=None, npiece=None, applyfft=None, fftmethod=None, fftthresh=None, addwn=None, rejwn=None, clipthresh=None, clipniter=None, blparam=None, verbose=None, showprogress=None, minnrow=None, outfile=None, overwrite=None):
+def sdbaseline(infile=None, datacolumn=None, antenna=None, field=None,
+               spw=None, timerange=None, scan=None, pol=None, intent=None,
+               reindex=None, maskmode=None, thresh=None, avg_limit=None,
+               minwidth=None, edge=None, blmode=None, dosubtract=None,
+               blformat=None, bloutput=None, bltable=None, blfunc=None,
+               order=None, npiece=None, applyfft=None, fftmethod=None,
+               fftthresh=None, addwn=None, rejwn=None, clipthresh=None,
+               clipniter=None, blparam=None, verbose=None, showprogress=None,
+               minnrow=None, outfile=None, overwrite=None):
 
     casalog.origin('sdbaseline')
     try:
@@ -40,7 +48,8 @@ def sdbaseline(infile=None, datacolumn=None, antenna=None, field=None, spw=None,
             sdms.open(infile)
             sdms.set_selection(spw=sdutil.get_spwids(selection), field=field, 
                                antenna=antenna, timerange=timerange, 
-                               scan=scan, polarization=pol, intent=intent)
+                               scan=scan, polarization=pol, intent=intent,
+                               reindex=reindex)
             sdms.apply_baseline_table(bltable=bltable,
                                       datacolumn=datacolumn,
                                       spw=spw,
@@ -75,7 +84,8 @@ def sdbaseline(infile=None, datacolumn=None, antenna=None, field=None, spw=None,
             sdms.set_selection(spw=sdutil.get_spwids(selection),
                                field=field, antenna=antenna,
                                timerange=timerange, scan=scan,
-                               polarization=pol, intent=intent)
+                               polarization=pol, intent=intent,
+                               reindex=reindex)
             params, func = prepare_for_baselining(blfunc=blfunc,
                                                   datacolumn=datacolumn,
                                                   outfile=outfile,
