@@ -134,6 +134,11 @@ private:
       const casacore::Vector<casacore::Vector<casacore::Slice> >& chansel,
 	  casacore::Vector<casacore::Double>& chanFreqs,
       casacore::Vector<casacore::Int>& chanNums);
+  // cube selected by channel:
+  template<class T>
+  void getSelectedCube(const casacore::Cube<T>& inputCube,
+	const casacore::Vector<casacore::Slice>& chanSlices,
+	casacore::Cube<T>& outputCube);
 
   // GSPLINE CalTable:
   void loadGSpline(vector<PMS::Axis>& loadAxes,
@@ -142,9 +147,10 @@ private:
       casacore::Int nsample, const vector<PMS::Axis> loadAxes,
 	  casacore::Vector<int>& selectedAnts, ThreadCommunication* thread);
   void checkAxes(const vector<PMS::Axis>& loadAxes);
+  // cube selected by antenna1:
   template<class T>
   void getSelectedCube(casacore::Cube<T>& inputcube,
-      casacore::Vector<casacore::Int> selectedRows);
+      const casacore::Vector<casacore::Int> selectedRows);
 
   // Utilities for all cal tables:
   // Get axis string for VisCal Slice code

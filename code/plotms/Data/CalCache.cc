@@ -941,8 +941,8 @@ void CalCache::loadCalChunks(ROBJonesPolyMCol& mcol, ROCalDescColumns& dcol,
 
   // These change when spw changes
   Int lastSpw(-1), nChan(0);
-  Vector<Double> chanFreqs; // per spw/chansel
-  Vector<Int> chanNums;      // per spw/chansel
+  Vector<Double> selChanFreqs; // per spw/chansel
+  Vector<Int> selChanNums;     // per spw/chansel
 
   // load axes: each row of main table is a "chunk"
   for (Int row = 0; row < nrow; row++) {
@@ -953,9 +953,9 @@ void CalCache::loadCalChunks(ROBJonesPolyMCol& mcol, ROCalDescColumns& dcol,
     Int ant1 = mcol.antenna1()(row);
 
     if (spw != lastSpw) { // only do this once per spw
-      // get chanfreqs and chan ids for spw and channel selection
-      getFreqsForSpw(spw, mschanfreqs, chansel, chanFreqs, chanNums);
-      nChan = chanFreqs.nelements();
+      // get chanfreqs and chan nums for spw and channel selection
+      getFreqsForSpw(spw, mschanfreqs, chansel, selChanFreqs, selChanNums);
+      nChan = selChanFreqs.nelements();
       lastSpw = spw;
     }
 
@@ -967,13 +967,14 @@ void CalCache::loadCalChunks(ROBJonesPolyMCol& mcol, ROCalDescColumns& dcol,
     goodChunk_(row) = True;
 
     // use ant1 id for cube slicer (vis, flag, snr)
-    Slice chanSlice = Slice();
+	Bool simpleChanSel(True);   // no selection or single slice
+    Slice chanSlice = Slice();  // select all
     if (!chansel.empty()) {
       Vector<Slice> chanSliceVec = chansel(spw);
       if (chanSliceVec.size() == 1)
-        chanSlice = chanSliceVec(0);
-      else 
-        throw(AipsError("SORRY, your channel selection is too complicated"));
+        chanSlice = chanSliceVec(0);  // one slice
+      else   // will have to concat sliced cubes
+        simpleChanSel = False;
     }
     Slicer slicer = Slicer(parslice, chanSlice, Slice(ant1));
 
@@ -983,31 +984,54 @@ void CalCache::loadCalChunks(ROBJonesPolyMCol& mcol, ROCalDescColumns& dcol,
       if (PMS::axisIsData(axis)) {
         Cube<Complex> cpar, viscube;
         bpoly->solveAllCPar(spw, cpar);
-        viscube = cpar(slicer);
+        viscube = cpar(slicer);  // slice poln, chan, ant1
         // get amp, phase, real, imag from viscube
-        getCalDataAxis(axis, viscube, row);
+		if (simpleChanSel) {
+          getCalDataAxis(axis, viscube, row);
+		} else {
+          // process chan slices
+		  Cube<Complex> selViscube;
+		  getSelectedCube(viscube, chansel(spw), selViscube);
+          getCalDataAxis(axis, selViscube, row);
+		}
       } else {
         switch(axis) {
           case PMS::FLAG: {
-            Cube<Bool> parOK;
+            Cube<Bool> parOK, flagcube;
             bpoly->solveAllParOK(spw, parOK);
+			flagcube = !(parOK(slicer)); // slice poln, chan, ant1
             // OK=true means flag=false
-            *flag_[row] = !(parOK(slicer));
+		    if (simpleChanSel) {
+              *flag_[row] = flagcube;
+			} else {
+			  // process chan slices
+			  Cube<Bool> selFlagcube;
+		      getSelectedCube(flagcube, chansel(spw), selFlagcube);
+			  *flag_[row] = selFlagcube;
+            }
             break;
-      }
+          }
           case PMS::SNR: {
-            Cube<Float> snrcube;
-            bpoly->solveAllParSNR(spw, snrcube);
-            *snr_[row] = snrcube(slicer);
+            Cube<Float> parSNR, snrcube;
+            bpoly->solveAllParSNR(spw, parSNR);
+			snrcube = parSNR(slicer); // slice poln, chan, ant1
+		    if (simpleChanSel) {
+              *snr_[row] = snrcube;
+			} else {
+			  // process chan slices
+			  Cube<Float> selSNRcube;
+		      getSelectedCube(snrcube, chansel(spw), selSNRcube);
+              *snr_[row] = selSNRcube;
+			}
             break;
           }
           case PMS::CHANNEL: {
-            *chan_[row] = chanNums;
+            *chan_[row] = selChanNums;
             break;
           }
           case PMS::FREQUENCY: {
             // TBD: Convert freq to desired frame
-            *freq_[row] = chanFreqs;
+            *freq_[row] = selChanFreqs;
             (*freq_[row]) /= 1.0e9; // in GHz
             break;
           }
@@ -1167,6 +1191,23 @@ void CalCache::getFreqsForSpw(const Int spw, const Array<Double>& msChanfreqs,
     chanNums.resize();
     chanNums = selChanNums;
   }
+}
+
+template<class T>
+void CalCache::getSelectedCube(const Cube<T>& inputCube, const Vector<Slice>& chanSlices,
+    Cube<T>& outputCube) {
+  // Concatenate channel-sliced arrays
+  // Reorder cube to make channel last axis for concatenate
+  Cube<T> reorderedCube = reorderArray(inputCube, IPosition(3,0,2,1));
+  Cube<T> selectedCube;
+  for (uInt islice=0; islice < chanSlices.size(); ++islice) {
+	Slicer chanSlicer = Slicer(Slice(), Slice(), chanSlices(islice));
+    Cube<T> concatCube = concatenateArray(selectedCube, reorderedCube(chanSlicer));
+    selectedCube.resize();
+    selectedCube = concatCube;
+  }
+  // reorder back to (npol, nchan, nant)
+  outputCube = reorderArray(selectedCube, IPosition(3,0,2,1)); 
 }
 
 // ======================== end BPOLY ==========================
@@ -1463,7 +1504,7 @@ void CalCache::checkAxes(const vector<PMS::Axis>& loadAxes) {
 }
 
 template<class T>
-void CalCache::getSelectedCube(Cube<T>& inputCube, Vector<Int> selectedRows) {
+void CalCache::getSelectedCube(Cube<T>& inputCube, const Vector<Int> selectedRows) {
   // replaces input cube with cube selected by rows in vector
   Cube<T> selectedCube;
   for (uInt irow=0; irow<selectedRows.size(); ++irow) {
