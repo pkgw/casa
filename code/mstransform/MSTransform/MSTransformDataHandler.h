@@ -331,7 +331,7 @@ protected:
 			intentString_p, // Selects scans by string.  scanString_p was taken.
 			obsString_p, // casacore::String for observationID selection.
 			uvrangeString_p, taqlString_p, feedString_p;
-	casacore::String timeRange_p, arrayExpr_p, corrString_p;
+	casacore::String timeRange_p, arrayExpr_p, corrString_p, spwString_p;
 	casacore::String combine_p; // Should time averaging not split bins by
 	// scan #, observation, and/or state ID?
 	// Must be lowercase at all times.
