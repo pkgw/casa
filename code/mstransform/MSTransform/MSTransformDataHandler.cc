@@ -1144,8 +1144,13 @@ Bool MSTransformDataHandler::makeSelection()
 			trivial &= (selAnts[k] == static_cast<Int> (k));
 			antNewIndex_p[selAnts[k]] = k;
 		}
-		// It is possible to exclude baselines without excluding any antennas.
-		antennaSel_p = !trivial;
+
+    //It is possible to exclude baselines without excluding any antennas.
+    //This is controlled by variable trivial. However if the number of 
+    //output antennas is different we already know that the selection wasn't
+    //trivial. See CAS-11111
+    if(antNewIndex_p.nelements() == elms->antenna().nrow())
+		  antennaSel_p = !trivial;
 	}
 	// This still gets tripped up by VLA:OUT.
 	else
