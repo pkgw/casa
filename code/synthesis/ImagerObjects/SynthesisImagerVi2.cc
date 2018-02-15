@@ -2125,7 +2125,7 @@ void SynthesisImagerVi2::unlockMSs()
 		MDirection newMovingDir;
 		getMovingDirection(*vb, newMovingDir);
 		newPhaseCenter=vb->phaseCenter();
-		newPhaseCenter.shift(MVDirection(-newMovingDir.getAngle()+origMovingDir.getAngle()), True);
+		newPhaseCenter.shift(MVDirection(-newMovingDir.getAngle()+origMovingDir.getAngle()), False);
 	      }
 	      itsMappers.addPB(*vb,pbMath, newPhaseCenter, trackBeam);
 	      

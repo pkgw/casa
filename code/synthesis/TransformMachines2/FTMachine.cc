@@ -920,7 +920,7 @@ using namespace casa::vi;
 	//phasecenter.set(MVDirection(phasecenter.getAngle()+firstMovingDir_p.getAngle()-sourcenow.getAngle()));
 	 movingDirShift_p=MVDirection(sourcenow.getAngle()-firstMovingDir_p.getAngle());
 	 // cerr << "shift " << movingDirShift_p.getAngle() << endl;
-	inFieldPhaseCenter.shift(movingDirShift_p, True);
+	inFieldPhaseCenter.shift(movingDirShift_p, False);
     }
 
 
@@ -1043,7 +1043,7 @@ using namespace casa::vi;
   	//cerr << "Rotating to fixed moving source " << MVDirection(phasecenter.getAngle()-firstMovingDir_p.getAngle()+sourcenow.getAngle()) << endl;
   	//phasecenter.set(MVDirection(phasecenter.getAngle()+firstMovingDir_p.getAngle()-sourcenow.getAngle()));
 	  movingDirShift_p=MVDirection(sourcenow.getAngle()-firstMovingDir_p.getAngle());
-	  phasecenter.shift(movingDirShift_p, True);
+	  phasecenter.shift(movingDirShift_p, False);
 	  //cerr    << sourcenow.toString() <<"  "<<(vbutil_p->getPhaseCenter(vb, phaseCenterTime_p)).toString() <<  " difference " << firstMovingDir_p.getAngle() - sourcenow.getAngle() << endl;
       }
 
