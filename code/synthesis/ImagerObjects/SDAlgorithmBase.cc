@@ -123,6 +123,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	    Float startpeakresidual = 0.0;
 	    Float startmodelflux = 0.0;
+            Array<Double> robustrms;
+
 	    Bool validMask = ( itsImages->getMaskSum() > 0 );
 
 	    if( validMask ) peakresidual = itsImages->getPeakResidualWithinMask();
@@ -132,9 +134,21 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    startpeakresidual = peakresidual;
 	    startmodelflux = modelflux;
 
+            // returns as an Array but itsImages is already single plane so 
+            // the return rms contains only a single element
+            robustrms = itsImages->calcRobustRMS();
+            Float nsigma = 10.0; // will set by user, fixed for 3sigma for now.
+            Float nsigmathresh = nsigma * (Float)robustrms(IPosition(1,0)); 
+              
+            Float thresholdtouse = max( nsigmathresh, loopcontrols.getCycleThreshold());
+            String thresholddesc = (thresholdtouse == loopcontrols.getCycleThreshold() ? "cyclethreshold" : "n-sigma");
+
 	    loopcontrols.setPeakResidual( peakresidual );
 	    loopcontrols.resetMinResidual(); // Set it to current initial peakresidual.
+
+            
 	    stopCode = checkStop( loopcontrols,  peakresidual );
+
 
 	    // stopCode=0;
 
@@ -149,17 +163,21 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// Init the deconvolver
 		initializeDeconvolver();
 
-
+                os << "I'm HERE before while stopCode="<<stopCode<<LogIO::POST;
 		while ( stopCode==0 )
 		  {
 
+                    os << "Using " << thresholddesc << " for threshold criterion: cyclethreshold value="<<loopcontrols.getCycleThreshold()<< " nsigma="<<nsigmathresh << LogIO::POST;
 		    Int thisniter = loopcontrols.getCycleNiter() <5000 ? loopcontrols.getCycleNiter() : 2000;
+                    os << "Done getCycleNiter " << LogIO::POST;
 
 		    loopcontrols.setPeakResidual( peakresidual );
+                    os << " SetPeakRes " << LogIO::POST;
 		    takeOneStep( loopcontrols.getLoopGain(), 
 				 //				 loopcontrols.getCycleNiter(),
 				 thisniter,
-				 loopcontrols.getCycleThreshold(),
+				 //loopcontrols.getCycleThreshold(),
+				 thresholdtouse,
 				 peakresidual, 
 				 modelflux,
 				 iterdone);
@@ -188,6 +206,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		    
 		  }// end of minor cycle iterations for this subimage.
 		
+                os << " calling finilizeDecnovler ..."<<LogIO::POST;
 		finalizeDeconvolver();
 
 	      }// if validmask
@@ -225,6 +244,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	      case 5:
 		os << ", Exited " << itsAlgorithmName << " minor cycle without reaching any stopping criterion.";
 		break;
+              case 6:
+                os << ", Reached n-sigma threshold.";
 	      default:
 		break;
 	      }
