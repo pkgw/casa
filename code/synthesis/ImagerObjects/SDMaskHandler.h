@@ -179,11 +179,13 @@ public:
                                           const casacore::Int growIterations=100); 
                            
   // Calculate statistics on a residual image with additional region and LEL mask specificaations
+  /***
   casacore::Record calcImageStatistics(casacore::ImageInterface<casacore::Float>& res, 
                                        casacore::ImageInterface<casacore::Float>& prevmask, 
                                        casacore::String& lelmask,
                                        casacore::Record* regionPtr,
                                        const casacore::Bool robust);
+  ***/
 
   SHARED_PTR<casacore::ImageInterface<float> > makeMaskFromBinnedImage (
                                const casacore::ImageInterface<casacore::Float>& image,
@@ -305,6 +307,11 @@ public:
   static casacore::Bool cloneImShape(const casacore::ImageInterface<casacore::Float>& inImage, const casacore::String& outImageName);
   // max MB of memory to use in TempImage
   static inline casacore::Double memoryToUse() {return 1.0;};
+
+  static casacore::Record calcImageStatistics(casacore::ImageInterface<casacore::Float>& res, 
+                                       casacore::String& lelmask,
+                                       casacore::Record* regionPtr,
+                                       const casacore::Bool robust);
 
 protected:
   InteractiveMasking *interactiveMasker_p;
