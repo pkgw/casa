@@ -99,7 +99,7 @@ _ia = iatool( )
 _rg = rgtool( )
 
 sep = os.sep
-datapath=os.environ.get('CASAPATH').split()[0] + sep + 'data' + sep\
+datapath = os.environ.get('CASAPATH').split()[0] + sep + 'data' + sep\
     + 'regression' + sep + 'unittest' + sep + 'immath' + sep
 
 cas1452_1_im = 'CAS-1452-1.im'
@@ -1682,7 +1682,7 @@ class immath_test3(unittest.TestCase):
         self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
         
     def test_flush(self):
-        "CAS-8570: ensure image is flushed to disk when it is created"""
+        """CAS-8570: ensure image is flushed to disk when it is created"""
         myia = iatool()
         myia.fromshape("jj.im", [20,20,20])
         myia.fromshape("kk.im", [20,20,20])
@@ -1691,6 +1691,24 @@ class immath_test3(unittest.TestCase):
         self.assertTrue(myia.open(outfile))
         myia.done()
         zz.done()
+
+    def test_poli_sigma(self):
+        """Verify poli sigma fix, CAS-8880"""
+        snumeric = 0.0044
+        sigma = str(snumeric) + "Jy/beam"
+        imagename = datapath + "poli_sigma_test.im"
+        outfile = "myout.im"
+        immath(imagename=imagename, outfile=outfile, mode='poli', sigma=sigma)
+        myia = iatool()
+        myia.open(imagename)
+        pix = myia.getchunk()
+        expec = numpy.sqrt(pix[:,:,1]**2 + pix[:,:,2]**2 + pix[:,:,3]**2 - snumeric**2)
+        expec = expec.reshape([20, 20, 1])
+        myia.open(outfile)
+        got = myia.getchunk()
+        myia.done()
+        rtol = 1e-5
+        self.assertTrue(numpy.all(numpy.isclose(expec, got, rtol)), "Failed poli sigma test")
 
 def suite():
     return [immath_test1, immath_test2, immath_test3]

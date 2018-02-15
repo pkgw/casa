@@ -72,8 +72,10 @@ public:
     // a relative value (i.e., +X seconds past a reference date); otherwise it
     // is treated as an absolute value.  For relative values years, months, and
     // days are ignored.
-    static casacore::String formattedDateString(const casacore::String& format, double value,
-            PlotAxisScale scale, bool isRelative = false);
+	// Default precision for seconds is 4; use secPrecision to change this
+    static casacore::String formattedDateString(const casacore::String& format,
+			double value, PlotAxisScale scale, bool isRelative = false,
+			int secPrecision=-1);
     
     
     // Non-Static //

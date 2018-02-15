@@ -579,11 +579,12 @@ Bool CTPatchedInterp::interpolate(Int msobs, Int msfld, Int msspw, Double time, 
   uInt nMSChan=freq.nelements();
 
   // Ensure freq result Array is properly sized
-  if (freqResult_(msspw,msfld,thisobs(msobs)).nelements()!=nMSChan) {
+  if (freqResult_(msspw,msfld,thisobs(msobs)).nelements()==0) {
      Int thisAltFld=altFld_(msfld);
-     if (freqResult_(msspw,thisAltFld,thisobs(msobs)).nelements()!=nMSChan) {
+     if (freqResult_(msspw,thisAltFld,thisobs(msobs)).nelements()==0) {
        freqResult_(msspw,thisAltFld,thisobs(msobs)).resize(nFPar_,nMSChan,nMSElem_);
        freqResFlag_(msspw,thisAltFld,thisobs(msobs)).resize(nPar_,nMSChan,nMSElem_);
+       freqResFlag_(msspw,thisAltFld,thisobs(msobs)).set(true);
      }
      if (thisAltFld!=msfld) {
        freqResult_(msspw,msfld,thisobs(msobs)).reference(freqResult_(msspw,thisAltFld,thisobs(msobs)));
@@ -827,6 +828,7 @@ void CTPatchedInterp::makeInterpolators() {
 	  if (timeResult_(iMSSpw,iMSFld,iMSObs).nelements()==0) {
 	    timeResult_(iMSSpw,iMSFld,iMSObs).resize(nFPar_,nChanIn_(spwMap_(iMSSpw)),nMSElem_);
 	    timeResFlag_(iMSSpw,iMSFld,iMSObs).resize(nPar_,nChanIn_(spwMap_(iMSSpw)),nMSElem_);
+	    timeResFlag_(iMSSpw,iMSFld,iMSObs).set(true);
 	  }
 	  for (Int iMSElem=0;iMSElem<nMSElem_;++iMSElem) {
 	    // Realize the mapping 

@@ -2245,10 +2245,10 @@ VisibilityIteratorImpl2::makeChannelSelectorC(
 	if (selection.refinementNeeded()) {
 		auto spwcFetcher =
 			[this, msId]
-			(int spectralWindowId, double lowerFrequency, double upperFrequency)
+			(int spwId, double lowerFrequency, double upperFrequency)
 			{
 				const SpectralWindowChannels & spwChannels =
-				getSpectralWindowChannels(msId, spectralWindowId);
+				getSpectralWindowChannels(msId, spwId);
 				return spwChannels.getIntersection(
 					lowerFrequency, upperFrequency);
 			};
@@ -3022,6 +3022,8 @@ VisibilityIteratorImpl2::exposure(Vector<Double> & expo) const
 void
 VisibilityIteratorImpl2::visibilityCorrected(Cube<Complex> & vis) const
 {
+  if(columns_p.corrVis_p.isNull())
+    throw AipsError("Requesting visibilityCorrected but column is null");
 	getColumnRows(columns_p.corrVis_p, vis);
 }
 
@@ -3053,6 +3055,8 @@ VisibilityIteratorImpl2::visibilityObserved(Cube<Complex> & vis) const
 		convertArray(vis, dataFloat);
 	}
 	else {
+	  if(columns_p.vis_p.isNull())
+	    throw AipsError("Requesting visibilityObserved but column is null");
 		getColumnRows(columns_p.vis_p, vis);
 	}
 }

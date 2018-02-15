@@ -7,6 +7,7 @@ class MeasurementSet;
 class MSSelector;
 class LogIO;
 class MSSelection;
+class ROMSColumns;
 }
 
 namespace casa

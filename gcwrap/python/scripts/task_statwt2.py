@@ -2,12 +2,25 @@ from taskinit import mstool, tbtool, casalog, write_history
 import flaghelper
 
 def statwt2(
-    vis, field, spw, intent, array, observation, combine,
+    vis, selectdata, field, spw, intent, array, observation, combine,
     timebin, slidetimebin, chanbin, minsamp, statalg, fence, center,
     lside, zscore, maxiter, excludechans, wtrange,
     flagbackup, preview, datacolumn
 ):
     casalog.origin('statwt2')
+    if not selectdata:
+        # CAS-10761, requirement provided by Urvashi
+        if field or spw or intent or array or observation:
+            casalog.post(
+                "selectdata=False, any explicitly set data "
+                + "selection parameters will be ignored",
+                "WARN"
+            )
+        field = ""
+        spw = ""
+        intent = ""
+        array = ""
+        observation = ""
     try:
         if (flagbackup):
             if (preview):
@@ -34,7 +47,7 @@ def statwt2(
         #sel['feed'] = feed
         # Select the data. Only-parse is set to false.
         myms.msselect(sel, False)
-        myms.statwt2(
+        return myms.statwt2(
             combine=combine, timebin=timebin,
             slidetimebin=slidetimebin, chanbin=chanbin,
             minsamp=minsamp, statalg=statalg, fence=fence,
@@ -42,7 +55,6 @@ def statwt2(
             maxiter=maxiter, excludechans=excludechans,
             wtrange=wtrange, preview=preview, datacolumn=datacolumn
         ) 
-        return True
     except Exception, instance:
         casalog.post( '*** Error ***'+str(instance), 'SEVERE' )
         raise

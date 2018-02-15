@@ -79,7 +79,8 @@ SimpleSimVi2Parameters::SimpleSimVi2Parameters(Int nField,Int nScan,Int nSpw,Int
 					       const Vector<Int>& nTimePerField,const Vector<Int>& nChan,
 					       Complex c0,
 					       String polBasis,
-					       Bool autoPol,Bool doParang) :
+					       Bool autoPol,Bool doParang,
+					       Bool doAC) :
   nField_(nField),
   nScan_(nScan),
   nSpw_(nSpw),
@@ -97,7 +98,7 @@ SimpleSimVi2Parameters::SimpleSimVi2Parameters(Int nField,Int nScan,Int nSpw,Int
   tsys_(Matrix<Float>(1,1,1.0)),
   doNorm_(False),
   polBasis_(polBasis),
-  doAC_(False),
+  doAC_(doAC),
   c0_(c0),
   autoPol_(autoPol),
   doParang_(doParang)
@@ -325,7 +326,7 @@ SimpleSimVi2::SimpleSimVi2 (const SimpleSimVi2Parameters& pars)
     lastSpw_(-1),
     thisTime_(0.0),
     corrdef_(4,Stokes::Undefined),
-    vb_(0),
+    vb_(nullptr),
     phaseCenter_(),
     feedpa_()
 {
@@ -398,7 +399,7 @@ SimpleSimVi2::SimpleSimVi2 (const SimpleSimVi2Parameters& pars)
   }
     
   VisBufferOptions vbopt=VbWritable;
-  vb_ = createAttachedVisBuffer(vbopt);
+  vb_.reset(createAttachedVisBuffer(vbopt));
 
 }
 
@@ -573,7 +574,7 @@ VisBuffer2 * SimpleSimVi2::getVisBuffer (const VisibilityIterator2 * vi)
 }
   */
 
-VisBuffer2 * SimpleSimVi2::getVisBuffer () const { return vb_; }
+VisBuffer2 * SimpleSimVi2::getVisBuffer () const { return vb_.get(); }
 
   //   +=========================+
   //   |                         |

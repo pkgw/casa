@@ -399,7 +399,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	foundFullImage = false;
       }
 
-    os << LogIO::POST << " Found full images : " << foundFullImage << LogIO::POST;
+    os << LogIO::DEBUG2 << " Found full images : " << foundFullImage << LogIO::POST;
 
     // Check if part images exist
     Bool foundPartImages = itsPartImageNames.nelements()>0 ? true : false ;
@@ -420,7 +420,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  }
       }
 
-    os << LogIO::POST << " Found part images : " << foundPartImages << LogIO::POST;
+    os << LogIO::DEBUG2 << " Found part images : " << foundPartImages << LogIO::POST;
 
     if( foundPartImages == false) 
       { 
