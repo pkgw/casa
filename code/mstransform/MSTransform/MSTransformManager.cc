@@ -1728,11 +1728,6 @@ void MSTransformManager::setup()
 		}
 	}
 
-  //Even in the case of no regridding or combinespw, if the SPW selection
-  //has less spw's than the original we need to reindex the DDI subtable. 
-  if(reindex_p && !regridding_p && !combinespws_p && !spwSelection_p.empty())
-	  reindexDDISubTable();
-	
 	// Generate Iterator
 	setIterationApproach();
 	generateIterator();
@@ -2159,11 +2154,6 @@ void MSTransformManager::initDataSelectionParams()
 			}
 		}
 		
-		//The nspws_reindex_p will be used to reindex the DDI table. If no other
-		//transformations that modify the DDI table are present we set
-		//the number of output SPWs to the selected ones.
-		if(reindex_p && !regridding_p && !combinespws_p)
-		  nspws_reindex_p = outputInputSPWIndexMap_p.size();
 	}
 
 	// jagonzal: must fill numOfSelChanMap_p
@@ -4271,12 +4261,7 @@ void MSTransformManager::reindexDDISubTable()
 
     	// Add a new row for each of the separated SPWs
     	uInt rowIndex = 0;
-      //If the nspws_reindex_p is different from -1 then we used, otherwise
-      //we use nspws_p has it was done before fixing CAS-10596
-      casacore::uInt nspws_reindex = nspws_reindex_p;
-      if(nspws_reindex_p == -1)
-        nspws_reindex = nspws_p;
-      for (uInt spw_i=0; spw_i<nspws_reindex; spw_i++)
+      for (uInt spw_i=0; spw_i<nspws_p; spw_i++)
     	{
     		if (rowIndex > 0)
     		{
@@ -4301,7 +4286,7 @@ void MSTransformManager::reindexDDISubTable()
     	}
 
         // Delete the old rows
-      uInt nrowsToDelete = ddiCols.nrow()-nspws_reindex;
+      uInt nrowsToDelete = ddiCols.nrow()-nspws_p;
     	if (nrowsToDelete > 0)
     	{
         	uInt rownr = ddiCols.nrow()-1;
