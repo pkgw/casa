@@ -8028,14 +8028,14 @@ void MSTransformManager::transformStripeOfData(Int inputSpw,
                                             outputFlagsStripe);
     auto shapeAfter = outputDataStripe.shape();
     if (shapeAfter != shapeBefore) {
-        logger_p << LogIO::SEVERE << LogOrigin("MSTransformManager",__FUNCTION__)
-                 << "Shape of output complex data stripe changed after applying "
-                 << "transformation. Output shape expected before transformation: "
-                 << shapeBefore
-                 << ". Output shape produced by transformation: " << shapeAfter
+        ostringstream msg;
+        msg << "Shape of output complex data stripe changed after applying "
+            << "transformation. Output shape expected before transformation: "
+            << shapeBefore
+            << ". Output shape produced by transformation: " << shapeAfter;
+        logger_p << LogIO::DEBUG1 << LogOrigin("MSTransformManager",__FUNCTION__)
                  << LogIO::POST;
-        throw AipsError("Shape of output data stripe is not as expected after "
-                        "applying transformation. Severe inconsistency. ");
+        throw AipsError(msg.str());
     }
 }
 
