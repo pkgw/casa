@@ -123,29 +123,6 @@ singledishms::name()
 }
 
 bool
-singledishms::_scale(float const factor, string const& datacolumn, string const& outfile, bool const timeaverage, string const& timebin, string const& timespan)
-{
-  bool rstat(false);
-  *itsLog << _ORIGIN;
-  try {
-    assert_valid_ms();
-    if (timeaverage) {
-      Record average_param = get_time_averaging_record(timeaverage,timebin,
-						       timespan);
-      itsSd->setAverage(average_param);
-    }
-
-    itsSd->scale(factor, datacolumn, outfile);
-    rstat = true;
-  } catch  (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() 
-	    << LogIO::POST;
-    RETHROW(x);
-  }
-  return rstat;
-}
-
-bool
 singledishms::subtract_baseline(string const& datacolumn,
                                 string const& outfile,
                                 string const& bloutput,
@@ -383,7 +360,8 @@ singledishms::set_selection(::casac::variant const& spw,
 		    ::casac::variant const& polarization,
 		    ::casac::variant const& beam,
 		    ::casac::variant const& intent,
-		    string const& taql)
+		    string const& taql,
+			bool const reindex)
 {
   bool rstat(false);
   *itsLog << _ORIGIN;
@@ -436,6 +414,8 @@ singledishms::set_selection(::casac::variant const& spw,
     selection_string = toCasaString(taql);
     if (selection_string != "")
       selection.define("taql", selection_string);
+
+    selection.define("reindex", Bool(reindex));
 
     itsSd->setSelection(selection);
     rstat = true;
