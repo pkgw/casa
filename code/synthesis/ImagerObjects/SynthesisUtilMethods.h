@@ -133,7 +133,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     static casacore::Int getOptimumSize(const casacore::Int npix);
 
-    static casacore::Int parseLine(char* line);
     static void getResource(casacore::String label="", casacore::String fname="");
     
     // return comprehensible direction string from given MDirection object
@@ -149,6 +148,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     static casacore::String g_hostname;
     static casacore::String g_startTimestamp;
+
+    static casacore::Int parseProcStatusLine(const std::string &str);
   };
 
 class SynthesisParams

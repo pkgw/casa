@@ -181,13 +181,20 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
 
 
-  Int SynthesisUtilMethods::parseLine(char* line){
-        int i = strlen(line);
-        while (*line < '0' || *line > '9') line++;
-        line[i-3] = '\0';
-        i = atoi(line);
-        return i;
-    }
+  /**
+   * Get values from lines of a /proc/self/status file. For example:
+   * 'VmRSS:     600 kB'
+   * @param str line from status file
+   * @return integer value (memory amount, etc.)
+   */
+  Int SynthesisUtilMethods::parseProcStatusLine(const std::string &str) {
+    istringstream is(str);
+    std::string token;
+    is >> token;
+    is >> token;
+    Int value = stoi(token);
+    return value;
+  }
 
   /**
    * Produces a name for a 'memprofile' output file. For example:
@@ -224,58 +231,71 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   {
      LogIO os( LogOrigin("SynthesisUtilMethods", "getResource", WHERE) );
 
-        FILE* file = fopen("/proc/self/status", "r");
-        int vmSize = -1, vmWHM=-1, vmRSS=-1, pid=-1;
-	int fdSize=-1;
-        char line[128];
-    
-        while (fgets(line, 128, file) != NULL){
-	  if (strncmp(line, "VmSize:", 7) == 0){
-	    vmSize = parseLine(line)/1024.0;
-	  }
-	  if (strncmp(line, "VmHWM:", 6) == 0){
-	    vmWHM = parseLine(line)/1024.0;
-	  }
-	  if (strncmp(line, "VmRSS:", 6) == 0){
-	    vmRSS = parseLine(line)/1024.0;
-	  }
+     // To hold memory stats, in MB
+     int vmSize = -1, vmWHM=-1, vmRSS=-1;
+     pid_t pid=-1;
+     int fdSize=-1;
 
-	  if (strncmp(line, "FDSize:", 7) == 0){
-	    fdSize = parseLine(line);
-	  }
-	  if (strncmp(line, "Pid:", 4) == 0){
-	    pid = parseLine(line);
-	  }
-	}
-        fclose(file);
+     // TODO: this won't probably work on anything but linux
+     ifstream procFile("/proc/self/status");
+     if (procFile.is_open()) {
+       std::string line;
+       while (not procFile.eof()) {
+	 getline(procFile, line);
+	 const std::string startVmSize = "VmSize:";
+	 if (startVmSize == line.substr(0, startVmSize.size())) {
+	   vmSize = parseProcStatusLine(line.c_str()) / 1024.0;
+	 }
+	 const std::string startVmWHM = "VmHWM:";
+	 if (startVmWHM == line.substr(0, startVmWHM.size())) {
+	   vmWHM = parseProcStatusLine(line.c_str()) / 1024.0;
+	 }
+	 const std::string startVmRSS = "VmRSS:";
+	 if (startVmRSS == line.substr(0, startVmRSS.size())) {
+	   vmRSS = parseProcStatusLine(line.c_str()) / 1024.0;
+	 }
+	 const std::string startFDSize = "FDSize:";
+	 if (startFDSize == line.substr(0, startFDSize.size())) {
+	   fdSize = parseProcStatusLine(line.c_str());
+	 }
+       }
+       procFile.close();
+     }
 
-	struct rusage usage;
-	struct timeval now;
-	getrusage(RUSAGE_SELF, &usage);
-	now = usage.ru_utime;
+     pid = getpid();
 
-	ostringstream oss;
-	
-	oss << "PID: " << pid ;
-	oss << " MemRSS: " << vmRSS << " MB.";
-	oss << " VmWHM: " << vmWHM << " MB.";
-	oss << " VirtMem: " << vmSize << " MB.";
-	oss << " ProcTime: " << now.tv_sec << "." << now.tv_usec;
-	oss << " FDSize: " << fdSize;
-	oss <<  " [" << label << "] ";
+     struct rusage usage;
+     struct timeval now;
+     getrusage(RUSAGE_SELF, &usage);
+     now = usage.ru_utime;
 
-	os << oss.str() << LogIO::NORMAL3 <<  LogIO::POST;
+     // TODO: check if this works as expected when /proc/self/status is not there
+     // Some alternative is needed for the other fields as well: VmSize, VMHWM, FDSize.
+     if (vmRSS < 0) {
+       vmRSS = usage.ru_maxrss;
+     }
 
-	// Write this to a file too...
-	if (fname.empty()) {
-	  fname = makeResourceFilename(pid);
-	}
-	if( fname.size() > 0 ) {
-	  ofstream myfile;
-	  myfile.open (fname, ios::app);
-	  myfile << oss.str() << endl;
-	  myfile.close();
-	}
+     ostringstream oss;
+     oss << "PID: " << pid ;
+     oss << " MemRSS: " << vmRSS << " MB.";
+     oss << " VmWHM: " << vmWHM << " MB.";
+     oss << " VirtMem: " << vmSize << " MB.";
+     oss << " ProcTime: " << now.tv_sec << "." << now.tv_usec;
+     oss << " FDSize: " << fdSize;
+     oss <<  " [" << label << "] ";
+     os << oss.str() << LogIO::NORMAL3 <<  LogIO::POST;
+
+     // Write this to a file too...
+     if (fname.empty()) {
+       fname = makeResourceFilename(pid);
+     }
+     if(fname.size() > 0) {
+       ofstream myfile(fname, ios::app);
+       if (myfile.is_open()) {
+	 myfile << oss.str() << endl;
+	 myfile.close();
+       }
+     }
   }
 
 
