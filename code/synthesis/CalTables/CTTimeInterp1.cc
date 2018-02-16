@@ -156,11 +156,26 @@ Bool CTTimeInterp1::interpolate(Double newtime) {
   if (newReg || (!exact && lastWasExact_)) {
     // Only bother if not 'nearest' nor exact...
     if (!timeType().contains("nearest") && !exact) { 
-      ScalarSampledFunctional<Float> xf(timelist_(Slice(newIdx,2)));
-      Vector<uInt> rows(2); indgen(rows); rows+=uInt(newIdx);
-      Array<Float> ya(mcols_p->fparamArray("",rows));
-      ArraySampledFunctional<Array<Float> > yf(ya);
-      tInterpolator_p->setData(xf,yf,true);
+      if (timeType().contains("linear")) {
+	ScalarSampledFunctional<Float> xf(timelist_(Slice(newIdx,2)));
+	Vector<uInt> rows(2); indgen(rows); rows+=uInt(newIdx);
+	Array<Float> ya(mcols_p->fparamArray("",rows));
+	ArraySampledFunctional<Array<Float> > yf(ya);
+	tInterpolator_p->setData(xf,yf,true);
+      } else if (timeType().contains("cubic")) { // Added for CAS-10787 (16/2/2018 WK)
+	Int newIdxCubic(newIdx-1);
+	if (newIdxCubic < 0) {
+	  newIdxCubic = 0;
+	} else if (newIdxCubic > (Int)timelist_.nelements()-4) {
+	  newIdxCubic = timelist_.nelements()-4;
+	}
+	//cout << "{newIdxCubic = " << newIdxCubic << " / " << timelist_.nelements() << "}" << flush;
+	ScalarSampledFunctional<Float> xf(timelist_(Slice(newIdxCubic,4)));
+	Vector<uInt> rows(4); indgen(rows); rows+=uInt(newIdxCubic);
+	Array<Float> ya(mcols_p->fparamArray("",rows));
+	ArraySampledFunctional<Array<Float> > yf(ya);
+	tInterpolator_p->setData(xf,yf,true);
+      }
     }
   }
   else
@@ -178,6 +193,7 @@ Bool CTTimeInterp1::interpolate(Double newtime) {
   else {
     if (CTTIMEINTERPVERB1) cout << " non-trivial non-nearest" << endl;
     // Delegate to the interpolator
+    setInterpType(timeType());
     result_=(*tInterpolator_p)(fnewtime);
     rflag_=(flaglist_.xyPlane(newIdx) || flaglist_.xyPlane(newIdx+1));
   }
@@ -229,6 +245,14 @@ void CTTimeInterp1::setInterpType(String strtype) {
   }
   if (strtype.contains("linear")) {
     tInterpolator_p->setMethod(Interpolate1D<Float,Array<Float> >::linear);
+    return;
+  }
+  if (strtype.contains("cubic")) {
+    tInterpolator_p->setMethod(Interpolate1D<Float,Array<Float> >::cubic);
+    return;
+  }
+  if (strtype.contains("spline")) {
+    tInterpolator_p->setMethod(Interpolate1D<Float,Array<Float> >::spline);
     return;
   }
   throw(AipsError("Unknown interp type: '"+strtype+"'!!"));
