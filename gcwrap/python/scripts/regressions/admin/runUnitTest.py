@@ -472,7 +472,7 @@ if __name__ == "__main__":
                     hasfile = True
                     testnames = a
 
-                elif o in ("r", "--attr"):
+                elif o in ("-r", "--attr"):
                     RUN_SUBTEST = True
                     ATTR_VAL = a
                     
