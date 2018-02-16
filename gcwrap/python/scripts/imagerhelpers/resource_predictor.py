@@ -80,7 +80,7 @@ def _predict_minor_cycle(dec_pars, one_plane, imsize, nterms):
                      ImagerParameters.getDecPars()
     :param one_plane: memory for one plane/image, in MB
     :param imsize: image/plane size in pixels, from image parameters, needed for mtmfs
-    :param imsize: nterms from image parameters, needed for mtmfs
+    :param nterms: nterms from image parameters, needed for mtmfs
 
     :returns: memory use for the deconvolver / minor cycles, in MB
     """
