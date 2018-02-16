@@ -1224,7 +1224,7 @@ MESSAGE( STATUS "casa_packages:         " ${casa_packages} )
 casa_find( QWT
   VERSION 5.1.1
   INCLUDES qwt_global.h
-  INCLUDES_SUFFIXES qwt qwt-qt4 qt4/qwt qwt5
+  INCLUDES_SUFFIXES qwt qt4/qwt qwt-qt4 qwt5
   PREFIX_HINTS
     ${QWT_ROOT_DIR}
     ${casa_packages}/qwt-5.2.0

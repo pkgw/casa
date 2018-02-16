@@ -216,7 +216,6 @@ public:
 // deviation of the termal noise ) or if <src>sigma</src> is non-positive, 
 // it will  be worked out for you with a clipped mean algorithm.
 // <group>
-   casacore::ImageExpr<casacore::Float> linPolInt(casacore::Bool debias, casacore::Float clip=10.0, casacore::Float sigma=-1.0);
    casacore::Float sigmaLinPolInt (casacore::Float clip=10.0, casacore::Float sigma=-1.0);
 // </group>
 

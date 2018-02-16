@@ -381,26 +381,6 @@ namespace casa { //# name space casa begins
     return itsImPol->sigmaStokesV(clip);
   }
 
-
-  // Linearly polarized intensity
-  Bool ImagePol::linPolInt(ImageInterface<Float>*& rtnim, Bool debias,
-			   Float clip, Float sigma, const String& outfile) {
-    Bool rstat(false);
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
-    if(itsImPol==0){
-      *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
-	      << LogIO::POST;
-      return rstat;
-    }
-
-    ImageExpr<Float> expr = itsImPol->linPolInt(debias, clip, sigma);
-
-    // Create output image if needed
-    rstat =  copyImage (rtnim, expr, outfile, true);
-    return rstat;
-  }
-
-
   Float ImagePol::sigmaLinPolInt(Float clip, Float sigma) const {
     *itsLog << LogOrigin("imagepol", __FUNCTION__);
     if(itsImPol==0){
@@ -410,26 +390,6 @@ namespace casa { //# name space casa begins
     }
     return itsImPol->sigmaLinPolInt(clip, sigma);
   }
-
-
-  // Total polarized intensity.
-  /*
-  Bool ImagePol::totPolInt(ImageInterface<Float>*& rtnim, Bool debias,
-			   Float clip, Float sigma, const String& outfile){
-    Bool rstat(false);
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
-    if(itsImPol==0){
-      *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
-	      << LogIO::POST;
-      return rstat;
-    }
-    ImageExpr<Float> expr = itsImPol->totPolInt(debias, clip, sigma);
-
-    // Create output image if needed
-    rstat = copyImage (rtnim, expr, outfile, true);
-    return rstat;
-  }
-  */
 
   Float ImagePol::sigmaTotPolInt(Float clip, Float sigma) const {
     *itsLog << LogOrigin("imagepol", __FUNCTION__);
@@ -500,26 +460,6 @@ namespace casa { //# name space casa begins
     LatticeUtilities::copyDataAndMask(*itsLog, *pOutComplex, expr);
     copyMiscellaneous (*pOutComplex, *(itsImPol->imageInterface()));
   }
-
-  // Linearly polarized position angle
-  Bool ImagePol::linPolPosAng(ImageInterface<Float>*& rtnim,
-			      const String& outfile) {
-    Bool rstat(false);
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
-    if(itsImPol==0){
-      *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
-	      << LogIO::POST;
-      return rstat;
-    }
-
-    Bool radians = false;
-    ImageExpr<Float> expr = itsImPol->linPolPosAng(radians);
-
-    // Create output image if needed
-    rstat = copyImage (rtnim, expr, outfile, true);
-    return rstat;
-  }
-
 
   Bool ImagePol::sigmaLinPolPosAng(ImageInterface<Float>*& rtnim, Float clip,
 				   Float sigma, const String& outfile) {

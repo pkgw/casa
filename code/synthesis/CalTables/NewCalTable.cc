@@ -155,11 +155,10 @@ NewCalTable::NewCalTable(String tableName,VisCalEnum::VCParType parType,
 NewCalTable::NewCalTable (const String& tableName, Table::TableOption access, 
 			  Table::TableType ttype): Table(tableName,access)
 {
-// Construct from an exisiting cal table, and access option.
+// Construct from an existing cal table, and access option.
 // 
 // Input:
 //    tableName        const String&         Cal table name
-//    ctableDesc       const CalTableDesc&   Cal table descriptor
 //    access           Table::TableOption    Access mode
 //    ttype            Table::TableType      Memory or Plain
 //
@@ -176,6 +175,21 @@ NewCalTable::NewCalTable (const String& tableName, Table::TableOption access,
   attachSubTables();
 
 };
+
+NewCalTable::NewCalTable (const String& tableName,
+    const casacore::TableLock& lockOptions, Table::TableOption access,
+    Table::TableType ttype): Table(tableName, lockOptions, access)
+{
+  // Construct from an existing cal table, with lock, access, and type options.
+  if (ttype==Table::Memory) 
+    *this = this->copyToMemoryTable(tableName+".tempMemCalTable");
+  if (!this->tableDesc().isColumn(NCT::fieldName(NCT::OBSERVATION_ID)) ||
+      !this->keywordSet().isDefined("OBSERVATION")) {
+    addPhoneyObs();
+  }
+  attachSubTables();
+}
+//----------------------------------------------------------------------------
 
 // Factory method that has Back Compat option
 NewCalTable NewCalTable::createCT(const String& tableName, 
