@@ -70,6 +70,17 @@
 #include <sys/time.h>
 #include<sys/resource.h>
 
+#ifndef HOST_NAME_MAX
+# include "netdb.h" /* for MAXHOSTNAMELEN */
+# if defined(_POSIX_HOST_NAME_MAX)
+#  define HOST_NAME_MAX _POSIX_HOST_NAME_MAX
+# elif defined(MAXHOSTNAMELEN)
+#  define HOST_NAME_MAX MAXHOSTNAMELEN
+# else
+#  define HOST_NAME_MAX 255
+# endif
+#endif /* HOST_NAME_MAX */
+
 using namespace std;
 
 using namespace casacore;
