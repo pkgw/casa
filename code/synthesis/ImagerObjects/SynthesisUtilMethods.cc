@@ -70,17 +70,6 @@
 #include <sys/time.h>
 #include<sys/resource.h>
 
-#ifndef HOST_NAME_MAX
-# include "netdb.h" /* for MAXHOSTNAMELEN */
-# if defined(_POSIX_HOST_NAME_MAX)
-#  define HOST_NAME_MAX _POSIX_HOST_NAME_MAX
-# elif defined(MAXHOSTNAMELEN)
-#  define HOST_NAME_MAX MAXHOSTNAMELEN
-# else
-#  define HOST_NAME_MAX 255
-# endif
-#endif /* HOST_NAME_MAX */
-
 using namespace std;
 
 using namespace casacore;
@@ -212,16 +201,19 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   String SynthesisUtilMethods::makeResourceFilename(int pid)
   {
     if (g_hostname.empty() or g_startTimestamp.empty()) {
-      const int strMax = 256;
-      char hostname[strMax];
+      // TODO: not using HOST_NAME_MAX because of issues with __APPLE__
+      // somehow tests tAWPFTM, tSynthesisImager, and tSynthesisImagerVi2 fail.
+      const int strMax = 255;
+      char hostname[HOST_NAME_MAX + 1];
       gethostname(hostname, HOST_NAME_MAX);
       g_hostname = hostname;
 
       auto time = std::time(nullptr);
       auto gmt = std::gmtime(&time);
       const char* format = "%Y%m%d_%H%M%S";
+      const int strMax = 255;
       char timestr[strMax];
-      std::strftime(timestr,  strMax, format, gmt);
+      std::strftime(timestr, strMax, format, gmt);
       g_startTimestamp = timestr;
     }
 
@@ -3528,7 +3520,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	      if( inrec.dataType("restoringbeam")==TpString )     
 		{
 		  err += readVal( inrec, String("restoringbeam"), usebeam); 
-		  if( ! usebeam.matches("common") && ! usebeam.length()==0 )  
+		  if( (! usebeam.matches("common")) && ! usebeam.length()==0 )
 		    {
 		      Quantity bsize;
 		      err += readVal( inrec, String("restoringbeam"), bsize );
