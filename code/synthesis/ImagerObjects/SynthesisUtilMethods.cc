@@ -204,14 +204,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       // TODO: not using HOST_NAME_MAX because of issues with __APPLE__
       // somehow tests tAWPFTM, tSynthesisImager, and tSynthesisImagerVi2 fail.
       const int strMax = 255;
-      char hostname[HOST_NAME_MAX + 1];
-      gethostname(hostname, HOST_NAME_MAX);
+      char hostname[strMax];
+      gethostname(hostname, strMax);
       g_hostname = hostname;
 
       auto time = std::time(nullptr);
       auto gmt = std::gmtime(&time);
       const char* format = "%Y%m%d_%H%M%S";
-      const int strMax = 255;
       char timestr[strMax];
       std::strftime(timestr, strMax, format, gmt);
       g_startTimestamp = timestr;
