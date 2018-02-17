@@ -169,7 +169,7 @@ public:
     del(Slice(0),Slice(),Slice())=xdel;  // ~ on the padded grid
     del*=Float(1.0/nChan/0.001);
     del(Slice(1),Slice(),Slice())=0.0f;  // all in the first pol
-    //cout << "xdel=" << del(0,0,0) << "nsec" << endl;
+    cout << "xdel=" << del(0,0,0) << "nsec" << endl;
   }
 
 };    
@@ -452,7 +452,6 @@ TEST_F(KJonesTest, KCrossSolveTest) {
   }
 }
 
-
 TEST_F(KJonesTest, KmbdCrossSolveTest) {
 
   setCrossHandDelay(1.251f);
@@ -518,14 +517,12 @@ TEST_F(KJonesTest, KmbdCrossSolveTest) {
 	  Float adel(dph/(hichan*0.001));
 	  Float edel(del(icor/2,0,a1(irow))-del(icor%2,0,a2(irow)));
 	  Float diff(abs(adel-edel));
-	  /*
-	  cout << "a1=" << a1(irow) << " a2=" << a2(irow)
-	       << " dph= " << dph*360.0 << "deg "
-	       << " app delay=" << adel
-	       << " cal delay=" << edel
-	       << " diff=" << diff
-	     << endl;
-	  */
+	  //cout << "a1=" << a1(irow) << " a2=" << a2(irow)
+	  //     << " dph= " << dph*360.0 << "deg "
+	  //     << " app delay=" << adel
+	  //     << " cal delay=" << edel
+	  //     << " diff=" << diff
+	  //   << endl;
 	  EXPECT_TRUE(diff<1.0e-4);
 	}
       }
@@ -553,4 +550,46 @@ TEST_F(KJonesTest, KmbdCrossSolveTest) {
 
 }
 
+/*
+#define REALTYPE Float
+#define COMPTYPE Complex
 
+TEST_F(KJonesTest, PrecTest) {
+
+  Int n(101);
+
+  REALTYPE tau(1.0/360.0e6);
+
+  cout << "tau=" << tau/1e-9 << endl;
+
+  Vector<Double> f1(n),f2(n);
+  indgen(f1);
+  f1*=1e6;
+  indgen(f2);
+  f2*=1e6;
+  f2+=100e9;
+  
+  Vector<COMPTYPE> V1(n,COMPTYPE(1.0));
+  Vector<COMPTYPE> V2(n,COMPTYPE(1.0));
+
+  Vector<COMPTYPE> C1(n,COMPTYPE(1.0)), C2(n,COMPTYPE(1.0));
+  for (Int i=0; i<n; ++i) {
+    REALTYPE a1=2*C::pi*f1(i)*tau;
+    C1(i)=COMPTYPE(cos(a1),sin(a1));
+    REALTYPE a2=2*C::pi*f2(i)*tau;
+    C2(i)=COMPTYPE(cos(a2),sin(a2));
+  }
+  V1=V1*C1;
+  V2=V2*C2;
+    
+
+  Vector<REALTYPE> P1(phase(V1)*180./C::pi);
+  Vector<REALTYPE> P2(phase(V2/V2[0])*180./C::pi);
+  Vector<REALTYPE> dP(phase(V2/V2[0]/V1)*180./C::pi);
+  cout << dP << endl;
+
+  cout << max(abs(dP)) << endl;
+
+}
+
+*/

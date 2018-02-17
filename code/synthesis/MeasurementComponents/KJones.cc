@@ -361,7 +361,8 @@ void DelayFFT::searchPeak() {
 	     << Float(ipk)/Float(nPadChan_)/df_ << "..."
 	     << Float(ipk<(nPadChan_-1) ? ipk+1 : 0)/Float(nPadChan_)/df_ << "-->"
 	     << delay << "    "
-	     << alo << " " << amax << " " << ahi 
+	     << alo << " " << amax << " " << ahi << "   "
+	     << alo/amax << " " << amax/amax << " " << ahi/amax
 	     << endl;
 	*/
 
@@ -437,44 +438,37 @@ CrossDelayFFT::CrossDelayFFT(SolveDataBuffer& sdb,Double padBW) :
   
   //  this->state();
 
-
   // Fill the relevant data
   Vpad_.set(Complex(0.0));
+
+  // Zero weights of flagged samples
+  //  (first, balance cross-hand flags)
+  Slicer pq(Slice(1,1,1),Slice(),Slice()); //  PQ
+  Slicer qp(Slice(2,1,1),Slice(),Slice()); //  QP
+  sdb.flagCube()(pq)(sdb.flagCube()(qp))=true;
+  sdb.flagCube()(qp)(sdb.flagCube()(pq))=true;
+  sdb.weightSpectrum()(sdb.flagCube())=0.0f;
+  Cube<Complex> Vsum(2,sdb.nChannels(),1,Complex(0.0));
+  Cube<Float> wtsum(2,sdb.nChannels(),1,0.0f);
   for (Int irow=0;irow<nRow;++irow) {
     Int a1(sdb.antenna1()(irow)), a2(sdb.antenna2()(irow));
     if (!sdb.flagRow()(irow) && a1!=a2) {  // not flagged, not an AC
 
-      Slicer pq(Slice(1,1,1),Slice(),Slice(irow,1,1));  // first cross-hand
-      Slicer qp(Slice(2,1,1),Slice(),Slice(irow,1,1));  // second cross-hand
-
-      Cube<Complex> Vcross;
-      Vcross=sdb.visCubeCorrected()(pq);
-      Vcross+=conj(sdb.visCubeCorrected()(qp));
-      
-      // Flag combination where either cross-hand flagged
-      Vcross(sdb.flagCube()(pq))=Complex(0.0);
-      Vcross(sdb.flagCube()(qp))=Complex(0.0);
-
-      // Divide by non-zero amps
-      Cube<Float> vCa(amplitude(Vcross));
-      vCa(vCa<FLT_EPSILON)=1.0;
-      Vcross/=vCa;
-
-      // Zero flagged channels
-      Cube<Bool> flpq(sdb.flagCube()(pq));
-      Vcross(flpq)=Complex(0.0);
-      Cube<Bool> flqp(sdb.flagCube()(qp));
-      Vcross(flqp)=Complex(0.0);
-
-      // TBD: apply weights
-      //      Matrix<Float> wt(vb.weightMat()(Slice,Slice(irow,1,1)));
-
-      // Acquire this baseline for solving
-      Slicer sl1(Slice(),Slice(0,nChan,1),Slice()); // add to this Vpad_ slice
-      Vpad_(sl1)=Vpad_(sl1)+Vcross;
+      // Accumulate cross-hands
+      Slicer xh(Slice(1,2,1),Slice(),Slice(irow,1,1));
+      Cube<Complex> Vxh(sdb.visCubeCorrected()(xh));
+      Cube<Float> Wxh(sdb.weightSpectrum()(xh));
+      Vsum=Vsum+Vxh*Wxh;
+      wtsum=wtsum+Wxh;
     }
   }
-	      
+
+  // Combine cross-hands into the padded Cube
+  if (sum(wtsum)>0.0f) {
+    Slicer sl1(Slice(),Slice(0,nChan,1),Slice()); // add to this Vpad_ slice
+    Vpad_(sl1)=Vpad_(sl1)+(Vsum(Slice(0,1,1),Slice(),Slice())+conj(Vsum(Slice(1,1,1),Slice(),Slice())));
+  }
+
 }
 
 
@@ -1438,7 +1432,6 @@ void KcrossJones::solveOneSDBmbd(SDBList& sdbs) {
     delfft1.FFT();
     delfft1.shift(f0[0]);
     sumfft.add(delfft1);
-
     delfft1.searchPeak();
   }
 
@@ -1447,6 +1440,11 @@ void KcrossJones::solveOneSDBmbd(SDBList& sdbs) {
   // Keep solution (same for all antennas in first pol)
   solveRPar()(Slice(0,1,1),Slice(),Slice())=sumfft.delay()(0,0);
   solveParOK()=true;
+
+  logSink() << " Time="<< MVTime(refTime()/C::day).string(MVTime::YMD,7)
+    //<< " Spw=" << currSpw()
+	    << " Multi-band cross-hand delay=" << sumfft.delay()(0,0) << " nsec"
+	    << LogIO::POST;
 
 
 }
