@@ -166,18 +166,25 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		  {
 		    os << "[WARN] Peak residual (within the mask) increased from " << itsPrevPeakResidual << " to " << itsPeakResidual << LogIO::POST;
 		  }
-
+                os <<"itsNsigmaThreshold===="<<itsNsigmaThreshold<<LogIO::POST;
 		/// This may interfere with some other criterion... check.
 		if ( itsMajorDone==0 && itsIterDone==0 ) { stopCode=0; }
 		else if ( itsIterDone >= itsNiter || 
 		     itsPeakResidual <= itsThreshold ||
+                     itsPeakResidual <= itsNsigmaThreshold ||
 		     itsStopFlag )
 		  {
 		    //		    os << "Reached global stopping criteria : ";
 
 		    if( itsIterDone >= itsNiter ) { stopCode=1; }
 		    //os << "Numer of iterations. "; // (" << itsIterDone << ") >= limit (" << itsNiter << ")" ;
-		    if( usePeakRes <= itsThreshold ) {stopCode=2; }
+		    //if( usePeakRes <= itsThreshold ) {stopCode=2; }
+		    if ( usePeakRes <= itsThreshold ) {
+                      if (itsThreshold >= itsNsigmaThreshold) {stopCode=2;}
+                      else { stopCode=8;}
+                    }
+                    if ( usePeakRes <= itsNsigmaThreshold ) {stopCode=8;}                   
+                    
 		    //os << "Peak residual (" << itsPeakResidual << ") <= threshold(" << itsThreshold << ")";
 		    if( itsStopFlag ) {stopCode=3;}
 		      //os << "Forced stop. ";
@@ -308,6 +315,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		itsPeakResidualNoMask = max( itsPeakResidualNoMask, initRecord.asFloat(RecordFieldId("peakresidualnomask")));
 		itsMadRMS = max( itsMadRMS, initRecord.asFloat(RecordFieldId("madrms")) );
+                
+                cerr<<"initRecord.asFloat(RecordFieldId(nsigmathreshold))="<<initRecord.asFloat(RecordFieldId("nsigmathreshold"))<<endl;
+                cerr<<"itsNsigmaThresh="<<itsNsigmaThreshold<<endl;
+                itsNsigmaThreshold = max(itsNsigmaThreshold, initRecord.asFloat(RecordFieldId("nsigmathreshold")));
 		
 		///itsMaskSum += initRecord.asFloat(RecordFieldId("masksum"));
 		/*

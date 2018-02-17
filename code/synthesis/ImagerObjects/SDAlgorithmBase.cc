@@ -137,12 +137,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
             // returns as an Array but itsImages is already single plane so 
             // the return rms contains only a single element
             robustrms = itsImages->calcRobustRMS();
-            Float nsigma = 10.0; // will set by user, fixed for 3sigma for now.
+            Float nsigma = 100.0; // will set by user, fixed for 3sigma for now.
             Float nsigmathresh = nsigma * (Float)robustrms(IPosition(1,0)); 
               
             Float thresholdtouse = max( nsigmathresh, loopcontrols.getCycleThreshold());
             String thresholddesc = (thresholdtouse == loopcontrols.getCycleThreshold() ? "cyclethreshold" : "n-sigma");
 
+            os << "Set nsigma thresh="<<nsigmathresh<<LogIO::POST;
+            loopcontrols.setNsigmaThreshold(nsigmathresh);
 	    loopcontrols.setPeakResidual( peakresidual );
 	    loopcontrols.resetMinResidual(); // Set it to current initial peakresidual.
 
@@ -169,10 +171,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
                     os << "Using " << thresholddesc << " for threshold criterion: cyclethreshold value="<<loopcontrols.getCycleThreshold()<< " nsigma="<<nsigmathresh << LogIO::POST;
 		    Int thisniter = loopcontrols.getCycleNiter() <5000 ? loopcontrols.getCycleNiter() : 2000;
-                    os << "Done getCycleNiter " << LogIO::POST;
 
 		    loopcontrols.setPeakResidual( peakresidual );
-                    os << " SetPeakRes " << LogIO::POST;
 		    takeOneStep( loopcontrols.getLoopGain(), 
 				 //				 loopcontrols.getCycleNiter(),
 				 thisniter,

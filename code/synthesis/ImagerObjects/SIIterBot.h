@@ -232,6 +232,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			casacore::Float itsPeakResidualNoMask;
 			casacore::Float itsPrevPeakResidualNoMask;
 			casacore::Float itsMinPeakResidualNoMask;
+
+                        casacore::Float itsNsigmaThreshold;
 	  
 	                casacore::Float itsMadRMS;
 	                casacore::Float itsMaskSum;

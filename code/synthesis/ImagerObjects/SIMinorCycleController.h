@@ -116,6 +116,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     void addIntegratedFlux(casacore::Float integratedFlux);
     void setMaxPsfSidelobe(casacore::Float maxPsfSidelobe);
    void setMadRMS(casacore::Float madRMS);
+   void setNsigmaThreshold(casacore::Float nsigmaThreshold);
    void setMaskSum(casacore::Float maskSum);
 
    void resetMinResidual();
@@ -124,6 +125,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     /* Control Variables */
     casacore::Int    itsCycleNiter;
     casacore::Float itsCycleThreshold;
+    casacore::Float itsNsigmaThreshold;
     casacore::Float itsLoopGain;
     
     casacore::Bool  itsUpdatedModelFlag;

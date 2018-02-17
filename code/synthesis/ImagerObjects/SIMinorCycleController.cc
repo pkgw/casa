@@ -34,6 +34,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   SIMinorCycleController::SIMinorCycleController(): 
                                 itsCycleNiter(0),
                                 itsCycleThreshold(0.0),
+                                itsNsigmaThreshold(0.0),
                                 itsLoopGain(0.1),
                                 itsUpdatedModelFlag(false),
                                 itsIterDone(0),
@@ -62,7 +63,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // Reached iteration limit
     if (itsCycleIterDone >= itsCycleNiter ) {stopCode=1;}
     // Reached cyclethreshold
-    if( fabs(currentPeakResidual) <= itsCycleThreshold ) { stopCode=2; }
+    //if( fabs(currentPeakResidual) <= itsCycleThreshold ) { stopCode=2; }
+    // Reached cyclethreshold or n-sigma threshold
+    if (itsCycleThreshold >= itsNsigmaThreshold) {
+      if( fabs(currentPeakResidual) <= itsCycleThreshold ) { stopCode=2; }
+    }
+    else {
+      if( fabs(currentPeakResidual) <= itsNsigmaThreshold ) { stopCode=6; }
+    }
     // Zero iterations done
     if( itsIterDiff==0 ) {stopCode=3;}
     // Diverged : CAS-8767, CAS-8584
@@ -147,6 +155,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     itsMadRMS = madRMS;
   }
 
+  void SIMinorCycleController::setNsigmaThreshold(Float nsigmaThreshold)
+  {
+    cerr<<" beofre : Nsigma Thresh value="<<itsNsigmaThreshold<<endl;
+    itsNsigmaThreshold = nsigmaThreshold;
+  }
+
   void SIMinorCycleController::setMaskSum(Float maskSum)
   {
     itsMaskSum = maskSum;
@@ -222,6 +236,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     returnRecord.define( RecordFieldId("peakresidualnomask"), itsPeakResidualNoMask);
     returnRecord.define( RecordFieldId("madrms"), itsMadRMS);
     returnRecord.define( RecordFieldId("masksum"), itsMaskSum);
+    returnRecord.define( RecordFieldId("nsigmathreshold"), itsNsigmaThreshold);
 
     /* Reset Counters and summary for the current set of minorcycle iterations */
     itsIterDone = 0;
