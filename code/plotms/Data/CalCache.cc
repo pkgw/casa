@@ -73,8 +73,10 @@ String CalCache::polname(Int ipol) {
 
 void CalCache::setFilename(String filename) { 
     filename_ = filename;
-    NewCalTable ct(NewCalTable::createCT(filename_,Table::Old,Table::Plain));
-    calType_= ct.tableInfo().subType();
+    Table tab(filename);
+    calType_= tab.tableInfo().subType();
+	if ((calType_=="T Jones") && (tab.keywordSet().isDefined("CAL_DESC")))
+      throw AipsError(calType_ + " tables in the old cal table format are unsupported in plotms.");
 }
 
 //*********************************

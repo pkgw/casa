@@ -157,6 +157,7 @@ casa_add_library( synthesis
   CalTables/CalMainRecord.cc
   CalTables/CalSet2.cc
   CalTables/CalSetMetaInfo.cc
+  CalTables/CalSummary.cc
   CalTables/CalTable2.cc
   CalTables/CalTable.cc
   CalTables/CalTableDesc2.cc
@@ -389,6 +390,7 @@ install (FILES
 	CalTables/BJonesMCol.h
 	CalTables/BJonesMRec.h
 	CalTables/BJonesTable.h
+ 	CalTables/CalSummary.h
 	CalTables/CLPatchPanel.h
 	CalTables/CTColumns.h
 	CalTables/CTDesc.h

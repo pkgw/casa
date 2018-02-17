@@ -32,6 +32,7 @@
 #include <casa/aips.h>
 #include <tables/Tables/Table.h>
 #include <tables/TaQL/ExprNode.h>
+#include <tables/Tables/TableRecord.h>
 #include <casa/Containers/Record.h>
 #include <casa/Utilities/Sort.h>
 #include <synthesis/CalTables/CalTableDesc.h>
@@ -123,6 +124,7 @@ class CalTable
    casacore::Int nRowMain() const;
    casacore::Int nRowDesc() const;
    casacore::Int nRowHistory() const;
+   casacore::Int nRowObservation() const;
 
    // Add rows to cal_main, cal_desc or cal_history
    void addRowMain (casacore::uInt nrrow = 1, casacore::Bool initialize = false) 
@@ -136,6 +138,7 @@ class CalTable
    casacore::Record getRowMain (const casacore::Int& jrow);
    casacore::Record getRowDesc (const casacore::Int& jrow);
    casacore::Record getRowHistory (const casacore::Int& jrow);
+   casacore::Record getRowObservation (const casacore::Int& jrow);
 
    // Put a row to cal_main, cal_desc or cal_history
    void putRowMain (const casacore::Int& jrow, CalMainRecord& tableRec);
@@ -153,6 +156,8 @@ class CalTable
 
    const casacore::String tableName() { return calMainAsTable().tableName(); }
 
+   const casacore::String type() { return calMainAsTable().tableInfo().subType(); }
+
  protected:
    // Create a new table
    void createCalTable (const casacore::String& tableName, CalTableDesc& ctableDesc,
@@ -166,9 +171,11 @@ class CalTable
    casacore::Table& calMainAsTable() {return *itsMainTable;};
    casacore::Table& calDescAsTable() {return *itsDescTable;};
    casacore::Table& calHistoryAsTable() {return *itsHistoryTable;};
+   casacore::Table& calObservationAsTable() {return *itsObservationTable;};
    const casacore::Table& calMainAsTable() const {return *itsMainTable;};
    const casacore::Table& calDescAsTable() const {return *itsDescTable;};
    const casacore::Table& calHistoryAsTable() const {return *itsHistoryTable;};
+   const casacore::Table& calObservationAsTable() const {return *itsObservationTable;};
 
    // Friend class access from the ROCalMainColumns, ROCalDescColumns
    // and ROCalHistoryColumns class hierarchies
@@ -186,6 +193,11 @@ class CalTable
    // Pointers to the cal_desc and cal_history sub-tables
    casacore::Table* itsDescTable;
    casacore::Table* itsHistoryTable;
+   casacore::Table* itsObservationTable;
+
+   // Check if has optional OBSERVATION Table
+   bool hasObsTable() const { 
+     return (itsMainTable->keywordSet().fieldNumber("OBSERVATION") != -1); }
  };
 
 
