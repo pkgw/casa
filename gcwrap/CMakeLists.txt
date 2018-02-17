@@ -879,7 +879,6 @@ else()
   set( casacode_libs
        atnf
        alma
-       casatools
        atmosphere
        calanalysis
        casatools
