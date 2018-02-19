@@ -193,6 +193,7 @@ Bool CTTimeInterp1::interpolate(Double newtime) {
   else {
     if (CTTIMEINTERPVERB1) cout << " non-trivial non-nearest" << endl;
     // Delegate to the interpolator
+    // The next line is needed to restore the given interpolation type, which has been overwritten to linear in setData() above - CAS-10787 (16/2/2018 WK)
     setInterpType(timeType());
     result_=(*tInterpolator_p)(fnewtime);
     rflag_=(flaglist_.xyPlane(newIdx) || flaglist_.xyPlane(newIdx+1));
