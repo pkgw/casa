@@ -23,6 +23,7 @@
 #include <mstransform/MSTransform/MSTransformManager.h>
 
 #include <mstransform/TVI/PolAverageTVI.h>
+#include <mstransform/TVI/PointingInterpolationTVI.h>
 
 
 using namespace casacore;
@@ -181,6 +182,10 @@ void MSTransformManager::initialize()
 	polAverage_p = false;
 	polAverageConfig_p = Record();
 
+	// Pointings interpolation
+	pointingsInterpolation_p = false;
+	pointingsInterpolationConfig_p = Record();
+
 	// Weight Spectrum parameters
 	usewtspectrum_p = false;
 	spectrumTransformation_p = false;
@@ -312,6 +317,7 @@ void MSTransformManager::configure(Record &configuration)
 	parseUVContSubParams(configuration);
 	setSpwAvg(configuration);
 	parsePolAvgParams(configuration);
+	parsePointingsInterpolationParams(configuration);
 
 
 	return;
@@ -1259,6 +1265,14 @@ void MSTransformManager::parsePolAvgParams(Record &configuration)
       polAverageConfig_p.define("mode", "default");
     }
   }
+}
+
+void MSTransformManager::parsePointingsInterpolationParams(casacore::Record &configuration){
+	String key("pointingsinterpolation");
+	Bool exists = configuration.isDefined(key);
+	if (exists) {
+		pointingsInterpolation_p = configuration.asBool(key);
+	}
 }
 
 // -----------------------------------------------------------------------
@@ -5604,6 +5618,11 @@ void MSTransformManager::generateIterator()
 			  visibilityIterator_p = new vi::VisibilityIterator2(vi::PolAverageVi2Factory(polAverageConfig_p, selectedInputMs_p,
 			      vi::SortColumns(sortColumns_p, false), timeBin_p, isWritable));
 			}
+			// Pointings Interpolator VI
+			else if (pointingsInterpolation_p) {
+			  visibilityIterator_p = new vi::VisibilityIterator2(vi::PointingInterpolationVi2Factory(pointingsInterpolationConfig_p, selectedInputMs_p,
+			      vi::SortColumns(sortColumns_p, false), timeBin_p, isWritable));
+			}
 			// Plain VI
 			else
 			{
@@ -5629,7 +5648,11 @@ void MSTransformManager::generateIterator()
     visibilityIterator_p = new vi::VisibilityIterator2(vi::PolAverageVi2Factory(polAverageConfig_p, selectedInputMs_p,
         vi::SortColumns(sortColumns_p, false), timeBin_p, isWritable));
   }
-	// Plain VI
+  else if (pointingsInterpolation_p) {
+	  visibilityIterator_p = new vi::VisibilityIterator2(vi::PointingInterpolationVi2Factory(pointingsInterpolationConfig_p, selectedInputMs_p,
+		      vi::SortColumns(sortColumns_p, false), timeBin_p, isWritable));
+  }
+	  // Plain VI
 	else
 	{
 		visibilityIterator_p = new vi::VisibilityIterator2(*selectedInputMs_p,vi::SortColumns(sortColumns_p, false),

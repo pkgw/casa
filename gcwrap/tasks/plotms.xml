@@ -193,6 +193,10 @@ MS Parameters
       <value>Ant-Azimuth</value>
       <value>ant-elevation</value>
       <value>Ant-Elevation</value>
+      <value>ant-ra</value>
+      <value>Ant-RA</value>
+      <value>ant-dec</value>
+      <value>Ant-DEC</value>
       <value>ant-parang</value>
       <value>ant-parangle</value>
       <value>ant-parallacticangle</value>
@@ -365,6 +369,10 @@ MS Parameters
       <value>Ant-Azimuth</value>
       <value>ant-elevation</value>
       <value>Ant-Elevation</value>
+      <value>ant-ra</value>
+      <value>Ant-RA</value>
+      <value>ant-dec</value>
+      <value>Ant-DEC</value>
       <value>ant-parang</value>
       <value>ant-parangle</value>
       <value>ant-parallacticangle</value>
@@ -404,6 +412,9 @@ MS Parameters
       <value>Radial Velocity</value>
       <value>rho</value>
       <value>Distance</value>
+      <value>ra</value>
+      <value>RA</value>
+      <value>Right Ascension</value>
     </allowed>
     </param>
     
@@ -1254,6 +1265,8 @@ Constraints
        <equals value="ant"/>
       <equals value="ant-azimuth"/>
       <equals value="ant-elevation"/>
+      <equals value="ant-ra"/>
+      <equals value="ant-dec"/>
       <equals value="ant-hourang"/>
        <equals value="ant-hourangle"/>
       <equals value="ant-parang"/>
@@ -1264,6 +1277,7 @@ Constraints
       <equals value="observation"/>
       <equals value="intent"/>
       <equals value="feed"/>
+      <equals value="ra"/>
     </when>
 
     
@@ -1338,6 +1352,8 @@ Constraints
        <equals value="ant"/>
       <equals value="ant-azimuth"/>
       <equals value="ant-elevation"/>
+      <equals value="ant-ra"/>
+      <equals value="ant-dec"/>
       <equals value="ant-hourang"/>
        <equals value="ant-hourangle"/>
       <equals value="ant-parang"/>
@@ -1613,6 +1629,8 @@ Constraints
                  'ant'='antenna'
                  'ant-azimuth' 
                  'ant-elevation'
+                 'ant-ra'
+                 'ant-dec'
                  'ant-parang'='ant-parangle'
                Calibration:
                  'gainamp'='gamp'

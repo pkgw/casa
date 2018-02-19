@@ -129,6 +129,8 @@ PMS::AxisUnit PMS::axisUnit(Axis axis) {
     case GPHASE:
     case ELEVATION:
     case AZIMUTH:
+    case RA:
+    case DEC:
     case PARANG:
     case AZ0:
     case EL0:

@@ -419,7 +419,13 @@ void MSCache::setUpVisIter(PlotMSSelection& selection,
 	configuration.define("datacolumn", dataColumn);
 	configuration.define("buffermode", true);
 	configuration.define("reindex", false);
-    configuration.define("interactive", interactive);
+	configuration.define("interactive", interactive);
+	for (auto axis : loadAxes){
+		if ( axis == PMS::Axis::RA or axis == PMS::Axis::DEC ) {
+			configuration.define("pointingsinterpolation",true);
+			break;
+		}
+	}
 
 	// Add transformation selection with expected keywords and string value
 	configuration.merge(transformations_.toRecord());
@@ -773,7 +779,14 @@ void MSCache::loadChunks(vi::VisibilityIterator2& vi,
 	chshapes_.resize(4,nChunk_);
 	goodChunk_.resize(nChunk_);
 	goodChunk_.set(false);
-
+;
+	// Renaud
+	auto * viImpl = vi.getImpl();
+	const auto & sortColumns = viImpl->getSortColumns();
+	for (const auto & colIdInt : sortColumns.getColumnIds()){
+		auto colEnum = static_cast<MSMainEnums::PredefinedColumns>(colIdInt);
+		logLoad(String("Sort Column: ") + MS::columnName(colEnum));
+	}
 	for(vi.originChunks(); vi.moreChunks(); vi.nextChunk()) {
 		for(vi.origin(); vi.more(); vi.next()) {
             if (vb->nRows() > 0) {
@@ -967,6 +980,8 @@ bool MSCache::useAveragedVisBuffer(PMS::Axis axis) {
 	case PMS::PA0:
 	case PMS::ANTENNA:
 	case PMS::AZIMUTH:
+	case PMS::RA:
+	case PMS::DEC:
 	case PMS::ELEVATION:
 	case PMS::PARANG:
 	case PMS::ROW: {
@@ -1675,6 +1690,20 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 		}
 		*az_[vbnum] = azelMat.row(0);
 		*el_[vbnum] = azelMat.row(1);
+		break;
+	}
+	case PMS::RA:
+	case PMS::DEC: {
+		// Vector<MDirection> azelVec = vb->azel(vb->time()(0));
+		const auto & dir1Vec = vb->direction1();
+		Matrix<Double> raDecMat;
+		raDecMat.resize(2, dir1Vec.nelements());
+		auto nAnts = dir1Vec.nelements();
+		for (decltype(nAnts) iant = 0; iant < nAnts; ++iant) {
+			raDecMat.column(iant) = dir1Vec[iant].getAngle("deg").getValue();
+		}
+		*ra_[vbnum] = raDecMat.row(0);
+		*dec_[vbnum] = raDecMat.row(1);
 		break;
 	}
 	case PMS::RADIAL_VELOCITY: {

@@ -998,6 +998,12 @@ void PlotMSIndexer::setMethod(CacheMemPtr& getmethod,PMS::Axis axis,
 	case PMS::ELEVATION:
 		getmethod = &PlotMSCacheBase::getEl;
 		break;
+	case PMS::RA:
+		getmethod = &PlotMSCacheBase::getRa;
+		break;
+	case PMS::DEC:
+		getmethod = &PlotMSCacheBase::getDec;
+		break;
 	case PMS::PARANG:
 		getmethod = &PlotMSCacheBase::getParAng;
 		break;
@@ -1131,6 +1137,8 @@ void PlotMSIndexer::setIndexer(IndexerMethPtr& indexmethod,PMS::Axis axis) {
 	case PMS::ANTENNA:
 	case PMS::AZIMUTH:
 	case PMS::ELEVATION:
+	case PMS::RA:
+	case PMS::DEC:
 	case PMS::PARANG:
 		indexmethod = &PlotMSIndexer::getIndex0001;
 		break;

@@ -582,6 +582,8 @@ bool PlotMSCacheBase::axisIsValid(PMS::Axis axis, const PlotMSAveraging& averagi
 		case PMS::ANTENNA:
 		case PMS::AZIMUTH:
 		case PMS::ELEVATION:
+		case PMS::RA:
+		case PMS::DEC:
 		case PMS::PARANG: {
 			bslnValid = false;
 			break;
@@ -768,6 +770,10 @@ void PlotMSCacheBase::release(const vector<PMS::Axis>& axes) {
 			case PMS::AZIMUTH: PMSC_DELETE(az_)
                 break;
 			case PMS::ELEVATION: PMSC_DELETE(el_)
+                break;
+			case PMS::RA: PMSC_DELETE(ra_)
+                break;
+			case PMS::DEC: PMSC_DELETE(dec_)
                 break;
 			case PMS::PARANG: PMSC_DELETE(parang_)
                 break;
@@ -1492,6 +1498,12 @@ void PlotMSCacheBase::setCache(Int newnChunk,
 		        addVectors(el_);
                 break;
             }
+            case PMS::RA:
+            case PMS::DEC: {
+		        addVectors(ra_);
+		        addVectors(dec_);
+                break;
+            }
 	        case PMS::PARANG:
 		        addVectors(parang_);
                 break;
@@ -1649,6 +1661,8 @@ void PlotMSCacheBase::setAxesMask(PMS::Axis axis,Vector<Bool>& axismask) {
 		break;
 	case PMS::ANTENNA:
 	case PMS::AZIMUTH:
+	case PMS::RA:
+	case PMS::DEC:
 	case PMS::ELEVATION:
 	case PMS::PARANG:
 		axismask(3)=true;

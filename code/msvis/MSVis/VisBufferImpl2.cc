@@ -2290,6 +2290,8 @@ VisBufferImpl2::fillDirectionAux (Vector<MDirection>& value,
 //    state_p->pointingTableLastRow_p = mspc.pointingIndex (antenna (0),
 //                                                          time()(0), state_p->pointingTableLastRow_p);
 
+    /* Renaud: try fix for CAS-10819: comment out following lines */
+    /*
     if (getViiP()->allBeamOffsetsZero() && state_p->pointingTableLastRow_p < 0) {
 
         // No true pointing information found; use phase center from the field table
@@ -2298,6 +2300,8 @@ VisBufferImpl2::fillDirectionAux (Vector<MDirection>& value,
         state_p->pointingTableLastRow_p = 0;
         return;
     }
+    */
+    /* Renaud */
 
     for (uInt row = 0; row < antenna.nelements(); ++row) {
 
