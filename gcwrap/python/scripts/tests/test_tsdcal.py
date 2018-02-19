@@ -1838,8 +1838,8 @@ class sdcal_test_apply(sdcal_test_base):
         """
         test_apply_sky06 --- invalid interp value
         """
-        # 'spline' interpolation along time axis is not supported yet
-        self.result = sdcal(infile=self.infile, calmode='apply', applytable=[self.applytable], interp='spline')
+        # 'sinusoid' interpolation along time axis is not supported
+        self.result = sdcal(infile=self.infile, calmode='apply', applytable=[self.applytable], interp='sinusoid')
     
     @exception_case(RuntimeError, '^Applytable \'.+\' is not a caltable format$')
     def test_apply_sky07(self):
