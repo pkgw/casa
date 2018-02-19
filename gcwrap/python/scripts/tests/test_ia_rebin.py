@@ -305,6 +305,30 @@ class ia_rebin_test(unittest.TestCase):
         myia.open(outfile)
         self.assertTrue((myia.shape() == [20,20]).all())
         myia.done()
+        
+    def test_history(self):
+        """Test history writing"""
+        myia = iatool()
+        imagename = "zz.im"
+        factor = [1, 1, 20]
+        myia.fromshape(imagename,[20,20,20])
+        bb = myia.rebin("", bin=factor)
+        myia.done()
+        msgs = bb.history()
+        bb.done()
+        teststr = "ia.rebin"
+        self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
+        self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
+        
+        outfile = "zz_out.im"
+        self.assertTrue(imrebin(imagename=imagename, outfile=outfile, factor=factor))
+        myia.open(outfile)
+        msgs = myia.history()
+        myia.done()
+        teststr = "version"
+        self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
+        teststr = "imrebin"
+        self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
  
 def suite():
     return [ia_rebin_test]

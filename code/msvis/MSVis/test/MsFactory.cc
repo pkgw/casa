@@ -28,7 +28,6 @@ MsFactory::MsFactory (const String & msName)
 
 MsFactory::~MsFactory ()
 {
-    delete ms_p;
 }
 
 void
@@ -242,6 +241,15 @@ MsFactory::addCubeColumn (MSMainEnums::PredefinedColumns columnId,
     ms_p->flush();
 }
 
+void
+MsFactory::removeColumn (casacore::MSMainEnums::PredefinedColumns columnId)
+{
+    casacore::String columnName = MS::columnName(columnId);
+
+    ms_p->removeColumn(columnName);
+
+    ms_p->flush();
+}
 
 void
 MsFactory::attachColumns ()
@@ -556,7 +564,9 @@ MsFactory::fillVisCubeModel (FillState & fillState)
 void
 MsFactory::fillVisCubeObserved (FillState & fillState)
 {
+  if (! columns_p.vis_p.isNull ()){
     fillCube (columns_p.vis_p, fillState, generators_p.get (MSMainEnums::DATA));
+  }
 }
 
 void
