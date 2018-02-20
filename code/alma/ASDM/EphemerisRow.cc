@@ -2143,11 +2143,13 @@ void EphemerisRow::radVelFromBin(EndianIStream& eis) {
 	 * Return true if all required attributes of the value part are equal to their homologues
 	 * in x and false otherwise.
 	 *
+
 	 * @param x a pointer on the EphemerisRow whose required attributes of the value part 
+
 	 * will be compared with those of this.
 	 * @return a boolean.
 	 */
-	bool EphemerisRow::equalByRequiredValue(EphemerisRow* x) {
+	bool EphemerisRow::equalByRequiredValue(EphemerisRow*  x ) {
 		
 			
 		if (this->observerLocation != x->observerLocation) return false;

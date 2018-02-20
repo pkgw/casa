@@ -355,3 +355,41 @@ class test_cube(testref_base_parallel):
 
 
 ###################################################
+###################################################
+###################################################
+     def test_cube_restoringbeam(self):
+          """ [cube] Test_cube_restoringbeam (cas10849/10946) : Test parallel and serial run on same refconcat images  """
+          
+          if self.th.checkMPI() == True:
+               
+               self.prepData('refim_point.ms')
+               
+               # Parallel run - no restoration
+               ret = tclean(vis=self.msfile,imagename=self.img,
+                            imsize=100,cell='10.0arcsec',
+                            interactive=0,niter=10,specmode='cube',
+                            restoration=False, parallel=True)
+
+               # Serial restart for restoration only
+               retpar = tclean(vis=self.msfile,imagename=self.img,
+                               imsize=100,cell='10.0arcsec',
+                               interactive=0,niter=0,specmode='cube',
+                               restoration=True, restoringbeam='common',parallel=False,
+                               calcres=False, calcpsf=False)
+
+               header = imhead(self.img+'.image',verbose=False)
+               
+               estr = "["+inspect.stack()[1][3]+"] Has single restoring beam ? : " + self.th.verdict( header.has_key('restoringbeam')) + "\n"
+
+               report2 = self.th.checkall(imexist=[self.img+'.image'], 
+                                          imval=[(self.img+'.image',0.770445,[54,50,0,1]),
+                                                 (self.img+'.image',0.408929,[54,50,0,15])  ])
+
+               ## Pass or Fail (and why) ?
+               self.checkfinal(estr+report2)
+
+          else:
+               print "MPI is not enabled. This test will be skipped"
+
+
+###################################################

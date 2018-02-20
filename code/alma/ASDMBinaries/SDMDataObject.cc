@@ -6,6 +6,12 @@
 #include <iostream>
 #include <sstream>
 
+
+#include <boost/range/iterator_range.hpp>
+#include <boost/algorithm/string/find.hpp>
+
+using namespace boost;
+
 using namespace asdmbinaries;
 
 namespace asdmbinaries {
@@ -510,12 +516,11 @@ namespace asdmbinaries {
 				   CProcessorType::name(processorType_));
   }
 
-  
+
   bool SDMDataObject::inTitle(const std::string&  what) const {TSTVALID();
     // string s(title_);
     // boost::iterator_range<std::string::iterator> range = boost::algorithm::ifind_first(s, what);
     // return !range.empty();
-    bool result = title_.find(what) != std::string::npos;
     return title_.find(what) != std::string::npos;
   }
 
@@ -527,6 +532,7 @@ namespace asdmbinaries {
   bool SDMDataObject::isTP() const {TSTVALID(); return inTitle("Total Power");}
   bool SDMDataObject::isWVR() const {TSTVALID(); return inTitle("WVR");}
   bool SDMDataObject::isCorrelation() const {TSTVALID(); return processorType() == CORRELATOR;}
+
 
   /*
    * hasPackedData returns true if all the integrations are grouped in one subset for all the timestamps and conversely false if 
@@ -596,12 +602,12 @@ namespace asdmbinaries {
   }
   
   vector<string> SDMDataObject::projectPaths() const {
-    vector<string> result;
+    vector<string> result(str2index_.size());
 
     map<string, unsigned int>::const_iterator iter = str2index_.begin();
-
+ 
     for ( ; iter != str2index_.end(); iter++)
-      result.push_back(iter->first);
+      result[iter->second] = iter->first;
     
     return result;
   }
@@ -1097,8 +1103,20 @@ namespace asdmbinaries {
     owner_(owner),
     time_(time),
     interval_(interval) {
-    integrationNum_ = 0;
+    integrationNum_    = 0;
     subintegrationNum_ = 0;
+    actualTimes_       = 0;
+    nActualTimes_      = 0;
+    actualDurations_   = 0;
+    nActualDurations_  = 0;
+    zeroLags_	       = 0;
+    nZeroLags_	       = 0;
+    flags_	       = 0;
+    nFlags_	       = 0;
+    longCrossData_     = 0;
+    shortCrossData_    = 0;
+    floatCrossData_    = 0;
+    nCrossData_	       = 0;
     if (autoData.size() != 0) {
       autoData_ = &autoData.at(0);
       nAutoData_ = autoData.size();
@@ -1229,6 +1247,7 @@ namespace asdmbinaries {
     if (owner_ && (owner_->isTP() || owner_->correlationMode() == AUTO_ONLY)) Utils::invalidCall("SDMDataSubset::crossData", owner_);
     ptr = floatCrossData_; return nCrossData_; 
   }
+
   uint64_t SDMDataSubset::crossDataPosition() const { return crossDataPosition_; }
   unsigned long int SDMDataSubset::flags(const FLAGSTYPE* & ptr) const { ptr = flags_; return nFlags_; }
   uint64_t SDMDataSubset::flagsPosition() const { return flagsPosition_; }
@@ -1397,7 +1416,7 @@ namespace asdmbinaries {
   string SDMDataSubset::toXML() {
     ostringstream oss;
     
-    oss << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl;
+    //oss << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl;
     if (owner_->processorType_ == CORRELATOR) {
       oss << "<" << CorrSubsetHeaderParser::SDMDATASUBSETHEADER
 	  << " xmlns:xlink=\"http://www.w3.org/1999/xlink\""

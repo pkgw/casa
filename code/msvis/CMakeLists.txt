@@ -223,6 +223,12 @@ install (FILES
 	DESTINATION include/casacode/msvis/MSVis/statistics
 	)
 
+install (FILES
+	MSVis/util/Future.h
+	MSVis/util/Try.h
+	DESTINATION include/casacode/msvis/MSVis/util
+	)
+
 casa_add_assay( msvis MSVis/test/tVisibilityIterator.cc )
 casa_add_assay( msvis MSVis/test/tVisibilityIteratorAsync.cc )
 casa_add_unit_test ( MODULES msvis SOURCES MSVis/test/tHanningSmooth.cc )
@@ -241,6 +247,9 @@ casa_add_google_test (MODULES msvis SOURCES MSVis/test/VisibilityIterator_Gtest.
 casa_add_google_test (NOT_ON_APPLE MODULES msvis SOURCES MSVis/test/MSChecker_Gtest.cc MSVis/test/MSCheckerTest.cc) 
 
 casa_add_google_test (MODULES msvis SOURCES MSVis/test/tSimpleSimVi2_GT.cc) 
-casa_add_google_test (MODULES msvis SOURCES MSVis/test/tViiLayerFactory_GT.cc) 
+casa_add_google_test (MODULES msvis SOURCES MSVis/test/tViiLayerFactory_GT.cc MSVis/test/MsFactory.cc) 
+
+casa_add_google_test(MODULES msvis SOURCES MSVis/test/Future_Test.cc)
+casa_add_google_test(MODULES msvis SOURCES MSVis/test/Try_Test.cc)
 
 #casa_add_unit_test (msvis MSVis/test/VisibilityIterator_Test.cc MSVis/test/MsFactory.cc) 

@@ -25,6 +25,10 @@
 #include <casacore/ms/MSOper/MSMetaData.h>
 #include <casacore/tables/Tables/ArrColDesc.h>
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 #include <iomanip>
 
 using namespace casacore;
@@ -34,6 +38,8 @@ namespace casa {
 namespace vi { 
 
 const String StatWtTVI::CHANBIN = "stchanbin";
+
+const Complex StatWtTVI::DEFAULT_MODEL_VALUE(1, 0);
 
 StatWtTVI::StatWtTVI(ViImplementation2 * inputVii, const Record &configuration)
     : TransformingVi2 (inputVii) {
@@ -45,16 +51,19 @@ StatWtTVI::StatWtTVI(ViImplementation2 * inputVii, const Record &configuration)
 	    "Error parsing StatWtTVI configuration"
     );
     ThrowIf(
-        _useCorrected && ! ms().isColumn(MSMainEnums::CORRECTED_DATA),
+        (_column == CORRECTED || _column == RESIDUAL)
+        && ! ms().isColumn(MSMainEnums::CORRECTED_DATA),
         "StatWtTVI requires the MS to have a "
         "CORRECTED_DATA column. This MS does not"
     );
     ThrowIf(
-        ! _useCorrected && ! ms().isColumn(MSMainEnums::DATA),
+        (_column == DATA || _column == RESIDUAL_DATA)
+        && ! ms().isColumn(MSMainEnums::DATA),
         "StatWtTVI requires the MS to have a "
         "DATA column. This MS does not"
     );
-	_initialize();
+    _useDefaultModelValue = (_column == RESIDUAL || _column == RESIDUAL_DATA)
+        && ! ms().isColumn(MSMainEnums::MODEL_DATA);
 	// Initialize attached VisBuffer
 	setVisBuffer(createAttachedVisBuffer(VbRekeyable));
 }
@@ -181,10 +190,16 @@ Bool StatWtTVI::_parseConfiguration(const Record& config) {
         if (! val.empty()) {
             val.downcase();
             ThrowIf (
-                ! (val.startsWith("c") || val.startsWith("d")),
+                ! (
+                    val.startsWith("c") || val.startsWith("d")
+                    || val.startsWith("residual") || val.startsWith("residual_")
+                ),
                 "Unsupported value for " + field + ": " + val
             );
-            _useCorrected = val.startsWith("c");
+            _column = val.startsWith("c") ? CORRECTED
+                : val.startsWith("d") ? DATA
+                : val.startsWith("residual_") ? RESIDUAL_DATA
+                : RESIDUAL;
         }
     }
     field = "slidetimebin";
@@ -335,9 +350,19 @@ void StatWtTVI::_configureStatAlg(const Record& config) {
             Array<Bool>::const_iterator
         >();
     }
-    std::set<StatisticsData::STATS> stats;
-    stats.insert(StatisticsData::VARIANCE);
+    std::set<StatisticsData::STATS> stats {StatisticsData::VARIANCE};
+    //stats.insert(StatisticsData::VARIANCE);
     _statAlg->setStatsToCalculate(stats);
+    // also configure the _wtStats object here
+    _wtStats.reset(
+        new ClassicalStatistics<
+            Double, Array<Float>::const_iterator,
+            Array<Bool>::const_iterator
+        >()
+    );
+    stats.insert(StatisticsData::MEAN);
+    _wtStats->setStatsToCalculate(stats);
+    _wtStats->setCalculateAsAdded(True);
 }
 
 void StatWtTVI::_setChanBinMap(const casacore::Quantity& binWidth) {
@@ -446,7 +471,7 @@ Double StatWtTVI::getTimeBinWidthUsingInterval(const casacore::MeasurementSet *c
     return n*stats.median;
 }
 
-void StatWtTVI::_initialize() {}
+//void StatWtTVI::_initialize() {}
 
 void StatWtTVI::weightSpectrum(Cube<Float>& newWtsp) const {
     ThrowIf(! _weightsComputed, "Weights have not been computed yet");
@@ -577,15 +602,39 @@ void StatWtTVI::_updateWtSpFlags(
     Cube<Float>& wtsp, Cube<Bool>& flags,
     Bool& checkFlags, const Slicer& slice, Float wt
 ) const {
+    auto flagSlice = flags(slice);
     if (*_mustComputeWtSp) {
-        wtsp(slice) = wt;
+        auto wtSlice = wtsp(slice);
+        wtSlice = wt;
+        // do this before we potentially flag data
+        auto mask = ! flagSlice;
+        _wtStats->addData(wtSlice.begin(), mask.begin(), wtSlice.size());
+    }
+    else {
+        auto flagShape = flags.shape();
+        auto ncorr = flagShape[0];
+        auto nrow = flagShape[2];
+        Matrix<Bool> maskmat(ncorr, nrow);
+        IPosition start(3, 0);
+        IPosition end(3, ncorr, flagShape[1], nrow);
+        Slicer sl(start, end, Slicer::endIsLength);
+        for (uInt corr=0; corr<ncorr; ++corr, ++start[0], ++end[2]) {
+            for (uInt row=0; row<nrow; ++nrow, ++start[2], ++end[2]) {
+                sl.setStart(start);
+                sl.setEnd(end);
+                maskmat(corr, row) = ! allTrue(flagSlice(sl));
+            }
+        }
+        Matrix<Float> wtmat;
+        weight(wtmat);
+        _wtStats->addData(wtmat.begin(), maskmat.begin(), wtmat.size());
     }
     if (
         wt == 0
         || (_wtrange && (wt < _wtrange->first || wt > _wtrange->second))
     ) {
         checkFlags = True;
-        flags(slice) = True;
+        flagSlice = True;
     }
 }
 
@@ -860,8 +909,7 @@ void StatWtTVI::_gatherAndComputeWeightsSlidingTimeWindow() const {
             }
             rowMap.push_back(myRowNums);
         }
-        const auto& dataCube = _useCorrected
-            ? vb->visCubeCorrected() : vb->visCube();
+        const auto dataCube = _dataCube(vb);
         auto resultantFlags = _getResultantFlags(
             chanSelFlagTemplate, chanSelFlags,
             initChanSelTemplate, doChanSelFlags, spw,
@@ -890,6 +938,23 @@ void StatWtTVI::_gatherAndComputeWeightsSlidingTimeWindow() const {
     _computeWeightsSlidingTimeWindow(chunkData, chunkFlags, rowMap, spw);
 }
 
+const casacore::Cube<casacore::Complex> StatWtTVI::_dataCube(const VisBuffer2 *const vb) const {
+    switch (_column) {
+    case CORRECTED:
+        return vb->visCubeCorrected();
+    case DATA:
+        return vb->visCube();
+    case RESIDUAL:
+        return _useDefaultModelValue ? vb->visCubeCorrected() - DEFAULT_MODEL_VALUE
+            : vb->visCubeCorrected() - vb->visCubeModel();
+    case RESIDUAL_DATA:
+        return _useDefaultModelValue ? vb->visCube() - DEFAULT_MODEL_VALUE
+            : vb->visCube() - vb->visCubeModel();
+    default:
+        ThrowCc("Logic error: column type not handled");
+    }
+}
+
 void StatWtTVI::_computeWeightsSlidingTimeWindow(
     const casacore::Cube<casacore::Complex>& data,
     const casacore::Cube<casacore::Bool>& flags,
@@ -905,7 +970,9 @@ void StatWtTVI::_computeWeightsSlidingTimeWindow(
         False
     );
     const auto nRows = rowMap.size();
+#ifdef _OPENMP
 #pragma omp parallel for
+#endif
     for (size_t iRow=0; iRow<nRows; ++iRow) {
         IPosition chunkSliceStart(3, 0);
         auto chunkSliceLength = chunkShape;
@@ -1007,8 +1074,7 @@ void StatWtTVI::_gatherAndComputeWeightsTimeBlockProcessing() const {
         const auto& ant1 = vb->antenna1();
         const auto& ant2 = vb->antenna2();
         // [nC,nF,nR)
-        const auto& dataCube = _useCorrected
-            ? vb->visCubeCorrected() : vb->visCube();
+        const auto& dataCube = _dataCube(vb);
         const auto& flagCube = vb->flagCube();
         const auto nrows = vb->nRows();
         const auto npol = dataCube.nrow();
@@ -1175,7 +1241,9 @@ void StatWtTVI::_computeWeightsTimeBlockProcessing(
         _weights[blcb].resize(ncorr);
     }
     auto n = keys.size();
+#ifdef _OPENMP
 #pragma omp parallel for
+#endif
     for (size_t i=0; i<n; ++i) {
         auto blcb = keys[i];
         auto dataForBLCB = data.find(blcb)->second;
@@ -1225,9 +1293,11 @@ casacore::Double StatWtTVI::_computeWeight(
     // _samples.second can be updated in two different places, so use
     // a local (per thread) variable and update the object's private field in one
     // place
-    uInt updateSecond = False;;
+    uInt updateSecond = False;
     if (varSum > 0) {
+#ifdef _OPENMP
 #pragma omp atomic
+#endif
         ++_samples[spw].first;
         if (imagVar == 0 || realVar == 0) {
             updateSecond = True;
@@ -1238,7 +1308,9 @@ casacore::Double StatWtTVI::_computeWeight(
             updateSecond = ratio > 1.5 || inverse > 1.5;
         }
         if (updateSecond) {
+#ifdef _OPENMP
 #pragma omp atomic
+#endif
             ++_samples[spw].second;
         }
     }
@@ -1269,6 +1341,19 @@ void StatWtTVI::summarizeFlagging() const {
             << sample.second.first << " " << std::setw(n2) << sample.second.second;
         log << LogIO::NORMAL << oss.str() << LogIO::POST;
     }
+}
+
+void StatWtTVI::summarizeStats(Double& mean, Double& variance) const {
+    mean = _wtStats->getStatistic(StatisticsData::MEAN);
+    variance = _wtStats->getStatistic(StatisticsData::VARIANCE);
+    LogIO log(LogOrigin("StatWtTVI", __func__));
+    log << LogIO::NORMAL << "The mean of the computed weights is "
+        << mean << LogIO::POST;
+    log << LogIO::NORMAL << "The variance of the computed weights is "
+        << variance << LogIO::POST;
+    log << LogIO::NORMAL << "Weights which had corresponding flags of True "
+        << "prior to running this application were not used to compute these stats."
+        << LogIO::POST;
 }
 
 void StatWtTVI::origin() {

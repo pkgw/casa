@@ -79,10 +79,6 @@ public:
    */
   void setPolAverage(casacore::Record const& average, bool const verbose = true);
 
-  // Multiply a scale factor to selected spectra
-  void scale(float const factor, string const& in_column_name,
-      string const& out_ms_name);
-
   // Invoke baseline subtraction
   // (polynomial, write results in new casacore::MS)
   void subtractBaseline(string const& in_column_name,
@@ -398,9 +394,6 @@ private:
   /////////////////////////////////
   /// casacore::Array execution functions ///
   /////////////////////////////////
-  // multiply a scaling factor to a float array
-  void do_scale(float const factor, size_t const num_data,
-      float data[/*num_data*/]);
 
   ////////////////////////
   /// Member vairables ///
