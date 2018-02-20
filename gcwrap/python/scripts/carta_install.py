@@ -58,6 +58,9 @@ def resolve_os():
     if "Darwin Kernel Version 16" in platform.uname()[3]:
             # os= 'osx1012'
             detected_os = 'osx'
+    if "Darwin Kernel Version 17" in platform.uname()[3]:
+            # os= 'osx1012'
+            detected_os = 'osx'
     print "Found " + detected_os
     return detected_os
 

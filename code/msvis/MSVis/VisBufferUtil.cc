@@ -724,7 +724,7 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
 	 String index=oss.str();
 	 Int rowincache=timeAntIndex_p[oldMSId_p][index];
 	 //cerr << "key "<< index << " index " << rowincache << endl;
-	 tim.show("retrieved cache");
+	 //tim.show("retrieved cache");
 	 if(rowincache <0)
 		 return vb.phaseCenter();
 	 return cachedPointingDir_p[oldMSId_p][rowincache];
@@ -732,11 +732,11 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
 
 
  }
-
-   MDirection VisBufferUtil::getPhaseCenter(const vi::VisBuffer2& vb, const Int vbrow){
+ 
+   MDirection VisBufferUtil::getPhaseCenter(const vi::VisBuffer2& vb, const Double timeo){
      //Timer tim;
 	 
-	 
+     Double timeph = timeo > 0.0 ? timeo : vb.time()(0); 
 	 //MDirection outdir;
 	 if(oldPCMSId_p != vb.msId()){
 	   ROMSColumns msc(vb.ms());
@@ -774,13 +774,13 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
 	 }
 	 //tim.mark();
 	 MDirection retval;
-	 auto it=cachedPhaseCenter_p[oldPCMSId_p].find(vb.time()(vbrow));
+	 auto it=cachedPhaseCenter_p[oldPCMSId_p].find(timeph);
 	 if(it != cachedPhaseCenter_p[oldPCMSId_p].end()){
 	   retval=it->second;
 	 }
 	 else{
-	   auto upp= cachedPhaseCenter_p[oldPCMSId_p].upper_bound(vb.time()(vbrow));
-	   auto low= cachedPhaseCenter_p[oldPCMSId_p].lower_bound(vb.time()(vbrow));
+	   auto upp= cachedPhaseCenter_p[oldPCMSId_p].upper_bound(timeph);
+	   auto low= cachedPhaseCenter_p[oldPCMSId_p].lower_bound(timeph);
 	   if (upp==cachedPhaseCenter_p[oldPCMSId_p].begin())
 	     retval=(cachedPhaseCenter_p[oldPCMSId_p].begin())->second;
 	   else if(low==cachedPhaseCenter_p[oldPCMSId_p].end()){
@@ -788,7 +788,7 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
 	     retval=low->second;
 	   }
 	   else{
-	     if(fabs(vb.time()(vbrow) - (low->first)) < fabs(vb.time()(vbrow) - (upp->first))){
+	     if(fabs(timeph - (low->first)) < fabs(timeph - (upp->first))){
 	       retval=low->second;
 	     }
 	     else{

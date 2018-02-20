@@ -366,6 +366,13 @@ public:
   casacore::Bool isDryRun;
   void setPseudoIStokes(casacore::Bool pseudoI){isPseudoI_p=pseudoI;};
 
+   //set and get Time to calculate phasecenter  -1.0 means using the time available at 
+  //each iteration..this is used when the phasecenter in the field table is either 
+  //a polynomial or has a ephemerides tables associated with it
+  //Using double in the units and epoch-frame of the ms(s) ..caller is responsible for conversion
+  void setPhaseCenterTime(const casacore::Double time){phaseCenterTime_p=time;};
+  casacore::Double getPhaseCenterTime(){return phaseCenterTime_p;};
+
 protected:
 
   friend class VisModelData;
@@ -506,6 +513,7 @@ protected:
   //A holder for the complex image if nobody else is keeping it
   casacore::CountedPtr<casacore::ImageInterface<casacore::Complex> > cmplxImage_p;
   casacore::CountedPtr<VisBufferUtil> vbutil_p;
+  casacore::Double phaseCenterTime_p;
  private:
   //Some temporary wasteful function for swapping axes because we don't 
   //Interpolation along the second axis...will need to implement 

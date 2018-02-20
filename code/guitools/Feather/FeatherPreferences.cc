@@ -22,28 +22,28 @@
 //#                        520 Edgemont Road
 //#                        Charlottesville, VA 22903-2475 USA
 //#
-#include "Preferences.qo.h"
+#include "FeatherPreferences.qo.h"
 #include <QSettings>
 #include <QDebug>
 #include <limits>
 
 namespace casa {
 
-const QString Preferences::ORGANIZATION = "NRAO/CASA";
-const QString Preferences::APPLICATION = "Feather";
-const QString Preferences::LINE_THICKNESS = "Plot Line Thickness";
-const QString Preferences::DOT_SIZE = "Dot Size";
-const QString Preferences::DISPLAY_LEGEND = "Display Legend";
-const QString Preferences::DISPLAY_OUTPUT_FUNCTIONS = "Display Output Functions";
-const QString Preferences::DISPLAY_OUTPUT_SCATTERPLOT = "Display Output Scatter Plot";
-const QString Preferences::DISPLAY_Y_PLOTS = "Display Y Plots";
-const QString Preferences::DISPLAY_X_PLOTS = "Display X Plots";
-const QString Preferences::DISPLAY_X_AXIS_UV = "Display X Axis U/V";
-const QString Preferences::LOG_AMPLITUDE = "Logarithm of Amplitude";
-const QString Preferences::LOG_UV = "Logarithm of u/v Axis";
-const QString Preferences::PLANE_AVERAGED = "Plane Averaged";
+const QString FeatherPreferences::ORGANIZATION = "NRAO/CASA";
+const QString FeatherPreferences::APPLICATION = "Feather";
+const QString FeatherPreferences::LINE_THICKNESS = "Plot Line Thickness";
+const QString FeatherPreferences::DOT_SIZE = "Dot Size";
+const QString FeatherPreferences::DISPLAY_LEGEND = "Display Legend";
+const QString FeatherPreferences::DISPLAY_OUTPUT_FUNCTIONS = "Display Output Functions";
+const QString FeatherPreferences::DISPLAY_OUTPUT_SCATTERPLOT = "Display Output Scatter Plot";
+const QString FeatherPreferences::DISPLAY_Y_PLOTS = "Display Y Plots";
+const QString FeatherPreferences::DISPLAY_X_PLOTS = "Display X Plots";
+const QString FeatherPreferences::DISPLAY_X_AXIS_UV = "Display X Axis U/V";
+const QString FeatherPreferences::LOG_AMPLITUDE = "Logarithm of Amplitude";
+const QString FeatherPreferences::LOG_UV = "Logarithm of u/v Axis";
+const QString FeatherPreferences::PLANE_AVERAGED = "Plane Averaged";
 
-Preferences::Preferences(QWidget *parent)
+FeatherPreferences::FeatherPreferences(QWidget *parent)
     : QDialog(parent),
       lineThickness( 1 ),
       dotSize( 2 ),
@@ -97,7 +97,7 @@ Preferences::Preferences(QWidget *parent)
 
 }
 
-void Preferences::initializeCustomSettings(){
+void FeatherPreferences::initializeCustomSettings(){
 	//Only use the default values passed in if the user has not indicated
 	//any preferences.
 	QSettings settings( ORGANIZATION, APPLICATION );
@@ -113,12 +113,12 @@ void Preferences::initializeCustomSettings(){
 	planeAveraged = settings.value(PLANE_AVERAGED, planeAveraged ).toBool();
 }
 
-void Preferences::planeModeChanged(){
+void FeatherPreferences::planeModeChanged(){
 	bool planeMode = ui.singlePlaneRadio->isChecked();
 	ui.planeLineEdit->setEnabled( planeMode );
 }
 
-void Preferences::xAxisChanged(){
+void FeatherPreferences::xAxisChanged(){
 	bool uvXAxis = false;
 	if ( ui.axisUVRadio->isChecked() ){
 		uvXAxis = true;
@@ -127,7 +127,7 @@ void Preferences::xAxisChanged(){
 	ui.yPlotCheckBox->setEnabled(uvXAxis);
 }
 
-void Preferences::setPlaneCount( int planeCount ){
+void FeatherPreferences::setPlaneCount( int planeCount ){
 	ui.planeMaxLabel->setText( "<"+QString::number( planeCount ) );
 	QString currentPlaneText = ui.planeLineEdit->text();
 	bool valid = false;
@@ -141,40 +141,40 @@ void Preferences::setPlaneCount( int planeCount ){
 	ui.planeLineEdit->setValidator( planeValidator );
 }
 
-bool Preferences::isLogAmplitude() const {
+bool FeatherPreferences::isLogAmplitude() const {
 	return logAmplitude;
 }
 
-bool Preferences::isLogUV() const {
+bool FeatherPreferences::isLogUV() const {
 	return logUV;
 }
 
-bool Preferences::isDisplayOutputFunctions() const {
+bool FeatherPreferences::isDisplayOutputFunctions() const {
 	return displayOutputFunctions;
 }
 
 
-bool Preferences::isDisplayLegend() const {
+bool FeatherPreferences::isDisplayLegend() const {
 	return displayLegend;
 }
 
-bool Preferences::isDisplayOutputScatterPlot() const {
+bool FeatherPreferences::isDisplayOutputScatterPlot() const {
 	return displayOutputScatterPlot;
 }
 
-bool Preferences::isDisplayX() const {
+bool FeatherPreferences::isDisplayX() const {
 	return displayXPlots;
 }
 
-bool Preferences::isDisplayY() const {
+bool FeatherPreferences::isDisplayY() const {
 	return displayYPlots;
 }
 
-bool Preferences::isXAxisUV() const {
+bool FeatherPreferences::isXAxisUV() const {
 	return xAxisUV;
 }
 
-bool Preferences::isPlaneAveraged() const {
+bool FeatherPreferences::isPlaneAveraged() const {
 	bool averaged = true;
 	if ( ui.singlePlaneRadio->isChecked() ){
 		averaged = false;
@@ -182,29 +182,29 @@ bool Preferences::isPlaneAveraged() const {
 	return averaged;
 }
 
-int Preferences::getPlaneIndex() const {
+int FeatherPreferences::getPlaneIndex() const {
 	return planeIndex;
 }
 
-int Preferences::getLineThickness() const {
+int FeatherPreferences::getLineThickness() const {
 	return lineThickness;
 }
 
-int Preferences::getDotSize() const {
+int FeatherPreferences::getDotSize() const {
 	return dotSize;
 }
 
-void Preferences::preferencesAccepted(){
+void FeatherPreferences::preferencesAccepted(){
 	persist();
 	emit preferencesChanged();
 }
 
-void Preferences::preferencesRejected(){
+void FeatherPreferences::preferencesRejected(){
 	reset();
 	this->close();
 }
 
-void Preferences::reset(){
+void FeatherPreferences::reset(){
 	ui.lineThicknessSpinBox->setValue( lineThickness );
 	ui.dotSizeSpinBox->setValue( dotSize );
 	ui.legendCheckBox->setChecked( displayLegend );
@@ -232,7 +232,7 @@ void Preferences::reset(){
 	planeModeChanged();
 }
 
-void Preferences::persist(){
+void FeatherPreferences::persist(){
 	QSettings settings( ORGANIZATION, APPLICATION );
 
 	lineThickness = ui.lineThicknessSpinBox->value();
@@ -273,7 +273,7 @@ void Preferences::persist(){
 	}
 }
 
-Preferences::~Preferences(){
+FeatherPreferences::~FeatherPreferences(){
 }
 
 }

@@ -38,7 +38,7 @@ using namespace NetSidebandMod;
 
 using namespace std;
 
-
+#include <boost/regex.hpp> 
 
 #ifdef REG_BASIC
 #undef REG_BASIC
@@ -87,9 +87,6 @@ using namespace std;
 #ifdef REG_ECOLLATE
 #undef REG_ECOLLATE
 #endif
-
-#include <boost/regex.hpp> 
-using namespace boost;
 
 #if defined(__APPLE__)
 #include <machine/endian.h>
@@ -931,10 +928,10 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
     string title() const;
     void title(const string& value) ;
 
-    /**
-     * Returns the byte order of the binary parts.
-     * @return a pointer of a ByteOrder instance.
-     */
+     /**
+      * Returns the byte order of the binary parts.
+      * @return a pointer of a ByteOrder instance.
+      */
     const ByteOrder* byteOrder() const;
 
     /**
@@ -1030,7 +1027,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
      * @return a value from the enumeration ProcessorType.
      */
     ProcessorType processorType() const;
-
+    
 
     /**
      * Returns the correlator type.
@@ -1270,7 +1267,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
 
     void updateIdImageSPW();
 
-    const static regex  SPWID;
+    const static boost::regex  SPWID;
 
   };
   // SDMDataObject::

@@ -163,32 +163,46 @@ template<class T> casacore::Record PixelValueManipulator<T>::get() const {
     return ret;
 }
 
-template<class T> casacore::Record PixelValueManipulator<T>::getProfile(
-    casacore::uInt axis, ImageCollapserData::AggregateType function,
-    const casacore::String& unit, PixelValueManipulatorData::SpectralType specType,
-    const casacore::Quantity *const restFreq, const casacore::String& frame
+template<class T> Record PixelValueManipulator<T>::getProfile(
+    uInt axis, ImageCollapserData::AggregateType function,
+    const String& unit, PixelValueManipulatorData::SpectralType specType,
+    const Quantity *const restFreq, const String& frame
 ) {
     return getProfile(
-        axis, ImageCollapserData::minMatchMap()->find((casacore::uInt)function)->second,
+        axis, ImageCollapserData::minMatchMap()->at((uInt)function),
         unit,  specType, restFreq,  frame
     );
 }
 
-template<class T> casacore::Record PixelValueManipulator<T>::getProfile(
-    casacore::uInt axis, const casacore::String& function,
-    const casacore::String& unit, PixelValueManipulatorData::SpectralType specType,
-    const casacore::Quantity *const restFreq, const casacore::String& frame
+template<class T> Record PixelValueManipulator<T>::getProfile(
+    uInt axis, const String& function,
+    const String& unit, PixelValueManipulatorData::SpectralType specType,
+    const Quantity *const restFreq, const String& frame
 ) {
-    ImageCollapser<T> collapser(
-        function, this->_getImage(), this->_getRegion(),
-        this->_getMask(), casacore::IPosition(1, axis), true, "", ""
-    );
-    collapser.setStretch(this->_getStretch());
-    SPIIT collapsed = collapser.collapse();
-    casacore::Record ret;
-    casacore::Array<T> values = collapsed->get(true);
+    SPIIT collapsed;
+    Operator op = NONE;
+    if (function.contains("+")) {
+        op = ADDITION;
+    }
+    else if (function.contains("-")) {
+        op = SUBTRACTION;
+    }
+    else if (function.contains("*")) {
+        op = MULTIPLICATION;
+    }
+    else if (function.contains("/")) {
+        op = DIVISION;
+    }
+    if (op == NONE) {
+        collapsed = _doSingle(axis, function);
+    }
+    else {
+        collapsed = _doComposite(axis, function, op);
+    }
+    Record ret;
+    auto values = collapsed->get(true);
     ret.define("values", values);
-    casacore::Array<casacore::Bool> mask(values.shape(), true);
+    Array<Bool> mask(values.shape(), true);
     if (collapsed->isMasked()) {
         mask = mask && collapsed->getMask(true);
     }
@@ -198,16 +212,16 @@ template<class T> casacore::Record PixelValueManipulator<T>::getProfile(
     ret.define("mask", mask);
     ret.define("yUnit", collapsed->units().getName());
     ret.define("npix", _npts(axis));
-    casacore::String tunit = unit;
+    auto tunit = unit;
     tunit.downcase();
-    casacore::Vector<casacore::Double> pix(collapsed->ndim(), 0);
+    Vector<Double> pix(collapsed->ndim(), 0);
     auto outputRef = collapsed->coordinates().toWorld(pix);
     auto inputRef = this->_getImage()->coordinates().referenceValue();
     inputRef[axis] = outputRef[axis];
     auto inputPixel = this->_getImage()->coordinates().toPixel(inputRef);
-    casacore::Double count = floor(inputPixel[axis] + 0.5);
+    Double count = floor(inputPixel[axis] + 0.5);
     auto length = values.shape()[0];
-    casacore::Vector<casacore::Double> coords = indgen(length, count, 1.0);
+    Vector<Double> coords = indgen(length, count, 1.0);
     ret.define("planes", coords);
     if (tunit.startsWith("pix")) {
         ret.define("coords", coords);
@@ -215,20 +229,16 @@ template<class T> casacore::Record PixelValueManipulator<T>::getProfile(
     }
     else {
         ret.merge(
-            _doWorld(
-                collapsed, unit, specType,
-                restFreq, frame, axis
-            )
+            _doWorld(collapsed, unit, specType, restFreq, frame, axis)
         );
     }
     if (this->_getLogFile()) {
         auto axisName = this->_getImage()->coordinates().worldAxisNames()[axis];
         auto cAxis = axisName;
         cAxis.downcase();
-        casacore::Quantity xunit(1, ret.asString("xUnit"));
+        Quantity xunit(1, ret.asString("xUnit"));
         if (
-            cAxis.startsWith("freq")
-            && xunit.isConform(casacore::Unit("m/s"))
+            cAxis.startsWith("freq") && xunit.isConform(Unit("m/s"))
         ) {
             axisName = "Velocity";
         }
@@ -242,24 +252,78 @@ template<class T> casacore::Record PixelValueManipulator<T>::getProfile(
         oss << "#xUnit " << xunit.getUnit() << endl;
         oss << "#yUnit " << ret.asString("yUnit") << endl;
         oss << "# " << imageName << endl << endl;
-        casacore::Vector<T> data;
+        Vector<T> data;
         ret.get("values", data);
-        casacore::Vector<casacore::Bool> mask;
+        Vector<Bool> mask;
         ret.get("mask", mask);
-        casacore::Vector<casacore::Double> xvals = ret.asArrayDouble("coords");
-        auto diter = std::begin(data);
-        auto dend = std::end(data);
+        Vector<Double> xvals = ret.asArrayDouble("coords");
         auto citer = xvals.begin();
         auto miter = mask.begin();
-        for ( ; diter != dend; ++diter, ++citer, ++miter) {
+        for (const auto& d : data) {
             if (*miter) {
                 oss << fixed << setprecision(7) << *citer
-                    << " " << setw(10) << *diter << endl;
+                    << " " << setw(10) << d << endl;
             }
+            ++miter;
+            ++citer;
         }
         this->_writeLogfile(oss.str());
     }
     return ret;
+}
+
+template<class T> SPIIT PixelValueManipulator<T>::_doComposite(
+    uInt axis, const String& function, Operator op
+) const {
+    String x = op == ADDITION ? "+"
+        : op == SUBTRACTION ? "-"
+            : op == MULTIPLICATION ? "*"
+                : "/";
+    // have to make a copy, because after not const :(
+    auto f = function;
+    String func0 = f.before(x);
+    func0.trim();
+    String func1 = f.after(x);
+    func1.trim();
+    auto im0 = _doSingle(axis, func0);
+    auto im1 = func0 == func1 ? im0 : _doSingle(axis, func1);
+    SPIIT ret(new TempImage<T>(im0->shape(), im0->coordinates()));
+    LatticeExpr<T> data = op == ADDITION ? *im0 + *im1
+        : op == SUBTRACTION ? *im0 - *im1
+            : op == MULTIPLICATION ? (*im0)*(*im1)
+                : (*im0)/(*im1);
+    ret->copyData(data);
+    auto unit0 = im0->units();
+    auto unit1 = im1->units();
+    Unit outUnit;
+    if (op == ADDITION || op == SUBTRACTION) {
+        if (unit1 == unit0) {
+            outUnit = unit0;
+        }
+        else {
+            *this->_getLog() << LogIO::WARN << "Units incompatible for this operation, setting output image "
+                << " brightness unit to empty" << LogIO::POST;
+            outUnit = Unit();
+        }
+    }
+    else {
+        Quantity q0(1, unit0);
+        Quantity q1(1, unit1);
+        outUnit = op == MULTIPLICATION ? (q0*q1).getFullUnit() : (q0/q1).getFullUnit();
+    }
+    ret->setUnits(outUnit);
+    return ret;
+}
+
+template<class T> SPIIT PixelValueManipulator<T>::_doSingle(
+    uInt axis, const String& function
+) const {
+    ImageCollapser<T> collapser(
+        function, this->_getImage(), this->_getRegion(),
+        this->_getMask(), IPosition(1, axis), true, "", ""
+    );
+    collapser.setStretch(this->_getStretch());
+    return collapser.collapse();
 }
 
 template<class T> casacore::Vector<casacore::uInt> PixelValueManipulator<T>::_npts(casacore::uInt axis) const {

@@ -133,7 +133,7 @@ public:
 	      "UVdist","UVwave","U","V","W","Uwave","Vwave","Wwave",
 	      "Azimuth","Elevation","HourAngle","ParAngle",
 	      "Antenna","Ant-Azimuth","Ant-Elevation","Ant-ParAngle",
-	      "Gain Amplitude","Gain Phase","Gain Real","Gain Imag",
+	      "Gain Amp","Gain Phase","Gain Real","Gain Imag",
 	      "Delay","SwPower","Tsys","Opac", "SNR", "TEC",
 	      "Radial Velocity [km/s]", "Distance (rho) [km]", 
 	      "None")
@@ -149,9 +149,11 @@ public:
     // **If these are changed, also update: xmlcasa/tasks/plotms.xml.**
     // <group>
     PMS_ENUM1(DataColumn, dataColumns, dataColumnStrings, dataColumn,
-              DATA, CORRECTED, MODEL, CORRMODEL, DATAMODEL, DATA_DIVIDE_MODEL, CORRECTED_DIVIDE_MODEL, FLOAT_DATA)
+              DATA, CORRECTED, MODEL, CORRMODEL, DATAMODEL, DATA_DIVIDE_MODEL, 
+              CORRECTED_DIVIDE_MODEL, FLOAT_DATA)
     PMS_ENUM2(DataColumn, dataColumns, dataColumnStrings, dataColumn,
-              "data", "corrected", "model", "corrected-model", "data-model", "data/model", "corrected/model", "float")
+              "data", "corrected", "model", "corrected-model", "data-model", 
+              "data/model", "corrected/model", "float")
     // </group>
               
     // Returns whether or not the given axis needs the second data parameter to
