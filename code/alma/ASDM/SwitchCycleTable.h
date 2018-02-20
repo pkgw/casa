@@ -41,15 +41,15 @@
 
 
 	
-#include <ArrayTime.h>
-	
-
-	
 #include <Angle.h>
 	
 
 	
-#include <Interval.h>
+#include <ArrayTime.h>
+	
+
+	
+#include <Frequency.h>
 	
 
 	
@@ -57,7 +57,7 @@
 	
 
 	
-#include <Frequency.h>
+#include <Interval.h>
 	
 
 
@@ -113,7 +113,7 @@ class SwitchCycleRow;
  * Cycle information in switching modes. Describe each step in a switching cycle.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of SwitchCycle </CAPTION>
@@ -135,7 +135,7 @@ class SwitchCycleRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numStep </TD> 
+ * <TD> numStep (\f$N_{Step}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of steps. </TD>
@@ -174,14 +174,14 @@ class SwitchCycleRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> directionCode </TD> 
+ * <TD> directionCode</TD> 
  * <TD> DirectionReferenceCodeMod::DirectionReferenceCode </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the reference frame associated to dirOffsetArray.t </TD>
  * </TR>
 	
  * <TR>
- * <TD> directionEquinox </TD> 
+ * <TD> directionEquinox</TD> 
  * <TD> ArrayTime </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the equinox associated to directionCode (if required). </TD>
@@ -453,6 +453,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

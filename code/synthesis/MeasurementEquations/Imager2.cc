@@ -70,7 +70,6 @@
 
 #include <casa/Arrays/ArrayMath.h>
 #include <casa/Arrays/Slice.h>
-#include <imageanalysis/ImageAnalysis/ImageAnalysis.h>
 #include <images/Images/ImageExpr.h>
 #include <imageanalysis/ImageAnalysis/ImagePolarimetry.h>
 #include <images/Images/ImageBeamSet.h>
@@ -4240,8 +4239,6 @@ Bool Imager::makeEmptyImage(CoordinateSystem& coords, String& name, Int fieldID)
   iinfo.setObjectName(objectName);
   modelImage.setImageInfo(iinfo);
   String telescop=msc.observation().telescopeName()(0);
-  info.define("OBJECT", object);
-  info.define("TELESCOP", telescop);
   info.define("INSTRUME", telescop);
   info.define("distance", 0.0);
   modelImage.setMiscInfo(info);

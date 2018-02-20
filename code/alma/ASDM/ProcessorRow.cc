@@ -834,11 +834,13 @@ processorSubType = CProcessorSubType::from_int(0);
 	 * Return true if all required attributes of the value part are equal to their homologues
 	 * in x and false otherwise.
 	 *
+
 	 * @param x a pointer on the ProcessorRow whose required attributes of the value part 
+
 	 * will be compared with those of this.
 	 * @return a boolean.
 	 */
-	bool ProcessorRow::equalByRequiredValue(ProcessorRow* x) {
+	bool ProcessorRow::equalByRequiredValue(ProcessorRow*  x ) {
 		
 			
 		if (this->modeId != x->modeId) return false;

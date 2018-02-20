@@ -52,7 +52,7 @@
 #include <display/QtViewer/AnimatorHolder.qo.h>
 #include <display/QtViewer/CursorTrackingHolder.qo.h>
 #include <display/QtViewer/QtWCBox.h>
-#include <display/QtViewer/Preferences.qo.h>
+#include <display/QtViewer/ViewerPreferences.qo.h>
 #include <display/QtViewer/ColorHistogram.qo.h>
 #include <display/QtViewer/ImageManager/ImageManagerDialog.qo.h>
 #include <display/Fit/Fit2DTool.qo.h>
@@ -2030,7 +2030,7 @@ void QtDisplayPanelGui::hideExportManager() {
 
 void QtDisplayPanelGui::showPreferences( ) {
 	if ( preferences == 0 )
-		preferences = new viewer::Preferences( );
+		preferences = new viewer::ViewerPreferences( );
 	preferences->showNormal( );
 	preferences->raise( );
 }

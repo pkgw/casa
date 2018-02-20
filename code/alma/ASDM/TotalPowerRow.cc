@@ -2928,11 +2928,13 @@ void TotalPowerRow::subintegrationNumberFromBin(EndianIStream& eis) {
 	 * Return true if all required attributes of the value part are equal to their homologues
 	 * in x and false otherwise.
 	 *
+
 	 * @param x a pointer on the TotalPowerRow whose required attributes of the value part 
+
 	 * will be compared with those of this.
 	 * @return a boolean.
 	 */
-	bool TotalPowerRow::equalByRequiredValue(TotalPowerRow* x) {
+	bool TotalPowerRow::equalByRequiredValue(TotalPowerRow*  x ) {
 		
 			
 		if (this->scanNumber != x->scanNumber) return false;
