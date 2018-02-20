@@ -408,6 +408,40 @@ elements of the data path.
 
 <!-- ******************************************************************************** -->
 
+<!-- ******************** functions to manage the service registry ****************** -->
+
+<method type="function" name="registry">
+<shortdescription>retrieve registry information</shortdescription>
+
+<description>
+returns record containing the URI for the CASAtools registry which can be used by other unix processes to access the registry
+</description>
+
+<returns type="record"/>
+</method>
+
+<method type="function" name="services">
+<shortdescription>retrieve registered services</shortdescription>
+
+<description>
+returns record containing the information about the services that have been registered with CASAtools
+</description>
+
+<returns type="record"/>
+</method>
+
+<method type="function" name="shutdown">
+<shortdescription>shutdown signal from python</shortdescription>
+
+<description>
+python is shutting down cleanup anything that is outstanding
+</description>
+
+<returns/>
+</method>
+
+<!-- ******************************************************************************** -->
+
 <method type="function" name="version">
 <shortdescription>returns four element vector for the version</shortdescription>
 
