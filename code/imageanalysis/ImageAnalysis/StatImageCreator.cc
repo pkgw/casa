@@ -133,7 +133,7 @@ SPIIF StatImageCreator::compute() {
     }
     _computeStat(*writeTo, subImageRO, nxpts, nypts, xstart, ystart);
     if (_doProbit) {
-        writeTo->copyData((LatticeExpr<Float>)(*writeTo * C::PROBIT_3_4));
+        writeTo->copyData((LatticeExpr<Float>)(*writeTo * C::probit_3_4));
     }
     if (interpolate) {
         _doInterpolation(

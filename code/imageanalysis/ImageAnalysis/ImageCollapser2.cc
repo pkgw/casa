@@ -83,7 +83,7 @@ template<> void ImageCollapser<Float>::_doHighPerf(
                 else if (doMADM) {
                     auto x = stats.getMedianAbsDevMed();
                     if (_aggType == ImageCollapserData::XMADM) {
-                        x *= C::PROBIT_3_4;
+                        x *= C::probit_3_4;
                     }
                     outImage.putAt(x, stepper.position());
                 }
@@ -97,7 +97,7 @@ template<> void ImageCollapser<Float>::_doHighPerf(
             else if (doMADM) {
                 auto x = stats.getMedianAbsDevMed();
                 if (_aggType == ImageCollapserData::XMADM) {
-                    x *= C::PROBIT_3_4;
+                    x *= C::probit_3_4;
                 }
                 outImage.putAt(x, stepper.position());
             }
