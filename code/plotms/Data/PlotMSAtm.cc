@@ -326,18 +326,25 @@ void PlotMSAtm::getMedianPwv() {
           if (mstab.keywordSet().fieldNumber("ASDM_CALWVR") > -1) {
             subname = tableName_ + "::ASDM_CALWVR";
             subtable = Table::openTable(subname);
-            waterCol = ScalarColumn<casacore::Double>(subtable, "water").getColumn();
-            timesCol = ScalarColumn<casacore::Double>(subtable, "startValidTime").getColumn();
-            mstab.closeSubTables();
-          } else if (mstab.keywordSet().fieldNumber("ASDM_CALATMOSPHERE") > -1) {
+			if (subtable.nrow() > 0) {
+              waterCol = ScalarColumn<casacore::Double>(subtable, "water").getColumn();
+              timesCol = ScalarColumn<casacore::Double>(subtable, "startValidTime").getColumn();
+			}
+          }
+          if (waterCol.empty() && mstab.keywordSet().fieldNumber("ASDM_CALATMOSPHERE") > -1) {
             subname = tableName_ + "::ASDM_CALATMOSPHERE";
             subtable = Table::openTable(subname);
-            Array<Double> waterColArray = ArrayColumn<casacore::Double>(subtable, "water").getColumn();
-			waterCol = waterColArray(Slicer(Slice(0), Slice()));
-            timesCol = ScalarColumn<casacore::Double>(subtable, "startValidTime").getColumn();
-            mstab.closeSubTables();
+			if (subtable.nrow() > 0) {
+              Array<Double> waterColArray = ArrayColumn<casacore::Double>(subtable, "water").getColumn();
+			  waterCol = waterColArray(Slicer(Slice(0), Slice()));
+              timesCol = ScalarColumn<casacore::Double>(subtable, "startValidTime").getColumn();
+            }
           }
-          if (!waterCol.empty()) {
+          mstab.closeSubTables();
+          if (waterCol.empty()) {
+            parent_->logmesg("load_cache",
+              "ASMD_CALWVR and ASDM_CALATMOSPHERE tables could not be opened or have zero rows");
+          } else {
             casacore::Vector<casacore::Double> water = 
                 getValuesNearTimes(waterCol, timesCol);
             if (!water.empty()) pwv = median(water) * 1000.0; // in mm
@@ -350,8 +357,8 @@ void PlotMSAtm::getMedianPwv() {
     if (pwv == 0.0) {
         if (telescopeName_=="ALMA") pwv = 1.0;
         else pwv = 5.0;
-        parent_->logmesg("load_cache", 
-            "Could not open ASMD_CALWVR or ASDM_CALATMOSPHERE table; using default pwv " + casacore::String::toString(pwv) + " for telescope " + telescopeName_);
+        parent_->logmesg("load_cache",
+            "Using default pwv " + casacore::String::toString(pwv) + " for telescope " + telescopeName_);
     }
     pwv_ = pwv;
 }
