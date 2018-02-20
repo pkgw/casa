@@ -74,9 +74,9 @@ throw (InvalidArgumentException) {
 }
 
 int StringTokenizer::indexOfDelimiters(char c) {
-	int nd = 0;
+        // int nd = 0;  // set but never used
 	for (int i = 0; i < numDelimiters; ++i) {
-		nd = delimiter[i];
+	        //  nd = delimiter[i];  // set but never used
 		if (c == delimiter[i]) {
 			return i;
 		}

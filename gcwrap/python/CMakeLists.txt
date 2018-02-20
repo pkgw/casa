@@ -21,7 +21,6 @@
 #casa_add_executable(tableplot projtable  apps/projtable/projtable.cc)
 casa_add_python( python  casa_python lib/python${PYTHONV}
 scripts/tf.py
-#scripts/asap_init.py
 scripts/assignmentFilter.py
 scripts/callibrary.py
 scripts/carta.py
@@ -88,6 +87,7 @@ scripts/solar_system_setjy.py
 scripts/testhelper.py
 scripts/TablePlotQt4Agg.py
 scripts/TablePlotTkAgg.py
+scripts/task_accor.py
 scripts/task_accum.py
 scripts/task_applycal.py
 scripts/task_autoclean.py
@@ -191,6 +191,7 @@ scripts/task_sdfit.py
 scripts/task_sdfixscan.py
 scripts/task_sdgaincal.py
 scripts/task_sdimaging.py
+scripts/task_tsdimaging.py
 scripts/task_sdsmooth.py
 scripts/task_setjy.py
 scripts/task_ssoflux.py

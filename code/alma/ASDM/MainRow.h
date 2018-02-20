@@ -54,15 +54,15 @@
 	
 
 	 
-#include <Interval.h>
-	
-
-	 
 #include <Tag.h>
 	
 
 	 
 #include <EntityRef.h>
+	
+
+	 
+#include <Interval.h>
 	
 
 
@@ -98,7 +98,7 @@
 //#include <TableStreamReader.h>
 
 /*\file Main.h
-    \brief Generated from model's revision "1.64", branch "HEAD"
+    \brief Generated from model's revision "-1", branch ""
 */
 
 namespace asdm {
@@ -126,7 +126,7 @@ typedef void (MainRow::*MainAttributeFromText) (const string& s);
 /**
  * The MainRow class is a row of a MainTable.
  * 
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  */
 class MainRow {

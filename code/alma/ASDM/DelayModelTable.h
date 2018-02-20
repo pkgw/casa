@@ -41,11 +41,11 @@
 
 
 	
-#include <ArrayTime.h>
+#include <ArrayTimeInterval.h>
 	
 
 	
-#include <Tag.h>
+#include <ArrayTime.h>
 	
 
 	
@@ -53,7 +53,7 @@
 	
 
 	
-#include <ArrayTimeInterval.h>
+#include <Tag.h>
 	
 
 
@@ -149,7 +149,7 @@ class DelayModelRow;
  * Contains the delay model components. For ALMA this includes all TMCDB delay model components.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of DelayModel </CAPTION>
@@ -189,7 +189,7 @@ class DelayModelRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numPoly </TD> 
+ * <TD> numPoly (\f$N_{Poly}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of coefficients of the polynomials. </TD>
@@ -235,154 +235,154 @@ class DelayModelRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> timeOrigin </TD> 
+ * <TD> timeOrigin</TD> 
  * <TD> ArrayTime </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; value used as the origin for the evaluation of the polynomials. </TD>
  * </TR>
 	
  * <TR>
- * <TD> atmosphericGroupDelay </TD> 
+ * <TD> atmosphericGroupDelay</TD> 
  * <TD> double </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; Atmosphere group delay. </TD>
  * </TR>
 	
  * <TR>
- * <TD> atmosphericGroupDelayRate </TD> 
+ * <TD> atmosphericGroupDelayRate</TD> 
  * <TD> double </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; Atmosphere group delay rate. </TD>
  * </TR>
 	
  * <TR>
- * <TD> geometricDelay </TD> 
+ * <TD> geometricDelay</TD> 
  * <TD> double </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; Geometric delay. </TD>
  * </TR>
 	
  * <TR>
- * <TD> geometricDelayRate </TD> 
+ * <TD> geometricDelayRate</TD> 
  * <TD> double </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; Geometric delay. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numLO </TD> 
+ * <TD> numLO(\f$N_{LO}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of local oscillators. </TD>
  * </TR>
 	
  * <TR>
- * <TD> LOOffset </TD> 
+ * <TD> LOOffset</TD> 
  * <TD> vector<Frequency > </TD>
  * <TD>  numLO  </TD>
  * <TD>&nbsp; Local oscillator offset. </TD>
  * </TR>
 	
  * <TR>
- * <TD> LOOffsetRate </TD> 
+ * <TD> LOOffsetRate</TD> 
  * <TD> vector<Frequency > </TD>
  * <TD>  numLO  </TD>
  * <TD>&nbsp; Local oscillator offset rate. </TD>
  * </TR>
 	
  * <TR>
- * <TD> dispersiveDelay </TD> 
+ * <TD> dispersiveDelay</TD> 
  * <TD> double </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; Dispersive delay. </TD>
  * </TR>
 	
  * <TR>
- * <TD> dispersiveDelayRate </TD> 
+ * <TD> dispersiveDelayRate</TD> 
  * <TD> double </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; Dispersive delay rate. </TD>
  * </TR>
 	
  * <TR>
- * <TD> atmosphericDryDelay </TD> 
+ * <TD> atmosphericDryDelay</TD> 
  * <TD> double </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the dry atmospheric delay component. </TD>
  * </TR>
 	
  * <TR>
- * <TD> atmosphericWetDelay </TD> 
+ * <TD> atmosphericWetDelay</TD> 
  * <TD> double </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the wet atmospheric delay. </TD>
  * </TR>
 	
  * <TR>
- * <TD> padDelay </TD> 
+ * <TD> padDelay</TD> 
  * <TD> double </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; Pad delay. </TD>
  * </TR>
 	
  * <TR>
- * <TD> antennaDelay </TD> 
+ * <TD> antennaDelay</TD> 
  * <TD> double </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; Antenna delay. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numReceptor </TD> 
+ * <TD> numReceptor(\f$N_{Rece}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp;  </TD>
  * </TR>
 	
  * <TR>
- * <TD> polarizationType </TD> 
+ * <TD> polarizationType</TD> 
  * <TD> vector<PolarizationTypeMod::PolarizationType > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; describes the polarizations of the receptors (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
- * <TD> electronicDelay </TD> 
+ * <TD> electronicDelay</TD> 
  * <TD> vector<double > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the electronic delay. </TD>
  * </TR>
 	
  * <TR>
- * <TD> electronicDelayRate </TD> 
+ * <TD> electronicDelayRate</TD> 
  * <TD> vector<double > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the electronic delay rate. </TD>
  * </TR>
 	
  * <TR>
- * <TD> receiverDelay </TD> 
+ * <TD> receiverDelay</TD> 
  * <TD> vector<double > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the receiver delay. </TD>
  * </TR>
 	
  * <TR>
- * <TD> IFDelay </TD> 
+ * <TD> IFDelay</TD> 
  * <TD> vector<double > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the intermediate frequency delay. </TD>
  * </TR>
 	
  * <TR>
- * <TD> LODelay </TD> 
+ * <TD> LODelay</TD> 
  * <TD> vector<double > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the local oscillator delay. </TD>
  * </TR>
 	
  * <TR>
- * <TD> crossPolarizationDelay </TD> 
+ * <TD> crossPolarizationDelay</TD> 
  * <TD> double </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the cross polarization delay. </TD>
@@ -694,6 +694,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 

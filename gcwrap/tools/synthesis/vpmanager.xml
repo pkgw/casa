@@ -84,8 +84,7 @@ vp tool method
 and then connected to a telescope using a command like
 \begin{verbatim}
 vp.setpbantresptable(telescope='ALMA',
-                     antresppath=casa['dirs']['data']
-                     +'/alma/responses/AntennaResponses-ALMA-RT',
+                     antresppath='alma/responses/AntennaResponses-ALMA-RT',
                      dopb=True)
 \end{verbatim}
 where the value of the {\tt antresppath} parameter indicates the path to the AntennaResponses table.
@@ -869,6 +868,7 @@ Declare a reference to an antenna responses table containing a set of VP/PB defi
      <param type="string" name="antresppath">
      <description>The path to the antenna responses table (absolute or relative to CASA data dir.)</description>
      <value></value>
+     <type mustexist="true">path</type>
      </param>
 
 </input>

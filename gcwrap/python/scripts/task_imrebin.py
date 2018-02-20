@@ -1,4 +1,5 @@
 from taskinit import *
+from ialib import write_image_history
 
 def imrebin(
     imagename, outfile, factor, region, box, chans, stokes, mask,
@@ -21,6 +22,7 @@ def imrebin(
             'WARN'
         )
     myia = iatool()
+    myia.dohistory(False)
     outia = None
     try:
         if (not myia.open(imagename)):
@@ -39,6 +41,15 @@ def imrebin(
             outfile=outfile, bin=factor, region=reg, mask=mask, dropdeg=dropdeg,
             overwrite=overwrite, stretch=stretch, crop=crop
         )
+        try:
+            param_names = imrebin.func_code.co_varnames[:imrebin.func_code.co_argcount]
+            param_vals = [eval(p) for p in param_names]   
+            write_image_history(
+                outia, sys._getframe().f_code.co_name,
+                param_names, param_vals, casalog
+            )
+        except Exception, instance:
+            casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
         return True
     except Exception, instance:
         casalog.post( str( '*** Error ***') + str(instance), 'SEVERE')

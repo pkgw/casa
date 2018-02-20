@@ -509,7 +509,7 @@ if($1){
       } else if (PyLong_Check($input)){
          $1->push_back(bool(PyLong_AsLong($input)));
       } else if (PyFloat_Check($input)){
-         $1->push_back(bool(PyInt_AsLong(PyNumber_Int($input))));
+         $1->push_back(bool(PyInt_AsLong(PyNumber_Long($input))));
       } else {
          shape.push_back(PyList_Size($input));
          casac::pylist2vector($input,  *$1, shape);
@@ -539,7 +539,7 @@ if($1){
       } else if (PyLong_Check($input)){
          $1->push_back(PyLong_AsLong($input));
       } else if (PyFloat_Check($input)){
-         $1->push_back(PyInt_AsLong(PyNumber_Int($input)));
+         $1->push_back(PyInt_AsLong(PyNumber_Long($input)));
       } else {
          shape.push_back(PyList_Size($input));
          casac::pylist2vector($input,  *$1, shape);
@@ -568,7 +568,7 @@ if($1){
       } else if (PyLong_Check($input)){
          $1->push_back(PyLong_AsLong($input));
       } else if (PyFloat_Check($input)){
-         $1->push_back(PyInt_AsLong(PyNumber_Int($input)));
+         $1->push_back(PyInt_AsLong(PyNumber_Long($input)));
       } else {
          shape.push_back(PyList_Size($input));
          casac::pylist2vector($input,  *$1, shape);
@@ -598,7 +598,7 @@ if($1){
       } else if (PyLong_Check($input)){
          $1->push_back(PyLong_AsLong($input));
       } else if (PyFloat_Check($input)){
-         $1->push_back(PyInt_AsLong(PyNumber_Int($input)));
+         $1->push_back(PyInt_AsLong(PyNumber_Long($input)));
       } else {
          shape.push_back(PyList_Size($input));
          casac::pylist2vector($input,  *$1, shape);

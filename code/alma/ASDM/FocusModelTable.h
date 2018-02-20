@@ -99,7 +99,7 @@ class FocusModelRow;
  * Contains the focus model data (function of elevation and temperature).
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of FocusModel </CAPTION>
@@ -144,7 +144,7 @@ class FocusModelRow;
  * </TR>
 	
  * <TR>
- * <TD> numCoeff </TD> 
+ * <TD> numCoeff (\f$N_{Coef}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of coefficients. </TD>
@@ -479,6 +479,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

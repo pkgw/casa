@@ -37,15 +37,17 @@
 #include <string.h>
 %}
 
-QSTRING   [\'\"][^\"\'\n]*[\"\']
+QSTRING		\"[^\"\n]*\"
+ASTRING		\'[^\'\n]*\'
+STRINGS		({QSTRING}|{ASTRING})+
 %x ORDERED_LIST
 
 %%
 [ \t]             ;
 ^\n               { ++(calLibLineNum()); }
 ^[ \t]*#.*\n      { ++(calLibLineNum()); } // comment
-True|T            { lvalp->bval = true; return BOOLEAN; }
-False|F           { lvalp->bval = false; return BOOLEAN; }
+True|T|true       { lvalp->bval = true; return BOOLEAN; }
+False|F|false     { lvalp->bval = false; return BOOLEAN; }
 [0-9]+\.[0-9]+    { lvalp->fval = atof(CalLibraryGramtext); return FLOAT; }
 [0-9]+            { lvalp->ival = atoi(CalLibraryGramtext); return INT; }
 "="               { return EQ; }
@@ -55,7 +57,7 @@ False|F           { lvalp->bval = false; return BOOLEAN; }
 	// copy in case CalLibraryGramtext changes underneath us:
 	lvalp->sval = strdup(CalLibraryGramtext);
 	return STRING; }
-{QSTRING} {
+{STRINGS} {
 	// copy in case CalLibraryGramtext changes underneath us:
 	std::string str = strdup(CalLibraryGramtext);
     char * cstr = new char[yyleng];

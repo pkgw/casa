@@ -2456,11 +2456,13 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	 * Return true if all required attributes of the value part are equal to their homologues
 	 * in x and false otherwise.
 	 *
+
 	 * @param x a pointer on the FlagRow whose required attributes of the value part 
+
 	 * will be compared with those of this.
 	 * @return a boolean.
 	 */
-	bool FlagRow::equalByRequiredValue(FlagRow* x) {
+	bool FlagRow::equalByRequiredValue(FlagRow*  x ) {
 		
 			
 		if (this->startTime != x->startTime) return false;
