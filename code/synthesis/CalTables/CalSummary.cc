@@ -339,7 +339,7 @@ void CalSummary::listAntenna (LogIO& os, Bool verbose) const
     std::vector<casacore::Int> ant1col = ctmain.antenna1().getColumn().tovector();
     std::set<casacore::Int> antIds = std::set<casacore::Int>(ant1col.begin(), ant1col.end());
     uInt nAnt = antIds.size();
-    os << "Antennas: " << nAnt; 
+    os << "Antennas: " << nAnt << endl;
 
     // Antenna info from MS
     casacore::Vector<casacore::String> antnames, stations;
@@ -389,9 +389,6 @@ void CalSummary::listAntenna (LogIO& os, Bool verbose) const
 
         os.output().setf(ios::fixed, ios::floatfield);
         os.output().setf(ios::left, ios::adjustfield);
-        // Write the title:
-        casacore::String title("Antennas: "+String::toString(nAnt)+":");
-        os << title << endl;
         // Write the column headings:
         os << indent;
         os.output().width(indwidth);    os << "ID";
