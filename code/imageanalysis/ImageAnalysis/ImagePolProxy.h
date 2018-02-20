@@ -99,19 +99,9 @@ class ImagePol
   // casacore::Stokes V
   casacore::Bool stokesV(casacore::ImageInterface<casacore::Float>*& rtnim, const casacore::String& outfile="");
   casacore::Float sigmaStokesV(casacore::Float clip = 10.0) const;
-
-  // Linearly polarized intensity
-  casacore::Bool linPolInt(casacore::ImageInterface<casacore::Float>*& rtnim, casacore::Bool debias = false,
-		 casacore::Float clip = 10.0,
-		 casacore::Float sigma = -1, const casacore::String& outfile = "");
   casacore::Float sigmaLinPolInt(casacore::Float clip = 10.0, casacore::Float sigma = -1) const;
 
   // Total polarized intensity.
-  /*
-  casacore::Bool totPolInt(casacore::ImageInterface<casacore::Float>*& rtnim, casacore::Bool debias = false,
-		 casacore::Float clip = 10.0,
-		 casacore::Float sigma = -1, const casacore::String& outfile = "");
-		 */
   casacore::Float sigmaTotPolInt(casacore::Float clip = 10.0, casacore::Float sigma = -1) const;
 
   // casacore::Complex linear polarization
@@ -121,8 +111,6 @@ class ImagePol
   void complexFractionalLinearPolarization (const casacore::String& outfile);
 
   // Linearly polarized position angle
-  casacore::Bool linPolPosAng(casacore::ImageInterface<casacore::Float>*& rtnim,
-		    const casacore::String& outfile = "");
   casacore::Bool sigmaLinPolPosAng(casacore::ImageInterface<casacore::Float>*& rtnim, casacore::Float clip = 10.0,
 			 casacore::Float sigma = -1, const casacore::String& outfile = "");
 
