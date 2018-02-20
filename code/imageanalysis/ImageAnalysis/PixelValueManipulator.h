@@ -33,6 +33,14 @@ template <class T> class PixelValueManipulator : public ImageTask<T> {
 
 public:
 
+    enum Operator {
+        ADDITION,
+        SUBTRACTION,
+        MULTIPLICATION,
+        DIVISION,
+        NONE
+    };
+
 	PixelValueManipulator() = delete;
 
 	// regionRec = 0 => no region selected, full image used
@@ -189,6 +197,12 @@ private:
 		const casacore::String& unit, const casacore::CoordinateSystem& csys,
 		PixelValueManipulatorData::SpectralType specType
 	) const;
+
+	SPIIT _doComposite(
+	    casacore::uInt axis, const casacore::String& function, Operator op
+	) const;
+
+	SPIIT _doSingle(casacore::uInt axis, const casacore::String& function) const;
 
 	casacore::Record _doWorld(
 		SPIIT collapsed, const casacore::String& unit,

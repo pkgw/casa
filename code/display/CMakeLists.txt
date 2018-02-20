@@ -105,7 +105,7 @@ qt4_wrap_cpp( outfiles_qoh
   QtViewer/QtViewerBase.qo.h
   QtViewer/QtViewerPrintGui.qo.h
   QtViewer/QtViewer.qo.h
-  QtViewer/Preferences.qo.h
+  QtViewer/ViewerPreferences.qo.h
   QtViewer/ColorTransferWidget.qo.h
   QtViewer/ImageManager/ImageManagerDialog.qo.h
   QtViewer/ImageManager/DisplayOptionsDialog.h
@@ -166,7 +166,7 @@ casa_qt4_wrap_ui( outfiles_ui
   QtViewer/QtDataOptionsPanel.ui
   QtViewer/QtRegionMgr.ui
   QtViewer/QtDataMgrMsSelect.ui
-  QtViewer/Preferences.ui
+  QtViewer/ViewerPreferences.ui
   QtViewer/ColorTransferWidget.ui
   QtViewer/ImageManager/ImageManagerDialog.ui
   QtViewer/ImageManager/ImageScroll.ui
@@ -550,7 +550,7 @@ casa_add_library( display
   QtViewer/QtViewerBase.cc
   QtViewer/QtViewer.cc
   QtViewer/QtViewerPrintGui.cc
-  QtViewer/Preferences.cc
+  QtViewer/ViewerPreferences.cc
   QtViewer/ColorTransferWidget.cc
   QtViewer/DisplayDataHolder.cc
   QtViewer/InActiveDock.cc
@@ -923,7 +923,7 @@ install ( FILES
           QtViewer/InvisibleAxis.h
           QtViewer/MakeMask.qo.h
           QtViewer/MakeRegion.qo.h
-          QtViewer/Preferences.qo.h
+          QtViewer/ViewerPreferences.qo.h
           QtViewer/QtAnnotatorGui.qo.h
           QtViewer/QtApp.h
           QtViewer/QtCanvasManager.qo.h

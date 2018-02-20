@@ -63,8 +63,8 @@ public:
 private:
 	Base64(const Base64& ) {}
 	Base64& operator=(const Base64& ) { return *this; }
-static	char *bstr;
-static	char rstr[128];
+static	const char *bstr;
+static	const char rstr[128];
 };
 
 

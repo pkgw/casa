@@ -9,7 +9,6 @@
 #include <casa/aipstype.h>
 #include <msvis/MSVis/VisibilityIterator2.h>
 #include <msvis/MSVis/VisBufferImpl.h>
-#include <msvis/MSVis/VisBufferImpl.h>
 #include <msvis/MSVis/VisBufferAsyncWrapper.h>
 #include <msvis/MSVis/UtilJ.h>
 #include <casa/Arrays/ArrayMath.h>
@@ -1729,6 +1728,12 @@ VisBufferImpl::phaseCenter () const
     return cache_p->phaseCenter_p.get ();
 }
 
+const MDirection VisBufferImpl::phaseCenter(const fieldid, const time){
+  CheckVisIter ();
+
+  return getViP()->phaseCenter (fieldid, time);
+
+}
 Int
 VisBufferImpl::polFrame () const
 {
