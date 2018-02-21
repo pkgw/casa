@@ -74,6 +74,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 						itsPeakResidualNoMask(0.0),
 						itsPrevPeakResidualNoMask(-1.0),
 						itsMinPeakResidualNoMask(1e+9),
+                                                itsNsigma(0.0),
+                                                itsNsigmaThreshold(0.0),
 						itsMadRMS(0.0),
 						itsMaskSum(-1.0),
 						itsPrevMajorCycleCount(0),
@@ -171,7 +173,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		if ( itsMajorDone==0 && itsIterDone==0 ) { stopCode=0; }
 		else if ( itsIterDone >= itsNiter || 
 		     itsPeakResidual <= itsThreshold ||
-                     itsPeakResidual <= itsNsigmaThreshold ||
+                     //itsPeakResidual <= itsNsigmaThreshold ||
 		     itsStopFlag )
 		  {
 		    //		    os << "Reached global stopping criteria : ";
@@ -183,7 +185,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                       if (itsThreshold >= itsNsigmaThreshold) {stopCode=2;}
                       else { stopCode=8;}
                     }
-                    if ( usePeakRes <= itsNsigmaThreshold ) {stopCode=8;}                   
+                    //if ( usePeakRes <= itsNsigmaThreshold ) {stopCode=8;}                   
                     
 		    //os << "Peak residual (" << itsPeakResidual << ") <= threshold(" << itsThreshold << ")";
 		    if( itsStopFlag ) {stopCode=3;}
@@ -302,6 +304,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		returnRecord.define( RecordFieldId("cycleniter"),  maxCycleIterations);
 		returnRecord.define( RecordFieldId("cyclethreshold"), cycleThreshold);
 		returnRecord.define( RecordFieldId("loopgain"), itsLoopGain);
+		returnRecord.define( RecordFieldId("nsigma"), itsNsigma);
 
 		return returnRecord;
 	}
@@ -316,9 +319,19 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		itsPeakResidualNoMask = max( itsPeakResidualNoMask, initRecord.asFloat(RecordFieldId("peakresidualnomask")));
 		itsMadRMS = max( itsMadRMS, initRecord.asFloat(RecordFieldId("madrms")) );
                 
-                cerr<<"initRecord.asFloat(RecordFieldId(nsigmathreshold))="<<initRecord.asFloat(RecordFieldId("nsigmathreshold"))<<endl;
-                cerr<<"itsNsigmaThresh="<<itsNsigmaThreshold<<endl;
+                if (initRecord.isDefined("nsigma")) 
+                {
+                    
+                cerr<<"SIIterBot_state:mergeCycleInitRec::initRecord.asFloat(RecordFieldId(nsigma))="<<initRecord.asFloat(RecordFieldId("nsigma"))<<endl;
+                }
+                else {
+                cerr<<"nsigma is NOT DEFINED in initRecord!!!"<<endl;
+                }
+
+                cerr<<"SIIterBot_state:mergeCycleInitRec::initRecord.asFloat(RecordFieldId(nsigmathreshold))="<<initRecord.asFloat(RecordFieldId("nsigmathreshold"))<<endl;
+                cerr<<"SIIterBot_state:mergeCycleInitRec::itsNsigmaThresh="<<itsNsigmaThreshold<<endl;
                 itsNsigmaThreshold = max(itsNsigmaThreshold, initRecord.asFloat(RecordFieldId("nsigmathreshold")));
+                cerr<<"SIIterBot_state:mergeCycleInitRec::initRecord.asFloat(nsigmathreshold)="<<initRecord.asFloat(RecordFieldId("nsigmathreshold"))<<endl;
 		
 		///itsMaskSum += initRecord.asFloat(RecordFieldId("masksum"));
 		/*
@@ -713,6 +726,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		if (recordIn.isDefined("maxpsffraction"))
 			changeMaxPsfFraction(recordIn.asFloat( RecordFieldId("maxpsffraction")));
+                cerr<<"SIIterBot_state:setControlsFromRec:: recordIn.asFloat(RecordFieldId(nsigma))="<<recordIn.asFloat( RecordFieldId("nsigma"))<<endl;
+		if (recordIn.isDefined("nsigma"))
+			changeMaxPsfFraction(recordIn.asFloat( RecordFieldId("nsigma")));
 
 		//		printOut("After Setting : ", false);
 

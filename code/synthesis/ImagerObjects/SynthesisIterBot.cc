@@ -96,6 +96,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	void SynthesisIterBot::setIterationDetails(Record iterpars) {
 		LogIO os( LogOrigin("SynthesisIterBot","setIterationDetails",WHERE) );
+                os<<"OK in synth IterBot.."<<LogIO::POST;
 		try {
 
 		  //itsLoopController.reset( new SIIterBot("SynthesisImage_"));
@@ -259,6 +260,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}
 	void SynthesisIterBotWithOldGUI::setIterationDetails(Record iterpars) {
 		LogIO os( LogOrigin("SynthesisIterBot","setIterationDetails",WHERE) );
+                os<<"synIterBotWithOldGUI"<<LogIO::POST;
 		try {
 
 		  ////////////////////////////////////////////////////////////////////////////////////////////////////////

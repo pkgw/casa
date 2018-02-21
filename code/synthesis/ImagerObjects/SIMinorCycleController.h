@@ -110,6 +110,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     casacore::Float getPeakResidual();
     casacore::Float getIntegratedFlux();
     casacore::Float getMaxPsfSidelobe();
+
+    /* user input for n-sigma */
+    casacore::Float getNsigma();
     
     void setPeakResidual(casacore::Float peakResidual);
     void setPeakResidualNoMask(casacore::Float peakResidual);
@@ -118,6 +121,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
    void setMadRMS(casacore::Float madRMS);
    void setNsigmaThreshold(casacore::Float nsigmaThreshold);
    void setMaskSum(casacore::Float maskSum);
+   void setNsigma(casacore::Float nsigma);
 
    void resetMinResidual();
 
@@ -149,6 +153,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
    casacore::Float itsMinResidual;
    casacore::Float itsMinResidualNoMask;
    casacore::Float itsPeakResidualNoMask;
+   casacore::Float itsNsigma;
    casacore::Float itsMadRMS;
    casacore::Float itsMaskSum;
 

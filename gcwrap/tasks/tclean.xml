@@ -1638,6 +1638,18 @@ HPX HEALPix grid.  -->
       <value type="double">0.0</value>
     </param>
 
+    <param type="double" name="nsigma" subparam="true">
+     <shortdescription>Multiplicative factor for rms-based threshold stopping</shortdescription>
+<description>Multiplicative factor for rms-based threshold stopping
+
+                       N-sigma threshold is calculated as nsigma * rms value per image plane determined
+                       from a robust statistics. For nsigma > 0.0, in minor cycle, a maximum of the
+                       N-sigma threshold and cyclethreshold is used to trigger a major cycle. 
+
+</description>
+      <value type="double">0.0</value>
+    </param>
+
     <param type="int" name="cycleniter" subparam="true">
      <shortdescription>Maximum number of minor-cycle iterations</shortdescription>
 <description>Maximum number of minor-cycle iterations (per plane) before triggering 
@@ -2487,6 +2499,7 @@ HPX HEALPix grid.  -->
        <notequals type="int" value="0">
 	 <default param="gain"><value>0.1</value></default>
 	 <default param="threshold"><value>0.0</value></default>
+         <default param="nsigma"><value>0.0</value></default>
 	 <default param="cycleniter"><value>-1</value></default>
 	 <default param="cyclefactor"><value>1.0</value></default>
 	 <default param="minpsffraction"><value>0.05</value></default>

@@ -80,7 +80,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	( fabs(currentPeakResidual) - fabs(itsMinResidual) )/ fabs(itsMinResidual) >0.1  ) 
       {stopCode=4;}
 
-    //	cout << " -> " << stopCode << endl;
+    //debug
+    	cout << " -> " << stopCode << endl;
 
     /*    // Going nowhere
     if( itsIterDiff > 1500 && 
@@ -155,9 +156,22 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     itsMadRMS = madRMS;
   }
 
+  Float SIMinorCycleController::getNsigma()
+  {
+    return itsNsigma;
+  }
+
+  void SIMinorCycleController::setNsigma(Float nSigma)
+  {
+    itsNsigma = nSigma;
+  }
+
   void SIMinorCycleController::setNsigmaThreshold(Float nsigmaThreshold)
   {
-    cerr<<" beofre : Nsigma Thresh value="<<itsNsigmaThreshold<<endl;
+    
+    LogIO os( LogOrigin("SIMinorCycleController",__FUNCTION__,WHERE) );
+    os<<" Nsigma Thresh valuei before mod="<<itsNsigmaThreshold<<LogIO::POST;
+    os<<" in : Nsigma Thresh value="<<nsigmaThreshold<<LogIO::POST;
     itsNsigmaThreshold = nsigmaThreshold;
   }
 
@@ -237,6 +251,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     returnRecord.define( RecordFieldId("madrms"), itsMadRMS);
     returnRecord.define( RecordFieldId("masksum"), itsMaskSum);
     returnRecord.define( RecordFieldId("nsigmathreshold"), itsNsigmaThreshold);
+    returnRecord.define( RecordFieldId("nsigma"), itsNsigma);
 
     /* Reset Counters and summary for the current set of minorcycle iterations */
     itsIterDone = 0;
@@ -263,6 +278,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       {recordIn.get(RecordFieldId("loopgain"), itsLoopGain);}
     else
       {throw(AipsError("loopgain not defined in input minor-cycle controller") );}
+
+    if (recordIn.isDefined("nsigma"))
+      {recordIn.get(RecordFieldId("nsigma"), itsNsigma);}
+    else 
+      { cerr <<" NSIGMA is not defined in recordIn for SIMinorCycleCotnroller setCycleControls "<<endl;}
 
     /* Reset the counters for the new cycle */
     itsMaxCycleIterDone = 0;

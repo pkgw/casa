@@ -137,7 +137,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
             // returns as an Array but itsImages is already single plane so 
             // the return rms contains only a single element
             robustrms = itsImages->calcRobustRMS();
-            Float nsigma = 100.0; // will set by user, fixed for 3sigma for now.
+            //Float nsigma = 150.0; // will set by user, fixed for 3sigma for now.
+            Float nsigma = loopcontrols.getNsigma();
+            os << "Current nsigma="<<nsigma<<LogIO::POST;
             Float nsigmathresh = nsigma * (Float)robustrms(IPosition(1,0)); 
               
             Float thresholdtouse = max( nsigmathresh, loopcontrols.getCycleThreshold());

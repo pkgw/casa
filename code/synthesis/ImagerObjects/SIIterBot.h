@@ -233,9 +233,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			casacore::Float itsPrevPeakResidualNoMask;
 			casacore::Float itsMinPeakResidualNoMask;
 
+	                casacore::Float itsNsigma; 
                         casacore::Float itsNsigmaThreshold;
-	  
+
 	                casacore::Float itsMadRMS;
+                        
 	                casacore::Float itsMaskSum;
 	  
  	                casacore::Int itsPrevMajorCycleCount;
