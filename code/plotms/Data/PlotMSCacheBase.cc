@@ -226,6 +226,14 @@ PlotLogMessage* PlotMSCacheBase::locateRange( int plotIterIndex, const Vector<Pl
 PlotLogMessage* PlotMSCacheBase::flagRange( int plotIterIndex, casa::PlotMSFlagging& flagging,
      		const Vector<PlotRegion>& regions, bool showFlagged){
 	PlotLogMessage* mesg = NULL;
+
+	// not allowed for solvable cal tables!
+	String type(calType());
+	if (type=="BPOLY" || type=="GSPLINE") {
+		String method = (showFlagged ? "flag" : "unflag");
+		throw(AipsError("Cannot interactively " + method + " solvable CalTable types. Solutions are flagged by the solver."));
+	}
+
 	int dataCount = indexer_.size();
 	if ( dataCount == 0 ){
 		int indexCount = indexer_[0].size();
