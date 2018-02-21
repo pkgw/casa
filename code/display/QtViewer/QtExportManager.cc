@@ -26,6 +26,7 @@
 //# $Id$
 
 
+#include <QFileDialog>
 #include <display/QtViewer/QtExportManager.qo.h>
 #include <display/QtViewer/QtViewer.qo.h>
 #include <display/QtViewer/QtExportBrowser.qo.h>
