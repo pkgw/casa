@@ -194,6 +194,7 @@ from flagcmd import  flagcmd
 from flagdata import  flagdata
 from flagmanager import  flagmanager
 from fluxscale import  fluxscale
+from fringefit import  fringefit
 from ft import  ft
 from gaincal import  gaincal
 from gencal import  gencal
