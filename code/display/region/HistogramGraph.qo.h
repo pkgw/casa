@@ -27,7 +27,7 @@
 #ifndef HISTOGRAMGRAPH_QO_H
 #define HISTOGRAMGRAPH_QO_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <casa/Utilities/CountedPtr.h>
 #include <display/region/HistogramGraph.ui.h>
 

@@ -70,7 +70,7 @@ namespace casa {
 	    QString *object_name;
     };
 
-    inline std::string to_string(const QString &other) { return std::string((const char*) other.toAscii().data()); }
+    inline std::string to_string(const QString &other) { return std::string((const char*) other.toLatin1().data()); }
 
 }
 

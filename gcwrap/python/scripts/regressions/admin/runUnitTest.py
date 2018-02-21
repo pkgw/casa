@@ -34,6 +34,14 @@ import pprint
 import nose
 from taskinit import casalog
 
+##
+## testwrapper.py depends upon the current directory being in the path because
+## it changes to the directory where the test is located and then imports it.
+## CASA no longer leaves empty strings in sys.path to avoid confusion when
+## stray files are in the current directory.
+##
+sys.path.insert(0,'')
+
 PYVER = str(sys.version_info[0]) + "." + str(sys.version_info[1])
 
 CASA_DIR = os.environ["CASAPATH"].split()[0]
@@ -252,14 +260,18 @@ def main(testnames=[]):
     if not whichtests:
         '''Run all tests'''
         list = []
-        
+        # awells CAS-10844 Fix
+        suiteList = []
         for f in listtests:
+            suite = unittest.TestSuite()
             try:
                 tests = UnitTest(f).getUnitTest()
-                list = list+tests
+                for test in tests:
+                    suite.addTest(test)
+                suiteList.append(suite)
             except:
                 traceback.print_exc()
-                    
+        list = suiteList
     elif (whichtests == 1):
         '''Run specific tests'''
         list = []
@@ -299,6 +311,7 @@ def main(testnames=[]):
                 
     # Run all tests and create a XML report
     xmlfile = xmldir+'nose.xml'
+
     try:
         if (HAVE_MEMTEST and MEM):
             regstate = nose.run(argv=[sys.argv[0],"-d","-s","--with-memtest","--verbosity=2",

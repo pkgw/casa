@@ -25,7 +25,7 @@
 
 #ifndef IMAGESLICECOLORBAR_QO_H_
 #define IMAGESLICECOLORBAR_QO_H_
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <QList>
 namespace casa {
 
