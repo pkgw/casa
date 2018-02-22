@@ -343,7 +343,7 @@ void PlotMSAtm::getMedianPwv() {
           mstab.closeSubTables();
           if (waterCol.empty()) {
             parent_->logmesg("load_cache",
-              "ASMD_CALWVR and ASDM_CALATMOSPHERE tables could not be opened or have zero rows");
+              "ASDM_CALWVR and ASDM_CALATMOSPHERE tables could not be opened or have zero rows");
           } else {
             casacore::Vector<casacore::Double> water = 
                 getValuesNearTimes(waterCol, timesCol);
