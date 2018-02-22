@@ -25,7 +25,7 @@
 #ifndef MOMENTSETTINGSWIDGETRADIO_QO_H
 #define MOMENTSETTINGSWIDGETRADIO_QO_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <QMap>
 #include <QThread>
 #include <QProgressDialog>
