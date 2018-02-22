@@ -9532,12 +9532,16 @@ ib.done()
           <value>-1</value>
      </param>
      <param type="int"  name="maxiter">
-          <description>For chauvenet, this is the maximum number of iterations to attempt. Iterating will stop when either this limit is reached, or the zscore criterion is met. If negative, iterate until the zscore criterion is met. Ignored if algortihm is not "chauvenet".</description>
+          <description>For chauvenet, this is the maximum number of iterations to attempt. Iterating will stop when either this limit is reached, or the zscore criterion is met. If negative, iterate until the zscore criterion is met. Ignored if algorithm is not "chauvenet".</description>
           <value>-1</value>
      </param>
      <param type="string"  name="clmethod">
           <description>Method to use for calculating classical statistics. Supported methods are "auto", "tiled", and "framework". Ignored if algorithm is not "classic".</description>
           <value>auto</value>
+     </param>
+     <param type="int"  name="niter">
+          <description>For biweight, this is the maximum number of iterations to attempt. Iterating will stop when either this limit is reached, or the zscore criterion is met. If negative, do a fast, simple computation (see description). Ignored if the algorithm is not "chauvenet".</description>
+          <value>3</value>
      </param>
 </input>
 
@@ -9762,6 +9766,79 @@ Several types of statistical algorithms are supported:
   6.0      253,398,672
   6.5    6,225,098,696
   7.0  195,341,107,722
+  
+* biweight: The biweight algorithm is a robust iterative algorithm that computes two
+  quantities called the "location" and the "scale", which are analogous to the mean
+  and the standard deviation. In this case, the only keys present in the returned
+  dictionary are 'mean' (location), 'sigma' (scale), 'npts', 'min', and 'max'. The
+  last three represent the values using the entire distribution. Note that the
+  biweight algorithm does not support computation of quantile-like values (median,
+  madm, q1, q3, and iqr), so setting robust=True will cause a warning message to
+  be logged regarding that, and the computation will proceed.
+  
+  Important equations for the biweight algorithm are
+
+  A. How to compute u_i values, which are related to the weights w_i = (1 - u_i*u_i),
+     using the
+     equation
+
+      u_i = (x_i - c_bi)/(6.0*s_bi)                 (1)
+
+     where x_i are the data values, c_bi is the biweight location and s_bi is the
+     biweight scale. For the initial computation of the u_i values, c_bi is set
+     equal to the median of the distribution and s_bi is set equal to
+     the normalized median of the absolute deviation about the median (that is the
+     median of the absolute deviation about the median multiplied by the value of
+     the probit function at 0.75).
+     
+  B  The location, c_bi, is computed from
+
+      c_bi = sum(x_i * w_i^2)/sum(w_i^2)            (2)
+
+    where only values of u_i which satisfy abs(u_i) < 1 (w_i > 0) are used in the sums.
+
+  C. The scale value is computed using
+
+               n * sum((x_i - c_bi)^2 * w_i^4)
+      s_bi^2 = _______________________________      (3)
+                      p * max(1, p - 1)
+
+  where n is the number of points for the entire distribution (which includes all
+  the data, even for which abs(u_i) >= 1) and p is given by
+
+     p = abs(sum((w_i) * (5*w_i - 4)))
+
+  Again, the sums include only data for which abs(u_i) < 1.
+
+  The algorithm proceeds as follows.
+    1. Compute initial u_i values (and hence w_i values) from equation (1), setting
+       c_bi equal to the median of the distribution and s_bi equal to the normalized
+       median of the absolute deviation about the median.
+    2. Compute the initial value of the scale using the w_i values computed in
+       step 1. using equation 3.
+    3. Recompute u_i/w_i values using the most recent previous scale and location
+       values.
+    4. Compute the location using the u_i.w_i values from step 3 and equation (2).
+    5. Recompute u_i/w_i values using the most recent previous scale and location
+       values.
+    6. Compute the new scale value using the the u_i/w_i values computed in
+       step 5 and the value of the location computed in step 4.
+    7. Steps 3. - 6. are repeated until convergence occurs or the maximum number of
+       iterations (specified in the niter parameter) is reached. The convergence
+       criterion is given by
+
+         abs(s_bi - s_bi,prev) < 0.03 * sqrt(0.5/(n - 1))
+
+       where s_bi,prev is the value of the scale computed in the previous iteration.
+
+    In the special case where niter is specified to be negative, the faster,
+    non-iterative algorithm proceeds as follows:
+   
+    1. Compute u_i/w_i values using the median for the location and the normalized
+       median of the absolute deviation about the median as the scale
+    2. Compute the location and scale (which can be carried out simultaneously)
+       using the u_i/w_i values computed in step 1. The value of the location is
+       just the median that is used in equation (3) to compute the scale
   
 NOTES ON FLUX DENSITIES AND FLUXES
 

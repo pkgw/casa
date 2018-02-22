@@ -5114,7 +5114,7 @@ record* image::statistics(
     bool stretch, const string& logfile,
     bool append, const string& algorithm, double fence,
     const string& center, bool lside, double zscore,
-    int maxiter, const string& clmethod
+    int maxiter, const string& clmethod, int niter
 ) {
     _log << _ORIGIN;
     if (detached()) {
@@ -5172,7 +5172,18 @@ record* image::statistics(
         }
         String myalg = algorithm;
         myalg.downcase();
-        if (myalg.startsWith("ch")) {
+        if (myalg.startsWith("b")) {
+            _stats->configureBiweight(niter);
+            if (robust) {
+                _log << LogIO::WARN << "The biweight algoritthm "
+                    << "does not support computation of quantile-like "
+                    << "(median, MADM, first/third quartile, IQR) "
+                    << "statistics (robust=True). Proceeding without "
+                    << "calculating those stats." << LogIO::POST;
+                robust = False;
+            }
+        }
+        else if (myalg.startsWith("ch")) {
             _stats->configureChauvenet(zscore, maxiter);
         }
         else if (myalg.startsWith("cl")) {

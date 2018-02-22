@@ -96,6 +96,10 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
          <description>Method to use for calculating classical statistics. Supported methods are "auto", "tiled", and "framework". Ignored if algorithm is not "classic".</description>
          <value>auto</value>
      </param>
+     <param type="int"  name="niter">
+          <description>For biweight, this is the maximum number of iterations to attempt. Iterating will stop when either this limit is reached, or the zscore criterion is met. If negative, do a fast, simple computation (see description). Ignored if the algorithm is not "chauvenet".</description>
+          <value>3</value>
+     </param>
      <constraints>
         <when param="mask">
             <notequals type="string" value="">
@@ -112,6 +116,11 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
             </notequals>
         </when>
         <when param="algorithm">
+            <equals type="string" value="biweight">
+                <default param="niter">
+                    <value>3</value>
+                </default>
+            </equals>
             <equals type="string" value="classic">
                 <default param="clmethod">
                     <value type="string">auto</value>
