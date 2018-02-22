@@ -62,7 +62,7 @@
 #include <display/DisplayErrors.h>
 
 #include <QtCore/QPoint>
-#include <QtGui/QToolTip>
+#include <QToolTip>
 
 #include <iostream>
 #include <cassert>
