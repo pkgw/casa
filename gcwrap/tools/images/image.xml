@@ -9795,7 +9795,7 @@ Several types of statistical algorithms are supported:
 
       c_bi = sum(x_i * w_i^2)/sum(w_i^2)            (2)
 
-    where only values of u_i which satisfy abs(u_i) < 1 (w_i > 0) are used in the sums.
+    where only values of u_i which satisfy abs(u_i) &lt; 1 (w_i &gt; 0) are used in the sums.
 
   C. The scale value is computed using
 
@@ -9808,7 +9808,7 @@ Several types of statistical algorithms are supported:
 
      p = abs(sum((w_i) * (5*w_i - 4)))
 
-  Again, the sums include only data for which abs(u_i) < 1.
+  Again, the sums include only data for which abs(u_i) &lt; 1.
 
   The algorithm proceeds as follows.
     1. Compute initial u_i values (and hence w_i values) from equation (1), setting
@@ -9827,7 +9827,7 @@ Several types of statistical algorithms are supported:
        iterations (specified in the niter parameter) is reached. The convergence
        criterion is given by
 
-         abs(s_bi - s_bi,prev) < 0.03 * sqrt(0.5/(n - 1))
+         abs(s_bi - s_bi,prev) &lt; 0.03 * sqrt(0.5/(n - 1))
 
        where s_bi,prev is the value of the scale computed in the previous iteration.
 
