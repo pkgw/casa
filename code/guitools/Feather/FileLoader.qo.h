@@ -25,7 +25,7 @@
 #ifndef FILELOADER_QO_H
 #define FILELOADER_QO_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 #include <guitools/Feather/FileLoader.ui.h>
 
 class QFileSystemModel;

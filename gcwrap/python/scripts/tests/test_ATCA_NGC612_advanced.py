@@ -255,8 +255,19 @@ class Test020_NGC612_ADVANCED(unittest.TestCase):
 class Test021_NGC612_ADVANCED(unittest.TestCase):
     def setUp(self):
         pass
-    def tearDown(self):
-        pass
+    @classmethod
+    def tearDownClass(cls):
+        os.unlink(os.getcwd()+'/2012-10-25_0707.C2728')
+        os.unlink(os.getcwd()+'/2012-10-25_0903.C2728')
+        os.unlink(os.getcwd()+'/2012-10-25_1304.C2728')
+        os.unlink(os.getcwd()+'/2012-10-25_1705.C2728')
+        rmtables("ngc612h*")
+        rmtables("cal*")
+        rmtables("ngc612*")
+        os.system("rm -rf *.last")
+        os.system("rm -rf ngc612region.crtf")
+        os.system("rm -rf *.flagversions")
+
 
     def test_19_Total_polarized_flux_density(self):
         '''Total polarized flux density'''
@@ -288,3 +299,5 @@ class Test021_NGC612_ADVANCED(unittest.TestCase):
         self.assertLessEqual(val, 25.8)
         #assert val >= 23.0 and val <= 23.6 , "Pol. angles in western lobe Error Should Equal: 23.8 Degrees"
 
+if __name__ == '__main__':
+    unittest.main()

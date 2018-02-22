@@ -33,6 +33,7 @@
 #include <graphics/X11/X_enter.h>
 #  include <QtCore>
 #  include <QtGui>
+#include <QStatusBar>
 #include <QTextEdit>
 #include <QHash>
 #include <QFont>
@@ -59,7 +60,7 @@ namespace casacore{
 namespace casa { //# NAMESPACE CASA - BEGIN
 
 	namespace viewer {
-		class Preferences;
+		class ViewerPreferences;
 		class CleanGui;
 	}
 
@@ -640,7 +641,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		void resetHistogram( viewer::Region* qtRegion );
 		viewer::Region* findRegion( int id );
 
-		viewer::Preferences *preferences;
+		viewer::ViewerPreferences *preferences;
 
 		AnimatorHolder* animationHolder;
 		bool adjust_channel_animator;

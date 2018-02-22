@@ -1,6 +1,8 @@
 import os
 from taskinit import *
 
+from ialib import write_image_history
+
 def importfits(fitsimage,imagename,whichrep,whichhdu,zeroblanks,overwrite,defaultaxes,defaultaxesvalues,beam):
 	"""Convert an image FITS file into a CASA image:
 
@@ -40,7 +42,7 @@ def importfits(fitsimage,imagename,whichrep,whichhdu,zeroblanks,overwrite,defaul
 
 
 	try:
-
+		_myia.dohistory(False)
 		if os.path.exists(imagename):
 			if not overwrite:
 				raise RuntimeError, 'Output image exists already and you did not set overwrite to True.'
@@ -94,7 +96,6 @@ def importfits(fitsimage,imagename,whichrep,whichhdu,zeroblanks,overwrite,defaul
 
 		_myia.fromfits(tmpname,fitsimage,whichrep,whichhdu,zeroblanks)
 		_myia.close()
-
 
 		if addaxes:
 			casalog.post('Adding missing coodinate axes ...', 'INFO')
@@ -173,14 +174,11 @@ def importfits(fitsimage,imagename,whichrep,whichhdu,zeroblanks,overwrite,defaul
 			ia2.close()
 			os.system('rm -rf '+tmpname)
 
+		_myia.open(imagename)
 		if addbeam:
-			_myia.open(imagename)
 			_myia.setrestoringbeam(beam[0], beam[1], beam[2])
-			_myia.close()
 		else:
-			_myia.open(imagename)
 			mybeam = _myia.restoringbeam()
-			_myia.close()
 			if mybeam =={}: # the fits image had no beam
 				casalog.post("This image has no beam or angular resolution provided, so you will not receive warnings from\n"
 					     "tasks such as imregrid if your image pixels do not sample the the angular resolution well.\n"
@@ -188,9 +186,18 @@ def importfits(fitsimage,imagename,whichrep,whichhdu,zeroblanks,overwrite,defaul
 					     "Providing a beam and brightness units in an image can also be useful for flux calculations.\n"
 					     "If you wish to add a beam or brightness units to your image, please use\n"
 					     "the \"beam\" parameter or ia.setrestoringbeam() and ia.setbrightnessunit()", 'WARN')
-
-
-
+		try:
+			param_names = importfits.func_code.co_varnames[:importfits.func_code.co_argcount]
+			param_vals = [eval(p) for p in param_names]   
+			write_image_history(
+                _myia, sys._getframe().f_code.co_name,
+                param_names, param_vals, casalog
+            )
+		except Exception, instance:
+			casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
+		return True
 	except Exception, instance:
 		casalog.post( str( '*** Error ***') + str(instance), 'SEVERE')
 		raise
+	finally:
+		_myia.done()

@@ -25,7 +25,7 @@
 #ifndef BINPLOTWIDGET_QO_H
 #define BINPLOTWIDGET_QO_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 #include <guitools/Histogram/BinPlotWidget.ui.h>
 #include <guitools/Histogram/HeightSource.h>

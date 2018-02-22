@@ -203,7 +203,7 @@ namespace casa { //# name space casa begins
 	      << LogIO::EXCEPTION;
       return rstat;
     }
-    const ImageInterface<Float> *im1=itsImPol->imageInterface();
+    auto im1=itsImPol->imageInterface();
     PtrHolder<ImageInterface<Float> > im2;
     ImageUtilities::openImage(im2, infile);
     ImageExpr<Float> tmpim=itsImPol->depolarizationRatio(*im1, *im2, 
@@ -248,7 +248,7 @@ namespace casa { //# name space casa begins
 
     pOutComplex->setCoordinateInfo(expr.coordinates());
     LatticeUtilities::copyDataAndMask(*itsLog, *pOutComplex, expr);
-    const ImageInterface<Float>* p = itsImPol->imageInterface();
+    auto p = itsImPol->imageInterface();
     copyMiscellaneous (*pOutComplex, *p);
     delete pOutComplex;
 
@@ -381,26 +381,6 @@ namespace casa { //# name space casa begins
     return itsImPol->sigmaStokesV(clip);
   }
 
-
-  // Linearly polarized intensity
-  Bool ImagePol::linPolInt(ImageInterface<Float>*& rtnim, Bool debias,
-			   Float clip, Float sigma, const String& outfile) {
-    Bool rstat(false);
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
-    if(itsImPol==0){
-      *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
-	      << LogIO::POST;
-      return rstat;
-    }
-
-    ImageExpr<Float> expr = itsImPol->linPolInt(debias, clip, sigma);
-
-    // Create output image if needed
-    rstat =  copyImage (rtnim, expr, outfile, true);
-    return rstat;
-  }
-
-
   Float ImagePol::sigmaLinPolInt(Float clip, Float sigma) const {
     *itsLog << LogOrigin("imagepol", __FUNCTION__);
     if(itsImPol==0){
@@ -409,24 +389,6 @@ namespace casa { //# name space casa begins
       return -1.0;
     }
     return itsImPol->sigmaLinPolInt(clip, sigma);
-  }
-
-
-  // Total polarized intensity.
-  Bool ImagePol::totPolInt(ImageInterface<Float>*& rtnim, Bool debias,
-			   Float clip, Float sigma, const String& outfile){
-    Bool rstat(false);
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
-    if(itsImPol==0){
-      *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
-	      << LogIO::POST;
-      return rstat;
-    }
-    ImageExpr<Float> expr = itsImPol->totPolInt(debias, clip, sigma);
-
-    // Create output image if needed
-    rstat = copyImage (rtnim, expr, outfile, true);
-    return rstat;
   }
 
   Float ImagePol::sigmaTotPolInt(Float clip, Float sigma) const {
@@ -466,9 +428,8 @@ namespace casa { //# name space casa begins
     pOutComplex->setCoordinateInfo(expr.coordinates());
     LatticeUtilities::copyDataAndMask(*itsLog, *pOutComplex, expr);
     //
-    const ImageInterface<Float>* p = itsImPol->imageInterface();
+    auto p = itsImPol->imageInterface();
     copyMiscellaneous (*pOutComplex, *p);
-    //
     delete pOutComplex;
   }
 
@@ -499,26 +460,6 @@ namespace casa { //# name space casa begins
     LatticeUtilities::copyDataAndMask(*itsLog, *pOutComplex, expr);
     copyMiscellaneous (*pOutComplex, *(itsImPol->imageInterface()));
   }
-
-  // Linearly polarized position angle
-  Bool ImagePol::linPolPosAng(ImageInterface<Float>*& rtnim,
-			      const String& outfile) {
-    Bool rstat(false);
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
-    if(itsImPol==0){
-      *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
-	      << LogIO::POST;
-      return rstat;
-    }
-
-    Bool radians = false;
-    ImageExpr<Float> expr = itsImPol->linPolPosAng(radians);
-
-    // Create output image if needed
-    rstat = copyImage (rtnim, expr, outfile, true);
-    return rstat;
-  }
-
 
   Bool ImagePol::sigmaLinPolPosAng(ImageInterface<Float>*& rtnim, Float clip,
 				   Float sigma, const String& outfile) {
@@ -624,9 +565,7 @@ namespace casa { //# name space casa begins
       *itsLog << "No attached image, please use open "
 	      << LogIO::EXCEPTION;
     }
-    //
-    const ImageInterface<Float>* imagePointer1 = itsImPol->imageInterface();
-    //
+    auto imagePointer1 = itsImPol->imageInterface();
     ImageInterface<Float>* imagePointer2 = 0;
     ImageUtilities::openImage (imagePointer2, infile);
     //
@@ -656,7 +595,7 @@ namespace casa { //# name space casa begins
       return rstat;
     }
     //
-    const ImageInterface<Float>* imagePointer1 = itsImPol->imageInterface();
+    auto imagePointer1 = itsImPol->imageInterface();
     //
     ImageInterface<Float>* imagePointer2 = 0;
     ImageUtilities::openImage(imagePointer2, infile);
@@ -724,7 +663,7 @@ namespace casa { //# name space casa begins
     itsImPol->fourierRotationMeasure(*pOutComplex, zeroZeroLag);
 
     // Copy to output
-    const ImageInterface<Float>* p = itsImPol->imageInterface();
+    auto p = itsImPol->imageInterface();
     if (pOutAmp!=0) {
       LatticeExprNode node(abs(*pOutComplex));
       LatticeExpr<Float> le(node);
@@ -825,7 +764,7 @@ namespace casa { //# name space casa begins
     	axis, rmMax, maxPaErr,
     	sigmaQU, rmFg, true
     );
-    const ImageInterface<Float>* p = itsImPol->imageInterface();
+    auto p = itsImPol->imageInterface();
     if (pRMOut) {
       copyMiscellaneous (*pRMOut, *p);
     }
@@ -952,7 +891,7 @@ namespace casa { //# name space casa begins
     pOutComplex->setCoordinateInfo(pExpr->coordinates());
     LatticeUtilities::copyDataAndMask(*itsLog, *pOutComplex, *pExpr);
     //
-    const ImageInterface<Float>* p = itsImPol->imageInterface();
+    auto p = itsImPol->imageInterface();
     copyMiscellaneous (*pOutComplex, *p);
     //
     delete pExpr; pExpr = 0;
