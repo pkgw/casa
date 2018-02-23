@@ -116,11 +116,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
             </notequals>
         </when>
         <when param="algorithm">
-            <equals type="string" value="biweight">
-                <default param="niter">
-                    <value>3</value>
-                </default>
-            </equals>
+            <!-- note the default algorithm, classic, must come first in this list, because ... CASA -->
             <equals type="string" value="classic">
                 <default param="clmethod">
                     <value type="string">auto</value>
@@ -145,6 +141,11 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                 </default>
                 <default param="maxiter">
                     <value>-1</value>
+                </default>
+            </equals>
+            <equals type="string" value="biweight">
+                <default param="niter">
+                    <value>3</value>
                 </default>
             </equals>
         </when>
