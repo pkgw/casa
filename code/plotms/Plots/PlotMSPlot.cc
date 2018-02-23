@@ -438,11 +438,11 @@ bool PlotMSPlot::updateCache() {
 	itsTCLParams_.endCacheLog = true;
 
 	// Delete existing cache if it doesn't match
-    String filename = data->filename();
+	String filename = data->filename();
 	cacheUpdating = true;
 	if (CacheFactory::needNewCache(itsCache_, filename)) {
 		if(itsCache_) {
-            clearPlotData(); //plot has ptr to indexer about to be deleted
+			clearPlotData(); //plot has ptr to indexer about to be deleted
 			delete itsCache_;
 			itsCache_ = NULL;
 		}
@@ -453,6 +453,13 @@ bool PlotMSPlot::updateCache() {
 			itsCache_->setFilename(filename);
 			data->setType(itsCache_->cacheType());
 		}
+	}
+	// Trap bad caltable/iteration combo
+	String caltype = itsCache_->calType();
+	if ((caltype=="BPOLY" || caltype=="GSPLINE") &&
+			iter->iterationAxis()==PMS::BASELINE) {
+		logMessage("Cannot iterate on Baseline for this cal table type, so turning off iteration.");
+		iter->setIterationAxis(PMS::NONE);
 	}
 
 	bool result = true;
@@ -654,6 +661,7 @@ bool PlotMSPlot::updateIndexing() {
 			break;
 		}
 	}
+
 	if ( requiredUpdate ){
 		itsCache_->clearRanges();
 		//Set up the indexer.

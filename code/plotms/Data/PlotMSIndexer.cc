@@ -479,10 +479,13 @@ void PlotMSIndexer::setUpIndexing() {
 		for (Int ich=0; ich<nChunk(); ++ich)
 			// only check for non-empty chunks
 			if (plotmscache_->goodChunk(ich)) {
-				for (Int ibl=0; ibl<chsh(2,ich); ++ibl)
-					if ( (*(plotmscache_->antenna1_[ich]->data()+ibl) == iterValue_) ||
-							(*(plotmscache_->antenna2_[ich]->data()+ibl) == iterValue_) )
+				for (Int ibl=0; ibl<chsh(2,ich); ++ibl) {
+					Int a1 = *(plotmscache_->antenna1_[ich]->data()+ibl);
+					Int a2 = (plotmscache_->antenna2_.empty() ? -1 :
+						*(plotmscache_->antenna2_[ich]->data()+ibl));
+					if ( (a1 == iterValue_) || (a2 == iterValue_) )
 						++nSegment_;
+				}
 			}
 		break;
 	}
@@ -614,8 +617,10 @@ void PlotMSIndexer::setUpIndexing() {
 		case PMS::ANTENNA: {
 			Int nBsln=chsh(2,ic);
 			for (Int ibsln=0;ibsln<nBsln;++ibsln) {
-				if (*(plotmscache_->antenna1_[ic]->data()+ibsln)==iterValue_ ||
-						*(plotmscache_->antenna2_[ic]->data()+ibsln)==iterValue_) {
+				Int a1 = *(plotmscache_->antenna1_[ic]->data()+ibsln);
+				Int a2 = (plotmscache_->antenna2_.empty() ? -1 :
+					*(plotmscache_->antenna2_[ic]->data()+ibsln));
+				if ( (a1 == iterValue_) || (a2 == iterValue_) ) {
 					// found antenna for this iteration
 					++iseg;
 					cacheChunk_(iseg)=ic;
@@ -1600,9 +1605,11 @@ String PlotMSIndexer::iterValue() {
 	case PMS::SPW:
 		return String::toString(iterValue_);
 		break;
-	case PMS::FIELD:
-		return plotmscache_->fldnames_(iterValue_);
+	case PMS::FIELD: {
+		if (iterValue_ < 0) return String::toString(-1);
+		else return plotmscache_->fldnames_(iterValue_);
 		break;
+	}
 	case PMS::TIME:{
 		return plotmscache_->getTimeBounds( iterValue_);
 		break;
@@ -1620,9 +1627,10 @@ String PlotMSIndexer::iterValue() {
 		return label;
 		break;
 	}
-	case PMS::ANTENNA:
+	case PMS::ANTENNA: {
 		return plotmscache_->antstanames_(iterValue_);
 		break;
+	}
 	case PMS::CORR:
         return plotmscache_->polname(iterValue_);
         break;

@@ -834,6 +834,7 @@ void CalCache::getNamesFromMS() {
   // Set antenna and field names for Locate.
   MSMetaInfoForCal msmeta(msname_);
   msmeta.antennaNames(antnames_);
+  antstanames_ = antnames_;
   msmeta.fieldNames(fldnames_);
   nAnt_ = msmeta.nAnt();
 }
@@ -1104,8 +1105,9 @@ void CalCache::loadCalAxis(ROSolvableVisJonesMCol& mcol,
       *feed1_[chunk] = feedIds;
       break;
     }
-    case PMS::ANTENNA: {
-      throw(AipsError("Antenna has no meaning for this table; use Antenna1"));
+    case PMS::ANTENNA: { // same as antenna1 (for iteraxis)
+      Vector<Int> ant1(1, mcol.antenna1()(chunk));
+      *antenna_[chunk] = ant1;
       break;
     }
     // handled in loadCalChunks
@@ -1410,6 +1412,9 @@ void CalCache::loadCalChunks(ROGJonesSplineMCol& mcol, ROCalDescColumns& dcol,
           case PMS::ANTENNA1:
             *antenna1_[sample] = ant1;
             break;
+          case PMS::ANTENNA:
+            *antenna_[sample] = ant1;
+            break;
           case PMS::FLAG: {
             Cube<Bool> parOK = gspline->currParOK();
             // OK=true means flag=false
@@ -1462,6 +1467,7 @@ void CalCache::checkAxes(const vector<PMS::Axis>& loadAxes) {
       case PMS::TIME_INTERVAL:
       case PMS::CORR:
       case PMS::ANTENNA1:
+      case PMS::ANTENNA:  // same as antenna1
       case PMS::AMP:
       case PMS::GAMP:
       case PMS::PHASE:
@@ -1476,7 +1482,6 @@ void CalCache::checkAxes(const vector<PMS::Axis>& loadAxes) {
         // allowed
         break;
       }
-      case PMS::ANTENNA:
       case PMS::CHANNEL:
       case PMS::FREQUENCY:
       case PMS::SNR: {
