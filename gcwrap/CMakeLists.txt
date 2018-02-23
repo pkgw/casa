@@ -835,7 +835,6 @@ casa_find( CASACORE
            DEFINITIONS "-DUseCasacoreNamespace"
            INCLUDES casa/aips.h
                     casa/version.h
-                    scimath/Mathematics/MatrixMathLA.h  # declares symbols defined in LAPACK
            INCLUDES_SUFFIXES casacore
            LIBS ${casacore_libs}
            PREFIX_HINTS ${casacore_prefix}
@@ -882,6 +881,7 @@ else()
        alma
        atmosphere
        calanalysis
+       casatools
        casadbus
        casaqt
        components

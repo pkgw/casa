@@ -324,6 +324,7 @@ casa_add_library( synthesis
  MeasurementEquations/MatrixCleaner.cc
  MeasurementEquations/MatrixNACleaner.cc
  MeasurementEquations/MultiTermMatrixCleaner.cc
+ MeasurementEquations/SideBandSeparator.cc
  MeasurementEquations/Simulator.cc
  MeasurementEquations/SkyEquation.cc
  MeasurementEquations/StokesUtil2.cc
@@ -604,6 +605,7 @@ install (FILES
 	MeasurementEquations/MatrixNACleaner.h
 	MeasurementEquations/MultiTermMatrixCleaner.h
 	MeasurementEquations/ResidualEquation.h
+	MeasurementEquations/SideBandSeparator.h
 	MeasurementEquations/Simulator.h
 	MeasurementEquations/SkyEquation.h
 	MeasurementEquations/StokesUtil.h

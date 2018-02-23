@@ -26,6 +26,7 @@
 //#
 //# $Id: QtDisplayPanelGui.cc,v 1.12 2006/10/10 21:59:19 dking Exp $
 
+#include <QPrinter>
 #include <algorithm>
 #include <string>
 #include <QSet>
@@ -68,6 +69,12 @@
 #include <display/DisplayDatas/LatticeAsRaster.h>
 
 #include <display/QtViewer/InActiveDock.qo.h>
+
+#if QT_VERSION >= 0x050000
+#define UnicodeUTF8 0
+#else
+#define UnicodeUTF8 QApplication::UnicodeUTF8
+#endif
 
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -294,7 +301,7 @@ void QtDisplayPanelGui::construct_( QtDisplayPanel *newpanel, const std::list<st
 	QDockWidget* displayDock = new InActiveDock( this );
 	displayDock->setWidget( qdp_);
 	displayDock->setObjectName( QString::fromUtf8("Image Display"));
-	displayDock->setWindowTitle(QApplication::translate("Display", "Display", 0, QApplication::UnicodeUTF8));
+	displayDock->setWindowTitle(QApplication::translate("Display", "Display", 0, UnicodeUTF8));
 	std::string displayLocation = rc.get("viewer." + rcid() + ".position.display");
 	addDockWidget( displayLocation == "right" ? Qt::RightDockWidgetArea :
 			displayLocation == "bottom" ? Qt::BottomDockWidgetArea :

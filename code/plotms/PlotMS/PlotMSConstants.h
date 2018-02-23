@@ -111,32 +111,32 @@ public:
           SPW,CHANNEL,FREQUENCY,VELOCITY,CORR,
           ANTENNA1,ANTENNA2,BASELINE,ROW,
           OBSERVATION,INTENT,FEED1,FEED2,
-          AMP,PHASE,REAL,IMAG,WT,WTxAMP,WTSP,
-          SIGMA, SIGMASP,
-          FLAG,FLAG_ROW,
-          UVDIST,UVDIST_L,U,V,W,UWAVE,VWAVE,WWAVE,
-          AZ0,EL0,HA0,PA0,
-          ANTENNA,AZIMUTH,ELEVATION,
-          PARANG,
-          GAMP,GPHASE,GREAL,GIMAG,
-          DELAY,SWP,TSYS,OPAC, SNR, TEC,
-          RADIAL_VELOCITY, RHO, 
-          NONE)
+	      AMP,PHASE,REAL,IMAG,WT,WTxAMP,WTSP,
+	      SIGMA, SIGMASP,
+	      FLAG,FLAG_ROW,
+	      UVDIST,UVDIST_L,U,V,W,UWAVE,VWAVE,WWAVE,
+	      AZ0,EL0,HA0,PA0,
+	      ANTENNA,AZIMUTH,ELEVATION,
+	      PARANG,
+	      GAMP,GPHASE,GREAL,GIMAG,
+	      DELAY,SWP,TSYS,OPAC, SNR, TEC,
+	      RADIAL_VELOCITY, RHO,  
+	      ATM, TSKY, NONE)
 
     PMS_ENUM2(Axis, axes, axesStrings, axis,
-          "Scan","Field","Time","Interval",
-          "Spw","Channel","Frequency","Velocity","Corr",
-          "Antenna1","Antenna2","Baseline","Row",
-          "Observation", "Intent", "Feed1", "Feed2",
-          "Amp","Phase","Real","Imag","Wt","Wt*Amp","WtSp",
-          "Sigma", "SigmaSp", "Flag","FlagRow",
-          "UVdist","UVwave","U","V","W","Uwave","Vwave","Wwave",
-          "Azimuth","Elevation","HourAngle","ParAngle",
-          "Antenna","Ant-Azimuth","Ant-Elevation","Ant-ParAngle",
-          "Gain Amp","Gain Phase","Gain Real","Gain Imag",
-          "Delay","SwPower","Tsys","Opac", "SNR", "TEC",
-          "Radial Velocity [km/s]", "Distance (rho) [km]", 
-          "None")
+	      "Scan","Field","Time","Interval",
+	      "Spw","Channel","Frequency","Velocity","Corr",
+	      "Antenna1","Antenna2","Baseline","Row",
+	      "Observation", "Intent", "Feed1", "Feed2",
+	      "Amp","Phase","Real","Imag","Wt","Wt*Amp","WtSp",
+	      "Sigma", "SigmaSp", "Flag","FlagRow",
+	      "UVdist","UVwave","U","V","W","Uwave","Vwave","Wwave",
+	      "Azimuth","Elevation","HourAngle","ParAngle",
+	      "Antenna","Ant-Azimuth","Ant-Elevation","Ant-ParAngle",
+	      "Gain Amp","Gain Phase","Gain Real","Gain Imag",
+	      "Delay","SwPower","Tsys","Opac", "SNR", "TEC",
+	      "Radial Velocity [km/s]", "Distance (rho) [km]", 
+          "Atm Transmission", "Tsky", "None")
 
     // </group>
               
@@ -183,12 +183,13 @@ public:
     // Enum for different axes units.  Currently only used in labels.
     // <group>
     PMS_ENUM1(AxisUnit, axesUnits, axesUnitStrings, axisUnit,
-              UNONE, UDATETIME, GHERTZ, METERS_PER_SECOND, 
-              KILOMETERS_PER_SECOND, KILOMETERS, METERS, HOURS, WAVELENGTHS,
-              DEGREES, NANOSECONDS, KELVIN, NEPERS, SECONDS);
+              UNONE, UDATETIME, GHERTZ, METERS_PER_SECOND, KILOMETERS_PER_SECOND,
+              KILOMETERS, METERS, HOURS, WAVELENGTHS, DEGREES, NANOSECONDS, KELVIN,
+              NEPERS, SECONDS, PERCENT);
     PMS_ENUM2(AxisUnit, axesUnits, axesUnitStrings, axisUnit,
               "", "hh:mm:ss", "GHz", "m/s", "km/s", "km", "m", "hours",
-              "<html>&lambda;</html>", "degrees", "ns", "K", "neper", "s");
+              "<html>&lambda;</html>", "degrees", "ns", "K", "neper", "s",
+              "%");
 
     // </group>
               
@@ -350,6 +351,7 @@ public:
     // Log event origin names.
     // <group>
     static const casacore::String LOG_ORIGIN_DBUS;
+    static const casacore::String LOG_ORIGIN_DBUSWARN;
     static const casacore::String LOG_ORIGIN_FLAG;
     static const casacore::String LOG_ORIGIN_LOAD_CACHE;
     static const casacore::String LOG_ORIGIN_LOCATE;
@@ -363,6 +365,7 @@ public:
     // Log event flags.
     // <group>
     static const int LOG_EVENT_DBUS;
+    static const int LOG_EVENT_DBUSWARN;
     static const int LOG_EVENT_FLAG;
     static const int LOG_EVENT_LOAD_CACHE;
     static const int LOG_EVENT_LOCATE;
