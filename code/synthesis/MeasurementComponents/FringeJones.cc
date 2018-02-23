@@ -29,8 +29,10 @@
 #include <msvis/MSVis/VisBuffer.h>
 #include <msvis/MSVis/VisBuffAccumulator.h>
 #include <ms/MeasurementSets/MSColumns.h>
+#include <synthesis/CalTables/CTIter.h>
 #include <synthesis/MeasurementEquations/VisEquation.h>  // *
 #include <synthesis/MeasurementComponents/SolveDataBuffer.h>
+#include <synthesis/MeasurementComponents/MSMetaInfoForCal.h>
 #include <lattices/Lattices/ArrayLattice.h>
 #include <lattices/LatticeMath/LatticeFFT.h>
 #include <scimath/Mathematics/FFTServer.h>
@@ -2180,6 +2182,331 @@ FringeJones::solveOneVB(const VisBuffer&) {
     throw(AipsError("VisBuffer interface not supported!"));
 }
 
+
+void FringeJones::globalPostSolveTinker() {
+
+  // Re-reference the phase, if requested
+  if (refantlist()(0)>-1) applyRefAnt();
+}
+
+void FringeJones::applyRefAnt() {
+
+  // TBD:
+  // 1. Synchronize refant changes on par axis
+  // 2. Implement minimum mean deviation algorithm
+
+  if (refantlist()(0)<0) 
+    throw(AipsError("No refant specified."));
+
+  Int nUserRefant=refantlist().nelements();
+
+  // Get the preferred refant names from the MS
+  String refantName(msmc().antennaName(refantlist()(0)));
+  if (nUserRefant>1) {
+    refantName+=" (";
+    for (Int i=1;i<nUserRefant;++i) {
+      refantName+=msmc().antennaName(refantlist()(i));
+      if (i<nUserRefant-1) refantName+=",";
+    }
+    refantName+=")";
+  }
+
+  logSink() << "Applying refant: " << refantName
+	    << " refantmode = " << refantmode();
+  if (refantmode()=="flex")
+    logSink() << " (hold alternate refants' phase constant) when refant flagged";
+  if (refantmode()=="strict")
+    logSink() << " (flag all antennas when refant flagged)";
+  logSink() << LogIO::POST;
+
+  // Generate a prioritized refant choice list
+  //  The first entry in this list is the user's primary refant,
+  //   the second entry is the refant used on the previous interval,
+  //   and the rest is a prioritized list of alternate refants,
+  //   starting with the user's secondary (if provided) refants,
+  //   followed by the rest of the array, in distance order.   This
+  //   makes the priorities correct all the time, and prevents
+  //   a semi-stochastic alternation (by preferring the last-used
+  //   alternate, even if nominally higher-priority refants become
+  //   available)
+
+
+  // Extract antenna positions
+  Matrix<Double> xyz;
+  if (msName()!="<noms>") {
+    MeasurementSet ms(msName());
+    ROMSAntennaColumns msant(ms.antenna());
+    msant.position().getColumn(xyz);
+  }
+  else {
+    // TBD RO*
+    CTColumns ctcol(*ct_);
+    CTAntennaColumns& antcol(ctcol.antenna());
+    antcol.position().getColumn(xyz);
+  }
+
+  // Calculate (squared) antenna distances, relative
+  //  to last preferred antenna
+  Vector<Double> dist2(xyz.ncolumn(),0.0);
+  for (Int i=0;i<3;++i) {
+    Vector<Double> row=xyz.row(i);
+    row-=row(refantlist()(nUserRefant-1));
+    dist2+=square(row);
+  }
+  // Move preferred antennas to a large distance
+  for (Int i=0;i<nUserRefant;++i)
+    dist2(refantlist()(i))=DBL_MAX;
+
+  // Generated sorted index
+  Vector<uInt> ord;
+  genSort(ord,dist2);
+
+  // Assemble the whole choices list
+  Int nchoices=nUserRefant+1+ord.nelements();
+  Vector<Int> refantchoices(nchoices,0);
+  Vector<Int> r(refantchoices(IPosition(1,nUserRefant+1),IPosition(1,refantchoices.nelements()-1)));
+  convertArray(r,ord);
+
+  // set first two to primary preferred refant
+  refantchoices(0)=refantchoices(1)=refantlist()(0);
+
+  // set user's secondary refants (if any)
+  if (nUserRefant>1) 
+    refantchoices(IPosition(1,2),IPosition(1,nUserRefant))=
+      refantlist()(IPosition(1,1),IPosition(1,nUserRefant-1));
+
+  //cout << "refantchoices = " << refantchoices << endl;
+
+
+  if (refantmode()=="strict") {
+    nchoices=1;
+    refantchoices.resize(1,True);
+  }
+
+  Vector<Int> nPol(nSpw(),nPar());  // TBD:or 1, if data was single pol
+
+  if (nPar()==6) {
+    // Verify that 2nd poln has unflagged solutions, PER SPW
+    ROCTMainColumns ctmc(*ct_);
+
+    Block<String> cols(1);
+    cols[0]="SPECTRAL_WINDOW_ID";
+    CTIter ctiter(*ct_,cols);
+    Cube<Bool> fl;
+
+    while (!ctiter.pastEnd()) {
+
+      Int ispw=ctiter.thisSpw();
+      fl.assign(ctiter.flag());
+
+      IPosition blc(3,0,0,0), trc(fl.shape());
+      trc-=1; trc(0)=blc(0)=1;
+      
+      //      cout << "ispw = " << ispw << " nfalse(fl(1,:,:)) = " << nfalse(fl(blc,trc)) << endl;
+      
+      // If there are no unflagged solutions in 2nd pol, 
+      //   avoid it in refant calculations
+      if (nfalse(fl(blc,trc))==0)
+	nPol(ispw)=1;
+
+      ctiter.next();      
+    }
+  }
+  //  cout << "nPol = " << nPol << endl;
+
+  Bool usedaltrefant(false);
+  Int currrefant(refantchoices(0)), lastrefant(-1);
+
+  MSSpectralWindow msSpw(ct_->spectralWindow());
+  ROMSSpWindowColumns msCol(msSpw);
+  Vector<Double> refFreqs;
+  msCol.refFrequency().getColumn(refFreqs,True);
+
+  Block<String> cols(2);
+  cols[0]="SPECTRAL_WINDOW_ID";
+  cols[1]="TIME";
+  CTIter ctiter(*ct_,cols);
+
+  // Arrays to hold per-timestamp solutions
+  Double timeA, timeB;
+  Cube<Float> solA, solB;
+  Cube<Bool> flA, flB;
+  Vector<Int> ant1A, ant1B, ant2B;
+  Matrix<Complex> refPhsr;  // the reference phasor [npol,nchan] 
+  Int lastspw(-1);
+  Bool first(true);
+  while (!ctiter.pastEnd()) {
+    Int ispw=ctiter.thisSpw();
+    if (ispw!=lastspw) first=true;  // spw changed, start over
+
+    // Read in the current sol, fl, ant1:
+    timeB = ctiter.thisTime();
+    solB.assign(ctiter.fparam());
+    flB.assign(ctiter.flag());
+    ant1B.assign(ctiter.antenna1());
+    ant2B.assign(ctiter.antenna2()); 
+
+    // First time thru, 'previous' solution same as 'current'
+    if (first) {
+      timeA = timeB;
+      solA.reference(solB);
+      flA.reference(flB);
+      ant1A.reference(ant1B);
+    }
+    IPosition shB(solB.shape());
+    IPosition shA(solA.shape());
+
+    // Find a good refant at this time
+    //  A good refant is one that is unflagged in all polarizations
+    //     in the current(B) and previous(A) intervals (so they can be connected)
+    Int irefA(0),irefB(0);  // index on 3rd axis of solution arrays
+    Int ichoice(0);  // index in refantchoicelist
+    Bool found(false);
+    IPosition blcA(3,0,0,0),trcA(shA),blcB(3,0,0,0),trcB(shB);
+    trcA-=1; trcA(0)=trcA(2)=0;
+    trcB-=1; trcB(0)=trcB(2)=0;
+    ichoice=0;
+    while (!found && ichoice<nchoices) { 
+      // Find index of current refant choice
+      irefA=irefB=0;
+      while (ant1A(irefA)!=refantchoices(ichoice) && irefA<shA(2)) ++irefA;
+      while (ant1B(irefB)!=refantchoices(ichoice) && irefB<shB(2)) ++irefB;
+
+      if (irefA<shA(2) && irefB<shB(2)) {
+
+	//	cout << " Trial irefA,irefB: " << irefA << "," << irefB 
+	//	     << "   Ants=" << ant1A(irefA) << "," << ant1B(irefB) << endl;
+
+	blcA(2)=trcA(2)=irefA;
+	blcB(2)=trcB(2)=irefB;
+	found=true;  // maybe
+	for (Int ipol=0;ipol<nPol(ispw);++ipol) {
+	  blcA(0)=trcA(0)=blcB(0)=trcB(0)=ipol;
+	  found &= (nfalse(flA(blcA,trcA))>0);  // previous interval
+	  found &= (nfalse(flB(blcB,trcB))>0);  // current interval
+	} 
+      }
+      else
+	// irefA or irefB out-of-range
+	found=false;  // Just to be sure
+
+      if (!found) ++ichoice;  // try next choice next round
+
+    }
+
+    if (found) {
+      // at this point, irefA/irefB point to a good refant
+      
+      // Keep track
+      usedaltrefant|=(ichoice>0);
+      currrefant=refantchoices(ichoice);
+      refantchoices(1)=currrefant;  // 2nd priorty next time
+
+      //      cout << " currrefant = " << currrefant << " (" << ichoice << ")" << endl;
+
+      //      cout << " Final irefA,irefB: " << irefA << "," << irefB 
+      //	   << "   Ants=" << ant1A(irefA) << "," << ant1B(irefB) << endl;
+
+
+      // Only report if using an alternate refant
+      if (currrefant!=lastrefant && ichoice>0) {
+	logSink() 
+	  << "At " 
+	  << MVTime(ctiter.thisTime()/C::day).string(MVTime::YMD,7) 
+	  << " ("
+	  << "Spw=" << ctiter.thisSpw()
+	  << ", Fld=" << ctiter.thisField()
+	  << ")"
+	  << ", using refant " << msmc().antennaName(currrefant)
+	  << " (id=" << currrefant 
+	  << ")" << " (alternate)"
+	  << LogIO::POST;
+      }  
+
+      // Form reference phasor [nPar,nChan]
+      Matrix<Float> rA,rB;
+      Matrix<Bool> rflA,rflB;
+      rB.assign(solB.xyPlane(irefB));
+      rflB.assign(flB.xyPlane(irefB));
+      
+      if (!first) {
+	// Get and condition previous phasor for the current refant
+	rA.assign(solA.xyPlane(irefA));
+	rflA.assign(flA.xyPlane(irefA));
+	rB-=rA;
+	for (Int ipar=0;ipar<nPar();ipar+=3) {
+	  rB(IPosition(2,ipar,0))-=2.0*C::pi*rA(IPosition(2,ipar+2,0))*
+	    refFreqs(ispw)*(timeB-timeA);
+	}
+
+	// Accumulate flags
+	rflB&=rflA;
+      }
+      
+      //      cout << " rB = " << rB << endl;
+      //      cout << boolalpha << " rflB = " << rflB << endl;
+      // TBD: fillChanGaps?
+      
+      // Now apply reference phasor to all antennas
+      Matrix<Float> thissol;
+      for (Int iant=0;iant<shB(2);++iant) {
+	thissol.reference(solB.xyPlane(iant));
+	thissol-=rB;
+      }
+      
+      // Set refant, so we can put it back
+      ant2B=currrefant;
+      
+      // put back referenced solutions
+      ctiter.setfparam(solB);
+      ctiter.setantenna2(ant2B);
+
+      // Next time thru, solB is previous
+      timeA = timeB;
+      solA.reference(solB);
+      flA.reference(flB);
+      ant1A.reference(ant1B);
+      solB.resize();  // (break references)
+      flB.resize();
+      ant1B.resize();
+	
+      lastrefant=currrefant;
+      first=false;  // avoid first-pass stuff from now on
+      
+    } // found
+    else {
+      logSink() 
+	<< "At " 
+	<< MVTime(ctiter.thisTime()/C::day).string(MVTime::YMD,7) 
+	<< " ("
+	<< "Spw=" << ctiter.thisSpw()
+	<< ", Fld=" << ctiter.thisField()
+	<< ")"
+	<< ", refant (id=" << currrefant 
+	<< ") was flagged; flagging all antennas strictly." 
+	<< LogIO::POST;
+      // Flag all solutions in this interval
+      flB.set(True);
+      ctiter.setflag(flB);
+    }
+
+    // advance to the next interval
+    lastspw=ispw;
+    ctiter.next();
+  }
+
+  if (usedaltrefant)
+    logSink() << LogIO::NORMAL
+	      << " NB: An alternate refant was used at least once to maintain" << endl
+	      << "  phase continuity where the user's preferred refant drops out." << endl
+	      << "  Alternate refants are held constant in phase (_not_ zeroed)" << endl
+	      << "  during these periods, and the preferred refant may return at" << endl
+	      << "  a non-zero phase.  This is generally harmless."
+	      << LogIO::POST;
+
+  return;
+
+}
 
 } //# NAMESPACE CASA - END
 

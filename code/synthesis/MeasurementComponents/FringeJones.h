@@ -234,9 +234,8 @@ public:
   virtual casacore::Bool useGenericGatherForSolve() { return true; };
   virtual casacore::Bool useGenericSolveOne() { return false; }
 
-  // Override G here; nothing to do for K, for now
-  //   TBD: refant apply, etc.
-  virtual void globalPostSolveTinker() {};
+  // Post solve tinkering
+  virtual void globalPostSolveTinker();
 
   // Local implementation of selfSolveOne (generalized signature)
   // virtual void selfSolveOne(VisBuffGroupAcc& vbga);
@@ -252,6 +251,9 @@ public:
   virtual casacore::Int& weightFactor() { return weightFactor_; }
   virtual casacore::Array<casacore::Double>& delayWindow() { return delayWindow_; }
   virtual casacore::Array<casacore::Double>& rateWindow() { return rateWindow_; }
+  
+  // Apply reference antenna
+  virtual void applyRefAnt();
 
 protected:
 
