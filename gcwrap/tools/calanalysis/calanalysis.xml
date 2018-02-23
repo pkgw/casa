@@ -379,6 +379,7 @@ This member function opens a calibration table.
       Python string containing the calibration table name.
     </description>
     <value></value>
+    <type mustexist="true">path</type>
   </param>
 </input>
 

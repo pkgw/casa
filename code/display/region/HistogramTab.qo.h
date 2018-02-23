@@ -26,7 +26,7 @@
 #ifndef HISTOGRAMTAB_QO_H
 #define HISTOGRAMTAB_QO_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <casa/Utilities/CountedPtr.h>
 #include <display/region/HistogramTab.ui.h>
 

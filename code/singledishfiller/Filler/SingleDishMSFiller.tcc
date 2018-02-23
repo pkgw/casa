@@ -1330,6 +1330,13 @@ void SingleDishMSFiller<T>::sortPointing() {
     }
   }
 
+  // sort INTERVAL
+  {
+    casacore::Vector<casacore::Double> interval_list = mycolumns.interval().getColumn();
+    for (casacore::uInt i = 0; i < nrow; ++i) {
+      mycolumns.interval().put(i, interval_list[index_vector[i]]);
+    }
+  }
   POST_END;
 }
 

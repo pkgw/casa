@@ -25,6 +25,8 @@
 //#
 //# $Id$
 
+#include <QMenu>
+#include <QMessageBox>
 
 #include <display/QtViewer/MakeRegion.qo.h>
 #include <display/RegionShapes/RegionShapes.h>

@@ -509,6 +509,7 @@ print me.comettopo()
      <param type="string" direction="in" name="v">
      <description>name of a table</description>
      <value></value>
+     <type mustexist="true">path</type>
      </param>
 </input>
 <returns type="bool"></returns>
@@ -1078,15 +1079,14 @@ a vector of quantities is given), --> and optionally it can specify an
 offset, which in itself has to be a uvw. Allowable reference codes are
 ITRF and the direction ones.\\
 Note that additional ones may become available. Check in \casa\ with: 
-\begin{verbatim}
 print "\t----\t uvw Ex 1 \t----"
 print me.listcodes(me.uvw())
-#{'normal': ['J2000', 'JMEAN', 'JTRUE', 'APP', 'B1950', 'BMEAN',
-# 'BTRUE', 'GALACTIC', 'HADEC', 'AZEL', 'AZELSW', 'AZELNE',
-# 'AZELGEO', 'AZELSWGEO', 'AZELNEGEO', 'JNAT', 'ECLIPTIC',
-# 'MECLIPTIC', 'TECLIPTIC', 'SUPERGAL', 'ITRF', 'TOPO',
-# 'ICRS'], 'extra': []}
-\end{verbatim}
+# {'normal': array(['J2000', 'JMEAN', 'JTRUE', 'APP', 'B1950', 'B1950_VLA', 'BMEAN',
+       'BTRUE', 'GALACTIC', 'HADEC', 'AZEL', 'AZELSW', 'AZELNE', 'AZELGEO',
+       'AZELSWGEO', 'AZELNEGEO', 'JNAT', 'ECLIPTIC', 'MECLIPTIC',
+       'TECLIPTIC', 'SUPERGAL', 'ITRF', 'TOPO', 'ICRS'], 
+      dtype='|S10'), 'extra': array([], 
+      dtype='|S1')}
 
 The uvw quantity values should be either longitude
 (angle), latitude(angle) and height(length); or x,y,z (length).
@@ -1496,14 +1496,14 @@ offset, which in itself has to be a baseline. Allowable reference codes are
 ITRF and the direction ones.\\
 Note that additional ones may become available. Check in \casa\ with:
 
-\begin{verbatim}
 print "\t----\t baseline Ex 1 \t----"
 print me.listcodes(me.baseline())
-#{'normal': ['J2000', 'JMEAN', 'JTRUE', 'APP', 'B1950', 'BMEAN', 'BTRUE',
-# 'GALACTIC', 'HADEC', 'AZEL', 'AZELSW', 'AZELNE', 'AZELGEO', 'AZELSWGEO',
-# 'AZELNEGEO', 'JNAT', 'ECLIPTIC', 'MECLIPTIC', 'TECLIPTIC', 'SUPERGAL',
-# 'ITRF', 'TOPO', 'ICRS'], 'extra': []}
-\end{verbatim}
+# {'normal': array(['J2000', 'JMEAN', 'JTRUE', 'APP', 'B1950', 'B1950_VLA', 'BMEAN',
+#       'BTRUE', 'GALACTIC', 'HADEC', 'AZEL', 'AZELSW', 'AZELNE', 'AZELGEO',
+#       'AZELSWGEO', 'AZELNEGEO', 'JNAT', 'ECLIPTIC', 'MECLIPTIC',
+#       'TECLIPTIC', 'SUPERGAL', 'ITRF', 'TOPO', 'ICRS'], 
+#      dtype='|S10'), 'extra': array([], 
+#      dtype='|S1')}
 
 The baseline quantity values should be either longitude
 (angle), latitude(angle) and height(length); or x,y,z (length).
@@ -1654,12 +1654,13 @@ print me.ismeasure(a)
 #True
 # Get the known reference codes for direction
 print me.listcodes(a)
-#{'normal': ['J2000', 'JMEAN', 'JTRUE', 'APP', 'B1950', 'BMEAN',
-#'BTRUE', 'GALACTIC', 'HADEC', 'AZEL', 'AZELSW', 'AZELNE', 'AZELGEO',
-#'AZELSWGEO', 'AZELNEGEO', 'JNAT', 'ECLIPTIC', 'MECLIPTIC',
-#'TECLIPTIC', 'SUPERGAL', 'ITRF', 'TOPO', 'ICRS'],
-#'extra': ['MERCURY', 'VENUS', 'MARS', 'JUPITER', 'SATURN', 'URANUS',
-#'NEPTUNE', 'PLUTO', 'SUN', 'MOON', 'COMET']}
+# {'normal': array(['J2000', 'JMEAN', 'JTRUE', 'APP', 'B1950', 'B1950_VLA', 'BMEAN',
+#       'BTRUE', 'GALACTIC', 'HADEC', 'AZEL', 'AZELSW', 'AZELNE', 'AZELGEO',
+#       'AZELSWGEO', 'AZELNEGEO', 'JNAT', 'ECLIPTIC', 'MECLIPTIC',
+#       'TECLIPTIC', 'SUPERGAL', 'ITRF', 'TOPO', 'ICRS'], 
+#      dtype='|S10'), 'extra': array(['MERCURY', 'VENUS', 'MARS', 'JUPITER', 'SATURN', 'URANUS',
+#       'NEPTUNE', 'PLUTO', 'SUN', 'MOON', 'COMET'], 
+#      dtype='|S8')}
 
 </example>
 </method>

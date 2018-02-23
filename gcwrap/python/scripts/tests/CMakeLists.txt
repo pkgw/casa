@@ -187,6 +187,7 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_tsdfit.py
   test_tsdimaging.py
   test_tsdsmooth.py
+  test_sdsidebandsplit.py
 
   ### CASAGUIDES ###
   test_FirstLook_Imaging.py
@@ -231,4 +232,5 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   ../mpi4casa/test_mpi4casa_subset.py
   testutils.py
   unittests_list.txt
+  uTest_list.json
 )

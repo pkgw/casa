@@ -39,6 +39,7 @@ file:///opt/casa/code/tools/xml/casa.xsd">
 
         <tool name="ms" module="ms">
            <needs>table</needs>
+           <needs>msmetadata</needs>
         <shortdescription>Operations on measurement sets</shortdescription>
        
 
@@ -925,6 +926,7 @@ the ms definition itself. -->
      <param type="string" direction="in" name="fitsfile">
      <description>uvfits file to read</description>
      <value></value>
+     <type mustexist="true">path</type>
      </param>
     
      <param type="bool" direction="in" name="nomodify">
@@ -3715,9 +3717,9 @@ in spectral window 1.
     MODEL_DATA column doesn't exist, the default model visibility of
     value 1 + 0i will be used. In cases where a necessary column doesn't
     exist, an exception will be thrown and no data will be changed.
-            
+
     RETURN VALUE
-    
+
     In all cases, the mean and variance of the set of all weights computed
     by the application is reported and returned in a dictionary with keys
     'mean' and 'variance'. Weights for which there are corresponding flags
@@ -3727,7 +3729,7 @@ in spectral window 1.
     the WEIGHT values are used. The returned statistics are always computed
     using the classic algorithm; the value of statalg has no impact on how
     they are computed.
-            
+
     OTHER CONSIDERATIONS
 
     Flagged values are not used in computing the weights, although the

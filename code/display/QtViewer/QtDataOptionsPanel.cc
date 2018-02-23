@@ -25,6 +25,7 @@
 //#
 //# $Id$
 
+#include <QScrollArea>
 #include <casa/BasicSL/String.h>
 #include <display/QtViewer/QtDataOptionsPanel.qo.h>
 #include <display/QtViewer/QtDisplayPanelGui.qo.h>
