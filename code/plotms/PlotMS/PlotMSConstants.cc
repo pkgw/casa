@@ -62,7 +62,7 @@ bool PMS::axisNeedsCalSlice(Axis axis) {
     case AMP: case PHASE: case REAL: case IMAG: 
     case GAMP: case GPHASE: case GREAL: case GIMAG:
     case DELAY: case SWP: case TSYS: case OPAC: case SNR: case TEC:
-    case FLAG:
+	case ANTPOS: case FLAG:
         return true;
     default: return false;
     }

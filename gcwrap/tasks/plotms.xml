@@ -225,6 +225,9 @@ MS Parameters
       <value>SNR</value>
       <value>tec</value>
       <value>TEC</value>
+      <value>antpos</value>
+      <value>Antenna Positions</value>
+      <value>antenna positions</value>
       <value>radialvelocity</value>
       <value>Radial Velocity</value>
       <value>rho</value>
@@ -397,6 +400,9 @@ MS Parameters
       <value>SNR</value>
       <value>tec</value>
       <value>TEC</value>
+      <value>antpos</value>
+      <value>Antenna Positions</value>
+      <value>antenna positions</value>
       <value>radialvelocity</value>
       <value>Radial Velocity</value>
       <value>rho</value>

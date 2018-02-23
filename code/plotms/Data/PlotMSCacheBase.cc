@@ -779,11 +779,12 @@ void PlotMSCacheBase::release(const vector<PMS::Axis>& axes) {
                 break;
 			case PMS::SNR: PMSC_DELETE(snr_)
                 break;
+			case PMS::ANTPOS: PMSC_DELETE(antpos_)
+                break;
 			case PMS::RADIAL_VELOCITY: radialVelocity_.resize(0);
                 break;
 			case PMS::RHO: rho_.resize(0);
                 break;
-			case PMS::ANTPOS: // ant corrections loaded as AMP
 			case PMS::NONE:
                 break;
 			}
@@ -1514,6 +1515,9 @@ void PlotMSCacheBase::setCache(Int newnChunk,
             case PMS::TEC:
 		        addArrays(par_);
                 break;
+            case PMS::ANTPOS:
+		        addArrays(antpos_);
+                break;
 	        case PMS::RADIAL_VELOCITY: {
                 radialVelocity_.resize(nChunk_,true);
                 }
@@ -1522,7 +1526,6 @@ void PlotMSCacheBase::setCache(Int newnChunk,
                 rho_.resize(nChunk_,true);
                 }
                 break;
-            case PMS::ANTPOS:  // ant corrections loaded as AMP
             case PMS::NONE:
                 break;
         }
@@ -1612,6 +1615,7 @@ void PlotMSCacheBase::setAxesMask(PMS::Axis axis,Vector<Bool>& axismask) {
 	case PMS::OPAC:
 	case PMS::SNR:
 	case PMS::TEC:
+	case PMS::ANTPOS:
 	case PMS::FLAG:
 	case PMS::WTxAMP:
 	case PMS::WTSP:
@@ -1670,7 +1674,6 @@ void PlotMSCacheBase::setAxesMask(PMS::Axis axis,Vector<Bool>& axismask) {
 	case PMS::INTENT:
 	case PMS::FEED1:
 	case PMS::FEED2:
-	case PMS::ANTPOS:
 	case PMS::NONE:
 		break;
 	}

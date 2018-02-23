@@ -406,6 +406,13 @@ void CalCache::loadCalAxis(ROCTIter& cti, Int chunk, PMS::Axis axis, String pol)
             }
             break;
         }
+        case PMS::ANTPOS: {
+            if (!calType_.startsWith("KAntPos"))
+                throw(AipsError( "ANTPOS has no meaning for this table"));
+            Cube<Float> fArray = cti.fparam();
+            *antpos_[chunk] = fArray(parSlice1, Slice(), Slice());
+			break;
+		}
         case PMS::GAMP:
         case PMS::AMP: {
             if (parsAreComplex()) {
