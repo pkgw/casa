@@ -878,14 +878,14 @@ Plot range Parameter
 ###############################################################################
 -->
 
-    <param type="doubleArray" name="plotrange">cd
+    <param type="doubleArray" name="plotrange">
         <description>Plot axes ranges: [xmin,xmax,ymin,ymax]</description>
         <value />
     </param>
 
 <!--
 ###############################################################################
-Label Paramlegeters
+Label Parameters
 ###############################################################################
 -->
 
@@ -1079,7 +1079,17 @@ Export plot as image Parameters
      <param type="string" name="headeritems" >
         <description>Comma-separated list of pre-defined page header items.</description>
         <value></value>
-    </param>
+     </param>
+
+     <param type="bool" name="showatm">
+        <description>Compute and overlay the atmospheric transmission curve</description>
+        <value>False</value>
+     </param>
+     
+     <param type="bool" name="showtsky">
+        <description>Compute and overlay the sky temperature curve</description>
+        <value>False</value>
+     </param>
      
 <!--
 ###############################################################################
