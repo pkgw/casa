@@ -65,6 +65,7 @@ public:
     static void makeParameters(PlotMSPlotParameters& params, PlotMSApp* plotms);
     
     void customizeAutoSymbol( const PlotSymbolPtr& baseSymbol, casacore::uInt dataSize  );
+    void customizeOverlaySymbol( const PlotSymbolPtr& baseSymbol, casacore::uInt dataSize  );
     // Non-Static //
     
     // Constructor which takes the parent PlotMS object.  Starts out with
@@ -359,6 +360,7 @@ private:
     static const casacore::uInt PIXEL_THRESHOLD;
     static const casacore::uInt MEDIUM_THRESHOLD;
     static const casacore::uInt LARGE_THRESHOLD;
+    static const casacore::uInt XLARGE_THRESHOLD;
 };
 
 }

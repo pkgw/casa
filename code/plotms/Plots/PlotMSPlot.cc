@@ -82,6 +82,7 @@ void PlotMSPlot::makeParameters(PlotMSPlotParameters& params, PlotMSApp* /*plotm
 const uInt PlotMSPlot::PIXEL_THRESHOLD = 1000000;
 const uInt PlotMSPlot::MEDIUM_THRESHOLD = 10000;
 const uInt PlotMSPlot::LARGE_THRESHOLD = 1000;
+const uInt PlotMSPlot::XLARGE_THRESHOLD = 50;
 
 // Constructors/Destructors //
 
@@ -122,6 +123,18 @@ void PlotMSPlot::customizeAutoSymbol( const PlotSymbolPtr& baseSymbol, uInt data
 			baseSymbol->setSymbol( PlotSymbol::CIRCLE );
 			baseSymbol->setSize(6,6);
 		}
+	}
+}
+
+void PlotMSPlot::customizeOverlaySymbol( const PlotSymbolPtr& baseSymbol, uInt dataSize ){
+	if( dataSize > MEDIUM_THRESHOLD ) {
+		baseSymbol->setSize(2,2);
+	} else if( dataSize > LARGE_THRESHOLD ) {
+		baseSymbol->setSize(3,3);
+	} else if( dataSize > XLARGE_THRESHOLD ) {
+		baseSymbol->setSize(4,4);
+	} else {
+		baseSymbol->setSize(6,6);
 	}
 }
 
@@ -344,7 +357,7 @@ vector<PMS::Axis> PlotMSPlot::getCachedAxes() {
                 PMS_PP_Display* disp = itsParams_.typedGroup<PMS_PP_Display>();
                 PlotSymbolPtr atmSymbol = disp->unflaggedSymbol(index);
                 atmSymbol->setSymbol("circle");
-                atmSymbol->setSize(3,3);
+                atmSymbol->setSize(2,2);
                 atmSymbol->setColor("#FF00FF");
                 disp->setUnflaggedSymbol(atmSymbol, index);
                 PlotSymbolPtr flaggedSymbol = disp->flaggedSymbol();
@@ -549,18 +562,26 @@ bool PlotMSPlot::updateDisplay() {
 			nIter = 1;
 		uInt rows = itsPlots_.size();
 		for(uInt row = 0; row < rows; ++row) {
+			PMS::Axis x = cache->xAxis(row);
+			PMS::Axis y = cache->yAxis(row);
 			uInt cols = itsPlots_[row].size();
 			for(uInt col = 0; col < cols; ++col) {
 				// Set symbols.
 				PlotSymbolPtr unflaggedSym = display->unflaggedSymbol(row);
 				PlotSymbolPtr symbolUnmasked = itsParent_->createSymbol(unflaggedSym);
 				uInt dataSize = itsCache_->indexer(row,col).sizeUnmasked();
-				customizeAutoSymbol( symbolUnmasked, dataSize );
+				if (y==PMS::ATM || y==PMS::TSKY) 
+					customizeOverlaySymbol( symbolUnmasked, dataSize );
+				else 
+					customizeAutoSymbol( symbolUnmasked, dataSize );
 
 				PlotSymbolPtr flaggedSym = display->flaggedSymbol(row);
 				PlotSymbolPtr symbolMasked = itsParent_->createSymbol(flaggedSym);
 				dataSize = itsCache_->indexer(row,col).sizeMasked();
-				customizeAutoSymbol( symbolMasked, dataSize );
+				if (y==PMS::ATM || y==PMS::TSKY)
+					customizeOverlaySymbol( symbolMasked, dataSize );
+				else
+					customizeAutoSymbol( symbolMasked, dataSize );
 
 				plot = itsPlots_[row][col];
 				if (plot.null()) continue;
@@ -576,8 +597,6 @@ bool PlotMSPlot::updateDisplay() {
 				plot->setAxes(axes->xAxis(row), axes->yAxis(row));
 
 				// Set plot title for legend; convert axes for cal table
-				PMS::Axis x = cache->xAxis(row);
-				PMS::Axis y = cache->yAxis(row);
 				if (itsCache_->cacheType()==PlotMSCacheBase::CAL) {
 					String caltype = itsCache_->calType();
 					x = getCalAxis(caltype, x);
