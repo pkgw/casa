@@ -169,7 +169,7 @@ public:
     del(Slice(0),Slice(),Slice())=xdel;  // ~ on the padded grid
     del*=Float(1.0/nChan/0.001);
     del(Slice(1),Slice(),Slice())=0.0f;  // all in the first pol
-    cout << "xdel=" << del(0,0,0) << "nsec" << endl;
+    //    cout << "xdel=" << del(0,0,0) << "nsec" << endl;
   }
 
 };    
@@ -284,7 +284,7 @@ TEST_F(KJonesTest, MBDSolveTest) {
 
   KJones K(msmc);
   Record solvePar;
-  solvePar.define("table",String("test.K"));
+  solvePar.define("table",String("testMBD.K"));
   solvePar.define("solint",String("inf"));
   solvePar.define("combine",String(""));
   Vector<Int> refant(1,0); solvePar.define("refant",refant);
@@ -342,12 +342,27 @@ TEST_F(KJonesTest, MBDSolveTest) {
 
   ASSERT_EQ(nSpw,sdbs.nSDB());
   
-  K.setMeta(sdbs.aggregateObsId(),sdbs.aggregateScan(),sdbs.aggregateTime(),
-	    sdbs.aggregateSpw(),sdbs(0).freqs(),  // freqs don't matter here, really
-	    sdbs.aggregateFld());
+  K.createMemCalTable2();
+
+  K.syncSolveMeta(sdbs);
+
+  //K.setMeta(sdbs.aggregateObsId(),sdbs.aggregateScan(),sdbs.aggregateTime(),
+  //sdbs.aggregateSpw(),sdbs(0).freqs(),  // freqs don't matter here, really
+  //sdbs.aggregateFld());
+
+  K.setOrVerifyCTFrequencies(sdbs.aggregateSpw());
+
   K.sizeSolveParCurrSpw(nChan); 
   
   K.selfSolveOne(sdbs);
+
+  /*
+  K.state();
+
+  K.keepNCT();
+
+  K.storeNCT();
+  */
   
   Cube<Float> soldiff=abs(K.solveRPar()-del);
   
@@ -547,6 +562,10 @@ TEST_F(KJonesTest, KmbdCrossSolveTest) {
   //cout << "Diff = " << soldiff  << endl;
   ASSERT_TRUE(allNearAbs(soldiff,0.0f,1e-4));  // at available resoln
 
+  //String a("5.3.0-79"), b("5.3.0-80"), c("5.3");
+  //cout << "5.3.0-79 < 5.3.0-80 = " << boolalpha << (a<b) << endl;
+  //cout << "5.3.0-80 < 5.3.0-79 = " << boolalpha << (b<a) << endl;
+  //cout << "5.4.0-1  < 5.3.0-80 = " << boolalpha << (c<b) << endl;
 
 }
 

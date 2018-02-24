@@ -552,7 +552,19 @@ void KJones::setApply(const Record& apply) {
   //  from the CalTable
   MSSpectralWindow msSpw(ct_->spectralWindow());
   ROMSSpWindowColumns msCol(msSpw);
-  msCol.refFrequency().getColumn(KrefFreqs_,true);
+
+  if (ct_->CASAvers()==String("Unknown") || ct_->CASAvers()<String("5.3.0-80")) {
+    // Old-fashioned; use spw edge freq
+    msCol.refFrequency().getColumn(KrefFreqs_,true);
+  }
+  else {
+  // Use the "physical" (centroid) frequency, per spw 
+  //  (NB: not every spw in ct will necessarily have a single channel...)
+    Matrix<Double> chanfreq;
+    msCol.chanFreq().getColumn(chanfreq,true);
+    Vector<Double> chanfreq1(chanfreq(Slice(0,1,1),Slice()));
+    KrefFreqs_=chanfreq1;
+  }
   KrefFreqs_/=1.0e9;  // in GHz
 
   /// Re-assign KrefFreq_ according spwmap (if any)
@@ -594,8 +606,17 @@ void KJones::setCallib(const Record& callib,
 
   // Extract per-spw ref Freq for phase(delay) calculation
   //  from the CalTable
-  KrefFreqs_.assign(cpp_->refFreqIn());
-  KrefFreqs_/=1.0e9;  // in GHz
+  if (cpp_->CTCASAvers()==String("Unknown") || cpp_->CTCASAvers()<String("5.3.0-80")) {
+    KrefFreqs_.assign(cpp_->refFreqIn());
+  }
+  else {
+    // Extract physical freq
+    KrefFreqs_.resize(nSpw());
+    for (Int ispw=0;ispw<nSpw();++ispw) 
+      KrefFreqs_[ispw]=cpp_->freqIn(ispw)[0];
+  }
+  KrefFreqs_/=1.0e9;  // In GHz
+
 
   // Re-assign KrefFreq_ according spwmap (if any)
   if (spwMap().nelements()>0) {
@@ -605,7 +626,6 @@ void KJones::setCallib(const Record& callib,
       if (spwMap()(ispw)>-1)
 	KrefFreqs_(ispw)=tmpfreqs(spwMap()(ispw));
   }
-
     
 }
 
