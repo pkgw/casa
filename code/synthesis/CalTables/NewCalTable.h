@@ -138,7 +138,7 @@ class NewCalTable : public casacore::Table
 		casacore::Table::TableType ttype = casacore::Table::Memory);
    // control locking option
    NewCalTable (const casacore::String& tableName, 
-        const casacore::TableLock& lockOptions = casacore::TableLock(),
+        const casacore::TableLock& lockOptions,
 		casacore::Table::TableOption access = casacore::Table::Old,
 		casacore::Table::TableType ttype = casacore::Table::Memory);
 
