@@ -26,6 +26,7 @@
 //# $Id$
 //#
 
+#include <QMenu>
 #include <list>
 #include <display/QtViewer/QtMouseToolBar.qo.h>
 #include <display/QtViewer/QtDisplayPanel.qo.h>

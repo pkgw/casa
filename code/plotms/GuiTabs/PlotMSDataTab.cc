@@ -68,7 +68,6 @@ PlotMSDataTab::PlotMSDataTab(PlotMSPlotTab* plotTab, PlotMSPlotter* parent) :
     connect(itsFileWidget_, SIGNAL(changed()), SIGNAL(changed()));
     connect(itsSelectionWidget_, SIGNAL(changed()), SIGNAL(changed()));
     connect(itsAveragingWidget_, SIGNAL(changed()), SIGNAL(changed()));
-
 }
 
 
@@ -103,13 +102,10 @@ void PlotMSDataTab::getValue(PlotMSPlotParameters& params) const {
     d->setAveraging(itsAveragingWidget_->getValue());
 }
 
-
-
 void PlotMSDataTab::setValue(const PlotMSPlotParameters& params) {
     const PMS_PP_MSData* d = params.typedGroup<PMS_PP_MSData>();
     if(d == NULL) return;
     itsFileWidget_->setFile(d->filename());
-
     itsSelectionWidget_->setValue(d->selection());
     itsAveragingWidget_->setValue(d->averaging());
 }
@@ -117,12 +113,14 @@ void PlotMSDataTab::setValue(const PlotMSPlotParameters& params) {
 void PlotMSDataTab::update(const PlotMSPlot& plot) {
     const PMS_PP_MSData* d = plot.parameters().typedGroup<PMS_PP_MSData>();
     if(d == NULL) return;
+
+    const casacore::String filename = itsFileWidget_->getFile();
+
     highlightWidgetText(ui.locationLabel, itsFileWidget_->getFile() != d->filename());
     highlightWidgetText(ui.selectionLabel,
 	    itsSelectionWidget_->getValue().fieldsNotEqual(d->selection()));
     highlightWidgetText(ui.averagingLabel,
             itsAveragingWidget_->getValue() != d->averaging());
 }
-
 
 }

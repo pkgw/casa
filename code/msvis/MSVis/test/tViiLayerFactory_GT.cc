@@ -25,6 +25,13 @@
 //#
 //# $Id$
 
+#define _POSIX_C_SOURCE 200809L //For mkdtemp(), stpcpy()
+#define _XOPEN_SOURCE 500 //For nftw()
+#define _DARWIN_C_SOURCE //in macOS mkdtemp() is not available if  _POSIX_C_SOURCE=200809L (Apple bugreport #35851865)
+
+#include <ftw.h>
+#include <limits.h>
+#include <unistd.h> //in macOS mkdtemp() is not in stdlib.h as POSIX dictates..(Apple bugreport #35830645) 
 #include <casa/aips.h>
 #include <casa/Exceptions/Error.h>
 #include <casacore/casa/OS/EnvVar.h>
@@ -34,8 +41,10 @@
 #include <msvis/MSVis/IteratingParameters.h>
 #include <msvis/MSVis/ViiLayerFactory.h>
 #include <msvis/MSVis/LayeredVi2Factory.h>
+#include <msvis/MSVis/TransformingVi2.h>
 #include <msvis/MSVis/SimpleSimVi2.h>
 #include <msvis/MSVis/VisBuffer2.h>
+#include <msvis/MSVis/test/MsFactory.h>
 #include <casa/iomanip.h>
 #include <gtest/gtest.h>
 
@@ -43,12 +52,28 @@ using namespace std;
 using namespace casa;
 using namespace casacore;
 using namespace casa::vi;
+using namespace casa::vi::test;
+
+int removeFile(const char *fpath, const struct stat *sb, int typeflag, 
+               struct FTW* ftwbuf);
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
 
+int removeFile(const char *fpath, const struct stat *sb, int typeflag, 
+               struct FTW* ftwbuf)
+{
+  (void)sb;  //Unused vars
+  (void)typeflag;
+  (void)ftwbuf;
+    
+  int rv = remove(fpath);
+  if(rv)
+    perror(fpath);
+  return rv;
+}
  
 TEST( ViiLayerFactoryTest , ViiLayerFactoryBasicTest ) {
  
@@ -60,7 +85,7 @@ TEST( ViiLayerFactoryTest , ViiLayerFactoryBasicTest ) {
   Vector<ViiLayerFactory*> facts(1);
   facts[0]=&fac;
 
-  VisibilityIterator2 *vi = new VisibilityIterator2(facts);
+  std::unique_ptr<VisibilityIterator2> vi(new VisibilityIterator2(facts));
   VisBuffer2 *vb = vi->getImpl()->getVisBuffer();
 
   // Has a viable VI2 been generated?
@@ -94,7 +119,7 @@ TEST( ViiLayerFactoryTest , ViiLayerFactoryRealDataBasicTest ) {
   Vector<ViiLayerFactory*> facts(1);
   facts[0]=&fac;
 
-  VisibilityIterator2 *vi = new VisibilityIterator2(facts);
+  std::unique_ptr<VisibilityIterator2> vi(new VisibilityIterator2(facts));
   VisBuffer2 *vb = vi->getImpl()->getVisBuffer();
 
   // Has a viable VI2 been generated?
@@ -138,5 +163,350 @@ TEST( ViiLayerFactoryTest , ViiLayerFactoryRealDataBasicTest ) {
 
   ASSERT_EQ(32,chunk);
   ASSERT_EQ(2864,niter);
+  delete[] casapath;
 }
+
+/* 
+ * This class is a very simple TVI that passes all the requests for the
+ * underlying VI (delegating to TransformingVi2) except that it swaps
+ * the access to corrected data and data, i.e., when accessing the 
+ * data corrected it returns the data column of the underlying VI.
+ */
+class DataSwappingTVI : public TransformingVi2
+{
+public:
+  
+  //Constructor
+  DataSwappingTVI(ViImplementation2 * inputVii) :
+    TransformingVi2 (inputVii)
+  {
+    setVisBuffer(createAttachedVisBuffer (VbRekeyable));
+  }
+
+  //Access to DATA CORRECTED returns underlying DATA column
+  virtual void visibilityCorrected(casacore::Cube<casacore::Complex>& vis) const
+  {
+    VisBuffer2* vb = getVii()->getVisBuffer();
+    vis = vb->visCube();
+    return;
+  }
+  
+  //Access to DATA returns underlying DATA CORRECTED column
+  virtual void visibilityObserved(casacore::Cube<casacore::Complex>& vis) const
+  {
+    VisBuffer2* vb = getVii()->getVisBuffer();
+    vis = vb->visCubeCorrected();
+    return;
+  }
+  
+  void origin()
+  {
+    // Drive underlying ViImplementation2
+    getVii()->origin();
+
+    // Synchronize own VisBuffer
+    configureNewSubchunk();
+
+    return;
+  }
+
+  void next()
+  {
+    // Drive underlying ViImplementation2
+    getVii()->next();
+
+    // Synchronize own VisBuffer
+    configureNewSubchunk();
+
+    return;
+  }
+
+};
+
+/*
+ * Factory that allows the creation of DataSwappingTVI classes.
+ * This factory doesn't have any parameter to configure
+ */
+class DataSwappingTVILayerFactory : public ViiLayerFactory
+{
+
+public:
+
+  DataSwappingTVILayerFactory()
+  {
+  }
+
+  virtual ~DataSwappingTVILayerFactory() {};
+
+protected:
+
+  virtual ViImplementation2 * createInstance(ViImplementation2* vii0) const
+  {
+    ViImplementation2 *vii = new DataSwappingTVI(vii0);
+    return vii;
+  }
+};
+
+/*
+ * Gtest fixture used to test the access to the different data columns.
+ * This class will create a synthetic MS in a temporary directory with or 
+ * without DATA CORRECTED columns. 
+ * It will also create a stack of TVIs with two TVIs: 
+ * a disk access layer and a swapping data TVI (DataSwappingTVI). This TVI
+ * is optional.
+ */
+class DataAccessTest : public ::testing::Test
+{
+public:
+  
+  /*
+   * Constructor: create the temporary dir and the MsFactory used later on
+   * to create the MS.
+   */
+  DataAccessTest()
+  {
+    //Use the system temp dir, if not defined or too long resort to /tmp
+    char * sys_tmpdir = getenv("TMPDIR");
+    if(sys_tmpdir != NULL &&
+       strlen(sys_tmpdir) < _POSIX_PATH_MAX - 1 - tmpsubdir_p.size())
+      strncpy(tmpdir_p, sys_tmpdir, strlen(sys_tmpdir)+1);
+    else
+      strncpy(tmpdir_p, "/tmp", 5);
+    stpcpy (tmpdir_p+strlen(tmpdir_p), tmpsubdir_p.c_str());
+    mkdtemp(tmpdir_p);
+
+    msf_p.reset(new MsFactory(String::format("%s/DataAccessTest.ms", tmpdir_p)));
+  }
+
+  /*
+   * Do not create DATA CORRECTED column. 
+   * This function must be called before createTVIs()
+   */
+  void removeCorrectedData()
+  {
+    msf_p->removeColumn(MS::CORRECTED_DATA);
+  }
+
+  /*
+   * Do not create DATA column. 
+   * This function must be called before createTVIs()
+   */
+  void removeData()
+  {
+    msf_p->removeColumn(MS::DATA);
+  }
+
+  /*
+   * Switch the creation of the DataSwappingTVI on top the disk access layer.
+   * This function must be called before createTVIs(). 
+   */
+  void addSwappingDataTVI()
+  {
+    withSwappingDataTVI_p = true;
+  }
+  
+  /*
+   * Create the synthetic MS and the TVI stack to access it. 
+   */
+  void createTVIs()
+  {
+    //Create MS using the simulator MsFactory
+    pair<MeasurementSet *, Int> p = msf_p->createMs();
+    ms_p.reset(p.first); //MsFactory has given up ownership
+
+    //Create a disk layer type VI Factory
+    IteratingParameters ipar;
+    VisIterImpl2LayerFactory diskItFac(ms_p.get(),ipar,false);
+
+    //Create a SwappingDataTVI Factory if requested
+    std::unique_ptr<DataSwappingTVILayerFactory> swapFac;
+    if(withSwappingDataTVI_p)
+      swapFac.reset(new DataSwappingTVILayerFactory());
+
+    //Create a layered factory with all the layers of factories
+    size_t nFac = 1;
+    if(withSwappingDataTVI_p) 
+      nFac++;
+    Vector<ViiLayerFactory*> facts(nFac);
+    facts[0]=&diskItFac;
+    if(withSwappingDataTVI_p)
+      facts[1]= swapFac.get();
+
+    //Finally create the top VI
+    vi_p.reset(new VisibilityIterator2(facts));
+
+    vb_p = vi_p->getVisBuffer();
+  }
+
+  /*
+   * Iterate the whole MS calling a user provided function.
+   * The only useful case is having a lambda as a visitor function.
+   */
+  void visitIterator(std::function<void(void)> visitor)
+  {
+    for (vi_p->originChunks (); vi_p->moreChunks(); vi_p->nextChunk()){
+      for (vi_p->origin(); vi_p->more (); vi_p->next()){
+        visitor();
+      }
+    }
+  }
+
+  //Destructor
+  ~DataAccessTest()
+  {
+    //The MS destructor will update the file system, so deleting it before removing the directory 
+    msf_p.reset();
+    ms_p.reset();
+    vi_p.reset();
+    //This will recursively remove everything in the directory
+    nftw(tmpdir_p, removeFile, 64, FTW_DEPTH | FTW_PHYS);
+  }
+
+  //The temporary dir where the synthetic MS is created  
+  char tmpdir_p[_POSIX_PATH_MAX];
+  //The subdirectory to create in the temporary dir
+  std::string tmpsubdir_p{"/test_tViiLayerFactory_XXXXXX"};
+  //Wether to use the DataSwappingTVI
+  bool withSwappingDataTVI_p = false;
+  //The helper class to create synthetic MS
+  std::unique_ptr<casa::vi::test::MsFactory> msf_p;
+  //The synthetic MS.
+  std::unique_ptr<MeasurementSet> ms_p;
+  //The VisibilityIterator2 used to iterate trough the data
+  std::unique_ptr<VisibilityIterator2> vi_p;
+  //The attached VisBuffer
+  VisBuffer2 * vb_p;
+};
  
+
+/*
+ * This test will simply access the corrected data column of a
+ * synthetic created MS
+ */
+TEST_F(DataAccessTest, AccessCorrectedData)
+{
+  createTVIs();
+
+  //Traverse the iterator accessing the corrected data cube
+  visitIterator([&]() -> void {vb_p->visCubeCorrected().shape();});
+}
+
+/*
+ * This test will check that an exception is thrown if the
+ * CORRECTED DATA column is missing in the MS.
+ */
+TEST_F(DataAccessTest, AccessCorrectedDataWhenMissing)
+{
+  removeCorrectedData();
+
+  createTVIs();
+
+  //Traverse the iterator accessing the corrected data cube. This should
+  //throw, since it has been removed from the MS.
+  ASSERT_THROW(visitIterator([&]() -> void {vb_p->visCubeCorrected().shape();}),
+               AipsError);
+}
+
+/*
+ * This test will access the corrected data column of a
+ * synthetic MS that doesn't contain that column. The upper TVI, however
+ * will swap the access to DATA column instead so the test should succeed
+ */
+TEST_F(DataAccessTest, AccessCorrectedDataInSwappingDataTVI)
+{
+  removeCorrectedData();
+
+  addSwappingDataTVI();
+  
+  createTVIs();
+
+  //Traverse the iterator accessing the corrected data cube. This works
+  //despite removing the corrected data from disk because the upper TVI layer
+  //(DataSwappingTVI) delivers DATA when CORRECTED DATA is requested.
+  visitIterator([&]() -> void {vb_p->visCubeCorrected().shape();});
+}
+
+/*
+ * This test will access the corrected data column of a
+ * synthetic that doesn't contain column DATA. The upper TVI, however,
+ * will deliver the underlying DATA column when asking for CORRECTED DATA,
+ * and therefore the test will fail.
+ */
+TEST_F(DataAccessTest, AccessCorrectedDataInSwappingDataTVIWhenMissingData)
+{
+  removeData();
+
+  addSwappingDataTVI();
+  
+  createTVIs();
+
+  //Traverse the iterator accessing the corrected data cube. 
+  //The swapping TVI will access the underlying DATA column when accessing
+  //the CORRECTED DATA. Since DATA has been removed from the MS this should
+  //throw
+  ASSERT_THROW(visitIterator([&]() -> void {vb_p->visCubeCorrected().shape();}),
+               AipsError);
+}
+
+/* 
+ * This test will simply access the data column of a
+ * synthetic created MS
+ */
+TEST_F(DataAccessTest, AccessData)
+{
+  createTVIs();
+
+  //Traverse the iterator accessing the corrected data cube
+  visitIterator([&]() -> void {vb_p->visCube().shape();});
+}
+
+/*
+ * This test will check that an exception is thrown if the
+ * CORRECTED DATA column is missing in the MS.
+ */
+TEST_F(DataAccessTest, AccessDataWhenMissing)
+{
+  removeData();
+
+  createTVIs();
+
+  //Traverse the iterator accessing the corrected data cube. This should
+  //throw, since it has been removed from the MS.
+  ASSERT_THROW(visitIterator([&]() -> void {vb_p->visCube().shape();}),
+               AipsError);
+}
+
+/*
+ * This test will access the corrected data column of a
+ * synthetic that doesn't contain that column. The upper TVI, however
+ * will swap the access to DATA column instead so the test should succeed
+ */
+TEST_F(DataAccessTest, AccessDataInSwappingDataTVI)
+{
+  removeData();
+
+  addSwappingDataTVI();
+
+  createTVIs();
+
+  //Traverse the iterator accessing the corrected data cube. This works
+  //despite removing the corrected data from disk because the upper TVI layer
+  //(DataSwappingTVI) delivers DATA when CORRECTED DATA is requested.
+  visitIterator([&]() -> void {vb_p->visCube().shape();});
+}
+
+TEST_F(DataAccessTest, AccessDataInSwappingDataTVIWhenMissingCorrectedData)
+{
+  removeCorrectedData();
+
+  addSwappingDataTVI();
+
+  createTVIs();
+
+  //Traverse the iterator accessing the corrected data cube.
+  //The swapping TVI will access the underlying DATA column when accessing
+  //the CORRECTED DATA. Since DATA has been removed from the MS this should
+  //throw
+  ASSERT_THROW(visitIterator([&]() -> void {vb_p->visCube().shape();}),
+               AipsError);
+}

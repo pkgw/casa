@@ -114,7 +114,7 @@ namespace casa {
 
 	void ColorSummaryWidget::initializeUserColors() {
 		//Read information from the persistent color settings
-		QSettings settings( Util::ORGANIZATION, Util::APPLICATION );
+		QSettings settings( Util::ORGANIZATION( ), Util::APPLICATION( ) );
 
 		//If the user has a custom color scheme, read it in.
 		if ( settings.contains( CUSTOM_PROFILE_COLOR_COUNT) ||
@@ -423,7 +423,7 @@ namespace casa {
 	void ColorSummaryWidget::persist() {
 		//Set the color scheme radio buttons according to the scheme
 		//preference indicated by the user.
-		QSettings settings( Util::ORGANIZATION, Util::APPLICATION );
+		QSettings settings( Util::ORGANIZATION( ), Util::APPLICATION( ) );
 		settings.clear();
 
 		//No changes to the traditional scheme
