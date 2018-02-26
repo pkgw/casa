@@ -153,6 +153,16 @@ class sdimaging_unittest_base(unittest.TestCase):
                          atol=atol, rtol=rtol, ignoremask=ignoremask)
         if refbeam is not None:
             self._check_beam(outfile, refbeam)
+        # CAS-8248 (duplicated keywords)
+        _ia.open(outfile)
+        misc = _ia.miscinfo()
+        _ia.close()
+        for kw in ['TELESCOPE', 'OBJECT']:
+            self.assertFalse(misc.has_key(kw), 'Miscinfo should not have %s' % kw)
+        for kw in ['INSTRUME', 'distance']:
+            self.assertTrue(misc.has_key(kw), 'Miscinfo should have %s' % kw)
+            
+        
 
     def _checkfile( self, name ):
         isthere=os.path.exists(name)

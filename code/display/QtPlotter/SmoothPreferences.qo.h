@@ -1,7 +1,7 @@
 #ifndef SMOOTHPREFERENCES_QO_H
 #define SMOOTHPREFERENCES_QO_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 #include <casa/Arrays/Vector.h>
 #include <display/QtPlotter/SmoothPreferences.ui.h>
 #include <scimath/Mathematics/VectorKernel.h>

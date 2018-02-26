@@ -25,7 +25,7 @@
 #ifndef FIT2DTOOL_QO_H
 #define FIT2DTOOL_QO_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 #include <QProgressDialog>
 #include <QFileDialog>
 #include <casa/aipstype.h>

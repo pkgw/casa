@@ -32,7 +32,7 @@
 #include <display/Slicer/SliceStatistics.h>
 #include <display/Slicer/SliceWorker.h>
 #include <casa/Arrays/Vector.h>
-#include <QtGui/QFrame>
+#include <QFrame>
 #include <QColor>
 #include <QString>
 #include <QList>

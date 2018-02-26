@@ -56,7 +56,7 @@ def importfitsidi(fitsidifile,vis,constobsid=None,scanreindexgap_s=None,specfram
 			myms.fromfitsidi(vis,clist[0])
 			myms.close()
 			clist.pop(0)
-			tname = '_importfitsidi_tmp_'+vis
+			tname = vis+'_importfitsidi_tmp_'
 			shutil.rmtree(tname, ignore_errors=True)
 			for fidifile in clist:
 				casalog.post('### Reading file '+fidifile, 'INFO')
@@ -164,7 +164,7 @@ def importfitsidi(fitsidifile,vis,constobsid=None,scanreindexgap_s=None,specfram
 
 	except Exception, instance: 
 		print '*** Error ***',instance
-		shutil.rmtree('_importfitsidi_tmp_'+vis, ignore_errors=True)
+		shutil.rmtree(vis+'_importfitsidi_tmp_', ignore_errors=True)
 		raise Exception, instance
 
 

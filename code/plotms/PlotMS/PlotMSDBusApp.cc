@@ -55,6 +55,8 @@ const String PlotMSDBusApp::PARAM_AVERAGING = "averaging";
 const String PlotMSDBusApp::PARAM_AXIS_X = "xAxis";
 const String PlotMSDBusApp::PARAM_AXIS_Y = "yAxis";
 const String PlotMSDBusApp::PARAM_AXIS_Y_LOCATION = "yAxisLocation";
+const String PlotMSDBusApp::PARAM_SHOWATM = "showatm";
+const String PlotMSDBusApp::PARAM_SHOWTSKY = "showtsky";
 const String PlotMSDBusApp::PARAM_GRIDROWS = "gridRows";
 const String PlotMSDBusApp::PARAM_GRIDCOLS = "gridCols";
 const String PlotMSDBusApp::PARAM_SHOWLEGEND = "showLegend";
@@ -150,7 +152,6 @@ const String PlotMSDBusApp::METHOD_ISDRAWING   = "isDrawing";
 const String PlotMSDBusApp::METHOD_ISCLOSED  = "isClosed";
 
 const String PlotMSDBusApp::METHOD_LOCATEINFO = "locateInfo";
-
 
 
 /* 
@@ -401,6 +402,8 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 				ret.define(PARAM_AXIS_Y, PMS::axis(c->yAxis()));
 				ret.define(PARAM_DATACOLUMN_Y,
 						PMS::dataColumn(c->yDataColumn()));
+				ret.define(PARAM_SHOWATM, c->showAtm());
+				ret.define(PARAM_SHOWTSKY, c->showTsky());
 			}
 
 			if (disp!=NULL)  {
@@ -577,6 +580,17 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 				ppcache->setYDataColumn(dc, dataIndex);
 			}
 		}
+		if(parameters.isDefined(PARAM_SHOWATM) &&
+				parameters.dataType(PARAM_SHOWATM) == TpBool)   {
+			bool show = parameters.asBool(PARAM_SHOWATM);
+			ppcache->setShowAtm(show);
+		}
+
+		if(parameters.isDefined(PARAM_SHOWTSKY) &&
+				parameters.dataType(PARAM_SHOWTSKY) == TpBool)   {
+			bool show = parameters.asBool(PARAM_SHOWTSKY);
+			ppcache->setShowTsky(show);
+		}
 
 
 		if(parameters.isDefined(PARAM_CANVASTITLE) &&
@@ -705,6 +719,7 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 					fill, outline );
 			ppdisp->setFlaggedSymbol(ps, dataIndex);
 		}
+
 
 		if(parameters.isDefined(PARAM_COLORIZE) &&
 				parameters.dataType(PARAM_COLORIZE) == TpBool)   {
@@ -961,6 +976,10 @@ void PlotMSDBusApp::dbusXmlReceived(const QtDBusXML& xml) {
 void PlotMSDBusApp::log(const String& m) {
 	itsPlotms_.getLogger()->postMessage(PMS::LOG_ORIGIN, PMS::LOG_ORIGIN_DBUS,
 			m, PMS::LOG_EVENT_DBUS);
+}
+
+void PlotMSDBusApp::logWarn(const String& m) {
+    itsPlotms_.getLogger()->postMessage(PMS::LOG_ORIGIN, PMS::LOG_ORIGIN_DBUS, m, PMS::LOG_EVENT_DBUSWARN);
 }
 
 bool PlotMSDBusApp::plotParameters(int& plotIndex) const {
