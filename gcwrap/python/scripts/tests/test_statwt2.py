@@ -22,13 +22,22 @@ def _get_dst_cols(dst, other="", dodata=True):
     if dodata:
         data = mytb.getcol("CORRECTED_DATA")
     if len(other) > 0:
-        othercol = mytb.getcol(other)
+        if type(other) == type([]):
+            othercol = []
+            for x in other:
+                othercol.append(mytb.getcol(x))
+        else:
+            othercol = mytb.getcol(other)
     mytb.close()
     cols = [wt, wtsp, flag, frow]
     if dodata:
         cols.append(data)
     if len(other) > 0:
-        cols.append(othercol)
+        if type(other) == type([]):
+            for x in othercol:
+                cols.append(x)
+        else:
+            cols.append(othercol)
     return cols
 
 def _get_table_cols(mytb):
@@ -509,8 +518,10 @@ class statwt2_test(unittest.TestCase):
     def test_data(self):
         """ Test using data column"""
         dst = "ngc5921.split.data.ms"
-        ref = datadir + "ngc5921.timebin300s_2.ms.ref"
-        [refwt, refwtsp, refflag, reffrow] = _get_dst_cols(ref, "", dodata=False)
+        ref = datadir + "ngc5921.data_col.ms.ref"
+        [refwt, refwtsp, refflag, reffrow, refsig, refsigsp] = _get_dst_cols(
+            ref, ["SIGMA", "SIGMA_SPECTRUM"], dodata=False
+        )
         rtol = 1e-7
         combine = "corr"
         timebin = 10
@@ -529,7 +540,9 @@ class statwt2_test(unittest.TestCase):
                 myms.done()
             else:
                 statwt2(dst, timebin=timebin, combine=combine, datacolumn=data)
-            [tstwt, tstwtsp, tstflag, tstfrow] = _get_dst_cols(dst, "", False)
+            [tstwt, tstwtsp, tstflag, tstfrow, tstsig, tstsigsp] = _get_dst_cols(
+                dst, ["SIGMA", "SIGMA_SPECTRUM"], False
+            )
             self.assertTrue(numpy.all(tstflag == refflag), "FLAGs don't match")
             self.assertTrue(numpy.all(tstfrow == reffrow), "FLAG_ROWs don't match")
             self.assertTrue(
@@ -539,6 +552,14 @@ class statwt2_test(unittest.TestCase):
             self.assertTrue(
                 numpy.all(numpy.isclose(tstwtsp, refwtsp, rtol)),
                 "WEIGHT_SPECTRUMs don't match"
+            )
+            self.assertTrue(
+                numpy.all(numpy.isclose(tstsig, refsig)),
+                "SIGMA is incorrect"
+            )
+            self.assertTrue(
+                numpy.all(numpy.isclose(tstsigsp, refsigsp)),
+                "SIGMA_SPECTRUM is incorrect"
             )
             shutil.rmtree(dst)
 
@@ -637,8 +658,10 @@ class statwt2_test(unittest.TestCase):
     def test_residual_data(self):
         """ Test using _data - model_data column"""
         dst = "ngc5921.split.residualdatawmodel.ms"
-        ref = datadir + "ngc5921.residdata_with_model.ms.ref"
-        [refwt, refwtsp, refflag, reffrow] = _get_dst_cols(ref, "", dodata=False)
+        ref = datadir + "ngc5921.residdata_with_model_2.ms.ref"
+        [refwt, refwtsp, refflag, reffrow, refsig, refsigsp] = _get_dst_cols(
+            ref, ["SIGMA", "SIGMA_SPECTRUM"], dodata=False
+        )
         rtol = 1e-7
         data = "residual_data"
         mytb = tbtool()
@@ -651,9 +674,12 @@ class statwt2_test(unittest.TestCase):
                 myms.done()
             else:
                 statwt2(dst, datacolumn=data)
-            [tstwt, tstwtsp, tstflag, tstfrow] = _get_dst_cols(dst, "", False)
+            [tstwt, tstwtsp, tstflag, tstfrow, tstsig, tstsigsp] = _get_dst_cols(
+                dst, ["SIGMA", "SIGMA_SPECTRUM"], False
+            )
             self.assertTrue(numpy.all(tstflag == refflag), "FLAGs don't match")
             self.assertTrue(numpy.all(tstfrow == reffrow), "FLAG_ROWs don't match")
+            shutil.rmtree(dst)
             self.assertTrue(
                 numpy.all(numpy.isclose(tstwt, refwt, rtol)),
                 "WEIGHTs don't match"
@@ -662,13 +688,22 @@ class statwt2_test(unittest.TestCase):
                 numpy.all(numpy.isclose(tstwtsp, refwtsp, rtol)),
                 "WEIGHT_SPECTRUMs don't match"
             )
-            shutil.rmtree(dst)
+            self.assertTrue(
+                numpy.all(numpy.isclose(tstsig, refsig, rtol)),
+                "SIGMAs don't match"
+            )
+            self.assertTrue(
+                numpy.all(numpy.isclose(tstsigsp, refsigsp, rtol)),
+                "SIGMA_SPECTRUMs don't match"
+            )
 
     def test_residual_data_no_model(self):
         """ Test using data - default model """
         dst = "ngc5921.split.residualdatawoutmodel.ms"
-        ref = datadir + "ngc5921.residdata_without_model.ms.ref"
-        [refwt, refwtsp, refflag, reffrow] = _get_dst_cols(ref, "", dodata=False)
+        ref = datadir + "ngc5921.residdata_without_model_2.ms.ref"
+        [refwt, refwtsp, refflag, reffrow, refsig, refsigsp] = _get_dst_cols(
+            ref, ["SIGMA", "SIGMA_SPECTRUM"], dodata=False
+        )
         rtol = 1e-7
         data = "residual_data"
         mytb = tbtool()
@@ -684,9 +719,13 @@ class statwt2_test(unittest.TestCase):
                 myms.done()
             else:
                 statwt2(dst, datacolumn=data)
-            [tstwt, tstwtsp, tstflag, tstfrow] = _get_dst_cols(dst, "", False)
+            [tstwt, tstwtsp, tstflag, tstfrow, tstsigma, tstsigsp] = _get_dst_cols(
+                dst, ["SIGMA", "SIGMA_SPECTRUM"], False
+            )
             self.assertTrue(numpy.all(tstflag == refflag), "FLAGs don't match")
             self.assertTrue(numpy.all(tstfrow == reffrow), "FLAG_ROWs don't match")
+            refsigma = 1/numpy.sqrt(refwt);
+            numpy.place(refsigma, refwt == 0, -1)
             self.assertTrue(
                 numpy.all(numpy.isclose(tstwt, refwt, rtol)),
                 "WEIGHTs don't match"
@@ -695,12 +734,20 @@ class statwt2_test(unittest.TestCase):
                 numpy.all(numpy.isclose(tstwtsp, refwtsp, rtol)),
                 "WEIGHT_SPECTRUMs don't match"
             )
+            self.assertTrue(
+                numpy.all(numpy.isclose(tstsigma, refsig, rtol)),
+                "SIGMAs don't match"
+            )
+            self.assertTrue(
+                numpy.all(numpy.isclose(tstsigsp, refsigsp, rtol)),
+                "SIGMA_SPECTRUMs don't match"
+            )
             shutil.rmtree(dst)
 
     def test_returned_stats(self):
         """ Test returned stats, CAS-10881"""
         dst = "ngc5921.split.statstest.ms"
-        ref = datadir + "ngc5921.residdata_without_model.ms.ref"
+        ref = datadir + "ngc5921.residdata_without_model_2.ms.ref"
         rtol = 1e-7
         myms = mstool()
         for i in [0, 1]:

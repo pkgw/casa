@@ -73,12 +73,41 @@ void StatWt::setPreview(casacore::Bool preview) {
 }
 
 void StatWt::setTVIConfig(const Record& config) {
+    static const String field = "datacolumn";
+    if (config.isDefined(field)) {
+        ThrowIf(
+            config.type(config.fieldNumber(field)) != TpString,
+            "Unsupported type for field '" + field + "'"
+        );
+        auto val = config.asString(field);
+        if (! val.empty()) {
+            val.downcase();
+            ThrowIf (
+                ! (
+                    val.startsWith("c") || val.startsWith("d")
+                    || val.startsWith("residual") || val.startsWith("residual_")
+                ),
+                "Unsupported value for " + field + ": " + val
+            );
+            _possiblyWriteSigma = val.startsWith("d") || val.startsWith("residual_");
+        }
+    }
     _tviConfig = config;
 }
 
 Record StatWt::writeWeights() const {
     auto hasWtSp = _ms->isColumn(MSMainEnums::WEIGHT_SPECTRUM);
-    auto mustWriteWtSp = ! _preview
+    auto mustWriteSigma = _possiblyWriteSigma && ! _preview;
+    auto mustWriteSigmaSp = mustWriteSigma
+        && _ms->isColumn(MSMainEnums::SIGMA_SPECTRUM);
+    auto mustWriteWt = ! _preview
+        && (
+            ! mustWriteSigma
+            || (
+                mustWriteSigma && ! _ms->isColumn(MSMainEnums::CORRECTED_DATA)
+            )
+        );
+    auto mustWriteWtSp = mustWriteWt
         && _tviConfig.isDefined(vi::StatWtTVI::CHANBIN);
     if (mustWriteWtSp) {
         auto type = _tviConfig.type(_tviConfig.fieldNumber(vi::StatWtTVI::CHANBIN));
@@ -123,7 +152,7 @@ Record StatWt::writeWeights() const {
             _ms->addColumn(tdWtSp, wtSpStMan);
         }
     }
-    else if (! _preview) {
+    else if (mustWriteWt) {
         // check to see if extant WEIGHT_SPECTRUM needs to be initialized
         ArrayColumn<Float> col(*_ms, MS::columnName(MS::WEIGHT_SPECTRUM));
         try {
@@ -137,6 +166,28 @@ Record StatWt::writeWeights() const {
             // chanbin has been specified to be less than the spw width
             mustInitWtSp = mustWriteWtSp;
         }
+    }
+    LogIO log(LogOrigin("StatWt", __func__));
+    if (mustWriteWt) {
+        if (mustWriteSigma) {
+            log << LogIO::NORMAL
+                << "CORRECTED_DATA is not present. Updating the "
+                << "SIGMA/SIGMA_SPECTRUM and WEIGHT/WEIGHT_SPECTRUM values "
+                << "based on calculations using the DATA column."
+                << LogIO::POST;
+        }
+        else {
+            log << LogIO::NORMAL
+                << "Updating the WEIGHT/WEIGHT_SPECTRUM values. SIGMA/SIGMA_SPECTRUM "
+                << "values will not be recalculated as they are related to the values "
+                << "in the DATA column." << LogIO::POST;
+            }
+    }
+    else if (mustWriteSigma) {
+        log << LogIO::NORMAL
+        << "Updating the SIGMA/SIGMA_SPECTRUM values. WEIGHT/WEIGHT_SPECTRUM will "
+        << "not be recalculated as they are related to the values in the "
+        << "CORRECTED_DATA column." << LogIO::POST;
     }
     // default sort columns are from MSIter and are ARRAY_ID, FIELD_ID, DATA_DESC_ID, and TIME
     // I'm adding scan and state because, according to the statwt requirements, by default, scan
@@ -192,7 +243,15 @@ Record StatWt::writeWeights() const {
                 if (mustWriteWtSp) {
                     vb->setWeightSpectrum(vb->weightSpectrum());
                 }
-                vb->setWeight(vb->weight());
+                if (mustWriteSigmaSp) {
+                    vb->setSigmaSpectrum(vb->sigmaSpectrum());
+                }
+                if (mustWriteWt) {
+                    vb->setWeight(vb->weight());
+                }
+                if (mustWriteSigma) {
+                    vb->setSigma(vb->sigma());
+                }
                 vb->setFlagCube(vb->flagCube());
                 vb->setFlagRow(vb->flagRow());
                 vb->writeChangesBack();

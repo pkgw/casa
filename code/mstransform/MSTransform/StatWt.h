@@ -85,6 +85,7 @@ private:
     std::unique_ptr<std::pair<casacore::Double, casacore::Double>> _wtrange = nullptr;
     casacore::Record _tviConfig;
     casacore::Bool _preview = false;
+    casacore::Bool _possiblyWriteSigma = false;
 
 };
 

@@ -85,8 +85,12 @@ public:
 
     virtual void weightSpectrum(casacore::Cube<casacore::Float>& wtsp) const;
 
+    virtual void sigmaSpectrum(casacore::Cube<casacore::Float>& sigmaSp) const;
+
     virtual void weight(casacore::Matrix<casacore::Float> & wtmat) const;
     
+    virtual void sigma(casacore::Matrix<casacore::Float> & sigmaMat) const;
+
     virtual void flag(casacore::Cube<casacore::Bool>& flagCube) const;
 
     virtual void flagRow (casacore::Vector<casacore::Bool> & flagRow) const;
@@ -203,6 +207,10 @@ private:
     casacore::Double _slidingTimeWindowWidth = -1;
 
     casacore::Bool _useDefaultModelValue = casacore::False;
+    casacore::Bool _mustComputeSigma = casacore::False;
+    casacore::Bool _updateWeight = casacore::True;
+    //mutable casacore::Cube<casacore::Float> _newSigmaSp;
+    //mutable casacore::Matrix<casacore::Float> _newSigma;
 
     SHARED_PTR<
         casacore::ClassicalStatistics<casacore::Double,

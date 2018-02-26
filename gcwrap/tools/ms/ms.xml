@@ -3534,21 +3534,43 @@ in spectral window 1.
 
     1. If run in preview mode (preview=True), no data are modified and
        no columns are added.
-    2. Else if the MS already has a WEIGHT_SPECTRUM and this column has
-       been initialized (has values), it will always be populated with
+    2. Else if datacolumn equals 'residual' or 'residual_data' and
+       a CORRECTED_DATA column exists, the WEIGHT and WEIGHT_SPECTRUM
+       columns are not modified.
+    3. Else if the MS already has a WEIGHT_SPECTRUM and this column has
+       been initialized (has values), it will be populated with
        the new weights.  The WEIGHT column will be populated with the
        corresponding median values of the associated WEIGHT_SPECTRUM
        array.
-    3. Else if the frequency range specified for the sample is not the
+    4. Else if the frequency range specified for the sample is not the
        default ("spw"), the WEIGHT_SPECTRUM column will be created (if
        it doesn't already exist) and the new weights will be written to
        it.  The WEIGHT column should be populated with the
        corresponding median values of the WEIGHT_SPECTRUM array.
-    4. Otherwise the single value for each spectral window will be
+    5. Otherwise the single value for each spectral window will be
        written to the WEIGHT column; the WEIGHT_SPECTRUM column will
        not be added if it doesn't already exist, and if it does, it
        will remain uninitialized (no values will be written to it).
             
+    RULES FOR MODIFYING WEIGHT, WEIGHT_SPECTRUM, SIGMA, and SIGMA_SPECTRUM
+
+    1. If datacolum='corrected' or 'residual' then values are written
+       to the WEIGHT and WEIGHT_SPECTRUM (if applicable) columns only.
+    2. If datacolumn='data' or 'residual_data' and the 'CORRECTED_DATA'
+       column does not exist, then values are written to the WEIGHT and
+       WEIGHT_SPECTRUM (if applicable) columns and values in the SIGMA
+       and SIGMA_SPECTRUM are set to 1/sqrt(newly computed weight). If
+       a weight value is 0, the corresponding sigma value is -1. 
+    3. If datacolumn='data' or 'residual_data' and the 'CORRECTED_DATA'
+       column does exist, then the WEIGHT and WEIGHT_SPECTRUM columns
+       are not updated and values in the SIGMA and
+       SIGMA_SPECTRUM are set to 1/sqrt(of the newly computed weight).
+       If a weight value is 0, the corresponding sigma value is -1.
+       In this case, you should either split out the DATA column and
+       run statwt2, or run with datacolumn='corrected' or 'residual'
+       to update WEIGHT/WEIGHT_SPECTRUM. Otherwise the data are
+       internally not consistent. 
+
     TIME BINNING
             
     One of two algorithms can be used for time binning. If
