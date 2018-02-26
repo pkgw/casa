@@ -144,8 +144,15 @@ class Test020_ImagingVLAData(unittest.TestCase):
 
     def setUp(self):
         pass
-    def tearDown(self):
-        pass
+    @classmethod
+    def tearDownClass(cls):
+        rmtables("Outlier1.MS*")
+        rmtables("Outlier2.MS*")
+        rmtables("SNR.MS.MTMFS*")
+        rmtables("SNR_G55_10s*")
+        os.system("rm -rf *.last")
+        os.system("rm -rf *.flagversions")
+
 
     def test_1_Outlier1_MS_MTMFS_flux(self):
         '''Test 1: Check Outlier1.MS.MTMFS.flux'''

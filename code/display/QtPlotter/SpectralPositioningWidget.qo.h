@@ -1,7 +1,7 @@
 #ifndef SPECTRALPOSITIONINGWIDGET_QO_H
 #define SPECTRALPOSITIONINGWIDGET_QO_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <display/QtPlotter/SpectralPositioningWidget.ui.h>
 #include <casa/Arrays/Vector.h>
 namespace casacore{
