@@ -120,8 +120,8 @@ public:
 	      PARANG,
 	      GAMP,GPHASE,GREAL,GIMAG,
 	      DELAY,SWP,TSYS,OPAC, SNR, TEC,
-	      RADIAL_VELOCITY, RHO, 
-	      NONE)
+	      RADIAL_VELOCITY, RHO,  
+	      ATM, TSKY, NONE)
 
     PMS_ENUM2(Axis, axes, axesStrings, axis,
 	      "Scan","Field","Time","Interval",
@@ -136,7 +136,7 @@ public:
 	      "Gain Amp","Gain Phase","Gain Real","Gain Imag",
 	      "Delay","SwPower","Tsys","Opac", "SNR", "TEC",
 	      "Radial Velocity [km/s]", "Distance (rho) [km]", 
-	      "None")
+          "Atm Transmission", "Tsky", "None")
 
     // </group>
               
@@ -150,10 +150,10 @@ public:
     // <group>
     PMS_ENUM1(DataColumn, dataColumns, dataColumnStrings, dataColumn,
               DATA, CORRECTED, MODEL, CORRMODEL, DATAMODEL, DATA_DIVIDE_MODEL, 
-			  CORRECTED_DIVIDE_MODEL, FLOAT_DATA)
+              CORRECTED_DIVIDE_MODEL, FLOAT_DATA)
     PMS_ENUM2(DataColumn, dataColumns, dataColumnStrings, dataColumn,
               "data", "corrected", "model", "corrected-model", "data-model", 
-			  "data/model", "corrected/model", "float")
+              "data/model", "corrected/model", "float")
     // </group>
               
     // Returns whether or not the given axis needs the second data parameter to
@@ -185,10 +185,11 @@ public:
     PMS_ENUM1(AxisUnit, axesUnits, axesUnitStrings, axisUnit,
               UNONE, UDATETIME, GHERTZ, METERS_PER_SECOND, KILOMETERS_PER_SECOND,
               KILOMETERS, METERS, HOURS, WAVELENGTHS, DEGREES, NANOSECONDS, KELVIN,
-              NEPERS, SECONDS);
+              NEPERS, SECONDS, PERCENT);
     PMS_ENUM2(AxisUnit, axesUnits, axesUnitStrings, axisUnit,
               "", "hh:mm:ss", "GHz", "m/s", "km/s", "km", "m", "hours",
-              "<html>&lambda;</html>", "degrees", "ns", "K", "neper", "s");
+              "<html>&lambda;</html>", "degrees", "ns", "K", "neper", "s",
+              "%");
 
     // </group>
               
@@ -338,6 +339,7 @@ public:
     // Log event origin names.
     // <group>
     static const casacore::String LOG_ORIGIN_DBUS;
+    static const casacore::String LOG_ORIGIN_DBUSWARN;
     static const casacore::String LOG_ORIGIN_FLAG;
     static const casacore::String LOG_ORIGIN_LOAD_CACHE;
     static const casacore::String LOG_ORIGIN_LOCATE;
@@ -351,6 +353,7 @@ public:
     // Log event flags.
     // <group>
     static const int LOG_EVENT_DBUS;
+    static const int LOG_EVENT_DBUSWARN;
     static const int LOG_EVENT_FLAG;
     static const int LOG_EVENT_LOAD_CACHE;
     static const int LOG_EVENT_LOCATE;

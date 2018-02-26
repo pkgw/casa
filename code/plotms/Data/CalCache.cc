@@ -26,6 +26,7 @@
 //# $Id: $
 #include <plotms/Data/CalCache.h>
 #include <plotms/Data/PlotMSIndexer.h>
+#include <plotms/Data/PlotMSAtm.h>
 #include <plotms/PlotMS/PlotMS.h>
 #include <plotms/Threads/ThreadCommunication.h>
 
@@ -71,29 +72,30 @@ String CalCache::polname(Int ipol) {
 // protected method implementations
 
 void CalCache::loadIt(vector<PMS::Axis>& loadAxes,
-		      vector<PMS::DataColumn>& /*loadData*/,
-		      ThreadCommunication* thread) {
+    vector<PMS::DataColumn>& /*loadData*/,
+    ThreadCommunication* thread) {
 
   // update cal type
   setFilename(filename_);
 
   if (calType_=="BPOLY" || calType_=="GSPLINE" || 
       calType_[0]=='A' || calType_[0]=='M' || calType_[0]=='X')
-    throw AipsError("Cal table type " + calType_ + " is unsupported in plotms.  Please continue to use plotcal.");
+    throw AipsError("Cal table type " + calType_ + " is unsupported in plotms. Please continue to use plotcal.");
   if (calType_=="KAntPos Jones")
     throw AipsError("Cannot plot " + calType_ + " tables.");
+  logLoad("Plotting a " + calType_ + " calibration table.");
 
   // Warn that averaging will be ignored
   if (averaging().anyAveraging())
     logWarn("CalCache::loadIt",
-            "Ignoring averaging because this is a Cal Table");
+      "Averaging ignored: not supported for calibration tables");
 
   if (transformations().anyTransform())
     logWarn("CalCache::loadIt",
-            "Ignoring transformations because this is a Cal Table");
+      "Transformations ignored: not supported for calibration tables");
 
   // Get various names, properties
-  { 	 
+  {
     NewCalTable ct(NewCalTable::createCT(filename_,Table::Old,Table::Plain));
     try {
         parsAreComplex_ = ct.isComplex();
@@ -110,36 +112,36 @@ void CalCache::loadIt(vector<PMS::Axis>& loadAxes,
     fldnames_.resize();
     positions_.resize();
 
-    antnames_=ctCol.antenna().name().getColumn(); 	 
-    stanames_=ctCol.antenna().station().getColumn(); 	 
-    antstanames_=antnames_+String("@")+stanames_;
-    fldnames_=ctCol.field().name().getColumn();
+    antnames_ = ctCol.antenna().name().getColumn();
+    stanames_ = ctCol.antenna().station().getColumn();
+    antstanames_ = antnames_ + String("@") + stanames_;
+    fldnames_ = ctCol.field().name().getColumn();
     positions_ = ctCol.antenna().position().getColumn();    
 
     nAnt_ = ctCol.antenna().nrow();
-     
-  } 	
+  }
 
   setUpCalIter(filename_,selection_, True,True,True);
-    
-  // supports only channel averaging...    
+
+  // set up data columns and check for atm/tsky axis
   vector<PMS::DataColumn> loadData(loadAxes.size());
-  for (uInt i=0; i<loadData.size(); ++i) 
+  for (uInt i=0; i<loadData.size(); ++i) {
     loadData[i] = PMS::DEFAULT_DATACOLUMN;
+  }
+
   countChunks(*ci_p, loadAxes, loadData, thread);
   //    trapExcessVolume(pendingLoadAxes);
   loadCalChunks(*ci_p,loadAxes,thread);
 
-  if (ci_p)
+  if (ci_p) {
     delete ci_p;
-  ci_p=NULL;
+    ci_p  = NULL;
+  }
 }
 
 void CalCache::setUpCalIter(const String& ctname,
-			    PlotMSSelection& selection,
-			    Bool readonly,
-			    Bool /*chanselect*/,
-			    Bool /*corrselect*/) {
+    PlotMSSelection& selection, Bool readonly,
+    Bool /*chanselect*/, Bool /*corrselect*/) {
 
   // check for invalid caltypes for ratio plots
   if (selection.corr() == "/") {
@@ -157,16 +159,17 @@ void CalCache::setUpCalIter(const String& ctname,
   columns[2]="SPECTRAL_WINDOW_ID";
   columns[3]="TIME";
 
-   // Now open the MS, select on it, make the VisIter
+  // Now open the MS, select on it, make the VisIter
+  TableLock lock(TableLock::AutoNoReadLocking);
   Table::TableOption tabopt(Table::Update);
-  if (readonly) tabopt=Table::Old;
-  // TBD: control locking here?
-  NewCalTable ct(ctname,tabopt,Table::Plain), selct;
+  if (readonly) tabopt = Table::Old;
+  NewCalTable ct(ctname, lock, tabopt, Table::Plain);
 
   // Apply selection
+  NewCalTable selct;
   Vector<Vector<Slice> > chansel;
   Vector<Vector<Slice> > corrsel;
-  selection.apply(ct,selct,chansel,corrsel);
+  selection.apply(ct, selct, chansel, corrsel);
 
   // setup the volume meter
   //  vm_.reset();
@@ -190,9 +193,9 @@ void CalCache::setUpCalIter(const String& ctname,
 }
       
 void CalCache::countChunks(ROCTIter& ci,
-               vector<PMS::Axis>& loadAxes,
-		       vector<PMS::DataColumn>& loadData,
-			   ThreadCommunication* thread) {
+    vector<PMS::Axis>& loadAxes,
+    vector<PMS::DataColumn>& loadData,
+    ThreadCommunication* thread) {
 
   if (thread!=NULL) {
     thread->setStatus("Establishing cache size.  Please wait...");
@@ -208,7 +211,7 @@ void CalCache::countChunks(ROCTIter& ci,
   }
 
   setCache(chunk, loadAxes, loadData);
-  //  cout << " Found " << nChunk_ << " chunks." << endl;
+  //    cout << " Found " << nChunk_ << " chunks." << endl;
 }
 
 
@@ -233,8 +236,8 @@ void MSCache::trapExcessVolume(map<PMS::Axis,Bool> pendingLoadAxes) {
 
 
 void CalCache::loadCalChunks(ROCTIter& ci,
-			     const vector<PMS::Axis> loadAxes,
-			     ThreadCommunication* thread) {
+     const vector<PMS::Axis> loadAxes,
+     ThreadCommunication* thread) {
 
   // permit cancel in progress meter:
   if(thread != NULL)
@@ -245,7 +248,7 @@ void CalCache::loadCalChunks(ROCTIter& ci,
   // Initialize the freq/vel calculator (in case we use it)
   //  vbu_=VisBufferUtil(vb);
 
-  Int chunk = 0;
+  Int chunk(0), lastscan(0), thisscan(0), lastspw(-1), thisspw(0);
   chshapes_.resize(4,nChunk_);
   goodChunk_.resize(nChunk_);
   goodChunk_.set(False);
@@ -258,21 +261,17 @@ void CalCache::loadCalChunks(ROCTIter& ci,
 
       // If a thread is given, check if the user canceled.
       if(thread != NULL && thread->wasCanceled()) {
-	    dataLoaded_ = false;
-	    return;
+        dataLoaded_ = false;
+        return;
       }
       
       // If a thread is given, update it.
       if(thread != NULL && (nChunk_ <= (int)THREAD_SEGMENT ||
-			    chunk % THREAD_SEGMENT == 0))
-	thread->setStatus("Loading chunk " + String::toString(chunk) +
-			  " / " + String::toString(nChunk_) + ".");
+         chunk % THREAD_SEGMENT == 0)) {
+          thread->setStatus("Loading chunk " + String::toString(chunk) +
+              " / " + String::toString(nChunk_) + ".");
+      }
       
-      // TBD: Support the following for CalTables? 
-      // Adjust the visibility phase by phase-center shift
-      //      vb.phaseCenterShift(transformations_.xpcOffset(),
-      //			  transformations_.ypcOffset());
-
       // Discern npar/nchan shape
       IPosition pshape(ci.flag().shape());
       size_t nPol;
@@ -299,6 +298,27 @@ void CalCache::loadCalChunks(ROCTIter& ci,
 
       for(unsigned int i = 0; i < loadAxes.size(); i++) {
         loadCalAxis(ci, chunk, loadAxes[i], pol);
+        // print atm stats once per scan
+        if (loadAxes[i]==PMS::ATM || loadAxes[i]==PMS::TSKY) {
+            thisscan = ci.thisScan();
+            if (thisscan != lastscan) {
+                printAtmStats(thisscan);
+                lastscan = thisscan;
+            }
+            thisspw = ci.thisSpw();
+            if (thisspw != lastspw) {
+                uInt vectorsize = ( loadAxes[i]==PMS::ATM ?
+                    (*atm_[chunk]).nelements() :
+                    (*tsky_[chunk]).nelements());
+                if (vectorsize==1) {
+                    logWarn("load_cache", "Setting " + 
+                        PMS::axis(loadAxes[i]) + " for spw " +
+                        String::toString(thisspw) +
+                        " to zero because it has only one channel.");
+                }
+                lastspw = thisspw;
+            }
+        }
       }
         chunk++;
         ci.next();
@@ -344,7 +364,7 @@ void CalCache::loadCalChunks(ROCTIter& ci,
   /*        
     case PMS::TIME_INTERVAL: // assumes timeInterval unique in VB
         timeIntr_(chunk) = cti.interval()(0); 
-	break;
+    break;
   */
   case PMS::SPW:
     spw_(chunk) = cti.thisSpw();
@@ -363,12 +383,10 @@ void CalCache::loadCalChunks(ROCTIter& ci,
   /*
     case PMS::VELOCITY: {
       // Convert freq in the vb to velocity
-      vbu_.toVelocity(*vel_[chunk],
-		      vb,
-		      transformations_.frame(),
-		      MVFrequency(transformations_.restFreqHz()),
-		      transformations_.veldef());
-      (*vel_[chunk])/=1.0e3;  // in km/s
+      vbu_.toVelocity(*vel_[chunk], vb, transformations_.frame(),
+        MVFrequency(transformations_.restFreqHz()),
+        transformations_.veldef());
+      (*vel_[chunk]) /= 1.0e3;  // in km/s
       break;
     }
   */
@@ -514,7 +532,7 @@ void CalCache::loadCalChunks(ROCTIter& ci,
         Cube<Float> fArray = cti.fparam();
         *par_[chunk] = fArray(parSlice1, Slice(), Slice());
     } else
-		throw(AipsError( "opacity has no meaning for this table"));
+        throw(AipsError( "opacity has no meaning for this table"));
     break;
   }
 
@@ -534,7 +552,8 @@ void CalCache::loadCalChunks(ROCTIter& ci,
   }
 
   case PMS::TSYS: {
-	if ( !parsAreComplex() && (calType_.contains("EVLASWPOW") || calType_.contains("TSYS"))) {
+    if ( !parsAreComplex() &&
+         (calType_.contains("EVLASWPOW") || calType_.contains("TSYS"))) {
         Cube<Float> fArray = cti.fparam();
         if (polnRatio_) {
             Array<Float> tsysRatio = fArray(parSlice1, Slice(), Slice()) / fArray(parSlice2, Slice(), Slice());
@@ -560,7 +579,7 @@ void CalCache::loadCalChunks(ROCTIter& ci,
   }
 
    case PMS::TEC: {
-	if ( !parsAreComplex() && calType_[0]=='F') {
+    if ( !parsAreComplex() && calType_[0]=='F') {
         Cube<Float> fArray = cti.fparam();
         *par_[chunk] = (fArray(parSlice1, Slice(), Slice()))/1e+16;
     } else
@@ -568,7 +587,6 @@ void CalCache::loadCalChunks(ROCTIter& ci,
     break;
   }
 
-                
   case PMS::FLAG:
     if (polnRatio_)
         *flag_[chunk] = cti.flag()(parSlice1, Slice(), Slice()) | cti.flag()(parSlice2, Slice(), Slice());
@@ -629,6 +647,24 @@ void CalCache::loadCalChunks(ROCTIter& ci,
     // metadata axis that always gets loaded so don't want to throw exception
     break;
   }
+  case PMS::ATM:
+  case PMS::TSKY: { 
+    casacore::Int spw = cti.thisSpw();
+    casacore::Int scan = cti.thisScan();
+    casacore::Vector<casacore::Double> freqsGHz = cti.freq()/1e9;
+    casacore::Vector<casacore::Double> curve(1, 0.0);
+    bool isAtm = (axis==PMS::ATM);
+    if (plotmsAtm_) {
+        curve.resize();    
+        curve = plotmsAtm_->calcOverlayCurve(spw, scan, freqsGHz,
+                isAtm);
+    }
+    if (isAtm)
+        *atm_[chunk] = curve;
+    else
+        *tsky_[chunk] = curve;
+    break;
+  }
   default:
     throw(AipsError("Axis choice not supported for Cal Tables"));
     break;
@@ -636,8 +672,8 @@ void CalCache::loadCalChunks(ROCTIter& ci,
 }
 
 void CalCache::flagToDisk(const PlotMSFlagging& flagging,
-			 Vector<Int>& flchunks, Vector<Int>& flrelids, 
-			 Bool flag, PlotMSIndexer* indexer, int dataIndex ) {
+    Vector<Int>& flchunks, Vector<Int>& flrelids,
+    Bool flag, PlotMSIndexer* indexer, int dataIndex ) {
   
   // Sort the flags by chunk:
   Sort sorter;
@@ -655,22 +691,15 @@ void CalCache::flagToDisk(const PlotMSFlagging& flagging,
 
   // Set up a write-able CTIter (ci_p also points to it)
   setUpCalIter(filename_,selection_,False,selectchan,selectcorr);
-
   ci_p->reset();
 
   Int iflag(0);
   for (Int ichk=0;ichk<nChunk_;++ichk) {
-    
-    if (ichk!=flchunks(order[iflag]) &&
-	!ci_p->pastEnd())
+    if (ichk!=flchunks(order[iflag]) && !ci_p->pastEnd())
       // nothing to flag this chunk, just advance
       ci_p->next();
-
-
     else {
-      
       // This chunk requires flag-setting
-      
       Int ifl(iflag);
       
       // Get bits we need from the table
@@ -694,121 +723,113 @@ void CalCache::flagToDisk(const PlotMSFlagging& flagging,
       Int nrow = ci_p->nrow();
 
       if (True) {
-	Int currChunk=flchunks(order[iflag]);
-	Double time=getTime(currChunk,0);
-	Double cttime=ci_p->time()(0);
-	Int spw=Int(getSpw(currChunk,0));
-	Int ctspw=ci_p->thisSpw();
-	Int field=Int(getField(currChunk,0));
-	Int ctfld=ci_p->thisField();
-	ss << "Time diff:  " << time-cttime << " " << time  << " " << cttime << "\n";
-	ss << "Spw diff:   " << spw-ctspw   << " " << spw   << " " << ctspw  << "\n"; 
-	ss << "Field diff: " << field-ctfld << " " << field << " " << ctfld  << "\n";
+        Int currChunk=flchunks(order[iflag]);
+        Double time=getTime(currChunk,0);
+        Double cttime=ci_p->time()(0);
+        Int spw=Int(getSpw(currChunk,0));
+        Int ctspw=ci_p->thisSpw();
+        Int field=Int(getField(currChunk,0));
+        Int ctfld=ci_p->thisField();
+        ss << "Time diff:  " << time-cttime << " " << time  << " " << cttime << "\n";
+        ss << "Spw diff:   " << spw-ctspw   << " " << spw   << " " << ctspw  << "\n";
+        ss << "Field diff: " << field-ctfld << " " << field << " " << ctfld  << "\n";
       }
 
       // Apply all flags in this chunk to this VB
       ifl=iflag;
       while (ifl<Int(nflag) && flchunks(order[ifl])==ichk) {
+        Int currChunk=flchunks(order[ifl]);
+        Int irel=flrelids(order[ifl]);
+        Slice par1,chan,bsln;
+        Slice par2 = Slice();
 
-	Int currChunk=flchunks(order[ifl]);
-	Int irel=flrelids(order[ifl]);
+        // Set flag range on par axis:
+        if (netAxesMask_[dataIndex](0) && !flagging.corrAll()) {
+          // A specific single par
+          if (pol=="" || pol=="RL" || pol=="XY") {  // flag both axes
+            Int ipar=indexer->getIndex1000(currChunk,irel);
+            par1 = Slice(ipar,1,1);
+          } else if (polnRatio_) {
+            par1 = getParSlice(toVisCalAxis(PMS::AMP), "R");
+            par2 = getParSlice(toVisCalAxis(PMS::AMP), "L");
+          } else {
+            par1 = getParSlice(toVisCalAxis(PMS::AMP), pol);
+          }
+        } else {
+          // all on par axis
+          par1 = Slice(0,npar,1);
+        }
 
-	Slice par1,chan,bsln;
-	Slice par2 = Slice();
+        // Set Flag range on channel axis:
+        if (netAxesMask_[dataIndex](1) && !flagging.channel()) {
+          // A single specific channel
+          Int ichan=indexer->getIndex0100(currChunk,irel);
+          chan=Slice(ichan,1,1);
+        } else {
+          // Extend to all channels
+          chan=Slice(0,nchan,1);
+        }
 
-	// Set flag range on par axis:
-	if (netAxesMask_[dataIndex](0) && !flagging.corrAll()) {
-	  // A specific single par
-      if (pol=="" || pol=="RL" || pol=="XY") {  // flag both axes
-	    Int ipar=indexer->getIndex1000(currChunk,irel);
-	    par1 = Slice(ipar,1,1);
-      } else if (polnRatio_) {
-        par1 = getParSlice(toVisCalAxis(PMS::AMP), "R");
-        par2 = getParSlice(toVisCalAxis(PMS::AMP), "L");
-      } else {
-        par1 = getParSlice(toVisCalAxis(PMS::AMP), pol);
-      }
-	}
-	else
-	  // all on par axis
-	  par1 = Slice(0,npar,1);
+        // Set Flags on the baseline axis:
+        Int thisA1=Int(getAnt1(currChunk,indexer->getIndex0010(currChunk,irel)));
+        Int thisA2=Int(getAnt2(currChunk,indexer->getIndex0010(currChunk,irel)));
+        if (netAxesMask_[dataIndex](2) &&
+            !flagging.antennaBaselinesBased() &&
+            thisA1>-1 ) {
+          // i.e., if baseline is an explicit data axis,
+          //       full baseline extension is OFF
+          //       and the first antenna in the selected point is > -1
+          // Do some variety of detailed per-baseline flagging
+          for (Int irow=0;irow<nrow;++irow) {
+            if (thisA2>-1) {
+              // match a baseline exactly
+              if (a1(irow)==thisA1 &&
+                  a2(irow)==thisA2) {
+                ctflag(par1,chan,Slice(irow,1,1)) = flag;
+                if (par2.length() > 0)
+                  ctflag(par2,chan,Slice(irow,1,1)) = flag;
+                break;  // found the one baseline, escape from for loop
+              }
+            } else {
+              // either antenna matches the one specified antenna
+              //  (don't break because there will be more than one)
+              if (a1(irow)==thisA1 ||
+                  a2(irow)==thisA1) {
+                ctflag(par1,chan,Slice(irow,1,1)) = flag;
+                if (par2.length() > 0)
+                  ctflag(par2,chan,Slice(irow,1,1)) = flag;
+              }
+            }
+          }
+        } else {
+          // Set flags for all baselines, because the plot
+          //  is ordinarily implicit in baseline, we've turned on baseline
+          //  extension, or we've avaraged over all baselines
+          bsln=Slice(0,nrow,1);
+          ctflag(par1,chan,bsln) = flag;
+          if (par2.length() > 0)
+            ctflag(par2,chan,bsln) = flag;
+        }
 
-	// Set Flag range on channel axis:
-	if (netAxesMask_[dataIndex](1) && !flagging.channel()) {
-	  // A single specific channel 
-	  Int ichan=indexer->getIndex0100(currChunk,irel);
-	  chan=Slice(ichan,1,1);
-	}
-	else 
-	  // Extend to all channels
-	  chan=Slice(0,nchan,1);
-	  
-	// Set Flags on the baseline axis:
-	Int thisA1=Int(getAnt1(currChunk,indexer->getIndex0010(currChunk,irel)));
-	Int thisA2=Int(getAnt2(currChunk,indexer->getIndex0010(currChunk,irel)));
-	if (netAxesMask_[dataIndex](2) &&
-	    !flagging.antennaBaselinesBased() &&
-	    thisA1>-1 ) {
-	  // i.e., if baseline is an explicit data axis, 
-	  //       full baseline extension is OFF
-	  //       and the first antenna in the selected point is > -1
-	  
-	  // Do some variety of detailed per-baseline flagging
-	  for (Int irow=0;irow<nrow;++irow) {
-	      
-	    if (thisA2>-1) {
-	      // match a baseline exactly
-	      if (a1(irow)==thisA1 &&
-		  a2(irow)==thisA2) {
-		ctflag(par1,chan,Slice(irow,1,1)) = flag;
-        if (par2.length() > 0)
-		    ctflag(par2,chan,Slice(irow,1,1)) = flag;
-		break;  // found the one baseline, escape from for loop
-	      }
-	    }
-	    else {
-	      // either antenna matches the one specified antenna
-	      //  (don't break because there will be more than one)
-	      if (a1(irow)==thisA1 ||
-		  a2(irow)==thisA1) {
-		ctflag(par1,chan,Slice(irow,1,1)) = flag;
-        if (par2.length() > 0)
-		    ctflag(par2,chan,Slice(irow,1,1)) = flag;
-	      }
-	    }
-	  }
-	}
-	else {
-	  // Set flags for all baselines, because the plot
-	  //  is ordinarily implicit in baseline, we've turned on baseline
-	  //  extension, or we've avaraged over all baselines
-	  bsln=Slice(0,nrow,1);
-	  ctflag(par1,chan,bsln) = flag;
-      if (par2.length() > 0)
-	    ctflag(par2,chan,bsln) = flag;
-	} 
-	
-	++ifl;
-      }
+      ++ifl;
+      } // while
       
       // Put the flags back into the MS
       wci_p->setflag(ctflag);
       
       // Advance to the next vb
       if (!ci_p->pastEnd())
-	ci_p->next();
+        ci_p->next();
       else
-	// we are done, so escape chunk loop
-	break;
+        // we are done, so escape chunk loop
+        break;
 
       // step over the flags we've just done
       iflag=ifl;
       
       // Escape if we are already finished
       if (uInt(iflag)>=nflag) break;
-      
     } // flaggable chunk
-    
   } // ichk
 
   // Delete the VisIter so lock is released
@@ -816,9 +837,7 @@ void CalCache::flagToDisk(const PlotMSFlagging& flagging,
     delete wci_p;
   wci_p=NULL;
   ci_p=NULL;
-
   logFlag(ss.str());
-
 }
 
 String CalCache::toVisCalAxis(PMS::Axis axis) {

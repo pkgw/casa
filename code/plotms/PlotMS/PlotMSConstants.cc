@@ -141,13 +141,15 @@ PMS::AxisUnit PMS::axisUnit(Axis axis) {
    case DELAY:
 	   	return NANOSECONDS;
    case TSYS:
+   case TSKY:
 	   	return KELVIN;
    case OPAC:
 	   return NEPERS;
-
-    case RHO:
+   case RHO:
        	return KILOMETERS;
-    default: return UNONE;
+   case ATM:
+        return PERCENT;
+   default: return UNONE;
     //The following axis have units which are proportion to Jansky, but are
     //time varying so Jansky is not accurate.  For now, we are not including
     //units with them.
@@ -386,6 +388,7 @@ const int PMS::LOG_EVENT_##TYPE =                                             \
                                     LogMessage::PRIORITY);
 
 PMS_LOG(DBUS, "dbus", NORMAL3)
+PMS_LOG(DBUSWARN, "dbus", WARN)
 PMS_LOG(FLAG, "flag", NORMAL)
 PMS_LOG(LOAD_CACHE, "load_cache", NORMAL)
 PMS_LOG(LOCATE, "locate", NORMAL)

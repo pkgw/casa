@@ -88,6 +88,7 @@ const int PMS_PP::UPDATE_PLOTMS_OPTIONS =
 
 // PMS_PP_MSData record keys.
 const String PMS_PP_MSData::REC_FILENAME = "filename";
+const String PMS_PP_MSData::REC_TYPE = "type";
 const String PMS_PP_MSData::REC_SELECTION = "selection";
 const String PMS_PP_MSData::REC_AVERAGING = "averaging";
 const String PMS_PP_MSData::REC_TRANSFORMATIONS = "transformations";
@@ -119,6 +120,7 @@ Record PMS_PP_MSData::toRecord() const
 {
 	Record rec;
 	rec.define(REC_FILENAME, itsFilename_);
+	rec.define(REC_TYPE, itsType_);
 	rec.defineRecord(REC_SELECTION, itsSelection_.toRecord());
 	rec.defineRecord(REC_AVERAGING, itsAveraging_.toRecord());
 	rec.defineRecord(REC_TRANSFORMATIONS, itsTransformations_.toRecord());
@@ -133,6 +135,11 @@ void PMS_PP_MSData::fromRecord(const Record& record)
 	if (record.isDefined(REC_FILENAME) && record.dataType(REC_FILENAME) == TpString && itsFilename_ != record.asString(REC_FILENAME))
 	{
 		itsFilename_ = record.asString(REC_FILENAME);
+		valuesChanged = true;
+	}
+	if (record.isDefined(REC_TYPE) && record.dataType(REC_TYPE) == TpInt && itsType_ != record.asInt(REC_TYPE))
+	{
+		itsType_ = record.asInt(REC_TYPE);
 		valuesChanged = true;
 	}
 	if (record.isDefined(REC_SELECTION) && record.dataType(REC_SELECTION) == TpRecord)
@@ -192,6 +199,7 @@ PMS_PP_MSData& PMS_PP_MSData::assign(const PMS_PP_MSData* o){
 	if (o != NULL && *this != *o)
 	{
 		itsFilename_ = o->itsFilename_;
+		itsType_ = o->itsType_;
 		itsSelection_ = o->itsSelection_;
 		itsAveraging_ = o->itsAveraging_;
 		itsTransformations_ = o->itsTransformations_;
@@ -207,6 +215,7 @@ bool PMS_PP_MSData::operator==(const Group& other) const
 	const PMS_PP_MSData* o = dynamic_cast<const PMS_PP_MSData*>(&other);
 	if (o == NULL) return false;
 	if (itsFilename_ != o->itsFilename_) return false;
+	if (itsType_ != o->itsType_) return false;
 	if (itsSelection_ != o->itsSelection_) return false;
 	if (itsAveraging_ != o->itsAveraging_) return false;
 	if (itsTransformations_ != o->itsTransformations_) return false;
@@ -219,6 +228,7 @@ bool PMS_PP_MSData::operator==(const Group& other) const
 void PMS_PP_MSData::setDefaults()
 {
 	itsFilename_ = "";
+    itsType_ = 0; // MS
 	itsSelection_ = PlotMSSelection();
 	itsAveraging_ = PlotMSAveraging();
 	itsTransformations_ = PlotMSTransformations();
@@ -239,6 +249,8 @@ const String PMS_PP_Cache::REC_XAXES = "xaxes";
 const String PMS_PP_Cache::REC_YAXES = "yaxes";
 const String PMS_PP_Cache::REC_XDATACOLS = "xdatacolumns";
 const String PMS_PP_Cache::REC_YDATACOLS = "ydatacolumns";
+const String PMS_PP_Cache::REC_SHOWATM = "showatm";
+const String PMS_PP_Cache::REC_SHOWTSKY = "showtsky";
 
 
 PMS_PP_Cache::PMS_PP_Cache(PlotFactoryPtr factory)
@@ -259,6 +271,8 @@ Record PMS_PP_Cache::toRecord() const
 	rec.define(REC_YAXES, PMS::toIntVector<PMS::Axis>(itsYAxes_));
 	rec.define(REC_XDATACOLS, PMS::toIntVector<PMS::DataColumn>(itsXData_));
 	rec.define(REC_YDATACOLS, PMS::toIntVector<PMS::DataColumn>(itsYData_));
+	rec.define(REC_SHOWATM, itsShowAtm_);
+	rec.define(REC_SHOWTSKY, itsShowTsky_);
 	return rec;
 }
 
@@ -302,6 +316,25 @@ void PMS_PP_Cache::fromRecord(const Record& record)
 			valuesChanged = true;
 		}
 	}
+    if (record.isDefined(REC_SHOWATM) && record.dataType(REC_SHOWATM) == TpBool)
+	{
+		bool tmp = record.asBool(REC_SHOWATM);
+		if (itsShowAtm_ != tmp)
+		{
+			itsShowAtm_ = tmp;
+			valuesChanged = true;
+		}
+	}
+    if (record.isDefined(REC_SHOWTSKY) && record.dataType(REC_SHOWTSKY) == TpBool)
+	{
+		bool tmp = record.asBool(REC_SHOWTSKY);
+		if (itsShowTsky_ != tmp)
+		{
+			itsShowTsky_ = tmp;
+			valuesChanged = true;
+		}
+	}
+
 	if (valuesChanged) updated();
 }
 
@@ -322,6 +355,8 @@ PMS_PP_Cache& PMS_PP_Cache::assign(const PMS_PP_Cache* o){
 		itsYAxes_ = o->itsYAxes_;
 		itsXData_ = o->itsXData_;
 		itsYData_ = o->itsYData_;
+        itsShowAtm_ = o->itsShowAtm_;
+        itsShowTsky_ = o->itsShowTsky_;
 		updated();
 	}
 	return *this;
@@ -336,6 +371,8 @@ bool PMS_PP_Cache::operator==(const Group& other) const
 	if (itsYAxes_ != o->itsYAxes_) return false;
 	if (itsXData_ != o->itsXData_) return false;
 	if (itsYData_ != o->itsYData_) return false;
+    if (itsShowAtm_ != o->itsShowAtm_) return false;
+    if (itsShowTsky_ != o->itsShowTsky_) return false;
 	return true;
     		}
 
@@ -349,6 +386,8 @@ void PMS_PP_Cache::setDefaults(){
 	itsYAxes_ = vector<PMS::Axis>(1, PMS::DEFAULT_YAXIS);
 	itsXData_ = vector<PMS::DataColumn>(1, PMS::DEFAULT_DATACOLUMN);
 	itsYData_ = vector<PMS::DataColumn>(1, PMS::DEFAULT_DATACOLUMN);
+    itsShowAtm_ = false;
+    itsShowTsky_ = false;
 }
 
 void PMS_PP_Cache::resize( int count ){
@@ -434,11 +473,15 @@ PMS_PP_Axes::PMS_PP_Axes(PlotFactoryPtr factory)
 : PlotMSPlotParameters::Group(factory)
 {
 	setDefaults();
-} PMS_PP_Axes::PMS_PP_Axes(const PMS_PP_Axes& copy) : PlotMSPlotParameters::Group(copy)
+} 
+
+PMS_PP_Axes::PMS_PP_Axes(const PMS_PP_Axes& copy) : PlotMSPlotParameters::Group(copy)
 {
 	setDefaults();
 	operator=(copy);
-} PMS_PP_Axes::~PMS_PP_Axes() { }
+} 
+
+PMS_PP_Axes::~PMS_PP_Axes() { }
 
 
 Record PMS_PP_Axes::toRecord() const
@@ -620,8 +663,7 @@ PMS_PP_Axes& PMS_PP_Axes::operator=(const Group& other){
 }
 
 PMS_PP_Axes& PMS_PP_Axes::assign(const PMS_PP_Axes* o){
-	if (o != NULL && *this != *o)
-	{
+	if (o != NULL && *this != *o) {
 		itsXAxes_ = o->itsXAxes_;
 		itsYAxes_ = o->itsYAxes_;
 		itsXRangesSet_ = o->itsXRangesSet_;
@@ -629,7 +671,7 @@ PMS_PP_Axes& PMS_PP_Axes::assign(const PMS_PP_Axes* o){
 		itsXRanges_ = o->itsXRanges_;
 		itsYRanges_ = o->itsYRanges_;
 		updated();
-	}
+	} 
 	return *this;
 }
 
@@ -658,13 +700,24 @@ void PMS_PP_Axes::setDefaults()
 	itsYRanges_ = vector<prange_t>(1, prange_t(0.0, 0.0));
 }
 
-void PMS_PP_Axes::resize( int count ){
-	itsXAxes_ = vector<PlotAxis>(count, PMS::DEFAULT_CANVAS_XAXIS);
-	itsYAxes_ = vector<PlotAxis>(count, PMS::DEFAULT_CANVAS_YAXIS);
-	itsXRangesSet_ = vector<bool>(count, false);
-	itsYRangesSet_ = vector<bool>(count, false);
-	itsXRanges_ = vector<prange_t>(count, prange_t(0.0, 0.0));
-	itsYRanges_ = vector<prange_t>(count, prange_t(0.0, 0.0));
+void PMS_PP_Axes::resize( int count, bool copyValues ){
+	if (copyValues) {  // append default values
+		for (int i=numXAxes(); i<count; ++i) {
+			itsXAxes_.push_back(PMS::DEFAULT_CANVAS_XAXIS);
+			itsYAxes_.push_back(PMS::DEFAULT_CANVAS_YAXIS);
+			itsXRangesSet_.push_back(false);
+			itsYRangesSet_.push_back(false);
+			itsXRanges_.push_back(prange_t(0.0, 0.0));
+			itsYRanges_.push_back(prange_t(0.0, 0.0));
+		}
+	} else {
+		itsXAxes_ = vector<PlotAxis>(count, PMS::DEFAULT_CANVAS_XAXIS);
+		itsYAxes_ = vector<PlotAxis>(count, PMS::DEFAULT_CANVAS_YAXIS);
+		itsXRangesSet_ = vector<bool>(count, false);
+		itsYRangesSet_ = vector<bool>(count, false);
+		itsXRanges_ = vector<prange_t>(count, prange_t(0.0, 0.0));
+		itsYRanges_ = vector<prange_t>(count, prange_t(0.0, 0.0));
+	}
 }
 
 unsigned int PMS_PP_Axes::numXAxes() const

@@ -38,6 +38,9 @@
 #include <plotms/PlotMS/PlotMSLabelFormat.h>
 #include <plotms/PlotMS/PlotMSPageHeaderParam.h>
 
+#include <tables/Tables/Table.h>
+#include <tables/Tables/TableRecord.h>
+
 namespace casa {
 
 // Container class to hold constants for groups.
@@ -176,6 +179,17 @@ public:
 		}
 	}
 
+    // based on PlotMSCacheBase::Type enum {MS, CAL}
+    const casacore::Int & type() const {
+        return itsType_;
+    }
+	void setType (const casacore::Int & value) {
+		if (itsType_ != value) {
+			itsType_ = value;
+			updated();
+		}
+	}
+
 	const PlotMSSelection & selection() const {
 		return itsSelection_;
 	}
@@ -185,7 +199,6 @@ public:
 			updated();
 		}
 	}
-
 
 	const PlotMSAveraging & averaging() const {
 		return itsAveraging_;
@@ -197,7 +210,6 @@ public:
 		}
 	}
 
-
 	const PlotMSTransformations & transformations() const {
 		return itsTransformations_;
 	}
@@ -207,7 +219,6 @@ public:
 			updated();
 		}
 	}
-
 
 	const PlotMSCalibration & calibration() const {
 		return itsCalibration_;
@@ -219,12 +230,14 @@ public:
 		}
 	}
 
+
 private:
 	//Does the work of the operator=()s.
 	PMS_PP_MSData& assign(const PMS_PP_MSData* other);
 
 	/* Parameters' values */
 	casacore::String itsFilename_;
+	casacore::Int itsType_;
 	PlotMSSelection itsSelection_;
 	PlotMSAveraging itsAveraging_;
 	PlotMSTransformations itsTransformations_;
@@ -232,11 +245,11 @@ private:
 
 	/* Key strings for casacore::Record */
 	static const casacore::String REC_FILENAME;
+	static const casacore::String REC_TYPE;
 	static const casacore::String REC_SELECTION;
 	static const casacore::String REC_AVERAGING;
 	static const casacore::String REC_TRANSFORMATIONS;
 	static const casacore::String REC_CALIBRATION;
-
 
 	void setDefaults();
 };
@@ -293,8 +306,6 @@ public:
 
 	/* Overrides PlotMSPlotParameters::Group::operator==(). */
 	bool operator== (const Group & other) const;
-
-
 
 	// Gets how many axes and data columns there are.
 	// <group>
@@ -414,6 +425,26 @@ public:
 		}
 	}
 
+	bool showAtm() const {
+		return itsShowAtm_;
+	}
+	void setShowAtm (const bool & value) {
+	    if (itsShowAtm_!= value) {
+		    itsShowAtm_ = value;
+		    updated();
+	    }
+    }
+
+    bool showTsky() const {
+		return itsShowTsky_;
+	}
+	void setShowTsky (const bool & value) {
+	    if (itsShowTsky_!= value) {
+		    itsShowTsky_ = value;
+		    updated();
+	    }
+    }
+
 	void resize( int count );
 
 private:
@@ -425,20 +456,19 @@ private:
 	vector<PMS::Axis> itsYAxes_;
 	vector<PMS::DataColumn> itsXData_;
 	vector<PMS::DataColumn> itsYData_;
+	bool itsShowAtm_;
+	bool itsShowTsky_;
 
 	/* Key strings for casacore::Record */
 	static const casacore::String REC_XAXES;
 	static const casacore::String REC_YAXES;
 	static const casacore::String REC_XDATACOLS;
 	static const casacore::String REC_YDATACOLS;
-
+	static const casacore::String REC_SHOWATM;
+	static const casacore::String REC_SHOWTSKY;
 
 	void setDefaults();
 };
-
-
-
-
 
 
 // Subclass of PlotMSPlotParameters::Group to handle axes parameters.
@@ -677,7 +707,7 @@ public:
 	}
 
 	//Change the size of the vectors.
-	void resize( int count );
+	void resize( int count, bool copyValues=False );
 
 private:
 
@@ -700,11 +730,8 @@ private:
 	static const casacore::String REC_XRANGES;
 	static const casacore::String REC_YRANGES;
 
-
 	void setDefaults();
 };
-
-
 
 
 

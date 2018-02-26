@@ -1,7 +1,7 @@
 #ifndef ANNOTATIONEDITORTEXT_QO_H
 #define ANNOTATIONEDITORTEXT_QO_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <display/QtPlotter/annotations/AnnotationEditorText.ui.h>
 
 namespace casa {

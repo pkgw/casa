@@ -1,4 +1,4 @@
-//# Preferences.qo.h: dialog which allows user to set and reset viewer preferences
+//# ViewerPreferences.qo.h: dialog which allows user to set and reset viewer preferences
 //# Copyright (C) 2012
 //# Associated Universities, Inc. Washington DC, USA.
 //#
@@ -31,18 +31,18 @@
 #include <set>
 #include <string>
 #include <QSignalMapper>
-#include <QtGui/QDialog>
-#include <display/QtViewer/Preferences.ui.h>
+#include <QDialog>
+#include <display/QtViewer/ViewerPreferences.ui.h>
 #include <display/Utilities/Lowlevel.h>
 
 namespace casa {
 	namespace viewer {
 
-		class Preferences : public QDialog, protected Ui::Preferences {
+		class ViewerPreferences : public QDialog, protected Ui::ViewerPreferences {
 			Q_OBJECT
 		public:
-			Preferences( QWidget *parent=0 );
-			~Preferences( );
+			ViewerPreferences( QWidget *parent=0 );
+			~ViewerPreferences( );
 
 		protected slots:
 			void reset_edits( );
