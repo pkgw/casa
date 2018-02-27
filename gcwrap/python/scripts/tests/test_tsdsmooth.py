@@ -445,7 +445,7 @@ class sdsmooth_selection(sdsmooth_test_base, unittest.TestCase):
     outfile = "smoothed.ms"
     common_param = dict(infile=infile, outfile=outfile,
                         kernel='boxcar', kwidth=5)
-    selections=dict(intent=("CALIBRATE_ATMOSPHERE#*", [1]),
+    selections=dict(intent=("CALIBRATE_ATMOSPHERE#OFF*", [1]),
                     antenna=("DA99", [1]),
                     field=("M1*", [0]),
                     spw=(">6", [1]),
@@ -483,10 +483,10 @@ class sdsmooth_selection(sdsmooth_test_base, unittest.TestCase):
         if self.verbose: print("reference=%s" % str(reference))
         return reference
     
-    def run_test(self, sel_param, datacolumn):
+    def run_test(self, sel_param, datacolumn, reindex=True):
         inparams = self._get_selection_string(sel_param)
         inparams.update(self.common_param)
-        sdsmooth(datacolumn=datacolumn, **inparams)
+        sdsmooth(datacolumn=datacolumn, reindex=reindex, **inparams)
         self._test_result(inparams["outfile"], sel_param, datacolumn)
         
     def _test_result(self, msname, sel_param, dcol, atol=1.e-5, rtol=1.e-5):
@@ -572,6 +572,41 @@ class sdsmooth_selection(sdsmooth_test_base, unittest.TestCase):
     def testPolC(self):
         """Test selection by pol (corrected)"""
         self.run_test("pol", "corrected")
+
+    def testReindexSpw(self):
+        """Test reindex =T/F in spw selection"""
+        outfile = self.common_param['outfile']
+        for datacol in ['float_data', 'corrected']:
+            print("Test: %s" % datacol.upper())
+            for (reindex, ddid, spid) in zip([True, False], [0, 1], [0,7]):
+                print("- reindex=%s" % str(reindex))
+                self.run_test("spw", datacol, reindex=reindex)
+                tb.open(outfile)
+                try:
+                    self.assertEqual(ddid, tb.getcell('DATA_DESC_ID', 0),
+                                     "comparison of DATA_DESCRIPTION_ID failed.")
+                finally: tb.close()
+                tb.open(outfile+'/DATA_DESCRIPTION')
+                try:
+                    self.assertEqual(spid, tb.getcell('SPECTRAL_WINDOW_ID', ddid),
+                                     "comparison of SPW_ID failed.")
+                finally: tb.close()
+                shutil.rmtree(outfile)
+
+    def testReindexIntent(self):
+        """Test reindex =T/F in intent selection"""
+        outfile = self.common_param['outfile']
+        for datacol in ['float_data', 'corrected']:
+            print("Test: %s" % datacol.upper())
+            for (reindex, idx) in zip([True, False], [0, 4]):
+                print("- reindex=%s" % str(reindex))
+                self.run_test("intent", datacol, reindex=reindex)
+                tb.open(outfile)
+                try:
+                    self.assertEqual(idx, tb.getcell('STATE_ID', 0),
+                                     "comparison of state_id failed.")
+                finally: tb.close()
+                shutil.rmtree(outfile)
 
 def suite():
     return [sdsmooth_test_fail, sdsmooth_test_complex,

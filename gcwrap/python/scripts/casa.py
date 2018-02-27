@@ -143,6 +143,7 @@ metool = _casac.measures
 iatool = _casac.image
 potool = _casac.imagepol
 lmtool= _casac.linearmosaic
+sbstool = _casac.sidebandseparator
 smtool = _casac.simulator
 cltool = _casac.componentlist
 coordsystool = _casac.coordsys
@@ -260,6 +261,7 @@ from sdfit import  sdfit
 from sdfixscan import  sdfixscan
 from sdgaincal import  sdgaincal
 from sdimaging import  sdimaging
+from sdsidebandsplit import  sdsidebandsplit
 from sdsmooth import  sdsmooth
 from setjy import  setjy
 from ssoflux import  ssoflux

@@ -25,7 +25,7 @@
 #ifndef SPECFITSETTINGSWIDGETRADIO_QO_H
 #define SPECFITSETTINGSWIDGETRADIO_QO_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <QProgressDialog>
 #include <display/QtPlotter/SpecFitSettingsWidgetRadio.ui.h>
 #include <display/QtPlotter/ProfileTaskFacilitator.h>

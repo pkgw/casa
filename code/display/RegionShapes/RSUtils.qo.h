@@ -29,6 +29,10 @@
 
 #include <QtGui>
 
+#include <QLineEdit>
+#include <QComboBox>
+#include <QHBoxLayout>
+#include <QPushButton>
 #include <casa/BasicSL/String.h>
 #include <display/Display/WorldCanvasHolder.h>
 #include <display/Display/WorldCanvas.h>

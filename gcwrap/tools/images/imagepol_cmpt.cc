@@ -15,11 +15,14 @@
 #include <casa/Containers/Record.h>
 #include <casa/Exceptions/Error.h>
 #include <casa/Logging/LogIO.h>
-#include <images/Images/ImageInterface.h>
 #include <images/Images/ImageUtilities.h>
 #include <images/Images/ImageExpr.h>
-#include <imageanalysis/ImageAnalysis/ImagePolProxy.h>
+
 #include <imageanalysis/ImageAnalysis/ImageFactory.h>
+#include <imageanalysis/ImageAnalysis/ImagePolProxy.h>
+#include <imageanalysis/ImageAnalysis/ImageTotalPolarization.h>
+#include <imageanalysis/ImageAnalysis/LinearPolarizationAngleCalculator.h>
+#include <imageanalysis/ImageAnalysis/LinearPolarizationCalculator.h>
 
 #include <casa/namespace.h>
 
@@ -291,55 +294,57 @@ imagepol::fractotpol(const bool debias, const double clip, const double sigma, c
   }
 }
 
-image *
-imagepol::linpolint(const bool debias, const double clip, const double sigma, const std::string& outfile)
-{
-  try{
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
-    if(itsImPol==0){
-      *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
-	      << LogIO::POST;
-      return 0;
+image * imagepol::linpolint(
+    const bool debias, const double clip, const double sigma, const std::string& outfile,
+    const variant& region, const std::string& mask, bool stretch
+) {
+    try{
+        *itsLog << LogOrigin("imagepol", __func__);
+        if(! itsImPol){
+            *itsLog << LogIO::SEVERE <<"No attached image, please use open "
+                << LogIO::POST;
+            return nullptr;
+        }
+        auto myreg = _getRegion(region, False);
+        auto subImage = SubImageFactory<Float>::createSubImageRO(
+            *itsImPol->getImage(), *myreg, mask,
+            itsLog, AxesSpecifier(), stretch, true
+        );
+        LinearPolarizationCalculator lpc(subImage, outfile, False);
+        lpc.setClip(clip);
+        lpc.setSigma(sigma);
+        lpc.setDebias(debias);
+        return new image(lpc.compute());
     }
-    ImageInterface<Float> *out;
-    Bool rstat(false);
-    rstat = itsImPol->linPolInt(out,debias,Float(clip),
-				Float(sigma),String(outfile));
-    if (rstat) {
-        return new image(out);
-     }
-    else {
-      throw(AipsError("could not attach linpolint image"));
+    catch (const AipsError& x) {
+        *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
+        RETHROW(x);
     }
-    } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
-    RETHROW(x);
-  }
 }
 
-image *
-imagepol::linpolposang(const std::string& outfile)
-{
-  try{
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
-    if(itsImPol==0){
-      *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
-	      << LogIO::POST;
-      return 0;
+image * imagepol::linpolposang(
+    const std::string& outfile, const variant& region,
+    const std::string& mask, bool stretch
+) {
+    try{
+        *itsLog << LogOrigin("imagepol", __func__);
+        if(! itsImPol){
+            *itsLog << LogIO::SEVERE <<"No attached image, please use open "
+                << LogIO::POST;
+            return nullptr;
+        }
+        auto myreg = _getRegion(region, False);
+        auto subImage = SubImageFactory<Float>::createSubImageRO(
+            *itsImPol->getImage(), *myreg, mask,
+            itsLog, AxesSpecifier(), stretch, true
+        );
+        LinearPolarizationAngleCalculator lpac(subImage, outfile, False);
+        return new image(lpac.compute(False));
     }
-    ImageInterface<Float> *out;
-    Bool rstat(false);
-    rstat = itsImPol->linPolPosAng(out,String(outfile));
-    if (rstat) {
-        return new image(out);
+    catch (const AipsError& x) {
+        *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
+        RETHROW(x);
     }
-    else {
-      throw(AipsError("could not attach linpolposang image"));
-    }
-  } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
-    RETHROW(x);
-  }
 }
 
 bool
@@ -368,7 +373,7 @@ image *
 imagepol::pol(const std::string& which, const bool debias, const double clip, const double sigma, const std::string& outfile)
 {
   try{
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
+    *itsLog << LogOrigin("imagepol", __func__);
     if(itsImPol==0){
       *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
 	      << LogIO::POST;
@@ -379,13 +384,16 @@ imagepol::pol(const std::string& which, const bool debias, const double clip, co
     type.upcase();
     Bool rstat(false);
     if (type=="LPI") {
+        return linpolint(debias, clip, sigma, outfile);
+        /*
       rstat = itsImPol->linPolInt(out,debias,Float(clip),
 				  Float(sigma),String(outfile));
+				  */
     } else if (type=="TPI") {
-      rstat = itsImPol->totPolInt(out,debias,Float(clip),
-				  Float(sigma),String(outfile));
+        return totpolint(debias, clip, sigma, outfile);
     } else if (type=="LPPA") {
-      rstat = itsImPol->linPolPosAng(out,String(outfile));
+        return linpolposang(outfile);
+      //rstat = itsImPol->linPolPosAng(out,String(outfile));
     } else if (type=="FLP") {
       rstat = itsImPol->fracLinPol(out,debias,Float(clip),
 				   Float(sigma),String(outfile));
@@ -401,7 +409,7 @@ imagepol::pol(const std::string& which, const bool debias, const double clip, co
       else {
       throw(AipsError("could not attach pol image"));
       }    
-  } catch (AipsError x) {
+  } catch (const AipsError& x) {
     *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
     RETHROW(x);
   }
@@ -862,31 +870,69 @@ imagepol::summary()
   return rstat;
 }
 
-image *
-imagepol::totpolint(const bool debias, const double clip, const double sigma, const std::string& outfile)
-{
-  try{
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
-    if(itsImPol==0){
-      *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
-	      << LogIO::POST;
-      return 0;
+image* imagepol::totpolint(
+    bool debias, double clip, double sigma, const std::string& outfile,
+    const variant& region, const std::string& mask, bool stretch
+) {
+    try{
+        *itsLog << LogOrigin("imagepol", __func__);
+        if(! itsImPol){
+            *itsLog << LogIO::SEVERE <<"No attached image, please use open "
+                << LogIO::POST;
+            return nullptr;
+        }
+        auto myreg = _getRegion(region, False);
+        auto subImage = SubImageFactory<Float>::createSubImageRO(
+            *itsImPol->getImage(), *myreg, mask,
+            itsLog, AxesSpecifier(), stretch, true
+        );
+        ImageTotalPolarization itp(subImage, outfile, False);
+        itp.setClip(clip);
+        itp.setSigma(sigma);
+        itp.setDebias(debias);
+        return new image(itp.compute());
     }
-    ImageInterface<Float> *out;
-    Bool rstat(false);
-    rstat = itsImPol->totPolInt(out,debias,Float(clip),
-				Float(sigma),String(outfile));
-    if (rstat) {
-        return new image(out);
+    catch (const AipsError& x) {
+        *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
+        RETHROW(x);
     }
-    else {
-      throw(AipsError("could not attach totpolint image"));
-    }
-    } catch (AipsError x) {
-    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
-    RETHROW(x);
-  }
+}
 
+SHARED_PTR<Record> imagepol::_getRegion(
+    const variant& region, bool nullIfEmpty
+) const {
+    switch (region.type()) {
+    case variant::BOOLVEC:
+        return SHARED_PTR<Record>(nullIfEmpty ? nullptr : new Record());
+    case variant::STRING: {
+        if (region.toString().empty()) {
+            return SHARED_PTR<Record>(nullIfEmpty ? 0 : new Record());
+        }
+        auto image = itsImPol->getImage();
+        ThrowIf(
+            ! image, "No attached image. Cannot use a string value for region"
+        );
+        return SHARED_PTR<Record>(
+            new Record(
+                CasacRegionManager::regionFromString(
+                    image->coordinates(), region.toString(),
+                    image->name(False), image->shape(), True
+                )
+            )
+        );
+    }
+    case variant::RECORD: {
+        return SHARED_PTR<Record>(
+            nullIfEmpty && region.size() == 0
+            ? 0
+            : toRecord(
+                SHARED_PTR<variant>(region.clone())->asRecord()
+            )
+        );
+    }
+    default:
+        ThrowCc("Unsupported type for region " + region.typeString());
+    }
 }
 
 } // casac namespace

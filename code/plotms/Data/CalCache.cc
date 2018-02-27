@@ -26,6 +26,7 @@
 //# $Id: $
 #include <plotms/Data/CalCache.h>
 #include <plotms/Data/PlotMSIndexer.h>
+#include <plotms/Data/PlotMSAtm.h>
 #include <plotms/PlotMS/PlotMS.h>
 #include <plotms/Threads/ThreadCommunication.h>
 
@@ -121,18 +122,21 @@ void CalCache::loadIt(vector<PMS::Axis>& loadAxes,
   }
 
   setUpCalIter(filename_,selection_, True,True,True);
-    
-  // supports only channel averaging...    
+
+  // set up data columns and check for atm/tsky axis
   vector<PMS::DataColumn> loadData(loadAxes.size());
-  for (uInt i=0; i<loadData.size(); ++i) 
+  for (uInt i=0; i<loadData.size(); ++i) {
     loadData[i] = PMS::DEFAULT_DATACOLUMN;
+  }
+
   countChunks(*ci_p, loadAxes, loadData, thread);
   //    trapExcessVolume(pendingLoadAxes);
   loadCalChunks(*ci_p,loadAxes,thread);
 
-  if (ci_p)
+  if (ci_p) {
     delete ci_p;
-  ci_p=NULL;
+    ci_p  = NULL;
+  }
 }
 
 void CalCache::setUpCalIter(const String& ctname,
@@ -155,16 +159,17 @@ void CalCache::setUpCalIter(const String& ctname,
   columns[2]="SPECTRAL_WINDOW_ID";
   columns[3]="TIME";
 
-   // Now open the MS, select on it, make the VisIter
+  // Now open the MS, select on it, make the VisIter
+  TableLock lock(TableLock::AutoNoReadLocking);
   Table::TableOption tabopt(Table::Update);
-  if (readonly) tabopt=Table::Old;
-  // TBD: control locking here?
-  NewCalTable ct(ctname,tabopt,Table::Plain), selct;
+  if (readonly) tabopt = Table::Old;
+  NewCalTable ct(ctname, lock, tabopt, Table::Plain);
 
   // Apply selection
+  NewCalTable selct;
   Vector<Vector<Slice> > chansel;
   Vector<Vector<Slice> > corrsel;
-  selection.apply(ct,selct,chansel,corrsel);
+  selection.apply(ct, selct, chansel, corrsel);
 
   // setup the volume meter
   //  vm_.reset();
@@ -206,7 +211,7 @@ void CalCache::countChunks(ROCTIter& ci,
   }
 
   setCache(chunk, loadAxes, loadData);
-  //  cout << " Found " << nChunk_ << " chunks." << endl;
+  //    cout << " Found " << nChunk_ << " chunks." << endl;
 }
 
 
@@ -243,7 +248,7 @@ void CalCache::loadCalChunks(ROCTIter& ci,
   // Initialize the freq/vel calculator (in case we use it)
   //  vbu_=VisBufferUtil(vb);
 
-  Int chunk = 0;
+  Int chunk(0), lastscan(0), thisscan(0), lastspw(-1), thisspw(0);
   chshapes_.resize(4,nChunk_);
   goodChunk_.resize(nChunk_);
   goodChunk_.set(False);
@@ -293,6 +298,27 @@ void CalCache::loadCalChunks(ROCTIter& ci,
 
       for(unsigned int i = 0; i < loadAxes.size(); i++) {
         loadCalAxis(ci, chunk, loadAxes[i], pol);
+        // print atm stats once per scan
+        if (loadAxes[i]==PMS::ATM || loadAxes[i]==PMS::TSKY) {
+            thisscan = ci.thisScan();
+            if (thisscan != lastscan) {
+                printAtmStats(thisscan);
+                lastscan = thisscan;
+            }
+            thisspw = ci.thisSpw();
+            if (thisspw != lastspw) {
+                uInt vectorsize = ( loadAxes[i]==PMS::ATM ?
+                    (*atm_[chunk]).nelements() :
+                    (*tsky_[chunk]).nelements());
+                if (vectorsize==1) {
+                    logWarn("load_cache", "Setting " + 
+                        PMS::axis(loadAxes[i]) + " for spw " +
+                        String::toString(thisspw) +
+                        " to zero because it has only one channel.");
+                }
+                lastspw = thisspw;
+            }
+        }
       }
         chunk++;
         ci.next();
@@ -619,6 +645,24 @@ void CalCache::loadCalChunks(ROCTIter& ci,
   }
   case PMS::INTENT: {
     // metadata axis that always gets loaded so don't want to throw exception
+    break;
+  }
+  case PMS::ATM:
+  case PMS::TSKY: { 
+    casacore::Int spw = cti.thisSpw();
+    casacore::Int scan = cti.thisScan();
+    casacore::Vector<casacore::Double> freqsGHz = cti.freq()/1e9;
+    casacore::Vector<casacore::Double> curve(1, 0.0);
+    bool isAtm = (axis==PMS::ATM);
+    if (plotmsAtm_) {
+        curve.resize();    
+        curve = plotmsAtm_->calcOverlayCurve(spw, scan, freqsGHz,
+                isAtm);
+    }
+    if (isAtm)
+        *atm_[chunk] = curve;
+    else
+        *tsky_[chunk] = curve;
     break;
   }
   default:
