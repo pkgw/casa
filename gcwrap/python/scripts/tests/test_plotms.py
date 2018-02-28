@@ -291,13 +291,13 @@ class test_basic(plotms_test_base):
         res = plotms(vis=self.ms, xaxis='chan', plotfile=self.plotfile_jpg,
             expformat="jpg", showgui=False, highres=True, showatm=True)   
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 110000)
+        self.checkPlotfile(self.plotfile_jpg, 90000)
         self.removePlotfile()
         # basic plot with showtsky, xaxis freq
         res = plotms(vis=self.ms, xaxis='freq', plotfile=self.plotfile_jpg,
             expformat="jpg", showgui=False, highres=True, showtsky=True)   
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 130000)
+        self.checkPlotfile(self.plotfile_jpg, 90000)
         self.removePlotfile()
         # plotfile without overlay: xaxis must be chan or freq
         # so ignores showatm/tsky
