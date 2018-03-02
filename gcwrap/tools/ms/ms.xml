@@ -3710,14 +3710,15 @@ in spectral window 1.
     the CORRECTED_DATA column - model, or 'residual_data' in which
     case the values used are the DATA column - model, where model
     is the CORRECTED_DATA column if it exists, or if it doesn't,
-    the virtual source model if one exists, or if that doesn't, 0+0j
-    for all visibilities. The last two options are to allow for
-    operation on timescales or frequency ranges which are larger than
-    that over which the sky signal is expected to be constant. This
-    situation arises in eg, OTF mapping, and also perhaps with sources
-    with significant spectral structure. In cases where a necessary
-    column doesn't exist, an exception will be thrown and no data will
-    be changed.
+    the virtual source model if one exists, or if that doesn't, then
+    no model is used and the 'residual' and 'residual_data' cases
+    are equivalent to the 'corrected' and 'data' cases, respectively.
+    The last two options are to allow for operation on timescales or
+    frequency ranges which are larger than that over which the sky
+    signal is expected to be constant. This situation arises in eg,
+    OTF mapping, and also perhaps with sources with significant
+    spectral structure. In cases where a necessary column doesn't
+    exist, an exception will be thrown and no data will be changed.
 
     RETURN VALUE
 
