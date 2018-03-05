@@ -25,7 +25,7 @@
 #ifndef PREFERENCESCOLOR_QO_H
 #define PREFERENCESCOLOR_QO_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 #include <QMap>
 
 #include <guitools/Feather/PreferencesColor.ui.h>

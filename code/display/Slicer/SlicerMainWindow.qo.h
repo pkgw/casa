@@ -26,7 +26,7 @@
 #ifndef SLICER_MAINWINDOW_QO_H
 #define SLICER_MAINWINDOW_QO_H
 
-#include <QtGui/QMainWindow>
+#include <QMainWindow>
 #include <display/Slicer/SlicerMainWindow.ui.h>
 #include <display/Slicer/SlicePlot.qo.h>
 

@@ -26,7 +26,7 @@
 #ifndef COLOR_SUMMARYWIDGET_QO_H
 #define COLOR_SUMMARYWIDGET_QO_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <QSettings>
 #include <display/QtPlotter/ColorSummaryWidget.ui.h>
 

@@ -84,6 +84,7 @@ private:
     QtFileWidget* itsFileWidget_;
 
     Ui::PlotMSDataTabClass ui;
+
 };
 
 }

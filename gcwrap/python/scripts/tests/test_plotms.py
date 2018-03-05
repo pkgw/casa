@@ -127,13 +127,13 @@ class test_basic(plotms_test_base):
         res = plotms(vis=self.ms, plotfile=self.plotfile_jpg, expformat="jpg", 
                      showgui=False, highres=True)   
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 60000)
+        self.checkPlotfile(self.plotfile_jpg, 200000)
         self.removePlotfile()
         # default xaxis only
         res = plotms(vis=self.ms, plotfile=self.plotfile_jpg, expformat="jpg", 
                      yaxis='freq', showgui=False, highres=True)   
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 60000)
+        self.checkPlotfile(self.plotfile_jpg, 300000)
         self.removePlotfile()
         # default yaxis only
         res = plotms(vis=self.ms, plotfile=self.plotfile_jpg, expformat="jpg", 
@@ -162,7 +162,7 @@ class test_basic(plotms_test_base):
         res = plotms(vis=self.ms, plotfile=self.plotfile_jpg, expformat='jpg', 
                      showgui=False, highres=True)   
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 60000)
+        self.checkPlotfile(self.plotfile_jpg, 200000)
 
         # Next, overwrite is False so the save should fail.
         res = plotms(vis=self.ms, plotfile=self.plotfile_jpg, expformat='jpg', 
@@ -173,7 +173,7 @@ class test_basic(plotms_test_base):
         res = plotms(vis=self.ms, plotfile=self.plotfile_jpg, expformat='jpg', 
                      overwrite=True, showgui=False, highres=True)
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 60000)
+        self.checkPlotfile(self.plotfile_jpg, 200000)
         print
 
     def test_basic_overplot2MS(self):
@@ -272,7 +272,7 @@ class test_basic(plotms_test_base):
 
     def xtest_basic_pdfExport(self):
         '''test_basic_pdfExport: Export plot in pdf format'''
-        plotfile_pdf = os.path.join(self.outputDir, "testBasic09.png")
+        plotfile_pdf = os.path.join(self.outputDir, "testBasic09.pdf")
         self.removePlotfile(plotfile_pdf)
         time.sleep(5)
         res = plotms(vis=self.ms, plotfile=plotfile_pdf, expformat="pdf", 
@@ -280,6 +280,32 @@ class test_basic(plotms_test_base):
         self.assertTrue(res)
         self.checkPlotfile(plotfile_pdf, 40000)
         self.removePlotfile(plotfile_pdf)
+        print
+
+    def test_basic_overlays(self):
+        '''test_basic_overlays: showatm and showtsky overplots'''
+        self.plotfile_jpg = os.path.join(self.outputDir, "testBasic10.jpg")
+        self.removePlotfile()
+        time.sleep(5)
+        # basic plot with showatm, xaxis chan
+        res = plotms(vis=self.ms, xaxis='chan', plotfile=self.plotfile_jpg,
+            expformat="jpg", showgui=False, highres=True, showatm=True)   
+        self.assertTrue(res)
+        self.checkPlotfile(self.plotfile_jpg, 90000)
+        self.removePlotfile()
+        # basic plot with showtsky, xaxis freq
+        res = plotms(vis=self.ms, xaxis='freq', plotfile=self.plotfile_jpg,
+            expformat="jpg", showgui=False, highres=True, showtsky=True)   
+        self.assertTrue(res)
+        self.checkPlotfile(self.plotfile_jpg, 90000)
+        self.removePlotfile()
+        # plotfile without overlay: xaxis must be chan or freq
+        # so ignores showatm/tsky
+        res = plotms(vis=self.ms, plotfile=self.plotfile_jpg,
+            expformat="jpg", showgui=False, highres=True, showatm=True)   
+        self.assertTrue(res)
+        self.checkPlotfile(self.plotfile_jpg, 200000)
+        self.removePlotfile()
         print
 
 # ------------------------------------------------------------------------------
