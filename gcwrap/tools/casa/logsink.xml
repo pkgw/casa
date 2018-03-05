@@ -30,6 +30,10 @@ file:///opt/casa/code/tools/xml/casa.xsd">
       <description>Allow telemetry data to be written.</description>
       <value>false</value>
     </param>
+	<param type="string"  name="telemetry_logfile">
+      <description>Logfile for telemetry data.</description>
+      <value>false</value>
+    </param>
   </input>
   <example></example>
 </method>

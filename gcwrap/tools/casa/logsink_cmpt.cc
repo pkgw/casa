@@ -51,11 +51,11 @@ static LogSinkInterface *thelogsink
   = new StreamLogSink(logfile);
   */
 static string theLogName;
-static string statslogname;
+static string telemetryLog;
 static bool telemetryEnabled;
 
 //logsink::logsink():thelogsink(0)
-logsink::logsink(const std::string &filename, bool telemetrytoggle)
+logsink::logsink(const std::string &filename, bool telemetrytoggle, const std::string &inTelemetryfilename)
 {
   if( ! theLogName.size( ) ){
      char *buff = NULL;
@@ -66,6 +66,18 @@ logsink::logsink(const std::string &filename, bool telemetrytoggle)
          theLogName = string(mybuff) + "/" + filename;
      }
      telemetryEnabled = telemetrytoggle;
+  }
+
+  if (telemetryEnabled) {
+    if( ! telemetryLog.size( ) ){
+       char *buff = NULL;
+       if ( inTelemetryfilename.at(0) == '/' )
+           telemetryLog = inTelemetryfilename;
+       else {
+           char *mybuff = getcwd(buff, MAXPATHLEN);
+           telemetryLog = string(mybuff) + "/" + inTelemetryfilename;
+       }
+    }
   }
 
   // jagonzal: Set task and processor name
@@ -274,7 +286,7 @@ bool logsink::poststat(const std::string& message,
         try {
             std::lock_guard<std::mutex> lock(_stat_mutex);
             ofstream myfile;
-            myfile.open (statslogname, ios_base::app);
+            myfile.open (telemetryLog, ios_base::app);
             auto timestamp = std::chrono::system_clock::now();
             std::time_t convertedtime = std::chrono::system_clock::to_time_t(timestamp);
             char formattedtime[20];
@@ -353,12 +365,12 @@ bool logsink::setlogfile(const std::string& filename)
 
 bool logsink::setstatslogfile(const std::string& filename)
 {
-   statslogname = filename;
+   telemetryLog = filename;
    return true;
 }
 string logsink::getstatslogfile()
 {
-   return statslogname ;
+   return telemetryLog ;
 }
 
 
