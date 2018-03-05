@@ -221,15 +221,17 @@ public:
             double& sec, PlotAxisScale scale = DATE_MJ_SEC);
     // </group>    
               
-    // Returns true if the given Strings are equals, false otherwise.  If
-    // ignoreCase is false then it is a direct casacore::String comparison using ==;
-    // otherwise the casacore::String characters are compared while ignoring case for
-    // letters.
-    static bool strEq(const casacore::String& str1, const casacore::String& str2,
+    // Returns true if the given Strings are equals, false otherwise.
+    // If ignoreCase is false then it is a direct casacore::String comparison
+    // using ==; otherwise the casacore::String characters are compared while
+    // ignoring case for letters.
+    static bool strEq(const casacore::String& str1, 
+                      const casacore::String& str2,
                       bool ignoreCase = false);
     
     // Returns true if the given Records are equals, false otherwise.
-    static bool recEq(const casacore::Record& rec1, const casacore::Record& rec2);
+    static bool recEq(const casacore::Record& rec1,
+                      const casacore::Record& rec2);
     
     // Converts the given templated vector to/from an int Vector.
     // <group>
@@ -264,7 +266,17 @@ public:
               "SysCal", "Weather")
     // </group>
               
+    // Enum for the different CalTable summary types.
+    // <group>
+    PMS_ENUM1(CTSummaryType, CTsummaryTypes, CTsummaryTypeStrings, CTsummaryType,
+              S_ALL_CT, S_WHERE_CT, S_WHAT_CT, S_HOW_CT, S_MAIN_CT, S_TABLES_CT,
+              S_ANTENNA_CT, S_FIELD_CT, S_OBSERVATION_CT, S_HISTORY_CT, S_SPW_CT)
 
+    PMS_ENUM2(CTSummaryType, CTsummaryTypes, CTsummaryTypeStrings, CTsummaryType,
+              "All", "Where", "What", "How", "Main", "Tables", "Antenna",
+              "Field", "Observation", "History", "Spectral Window") 
+    // </group>
+              
    // Enum for export range.
    // <group>
    PMS_ENUM1(ExportRange, exportRanges, exportRangeStrings, exportRange, PAGE_CURRENT, PAGE_ALL)
