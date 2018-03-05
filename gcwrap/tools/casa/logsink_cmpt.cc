@@ -52,10 +52,10 @@ static LogSinkInterface *thelogsink
   */
 static string theLogName;
 static string statslogname;
-static bool allow_statistics;
+static bool telemetryEnabled;
 
 //logsink::logsink():thelogsink(0)
-logsink::logsink(const std::string &filename, bool allow_stats)
+logsink::logsink(const std::string &filename, bool telemetrytoggle)
 {
   if( ! theLogName.size( ) ){
      char *buff = NULL;
@@ -65,7 +65,7 @@ logsink::logsink(const std::string &filename, bool allow_stats)
          char *mybuff = getcwd(buff, MAXPATHLEN);
          theLogName = string(mybuff) + "/" + filename;
      }
-     allow_statistics = allow_stats;
+     telemetryEnabled = telemetrytoggle;
   }
 
   // jagonzal: Set task and processor name
@@ -270,7 +270,7 @@ std::mutex _stat_mutex;
 bool logsink::poststat(const std::string& message,
 		   const std::string& origin)
 {
-    if (allow_statistics) {
+    if (telemetryEnabled) {
         try {
             std::lock_guard<std::mutex> lock(_stat_mutex);
             ofstream myfile;

@@ -26,7 +26,7 @@ file:///opt/casa/code/tools/xml/casa.xsd">
       <description>logfile name</description>
       <value>casa.log</value>
     </param>
-	<param type="bool"  name="allow_stats">
+	<param type="bool"  name="enable_telemetry">
       <description>Allow telemetry data to be written.</description>
       <value>false</value>
     </param>
