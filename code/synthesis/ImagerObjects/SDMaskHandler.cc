@@ -742,6 +742,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                const Bool dogrowprune,
                                const Float& minpercentchange,
                                const Bool verbose, 
+                               const Bool isthresholdreached,
                                Float pblimit)
   {
     LogIO os( LogOrigin("SDMaskHandler","autoMask",WHERE) );
@@ -942,7 +943,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     }
     else if (alg==String("multithresh")) {
       autoMaskByMultiThreshold(*tempmask, posmask, *tempres, *imstore->psf(), thestats, iterdone, chanflag, minpercentchange, itsSidelobeLevel, sidelobethreshold,
-                                          noisethreshold, lownoisethreshold, negativethreshold, cutthreshold, smoothfactor, minbeamfrac, growiterations, dogrowprune, verbose);
+                                          noisethreshold, lownoisethreshold, negativethreshold, cutthreshold, smoothfactor, minbeamfrac, growiterations, dogrowprune, verbose, isthresholdreached);
     }
 
     // this did not work (it won't physically remove the mask from the image 
@@ -1321,7 +1322,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                           const Float& minBeamFrac, 
                                           const Int growIterations,
                                           const Bool doGrowPrune,
-                                          const Bool verbose) 
+                                          const Bool verbose,
+                                          const Bool isthresholdreached) 
   {
     LogIO os( LogOrigin("SDMaskHandler","autoMaskByMultiThreshold",WHERE) );
     Array<Double> rmss, maxs, mins, mads;
@@ -1853,10 +1855,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       os <<LogIO::DEBUG1 <<"Add previous mask and the new mask.."<<LogIO::POST;
     }
     // test the curent final mask with the previous mask 
-    skipChannels(fracChange,unmodifiedprevmask, mask, ThresholdType, chanFlag);
+    Vector<Bool> zeroChanMask;
+    skipChannels(fracChange,unmodifiedprevmask, mask, ThresholdType, isthresholdreached, chanFlag, zeroChanMask);
 
     if (verbose) 
-      printAutomaskSummary(resRmss, maxs, mins, maskThreshold, ThresholdType, chanFlag, nreg, npruned, ngrowreg, ngrowpruned, negmaskpixs, summaryRec);
+      printAutomaskSummary(resRmss, maxs, mins, maskThreshold, ThresholdType, chanFlag, zeroChanMask, nreg, npruned, ngrowreg, ngrowpruned, negmaskpixs, summaryRec);
     
   }//end of autoMaskByMultiThreshold
 
@@ -1925,7 +1928,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                   ImageInterface<Float>& prevmask, 
                                   ImageInterface<Float>& curmask, 
                                   const Vector<String>& thresholdtype,
-                                  Vector<Bool>& chanFlag)
+                                  const Bool isthresholdreached,
+                                  Vector<Bool>& chanFlag,
+                                  Vector<Bool>& zeroChanMask)
   {
     LogIO os( LogOrigin("SDMaskHandler","skipChannels",WHERE) );
     IPosition shp = curmask.shape();
@@ -1935,24 +1940,33 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Int nchan = shp(specaxis);
     IPosition blc(naxis,0);
     IPosition trc=shp-1;
+    zeroChanMask.resize(nchan);
     for (Int ichan=0; ichan<nchan; ichan++) {
-      if (thresholdtype(ichan).contains("noise") && !chanFlag(ichan)) {
+      blc(specaxis)=ichan;
+      trc(specaxis)=ichan;
+      Slicer sl(blc,trc,Slicer::endIsLast);
+      Array<Float> curmaskdata;
+      curmask.doGetSlice(curmaskdata,sl);
+      Float curmaskpix = sum(curmaskdata);
+      // sepearately store zero channel mask info maybe combined in future to streamline
+      if (curmaskpix==0) {
+         zeroChanMask(ichan) = True; 
+      }
+      else {
+         zeroChanMask(ichan) = False;
+      }
+
+      if (thresholdtype(ichan).contains("noise") && isthresholdreached && !chanFlag(ichan)) {
         Array<Float> prevmaskdata;
-        Array<Float> curmaskdata;
-        blc(specaxis)=ichan;
-	trc(specaxis)=ichan;
-	Slicer sl(blc,trc,Slicer::endIsLast);
         prevmask.doGetSlice(prevmaskdata,sl);
-        curmask.doGetSlice(curmaskdata,sl);
         Float prevmaskpix = sum(prevmaskdata);
-        Float curmaskpix = sum(curmaskdata);
 	//cerr<<"prevmaskpix="<<prevmaskpix<<" curemaskpix="<<curmaskpix<<endl;
 	//cerr<<"fracChnage="<<fracChange<<endl;
 	Float diffpix = abs(curmaskpix-prevmaskpix);
 	// skip zero prevmask case
 	if ( curmaskpix==0.0 || (diffpix == 0.0 && prevmaskpix!=0.0) || diffpix < fracChange*prevmaskpix) {
 	  chanFlag(ichan) = True;
-	  os<<LogIO::DEBUG1<<"set chanFlag(to stop updating automask)  to True for chan="<<ichan<<LogIO::POST;
+	  os<<LogIO::NORMAL<<"set chanFlag(to stop updating automask)  to True for chan="<<ichan<<LogIO::POST;
 	}       
       }
     } // for loop end
@@ -2764,9 +2778,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         masksizes[ich]=sum(chanImageArr);
         delete tempChanImage; tempChanImage=0;
       }
-      else {
-        cerr<<"makeMaskByPerChanThresh: skipping chan="<<ich<<endl;
-      }
+      //else {
+      //  cerr<<"makeMaskByPerChanThresh: skipping chan="<<ich<<endl;
+      //}
     } // loop over chans
   }
 
@@ -2924,6 +2938,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                        const Bool dogrowprune,
                                        const Float& minpercentchange,
                                        const Bool verbose,
+                                       const Bool isthresholdreached,
                                        Float pblimit)
   { 
     LogIO os( LogOrigin("SDMaskHandler","autoMaskWithinPB",WHERE) );
@@ -2933,7 +2948,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // changed to do automask ater pb mask is generated so automask do stats within pb mask
     autoMask( imstore, posmask, iterdone, chanflag, alg, threshold, fracofpeak, resolution, resbybeam, nmask, autoadjust, 
               sidelobethreshold, noisethreshold, lownoisethreshold, negativethreshold, cutthreshold, smoothfactor, 
-              minbeamfrac, growiterations, dogrowprune, minpercentchange, verbose, pblimit);
+              minbeamfrac, growiterations, dogrowprune, minpercentchange, verbose, isthresholdreached, pblimit);
 
     if( imstore->hasPB() )
       {
@@ -3149,6 +3164,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                             const Vector<Float>& maskthreshold, 
                                             const Vector<String>& thresholdtype, 
                                             const Vector<Bool>& chanflag, 
+                                            const Vector<Bool>& zeroChanMask,
                                             const Vector<uInt>& nreg, 
                                             const Vector<uInt>& npruned,
                                             const Vector<uInt>& ngrowreg,
@@ -3185,7 +3201,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
        chanidx(1) = ich;
       }
       Double peak = abs(maxs(chanidx))> abs( mins(chanidx))? maxs(chanidx): mins(chanidx);
-      String domasking = chanflag[ich]==0? "T":"F";
+      //String domasking = chanflag[ich]==0? "T":"F";
+      String domasking = zeroChanMask[ich]==1? "F":"T";
       String Nreg, Npruned, Ngrowreg, NgrowPruned, Nnegpix;
       String NAstr("--");
       if (!nreg.nelements()) {

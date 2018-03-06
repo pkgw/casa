@@ -35,6 +35,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                 itsCycleNiter(0),
                                 itsCycleThreshold(0.0),
                                 itsLoopGain(0.1),
+                                itsIsThresholdReached(false),
                                 itsUpdatedModelFlag(false),
                                 itsIterDone(0),
                                 itsCycleIterDone(0),
