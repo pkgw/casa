@@ -26,7 +26,7 @@
 #ifndef SEARCHMOLECULESWIDGET_QO_H_1
 #define SEARCHMOLECULESWIDGET_QO_H_1
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <QMap>
 #include <QThread>
 #include <QProgressDialog>
