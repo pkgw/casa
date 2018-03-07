@@ -173,6 +173,8 @@ mt = mttool()
 sdmstool = casac.singledishms
 sdms = sdmstool()
 parallelimager = casac.parallelimager()
+sbstool = casac.sidebandseparator
+sbs = sbstool()
 
 
 ##
