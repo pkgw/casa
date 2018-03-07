@@ -42,7 +42,7 @@ if ( casa['flags'].telemetry or
 
      logfiles.sort(reverse=True)
 
-     if (logfiles[0] != None):
+     if (logfiles and logfiles[0] != None):
          print "Found an existing telemetry logfile. Appending telemetry data to " + casa['dirs']['rc'] + "/" + logfiles[0]
          casa['files']['telemetry-logfile'] = casa['dirs']['rc'] + "/" + logfiles[0]
      else :
