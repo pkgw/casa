@@ -102,10 +102,12 @@ int main(int argc, char **argv)
     IPosition constshp=im->shape();
     SDMaskHandler maskhandler;
     Vector<Bool> chanflag(nchan);
+    Vector<Bool> zeromask(nchan);
     Vector<String> type(nchan);
+    Bool isthresholdreached(false);
     type.set("noise");
     chanflag.set(false);
-    maskhandler.skipChannels(fracChange, *previm, *im, type, chanflag);
+    maskhandler.skipChannels(fracChange, *previm, *im, type, isthresholdreached, chanflag, zeromask);
   }
   catch( AipsError e ){
     cout << "Exception ocurred." << endl;

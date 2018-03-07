@@ -117,7 +117,12 @@ public:
   // @param[in] negativethreshold Threshold factor in a multiplier of the rms noise used to set threshold for negative features 
   // @param[in] cutthreshold Cut threshold factor for adjust a mask after smoothing of the mask
   // @param[in] smoothfactor Smoothing factor (multiplier of the beam)
-  // @param[in] min percent change in mask size to trigger a new automask creation for 'noise'-based threshold
+  // @param[in] minbeamfrac Percent change in mask size to trigger a new automask creation for 'noise'-based threshold
+  // @param[in] growiterations (maximum) number of binary dilation iteartions to grow the mask
+  // @param[in] dogrowprune Toggle to do or skip pruning on the grow mask
+  // @param[in] minpercentchange Mininum percentage change in mask to stop updating mask 
+  // @param[in] verbose Controls automask related logging messages                                
+  // @param[in] isthresholdreached Check if cyclethreshold reached threshold
   // @param[in] pblimit Primary beam cut off level
   //
   void autoMask(SHARED_PTR<SIImageStore> imstore, 
@@ -142,6 +147,7 @@ public:
                 const casacore::Bool dogrowprune=true,
                 const casacore::Float& minpercentchange=0.0,
                 const casacore::Bool verbose=false,
+                const casacore::Bool isthresholdreached=false,
                 casacore::Float pblimit=0.0);
 
   // automask by threshold with binning before applying it 
@@ -188,7 +194,8 @@ public:
                                           const casacore::Float& minBeamFrac=-1.0,
                                           const casacore::Int growIterations=100,
                                           const casacore::Bool dogrowprune=true,
-                                          const casacore::Bool verbose=false); 
+                                          const casacore::Bool verbose=false,
+                                          const casacore::Bool isthresholdreached=false); 
                            
   // Calculate statistics on a residual image with additional region and LEL mask specificaations
   casacore::Record calcImageStatistics(casacore::ImageInterface<casacore::Float>& res, 
@@ -284,6 +291,7 @@ public:
                         const casacore::Bool dogrowprune=true,
                         const casacore::Float& minpercentchange=0.0,
                         const casacore::Bool verbose=false,
+                        const casacore::Bool isthresholdreached=false,
                         casacore::Float pblimit=0.1);
 
   
@@ -326,7 +334,9 @@ public:
                     casacore::ImageInterface<casacore::Float>& prevmask, 
                     casacore::ImageInterface<casacore::Float>& curmask, 
                     const casacore::Vector<casacore::String>& threshtype,
-                    casacore::Vector<casacore::Bool>& chanFlag);
+                    const casacore::Bool isthresholdreached,
+                    casacore::Vector<casacore::Bool>& chanFlag,
+                    casacore::Vector<casacore::Bool>& zeroChanMask);
 
   // check if input image is a mask image with 0 or a value (if normalize=true, 1)
   //casacore::Bool checkMaskImage(casacore::ImageInterface<casacore::Float>& maskiamge, casacore::Bool normalize=true);
@@ -338,6 +348,7 @@ public:
                             const casacore::Vector<casacore::Float>& maskthreshold, 
                             const casacore::Vector<casacore::String>& masktype,
                             const casacore::Vector<casacore::Bool>& chanflag,
+                            const casacore::Vector<casacore::Bool>& zerochanmask,
                             const casacore::Vector<casacore::uInt>& nreg,
                             const casacore::Vector<casacore::uInt>& npruned,
                             const casacore::Vector<casacore::uInt>& ngrowreg,
