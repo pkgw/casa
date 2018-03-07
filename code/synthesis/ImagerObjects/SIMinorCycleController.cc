@@ -65,11 +65,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // Reached cyclethreshold
     //if( fabs(currentPeakResidual) <= itsCycleThreshold ) { stopCode=2; }
     // Reached cyclethreshold or n-sigma threshold
+    os << "majorCycleRequired itsNsigma="<<itsNsigma<<" itsIterDiff="<<itsIterDiff<<LogIO::POST;
     if (itsCycleThreshold >= itsNsigmaThreshold) {
       if( fabs(currentPeakResidual) <= itsCycleThreshold ) { stopCode=2; }
     }
     else {
-      if( fabs(currentPeakResidual) <= itsNsigmaThreshold ) { stopCode=6; }
+      if( fabs(currentPeakResidual) <= itsNsigmaThreshold && !(itsIterDiff<=0)) { stopCode=6; }
     }
     // Zero iterations done
     if( itsIterDiff==0 ) {stopCode=3;}
@@ -288,6 +289,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     itsMaxCycleIterDone = 0;
     itsCycleIterDone = 0;
     itsUpdatedModelFlag = false;
+    os<<"itsCycleThresh="<<itsCycleThreshold<<LogIO::POST;
   }
 
   void SIMinorCycleController::resetCycleIter(){

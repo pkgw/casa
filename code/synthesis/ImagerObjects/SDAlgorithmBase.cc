@@ -142,7 +142,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
             os << "Current nsigma="<<nsigma<<LogIO::POST;
             Float nsigmathresh = nsigma * (Float)robustrms(IPosition(1,0)); 
               
-            Float thresholdtouse = max( nsigmathresh, loopcontrols.getCycleThreshold());
+            Float thresholdtouse;
+            if (nsigma>0.0) {
+              thresholdtouse = max( nsigmathresh, loopcontrols.getCycleThreshold());
+            }
+            else {
+              thresholdtouse = loopcontrols.getCycleThreshold();
+            }
+            os << "loopcontrols.getCycleThreshold()="<<loopcontrols.getCycleThreshold()<<LogIO::POST;
+            os << "thresholdtouse="<<thresholdtouse<<LogIO::POST;
             String thresholddesc = (thresholdtouse == loopcontrols.getCycleThreshold() ? "cyclethreshold" : "n-sigma");
 
             os << "Set nsigma thresh="<<nsigmathresh<<LogIO::POST;
@@ -171,7 +179,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		while ( stopCode==0 )
 		  {
 
-                    os << "Using " << thresholddesc << " for threshold criterion: cyclethreshold value="<<loopcontrols.getCycleThreshold()<< " nsigma="<<nsigmathresh << LogIO::POST;
+                    if (nsigma>0.0) {
+                      os << "Using " << thresholddesc << " for threshold criterion: cyclethreshold value="<<loopcontrols.getCycleThreshold()<< " nsigma="<<nsigmathresh << LogIO::POST;
+                    }
 		    Int thisniter = loopcontrols.getCycleNiter() <5000 ? loopcontrols.getCycleNiter() : 2000;
 
 		    loopcontrols.setPeakResidual( peakresidual );

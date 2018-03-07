@@ -160,6 +160,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		Float usePeakRes;
 		if(lastcyclecheck==True){usePeakRes = itsMinorCyclePeakResidual; }
 		else{usePeakRes = itsPeakResidual; }
+                os<<"cleanComplete::: itsCycleThreshold="<<itsCycleThreshold<<LogIO::POST;
                 
 		//		cout << "itsMajorDone="<<itsMajorDone<<" itsIterDone="<<itsIterDone<< " itsInitPeakResidual="<<itsInitPeakResidual<<" itsPeakResidual="<<itsPeakResidual <<" itsPrevPeakResidual : " <<  itsPrevPeakResidual << " itsStopFlag="<<itsStopFlag<<endl;
 
@@ -168,12 +169,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		  {
 		    os << "[WARN] Peak residual (within the mask) increased from " << itsPrevPeakResidual << " to " << itsPeakResidual << LogIO::POST;
 		  }
-                os <<"itsNsigmaThreshold===="<<itsNsigmaThreshold<<LogIO::POST;
+                os <<"itsThreshold="<<itsThreshold<<" itsNsigmaThreshold===="<<itsNsigmaThreshold<<LogIO::POST;
+                os <<"usePeakRes="<<usePeakRes<<" itsPeakResidual="<<itsPeakResidual<<LogIO::POST;
+                os <<"itsIterDone="<<itsIterDone<<" itsNiter="<<itsNiter<<LogIO::POST;
+
 		/// This may interfere with some other criterion... check.
 		if ( itsMajorDone==0 && itsIterDone==0 ) { stopCode=0; }
 		else if ( itsIterDone >= itsNiter || 
 		     itsPeakResidual <= itsThreshold ||
-                     //itsPeakResidual <= itsNsigmaThreshold ||
+                     itsPeakResidual <= itsNsigmaThreshold ||
 		     itsStopFlag )
 		  {
 		    //		    os << "Reached global stopping criteria : ";
@@ -185,7 +189,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                       if (itsThreshold >= itsNsigmaThreshold) {stopCode=2;}
                       else { stopCode=8;}
                     }
-                    //if ( usePeakRes <= itsNsigmaThreshold ) {stopCode=8;}                   
                     
 		    //os << "Peak residual (" << itsPeakResidual << ") <= threshold(" << itsThreshold << ")";
 		    if( itsStopFlag ) {stopCode=3;}
@@ -293,8 +296,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		/* The minor cycle will stop based on the cycle parameters. */
 		Int maxCycleIterations = itsCycleNiter;
 		Float cycleThreshold     = itsCycleThreshold;
+                os<<"SIIterBot getMinorCycleControls cycleThreshold="<<cycleThreshold<<LogIO::POST;
 		maxCycleIterations = min(maxCycleIterations, itsNiter - itsIterDone);
 		cycleThreshold = max(cycleThreshold, itsThreshold);
+                os<<"SIIterBot getMinorCycleControls cycleThreshold="<<cycleThreshold<<LogIO::POST;
 		/*
 		if (itsInteractiveMode) {
 			maxCycleIterations = min(maxCycleIterations, itsInteractiveNiter);
@@ -529,7 +534,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		psffraction = max(psffraction, itsMinPsfFraction);
 		psffraction = min(psffraction, itsMaxPsfFraction);
     
+                cerr<<"updateCycleThresh: itsMaxPsfSidelobe="<<itsCycleFactor<<" itsMinPsfFraction="<<itsMinPsfFraction<<" itsMaxPsfFraction="<<itsMaxPsfFraction<<endl;
+                cerr<<"updateCycleThresh: itsCycleFactor="<<itsCycleFactor<<" psffraction="<<psffraction<<endl;
+                cerr<<"updateCycleThresh: itsPeakRes ="<<itsPeakResidual<<endl;
 		itsCycleThreshold = itsPeakResidual * psffraction;
+                cerr<<"updateCycleThresh: itsCycleThreshold ="<<itsCycleThreshold<<endl;
 		pushDetails();
 	}
 
@@ -688,6 +697,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		itsMaxPsfFraction = maxpsffraction;
 	}
 
+	void SIIterBot_state::changeNsigma( Float nsigma) {
+		std::lock_guard<std::recursive_mutex> guard(recordMutex);    
+		itsNsigma = nsigma;
+	}
+
 	void SIIterBot_state::setControlsFromRecord( Record &recordIn ) {
 		LogIO os( LogOrigin("SIIterBot_state",__FUNCTION__,WHERE) );
 		std::lock_guard<std::recursive_mutex> guard(recordMutex);
@@ -706,9 +720,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		if (recordIn.isDefined("threshold")) 
 		    changeThreshold( readThreshold( recordIn, "threshold" ) );
 		
-		if (recordIn.isDefined("cyclethreshold")) 
+		if (recordIn.isDefined("cyclethreshold")){ 
 		    changeCycleThreshold( readThreshold( recordIn, "cyclethreshold" ) );
-
+                    cerr<<"SIIterBot_state:setControlsFromRec:: recordIn.asFloat(RecordFieldId(cyclethresh))="<<recordIn.asFloat( RecordFieldId("cyclethreshold"))<<endl;
+                }
 		if (recordIn.isDefined("interactivethreshold")) 
 			changeInteractiveThreshold(recordIn.asFloat(RecordFieldId("interactivethreshold")));
 
@@ -724,13 +739,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		if (recordIn.isDefined("minpsffraction"))
 			changeMinPsfFraction(recordIn.asFloat( RecordFieldId("minpsffraction")));
 
-		if (recordIn.isDefined("maxpsffraction"))
+		if (recordIn.isDefined("maxpsffraction")) {
 			changeMaxPsfFraction(recordIn.asFloat( RecordFieldId("maxpsffraction")));
+                        cerr<<"SIIterBot_state:setControlsFromRec:: maxpsffraction="<<recordIn.asFloat( RecordFieldId("maxpsffraction"))<<endl;
+                }
                 cerr<<"SIIterBot_state:setControlsFromRec:: recordIn.asFloat(RecordFieldId(nsigma))="<<recordIn.asFloat( RecordFieldId("nsigma"))<<endl;
 		if (recordIn.isDefined("nsigma"))
-			changeMaxPsfFraction(recordIn.asFloat( RecordFieldId("nsigma")));
+			changeNsigma(recordIn.asFloat( RecordFieldId("nsigma")));
 
 		//		printOut("After Setting : ", false);
+				printOut("After Setting : ", true);
 
 	}
 
