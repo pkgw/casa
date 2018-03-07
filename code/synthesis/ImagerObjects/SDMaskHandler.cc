@@ -1741,6 +1741,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     } //end - iterdone
     
     // save positive (emission) mask only
+
+    // temporary save negative mask from the previous one
+    //TempImage<Float> prevnegmask(res.shape(), res.coordinates(), memoryToUse());
+    //prevnegmask.copyData( (LatticeExpr<Float>)( iif( (mask - posmask ) > 0.0, 1.0, 0.0 ) ) );
+
     if (res.hasPixelMask()) {
       LatticeExpr<Bool>  pixmask(res.pixelMask()); 
       // add all positive masks (previous one, grow mask, current thresh mask)
@@ -1753,6 +1758,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
       os <<LogIO::DEBUG1 <<"Add positive previous mask and the new mask.."<<LogIO::POST;
     }
+
+
 
     // negatvie mask creation 
     TempImage<Float> thenegmask(res.shape(),res.coordinates(), memoryToUse());
@@ -1836,7 +1843,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       // mask = untouched prev mask, prevmask=modified prev mask by the grow func, thenewmask=mask by thresh on current residual 
 
       //mask.copyData( (LatticeExpr<Float>)( iif((mask+prevmask + thenewmask + thenegmask) > 0.0 && pixmask, 1.0, 0.0  ) ) );
-      mask.copyData( (LatticeExpr<Float>)( iif((posmask + thenegmask) > 0.0 && pixmask, 1.0, 0.0  ) ) );
+      mask.copyData( (LatticeExpr<Float>)( iif((mask + posmask + thenegmask ) > 0.0 && pixmask, 1.0, 0.0  ) ) );
 
       mask.clearCache();
       mask.unlock();
@@ -1848,7 +1855,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //LatticeExpr<Float> themask( iif( tempconvim > rmsthresh/afactor, 1.0, 0.0 ));
 
       //mask.copyData( (LatticeExpr<Float>)( iif((mask + prevmask + thenewmask + thenegmask ) > 0.0, 1.0, 0.0  ) ) );
-      mask.copyData( (LatticeExpr<Float>)( iif((posmask + thenegmask ) > 0.0, 1.0, 0.0  ) ) );
+      mask.copyData( (LatticeExpr<Float>)( iif((mask + posmask + thenegmask ) > 0.0, 1.0, 0.0  ) ) );
 
       os <<LogIO::DEBUG1 <<"Add previous mask and the new mask.."<<LogIO::POST;
     }
