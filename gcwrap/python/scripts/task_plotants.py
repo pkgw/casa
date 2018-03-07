@@ -281,11 +281,25 @@ def plotAntennas(telescope, names, ids, xpos, ypos, antindex):
         units = ' (km)'
 
     # plot points and antenna names/ids
+    center = (max(xpos) + min(xpos))/2
     for i, (x, y, name) in enumerate(zip(xpos, ypos, names)):
         ax.plot(x, y, 'ro')
         if antindex:
             name += ' (' + str(ids[i]) + ')'
-        ax.text(x, y+2, '  ' + name, size=8, va='top')
+        rotate = 0
+        halign = 'left'
+        valign = 'center'
+        if "VLA" in telescope:
+            # CAS-7120 make more readable
+            if x<0: # west, north arm
+                x -= 2
+                valign = 'bottom'
+                halign = 'right'
+                rotate = -20
+            else: # east arm
+                valign = 'bottom'
+                rotate = 20
+        ax.text(x, y, '  ' + name, size=8, va=valign, ha=halign, rotation=rotate)
         fig.show()
 
     pl.xlabel('X' + units)
