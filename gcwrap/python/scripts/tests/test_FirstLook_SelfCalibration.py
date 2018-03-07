@@ -188,7 +188,6 @@ class Test020_FirstLookatSelfCalibration(unittest.TestCase):
         pass
     @classmethod
     def tearDownClass(cls):
-
         rmtables("first_image*")
         rmtables("second_image*")
         rmtables("third_image*")
@@ -207,9 +206,9 @@ class Test020_FirstLookatSelfCalibration(unittest.TestCase):
         tableName = 'amp.cal'
         self.assertTrue(openTable(tableName))
 
-    def test_2_first_image_flux(self):
-        '''Test 2: Check first_image.flux'''
-        tableName = 'first_image.flux'
+    def test_2_first_image_pb(self):
+        '''Test 2: Check first_image.pb'''
+        tableName = 'first_image.pb'
         self.assertTrue(openTable(tableName))
 
     def test_3_first_image_image(self):
@@ -232,100 +231,144 @@ class Test020_FirstLookatSelfCalibration(unittest.TestCase):
         tableName = 'first_image.residual'
         self.assertTrue(openTable(tableName))
 
-    def test_7_fourth_image_flux(self):
-        '''Test 7: Check fourth_image.flux'''
-        tableName = 'fourth_image.flux'
+    def test_7_first_image_mask(self):
+        '''Test 7: Check first_image.mask'''
+        tableName = 'first_image.mask'
         self.assertTrue(openTable(tableName))
 
-    def test_8_fourth_image_image(self):
-        '''Test 8: Check fourth_image.image'''
+    def test_8_first_image_sumwt(self):
+        '''Test 8: Check first_image.sumwt'''
+        tableName = 'first_image.sumwt'
+        self.assertTrue(openTable(tableName))
+
+    def test_9_fourth_image_pb(self):
+        '''Test 9: Check fourth_image.pb'''
+        tableName = 'fourth_image.pb'
+        self.assertTrue(openTable(tableName))
+
+    def test_10_fourth_image_image(self):
+        '''Test 10: Check fourth_image.image'''
         tableName = 'fourth_image.image'
         self.assertTrue(openTable(tableName))
 
-    def test_9_fourth_image_model(self):
-        '''Test 9: Check fourth_image.model'''
+    def test_11_fourth_image_model(self):
+        '''Test 11: Check fourth_image.model'''
         tableName = 'fourth_image.model'
         self.assertTrue(openTable(tableName))
 
-    def test_10_fourth_image_psf(self):
-        '''Test 10: Check fourth_image.psf'''
+    def test_12_fourth_image_psf(self):
+        '''Test 12: Check fourth_image.psf'''
         tableName = 'fourth_image.psf'
         self.assertTrue(openTable(tableName))
 
-    def test_11_fourth_image_residual(self):
-        '''Test 11: Check fourth_image.residual'''
+    def test_13_fourth_image_residual(self):
+        '''Test 13: Check fourth_image.residual'''
         tableName = 'fourth_image.residual'
         self.assertTrue(openTable(tableName))
 
-    def test_12_phase_cal(self):
+    def test_14_fourth_image_mask(self):
+        '''Test 14: Check fourth_image.mask'''
+        tableName = 'fourth_image.mask'
+        self.assertTrue(openTable(tableName))
+
+    def test_15_fourth_image_sumwt(self):
+        '''Test 8: Check fourth_image.sumwt'''
+        tableName = 'fourth_image.sumwt'
+        self.assertTrue(openTable(tableName))
+
+    def test_16_phase_cal(self):
         '''Test 12: Check phase.cal'''
         tableName = 'phase.cal'
         self.assertTrue(openTable(tableName))
 
-    def test_13_phase_2_cal(self):
+    def test_17_phase_2_cal(self):
         '''Test 13: Check phase_2.cal'''
         tableName = 'phase_2.cal'
         self.assertTrue(openTable(tableName))
 
-    def test_14_second_image_flux(self):
-        '''Test 14: Check second_image.flux'''
-        tableName = 'second_image.flux'
+    def test_18_second_image_pb(self):
+        '''Test 18: Check second_image.pb'''
+        tableName = 'second_image.pb'
         self.assertTrue(openTable(tableName))
 
-    def test_15_second_image_image(self):
-        '''Test 15: Check second_image.image'''
+    def test_19_second_image_image(self):
+        '''Test 19: Check second_image.image'''
         tableName = 'second_image.image'
         self.assertTrue(openTable(tableName))
 
-    def test_16_second_image_model(self):
-        '''Test 16: Check second_image.model'''
+    def test_20_second_image_model(self):
+        '''Test 20: Check second_image.model'''
         tableName = 'second_image.model'
         self.assertTrue(openTable(tableName))
 
-    def test_17_second_image_psf(self):
-        '''Test 17: Check second_image.psf'''
+    def test_21_second_image_psf(self):
+        '''Test 21: Check second_image.psf'''
         tableName = 'second_image.psf'
         self.assertTrue(openTable(tableName))
 
-    def test_18_second_image_residual(self):
-        '''Test 18: Check second_image.residual'''
+    def test_22_second_image_residual(self):
+        '''Test 22: Check second_image.residual'''
         tableName = 'second_image.residual'
         self.assertTrue(openTable(tableName))
 
+    def test_23_second_image_mask(self):
+        '''Test 23: Check second_image.mask'''
+        tableName = 'second_image.mask'
+        self.assertTrue(openTable(tableName))
 
-    def test_27_sis14_twhya_selfcal_2_ms(self):
-        '''Test 27: Check sis14_twhya_selfcal_2.ms'''
+    def test_24_second_image_sumwt(self):
+        '''Test 24: Check second_image.sumwt'''
+        tableName = 'second_image.sumwt'
+        self.assertTrue(openTable(tableName))
+
+    def test_25_sis14_twhya_selfcal_ms(self):
+        '''Test 25: Check sis14_twhya_selfcal.ms'''
+        tableName = 'sis14_twhya_selfcal.ms'
+        self.assertTrue(openTable(tableName))
+
+    def test_26_sis14_twhya_selfcal_2_ms(self):
+        '''Test 26: Check sis14_twhya_selfcal_2.ms'''
         tableName = 'sis14_twhya_selfcal_2.ms'
         self.assertTrue(openTable(tableName))
 
-    def test_28_sis14_twhya_selfcal_3_ms(self):
-        '''Test 28: Check sis14_twhya_selfcal_3.ms'''
+    def test_27_sis14_twhya_selfcal_3_ms(self):
+        '''Test 27: Check sis14_twhya_selfcal_3.ms'''
         tableName = 'sis14_twhya_selfcal_3.ms'
         self.assertTrue(openTable(tableName))
 
-    def test_30_third_image_flux(self):
-        '''Test 30: Check third_image.flux'''
-        tableName = 'third_image.flux'
+    def test_28_third_image_pb(self):
+        '''Test 28: Check third_image.pb'''
+        tableName = 'third_image.pb'
         self.assertTrue(openTable(tableName))
 
-    def test_31_third_image_image(self):
-        '''Test 31: Check third_image.image'''
+    def test_29_third_image_image(self):
+        '''Test 29: Check third_image.image'''
         tableName = 'third_image.image'
         self.assertTrue(openTable(tableName))
 
-    def test_32_third_image_model(self):
-        '''Test 32: Check third_image.model'''
+    def test_30_third_image_model(self):
+        '''Test 30: Check third_image.model'''
         tableName = 'third_image.model'
         self.assertTrue(openTable(tableName))
 
-    def test_33_third_image_psf(self):
-        '''Test 33: Check third_image.psf'''
+    def test_31_third_image_psf(self):
+        '''Test 31: Check third_image.psf'''
         tableName = 'third_image.psf'
         self.assertTrue(openTable(tableName))
 
-    def test_34_third_image_residual(self):
-        '''Test 34: Check third_image.residual'''
+    def test_32_third_image_residual(self):
+        '''Test 32: Check third_image.residual'''
         tableName = 'third_image.residual'
+        self.assertTrue(openTable(tableName))
+
+    def test_33_second_image_mask(self):
+        '''Test 33: Check third_image.mask'''
+        tableName = 'third_image.mask'
+        self.assertTrue(openTable(tableName))
+
+    def test_34_third_image_sumwt(self):
+        '''Test 34: Check third_image.sumwt'''
+        tableName = 'third_image.sumwt'
         self.assertTrue(openTable(tableName))
 
     # Turn these tests on if Plotting is on.
