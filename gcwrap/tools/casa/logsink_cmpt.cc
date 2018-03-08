@@ -54,7 +54,7 @@ static LogSinkInterface *thelogsink
 static string theLogName;
 static string telemetryLog;
 static bool telemetryEnabled;
-int telemetryFileLocked;
+string telemetryLoggerPid;
 
 //logsink::logsink():thelogsink(0)
 logsink::logsink(const std::string &filename, bool telemetrytoggle, const std::string &inTelemetryfilename)
@@ -79,13 +79,8 @@ logsink::logsink(const std::string &filename, bool telemetrytoggle, const std::s
            char *mybuff = getcwd(buff, MAXPATHLEN);
            telemetryLog = string(mybuff) + "/" + inTelemetryfilename;
        }
-       int fd = open(telemetryLog.c_str(), O_RDWR | O_CREAT, 0666);
-       telemetryFileLocked = flock(fd, LOCK_EX | LOCK_NB);
-       if (telemetryFileLocked) {
-           std::cout << "Telemetry log is already in use by another process." << std::endl;
-       }
-
     }
+    telemetryLoggerPid = std::to_string(getpid());
   }
 
   // jagonzal: Set task and processor name
@@ -290,6 +285,8 @@ std::mutex _stat_mutex;
 bool logsink::poststat(const std::string& message,
 		   const std::string& origin)
 {
+    int fd = open(telemetryLog.c_str(), O_RDWR | O_CREAT, 0666);
+    int telemetryFileLocked = flock(fd, LOCK_EX | LOCK_NB);
     if (!telemetryFileLocked) {
         if (telemetryEnabled ) {
             try {
@@ -300,7 +297,7 @@ bool logsink::poststat(const std::string& message,
                 std::time_t convertedtime = std::chrono::system_clock::to_time_t(timestamp);
                 char formattedtime[20];
                 strftime(formattedtime, 20, "%Y-%m-%d %H:%M:%S", localtime(&convertedtime));
-                tlog << formattedtime << " " << origin << " : " << message << "\n";
+                tlog << formattedtime << " ::" << telemetryLoggerPid<< ":: "<< origin << " : " << message << "\n";
                 tlog.close();
             } catch (const std::exception& e) { // caught by reference to base
                 std::cout << "Writing stats failed: '" << e.what() << "'\n";
@@ -313,6 +310,7 @@ bool logsink::poststat(const std::string& message,
     else {
         cout << "Telemetry file is locked by another process. Won't write stats.";
     }
+    flock(fd, LOCK_UN);
     return true;
 }
 
