@@ -299,16 +299,20 @@ vector<PMS::DataColumn> PlotMSPlot::getCachedData(){
 }
 
 vector<PMS::Axis> PlotMSPlot::getCachedAxes() {
-	PMS_PP_Cache* c = itsParams_.typedGroup<PMS_PP_Cache>();
+    PMS_PP_Cache* c = itsParams_.typedGroup<PMS_PP_Cache>();
     // get default axes if not given by user
-	for(uInt i=0; i<c->numXAxes(); i++){
+    for(uInt i=0; i<c->numXAxes(); i++){
         if (c->xAxis(i) == PMS::NONE) 
             c->setXAxis(getDefaultXAxis(), i);
-	}
-	for(uInt i=0; i<c->numYAxes(); i++){
-        if (c->yAxis(i) == PMS::NONE) 
-            c->setYAxis(PMS::DEFAULT_YAXIS, i);
-	}
+    }
+    for(uInt i=0; i<c->numYAxes(); i++){
+        if (c->yAxis(i) == PMS::NONE) {
+            if (itsCache_->calType().startsWith("Xf"))
+                c->setYAxis(PMS::GPHASE, i);
+            else
+                c->setYAxis(PMS::DEFAULT_YAXIS, i);
+        }
+    }
 
     // add ATM/TSKY yaxis "under the hood" if valid xaxis
     if (c->showAtm() || c->showTsky()) {
@@ -1652,7 +1656,10 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 	for ( int i = 0; i < yAxisCount; i++ ){
 		PMS::Axis y = cacheParams->yAxis( i );
 		if (y==PMS::NONE) {
-			y = PMS::DEFAULT_YAXIS;
+            if (itsCache_->calType().startsWith("Xf"))
+                y = PMS::GPHASE;
+            else
+                y = PMS::DEFAULT_YAXIS;
 			cacheParams->setYAxis(y, i);
 		}
 		// yaxis scale
