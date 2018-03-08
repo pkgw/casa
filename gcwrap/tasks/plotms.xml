@@ -925,7 +925,7 @@ Canvas Parameters
 
 
 <param type="bool" name="showmajorgrid" subparam="false">
-    <description>Show major grid lines (horiz and vert)</description>
+    <description>Show major grid lines</description>
     <value>False</value>
 </param>
 
@@ -953,7 +953,7 @@ Canvas Parameters
 
 
 <param type="bool" name="showminorgrid" subparam="false">
-    <description>Show minor grid lines (horiz and vert)</description>
+    <description>Show minor grid lines</description>
     <value>False</value>
 </param>
 
@@ -1865,14 +1865,14 @@ Constraints
                  default: 0 (autosize)
     
     
-    showmajorgrid  -- show major grid lines (horiz and vert.)
+    showmajorgrid  -- show major grid lines 
                   default: False
       &gt;&gt;&gt;  showmajorgrid expandable parameters
         majorwidth  -- line width in pixels of major grid lines
         majorstyle  -- major grid line style: solid dash dot none
         majorcolor  -- color in hex code of major grid lines
 
-    showminorgrid  -- show minor grid lines (horiz and vert.)
+    showminorgrid  -- show minor grid lines
                   default: False
       &gt;&gt;&gt;  showminorgrid expandable parameters
         minorwidth  --  line width in pixels of minor grid lines
