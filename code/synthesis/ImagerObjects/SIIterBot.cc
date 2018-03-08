@@ -324,19 +324,19 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		itsPeakResidualNoMask = max( itsPeakResidualNoMask, initRecord.asFloat(RecordFieldId("peakresidualnomask")));
 		itsMadRMS = max( itsMadRMS, initRecord.asFloat(RecordFieldId("madrms")) );
                 
-                if (initRecord.isDefined("nsigma")) 
-                {
-                    
-                cerr<<"SIIterBot_state:mergeCycleInitRec::initRecord.asFloat(RecordFieldId(nsigma))="<<initRecord.asFloat(RecordFieldId("nsigma"))<<endl;
-                }
-                else {
-                cerr<<"nsigma is NOT DEFINED in initRecord!!!"<<endl;
-                }
+                // for debug
+                //if (initRecord.isDefined("nsigma")) 
+                //{
+                //  cerr<<"SIIterBot_state:mergeCycleInitRec::initRecord.asFloat(RecordFieldId(nsigma))="<<initRecord.asFloat(RecordFieldId("nsigma"))<<endl;
+                //}
+                //else {
+                // cerr<<"nsigma is NOT DEFINED in initRecord!!!"<<endl;
+                //}
 
-                cerr<<"SIIterBot_state:mergeCycleInitRec::initRecord.asFloat(RecordFieldId(nsigmathreshold))="<<initRecord.asFloat(RecordFieldId("nsigmathreshold"))<<endl;
-                cerr<<"SIIterBot_state:mergeCycleInitRec::itsNsigmaThresh="<<itsNsigmaThreshold<<endl;
+                //cerr<<"SIIterBot_state:mergeCycleInitRec::initRecord.asFloat(RecordFieldId(nsigmathreshold))="<<initRecord.asFloat(RecordFieldId("nsigmathreshold"))<<endl;
+                //cerr<<"SIIterBot_state:mergeCycleInitRec::itsNsigmaThresh="<<itsNsigmaThreshold<<endl;
                 itsNsigmaThreshold = max(itsNsigmaThreshold, initRecord.asFloat(RecordFieldId("nsigmathreshold")));
-                cerr<<"SIIterBot_state:mergeCycleInitRec::initRecord.asFloat(nsigmathreshold)="<<initRecord.asFloat(RecordFieldId("nsigmathreshold"))<<endl;
+                //cerr<<"SIIterBot_state:mergeCycleInitRec::initRecord.asFloat(nsigmathreshold)="<<initRecord.asFloat(RecordFieldId("nsigmathreshold"))<<endl;
 		
 		///itsMaskSum += initRecord.asFloat(RecordFieldId("masksum"));
 		/*
@@ -534,11 +534,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		psffraction = max(psffraction, itsMinPsfFraction);
 		psffraction = min(psffraction, itsMaxPsfFraction);
     
-                cerr<<"updateCycleThresh: itsMaxPsfSidelobe="<<itsCycleFactor<<" itsMinPsfFraction="<<itsMinPsfFraction<<" itsMaxPsfFraction="<<itsMaxPsfFraction<<endl;
-                cerr<<"updateCycleThresh: itsCycleFactor="<<itsCycleFactor<<" psffraction="<<psffraction<<endl;
-                cerr<<"updateCycleThresh: itsPeakRes ="<<itsPeakResidual<<endl;
+                //cerr<<"updateCycleThresh: itsMaxPsfSidelobe="<<itsCycleFactor<<" itsMinPsfFraction="<<itsMinPsfFraction<<" itsMaxPsfFraction="<<itsMaxPsfFraction<<endl;
+                //cerr<<"updateCycleThresh: itsCycleFactor="<<itsCycleFactor<<" psffraction="<<psffraction<<endl;
+                //cerr<<"updateCycleThresh: itsPeakRes ="<<itsPeakResidual<<endl;
 		itsCycleThreshold = itsPeakResidual * psffraction;
-                cerr<<"updateCycleThresh: itsCycleThreshold ="<<itsCycleThreshold<<endl;
+                //cerr<<"updateCycleThresh: itsCycleThreshold ="<<itsCycleThreshold<<endl;
 		pushDetails();
 	}
 
@@ -722,7 +722,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		
 		if (recordIn.isDefined("cyclethreshold")){ 
 		    changeCycleThreshold( readThreshold( recordIn, "cyclethreshold" ) );
-                    cerr<<"SIIterBot_state:setControlsFromRec:: recordIn.asFloat(RecordFieldId(cyclethresh))="<<recordIn.asFloat( RecordFieldId("cyclethreshold"))<<endl;
                 }
 		if (recordIn.isDefined("interactivethreshold")) 
 			changeInteractiveThreshold(recordIn.asFloat(RecordFieldId("interactivethreshold")));
@@ -741,14 +740,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		if (recordIn.isDefined("maxpsffraction")) {
 			changeMaxPsfFraction(recordIn.asFloat( RecordFieldId("maxpsffraction")));
-                        cerr<<"SIIterBot_state:setControlsFromRec:: maxpsffraction="<<recordIn.asFloat( RecordFieldId("maxpsffraction"))<<endl;
                 }
-                cerr<<"SIIterBot_state:setControlsFromRec:: recordIn.asFloat(RecordFieldId(nsigma))="<<recordIn.asFloat( RecordFieldId("nsigma"))<<endl;
 		if (recordIn.isDefined("nsigma"))
 			changeNsigma(recordIn.asFloat( RecordFieldId("nsigma")));
 
 		//		printOut("After Setting : ", false);
-				printOut("After Setting : ", true);
 
 	}
 

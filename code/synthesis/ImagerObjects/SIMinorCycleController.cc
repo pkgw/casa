@@ -65,7 +65,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // Reached cyclethreshold
     //if( fabs(currentPeakResidual) <= itsCycleThreshold ) { stopCode=2; }
     // Reached cyclethreshold or n-sigma threshold
-    os << "majorCycleRequired itsNsigma="<<itsNsigma<<" itsIterDiff="<<itsIterDiff<<LogIO::POST;
+    //debug (TT)
+    //os << "majorCycleRequired itsNsigma="<<itsNsigma<<" itsIterDiff="<<itsIterDiff<<LogIO::POST;
     if (itsCycleThreshold >= itsNsigmaThreshold) {
       if( fabs(currentPeakResidual) <= itsCycleThreshold ) { stopCode=2; }
     }
@@ -81,8 +82,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	( fabs(currentPeakResidual) - fabs(itsMinResidual) )/ fabs(itsMinResidual) >0.1  ) 
       {stopCode=4;}
 
-    //debug
-    	cout << " -> " << stopCode << endl;
+   //  cout << " -> " << stopCode << endl;
 
     /*    // Going nowhere
     if( itsIterDiff > 1500 && 
@@ -283,13 +283,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     if (recordIn.isDefined("nsigma"))
       {recordIn.get(RecordFieldId("nsigma"), itsNsigma);}
     else 
-      { cerr <<" NSIGMA is not defined in recordIn for SIMinorCycleCotnroller setCycleControls "<<endl;}
+      { throw(AipsError(" nsigma is not defined in input minor-cycle controller ") );}
 
     /* Reset the counters for the new cycle */
     itsMaxCycleIterDone = 0;
     itsCycleIterDone = 0;
     itsUpdatedModelFlag = false;
-    os<<"itsCycleThresh="<<itsCycleThreshold<<LogIO::POST;
   }
 
   void SIMinorCycleController::resetCycleIter(){
