@@ -30,6 +30,7 @@
 #include <chrono>
 #include <ctime>
 #include <mutex>
+#include <sys/file.h>
 
 
 #ifdef _OPENMP
@@ -53,6 +54,7 @@ static LogSinkInterface *thelogsink
 static string theLogName;
 static string telemetryLog;
 static bool telemetryEnabled;
+int telemetryFileLocked;
 
 //logsink::logsink():thelogsink(0)
 logsink::logsink(const std::string &filename, bool telemetrytoggle, const std::string &inTelemetryfilename)
@@ -77,6 +79,12 @@ logsink::logsink(const std::string &filename, bool telemetrytoggle, const std::s
            char *mybuff = getcwd(buff, MAXPATHLEN);
            telemetryLog = string(mybuff) + "/" + inTelemetryfilename;
        }
+       int fd = open(telemetryLog.c_str(), O_RDWR | O_CREAT, 0666);
+       telemetryFileLocked = flock(fd, LOCK_EX | LOCK_NB);
+       if (telemetryFileLocked) {
+           std::cout << "Telemetry log is already in use by another process." << std::endl;
+       }
+
     }
   }
 
@@ -282,23 +290,28 @@ std::mutex _stat_mutex;
 bool logsink::poststat(const std::string& message,
 		   const std::string& origin)
 {
-    if (telemetryEnabled) {
-        try {
-            std::lock_guard<std::mutex> lock(_stat_mutex);
-            ofstream myfile;
-            myfile.open (telemetryLog, ios_base::app);
-            auto timestamp = std::chrono::system_clock::now();
-            std::time_t convertedtime = std::chrono::system_clock::to_time_t(timestamp);
-            char formattedtime[20];
-            strftime(formattedtime, 20, "%Y-%m-%d %H:%M:%S", localtime(&convertedtime));
-            myfile << formattedtime << " " << origin << " : " << message << "\n";
-            myfile.close();
-        } catch (const std::exception& e) { // caught by reference to base
-            std::cout << "Writing stats failed: '" << e.what() << "'\n";
+    if (!telemetryFileLocked) {
+        if (telemetryEnabled ) {
+            try {
+                std::lock_guard<std::mutex> lock(_stat_mutex);
+                ofstream tlog;
+                tlog.open (telemetryLog, ios_base::app);
+                auto timestamp = std::chrono::system_clock::now();
+                std::time_t convertedtime = std::chrono::system_clock::to_time_t(timestamp);
+                char formattedtime[20];
+                strftime(formattedtime, 20, "%Y-%m-%d %H:%M:%S", localtime(&convertedtime));
+                tlog << formattedtime << " " << origin << " : " << message << "\n";
+                tlog.close();
+            } catch (const std::exception& e) { // caught by reference to base
+                std::cout << "Writing stats failed: '" << e.what() << "'\n";
+            }
         }
+        //else {
+        //    cout << "Telemetry is disabled. Won't write stats.";
+        //}
     }
     else {
-        cout << "Telemetry is disabled. Won't write stats.";
+        cout << "Telemetry file is locked by another process. Won't write stats.";
     }
     return true;
 }

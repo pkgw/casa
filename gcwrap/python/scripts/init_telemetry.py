@@ -6,9 +6,13 @@ from telemetry import telemetry
 import __casac__
 import fnmatch
 import os
+from casac import casac
+
+telemetryhelper = casac.telemetryhelper()
+hostid = telemetryhelper.getUniqueId()
 
 logdir = casa['dirs']['rc']
-logpattern = 'casastats-*.log'
+logpattern = 'casastats-' + hostid + '*.log'
 def submitStatistics():
     casalog.poststat("Stop CASA")
     print "Submitting telemetry"
@@ -47,7 +51,7 @@ if ( casa['flags'].telemetry or
          casa['files']['telemetry-logfile'] = casa['dirs']['rc'] + "/" + logfiles[0]
      else :
          print "Creating a new telemetry file"
-         casa['files']['telemetry-logfile'] = casa['dirs']['rc'] + '/casastats-' +time.strftime("%Y%m%d-%H%M%S", time.gmtime()) + '.log'
+         casa['files']['telemetry-logfile'] = casa['dirs']['rc'] + '/casastats-' + hostid + '-' + time.strftime("%Y%m%d-%H%M%S", time.gmtime()) + '.log'
 
      # Submit statistics at shutdown
      add_shutdown_hook(submitStatistics)
