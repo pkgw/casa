@@ -2692,6 +2692,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	delete blobMap; blobMap=0;
       } // if-skipmask
       else {
+        nreg[ich] = 0;
+        npruned[ich] = 0;
         os<<LogIO::DEBUG1<<"Skipping chan "<<ich<<" from pruning"<<LogIO::POST;
       }
     } 
@@ -3201,8 +3203,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
        chanidx(1) = ich;
       }
       Double peak = abs(maxs(chanidx))> abs( mins(chanidx))? maxs(chanidx): mins(chanidx);
-      //String domasking = chanflag[ich]==0? "T":"F";
-      String domasking = zeroChanMask[ich]==1? "F":"T";
+      String domasking = chanflag[ich]==0? "T":"F";
+      //String domasking = zeroChanMask[ich]==1? "F":"T";
       String Nreg, Npruned, Ngrowreg, NgrowPruned, Nnegpix;
       String NAstr("--");
       if (!nreg.nelements()) {
