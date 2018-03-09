@@ -28,11 +28,11 @@ template<class T> SPIIT ImageMomentsTask<T>::makeMoments() const {
     SPIIT pIm;
     try {
         SPCIIT x;
-        if (this->_getImage()->imageType() != PagedImage<Float>::className()) {
+        if (this->_getImage()->imageType() == FITSImage::className()) {
             Path tmpImage = File::newUniqueName (".", "moments.scratch.image");
             tmpImageName = tmpImage.baseName();
             *this->_getLog() << LogIO::NORMAL
-                << "Calculating moments of non-paged images can be notoriously slow, "
+                << "Calculating moments of FITS images can be notoriously slow, "
                 << "so converting to a CASA temporary paged image named "
                 << tmpImageName  << " first which will be written to the current "
                 << "directory" << LogIO::POST;
@@ -136,19 +136,25 @@ template<class T> SPIIT ImageMomentsTask<T>::makeMoments() const {
         Bool doTemp = _momentName.empty() && _moments.size() == 1;
         // Create moments
         auto images = momentMaker.createMoments(doTemp, _momentName, _removeAxis);
+    cout << __FILE__ << " " << __LINE__ << endl;
         for (auto& image: images) {
             // copy history from input to all created images
             SPIIT x = dynamic_pointer_cast<ImageInterface<T>>(image);
             this->_doHistory(x);
         }
+    cout << __FILE__ << " " << __LINE__ << endl;
         // Return handle of first image
+    cout << __FILE__ << " " << __LINE__ << endl;
         pIm = dynamic_pointer_cast<ImageInterface<T>>(images[0]);
+    cout << __FILE__ << " " << __LINE__ << endl;
     }
     catch (const AipsError& x) {
         _deleteTempImage(tmpImageName);
         RETHROW(x);
     }
+    cout << __FILE__ << " " << __LINE__ << endl;
     _deleteTempImage(tmpImageName);
+    cout << __FILE__ << " " << __LINE__ << endl;
     return pIm;
 }
 

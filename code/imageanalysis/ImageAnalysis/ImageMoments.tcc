@@ -394,7 +394,9 @@ vector<SHARED_PTR<casacore::MaskedLattice<T> > > ImageMoments<T>::createMoments(
 
     // Create appropriate MomentCalculator object
     os_p << casacore::LogIO::NORMAL << "Begin computation of moments" << casacore::LogIO::POST;
+    cout << __FILE__ << " " << __LINE__ << endl;
     shared_ptr<MomentCalcBase<T> > momentCalculator;
+    cout << __FILE__ << " " << __LINE__ << endl;
     if (clipMethod || smoothClipMethod) {
         momentCalculator.reset(
             new MomentClip<T>(smoothedImage, *this, os_p, outPt.size())
@@ -410,6 +412,7 @@ vector<SHARED_PTR<casacore::MaskedLattice<T> > > ImageMoments<T>::createMoments(
             new MomentFit<T>(*this, os_p, outPt.size())
         );
     }
+    cout << __FILE__ << " " << __LINE__ << endl;
     // Iterate optimally through the image, compute the moments, fill the output lattices
     unique_ptr<ImageMomentsProgress> pProgressMeter;
     if (showProgress_p) {
@@ -418,15 +421,19 @@ vector<SHARED_PTR<casacore::MaskedLattice<T> > > ImageMoments<T>::createMoments(
             pProgressMeter->setProgressMonitor(_progressMonitor);
         }
     }
+    cout << __FILE__ << " " << __LINE__ << endl;
     casacore::uInt n = outPt.size();
     casacore::PtrBlock<casacore::MaskedLattice<T>* > ptrBlock(n);
+    cout << __FILE__ << " " << __LINE__ << endl;
     for (casacore::uInt i=0; i<n; ++i) {
         ptrBlock[i] = outPt[i].get();
     }
+    cout << __FILE__ << " " << __LINE__ << endl;
     casacore::LatticeApply<T>::lineMultiApply(
         ptrBlock, *_image, *momentCalculator,
         momentAxis_p, pProgressMeter.get()
     );
+    cout << __FILE__ << " " << __LINE__ << endl;
     if (windowMethod || fitMethod) {
         if (momentCalculator->nFailedFits() != 0) {
             os_p << casacore::LogIO::NORMAL << "There were "
@@ -434,9 +441,11 @@ vector<SHARED_PTR<casacore::MaskedLattice<T> > > ImageMoments<T>::createMoments(
                 << " failed fits" << casacore::LogIO::POST;
         }
     }
+    cout << __FILE__ << " " << __LINE__ << endl;
     for (auto& p: outPt) {
         p->flush();
     }
+    cout << __FILE__ << " " << __LINE__ << endl;
     return outPt;
 }
 
