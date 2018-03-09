@@ -1956,15 +1956,21 @@ namespace casa { //# NAMESPACE CASA - BEGIN
          zeroChanMask(ichan) = False;
       }
 
-      if (thresholdtype(ichan).contains("noise") && isthresholdreached && !chanFlag(ichan)) {
+      //if (thresholdtype(ichan).contains("noise") && isthresholdreached && !chanFlag(ichan)) {
+      if (thresholdtype(ichan).contains("noise") && !chanFlag(ichan)) {
         Array<Float> prevmaskdata;
         prevmask.doGetSlice(prevmaskdata,sl);
         Float prevmaskpix = sum(prevmaskdata);
 	//cerr<<"prevmaskpix="<<prevmaskpix<<" curemaskpix="<<curmaskpix<<endl;
 	//cerr<<"fracChnage="<<fracChange<<endl;
 	Float diffpix = abs(curmaskpix-prevmaskpix);
-	// skip zero prevmask case
-	if ( curmaskpix==0.0 || (diffpix == 0.0 && prevmaskpix!=0.0) || diffpix < fracChange*prevmaskpix) {
+        // stopmask is true if one of the followings is satified
+        // 1) if current mask is zero (curmaskpix==0.0)
+        // 2) if cyclethreshold==threshold (i.e. isthresholdreached=True) and diffpix is zero or 
+        //    less than user-specified fractinal change
+	// skip also zero prevmask case - need this?
+	//if ( curmaskpix==0.0 || (diffpix == 0.0 && prevmaskpix!=0.0) || diffpix < fracChange*prevmaskpix) {
+	if ( curmaskpix==0.0 || (isthresholdreached && ((diffpix == 0.0 && prevmaskpix!=0.0) || diffpix < fracChange*prevmaskpix)) ) {
 	  chanFlag(ichan) = True;
 	  os<<LogIO::NORMAL<<"set chanFlag(to stop updating automask)  to True for chan="<<ichan<<LogIO::POST;
 	}       
