@@ -9512,7 +9512,7 @@ ib.done()
           <value>true</value>
      </param>
      <param type="string"  name="algorithm">
-          <description>Algorithm to use. Supported values are "chauvenet", "classic", "fit-half", and "hinges-fences". Minimum match is supported.</description>
+          <description>Algorithm to use. Supported values are "biweight", "chauvenet", "classic", "fit-half", and "hinges-fences". Minimum match is supported.</description>
           <value>classic</value>
      </param>
      <param type="double"  name="fence">

@@ -5175,7 +5175,7 @@ record* image::statistics(
         if (myalg.startsWith("b")) {
             _stats->configureBiweight(niter);
             if (robust) {
-                _log << LogIO::WARN << "The biweight algoritthm "
+                _log << LogIO::WARN << "The biweight algorithm "
                     << "does not support computation of quantile-like "
                     << "(median, MADM, first/third quartile, IQR) "
                     << "statistics (robust=True). Proceeding without "
