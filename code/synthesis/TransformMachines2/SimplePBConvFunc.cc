@@ -209,8 +209,10 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
     }
     //Should return both antennas direction in the future
     
-    if(useExtraShift)
-      direction1_p.shift(extraShift, True);
+    if(useExtraShift){
+      direction1_p.shift(extraShift, False);
+      direction2_p.shift(extraShift, False);
+    }
     dc_p.toPixel(thePix_p, direction1_p);
    
   }
