@@ -443,6 +443,7 @@ vector<SHARED_PTR<casacore::MaskedLattice<T> > > ImageMoments<T>::createMoments(
     }
     cout << __FILE__ << " " << __LINE__ << endl;
     for (auto& p: outPt) {
+    cout << __FILE__ << " " << __LINE__ << endl;
         p->flush();
     }
     cout << __FILE__ << " " << __LINE__ << endl;
