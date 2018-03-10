@@ -28,7 +28,9 @@ template<class T> SPIIT ImageMomentsTask<T>::makeMoments() const {
     SPIIT pIm;
     try {
         SPCIIT x;
-        if (this->_getImage()->imageType() == FITSImage::className()) {
+        // FIXME
+        //if (this->_getImage()->imageType() == FITSImage::className()) {
+        if (this->_getImage()->imageType() == "FITSImage") {
             Path tmpImage = File::newUniqueName (".", "moments.scratch.image");
             tmpImageName = tmpImage.baseName();
             *this->_getLog() << LogIO::NORMAL

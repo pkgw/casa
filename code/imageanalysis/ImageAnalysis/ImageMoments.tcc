@@ -397,17 +397,22 @@ vector<SHARED_PTR<casacore::MaskedLattice<T> > > ImageMoments<T>::createMoments(
     cout << __FILE__ << " " << __LINE__ << endl;
     shared_ptr<MomentCalcBase<T> > momentCalculator;
     cout << __FILE__ << " " << __LINE__ << endl;
+    cout << "clipmethod " << clipMethod << " smoothClipMethod " << smoothClipMethod
+        << " windowmethod " << windowMethod << " fitmethod " << fitMethod << endl;
     if (clipMethod || smoothClipMethod) {
+    cout << __FILE__ << " " << __LINE__ << endl;
         momentCalculator.reset(
             new MomentClip<T>(smoothedImage, *this, os_p, outPt.size())
         );
     }
     else if (windowMethod) {
+    cout << __FILE__ << " " << __LINE__ << endl;
         momentCalculator.reset(
             new MomentWindow<T>(smoothedImage, *this, os_p, outPt.size())
         );
     }
     else if (fitMethod) {
+    cout << __FILE__ << " " << __LINE__ << endl;
         momentCalculator.reset(
             new MomentFit<T>(*this, os_p, outPt.size())
         );
