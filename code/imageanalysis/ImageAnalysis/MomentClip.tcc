@@ -81,6 +81,7 @@ template <class T> void MomentClip<T>::multiProcess(
     const casacore::Vector<T>& profileIn, const casacore::Vector<casacore::Bool>& profileInMask,
     const casacore::IPosition& inPos
 ) {
+    cout << "start " << __func__ << endl;
     // The profile comes with its own mask (or a null mask
     // which means all good).  In addition, we create
     // a further mask by applying the clip range to either
@@ -378,6 +379,7 @@ template <class T> void MomentClip<T>::multiProcess(
         moments[i] = calcMoments_p(selectMoments_p[i]);
         momentsMask[i] = calcMomentsMask_p(selectMoments_p[i]);
     }
+    cout << "end " << __func__ << endl;
 }
 
 }
