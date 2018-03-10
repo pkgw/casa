@@ -433,6 +433,7 @@ vector<SHARED_PTR<casacore::MaskedLattice<T> > > ImageMoments<T>::createMoments(
     for (casacore::uInt i=0; i<n; ++i) {
         ptrBlock[i] = outPt[i].get();
     }
+
     cout << __FILE__ << " " << __LINE__ << endl;
     casacore::LatticeApply<T>::lineMultiApply(
         ptrBlock, *_image, *momentCalculator,
@@ -440,6 +441,7 @@ vector<SHARED_PTR<casacore::MaskedLattice<T> > > ImageMoments<T>::createMoments(
     );
     cout << __FILE__ << " " << __LINE__ << endl;
     if (windowMethod || fitMethod) {
+    cout << __FILE__ << " " << __LINE__ << endl;
         if (momentCalculator->nFailedFits() != 0) {
             os_p << casacore::LogIO::NORMAL << "There were "
                 <<  momentCalculator->nFailedFits()
