@@ -36,6 +36,7 @@
 #include <imageanalysis/ImageAnalysis/MomentClip.h>
 #include <imageanalysis/ImageAnalysis/MomentWindow.h>
 #include <imageanalysis/ImageAnalysis/SepImageConvolver.h>
+#include <imageanalysis/ImageAnalysis/LatticeApply.h>
 
 namespace casa {
 
@@ -435,7 +436,7 @@ vector<SHARED_PTR<casacore::MaskedLattice<T> > > ImageMoments<T>::createMoments(
     }
 
     cout << __FILE__ << " " << __LINE__ << endl;
-    casacore::LatticeApply<T>::lineMultiApply(
+    casa::LatticeApply<T>::lineMultiApply(
         ptrBlock, *_image, *momentCalculator,
         momentAxis_p, pProgressMeter.get()
     );

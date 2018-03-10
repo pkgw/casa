@@ -251,6 +251,8 @@ install (FILES
 	ImageAnalysis/SubImageFactory.tcc
 	ImageAnalysis/TwoPointCorrelator.h
     ImageAnalysis/TwoPointCorrelator.tcc
+    ImageAnalysis/LatticeApply.h
+    ImageAnalysis/LatticeApply.tcc
 	DESTINATION include/casacode/imageanalysis/ImageAnalysis
 	)
 install (FILES
