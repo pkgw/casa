@@ -379,14 +379,18 @@ void LatticeApply<T,U>::lineMultiApply (PtrBlock<MaskedLattice<U>*>& latticeOut,
     cout << "total iterations " << count << endl;
     if (tellProgress != 0) tellProgress->done();
     for (uInt kk=0; kk<timer.size(); ++kk) {
-        cout << kk << " duration " << timer[kk].totalDuration() << endl;
+        cout << kk << " duration " << timer[kk].totalDuration()
+            << " mean " << timer[kk].meanDuration()
+            << " ncycles " << timer[kk].nCycles() << endl;
     }
     MomentClip<T>* c = dynamic_cast<MomentClip<T> *>(&collapser);
     if (c) {
-        auto& tt = c->timers();
+        const auto& tt = c->timers();
         cout << "collapser timers" << endl;
         for (uInt kk=0; kk<timer.size(); ++kk) {
-            cout << kk << " duration " << tt[kk].totalDuration() << endl;
+            cout << kk << " duration " << tt[kk].totalDuration()
+                << " mean " << tt[kk].meanDuration()
+                << " ncycles " << tt[kk].nCycles() << endl;
         }
     }
 
