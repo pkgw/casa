@@ -227,7 +227,6 @@ void LatticeApply<T,U>::lineMultiApply (PtrBlock<MaskedLattice<U>*>& latticeOut,
 {
 // First verify that all the output lattices have the same shape and tile shape
     vector<C11Timer> timer(10);
-    timer[0].start();
     uInt i;
     const uInt nOut = latticeOut.nelements();
     AlwaysAssert(nOut > 0, AipsError);
@@ -285,7 +284,6 @@ void LatticeApply<T,U>::lineMultiApply (PtrBlock<MaskedLattice<U>*>& latticeOut,
 // Per tile the lines (in the collapseAxis) direction are
 // assembled into a single array, which is put thereafter.
     uInt count = 0;
-    timer[0].stop();
     while (!inIter.atEnd()) {
 
 // Calculate output buffer shape. Has to be done inside the loop
@@ -293,7 +291,6 @@ void LatticeApply<T,U>::lineMultiApply (PtrBlock<MaskedLattice<U>*>& latticeOut,
 // It takes care of blc, trc, and inc.
 
 	IPosition pos = inIter.position();
-    timer[1].start();
 	for (uInt j=0; j<outDim; ++j) {
 	    if (ioMap(j) >= 0) {
 		i = ioMap(j);
@@ -308,8 +305,6 @@ void LatticeApply<T,U>::lineMultiApply (PtrBlock<MaskedLattice<U>*>& latticeOut,
 		outPos(j) = (pos(i) - blc(i)) / inc(i);
 	    }
 	}
-    timer[1].stop();
-    timer[2].start();
 //      cout << outShape << " put at " << outPos << endl;
 	
 // Put the collapsed lines into the output buffer
@@ -322,38 +317,48 @@ void LatticeApply<T,U>::lineMultiApply (PtrBlock<MaskedLattice<U>*>& latticeOut,
 	Bool* dataMask = blockMask.storage();
 	Vector<U> result(nOut);
 	Vector<Bool> resultMask(nOut);
-    timer[2].stop();
-    timer[3].start();
+    // ***************
 	for (i=0; i<n; ++i) {
-	    DebugAssert (! inIter.atEnd(), AipsError);
+        timer[0].start();
+        DebugAssert (! inIter.atEnd(), AipsError);
 	    const IPosition pos (inIter.position());
 	    Vector<Bool> mask;
+        timer[0].stop();
 	    if (useMask) {
+            timer[1].start();
 		// Casting const away is innocent.
 		// Remove degenerate axes to get a 1D array.
 		Array<Bool> tmp;
 		((MaskedLattice<T>&)latticeIn).getMaskSlice
                           (tmp, Slicer(pos, inIter.cursorShape()), True);
 		mask.reference (tmp);
+            timer[1].stop();
 	    }
+            timer[2].start();
 	    collapser.multiProcess (result, resultMask,
 				    inIter.vectorCursor(), mask, pos);
+            timer[2].stop();
+        timer[3].start();
 	    DebugAssert (result.nelements() == nOut, AipsError);
 	    U* datap = data+i;
 	    Bool* dataMaskp = dataMask+i;
+        timer[3].stop();
+        timer[4].start();
 	    for (uInt j=0; j<nOut; ++j) {
 		*datap = result(j);
 		datap += n;
 		*dataMaskp = resultMask(j);
 		dataMaskp += n;
 	    }
-	    ++inIter;
+        timer[4].stop();
+        timer[5].start();
+        ++inIter;
 	    if (tellProgress != 0) tellProgress->nstepsDone (inIter.nsteps());
+        timer[5].stop();
 	}
-    timer[3].stop();
+    // *******
 
 // Write the arrays (one in each output lattice).
-    timer[4].start();
 	for (uInt k=0; k<nOut; ++k) {
 	    Array<U> tmp (outShape, data + k*n, SHARE);
 	    latticeOut[k]->putSlice (tmp, outPos);
@@ -365,17 +370,12 @@ void LatticeApply<T,U>::lineMultiApply (PtrBlock<MaskedLattice<U>*>& latticeOut,
 		}
 	    }
 	}
-    timer[4].stop();
     ++count;
     }
     cout << "total iterations " << count << endl;
-    timer[5].start();
     if (tellProgress != 0) tellProgress->done();
-    timer[5].stop();
-    uInt kk = 0;
-    for (const auto& t: timer) {
-        cout << kk << " duration " << t.totalDuration() << endl;
-        ++kk;
+    for (uInt kk=0; kk<timer.size(); ++kk) {
+        cout << kk << " duration " << timer[kk].totalDuration() << endl;
     }
 }
 
