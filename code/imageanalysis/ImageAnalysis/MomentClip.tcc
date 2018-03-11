@@ -96,8 +96,8 @@ template <class T> void MomentClip<T>::multiProcess(
     const T* pProfileSelect = nullptr;
     auto deleteIt = false;
     _timer[0].stop();
-    if (_ancilliaryLattice && (doInclude_p || doExclude_p)) {
     _timer[1].start();
+    if (_ancilliaryLattice && (doInclude_p || doExclude_p)) {
         casacore::Array<T> ancilliarySlice;
         casacore::IPosition stride(_ancilliaryLattice->ndim(),1);
         _ancilliaryLattice->getSlice(
@@ -106,14 +106,12 @@ template <class T> void MomentClip<T>::multiProcess(
         ancilliarySliceRef_p.reference(ancilliarySlice);
         pProfileSelect_p = &ancilliarySliceRef_p;
         pProfileSelect = ancilliarySliceRef_p.getStorage(deleteIt);
-    _timer[1].stop();
     }
     else {
-    _timer[2].start();
         pProfileSelect_p = &profileIn;
         pProfileSelect = profileIn.getStorage(deleteIt);
-    _timer[2].stop();
     }
+    _timer[1].start();
     // Resize array for median.  Is resized correctly later
     _timer[3].start();
     auto nPts = profileIn.size();

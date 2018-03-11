@@ -387,7 +387,7 @@ void LatticeApply<T,U>::lineMultiApply (PtrBlock<MaskedLattice<U>*>& latticeOut,
     if (c) {
         const auto& tt = c->timers();
         cout << "collapser timers" << endl;
-        for (uInt kk=0; kk<timer.size(); ++kk) {
+        for (uInt kk=0; kk<tt.size(); ++kk) {
             cout << kk << " duration " << tt[kk].totalDuration()
                 << " mean " << tt[kk].meanDuration()
                 << " ncycles " << tt[kk].nCycles() << endl;
