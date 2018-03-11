@@ -6831,6 +6831,12 @@ bool ms::msselect(const ::casac::record& exprs, const bool onlyparse)
 	return retVal;
 }
 
+void ms::setNewSel(const MeasurementSet& newSelectedMS) {
+    *itsSelectedMS = newSelectedMS;
+    *itsMS = newSelectedMS;
+    if (itsSel) itsSel->setMS(*itsMS);
+}
+
 Bool ms::doMSSelection(const ::casac::record& exprs, const bool onlyparse)
 {
 	// for internal use
@@ -6881,15 +6887,30 @@ Bool ms::doMSSelection(const ::casac::record& exprs, const bool onlyparse)
 				obsExpr);
 			retVal=(itsMSS->getTEN(itsMS).isNull() == false);
 		} else {
-			MeasurementSet newSelectedMS(*itsSelectedMS);
-		    retVal = mssSetData(*itsSelectedMS, newSelectedMS, "",/*outMSName*/
-		        timeExpr, baselineExpr, fieldExpr, spwExpr, uvDistExpr,
-			    taQLExpr, polnExpr, scanExpr,
-			    arrayExpr, scanIntentExpr, obsExpr, itsMSS);
-			*itsSelectedMS = newSelectedMS;
-		    *itsMS = newSelectedMS;
-        	if (itsSel) itsSel->setMS(*itsMS);
-        }
+		    MeasurementSet newSelectedMS(*itsSelectedMS);
+                    try {
+                        retVal = mssSetData(*itsSelectedMS, newSelectedMS, "",/*outMSName*/
+                                            timeExpr, baselineExpr, fieldExpr, spwExpr, uvDistExpr,
+                                            taQLExpr, polnExpr, scanExpr,
+                                            arrayExpr, scanIntentExpr, obsExpr, itsMSS);
+                    } catch (const MSSelectionNullSelection &mssns) {
+                        // Empty selections are valid in principle, and after this happens
+                        // one should be able to know that for example nrow() is 0.
+                        setNewSel(newSelectedMS);
+                        throw;
+                    } catch (const AipsError &selex) {
+                        // temporary horror needed because MSSelectionTools::mssSetData2
+                        // does a throw(x) which does not respect the original exception
+                        // object and casts it to a generic AipsError.
+                        // TODO: Fix it there, and remove this horror catch!
+                        if (std::string::npos !=
+                            std::string(selex.what()).find("MSSelectionNullSelection")) {
+                            setNewSel(newSelectedMS);
+                        }
+                        throw;
+                    }
+		    setNewSel(newSelectedMS);
+		}
 		return retVal;
 	}
 	catch (AipsError x)
