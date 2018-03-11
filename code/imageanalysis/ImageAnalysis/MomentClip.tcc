@@ -393,11 +393,13 @@ template <class T> void MomentClip<T>::multiProcess(
         sumAbsDev, dMin, dMax, iMin, iMax
     );
     // Fill vector of selected moments
+    _timer[10].stop();
+    _timer[11].start();
     for (i=0; i<selectMoments_p.size(); ++i) {
         moments[i] = calcMoments_p(selectMoments_p[i]);
         momentsMask[i] = calcMomentsMask_p(selectMoments_p[i]);
     }
-    _timer[10].stop();
+    _timer[11].stop();
 }
 
 }
