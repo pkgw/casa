@@ -329,32 +329,36 @@ void LatticeApply<T,U>::lineMultiApply (PtrBlock<MaskedLattice<U>*>& latticeOut,
 		// Casting const away is innocent.
 		// Remove degenerate axes to get a 1D array.
 		Array<Bool> tmp;
-		((MaskedLattice<T>&)latticeIn).getMaskSlice
+        timer[1].stop();
+        timer[2].start();
+        ((MaskedLattice<T>&)latticeIn).getMaskSlice
                           (tmp, Slicer(pos, inIter.cursorShape()), True);
-		mask.reference (tmp);
-            timer[1].stop();
+        timer[2].stop();
+        timer[3].start();
+        mask.reference (tmp);
+            timer[3].stop();
 	    }
-            timer[2].start();
+            timer[4].start();
 	    collapser.multiProcess (result, resultMask,
 				    inIter.vectorCursor(), mask, pos);
-            timer[2].stop();
-        timer[3].start();
+            timer[4].stop();
+        timer[5].start();
 	    DebugAssert (result.nelements() == nOut, AipsError);
 	    U* datap = data+i;
 	    Bool* dataMaskp = dataMask+i;
-        timer[3].stop();
-        timer[4].start();
+        timer[5].stop();
+        timer[6].start();
 	    for (uInt j=0; j<nOut; ++j) {
 		*datap = result(j);
 		datap += n;
 		*dataMaskp = resultMask(j);
 		dataMaskp += n;
 	    }
-        timer[4].stop();
-        timer[5].start();
+        timer[6].stop();
+        timer[7].start();
         ++inIter;
 	    if (tellProgress != 0) tellProgress->nstepsDone (inIter.nsteps());
-        timer[5].stop();
+        timer[7].stop();
 	}
     // *******
 
@@ -377,6 +381,15 @@ void LatticeApply<T,U>::lineMultiApply (PtrBlock<MaskedLattice<U>*>& latticeOut,
     for (uInt kk=0; kk<timer.size(); ++kk) {
         cout << kk << " duration " << timer[kk].totalDuration() << endl;
     }
+    MomentClip<T>* c = dynamic_cast<MomentClip<T> *>(&collapser);
+    if (c) {
+        auto& tt = c->timers();
+        cout << "collapser timers" << endl;
+        for (uInt kk=0; kk<timer.size(); ++kk) {
+            cout << kk << " duration " << tt[kk].totalDuration() << endl;
+        }
+    }
+
 }
 
 
