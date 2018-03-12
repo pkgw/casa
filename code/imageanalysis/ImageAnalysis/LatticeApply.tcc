@@ -342,7 +342,6 @@ void LatticeApply<T,U>::lineMultiApply (PtrBlock<MaskedLattice<U>*>& latticeOut,
             const auto& debugz = inIter.vectorCursor();
             timer[4].stop();
         timer[5].start();
-
 //            collapser.multiProcess (result, resultMask,
 //				    inIter.vectorCursor(), mask, pos);
             collapser.multiProcess (result, resultMask,
