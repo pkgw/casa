@@ -319,24 +319,18 @@ void LatticeApply<T,U>::lineMultiApply (PtrBlock<MaskedLattice<U>*>& latticeOut,
 	Vector<Bool> resultMask(nOut);
     // ***************
 	for (i=0; i<n; ++i) {
-        timer[0].start();
         DebugAssert (! inIter.atEnd(), AipsError);
 	    const IPosition pos (inIter.position());
 	    Vector<Bool> mask;
-        timer[0].stop();
 	    if (useMask) {
-            timer[1].start();
 		// Casting const away is innocent.
 		// Remove degenerate axes to get a 1D array.
 		Array<Bool> tmp;
-        timer[1].stop();
         timer[2].start();
         ((MaskedLattice<T>&)latticeIn).getMaskSlice
                           (tmp, Slicer(pos, inIter.cursorShape()), True);
         timer[2].stop();
-        timer[3].start();
         mask.reference (tmp);
-            timer[3].stop();
 	    }
             timer[4].start();
             const auto& debugz = inIter.vectorCursor();
@@ -357,11 +351,9 @@ void LatticeApply<T,U>::lineMultiApply (PtrBlock<MaskedLattice<U>*>& latticeOut,
 		*dataMaskp = resultMask(j);
 		dataMaskp += n;
 	    }
-        timer[6].stop();
-        timer[7].start();
         ++inIter;
 	    if (tellProgress != 0) tellProgress->nstepsDone (inIter.nsteps());
-        timer[7].stop();
+        timer[6].stop();
 	}
     // *******
 
@@ -386,6 +378,7 @@ void LatticeApply<T,U>::lineMultiApply (PtrBlock<MaskedLattice<U>*>& latticeOut,
             << " mean " << timer[kk].meanDuration()
             << " ncycles " << timer[kk].nCycles() << endl;
     }
+    /*
     MomentClip<T>* c = dynamic_cast<MomentClip<T> *>(&collapser);
     if (c) {
         const auto& tt = c->timers();
@@ -396,7 +389,7 @@ void LatticeApply<T,U>::lineMultiApply (PtrBlock<MaskedLattice<U>*>& latticeOut,
                 << " ncycles " << tt[kk].nCycles() << endl;
         }
     }
-
+*/
 }
 
 

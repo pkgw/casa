@@ -158,7 +158,7 @@ public:
     // Can handle null mask
     virtual casacore::Bool canHandleNullMask() const {return true;};
 
-    vector<C11Timer>& timers() { return _timer; }
+    //vector<C11Timer>& timers() { return _timer; }
 
 private:
 
@@ -173,7 +173,7 @@ private:
     casacore::Bool doInclude_p, doExclude_p;
     casacore::Vector<T> range_p;
     casacore::IPosition sliceShape_p;
-    vector<C11Timer> _timer = vector<C11Timer>(20);
+    //vector<C11Timer> _timer = vector<C11Timer>(20);
 
 protected:
     using MomentCalcBase<T>::constructorCheck;
