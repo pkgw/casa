@@ -1749,6 +1749,8 @@ using namespace casa::vi;
     }
     ///Special case
     if(upcase(sourcename)=="TRACKFIELD"){
+      if(name()=="MosaicFT")
+	throw(AipsError("Cannot use track source using field phasecenter for Mosaic"));
       fixMovingSource_p=True;
       movingDir_p=MDirection(Quantity(0.0,"deg"), Quantity(90.0, "deg"));
       movingDir_p.setRefString("APP");
