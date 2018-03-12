@@ -119,6 +119,7 @@ template <class T> void MomentFit<T>::multiProcess(
     const casacore::Vector<casacore::Bool>& profileInMask,
     const casacore::IPosition& inPos
 ) {
+    cout << "MomentFit::" << __func__ << endl;
     // Generate moments from a Gaussian fit of this profile
 
     auto nPts = profileIn.size();

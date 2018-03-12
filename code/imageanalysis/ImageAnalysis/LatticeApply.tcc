@@ -339,15 +339,19 @@ void LatticeApply<T,U>::lineMultiApply (PtrBlock<MaskedLattice<U>*>& latticeOut,
             timer[3].stop();
 	    }
             timer[4].start();
-	    collapser.multiProcess (result, resultMask,
-				    inIter.vectorCursor(), mask, pos);
+            const auto& debugz = inIter.vectorCursor();
             timer[4].stop();
         timer[5].start();
+
+//            collapser.multiProcess (result, resultMask,
+//				    inIter.vectorCursor(), mask, pos);
+            collapser.multiProcess (result, resultMask,
+				    debugz, mask, pos);
+        timer[5].stop();
+        timer[6].start();
 	    DebugAssert (result.nelements() == nOut, AipsError);
 	    U* datap = data+i;
 	    Bool* dataMaskp = dataMask+i;
-        timer[5].stop();
-        timer[6].start();
 	    for (uInt j=0; j<nOut; ++j) {
 		*datap = result(j);
 		datap += n;
