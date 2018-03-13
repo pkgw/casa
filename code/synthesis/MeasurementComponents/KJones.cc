@@ -556,15 +556,22 @@ void KJones::setApply(const Record& apply) {
   if (ct_->CASAvers()==String("Unknown") || ct_->CASAvers()<String("5.3.0-80")) {
     // Old-fashioned; use spw edge freq
     msCol.refFrequency().getColumn(KrefFreqs_,true);
+    if (typeName()!=String("KMBD Jones"))
+      logSink() << LogIO::WARN 
+		<< " Found pre-5.3.0 CASA delay cal table; using spw REF_FREQUENCY pivot (usually the edge) for phase(freq) calculation." 
+		<< LogIO::POST;
   }
   else {
   // Use the "physical" (centroid) frequency, per spw 
-  //  (NB: not every spw in ct will necessarily have a single channel...)
-    Matrix<Double> chanfreq;
-    msCol.chanFreq().getColumn(chanfreq,true);
-    Vector<Double> chanfreq1(chanfreq(Slice(0,1,1),Slice()));
-    KrefFreqs_=chanfreq1;
+    Vector<Double> chanfreq;
+    KrefFreqs_.resize(nSpw()); KrefFreqs_.set(0.0);
+    for (Int ispw=0;ispw<nSpw();++ispw) {
+      msCol.chanFreq().get(ispw,chanfreq,true);  // reshape, if nec.
+      Int nch=chanfreq.nelements();
+      KrefFreqs_(ispw)=chanfreq(nch/2);
+    }
   }
+
   KrefFreqs_/=1.0e9;  // in GHz
 
   /// Re-assign KrefFreq_ according spwmap (if any)
@@ -608,12 +615,19 @@ void KJones::setCallib(const Record& callib,
   //  from the CalTable
   if (cpp_->CTCASAvers()==String("Unknown") || cpp_->CTCASAvers()<String("5.3.0-80")) {
     KrefFreqs_.assign(cpp_->refFreqIn());
+    if (typeName()!=String("KMBD Jones"))
+      logSink() << LogIO::WARN 
+		<< " Found pre-5.3.0 CASA K (delay) cal table; using spw REF_FREQUENCY pivot (usually the edge) for phase(freq) calculation." 
+		<< LogIO::POST;
   }
   else {
     // Extract physical freq
     KrefFreqs_.resize(nSpw());
-    for (Int ispw=0;ispw<nSpw();++ispw) 
-      KrefFreqs_[ispw]=cpp_->freqIn(ispw)[0];
+    for (Int ispw=0;ispw<nSpw();++ispw) {
+      const Vector<Double>& f(cpp_->freqIn(ispw));
+      Int nf=f.nelements();
+      KrefFreqs_[ispw]=f[nf/2];  // center (usually this will be same as [0])
+    }
   }
   KrefFreqs_/=1.0e9;  // In GHz
 
@@ -1534,6 +1548,10 @@ void KMBDJones::setApply(const Record& apply) {
   if (prtlev()>2) cout << "Kmbd::setApply()" << endl;
   KJones::setApply(apply);
   KrefFreqs_.set(0.0);  // MBD is ALWAYS ref'd to zero freq
+  logSink() << LogIO::WARN 
+	    << " Found pre-5.3.0 CASA multi-band delay cal table; using zero frequency pivot for phase(freq) calculation." 
+		<< LogIO::POST;
+
 }
 
 
