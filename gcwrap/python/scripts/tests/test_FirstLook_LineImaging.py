@@ -186,34 +186,44 @@ class Test020_FirstLookatLineImaging(unittest.TestCase):
         os.system("rm -rf *.flagversions")
 
 
-    def test_10_twhya_n2hp_flux(self):
-        '''Test 10: Check twhya_n2hp.flux'''
-        tableName = 'twhya_n2hp.flux'
+    def test_1_twhya_n2hp_residual(self):
+        '''Test 1: Check twhya_n2hp.residual'''
+        tableName = 'twhya_n2hp.residual'
         self.assertTrue(openTable(tableName))
 
-    def test_11_twhya_n2hp_image(self):
-        '''Test 11: Check twhya_n2hp.image'''
+    def test_2_twhya_n2hp_image(self):
+        '''Test 2: Check twhya_n2hp.image'''
         tableName = 'twhya_n2hp.image'
         self.assertTrue(openTable(tableName))
 
-    def test_12_twhya_n2hp_model(self):
-        '''Test 12: Check twhya_n2hp.model'''
-        tableName = 'twhya_n2hp.model'
-        self.assertTrue(openTable(tableName))
-
-    def test_13_twhya_n2hp_pbcor_image(self):
-        '''Test 13: Check twhya_n2hp.pbcor.image'''
+    def test_3_twhya_n2hp_pbcor_image(self):
+        '''Test 3: Check twhya_n2hp.pbcor.image'''
         tableName = 'twhya_n2hp.pbcor.image'
         self.assertTrue(openTable(tableName))
 
-    def test_14_twhya_n2hp_psf(self):
-        '''Test 14: Check twhya_n2hp.psf'''
-        tableName = 'twhya_n2hp.psf'
+    def test_4_twhya_n2hp_model(self):
+        '''Test 4: Check twhya_n2hp.model'''
+        tableName = 'twhya_n2hp.model'
         self.assertTrue(openTable(tableName))
 
-    def test_15_twhya_n2hp_residual(self):
-        '''Test 15: Check twhya_n2hp.residual'''
+    def test_5_twhya_n2hp_mask(self):
+        '''Test 5: Check twhya_n2hp.mask'''
+        tableName = 'twhya_n2hp.mask'
+        self.assertTrue(openTable(tableName))
+
+    def test_6_twhya_n2hp_pb(self):
+        '''Test 6: Check twhya_n2hp.pb'''
+        tableName = 'twhya_n2hp.pb'
+        self.assertTrue(openTable(tableName))
+
+    def test_7_twhya_n2hp_residual(self):
+        '''Test 7: Check twhya_n2hp.residual'''
         tableName = 'twhya_n2hp.residual'
+        self.assertTrue(openTable(tableName))
+
+    def test_8_twhya_n2hp_sumwt(self):
+        '''Test 8: Check twhya_n2hp.sumwt'''
+        tableName = 'twhya_n2hp.sumwt'
         self.assertTrue(openTable(tableName))
 
 ####################################################################################################
