@@ -62,7 +62,7 @@ namespace casac {
 {
   
   // itsImager = new SynthesisImagerVi2();
- 
+  itsLog = new LogIO();
   //itsImager = new SynthesisImager();
   itsImager = makeSI(true);
 }
@@ -179,7 +179,7 @@ synthesisimager::selectdata(const casac::record& selpars)
 bool synthesisimager::defineimage(const casac::record& impars, const casac::record& gridpars)
 {
   Bool rstat(false);
-
+  *itsLog << casacore::LogOrigin("synthesisimager", __func__);
   try 
     {
     
@@ -200,6 +200,11 @@ bool synthesisimager::defineimage(const casac::record& impars, const casac::reco
 	|| ( (casacore::MDirection::getType(refType, pcen)) && (refType > casacore::MDirection::N_Types && refType < casacore::MDirection:: N_Planets ))
 	|| (upcase(pcen)==String("TRACKFIELD"));
       if(trackingNearSource){
+	*itsLog << "Detected tracking of moving source " <<  casacore::LogIO::POST;
+	if(refType > casacore::MDirection::N_Types && refType < casacore::MDirection::COMET){
+	  
+	  *itsLog << "Will be Using measures internal ephemeris  for  " << casacore::MDirection::showType(refType) << " to track " << casacore::LogIO::POST;
+	} 
 	movingSource=pcen;
 	irecpars.define("phasecenter", "");
       }
@@ -682,6 +687,9 @@ synthesisimager::done()
 	  delete itsImager;
 	  itsImager=NULL;
 	}
+      if(itsLog)
+	delete itsLog;
+      itsLog=NULL;
     } 
   catch  (AipsError x) 
     {
