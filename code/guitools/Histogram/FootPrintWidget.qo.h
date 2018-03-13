@@ -25,7 +25,7 @@
 #ifndef FOOTPRINTWIDGET_QO_H
 #define FOOTPRINTWIDGET_QO_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <guitools/Histogram/FootPrintWidget.ui.h>
 
 namespace casa {

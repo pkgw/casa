@@ -37,8 +37,7 @@ def plotms(vis=None,
            plotfile=None, expformat=None, exprange=None,
            highres=None, dpi=None, width=None, height=None, overwrite=None,
            showgui=None, clearplots=None,
-           callib=None,
-           headeritems=None
+           callib=None, headeritems=None, showatm=None, showtsky=None
 ):
 
 # we'll add these later
@@ -190,6 +189,8 @@ def plotms(vis=None,
     clearplots -- clear existing plots so that the new ones coming in can replace them.                 
     callib -- calibration library string, list of strings, or filename for on-the-fly calibration
     headeritems -- string of comma-separated page header items keywords
+    showatm -- show atmospheric transmission curve
+    showtsky -- show sky temperature curve
 
     """
     # Check if DISPLAY environment variable is set.
@@ -422,7 +423,22 @@ def plotms(vis=None,
                     pm.setPlotAxes(xaxis, yaxis[i], xdatacolumn, yDataColumn, 
                         yAxisLocation, False, plotindex, i)
             else :
-                raise Exception('Please remove duplicate y-axes.')
+                raise Exception, 'Please remove duplicate y-axes.'
+
+        if not showatm:
+            showatm = False
+        if not showtsky:
+            showtsky = False
+        if showatm and showtsky:
+            casalog.post('You have selected both showatm and showtsky.  Defaulting to showatm=True only.', "WARN")
+            showtsky = False
+        if showatm or showtsky:  # check that xaxis is None, chan, or freq
+            validxaxis = not xaxis or xaxis in ["channel", "frequency"]
+            if not validxaxis:
+                casalog.post('showatm and showtsky are only valid when xaxis is channel or frequency', 'SEVERE')
+                return False
+        pm.setShowAtm(showatm, False, plotindex)
+        pm.setShowTsky(showtsky, False, plotindex)
         
         # Set selection
         if selectdata:

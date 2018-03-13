@@ -23,7 +23,9 @@
 //#                        Charlottesville, VA 22903-2475 USA
 //#
 
-
+#include <QPrinter>
+#include <QFileDialog>
+#include <QPrintDialog>
 #include <casa/aips.h>
 #include <casa/Arrays.h>
 #include <measures/Measures.h>
@@ -78,37 +80,7 @@
 using namespace casacore;
 namespace casa {
 
-	const QString QtProfile::PLOT_TYPE_FLUX = "Flux Density";
-	const QString QtProfile::PLOT_TYPE_MEAN = "Mean";
-	const QString QtProfile::PLOT_TYPE_MEDIAN = "Median";
-	const QString QtProfile::PLOT_TYPE_SUM = "Sum";
-	const QString QtProfile::FREQUENCY = "frequency";
-
-	const QString QtProfile::VELOCITY = "velocity";
-	const QString QtProfile::CHANNEL = "channel";
-	const QString QtProfile::OPTICAL = "optical";
-	const QString QtProfile::AIR = "air";
-	const QString QtProfile::FRAME_REST = "REST";
-	const QString QtProfile::FRAME_NONE = "Undefined";
-	const QString QtProfile::PERSIST_FREQUENCY_BOTTOM = ".freqcoord.type";
-	const QString QtProfile::PERSIST_FREQUENCY_TOP = ".freqcoordTop.type";
 	bool QtProfile::topAxisDefaultSet = false;
-	const QString QtProfile::IMAGE_MISSING_ERROR = "No profile available for the given data.";
-	const QString QtProfile::MISSING_REGION_ERROR = "Assign a mouse button to\n"
-		                        "'crosshair' or 'rectangle' or 'polygon';\n"
-		                        "click/press+drag the assigned button on\n"
-		                        "the image to get a spectral profile.";
-	const QString QtProfile::NO_PROFILE_ERROR = "No profile available for the "
-			                        "display axes orientation";
-	const QString QtProfile::REGION_ELLIPSE = "Ellipse";
-	const QString QtProfile::REGION_RECTANGLE = "Rectangle";
-	const QString QtProfile::REGION_POINT = "Point";
-	const QString QtProfile::REGION_POLY = "Polygon";
-	const String QtProfile::SHAPE_ELLIPSE = "ellipse";
-	const String QtProfile::SHAPE_RECTANGLE = "rectangle";
-	const String QtProfile::SHAPE_POINT = "point";
-	const String QtProfile::SHAPE_POLY = "polygon";
-
 
 	QtProfile::~QtProfile() {
 	}
@@ -119,7 +91,7 @@ namespace casa {
 //pc(0),
 //te(0),
 		 image(img), over(0),WORLD_COORDINATES("world"),
-		 coordinate( WORLD_COORDINATES ), coordinateType(""),xaxisUnit(""),ctypeUnit(""),
+		 coordinate( WORLD_COORDINATES ), coordinateType_p(""),xaxisUnit(""),ctypeUnit(""),
 		 cSysRval(""), fileName(name), position(""), yUnit(""),
 		 yUnitPrefix(""), xpos(""), ypos(""), cube(0),
 		 npoints(0), npoints_old(0), stateMProf(2), stateRel(0),
@@ -143,10 +115,10 @@ namespace casa {
 
 		setBackgroundRole(QPalette::Dark);
 
-		plotMode->addItem( PLOT_TYPE_MEAN );
-		plotMode->addItem( PLOT_TYPE_MEDIAN );
-		plotMode->addItem( PLOT_TYPE_SUM );
-		plotMode->addItem( PLOT_TYPE_FLUX );
+		plotMode->addItem( PLOT_TYPE_MEAN( ) );
+		plotMode->addItem( PLOT_TYPE_MEDIAN( ) );
+		plotMode->addItem( PLOT_TYPE_SUM( ) );
+		plotMode->addItem( PLOT_TYPE_FLUX( ) );
 		fillPlotTypes(img);
 		connect(plotMode, SIGNAL(currentIndexChanged(const QString &)),
 		        this, SLOT(changePlotType(const QString &)));
@@ -193,10 +165,10 @@ namespace casa {
 
 		pixelCanvas->setTitle("");
 		if ( !image ){
-			pixelCanvas->setWelcome( IMAGE_MISSING_ERROR );
+			pixelCanvas->setWelcome( IMAGE_MISSING_ERROR( ) );
 		}
 		else {
-			pixelCanvas->setWelcome( MISSING_REGION_ERROR);
+			pixelCanvas->setWelcome( MISSING_REGION_ERROR( ) );
 		}
 
 		QString lbl = bottomAxisCType->currentText();
@@ -274,15 +246,16 @@ namespace casa {
 
 	void QtProfile::initializeXAxisUnits(){
 		xUnitsList =(QStringList()<<
-		   QtPlotSettings::RADIO_VELOCITY + " [m/s]"<< QtPlotSettings::RADIO_VELOCITY + " [km/s]" <<
-		   QtPlotSettings::OPTICAL_VELOCITY +" [m/s]" << QtPlotSettings::OPTICAL_VELOCITY +" [km/s]" <<
+		   QtPlotSettings::RADIO_VELOCITY( ) + " [m/s]"<< QtPlotSettings::RADIO_VELOCITY( ) + " [km/s]" <<
+		   QtPlotSettings::OPTICAL_VELOCITY( ) +" [m/s]" << QtPlotSettings::OPTICAL_VELOCITY( ) +" [km/s]" <<
 		   "frequency [Hz]" << "frequency [MHz]" << "frequency [GHz]" <<
 		   "wavelength [mm]" << "wavelength [um]" << "wavelength [nm]" << "wavelength [Angstrom]" <<
 		   "air wavelength [mm]" << "air wavelength [um]" << "air wavelength [nm]"<<"air wavelength [Angstrom]"<<
-		   CHANNEL);
+		   CHANNEL( ));
 		for ( int i = 0; i < xUnitsList.size(); i++ ){
 			bottomAxisCType->addItem( xUnitsList[i]);
 		}
+		bottomAxisCType->setCurrentIndex(bottomAxisCType->findText(CHANNEL( )));
 		restrictTopAxisOptions( false, bottomAxisCType->currentText() );
 	}
 
@@ -296,17 +269,17 @@ namespace casa {
 		//the last top axis setting.  However, when the profiler is started
 		//for the very first time, our static variable, topAxisDefault, will
 		//be false, which allows us to make the initial settings channels.
-		QString prefTop_ctype = read( PERSIST_FREQUENCY_TOP );
+		QString prefTop_ctype = read( PERSIST_FREQUENCY_TOP( ) );
 		if ( ! topAxisDefaultSet ){
-			prefTop_ctype = CHANNEL;
+			prefTop_ctype = CHANNEL( );
 			persistTopAxis( prefTop_ctype );
 			topAxisDefaultSet = true;
 		}
 
 		//We can't use velocity with a tabular axis because the
 		//rest frequency is zero.
-		QString pref_ctype = read( PERSIST_FREQUENCY_BOTTOM );
-		if ( !isSpectralAxis() && pref_ctype.indexOf(VELOCITY) >= 0){
+		QString pref_ctype = read( PERSIST_FREQUENCY_BOTTOM( ) );
+		if ( !isSpectralAxis() && pref_ctype.indexOf(VELOCITY( )) >= 0){
 			pref_ctype="frequency [Hz]";
 		}
 
@@ -318,7 +291,7 @@ namespace casa {
 		updateAxisUnitCombo( prefTop_ctype, topAxisCType );
 
 		ctypeUnit = String(bottomAxisCType->currentText().toStdString());
-		getcoordTypeUnit(ctypeUnit, coordinateType, xaxisUnit);
+		getcoordTypeUnit(ctypeUnit, coordinateType_p, xaxisUnit);
 		pixelCanvas -> setToolTipXUnit( xaxisUnit.c_str());
 	}
 
@@ -347,8 +320,8 @@ namespace casa {
 	}
 
 	void QtProfile::updateSpectralReferenceFrame( ){
-		bool restFrame = customizeSpectralReferenceFrame( FRAME_REST );
-		bool noFrame = customizeSpectralReferenceFrame( FRAME_NONE );
+		bool restFrame = customizeSpectralReferenceFrame( FRAME_REST( ) );
+		bool noFrame = customizeSpectralReferenceFrame( FRAME_NONE( ) );
 		//Update the combo with the current rest frame.
 		int restFrameIndex = spcRef->findText( spcRefFrame.c_str() );
 		spcRef->setCurrentIndex( restFrameIndex );
@@ -770,7 +743,7 @@ namespace casa {
 		if ( text.length() > 0 ){
 			ctypeUnit = String(text.toStdString());
 		}
-		getcoordTypeUnit(ctypeUnit, coordinateType, xaxisUnit);
+		getcoordTypeUnit(ctypeUnit, coordinateType_p, xaxisUnit);
 
 		setUnitsText( xaxisUnit );
 
@@ -783,7 +756,7 @@ namespace casa {
 		updateXAxisLabel( text, QtPlotSettings::xBottom );
 
 		//cout << "put to rc.viewer: " << text.toStdString() << endl;
-		persist( PERSIST_FREQUENCY_BOTTOM, text);
+		persist( PERSIST_FREQUENCY_BOTTOM( ), text);
 		if(lastPX.nelements() > 0) {
 			// update display with new coord type
 			wcChanged(coordinate, lastPX, lastPY, lastWX, lastWY, UNKNPROF);
@@ -856,7 +829,7 @@ namespace casa {
 		fillPlotTypes(img);
 
 		// read the preferred ctype from casarc
-		QString pref_ctype = read( PERSIST_FREQUENCY_BOTTOM);
+		QString pref_ctype = read( PERSIST_FREQUENCY_BOTTOM( ));
 		if (pref_ctype.size()>0) {
 			// change to the preferred ctype
 			updateAxisUnitCombo( pref_ctype, bottomAxisCType );
@@ -867,7 +840,7 @@ namespace casa {
 		initializeSolidAngle();
 
 		ctypeUnit = String(bottomAxisCType->currentText().toStdString());
-		getcoordTypeUnit(ctypeUnit, coordinateType, xaxisUnit);
+		getcoordTypeUnit(ctypeUnit, coordinateType_p, xaxisUnit);
 		setUnitsText( xaxisUnit );
 
 		QString lbl = bottomAxisCType->currentText();
@@ -1089,7 +1062,7 @@ namespace casa {
 
 		//Get Profile Flux density v/s coordinateType
 		bool ok = assignFrequencyProfile( wxv,wyv,
-				coordinateType,xaxisUnit,z_xval,z_yval, getRegionShape());
+				coordinateType_p,xaxisUnit,z_xval,z_yval, getRegionShape());
 		if ( !ok ) {
 			return;
 		}
@@ -1204,7 +1177,7 @@ namespace casa {
 			xpos = "";
 			ypos = "";
 			position = QString("");
-			pixelCanvas->setWelcome(IMAGE_MISSING_ERROR);
+			pixelCanvas->setWelcome(IMAGE_MISSING_ERROR( ));
 			pixelCanvas->clearEverything();
 		}
 		else {
@@ -1213,7 +1186,7 @@ namespace casa {
 				// the current configuration can
 				// NOT be plotted
 				profileStatus->showMessage(position);
-				pixelCanvas->setWelcome( NO_PROFILE_ERROR );
+				pixelCanvas->setWelcome( NO_PROFILE_ERROR( ) );
 				xpos = "";
 				ypos = "";
 				position = QString("");
@@ -1228,7 +1201,7 @@ namespace casa {
 					ypos = "";
 					position = QString("");
 					profileStatus->showMessage(position);
-					pixelCanvas->setWelcome( MISSING_REGION_ERROR );
+					pixelCanvas->setWelcome( MISSING_REGION_ERROR( ) );
 					pixelCanvas->clearEverything();
 				}
 			}
@@ -1690,7 +1663,7 @@ namespace casa {
 		}
 
 		//Get Profile Flux density v/s coordinateType
-		bool ok = assignFrequencyProfile( wxv,wyv, coordinateType,
+		bool ok = assignFrequencyProfile( wxv,wyv, coordinateType_p,
 				xaxisUnit,z_xval, z_yval, getRegionShape() );
 		if ( !ok ) {
 			return;
@@ -1725,16 +1698,16 @@ namespace casa {
 	}
 
 	void QtProfile::assignProfileType( const String& shape, int regionPointCount ){
-			if ( shape == SHAPE_ELLIPSE ){
+			if ( shape == SHAPE_ELLIPSE( ) ){
 				profileType = ELLPROF;
 			}
-			else if ( shape == SHAPE_POINT ){
+			else if ( shape == SHAPE_POINT( ) ){
 				profileType = SINGPROF;
 			}
-			else if ( shape == SHAPE_RECTANGLE ){
+			else if ( shape == SHAPE_RECTANGLE( ) ){
 				profileType = RECTPROF;
 			}
-			else if ( shape == SHAPE_POLY ){
+			else if ( shape == SHAPE_POLY( ) ){
 				profileType = POLYPROF;
 			}
 			else {
@@ -1863,7 +1836,7 @@ namespace casa {
 		positioningWidget->updateRegion( pxv,pyv,wxv,wyv);
 
 		//Get Profile Flux density v/s coordinateType
-		bool ok = assignFrequencyProfile( wxv,wyv, coordinateType, xaxisUnit,
+		bool ok = assignFrequencyProfile( wxv,wyv, coordinateType_p, xaxisUnit,
 				z_xval,z_yval, getRegionShape());
 
 		if ( !ok ) {
@@ -2225,11 +2198,11 @@ namespace casa {
 
 			if (plotMode->count() <1 ) {
 				// fill the plot types
-				plotMode->addItem( PLOT_TYPE_MEAN );
-				plotMode->addItem( PLOT_TYPE_MEDIAN );
-				plotMode->addItem( PLOT_TYPE_SUM );
+				plotMode->addItem( PLOT_TYPE_MEAN( ) );
+				plotMode->addItem( PLOT_TYPE_MEDIAN( ) );
+				plotMode->addItem( PLOT_TYPE_SUM( ) );
 				if (allowFlux){
-					plotMode->addItem( PLOT_TYPE_FLUX );
+					plotMode->addItem( PLOT_TYPE_FLUX( ) );
 				}
 
 				// read the preferred plot mode from casarc
@@ -2249,12 +2222,12 @@ namespace casa {
 			else {
 				// add/remove "flux" if necessary
 				if (allowFlux) {
-					if (plotMode->findText( PLOT_TYPE_FLUX )<0){
-						plotMode->addItem( PLOT_TYPE_FLUX );
+					if (plotMode->findText( PLOT_TYPE_FLUX( ) )<0){
+						plotMode->addItem( PLOT_TYPE_FLUX( ) );
 					}
 				} else {
-					if (plotMode->findText( PLOT_TYPE_FLUX ) > -1) {
-						plotMode->removeItem(plotMode->findText( PLOT_TYPE_FLUX ));
+					if (plotMode->findText( PLOT_TYPE_FLUX( ) ) > -1) {
+						plotMode->removeItem(plotMode->findText( PLOT_TYPE_FLUX( ) ));
 					}
 				}
 			}
@@ -2315,13 +2288,13 @@ namespace casa {
 	void QtProfile::stringToPlotType(const QString &text, QtProfile::PlotType &pType) {
 		*itsLog << LogOrigin("QtProfile", "stringToPlotType");
 
-		if (!text.compare(QString( PLOT_TYPE_MEAN )))
+		if (!text.compare(QString( PLOT_TYPE_MEAN( ) )))
 			pType = QtProfile::PMEAN;
-		else if (!text.compare(QString( PLOT_TYPE_MEDIAN )))
+		else if (!text.compare(QString( PLOT_TYPE_MEDIAN( ) )))
 			pType = QtProfile::PMEDIAN;
-		else if (!text.compare(QString( PLOT_TYPE_SUM )))
+		else if (!text.compare(QString( PLOT_TYPE_SUM( ) )))
 			pType = QtProfile::PSUM;
-		else if (!text.compare(QString( PLOT_TYPE_FLUX )))
+		else if (!text.compare(QString( PLOT_TYPE_FLUX( ) )))
 			pType = QtProfile::PFLUX;
 		//else if (!text.compare(QString("rmse")))
 		//	pType = QtProfile::PVRMSE;
@@ -2351,17 +2324,17 @@ namespace casa {
 		else if (ctypeUnitStr.contains("wavelength")){
 			cTypeStr = String("wavelength");
 		}
-		else if (ctypeUnitStr.contains(QtPlotSettings::RADIO_VELOCITY.toStdString().c_str())){
-			cTypeStr = String(QtPlotSettings::RADIO_VELOCITY.toStdString().c_str());
+		else if (ctypeUnitStr.contains(QtPlotSettings::RADIO_VELOCITY( ).toStdString().c_str())){
+			cTypeStr = String(QtPlotSettings::RADIO_VELOCITY( ).toStdString().c_str());
 		}
-		else if (ctypeUnitStr.contains(QtPlotSettings::OPTICAL_VELOCITY.toStdString().c_str())){
-			cTypeStr = String(QtPlotSettings::OPTICAL_VELOCITY.toStdString().c_str());
+		else if (ctypeUnitStr.contains(QtPlotSettings::OPTICAL_VELOCITY( ).toStdString().c_str())){
+			cTypeStr = String(QtPlotSettings::OPTICAL_VELOCITY( ).toStdString().c_str());
 		}
 		else if (ctypeUnitStr.contains("frequency")){
 			cTypeStr = String("frequency");
 		}
 		else {
-			cTypeStr = String( CHANNEL.toStdString() );
+			cTypeStr = String( CHANNEL( ).toStdString() );
 		}
 
 		// determine the unit
@@ -2431,19 +2404,19 @@ namespace casa {
 		switch (ptype) {
 			case SINGPROF:
 				pixelCanvas->setTitle("Single Point Profile"+smoothDescription);
-				region = REGION_POINT;
+				region = REGION_POINT( );
 				break;
 			case RECTPROF:
 				pixelCanvas->setTitle("Rectangle Region Profile"+smoothDescription);
-				region = REGION_RECTANGLE;
+				region = REGION_RECTANGLE( );
 				break;
 			case ELLPROF:
 				pixelCanvas->setTitle("Elliptical Region Profile"+smoothDescription);
-				region = REGION_ELLIPSE;
+				region = REGION_ELLIPSE( );
 				break;
 			case POLYPROF:
 				pixelCanvas->setTitle("Polygon Region Profile"+smoothDescription);
-				region = REGION_POLY;
+				region = REGION_POLY( );
 				break;
 			case UNKNPROF:
 			{
@@ -2469,18 +2442,18 @@ namespace casa {
 	void QtProfile::setTitle( const QString& shape ) {
 		QString smoothDescription = smoothWidget->toString();
 		String shapeStr( shape.toStdString());
-		if ( shapeStr == SHAPE_POINT ) {
+		if ( shapeStr == SHAPE_POINT( ) ) {
 			pixelCanvas->setTitle("Single Point Profile"+smoothDescription);
-			region = REGION_POINT;
-		} else if ( shapeStr == SHAPE_RECTANGLE ) {
+			region = REGION_POINT( );
+		} else if ( shapeStr == SHAPE_RECTANGLE( ) ) {
 			pixelCanvas->setTitle("Rectangle Region Profile"+smoothDescription);
-			region = REGION_RECTANGLE;
-		} else if ( shapeStr == SHAPE_ELLIPSE ) {
+			region = REGION_RECTANGLE( );
+		} else if ( shapeStr == SHAPE_ELLIPSE( ) ) {
 			pixelCanvas->setTitle("Elliptical Region Profile"+smoothDescription);
-			region = REGION_ELLIPSE;
-		} else if ( shapeStr == SHAPE_POLY ) {
+			region = REGION_ELLIPSE( );
+		} else if ( shapeStr == SHAPE_POLY( ) ) {
 			pixelCanvas->setTitle("Polygon Region Profile"+smoothDescription);
-			region = REGION_POLY;
+			region = REGION_POLY( );
 		}
 		else {
 			pixelCanvas->setTitle("");
@@ -2683,7 +2656,7 @@ namespace casa {
 					//		 break;
 				default:
 					ok = generateProfile(z_xval, z_eval, image, wxv, wyv,
-										shape, QtProfile::RMSE, xaxisUnit, coordinateType,
+										shape, QtProfile::RMSE, xaxisUnit, coordinateType_p,
 										0, cSysRval, spcRefFrame);
 
 					break;
@@ -2702,7 +2675,7 @@ namespace casa {
 					                             WORLD_COORDINATES, coordinateType, 0, tabularIndex, 0, xaxisUnit, spcRefFrame,
 					                             (Int)QtProfile::NSQRTSUM, 1, cSysRval, -1, shape);*/
 					ok = generateProfile(z_xval, z_eval, image, wxv, wyv,
-							shape, QtProfile::NSQRTSUM, xaxisUnit, coordinateType,
+							shape, QtProfile::NSQRTSUM, xaxisUnit, coordinateType_p,
 							1, cSysRval, spcRefFrame);
 					break;
 				case QtProfile::PMEDIAN:
@@ -2715,7 +2688,7 @@ namespace casa {
 					                             WORLD_COORDINATES, coordinateType, 0, tabularIndex, 0, xaxisUnit, spcRefFrame,
 					                             (Int)QtProfile::SQRTSUM, 1, cSysRval, -1, shape);*/
 					ok = generateProfile(z_xval, z_eval, image, wxv, wyv,
-							shape, QtProfile::SQRTSUM, xaxisUnit, coordinateType,
+							shape, QtProfile::SQRTSUM, xaxisUnit, coordinateType_p,
 							1, cSysRval, spcRefFrame);
 					break;
 				case QtProfile::PFLUX:
@@ -2724,7 +2697,7 @@ namespace casa {
 					                               xaxisUnit, spcRefFrame,
 					                               QtProfile::EFLUX, 1, cSysRval, shape);*/
 					ok = generateProfile(z_xval, z_eval, image, wxv, wyv,
-												shape, QtProfile::EFLUX, xaxisUnit, coordinateType,
+												shape, QtProfile::EFLUX, xaxisUnit, coordinateType_p,
 												1, cSysRval, spcRefFrame);
 					break;
 				default:
@@ -2894,28 +2867,28 @@ namespace casa {
 				case QtProfile::PMEAN:
 					ok = generateProfile(xval, yval, ana, wxv, wyv,
 							shape, QtProfile::MEAN, xaxisUnit,
-							coordinateType, 0, "", spcRefFrame);
+							coordinateType_p, 0, "", spcRefFrame);
 
 					break;
 				case QtProfile::PMEDIAN:
 					ok = generateProfile(xval, yval, ana, wxv, wyv,
 										shape, QtProfile::MEDIAN, xaxisUnit,
-										coordinateType, 0, "", spcRefFrame);
+										coordinateType_p, 0, "", spcRefFrame);
 					break;
 				case QtProfile::PSUM:
 					ok = generateProfile(xval, yval, ana, wxv, wyv,
 							shape, QtProfile::SUM, xaxisUnit,
-							coordinateType, 0, "", spcRefFrame);
+							coordinateType_p, 0, "", spcRefFrame);
 					break;
 				case QtProfile::PFLUX:
 					ok = generateProfile(xval, yval, ana, wxv, wyv,
 															shape, QtProfile::FLUX, xaxisUnit,
-															coordinateType, 0, "", spcRefFrame);
+															coordinateType_p, 0, "", spcRefFrame);
 					break;
 				default:
 					ok = generateProfile(xval, yval, ana, wxv, wyv,
 										shape, QtProfile::MEAN, xaxisUnit,
-										coordinateType, 0, "", spcRefFrame);
+										coordinateType_p, 0, "", spcRefFrame);
 					break;
 				}
 
@@ -2937,7 +2910,7 @@ namespace casa {
 						ky = ky+ "_rel.";
 						for (uInt i = 0; i < yval.size(); i++) {
 							uInt k = z_yval.size() - 1;
-							if (coordinateType.contains("elocity")) {
+							if (coordinateType_p.contains("elocity")) {
 								if (xval(i) < z_xval(0) && xval(i) >= z_xval(k)) {
 									for (uInt j = 0; j < k; j++) {
 										if (xval(i) <= z_xval(j) &&
@@ -3052,26 +3025,26 @@ namespace casa {
 	String QtProfile::getRegionShape() const {
 			String shape( "");
 			if ( profileType == RECTPROF ){
-				shape = SHAPE_RECTANGLE;
+				shape = SHAPE_RECTANGLE( );
 			}
 			else if ( profileType == ELLPROF ){
-				shape = SHAPE_ELLIPSE;
+				shape = SHAPE_ELLIPSE( );
 			}
 			else if ( profileType == POLYPROF ){
-				shape = SHAPE_POLY;
+				shape = SHAPE_POLY( );
 			}
 			else if ( profileType == SINGPROF ){
-				shape = SHAPE_POINT;
+				shape = SHAPE_POINT( );
 			}
 			return shape;
 		}
 
 	bool QtProfile::isFrequencyMatch(){
-		return isXUnitsMatch( FREQUENCY );
+		return isXUnitsMatch( FREQUENCY( ) );
 	}
 
 	bool QtProfile::isVelocityMatch(){
-		return isXUnitsMatch( QtPlotSettings::RADIO_VELOCITY );
+		return isXUnitsMatch( QtPlotSettings::RADIO_VELOCITY( ) );
 	}
 
 	bool QtProfile::isXUnitsMatch(const QString& matchUnits){
@@ -3126,7 +3099,7 @@ namespace casa {
 			bool velocityVisible = false;
 			bool waveVisible = false;
 			if ( restrictOptions ){
-				if ( xUnitsList[i].indexOf( OPTICAL ) >= 0 || xUnitsList[i].indexOf( AIR) >= 0 ){
+				if ( xUnitsList[i].indexOf( OPTICAL( ) ) >= 0 || xUnitsList[i].indexOf( AIR( )) >= 0 ){
 					continue;
 				}
 
@@ -3142,7 +3115,7 @@ namespace casa {
 
 				//We enable channels if the units on the bottom axis are compatible in
 				//channels.
-				int channelIndex = xUnitsList[i].indexOf( CHANNEL );
+				int channelIndex = xUnitsList[i].indexOf( CHANNEL( ) );
 				if ( channelIndex >= 0 ){
 					if ( bottomVelocity && allowVelocity ){
 						channelVisible = true;
@@ -3178,7 +3151,7 @@ namespace casa {
 
 	bool QtProfile::isFrequencyUnit( const QString& unit ) const {
 		bool frequencyUnit = false;
-		int frequencyIndex = unit.indexOf( FREQUENCY );
+		int frequencyIndex = unit.indexOf( FREQUENCY( ) );
 		if ( frequencyIndex >= 0 ){
 			frequencyUnit = true;
 		}
@@ -3187,7 +3160,7 @@ namespace casa {
 
 	bool QtProfile::isVelocityUnit( const QString& unit ) const {
 			bool velocityUnit = false;
-			int velocityIndex = unit.indexOf( QtPlotSettings::RADIO_VELOCITY );
+			int velocityIndex = unit.indexOf( QtPlotSettings::RADIO_VELOCITY( ) );
 			if ( velocityIndex >= 0 ){
 				velocityUnit = true;
 			}
@@ -3227,8 +3200,8 @@ namespace casa {
 			//the min/max of a single image.  We also need to check that the
 			//frequency units/channel are the same on all images.
 			else if ( mainCurveCount > 1 ) {
-				int opticalIndex = bottomAxisUnits.indexOf( OPTICAL );
-				int airIndex = bottomAxisUnits.indexOf( AIR );
+				int opticalIndex = bottomAxisUnits.indexOf( OPTICAL( ) );
+				int airIndex = bottomAxisUnits.indexOf( AIR( ) );
 				if ( opticalIndex >= 0 || airIndex >= 0 ){
 					topAxisCType->setEnabled( false );
 				}
@@ -3376,8 +3349,8 @@ namespace casa {
 	}
 
 	QString QtProfile::readTopAxis() const {
-		QSettings settings( Util::ORGANIZATION, Util::APPLICATION );
-		QString topUnits = settings.value( PERSIST_FREQUENCY_TOP, CHANNEL).toString();
+		QSettings settings( Util::ORGANIZATION( ), Util::APPLICATION( ) );
+		QString topUnits = settings.value( PERSIST_FREQUENCY_TOP( ), CHANNEL( )).toString();
 		return topUnits;
 	}
 
@@ -3387,8 +3360,8 @@ namespace casa {
 		//called.  We avoid persisting a non-user selection by making
 		//sure that the combo box has been populated before persisting.
 		if ( units.size() > 0 && topAxisCType->count() > 1){
-			QSettings settings( Util::ORGANIZATION, Util::APPLICATION );
-			settings.setValue( PERSIST_FREQUENCY_TOP, units );
+			QSettings settings( Util::ORGANIZATION( ), Util::APPLICATION( ) );
+			settings.setValue( PERSIST_FREQUENCY_TOP( ), units );
 		}
 	}
 
