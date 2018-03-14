@@ -1966,7 +1966,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	// skip zero prevmask case
 	if ( curmaskpix==0.0 || (diffpix == 0.0 && prevmaskpix!=0.0) || diffpix < fracChange*prevmaskpix) {
 	  chanFlag(ichan) = True;
-	  os<<LogIO::NORMAL<<"set chanFlag(to stop updating automask)  to True for chan="<<ichan<<LogIO::POST;
+	  os<<LogIO::NORMAL<<"Stopping masking for chan="<<ichan<<LogIO::POST;
 	}       
       }
     } // for loop end

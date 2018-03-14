@@ -2019,10 +2019,24 @@ HPX HEALPix grid.  -->
     </param>
 
     <param type="bool" name="verbose" subparam="true">
-           <shortdescription>make more automasking information printed in the logger</shortdescription>
+           <shortdescription>True: print more automasking information in the logger</shortdescription>
            <value type="bool">False</value>
-<description>
-make more automasking information printed in the logger. For a large cube, extra logging may slow down the process.
+<description> If it is set to True, the summary of automasking at the end of each automasking process 
+                        is printed in the logger.  Following information per channel will be listed in the summary. 
+
+                        chan: channel number
+                        masking?: F - stop updating automask for the subsequent iteration cycles
+                        RMS: robust rms noise
+                        peak: peak in residual image
+                        thresh_type: type of threshold used (noise or sidelobe)
+                        thresh_value: the value of threshold used
+                        N_reg: number of the automask regions
+                        N_pruned: nubmer of the automask regions removed by pruning
+                        N_grow: number of the grow mask regions
+                        N_grow_pruned: number of the grow mask regions removed by pruning
+                        N_neg_pix: number of pixels for negative mask regions 
+ 
+                        Note that for a large cube, extra logging may slow down the process.
 </description>
     </param>
 <!--============================================== -->
