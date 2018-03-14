@@ -541,7 +541,11 @@ void SolvableVisCal::setCallib(const Record& callib,
 
   // Make the interpolation engine
   cpp_ = new CLPatchPanel(calTableName(),selms,callib,matrixType(),nPar(),cttifactoryptr());
-  //  cpp_->listmappings();
+  //cpp_->listmappings();
+
+  // Setup ct_ in SVC private data, because some derived classes need this
+  //  NB:  Not loaded into memory in the callib context (CLPatchPanel has that)
+  ct_= new NewCalTable(calTableName(),Table::Old,Table::Plain);
 
 }
 
