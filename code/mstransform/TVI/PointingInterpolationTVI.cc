@@ -80,9 +80,9 @@ void PI_TVI::setupInterpolator(){
 			if (isSelected[antId]) selectedAntIds.insert(antId);
 		}
 
-		cout << "TVI input ms rows: " << ms.nrow() << endl;
-		cout << "TVI input ms antennas: " << nAnts << endl;
-		cout << "TVI input ms selected antennas: " << selectedAntIds.size() << endl;
+		//cout << "TVI input ms rows: " << ms.nrow() << endl;
+		//cout << "TVI input ms antennas: " << nAnts << endl;
+		//cout << "TVI input ms selected antennas: " << selectedAntIds.size() << endl;
 
 		// Distinct pointings
 		std::stringstream ss;
@@ -91,8 +91,8 @@ void PI_TVI::setupInterpolator(){
 		   << "order by distinct ANTENNA_ID, TIME";
 		String qryDistinctPointings(ss.str());
 
-		cout << "Query string:" << endl;
-		cout << qryDistinctPointings << endl;
+		//cout << "Query string:" << endl;
+		//cout << qryDistinctPointings << endl;
 
 		auto keys = tableCommand(qryDistinctPointings,ms.pointing()).table();
 		auto distinctPointings = ms.pointing()(keys.rowNumbers());
@@ -106,8 +106,8 @@ void PI_TVI::setupInterpolator(){
 			if (antsPointingsCount[antId] >0) hasPointings[antId] = true;
 		}
 
-		for (uInt antId=0; antId < antsPointingsCount.nelements(); ++antId)
-			cout << "ant: " << antId << " pointings: " << antsPointingsCount[antId] << endl;
+		//for (uInt antId=0; antId < antsPointingsCount.nelements(); ++antId)
+		//	cout << "ant: " << antId << " pointings: " << antsPointingsCount[antId] << endl;
 
 		// Extract pointings data from distinctPointings table
 		using PointingTimes = Vector<Double>;
@@ -141,7 +141,7 @@ void PI_TVI::setupInterpolator(){
 
 		interpolator_.setData(antsPointingTimes,antsPointingDirs,isSelected);
 
-		cout << "myTVI.constructor: done" << endl;
+		// cout << "myTVI.constructor: done" << endl;
 	} catch (const std::exception& e) {
 		cout << "Unexcepted exception caught in " << __func__  << endl;
 		cout << "Error message: " << endl;
@@ -151,11 +151,11 @@ void PI_TVI::setupInterpolator(){
 }
 
 PI_TVI::~PointingInterpolationTVI() {
-	cout << "myTVI: destructor: start" << endl;
+	// cout << "myTVI: destructor: start" << endl;
 	// delete interpolator_;
 	// delete distinctPointingsCols_;
 	inputVii_p = NULL; // Following TVI Development Guide
-	cout << "myTVI: destructor: done" << endl;
+	//cout << "myTVI: destructor: done" << endl;
 }
 
 String PI_TVI::ViiType() const {
@@ -370,6 +370,11 @@ Vector<Double> PI_Interp::pointingDir(int antId, double timeStamp) const {
 //const Int& index,
 //const Int& antid) {
 
+
+	if ( not isInterpolated_[antId] ) {
+		Vector<Double> pole(2,0.0);
+		return pole;
+	}
 	// Search the segment to which the timestamp belongs
 	// TODO: std::lowerbound
 

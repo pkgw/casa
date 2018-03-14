@@ -1695,12 +1695,13 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 	case PMS::RA:
 	case PMS::DEC: {
 		// Vector<MDirection> azelVec = vb->azel(vb->time()(0));
-		const auto & dir1Vec = vb->direction1();
+		// const auto & dir1Vec = vb->direction1();
+		Vector<MDirection> dir1Vec = vb->direction1();
 		Matrix<Double> raDecMat;
 		raDecMat.resize(2, dir1Vec.nelements());
 		auto nAnts = dir1Vec.nelements();
 		for (decltype(nAnts) iant = 0; iant < nAnts; ++iant) {
-			raDecMat.column(iant) = dir1Vec[iant].getAngle("deg").getValue();
+			raDecMat.column(iant) = dir1Vec(iant).getAngle("deg").getValue();
 		}
 		*ra_[vbnum] = raDecMat.row(0);
 		*dec_[vbnum] = raDecMat.row(1);
