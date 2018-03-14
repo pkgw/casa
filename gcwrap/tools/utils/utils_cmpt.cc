@@ -486,54 +486,8 @@ utils::version_info( ) { return VersionInfo::info( ); }
 std::string
 utils::version_string( ) { return VersionInfo::str( ); }
 
-bool
- utils::compare_version(const  string& comparitor,  const std::vector<int>& vec) {
-  vector<int> current_version = version( );
-  for ( unsigned int i=0; i < vec.size( ); ++i )
-    if ( vec[i] < 0 ) throw(AipsError("negative values not allowed in version numbers"));
-
-  unsigned int limit = min(current_version.size( ),vec.size( ));
-  if ( comparitor == ">" ) {
-    for ( unsigned int i=0; i < limit; ++i ) {
-      if ( current_version[i] > vec[i] ) return true;
-      else if ( current_version[i] < vec[i] ) return false;
-    }
-    for ( unsigned int i=limit; i < current_version.size( ); ++i )
-      if ( current_version[i] > 0 ) return true;
-    return false;
-  } else if ( comparitor == "<" ) {
-    for ( unsigned int i=0; i < limit; ++i ) {
-      if ( current_version[i] > vec[i] ) return false;
-      else if ( current_version[i] < vec[i] ) return true;
-    }
-    return false;
-  } else if ( comparitor == ">=" ) {
-    for ( unsigned int i=0; i < limit; ++i ) {
-      if ( current_version[i] > vec[i] ) return true;
-      else if ( current_version[i] < vec[i] ) return false;
-    }
-    return true;
-  } else if ( comparitor == "<=" ) {
-    for ( unsigned int i=0; i < limit; ++i ) {
-      if ( current_version[i] > vec[i] ) return false;
-      else if ( current_version[i] < vec[i] ) return true;
-    }
-    for ( unsigned int i=limit; i < current_version.size( ); ++i )
-      if ( current_version[i] > 0 ) return false;
-    return true;
-  } else if ( comparitor == "=" || comparitor == "==" ) {
-    for ( unsigned int i=0; i < limit; ++i ) {
-      if ( current_version[i] != vec[i] ) return false;
-    }
-    for ( unsigned int i=limit; i < current_version.size( ); ++i )
-      if ( current_version[i] > 0 ) return false;
-    return true;
-  } else if ( comparitor == "!=" ) {
-    return ! compare_version("=",vec);
-  } else {
-    throw(AipsError("unknown comparator"));
-  }
-  return false;
+bool utils::compare_version(const  string& comparitor,  const std::vector<int>& vec) {
+    return VersionInfo::compare(comparitor,vec);
 }
 
 } // casac namespace

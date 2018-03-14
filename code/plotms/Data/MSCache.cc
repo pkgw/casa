@@ -26,6 +26,7 @@
 //# $Id: $
 #include <plotms/Data/MSCache.h>
 #include <plotms/Data/PlotMSIndexer.h>
+#include <plotms/Data/PlotMSAtm.h>
 
 #include <casa/OS/Timer.h>
 #include <casa/OS/Memory.h>
@@ -167,6 +168,7 @@ void MSCache::loadIt(vector<PMS::Axis>& loadAxes,
 	completeLoadPageHeaderCache();
 
 	deleteVi(); // close any open tables
+    deleteAtm();
 }
 
 void MSCache::loadError(String mesg) {
@@ -174,6 +176,7 @@ void MSCache::loadError(String mesg) {
 	logLoad(mesg);
 	clear();
 	deleteVi();  // close any open tables
+    deleteAtm();
 	stringstream ss;
 	ss << mesg;
 	throw(AipsError(ss.str()));
@@ -769,7 +772,7 @@ void MSCache::loadChunks(vi::VisibilityIterator2& vi,
 	if (freqFrame_ == MFrequency::N_Types)
 		freqFrame_ = static_cast<MFrequency::Types>(vi.getReportingFrameOfReference());
 
-	Int chunk = 0;
+	Int chunk(0), lastscan(0), thisscan(0), lastspw(-1), thisspw(0);
 	chshapes_.resize(4,nChunk_);
 	goodChunk_.resize(nChunk_);
 	goodChunk_.set(false);
@@ -802,8 +805,27 @@ void MSCache::loadChunks(vi::VisibilityIterator2& vi,
                         return;
                     }
                     loadAxis(vb, chunk, loadAxes[i], loadData[i]);
+                    if (loadAxes[i]==PMS::ATM || loadAxes[i]==PMS::TSKY) {
+                        thisscan = vb->scan()(0);
+                        if (thisscan != lastscan) {
+                            printAtmStats(thisscan);
+                            lastscan = thisscan;
+                        }
+                        thisspw = vb->spectralWindows()(0);
+                        if (thisspw != lastspw) {
+                            uInt vectorsize = ( loadAxes[i]==PMS::ATM ?
+                                (*atm_[chunk]).nelements() :
+                                (*tsky_[chunk]).nelements());
+                            if (vectorsize==1) {
+                                logWarn("load_cache", "Setting " + 
+                                  PMS::axis(loadAxes[i]) + " for spw " +
+                                  String::toString(thisspw) +
+                                  " to zero because it has only one channel.");
+                            }
+                            lastspw = thisspw;
+                        }
+                    }
                 }
-
                 chunk++;
             }
 		}
@@ -845,7 +867,9 @@ void MSCache::loadChunks(vi::VisibilityIterator2& vi,
     goodChunk_.resize(nChunk_);
     goodChunk_.set(false);
     Int nAnts;
-    vi::VisBuffer2* vbToUse = NULL;
+    vi::VisBuffer2* vbToUse(NULL);
+    casacore::Int lastscan(0), thisscan(0);  // for printing atm stats
+    casacore::Int lastspw(-1), thisspw(0);  // for printing ATM/TSKY warning 
 
     for (Int chunk=0; chunk<nChunk_; ++chunk) {
         if (chunk >= nChunk_) {  // nChunk_ was just an estimate!
@@ -882,6 +906,7 @@ void MSCache::loadChunks(vi::VisibilityIterator2& vi,
             }
             // Accumulate into the averager
             pmsvba.accumulate(*vb);
+            
 
             // Advance to next VB unless you are going to finalize
             if (iter+1 < nIterPerAve(chunk)) {
@@ -926,6 +951,26 @@ void MSCache::loadChunks(vi::VisibilityIterator2& vi,
                     vbToUse = vb;
                 }
                 loadAxis(vbToUse, chunk, loadAxes[i], loadData[i]);
+                if (loadAxes[i]==PMS::ATM || loadAxes[i]==PMS::TSKY) {
+                    thisscan = vbToUse->scan()(0);
+                    if (thisscan != lastscan) {
+                        printAtmStats(thisscan);
+                        lastscan = thisscan;
+                    }
+                    thisspw = vbToUse->spectralWindows()(0);
+                    if (thisspw != lastspw) {
+                        uInt vectorsize = ( loadAxes[i]==PMS::ATM ?
+                            (*atm_[chunk]).nelements() :
+                            (*tsky_[chunk]).nelements());
+                        if (vectorsize==1) {
+                            logWarn("load_cache", "Setting " + 
+                              PMS::axis(loadAxes[i]) + " for spw " +
+                              String::toString(thisspw) +
+                              " to zero because it has only one channel.");
+                        }
+                        lastspw = thisspw;
+                    } 
+                }
             }
         } else {
             // no points in this chunk
@@ -969,7 +1014,9 @@ bool MSCache::useAveragedVisBuffer(PMS::Axis axis) {
 	case PMS::AZIMUTH:
 	case PMS::ELEVATION:
 	case PMS::PARANG:
-	case PMS::ROW: {
+	case PMS::ROW:
+	case PMS::ATM:
+	case PMS::TSKY: {
 		useAvg = false;
 		break;
 	}
@@ -1721,17 +1768,43 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 		break;
 	}
 
+    case PMS::ATM:
+    case PMS::TSKY: {
+        casacore::Int spw = vb->spectralWindows()(0);
+        casacore::Int scan = vb->scan()(0);
+        casacore::Array<casacore::Double> chanFreqGHz =
+            vb->getFrequencies(0, freqFrame_)/1e9;
+        casacore::Vector<casacore::Double> curve(1, 0.0);
+        bool isAtm = (axis==PMS::ATM);
+        if (plotmsAtm_) {
+            curve.resize();    
+            curve = plotmsAtm_->calcOverlayCurve(spw, scan, chanFreqGHz,
+                    isAtm);
+        }
+        if (isAtm) 
+            *atm_[vbnum] = curve;
+        else
+            *tsky_[vbnum] = curve;
+        break;
+    }
 	default: {
 		throw(AipsError("Axis choice not supported for MS"));
 		break;
 	}
-	}
+	} // end switch
 }
 
 bool MSCache::isEphemeris(){
 	if ( !ephemerisInitialized ){
-	        Table::TableOption tabopt(Table::Old);
-		MeasurementSet ms(filename_,TableLock(TableLock::AutoLocking), tabopt);
+		Table::TableOption tabopt(Table::Old);
+		MeasurementSet ms;
+		try {
+			ms = MeasurementSet(filename_,TableLock(TableLock::AutoLocking), 
+					tabopt);
+		} catch (AipsError& err) {
+			throw(AipsError("MeasurementSet setup failed.\n" + err.getMesg()));
+		}
+
 		ROMSColumns msc(ms);
 
                 // Check the field subtable for ephemeris fields
