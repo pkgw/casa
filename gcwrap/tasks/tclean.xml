@@ -2013,7 +2013,7 @@ HPX HEALPix grid.  -->
 
     <param type="double" name="minpercentchange" subparam="true">
            <shortdescription>minimum percentage change in mask size (per channel plane) to trigger updating of mask by automask </shortdescription>
-           <value type="double">0.0</value>
+           <value type="double">-1.0</value>
 <description>mininum percentage change in mask size (per channel plane) to trigger updating mask by automask for subsequent cycles. This is only applied the case when noise based threshold is used.
 </description>
     </param>
@@ -2569,7 +2569,7 @@ make more automasking information printed in the logger. For a large cube, extra
          <default param="cutthreshold"><value>0.01</value></default>
          <default param="growiterations"><value>75</value></default>
          <default param="dogrowprune"><value type="bool">True</value></default>
-         <default param="minpercentchange"><value>0.0</value></default>
+         <default param="minpercentchange"><value>-1.0</value></default>
          <default param="verbose"><value type="bool">False</value></default>
        </equals>
    </when>

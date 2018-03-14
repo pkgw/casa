@@ -1968,9 +1968,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         // 1) if current mask is zero (curmaskpix==0.0)
         // 2) if cyclethreshold==threshold (i.e. isthresholdreached=True) and diffpix is zero or 
         //    less than user-specified fractinal change
-	// skip also zero prevmask case - need this?
 	//if ( curmaskpix==0.0 || (diffpix == 0.0 && prevmaskpix!=0.0) || diffpix < fracChange*prevmaskpix) {
-	if ( curmaskpix==0.0 || (isthresholdreached && ((diffpix == 0.0 && prevmaskpix!=0.0) || diffpix < fracChange*prevmaskpix)) ) {
+	//if ( curmaskpix==0.0 || (isthresholdreached && ((diffpix == 0.0 && prevmaskpix!=0.0) || diffpix < fracChange*prevmaskpix)) ) {
+	if ( curmaskpix==0.0 || 
+             (fracChange >=0.0 && isthresholdreached && ( diffpix == 0.0 || diffpix < fracChange*prevmaskpix) ) ) {
 	  chanFlag(ichan) = True;
 	  os<<LogIO::NORMAL<<"set chanFlag(to stop updating automask)  to True for chan="<<ichan<<LogIO::POST;
 	}       
