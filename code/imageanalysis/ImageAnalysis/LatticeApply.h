@@ -175,6 +175,14 @@ public:
 				LineCollapser<T,U>& collapser,
 				uInt collapseAxis,
 				LatticeProgress* tellProgress = 0);
+
+    static void lineMultiApplyOld (PtrBlock<MaskedLattice<U>*>& latticeOut,
+                    const MaskedLattice<T>& latticeIn,
+                    LineCollapser<T,U>& collapser,
+                    uInt collapseAxis,
+                    LatticeProgress* tellProgress = 0);
+
+
     static void lineMultiApply (PtrBlock<MaskedLattice<U>*>& latticeOut, 
 				const MaskedLattice<T>& latticeIn,
 				const LatticeRegion& region,
@@ -249,6 +257,10 @@ private:
 			      const IPosition& shapeOut,
 			      const IPosition& collapseAxes,
 			      Int newOutAxis);
+
+    static IPosition _chunkShape(
+        uInt axis, const MaskedLattice<T>& latticeIn
+    );
 };
 
 
