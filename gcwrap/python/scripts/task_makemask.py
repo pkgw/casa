@@ -628,6 +628,8 @@ def makemask(mode,inpimage, inpmask, output, overwrite, inpfreqs, outfreqs):
             tmp_inmask='__tmp_frominmask'
             tmp_allrgmaskim='__tmp_fromAllRgn'
             tmp_rgmaskim='__tmp_fromRgn'
+            # making sure to remove pre-existing temp files
+            cleanuptempfiles([sum_tmp_outfile, tm_inmask, tmp_allrgmaskim, tmp_rgmaskim]); 
             usedimfiles=[]
             usedbmasks=[]
             usedrgfiles=[]
@@ -734,7 +736,8 @@ def makemask(mode,inpimage, inpmask, output, overwrite, inpfreqs, outfreqs):
                         usedbmasks.append(msk)
                         # need this temp file for the process later
                         ###shutil.rmtree('__tmp_fromTFmask') 
-                        shutil.rmtree(tmp_inmask) 
+                        if os.isdir(tmp_inmask):
+                           shutil.rmtree(tmp_inmask) 
                         # if overwriting to inpimage and if not writing to in-mask, delete the boolean mask
                         if outparentim==inpimage and inpimage==imname:
                             if outbmask=="":
@@ -961,6 +964,7 @@ def regridmask(inputmask,template,outputmask,axes=[3,0,1],method='linear',chanra
     
     (ia,tb,) = gentools(['ia','tb']) 
     inputmaskcopy = "_tmp_copy_"+os.path.basename(inputmask)
+    cleanuptempfiles(inputmaskcopy)
     shutil.copytree(inputmask,inputmaskcopy)
     ia.open(template)
     ocsys = ia.coordsys()
@@ -1030,6 +1034,8 @@ def regridmask(inputmask,template,outputmask,axes=[3,0,1],method='linear',chanra
         # treat everything not = 0.0 to be mask
         ir.calc('iif (abs("%s")>0.0,1,"%s")'%(outputmask,outputmask),False)
         ir.done()
+	if os.path.isdir(inputmaskcopy):
+	    shutil.rmtree(inputmaskcopy)
 
 def addimagemask(sumimage, imagetoadd, threshold=0.0):
     """
