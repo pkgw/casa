@@ -144,12 +144,8 @@ public:
   virtual Type type() { return VisCal::K; };
 
   // Return type name as string
-  virtual casacore::String typeName()     { return ( (isSolved() && combspw()) ? 
-					   "KMBD Jones" : 
-					   "K Jones" ); };
-  virtual casacore::String longTypeName() { return ( (isSolved() && combspw()) ? 
-					   "KMBD Jones (multi-band delay)" : 
-					   "K Jones (single-band delay)"  ); };
+  virtual casacore::String typeName()     { return "K Jones"; };
+  virtual casacore::String longTypeName() { return "K Jones (delay)"; };
 
   // Type of Jones matrix according to nPar()
   virtual Jones::JonesType jonesType() { return Jones::Diagonal; };
@@ -237,7 +233,7 @@ public:
 
   // Return type name as string
   virtual casacore::String typeName()     { return "Kcross Jones"; };
-  virtual casacore::String longTypeName() { return "Kcross Jones (single-band cross delay)"; };
+  virtual casacore::String longTypeName() { return "Kcross Jones (cross-hand delay)"; };
 
   // By definition, we consider cross-hands
   virtual casacore::Bool phandonly() { return false; };
