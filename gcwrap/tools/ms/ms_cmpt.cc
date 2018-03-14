@@ -6913,7 +6913,7 @@ Bool ms::doMSSelection(const ::casac::record& exprs, const bool onlyparse)
 		}
 		return retVal;
 	}
-	catch (AipsError x)
+	catch (const AipsError &x)
 	{
 		Table::relinquishAutoLocks(true);
 		RETHROW(x);
