@@ -70,6 +70,7 @@
 import os
 import numpy
 from taskinit import *
+from ialib import write_image_history
 
 def imsmooth(
     imagename, kernel, major, minor, pa, targetres, kimage, scale, region,
@@ -104,6 +105,7 @@ def imsmooth(
                       +" smoothed image will be\nsaved on disk in file, " \
                       + outfile, 'WARN')
     _myia = iatool()
+    _myia.dohistory(False)
     retia = iatool()
     _myia.open(imagename)
     mycsys = _myia.coordsys()
@@ -148,14 +150,12 @@ def imsmooth(
                 if not pa:
                     raise Exception, "Position angle must be specified"
        
-            retia = _myia.convolve2d(
+            outia = _myia.convolve2d(
                 axes=[0,1], region=reg, major=major,
                 minor=minor, pa=pa, outfile=outfile,
                 mask=mask, stretch=stretch, targetres=targetres,
                 overwrite=overwrite, beam=beam
             )
-            return True
-
         elif (bkernel ):
             if not major or not minor:
                 raise Exception, "Both major and minor must be specified."
@@ -179,29 +179,36 @@ def imsmooth(
             #retValue = ia.sepconvolve( axes=[0,1], types=['box','box' ],\
             #                           widths=[ minor, major ], \
             #                           region=reg,outfile=outfile )
-            retia = _myia.sepconvolve(
+            outia = _myia.sepconvolve(
                 axes=[0,1], types=['box','box' ],
                 widths=[ minor, major ],
                 region=reg,outfile=outfile,
                 mask=mask, stretch=stretch,
                 overwrite=overwrite
             )
-            return True
         elif ikernel:
             _myia.open(imagename)
-            retia = _myia.convolve(
+            outia = _myia.convolve(
                 outfile=outfile, kernel=kimage, scale=scale, region=reg,
                 mask=mask, overwrite=overwrite, stretch=stretch 
             )
-            return True
         else:
             casalog.post( 'Unrecognized kernel type: ' + kernel, 'SEVERE' )
             return False
-        
+        try:
+            param_names = imsmooth.func_code.co_varnames[:imsmooth.func_code.co_argcount]
+            param_vals = [eval(p) for p in param_names]   
+            write_image_history(
+                outia, sys._getframe().f_code.co_name,
+                param_names, param_vals, casalog
+            )
+        except Exception, instance:
+            casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
+        return True
     except Exception, instance:
         casalog.post("Exception: " + str(instance), 'SEVERE')
         return False
     finally:
         _myia.done()
-        retia.done()
+        outia.done()
     

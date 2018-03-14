@@ -326,17 +326,17 @@ void PlotMSAtm::getMedianPwv() {
           if (mstab.keywordSet().fieldNumber("ASDM_CALWVR") > -1) {
             subname = tableName_ + "::ASDM_CALWVR";
             subtable = Table::openTable(subname);
-			if (subtable.nrow() > 0) {
+            if (subtable.nrow() > 0) {
               waterCol = ScalarColumn<casacore::Double>(subtable, "water").getColumn();
               timesCol = ScalarColumn<casacore::Double>(subtable, "startValidTime").getColumn();
-			}
+            }
           }
           if (waterCol.empty() && mstab.keywordSet().fieldNumber("ASDM_CALATMOSPHERE") > -1) {
             subname = tableName_ + "::ASDM_CALATMOSPHERE";
             subtable = Table::openTable(subname);
-			if (subtable.nrow() > 0) {
+            if (subtable.nrow() > 0) {
               Array<Double> waterColArray = ArrayColumn<casacore::Double>(subtable, "water").getColumn();
-			  waterCol = waterColArray(Slicer(Slice(0), Slice()));
+              waterCol = waterColArray(Slicer(Slice(0), Slice()));
               timesCol = ScalarColumn<casacore::Double>(subtable, "startValidTime").getColumn();
             }
           }
@@ -369,8 +369,7 @@ void PlotMSAtm::getMeanWeather() {
     casacore::Float pressure, humidity(20.0), temperature(273.15);
     // NB: plotbandpass uses default pressure 563 in all cases;
     // see CAS-9053 algorithm #2
-    if (telescopeName_=="ALMA") pressure = 563.0;  // mb
-    else pressure = 786.0;  // mb
+    pressure = (telescopeName_=="ALMA" ? 563.0 : 786.0);  // mb
 
     // values from WEATHER table if it exists
     bool noWeather(false);
@@ -428,7 +427,19 @@ void PlotMSAtm::getMeanWeather() {
     if (noWeather) {
         parent_->logmesg("load_cache", "Could not open WEATHER table, using default values: humidity " + casacore::String::toString(humidity) + ", pressure " + casacore::String::toString(pressure) + ", temperature " + casacore::String::toString(temperature) + " for Atm/Tsky");
     }
-
+    // reset to defaults
+    if (humidity==0.0) {
+        humidity = 20.0;
+        parent_->logmesg("load_cache", "WEATHER table humidity is 0.0, using default value " + casacore::String::toString(humidity));
+    }
+    if (pressure==0.0) {
+        pressure = (telescopeName_=="ALMA" ? 563.0 : 786.0);  // mb
+        parent_->logmesg("load_cache", "WEATHER table pressure is 0.0, using default value " + casacore::String::toString(pressure));
+    }
+    if (temperature==0.0) {
+        temperature = 273.15;
+        parent_->logmesg("load_cache", "WEATHER table temperature is 0.0, using default value " + casacore::String::toString(temperature));
+    }
     // to use in atmosphere.initAtmProfile (tool)
     weather_.define("humidity", humidity);       // %
     weather_.define("pressure", pressure);       // mb
