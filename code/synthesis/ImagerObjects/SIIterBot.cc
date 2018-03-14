@@ -333,10 +333,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                 // cerr<<"nsigma is NOT DEFINED in initRecord!!!"<<endl;
                 //}
 
-                //cerr<<"SIIterBot_state:mergeCycleInitRec::initRecord.asFloat(RecordFieldId(nsigmathreshold))="<<initRecord.asFloat(RecordFieldId("nsigmathreshold"))<<endl;
-                //cerr<<"SIIterBot_state:mergeCycleInitRec::itsNsigmaThresh="<<itsNsigmaThreshold<<endl;
+                cerr<<"SIIterBot_state:mergeCycleInitRec::initRecord.asFloat(RecordFieldId(nsigmathreshold))="<<initRecord.asFloat(RecordFieldId("nsigmathreshold"))<<endl;
+                cerr<<"SIIterBot_state:mergeCycleInitRec:: before itsNsigmaThresh="<<itsNsigmaThreshold<<endl;
                 itsNsigmaThreshold = max(itsNsigmaThreshold, initRecord.asFloat(RecordFieldId("nsigmathreshold")));
                 //cerr<<"SIIterBot_state:mergeCycleInitRec::initRecord.asFloat(nsigmathreshold)="<<initRecord.asFloat(RecordFieldId("nsigmathreshold"))<<endl;
+                cerr<<"SIIterBot_state:mergeCycleInitRec:: after itsNsigmaThresh="<<itsNsigmaThreshold<<endl;
 		
 		///itsMaskSum += initRecord.asFloat(RecordFieldId("masksum"));
 		/*
