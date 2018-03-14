@@ -26,6 +26,7 @@
 //# $Id$
 
 
+#include <QTableWidgetItem>
 #include <display/QtViewer/QtViewer.qo.h>
 #include <display/QtViewer/QtDataManager.qo.h>
 #include <display/QtViewer/QtDisplayPanelGui.qo.h>
@@ -366,7 +367,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	static int findNumberOfFITSImageExt( QString path ) {
 		fitsfile *fptr;
 		int status = 0;
-		fits_open_file( &fptr, path.toAscii( ).constData( ), READONLY, &status );
+		fits_open_file( &fptr, path.toLatin1( ).constData( ), READONLY, &status );
 		if ( status != 0 ) {
 			fits_report_error(stderr, status);
 			return -1;

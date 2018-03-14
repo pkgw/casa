@@ -25,7 +25,7 @@
 #ifndef SETTINGSWIDGET_QO_H
 #define SETTINGSWIDGET_QO_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <display/QtPlotter/SettingsWidget.ui.h>
 #include <casa/Arrays/Vector.h>
 

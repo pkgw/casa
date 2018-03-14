@@ -84,10 +84,19 @@ namespace casa {
 
 		double getTickLabelX(int tickIndex, int tickCount, QtPlotSettings::AxisIndex axisIndex ) const;
 
-		static const QString RADIO_VELOCITY;
-		static const QString OPTICAL_VELOCITY;
-		static const QString OPTICAL_WAVELENGTH;
-		static const double ZERO_LIMIT;
+		static const QString &RADIO_VELOCITY( ) {
+			static QString result("radio velocity");
+			return result;
+		}
+		static const QString &OPTICAL_VELOCITY( ) {
+			static QString result("optical velocity");
+			return result;
+		}
+		static const QString &OPTICAL_WAVELENGTH( ) {
+			static QString result("air wavelength");
+			return result;
+		}
+		static constexpr double ZERO_LIMIT = 0.0000000000000005f;
 
 	private:
 

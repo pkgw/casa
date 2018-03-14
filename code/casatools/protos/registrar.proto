@@ -1,0 +1,24 @@
+
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+
+package casatools.rpc;
+
+service Registrar {
+    // arg provides proposed id while result supplies the offical id
+    rpc add (ServiceId) returns (ServiceId) { }
+    // only ServiceId.id is used for finding service to be removed
+    rpc remove (ServiceId) returns (google.protobuf.BoolValue) { }
+    rpc services (google.protobuf.Empty) returns (ServiceIds) { }
+}
+
+message ServiceId {
+    string id = 1;
+    string type = 2;
+    string uri = 3;
+}
+
+message ServiceIds {
+    repeated ServiceId service = 1;
+}
