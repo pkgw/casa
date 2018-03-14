@@ -21,7 +21,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         <example>imagename='ngc5921.im'</example>
     </param>
     <param type="string" name="function">
-        <description>Aggregate function to apply. This can be set one of flux, max, mean, median, min, rms, stddev, sum, variance. Must be specified.</description>
+        <description>Aggregate function to apply. This can be set one of flux, madm, max, mean, median, min, npts, rms, stddev, sum, variance, xmadm. Must be specified.</description>
         <value/>
         <example>function="max"</example>
         <example>function="rms</example>
@@ -61,7 +61,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         <value type="string"/>
     </param>
     <param type="bool" name="overwrite" subparam="true">
-        <description>Overwrite exisitng ouput file if it exists?</description>
+        <description>Overwrite output image if it exists?</description>
         <value>False</value>
         <example>overwrite=true</example>
     </param>
@@ -119,7 +119,6 @@ stokes           Stokes planes to use. Default is to use
 mask             Mask to use. Default is none.
 stretch          Stretch the input mask if necessary and possible. Only used if a mask is specified.
                  
-
 This task collapses an image along a specified axis or set of axes of N pixels to a single pixel on each
 specified axis. Both float valued and complex valued images are supported. It computes the specified
 aggregate function for pixel values along the specified axes

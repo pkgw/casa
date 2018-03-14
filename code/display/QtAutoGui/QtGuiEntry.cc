@@ -26,6 +26,9 @@
 //#
 //#
 
+#include <QSpinBox>
+#include <QDoubleSpinBox>
+#include <QAbstractSpinBox>
 #include <casa/iostream.h>
 #include "QtGuiEntry.qo.h"
 #include "QtAutoGui.qo.h"

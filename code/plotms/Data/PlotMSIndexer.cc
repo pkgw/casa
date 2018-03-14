@@ -1031,6 +1031,12 @@ void PlotMSIndexer::setMethod(CacheMemPtr& getmethod,PMS::Axis axis,
 	case PMS::RHO:
 		getmethod = &PlotMSCacheBase::getRHO0;
 		break;
+	case PMS::ATM:
+		getmethod = &PlotMSCacheBase::getAtm;
+		break;
+	case PMS::TSKY:
+		getmethod = &PlotMSCacheBase::getTsky;
+		break;
 	default:
 		throw(AipsError("Can't find get method for "+PMS::axis(axis)+"."));
 		break;
@@ -1093,6 +1099,8 @@ void PlotMSIndexer::setIndexer(IndexerMethPtr& indexmethod,PMS::Axis axis) {
 	case PMS::FREQUENCY:
 	case PMS::VELOCITY:
 	case PMS::CHANNEL:
+	case PMS::ATM:
+	case PMS::TSKY:
 		indexmethod = &PlotMSIndexer::getIndex0100;
 		break;
 
@@ -1404,35 +1412,39 @@ void PlotMSIndexer::reportMeta(Double x, Double y, Bool masked,stringstream& ss)
 
 	Int ant1=Int( plotmscache_->getAnt1(currChunk_,getIndex0010(currChunk_,irel_)) );
 	Int ant2=Int( plotmscache_->getAnt2(currChunk_,getIndex0010(currChunk_,irel_)) );
-    if (ant2 < 0)
-	    ss << "ANT1=";
-    else
-	    ss << "BL=";
-	// Antenna Names
-	if (!plotmscache_->netAxesMask_[dataIndex](2) || ant1<0)
-		ss << "*";
-	else
-		ss << plotmscache_->antstanames_(ant1);
-	if (!plotmscache_->netAxesMask_[dataIndex](2))
-		ss << " & * ";
-    else if (ant1==ant2)
-		ss << " && " << plotmscache_->antstanames_(ant2);
-	else if (ant2>=0)
-		ss << " & " << plotmscache_->antstanames_(ant2);
-	// Antenna indices
-	if (showindices) {
-		ss << " [";
+    if (ant1<0 && ant2<0)
+		ss << "BL=*&* [averaged]";
+	else {
+		if (ant2 < 0)
+			ss << "ANT1=";
+		else
+			ss << "BL=";
+		// Antenna Names
 		if (!plotmscache_->netAxesMask_[dataIndex](2) || ant1<0)
 			ss << "*";
 		else
-			ss << ant1;
-		if (!plotmscache_->netAxesMask_[dataIndex](2))
-			ss << "&*";
-        else if (ant1==ant2)
-			ss << "&&" << ant2;
+			ss << plotmscache_->antstanames_(ant1);
+		if (!plotmscache_->netAxesMask_[dataIndex](2) || ant2<0)
+			ss << " & * ";
+		else if (ant1==ant2)
+			ss << " && " << plotmscache_->antstanames_(ant2);
 		else if (ant2>=0)
-			ss << "&" << ant2;
-		ss << "]";
+			ss << " & " << plotmscache_->antstanames_(ant2);
+		// Antenna indices
+		if (showindices) {
+			ss << " [";
+			if (!plotmscache_->netAxesMask_[dataIndex](2) || ant1<0)
+				ss << "*";
+			else
+				ss << ant1;
+			if (!plotmscache_->netAxesMask_[dataIndex](2) || ant2<0)
+				ss << "&*";
+			else if (ant1==ant2)
+				ss << "&&" << ant2;
+			else if (ant2>=0)
+				ss << "&" << ant2;
+			ss << "]";
+		}
 	}
 	ss << " ";
 

@@ -25,7 +25,7 @@
 #ifndef SEARCHMOLECULESRESULTSWIDGET_QO_H
 #define SEARCHMOLECULESRESULTSWIDGET_QO_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <casa/Containers/Record.h>
 #include <display/QtPlotter/SearchMoleculesResultsWidget.ui.h>
 #include <display/QtPlotter/SearchMoleculesResultDisplayer.h>

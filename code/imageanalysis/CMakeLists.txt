@@ -42,6 +42,7 @@ ImageAnalysis/CasaImageBeamSet.cc
 ImageAnalysis/ComplexImageRegridder.cc
 ImageAnalysis/ComponentImager.cc
 ImageAnalysis/ImageCollapserData.cc
+ImageAnalysis/ImageCollapser2.cc
 ImageAnalysis/ImageFactory2.cc
 ImageAnalysis/ImageFFT.cc
 ImageAnalysis/ImageFitter.cc
@@ -56,13 +57,17 @@ ImageAnalysis/ImageMomentsProgressMonitor.cc
 ImageAnalysis/ImagePadder.cc
 ImageAnalysis/ImagePolarimetry.cc
 ImageAnalysis/ImagePolProxy.cc
+ImageAnalysis/ImagePolTask.cc
 ImageAnalysis/ImagePrimaryBeamCorrector.cc
 ImageAnalysis/ImageProfileFitter.cc
 ImageAnalysis/ImageRegridder.cc
 ImageAnalysis/ImageRotator.cc
 ImageAnalysis/ImageStatsCalculator.cc
 ImageAnalysis/ImageStatsConfigurator.cc
+ImageAnalysis/ImageTotalPolarization.cc
 ImageAnalysis/ImageTransposer.cc
+ImageAnalysis/LinearPolarizationAngleCalculator.cc
+ImageAnalysis/LinearPolarizationCalculator.cc
 ImageAnalysis/PeakIntensityFluxDensityConverter.cc
 ImageAnalysis/PixelValueManipulatorData.cc
 ImageAnalysis/ProfileFitResults.cc
@@ -199,6 +204,7 @@ install (FILES
 	ImageAnalysis/ImagePadder.h
 	ImageAnalysis/ImagePolarimetry.h
 	ImageAnalysis/ImagePolProxy.h
+	ImageAnalysis/ImagePolTask.h
 	ImageAnalysis/ImagePrimaryBeamCorrector.h
 	ImageAnalysis/ImageProfileFitter.h
     ImageAnalysis/ImageRebinner.h
@@ -213,9 +219,12 @@ install (FILES
 	ImageAnalysis/ImageStatsConfigurator.h
 	ImageAnalysis/ImageTask.h
     ImageAnalysis/ImageTask.tcc
+    ImageAnalysis/ImageTotalPolarization.h
 	ImageAnalysis/ImageTransposer.h
 	ImageAnalysis/ImageTwoPtCorr.h
 	ImageAnalysis/ImageTwoPtCorr.tcc
+	ImageAnalysis/LinearPolarizationAngleCalculator.h
+	ImageAnalysis/LinearPolarizationCalculator.h
 	ImageAnalysis/MomentsBase.h
 	ImageAnalysis/MomentsBase.tcc
 	ImageAnalysis/MomentCalcBase.h

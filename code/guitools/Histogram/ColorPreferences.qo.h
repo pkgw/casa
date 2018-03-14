@@ -25,7 +25,7 @@
 #ifndef HISTOGRAM_COLOR_PREFERENCES_QO_H_2
 #define HISTOGRAM_COLOR_PREFERENCES_QO_H_2
 
-#include <QtGui/QDialog>
+#include <QDialog>
 
 #include <guitools/Histogram/ColorPreferences.ui.h>
 
