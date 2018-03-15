@@ -178,19 +178,17 @@ def getAntennaLabelProps(telescope, station, log=False):
 	vAlign = 'center'
 	hAlign = 'left'
 	rotAngle = 0
-	if "VLA" in telescope and station:
-		if station in ['W01', 'E01']:
+	if station and "VLA" in telescope:
+		# these have non-standard format
+		if 'W01' in station or 'E01' in station:
 			vAlign = 'top'
 			hAlign = 'center'
 		else:
-			arm = station[0]
 			vAlign = 'bottom'
-			if arm is "V":  # old datasets may have 'VLA:' prefix
-				arm = station[4]
-			if arm in ['W','M']: 
+			if 'W' in station or 'MAS' in station:
 				hAlign = 'right'
 				rotAngle = -35
-			elif arm is 'E' or (arm is 'N' and not log): 
+			elif 'E' in station or ('N' in station and not log):
 				rotAngle = 35
 	return vAlign, hAlign, rotAngle
 
@@ -208,7 +206,7 @@ def plotAntennasLog(telescope, names, ids, xpos, ypos, antindex, stations):
 
 	# code from pipeline summary.py 
 	# PlotAntsChart draw_polarlog_ant_map_in_subplot
-	if telescope in ('VLA', 'EVLA'):
+	if 'VLA' in telescope:
 		# For (E)VLA, set a fixed local center position that has been
 		# tuned to work well for its array configurations (CAS-7479).
 		xcenter, ycenter = -32, 0
