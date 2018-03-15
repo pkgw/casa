@@ -2014,7 +2014,7 @@ HPX HEALPix grid.  -->
     <param type="double" name="minpercentchange" subparam="true">
            <shortdescription>minimum percentage change in mask size (per channel plane) to trigger updating of mask by automask </shortdescription>
            <value type="double">-1.0</value>
-<description>mininum percentage change in mask size (per channel plane) to trigger updating mask by automask for subsequent cycles. This is only applied the case when noise based threshold is used.
+<description>mininum percentage change in mask size (per channel plane) to trigger updating of mask by automask for subsequent cycles. This check is only applied when noise based threshold is used and when cyclethreshod reached to threshold in the previous cycle. In other words, if the mask size change in a particular channel is less than minpercentchange, it will stop masking for the channel for subsequent cycles. The default, -1.0 (or any value less than 0.0) will turn off this check. Automask will still stop masking if the current channel mask is an empty mask.  
 </description>
     </param>
 
