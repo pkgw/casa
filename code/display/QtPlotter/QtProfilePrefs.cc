@@ -22,6 +22,7 @@
 //#                        520 Edgemont Road
 //#                        Charlottesville, VA 22903-2475 USA
 //#
+#include <QMessageBox>
 #include <display/QtPlotter/QtProfilePrefs.qo.h>
 #include <display/QtPlotter/Util.h>
 
@@ -63,7 +64,7 @@ namespace casa {
 
 		//Only use the default values passed in if the user has not indicated
 		//any preferences.
-		QSettings settings( Util::ORGANIZATION, Util::APPLICATION );
+		QSettings settings( Util::ORGANIZATION( ), Util::APPLICATION( ) );
 		xAutoScaleDefault = settings.value( X_AUTO_SCALE, stateAutoX).toBool();
 		autoScaleX->setChecked( xAutoScaleDefault );
 
@@ -167,7 +168,7 @@ namespace casa {
 
 	void QtProfilePrefs::persist() {
 
-		QSettings settings( Util::ORGANIZATION, Util::APPLICATION );
+		QSettings settings( Util::ORGANIZATION( ), Util::APPLICATION( ) );
 
 		xAutoScaleDefault = autoScaleX->isChecked();
 		settings.setValue( X_AUTO_SCALE, xAutoScaleDefault );

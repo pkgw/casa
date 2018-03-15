@@ -42,6 +42,7 @@
 #include <tables/Tables/ScalarColumn.h>
 #include <tables/Tables/ArrayColumn.h>
 #include <display/Display/ColormapDefinition.h>
+#include <casacore/casa/System/AppState.h>
 
 
 using namespace casacore;
@@ -152,8 +153,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 //static function !!!
 	void ColormapDefinition::loadColormapTable() {
-		String root = Aipsrc::aipsRoot();
-		String defaultpath = root+"/data/gui/colormaps/default.tbl";
+		String defaultpath;
+		if ( casacore::AppStateSource::fetch( ).initialized( ) &&
+			casacore::AppStateSource::fetch( ).dataPath( ).size( ) > 0 ) {
+			// ideally, this would be changed to search the list... but,
+			// initially this is only initialized for CASAviewer.app
+			defaultpath = casacore::AppStateSource::fetch( ).dataPath( ).front( ) + "/gui/colormaps/default.tbl";
+		} else {
+			String root = Aipsrc::aipsRoot();
+			defaultpath = root+"/data/gui/colormaps/default.tbl";
+		}
 		String useSystemCmap;
 		String altpath,userpath;
 		Aipsrc::find(useSystemCmap,"display.colormaps.usedefault","yes");

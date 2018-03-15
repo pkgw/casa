@@ -78,6 +78,7 @@ if casa.has_key('state') and casa['state'].has_key('init_version') and casa['sta
     tptool = stack_find("tptool")
     viewertool = stack_find("viewertool")
     vptool = stack_find("vptool")
+    sbstool = stack_find("sbstool")
 
 else:
     from casac import *
@@ -151,6 +152,8 @@ else:
     sdmstool = casac.singledishms
     sdms = sdmstool()
     parallelimager = casac.parallelimager()
+    sbstool = casac.sidebandseparator
+    sbs = sbstool()
 
     # Log initialization ###################################################################################################
 

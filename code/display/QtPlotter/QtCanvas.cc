@@ -23,6 +23,7 @@
 //#                        Charlottesville, VA 22903-2475 USA
 //#
 
+#include <QToolTip>
 #include <casa/aips.h>
 #include <display/QtPlotter/QtCanvas.qo.h>
 #include <display/QtPlotter/Util.h>

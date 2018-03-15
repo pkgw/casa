@@ -34,6 +34,14 @@ import pprint
 import nose
 from taskinit import casalog
 
+##
+## testwrapper.py depends upon the current directory being in the path because
+## it changes to the directory where the test is located and then imports it.
+## CASA no longer leaves empty strings in sys.path to avoid confusion when
+## stray files are in the current directory.
+##
+sys.path.insert(0,'')
+
 PYVER = str(sys.version_info[0]) + "." + str(sys.version_info[1])
 
 CASA_DIR = os.environ["CASAPATH"].split()[0]
@@ -58,6 +66,8 @@ except:
 import testwrapper
 from testwrapper import *
 
+
+RUN_SUBTEST = False
 
 # Tests included in the following file are run automatically by
 # Hudson. This is also the list of tests run when no options are given
@@ -179,7 +189,35 @@ def getclasses(testnames):
     except:
         print '--> ERROR: Cannot copy script to %s'%tmpdir
         return
-    
+
+def getsubtests(filename,list=[]):
+    f = filename
+    testlist_to_execute = []
+    here = os.getcwd()
+    tmpdir = '/tmp'
+    os.chdir(tmpdir)
+    tt = UnitTest(f)
+    tt.copyTest(copyto=tmpdir)
+    classes = tt.getTestClasses(f)
+    for c in classes:
+        # Check if class has @attr(tag=''). Note: class @attr takes priority over func attr
+        if 'tag' in c.__dict__:
+            if c.tag == ATTR_VAL:
+                for attr, value in c.__dict__.iteritems():
+                    if len(attr) >= len("test") and attr[:len("test")] == "test":
+                        testlist_to_execute.append([attr,value.__module__])
+        else:
+            # Check if functions within each class has @attr(tag = '') or func.tag = ''
+            for attr, value in c.__dict__.iteritems():
+                if len(attr) >= len("test") and attr[:len("test")] == "test":
+                    if hasattr(value,'tag'):
+                        if value.tag == ATTR_VAL:
+                          testlist_to_execute.append([attr,value.__module__])
+    os.remove(f+'.py')
+    os.remove(f+'.pyc')
+    os.chdir(here)
+
+    return testlist_to_execute
 
 # Define which tests to run    
 whichtests = 0
@@ -247,31 +285,38 @@ def main(testnames=[]):
         os.makedirs(xmldir)
     
     print "Starting unit tests for %s: " %(listtests)
-    
+
     # ASSEMBLE and RUN the TESTS
     if not whichtests:
         '''Run all tests'''
         list = []
+        testlist_to_execute= []
         # awells CAS-10844 Fix
         suiteList = []
         for f in listtests:
             suite = unittest.TestSuite()
             try:
                 tests = UnitTest(f).getUnitTest()
+                if RUN_SUBTEST:
+                    testlist_to_execute = testlist_to_execute + getsubtests(f,tests)
                 for test in tests:
                     suite.addTest(test)
                 suiteList.append(suite)
             except:
                 traceback.print_exc()
         list = suiteList
+
     elif (whichtests == 1):
         '''Run specific tests'''
         list = []
+        testlist_to_execute= []
         for f in listtests:
             if not haslist(f):                
                 testcases = UnitTest(f).getUnitTest()
                 list = list+testcases
 
+                if RUN_SUBTEST:
+                    testlist_to_execute = testlist_to_execute + getsubtests(f,list)
             else:
                 ff = getname(f)
                 tests = gettests(f)
@@ -295,10 +340,29 @@ def main(testnames=[]):
                 else:
                     testcases = UnitTest(ff).getUnitTest(tests)
                 list = list+testcases                
-                
-        if (len(list) == 0):
-            os.chdir(PWD)
-            raise Exception, 'ERROR: There are no valid tests to run'
+
+    if RUN_SUBTEST:
+
+
+        if len(testlist_to_execute) == 0:
+            raise ValueError, "Cannot Find Tests with Attribute:'%s'"%(ATTR_VAL)
+        if not whichtests:
+            for i in range(0,len(list)):
+                tmp = []
+                for item in list[i]:
+                    if [item._testMethodName,item.__module__] in testlist_to_execute:
+                        tmp.append(item)
+                list[i] =  unittest.TestSuite(tmp)
+        else:
+            tmp = []
+            for item in list:
+                if [item._testMethodName,item.__module__] in testlist_to_execute:
+                    tmp.append(item)
+            list = tmp
+
+    if (len(list) == 0):
+        os.chdir(PWD)
+        raise Exception, 'ERROR: There are no valid tests to run'
                                                                      
                 
     # Run all tests and create a XML report
@@ -340,9 +404,9 @@ if __name__ == "__main__":
         
             try:
                 # Get only this script options
-                opts,args=getopt.getopt(sys.argv[i+2:], "Halmgs:f:d:", ["Help","all","list","mem",
+                opts,args=getopt.getopt(sys.argv[i+2:], "Halmgs:f:d:r:", ["Help","all","list","mem",
                                                                      "debug","classes=","file=",
-                                                                     "datadir="])
+                                                                     "datadir=","attr="])
                 
             except getopt.GetoptError, err:
                 # Print help information and exit:
@@ -407,6 +471,10 @@ if __name__ == "__main__":
                 elif o in ("-f", "--file"):
                     hasfile = True
                     testnames = a
+
+                elif o in ("-r", "--attr"):
+                    RUN_SUBTEST = True
+                    ATTR_VAL = a
                     
                 else:
                     assert False, "unhandled option"
