@@ -501,11 +501,11 @@ namespace casa {
 						return;
 					}
 					ofstream sink;
-					sink.open(where.toAscii( ).constData( ));
+					sink.open(where.toLatin1( ).constData( ));
 					annotation_list.print(sink);
 					sink.close( );
 				} else if ( type == "DS9 region file" ) {
-					ds9writer writer(where.toAscii( ).constData( ),csys.toAscii( ).constData( ));
+					ds9writer writer(where.toLatin1( ).constData( ),csys.toLatin1( ).constData( ));
 					try {
 						emit saveRegions(regionstate_list,writer);
 					} catch (...) {

@@ -80,6 +80,7 @@ msview.xml
 mstransform.xml
 msuvbin.xml
 oldhanningsmooth.xml
+oldplotants.xml
 oldsplit.xml
 plotants.xml
 plotbandpass.xml
@@ -103,6 +104,7 @@ sdfixscan.xml
 sdgaincal.xml
 sdimaging.xml
 tsdimaging.xml
+sdsidebandsplit.xml
 sdsmooth.xml
 setjy.xml
 ssoflux.xml
