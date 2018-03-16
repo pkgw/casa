@@ -462,6 +462,8 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
 
 
     if(!doneMainConv_p[actualConvIndex_p]) {
+      cerr << "doneMainConv_p " << actualConvIndex_p << endl;
+
         Vector<Double> sampling;
         sampling = dc.increment();
         sampling*=Double(convSampling);
@@ -1182,7 +1184,7 @@ void HetArrayConvFunc::supportAndNormalizeLatt(Int plane, Int convSampling, Temp
     Int trial=0;
     for (trial=0; trial< (convSize/2-2); ++trial) {
         //Searching down a diagonal
-     if((abs(convPlane(convSize/2-trial-1,convSize/2-1-trial)) <  (7.5e-2*maxAbsConvFunc)) || (real(convPlane(convSize/2-trial-2,convSize/2-trial-2)) <0.0  )) 
+     if((abs(convPlane(convSize/2-trial-1,convSize/2-1-trial)) <  (2.5e-2*maxAbsConvFunc)) || (real(convPlane(convSize/2-trial-2,convSize/2-trial-2)) <0.0  )) 
      { 
 //|| (real(convPlane(convSize/2-trial-2,convSize/2-trial-2)) <0.0  )) {
             found=true;
@@ -1191,9 +1193,9 @@ void HetArrayConvFunc::supportAndNormalizeLatt(Int plane, Int convSampling, Temp
             break;
         }
     }
-   
+    cerr << " found " << found << " 0trial " << trial << endl;
     if(!found) {
-        if((maxAbsConvFunc-minAbsConvFunc) > (7.5e-2*maxAbsConvFunc))
+        if((maxAbsConvFunc-minAbsConvFunc) > (2.5e-2*maxAbsConvFunc))
             found=true;
         // if it drops by more than 2 magnitudes per pixel
         trial=( (10*convSampling) < convSize) ? 5*convSampling : (convSize/2 - 4*convSampling);
@@ -1221,7 +1223,7 @@ void HetArrayConvFunc::supportAndNormalizeLatt(Int plane, Int convSampling, Temp
         //OTF may have flagged stuff ...
         convSupport=0;
     }
-   
+    cerr << "1trial " << trial << " csupp " << convSupport << endl;
     convSupport_p(plane)=convSupport;
     Double pbSum=0.0;
     /*
