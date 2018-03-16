@@ -155,7 +155,7 @@ def getPlotantsAntennaInfo(msname, exclude, checkbaselines):
 	
 	# Convert from lat, lon, alt to X, Y, Z (unless VLBA)
 	# where X is east, Y is north, Z is up,
-	# and 0, 0, 0 is the center of the LWA1.  
+	# and 0, 0, 0 is the center
 	# Note: this conversion is NOT exact, since it doesn't take into account
 	# Earth's ellipticity!  But it's close enough.
 	radE = 6370000.
@@ -180,7 +180,7 @@ def getAntennaLabelProps(telescope, station, log=False):
 	rotAngle = 0
 	if station and "VLA" in telescope:
 		# these have non-standard format
-		if 'W01' in station or 'E01' in station:
+		if 'W01' in station or 'E01' in station or 'W1' in station or 'E1' in station:
 			vAlign = 'top'
 			hAlign = 'center'
 		else:
@@ -277,17 +277,18 @@ def plotAntennasLog(telescope, names, ids, xpos, ypos, antindex, stations):
 
 	# plot points and antenna names/ids
 	for i, (name, station) in enumerate(zip(names, stations)):
-		ax.plot(theta[i], np.log(r[i]), 'ko', ms=5, mfc='r')
-		if antindex:
-			name += ' (' + str(ids[i]) + ')'
-		# set alignment and rotation angle (for VLA)
-		valign, halign, angle = getAntennaLabelProps(telescope, station, log=True)
-		# adjust so text is not on the circle:
-		yoffset = 0
-		if halign is 'center':
-			yoffset = 0.1
-		ax.text(theta[i], np.log(r[i])+yoffset, ' '+name, size=8, va=valign, ha=halign,
-			rotation=angle, weight='semibold')
+		if name:
+			ax.plot(theta[i], np.log(r[i]), 'ko', ms=5, mfc='r')
+			if antindex:
+				name += ' (' + str(ids[i]) + ')'
+			# set alignment and rotation angle (for VLA)
+			valign, halign, angle = getAntennaLabelProps(telescope, station, log=True)
+			# adjust so text is not on the circle:
+			yoffset = 0
+			if halign is 'center':
+				yoffset = 0.1
+			ax.text(theta[i], np.log(r[i])+yoffset, ' '+name, size=8, va=valign, ha=halign,
+				rotation=angle, weight='semibold')
 
 	# Set minimum and maximum radius.
 	ax.set_rmax(rmax)
@@ -309,17 +310,18 @@ def plotAntennas(telescope, names, ids, xpos, ypos, antindex, stations):
 
 	# plot points and antenna names/ids
 	for i, (x, y, name, station) in enumerate(zip(xpos, ypos, names, stations)):
-		ax.plot(x, y, 'ro')
-		if antindex:
-			name += ' (' + str(ids[i]) + ')'
-		# set alignment and rotation angle (for VLA)
-		valign, halign, angle = getAntennaLabelProps(telescope, station)
-		# adjust so text is not on the circle:
-		if halign is 'center':
-			y -= 10
-		ax.text(x, y, ' '+name, size=8, va=valign, ha=halign, rotation=angle,
-			weight='semibold')
-		fig.show()
+		if name:
+			ax.plot(x, y, 'ro')
+			if antindex:
+				name += ' (' + str(ids[i]) + ')'
+			# set alignment and rotation angle (for VLA)
+			valign, halign, angle = getAntennaLabelProps(telescope, station)
+			# adjust so text is not on the circle:
+			if halign is 'center':
+				y -= 10
+			ax.text(x, y, ' '+name, size=8, va=valign, ha=halign, rotation=angle,
+				weight='semibold')
+			fig.show()
 
 	pl.xlabel('X' + units)
 	pl.ylabel('Y' + units)
