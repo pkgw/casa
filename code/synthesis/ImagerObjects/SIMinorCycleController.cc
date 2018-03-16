@@ -66,12 +66,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //if( fabs(currentPeakResidual) <= itsCycleThreshold ) { stopCode=2; }
     // Reached cyclethreshold or n-sigma threshold
     //debug (TT)
-    //os << "majorCycleRequired itsNsigma="<<itsNsigma<<" itsIterDiff="<<itsIterDiff<<LogIO::POST;
+    os << "majorCycleRequired itsNsigma="<<itsNsigma<<" itsIterDiff="<<itsIterDiff<<LogIO::POST;
     if (itsCycleThreshold >= itsNsigmaThreshold) {
-      if( fabs(currentPeakResidual) <= itsCycleThreshold ) { stopCode=2; }
+      //if( fabs(currentPeakResidual) <= itsCycleThreshold ) { stopCode=2; }
+      if( fabs(currentPeakResidual) <= itsCycleThreshold ) { 
+        //itsNsigmaThreshold = 0.0; // since stopped by gobal threshold, reset itsNsigmaThreshold 
+        stopCode=2; 
+      }
     }
     else {
-      if( fabs(currentPeakResidual) <= itsNsigmaThreshold && !(itsIterDiff<=0)) { stopCode=6; }
+      if( fabs(currentPeakResidual) <= itsNsigmaThreshold && !(itsIterDiff<=0)) { if (itsNsigma!=0.0) stopCode=6; }
     }
     // Zero iterations done
     if( itsIterDiff==0 ) {stopCode=3;}

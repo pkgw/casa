@@ -184,10 +184,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		    if( itsIterDone >= itsNiter ) { stopCode=1; }
 		    //os << "Numer of iterations. "; // (" << itsIterDone << ") >= limit (" << itsNiter << ")" ;
-		    //if( usePeakRes <= itsThreshold ) {stopCode=2; }
-		    if ( usePeakRes <= itsThreshold ) {
-                      if (itsThreshold >= itsNsigmaThreshold) {stopCode=2;}
-                      else { stopCode=8;}
+		    if( usePeakRes <= itsThreshold ) {stopCode=2;}
+		    //if ( usePeakRes <= itsThreshold ) {
+                      // (itsThreshold >= itsNsigmaThreshold) {stopCode=2;}
+                      //if (itsThreshold >= itsNsigmaThreshold) {stopCode=2;}
+                      //else { if(itsNsigmaThreshold!=0.0) stopCode=8;} // for nsigma=0.0 this mode is turned off.
+                    //}
+                    else if ( usePeakRes <= itsNsigmaThreshold ) {
+                      if (itsNsigmaThreshold!=0.0) { stopCode=8; } // for nsigma=0.0 this mode is turned off
                     }
                     
 		    //os << "Peak residual (" << itsPeakResidual << ") <= threshold(" << itsThreshold << ")";
