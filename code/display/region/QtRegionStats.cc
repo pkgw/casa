@@ -28,7 +28,7 @@
 #include <QDebug>
 #include <display/region/QtRegionStats.qo.h>
 #include <display/region/RegionInfo.h>
-#include <QtGui/QStackedWidget>
+#include <QStackedWidget>
 #include <display/region/Region.qo.h>
 #include <display/region/RegionInfo.h>
 #include <display/region/Polyline.qo.h>

@@ -25,7 +25,7 @@
 #ifndef FEATHERPLOTWIDGET_QO_H
 #define FEATHERPLOTWIDGET_QO_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 #include <guitools/Feather/FeatherPlotWidget.ui.h>
 #include <guitools/Feather/FeatherPlot.h>

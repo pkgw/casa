@@ -166,6 +166,14 @@ def _imregrid_to_new_ref_frame(
         _myia.done()
         csys.done()
         return subi
+    if (csys.projection()['type'] == 'SFL'):
+        raise Exception(
+            "The direction coordinate of this image has a projection "
+            "of SFL. Because of the constraints of this projection, "
+            "this image cannot be easily rotated. You may wish to "
+            "consider temporarily modifying the projection using "
+            "cs.setprojection() to allow rotation of the image."
+        )
     casalog.post(
         "Changing coordinate system from " + oldrefcode
         + " to " + newrefcode, 'INFO'
