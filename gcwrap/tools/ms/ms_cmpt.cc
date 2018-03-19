@@ -6903,6 +6903,8 @@ Bool ms::doMSSelection(const ::casac::record& exprs, const bool onlyparse)
                         // does a throw(x) which does not respect the original exception
                         // object and casts it to a generic AipsError.
                         // TODO: Fix it there, and remove this horror catch!
+                        // We'll need this commit from casacore (not yet in CASA):
+                        // https://github.com/casacore/casacore/commit/6e340c7ccda0da6e4d854379b652ba445deaa411
                         if (std::string::npos !=
                             std::string(selex.what()).find("MSSelectionNullSelection")) {
                             setNewSel(newSelectedMS);
