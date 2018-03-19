@@ -25,7 +25,7 @@
 #ifndef COLORTRANSFERWIDGET_QO_H
 #define COLORTRANSFERWIDGET_QO_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <casa/Arrays/Vector.h>
 #include <display/QtViewer/ColorTransferWidget.ui.h>
 

@@ -36,7 +36,7 @@ mstransformer::mstransformer()
 		*logger_p << LogIO::DEBUG1
 				<< "Stack Trace: " << x.getStackTrace()
 				<< LogIO::POST;
-		*logger_p 	<< LogIO::SEVERE
+		*logger_p 	<< LogIO::DEBUG1
 					<< "Exception Reported: " << x.getMesg()
 					<< LogIO::POST;
 		RETHROW(x);
@@ -54,7 +54,7 @@ mstransformer::~mstransformer()
 	    Table::relinquishAutoLocks(true);
 		*logger_p << LogIO::DEBUG1 		<< "Stack Trace: " << x.getStackTrace()
 										<< LogIO::POST;
-		*logger_p << LogIO::SEVERE 		<< "Exception Reported: " << x.getMesg()
+		*logger_p << LogIO::DEBUG1 		<< "Exception Reported: " << x.getMesg()
 										<< LogIO::POST;
 		RETHROW(x);
 	}
@@ -77,7 +77,7 @@ mstransformer::done()
 	    Table::relinquishAutoLocks(true);
 		*logger_p << LogIO::DEBUG1 		<< "Stack Trace: " << x.getStackTrace()
 										<< LogIO::POST;
-		*logger_p << LogIO::SEVERE 		<< "Exception Reported: " << x.getMesg()
+		*logger_p << LogIO::DEBUG1 		<< "Exception Reported: " << x.getMesg()
 										<< LogIO::POST;
 		RETHROW(x);
 	}
@@ -107,7 +107,7 @@ mstransformer::config(const ::casac::record& pars)
 	} catch(AipsError x) {
 		*logger_p << LogIO::DEBUG1 		<< "Stack Trace: " << x.getStackTrace()
 										<< LogIO::POST;
-		*logger_p << LogIO::SEVERE 		<< "Exception Reported: " << x.getMesg()
+		*logger_p << LogIO::DEBUG1 		<< "Exception Reported: " << x.getMesg()
 										<< LogIO::POST;
 		RETHROW(x);
 	}
@@ -130,7 +130,7 @@ mstransformer::open()
 	} catch(AipsError x) {
 		*logger_p << LogIO::DEBUG1 		<< "Stack Trace: " << x.getStackTrace()
 										<< LogIO::POST;
-		*logger_p << LogIO::SEVERE 		<< "Exception Reported: " << x.getMesg()
+		*logger_p << LogIO::DEBUG1 		<< "Exception Reported: " << x.getMesg()
 										<< LogIO::POST;
 		RETHROW(x);
 	}
@@ -155,7 +155,7 @@ mstransformer::open()
 	} catch(AipsError x){
 		*logger_p << LogIO::DEBUG1 		<< "Stack Trace: " << x.getStackTrace()
 										<< LogIO::POST;
-		*logger_p << LogIO::SEVERE 		<< "Exception Reported: " << x.getMesg()
+		*logger_p << LogIO::DEBUG1 		<< "Exception Reported: " << x.getMesg()
 										<< LogIO::POST;
 		RETHROW(x);
 
@@ -177,7 +177,7 @@ mstransformer::mergespwtables(const std::vector<std::string> &filenames)
 	} catch(AipsError x){
 		*logger_p << LogIO::DEBUG1 		<< "Stack Trace: " << x.getStackTrace()
 										<< LogIO::POST;
-		*logger_p << LogIO::SEVERE 		<< "Exception Reported: " << x.getMesg()
+		*logger_p << LogIO::DEBUG1 		<< "Exception Reported: " << x.getMesg()
 										<< LogIO::POST;
 		RETHROW(x);
 	}

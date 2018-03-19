@@ -75,7 +75,8 @@ public:
 
 	ImageRotator(
 	    const SPCIIF image, const casacore::Record *const &regionPtr,
-	    const casacore::String& mask,const casacore::String& outname, casacore::Bool overwrite
+	    const casacore::String& mask,const casacore::String& outname,
+	    casacore::Bool overwrite
 	);
 	
 	ImageRotator(const ImageRotator &other) = delete;
@@ -103,7 +104,6 @@ public:
 
 	// set shape of output image
 	void setShape(const casacore::IPosition& shape) { _shape = shape; }
-
 
 protected:
 

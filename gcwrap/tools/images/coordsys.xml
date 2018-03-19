@@ -1778,14 +1778,9 @@ You can set the reference code with
 #
 print "\t----\t referencecode Ex 1 \t----"
 csys = cs.newcoordsys(direction=True)
-clist = csys.referencecode('dir', T)
+clist = csys.referencecode('dir', True)
 print clist
-#['J2000', 'JMEAN', 'JTRUE', 'APP', 'B1950', 'BMEAN', 'BTRUE',
-# 'GALACTIC', 'HADEC', 'AZEL', 'AZELSW', 'AZELNE', 'AZELGEO',
-# 'AZELSWGEO', 'AZELNEGEO', 'JNAT', 'ECLIPTIC', 'MECLIPTIC',
-# 'TECLIPTIC', 'SUPERGAL', 'ITRF', 'TOPO', 'ICRS',
-# 'MERCURY', 'VENUS', 'MARS', 'JUPITER', 'SATURN', 'URANUS',
-# 'NEPTUNE', 'PLUTO', 'SUN', 'MOON', 'COMET']
+# ['J2000', 'JMEAN', 'JTRUE', 'APP', 'B1950', 'B1950_VLA', 'BMEAN', 'BTRUE', 'GALACTIC', 'HADEC', 'AZEL', 'AZELSW', 'AZELNE', 'AZELGEO', 'AZELSWGEO', 'AZELNEGEO', 'JNAT', 'ECLIPTIC', 'MECLIPTIC', 'TECLIPTIC', 'SUPERGAL', 'ITRF', 'TOPO', 'ICRS', 'MERCURY', 'VENUS', 'MARS', 'JUPITER', 'SATURN', 'URANUS', 'NEPTUNE', 'PLUTO', 'SUN', 'MOON', 'COMET']
 print csys.referencecode('dir')
 #J2000
 #
@@ -2735,16 +2730,13 @@ then the reference code is simply overwritten; do this very carefully.
 #
 print "\t----\t Ex setreferencecode 1 \t----"
 csys = cs.newcoordsys(direction=True)
-clist = csys.referencecode('dir', T)      # See possibilities
+clist = csys.referencecode('dir', True)      # See possibilities
 print clist
-#['J2000', 'JMEAN', 'JTRUE', 'APP', 'B1950', 'BMEAN', 'BTRUE', 'GALACTIC',
-# 'HADEC', 'AZEL', 'AZELSW', 'AZELNE', 'AZELGEO', 'AZELSWGEO', 'AZELNEGEO',
-# 'JNAT', 'ECLIPTIC', 'MECLIPTIC', 'TECLIPTIC', 'SUPERGAL', 'ITRF', 'TOPO',
-# 'ICRS', 'MERCURY', 'VENUS', 'MARS', 'JUPITER', 'SATURN', 'URANUS',
-# 'NEPTUNE', 'PLUTO', 'SUN', 'MOON', 'COMET']
+#['J2000', 'JMEAN', 'JTRUE', 'APP', 'B1950', 'B1950_VLA', 'BMEAN', 'BTRUE', 'GALACTIC', 'HADEC', 'AZEL', 'AZELSW', 'AZELNE', 'AZELGEO', 'AZELSWGEO', 'AZELNEGEO', 'JNAT', 'ECLIPTIC', 'MECLIPTIC', 'TECLIPTIC', 'SUPERGAL', 'ITRF', 'TOPO', 'ICRS', 'MERCURY', 'VENUS', 'MARS', 'JUPITER', 'SATURN', 'URANUS', 'NEPTUNE', 'PLUTO', 'SUN', 'MOON', 'COMET']
+
 print cs.referencecode('dir')
 #J2000
-cs.setreferencecode('B1950', 'dir', T)
+cs.setreferencecode('B1950', 'dir', True)
 #
 """
 
@@ -2761,7 +2753,7 @@ coordinate in our Coordinate System.
 """
 #
 print "\t----\t Ex setreferencecode 2 \t----"
-ia.maketestimage('myimage.j2000',overwrite=true)      # Open image
+ia.maketestimage('myimage.j2000',overwrite=True)      # Open image
 csys = ia.coordsys()			              # Get Coordinate System
 print csys.referencecode('dir', F)
 #J2000

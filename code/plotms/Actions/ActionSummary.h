@@ -34,6 +34,7 @@ class ActionSummary  : public PlotMSAction {
 public:
 	ActionSummary( Client* client );
 	void setSummaryType( PMS::SummaryType type );
+	void setCTSummaryType( PMS::CTSummaryType type );
 	void setFile( casacore::String file );
 	void setVerbose( bool verbose );
 
@@ -45,6 +46,7 @@ protected:
 private:
 	//vector<PlotMSPlot*> plots;
 	PMS::SummaryType summaryType;
+	PMS::CTSummaryType CTsummaryType;
 	casacore::String filename;
 	bool verbose;
 };

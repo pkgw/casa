@@ -26,7 +26,7 @@
 #ifndef SLICE_SEGMENT_QO_H
 #define SLICE_SEGMENT_QO_H
 
-#include <QtGui/QFrame>
+#include <QFrame>
 #include <casa/BasicSL/String.h>
 #include <display/Slicer/SliceSegment.ui.h>
 

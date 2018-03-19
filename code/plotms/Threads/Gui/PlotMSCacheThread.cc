@@ -88,9 +88,9 @@ void PlotMSCacheThread::threadFinished() {
     // that the plot won't update the display.
     bool success = getResult();
     if( !success ) {
-    	errorTitle = "Load Error ";
+    	errorTitle = PMS::LOG_ORIGIN_LOAD_CACHE;
     	if ( !itsLoad_ ){
-    		errorTitle = "ReleaseError";
+    		errorTitle = PMS::LOG_ORIGIN_RELEASE_CACHE;
     	}
         errorWarning = true;
         wasCanceled_ = true;
