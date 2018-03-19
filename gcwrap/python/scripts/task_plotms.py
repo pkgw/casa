@@ -275,6 +275,7 @@ def plotms(vis=None,
     synonyms['tsys']=synonyms['Tsys']=synonyms['TSYS']='tsys'
     synonyms['opac']=synonyms['opacity']=synonyms['Opac']='opac'
     synonyms['snr']=synonyms['SNR']='SNR'
+    synonyms['antpos']='Antenna Positions'
     synonyms['radialvelocity']= synonyms['Radial Velocity'] = 'Radial Velocity [km/s]'
     synonyms['rho']=synonyms['Distance']='Distance (rho) [km]'
         
