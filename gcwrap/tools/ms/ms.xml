@@ -2251,6 +2251,7 @@ ms.tosdfits("myfile.sdfits")  # write SDFITS file
         <value>PHASE_DIR</value>
         <value>DELAY_DIR</value>
         <value>REFERENCE_DIR</value>
+        <value>EPHEMERIS_DIR</value>
       </allowed>
       </param>
 
@@ -2277,11 +2278,19 @@ ms.tosdfits("myfile.sdfits")  # write SDFITS file
     This function returns the direction measures from the given
     direction column of the MS FIELD table as a either a measure
     dictionary or sexigesimal string representation.
+    If there is an ephemeris attached, this will give you the time dependent
+    direction for the given direction column including the offset which each
+    field may have to the ephemeris it is referencing. You can use the value 
+    "EPHEMERIS_DIR" for parameter "dircolname" to access the unaltered ephemeris 
+    direction without any potential mosaic offsets.
   </description>
   <example>
       ms.open('3C273XC1.MS')
       print "Delay direction from FIELD table row 3 =", \
           ms.getfielddirmeas("DELAY_DIR", 3)
+
+      print "Phase direction from ephemeris FIELD table row 4 for time = 5019988459.968 s", \
+          ms.getfielddirmeas("PHASE_DIR", 4, 5019988459.968)
   </example>
  </method>
 

@@ -825,6 +825,9 @@ ms::getfielddirmeas(
             }
             else if(colname=="REFERENCE_DIR"){
                 d = msfc.referenceDirMeas(fieldid, time);
+	    }
+            else if(colname=="EPHEMERIS_DIR"){
+                d = msfc.ephemerisDirMeas(fieldid, time);
             }
             else{
                 *itsLog << LogIO::SEVERE
