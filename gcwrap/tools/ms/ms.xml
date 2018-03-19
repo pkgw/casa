@@ -3719,6 +3719,9 @@ in spectral window 1.
     OTF mapping, and also perhaps with sources with significant
     spectral structure. In cases where a necessary column doesn't
     exist, an exception will be thrown and no data will be changed.
+    NOTE: It is the user's responsibility to ensure that a model has
+    been set for all selected fields before using datacolumn='residual'
+    or 'residual_data'.
 
     RETURN VALUE
 
