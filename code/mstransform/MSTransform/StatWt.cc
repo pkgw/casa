@@ -98,8 +98,8 @@ void StatWt::setTVIConfig(const Record& config) {
 Record StatWt::writeWeights() const {
     auto hasWtSp = _ms->isColumn(MSMainEnums::WEIGHT_SPECTRUM);
     auto mustWriteSigma = _possiblyWriteSigma && ! _preview;
-    auto mustWriteSigmaSp = mustWriteSigma
-        && _ms->isColumn(MSMainEnums::SIGMA_SPECTRUM);
+    auto hasSigSp = _ms->isColumn(MSMainEnums::SIGMA_SPECTRUM);
+    auto mustWriteSigmaSp = mustWriteSigma && hasSigSp;
     auto mustWriteWt = ! _preview
         && (
             ! mustWriteSigma
@@ -124,6 +124,7 @@ Record StatWt::writeWeights() const {
         }
     }
     auto mustInitWtSp = False;
+    auto mustInitSigSp = False;
     // this conditional structure supports the
     // case of ! hasWtSp && ! mustWriteWtSp, in which case,
     // nothing need be done
@@ -165,6 +166,50 @@ Record StatWt::writeWeights() const {
             // its not initialized, so we aren't going to write to it unless
             // chanbin has been specified to be less than the spw width
             mustInitWtSp = mustWriteWtSp;
+        }
+    }
+    // *******
+    if (! hasSigSp) {
+        if (mustWriteSigmaSp) {
+            // we must create SIGMA_SPECTRUM
+            hasSigSp = True;
+            mustInitSigSp = True;
+            // from Calibrater.cc
+            // Nominal default tile shape
+            IPosition dts(3, 4, 32, 1024);
+            // Discern DATA's default tile shape and use it
+            const auto dminfo = _ms->dataManagerInfo();
+            for (uInt i=0; i<dminfo.nfields(); ++i) {
+                Record col = dminfo.asRecord(i);
+                if (anyEQ(col.asArrayString("COLUMNS"), String("DATA"))) {
+                    dts = IPosition(col.asRecord("SPEC").asArrayInt("DEFAULTTILESHAPE"));
+                    break;
+                }
+            }
+            // Add the column
+            String colSigSp = MS::columnName(MS::SIGMA_SPECTRUM);
+            TableDesc tdSigSp;
+            tdSigSp.addColumn(ArrayColumnDesc<Float>(colSigSp, "sigma spectrum", 2));
+            TiledShapeStMan sigSpStMan("TiledWgtSpectrum", dts);
+            _ms->addColumn(tdSigSp, sigSpStMan);
+            cout << "added column sigma spectrum" << endl;
+        }
+    }
+    else if (mustWriteSigma) {
+        // check to see if extant SIGMA_SPECTRUM needs to be initialized
+        ArrayColumn<Float> col(*_ms, MS::columnName(MS::SIGMA_SPECTRUM));
+        try {
+            col.get(0);
+            // its initialized, so even if we are using the full spw for
+            // binning, we still need to update SIGMA_SPECTRUM
+            mustWriteSigmaSp = True;
+            cout << "sigma spec already initialized" << endl;
+        }
+        catch (const AipsError& x) {
+            // its not initialized, so we aren't going to write to it unless
+            // chanbin has been specified to be less than the spw width
+            mustInitSigSp = mustWriteSigmaSp;
+            cout << "sigma spec not initialized, we must do that below" << endl;
         }
     }
     LogIO log(LogOrigin("StatWt", __func__));
@@ -240,10 +285,22 @@ Record StatWt::writeWeights() const {
                     vb->initWeightSpectrum(newwtsp);
                     vb->writeChangesBack();
                 }
+                cout << "mustinitsigsp " << mustInitSigSp << endl;
+                if (mustInitSigSp) {
+                    auto nchan = vb->nChannels();
+                    auto ncor = vb->nCorrelations();
+                    Cube<Float> newsigsp(ncor, nchan, nrow, 0);
+                    cout << "init sig sp" << endl;
+                    vb->initSigmaSpectrum(newsigsp);
+                    cout << "sig sp inited, write changes" << endl;
+                    vb->writeChangesBack();
+                    cout << "changes written" << endl;
+                }
                 if (mustWriteWtSp) {
                     vb->setWeightSpectrum(vb->weightSpectrum());
                 }
                 if (mustWriteSigmaSp) {
+                    cout << "writing new sigma sp" << endl;
                     vb->setSigmaSpectrum(vb->sigmaSpectrum());
                 }
                 if (mustWriteWt) {
@@ -254,7 +311,9 @@ Record StatWt::writeWeights() const {
                 }
                 vb->setFlagCube(vb->flagCube());
                 vb->setFlagRow(vb->flagRow());
+                cout << "writing back all changes" << endl;
                 vb->writeChangesBack();
+                cout << "changes written" << endl;
             }
             count += nrow;
             pm.update(count);
