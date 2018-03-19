@@ -221,11 +221,14 @@ imagepol::done()
 }
 
 bool
-imagepol::fourierrotationmeasure(const std::string& complex, const std::string& amp, const std::string& pa, const std::string& real, const std::string& imag, const bool zerolag0)
-{
+imagepol::fourierrotationmeasure(
+    const std::string& complex, const std::string& amp,
+    const std::string& pa, const std::string& real,
+    const std::string& imag, const bool zerolag0
+) {
   bool rstat(false);
   try{
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
+    *itsLog << LogOrigin("imagepol", __func__);
     if(itsImPol==0){
       *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
 	      << LogIO::POST;
@@ -415,23 +418,25 @@ imagepol::pol(const std::string& which, const bool debias, const double clip, co
   }
 }
 
-bool
-imagepol::rotationmeasure(const std::string& rm, const std::string& rmerr, const std::string& pa0, const std::string& pa0err, const std::string& nturns, const std::string& chisq, const double sigma, const double rmfq, const double rmmax, const double maxpaerr, const std::string& , const int , const int )
-{
+bool imagepol::rotationmeasure(
+    const std::string& rm, const std::string& rmerr,
+    const std::string& pa0, const std::string& pa0err,
+    const std::string& nturns, const std::string& chisq,
+    const double sigma, const double rmfq, const double rmmax,
+    const double maxpaerr, const std::string&, const int, const int
+) {
   bool rstat(false);
   try{
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
+    *itsLog << LogOrigin("imagepol", __func__);
     if(itsImPol==0){
       *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
 	      << LogIO::POST;
       return rstat;
     }
-    itsImPol->rotationMeasure(String(rm), String(rmerr),
-			      String(pa0), String(pa0err),
-			      String(nturns), String(chisq),
-			      -1, Float(sigma), Float(rmfq),
-			      Float(rmmax), Float(maxpaerr)/*,
-			      String(plotter), nx, ny*/);
+    itsImPol->rotationMeasure(
+        rm, rmerr, pa0, pa0err, nturns,
+        chisq, -1, sigma, rmfq, rmmax, maxpaerr
+    );
     rstat = true;
   } catch (AipsError x) {
     *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;

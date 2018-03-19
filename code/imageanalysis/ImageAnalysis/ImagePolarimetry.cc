@@ -591,23 +591,20 @@ void ImagePolarimetry::rotationMeasure(ImageInterface<Float>*& rmOutPtr,
                                        Int axis,  Float rmMax, Float maxPaErr,
                                        Float sigma, Float rmFg, Bool showProgress)
 {
-   LogIO os(LogOrigin("ImagePolarimetry", __FUNCTION__, WHERE));
+   LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
    hasQU();
    _checkQUBeams(false);
 // Do we have anything to do ?
-
    if (!rmOutPtr && !rmOutErrorPtr && !pa0OutPtr && !pa0OutErrorPtr) {
       os << "No output images specified" << LogIO::EXCEPTION;
    }
 
 // Find expected shape of output RM images (Stokes and spectral axes gone)
-
    CoordinateSystem cSysRM;
    Int fAxis, sAxis;
    IPosition shapeRM = rotationMeasureShape(cSysRM, fAxis, sAxis, os, axis);
    IPosition shapeNTurns = shapeRM;
    IPosition shapeChiSq = shapeRM;
-
 // Check RM image shapes
 
    if (rmOutPtr && !rmOutPtr->shape().isEqual(shapeRM)) {
@@ -618,7 +615,6 @@ void ImagePolarimetry::rotationMeasure(ImageInterface<Float>*& rmOutPtr,
       os << "The provided Rotation Measure error image has the wrong shape " << rmOutErrorPtr->shape() << endl;
       os << "It should be of shape " << shapeRM << LogIO::EXCEPTION;
    }
-
 // Check position angle image shapes
 
    CoordinateSystem cSysPA;
@@ -631,7 +627,6 @@ void ImagePolarimetry::rotationMeasure(ImageInterface<Float>*& rmOutPtr,
       os << "The provided position angle at zero wavelength image has the wrong shape " << pa0OutErrorPtr->shape() << endl;
       os << "It should be of shape " << shapePA << LogIO::EXCEPTION;
    }
-
 // nTurns and chi sq
 
    if (nTurnsOutPtr && !nTurnsOutPtr->shape().isEqual(shapeNTurns)) {
@@ -642,7 +637,6 @@ void ImagePolarimetry::rotationMeasure(ImageInterface<Float>*& rmOutPtr,
       os << "The provided chi squared image has the wrong shape " << chiSqOutPtr->shape() << endl;
       os << "It should be of shape " << shapeChiSq << LogIO::EXCEPTION;
    }
-
 // Generate linear polarization position angle image expressions
 // and error in radians
 
@@ -651,7 +645,6 @@ void ImagePolarimetry::rotationMeasure(ImageInterface<Float>*& rmOutPtr,
    ImageExpr<Float> pa = linPolPosAng(radians);
    ImageExpr<Float> paerr = sigmaLinPolPosAng(radians, clip, sigma);
    CoordinateSystem cSys0 = pa.coordinates();
-
 // Set frequency axis units to Hz
 
    Int fAxisWorld = cSys0.pixelAxisToWorldAxis(fAxis);
@@ -665,7 +658,6 @@ void ImagePolarimetry::rotationMeasure(ImageInterface<Float>*& rmOutPtr,
       os << "Failed to set frequency axis units to Hz because " 
          << cSys0.errorMessage() << LogIO::EXCEPTION;
    }
-
 // Do we have enough frequency pixels ?
 
    const uInt nFreq = pa.shape()(fAxis);
@@ -677,7 +669,6 @@ void ImagePolarimetry::rotationMeasure(ImageInterface<Float>*& rmOutPtr,
 // Copy units only over.  The output images don't have a beam 
 // so unset beam.   MiscInfo and history require writable II.  
 // We leave this to the caller  who knows what sort of II these are.
-
    ImageInfo ii = itsInImagePtr->imageInfo();
    ii.removeRestoringBeam();   
    if (rmOutPtr) {
@@ -704,7 +695,6 @@ void ImagePolarimetry::rotationMeasure(ImageInterface<Float>*& rmOutPtr,
       chiSqOutPtr->setImageInfo(ii);
       chiSqOutPtr->setUnits(Unit(""));
    }      
-
 // Get lambda squared in m**2
 
    Vector<Double> freqs(nFreq);
@@ -722,7 +712,6 @@ void ImagePolarimetry::rotationMeasure(ImageInterface<Float>*& rmOutPtr,
       freqs(i) = world(fAxisWorld);
       wsq(i) = csq / freqs(i) / freqs(i);     // m**2
    }
-
 // Sort into increasing wavelength 
 
    Vector<uInt> sortidx;
@@ -757,7 +746,6 @@ void ImagePolarimetry::rotationMeasure(ImageInterface<Float>*& rmOutPtr,
       whereRM.resize(rmOutPtr->ndim());
       whereRM = 0;
    }
-//
    Bool isMaskedRMErr = false;
    Lattice<Bool>* outRMErrMaskPtr = 0;
    if (rmOutErrorPtr) {
@@ -765,7 +753,6 @@ void ImagePolarimetry::rotationMeasure(ImageInterface<Float>*& rmOutPtr,
       whereRM.resize(rmOutErrorPtr->ndim());
       whereRM = 0;
    }
-//
    IPosition wherePA;
    Bool isMaskedPa0 = false;
    Lattice<Bool>* outPa0MaskPtr = 0;
@@ -774,7 +761,6 @@ void ImagePolarimetry::rotationMeasure(ImageInterface<Float>*& rmOutPtr,
       wherePA.resize(pa0OutPtr->ndim());
       wherePA = 0;
    }
-//
    Bool isMaskedPa0Err = false;
    Lattice<Bool>* outPa0ErrMaskPtr = 0;
    if (pa0OutErrorPtr) {
@@ -791,16 +777,14 @@ void ImagePolarimetry::rotationMeasure(ImageInterface<Float>*& rmOutPtr,
       whereNTurns.resize(nTurnsOutPtr->ndim());
       whereNTurns = 0;
    }
-//
    IPosition whereChiSq;
    Bool isMaskedChiSq = false;
    Lattice<Bool>* outChiSqMaskPtr = 0;
    if (chiSqOutPtr) {
       isMaskedChiSq = dealWithMask (outChiSqMaskPtr, chiSqOutPtr, os, String("chi sqared"));
-      whereChiSq.resize(nTurnsOutPtr->ndim());
+      whereChiSq.resize(chiSqOutPtr->ndim());
       whereChiSq = 0;
    }
-//
    Array<Bool> tmpMaskRM(IPosition(shapeRM.nelements(), 1), true);
    Array<Float> tmpValueRM(IPosition(shapeRM.nelements(), 1), 0.0);
    Array<Bool> tmpMaskPA(IPosition(shapePA.nelements(), 1), true);
@@ -811,7 +795,6 @@ void ImagePolarimetry::rotationMeasure(ImageInterface<Float>*& rmOutPtr,
    Array<Bool> tmpMaskChiSq(IPosition(shapeChiSq.nelements(), 1), true);
 
 // Iterate
-
    const IPosition tileShape = pa.niceCursorShape();
    TiledLineStepper ts(pa.shape(), tileShape, fAxis);
    RO_MaskedLatticeIterator<Float> it(pa, ts);
@@ -838,7 +821,6 @@ void ImagePolarimetry::rotationMeasure(ImageInterface<Float>*& rmOutPtr,
                                         String(""), String(""),
                                         true, max(1,Int(nMax/100)));
    }
-
 // As a (temporary?) workaround the cache of the main image is set up in
 // such a way that it can hold the full frequency and stokes axes.
 // The stokes axis is important, otherwise the cache is set up
@@ -960,7 +942,6 @@ void ImagePolarimetry::rotationMeasure(ImageInterface<Float>*& rmOutPtr,
       if (showProgress) pProgressMeter->update(Double(it.nsteps())); 
    }
    if (showProgress) delete pProgressMeter;
-
 
 // Clear the cache of the main image again.
    mainImagePtr->clearCache();

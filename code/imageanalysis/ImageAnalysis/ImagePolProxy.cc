@@ -713,11 +713,10 @@ namespace casa { //# name space casa begins
 		       const String& outPA0, const String& outPA0Err,
 		       const String& outNTurns, const String& outChiSq,
 		       Int axis2, Float sigmaQU, Float rmFg,
-		       Float rmMax, Float maxPaErr/*,
-		       const String& plotter,
-		       Int nx, Int ny*/) {
+		       Float rmMax, Float maxPaErr) {
 
-    *itsLog << LogOrigin("imagepol", __FUNCTION__);
+
+    *itsLog << LogOrigin("ImagePol", __func__);
     if(itsImPol==0){
       *itsLog << LogIO::SEVERE <<"No attached image, please use open " 
 	      << LogIO::POST;
@@ -740,7 +739,6 @@ namespace casa { //# name space casa begins
 
     makeImage (pRMOutErr, outRMErr, cSysRM, shapeRM, true, false);
     std::unique_ptr<ImageInterface<Float> > managed6(pRMOutErr);
-
     CoordinateSystem cSysPA;
     IPosition shapePA =
       itsImPol->positionAngleShape(cSysPA, fAxis, sAxis, *itsLog, axis);
@@ -750,14 +748,12 @@ namespace casa { //# name space casa begins
     std::unique_ptr<ImageInterface<Float> > managed1(pPA0Out);
     makeImage (pPA0OutErr, outPA0Err, cSysPA, shapePA, true, false);
     std::unique_ptr<ImageInterface<Float> > managed2(pPA0OutErr);
-
     ImageInterface<Float>* pNTurnsOut = 0;
     makeImage (pNTurnsOut, outNTurns, cSysRM, shapeRM, true, false);
     std::unique_ptr<ImageInterface<Float> > managed3(pNTurnsOut);
     ImageInterface<Float>* pChiSqOut = 0;
     makeImage (pChiSqOut, outChiSq, cSysRM, shapeRM, true, false);
     std::unique_ptr<ImageInterface<Float> > managed4(pChiSqOut);
-
     itsImPol->rotationMeasure(
     	pRMOut, pRMOutErr, pPA0Out, pPA0OutErr,
     	pNTurnsOut, pChiSqOut, 
