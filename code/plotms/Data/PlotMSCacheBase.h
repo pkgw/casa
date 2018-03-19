@@ -278,6 +278,9 @@ public:
   // These support generic non-complex calibration
   inline casacore::Double getPar(casacore::Int chnk,casacore::Int irel)  { return *(par_[chnk]->data()+irel); };
   inline casacore::Double getSnr(casacore::Int chnk,casacore::Int irel)  { return *(snr_[chnk]->data()+irel); };
+  inline casacore::Double getAntPos(casacore::Int chnk,casacore::Int irel)  { return *(antpos_[chnk]->data()+irel); };
+
+  // Curve overlays
   inline casacore::Double getAtm(casacore::Int chnk,casacore::Int irel) { return *(atm_[chnk]->data()+irel); };
   inline casacore::Double getTsky(casacore::Int chnk,casacore::Int irel) { return *(tsky_[chnk]->data()+irel); };
 
@@ -473,6 +476,7 @@ protected:
 
   // for cal tables
   casacore::PtrBlock<casacore::Array<casacore::Float>*> par_, snr_;
+  casacore::PtrBlock<casacore::Array<casacore::Float>*> antpos_; 
 
   // Current setup/state.
   bool dataLoaded_;

@@ -178,6 +178,7 @@ scripts/task_plotweather.py
 scripts/task_plotprofilemap.py
 #scripts/task_plotxy.py
 scripts/task_oldhanningsmooth.py
+scripts/task_oldplotants.py
 scripts/task_oldsplit.py
 scripts/task_partition.py
 scripts/task_polcal.py

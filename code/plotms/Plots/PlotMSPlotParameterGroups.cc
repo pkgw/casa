@@ -381,9 +381,8 @@ void PMS_PP_Cache::setDefaults(){
     // With cal tables, cannot use MS default axes (AMP vs TIME);
     // cannot tell if user-specified (do not change)
     // or default (then change x-axis based on cal table type)
-	//itsXAxes_ = vector<PMS::Axis>(1, PMS::DEFAULT_XAXIS);
 	itsXAxes_ = vector<PMS::Axis>(1, PMS::NONE);
-	itsYAxes_ = vector<PMS::Axis>(1, PMS::DEFAULT_YAXIS);
+	itsYAxes_ = vector<PMS::Axis>(1, PMS::NONE);
 	itsXData_ = vector<PMS::DataColumn>(1, PMS::DEFAULT_DATACOLUMN);
 	itsYData_ = vector<PMS::DataColumn>(1, PMS::DEFAULT_DATACOLUMN);
     itsShowAtm_ = false;
@@ -392,8 +391,7 @@ void PMS_PP_Cache::setDefaults(){
 
 void PMS_PP_Cache::resize( int count ){
 	itsXAxes_ = vector<PMS::Axis>(1, PMS::NONE);
-	//itsXAxes_ = vector<PMS::Axis>(count, PMS::DEFAULT_XAXIS);
-	itsYAxes_ = vector<PMS::Axis>(count, PMS::DEFAULT_YAXIS);
+	itsYAxes_ = vector<PMS::Axis>(count, PMS::NONE);
 	itsXData_ = vector<PMS::DataColumn>(count, PMS::DEFAULT_DATACOLUMN);
 	itsYData_ = vector<PMS::DataColumn>(count, PMS::DEFAULT_DATACOLUMN);
 }

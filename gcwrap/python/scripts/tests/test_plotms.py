@@ -291,13 +291,13 @@ class test_basic(plotms_test_base):
         res = plotms(vis=self.ms, xaxis='chan', plotfile=self.plotfile_jpg,
             expformat="jpg", showgui=False, highres=True, showatm=True)   
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 110000)
+        self.checkPlotfile(self.plotfile_jpg, 90000)
         self.removePlotfile()
         # basic plot with showtsky, xaxis freq
         res = plotms(vis=self.ms, xaxis='freq', plotfile=self.plotfile_jpg,
             expformat="jpg", showgui=False, highres=True, showtsky=True)   
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 130000)
+        self.checkPlotfile(self.plotfile_jpg, 90000)
         self.removePlotfile()
         # plotfile without overlay: xaxis must be chan or freq
         # so ignores showatm/tsky
@@ -772,7 +772,7 @@ class test_calplots(plotms_test_base):
 
 class PlotmsPageHeader:
     ''' Analyze PlotMS page header from png image of PlotMS Plot 
-        Assumptions: graphical area has a black frame, header background is white
+        Assumptions: graphical area has a black frame, header background color is light
     '''
     def __init__(self,png_path,debug=False):
         self.png_path = png_path
@@ -786,11 +786,12 @@ class PlotmsPageHeader:
 
     def _analyze(self):
         gray_img = self.color_img.min(axis=2)
-        gray_xproj = gray_img.min(axis=1)
         # Binarize
-        non_white_pixels = ( gray_xproj < 1.0 )
-        gray_xproj_bin = gray_xproj.copy()
-        gray_xproj_bin[non_white_pixels] = 0.0
+        is_light = gray_img > 0.75
+        bin_img = np.zeros(gray_img.shape,dtype=gray_img.dtype)
+        bin_img[is_light] = 1.0
+        # Project on X (vertical) axis
+        gray_xproj_bin = bin_img.min(axis=1)
         # White to black transitions
         (steps_down,) = np.where(np.diff(gray_xproj_bin) == -1.0 )
         if steps_down.size > 0 :
