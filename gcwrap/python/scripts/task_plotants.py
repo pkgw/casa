@@ -134,8 +134,7 @@ def getPlotantsAntennaInfo(msname, exclude, checkbaselines):
 			antIdsUsed.remove(antId)
 			casalog.post("Exclude antenna " + antNameId)
 		except ValueError:
-			casalog.post("Cannot exclude antenna " + antNameId + 
-				": not in main table", "WARN")
+			casalog.post("Cannot exclude antenna " + antNameId + ": not in main table", "WARN")
 
 	# apply antIdsUsed mask
 	antNames = [antNames[i] for i in antIdsUsed]
@@ -147,12 +146,12 @@ def getPlotantsAntennaInfo(msname, exclude, checkbaselines):
 	casalog.post("Number of points being plotted: " + str(nAnts))
 	if nAnts == 0: # excluded all antennas
 		return telescope, antNames, [], [], []
-	
+
 	# Get the names, indices, and lat/lon/alt coords of "good" antennas.
 	antWgs84s = np.array([me.measure(pos, 'WGS84') for pos in antPositions])
 	antLons, antLats, antAlts = [np.array( [pos[i]['value'] 
 		for pos in antWgs84s]) for i in ['m0','m1','m2']]
-	
+
 	# Convert from lat, lon, alt to X, Y, Z (unless VLBA)
 	# where X is east, Y is north, Z is up,
 	# and 0, 0, 0 is the center
@@ -162,7 +161,7 @@ def getPlotantsAntennaInfo(msname, exclude, checkbaselines):
 	antXs = (antLons - arrayLon) * radE * np.cos(arrayLat)
 	antYs = (antLats - arrayLat) * radE
 	antZs = antAlts - arrayAlt
-	
+
 	return telescope, antNames, antIdsUsed, antXs, antYs, stationNames
 
 def getPlotantsObservatoryInfo(msname):
@@ -179,8 +178,13 @@ def getAntennaLabelProps(telescope, station, log=False):
 	hAlign = 'left'
 	rotAngle = 0
 	if station and "VLA" in telescope:
-		# these have non-standard format
-		if 'W01' in station or 'E01' in station or 'W1' in station or 'E1' in station:
+		# these have non-standard format:
+		# strip off VLA: or VLA:_ prefix if any
+		if 'VLA:' in station:
+			station = station[4:]
+		if station[0] == '_':
+			station = station[1:]
+		if station in ['W01', 'E01', 'W1', 'E1']:
 			vAlign = 'top'
 			hAlign = 'center'
 		else:
@@ -277,7 +281,7 @@ def plotAntennasLog(telescope, names, ids, xpos, ypos, antindex, stations):
 
 	# plot points and antenna names/ids
 	for i, (name, station) in enumerate(zip(names, stations)):
-		if name:
+		if station and 'OUT' not in station:
 			ax.plot(theta[i], np.log(r[i]), 'ko', ms=5, mfc='r')
 			if antindex:
 				name += ' (' + str(ids[i]) + ')'
@@ -310,7 +314,7 @@ def plotAntennas(telescope, names, ids, xpos, ypos, antindex, stations):
 
 	# plot points and antenna names/ids
 	for i, (x, y, name, station) in enumerate(zip(xpos, ypos, names, stations)):
-		if name:
+		if station and 'OUT' not in station:
 			ax.plot(x, y, 'ro')
 			if antindex:
 				name += ' (' + str(ids[i]) + ')'
