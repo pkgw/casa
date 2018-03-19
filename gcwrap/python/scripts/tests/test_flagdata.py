@@ -637,7 +637,39 @@ class test_rflag(test_base):
         self.assertEqual(res['report1']['antenna']['ea19']['flagged'], 18411)
         self.assertEqual(res['report1']['spw']['7']['flagged'], 0,)
         
-        
+    def test_rflag_residuals(self):
+        '''flagdata: rflag using MODEL and virtual MODEL columns'''
+        from tasks import delmod
+
+        # Delete model columns, if any
+        delmod(vis=self.vis,otf=True,scr=True)
+
+        # Create MODEL_COLUMN
+        setjy(vis=self.vis, field='3C286_A',usescratch=True)
+
+        # rflag
+        flagdata(vis=self.vis, mode='rflag', spw='9,10',datacolumn='RESIDUAL_DATA',flagbackup=False)
+        # 448772.0 flags on MODEL col
+        # '1': {'flagged': 8224.0
+        flags_mod = flagdata(vis=self.vis, mode='summary',spw='9,10')
+
+        # Now use a virtual MODEL column
+        # Unflag
+        flagdata(vis=self.vis, mode='unflag', flagbackup=False)
+        delmod(vis=self.vis,otf=True,scr=True)
+
+        # Create virtual MODEL_COLUMN
+        setjy(vis=self.vis, field='3C286_A',usescratch=False)
+ 
+        # rflag
+        flagdata(vis=self.vis, mode='rflag', spw='9,10',datacolumn='RESIDUAL_DATA',flagbackup=False)
+        # 444576.0 flags on virtual MODEL col
+        flags_vmod = flagdata(vis=self.vis, mode='summary',spw='9,10')
+
+        # Flags should be the same
+        self.assertTrue(flags_mod['flagged'],flags_vmod['flagged'])
+
+       
 class test_shadow(test_base):
     def setUp(self):
         self.setUp_shadowdata2()

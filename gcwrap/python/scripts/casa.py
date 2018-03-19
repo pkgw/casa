@@ -143,6 +143,7 @@ metool = _casac.measures
 iatool = _casac.image
 potool = _casac.imagepol
 lmtool= _casac.linearmosaic
+sbstool = _casac.sidebandseparator
 smtool = _casac.simulator
 cltool = _casac.componentlist
 coordsystool = _casac.coordsys
@@ -239,6 +240,7 @@ from mosaic import  mosaic
 from mstransform import  mstransform
 from msuvbin import  msuvbin
 from oldhanningsmooth import  oldhanningsmooth
+from oldplotants import  oldplotants
 from oldsplit import  oldsplit
 from plotants import  plotants
 from plotbandpass import  plotbandpass
@@ -256,7 +258,10 @@ from rmtables import  rmtables
 from sdbaseline import  sdbaseline
 from sdcal import  sdcal
 from sdfit import  sdfit
+from sdfixscan import  sdfixscan
 from sdgaincal import  sdgaincal
+from sdimaging import  sdimaging
+from sdsidebandsplit import  sdsidebandsplit
 from sdsmooth import  sdsmooth
 from setjy import  setjy
 from ssoflux import  ssoflux
@@ -270,6 +275,7 @@ from specflux import  specflux
 from specsmooth import  specsmooth
 from splattotable import  splattotable
 from split import  split
+#from split2 import split2
 from spxfit import  spxfit
 from statwt import  statwt
 from statwt2 import  statwt2
@@ -285,56 +291,6 @@ from virtualconcat import  virtualconcat
 from vishead import  vishead
 from visstat import  visstat
 from visstat2 import  visstat2
+from visstatold import  visstatold
 from widebandpbcor import  widebandpbcor
 from widefield import  widefield
-
-from split import  split
-from hanningsmooth import  hanningsmooth
-
-#from split2 import split2
-from sdbaseline import sdbaseline
-from sdcal import sdcal
-from sdgaincal import sdgaincal
-from sdfit import sdfit
-from sdimaging import sdimaging
-from sdfixscan import sdfixscan
-##
-## asap may not be available with every casa installation
-##
-try:
-    import asap as sd
-    from sdaverageold import sdaverageold
-    from sdbaselineold import sdbaselineold
-    from sdbaseline2old import sdbaseline2old
-    from sdcalold import sdcalold
-    from sdcal2old import sdcal2old
-    from sdcoaddold import sdcoaddold
-    from sdfitold import sdfitold
-    from sdflagold import sdflagold
-    from sdflagmanagerold import sdflagmanagerold
-    from sdgridold import sdgridold
-    from sdlistold import sdlistold
-    from sdmathold import sdmathold
-    from sdplotold import sdplotold
-    from sdreduceold import sdreduceold
-    from sdsaveold import sdsaveold
-    from sdscaleold import sdscaleold
-    from sdstatold import sdstatold
-except ImportError:
-    sdaverageold = None
-    sdbaselineold = None
-    sdbaseline2old = None
-    sdcalold = None
-    sdcal2old = None
-    sdcoaddold = None
-    sdfitold = None
-    sdflagold = None
-    sdflagmanagerold = None
-    sdgridold = None
-    sdlistold = None
-    sdmathold = None
-    sdplotold = None
-    sdreduceold = None
-    sdsaveold = None
-    sdscaleold = None
-    sdstatold = None

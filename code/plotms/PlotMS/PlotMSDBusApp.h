@@ -69,6 +69,8 @@ public:
     static const casacore::String PARAM_AXIS_X; // String
     static const casacore::String PARAM_AXIS_Y; // String
     static const casacore::String PARAM_AXIS_Y_LOCATION;
+    static const casacore::String PARAM_SHOWATM; // bool
+    static const casacore::String PARAM_SHOWTSKY; // bool
     static const casacore::String PARAM_GRIDROWS; //int
     static const casacore::String PARAM_GRIDCOLS; //int
     static const casacore::String PARAM_CLEARSELECTIONS; // bool
@@ -83,6 +85,7 @@ public:
     static const casacore::String PARAM_SELECTION; // casacore::Record (see PlotMSSelection)
     static const casacore::String PARAM_TRANSFORMATIONS; // casacore::Record (see PlotMSTransformations)
     static const casacore::String PARAM_CALIBRATION; // casacore::Record (see PlotMSCalibration)
+    static const casacore::String PARAM_PAGE_HEADER_ITEMS; // String
     static const casacore::String PARAM_UPDATEIMMEDIATELY; // bool
     static const casacore::String PARAM_WIDTH; // int or uInt
     static const casacore::String PARAM_EXPORT_FILENAME; // String
@@ -213,7 +216,7 @@ public:
     // PARAMETERS: none.
     // RETURNS: none.
     static const casacore::String METHOD_UPDATE;
-    
+   
     //Existing plots should be removed.
     //PARAMETERS: none.
     //RETURNS: none.
@@ -291,8 +294,9 @@ private:
     // true if the user updates something while the GUI is hidden.
     bool itsUpdateFlag_;
 
-    // Helper method for posting log messages.
+    // Helper methods for posting log messages.
     void log(const casacore::String& message);
+    void logWarn(const casacore::String& message);
     
     // Adjusts the given plot index to be an acceptable, and returns whether
     // the parameters were resized or not.

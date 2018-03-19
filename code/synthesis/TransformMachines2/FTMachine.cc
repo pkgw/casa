@@ -96,7 +96,7 @@ using namespace casa::vi;
 			   pointingDirCol_p("DIRECTION"),
 			   cfStokes_p(), cfCache_p(), cfs_p(), cfwts_p(), cfs2_p(), cfwts2_p(), 
 			   canComputeResiduals_p(false), toVis_p(true), 
-                           numthreads_p(-1), pbLimit_p(0.05),sj_p(0), cmplxImage_p( )
+                           numthreads_p(-1), pbLimit_p(0.05),sj_p(0), cmplxImage_p( ), vbutil_p(), phaseCenterTime_p(-1.0), doneThreadPartition_p(False)
   {
     spectralCoord_p=SpectralCoordinate();
     isPseudoI_p=false;
@@ -115,7 +115,7 @@ using namespace casa::vi;
     pointingDirCol_p("DIRECTION"),
     cfStokes_p(), cfCache_p(cfcache), cfs_p(), cfwts_p(), cfs2_p(), cfwts2_p(),
     convFuncCtor_p(cf),canComputeResiduals_p(false), toVis_p(true), numthreads_p(-1), 
-    pbLimit_p(0.05),sj_p(0), cmplxImage_p( )
+    pbLimit_p(0.05),sj_p(0), cmplxImage_p( ), vbutil_p(), phaseCenterTime_p(-1.0), doneThreadPartition_p(False)
   {
     spectralCoord_p=SpectralCoordinate();
     isPseudoI_p=false;
@@ -202,12 +202,19 @@ using namespace casa::vi;
       expandedSpwFreqSel_p = other.expandedSpwFreqSel_p;
       expandedSpwConjFreqSel_p = other.expandedSpwConjFreqSel_p;
       cmplxImage_p=other.cmplxImage_p;
+      vbutil_p=other.vbutil_p;
       numthreads_p=other.numthreads_p;
       pbLimit_p=other.pbLimit_p;
       convFuncCtor_p = other.convFuncCtor_p;      
       sj_p.resize();
       sj_p=other.sj_p;
       isDryRun=other.isDryRun;
+      phaseCenterTime_p=other.phaseCenterTime_p;
+      doneThreadPartition_p=other.doneThreadPartition_p;
+      xsect_p=other.xsect_p;
+      ysect_p=other.ysect_p;
+      nxsect_p=other.nxsect_p;
+      nysect_p=other.nysect_p;
     };
     return *this;
   };
@@ -270,7 +277,8 @@ using namespace casa::vi;
       AlwaysAssert(directionIndex>=0, AipsError);
       DirectionCoordinate
         directionCoord=coords.directionCoordinate(directionIndex);
-
+      if(vbutil_p.null())
+	vbutil_p=new VisBufferUtil(vb);
       // get the first position of moving source
       if(fixMovingSource_p){
 
@@ -301,7 +309,7 @@ using namespace casa::vi;
       //  computation time especially for spectral cubes.
       {
         Vector<Double> equal= (mImage_p.getAngle()-
-  			     vb.phaseCenter().getAngle()).getValue();
+			       vbutil_p->getPhaseCenter(vb, phaseCenterTime_p).getAngle()).getValue();
         if((abs(equal(0)) < abs(directionCoord.increment()(0)))
   	 && (abs(equal(1)) < abs(directionCoord.increment()(1)))){
   	doUVWRotation_p=false;
@@ -329,11 +337,11 @@ using namespace casa::vi;
 	throw(AipsError("Cannot define frame because of no access to OBSERVATION table")); 
       if(observatory.contains("ATCA") || observatory.contains("DRAO")
          || observatory.contains("WSRT")){
-        uvwMachine_p=new casacore::UVWMachine(mImage_p, vb.phaseCenter(), mFrame_p,
+        uvwMachine_p=new casacore::UVWMachine(mImage_p, vbutil_p->getPhaseCenter(vb, phaseCenterTime_p), mFrame_p,
   				  true, false);
       }
       else{
-        uvwMachine_p=new casacore::UVWMachine(mImage_p, vb.phaseCenter(), mFrame_p,
+        uvwMachine_p=new casacore::UVWMachine(mImage_p, vbutil_p->getPhaseCenter(vb, phaseCenterTime_p), mFrame_p,
   				  false, tangentSpecified_p);
       }
       AlwaysAssert(uvwMachine_p, AipsError);
@@ -867,7 +875,7 @@ using namespace casa::vi;
 	mFrame_p.set(mLocation_p, MEpoch(Quantity(vb.time()(0), "s"), mscol.timeMeas()(0).getRef()));
       MDirection::Types outType;
       MDirection::getType(outType, mImage_p.getRefString());
-      MDirection phasecenter=MDirection::Convert(vb.phaseCenter(), MDirection::Ref(outType, mFrame_p))();
+      MDirection phasecenter=MDirection::Convert(vbutil_p->getPhaseCenter(vb, phaseCenterTime_p), MDirection::Ref(outType, mFrame_p))();
       
 
       if(fixMovingSource_p){
@@ -893,13 +901,13 @@ using namespace casa::vi;
 	if(observatory.contains("ATCA") || observatory.contains("WSRT")){
 		//Tangent specified is being wrongly used...it should be for a
 	    	//Use the safest way  for now.
-	    uvwMachine_p=new UVWMachine(phasecenter, vb.phaseCenter(), mFrame_p,
+	  uvwMachine_p=new UVWMachine(phasecenter, vbutil_p->getPhaseCenter(vb, phaseCenterTime_p), mFrame_p,
 					true, false);
 	    phaseShifter_p=new UVWMachine(mImage_p, phasecenter, mFrame_p,
 					true, false);
 	}
 	else{
-	  uvwMachine_p=new UVWMachine(phasecenter, vb.phaseCenter(),  mFrame_p,
+	  uvwMachine_p=new UVWMachine(phasecenter, vbutil_p->getPhaseCenter(vb, phaseCenterTime_p),  mFrame_p,
 				      false, false);
 	  phaseShifter_p=new UVWMachine(mImage_p, phasecenter,  mFrame_p,
 				      false, false);
@@ -997,11 +1005,11 @@ using namespace casa::vi;
   	if(observatory.contains("ATCA") || observatory.contains("WSRT")){
   		//Tangent specified is being wrongly used...it should be for a
   	    	//Use the safest way  for now.
-  	    uvwMachine_p=new UVWMachine(phasecenter, vb.phaseCenter(), mFrame_p,
+	  uvwMachine_p=new UVWMachine(phasecenter, vbutil_p->getPhaseCenter(vb, phaseCenterTime_p), mFrame_p,
   					true, false);
   	}
   	else{
-  		uvwMachine_p=new UVWMachine(phasecenter, vb.phaseCenter(), mFrame_p,
+	  uvwMachine_p=new UVWMachine(phasecenter, vbutil_p->getPhaseCenter(vb, phaseCenterTime_p), mFrame_p,
   					false,tangentSpecified_p);
   	    }
        }
@@ -1243,6 +1251,7 @@ using namespace casa::vi;
     outRecord.define("tovis", toVis_p);
     outRecord.define("sumweight", sumWeight);
     outRecord.define("numthreads", numthreads_p);
+    outRecord.define("phasecentertime", phaseCenterTime_p);
     //Need to serialized sj_p...the user has to set the sj_p after recovering from record
     return true;
   };
@@ -1399,6 +1408,10 @@ using namespace casa::vi;
       freqInterpMethod_p=static_cast<InterpolateArray1D<Double, Complex >::InterpolationMethod>(tmpInt);
     }
     inRecord.get("numthreads", numthreads_p);
+    inRecord.get("phasecentertime", phaseCenterTime_p);
+    ///No need to store this...recalculate thread partion because environment 
+    ///may have changed.
+    doneThreadPartition_p=False;
     return true;
   };
   
@@ -2204,6 +2217,204 @@ using namespace casa::vi;
   }
   
 
+  
+void FTMachine::findGridSector(const Int& nxp, const Int& nyp, const Int& ixsub, const Int& iysub, const Int& minx, const Int& miny, const Int& icounter, Int& x0, Int& y0, Int&  nxsub, Int& nysub, const Bool linear){
+  /* Vector<Int> ord(36);
+       ord(0)=14; 
+      ord(1)=15;
+      ord(2)=20;
+      ord(3)=21;ord(4)=13;
+      ord(5)=16;ord(6)=19;ord(7)=22;ord(8)=8;ord(9)=9;
+      ord(10)=26;ord(11)=27;ord(12)=25;ord(13)=28;ord(14)=7;
+      ord(15)=10;ord(16)=32;ord(17)=33;ord(18)=2;ord(19)=3;
+      ord(20)=18;ord(21)=23;ord(22)=12;ord(23)=17;ord(24)=1;
+      ord(25)=4;ord(26)=6;ord(27)=11;ord(28)=24;ord(29)=29;
+      ord(30)=31;ord(31)=34;ord(32)=0;ord(33)=5;ord(34)=30;
+      ord(35)=35;
+      */
+  /*
+      Int ix= (icounter+1)-((icounter)/ixsub)*ixsub;
+      Int iy=(icounter)/ixsub+1;
+      y0=(nyp/iysub)*(iy-1)+1+miny;
+      nysub=nyp/iysub;
+      if( iy == iysub) {
+	nysub=nyp-(nyp/iysub)*(iy-1);
+      }
+      x0=(nxp/ixsub)*(ix-1)+1+minx;
+      nxsub=nxp/ixsub;
+      if( ix == ixsub){
+	nxsub=nxp-(nxp/ixsub)*(ix-1);
+      }
+  */
+         
+         
+      {
+	Int elrow=icounter/ixsub;
+	Int elcol=(icounter-elrow*ixsub);
+	//cerr << "row "<< elrow << " col " << elcol; 
+	//nxsub=Int(floor(((ceil(fabs(float(2*elcol+1-ixsub)/2.0))-1.0)*5 +1)*nxp/36.0 + 0.5));
+	Float factor=0;
+	for (Int k=0; k < ixsub/2; ++k)
+	  factor= linear ? factor+(k+1): factor+sqrt(Float(k+1));
+	  //factor= linear ? factor+(k+1): factor+(k+1)*(k+1)*(k+1);
+	factor *= 2.0;
+	if(linear)
+	  nxsub=Int(floor((ceil(fabs(float(2*elcol+1-ixsub)/2.0))/factor)*nxp + 0.5));
+	else
+	  //nxsub=Int(floor((ceil(fabs(float(2*elcol+1-ixsub)/2.0))*ceil(fabs(float(2*elcol+1-ixsub)/2.0))*ceil(fabs(float(2*elcol+1-ixsub)/2.0))/factor)*nxp + 0.5));
+	  nxsub=Int(floor((sqrt(ceil(fabs(float(2*elcol+1-ixsub)/2.0)))/factor)*nxp + 0.5));
+        //cerr << nxp << " col " << elcol << " nxsub " << nxsub << endl;
+	x0=minx;
+	elcol-=1;
+	while(elcol >= 0){
+	  //x0+=Int(floor(((ceil(fabs(float(2*elcol+1-ixsub)/2.0))-1.0)*5 +1)*nxp/36.0+0.5));
+
+	  if(linear)
+	    x0+=Int(floor((ceil(fabs(float(2*elcol+1-ixsub)/2.0))/factor)*nxp + 0.5));
+	  else
+	    //x0+=Int(floor((ceil(fabs(float(2*elcol+1-ixsub)/2.0))*ceil(fabs(float(2*elcol+1-ixsub)/2.0))*ceil(fabs(float(2*elcol+1-ixsub)/2.0))/factor)*nxp + 0.5));
+	    x0+=Int(floor((sqrt(ceil(fabs(float(2*elcol+1-ixsub)/2.0)))/factor)*nxp + 0.5));
+	  elcol-=1;
+	}
+	factor=0;
+	for (Int k=0; k < iysub/2; ++k)
+	  //factor=linear ? factor+(k+1): factor+(k+1)*(k+1)*(k+1);
+	  factor= linear ? factor+(k+1): factor+sqrt(Float(k+1));
+	factor *= 2.0;
+	//nysub=Int(floor(((ceil(fabs(float(2*elrow+1-iysub)/2.0))-1.0)*5 +1)*nyp/36.0+0.5));
+	if(linear)
+	  nysub=Int(floor((ceil(fabs(float(2*elrow+1-iysub)/2.0))/factor)*nyp + 0.5));
+	else
+	  nysub=Int(floor((sqrt(ceil(fabs(float(2*elrow+1-iysub)/2.0)))/factor)*nyp + 0.5));
+	  //nysub=Int(floor((ceil(fabs(float(2*elrow+1-iysub)/2.0))*ceil(fabs(float(2*elrow+1-iysub)/2.0))*ceil(fabs(float(2*elrow+1-iysub)/2.0))/factor)*nyp + 0.5));
+	y0=miny;
+	elrow-=1;
+	
+	while(elrow >=0){
+	  //y0+=Int(floor(((ceil(fabs(float(2*elrow+1-iysub)/2.0))-1.0)*5 +1)*nyp/36.0+0.5));
+	  if(linear)
+	    y0+=Int(floor((ceil(fabs(float(2*elrow+1-iysub)/2.0))/factor)*nyp + 0.5));
+	  else
+	    y0+=Int(floor((sqrt(ceil(fabs(float(2*elrow+1-iysub)/2.0)))/factor)*nyp + 0.5));
+	    //y0+=Int(floor((ceil(fabs(float(2*elrow+1-iysub)/2.0))*ceil(fabs(float(2*elrow+1-iysub)/2.0))*ceil(fabs(float(2*elrow+1-iysub)/2.0))/factor)*nyp + 0.5));
+	  elrow-=1;
+	}
+      }
+
+
+      y0+=1;
+      x0+=1;
+      
+   
+}
+
+  void FTMachine::tweakGridSector(const Int& nx, const Int& ny, const Int& ixsub, const Int& iysub){
+    if(doneThreadPartition_p)
+      return;
+    Vector<Int> x0, y0, nxsub, nysub;
+    Vector<Float> xcut(nx/2);
+    Vector<Float> ycut(ny/2);
+    if(griddedData2.nelements() >0 ){
+      //cerr << "shapes " << xcut.shape() << "   gd " << amplitude(griddedData2(IPosition(4, 0, ny/2-1, 0, 0), IPosition(4, nx/2-1, ny/2-1, 0,0))).shape() << endl;
+      convertArray(xcut, amplitude(griddedData2(IPosition(4, 0, ny/2-1, 0, 0), IPosition(4, nx/2-1, ny/2-1, 0,0))).reform(xcut.shape()));
+      convertArray(ycut, amplitude(griddedData2(IPosition(4, nx/2-1, 0, 0, 0), IPosition(4, nx/2-1, ny/2-1, 0,0))).reform(ycut.shape()));
+    }
+    else{
+      xcut=amplitude(griddedData(IPosition(4, 0, ny/2-1, 0, 0), IPosition(4, nx/2-1, ny/2-1, 0,0)));
+      ycut=amplitude(griddedData(IPosition(4, nx/2-1, 0, 0, 0), IPosition(4, nx/2-1, ny/2-1, 0,0)));
+    }
+    //cerr << griddedData2.shape() << "   " << griddedData.shape() << endl;
+    Vector<Float> cumSumX(nx/2, 0);
+    //Vector<Float> cumSumX2(nx/2,0);
+    cumSumX(0)=xcut(0);
+    //cumSumX2(0)=cumSumX(0)*cumSumX(0);
+    Float sumX=sum(xcut);
+    if(sumX==0.0)
+      return;
+    //cerr << "sumX " << sumX << endl;
+    //sumX *= sumX;
+    x0.resize(ixsub);
+    x0=nx/2-1;
+    nxsub.resize(ixsub);
+    nxsub=0;
+    x0(0)=0;
+    Int counter=1;
+    for (Int k=1; k < nx/2; ++k){
+      cumSumX(k)=cumSumX(k-1)+xcut(k);
+      //cumSumX2(k)=cumSumX(k)*cumSumX(k);
+      Float nextEdge=sumX/(Float(ixsub/2)*Float(ixsub/2))*Float(counter)*Float(counter);
+      if(cumSumX(k-1) < nextEdge && cumSumX(k) >= nextEdge){
+	x0(counter)=k;
+	//cerr << counter << "    "   << k << " diff " << x0(counter)-x0(counter-1) << endl;
+	nxsub(counter-1)=x0(counter)-x0(counter-1);
+	++counter;
+      }
+    } 
+    
+    x0(ixsub/2)=nx/2-1;
+    nxsub(ixsub/2)=nxsub(ixsub/2-1)=nx/2-1-x0(ixsub/2-1);
+    for(Int k=ixsub/2+1; k < ixsub; ++k){
+      x0(k)=x0(k-1)+ nxsub(ixsub-k);
+      nxsub(k)=nxsub(ixsub-k-1);
+    }
+    nxsub(ixsub-1)+=1;
+    
+    Vector<Float> cumSumY(ny/2, 0);
+    //Vector<Float> cumSumY2(ny/2,0);
+    cumSumY(0)=ycut(0);
+    //cumSumY2(0)=cumSumY(0)*cumSumY(0);
+    Float sumY=sum(ycut);
+    if(sumY==0.0)
+      return;
+    //sumY *=sumY;
+    y0.resize(iysub);
+    y0=ny/2-1;
+    nysub.resize(iysub);
+    nysub=0;
+    y0(0)=0;
+    counter=1;
+    for (Int k=1; k < ny/2; ++k){
+      cumSumY(k)=cumSumY(k-1)+ycut(k);
+      //cumSumY2(k)=cumSumY(k)*cumSumY(k);
+      Float nextEdge=sumY/(Float(iysub/2)*Float(iysub/2))*Float(counter)*Float(counter);
+      if(cumSumY(k-1) < nextEdge && cumSumY(k) >= nextEdge){
+	y0(counter)=k;
+	nysub(counter-1)=y0(counter)-y0(counter-1);
+	++counter;
+      }
+    } 
+    
+    y0(ixsub/2)=ny/2-1;
+    nysub(iysub/2)=nysub(iysub/2-1)=ny/2-1-y0(iysub/2-1);
+    for(Int k=iysub/2+1; k < iysub; ++k){
+      y0(k)=y0(k-1)+ nysub(iysub-k);
+      nysub(k)=nysub(iysub-k-1);
+    }
+    nysub(iysub-1)+=1;
+    
+    
+    //cerr << " x0 " << x0 << "  nxsub " << nxsub << endl;
+    //cerr << " y0 " << y0 << "  nysub " << nysub << endl;
+    x0+=1;
+    y0+=1;
+    xsect_p.resize(ixsub*iysub);
+    ysect_p.resize(ixsub*iysub);
+    nxsect_p.resize(ixsub*iysub);
+    nysect_p.resize(ixsub*iysub);
+    for (Int iy=0; iy < iysub; ++iy){
+      for (Int ix=0; ix< ixsub; ++ix){
+	
+	xsect_p(iy*ixsub+ix)=x0[ix];
+	ysect_p(iy*ixsub+ix)=y0[iy];
+	nxsect_p(iy*ixsub+ix)=nxsub[ix];
+	nysect_p(iy*ixsub+ix)=nysub[iy];
+      }
+    }
+
+
+
+  }
+ 
 
   /*
   /// Move to individual FTMs............ make it pure virtual.

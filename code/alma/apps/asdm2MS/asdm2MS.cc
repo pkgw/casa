@@ -59,8 +59,7 @@ using namespace casacore;
 #include <tables/Tables/TableCopy.h>
 #include <tables/Tables/TableInfo.h>
 #include <casa/Arrays/MatrixMath.h>
-
-
+#include <casa/BasicMath/Math.h>
 
 #include "CBasebandName.h"
 #include "CCalibrationDevice.h"
@@ -1189,7 +1188,6 @@ void solveTridiagonalSystem(unsigned int		n,
   for (int i = n-2; i >=0; i--) {
     x[i] = dprime[i] - cprime[i] * x[i+1];
   }
-  cout << endl;
   LOGEXIT("solveTridiagonalSystem");
 }
 
@@ -1449,7 +1447,7 @@ void fillEphemeris(ASDM* ds_p, uint64_t timeStepInNanoSecond, bool interpolate_e
 	+ TO_STRING(mjd0)
 	+ ".tab";
 
-      boost::regex e("[\\[\\]\\(\\)\\{\\} ]");
+      boost::regex e("[\\[\\]\\(\\)\\{\\}\\/ ]");
       tableName = replace_all_regex_copy(tableName, e, std::string("_"));
       
 
@@ -1862,10 +1860,12 @@ void fillEphemeris(ASDM* ds_p, uint64_t timeStepInNanoSecond, bool interpolate_e
 	    //
 	    // RADVEL
 	    //
-	    radVelMS_v.push_back(evalPoly(radvel_coeff_v.size(),
-					  radvel_coeff_v,
-					  timeOrigin,
-					  tabulation_time));
+	    if (radVelExists) {
+	      radVelMS_v.push_back(evalPoly(radvel_coeff_v.size(),
+					    radvel_coeff_v,
+					    timeOrigin,
+					    tabulation_time));
+	    }
 	  }
 	}
       }
@@ -2564,7 +2564,8 @@ void fillMainLazily(const string& dsName,
 		    ASDM* ds_p,
 		    std::map<int, std::set<int> >& selected_eb_scan_m,
 		    std::map<unsigned int , double>& effectiveBwPerDD_m,
-		    Enum<CorrelationMode> e_query_cm) {
+		    Enum<CorrelationMode> e_query_cm,
+		    bool checkDupInts) {
 
   LOGENTER("fillMainLazily");
 
@@ -2695,8 +2696,14 @@ void fillMainLazily(const string& dsName,
   uInt		lastMSNUrows = 0;
   uInt		lastMSNCrows = 0;
 
+  // used in checking for duplicate integrations in the WVR (Radiometer) case
+  // This holds the most recent last integration time for each configDescriptionId - but only for Radiometer data.
+  map<Tag, double> lastTimeMap;
+
   try {
-    for (vector<MainRowCUStruct>::iterator iter=mRCU_s_v.begin(); iter!=mRCU_s_v.end(); iter++) {
+    unsigned int mainRowIndex;
+    vector<MainRowCUStruct>::iterator iter;
+    for (iter=mRCU_s_v.begin(), mainRowIndex=0; iter!=mRCU_s_v.end(); iter++, mainRowIndex++) {
       MainRow* mR_p = iter->mR_p;
 
       SDMDataObjectStreamReader sdosr;
@@ -2934,6 +2941,18 @@ void fillMainLazily(const string& dsName,
 	int64_t startTime = (int64_t)sdmDataSubset.time() -  (int64_t)sdmDataSubset.interval()/2LL + deltaTime/2LL;
 	double   interval = deltaTime / 1000000000.0;
 	
+	// should the first integration be skipped? Any actual skipping happens later.
+	bool skipFirstIntegration = checkDupInts && lastTimeMap[mR_p->getConfigDescriptionId()] == ArrayTime(startTime).getMJD();
+	if (debug && skipFirstIntegration) {
+	  cout << "Duplicate time seen in Row : " << mainRowIndex
+	       << " cdId : " << mR_p->getConfigDescriptionId()
+	       << " " << mR_p->getDataUID().getEntityId().toString()
+	       << " numTime : " << sdosr.numTime()
+	       << " num MS rows : " << dataDescriptionIds.size()*sdosr.numTime()*antennaIds.size()
+	       << endl;
+	}
+	lastTimeMap[mR_p->getConfigDescriptionId()] = ArrayTime(startTime+(sdosr.numTime()-1)*deltaTime).getMJD();
+	
 	for (unsigned int iDD = 0; iDD < dataDescriptionIds.size(); iDD++) {
 	  //
 	  // Prepare a pair<int, int> to transport the shape of some cells
@@ -2949,6 +2968,7 @@ void fillMainLazily(const string& dsName,
 	  double	sigma  = 1./sqrt(weight);
 
 	  for (unsigned int itime = 0; itime < sdosr.numTime(); itime++) {
+	    if (skipFirstIntegration && itime==0) continue;
 	    for (unsigned int iA = 0; iA < antennaIds.size(); iA++) {
 	      antenna1_vv[iDD].push_back(antennaIds[iA].getTagValue());
 	      antenna2_vv[iDD].push_back(antennaIds[iA].getTagValue());
@@ -2996,7 +3016,7 @@ void fillMainLazily(const string& dsName,
 	    }  
 	  }
 	}
-	
+
 	// If we have uncorrected data (which is in practice always the case I think) and want to output those then populate the asdmindex of uncorrected data MS.
 	if (iter->uncorrected and produceUncorrected) 
 	  bdf2AsdmStManIndexU.dumpAutoCross();
@@ -3011,31 +3031,35 @@ void fillMainLazily(const string& dsName,
 	  for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator msfIter = msFillers.begin();
 	       msfIter != msFillers.end();
 	       ++msfIter) {
-	    msfIter->second->addData(true,             // Yes ! these are complex data.
-				     time_vv[iDD],
-				     antenna1_vv[iDD],
-				     antenna2_vv[iDD],
-				     feed1_vv[iDD],
-				     feed2_vv[iDD],
-				     dataDescId_vv[iDD],
-				     processorId,
-				     fieldId,
-				     interval_vv[iDD],
-				     exposure_vv[iDD],
-				     timeCentroid_vv[iDD],
-				     scanNumber, 
-				     arrayId,
-				     observationId,
-				     stateId_vv[iDD],
-				     nChanNPol_vv[iDD],
-				     uvw_vv[iDD],
-				     weight_vv[iDD],
-				     sigma_vv[iDD]);
+	    if (time_vv[iDD].size() > 0) {
+	      msfIter->second->addData(true,             // Yes ! these are complex data.
+				       time_vv[iDD],
+				       antenna1_vv[iDD],
+				       antenna2_vv[iDD],
+				       feed1_vv[iDD],
+				       feed2_vv[iDD],
+				       dataDescId_vv[iDD],
+				       processorId,
+				       fieldId,
+				       interval_vv[iDD],
+				       exposure_vv[iDD],
+				       timeCentroid_vv[iDD],
+				       scanNumber, 
+				       arrayId,
+				       observationId,
+				       stateId_vv[iDD],
+				       nChanNPol_vv[iDD],
+				       uvw_vv[iDD],
+				       weight_vv[iDD],
+				       sigma_vv[iDD]);
+	    }
 	  }
 	}
       }
 
       else if (!sdosr.hasPackedData() && (processorType == CORRELATOR || processorType == RADIOMETER)) {
+
+	// duplicate time skipping is not supported here
 
 	//
 	// Declare some containers required to populate the columns of the MS MAIN table in a non lazy way.
@@ -3297,7 +3321,7 @@ void fillMainLazily(const string& dsName,
 		 msfIter != msFillers.end();
 		 ++msfIter)
 	      if ((msfIter->first == AP_UNCORRECTED and iter->uncorrected and produceUncorrected) ||
-		  (msfIter->first == AP_CORRECTED and iter->corrected and produceCorrected))
+		  (msfIter->first == AP_CORRECTED and iter->corrected and produceCorrected)) {
 		msfIter->second->addData(true,             // Yes ! these are complex data.
 					 auto_time_vv[iDD],
 					 auto_antenna1_vv[iDD],
@@ -3318,12 +3342,13 @@ void fillMainLazily(const string& dsName,
 					 auto_uvw_vv[iDD],
 					 auto_weight_vv[iDD],
 					 auto_sigma_vv[iDD]);
+	      }
 	  if (hasCrossData) 
 	    for (map<AtmPhaseCorrection, ASDM2MSFiller*>::iterator msfIter = msFillers.begin();
 		 msfIter != msFillers.end();
 		 ++msfIter)
 	      if ((msfIter->first == AP_UNCORRECTED and iter->uncorrected and produceUncorrected) ||
-		  (msfIter->first == AP_CORRECTED and iter->corrected and produceCorrected))
+		  (msfIter->first == AP_CORRECTED and iter->corrected and produceCorrected)) {
 		msfIter->second->addData(true,             // Yes ! these are complex data.
 					 cross_time_vv[iDD],
 					 cross_antenna1_vv[iDD],
@@ -3343,7 +3368,8 @@ void fillMainLazily(const string& dsName,
 					 cross_nChanNPol_vv[iDD],
 					 cross_uvw_vv[iDD],
 					 cross_weight_vv[iDD],
-					 cross_sigma_vv[iDD]);      
+					 cross_sigma_vv[iDD]);
+	      }
 	}
       }
       else 
@@ -3404,6 +3430,7 @@ vector<T> reorder(const vector<T>& v, vector<int> index) {
  * @parameter uvwCoords a reference to the UVW calculator.
  * @parameter complexData a bool which says if the DATA is going to be filled (true) or if it will be the FLOAT_DATA (false).
  * @parameter mute if the value of this parameter is false then nothing is written in the MS .
+ * @parameter skipFirstTime if the value of this parameter is true, then all rows with time equal to the first time seen will be skipped (not filled).
  *
  * !!!!! One must be carefull to the fact that fillState must have been called before fillMain. During the execution of fillState , the global vector<int> msStateID
  * is filled and will be used by fillMain.
@@ -3416,7 +3443,8 @@ void fillMain(
 	      std::map<unsigned int, double>& effectiveBwPerDD_m,
 	      bool		complexData,
 	      bool              mute,
-	      bool              ac_xc_per_timestamp) {
+	      bool              ac_xc_per_timestamp,
+	      bool              skipFirstTime=false) {
   
   if (debug) cout << "fillMain : entering" << endl;
 
@@ -3432,13 +3460,17 @@ void fillMain(
     return;
   }
 
- 
+  // msRowReIndex_v maps from location in the vmsData_p vectors to the output MS row
+  // this may be reorderd and the first time integration may be skipped (in which case msRowReIndex_v[i] is -1
+
   vector <int> msRowReIndex_v(vmsData_p->v_antennaId1.size());
-  for (unsigned int i = 0; i < msRowReIndex_v.size(); i++) 
-    msRowReIndex_v[i] = i;
+
+  // cout << "skipFirstTime ; " << skipFirstTime << endl;
 
   CorrelationModeMod::CorrelationMode cm = r_p->getTable().getContainer().getConfigDescription().getRowByKey(r_p->getConfigDescriptionId())->getCorrelationMode();
   if (cm == CorrelationModeMod::CROSS_AND_AUTO and ac_xc_per_timestamp) {
+    // this is the case where the rows may be reordered
+
     unsigned int numDD = r_p->getTable().getContainer().getConfigDescription().getRowByKey(r_p->getConfigDescriptionId())->getDataDescriptionId().size();
     unsigned int numOfMSRowsPerIntegration = 0;
     unsigned int numAntenna = r_p->getNumAntenna();
@@ -3455,16 +3487,35 @@ void fillMain(
     }
 
     unsigned int i = 0;
-    for (unsigned int iDD = 0; i < numDD; i++) {
+    for (unsigned int iDD = 0; iDD < numDD; iDD++) {
       unsigned int ddOffset = iDD * numIntegrations * (numAntenna + numBl);
       for (unsigned int integration = 0; integration < numIntegrations; integration++) {
 	// First the auto correlations.
-	for (unsigned int iAnt = 0; iAnt < numAntenna; iAnt++)
-	  msRowReIndex_v[i++] = ddOffset + numAntenna * integration + iAnt;
-	
+	for (unsigned int iAnt = 0; iAnt < numAntenna; iAnt++) {
+	  if (skipFirstTime && integration == 0) {
+	    msRowReIndex_v[i++] = -1;
+	  } else {
+	    msRowReIndex_v[i++] = ddOffset + numAntenna * integration + iAnt;
+	  }
+	}
 	// Then the cross correlations.
 	for (unsigned iBl = 0; iBl < numBl; iBl++)
-	  msRowReIndex_v[i++] = ddOffset + numIntegrations * numAntenna + integration * numBl + iBl;
+	  if (skipFirstTime && integration == 0) {
+	    msRowReIndex_v[i++] = -1;
+	  } else {
+	    msRowReIndex_v[i++] = ddOffset + numIntegrations * numAntenna + integration * numBl + iBl;
+	  }	  
+      }
+    }
+  } else {
+    // set them in order, skipping times as appropriate
+    // it's not obvious that the vmsData_p rows are time sorted, but the first time there should be the time to be skipped
+    double timeToSkip = vmsData_p->v_time[0];
+    for (unsigned int i = 0; i < msRowReIndex_v.size(); i++) {
+      if (skipFirstTime && (vmsData_p->v_time[i] == timeToSkip)) {
+	msRowReIndex_v[i] = -1;
+      } else {
+	msRowReIndex_v[i] = i;
       }
     }
   }
@@ -3473,7 +3524,7 @@ void fillMain(
   for (unsigned int ipart = 0; ipart < filteredShape_vv.size(); ipart++) {
     if (filteredShape_vv.at(ipart).at(0) == 3) filteredShape_vv.at(ipart).at(0) = 4;
   }
-	  
+
   vector<int> filteredDD;
   for (unsigned int idd = 0; idd < vmsData_p->v_dataDescId.size(); idd++){
     filteredDD.push_back(dataDescriptionIdx2Idx.at(vmsData_p->v_dataDescId.at(idd)));
@@ -3482,8 +3533,16 @@ void fillMain(
   vector<float *> uncorrectedData_v;
   vector<float *> correctedData_v;
 
-  /* compute the UVW */
-  vector<double> uvw_v(3*vmsData_p->v_time.size());
+  // these sizes of these are not known immediately if there skipFirstTime is true
+  vector<double> uvw_v;              // when set here, this is reordered and can be used as is when writing to the uncorrected MS
+  vector<double> weight_v;           // these are the weights, in the order seen. They must be reordered to use.
+  vector<double> correctedWeight_v;  // to be put into the MS, can only be set later when other corrected column values are set
+  vector<double> uncorrectedWeight_v;  // to be put into the MS. May be set here when skipFirstTime is not true.
+  vector<double> sigma_v;            // the sigmas, in the order seen. They must be reordered to use.
+  vector<double> correctedSigma_v;   // to be put into the MS, can only be set later when other corrected column values are set
+  vector<double> uncorrectedSigma_v; // to be put into the MS. May be set here when skipFirstTime is not true.
+
+  /* compute the UVW - do this for all times, time skipping happens later */
   vector<casacore::Vector<casacore::Double> > vv_uvw(vmsData_p->v_time.size());
 #if DDPRIORITY
   uvwCoords.uvw_bl(r_p, sdmBinData.timeSequence(), e_query_cm, 
@@ -3495,42 +3554,61 @@ void fillMain(
 		   vv_uvw);
 #endif
 
-  /*
-  ** Let's apply the reindexing on the UVW coordinates !!!
-  */
-  int k = 0;
-  for (unsigned int iUvw = 0; iUvw < vv_uvw.size(); iUvw++) {
-    uvw_v[k++] = vv_uvw[msRowReIndex_v[iUvw]](0); 
-    uvw_v[k++] = vv_uvw[msRowReIndex_v[iUvw]](1);
-    uvw_v[k++] = vv_uvw[msRowReIndex_v[iUvw]](2);
-  } 
-
-  /*
-  ** Let's apply the reindexing on weight and sigma.
-  */
-  vector<double> weight_v(vmsData_p->v_time.size());
-  vector<double> correctedWeight_v(vmsData_p->v_time.size());
-
-  vector<double> sigma_v(vmsData_p->v_time.size());
-  vector<double> correctedSigma_v(vmsData_p->v_time.size());
+  // set sigma_v and weight_v first, in order.
+  weight_v.resize(vmsData_p->v_time.size());
+  sigma_v.resize(vmsData_p->v_time.size());
   for (unsigned int i = 0; i < weight_v.size(); i++) {
-    weight_v[i] = vmsData_p->v_exposure.at(msRowReIndex_v[i]) * effectiveBwPerDD_m[filteredDD[msRowReIndex_v[i]]];
-    if (vmsData_p->v_antennaId1[msRowReIndex_v[i]] != vmsData_p->v_antennaId2[msRowReIndex_v[i]])
+    weight_v[i] = vmsData_p->v_exposure[i] * effectiveBwPerDD_m[filteredDD[i]];
+    if (vmsData_p->v_antennaId1[i] != vmsData_p->v_antennaId2[i])
       weight_v[i] *= 2.0;
-    correctedWeight_v[i] = weight_v[i];
-    
+
     if (weight_v[i] == 0.0) weight_v[i] = 1.0;
+
     sigma_v[i] = 1.0 / sqrt(weight_v[i]);
 
-    correctedSigma_v[i] = sigma_v[i]; 
   }
+   
+  if (!skipFirstTime) {
+    // several values can be fully filled out in this case. 
+    // it's more efficient to just do that, most of the time this block will be executed
 
-  // Here we make the assumption that the State is the same for all the antennas and let's use the first State found in the vector stateId contained in the ASDM Main Row
-  // int asdmStateIdx = r_p->getStateId().at(0).getTagValue();  
-  vector<int> msStateId_v(vmsData_p->v_m_data.size(), stateIdx2Idx[r_p]);
+    /*
+    ** Let's apply the reindexing on the UVW coordinates !!!
+    */
+    uvw_v.resize(3*vmsData_p->v_time.size());
+    int k = 0;
+    for (unsigned int iUvw = 0; iUvw < vv_uvw.size(); iUvw++) {
+      uvw_v[k++] = vv_uvw[msRowReIndex_v[iUvw]](0); 
+      uvw_v[k++] = vv_uvw[msRowReIndex_v[iUvw]](1);
+      uvw_v[k++] = vv_uvw[msRowReIndex_v[iUvw]](2);
+    } 
+
+    /*
+    ** Let's apply the reindexing on weight and sigma.
+    */
+    uncorrectedWeight_v.resize(weight_v.size());
+    uncorrectedSigma_v.resize(weight_v.size());
+    for (unsigned int i = 0; i < weight_v.size(); i++) {
+      uncorrectedWeight_v[i] = weight_v.at(msRowReIndex_v[i]);
+      uncorrectedSigma_v[i] = sigma_v.at(msRowReIndex_v[i]);
+    }
+  }
 
   ComplexDataFilter cdf;
   map<AtmPhaseCorrectionMod::AtmPhaseCorrection, float*>::const_iterator iter;
+
+  vector<double>	uncorrectedTime_v;
+  vector<int>		uncorrectedAntennaId1_v;
+  vector<int>		uncorrectedAntennaId2_v;
+  vector<int>		uncorrectedFeedId1_v;
+  vector<int>		uncorrectedFeedId2_v;
+  vector<int>		uncorrectedFieldId_v;
+  vector<int>		uncorrectedFilteredDD_v;
+  vector<vector< unsigned int> > uncorrectedFilteredShape_vv;
+  vector<double>	uncorrectedInterval_v;
+  vector<double>	uncorrectedExposure_v;
+  vector<double>	uncorrectedTimeCentroid_v;
+  vector<unsigned int>	uncorrectedFlag_v;
 
   vector<double>	correctedTime_v;
   vector<int>		correctedAntennaId1_v;
@@ -3543,7 +3621,6 @@ void fillMain(
   vector<double>	correctedInterval_v;
   vector<double>	correctedExposure_v;
   vector<double>	correctedTimeCentroid_v;
-  vector<int>		correctedMsStateId_v(msStateId_v);
   vector<double>        correctedUvw_v;
   vector<unsigned int>	correctedFlag_v;
 
@@ -3557,17 +3634,42 @@ void fillMain(
   // Apply here the redindexing on uncorrected data !!!!
   //
   for (unsigned int iData = 0; iData < vmsData_p->v_m_data.size(); iData++) {
+    if (skipFirstTime && msRowReIndex_v[iData] < 0) {
+      continue;
+    }
+
     if ((iter=vmsData_p->v_m_data.at(msRowReIndex_v[iData]).find(AtmPhaseCorrectionMod::AP_UNCORRECTED)) != vmsData_p->v_m_data.at(msRowReIndex_v[iData]).end()){
       uncorrectedData_v.push_back(cdf.to4Pol(vmsData_p->vv_dataShape.at(msRowReIndex_v[iData]).at(0),
 					     vmsData_p->vv_dataShape.at(msRowReIndex_v[iData]).at(1),
 					     iter->second));
+      if (skipFirstTime) {
+	// uncorrected values must also be explicitly added here since they can not be put in as entire vectors
+	uncorrectedTime_v.push_back(vmsData_p->v_time.at(msRowReIndex_v[iData]));
+	uncorrectedAntennaId1_v.push_back(vmsData_p->v_antennaId1.at(msRowReIndex_v[iData]));
+	uncorrectedAntennaId2_v.push_back(vmsData_p->v_antennaId2.at(msRowReIndex_v[iData]));
+	uncorrectedFeedId1_v.push_back(vmsData_p->v_feedId1.at(msRowReIndex_v[iData]));
+	uncorrectedFeedId2_v.push_back(vmsData_p->v_feedId2.at(msRowReIndex_v[iData]));
+	uncorrectedFilteredDD_v.push_back(filteredDD.at(msRowReIndex_v[iData]));
+	uncorrectedFilteredShape_vv.push_back(filteredShape_vv.at(msRowReIndex_v[iData]));
+	uncorrectedFieldId_v.push_back(vmsData_p->v_fieldId.at(msRowReIndex_v[iData]));
+	uncorrectedInterval_v.push_back(vmsData_p->v_interval.at(msRowReIndex_v[iData]));
+	uncorrectedExposure_v.push_back(vmsData_p->v_exposure.at(msRowReIndex_v[iData]));
+	uncorrectedTimeCentroid_v.push_back(vmsData_p->v_timeCentroid.at(msRowReIndex_v[iData]));
+	uvw_v.push_back(vv_uvw[msRowReIndex_v[iData]](0));
+	uvw_v.push_back(vv_uvw[msRowReIndex_v[iData]](1));
+	uvw_v.push_back(vv_uvw[msRowReIndex_v[iData]](2));
+	uncorrectedFlag_v.push_back(vmsData_p->v_flag.at(msRowReIndex_v[iData]));
+	uncorrectedWeight_v.push_back(weight_v.at(msRowReIndex_v[iData]));
+	uncorrectedSigma_v.push_back(sigma_v.at(msRowReIndex_v[iData]));
+      }
     }
-	    
+
     // Have we asked to write an MS with corrected data + radiometric data ?
     
     // Are we with radiometric data ? Then we assume that the data are labelled AP_UNCORRECTED.
     if (sdmBinData.processorType(r_p) == RADIOMETER) {
       if ((iter=vmsData_p->v_m_data.at(msRowReIndex_v[iData]).find(AtmPhaseCorrectionMod::AP_UNCORRECTED)) != vmsData_p->v_m_data.at(msRowReIndex_v[iData]).end()){
+	
 	correctedTime_v.push_back(vmsData_p->v_time.at(msRowReIndex_v[iData]));
 	correctedAntennaId1_v.push_back(vmsData_p->v_antennaId1.at(msRowReIndex_v[iData]));
 	correctedAntennaId2_v.push_back(vmsData_p->v_antennaId2.at(msRowReIndex_v[iData]));
@@ -3582,8 +3684,13 @@ void fillMain(
 	correctedUvw_v.push_back(vv_uvw[msRowReIndex_v[iData]](0));
 	correctedUvw_v.push_back(vv_uvw[msRowReIndex_v[iData]](1));
 	correctedUvw_v.push_back(vv_uvw[msRowReIndex_v[iData]](2));
-	correctedData_v.push_back(uncorrectedData_v.at(iData));  // <------------Attention here the uncorrected data have been already re ordered !
+	// this is probably the most recent uncorrectedData, but it might not be - else why the if blocks here
+	correctedData_v.push_back(cdf.to4Pol(vmsData_p->vv_dataShape.at(msRowReIndex_v[iData]).at(0),
+					     vmsData_p->vv_dataShape.at(msRowReIndex_v[iData]).at(1),
+					     iter->second));
 	correctedFlag_v.push_back(vmsData_p->v_flag.at(msRowReIndex_v[iData]));
+	correctedWeight_v.push_back(weight_v.at(msRowReIndex_v[iData]));
+	correctedSigma_v.push_back(sigma_v.at(msRowReIndex_v[iData]));
       }
     }
     else {  // We assume that we are in front of CORRELATOR data, but do we have corrected data on that specific subscan ?
@@ -3606,11 +3713,16 @@ void fillMain(
 	  correctedTimeCentroid_v.push_back(vmsData_p->v_timeCentroid.at(msRowReIndex_v[iData]));
 	  correctedUvw_v.push_back(vv_uvw[msRowReIndex_v[iData]](0));
 	  correctedUvw_v.push_back(vv_uvw[msRowReIndex_v[iData]](1));
-	  correctedUvw_v.push_back(vv_uvw[msRowReIndex_v[iData]](2));
-	  correctedData_v.push_back(uncorrectedData_v.at(iData)); // <-------- Here we re-use the autodata already present in the uncorrected data and which have been
-                                                                  // already reindexed !!!
+	  correctedUvw_v.push_back(vv_uvw[msRowReIndex_v[iData]](2));	  
+	  // this is probably the most recent uncorrectedData, but it might not be - else why the if blocks here
+	  correctedData_v.push_back(cdf.to4Pol(vmsData_p->vv_dataShape.at(msRowReIndex_v[iData]).at(0),
+					       vmsData_p->vv_dataShape.at(msRowReIndex_v[iData]).at(1),
+					       iter->second));
 	  correctedFlag_v.push_back(vmsData_p->v_flag.at(msRowReIndex_v[iData]));
 	  correctedFilteredShape_vv.push_back(filteredShape_vv.at(msRowReIndex_v[iData]));
+	  correctedWeight_v.push_back(weight_v.at(msRowReIndex_v[iData]));
+	  correctedSigma_v.push_back(sigma_v.at(msRowReIndex_v[iData]));
+
 	
 	}
 	else {
@@ -3637,6 +3749,8 @@ void fillMain(
 	  correctedData_v.push_back(theData);
 	  correctedFlag_v.push_back(vmsData_p->v_flag.at(msRowReIndex_v[iData]));
 	  correctedFilteredShape_vv.push_back(filteredShape_vv.at(msRowReIndex_v[iData]));
+	  correctedWeight_v.push_back(weight_v.at(msRowReIndex_v[iData]));
+	  correctedSigma_v.push_back(sigma_v.at(msRowReIndex_v[iData]));
 	}
       }
     }
@@ -3645,18 +3759,26 @@ void fillMain(
   if (uncorrectedData_v.size() > 0 && (msFillers.find(AP_UNCORRECTED) != msFillers.end())) {
     if (! mute) { // Here we make the assumption that we have always uncorrected data. This realistic even if not totally rigorous.
 
-      vector<double>		uncorrectedTime_v		 = reorder<double>( vmsData_p->v_time, msRowReIndex_v);
-      vector<int>		uncorrectedAntennaId1_v		 = reorder<int> (vmsData_p->v_antennaId1, msRowReIndex_v ) ;
-      vector<int>		uncorrectedAntennaId2_v		 = reorder<int>(vmsData_p->v_antennaId2, msRowReIndex_v );
-      vector<int>		uncorrectedFeedId1_v		 = reorder<int>(vmsData_p->v_feedId1, msRowReIndex_v );
-      vector<int>		uncorrectedFeedId2_v		 = reorder<int>(vmsData_p->v_feedId2, msRowReIndex_v );
-      vector<int>		uncorrectedFieldId_v		 = reorder<int>(vmsData_p->v_fieldId, msRowReIndex_v );
-      vector<int>		uncorrectedFilteredDD_v		 = reorder<int>(filteredDD, msRowReIndex_v );
-      vector<vector< unsigned int> > uncorrectedFilteredShape_vv = reorder<vector< unsigned int> >(filteredShape_vv, msRowReIndex_v );
-      vector<double>		uncorrectedInterval_v		 = reorder<double>(vmsData_p->v_interval, msRowReIndex_v );
-      vector<double>		uncorrectedExposure_v		 = reorder<double>(vmsData_p->v_exposure, msRowReIndex_v );
-      vector<double>		uncorrectedTimeCentroid_v	 = reorder<double>(vmsData_p->v_timeCentroid, msRowReIndex_v );
-      vector<unsigned int>	uncorrectedFlag_v		 = reorder<unsigned int>(vmsData_p->v_flag,  msRowReIndex_v );
+      if (!skipFirstTime) {
+	// need to set these now, but they can be set as vectors that need to be reordered
+	uncorrectedTime_v		  = reorder<double>( vmsData_p->v_time, msRowReIndex_v);
+	uncorrectedAntennaId1_v	  = reorder<int> (vmsData_p->v_antennaId1, msRowReIndex_v ) ;
+	uncorrectedAntennaId2_v	  = reorder<int>(vmsData_p->v_antennaId2, msRowReIndex_v );
+	uncorrectedFeedId1_v	  = reorder<int>(vmsData_p->v_feedId1, msRowReIndex_v );
+	uncorrectedFeedId2_v	  = reorder<int>(vmsData_p->v_feedId2, msRowReIndex_v );
+	uncorrectedFieldId_v	  = reorder<int>(vmsData_p->v_fieldId, msRowReIndex_v );
+	uncorrectedFilteredDD_v	  = reorder<int>(filteredDD, msRowReIndex_v );
+	uncorrectedFilteredShape_vv = reorder<vector< unsigned int> >(filteredShape_vv, msRowReIndex_v );
+	uncorrectedInterval_v	  = reorder<double>(vmsData_p->v_interval, msRowReIndex_v );
+	uncorrectedExposure_v	  = reorder<double>(vmsData_p->v_exposure, msRowReIndex_v );
+	uncorrectedTimeCentroid_v	  = reorder<double>(vmsData_p->v_timeCentroid, msRowReIndex_v );
+	uncorrectedFlag_v		  = reorder<unsigned int>(vmsData_p->v_flag, msRowReIndex_v );
+	// uvw_v, uncorrectedSigma_v, and uncorrectedWeight_v have all been previously set
+      }
+
+      // Here we make the assumption that the State is the same for all the antennas and let's use the first State found in the vector stateId contained in the ASDM Main Row
+      // state must have already been filled so that the stateIdx2IDx map is available to extract the state ID for this main row pointer (r_p).
+      vector<int> msStateId_v(uncorrectedTime_v.size(), stateIdx2Idx[r_p]);
 
       msFillers[AP_UNCORRECTED]->addData(complexData,
 					 uncorrectedTime_v	, // this is already time midpoint
@@ -3666,25 +3788,29 @@ void fillMain(
 					 uncorrectedFeedId2_v,
 					 uncorrectedFilteredDD_v,
 					 (int) vmsData_p->processorId,
-					 (vector<int> &) vmsData_p->v_fieldId,
-					 (vector<double> &) vmsData_p->v_interval,
-					 (vector<double> &) vmsData_p->v_exposure,
-					 (vector<double> &)vmsData_p->v_timeCentroid,
+					 uncorrectedFieldId_v,
+					 uncorrectedInterval_v,
+					 uncorrectedExposure_v,
+					 uncorrectedTimeCentroid_v,
 					 (int) r_p->getScanNumber(), 
 					 0,                                               // Array Id
 					 (int) r_p->getExecBlockId().getTagValue(), // Observation Id
 					 msStateId_v,
-					 uvw_v,
+					 uvw_v,               
 					 uncorrectedFilteredShape_vv, // vmsData_p->vv_dataShape after filtering the case numCorr == 3
 					 uncorrectedData_v,
 					 uncorrectedFlag_v,
-					 weight_v,
-					 sigma_v);
+					 uncorrectedWeight_v,
+					 uncorrectedSigma_v);
     }
   }
 
+
   if (correctedData_v.size() > 0 && (msFillers.find(AP_CORRECTED) != msFillers.end())) {
     if (! mute) {
+      // Here we make the assumption that the State is the same for all the antennas and let's use the first State found in the vector stateId contained in the ASDM Main Row
+      // state must have already been filled so that the stateIdx2IDx map is available to extract the state ID for this main row pointer (r_p).
+      vector<int>  correctedMsStateId_v(correctedTime_v.size(), stateIdx2Idx[r_p]);
       msFillers[AP_CORRECTED]->addData(complexData,
 				       correctedTime_v, // this is already time midpoint
 				       correctedAntennaId1_v, 
@@ -3712,44 +3838,12 @@ void fillMain(
   if (debug) cout << "fillMain : exiting" << endl;
 }
 
-
-void testFunc(string& tstr) {
-  cerr<<tstr<<endl;
-}
-
 /**
- * compute the UVW (put in a method to keep sepearate from fillMain for
- parallel case) returns a Matrix, mat_uvw for data passing thread-safe
- way
-*/
-void calcUVW(MainRow* r_p, 
-             SDMBinData& sdmBinData, 
-             const VMSData* vmsData_p, 
-             UvwCoords& uvwCoords,
-             casacore::Matrix< casacore::Double >& mat_uvw) {
-
-  vector< casacore::Vector<casacore::Double> > vv_uvw;
-  mat_uvw.resize(3,vmsData_p->v_time.size());
-
-#if DDPRIORITY
-  uvwCoords.uvw_bl(r_p, sdmBinData.timeSequence(), e_query_cm,
-                   sdmbin::SDMBinData::dataOrder(),
-                   vv_uvw);
-#else
-  uvwCoords.uvw_bl(r_p, vmsData_p->v_timeCentroid, e_query_cm,
-                   sdmbin::SDMBinData::dataOrder(),
-                   vv_uvw);
-#endif
-
-  //put in a Matrix
-  for (unsigned int iUvw = 0; iUvw < vv_uvw.size(); iUvw++) {
-    mat_uvw(iUvw, 0) = vv_uvw[iUvw](0);
-    mat_uvw(iUvw, 1) = vv_uvw[iUvw](1);
-    mat_uvw(iUvw, 2) = vv_uvw[iUvw](2);
-  }
-} 
-
-/**
+ * This function has not been used in production. It therefore has not kept up with
+ * ongoing development elsewhere here. It should be seen as an example for possible
+ * future multithreading work and should not be use as is.
+ *
+ **
  * This function fills the MS Main table from an ASDM Main table which refers to correlator data.
  * designed for multithreading........
  *
@@ -3987,9 +4081,9 @@ void fillMain_mt(MainRow*	r_p,
   if (debug) cout << "fillMain_mt : exiting" << endl;
 }
 #endif
-
-void fillSysPower_aux (const vector<SysPowerRow *>& sysPowers, map<AtmPhaseCorrection, ASDM2MSFiller*>& msFillers_m) {
-  LOGENTER("fillSysPower_aux");
+ 
+ void fillSysPower_aux (const vector<SysPowerRow *>& sysPowers, map<AtmPhaseCorrection, ASDM2MSFiller*>& msFillers_m) {
+   LOGENTER("fillSysPower_aux");
 
   vector<int>		antennaId;
   vector<int>		spectralWindowId;
@@ -4300,6 +4394,8 @@ int main(int argc, char *argv[]) {
   bool		interpolate_ephemeris	       = false ; 
   bool		tabulate_ephemeris_polynomials = false;
   double	polyephem_tabtimestep	       = 0.0;
+
+  bool checkDupInts = true;
   
   //   Process command line options and parameters.
   po::variables_map vm;
@@ -4354,6 +4450,11 @@ int main(int argc, char *argv[]) {
       ;
     hidden.add_options()
       ("ms-directory-prefix", po::value< string >(), "ms directory prefix")
+      ;
+
+    // This is only used by the test programs. Not indended for general use.
+    hidden.add_options()
+      ("checkdupints", po::value<bool>()->default_value("true"),"a value of false turns off checks for duplicate integration times in RADIOMETER data")
       ;
 
     po::options_description cmdline_options;
@@ -4593,6 +4694,12 @@ int main(int argc, char *argv[]) {
       infostream << "The non-lazy version of the filler will be used." << endl;
       // an option is being ignored, warn the user even if not verbose
       warning(infostream.str());
+    }
+
+    // check for duplicate integrations in RADIOMETER data?
+    checkDupInts = vm["checkdupints"].as< bool >();
+    if (debug) {
+      cout << "checkDupInts : " << checkDupInts << endl;
     }
 
     // Do we consider another order than ac_xc_per_timestamp ?
@@ -5668,9 +5775,21 @@ int main(int argc, char *argv[]) {
 	// All rows of ASDM-Pointing must have their attribute usePolynomials equal to false
 	// and their numTerm attribute equal to 1. Use the opportunity of this check
 	// to compute the number of rows to be created in the MS-Pointing by summing
-	// all the numSample attributes values.
+	// all the numSample attributes values. Watch for duplicate times due and avoid.
 	//
 	int numMSPointingRows = 0;
+
+	// initialize the lastTime to 0.0 for all antennaIds
+	map<Tag, double> lastTime;
+	const AntennaTable& antennaT = ds->getAntenna();
+	const vector<AntennaRow *>& vAntRow = antennaT.get();
+	for (unsigned int i=0; i < vAntRow.size(); i++) {
+	  lastTime[vAntRow[i]->getAntennaId()] = 0.0;
+	}
+
+	// set this to true for any rows where the first element should be skipped because the time is a duplicate
+	vector<bool> vSkipFirst(v.size(),false);
+
 	for (unsigned int i = 0; i < v.size(); i++) {
 	  if (v[i]->getUsePolynomials()) {
 	    errstream.str("");
@@ -5678,7 +5797,30 @@ int main(int argc, char *argv[]) {
 	    error(errstream.str());
 	  }
 
-	  numMSPointingRows += v[i]->getNumSample();
+	  // look for duplicate rows - time at the start of row is near the time at the end of the previous row for that antennaId
+	  int numSample = v[i]->getNumSample();
+	  Tag antId = v[i]->getAntennaId();
+	  double tfirst = 0.0;
+	  double tlast = 0.0;
+	  if (v[i]->isSampledTimeIntervalExists()) {
+	    tfirst = ((double) (v[i]->getSampledTimeInterval().at(0).getStart().get())) / ArrayTime::unitsInASecond;
+	    tlast = ((double) (v[i]->getSampledTimeInterval().at(numSample-1).getStart().get())) / ArrayTime::unitsInASecond;
+	  } else {
+	    double tstart = ((double) v[i]->getTimeInterval().getStart().get()) / ArrayTime::unitsInASecond;
+	    double tint = ((double) v[i]->getTimeInterval().getDuration().get()) / ArrayTime::unitsInASecond / numSample;
+	    tfirst = tstart + tint/2.0;
+	    tlast = tfirst + tint*(numSample-1);
+	  }
+	  if (casacore::near(tfirst,lastTime[antId])) {
+	      infostream.str("");
+	      infostream << "First time in Pointing row " << i << " for antenna " << antId << " is near the previous last time for that antenna, skipping that first time in the output MS POINTING table" << endl;
+	      info(infostream.str());
+	      numSample--;
+	      lastTime[antId] = tlast;
+	      vSkipFirst[i] = true;
+	  }
+	  lastTime[antId] = tlast;
+	  numMSPointingRows += numSample;
 	}
 
 	//
@@ -5767,27 +5909,33 @@ int main(int argc, char *argv[]) {
 	  vector<ArrayTimeInterval> timeInterval ;
 	  if (r->isSampledTimeIntervalExists()) timeInterval = r->getSampledTimeInterval();
 
+	  // and now insert the values into the MS POINTING table
+	  // watch for the skipped initial sample
+	  int numSampleUsed = numSample;
+	  if (vSkipFirst.at(i)) numSampleUsed--;
+
 	  // Use 'fill' from algorithm for the cases where values remain constant.
 	  // ANTENNA_ID
-	  fill(antenna_id_.begin()+iMSPointingRow, antenna_id_.begin()+iMSPointingRow+numSample, antennaId);
+	  fill(antenna_id_.begin()+iMSPointingRow, antenna_id_.begin()+iMSPointingRow+numSampleUsed, antennaId);
 
 	  // TRACKING 
-	  fill(tracking_.begin()+iMSPointingRow, tracking_.begin()+iMSPointingRow+numSample, pointingTracking);
+	  fill(tracking_.begin()+iMSPointingRow, tracking_.begin()+iMSPointingRow+numSampleUsed, pointingTracking);
 
 	  // OVER_THE_TOP 
 	  if (overTheTopExists4All)
 	    // it's present everywhere
-	    fill(v_overTheTop_.begin()+iMSPointingRow, v_overTheTop_.begin()+iMSPointingRow+numSample,
+	    fill(v_overTheTop_.begin()+iMSPointingRow, v_overTheTop_.begin()+iMSPointingRow+numSampleUsed,
 		 r->getOverTheTop());
 	  else if (r->isOverTheTopExists()) {
 	    // it's present only in some rows.
 	    s_overTheTop saux ;
-	    saux.start = iMSPointingRow; saux.len = numSample; saux.value = r->getOverTheTop();
+	    saux.start = iMSPointingRow; saux.len = numSampleUsed; saux.value = r->getOverTheTop();
 	    v_s_overTheTop_.push_back(saux);
 	  }
        
 	  // Use an explicit loop for the other values.
 	  for (int j = 0 ; j < numSample; j++) { // ... must be expanded in numSample MS-Pointing rows.
+	    if (j == 0 && vSkipFirst.at(i)) continue;   // the first element is to be skipped
 
 	    // TIME and INTERVAL
 	    if (r->isSampledTimeIntervalExists()) { //if sampledTimeInterval is present use its values.	           
@@ -6560,7 +6708,7 @@ int main(int argc, char *argv[]) {
   // And then finally process the state and the main table.
   //
   if (lazy) {
-    fillMainLazily(dsName, ds, selected_eb_scan_m,effectiveBwPerDD_m,e_query_cm);
+    fillMainLazily(dsName, ds, selected_eb_scan_m,effectiveBwPerDD_m,e_query_cm,checkDupInts);
   } 
   else {
 
@@ -6602,8 +6750,13 @@ int main(int argc, char *argv[]) {
     ostringstream oss;
     EnumSet<AtmPhaseCorrection> es_query_ap_uncorrected;
     es_query_ap_uncorrected.fromString("AP_UNCORRECTED");
-      
-    // For each selected main row.      
+    
+    // used in checking for duplicate integrations in the WVR (Radiometer) case
+    // This holds the most recent last integration time for each configDescriptionId - but only for Radiometer data.
+    map<Tag, double> lastTimeMap;
+    // for debugging - to report on what uid the lastTime being compared came from
+    // map<Tag, string> lastTimeUIDMap;
+
     for (unsigned int i = 0; i < nMain; i++) {
       try {
 	// What's the processor for this Main row ?
@@ -6654,7 +6807,33 @@ int main(int argc, char *argv[]) {
 	    continue;
 	  }
 	  vmsDataPtr = sdmBinData.getDataCols();
-	   
+	  bool skipFirstIntegration = checkDupInts && lastTimeMap[cdId] == vmsDataPtr->v_time[0];
+	  unsigned int skipValues = 0;
+	  // useful just for debugging
+	  if (skipFirstIntegration) {
+	    // work out the number of elements in this first row
+	    // possibly this is available reliably elsewhere, but thats' not obvious
+	    // this should be rare and only a few elements should tested, so relatively quick
+	    bool firstIntegration = True;
+	    while (firstIntegration && skipValues < vmsDataPtr->v_time.size()) {
+	      firstIntegration = lastTimeMap[cdId] == vmsDataPtr->v_time[skipValues];
+	      if (firstIntegration) skipValues++;
+	    }
+	    if (debug) {
+	      cout << "Duplicate time seen in Row : " << i
+		   <<  " cdId : " << cdId 
+		   << " " << v[i]->getDataUID().getEntityId().toString()
+		//   << " duplicates time at end of " << lastTimeUIDMap[cdId]
+		   << " time size " << vmsDataPtr->v_time.size()
+		   << " antennaId1 size " << vmsDataPtr->v_antennaId1.size()
+		   << " skipValues : " << skipValues
+		   << endl;
+	    }
+	  }
+
+	  lastTimeMap[cdId] = vmsDataPtr->v_time[vmsDataPtr->v_time.size()-1];
+	  // lastTimeUIDMap[cdId] = v[i]->getDataUID().getEntityId().toString();
+	  
 	  fillMain(
 		   v[i],
 		   sdmBinData,
@@ -6663,10 +6842,11 @@ int main(int argc, char *argv[]) {
 		   effectiveBwPerDD_m,
 		   complexData,
 		   mute,
-		   ac_xc_per_timestamp);
+		   ac_xc_per_timestamp,
+		   skipValues);
           
 	  infostream.str("");
-	  infostream << "ASDM Main row #" << mainRowIndex[i] << " produced a total of " << vmsDataPtr->v_antennaId1.size() << " MS Main rows." << endl;
+	  infostream << "ASDM Main row #" << mainRowIndex[i] << " produced a total of " << (vmsDataPtr->v_antennaId1.size()-skipValues) << " MS Main rows." << endl;
 	  info(infostream.str());
 	}
 	else { // Assume we are in front of a Correlator.

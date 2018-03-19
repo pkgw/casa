@@ -70,7 +70,6 @@
 
 #include <casa/Arrays/ArrayMath.h>
 #include <casa/Arrays/Slice.h>
-#include <imageanalysis/ImageAnalysis/ImageAnalysis.h>
 #include <images/Images/ImageExpr.h>
 #include <imageanalysis/ImageAnalysis/ImagePolarimetry.h>
 #include <images/Images/ImageBeamSet.h>
@@ -339,8 +338,10 @@ Bool Imager::imagecoordinates2(CoordinateSystem& coordInfo, const Bool verbose)
 
   // Now find the projection to use: could probably also use
   // max(abs(w))=0.0 as a criterion
-  Projection projection(Projection::SIN);
-  if(telescop == "ATCASCP" || telescop == "WSRT" || telescop == "DRAO") {
+  Projection::Type ptype = Projection::type(projection_p);
+  Projection projection(ptype);
+  if(ptype == Projection::SIN
+      && (telescop == "ATCASCP" || telescop == "WSRT" || telescop == "DRAO")) {
     os << LogIO::NORMAL // Loglevel NORMAL
        << "Using SIN image projection adjusted for "
        << (telescop == "ATCASCP" ? 'S' : 'N') << "CP" 
@@ -359,7 +360,7 @@ Bool Imager::imagecoordinates2(CoordinateSystem& coordInfo, const Bool verbose)
     }
   }
   else {
-    os << LogIO::DEBUGGING << "Using SIN image projection" << LogIO::POST;
+    os << LogIO::DEBUGGING << "Using " << projection_p << " image projection" << LogIO::POST;
   }
   os << LogIO::NORMAL;
   
@@ -4238,8 +4239,6 @@ Bool Imager::makeEmptyImage(CoordinateSystem& coords, String& name, Int fieldID)
   iinfo.setObjectName(objectName);
   modelImage.setImageInfo(iinfo);
   String telescop=msc.observation().telescopeName()(0);
-  info.define("OBJECT", object);
-  info.define("TELESCOP", telescop);
   info.define("INSTRUME", telescop);
   info.define("distance", 0.0);
   modelImage.setMiscInfo(info);

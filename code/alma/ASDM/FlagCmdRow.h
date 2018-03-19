@@ -78,7 +78,7 @@
 //#include <TableStreamReader.h>
 
 /*\file FlagCmd.h
-    \brief Generated from model's revision "1.64", branch "HEAD"
+    \brief Generated from model's revision "-1", branch ""
 */
 
 namespace asdm {
@@ -94,7 +94,7 @@ typedef void (FlagCmdRow::*FlagCmdAttributeFromText) (const string& s);
 /**
  * The FlagCmdRow class is a row of a FlagCmdTable.
  * 
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  */
 class FlagCmdRow {

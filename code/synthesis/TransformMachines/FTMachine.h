@@ -258,7 +258,7 @@ public:
   
   casacore::Bool changedSkyJonesLogic(const VisBuffer& vb, casacore::Bool& firstRow, casacore::Bool& internalRow);
 
-
+ 
   //-------------------------------------------------------------------------------------
 
   // Get the gridded visibilities or weight 
@@ -339,6 +339,12 @@ public:
   virtual void setMovingSource(const casacore::String& sourcename);
   virtual void setMovingSource(const casacore::MDirection& mdir);
 
+  //set and get Time to calculate phasecenter  -1.0 means using the time available at 
+  //each iteration..this is used when the phasecenter in the field table is either 
+  //a polynomial or has a ephemerides tables associated with it
+  //Using double in the units and epoch-frame of the ms(s) ..caller is responsible for conversion
+  void setPhaseCenterTime(const casacore::Double time){phaseCenterTime_p=time;};
+  casacore::Double getPhaseCenterTime(){return phaseCenterTime_p;};
   //reset stuff in an FTMachine
   virtual void reset(){};
 
@@ -531,6 +537,7 @@ protected:
   casacore::CountedPtr<casacore::ImageInterface<casacore::Complex> > cmplxImage_p;
 
   FFT2D ft_p;
+  casacore::Double phaseCenterTime_p;
  private:
   //Some temporary wasteful function for swapping axes because we don't 
   //Interpolation along the second axis...will need to implement 
@@ -540,6 +547,7 @@ protected:
   void swapyz(casacore::Cube<casacore::Complex>& out, const casacore::Cube<casacore::Bool>& outFlag, const casacore::Cube<casacore::Complex>& in);
   void swapyz(casacore::Cube<casacore::Bool>& out, const casacore::Cube<casacore::Bool>& in);
   void convUVW(casacore::Double& dphase, casacore::Vector<casacore::Double>& thisrow);
+  
 
 };
 

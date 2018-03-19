@@ -36,6 +36,26 @@ at = casac.atmosphere()
 </example>
 </method>
 
+<method type="function" name="close">
+   <shortdescription>Destroy the atmosphere tool</shortdescription>
+   
+<returns type="bool"/>
+<example>
+at.close()
+
+</example>
+</method>
+
+<method type="function" name="done">
+   <shortdescription>Destroy the atmosphere tool</shortdescription>
+   
+<returns type="bool"/>
+<example>
+at.done()
+
+</example>
+</method>
+
 <method type="function" name="getAtmVersion">
    <shortdescription>Returns the version of ATM library.
    </shortdescription>
@@ -166,6 +186,19 @@ can be calculated by simply integrating the H2O profile.
         </description>
      <value>1</value>
      </param>
+
+     <param type="doubleArray" direction="in" name="layerBoundaries">
+     <description>Altitude of user-defined temperature profile, 
+       a double array in unit of meter</description>
+     <value></value>
+     </param>
+
+     <param type="doubleArray" direction="in" name="layerTemperature">
+     <description>User-defined temperature profile, a double 
+       array in unit of Kelvin</description>
+     <value></value>
+     </param>
+
 </input>
 <returns type="string">String displaying input values.</returns>
 <example>
@@ -183,7 +216,7 @@ att = 1
 myatm = at.initAtmProfile(alt, tmp, pre, mxA, hum, wvl, dpr, dpm, h0, att)
 print myatm
 # BASIC ATMOSPHERIC PARAMETERS TO GENERATE REFERENCE ATMOSPHERIC PROFILE
-# 
+#  
 # Ground temperature T:         270 K
 # Ground pressure P:            560 mb
 # Relative humidity rh:         20 %
@@ -194,8 +227,30 @@ print myatm
 # Pressure step factor:         1.2 
 # Tropospheric lapse rate:      -5.6 K/km
 # Atmospheric type:             TROPICAL
+# User-defined temperature profile: OFF
 #
-# Built atmospheric profile with 20 layers.
+# Built atmospheric profile with 19 layers.
+
+User-defined temperature profile
+myalt = [ 5071.72200397, 6792.36546384, 15727.0776121, 42464.18192672 ] #meter
+mytemp = [ 270., 264., 258., 252. ] #Kelvin
+newatm = at.initAtmProfile(alt, tmp, pre, mxA, hum, wvl, dpr, dpm, h0, att, myalt, mytemp)
+print newatm
+# BASIC ATMOSPHERIC PARAMETERS TO GENERATE REFERENCE ATMOSPHERIC PROFILE
+#  
+# Ground temperature T:         270 K
+# Ground pressure P:            560 mb
+# Relative humidity rh:         20 %
+# Scale height h0:              2 km
+# Pressure step dp:             10 mb
+# Altitude alti:                5000 m
+# Attitude top atm profile:     48 km
+# Pressure step factor:         1.2 
+# Tropospheric lapse rate:      -5.6 K/km
+# Atmospheric type:             TROPICAL
+# User-defined temperature profile: ON
+#
+# Built atmospheric profile with 19 layers.
 
 </example>
 </method>
@@ -347,7 +402,7 @@ print p[0]           # a "pretty" listing of all the parameters
 # Tropospheric lapse rate       -5.6 K/km
 # Atmospheric type:             TROPICAL
 #
-# Atmospheric profile has 20 layers.
+# Atmospheric profile has 19 layers.
 
 </example>
    </method>

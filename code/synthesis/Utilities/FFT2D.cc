@@ -201,7 +201,49 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       }
     }
   }
-
+void FFT2D::c2cFFTInDouble(Lattice<Complex>& inout, Bool toFreq){
+    IPosition shp=inout.shape();
+    if(shp.nelements() <2)
+      throw(AipsError("Lattice has to be 2 dimensional to use FFT2D"));
+    Long x= inout.shape()(0);
+    Long y=inout.shape()(1);
+    Long numplanes=inout.shape().product()/x/y;
+    IPosition blc(inout.shape().nelements(), 0);
+    IPosition shape=inout.shape();
+    for (uInt ax=2; ax < shp.nelements(); ++ax)
+      shape(ax)=1;
+    Array<Complex> arr;
+    Bool isRef;
+    Bool del, delD;
+    Complex *scr;
+    DComplex *scrD;
+    Array<DComplex> arrD(shape);
+    scrD=arrD.getStorage(delD);
+    for (Long n=0; n< numplanes; ++n){
+      isRef=inout.getSlice(arr, blc, shape);
+      scr=arr.getStorage(del);
+      complexConvert(scrD, scr, (ooLong)shape(0)*(ooLong)shape(1), False); 
+      c2cFFT(scrD, x, y, toFreq);
+      complexConvert(scrD, scr, (ooLong)shape(0)*(ooLong)shape(1), True); 
+      arr.putStorage(scr, del);
+      if(!isRef)
+	inout.putSlice(arr, blc);
+      //Now calculate next plane 
+      Bool addNextAx=true;
+      for (uInt ax=2; ax < shp.nelements(); ++ax){
+	if(addNextAx){
+	  blc(ax) +=1;
+	  addNextAx=false;
+	}
+	if(blc(ax)> shp(ax)-1){
+	  blc(ax)=0;
+	  addNextAx=true;
+	}
+       
+      }
+    }
+    arrD.putStorage(scrD, delD);
+  }
   void FFT2D::c2cFFT(Lattice<DComplex>& inout, Bool toFreq){
     IPosition shp=inout.shape();
     if(shp.nelements() <2)
@@ -555,6 +597,19 @@ void FFT2D::fftShift(DComplex*& s,  Long x, Long y, Bool toFreq){
     
 
     
+  }
+  void FFT2D::complexConvert(DComplex*& scrD, Complex*& scr,  const ooLong len, const Bool down){
+    if(down){
+      for(ooLong k=0; k< len; ++k){
+	scr[k]=(Complex)(scrD[k]);
+      }
+    }
+    else{
+      for(ooLong k=0; k< len; ++k){
+	scrD[k]=(DComplex)(scr[k]);
+      }
+    }
+
   }
 
 } //# NAMESPACE CASA - END

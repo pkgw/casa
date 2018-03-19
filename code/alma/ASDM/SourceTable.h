@@ -41,7 +41,7 @@
 
 
 	
-#include <ArrayTime.h>
+#include <Speed.h>
 	
 
 	
@@ -49,11 +49,7 @@
 	
 
 	
-#include <Angle.h>
-	
-
-	
-#include <Speed.h>
+#include <ArrayTime.h>
 	
 
 	
@@ -61,7 +57,11 @@
 	
 
 	
-#include <Tag.h>
+#include <ArrayTimeInterval.h>
+	
+
+	
+#include <Angle.h>
 	
 
 	
@@ -73,7 +73,7 @@
 	
 
 	
-#include <ArrayTimeInterval.h>
+#include <Tag.h>
 	
 
 
@@ -255,175 +255,175 @@ class SourceRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> directionCode </TD> 
+ * <TD> directionCode</TD> 
  * <TD> DirectionReferenceCodeMod::DirectionReferenceCode </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; identifies the direction reference frame associated to direction. </TD>
  * </TR>
 	
  * <TR>
- * <TD> directionEquinox </TD> 
+ * <TD> directionEquinox</TD> 
  * <TD> ArrayTime </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the equinox associated to the direction reference frame (if required). </TD>
  * </TR>
 	
  * <TR>
- * <TD> calibrationGroup </TD> 
+ * <TD> calibrationGroup</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the calibration group number. </TD>
  * </TR>
 	
  * <TR>
- * <TD> catalog </TD> 
+ * <TD> catalog</TD> 
  * <TD> string </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the name of the catalog. </TD>
  * </TR>
 	
  * <TR>
- * <TD> deltaVel </TD> 
+ * <TD> deltaVel</TD> 
  * <TD> Speed </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the velocity resolution. </TD>
  * </TR>
 	
  * <TR>
- * <TD> position </TD> 
+ * <TD> position</TD> 
  * <TD> vector<Length > </TD>
  * <TD>  3  </TD>
  * <TD>&nbsp; the position of the source. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numLines </TD> 
+ * <TD> numLines(\f$N_{Line}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of line transitions. </TD>
  * </TR>
 	
  * <TR>
- * <TD> transition </TD> 
+ * <TD> transition</TD> 
  * <TD> vector<string > </TD>
  * <TD>  numLines  </TD>
  * <TD>&nbsp; the names of the transitions. </TD>
  * </TR>
 	
  * <TR>
- * <TD> restFrequency </TD> 
+ * <TD> restFrequency</TD> 
  * <TD> vector<Frequency > </TD>
  * <TD>  numLines  </TD>
  * <TD>&nbsp; the rest frequencies (one value per transition line). </TD>
  * </TR>
 	
  * <TR>
- * <TD> sysVel </TD> 
+ * <TD> sysVel</TD> 
  * <TD> vector<Speed > </TD>
  * <TD>  numLines  </TD>
  * <TD>&nbsp; the systemic velocity. </TD>
  * </TR>
 	
  * <TR>
- * <TD> rangeVel </TD> 
+ * <TD> rangeVel</TD> 
  * <TD> vector<Speed > </TD>
  * <TD>  2  </TD>
  * <TD>&nbsp; the velocity range. </TD>
  * </TR>
 	
  * <TR>
- * <TD> sourceModel </TD> 
+ * <TD> sourceModel</TD> 
  * <TD> SourceModelMod::SourceModel </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; identifies the source model. </TD>
  * </TR>
 	
  * <TR>
- * <TD> frequencyRefCode </TD> 
+ * <TD> frequencyRefCode</TD> 
  * <TD> FrequencyReferenceCodeMod::FrequencyReferenceCode </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the frequency reference code. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numFreq </TD> 
+ * <TD> numFreq(\f$N_{Freq}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of frequencies. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numStokes </TD> 
+ * <TD> numStokes(\f$N_{Stok}\f$)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of Stokes parameters. </TD>
  * </TR>
 	
  * <TR>
- * <TD> frequency </TD> 
+ * <TD> frequency</TD> 
  * <TD> vector<Frequency > </TD>
  * <TD>  numFreq  </TD>
  * <TD>&nbsp; the array of frequencies (one value per frequency). </TD>
  * </TR>
 	
  * <TR>
- * <TD> frequencyInterval </TD> 
+ * <TD> frequencyInterval</TD> 
  * <TD> vector<Frequency > </TD>
  * <TD>  numFreq  </TD>
  * <TD>&nbsp; an array of frequency intervals (one value per interval). </TD>
  * </TR>
 	
  * <TR>
- * <TD> stokesParameter </TD> 
+ * <TD> stokesParameter</TD> 
  * <TD> vector<StokesParameterMod::StokesParameter > </TD>
  * <TD>  numStokes  </TD>
  * <TD>&nbsp; the array of Stokes parameters (one value per parameter). </TD>
  * </TR>
 	
  * <TR>
- * <TD> flux </TD> 
+ * <TD> flux</TD> 
  * <TD> vector<vector<Flux > > </TD>
  * <TD>  numFreq, numStokes  </TD>
  * <TD>&nbsp; the array of flux densities expressed in Jansky (Jy). </TD>
  * </TR>
 	
  * <TR>
- * <TD> fluxErr </TD> 
+ * <TD> fluxErr</TD> 
  * <TD> vector<vector<Flux > > </TD>
  * <TD>  numFreq, numStokes  </TD>
  * <TD>&nbsp; the array of uncertainties on flux densities. </TD>
  * </TR>
 	
  * <TR>
- * <TD> positionAngle </TD> 
+ * <TD> positionAngle</TD> 
  * <TD> vector<Angle > </TD>
  * <TD>  numFreq  </TD>
  * <TD>&nbsp; the major axis position angles (one value per frequency). </TD>
  * </TR>
 	
  * <TR>
- * <TD> positionAngleErr </TD> 
+ * <TD> positionAngleErr</TD> 
  * <TD> vector<Angle > </TD>
  * <TD>  numFreq  </TD>
  * <TD>&nbsp; the uncertainties on major axis position angles. </TD>
  * </TR>
 	
  * <TR>
- * <TD> size </TD> 
+ * <TD> size</TD> 
  * <TD> vector<vector<Angle > > </TD>
  * <TD>  numFreq, 2  </TD>
  * <TD>&nbsp; the sizes of source (one pair of values per frequency). </TD>
  * </TR>
 	
  * <TR>
- * <TD> sizeErr </TD> 
+ * <TD> sizeErr</TD> 
  * <TD> vector<vector<Angle > > </TD>
  * <TD>  numFreq, 2  </TD>
  * <TD>&nbsp; the uncertainties on the source sizes (one pair of value per frequency). </TD>
  * </TR>
 	
  * <TR>
- * <TD> velRefCode </TD> 
+ * <TD> velRefCode</TD> 
  * <TD> RadialVelocityReferenceCodeMod::RadialVelocityReferenceCode </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the velocity reference code for velocities: sysVel, rangeVel, deltaVel. </TD>

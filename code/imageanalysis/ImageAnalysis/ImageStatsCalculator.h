@@ -63,7 +63,8 @@ public:
     ImageStatsCalculator(
         const SPCIIF image,
         const casacore::Record *const &regionPtr,
-        const casacore::String& maskInp, casacore::Bool beVerboseDuringConstruction=false
+        const casacore::String& maskInp,
+        casacore::Bool beVerboseDuringConstruction=false
     );
 
     ~ImageStatsCalculator();
@@ -100,7 +101,7 @@ public:
     // if messageStore != 0, log messages, stripped of time stampe and priority, will also
     // be placed in this parameter and returned to caller for eg logging to file.
     casacore::Record statistics(
-         vector<casacore::String> *const &messageStore=0
+         std::vector<casacore::String> *const &messageStore=0
     );
 
     const static String SIGMA;
@@ -140,10 +141,23 @@ private:
         casacore::ImageRegion* oldMask
     );
 
+    void _logStartup(
+        std::vector<String> *const &messageStore, const String& alg,
+        const casacore::IPosition& blc, const casacore::IPosition& trc,
+        const casacore::String& blcf, const casacore::String trcf
+    ) const;
+
     void _reportDetailedStats(
         const SHARED_PTR<const casacore::ImageInterface<casacore::Float> > tempIm,
         const casacore::Record& retval
     );
+
+    template <class T> void _removePlanes(
+        Array<T>& arr, uInt axis, const std::set<uInt>& planes
+    ) const;
+
+    // remove values for which there were no points, CAS-10183
+    void _sanitizeDueToRegionSelection(Record& retval) const;
 
 };
 }

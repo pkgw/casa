@@ -136,6 +136,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     static casacore::Int parseLine(char* line);
     static void getResource(casacore::String label="",casacore::String fname="");
     
+    // return comprehensible direction string from given MDirection object
+    static casacore::String asComprehensibleDirectionString(casacore::MDirection const &direction);
+
   protected:
     static casacore::String mergeSpwSel(const casacore::Vector<casacore::Int>& fspw, const casacore::Vector<casacore::Int>& fstart, const casacore::Vector<casacore::Int>& fnchan, const casacore::Matrix<casacore::Int>& spwsel);
 
@@ -213,7 +216,10 @@ public:
 
   // Generate casacore::Coordinate System 
   casacore::CoordinateSystem buildCoordinateSystem(ROVisibilityIterator* rvi);
-  casacore::CoordinateSystem buildCoordinateSystem(vi::VisibilityIterator2& vi2);
+
+  casacore::CoordinateSystem buildCoordinateSystem(vi::VisibilityIterator2& vi2, const std::map<casacore::Int, std::map<casacore::Int, casacore::Vector<casacore::Int> > >& chansel,  casacore::Block<const casacore::MeasurementSet *> mss);
+
+ 
   casacore::CoordinateSystem buildCoordinateSystemCore(casacore::MeasurementSet& msobj, 
 					     casacore::Vector<casacore::Int> spwids, casacore::Int fld, 
 					     casacore::Double freqmin, casacore::Double freqmax, 
@@ -313,6 +319,16 @@ public:
   casacore::String cfCache;
   casacore::Float computePAStep, rotatePAStep;
 
+  // For single-dish imaging
+  casacore::String pointingDirCol;
+  casacore::Float skyPosThreshold;
+  casacore::Int convSupport;
+  casacore::Quantity truncateSize;
+  casacore::Quantity gwidth;
+  casacore::Quantity jwidth;
+  casacore::Float minWeight;
+  casacore::Bool clipMinMax;
+
   // Mapper Type.
   casacore::String mType;
 
@@ -349,9 +365,11 @@ public:
   casacore::Float sidelobeThreshold;
   casacore::Float noiseThreshold;
   casacore::Float lowNoiseThreshold;
+  casacore::Float negativeThreshold;
   casacore::Float smoothFactor;
   casacore::Float minBeamFrac;
   casacore::Float cutThreshold;
+  casacore::Int growIterations;
   int nMask;
   bool autoAdjust;
 

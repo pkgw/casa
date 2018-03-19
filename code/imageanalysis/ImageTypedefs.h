@@ -48,6 +48,7 @@ namespace casa {
 	using SPIIF = SHARED_PTR<casacore::ImageInterface<casacore::Float> >;
 	using SPCIIC = SHARED_PTR<const casacore::ImageInterface<casacore::Complex> >;
 	using SPIIC = SHARED_PTR<casacore::ImageInterface<casacore::Complex> >;
+
 }
 
 #endif

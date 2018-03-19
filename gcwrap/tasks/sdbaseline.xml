@@ -35,7 +35,7 @@ pipeline processing for huge dataset.
     </param>
 
     <param type="string" name="datacolumn" ignorecase="true">
-        <description>name of data column to be used [\'data\', \'float_data\', or \'corrected\']</description>
+        <description>name of data column to be used ["data", "float_data", or "corrected"]</description>
         <value>data</value>
         <allowed kind="enum">
             <value>data</value>
@@ -45,44 +45,50 @@ pipeline processing for huge dataset.
     </param>
 
     <param type="string" name="antenna">
-        <description>select data by antenna name or ID, e.g. \'PM03\'</description>
+        <description>select data by antenna name or ID, e.g. "PM03"</description>
         <value></value>
     </param> 
 
     <param type="string" name="field">
-        <description>select data by field IDs and names, e.g. \'3C2*\' (\'\'=all)</description>
+        <description>select data by field IDs and names, e.g. "3C2*" (""=all)</description>
         <value></value>
     </param>
 
     <param type="string" name="spw">
-        <description>select data by IF IDs (spectral windows), e.g. \'3,5,7\' (\'\'=all)</description>
+        <description>select data by IF IDs (spectral windows), e.g. "3,5,7" (""=all)</description>
         <value></value>
     </param>
 
     <param type="string" name="timerange">
-        <description>select data by time range, e.g. \'09:14:0~09:54:0\' (\'\'=all) (see examples in help)</description>
+        <description>select data by time range, e.g. "09:14:0~09:54:0" (""=all) (see examples in help)</description>
         <value></value>
     </param>
 
     <param type="string" name="scan">
-        <description>select data by scan numbers, e.g. \'21~23\' (\'\'=all)</description>
+        <description>select data by scan numbers, e.g. "21~23" (""=all)</description>
         <value></value>
     </param>
 
     <param type="string" name="pol">
-        <description>select data by polarization IDs, e.g. \'XX,YY\' (\'\'=all)</description>
+        <description>select data by polarization IDs, e.g. "XX,YY" (""=all)</description>
         <value></value>
     </param>
 
     <param type="string" name="intent">
-        <description>select data by observational intent, e.g. \'*ON_SOURCE*\' (\'\'=all)</description>
+        <description>select data by observational intent, e.g. "*ON_SOURCE*" (""=all)</description>
         <value></value>
+    </param>
+
+    <param type="bool" name="reindex">
+         <shortdescription>Re-index indices in subtables based on data selection</shortdescription>
+        <description>Re-index indices in subtables based on data selection. Ignored when blmode='apply'.</description>
+        <value>True</value>
     </param>
 
     <param type="string" name="maskmode" ignorecase="true">
         <shortdescription>mode of setting additional channel masks</shortdescription>
-<!--        <description>mode of setting additional channel masks [\'auto\', \'list\', or \'interact\']</description> -->
-        <description>mode of setting additional channel masks. \'list\' and \'auto\' are available now.</description>
+<!--        <description>mode of setting additional channel masks ["auto", "list", or "interact"]</description> -->
+        <description>mode of setting additional channel masks. "list" and "auto" are available now.</description>
         <value>list</value>
         <allowed kind="enum">
             <value>auto</value>
@@ -112,7 +118,7 @@ pipeline processing for huge dataset.
     </param>
 
     <param type="string" name="blmode" ignorecase="true">
-        <description>baselining mode [\'fit\' or \'apply\']</description>
+        <description>baselining mode ["fit" or "apply"]</description>
         <value>fit</value>
     </param>
 
@@ -123,7 +129,7 @@ pipeline processing for huge dataset.
 
     <param type="any" name="blformat" ignorecase="true" subparam="true">
         <shortdescription>format(s) of file(s) in which best-fit parameters are written</shortdescription>
-        <description>format(s) of file(s) in which best-fit parameters are written [\'text\', \'csv\', \'table\' or \'\']</description>
+        <description>format(s) of file(s) in which best-fit parameters are written ["text", "csv", "table" or ""]</description>
         <any type="variant" limittypes="string stringArray"/>
         <value type="string">text</value>
         <allowed kind="enum">
@@ -147,7 +153,7 @@ pipeline processing for huge dataset.
 
     <param type="string" name="blfunc" ignorecase="true">
         <shortdescription>baseline model function</shortdescription>
-        <description>baseline model function [\'poly\', \'chebyshev\', \'cspline\', \'sinusoid\', or \'variable\'(expert mode)]</description>
+        <description>baseline model function ["poly", "chebyshev", "cspline", "sinusoid", or "variable"(expert mode)]</description>
         <value>poly</value>
         <allowed kind="enum">
             <value>poly</value>
@@ -174,7 +180,7 @@ pipeline processing for huge dataset.
     </param>
 
     <param type="string" name="fftmethod" ignorecase="true" subparam="true">
-        <shortdescription>method for automatically set wave numbers of sinusoids [\'fft\']</shortdescription>
+        <shortdescription>method for automatically set wave numbers of sinusoids ["fft"]</shortdescription>
         <description>method for automatically set wave numbers of sinusoids</description>
         <value>fft</value>
         <allowed kind="enum">
@@ -351,6 +357,11 @@ intent -- select data by observational intent, also referred to as 'scan intent'
         default: '' (use all scan intents)
         example: intent='*ON_SOURCE*' (any valid scan-intent expression accepted by the MSSelection module can be specified)
         this selection is in addition to the other selections to data
+reindex -- Re-index indices in subtables based on data selection.
+           Ignored when blmode='apply'.
+           If True, DATA_DESCRIPTION, FEED, SPECTRAL_WINDOW, STATE, and SOURCE
+           subtables are filtered  based on data selection and re-indexed in output MS.
+           default: True
 maskmode -- mode of setting additional channel masks. When blmode='apply'
              and/or blfunc='variable', maskmode and its subparameters
              are ignored.

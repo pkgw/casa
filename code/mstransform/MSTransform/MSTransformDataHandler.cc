@@ -838,6 +838,14 @@ Bool MSTransformDataHandler::makeMSBasicStructure(	String& msname,
 
 	msOut_p = *outpointer;
 
+	// handle column keywords copy for CORRECTED_DATA -> DATA
+	if (colNamesTok.nelements() == 1 && colNamesTok[0] == MS::CORRECTED_DATA && mssel_p.isColumn(MS::CORRECTED_DATA)) {
+	    TableColumn outCol(msOut_p, "DATA");
+	    ROTableColumn inCol(mssel_p, "CORRECTED_DATA");
+	    // Copy the keywords CORRECTED_DATA -> DATA
+	    copyMainTableKeywords(outCol.rwKeywordSet(), inCol.keywordSet());
+	}
+
 	Bool ret = true;
 	try
 	{
@@ -1130,14 +1138,15 @@ Bool MSTransformDataHandler::makeSelection()
 		//So if you see -1 in the main, feed, or pointing tables, fix it
 		antNewIndex_p.set(-1);
 
-		Bool trivial = true;
-		for (uInt k = 0; k < nAnts; ++k)
-		{
-			trivial &= (selAnts[k] == static_cast<Int> (k));
-			antNewIndex_p[selAnts[k]] = k;
-		}
-		// It is possible to exclude baselines without excluding any antennas.
-		antennaSel_p = !trivial;
+    for (uInt k = 0; k < nAnts; ++k)
+      antNewIndex_p[selAnts[k]] = k;
+
+    //If the total number of output antennas is the same as the input antennas
+    //this means that the selection of baselines includes at the end
+    //all the input antennas. Therefore setting antenna selection to false.
+    //See CAS-11111
+    if(nAnts == elms->antenna().nrow())
+      antennaSel_p = false;
 	}
 	// This still gets tripped up by VLA:OUT.
 	else
@@ -3216,9 +3225,10 @@ Bool MSTransformDataHandler::copyGenericSubtables()
 						     msOut_p.tableName(),
 						     msOut_p.tableType(),
 						     mssel_p);
-			    // Copy the keywords if column is FLOAT_DATA
-			    if (name == "FLOAT_DATA")
-				copyMainTableKeywords(outCol.rwKeywordSet(), inCol.keywordSet());
+			    // Copy the keywords if column is [FLOAT_|CORRECTED_]DATA
+			    // KS NOTE CORRECTED_DATA -> DATA case should be handled separately.
+			    if (name == "FLOAT_DATA" || name == "DATA" || name == "CORRECTED_DATA")
+					copyMainTableKeywords(outCol.rwKeywordSet(), inCol.keywordSet());
 
 			}
 		}

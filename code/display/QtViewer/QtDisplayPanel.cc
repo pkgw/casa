@@ -62,7 +62,7 @@
 #include <display/DisplayErrors.h>
 
 #include <QtCore/QPoint>
-#include <QtGui/QToolTip>
+#include <QToolTip>
 
 #include <iostream>
 #include <cassert>
@@ -100,6 +100,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		zStart_(0), zEnd_(1), zStep_(1),
 		bStart_(0), bEnd_(1), bStep_(1) {
 
+        oldRowCount = oldColumnCount = 0;
         construct_(new QtPixelCanvas(other->pc_),args);
 
     }
@@ -129,6 +130,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		zStart_(0), zEnd_(1), zStep_(1),
 		bStart_(0), bEnd_(1), bStep_(1) {
 
+        oldRowCount = oldColumnCount = 0;
         construct_(new QtPixelCanvas(),args);
     }
 
@@ -228,7 +230,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		panel_->viewer()->dpCreated( panel_, this ); // Inform supervisory object of DP creation.
 
-		displayDataHolder = new DisplayDataHolder();
+		displayDataHolder.reset(new DisplayDataHolder());
 		displayDataHolder->setImageDisplayer( this );
 	}
 
@@ -245,7 +247,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		delete bkgdClrOpt_;
 		if(lastMotionEvent_!=0) delete lastMotionEvent_;
 		delete pc_;
-		delete displayDataHolder;
 	}
 
 
@@ -804,7 +805,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		emit oldDDRegistered(qdd);
 	}
 
-	DisplayDataHolder* QtDisplayPanel::getDataHolder() const {
+	std::shared_ptr<DisplayDataHolder> QtDisplayPanel::getDataHolder() const {
 		return displayDataHolder;
 	}
 

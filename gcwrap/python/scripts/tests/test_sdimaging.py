@@ -153,6 +153,16 @@ class sdimaging_unittest_base(unittest.TestCase):
                          atol=atol, rtol=rtol, ignoremask=ignoremask)
         if refbeam is not None:
             self._check_beam(outfile, refbeam)
+        # CAS-8248 (duplicated keywords)
+        _ia.open(outfile)
+        misc = _ia.miscinfo()
+        _ia.close()
+        for kw in ['TELESCOPE', 'OBJECT']:
+            self.assertFalse(misc.has_key(kw), 'Miscinfo should not have %s' % kw)
+        for kw in ['INSTRUME', 'distance']:
+            self.assertTrue(misc.has_key(kw), 'Miscinfo should have %s' % kw)
+            
+        
 
     def _checkfile( self, name ):
         isthere=os.path.exists(name)
@@ -2960,6 +2970,184 @@ class sdimaging_test_clipping(sdimaging_unittest_base):
         self._test_clipping(infile, is_clip_effective=True)
         
 
+class sdimaging_test_projection(sdimaging_unittest_base):
+    """
+    Test projection
+
+       - test_projection_GSL: unsupported projection type
+       - test_projection_SIN: create image with SIN (Slant Orthographic) projection 
+       - test_projection_TAN: create image with TAN (Gnomonic) projection
+       - test_projection_CAR: create image with CAR (Plate Caree) projection
+       - test_projection_SFL: create image with SFL (Sanson-Flamsteed) projection
+       
+    """
+    # Input and output names
+    prefix=sdimaging_unittest_base.taskname+'ProjectionTest'
+    outfile=prefix+sdimaging_unittest_base.postfix
+    mode = 'channel'
+    cell = ['3.0arcmin', '3.0arcmin']
+    imsize = [75, 75]
+    phasecenter = 'J2000 17:18:29 +59.31.23'
+    gridfunction = 'PB'
+    start = 604
+    nchan = 1
+
+    keys=['max','maxpos','maxposf','mean','min','minpos','minposf',
+          'npts','rms','blc','blcf','trc','trcf','sigma','sum','sumsq']
+    
+    def setUp(self):
+        if os.path.exists(self.rawfile):
+            shutil.rmtree(self.rawfile)
+        shutil.copytree(self.datapath+self.rawfile, self.rawfile)
+        # Common task parameters of the class
+        self.task_param = dict(infiles=self.rawfile,mode=self.mode,
+                               outfile=self.outfile,intent='OBSERVE_TARGET_ON_SOURCE',
+                               cell=self.cell,imsize=self.imsize,
+                               nchan=self.nchan,start=self.start,
+                               phasecenter=self.phasecenter,
+                               gridfunction=self.gridfunction)
+
+        default(sdimaging)
+
+    def tearDown(self):
+        if (os.path.exists(self.rawfile)):
+            shutil.rmtree(self.rawfile)
+        os.system( 'rm -rf '+self.prefix+'*' )
+
+        self.assertEqual(len(get_table_cache()), 0)
+        
+    def run_test_common(self, task_param, refstats, shape, refbeam=None,
+                        atol=1.e-8, rtol=1.e-5, compstats=None, ignoremask=True,
+                        projection='SIN'):
+        
+        # call super class's run_test_common 
+        super(sdimaging_test_projection, self).run_test_common(task_param, refstats, shape, refbeam,
+                                                               atol, rtol, compstats, ignoremask)
+
+        # check projection
+        _ia.open(task_param['outfile'])
+        try:
+            result_projection = _ia.coordsys().projection()['type']
+        finally:
+            _ia.close()
+        self.assertEqual(projection, result_projection)
+        
+    def test_projection_GSL(self):
+        """test_projection_GSL: unsupported projection type"""
+        projection = 'GSL'
+        self.task_param.update(dict(projection=projection))
+        res=sdimaging(**self.task_param)
+        self.assertFalse(res)
+        self.assertFalse(os.path.exists(self.outfile))
+
+    def test_projection_SIN(self):
+        """test_projection_SIN: create image with SIN (Slant Orthographic) projection"""
+        projection = 'SIN'
+        self.task_param.update(dict(projection=projection))
+        outshape = (self.imsize[0],self.imsize[1],1,self.nchan)
+        refstats = {
+            'blc': numpy.array([0, 0, 0, 0], dtype=numpy.int32),
+            'blcf': '17:32:18.690, +57.37.28.536, I, 1.42087e+09Hz',
+            'max': numpy.array([ 21.92034912]),
+            'maxpos': numpy.array([59, 21,  0,  0], dtype=numpy.int32),
+            'maxposf': '17:10:00.642, +58.42.19.808, I, 1.42087e+09Hz',
+            'mean': numpy.array([ 7.84297146]),
+            'min': numpy.array([ 3.36271787]),
+            'minpos': numpy.array([71, 50,  0,  0], dtype=numpy.int32),
+            'minposf': '17:04:49.308, +60.07.45.791, I, 1.42087e+09Hz',
+            'npts': numpy.array([ 4217.]),
+            'rms': numpy.array([ 8.70721651]),
+            'sigma': numpy.array([ 3.7824345]),
+            'sum': numpy.array([ 33073.81065345]),
+            'sumsq': numpy.array([ 319714.46711966]),
+            'trc': numpy.array([74, 74,  0,  0], dtype=numpy.int32),
+            'trcf': '17:03:03.151, +61.19.10.757, I, 1.42087e+09Hz'
+        }
+        self.run_test_common(self.task_param, refstats, outshape,
+                             compstats=self.keys, ignoremask=False,
+                             projection=projection)
+        
+    def test_projection_TAN(self):
+        """test_projection_TAN: create image with TAN (Gnomonic) projection"""
+        projection = 'TAN'
+        self.task_param.update(dict(projection=projection))
+        outshape = (self.imsize[0],self.imsize[1],1,self.nchan)
+        refstats = {
+            'blc': numpy.array([0, 0, 0, 0], dtype=numpy.int32),
+            'blcf': '17:32:17.872, +57.37.35.824, I, 1.42087e+09Hz',
+            'max': numpy.array([21.91863632]),
+            'maxpos': numpy.array([59, 21,  0,  0], dtype=numpy.int32),
+            'maxposf': '17:10:00.782, +58.42.20.655, I, 1.42087e+09Hz',
+            'mean': numpy.array([ 7.84080757]),
+            'min': numpy.array([ 3.36540604]),
+            'minpos': numpy.array([71, 50,  0,  0], dtype=numpy.int32),
+            'minposf': '17:04:49.729, +60.07.44.771, I, 1.42087e+09Hz',
+            'npts': numpy.array([ 4222.]),
+            'rms': numpy.array([ 8.7050746]),
+            'sigma': numpy.array([ 3.78198999]),
+            'sum': numpy.array([ 33103.88957095]),
+            'sumsq': numpy.array([ 319936.08330953]),
+            'trc': numpy.array([74, 74,  0,  0], dtype=numpy.int32),
+            'trcf': '17:03:04.170, +61.19.04.235, I, 1.42087e+09Hz'
+        }
+        self.run_test_common(self.task_param, refstats, outshape,
+                             compstats=self.keys, ignoremask=False,
+                             projection=projection)
+
+    def test_projection_CAR(self):
+        """test_projection_CAR: create image with CAR (Plate Caree) projection"""
+        projection = 'CAR'
+        self.task_param.update(dict(projection=projection))
+        outshape = (self.imsize[0],self.imsize[1],1,self.nchan)
+        refstats = {
+            'blc': numpy.array([0, 0, 0, 0], dtype=numpy.int32),
+            'blcf': '17:32:18.122, +57.37.29.933, I, 1.42087e+09Hz',
+            'max': numpy.array([21.91925812]),
+            'maxpos': numpy.array([59, 21,  0,  0], dtype=numpy.int32),
+            'maxposf': '17:10:00.722, +58.42.19.922, I, 1.42087e+09Hz',
+            'mean': numpy.array([ 7.84154849]),
+            'min': numpy.array([ 3.36489725]),
+            'minpos': numpy.array([71, 50,  0,  0], dtype=numpy.int32),
+            'minposf': '17:04:49.481, +60.07.45.807, I, 1.42087e+09Hz',
+            'npts': numpy.array([ 4219.]),
+            'rms': numpy.array([ 8.70603491]),
+            'sigma': numpy.array([ 3.78266474]),
+            'sum': numpy.array([ 33083.49308872]),
+            'sumsq': numpy.array([ 319779.29008623]),
+            'trc': numpy.array([74, 74,  0,  0], dtype=numpy.int32),
+            'trcf': '17:03:03.803, +61.19.09.870, I, 1.42087e+09Hz'
+        }
+        self.run_test_common(self.task_param, refstats, outshape,
+                             compstats=self.keys, ignoremask=False,
+                             projection=projection)
+        
+    def test_projection_SFL(self):
+        """test_projection_SFL: create image with SFL (Sanson-Flamsteed) projection"""
+        projection = 'SFL'
+        self.task_param.update(dict(projection=projection))
+        outshape = (self.imsize[0],self.imsize[1],1,self.nchan)
+        refstats = {
+            'blc': numpy.array([0, 0, 0, 0], dtype=numpy.int32),
+            'blcf': '17:32:18.553, +57.37.29.753, I, 1.42087e+09Hz',
+            'max': numpy.array([21.91932678]),
+            'maxpos': numpy.array([59, 21,  0,  0], dtype=numpy.int32),
+            'maxposf': '17:10:00.673, +58.42.19.909, I, 1.42087e+09Hz',
+            'mean': numpy.array([ 7.84234172]),
+            'min': numpy.array([ 3.36329484]),
+            'minpos': numpy.array([71, 50,  0,  0], dtype=numpy.int32),
+            'minposf': '17:04:49.429, +60.07.45.787, I, 1.42087e+09Hz',
+            'npts': numpy.array([ 4218.]),
+            'rms': numpy.array([ 8.70668658]),
+            'sigma': numpy.array([ 3.78252027]),
+            'sum': numpy.array([ 33078.99737787]),
+            'sumsq': numpy.array([ 319751.35842591]),
+            'trc': numpy.array([74, 74,  0,  0], dtype=numpy.int32),
+            'trcf': '17:03:03.322, +61.19.09.669, I, 1.42087e+09Hz'
+        }
+        self.run_test_common(self.task_param, refstats, outshape,
+                             compstats=self.keys, ignoremask=False,
+                             projection=projection)
+    
 """
 # utility for sdimaging_test_mapextent
 # commented out since sd tool is no longer available in CASA (CAS-10301)
@@ -3049,5 +3237,5 @@ def suite():
             sdimaging_test_mslist,
             sdimaging_test_restfreq, 
             sdimaging_test_mapextent,
-            sdimaging_test_interp,sdimaging_test_clipping
-            ]
+            sdimaging_test_interp,sdimaging_test_clipping,
+            sdimaging_test_projection]

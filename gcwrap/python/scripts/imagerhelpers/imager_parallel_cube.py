@@ -57,7 +57,7 @@ class PyParallelCubeSynthesisImager():
         # to define final image coordinates, run selecdata and definemage
         self.SItool = casac.synthesisimager()
         #print "allselpars=",allselpars
-        for mss in sorted( allselpars.keys() ):
+        for mss in sorted( allselpars.keys() ): 
 #            if(self.allimpars['0']['specmode']=='cubedata'):
 #                self.allselpars[mss]['outframe']='Undefined'
             self.SItool.selectdata( allselpars[mss] )
@@ -90,7 +90,8 @@ class PyParallelCubeSynthesisImager():
             imparsPerNode= {tnode:{}}
             for fid in allimagepars.iterkeys():
                 for ky in alldataimpars[fid][nodeidx].iterkeys():
-                    selparsPerNode[tnode]={}
+###                commenting this as it is resetting the selpars when key is not "msxxx" 
+##                    selparsPerNode[tnode]={}
                     if ky.find('ms')==0:
                         # data sel per field
                         selparsPerNode[tnode][ky] = alldataimpars[fid][nodeidx][ky].copy();
@@ -134,7 +135,6 @@ class PyParallelCubeSynthesisImager():
         #### MPIInterface related changes
         #for node in range(0,self.NN):
         for node in self.listOfNodes:
-
             joblist.append( self.PH.runcmd("paramList = ImagerParameters()", node) )
             joblist.append( self.PH.runcmd("paramList.setSelPars("+str(self.allselpars[str(node)])+")", node) )
             joblist.append( self.PH.runcmd("paramList.setImagePars("+str(self.allimpars[str(node)])+")", node) )
@@ -301,7 +301,8 @@ class PyParallelCubeSynthesisImager():
                         except:
                             casalog.post("Cleaning up the existing file named "+fullconcatimname,"DEBUG")
                             os.remove(fullconcatimname)
-                    cmd = 'imageconcat inimages='+subimliststr+' outimage='+"'"+fullconcatimname+"'"+' type='+type      
+                    # set tempclose = false to avoid a long accessing issue
+                    cmd = 'imageconcat inimages='+subimliststr+' outimage='+"'"+fullconcatimname+"'"+' type='+type+' tempclose=false'      
                     # run virtual concat
                     ret=os.system(cmd)
                     if ret!=0:

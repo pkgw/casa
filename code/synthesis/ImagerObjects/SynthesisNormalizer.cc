@@ -393,11 +393,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     catch(AipsError &x)
       {
 	//throw( AipsError("Error in constructing a Deconvolver : "+x.getMesg()) );
-	//cout << "Did not find full images : " << x.getMesg() << endl;  // This should be a debug message.
 	err = err += String(x.getMesg()) + "\n";
 	foundFullImage = false;
       }
 
+    os << LogIO::DEBUG2 << " Found full images : " << foundFullImage << LogIO::POST;
 
     // Check if part images exist
     Bool foundPartImages = itsPartImageNames.nelements()>0 ? true : false ;
@@ -418,12 +418,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  }
       }
 
+    os << LogIO::DEBUG2 << " Found part images : " << foundPartImages << LogIO::POST;
+
     if( foundPartImages == false) 
       { 
 	if( foundFullImage == true && itsPartImageNames.nelements()>0 )
 	  {
 	    // Pick the coordsys, etc from fullImage, and construct new/fresh partial images. 
-	    cout << "Found full image, but no partial images. Make partImStores for : " << itsPartImageNames << endl;
+	    os << LogIO::DEBUG2 << "Found full image, but no partial images. Make partImStores for : " << itsPartImageNames << LogIO::POST;
 	    
 	    String imopen = itsImages->getName()+".residual"+((itsMapperType=="multiterm")?".tt0":"");
 	    Directory imdir( imopen );
@@ -444,10 +446,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	      {
 		itsPartImages[part] = makeImageStore ( itsPartImageNames[part], tempcsys, tempshape, useweightimage );
 	      }
+	    foundPartImages = True;
 	  }
 	else
 	  {
 	    itsPartImages.resize(0); 
+	    foundPartImages = False;
 	  }
       }
     else // Check that all have the same shape.
@@ -560,8 +564,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
           }
       }
-
-    return needToGatherImages;
+  os << LogIO::DEBUG2 << "Need to Gather ? " << needToGatherImages << LogIO::POST;
+  return needToGatherImages;
   }// end of setupImagesOnDisk
 
 

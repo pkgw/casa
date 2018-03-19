@@ -52,20 +52,21 @@ ImageStatsCalculator::ImageStatsCalculator(
     _disk(false), _robust(false), _verbose(false),
     _subImage() {
     _construct(beVerboseDuringConstruction);
-    // _algConf.algorithm = StatisticsData::CLASSICAL;
 }
 
 ImageStatsCalculator::~ImageStatsCalculator() {}
 
 Record ImageStatsCalculator::calculate() {
     *_getLog() << LogOrigin(_class, __func__);
-    std::unique_ptr<vector<String> > messageStore( _getLogFile() ? new vector<String>() : nullptr );
+    std::unique_ptr<std::vector<String> > messageStore(
+        _getLogFile() ? new std::vector<String>() : nullptr
+    );
     Record retval = statistics(messageStore.get());
     Bool writeFile = _openLogfile();
     if (_verbose || writeFile) {
         if (writeFile) {
             for (
-                vector<String>::const_iterator iter=messageStore->begin();
+                auto iter = messageStore->begin();
                 iter != messageStore->end(); ++iter
             ) {
                 _writeLogfile("# " + *iter, false, false);
@@ -90,7 +91,123 @@ Record ImageStatsCalculator::calculate() {
                 << LogIO::POST;
         }
     }
+    _sanitizeDueToRegionSelection(retval);
     return retval;
+}
+
+void ImageStatsCalculator::_sanitizeDueToRegionSelection(Record& retval) const {
+    if (_axes.empty()) {
+        return;
+    }
+    if (! _getRegion() || _getRegion()->empty()) {
+        // no region selection, nothing to sanitize
+        return;
+    }
+    // create subimage template based on region only
+    TempImage<Float> tempIm(_getImage()->shape(), _getImage()->coordinates());
+    auto subim = SubImageFactory<Float>::createSubImageRO(
+        tempIm, *_getRegion(), "", nullptr, AxesSpecifier(), False
+    );
+    if (! subim->isMasked()) {
+        // no pixels masked because of region selection
+        return;
+    }
+    auto ndim = subim->ndim();
+    auto allAxes = IPosition::makeAxisPath(ndim);
+    IPosition cursor;
+    for (auto a: _axes) {
+        cursor.append(IPosition(1, a));
+    }
+    auto displayAxes = allAxes.otherAxes(ndim, cursor);
+    // key is axis number, value is set of planes that are completely masked
+    std::map<uInt, std::set<uInt>> excludePlanes;
+    Bool mustExclude = False;
+    for (auto d: displayAxes) {
+        excludePlanes[d] = std::set<uInt>();
+        IPosition cursorShape = subim->shape();
+        cursorShape[d] = 1;
+        RO_MaskedLatticeIterator<Float> lattIter(*subim, cursorShape);
+        uInt planeNum = 0;
+        for (lattIter.atStart(); ! lattIter.atEnd(); ++lattIter, ++planeNum) {
+            if (! anyTrue(lattIter.getMask())) {
+                excludePlanes[d].insert(planeNum);
+                mustExclude = True;
+            }
+        }
+    }
+    if (! mustExclude) {
+        // no planes to exclude
+        return;
+    }
+    auto nfields = retval.nfields();
+    // n is the index of the axis within the displayAxes
+    uInt n = 0;
+    for (auto d: displayAxes) {
+        if (excludePlanes[d].empty()) {
+            // no planes to exclude for this axis
+            continue;
+        }
+        for (uInt i=0; i<nfields; ++i) {
+            auto fieldName = retval.name(i);
+            if (fieldName == "blc" || fieldName == "trc") {
+                continue;
+            }
+            if (isArray(retval.dataType(i))) {
+                switch (retval.dataType(i)) {
+                case TpArrayDouble: {
+                    auto x = retval.asArrayDouble(i);
+                    _removePlanes(x, n, excludePlanes[d]);
+                    retval.define(i, x);
+                    break;
+                }
+                case TpArrayInt: {
+                    auto x = retval.asArrayInt(i);
+                    _removePlanes(x, n, excludePlanes[d]);
+                    retval.define(i, x);
+                    break;
+                }
+                default:
+                    ThrowCc("Unhandled data type");
+                    break;
+                }
+            }
+        }
+        ++n;
+    }
+}
+
+template <class T> void ImageStatsCalculator::_removePlanes(
+    Array<T>& arr, uInt axis, const std::set<uInt>& planes
+) const {
+    IPosition oldShape = arr.shape();
+    IPosition newShape = oldShape;
+    newShape[axis] -= planes.size();
+    Array<T> newArray(newShape);
+    // do a plane by plane copy into the new array
+    auto nOldPlanes = oldShape[axis];
+    auto begin = planes.begin();
+    auto end = planes.end();
+    auto ndim = arr.ndim();
+    IPosition newSliceStart(ndim, 0);
+    IPosition newSliceEnd = newShape - 1;
+    newSliceEnd[axis] = 0;
+    IPosition oldSliceStart(ndim, 0);
+    IPosition oldSliceEnd = oldShape - 1;
+    oldSliceEnd[axis] = 0;
+    Slicer newSlice(newSliceStart, newSliceEnd, Slicer::endIsLast);
+    Slicer oldSlice(oldSliceStart, oldSliceEnd, Slicer::endIsLast);
+    for (uInt i=0; i<nOldPlanes; ++i, ++oldSliceStart[axis], ++oldSliceEnd[axis]) {
+        if (std::find(begin, end, i) == end) {
+            newSlice.setStart(newSliceStart);
+            newSlice.setEnd(newSliceEnd);
+            oldSlice.setStart(oldSliceStart);
+            oldSlice.setEnd(oldSliceEnd);
+            newArray(newSlice) = arr(oldSlice);
+            ++newSliceStart[axis];
+            ++newSliceEnd[axis];
+        }
+    }
+    arr.assign(newArray);
 }
 
 void ImageStatsCalculator::setVerbose(Bool v) {
@@ -110,6 +227,16 @@ void ImageStatsCalculator::setDisk(Bool d) {
 void ImageStatsCalculator::_reportDetailedStats(
     const SPCIIF tempIm, const Record& retval
 ) {
+    auto nptsArr = retval.asArrayDouble("npts");
+    if (nptsArr.empty()) {
+        auto msg = "NO UNMASKED POINTS FOUND, NO STATISTICS WERE COMPUTED";
+        *_getLog() << LogIO::NORMAL << msg << LogIO::POST;
+        if (_getLogFile()) {
+            _writeLogfile(msg, false, false);
+        }
+        _closeLogfile();
+        return;
+    }
     const CoordinateSystem& csys = tempIm->coordinates();
     auto worldAxes = csys.worldAxisNames();
     auto imShape = tempIm->shape();
@@ -202,18 +329,25 @@ void ImageStatsCalculator::_reportDetailedStats(
         }
     }
     auto bUnit = _getImage()->units().getName();
+    const auto alg = _getAlgorithm();
+    const auto doBiweight = alg == StatisticsData::BIWEIGHT;
     if (_verbose) {
         oss.str("");
-        oss << "Sum column unit = " << bUnit << endl;
+        if (! doBiweight) {
+            oss << "Sum column unit = " << bUnit << endl;
+        }
         oss << "Mean column unit = " << bUnit << endl;
         oss << "Std_dev column unit = " << bUnit << endl;
         oss << "Minimum column unit = " << bUnit << endl;
         oss << "Maximum column unit = " << bUnit << endl;
         *_getLog() << LogIO::NORMAL << oss.str() << LogIO::POST;
+        oss.str("");
     }
     if (_getLogFile()) {
         oss.str("");
-        oss << "#Sum column unit = " << bUnit << endl;
+        if (! doBiweight) {
+            oss << "#Sum column unit = " << bUnit << endl;
+        }
         oss << "#Mean column unit = " << bUnit << endl;
         oss << "#Std_dev column unit = " << bUnit << endl;
         oss << "#Minimum column unit = " << bUnit << endl;
@@ -238,9 +372,13 @@ void ImageStatsCalculator::_reportDetailedStats(
     }
     Vector<Int> axesMap = reportAxes.asVector();
     GenSort<Int>::sort(axesMap);
-    oss << "Npts          Sum           Mean          Rms           Std_dev       Minimum       Maximum     ";
+    if (doBiweight) {
+        oss << "Npts          Mean          Std_dev       Minimum       Maximum     ";
+    }
+    else {
+        oss << "Npts          Sum           Mean          Rms           Std_dev       Minimum       Maximum     ";
+    }
     std::map<String, uInt> chauvIters;
-    const auto alg = _getAlgConf().algorithm;
     const auto& stats = _getImageStats();
     if (alg == StatisticsData::CHAUVENETCRITERION) {
         chauvIters = stats->getChauvenetNiter();
@@ -303,14 +441,6 @@ void ImageStatsCalculator::_reportDetailedStats(
         oss << std::scientific;
         uInt colNum = 0;
         position = inIter.position();
-        for (uInt i=0; i<reportAxes.nelements(); ++i) {
-            oss << setw(colwidth[colNum]);
-            oss    << coords[i][position[reportAxes[i]]];
-            ++colNum;
-            oss << " " << setw(colwidth[colNum])
-                << (position[reportAxes[i]] + blc[reportAxes[i]]) << " ";
-            ++colNum;
-        }
         csys.toWorld(world, position);
         if (axesMap.empty()) {
             arrayIndex = IPosition(1, 0);
@@ -321,25 +451,37 @@ void ImageStatsCalculator::_reportDetailedStats(
                 arrayIndex[i] = position[axesMap[i]];
             }
         }
-        if (retval.asArrayDouble("npts").size() == 0) {
-            oss << "NO VALID POINTS FOR WHICH TO DETERMINE STATISTICS" << endl;
+        auto npts = nptsArr(arrayIndex);
+        if (npts == 0) {
+            // CAS-10183, do not log planes for which there are no good points
+            continue;
         }
-        else {
-            oss << std::setw(width) << retval.asArrayDouble("npts")(arrayIndex) << " "
-                << std::setw(width) << retval.asArrayDouble("sum")(arrayIndex) << " "
-                << std::setw(width) << retval.asArrayDouble("mean")(arrayIndex) << " "
-                << std::setw(width) << retval.asArrayDouble("rms")(arrayIndex) << " "
-                << std::setw(width) << retval.asArrayDouble(SIGMA)(arrayIndex) << " "
-                << std::setw(width) << retval.asArrayDouble("min")(arrayIndex) << " "
-                << std::setw(width) << retval.asArrayDouble("max")(arrayIndex);
-            if (alg == StatisticsData::CHAUVENETCRITERION) {
-                ostringstream pos;
-                pos << position;
-                oss << std::setw(6) << " " << chauvIters[pos.str()];
-                ++count;
-            }
-            oss << endl;
+        for (uInt i=0; i<reportAxes.nelements(); ++i) {
+            oss << setw(colwidth[colNum]);
+            oss    << coords[i][position[reportAxes[i]]];
+            ++colNum;
+            oss << " " << setw(colwidth[colNum])
+                << (position[reportAxes[i]] + blc[reportAxes[i]]) << " ";
+            ++colNum;
         }
+        oss << std::setw(width) << npts << " ";
+        if (alg != StatisticsData::BIWEIGHT) {
+            oss << std::setw(width) << retval.asArrayDouble("sum")(arrayIndex) << " ";
+        }
+        oss << std::setw(width) << retval.asArrayDouble("mean")(arrayIndex) << " ";
+        if (alg != StatisticsData::BIWEIGHT) {
+            oss << std::setw(width) << retval.asArrayDouble("rms")(arrayIndex) << " ";
+        }
+        oss << std::setw(width) << retval.asArrayDouble(SIGMA)(arrayIndex) << " "
+            << std::setw(width) << retval.asArrayDouble("min")(arrayIndex) << " "
+            << std::setw(width) << retval.asArrayDouble("max")(arrayIndex);
+        if (alg == StatisticsData::CHAUVENETCRITERION) {
+            ostringstream pos;
+            pos << position;
+            oss << std::setw(6) << " " << chauvIters[pos.str()];
+            ++count;
+        }
+        oss << endl;
         if (_verbose) {
             *_getLog() << LogIO::NORMAL << oss.str() << LogIO::POST;
         }
@@ -352,7 +494,7 @@ void ImageStatsCalculator::_reportDetailedStats(
 }
 
 Record ImageStatsCalculator::statistics(
-    vector<String> *const &messageStore
+    std::vector<String> *const &messageStore
 ) {
     LogOrigin myOrigin(_class, __func__);
     *_getLog() << myOrigin;
@@ -420,7 +562,11 @@ Record ImageStatsCalculator::statistics(
     }
     // prevent the table of stats we no longer use from being logged
     stats->setListStats(false);
-    String myAlg = _configureAlgorithm();
+    auto myAlg = _configureAlgorithm();
+    _logStartup(
+        messageStore, myAlg, blc, trc, blcf, trcf
+    );
+    /*
     if (_list) {
         *_getLog() << myOrigin << LogIO::NORMAL;
         String algInfo = "Statistics calculated using "
@@ -451,18 +597,24 @@ Record ImageStatsCalculator::statistics(
             }
         }
     }
-    if (messageStore != NULL) {
+    */
+    auto doBiweight = _getAlgorithm() == StatisticsData::BIWEIGHT;
+    if (_robust && doBiweight) {
+        *_getLog() << LogIO::WARN << "The biweight algorithm does not "
+            << "support the computation of quantile-like statistics. "
+            << "These will not be computed" << LogIO::POST;
+        _robust = False;
+    }
+    stats->setComputeQuantiles(_robust);
+    if (messageStore) {
         stats->recordMessages(true);
     }
     stats->setPrecision(precis);
     stats->setBlc(blc);
-
     // Assign old regions to current regions
     _oldStatsMask.reset(0);
-
     _oldStatsRegion = region;
     _oldStatsMask = mask;
-    //_oldStatsStorageForce = _disk;
     // Set cursor axes
     *_getLog() << myOrigin;
     ThrowIf(! stats->setAxes(_axes), stats->errorMessage());
@@ -479,8 +631,8 @@ Record ImageStatsCalculator::statistics(
     Array<Double> npts, sum, sumsquared, min, max, mean, sigma;
     Array<Double> rms, fluxDensity, med, medAbsDevMed, quartile, q1, q3;
     Bool ok = true;
-    Bool doFlux = true;
-    if (_getImage()->imageInfo().hasMultipleBeams()) {
+    auto doFlux = ! doBiweight;
+    if (doFlux && _getImage()->imageInfo().hasMultipleBeams()) {
         if (csys.hasSpectralAxis() || csys.hasPolarizationCoordinate()) {
             Int spAxis = csys.spectralAxisNumber();
             Int poAxis = csys.polarizationAxisNumber();
@@ -510,24 +662,28 @@ Record ImageStatsCalculator::statistics(
                 q3, LatticeStatsBase::Q3
             );
     }
-    if (ok) {
-        ok = stats->getStatistic(npts, LatticeStatsBase::NPTS)
-            && stats->getStatistic(sum, LatticeStatsBase::SUM)
+    ok = ok && stats->getStatistic(npts, LatticeStatsBase::NPTS)
+        && stats->getStatistic(min, LatticeStatsBase::MIN)
+        && stats->getStatistic(max, LatticeStatsBase::MAX)
+        && stats->getStatistic(mean, LatticeStatsBase::MEAN)
+        && stats->getStatistic(sigma, LatticeStatsBase::SIGMA);
+    if (! doBiweight) {
+        ok = ok && stats->getStatistic(sum, LatticeStatsBase::SUM)
             && stats->getStatistic(sumsquared, LatticeStatsBase::SUMSQ)
-            && stats->getStatistic(min, LatticeStatsBase::MIN)
-            && stats->getStatistic(max, LatticeStatsBase::MAX)
-            && stats->getStatistic(mean, LatticeStatsBase::MEAN)
-            && stats->getStatistic(sigma, LatticeStatsBase::SIGMA)
             && stats->getStatistic(rms, LatticeStatsBase::RMS);
     }
     ThrowIf(! ok, stats->errorMessage());
     Record statsout;
     statsout.define("npts", npts);
-    statsout.define("sum", sum);
-    statsout.define("sumsq", sumsquared);
     statsout.define("min", min);
     statsout.define("max", max);
     statsout.define("mean", mean);
+    statsout.define(SIGMA, sigma);
+    if (! doBiweight) {
+        statsout.define("sum", sum);
+        statsout.define("sumsq", sumsquared);
+        statsout.define("rms", rms);
+    }
     if (_robust) {
         statsout.define("median", med);
         statsout.define("medabsdevmed", medAbsDevMed);
@@ -535,8 +691,6 @@ Record ImageStatsCalculator::statistics(
         statsout.define("q1", q1);
         statsout.define("q3", q3);
     }
-    statsout.define(SIGMA, sigma);
-    statsout.define("rms", rms);
     if (
         doFlux
         && stats->getStatistic(
@@ -551,7 +705,7 @@ Record ImageStatsCalculator::statistics(
     statsout.define("trcf", trcf);
     String tmp;
     IPosition minPos, maxPos;
-    if (stats->getMinMaxPos(minPos, maxPos)) {
+    if (! doBiweight && stats->getMinMaxPos(minPos, maxPos)) {
         if (minPos.nelements() > 0) {
             statsout.define("minpos", (blc + minPos).asVector());
             tmp = CoordinateUtil::formatCoordinate(blc + minPos, csys, precis);
@@ -570,10 +724,10 @@ Record ImageStatsCalculator::statistics(
             stats->errorMessage()
         );
     }
-    if (messageStore != 0) {
-        vector<String> messages = stats->getMessages();
+    if (messageStore) {
+        std::vector<String> messages = stats->getMessages();
         for (
-            vector<String>::const_iterator iter=messages.begin();
+            std::vector<String>::const_iterator iter=messages.begin();
             iter!=messages.end(); ++iter
         ) {
             messageStore->push_back(*iter + "\n");
@@ -581,6 +735,45 @@ Record ImageStatsCalculator::statistics(
         stats->clearMessages();
     }
     return statsout;
+}
+
+void ImageStatsCalculator::_logStartup(
+    std::vector<String> *const &messageStore, const String& myAlg,
+    const casacore::IPosition& blc, const casacore::IPosition& trc,
+    const casacore::String& blcf, const casacore::String trcf
+) const {
+    if (! _list) {
+        return;
+    }
+    LogOrigin myOrigin(_class, __func__);
+    *_getLog() << myOrigin << LogIO::NORMAL;
+    String algInfo = "Statistics calculated using "
+        + myAlg + " algorithm";
+    *_getLog() << algInfo << LogIO::POST;
+    if (messageStore) {
+        messageStore->push_back(algInfo + "\n");
+    }
+    // Only write to the logger if the user wants it displayed.
+    Vector<String> x(5);
+    ostringstream y;
+    x[0] = "Regions --- ";
+    y << "         -- bottom-left corner (pixel) [blc]:  " << blc;
+    x[1] = y.str();
+    y.str("");
+    y << "         -- top-right corner (pixel) [trc]:    " << trc;
+    x[2] = y.str();
+    y.str("");
+    y << "         -- bottom-left corner (world) [blcf]: " << blcf;
+    x[3] = y.str();
+    y.str("");
+    y << "         -- top-right corner (world) [trcf]:   " << trcf;
+    x[4] = y.str();
+    for (uInt i=0; i<x.size(); ++i) {
+        *_getLog() << x[i] << LogIO::POST;
+        if (messageStore != 0) {
+            messageStore->push_back(x[i] + "\n");
+        }
+    }
 }
 
 void ImageStatsCalculator::setRobust(Bool b) {

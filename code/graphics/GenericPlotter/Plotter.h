@@ -30,12 +30,12 @@
 #include <graphics/GenericPlotter/PlotCanvasLayout.h>
 #include <graphics/GenericPlotter/PlotLogger.h>
 #include <graphics/GenericPlotter/PlotPanel.h>
+#include <graphics/GenericPlotter/PageHeaderDataModel.h>
 
 namespace casa {
 
 //# Forward Declarations
 class PlotFactory;
-
 
 // A Plotter can be thought of as a frame that holds one or more PlotCanvases
 // in a configuration determined by a given PlotCanvasLayout.  It also has
@@ -72,8 +72,10 @@ public:
     // a relative value (i.e., +X seconds past a reference date); otherwise it
     // is treated as an absolute value.  For relative values years, months, and
     // days are ignored.
-    static casacore::String formattedDateString(const casacore::String& format, double value,
-            PlotAxisScale scale, bool isRelative = false);
+	// Default precision for seconds is 4; use secPrecision to change this
+    static casacore::String formattedDateString(const casacore::String& format,
+			double value, PlotAxisScale scale, bool isRelative = false,
+			int secPrecision=-1);
     
     
     // Non-Static //
@@ -303,9 +305,14 @@ public:
     virtual bool exportPlot(const PlotExportFormat& format) = 0;
     bool isVisible(PlotCanvasPtr& canvas );
 
+    virtual void refreshPageHeader() = 0;
+
+    virtual void refreshPageHeaderDataModel(PageHeaderDataModelPtr dataModel) = 0 ;
+
 protected:
     // Logger.
     PlotLoggerPtr m_logger;
+//    PlotterControllerPtr m_controller;
     casacore::Bool commonAxisX;
     casacore::Bool commonAxisY;
     PlotAxis axisLocationX;

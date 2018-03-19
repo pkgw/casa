@@ -1413,13 +1413,33 @@ class imsmooth_test(unittest.TestCase):
     def test_history(self):
         """Test that history is written"""
         myia = self.ia
-        myia.fromshape("", [20,20])
-        bb = myia.convolve2d("", major="2arcmin",  minor="2arcmin", pa="0deg")        
+        imagename = "zz.im"
+        myia.fromshape(imagename, [20,20])
+        major = "2arcmin"
+        minor = "2arcmin"
+        pa = "0deg"
+        bb = myia.convolve2d("", major=major,  minor=minor, pa=pa)        
         myia.done()
         msgs = bb.history()
         bb.done()
-        self.assertTrue("ia.convolve2d" in msgs[-4])     
-        self.assertTrue("ia.convolve2d" in msgs[-3])     
+        teststr = "ia.convolve2d"
+        self.assertTrue(teststr in msgs[-4], "'" + teststr + "' not found")     
+        self.assertTrue(teststr in msgs[-3], "'" + teststr + "' not found")
+        
+        outfile = "zz_out.im"
+        self.assertTrue(
+            imsmooth(
+                imagename=imagename, outfile=outfile,
+                major=major, minor=minor, pa=pa
+            )
+        )
+        myia.open(outfile)
+        msgs = myia.history()
+        myia.done()
+        teststr = "version"
+        self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")    
+        teststr = "imsmooth"
+        self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
 
 def suite():
     return [imsmooth_test]    
