@@ -36,7 +36,6 @@
 #include <imageanalysis/ImageAnalysis/MomentClip.h>
 #include <imageanalysis/ImageAnalysis/MomentWindow.h>
 #include <imageanalysis/ImageAnalysis/SepImageConvolver.h>
-#include <imageanalysis/ImageAnalysis/LatticeApply.h>
 
 namespace casa {
 
@@ -395,30 +394,22 @@ vector<SHARED_PTR<casacore::MaskedLattice<T> > > ImageMoments<T>::createMoments(
 
     // Create appropriate MomentCalculator object
     os_p << casacore::LogIO::NORMAL << "Begin computation of moments" << casacore::LogIO::POST;
-    cout << __FILE__ << " " << __LINE__ << endl;
     shared_ptr<MomentCalcBase<T> > momentCalculator;
-    cout << __FILE__ << " " << __LINE__ << endl;
-    cout << "clipmethod " << clipMethod << " smoothClipMethod " << smoothClipMethod
-        << " windowmethod " << windowMethod << " fitmethod " << fitMethod << endl;
     if (clipMethod || smoothClipMethod) {
-    cout << __FILE__ << " " << __LINE__ << endl;
         momentCalculator.reset(
             new MomentClip<T>(smoothedImage, *this, os_p, outPt.size())
         );
     }
     else if (windowMethod) {
-    cout << __FILE__ << " " << __LINE__ << endl;
         momentCalculator.reset(
             new MomentWindow<T>(smoothedImage, *this, os_p, outPt.size())
         );
     }
     else if (fitMethod) {
-    cout << __FILE__ << " " << __LINE__ << endl;
         momentCalculator.reset(
             new MomentFit<T>(*this, os_p, outPt.size())
         );
     }
-    cout << __FILE__ << " " << __LINE__ << endl;
     // Iterate optimally through the image, compute the moments, fill the output lattices
     unique_ptr<ImageMomentsProgress> pProgressMeter;
     if (showProgress_p) {
@@ -427,34 +418,25 @@ vector<SHARED_PTR<casacore::MaskedLattice<T> > > ImageMoments<T>::createMoments(
             pProgressMeter->setProgressMonitor(_progressMonitor);
         }
     }
-    cout << __FILE__ << " " << __LINE__ << endl;
     casacore::uInt n = outPt.size();
     casacore::PtrBlock<casacore::MaskedLattice<T>* > ptrBlock(n);
-    cout << __FILE__ << " " << __LINE__ << endl;
     for (casacore::uInt i=0; i<n; ++i) {
         ptrBlock[i] = outPt[i].get();
     }
-
-    cout << __FILE__ << " " << __LINE__ << endl;
-    casa::LatticeApply<T>::lineMultiApply(
+    casacore::LatticeApply<T>::lineMultiApply(
         ptrBlock, *_image, *momentCalculator,
         momentAxis_p, pProgressMeter.get()
     );
-    cout << __FILE__ << " " << __LINE__ << endl;
     if (windowMethod || fitMethod) {
-    cout << __FILE__ << " " << __LINE__ << endl;
         if (momentCalculator->nFailedFits() != 0) {
             os_p << casacore::LogIO::NORMAL << "There were "
                 <<  momentCalculator->nFailedFits()
                 << " failed fits" << casacore::LogIO::POST;
         }
     }
-    cout << __FILE__ << " " << __LINE__ << endl;
     for (auto& p: outPt) {
-    cout << __FILE__ << " " << __LINE__ << endl;
         p->flush();
     }
-    cout << __FILE__ << " " << __LINE__ << endl;
     return outPt;
 }
 

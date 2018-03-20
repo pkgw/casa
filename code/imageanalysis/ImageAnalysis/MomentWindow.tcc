@@ -145,7 +145,6 @@ void MomentWindow<T>::multiProcess(casacore::Vector<T>& moments,
 // require me to create the slice empty every time so degenerate
 // axes can be chucked out.  We set up a pointer to the primary or 
 // ancilliary vector object  that we can use for fast access 
-    cout << "MomentWindow::" << __func__ << endl;
    const T* pProfileSelect = 0;      
    casacore::Bool deleteIt;
    if (_ancilliaryLattice) {

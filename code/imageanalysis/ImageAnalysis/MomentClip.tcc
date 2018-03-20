@@ -81,7 +81,6 @@ template <class T> void MomentClip<T>::multiProcess(
     const casacore::Vector<T>& profileIn, const casacore::Vector<casacore::Bool>& profileInMask,
     const casacore::IPosition& inPos
 ) {
-    //_timer[0].start();
     // The profile comes with its own mask (or a null mask
     // which means all good).  In addition, we create
     // a further mask by applying the clip range to either
@@ -95,8 +94,6 @@ template <class T> void MomentClip<T>::multiProcess(
 
     const T* pProfileSelect = nullptr;
     auto deleteIt = false;
-    //_timer[0].stop();
-    //_timer[1].start();
     if (_ancilliaryLattice && (doInclude_p || doExclude_p)) {
         casacore::Array<T> ancilliarySlice;
         casacore::IPosition stride(_ancilliaryLattice->ndim(),1);
@@ -111,9 +108,7 @@ template <class T> void MomentClip<T>::multiProcess(
         pProfileSelect_p = &profileIn;
         pProfileSelect = profileIn.getStorage(deleteIt);
     }
-    //_timer[1].start();
     // Resize array for median.  Is resized correctly later
-    //_timer[3].start();
     auto nPts = profileIn.size();
     selectedData_p.resize(nPts);
     selectedDataIndex_p.resize(nPts);
@@ -124,16 +119,11 @@ template <class T> void MomentClip<T>::multiProcess(
 
     // We must fill in the input pixel coordinate if we need
     // coordinates, but did not pre compute them
-    //_timer[3].stop();
-    //_timer[4].start();
     if (! preComp && (doCoordRandom_p || doCoordProfile_p)) {
         for (casacore::uInt i=0; i<inPos.size(); ++i) {
             pixelIn_p[i] = casacore::Double(inPos[i]);
         }
     }
-    //_timer[4].stop();
-    //_timer[5].start();
-
     // Compute moments.  The actual moment computation always done with
     // the original data, regardless of whether the pixel selection is
     // done with the primary or ancilliary data.
@@ -148,8 +138,6 @@ template <class T> void MomentClip<T>::multiProcess(
     T dMax = -1.0e30;
     casacore::Double coord = 0.0;
     casacore::uInt i, j;
-    //_timer[5].stop();
-    //_timer[6].start();
     if (profileInMask.empty()) {
         // No mask included.
         if (doInclude_p) {
@@ -306,8 +294,6 @@ template <class T> void MomentClip<T>::multiProcess(
         nPts = j;
         profileInMask.freeStorage(pProfileInMask, deleteIt2);
     }
-    //_timer[6].stop();
-    //_timer[7].start();
     // Delete pointer memory
     if (_ancilliaryLattice && (doInclude_p || doExclude_p)) {
         ancilliarySliceRef_p.freeStorage(pProfileSelect, deleteIt);
@@ -331,8 +317,6 @@ template <class T> void MomentClip<T>::multiProcess(
     }
     // Median of I
     T dMedian = 0.0;
-    //_timer[7].stop();
-    //_timer[8].start();
     if (doMedianI_p) {
         selectedData_p.resize(nPts,true);
         dMedian = median(selectedData_p);
@@ -341,8 +325,6 @@ template <class T> void MomentClip<T>::multiProcess(
     // we are not offering the ancilliary lattice, and with an include
     // or exclude range.   Pretty dodgy
     T vMedian(0.0);
-    //_timer[8].stop();
-    //_timer[9].start();
     if (doMedianV_p) {
         if (doInclude_p || doExclude_p) {
             // Treat spectrum as a probability distribution for velocity
@@ -384,8 +366,6 @@ template <class T> void MomentClip<T>::multiProcess(
         }
     }
     // Fill all moments array
-    //_timer[9].stop();
-    //_timer[10].start();
     this->setCalcMoments(
         iMom_p, calcMoments_p, calcMomentsMask_p, pixelIn_p, worldOut_p,
         doCoordRandom_p, integratedScaleFactor_p,
@@ -393,13 +373,10 @@ template <class T> void MomentClip<T>::multiProcess(
         sumAbsDev, dMin, dMax, iMin, iMax
     );
     // Fill vector of selected moments
-    //_timer[10].stop();
-    //_timer[11].start();
     for (i=0; i<selectMoments_p.size(); ++i) {
         moments[i] = calcMoments_p(selectMoments_p[i]);
         momentsMask[i] = calcMomentsMask_p(selectMoments_p[i]);
     }
-    //_timer[11].stop();
 }
 
 }
