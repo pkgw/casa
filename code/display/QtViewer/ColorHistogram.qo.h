@@ -26,7 +26,7 @@
 #ifndef COLORHISTOGRAM_QO_H
 #define COLORHISTOGRAM_QO_H
 
-#include <QtGui/QMainWindow>
+#include <QMainWindow>
 #include <casa/aipstype.h>
 #include <casa/Arrays/Vector.h>
 #include <display/QtViewer/ColorHistogram.ui.h>

@@ -41,28 +41,72 @@ class plotants_test(unittest.TestCase):
         tp.setgui(gui=True)
 
 
-    def test0(self):
-       '''Test 0: Default parameters'''
+    def test1(self):
+       '''Test 1: Default parameters'''
        self.res = plotants()
        self.assertFalse(self.res)
 
-    def test1(self):
-        '''Test 1: Bad input file'''
+    def test2(self):
+        '''Test 2: Bad input file'''
         msfile = 'badfile'
         self.res = plotants(vis=msfile)
         self.assertFalse(self.res)
 
-    def test2(self):
-        '''Test 2: Good input file and output exists'''
-        if os.uname()[0] == "Darwin" and \
-           os.system("sw_vers -productVersion | grep 10.6") == 0 and \
-           not os.getenv("DISPLAY"):
-            print >> sys.stderr, "Warning: The DISPLAY environment variable is unset, " + \
-            "required on OS X 10.6, skipping test"
-        else:
-            self.res = plotants(vis=self.msfile, figfile=self.fig)
-            self.assertEqual(self.res,None)
-            self.assertTrue(os.path.exists(self.fig))
+    def test3(self):
+        '''Test 3: Good input file and output exists'''
+        self.res = plotants(vis=self.msfile, figfile=self.fig)
+        self.assertEqual(self.res,None)
+        self.assertTrue(os.path.exists(self.fig))
+
+    def test4(self):
+        '''Test 4: Label antenna IDs'''
+        self.res = plotants(vis=self.msfile, figfile=self.fig, antindex=True)
+        self.assertEqual(self.res,None)
+        self.assertTrue(os.path.exists(self.fig))
+
+    def test5(self):
+        '''Test 5: Logarithmic antenna positions'''
+        self.res = plotants(vis=self.msfile, figfile=self.fig, logpos=True)
+        self.assertEqual(self.res,None)
+        self.assertTrue(os.path.exists(self.fig))
+
+    def test6(self):
+        '''Test 6: Exclude antenna positions'''
+        self.res = plotants(vis=self.msfile, figfile=self.fig,
+            exclude='1,5,19,14,10,13')
+        self.assertEqual(self.res,None)
+        self.assertTrue(os.path.exists(self.fig))
+
+    def test7(self):
+        '''Test 7: checkbaselines'''
+        self.res = plotants(vis=self.msfile, figfile=self.fig,
+            checkbaselines=True)
+        self.assertEqual(self.res,None)
+        self.assertTrue(os.path.exists(self.fig))
+
+    def test8(self):
+        '''Test 8: exclude checkbaselines'''
+        # antenna (name) 11 is already excluded by checkbaselines
+        # (warning)
+        self.res = plotants(vis=self.msfile, figfile=self.fig,
+            exclude='11', checkbaselines=True)
+        self.assertEqual(self.res,None)
+        self.assertTrue(os.path.exists(self.fig))
+
+    def test9(self):
+        '''Test 9: Title'''
+        self.res = plotants(vis=self.msfile, figfile=self.fig,
+            title='IC2233')
+        self.assertEqual(self.res,None)
+        self.assertTrue(os.path.exists(self.fig))
+
+    def test10(self):
+        '''Test 10: All arguments'''
+        self.res = plotants(self.msfile, self.fig, True, True, '1,3,5,7,9',
+            True, "IC2233")
+        self.assertEqual(self.res,None)
+        self.assertTrue(os.path.exists(self.fig))
 
 def suite():
     return [plotants_test]
+
