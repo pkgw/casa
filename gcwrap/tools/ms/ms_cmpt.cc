@@ -803,9 +803,7 @@ ms::getspectralwindowinfo()
 }
 
 variant*
-ms::getfielddirmeas(
-    const std::string& dircolname, int fieldid,
-    double time, const string& format)
+ms::getfielddirmeas(const std::string& dircolname, int fieldid, double time, const string& format)
 {
     variant *retval = 0;
     try{

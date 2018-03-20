@@ -2245,7 +2245,7 @@ ms.tosdfits("myfile.sdfits")  # write SDFITS file
   <keyword>getfielddirmeas</keyword>
   <input>  
       <param type="string" direction="in" name="dircolname">
-      <description>Name of the direction column in the FIELD table. </description>
+      <description>Name of the direction column in the FIELD table or 'EPHEMERIS_DIR'. </description>
       <value>PHASE_DIR</value>
       <allowed type="enum">
         <value>PHASE_DIR</value>
@@ -2286,11 +2286,9 @@ ms.tosdfits("myfile.sdfits")  # write SDFITS file
   </description>
   <example>
       ms.open('3C273XC1.MS')
-      print "Delay direction from FIELD table row 3 =", \
-          ms.getfielddirmeas("DELAY_DIR", 3)
+      print "Delay direction from FIELD table row 3 =", ms.getfielddirmeas("DELAY_DIR", 3)
 
-      print "Phase direction from ephemeris FIELD table row 4 for time = 5019988459.968 s", \
-          ms.getfielddirmeas("PHASE_DIR", 4, 5019988459.968)
+      print "Phase direction from ephemeris FIELD table row 4 for time = 5019988459.968 s", ms.getfielddirmeas("PHASE_DIR", 4, 5019988459.968)
   </example>
  </method>
 
