@@ -81,7 +81,7 @@ ImagePolarimetry::ImagePolarimetry (const ImageInterface<Float>& image)
   itsOldClip(0.0),
   _beamsEqMat()
 {
-   itsInImagePtr = image.cloneII();
+   itsInImagePtr.reset(image.cloneII());
 //
    itsStokesPtr.resize(4);
    itsStokesStatsPtr.resize(4);
@@ -101,8 +101,7 @@ ImagePolarimetry::ImagePolarimetry(const ImagePolarimetry &other)
 ImagePolarimetry &ImagePolarimetry::operator=(const ImagePolarimetry &other)
 {
    if (this != &other) {
-      if (itsInImagePtr!= 0) delete itsInImagePtr;
-      itsInImagePtr = other.itsInImagePtr->cloneII();
+      itsInImagePtr.reset(other.itsInImagePtr->cloneII());
 //
       const uInt n = itsStokesPtr.nelements();
       for (uInt i=0; i<n; i++) {
@@ -453,34 +452,6 @@ void ImagePolarimetry::fourierRotationMeasure(ImageInterface<Complex>& cpol,
    _setInfo(cpol, Q);
 }
 
-
-ImageExpr<Float> ImagePolarimetry::linPolInt(Bool debias, Float clip, Float sigma) 
-{
-   LogIO os(LogOrigin("ImagePolarimetry", __FUNCTION__, WHERE));
-   if (itsStokesPtr[ImagePolarimetry::Q]==0 && itsStokesPtr[ImagePolarimetry::U]==0) {
-      os << "This image does not have Stokes Q and U so cannot provide linear polarization" << LogIO::EXCEPTION;
-   }
-   _checkQUBeams(false);
-// Make node.  
-
-   LatticeExprNode node = makePolIntNode(os, debias, clip, sigma, true, false);
-
-// Make expression
-
-   LatticeExpr<Float> le(node);
-   ImageExpr<Float> ie(le, String("LinearlyPolarizedIntensity"));
-//
-   ie.setUnits(itsInImagePtr->units());
-   _setInfo(ie, Q);
-
-// Fiddle Stokes coordinate in ImageExpr
-
-   fiddleStokesCoordinate(ie, Stokes::Plinear);
-//
-   return ie;
-}
-
-
 Float ImagePolarimetry::sigmaLinPolInt(Float clip, Float sigma) 
 //
 // sigma_P = sigma_QU
@@ -537,7 +508,6 @@ ImageExpr<Float> ImagePolarimetry::linPolPosAng(Bool radians) const
 
    return ie;
 }
-
 
 ImageExpr<Float> ImagePolarimetry::sigmaLinPolPosAng(Bool radians, Float clip, Float sigma) 
 //
@@ -880,7 +850,7 @@ void ImagePolarimetry::rotationMeasure(ImageInterface<Float>*& rmOutPtr,
    uInt nrtiles = (1 + (mainShape(fAxis)-1) / tileShape(fAxis)) *
                   (1 + (mainShape(sAxis)-1) / tileShape(sAxis));
    ImageInterface<Float>* mainImagePtr =
-                          const_cast<ImageInterface<Float>*>(itsInImagePtr);
+                          const_cast<ImageInterface<Float>*>(itsInImagePtr.get());
    mainImagePtr->setCacheSizeInTiles (nrtiles);
 //
    String posString;
@@ -1157,8 +1127,6 @@ void ImagePolarimetry::summary(LogIO& os) const
    s.list(os);
 }
 
-
-
 ImageExpr<Float> ImagePolarimetry::totPolInt(Bool debias, Float clip, Float sigma) 
 {
    LogIO os(LogOrigin("ImagePolarimetry", __FUNCTION__, WHERE));
@@ -1274,8 +1242,7 @@ ImageExpr<Float> ImagePolarimetry::sigmaDepolarizationRatio (const ImageInterfac
 
 void ImagePolarimetry::cleanup()
 {
-   delete itsInImagePtr;   
-   itsInImagePtr = 0;   
+   itsInImagePtr.reset();
 //
    for (uInt i=0; i<4; i++) {
       delete itsStokesPtr[i];

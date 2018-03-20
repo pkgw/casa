@@ -33,7 +33,7 @@
 #include <graphics/GenericPlotter/PlotFactory.h>
 
 #include <QtGui>
-#include <QtGui/QStandardItemModel>
+#include <QStandardItemModel>
 
 #include <map>
 #include <vector>

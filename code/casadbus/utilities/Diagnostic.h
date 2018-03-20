@@ -94,7 +94,7 @@ namespace casa {
 				void output_epilogue( );
 		};
 
-		Diagnostic diagnostic;
+		extern Diagnostic diagnostic;
 
 		static class init_diagnostic_object_t {
 			public:

@@ -31,7 +31,7 @@
 #include <set>
 #include <string>
 #include <QSignalMapper>
-#include <QtGui/QDialog>
+#include <QDialog>
 #include <display/QtViewer/ViewerPreferences.ui.h>
 #include <display/Utilities/Lowlevel.h>
 

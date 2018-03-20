@@ -211,13 +211,28 @@ class imtrans_test(unittest.TestCase):
     def test_history(self):
         """Test history records are written"""
         myia = iatool()
-        myia.fromshape("", [10,10,4,10])
-        kk = myia.transpose("","3210")
+        imagename = "zz.im"
+        myia.fromshape(imagename, [10,10,4,10])
+        order = "3210"
+        kk = myia.transpose("",order=order)
         myia.done()
         msgs = kk.history()
         kk.done()
-        self.assertTrue("ia.transpose" in msgs[-2])    
-        self.assertTrue("ia.transpose" in msgs[-1])
+        teststr = "ia.transpose"
+        self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")    
+        self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
+        
+        outfile = "zz_out.im"
+        self.assertTrue(
+            imtrans(imagename=imagename, outfile=outfile, order=order)
+        )
+        myia.open(outfile)
+        msgs = myia.history()
+        myia.done()
+        teststr = "version"
+        self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
+        teststr = "imtrans"
+        self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
 
     def test_imageinfo(self):
         """Verify image info is copied"""

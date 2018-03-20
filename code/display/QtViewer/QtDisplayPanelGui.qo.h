@@ -33,6 +33,7 @@
 #include <graphics/X11/X_enter.h>
 #  include <QtCore>
 #  include <QtGui>
+#include <QStatusBar>
 #include <QTextEdit>
 #include <QHash>
 #include <QFont>
