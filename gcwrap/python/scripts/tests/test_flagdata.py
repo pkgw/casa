@@ -554,6 +554,10 @@ class test_rflag(test_base):
 
     def test_rflag_return_dict1(self):
         '''flagdata:: Use provided value for time stats, but automatically computed value for freq. stats'''
+        if testmms:
+            print "Skip this test in parallel, until CAS-10202 is implemented"
+            return
+        
         rflag_dict = flagdata(vis=self.vis, mode='rflag', field = '1', spw='10', timedev=0.1, \
                  timedevscale=5.0, freqdevscale=5.0, action='calculate', flagbackup=False)
         
