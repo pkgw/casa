@@ -2434,7 +2434,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     vbs.flagCube_p.resize(flagCube.shape());  vbs.flagCube_p = false; vbs.flagCube_p(flagCube!=0) = true;
     vbs.conjBeams_p=conjBeams_p;
 
-    timer_p.mark();
+    //timer_p.mark();
 
     Vector<Double> pointingOffset(convFuncCtor_p->findPointingOffset(*image, vb));
     if (makingPSF){
@@ -2501,7 +2501,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //
     //makeThGridCoords(vbs,gridShape);
 
-    runTime1_p += timer_p.real();
+    //runTime1_p += timer_p.real();
     visResampler_p->initializeDataBuffers(vbs);
     //    visResampler_p->setConvFunc(cfs_p);
   }
