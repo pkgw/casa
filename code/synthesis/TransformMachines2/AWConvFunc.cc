@@ -177,6 +177,8 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
   //----------------------------------------------------------------------
   //
   void AWConvFunc::fillConvFuncBuffer(CFBuffer& cfb, CFBuffer& cfWtb,
+				      const Int& skyNX, const Int& skyNY,
+				      const Vector<Double>& skyIncr,
 				      const Int& nx, const Int& ny, 
 				      const Vector<Double>& freqValues,
 				      const Vector<Double>& wValues,
@@ -221,6 +223,24 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 			      wValues(0), 
 			      muellerElements(imx)(imy));
 		aTerm.setBandName(bandName);
+
+		{
+		  Double lambdaByD = 1.22*C::c/freqValues(inu)/25.0;
+		  Double FoV_x = fabs(skyNX*skyIncr(0));
+		  Double FoV_y = fabs(skyNY*skyIncr(1));
+		  Vector<Double> uvScale_l(3);
+		  uvScale_l(0) = (FoV_x < lambdaByD) ? FoV_x : lambdaByD;
+		  uvScale_l(1) = (FoV_y < lambdaByD) ? FoV_y : lambdaByD;
+		  uvScale_l(2) = 0.0;
+
+		  //Hints that only uvScale needs to be updated in PSTerm.
+		  IPosition dummy; 
+		  Vector<Double> dummyoffset;
+		  Double pss = -1;
+		  //cerr << "############ " << freqValues(inu) << " " << skyIncr << skyNX << " " << uvScale_l << endl;
+		  psTerm.reinit(dummy, uvScale_l, dummyoffset,pss);
+		}
+		
 		IPosition pbshp(4,nx,ny,1,1);
 		//
 		// Cache the A-Term for this polarization and frequency
@@ -752,6 +772,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 
     
     Int nx=image.shape()(0);//, ny=image.shape()(1);
+    Vector<Double> skyIncr;
     
     log_l << "Making a new convolution function for PA="
 	  << pa*(180/C::pi) << "deg"
@@ -806,7 +827,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
     AlwaysAssert(index>=0, AipsError);
     DirectionCoordinate dc=coords.directionCoordinate(index);
     Vector<Double> sampling;
-    sampling = dc.increment();
+    skyIncr = sampling = dc.increment();
 //    cout<<"The image sampling is set to :"<<sampling<<endl; 
     sampling*=Double(convSampling);
     sampling*=Double(nx)/Double(convSize);
@@ -1047,7 +1068,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 	  Vector<Double> refVal = SpC.referenceValue();
 	
 	  freqHi = refVal[0];
-	  fillConvFuncBuffer(*cfb_p, *cfwtb_p, convSize, convSize, freqValues, wValues, wScale,
+	  fillConvFuncBuffer(*cfb_p, *cfwtb_p, nx, nx, skyIncr, convSize, convSize, freqValues, wValues, wScale,
 			     vbPA, freqHi,
 			     polMap, polIndexMap, vb, psScale,
 			     *psTerm_p, *wTerm_p, *aTerm_p, !fillCF);
@@ -1905,8 +1926,15 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 			 //Float psScale = (2*coords.increment()(0))/(nx*image.coordinates().increment()(0));
 			 Float innerQuaterFraction=1.0;
 			 
+			 Double lambdaByD = 1.22*C::c/miscInfo.freqValue/25.0;
+			 //cerr << "@@@@@@@@@@@@@@@@@ " <<  miscInfo.freqValue << " " << lambdaByD << endl;
+			 Vector<Double> tuvScale(3);
+			 tuvScale(0) = lambdaByD;
+			 tuvScale(1) = lambdaByD;
+			 tuvScale(2) = 0.0;
+
 			 Float psScale = 2.0/(innerQuaterFraction*convSize/convSampling);// nx*image.coordinates().increment()(0)*convSampling/2;
-			 ((static_cast<AWConvFunc &>(*awCF)).psTerm_p)->init(IPosition(2,inner,inner), uvScale, uvOffset,psScale);
+			 ((static_cast<AWConvFunc &>(*awCF)).psTerm_p)->init(IPosition(2,inner,inner), tuvScale, uvOffset,psScale);
 			 
 			 //
 			 // By this point, the all the 4 axis (Time/PA, Freq, Pol,

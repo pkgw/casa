@@ -165,7 +165,7 @@ namespace casa{
     // fiddle with this logic at your own risk (can easily lead to a
     // lot of grief. --Sanjay).
     //
-    timer_p.mark();
+    //timer_p.mark();
 
     if (wVal > 0.0) 
       {
@@ -226,7 +226,7 @@ namespace casa{
      muellerElement=cfb.getCFCellPtr(fndx,wndx,mNdx[ipol][mRow])->muellerElement_p;
     
     //    cfShape.assign(cfcell->cfShape_p);
-    runTimeG1_p += timer_p.real();
+     //runTimeG1_p += timer_p.real();
 
 
     return convFuncV->getStorage(Dummy);
@@ -477,7 +477,7 @@ namespace casa{
     Double sinDPA=0.0, cosDPA=1.0, cfRefFreq;
     //    Double cfScale=1.0;
 
-    timer_p.mark();
+    //timer_p.mark();
     rbeg = 0;       rend = vbs.nRow_p;
     rbeg = vbs.beginRow_p;
     rend = vbs.endRow_p;
@@ -523,7 +523,7 @@ namespace casa{
 
     cfb.getCoordList(fVals,wVals,mNdx, mVals, conjMNdx, conjMVals, fIncr, wIncr);
     Vector<Double> pointingOffset(cfb.getPointingOffset());
-    runTimeG1_p += timer_p.real();
+    //    runTimeG1_p += timer_p.real();
 
     nw = wVals.nelements();
     //nCFFreq = fVals.nelements()-1;
@@ -576,7 +576,7 @@ namespace casa{
 		  
 		  if((targetIMChan>=0) && (targetIMChan<nGridChan)) 
 		    {
-		      timer_p.mark();
+		      //timer_p.mark();
 		      Double dataWVal = vbs.vb_p->uvw()(2,irow);
 		      Int wndx = cfb.nearestWNdx(abs(dataWVal)*freq[ichan]/C::c);
 		      // Double conjFreq=sqrt(2*conjRefFreq*conjRefFreq - freq[ichan]*freq[ichan]);
@@ -589,7 +589,7 @@ namespace casa{
 		      // else  cfFreqNdx = cfb.nearestFreqNdx(vbSpw,ichan);
 		      Int cfFreqNdx = cfb.nearestFreqNdx(vbSpw,ichan,vbs.conjBeams_p);
 
-		      runTimeG3_p += timer_p.real();
+		      //runTimeG3_p += timer_p.real();
 		      
 		      Float s;
 		      //
@@ -609,9 +609,9 @@ namespace casa{
 		      // else
 		      // 	cfb.getParams(cfRefFreq, s, support(0), support(1),fndx,wndx,0);
 
-		      timer_p.mark();
+		      //timer_p.mark();
 		      cfb.getParams(cfRefFreq, s, support(0), support(1),cfFreqNdx,wndx,0);
-		      runTimeG4_p += timer_p.real();
+		      //runTimeG4_p += timer_p.real();
 
 		      sampling(0) = sampling(1) = SynthesisUtils::nint(s);
 		      // sampling[0] = SynthesisUtils::nint(sampling[0]*cfScale);
@@ -619,10 +619,10 @@ namespace casa{
 		      // support[0]  = SynthesisUtils::nint(support[0]/cfScale);
 		      // support[1]  = SynthesisUtils::nint(support[1]/cfScale);
 
-		      timer_p.mark();
+		      //timer_p.mark();
 		      sgrid(pos,loc,off, phasor, irow, vbs.uvw_p, dphase_p[irow], freq[ichan], 
 			    uvwScale_p, offset_p, sampling);
-		      runTimeG5_p += timer_p.real();
+		      //runTimeG5_p += timer_p.real();
 		      
 		      //  if (onGrid(nx, ny, nw, loc, support)) 
 			{
@@ -659,7 +659,7 @@ namespace casa{
 					  int visVecElement=mCols, muellerElement;
 
 					  Complex* convFuncV=NULL;
-					  timer_p.mark();
+					  //timer_p.mark();
 					  try
 					    {
 					      convFuncV=getConvFunc_p(vbs.paQuant_p.getValue("rad"),
@@ -686,7 +686,7 @@ namespace casa{
 			
 
 					  if (!onGrid(nx, ny, nw, loc, support)) break;
-					  runTimeG6_p += timer_p.real();
+					  //runTimeG6_p += timer_p.real();
 					  
 					  
 					  convOrigin=cfShape/2;
@@ -701,7 +701,7 @@ namespace casa{
 					  // file (FortanizedLoopsToGrid.cc) has the interface code to call the inner 
 					  // loops re-written in FORTRAN (in synthesis/fortran/faccumulateOnGrid.f)
 
-timer_p.mark();
+					  //timer_p.mark();
 					  // norm += accumulateOnGrid(grid,convFuncV,nvalue,dataWVal,
 					  // 			   support,sampling,
 					  // 			   off, convOrigin, cfShape, loc, igrdpos,
@@ -709,7 +709,7 @@ timer_p.mark();
 // cerr << vbs.vb_p->spectralWindow() << " " << vbs.vb_p->rowIds()(irow) << " " << irow << " " << ichan << " " << ipol << " " << mRow << endl;
 #include <synthesis/TransformMachines2/FortranizedLoopsToGrid.cc>
 //clLoopsToGrid();
-runTimeG7_p += timer_p.real();
+//runTimeG7_p += timer_p.real();
 					}
 				      //				      cerr << "Norm = " << norm << endl;
 				      sumwt(targetIMPol,targetIMChan) += vbs.imagingWeight_p(ichan, irow)*abs(norm);
@@ -724,7 +724,7 @@ runTimeG7_p += timer_p.real();
 	}
     } // End row-loop
     // exit(0);
-    runTimeG_p = timer_p.real() + runTimeG1_p + runTimeG2_p + runTimeG3_p + runTimeG4_p + runTimeG5_p + runTimeG6_p + runTimeG7_p;
+   //runTimeG_p = timer_p.real() + runTimeG1_p + runTimeG2_p + runTimeG3_p + runTimeG4_p + runTimeG5_p + runTimeG6_p + runTimeG7_p;
     T *tt=(T *)gridStore;
     grid.putStorage(tt,gDummy);
   }
