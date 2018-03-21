@@ -726,11 +726,35 @@ class imstat_test(unittest.TestCase):
         """Test fix to CAS-10906, accouting issue when computing median"""
         myia = iatool()
         imagename = self.datapath + "CAS-10906.im"
-        print imagename
         myia.open(imagename)
         # running successfully verifies that the issue has been resolved
         self.assertTrue(myia.statistics(robust=True))
         myia.done()
+        
+    def test_biweight(self):
+        """Test biweight algorithm CAS-11100"""
+        myia = iatool()
+        imagename = self.datapath + "biweight_test.im"
+        for i in (0, 1):
+            for niter in (20, 2, -1):
+                if i == 0:
+                    myia.open(imagename)
+                    res = myia.statistics(algorithm='b', niter=niter)
+                    myia.done()
+                else:
+                    res = imstat(imagename=imagename, algorithm='b', niter=niter)
+                self.assertAlmostEqual(res['min'][0], -5.48938513)
+                self.assertAlmostEqual(res['max'][0], 104.80391693)
+                self.assertEqual(res['npts'][0], 1.25000000e+08)
+                if niter == 20:
+                    self.assertAlmostEqual(res['sigma'][0], 1.02012422703)
+                    self.assertAlmostEqual(res['mean'][0], -5.43024227e-06)
+                elif niter == 2:
+                    self.assertAlmostEqual(res['sigma'][0], 1.02012435686)
+                    self.assertAlmostEqual(res['mean'][0], 0.00026525095639)
+                elif niter == -1:
+                    self.assertAlmostEqual(res['sigma'][0], 1.02031194)
+                    self.assertAlmostEqual(res['mean'][0], 0.00284497)
 
 def suite():
     return [imstat_test]
