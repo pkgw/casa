@@ -216,7 +216,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			     fabs(itsPrevPeakResidual - itsPeakResidual)<1e-10) 
 		      {stopCode = 4;}
 		    
-                    // another non-convergent condition: diverging (relative increase is more than 5 times across one major cycle)
+                    // another non-convergent condition: diverging (relative increase is more than 3 times across one major cycle)
                     else if ( itsIterDone > 0 && 
 			      fabs(itsPeakResidualNoMask-itsPrevPeakResidualNoMask)/fabs(itsPrevPeakResidualNoMask)  > 3.0) 
                       {
@@ -224,7 +224,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			//     << "  Dev from prev peak res " << itsPrevPeakResidualNoMask << endl; 
 			stopCode = 5;}
 
-		    // divergence check, 5 times increase from the minimum peak residual so far (across all previous major cycles).
+		    // divergence check, 3 times increase from the minimum peak residual so far (across all previous major cycles).
 		    else if ( itsIterDone > 0 && 
 			      (fabs(itsPeakResidualNoMask)-itsMinPeakResidualNoMask)/itsMinPeakResidualNoMask  > 3.0 )
                       {
