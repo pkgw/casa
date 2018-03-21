@@ -242,7 +242,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       itsLoopController.setPeakResidualNoMask( peakresnomask );
       itsLoopController.setMaxPsfSidelobe( itsImages->getPSFSidelobeLevel() );
 
-      if (!initializeChanMaskFlag) {
+      if ( itsAutoMaskAlgorithm=="multithresh" && !initializeChanMaskFlag ) {
         IPosition maskshp = itsImages->mask()->shape();
         Int nchan = maskshp(3);
         itsChanFlag=Vector<Bool>(nchan,False);
