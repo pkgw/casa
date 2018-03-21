@@ -321,10 +321,14 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
     		for (uInt iw=0;iw<wValues.nelements();iw++)     // All w-planes
     		  {
 		    if (!isDryRun)
-		      log_l << " CF("
-			    << "M:"<<muellerElements(imx)(imy) 
-			    << ",C:" << inu 
-			    << ",W:" << iw << "): ";
+		      {
+			LogIO log_l(LogOrigin("AWConvFunc2", "fillConvFuncBuffer[R&D]"));
+
+			log_l << " CF("
+			      << "M:"<<muellerElements(imx)(imy) 
+			      << ",C:" << inu 
+			      << ",W:" << iw << "): ";
+		      }
 		    // {
 		    //   CountedPtr<CFCell> thisCell=cfb.getCFCellPtr(freqValues(inu), wValues(iw), muellerElements(imx)(imy));
 		    //   thisCell->conjFreq_p = conjFreq;

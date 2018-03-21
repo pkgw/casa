@@ -388,6 +388,7 @@ namespace casa{
 					const Int& spwID, const Int& fieldId)
   {
     //cout << "# " << cfRefFreq << " " << imRefFreq << endl;
+    //cerr << pointingOffset << " " << cached_PointingOffset_p << endl;
     if (
     	(sum(fabs(pointingOffset-cached_PointingOffset_p)) > 1e-6) ||
     	(cached_phaseGrad_p.shape()[0] < cfShape[0])              ||

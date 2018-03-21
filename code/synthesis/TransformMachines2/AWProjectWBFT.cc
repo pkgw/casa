@@ -1405,7 +1405,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //
     // Grid the weighted convolution function as well
     //
-    LogIO log_l(LogOrigin("AWProjectFT2", "resampleCFToGrid[R&D]"));
+    //LogIO log_l(LogOrigin("AWProjectFT2", "resampleCFToGrid[R&D]"));
     //
     // Now rotate and put the rotated convolution weight function
     // in rotatedCFWts_l object.
