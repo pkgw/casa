@@ -63,7 +63,10 @@ bool ActionSummaryDialog::doActionSpecific( PlotMSApp* plotms){
 		if ( result == 1 ){
 			ActionSummary summary( client );
 			summary.setFile( summarizeDialog->getFileName());
-			summary.setSummaryType( summarizeDialog->getSummaryType());
+			if (summarizeDialog->isMS())
+				summary.setSummaryType( summarizeDialog->getSummaryType());
+			else
+				summary.setCTSummaryType( summarizeDialog->getCTSummaryType());
 			summary.setVerbose( summarizeDialog->isVerbose());
 			success = summary.doAction( plotms );
 			if ( !success ){

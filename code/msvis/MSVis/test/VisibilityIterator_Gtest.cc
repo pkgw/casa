@@ -36,15 +36,12 @@ using namespace casacore;
 using namespace casacore;
 using namespace casa::vi;
 
-ofstream gtestLog ("/tmp/gtest.log");
-
 
 int
 main (int nArgs, char * args [])
 {
     ::testing::InitGoogleTest(& nArgs, args);
 
-gtestLog << "--- RUN_ALL_TESTS" << endl;
     return RUN_ALL_TESTS();
 
 using namespace casacore;
@@ -208,7 +205,7 @@ printMs (MeasurementSet * ms)
 void
 TestWidget::sweepMs()
 {
-	gtestLog << "--- Starting sweepMs" << endl;
+	SCOPED_TRACE("--- Starting sweepMs");
     Block<const MeasurementSet *> mss;
     pair<Bool,Bool> result;
     Bool moreSweeps = false;
@@ -227,6 +224,7 @@ TestWidget::sweepMs()
         }
 
         do {
+            SCOPED_TRACE("New sweep");
 	        std::unique_ptr<VisibilityIterator2> vi;
 
             if (usesMultipleMss()){
@@ -244,12 +242,17 @@ TestWidget::sweepMs()
             startOfData (* vi, vb);
 
             for (vi->originChunks (); vi->moreChunks(); vi->nextChunk()){
+                SCOPED_TRACE("Rows processed so far: " + 
+                             std::to_string(nRowsProcessed));
 
                 nextChunk (* vi, vb);
 
                 for (vi->origin(); vi->more (); vi->next()){
 
                     subchunk = vi->getSubchunkId();
+
+                    SCOPED_TRACE("Processing subchunk: " +
+                                 std::to_string(subchunk.subchunk()));
 
                     nRowsProcessed += vb->nRows();
 
@@ -267,25 +270,25 @@ TestWidget::sweepMs()
         result = make_pair (true, false);
     }
     catch (TestError & e){
-gtestLog << "Failed by TestError" << endl;
+        SCOPED_TRACE("Failed by TestError");
         FAIL() << String::format ("*** TestError at subchunk %s while executing test %s:\n-->%s\n",
                                   subchunk.toString().c_str(), name ().c_str(), e.what());
         //result = make_pair (false, false);
     }
     catch (AipsError & e){
-gtestLog << "Failed by AipsError" << endl;
+        SCOPED_TRACE("Failed by AipsError");
         FAIL() << String::format ("*** AipsError while executing test %s:\n-->%s\n",
                                   name ().c_str(), e.what());
 
         //result = make_pair (false, false);
     }
     catch (...){
-gtestLog << "Failed by ..." << endl;
+        SCOPED_TRACE("Failed by ...");
         FAIL() << String::format ("*** Unknown exception while executing test %s\n***\n*** Exiting ***\n",
                                   name ().c_str());
         //result = make_pair (false, true);
     }
-gtestLog << "Success" << endl;
+    SCOPED_TRACE("Finishing sweepMs");
 
     fflush (stderr); // just in case things are really bad and we croak
 
@@ -1064,13 +1067,6 @@ BasicMutation::createMs ()
     return std::make_tuple (ms, nRows, true);
 }
 
-class LogicalNot {
-public:
-
-    Bool operator() (Bool b) { return ! b;}
-};
-
-
 void
 BasicMutation::nextSubchunk (VisibilityIterator2 & vi, VisBuffer2 * vb)
 {
@@ -1105,7 +1101,7 @@ BasicMutation::nextSubchunk (VisibilityIterator2 & vi, VisBuffer2 * vb)
         Cube<Bool> cubeB;
 
         cubeB = vb->flagCube();
-        cubeB = arrayTransformResult (cubeB, LogicalNot());
+        cubeB = arrayTransformResult (cubeB, std::logical_not<Bool>());
         vb->setFlagCube (cubeB);
 
 //        Array<Bool> flagCategory = vb->flagCategory();
@@ -1124,7 +1120,7 @@ BasicMutation::nextSubchunk (VisibilityIterator2 & vi, VisBuffer2 * vb)
 
         Vector<Bool> vB;
         vB = vb->flagRow();
-        vB = arrayTransformResult (vB, LogicalNot());
+        vB = arrayTransformResult (vB, std::logical_not<Bool>());
         vb->setFlagRow (vB);
 
         vb->writeChangesBack();
@@ -1757,8 +1753,6 @@ TEST_F (Weighting, DoWeighting)
 {
     sweepMs ();
 }
-
-
 
 } // end namespace test
 } // end namespace vi

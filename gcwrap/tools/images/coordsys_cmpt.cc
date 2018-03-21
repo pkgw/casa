@@ -4038,74 +4038,68 @@ void coordsys::trim (Vector<Double>& inout,
   inout = out;
 }
 
-void coordsys::setDirectionCode (const String& code, Bool adjust)
-{
-	  _setup(__func__);
-
-  // Exception if type not found
-  Int ic = findCoordinate (Coordinate::DIRECTION, true);
-  // Convert type
-  String code2 = code;
-  casacore::MDirection::Types typeTo;
-  code2.upcase();
-  if (!casacore::MDirection::getType(typeTo, code2)) {
-    *_log << "Invalid direction code '" << code
-	    << "' given. Allowed are : " << endl;
-    for (uInt i=0; i<casacore::MDirection::N_Types; i++)
-      *_log << "  " << casacore::MDirection::showType(i) << endl;
-    *_log << LogIO::EXCEPTION;
-  }
-
-  // Bug out if nothing to do
-  DirectionCoordinate
-    dirCoordFrom(_csys->directionCoordinate(ic));  // Copy
-  if (dirCoordFrom.directionType() == typeTo) return;
-  Vector<String> unitsFrom = dirCoordFrom.worldAxisUnits();
-  //
-  Vector<String> radUnits(2);
-  radUnits = String("rad");
-  if (!dirCoordFrom.setWorldAxisUnits(radUnits)) {
-    *_log << "Failed to set radian units for DirectionCoordinate"
-	    << LogIO::EXCEPTION;
-  }
-
-  // Create output DirectionCoordinate
-  Vector<Double> refValFrom = dirCoordFrom.referenceValue();
-  Vector<Double> refPixFrom = dirCoordFrom.referencePixel();
-  Vector<Double> incrFrom = dirCoordFrom.increment();
-  DirectionCoordinate dirCoordTo (typeTo, dirCoordFrom.projection(),
-				  refValFrom(0), refValFrom(1),
-				  incrFrom(0), incrFrom(1),
-				  dirCoordFrom.linearTransform(),
-				  refPixFrom(0), refPixFrom(1));
-  //
-  if (adjust) {
-    casacore::MDirection::Convert machine;
-    const ObsInfo& obsInfo = _csys->obsInfo();
-    Bool madeMachine =
-      CoordinateUtil::makeDirectionMachine(*_log, machine, dirCoordTo,
-					   dirCoordFrom, obsInfo, obsInfo);
-    //      cerr << "made DirectionMachine = " << madeMachine << endl;
-    //
-    if (madeMachine) {
-      MVDirection mvdTo, mvdFrom;
-      Bool ok = dirCoordFrom.toWorld (mvdFrom, refPixFrom);
-      if (ok) {
-	mvdTo = machine(mvdFrom).getValue();
-	Vector<Double> referenceValueTo(2);
-	referenceValueTo(0) = mvdTo.getLong();
-	referenceValueTo(1) = mvdTo.getLat();
-	if (!dirCoordTo.setReferenceValue(referenceValueTo)) {
-	  *_log << dirCoordTo.errorMessage() << LogIO::EXCEPTION;
-	}
-	if (!dirCoordTo.setWorldAxisUnits(unitsFrom)) {
-	  *_log << dirCoordTo.errorMessage() << LogIO::EXCEPTION;
-	}
-      }
+void coordsys::setDirectionCode(
+    const casacore::String& code, casacore::Bool adjust
+) {
+    _setup(__func__);
+    // Exception if type not found
+    auto ic = findCoordinate (Coordinate::DIRECTION, true);
+    // Convert type
+    String code2 = code;
+    casacore::MDirection::Types typeTo;
+    code2.upcase();
+    if (!casacore::MDirection::getType(typeTo, code2)) {
+        *_log << "Invalid direction code '" << code
+            << "' given. Allowed are : " << endl;
+        for (uInt i=0; i<casacore::MDirection::N_Types; i++) {
+            *_log << "  " << casacore::MDirection::showType(i) << endl;
+        }
+	    *_log << LogIO::EXCEPTION;
     }
-  }
-  //
-  _csys->replaceCoordinate(dirCoordTo, ic);
+    // Bug out if nothing to do
+    auto dirCoordFrom(_csys->directionCoordinate(ic));  // Copy
+    if (dirCoordFrom.directionType() == typeTo) return;
+    auto unitsFrom = dirCoordFrom.worldAxisUnits();
+    auto radUnits = Vector<String>(2, "rad");
+    ThrowIf (
+        ! dirCoordFrom.setWorldAxisUnits(radUnits),
+        "Failed to set radian units for DirectionCoordinate"
+    );
+    // Create output DirectionCoordinate
+    auto refValFrom = dirCoordFrom.referenceValue();
+    auto refPixFrom = dirCoordFrom.referencePixel();
+    auto incrFrom = dirCoordFrom.increment();
+    DirectionCoordinate dirCoordTo(
+        typeTo, dirCoordFrom.projection(), refValFrom(0), refValFrom(1),
+        incrFrom(0), incrFrom(1), dirCoordFrom.linearTransform(),
+        refPixFrom(0), refPixFrom(1)
+    );
+    if (adjust) {
+        casacore::MDirection::Convert machine;
+        const auto& obsInfo = _csys->obsInfo();
+        auto madeMachine = CoordinateUtil::makeDirectionMachine(
+            *_log, machine, dirCoordTo,
+            dirCoordFrom, obsInfo, obsInfo
+	    );
+        if (madeMachine) {
+            MVDirection mvdTo, mvdFrom;
+            if (dirCoordFrom.toWorld (mvdFrom, refPixFrom)) {
+                mvdTo = machine(mvdFrom).getValue();
+                Vector<Double> referenceValueTo(2);
+                referenceValueTo(0) = mvdTo.getLong();
+                referenceValueTo(1) = mvdTo.getLat();
+                ThrowIf(
+                    ! dirCoordTo.setReferenceValue(referenceValueTo),
+                    dirCoordTo.errorMessage()
+	          );
+	        }
+            ThrowIf(
+                ! dirCoordTo.setWorldAxisUnits(unitsFrom),
+                dirCoordTo.errorMessage()
+	        );
+	    }
+	}
+    _csys->replaceCoordinate(dirCoordTo, ic);
 }
 
 void coordsys::setSpectralCode (const String& code, Bool adjust)

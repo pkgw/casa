@@ -63,7 +63,8 @@ public:
     ImageStatsCalculator(
         const SPCIIF image,
         const casacore::Record *const &regionPtr,
-        const casacore::String& maskInp, casacore::Bool beVerboseDuringConstruction=false
+        const casacore::String& maskInp,
+        casacore::Bool beVerboseDuringConstruction=false
     );
 
     ~ImageStatsCalculator();
@@ -139,6 +140,12 @@ private:
         casacore::ImageRegion* oldRegion,
         casacore::ImageRegion* oldMask
     );
+
+    void _logStartup(
+        std::vector<String> *const &messageStore, const String& alg,
+        const casacore::IPosition& blc, const casacore::IPosition& trc,
+        const casacore::String& blcf, const casacore::String trcf
+    ) const;
 
     void _reportDetailedStats(
         const SHARED_PTR<const casacore::ImageInterface<casacore::Float> > tempIm,

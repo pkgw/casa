@@ -26,6 +26,7 @@
 #ifndef QtProfile_H
 #define QtProfile_H
 
+#include <QPrinter>
 #include <casa/aips.h>
 #include <casa/BasicSL/String.h>
 #include <casa/Containers/Record.h>
@@ -168,12 +169,30 @@ namespace casa {
 		QString getBrightnessUnit( SHARED_PTR<casacore::ImageInterface<float> > img ) const;
 		typedef std::pair<QString, SHARED_PTR<casacore::ImageInterface<float> > > OverplotInterface;
 
-		static const casacore::String SHAPE_ELLIPSE;
-		static const casacore::String SHAPE_RECTANGLE;
-		static const casacore::String SHAPE_POINT;
-		static const casacore::String SHAPE_POLY;
-		static const QString FREQUENCY;
-		static const QString CHANNEL;
+		static const casacore::String &SHAPE_ELLIPSE( ) {
+			static casacore::String result("ellipse");
+			return result;
+		}
+		static const casacore::String &SHAPE_RECTANGLE( ) {
+			static casacore::String result("rectangle");
+			return result;
+		}
+		static const casacore::String &SHAPE_POINT( ) {
+			static casacore::String result("point");
+			return result;
+		}
+		static const casacore::String &SHAPE_POLY( ) {
+			static casacore::String result("polygon");
+			return result;
+		}
+		static const QString &FREQUENCY( ) {
+            static QString result("frequency");
+            return result;
+        }
+		static const QString &CHANNEL( ) {
+            static QString result("channel");
+            return result;
+        }
 
 	public slots:
 		void zoomIn();
@@ -374,7 +393,7 @@ namespace casa {
 		QList<OverplotInterface> *over;
 		const casacore::String WORLD_COORDINATES;
 		casacore::String coordinate;
-		casacore::String coordinateType;
+		casacore::String coordinateType_p;
 		casacore::String xaxisUnit;
 		casacore::String ctypeUnit;
 		casacore::String spcRefFrame;
@@ -426,25 +445,83 @@ namespace casa {
 		bool showSingleChannelImage;
 		static bool topAxisDefaultSet;
 
-		static const QString PLOT_TYPE_FLUX;
-		static const QString PLOT_TYPE_MEAN;
-		static const QString PLOT_TYPE_MEDIAN;
-		static const QString PLOT_TYPE_SUM;
+		static const QString &PLOT_TYPE_FLUX( ) {
+			static QString result("Flux Density");
+			return result;
+		}
+		static const QString &PLOT_TYPE_MEAN( ) {
+			static QString result("Mean");
+			return result;
+		}
+		static const QString &PLOT_TYPE_MEDIAN( ) {
+			static QString result("Median");
+			return result;
+		}
+		static const QString &PLOT_TYPE_SUM( ) {
+			static QString result("Sum");
+			return result;
+		}
 
-		static const QString VELOCITY;
-		static const QString OPTICAL;
-		static const QString AIR;
-		static const QString FRAME_REST;
-		static const QString FRAME_NONE;
-		static const QString PERSIST_FREQUENCY_BOTTOM;
-		static const QString PERSIST_FREQUENCY_TOP;
-		static const QString IMAGE_MISSING_ERROR;
-		static const QString MISSING_REGION_ERROR;
-		static const QString NO_PROFILE_ERROR;
-		static const QString REGION_ELLIPSE;
-		static const QString REGION_RECTANGLE;
-		static const QString REGION_POINT;
-		static const QString REGION_POLY;
+		static const QString &VELOCITY( ) {
+			static QString result("velocity");
+			return result;
+		}
+		static const QString &OPTICAL( ) {
+			static QString result("optical");
+			return result;
+		}
+		static const QString &AIR( ) {
+			static QString result("air");
+			return result;
+		}
+		static const QString &FRAME_REST( ) {
+			static QString result("REST");
+			return result;
+		}
+		static const QString &FRAME_NONE( ) {
+			static QString result("Undefined");
+			return result;
+		}
+		static const QString &PERSIST_FREQUENCY_BOTTOM( ) {
+			static QString result(".freqcoord.type");
+			return result;
+		}
+		static const QString &PERSIST_FREQUENCY_TOP( ) {
+			static QString result(".freqcoordTop.type");
+			return result;
+		}
+		static const QString &IMAGE_MISSING_ERROR( ) {
+			static QString result("No profile available for the given data.");
+			return result;
+		}
+		static const QString &MISSING_REGION_ERROR( ) {
+			static QString result("Assign a mouse button to\n"
+								  "'crosshair' or 'rectangle' or 'polygon';\n"
+								  "click/press+drag the assigned button on\n"
+								  "the image to get a spectral profile.");
+			return result;
+		}
+		static const QString &NO_PROFILE_ERROR( ) {
+			static QString result("No profile available for the "
+								  "display axes orientation");
+			return result;
+		}
+		static const QString &REGION_ELLIPSE( ) {
+			static QString result("Ellipse");
+			return result;
+		}
+		static const QString &REGION_RECTANGLE( ) {
+			static QString result("Rectangle");
+			return result;
+		}
+		static const QString &REGION_POINT( ) {
+			static QString result("Point");
+			return result;
+		}
+		static const QString &REGION_POLY( ) {
+			static QString result("Polygon");
+			return result;
+		}
 
 
 		class spectra_info {

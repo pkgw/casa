@@ -264,7 +264,8 @@ protected:
 
   /////for openmp sectioning
   void   findGridSector(const casacore::Int& nxp, const casacore::Int& nyp, const casacore::Int& ixsub, const casacore::Int& iysub, const casacore::Int& minx, const casacore::Int& miny, const casacore::Int& icounter, casacore::Int& x0, casacore::Int& y0, casacore::Int& nxsub, casacore::Int& nysub, const casacore::Bool linear); 
-
+  ///
+  void tweakGridSector(const casacore::Int& nx, const casacore::Int& ny, const casacore::Int& ixsub, const casacore::Int& iysub, casacore::Vector<casacore::Int>& x0, casacore::Vector<casacore::Int>& y0, casacore::Vector<casacore::Int>&  nxsub, casacore::Vector<casacore::Int>& nysub);
 
   // Image cache
   casacore::LatticeCache<casacore::Complex> * imageCache;
@@ -319,6 +320,7 @@ protected:
   casacore::CountedPtr<WPConvFunc> wpConvFunc_p;
   casacore::Double timemass_p, timegrid_p, timedegrid_p;
   casacore::Double minW_p, maxW_p, rmsW_p;
+  casacore::Vector<casacore::Int> xsect_p, ysect_p, nxsect_p, nysect_p;
 };
 
 } //# NAMESPACE CASA - END

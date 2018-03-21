@@ -11,23 +11,18 @@ DO_NGC7538		= False
 DO_NGC1333		= False
 DO_NGC4826		= False
 #---------
-DO_NGC4826C		= True#False
+DO_NGC4826C		= False
 DO_ORION		= True
 #---------
 DO_B0319		= True#False
-#---------
-DO_ORI_SIO_TASK		= True
-DO_IRC_HC3N_TASK	= True
-DO_IRC_CS_TASK		= True
-DO_FLS3A_HI		= True
 #---------
 DO_COORDSYSTEST         = True
 DO_IMAGEPOLTEST         = True
 DO_IMAGETEST            = True
 #---------
-DO_IC2233               = False
+DO_IC2233               = True
 #---------
-DO_POINTING             = False
+DO_POINTING             = True
 #---------
 ###############################
 
@@ -61,8 +56,8 @@ print >>regfile,'         ------'
 #print >>regfile,'SOURCE \t PASSED  TIME \t\t RATE \t \t LOGFILE'
 print >>regfile,'%9s %6s %9s %9s %39s'%('SOURCE','PASSED','TIME','RATE','LOGFILE')
 
-scriptlist=['G192','H121','L02D','NGC5921','NGC7538','NGC1333','NGC4826','NGC4826C','ORION','B0319','ORI_SIO_TASK','IRC_HC3N_TASK','IRC_CS_TASK','FLS3A_HI','COORDSYSTEST', 'IMAGEPOLTEST', 'IMAGETEST', 'IC2233', 'POINTING']
-ratedict={'G192': 634.9,'H121': 500.,'L02D': 500.,'NGC5921': 35.1,'NGC7538': 240.3,'NGC1333': 500.,'NGC4826': 662.,'NGC4826C': 760., 'ORION': 500., 'B0319': 5.0,'ORI_SIO_TASK': 74,'IRC_HC3N_TASK': 694., 'IRC_CS_TASK': 694, 'FLS3A_HI':4100., 'COORDSYSTEST':44., 'IMAGEPOLTEST':41., 'IMAGETEST':32., 'IC2233':8051, 'POINTING':1080}
+scriptlist=['G192','H121','L02D','NGC5921','NGC7538','NGC1333','NGC4826','NGC4826C','ORION','B0319', 'COORDSYSTEST', 'IMAGEPOLTEST', 'IMAGETEST', 'IC2233', 'POINTING']
+ratedict={'G192': 634.9,'H121': 500.,'L02D': 500.,'NGC5921': 35.1,'NGC7538': 240.3,'NGC1333': 500.,'NGC4826': 662.,'NGC4826C': 760., 'ORION': 500., 'B0319': 5.0, 'COORDSYSTEST':44., 'IMAGEPOLTEST':41., 'IMAGETEST':32., 'IC2233':8051, 'POINTING':1080}
 
 for mysource in scriptlist:
     execute_script='DO_'+mysource

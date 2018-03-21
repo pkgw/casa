@@ -25,7 +25,7 @@
 #ifndef HISTOGRAMMAIN_QO_H
 #define HISTOGRAMMAIN_QO_H
 
-#include <QtGui/QMainWindow>
+#include <QMainWindow>
 #include <images/Images/PagedImage.h>
 #include <casa/aipstype.h>
 #include <guitools/Histogram/HistogramMain.ui.h>
