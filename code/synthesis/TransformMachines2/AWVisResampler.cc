@@ -387,7 +387,6 @@ namespace casa{
                                         const Double& /*imRefFreq*/,
 					const Int& spwID, const Int& fieldId)
   {
-    LogIO log_l(LogOrigin("AWVisResampler","cachePhaseGrad[R&D]"));
     //cout << "# " << cfRefFreq << " " << imRefFreq << endl;
     if (
     	(sum(fabs(pointingOffset-cached_PointingOffset_p)) > 1e-6) ||
@@ -395,6 +394,7 @@ namespace casa{
     	(cached_phaseGrad_p.shape()[1] < cfShape[1])
     	)
       {
+	LogIO log_l(LogOrigin("AWVisResampler","cachePhaseGrad[R&D]"));
 	log_l << "Computing phase gradiant for pointing offset " 
 	      << pointingOffset << cfShape << " " << cached_phaseGrad_p.shape() 
 	      << "(SPW: " << spwID << " Field: " << fieldId << ")"
@@ -458,7 +458,6 @@ namespace casa{
 					Matrix<Double>& sumwt,const Bool& dopsf,
 					Bool /*useConjFreqCF*/)
   {
-    LogIO log_l(LogOrigin("AWVisResampler[R&D]","DataToGridImpl_p"));
     Int nDataChan, nDataPol, nGridPol, nGridChan, nx, ny, nw;//, nCFFreq;
     Int targetIMChan, targetIMPol, rbeg, rend;//, PolnPlane, ConjPlane;
     Int startChan, endChan;
@@ -669,6 +668,7 @@ namespace casa{
 					    }
 					  catch (SynthesisFTMachineError& x)
 					    {
+					      LogIO log_l(LogOrigin("AWVisResampler[R&D]","DataToGridImpl_p"));
 					      log_l << x.getMesg() << LogIO::EXCEPTION;
 					    }
 					  // Extract the vis. vector element corresponding to the mCols column of the conjMRow row of the Mueller matrix.

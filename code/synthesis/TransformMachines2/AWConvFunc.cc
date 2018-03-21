@@ -70,10 +70,11 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
     ConvolutionFunction(),aTerm_p(aTerm),psTerm_p(psTerm), wTerm_p(wTerm), pixFieldGrad_p(), 
     wbAWP_p(wbAWP), conjPB_p(conjPB), baseCFB_p()
   {
-    LogIO log_l(LogOrigin("AWConvFunc", "AWConvFunc"));
     if (psTerm->isNoOp() && aTerm->isNoOp())
-      log_l << "Both, psterm and aterm cannot be set to NoOp. " << LogIO::EXCEPTION;
-    
+      {
+	LogIO log_l(LogOrigin("AWConvFunc", "AWConvFunc"));
+	log_l << "Both, psterm and aterm cannot be set to NoOp. " << LogIO::EXCEPTION;
+      }
     if (wbAWP && aTerm->isNoOp())
       {
 	//log_l << "wbawp=True is ineffective when aterm is OFF.  Setting wbawp to False." << LogIO::NORMAL1;
@@ -137,7 +138,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
   void AWConvFunc::makeConjPolAxis(CoordinateSystem& cs,
 				   Int conjStokes_in)
   {
-    LogIO log_l(LogOrigin("AWConvFunc2", "makeConjPolAxis[R&D]"));
+    //LogIO log_l(LogOrigin("AWConvFunc2", "makeConjPolAxis[R&D]"));
     IPosition dummy;
     Vector<String> csList;
     Vector<Int> stokes, conjStokes;
@@ -195,7 +196,6 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
     (void)psScale;
     (void)muellerElementsIndex;
     (void)freqHi;
-    LogIO log_l(LogOrigin("AWConvFunc2", "fillConvFuncBuffer[R&D]"));
     //    Int ttt=0;
     Complex cfNorm, cfWtNorm;
     //Double vbPA = getPA(vb);
@@ -550,7 +550,10 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 		      AWConvFunc::resizeCF(cfBuf, xSupport, ySupport, supportBuffer, sampling,0.0);
 
 		    if (!isDryRun)
-		      log_l << "CF Support: " << xSupport << " (" << xSupportWt << ") " << "pixels" <<  LogIO::POST;
+		      {
+			LogIO log_l(LogOrigin("AWConvFunc2", "fillConvFuncBuffer[R&D]"));
+			log_l << "CF Support: " << xSupport << " (" << xSupportWt << ") " << "pixels" <<  LogIO::POST;
+		      }
 
 		    // cfb.getCFCellPtr(freqValues(inu), wValues(iw), muellerElement)->storage_p->assign(cfBuf);
 		    // ftRef(0)=cfBuf.shape()(0)/2-1;
@@ -612,7 +615,6 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 			     const Int& xSupport, const Int& ySupport,
 			     const Float& sampling)
   {
-    LogIO log_l(LogOrigin("AWConvFunc2","cfArea"));
     Complex cfNorm=0;
     Int origin=cf.shape()(0)/2;
     Float peak=0;
@@ -625,6 +627,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
     // origin = peakPix(0);
    if (origin != peakPix(0))
       {
+	LogIO log_l(LogOrigin("AWConvFunc2","cfArea"));
 	log_l << "Peak not at the center " << origin << " " << cf(IPosition(4,origin,origin,0,0)) << " " << peakPix << " " << peak << LogIO::NORMAL1;
 	//	peakNIC=1e7;
       }
@@ -1096,7 +1099,6 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
   Bool AWConvFunc::setUpCFSupport(Array<Complex>& cffunc, Int& xSupport, Int& ySupport,
 				  const Float& sampling, const Complex& peak)
   {
-    LogIO log_l(LogOrigin("AWConvFunc2", "setUpCFSupport[R&D]"));
     //
     // Find the convolution function support size.  No assumption
     // about the symmetry of the conv. func. can be made (except that
@@ -1138,6 +1140,8 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
     // always centered on the center of the image.
     if ((xSupport*sampling + int(sampling/2.0+0.5)) > convFuncOrigin)
       {
+	LogIO log_l(LogOrigin("AWConvFunc2", "setUpCFSupport[R&D]"));
+
 	log_l << "Convolution function support size > N/2.  Limiting it to N/2 "
 	      << "(threshold = " << threshold << ")."
 	      << LogIO::WARN;
@@ -1145,8 +1149,12 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
       }
 
     if(xSupport<1) 
-      log_l << "Convolution function is misbehaved - support seems to be zero"
+      {
+	LogIO log_l(LogOrigin("AWConvFunc2", "setUpCFSupport[R&D]"));
+	
+	log_l << "Convolution function is misbehaved - support seems to be zero"
 	    << LogIO::EXCEPTION;
+      }
     return found;
   }
   //
@@ -1155,7 +1163,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
   Bool AWConvFunc::resizeCF(Array<Complex>& func, Int& xSupport, Int& ySupport,
 			    const Int& supportBuffer, const Float& sampling, const Complex& peak)
   {
-    LogIO log_l(LogOrigin("AWConvFunc2", "resizeCF[R&D]"));
+    //LogIO log_l(LogOrigin("AWConvFunc2", "resizeCF[R&D]"));
     Int ConvFuncOrigin=func.shape()[0]/2;  // Conv. Func. is half that size of convSize
     
     Bool found = setUpCFSupport(func, xSupport, ySupport, sampling,peak);
@@ -1224,7 +1232,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
   Bool AWConvFunc::awFindSupport(Array<Complex>& func, Float& threshold, 
 			       Int& origin, Int& radius)
   {
-    LogIO log_l(LogOrigin("AWConvFunc2", "findSupport[R&D]"));
+    //LogIO log_l(LogOrigin("AWConvFunc2", "findSupport[R&D]"));
 
     Int nCFS=func.shape().nelements(),
       PixInc=1, R0, R1, R, convSize;
@@ -1514,7 +1522,6 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 
     if (fabs(dPA) <= fabs(rotateCFOTFAngleRad_p)) return;
 
-    LogIO log_l(LogOrigin("AWConvFunc2", "prepareConvFunction"));
 
 //     Int Nth=1;
 // #ifdef _OPENMP
@@ -1532,6 +1539,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 	    // If the following messsage is emitted more than once, we
 	    // are in a heterogeneous-array case
 	    //
+	    LogIO log_l(LogOrigin("AWConvFunc2", "prepareConvFunction"));
 	    log_l << "Rotating the base CFB from PA=" << cfb->getCFCellPtr(0,0,0)->pa_p.getValue("deg") 
 		  << " to " << actualPA*57.2957795131 
 		  << " " << cfb->getCFCellPtr(0,0,0)->shape_p
