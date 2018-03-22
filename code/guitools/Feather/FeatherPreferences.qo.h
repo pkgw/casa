@@ -25,7 +25,7 @@
 #ifndef PREFERENCES_QO_H
 #define PREFERENCES_QO_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 #include <guitools/Feather/FeatherPreferences.ui.h>
 
 namespace casa {

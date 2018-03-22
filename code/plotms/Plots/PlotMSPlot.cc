@@ -299,29 +299,68 @@ vector<PMS::DataColumn> PlotMSPlot::getCachedData(){
 }
 
 vector<PMS::Axis> PlotMSPlot::getCachedAxes() {
-	PMS_PP_Cache* c = itsParams_.typedGroup<PMS_PP_Cache>();
-	int xAxisCount = c->numXAxes();
-	int yAxisCount = c->numYAxes();
-	int count = xAxisCount + yAxisCount;
-	vector<PMS::Axis> axes( count );
-	PMS::Axis axis;
-	for(int i = 0; i < xAxisCount; i++){
-		axis = c->xAxis(i);
-		if (axis == PMS::NONE) {
-			axis = getDefaultXAxis();
-			c->setXAxis(axis, i);
-		}
-		axes[i] = axis;
-	}
-	for(int i = xAxisCount; i < count; i++){
-		uInt yIndex = i - xAxisCount;
-		axis = c->yAxis(yIndex);
-		if (axis == PMS::NONE) {
-			axis = PMS::DEFAULT_YAXIS;
-			c->setYAxis(axis, yIndex);
-		}
-		axes[i] = axis;
-	}
+    PMS_PP_Cache* c = itsParams_.typedGroup<PMS_PP_Cache>();
+    // get default axes if not given by user
+    for(uInt i=0; i<c->numXAxes(); i++){
+        if (c->xAxis(i) == PMS::NONE) 
+            c->setXAxis(getDefaultXAxis(), i);
+    }
+    for(uInt i=0; i<c->numYAxes(); i++){
+        if (c->yAxis(i) == PMS::NONE) {
+            if (itsCache_->calType().startsWith("Xf"))
+                c->setYAxis(PMS::GPHASE, i);
+            else
+                c->setYAxis(PMS::DEFAULT_YAXIS, i);
+        }
+    }
+
+    // add ATM/TSKY yaxis "under the hood" if valid xaxis
+    if (c->showAtm() || c->showTsky()) {
+        PMS::Axis xaxis = c->xAxis();
+        bool validXAxis = (xaxis==PMS::CHANNEL || xaxis==PMS::FREQUENCY );
+        if (!validXAxis) {
+            c->setShowAtm(false);
+            c->setShowTsky(false);
+            itsParent_->showWarning("Overlays are valid only when xaxis is Channel or Frequency");
+        } else {
+            // add here for script client
+            bool found(false);
+            const vector<PMS::Axis> yAxes = c->yAxes();
+            PMS::Axis atmAxis = (c->showAtm() ? PMS::ATM : PMS::TSKY);
+            for (uInt i=0; i<yAxes.size(); ++i) {
+                if (yAxes[i] == atmAxis) {
+                    found=True;
+                    break;
+                }
+            }
+            if (!found) {
+                // add ATM/TSKY to Cache axes
+                int index = c->numXAxes();
+                c->setAxes(xaxis, atmAxis, c->xDataColumn(0), 
+                        PMS::DEFAULT_DATACOLUMN, index);
+                // set Axes positions
+                PMS_PP_Axes* a = itsParams_.typedGroup<PMS_PP_Axes>();
+                a->resize(index+1, true);  // copy values
+                a->setAxes(a->xAxis(index-1), Y_RIGHT, index);
+                // keep same xaxis range
+                a->setXRange(a->xRangeSet(index-1), a->xRange(index-1), index);
+                // set Display symbol color
+                PMS_PP_Display* disp = itsParams_.typedGroup<PMS_PP_Display>();
+                PlotSymbolPtr atmSymbol = disp->unflaggedSymbol(index);
+                atmSymbol->setSymbol("circle");
+                atmSymbol->setSize(3,3);
+                atmSymbol->setColor("#FF00FF");
+                disp->setUnflaggedSymbol(atmSymbol, index);
+                PlotSymbolPtr flaggedSymbol = disp->flaggedSymbol();
+                disp->setFlaggedSymbol(flaggedSymbol, index);
+            }
+        }
+    }
+	vector<PMS::Axis> axes;
+	for(uInt i=0; i<c->numXAxes(); i++)
+		axes.push_back(c->xAxis(i));
+	for(uInt i=0; i<c->numYAxes(); i++)
+		axes.push_back(c->yAxis(i));
 	return axes;
 }
 
@@ -1617,7 +1656,10 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 	for ( int i = 0; i < yAxisCount; i++ ){
 		PMS::Axis y = cacheParams->yAxis( i );
 		if (y==PMS::NONE) {
-			y = PMS::DEFAULT_YAXIS;
+            if (itsCache_->calType().startsWith("Xf"))
+                y = PMS::GPHASE;
+            else
+                y = PMS::DEFAULT_YAXIS;
 			cacheParams->setYAxis(y, i);
 		}
 		// yaxis scale
@@ -1645,12 +1687,13 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 		} else {                                          // get range of all data
 			itsCache_->indexer(0,iteration).minsMaxes(xmin, xmax, ymin, ymax);
 		}
+		bool xPtsToPlot(xmin != DBL_MAX), yPtsToPlot(ymin != DBL_MAX);
 
 		// x range
 		if ( axesParams->xRangeSet() ){
 			// Custom axes ranges set by user
 			canvas->setAxisRange(cx, axesParams->xRange());
-		} else {
+		} else if (xPtsToPlot) {
 			// CAS-3263 points near zero are not plotted, so add lower margin
 			if ((xmin > -0.5) && (xmin < 1.0) && (xmax > 10.0)) {
 				if (xmax > 100.0) xmin -= 1.0; // add larger margin for larger range
@@ -1678,7 +1721,15 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 			if ( axesParams->yRangeSet(i) ){
 				// Custom axes ranges set by user
 				canvas->setAxisRange(cy, axesParams->yRange(i));
-			} else {
+			} else if (yPtsToPlot) {
+				PMS::Axis y = cacheParams->yAxis(i);
+				// add margin if showAtm so overlay doesn't overlap plot
+				if ((cacheParams->showAtm() && y!=PMS::ATM) ||
+					(cacheParams->showTsky() && y!=PMS::TSKY)) {
+					ymax += (ymax-ymin)*0.5;
+					pair<double, double> ybounds = make_pair(ymin, ymax);
+					canvas->setAxisRange(cy, ybounds);
+				}
 				// add margin if values close to zero
 				if ((ymin > -0.5) && (ymin < 1.0) && (ymax > 10.0)) {
 					if (ymax > 100.0) ymin -= 1.0; // add larger margin for larger range
@@ -1687,7 +1738,6 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 					canvas->setAxisRange(cy, ybounds);
 				}
 				// make range symmetrical for uvplot
-				PMS::Axis y = cacheParams->yAxis(i);
 				if (PMS::axisIsUV(y)) {
 					if ((ymin != DBL_MAX) && (ymax != -DBL_MAX)) {
 						maxval = round(max(abs(ymin),ymax)) + 10.0;
@@ -1708,7 +1758,13 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 							canvas->setAxisRange(cy, ybounds);
 						}
 					}
-				}
+                } else if (y==PMS::ATM || y==PMS::TSKY) {
+                    itsCache_->indexer(1,iteration).minsMaxes(xmin, xmax, ymin, ymax);
+                    pair<double,double> atmrange;
+                    if (y==PMS::ATM) atmrange = make_pair(0, min(ymax+1.0, 100.0));
+                    else atmrange = make_pair(0, ymax+0.1);
+                    canvas->setAxisRange(cy, atmrange);
+                }
 			}
 		}
 		// make plot square or not
@@ -1762,7 +1818,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 				xLabelSingle = addFreqFrame(xLabelSingle);
 			if (axisIsAveraged(x, averaging) && !allCalTables)
 				xLabelSingle = "Average " + xLabelSingle;
-			if (xLabelSingle.contains("Corr") && allCalTables)
+			if (allCalTables && xLabelSingle.contains("Corr")) 
 				xLabelSingle.gsub("Corr", "Poln");
 			canvas->setAxisLabel(cx, xLabelSingle);
 		}
@@ -1796,7 +1852,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 						yLabelSingle = addFreqFrame(yLabelSingle);
 					if (axisIsAveraged(y, averaging) && !isCalTable)
 						yLabelSingle = "Average " + yLabelSingle;
-					if (yLabelSingle.contains("Corr") && isCalTable)
+					if (isCalTable && yLabelSingle.contains("Corr"))
 						yLabelSingle.gsub("Corr", "Poln");
 					if ( cy == Y_LEFT ){
 						if ( yLabelLeft.size() > 0 )
@@ -1868,7 +1924,8 @@ PMS::Axis PlotMSPlot::getCalAxis(String calType, PMS::Axis axis) {
         if (calType.contains("Opac")) return PMS::OPAC;
         if (calType.contains("SD")) return PMS::GREAL;
         if (calType[0]=='F') return PMS::TEC;
-        if (calType[0]=='K' && calType!="KAntPos") return PMS::DELAY;
+		if (calType.startsWith("KAntPos")) return PMS::ANTPOS;
+        if (calType[0]=='K') return PMS::DELAY;
         return PMS::GAMP;
     }
     if (axis==PMS::PHASE) return PMS::GPHASE;

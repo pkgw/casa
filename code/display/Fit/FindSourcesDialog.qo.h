@@ -26,7 +26,7 @@
 #ifndef FIND_SOURCES_DIALOG_QO_H
 #define FIND_SOURCES_DIALOG_QO_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 #include <QMap>
 #include <casa/Containers/Record.h>
 #include <display/Fit/FindSourcesDialog.ui.h>

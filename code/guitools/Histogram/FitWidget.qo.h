@@ -25,7 +25,7 @@
 #ifndef FITWIDGET_QO_H
 #define FITWIDGET_QO_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <QTextStream>
 #include <guitools/Histogram/FitWidget.ui.h>
 #include <casa/Arrays/Vector.h>

@@ -2540,7 +2540,7 @@ void Calibrater::specifycal(const String& type,
     else if (utype=='K' || utype.contains("SBD") || utype.contains("DELAY"))
       cal_ = createSolvableVisCal("K",*msmc_p);
     else if (utype.contains("MBD"))
-      cal_ = createSolvableVisCal("KMBD",*msmc_p);
+      cal_ = createSolvableVisCal("K",*msmc_p);  // As of 5.3, MBD is ordinary K
     else if (utype.contains("ANTPOS"))
       cal_ = createSolvableVisCal("KANTPOS",*msmc_p);
     else if (utype.contains("TSYS"))
@@ -4991,7 +4991,7 @@ void OldCalibrater::specifycal(const String& type,
     else if (utype=='K' || utype.contains("SBD") || utype.contains("DELAY"))
       cal_ = createSolvableVisCal("K",*vs_p);
     else if (utype.contains("MBD"))
-      cal_ = createSolvableVisCal("KMBD",*vs_p);
+      cal_ = createSolvableVisCal("K",*vs_p);  // as of 5.3, KMBD is just K
     else if (utype.contains("ANTPOS"))
       cal_ = createSolvableVisCal("KANTPOS",*vs_p);
     else if (utype.contains("TSYS"))

@@ -25,7 +25,7 @@
 #ifndef ZOOMWIDGET_QO_H
 #define ZOOMWIDGET_QO_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <guitools/Histogram/ZoomWidget.ui.h>
 #include <casa/Utilities/CountedPtr.h>
 
