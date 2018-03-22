@@ -2,6 +2,7 @@ casacore::Bool detached();
 casacore::Bool ready2write_();
 casacore::Bool doMSSelection(const ::casac::record& exprs, 
 	const bool onlyparse=false);
+void setNewSel(const casacore::MeasurementSet& newSelectedMS);
 
 casacore::Bool checkinit();
 casacore::Vector<casacore::Int> getCorrTypes(casa::vi::VisBuffer2* vb2);
