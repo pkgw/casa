@@ -13,7 +13,7 @@ telemetryhelper = casac.telemetryhelper()
 hostid = telemetryhelper.getUniqueId()
 
 logdir = casa['dirs']['rc']
-logpattern = 'casastats-' + hostid + '*.log'
+logpattern = 'casastats-*.log'
 
 def submitStatistics():
     casalog.poststat("Stop CASA")
