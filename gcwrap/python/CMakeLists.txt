@@ -231,6 +231,7 @@ scripts/task_visstat2.py
 scripts/task_widebandpbcor.py
 scripts/task_widefield.py
 scripts/telemetry.py
+scripts/TelemetryLogMonitor.py
 scripts/TerminalController.py
 scripts/tget.py
 scripts/update_spw.py
