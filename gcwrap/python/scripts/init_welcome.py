@@ -5,7 +5,7 @@ import platform
 
 from init_welcome_helpers import redirect_argv, immediate_exit_with_handlers
 
-if casa['state']['telemetry-enabled']:
+if (casa['state']['telemetry-enabled'] == True):
     casalog.poststat("Start CASA")
     casalog.poststat("Platform: " + platform.platform())
 

@@ -16,7 +16,8 @@ logdir = casa['dirs']['rc']
 logpattern = 'casastats-*.log'
 
 def submitStatistics():
-    casalog.poststat("Stop CASA")
+    if (casa['state']['telemetry-enabled'] == True):
+        casalog.poststat("Stop CASA")
     print "Submitting telemetry"
     mytelemetry = telemetry(logdir + '/', logpattern, casalog)
     mytelemetry.createStampFile()
@@ -30,15 +31,14 @@ casa_util = __casac__.utils.utils()
 rcTelemetryFlag = str.upper(casa_util.getrc("EnableTelemetry"))
 
 # Size limit for the telemetry logs
-tLogSizeLimit = 0
-try:
-    tLogSizeLimit = int(casa_util.getrc("tLogSizeLimit"))
-except:
-    pass
-if (tLogSizeLimit == None or tLogSizeLimit == 0):
-    tLogSizeLimit = 10000
+tLogSizeLimit = 10000
 # File size check interval
 tLogSizeInterval = 60
+try:
+    tLogSizeLimit = int(casa_util.getrc("TelemetryLogLimit"))
+    tLogSizeInterval = int(casa_util.getrc("TelemetryLogSizeInterval"))
+except:
+    pass
 
 if ( casa['flags'].telemetry or
     (os.environ.has_key('CASA_ENABLE_TELEMETRY') and
@@ -77,7 +77,10 @@ if ( casa['flags'].telemetry or
 
      # Subtract the inactive log sizes from the total log file size limit
      tLogSizeLimit = tLogSizeLimit - inactiveTLogSize
-     tLogMonitor = TelemetryLogMonitor.TelemetryLogMonitor()
-     tLogMonitor.start(casa['files']['telemetry-logfile'],tLogSizeLimit, tLogSizeInterval, casa)
-
-     print "Telemetry initialized."
+     if (tLogSizeLimit <= 0):
+         print "Telemetry log size limit exceeded. Disabling telemetry."
+         casa['state']['telemetry-enabled'] = False
+     else :
+         tLogMonitor = TelemetryLogMonitor.TelemetryLogMonitor()
+         tLogMonitor.start(casa['files']['telemetry-logfile'],tLogSizeLimit, tLogSizeInterval, casa)
+         print "Telemetry initialized."
