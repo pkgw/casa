@@ -96,7 +96,7 @@ using namespace casa::vi;
 			   pointingDirCol_p("DIRECTION"),
 			   cfStokes_p(), cfCache_p(), cfs_p(), cfwts_p(), cfs2_p(), cfwts2_p(), 
 			   canComputeResiduals_p(false), toVis_p(true), 
-                           numthreads_p(-1), pbLimit_p(0.05),sj_p(0), cmplxImage_p( ), vbutil_p(), phaseCenterTime_p(-1.0), doneThreadPartition_p(False)
+                           numthreads_p(-1), pbLimit_p(0.05),sj_p(0), cmplxImage_p( ), vbutil_p(), phaseCenterTime_p(-1.0), doneThreadPartition_p(-1)
   {
     spectralCoord_p=SpectralCoordinate();
     isPseudoI_p=false;
@@ -115,7 +115,7 @@ using namespace casa::vi;
     pointingDirCol_p("DIRECTION"),
     cfStokes_p(), cfCache_p(cfcache), cfs_p(), cfwts_p(), cfs2_p(), cfwts2_p(),
     convFuncCtor_p(cf),canComputeResiduals_p(false), toVis_p(true), numthreads_p(-1), 
-    pbLimit_p(0.05),sj_p(0), cmplxImage_p( ), vbutil_p(), phaseCenterTime_p(-1.0), doneThreadPartition_p(False)
+    pbLimit_p(0.05),sj_p(0), cmplxImage_p( ), vbutil_p(), phaseCenterTime_p(-1.0), doneThreadPartition_p(-1)
   {
     spectralCoord_p=SpectralCoordinate();
     isPseudoI_p=false;
@@ -1411,7 +1411,7 @@ using namespace casa::vi;
     inRecord.get("phasecentertime", phaseCenterTime_p);
     ///No need to store this...recalculate thread partion because environment 
     ///may have changed.
-    doneThreadPartition_p=False;
+    doneThreadPartition_p=-1;
     return true;
   };
   
@@ -2305,12 +2305,14 @@ void FTMachine::findGridSector(const Int& nxp, const Int& nyp, const Int& ixsub,
       y0+=1;
       x0+=1;
       
+      if(doneThreadPartition_p < 0)
+	doneThreadPartition_p=1;
    
 }
 
   void FTMachine::tweakGridSector(const Int& nx, const Int& ny, const Int& ixsub, const Int& iysub){
-    if(doneThreadPartition_p)
-      return;
+    //if(doneThreadPartition_p)
+    //  return;
     Vector<Int> x0, y0, nxsub, nysub;
     Vector<Float> xcut(nx/2);
     Vector<Float> ycut(ny/2);
@@ -2411,7 +2413,7 @@ void FTMachine::findGridSector(const Int& nxp, const Int& nyp, const Int& ixsub,
       }
     }
 
-
+    ++doneThreadPartition_p;
 
   }
  
