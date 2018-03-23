@@ -3589,18 +3589,18 @@ ms::getdata(const std::vector<std::string>& items, const bool ifraxis, const int
     ::casac::record *retval(0);
     try {
         if(!detached()) {
+          uInt nrows = itsSelectedMS->nrow();
+          if (nrows == 0) {
+              *itsLog << LogIO::WARN << "Selected table is empty, cannot get data" << LogIO::POST;
+                return retval;
+          }
+
           if (checkinit()) {
             Record out(RecordInterface::Variable);
             Vector<String> itemnames(items);
             Int axisgap = ifraxisgap;
             doingAveraging_p = average;
             bool chanAverage = ((chansel_p.size() > 0) && (chansel_p[2] > 1));
-
-            uInt nrows = itsSelectedMS->nrow();
-            if (nrows == 0) {
-                *itsLog << LogIO::WARN << "Selected table is empty - use selectinit" << LogIO::POST;
-                return retval;
-            }
 
             if (axisgap>0 && ifraxis==false) {
                 *itsLog << LogIO::WARN << "ifraxis not requested, ignoring ifraxisgap argument" << LogIO::POST;
