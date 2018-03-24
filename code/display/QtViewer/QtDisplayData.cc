@@ -1541,6 +1541,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		return iter != clrMapNames_.end() ? true : false;
 	}
 
+	void QtDisplayData::setRasterPowerScaling( float powerScale  ) {
+		Record rec;
+
+		Record powerScaleRecord;
+		powerScaleRecord.define( "value", powerScale );
+		rec.defineRecord(WCPowerScaleHandler::POWER_CYCLES, powerScaleRecord );
+
+		setOptions( rec, true );
+	}
+
 // Get/set colormap shift/slope ('fiddle') and brightness/contrast
 // settings.  (At present this is usually set for the PC's current
 // colormap via mouse tools.  These may want to to into get/setOptions
