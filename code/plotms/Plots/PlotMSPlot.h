@@ -331,9 +331,13 @@ private:
 
     void clearCanvasProperties( int row, int col);
     void setCanvasProperties (int row, int col, int numplots, uInt iteration,
-			PMS_PP_Axes* axesParams, PMS_PP_Cache* cacheParams, 
+            PMS_PP_Axes* axesParams, PMS_PP_Cache* cacheParams, 
             PMS_PP_Canvas *canvParams, PMS_PP_Iteration *iterParams,
             PMS_PP_MSData* dataParams, PMS_PP_Display* displayParams );
+
+    // range must be modified in certain cases
+    void setAxisRange(PMS::Axis axis, PlotAxis paxis, double min, double max,
+        PlotCanvasPtr& canvas);
 
     // To modify axis label if needed:
     bool axisIsAveraged(PMS::Axis axis, PlotMSAveraging averaging);
