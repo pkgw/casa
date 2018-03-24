@@ -283,7 +283,9 @@ void ImageInterfaceTest::testMaskByPerPlaneThreshold()
     
     PagedImage<Float> outmaskimage(TiledShape(shape), csys, String("testMaskPerChanOutput.im"));
     SDMaskHandler maskhandler;
-    maskhandler.makeMaskByPerChanThreshold(templateImage, outmaskimage, thresval); 
+    Vector<Bool> chanflg(5,False);
+    Vector<Float> maskpixs;
+    maskhandler.makeMaskByPerChanThreshold(templateImage, chanflg, outmaskimage, thresval, maskpixs); 
     ASSERT_TRUE(outmaskimage.getAt(IPosition(4,50,45,0,0))==Float(1.0));
     ASSERT_TRUE(outmaskimage.getAt(IPosition(4,50,46,0,0))==Float(0.0));
     ASSERT_TRUE(outmaskimage.getAt(IPosition(4,25,25,0,1))==Float(0.0));
@@ -366,7 +368,7 @@ void ImageInterfaceTest::testBinaryDilationIter()
 
     IPosition shape(4, 100, 100, 1, 5);
     csys=CoordinateUtil::defaultCoords4D();
-    PagedImage<Float> InImage(TiledShape(shape),csys, String("testBDilationIn.im"));
+    PagedImage<Float> InImage(TiledShape(shape),csys, String("testBDilationIn2.im"));
     //PagedImage<Float> dummyMaskImage(TiledShape(shape),csys, String("testBDilationDummyMask.im"));
     TempImage<Float> dummyMaskImage(TiledShape(shape),csys);
     // no mask case (all true)
@@ -456,7 +458,10 @@ void ImageInterfaceTest::testYAPruneRegions()
 
     Double prunesize=2.0;
     Vector<Bool> pruned; 
-    SHARED_PTR<ImageInterface<Float> > tempIm_ptr = maskhandler.YAPruneRegions(InImage,pruned,prunesize);
+    Vector<Bool> chanflg(5,False);
+    Vector<uInt> nreg;
+    Vector<uInt> npruned;
+    SHARED_PTR<ImageInterface<Float> > tempIm_ptr = maskhandler.YAPruneRegions(InImage,chanflg, pruned,nreg, npruned, prunesize);
     PagedImage<Float> outMask(InImage.shape(), InImage.coordinates(), "testYAPruneRegions-out.mask");
     outMask.copyData(*(tempIm_ptr.get()) );
 }
@@ -494,7 +499,10 @@ void ImageInterfaceTest::testYAPruneRegionsBigImage()
 
     Double prunesize=2.0;
     Vector<Bool> pruned; 
-    SHARED_PTR<ImageInterface<Float> > tempIm_ptr = maskhandler.YAPruneRegions(InImage,pruned,prunesize);
+    Vector<Bool> chanflg(5,False);
+    Vector<uInt> nreg;
+    Vector<uInt> npruned;
+    SHARED_PTR<ImageInterface<Float> > tempIm_ptr = maskhandler.YAPruneRegions(InImage,chanflg, pruned, nreg, npruned, prunesize);
     PagedImage<Float> outMask(InImage.shape(), InImage.coordinates(), "testYAPruneRegions2-out.mask");
     outMask.copyData(*(tempIm_ptr.get()) );
 }

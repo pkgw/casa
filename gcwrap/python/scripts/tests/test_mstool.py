@@ -497,12 +497,36 @@ class mstool_test_select(mstool_test_base):
         self.assertAlmostEqual(rec['data'][0][0][0], (2.7459716796875+0j))
         print
 
+    def test_select_empty(self):
+        """test ms.select with empty selection"""
+        self.assertTrue(self.ms.selectinit())
+        self.assertEqual(self.ms.nrow(True), 22653)
+
+        # This ms has scans 1-7 only. casacore will throw a MSSelectionNullSelection
+        field = 'N5921_2'
+        scan = '9999'
+        sel={'field': field, 'scan': scan}
+        total_rows = 22653
+        self.assertEqual(False, self.ms.msselect(sel))
+        self.assertEqual(self.ms.nrow(True), 0)
+        self.assertEqual(self.ms.nrow(), total_rows)
+        self.assertEqual(self.ms.msselectedindices()['field'].size, 1)
+        self.assertEqual(self.ms.msselectedindices()['field'][0], 2)
+        self.assertEqual(self.ms.msselectedindices()['scan'].size, 1)
+        self.assertEqual(self.ms.msselectedindices()['scan'][0], int(scan))
+        self.ms.reset()
+        self.assertEqual(self.ms.nrow(True), total_rows)
+        self.assertEqual(self.ms.nrow(False), total_rows)
+        self.assertEqual(self.ms.msselectedindices()['field'].size, 0)
+        self.assertEqual(self.ms.msselectedindices()['scan'].size, 0)
+
     def test_msseltoindex(self): 
         """test ms.msseltoindex"""
         # select field id 2
         rec = self.ms.msseltoindex(self.testms, field="N*")
         self.assertEqual(rec['field'], [2])
         print
+
 
 # ------------------------------------------------------------------------------
 

@@ -299,16 +299,20 @@ vector<PMS::DataColumn> PlotMSPlot::getCachedData(){
 }
 
 vector<PMS::Axis> PlotMSPlot::getCachedAxes() {
-	PMS_PP_Cache* c = itsParams_.typedGroup<PMS_PP_Cache>();
+    PMS_PP_Cache* c = itsParams_.typedGroup<PMS_PP_Cache>();
     // get default axes if not given by user
-	for(uInt i=0; i<c->numXAxes(); i++){
+    for(uInt i=0; i<c->numXAxes(); i++){
         if (c->xAxis(i) == PMS::NONE) 
             c->setXAxis(getDefaultXAxis(), i);
-	}
-	for(uInt i=0; i<c->numYAxes(); i++){
-        if (c->yAxis(i) == PMS::NONE) 
-            c->setYAxis(PMS::DEFAULT_YAXIS, i);
-	}
+    }
+    for(uInt i=0; i<c->numYAxes(); i++){
+        if (c->yAxis(i) == PMS::NONE) {
+            if (itsCache_->calType().startsWith("Xf"))
+                c->setYAxis(PMS::GPHASE, i);
+            else
+                c->setYAxis(PMS::DEFAULT_YAXIS, i);
+        }
+    }
 
     // add ATM/TSKY yaxis "under the hood" if valid xaxis
     if (c->showAtm() || c->showTsky()) {
@@ -1652,7 +1656,10 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 	for ( int i = 0; i < yAxisCount; i++ ){
 		PMS::Axis y = cacheParams->yAxis( i );
 		if (y==PMS::NONE) {
-			y = PMS::DEFAULT_YAXIS;
+            if (itsCache_->calType().startsWith("Xf"))
+                y = PMS::GPHASE;
+            else
+                y = PMS::DEFAULT_YAXIS;
 			cacheParams->setYAxis(y, i);
 		}
 		// yaxis scale
@@ -1811,7 +1818,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 				xLabelSingle = addFreqFrame(xLabelSingle);
 			if (axisIsAveraged(x, averaging) && !allCalTables)
 				xLabelSingle = "Average " + xLabelSingle;
-			if (xLabelSingle.contains("Corr") && allCalTables)
+			if (allCalTables && xLabelSingle.contains("Corr")) 
 				xLabelSingle.gsub("Corr", "Poln");
 			canvas->setAxisLabel(cx, xLabelSingle);
 		}
@@ -1845,7 +1852,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 						yLabelSingle = addFreqFrame(yLabelSingle);
 					if (axisIsAveraged(y, averaging) && !isCalTable)
 						yLabelSingle = "Average " + yLabelSingle;
-					if (yLabelSingle.contains("Corr") && isCalTable)
+					if (isCalTable && yLabelSingle.contains("Corr"))
 						yLabelSingle.gsub("Corr", "Poln");
 					if ( cy == Y_LEFT ){
 						if ( yLabelLeft.size() > 0 )
@@ -1917,7 +1924,8 @@ PMS::Axis PlotMSPlot::getCalAxis(String calType, PMS::Axis axis) {
         if (calType.contains("Opac")) return PMS::OPAC;
         if (calType.contains("SD")) return PMS::GREAL;
         if (calType[0]=='F') return PMS::TEC;
-        if (calType[0]=='K' && calType!="KAntPos") return PMS::DELAY;
+		if (calType.startsWith("KAntPos")) return PMS::ANTPOS;
+        if (calType[0]=='K') return PMS::DELAY;
         return PMS::GAMP;
     }
     if (axis==PMS::PHASE) return PMS::GPHASE;

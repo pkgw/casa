@@ -304,6 +304,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		maxCycleIterations = min(maxCycleIterations, itsNiter - itsIterDone);
 		cycleThreshold = max(cycleThreshold, itsThreshold);
                 os<<"SIIterBot getMinorCycleControls cycleThreshold="<<cycleThreshold<<LogIO::POST;
+                Bool thresholdReached = (cycleThreshold==itsThreshold)? True : False;
 		/*
 		if (itsInteractiveMode) {
 			maxCycleIterations = min(maxCycleIterations, itsInteractiveNiter);
@@ -313,6 +314,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		returnRecord.define( RecordFieldId("cycleniter"),  maxCycleIterations);
 		returnRecord.define( RecordFieldId("cyclethreshold"), cycleThreshold);
 		returnRecord.define( RecordFieldId("loopgain"), itsLoopGain);
+                returnRecord.define( RecordFieldId("thresholdreached"), thresholdReached);
 		returnRecord.define( RecordFieldId("nsigma"), itsNsigma);
 
 		return returnRecord;

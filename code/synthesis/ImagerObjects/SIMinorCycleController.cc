@@ -36,6 +36,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                 itsCycleThreshold(0.0),
                                 itsNsigmaThreshold(0.0),
                                 itsLoopGain(0.1),
+                                itsIsThresholdReached(false),
                                 itsUpdatedModelFlag(false),
                                 itsIterDone(0),
                                 itsCycleIterDone(0),
@@ -225,6 +226,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   {
     return itsCycleThreshold;
   }
+ 
+  Bool SIMinorCycleController::isThresholdReached()
+  {
+    return itsIsThresholdReached;
+  }
 
   Record SIMinorCycleController::getCycleExecutionRecord() {
     LogIO os( LogOrigin("SISkyModel",__FUNCTION__,WHERE) );
@@ -278,6 +284,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       {recordIn.get(RecordFieldId("cyclethreshold"),itsCycleThreshold);}
     else
       {throw(AipsError("cyclethreshold not defined in input minor-cycle controller") );}
+     
+    if (recordIn.isDefined("thresholdreached"))
+      {recordIn.get(RecordFieldId("thresholdreached"), itsIsThresholdReached);}
+    else
+      { throw(AipsError("thresholdreached not defined in input minor-cycle controller") );}
 
     if (recordIn.isDefined("loopgain")) 
       {recordIn.get(RecordFieldId("loopgain"), itsLoopGain);}

@@ -97,6 +97,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     casacore::Int getIterDone();
     casacore::Int getCycleNiter();
     casacore::Float getCycleThreshold();
+    casacore::Bool isThresholdReached();
 
     /* This method resets the iteration counter for the cycle */
     void resetCycleIter();
@@ -131,7 +132,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     casacore::Float itsCycleThreshold;
     casacore::Float itsNsigmaThreshold;
     casacore::Float itsLoopGain;
-    
+    casacore::Bool itsIsThresholdReached;    
+ 
     casacore::Bool  itsUpdatedModelFlag;
 
     /* Status Reporting Variables */

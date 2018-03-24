@@ -154,7 +154,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
             String thresholddesc = (thresholdtouse == loopcontrols.getCycleThreshold() ? "cyclethreshold" : "n-sigma");
 
             os << "Set nsigma thresh="<<nsigmathresh<<LogIO::POST;
-            loopcontrols.setNsigmaThreshold(nsigmathresh);
+            if (thresholddesc=="n-sigma") {
+              loopcontrols.setNsigmaThreshold(nsigmathresh);
+            }
 	    loopcontrols.setPeakResidual( peakresidual );
 	    loopcontrols.resetMinResidual(); // Set it to current initial peakresidual.
 
