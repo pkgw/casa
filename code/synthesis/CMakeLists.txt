@@ -167,11 +167,12 @@ casa_add_library( synthesis
   CalTables/CTEnums.cc
   CalTables/CTGlobals.cc
   CalTables/CTInterface.cc
-  CalTables/CTSelection.cc
   CalTables/CTIter.cc
   CalTables/CTMainColumns.cc
   CalTables/CTMainRecord.cc
   CalTables/CTPatchedInterp.cc
+  CalTables/CTSelection.cc
+  CalTables/CTSummary.cc
   CalTables/CTTimeInterp1.cc
   CalTables/EPointDesc.cc
   CalTables/EPointMBuf.cc
@@ -394,12 +395,13 @@ install (FILES
 	CalTables/CTDesc.h
 	CalTables/CTEnums.h
 	CalTables/CTInterface.h
- 	CalTables/CTSelection.h
-	CalTables/CTMainColInterface.h
 	CalTables/CTIter.h
+	CalTables/CTMainColInterface.h
 	CalTables/CTMainColumns.h
 	CalTables/CTMainRecord.h
 	CalTables/CTPatchedInterp.h
+ 	CalTables/CTSelection.h
+ 	CalTables/CTSummary.h
 	CalTables/CTTimeInterp1.h
 	CalTables/CalBuffer.h
 	CalTables/CalDescBuffer.h
@@ -870,6 +872,9 @@ casa_add_unit_test( MODULES synthesis SOURCES ImagerObjects/test/tSynthesisImage
 casa_add_unit_test( MODULES synthesis SOURCES Utilities/test/tFFT2D.cc  ) 
 casa_add_unit_test( MODULES synthesis SOURCES CalTables/test/tCTPatchedInterp.cc )
 casa_add_unit_test( MODULES synthesis SOURCES ImagerObjects/test/tLabelandFindRegions.cc )
+casa_add_unit_test( MODULES synthesis SOURCES ImagerObjects/test/tLabelandFindRegionsFullCube.cc )
+casa_add_unit_test( MODULES synthesis SOURCES ImagerObjects/test/tBinaryDilation.cc )
+casa_add_unit_test( MODULES synthesis SOURCES ImagerObjects/test/tSkipChannels.cc )
 
 
 

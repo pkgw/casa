@@ -478,23 +478,28 @@ public:
   }
 
   pair< vector<FLAG_SHAPE *>*,
-	vector<FLAG_V *>* >  orderedByDDTIMBAL() {
+	vector<FLAG_V *>* >  orderedByDDTIMBAL(bool skipFirstIntegration=false) {
     LOGENTER("MSFlagAccumulator::orderedByDDTIMBAL(bool MSORDER=true)");
 
+    unsigned int numIntUsed = skipFirstIntegration ? (numIntegration_-1) : numIntegration_;
     flagShapes_p_v.clear();
-    flagShapes_p_v.resize(numIntegration_*numBAL_*numDD_);
+    flagShapes_p_v.resize(numIntUsed*numBAL_*numDD_);
     flagValues_p_v.clear();
-    flagValues_p_v.resize(numIntegration_*numBAL_*numDD_);
-
+    flagValues_p_v.resize(numIntUsed*numBAL_*numDD_);
+    
     unsigned int k = 0;
-    for (unsigned int iDD = 0; iDD < numDD_; iDD++)
-      for (unsigned int iIntegration = 0; iIntegration < numIntegration_; iIntegration++)
+    for (unsigned int iDD = 0; iDD < numDD_; iDD++) {
+      for (unsigned int iIntegration = 0; iIntegration < numIntegration_; iIntegration++) {
+	if (skipFirstIntegration && (iIntegration==0)) continue;
+	
 	for (unsigned int iBAL = 0; iBAL < numBAL_; iBAL++) {
 	  flagShapes_p_v[k] = &(flagCell_vvv[iIntegration][iBAL][iDD].first);
 	  flagValues_p_v[k] = &(flagCell_vvv[iIntegration][iBAL][iDD].second);
 	  k++;
 	}
-
+      }
+    }
+    
     LOGEXIT("MSFlagAccumulator::orderedByDDTIMBAL(bool MSORDER=true)");
     return make_pair< vector<FLAG_SHAPE *> *, vector<FLAG_V * > *> (&flagShapes_p_v, &flagValues_p_v);
   }
@@ -883,10 +888,11 @@ pair<uInt, uInt> mergeAndPut(CorrelationModeMod::CorrelationMode correlationMode
 pair<uInt, uInt> put(MSFlagAccumulator<char>& accumulator,
 		     uInt iRow0,
 		     ArrayColumn<Bool>& flag,
-		     ScalarColumn<Bool> flagRow) {
+		     ScalarColumn<Bool> flagRow,
+		     bool skipFirstIntegration=false) {
   LOGENTER("put");
   pair< vector<FLAG_SHAPE * >*,
-	vector<FLAG_V * >* > cds = accumulator.orderedByDDTIMBAL();
+        vector<FLAG_V * >* > cds = accumulator.orderedByDDTIMBAL(skipFirstIntegration); 
 
   vector<pair <unsigned int, unsigned int> *>* shapes_p_v_p = cds.first;
   vector<vector<char> *>* values_p_v_p = cds.second;
@@ -1325,10 +1331,12 @@ int main (int argC, char * argV[]) {
       ;
 
 
+    // nocheckdupints is used during testing but should not be visible to users
     po::options_description hidden("Hidden options");
     hidden.add_options()
       ("asdm-directory", po::value<string>(), "asdm directory")
       ("ms-directory", po::value<string>(), "ms directory")
+      ("checkdupints", po::value<bool>()->default_value(true), "a value of false turns off checks for duplicate integration times in RADIOMETER data")
       ;
 
     po::options_description cmdline_options;
@@ -1495,6 +1503,12 @@ int main (int argC, char * argV[]) {
     errstream.str("");
     errstream << "This dataset announces telescopeName == '" << telescopeName << "', which is not ALMA. Flags can't be processed." << endl;
     error(errstream.str());
+  }
+
+  // check for duplicate integrations
+  bool checkDupInts = vm["checkdupints"].as< bool >();
+  if (debug) {
+    cout << "checkDupInts : " << checkDupInts << endl;
   }
 
   //
@@ -1682,6 +1696,10 @@ int main (int argC, char * argV[]) {
 
   unsigned int numFlaggedRowsTotal = 0;
 
+  // used in checking for duplicate integrations in the WVR (Radiometer) case
+  // This holds the most recent last integration time for each configDescriptionId - but only for Radiometer data.
+  map<Tag, double> lastTimeMap;
+
   iMSRowBegin = iMSRow;
   unsigned int iASDMIndex = 0;
   for (MainRow * mR: v) {
@@ -1780,62 +1798,88 @@ int main (int argC, char * argV[]) {
       case ProcessorTypeMod::RADIOMETER :
 	{
 	  const SDMDataObject& sdo = sdor.read(bdfPath);
-	  const SDMDataObject::BinaryPart & flagsBP = sdo.dataStruct().flags();
-	  const vector<AxisName> & flagsAxes = flagsBP.axes();
-	  ostringstream oss;
-	  hack06 hack06_instance(oss);
-	  for_each(flagsAxes.begin(), flagsAxes.end(), hack06_instance);
-
-	  // Check the validity of the sequence of flags axes (depending on the fact that data are packed or not).
-	  if (sdo.hasPackedData()) {
-	    if (!regex_match(oss.str(), ALMARadiometerPackedFlagsAxesRegex))
-	      throw ProcessFlagsException("'" + oss.str() + "' is not a valid sequence of flags axes for an ALMA radiometer.");
-	  }
-	  else {
-	    if (!regex_match(oss.str(), ALMARadiometerFlagsAxesRegex))
-	      throw ProcessFlagsException("'" + oss.str() + "' is not a valid sequence of flags axes for an ALMA radiometer.");
-	  }
-	  unsigned int numIntegrations = sdo.hasPackedData() ? sdo.numTime() : sdo.sdmDataSubsets().size();
-	  MSFlagAccumulator<char> accumulator( numIntegrations, antennas.size(), numDD);
-
-
-	  if (numIntegrations != numIntegration) {
-	    infostream << "(the number of integrations actually read in the BDF (numIntegrations = " << numIntegrations << ") is different from the value announced in the Main table (numIntegration = " << numIntegration
-		       << "). Using " << numIntegrations << ")";
-	  }
-
-	  const FLAGSTYPE *	flags_p	 = NULL;
-	  unsigned int		numFlags = 0;
-
-	  if (sdo.hasPackedData()) {
-	    numFlags = sdo.tpDataSubset().flags(flags_p);
-	    pair<unsigned int, const FLAGSTYPE *> flagsPair(numFlags, flags_p);
-	    accumulator.resetIntegration();
-	    traverseALMARadiometerFlagsAxes(numIntegrations, sdo.dataStruct().basebands(), antennas, flagsPair, flagEval, accumulator);
-	  }
-	  else {
-	    const vector<SDMDataSubset>& sdmDataSubsets = sdo.sdmDataSubsets();
-	    accumulator.resetIntegration();
-	    for (unsigned int iIntegration = 0; iIntegration < numIntegrations; iIntegration++) {
-	      numFlags = sdmDataSubsets[iIntegration].flags(flags_p);
-	      pair<unsigned int, const FLAGSTYPE *> flagsPair(numFlags, flags_p);
-	      traverseALMARadiometerFlagsAxes(1, sdo.dataStruct().basebands(), antennas, flagsPair, flagEval, accumulator);
+	  // should this correlationMode be skipped? This is probably always AUTO_ONLY, but this is a general test just in case
+	  if ((sdo.correlationMode()==CorrelationModeMod::AUTO_ONLY and ocorrelationMode==CorrelationModeMod::CROSS_ONLY) || 
+	      (sdo.correlationMode()==CorrelationModeMod::CROSS_ONLY and ocorrelationMode==CorrelationModeMod::AUTO_ONLY)) {
+	    if (debug) {
+	      cout << "Skipped file " << bdfPath << " due to output correlation mode selection" << endl;
 	    }
-	    // MAFlagAccumulator::flagCell() just returns a data member, it doesn't change anything
-	    // in the object, and here, the returned value (x) is not used.  So this can be
-	    // safely commented out.
-	    // const vector < vector < vector <FLAG_CELL> > >& x = accumulator.flagCell();
+	  } else {
+	    const SDMDataObject::BinaryPart & flagsBP = sdo.dataStruct().flags();
+	    const vector<AxisName> & flagsAxes = flagsBP.axes();
+	    ostringstream oss;
+	    hack06 hack06_instance(oss);
+	    for_each(flagsAxes.begin(), flagsAxes.end(), hack06_instance);
+	    
+	    // Check the validity of the sequence of flags axes (depending on the fact that data are packed or not).
+	    // also check tos ee if the first integration should be skipped - only done for packed data
+	    // must be known before accumulator is instantiated.
+	    bool skipFirstIntegration = false;
+	    if (sdo.hasPackedData()) {
+	      if (!regex_match(oss.str(), ALMARadiometerPackedFlagsAxesRegex))
+		throw ProcessFlagsException("'" + oss.str() + "' is not a valid sequence of flags axes for an ALMA radiometer.");
+
+	      // determine if the first integration should be skipped due a duplicate time from a subscan.
+	      const SDMDataSubset& sdmDataSubset = sdo.sdmDataSubsets()[0];
+	      int64_t  deltaTime = sdmDataSubset.interval() / sdo.numTime();
+	      int64_t startTime = (int64_t)sdmDataSubset.time() -  (int64_t)sdmDataSubset.interval()/2LL + deltaTime/2LL;
+
+	      // should the first integration be skipped? Any actual skipping happens later.
+	      skipFirstIntegration = checkDupInts && lastTimeMap[mR->getConfigDescriptionId()] == ArrayTime(startTime).getMJD();
+	      if (debug && skipFirstIntegration) {
+		cout << "Duplicate time seen in Row : " << mainRowIndex[iASDMIndex]
+		     << " cdId : " << mR->getConfigDescriptionId()
+		     << " " << mR->getDataUID().getEntityId().toString()
+		     << " numTime : " << sdo.numTime()
+		     << endl;
+	      }
+	      lastTimeMap[mR->getConfigDescriptionId()] = ArrayTime(startTime+(sdo.numTime()-1)*deltaTime).getMJD();
+	    }
+	    else {
+	      if (!regex_match(oss.str(), ALMARadiometerFlagsAxesRegex))
+		throw ProcessFlagsException("'" + oss.str() + "' is not a valid sequence of flags axes for an ALMA radiometer.");
+	    }
+	    unsigned int numIntegrations = sdo.hasPackedData() ? sdo.numTime() : sdo.sdmDataSubsets().size();
+	    if (numIntegrations != numIntegration) {
+	      infostream << "(the number of integrations actually read in the BDF (numIntegrations = " << numIntegrations << ") is different from the value announced in the Main table (numIntegration = " << numIntegration
+			 << "). Using " << numIntegrations << ")";
+	    }
+	    MSFlagAccumulator<char> accumulator(numIntegrations, antennas.size(), numDD);
+
+	    const FLAGSTYPE *	flags_p	 = NULL;
+	    unsigned int	numFlags = 0;
+
+	    if (sdo.hasPackedData()) {
+	      numFlags = sdo.tpDataSubset().flags(flags_p);
+	      pair<unsigned int, const FLAGSTYPE *> flagsPair(numFlags, flags_p);
+	      accumulator.resetIntegration();
+	      traverseALMARadiometerFlagsAxes(numIntegrations, sdo.dataStruct().basebands(), antennas, flagsPair, flagEval, accumulator);
+	    }
+	    else {
+	      // duplicate integrations are not checked or skipped here
+	      const vector<SDMDataSubset>& sdmDataSubsets = sdo.sdmDataSubsets();
+	      accumulator.resetIntegration();
+	      for (unsigned int iIntegration = 0; iIntegration < numIntegrations; iIntegration++) {
+		numFlags = sdmDataSubsets[iIntegration].flags(flags_p);
+		pair<unsigned int, const FLAGSTYPE *> flagsPair(numFlags, flags_p);
+		traverseALMARadiometerFlagsAxes(1, sdo.dataStruct().basebands(), antennas, flagsPair, flagEval, accumulator);
+	      }
+	      // MAFlagAccumulator::flagCell() just returns a data member, it doesn't change anything
+	      // in the object, and here, the returned value (x) is not used.  So this can be
+	      // safely commented out.
+	      // const vector < vector < vector <FLAG_CELL> > >& x = accumulator.flagCell();
+	    }
+	    infostream.str("");
+
+	    infostream << "ASDM Main row #" << mainRowIndex[iASDMIndex] << " - " << numIntegrations  << "/" << numIntegrations << " integrations done so far.";
+	    info(infostream.str());
+
+	    pair<uInt, uInt> putReturn = put(accumulator, iMSRow, flag, flagRow,skipFirstIntegration);
+	    //	  accumulator.dump(cout, true);
+	    iMSRow = putReturn.first;
+	    numFlaggedRows = putReturn.second;
 	  }
-	  infostream.str("");
-
-	  infostream << "ASDM Main row #" << mainRowIndex[iASDMIndex] << " - " << numIntegrations  << "/" << numIntegrations << " integrations done so far.";
-	  info(infostream.str());
-
 	  sdor.done();
-	  pair<uInt, uInt> putReturn = put(accumulator, iMSRow, flag, flagRow);
-	  //	  accumulator.dump(cout, true);
-	  iMSRow = putReturn.first;
-	  numFlaggedRows = putReturn.second;
 	}
 	break;
 

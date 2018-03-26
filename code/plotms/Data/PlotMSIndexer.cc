@@ -1031,6 +1031,9 @@ void PlotMSIndexer::setMethod(CacheMemPtr& getmethod,PMS::Axis axis,
 	case PMS::RHO:
 		getmethod = &PlotMSCacheBase::getRHO0;
 		break;
+	case PMS::ANTPOS:
+		getmethod = &PlotMSCacheBase::getAntPos;
+		break;
 	case PMS::ATM:
 		getmethod = &PlotMSCacheBase::getAtm;
 		break;
@@ -1089,6 +1092,7 @@ void PlotMSIndexer::setIndexer(IndexerMethPtr& indexmethod,PMS::Axis axis) {
 	case PMS::OPAC:
 	case PMS::SNR:
 	case PMS::TEC:
+	case PMS::ANTPOS:
 	case PMS::WTxAMP:
 	case PMS::WTSP:
 	case PMS::SIGMASP:
@@ -1484,7 +1488,9 @@ void PlotMSIndexer::reportMeta(Double x, Double y, Bool masked,stringstream& ss)
 
     if (isMS)
 	    ss << "Corr=";
-    else
+    else if (plotmscache_->calType() == "KAntPos Jones")
+		ss << "Coordinate=";
+	else
 	    ss << "Poln=";
 	if (plotmscache_->netAxesMask_[dataIndex](0))
 		ss << plotmscache_->polname(Int(plotmscache_->getCorr(currChunk_,getIndex1000(currChunk_,irel_))));
@@ -1594,9 +1600,12 @@ String PlotMSIndexer::iterValue() {
 	case PMS::SPW:
 		return String::toString(iterValue_);
 		break;
-	case PMS::FIELD:
-		return plotmscache_->fldnames_(iterValue_);
+	case PMS::FIELD: {
+		// for cal tables, field id can be -1
+		return (iterValue_ < 0 ? String::toString(iterValue_) :
+			plotmscache_->fldnames_(iterValue_));
 		break;
+	}
 	case PMS::TIME:{
 		return plotmscache_->getTimeBounds( iterValue_);
 		break;
@@ -1609,7 +1618,7 @@ String PlotMSIndexer::iterValue() {
 		label += (ant1>-1 ? plotmscache_->antstanames_(ant1) : "*")+" & ";
 		label += (ant2>-1 ? plotmscache_->antstanames_(ant2) : "*");
         // CAS-4239 add baseline length to plot title
-        String bsnLen = ((ant1>-1 && ant2>-1) ? String::format("_%.0fm", computeBaselineLength(ant1, ant2)) : "_*m");
+        String bsnLen = ((ant1>-1 && ant2>-1) ? String::format("_%.0fm", computeBaselineLength(ant1, ant2)) : "");
         label += bsnLen;
 		return label;
 		break;
