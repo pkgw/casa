@@ -2251,18 +2251,23 @@ void FTMachine::findGridSector(const Int& nxp, const Int& nyp, const Int& ixsub,
       {
 	Int elrow=icounter/ixsub;
 	Int elcol=(icounter-elrow*ixsub);
-	//cerr << "row "<< elrow << " col " << elcol; 
+	//cerr << "row "<< elrow << " col " << elcol << endl; 
 	//nxsub=Int(floor(((ceil(fabs(float(2*elcol+1-ixsub)/2.0))-1.0)*5 +1)*nxp/36.0 + 0.5));
 	Float factor=0;
-	for (Int k=0; k < ixsub/2; ++k)
-	  factor= linear ? factor+(k+1): factor+sqrt(Float(k+1));
+	if(ixsub > 1){
+	  for (Int k=0; k < ixsub/2; ++k)
+	    factor= linear ? factor+(k+1): factor+sqrt(Float(k+1));
 	  //factor= linear ? factor+(k+1): factor+(k+1)*(k+1)*(k+1);
-	factor *= 2.0;
-	if(linear)
-	  nxsub=Int(floor((ceil(fabs(float(2*elcol+1-ixsub)/2.0))/factor)*nxp + 0.5));
-	else
-	  //nxsub=Int(floor((ceil(fabs(float(2*elcol+1-ixsub)/2.0))*ceil(fabs(float(2*elcol+1-ixsub)/2.0))*ceil(fabs(float(2*elcol+1-ixsub)/2.0))/factor)*nxp + 0.5));
-	  nxsub=Int(floor((sqrt(ceil(fabs(float(2*elcol+1-ixsub)/2.0)))/factor)*nxp + 0.5));
+	  factor *= 2.0;
+	  if(linear)
+	    nxsub=Int(floor((ceil(fabs(float(2*elcol+1-ixsub)/2.0))/factor)*nxp + 0.5));
+	  else
+	    //nxsub=Int(floor((ceil(fabs(float(2*elcol+1-ixsub)/2.0))*ceil(fabs(float(2*elcol+1-ixsub)/2.0))*ceil(fabs(float(2*elcol+1-ixsub)/2.0))/factor)*nxp + 0.5));
+	    nxsub=Int(floor((sqrt(ceil(fabs(float(2*elcol+1-ixsub)/2.0)))/factor)*nxp + 0.5));
+	}
+	else{
+	  nxsub=nxp;
+	}
         //cerr << nxp << " col " << elcol << " nxsub " << nxsub << endl;
 	x0=minx;
 	elcol-=1;
@@ -2277,15 +2282,20 @@ void FTMachine::findGridSector(const Int& nxp, const Int& nyp, const Int& ixsub,
 	  elcol-=1;
 	}
 	factor=0;
-	for (Int k=0; k < iysub/2; ++k)
-	  //factor=linear ? factor+(k+1): factor+(k+1)*(k+1)*(k+1);
-	  factor= linear ? factor+(k+1): factor+sqrt(Float(k+1));
-	factor *= 2.0;
-	//nysub=Int(floor(((ceil(fabs(float(2*elrow+1-iysub)/2.0))-1.0)*5 +1)*nyp/36.0+0.5));
-	if(linear)
-	  nysub=Int(floor((ceil(fabs(float(2*elrow+1-iysub)/2.0))/factor)*nyp + 0.5));
-	else
-	  nysub=Int(floor((sqrt(ceil(fabs(float(2*elrow+1-iysub)/2.0)))/factor)*nyp + 0.5));
+	if(iysub >1){
+	  for (Int k=0; k < iysub/2; ++k)
+	    //factor=linear ? factor+(k+1): factor+(k+1)*(k+1)*(k+1);
+	    factor= linear ? factor+(k+1): factor+sqrt(Float(k+1));
+	  factor *= 2.0;
+	  //nysub=Int(floor(((ceil(fabs(float(2*elrow+1-iysub)/2.0))-1.0)*5 +1)*nyp/36.0+0.5));
+	  if(linear)
+	    nysub=Int(floor((ceil(fabs(float(2*elrow+1-iysub)/2.0))/factor)*nyp + 0.5));
+	  else
+	    nysub=Int(floor((sqrt(ceil(fabs(float(2*elrow+1-iysub)/2.0)))/factor)*nyp + 0.5));
+	}
+	else{
+	  nysub=nyp;
+	}
 	  //nysub=Int(floor((ceil(fabs(float(2*elrow+1-iysub)/2.0))*ceil(fabs(float(2*elrow+1-iysub)/2.0))*ceil(fabs(float(2*elrow+1-iysub)/2.0))/factor)*nyp + 0.5));
 	y0=miny;
 	elrow-=1;
@@ -2304,7 +2314,7 @@ void FTMachine::findGridSector(const Int& nxp, const Int& nyp, const Int& ixsub,
 
       y0+=1;
       x0+=1;
-      
+      //cerr << icounter << " x0, y0 " << x0 << "  " << y0 << "  ixsub, iysub " <<  nxsub << "   " << nysub << endl;
       if(doneThreadPartition_p < 0)
 	doneThreadPartition_p=1;
    
