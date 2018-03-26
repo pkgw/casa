@@ -249,6 +249,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         initializeChanMaskFlag=True;
         // also initialize posmask, which tracks only positive (emission) 
         itsPosMask = TempImage<Float> (maskshp, itsImages->mask()->coordinates(),SDMaskHandler::memoryToUse());
+        itsPosMask.set(0);
       }
       os<<LogIO::DEBUG1<<"itsChanFlag.shape="<<itsChanFlag.shape()<<LogIO::POST;
 
