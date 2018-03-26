@@ -1007,7 +1007,7 @@ void WProjectFT::put(const VisBuffer2& vb, Int row, Bool dopsf,
 		 phasorstor);
     }
     }//end pragma parallel
-    if(dopsf)
+    if(dopsf && (nth > 4))
       tweakGridSector(nx, ny, ixsub, iysub);
     timegrid_p+=tim.real();
 
@@ -1055,7 +1055,7 @@ void WProjectFT::put(const VisBuffer2& vb, Int row, Bool dopsf,
 		 phasorstor);
     }
     }//end pragma parallel
-    if(dopsf)
+    if(dopsf && (nth > 4))
       tweakGridSector(nx, ny, ixsub, iysub);
     timegrid_p+=tim.real();
 

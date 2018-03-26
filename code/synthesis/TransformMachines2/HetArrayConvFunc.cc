@@ -462,16 +462,14 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
 
 
     if(!doneMainConv_p[actualConvIndex_p]) {
-      cerr << "doneMainConv_p " << actualConvIndex_p << endl;
+      //cerr << "doneMainConv_p " << actualConvIndex_p << endl;
 
         Vector<Double> sampling;
 	
         sampling = dc.increment();
-	cerr << "bef sampling " << sampling << endl;
- sampling*=Double(convSampling);
- sampling(0)*=Double(nx)/Double(convSize_p);
- sampling(1)*=Double(ny)/Double(convSize_p);
-	cerr << "aft sampling " << sampling << " convsize " << convSize_p << " " << nx << " " << ny << endl;
+	sampling*=Double(convSampling);
+	sampling(0)*=Double(nx)/Double(convSize_p);
+	sampling(1)*=Double(ny)/Double(convSize_p);
         dc.setIncrement(sampling);
 
         Vector<Double> unitVec(2);
@@ -1199,7 +1197,6 @@ void HetArrayConvFunc::supportAndNormalizeLatt(Int plane, Int convSampling, Temp
             break;
         }
     }
-    cerr << " found " << found << " 0trial " << trial << endl;
     if(!found) {
         if((maxAbsConvFunc-minAbsConvFunc) > (7.5e-2*maxAbsConvFunc))
             found=true;
@@ -1229,7 +1226,6 @@ void HetArrayConvFunc::supportAndNormalizeLatt(Int plane, Int convSampling, Temp
         //OTF may have flagged stuff ...
         convSupport=0;
     }
-    cerr << "1trial " << trial << " csupp " << convSupport << endl;
     convSupport_p(plane)=convSupport;
     Double pbSum=0.0;
     /*
@@ -1419,7 +1415,6 @@ Array<Complex> HetArrayConvFunc::resample(const Array<Complex>& inarray, const D
     Int newNx=shp(0);
     Int newNy=shp(1);
     
-    cerr << "nx " << nx << " ny " << ny << " shp " << shp << endl;
     Array<Complex> out(shp, 0.0);
    // cerr << "SHP " << shp << endl;
     
