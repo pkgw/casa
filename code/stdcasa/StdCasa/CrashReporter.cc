@@ -293,12 +293,9 @@ CrashReporter::initializeFromApplication (const char * applicationArg0)
         // Tail is only useful for developer builds
         struct stat info;
         if( stat( exePath.c_str(), &info ) != 0 ) {
-            //printf( "cannot access %s\n", exePath.c_str() );
             const char *tail = std::strrchr(exePath.c_str() , '/');
-            //std::cout << "Tail: " << tail << "\n";
             size_t pos = exePath.find(tail);
             exePath = exePath.replace(pos, exePath.size(),"");
-            //std::cout << "exePath: " << exePath << "\n";
         }
         exePath += "/bin/bogusExe";
 
