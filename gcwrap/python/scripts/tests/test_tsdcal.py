@@ -1721,6 +1721,14 @@ class sdcal_test_apply(sdcal_test_base):
                     tinterp = 'linear'
                 if len(finterp) == 0:
                     finterp = 'linearflag'
+                    
+                # CAS-10772
+                # Linear flag interpolation along spectral axis behaves like "nearest" if science and 
+                # calibrater data have same set of frequency channels. This is always true for single 
+                # dish sky calibration. 
+                # So, finterp option for flags should always be 'nearestflag'.
+                if finterp == 'linearflag':
+                    finterp = 'nearestflag'
                 
                 # result depends on interp
                 print 'Interpolation option:', tinterp, finterp

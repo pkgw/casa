@@ -277,12 +277,15 @@ public:
 
 
   // Access to CalTable's freq info
-  //casacore::Vector<casacore::Double> freqIn(casacore::Int spw);  // NYI
+  const casacore::Vector<casacore::Double>& freqIn(casacore::Int spw)  {return freqIn_[spw]; }; // per spw
   const casacore::Vector<casacore::Double>& refFreqIn() { return refFreqIn_; };  // indexed by spw
 
   // Report state
   void listmappings();
   void state();
+
+  // CASA version of the internal caltable
+  casacore::String CTCASAvers() { return ct_.CASAvers(); };
 
 private:
 
