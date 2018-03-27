@@ -18,7 +18,7 @@ logpattern = 'casastats-*.log'
 def submitStatistics():
     if (casa['state']['telemetry-enabled'] == True):
         casalog.poststat("Stop CASA")
-    print "Submitting telemetry"
+    casalog.post("Checking telemetry submission interval")
     mytelemetry = telemetry(logdir + '/', logpattern, casalog)
     mytelemetry.createStampFile()
     if (mytelemetry.isSubmitInterval()):
@@ -54,7 +54,7 @@ if ( casa['flags'].telemetry or
 
      for file in os.listdir(logdir):
          if fnmatch.fnmatch(file, logpattern):
-             print "Matched: " + file
+             #print "Matched: " + file
              logfiles.append(file)
 
      logfiles.sort(reverse=True)
@@ -67,7 +67,7 @@ if ( casa['flags'].telemetry or
          casa['files']['telemetry-logfile'] = casa['dirs']['rc'] + "/" + logfiles[0]
          for i in range(1, len(logfiles)):
              inactiveTLogSize = inactiveTLogSize + os.path.getsize(casa['dirs']['rc'] + "/" + logfiles[i])/1024
-         print "Inactive log size: " + str(inactiveTLogSize)
+         #print "Inactive log size: " + str(inactiveTLogSize)
      else :
          print "Creating a new telemetry file"
          casa['files']['telemetry-logfile'] = casa['dirs']['rc'] + '/casastats-' + hostid + '-' + time.strftime("%Y%m%d-%H%M%S", time.gmtime()) + '.log'

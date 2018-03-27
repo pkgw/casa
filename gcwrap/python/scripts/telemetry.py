@@ -33,20 +33,20 @@ class telemetry:
         if (utils.getrc("TelemetrySubmitInterval") != 'Unknown value'):
             interval = float(utils.getrc("TelemetrySubmitInterval"))
         if ((currentTime - lastUpdateTime)> interval):
-            print "Submit interval reached, submitting telemetry data."
+            self.logger.post("Telemetry submit interval reached, submitting telemetry data.")
             return True
         else:
-            print "Submit interval not reached. Not submitting data."
+            self.logger.post("Telemetry submit interval not reached. Not submitting data.")
             #print "lastUpdateTime" +str(lastUpdateTime)
             #print "currentTime" +str(currentTime)
-            print "Next data submission in: " + str(datetime.timedelta(  \
-                    seconds=(interval-(currentTime-lastUpdateTime))))
+            self.logger.post("Next telemetry data submission in: " + str(datetime.timedelta(  \
+                    seconds=(interval-(currentTime-lastUpdateTime)))))
             return False
 
     def createStampFile(self):
-        print "Checking for stampfile " + self.stampfile
+        #print "Checking for stampfile " + self.stampfile
         if not os.path.isfile(self.stampfile):
-            print "Creating a new time stamp file." + self.stampfile
+            self.logger.post("Creating a new telemetry time stamp file." + self.stampfile)
             open(self.stampfile, 'a').close()
 
     def refreshStampFile(self):
@@ -97,6 +97,6 @@ class telemetry:
                 os.remove(self.logdir + "/" + logfile)
                 print "Removed " + self.logdir + "/" + logfile
             os.remove(tarfileid)
-            print "Removed" + tarfileid
+            self.logger.post("Removed" + tarfileid)
         else:
-            print "No telemetry files to submit."
+            self.logger.post("No telemetry files to submit.")
