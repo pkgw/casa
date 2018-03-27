@@ -81,8 +81,10 @@ def get_created_images(outfile, target_time):
         dirpath = "."
     base = os.path.basename(outfile)
     # get all entries in the directory w/ stats
-    entries = (os.path.join(dirpath, fn) for fn in os.listdir(dirpath))
-    entries = ((os.stat(path), path) for path in entries)
+    entries = []
+    for fn in os.listdir(dirpath):
+        if os.path.basename(fn).startswith(base):
+            entries.append((os.stat(fn), fn))
     # leave only directories, insert creation date
     entries = ((stat.st_mtime, path)
         for stat, path in entries if S_ISDIR(stat[ST_MODE]))
@@ -91,10 +93,11 @@ def get_created_images(outfile, target_time):
     zz.reverse()
     created_images = []
     for mdate, path in zz:
-        if mdate < target_time:
+        # kludge because all of a sudden, some mdates are less than time.time() value
+        # that was gotten before these files were created on OSX. Weird.
+        if mdate < target_time - 1:
             break
         if os.path.basename(path).startswith(base):
             created_images.append(path)
     return created_images
-
 
