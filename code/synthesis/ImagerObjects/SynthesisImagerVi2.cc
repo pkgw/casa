@@ -55,7 +55,9 @@
 #include <ms/MSSel/MSSelection.h>
 
 
+#if ! defined(WITHOUT_DBUS)
 #include <synthesis/ImagerObjects/SIIterBot.h>
+#endif
 #include <synthesis/ImagerObjects/SynthesisImagerVi2.h>
 
 #include <synthesis/ImagerObjects/SynthesisUtilMethods.h>
