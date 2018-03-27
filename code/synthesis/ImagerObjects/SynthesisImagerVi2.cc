@@ -1579,6 +1579,13 @@ void SynthesisImagerVi2::unlockMSs()
 
     cfCacheObj = new refim::CFCache();
     cfCacheObj->setCacheDir(cfCache.data());
+    // Get the LAZYFILL setting from the user configuration.  If not
+    // found, default to False.
+    //
+    // With lazy fill ON, CFCache loads the required CFs on-demand
+    // from the disk.  And periodically triggers garbage collection to
+    // release CFs that aren't required immediately.
+    cfCacheObj->setLazyFill(SynthesisUtils::getenv("CFCache.LAZYFILL",0)==1);
     //    cerr << "Setting wtImagePrefix to " << imageNamePrefix.c_str() << endl;
     cfCacheObj->setWtImagePrefix(imageNamePrefix.c_str());
     cfCacheObj->initCache2();
