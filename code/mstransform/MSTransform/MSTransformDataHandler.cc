@@ -1138,14 +1138,15 @@ Bool MSTransformDataHandler::makeSelection()
 		//So if you see -1 in the main, feed, or pointing tables, fix it
 		antNewIndex_p.set(-1);
 
-		Bool trivial = true;
-		for (uInt k = 0; k < nAnts; ++k)
-		{
-			trivial &= (selAnts[k] == static_cast<Int> (k));
-			antNewIndex_p[selAnts[k]] = k;
-		}
-		// It is possible to exclude baselines without excluding any antennas.
-		antennaSel_p = !trivial;
+    for (uInt k = 0; k < nAnts; ++k)
+      antNewIndex_p[selAnts[k]] = k;
+
+    //If the total number of output antennas is the same as the input antennas
+    //this means that the selection of baselines includes at the end
+    //all the input antennas. Therefore setting antenna selection to false.
+    //See CAS-11111
+    if(nAnts == elms->antenna().nrow())
+      antennaSel_p = false;
 	}
 	// This still gets tripped up by VLA:OUT.
 	else

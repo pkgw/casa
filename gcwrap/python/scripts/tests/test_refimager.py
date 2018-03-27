@@ -1717,12 +1717,30 @@ class test_mask(testref_base):
           self.checkfinal(report)
 
      def test_mask_autobox_multithresh_with_prune(self):
-          """ [mask] test_mask__autobox_multithresh :  multi-threshold Autobox (minbeamfrac=0.3)"""
+          """ [mask] test_mask__autobox_multithresh_with_prune :  multi-threshold Autobox (minbeamfrac=0.3)"""
           # also test for a bug fix to the new pruneRegions (only caused the failure when image size large
           self.prepData('refim_twochan.ms')
           ret = tclean(vis=self.msfile,imagename=self.img,imsize=1000,cell='8.0arcsec',niter=10,deconvolver='hogbom',interactive=0,usemask='auto-multithresh',
           minbeamfrac=0.3)
           report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[500,500,0,0]),(self.img+'.mask',0.0,[500,510,0,0])])
+          self.checkfinal(report)
+
+     def test_mask_autobox_multithresh_with_stopmask(self):
+          """ [mask] test_mask__autobox_multithresh_with_stopmask :  multi-threshold Autobox (minbeamfrac=0.3) with stop mask on """
+          # will trigger stop mask condition for the last cycle (Cycle 4) - does not change output mask but can be checked on the log 
+          #  
+          self.prepData('refim_twochan.ms')
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=100,deconvolver='hogbom',interactive=0,
+           usemask='auto-multithresh', minbeamfrac=0.3, minpercentchange=0.2)
+          report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[63,50,0,0])])
+          self.checkfinal(report)
+
+     def test_mask_autobox_multithresh_with_absorption(self):
+          """ [mask] test_mask__autobox_multithresh_on_absorption :  multi-threshold Autobox (minbeamfrac=0.3) on the data with both emission and absorption  """
+          # data with a emission pt and absorption pt.
+          self.prepData('refim_point_pos_neg.ms')
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=100,deconvolver='hogbom',interactive=0,usemask='auto-multithresh', negativethreshold=5.0)
+          report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',1.0,[60,40,0,0]),(self.img+'.mask',0.0,[65,50,0,0])])
           self.checkfinal(report)
 
 #     def test_mask_outregion(self):

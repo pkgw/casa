@@ -27,10 +27,11 @@
 
 #include <stdio.h>
 #include <graphics/X11/X_enter.h>
-#include   <QtGui/QtGui>
+#include   <QtGui>
 #include   <QtCore/QDebug>
 #include   <QFile>
 #include   <QFileInfo>
+#include   <QMessageBox>
 #include <graphics/X11/X_exit.h>
 
 #include <display/QtViewer/QtViewerPrintGui.qo.h>
@@ -325,9 +326,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		if ( !printer || !pDP ) return;
 
+#if QT_VERSION < 0x050000
 		if ( printerType == "PS" || printerType == "EPS" ) {
 			printer->setOutputFormat(QPrinter::PostScriptFormat);
-		} else if ( printerType == "PDF" ) {
+		} else
+#endif
+        if ( printerType == "PDF" ) {
 			printer->setOutputFormat(QPrinter::PdfFormat);
 		}
 
@@ -411,7 +415,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		pDP->resize(sz);
 
 		if ( printerType == "EPS" ) {
-			adjustEpsBoundingBox( eps_file_name, printfilename.toAscii( ), pmp.size(), viewport );
+			adjustEpsBoundingBox( eps_file_name, printfilename.toLatin1( ), pmp.size(), viewport );
 			remove( eps_file_name );
 		}
 
@@ -505,7 +509,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			}
 			*/
 
-			QByteArray format = ext.toAscii();
+			QByteArray format = ext.toLatin1();
 			//char* t= (char*)ext.toLocal8Bit().constData();<--bad, for some reason
 
 			if(s.width() == width && s.height() == height) {

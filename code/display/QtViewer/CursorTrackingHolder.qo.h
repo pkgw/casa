@@ -25,7 +25,7 @@
 #ifndef QTVIEWER_CURSORTRACKINGHOLDER_H_
 #define QTVIEWER_CURSORTRACKINGHOLDER_H_
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <display/QtViewer/InActiveDock.qo.h>
 #include <display/QtViewer/CursorTrackingHolder.ui.h>
 #include <vector>

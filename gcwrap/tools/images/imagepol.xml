@@ -901,36 +901,69 @@ fundamental identifier of the tool.
    <shortdescription>Linearly polarized intensity</shortdescription>
    
 <input>
-  
-     <param type="bool" direction="in" name="debias">
-     <description>Debias the linearly polarized intensity ?</description>
-     <value>false</value>
-     </param>
-  
-     <param type="double" direction="in" name="clip">
-     <description>Clip level for auto-sigma determination</description>
-     <value>10.0</value>
-     </param>
-  
-     <param type="double" direction="in" name="sigma">
-     <description>Standard deviation of thermal noise.  Default is auto determined.</description>
-     <value>-1</value>
-     </param>
-  
-     <param type="string" direction="in" name="outfile">
-     <description>Output image file name.  Default is unset.</description>
-     <value></value>
-     </param>
+    <param type="bool" direction="in" name="debias">
+        <description>Debias the linearly polarized intensity ?</description>
+        <value>false</value>
+    </param>
+    <param type="double" direction="in" name="clip">
+        <description>Clip level for auto-sigma determination</description>
+        <value>10.0</value>
+    </param>
+    <param type="double" direction="in" name="sigma">
+        <description>Standard deviation of thermal noise.  Default is auto determined.</description>
+        <value>-1</value>
+    </param>
+    <param type="string" direction="in" name="outfile">
+        <description>Output image file name.  Default is unset.</description>
+        <value/>
+    </param>
+    <param type="any" name="region">
+        <any type="variant" limittypes="string record"/>
+        <description>Region selection. Default is to use the full image.</description>
+        <value type="string"/>
+    </param>
+    <param type="string"  name="mask">
+        <description>Mask to use. Default setting is none.</description>
+        <value type="string"/>
+    </param>
+    <param type="bool"  name="stretch">
+        <description>Stretch the mask if necessary and possible? Default value is false.</description>
+        <value>false</value>
+    </param>
+     
 </input>
 <returns type="image"/>
 
-<description> This function <!-- (short-hand name {\stff lpi}) -->
-returns the linearly polarized intensity; $\sqrt{(Q^2+U^2)}$. 
+<description>
+This application returns the linearly polarized intensity; $\sqrt{(Q^2+U^2)}$. 
 
-You may optionally debias the polarized intensity.  This requires the
-standard deviation of the thermal noise.  You can either supply it if
-you know it, or it will be worked out for you with outliers from the
-mean clipped at the specified level. 
+The linearly polarized intensity may optionally be debiased (if debias=True). 
+This requires an estimate of the thermal noise level (sigma). The resulting
+image will be computed using
+
+$\sqrt{(Q^2 + U^2 - sigma^2)}$
+
+If the specified value of sigma is positive, that is the value that will
+be used for debiasing. If it is not, the value used for sigma is computed
+using the following algorithm:
+
+1. First, a stokes plane(s) is chosen on which the sigma computation is performed.
+If the V plane exists, that is used to compute sigma. If not, then the value of
+sigma is computed to be the average of the sigma values of the Q and U planes.
+
+2. For the relevant plane(s), the sigma value is computed for unmasked pixel values
+which lie within +/- (clip * stddev) values of the mean for that plane, where the mean
+and stddev (the standard deviation) are computed by using all unmasked pixel values
+in the relevant plane. In this way, outliers (eg pixels due to possible
+astronomical signals) are excluded in the computation of sigma.
+
+In the output image, pixels for which the expression inside the square root is
+negative are masked, and their values are set to zero.
+
+If a region and/or mask is specified, debias=True and sigma is not positive so
+that the value of sigma is determined using the algorithm above, the region and mask
+are applied first to the plane(s) from which the value of sigma is determined and
+then sigma is computed.
 
 </description>
 
@@ -954,17 +987,30 @@ lpi.done()
    <shortdescription>Linearly polarized position angle</shortdescription>
 
 <input>   
-     <param type="string" direction="in" name="outfile">
-     <description>Output image file name.  Default is unset.</description>
-     <value></value>
+    <param type="string" direction="in" name="outfile">
+        <description>Output image file name.  Default is unset.</description>
+        <value/>
+    </param>
+    <param type="any" name="region">
+        <any type="variant" limittypes="string record"/>
+        <description>Region selection. Default is to use the full image.</description>
+        <value type="string"/>
      </param>
+     <param type="string"  name="mask">
+        <description>Mask to use. Default setting is none.</description>
+        <value type="string"/>
+     </param>
+     <param type="bool"  name="stretch">
+        <description>Stretch the mask if necessary and possible? Default value is false.</description>
+        <value>false</value>
+    </param>
 </input>
 <returns type="image"/>
 
 <description> 
 
-This function <!-- (short-hand name {\stff lppa}) --> returns the linearly
-polarized position angle image ($0.5 \tan^{-1}(U/Q)$) in degrees. 
+This function returns the linearly polarized position angle image 0.5*arctan(U/Q) in degrees.
+The output image will not have a restoring beam, even if the input image does.
 
 </description>
 
@@ -2123,38 +2169,73 @@ po.summary()
    <shortdescription>Total polarized intensity</shortdescription>
    
 <input>
-  
-     <param type="bool" direction="in" name="debias">
-     <description>Debias the total polarized intensity ?</description>
-     <value>false</value>
+    <param type="bool" name="debias">
+        <description>Debias the total polarized intensity ?</description>
+        <value>false</value>
+    </param>
+    <param type="double" name="clip">
+        <description>Clip level for auto-sigma determination</description>
+        <value>10.0</value>
+    </param>
+    <param type="double" name="sigma">
+        <description>Standard deviation of thermal noised.  Default is auto determined.</description>
+        <value>-1</value>
+    </param>
+    <param type="string" name="outfile">
+        <description>Output image file name.  Default is unset.</description>
+        <value></value>
      </param>
-  
-     <param type="double" direction="in" name="clip">
-     <description>Clip level for auto-sigma determination</description>
-     <value>10.0</value>
+     <param type="any" name="region">
+        <any type="variant" limittypes="string record"/>
+        <description>Region selection. Default is to use the full image.</description>
+        <value type="string"/>
      </param>
-  
-     <param type="double" direction="in" name="sigma">
-     <description>Standard deviation of thermal noised.  Default is auto determined.</description>
-     <value>-1</value>
+     <param type="string"  name="mask">
+        <description>Mask to use. Default setting is none.</description>
+        <value type="string"/>
      </param>
-  
-     <param type="string" direction="in" name="outfile">
-     <description>Output image file name.  Default is unset.</description>
-     <value></value>
-     </param>
+     <param type="bool"  name="stretch">
+        <description>Stretch the mask if necessary and possible? Default value is false.</description>
+        <value>false</value>
+    </param>
 </input>
 <returns type="image"/>
 
-<description> This function <!-- (short-hand name {\stff tpi}) -->
-returns the total polarized intensity; $\sqrt{(Q^2+U^2+V^2)}$. 
-If your image contains only Q and U, or only V, then just
+<description>
+This application returns the total polarized intensity;
+
+$\sqrt{( Q^2+ U^2+ V^2)}$.
+
+If the image contains only Q and U, or only V, then just
 those components contribute to the total polarized intensity.
 
-You may optionally debias the polarized intensity.  This requires the
-standard deviation of the thermal noise.  You can either supply it if
-you know it, or it will be worked out for you with outliers from the
-mean clipped at the specified level. 
+The polarized intensity may optionally be debiased (if debias=True). 
+This requires an estimate of the thermal noise level (sigma).
+The resulting image will be computed using
+
+$\sqrt{(Q^2 + U^2 + V^2 - sigma^2)}$
+
+If the specified value of sigma is positive, that is the value that will
+be used for debiasing. If it is not, the value used for sigma is computed
+using the following algorithm:
+
+1. First, a stokes plane(s) is chosen on which the sigma computation is performed.
+If the V plane exists, that is used to compute sigma. If not, then the value of
+sigma is computed to be the average of the sigma values of the Q and U planes.
+
+2. For the relevant plane(s), the sigma value is computed for unmasked pixel values
+which lie within +/- (clip * stddev) values of the mean for that plane, where the mean
+and stddev (the standard deviation) are computed by using all unmasked pixel values
+in the relevant plane. In this way, outliers (eg pixels due to possible
+astronomical signals) are excluded in the computation of sigma.
+
+In the output image, pixels for which the expression inside the square root is
+negative are masked, and their values are set to zero.
+
+If a region and/or mask is specified, debias=True and sigma is not positive so
+that the value of sigma is determined using the algorithm above, the region and mask
+are applied first to the plane(s) from which the value of sigma is determined and
+then sigma is computed.
 
 </description>
 

@@ -25,19 +25,19 @@
 #ifndef PREFERENCES_QO_H
 #define PREFERENCES_QO_H
 
-#include <QtGui/QDialog>
-#include <guitools/Feather/Preferences.ui.h>
+#include <QDialog>
+#include <guitools/Feather/FeatherPreferences.ui.h>
 
 namespace casa {
 
-class Preferences : public QDialog
+class FeatherPreferences : public QDialog
 {
     Q_OBJECT
 
 public:
     const static QString ORGANIZATION;
     const static QString APPLICATION;
-    Preferences(QWidget *parent = 0);
+    FeatherPreferences(QWidget *parent = 0);
     void setPlaneCount( int count );
     bool isDisplayOutputFunctions() const;
     bool isDisplayLegend() const;
@@ -51,7 +51,7 @@ public:
     int getPlaneIndex() const;
     int getLineThickness() const;
     int getDotSize() const;
-    ~Preferences();
+    ~FeatherPreferences();
 
 
 signals:
@@ -80,7 +80,7 @@ private:
 	const static QString DISPLAY_X_AXIS_UV;
 	const static QString PLANE_AVERAGED;
 
-    Ui::PreferencesClass ui;
+    Ui::FeatherPreferencesClass ui;
     int lineThickness;
     int dotSize;
     bool displayOutputFunctions;

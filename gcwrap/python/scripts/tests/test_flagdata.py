@@ -3,7 +3,7 @@ import unittest
 import os
 import filecmp
 import pprint
-from tasks import flagcmd, flagdata, mstransform
+from tasks import flagcmd, flagdata, mstransform, setjy
 from taskinit import aftool, tbtool
 from __main__ import default
 import exceptions
@@ -554,6 +554,10 @@ class test_rflag(test_base):
 
     def test_rflag_return_dict1(self):
         '''flagdata:: Use provided value for time stats, but automatically computed value for freq. stats'''
+        if testmms:
+            print "Skip this test in parallel, until CAS-10202 is implemented"
+            return
+        
         rflag_dict = flagdata(vis=self.vis, mode='rflag', field = '1', spw='10', timedev=0.1, \
                  timedevscale=5.0, freqdevscale=5.0, action='calculate', flagbackup=False)
         
@@ -637,7 +641,39 @@ class test_rflag(test_base):
         self.assertEqual(res['report1']['antenna']['ea19']['flagged'], 18411)
         self.assertEqual(res['report1']['spw']['7']['flagged'], 0,)
         
-        
+    def test_rflag_residuals(self):
+        '''flagdata: rflag using MODEL and virtual MODEL columns'''
+        from tasks import delmod
+
+        # Delete model columns, if any
+        delmod(vis=self.vis,otf=True,scr=True)
+
+        # Create MODEL_COLUMN
+        setjy(vis=self.vis, field='3C286_A',usescratch=True)
+
+        # rflag
+        flagdata(vis=self.vis, mode='rflag', spw='9,10',datacolumn='RESIDUAL_DATA',flagbackup=False)
+        # 448772.0 flags on MODEL col
+        # '1': {'flagged': 8224.0
+        flags_mod = flagdata(vis=self.vis, mode='summary',spw='9,10')
+
+        # Now use a virtual MODEL column
+        # Unflag
+        flagdata(vis=self.vis, mode='unflag', flagbackup=False)
+        delmod(vis=self.vis,otf=True,scr=True)
+
+        # Create virtual MODEL_COLUMN
+        setjy(vis=self.vis, field='3C286_A',usescratch=False)
+ 
+        # rflag
+        flagdata(vis=self.vis, mode='rflag', spw='9,10',datacolumn='RESIDUAL_DATA',flagbackup=False)
+        # 444576.0 flags on virtual MODEL col
+        flags_vmod = flagdata(vis=self.vis, mode='summary',spw='9,10')
+
+        # Flags should be the same
+        self.assertTrue(flags_mod['flagged'],flags_vmod['flagged'])
+
+       
 class test_shadow(test_base):
     def setUp(self):
         self.setUp_shadowdata2()
@@ -3573,6 +3609,63 @@ class test_preaveraging(test_base):
         # Compare results
         self.assertEqual(res2['flagged'], res2['flagged'])          
 
+class test_virtual_col(test_base):
+    def setUp(self):
+        self.setUp_ngc5921(force=True)        
+        
+    def tearDown(self):    
+        os.system('rm -rf ngc5921*')        
+
+    @unittest.skip('Skip until CAS-10383 is fixed')
+    def test_no_model_col(self):
+        '''flagdata: catch failure when MODEL or virtual MODEL do not exist'''
+        # Verify that a MODEL or virtual MODEL column do not exist in MS
+        tblocal = tbtool()
+        tblocal.open(self.vis)
+        cols = tblocal.colnames()
+        tblocal.close()
+        
+        tblocal.open(self.vis+'/SOURCE')
+        cols_v = tblocal.colnames()
+        tblocal.close()
+       
+        self.assertFalse('MODEL_DATA' in cols, 'Test cannot have a MODEL_DATA column')
+        self.assertFalse('SOURCE_MODEL' in cols_v, 'Test cannot have a virtual MODEL column')
+        
+        # Run flagdata on it. RESIDUAL_DATA = DATA - MODEL
+        flagdata(self.vis, mode='clip',datacolumn='RESIDUAL_DATA',clipminmax=[2.3,3.1],clipoutside=False)
+
+    def test_virtual_model_col(self):
+        '''flagdata: Tests using a virtual MODEL column'''
+        
+        # Copy MS to new MS
+        os.system('cp -RH ngc5921.ms ngc5921_virtual.ms')
+        self.MSvirtual = 'ngc5921_virtual.ms'
+        
+        # First, run setjy to create a virtual MODEl column (SOURCE_MODEL)
+        setjy(vis=self.MSvirtual, field='1331+305*',modimage='',standard='Perley-Taylor 99',
+                scalebychan=False, usescratch=False)
+        
+        # Verify that the virtual column exist
+        import testhelper as th
+        mcol = th.getColDesc(self.MSvirtual+'/SOURCE', 'SOURCE_MODEL')
+        mkeys = mcol.keys()
+        self.assertTrue(mkeys.__len__() > 0, 'Should have a SOURCE_MODEL column')
+        
+        # Run flagdata on it. RESIDUAL_DATA = DATA - MODEL
+        flagdata(vis=self.MSvirtual,mode='clip',datacolumn='RESIDUAL_DATA',clipminmax=[2.3,3.1],clipoutside=False)
+        res_virtual = flagdata(vis=self.MSvirtual, mode='summary')['flagged']
+
+        # Compare with a normal MODEL column flagging
+        # Run setjy to create a normal MODEl column (SOURCE_MODEL)
+        setjy(vis=self.vis, field='1331+305*',modimage='',standard='Perley-Taylor 99',
+                scalebychan=False, usescratch=True)
+        
+        flagdata(vis=self.vis,mode='clip',datacolumn='RESIDUAL_DATA',clipminmax=[2.3,3.1],clipoutside=False)
+        res = flagdata(vis=self.vis, mode='summary')['flagged']
+        
+        self.assertEqual(res_virtual, res, 'Flagging using virtual MODEL column differs from normal MODEL column')
+
 
 def suite():
     return [test_antint,
@@ -3598,4 +3691,5 @@ def suite():
             test_tbuff,
             TestMergeManualTimerange,
             test_preaveraging,
+            test_virtual_col,
             cleanup]

@@ -327,10 +327,10 @@ namespace casa {
 					} else if ( type.compare("DS9 region file") == 0 ) {
 						casa::viewer::ds9context context( wc_, panel_->displayPanel( )->toolMgr( ) );
 						casa::viewer::ds9parser parser;
-						parser.parse_file( context, path.toAscii( ).constData( ) );
+						parser.parse_file( context, path.toLatin1( ).constData( ) );
 					} else {
 						fprintf( stderr, "QtRegionSourceKernel::loadRegions( bool &handled, const QString &path, const QString &type ):\n" );
-						fprintf( stderr, "\tinternal error, invalid type: %s...\n", type.toAscii( ).constData( ) );
+						fprintf( stderr, "\tinternal error, invalid type: %s...\n", type.toLatin1( ).constData( ) );
 					}
 				} else {
 					fprintf( stderr, "QtRegionSourceKernel::loadRegions( bool &handled, const QString &path, const QString &type ):\n" );
@@ -353,7 +353,7 @@ namespace casa {
 				shape(i) = dd->dataShape( )[axes[i]];
 
 			try {
-				RegionTextList region_list( path.toAscii( ).constData( ), viewer_cs, shape);
+				RegionTextList region_list( path.toLatin1( ).constData( ), viewer_cs, shape);
 				const casacore::Vector<AsciiAnnotationFileLine> &lines = region_list.getLines( );
 				for ( uInt i=0; i < lines.size( ); ++i ) {
 					if ( lines[i].getType() == AsciiAnnotationFileLine::ANNOTATION ) {
@@ -377,7 +377,7 @@ namespace casa {
 					}
 				}
 			} catch(...) {
-				fprintf( stderr, "loading of %s failed...\n", path.toAscii( ).constData( ) );
+				fprintf( stderr, "loading of %s failed...\n", path.toLatin1( ).constData( ) );
 				return;
 			}
 		}
