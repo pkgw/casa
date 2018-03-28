@@ -905,6 +905,18 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
 
  }
 
+   MDirection VisBufferUtil::getEphemDir(const vi::VisBuffer2& vb, 
+					 const Double timeo){
+
+     Double timeEphem = timeo > 0.0 ? timeo : vb.time()(0); 
+     ROMSColumns msc(vb.ms());
+     const ROMSFieldColumns& msfc=msc.field();
+     Int fieldId=vb.fieldId()(0);
+     return msfc.ephemerisDirMeas(fieldId, timeEphem);
+     
+
+
+   }
  //utility to reject consecutive similar value for sorting
  void VisBufferUtil::rejectConsecutive(const Vector<Double>& t, Vector<Double>& retval){
      uInt n=t.nelements();

@@ -2160,7 +2160,7 @@ void SynthesisImagerVi2::unlockMSs()
 	}
       }
       else if(upcase(movingSource_p)=="TRACKFIELD"){
-	movingDir=vb.phaseCenter();
+	movingDir=VisBufferUtil::getEphemDir(vb, -1.0);
       }
       else{
 	throw(AipsError("Erroneous tracking direction set to make pb"));

@@ -300,7 +300,7 @@ using namespace casa::vi;
         MDirection::Ref outref1(MDirection::AZEL, mFrame_p);
         MDirection tmphadec;
 	if(upcase(movingDir_p.getRefString()).contains("APP")){
-	  tmphadec=MDirection::Convert((vbutil_p->getPhaseCenter(vb, phaseCenterTime_p)), outref1)();
+	  tmphadec=MDirection::Convert((vbutil_p->getEphemDir(vb, phaseCenterTime_p)), outref1)();
 	}
 	else{
 	  tmphadec=MDirection::Convert(movingDir_p, outref1)();
@@ -914,7 +914,7 @@ using namespace casa::vi;
 	MDirection::Ref outref1(MDirection::AZEL, mFrame_p);
 	MDirection tmphadec;
 	if(upcase(movingDir_p.getRefString()).contains("APP")){
-	  tmphadec=MDirection::Convert((vbutil_p->getPhaseCenter(vb, phaseCenterTime_p)), outref1)();
+	  tmphadec=MDirection::Convert((vbutil_p->getEphemDir(vb, phaseCenterTime_p)), outref1)();
 	}
 	else{
 	  tmphadec=MDirection::Convert(movingDir_p, outref1)();
@@ -1035,7 +1035,7 @@ using namespace casa::vi;
 	  MDirection::Ref outref1(MDirection::AZEL, mFrame_p);
 	  MDirection tmphadec;
 	  if(upcase(movingDir_p.getRefString()).contains("APP")){
-	    tmphadec=MDirection::Convert((vbutil_p->getPhaseCenter(vb, phaseCenterTime_p)), outref1)();
+	    tmphadec=MDirection::Convert((vbutil_p->getEphemDir(vb, phaseCenterTime_p)), outref1)();
 	  }
 	  else{
 	    tmphadec=MDirection::Convert(movingDir_p, outref1)();
@@ -1757,8 +1757,8 @@ using namespace casa::vi;
     }
     ///Special case
     if(upcase(sourcename)=="TRACKFIELD"){
-      if(name().contains("MosaicFT"))
-	throw(AipsError("Cannot use field phasecenter to track moving source in a Mosaic"));
+      //if(name().contains("MosaicFT"))
+      //	throw(AipsError("Cannot use field phasecenter to track moving source in a Mosaic"));
       fixMovingSource_p=True;
       movingDir_p=MDirection(Quantity(0.0,"deg"), Quantity(90.0, "deg"));
       movingDir_p.setRefString("APP");
