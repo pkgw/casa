@@ -56,7 +56,7 @@ public:
   // Nominally, we will only use parallel hands for now
   virtual casacore::Bool phandonly() { return true; };
 
-  virtual casacore::Bool normalizable() { return false; };
+  virtual casacore::Bool normalizable() { return true; };
 
   virtual casacore::Bool useGenericSolveOne() { return false; }
 
