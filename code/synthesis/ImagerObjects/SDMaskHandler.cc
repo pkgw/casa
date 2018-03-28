@@ -794,7 +794,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           themask = LatticeExpr<Float>( iif( (*(imstore->pb())) > pblimit, *(imstore->mask()), 0.0));
         } 
         // attache pixmask to temp res image to be used in stats etc
-        //cerr<<"attaching pixmask to res.."<<endl;
+        os<<"attaching pixmask to res.."<<LogIO::POST;
         tempres->attachMask(LatticeExpr<Bool> ( iif(*(imstore->pb()) > pblimit, True, False)));
         imstore->mask()->copyData( themask );
         imstore->mask()->get(maskdata);
@@ -802,6 +802,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         delete dummy;
       }
     } 
+    os<<"tempres->hasPixelMask()="<<tempres->hasPixelMask()<<LogIO::POST;
     //for debug
     //String tempresname="initialRes_"+String::toString(iterdone)+".im";
     //PagedImage<Float> initialRes(tempres->shape(), tempres->coordinates(), tempresname);
@@ -926,6 +927,18 @@ namespace casa { //# NAMESPACE CASA - BEGIN
        thestats.get(RecordFieldId("medabsdevmed"), mads);
        os<< LogIO::DEBUG1 << "All MAD's on the input image -- mad.nelements()="<<mads.nelements()<<" mad="<<mads<<LogIO::POST;
     }
+    //test test test
+    Record thenewstats = calcImageStatistics2(*tempres, *tempmask, LELmask, region_ptr, robust);
+    Array<Double> newmaxs, newmins, newrmss, newmads;
+    thenewstats.get(RecordFieldId("max"), newmaxs);
+    thenewstats.get(RecordFieldId("rms"), newrmss);
+    os<< LogIO::DEBUG1 << "All NEW rms's on the input image -- rms.nelements()="<<newrmss.nelements()<<" rms="<<newrmss<<LogIO::POST;
+    os<< LogIO::DEBUG1 << "All NEW max's on the input image -- max.nelements()="<<newmaxs.nelements()<<" max="<<newmaxs<<LogIO::POST;
+    if (alg.contains("multithresh")) {
+       thenewstats.get(RecordFieldId("medabsdevmed"), newmads);
+       os<< LogIO::DEBUG1 << "All NEW MAD's on the input image -- mad.nelements()="<<newmads.nelements()<<" mad="<<newmads<<LogIO::POST;
+    }
+
 
     os<<LogIO::NORMAL <<"SidelobeLevel = "<<imstore->getPSFSidelobeLevel()<<LogIO::POST;
     itsSidelobeLevel = imstore->getPSFSidelobeLevel();
@@ -993,6 +1006,94 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     axes[0] = 0;
     axes[1] = 1;
     imcalc.setAxes(axes);
+    imcalc.setRobust(robust);
+    Record thestats = imcalc.statistics();
+    //cerr<<"thestats="<<thestats<<endl;
+    //Array<Double> max, min, rms, mad;
+    //thestats.get(RecordFieldId("max"), max);
+    return thestats;
+  }
+
+  // temporary named 2 for new statistics
+  Record SDMaskHandler::calcImageStatistics2(ImageInterface<Float>& res, ImageInterface<Float>&  prevmask , String& LELmask,  Record* regionPtr, const Bool robust )
+  { 
+    LogIO os( LogOrigin("SDMaskHandler","calcImStat2",WHERE) );
+    TempImage<Float>* tempres = new TempImage<Float>(res.shape(), res.coordinates(), memoryToUse()); 
+    Array<Float> resdata;
+    //
+    
+    res.get(resdata);
+    tempres->put(resdata);
+    // if input image (res) has a pixel mask, make sure to honor it so the region is exclude from statistics
+    //if (res.hasPixelMask()) {
+    //  tempres->attachMask(res.pixelMask());
+    //}
+    if (res.hasPixelMask()) {
+      os<<"initial res have a (pb) mask!!!!!!!"<<LogIO::POST;
+    }
+    
+    // check if mask is empty (evaulated as the whole input mask )
+    Array<Float> maskdata; 
+    IPosition maskshape = prevmask.shape();
+    Int naxis = maskshape.size();
+    IPosition blc(naxis,0);
+    IPosition trc=maskshape-1;
+    Slicer sl(blc,trc,Slicer::endIsLast);
+    prevmask.doGetSlice(maskdata,sl);
+    Float nmaskpix = sum(maskdata);
+    os<<"nmaskpix="<<nmaskpix<<LogIO::POST; 
+    if (nmaskpix==0) {
+      if (res.hasPixelMask()) {
+        os<<"no mask but apply pbmask..."<<LogIO::POST;
+        if (tempres->hasPixelMask()) {
+          tempres->attachMask(res.pixelMask());
+        }
+      }
+    }
+    else {
+        os<<"Do stats outside mask..."<<LogIO::POST;
+       LatticeExpr<Bool> pbmask(res.pixelMask());
+       LatticeExpr<Bool> outsideMaskReg(iif(prevmask == 1.0 || !pbmask, False, True));
+       tempres->attachMask(outsideMaskReg);
+       // for debug
+       PagedImage<Float> pbmaskSave(res.shape(), res.coordinates(), "pbmasksaved.im");
+       LatticeExpr<Float> temppbmasksave(iif(pbmask, 1.0, 0.0));
+       pbmaskSave.copyData(temppbmasksave);
+       // for debug 
+    }
+    
+    
+    tempres->setImageInfo(res.imageInfo());
+    //DEBUG
+    PagedImage<Float> temptempIm(res.shape(), res.coordinates(), "temptempmask.im");
+    temptempIm.copyData(prevmask);
+    PagedImage<Float> temptempResIm(res.shape(), res.coordinates(), "temptempres.im");
+    
+    temptempResIm.copyData(*tempres);
+    temptempResIm.makeMask("maskcopy",True, True);
+    if (tempres->hasPixelMask()) {
+      temptempResIm.pixelMask().put((tempres->pixelMask()).get());
+    }
+
+    SHARED_PTR<casacore::ImageInterface<Float> > tempres_ptr(tempres);
+    
+    // 2nd arg is regionRecord, 3rd is LELmask expression and those will be AND 
+    // to define a region to be get statistics
+    //ImageStatsCalculator imcalc( tempres_ptr, 0, "", False); 
+     
+
+    ImageStatsCalculator imcalc( tempres_ptr, regionPtr, LELmask, True); 
+    Vector<Int> axes(2);
+    axes[0] = 0;
+    axes[1] = 1;
+    imcalc.setAxes(axes);
+
+    // for an empty (= no mask) mask, use Chauvenet algorithm with maxiter=5 and zscore=-1
+    if (nmaskpix==0.0) {
+      os<<"Using Chauvenet algorithm for image statistics"<<LogIO::POST;
+      imcalc.configureChauvenet(Double(-1.0), Int(5));
+    }
+    os<<"robust="<<robust<<LogIO::POST;
     imcalc.setRobust(robust);
     Record thestats = imcalc.statistics();
     //cerr<<"thestats="<<thestats<<endl;

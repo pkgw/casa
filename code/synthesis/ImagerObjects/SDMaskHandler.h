@@ -204,6 +204,12 @@ public:
                                        casacore::Record* regionPtr,
                                        const casacore::Bool robust);
 
+  casacore::Record calcImageStatistics2(casacore::ImageInterface<casacore::Float>& res, 
+                                       casacore::ImageInterface<casacore::Float>& prevmask, 
+                                       casacore::String& lelmask,
+                                       casacore::Record* regionPtr,
+                                       const casacore::Bool robust);
+
   SHARED_PTR<casacore::ImageInterface<float> > makeMaskFromBinnedImage (
                                const casacore::ImageInterface<casacore::Float>& image,
                                const casacore::Int nx,
