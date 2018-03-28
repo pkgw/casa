@@ -613,7 +613,7 @@ casacore::Double SDBList::centroidFreq() const {
   Int nf(0);
   for (Int isdb=0;isdb<nSDB_;++isdb) {
     const Vector<Double> f(SDB_[isdb]->freqs());
-    for (Int ich=0;ich<f.nelements();++ich) {
+    for (uInt ich=0;ich<f.nelements();++ich) {
       fsum+=f(ich);
       ++nf;
     }

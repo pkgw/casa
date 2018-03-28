@@ -266,7 +266,7 @@ private:
 
   // Pointer to CTRateAwareTimeInterp1 factory method
   // This ensures the rates are incorporated into the time-dep interpolation
-  virtual CTTIFactoryPtr cttifactoryptr() { cout << "Using Rate-Aware CTTIFactory!" << endl; return &CTRateAwareTimeInterp1::factory; };
+  virtual CTTIFactoryPtr cttifactoryptr() { return &CTRateAwareTimeInterp1::factory; };
   void calculateSNR(casacore::Int, DelayRateFFT);
 
   casacore::Bool zeroRates_;
