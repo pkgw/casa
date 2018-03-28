@@ -746,7 +746,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                Float pblimit)
   {
     LogIO os( LogOrigin("SDMaskHandler","autoMask",WHERE) );
-    
+
     //currently supported alg:
     //  onebox: a box around a max (box size +/-5pix around max position)
     //  thresh: threshold based auto masking (uses threshold or fracofpeak, and resolution)
@@ -1018,6 +1018,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   Record SDMaskHandler::calcImageStatistics2(ImageInterface<Float>& res, ImageInterface<Float>&  prevmask , String& LELmask,  Record* regionPtr, const Bool robust )
   { 
     LogIO os( LogOrigin("SDMaskHandler","calcImStat2",WHERE) );
+
+    Bool debugStats(false);
+
     TempImage<Float>* tempres = new TempImage<Float>(res.shape(), res.coordinates(), memoryToUse()); 
     Array<Float> resdata;
     //
@@ -1056,15 +1059,18 @@ namespace casa { //# NAMESPACE CASA - BEGIN
        LatticeExpr<Bool> outsideMaskReg(iif(prevmask == 1.0 || !pbmask, False, True));
        tempres->attachMask(outsideMaskReg);
        // for debug
-       PagedImage<Float> pbmaskSave(res.shape(), res.coordinates(), "pbmasksaved.im");
-       LatticeExpr<Float> temppbmasksave(iif(pbmask, 1.0, 0.0));
-       pbmaskSave.copyData(temppbmasksave);
+       if (debugStats) {
+         PagedImage<Float> pbmaskSave(res.shape(), res.coordinates(), "pbmasksaved.im");
+         LatticeExpr<Float> temppbmasksave(iif(pbmask, 1.0, 0.0));
+         pbmaskSave.copyData(temppbmasksave);
+       }
        // for debug 
     }
     
     
     tempres->setImageInfo(res.imageInfo());
     //DEBUG
+    if(debugStats) {
     PagedImage<Float> temptempIm(res.shape(), res.coordinates(), "temptempmask.im");
     temptempIm.copyData(prevmask);
     PagedImage<Float> temptempResIm(res.shape(), res.coordinates(), "temptempres.im");
@@ -1074,6 +1080,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     if (tempres->hasPixelMask()) {
       temptempResIm.pixelMask().put((tempres->pixelMask()).get());
     }
+    } //for debug
 
     SHARED_PTR<casacore::ImageInterface<Float> > tempres_ptr(tempres);
     
@@ -1427,7 +1434,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                           const Bool isthresholdreached) 
   {
     LogIO os( LogOrigin("SDMaskHandler","autoMaskByMultiThreshold",WHERE) );
-    Array<Double> rmss, maxs, mins, mads;
+    Array<Double> rmss, maxs, mins, mads, mdns;
     //Float resPeak, resRms;
     Array<Double> resRmss;
     Double minrmsval, maxrmsval, minmaxval, maxmaxval, minmadval, maxmadval;
@@ -1444,6 +1451,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //for debug set to True to save intermediate mask images on disk
     Bool debug(false); // create additional temp masks for debugging
     Bool debug2(false); // debug2 saves masks before/after prune and binary dilation
+    
+    //set true if calcImageStatistics2 is used in autoMask
+    Bool newstats(false);
 
     //Timer
     Timer timer;
@@ -1516,6 +1526,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     stats.get(RecordFieldId("min"), mins);
     stats.get(RecordFieldId("rms"), rmss);
     stats.get(RecordFieldId("medabsdevmed"), mads);
+    stats.get(RecordFieldId("median"), mdns);
     
     // only useful if single threshold value are used for all spectral planes... 
     minMax(minmaxval,maxmaxval,minmaxpos, maxmaxpos, maxs);
@@ -1556,15 +1567,29 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         chindx(1) = ich;
       }
       
-      sidelobeThreshold = sidelobeLevel * sidelobeThresholdFactor * (Float)maxs(chindx); 
+      // turn on a new definition for new stats --- remove old one once tested
+      if (newstats) {
+        sidelobeThreshold = (Float)mdns(chindx) + sidelobeLevel * sidelobeThresholdFactor * (Float)maxs(chindx); 
+      }
+      else {
+        sidelobeThreshold = sidelobeLevel * sidelobeThresholdFactor * (Float)maxs(chindx); 
+      } 
+
       // *** Requested but later asked to remove on CAS-9208 ***
       // add a factor modification in the case of high sidelobe level
       //Float modfactor = min(sidelobeThresholdFactor*sidelobeLevel, 0.5*(sidelobeLevel+1.0));
       //if (modfactor != sidelobeThresholdFactor*sidelobeLevel) os<<LogIO::NORMAL<<" sidelobethreshld*sidelobeLevel ="<<sidelobeThresholdFactor*sidelobeLevel<<" appears to be high for automasking, adjusting this factor to "<<modfactor<<LogIO::POST;
       //sidelobeThreshold = modfactor * (Float)maxs(chindx); 
       //
-     
-      noiseThreshold = noiseThresholdFactor * (Float)resRmss(chindx);
+    
+      // turn on a new definition for new stats --- remove old one once tested
+      if (newstats) {
+         noiseThreshold = (Float)mdns(chindx) + noiseThresholdFactor * (Float)resRmss(chindx);
+      }
+      else { 
+        noiseThreshold = noiseThresholdFactor * (Float)resRmss(chindx);
+      }
+
       lowNoiseThreshold = lowNoiseThresholdFactor * (Float)resRmss(chindx); 
       negativeThreshold = negativeThresholdFactor * (Float)resRmss(chindx);
       maskThreshold(ich) = max(sidelobeThreshold, noiseThreshold);
