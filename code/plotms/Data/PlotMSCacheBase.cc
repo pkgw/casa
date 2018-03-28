@@ -791,6 +791,8 @@ void PlotMSCacheBase::release(const vector<PMS::Axis>& axes) {
                 break;
 			case PMS::SNR: PMSC_DELETE(snr_)
                 break;
+			case PMS::ANTPOS: PMSC_DELETE(antpos_)
+                break;
 			case PMS::RADIAL_VELOCITY: radialVelocity_.resize(0);
                 break;
 			case PMS::RHO: rho_.resize(0);
@@ -1527,6 +1529,9 @@ void PlotMSCacheBase::setCache(Int newnChunk,
             case PMS::TEC:
 		        addArrays(par_);
                 break;
+            case PMS::ANTPOS:
+		        addArrays(antpos_);
+                break;
 	        case PMS::RADIAL_VELOCITY: {
                 radialVelocity_.resize(nChunk_,true);
                 }
@@ -1630,6 +1635,7 @@ void PlotMSCacheBase::setAxesMask(PMS::Axis axis,Vector<Bool>& axismask) {
 	case PMS::OPAC:
 	case PMS::SNR:
 	case PMS::TEC:
+	case PMS::ANTPOS:
 	case PMS::FLAG:
 	case PMS::WTxAMP:
 	case PMS::WTSP:
