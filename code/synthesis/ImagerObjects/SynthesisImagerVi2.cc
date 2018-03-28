@@ -55,14 +55,15 @@
 #include <ms/MSSel/MSSelection.h>
 
 
+#if ! defined(WITHOUT_DBUS)
 #include <synthesis/ImagerObjects/SIIterBot.h>
+#endif
 #include <synthesis/ImagerObjects/SynthesisImagerVi2.h>
 
 #include <synthesis/ImagerObjects/SynthesisUtilMethods.h>
 #include <synthesis/ImagerObjects/SIImageStore.h>
 #include <synthesis/ImagerObjects/SIImageStoreMultiTerm.h>
 
-#include <synthesis/MeasurementEquations/ImagerMultiMS.h>
 #include <synthesis/MeasurementEquations/VPManager.h>
 #include <imageanalysis/Utilities/SpectralImageUtil.h>
 #include <msvis/MSVis/MSUtil.h>
@@ -83,8 +84,10 @@
 #include <synthesis/TransformMachines2/NoOpATerm.h>
 #include <synthesis/TransformMachines2/SDGrid.h>
 #include <synthesis/TransformMachines/WProjectFT.h>
+#if ! defined(WITHOUT_DBUS)
 #include <casadbus/viewer/ViewerProxy.h>
 #include <casadbus/plotserver/PlotServerProxy.h>
+#endif
 #include <casacore/casa/Utilities/Regex.h>
 #include <casacore/casa/OS/Directory.h>
 #include <msvis/MSVis/VisibilityIteratorImpl2.h>

@@ -41,18 +41,7 @@ SPIIF ImageTotalPolarization::compute() {
     ImageExpr<Float> expr = _totPolInt();
     auto out = _prepareOutputImage(expr);
     if (_debias) {
-        auto isnan = isNaN(*out);
-        if (any(isnan).getBool()) {
-            LatticeExpr<Bool> mask(! isnan);
-            if (! out->hasPixelMask()) {
-                String x;
-                ImageMaskAttacher::makeMask(*out, x, True, True, *_getLog(), False);
-            }
-            auto& pixelMask = out->pixelMask();
-            LatticeExpr<Bool> newMask(mask && LatticeExpr<Bool>(out->pixelMask()));
-            pixelMask.copyData(newMask);
-            out->copyData(LatticeExpr<Float>(iif(isnan, 0, *out)));
-        }
+        _maskAndZeroNaNs(out);
     }
     return out;
 }

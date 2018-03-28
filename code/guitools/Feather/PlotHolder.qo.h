@@ -25,7 +25,7 @@
 #ifndef PLOTHOLDER_QO_H
 #define PLOTHOLDER_QO_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <QMenu>
 #include <qwt_plot.h>
 #include <guitools/Feather/PlotHolder.ui.h>

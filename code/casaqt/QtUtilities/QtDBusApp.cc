@@ -68,7 +68,7 @@ namespace casa {
     }
 
     QString QtDBusApp::serviceOwner( const QString &service ) {
-        char *str = strdup(service.toAscii().data());
+        char *str = strdup(service.toLatin1().data());
 	char *cur = strtok(str,".");
 	char *prev = cur;
 	while ( (cur = strtok(0,".")) ) {
