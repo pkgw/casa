@@ -31,6 +31,7 @@
 #include <display/QtPlotter/ProfileTaskMonitor.h>
 #include <display/QtPlotter/QtCanvas.qo.h>
 #include <casa/Logging/LogIO.h>
+#include <QStackedLayout>
 #include <QtGui>
 #include <QHBoxLayout>
 #include <QDoubleValidator>

@@ -1,9 +1,9 @@
 #ifndef REGION_QTREGIONSTATS_H_
 #define REGION_QTREGIONSTATS_H_
 
-#include <QtGui/QGroupBox>
-#include <QtGui/QPushButton>
-#include <QtGui/QLabel>
+#include <QGroupBox>
+#include <QPushButton>
+#include <QLabel>
 #include <QVBoxLayout>
 #include <casa/BasicSL/String.h>
 #include <display/region/QtImageRegionStats.ui.h>

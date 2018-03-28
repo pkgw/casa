@@ -46,8 +46,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
 	public:
-		static const QString ORGANIZATION;
-		static const QString APPLICATION;
+		static const QString &ORGANIZATION( ) {
+			static QString result("NRAO/CASA");
+			return result;
+		}
+		static const QString &APPLICATION( ) {
+			static QString result("Spectral Profiler");
+			return result;
+		}
 		static void showUserMessage( QString& msg, QWidget* parent);
 		static double degMinSecToRadians( int degrees, int mins, float secs );
 		static double hrMinSecToRadians( int hours, int mins, float secs );

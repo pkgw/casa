@@ -4,9 +4,9 @@
 
 #include <graphics/X11/X_enter.h>
 #include <QtCore>
-#include <QtGui/QLineEdit>
-#include <QtGui/QSlider>
-#include <QtGui/QVBoxLayout>
+#include <QLineEdit>
+#include <QSlider>
+#include <QVBoxLayout>
 #include <graphics/X11/X_exit.h>
 
 namespace casa {

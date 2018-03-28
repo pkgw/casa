@@ -1,13 +1,14 @@
 import os
 import shutil
 from taskinit import *
+from ialib import write_image_history
 
 def imregrid(
     imagename, template, output, asvelocity, axes, shape,
     interpolation, decimate, replicate, overwrite
 ):
     _myia = None
-    _tmp = None
+    outia = None
     csys = None
     try:
         casalog.origin('imregrid')
@@ -20,6 +21,7 @@ def imregrid(
                 casalog.post("output was not specified - defaulting to\n\t"
                      + output, 'INFO')
         _myia = iatool()
+        _myia.dohistory(False)
         # Figure out what the user wants.
         if not isinstance(template, dict):
             if template.lower() == 'get':
@@ -33,12 +35,22 @@ def imregrid(
                 'HADEC', 'AZEL', 'AZELSW', 'AZELNE', 'ECLIPTIC',
                 'MECLIPTIC', 'TECLIPTIC', 'SUPERGAL'
             ):
-                _imregrid_to_new_ref_frame(
+                outia = _imregrid_to_new_ref_frame(
                     _myia, imagename, template, output,
                     axes, shape, overwrite
                 )
+                try:
+                    param_names = imregrid.func_code.co_varnames[:imregrid.func_code.co_argcount]
+                    param_vals = [eval(p) for p in param_names]   
+                    write_image_history(
+                        outia, sys._getframe().f_code.co_name,
+                        param_names, param_vals, casalog
+                    )
+                except Exception, instance:
+                    casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
+                outia.done()
                 return True
-            else:                   # Don't use a template named 'get', people.
+            else:
                 if not os.path.isdir(template) or not os.access(template,
                                                                 os.R_OK):
                     raise TypeError, 'Cannot read template image ' + template
@@ -93,25 +105,33 @@ def imregrid(
         # put this in its own try/catch so, if exception, the message is not
         # logged twice
         try:
-            _tmp = _myia.regrid(
+            outia = _myia.regrid(
                 outfile=output, shape=shape, csys=csys.torecord(),
                 axes=axes, asvelocity=asvelocity,
                 method=interpolation, decimate=decimate,
                 replicate=replicate, overwrite=overwrite
             )
+            try:
+                param_names = imregrid.func_code.co_varnames[:imregrid.func_code.co_argcount]
+                param_vals = [eval(p) for p in param_names]   
+                write_image_history(
+                    outia, sys._getframe().f_code.co_name,
+                    param_names, param_vals, casalog
+                )
+            except Exception, instance:
+                casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
             return True
         except Exception, instance:
             # The error message has already been logged by ia.regrid()
             return False
-        
     except Exception, instance:
         casalog.post("Error: " + str(instance), "SEVERE")
         raise instance
     finally:
         if _myia:
             _myia.done()
-        if _tmp:
-            _tmp.done()
+        if outia:
+            outia.done()
         if csys:
             csys.done()
             
@@ -145,8 +165,15 @@ def _imregrid_to_new_ref_frame(
         subi = _myia.subimage(output)
         _myia.done()
         csys.done()
-        subi.done()
-        return True
+        return subi
+    if (csys.projection()['type'] == 'SFL'):
+        raise Exception(
+            "The direction coordinate of this image has a projection "
+            "of SFL. Because of the constraints of this projection, "
+            "this image cannot be easily rotated. You may wish to "
+            "consider temporarily modifying the projection using "
+            "cs.setprojection() to allow rotation of the image."
+        )
     casalog.post(
         "Changing coordinate system from " + oldrefcode
         + " to " + newrefcode, 'INFO'
@@ -175,6 +202,7 @@ def _imregrid_to_new_ref_frame(
         tsub = _myia.subimage()
         _myia.done()
         _myia = tsub
+        _myia.dohistory(False)
         _myia.setcoordsys(csys.torecord())
     angle = csys.convertdirection(newrefcode)
     mysin = qa.getvalue(qa.sin(angle))
@@ -192,7 +220,8 @@ def _imregrid_to_new_ref_frame(
             + " pixels so no pixels are cut off in the rotation",
             "NORMAL"
         )
-        _myia = _myia.pad("", pad, wantreturn=True) 
+        _myia = _myia.pad("", pad, wantreturn=True)
+        _myia.dohistory(False)
         shape = _myia.shape()
         newrefpix = csys.referencepixel()['numeric']
         newrefpix[diraxes[0]] = newrefpix[diraxes[0]] + pad
@@ -204,16 +233,15 @@ def _imregrid_to_new_ref_frame(
       , 'NORMAL'
     )
     rot = _myia.rotate(outfile="", shape=shape, pa=angle)
+    rot.dohistory(False)
     rot.rotatebeam(angle=angle)
     rot.setcoordsys(csys.torecord())
     # now crop
-                
     casalog.post("Cropping masked image boundaries", "NORMAL")
-    cropped = rot.crop(outfile=output, axes=diraxes, overwrite=overwrite)
-    cropped.done()   
+    cropped = rot.crop(outfile=output, axes=diraxes, overwrite=overwrite) 
     rot.done()
     _myia.done()
-    return True
+    return cropped
 
 def _imregrid_handle_default_shape(
     imshape, image_csys, template_csys, 

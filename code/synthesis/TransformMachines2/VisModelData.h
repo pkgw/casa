@@ -205,9 +205,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
   static casacore::Bool getModelRecord(const casacore::String& theKey, casacore::TableRecord& theRec, const casacore::MeasurementSet& theMs);
 
-  // casacore::List the fields
+  // List the fields in the logger
   static void listModel(const casacore::MeasurementSet& thems);
 
+  // Returns true if any valid virtual model is found, fieldids of which are also returned 
+  static casacore::Bool hasAnyModel(const casacore::MeasurementSet& thems, casacore::Vector<casacore::Int>& fieldids);
   static FTMachine* NEW_FT(const casacore::Record& ftrec);
   //check if an addFT or addCompFT is necessary
   //casacore::Bool hasFT(casacore::Int msid, casacore::Int fieldid);

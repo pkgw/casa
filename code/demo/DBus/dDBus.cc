@@ -25,7 +25,7 @@
 //#
 
 #include <string>
-#include <QtGui/QApplication>
+#include <QApplication>
 #include "dDBus.qo.h"
 
 int main ( int argc, char *argv[ ] ) {

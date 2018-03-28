@@ -55,14 +55,15 @@
 #include <ms/MSSel/MSSelection.h>
 
 
+#if ! defined(WITHOUT_DBUS)
 #include <synthesis/ImagerObjects/SIIterBot.h>
+#endif
 #include <synthesis/ImagerObjects/SynthesisImagerVi2.h>
 
 #include <synthesis/ImagerObjects/SynthesisUtilMethods.h>
 #include <synthesis/ImagerObjects/SIImageStore.h>
 #include <synthesis/ImagerObjects/SIImageStoreMultiTerm.h>
 
-#include <synthesis/MeasurementEquations/ImagerMultiMS.h>
 #include <synthesis/MeasurementEquations/VPManager.h>
 #include <imageanalysis/Utilities/SpectralImageUtil.h>
 #include <msvis/MSVis/MSUtil.h>
@@ -83,8 +84,10 @@
 #include <synthesis/TransformMachines2/NoOpATerm.h>
 #include <synthesis/TransformMachines2/SDGrid.h>
 #include <synthesis/TransformMachines/WProjectFT.h>
+#if ! defined(WITHOUT_DBUS)
 #include <casadbus/viewer/ViewerProxy.h>
 #include <casadbus/plotserver/PlotServerProxy.h>
+#endif
 #include <casacore/casa/Utilities/Regex.h>
 #include <casacore/casa/OS/Directory.h>
 #include <msvis/MSVis/VisibilityIteratorImpl2.h>
@@ -193,10 +196,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     TableExprNode exprNode=thisSelection.toTableExprNode(&thisms);
     if(!(exprNode.isNull()))
       {
-	mss_p.resize(mss_p.nelements()+1, false, true);
+	
     
 	MeasurementSet thisMSSelected0 = MeasurementSet(thisms(exprNode));
-
+	mss_p.resize(mss_p.nelements()+1, false, true);
 	if(selpars.taql != "")
 	  {
 	    MSSelection mss0;
@@ -217,6 +220,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     else{
       throw(AipsError("Selection for given MS "+selpars.msname+" is invalid"));
     }
+    if((mss_p[mss_p.nelements()-1])->nrow() ==0){
+      delete mss_p[mss_p.nelements()-1];
+      mss_p.resize(mss_p.nelements()-1, True, True);
+      if(mss_p.nelements()==0)
+	throw(AipsError("Data selection ended with 0 rows"));
+      //Sill have some valid ms's so return false and do not proceed to do 
+      //channel selection
+      return False;
+    }
+
+
     
     ///Channel selection
     {
@@ -322,7 +336,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  //vi::FrequencySelectionUsingFrame channelSelector((vi_p ? freqFrame :selpars.freqframe));
 	  //vi::FrequencySelectionUsingFrame channelSelector(selpars.freqframe);
     	  for(uInt k=0; k < nSelections; ++k){
-	    //cerr << "lowFreq "<< lowfreq << " topfreq " << topfreq << endl;
             //channelSelector.add(Int(freqList(k,0)), lowfreq, topfreq);
 	    //andFreqSelection((mss_p.nelements()-1), Int(freqList(k,0)), lowfreq, topfreq, vi_p ?freqFrame : selpars.freqframe);
 	    andFreqSelection((mss_p.nelements()-1), Int(freqList(k,0)), lowfreq, topfreq, selFreqFrame_p);
@@ -397,7 +410,7 @@ void SynthesisImagerVi2::andChanSelection(const Int msId, const Int spwId, const
 	}
 	spwsel[spwId]=chansel;
 	channelSelections_p[msId]=spwsel;
-	//	cerr << "chansel "<< channelSelections_p << endl;
+	//cerr << "chansel "<< channelSelections_p << endl;
 	
 }
   void SynthesisImagerVi2::andFreqSelection(const Int msId, const Int spwId,  const Double freqBeg, const Double freqEnd, const MFrequency::Types frame){

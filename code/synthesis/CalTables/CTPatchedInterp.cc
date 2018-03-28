@@ -579,11 +579,12 @@ Bool CTPatchedInterp::interpolate(Int msobs, Int msfld, Int msspw, Double time, 
   uInt nMSChan=freq.nelements();
 
   // Ensure freq result Array is properly sized
-  if (freqResult_(msspw,msfld,thisobs(msobs)).nelements()!=nMSChan) {
+  if (freqResult_(msspw,msfld,thisobs(msobs)).nelements()==0) {
      Int thisAltFld=altFld_(msfld);
-     if (freqResult_(msspw,thisAltFld,thisobs(msobs)).nelements()!=nMSChan) {
+     if (freqResult_(msspw,thisAltFld,thisobs(msobs)).nelements()==0) {
        freqResult_(msspw,thisAltFld,thisobs(msobs)).resize(nFPar_,nMSChan,nMSElem_);
        freqResFlag_(msspw,thisAltFld,thisobs(msobs)).resize(nPar_,nMSChan,nMSElem_);
+       freqResFlag_(msspw,thisAltFld,thisobs(msobs)).set(true);
      }
      if (thisAltFld!=msfld) {
        freqResult_(msspw,msfld,thisobs(msobs)).reference(freqResult_(msspw,thisAltFld,thisobs(msobs)));
@@ -827,6 +828,7 @@ void CTPatchedInterp::makeInterpolators() {
 	  if (timeResult_(iMSSpw,iMSFld,iMSObs).nelements()==0) {
 	    timeResult_(iMSSpw,iMSFld,iMSObs).resize(nFPar_,nChanIn_(spwMap_(iMSSpw)),nMSElem_);
 	    timeResFlag_(iMSSpw,iMSFld,iMSObs).resize(nPar_,nChanIn_(spwMap_(iMSSpw)),nMSElem_);
+	    timeResFlag_(iMSSpw,iMSFld,iMSObs).set(true);
 	  }
 	  for (Int iMSElem=0;iMSElem<nMSElem_;++iMSElem) {
 	    // Realize the mapping 
@@ -1245,6 +1247,18 @@ void CTPatchedInterp::resampleFlagsInFreq(Vector<Bool>& flgout,const Vector<Doub
       // Find nominal registration (the _index_ just left)
       Bool exact(false);
       ireg=binarySearch(exact,finGHz,fout(iflgout),nflg,0);
+
+      // If registration is exact, assign verbatim
+      // NB: the calibration value calculation occurs agnostically w.r.t. flags,
+      //     so the calculated value should also match
+      // TBD: Add "|| near(finGHz[ireg],fout(iflgout),1e-10) in case "exact" has
+      //      precision issues?
+      if (exact) {
+	flgout[iflgout]=flgin[ireg];
+	continue;
+      }
+
+      // Not exact, so carefully handle bracketing
       if (ireg>0)
 	ireg-=1;
       ireg=min(ireg,nflg-1);

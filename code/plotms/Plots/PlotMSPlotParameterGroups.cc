@@ -249,6 +249,8 @@ const String PMS_PP_Cache::REC_XAXES = "xaxes";
 const String PMS_PP_Cache::REC_YAXES = "yaxes";
 const String PMS_PP_Cache::REC_XDATACOLS = "xdatacolumns";
 const String PMS_PP_Cache::REC_YDATACOLS = "ydatacolumns";
+const String PMS_PP_Cache::REC_SHOWATM = "showatm";
+const String PMS_PP_Cache::REC_SHOWTSKY = "showtsky";
 
 
 PMS_PP_Cache::PMS_PP_Cache(PlotFactoryPtr factory)
@@ -269,6 +271,8 @@ Record PMS_PP_Cache::toRecord() const
 	rec.define(REC_YAXES, PMS::toIntVector<PMS::Axis>(itsYAxes_));
 	rec.define(REC_XDATACOLS, PMS::toIntVector<PMS::DataColumn>(itsXData_));
 	rec.define(REC_YDATACOLS, PMS::toIntVector<PMS::DataColumn>(itsYData_));
+	rec.define(REC_SHOWATM, itsShowAtm_);
+	rec.define(REC_SHOWTSKY, itsShowTsky_);
 	return rec;
 }
 
@@ -312,6 +316,25 @@ void PMS_PP_Cache::fromRecord(const Record& record)
 			valuesChanged = true;
 		}
 	}
+    if (record.isDefined(REC_SHOWATM) && record.dataType(REC_SHOWATM) == TpBool)
+	{
+		bool tmp = record.asBool(REC_SHOWATM);
+		if (itsShowAtm_ != tmp)
+		{
+			itsShowAtm_ = tmp;
+			valuesChanged = true;
+		}
+	}
+    if (record.isDefined(REC_SHOWTSKY) && record.dataType(REC_SHOWTSKY) == TpBool)
+	{
+		bool tmp = record.asBool(REC_SHOWTSKY);
+		if (itsShowTsky_ != tmp)
+		{
+			itsShowTsky_ = tmp;
+			valuesChanged = true;
+		}
+	}
+
 	if (valuesChanged) updated();
 }
 
@@ -332,6 +355,8 @@ PMS_PP_Cache& PMS_PP_Cache::assign(const PMS_PP_Cache* o){
 		itsYAxes_ = o->itsYAxes_;
 		itsXData_ = o->itsXData_;
 		itsYData_ = o->itsYData_;
+        itsShowAtm_ = o->itsShowAtm_;
+        itsShowTsky_ = o->itsShowTsky_;
 		updated();
 	}
 	return *this;
@@ -346,6 +371,8 @@ bool PMS_PP_Cache::operator==(const Group& other) const
 	if (itsYAxes_ != o->itsYAxes_) return false;
 	if (itsXData_ != o->itsXData_) return false;
 	if (itsYData_ != o->itsYData_) return false;
+    if (itsShowAtm_ != o->itsShowAtm_) return false;
+    if (itsShowTsky_ != o->itsShowTsky_) return false;
 	return true;
     		}
 
@@ -354,17 +381,17 @@ void PMS_PP_Cache::setDefaults(){
     // With cal tables, cannot use MS default axes (AMP vs TIME);
     // cannot tell if user-specified (do not change)
     // or default (then change x-axis based on cal table type)
-	//itsXAxes_ = vector<PMS::Axis>(1, PMS::DEFAULT_XAXIS);
 	itsXAxes_ = vector<PMS::Axis>(1, PMS::NONE);
-	itsYAxes_ = vector<PMS::Axis>(1, PMS::DEFAULT_YAXIS);
+	itsYAxes_ = vector<PMS::Axis>(1, PMS::NONE);
 	itsXData_ = vector<PMS::DataColumn>(1, PMS::DEFAULT_DATACOLUMN);
 	itsYData_ = vector<PMS::DataColumn>(1, PMS::DEFAULT_DATACOLUMN);
+    itsShowAtm_ = false;
+    itsShowTsky_ = false;
 }
 
 void PMS_PP_Cache::resize( int count ){
 	itsXAxes_ = vector<PMS::Axis>(1, PMS::NONE);
-	//itsXAxes_ = vector<PMS::Axis>(count, PMS::DEFAULT_XAXIS);
-	itsYAxes_ = vector<PMS::Axis>(count, PMS::DEFAULT_YAXIS);
+	itsYAxes_ = vector<PMS::Axis>(count, PMS::NONE);
 	itsXData_ = vector<PMS::DataColumn>(count, PMS::DEFAULT_DATACOLUMN);
 	itsYData_ = vector<PMS::DataColumn>(count, PMS::DEFAULT_DATACOLUMN);
 }
@@ -444,11 +471,15 @@ PMS_PP_Axes::PMS_PP_Axes(PlotFactoryPtr factory)
 : PlotMSPlotParameters::Group(factory)
 {
 	setDefaults();
-} PMS_PP_Axes::PMS_PP_Axes(const PMS_PP_Axes& copy) : PlotMSPlotParameters::Group(copy)
+} 
+
+PMS_PP_Axes::PMS_PP_Axes(const PMS_PP_Axes& copy) : PlotMSPlotParameters::Group(copy)
 {
 	setDefaults();
 	operator=(copy);
-} PMS_PP_Axes::~PMS_PP_Axes() { }
+} 
+
+PMS_PP_Axes::~PMS_PP_Axes() { }
 
 
 Record PMS_PP_Axes::toRecord() const
@@ -630,8 +661,7 @@ PMS_PP_Axes& PMS_PP_Axes::operator=(const Group& other){
 }
 
 PMS_PP_Axes& PMS_PP_Axes::assign(const PMS_PP_Axes* o){
-	if (o != NULL && *this != *o)
-	{
+	if (o != NULL && *this != *o) {
 		itsXAxes_ = o->itsXAxes_;
 		itsYAxes_ = o->itsYAxes_;
 		itsXRangesSet_ = o->itsXRangesSet_;
@@ -639,7 +669,7 @@ PMS_PP_Axes& PMS_PP_Axes::assign(const PMS_PP_Axes* o){
 		itsXRanges_ = o->itsXRanges_;
 		itsYRanges_ = o->itsYRanges_;
 		updated();
-	}
+	} 
 	return *this;
 }
 
@@ -668,13 +698,24 @@ void PMS_PP_Axes::setDefaults()
 	itsYRanges_ = vector<prange_t>(1, prange_t(0.0, 0.0));
 }
 
-void PMS_PP_Axes::resize( int count ){
-	itsXAxes_ = vector<PlotAxis>(count, PMS::DEFAULT_CANVAS_XAXIS);
-	itsYAxes_ = vector<PlotAxis>(count, PMS::DEFAULT_CANVAS_YAXIS);
-	itsXRangesSet_ = vector<bool>(count, false);
-	itsYRangesSet_ = vector<bool>(count, false);
-	itsXRanges_ = vector<prange_t>(count, prange_t(0.0, 0.0));
-	itsYRanges_ = vector<prange_t>(count, prange_t(0.0, 0.0));
+void PMS_PP_Axes::resize( int count, bool copyValues ){
+	if (copyValues) {  // append default values
+		for (int i=numXAxes(); i<count; ++i) {
+			itsXAxes_.push_back(PMS::DEFAULT_CANVAS_XAXIS);
+			itsYAxes_.push_back(PMS::DEFAULT_CANVAS_YAXIS);
+			itsXRangesSet_.push_back(false);
+			itsYRangesSet_.push_back(false);
+			itsXRanges_.push_back(prange_t(0.0, 0.0));
+			itsYRanges_.push_back(prange_t(0.0, 0.0));
+		}
+	} else {
+		itsXAxes_ = vector<PlotAxis>(count, PMS::DEFAULT_CANVAS_XAXIS);
+		itsYAxes_ = vector<PlotAxis>(count, PMS::DEFAULT_CANVAS_YAXIS);
+		itsXRangesSet_ = vector<bool>(count, false);
+		itsYRangesSet_ = vector<bool>(count, false);
+		itsXRanges_ = vector<prange_t>(count, prange_t(0.0, 0.0));
+		itsYRanges_ = vector<prange_t>(count, prange_t(0.0, 0.0));
+	}
 }
 
 unsigned int PMS_PP_Axes::numXAxes() const

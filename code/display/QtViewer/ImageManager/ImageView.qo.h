@@ -26,7 +26,7 @@
 #ifndef IMAGEVIEW_QO_H
 #define IMAGEVIEW_QO_H
 
-#include <QtGui/QFrame>
+#include <QFrame>
 #include <QMenu>
 #include <casa/BasicSL/String.h>
 #include <casa/Containers/Record.h>

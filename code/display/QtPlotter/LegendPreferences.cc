@@ -31,10 +31,6 @@
 using namespace casacore;
 namespace casa {
 
-	const QString LegendPreferences::LEGEND_VISIBLE="Legend Visible";
-	const QString LegendPreferences::LEGEND_LOCATION="Legend Location";
-	const QString LegendPreferences::LEGEND_COLOR_BAR="Legend Colorbar";
-
 	LegendPreferences::LegendPreferences( CanvasHolder* holder,QWidget *parent)
 		: QDialog(parent),  showLegendDefault( true ), showColorBarDefault( true ),
 		  legendPositionDefault( CanvasHolder::CANVAS ), canvasHolder( holder ) {
@@ -84,16 +80,16 @@ namespace casa {
 
 	void LegendPreferences::initializeUserPreferences() {
 		//Read information from the persistent legend settings
-		QSettings settings( Util::ORGANIZATION, Util::APPLICATION );
+		QSettings settings( Util::ORGANIZATION( ), Util::APPLICATION( ) );
 
 		//If the user has a custom color scheme, read it in.
-		bool legendVisible = settings.value(LEGEND_VISIBLE, showLegendDefault).toBool();
+		bool legendVisible = settings.value(LEGEND_VISIBLE( ), showLegendDefault).toBool();
 		ui.showLegendCheckBox->setChecked( legendVisible );
 
-		int legendPosition = settings.value( LEGEND_LOCATION, legendPositionDefault).toInt();
+		int legendPosition = settings.value( LEGEND_LOCATION( ), legendPositionDefault).toInt();
 		ui.locationComboBox->setCurrentIndex( legendPosition );
 
-		bool showColorBar = settings.value( LEGEND_COLOR_BAR, showColorBarDefault).toBool();
+		bool showColorBar = settings.value( LEGEND_COLOR_BAR( ), showColorBarDefault).toBool();
 		ui.colorBarCheckBox->setChecked( showColorBar );
 
 		legendVisibilityChanged( );
@@ -108,17 +104,17 @@ namespace casa {
 	}
 	void LegendPreferences::persist() {
 		//Store legend preferences indicated by the user
-		QSettings settings( Util::ORGANIZATION, Util::APPLICATION );
+		QSettings settings( Util::ORGANIZATION( ), Util::APPLICATION( ) );
 		settings.clear();
 
 		bool showLegend = ui.showLegendCheckBox->isChecked();
-		settings.setValue( LEGEND_VISIBLE, showLegend );
+		settings.setValue( LEGEND_VISIBLE( ), showLegend );
 
 		int positionIndex = ui.locationComboBox->currentIndex();
-		settings.setValue( LEGEND_LOCATION, positionIndex );
+		settings.setValue( LEGEND_LOCATION( ), positionIndex );
 
 		bool showColorBar = ui.colorBarCheckBox->isChecked();
-		settings.setValue( LEGEND_COLOR_BAR, showColorBar );
+		settings.setValue( LEGEND_COLOR_BAR( ), showColorBar );
 	}
 
 	void LegendPreferences::colorBarVisibilityChange() {

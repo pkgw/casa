@@ -36,6 +36,7 @@
 #include <ms/MeasurementSets/MeasurementSet.h>
 #include <ms/MeasurementSets/MSHistoryHandler.h>
 #include <ms/MeasurementSets/MSRange.h>
+#include <ms/MeasurementSets/MSColumns.h>
 #include <ms/MSOper/MSConcat.h>
 #include <ms/MSOper/MSLister.h>
 #include <ms/MSOper/MSSummary.h>
@@ -802,9 +803,7 @@ ms::getspectralwindowinfo()
 }
 
 variant*
-ms::getfielddirmeas(
-    const std::string& dircolname, int fieldid,
-    double time, const string& format)
+ms::getfielddirmeas(const std::string& dircolname, int fieldid, double time, const string& format)
 {
     variant *retval = 0;
     try{
@@ -824,6 +823,9 @@ ms::getfielddirmeas(
             }
             else if(colname=="REFERENCE_DIR"){
                 d = msfc.referenceDirMeas(fieldid, time);
+	    }
+            else if(colname=="EPHEMERIS_DIR"){
+                d = msfc.ephemerisDirMeas(fieldid, time);
             }
             else{
                 *itsLog << LogIO::SEVERE
@@ -2285,18 +2287,18 @@ ms::selectinit(const int datadescid, const bool resetsel)
 				retval = reset();
 				initSel_p = false;
 			} else {
-				// test it first, can't revert MSSelection selection
 				String selDDID = String::toString(datadescid);
 				String ddidTaql = "DATA_DESC_ID IN [" + selDDID + "]";
-				MSSelection mss(*itsSelectedMS);
-				MeasurementSet testSelectionMS;
-				mss.setTaQLExpr(ddidTaql);
+				Record taqlSelRec(Record::Variable);
+				taqlSelRec.define("taql", ddidTaql);
+				::casac::record* casacRec = fromRecord(taqlSelRec);
 				try {
-					mss.getSelectedMS(testSelectionMS);
-					// okay to do selection for real
-					retval = selecttaql(ddidTaql);
+					// test it first, can't revert MSSelection selection
+					retval = doMSSelection(*casacRec, true);  // onlyparse=true
+					if (retval)
+						retval = doMSSelection(*casacRec); // onlyparse=false
 					initSel_p = retval;
-				} catch (AipsError x) {  // MSSelectionNullSelection
+				} catch (const AipsError &x) {  // MSSelectionNullSelection
 					String mesg = "selectinit failed for datadescid " + selDDID;
 					*itsLog << LogOrigin("ms", "selectinit");
 					*itsLog << LogIO::WARN << mesg << LogIO::POST;
@@ -2647,12 +2649,14 @@ ms::selectpolarizationold(const std::vector<std::string>& wantedpol)
 bool
 ms::selectpolarization(const std::vector<std::string>& wantedpol)
 {
+    // polnExpr_p is polarization expression used by MSSelection for selected MS
+    // wantedpol_p is polarizations wanted and conversion is required
     *itsLog << LogOrigin("ms", "selectpolarization");
     Bool retval(false);
     try {
         if(!detached()) {
             if (checkinit()) {
-                *itsLog << LogOrigin("ms", "selectpolarization2");
+                *itsLog << LogOrigin("ms", "selectpolarization");
                 Record polnSelRec(Record::Variable);
                 String polnExpr = MSSelection::nameExprStr(wantedpol);
                 polnSelRec.define("polarization", polnExpr);
@@ -2666,7 +2670,7 @@ ms::selectpolarization(const std::vector<std::string>& wantedpol)
         }
     } catch (AipsError x) {
         if (x.getMesg().find("No match") != std::string::npos) {
-            // either invalid poln selection or need conversion
+            // either undefined poln selection or need conversion
             try {
                 wantedpol_p.resize(wantedpol.size());
                 for (uInt i=0; i<wantedpol.size(); ++i) {
@@ -2690,8 +2694,7 @@ ms::selectpolarization(const std::vector<std::string>& wantedpol)
             }
         } else {
             *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
-            Table::relinquishAutoLocks(true);
-            RETHROW(x);
+            retval=false;
         }
     }
     Table::relinquishAutoLocks(true);
@@ -3406,7 +3409,7 @@ ms::cvelfreqs(const std::vector<int>& spwids,
     return rval;
 }
 
-Vector<Int> ms::convertCorrToInt(vi::VisBuffer2* vb2) {
+Vector<Int> ms::getCorrTypes(vi::VisBuffer2* vb2) {
     Vector<Stokes::StokesTypes> types = vb2->getCorrelationTypesSelected();
     size_t nPol = types.size();
     Vector<Int> inputPol(nPol);
@@ -3581,23 +3584,23 @@ ms::getdataold(const std::vector<std::string>& items, const bool ifraxis, const 
 ::casac::record*
 ms::getdata(const std::vector<std::string>& items, const bool ifraxis, const int ifraxisgap, const int increment, const bool average)
 {
-	*itsLog << LogOrigin("ms", "getdata");
+    *itsLog << LogOrigin("ms", "getdata");
 
-	::casac::record *retval(0);
-	try {
-		if(!detached()) {
+    ::casac::record *retval(0);
+    try {
+        if(!detached()) {
+          uInt nrows = itsSelectedMS->nrow();
+          if (nrows == 0) {
+              *itsLog << LogIO::WARN << "Selected table is empty, cannot get data" << LogIO::POST;
+                return retval;
+          }
+
           if (checkinit()) {
             Record out(RecordInterface::Variable);
             Vector<String> itemnames(items);
             Int axisgap = ifraxisgap;
-		    doingAveraging_p = average;
+            doingAveraging_p = average;
             bool chanAverage = ((chansel_p.size() > 0) && (chansel_p[2] > 1));
-
-            uInt nrows = itsSelectedMS->nrow();
-            if (nrows == 0) {
-                *itsLog << LogIO::WARN << "Selected table is empty - use selectinit" << LogIO::POST;
-		        return retval;
-	        }
 
             if (axisgap>0 && ifraxis==false) {
                 *itsLog << LogIO::WARN << "ifraxis not requested, ignoring ifraxisgap argument" << LogIO::POST;
@@ -3776,39 +3779,49 @@ ms::getdata(const std::vector<std::string>& items, const bool ifraxis, const int
                         }
                     }
                 }
-            } else {   
-                // Set up iterator and go through all chunks
-                // Note: iter methods change LogOrigin, change back!
-                *itsLog << LogOrigin("ms", "getdata");
-                // init iterator, do not sort columns
-                std::vector<std::string> columns = {""};
-                if (iterinit(columns, 0.0, 0, false)) {
-                    iterorigin();
-                    vi::VisBuffer2* vb2 = itsVI2->getVisBuffer();
+            } else {
+                // use vivb2 to add ifr axis, do channel average, handle in-row selection, or convert poln
+                if (ifraxis || chanAverage || !polnExpr_p.empty() || !chanselExpr_p.empty() || 
+                    (wantedpol_p.size() > 0)) { 
+                    // Set up iterator and go through all chunks
+                    // Note: iter methods change LogOrigin, change back!
                     *itsLog << LogOrigin("ms", "getdata");
-                    // handle first chunk
-                    for (itsVI2->origin(); itsVI2->more(); itsVI2->next()) {
-                        for (uInt it=0; it<itemnames.size(); ++it) {
-                            if (!itemnames(it).empty()) {
-                                success = getitem(itemnames(it), vb2, out, 
-                                    ifraxis);
-                                if (!success) itemnames(it)="";
-                            }
-                        }
-                    }
-                    // continue iteration
-                    while (iternext()) {
+                    // init iterator, do not sort columns
+                    std::vector<std::string> columns = {""};
+                    if (iterinit(columns, 0.0, 0, false)) {
+                        iterorigin();
+                        vi::VisBuffer2* vb2 = itsVI2->getVisBuffer();
                         *itsLog << LogOrigin("ms", "getdata");
+                        // handle first chunk
                         for (itsVI2->origin(); itsVI2->more(); itsVI2->next()) {
                             for (uInt it=0; it<itemnames.size(); ++it) {
-                                if (!itemnames(it).empty())
-                                    getitem(itemnames(it), vb2, out, ifraxis);
+                                if (!itemnames(it).empty()) {
+                                    success = getitem(itemnames(it), vb2, out, ifraxis);
+                                    if (!success) itemnames(it)="";
+                                }
                             }
                         }
+                        // continue iteration
+                        while (iternext()) {
+                            *itsLog << LogOrigin("ms", "getdata");
+                            for (itsVI2->origin(); itsVI2->more(); itsVI2->next()) {
+                                for (uInt it=0; it<itemnames.size(); ++it) {
+                                    if (!itemnames(it).empty())
+                                        getitem(itemnames(it), vb2, out, ifraxis);
+                                }
+                            }
+                        }
+                        iterend();
+                        *itsLog << LogOrigin("ms", "getdata");
+                    } // iterinit
+                } else {  // use ms columns to get items
+                    for (uInt it=0; it<itemnames.size(); ++it) {
+                        if (!itemnames(it).empty()) {
+                            success = getitem(itemnames(it), msc, out);
+                            if (!success) itemnames(it)="";
+                        }
                     }
-                    iterend();
-                    *itsLog << LogOrigin("ms", "getdata");
-                } // iterinit
+                }
             } // else (!VI2)
 
 
@@ -3850,6 +3863,7 @@ ms::getdata(const std::vector<std::string>& items, const bool ifraxis, const int
             } 
 
             if (average || chanAverage) {
+                // average across last axis
                 if (average)
                     getAveragedValues(itemnames, out);
                 // remove flag field if not requested
@@ -3886,7 +3900,7 @@ ms::getdata(const std::vector<std::string>& items, const bool ifraxis, const int
             retval = casa::fromRecord(out);
           } // checkinit
         } // !detached
-    } catch (AipsError x) {
+    } catch (const AipsError &x) {
         *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
         Table::relinquishAutoLocks(true);
         RETHROW(x);
@@ -4118,12 +4132,14 @@ void ms::getAvgSigma(Array<Float>& sigma) {
 }
 
 void ms::convertPoln(Cube<Complex>& inputcube, vi::VisBuffer2* vb) {
-    Cube<Complex> scData;
-    Vector<Int> inputPol = convertCorrToInt(vb);
-    StokesConverter* sc = new StokesConverter(wantedpol_p, inputPol, True);
-    if (sc) sc->convert(scData, inputcube);
-    inputcube.reference(scData);
-    if (sc) delete sc;
+	Cube<Complex> outputcube;
+	Vector<Int> inputPols = getCorrTypes(vb);
+    StokesConverter* sc = new StokesConverter(wantedpol_p, inputPols, True);
+    if (sc) {
+        sc->convert(outputcube, inputcube);
+	    inputcube.reference(outputcube);
+        delete sc;
+    }
 }
 
 template <typename T>
@@ -4262,21 +4278,66 @@ void ms::getInfoOptions(Vector<Bool> info_options, Record& outputRec) {
 }
 
 Vector<String> ms::getCorrAxis(vi::VisBuffer2* vb2) {
-    Vector<Stokes::StokesTypes> types;
-    uInt polSize = wantedpol_p.size();
+    casacore::Vector<casacore::String> names;
+    getWantedPolNames(names);
+    if (names.size() == 0) {
+        Vector<Stokes::StokesTypes> types = vb2->getCorrelationTypesSelected();
+        uInt typesSize = types.size();
+        names.resize(typesSize);
+        for (uInt i=0; i<typesSize; ++i) 
+            names(i) = Stokes::name(types(i));
+    }
+    return names;
+}
+
+Vector<String> ms::getCorrAxis(ROMSColumns& msc) {
+    Vector<String> names;
+    getWantedPolNames(names);  // user selected poln needing conversion
+    if (names.size() == 0) {
+        Vector<Int> corrTypes = getCorrTypes(msc); // selected corr types (or all)
+        uInt ncorr(corrTypes.size());
+        names.resize(ncorr);
+        for (uInt i=0; i<ncorr; ++i)
+            names(i) = Stokes::name(Stokes::type(corrTypes(i)));
+    }
+    return names;
+}
+
+Vector<Int> ms::getCorrTypes(ROMSColumns& msc) {
+    // return all or selected corr types in POLN table
+    Int ddid = msc.dataDescId()(0);
+    Int polId = msc.dataDescription().polarizationId()(ddid);
+    Vector<Int> corrTypes, allCorrTypes(msc.polarization().corrType()(polId)); 
+    if (polnExpr_p.empty()) { // use all
+        corrTypes = allCorrTypes;
+    } else { // user selected existing poln, get corr_types 
+        // The keys are DDIDs, vals are indices in POLN table corrTypes
+        OrderedMap<Int, Vector<Int> > polmap(itsMSS->getPolMap());
+        // set up map iterator and get value  for ddid
+        ConstMapIter<Int, Vector<Int> > mapiter(polmap);
+        Vector<Int> corrTypeIdx;
+        for (mapiter.toStart(); !mapiter.atEnd(); mapiter++) {
+            if (mapiter.getKey() == polId) {
+                corrTypeIdx = mapiter.getVal();
+                break;
+            }
+        }
+        uInt ncorr(corrTypeIdx.size());
+        corrTypes.resize(ncorr);
+        for (uInt i=0; i<ncorr; ++i)
+            corrTypes(i) = allCorrTypes(corrTypeIdx(i));
+    }
+    return corrTypes;
+}
+
+void ms::getWantedPolNames(casacore::Vector<casacore::String>& names) {
+    uInt polSize = wantedpol_p.size(); // types for conversion
     if (polSize > 0) {
-        // convert Int to StokesTypes
-        types.resize(polSize);
+        // convert Int to Stokes type to name
+        names.resize(polSize);
         for (uInt i=0; i<polSize; ++i) 
-            types(i) = Stokes::type(wantedpol_p(i));
-    } else {
-        types = vb2->getCorrelationTypesSelected();
+            names(i) = Stokes::name(Stokes::type(wantedpol_p(i)));
     }
-    Vector<String> corrNames(types.size());
-    for (uInt i=0; i<types.size(); ++i) {
-        corrNames(i) = Stokes::name(types(i));
-    }
-    return corrNames;
 }
 
 Record ms::getFreqAxis() {
@@ -4378,17 +4439,19 @@ void ms::addTimeAxis(Record& out) {
     out.defineRecord(fieldname, axisInfoRec);
 }
 
-bool ms::getitem(String item, vi::VisBuffer2* vb2, Record& outputRec,
-        bool ifraxis) {
+bool ms::getitem(String item, vi::VisBuffer2* vb2, Record& outputRec, bool ifraxis) {
     bool getokay(true);
     String itemname = downcase(item);
+    Record intermediateValue(RecordInterface::Variable); // for visibilities, get data first
     Bool fieldExists = outputRec.isDefined(itemname);
-    Record intermediateValue(RecordInterface::Variable);
+
+    // field for switch
     MSS::Field fld;
     if (itemname.startsWith("avg_"))
         fld = MSS::field(getbaseitem(itemname));
     else
         fld = MSS::field(itemname);
+
     switch(fld) {
         case MSS::AMPLITUDE: {
             getitem("data", vb2, intermediateValue, ifraxis);
@@ -4787,11 +4850,10 @@ bool ms::getitem(String item, vi::VisBuffer2* vb2, Record& outputRec,
             }
             break; 
         case MSS::AXIS_INFO: {
-            if (!fieldExists) {
-                // corr_, freq_, ifr_axis same for all iterations!
+            if (!fieldExists) { // corr_, freq_, ifr_axis same for all iterations!
                 Record info(RecordInterface::Variable);
-                Vector<String> corrAxis = getCorrAxis(vb2);
                 // corr_axis
+                Vector<String> corrAxis = getCorrAxis(vb2);
                 info.define("corr_axis", corrAxis);
                 // freq_axis
                 Record freqAxis = getFreqAxis();
@@ -4810,6 +4872,327 @@ bool ms::getitem(String item, vi::VisBuffer2* vb2, Record& outputRec,
             *itsLog << LogIO::WARN << "Unrecognized field or field not implemented: "
                     << itemname << LogIO::POST;
             getokay = false;
+            break;
+    }
+    return getokay;
+}
+
+bool ms::getitem(String item, ROMSColumns& msc, Record& outputRec) {
+    bool getokay(true);
+    String itemname = downcase(item);
+    Record intermediateValue(RecordInterface::Variable); // for visibilities, get data first
+
+    // field for switch
+    MSS::Field fld;
+    if (itemname.startsWith("avg_"))
+        fld = MSS::field(getbaseitem(itemname));
+    else
+        fld = MSS::field(itemname);
+    switch(fld) {
+        case MSS::AMPLITUDE: {
+            getitem("data", msc, intermediateValue);
+            Cube<Complex> viscube = intermediateValue.asArrayComplex("data");
+            outputRec.define(itemname, amplitude(viscube));
+            }
+            break;
+        case MSS::CORRECTED_AMPLITUDE: {
+            getitem("corrected_data", msc, intermediateValue);
+            Cube<Complex> corrcube = intermediateValue.asArrayComplex("corrected_data");
+            outputRec.define(itemname, amplitude(corrcube));
+            }
+            break;
+        case MSS::MODEL_AMPLITUDE: {
+            getitem("model_data", msc, intermediateValue);
+            Cube<Complex> modelcube = intermediateValue.asArrayComplex("model_data");
+            outputRec.define(itemname, amplitude(modelcube));
+            }
+            break;
+        case MSS::RATIO_AMPLITUDE: {
+            getitem("ratio_data", msc, intermediateValue);
+            Cube<Complex> ratiocube = intermediateValue.asArrayComplex("ratio_data");
+            outputRec.define(itemname, amplitude(ratiocube));
+            }
+            break;
+        case MSS::RESIDUAL_AMPLITUDE: {
+            getitem("residual_data", msc, intermediateValue);
+            Cube<Complex> rescube = intermediateValue.asArrayComplex("residual_data");
+            outputRec.define(itemname, amplitude(rescube));
+            }
+            break;
+        case MSS::OBS_RESIDUAL_AMPLITUDE: {
+            getitem("obs_residual_data", msc, intermediateValue);
+            Cube<Complex> rescube = intermediateValue.asArrayComplex("obs_residual_data");
+            outputRec.define(itemname, amplitude(rescube));
+            }
+            break;
+        case MSS::ANTENNA1: {
+            Vector<Int> ant1 = msc.antenna1().getColumn();
+            outputRec.define(itemname, ant1);
+            }
+            break;
+        case MSS::ANTENNA2: {
+            Vector<Int> ant2 = msc.antenna2().getColumn();
+            outputRec.define(itemname, ant2);
+            }
+            break;
+        case MSS::ARRAY_ID: {
+            Vector<Int> arrayId = msc.arrayId().getColumn();
+            outputRec.define(itemname, arrayId);
+            }
+            break;
+        // DATA fields can be intermediate values
+        case MSS::DATA: {
+            const Array<Complex> data = msc.data().getColumn();
+            outputRec.define(itemname, data);
+            }
+            break;
+        case MSS::CORRECTED_DATA: { 
+            Array<Complex> corrdata = msc.correctedData().getColumn();
+            outputRec.define(itemname, corrdata);
+            }
+            break;
+        case MSS::MODEL_DATA: { 
+            Array<Complex> modeldata = msc.modelData().getColumn();
+            outputRec.define(itemname, modeldata);
+            }
+            break;
+        case MSS::RATIO_DATA: {
+            Array<Complex> corrdata = msc.correctedData().getColumn();
+            Array<Complex> modeldata = msc.modelData().getColumn();
+            Array<Complex> ratiodata = corrdata / modeldata;
+            outputRec.define(itemname, ratiodata);
+            }
+            break;
+        case MSS::RESIDUAL_DATA: {
+            Array<Complex> corrdata = msc.correctedData().getColumn();
+            Array<Complex> modeldata = msc.modelData().getColumn();
+            Array<Complex> resdata = corrdata - modeldata;
+            outputRec.define(itemname, resdata);
+            }
+            break;
+        case MSS::OBS_RESIDUAL_DATA: {                                  
+            Array<Complex> data = msc.data().getColumn();
+            Array<Complex> modeldata = msc.modelData().getColumn();
+            Array<Complex> resdata = data - modeldata;
+            outputRec.define(itemname, resdata);
+            }
+            break;
+        case MSS::DATA_DESC_ID: {
+            Vector<Int> ddId = msc.dataDescId().getColumn();
+            outputRec.define(itemname, ddId);
+            }
+            break;
+        case MSS::FEED1: {
+            Vector<Int> feed1 = msc.feed1().getColumn();
+            outputRec.define(itemname, feed1);
+            }
+            break;
+        case MSS::FEED2: {
+            Vector<Int> feed2 = msc.feed2().getColumn();
+            outputRec.define(itemname, feed2);
+            }
+            break;
+        case MSS::FIELD_ID: {
+            Vector<Int> field = msc.fieldId().getColumn();
+            outputRec.define(itemname, field);
+            }
+            break;
+        case MSS::FLAG:
+        case MSS::FLAG_SUM: {
+            Array<Bool> flag = msc.flag().getColumn();
+            outputRec.define(itemname, flag);
+            }
+            break;
+        case MSS::FLAG_ROW: {
+            Array<Bool> flagrow = msc.flagRow().getColumn();
+            outputRec.define(itemname, flagrow);
+            }
+            break;
+        case MSS::FLOAT_DATA: {
+            Array<Float> floatdata = msc.floatData().getColumn();
+            outputRec.define(itemname, floatdata);
+            }
+            break;
+        case MSS::IFR_NUMBER: {
+            Vector<Int> ifrs = getifrnumbers();
+            outputRec.define(itemname, ifrs);
+            }
+            break;
+        case MSS::IMAGINARY: {
+            getitem("data", msc, intermediateValue);
+            Cube<Complex> viscube = intermediateValue.asArrayComplex("data");
+            outputRec.define(itemname, imag(viscube));
+            }
+            break;
+        case MSS::CORRECTED_IMAGINARY: {
+            getitem("corrected_data", msc, intermediateValue);
+            Cube<Complex> corrcube = intermediateValue.asArrayComplex("corrected_data");
+            outputRec.define(itemname, imag(corrcube));
+            }
+            break;
+        case MSS::MODEL_IMAGINARY: {
+            getitem("model_data", msc, intermediateValue);
+            Cube<Complex> modelcube = intermediateValue.asArrayComplex("model_data");
+            outputRec.define(itemname, imag(modelcube));
+            }
+            break;
+        case MSS::RATIO_IMAGINARY: {
+            getitem("ratio_data", msc, intermediateValue);
+            Cube<Complex> ratiocube = intermediateValue.asArrayComplex("ratio_data");
+            outputRec.define(itemname, imag(ratiocube));
+            }
+            break;
+        case MSS::RESIDUAL_IMAGINARY: {
+            getitem("residual_data", msc, intermediateValue);
+            Cube<Complex> rescube = intermediateValue.asArrayComplex("residual_data");
+            outputRec.define(itemname, imag(rescube));
+            }
+            break;
+        case MSS::OBS_RESIDUAL_IMAGINARY: {
+            getitem("obs_residual_data", msc, intermediateValue);
+            Cube<Complex> rescube = intermediateValue.asArrayComplex("obs_residual_data");
+            outputRec.define(itemname, imag(rescube));
+            }
+            break;
+        case MSS::PHASE: {
+            getitem("data", msc, intermediateValue);
+            Cube<Complex> viscube = intermediateValue.asArrayComplex("data");
+            outputRec.define(itemname, phase(viscube));
+            }
+            break;
+        case MSS::CORRECTED_PHASE: {
+            getitem("corrected_data", msc, intermediateValue);
+            Cube<Complex> corrcube = intermediateValue.asArrayComplex("corrected_data");
+            outputRec.define(itemname, phase(corrcube));
+            }
+            break;
+        case MSS::MODEL_PHASE: {
+            getitem("model_data", msc, intermediateValue);
+            Cube<Complex> modelcube = intermediateValue.asArrayComplex("model_data");
+            outputRec.define(itemname, phase(modelcube));
+            }
+            break;
+        case MSS::RATIO_PHASE: {
+            getitem("ratio_data", msc, intermediateValue);
+            Cube<Complex> ratiocube = intermediateValue.asArrayComplex("ratio_data");
+            outputRec.define(itemname, phase(ratiocube));
+            }
+            break;
+        case MSS::RESIDUAL_PHASE: {
+            getitem("residual_data", msc, intermediateValue);
+            Cube<Complex> rescube = intermediateValue.asArrayComplex("residual_data");
+            outputRec.define(itemname, phase(rescube));
+            }
+            break;
+        case MSS::OBS_RESIDUAL_PHASE: {
+            getitem("obs_residual_data", msc, intermediateValue);
+            Cube<Complex> rescube = intermediateValue.asArrayComplex("obs_residual_data");
+            outputRec.define(itemname, phase(rescube));
+            }
+            break;
+        case MSS::REAL: {
+            getitem("data", msc, intermediateValue);
+            Cube<Complex> viscube = intermediateValue.asArrayComplex("data");
+            outputRec.define(itemname, real(viscube));
+            }
+            break;
+        case MSS::CORRECTED_REAL: {
+            getitem("corrected_data", msc, intermediateValue);
+            Cube<Complex> corrcube = intermediateValue.asArrayComplex("corrected_data");
+            outputRec.define(itemname, real(corrcube));
+            }
+            break;
+        case MSS::MODEL_REAL: {
+            getitem("model_data", msc, intermediateValue);
+            Cube<Complex> modelcube = intermediateValue.asArrayComplex("model_data");
+            outputRec.define(itemname, real(modelcube));
+            }
+            break;
+        case MSS::RATIO_REAL: {
+            getitem("ratio_data", msc, intermediateValue);
+            Cube<Complex> ratiocube = intermediateValue.asArrayComplex("ratio_data");
+            outputRec.define(itemname, real(ratiocube));
+            }
+            break;
+        case MSS::RESIDUAL_REAL: {
+            getitem("residual_data", msc, intermediateValue);
+            Cube<Complex> rescube = intermediateValue.asArrayComplex("residual_data");
+            outputRec.define(itemname, real(rescube));
+            }
+            break;
+        case MSS::OBS_RESIDUAL_REAL: {
+            getitem("obs_residual_data", msc, intermediateValue);
+            Cube<Complex> rescube = intermediateValue.asArrayComplex("obs_residual_data");
+            outputRec.define(itemname, real(rescube));
+            }
+            break;
+        case MSS::SCAN_NUMBER: {
+            Vector<Int> scan = msc.scanNumber().getColumn();
+            outputRec.define(itemname, scan);
+            }
+            break;
+        case MSS::SIGMA: {
+            Array<Float> sigma = msc.sigma().getColumn();
+            outputRec.define(itemname, sigma);
+            }
+            break;
+        case MSS::TIME: {
+            Vector<Double> times = msc.time().getColumn();
+            outputRec.define(itemname, times);
+            }
+            break;
+        case MSS::UVW: {
+            Array<Double> uvw = msc.uvw().getColumn();
+            outputRec.define(itemname, uvw);
+            }
+            break;
+        case MSS::U: {
+            Matrix<Double> uvw = msc.uvw().getColumn();
+            Vector<Double> u = uvw.row(0);
+            outputRec.define(itemname, u);
+            }
+            break;
+        case MSS::V: {
+            Matrix<Double> uvw = msc.uvw().getColumn();
+            Vector<Double> v = uvw.row(1);
+            outputRec.define(itemname, v);
+            }
+            break;
+        case MSS::W: {
+            Matrix<Double> uvw = msc.uvw().getColumn();
+            Vector<Double> w = uvw.row(2);
+            outputRec.define(itemname, w);
+            }
+            break;
+        case MSS::UVDIST: {
+            Matrix<Double> uvw = msc.uvw().getColumn();
+            Vector<Double> u(uvw.row(0)), v(uvw.row(1));
+            Vector<Double> uvdist = sqrt(pow(u, 2.0) + pow(v, 2.0));
+            outputRec.define(itemname, uvdist);
+            }
+            break;
+        case MSS::WEIGHT: {
+            Array<Float> weight = msc.weight().getColumn();
+            outputRec.define(itemname, weight);
+            }
+            break;
+        case MSS::AXIS_INFO: {
+            Record info(RecordInterface::Variable);
+            // corr_axis
+            Vector<String> corraxis = getCorrAxis(msc);
+            info.define("corr_axis", corraxis);
+            // freq_axis
+            Record freqaxis = getFreqAxis();
+            info.defineRecord("freq_axis", freqaxis);
+            outputRec.defineRecord(itemname, info);
+            }
+            break;
+        case MSS::UNDEFINED:
+        default: {
+            *itsLog << LogIO::WARN << "Unrecognized field or field not implemented: "
+                    << itemname << LogIO::POST;
+            getokay = false;
+            }
             break;
     }
     return getokay;
@@ -5909,7 +6292,7 @@ ms::iterinit(const std::vector<std::string>& columns, const double interval,
     return rstat;
 }
 
-bool ms::statwt2(
+record* ms::statwt2(
     const string& combine, const variant& timebin, bool slidetimebin,
     const variant& chanbin, int minsamp, const string& statalg,
     double fence, const string& center, bool lside,
@@ -5920,7 +6303,7 @@ bool ms::statwt2(
     *itsLog << LogOrigin("ms", __func__);
     try {
         if (detached()) {
-            return False;
+            return nullptr;
         }
         StatWt statwt(itsMS);
         if (slidetimebin) {
@@ -5966,8 +6349,7 @@ bool ms::statwt2(
         tviConfig["datacolumn"] = datacolumn;
         unique_ptr<Record> rec(toRecord(tviConfig));
         statwt.setTVIConfig(*rec);
-        statwt.writeWeights();
-        return True;
+        return fromRecord(statwt.writeWeights());
     }
     catch (const AipsError& x) {
         *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
@@ -5975,7 +6357,7 @@ bool ms::statwt2(
         RETHROW(x);
     }
     Table::relinquishAutoLocks(true);
-    return False;
+    return nullptr;
 }
 
 bool
@@ -6450,6 +6832,12 @@ bool ms::msselect(const ::casac::record& exprs, const bool onlyparse)
 	return retVal;
 }
 
+void ms::setNewSel(const MeasurementSet& newSelectedMS) {
+    *itsSelectedMS = newSelectedMS;
+    *itsMS = newSelectedMS;
+    if (itsSel) itsSel->setMS(*itsMS);
+}
+
 Bool ms::doMSSelection(const ::casac::record& exprs, const bool onlyparse)
 {
 	// for internal use
@@ -6500,18 +6888,23 @@ Bool ms::doMSSelection(const ::casac::record& exprs, const bool onlyparse)
 				obsExpr);
 			retVal=(itsMSS->getTEN(itsMS).isNull() == false);
 		} else {
-			MeasurementSet newSelectedMS(*itsSelectedMS);
-		    retVal = mssSetData(*itsSelectedMS, newSelectedMS, "",/*outMSName*/
-		        timeExpr, baselineExpr, fieldExpr, spwExpr, uvDistExpr,
-			    taQLExpr, polnExpr, scanExpr,
-			    arrayExpr, scanIntentExpr, obsExpr, itsMSS);
-			*itsSelectedMS = newSelectedMS;
-		    *itsMS = newSelectedMS;
-        	if (itsSel) itsSel->setMS(*itsMS);
-        }
+		    MeasurementSet newSelectedMS(*itsSelectedMS);
+                    try {
+                        retVal = mssSetData(*itsSelectedMS, newSelectedMS, "",/*outMSName*/
+                                            timeExpr, baselineExpr, fieldExpr, spwExpr, uvDistExpr,
+                                            taQLExpr, polnExpr, scanExpr,
+                                            arrayExpr, scanIntentExpr, obsExpr, itsMSS);
+                    } catch (const MSSelectionNullSelection &mssns) {
+                        // Empty selections are valid in principle, and after this happens
+                        // one should be able to know that for example nrow(true) is 0.
+                        setNewSel(newSelectedMS);
+                        throw;
+                    }
+		    setNewSel(newSelectedMS);
+		}
 		return retVal;
 	}
-	catch (AipsError x)
+	catch (const AipsError &x)
 	{
 		Table::relinquishAutoLocks(true);
 		RETHROW(x);
@@ -6527,7 +6920,7 @@ ms::msselectedindices()
     try
     {
         *itsLog << LogOrigin("ms", "msselectedindices");
-        Record tmp =  mssSelectedIndices(*itsMSS, itsMS);
+        Record tmp =  mssSelectedIndices(*itsMSS, itsSelectedMS);
         selectedIndices = fromRecord(tmp);
     }
     catch (AipsError x)

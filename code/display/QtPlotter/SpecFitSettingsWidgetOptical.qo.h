@@ -25,7 +25,7 @@
 #ifndef SPECFITSETTINGSWIDGETOPTICAL_QO_H
 #define SPECFITSETTINGSWIDGETOPTICAL_QO_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <display/QtPlotter/ProfileTaskFacilitator.h>
 #include <display/QtPlotter/SpecFitSettingsWidgetOptical.ui.h>
 

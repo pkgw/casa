@@ -39,6 +39,7 @@ file:///opt/casa/code/tools/xml/casa.xsd">
 
         <tool name="ms" module="ms">
            <needs>table</needs>
+           <needs>msmetadata</needs>
         <shortdescription>Operations on measurement sets</shortdescription>
        
 
@@ -925,6 +926,7 @@ the ms definition itself. -->
      <param type="string" direction="in" name="fitsfile">
      <description>uvfits file to read</description>
      <value></value>
+     <type mustexist="true">path</type>
      </param>
     
      <param type="bool" direction="in" name="nomodify">
@@ -2243,12 +2245,13 @@ ms.tosdfits("myfile.sdfits")  # write SDFITS file
   <keyword>getfielddirmeas</keyword>
   <input>  
       <param type="string" direction="in" name="dircolname">
-      <description>Name of the direction column in the FIELD table. </description>
+      <description>Name of the direction column in the FIELD table or 'EPHEMERIS_DIR'. </description>
       <value>PHASE_DIR</value>
       <allowed type="enum">
         <value>PHASE_DIR</value>
         <value>DELAY_DIR</value>
         <value>REFERENCE_DIR</value>
+        <value>EPHEMERIS_DIR</value>
       </allowed>
       </param>
 
@@ -2275,11 +2278,17 @@ ms.tosdfits("myfile.sdfits")  # write SDFITS file
     This function returns the direction measures from the given
     direction column of the MS FIELD table as a either a measure
     dictionary or sexigesimal string representation.
+    If there is an ephemeris attached, this will give you the time dependent
+    direction for the given direction column including the offset which each
+    field may have to the ephemeris it is referencing. You can use the value 
+    "EPHEMERIS_DIR" for parameter "dircolname" to access the unaltered ephemeris 
+    direction without any potential mosaic offsets.
   </description>
   <example>
       ms.open('3C273XC1.MS')
-      print "Delay direction from FIELD table row 3 =", \
-          ms.getfielddirmeas("DELAY_DIR", 3)
+      print "Delay direction from FIELD table row 3 =", ms.getfielddirmeas("DELAY_DIR", 3)
+
+      print "Phase direction from ephemeris FIELD table row 4 for time = 5019988459.968 s", ms.getfielddirmeas("PHASE_DIR", 4, 5019988459.968)
   </example>
  </method>
 
@@ -3495,12 +3504,12 @@ in spectral window 1.
      </param>
 
      <param type="string" name="datacolumn">
-     <description>Data column to use to compute weights. Supported values are "data" and "corrected" (case insensitive, minimum match supported).</description>
+     <description>Data column to use to compute weights. Supported values are "data", "corrected", "residual, and "residual_data" (case insensitive, minimum match supported).</description>
      <value>corrected</value>
      <example>"data" or "corrected"</example>
      </param>
   </input>
-  <returns type="bool"/>
+  <returns type="record"/>
   <description>
     IF NOT RUN IN PREVIEW MODE, THIS APPLICATION WILL MODIFY THE
     WEIGHT, WEIGHT SPECTRUM, FLAG, AND FLAG_ROW COLUMNS OF THE INPUT
@@ -3703,8 +3712,31 @@ in spectral window 1.
     The datacolumn parameter can be specified to indicate which data
     column should be used for computing the weights. The values
     "corrected" for the CORRECTED_DATA column and "data" for the DATA
-    column are supported (minimum match, case insensitive).
-            
+    column are supported (minimum match, case insensitive). One may
+    specify 'residual' in which case the values used are the result of
+    the CORRECTED_DATA - MODEL_DATA columns, or 'residual_data' in which
+    case the values used are the DATA - MODEL_DATA columns. The last two
+    options are to allow for operatation on timescales or frequency
+    ranges which are larger than that over which the sky signal is
+    expected to be constant. This situation arises in eg, OTF mapping,
+    and also perhaps with sources with significant spectral structure.
+    In cases where the one of the residual columns is specified and the
+    MODEL_DATA column doesn't exist, the default model visibility of
+    value 1 + 0i will be used. In cases where a necessary column doesn't
+    exist, an exception will be thrown and no data will be changed.
+
+    RETURN VALUE
+
+    In all cases, the mean and variance of the set of all weights computed
+    by the application is reported and returned in a dictionary with keys
+    'mean' and 'variance'. Weights for which there are corresponding flags
+    (=True) prior to running the application are excluded from the
+    computation of these statistics. If the WEIGHT_SPECTRUM values are
+    available, they are used to compute the statistics, otherwise,
+    the WEIGHT values are used. The returned statistics are always computed
+    using the classic algorithm; the value of statalg has no impact on how
+    they are computed.
+
     OTHER CONSIDERATIONS
 
     Flagged values are not used in computing the weights, although the
