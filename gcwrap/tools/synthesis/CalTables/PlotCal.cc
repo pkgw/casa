@@ -479,7 +479,7 @@ Bool PlotCal::plot(String xaxis, String yaxis) {
      calType_p=="EVLASWPOW" || calType_p=="TSYS" || calType_p=="F")
     return doPlot();
 
-  else if(calType_p=="K")
+  else if(calType_p=="K" || calType_p=="FRINGE")
     //    return timePlotK();
     //    throw(AipsError("K plots are disabled for now."));
     return doPlot();
@@ -647,8 +647,14 @@ void PlotCal::getAxisTaQL(const String& axis,
 	label = "Gain: Imaginary Part POLN Ratio";
       }
       else if (axis.contains("PHASE")) {
-	taql = "((180.0/PI())*ARG("+GAINcol()+"[1,"+chansel+"]/"+GAINcol()+"[2,"+chansel+"]))";
-	label = "Gain Phase POLN Difference (deg)";
+	if (calType_p.contains("FRINGE")) {
+	  taql = "((180.0/PI())*(FPARAM[1,"+chansel+"]-FPARAM[4,"+chansel+"]))";
+	  label = "Fringe Phase POLN Difference (deg)";
+	}
+	else {
+	  taql = "((180.0/PI())*ARG("+GAINcol()+"[1,"+chansel+"]/"+GAINcol()+"[2,"+chansel+"]))";
+	  label = "Gain Phase POLN Difference (deg)";
+	}
       }
       else if (axis.contains("TSYS")) {
 	if (calType_p.contains("EVLASWPOW")) {
@@ -676,11 +682,24 @@ void PlotCal::getAxisTaQL(const String& axis,
 	label = "EVLA SP Gain POLN ratio";
       }
       else if (axis.contains("DEL")) {
-	if (isNCT_p) 
-	  taql = "(FPARAM[1,"+chansel+"]-FPARAM[2,"+chansel+"])";
-	else 
-	  taql = "(REAL(GAIN[1,"+chansel+"])-REAL(GAIN[2,"+chansel+"]))";
-	label = "Delay POLN Difference (nsec)";
+	if (calType_p.contains("FRINGE")) {
+	  taql = "(FPARAM[2,"+chansel+"]-FPARAM[5,"+chansel+"])";
+	  label = "Fringe Delay POLN Difference (nsec)";
+	} else {
+	  if (isNCT_p) 
+	    taql = "(FPARAM[1,"+chansel+"]-FPARAM[2,"+chansel+"])";
+	  else 
+	    taql = "(REAL(GAIN[1,"+chansel+"])-REAL(GAIN[2,"+chansel+"]))";
+	  label = "Delay POLN Difference (nsec)";
+	}
+      }
+      else if (axis.contains("RATE")) {
+	if (calType_p.contains("FRINGE")) {
+	  taql = "((FPARAM[3,"+chansel+"]-FPARAM[6,"+chansel+"])/1E-12)";
+	  label = "Fringe Delay Rate POLN Difference (psec/sec)";
+	} else {
+	  throw(AipsError("Fringe delay rate not available in the specified CalTable."));
+	}
       }
       else if (axis.contains("SNR") ) {
 	if (calType_p=="M" || calType_p=="A" || 
@@ -720,8 +739,17 @@ void PlotCal::getAxisTaQL(const String& axis,
 	label = "Gain: Imaginary Part";
       }
       else if (axis.contains("PHASE")) {
-	taql = "((180.0/PI())*ARG("+GAINcol()+"["+polsel+","+chansel+"]))";
-	label = "Gain Phase (deg)";
+	if (calType_p.contains("FRINGE")) {
+	  if (polType_p=="R") polsel="1";
+	  else if (polType_p=="L") polsel="4";
+	  else polsel="1:4:3";
+	  taql = "((180.0/PI())*(FPARAM["+polsel+","+chansel+"]))";
+	  label = "Fringe Phase (deg)";
+	}
+	else {
+	  taql = "((180.0/PI())*ARG("+GAINcol()+"["+polsel+","+chansel+"]))";
+	  label = "Gain Phase (deg)";
+	}
       }
       else if (axis.contains("TSYS")) {
 	if (calType_p.contains("EVLASWPOW")) {
@@ -747,11 +775,32 @@ void PlotCal::getAxisTaQL(const String& axis,
 	label = "EVLA SP Gain";
       }
       else if (axis.contains("DEL")) {
-	if (isNCT_p) 
+	if (calType_p.contains("FRINGE")) {
+	  if (polType_p=="R") polsel="2";
+	  else if (polType_p=="L") polsel="5";
+	  else polsel="2:5:3";
+	  label = "Fringe Delay (nsec)";
 	  taql = "(FPARAM["+polsel+","+chansel+"])";
-	else 
-	  taql = "(REAL(GAIN["+polsel+","+chansel+"]))";
-	label = "Delay (nsec)";
+	}
+	else {
+	  if (isNCT_p) 
+	    taql = "(FPARAM["+polsel+","+chansel+"])";
+	  else 
+	    taql = "(REAL(GAIN["+polsel+","+chansel+"]))";
+	  label = "Delay (nsec)";
+	}
+      }
+      else if (axis.contains("RATE")) {
+	if (calType_p.contains("FRINGE")) {
+	  if (polType_p=="R") polsel="3";
+	  else if (polType_p=="L") polsel="6";
+	  else polsel="3:6:3";
+	}
+	else {
+	  throw(AipsError("Fringe delay rate not available in the specified CalTable."));
+	}
+	taql = "((FPARAM["+polsel+","+chansel+"])/1.0E-12)";
+	label = "Fringe Delay Rate (psec/sec)";
       }
       else if (axis.contains("TEC")) {
 	polsel="1";
@@ -790,7 +839,8 @@ Bool PlotCal::doPlot(){
     if(calType_p=="G" || 
        calType_p=="T" || 
        calType_p=="M" || calType_p=="A" || 
-       calType_p=="GSPLINE" || calType_p=="EVLASWPOW" || calType_p=="F") 
+       calType_p=="GSPLINE" || calType_p=="EVLASWPOW" || calType_p=="F" ||
+       calType_p=="FRINGE") 
       xAxis_p="TIME";
     else if (calType_p=="D")
       xAxis_p="ANTENNA";
@@ -807,6 +857,8 @@ Bool PlotCal::doPlot(){
       yAxis_p="TSYS";
     else if (calType_p=="F")
       yAxis_p="TEC";
+    else if (calType_p=="FRINGE")
+      yAxis_p="DELAY";
     else
       yAxis_p="AMP";
   }
@@ -1281,6 +1333,9 @@ Int PlotCal::multiTables(const Table& tablein,
     }
     else if(subType[0].contains("A")){
       calType_p="A";
+    }
+    else if(subType[0].contains("Fringe")){
+      calType_p="FRINGE";
     }
     else if(subType[0].contains("F")){
       calType_p="F";
