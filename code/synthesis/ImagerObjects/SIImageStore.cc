@@ -2728,7 +2728,6 @@ Array<Double> SIImageStore::calcRobustRMS()
   Record*  regionPtr=0;
   String LELmask("");
  
-  //SDMaskHandler::calcImageStatics(resudial(), regionPt
   Record thestats = SDMaskHandler::calcImageStatistics(*residual(), LELmask, regionPtr, True);
 
   /***

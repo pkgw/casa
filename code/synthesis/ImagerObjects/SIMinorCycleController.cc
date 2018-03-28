@@ -67,7 +67,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //if( fabs(currentPeakResidual) <= itsCycleThreshold ) { stopCode=2; }
     // Reached cyclethreshold or n-sigma threshold
     //debug (TT)
-    os << "majorCycleRequired itsNsigma="<<itsNsigma<<" itsIterDiff="<<itsIterDiff<<LogIO::POST;
+    //os << LogIO::DEBUG1<< "itsNsigma="<<itsNsigma<<" itsIterDiff="<<itsIterDiff<<LogIO::POST;
     if (itsCycleThreshold >= itsNsigmaThreshold) {
       //if( fabs(currentPeakResidual) <= itsCycleThreshold ) { stopCode=2; }
       if( fabs(currentPeakResidual) <= itsCycleThreshold ) { 
@@ -176,8 +176,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   {
     
     LogIO os( LogOrigin("SIMinorCycleController",__FUNCTION__,WHERE) );
-    os<<" Nsigma Thresh valuei before mod="<<itsNsigmaThreshold<<LogIO::POST;
-    os<<" in : Nsigma Thresh value="<<nsigmaThreshold<<LogIO::POST;
     itsNsigmaThreshold = nsigmaThreshold;
   }
 

@@ -160,7 +160,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		Float usePeakRes;
 		if(lastcyclecheck==True){usePeakRes = itsMinorCyclePeakResidual; }
 		else{usePeakRes = itsPeakResidual; }
-                os<<"cleanComplete::: itsCycleThreshold="<<itsCycleThreshold<<LogIO::POST;
+                // for debugging, remove it later
+                os<<LogIO::DEBUG1<<"cleanComplete-- itsCycleThreshold="<<itsCycleThreshold<<LogIO::POST;
                 
 		//		cout << "itsMajorDone="<<itsMajorDone<<" itsIterDone="<<itsIterDone<< " itsInitPeakResidual="<<itsInitPeakResidual<<" itsPeakResidual="<<itsPeakResidual <<" itsPrevPeakResidual : " <<  itsPrevPeakResidual << " itsStopFlag="<<itsStopFlag<<endl;
 
@@ -169,9 +170,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		  {
 		    os << "[WARN] Peak residual (within the mask) increased from " << itsPrevPeakResidual << " to " << itsPeakResidual << LogIO::POST;
 		  }
-                os <<"itsThreshold="<<itsThreshold<<" itsNsigmaThreshold===="<<itsNsigmaThreshold<<LogIO::POST;
-                os <<"usePeakRes="<<usePeakRes<<" itsPeakResidual="<<itsPeakResidual<<LogIO::POST;
-                os <<"itsIterDone="<<itsIterDone<<" itsNiter="<<itsNiter<<LogIO::POST;
+                // for debugging, remove it later
+                os <<LogIO::DEBUG1<<"itsThreshold="<<itsThreshold<<" itsNsigmaThreshold===="<<itsNsigmaThreshold<<LogIO::POST;
+                os <<LogIO::DEBUG1<<"usePeakRes="<<usePeakRes<<" itsPeakResidual="<<itsPeakResidual<<LogIO::POST;
+                os <<LogIO::DEBUG1<<"itsIterDone="<<itsIterDone<<" itsNiter="<<itsNiter<<LogIO::POST;
 
 		/// This may interfere with some other criterion... check.
 		if ( itsMajorDone==0 && itsIterDone==0 ) { stopCode=0; }
@@ -300,10 +302,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		/* The minor cycle will stop based on the cycle parameters. */
 		Int maxCycleIterations = itsCycleNiter;
 		Float cycleThreshold     = itsCycleThreshold;
-                os<<"SIIterBot getMinorCycleControls cycleThreshold="<<cycleThreshold<<LogIO::POST;
+                //os<<"SIIterBot getMinorCycleControls cycleThreshold init ="<<cycleThreshold<<LogIO::POST;
 		maxCycleIterations = min(maxCycleIterations, itsNiter - itsIterDone);
 		cycleThreshold = max(cycleThreshold, itsThreshold);
-                os<<"SIIterBot getMinorCycleControls cycleThreshold="<<cycleThreshold<<LogIO::POST;
+                //os<<"SIIterBot getMinorCycleControls cycleThreshold="<<cycleThreshold<<LogIO::POST;
                 Bool thresholdReached = (cycleThreshold==itsThreshold)? True : False;
 		/*
 		if (itsInteractiveMode) {
@@ -339,11 +341,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                 // cerr<<"nsigma is NOT DEFINED in initRecord!!!"<<endl;
                 //}
 
-                cerr<<"SIIterBot_state:mergeCycleInitRec::initRecord.asFloat(RecordFieldId(nsigmathreshold))="<<initRecord.asFloat(RecordFieldId("nsigmathreshold"))<<endl;
-                cerr<<"SIIterBot_state:mergeCycleInitRec:: before itsNsigmaThresh="<<itsNsigmaThreshold<<endl;
+                //cerr<<"SIIterBot_state:mergeCycleInitRec::initRecord.asFloat(RecordFieldId(nsigmathreshold))="<<initRecord.asFloat(RecordFieldId("nsigmathreshold"))<<endl;
+                //cerr<<"SIIterBot_state:mergeCycleInitRec:: before itsNsigmaThresh="<<itsNsigmaThreshold<<endl;
                 itsNsigmaThreshold = max(itsNsigmaThreshold, initRecord.asFloat(RecordFieldId("nsigmathreshold")));
                 //cerr<<"SIIterBot_state:mergeCycleInitRec::initRecord.asFloat(nsigmathreshold)="<<initRecord.asFloat(RecordFieldId("nsigmathreshold"))<<endl;
-                cerr<<"SIIterBot_state:mergeCycleInitRec:: after itsNsigmaThresh="<<itsNsigmaThreshold<<endl;
+                //cerr<<"SIIterBot_state:mergeCycleInitRec:: after itsNsigmaThresh="<<itsNsigmaThreshold<<endl;
 		
 		///itsMaskSum += initRecord.asFloat(RecordFieldId("masksum"));
 		/*

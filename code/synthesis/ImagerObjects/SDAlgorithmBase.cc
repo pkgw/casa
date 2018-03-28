@@ -139,7 +139,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
             robustrms = itsImages->calcRobustRMS();
             //Float nsigma = 150.0; // will set by user, fixed for 3sigma for now.
             Float nsigma = loopcontrols.getNsigma();
-            os << "Current nsigma="<<nsigma<<LogIO::POST;
             Float nsigmathresh = nsigma * (Float)robustrms(IPosition(1,0)); 
               
             Float thresholdtouse;
@@ -149,12 +148,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
             else {
               thresholdtouse = loopcontrols.getCycleThreshold();
             }
-            os << "loopcontrols.getCycleThreshold()="<<loopcontrols.getCycleThreshold()<<LogIO::POST;
-            os << "thresholdtouse="<<thresholdtouse<<LogIO::POST;
+            os << LogIO::DEBUG1<<"loopcontrols.getCycleThreshold()="<<loopcontrols.getCycleThreshold()<<LogIO::POST;
+            os << LogIO::DEBUG1<< "thresholdtouse="<<thresholdtouse<<LogIO::POST;
             String thresholddesc = (thresholdtouse == loopcontrols.getCycleThreshold() ? "cyclethreshold" : "n-sigma");
 
-            os << "Set nsigma thresh="<<nsigmathresh<<LogIO::POST;
             if (thresholddesc=="n-sigma") {
+              os << LogIO::DEBUG1<< "Set nsigma thresh="<<nsigmathresh<<LogIO::POST;
               loopcontrols.setNsigmaThreshold(nsigmathresh);
             }
 	    loopcontrols.setPeakResidual( peakresidual );
@@ -177,7 +176,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// Init the deconvolver
 		initializeDeconvolver();
 
-                os << "I'm HERE before while stopCode="<<stopCode<<LogIO::POST;
 		while ( stopCode==0 )
 		  {
 
@@ -220,7 +218,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		    
 		  }// end of minor cycle iterations for this subimage.
 		
-                os << " calling finilizeDecnovler ..."<<LogIO::POST;
 		finalizeDeconvolver();
 
 	      }// if validmask
