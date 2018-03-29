@@ -158,7 +158,7 @@ A triple with all its elements equal to 0.0 will mean that a geocentric coordina
  * </TR>
 	
  * <TR>
- * <TD> numPolyDir (\f$N_{Poly}\f$)</TD> 
+ * <TD> numPolyDir (numPolyDir)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of coefficients of the polynomial stored in phaseDir. It has to be \f$ \ge 1 \f$.  </TD>
@@ -181,7 +181,7 @@ where
  * </TR>
 	
  * <TR>
- * <TD> numPolyDist (\f$N_{Poly}\f$)</TD> 
+ * <TD> numPolyDist (numPolyDist)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of coefficients of the polynomial stored in distance. It has to be \f$ \ge 1 \f$.  </TD>
@@ -220,7 +220,7 @@ where
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> numPolyRadVel(\f$N_{Poly}\f$)</TD> 
+ * <TD> numPolyRadVel(numPolyRadVel)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of coefficients of the polynomial stored in radVel . It has to be \f$ \ge 1 \f$.  </TD>

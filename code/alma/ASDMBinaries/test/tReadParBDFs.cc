@@ -7,27 +7,14 @@
 #include <cmath>
 #include <complex>
 #include <string>
+#include <regex>
 
-#include <boost/algorithm/string.hpp>
-
-#include <boost/program_options.hpp>
-namespace po = boost::program_options;
-
-#include <boost/algorithm/string.hpp>
-using namespace boost;
-
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/convenience.hpp>
-using namespace boost::filesystem;
-
-#include <boost/regex.hpp> 
-
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
-#include <boost/lambda/casts.hpp>
-using namespace boost::lambda;
+#include <alma/Options/optionparser.h>
+#include <alma/Options/AlmaArg.h>
+using namespace alma;
 
 #include <ASDMAll.h>
+#include <Misc.h>
 
 #include "SDMBinData.h"
 using namespace sdmbin;
@@ -41,6 +28,8 @@ using namespace asdm;
 
 #include "asdmstman/AsdmStMan.h"
 
+#include <casa/OS/Path.h>
+
 void* scanBDF (void * pathToBDF_p ) {
   
       SDMDataObjectStreamReader sdosr;
@@ -48,11 +37,13 @@ void* scanBDF (void * pathToBDF_p ) {
       sdosr.open(pathToBDF);
       ProcessorType processorType = sdosr.processorType();
       if (processorType == RADIOMETER) {
-	const SDMDataSubset& sdmDataSubset = sdosr.getSubset();
+	// returned SDMDataSubset value is not used, ok to ignore
+	sdosr.getSubset();
       }
       else if (processorType == CORRELATOR) {
 	while (sdosr.hasSubset()) {
-	  const SDMDataSubset& sdmDataSubset = sdosr.getSubset();
+	  // returned SDMDataSubset value is not used, ok to ignore
+	  sdosr.getSubset();
 	}
       }
       else 
@@ -69,50 +60,99 @@ int main ( int argc, char * argv[] ) {
   string dsName;
   unsigned int nThreads;
 
-  po::variables_map vm;
+  enum optionIndex { UNKNOWN, HELP, ASDMDIR, NUMTHREAD };
 
   try {
-    // Declare the supported options.
+    // remove the program name
+    argc--;
+    argv++;
 
-    po::options_description generic("Read sequentially all the BDFs of  ASDM dataset without any processing. It's just an application to measure the time reading the BDFs by using the class SDMDataObjectStreamReader. \n"
-				    "Usage : " + appName +" asdm-directory number-of-threads \n\n"
-				    "Command parameters: \n"
-				    " asdm-directory : the pathname to the ASDM dataset containing the BFDs to be read. \n"
-				    " number-of-threads : the number of threads to be launched in parallel (> 0) \n\n"
-				    ".\n\n"
-				    "Allowed options:");
-    generic.add_options()
-      ("help", "produces help message.");
-    
-    // Hidden options, will be allowed both on command line and
-    // in config file, but will not be shown to the user.
-    po::options_description hidden("Hidden options");
-    hidden.add_options()
-      ("asdm-directory", po::value< string >(), "asdm directory")
-      ("number-of-threads", po::value<unsigned int>(&nThreads)->default_value(2), "number of threads") 
-      ;
-    
-    po::options_description cmdline_options;
-    cmdline_options.add(generic).add(hidden);
-    
-    po::positional_options_description p;
-    p.add("asdm-directory", 1);
-    p.add("number-of-threads", 1);
-    
-    // Parse the command line and retrieve the options and parameters.
-    po::store(po::command_line_parser(argc, argv).options(cmdline_options).positional(p).run(), vm);
-    
-    po::notify(vm);
+    string usageIntro = 
+      "Read sequentially all the BDFs of an ASDM dataset without any processing. "
+      "It's just an application to measure the time reading the BDFs by using the class SDMDataObjectStreamReader. \n"
+      "Usage : " + appName +" asdm-directory number-of-threads \n\n"
+      "Command parameters: \n";
 
-    if (vm.count("asdm-directory")) {
-      dsName = vm["asdm-directory"].as< string >();
-      cout << "dsName = " << dsName << endl;
-      boost::algorithm::trim(dsName);
-      if (boost::algorithm::ends_with(dsName,"/")) dsName.erase(dsName.size()-1);
+    // Descriptor elements are: OptionIndex, OptionType, shortopt, longopt, check_arg, help
+    option::Descriptor usage[] = {
+      { UNKNOWN, 0, "", "", AlmaArg::Unknown,  usageIntro.c_str()},
+      { UNKNOWN, 0, "", "", AlmaArg::Unknown, " \tasdm-directory :  \tthe pathname to the ASDM dataset containing the BFDs to be read."},
+      { UNKNOWN, 0, "", "", AlmaArg::Unknown, " \tnumber-of-threads :  \tthe number of threads to be launched in parallel (> 0)."},
+      { UNKNOWN, 0, "", "", AlmaArg::Unknown, "\nAllowed options:\n"},
+      { UNKNOWN, 0, "", "", AlmaArg::Unknown,  0 }, // helps with formatting
+      // help is the only visible option
+      { HELP, 0, "", "help", AlmaArg::None, " --help  \tproduces help message."},
+      // Hidden options, will be allowed both on command line and
+      // in config file, but will not be shown to the user.
+      { ASDMDIR, 0, "", "asdm-directory", AlmaArg::Required, 0},
+      { NUMTHREAD, 0, "", "number-of-threads", AlmaArg::uInt, "number of threads"},
+      { 0, 0, 0, 0, 0, 0} };
+    
+    // Set default value for number-of-threads
+    const char *defaults[] = { "--number-of-threads=2",
+			       (const char *)-1};
+    int defaultCount = 1;
+
+    // Parse the defaults and the command line
+    // establish sizes
+    option::Stats stats;
+    stats.add(true, usage, defaultCount, defaults);
+    stats.add(true, usage, argc, argv);
+
+    // size the buffers to hold the parsed options
+    option::Option options[stats.options_max], buffer[stats.buffer_max];
+
+    // and parse things
+    option::Parser parse;
+    parse.parse(true, usage, defaultCount, defaults, options, buffer);
+    parse.parse(true, usage, argc, argv, options, buffer);
+
+    if (parse.error()) {
+      cerr << "Problem parsing the command line arguments" << endl;
+      exit(1);
     }
-    else {
-      cout << generic << endl;
+
+    if (options[HELP] || (argc==0)) {
+      option::printUsage(cout, usage, 80);
+      exit(1);
+    }
+
+    if (parse.nonOptionsCount() > 0 || options[ASDMDIR]) {
+      if (parse.nonOptionsCount() > 0) {
+	dsName = string(parse.nonOption(0));
+      } else {
+	dsName = string(options[ASDMDIR].last()->arg);
+      }
+      cout << "dsName = " << dsName << endl;
+      trim(dsName);
+      if (dsName.back()=='/') dsName.pop_back();
+    } else {
+      option::printUsage(cout, usage, 80);
       exit (1);
+    }
+
+    // get NUMTHREAD
+    if (parse.nonOptionsCount() > 1) {
+      unsigned long ulval;
+      char *endptr = 0;
+      ulval = strtoul(parse.nonOption(1), &endptr, 10);
+      if (*endptr == 0 and ulval <= UINT_MAX) {
+	// value is OK to use, no conversion problems
+	nThreads = (unsigned int)ulval;
+      } else {
+	cerr << "number-of-threads must be an unsigned integer" << endl;
+	exit(1);
+      }
+    } else {
+      // from NUMTHREAD, which is always set because of defaults
+      // and also known to be a valid unsigned integer
+      stringstream str(options[NUMTHREAD].last()->arg);
+      str >> nThreads;
+      if (!str) {
+	// very unlikely
+	cerr << "There was an error converting the number-of-threads value to an unsigned integer" << endl;
+	exit(1);
+      }
     }
   }
   catch (std::exception& e) {
@@ -142,7 +182,10 @@ int main ( int argc, char * argv[] ) {
   vector<string> bdfNames;
   for ( vector<MainRow *>::const_iterator iter_v = v.begin(); iter_v != v.end(); iter_v++) {
 
-    string abspath = complete(path(dsName)).string() + "/ASDMBinary/" + replace_all_copy(replace_all_copy((*iter_v)->getDataUID().getEntityId().toString(), ":", "_"), "/", "_");
+    string dataUID = (*iter_v)->getDataUID().getEntityId().toString();
+    replace(dataUID.begin(),dataUID.end(),':','_');
+    replace(dataUID.begin(),dataUID.end(),'/','_');
+    string abspath = casacore::Path(dsName + "/ASDMBinary/" + dataUID).absoluteName();
     cout << abspath << endl;
     bdfNames.push_back(abspath);
   }

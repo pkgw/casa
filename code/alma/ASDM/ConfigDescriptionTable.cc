@@ -62,9 +62,12 @@ using namespace asdm;
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
+#ifndef WITHOUT_BOOST
 #include "boost/filesystem/operations.hpp"
 #include <boost/algorithm/string.hpp>
-using namespace boost;
+#else
+#include <sys/stat.h>
+#endif
 
 namespace asdm {
 	// The name of the entity we will store in this table.
@@ -1072,11 +1075,19 @@ ConfigDescriptionRow* ConfigDescriptionTable::lookup(int numAntenna, int numData
 	}
 
 	
-	void ConfigDescriptionTable::setFromFile(const string& directory) {		
+	void ConfigDescriptionTable::setFromFile(const string& directory) {
+#ifndef WITHOUT_BOOST
     if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/ConfigDescription.xml"))))
       setFromXMLFile(directory);
     else if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/ConfigDescription.bin"))))
       setFromMIMEFile(directory);
+#else 
+    // alternative in Misc.h
+    if (file_exists(uniqSlashes(directory + "/ConfigDescription.xml")))
+      setFromXMLFile(directory);
+    else if (file_exists(uniqSlashes(directory + "/ConfigDescription.bin")))
+      setFromMIMEFile(directory);
+#endif
     else
       throw ConversionException("No file found for the ConfigDescription table", "ConfigDescription");
 	}			
