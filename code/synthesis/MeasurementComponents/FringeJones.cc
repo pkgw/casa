@@ -186,7 +186,8 @@ DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant, Array<Double>& delayWindow
     nChan_(gm_.nChannels()),
     nPadChan_(nPadFactor_*nChan_),
     dt_(gm_.dt),
-    f0_(gm_.fmin / 1.e9),      // GHz
+    //f0_(gm_.fmin / 1.e9),      // GHz
+    f0_(sdbs.centroidFreq() / 1.e9),      // GHz, for delayrate calc
     df_(gm_.df / 1.e9),
     df_all_(gm_.fmax - gm_.fmin),
     Vpad_(),
@@ -789,7 +790,9 @@ expb_f(const gsl_vector *param, void *d, gsl_vector *f)
     Double weightExponent = bundle->get_weightExponent();
     
     gsl_vector_set_zero(f);
-    Vector<Double> freqs = sdbs.freqs();
+    //    Vector<Double> freqs = sdbs.freqs();
+
+    const Double reffreq0=sdbs(0).freqs()(0);  // First freq in first SDB
     
     size_t count = 0; // This is the master index.
 
@@ -799,6 +802,8 @@ expb_f(const gsl_vector *param, void *d, gsl_vector *f)
     for (Int ibuf=0; ibuf < sdbs.nSDB(); ibuf++) {
         SolveDataBuffer& s (sdbs(ibuf));
         if (!s.Ok()) continue;
+
+	const Vector<Double> freqs(s.freqs()); // This ibuf's freqs
 
         Cube<Complex> v = s.visCubeCorrected();
         Cube<Bool> fl = s.flagCube();
@@ -855,15 +860,17 @@ expb_f(const gsl_vector *param, void *d, gsl_vector *f)
                 if (fabs(w) < FLT_EPSILON) continue;
                 // We have to turn the delay back into seconds from nanoseconds.
                 // Freq difference is in Hz, which comes out typically as 1e6 bands
-                Double wDf = C::_2pi*(freqs(ichan) - freqs(0))*1e-9;
+                //Double wDf = C::_2pi*(freqs(ichan) - freqs(0))*1e-9;
+                Double wDf = C::_2pi*(freqs(ichan) - reffreq0)*1e-9;
                 //
                 Double t1 = s.time()(0);
                 // FIXME: Remind me why we *do* scale wDf with 1e-9
                 // but do *not* do that with ref_freq?
                 // I have a theory which is mine:
                 // this is because tau is in nanoseconds.
-                Double ref_freq = freqs(0);
-                Double wDt = C::_2pi*(t1 - refTime) * ref_freq; 
+                //Double ref_freq = freqs(0);
+                //Double wDt = C::_2pi*(t1 - refTime) * ref_freq; 
+                Double wDt = C::_2pi*(t1 - refTime) * reffreq0; 
 
                 Double mtheta = -(phi0 + tau*wDf + r*wDt); 
                 Double vtheta = arg(vis);
@@ -896,7 +903,9 @@ expb_df(CBLAS_TRANSPOSE_t TransJ, const gsl_vector* x, const gsl_vector *u, void
     SDBList& sdbs = bundle->sdbs;
     Double weightExponent = bundle->get_weightExponent();
     
-    Vector<Double> freqs = sdbs.freqs();
+    //Vector<Double> freqs = sdbs.freqs();
+
+    const Double reffreq0=sdbs(0).freqs()(0);  // First freq in first SDB
 
     size_t count = 0; // This is the master index.
 
@@ -909,6 +918,8 @@ expb_df(CBLAS_TRANSPOSE_t TransJ, const gsl_vector* x, const gsl_vector *u, void
         // cerr << "OK so count = " << count << endl;
         SolveDataBuffer& s (sdbs(ibuf));
         if (!s.Ok()) continue;
+
+	const Vector<Double> freqs(s.freqs()); // This ibuf's freqs
 
         Cube<Complex> vis = s.visCubeCorrected();
         Cube<Bool> fl = s.flagCube();
@@ -963,8 +974,9 @@ expb_df(CBLAS_TRANSPOSE_t TransJ, const gsl_vector* x, const gsl_vector *u, void
             Double tau = tau2 - tau1;
             Double r = r2-r1;
 
-            Double ref_freq = freqs(0); 
-            Double wDt = C::_2pi*(t1 - refTime) * ref_freq; 
+            //Double ref_freq = freqs(0); 
+            //Double wDt = C::_2pi*(t1 - refTime) * ref_freq; 
+            Double wDt = C::_2pi*(t1 - refTime) * reffreq0; 
             // cerr << "Dt " << t1 - refTime << " ref_freq " << ref_freq << " wDt " << wDt << endl;
             bool found_data = false;
             
@@ -975,7 +987,8 @@ expb_df(CBLAS_TRANSPOSE_t TransJ, const gsl_vector* x, const gsl_vector *u, void
                 if (fabs(w) < FLT_EPSILON) continue;
                 found_data = true;
                 // Add a 1e-9 factor because tau parameter is in nanoseconds.
-                Double wDf = C::_2pi*(freqs(ichan) - freqs(0))*1e-9;
+                //Double wDf = C::_2pi*(freqs(ichan) - freqs(0))*1e-9;
+                Double wDf = C::_2pi*(freqs(ichan) - reffreq0)*1e-9;
                 //
                 Double mtheta = -(phi0 + tau*wDf + r*wDt);
                 Double ws = sin(mtheta);
@@ -1181,7 +1194,9 @@ expb_hess(gsl_vector *param, AuxParamBundle *bundle, gsl_matrix *hess, Double xi
     // Dimensions of (num_antennas); is the same dimension as
     // param vector here.
     gsl_matrix_set_zero(hess);
-    Vector<Double> freqs = sdbs.freqs();
+    //Vector<Double> freqs = sdbs.freqs();
+
+    const Double reffreq0=sdbs(0).freqs()(0);  // First freq in first SDB
 
     size_t nobs = 0;
     Double sumwt = 0;
@@ -1190,6 +1205,8 @@ expb_hess(gsl_vector *param, AuxParamBundle *bundle, gsl_matrix *hess, Double xi
     for (Int ibuf=0; ibuf < sdbs.nSDB(); ibuf++) {
         SolveDataBuffer& s (sdbs(ibuf));
         if (!s.Ok()) continue;
+
+	const Vector<Double> freqs(s.freqs()); // This ibuf's freqs
 
         Cube<Complex> v = s.visCubeCorrected();
         Cube<Bool> fl = s.flagCube();
@@ -1250,12 +1267,14 @@ expb_hess(gsl_vector *param, AuxParamBundle *bundle, gsl_matrix *hess, Double xi
                 
                 // We have to turn the delay back into seconds from nanoseconds.
                 // Freq difference is in Hz, which comes out typically as 1e6 bands
-                Double wDf = C::_2pi*(freqs(ichan) - freqs(0))*1e-9;
+                //Double wDf = C::_2pi*(freqs(ichan) - freqs(0))*1e-9;
+                Double wDf = C::_2pi*(freqs(ichan) - reffreq0)*1e-9;
                 //
                 Double t1 = s.time()(0);
 
-                Double ref_freq = freqs(0);
-                Double wDt = C::_2pi*(t1 - refTime) * ref_freq; 
+                //Double ref_freq = freqs(0);
+                //Double wDt = C::_2pi*(t1 - refTime) * ref_freq; 
+                Double wDt = C::_2pi*(t1 - refTime) * reffreq0; 
 
                 Double mtheta = -(phi0 + tau*wDf + r*wDt); 
                 Double vtheta = arg(vis);
@@ -1741,11 +1760,16 @@ Bool CTRateAwareTimeInterp1::interpolate(Double newtime) {
 // Do the phase rate math
 void CTRateAwareTimeInterp1::applyPhaseRate(Bool single)
 {
-  Int ispw=mcols_p->spwId()(0);
+
+  Int ispw=mcols_p->spwId()(0);  // should only be one (sliced ct_)!
   MSSpectralWindow msSpw(ct_.spectralWindow());
   ROMSSpWindowColumns msCol(msSpw);
-  Vector<Double> refFreqs;
-  msCol.refFrequency().getColumn(refFreqs,True);
+  //Vector<Double> refFreqs;
+  //msCol.refFrequency().getColumn(refFreqs,True);
+
+  Vector<Double> freqs;
+  msCol.chanFreq().get(ispw,freqs,True);  // should only be 1
+  Double centroidFreq=freqs(0);
 
   // cout << "time = " << (currTime_ - timeRef_) << endl;
 
@@ -1754,7 +1778,8 @@ void CTRateAwareTimeInterp1::applyPhaseRate(Bool single)
       Double dtime=(currTime_-timeRef_)-timelist_(currIdx_);
       Double phase=result_(IPosition(2,ipol*3,0));
       Double rate=result_(IPosition(2,ipol*3+2,0));
-      phase+=2.0*C::pi*rate*refFreqs(ispw)*dtime;
+      //phase+=2.0*C::pi*rate*refFreqs(ispw)*dtime;
+      phase+=2.0*C::pi*rate*centroidFreq*dtime;
       result_(IPosition(2,ipol*3,0))=phase;
     }
   } else {
@@ -1774,8 +1799,10 @@ void CTRateAwareTimeInterp1::applyPhaseRate(Bool single)
       rate(0)=r.xyPlane(0)(IPosition(2,ipol*3+2,0));
       rate(1)=r.xyPlane(1)(IPosition(2,ipol*3+2,0));
 
-      phase(0)+=2.0*C::pi*rate(0)*refFreqs(ispw)*dtime(0);
-      phase(1)+=2.0*C::pi*rate(1)*refFreqs(ispw)*dtime(1);
+      //phase(0)+=2.0*C::pi*rate(0)*refFreqs(ispw)*dtime(0);
+      //phase(1)+=2.0*C::pi*rate(1)*refFreqs(ispw)*dtime(1);
+      phase(0)+=2.0*C::pi*rate(0)*centroidFreq*dtime(0);
+      phase(1)+=2.0*C::pi*rate(1)*centroidFreq*dtime(1);
 
       Vector<Complex> ph(2);
       ph(0)=Complex(cos(phase(0)),sin(phase(0)));
@@ -1838,6 +1865,7 @@ void FringeJones::setApply(const Record& apply) {
     // Enforce calWt() = false for delays
     calWt()=false;
 
+    /*
     // Extract per-spw ref Freq for phase(delay) calculation
     //  from the CalTable
     // TBD:  revise as per refFreq decisions
@@ -1854,6 +1882,29 @@ void FringeJones::setApply(const Record& apply) {
             if (spwMap()(ispw)>-1)
                 KrefFreqs_(ispw)=tmpfreqs(spwMap()(ispw));
     }
+    */
+
+    // Use the "physical" (centroid) frequency, per spw 
+    MSSpectralWindow msSpw(ct_->spectralWindow());
+    ROMSSpWindowColumns msCol(msSpw);
+    Vector<Double> chanfreq;
+    KrefFreqs_.resize(nSpw()); KrefFreqs_.set(0.0);
+    for (Int ispw=0;ispw<nSpw();++ispw) {
+      msCol.chanFreq().get(ispw,chanfreq,true);  // reshape, if nec.
+      Int nch=chanfreq.nelements();
+      KrefFreqs_(ispw)=chanfreq(nch/2);
+    }
+    KrefFreqs_/=1.0e9;  // in GHz
+
+    /// Re-assign KrefFreq_ according spwmap (if any)
+    if (spwMap().nelements()>0) {
+      Vector<Double> tmpfreqs;
+      tmpfreqs.assign(KrefFreqs_);
+      for (uInt ispw=0;ispw<spwMap().nelements();++ispw)
+	if (spwMap()(ispw)>-1)
+	  KrefFreqs_(ispw)=tmpfreqs(spwMap()(ispw));
+    }
+
 }
 
 void FringeJones::setApply() {
@@ -1885,6 +1936,7 @@ void FringeJones::setCallib(const Record& callib,
     // Enforce calWt() = false for delays
     calWt()=false;
 
+    /*
     // Extract per-spw ref Freq for phase(delay) calculation
     //  from the CalTable 
    KrefFreqs_.assign(cpp_->refFreqIn());
@@ -1898,6 +1950,26 @@ void FringeJones::setCallib(const Record& callib,
             if (spwMap()(ispw)>-1)
                 KrefFreqs_(ispw)=tmpfreqs(spwMap()(ispw));
     }
+    */
+
+    // Use the "physical" (centroid) frequency, per spw 
+    KrefFreqs_.resize(nSpw());
+    for (Int ispw=0;ispw<nSpw();++ispw) {
+      const Vector<Double>& f(cpp_->freqIn(ispw));
+      Int nf=f.nelements();
+      KrefFreqs_[ispw]=f[nf/2];  // center (usually this will be same as [0])
+    }
+    KrefFreqs_/=1.0e9;  // In GHz
+
+    // Re-assign KrefFreq_ according spwmap (if any)
+    if (spwMap().nelements()>0) {
+      Vector<Double> tmpfreqs;
+      tmpfreqs.assign(KrefFreqs_);
+      for (uInt ispw=0;ispw<spwMap().nelements();++ispw)
+	if (spwMap()(ispw)>-1)
+	  KrefFreqs_(ispw)=tmpfreqs(spwMap()(ispw));
+    }
+    
 }
 
 void FringeJones::setSolve(const Record& solve) {
@@ -1963,13 +2035,15 @@ void FringeJones::calcAllJones() {
       cerr << "       currTime() " << currTime() << endl;
   }
   Double phase;
+
   for (Int iant=0; iant<nAnt(); iant++) {
+    onePar.reference(Piter.array());
+    onePOK.reference(POKiter.array());
+
     for (Int ich=0; ich<nChanMat(); ich++) {
       
       oneJones.reference(Jiter.array());
       oneJOK.reference(JOKiter.array());
-      onePar.reference(Piter.array());
-      onePOK.reference(POKiter.array());
 
       for (Int ipar=0;ipar<nPar();ipar+=3) {
 	if (onePOK(ipar)) {
@@ -2039,11 +2113,13 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
     /// ROMSSpWindowColumns spwCol(msSpw);
     // spwCol.refFrequency().getColumn(myRefFreqs, true);
     //Double ref_freq = myRefFreqs(currSpw());
-    Double ref_freq = sdbs.freqs()(0);
+    //Double ref_freq = sdbs.freqs()(0);
+    Double centroidFreq = sdbs.centroidFreq();
     Double t0 = sdbs(0).time()(0);
     Double dt0 = refTime() - t0;
     //Double df0 = ref_freq - sdbs.freqs()(0);
-    Double df0 = 0; 
+    //Double df0 = 0; 
+    Double df0 = centroidFreq - sdbs(0).freqs()(0);  // global center to global edge
 
     logSink() << "Solving for fringes for spw=" << currSpw() << " at t="
               << MVTime(refTime()/C::day).string(MVTime::YMD,7)  << LogIO::POST;
@@ -2128,9 +2204,12 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
 
     if (DEVDEBUG) {
         cerr << "Ref time " << MVTime(refTime()/C::day).string(MVTime::YMD,7) << endl;
-        cerr << "df0 " << df0 << " dt0 " << dt0 << " ref_freq*dt0 " << ref_freq*dt0 << endl;
-        cerr << "ref_freq " << ref_freq << endl;
-        cerr << "df0 " << df0 << " dt0 " << dt0 << " ref_freq*dt0 " << ref_freq*dt0 << endl;
+        //cerr << "df0 " << df0 << " dt0 " << dt0 << " ref_freq*dt0 " << ref_freq*dt0 << endl;
+        cerr << "df0 " << df0 << " dt0 " << dt0 << " centroidFreq*dt0 " << centroidFreq*dt0 << endl;
+        //cerr << "ref_freq " << ref_freq << endl;
+        cerr << "centroidFreq " << centroidFreq << endl;
+        //cerr << "df0 " << df0 << " dt0 " << dt0 << " ref_freq*dt0 " << ref_freq*dt0 << endl;
+        cerr << "df0 " << df0 << " dt0 " << dt0 << " centroidFreq*dt0 " << centroidFreq*dt0 << endl;
     }
 
     for (Int iant=0; iant != nAnt(); iant++) {
@@ -2145,8 +2224,10 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
             // We assume the reference frequency for fringe fitting
             // (which is NOT the one stored in the SPECTRAL_WINDOW
             // table) is the left-hand edge of the frequency grid.
-            Double delta1 = 0.0; 
-            Double delta2 = ref_freq*dt0*rate;
+            //Double delta1 = 0.0; 
+            Double delta1 = df0*delay/1e9;
+            //Double delta2 = ref_freq*dt0*rate;
+            Double delta2 = centroidFreq*dt0*rate;
             Double delta3 = C::_2pi*(delta1+delta2);
             Double dt;
             auto p = aggregateTime.find(iant);
@@ -2158,7 +2239,8 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
             if (DEVDEBUG) {
                 cerr << "Antenna " << iant << ": phi0 " << phi0 << " delay " << delay << " rate " << rate << " dt " << dt << endl
                      << "dt " << dt << endl
-                     << "Ref freq. "<< ref_freq << " Adding corrections for frequency (" << 360*delta1 << ")" 
+		  //<< "Ref freq. "<< ref_freq << " Adding corrections for frequency (" << 360*delta1 << ")" 
+                     << "centroidFreq "<< centroidFreq << " Adding corrections for frequency (" << 360*delta1 << ")" 
                      << " and time (" << 360*delta2 << ") degrees." << endl;
             }
             sRP(3*icor + 0, iant) += delta3;
