@@ -917,7 +917,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           delete testres; testres=0;
        }
     } 
-    Record thestats = calcImageStatistics(*tempres, *tempmask, LELmask, region_ptr, robust);
+    //Record thestats = calcImageStatistics(*tempres, *tempmask, LELmask, region_ptr, robust);
+    Record thestats = calcImageStatistics2(*tempres, *tempmask, LELmask, region_ptr, robust);
     Array<Double> maxs, mins, rmss, mads;
     thestats.get(RecordFieldId("max"), maxs);
     thestats.get(RecordFieldId("rms"), rmss);
@@ -1055,16 +1056,22 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     }
     else {
         os<<"Do stats outside mask..."<<LogIO::POST;
-       LatticeExpr<Bool> pbmask(res.pixelMask());
-       LatticeExpr<Bool> outsideMaskReg(iif(prevmask == 1.0 || !pbmask, False, True));
-       tempres->attachMask(outsideMaskReg);
-       // for debug
-       if (debugStats) {
-         PagedImage<Float> pbmaskSave(res.shape(), res.coordinates(), "pbmasksaved.im");
-         LatticeExpr<Float> temppbmasksave(iif(pbmask, 1.0, 0.0));
-         pbmaskSave.copyData(temppbmasksave);
+       LatticeExpr<Bool> outsideMaskReg;
+       if (res.hasPixelMask()) {
+         LatticeExpr<Bool> pbmask(res.pixelMask());
+         outsideMaskReg = LatticeExpr<Bool> (iif(prevmask == 1.0 || !pbmask, False, True));
+         // for debug
+         if (debugStats) {
+           PagedImage<Float> pbmaskSave(res.shape(), res.coordinates(), "pbmasksaved.im");
+           LatticeExpr<Float> temppbmasksave(iif(pbmask, 1.0, 0.0));
+           pbmaskSave.copyData(temppbmasksave);
+         }
        }
-       // for debug 
+       else {
+         outsideMaskReg = LatticeExpr<Bool> (iif(prevmask == 1.0, False, True));
+       //LatticeExpr<Bool> outsideMaskReg(iif(prevmask == 1.0 || !pbmask, False, True));
+       }
+       tempres->attachMask(outsideMaskReg);
     }
     
     
@@ -1453,7 +1460,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Bool debug2(false); // debug2 saves masks before/after prune and binary dilation
     
     //set true if calcImageStatistics2 is used in autoMask
-    Bool newstats(false);
+    Bool newstats(true);
 
     //Timer
     Timer timer;
@@ -1683,8 +1690,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     //clean up (appy cutThreshold to convolved mask image)
     String lelmask("");
-    //Record smmaskstats = calcImageStatistics(tempmask, tempmask, lelmask, 0, false);
-    Record smmaskstats = calcImageStatistics(*outmask, *outmask, lelmask, 0, false);
+    //use standard stats
+    Record  smmaskstats = calcImageStatistics(*outmask, *outmask, lelmask, 0, false);
     Array<Double> smmaskmaxs;
     smmaskstats.get(RecordFieldId("max"),smmaskmaxs);
     Vector<Float> cutThresholdValue(nchan);
@@ -1722,7 +1729,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //
     //  Mod: 2017.07.26: modified get stats for prev mask, if channel contains no mask in prev mask it will set flag to skip the channel 
     //Record maskstats = calcImageStatistics(thenewmask, thenewmask, lelmask, 0, false);
-    Record maskstats = calcImageStatistics(mask, mask, lelmask, 0, false);
+    Record  maskstats = calcImageStatistics(mask, mask, lelmask, 0, false);
     Array<Double> maskmaxs;
     maskstats.get(RecordFieldId("max"),maskmaxs);
     // per plane stats 
