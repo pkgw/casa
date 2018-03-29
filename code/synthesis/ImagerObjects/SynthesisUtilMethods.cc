@@ -229,12 +229,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   void SynthesisUtilMethods::getResource(String label, String fname)
   {
+     // TODO: reorganize, use struct or something to hold and pass info over. ifdef lnx
      LogIO os( LogOrigin("SynthesisUtilMethods", "getResource", WHERE) );
 
      // To hold memory stats, in MB
-     int vmSize = -1, vmWHM=-1, vmRSS=-1;
-     pid_t pid=-1;
-     int fdSize=-1;
+     int vmRSS = -1, vmWHM = -1, vmSize = -1, vmPeak = -1, vmSwap = -1;
+     pid_t pid = -1;
+     int fdSize = -1;
 
      // TODO: this won't probably work on anything but linux
      ifstream procFile("/proc/self/status");
@@ -242,20 +243,24 @@ namespace casa { //# NAMESPACE CASA - BEGIN
        std::string line;
        while (not procFile.eof()) {
 	 getline(procFile, line);
-	 const std::string startVmSize = "VmSize:";
-	 if (startVmSize == line.substr(0, startVmSize.size())) {
-	   vmSize = parseProcStatusLine(line.c_str()) / 1024.0;
-	 }
-	 const std::string startVmWHM = "VmHWM:";
-	 if (startVmWHM == line.substr(0, startVmWHM.size())) {
-	   vmWHM = parseProcStatusLine(line.c_str()) / 1024.0;
-	 }
 	 const std::string startVmRSS = "VmRSS:";
-	 if (startVmRSS == line.substr(0, startVmRSS.size())) {
-	   vmRSS = parseProcStatusLine(line.c_str()) / 1024.0;
-	 }
+	 const std::string startVmWHM = "VmHWM:";
+	 const std::string startVmSize = "VmSize:";
+	 const std::string startVmPeak = "VmPeak:";
+	 const std::string startVmSwap = "VmSwap:";
 	 const std::string startFDSize = "FDSize:";
-	 if (startFDSize == line.substr(0, startFDSize.size())) {
+         const double KB_TO_MB = 1024.0;
+	 if (startVmRSS == line.substr(0, startVmRSS.size())) {
+	   vmRSS = parseProcStatusLine(line.c_str()) / KB_TO_MB;
+	 } else if (startVmWHM == line.substr(0, startVmWHM.size())) {
+	   vmWHM = parseProcStatusLine(line.c_str()) / KB_TO_MB;
+	 } else if (startVmSize == line.substr(0, startVmSize.size())) {
+	   vmSize = parseProcStatusLine(line.c_str()) / KB_TO_MB;
+         } else if (startVmPeak == line.substr(0, startVmPeak.size())) {
+	   vmPeak = parseProcStatusLine(line.c_str()) / KB_TO_MB;
+	 } else if (startVmSwap == line.substr(0, startVmSwap.size())) {
+	   vmSwap = parseProcStatusLine(line.c_str()) / KB_TO_MB;
+	 } else if (startFDSize == line.substr(0, startFDSize.size())) {
 	   fdSize = parseProcStatusLine(line.c_str());
 	 }
        }
@@ -277,24 +282,39 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
      ostringstream oss;
      oss << "PID: " << pid ;
-     oss << " MemRSS: " << vmRSS << " MB.";
+     oss << " MemRSS (VmRSS): " << vmRSS << " MB.";
      oss << " VmWHM: " << vmWHM << " MB.";
-     oss << " VirtMem: " << vmSize << " MB.";
-     oss << " ProcTime: " << now.tv_sec << "." << now.tv_usec;
+     oss << " VirtMem (VmSize): " << vmSize << " MB.";
+     oss << " VmPeak: " << vmPeak << " MB.";
+     oss << " VmSwap: " << vmSwap << " MB.";
+     oss << " ProcTime: " << now.tv_sec << '.' << now.tv_usec;
      oss << " FDSize: " << fdSize;
      oss <<  " [" << label << "] ";
      os << oss.str() << LogIO::NORMAL3 <<  LogIO::POST;
 
      // Write this to a file too...
-     if (fname.empty()) {
-       fname = makeResourceFilename(pid);
-     }
-     if(fname.size() > 0) {
-       ofstream myfile(fname, ios::app);
-       if (myfile.is_open()) {
-	 myfile << oss.str() << endl;
-	 myfile.close();
+     try {
+       if (fname.empty()) {
+         fname = makeResourceFilename(pid);
        }
+       ofstream ofile(fname, ios::app);
+       if (ofile.is_open()) {
+         if (0 == ofile.tellp()) {
+             ostringstream header;
+             header << "# PID, MemRSS_(VmRSS)_MB, VmWHM_MB, VirtMem_(VmSize)_MB, VmPeak_MB, "
+                 "VmSwap_MB, ProcTime_sec, FDSize, label_checkpoint";
+             ofile << header.str() << '\n';
+         }
+         ostringstream line;
+         line << pid << ',' << vmRSS << ',' << vmWHM << ',' << vmSize << ','
+              << vmPeak << ','<< vmSwap << ',' << now.tv_sec << '.' << now.tv_usec << ','
+              << fdSize << ',' << '[' << label << ']';
+         ofile << line.str() << '\n';
+         ofile.close();
+       }
+     } catch(std::runtime_error &exc) {
+         os << "Could not write imager memory+runtime information into output file: "
+            << fname << LogIO::WARN <<  LogIO::POST;
      }
   }
 
