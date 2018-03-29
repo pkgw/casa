@@ -1886,7 +1886,7 @@ Canvas Methods
     <description />
     <input>
         <param type="bool" name="showmajorgrid">
-          <description>Show major grid lines (horiz. and vert.)?</description>
+          <description>Show major grid lines?</description>
           <value>false</value>
         </param>
         <param type="int" name="majorwidth">
@@ -1903,7 +1903,7 @@ Canvas Methods
         </param>
 
         <param type="bool" name="showminorgrid">
-          <description>Show minor grid lines (horiz. and vert.)?</description>
+          <description>Show minor grid lines?</description>
           <value>false</value>
         </param>
         <param type="int" name="minorwidth">
