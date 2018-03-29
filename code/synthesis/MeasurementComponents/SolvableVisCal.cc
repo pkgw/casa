@@ -64,10 +64,11 @@
 #include <casa/iomanip.h>
 #include <casa/Containers/RecordField.h>
 
+#if ! defined(WITHOUT_DBUS)
 #include <casadbus/plotserver/PlotServerProxy.h>
 #include <casadbus/utilities/BusAccess.h>
 #include <casadbus/session/DBusSession.h>
-
+#endif
 
 #include <casa/Logging/LogMessage.h>
 #include <casa/Logging/LogSink.h>
@@ -4646,8 +4647,10 @@ SolvableVisJones::SolvableVisJones(VisSet& vs) :
   dJ1_(NULL),                           // data...
   dJ2_(NULL),
   diffJElem_(),
-  DJValid_(false),
-  plotter_(NULL)
+  DJValid_(false)
+#if ! defined(WITHOUT_DBUS)
+  ,plotter_(NULL)
+#endif
 {
   if (prtlev()>2) cout << "SVJ::SVJ(vs)" << endl;
 }
@@ -4660,8 +4663,10 @@ SolvableVisJones::SolvableVisJones(String msname,Int MSnAnt,Int MSnSpw) :
   dJ1_(NULL),                           // data...
   dJ2_(NULL),
   diffJElem_(),
-  DJValid_(false),
-  plotter_(NULL)
+  DJValid_(false)
+#if ! defined(WITHOUT_DBUS)
+  ,plotter_(NULL)
+#endif
 {
   if (prtlev()>2) cout << "SVJ::SVJ(msname,MSnAnt,MSnSpw)" << endl;
 }
@@ -4674,8 +4679,10 @@ SolvableVisJones::SolvableVisJones(const MSMetaInfoForCal& msmc) :
   dJ1_(NULL),               // data...
   dJ2_(NULL),
   diffJElem_(),
-  DJValid_(False),
-  plotter_(NULL)
+  DJValid_(False)
+#if ! defined(WITHOUT_DBUS)
+  ,plotter_(NULL)
+#endif
 {
   if (prtlev()>2) cout << "SVJ::SVJ(msmc)" << endl;
 }
@@ -4689,8 +4696,10 @@ SolvableVisJones::SolvableVisJones(const Int& nAnt) :
   dJ1_(NULL),                 // data...
   dJ2_(NULL),
   diffJElem_(),
-  DJValid_(false),
-  plotter_(NULL)
+  DJValid_(false)
+#if ! defined(WITHOUT_DBUS)
+  ,plotter_(NULL)
+#endif
 {
   if (prtlev()>2) cout << "SVJ::SVJ(i,j,k)" << endl;
 }
@@ -7347,8 +7356,10 @@ void SolvableVisJones::fluxscale(const String& outfile,
 
 void SolvableVisJones::setupPlotter() {
 // setjup plotserver
+#if ! defined(WITHOUT_DBUS)
   plotter_ = dbus::launch<PlotServerProxy>( );
   panels_id_.resize(nSpw());
+#endif
 }
 
 void SolvableVisJones::plotHistogram(const String& title,
@@ -7359,15 +7370,19 @@ void SolvableVisJones::plotHistogram(const String& title,
   std::string legendloc = "bottom";
   std::string zoomloc = "";
   if (index==0) {
+#if ! defined(WITHOUT_DBUS)
     panels_id_[0] = plotter_->panel( title, "ratio", "N", "Fluxscale",
                                    std::vector<int>( ), legendloc,zoomloc,0,false,false);
+#endif
     std::vector<std::string> loc;
     loc.push_back("top");
     //plotter_->loaddock( dock_xml_p, "bottom", loc, panels_id_[0].getInt());
   }
   else {
+#if ! defined(WITHOUT_DBUS)
     panels_id_[index] = plotter_->panel( title, "ratio", "N", "",
     std::vector<int>( ), legendloc,zoomloc,panels_id_[index-1].getInt(),false,false);
+#endif
      
     // multirow panels
     /***
@@ -7389,8 +7404,10 @@ void SolvableVisJones::plotHistogram(const String& title,
     ***/
   }
   // plot histogram
+#if ! defined(WITHOUT_DBUS)
   plotter_->erase( panels_id_[index].getInt() );
   plotter_->histogram(dbus::af(data),nbins,"blue",title,panels_id_[index].getInt( ));
+#endif
 
 }
 

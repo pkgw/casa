@@ -1036,6 +1036,15 @@ void PlotMSIndexer::setMethod(CacheMemPtr& getmethod,PMS::Axis axis,
 	case PMS::RHO:
 		getmethod = &PlotMSCacheBase::getRHO0;
 		break;
+	case PMS::ANTPOS:
+		getmethod = &PlotMSCacheBase::getAntPos;
+		break;
+	case PMS::ATM:
+		getmethod = &PlotMSCacheBase::getAtm;
+		break;
+	case PMS::TSKY:
+		getmethod = &PlotMSCacheBase::getTsky;
+		break;
 	default:
 		throw(AipsError("Can't find get method for "+PMS::axis(axis)+"."));
 		break;
@@ -1088,6 +1097,7 @@ void PlotMSIndexer::setIndexer(IndexerMethPtr& indexmethod,PMS::Axis axis) {
 	case PMS::OPAC:
 	case PMS::SNR:
 	case PMS::TEC:
+	case PMS::ANTPOS:
 	case PMS::WTxAMP:
 	case PMS::WTSP:
 	case PMS::SIGMASP:
@@ -1098,6 +1108,8 @@ void PlotMSIndexer::setIndexer(IndexerMethPtr& indexmethod,PMS::Axis axis) {
 	case PMS::FREQUENCY:
 	case PMS::VELOCITY:
 	case PMS::CHANNEL:
+	case PMS::ATM:
+	case PMS::TSKY:
 		indexmethod = &PlotMSIndexer::getIndex0100;
 		break;
 
@@ -1491,8 +1503,12 @@ void PlotMSIndexer::reportMeta(Double x, Double y, Bool masked,stringstream& ss)
 		}
 	}
 
-	if (isMS) ss << "Corr=";
-	else      ss << "Poln=";
+    if (isMS)
+	    ss << "Corr=";
+    else if (plotmscache_->calType() == "KAntPos Jones")
+		ss << "Coordinate=";
+	else
+	    ss << "Poln=";
 	if (plotmscache_->netAxesMask_[dataIndex](0))
 		ss << plotmscache_->polname(Int(plotmscache_->getCorr(currChunk_,getIndex1000(currChunk_,irel_))));
 	else
@@ -1606,8 +1622,9 @@ String PlotMSIndexer::iterValue() {
 		return String::toString(iterValue_);
 		break;
 	case PMS::FIELD: {
-		if (iterValue_ < 0) return String::toString(-1);
-		else return plotmscache_->fldnames_(iterValue_);
+		// for cal tables, field id can be -1
+		return (iterValue_ < 0 ? String::toString(iterValue_) :
+			plotmscache_->fldnames_(iterValue_));
 		break;
 	}
 	case PMS::TIME:{
@@ -1622,7 +1639,7 @@ String PlotMSIndexer::iterValue() {
 		label += (ant1>-1 ? plotmscache_->antstanames_(ant1) : "*")+" & ";
 		label += (ant2>-1 ? plotmscache_->antstanames_(ant2) : "*");
         // CAS-4239 add baseline length to plot title
-        String bsnLen = ((ant1>-1 && ant2>-1) ? String::format("_%.0fm", computeBaselineLength(ant1, ant2)) : "_*m");
+        String bsnLen = ((ant1>-1 && ant2>-1) ? String::format("_%.0fm", computeBaselineLength(ant1, ant2)) : "");
         label += bsnLen;
 		return label;
 		break;

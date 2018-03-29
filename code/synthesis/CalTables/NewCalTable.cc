@@ -468,6 +468,15 @@ String NewCalTable::polBasis() {
 }
 
 //----------------------------------------------------------------------------
+String NewCalTable::CASAvers() {
+  if (this->keywordSet().fieldNumber("CASA_Version")==-1)
+    // Handle non-existent keyword
+    return String("Unknown");
+  else
+    return this->keywordSet().asString("CASA_Version");
+}
+
+//----------------------------------------------------------------------------
 Record NewCalTable::getRowMain (const Int& jrow)
 {
 // Get a row from cal_main

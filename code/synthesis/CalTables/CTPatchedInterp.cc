@@ -1247,6 +1247,18 @@ void CTPatchedInterp::resampleFlagsInFreq(Vector<Bool>& flgout,const Vector<Doub
       // Find nominal registration (the _index_ just left)
       Bool exact(false);
       ireg=binarySearch(exact,finGHz,fout(iflgout),nflg,0);
+
+      // If registration is exact, assign verbatim
+      // NB: the calibration value calculation occurs agnostically w.r.t. flags,
+      //     so the calculated value should also match
+      // TBD: Add "|| near(finGHz[ireg],fout(iflgout),1e-10) in case "exact" has
+      //      precision issues?
+      if (exact) {
+	flgout[iflgout]=flgin[ireg];
+	continue;
+      }
+
+      // Not exact, so carefully handle bracketing
       if (ireg>0)
 	ireg-=1;
       ireg=min(ireg,nflg-1);
