@@ -69,6 +69,8 @@ from plotms_pg import plotms_pg as plotms
 from tclean_pg import tclean_pg as tclean
 from tclean2_pg import tclean2_pg as tclean2
 from impbcor_pg import impbcor_pg as impbcor
+from accor_pg import accor_pg as accor
+from fringefit_pg import fringefit_pg as fringefit
 
 # single dish tasks
 from sdbaseline_pg import  sdbaseline_pg as sdbaseline
