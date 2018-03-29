@@ -464,14 +464,13 @@ namespace casa {
 				QtDisplayData *result = 0;
 				viewer::DisplayDataOptions ddo;
 
-				if ( scaling != 0.0 ) {
-					char buf[1024];
-					sprintf( buf, "%f", scaling );
-					ddo.insert( "powercycles", buf );
-				}
-
 				result = dpg->createDD( to_string(path), datatype, to_string(displaytype), true,
 										-1, false, false, false, ddo );
+
+				if ( scaling != 0.0 ) {
+					result->setRasterPowerScaling(scaling);
+				}
+
 				dpg->addedData( displaytype, result );
 
 				return QDBusVariant(QVariant(get_id( dpg, result, path, displaytype )));

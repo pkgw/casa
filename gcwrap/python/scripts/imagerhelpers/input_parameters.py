@@ -122,6 +122,9 @@ class ImagerParameters():
                  minbeamfrac=0.3,
                  cutthreshold=0.01,
                  growiterations=100,
+                 dogrowprune=True,
+                 minpercentchange=0.0,
+                 verbose=False,
 
 #                 usescratch=True,
 #                 readonly=True,
@@ -196,7 +199,8 @@ class ImagerParameters():
                                     #'maskresolution':maskresolution, 'nmask':nmask,'autoadjust':autoadjust,
                                     'sidelobethreshold':sidelobethreshold, 'noisethreshold':noisethreshold,
                                     'lownoisethreshold':lownoisethreshold, 'negativethreshold':negativethreshold,'smoothfactor':smoothfactor,
-                                    'minbeamfrac':minbeamfrac, 'cutthreshold':cutthreshold, 'growiterations':growiterations,
+                                    'minbeamfrac':minbeamfrac, 'cutthreshold':cutthreshold, 'growiterations':growiterations, 
+                                     'dogrowprune':dogrowprune, 'minpercentchange':minpercentchange, 'verbose':verbose,
                                     'interactive':interactive, 'startmodel':startmodel} }
 
         ######### Iteration control. 
