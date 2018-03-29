@@ -831,7 +831,7 @@ void GridFT::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
     ixsub=16;
     iysub=16; 
   }
-  else if(nth >2) {
+  else if(nth >1) {
      ixsub=2;
      iysub=2; 
   }
