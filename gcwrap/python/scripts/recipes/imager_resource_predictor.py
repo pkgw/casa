@@ -1,4 +1,4 @@
-from taskinit import *
+from taskinit import casalog
 from imagerhelpers.input_parameters import ImagerParameters
 
 
