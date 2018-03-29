@@ -7,7 +7,6 @@ from taskinit import *
 SRV_WSDL_URL = 'http://asa.alma.cl/axis2/services/TMCDBAntennaPadService?wsdl'
 ALMA_CONFIG_NAME = 'CURRENT.AOS'
 
-offline_tmp_test = False
 
 def query_tmcdb_antennas(ant_names, timestamp):
     """
@@ -27,15 +26,12 @@ def query_tmcdb_antennas(ant_names, timestamp):
     import time
     from suds.client import Client
 
-    if offline_tmp_test:
-        return {}
-
     # build a string of space-separated antenna names
     try:
         ant_names_str = ' '.join(ant for ant in ant_names)
     except RuntimeError as exc:
-        raise AttributeError('Error in antenna names strings: {0}. ant_names must be a list'
-                             'of strings. Got: {1}'.format(exc, ant_names))
+        raise AttributeError('Error in antenna names strings: {0}. ant_names must '
+                             'be a list of strings. Got: {1}'.format(exc, ant_names))
     config_name = ALMA_CONFIG_NAME
     casalog.post('Querying TMC DB, positions for configuration: {0}, for these '
                  'antennas: {1}, at time: {2}'.
@@ -62,27 +58,6 @@ def query_tmcdb_antennas(ant_names, timestamp):
 
     return resp
 
-# TODO: CAS-9089 remove once we have the web service in place and up
-def offline_replacement_get_ant_pad_posns(resp_ignore):
-    ant_names = ['CM01', 'CM04', 'CM06', 'CM08', 'CM09', 'CM12']
-    pad_posns = np.array([
-        [2225077.740072, -5440126.556893, -2481521.870757],
-        [2225071.452829, -5440108.851154, -2481566.026086],
-        [2225081.6259, -5440108.599685, -2481557.493929],
-        [2225060.918022, -5440127.734977, -2481534.28463],
-        [2225069.540537, -5440129.897722, -2481521.874189],
-        [2225086.823433, -5440113.37494, -2481542.48177]
-    ])
-    ant_vec = np.array([
-        [-0.002052, -0.000232, 7.502983],
-        [-0.001695, 0.000365, 7.499843],
-        [-0.001863, 0.000487, 7.500449],
-        [-0.001925, 0.001029, 7.501333],
-        [-0.001918, 0.000704, 7.500064],
-        [-0.00173, 0.000851, 7.499918]
-    ])
-
-    return (ant_names, ant_vec, pad_posns)
 
 def process_tmcdb_response_for_gencal(resp):
     """
@@ -147,31 +122,27 @@ def process_tmcdb_response_for_gencal(resp):
 
         return (pos_found, ant_position, pad_position)
 
-    if not offline_tmp_test:
-        if not resp:
-            raise RuntimeError('No response received: {}'.format(resp))
-        elif not resp.antennaPositionList or 0 == len(resp.antennaPositionList):
-            raise RuntimeError('Response with no list: {}'.format(resp))
+    if not resp:
+        raise RuntimeError('No response received: {}'.format(resp))
+    elif not resp.antennaPositionList or 0 == len(resp.antennaPositionList):
+        raise RuntimeError('Response with no list: {}'.format(resp))
 
     casalog.post('Got this response from ALMA TMC DB: {}'.
-                 format(resp), 'DEBUG')
+                 format(resp), 'DEBUG2')
 
     accum_ant_names = []
     accum_positions = []
     accum_pad_positions = []
     cnt_pos_found = 0
-    if not offline_tmp_test:
-        for ant_idx, pos in enumerate(resp.antennaPositionList):
-            check_pos(pos, ant_idx)
+    for ant_idx, pos in enumerate(resp.antennaPositionList):
+        check_pos(pos, ant_idx)
 
-            accum_ant_names.append(pos.name)
-            (found, ant_position, pad_position) = get_ant_pad_position(pos)
-            if found:
-                cnt_pos_found += 1
-            accum_positions.append(ant_position)
-            accum_pad_positions.append(pad_position)
-    else:
-        (accum_ant_names, accum_positions, accum_pad_positions) = offline_replacement_get_ant_pad_posns(resp)
+        accum_ant_names.append(pos.name)
+        (found, ant_position, pad_position) = get_ant_pad_position(pos)
+        if found:
+            cnt_pos_found += 1
+        accum_positions.append(ant_position)
+        accum_pad_positions.append(pad_position)
 
     casalog.post('Queried ALMA TMC DB and found position parameters for {} antennas out of '
                  '{} requested in total '.
@@ -227,8 +198,6 @@ def correct_ant_posns_alma(vis_name, print_offsets=False):
             tb_tool.close()
 
             asdm_pad_pos = asdm_pad_pos[:, 0:asdm_ant_pos.shape[1]]
-            #ant_posns = asdm_pad_pos + asdm_ant_pos    # key
-            ant_posns = asdm_ant_pos
         except RuntimeError as exc:
             casalog.post('Could not find pad and antenna position information '
                          'from the ASDM_ANTENNA and ASDM_STATION subtables. '
@@ -237,7 +206,10 @@ def correct_ant_posns_alma(vis_name, print_offsets=False):
                          'are most likely inaccurate. Error description: {0}'.
                          format(exc), 'WARN')
             tb_tool.open(vis_name + '/ANTENNA')
-            ant_posns = tb_tool.getcol('POSITION')
+            asdm_pad_pos = tb_tool.getcol('POSITION')
+            tb_tool.close()
+            tb_tool.open(vis_name + '/ASDM_ANTENNA')
+            asdm_ant_pos = tb_tool.getcol('position')
             tb_tool.close()
 
         ant_posns_ms = map(list, zip(asdm_ant_pos[0], asdm_ant_pos[1],
@@ -305,9 +277,7 @@ def correct_ant_posns_alma(vis_name, print_offsets=False):
                                          pad_pos_ms):
             from math import sqrt, cos, sin, asin, atan2
 
-            lat = (asin(pad_pos[2] /
-                             sqrt(pad_pos[0]**2
-                                       + pad_pos[1]**2 + pad_pos[2]**2)))
+            lat = (asin(pad_pos[2] / sqrt(pad_pos[0]**2 + pad_pos[1]**2 + pad_pos[2]**2)))
             lon = atan2(pad_pos[1], pad_pos[0])
             pos_tot = np.array([0, 0, 0], dtype=float)
             pos_tot[0] = (ant_corr_pos[0] - sin(-lon) * pad_pos[0] -
@@ -319,9 +289,8 @@ def correct_ant_posns_alma(vis_name, print_offsets=False):
             pos_tot[2] = (ant_corr_pos[2] + cos(-lat) * pad_pos[1] +
                           sin(-lat) * pad_pos[2])
 
-            lat_ms = (asin(pad_pos_ms[2] /
-                             sqrt(pad_pos_ms[0]**2
-                                       + pad_pos_ms[1]**2 + pad_pos_ms[2]**2)))
+            lat_ms = (asin(pad_pos_ms[2] / sqrt(pad_pos_ms[0]**2 + pad_pos_ms[1]**2 +
+                                                pad_pos_ms[2]**2)))
             lon_ms = atan2(pad_pos_ms[1], pad_pos_ms[0])
             pos_tot_ms = np.array([0, 0, 0], dtype=float)
             pos_tot_ms[0] = (ant_pos_ms[0] - sin(-lon_ms) * pad_pos_ms[0] -
@@ -400,9 +369,8 @@ def correct_ant_posns_alma(vis_name, print_offsets=False):
             """
             from math import sqrt, sin, cos, asin, atan2
 
-            lat = (asin(pad_pos[2] /
-                             sqrt(pad_pos[0]**2
-                                       + pad_pos[1]**2 + pad_pos[2]**2)))
+            lat = (asin(pad_pos[2] / sqrt(pad_pos[0]**2 + pad_pos[1]**2 +
+                                          pad_pos[2]**2)))
             lon = atan2(pad_pos[1], pad_pos[0])
 
             itrf_diff = ant_corr_pos - ant_pos_ms
@@ -420,7 +388,7 @@ def correct_ant_posns_alma(vis_name, print_offsets=False):
         ant_params = []
         casalog.post('Antennas {0}\nPositions from TMC DB: {1},\nPositions '
                      'found in MS: {2}'.format(ant_names, ant_corr_posns, ant_posns_ms),
-                     'DEBUG')
+                     'DEBUG1')
 
         for idx, name in enumerate(ant_names):
             if np.all(ant_corr_posns[idx] == 0) and np.all(pad_posns[idx] == 0):
@@ -428,15 +396,27 @@ def correct_ant_posns_alma(vis_name, print_offsets=False):
             else:
                 param = calc_param_diff(name, ant_corr_posns[idx], pad_posns[idx],
                                         ant_posns_ms[idx], pad_posns_ms[idx])
-                casalog.post('Antenna name: {}, pos corr: {}, pad pos: {}, pos ms: {}, '
+                casalog.post('Antenna name: {}, pos offset: {}, pad pos: {}, pos MS: {}, '
                              'params: {} '.format(name, ant_corr_posns[idx], pad_posns[idx],
-                                                  ant_posns_ms[idx], param), 'DEBUG')
+                                                  ant_posns_ms[idx], param), 'DEBUG2')
             ant_params.extend(param)
 
         # build a string of comma-separated antenna names
         ant_names_str = ','.join(str(ant) for ant in ant_names)
 
         return (ant_names_str, ant_params)
+
+    def print_ant_params_info(ant_names, ant_params):
+        """
+        Produce one line per antenna: name + 3 params, from the two values
+        returned to gencal """
+        pretty_pars = 'Parameters produced by antenna:\n'
+        for idx, name in enumerate(ant_names):
+            idx3 = idx*3
+            pretty_pars += ('{0}: {1:14.5e} {2:14.5e} {3:14.5e}\n'.
+                            format(name, ant_params[idx3], ant_params[idx3+1],
+                                   ant_params[idx3+2]))
+        return pretty_pars
 
     time_range = get_time_range_from_obs(vis_name)
     ant_names, _pad_names, ant_posns_ms, pad_posns_ms = get_ant_pad_names_posns(vis_name)
@@ -472,7 +452,10 @@ def correct_ant_posns_alma(vis_name, print_offsets=False):
                      'service. Details: {}'.format(exc), 'ERROR')
         ret_code = 1
 
+    casalog.post(print_ant_params_info(ant_names, ant_params), 'DEBUG1')
+    ant_names = ant_names_str.split(',')
+    format_pars = '[' + ', '.join(['{:.5e}'.format(val) for val in ant_params]) + ']'
     casalog.post('Parameter values (FPARAM) produced for gencal, using position information '
-                 'retrieved from the ALMA TMC DB: {0}'.format(ant_params), 'INFO')
+                 'retrieved from the ALMA TMC DB:\n{0}'.format(format_pars), 'INFO')
 
     return [ret_code, ant_names_str, ant_params]
