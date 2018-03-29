@@ -180,6 +180,7 @@ scripts/task_plotweather.py
 scripts/task_plotprofilemap.py
 #scripts/task_plotxy.py
 scripts/task_oldhanningsmooth.py
+scripts/task_oldplotants.py
 scripts/task_oldsplit.py
 scripts/task_partition.py
 scripts/task_polcal.py
@@ -194,6 +195,7 @@ scripts/task_sdfixscan.py
 scripts/task_sdgaincal.py
 scripts/task_sdimaging.py
 scripts/task_tsdimaging.py
+scripts/task_sdsidebandsplit.py
 scripts/task_sdsmooth.py
 scripts/task_setjy.py
 scripts/task_ssoflux.py

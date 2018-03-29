@@ -24,6 +24,7 @@
 //#                        Charlottesville, VA 22903-2475 USA
 //#
 //# $Id: $
+#include <QPrinter>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <climits>
@@ -105,26 +106,26 @@ namespace casa {
 		Record optionsChangedRec;
 
 		if ( x.size( ) > 0 ) {
-			rec.define( "xaxis", x.toAscii( ).constData( ) );
+			rec.define( "xaxis", x.toLatin1( ).constData( ) );
 			update_axes = true;
 			Record xaxis;
-			xaxis.define("value",x.toAscii( ).constData( ) );
+			xaxis.define("value",x.toLatin1( ).constData( ) );
 			optionsChangedRec.defineRecord("xaxis",xaxis);
 		}
 
 		if ( y.size( ) > 0 ) {
-			rec.define( "yaxis", y.toAscii( ).constData( ) );
+			rec.define( "yaxis", y.toLatin1( ).constData( ) );
 			update_axes = true;
 			Record yaxis;
-			yaxis.define("value",y.toAscii( ).constData( ) );
+			yaxis.define("value",y.toLatin1( ).constData( ) );
 			optionsChangedRec.defineRecord("yaxis",yaxis);
 		}
 
 		if ( z.size( ) > 0 ) {
-			rec.define( "zaxis", z.toAscii( ).constData( ) );
+			rec.define( "zaxis", z.toLatin1( ).constData( ) );
 			update_axes = true;
 			Record zaxis;
-			zaxis.define("value",z.toAscii( ).constData( ) );
+			zaxis.define("value",z.toLatin1( ).constData( ) );
 			optionsChangedRec.defineRecord("zaxis",zaxis);
 		}
 
@@ -280,11 +281,11 @@ namespace casa {
         std::list<std::string> valid { "foreground", "background", "black", "white", "red",
                                        "green", "blue", "cyan", "magenta", "yellow", "gray" };
 
-        if ( std::find( valid.begin( ), valid.end(), color.toAscii( ).constData( ) ) == valid.end( ) ) {
+        if ( std::find( valid.begin( ), valid.end(), color.toLatin1( ).constData( ) ) == valid.end( ) ) {
             return error(QString("invalid color '") + color + "'");
         }
 
-        rec.define( "color", color.toAscii( ).constData( ) );
+        rec.define( "color", color.toLatin1( ).constData( ) );
 
 		QtDisplayData *dd = finddata(panel_or_data);
 
@@ -383,7 +384,7 @@ namespace casa {
 				}
 			}
 			// next replace the colormap
-			String colormap_name(map.toAscii().constData());
+			String colormap_name(map.toLatin1().constData());
 			for ( std::list<int>::iterator diter = data.begin(); diter != data.end(); ++diter ) {
 				datamap::iterator dditer = managed_datas.find(*diter);
 				if ( dditer != managed_datas.end( ) ) {
@@ -400,7 +401,7 @@ namespace casa {
 			if ( dd->isValidColormap( map ) == false ) {
 				return error(QString("'") + map + "' is not a valid colormap");
 			}
-			String colormap_name(map.toAscii().constData());
+			String colormap_name(map.toLatin1().constData());
 			dd->setColormap( colormap_name );
 		}
 		return QDBusVariant(QVariant(true));
@@ -444,7 +445,7 @@ namespace casa {
 	QDBusVariant QtDBusViewerAdaptor::load( const QString &path, const QString &displaytype, int panel, double scaling ) {
 
 		struct stat buf;
-		if ( stat(path.toAscii().constData(),&buf) < 0 ) {
+		if ( stat(path.toLatin1().constData(),&buf) < 0 ) {
 			// file (or dir) does not exist
 			return error("path '" + path + "' not found");
 		}
@@ -463,14 +464,13 @@ namespace casa {
 				QtDisplayData *result = 0;
 				viewer::DisplayDataOptions ddo;
 
-				if ( scaling != 0.0 ) {
-					char buf[1024];
-					sprintf( buf, "%f", scaling );
-					ddo.insert( "powercycles", buf );
-				}
-
 				result = dpg->createDD( to_string(path), datatype, to_string(displaytype), true,
 										-1, false, false, false, ddo );
+
+				if ( scaling != 0.0 ) {
+					result->setRasterPowerScaling(scaling);
+				}
+
 				dpg->addedData( displaytype, result );
 
 				return QDBusVariant(QVariant(get_id( dpg, result, path, displaytype )));
@@ -505,9 +505,9 @@ namespace casa {
 		struct stat buf;
 		const QString &path = iter->second->path();
 		const QString &displaytype = iter->second->type();
-		if ( stat(path.toAscii().constData(),&buf) < 0 ) {
+		if ( stat(path.toLatin1().constData(),&buf) < 0 ) {
 			// file (or dir) does not exist
-			fprintf( stderr, "error: file does not exist (%s)", path.toAscii().constData());
+			fprintf( stderr, "error: file does not exist (%s)", path.toLatin1().constData());
 			return;
 		}
 
@@ -601,7 +601,7 @@ namespace casa {
 		struct stat buf;
 		char path[MAXPATHLEN+1];
 
-		sprintf( path, "%s", qpath.toAscii().constData( ) );
+		sprintf( path, "%s", qpath.toLatin1().constData( ) );
 		if ( stat(path,&buf) < 0 || ! S_ISREG(buf.st_mode) ) {
 			// file (or dir) does not exist
 			return error("file or dir(" + qpath + ") does not exist");
@@ -877,7 +877,7 @@ namespace casa {
 		if ( devicetype == "ghostview" ) {
 			launch_ghostview( printer_file );
 		} else if ( devicetype == "printer" ) {
-			char *dev = strdup( device.toAscii().constData( ) );
+			char *dev = strdup( device.toLatin1().constData( ) );
 			launch_lpr( printer_file, dev );
 			free( dev );
 		}
@@ -890,9 +890,12 @@ namespace casa {
 	                                   int dpi, const QString &orientation, const QString &media ) {
 		QPrinter *printer = new QPrinter;
 
+#if QT_VERSION < 0x050000
 		if ( type == "ps" || type == "eps" ) {
 			printer->setOutputFormat(QPrinter::PostScriptFormat);
-		} else if ( type == "pdf" ) {
+		} else
+#endif
+        if ( type == "pdf" ) {
 			printer->setOutputFormat(QPrinter::PdfFormat);
 		}
 
@@ -963,7 +966,7 @@ namespace casa {
 
 		if ( type == "eps" ) {
 			char path[MAXPATHLEN+1];
-			sprintf( path, "%s", file.toAscii( ).constData( ) );
+			sprintf( path, "%s", file.toLatin1( ).constData( ) );
 			adjusteps( eps_file_name, path, pmp.size(), viewport );
 			remove( eps_file_name );
 		}
@@ -1047,7 +1050,7 @@ namespace casa {
 
 		QApplication::restoreOverrideCursor();
 
-		char *ctype = strdup(type.toAscii().constData( ));
+		char *ctype = strdup(type.toLatin1().constData( ));
 		if ( ! mp->save(file, ctype ) ) {
 			free( ctype );
 			delete mp;
@@ -1063,7 +1066,7 @@ namespace casa {
 		char p[MAXPATHLEN+1];
 		if ( new_path != "" ) {
 			struct stat buf;
-			sprintf( p, "%s", new_path.toAscii().constData() );
+			sprintf( p, "%s", new_path.toLatin1().constData() );
 			if ( stat(p,&buf) == 0 && S_ISDIR(buf.st_mode) )
 				chdir(p);
 			else if ( stat(p,&buf) != 0 )
@@ -1081,7 +1084,7 @@ namespace casa {
 		QMap<QString,QVariant> map;
 		map.insert("path",QVariant(path));
 		struct stat buf;
-		if ( stat(path.toAscii().constData(),&buf) < 0 ) {
+		if ( stat(path.toLatin1().constData(),&buf) < 0 ) {
 			// file (or dir) does not exist
 			map.insert("type",QVariant("nonexistent"));
 		} else {

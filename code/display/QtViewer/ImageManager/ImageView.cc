@@ -947,7 +947,7 @@ namespace casa {
 	void ImageView::makeDrag( QMouseEvent* event ) {
 		QDrag* drag = new QDrag( this );
 		QMimeData* mimeData = new QMimeData();
-		QByteArray itemId = getName().toAscii();
+		QByteArray itemId = getName().toLatin1();
 		mimeData->setData( DROP_ID, itemId );
 		QImage* dragImage = makeDragImage();
 		drag->setPixmap( QPixmap::fromImage(*dragImage));

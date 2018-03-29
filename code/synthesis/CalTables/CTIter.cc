@@ -118,6 +118,10 @@ Int ROCTIter::thisAntenna2() const { return iROCTMainCols_->antenna2()(0); };
 Vector<Int> ROCTIter::antenna2() const { return iROCTMainCols_->antenna2().getColumn(); };
 void ROCTIter::antenna2(Vector<Int>& v) const { iROCTMainCols_->antenna2().getColumn(v); };
 
+Double ROCTIter::thisInterval() const { return iROCTMainCols_->interval()(0); };
+Vector<Double> ROCTIter::interval() const { return iROCTMainCols_->interval().getColumn(); };
+void ROCTIter::interval(Vector<Double>& v) const { iROCTMainCols_->interval().getColumn(v); };
+
 Cube<Complex> ROCTIter::cparam() const { return iROCTMainCols_->cparam().getColumn(); };
 void ROCTIter::cparam(Cube<Complex>& c) const { iROCTMainCols_->cparam().getColumn(c); };
 Cube<Float> ROCTIter::fparam() const { return iROCTMainCols_->fparam().getColumn(); };

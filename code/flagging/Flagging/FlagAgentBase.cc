@@ -32,7 +32,9 @@
 #include <flagging/Flagging/FlagAgentShadow.h>
 #include <flagging/Flagging/FlagAgentExtension.h>
 #include <flagging/Flagging/FlagAgentRFlag.h>
+#if ! defined(WITHOUT_DBUS)
 #include <flagging/Flagging/FlagAgentDisplay.h>
+#endif
 #include <flagging/Flagging/FlagAgentAntennaIntegrations.h>
 
 using namespace casacore;
@@ -312,12 +314,14 @@ FlagAgentBase::create (FlagDataHandler *dh,Record config)
 		FlagAgentAntennaIntegrations* agent = new FlagAgentAntennaIntegrations(dh,config,writePrivateFlags, true);
 		return agent;
 	}
+#if ! defined(WITHOUT_DBUS)
 	// Display
 	else if (mode.compare("display")==0)
 	{
 		FlagAgentDisplay* agent = new FlagAgentDisplay(dh,config,writePrivateFlags);
 		return agent;
 	}
+#endif
 	else
 	{
 		cerr << "FlagAgentFactory::" << __FUNCTION__ << " Mode " << mode << " not supported" << endl;

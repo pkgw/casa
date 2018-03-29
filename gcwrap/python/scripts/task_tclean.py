@@ -131,6 +131,9 @@ def tclean(
     minbeamfrac,#=0.3, 
     cutthreshold,#=0.01,
     growiterations,#=100
+    dogrowprune,#=True
+    minpercentchange,#=0.0
+    verbose, #=False
 
     ## Misc
 
@@ -268,10 +271,13 @@ def tclean(
         minbeamfrac=minbeamfrac,
         cutthreshold=cutthreshold,
         growiterations=growiterations,
+        dogrowprune=dogrowprune,
+        minpercentchange=minpercentchange,
+        verbose=verbose,
  
         savemodel=savemodel
         )
-    
+
     #paramList.printParameters()
 
     pcube=False

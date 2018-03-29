@@ -1384,6 +1384,24 @@ class immoment_test2(unittest.TestCase):
         myia.done()
         bb.done()
         
+    def test_CAS_11195(self):
+        """Verify array initialization bug created and fixed in CAS-11195"""
+        myia = iatool()
+        myia.fromshape("", [20, 20, 20])
+        myia.addnoise()
+        pix = myia.getchunk()
+        mmax = pix.max(axis=2)
+        mmin = pix.min(axis=2)
+        outfile = "CAS-11195.im"
+        mom8 = myia.moments(outfile=outfile, moments=[8, 10])
+        myia.open(outfile + ".minimum")
+        pmax = mom8.getchunk()
+        pmin = myia.getchunk()
+        mom8.done()
+        myia.done()
+        self.assertTrue((pmax == mmax).all(), "Error in moment 8")
+        self.assertTrue((pmin == mmin).all(), "Error in moment 10")
+        
 def suite():
     return [immoment_test1,immoment_test2]        
     

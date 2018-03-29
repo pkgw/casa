@@ -43,6 +43,8 @@ extern "C" char **environ;
 namespace casa {
 	namespace dbus {
 
+        Diagnostic diagnostic;
+
 		unsigned long init_diagnostic_object_t::count = 0;
 
 		Diagnostic::kernel_t::kernel_t( ) : fptr(0), pid(getpid( )) { }
