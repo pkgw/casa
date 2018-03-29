@@ -28,14 +28,14 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
     <param type="any" name="axis" >
 	<description>The momement axis: ra, dec, lat, long, spectral, or stokes</description>
- 	<any type='variant' limmittype='string int'/>
+	<any type='variant' limittypes='string int'/>
     	<value type='string'>spectral</value>
         <example>axis=&quot;ra&quot;</example>
     </param>
 
     <param type="any" name="region">
         <description>Region selection. Default is to use the full image.</description>
-	<any type='variant' limittype='string stringArray'/>
+	<any type='variant' limittypes='string stringArray'/>
         <value type='string'/>
         <example>region=&quot;myregion.crtf&quot;</example>
     </param>

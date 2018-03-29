@@ -26,7 +26,7 @@
 #ifndef DATASYMBOLWIDGET_QO_H
 #define DATASYMBOLWIDGET_QO_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <plotms/GuiTabs/PlotMSDataSymbolWidget.ui.h>
 
 namespace casa {

@@ -25,7 +25,7 @@
 #ifndef CHANNELRANGEWIDGET_QO_H
 #define CHANNELRANGEWIDGET_QO_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <guitools/Histogram/ChannelRangeWidget.ui.h>
 
 namespace casa {

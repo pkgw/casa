@@ -915,23 +915,19 @@ void WProjectFT::put(const VisBuffer2& vb, Int row, Bool dopsf,
   //cerr << "dels " << delloc << "  " << deloff << endl;
   //cerr << "LOC " << min(loc.xzPlane(0)) << "  max " << loc.shape() << endl;
   timemass_p +=tim.real();
-  Int x0, y0, nxsub, nysub, ixsub, iysub, icounter;
+  Int ixsub, iysub, icounter;
   ixsub=1;
   iysub=1;
   if (nth >4){
-    ixsub=10;
-    iysub=10; 
+    ixsub=16;
+    iysub=16; 
   }
   else {
      ixsub=2;
      iysub=2; 
   }
-  x0=1;
-  y0=1;
   //nxsub=nx;
   //nysub=ny;
-  nxsub=maxx-minx+1;
-  nysub=maxy-miny+1;
   Int rbeg=startRow+1;
   Int rend=endRow+1;
  
@@ -941,17 +937,13 @@ void WProjectFT::put(const VisBuffer2& vb, Int row, Bool dopsf,
   Int np=npol;
   // Int nxp=nx;
   // Int nyp=ny;
-  minx=min(nx-maxx, minx);
-  miny=min(ny-maxy, miny);
-  maxx=nx-minx-1;
-  maxy=ny-miny-1;
-  nxsub=maxx-minx+1;
-  nysub=maxy-miny+1;
+  minx=0;
+  miny=0;
+  Int nxp=nx;
+  Int nyp=ny;
   Int nxcopy=nx;
   Int nycopy=ny;
-  //cerr << "maxx " << maxx << " minx " << minx << " maxy " << maxy << " miny " << miny << endl;
-  Int nxp=maxx-minx+1;
-  Int nyp=maxy-miny+1;
+ 
   Int csize=convSize;
    Int wcsize=wConvSize;
   const Int * flagstor=flags.getStorage(del);
@@ -963,16 +955,32 @@ void WProjectFT::put(const VisBuffer2& vb, Int row, Bool dopsf,
     sumwgt[icounter].resize(sumWeight.shape());
     sumwgt[icounter].set(0.0);
   }
+  if(!doneThreadPartition_p){
+    xsect_p.resize(ixsub*iysub);
+    ysect_p.resize(ixsub*iysub);
+    nxsect_p.resize(ixsub*iysub);
+    nysect_p.resize(ixsub*iysub);
+    for (icounter=0; icounter < ixsub*iysub; ++icounter){
+      findGridSector(nxp, nyp, ixsub, iysub, minx, miny, icounter, xsect_p(icounter), ysect_p(icounter), nxsect_p(icounter), nysect_p(icounter), true);
+    }
+    doneThreadPartition_p=True;
+  }
+  Vector<Int> xsect, ysect, nxsect, nysect;
+  xsect=xsect_p; ysect=ysect_p; nxsect=nxsect_p; nysect=nysect_p;
+
   if(!useDoubleGrid_p){
     Complex *gridstor=griddedData.getStorage(gridcopy);
-#pragma omp parallel default(none) private(icounter,x0,y0,nxsub,nysub, del) firstprivate(idopsf, uvwstor, datStorage, wgtStorage, flagstor, rowflagstor, convstor, pmapstor, cmapstor, gridstor, suppstor, nxp, nyp, nxcopy, nycopy, np, nc,ixsub, iysub, rend, rbeg, csamp, csize, wcsize, nvp, nvc, nvisrow, phasorstor, locstor, offstor, minx, miny) shared(sumwgt) num_threads(nth)
+#pragma omp parallel default(none) private(icounter, del) firstprivate(idopsf, uvwstor, datStorage, wgtStorage, flagstor, rowflagstor, convstor, pmapstor, cmapstor, gridstor, suppstor, nxp, nyp, nxcopy, nycopy, np, nc,ixsub, iysub, rend, rbeg, csamp, csize, wcsize, nvp, nvc, nvisrow, phasorstor, locstor, offstor, minx, miny, xsect, ysect, nxsect, nysect) shared(sumwgt) num_threads(nth)
     {
 
 #pragma omp for schedule(dynamic) 
     for(icounter=0; icounter < ixsub*iysub; ++icounter){
      
-      findGridSector(nxp, nyp, ixsub, iysub, minx, miny, icounter, x0, y0, nxsub, nysub, true);
-      
+     
+       Int x0=xsect(icounter);
+       Int y0=ysect(icounter);
+       Int nxsub=nxsect(icounter);
+       Int nysub=nysect(icounter);
 
       sectgwgrids(uvwstor,
 	   datStorage,
@@ -1000,7 +1008,7 @@ void WProjectFT::put(const VisBuffer2& vb, Int row, Bool dopsf,
 		 phasorstor);
     }
     }//end pragma parallel
-
+     //tweakGridSector(nx, ny, ixsub, iysub);
     timegrid_p+=tim.real();
 
     for (icounter=0; icounter < ixsub*iysub; ++icounter){
@@ -1011,12 +1019,15 @@ void WProjectFT::put(const VisBuffer2& vb, Int row, Bool dopsf,
   }
   else{
     DComplex *gridstor=griddedData2.getStorage(gridcopy);
-#pragma omp parallel default(none) private(icounter,x0,y0,nxsub,nysub, del) firstprivate(idopsf, uvwstor, datStorage, wgtStorage, flagstor, rowflagstor, convstor, pmapstor, cmapstor, gridstor, suppstor, nxp, nyp, nxcopy, nycopy, np, nc,ixsub, iysub, rend, rbeg, csamp, csize, wcsize, nvp, nvc, nvisrow, phasorstor, locstor, offstor,minx,miny) shared(sumwgt) num_threads(nth)
+#pragma omp parallel default(none) private(icounter,del) firstprivate(idopsf, uvwstor, datStorage, wgtStorage, flagstor, rowflagstor, convstor, pmapstor, cmapstor, gridstor, suppstor, nxp, nyp, nxcopy, nycopy, np, nc,ixsub, iysub, rend, rbeg, csamp, csize, wcsize, nvp, nvc, nvisrow, phasorstor, locstor, offstor,minx,miny, xsect, ysect, nxsect, nysect) shared(sumwgt) num_threads(nth)
     {
 #pragma omp for  schedule(dynamic)    
     for(icounter=0; icounter < ixsub*iysub; ++icounter){
-      //Int realicounter=icounter%2==0 ? ixsub*iysub/2+icounter/2 :  ixsub*iysub/2-icounter/2-1;
-      findGridSector(nxp, nyp, ixsub, iysub, minx, miny, icounter, x0, y0, nxsub, nysub, true);
+      
+      Int x0=xsect(icounter);
+      Int y0=ysect(icounter);
+      Int nxsub=nxsect(icounter);
+      Int nysub=nysect(icounter);
 
       sectgwgridd(uvwstor,
 	   datStorage,
@@ -1044,7 +1055,7 @@ void WProjectFT::put(const VisBuffer2& vb, Int row, Bool dopsf,
 		 phasorstor);
     }
     }//end pragma parallel
-
+    //tweakGridSector(nx, ny, ixsub, iysub);
     timegrid_p+=tim.real();
 
     for (icounter=0; icounter < ixsub*iysub; ++icounter){
@@ -1060,93 +1071,6 @@ void WProjectFT::put(const VisBuffer2& vb, Int row, Bool dopsf,
   elWeight.freeStorage(wgtStorage,iswgtCopy);
 }
 
-void WProjectFT::findGridSector(const Int& nxp, const Int& nyp, const Int& ixsub, const Int& iysub, const Int& minx, const Int& miny, const Int& icounter, Int& x0, Int& y0, Int&  nxsub, Int& nysub, const Bool linear){
-  /* Vector<Int> ord(36);
-       ord(0)=14; 
-      ord(1)=15;
-      ord(2)=20;
-      ord(3)=21;ord(4)=13;
-      ord(5)=16;ord(6)=19;ord(7)=22;ord(8)=8;ord(9)=9;
-      ord(10)=26;ord(11)=27;ord(12)=25;ord(13)=28;ord(14)=7;
-      ord(15)=10;ord(16)=32;ord(17)=33;ord(18)=2;ord(19)=3;
-      ord(20)=18;ord(21)=23;ord(22)=12;ord(23)=17;ord(24)=1;
-      ord(25)=4;ord(26)=6;ord(27)=11;ord(28)=24;ord(29)=29;
-      ord(30)=31;ord(31)=34;ord(32)=0;ord(33)=5;ord(34)=30;
-      ord(35)=35;
-      */
-  /*
-      Int ix= (icounter+1)-((icounter)/ixsub)*ixsub;
-      Int iy=(icounter)/ixsub+1;
-      y0=(nyp/iysub)*(iy-1)+1+miny;
-      nysub=nyp/iysub;
-      if( iy == iysub) {
-	nysub=nyp-(nyp/iysub)*(iy-1);
-      }
-      x0=(nxp/ixsub)*(ix-1)+1+minx;
-      nxsub=nxp/ixsub;
-      if( ix == ixsub){
-	nxsub=nxp-(nxp/ixsub)*(ix-1);
-      }
-  */
-         
-         
-      {
-	Int elrow=icounter/ixsub;
-	Int elcol=(icounter-elrow*ixsub);
-	//cerr << "row "<< elrow << " col " << elcol; 
-	//nxsub=Int(floor(((ceil(fabs(float(2*elcol+1-ixsub)/2.0))-1.0)*5 +1)*nxp/36.0 + 0.5));
-	Float factor=0;
-	for (Int k=0; k < ixsub/2; ++k)
-	  factor= linear ? factor+(k+1): factor+sqrt(Float(k+1));
-	  //factor= linear ? factor+(k+1): factor+(k+1)*(k+1)*(k+1);
-	factor *= 2.0;
-	if(linear)
-	  nxsub=Int(floor((ceil(fabs(float(2*elcol+1-ixsub)/2.0))/factor)*nxp + 0.5));
-	else
-	  //nxsub=Int(floor((ceil(fabs(float(2*elcol+1-ixsub)/2.0))*ceil(fabs(float(2*elcol+1-ixsub)/2.0))*ceil(fabs(float(2*elcol+1-ixsub)/2.0))/factor)*nxp + 0.5));
-	  nxsub=Int(floor((sqrt(ceil(fabs(float(2*elcol+1-ixsub)/2.0)))/factor)*nxp + 0.5));
-        //cerr << nxp << " col " << elcol << " nxsub " << nxsub << endl;
-	x0=minx;
-	elcol-=1;
-	while(elcol >= 0){
-	  //x0+=Int(floor(((ceil(fabs(float(2*elcol+1-ixsub)/2.0))-1.0)*5 +1)*nxp/36.0+0.5));
-
-	  if(linear)
-	    x0+=Int(floor((ceil(fabs(float(2*elcol+1-ixsub)/2.0))/factor)*nxp + 0.5));
-	  else
-	    //x0+=Int(floor((ceil(fabs(float(2*elcol+1-ixsub)/2.0))*ceil(fabs(float(2*elcol+1-ixsub)/2.0))*ceil(fabs(float(2*elcol+1-ixsub)/2.0))/factor)*nxp + 0.5));
-	    x0+=Int(floor((sqrt(ceil(fabs(float(2*elcol+1-ixsub)/2.0)))/factor)*nxp + 0.5));
-	  elcol-=1;
-	}
-	factor=0;
-	for (Int k=0; k < iysub/2; ++k)
-	  //factor=linear ? factor+(k+1): factor+(k+1)*(k+1)*(k+1);
-	  factor= linear ? factor+(k+1): factor+sqrt(Float(k+1));
-	factor *= 2.0;
-	//nysub=Int(floor(((ceil(fabs(float(2*elrow+1-iysub)/2.0))-1.0)*5 +1)*nyp/36.0+0.5));
-	if(linear)
-	  nysub=Int(floor((ceil(fabs(float(2*elrow+1-iysub)/2.0))/factor)*nyp + 0.5));
-	else
-	  nysub=Int(floor((sqrt(ceil(fabs(float(2*elrow+1-iysub)/2.0)))/factor)*nyp + 0.5));
-	  //nysub=Int(floor((ceil(fabs(float(2*elrow+1-iysub)/2.0))*ceil(fabs(float(2*elrow+1-iysub)/2.0))*ceil(fabs(float(2*elrow+1-iysub)/2.0))/factor)*nyp + 0.5));
-	y0=miny;
-	elrow-=1;
-	
-	while(elrow >=0){
-	  //y0+=Int(floor(((ceil(fabs(float(2*elrow+1-iysub)/2.0))-1.0)*5 +1)*nyp/36.0+0.5));
-	  if(linear)
-	    y0+=Int(floor((ceil(fabs(float(2*elrow+1-iysub)/2.0))/factor)*nyp + 0.5));
-	  else
-	    y0+=Int(floor((sqrt(ceil(fabs(float(2*elrow+1-iysub)/2.0)))/factor)*nyp + 0.5));
-	    //y0+=Int(floor((ceil(fabs(float(2*elrow+1-iysub)/2.0))*ceil(fabs(float(2*elrow+1-iysub)/2.0))*ceil(fabs(float(2*elrow+1-iysub)/2.0))/factor)*nyp + 0.5));
-	  elrow-=1;
-	}
-      }
-      y0+=1;
-      x0+=1;
-      
-   
-}
 
 
 void WProjectFT::get(VisBuffer2& vb, Int row)
