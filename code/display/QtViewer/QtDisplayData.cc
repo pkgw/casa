@@ -1537,7 +1537,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}
 
 	bool QtDisplayData::isValidColormap( const QString &name ) const {
-		colormapnamemap::const_iterator iter = clrMapNames_.find(name.toAscii().constData());
+		colormapnamemap::const_iterator iter = clrMapNames_.find(name.toLatin1().constData());
 		return iter != clrMapNames_.end() ? true : false;
 	}
 

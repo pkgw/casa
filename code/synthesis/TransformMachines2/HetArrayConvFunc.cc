@@ -462,11 +462,14 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
 
 
     if(!doneMainConv_p[actualConvIndex_p]) {
+      //cerr << "doneMainConv_p " << actualConvIndex_p << endl;
+
         Vector<Double> sampling;
+	
         sampling = dc.increment();
-        sampling*=Double(convSampling);
-        sampling(0)*=Double(nx)/Double(convSize_p);
-        sampling(1)*=Double(ny)/Double(convSize_p);
+	sampling*=Double(convSampling);
+	sampling(0)*=Double(nx)/Double(convSize_p);
+	sampling(1)*=Double(ny)/Double(convSize_p);
         dc.setIncrement(sampling);
 
         Vector<Double> unitVec(2);
@@ -482,6 +485,8 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
         spCoord.setReferenceValue(Vector<Double>(1, beamFreqs(0)));
         if(beamFreqs.nelements() >1)
 	  spCoord.setIncrement(Vector<Double>(1, beamFreqs(1)-beamFreqs(0)));
+	//cerr << "spcoord " ;
+	//spCoord.print(std::cerr);
         coords.replaceCoordinate(spCoord, spind);
 	CoordinateSystem conjCoord=coords;
 	Double centerFreq=SpectralImageUtil::worldFreq(csys_p, 0.0);
@@ -585,6 +590,7 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
 					//wtime1+=omp_get_wtime()-wtime0;
                     //subim.copyData((LatticeExpr<Complex>) (iif(abs(subim)> 5e-2, subim, 0)));
                     //subim2.copyData((LatticeExpr<Complex>) (iif(abs(subim2)> 25e-4, subim2, 0)));
+
 					//wtime0=omp_get_wtime();
 					ft_p.c2cFFTInDouble(subim);
 					ft_p.c2cFFTInDouble(subim2);
@@ -790,15 +796,15 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
 
     }
     */
-    /*////////////////TESTOOO
-		 CoordinateSystem TMP = coords;
-	  CoordinateUtil::addLinearAxes(TMP, Vector<String>(1,"gulu"), IPosition(1,nBeamChans)); 
-	  PagedImage<Complex> SCREEN(TiledShape(convFunctions_p[actualConvIndex_p]->shape()), TMP, "NONCONJUVI2"+String::toString(actualConvIndex_p));
-	  SCREEN.put(*convFunctions_p[actualConvIndex_p]  );
-	   PagedImage<Complex> SCREEN3(TiledShape(convWeights_p[actualConvIndex_p]->shape()), TMP, "FTWEIGHTVI2"+String::toString(actualConvIndex_p));
-	  SCREEN3.put(*convWeights_p[actualConvIndex_p]  );
+    ////////////////TESTOOO
+    //		 CoordinateSystem TMP = coords;
+    //	  CoordinateUtil::addLinearAxes(TMP, Vector<String>(1,"gulu"), IPosition(1,nBeamChans)); 
+    //	  PagedImage<Complex> SCREEN(TiledShape(convFunctions_p[actualConvIndex_p]->shape()), TMP, "NONCONJUVI2"+String::toString(actualConvIndex_p));
+    //	  SCREEN.put(*convFunctions_p[actualConvIndex_p]  );
+    //	   PagedImage<Complex> SCREEN3(TiledShape(convWeights_p[actualConvIndex_p]->shape()), TMP, "FTWEIGHTVI2"+String::toString(actualConvIndex_p));
+    //	  SCREEN3.put(*convWeights_p[actualConvIndex_p]  );
 	
-    /////////////////*/
+    /////////////////
 
     makerowmap(vb, convFuncRowMap);
     ///need to deal with only the maximum of different baselines available in this
@@ -819,7 +825,7 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
 
     convFunc_p.resize();
 	if((nchan_p == 1) && getConjConvFunc) {
-	  //cerr << this << " recovering " << actualConvIndex_p <<  "   " <<convFunctionsConjFreq_p.size() << endl;
+	  // cerr << this << " recovering " << actualConvIndex_p <<  "   " <<convFunctionsConjFreq_p.size() << endl;
 	  if(Int(convFunctionsConjFreq_p.size()) <= actualConvIndex_p){
 	    fillConjConvFunc(beamFreqs);
 	    
@@ -1181,17 +1187,16 @@ void HetArrayConvFunc::supportAndNormalizeLatt(Int plane, Int convSampling, Temp
     Bool found=false;
     Int trial=0;
     for (trial=0; trial< (convSize/2-2); ++trial) {
-        //Searching down a diagonal
-     if((abs(convPlane(convSize/2-trial-1,convSize/2-1-trial)) <  (7.5e-2*maxAbsConvFunc)) || (real(convPlane(convSize/2-trial-2,convSize/2-trial-2)) <0.0  )) 
+      ///largest along either axis
+      if((abs(convPlane(convSize/2-trial-1,convSize/2-1)) <  (7.5e-2*maxAbsConvFunc)) &&(abs(convPlane(convSize/2-1,convSize/2-trial-1)) <  (7.5e-2*maxAbsConvFunc)) )// || (real(convPlane(convSize/2-trial-2,convSize/2-trial-2)) <0.0  )) 
      { 
 //|| (real(convPlane(convSize/2-trial-2,convSize/2-trial-2)) <0.0  )) {
             found=true;
-            trial=Int(sqrt(2.0*Float(trial*trial)));
+            //trial=Int(sqrt(2.0*Float(trial*trial)));
 	    
             break;
         }
     }
-   
     if(!found) {
         if((maxAbsConvFunc-minAbsConvFunc) > (7.5e-2*maxAbsConvFunc))
             found=true;
@@ -1221,7 +1226,6 @@ void HetArrayConvFunc::supportAndNormalizeLatt(Int plane, Int convSampling, Temp
         //OTF may have flagged stuff ...
         convSupport=0;
     }
-   
     convSupport_p(plane)=convSupport;
     Double pbSum=0.0;
     /*
@@ -1410,7 +1414,6 @@ Array<Complex> HetArrayConvFunc::resample(const Array<Complex>& inarray, const D
     shp(1)=Int(ny*factor/2.0)*2;
     Int newNx=shp(0);
     Int newNy=shp(1);
-
     
     Array<Complex> out(shp, 0.0);
    // cerr << "SHP " << shp << endl;

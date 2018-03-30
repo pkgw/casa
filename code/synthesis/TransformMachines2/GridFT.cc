@@ -785,7 +785,7 @@ void GridFT::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
   else{   
     nth= omp_get_max_threads();
   }
-  nth=min(4,nth);
+  //nth=min(4,nth);
 #endif
   
 
@@ -816,7 +816,7 @@ void GridFT::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
   
   /////////////Some extra stuff for openmp
 
-  Int x0, y0, nxsub, nysub, ixsub, iysub, icounter, ix, iy;
+  Int ixsub, iysub, icounter;
   Int csupp=convSupport_p;
   
   const Double * convfuncstor=(convFunc_p).getStorage(del);
@@ -827,19 +827,16 @@ void GridFT::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
 
   ixsub=1;
   iysub=1; 
-  if (nth >3){
-    ixsub=2;
-    iysub=2; 
+  if (nth >4){
+    ixsub=16;
+    iysub=16; 
   }
-  else if(nth >1){
+  else if(nth >1) {
      ixsub=2;
-     iysub=1; 
+     iysub=2; 
   }
 
-  x0=1;
-  y0=1;
-  nxsub=nx;
-  nysub=ny;
+  
   Int rbeg=startRow+1;
   Int rend=endRow+1;
   Block<Matrix<Double> > sumwgt(ixsub*iysub);
@@ -847,6 +844,17 @@ void GridFT::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
     sumwgt[icounter].resize(sumWeight.shape());
     sumwgt[icounter].set(0.0);
   }
+ if(doneThreadPartition_p < 0){
+    xsect_p.resize(ixsub*iysub);
+    ysect_p.resize(ixsub*iysub);
+    nxsect_p.resize(ixsub*iysub);
+    nysect_p.resize(ixsub*iysub);
+    for (icounter=0; icounter < ixsub*iysub; ++icounter){
+      findGridSector(nx, ny, ixsub, iysub, 0, 0, icounter, xsect_p(icounter), ysect_p(icounter), nxsect_p(icounter), nysect_p(icounter), true);
+    }
+  } 
+ Vector<Int> xsect, ysect, nxsect, nysect;
+ xsect=xsect_p; ysect=ysect_p; nxsect=nxsect_p; nysect=nysect_p;
   const Int* pmapstor=polMap.getStorage(del);
   const Int *cmapstor=chanMap.getStorage(del);
   Int nc=nchan;
@@ -860,25 +868,18 @@ void GridFT::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
   Bool gridcopy;
   if(useDoubleGrid_p){
     DComplex *gridstor=griddedData2.getStorage(gridcopy);
-#pragma omp parallel default(none) private(icounter,ix,iy,x0,y0,nxsub,nysub, del) firstprivate(idopsf, datStorage, wgtStorage, flagstor, rowflagstor, convfuncstor, pmapstor, cmapstor, gridstor, nxp, nyp, np, nc,ixsub, iysub, rend, rbeg, csamp, csupp, nvispol, nvischan, nvisrow, phasorstor, locstor, offstor) shared(sumwgt) num_threads(ixsub*iysub)
+#pragma omp parallel default(none) private(icounter, del) firstprivate(idopsf, datStorage, wgtStorage, flagstor, rowflagstor, convfuncstor, pmapstor, cmapstor, gridstor, nxp, nyp, np, nc,ixsub, iysub, rend, rbeg, csamp, csupp, nvispol, nvischan, nvisrow, phasorstor, locstor, offstor,  xsect, ysect, nxsect, nysect) shared(sumwgt) num_threads(nth)
   
   {
     //cerr << "numthreads " << omp_get_num_threads() << endl;
 #pragma omp for 
     for(icounter=0; icounter < ixsub*iysub; ++icounter){
       //cerr << "thread id " << omp_get_thread_num() << endl;
-      ix= (icounter+1)-((icounter)/ixsub)*ixsub;
-      iy=(icounter)/ixsub+1;
-      y0=(nyp/iysub)*(iy-1)+1;
-      nysub=nyp/iysub;
-      if( iy == iysub) {
-	nysub=nyp-(nyp/iysub)*(iy-1);
-      }
-      x0=(nxp/ixsub)*(ix-1)+1;
-      nxsub=nxp/ixsub;
-      if( ix == ixsub){
-	nxsub=nxp-(nxp/ixsub)*(ix-1);
-      } 
+      Int x0=xsect(icounter);
+      Int y0=ysect(icounter);
+      Int nxsub=nxsect(icounter);
+      Int nysub=nysect(icounter);
+     
       sectggridd(datStorage,
 	  &nvispol,
 	  &nvischan,
@@ -907,28 +908,25 @@ void GridFT::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
   }
   //phasor.putStorage(phasorstor, delphase); 
   griddedData2.putStorage(gridstor, gridcopy);
+  if(dopsf && (nth >4))
+    tweakGridSector(nx, ny, ixsub, iysub);
   }
   else{
     Complex *gridstor=griddedData.getStorage(gridcopy);
-#pragma omp parallel default(none) private(icounter,ix,iy,x0,y0,nxsub,nysub, del) firstprivate(idopsf, datStorage, wgtStorage, flagstor, rowflagstor, convfuncstor, pmapstor, cmapstor, gridstor, nxp, nyp, np, nc,ixsub, iysub, rend, rbeg, csamp, csupp, nvispol, nvischan, nvisrow, phasorstor, locstor, offstor) shared(sumwgt) num_threads(ixsub*iysub)
+#pragma omp parallel default(none) private(icounter, del) firstprivate(idopsf, datStorage, wgtStorage, flagstor, rowflagstor, convfuncstor, pmapstor, cmapstor, gridstor, nxp, nyp, np, nc,ixsub, iysub, rend, rbeg, csamp, csupp, nvispol, nvischan, nvisrow, phasorstor, locstor, offstor, xsect, ysect, nxsect, nysect) shared(sumwgt) num_threads(ixsub*iysub)
     {
       //cerr << "numthreads " << omp_get_num_threads() << endl;
 #pragma omp for
 
       for(icounter=0; icounter < ixsub*iysub; ++icounter){
 	//cerr << "thread id " << omp_get_thread_num() << endl;
-	ix= (icounter+1)-((icounter)/ixsub)*ixsub;
-	iy=(icounter)/ixsub+1;
-	y0=(nyp/iysub)*(iy-1)+1;
-	nysub=nyp/iysub;
-	if( iy == iysub) {
-	  nysub=nyp-(nyp/iysub)*(iy-1);
-	}
-	x0=(nxp/ixsub)*(ix-1)+1;
-	nxsub=nxp/ixsub;
-	if( ix == ixsub){
-	  nxsub=nxp-(nxp/ixsub)*(ix-1);
-	} 
+	Int x0=xsect(icounter);
+	Int y0=ysect(icounter);
+	Int nxsub=nxsect(icounter);
+	Int nysub=nysect(icounter);
+
+
+	
 	//cerr << "x0 " << x0 << " y0 " << y0 << " nxsub " << nxsub << " nysub " << nysub << endl;
 	sectggrids(datStorage,
 		   &nvispol,
@@ -958,6 +956,8 @@ void GridFT::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
     }
     
     griddedData.putStorage(gridstor, gridcopy);
+    if(dopsf && (nth > 4))
+      tweakGridSector(nx, ny, ixsub, iysub);
   }
   // cerr << "sunweight " << sumWeight << endl;
 
@@ -1073,7 +1073,7 @@ void GridFT::get(vi::VisBuffer2& vb, Int row)
   else{   
     nth= omp_get_max_threads();
   }
-  nth=min(4,nth);
+  //nth=min(4,nth);
 #endif
 
 
@@ -1124,13 +1124,8 @@ void GridFT::get(vi::VisBuffer2& vb, Int row)
     const Int * rowflagstor=rowFlags.getStorage(del);
 
 
-    Int npart=1;
-    if (nth >3){
-      npart=4;
-    }
-    else if(nth >1){
-     npart=2; 
-    }
+    Int npart=nth*2;
+    
 
     Int ix=0;
 #pragma omp parallel default(none) private(ix, rbeg, rend) firstprivate(datStorage, flagstor, rowflagstor, convfuncstor, pmapstor, cmapstor, gridstor, nxp, nyp, np, nc, csamp, csupp, nvp, nvc, nvisrow, phasorstor, locstor, offstor) shared(npart) num_threads(npart)

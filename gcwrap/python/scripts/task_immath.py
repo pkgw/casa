@@ -170,7 +170,6 @@ from ialib import write_image_history
 
 _rg = rgtool()
 
-
 def immath(
     imagename, mode, outfile, expr, varnames, sigma,
     polithresh, mask, region, box, chans, stokes, stretch,
@@ -181,9 +180,7 @@ def immath(
     tmpFilePrefix='_immath_tmp' + str(os.getpid()) + '_'
     _myia = iatool()
     _myia.dohistory(False)
-    isLPol = False
-    isTPol = False
-    lpol = ''
+    outia = iatool()
     try:
         _immath_initial_cleanup(tmpFilePrefix)
         outfile = _immath_check_outfile(outfile)
@@ -198,23 +195,21 @@ def immath(
             filenames = [filenames]
         varnames = _immath_varnames(varnames, filenames, tmpfilenames)
         filenames = _immath_filenames(filenames, tmpfilenames, varnames, mode)
-        doPolThresh = False
         expr = expr.replace(' ', '')
         if mode == 'spix':
             expr = _immath_dospix(len(filenames), varnames)
         elif mode == 'pola':
-            (expr, mask, polithresh, doPolThresh, lpol) = _immath_dopola(
-                mask, polithresh, filenames, varnames,
-                tmpFilePrefix, imagename, imagemd
+            _immath_new_pola(
+                filenames, outfile, tmpFilePrefix, mask, region,
+                box, chans, stokes, stretch, polithresh, _myia
             )
+            return True
         elif mode == 'poli':
-            (expr, isLPol, isTPol) = _immath_dopoli(
-                filenames, varnames, tmpFilePrefix, sigma, _myia
+            _immath_new_poli(
+                filenames, outfile, tmpFilePrefix, mask, region,
+                box, chans, stokes, stretch, sigma, _myia
             )
-        if (mode == 'pola' or mode == 'poli') and stokes:
-            # reset stokes selection for pola and poli
-            casalog.post( "Ignoring stokes parameters selection." ,'WARN' );
-            stokes=''
+            return True
         if box or chans or stokes or region or mask:
             (subImages, file_map) = _immath_createsubimages(
                 box, chans, stokes, region, mask,
@@ -233,16 +228,14 @@ def immath(
                 expr, varnames, subImages, filenames, file_map
             )
             outia = _immath_compute(
-                imagename, expr, mode, outfile, imagemd, _myia,
-                isTPol, isLPol, lpol, doPolThresh, polithresh
+                imagename, expr, outfile, imagemd, _myia
             )
         else:
             # If the user didn't give any region or mask information
             # then just evaluated the expression with the filenames in it.
             outia = _immath_dofull(
                 imagename, imagemd, outfile, mode, expr,
-                varnames, filenames, isTPol, isLPol,
-                doPolThresh, polithresh, lpol, _myia
+                varnames, filenames, _myia
             )
         try:
             param_names = immath.func_code.co_varnames[:immath.func_code.co_argcount]
@@ -264,10 +257,123 @@ def immath(
         if outia:
            outia.done() 
         _immath_cleanup(tmpFilePrefix)
+
+def _immath_concat_stokes(filenames, target, _myia):
+    _myia.open(filenames[0])
+    stokes_axis = _myia.coordsys().findaxisbyname("stokes")
+    _myia.done()
+    casalog.post("Concatenating images along stokes axis")
+    _myia = _myia.imageconcat(
+        outfile=target, infiles=filenames, axis=stokes_axis
+    )
+    _myia.done()
+    
+def _immath_getregion(region, box, chans, stokes, mode, _myia, target):
+    myreg = region
+    if (type(region) != type({})):
+        myrg = rgtool()
+        if stokes:
+            casalog.post(
+                "Ignoring stokes parameters selection for mode='"
+                + mode + "'."
+                ,'WARN' 
+            )
+            stokes=''
+        _myia.open(target)
+        myreg = myrg.frombcs(
+            csys=_myia.coordsys().torecord(), shape=_myia.shape(), box=box,
+            chans=chans, stokes=stokes, stokescontrol="a", region=region
+        )
+        _myia.done()
+        myrg.done()
+    return myreg
+
+def _immath_new_pola(
+    filenames, outfile, tmpFilePrefix, mask, region,
+    box, chans, stokes, stretch, polithresh, _myia
+):
+    target = filenames[0]
+    if len(filenames) > 1:
+        target = tmpFilePrefix + "_concat_for_pola"
+        _immath_concat_stokes(filenames, target, _myia)
+    myreg = _immath_getregion(region, box, chans, stokes, "pola", _myia, target)
+    mypo = potool()
+    if (polithresh):
+        if (mask != ""):
+            mask = ""
+            casalog.post("Ignoring mask parameter in favor of polithresh parameter", 'WARN')
+        if (qa.getunit(polithresh) != ""):
+            initUnit = qa.getunit(polithresh)
+            _myia = iatool()
+            _myia.dohistory(False)
+            _myia.open(filenames[0])
+            bunit = _myia.brightnessunit()
+            polithresh = qa.convert(polithresh, bunit)
+            _myia.done()
+            if (qa.getunit(polithresh) != bunit):
+                raise Exception, "Units of polithresh " + initUnit \
+                + " do not conform to input image units of " + bunit \
+                + " so cannot perform thresholding. Please correct units and try again."
+            polithresh = qa.getvalue(polithresh)[0]
+            lpol = tmpFilePrefix + "_lpol"
+            mypo.open(target)
+            _myia = mypo.linpolint(debias=False, outfile=lpol, region=myreg)
+            _myia.done()
+            mypo.done()
+    mypo.open(target)
+    _myia = mypo.linpolposang(
+        outfile=outfile, region=myreg, mask=mask, stretch=stretch
+    )
+    mypo.done()
+    if (polithresh):
+        myexpr = "'" + lpol + "' >= " + str(polithresh)
+        _myia.dohistory(False)
+        _myia.calcmask(name='mask0', mask=myexpr)
+        casalog.post(
+            'Calculated mask based on linear polarization threshold '
+            + str(polithresh),
+            'INFO'
+        )
+    _myia.done()
+
+def _immath_new_poli(
+    filenames, outfile, tmpFilePrefix, mask, region,
+    box, chans, stokes, stretch, sigma, _myia
+):
+    target = filenames[0]
+    if len(filenames) > 1:
+        target = tmpFilePrefix + "_concat_for_poli"
+        _immath_concat_stokes(filenames, target, _myia)
+    debias = False
+    newsigma = 0
+    if sigma:
+        qsigma = qa.quantity(sigma)
+        if qa.getvalue(qsigma)[0] > 0:
+            debias = True
+            sigmaunit = qa.getunit(qsigma)
+            try:
+                _myia.open(filenames[0])
+                iunit = _myia.brightnessunit()
+                _myia.done()
+            except:
+                raise Exception, 'Unable to get brightness unit from image file ' + filenames[0]
+            if sigmaunit != iunit:
+                newsigma = qa.convert(qsigma,iunit)
+            else:
+                newsigma = sigma
+    myreg = _immath_getregion(region, box, chans, stokes, "poli", _myia, target)
+    mypo = potool()
+    mypo.open(target)
+    numeric_sigma = qa.getvalue(qa.quantity(newsigma))
+    _myia = mypo.totpolint(
+        debias=debias, sigma=numeric_sigma, outfile=outfile,
+        region=myreg, mask=mask, stretch=stretch
+    )
+    _myia.done()
+    mypo.done()
     
 def _immath_compute(
-    imagename, expr, mode, outfile, imagemd, _myia,
-    isTPol, isLPol, lpol, doPolThresh, polithresh
+    imagename, expr, outfile, imagemd, _myia
 ):
     # Do the calculation
     res = _myia.imagecalc(
@@ -276,15 +382,6 @@ def _immath_compute(
     )
     res.dohistory(False)
     # modify stokes type for polarization intensity image
-    if mode=="poli":                
-        csys = res.coordsys()
-        if isTPol:
-            csys.setstokes('Ptotal')
-        elif isLPol:
-            csys.setstokes('Plinear')
-        res.setcoordsys(csys.torecord())
-    if doPolThresh:
-        _immath_createPolMask(polithresh, lpol, res)
     return res
 
 def _immath_updateexpr(expr, varnames, subImages, filenames, file_map):
@@ -341,71 +438,13 @@ def _immath_createsubimages(
     return (subImages, file_map)
 
 def _immath_dofull(
-    imagename, imagemd, outfile, mode, expr, varnames, filenames,
-    isTPol, isLPol, doPolThresh, polithresh, lpol, _myia
+    imagename, imagemd, outfile, mode, expr,
+    varnames, filenames, _myia
 ):
     expr = _immath_expr_from_varnames(expr, varnames, filenames)    
     return _immath_compute(
-        imagename, expr, mode, outfile, imagemd, _myia,
-        isTPol, isLPol, lpol, doPolThresh, polithresh
+        imagename, expr, outfile, imagemd, _myia
     )
-
-def _immath_dopoli(filenames, varnames, tmpFilePrefix, sigma, _myia):
-    [expr, isLPol, isTPol] = _doPolI(filenames, varnames, tmpFilePrefix, True, True)
-    sigsq = 0
-    if sigma:
-        qsigma = qa.quantity(sigma)
-        if qa.getvalue(qsigma)[0] > 0:
-            sigmaunit=qa.getunit(qsigma)
-            try:
-                _myia.open(filenames[0])
-                iunit = _myia.brightnessunit()
-                _myia.done()
-            except:
-                raise Exception, 'Unable to get brightness unit from image file ' + filenames[0]
-            if sigmaunit != iunit:
-                newsigma = qa.convert(qsigma,iunit)
-            else:
-                newsigma = sigma
-                sigsq=(qa.getvalue(newsigma)[0])**2
-            expr += '-%s' % sigsq
-        expr += ')'
-    return (expr, isLPol, isTPol)
-
-def _immath_dopola(
-    mask, polithresh, filenames, varnames,
-    tmpFilePrefix, imagename, imagemd
-):
-    lpol = ""
-    doPolThresh = False
-    expr = _doPolA(filenames, varnames, tmpFilePrefix)
-    if (polithresh):
-        if (mask != ""):
-            mask = ""
-            casalog.post("Ignoring mask parameter in favor of polithresh parameter", 'WARN')
-        if (qa.getunit(polithresh) != ""):
-            initUnit = qa.getunit(polithresh)
-            _myia = iatool()
-            _myia.dohistory(False)
-            _myia.open(filenames[0])
-            bunit = _myia.brightnessunit()
-            polithresh = qa.convert(polithresh, bunit)
-            _myia.done()
-            if (qa.getunit(polithresh) != bunit):
-                raise Exception, "Units of polithresh " + initUnit \
-                + " do not conform to input image units of " + bunit \
-                + " so cannot perform thresholding. Please correct units and try again."
-            polithresh = qa.getvalue(polithresh)[0]
-        doPolThresh = True
-        [lpolexpr, isLPol, isTPol] = _doPolI(filenames, varnames, tmpFilePrefix, False, False)
-        lpolexpr = _immath_expr_from_varnames(lpolexpr, varnames, filenames)
-        lpolexpr = lpolexpr + ")"
-        lpol = tmpFilePrefix + "_lpol.im"
-        res = _myia.imagecalc(
-            pixels=lpolexpr, outfile=lpol, imagemd=_immath_translate_imagemd(imagename, imagemd)
-        )
-        res.done()
-    return (expr, mask, polithresh, doPolThresh, lpol)
 
 def _immath_dospix(nfiles, varnames):
     if nfiles != 2:
@@ -454,7 +493,6 @@ def _immath_initial_cleanup(tmpFilePrefix):
     except Exception, e:
         casalog.post( 'Unable to cleanup working directory '+os.getcwd()+'\n'+str(e), 'SEVERE' )
         raise Exception, str(e)
-
 
 def _immath_check_outfile(outfile):
     if not outfile:
@@ -505,18 +543,6 @@ def _immath_parse( expr='' ):
 
         return retValue
 
-# check stokes type for the list of images
-def __check_stokes(images):
-        _myia = iatool()
-        retValue=[]
-        for fname in images:
-            _myia.open(fname)
-            csys = _myia.coordsys()
-            stokes = csys.stokes()
-            _myia.close()
-            retValue.extend(stokes)
-        return retValue
-       
 # it is important to sort the varnames in reverse order before doing
 # the substitutions to assure the substitution set is performed correctly
 # CAS-1678
@@ -532,164 +558,6 @@ def _immath_expr_from_varnames(expr, varnames, filenames):
                 expr = expr.replace(varname, '"' + tmpfiles[varname] + '"')
         return(expr)
 
-def _doPolA(filenames, varnames, tmpFilePrefix):
-    # calculate a polarization position angle image
-    stokeslist = __check_stokes(filenames)
-    Uimage = Qimage = ''
-    _myia = iatool()
-    if len(filenames) == 1:
-        # FIXME I really hate creating subimages like this, the poli and pola routines really belong in the as of now non-existant squah task
-        (mystokes, myfiles) = _immath_extract_stokes_from_single_image(
-            stokeslist, filenames[0], 'pola',
-            tmpFilePrefix, True, False
-        )
-        # to use pass by reference semantics correctly, we have to use the same objects passed in
-        # rather than create new objects with the same names
-        filenames[0:1] = [myfiles[0], myfiles[1]]
-        (Qimage, Uimage) = [myfiles[0], myfiles[1]]
-        varnames[0:1] = ["IM0", "IM1"]
-    else:
-        if len(filenames) > 2:
-            casalog.post( "More than two images. Take first two and ignore the rest. " ,'WARN' );
-        for i in range(2):
-            if type(stokeslist[i]) == list:
-                raise Exception, filenames[i] + " is a mult-stokes image but multiple images are given for pola calculation. " \
-                + "Only a single multi-stokes image *or* multiple single stokes images can be specified for pola calculation"
-            else:
-                if stokeslist[i] == 'U':
-                    Uimage = varnames[i]
-                if stokeslist[i] == 'Q':
-                    Qimage = varnames[i]
-        if len(Uimage)<1 or len(Qimage)<1:
-            missing = []
-            if len(Qimage)<1: missing.append('Q')
-            if len(Uimage)<1: missing.append('U')
-            raise Exception, 'Missing Stokes %s image(s)' % missing
-    expr = 'pa(%s,%s)' % (Uimage, Qimage)
-    return expr
-
-def _immath_extract_stokes_from_single_image(
-    stokeslist, image, mode, tmpFilePrefix, createSubims, tpol
-):
-    if (len(stokeslist) < 2):
-        raise Exception, \
-            image + " is the only image specified but it " \
-            + "is not multi-stokes so cannot do poli calculation"
-    _myia = iatool()
-    _myia.open(image)
-    spixels = _myia.coordsys().findcoordinate('stokes')['pixel']
-    if (len(spixels) != 1):
-        _myia.close()
-        raise Exception, \
-        image + "does not have exactly one stokes axis, cannot do " \
-            + mode + " calculation"
-    stokesPixel = spixels[0]
-    trc = _myia.shape()
-    blc = len(trc) * [0]
-    for i in range(len(trc)):
-        trc[i] = trc[i] - 1
-    Vimage = ''
-    neededStokes = ['Q', 'U']
-    if tpol and stokeslist.count('V'):
-        neededStokes.append('V')
-    for stokes in (neededStokes):
-        if ((stokes == 'Q' or stokes == 'U') and stokeslist.count(stokes) == 0):
-            _myia.close()
-            raise Exception, \
-            image + " is the only image specified but it does not contain stokes " \
-            + stokes + " so " + mode + " calculation cannot be done"
-        myfile = tmpFilePrefix + '_' + stokes
-        if (stokes == 'Q'):
-            Qimage = myfile
-        elif (stokes == 'U'):
-            Uimage = myfile
-        elif (stokes == 'V' and tpol):
-            Vimage = myfile
-        if createSubims:
-            pixNum = stokeslist.index(stokes)
-            blc[stokesPixel] = pixNum
-            trc[stokesPixel] = pixNum
-            subim = _myia.subimage(outfile=myfile, region=_rg.box(blc=blc, trc=trc))
-            subim.done()
-    _myia.done()
-    filenames = [Qimage, Uimage]
-    mystokes = ['Q', 'U']
-    if bool(Vimage):
-        filenames.append(Vimage)
-        mystokes.append('V')
-    return (mystokes, filenames)
-
-def _doPolI(filenames, varnames, tmpFilePrefix, createSubims, tpol):
-    nfiles = len(filenames)
-    if nfiles < 1 or nfiles > 3:
-        raise Exception, 'poli requires one multistokes with Q, U, and optionally V stokes or two single stokes (Q, U) images or three single Stokes (Q,U,V) images'
-    stokeslist = __check_stokes(filenames)
-    if nfiles == 1:
-        return _immath_dopoli_single_image(
-            stokeslist, filenames, tpol, createSubims, tmpFilePrefix
-        )
-    else:
-        return _immath_doltpol(stokeslist, filenames, varnames)
-
-def _immath_doltpol(stokeslist, filenames, varnames):
-    isQim = False
-    isUim = False
-    isVim = False
-    three = len(filenames) == 3
-    for file, stokes in zip(filenames, stokeslist):
-        if type(stokes)==list:
-            raise Exception, 'Cannot handle ' + file \
-                + ', a multi-Stokes image when multiple images supplied.'
-        else:
-            if stokes == 'Q':
-                isQim = True
-            elif stokes == 'U':
-                isUim = True
-            elif stokes == 'V':
-                isVim=True
-    have_all = isQim and isUim
-    if three:
-        have_all = have_all and isVim
-    if not (have_all):
-        needed_tests = [isQim, isUim]
-        needed_stokes = ['Q', 'U']
-        if three:
-            needed_tests.append(isVim)
-            needed_stokes.append('V')
-        missing = []
-        for isX, stokes in zip(needed_tests, needed_stokes):
-            if not isX:
-                missing.append(stokes)
-                raise Exception, 'Missing Stokes ' + str(missing) + ' image(s)'
-    expr = 'sqrt(' + varnames[0] + '*' + varnames[0] \
-        + '+' + varnames[1] + '*' + varnames[1]
-    isLPol = True
-    isTPol = False
-    if three:
-        expr = expr + '+' + varnames[2] + '*' + varnames[2]
-        isLPol = False
-        isTPol = True
-    return (expr, isLPol, isTPol)
-
-def _immath_dopoli_single_image(stokeslist, filenames, tpol, createSubims, tmpFilePrefix):
-    # FIXME use po.totpolint() for this
-    # do multistokes image
-    (mystokes, filenames) = _immath_extract_stokes_from_single_image(
-        stokeslist, filenames[0], 'poli',
-        tmpFilePrefix, createSubims, tpol
-    )
-    return _immath_doltpol(mystokes, filenames, filenames)
-
-def _immath_createPolMask(polithresh, lpol, myia):
-    # make the linear polarization threshhold mask CAS-2120
-    myexpr = "'" + lpol + "' >= " + str(qa.getvalue(polithresh)[0])
-    myia.calcmask(name='mask0', mask=myexpr)
-    casalog.post(
-        'Calculated mask based on linear polarization threshold '
-        + str(polithresh),
-        'INFO'
-    )
-    
 def _immath_translate_imagemd(imagename, imagemd):
     # may IM0 etc is a real file name
     if os.path.exists(imagemd):

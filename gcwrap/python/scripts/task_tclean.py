@@ -132,6 +132,9 @@ def tclean(
     minbeamfrac,#=0.3, 
     cutthreshold,#=0.01,
     growiterations,#=100
+    dogrowprune,#=True
+    minpercentchange,#=0.0
+    verbose, #=False
 
     ## Misc
 
@@ -185,7 +188,7 @@ def tclean(
     bparm={k:  inpparams[k] if inpparams.has_key(k) else defparm[k]  for k in ImagerParameters.__init__.__func__.__code__.co_varnames[1:-1]}
     paramList=ImagerParameters(**bparm)
 
-    
+
     #paramList.printParameters()
 
     pcube=False

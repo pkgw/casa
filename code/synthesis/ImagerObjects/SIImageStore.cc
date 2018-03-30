@@ -222,15 +222,20 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	SHARED_PTR<ImageInterface<Float> > imptr;
 	if( doesImageExist(itsImageName+String(".psf")) )
 	  {
-	    imptr.reset( new PagedImage<Float> (itsImageName+String(".psf")) );
+	    //	    imptr.reset( new PagedImage<Float> (itsImageName+String(".psf")) );
+	    buildImage( imptr, (itsImageName+String(".psf")) );
 	    itsMiscInfo=imptr->miscInfo();
 	  }
 	else if ( doesImageExist(itsImageName+String(".residual")) ){
-	  imptr.reset( new PagedImage<Float> (itsImageName+String(".residual")) );
+	  //imptr.reset( new PagedImage<Float> (itsImageName+String(".residual")) );
+	  buildImage( imptr, (itsImageName+String(".residual")) );
 	  itsMiscInfo=imptr->miscInfo();
 	}
-	else 
-	  imptr.reset( new PagedImage<Float> (itsImageName+String(".gridwt")) );
+	else
+	  { 
+	  //imptr.reset( new PagedImage<Float> (itsImageName+String(".gridwt")) );
+	    buildImage( imptr, (itsImageName+String(".gridwt")) );
+	  }
 	  
 	itsImageShape = imptr->shape();
 	itsCoordSys = imptr->coordinates();
@@ -248,7 +253,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     if( doesImageExist(itsImageName+String(".sumwt"))  )
       {
 	SHARED_PTR<ImageInterface<Float> > imptr;
-	imptr.reset( new PagedImage<Float> (itsImageName+String(".sumwt")) );
+	//imptr.reset( new PagedImage<Float> (itsImageName+String(".sumwt")) );
+	buildImage( imptr, (itsImageName+String(".sumwt")) );
 	itsNFacets = imptr->shape()[0];
 	itsFacetId = 0;
 	itsUseWeight = getUseWeightImage( *imptr );
@@ -475,7 +481,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  }// overwrite existing image
 	else // open existing image ( Always tries this )
 	  {
-	    if(Table::isWritable( imagenamefull ))
+	    if(1) //Table::isWritable( imagenamefull ))
 	      {
 		if(dbg) cout << "Trying to open existing image : "<< imagenamefull << endl;
 		try{
@@ -562,6 +568,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   void SIImageStore::buildImage(SHARED_PTR<ImageInterface<Float> > &imptr,IPosition shape, CoordinateSystem csys, String name)
   {
+
+    //    LogIO os( LogOrigin("SIImageStore","Open existing Images",WHERE) );
+    //    os  <<"Opening new image " << name << LogIO::POST;
+
     itsOpened++;
     imptr.reset( new PagedImage<Float> (shape, csys, name) );
     
@@ -591,8 +601,44 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   void SIImageStore::buildImage(SHARED_PTR<ImageInterface<Float> > &imptr, String name)
   {
 
+    //    LogIO os( LogOrigin("SIImageStore","Open existing Images",WHERE) );
+    //    os  <<"Opening existing image " << name << LogIO::POST;
+
     itsOpened++;
-    imptr.reset( new PagedImage<Float>( name ) );
+    //imptr.reset( new PagedImage<Float>( name ) );
+
+        LatticeBase* latt =ImageOpener::openImage(name);
+    if(!latt)
+      {
+	throw(AipsError("Error in opening Image : "+name));
+      }
+    DataType dtype=latt->dataType();
+    if(dtype==TpFloat)
+      {
+	imptr.reset(dynamic_cast<ImageInterface<Float>* >(latt));
+      }
+    else
+      {
+	throw AipsError( "Need image to have float values :  "+name);
+      }
+
+    /*    
+    SHARED_PTR<casacore::ImageInterface<Float> > fim;
+    SHARED_PTR<casacore::ImageInterface<Complex> > cim;
+
+    std::tie(fim , cim)=ImageFactory::fromFile(name);
+    if(fim)
+      {
+	imptr.reset( dynamic_cast<SHARED_PTR<casacore::ImageInterface<Float> > >(*fim) );
+      }
+    else
+      {
+	throw( AipsError("Cannot open with ImageFactory : "+name));
+      }
+    */
+
+
+
 
     /*
     IPosition cimageShape;
@@ -1963,6 +2009,7 @@ void SIImageStore::setWeightDensity( SHARED_PTR<SIImageStore> imagetoset )
     //// If rbeam is Null but usebeam=='common', calculate a common beam and set 'rbeam'
     //// If rbeam is given (or exists due to 'common'), just use it.
     if( rbeam.isNull() && usebeam=="common") {
+      os << "Getting common beam" << LogIO::POST;
       rbeam = CasaImageBeamSet(itsPSFBeams).getCommonBeam();
     }
     if( !rbeam.isNull() ) {
@@ -1974,6 +2021,9 @@ void SIImageStore::setWeightDensity( SHARED_PTR<SIImageStore> imagetoset )
       }//for polid
       */
       itsRestoredBeams=ImageBeamSet(rbeam);
+      GaussianBeam beam = itsRestoredBeams.getBeam();
+      os << "Common Beam : " << beam.getMajor(Unit("arcsec")) << " arcsec, " << beam.getMinor(Unit("arcsec"))<< " arcsec, " << beam.getPA(Unit("deg")) << " deg" << LogIO::POST; 
+
     }// if rbeam not NULL
     //// Done modifying beamset if needed
 
@@ -1996,7 +2046,8 @@ void SIImageStore::setWeightDensity( SHARED_PTR<SIImageStore> imagetoset )
 
 
 	GaussianBeam beam = itsRestoredBeams.getBeam( chanid, polid );;
-	
+	os << "Common Beam for chan : " << chanid << " : " << beam.getMajor(Unit("arcsec")) << " arcsec, " << beam.getMinor(Unit("arcsec"))<< " arcsec, " << beam.getPA(Unit("deg")) << " deg" << LogIO::POST; 
+
 	try
 	  {
 	    // Initialize restored image
@@ -2039,7 +2090,17 @@ void SIImageStore::setWeightDensity( SHARED_PTR<SIImageStore> imagetoset )
 
 	//	if(hasPB()){copyMask(residual(term),image(term));}
 	ImageInfo iminf = image(term)->imageInfo();
-        iminf.setBeams( itsRestoredBeams);
+        //iminf.setBeams( itsRestoredBeams);
+
+	os << "Beam Set : Single beam : " << itsRestoredBeams.hasSingleBeam() << "  Multi-beam : " << itsRestoredBeams.hasMultiBeam() << LogIO::DEBUG2;
+
+	iminf.removeRestoringBeam();
+
+	if( itsRestoredBeams.hasSingleBeam() )
+	  { iminf.setRestoringBeam( itsRestoredBeams.getBeam() );}
+	else
+	  {iminf.setBeams( itsRestoredBeams);}
+
 	image(term)->setImageInfo(iminf);
  
       }

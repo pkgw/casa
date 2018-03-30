@@ -26,6 +26,8 @@
 //# $Id$
 
 
+#include <QMenu>
+#include <QMessageBox>
 #include <display/QtViewer/QtDisplayData.qo.h>
 #include <display/QtViewer/QtRegionManager.qo.h>
 #include <display/RegionShapes/RegionShapes.h>

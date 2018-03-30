@@ -22,6 +22,7 @@
 //#                        520 Edgemont Road
 //#                        Charlottesville, VA 22903-2475 USA
 //#
+#include <QPrinter>
 #include <display/QtPlotter/Util.h>
 #include <images/Images/ImageInterface.h>
 #include <images/Regions/ImageRegion.h>
@@ -46,9 +47,6 @@
 
 using namespace casacore;
 namespace casa {
-
-	const QString Util::ORGANIZATION = "NRAO/CASA";
-	const QString Util::APPLICATION = "Spectral Profiler";
 
 	Util::Util() {
 		// TODO Auto-generated constructor stub
@@ -259,7 +257,7 @@ namespace casa {
 	String Util::mainImageName( String path ){
 		String coreName = path;
 		QChar sep = QDir::separator();
-		int slashIndex = path.find_last_of( sep.toAscii(), 0 );
+		int slashIndex = path.find_last_of( sep.toLatin1(), 0 );
 		if ( slashIndex >= 0 ){
 			int count = path.length();
 			coreName = path.substr(slashIndex, count );
@@ -412,7 +410,7 @@ namespace casa {
 		if ( directionIndex >= 0 ){
 			Vector<Int> dirPixelAxis = cSys.pixelAxes(directionIndex);
 			RegionManager regMan;
-			if ( shape == QtProfile::SHAPE_RECTANGLE ){
+			if ( shape == QtProfile::SHAPE_RECTANGLE( ) ){
 				Vector<Quantity> blc(2);
 				Vector<Quantity> trc(2);
 				blc(0) = Quantity(x[0], radUnits);
@@ -427,21 +425,21 @@ namespace casa {
 				regionRecord = *imagregRecord;
 				delete imagregRecord;
 			}
-			else if ( shape == QtProfile::SHAPE_ELLIPSE ){
+			else if ( shape == QtProfile::SHAPE_ELLIPSE( ) ){
 				ImageRegion* ellipsoid = getEllipsoid( cSys, x, y );
 				if ( ellipsoid != NULL ){
 					regionRecord = ellipsoid->toRecord("");
 					delete ellipsoid;
 				}
 			}
-			else if ( shape == QtProfile::SHAPE_POLY ){
+			else if ( shape == QtProfile::SHAPE_POLY( ) ){
 				ImageRegion* polygon = getPolygon( cSys, x, y );
 				if ( polygon != NULL ){
 					regionRecord = polygon->toRecord(String(""));
 					delete polygon;
 				}
 			}
-			else if ( shape == QtProfile::SHAPE_POINT ){
+			else if ( shape == QtProfile::SHAPE_POINT( ) ){
 				//Try a rectangle with blc=trc;
 				Vector<Quantity> blc(2);
 				Vector<Quantity> trc(2);
@@ -482,10 +480,10 @@ namespace casa {
 
 		Record regionRecord = getRegionRecord( shape, cSys, x, y);
 		QString pixelSpectralType(coordinateType.c_str());
-		if ( pixelSpectralType == QtProfile::FREQUENCY ){
+		if ( pixelSpectralType == QtProfile::FREQUENCY( ) ){
 			pixelSpectralType = "default";
 		}
-		else if ( pixelSpectralType == QtProfile::CHANNEL ){
+		else if ( pixelSpectralType == QtProfile::CHANNEL( ) ){
 			pixelSpectralType = "default";
 			unit = "pixel";
 		}
