@@ -4560,17 +4560,17 @@ We use the Componentlist GUI to look at the strongest component.
         <param type="any"  name="pampest">
             <any type="variant" limittypes="double doubleArray"/>
             <description>Initial estimate PCF profile amplitudes.</description>
-            <value type="string"/>
+            <value type="doubleArray"/>
         </param>
         <param type="any"  name="pcenterest">
             <any type="variant" limittypes="double doubleArray"/>
             <description>Initial estimate PCF profile centers, in pixels.</description>
-            <value type="string"/>
+            <value type="doubleArray"/>
         </param>
         <param type="any"  name="pfwhmest">
             <any type="variant" limittypes="double doubleArray"/>
             <description>Initial estimate PCF profile FWHMs, in pixels.</description>
-            <value type="string"/>
+            <value type="doubleArray"/>
         </param>
         <param type="any"  name="pfix">
             <any type="variant" limittypes="string stringArray"/>
@@ -4585,17 +4585,17 @@ We use the Componentlist GUI to look at the strongest component.
         <param type="any"  name="gmampcon">
             <any type="variant" limittypes="double doubleArray"/>
             <description>The amplitude ratio constraints for non-reference components to reference component in gaussian multiplets.</description>
-            <value type="string"/>
+            <value type="doubleArray"/>
         </param>
         <param type="any"  name="gmcentercon">
             <any type="variant" limittypes="double doubleArray"/>
             <description>The center offset constraints (in pixels) for non-reference components to reference component in gaussian multiplets.</description>
-            <value type="string"/>
+            <value type="doubleArray"/>
         </param>
         <param type="any"  name="gmfwhmcon">
             <any type="variant" limittypes="double doubleArray"/>
             <description>The FWHM  ratio constraints for non-reference components to reference component in gaussian multiplets.</description>
-            <value type="string"/>
+            <value type="doubleArray"/>
         </param>
         <param type="doubleArray"  name="gmampest">
             <description>Initial estimate of individual gaussian amplitudes in gaussian multiplets.</description>
@@ -4666,6 +4666,11 @@ We use the Componentlist GUI to look at the strongest component.
         </param>
         <param type="any"  name="sigma">
             <any type="variant" limittypes="string doubleArray intArray"/>
+            <type>string</type>
+            <type>intVec</type>
+            <type>intArray</type>
+            <type>doubleVec</type>
+            <type>doubleArray</type>
             <description>Standard deviation array or image name.</description>
             <value type="string"/>
         </param>
