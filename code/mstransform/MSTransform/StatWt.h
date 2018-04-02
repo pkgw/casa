@@ -66,7 +66,7 @@ public:
     // set the StatWtTVI config record
     void setTVIConfig(const casacore::Record& config);
 
-    casacore::Record writeWeights() const;
+    casacore::Record writeWeights();
 
 private:
     casacore::MeasurementSet* _ms;
@@ -86,6 +86,18 @@ private:
     casacore::Record _tviConfig;
     casacore::Bool _preview = false;
     casacore::Bool _possiblyWriteSigma = false;
+
+    void _columnInitWrite(
+        casacore::Bool& mustWriteWt, casacore::Bool& mustWriteWtSp,
+        casacore::Bool& mustInitWtSp, casacore::Bool& mustWriteSig,
+        casacore::Bool& mustWriteSigSp, casacore::Bool& mustInitSigSp
+    );
+
+    void _dealWithSpectrumColumn(
+        casacore::Bool& hasSpec, casacore::Bool& mustWriteSpec,
+        casacore::Bool& mustInitSpec, casacore::Bool mustWriteNonSpec,
+        const casacore::String& colName, const casacore::String& descName
+    );
 
 };
 

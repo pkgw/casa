@@ -79,6 +79,8 @@ public:
 
     void initWeightSpectrum (const casacore::Cube<casacore::Float>& wtspec);
 
+    void initSigmaSpectrum (const casacore::Cube<casacore::Float>& sigspec);
+
     void next();
 
     void origin();

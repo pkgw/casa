@@ -1261,6 +1261,12 @@ void StatWtTVI::initWeightSpectrum (const casacore::Cube<casacore::Float>& wtspe
     getVii()->initWeightSpectrum(wtspec);
 }
 
+void StatWtTVI::initSigmaSpectrum (const casacore::Cube<casacore::Float>& sigspec) {
+    // Pass to next layer down
+    getVii()->initSigmaSpectrum(sigspec);
+}
+
+
 void StatWtTVI::writeBackChanges(VisBuffer2 *vb) {
     // Pass to next layer down
     getVii()->writeBackChanges(vb);

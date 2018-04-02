@@ -95,145 +95,17 @@ void StatWt::setTVIConfig(const Record& config) {
     _tviConfig = config;
 }
 
-Record StatWt::writeWeights() const {
-    auto hasWtSp = _ms->isColumn(MSMainEnums::WEIGHT_SPECTRUM);
-    auto mustWriteSigma = _possiblyWriteSigma && ! _preview;
-    auto hasSigSp = _ms->isColumn(MSMainEnums::SIGMA_SPECTRUM);
-    auto mustWriteSigmaSp = mustWriteSigma && hasSigSp;
-    auto mustWriteWt = ! _preview
-        && (
-            ! mustWriteSigma
-            || (
-                mustWriteSigma && ! _ms->isColumn(MSMainEnums::CORRECTED_DATA)
-            )
-        );
-    auto mustWriteWtSp = mustWriteWt
-        && _tviConfig.isDefined(vi::StatWtTVI::CHANBIN);
-    if (mustWriteWtSp) {
-        auto type = _tviConfig.type(_tviConfig.fieldNumber(vi::StatWtTVI::CHANBIN));
-        if (type == TpArrayBool) {
-            // default variant type
-            mustWriteWtSp = False;
-        }
-        else if (type == TpString) {
-            auto val = _tviConfig.asString(vi::StatWtTVI::CHANBIN);
-            val.downcase();
-            if (val == "spw") {
-                mustWriteWtSp = False;
-            }
-        }
-    }
+Record StatWt::writeWeights() {
+    auto mustWriteWt = False;
+    auto mustWriteWtSp = False;
     auto mustInitWtSp = False;
+    auto mustWriteSig = False;
+    auto mustWriteSigSp = False;
     auto mustInitSigSp = False;
-    // this conditional structure supports the
-    // case of ! hasWtSp && ! mustWriteWtSp, in which case,
-    // nothing need be done
-    if (! hasWtSp) {
-        if (mustWriteWtSp) {
-            // we must create WEIGHT_SPECTRUM
-            hasWtSp = True;
-            mustInitWtSp = True;
-            // from Calibrater.cc
-            // Nominal default tile shape
-            IPosition dts(3, 4, 32, 1024);
-            // Discern DATA's default tile shape and use it
-            const auto dminfo = _ms->dataManagerInfo();
-            for (uInt i=0; i<dminfo.nfields(); ++i) {
-                Record col = dminfo.asRecord(i);
-                if (anyEQ(col.asArrayString("COLUMNS"), String("DATA"))) {
-                    dts = IPosition(col.asRecord("SPEC").asArrayInt("DEFAULTTILESHAPE"));
-                    break;
-                }
-            }
-            // Add the column
-            String colWtSp = MS::columnName(MS::WEIGHT_SPECTRUM);
-            TableDesc tdWtSp;
-            tdWtSp.addColumn(ArrayColumnDesc<Float>(colWtSp, "weight spectrum", 2));
-            TiledShapeStMan wtSpStMan("TiledWgtSpectrum", dts);
-            _ms->addColumn(tdWtSp, wtSpStMan);
-        }
-    }
-    else if (mustWriteWt) {
-        // check to see if extant WEIGHT_SPECTRUM needs to be initialized
-        ArrayColumn<Float> col(*_ms, MS::columnName(MS::WEIGHT_SPECTRUM));
-        try {
-            col.get(0);
-            // its initialized, so even if we are using the full spw for
-            // binning, we still need to update WEIGHT_SPECTRUM
-            mustWriteWtSp = True;
-        }
-        catch (const AipsError& x) {
-            // its not initialized, so we aren't going to write to it unless
-            // chanbin has been specified to be less than the spw width
-            mustInitWtSp = mustWriteWtSp;
-        }
-    }
-    // *******
-    if (! hasSigSp) {
-        if (mustWriteSigmaSp) {
-            // we must create SIGMA_SPECTRUM
-            hasSigSp = True;
-            mustInitSigSp = True;
-            // from Calibrater.cc
-            // Nominal default tile shape
-            IPosition dts(3, 4, 32, 1024);
-            // Discern DATA's default tile shape and use it
-            const auto dminfo = _ms->dataManagerInfo();
-            for (uInt i=0; i<dminfo.nfields(); ++i) {
-                Record col = dminfo.asRecord(i);
-                if (anyEQ(col.asArrayString("COLUMNS"), String("DATA"))) {
-                    dts = IPosition(col.asRecord("SPEC").asArrayInt("DEFAULTTILESHAPE"));
-                    break;
-                }
-            }
-            // Add the column
-            String colSigSp = MS::columnName(MS::SIGMA_SPECTRUM);
-            TableDesc tdSigSp;
-            tdSigSp.addColumn(ArrayColumnDesc<Float>(colSigSp, "sigma spectrum", 2));
-            TiledShapeStMan sigSpStMan("TiledWgtSpectrum", dts);
-            _ms->addColumn(tdSigSp, sigSpStMan);
-            cout << "added column sigma spectrum" << endl;
-        }
-    }
-    else if (mustWriteSigma) {
-        // check to see if extant SIGMA_SPECTRUM needs to be initialized
-        ArrayColumn<Float> col(*_ms, MS::columnName(MS::SIGMA_SPECTRUM));
-        try {
-            col.get(0);
-            // its initialized, so even if we are using the full spw for
-            // binning, we still need to update SIGMA_SPECTRUM
-            mustWriteSigmaSp = True;
-            cout << "sigma spec already initialized" << endl;
-        }
-        catch (const AipsError& x) {
-            // its not initialized, so we aren't going to write to it unless
-            // chanbin has been specified to be less than the spw width
-            mustInitSigSp = mustWriteSigmaSp;
-            cout << "sigma spec not initialized, we must do that below" << endl;
-        }
-    }
-    LogIO log(LogOrigin("StatWt", __func__));
-    if (mustWriteWt) {
-        if (mustWriteSigma) {
-            log << LogIO::NORMAL
-                << "CORRECTED_DATA is not present. Updating the "
-                << "SIGMA/SIGMA_SPECTRUM and WEIGHT/WEIGHT_SPECTRUM values "
-                << "based on calculations using the DATA column."
-                << LogIO::POST;
-        }
-        else {
-            log << LogIO::NORMAL
-                << "Updating the WEIGHT/WEIGHT_SPECTRUM values. SIGMA/SIGMA_SPECTRUM "
-                << "values will not be recalculated as they are related to the values "
-                << "in the DATA column." << LogIO::POST;
-            }
-    }
-    else if (mustWriteSigma) {
-        log << LogIO::NORMAL
-        << "Updating the SIGMA/SIGMA_SPECTRUM values. WEIGHT/WEIGHT_SPECTRUM will "
-        << "not be recalculated as they are related to the values in the "
-        << "CORRECTED_DATA column." << LogIO::POST;
-    }
+    _columnInitWrite(
+        mustWriteWt, mustWriteWtSp, mustInitWtSp,
+        mustWriteSig, mustWriteSigSp, mustInitSigSp
+    );
     // default sort columns are from MSIter and are ARRAY_ID, FIELD_ID, DATA_DESC_ID, and TIME
     // I'm adding scan and state because, according to the statwt requirements, by default, scan
     // and state changes should mark boundaries in the weights computation
@@ -278,42 +150,33 @@ Record StatWt::writeWeights() const {
                 vb->flagCube();
             }
             else {
-                if (mustInitWtSp) {
+                if (mustInitWtSp || mustInitSigSp) {
                     auto nchan = vb->nChannels();
                     auto ncor = vb->nCorrelations();
-                    Cube<Float> newwtsp(ncor, nchan, nrow, 0);
-                    vb->initWeightSpectrum(newwtsp);
+                    Cube<Float> newsp(ncor, nchan, nrow, 0);
+                    if (mustInitWtSp) {
+                        vb->initWeightSpectrum(newsp);
+                    }
+                    if (mustInitSigSp) {
+                        vb->initSigmaSpectrum(newsp);
+                    }
                     vb->writeChangesBack();
-                }
-                cout << "mustinitsigsp " << mustInitSigSp << endl;
-                if (mustInitSigSp) {
-                    auto nchan = vb->nChannels();
-                    auto ncor = vb->nCorrelations();
-                    Cube<Float> newsigsp(ncor, nchan, nrow, 0);
-                    cout << "init sig sp" << endl;
-                    vb->initSigmaSpectrum(newsigsp);
-                    cout << "sig sp inited, write changes" << endl;
-                    vb->writeChangesBack();
-                    cout << "changes written" << endl;
                 }
                 if (mustWriteWtSp) {
                     vb->setWeightSpectrum(vb->weightSpectrum());
                 }
-                if (mustWriteSigmaSp) {
-                    cout << "writing new sigma sp" << endl;
+                if (mustWriteSigSp) {
                     vb->setSigmaSpectrum(vb->sigmaSpectrum());
                 }
                 if (mustWriteWt) {
                     vb->setWeight(vb->weight());
                 }
-                if (mustWriteSigma) {
+                if (mustWriteSig) {
                     vb->setSigma(vb->sigma());
                 }
                 vb->setFlagCube(vb->flagCube());
                 vb->setFlagRow(vb->flagRow());
-                cout << "writing back all changes" << endl;
                 vb->writeChangesBack();
-                cout << "changes written" << endl;
             }
             count += nrow;
             pm.update(count);
@@ -332,6 +195,125 @@ Record StatWt::writeWeights() const {
     ret.define("mean", mean);
     ret.define("variance", variance);
     return ret;
+}
+
+void StatWt::_columnInitWrite(
+    casacore::Bool& mustWriteWt, casacore::Bool& mustWriteWtSp,
+    casacore::Bool& mustInitWtSp, casacore::Bool& mustWriteSig,
+    casacore::Bool& mustWriteSigSp, casacore::Bool& mustInitSigSp
+) {
+    auto hasWtSp = _ms->isColumn(MSMainEnums::WEIGHT_SPECTRUM);
+    mustWriteSig = _possiblyWriteSigma && ! _preview;
+    auto hasSigSp = _ms->isColumn(MSMainEnums::SIGMA_SPECTRUM);
+    mustWriteSigSp = mustWriteSig && hasSigSp;
+    mustWriteWt = ! _preview
+        && (
+            ! mustWriteSig
+            || (
+                mustWriteSig && ! _ms->isColumn(MSMainEnums::CORRECTED_DATA)
+            )
+        );
+    mustWriteWtSp = mustWriteWt
+        && _tviConfig.isDefined(vi::StatWtTVI::CHANBIN);
+    if (mustWriteWtSp) {
+        auto type = _tviConfig.type(_tviConfig.fieldNumber(vi::StatWtTVI::CHANBIN));
+        if (type == TpArrayBool) {
+            // default variant type
+            mustWriteWtSp = False;
+        }
+        else if (type == TpString) {
+            auto val = _tviConfig.asString(vi::StatWtTVI::CHANBIN);
+            val.downcase();
+            if (val == "spw") {
+                mustWriteWtSp = False;
+            }
+        }
+    }
+    mustInitWtSp = False;
+    mustInitSigSp = False;
+    static const auto colNameWtSp = MS::columnName(MS::WEIGHT_SPECTRUM);
+    static const auto descWtSp = "weight spectrum";
+    _dealWithSpectrumColumn(
+        hasWtSp, mustWriteWtSp, mustInitWtSp,
+        mustWriteWt, colNameWtSp, descWtSp
+    );
+    static const auto colNameSigSp = MS::columnName(MS::SIGMA_SPECTRUM);
+    static const auto descSigSp = "sigma spectrum";
+    _dealWithSpectrumColumn(
+        hasSigSp, mustWriteSigSp, mustInitSigSp,
+        mustWriteSig, colNameSigSp, descSigSp
+    );
+    LogIO log(LogOrigin("StatWt", __func__));
+    if (mustWriteWt) {
+        if (mustWriteSig) {
+            log << LogIO::NORMAL
+                << "CORRECTED_DATA is not present. Updating the "
+                << "SIGMA/SIGMA_SPECTRUM and WEIGHT/WEIGHT_SPECTRUM values "
+                << "based on calculations using the DATA column."
+                << LogIO::POST;
+        }
+        else {
+            log << LogIO::NORMAL
+                << "Updating the WEIGHT/WEIGHT_SPECTRUM values. SIGMA/SIGMA_SPECTRUM "
+                << "values will not be recalculated as they are related to the values "
+                << "in the DATA column." << LogIO::POST;
+        }
+    }
+    else if (mustWriteSig) {
+        log << LogIO::NORMAL
+            << "Updating the SIGMA/SIGMA_SPECTRUM values. WEIGHT/WEIGHT_SPECTRUM will "
+            << "not be recalculated as they are related to the values in the "
+            << "CORRECTED_DATA column." << LogIO::POST;
+    }
+}
+
+void StatWt::_dealWithSpectrumColumn(
+    Bool& hasSpec, Bool& mustWriteSpec, Bool& mustInitSpec,
+    Bool mustWriteNonSpec, const String& colName, const String& descName
+) {
+    // this conditional structure supports the
+    // case of ! hasSpec && ! mustWriteSpec, in which case,
+    // nothing need be done
+    if (! hasSpec) {
+        if (mustWriteSpec) {
+            // we must create spectrum column
+            hasSpec = True;
+            mustInitSpec = True;
+            // from Calibrater.cc
+            // Nominal default tile shape
+            IPosition dts(3, 4, 32, 1024);
+            // Discern DATA's default tile shape and use it
+            const auto dminfo = _ms->dataManagerInfo();
+            for (uInt i=0; i<dminfo.nfields(); ++i) {
+                Record col = dminfo.asRecord(i);
+                if (anyEQ(col.asArrayString("COLUMNS"), String("DATA"))) {
+                    dts = IPosition(col.asRecord("SPEC").asArrayInt("DEFAULTTILESHAPE"));
+                    break;
+                }
+            }
+            // Add the column
+            String colWtSp = colName;
+            TableDesc tdWtSp;
+            tdWtSp.addColumn(ArrayColumnDesc<Float>(colWtSp, descName, 2));
+            TiledShapeStMan wtSpStMan("TiledWgtSpectrum", dts);
+            _ms->addColumn(tdWtSp, wtSpStMan);
+        }
+    }
+    else if (mustWriteNonSpec) {
+        // check to see if extant spectrum column needs to be initialized
+        ArrayColumn<Float> col(*_ms, colName);
+        try {
+            col.get(0);
+            // its initialized, so even if we are using the full spw for
+            // binning, we still need to update WEIGHT_SPECTRUM
+            mustWriteSpec = True;
+        }
+        catch (const AipsError& x) {
+            // its not initialized, so we aren't going to write to it unless
+            // chanbin has been specified to be less than the spw width
+            mustInitSpec = mustWriteSpec;
+        }
+    }
 }
 
 }
