@@ -39,7 +39,9 @@
 
 #include<synthesis/ImagerObjects/SIImageStore.h>
 #include<synthesis/ImagerObjects/SIImageStoreMultiTerm.h>
+#if ! defined(WITHOUT_DBUS)
 #include <synthesis/ImagerObjects/InteractiveMasking.h>
+#endif
 
 namespace casa { //# NAMESPACE CASA - BEGIN
 
@@ -363,7 +365,9 @@ public:
   static inline casacore::Double memoryToUse() {return 1.0;};
 
 protected:
+#if ! defined(WITHOUT_DBUS)
   InteractiveMasking *interactiveMasker_p;
+#endif
 
 private:
   double itsRms;
