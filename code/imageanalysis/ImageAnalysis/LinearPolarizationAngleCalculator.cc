@@ -53,7 +53,13 @@ SPIIF LinearPolarizationAngleCalculator::compute(Bool radians) {
     ImageExpr<Float> ie(le, String("LinearlyPolarizedPositionAngle"));
     ie.setUnits(Unit(radians ? "rad" : "deg"));
     ImageInfo ii = _getImage()->imageInfo();
-    ii.removeRestoringBeam();
+    if (ii.hasMultipleBeams()) {
+        *this->_getLog() << LogIO::WARN << "The input image has "
+            << "multiple beams. Because these beams can vary with "
+            << "stokes/polarization, they will not be copied to the "
+            << "output image" << LogIO::POST;
+        ii.removeRestoringBeam();
+    }
     ie.setImageInfo(ii);
     _fiddleStokesCoordinate(ie, Stokes::Pangle);
     return _prepareOutputImage(ie);

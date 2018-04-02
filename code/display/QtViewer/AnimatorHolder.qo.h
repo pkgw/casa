@@ -25,7 +25,7 @@
 #ifndef ANIMATORHOLDER_QO_H
 #define ANIMATORHOLDER_QO_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <display/QtViewer/InActiveDock.qo.h>
 #include <display/QtViewer/AnimatorHolder.ui.h>
 #include <display/QtViewer/AnimatorWidget.qo.h>

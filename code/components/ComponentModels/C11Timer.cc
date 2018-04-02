@@ -38,6 +38,10 @@ Double C11Timer::duration() const {
 	return _duration.count();
 }
 
+Double C11Timer::meanDuration() const {
+	return _duration.count()/_nCycles;
+}
+
 uInt C11Timer::nCycles() const {
 	return _nCycles;
 }
