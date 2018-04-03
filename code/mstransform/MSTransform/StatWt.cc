@@ -106,43 +106,14 @@ Record StatWt::writeWeights() {
         mustWriteWt, mustWriteWtSp, mustInitWtSp,
         mustWriteSig, mustWriteSigSp, mustInitSigSp
     );
-    // default sort columns are from MSIter and are ARRAY_ID, FIELD_ID, DATA_DESC_ID, and TIME
-    // I'm adding scan and state because, according to the statwt requirements, by default, scan
-    // and state changes should mark boundaries in the weights computation
-    std::vector<Int> scs;
-    scs.push_back(MS::ARRAY_ID);
-    if (! _combine.contains("scan")) {
-        scs.push_back(MS::SCAN_NUMBER);
-    }
-    if (! _combine.contains("state")) {
-        scs.push_back(MS::STATE_ID);
-    }
-    if (! _combine.contains("field")) {
-        scs.push_back(MS::FIELD_ID);
-    }
-    scs.push_back(MS::DATA_DESC_ID);
-    scs.push_back(MS::TIME);
-    Block<int> sort(scs.size());
-    uInt i = 0;
-    for (const auto& col: scs) {
-        sort[i] = col;
-        ++i;
-    }
-    vi::SortColumns sc(sort, False);
-    vi::IteratingParameters ipar(_timeBinWidth, sc);
-    vi::VisIterImpl2LayerFactory data(_ms, ipar, True);
-    unique_ptr<Record> config(dynamic_cast<Record*>(_tviConfig.clone()));
-    vi::StatWtTVILayerFactory statWtLayerFactory(*config);
-    Vector<vi::ViiLayerFactory*> facts(2);
-    facts[0] = &data;
-    facts[1] = &statWtLayerFactory;
-    vi::VisibilityIterator2 vi(facts);
-    vi::VisBuffer2 *vb = vi.getVisBuffer();
-    Vector<Int> vr(1);
+    shared_ptr<vi::VisibilityIterator2> vi;
+    std::shared_ptr<vi::StatWtTVILayerFactory> factory;
+    _constructVi(vi, factory);
+    vi::VisBuffer2 *vb = vi->getVisBuffer();
     ProgressMeter pm(0, _ms->nrow(), "StatWt Progress");
     uInt64 count = 0;
-    for (vi.originChunks(); vi.moreChunks(); vi.nextChunk()) {
-        for (vi.origin(); vi.more(); vi.next()) {
+    for (vi->originChunks(); vi->moreChunks(); vi->nextChunk()) {
+        for (vi->origin(); vi->more(); vi->next()) {
             auto nrow = vb->nRows();
             if (_preview) {
                 // just need to run the flags to accumulate
@@ -188,9 +159,9 @@ Record StatWt::writeWeights() {
             << "RAN IN PREVIEW MODE. NO WEIGHTS NOR FLAGS WERE CHANGED."
             << LogIO::POST;
     }
-    statWtLayerFactory.getTVI()->summarizeFlagging();
+    factory->getTVI()->summarizeFlagging();
     Double mean, variance;
-    statWtLayerFactory.getTVI()->summarizeStats(mean, variance);
+    factory->getTVI()->summarizeStats(mean, variance);
     Record ret;
     ret.define("mean", mean);
     ret.define("variance", variance);
@@ -265,6 +236,43 @@ void StatWt::_columnInitWrite(
             << "not be recalculated as they are related to the values in the "
             << "CORRECTED_DATA column." << LogIO::POST;
     }
+}
+
+void StatWt::_constructVi(
+    std::shared_ptr<vi::VisibilityIterator2>& vi,
+    std::shared_ptr<vi::StatWtTVILayerFactory>& factory
+) const {
+    // default sort columns are from MSIter and are ARRAY_ID, FIELD_ID, DATA_DESC_ID, and TIME
+    // I'm adding scan and state because, according to the statwt requirements, by default, scan
+    // and state changes should mark boundaries in the weights computation
+    std::vector<Int> scs;
+    scs.push_back(MS::ARRAY_ID);
+    if (! _combine.contains("scan")) {
+        scs.push_back(MS::SCAN_NUMBER);
+    }
+    if (! _combine.contains("state")) {
+        scs.push_back(MS::STATE_ID);
+    }
+    if (! _combine.contains("field")) {
+        scs.push_back(MS::FIELD_ID);
+    }
+    scs.push_back(MS::DATA_DESC_ID);
+    scs.push_back(MS::TIME);
+    Block<int> sort(scs.size());
+    uInt i = 0;
+    for (const auto& col: scs) {
+        sort[i] = col;
+        ++i;
+    }
+    vi::SortColumns sc(sort, False);
+    vi::IteratingParameters ipar(_timeBinWidth, sc);
+    vi::VisIterImpl2LayerFactory data(_ms, ipar, True);
+    unique_ptr<Record> config(dynamic_cast<Record*>(_tviConfig.clone()));
+    factory.reset(new vi::StatWtTVILayerFactory(*config));
+    Vector<vi::ViiLayerFactory*> facts(2);
+    facts[0] = &data;
+    facts[1] = factory.get();
+    vi.reset(new vi::VisibilityIterator2(facts));
 }
 
 void StatWt::_dealWithSpectrumColumn(

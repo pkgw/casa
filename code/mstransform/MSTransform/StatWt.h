@@ -24,13 +24,21 @@
 #define STATWT_H_
 
 #include <casacore/casa/Quanta/Quantum.h>
-#include <casacore/casa/Logging/LogIO.h>
-#include <casacore/ms/MeasurementSets/MeasurementSet.h>
 #include <casacore/scimath/StatsFramework/StatisticsAlgorithmFactory.h>
 
 #include <memory>
 
+namespace casacore {
+    class LogIO;
+    class MeasurementSet;
+}
+
 namespace casa {
+
+namespace vi {
+    class StatWtTVILayerFactory;
+    class VisibilityIterator2;
+}
 
 // This class implements reweighting of visibilities based on the statwt
 // algorithm.
@@ -93,6 +101,14 @@ private:
         casacore::Bool& mustWriteSigSp, casacore::Bool& mustInitSigSp
     );
 
+    // Construct the iterator
+    void _constructVi(
+        std::shared_ptr<vi::VisibilityIterator2>& vi,
+        std::shared_ptr<vi::StatWtTVILayerFactory>& factory
+    ) const;
+
+    // determine if the MS has a WEIGHT/SIGMA_SPECTRUM column, if it must
+    // be written, and/or if it must be initialized.
     void _dealWithSpectrumColumn(
         casacore::Bool& hasSpec, casacore::Bool& mustWriteSpec,
         casacore::Bool& mustInitSpec, casacore::Bool mustWriteNonSpec,
