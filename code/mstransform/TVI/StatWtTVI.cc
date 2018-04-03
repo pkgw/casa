@@ -40,8 +40,6 @@ namespace vi {
 
 const String StatWtTVI::CHANBIN = "stchanbin";
 
-const Complex StatWtTVI::DEFAULT_MODEL_VALUE(1, 0);
-
 StatWtTVI::StatWtTVI(ViImplementation2 * inputVii, const Record &configuration)
     : TransformingVi2 (inputVii) {
 	// Parse and check configuration parameters
@@ -51,24 +49,29 @@ StatWtTVI::StatWtTVI(ViImplementation2 * inputVii, const Record &configuration)
         ! _parseConfiguration(configuration),
 	    "Error parsing StatWtTVI configuration"
     );
+    // FIXME when the TVI framework has methods to
+    // check for metadata, like the existence of
+    // columns, remove references to the original MS
+    const auto& origMS = ms();
     ThrowIf(
         (_column == CORRECTED || _column == RESIDUAL)
-        && ! ms().isColumn(MSMainEnums::CORRECTED_DATA),
+        && ! origMS.isColumn(MSMainEnums::CORRECTED_DATA),
         "StatWtTVI requires the MS to have a "
         "CORRECTED_DATA column. This MS does not"
     );
     ThrowIf(
         (_column == DATA || _column == RESIDUAL_DATA)
-        && ! ms().isColumn(MSMainEnums::DATA),
+        && ! origMS.isColumn(MSMainEnums::DATA),
         "StatWtTVI requires the MS to have a "
         "DATA column. This MS does not"
     );
     _mustComputeSigma = (_column == DATA || _column == RESIDUAL_DATA);
     _updateWeight = ! _mustComputeSigma 
         || (_mustComputeSigma && ! ms().isColumn(MSMainEnums::CORRECTED_DATA));
-    _useDefaultModelValue = (_column == RESIDUAL || _column == RESIDUAL_DATA)
-        && ! ms().isColumn(MSMainEnums::MODEL_DATA);
-    // Initialize attached VisBuffer
+    _noModel = (_column == RESIDUAL || _column == RESIDUAL_DATA)
+        && ! origMS.isColumn(MSMainEnums::MODEL_DATA)
+        && ! origMS.source().isColumn(MSSourceEnums::SOURCE_MODEL);
+	// Initialize attached VisBuffer
 	setVisBuffer(createAttachedVisBuffer(VbRekeyable));
 }
 
@@ -1002,11 +1005,19 @@ const casacore::Cube<casacore::Complex> StatWtTVI::_dataCube(const VisBuffer2 *c
     case DATA:
         return vb->visCube();
     case RESIDUAL:
-        return _useDefaultModelValue ? vb->visCubeCorrected() - DEFAULT_MODEL_VALUE
-            : vb->visCubeCorrected() - vb->visCubeModel();
+        if (_noModel) {
+            return vb->visCubeCorrected();
+        }
+        else {
+            return vb->visCubeCorrected() - vb->visCubeModel();
+        }
     case RESIDUAL_DATA:
-        return _useDefaultModelValue ? vb->visCube() - DEFAULT_MODEL_VALUE
-            : vb->visCube() - vb->visCubeModel();
+        if(_noModel) {
+            return vb->visCube();
+        }
+        else {
+            return vb->visCube() - vb->visCubeModel();
+        }
     default:
         ThrowCc("Logic error: column type not handled");
     }
