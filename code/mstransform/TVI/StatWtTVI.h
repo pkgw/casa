@@ -77,6 +77,10 @@ public:
 
     virtual ~StatWtTVI();
 
+    virtual casacore::String ViiType() const {
+        return casacore::String("StatWt( ") + getVii()->ViiType() + " )";
+    };
+
     void initWeightSpectrum (const casacore::Cube<casacore::Float>& wtspec);
 
     void initSigmaSpectrum (const casacore::Cube<casacore::Float>& sigspec);
