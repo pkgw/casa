@@ -1239,54 +1239,61 @@ Record PlotMSIndexer::getPointMetaData(Int i) {
 	Double thisx, thisy;
 	xAndYAt(i, thisx, thisy);
 	// Collect meta data
-	Int ichan = getIndex0100(currChunk_, irel_);
-	Int chan = Int(plotmscache_->getChan(currChunk_,ichan));
+	String caltype(plotmscache_->calType());
+	Int ichan, chan, ant2;
+	Double freq;
+	String ant2name;
+	if (caltype != "GSPLINE") {
+		ichan = getIndex0100(currChunk_, irel_);
+		chan = Int(plotmscache_->getChan(currChunk_,ichan));
+		freq = plotmscache_->getFreq(currChunk_, ichan);
+		if (caltype != "BPOLY") {
+			ant2 = Int(plotmscache_->getAnt2(currChunk_,
+				getIndex0010(currChunk_,irel_)));
+			if(ant2 == -1) {
+				ant2name = "*";
+			} else {
+				ant2name = plotmscache_->antstanames_(ant2);
+			}
+		}
+	}
 	Int scan = Int(plotmscache_->getScan(currChunk_,0));
 	Int field = Int(plotmscache_->getField(currChunk_,0));
 	Int ant1 = Int(plotmscache_->getAnt1(currChunk_,
 			getIndex0010(currChunk_,irel_)));
-	Int ant2 = Int(plotmscache_->getAnt2(currChunk_,
-			getIndex0010(currChunk_,irel_)));
 	String ant1name;
-	String ant2name;
 	if(ant1 == -1) {
 		ant1name = "*";
 	} else {
 		ant1name = plotmscache_->antstanames_(ant1);
 	}
-	if(ant2 == -1) {
-		ant2name = "*";
-	} else {
-		ant2name = plotmscache_->antstanames_(ant2);
-	}
 	Double time = plotmscache_->getTime(currChunk_, 0);
 	Int spw = Int(plotmscache_->getSpw(currChunk_, 0));
-	Double freq = plotmscache_->getFreq(currChunk_, ichan);
 	Int icorr = Int(plotmscache_->getCorr(currChunk_,getIndex1000(currChunk_,irel_)));
 	String corr = plotmscache_->polname(icorr);
 	Int obsId = Int(plotmscache_->getObsid(currChunk_, 0));
 
-	Int offset = (currChunk_ > 0 ? (nCumulative_(currChunk_-1)+irel_) : irel_);
 	// Collate meta data
 	Record r;
-	r.define("chan", chan);
+	if (caltype != "GSPLINE") {
+		r.define("chan", chan);
+		r.define("freq", freq);
+		if (caltype != "BPOLY") {
+			r.define("ant2", ant2);
+			r.define("ant2name", ant2name);
+		}
+	}
 	r.define("scan", scan);
 	r.define("field", field);
 	r.define("time", time);
 	r.define("ant1", ant1);
-	r.define("ant2", ant2);
 	r.define("ant1name", ant1name);
-	r.define("ant2name", ant2name);
 	r.define("time", time);
 	r.define("spw", spw);
-	r.define("freq", freq);
 	r.define("corr", corr);
 	r.define("x", thisx);
 	r.define("y", thisy);
 	r.define("obsid", obsId);
-	r.define("offset", offset);
-	r.define("currchunk", currChunk_);
-	r.define("irel", irel_);
 	return r;
 }
 
