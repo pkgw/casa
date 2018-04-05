@@ -1395,15 +1395,19 @@ void MSTransformManager::createOutputMSStructure()
 	Bool outputMSStructureCreated = false;
 	try
 	{
-		if (not bufferMode_p)
-		{
-			outputMSStructureCreated = dataHandler_p->makeMSBasicStructure(outMsName_p,datacolumn_p,tileShape_p,timespan_p);
-		}
-		else
-		{
-			logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__) << "Create output MS structure" << LogIO::POST;
-			outputMSStructureCreated = dataHandler_p->makeMSBasicStructure(outMsName_p,datacolumn_p,tileShape_p,timespan_p,Table::Scratch);
-		}
+            Table::TableOption option = Table::New;
+            if (bufferMode_p) {
+                logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+                         << "Create output MS structure" << LogIO::POST;
+            } else {
+                option = Table::Scratch;
+            }
+            outputMSStructureCreated = dataHandler_p->makeMSBasicStructure(outMsName_p,
+                                                                           datacolumn_p,
+                                                                           flushWeightSpectrum_p,
+                                                                           tileShape_p,
+                                                                           timespan_p,
+                                                                           option);
 	}
 	catch (AipsError ex)
 	{
