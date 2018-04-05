@@ -553,10 +553,12 @@ void KJones::setApply(const Record& apply) {
   MSSpectralWindow msSpw(ct_->spectralWindow());
   ROMSSpWindowColumns msCol(msSpw);
 
-  if (ct_->CASAvers()==String("Unknown") || ct_->CASAvers()<String("5.3.0-80")) {
+  String ctvers=ct_->CASAvers();
+  if (ctvers==String("Unknown")) {
     // Old-fashioned; use spw edge freq
     msCol.refFrequency().getColumn(KrefFreqs_,true);
-    if (typeName()!=String("KMBD Jones"))
+    if (typeName()!=String("KMBD Jones") &&
+	typeName()!=String("KAntPos Jones") )
       logSink() << LogIO::WARN 
 		<< " Found pre-5.3.0 CASA delay cal table; using spw REF_FREQUENCY pivot (usually the edge) for phase(freq) calculation." 
 		<< LogIO::POST;
@@ -613,9 +615,10 @@ void KJones::setCallib(const Record& callib,
 
   // Extract per-spw ref Freq for phase(delay) calculation
   //  from the CalTable
-  if (cpp_->CTCASAvers()==String("Unknown") || cpp_->CTCASAvers()<String("5.3.0-80")) {
+  if (cpp_->CTCASAvers()==String("Unknown") ) {
     KrefFreqs_.assign(cpp_->refFreqIn());
-    if (typeName()!=String("KMBD Jones"))
+    if (typeName()!=String("KMBD Jones") &&
+	typeName()!=String("KAntPos Jones") )
       logSink() << LogIO::WARN 
 		<< " Found pre-5.3.0 CASA K (delay) cal table; using spw REF_FREQUENCY pivot (usually the edge) for phase(freq) calculation." 
 		<< LogIO::POST;
