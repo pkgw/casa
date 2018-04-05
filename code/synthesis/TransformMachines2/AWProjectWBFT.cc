@@ -412,7 +412,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //
 
     // USEFUL DEBUG MESSAGE
-    //cerr << "SumCFWt: " << getSumOfCFWeights() << " " << max(wtBuf) << " " << sensitivityPatternQualifier_p << endl;
+    //    log_l << "SumCFWt: " << getSumOfCFWeights() << " " << max(wtBuf) << " " << sensitivityPatternQualifier_p <<LogIO::WARN << LogIO::POST;
     for(wtImIter.reset(); !wtImIter.atEnd(); wtImIter++)
       {
 	Int pol_l=wtImIter.position()(2), chan_l=wtImIter.position()(3);
@@ -425,7 +425,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	wtImIter.rwCursor() = (wtImIter.rwCursor()
 			       *Float(sizeX)*Float(sizeY)
-			       /sumwt_l
+			       //			       /sumwt_l
 			       );
 
 	////////////////////	wtImIter.rwCursor() = sqrt( fabs(wtImIter.rwCursor()) );
