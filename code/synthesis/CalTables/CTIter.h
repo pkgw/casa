@@ -127,6 +127,10 @@ public:
   casacore::Vector<casacore::Int> antenna2() const;
   void antenna2(casacore::Vector<casacore::Int>& v) const;
 
+  casacore::Double thisInterval() const;
+  casacore::Vector<casacore::Double> interval() const;
+  void interval(casacore::Vector<casacore::Double>& v) const;
+
   casacore::Cube<casacore::Complex> cparam() const;
   void cparam(casacore::Cube<casacore::Complex>& c) const;
 

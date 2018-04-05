@@ -263,8 +263,6 @@ DelayFFT::DelayFFT(SolveDataBuffer& sdb,Double padBW,Int refant,Int nElem) :
 
 void DelayFFT::FFT() {
 
-  //  cout << "DelayFFT::FFT()..." << endl;
-
   // We always transform only the chan axis (1)
   Vector<Bool> ax(3,false);
   ax(1)=true;
@@ -274,14 +272,10 @@ void DelayFFT::FFT() {
   ArrayLattice<Complex> c(Vpad_);
   LatticeFFT::cfft0(c,ax,true);
 
-  //  cout << "...end DelayFFT::FFT()" << endl;
-
 }
 
 void DelayFFT::shift(Double f) {
 
-  //  cout << "DelayFFT::shift(f)..." << endl;
-    
   Double shift=-(f0_-f)/df_;                    // samples  
   Vector<Double> ph(nPadChan_);  indgen(ph);   // indices
   //  ph-=Double(nPadChan_/2);                     // centered
@@ -303,8 +297,6 @@ void DelayFFT::shift(Double f) {
       v*=sh;
     }
 
-  //  cout << "... end DelayFFT::shift(f)" << endl;
-
 }
 
 
@@ -314,9 +306,6 @@ void DelayFFT::add(const DelayFFT& other) {
   //  cout << "DelayFFT::add(x)..." << endl;
 
   IPosition osh=other.Vpad_.shape();
-
-  //  cout << "add: " << nPadChan_ << " " << other.nPadChan_ << endl;
-
 
   AlwaysAssert( (other.nCorr_==nCorr_), AipsError);
   AlwaysAssert( (other.nPadChan_<=nPadChan_), AipsError);
@@ -333,13 +322,9 @@ void DelayFFT::add(const DelayFFT& other) {
     lo+=oNchan;
   }
 
-  //  cout << "...end DelayFFT::add(x)" << endl;
-
 }
 
 void DelayFFT::searchPeak() {
-
-  //  cout << "DelayFFT::searchPeak()..." << endl;
 
   delay_.resize(nCorr_,nElem_);
   delay_.set(0.0);
@@ -376,7 +361,8 @@ void DelayFFT::searchPeak() {
 	     << Float(ipk)/Float(nPadChan_)/df_ << "..."
 	     << Float(ipk<(nPadChan_-1) ? ipk+1 : 0)/Float(nPadChan_)/df_ << "-->"
 	     << delay << "    "
-	     << alo << " " << amax << " " << ahi 
+	     << alo << " " << amax << " " << ahi << "   "
+	     << alo/amax << " " << amax/amax << " " << ahi/amax
 	     << endl;
 	*/
 
@@ -396,8 +382,6 @@ void DelayFFT::searchPeak() {
   if (refant_>-1)
     flag_(Slice(),Slice(refant_,1,1))=false;
 
-  //  cout << "...end DelayFFT::searchPeak()" << endl;
-
 
 }
 
@@ -416,6 +400,75 @@ void DelayFFT::state() {
        << " flag_.shape()=" << flag_.shape()
        << endl;
     
+}
+
+// **********************************************************
+// CrossDelayFFT Implementations
+//
+
+// Construct from freq info and a data-like Cube<Complex>
+CrossDelayFFT::CrossDelayFFT(Double f0, Double df, Double padBW, 
+		   Cube<Complex> V) :
+  DelayFFT(f0,df,padBW,V)
+{}
+
+
+// Construct from freq info and shape, w/ initialization
+CrossDelayFFT::CrossDelayFFT(Double f0, Double df, Double padBW) :
+  DelayFFT(f0,df,padBW,1,1,-1,Complex(0.0))
+{}
+
+// Construct from a (single) SDB
+//  (init DelayFFT via freq info/shape ctor, and fill data _here_
+CrossDelayFFT::CrossDelayFFT(SolveDataBuffer& sdb,Double padBW) :
+  DelayFFT(sdb.freqs()(0)/1e9,
+	   (sdb.freqs()(1)-sdb.freqs()(0))/1e9,
+	   padBW,
+	   1,1,-1,Complex(0.0))
+{
+
+  AlwaysAssert(Vpad_.shape()(0)==1,AipsError);  // Working array only 1 corr
+  AlwaysAssert(Vpad_.shape()(2)==1,AipsError);  // Working array only 1 elem
+  
+  // SDB facts
+  Int nCorr=sdb.nCorrelations();
+  AlwaysAssert(nCorr==4,AipsError);   // Must have full set of correlations!
+  Int nChan=sdb.nChannels();
+  Int nRow=sdb.nRows();
+  
+  //  this->state();
+
+  // Fill the relevant data
+  Vpad_.set(Complex(0.0));
+
+  // Zero weights of flagged samples
+  //  (first, balance cross-hand flags)
+  Slicer pq(Slice(1,1,1),Slice(),Slice()); //  PQ
+  Slicer qp(Slice(2,1,1),Slice(),Slice()); //  QP
+  sdb.flagCube()(pq)(sdb.flagCube()(qp))=true;
+  sdb.flagCube()(qp)(sdb.flagCube()(pq))=true;
+  sdb.weightSpectrum()(sdb.flagCube())=0.0f;
+  Cube<Complex> Vsum(2,sdb.nChannels(),1,Complex(0.0));
+  Cube<Float> wtsum(2,sdb.nChannels(),1,0.0f);
+  for (Int irow=0;irow<nRow;++irow) {
+    Int a1(sdb.antenna1()(irow)), a2(sdb.antenna2()(irow));
+    if (!sdb.flagRow()(irow) && a1!=a2) {  // not flagged, not an AC
+
+      // Accumulate cross-hands
+      Slicer xh(Slice(1,2,1),Slice(),Slice(irow,1,1));
+      Cube<Complex> Vxh(sdb.visCubeCorrected()(xh));
+      Cube<Float> Wxh(sdb.weightSpectrum()(xh));
+      Vsum=Vsum+Vxh*Wxh;
+      wtsum=wtsum+Wxh;
+    }
+  }
+
+  // Combine cross-hands into the padded Cube
+  if (sum(wtsum)>0.0f) {
+    Slicer sl1(Slice(),Slice(0,nChan,1),Slice()); // add to this Vpad_ slice
+    Vpad_(sl1)=Vpad_(sl1)+(Vsum(Slice(0,1,1),Slice(),Slice())+conj(Vsum(Slice(1,1,1),Slice(),Slice())));
+  }
+
 }
 
 
@@ -499,7 +552,26 @@ void KJones::setApply(const Record& apply) {
   //  from the CalTable
   MSSpectralWindow msSpw(ct_->spectralWindow());
   ROMSSpWindowColumns msCol(msSpw);
-  msCol.refFrequency().getColumn(KrefFreqs_,true);
+
+  if (ct_->CASAvers()==String("Unknown") || ct_->CASAvers()<String("5.3.0-80")) {
+    // Old-fashioned; use spw edge freq
+    msCol.refFrequency().getColumn(KrefFreqs_,true);
+    if (typeName()!=String("KMBD Jones"))
+      logSink() << LogIO::WARN 
+		<< " Found pre-5.3.0 CASA delay cal table; using spw REF_FREQUENCY pivot (usually the edge) for phase(freq) calculation." 
+		<< LogIO::POST;
+  }
+  else {
+  // Use the "physical" (centroid) frequency, per spw 
+    Vector<Double> chanfreq;
+    KrefFreqs_.resize(nSpw()); KrefFreqs_.set(0.0);
+    for (Int ispw=0;ispw<nSpw();++ispw) {
+      msCol.chanFreq().get(ispw,chanfreq,true);  // reshape, if nec.
+      Int nch=chanfreq.nelements();
+      KrefFreqs_(ispw)=chanfreq(nch/2);
+    }
+  }
+
   KrefFreqs_/=1.0e9;  // in GHz
 
   /// Re-assign KrefFreq_ according spwmap (if any)
@@ -541,8 +613,24 @@ void KJones::setCallib(const Record& callib,
 
   // Extract per-spw ref Freq for phase(delay) calculation
   //  from the CalTable
-  KrefFreqs_.assign(cpp_->refFreqIn());
-  KrefFreqs_/=1.0e9;  // in GHz
+  if (cpp_->CTCASAvers()==String("Unknown") || cpp_->CTCASAvers()<String("5.3.0-80")) {
+    KrefFreqs_.assign(cpp_->refFreqIn());
+    if (typeName()!=String("KMBD Jones"))
+      logSink() << LogIO::WARN 
+		<< " Found pre-5.3.0 CASA K (delay) cal table; using spw REF_FREQUENCY pivot (usually the edge) for phase(freq) calculation." 
+		<< LogIO::POST;
+  }
+  else {
+    // Extract physical freq
+    KrefFreqs_.resize(nSpw());
+    for (Int ispw=0;ispw<nSpw();++ispw) {
+      const Vector<Double>& f(cpp_->freqIn(ispw));
+      Int nf=f.nelements();
+      KrefFreqs_[ispw]=f[nf/2];  // center (usually this will be same as [0])
+    }
+  }
+  KrefFreqs_/=1.0e9;  // In GHz
+
 
   // Re-assign KrefFreq_ according spwmap (if any)
   if (spwMap().nelements()>0) {
@@ -552,7 +640,6 @@ void KJones::setCallib(const Record& callib,
       if (spwMap()(ispw)>-1)
 	KrefFreqs_(ispw)=tmpfreqs(spwMap()(ispw));
   }
-
     
 }
 
@@ -1145,13 +1232,13 @@ void KcrossJones::selfSolveOne(VisBuffGroupAcc& vbga) {
 
 void KcrossJones::selfSolveOne(SDBList& sdbs) {
 
-  // Trap MBD attempt (NYI)
-  if (sdbs.nSDB()!=1) 
-    throw(AipsError("KcrossJones does not yet support MBD"));
-  //    this->solveOneVBmbd(vbga);
+  // Do MBD if more than one SolveDataBuffer
+  if (sdbs.nSDB()>1) 
+    this->solveOneSDBmbd(sdbs);
 
-  // otherwise, call the single-VB solver with the first VB in the vbga
+  // otherwise, call the single-SDB solver with the first (and only) SDB in SDBLIST
   else
+    //this->solveOneSDBmbd(sdbs);
     this->solveOneSDB(sdbs(0));
 
 }
@@ -1340,6 +1427,64 @@ void KcrossJones::solveOneSDB(SolveDataBuffer& sdb) {
 	    << LogIO::POST;
 }
 
+void KcrossJones::solveOneSDBmbd(SDBList& sdbs) {
+
+  Int nbuf=sdbs.nSDB();
+  
+  Vector<Int> nch(nbuf,0);
+  Vector<Double> f0(nbuf,0.0);
+  Vector<Double> df(nbuf,0.0);
+  Double flo(1e15),fhi(0.0);
+
+  for (Int ibuf=0;ibuf<nbuf;++ibuf) {
+    SolveDataBuffer& sdb(sdbs(ibuf));
+    Vector<Double> chf(sdb.freqs());
+    nch(ibuf)=sdbs(ibuf).nChannels();
+    f0(ibuf)=chf(0)/1.0e9;           // GHz
+    df(ibuf)=(chf(1)-chf(0))/1.0e9;  // GHz
+    flo=min(flo,f0[ibuf]);
+    fhi=max(fhi,f0[ibuf]+nch[ibuf]*df[ibuf]);
+  }
+  Double tbw=fhi-flo;
+
+  Double ptbw=tbw*8;  // pad total bw by 8X
+  // TBD:  verifty that all df are factors of tbw
+
+  /*
+  cout << "tbw = " << tbw << "  (" << flo << "-" << fhi << ")" << " resoln=" << 1.0/tbw
+       << ";   ptbw = " << ptbw << " resoln=" << 1/ptbw
+       << endl;
+  */
+
+  // Must always have 4 correlations when doing cross-hand delays
+  Int nCor=sdbs(0).nCorrelations();
+  AlwaysAssert(nCor==4,AipsError);
+  
+  CrossDelayFFT sumfft(f0[0],min(df),ptbw);
+  for (Int ibuf=0;ibuf<nbuf;++ibuf) {
+    CrossDelayFFT delfft1(sdbs(ibuf),ptbw);
+    delfft1.FFT();
+    delfft1.shift(f0[0]);
+    sumfft.add(delfft1);
+    delfft1.searchPeak();
+  }
+
+  sumfft.searchPeak();
+
+  // Keep solution (same for all antennas in first pol)
+  solveRPar()(Slice(0,1,1),Slice(),Slice())=sumfft.delay()(0,0);
+  solveParOK()=true;
+
+  logSink() << " Time="<< MVTime(refTime()/C::day).string(MVTime::YMD,7)
+    //<< " Spw=" << currSpw()
+	    << " Multi-band cross-hand delay=" << sumfft.delay()(0,0) << " nsec"
+	    << LogIO::POST;
+
+
+}
+
+
+
 // **********************************************************
 //  KMBDJones Implementations
 //
@@ -1403,6 +1548,10 @@ void KMBDJones::setApply(const Record& apply) {
   if (prtlev()>2) cout << "Kmbd::setApply()" << endl;
   KJones::setApply(apply);
   KrefFreqs_.set(0.0);  // MBD is ALWAYS ref'd to zero freq
+  logSink() << LogIO::WARN 
+	    << " Found pre-5.3.0 CASA multi-band delay cal table; using zero frequency pivot for phase(freq) calculation." 
+		<< LogIO::POST;
+
 }
 
 
@@ -1503,10 +1652,20 @@ void KAntPosJones::setCallib(const Record& callib,
 			     const MeasurementSet& selms) 
 {
 
-  //  cout << "KAntPosJones::setCallib()" << endl;
+  // Enforce hardwired spwmap in a new revised callib
+  Record newcallib;
+  newcallib.define("calwt",Bool(callib.asBool("calwt")));
+  newcallib.define("tablename",String(callib.asString("tablename")));
+
+  Record thiscls;
+  thiscls=callib.asRecord("0");  // copy
+  thiscls.removeField("spwmap");
+  thiscls.define("spwmap",Vector<Int>(nSpw(),0));
+  newcallib.defineRecord("0",thiscls);
 
   // Call generic to do conventional things
-  SolvableVisCal::setCallib(callib,selms);
+  SolvableVisCal::setCallib(newcallib,selms);
+  //  SolvableVisCal::setCallib(callib,selms);
 
   if (calWt()) 
     logSink() << " (" << this->typeName() << ": Enforcing calWt()=false for phase/delay-like terms)" << LogIO::POST;

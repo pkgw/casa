@@ -25,6 +25,7 @@
 //#
 //# $Id: $
 
+#include <QColorDialog>
 #include <display/QtViewer/QtCanvasManager.qo.h>
 #include <display/QtViewer/QtDisplayPanelGui.qo.h>
 #include <display/QtViewer/QtViewer.qo.h>

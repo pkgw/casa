@@ -25,7 +25,7 @@
 #ifndef FIT2DLOGDIALOG_QO_H
 #define FIT2DLOGDIALOG_QO_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 #include <display/Fit/Fit2DLogDialog.ui.h>
 
 /**

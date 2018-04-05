@@ -336,6 +336,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		void setColormap(const casacore::String& clrMapName) {
 			setColormap_(clrMapName);
 		}
+
+		void setRasterPowerScaling( float powerScale );
+
 		void setHistogramColorMapping( float minValue, float maxValue, float powerScale );
 		//  This is used to get the display data to set a saturation range
 		//  from another image.

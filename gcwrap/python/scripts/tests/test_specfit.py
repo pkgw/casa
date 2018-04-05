@@ -390,6 +390,7 @@ class specfit_test(unittest.TestCase):
         multifit = True
         model = ""
         residual = ""
+        myia = iatool()
         kk = [s + "-2g" for s in solims]
         [
             amp, amperr, center, centererr,
@@ -407,6 +408,14 @@ class specfit_test(unittest.TestCase):
                 for j in ["_0", "_1"]:
                     name = im + j
                     self.checkImage(name, datapath + name)
+                    if code == run_specfit:
+                        self.assertTrue(myia.open(name))
+                        msgs = myia.history()
+                        myia.done()
+                        teststr = 'version'
+                        self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
+                        teststr = 'specfit'
+                        self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
                     shutil.rmtree(name)
                 
     def test_4_5(self):

@@ -78,9 +78,6 @@ public:
   // Guess (throws error because we don't yet solve for this)
   virtual void guessPar(VisBuffer& vb);
 
-  // Local implementation of spwOK()
-  virtual casacore::Vector<casacore::Bool> spwOK() { return spwOK_; };
-
 protected:
 
   // EGainCurve has eight casacore::Float pars per ant (4 per pol)
@@ -128,9 +125,6 @@ private:
   // Effeciency samples
   casacore::Vector<casacore::Double> eff_;
 
-  // Local spwOK_
-  casacore::Vector<casacore::Bool> spwOK_;
-  
 };
 
 

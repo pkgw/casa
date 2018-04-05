@@ -138,7 +138,7 @@ class NewCalTable : public casacore::Table
 		casacore::Table::TableType ttype = casacore::Table::Memory);
    // control locking option
    NewCalTable (const casacore::String& tableName, 
-        const casacore::TableLock& lockOptions = casacore::TableLock(),
+        const casacore::TableLock& lockOptions,
 		casacore::Table::TableOption access = casacore::Table::Old,
 		casacore::Table::TableType ttype = casacore::Table::Memory);
 
@@ -197,6 +197,9 @@ class NewCalTable : public casacore::Table
 
    // Report the polarization basis (from header record)
    casacore::String polBasis();
+
+   // Report the CASA version at which the NCT was created (from header)
+   casacore::String CASAvers();
 
    // Get a row from cal_main
    casacore::Record getRowMain (const casacore::Int& jrow);

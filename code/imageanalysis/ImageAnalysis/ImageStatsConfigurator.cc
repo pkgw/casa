@@ -43,6 +43,17 @@ ImageStatsConfigurator::ImageStatsConfigurator(
 
 ImageStatsConfigurator::~ImageStatsConfigurator() {}
 
+void ImageStatsConfigurator::configureBiweight(Int maxIter) {
+    if (
+        _algConf.algorithm != StatisticsData::BIWEIGHT
+        || maxIter != _algConf.mi
+    ) {
+        _algConf.algorithm = StatisticsData::BIWEIGHT;
+        _algConf.mi = maxIter;
+        _statistics.reset();
+    }
+}
+
 void ImageStatsConfigurator::configureChauvenet(
     Double zscore, Int maxIterations
 ) {
@@ -107,6 +118,10 @@ void ImageStatsConfigurator::configureHingesFences(Double f) {
 String ImageStatsConfigurator::_configureAlgorithm() {
     String myAlg;
     switch (_algConf.algorithm) {
+    case StatisticsData::BIWEIGHT:
+        _statistics->configureBiweight(_algConf.mi, 6.0);
+        myAlg = "Biweight";
+        break;
     case StatisticsData::CHAUVENETCRITERION:
         _statistics->configureChauvenet(_algConf.zs, _algConf.mi);
         myAlg = "Chauvenet Criterion/Z-score";
