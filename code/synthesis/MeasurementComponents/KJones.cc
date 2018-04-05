@@ -554,7 +554,10 @@ void KJones::setApply(const Record& apply) {
   ROMSSpWindowColumns msCol(msSpw);
 
   String ctvers=ct_->CASAvers();
-  if (ctvers==String("Unknown")) {
+  if (ctvers==String("Unknown") ||    // pre-5.3.0-80 (no version recorded in table)
+      ctvers==String("5.3.0-100") ||  // a few pre-release versions with reverted behavior
+      ctvers==String("5.3.0-101") ||
+      ctvers==String("5.3.0-102") ) {
     // Old-fashioned; use spw edge freq
     msCol.refFrequency().getColumn(KrefFreqs_,true);
     if (typeName()!=String("KMBD Jones") &&
@@ -615,7 +618,11 @@ void KJones::setCallib(const Record& callib,
 
   // Extract per-spw ref Freq for phase(delay) calculation
   //  from the CalTable
-  if (cpp_->CTCASAvers()==String("Unknown") ) {
+  String ctvers=cpp_->CTCASAvers();
+  if (ctvers==String("Unknown") ||    // pre-5.3.0-80 (no version recorded in table)
+      ctvers==String("5.3.0-100") ||  // a few pre-release versions with reverted behavior
+      ctvers==String("5.3.0-101") ||
+      ctvers==String("5.3.0-102") ) {
     KrefFreqs_.assign(cpp_->refFreqIn());
     if (typeName()!=String("KMBD Jones") &&
 	typeName()!=String("KAntPos Jones") )
