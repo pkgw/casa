@@ -209,7 +209,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     </param>
                 
     <param type="bool" name="usewtspectrum">
-        <description>Create a WEIGHT_SPECTRUM column in the output MS.</description>
+        <description>Force creation of a WEIGHT_SPECTRUM column in the output MS, even if not present in the input MS.</description>
         <value>False</value>
     </param>
 
@@ -666,9 +666,14 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         default: True (keep completely flagged rows in the output)
 		
 	
-    usewtspectrum -- Create a WEIGHT_SPECTRUM column in the output MS. When set to True,
-                     a WEIGHT_SPECTRUM column will be created using the input WEIGHT column,
-                     such that each channel in the WEIGHT_SPECTRUM will get WEIGHT/nChannels.
+    usewtspectrum -- Force creation of a WEIGHT_SPECTRUM column in the output MS.
+                     This flag can be used to force the creation of WEIGHT_SPECTRUM when it
+                     it is not present in the input MS. When set to true, a WEIGHT_SPECTRUM
+                     column will be created using the input WEIGHT column, such that each
+                     channel in the WEIGHT_SPECTRUM will get WEIGHT/nChannels.
+                     Note that if the WEIGHT_SPECTRUM column is present in the input MS
+                     it will always be created in the output MS, regardless of the value of
+                     this parameter.
         default: False
 
 	
