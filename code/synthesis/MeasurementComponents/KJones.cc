@@ -557,7 +557,9 @@ void KJones::setApply(const Record& apply) {
   if (ctvers==String("Unknown") ||    // pre-5.3.0-80 (no version recorded in table)
       ctvers==String("5.3.0-100") ||  // a few pre-release versions with reverted behavior
       ctvers==String("5.3.0-101") ||
-      ctvers==String("5.3.0-102") ) {
+      ctvers==String("5.3.0-102") ||
+      ctvers==String("5.3.0-103") ||
+      ctvers==String("5.3.0-104") ) {
     // Old-fashioned; use spw edge freq
     msCol.refFrequency().getColumn(KrefFreqs_,true);
     if (typeName()!=String("KMBD Jones") &&
@@ -622,7 +624,9 @@ void KJones::setCallib(const Record& callib,
   if (ctvers==String("Unknown") ||    // pre-5.3.0-80 (no version recorded in table)
       ctvers==String("5.3.0-100") ||  // a few pre-release versions with reverted behavior
       ctvers==String("5.3.0-101") ||
-      ctvers==String("5.3.0-102") ) {
+      ctvers==String("5.3.0-102") ||
+      ctvers==String("5.3.0-103") ||
+      ctvers==String("5.3.0-104") ) {
     KrefFreqs_.assign(cpp_->refFreqIn());
     if (typeName()!=String("KMBD Jones") &&
 	typeName()!=String("KAntPos Jones") )
