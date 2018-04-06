@@ -51,9 +51,11 @@
 #include <casa/Logging/LogSink.h>
 #include <casa/Logging/LogIO.h>
 #include <casa/OS/Timer.h>
+#if ! defined(WITHOUT_DBUS)
 #include <casadbus/plotserver/PlotServerProxy.h>
 #include <casadbus/utilities/BusAccess.h>
 #include <casadbus/session/DBusSession.h>
+#endif
 
 #include <iostream>
 #include <fstream>
@@ -329,6 +331,12 @@ public:
 
   // New spwOK
   virtual casacore::Bool spwOK(casacore::Int ispw);
+
+  //Is VB OK for calibration? 
+  virtual casacore::Bool VBOKforCalApply(vi::VisBuffer2& vb);
+
+  // Calibration available?
+  virtual casacore::Bool calAvailable(vi::VisBuffer2&);
 
   // Post solve tinkering (generic version)
   virtual void globalPostSolveTinker();
@@ -954,8 +962,10 @@ private:
        wTotal_p, wPreAnt_p;
 
   //for plotting
+#if ! defined(WITHOUT_DBUS)
   PlotServerProxy* plotter_;
   casacore::Vector<dbus::variant> panels_id_;
+#endif
 
 };
 
