@@ -784,6 +784,8 @@ Bool MSTransformDataHandler::makeMSBasicStructure(String& msname,
                                                   Table::TableOption option)
 {
 	LogIO os(LogOrigin("MSTransformDataHandler", __FUNCTION__));
+        os << LogIO::DEBUG1 << "Preparing to setup output MS with createWeightSpectrumCols: "
+           << createWeightSpectrumCols << LogIO::POST;;
 
 	if ((spw_p.nelements() > 0) && (max(spw_p) >= Int(ms_p.spectralWindow().nrow())))
 	{
