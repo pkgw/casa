@@ -542,8 +542,11 @@ void SolvableVisCal::setCallib(const Record& callib,
 
   // Make the interpolation engine
   cpp_ = new CLPatchPanel(calTableName(),selms,callib,matrixType(),nPar(),cttifactoryptr());
+  //cpp_->listmappings();
 
-  //  cpp_->listmappings();
+  // Setup ct_ in SVC private data, because some derived classes need this
+  //  NB:  Not loaded into memory in the callib context (CLPatchPanel has that)
+  ct_= new NewCalTable(calTableName(),Table::Old,Table::Plain);
 
 }
 
@@ -3854,6 +3857,95 @@ Bool SolvableVisCal::spwOK(Int ispw) {
     return true;
   }
 }
+
+// Is the data in this VB calibrate-able?  This replaces the old spwOK and
+//   is more specific as regards obs, fld, intent.  Used at wide scopes
+//   (Calibrater/VisEquation) to control entering expensive loops.
+// "OK for Cal" or "Calibrate-able" here means:
+//   a) this SVC can actually calibrate the data within the VB because
+//       there are solutions explicitly available to do it (see
+//       SVC::calAvailable(vb) below)
+// OR
+//   b) that this SVC is agnostic about the data within the VB according
+//       to arrangements made by CalLibrary specifictions and
+//       embodied within the CLPatchPanel (cpp_).  Agnosticism is
+//       supported ONLY when using the CalLibrary and CLPatchPanel
+Bool SolvableVisCal::VBOKforCalApply(vi::VisBuffer2& vb) {
+
+  // Current spw
+  //  TBD: Use syncMeta2?
+  const Int& ispw(vb.spectralWindows()(0));
+
+  if (isSolved())
+    return spwOK_(ispw);
+
+  if (isApplied()) {
+
+    if (ci_)
+      // Get it from the old-fashioned CTPatchedInterp
+      return spwOK_(ispw)=ci_->spwOK(ispw);
+
+    else if (cpp_) {
+      // Get it from the new CLPatchPanel, which has
+      //  obs, fld, intent specificity, too!
+      const Int& iobs(vb.observationId()(0));
+      const Int& ifld(vb.fieldId()(0));
+      const Int& ient(vb.stateId()(0));
+      return cpp_->MSIndicesOK(iobs,ifld,ient,ispw,-1); // all ants
+    }
+    else
+      // Assume ok for non-interpolable types
+      return true;
+  }
+
+  // Shouldn't reach here, assume true (could trigger failure elsewhere)
+  return true;
+
+}
+
+// Is calibration for the specified VB actually available?
+//  This returns true when condition "a" described above
+//  is true.  If the CLPatchPanel is agnostic, this returns
+//  false.  This is used by VisCal::correct2 control whether
+//  calibration update and algebraic apply can/should be done. 
+//  In the CalLibrary context, this enables agnosticism (when
+//  false)
+//  The implementation here is almost the same as VBOKforCal,
+//   differing only in the call to cpp_->calAvailable.
+Bool SolvableVisCal::calAvailable(vi::VisBuffer2& vb) {
+
+  // Current spw
+  //  TBD: Use syncMeta2?
+  const Int& ispw(vb.spectralWindows()(0));
+
+  if (isSolved())
+    return spwOK_(ispw);
+
+  if (isApplied()) {
+
+    if (ci_)
+      // Get it from the old-fashioned CTPatchedInterp
+      return spwOK_(ispw)=ci_->spwOK(ispw);
+
+    else if (cpp_) {
+      // Get it from the new CLPatchPanel, which has
+      //  obs, fld, intent specificity, too!
+      const Int& iobs(vb.observationId()(0));
+      const Int& ifld(vb.fieldId()(0));
+      const Int& ient(vb.stateId()(0));
+      return cpp_->calAvailable(iobs,ifld,ient,ispw,-1); // all ants
+    }
+    else
+      // Assume ok for non-interpolable types
+      return true;
+  }
+
+  // Shouldn't reach here, assume true (could trigger failure elsewhere)
+  return true;
+
+}
+
+
 
 // File a solved solution (and meta-data) into the in-memory Caltable
 void SolvableVisCal::keepNCT() {

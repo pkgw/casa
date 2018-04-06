@@ -1652,10 +1652,20 @@ void KAntPosJones::setCallib(const Record& callib,
 			     const MeasurementSet& selms) 
 {
 
-  //  cout << "KAntPosJones::setCallib()" << endl;
+  // Enforce hardwired spwmap in a new revised callib
+  Record newcallib;
+  newcallib.define("calwt",Bool(callib.asBool("calwt")));
+  newcallib.define("tablename",String(callib.asString("tablename")));
+
+  Record thiscls;
+  thiscls=callib.asRecord("0");  // copy
+  thiscls.removeField("spwmap");
+  thiscls.define("spwmap",Vector<Int>(nSpw(),0));
+  newcallib.defineRecord("0",thiscls);
 
   // Call generic to do conventional things
-  SolvableVisCal::setCallib(callib,selms);
+  SolvableVisCal::setCallib(newcallib,selms);
+  //  SolvableVisCal::setCallib(callib,selms);
 
   if (calWt()) 
     logSink() << " (" << this->typeName() << ": Enforcing calWt()=false for phase/delay-like terms)" << LogIO::POST;
