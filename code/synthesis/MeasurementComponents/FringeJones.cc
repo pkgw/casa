@@ -305,8 +305,8 @@ DelayRateFFT::DelayRateFFT(SDBList& sdbs, Int refant) :
                 for (Int icorr=0; icorr<nCorr_; ++icorr) {
                     IPosition p(2, icorr, iant);
                     activeAntennas_[icorr].insert(iant);
-                    for (Int ichan=0; ichan != (Int) spwchans+1; ichan++) {
-                        IPosition pchan(2, ichan, irow);
+                    for (Int ichan=0; ichan != (Int) spwchans; ichan++) {
+                        IPosition pchan(2, icorr, ichan);
                         if (!flagged(pchan)) {
                             Float w = weights(pchan);
                             xcount_(p)++;
