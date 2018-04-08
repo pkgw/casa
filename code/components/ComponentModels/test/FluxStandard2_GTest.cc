@@ -22,6 +22,8 @@
 #include <components/ComponentModels/test/FluxStandard2_GTest.h>
 #include <measures/Measures/MFrequency.h>
 #include <limits>
+#include <casatools/Config/State.h>
+
 typedef std::numeric_limits< double > dbl;
 
 using namespace casacore;
@@ -47,8 +49,13 @@ void NewFluxStandardTest::SetUp()
 };
 
 Bool NewFluxStandardTest::modelExists(String tablename) {
-  String stdPath = "data/nrao/VLA/standards/";
-  Bool dataExists = Aipsrc::findDir(foundModelPath, stdPath+tablename);
+  String stdPath = "nrao/VLA/standards/"+tablename;
+  string resolvepath = casatools::get_state( ).resolve(stdPath);
+  if ( resolvepath != stdPath ) {
+    foundModelPath = resolvepath;
+    return true;
+  }
+  Bool dataExists = Aipsrc::findDir(foundModelPath, "data/"+stdPath);
   return dataExists;
 };
 
