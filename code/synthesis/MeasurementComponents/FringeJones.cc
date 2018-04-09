@@ -2399,18 +2399,12 @@ void FringeJones::applyRefAnt() {
   Bool usedaltrefant(false);
   Int currrefant(refantchoices(0)), lastrefant(-1);
 
-  MSSpectralWindow msSpw(ct_->spectralWindow());
-  ROMSSpWindowColumns msCol(msSpw);
-  Vector<Double> refFreqs;
-  msCol.refFrequency().getColumn(refFreqs,True);
-
   Block<String> cols(2);
   cols[0]="SPECTRAL_WINDOW_ID";
   cols[1]="TIME";
   CTIter ctiter(*ct_,cols);
 
   // Arrays to hold per-timestamp solutions
-  Double timeA, timeB;
   Cube<Float> solA, solB;
   Cube<Bool> flA, flB;
   Vector<Int> ant1A, ant1B, ant2B;
@@ -2422,7 +2416,6 @@ void FringeJones::applyRefAnt() {
     if (ispw!=lastspw) first=true;  // spw changed, start over
 
     // Read in the current sol, fl, ant1:
-    timeB = ctiter.thisTime();
     solB.assign(ctiter.fparam());
     flB.assign(ctiter.flag());
     ant1B.assign(ctiter.antenna1());
@@ -2430,7 +2423,6 @@ void FringeJones::applyRefAnt() {
 
     // First time thru, 'previous' solution same as 'current'
     if (first) {
-      timeA = timeB;
       solA.reference(solB);
       flA.reference(flB);
       ant1A.reference(ant1B);
@@ -2516,10 +2508,6 @@ void FringeJones::applyRefAnt() {
 	rA.assign(solA.xyPlane(irefA));
 	rflA.assign(flA.xyPlane(irefA));
 	rB-=rA;
-	for (Int ipar=0;ipar<nPar();ipar+=3) {
-	  rB(IPosition(2,ipar,0))-=2.0*C::pi*rA(IPosition(2,ipar+2,0))*
-	    refFreqs(ispw)*(timeB-timeA);
-	}
 
 	// Accumulate flags
 	rflB&=rflA;
@@ -2544,7 +2532,6 @@ void FringeJones::applyRefAnt() {
       ctiter.setantenna2(ant2B);
 
       // Next time thru, solB is previous
-      timeA = timeB;
       solA.reference(solB);
       flA.reference(flB);
       ant1A.reference(ant1B);
