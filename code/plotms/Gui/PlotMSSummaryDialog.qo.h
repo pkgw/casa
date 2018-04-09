@@ -51,6 +51,8 @@ public:
     void filesChanged(const vector<casacore::String>& fileNamees);
     //Return the summary type.
     PMS::SummaryType getSummaryType() const;
+    PMS::CTSummaryType getCTSummaryType() const;
+	inline bool isMS() { return isMS_; }
     ~PlotMSSummaryDialog();
 
 private slots:
@@ -60,6 +62,8 @@ private slots:
 private:
     PlotMSSummaryDialog* summarizeDialog;
     Ui::PlotMSSummaryDialogClass ui;
+
+	bool isMS_;
 };
 
 }

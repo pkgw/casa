@@ -148,7 +148,7 @@ public:
   Cube<Float> del;
 
   KJonesTest() :
-    VisCalTestBase(1,1,2,3,4,128,1,true),
+    VisCalTestBase(1,1,4,6,4,128,1,true),
     del(2,1,nAnt)
   {
     // canned delays
@@ -159,14 +159,17 @@ public:
     del+=0.01f;
     del(0,0,0)=0.0;
     del(1,0,0)=0.0;
-    //cout.precision(16);
+    cout.precision(16);
     //cout << "del=" << del << endl;
+    //summary("hello");
+    //ssvp.summary();
   }
 
   void setCrossHandDelay(Float xdel) {
     del(Slice(0),Slice(),Slice())=xdel;  // ~ on the padded grid
     del*=Float(1.0/nChan/0.001);
     del(Slice(1),Slice(),Slice())=0.0f;  // all in the first pol
+    //    cout << "xdel=" << del(0,0,0) << "nsec" << endl;
   }
 
 };    
@@ -281,7 +284,7 @@ TEST_F(KJonesTest, MBDSolveTest) {
 
   KJones K(msmc);
   Record solvePar;
-  solvePar.define("table",String("test.K"));
+  solvePar.define("table",String("testMBD.K"));
   solvePar.define("solint",String("inf"));
   solvePar.define("combine",String(""));
   Vector<Int> refant(1,0); solvePar.define("refant",refant);
@@ -339,12 +342,27 @@ TEST_F(KJonesTest, MBDSolveTest) {
 
   ASSERT_EQ(nSpw,sdbs.nSDB());
   
-  K.setMeta(sdbs.aggregateObsId(),sdbs.aggregateScan(),sdbs.aggregateTime(),
-	    sdbs.aggregateSpw(),sdbs(0).freqs(),  // freqs don't matter here, really
-	    sdbs.aggregateFld());
+  K.createMemCalTable2();
+
+  K.syncSolveMeta(sdbs);
+
+  //K.setMeta(sdbs.aggregateObsId(),sdbs.aggregateScan(),sdbs.aggregateTime(),
+  //sdbs.aggregateSpw(),sdbs(0).freqs(),  // freqs don't matter here, really
+  //sdbs.aggregateFld());
+
+  K.setOrVerifyCTFrequencies(sdbs.aggregateSpw());
+
   K.sizeSolveParCurrSpw(nChan); 
   
   K.selfSolveOne(sdbs);
+
+  /*
+  K.state();
+
+  K.keepNCT();
+
+  K.storeNCT();
+  */
   
   Cube<Float> soldiff=abs(K.solveRPar()-del);
   
@@ -354,6 +372,7 @@ TEST_F(KJonesTest, MBDSolveTest) {
   ASSERT_TRUE(allNearAbs(soldiff,0.0f,1e-4));  // at available resoln
 
 }
+
 
 TEST_F(KJonesTest, KCrossSolveTest) {
 
@@ -423,7 +442,7 @@ TEST_F(KJonesTest, KCrossSolveTest) {
 	       << " cal delay=" << edel
 	       << " diff=" << diff
 	     << endl;
-	  */
+          */
 	  ASSERT_TRUE(diff<1.0e-4);
 	}
       }
@@ -448,4 +467,148 @@ TEST_F(KJonesTest, KCrossSolveTest) {
   }
 }
 
+TEST_F(KJonesTest, KmbdCrossSolveTest) {
 
+  setCrossHandDelay(1.251f);
+
+  // Apply-able K
+  KMBDJones Kapp(msmc);
+  Kapp.setApply();
+
+  for (Int ispw=0;ispw<nSpw;++ispw) { 
+    Kapp.setMeta(0,1,0.0,
+		 ispw,ssvp.freqs(ispw),
+		 nChan);
+    Kapp.sizeApplyParCurrSpw(nChan);
+    
+    Kapp.setApplyParCurrSpw(del,true,false);  // corrupt
+  }
+
+  // Set up MULTI-band solver
+  KcrossJones Kmbd(msmc);
+  {
+    Record solvePar;
+    solvePar.define("table",String("MBDtest.KCROSS"));
+    solvePar.define("solint",String("inf"));
+    solvePar.define("combine",String("spw"));
+    Vector<Int> refant(1,0); solvePar.define("refant",refant);
+    Kmbd.setSolve(solvePar);
+  }
+  // SolveDataBuffer accumulator for MBD solve
+  SDBList MBDsdbs;
+
+  for (vi2.originChunks();vi2.moreChunks();vi2.nextChunk()) {
+    for (vi2.origin();vi2.more();vi2.next()) {
+
+      Int ispw=vb2->spectralWindows()(0);
+      Int obsid(vb2->observationId()(0));
+      Int scan(vb2->scan()(0));
+      Double timestamp(vb2->time()(0));
+      Int fldid(vb2->fieldId()(0));
+      Vector<Double> freqs(vb2->getFrequencies(0));
+
+      vb2->resetWeightsUsingSigma();
+
+      Cube<Complex> vC(vb2->visCube());
+      vb2->setVisCubeCorrected(vC);
+      vb2->setFlagCube(vb2->flagCube());
+
+      Kapp.setMeta(obsid,scan,timestamp,
+		   ispw,freqs,
+		   fldid);
+      Kapp.correct2(*vb2,false,false,false);  // (trial?,doWtSp?,dosync?)
+
+
+      Cube<Float> ph=phase(vb2->visCubeCorrected());
+      Int hichan(1); // nChan-1);
+      Vector<Int> a1(vb2->antenna1());
+      Vector<Int> a2(vb2->antenna2());
+
+      for (Int irow=0;irow<vb2->nRows();++irow) {
+	for (Int icor=1;icor<3;icor+=1) {
+	  Float dph=(ph(icor,hichan,irow)-ph(icor,0,irow))/2.0f/C::pi;  // cycles
+	  if (dph>0.5f) dph-=1.0f;
+	  if (dph<-0.5f) dph+=1.0f;
+	  Float adel(dph/(hichan*0.001));
+	  Float edel(del(icor/2,0,a1(irow))-del(icor%2,0,a2(irow)));
+	  Float diff(abs(adel-edel));
+	  //cout << "a1=" << a1(irow) << " a2=" << a2(irow)
+	  //     << " dph= " << dph*360.0 << "deg "
+	  //     << " app delay=" << adel
+	  //     << " cal delay=" << edel
+	  //     << " diff=" << diff
+	  //   << endl;
+	  EXPECT_TRUE(diff<1.0e-4);
+	}
+      }
+
+      // Accumualte for MBD solve
+      MBDsdbs.add(*vb2);
+
+    }
+  }
+
+  // Do MULTI-band solve
+  Kmbd.setMeta(MBDsdbs.aggregateObsId(),MBDsdbs.aggregateScan(),MBDsdbs.aggregateTime(),
+	       MBDsdbs.aggregateSpw(),MBDsdbs.freqs(),  // freqs don't really matter here...
+	       MBDsdbs.aggregateFld());
+  Kmbd.sizeSolveParCurrSpw(nChan);  // nChan not really needed here...
+
+  Kmbd.selfSolveOne(MBDsdbs);
+
+  Cube<Float> soldiff=abs(Kmbd.solveRPar()-del);
+
+  //cout << "Kmbd.solveRPar() = " << Kmbd.solveRPar() << endl;
+  //cout << "Diff = " << soldiff  << endl;
+  ASSERT_TRUE(allNearAbs(soldiff,0.0f,1e-4));  // at available resoln
+
+  //String a("5.3.0-79"), b("5.3.0-80"), c("5.3");
+  //cout << "5.3.0-79 < 5.3.0-80 = " << boolalpha << (a<b) << endl;
+  //cout << "5.3.0-80 < 5.3.0-79 = " << boolalpha << (b<a) << endl;
+  //cout << "5.4.0-1  < 5.3.0-80 = " << boolalpha << (c<b) << endl;
+
+}
+
+/*
+#define REALTYPE Float
+#define COMPTYPE Complex
+
+TEST_F(KJonesTest, PrecTest) {
+
+  Int n(101);
+
+  REALTYPE tau(1.0/360.0e6);
+
+  cout << "tau=" << tau/1e-9 << endl;
+
+  Vector<Double> f1(n),f2(n);
+  indgen(f1);
+  f1*=1e6;
+  indgen(f2);
+  f2*=1e6;
+  f2+=100e9;
+  
+  Vector<COMPTYPE> V1(n,COMPTYPE(1.0));
+  Vector<COMPTYPE> V2(n,COMPTYPE(1.0));
+
+  Vector<COMPTYPE> C1(n,COMPTYPE(1.0)), C2(n,COMPTYPE(1.0));
+  for (Int i=0; i<n; ++i) {
+    REALTYPE a1=2*C::pi*f1(i)*tau;
+    C1(i)=COMPTYPE(cos(a1),sin(a1));
+    REALTYPE a2=2*C::pi*f2(i)*tau;
+    C2(i)=COMPTYPE(cos(a2),sin(a2));
+  }
+  V1=V1*C1;
+  V2=V2*C2;
+    
+
+  Vector<REALTYPE> P1(phase(V1)*180./C::pi);
+  Vector<REALTYPE> P2(phase(V2/V2[0])*180./C::pi);
+  Vector<REALTYPE> dP(phase(V2/V2[0]/V1)*180./C::pi);
+  cout << dP << endl;
+
+  cout << max(abs(dP)) << endl;
+
+}
+
+*/

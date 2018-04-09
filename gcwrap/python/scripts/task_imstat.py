@@ -4,7 +4,7 @@ def imstat(
     imagename, axes, region, box, chans,
     stokes, listit, verbose, mask, stretch,
     logfile, append, algorithm, fence, center,
-    lside, zscore, maxiter, clmethod
+    lside, zscore, maxiter, clmethod, niter
 ):
     _myia = iatool()
     _myrg = rgtool()
@@ -25,7 +25,7 @@ def imstat(
             stretch=stretch, logfile=logfile, append=append,
             algorithm=algorithm, fence=fence, center=center,
             lside=lside, zscore=zscore, maxiter=maxiter,
-            clmethod=clmethod
+            clmethod=clmethod, niter=niter
         )
     except Exception, instance:
         casalog.post( '*** Error ***'+str(instance), 'SEVERE' )

@@ -133,7 +133,7 @@ class test_basic(plotms_test_base):
         res = plotms(vis=self.ms, plotfile=self.plotfile_jpg, expformat="jpg", 
                      yaxis='freq', showgui=False, highres=True)   
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 300000)
+        self.checkPlotfile(self.plotfile_jpg, 250000)
         self.removePlotfile()
         # default yaxis only
         res = plotms(vis=self.ms, plotfile=self.plotfile_jpg, expformat="jpg", 
@@ -291,13 +291,13 @@ class test_basic(plotms_test_base):
         res = plotms(vis=self.ms, xaxis='chan', plotfile=self.plotfile_jpg,
             expformat="jpg", showgui=False, highres=True, showatm=True)   
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 110000)
+        self.checkPlotfile(self.plotfile_jpg, 90000)
         self.removePlotfile()
         # basic plot with showtsky, xaxis freq
         res = plotms(vis=self.ms, xaxis='freq', plotfile=self.plotfile_jpg,
             expformat="jpg", showgui=False, highres=True, showtsky=True)   
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 130000)
+        self.checkPlotfile(self.plotfile_jpg, 90000)
         self.removePlotfile()
         # plotfile without overlay: xaxis must be chan or freq
         # so ignores showatm/tsky
@@ -450,7 +450,7 @@ class test_axis(plotms_test_base):
                      plotfile=self.plotfile_jpg, expformat='jpg',
                      highres=True)
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 247000)
+        self.checkPlotfile(self.plotfile_jpg, 240000)
         self.removePlotfile()
         
         print
@@ -772,7 +772,7 @@ class test_calplots(plotms_test_base):
 
 class PlotmsPageHeader:
     ''' Analyze PlotMS page header from png image of PlotMS Plot 
-        Assumptions: graphical area has a black frame, header background is white
+        Assumptions: graphical area has a black frame, header background color is light
     '''
     def __init__(self,png_path,debug=False):
         self.png_path = png_path
@@ -786,11 +786,12 @@ class PlotmsPageHeader:
 
     def _analyze(self):
         gray_img = self.color_img.min(axis=2)
-        gray_xproj = gray_img.min(axis=1)
         # Binarize
-        non_white_pixels = ( gray_xproj < 1.0 )
-        gray_xproj_bin = gray_xproj.copy()
-        gray_xproj_bin[non_white_pixels] = 0.0
+        is_light = gray_img > 0.75
+        bin_img = np.zeros(gray_img.shape,dtype=gray_img.dtype)
+        bin_img[is_light] = 1.0
+        # Project on X (vertical) axis
+        gray_xproj_bin = bin_img.min(axis=1)
         # White to black transitions
         (steps_down,) = np.where(np.diff(gray_xproj_bin) == -1.0 )
         if steps_down.size > 0 :
@@ -1415,9 +1416,9 @@ class test_iteration(plotms_test_base):
         self.assertEqual(fileCount, 3)
         self.checkPlotfile(plotfile1_jpg, 200000)
         self.removePlotfile(plotfile1_jpg)
-        self.checkPlotfile(plotfile2_jpg, 200000)
+        self.checkPlotfile(plotfile2_jpg, 190000)
         self.removePlotfile(plotfile2_jpg)
-        self.checkPlotfile(plotfile3_jpg, 180000)
+        self.checkPlotfile(plotfile3_jpg, 170000)
         self.removePlotfile(plotfile3_jpg)
         print
         
@@ -1638,7 +1639,7 @@ class test_selection(plotms_test_base):
         res = plotms(vis=self.ms, plotfile=plotfile3_jpg, expformat='jpg', 
                      overwrite=True, showgui=False, scan='5,7', highres=True)
         self.assertTrue(res)
-        self.checkPlotfile(plotfile3_jpg, 80000, 125000)
+        self.checkPlotfile(plotfile3_jpg, 70000, 125000)
         self.removePlotfile(plotfile3_jpg)
         print
 
@@ -1755,7 +1756,7 @@ class test_transform(plotms_test_base):
             res = plotms(vis=self.ms, plotfile=plotfile, yaxis='freq', 
                          showgui=False, freqframe=frame, highres=True)
             self.assertTrue(res)
-            self.checkPlotfile(plotfile, 210000)
+            self.checkPlotfile(plotfile, 200000)
             self.removePlotfile(plotfile)
         print
 
@@ -1782,7 +1783,7 @@ class test_transform(plotms_test_base):
             res = plotms(vis=self.ms, plotfile=plotfile, yaxis='freq', 
                          showgui=False, veldef=vel, highres=True)
             self.assertTrue(res)
-            self.checkPlotfile(plotfile, 300000)
+            self.checkPlotfile(plotfile, 290000)
             self.removePlotfile(plotfile)
         print
 
@@ -1794,7 +1795,7 @@ class test_transform(plotms_test_base):
         res = plotms(vis=self.ms, plotfile=self.plotfile_jpg, yaxis='freq', 
                      showgui=False, restfreq='1420', highres=True)
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 300000)
+        self.checkPlotfile(self.plotfile_jpg, 290000)
         print
         
     def test_transform_shift(self):

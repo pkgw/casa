@@ -82,6 +82,7 @@ void PlotMSPlot::makeParameters(PlotMSPlotParameters& params, PlotMSApp* /*plotm
 const uInt PlotMSPlot::PIXEL_THRESHOLD = 1000000;
 const uInt PlotMSPlot::MEDIUM_THRESHOLD = 10000;
 const uInt PlotMSPlot::LARGE_THRESHOLD = 1000;
+const uInt PlotMSPlot::XLARGE_THRESHOLD = 50;
 
 // Constructors/Destructors //
 
@@ -122,6 +123,18 @@ void PlotMSPlot::customizeAutoSymbol( const PlotSymbolPtr& baseSymbol, uInt data
 			baseSymbol->setSymbol( PlotSymbol::CIRCLE );
 			baseSymbol->setSize(6,6);
 		}
+	}
+}
+
+void PlotMSPlot::customizeOverlaySymbol( const PlotSymbolPtr& baseSymbol, uInt dataSize ){
+	if( dataSize > MEDIUM_THRESHOLD ) {
+		baseSymbol->setSize(2,2);
+	} else if( dataSize > LARGE_THRESHOLD ) {
+		baseSymbol->setSize(3,3);
+	} else if( dataSize > XLARGE_THRESHOLD ) {
+		baseSymbol->setSize(4,4);
+	} else {
+		baseSymbol->setSize(6,6);
 	}
 }
 
@@ -299,16 +312,20 @@ vector<PMS::DataColumn> PlotMSPlot::getCachedData(){
 }
 
 vector<PMS::Axis> PlotMSPlot::getCachedAxes() {
-	PMS_PP_Cache* c = itsParams_.typedGroup<PMS_PP_Cache>();
+    PMS_PP_Cache* c = itsParams_.typedGroup<PMS_PP_Cache>();
     // get default axes if not given by user
-	for(uInt i=0; i<c->numXAxes(); i++){
+    for(uInt i=0; i<c->numXAxes(); i++){
         if (c->xAxis(i) == PMS::NONE) 
             c->setXAxis(getDefaultXAxis(), i);
-	}
-	for(uInt i=0; i<c->numYAxes(); i++){
-        if (c->yAxis(i) == PMS::NONE) 
-            c->setYAxis(PMS::DEFAULT_YAXIS, i);
-	}
+    }
+    for(uInt i=0; i<c->numYAxes(); i++){
+        if (c->yAxis(i) == PMS::NONE) {
+            if (itsCache_->calType().startsWith("Xf"))
+                c->setYAxis(PMS::GPHASE, i);
+            else
+                c->setYAxis(PMS::DEFAULT_YAXIS, i);
+        }
+    }
 
     // add ATM/TSKY yaxis "under the hood" if valid xaxis
     if (c->showAtm() || c->showTsky()) {
@@ -344,7 +361,7 @@ vector<PMS::Axis> PlotMSPlot::getCachedAxes() {
                 PMS_PP_Display* disp = itsParams_.typedGroup<PMS_PP_Display>();
                 PlotSymbolPtr atmSymbol = disp->unflaggedSymbol(index);
                 atmSymbol->setSymbol("circle");
-                atmSymbol->setSize(3,3);
+                atmSymbol->setSize(2,2);
                 atmSymbol->setColor("#FF00FF");
                 disp->setUnflaggedSymbol(atmSymbol, index);
                 PlotSymbolPtr flaggedSymbol = disp->flaggedSymbol();
@@ -549,18 +566,26 @@ bool PlotMSPlot::updateDisplay() {
 			nIter = 1;
 		uInt rows = itsPlots_.size();
 		for(uInt row = 0; row < rows; ++row) {
+			PMS::Axis x = cache->xAxis(row);
+			PMS::Axis y = cache->yAxis(row);
 			uInt cols = itsPlots_[row].size();
 			for(uInt col = 0; col < cols; ++col) {
 				// Set symbols.
 				PlotSymbolPtr unflaggedSym = display->unflaggedSymbol(row);
 				PlotSymbolPtr symbolUnmasked = itsParent_->createSymbol(unflaggedSym);
 				uInt dataSize = itsCache_->indexer(row,col).sizeUnmasked();
-				customizeAutoSymbol( symbolUnmasked, dataSize );
+				if (y==PMS::ATM || y==PMS::TSKY) 
+					customizeOverlaySymbol( symbolUnmasked, dataSize );
+				else 
+					customizeAutoSymbol( symbolUnmasked, dataSize );
 
 				PlotSymbolPtr flaggedSym = display->flaggedSymbol(row);
 				PlotSymbolPtr symbolMasked = itsParent_->createSymbol(flaggedSym);
 				dataSize = itsCache_->indexer(row,col).sizeMasked();
-				customizeAutoSymbol( symbolMasked, dataSize );
+				if (y==PMS::ATM || y==PMS::TSKY)
+					customizeOverlaySymbol( symbolMasked, dataSize );
+				else
+					customizeAutoSymbol( symbolMasked, dataSize );
 
 				plot = itsPlots_[row][col];
 				if (plot.null()) continue;
@@ -576,8 +601,6 @@ bool PlotMSPlot::updateDisplay() {
 				plot->setAxes(axes->xAxis(row), axes->yAxis(row));
 
 				// Set plot title for legend; convert axes for cal table
-				PMS::Axis x = cache->xAxis(row);
-				PMS::Axis y = cache->yAxis(row);
 				if (itsCache_->cacheType()==PlotMSCacheBase::CAL) {
 					String caltype = itsCache_->calType();
 					x = getCalAxis(caltype, x);
@@ -1652,7 +1675,10 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 	for ( int i = 0; i < yAxisCount; i++ ){
 		PMS::Axis y = cacheParams->yAxis( i );
 		if (y==PMS::NONE) {
-			y = PMS::DEFAULT_YAXIS;
+            if (itsCache_->calType().startsWith("Xf"))
+                y = PMS::GPHASE;
+            else
+                y = PMS::DEFAULT_YAXIS;
 			cacheParams->setYAxis(y, i);
 		}
 		// yaxis scale
@@ -1666,10 +1692,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 	// x and y axis ranges
 	canvas->setAxesAutoRescale(true);
 	if (set) {
-		double xmin, xmax, ymin, ymax;
-		double maxval(0), xymax(0);
-		bool makeSquare(false), waveplot(false);  // true if uv/uvwave plot
-		bool xIsUV(false), xIsUVwave(false);
+		double xmin, xmax, ymin, ymax, xymax;
 
 		bool displayUnflagged = (displayParams->unflaggedSymbol()->symbol() != PlotSymbol::NOSYMBOL);
 		bool displayFlagged = (displayParams->flaggedSymbol()->symbol() != PlotSymbol::NOSYMBOL);
@@ -1683,29 +1706,18 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 		bool xPtsToPlot(xmin != DBL_MAX), yPtsToPlot(ymin != DBL_MAX);
 
 		// x range
+		bool xIsUV(false), xIsUVwave(false);
+		bool makeSquare(false), waveplot(false);  // true if uv/uvwave plot
 		if ( axesParams->xRangeSet() ){
 			// Custom axes ranges set by user
 			canvas->setAxisRange(cx, axesParams->xRange());
 		} else if (xPtsToPlot) {
-			// CAS-3263 points near zero are not plotted, so add lower margin
-			if ((xmin > -0.5) && (xmin < 1.0) && (xmax > 10.0)) {
-				if (xmax > 100.0) xmin -= 1.0; // add larger margin for larger range
-				else xmin -= 0.1;
-				pair<double, double> xbounds = make_pair(xmin, xmax);
-				canvas->setAxisRange(cx, xbounds);
-			}
-			// make range symmetrical for uv plot
+			setAxisRange(x, cx, xmin, xmax, canvas);
 			if (PMS::axisIsUV(x)) {
-				if ((xmin != DBL_MAX) && (xmax != -DBL_MAX)) {
-					xIsUV = true;
-					if (x==PMS::UWAVE || x==PMS::VWAVE) xIsUVwave = true;
-					maxval = round(max(abs(xmin),xmax)) + 10.0;
-					xmin = -maxval;
-					xmax = maxval;
-					xymax = max(xymax, maxval);
-					pair<double, double> xbounds = make_pair(xmin, xmax);
-					canvas->setAxisRange(cx, xbounds);
-				}
+				xIsUV = true;
+				if (x==PMS::UWAVE || x==PMS::VWAVE)
+					xIsUVwave = true;
+				xymax = canvas->axisRange(cx).first;  // should be equal
 			}
 		}
 		// y range
@@ -1723,34 +1735,17 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 					pair<double, double> ybounds = make_pair(ymin, ymax);
 					canvas->setAxisRange(cy, ybounds);
 				}
-				// add margin if values close to zero
-				if ((ymin > -0.5) && (ymin < 1.0) && (ymax > 10.0)) {
-					if (ymax > 100.0) ymin -= 1.0; // add larger margin for larger range
-					else ymin -= 0.1;
-					pair<double, double> ybounds = make_pair(ymin, ymax);
-					canvas->setAxisRange(cy, ybounds);
-				}
-				// make range symmetrical for uvplot
-				if (PMS::axisIsUV(y)) {
-					if ((ymin != DBL_MAX) && (ymax != -DBL_MAX)) {
-						maxval = round(max(abs(ymin),ymax)) + 10.0;
-						if (xIsUV) {
-							// set x and y ranges equally
-							xymax = max(xymax, maxval);
-							pair<double, double> xybounds = make_pair(-xymax, xymax);
-							canvas->setAxisRange(cx, xybounds);
-							canvas->setAxisRange(cy, xybounds);
-							makeSquare = true;
-							if (xIsUVwave && (y==PMS::UWAVE || y==PMS::VWAVE))
-								waveplot=true;
-						} else {
-							// just set yrange equally
-							ymin = -maxval;
-							ymax = maxval;
-							pair<double, double> ybounds = make_pair(ymin, ymax);
-							canvas->setAxisRange(cy, ybounds);
-						}
-					}
+				setAxisRange(y, cy, ymin, ymax, canvas);
+				if (PMS::axisIsUV(y) && xIsUV) {
+					// set x and y ranges equally
+					double ymax = canvas->axisRange(cy).first;
+					xymax = max(xymax, ymax);
+					pair<double, double> xybounds = make_pair(-xymax, xymax);
+					canvas->setAxisRange(cx, xybounds);
+					canvas->setAxisRange(cy, xybounds);
+					makeSquare = true;
+					if (xIsUVwave && (y==PMS::UWAVE || y==PMS::VWAVE))
+						waveplot=true;
                 } else if (y==PMS::ATM || y==PMS::TSKY) {
                     itsCache_->indexer(1,iteration).minsMaxes(xmin, xmax, ymin, ymax);
                     pair<double,double> atmrange;
@@ -1807,11 +1802,13 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 				x = getCalAxis(calTypes(0), x);
 			// data col may have been changed during loading if no col
 			casacore::String xLabelSingle = canvParams->xLabelFormat().getLabel(x, xref, xrefval, xDataColumn, polnRatio);
+			if (x==PMS::TIME && xLabelSingle.contains("1858")) // xrefval==0
+				xLabelSingle.gsub("(from 1858/11/17)", "");
 			if (x == PMS::FREQUENCY)
 				xLabelSingle = addFreqFrame(xLabelSingle);
 			if (axisIsAveraged(x, averaging) && !allCalTables)
 				xLabelSingle = "Average " + xLabelSingle;
-			if (xLabelSingle.contains("Corr") && allCalTables)
+			if (allCalTables && xLabelSingle.contains("Corr")) 
 				xLabelSingle.gsub("Corr", "Poln");
 			canvas->setAxisLabel(cx, xLabelSingle);
 		}
@@ -1841,11 +1838,13 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 					PMS::DataColumn yDataColumn = plotCacheBase.getYDataColumn(j);
 					yDatas.push_back(yDataColumn); // save for title
 					casacore::String yLabelSingle = canvParams->yLabelFormat( ).getLabel(y, yref, yrefval, yDataColumn, polnRatio);
+					if (y==PMS::TIME && yLabelSingle.contains("1858")) // yrefval==0
+						yLabelSingle.gsub("(from 1858/11/17)", "");
 					if (y == PMS::FREQUENCY)
 						yLabelSingle = addFreqFrame(yLabelSingle);
 					if (axisIsAveraged(y, averaging) && !isCalTable)
 						yLabelSingle = "Average " + yLabelSingle;
-					if (yLabelSingle.contains("Corr") && isCalTable)
+					if (isCalTable && yLabelSingle.contains("Corr"))
 						yLabelSingle.gsub("Corr", "Poln");
 					if ( cy == Y_LEFT ){
 						if ( yLabelLeft.size() > 0 )
@@ -1883,6 +1882,43 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 	}
 }
 
+void PlotMSPlot::setAxisRange(PMS::Axis axis, PlotAxis paxis, 
+		double minval, double maxval, PlotCanvasPtr& canvas) {
+	pair<double, double> bounds;
+	// CAS-3263 points near zero are not plotted, so add lower margin
+	if ((minval > -0.5) && (minval < 1.0) && (maxval > 10.0)) {
+		if (maxval > 100.0) minval -= 1.0; // add larger margin for larger range
+		else minval -= 0.1;
+		bounds = make_pair(minval, maxval);
+		canvas->setAxisRange(paxis, bounds);
+	}
+
+	// explicitly set range so can set time scale 
+	if (axis==PMS::TIME) {
+	    double diff = maxval - minval;
+		if (diff>120.0) {
+			bounds = make_pair(minval, maxval);
+	    	canvas->setAxisRange(paxis, bounds);
+		} else if (diff==0.0) {
+			// override autoscale which sets crazy tick marks;
+			// add 2-sec margins
+			bounds = make_pair(minval-2.0, maxval+2.0);
+		   	canvas->setAxisRange(paxis, bounds);
+		}
+	}
+
+	// make range symmetrical for uv plot
+	if (PMS::axisIsUV(axis)) {
+		if ((minval != DBL_MAX) && (maxval != -DBL_MAX)) {
+			double maximum = round(max(abs(minval),maxval)) + 10.0;
+			minval = -maximum;
+			maxval = maximum;
+			bounds = make_pair(minval, maxval);
+			canvas->setAxisRange(paxis, bounds);
+		}
+	}
+}
+
 bool PlotMSPlot::axisIsAveraged(PMS::Axis axis, PlotMSAveraging averaging) {
     bool avgAxis = false;
     switch (axis) {
@@ -1917,7 +1953,8 @@ PMS::Axis PlotMSPlot::getCalAxis(String calType, PMS::Axis axis) {
         if (calType.contains("Opac")) return PMS::OPAC;
         if (calType.contains("SD")) return PMS::GREAL;
         if (calType[0]=='F') return PMS::TEC;
-        if (calType[0]=='K' && calType!="KAntPos") return PMS::DELAY;
+		if (calType.startsWith("KAntPos")) return PMS::ANTPOS;
+        if (calType[0]=='K') return PMS::DELAY;
         return PMS::GAMP;
     }
     if (axis==PMS::PHASE) return PMS::GPHASE;

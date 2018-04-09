@@ -80,6 +80,7 @@ msview.xml
 mstransform.xml
 msuvbin.xml
 oldhanningsmooth.xml
+oldplotants.xml
 oldsplit.xml
 plotants.xml
 plotbandpass.xml
