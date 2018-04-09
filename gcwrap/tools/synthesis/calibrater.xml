@@ -2763,6 +2763,35 @@ cb.done();
 </method>
 
 
+<method type="function" name="parsecallibfile">
+   <shortdescription>Bootstrap the flux density scale from standard calibrators</shortdescription>
+   
+<input>
+     <param type="string" direction="in" name="filein">
+     <description>Input cal library file name</description>
+     </param>
+</input>
+
+<returns type="record">
+   <description>
+   </description>
+</returns>
+
+<description>
+
+TBD
+
+</description>
+
+<example>
+
+TBD
+
+</example>
+</method>
+
+
+
 <method type="function" name="setvi">
 <shortdescription>TEMPORARY method to control use of new VI2 regime</shortdescription>
 

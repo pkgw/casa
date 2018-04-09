@@ -202,15 +202,13 @@ private:
     mutable std::map<casacore::uInt, casacore::uInt> _rowIDInMSTorowIndexInChunk;
     casacore::Double _slidingTimeWindowWidth = -1;
 
-    casacore::Bool _useDefaultModelValue = casacore::False;
+    casacore::Bool _noModel = casacore::False;
 
     SHARED_PTR<
         casacore::ClassicalStatistics<casacore::Double,
         casacore::Array<casacore::Float>::const_iterator,
         casacore::Array<casacore::Bool>::const_iterator>
     > _wtStats = nullptr;
-
-    const static casacore::Complex DEFAULT_MODEL_VALUE;
 
     // returns True if this chunk has already been processed. This can happen
     // for the last chunk.

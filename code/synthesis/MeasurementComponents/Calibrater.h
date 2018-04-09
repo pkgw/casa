@@ -106,7 +106,7 @@ class Calibrater
 
   // Set up apply-able calibration via a Cal Library
   virtual casacore::Bool setcallib(casacore::Record /*callib*/) { throw(casacore::AipsError("Calibrater::setcallib not implemented")); };
-  virtual casacore::Bool setcallib2(casacore::Record callib);
+  virtual casacore::Bool setcallib2(casacore::Record callib, const casacore::MeasurementSet* ms=0);
   casacore::Bool validatecallib(casacore::Record callib);
 
   casacore::Bool setmodel(const casacore::String& modelImage);
@@ -392,6 +392,8 @@ class Calibrater
   casacore::MSHistoryHandler *hist_p;
   casacore::Table historytab_p;
 
+  casacore::Bool usingCalLibrary_;
+
   // Activity record
   casacore::Record actRec_;
 
@@ -453,7 +455,7 @@ class OldCalibrater : public Calibrater
 
   // Set up apply-able calibration via a Cal Library
   virtual casacore::Bool setcallib(casacore::Record callib);
-  virtual casacore::Bool setcallib2(casacore::Record callib);
+  virtual casacore::Bool setcallib2(casacore::Record callib, const casacore::MeasurementSet* ms=0);
 
   // Uses *vs_p to ctor the SolvableVisCal
   virtual casacore::Bool setsolve (const casacore::String& type, 
