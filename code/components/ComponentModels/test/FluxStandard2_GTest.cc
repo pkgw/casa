@@ -49,7 +49,7 @@ void NewFluxStandardTest::SetUp()
 };
 
 Bool NewFluxStandardTest::modelExists(String tablename) {
-  String stdPath = "nrao/VLA/standards/"+tablename;
+  const string stdPath = "nrao/VLA/standards/"+tablename;
   string resolvepath = casatools::get_state( ).resolve(stdPath);
   if ( resolvepath != stdPath ) {
     foundModelPath = resolvepath;
