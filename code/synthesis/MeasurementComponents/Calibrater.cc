@@ -96,6 +96,7 @@ Calibrater::Calibrater():
   svc_p(0),
   histLockCounter_p(), 
   hist_p(0),
+  usingCalLibrary_(false),
   actRec_(),
   simdata_p(false),
   ssvp_p()
@@ -115,6 +116,7 @@ Calibrater::Calibrater(String msname):
   svc_p(0),
   histLockCounter_p(), 
   hist_p(0),
+  usingCalLibrary_(false),
   actRec_(),
   simdata_p(false),
   ssvp_p()
@@ -153,6 +155,7 @@ Calibrater::Calibrater(const vi::SimpleSimVi2Parameters& ssvp):
   svc_p(0),
   histLockCounter_p(), 
   hist_p(0),
+  usingCalLibrary_(false),
   actRec_(),
   simdata_p(true),
   ssvp_p(ssvp)
@@ -622,7 +625,7 @@ Bool Calibrater::validatecallib(Record callib) {
 
 
 // Set up apply-able calibration via a Cal Library
-Bool Calibrater::setcallib2(Record callib) {
+Bool Calibrater::setcallib2(Record callib, const MeasurementSet* ms) {
 
   logSink() << LogOrigin("Calibrater", "setcallib2(callib)");
 
@@ -651,7 +654,27 @@ Bool Calibrater::setcallib2(Record callib) {
   // Tables exist, so deploy them...
 
   // Local MS object for callib parsing (only)
-  MeasurementSet lms(msname_p,Table::Update);
+  //  MeasurementSet lms(msname_p,Table::Update);
+  // TBD: Use selected MS instead (not yet available in OTF plotms context!)
+  //const MeasurementSet lms(*mssel_p);
+  //MeasurementSet lms(msname_p);
+
+  // Local const MS object for callib parsing (only)
+  const MeasurementSet *lmsp(0);
+  if (ms) {
+    // Use supplied MS (from outside), if specified...
+    // TBD: should we verify same base MS as ms_p/mssel_p?
+    //cout << "Using externally-specified MS!!" << endl;
+    lmsp=ms;
+  }
+  else {
+    // ...use internal one instead
+    //cout << "Using internal MS (mssel_p)!!" << endl;
+    lmsp=mssel_p;
+  }
+  // Reference for use below
+  const MeasurementSet &lms(*lmsp);
+
 
   for (uInt itab=0;itab<ntab;++itab) {
 
@@ -682,7 +705,7 @@ Bool Calibrater::setcallib2(Record callib) {
 
       // ingest this table according to its callib
       vc->setCallib(thistabrec,lms);
-
+      
     } catch (AipsError x) {
       logSink() << LogIO::SEVERE << x.getMesg() 
 		<< " Check inputs and try again."
@@ -712,6 +735,10 @@ Bool Calibrater::setcallib2(Record callib) {
       return false;
     } 
   }
+
+  // Signal use of CalLibrary
+  usingCalLibrary_=true;
+
   // All ok, if we get this far!
   return true;
 
@@ -1094,6 +1121,10 @@ Calibrater::correct2(String mode)
 {
     logSink() << LogOrigin("Calibrater","correct2 (VI2/VB2)") << LogIO::NORMAL;
 
+    //cout << "Artificial STOP!" << endl;
+    //return false;
+
+
     Bool retval = true;
 
     try {
@@ -1166,7 +1197,11 @@ Calibrater::correct2(String mode)
 	  for (vi.origin(); vi.more(); vi.next()) {
 
 	    uInt spw = vb->spectralWindows()(0);
-	    if (ve_p->spwOK(spw)){
+	    //if (ve_p->spwOK(spw)){
+	    //if (    (usingCalLibrary_ && ve_p->VBOKforCalApply(*vb))  // CalLibrary case
+	    //     || (!usingCalLibrary_ && ve_p->spwOK(spw))          // old-fashioned case
+	    //	 ) {
+	    if ( ve_p->VBOKforCalApply(*vb) ) {  // Handles old and new (CL) contexts
 
 	      // Re-initialize weight info from sigma info
 	      //   This is smart wrt spectral weights, etc.
@@ -1222,6 +1257,7 @@ Calibrater::correct2(String mode)
 	      // set the flags, if we are being strict
 	      // (don't touch the data/weights, which are initialized)
 	      if (upmode.contains("STRICT")) {
+
 		// reference (to avoid copy) and set the flags
 		Cube<Bool> fC(vb->flagCube());   // reference
 		fC.set(true);  
@@ -1241,7 +1277,6 @@ Calibrater::correct2(String mode)
 		  // Asynchronous I/O doesn't have a way to skip
 		  // VisBuffers, so only break out when not using
 		  // async i/o.
-		  
 		  break; 
 
 		}
@@ -1342,7 +1377,8 @@ Bool Calibrater::corrupt2()
       for (vi.originChunks(); vi.moreChunks(); vi.nextChunk()) {
 	for (vi.origin(); vi.more(); vi.next()) {
 	  uInt spw = vb->spectralWindows()(0);
-	  if (ve_p->spwOK(spw)){
+	  //if (ve_p->spwOK(spw)){
+	  if (usingCalLibrary_ || ve_p->spwOK(spw)){
 
 	    // Make all vb "not dirty", for safety
 	    vb->dirtyComponentsClear();
@@ -3378,6 +3414,12 @@ casacore::Bool Calibrater::genericGatherAndSolve()
       }
 
     } // sdbs.Ok()
+    else {
+      // Synchronize meta-info in SVC
+      svc_p->syncSolveMeta(sdbs);
+      cout << "Found no unflagged data at:";
+      svc_p->currMetaNote();
+    }
     //cout << endl;
 
 #ifdef _OPENMP
@@ -3850,9 +3892,9 @@ Bool OldCalibrater::setcallib(Record callib) {
 
 
 // Set up apply-able calibration via a Cal Library
-Bool OldCalibrater::setcallib2(Record callib) {
+Bool OldCalibrater::setcallib2(Record callib, const casacore::MeasurementSet* ms) {
 
-  logSink() << LogOrigin("Calibrater", "setcallib2(callib)");
+  logSink() << LogOrigin("OldCalibrater", "setcallib2(callib)");
 
   //  cout << "Calibrater::setcallib2(callib) : " << boolalpha << callib << endl;
 
@@ -3879,7 +3921,23 @@ Bool OldCalibrater::setcallib2(Record callib) {
   // Tables exist, so deploy them...
 
   // Local MS object for callib parsing (only)
-  MeasurementSet lms(msname_p,Table::Update);
+  //  MeasurementSet lms(msname_p,Table::Update);
+  //cout << "OLD lms" << endl;
+
+
+  // Local const MS object for callib parsing (only)
+  const MeasurementSet *lmsp(0);
+  if (ms) {
+    // Use supplied MS (from outside), if specified...
+    // TBD: should we verify same base MS as ms_p/mssel_p?
+    lmsp=ms;
+  }
+  else {
+    // ...use internal one instead
+    lmsp=mssel_p;
+  }
+  // Reference for use below
+  const MeasurementSet &lms(*lmsp);
 
   // Get some global shape info:
   Int MSnAnt = lms.antenna().nrow();
