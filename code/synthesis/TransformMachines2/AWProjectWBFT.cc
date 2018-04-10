@@ -415,13 +415,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //    log_l << "SumCFWt: " << getSumOfCFWeights() << " " << max(wtBuf) << " " << sensitivityPatternQualifier_p <<LogIO::WARN << LogIO::POST;
     for(wtImIter.reset(); !wtImIter.atEnd(); wtImIter++)
       {
-	Int pol_l=wtImIter.position()(2), chan_l=wtImIter.position()(3);
-	Double sumwt_l=1.0;;
-	// Lets write some mildly obfuscated code ~[8-)
-	//if ((sensitivityPatternQualifier_p == -1) && (doSumWtNorm))
-	//  sumwt_l = ((sumwt_l = getSumOfCFWeights()(pol_l,chan_l))==0)?1.0:sumwt_l;
-
-	sumwt_l = getSumOfCFWeights()(pol_l,chan_l);
+	// Int pol_l=wtImIter.position()(2), chan_l=wtImIter.position()(3);
+	// Double sumwt_l=1.0;;
+	// sumwt_l = getSumOfCFWeights()(pol_l,chan_l);
 
 	wtImIter.rwCursor() = (wtImIter.rwCursor()
 			       *Float(sizeX)*Float(sizeY)

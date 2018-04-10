@@ -224,22 +224,22 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 			      muellerElements(imx)(imy));
 		aTerm.setBandName(bandName);
 
-		{
-		  Double lambdaByD = 1.22*C::c/freqValues(inu)/25.0;
-		  Double FoV_x = fabs(skyNX*skyIncr(0));
-		  Double FoV_y = fabs(skyNY*skyIncr(1));
-		  Vector<Double> uvScale_l(3);
-		  uvScale_l(0) = (FoV_x < lambdaByD) ? FoV_x : lambdaByD;
-		  uvScale_l(1) = (FoV_y < lambdaByD) ? FoV_y : lambdaByD;
-		  uvScale_l(2) = 0.0;
+		// {
+		//   Double lambdaByD = 1.22*C::c/freqValues(inu)/25.0;
+		//   Double FoV_x = fabs(skyNX*skyIncr(0));
+		//   Double FoV_y = fabs(skyNY*skyIncr(1));
+		//   Vector<Double> uvScale_l(3);
+		//   uvScale_l(0) = (FoV_x < lambdaByD) ? FoV_x : lambdaByD;
+		//   uvScale_l(1) = (FoV_y < lambdaByD) ? FoV_y : lambdaByD;
+		//   uvScale_l(2) = 0.0;
 
-		  //Hints that only uvScale needs to be updated in PSTerm.
-		  IPosition dummy; 
-		  Vector<Double> dummyoffset;
-		  Double pss = -1;
-		  //cerr << "############ " << freqValues(inu) << " " << skyIncr << skyNX << " " << uvScale_l << endl;
-		  psTerm.reinit(dummy, uvScale_l, dummyoffset,pss);
-		}
+		//   //Hints that only uvScale needs to be updated in PSTerm.
+		//   IPosition dummy; 
+		//   Vector<Double> dummyoffset;
+		//   Double pss = -1;
+		//   //cerr << "############ " << freqValues(inu) << " " << skyIncr << skyNX << " " << uvScale_l << endl;
+		//   psTerm.reinit(dummy, uvScale_l, dummyoffset,pss);
+		// }
 		
 		IPosition pbshp(4,nx,ny,1,1);
 		//
@@ -988,20 +988,30 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 	//access the PS function implementation (in Utils.h
 	//SynthesisUtils::libreSpheroidal() - but this needs more
 	//testing).
-	Int inner=convSize/(convSampling);
-	// Float psScale= (image.coordinates().increment()(0)*nx) /
-	//   (coords.increment()(0)*screen.shape()(0));
-
 	Float psScale = (2.0*coords.increment()(0))/(nx*image.coordinates().increment()(0)),
 	  innerQuaterFraction=1.0;
-	// psScale when using SynthesisUtils::libreSpheroidal() is
-	// 2.0/nSupport.  nSupport is in pixels and the 2.0 is due to
-	// the center being at Nx/2.  Here the nSupport is determined
+	{
+	  Int inner=convSize/(convSampling);
+	  // Float psScale= (image.coordinates().increment()(0)*nx) /
+	  //   (coords.increment()(0)*screen.shape()(0));
 
-	// by the sky-image and is equal to convSize/convSampling.
-	psScale = 2.0/(innerQuaterFraction*convSize/convSampling);// nx*image.coordinates().increment()(0)*convSampling/2;
-	Vector<Double> uvOffset_cf(3,0); uvOffset_cf(0)=uvOffset_cf(2)=convSize/2;
-	psTerm_p->init(IPosition(2,inner,inner), uvScale, uvOffset_cf,psScale);
+	  // psScale when using SynthesisUtils::libreSpheroidal() is
+	  // 2.0/nSupport.  nSupport is in pixels and the 2.0 is due to
+	  // the center being at Nx/2.  Here the nSupport is determined
+	
+	  Double lambdaByD = 1.22*C::c/min(freqValues)/25.0;
+	  Double FoV_x = fabs(nx*skyIncr(0));
+	  Double FoV_y = fabs(nx*skyIncr(1));
+	  Vector<Double> uvScale_l(3);
+	  uvScale_l(0) = (FoV_x < lambdaByD) ? FoV_x : lambdaByD;
+	  uvScale_l(1) = (FoV_y < lambdaByD) ? FoV_y : lambdaByD;
+	  uvScale_l(2) = uvScale(2);
+	  // by the sky-image and is equal to convSize/convSampling.
+	  psScale = 2.0/(innerQuaterFraction*convSize/convSampling);// nx*image.coordinates().increment()(0)*convSampling/2;
+	  Vector<Double> uvOffset_cf(3,0); uvOffset_cf(0)=uvOffset_cf(2)=convSize/2;
+	  //	  psTerm_p->init(IPosition(2,inner,inner), uvScale, uvOffset_cf,psScale);
+	  psTerm_p->init(IPosition(2,inner,inner), uvScale_l, uvOffset_cf,psScale);
+	}
 
 	MuellerElementType muellerElement(0,0);
 	CoordinateSystem cfb_cs=coords;
@@ -1851,6 +1861,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
     }
   }
 
+    //    extern casacore::Double casa::EVLABandMinFreqDefaults[EVLABeamCalc_NumBandCodes];
 
   //
   //----------------------------------------------------------------------
@@ -1872,9 +1883,18 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
     //
     const String uvGridDiskImage=cfCachePath+"/"+"uvgrid.im";
     PagedImage<Complex> skyImage_l(uvGridDiskImage);//cfs2.getCacheDir()+"/uvgrid.im");
-    //CoordinateSystem coords(image_l.coordinates());
-    
-    //Int nx=image_l.shape()(0);//, ny=image.shape()(1);
+    Double skyMinFreq;
+    Vector<Double> skyIncr;
+    Int skyNX,skyNY;
+    {
+      skyNX=skyImage_l.shape()(0);
+      skyNY=skyImage_l.shape()(1);
+      CoordinateSystem skyCoords(skyImage_l.coordinates());
+
+      Int directionIndex=skyCoords.findCoordinate(Coordinate::DIRECTION);
+      DirectionCoordinate dc=skyCoords.directionCoordinate(directionIndex);
+      skyIncr = dc.increment();
+    }
     CountedPtr<CFBuffer> cfb_p, cfwtb_p;
     
     IPosition cfsShape = cfs2.getShape();
@@ -1906,7 +1926,15 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 		    if (tt->cfShape_p.nelements() != 0)
 		       {
 			 (*cfb_p)(iNu,iW,iPol).getAsStruct(miscInfo); // Get misc. info. for this CFCell
-
+			 {
+			   //This code uses the BeamCalc class to get
+			   //the nominal min. freq. of the band in
+			   //use.  While not accurate, may be
+			   //sufficient for the purpose of the
+			   //anti-aliasing operator.
+			   Int bandID = BeamCalc::Instance()->getBandID(miscInfo.freqValue,miscInfo.telescopeName,miscInfo.bandName);
+			   skyMinFreq = casa::EVLABandMinFreqDefaults[bandID];
+			 }
 			 wbAWP=True; // Always true since the Freq. value is got from the coord. sys.
 			 wTermOn=(miscInfo.wValue > 0.0);
 
@@ -1934,19 +1962,24 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 			 
 			 Matrix<Complex> screen(convSize, convSize);
 			 
-			 Int inner=convSize/(convSampling);
-			 //Float psScale = (2*coords.increment()(0))/(nx*image.coordinates().increment()(0));
-			 Float innerQuaterFraction=1.0;
-			 
-			 Double lambdaByD = 1.22*C::c/miscInfo.freqValue/25.0;
-			 //cerr << "@@@@@@@@@@@@@@@@@ " <<  miscInfo.freqValue << " " << lambdaByD << endl;
-			 Vector<Double> tuvScale(3);
-			 tuvScale(0) = lambdaByD;
-			 tuvScale(1) = lambdaByD;
-			 tuvScale(2) = 0.0;
+			 {
+			   // Set up the anti-aliasing operator (psTerm_p) for this CF.
+			   Int inner=convSize/(convSampling);
 
-			 Float psScale = 2.0/(innerQuaterFraction*convSize/convSampling);// nx*image.coordinates().increment()(0)*convSampling/2;
-			 ((static_cast<AWConvFunc &>(*awCF)).psTerm_p)->init(IPosition(2,inner,inner), tuvScale, uvOffset,psScale);
+			   //Float psScale = (2*coords.increment()(0))/(nx*image.coordinates().increment()(0));
+			   Float innerQuaterFraction=1.0;
+			 
+			   Double lambdaByD = 1.22*C::c/skyMinFreq/25.0;
+			   Double FoV_x = fabs(skyNX*skyIncr(0));
+			   Double FoV_y = fabs(skyNY*skyIncr(1));
+			   Vector<Double> uvScale_l(3);
+			   uvScale_l(0) = (FoV_x < lambdaByD) ? FoV_x : lambdaByD;
+			   uvScale_l(1) = (FoV_y < lambdaByD) ? FoV_y : lambdaByD;
+			   uvScale_l(2) = 0.0;
+
+			   Float psScale = 2.0/(innerQuaterFraction*convSize/convSampling);// nx*image.coordinates().increment()(0)*convSampling/2;
+			   ((static_cast<AWConvFunc &>(*awCF)).psTerm_p)->init(IPosition(2,inner,inner), uvScale_l, uvOffset,psScale);
+			 }
 			 
 			 //
 			 // By this point, the all the 4 axis (Time/PA, Freq, Pol,
