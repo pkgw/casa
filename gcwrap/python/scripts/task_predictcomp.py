@@ -108,6 +108,9 @@ def predictcomp(objname=None, standard=None, epoch=None,
               return False
         else:
           prefixdir=os.path.dirname(prefix)
+          if prefixdir=='/' and len(prefix)>1: 
+             prefix = prefix+'/'
+             prefixdir = os.path.dirname(prefix)
           if not os.path.exists(prefixdir):
             prefixdirs = prefixdir.split('/')
             if prefixdirs[0]=="" and len(prefixdirs)>1:
