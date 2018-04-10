@@ -128,10 +128,8 @@ private:
 	  ThreadCommunication* thread);
   void loadCalAxis(ROSolvableVisJonesMCol& mcol, ROCalDescColumns& dcol,
       casacore::Int chunk, PMS::Axis axis);
-  void getChanFreqsFromMS(casacore::Array<casacore::Double>& mschanfreqs);
-  void getFreqsForSpw(const casacore::Int spw, 
-      const casacore::Array<casacore::Double>& msChanfreqs, 
-      const casacore::Vector<casacore::Vector<casacore::Slice> >& chansel,
+  void getChanFreqsFromMS(casacore::Vector< casacore::Vector<casacore::Double> >& mschanfreqs);
+  void getSelFreqsForSpw(casacore::Vector<casacore::Slice>& chansel,
 	  casacore::Vector<casacore::Double>& chanFreqs,
       casacore::Vector<casacore::Int>& chanNums);
   // cube selected by channel:

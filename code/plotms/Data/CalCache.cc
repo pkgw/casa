@@ -86,7 +86,7 @@ void CalCache::setFilename(String filename) {
     filename_ = filename;
     Table tab(filename);
     calType_= tab.tableInfo().subType();
-	if ((calType_=="T Jones") && (tab.keywordSet().isDefined("CAL_DESC")))
+    if ((calType_=="T Jones") && (tab.keywordSet().isDefined("CAL_DESC")))
       throw AipsError(calType_ + " tables in the old cal table format are unsupported in plotms.");
 }
 
@@ -979,9 +979,10 @@ void CalCache::loadCalChunks(ROBJonesPolyMCol& mcol, ROCalDescColumns& dcol,
     ThreadCommunication* thread) {
   Slice parslice;
   setUpLoad(thread, parslice);
+  bool selectchan(!chansel.empty());
 
   // freq info from ms
-  Array<Double> mschanfreqs;
+  Vector< Vector<Double> > mschanfreqs;
   getChanFreqsFromMS(mschanfreqs);
 
   MSMetaInfoForCal msmeta(msname_);
@@ -992,8 +993,9 @@ void CalCache::loadCalChunks(ROBJonesPolyMCol& mcol, ROCalDescColumns& dcol,
 
   // These change when spw changes
   Int lastSpw(-1), nChan(0);
-  Vector<Double> selChanFreqs; // per spw/chansel
-  Vector<Int> selChanNums;     // per spw/chansel
+  Vector<Double> chanFreqs; // per spw/chansel
+  Vector<Int> chanNums;     // per spw/chansel
+  Vector<Slice> spwChanSel; // chansel per spw
 
   // load axes: each row of main table is a "chunk"
   for (Int row = 0; row < nrow; row++) {
@@ -1002,11 +1004,24 @@ void CalCache::loadCalChunks(ROBJonesPolyMCol& mcol, ROCalDescColumns& dcol,
     Vector<Int> spwIds = dcol.spwId()(calDescId);
     Int spw = spwIds(0);
     Int ant1 = mcol.antenna1()(row);
+    bool isComplexSel(selectchan);
 
     if (spw != lastSpw) { // only do this once per spw
       // get chanfreqs and chan nums for spw and channel selection
-      getFreqsForSpw(spw, mschanfreqs, chansel, selChanFreqs, selChanNums);
-      nChan = selChanFreqs.nelements();
+      chanFreqs.resize();
+      chanFreqs = mschanfreqs(spw);
+      nChan = chanFreqs.nelements();
+      chanNums.resize(chanFreqs.nelements());
+      indgen(chanNums);
+      if (selectchan) {
+        spwChanSel.resize();
+        spwChanSel = chansel(spw);
+        // complex selection has more than one slice
+        isComplexSel = (spwChanSel.size()>1);
+        // apply selection to chanfreqs and update number of channels
+        getSelFreqsForSpw(spwChanSel, chanFreqs, chanNums);
+        nChan = chanFreqs.nelements();
+      }
       lastSpw = spw;
     }
 
@@ -1017,17 +1032,13 @@ void CalCache::loadCalChunks(ROBJonesPolyMCol& mcol, ROCalDescColumns& dcol,
     chshapes_(3,row) = 1;  // one antenna per row
     goodChunk_(row) = True;
 
-    // use ant1 id for cube slicer (vis, flag, snr)
-	Bool simpleChanSel(True);   // no selection or single slice
-    Slice chanSlice = Slice();  // select all
-    if (!chansel.empty()) {
-      Vector<Slice> chanSliceVec = chansel(spw);
-      if (chanSliceVec.size() == 1)
-        chanSlice = chanSliceVec(0);  // one slice
-      else   // will have to concat sliced cubes
-        simpleChanSel = False;
+    // use ant1 id for cube slicer (for vis, flag, snr)
+    Slicer cubeSlicer;
+    if ((!selectchan) || isComplexSel) {
+      cubeSlicer = Slicer(parslice, Slice(), Slice(ant1));
+    } else {
+      cubeSlicer = Slicer(parslice, spwChanSel(0), Slice(ant1)); 
     }
-    Slicer slicer = Slicer(parslice, chanSlice, Slice(ant1));
 
     // load axes for each row
     for(unsigned int i = 0; i < loadAxes.size(); i++) {
@@ -1035,54 +1046,54 @@ void CalCache::loadCalChunks(ROBJonesPolyMCol& mcol, ROCalDescColumns& dcol,
       if (PMS::axisIsData(axis)) {
         Cube<Complex> cpar, viscube;
         bpoly->solveAllCPar(spw, cpar);
-        viscube = cpar(slicer);  // slice poln, chan, ant1
+        viscube = cpar(cubeSlicer);  // slice poln, chan, ant1
         // get amp, phase, real, imag from viscube
-		if (simpleChanSel) {
-          getCalDataAxis(axis, viscube, row);
-		} else {
+        if (isComplexSel) {
           // process chan slices
-		  Cube<Complex> selViscube;
-		  getSelectedCube(viscube, chansel(spw), selViscube);
+          Cube<Complex> selViscube;
+          getSelectedCube(viscube, spwChanSel, selViscube);
           getCalDataAxis(axis, selViscube, row);
-		}
+        } else {
+          getCalDataAxis(axis, viscube, row);
+        }
       } else {
         switch(axis) {
           case PMS::FLAG: {
             Cube<Bool> parOK, flagcube;
             bpoly->solveAllParOK(spw, parOK);
-			flagcube = !(parOK(slicer)); // slice poln, chan, ant1
             // OK=true means flag=false
-		    if (simpleChanSel) {
+            flagcube = !(parOK(cubeSlicer)); // slice poln, chan, ant1
+            if (isComplexSel) {
+              // process chan slices
+              Cube<Bool> selFlagcube;
+              getSelectedCube(flagcube, spwChanSel, selFlagcube);
+              *flag_[row] = selFlagcube;
+            } else {
               *flag_[row] = flagcube;
-			} else {
-			  // process chan slices
-			  Cube<Bool> selFlagcube;
-		      getSelectedCube(flagcube, chansel(spw), selFlagcube);
-			  *flag_[row] = selFlagcube;
             }
             break;
           }
           case PMS::SNR: {
             Cube<Float> parSNR, snrcube;
             bpoly->solveAllParSNR(spw, parSNR);
-			snrcube = parSNR(slicer); // slice poln, chan, ant1
-		    if (simpleChanSel) {
-              *snr_[row] = snrcube;
-			} else {
-			  // process chan slices
-			  Cube<Float> selSNRcube;
-		      getSelectedCube(snrcube, chansel(spw), selSNRcube);
+            snrcube = parSNR(cubeSlicer); // slice poln, chan, ant1
+            if (isComplexSel) {
+              // process chan slices
+              Cube<Float> selSNRcube;
+              getSelectedCube(snrcube, spwChanSel, selSNRcube);
               *snr_[row] = selSNRcube;
-			}
+            } else {
+              *snr_[row] = snrcube;
+            }
             break;
           }
           case PMS::CHANNEL: {
-            *chan_[row] = selChanNums;
+            *chan_[row] = chanNums;
             break;
           }
           case PMS::FREQUENCY: {
             // TBD: Convert freq to desired frame
-            *freq_[row] = selChanFreqs;
+            *freq_[row] = chanFreqs;
             (*freq_[row]) /= 1.0e9; // in GHz
             break;
           }
@@ -1205,44 +1216,37 @@ void CalCache::loadCalAxis(ROSolvableVisJonesMCol& mcol,
   } // switch
 }
 
-void CalCache::getChanFreqsFromMS(Array<Double>& mschanfreqs) {
+void CalCache::getChanFreqsFromMS(Vector< Vector<Double> >& mschanfreqs) {
   // shape is (nchan, nspw)
   MeasurementSet ms(msname_);
   ROMSColumns mscol(ms);
-  mschanfreqs = mscol.spectralWindow().chanFreq().getColumn();
+  uInt nspw = mscol.spectralWindow().nrow();
+  mschanfreqs.resize(nspw);
+  for (uInt spw=0; spw<nspw; ++spw) {
+    mschanfreqs(spw) = mscol.spectralWindow().chanFreq().get(spw);
+  }
 }
 
-void CalCache::getFreqsForSpw(const Int spw, const Array<Double>& msChanfreqs, 
-    const Vector<Vector<Slice> >& chansel, Vector<Double>& chanFreqs,
-    Vector<Int>& chanNums) {
+void CalCache::getSelFreqsForSpw(Vector<Slice>& chanSel,
+    Vector<Double>& chanFreqs, Vector<Int>& chanNums) {
   // Apply spw and channel selection to mschanfreqs and generate channel numbers.
   // Return values in chanFreqs and chanNums Vectors
-  Slicer spwSlicer = Slicer(Slice(), Slice(spw));
-  chanFreqs = msChanfreqs(spwSlicer);
-  Int nChan(chanFreqs.nelements());
-  chanNums.resize(nChan);
-  indgen(chanNums);
-
-  // further refine with channel selection
-  if (!chansel.empty()) {
-    Vector<Double> selChanFreqs;
-    Vector<Int> selChanNums;
-    Vector<Slice> chanSliceVec = chansel(spw);
-    for (uInt i=0; i<chanSliceVec.size(); ++i) {
-      Slice chanSlice = chanSliceVec(i);
-      Vector<Double> concatChanFreqs =
-          concatenateArray(selChanFreqs, chanFreqs(chanSlice));
-      selChanFreqs.resize();
-      selChanFreqs = concatChanFreqs;
-      Vector<Int> concatChanNums = concatenateArray(selChanNums, chanNums(chanSlice));
-      selChanNums.resize();
-      selChanNums = concatChanNums;
-    }
-    chanFreqs.resize();
-    chanFreqs = selChanFreqs;
-    chanNums.resize();
-    chanNums = selChanNums;
+  Vector<Double> selChanFreqs;
+  Vector<Int> selChanNums;
+  for (uInt i=0; i<chanSel.size(); ++i) {
+    Slice chanSlice = chanSel(i);
+    Vector<Double> concatChanFreqs =
+        concatenateArray(selChanFreqs, chanFreqs(chanSlice));
+    selChanFreqs.resize();
+    selChanFreqs = concatChanFreqs;
+    Vector<Int> concatChanNums = concatenateArray(selChanNums, chanNums(chanSlice));
+    selChanNums.resize();
+    selChanNums = concatChanNums;
   }
+  chanFreqs.resize();
+  chanFreqs = selChanFreqs;
+  chanNums.resize();
+  chanNums = selChanNums;
 }
 
 template<class T>
@@ -1253,7 +1257,7 @@ void CalCache::getSelectedCube(const Cube<T>& inputCube, const Vector<Slice>& ch
   Cube<T> reorderedCube = reorderArray(inputCube, IPosition(3,0,2,1));
   Cube<T> selectedCube;
   for (uInt islice=0; islice < chanSlices.size(); ++islice) {
-	Slicer chanSlicer = Slicer(Slice(), Slice(), chanSlices(islice));
+    Slicer chanSlicer = Slicer(Slice(), Slice(), chanSlices(islice));
     Cube<T> concatCube = concatenateArray(selectedCube, reorderedCube(chanSlicer));
     selectedCube.resize();
     selectedCube = concatCube;
