@@ -365,7 +365,7 @@ class test_averaging(plotms_test_base):
         res = plotms(vis=self.ms, plotfile=self.plotfile_jpg, highres=True,
                      showgui=False, avgchannel='7')
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 180000, 220000)  
+        self.checkPlotfile(self.plotfile_jpg, 170000, 220000)  
         print
 
     def test_averaging_baseline(self):
@@ -1487,7 +1487,7 @@ class test_iteration(plotms_test_base):
         self.assertEqual(fileCount, 2)
         self.checkPlotfile(plotfile1_jpg, 250000)
         self.removePlotfile(plotfile1_jpg)
-        self.checkPlotfile(plotfile2_jpg, 250000)
+        self.checkPlotfile(plotfile2_jpg, 240000)
         self.removePlotfile(plotfile2_jpg)
         print
 
