@@ -165,11 +165,17 @@ public:
    //get the phaseCenter for a given time   ..cached so that it does not need to do small read every time of access
    // time -ve means   use the first time in the vb
     casacore::MDirection getPhaseCenter(const vi::VisBuffer2& vb, const casacore::Double time=-1.0);
+    ///Get the ephemeris direction of a source fieldid of vb at time given 
+    //or the first time in the visBuffer 
+    static casacore::MDirection getEphemDir(const vi::VisBuffer2& vb, const casacore::Double time=-1.0);
  private:
   void swapyz(casacore::Cube<casacore::Bool>& out, const casacore::Cube<casacore::Bool>& in);
   void swapyz(casacore::Cube<casacore::Complex>& out, const casacore::Cube<casacore::Complex>& in);
   void rejectConsecutive(const casacore::Vector<casacore::Double>& t, casacore::Vector<casacore::Double>& retval);
   void rejectConsecutive(const casacore::Vector<casacore::Double>& t, casacore::Vector<casacore::Double>& retval, casacore::Vector<casacore::Int>& indx);
+  //A quicker pointing index finder
+  //void pointingIndex(const casacore::MSPointing& pcols, const casacore::Int antenna, const casacore::Int ntimes,  casacore::Double*& ptime, casacore::Vector<casacore::Int>& indices,casacore::Vector<casacore::MDirection>& direction );
+  void pointingIndex( casacore::Double*& timecol, casacore::Int*& antcol, casacore::Double*& intervalcol, const casacore::Int nrow, const casacore::Int antenna, const casacore::Int ntimes,  casacore::Double*& ptime, casacore::Vector<casacore::Int>& indices );
   // A casacore::MeasFrame for conversions
   casacore::MeasFrame mframe_;
   casacore::Int oldMSId_p;
