@@ -489,18 +489,6 @@ namespace asdm {
       if (file_exists(xsltPath))
 	return xsltPath;
 #endif
-      xsltPath+="data/alma/asdm/";
-      xsltPath+=xsltFilename;
-      if (getenv("ASDM_DEBUG"))
-	cout << "pathToxslTransform tries to locate '" << xsltPath << "'." << endl;
-
-#ifndef WITHOUT_BOOST
-      if (boost::filesystem::exists(boost::filesystem::path(xsltPath)))
-	return xsltPath;
-#else
-      if (file_exists(xsltPath))
-	return xsltPath;
-#endif
     }
 
     if (getenv("ASDM_DEBUG"))
