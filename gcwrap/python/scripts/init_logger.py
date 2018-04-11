@@ -34,22 +34,15 @@ def casalogger(logfile=''):
         print 'Unrecognized OS: No logger available'
 
 
-thelogfile = ''
-
-if casa['files'].has_key('logfile') :
-    thelogfile = casa['files']['logfile']
-if casa['flags'].nologfile:
-    thelogfile = 'null'
-
 deploylogger = True
 
-if not os.access('.', os.W_OK) :
-    print
-    print "********************************************************************************"
-    print "Warning: no write permission in current directory, no log files will be written."
-    print "********************************************************************************"
+if not os.access('.', os.W_OK):
+    if casa['files']['logfile'] != '/dev/null':
+        print
+        print "********************************************************************************"
+        print "Warning: no write permission in current directory, no log files will be written."
+        print "********************************************************************************"
     deploylogger = False
-    thelogfile = 'null'
 
 if casa['flags'].nologger :
     deploylogger = False
@@ -61,21 +54,8 @@ if casa['flags'].nogui :
 if MPIEnvironment.is_mpi_enabled and not MPIEnvironment.is_mpi_client:
     deploylogger = False
 
-if thelogfile == 'null':
-    pass
-else:
-    if thelogfile.strip() != '' :
-        if deploylogger:
-            casalogger(thelogfile)
-    else:
-        thelogfile = 'casapy-'+time.strftime("%Y%m%d-%H%M%S", time.gmtime())+'.log'
-        try:
-            open(thelogfile, 'a').close()
-        except:
-            pass
-        if deploylogger:
-            casalogger(thelogfile)
-
+if deploylogger and casa['files']['logfile'] != '/dev/null':
+    casalogger(casa['files']['logfile'])
 
 casalog = casac.logsink(casa['files']['logfile'])
 
