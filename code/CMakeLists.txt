@@ -1058,7 +1058,6 @@ casa_find( CASACORE
            DEFINITIONS "-DUseCasacoreNamespace"
            INCLUDES casa/aips.h
                     casa/version.h
-                    scimath/Mathematics/MatrixMathLA.h  # declares symbols defined in LAPACK
            INCLUDES_SUFFIXES casacore
            LIBS ${casacore_libs}
            PREFIX_HINTS ${casacore_prefix}
@@ -1288,7 +1287,7 @@ set( QT4_FOUND TRUE CACHE BOOL "Was QT4 found?" )
 casa_find( QWT
   VERSION 5.1.1
   INCLUDES qwt_global.h
-  INCLUDES_SUFFIXES qwt qwt-qt4 qwt5
+  INCLUDES_SUFFIXES qwt qt4/qwt qwt-qt4 qwt5
   PREFIX_HINTS
     ${QWT_ROOT_DIR}
     ${casa_packages}/qwt-5.2.0
@@ -1409,6 +1408,7 @@ else()
   endif()
 endif()
 casa_add_module( atmosphere )
+casa_add_module( casatools CASACORE )
 casa_add_module( stdcasa CASACORE Boost )
 casa_add_module( parallel CASACORE Boost )
 casa_add_module( casadbus CASACORE DBUS Boost)

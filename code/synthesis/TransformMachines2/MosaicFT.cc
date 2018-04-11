@@ -285,9 +285,8 @@ void MosaicFT::findConvFunction(const ImageInterface<Complex>& iimage,
       convSampling=10;
     AipsrcValue<Int>::find (convSampling, "mosaic.oversampling", 10);
   }
-  
   pbConvFunc_p->findConvFunction(iimage, vb, convSampling, interpVisFreq_p, convFunc, weightConvFunc_p, convSizePlanes_p, convSupportPlanes_p,
-		  convPolMap_p, convChanMap_p, convRowMap_p, (useConjConvFunc_p && !toVis_p));
+				 convPolMap_p, convChanMap_p, convRowMap_p, (useConjConvFunc_p && !toVis_p), MVDirection(-(movingDirShift_p.getAngle())), fixMovingSource_p);
 
   // cerr << "MAX of convFunc " << max(abs(convFunc)) << endl;
   //For now only use one size and support
@@ -982,11 +981,7 @@ void MosaicFT::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
   Matrix<Float> elWeight;
   interpolateFrequencyTogrid(vb, *imagingweight,data, flags, elWeight, type);
   
-  // This needs to be after the interp to get the interpolated channels
-  findConvFunction(*image, vb);
-  //nothing to grid here as the pointing resulted in a zero support convfunc
-  if(convSupport <= 0)
-    return;
+ 
 
   Bool iswgtCopy;
   const Float *wgtStorage;
@@ -1016,10 +1011,7 @@ void MosaicFT::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
   }
   
   // Get the uvws in a form that Fortran can use and do that
-  // necessary phase rotation. On a Pentium Pro 200 MHz
-  // when null, this step takes about 50us per uvw point. This
-  // is just barely noticeable for Stokes I continuum and
-  // irrelevant for other cases.
+  // necessary phase rotation. 
   Matrix<Double> uvw(negateUV(vb));
   Vector<Double> dphase(vb.nRows());
   dphase=0.0;
@@ -1027,7 +1019,13 @@ void MosaicFT::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
   doUVWRotation_p=true;
   girarUVW(uvw, dphase, vb);
   refocus(uvw, vb.antenna1(), vb.antenna2(), dphase, vb);
-
+  // This needs to be after the interp to get the interpolated channels
+  //Also has to be after rotateuvw in case tracking is on
+  findConvFunction(*image, vb);
+  //nothing to grid here as the pointing resulted in a zero support convfunc
+  if(convSupport <= 0)
+    return;
+  
   // Get the pointing positions. This can easily consume a lot 
   // of time thus we are for now assuming a field per 
   // vb chunk...need to change that accordingly if we start using
@@ -1363,7 +1361,7 @@ void MosaicFT::get(vi::VisBuffer2& vb, Int row)
   Complex *datStorage;
   Bool isCopy;
   datStorage=data.getStorage(isCopy);
-
+  
 
   Vector<Int> rowFlags(vb.nRows());
   rowFlags=0;

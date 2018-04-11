@@ -115,7 +115,7 @@ String Plotter::formattedDateString(const String& format, double value,
                     if(t.hours() < 10) ss << '0';
                     ss << t.hours();
                 } else {
-                    if(hours < 10) ss << '0';
+                    if (hours < 10) ss << '0';
                     ss << hours;
                 }
                 break;

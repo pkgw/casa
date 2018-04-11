@@ -318,6 +318,7 @@ public:
     void addCubeColumn (casacore::MSMainEnums::PredefinedColumns columnId,
                         const casacore::String & dataStorageMangerName);
 
+    void removeColumn (casacore::MSMainEnums::PredefinedColumns columnId);
 
     void addFeeds (casacore::Int nFeeds);
     void addField (const casacore::String & name,
@@ -372,8 +373,6 @@ protected:
     void fillFlagCategories (const FillState & fillState);
 
 private:
-
-    typedef std::set<casacore::MSMainEnums::PredefinedColumns> ColumnIds;
 
     class Columns {
 
@@ -493,13 +492,12 @@ private:
 
     casacore::Bool addWeightSpectrum_p;
     Columns columns_p;
-    ColumnIds columnIds_p;
     Generators generators_p;
     casacore::Bool includeAutocorrelations_p;
     casacore::MeasurementSet * ms_p;
     casacore::Int nAntennas_p;
     casacore::Int nRows_p;
-    casacore::NewMSSimulator * simulator_p;
+    std::unique_ptr<casacore::NewMSSimulator> simulator_p;
     casacore::Double timeEnd_p;
     casacore::Double timeInterval_p;
     casacore::Double timeStart_p;

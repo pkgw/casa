@@ -115,6 +115,10 @@ protected:
         casacore::Bool overwrite
     );
 
+    casacore::Bool _checkQUBeams(
+        casacore::Bool requireChannelEquality, casacore::Bool throws=casacore::True
+    ) const;
+
     // Change the casacore::Stokes casacore::Coordinate for the given
     // complex image to be of the specified casacore::Stokes type
     void _fiddleStokesCoordinate(
@@ -138,6 +142,8 @@ protected:
         casacore::Bool debias, casacore::Float clip, casacore::Float sigma,
         casacore::Bool doLin, casacore::Bool doCirc
     );
+
+    void _maskAndZeroNaNs(SPIIF out);
 
     void _setDoLinDoCirc(
         casacore::Bool& doLin, casacore::Bool& doCirc,
@@ -172,10 +178,6 @@ private:
     ) const;
 
     casacore::Bool _checkIVBeams(
-        casacore::Bool requireChannelEquality, casacore::Bool throws=casacore::True
-    ) const;
-
-    casacore::Bool _checkQUBeams(
         casacore::Bool requireChannelEquality, casacore::Bool throws=casacore::True
     ) const;
 

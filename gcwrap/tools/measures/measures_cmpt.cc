@@ -12,7 +12,7 @@
  ***/
 
 #include <iostream>
-
+#include <casa/OS/Path.h>
 #include <casa/Exceptions/Error.h>
 #include <casa/Logging/LogIO.h>
 #include <casa/Quanta/QuantumHolder.h>
@@ -1937,7 +1937,14 @@ measures::doframe(const String &in) {
     if (in.empty()) {
       pcomet_p = new MeasComet;
     } else {
-      pcomet_p = new MeasComet(in);
+      if(Table::isReadable(in, False)){
+	Table laTable(in);
+	Path leSentier(in);
+	pcomet_p=new MeasComet(laTable, leSentier.absoluteName());
+      }
+      else{
+	pcomet_p = new MeasComet(in);
+      }
     };
     if (!pcomet_p->ok()) {
       delete pcomet_p; pcomet_p = 0;

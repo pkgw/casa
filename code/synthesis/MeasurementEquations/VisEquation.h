@@ -127,7 +127,15 @@ public:
   casacore::Vector<VisCal::Type> listTypes() const;
   
   // Report if spw has solutions available from all applied tables
+  //  To be deprecated in favor of VBOKforCalApply
   casacore::Bool spwOK(const casacore::Int& spw);
+
+  // Report if VB can be calibrated by all supplied
+  //  calibration.   If not, we can't ask it to!
+  // Modern replacement for spwOK(spw) which is sensitive
+  //  to obs, fld, and intent, and which supports
+  //  per-caltable agnosticism (see SVC::VBOKforCalApply)
+  casacore::Bool VBOKforCalApply(vi::VisBuffer2& vb);
 
   // Correct in place the OBSERVED visibilities in a VisBuffer
   //  with the apply-able VisCals

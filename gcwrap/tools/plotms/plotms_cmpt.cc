@@ -597,7 +597,7 @@ void plotms::setPlotYAxis(const string& yAxis, const string& yDataColumn,
 
 
 void plotms::setPlotAxes(const string& xAxis, const string& yAxis,
-        const string& xDataColumn, const string& yDataColumn, const string& yAxisLocation,
+        const string& xDataColumn, const string& yDataColumn, const string& yAxisLocation, 
         const bool updateImmediately, const int plotIndex, const int dataIndex) {
     launchApp();
     string xdc = xDataColumn, ydc = yDataColumn;
@@ -633,6 +633,39 @@ void plotms::setPlotAxes(const string& xAxis, const string& yAxis,
             PlotMSDBusApp::METHOD_SETPLOTPARAMS, params, /*true*/asyncCall);
 }
 
+void plotms::setShowAtm(const bool showatm, const bool updateImmediately, const int plotIndex) 
+{
+    launchApp();
+    Record params;
+    params.define(PlotMSDBusApp::PARAM_SHOWATM, showatm);
+    params.define(PlotMSDBusApp::PARAM_UPDATEIMMEDIATELY, updateImmediately);
+    params.define(PlotMSDBusApp::PARAM_PLOTINDEX, plotIndex);
+    QtDBusXmlApp::dbusXmlCallNoRet(dbus::FROM_NAME, app.dbusName( ),
+         PlotMSDBusApp::METHOD_SETPLOTPARAMS, params, /*true*/asyncCall);
+}
+
+bool plotms::getShowAtm(const int plotIndex) 
+{
+    launchApp();
+    GETSINGLEPLOTBOOL(SHOWATM) 
+}
+
+void plotms::setShowTsky(const bool showtsky, const bool updateImmediately, const int plotIndex) 
+{
+    launchApp();
+    Record params;
+    params.define(PlotMSDBusApp::PARAM_SHOWTSKY, showtsky);
+    params.define(PlotMSDBusApp::PARAM_UPDATEIMMEDIATELY, updateImmediately);
+    params.define(PlotMSDBusApp::PARAM_PLOTINDEX, plotIndex);
+    QtDBusXmlApp::dbusXmlCallNoRet(dbus::FROM_NAME, app.dbusName( ),
+         PlotMSDBusApp::METHOD_SETPLOTPARAMS, params, /*true*/asyncCall);
+}
+
+bool plotms::getShowTsky(const int plotIndex) 
+{
+    launchApp();
+    GETSINGLEPLOTBOOL(SHOWTSKY) 
+}
 
 string plotms::getPlotXAxis(const int plotIndex) 
 {
@@ -783,6 +816,7 @@ void plotms::setShowGui( bool showGui ){
 		callAsync(PlotMSDBusApp::METHOD_HIDE);
 	}
 }
+
 
 void plotms::clearPlots(){
 	launchApp();
