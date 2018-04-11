@@ -413,11 +413,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}// if non zero model
     }
   
-  void SIMapperCollection::addPB(vi::VisBuffer2& vb, PBMath& pbMath)
+  void SIMapperCollection::addPB(vi::VisBuffer2& vb, PBMath& pbMath, const MDirection& altDir, const Bool useAltDir)
   {
     for (uInt k=0; k < itsMappers.nelements(); ++k)
       {
-	(itsMappers[k])->addPB(vb,pbMath);
+	(itsMappers[k])->addPB(vb,pbMath, altDir, useAltDir);
 	
       }
   }
