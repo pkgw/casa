@@ -1388,7 +1388,7 @@ bool image::_detached() const {
     if ( ! _imageF && ! _imageC) {
         _log <<  _ORIGIN;
         _log << LogIO::SEVERE
-            << "Image is _detached - cannot perform operation." << endl
+            << "Image is detached - cannot perform operation." << endl
             << "Call image.open('filename') to reattach." << LogIO::POST;
         return true;
     }
