@@ -245,11 +245,11 @@ class PyParallelImagerHelper():
         namelist = shutil.fnmatch.filter( os.listdir(self.getworkdir(imagename, node)), "*" )
         #print "Deleting : ", namelist, ' from ', dirname, ' starting with ', imname
         for aname in namelist:
-              shutil.rmtree( self.getworkdir(imagename, node) + "/" + aname )
+              shutil.rmtree( os.path.join(self.getworkdir(imagename, node), aname) )
 #############################################
     def getworkdir(self, imagename, nodeid):
         workdir = ''
-        workdir = self.getpath(nodeid) + '/' + imagename+'.workdirectory'
+        workdir = os.path.join(self.getpath(nodeid), imagename + '.workdirectory')
 
         if( not os.path.exists(workdir) ):
             os.mkdir( workdir )
@@ -258,7 +258,15 @@ class PyParallelImagerHelper():
                                     
 #############################################
     def getpartimagename(self, imagename, nodeid):
-        return self.getworkdir(imagename,nodeid) + '/' + imagename + '.n'+str(nodeid)
+        """
+        If imagename = 'imaging_subdir/foo_img', it produces something like:
+        imaging_subdir/foo_img.workdirectory/calibrated_final_cont.n5.gridwt
+        """
+        # don't include subdirs again here - the workdir is already inside the subdir(s)
+        image_basename = os.path.basename(imagename)
+        return os.path.join(self.getworkdir(imagename,nodeid), image_basename + '.n' +
+                            str(nodeid))
+
 
 #############################################
 
